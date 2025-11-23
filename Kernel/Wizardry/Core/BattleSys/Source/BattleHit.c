@@ -683,6 +683,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 
 		if (gBattleTarget.unit.curHP == 0) {
 			gBattleActorGlobalFlag.enemy_defeated = true;
+		    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
 
 #ifdef CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT
 			struct Unit* enemyUnit = GetUnit(gBattleActor.unit.index);
@@ -773,16 +774,27 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 #endif
 #endif
 
-
 #ifdef CONFIG_MP_SYSTEM
-			struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
-
 			if (bwl != NULL)
 			{
 				bwl->currentMP += gMpSystemPInfoConfigList[UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index))].killGeneration;
 				if (bwl->currentMP > GetUnitMaxMP(GetUnit(attacker->unit.index)))
 					bwl->currentMP = GetUnitMaxMP(GetUnit(attacker->unit.index));
 			}	
+#endif
+
+#ifdef CONFIG_SKILL_POINTS_ENGAGE
+            if (bwl != NULL)
+            {
+                int spBoost = 0;
+
+                if (UNIT_CATTRIBUTES(&defender->unit) & CA_BOSS)
+                    spBoost += gSkillPointsSystemPInfoConfigList[0].boostedRate;    
+                else
+                    spBoost += gSkillPointsSystemPInfoConfigList[0].standardRate;
+
+                bwl->skillPoints = bwl->skillPoints + spBoost > 255 ? 255 : bwl->skillPoints + spBoost;
+            }
 #endif
 
 			gBattleHitIterator->info |= BATTLE_HIT_INFO_KILLS_TARGET;

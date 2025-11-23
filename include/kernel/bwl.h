@@ -21,14 +21,13 @@ struct NewBwl {
 #endif
 
 #ifdef CONFIG_LAGUZ_BARS
-    u8 laguzBar : 5;
-	u16 _pad_: 11;
-#else
-    u8 _pad_[2]; // Padding bytes to use for whatever you want
+    u8 laguzBar;
 #endif
 
+#ifdef CONFIG_SKILL_POINTS_ENGAGE
+    u8 skillPoints;
+#endif
 
-	//STRUCT_PAD(0x0C, 0x10);
 } BITPACKED;
 
 bool CheckHasBwl(u8 pid);

@@ -4,6 +4,7 @@
 #include "combat-art.h"
 #include "icon-rework.h"
 #include "constants/texts.h"
+#include "bwl.h"
 
 void DrawSkillPage_MokhaPlanB(void)
 {
@@ -54,11 +55,28 @@ void DrawSkillPage_MokhaPlanB(void)
 		}
 	}
 
+	/* Skill Points*/
+#ifdef CONFIG_SKILL_POINTS_ENGAGE
+	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
+		struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(gStatScreen.unit));
+
+		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM2];
+		ClearText(text);
+		PutDrawText(
+			text,
+			gUiTmScratchA + TILEMAP_INDEX(9, 9),
+			TEXT_COLOR_SYSTEM_GOLD, 0, 0,
+			GetStringFromIndex(MSG_STAT_SCREEN_SKILL_POINTS));
+
+		PutNumberOrBlank(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
+	}
+#endif
+
 	/* Arts */
 	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
 		struct CombatArtList *clist = AutoGetCombatArtList(gStatScreen.unit);
 
-		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM2];
+		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
 		ClearText(text);
 		PutDrawText(
 			text,
@@ -67,7 +85,7 @@ void DrawSkillPage_MokhaPlanB(void)
 			GetStringFromIndex(MSG_MSS_ARTS));
 
 		if (clist->amt == 0) {
-			text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
+			text = &gStatScreen.text[STATSCREEN_TEXT_ITEM4];
 			ClearText(text);
 			PutDrawText(
 				text,

@@ -81,3 +81,6 @@ white magic spells.[X]
 ## MSG_STAT_SCREEN_BLACK_MAGIC_DESC
 A list of the unit's[N]
 black magic spells.[X]
+
+## MSG_STAT_SCREEN_SKILL_POINTS
+SP: [X]

@@ -21,6 +21,14 @@ struct MpSystemPInfoConfig
 
 extern const struct MpSystemPInfoConfig gMpSystemPInfoConfigList[];
 
+struct SkillPointsSystemPInfoConfig 
+{ 
+    u8 standardRate;
+    u8 boostedRate; 
+};
+
+extern const struct SkillPointsSystemPInfoConfig gSkillPointsSystemPInfoConfigList[];
+
 /* CONFIG_BIORHYTHM */
 
 
