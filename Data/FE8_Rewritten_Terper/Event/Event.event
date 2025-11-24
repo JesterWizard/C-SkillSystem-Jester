@@ -4,52 +4,51 @@
 
 {
     EventPointerTable(0x7, Chapter00Event)
-    #include "Source/Chapter_00/Chapter_00.lyn.event"
-    #include "Source/Chapter_00/Map/Chapter_00_Map.event"
+    #include "Source/00/00.lyn.event"
+    #include "Source/00/Map/00_Map.event"
     EventPointerTable(0xA, Chapter01Event)
-    #include "Source/Chapter_01/Chapter_01.lyn.event"
-    #include "Source/Chapter_01/Map/Chapter_01_Map.event"
+    #include "Source/01/01.lyn.event"
+    #include "Source/01/Map/01_Map.event"
     EventPointerTable(0xC5, IntermissionEvent)
     #include "Source/Intermission/Intermission.lyn.event"
     EventPointerTable(0xD, Chapter02Event)
-    #include "Source/Chapter_02/Chapter_02.lyn.event"
-    #include "Source/Chapter_02/Map/Chapter_02_map.event"
+    #include "Source/02/02.lyn.event"
+    #include "Source/02/Map/02_map.event"
     EventPointerTable(0x14, Chapter03Event)
-    #include "Source/Chapter_03/Chapter_03.lyn.event"
-    #include "Source/Chapter_03/Map/Chapter_03_map.event"
+    #include "Source/03/03.lyn.event"
+    #include "Source/03/Map/03_map.event"
     EventPointerTable(0x17, Chapter04Event)
-    #include "Source/Chapter_04/Chapter_04.lyn.event"
-    #include "Source/Chapter_04/Map/Chapter_04_map.event"
+    #include "Source/04/04.lyn.event"
+    #include "Source/04/Map/04_map.event"
     EventPointerTable(0x21, Chapter05Event)
-    #include "Source/Chapter_05/Chapter_05.lyn.event"
-    #include "Source/Chapter_05/Map/Chapter_05_map.event"
+    #include "Source/05/05.lyn.event"
+    #include "Source/05/Map/05_map.event"
     EventPointerTable(0x1E, Chapter05xEvent)
-    #include "Source/Chapter_05x/Chapter_05x.lyn.event"
-    #include "Source/Chapter_05x/Map/Chapter_05x_map.event"
+    #include "Source/05x/05x.lyn.event"
+    #include "Source/05x/Map/05x_map.event"
     EventPointerTable(0x24, Chapter06Event)
-    #include "Source/Chapter_06/Chapter_06.lyn.event"
-    #include "Source/Chapter_06/Map/Chapter_06_map.event"
+    #include "Source/06/06.lyn.event"
+    #include "Source/06/Map/06_map.event"
     EventPointerTable(0x27, Chapter07Event)
-    #include "Source/Chapter_07/Chapter_07.lyn.event"
-    #include "Source/Chapter_07/Map/Chapter_07_map.event"
+    #include "Source/07/07.lyn.event"
+    #include "Source/07/Map/07_map.event"
     EventPointerTable(0x2A, Chapter08Event)
-    #include "Source/Chapter_08/Chapter_08.lyn.event"
-    #include "Source/Chapter_08/Map/Chapter_08_map.event"
+    #include "Source/08/08.lyn.event"
+    #include "Source/08/Map/08_map.event"
     EventPointerTable(0x2D, Chapter09Event)
-    #include "Source/Chapter_09/Chapter_09.lyn.event"
-    #include "Source/Chapter_09/Map/Chapter_09_map.event"
-
+    #include "Source/09/09.lyn.event"
+    #include "Source/09/Map/09_map.event"
     EventPointerTable(0xCB, BaseChapter05Event)
-    #include "Source/BaseChapters/Chapter_05/Chapter_05.lyn.event"
-    #include "Source/BaseChapters/Chapter_05/Map/Chapter_05_map.event"
+    #include "Source/Districts/Serafew/Serafew.lyn.event"
+    #include "Source/Districts/Serafew/Map/Serafew_map.event"
 
     // EventPointerTable(0x33, Chapter10Event)
-    // #include "Source/Chapter_10/Chapter_10.lyn.event"
-    // #include "Source/Chapter_10/Map/Chapter_10_map.event"
+    // #include "Source/10/10.lyn.event"
+    // #include "Source/10/Map/10_map.event"
 
     // EventPointerTable(0x4B, Chapter09Event)
-    // #include "Source//Chapter_16.lyn.event"
-    #include "Source/Ruled_By_Madness/Map/Chapter_16_Map.event"
+    // #include "Source//16.lyn.event"
+    #include "Source/16/Map/16_map.event"
 }
 
     #include "Source/World_Map_Events.lyn.event"

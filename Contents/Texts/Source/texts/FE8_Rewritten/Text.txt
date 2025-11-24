@@ -1,54 +1,54 @@
 #include "ChapterTitles.txt"
 
-#include "Chapter_00_The_Fall_Of_Renais/Pre_Chapter.txt"
-#include "Chapter_00_The_Fall_Of_Renais/In_Chapter.txt"
-#include "Chapter_00_The_Fall_Of_Renais/Post_Chapter.txt"
+#include "00/Pre_Chapter.txt"
+#include "00/In_Chapter.txt"
+#include "00/Post_Chapter.txt"
 
-#include "Chapter_01_Escape/Pre_Chapter.txt"
-#include "Chapter_01_Escape/In_Chapter.txt"
-#include "Chapter_01_Escape/Post_Chapter.txt"
-
-#include "Chapter_02_The_Protected/Pre_Chapter.txt"
-#include "Chapter_02_The_Protected/In_Chapter.txt"
-#include "Chapter_02_The_Protected/Post_Chapter.txt"
-
-#include "Chapter_03_The_Bandits_Of_Borgo/Pre_Chapter.txt"
-#include "Chapter_03_The_Bandits_Of_Borgo/In_Chapter.txt"
-#include "Chapter_03_The_Bandits_Of_Borgo/Post_Chapter.txt"
-
-#include "Chapter_04_Ancient_Horrors/Pre_Chapter.txt"
-#include "Chapter_04_Ancient_Horrors/In_Chapter.txt"
-#include "Chapter_04_Ancient_Horrors/Post_Chapter.txt"
-
-#include "Chapter_05_The_Empire's_Reach/Pre_Chapter.txt"
-#include "Chapter_05_The_Empire's_Reach/In_Chapter.txt"
-#include "Chapter_05_The_Empire's_Reach/Post_Chapter.txt"
-
-#include "Chapter_05x_Unbroken_Heart/Pre_Chapter.txt"
-#include "Chapter_05x_Unbroken_Heart/In_Chapter.txt"
-#include "Chapter_05x_Unbroken_Heart/Post_Chapter.txt"
-
-#include "Chapter_06_Victims_Of_War/Pre_Chapter.txt"
-#include "Chapter_06_Victims_Of_War/In_Chapter.txt"
-#include "Chapter_06_Victims_Of_War/Post_Chapter.txt"
-
-#include "Chapter_07_Waterside_Renvall/Pre_Chapter.txt"
-#include "Chapter_07_Waterside_Renvall/In_Chapter.txt"
-#include "Chapter_07_Waterside_Renvall/Post_Chapter.txt"
-
-#include "Chapter_08_Broken_Vows/Pre_Chapter.txt"
-#include "Chapter_08_Broken_Vows/In_Chapter.txt"
-#include "Chapter_08_Broken_Vows/Post_Chapter.txt"
+#include "01/Pre_Chapter.txt"
+#include "01/In_Chapter.txt"
+#include "01/Post_Chapter.txt"
 
 #include "Intermission/In_Chapter.txt"
 
-#include "Chapter_09_Renewed_Journey/Pre_Chapter.txt"
-#include "Chapter_09_Renewed_Journey/In_Chapter.txt"
-#include "Chapter_09_Renewed_Journey/Post_Chapter.txt"
+#include "02/Pre_Chapter.txt"
+#include "02/In_Chapter.txt"
+#include "02/Post_Chapter.txt"
 
-#include "Chapter_10_Revolt_At_Carcino/Pre_Chapter.txt"
-#include "Chapter_10_Revolt_At_Carcino/In_Chapter.txt"
-#include "Chapter_10_Revolt_At_Carcino/Post_Chapter.txt"
+#include "03/Pre_Chapter.txt"
+#include "03/In_Chapter.txt"
+#include "03/Post_Chapter.txt"
+
+#include "04/Pre_Chapter.txt"
+#include "04/In_Chapter.txt"
+#include "04/Post_Chapter.txt"
+
+#include "05/Pre_Chapter.txt"
+#include "05/In_Chapter.txt"
+#include "05/Post_Chapter.txt"
+
+#include "05x/Pre_Chapter.txt"
+#include "05x/In_Chapter.txt"
+#include "05x/Post_Chapter.txt"
+
+#include "06/Pre_Chapter.txt"
+#include "06/In_Chapter.txt"
+#include "06/Post_Chapter.txt"
+
+#include "07/Pre_Chapter.txt"
+#include "07/In_Chapter.txt"
+#include "07/Post_Chapter.txt"
+
+#include "08/Pre_Chapter.txt"
+#include "08/In_Chapter.txt"
+#include "08/Post_Chapter.txt"
+
+#include "09/Pre_Chapter.txt"
+#include "09/In_Chapter.txt"
+#include "09/Post_Chapter.txt"
+
+#include "10/Pre_Chapter.txt"
+#include "10/In_Chapter.txt"
+#include "10/Post_Chapter.txt"
 
 #include "Supports/Joshua_Rennac.txt"
 #include "Supports/Ewan_Myrrh.txt"
