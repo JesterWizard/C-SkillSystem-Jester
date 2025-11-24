@@ -1,32 +1,32 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 
-const struct ROMChapterData Chapter03 = {
+const struct ROMChapterData Chapter09 = {
     .map = {
-       .obj1Id = 0xE,
+       .obj1Id = 0xE, // Object type
        .obj2Id= 0,
-       .paletteId = 0xF,
-       .tileConfigId = 3,
-       .mainLayerId = 0x11, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 0x12,
+       .paletteId = 0xF, // Palette (Plist)
+       .tileConfigId = 0x10, // Tile Config (Plist)
+       .mainLayerId = 0x2B, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 0x12, // Tile animation 1
        .paletteAnimId = 0,
-       .changeLayerId = 0x13,
+       .changeLayerId = 0x2C, // Tile changes
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x03, // Chapter 3 - The Bandits of Borgo
+    .chapTitleId = 0x0A, // Chapter 9 - Renewed Journey
     .chapTitleIdInHectorStory = 0,
-    .chapTitleTextId = MSG_CHAPTER_03_TITLE,
-    .initialPosX = 8,   // Starting position of the camera
-    .initialPosY = 5,
+    .chapTitleTextId = MSG_CHAPTER_09_TITLE,
+    .initialPosX = 20,   // Starting position of the camera
+    .initialPosY = 4,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
     .difficultModeLevelBonus = 0,
     .normalModeLevelMalus = 1,
     .mapBgmIds = {
-        [MAP_BGM_BLUE] = SONG_DISTANT_ROADS,
-        [MAP_BGM_RED] = SONG_SHADOW_OF_THE_ENEMY,
+        [MAP_BGM_BLUE] = SONG_RISE_ABOVE,
+        [MAP_BGM_RED] = SONG_ASSAULT,
         [MAP_BGM_GREEN] = SONG_BINDING_VOW,
         [MAP_BGM_BLUE_HECTOR] = 13,
         [MAP_BGM_RED_HECTOR] = 21,
@@ -38,13 +38,13 @@ const struct ROMChapterData Chapter03 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0x14,
-    .gmapEventId = 6,
+    .mapEventDataId = 0x2D, // Event ID (Plist)
+    .gmapEventId = 0xB,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = CC_SEIZE_THE_THRONE,
+    .statusObjectiveTextId = CC_DEFEAT_ALL_ENEMIES,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_SEIZE,
+    .goalWindowDataType = GOAL_TYPE_DEFEAT_ALL,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

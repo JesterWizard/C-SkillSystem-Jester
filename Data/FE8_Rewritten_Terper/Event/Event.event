@@ -38,7 +38,7 @@
     EventPointerTable(0x2D, Chapter09Event)
     #include "Source/09/09.lyn.event"
     #include "Source/09/Map/09_map.event"
-    EventPointerTable(0xCB, BaseChapter05Event)
+    EventPointerTable(0xCB, SerafewEvent)
     #include "Source/Districts/Serafew/Serafew.lyn.event"
     #include "Source/Districts/Serafew/Map/Serafew_map.event"
 

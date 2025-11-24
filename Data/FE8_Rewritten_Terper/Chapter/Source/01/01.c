@@ -1,33 +1,33 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 
-const struct ROMChapterData Chapter06 = {
+const struct ROMChapterData Chapter01 = {
     .map = {
-       .obj1Id = 0x1, // Obect type
+       .obj1Id = 1,
        .obj2Id= 0,
-       .paletteId = 0x2, // Palette (Plist)
-       .tileConfigId = 0x3, // Tile Conig (Plist)
-       .mainLayerId = 0x22, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 0x0, // Tile animation 1
+       .paletteId = 2,
+       .tileConfigId = 3,
+       .mainLayerId = 8, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 5,
        .paletteAnimId = 0,
-       .changeLayerId = 0x23, // Tile changes
+       .changeLayerId = 9,
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x07, // Chapter 6 - Victims Of War
+    .chapTitleId = 0x01, // Chapter 1 - Escape
     .chapTitleIdInHectorStory = 0,
-    .chapTitleTextId = MSG_CHAPTER_06_TITLE,
+    .chapTitleTextId = MSG_CHAPTER_01_TITLE,
     .initialPosX = 8,   // Starting position of the camera
-    .initialPosY = 8,
+    .initialPosY = 5,
     .initialWeather = WEATHER_FINE,
-    .battleTileSet = 6,
+    .battleTileSet = 0,
     .easyModeLevelMalus = 0,
     .difficultModeLevelBonus = 0,
     .normalModeLevelMalus = 1,
     .mapBgmIds = {
-        [MAP_BGM_BLUE] = SONG_SHADOWS_APPROACH,
-        [MAP_BGM_RED] = SONG_ENVOY_FROM_THE_DARK,
-        [MAP_BGM_GREEN] = SONG_SHADOWS_APPROACH,
+        [MAP_BGM_BLUE] = SONG_DISTANT_ROADS,
+        [MAP_BGM_RED] = SONG_SHADOW_OF_THE_ENEMY,
+        [MAP_BGM_GREEN] = SONG_BINDING_VOW,
         [MAP_BGM_BLUE_HECTOR] = 13,
         [MAP_BGM_RED_HECTOR] = 21,
         [MAP_BGM_GREEN_HECTOR] = 15,
@@ -38,13 +38,13 @@ const struct ROMChapterData Chapter06 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0x24, // Event ID (Plist)
-    .gmapEventId = 0xC, // Chapter Number
+    .mapEventDataId = 0xA,
+    .gmapEventId = 0x2,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = CC_DEFEAT_NOVALA,
+    .statusObjectiveTextId = 0x1A2,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_DEFEAT_BOSS,
+    .goalWindowDataType = GOAL_TYPE_SEIZE,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

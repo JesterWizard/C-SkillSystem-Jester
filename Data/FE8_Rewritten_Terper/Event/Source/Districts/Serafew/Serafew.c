@@ -5,7 +5,7 @@
 #include "Source/Events.h"
 #include "Source/Traps.h"
 
-const struct ChapterEventGroup BaseChapter05Event = {
+const struct ChapterEventGroup SerafewEvent = {
     .turnBasedEvents               = EventListScr_Turn,
     .characterBasedEvents          = EventListScr_Character,
     .locationBasedEvents           = EventListScr_Location,

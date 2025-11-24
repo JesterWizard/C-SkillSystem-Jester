@@ -6,8 +6,8 @@ const struct {
     u8 mapNodeId;
     u8 chapterId;
 } EnterTownNodes[] = {
-    {0x01, 0x3B},
-    {0x02, 0x3C},
+    {0x05, 0x3B},
+    {0x06, 0x3C},
 };
 
 /* JESTER - This originally had an int type so I made a new function which is void to make it compile */

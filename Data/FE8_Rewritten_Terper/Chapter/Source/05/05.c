@@ -1,24 +1,24 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 
-const struct ROMChapterData Chapter04 = {
+const struct ROMChapterData Chapter05 = {
     .map = {
-       .obj1Id = 0x1,
+       .obj1Id = 0xE,
        .obj2Id= 0,
-       .paletteId = 0x2,
-       .tileConfigId = 3,
-       .mainLayerId = 0x15, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 0x5,
+       .paletteId = 0xF,
+       .tileConfigId = 0x10,
+       .mainLayerId = 0x1F, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 0x12,
        .paletteAnimId = 0,
-       .changeLayerId = 0x16,
+       .changeLayerId = 0x20,
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x04, // Chapter 4 - Ancient Horrors
+    .chapTitleId = 0x06, // Chapter 5 - The Empire's Reach
     .chapTitleIdInHectorStory = 0,
-    .chapTitleTextId = MSG_CHAPTER_04_TITLE,
+    .chapTitleTextId = MSG_CHAPTER_05_TITLE,
     .initialPosX = 8,   // Starting position of the camera
-    .initialPosY = 5,
+    .initialPosY = 10,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
@@ -38,13 +38,13 @@ const struct ROMChapterData Chapter04 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0x17,
-    .gmapEventId = 8,
+    .mapEventDataId = 0x21,
+    .gmapEventId = 0x7,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = CC_DEFEAT_ALL_MONSTERS,
+    .statusObjectiveTextId = CC_DEFEAT_SAAR,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_DEFEAT_ALL,
+    .goalWindowDataType = GOAL_TYPE_DEFEAT_BOSS,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

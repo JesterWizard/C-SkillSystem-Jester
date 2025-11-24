@@ -1,31 +1,31 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 
-const struct ROMChapterData Chapter02 = {
+const struct ROMChapterData Chapter05x = {
     .map = {
-       .obj1Id = 1,
+       .obj1Id = 0x18,
        .obj2Id= 0,
-       .paletteId = 2,
-       .tileConfigId = 3,
-       .mainLayerId = 0xB, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 5,
+       .paletteId = 0x19,
+       .tileConfigId = 0x1A,
+       .mainLayerId = 0x1B, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 0x1C,
        .paletteAnimId = 0,
-       .changeLayerId = 0xC,
+       .changeLayerId = 0x1D,
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x02, // Chapter 2 - The Protected
+    .chapTitleId = 0x05, // Chapter 5x - Unbroken Heart
     .chapTitleIdInHectorStory = 0,
-    .chapTitleTextId = MSG_CHAPTER_02_TITLE,
-    .initialPosX = 8,   // Starting position of the camera
-    .initialPosY = 5,
+    .chapTitleTextId = MSG_CHAPTER_05X_TITLE,
+    .initialPosX = 1,   // Starting position of the camera
+    .initialPosY = 0,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
     .difficultModeLevelBonus = 0,
     .normalModeLevelMalus = 1,
     .mapBgmIds = {
-        [MAP_BGM_BLUE] = SONG_DISTANT_ROADS,
+        [MAP_BGM_BLUE] = SONG_FOLLOW_ME,
         [MAP_BGM_RED] = SONG_SHADOW_OF_THE_ENEMY,
         [MAP_BGM_GREEN] = SONG_BINDING_VOW,
         [MAP_BGM_BLUE_HECTOR] = 13,
@@ -38,13 +38,13 @@ const struct ROMChapterData Chapter02 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0xD,
-    .gmapEventId = 4,
+    .mapEventDataId = 0x1E,
+    .gmapEventId = 0x6,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = 0x1A5,
+    .statusObjectiveTextId = CC_SEIZE_THE_THRONE,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_DEFEAT_ALL,
+    .goalWindowDataType = GOAL_TYPE_SEIZE,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

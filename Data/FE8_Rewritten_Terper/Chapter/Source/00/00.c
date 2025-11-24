@@ -39,7 +39,7 @@ const struct ROMChapterData Chapter00 = {
     },
     .mapCrackedWallHeath = 50,
     .mapEventDataId = 7,
-    .gmapEventId = 1,
+    .gmapEventId = 0x1,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
     .statusObjectiveTextId = 0x1A2,

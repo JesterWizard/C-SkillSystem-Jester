@@ -1,42 +1,43 @@
 PUSH 
 {
-    // ORG 0x8B0890
-    // #include "Source/00/00.lyn.event"
+    ORG 0x8B0890
+    #include "Source/00/00.lyn.event"
 
-    // ORG 0x8B0924
-    // #include "Source/01/01.lyn.event"
+    ORG 0x8B0924
+    #include "Source/01/01.lyn.event"
 
-    // ORG 0x8B09B8
-    // #include "Source/02/02.lyn.event"
+    ORG 0x8B09B8
+    #include "Source/02/02.lyn.event"
 
-    // ORG 0x8B0A4C
-    // #include "Source/03/03.lyn.event"
+    ORG 0x8B0A4C
+    #include "Source/03/03.lyn.event"
 
-    // ORG 0x8B0AE0
-    // #include "Source/04/04.lyn.event"
+    ORG 0x8B0AE0
+    #include "Source/04/04.lyn.event"
 
-    // ORG 0x8B0C08
-    // #include "Source/05/05.lyn.event"
+    ORG 0x8B0C08
+    #include "Source/05/05.lyn.event"
 
-    // ORG 0x8B0B74
-    // #include "Source/05x/05x.lyn.event"
+    ORG 0x8B0B74
+    #include "Source/05x/05x.lyn.event"
 
-    // ORG 0x8B0C9C
-    // #include "Source/06/06.lyn.event"
+    ORG 0x8B0C9C
+    #include "Source/06/06.lyn.event"
 
-    // ORG 0x8B0D30
-    // #include "Source/07/07.lyn.event"
+    ORG 0x8B0D30
+    #include "Source/07/07.lyn.event"
 
-    // ORG 0x8B0DC4
-    // #include "Source/08/08.lyn.event"
+    ORG 0x8B0DC4
+    #include "Source/08/08.lyn.event"
 
-    // ORG 0x8B0E58
-    // #include "Source/09/09.lyn.event"
+    ORG 0x8B0E58
+    #include "Source/09/09.lyn.event"
 
+    /* Seems to cause a crash when I enable this, might be because of the map? */
     // ORG 0x8B28F0
     // #include "Source/Intermission/Intermission.lyn.event"
 
-    // ORG 0x8B2AAC
-    // #include "Source/Districts/Serafew.lyn.event"
+    ORG 0x8B2AAC
+    #include "Source/Districts/Serafew.lyn.event"
 }
 POP

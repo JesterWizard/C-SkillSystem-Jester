@@ -6,7 +6,6 @@ static const EventScr EventScr_Beginning[] = {
     // BEQ(0x1, EVT_SLOT_C, EVT_SLOT_0)
     // CALL(EventScr_NEW_JOURNEY)
     // GOTO(0x2)
-    // TEXT_BG_HIDE_MAP(BLACK_BACKGROUND, 0)
     STAL(15)
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_Chapter_5_Eirika)
@@ -99,8 +98,6 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
-    CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };
 

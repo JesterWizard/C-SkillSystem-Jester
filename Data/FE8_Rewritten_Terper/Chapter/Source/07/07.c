@@ -1,24 +1,24 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 
-const struct ROMChapterData Chapter08 = {
+const struct ROMChapterData Chapter07 = {
     .map = {
-       .obj1Id = 0x18, // Object type
+       .obj1Id = 0x1, // Object type
        .obj2Id= 0,
-       .paletteId = 0x19, // Palette (Plist)
-       .tileConfigId = 0x1A, // Tile Config (Plist)
-       .mainLayerId = 0x28, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 0x1C, // Tile animation 1
+       .paletteId = 0x2, // Palette (Plist)
+       .tileConfigId = 0x3, // Tile Config (Plist)
+       .mainLayerId = 0x25, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 0x5, // Tile animation 1
        .paletteAnimId = 0,
-       .changeLayerId = 0x29, // Tile changes
+       .changeLayerId = 0x26, // Tile changes
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x09, // Chapter 8 - Broken Vows
+    .chapTitleId = 0x08, // Chapter 7 - Waterside Renvall
     .chapTitleIdInHectorStory = 0,
-    .chapTitleTextId = MSG_CHAPTER_08_TITLE,
-    .initialPosX = 17,   // Starting position of the camera
-    .initialPosY = 17,
+    .chapTitleTextId = MSG_CHAPTER_07_TITLE,
+    .initialPosX = 8,   // Starting position of the camera
+    .initialPosY = 16,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
@@ -38,11 +38,11 @@ const struct ROMChapterData Chapter08 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0x2A, // Event ID (Plist)
-    .gmapEventId = 0x10, // Chapter Number
+    .mapEventDataId = 0x27, // Event ID (Plist)
+    .gmapEventId = 0x9,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = CC_SEIZE_THE_THRONE,
+    .statusObjectiveTextId = CC_SEIZE_THE_CASTLEGATE,
     .goalWindowTextId = 414,
     .goalWindowDataType = GOAL_TYPE_SEIZE,
     .goalWindowEndTurnNumber = 0,

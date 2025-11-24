@@ -10,11 +10,11 @@ const struct ROMChapterData Intermission = {
        .mainLayerId = 0xC3, // Map pointer. In blocks of 4 per chapter
        .objAnimId = 5,
        .paletteAnimId = 0,
-       .changeLayerId = 6
+       .changeLayerId = 0xC4
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x02, // Chapter 2 - The Protected
+    .chapTitleId = 0x38, // Castle Frelia
     .chapTitleIdInHectorStory = 0,
     .chapTitleTextId = MSG_INTERMISSION_TITLE,
     .initialPosX = 8,   // Starting position of the camera
