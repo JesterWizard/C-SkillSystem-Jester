@@ -476,8 +476,6 @@
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
-// #define CONFIG_BASE_CHAPTERS // Compiles but otherwise not operational. It comes with the valuable PLIST split but overwrites my custom chapters
-
 // #define CONFIG_LIGHTS_OUT_GAME
 
 // #define CONFIG_2RN_GROWTHS

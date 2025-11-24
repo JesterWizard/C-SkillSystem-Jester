@@ -1,6 +1,0 @@
-#define WLC_baseChapterAvailable(nodeID) "SVAL 1 nodeID; SVAL 2 0; ASMC WLC_baseChapterAvailabilityASMC|1"
-#define WLC_baseChapterUnavailable(nodeID) "SVAL 1 nodeID; SVAL 2 1; ASMC WLC_baseChapterAvailabilityASMC|1"
-#define WLC_baseChapterInvertAvailability(nodeID) "SVAL 1 nodeID; SVAL 2 2; ASMC WLC_baseChapterAvailabilityASMC|1"
-
-ALIGN 4; WLC_baseChapterAvailabilityASMC:
-#include "baseChapterAvailabilityASMC.lyn.event"

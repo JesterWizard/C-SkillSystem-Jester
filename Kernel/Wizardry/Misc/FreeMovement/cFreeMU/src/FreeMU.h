@@ -1,20 +1,18 @@
 #pragma once
 #include "gbafe.h"
 
+struct FMUProc {
+    PROC_HEADER;
+    u8 uTimer;
+    u16 Free;
+    s8 xCur, xTo;
+    s8 yCur, yTo;
+    struct Unit *FMUnit;
+};
 
 typedef struct FMUProc FMUProc;
 typedef bool (*ButtonFunc) (struct FMUProc*);
 
-struct FMUProc {
-	PROC_FIELDS;
-	/* 29 */	u8 uTimer;
-	/* 2A */	u16 Free;
-	/* 2C */	s8 xCur;
-	/* 2D */	s8 xTo;
-	/* 2E */	s8 yCur;
-	/* 2F */	s8 yTo;
-	/* 30 */	Unit* FMUnit;
-};
 
 struct FMUTrapDef{
 	u8 TrapID;
@@ -45,20 +43,20 @@ extern u8* const FreeMoveFlag;
 
 #define RunCharacterEvents ( (void(*)(u8,u8))(0x8083FB1) )
 #define CheckForCharacterEvents ( (u8(*)(u8,u8))(0x8083F69) )
-extern const ProcCode FreeMovementControlProc[];
-extern const MenuDefinition FreeMovementLMenu;
+extern const struct ProcCmd FreeMovementControlProc[];
+extern const struct MenuDef FreeMovementLMenu;
 extern bool RunMiscBasedEvents(u8,u8);
 
 
 /*------------- External --------------*/
-bool FMU_CanUnitBeOnPos(Unit*, s8, s8);
+bool FMU_CanUnitBeOnPos(struct Unit * unit, s8 x, s8 y);
 void EnableFreeMovementASMC(void);
 void DisableFreeMovementASMC(void);
 u8 GetFreeMovementState(void);
 void End6CInternal_FreeMU(FMUProc* proc);
 void ChangeControlledUnitASMC(struct FMUProc*);
-void NewPlayerPhaseEvaluationFunc(struct Proc*);
-void NewMakePhaseControllerFunc(struct Proc*);
+void NewPlayerPhaseEvaluationFunc(ProcPtr* ParentProc);
+void NewMakePhaseControllerFunc(ProcPtr* ParentProc);
 void pFMU_OnInit(struct FMUProc*);
 void pFMU_InitTimer(struct FMUProc*);
 void pFMU_CorrectCameraPosition(struct FMUProc*);

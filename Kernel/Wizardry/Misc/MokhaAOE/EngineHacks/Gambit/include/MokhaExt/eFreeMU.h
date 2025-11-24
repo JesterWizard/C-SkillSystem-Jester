@@ -1,3 +1,4 @@
+#include "common-chax.h"
 #ifndef FREE_MOVEMENT_MOKHA
 #define FREE_MOVEMENT_MOKHA
 
@@ -13,7 +14,7 @@ struct FMUProc {
 	/* 2D */	s8 xTo;
 	/* 2E */	s8 yCur;
 	/* 2F */	s8 yTo;
-	/* 30 */	Unit* FMUnit;
+	/* 30 */	struct Unit* FMUnit;
 };
 
 struct FMUTrapDef{
@@ -45,13 +46,13 @@ extern u8* const FreeMoveFlag;
 
 #define RunCharacterEvents ( (void(*)(u8,u8))(0x8083FB1) )
 #define CheckForCharacterEvents ( (u8(*)(u8,u8))(0x8083F69) )
-extern const ProcCode FreeMovementControlProc[];
-extern const MenuDefinition FreeMovementLMenu;
+extern const struct ProcCode FreeMovementControlProc[];
+extern const struct MenuDefinition FreeMovementLMenu;
 extern bool RunMiscBasedEvents(u8,u8);
 
 
 /*------------- External --------------*/
-bool FMU_CanUnitBeOnPos(Unit*, s8, s8);
+bool FMU_CanUnitBeOnPos(struct Unit*, s8, s8);
 void EnableFreeMovementASMC(void);
 void DisableFreeMovementASMC(void);
 u8 GetFreeMovementState(void);

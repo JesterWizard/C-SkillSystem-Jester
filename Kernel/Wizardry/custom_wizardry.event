@@ -128,10 +128,6 @@
     #include "Misc/MokhaAOE/MokhaAOE_Installer.event"
 #endif
 
-#ifdef CONFIG_BASE_CHAPTERS
-    #include "Misc/BaseChapters/BaseChapters_Installer.event"
-#endif
-
 #ifdef CONFIG_LIGHTS_OUT_GAME
     #include "Misc/LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #endif

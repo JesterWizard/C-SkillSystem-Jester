@@ -2,6 +2,8 @@
 #define GBAFE_OTHER_H
 
 #include "common.h"
+#include "common-chax.h"
+#include "proc.h"
 
 enum {
 	MLV_MOVE_BLUE = 0x01,
@@ -16,12 +18,19 @@ enum {
 extern const short gSinLookup[]; //! FE8U = (0x080D751C)
 extern const short gCosLookup[]; //! FE8U = (0x080D759C)
 
-extern const ProcCode gProc_GoBackToUnitMenu[];
-extern const ProcCode gProc_PlayerPhase[];
-extern const ProcCode gProc_BG3HSlide[];
-extern const ProcCode gProc_MapEventEngine[];
-extern const ProcCode gProc_MoveLimitView[];
-extern const ProcCode gProc_BkSel[];
+struct ProcCmd
+{
+    short opcode;
+    short dataImm;
+    const void* dataPtr;
+};
+
+extern const ProcCmd gProcScr_GoBackToUnitMenu[];
+extern const ProcCmd gProcScr_PlayerPhase[];
+extern const ProcCmd gProcScr_BG3HSlide[];
+extern const ProcCmd gProcScr_MapEventEngine[];
+extern const ProcCmd gProcScr_MoveLimitView[];
+extern const ProcCmd gProcScr_BkSel[];
 
 extern const u16 gPal_MiscUIGraphics[];
 

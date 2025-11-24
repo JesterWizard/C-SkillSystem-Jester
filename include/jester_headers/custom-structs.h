@@ -31,6 +31,12 @@ typedef struct
 extern const UnitPromotions unit_promotions[];
 /* END - Page 7 - Unit promotions list */
 
+// 139-175 (0x8B-0xAF) : probably free
+// 176-178 (0xB0-0xB2) : free
+// 180-235 (0xB4-0xEB) : Used by Guide (see [FE8] "Help" Command & Permanent Event IDs)
+// 236-239 (0xEC-0xEF) : free
+// 240-295 (0xF0-0x127) : Used to mark guide entries as read
+
 /* Global flags use */
 enum {
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,

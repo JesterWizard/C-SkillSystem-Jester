@@ -2,6 +2,7 @@
 #define GBAFE_OTHER_H
 
 #include "common.h"
+#include "common-chax.h"
 
 enum
 {
@@ -23,6 +24,9 @@ enum
 
 extern const short gSinLookup[]; //! FE8U = (0x080D751C)
 extern const short gCosLookup[]; //! FE8U = (0x080D759C)
+
+typedef struct ProcInstruction ProcCode;
+typedef struct ProcInstruction ProcInstruction;
 
 extern const ProcCode gProc_GoBackToUnitMenu[];
 extern const ProcCode gProc_PlayerPhase[];
@@ -60,7 +64,7 @@ void WaitForFade(struct Proc* proc);
 
 unsigned GetPhaseAbleUnitCount(unsigned phase); //! FE8U = (0x08024CED+1)
 
-Proc* StartBottomHelpText(Proc*, const char*); //! FE8U = 0x8035709
+void * StartBottomHelpText(ProcPtr * parent, const char * string); //! FE8U = 0x8035709
 void EndBottomHelpText(void); //! FE8U = 0x8035749
 int IsBottomHelpTextActive(void); //! FE8U = 0x8035759
 

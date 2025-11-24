@@ -1,6 +1,0 @@
-#0xD4C LoremIpsum
-# first text ID in the free block
-Lorem Ipsum.[X]
-
-#include "menu/menu.event"
-#include "baseConvos/baseConvos.event"

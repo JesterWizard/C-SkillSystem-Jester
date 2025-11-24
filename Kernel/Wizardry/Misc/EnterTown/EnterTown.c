@@ -99,19 +99,17 @@ u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * m
 {
     SetFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP); // Set this to skip intro chapter GFX
 
-    // Matches: *(u8*)0x03005266 = 0x36
+    // Matches: *(u8*)0x03005266 = 0x36 not sure what it's for
     *(volatile u8*)0x03005266 = 0x36;
 
     // Map index we want to load from
     *(volatile u8*)0x03005268 = 0x3B;
 
-    // Find proc at script address 08A3D748
     void * p = Proc_Find(ProcScr_WorldMapMain);
 
     // Perform state jump to label 0x0E in that proc
     Proc_Goto(p, 0x0E);
 
-    // 0x17 = cursor skip + end menu + sound 6A + clear menu
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
