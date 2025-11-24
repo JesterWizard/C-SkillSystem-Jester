@@ -108,16 +108,6 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
 LYN_REPLACE_CHECK(CallChapterWMIntroEvents);
 void CallChapterWMIntroEvents(ProcPtr proc)
 {
-
-    // #ifdef CONFIG_ENTER_DISTRICT
-    //     if (ChapterID[0] == 3)
-    //     {
-    //         CallEvent((const u16*)EventScrWM_Ch4_TRAVEL_TO_NODE, 0);
-    //         StartWMFaceCtrl(proc);
-    //         StartGmapMuEntry(NULL);
-    //     }
-    // #endif
-
     if (Events_WM_ChapterIntro[GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId] != NULL)
     {
         /**
@@ -228,19 +218,6 @@ LYN_REPLACE_CHECK(WorldMap_CallIntroEvent);
 void WorldMap_CallIntroEvent(struct WorldMapMainProc* proc)
 {
     GmMu_80BE108(proc->gm_mu, 0, 0);
-
-#ifdef CONFIG_ENTER_DISTRICT
-    if (ChapterID[0] > 0)
-    {
-        gPlaySt.chapterIndex = ChapterID[0];
-        ChapterID[0] = 0;
-        gGMData.state.bits.monster_merged = false;
-        CallChapterWMIntroEvents(proc);
-        gGMData.sprite_disp = 0;
-        WmRemoveRandomMonsters();
-        return;
-    }
-#endif
 
     if (gGMData.units[0].location[gWMNodeData].placementFlag != GMAP_NODE_PLACEMENT_DUNGEON)
     {

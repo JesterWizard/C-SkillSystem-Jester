@@ -22,6 +22,8 @@ void SetGameOptions_Chapter0()
     // gPlaySt.chapterVisionRange = 1;
 
     SetPartyGoldAmount(100000);
+
+    // EnableFreeMovementASMC();
     
     // gEventSlots[EVT_SLOT_1] = 2;
     // gEventSlots[EVT_SLOT_2] = 0; 

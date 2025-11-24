@@ -1,3 +1,5 @@
+#include "ChapterTitles.txt"
+
 #include "Chapter_00_The_Fall_Of_Renais/Pre_Chapter.txt"
 #include "Chapter_00_The_Fall_Of_Renais/In_Chapter.txt"
 #include "Chapter_00_The_Fall_Of_Renais/Post_Chapter.txt"

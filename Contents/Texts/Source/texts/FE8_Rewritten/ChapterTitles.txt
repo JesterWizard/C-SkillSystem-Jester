@@ -1,0 +1,27 @@
+## MSG_CHAPTER_00_TITLE
+The Fall of Renais[X]
+## MSG_CHAPTER_01_TITLE
+Escape[X]
+## MSG_INTERMISSION_TITLE
+Intermission[X]
+## MSG_CHAPTER_02_TITLE
+The Protected[X]
+## MSG_CHAPTER_03_TITLE
+The Bandits of Borgo[X]
+## MSG_CHAPTER_04_TITLE
+Ancient Horrors[X]
+## MSG_CHAPTER_05_TITLE
+The Empire's Reach[X]
+## MSG_CHAPTER_05X_TITLE
+Gaiden: Unbroken Heart[X]
+## MSG_CHAPTER_06_TITLE
+Victims of War[X]
+## MSG_CHAPTER_07_TITLE
+Waterside Renvall[X]
+## MSG_CHAPTER_08_TITLE
+Broken Vows[X]
+## MSG_CHAPTER_09_TITLE
+Distant Blade[X]
+
+## MSG_BASE_TITLE_SERAFEW
+Base: Serafew[X]

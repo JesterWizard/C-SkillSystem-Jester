@@ -2,17 +2,12 @@
 #include "constants/texts.h"
 #include "worldmap.h"
 
-extern u8 ChapterID[1];
-
-const char EnterTownNodes[] = {
-    0x50, 0x51, 0x52, 0x53, 0x55, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-    0x02, 0x02
+const struct {
+    u8 mapNodeId;
+    u8 chapterId;
+} EnterTownNodes[] = {
+    {0x01, 0x3B},
+    {0x02, 0x3C},
 };
 
 /* JESTER - This originally had an int type so I made a new function which is void to make it compile */
@@ -85,37 +80,38 @@ u8 WMMenu_IsSecretShopAvailable(const struct MenuItemDef * def, int number)
     return MENU_ENABLED;
 }
 
-#ifdef CONFIG_ENTER_DISTRICT
-
-static u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
+u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
 {
-    // if (gGMData.nodes[gGMData.units[0].location].state & 2)
-    // {
-    //     return MENU_NOTSHOWN;
-    // }
+    u8 location = *(volatile u8*)0x03005291;
 
-    // if ((gGMData.units[0].location[gWMNodeData].armory[0]) == 0)
-    // {
-    //     return MENU_NOTSHOWN;
-    // }
+    // Loop through array entries
+    for (unsigned i = 0; i < sizeof(EnterTownNodes)/sizeof(EnterTownNodes[0]); i++)
+    {
+        if (EnterTownNodes[i].mapNodeId == location)
+            return MENU_ENABLED;
+    }
 
-    return MENU_ENABLED;
+    return MENU_NOTSHOWN;
 }
 
-static u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
-    // write the chapter id into WRAM so the ASM loader will use it
-    *(volatile u8*)0x03005268 = EnterTownNodes[gGMData.units[0].location-1];
+    // Matches: *(u8*)0x03005266 = 0x36
+    *(volatile u8*)0x03005266 = 0x36;
 
-    // set the "reload" flag the map reloader checks (non-zero enables special load)
-    *(volatile u8*)0x03005266 = 0x01;
-    //ChapterID[0] = 0x5;
-    gGMData.unk_cd = menuProc->itemCurrent;
-    Proc_Goto(GM_MAIN, 15);
+    // Map index we want to load from
+    *(volatile u8*)0x03005268 = 0x3B;
+
+    // Find proc at script address 08A3D748
+    void * p = Proc_Find(ProcScr_WorldMapMain);
+
+    // Perform state jump to label 0x0E in that proc
+    Proc_Goto(p, 0x0E);
+
+    // 0x17 = cursor skip + end menu + sound 6A + clear menu
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
-#endif
 
 //! FE8U = 0x080BC77C
 LYN_REPLACE_CHECK(WMMenu_OnArmorySelected);
@@ -252,3 +248,122 @@ const struct ROMChapterData* GetROMChapterStruct(unsigned chIndex) {
 
     return gChapterDataTable + chIndex;
 }
+
+// //! FE8U = 0x080BD068
+// LYN_REPLACE_CHECK(GetBattleMapKind);
+// u32 GetBattleMapKind(void)
+// {
+//     int i;
+//     u32 chapterId = gPlaySt.chapterIndex;
+
+//     switch (chapterId)
+//     {
+//         case CHAPTER_L_2:
+//         case CHAPTER_L_3:
+//         case CHAPTER_L_4:
+//         case CHAPTER_L_5:
+//         case CHAPTER_L_6:
+//         case CHAPTER_L_7:
+//         case CHAPTER_L_8:
+//         case CHAPTER_E_9:
+//         case CHAPTER_E_10:
+//         case CHAPTER_E_13:
+//         case CHAPTER_E_14:
+//         case CHAPTER_E_15:
+//         case CHAPTER_E_16:
+//         case CHAPTER_E_17:
+//         case CHAPTER_E_18:
+//         case CHAPTER_E_19:
+//         case CHAPTER_E_20:
+//         case CHAPTER_I_9:
+//         case CHAPTER_I_10:
+//         case CHAPTER_I_13:
+//         case CHAPTER_I_14:
+//         case CHAPTER_I_15:
+//         case CHAPTER_I_16:
+//         case CHAPTER_I_17:
+//         case CHAPTER_I_18:
+//         case CHAPTER_I_19:
+//         case CHAPTER_I_20:
+//         case CHAPTER_T_01:
+//         case CHAPTER_T_02:
+//         case CHAPTER_T_03:
+//         case CHAPTER_T_04:
+//         case CHAPTER_T_05:
+//         case CHAPTER_T_06:
+//         case CHAPTER_T_07:
+//         case CHAPTER_T_08:
+//         case CHAPTER_2C:
+//         case CHAPTER_2D:
+//         case CHAPTER_R_01:
+//         case CHAPTER_R_02:
+//         case CHAPTER_R_03:
+//         case CHAPTER_R_04:
+//         case CHAPTER_R_05:
+//         case CHAPTER_R_06:
+//         case CHAPTER_R_07:
+//         case CHAPTER_R_08:
+//         case CHAPTER_R_09:
+//         case CHAPTER_R_10:
+//         case CHAPTER_MALKAEN_COAST:
+//         case CHAPTER_3A:
+//         case CHAPTER_E_11:
+//         case CHAPTER_I_11:
+//         default:
+//             if (chapterId - CHAPTER_T_02 < 9)
+//             {
+//                 chapterId = CHAPTER_T_01;
+//             }
+//             else if (chapterId - CHAPTER_R_02 < 9)
+//             {
+//                 chapterId = CHAPTER_R_01;
+//             }
+
+//             for (i = 0; i < NODE_MAX; i++)
+//             {
+//                 if (chapterId == (u32)WMLoc_GetChapterId(i))
+//                 {
+//                     if (!(gGMData.nodes[i].state & GM_NODE_STATE_CLEARED))
+//                     {
+//                         if ((u8)i[gWMNodeData].encounters != 3)
+//                         {
+//                             break;
+//                         }
+//                     }
+//                     else if (i[gWMNodeData].placementFlag != GMAP_NODE_PLACEMENT_DUNGEON)
+//                     {
+//                         return BATTLEMAP_KIND_STORY;
+//                     }
+
+//                     return BATTLEMAP_KIND_DUNGEON;
+//                 }
+//             }
+
+//             break;
+
+//         case CHAPTER_L_PROLOGUE:
+//         case CHAPTER_L_1:
+//         case CHAPTER_L_5X:
+//         case CHAPTER_E_12:
+//         case CHAPTER_E_21:
+//         case CHAPTER_E_21X:
+//         case CHAPTER_I_12:
+//         case CHAPTER_I_21:
+//         case CHAPTER_I_21X:
+//         case CHAPTER_CASTLE_FRELIA:
+//         case CHAPTER_3B:
+//         case CHAPTER_3C:
+//         case CHAPTER_3F:
+//         case CHAPTER_40:
+//         case CHAPTER_41:
+//         case CHAPTER_42:
+//         case CHAPTER_43:
+//         case CHAPTER_44:
+//         case CHAPTER_45:
+//         case CHAPTER_46:
+//         case CHAPTER_47:
+//             return BATTLEMAP_KIND_STORY;
+//     }
+
+//     return BATTLEMAP_KIND_SKIRMISH;
+// }

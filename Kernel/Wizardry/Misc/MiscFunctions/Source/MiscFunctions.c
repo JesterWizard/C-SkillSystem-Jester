@@ -33,8 +33,6 @@ typedef struct {
 } PrepItemSuppyText;
 extern const int sExpaConvoyItemAmount;
 
-extern u8 ChapterID[1];
-
 #if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
 FORCE_DECLARE static const u8 classIndexes_SP[6] = { CLASS_TARVOS, CLASS_BAEL, CLASS_GARGOYLE, CLASS_GORGONEGG, CLASS_MOGALL, CLASS_MAUTHEDOOG };
 FORCE_DECLARE static const u8 classPromotedIndexes_SP[6] = { CLASS_MAELDUIN, CLASS_ELDER_BAEL, CLASS_DEATHGOYLE, CLASS_GORGON, CLASS_ARCH_MOGALL, CLASS_GWYLLGI };

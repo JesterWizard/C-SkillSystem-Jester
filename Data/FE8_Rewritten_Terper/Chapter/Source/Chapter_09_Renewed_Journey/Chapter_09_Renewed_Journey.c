@@ -1,5 +1,4 @@
 #include "common-chax.h"
-
 #include "constants/texts.h"
 
 const struct ROMChapterData Chapter09 = {
@@ -17,6 +16,7 @@ const struct ROMChapterData Chapter09 = {
     .hasPrepScreen = FALSE,
     .chapTitleId = 0x0A, // Chapter 9 - Renewed Journey
     .chapTitleIdInHectorStory = 0,
+    .chapTitleTextId = MSG_CHAPTER_09_TITLE,
     .initialPosX = 20,   // Starting position of the camera
     .initialPosY = 4,
     .initialWeather = WEATHER_FINE,

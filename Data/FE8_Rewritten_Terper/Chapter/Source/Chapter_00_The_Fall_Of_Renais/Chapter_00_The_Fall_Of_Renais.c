@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "constants/texts.h"
 
 const struct ROMChapterData Chapter00 = {
     .map = {
@@ -15,6 +16,7 @@ const struct ROMChapterData Chapter00 = {
     .hasPrepScreen = FALSE,
     .chapTitleId = 0x00, // Prologue - The Fall of Renais
     .chapTitleIdInHectorStory = 0,
+    .chapTitleTextId = MSG_CHAPTER_00_TITLE,
     .initialPosX = 8,   // Starting position of the camera
     .initialPosY = 5,
     .initialWeather = WEATHER_FINE,

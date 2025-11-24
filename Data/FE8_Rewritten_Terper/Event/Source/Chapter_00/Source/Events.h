@@ -96,9 +96,6 @@ static const EventScr EventScr_Beginning[] = {
     TEXT(Chapter_00_Scene_03_Convo_04)
     GIVE_SKILL_SCROLL_TO(SID_GoddessDance, CHARACTER_EIRIKA)
     ASMC(SetGameOptions_Chapter0)
-    #ifdef CONFIG_FREE_MOVEMENT
-        ASMC(EnableFreeMovementASMC)
-    #endif
     NOFADE
     ENDA
 };

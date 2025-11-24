@@ -470,19 +470,19 @@
 
 // #define CONFIG_VOICE_ACTED_PROLOGUE
 
-// #define CONFIG_FREE_MOVEMENT
+#define CONFIG_FREE_MOVEMENT
 
 // #define CONFIG_BIORHYTHM
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
-#define CONFIG_BASE_CHAPTERS // Compiles but otherwise not operational. It comes with the valuable PLIST split but overwrites my custom chapters
+// #define CONFIG_BASE_CHAPTERS // Compiles but otherwise not operational. It comes with the valuable PLIST split but overwrites my custom chapters
 
 // #define CONFIG_LIGHTS_OUT_GAME
 
 // #define CONFIG_2RN_GROWTHS
 
-// #define CONFIG_ENTER_DISTRICT // Not yet finished, I also might not need it if I get base chapters working
+#define CONFIG_ENTER_DISTRICT // Not yet finished, I also might not need it if I get base chapters working
 
 #define CONFIG_STAT_PAGE_PERSONAL_INFO
 #define CONFIG_STAT_PAGE_PROMOTIONS

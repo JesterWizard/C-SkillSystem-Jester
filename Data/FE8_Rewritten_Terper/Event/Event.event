@@ -38,6 +38,11 @@
     EventPointerTable(0x2D, Chapter09Event)
     #include "Source/Chapter_09/Chapter_09.lyn.event"
     #include "Source/Chapter_09/Map/Chapter_09_map.event"
+
+    EventPointerTable(0xCB, BaseChapter05Event)
+    #include "Source/BaseChapters/Chapter_05/Chapter_05.lyn.event"
+    #include "Source/BaseChapters/Chapter_05/Map/Chapter_05_map.event"
+
     // EventPointerTable(0x33, Chapter10Event)
     // #include "Source/Chapter_10/Chapter_10.lyn.event"
     // #include "Source/Chapter_10/Map/Chapter_10_map.event"

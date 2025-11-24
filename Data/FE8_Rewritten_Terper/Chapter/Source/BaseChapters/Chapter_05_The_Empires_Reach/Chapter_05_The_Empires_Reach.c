@@ -2,31 +2,32 @@
 
 #include "constants/texts.h"
 
-const struct ROMChapterData SerafewDistrict = {
+const struct ROMChapterData BaseChapter05 = {
     .map = {
-       .obj1Id = 0xE, // Object type
+       .obj1Id = 0xE,
        .obj2Id= 0,
-       .paletteId = 0xF, // Palette (Plist)
-       .tileConfigId = 0x10, // Tile Config (Plist)
-       .mainLayerId = 0x2B, // Map pointer. In blocks of 4 per chapter
-       .objAnimId = 0x12, // Tile animation 1
+       .paletteId = 0xF,
+       .tileConfigId = 10,
+       .mainLayerId = 0xCA, // Map pointer. In blocks of 4 per chapter
+       .objAnimId = 0x12,
        .paletteAnimId = 0,
-       .changeLayerId = 0x2C, // Tile changes
+       .changeLayerId = 0x20,
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x0A, // Chapter 9 - Renewed Journey
+    .chapTitleId = 0x3B, // Chapter 5 - The Empire's Reach
     .chapTitleIdInHectorStory = 0,
-    .initialPosX = 20,   // Starting position of the camera
-    .initialPosY = 4,
+    .chapTitleTextId = MSG_BASE_TITLE_SERAFEW,
+    .initialPosX = 14,   // Starting position of the camera
+    .initialPosY = 20,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
     .difficultModeLevelBonus = 0,
     .normalModeLevelMalus = 1,
     .mapBgmIds = {
-        [MAP_BGM_BLUE] = SONG_RISE_ABOVE,
-        [MAP_BGM_RED] = SONG_ASSAULT,
+        [MAP_BGM_BLUE] = SONG_DISTANT_ROADS,
+        [MAP_BGM_RED] = SONG_SHADOW_OF_THE_ENEMY,
         [MAP_BGM_GREEN] = SONG_BINDING_VOW,
         [MAP_BGM_BLUE_HECTOR] = 13,
         [MAP_BGM_RED_HECTOR] = 21,
@@ -38,13 +39,13 @@ const struct ROMChapterData SerafewDistrict = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .mapCrackedWallHeath = 50,
-    .mapEventDataId = 0x2D, // Event ID (Plist)
-    .gmapEventId = 0x12, // Chapter Number
+    .mapEventDataId = 0x21,
+    .gmapEventId = 0xA,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,
     .fadeToBlack = TRUE,
-    .statusObjectiveTextId = CC_DEFEAT_ALL_ENEMIES,
+    .statusObjectiveTextId = CC_DEFEAT_SAAR,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_DEFEAT_ALL,
+    .goalWindowDataType = GOAL_TYPE_DEFEAT_BOSS,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

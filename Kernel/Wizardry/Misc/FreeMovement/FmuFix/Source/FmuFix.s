@@ -18,7 +18,7 @@ MU_CALL2_FixForFreeMU_fix:
     ldrb r0, [r0]
     cmp r0, #0
     beq .ReturnCall2SkipCamera
-    ldr r0, =gProcScr_CamMove
+    ldr r0, =ProcScr_CamMove
     blh Proc_Find
     cmp r0, #0
     bne .ReturnCall2SkipCamera

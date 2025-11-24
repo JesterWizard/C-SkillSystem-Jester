@@ -1,5 +1,5 @@
 #include "common-chax.h"
-
+#include "constants/texts.h"
 
 const struct ROMChapterData Intermission = {
     .map = {
@@ -7,7 +7,7 @@ const struct ROMChapterData Intermission = {
        .obj2Id= 0,
        .paletteId = 2,
        .tileConfigId = 3,
-       .mainLayerId = 0xE4, // Map pointer. In blocks of 4 per chapter
+       .mainLayerId = 0xC3, // Map pointer. In blocks of 4 per chapter
        .objAnimId = 5,
        .paletteAnimId = 0,
        .changeLayerId = 6
@@ -16,6 +16,7 @@ const struct ROMChapterData Intermission = {
     .hasPrepScreen = FALSE,
     .chapTitleId = 0x02, // Chapter 2 - The Protected
     .chapTitleIdInHectorStory = 0,
+    .chapTitleTextId = MSG_INTERMISSION_TITLE,
     .initialPosX = 8,   // Starting position of the camera
     .initialPosY = 5,
     .initialWeather = WEATHER_FINE,

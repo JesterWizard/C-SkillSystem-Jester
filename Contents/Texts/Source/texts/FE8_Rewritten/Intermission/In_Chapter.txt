@@ -700,7 +700,7 @@ You... monster...[A][N]
 [OpenMidRight]
 Not the last words I'd have chosen,[N]
 but hey! We're all born different.[A][N]
-Just be glad I'm not Valter.[n]
+Just be glad I'm not Valter.[N]
 At least I'll make it relatively painless.[A][X]
 
 ## Intermission_In_Scene_Tower_Of_Valni_03
