@@ -8,7 +8,7 @@ FMU_FunctionList_OnPressA:
 	
 ALIGN 4
 FMU_FunctionList_OnPressB:
-	POIN FMU_OnButton_EndFreeMove|1
+	// POIN FMU_OnButton_EndFreeMove|1
 	FMU_FunctionList_End
 
 ALIGN 4

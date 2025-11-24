@@ -19,7 +19,7 @@ PUSH
     PROTECT 0x000154F4 0x0001550C // BmMain_SuspendBeforePhase
 
 
-	/* Turned off for BmMain_StartIntroFx, more specifically CONFIG_ENTER_DISTRICT */
+	/* Turned off for BmMain_StartIntroFx, more specifically CONFIG_BASE_CHAPTERS */
 	/**
 	 * Fake FEB patch: Auto save function(with SkillSystems/EMS)
 	 */

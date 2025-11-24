@@ -4386,7 +4386,7 @@ void BmMain_StartIntroFx(ProcPtr proc)
     return;
 #endif
 
-#ifdef CONFIG_ENTER_DISTRICT
+#ifdef CONFIG_BASE_CHAPTERS
     if (CheckFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP))
     {
         ClearFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP);

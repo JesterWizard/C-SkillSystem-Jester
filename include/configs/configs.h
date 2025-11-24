@@ -480,7 +480,7 @@
 
 // #define CONFIG_2RN_GROWTHS
 
-#define CONFIG_ENTER_DISTRICT // Uses flag 0x12C (final flag) to conditionally turn off chapter intros
+#define CONFIG_BASE_CHAPTERS
 
 #define CONFIG_STAT_PAGE_PERSONAL_INFO
 #define CONFIG_STAT_PAGE_PROMOTIONS

@@ -91,17 +91,36 @@ MU_ExecCmd_FixForFreeMU:
 .ltorg	
 .align	
 MU_CALL2_FixForFreeMU:
-	@ORG 0x8078D10
+	@ORG 0x8078D10    
 	ldr		r0, =FreeMovementControlProc
 	blh		ProcFind
 	cmp		r0, #0
-	beq		.ReturnCall2Normal
+	beq 	.ReturnCall2Normal
+    bl      IsFMUPaused
+    cmp r0, #0 
+    bne .ReturnCall2Normal
 	
-	ldr		r0, =0x8078D23
+	ldrh r0, [r4] 
+	lsl r0, #0x10 
+	asr r0, #0x14 
+	bl NewGetCameraCenteredX
+	ldr r4, =0x202BCB0 
+	strh r0, [r4, #0x0C] @ Camera real X position 
+	ldrh r0, [r5] 
+	lsl r0, #0x10 
+	asr r0, #0x14 
+	bl NewGetCameraCenteredY
+	strh r0, [r4, #0x0E] @ camera real Y 
+	
+	
+	
+	b .ReturnCall2Normal
+	.ReturnCall2Camera: 
+	ldr		r0, =0x8078D23 // camera 
 	bx		r0
 		
 	.ReturnCall2Normal:
-	mov		r0, r6
+    mov		r0, r6
 	add		r0, #0x3E
 	ldrb	r0, [r0]
 	cmp		r0, #0
@@ -109,7 +128,7 @@ MU_CALL2_FixForFreeMU:
 	ldr		r0, =gProc_CameraMovement
 	blh		ProcFind
 	cmp		r0, #0
-	beq		.ReturnCall2SkipCamera
+	beq		.ReturnCall2Camera
 	.ReturnCall2SkipCamera:
 	ldr		r1, =0x8078D3D
 	bx		r1
@@ -142,8 +161,7 @@ MU_GetSpeed_FixForFreeMU:
 	and		r0, r1
 	ldr		r2, =0x807948B
 	bx		r2
-	
-	
+
 	
 	
 .ltorg	

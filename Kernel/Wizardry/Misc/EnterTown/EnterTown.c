@@ -3,13 +3,47 @@
 #include "worldmap.h"
 #include "jester_headers/custom-structs.h"
 
-const struct {
+typedef struct {
     u8 mapNodeId;
     u8 chapterId;
-} EnterTownNodes[] = {
-    {0x05, 0x3B},
-    {0x06, 0x3C},
+} EnterTownNode;
+
+static const EnterTownNode EnterTownNodes[] = {
+    { NODE_SERAFEW,      CHAPTER_3B },
+    { NODE_ADLAS_PLAINS, CHAPTER_3C },
 };
+
+u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
+{
+    u8 location = *(volatile u8*)0x03005291;
+
+    // Loop through array entries
+    for (unsigned i = 0; i < ARRAY_COUNT(EnterTownNodes); i++)
+    {
+        if (EnterTownNodes[i].mapNodeId == location)
+            return MENU_ENABLED;
+    }
+
+    return MENU_NOTSHOWN;
+}
+
+u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    SetFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP); // Set this to skip intro chapter GFX
+
+    // Matches: *(u8*)0x03005266 = 0x36 not sure what it's for
+    *(volatile u8*)0x03005266 = 0x36;
+
+    // Map index we want to load from
+    *(volatile u8*)0x03005268 = 0x3B;
+
+    void * p = Proc_Find(ProcScr_WorldMapMain);
+
+    // Perform state jump to label 0x0E in that proc
+    Proc_Goto(p, 0x0E);
+
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
 
 /* JESTER - This originally had an int type so I made a new function which is void to make it compile */
 //! FE8U = 0x080BC634
@@ -81,39 +115,6 @@ u8 WMMenu_IsSecretShopAvailable(const struct MenuItemDef * def, int number)
     return MENU_ENABLED;
 }
 
-u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
-{
-    u8 location = *(volatile u8*)0x03005291;
-
-    // Loop through array entries
-    for (unsigned i = 0; i < sizeof(EnterTownNodes)/sizeof(EnterTownNodes[0]); i++)
-    {
-        if (EnterTownNodes[i].mapNodeId == location)
-            return MENU_ENABLED;
-    }
-
-    return MENU_NOTSHOWN;
-}
-
-u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
-{
-    SetFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP); // Set this to skip intro chapter GFX
-
-    // Matches: *(u8*)0x03005266 = 0x36 not sure what it's for
-    *(volatile u8*)0x03005266 = 0x36;
-
-    // Map index we want to load from
-    *(volatile u8*)0x03005268 = 0x3B;
-
-    void * p = Proc_Find(ProcScr_WorldMapMain);
-
-    // Perform state jump to label 0x0E in that proc
-    Proc_Goto(p, 0x0E);
-
-    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
-}
-
-
 //! FE8U = 0x080BC77C
 LYN_REPLACE_CHECK(WMMenu_OnArmorySelected);
 u8 WMMenu_OnArmorySelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
@@ -152,7 +153,7 @@ u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc 
 
 static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
 {
-#ifdef CONFIG_ENTER_DISTRICT
+#ifdef CONFIG_BASE_CHAPTERS
     {
         .name = "　アイテム整理",
         .nameMsgId = MSG_Enter_District_NAME, // TODO: msgid " Enter District "
@@ -240,12 +241,4 @@ struct MenuProc * StartWMNodeMenu(struct WorldMapMainProc * parent)
     }
 
     return menuProc;
-}
-
-LYN_REPLACE_CHECK(GetROMChapterStruct);
-const struct ROMChapterData* GetROMChapterStruct(unsigned chIndex) {
-    if (chIndex == 0x7F)
-        return gExtraMapInfo->chapter_info;
-
-    return gChapterDataTable + chIndex;
 }

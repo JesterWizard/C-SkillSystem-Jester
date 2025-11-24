@@ -190,3 +190,37 @@ void pFMU_PressSelect(struct FMUProc* proc){
 			return;
 	return;
 }
+
+u16 NewGetCameraCenteredX(int x)
+{
+    int result = gBmSt.camera.x;
+
+    if (gBmSt.camera.x + CAMERA_MARGIN_LEFT > x)
+    {
+        result = x - CAMERA_MARGIN_LEFT < 0 ? 0 : x - CAMERA_MARGIN_LEFT;
+    }
+
+    if (gBmSt.camera.x + CAMERA_MARGIN_RIGHT < x)
+    {
+        result = x - CAMERA_MARGIN_RIGHT > gBmSt.cameraMax.x ? gBmSt.cameraMax.x : x - CAMERA_MARGIN_RIGHT;
+    }
+
+    return result;
+}
+
+u16 NewGetCameraCenteredY(int y)
+{
+    int result = gBmSt.camera.y;
+
+    if (gBmSt.camera.y + CAMERA_MARGIN_TOP > y)
+    {
+        result = y - CAMERA_MARGIN_TOP < 0 ? 0 : y - CAMERA_MARGIN_TOP;
+    }
+
+    if (gBmSt.camera.y + CAMERA_MARGIN_BOTTOM < y)
+    {
+        result = y - CAMERA_MARGIN_BOTTOM > gBmSt.cameraMax.y ? gBmSt.cameraMax.y : y - CAMERA_MARGIN_BOTTOM;
+    }
+
+    return result;
+}

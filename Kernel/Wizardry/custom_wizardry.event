@@ -132,7 +132,7 @@
     #include "Misc/LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #endif
 
-#ifdef CONFIG_ENTER_DISTRICT
+#ifdef CONFIG_BASE_CHAPTERS
     #include "Misc/EnterTown/EnterTown_Installer.event"
 #endif
 
