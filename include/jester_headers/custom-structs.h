@@ -30,3 +30,8 @@ typedef struct
 
 extern const UnitPromotions unit_promotions[];
 /* END - Page 7 - Unit promotions list */
+
+/* Global flags use */
+enum {
+    GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
+};

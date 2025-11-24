@@ -18,12 +18,14 @@ PUSH
 		POIN Hook_BmMain_SuspendBeforePhase
     PROTECT 0x000154F4 0x0001550C // BmMain_SuspendBeforePhase
 
+
+	/* Turned off for BmMain_StartIntroFx, more specifically CONFIG_ENTER_DISTRICT */
 	/**
 	 * Fake FEB patch: Auto save function(with SkillSystems/EMS)
 	 */
-	ORG 0x15510
-		SHORT 0xE00C // b 0x0801553C
-	ORG 0x1553C
-		WORD 0x0203A958
-	PROTECT 0x0001550C 0x00015544 // BmMain_StartIntroFx
+	// ORG 0x15510
+	// 	SHORT 0xE00C // b 0x0801553C
+	// ORG 0x1553C
+	// 	WORD 0x0203A958
+	// PROTECT 0x0001550C 0x00015544 // BmMain_StartIntroFx
 POP

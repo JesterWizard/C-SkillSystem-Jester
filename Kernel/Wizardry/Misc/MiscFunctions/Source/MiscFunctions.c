@@ -4376,3 +4376,29 @@ void InitSupportSubScreenRemainingSupports(struct SubScreenProc* proc) {
 
     return;
 }
+
+//! FE8U = 0x0801550C
+LYN_REPLACE_CHECK(BmMain_StartIntroFx);
+void BmMain_StartIntroFx(ProcPtr proc)
+{
+
+#ifdef CONFIG_SKIP_CHAPTER_INTROS
+    return;
+#endif
+
+#ifdef CONFIG_ENTER_DISTRICT
+    if (CheckFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP))
+    {
+        ClearFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP);
+        return;
+    }
+#endif
+
+    if (gPlaySt.chapterIndex == 0x38)
+        return;
+
+    if (gPlaySt.chapterIndex == 0x06 && CheckFlag(0x88))
+        return;
+
+    Proc_StartBlocking(gProcScr_ChapterIntro, proc);
+}

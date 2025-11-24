@@ -482,7 +482,7 @@
 
 // #define CONFIG_2RN_GROWTHS
 
-#define CONFIG_ENTER_DISTRICT // Not yet finished, I also might not need it if I get base chapters working
+#define CONFIG_ENTER_DISTRICT // Uses flag 0x12C (final flag) to conditionally turn off chapter intros
 
 #define CONFIG_STAT_PAGE_PERSONAL_INFO
 #define CONFIG_STAT_PAGE_PROMOTIONS
@@ -502,5 +502,7 @@
 #define CONFIG_UNLOCK_SUPPORT_CONVO_LIMIT 10
 
 #define CONFIG_SKILL_POINTS_ENGAGE
+
+// #define CONFIG_SKIP_CHAPTER_INTROS
 
 #endif /* CONFIG_INSTALLED */
