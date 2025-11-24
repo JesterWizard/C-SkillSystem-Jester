@@ -36,7 +36,7 @@ The goal is to provide **dedicated base maps** separate from the main campaign, 
 
 ### Why rewrite the ASM hack?
 
-- The original ASM version was **limited in scope**
+- The original ASM version was **very hardcoded** and was tightly coupled with FEBuilder to install
 - The other base chapter hack has a tendency to **overwrite existing chapters** unless heavily customized
 - This rewrite gives **full control** over:
   - Which world map nodes count as bases  
@@ -48,11 +48,13 @@ The goal is to provide **dedicated base maps** separate from the main campaign, 
 ## 🛠️ Plan
 
 In vanilla FE8, there are **0x4F (80)** usable map slots.  
-Large portions of these are duplicated between Eirika and Ephraim routes, meaning many maps are effectively **free real estate** for base map usage — even more if creating a custom story.
+Large portions of these are duplicated between Eirika's and Ephraim's routes. Meaning many maps are effectively **free real estate** for base map usage — even more if creating a custom story.
 
 ### How Bases Work
 
-- You define **which world map nodes** receive base chapters  
+- You define **which world map nodes** receive base chapters:
+  - In the ``EnterTownNodes`` struct, the first item is the world map node you want the base chapter to appear on
+  - The second item is the map you want to load at that node
 - After finishing the chapter associated with that node, the base becomes available  
 - Bases can be **entered and exited freely** afterward  
 - Global flags can be checked to:
