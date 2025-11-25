@@ -8839,4 +8839,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SPConversion) && COMMON_SKILL_VALID(SID_SPConversion))
+    [SID_SPConversion] = {
+        .name = MSG_SKILL_SPConversion_NAME,
+        .desc = MSG_SKILL_SPConversion_DESC,
+        .capacity = MSG_SKILL_SPConversion_CAPACITY,
+        .price = MSG_SKILL_SPConversion_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

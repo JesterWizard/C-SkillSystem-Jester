@@ -547,3 +547,10 @@ Air Walk[X]
 Air Walk:[N]
 This unit can rescue units[N]
 bigger than them.[X]
+
+## MSG_SKILL_SPConversion_NAME
+SP Conversion[X]
+## MSG_SKILL_SPConversion_DESC
+SP Conversion:[N]
+Gain +5 SP (skill points) upon[N]
+killing an enemy.[X]

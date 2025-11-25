@@ -312,6 +312,7 @@ SID_SliceNDice
 SID_Symbiosis
 SID_Residium
 SID_Malidiction
+SID_SPConversion
 
 //////// POST-BATTLE SKILLS
 SID_Canto

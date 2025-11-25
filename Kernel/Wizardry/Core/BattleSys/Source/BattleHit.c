@@ -793,6 +793,11 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
                 else
                     spBoost += gSkillPointsSystemPInfoConfigList[0].standardRate;
 
+#if (defined(SID_SPConversion) && (COMMON_SKILL_VALID(SID_SPConversion)))
+			if (BattleFastSkillTester(&gBattleActor, SID_SPConversion))
+                spBoost += SKILL_EFF0(SID_SPConversion);
+#endif
+
                 bwl->skillPoints = bwl->skillPoints + spBoost > 255 ? 255 : bwl->skillPoints + spBoost;
             }
 #endif

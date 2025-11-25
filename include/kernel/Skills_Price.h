@@ -882,3 +882,4 @@
 #define MSG_SKILL_Malidiction_PRICE 1000
 #define MSG_SKILL_AirWalk_PRICE 1000
 #define MSG_SKILL_BloodyAlchemy_PRICE 1000
+#define MSG_SKILL_SPConversion_PRICE 1000

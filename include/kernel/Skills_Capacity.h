@@ -882,3 +882,4 @@
 #define MSG_SKILL_Malidiction_CAPACITY 1
 #define MSG_SKILL_AirWalk_CAPACITY 1
 #define MSG_SKILL_BloodyAlchemy_CAPACITY 1
+#define MSG_SKILL_SPConversion_CAPACITY 1
