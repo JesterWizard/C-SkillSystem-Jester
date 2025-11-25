@@ -853,7 +853,7 @@ void GenerateSummonUnitDef(void); // ??? GenerateSummonUnitDef(???);
 // ??? ProcSummonDK_SelectRightPos(???);
 // ??? ProcSummonDK_SelectLeftPos(???);
 // ??? ProcSummonDK_SelectUpPos(???);
-// ??? LoadSumMonsterFromDK(???);
+void LoadSumMonsterFromDK(struct SumProc* proc);
 void MakeBattleMOVEUNIT(int maActor, struct BattleUnit* bu, struct Unit* unit);
 void SetBattleAnimFacing(int actorId1, int actorId2, int facing);
 // ??? SetupBattleMOVEUNITs(???);

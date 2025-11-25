@@ -687,3 +687,10 @@ Bloody Alchemy[X]
 Bloody Alchemy:[N]
 Convert damage taken and[N]
 received map-wide into gold.[X]
+
+## MSG_SKILL_GateOfBabylon_NAME
+Gate Of Babylon[X]
+## MSG_SKILL_GateOfBabylon_DESC
+Gate Of Babylon:[N]
+Summon multiple units at once.[N]
+Once per map.[X]

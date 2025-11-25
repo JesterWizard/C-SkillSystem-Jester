@@ -83,6 +83,7 @@ SID_GraceOfFire
 SID_GraceOfWater
 SID_DoubleTime
 SID_BloodyAlchemy
+SID_GateOfBabylon
 
 //////// PRE-BATTLE SKILLS
 SID_DefiantStr

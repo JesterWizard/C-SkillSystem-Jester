@@ -76,10 +76,6 @@ extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
     extern void DisableFreeMovementASMC();
 #endif
 
-#ifdef CONFIG_BASE_CHAPTERS
-    extern void WLC_baseChapterAvailabilityASMC();
-#endif
-
 #ifdef CONFIG_LIGHTS_OUT_GAME
 
     enum {

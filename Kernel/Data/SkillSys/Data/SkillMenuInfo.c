@@ -1205,4 +1205,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 		.onSwitchOut = NULL,
 	},
 #endif
+
+#if (defined(SID_GateOfBabylon) && COMMON_SKILL_VALID(SID_GateOfBabylon))
+	[SID_GateOfBabylon] = &(const struct MenuItemDef) {
+		.name = "　召喚",
+		.nameMsgId = MSG_SKILL_GateOfBabylon_NAME,
+		.helpMsgId = MSG_SKILL_GateOfBabylon_DESC,
+		.color = TEXT_COLOR_SYSTEM_GOLD,
+		.isAvailable = YobimaCommandUsability,
+		.onDraw = NULL,
+		.onSelected = YobimaCommandEffect,
+		.onIdle = NULL,
+		.onSwitchIn = NULL,
+		.onSwitchOut = NULL
+	},
+#endif
 };

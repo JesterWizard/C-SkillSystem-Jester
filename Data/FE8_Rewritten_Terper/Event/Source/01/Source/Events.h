@@ -58,11 +58,6 @@ static const EventScr EventScr_Ending[] = {
     TEXT_BG(0x26, Chapter_01_Scene_10_Convo_01)
     REMA
     FADE_FROM_BLACK(16)
-#ifdef CONFIG_BASE_CHAPTERS
-    SVAL(EVT_SLOT_1, 0x1)
-    SVAL(EVT_SLOT_2, 0)
-    CALL(WLC_baseChapterAvailabilityASMC)
-#endif
     NEXT_CHAPTER_WITH_MAP(0x38)
     ENDA
 };

@@ -8859,4 +8859,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+
+#if (defined(SID_GateOfBabylon) && COMMON_SKILL_VALID(SID_GateOfBabylon))
+    [SID_GateOfBabylon] = {
+        .name = MSG_SKILL_GateOfBabylon_NAME,
+        .desc = MSG_SKILL_GateOfBabylon_DESC,
+        .capacity = MSG_SKILL_GateOfBabylon_CAPACITY,
+        .price = MSG_SKILL_GateOfBabylon_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

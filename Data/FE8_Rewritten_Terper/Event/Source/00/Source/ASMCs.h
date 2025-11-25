@@ -24,10 +24,6 @@ void SetGameOptions_Chapter0()
     SetPartyGoldAmount(100000);
 
     // EnableFreeMovementASMC();
-    
-    // gEventSlots[EVT_SLOT_1] = 2;
-    // gEventSlots[EVT_SLOT_2] = 0; 
-    // WLC_baseChapterAvailabilityASMC();
 
     struct Unit * unit_eirika = GetUnitFromCharId(CHARACTER_EIRIKA);
     struct Unit * unit_seth = GetUnitFromCharId(CHARACTER_SETH);

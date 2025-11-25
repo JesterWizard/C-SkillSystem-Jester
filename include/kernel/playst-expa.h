@@ -25,6 +25,7 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_DoubleTime_Used, // Again, we'll undo this once it's used
 	PLAYSTEXPA_BIT_Ripple_Used, // Again we'll undo this once it's used
 	PLAYSTEXPA_BIT_BloodyAlchemy_Used, 
+	PLAYSTEXPA_BIT_GateOfBabylon_Used,
 
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,

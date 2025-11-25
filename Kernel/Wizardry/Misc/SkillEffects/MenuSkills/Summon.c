@@ -5,6 +5,7 @@
 #include "mu.h"
 #include "jester_headers/class-arrays.h"
 #include "jester_headers/class-pairs.h"
+#include "playst-expa.h"
 
 extern u16 gUnknown_085A0D4C[];
 
@@ -514,4 +515,71 @@ void GenerateSummonUnitDef(void)
     else if (gActiveUnit->level <= 20)
         unit->ranks[ITYPE_AXE] = WPN_EXP_A;
 #endif
+}
+
+LYN_REPLACE_CHECK(YobimaCommandUsability);
+u8 YobimaCommandUsability(const struct MenuItemDef* def, int number) {
+
+    u16 count;
+    int i;
+
+#if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
+	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
+    {
+        /* Checking the bit for some reason causes a crash when attempting to view the skill in the menu, no idea why */
+        if (!PlayStExpa_CheckBit(PLAYSTEXPA_BIT_GateOfBabylon_Used))
+        {
+            PlayStExpa_SetBit(PLAYSTEXPA_BIT_GateOfBabylon_Used);
+            return MENU_ENABLED;
+        }
+    }
+#endif
+
+    if (gActiveUnit->pClassData->number != CLASS_DEMON_KING) {
+        return MENU_NOTSHOWN;
+    }
+
+    if (gActiveUnit->state & US_HAS_MOVED) {
+        return MENU_NOTSHOWN;
+    }
+
+    count = 0;
+
+    for (i = FACTION_RED + 1; i < FACTION_PURPLE; i++) {
+        struct Unit* unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit)) {
+            continue;
+        }
+
+        if (count > 0x27) {
+            return MENU_NOTSHOWN;
+        }
+
+        count++;
+    }
+
+    return MENU_ENABLED;
+}
+
+LYN_REPLACE_CHECK(LoadSumMonsterFromDK);
+void LoadSumMonsterFromDK(struct SumProc* proc)
+{
+    u8 num = DivRem(AdvanceGetLCGRNValue(), 11);
+
+    gUnitDef2 = gUnitDefSumDK[num];
+
+    gUnitDef2.autolevel = TRUE;
+    gUnitDef2.allegiance = 2;
+    gUnitDef2.level = 5 + num;
+
+#if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
+	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
+            gUnitDef2.allegiance = k_umod(UNIT_FACTION(gActiveUnit), 0x40);
+#endif
+
+    gUnitDef2.xPosition = proc->x;
+    gUnitDef2.yPosition = proc->y;
+
+    LoadUnits(&gUnitDef2);
 }
