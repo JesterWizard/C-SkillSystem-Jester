@@ -38,6 +38,11 @@ void UnitLoadStatsFromChracterVanilla(struct Unit* unit, const struct CharacterD
     if (SkillTester(unit, SID_ManaRush))
         bwl->maxMP = bwl->maxMP * 2;
 #endif
+
+#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+	if (SkillTester(unit, SID_Enlightenment))
+		bwl->currentMP = bwl->maxMP;
+#endif
     }
 
 #endif

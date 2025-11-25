@@ -777,7 +777,14 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 #ifdef CONFIG_MP_SYSTEM
 			if (bwl != NULL)
 			{
-				bwl->currentMP += gMpSystemPInfoConfigList[UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index))].killGeneration;
+                int killMpGeneration =  gMpSystemPInfoConfigList[UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index))].killGeneration;
+
+#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+                if (BattleFastSkillTester(attacker, SID_Enlightenment))
+                    killMpGeneration = 0;
+#endif
+
+				bwl->currentMP += killMpGeneration;
 				if (bwl->currentMP > GetUnitMaxMP(GetUnit(attacker->unit.index)))
 					bwl->currentMP = GetUnitMaxMP(GetUnit(attacker->unit.index));
 			}	

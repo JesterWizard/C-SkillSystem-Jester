@@ -65,17 +65,28 @@ void PrePhase_ApplyMpStartingAmount(ProcPtr proc)
 
 			if (UNIT_IS_VALID(unit) && bwl != NULL)
 			{
+				int idleMPGeneration = gMpSystemPInfoConfigList[unit_id].idleGeneration;
+				int initialMP =  gMpSystemPInfoConfigList[unit_id].initialMP;
 				if (gPlaySt.chapterTurnNumber == 1 && bwl->currentMP == 0)
-					bwl->currentMP = gMpSystemPInfoConfigList[unit_id].initialMP;
+				{
+#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+					if (SkillTester(unit, SID_Enlightenment))
+						initialMP = bwl->maxMP;
+#endif
+					bwl->currentMP = initialMP;
+				}
 
 #if defined(SID_MPChanneling) && (COMMON_SKILL_VALID(SID_MPChanneling))
 				if (SkillTester(unit, SID_MPChanneling))
-					bwl->currentMP += gMpSystemPInfoConfigList[unit_id].idleGeneration * 2;
-				else
-					bwl->currentMP += gMpSystemPInfoConfigList[unit_id].idleGeneration;
-#else
-				bwl->currentMP += gMpSystemPInfoConfigList[unit_id].idleGeneration;
+					idleMPGeneration *= 2;
 #endif
+
+#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+				if (SkillTester(unit, SID_Enlightenment))
+					idleMPGeneration = 0;
+#endif
+
+					bwl->currentMP += idleMPGeneration;
 			}
 
 			// Clamp the value to max MP using a ternary operator

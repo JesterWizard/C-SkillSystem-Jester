@@ -299,7 +299,15 @@ void UpdateUnitFromBattle(struct Unit* unit, struct BattleUnit* bu)
 
 	if (bwl != NULL)
 	{
-		bwl->currentMP += gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].battleGeneration;
+		int battleMpBoost = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].battleGeneration;
+
+#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+	if (SkillTester(unit, SID_Enlightenment))
+		battleMpBoost = 0;
+#endif
+
+		bwl->currentMP += battleMpBoost;
+
 		if (bwl->currentMP > GetUnitMaxMP(unit))
 			bwl->currentMP = GetUnitMaxMP(unit);
 	}

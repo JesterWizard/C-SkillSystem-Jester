@@ -313,6 +313,7 @@
 // SID_Residium
 // SID_Malidiction
 // SID_SPConversion
+// SID_Enlightenment
 
 //////// POST-BATTLE SKILLS
 // SID_Canto
