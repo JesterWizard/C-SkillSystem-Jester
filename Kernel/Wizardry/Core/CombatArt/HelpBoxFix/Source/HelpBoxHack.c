@@ -667,6 +667,7 @@ void InitBoxDialogue(void * vram_dst, int pad_idx) {
     pad_idx = (pad_idx & 0xf) + 0x10;
 
     if (GetDialogueBoxConfig() & 0x10) {
+        vram_dst = (void *)0x06014800;
         Decompress(gGfx_YellowTextBox, vram_dst + 0x360);
         Decompress(gGfx_YellowTextBox2, vram_dst + 0x760);
         Decompress(gGfx_YellowTextBox3, vram_dst + 0xb60);
