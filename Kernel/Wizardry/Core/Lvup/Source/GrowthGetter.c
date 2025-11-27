@@ -5,6 +5,7 @@
 #include "shield.h"
 #include "constants/skills.h"
 #include "bwl.h"
+#include "debuff.h"
 
 STATIC_DECLAR int GetUnitCommonGrowthBonus(int status, struct Unit* unit)
 {
@@ -61,6 +62,8 @@ int GetUnitHpGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackHealth);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
 
 	return status;
 }
@@ -81,6 +84,9 @@ int GetUnitPowGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackStrength);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
+
 	return status;
 }
 
@@ -99,6 +105,9 @@ int GetUnitMagGrowthBonus(int status, struct Unit* unit)
 	if (SkillTester(unit, SID_KnackMagic))
 		status = status + SKILL_EFF0(SID_KnackMagic);
 #endif
+
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
 
 	return status;
 }
@@ -119,6 +128,9 @@ int GetUnitSklGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackSkill);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
+
 	return status;
 }
 
@@ -138,6 +150,8 @@ int GetUnitSpdGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackSpeed);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
 
 	return status;
 }
@@ -158,6 +172,9 @@ int GetUnitLckGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackLuck);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
+
 	return status;
 }
 
@@ -177,6 +194,9 @@ int GetUnitDefGrowthBonus(int status, struct Unit* unit)
 		status = status + SKILL_EFF0(SID_KnackDefense);
 #endif
 
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
+
 	return status;
 }
 
@@ -195,6 +215,9 @@ int GetUnitResGrowthBonus(int status, struct Unit* unit)
 	if (SkillTester(unit, SID_KnackResistance))
 		status = status + SKILL_EFF0(SID_KnackResistance);
 #endif
+
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
+			status += 7;
 
 	return status;
 }

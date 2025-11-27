@@ -201,6 +201,11 @@ void PutUnitSpriteIconsOam(void)
 					// 	MapTaskPutOamHi(MTSKCONF_STATUS_RENEWAL, OAM2_LAYER(2) + OAM2_CHR(0x000 / 0x20));
 					// 	statusIconApplied = true;
 					// 	break;
+
+					// case NEW_UNIT_STATUS_INVEST:
+					// 	MapTaskPutOamHi(MTSKCONF_STATUS_RENEWAL, OAM2_LAYER(2) + OAM2_CHR(0x000 / 0x20));
+					// 	statusIconApplied = true;
+					// 	break;
 					
 					}
 

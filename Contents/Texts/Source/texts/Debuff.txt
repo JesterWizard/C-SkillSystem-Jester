@@ -160,3 +160,8 @@ This unit cannot double.[X]
 Renewal[X]
 ## MSG_DEBUFF_RENEWAL_DESC
 Regain 30% of max HP each turn.[X]
+
+## MSG_DEBUFF_INVEST_NAME
+Invest[X]
+## MSG_DEBUFF_INVEST_DESC
+Boost all growths by 7%.[X]
