@@ -10,8 +10,14 @@ static _DECL_INFO RText_Name, RText_Class, RText_Level, RText_Exp, RText_Hp;
 _DECL_INFO *const RTextPageUnit_WithBWL = &RText_Pow;
 
 /* Line #1 */
+static _DECL_INFO RText_Title = {
+	NULL, &RText_Pow, NULL, NULL,
+	0x86, 0x04, MSG_TOGGLE_GROWTH_VIEW,
+	NULL, NULL
+};
+
 static _DECL_INFO RText_Pow = {
-	NULL, &RText_Mag, &RText_Name, &RText_Mov,
+	&RText_Title, &RText_Mag, &RText_Name, &RText_Mov,
 	0x66, 0x18, 0x546,
 	NULL, NULL
 };

@@ -265,3 +265,7 @@ Would you like to skip this puzzle?[X]
 ## MSG_Enter_District_DESC
 Choose to enter this world[N]
 map node to see different events.[X]
+
+## MSG_TOGGLE_GROWTH_VIEW
+Press Select to toggle between[N]
+stat and growth views.[X]
