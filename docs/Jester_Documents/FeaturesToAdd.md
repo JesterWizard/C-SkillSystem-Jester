@@ -1,9 +1,0 @@
-- BEXP
-- Gorgon Egg (for display of MP getters)
-- SP (Skill point) Engage system
-- Fourth Allegiance
-- Trap Rework
-- Enter Towns
-- Skills for SP
-- Skills for boosting MP capacity
-- Skills for boosting Skill (Tellius) capacity
