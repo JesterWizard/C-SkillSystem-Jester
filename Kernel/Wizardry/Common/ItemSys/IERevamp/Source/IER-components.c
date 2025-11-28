@@ -205,6 +205,11 @@ bool IER_Usability_Enfeeble(struct Unit * unit, int item)
     return HasSelectTarget(unit, MakeTargetListForEnfeeble);
 }
 
+bool IER_Usability_Invest(struct Unit * unit, int item)
+{
+    return HasSelectTarget(unit, MakeTargetListForInvest);
+}
+
 /**
  * Effects
  */
@@ -355,6 +360,10 @@ void IER_Effect_Enfeeble(struct Unit *unit, int item)
     DoUseAttackStaff(unit, MakeTargetListForEnfeeble);
 }
 
+void IER_Effect_Invest(struct Unit *unit, int item)
+{
+    DoUseAttackStaff(unit, MakeTargetListForInvest);
+}
 
 /**
  * Actions

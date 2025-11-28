@@ -262,3 +262,13 @@ Give a unit the[N]
 enfeeble status.[X]
 ## MSG_ITEM_ENFEEBLE_STAFF_SUBTITLE
 Select a unit to be enfeebled.[X]
+
+## MSG_ITEM_INVEST_STAFF_NAME
+Invest[X]
+## MSG_ITEM_INVEST_STAFF_DESC
+Boost growths temporarily by 7%.[X]
+## MSG_ITEM_INVEST_STAFF_USEDESC
+Boost growths[N]
+by 7%.[X]
+## MSG_ITEM_INVEST_STAFF_SUBTITLE
+Select a unit to boost.[X]

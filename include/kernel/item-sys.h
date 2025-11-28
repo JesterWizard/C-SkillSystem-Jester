@@ -81,6 +81,9 @@ enum chax_ierevamp_use_effects {
 #ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
     IER_STAFF_ENFEEBLE,
 #endif
+#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
+    IER_STAFF_INVEST,
+#endif
 
 
 	/**
@@ -274,6 +277,7 @@ IER_DECLEARE_Usability(IER_Usability_Provoke);
 IER_DECLEARE_Usability(IER_Usability_Petrify);
 IER_DECLEARE_Usability(IER_Usability_Sooth);
 IER_DECLEARE_Usability(IER_Usability_Enfeeble);
+IER_DECLEARE_Usability(IER_Usability_Invest);
 
 IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
 IER_DECLEARE_Effect(IER_Effect_RangedHeal);
@@ -303,6 +307,7 @@ IER_DECLEARE_Effect(IER_Effect_Provoke);
 IER_DECLEARE_Effect(IER_Effect_Petrify);
 IER_DECLEARE_Effect(IER_Effect_Sooth);
 IER_DECLEARE_Effect(IER_Effect_Enfeeble);
+IER_DECLEARE_Effect(IER_Effect_Invest);
 
 IER_DECLEARE_Action(IER_Action_StandardHeal);
 IER_DECLEARE_Action(IER_Action_StatusStaff);

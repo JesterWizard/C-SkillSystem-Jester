@@ -497,3 +497,31 @@ void MakeTargetListForEnfeeble(struct Unit *unit)
 #endif
 	ForEachAdjacentUnit(x, y, TryAddUnitToEnfeebleTargetList);
 }
+
+void TryAddUnitToInvestTargetList(struct Unit* unit) 
+{
+    if (!AreUnitsAllied(gSubjectUnit->index, unit->index)) {
+        return;
+    }
+
+    if (unit->statusIndex != UNIT_STATUS_NONE) {
+        return;
+    }
+
+    AddTarget(unit->xPos, unit->yPos, unit->index, 0);
+    return;
+}
+
+void MakeTargetListForInvest(struct Unit *unit)
+{
+	int x = unit->xPos;
+    int y = unit->yPos;
+	gSubjectUnit = unit;
+	InitTargets(x, y);
+
+	BmMapFill(gBmMapRange, 0);
+#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
+	AddMapForItem(unit, CONFIG_ITEM_INDEX_INVEST_STAFF);
+#endif
+	ForEachAdjacentUnit(x, y, TryAddUnitToInvestTargetList);
+}

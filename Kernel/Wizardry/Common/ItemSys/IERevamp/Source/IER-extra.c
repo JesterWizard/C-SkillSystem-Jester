@@ -586,6 +586,11 @@ void ExecCustomStaves(ProcPtr proc) {
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_ENFEEBLE);
         break;
 #endif
+#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
+    case CONFIG_ITEM_INDEX_INVEST_STAFF:
+        SetUnitStatus(unit_tar, NEW_UNIT_STATUS_INVEST);
+        break;
+#endif
 
     default:
         break;

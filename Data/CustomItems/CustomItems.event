@@ -25,3 +25,4 @@
 #include "PetrifyStaff/Installer.event"
 #include "SoothStaff/Installer.event"
 #include "EnfeebleStaff/Installer.event"
+#include "InvestStaff/Installer.event"

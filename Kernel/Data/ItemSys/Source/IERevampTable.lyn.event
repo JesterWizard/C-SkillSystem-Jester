@@ -173,6 +173,11 @@ WORD $0
 POIN IER_Effect_Enfeeble
 POIN IER_Action_CustomStaves
 WORD $0
+POIN IER_Usability_Invest
+WORD $0
+POIN IER_Effect_Invest
+POIN IER_Action_CustomStaves
+WORD $0
 POIN IER_Usability_Booster
 POIN IER_Usability_Booster
 WORD $0
@@ -370,4 +375,3 @@ POIN IER_PrepUsability_ArmsScroll
 WORD $0
 POIN IER_ActionEffect_ArmsScroll
 POIN IER_PrepEffect_ArmsScroll
-WORD $0 $0 $0 $0 $0
