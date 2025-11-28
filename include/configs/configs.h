@@ -507,6 +507,7 @@
 
 #define CONFIG_ARENA_SHOW_OPPONENT_IN_ADVANCE
 #define CONFIG_ARENA_LET_PLAYER_USE_UPGRADED_WEAPONS
+#define CONFIG_ARENA_CALCULATE_WEAPON_BASED_ON_LEVEL
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 

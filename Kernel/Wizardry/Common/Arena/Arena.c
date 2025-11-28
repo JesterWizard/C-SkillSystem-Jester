@@ -58,6 +58,58 @@
 //     return;
 // };
 
+static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
+
+    u8 *iter;
+
+    u8 arenaWeaponUpgrades[] = {
+        ITEM_SWORD_IRON, ITEM_SWORD_STEEL, ITEM_SWORD_SILVER, 0,
+        ITEM_LANCE_IRON, ITEM_LANCE_STEEL, ITEM_LANCE_SILVER, 0,
+        ITEM_AXE_IRON, ITEM_AXE_STEEL, ITEM_AXE_SILVER, 0,
+        ITEM_BOW_IRON, ITEM_BOW_STEEL, ITEM_BOW_SILVER, 0,
+        ITEM_ANIMA_FIRE, ITEM_ANIMA_ELFIRE, ITEM_ANIMA_FIMBULVETR, 0,
+        ITEM_LIGHT_LIGHTNING, ITEM_LIGHT_DIVINE, 0,
+        ITEM_DARK_FLUX, 0,
+
+        -1
+    };
+
+#ifdef CONFIG_ARENA_CALCULATE_WEAPON_BASED_ON_LEVEL
+    u8 effectiveLevel = unit->level;
+
+    if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+        effectiveLevel += 20;
+
+    u8 desiredStage =
+        (effectiveLevel <= 10) ? 0 :
+        (effectiveLevel <= 20) ? 1 :
+                                 2;
+             
+    for (int i = 0; i < (int)ARRAY_COUNT(arenaWeaponUpgrades); i += 4)
+    {
+        if (GetItemIndex(item) == arenaWeaponUpgrades[i * 4])
+            return MakeNewItem(arenaWeaponUpgrades[(i * 4) + desiredStage]);
+    }
+#endif
+
+    for (iter = arenaWeaponUpgrades; *iter != (u8) -1; iter++)
+    {
+        if (GetItemIndex(item) != *iter) {
+            continue;
+        }
+
+        if (*++iter != 0) {
+            return MakeNewItem(*iter);
+        }
+
+        return item;
+    }
+
+    /* The vanilla function lacks a return type outside of the loop */
+    /* This will never be reached */
+    return item;
+};
+
 LYN_REPLACE_CHECK(ArenaGenerateBaseWeapons);
 void ArenaGenerateBaseWeapons(void)
 {
@@ -74,7 +126,7 @@ void ArenaGenerateBaseWeapons(void)
     gArenaState.playerWeapon = MakeNewItem(arenaWeapons[gArenaState.playerWpnType]);
 
 #ifdef CONFIG_ARENA_LET_PLAYER_USE_UPGRADED_WEAPONS
-    gArenaState.playerWeapon = ArenaGetUpgradedWeapon(gArenaState.playerWeapon);
+    gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
 #endif
 
     gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
@@ -114,39 +166,6 @@ void ArenaGenerateBaseWeapons(void)
 
     return;
 }
-
-LYN_REPLACE_CHECK(ArenaGetUpgradedWeapon);
-u16 ArenaGetUpgradedWeapon(u16 item) {
-    u8* iter;
-
-    u8 arenaWeaponUpgrades[] = {
-        ITEM_SWORD_IRON, ITEM_SWORD_STEEL, ITEM_SWORD_SILVER, 0,
-        ITEM_LANCE_IRON, ITEM_LANCE_STEEL, ITEM_LANCE_SILVER, 0,
-        ITEM_AXE_IRON, ITEM_AXE_STEEL, ITEM_AXE_SILVER, 0,
-        ITEM_BOW_IRON, ITEM_BOW_STEEL, ITEM_BOW_SILVER, 0,
-        ITEM_ANIMA_FIRE, ITEM_ANIMA_ELFIRE, ITEM_ANIMA_FIMBULVETR, 0,
-        ITEM_LIGHT_LIGHTNING, ITEM_LIGHT_DIVINE, 0,
-        ITEM_DARK_FLUX, 0,
-
-        -1
-    };
-
-    for (iter = arenaWeaponUpgrades; *iter != (u8) -1; iter++) {
-        if (GetItemIndex(item) != *iter) {
-            continue;
-        }
-
-        if (*++iter != 0) {
-            return MakeNewItem(*iter);
-        }
-
-        return item;
-    }
-
-    /* The vanilla function lacks a return type outside of the loop */
-    /* This will never be reached */
-    return item;
-};
 
 /* This seems to cause crashes now on the arena screen */
 // LYN_REPLACE_CHECK(ArenaAdjustOpponentDamage);
@@ -452,6 +471,14 @@ void ArenaGenerateOpponentUnit(void) {
 
     UnitCheckStatCaps(unit);
     SetUnitHp(unit, GetUnitMaxHp(unit));
+
+    return;
+}
+
+LYN_REPLACE_CHECK(ArenaSetFallbackWeaponsMaybe);
+void ArenaSetFallbackWeaponsMaybe(void) {
+    // ArenaSetFallbackWeaponForUnit(gArenaState.playerUnit, &gArenaState.playerWeapon);
+    // ArenaSetFallbackWeaponForUnit(gArenaState.opponentUnit, &gArenaState.opponentWeapon);
 
     return;
 }
