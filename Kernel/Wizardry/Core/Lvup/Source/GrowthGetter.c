@@ -63,7 +63,7 @@ int GetUnitHpGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -85,7 +85,7 @@ int GetUnitPowGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -107,7 +107,7 @@ int GetUnitMagGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -129,7 +129,7 @@ int GetUnitSklGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -151,7 +151,7 @@ int GetUnitSpdGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -173,7 +173,7 @@ int GetUnitLckGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -195,7 +195,7 @@ int GetUnitDefGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }
@@ -217,7 +217,7 @@ int GetUnitResGrowthBonus(int status, struct Unit* unit)
 #endif
 
 	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_INVEST)
-			status += 7;
+		status += 7;
 
 	return status;
 }

@@ -520,7 +520,7 @@ void MakeTargetListForInvest(struct Unit *unit)
 	InitTargets(x, y);
 
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
+#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
 	AddMapForItem(unit, CONFIG_ITEM_INDEX_INVEST_STAFF);
 #endif
 	ForEachAdjacentUnit(x, y, TryAddUnitToInvestTargetList);

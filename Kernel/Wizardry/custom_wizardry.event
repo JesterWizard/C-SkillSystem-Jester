@@ -143,3 +143,7 @@
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     #include "Misc/FourthAllegiance/FourthAllegiance_Installer.event"
 #endif
+
+#ifdef CONFIG_FE7_MODE_SELECT
+    #include "Misc/FE7ModeSelect/FE7ModeSelect_Installer.event"
+#endif
