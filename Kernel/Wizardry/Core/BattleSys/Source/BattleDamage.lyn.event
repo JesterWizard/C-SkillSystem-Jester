@@ -28,7 +28,7 @@ POIN RegisterTargetEfxSkill
 POIN gpSkillExtraInfo
 WORD $17E8
 POIN _DmgDecreaseRef
-WORD $2027818 $8019431
+WORD $2027990 $8019431
 POIN Generic_CanUnitBeOnPos
 WORD $80D167D
 POIN GetUnitStatusIndex

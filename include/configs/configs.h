@@ -507,6 +507,6 @@
 
 #define CONFIG_SHOW_ARENA_OPPONENT_IN_ADVANCE
 
-// #define CONFIG_FE7_MODE_SELECT
+// #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
 #endif /* CONFIG_INSTALLED */

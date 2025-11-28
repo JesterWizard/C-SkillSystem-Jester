@@ -74,14 +74,14 @@ _kernel_malloc sKTutorialBits, 0xC
 _kernel_malloc sKTutorialBitsHistory, 0xC
 _kernel_malloc gBattleTargetPositionBackup, 0x4
 _kernel_malloc gActionDataExpa, 0x10
-_kernel_malloc sStatDebuffStatusAlly, 51 * 16
+_kernel_malloc sStatDebuffStatusAlly, 40 * 16 // Was originally 51 but reduced to 40 for 4th allegiance
 _kernel_malloc sStatDebuffStatusEnemy, 51 * 16
 _kernel_malloc sStatDebuffStatusNpc, 8 * 16
 _kernel_malloc sStatDebuffStatusFourth, 10 * 16 // CONFIG_FOURTH_ALLEGIANCE
 _kernel_malloc sStatDebuffStatusBattleUnit, 2 * 16
 _kernel_malloc sStatDebuffMsgBuf, 0x2C * 9 // JESTER - Expanded from 7 to 9 to account for curHP and maxHP
 _kernel_malloc sExpaConvoyItemCount, 4
-_kernel_malloc sExpaConvoyItemArray, 2 * 300
+_kernel_malloc sExpaConvoyItemArray, 2 * 200
 _kernel_malloc sGaidenMagicListObj, 0x24
 _kernel_malloc gpActorShileInfo, 4
 _kernel_malloc gpTargetShileInfo, 4
@@ -105,6 +105,17 @@ _kernel_malloc gBattleFlagExt, 0x10
 _kernel_malloc BanimSwitcherBuf, 0x40
 _kernel_malloc BanimSwitcherAnimDef, 0x8
 _kernel_malloc ChapterID, 0x8
+
+// For Eebit's FE7 Mode Select port
+@ _kernel_malloc gUnk_ModeSelect_02000000, 1
+@ _kernel_malloc gUnk_ModeSelect_02000001, 1
+@ _kernel_malloc gUnk_0201E8D4, 50
+@ _kernel_malloc gUnk_0201E97C, 50
+@ _kernel_malloc gUnk_020000A4, 50
+@ _kernel_malloc gUnk_0201E9F4, 50
+
+
+/* CONFIG */
 
 @ _kernel_malloc _kernel_malloc_align4_pad, 3
 

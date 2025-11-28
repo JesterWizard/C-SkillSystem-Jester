@@ -19,6 +19,8 @@
 
 #include "constants/faces.h"
 
+#include "common-chax.h"
+
 
 /*
 @ division runtime
@@ -1485,6 +1487,7 @@ void StartModeSelect(ProcPtr parent)
 extern u16 gBgConfig_SaveMenu[];
 
 //! Hook; overwrite function at FE8U:0x080AA1EC
+LYN_REPLACE_CHECK(SaveMenu_ResetLcdFormDifficulty);
 void SaveMenu_ResetLcdFormDifficulty(struct SaveMenuProc * proc)
 {
     proc->scroll_cnt = 0;
