@@ -73,6 +73,10 @@ void ArenaGenerateBaseWeapons(void)
 
     gArenaState.playerWeapon = MakeNewItem(arenaWeapons[gArenaState.playerWpnType]);
 
+#ifdef CONFIG_ARENA_LET_PLAYER_USE_UPGRADED_WEAPONS
+    gArenaState.playerWeapon = ArenaGetUpgradedWeapon(gArenaState.playerWeapon);
+#endif
+
     gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
 
     gArenaState.range = 1;
@@ -144,6 +148,7 @@ u16 ArenaGetUpgradedWeapon(u16 item) {
     return item;
 };
 
+/* This seems to cause crashes now on the arena screen */
 // LYN_REPLACE_CHECK(ArenaAdjustOpponentDamage);
 // s8 ArenaAdjustOpponentDamage(void) {
 //     s8 result = 0;
@@ -292,7 +297,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
         multiplier = 2;
 #endif
 
-#ifdef CONFIG_SHOW_ARENA_OPPONENT_IN_ADVANCE
+#ifdef CONFIG_ARENA_SHOW_OPPONENT_IN_ADVANCE
     DrawUiFrame2(7, 9, 0x10, 8, 0);
     SetTextFont(0);
     InitSystemTextFont();
