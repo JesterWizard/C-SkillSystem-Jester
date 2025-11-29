@@ -31,7 +31,7 @@
 #include "MpSystem/MpSystem.lyn.event"
 #include "SpSystem/SpSystem.lyn.event"
 #include "CustomItems/CustomItems.event"
-
 #include "ClassData/ClassData.lyn.event"
+#include "CustomPortraits/CustomPortraits.event"
 
 #endif

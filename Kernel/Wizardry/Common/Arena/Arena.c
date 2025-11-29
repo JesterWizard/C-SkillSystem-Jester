@@ -475,6 +475,7 @@ void ArenaGenerateOpponentUnit(void) {
     return;
 }
 
+/* Why does this exist? It's a secondary weapon setting function for the arena */
 LYN_REPLACE_CHECK(ArenaSetFallbackWeaponsMaybe);
 void ArenaSetFallbackWeaponsMaybe(void) {
     // ArenaSetFallbackWeaponForUnit(gArenaState.playerUnit, &gArenaState.playerWeapon);
