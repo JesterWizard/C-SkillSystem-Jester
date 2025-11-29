@@ -17,6 +17,7 @@
 #include "bwl.h"
 #include "debuff.h"
 #include "traps.h"
+#include "efxmagic.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"

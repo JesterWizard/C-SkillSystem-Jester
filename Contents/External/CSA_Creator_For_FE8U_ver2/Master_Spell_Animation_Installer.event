@@ -19,5 +19,4 @@ POP
 #define CSAEngine_Dim $95d7ec
 #define CSAEngine_NoDim $95d898 //the last word in the dmp, this should be updated if you edit the engine.
 
-// #include "CustomSpells/colorful_explosion/colorful-explosion.event"
-// #include "CustomSpells/Worm/Spell_without_comment.event"
+#include "CustomSpells/Atlas/Spell.event"

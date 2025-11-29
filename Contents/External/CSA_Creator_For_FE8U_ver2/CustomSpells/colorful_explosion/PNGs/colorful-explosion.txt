@@ -1,0 +1,137 @@
+# Frame 1
+C000003
+C000007
+C100029
+C000040
+O blank_image.png
+B colorful-explosion_1.png
+2
+
+# Frame 2
+C00001A
+C00AB48
+C00001F
+C00F848
+O blank_image.png
+B colorful-explosion_2.png
+2
+
+# Frame 3
+O blank_image.png
+B colorful-explosion_3.png
+2
+
+# Frame 4
+O blank_image.png
+B colorful-explosion_4.png
+2
+
+# Frame 5
+O blank_image.png
+B colorful-explosion_5.png
+2
+
+# Frame 6
+O blank_image.png
+B colorful-explosion_6.png
+2
+
+# Frame 7
+C000004
+O blank_image.png
+B colorful-explosion_7.png
+2
+
+# Frame 8
+O blank_image.png
+B colorful-explosion_8.png
+3
+
+# Frame 9
+C00F848
+O blank_image.png
+B colorful-explosion_9.png
+3
+
+# Frame 10
+O blank_image.png
+B colorful-explosion_10.png
+4
+
+# Frame 11
+O blank_image.png
+B colorful-explosion_11.png
+4
+
+# Frame 12
+O blank_image.png
+B colorful-explosion_12.png
+4
+
+# Frame 13
+O blank_image.png
+B colorful-explosion_13.png
+5
+
+# Frame 14
+O blank_image.png
+B colorful-explosion_14.png
+5
+
+# Frame 15
+O blank_image.png
+B colorful-explosion_15.png
+5
+
+# Frame 16
+O blank_image.png
+B colorful-explosion_16.png
+4
+
+# Frame 17
+O blank_image.png
+B colorful-explosion_17.png
+4
+
+# Frame 18
+O blank_image.png
+B colorful-explosion_18.png
+5
+
+# Frame 19
+O blank_image.png
+B colorful-explosion_19.png
+5
+
+# Frame 20
+O blank_image.png
+B colorful-explosion_20.png
+5
+
+# Frame 21
+C000001
+O blank_image.png
+B colorful-explosion_21.png
+4
+
+# Frame 22
+O blank_image.png
+B colorful-explosion_22.png
+6
+
+# Frame 23
+O blank_image.png
+B colorful-explosion_23.png
+6
+
+# Frame 24
+O blank_image.png
+B colorful-explosion_24.png
+7
+
+# Frame 25
+O blank_image.png
+B colorful-explosion_25.png
+2
+
+/// - End of animation

@@ -19,6 +19,7 @@ const struct ChapterEventGroup SerafewEvent = {
     .extraTrapsInHard = TrapData_ThisEventHard,
 
     .playerUnitsInNormal = Base_Chapter_5_Eirika,
+    .playerUnitsInHard = Base_Chapter_5_Eirika,
 
     .playerUnitsChoice1InEncounter = NULL,
     .playerUnitsChoice2InEncounter = NULL,

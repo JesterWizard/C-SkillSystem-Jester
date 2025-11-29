@@ -34,3 +34,19 @@ setMugEntry(0x43,Portrait_0x43,2,5,3,3)
 Portrait_0x56:
    #incext PortraitFormatter "Portraits/ismaire_dark_skin.png"
 setMugEntry(0x56,Portrait_0x56,2,5,3,3)
+
+Portrait_0x65:
+   #incext PortraitFormatter "Portraits/armory.png"
+setMugEntry(0x65,Portrait_0x65,3,2,3,3)
+
+Portrait_0x66:
+   #incext PortraitFormatter "Portraits/shop.png"
+setMugEntry(0x66,Portrait_0x66,3,2,3,3)
+
+Portrait_0x67:
+   #incext PortraitFormatter "Portraits/arena.png"
+setMugEntry(0x67,Portrait_0x67,3,2,3,3)
+
+Portrait_0x68:
+   #incext PortraitFormatter "Portraits/secret_shop.png"
+setMugEntry(0x68,Portrait_0x68,3,2,3,3)
