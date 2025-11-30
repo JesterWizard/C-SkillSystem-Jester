@@ -20,6 +20,8 @@
 [LoadFace] = 16
 [ClearFace] = 17
 [NormalPrint] = 18
+[OpenQuote] = 0xC2, 0x93
+[CloseQuote] = 0xC2, 0x94
 
 // ?
 [FastPrint] = 29

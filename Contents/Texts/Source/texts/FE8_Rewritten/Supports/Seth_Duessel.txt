@@ -1,4 +1,4 @@
-## C_Support_Seth_Duessel
+## C_Seth_Duessel
 [OpenMidRight][LoadFace_Seth]
 [OpenMidLeft][LoadFace_Duessel]
 Sir Seth, your reputation precedes you.[A][N]
@@ -38,7 +38,7 @@ True strength lies not in denying it[N]
 but facing it head on.[A][N]
 You will learn that in time.[A][X]
 
-## B_Support_Seth_Duessel
+## B_Seth_Duessel
 [OpenMidLeft][LoadFace_Duessel]
 [OpenMidRight][LoadFace_Seth]
 General Duessel, may I ask you[N]
@@ -135,7 +135,7 @@ shoulders, Seth.[A][N]
 I see in you the potential to become[N]
 a far better leader than me.[A][X]
 
-## A_Support_Seth_Duessel
+## A_Seth_Duessel
 [OpenMidRight][LoadFace_Seth]
 [OpenMidLeft][LoadFace_Duessel]
 Seth, I've been thinking. You remind[N]
@@ -194,29 +194,3 @@ long enough to see many changes in[N]
 the world.[A][N]
 Now, I look forward to seeing the[N]
 future you'll help create.[A][N]
-
-## Epilogue_Seth_Duessel
-Seth, for his part, continued to serve Renais[N]
-with distinction, not only as a general but as[N]
-a mentor to the kingdom's future leaders.[N]
-Inspired by the advice of Duessel, Seth helped[N]
-guide Renais into an era of peace, where the bonds[N]
-of trust and hope became as strong as the armor of[N]
-its knights. Though the two generals served[N]
-different kingdoms, they remained close friends[N]
-and often exchanged letters, sharing the lessons[N]
-they continued to learn in peace as they had once[N]
-done in war.[A][X]
-
-## Epilogue_Duessel_Seth
-After the war, Duessel returned to Grado,[N]
-but his days as a general were at an end.[N]
-He retired from military service, but not[N]
-from leadership. His wisdom was sought[N]
-throughout the land, and he served as a[N]
-trusted advisor to Grado's new government.[N]
-He often sought advice from Renais' General[N]
-Seth, having forged an iron-clad friendship[N]
-on the battlefield. Their bond served[N]
-as a reminder to both nations what their[n]
-future could look like.[A][X]

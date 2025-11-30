@@ -1,4 +1,4 @@
-## C_Support_Ewan_Myrrh
+## C_Ewan_Myrrh
 [OpenMidLeft][LoadFace_Ewan]
 [OpenMidRight][LoadFace_Myrrh]
 [OpenMidLeft][MoveMidLeft]
@@ -47,7 +47,7 @@ feeling lonely, okay?[A][N]
 ...Thank you, Ewan.[N]
 You're very kind.[A][X]
 
-## B_Support_Ewan_Myrrh
+## B_Ewan_Myrrh
 [OpenMidLeft][LoadFace_Ewan]
 [OpenMidRight][LoadFace_Myrrh]
 [OpenMidLeft]
@@ -106,7 +106,7 @@ And that's pretty awesome if you ask me![A][N]
 Thank you, Ewan. I...[N]
 feel a little better hearing that.[A][X]
 
-## A_Support_Ewan_Myrrh
+## A_Ewan_Myrrh
 [OpenMidLeft][LoadFace_Ewan]
 [OpenMidRight][LoadFace_Myrrh]
 Ewan, can I... ask you something?[A][N]
@@ -163,43 +163,3 @@ protect everyone... especially you.[A][N]
 Heh, sounds like a deal![A][N]
 Let's watch each other's backs[N]
 out there![A][X]
-
-## Epilogue_Ewan_Myrrh
-After the war ended, Ewan's hunger for[N]
-knowledge only grew. He continued his[N]
-studies in magic, traveling far and wide[N]
-to learn from the most experienced sages[N]
-and scholars. With his boundless enthusiasm[N]
-and curiosity, Ewan eventually became a[N]
-renowned sage, his magical abilities[N]
-rivaling even those of his master, Saleh.[N]
-But no matter how far he traveled or how[N]
-much he learned, he always remembered the[N]
-Friends he made during the war, especially[N]
-Myrrh. It was said that Ewan's most powerful[N]
-spells were inspired by the wisdom Myrrh[N]
-shared with him, and that Myrrh's heart, once[N]
-burdened by loneliness, was forever warmed[N]
-by the lighthearted mage who saw her as more[N]
-than just a dragon, but as a cherished friend.[X]
-
-## Epilogue_Myrrh_Ewan
-Myrrh, having seen the horrors of war and the[n]
-beauty of human companionship, decided to stay[N]
-in contact with the human world. Though she[N]
-returned to the safety of Darkling Woods for a[N]
-time. The bond she formed with Ewan reminded[N]
-her that even though her life span was far[N]
-greater than that of humans, the connections[N]
-she made were just as valuable. In time, she[N]
-learned to balance her Manakete nature with[N]
-the lessons she learned from Ewan and the[N]
-others. Ewan often visited Myrrh in Darkling[N]
-Woods, sharing with her his latest discoveries[N]
-and stories of the outside world. The two[N]
-maintained their deep friendship, and in the[N]
-quiet moments when they sat together,[N]
-surrounded by ancient trees, they would talk[N]
-about the fleeting nature of life and how,[N]
-despite their differences, they had found[N]
-something eternal in each other's company.[X]

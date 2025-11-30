@@ -1,12 +1,13 @@
-## C_Support_Knoll_Myrrh
+## C_Knoll_Myrrh
 [OpenMidRight][LoadFace_Knoll]
-Hmm.[A][N]
+Hmm.[A][X]
 
-## B_Support_Knoll_Myrrh
+## B_Knoll_Myrrh
 [OpenMidRight][LoadFace_Knoll]
 [OpenMidLeft][LoadFace_Myrrh]
+Sup.[A][X]
 
-## A_Support_Knoll_Myrrh
+## A_Knoll_Myrrh
 [OpenMidRight][LoadFace_Knoll]
 [OpenMidLeft][LoadFace_Myrrh]
 [OpenMidRight]
@@ -22,9 +23,4 @@ Okay, let  me test....[A][N]
 [MoveRight][MoveRight]
 ...[A][N]
 [MoveMidLeft]
-... I thought so.[A][N]
-
-
-C - introduction
-B - Network of stones
-A - Similar to dragonstones
+... I thought so.[A][X]

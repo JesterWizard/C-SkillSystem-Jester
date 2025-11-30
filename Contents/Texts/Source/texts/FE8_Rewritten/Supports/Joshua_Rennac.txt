@@ -1,4 +1,4 @@
-## C_Support_Joshua_Rennac
+## C_Joshua_Rennac
 [OpenMidLeft][LoadFace_Joshua]
 [OpenMidRight][LoadFace_Rennac]
 Gah.[A][N][MoveMidRight]
@@ -45,7 +45,7 @@ He's got fast legs.[A][N]
 ...Wonder how fast he can run[N]
 out of a casino...[A][X]
 
-## B_Support_Joshua_Rennac
+## B_Joshua_Rennac
 [OpenMidLeft][LoadFace_Joshua]
 [OpenMidRight][LoadFace_Rennac]
 [OpenMidLeft]
@@ -103,7 +103,7 @@ I could do with the distraction.[A][N]
 [OpenMidLeft]
 All right, let's rob 'em blind.[A][X]
 
-## A_Support_Joshua_Rennac
+## A_Joshua_Rennac
 [OpenFarFarLeft][LoadFace_Joshua]
 [OpenFarFarRight][LoadFace_Rennac]
 [MoveMidRight]
@@ -161,26 +161,3 @@ coin, right?[A][N]
 [ClearFace]
 [OpenMidLeft]
 ...Cheeky git.[A][X]
-
-## Epilogue_Joshua_Rennac
-After the war, Joshua returned to[N]
-Jehanna and reclaimed his birthright[N]
-as the nation's king, although he ruled[N]
-with the same carefree attitude that[N]
-had defined his wandering years. Rather[N]
-than fully committing to the life of a[N]
-monarch, Joshua allowed himself frequent[N]
-trips across the continent. During which[N]
-he kept in touch with a grumbly rouge who[N]
-had reinvigorated his love for gambling[N]
-and adventure.[X]
-
-## Epilogue_Rennac_Joshua
-Rennac left behind the chaos of war,[N]
-retreating to a life of luxury and comfort.[N]
-However, he soon found that his wealth was[N]
-not as satisfying as he had hoped. His days[N]
-were often interrupted by unexpected visits[N]
-from Joshua, who frequently invited him to[N]
-join new escapades, much to Rennac’s[N]
-irritation.[X]
