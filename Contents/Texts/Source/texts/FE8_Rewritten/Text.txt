@@ -53,7 +53,7 @@
 #include "Supports/Joshua_Rennac.txt"
 #include "Supports/Ewan_Myrrh.txt"
 #include "Supports/Seth_Duessel.txt"
-#include "Supports/Knoll_Lute.txt"
+#include "Supports/Lute_Knoll.txt"
 
 #include "Supports/Eirika_Ephraim.txt"
 #include "Supports/Eirika_Seth.txt"
@@ -99,7 +99,6 @@
 #include "Supports/Innes_Joshua.txt"
 #include "Supports/Innes_Larachel.txt"
 #include "Supports/Lute_Artur.txt"
-#include "Supports/Lute_Knoll.txt"
 #include "Supports/Lute_Kyle.txt"
 #include "Supports/Natasha_Joshua.txt"
 #include "Supports/Natasha_Knoll.txt"

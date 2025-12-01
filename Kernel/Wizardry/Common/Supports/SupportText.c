@@ -75,7 +75,7 @@ const struct SupportTalkEnt gNewSupportTalkList[] =
 
     { CHARACTER_LUTE, CHARACTER_ARTUR, {C_Lute_Artur, B_Lute_Artur, A_Lute_Artur}, 0, 0, 0, 0 },
     { CHARACTER_LUTE, CHARACTER_ROSS, {C_Ross_Lute, B_Ross_Lute, A_Ross_Lute}, 0, 0, 0, 0 },
-    { CHARACTER_LUTE, CHARACTER_KNOLL, {C_Knoll_Lute, B_Knoll_Lute, A_Knoll_Lute}, 0, 0, 0, 0 },
+    { CHARACTER_LUTE, CHARACTER_KNOLL, {C_Lute_Knoll, B_Lute_Knoll, A_Lute_Knoll}, 0, 0, 0, 0 },
     { CHARACTER_LUTE, CHARACTER_KYLE, {C_Lute_Kyle, B_Lute_Kyle, A_Lute_Kyle}, 0, 0, 0, 0 },
     { CHARACTER_LUTE, CHARACTER_VANESSA, {C_Vanessa_Lute, B_Vanessa_Lute, A_Vanessa_Lute}, 0, 0, 0, 0 },
 
@@ -186,7 +186,7 @@ const struct SupportTalkEnt gNewSupportTalkList[] =
 
     { CHARACTER_KNOLL, CHARACTER_NATASHA, {C_Natasha_Knoll, B_Natasha_Knoll, A_Natasha_Knoll}, 0, 0, 0, 0 },
     { CHARACTER_KNOLL, CHARACTER_DUESSEL, {C_Duessel_Knoll, B_Duessel_Knoll, A_Duessel_Knoll}, 0, 0, 0, 0 },
-    { CHARACTER_KNOLL, CHARACTER_LUTE, {C_Knoll_Lute, B_Knoll_Lute, A_Knoll_Lute}, 0, 0, 0, 0 },
+    { CHARACTER_KNOLL, CHARACTER_LUTE, {C_Lute_Knoll, B_Lute_Knoll, A_Lute_Knoll}, 0, 0, 0, 0 },
 
     { CHARACTER_JOSHUA, CHARACTER_NATASHA, {C_Natasha_Joshua, B_Natasha_Joshua, A_Natasha_Joshua}, 0, 0, 0, 0 },
     { CHARACTER_JOSHUA, CHARACTER_INNES, {C_Innes_Joshua, B_Innes_Joshua, A_Innes_Joshua}, 0, 0, 0, 0 },
