@@ -109,7 +109,6 @@ void CallSupportViewerEvent(u16 textIndex) {
     gEventSlots[0x2] = textIndex;
 }
 
-/* The hook here is intefereing with the display of the prep menu */
 //! FE8U = 0x080847F8
 LYN_REPLACE_CHECK(GetSupportTalkList);
 struct SupportTalkEnt* GetSupportTalkList(void) {

@@ -48,6 +48,8 @@
 #define UnlockLock3 0x40000000
 #define UnlockLock4 0x80000000
 
+/* This is causing the defined BL range text space to overflow so it's on hold until Mkha gets back to me 01/12/2025 */
 #include "SupportText.lyn.event"
-#include "SupportData.event"
-#include "CharacterTable.event"
+
+// #include "SupportData.event"
+// #include "CharacterTable.event"
