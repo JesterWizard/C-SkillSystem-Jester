@@ -31,7 +31,7 @@ MESSAGE FreeSpace__Reloc___ end at (CURRENTOFFSET) size as (CURRENTOFFSET - Free
 ORG FreeSpace_UsrData
     #include "Data/Data.event"
     #include "Debug/Debug.event"
-    #include "Contents/Contents.event"
+    // #include "Contents/Contents.event"
 FreeSpace_UsrDataTail:
 MESSAGE FreeSpace___Data___ end at (CURRENTOFFSET) size as (CURRENTOFFSET - FreeSpace_UsrData) max (UsrDataSize)
 ASSERT (FreeSpace_UsrDataEnd - CURRENTOFFSET)
@@ -56,4 +56,5 @@ ASSERT (FreeSpaceFont + FreeSpaceFontSize - CURRENTOFFSET)
  */
 ORG FreeSpaceDEMO
 // Free
+#include "Contents/Contents.event"
 #include "Kernel/Wizardry/custom_wizardry.event"

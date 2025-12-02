@@ -18,7 +18,9 @@ PUSH
     BYTE $3F
     ORG $59AAA
     BYTE $3F
-    PROTECT 0x000599E8 0x00059D28 // UpdateBanimFrame
+
+    // JESTER - This needs to be disabled as it conflicts with AutoGenLeftOAM
+    // PROTECT 0x000599E8 0x00059D28 // UpdateBanimFrame
 
     ORG $31F58 // ArenaIsUnitAllowed
     BYTE 0x3F
