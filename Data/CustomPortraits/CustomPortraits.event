@@ -1,4 +1,8 @@
 ALIGN 4
+// Portrait_0x02:
+//    #incext PortraitFormatter "Portraits/lyn_bride_halfbody.png"
+// setMugEntry(0x02,Portrait_0x02,2,5,2,3)
+
 Portrait_0x1B:
    #incext PortraitFormatter "Portraits/gerik_dark_skin.png"
 setMugEntry(0x1B,Portrait_0x1B,2,5,3,3)

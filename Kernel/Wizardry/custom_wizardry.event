@@ -147,3 +147,7 @@
 #ifdef CONFIG_FE7_MODE_SELECT
     #include "Misc/FE7ModeSelect/FE7ModeSelect_Installer.event"
 #endif
+
+#ifdef CONFIG_HALF_BODY_PORTRAITS
+    #include "Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event"
+#endif

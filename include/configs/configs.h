@@ -512,4 +512,6 @@
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
+// #define CONFIG_HALF_BODY_PORTRAITS // Doesn't really work. Very glitchy
+
 #endif /* CONFIG_INSTALLED */
