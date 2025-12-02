@@ -37,10 +37,21 @@ when she could. Eventually, she left Renais in[N]
 the care of her brother and wed Saleh. Their[N]
 daughter resembles the legendary Nada Kuya.[X]
 
-## Epilogue_Eirika_Larache
+## Epilogue_Eirika_Larachel
 ## Epilogue_Larachel_Eirik
+
 ## Epilogue_Eirika_Tana
+Following the war, Tana and Eirika remained[N]
+the best of friends. They visited one another[N]
+when time permitted, and as they grew older,[N]
+their children shared a bond of friendship[N]
+as close as Eirika and Tana themselves did.[X]
 ## Epilogue_Tana_Eirika
+Following the war, Tana and Eirika remained[N]
+the best of friends. They visited one another[N]
+when time permitted, and as they grew older,[N]
+their children shared a bond of friendship[N]
+as close as Eirika and Tana themselves did.[X]
 
 ## Epilogue_Eirika_Innes
 After the reconstruction of Renais, Innes[N]
@@ -148,26 +159,96 @@ who grew to be a great knight herself.[X]
 ## Epilogue_Colm_Moulder
 ## Epilogue_Moulder_Syrene
 ## Epilogue_Syrene_Moulder
+
 ## Epilogue_Vanessa_Syrene
+Sisters Syrene and Vanessa returned to Frelia[N]
+after the war for a long-overdue talk. They[N]
+talked of love and war, of friends now gone.[N]
+Together, they renewed their bond as siblings[N]
+and vowed never to let that bond fail.[X]
 ## Epilogue_Syrene_Vanessa
+Sisters Syrene and Vanessa returned to Frelia[N]
+after the war for a long-overdue talk. They[N]
+talked of love and war, of friends now gone.[N]
+Together, they renewed their bond as siblings[N]
+and vowed never to let that bond fail.[X]
+
 ## Epilogue_Vanessa_Lute
 ## Epilogue_Lute_Vanessa
+
 ## Epilogue_Vanessa_Forde
+Forde's love for Vanessa grew after the war,[N]
+and although she loved him as well, she[N]
+placed her duty to Frelia first. Undeterred,[N]
+Forde moved to Frelia himself. Over time,[N]
+the two were wed.[X]
 ## Epilogue_Forde_Vanessa
+Forde's love for Vanessa grew after the war,[N]
+and although she loved him as well, she[N]
+placed her duty to Frelia first. Undeterred,[N]
+Forde moved to Frelia himself. Over time,[N]
+the two were wed.[X
+]
 ## Epilogue_Vanessa_Innes
+At Innes's request, Vanessa moved into[N]
+Castle Frelia where she continued her duties[N]
+as a knight of the realm. Thereafter, they[N]
+had a child and lived happily with the[N]
+blessing of all around them.[X]
 ## Epilogue_Innes_Vanessa
+At Innes's request, Vanessa moved into[N]
+Castle Frelia where she continued her duties[N]
+as a knight of the realm. Thereafter, they[N]
+had a child and lived happily with the[N]
+blessing of all around them.[X]
+
 ## Epilogue_Ross_Garcia
+Father and son returned to Ide, where they[N]
+toiled together to rebuild their village.[N]
+Ross grew to become a greater warrior than[N]
+even his father. When he himself had a son,[N]
+that child continued his family's legacy.[X]
 ## Epilogue_Garcia_Ross
+Father and son returned to Ide, where they[N]
+toiled together to rebuild their village.[N]
+Ross grew to become a greater warrior than[N]
+even his father. When he himself had a son,[N]
+that child continued his family's legacy.[X]
+
 ## Epilogue_Ross_Lute
 ## Epilogue_Lute_Ross
+
 ## Epilogue_Ross_Amelia
+Amelia traveled to Ross's hometown, where she[N]
+decided to remain. Over time, the two fell in[N]
+love and were wed. Years later they had a son[N]
+who grew into a warrior. As he grew in skill[N]
+and strength, he surpassed even his father.[X]
 ## Epilogue_Amelia_Ross
+Amelia traveled to Ross's hometown, where she[N]
+decided to remain. Over time, the two fell in[N]
+love and were wed. Years later they had a son[N]
+who grew into a warrior. As he grew in skill[N]
+and strength, he surpassed even his father.[X]
+
 ## Epilogue_Ross_Ewan
 ## Epilogue_Ewan_Ross
 ## Epilogue_Ross_Gerik
 ## Epilogue_Gerik_Ross
+
 ## Epilogue_Neimi_Colm
+The childhood friends became lovers first,[N]
+then husband and wife. Worried for Neimi's[N]
+well-being, Colm gave up his adventurer's ways.[N]
+Neimi passed on her grandfather's skill in[N]
+archery to her own son and daughter.[N]
 ## Epilogue_Colm_Neimi
+The childhood friends became lovers first,[N]
+then husband and wife. Worried for Neimi's[N]
+well-being, Colm gave up his adventurer's ways.[N]
+Neimi passed on her grandfather's skill in[N]
+archery to her own son and daughter.[X]
+
 ## Epilogue_Neimi_Garcia
 ## Epilogue_Garcia_Neimi
 ## Epilogue_Neimi_Amelia
@@ -188,10 +269,30 @@ who grew to be a great knight herself.[X]
 ## Epilogue_Tana_Innes
 ## Epilogue_Innes_Joshua
 ## Epilogue_Joshua_Innes
+
 ## Epilogue_Innes_Larachel
+Stories tell of the sparks that flew between[N]
+L'Arachel and Innes when they first met. As[N]
+the love between them flourished, so too did[N]
+the bond that united their two nations.[X]
 ## Epilogue_Larachel_Innes
+Stories tell of the sparks that flew between[N]
+L'Arachel and Innes when they first met. As[N]
+the love between them flourished, so too did[N]
+the bond that united their two nations.[X]
+
 ## Epilogue_Lute_Artur
+Artur and Lute were married upon their return.[N]
+Artur handled the housework, but otherwise,[N]
+their lives were unchanged. When they had a[N]
+son, Lute's interests shifted from studying[N]
+Artur to studying her son's baffling habits.[X]
 ## Epilogue_Artur_Lute
+Artur and Lute were married upon their return.[N]
+Artur handled the housework, but otherwise,[N]
+their lives were unchanged. When they had a[N]
+son, Lute's interests shifted from studying[N]
+Artur to studying her son's baffling habits.[X]
 
 ## Epilogue_Lute_Knoll
 Lute continued her meteoric rise through[N]
@@ -207,51 +308,199 @@ whose endless questions on magic brought him[N]
 back to life and set him on the path to teach.[X]
 
 ## Epilogue_Lute_Kyle
+After the war, Kyle and Lute were married in[N]
+Renais. Kyle's friends were disturbed by his[N]
+choice of bride, but they could not deny[N]
+his happiness. Before long, they had a son,[N]
+and Kyle dedicated himself to his upbringing.[X]
 ## Epilogue_Kyle_Lute
+After the war, Kyle and Lute were married in[N]
+Renais. Kyle's friends were disturbed by his[N]
+choice of bride, but they could not deny[N]
+his happiness. Before long, they had a son,[N]
+and Kyle dedicated himself to his upbringing.[X]
+
 ## Epilogue_Natasha_Joshua
+When Joshua returned to Jehanna, he took[N]
+Natasha as his bride and claimed the throne[N]
+as its rightful heir. Natasha was the perfect[N]
+companion, and together, they carried the[N]
+mighty desert nation to great glory.[X]
 ## Epilogue_Joshua_Natasha
+When Joshua returned to Jehanna, he took[N]
+Natasha as his bride and claimed the throne[N]
+as its rightful heir. Natasha was the perfect[N]
+companion, and together, they carried the[N]
+mighty desert nation to great glory.[X]
+
 ## Epilogue_Natasha_Knoll
 ## Epilogue_Knoll_Natasha
 ## Epilogue_Natasha_Cormag
 ## Epilogue_Cormag_Natasha
 ## Epilogue_Cormag_Duessel
 ## Epilogue_Duessel_Cormag
+
 ## Epilogue_Cormag_Tana
+Cormag returned to Grado to assist in the[N]
+reconstruction of his country. Shortly[N]
+after, he left to wander on his own. Tana[N]
+spent years looking for him. In time, she[N]
+found him and knighted him in Frelia's service.[X]
 ## Epilogue_Tana_Cormag
+Cormag returned to Grado to assist in the[N]
+reconstruction of his country. Shortly[N]
+after, he left to wander on his own. Tana[N]
+spent years looking for him. In time, she[N]
+found him and knighted him in Frelia's service.[X]
+
 ## Epilogue_Cormag_Artur
 ## Epilogue_Artur_Cormag
 ## Epilogue_Ephraim_Kyle
 ## Epilogue_Kyle_Ephraim
 ## Epilogue_Ephraim_Forde
 ## Epilogue_Forde_Ephraim
+
 ## Epilogue_Ephraim_Myrrh
+After the war, Ephraim returned to Renais and[N]
+Myrrh to Darkling Woods. They both turned their[N]
+attention to their respective duties but never[N]
+forgot one another. Though Myrrh never again[N]
+left Darkling Woods, Ephraim often visited her.[X]
 ## Epilogue_Myrrh_Ephraim
+After the war, Ephraim returned to Renais and[N]
+Myrrh to Darkling Woods. They both turned their[N]
+attention to their respective duties but never[N]
+forgot one another. Though Myrrh never again[N]
+left Darkling Woods, Ephraim often visited her.[X]
+
 ## Epilogue_Ephraim_Larachel
+Ephraim and L'Arachel each returned home[N]
+after the war, but L'Arachel visited Renais[N]
+often. Over time, the two were wed. Their[N]
+marriage threw Rausten into turmoil, but[N]
+L'Arachel's self-centeredness carried the day.[X]
 ## Epilogue_Larachel_Ephraim
+Ephraim and L'Arachel each returned home[N]
+after the war, but L'Arachel visited Renais[N]
+often. Over time, the two were wed. Their[N]
+marriage threw Rausten into turmoil, but[N]
+L'Arachel's self-centeredness carried the day.[X]
+
 ## Epilogue_Ephraim_Duessel
 ## Epilogue_Duessel_Ephraim
+
 ## Epilogue_Ephraim_Tana
+Once Renais was stable again, Ephraim and[N]
+Tana were wed. Innes protested vocally, but[N]
+when he saw how happy Tana was, he gave the[N]
+marriage his blessings. Renais and Frelia[N]
+are now bound by blood as well as friendship.[X]
 ## Epilogue_Tana_Ephraim
+Once Renais was stable again, Ephraim and[N]
+Tana were wed. Innes protested vocally, but[N]
+when he saw how happy Tana was, he gave the[N]
+marriage his blessings. Renais and Frelia[N]
+are now bound by blood as well as friendship.[X]
+
 ## Epilogue_Forde_Kyle
+Sometimes, the greatest friends also differ[N]
+greatly in personality. When Kyle and Forde[N]
+returned home, they were celebrated in song[N]
+and story. They lived their days in happiness,[N]
+as dearest friends and toughest rivals.[X]
 ## Epilogue_Kyle_Forde
+Sometimes, the greatest friends also differ[N]
+greatly in personality. When Kyle and Forde[N]
+returned home, they were celebrated in song[N]
+and story. They lived their days in happiness,[N]
+as dearest friends and toughest rivals.[X]
+
 ## Epilogue_Kyle_Syrene
+After the war, Kyle visited Frelia, where[N]
+he was greeted with a warm reception by[N]
+Syrene. After the two retired, they were[N]
+wed. They raised a daughter whose skill[N]
+in martial arts and etiquette excelled.[X]
 ## Epilogue_Syrene_Kyle
+After the war, Kyle visited Frelia, where[N]
+he was greeted with a warm reception by[N]
+Syrene. After the two retired, they were[N]
+wed. They raised a daughter whose skill[N]
+in martial arts and etiquette excelled.[X]
+
 ## Epilogue_Amelia_Duessel
+Upon their return to Grado, Duessel reunited[N]
+Amelia with her mother. The two wept with[N]
+joy, giving thanks to Duessel. Afterward, Amelia[N]
+became the most trusted companion of the[N]
+man once known as Obsidian.[X]
 ## Epilogue_Duessel_Amelia
+Upon their return to Grado, Duessel reunited[N]
+Amelia with her mother. The two wept with[N]
+joy, giving thanks to Duessel. Afterward, Amelia[N]
+became the most trusted companion of the[N]
+man once known as Obsidian.[X]
+
 ## Epilogue_Amelia_Ewan
+After the war, Ewan and Amelia set out, as[N]
+promised, on a trip around the world. Their[N]
+deeds along the way made small legends in the[N]
+regions they visited. In time, Amelia gave[N]
+birth to a daughter, and they settled down.[X]
 ## Epilogue_Ewan_Amelia
+After the war, Ewan and Amelia set out, as[N]
+promised, on a trip around the world. Their[N]
+deeds along the way made small legends in the[N]
+regions they visited. In time, Amelia gave[N]
+birth to a daughter, and they settled down.[X]
+
 ## Epilogue_Artur_Tethys
 ## Epilogue_Tethys_Artur
 ## Epilogue_Artur_Joshua
 ## Epilogue_Joshua_Artur
+
 ## Epilogue_Gerik_Tethys
+Gerik and Tethys remained bound to no nation[N]
+and beholden to no authority. They bought[N]
+themselves a leisurely retirement. Gerik[N]
+taught fencing to city youths, and Tethys[N]
+found many stages on which to dance.[X]
 ## Epilogue_Tethys_Gerik
+Gerik and Tethys remained bound to no nation[N]
+and beholden to no authority. They bought[N]
+themselves a leisurely retirement. Gerik[N]
+taught fencing to city youths, and Tethys[N]
+found many stages on which to dance.[X]
+
 ## Epilogue_Gerik_Marisa
+Gerik remained a mercenary, and Marisa[N]
+became his company's fencing instructor.[N]
+Gerik returned the affection she gave[N]
+him, although he was troubled to learn she[N]
+was clumsy at everything but fighting.[X]
 ## Epilogue_Marisa_Gerik
+Gerik remained a mercenary, and Marisa[N]
+became his company's fencing instructor.[N]
+Gerik returned the affection she gave[N]
+him, although he was troubled to learn she[N]
+was clumsy at everything but fighting.[X]
+
 ## Epilogue_Gerik_Saleh
 ## Epilogue_Saleh_Gerik
+
 ## Epilogue_Gerik_Joshua
+After the war, Joshua challenged Gerik to a[N]
+duel in hopes of pressing him to move to[N]
+Jehanna. The match ended in a tie, but Gerik[N]
+was impressed by Joshua's swagger. From that[N]
+day forward, Gerik never left Joshua's side.[X]
 ## Epilogue_Joshua_Gerik
+After the war, Joshua challenged Gerik to a[N]
+duel in hopes of pressing him to move to[N]
+Jehanna. The match ended in a tie, but Gerik[N]
+was impressed by Joshua's swagger. From that[N]
+day forward, Gerik never left Joshua's side.[X]
+
 ## Epilogue_Tethys_Ewan
 ## Epilogue_Ewan_Tethys
 ## Epilogue_Tethys_Marisa
@@ -260,12 +509,46 @@ back to life and set him on the path to teach.[X]
 ## Epilogue_Rennac_Tethys
 ## Epilogue_Marisa_Tana
 ## Epilogue_Tana_Marisa
+
 ## Epilogue_Marisa_Joshua
+Joshua returned to Jehanna with Marisa, where[N]
+she pledged service to the crown and became[N]
+the top swordfighter in the land. Joshua still[N]
+loved games of chance, but when it came to[N]
+Marisa, she was ever the winner.[X]
 ## Epilogue_Joshua_Marisa
+Joshua returned to Jehanna with Marisa, where[N]
+she pledged service to the crown and became[N]
+the top swordfighter in the land. Joshua still[N]
+loved games of chance, but when it came to[N]
+Marisa, she was ever the winner.[X]
+
 ## Epilogue_Saleh_Myrrh
+Myrrh returned to Darkling Woods, but at[N]
+Saleh's request, she eventually moved to Caer[N]
+Pelyn. In time, the townsfolk learned to[N]
+treat her not as the Great Dragon but[N]
+rather as a normal girl, and she was happy.[X]
 ## Epilogue_Myrrh_Saleh
+Myrrh returned to Darkling Woods, but at[N]
+Saleh's request, she eventually moved to Caer[N]
+Pelyn. In time, the townsfolk learned to[N]
+treat her not as the Great Dragon but[N]
+rather as a normal girl, and she was happy.[X]
+
 ## Epilogue_Saleh_Ewan
+Master and student returned to Caer Pelyn to[N]
+study in peace. Ewan worked hard, and in time,[N]
+his power grew to rival Saleh's. As equals,[N]
+the two continued their studies together and[N]
+expanded their knowledge ever more.[X]
 ## Epilogue_Ewan_Saleh
+Master and student returned to Caer Pelyn to[N]
+study in peace. Ewan worked hard, and in time,[N]
+his power grew to rival Saleh's. As equals,[N]
+the two continued their studies together and[N]
+expanded their knowledge ever more.[X]
+
 ## Epilogue_Ewan_Dozla
 ## Epilogue_Dozla_Ewan
 
@@ -283,7 +566,18 @@ then with his family. As the generations went[N]
 on Myrrh would come to be known as their guardian.[X]
 
 ## Epilogue_Larachel_Dozla
+L'Arachel was, in time, made queen of Rausten,[N]
+with Dozla at her side, as always. Later, Dozla[N]
+wept like a baby when L'Arachel was wed. His[N]
+emotional outburst is remembered as much as,[N]
+if not more than, the ceremony itself.[X]
 ## Epilogue_Dozla_Larachel
+L'Arachel was, in time, made queen of Rausten,[N]
+with Dozla at her side, as always. Later, Dozla[N]
+wept like a baby when L'Arachel was wed. His[N]
+emotional outburst is remembered as much as,[N]
+if not more than, the ceremony itself.[X]
+
 ## Epilogue_Larachel_Rennac
 ## Epilogue_Rennac_Larachel
 ## Epilogue_Larachel_Joshua
