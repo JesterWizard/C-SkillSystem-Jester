@@ -512,6 +512,11 @@
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
-// #define CONFIG_HALF_BODY_PORTRAITS // Doesn't really work. Very glitchy
+/* 
+** For the portrait formatting, it only works by calling the HalfBodyFormatter.exe in my own local drive in the downloads folder,
+** so will not work for anyone else unless they're using WSL (Windows Subsystem in Linux) and put the exe there.
+** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
+*/
+#define CONFIG_HALF_BODY_PORTRAITS // Doesn't really work. Very glitchy
 
 #endif /* CONFIG_INSTALLED */

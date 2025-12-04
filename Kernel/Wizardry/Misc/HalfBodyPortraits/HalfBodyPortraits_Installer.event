@@ -140,21 +140,20 @@ POIN RightMugCutOAM
 ORG 0x5820
 POIN LeftMugCutOAM
 
-//ORG 0x5594
-//replaceWithHack(Load6CFACEGraphics)
+ORG 0x5594
+replaceWithHack(Load6CFACEGraphics)
 
-//A routine coexisting with SkillSystems' s RandomMug4 
-//by 7743.
+// A routine coexisting with SkillSystems' s RandomMug4 
+// by 7743.
 ORG $22C02
 BYTE 0x00 0x00
 jumpToHack(CoexistingWithSkillSystemsRandomMug4);
 
-//
 //If SkillSystems's RandomMug4 does not exist.
-//ORG $22BF8
-//BYTE 0x04
-//ORG $22BFC
-//BYTE 0x01
+// ORG $22BF8
+// BYTE 0x04
+// ORG $22BFC
+// BYTE 0x01
 
 POP
 

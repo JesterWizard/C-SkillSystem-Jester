@@ -88,7 +88,7 @@ PORTRAITFORMATTER := $(EA_DIR)/Tools/PortraitFormatter
 LYN               := $(EA_DIR)/Tools/lyn
 EA_DEP            := $(EA_DIR)/ea-dep
 
-# While this is a good idea in practice, protecting functions like this make it difficult to accomodate
+# While this is a good idea in theory, in practice protecting functions like this makes it difficult to accomodate
 # external functionality that might need to hook into it. So while it's a risk I'm disabling it for now.
 # LYN_PROTECTOR := $(TOOL_DIR)/scripts/lynjump-protector.sh
 LYN_DETECTOR  := $(TOOL_DIR)/scripts/lynjump-detector.sh

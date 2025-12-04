@@ -1,0 +1,3 @@
+#!/bin/bash
+# Forward all args to the Windows exe in your Downloads (WSL path). Adjust path if needed.
+"/mnt/c/Users/Owner/Downloads/HalfbodyFormatter.exe" "$@"
