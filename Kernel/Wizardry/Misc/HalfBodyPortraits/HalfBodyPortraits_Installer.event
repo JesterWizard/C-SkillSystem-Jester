@@ -1,5 +1,3 @@
-#include "Extensions/Hack Installation.txt"
-
 #define _8x8(x_coord, y_coord, h_flip, v_flip, tile_num, palette) "SHORT y_coord x_coord|(h_flip<<0xC)|(v_flip<<0xD) (tile_num | palette << 12)"
 #define _16x16(x_coord, y_coord, h_flip, v_flip, tile_num, palette) "_8x8(x_coord|0x4000, y_coord|0x0000, h_flip, v_flip, tile_num, palette)"
 #define _64x32(x_coord, y_coord, h_flip, v_flip, tile_num, palette) "_8x8(x_coord|0xC000, y_coord|0x4000, h_flip, v_flip, tile_num, palette)"
@@ -26,12 +24,12 @@ BYTE 0x4
 ORG 0x2360E
 BYTE 0x1
 
-ORG 0x1C142
-BYTE 0x2
-ORG 0x1C132
-BYTE 0x01 //Marth
-ORG 0x1C1A0
-BYTE 0x2 //All of these are for the debug bootup(yes this is basically useless but fuck you)
+// ORG 0x1C142
+// BYTE 0x2
+// ORG 0x1C132
+// BYTE Marth
+// ORG 0x1C1A0
+// BYTE 0x2 //debug bootup(yes this is basically useless)
 
 ORG 0x2DB50
 BYTE 0x2 //Fixing backing out of trading
@@ -39,10 +37,6 @@ ORG 0x2D2EA
 BYTE 0x70 //70<<7 = 0x3800
 ORG 0x2D2FE
 BYTE 10 //Palette ID 10 because 8/9 is used by halfbody //Fixing trading
-
-//Fixed Item Trading
-ORG 0x2D7F6
-BYTE 0x02
 
 ORG 0x23318
 BYTE 0x1
@@ -57,10 +51,12 @@ BYTE 0x4 //Fixing Equip with Item
 ORG 0x23314
 BYTE 0x4
 
-//ORG 0x2332E
-//BYTE 0x0D
-//ORG 0x1E7AC
-//BYTE 0x12 //Extend the Character stat box for Item.
+/*
+ORG 0x2332E
+BYTE 0x0D
+ORG 0x1E7AC
+BYTE 0x12 //Extend the Character stat box for Item.
+*/
 
 ORG 0x56C2
 BYTE 0x40 //Palette size
@@ -85,12 +81,12 @@ ORG 0xA2A5E
 BYTE 0x70
 
 //Fixing Prep Screen Trading
-//ORG 0x99D5C
-//BYTE 0x2
-//ORG 0x989E0
-//BYTE 0x2
-//ORG 0x99BDE
-//BYTE 0x2
+/*ORG 0x99D5C
+BYTE 0x2
+ORG 0x989E0
+BYTE 0x2
+ORG 0x99BDE
+BYTE 0x2*/
 ORG 0x205C14
 WORD 0x4000
 ORG 0x205C1C
@@ -140,20 +136,8 @@ POIN RightMugCutOAM
 ORG 0x5820
 POIN LeftMugCutOAM
 
-ORG 0x5594
-replaceWithHack(Load6CFACEGraphics)
-
-// A routine coexisting with SkillSystems' s RandomMug4 
-// by 7743.
-ORG $22C02
-BYTE 0x00 0x00
-jumpToHack(CoexistingWithSkillSystemsRandomMug4);
-
-//If SkillSystems's RandomMug4 does not exist.
-// ORG $22BF8
-// BYTE 0x04
-// ORG $22BFC
-// BYTE 0x01
+/*ORG 0x5594
+replaceWithHack(Load6CFACEGraphics)*/
 
 POP
 
@@ -270,12 +254,6 @@ _16x32(208|0x100, 16, 1, 0, 0x94, 0)
 ALIGN 4
 
 Load6CFACEGraphics:
-#incbin "Load6CFACEGraphics.dmp"
-
-ALIGN 4
-//A routine coexisting with SkillSystems' s Random Mug 4 
-//by 7743.
-CoexistingWithSkillSystemsRandomMug4:
-#incbin "CoexistingWithSkillSystemsRandomMug4.dmp"
+#include "Load6CFACEGraphics.event"
 
 ALIGN 4

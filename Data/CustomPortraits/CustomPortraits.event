@@ -1,7 +1,15 @@
+// ALIGN 4
+// Portrait_0x02:
+//    #incext HalfbodyFormatter "Portraits/lyn_bride_halfbody.png"
+// setMugEntry(0x02,Portrait_0x02,2,5,2,3)
+
 ALIGN 4
 Portrait_0x02:
-   #incext HalfbodyFormatter "Portraits/lyn_bride_halfbody.png" -lz77
-setMugEntry(0x02,Portrait_0x02,2,5,2,3)
+   #incbin "Portraits/lynbride_mug.dmp"
+   #incbin "Portraits/lynbride_frames.dmp"
+   #incbin "Portraits/lynbride_palette.dmp"
+   #incbin "Portraits/lynbride_minimug.dmp"
+setMugEntry(0x02, Portrait_0x02, 2, 5, 2, 3)
 
 Portrait_0x51:
    #incext HalfbodyFormatter "Portraits/Anna.png"
