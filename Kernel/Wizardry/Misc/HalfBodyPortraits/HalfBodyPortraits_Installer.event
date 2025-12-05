@@ -24,12 +24,12 @@ BYTE 0x4
 ORG 0x2360E
 BYTE 0x1
 
-// ORG 0x1C142
-// BYTE 0x2
-// ORG 0x1C132
-// BYTE Marth
-// ORG 0x1C1A0
-// BYTE 0x2 //debug bootup(yes this is basically useless)
+ORG 0x1C142
+BYTE 0x2
+ORG 0x1C132
+BYTE 0x2 // Marth
+ORG 0x1C1A0
+BYTE 0x2 //debug bootup(yes this is basically useless)
 
 ORG 0x2DB50
 BYTE 0x2 //Fixing backing out of trading
@@ -51,12 +51,11 @@ BYTE 0x4 //Fixing Equip with Item
 ORG 0x23314
 BYTE 0x4
 
-/*
+
 ORG 0x2332E
 BYTE 0x0D
 ORG 0x1E7AC
 BYTE 0x12 //Extend the Character stat box for Item.
-*/
 
 ORG 0x56C2
 BYTE 0x40 //Palette size

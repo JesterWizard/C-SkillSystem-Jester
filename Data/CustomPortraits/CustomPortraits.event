@@ -1,19 +1,14 @@
-// ALIGN 4
-// Portrait_0x02:
-//    #incext HalfbodyFormatter "Portraits/lyn_bride_halfbody.png"
-// setMugEntry(0x02,Portrait_0x02,2,5,2,3)
+#define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2644; POIN mugLocation+0x2604; POIN mugLocation+0x2004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
+#define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2648; POIN mugLocation+0x2608; POIN mugLocation+0x2008; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
 
 ALIGN 4
-Portrait_0x02:
-   #incbin "Portraits/lynbride_mug.dmp"
-   #incbin "Portraits/lynbride_frames.dmp"
-   #incbin "Portraits/lynbride_palette.dmp"
-   #incbin "Portraits/lynbride_minimug.dmp"
-setMugEntry(0x02, Portrait_0x02, 2, 5, 2, 3)
+// Portrait_0x02:
+//    #incext HalfbodyFormatter "Portraits/lyn_bride_halfbody.png"
+// setMugEntry_Halfbody(0x02,Portrait_0x02,2,5,2,3)
 
-Portrait_0x51:
-   #incext HalfbodyFormatter "Portraits/Anna.png"
-setMugEntry(0x51,Portrait_0x51,3,7,3,5)
+// Portrait_0x51:
+//    #incext HalfbodyFormatter "Portraits/Anna.png"
+// setMugEntry_Halfbody(0x51,Portrait_0x51,3,7,3,5)
 
 Portrait_0x1B:
    #incext PortraitFormatter "Portraits/gerik_dark_skin.png"
