@@ -3169,7 +3169,7 @@ u8 AttackMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget* target) {
     return 0;
 }
 
-extern struct ProcCmd CONST_DATA gProcScr_0859B630[];
+extern struct ProcCmd const gProcScr_0859B630[];
 
 LYN_REPLACE_CHECK(AttackMapSelect_Cancel);
 u8 AttackMapSelect_Cancel(ProcPtr proc, struct SelectTarget* target) {
@@ -4231,7 +4231,7 @@ void SyncUnitSpriteSheet(void)
         CpuFastCopy(gSMSGfxBuffer[1], (void*)0x06011000, sizeof(gSMSGfxBuffer[1]));
 }
 
-static u8 CONST_DATA sMuWalkSpeedLut[2] = {
+static u8 const sMuWalkSpeedLut[2] = {
     [UNIT_WALKSPEED_FAST] = 2,
     [UNIT_WALKSPEED_SLOW] = 1,
 };
