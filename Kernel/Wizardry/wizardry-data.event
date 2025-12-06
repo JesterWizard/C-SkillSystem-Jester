@@ -23,6 +23,10 @@ KERNEL_DATA_START:
     #include "Common/FogVision/FogVision_Installer.event"
 #endif
 
+#ifdef CONFIG_KILL_REWARDS
+    #include "Common/KillRewards/KillRewards.lyn.event"
+#endif
+
 #include "Core/BattleSys/data.event"
 #include "Core/MapTask/data.event"
 #include "Core/DebuffRework/data.event"

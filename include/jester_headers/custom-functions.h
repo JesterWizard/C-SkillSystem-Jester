@@ -153,3 +153,8 @@ extern int GetUnitCurrentMP(struct Unit * unit);
 extern int GetUnitMaxMP(struct Unit * unit);
 
 extern int GetWEXPForNextLevel(int wexp);
+
+extern u8 GetItemReward(struct Unit * winner, struct Unit * loser);
+
+extern void Popup_GotItem(ProcPtr proc);
+extern const struct ProcCmd ProcPopup_GotItem[];

@@ -47,7 +47,7 @@ static const GameOverQuotes game_over_quotes[] =
     }},
     {{
         "----------Tip----------",
-        "Each unit can learn up to 7 skills.",
+        "Each unit can learn up to 5 skills.",
         "Equip your army wisely."
     }},
     {{

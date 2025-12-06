@@ -4,13 +4,14 @@
 #include "class-types.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "jester_headers/custom-functions.h"
 
-static void Popup_GotItem(ProcPtr proc)
+void Popup_GotItem(ProcPtr proc)
 {
 	NewPopup_Simple(PopupScr_GotItem, 0x60, 0x0, proc);
 };
 
-static const struct ProcCmd ProcPopup_GotItem[] = {
+const struct ProcCmd ProcPopup_GotItem[] = {
 	PROC_CALL(Popup_GotItem),
 	PROC_YIELD,
 	PROC_END

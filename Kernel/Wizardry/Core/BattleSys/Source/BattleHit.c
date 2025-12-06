@@ -835,3 +835,54 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 	gBattleHitIterator++;
 	return false;
 }
+
+//! FE8U = 0x080328D0
+LYN_REPLACE_CHECK(BATTLE_HandleItemDrop);
+bool BATTLE_HandleItemDrop(struct CombatActionProc* proc) {
+    struct Unit* unitA = NULL;
+    struct Unit* unitB = NULL;
+
+    proc->unitIdA = gBattleActor.unit.index;
+    proc->unitIdB = gBattleTarget.unit.index;
+
+    if (gBattleActor.unit.curHP == 0) {
+        unitA = GetUnit(gBattleActor.unit.index);
+        unitB = GetUnit(gBattleTarget.unit.index);
+    }
+
+    if (gBattleTarget.unit.curHP == 0) {
+        unitA = GetUnit(gBattleTarget.unit.index);
+        unitB = GetUnit(gBattleActor.unit.index);
+    }
+
+    if (unitA == NULL) {
+        return true;
+    }
+
+#ifdef CONFIG_KILL_REWARDS
+    int itemReward = GetItemReward(unitB, unitA);
+
+    if (itemReward != 0)
+        NewPopup_ItemGot(proc, unitB, itemReward);
+#endif
+
+    if (!(unitA->state & US_DROP_ITEM)) {
+        return true;
+    }
+
+    if (unitA->items[0] == 0) {
+        return true;
+    }
+
+    if (UNIT_FACTION(unitB) != FACTION_BLUE) {
+        return true;
+    }
+
+    NewPopup_GeneralItemGot(
+        unitB,
+        GetUnitLastItem(unitA),
+        proc
+    );
+
+    return false;
+}

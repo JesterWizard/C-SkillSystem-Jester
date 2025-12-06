@@ -426,8 +426,8 @@
 #define CONFIG_RESET_BWL_STATS_EACH_CHAPTER
 
 /* Don't turn this on until I have defeat quotes for everyone as MC dying without a quote doesn't trigger a game over screen */
-// #define CONFIG_MULTIPLE_DEATH_QUOTES
-//#define CONFIG_GAMEOVER_QUOTES
+#define CONFIG_MULTIPLE_DEATH_QUOTES
+#define CONFIG_GAMEOVER_QUOTES
 #ifdef CONFIG_GAMEOVER_QUOTES
 	//#define CONFIG_GAMEOVER_GENERIC
 	#define CONFIG_GAMEOVER_SPECIFIC
@@ -494,7 +494,7 @@
 
 #define CONFIG_BREAKABLE_DOORS
 
-#define CONFIG_SUPER_FAST_MAP_ANIMATIONS
+// #define CONFIG_SUPER_FAST_MAP_ANIMATIONS
 
 #define CONFIG_L_BUTTON_SAME_FACTION_CYCLING
 
@@ -518,5 +518,7 @@
 ** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
 */
 // #define CONFIG_HALF_BODY_PORTRAITS
+
+#define CONFIG_KILL_REWARDS
 
 #endif /* CONFIG_INSTALLED */
