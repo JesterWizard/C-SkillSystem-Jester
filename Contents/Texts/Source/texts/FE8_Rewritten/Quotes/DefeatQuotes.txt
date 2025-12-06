@@ -45,6 +45,17 @@ Were we... just pawns?[A][N]
 That's always the lot[N]
 for us mercs...[A][X]
 
+## MSG_DEFEAT_QUOTE_NOVALA_ARTUR
+[OpenMidLeft][LoadFace_Novala]
+N-no...[A][N]
+I-it's not over.[A][N]
+I can do so much... more...[A][N]
+Ugh...[A][N][ClearFace]
+[OpenMidRight][LoadFace_Artur]
+Go now, into the hands of the divine.[A][N]
+Your judgement is at hand.[A][N][MoveMidRight]
+Hmm? What's this?[A][X]
+
 ## MSG_DEFEAT_QUOTE_NOVALA
 N-no...[A][N]
 I was so... close to being...

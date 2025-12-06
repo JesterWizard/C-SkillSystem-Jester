@@ -75,6 +75,14 @@ const struct DefeatTalkEntNew gNewDefeatTalkList[] = {
     },
     {
         .pidA    = CHARACTER_NOVALA,
+        .pidB    = CHARACTER_ARTUR,
+        .route   = CHAPTER_MODE_ANY,
+        .chapter = CHAPTER_L_PROLOGUE,
+        .flag    = EVFLAG_DEFEAT_BOSS,
+        .msg     = MSG_DEFEAT_QUOTE_NOVALA_ARTUR,
+    },
+    {
+        .pidA    = CHARACTER_NOVALA,
         .pidB    = 0xFFFF,
         .route   = CHAPTER_MODE_ANY,
         .chapter = CHAPTER_06,

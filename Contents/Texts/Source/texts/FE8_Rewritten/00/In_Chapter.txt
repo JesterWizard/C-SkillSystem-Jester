@@ -11,5 +11,10 @@ take me, wretched lordling?[A][N]
 Come! It's time you high-and-mighty[N]
 knights learned to respect a true warrior![A][X]
 
+## Chapter_00_Seth_Warning
+[OpenMidLeft][LoadFace_Seth]
+I can hear reinforcements![A][N]
+Quickly, your highness!, We must flee![A][X]
+
 ## BB_Renais_Castle
 Renais Castle[X]

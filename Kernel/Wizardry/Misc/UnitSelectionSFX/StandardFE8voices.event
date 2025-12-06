@@ -43,5 +43,5 @@ POIN EirikaSound_wav
 WORD $FF00FF
 
 EirikaSound_wav:
-#incbin "bin/Eirika_What_Should_I_Do_COMPRESSED.bin"
+#incbin "bin/Eirika_What_Should_I_Do_Compressed.dmp"
 SongTable(EirikaSoundID,EirikaSound,7)

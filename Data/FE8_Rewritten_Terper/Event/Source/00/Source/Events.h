@@ -109,6 +109,29 @@ static const EventScr EventScr_Ending[] = {
     ENDA
 };
 
+/*
+** Misc events
+*/
+
+static const EventListScr EventScr_PROLOGUE_Turn2_Warning[] = {
+    CHECK_TURNS //Store current turn count in slot C
+    SVAL(EVT_SLOT_7, 2)
+    BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
+    // HIGHLIGHT_CHARACTER(CHARACTER_SETH)
+    TEXT(Chapter_00_Seth_Warning)
+    GOTO(0x1)
+
+LABEL(0x0)
+    CHECK_EVENTID_
+    SADD(EVT_SLOT_2, EVT_SLOT_C, EVT_SLOT_0)
+    ENUF_SLOT2
+    GOTO(0x1)
+
+LABEL(0x1)
+    NOFADE
+    ENDA
+};
+
 static const EventListScr EventListScr_ONeillAttack[] = {
     CHECK_ENEMIES // Check how many enemies remain and save the result in EVT_SLOT_C
     SVAL(EVT_SLOT_7, 1) // Put the value we want to check for in EVT_SLOT_7
@@ -156,9 +179,9 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 //     ASMC(CallForgeMenuASMC)
 // #endif
 
-#ifdef CONFIG_LIGHTS_OUT_GAME
-    PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
-#endif
+// #ifdef CONFIG_LIGHTS_OUT_GAME
+//     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
+// #endif
 
 // #ifdef CONFIG_VESLY_CREDITS_SEQUENCE
 //     FADE_TO_BLACK(16) // slow fade to black (optional)
@@ -166,8 +189,13 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 // #endif
 };
 
+/**
+ * Event lists
+ */
+
 static const EventListScr EventListScr_Turn[] = {
     TURN(EVFLAG_TMP(8), EventListScr_ONeillAttack, 1, 255, FACTION_RED)
+    TURN(EVFLAG_TMP(9), EventScr_PROLOGUE_Turn2_Warning, 1, 255, FACTION_BLUE)
     END_MAIN
 };
 

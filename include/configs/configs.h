@@ -471,7 +471,7 @@
 
 // #define CONFIG_UNIT_SELECTION_QUOTES /* Leonarth */ /* Needed to turn off unitBeginAction's lynjump for this */
 
-// #define CONFIG_VOICE_ACTED_PROLOGUE
+#define CONFIG_VOICE_ACTED_PROLOGUE
 
 #define CONFIG_FREE_MOVEMENT
 

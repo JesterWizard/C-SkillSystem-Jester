@@ -100,7 +100,6 @@ LABEL(0x0)
 /**
  * Misc events
  */
-
 static const EventListScr EventScr_CH6_TURN_4_REINFORCEMENTS[] = {
     CHECK_TURNS //Store current turn count in slot C
     SVAL(EVT_SLOT_7, 8)
