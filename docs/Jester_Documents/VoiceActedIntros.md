@@ -1,5 +1,8 @@
 # Voice Acted Intros - How to Install WAVs into Your Game
 
+> [!Important]  
+> This guide will assume you're using Windows or WSL, as some key EXEs are required for this process. I'm unsure if equivalent Linux versions exist.
+
 ---
 
 ## 📑 Index
@@ -19,17 +22,19 @@ The GBA isn’t widely known for advanced audio, but it **can** play voiced audi
 
 This guide focuses specifically on preparing and installing WAVs into a buildfile-based ROM project.
 
+As an example, following the standard audio output of the GBA (13379Hz) audio will eat up around ~430KB/minute. Less if you reduce the quality between 8000Hz and 11000Hz.
+
 ---
 
 ## Plan
 
 This guide explains how to:
 
-- Prepare WAV files for the GBA
-- Compress them with FEBuilder
-- Convert them to `.bin`
-- Generate an Event Assembler installer (`.txt`) using WAV2EA
-- Insert the installer and `.bin` into your buildfile and call the audio in-game
+- Convert mp3 files to WAV
+- Compress them with SoX
+- Convert them to insertable .s files
+- Insert them into an installer event file as DMPs which will be generated during compilation
+- Call the audio in game
 
 ---
 
@@ -37,80 +42,44 @@ This guide explains how to:
 
 You will need:
 
-- **WAV2EA** — converts a `.bin` into an EA-insertable `.txt` installer  
-  (WAV2GBA is usually bundled with this)
-- **WAV2GBA** — converts WAV → GBA-friendly `.bin`
-- **FEBuilder** — for downsampling and DPCM compression
+- **SoX** - For mp3 conversion and compression
+- **WAV2AGB** — converts a `.WAV` file into an insertable `.s` file and applies DPCM compression (vital)
+- A copy of the [compress_mp3_to_s](../../Data/FE8_Rewritten_Terper/Music/compress_mp3_to_s.bat) ``.bat`` file
+  - The filepaths of the EXEs may need to be adjusted depending on where you have them installed.
+  - Also be sure to move thebat file to your C drive to be able to run it if you're using WSL
 - A good ear for judging audio quality
 
 Links:
 
-- WAV2EA: https://feuniverse.us/t/wav2ea-convert-wavs-to-a-ea-insertable-format/2686  
-- FEBuilder: https://github.com/FEBuilderGBA/FEBuilderGBA/releases/tag/ver_20240521.05
+- Sox (Source) - https://github.com/chirlu/sox
+- Sox (EXE) - https://sourceforge.net/projects/sox/files/sox/14.4.2/sox-14.4.2-win32.exe/download
+- WAV2AGB (EXE) - https://github.com/ipatix/wav2agb/releases/tag/v1.0.0 (Download wav2agb-windows-clang64.zip)
 
 ---
 
 ## How to Modify
 
-1. **Grab your WAV** from whatever source you like. Trim and clean it first.
+1. **Grab your MP3** from whatever source you like.
 
-2. **Open FEBuilder → Sound → Song Track**  
-   - Select a slot and click **Import Music**. Use these settings:
-     - **Audio Quality:** `11025Hz - 22050Hz`
-     - **Remove Silence:** `1 (Remove Silence)`
-     - **Channel:** `1 = 8-bit mono`
-     - **Volume:** `200% - 300%`
-     - **DPCM Compression:** `Compression = 1`, `Lookahead = 3`
+2. Drop it into a folder with a copy of the ``compress_mp3_to_s.bat`` file
 
-   > Note: DPCM compression requires the **m4a mixer** patch. Install it via FEBuilder’s Patches menu.
+3. Double click the bat file to run it.
+  - It will create a WAV file, compress it, produce a .s file and then delete the WAV file
+  - Inside the bat file you will be able to see the settings used. I only recommend changing the audio quality, various presets are in the comments
 
-   Use **Preview** to inspect how the processed audio sounds.
+4) Take the ``.s`` file and grab a template copy of the [Audio_Insert_Event.event](../../Data/FE8_Rewritten_Terper/Music/Audio_Insert_Event.event)
+file and change every instance of ``[AUDIO_FILENAME]`` to the file name of your ``.s`` file
 
-3. **Click Import.** (Ignore loop settings — you’ll re-export later.)
+5) Reference FEBuilder's audio track list to see which song slots are free if you don't want to override the default.
 
-4. **Open the Instrument Set** for the track you just imported.
+6) Then in your ``Audio_Insert_Event.event`` file change the first parameter of ``SongTable`` to be the song ID you want to use, e.g. ``0xC0``
 
-5. **Export WAV Data** and choose a filepath. This produces a smaller, processed WAV that should sound reasonable.
+7) Rename ``Audio_Insert_Event.event`` to whatever you like and include it in [Music_Installer.event](../../Data/FE8_Rewritten_Terper/Music/Music_Installer.event)
+like so ``#include "Prologue/Audio_Insert_Event.event"``
 
-6. **Convert the processed WAV to `.bin`** using WAV2GBA: drag the WAV onto one of WAV2GBA’s batch files (or use the Linux equivalent). This produces a `.bin`.
+8) Now you call the audio by using the MUSC command, e.g. ``MUSC(0xC0)``
 
-7. **Run WAV2EA**: open WAV2EA, select the `.bin`, and fill the required fields.  
-   - Use `Music List.txt` for replacing IDs and `Group List.txt` for group IDs.
-
-8. **Save the installer** — WAV2EA will produce a `.txt` installer in the same folder.
-
-9. **Copy files into your buildfile folder**:
-   - `MPlayDef.event`
-   - The `.txt` installer generated by WAV2EA
-   - The `.bin` file
-
-10. **IMPORTANT: Fix the installer symbol**  
-    In the generated `.txt` file, find the symbol `loop_sfx_mvl` (usually around line 19).  
-    Append your bin filename to this symbol. Example:
-
-    If your `.bin` is named `my_cool_track.bin`, change:
-    ```
-    loop_sfx_mvl
-    ```
-    to:
-    ```
-    loop_sfx_mvl_my_cool_track
-    ```
-
-    If you do not perform this rename, the installer will fail to install the audio.
-
-11. **Install with Event Assembler.** Assemble the `.txt` installer into your ROM as usual.
-
-12. **Call the track in-game**:
-    - As a sound effect:
-      ```
-      SOUN <id>
-      ```
-    - As music:
-      ```
-      MUSC <id>
-      ```
-    Where `<id>` is the Music List ID you assigned in WAV2EA.
+9) Run ``make -j`` to compile your ``.s`` file to a ``.dmp`` and see it inserted into the game.
 
 ---
 
