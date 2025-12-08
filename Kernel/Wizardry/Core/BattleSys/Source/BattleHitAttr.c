@@ -542,6 +542,13 @@ void BattleHit_ConsumeWeapon(struct BattleUnit *attacker, struct BattleUnit *def
 	}
 #endif
 
+#if defined(SID_CritThrift) && (COMMON_SKILL_VALID(SID_CritThrift))
+	if (BattleFastSkillTester(attacker, SID_CritThrift) && gBattleHitIterator->attributes & BATTLE_HIT_ATTR_CRIT) {
+		weapon_cost = false;
+		RegisterActorEfxSkill(GetBattleHitRound(gBattleHitIterator), SID_CritThrift);
+	}
+#endif
+
 	/* This is for SID_MasterForge where item uses are set to 0xFF */
 	if (GetItemUses(attacker->weapon) == 0xFF)
 		weapon_cost = false;

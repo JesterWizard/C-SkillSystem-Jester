@@ -343,6 +343,10 @@ const u8 EfxSkillAnimPriority[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Bloodthirst) && COMMON_SKILL_VALID(SID_Bloodthirst))
     [SID_Bloodthirst] = EFX_PRIORITY_NORMAL,
 #endif
+
+#if (defined(SID_CritThrift) && COMMON_SKILL_VALID(SID_CritThrift))
+    [SID_CritThrift] = EFX_PRIORITY_NORMAL,
+#endif
 };
 
 struct EfxAnimConf const *const EfxSkillAnims[MAX_SKILL_NUM + 1] = {
@@ -680,5 +684,9 @@ struct EfxAnimConf const *const EfxSkillAnims[MAX_SKILL_NUM + 1] = {
 
 #if (defined(SID_Bloodthirst) && COMMON_SKILL_VALID(SID_Bloodthirst))
     [SID_Bloodthirst] = &EfxSkillVanilla,
+#endif
+
+#if (defined(SID_CritThrift) && COMMON_SKILL_VALID(SID_CritThrift))
+    [SID_CritThrift] = &EfxSkillVanilla,
 #endif
 };

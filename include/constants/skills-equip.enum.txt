@@ -631,6 +631,7 @@ SID_ChainAttack
 SID_Osmose
 SID_ShieldPulse
 SID_Bloodthirst
+SID_CritThrift
 
 //////// EFFECTIVENESS SKILLS
 SID_Resourceful

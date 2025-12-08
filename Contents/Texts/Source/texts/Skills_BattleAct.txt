@@ -399,3 +399,10 @@ Bloodthirst[X]
 Bloodthirst:[N]
 Killing blows do not consume[N]
 weapon uses.[X]
+
+## MSG_SKILL_CritThrift_NAME
+Crit Thrift[X]
+## MSG_SKILL_CritThrift_DESC
+Crit Thrift:[N]
+Critical attacks do not[N]
+consume weapon uses.[X]
