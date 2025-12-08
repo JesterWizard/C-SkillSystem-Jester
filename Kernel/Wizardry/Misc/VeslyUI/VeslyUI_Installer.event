@@ -2,7 +2,7 @@ ALIGN 4
 StephanoStyleFlag: 
 WORD 0xAA 
 GammaStyleFlag:
-WORD 0xAB  
+WORD 0xB4 // Let use the guide flag // 0xAB  
 PikminStyleFlag:
 WORD 0xAC
 

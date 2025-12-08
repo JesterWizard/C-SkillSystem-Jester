@@ -40,6 +40,7 @@ static const EventScr EventScr_Beginning[] = {
 
     /* Escape Castle Renais */
     LOAD_MAP_XY(0, 0, OUTSIDE_RENAIS)
+    ASMC(SetWeatherToRain)
     FADE_TO_BLACK(16)
     LOAD_WAIT(Renais_Runaways_Allies)
     HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
@@ -78,6 +79,7 @@ static const EventScr EventScr_Beginning[] = {
 
     /* Highway map with O'Neil and company */
     LOAD_MAP_XY(0, 0, PROLOGUE)
+    ASMC(SetWeatherToRain)
     FADE_TO_BLACK(16)
     LOAD_WAIT_PERSIST(Eirika_Seth_Allies)
     SET_UNIT_HP(CHARACTER_SETH, 10)
@@ -95,7 +97,7 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_ONEILL, 60)
     TEXT(Chapter_00_Scene_03_Convo_04)
     GIVE_SKILL_SCROLL_TO(SID_GoddessDance, CHARACTER_EIRIKA)
-    ASMC(SetGameOptions_Chapter0)
+    ASMC(SetGameOptions)
     NOFADE
     ENDA
 };
@@ -113,9 +115,9 @@ static const EventScr EventScr_Ending[] = {
 ** Misc events
 */
 
-static const EventListScr EventScr_PROLOGUE_Turn2_Warning[] = {
+static const EventListScr EventScr_PROLOGUE_Turn3_Warning[] = {
     CHECK_TURNS //Store current turn count in slot C
-    SVAL(EVT_SLOT_7, 2)
+    SVAL(EVT_SLOT_7, 3)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
     // HIGHLIGHT_CHARACTER(CHARACTER_SETH)
     TEXT(Chapter_00_Seth_Warning)
@@ -195,7 +197,7 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 
 static const EventListScr EventListScr_Turn[] = {
     TURN(EVFLAG_TMP(8), EventListScr_ONeillAttack, 1, 255, FACTION_RED)
-    TURN(EVFLAG_TMP(9), EventScr_PROLOGUE_Turn2_Warning, 1, 255, FACTION_BLUE)
+    TURN(EVFLAG_TMP(9), EventScr_PROLOGUE_Turn3_Warning, 1, 255, FACTION_BLUE)
     END_MAIN
 };
 

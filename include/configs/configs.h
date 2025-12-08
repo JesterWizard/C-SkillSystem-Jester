@@ -366,7 +366,7 @@
 #define CONFIG_VESLY_ANIMS_FAST_FORWARD
 #define CONFIG_VESLY_DRAW_ANIMATIONS
 #define CONFIG_VESLY_RECLASS
-// #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
+#define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
 #define CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
 #define CONFIG_VESLY_CREDITS_SEQUENCE
 // #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
@@ -471,7 +471,7 @@
 
 // #define CONFIG_UNIT_SELECTION_QUOTES /* Leonarth */ /* Needed to turn off unitBeginAction's lynjump for this */
 
-#define CONFIG_VOICE_ACTED_PROLOGUE
+// #define CONFIG_VOICE_ACTED_PROLOGUE
 
 #define CONFIG_FREE_MOVEMENT
 

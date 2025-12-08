@@ -7,7 +7,12 @@
 #include "debuff.h"
 #include "jester_headers/Forging.h"
 
-void SetGameOptions_Chapter0() 
+void SetWeatherToRain() 
+{
+    SetWeather(WEATHER_RAIN);
+};
+
+void SetGameOptions() 
 {
     SetGameOption(GAME_OPTION_ANIMATION, 2);  // Set battle animations off
     SetGameOption(GAME_OPTION_TEXT_SPEED, 1); // Set game speed to max
@@ -16,4 +21,4 @@ void SetGameOptions_Chapter0()
     SetWeather(WEATHER_RAIN);
 
     SetFlag(0xB4); // Guide Flag
-}
+};
