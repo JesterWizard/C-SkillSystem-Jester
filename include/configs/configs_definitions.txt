@@ -1,0 +1,204 @@
+# Configuration Options Documentation
+
+## CONFIG_CROP_VANILLA_MSG
+
+If uncommented, the kernel may remove the vanilla dialogue text to save approximately 470 KB of ROM space in the DEMO.
+
+> Note that enabling this config will make FEB think there is something wrong in the ROM and report a warning. However, it will be acceptable as this will not actually introduce any bugs.
+
+If you are planning to develop a new game instead of making minor changes to vanilla, it is recommended to uncomment this config to save space.
+
+## CONFIG_VERIFY_SKILLSYS_SRAM
+
+If commented out, CHAX may not verify the FESKILL magic word in SRAM.
+
+## CONFIG_USE_UTF8_GLYPH
+
+If uncommented, use UTF-8 characters.
+
+## CONFIG_USE_COMBO_ATTACK
+
+Engage style combo attack.
+
+## CONFIG_BATTLE_SURROUND
+
+When a unit is attacked and adjacent to the enemy, each adjacent enemy may cause the unit's avoid to decrease by 10%.
+
+If completely surrounded (an enemy on each side), the unit's defense may decrease by an additional 5.
+
+Flyers in outdoor environments are not affected by this effect.
+
+  -	0: Do not show any kernel tutorial
+  -	1: Only show the kernel tutorial in tutorial mode
+  -	2: Show the kernel tutorial at any time
+
+## CONFIG_USE_CHAR_CUSTOM_ANIM
+
+If uncommented, enable the patch:
+FEB: Character Custom Animation
+
+## CONFIG_FASTER_MAP_RANGE
+
+If uncommented, the function `GenerateUnitCompleteAttackRange` will be faster but with lower accuracy.
+
+## CONFIG_AUTO_NARROW_FONT
+
+Try narrowing the font on skill-name/skill-desc/menu-disp.
+
+## CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
+
+Inject fake FEB old AnimNumber patch hooks.
+This config may cause two functions to suffer from ugly ASM hooks:
+
+  -	`StartBattleAnimHitEffect`
+  -	`NewEfxHpBar`
+
+Auto detect on EfxResire weapon judgment.
+
+## CONFIG_BANIM_SWITCHER_EN
+
+Enable patch: BanimSwitch
+
+## CONFIG_USE_GAIDEN_MAGIC
+
+If uncommented, enable the Gaiden style magic system.
+
+## CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC
+
+If set as 0, then all weapons will be acceptable (rather than magic weapons only).
+
+## CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK
+
+If set as 0, then the unit can directly use the weapon regardless of the vanilla judgment.
+
+## CONFIG_GAIDEN_MAGIC_AI_EN
+
+If set as 1, the AI can also use Gaiden B.Mag.
+
+## CONFIG_GAIDEN_EXT_CONF_EN
+
+Enable `gGaidenChaxConfigs`.
+
+## CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK
+
+	0:	All weapons are acceptable.
+
+## CONFIG_STOP_COUNTER_ENABLED
+
+	1.	Petrify should not stop battle.
+	2.	Petrified/slept units should not attack.
+
+## CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
+
+In battle animations (banim), unit status flashing is decided by ext-hit rather than `ANIM_ROUND_POISON`.
+
+## CONFIG_C03_NOT_FLUSH_EFXSTATUS
+
+C03 does not flush efx-status.
+
+## CONFIG_UNLOCK_ALLY_MHP_LIMIT
+
+Enable leadership features.
+
+If uncommented, this will disable move-path calculation and display. Since the move-path can display no more than 20 steps in vanilla, with the increase of a unit's mobility, this limitation may cause a risk of overflow error. Thus, we directly remove the move-path to avoid overflow.
+
+Install FEB patch: `SetHPClassLimit`
+
+## CONFIG_FIT_OLD_SKILLSYS_LIST
+
+Append the same logic on loading skills as the old skillsys:
+[https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5](https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5)
+
+## CONFIG_INSTALL_KERNEL_SHIELD
+
+Enable the shield system.
+
+## CONFIG_MENU_SKILL_NOT_IN_UPPER
+
+Unit menu skill items displayed in the upper menu or a standalone sub-menu.
+
+## CONFIG_LVUP_MODE_TUTORIAL
+
+Level-up mode:
+
+  - 0: vanilla
+  - 1: uncontrollable
+  - 2: fixed
+  - 3: 100%
+  - 4: 0%
+
+## CONFIG_PAGE1_WITH_BWL
+
+Page 1 styles.
+
+## CONFIG_PAGE4_MOKHA_PLAN_A
+
+Page 4 styles.
+
+## CONFIG_PERFORMANCE_OPTIMIZATION
+
+Install some performance hooks.
+
+## CONFIG_MENU_SKILL_DISP_MSG_EN_N
+
+When displaying menu skills, directly display the skill name, rather than `MenuItemDef::nameMsgId`.
+
+## CONFIG_INSTALL_CONVOYEXPA
+
+Install `ConvoyExpa`.
+
+## CONFIG_NO_SUS_IN_AI_PHASE
+
+If uncommented, suspend data may only be saved at the start of the play-phase. This may also overwrite the `PlaySt::disableTerrainDisplay` config for player configuration at runtime.
+
+## CONFIG_USE_KONAMI_CODE_BONUS
+
+If you press ``uparrow``, ``uparrow``, ``downarrow``, ``downarrow``, ``leftarrow``, ``rightarrow``, ``leftarrow``, ``rightarrow``, ``B``, ``A`` at the title screen, then...
+
+## CONFIG_PR_ITEM_TABLE
+
+Item config.
+
+## CONFIG_UNIT_AMT_ALLY
+## CONFIG_UNIT_AMT_ENEMY
+## CONFIG_UNIT_AMT_NPC
+## CONFIG_UNIT_AMT_FOURTH
+
+Since it is hard to modify, it is recommended not to change this value.
+
+## CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
+
+Overwrites the light rune palette and makes it red.
+I've also had to change how I install it due to this bug [https://github.com/JesterWizard/C-SkillSystem-Jester/issues/352](https://github.com/JesterWizard/C-SkillSystem-Jester/issues/352). So technically this hack is always installed, but its effect can be toggled off with the definition below.
+
+## CONFIG_VESLY_UI
+
+Conflicts graphically with `RES_TERRAIN_WINDOW`
+
+## CONFIG_VESLY_NOTIFICATION_SYSTEM
+
+Has issues with setting custom notifications and displaying UTF8 text
+
+## CONFIG_VESLY_AOE
+
+This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes
+
+## CONFIG_CASUAL_MODE
+
+Doesn't seem to work right now, look into remaking in C
+
+## CONFIG_MULTIPLE_DEATH_QUOTES
+
+Don't turn this on until I have defeat quotes for everyone, as the main character (MC) dying without a quote doesn't trigger a game over screen.
+
+## CONFIG_SUPPORT_REWARDS
+
+Go to BwlSupport.c in StartSupportTalk to adjust items gained
+
+## CONFIG_CUSTOM_CHAPTER_SCREEN
+
+Not installed because of conflicts with phase suspend and sound mixer.
+
+## CONFIG_LAGUZ_BARS
+
+Run `make clean` after turning this off

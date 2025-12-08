@@ -71,3 +71,10 @@ static const struct UnitDefinition Grado_Reinforcements_Enemy[] = {
     UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 2, 14, 7, 1, REDAs_Fighter2_Enemy, AttackInRange, HealInjuredAllies, LowRecovery, DefaultAI4, ITEM_AXE_IRON),
     {}
 };
+
+static const struct UnitDefinition PROLOGUE_TURN_4_REINFORCEMENTS[] = {
+    UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 4, 14, 8, 1, REDAs_Fighter3_Enemy, AttackInRange, RossMovementAI, NormalRecovery, DefaultAI4, ITEM_AXE_IRON),
+    UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 1, 14, 7, 1, REDAs_Fighter4_Enemy, AttackInRange, RossMovementAI, NormalRecovery, DefaultAI4, ITEM_AXE_IRON),
+    UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 2, 14, 9, 1, REDAs_Fighter5_Enemy, AttackInRange, RossMovementAI, NormalRecovery, DefaultAI4, ITEM_AXE_IRON),
+    {}
+};

@@ -115,12 +115,30 @@ static const EventScr EventScr_Ending[] = {
 ** Misc events
 */
 
-static const EventListScr EventScr_PROLOGUE_Turn3_Warning[] = {
+static const EventListScr EventScr_PROLOGUE_TURN_3_WARNING[] = {
     CHECK_TURNS //Store current turn count in slot C
     SVAL(EVT_SLOT_7, 3)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
     // HIGHLIGHT_CHARACTER(CHARACTER_SETH)
     TEXT(Chapter_00_Seth_Warning)
+    GOTO(0x1)
+
+LABEL(0x0)
+    CHECK_EVENTID_
+    SADD(EVT_SLOT_2, EVT_SLOT_C, EVT_SLOT_0)
+    ENUF_SLOT2
+    GOTO(0x1)
+
+LABEL(0x1)
+    NOFADE
+    ENDA
+};
+
+static const EventListScr EventScr_PROLOGUE_TURN_4_REINFORCEMENTS[] = {
+    CHECK_TURNS //Store current turn count in slot C
+    SVAL(EVT_SLOT_7, 4)
+    BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
+    LOAD_WAIT_PERSIST(PROLOGUE_TURN_4_REINFORCEMENTS)
     GOTO(0x1)
 
 LABEL(0x0)
@@ -197,7 +215,8 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 
 static const EventListScr EventListScr_Turn[] = {
     TURN(EVFLAG_TMP(8), EventListScr_ONeillAttack, 1, 255, FACTION_RED)
-    TURN(EVFLAG_TMP(9), EventScr_PROLOGUE_Turn3_Warning, 1, 255, FACTION_BLUE)
+    TURN(EVFLAG_TMP(9), EventScr_PROLOGUE_TURN_3_WARNING, 1, 255, FACTION_BLUE)
+    TURN(EVFLAG_TMP(10), EventScr_PROLOGUE_TURN_4_REINFORCEMENTS, 1, 255, FACTION_BLUE)
     END_MAIN
 };
 

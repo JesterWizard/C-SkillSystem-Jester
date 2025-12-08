@@ -94,3 +94,12 @@ static const struct REDA REDAs_Fighter1_Enemy[] = {
 static const struct REDA REDAs_Fighter2_Enemy[] = {
     { .x = 9, .y = 6, .b = -1, .delayFrames = 16, }
 };
+static const struct REDA REDAs_Fighter3_Enemy[] = {
+    { .x = 13, .y = 8, .b = -1, .delayFrames = 0, }
+};
+static const struct REDA REDAs_Fighter4_Enemy[] = {
+    { .x = 13, .y = 7, .b = -1, .delayFrames = 16, }
+};
+static const struct REDA REDAs_Fighter5_Enemy[] = {
+    { .x = 13, .y = 9, .b = -1, .delayFrames = 16, }
+};

@@ -102,7 +102,7 @@ LABEL(0x0)
  */
 static const EventListScr EventScr_CH6_TURN_4_REINFORCEMENTS[] = {
     CHECK_TURNS //Store current turn count in slot C
-    SVAL(EVT_SLOT_7, 8)
+    SVAL(EVT_SLOT_7, 4)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
     MOVE_CAMERA_TO_POSITION(13, 0)
     LOAD_WAIT_PERSIST(CH6_TURN_4_REINFORCEMENTS)
@@ -131,7 +131,6 @@ const EventListScr EventScr_EndAndResetTriggEvent_JESTER[] = {
     CHECK_EVENTID_
     SADD(EVT_SLOT_2, EVT_SLOT_C, EVT_SLOT_0)
     ENUF(-1)
-
     NOFADE
     ENDB
 };
@@ -140,7 +139,6 @@ const EventListScr EventScr_EndAndResetTriggEvent_JESTER[] = {
 const EventListScr EventScr_UnTriggerIfNotUnit_JESTER[] = {
     CHECK_ACTIVE
     BEQ(0x0, EVT_SLOT_C, EVT_SLOT_2)
-
     CALL(EventScr_EndAndResetTriggEvent)
 
 LABEL(0x0)
@@ -205,7 +203,7 @@ static const EventListScr EventListScr_Location[] = {
 static const EventListScr EventListScr_Misc[] = {
     DEFEAT_BOSS(EventScr_Ending)
     CAUSE_GAME_OVER_IF_LORD_DIES
-    AFEV(EVFLAG_TMP(7), EventScr_CH6_CHECK_AREA, 0)
+    AFEV(EVFLAG_TMP(8), EventScr_CH6_CHECK_AREA, 0)
     END_MAIN
 };
 
