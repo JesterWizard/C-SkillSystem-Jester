@@ -1142,17 +1142,41 @@ const EventScr EventScrWM_Ch6_TRAVEL_TO_NODE[] = {
     STAL(6)
     STAL(46)
     WM_TEXT(Chapter_06_WM, 0)
-    TEXTEND
+
+    // Eirika suppresses her feelings of unease and continues to search for her brother.
+    MUSC(0x1A2)
     TEXTCONT
     TEXTEND
+
+    // Passing through Serafew, the group crosses into the Grado Empire.
+    MUSC(0x1A3)
+    TEXTCONT
+    TEXTEND
+
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_Serafew, WM_NODE_AdlasPlains, -4, 0)
+    
+    // From here forward, there is no doubt that they are walking into hostile territory.
+    MUSC(0x1AA)
     TEXTCONT
     TEXTEND
+
+    // In hopes of avoiding unnecessary trouble, Eirika and company adjust course slightly.
+    MUSC(0x1AB)
     TEXTCONT
     TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
+    
+    // Aiming to pass through seemingly empty fields as they gradually make their way south.
+    MUSC(0x1AC)
     TEXTCONT
     TEXTEND
+
+    // Grado's machinations, however, will soon be laid bare before her.
+    MUSC(0x1AD)
+    TEXTCONT
+    TEXTEND
+
     WM_REMOVETEXT
     STAL(2)
     STAL(20)
@@ -1188,17 +1212,48 @@ const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
     CALL(EventScr_WM_FadeCommon)
     WM_TEXTSTART
     WM_TEXT(Chapter_07_WM, 0)
+    
+    // Rumors say that Ephraim has been defeated and taken prisoner.
+    MUSC(0x1B4)
+    TEXTCONT
     TEXTEND
+
     WM_SHOWPORTRAIT(0, 0x0002, 0x0534, 0) // Eirika
     STAL(6)
     STAL(46)
+
+    // Now Eirika must find a way to rescue her brother from beneath enemy eyes.
+    MUSC(0x1B5)
     TEXTCONT
     TEXTEND
+
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_AdlasPlains, WM_NODE_Renvall1, -8, 0)
+    
+    // Eirika's company rushes toward Castle Renvall, where Ephraim is being held.
+    MUSC(0x1B6)
     TEXTCONT
     TEXTEND
+
+    // Surrounded by lakes, Renvall is a natural fortress, all but unassailable.
+    MUSC(0x1B7)
     TEXTCONT
     TEXTEND
+
+    // A lone bridge, held by the enemy, is its only entrance.
+    MUSC(0x1BE)
+    TEXTCONT
+    TEXTEND
+
+    // Eirika has only one choice.
+    MUSC(0x1BF)
+    TEXTCONT
+    TEXTEND
+
+    // She resolves to confront Grado's soldiers head on...
+    MUSC(0x1C0)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_REMOVETEXT
     STAL(2)
@@ -1290,34 +1345,56 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Rausten)
     STAL(30)
     WM_TEXT(Chapter_09_WM, 0)
+
+    // The twins choose to travel by sea to the theocracy of Rausten.
+    MUSC(0x1C1)
+    TEXTCONT
     TEXTEND
+
     WM_HIGHLIGHTCLEAR1(WM_NATION_Rausten)
     WM_HIGHLIGHTCLEAR2(WM_NATION_Rausten)
     WmEvtRemoveBigMap // WM_WAITFORFXCLEAR1
     WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_BorderMulan, WM_NODE_PortKiris, -4, 0)
+
+    // Their search for a ship leads them to Port Kiris in Carcino.
+    MUSC(0x1C8)
     TEXTCONT
     TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_MAKELORDDISAPPEAR(WM_MU_0)
     WM_SHOWDRAWNMAP(0, -8, 0x3)
     STAL(120)
     WM_HIGHLIGHT(WM_NATION_Carcino)
     STAL(30)
+
+    // Carcino is a young nation ruled by a council of merchants, and it is an ally of Frelia.
+    MUSC(0x1C9)
     TEXTCONT
     TEXTEND
+
     WM_HIGHLIGHTCLEAR1(WM_NATION_Carcino)
     WM_HIGHLIGHTCLEAR2(WM_NATION_Carcino)
     WM_SHOWPORTRAIT(0, 0x0054, 0x02BC, 0)
     STAL(6)
     STAL(46)
+
+    // Carcino council leader Klimt, a staunch opponent of Grado's imperialistic actions,
+    // has pledged Carcino's support to Frelia in this conflict.
+    MUSC(0x1CA)
     TEXTCONT
     TEXTEND
+
     WM_SHOWPORTRAIT(1, 0x0052, 0x0534, 0)
     STAL(6)
     STAL(46)
+
+    // Prince Innes also intends to pass through Carcino on his way to Jehanna.
+    MUSC(0x1CB)
     TEXTCONT
     TEXTEND
+
     WM_CLEARPORTRAIT(0, 0x01BC, 0)
     STAL(46)
     WM_CLEARPORTRAIT(1, 0x0634, 0)
@@ -1332,8 +1409,17 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     PUTSPRITE(WM_MU_2, CLASS_SNIPER, WM_FACTION_BLUE, WM_NODE_PortKiris)
     WM_MOVESPRITETO(WM_MU_2, 0x0003, WM_NODE_PortKiris, WM_NODE_TerazPlateau, 180, 0)
     WM_WAITFORCAM
+
+    // Eirika believes there is nothing to fear in Carcino.
+    MUSC(0x1D2)
     TEXTCONT
     TEXTEND
+
+    // ...She is wrong.
+    MUSC(0x1D3)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORCAM
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_CLEARPORTRAIT(0, 0x01BC, 0)

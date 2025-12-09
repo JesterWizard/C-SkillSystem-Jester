@@ -62,3 +62,28 @@
 #include "Chapter_05/Line_0008_Compressed.event"
 #include "Chapter_05/Line_0009_Compressed.event"
 #include "Chapter_05/Line_0010_Compressed.event"
+
+#include "Chapter_06/Line_0001_Compressed.event"
+#include "Chapter_06/Line_0002_Compressed.event"
+#include "Chapter_06/Line_0003_Compressed.event"
+#include "Chapter_06/Line_0004_Compressed.event"
+#include "Chapter_06/Line_0005_Compressed.event"
+#include "Chapter_06/Line_0006_Compressed.event"
+
+#include "Chapter_07/Line_0001_Compressed.event"
+#include "Chapter_07/Line_0002_Compressed.event"
+#include "Chapter_07/Line_0003_Compressed.event"
+#include "Chapter_07/Line_0004_Compressed.event"
+#include "Chapter_07/Line_0005_Compressed.event"
+#include "Chapter_07/Line_0006_Compressed.event"
+#include "Chapter_07/Line_0007_Compressed.event"
+
+// Chapter 8 is a two-parter, so you don't return to the world map
+
+#include "Chapter_09/Line_0001_Compressed.event"
+#include "Chapter_09/Line_0002_Compressed.event"
+#include "Chapter_09/Line_0003_Compressed.event"
+#include "Chapter_09/Line_0004_Compressed.event"
+#include "Chapter_09/Line_0005_Compressed.event"
+#include "Chapter_09/Line_0006_Compressed.event"
+#include "Chapter_09/Line_0007_Compressed.event"
