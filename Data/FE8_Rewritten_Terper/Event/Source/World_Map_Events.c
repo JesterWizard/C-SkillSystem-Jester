@@ -823,7 +823,12 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     STAL(6)
     STAL(46)
     WM_TEXT(Chapter_03_WM, 0)
+
+    // Eirika and company pursue the thief who stole her bracelet
+    MUSC(0x15C)
+    TEXTCONT
     TEXTEND
+
     WM_MAKELORDVISIBLE(WM_MU_0)
     WM_REMSPRITE(WM_MU_3)
     WM_CLEARPORTRAIT(0, 0x0634, 0)
@@ -833,8 +838,12 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     WM_SHOWPORTRAIT(0, 0x0033, 0x02BC, 0) // Bazba
     STAL(6)
     STAL(46)
+
+    // Their chase leads them into the mountains,mwhere Bazba's bandits pillage at will.
+    MUSC(0x15D)
     TEXTCONT
     TEXTEND
+
     WM_CLEARPORTRAIT(0, 0x01BC, 0)
     STAL(46)
     WM_FADEOUTSPRITE(WM_MU_2, 60)
@@ -842,8 +851,17 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_WAITFORSPRITELOAD
     WM_REMSPRITE(WM_MU_2)
+
+    // Eirika cannot ignore her countrymen's pleas for help.
+    MUSC(0x166)
     TEXTCONT
     TEXTEND
+
+    // She leads her group in search of the bandits' stronghold
+    MUSC(0x167)
+    TEXTCONT
+    TEXTEND
+
     WM_REMOVETEXT
     STAL(2)
     STAL(20)
@@ -882,10 +900,19 @@ const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
     STAL(6)
     STAL(46)
     WM_TEXT(Chapter_04_WM, 0)
-    TEXTEND
-    WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorgoRidge, WM_NODE_ZahaWoods, -8, 0)
+
+    // With her bracelet recovered, Eirika sets out with renewed determination.
+    MUSC(0x170)
     TEXTCONT
     TEXTEND
+
+    WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorgoRidge, WM_NODE_ZahaWoods, -8, 0)
+
+    // Passing through the ancient forest of Za'ha brings them close to Grado's border.
+    MUSC(0x171)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     PUTSPRITE(WM_MU_2, CLASS_REVENANT, WM_FACTION_RED, WM_NODE_BorderMulan)
     PUTSPRITE(WM_MU_3, CLASS_REVENANT, WM_FACTION_RED, WM_NODE_BorderMulan)
@@ -893,8 +920,17 @@ const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
     WM_PUTSPRITE(WM_MU_3, 0x9e, 0xa8)
     WM_FADEINSPRITE(WM_MU_2, 60)
     WM_FADEINSPRITE(WM_MU_3, 60)
+
+    // As they near the town of Serafew, Eirika's fears are assuaged by the lack of troops.
+    MUSC(0x17A)
     TEXTCONT
     TEXTEND
+
+    // But terrors of old crawl in the shadows of the trees.
+    MUSC(0x17B)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITELOAD
     WM_REMOVETEXT
     STAL(2)
@@ -979,7 +1015,12 @@ LABEL(0x1)
     WM_FADEINSPRITE(WM_MU_5, 60)
     WM_FADEINSPRITE(WM_MU_6, 60)
     WM_TEXT(Chapter_05_WM, 0)
+
+    // An ominous feeling of dread washes over the continent...
+    MUSC(0x184)
+    TEXTCONT
     TEXTEND
+
     WM_WAITFORSPRITELOAD
     WM_FADEOUTSPRITE(WM_MU_2, 60)
     WM_FADEOUTSPRITE(WM_MU_3, 60)
@@ -998,21 +1039,64 @@ LABEL(0x1)
     WM_SHOWPORTRAIT(0, Overworld_Eirika, 0x0534, 0)
     STAL(6)
     STAL(46)
+
+    // Eirika's journey to find her brother Ephraim, grows ever more perilous.
+    MUSC(0x185)
     TEXTCONT
     TEXTEND
+
+    // Still, she presses on despite the danger, without rest.
+    MUSC(0x18E)
     TEXTCONT
     TEXTEND
+
     PUTSPRITE(WM_MU_2, CLASS_ARMOR_KNIGHT, WM_FACTION_RED, WM_NODE_Serafew)
     WM_FADEINSPRITE(WM_MU_2, 60)
+
+    // However, a glimmer of hope now exists.
+    MUSC(0x18F)
     TEXTCONT
     TEXTEND
+
+    // Having reunited Renais' former famed military commander: Garcia, with his son: Ross.
+    MUSC(0x196)
+    TEXTCONT
+    TEXTEND
+
+    // A temporary alliance has been born as the group now travels to Serafew.
+    MUSC(0x197)
+    TEXTCONT
+    TEXTEND
+
+    // A bustling border town located between Renais and Grado.
+    MUSC(0x198)
+    TEXTCONT
+    TEXTEND
+
+    // The people of both countries have long used the town as a meeting place.
+    MUSC(0x199)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITELOAD
     STAL(14)
     WM_FADEOUTSPRITE(WM_MU_2, 60)
     WM_MOVESPRITETO(WM_MU_0, Overworld_Eirika, WM_NODE_ZahaWoods, WM_NODE_Serafew, -4, 0) // Eirika
     WM_WAITFORSPRITELOAD
+
+    // It once stood as testimony to the harmony the nations have shared these many years.
+    MUSC(0x1A0)
+    TEXTCONT
+    TEXTEND
+
+    // Now however, it exists as a grim reflection of a friendship ruined...
+    MUSC(0x1A1)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     STAL(20)
+
     WM_REMOVETEXT
     STAL(2)
     STAL(20)
