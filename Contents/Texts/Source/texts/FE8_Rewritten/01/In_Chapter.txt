@@ -83,18 +83,18 @@ You're here to drive them out?![N]
 Oh, thank the Stones...[A][N]
 My family's been terrified[N]
 ever since they arrived![A][N]
-I beg you, king lordlings,[N]
-don't fight near our house![A][X]
+I beg you though, don't[N]
+fight near our house![A][X]
 
 ## Chapter_01_Scene_09_Convo_01
 [OpenMidLeft][LoadFace_CivilianMan4]
 [OpenMidRight][LoadFace_ActiveUnit]
 [OpenMidLeft][MoveMidLeft]
-What the hell is the castle up to?![A][N]
+What in the stones is the castle up to?![A][N]
 Why pay them taxes if they can't even[N]
 do the job they're here for?![A][N]
-They've had weeks to prepare since[N]
-we first heard that Renais was invaded![A][N]
+Grado's been ramping up their[N]
+millitary for weeks now.[A][N]
 Where's the King's army?![A][X]
 
 ## Chapter_01_Scene_12_Convo_01

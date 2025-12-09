@@ -5,7 +5,7 @@ PUSH
 
 	// I do not want to put this here, but I get so many protected errors from unrelated functions if I don't
 
-#ifdef CONFIG_VOICE_ACTED_PROLOGUE
+#ifdef CONFIG_VOICE_ACTING
 	// Sound effect that's played for text scrolling on world map
 	ORG 0x06D2E
 	BYTE 0    // Mute it

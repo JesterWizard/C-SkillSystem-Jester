@@ -19,7 +19,7 @@ WORD $201FE38
 POIN gpKernelBattleDesignerConfig
 WORD $25B $203A4D4 $802A52D $203A608
 POIN gpBattleDamageCalcFuncs
-WORD $203A958 $265 $346
+WORD $203A958 $265 $347
 POIN k_udiv
 WORD $2710 $26A $20284AC $8024DE9
 POIN gpSkillExtraInfo
@@ -33,7 +33,7 @@ POIN Generic_CanUnitBeOnPos
 WORD $80D167D
 POIN GetUnitStatusIndex
 POIN CheckBitUES
-WORD $346
+WORD $347
 POIN SetBitUES
 POIN k_udiv
 WORD $2710

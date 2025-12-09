@@ -3,6 +3,6 @@
 #include "Event/Event.event"
 #include "Chapter/Chapter.event"
 
-#ifdef CONFIG_VOICE_ACTED_PROLOGUE
+#ifdef CONFIG_VOICE_ACTING
     #include "Music/Music_Installer.event"
 #endif

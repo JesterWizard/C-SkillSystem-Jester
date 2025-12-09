@@ -46,4 +46,4 @@ POIN [AUDIO_FILENAME]_wav
 WORD $FF00FF
 
 [AUDIO_FILENAME]_wav:
-#incbin "[AUDIO_FILENAME].dmp"
+#incbin "audio/[AUDIO_FILENAME].dmp"

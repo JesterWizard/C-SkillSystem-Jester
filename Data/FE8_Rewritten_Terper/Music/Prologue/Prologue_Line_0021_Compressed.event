@@ -46,4 +46,4 @@ POIN Prologue_Line_0021_Compressed_wav
 WORD $FF00FF
 
 Prologue_Line_0021_Compressed_wav:
-#incbin "Prologue_Line_0021_Compressed.dmp"
+#incbin "audio/Prologue_Line_0021_Compressed.dmp"

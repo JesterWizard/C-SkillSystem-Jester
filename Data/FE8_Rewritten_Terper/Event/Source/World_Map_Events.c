@@ -640,11 +640,30 @@ LABEL(0x1)
     WM_WAITFORTEXT
     WM_TEXTSTART
     WM_TEXT(Chapter_01_WM, 0)
-    TEXTEND
-    STAL(20)
-    WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorderMulan, WM_NODE_CastleFrelia, 200, 40)
+
+    MUSC(0x115)
     TEXTCONT
     TEXTEND
+
+    MUSC(0x116)
+    TEXTCONT
+    TEXTEND
+
+    MUSC(0x117)
+    TEXTCONT
+    TEXTEND
+
+    MUSC(0x118)
+    TEXTCONT
+    TEXTEND
+
+    STAL(20)
+    WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorderMulan, WM_NODE_CastleFrelia, 200, 40)
+
+    MUSC(0x13A)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_REMOVETEXT
     STAL(2)
@@ -687,7 +706,12 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     WM_SHOWPORTRAIT(0, 0x0052, 0x0534, 0) // HAYDEN
     STAL(6)
     WM_TEXT(Chapter_02_WM, 0)
+
+    // King Hayden apologizes for being unable to spare soldiers
+    MUSC(0x143)
+    TEXTCONT
     TEXTEND
+
     WM_CLEARPORTRAIT(0, 0x0634, 0)
     STAL(60)
     WM_SHOWPORTRAIT(0, 0x002C, 0x0534, 0) // TANA
@@ -695,16 +719,24 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     STAL(46)
     WM_SHOWPORTRAIT(1, 0x0007, 0x02BC, 0) // MOULDER
     STAL(6)
+
+    // However, he does provide Eirika with his trusted vassals and his daughter.
+    MUSC(0x144)
     TEXTCONT
     TEXTEND
+
     WM_CLEARPORTRAIT(0, 0x0634, 0)
     STAL(46)
     WM_CLEARPORTRAIT(1, 0x01BC, 0)
     STAL(60)
     WM_SHOWPORTRAIT(0, 0x0002, 0x02BC, 0) //EIRIKA
     STAL(6)
+
+    // Eirika is grateful for the king's aid.
+    MUSC(0x146)
     TEXTCONT
     TEXTEND
+
     STAL(46)
     WM_CLEARPORTRAIT(0, 0x01BC, 0)
     STAL(46)
@@ -713,18 +745,35 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     WM_MOVECAM2(0, -8, 0, 48, 70, 0)
     STAL(85)
     WM_PLACEDOT(0, 0, WM_NODE_Renvall2, 1)
+
+    // Chasing rumors of her brother, she sets out for Grado.
+    MUSC(0x148)
     TEXTCONT
     TEXTEND
+
     STAL(30)
     WM_FXCLEAR1(-0x1)
     WM_FXCLEAR2(-0x1)
     WmEvtRemoveBigMap // WM_WAITFORFXCLEAR1
     WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
+
+    // The group's first stop is the remote village of Ide.
+    MUSC(0x149)
     TEXTCONT
     TEXTEND
+
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_CastleFrelia, WM_NODE_Ide, 200, 30)
+
+    // Which was, until very recently a part of Renais.
+    MUSC(0x152)
     TEXTCONT
     TEXTEND
+
+    // Here, Eirika sees the devastation of Renais with her own eyes
+    MUSC(0x153)
+    TEXTCONT
+    TEXTEND
+
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_REMOVETEXT
     STAL(2)
