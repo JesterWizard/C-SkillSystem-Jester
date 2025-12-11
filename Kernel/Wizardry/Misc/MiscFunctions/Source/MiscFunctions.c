@@ -4403,3 +4403,61 @@ void BmMain_StartIntroFx(ProcPtr proc)
 
     Proc_StartBlocking(gProcScr_ChapterIntro, proc);
 }
+
+//! FE8U = 0x080843C0
+LYN_REPLACE_CHECK(RunWaitEvents);
+void RunWaitEvents(void) {
+    struct EventInfo* pInfo;
+    struct EventInfo info;
+
+    if (AreAnyEnemyUnitDead() == 0) {
+        SetFlag(EVFLAG_DEFEAT_ALL);
+        if (GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH) {
+            CallEndEvent();
+            return;
+        }
+    } else {
+        ClearFlag(6);
+    }
+
+#ifdef CONFIG_HOTFIXES
+    // JESTER - This is sort of a hotfix since the game over screen stopped working around commit b49e56733fe5326857996e73b636abcf9473ec43
+    // I'm not sure why the flag isn't being set but something is stopping it. Maybe look at PROTECTs to narrow down the source?
+    struct Unit * unitA = GetUnit(gActionData.subjectIndex);
+    struct Unit * unitB = GetUnit(gActionData.targetIndex);
+
+    if (GetUnitFaction(unitA) == FACTION_BLUE && unitA->state & US_DEAD && UNIT_CATTRIBUTES(unitA) & CA_LORD)
+        SetFlag(EVFLAG_GAMEOVER);
+    else if (GetUnitFaction(unitB) == FACTION_BLUE && unitB->state & US_DEAD && UNIT_CATTRIBUTES(unitB) & CA_LORD)
+        SetFlag(EVFLAG_GAMEOVER);
+#endif
+
+    if (CheckFlag(0x65) || (CountAvailableBlueUnits() == 0)) {
+        sub_80837B0();
+        return;
+    }
+
+
+    if (GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH) {
+        return;
+    }
+
+    RunTutorialEvent(TUTORIAL_EVT_TYPE_POSTACTION);
+
+    info.listScript = GetChapterEventDataPointer(gPlaySt.chapterIndex)->miscBasedEvents;
+    info.xPos = gActiveUnit->xPos;
+    info.yPos = gActiveUnit->yPos;
+
+    if (!SearchAvailableEvent(&info)) {
+        return;
+    }
+
+    ClearActiveEventRegistry();
+
+    do {
+        StartEventFromInfo(&info, EV_EXEC_CUTSCENE);
+        pInfo = SearchNextAvailableEvent(&info);
+    } while (pInfo);
+
+    return;
+}
