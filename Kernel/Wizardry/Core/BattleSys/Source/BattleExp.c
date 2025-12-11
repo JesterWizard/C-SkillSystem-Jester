@@ -405,13 +405,5 @@ void BattleApplyExpGains(void)
 
             CheckBattleUnitLevelUp(&gBattleActor);
         }
-
-        // Apply EXP only if the target belongs to the blue faction
-        if (UNIT_FACTION(GetUnit(gBattleTarget.unit.index)) == FACTION_BLUE && gBattleTarget.unit.curHP > 0)
-        {
-            gBattleTarget.expGain = GetBattleUnitExpGainRework(&gBattleTarget, &gBattleActor);
-            gBattleTarget.unit.exp += gBattleTarget.expGain;
-            CheckBattleUnitLevelUp(&gBattleTarget);
-        }
     }
 }
