@@ -281,14 +281,11 @@ void ExecStatusStaff(ProcPtr proc) {
         {
             struct Unit* target = GetUnit(GetTarget(i)->uid);
 
-        #ifdef CONFIG_CUSTOM_STAFF_ACCURACY
-            accuracy = CONFIG_CUSTOM_STAFF_ACCURACY;
-        #else
             accuracy = GetOffensiveStaffAccuracy(
                 GetUnit(gActionData.subjectIndex),
                 GetUnit(gActionData.targetIndex)
             );
-        #endif
+            
             gBattleActor.battleEffectiveHitRate = accuracy;
 
             if (Roll1RN(accuracy)) {
