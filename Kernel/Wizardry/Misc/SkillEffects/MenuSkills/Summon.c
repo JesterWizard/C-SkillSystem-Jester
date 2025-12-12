@@ -526,12 +526,8 @@ u8 YobimaCommandUsability(const struct MenuItemDef* def, int number) {
 #if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
 	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
     {
-        /* Checking the bit for some reason causes a crash when attempting to view the skill in the menu, no idea why */
         if (!PlayStExpa_CheckBit(PLAYSTEXPA_BIT_GateOfBabylon_Used))
-        {
-            PlayStExpa_SetBit(PLAYSTEXPA_BIT_GateOfBabylon_Used);
             return MENU_ENABLED;
-        }
     }
 #endif
 
@@ -562,6 +558,21 @@ u8 YobimaCommandUsability(const struct MenuItemDef* def, int number) {
     return MENU_ENABLED;
 }
 
+LYN_REPLACE_CHECK(YobimaCommandEffect);
+u8 YobimaCommandEffect(struct MenuProc* menu, struct MenuItemProc* menuItem) {
+
+    GetUnit(gActionData.subjectIndex);
+
+    gActionData.unitActionType = UNIT_ACTION_SUMMON_DK;
+
+#if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
+	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
+        PlayStExpa_SetBit(PLAYSTEXPA_BIT_GateOfBabylon_Used);
+#endif
+
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
 LYN_REPLACE_CHECK(LoadSumMonsterFromDK);
 void LoadSumMonsterFromDK(struct SumProc* proc)
 {
@@ -575,7 +586,7 @@ void LoadSumMonsterFromDK(struct SumProc* proc)
 
 #if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
 	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
-            gUnitDef2.allegiance = k_umod(UNIT_FACTION(gActiveUnit), 0x40);
+        gUnitDef2.allegiance = k_umod(UNIT_FACTION(gActiveUnit), 0x40);
 #endif
 
     gUnitDef2.xPosition = proc->x;
