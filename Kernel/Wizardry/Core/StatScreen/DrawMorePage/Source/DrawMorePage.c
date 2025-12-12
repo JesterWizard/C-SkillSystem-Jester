@@ -291,18 +291,6 @@ void GetPromotedUnitSkillId(struct HelpBoxProc* proc)
 LYN_REPLACE_CHECK(PageNumCtrl_DisplayMuPlatform);
 void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 {
-	// SetBlendTargetA(0, 0, 1, 0, 0);
-	// SetBlendTargetB(0, 0, 0, 1, 0);
-	// SetBlendAlpha(6, 8);
-
-	// PutSprite(12,
-	// 	gStatScreen.xDispOff,
-	// 	gStatScreen.yDispOff,
-	// 	Sprite_StatScreenMuAreaBackground,
-	// 	OAM2_CHR(STATSCREEN_MUAREA_CHR_BASE / 0x20) +
-	// 	OAM2_PAL(STATSCREEN_MUAREA_PAL_BASE) +
-	// 	OAM2_LAYER(3));
-
     /* Display unit platform on left side of screen */
 	PutSprite(11,
 		gStatScreen.xDispOff + 64,
@@ -348,10 +336,5 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
             
             SyncUnitSpriteSheet();
         }
-    }
-    else 
-    {
-        EndAllMus();
-        gStatScreen.mu = StartUiMu(gStatScreen.unit, 80, 138);
     }
 }
