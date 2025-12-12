@@ -9,14 +9,17 @@ SpellTable:	 // Was $5d4e60
 CSATable:
 #incbin "BlankCSATable.dmp"
 
+#define NewOffset 0x1000000
+
 PUSH
-    ORG $95d780
+    // JESTER - Originally $95d780 but it causes the background 0x35 to glitch
+    ORG NewOffset
     CSAEngine:
     #incbin "CSA_System_fe8.dmp" //the custom spell engine. All custom spells point here.
     POIN CSATable //needed for the routine
 POP
 
-#define CSAEngine_Dim $95d7ec
-#define CSAEngine_NoDim $95d898 //the last word in the dmp, this should be updated if you edit the engine.
+#define CSAEngine_Dim NewOffset + 0x5C // JESTER - Originally $95d7ec
+#define CSAEngine_NoDim NewOffset + 0x118 // JESTER - Originally $95d898 // the last word in the dmp, this should be updated if you edit the engine.
 
 #include "CustomSpells/Atlas/Spell.event"
