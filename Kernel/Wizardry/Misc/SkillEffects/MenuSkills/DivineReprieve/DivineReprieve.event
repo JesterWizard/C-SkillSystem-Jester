@@ -2,7 +2,7 @@
 #include "Source/DivineReprieve.lyn.event"
 
 PUSH
-#ifndef CONFIG_COMMON_PROTECTION_ENBALED
+#ifndef CONFIG_COMMON_PROTECTION_ENABLED
     ORG 0x59AB2C
     POIN PlayerPhase_HandleAutoEndRework
     PROTECT 0x0059AAD8 0x0059ACE8 // gProcScr_PlayerPhase

@@ -5,7 +5,7 @@
  * This file needs to be included at the earliest stage.
  */
 
-#ifdef CONFIG_COMMON_PROTECTION_ENBALED
+#ifdef CONFIG_COMMON_PROTECTION_ENABLED
 PUSH
 	// player phase
 	ORG $59ABE0

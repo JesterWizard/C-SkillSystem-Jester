@@ -7,7 +7,7 @@
 // include "data.event"
 
 PUSH
-#ifndef CONFIG_COMMON_PROTECTION_ENBALED
+#ifndef CONFIG_COMMON_PROTECTION_ENABLED
     ORG $59ABE0
     PROC_JUMP(ProcScr_PostActionHookPlayPhase)
     PROTECT 0x0059AAD8 0x0059ACE8 // gProcScr_PlayerPhase
