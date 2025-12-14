@@ -136,6 +136,9 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_Shotput) && defined(SID_ShotputPlus)
         [SID_ShotputPlus] = SID_Shotput,
     #endif
+    #if defined(SID_MPBoost) && defined(SID_MPBoostPlus)
+        [SID_MPBoostPlus] = SID_MPBoost,
+    #endif
 };
 
 const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
@@ -250,9 +253,10 @@ const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_GridMaster) && defined(SID_GridMasterPlus)
         [SID_GridMaster] = SID_GridMasterPlus,
     #endif
+    #if defined(SID_MPBoost) && defined(SID_MPBoostPlus)
+        [SID_MPBoost] = SID_MPBoostPlus,
+    #endif
 };
-
-	
 
 // Function to find the "plus" version
 int getPlusVersion(int sid)

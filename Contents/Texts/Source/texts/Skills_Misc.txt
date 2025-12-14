@@ -573,3 +573,9 @@ MP Boost[X]
 ## MSG_SKILL_MPBoost_DESC
 MP Boost:[N]
 Boost maximum MP by +15.[X]
+
+## MSG_SKILL_MPBoostPlus_NAME
+MP Boost+[X]
+## MSG_SKILL_MPBoostPlus_DESC
+MP Boost+:[N]
+Boost maximum MP by +30.[X]

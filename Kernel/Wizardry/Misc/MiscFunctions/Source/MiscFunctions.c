@@ -3858,6 +3858,11 @@ int GetUnitMaxMP(struct Unit * unit)
             maxMP = maxMP + 15;
 #endif
 
+#if defined(SID_MPBoostPlus) && (COMMON_SKILL_VALID(SID_MPBoostPlus))
+        if (SkillTesterPlus(unit, SID_MPBoostPlus))
+            maxMP = maxMP + 30;
+#endif
+
 #if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
         if (SkillTester(unit, SID_ManaRush))
             maxMP = maxMP * 2;
