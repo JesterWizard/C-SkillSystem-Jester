@@ -22,8 +22,9 @@ jumpToHack(NewTryAddTrapsToTargetList)
 ORG $2C910
 jumpToHack(MakeSnagTargetAdder)
 
-ORG $81784
-jumpToHack(DoNewBreakAnim)
+// JESTER - Hook conflict with MapAnim_BeginRoundSpecificAnims
+// ORG $81784
+// jumpToHack(DoNewBreakAnim)
 
 ORG $7B374
 jumpToHack(DoNewHideMapSprite)

@@ -1,3 +1,4 @@
+#include "_src/LynJump.event"
 #include "_src/LimitedShopStock.lyn.event"
 
 PUSH

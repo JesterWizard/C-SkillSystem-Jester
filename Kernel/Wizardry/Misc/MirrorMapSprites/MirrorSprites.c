@@ -52,7 +52,11 @@ void RefreshUnitSprites(void)
 
     gSMSHandleIt = &gSMSHandleArray[1];
 
-    for (i = 1; i < FACTION_PURPLE + 6; i++)
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    for (i = 1; i < 0xD0; i++)
+#else
+    for (i = 1; i < 0xC0; i++)
+#endif
     {
         struct Unit * unit = GetUnit(i);
 

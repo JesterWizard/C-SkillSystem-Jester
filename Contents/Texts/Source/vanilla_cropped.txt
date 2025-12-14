@@ -3278,7 +3278,7 @@ Dummy[.][X]
 Coated in lethal poison.[X]
 
 ## MSG_040C
-Effective against infantry.[.][X]
+Effective against cavalry and armor.[.][X]
 
 ## MSG_040D
 Can strike consecutively.[.][X]

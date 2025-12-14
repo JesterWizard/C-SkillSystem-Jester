@@ -1870,58 +1870,34 @@ void SwitchPhases(void)
     switch (gPlaySt.faction)
     {
     case FACTION_BLUE:
-
-        /**
-         * There's probably a more efficient way to do this,
-         * but this is all I've found to work right now.
-         * I change back the unit faction for a 'turncoat' unit
-         * if they haven't moved after switching factions initially.
-         */
-        for (int uid = gPlaySt.faction; uid <= (gPlaySt.faction + GetFactionUnitAmount(gPlaySt.faction)); uid++)
-        {
-            FORCE_DECLARE struct Unit* unit = GetUnit(uid);
-
-            // if (CheckBitUES(unit, UES_BIT_CHANGED_FACTIONS))
-            //     UnitChangeFaction(unit, FACTION_RED);
-
-        }
         gPlaySt.faction = FACTION_RED;
-
         break;
 
     case FACTION_RED:
         gPlaySt.faction = FACTION_GREEN;
-
-        for (int uid = gPlaySt.faction + 1; uid <= (gPlaySt.faction + GetFactionUnitAmount(gPlaySt.faction)); uid++)
-        {
-            // struct Unit * unit = GetUnit(uid);
-
-             // if (CheckBitUES(unit, UES_BIT_CHANGED_FACTIONS))
-             //     UnitChangeFaction(unit, FACTION_BLUE);
-        }
         break;
 
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    case FACTION_GREEN:
+        gPlaySt.faction = FACTION_PURPLE;
+        break;
+
+    case FACTION_PURPLE:
+        gPlaySt.faction = FACTION_BLUE;
+        break;
+#else
     case FACTION_GREEN:
         gPlaySt.faction = FACTION_BLUE;
-
-        for (int uid = gPlaySt.faction + 1; uid <= (gPlaySt.faction + GetFactionUnitAmount(gPlaySt.faction)); uid++)
-        {
-            // struct Unit * unit = GetUnit(uid);
-
-            // if (CheckBitUES(unit, UES_BIT_CHANGED_FACTIONS))
-            //     UnitChangeFaction(unit, FACTION_RED);
-        }
-
-        if (gPlaySt.chapterTurnNumber < 999)
-            gPlaySt.chapterTurnNumber++;
-
-        // if (gPlaySt.chapterTurnNumber % 2 == 0)
-        //     PlayStExpa_SetBit(PLAYSTEXPA_BIT_AbsorbAlternation_InForce);
-        // else
-        //     PlayStExpa_ClearBit(PLAYSTEXPA_BIT_AbsorbAlternation_InForce);
-
-        ProcessTurnSupportExp();
+        break;
+#endif
     }
+
+    if (gPlaySt.chapterTurnNumber < 999)
+        gPlaySt.chapterTurnNumber++;
+
+#ifndef CONFIG_VESLY_SUPPORT_POST_BATTLE
+    ProcessTurnSupportExp();
+#endif
 }
 
 LYN_REPLACE_CHECK(RefreshUnitsOnBmMap);
@@ -1960,7 +1936,12 @@ void RefreshUnitsOnBmMap(void) {
     if (gPlaySt.faction != FACTION_RED) {
         // 2.1. No red phase
 
-        for (i = FACTION_RED + 1; i < FACTION_PURPLE + 6; ++i) {
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    for (i = FACTION_RED + 1; i < FACTION_PURPLE + 0x10; i++)
+#else
+    for (i = FACTION_RED + 1; i < FACTION_PURPLE; i++)
+#endif
+    {
             unit = GetUnit(i);
 
             if (!UNIT_IS_VALID(unit))
@@ -3922,52 +3903,52 @@ void SyncUnitSpriteSheet(void)
         CpuFastCopy(gSMSGfxBuffer[1], (void*)0x06011000, sizeof(gSMSGfxBuffer[1]));
 }
 
-static u8 const sMuWalkSpeedLut[2] = {
-    [UNIT_WALKSPEED_FAST] = 2,
-    [UNIT_WALKSPEED_SLOW] = 1,
-};
+// static u8 const sMuWalkSpeedLut[2] = {
+//     [UNIT_WALKSPEED_FAST] = 2,
+//     [UNIT_WALKSPEED_SLOW] = 1,
+// };
 
-LYN_REPLACE_CHECK(GetMuQ4MovementSpeed);
-u16 GetMuQ4MovementSpeed(struct MuProc * proc)
-{
-#ifdef CONFIG_SUPER_FAST_MAP_ANIMATIONS
-    return 0x200;
-#endif
+// LYN_REPLACE_CHECK(GetMuQ4MovementSpeed);
+// u16 GetMuQ4MovementSpeed(struct MuProc * proc)
+// {
+// #ifdef CONFIG_SUPER_FAST_MAP_ANIMATIONS
+//     return 0x200;
+// #endif
 
-    int config = proc->moveConfig;
+//     int config = proc->moveConfig;
 
-    if (config & 0x80)
-        config += 0x80; // I don't really get that one
+//     if (config & 0x80)
+//         config += 0x80; // I don't really get that one
 
-    if (proc->fast_walk_b)
-        return 0x100;
+//     if (proc->fast_walk_b)
+//         return 0x100;
 
-    if (config != 0x40)
-    {
-        if (config != 0x00)
-        {
-            int speed = config;
+//     if (config != 0x40)
+//     {
+//         if (config != 0x00)
+//         {
+//             int speed = config;
 
-            if (speed & 0x40)
-                speed ^= 0x40;
-            else if (gPlaySt.config.gameSpeed || (gKeyStatusPtr->heldKeys & A_BUTTON))
-                speed *= 4;
+//             if (speed & 0x40)
+//                 speed ^= 0x40;
+//             else if (gPlaySt.config.gameSpeed || (gKeyStatusPtr->heldKeys & A_BUTTON))
+//                 speed *= 4;
 
-            if (speed > 0x80)
-                speed = 0x80;
+//             if (speed > 0x80)
+//                 speed = 0x80;
 
-            return speed;
-        }
+//             return speed;
+//         }
 
-        if (!IsFirstPlaythrough() && (gKeyStatusPtr->heldKeys & A_BUTTON))
-            return 0x80;
+//         if (!IsFirstPlaythrough() && (gKeyStatusPtr->heldKeys & A_BUTTON))
+//             return 0x80;
 
-        if (gPlaySt.config.gameSpeed)
-            return 0x40;
-    }
+//         if (gPlaySt.config.gameSpeed)
+//             return 0x40;
+//     }
 
-    return 16 * sMuWalkSpeedLut[GetClassData(proc->jid)->slowWalking];
-}
+//     return 16 * sMuWalkSpeedLut[GetClassData(proc->jid)->slowWalking];
+// }
 
 
 //! FE8U = 0x0801DB4C
@@ -4153,3 +4134,79 @@ void RunWaitEvents(void) {
     return;
 }
 
+LYN_REPLACE_CHECK(AreUnitsAllied);
+s8 AreUnitsAllied(int left, int right) {
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    int l = left  & 0xC0;
+    int r = right & 0xC0;
+
+    /* Collapse Player (0x00) and Green (0x40) */
+    if (l == 0x40) l = 0x00;
+    if (r == 0x40) r = 0x00;
+
+    return l == r;
+#else
+    int a = left & 0x80;
+    int b = right & 0x80;
+    return (a == b);
+#endif
+}
+
+static inline int CheckAltBgm(u8 base, u8 alt) {
+    if (!CheckFlag(EVFLAG_BGM_CHANGE)) {
+        return base;
+    } else {
+        return alt;
+    }
+}
+
+//! FE8U = 0x08015FC8
+LYN_REPLACE_CHECK(GetCurrentMapMusicIndex);
+int GetCurrentMapMusicIndex(void) {
+    int aliveUnits;
+    u32 mapKind;
+
+    u8 blueBgmIdx = CheckAltBgm(MAP_BGM_BLUE, MAP_BGM_BLUE_GREEN_ALT);
+    u8 redBgmIdx = CheckAltBgm(MAP_BGM_RED, MAP_BGM_RED_ALT);
+    u8 greenBgmIdx;
+
+    if (!CheckFlag(EVFLAG_BGM_CHANGE)) {
+        greenBgmIdx = MAP_BGM_GREEN;
+        greenBgmIdx++; greenBgmIdx--;
+    } else {
+        greenBgmIdx = MAP_BGM_BLUE_GREEN_ALT;
+    }
+
+    switch (gPlaySt.faction) {
+        case FACTION_RED:
+            return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[redBgmIdx];
+
+        case FACTION_GREEN:
+            return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[greenBgmIdx];
+
+        case FACTION_BLUE:
+
+            if (CheckFlag(EVFLAG_BGM_CHANGE)) {
+                return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[blueBgmIdx];
+            }
+
+            if ((GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH) || GetROMChapterStruct(gPlaySt.chapterIndex)->victorySongEnemyThreshold != 0) {
+                aliveUnits = CountUnitsInState(FACTION_RED, US_UNAVAILABLE);
+                mapKind = GetBattleMapKind();
+
+                if ((mapKind != BATTLEMAP_KIND_SKIRMISH && aliveUnits <= GetROMChapterStruct(gPlaySt.chapterIndex)->victorySongEnemyThreshold)
+                    || (mapKind == BATTLEMAP_KIND_SKIRMISH && aliveUnits <= 1))
+                    return SONG_GRASP_AT_VICTORY;
+            }
+
+            return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[blueBgmIdx];
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+        case FACTION_PURPLE:
+            return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[redBgmIdx];
+#endif
+    }
+
+    return 0; // JESTER - We'll never get here, but the function demands a return value;
+}

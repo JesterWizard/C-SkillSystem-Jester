@@ -1,5 +1,4 @@
 #include "Internals.event"
-#include "_src/LynJump.event"
 
 #define StockEntry(item, quantity) "BYTE item quantity"
 #define StockListEnd "SHORT 0x0000"

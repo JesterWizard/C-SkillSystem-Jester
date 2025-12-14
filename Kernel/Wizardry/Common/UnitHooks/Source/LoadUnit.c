@@ -100,9 +100,6 @@ void UnitLoadStatsFromChracter(struct Unit* unit, const struct CharacterData* ch
         (*it)(unit, character);
 }
 
-// For now, no need to hack this funcion
-// struct Unit *LoadUnit(const struct UnitDefinition *uDef)
-
 LYN_REPLACE_CHECK(LoadUnit);
 struct Unit* LoadUnit(const struct UnitDefinition* uDef) {
     struct UnitDefinition buf;
