@@ -1220,4 +1220,20 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 		.onSwitchOut = NULL
 	},
 #endif
+
+
+#if (defined(SID_EmergencyExit) && COMMON_SKILL_VALID(SID_EmergencyExit))
+	[SID_EmergencyExit] = &(const struct MenuItemDef) {
+		.name = "　召喚",
+		.nameMsgId = MSG_SKILL_EmergencyExit_NAME,
+		.helpMsgId = MSG_SKILL_EmergencyExit_DESC,
+		.color = TEXT_COLOR_SYSTEM_GOLD,
+		.isAvailable = EmergencyExit_Usability,
+		.onDraw = NULL,
+		.onSelected = EmergencyExit_OnSelected,
+		.onIdle = NULL,
+		.onSwitchIn = NULL,
+		.onSwitchOut = NULL
+	},
+#endif
 };

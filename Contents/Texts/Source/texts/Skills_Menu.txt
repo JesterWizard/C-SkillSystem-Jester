@@ -694,3 +694,10 @@ Gate Of Babylon[X]
 Gate Of Babylon:[N]
 Summon multiple units at once.[N]
 Once per map.[X]
+
+## MSG_SKILL_EmergencyExit_NAME
+Emergency Exit[X]
+## MSG_SKILL_EmergencyExit_DESC
+Emergency Exit:[N]
+Allow this unit to leave the[N]
+map when under half HP.[X]

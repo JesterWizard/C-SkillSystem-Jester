@@ -302,4 +302,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_BloodyAlchemy) && COMMON_SKILL_VALID(SID_BloodyAlchemy))
 	[SID_BloodyAlchemy] = Action_BloodyAlchemy,
 #endif
+
+#if (defined(SID_EmergencyExit) && COMMON_SKILL_VALID(SID_EmergencyExit))
+	[SID_EmergencyExit] = Action_EmergencyExit,
+#endif
 };

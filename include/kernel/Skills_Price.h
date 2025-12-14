@@ -890,3 +890,4 @@
 #define MSG_SKILL_MPBoost_PRICE 1000
 #define MSG_SKILL_MPBoostPlus_PRICE 1000
 #define MSG_SKILL_Perseverance_PRICE 1000
+#define MSG_SKILL_EmergencyExit_PRICE 1000
