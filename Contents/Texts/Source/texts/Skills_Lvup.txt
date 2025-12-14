@@ -137,3 +137,10 @@ Crisis[X]
 Crisis:[N]
 Half of damage received[N]
 is converted to EXP.[X]
+
+## MSG_SKILL_Perseverance_NAME
+Perseverance[X]
+## MSG_SKILL_Perseverance_DESC
+Perseverance:[N]
+Gain +5 EXP when fighting[N]
+with WTA disadvantage.[X]

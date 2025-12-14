@@ -213,9 +213,15 @@ STATIC_DECLAR int KernelModifyBattleUnitExp(int base, struct BattleUnit* actor, 
 
 #if defined(SID_Pulse) && (COMMON_SKILL_VALID(SID_Pulse))
     if (BattleFastSkillTester(actor, SID_Pulse))
-        status = 10;
+        if (status < 10)
+            status = 10;
 #endif
 
+#if defined(SID_Perseverance) && (COMMON_SKILL_VALID(SID_Perseverance))
+    if (BattleFastSkillTester(actor, SID_Perseverance))
+        if (actor->wTriangleDmgBonus < 0 || actor->wTriangleHitBonus < 0)
+            status += 5;
+#endif
 
     /* Check last */
 #if defined(SID_VoidCurse) && (COMMON_SKILL_VALID(SID_VoidCurse))

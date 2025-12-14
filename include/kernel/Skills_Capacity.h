@@ -889,3 +889,4 @@
 #define MSG_SKILL_ManaTransfusion_CAPACITY 1
 #define MSG_SKILL_MPBoost_CAPACITY 1
 #define MSG_SKILL_MPBoostPlus_CAPACITY 1
+#define MSG_SKILL_Perseverance_CAPACITY 1

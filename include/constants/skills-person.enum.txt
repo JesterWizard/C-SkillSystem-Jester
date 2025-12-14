@@ -768,6 +768,7 @@
 // SID_Crisis
 // SID_FaustianBargain
 // SID_TrapBuster
+// SID_Perseverance
 
 //////// MOVEMENT SKILLS
 // SID_Pass
