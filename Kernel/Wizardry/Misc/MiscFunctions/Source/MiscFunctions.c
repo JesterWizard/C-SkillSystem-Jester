@@ -3862,130 +3862,44 @@ void PrepItemUse_InitDisplay(struct ProcPrepItemUse *proc)
     ForceSyncUnitSpriteSheet();
 }
 
-// LYN_REPLACE_CHECK(StatScreen_InitDisplay);
-// void StatScreen_InitDisplay(struct Proc* proc)
-// {
-//     u16 bgConfig[12] =
-//     {
-//         0x0000, 0x6000, 0,
-//         0x0000, 0x6800, 0,
-//         0x8000, 0x7000, 0,
-//         0x8000, 0x7800, 0,
-//     };
-
-//     SetupBackgrounds(bgConfig);
-
-//     UnpackUiFramePalette(STATSCREEN_BGPAL_3);
-//     RegisterBlankTile(0x400);
-
-//     BG_Fill(gBG2TilemapBuffer, 0);
-//     BG_EnableSyncByMask(BG2_SYNC_BIT);
-
-//     sub_80156D4();
-//     ApplyUnitSpritePalettes();
-
-//     // TODO: port the macros from mapanim wip
-//     gLCDControlBuffer.dispcnt.win0_on   = TRUE;
-//     gLCDControlBuffer.dispcnt.win1_on   = FALSE;
-//     gLCDControlBuffer.dispcnt.objWin_on = FALSE;
-
-//     gLCDControlBuffer.win0_left   = 96;
-//     gLCDControlBuffer.win0_top    = 0;
-//     gLCDControlBuffer.win0_right  = 98;
-//     gLCDControlBuffer.win0_bottom = 160;
-
-//     gLCDControlBuffer.wincnt.win0_enableBg0 = FALSE;
-//     gLCDControlBuffer.wincnt.win0_enableBg1 = FALSE;
-//     gLCDControlBuffer.wincnt.win0_enableBg2 = FALSE;
-//     gLCDControlBuffer.wincnt.win0_enableBg3 = TRUE;
-//     gLCDControlBuffer.wincnt.win0_enableObj = TRUE;
-
-//     gLCDControlBuffer.wincnt.wout_enableBg0 = TRUE;
-//     gLCDControlBuffer.wincnt.wout_enableBg1 = TRUE;
-//     gLCDControlBuffer.wincnt.wout_enableBg2 = TRUE;
-//     gLCDControlBuffer.wincnt.wout_enableBg3 = TRUE;
-//     gLCDControlBuffer.wincnt.wout_enableObj = TRUE;
-
-//     gLCDControlBuffer.wincnt.win0_enableBlend = TRUE;
-//     gLCDControlBuffer.wincnt.win1_enableBlend = TRUE;
-//     gLCDControlBuffer.wincnt.wout_enableBlend = TRUE;
-
-//     // Load and display Halo
-//     Decompress(
-//         gUnknown_08A064E0, (void*)(VRAM + 0x220 * 0x20));
-
-//     ApplyPalette(gUnknown_08A0731C, STATSCREEN_BGPAL_HALO);
-
-//     Decompress(
-//         gUnknown_08A071FC, gGenericBuffer);
-
-//     CallARM_FillTileRect(gBG1TilemapBuffer + TILEMAP_INDEX(12, 0),
-//         gGenericBuffer, TILEREF(0x220, STATSCREEN_BGPAL_HALO));
-
-//     // Load and display Background
-//     Decompress(
-//         Img_StatscreenBG, (void*)(VRAM + 0x580 * 0x20));
-
-//     ApplyPalettes(Pal_StatscreenBG, STATSCREEN_BGPAL_BACKGROUND, 4);
-
-//     Decompress(Tsa_StatscreenBG, gGenericBuffer);
-
-//     CallARM_FillTileRect(gBG3TilemapBuffer, gGenericBuffer,
-//         TILEREF(0x180, 12));
-
-//     // Load object graphics
-//     Decompress(
-//         gUnknown_08A02274, (void*)(VRAM + 0x10000 + 0x240 * 0x20));
-
-//     LoadIconPalettes(STATSCREEN_BGPAL_ITEMICONS);
-
-//     UnpackUiBarPalette(STATSCREEN_BGPAL_6);
-
-//     LoadIconPalette(1, 0x13);
-
-//     Decompress(
-//         gUnknown_08A01F24, (void*)(VRAM + 0x440 * 0x20));
-
-//     ApplyPalette(gUnknown_08A021E4, STATSCREEN_BGPAL_7);
-
-//     LoadIconPalette(1, 0x14);
-
-//     Decompress(
-//         gUnknown_08A020F0, (void*)(VRAM + 0x60 * 0x20));
-
-//     gStatScreen.mu = NULL;
-
-//     ClearSlide(proc);
-// }
-
 int GetUnitMaxMP(struct Unit * unit)
 {
-    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+	if (!CheckHasBwl(UNIT_CHAR_ID(unit)))
+        return 0;
+    else
+    {
+        struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
-    int maxMP = bwl->maxMP;
+        int maxMP = bwl->maxMP;
 
-#if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
-    if (SkillTester(unit, SID_ManaRush))
-        maxMP = maxMP * 2;
-#endif
+    #if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
+        if (SkillTester(unit, SID_ManaRush))
+            maxMP = maxMP * 2;
+    #endif
 
-    return maxMP;
+        return maxMP;
+    }
 };
 
 int GetUnitCurrentMP(struct Unit * unit)
 {
-    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
-
-    int currentMP = bwl->currentMP;
-    int maxMP = GetUnitMaxMP(unit);
-
-    if (currentMP > maxMP)
+	if (!CheckHasBwl(UNIT_CHAR_ID(unit)))
+        return 0;
+    else
     {
-        bwl->currentMP = maxMP;
-        currentMP = maxMP;
-    }
+        struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
-    return currentMP;
+        int currentMP = bwl->currentMP;
+        int maxMP = GetUnitMaxMP(unit);
+
+        if (currentMP > maxMP)
+        {
+            bwl->currentMP = maxMP;
+            currentMP = maxMP;
+        }
+
+        return currentMP;
+    }
 };
 
 u8 EWRAM_DATA gSMSGfxBuffer[3][8*0x20*0x20] = {};
