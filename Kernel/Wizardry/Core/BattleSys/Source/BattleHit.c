@@ -784,6 +784,11 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
                     killMpGeneration = 0;
 #endif
 
+#if defined(SID_ManaTransfusion) && (COMMON_SKILL_VALID(SID_ManaTransfusion))
+                if (BattleFastSkillTester(attacker, SID_ManaTransfusion))
+                    gBattleActor.unit.curHP += killMpGeneration;
+#endif
+
 				bwl->currentMP += killMpGeneration;
 				if (bwl->currentMP > GetUnitMaxMP(GetUnit(attacker->unit.index)))
 					bwl->currentMP = GetUnitMaxMP(GetUnit(attacker->unit.index));

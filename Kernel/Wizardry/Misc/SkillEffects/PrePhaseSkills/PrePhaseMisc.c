@@ -15,8 +15,7 @@ bool PrePhsae_ClearMiscUES(ProcPtr proc)
 		unit = GetUnit(uid);
 
 		if (UNIT_IS_VALID(unit)) {
-			// ClearBitUES(unit, UES_BIT_GUARDBEAR_SKILL_USED);
-			// ClearBitUES(unit, UES_BIT_TSZUKU_SKILL_USED);
+
 #if defined(SID_Teleportation) && (COMMON_SKILL_VALID(SID_Teleportation))
             ClearBitUES(unit, UES_BIT_TELEPORTATION_SKILL_USED);
 #endif

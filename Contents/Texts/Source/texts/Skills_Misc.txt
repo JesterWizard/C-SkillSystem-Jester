@@ -560,3 +560,10 @@ Enlightenment[X]
 ## MSG_SKILL_Enlightenment_DESC
 Unit starts the map at max MP[N]
 but cannot gain any.[X]
+
+## MSG_SKILL_ManaTransfusion_NAME
+Mana Transfusion[X]
+## MSG_SKILL_ManaTransfusion_DESC
+Mana Transfusion:[N]
+MP generation extends[N]
+to HP as well.[X]

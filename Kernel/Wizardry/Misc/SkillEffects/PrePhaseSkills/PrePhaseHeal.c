@@ -5,7 +5,9 @@
 #include "constants/skills.h"
 #include "strmag.h"
 #include "debuff.h"
+#include "bwl.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-arrays.h"
 
 extern int (*gpExternalPrePhaseHealCalc)(int cur, struct Unit *unit);
 
@@ -120,6 +122,17 @@ STATIC_DECLAR int GetPrePhaseHealAmount(struct Unit *unit)
 #if defined(SID_GoodyBasket) && (COMMON_SKILL_VALID(SID_GoodyBasket))
     if (SkillTester(unit, SID_GoodyBasket))
         ret += Div(GetUnitMaxHp(unit) * unit->lck, 100);
+#endif
+
+#if defined(SID_ManaTransfusion) && (COMMON_SKILL_VALID(SID_ManaTransfusion))
+    if (SkillTester(unit, SID_ManaTransfusion))
+    {
+		struct NewBwl* bwl;
+		bwl = GetNewBwl(unit->pCharacterData->number);
+
+		if (bwl != NULL)
+			ret += gMpSystemPInfoConfigList[unit->pCharacterData->number].idleGeneration;
+	}
 #endif
 
     if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_RENEWAL)

@@ -8880,4 +8880,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_ManaTransfusion) && COMMON_SKILL_VALID(SID_ManaTransfusion))
+    [SID_ManaTransfusion] = {
+        .name = MSG_SKILL_ManaTransfusion_NAME,
+        .desc = MSG_SKILL_ManaTransfusion_DESC,
+        .capacity = MSG_SKILL_ManaTransfusion_CAPACITY,
+        .price = MSG_SKILL_ManaTransfusion_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

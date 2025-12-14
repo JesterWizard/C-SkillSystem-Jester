@@ -306,6 +306,11 @@ void UpdateUnitFromBattle(struct Unit* unit, struct BattleUnit* bu)
 		battleMpBoost = 0;
 #endif
 
+#if defined(SID_ManaTransfusion) && (COMMON_SKILL_VALID(SID_ManaTransfusion))
+    if (SkillTester(unit, SID_ManaTransfusion))
+		unit->curHP += battleMpBoost;
+#endif
+
 		bwl->currentMP += battleMpBoost;
 
 		if (bwl->currentMP > GetUnitMaxMP(unit))

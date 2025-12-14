@@ -887,6 +887,7 @@ SID_MineDetector
 SID_Undying
 SID_ManaRush
 SID_AirWalk
+SID_ManaTransfusion
 
 //////// COMBAT ARTS
 // SID_COMBAT_Grounder
