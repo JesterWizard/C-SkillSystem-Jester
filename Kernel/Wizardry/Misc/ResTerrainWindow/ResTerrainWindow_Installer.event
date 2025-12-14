@@ -1,11 +1,11 @@
 #include "Extensions/Hack Installation.txt"
 
-PUSH
-//New RES. GFX
-ORG 0x8D0AC
-POIN FontTiles
-PROTECT 0x8D0AC currentOffset
-POP
+// PUSH
+// //New RES. GFX
+// ORG 0x8D0AC
+// POIN FontTiles
+// PROTECT 0x8D0AC currentOffset
+// POP
 
 PUSH
 //Text and foreground positioning

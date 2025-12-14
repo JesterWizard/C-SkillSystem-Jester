@@ -1,0 +1,12 @@
+PUSH
+
+//MMB number text (thanks contro!)
+ORG 0x8D0B4
+POIN MMBNumberText
+
+POP
+
+ALIGN 4
+MMBNumberText:
+// #incext Png2Dmp "MMBNumberText.png" -lz77
+#incbin "MMBNumberText.dmp"

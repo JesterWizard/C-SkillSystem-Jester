@@ -61,7 +61,7 @@
 #endif
 
 #ifdef CONFIG_MODULAR_MINIMUG_BOX
-    #include "Misc/ModularMinimugBox/ModuleInstallers.event"
+    #include "Misc/ModularMinimugBox/ModularMinimugBox_Installer.event"
 #endif
 
 #ifdef CONFIG_INSTANT_LEVEL_UP

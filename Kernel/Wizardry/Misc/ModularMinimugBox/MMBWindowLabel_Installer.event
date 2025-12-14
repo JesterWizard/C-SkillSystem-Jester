@@ -1,0 +1,9 @@
+PUSH
+    ORG 0x8D0AC
+    POIN MMBLabelText
+    PROTECT 0x8D0AC currentOffset
+POP
+
+ALIGN 4
+MMBLabelText:
+#incext Png2Dmp "FontTiles.png" --lz77

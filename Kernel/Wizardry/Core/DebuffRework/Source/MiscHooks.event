@@ -259,13 +259,13 @@ PUSH
     // MMB_DrawStatusText
 
     /* JESTER - need to turn off PROTECT here for extended HP */
-#ifndef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    ORG $8C470 // DrawUnitDisplayHpOrStatus
-    BYTE 0x3F
-    ORG $8C536
-    BYTE 0x3F
-    // PROTECT $8C45C $8C5D0
-#endif
+// #ifndef CONFIG_UNLOCK_ALLY_MHP_LIMIT
+//     ORG $8C470 // DrawUnitDisplayHpOrStatus
+//     BYTE 0x3F
+//     ORG $8C536
+//     BYTE 0x3F
+//     // PROTECT $8C45C $8C5D0
+// #endif
 
     /* JESTER - Needed for LynJump of function */
     // ORG $1D58E // GetUnitSelectionValueThing
