@@ -8890,4 +8890,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_MPBoost) && COMMON_SKILL_VALID(SID_MPBoost))
+    [SID_MPBoost] = {
+        .name = MSG_SKILL_MPBoost_NAME,
+        .desc = MSG_SKILL_MPBoost_DESC,
+        .capacity = MSG_SKILL_MPBoost_CAPACITY,
+        .price = MSG_SKILL_MPBoost_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

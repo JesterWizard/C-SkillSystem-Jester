@@ -3853,10 +3853,15 @@ int GetUnitMaxMP(struct Unit * unit)
 
         int maxMP = bwl->maxMP;
 
-    #if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
+#if defined(SID_MPBoost) && (COMMON_SKILL_VALID(SID_MPBoost))
+        if (SkillTester(unit, SID_MPBoost))
+            maxMP = maxMP + 15;
+#endif
+
+#if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
         if (SkillTester(unit, SID_ManaRush))
             maxMP = maxMP * 2;
-    #endif
+#endif
 
         return maxMP;
     }

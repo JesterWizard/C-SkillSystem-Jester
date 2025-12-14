@@ -567,3 +567,9 @@ Mana Transfusion[X]
 Mana Transfusion:[N]
 MP generation extends[N]
 to HP as well.[X]
+
+## MSG_SKILL_MPBoost_NAME
+MP Boost[X]
+## MSG_SKILL_MPBoost_DESC
+MP Boost:[N]
+Boost maximum MP by +15.[X]

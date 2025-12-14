@@ -888,6 +888,7 @@
 // SID_ManaRush
 // SID_AirWalk
 // SID_ManaTransfusion
+// SID_MPBoost
 
 //////// COMBAT ARTS
 // SID_COMBAT_Grounder

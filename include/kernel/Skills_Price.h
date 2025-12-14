@@ -887,3 +887,4 @@
 #define MSG_SKILL_GateOfBabylon_PRICE 1000
 #define MSG_SKILL_CritThrift_PRICE 1000
 #define MSG_SKILL_ManaTransfusion_PRICE 1000
+#define MSG_SKILL_MPBoost_PRICE 1000
