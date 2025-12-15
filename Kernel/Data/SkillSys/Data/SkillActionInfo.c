@@ -306,4 +306,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_EmergencyExit) && COMMON_SKILL_VALID(SID_EmergencyExit))
 	[SID_EmergencyExit] = Action_EmergencyExit,
 #endif
+
+#if (defined(SID_EmergencyExitPlus) && COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+	[SID_EmergencyExitPlus] = Action_EmergencyExitPlus,
+#endif
 };

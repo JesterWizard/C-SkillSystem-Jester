@@ -51,3 +51,13 @@ extern const struct SkillPointsSystemPInfoConfig gSkillPointsSystemPInfoConfigLi
 
 extern const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1]; 
 extern const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1]; 
+
+extern const u8 classIndexes_SP[6];
+extern const u8 classPromotedIndexes_SP[6];
+extern const u8 classWeapons_SP[6];
+extern const u8 classPromotedWeapons_SP[6];
+
+#define MAX_UNDEPLOYED_UNIT_COUNT 32
+extern u8 gUndeployedUnitCount[MAX_UNDEPLOYED_UNIT_COUNT];
+void SaveSuspendUnitList(u8 *dst, const u32 size);
+void LoadSuspendUnitList(u8 *dst, const u32 size);

@@ -10,7 +10,7 @@
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
     [CHARACTER_EIRIKA] = {{
-        [0] = SID_EmergencyExit,
+        [0] = SID_EmergencyExitPlus,
     }},
     // 02
     [CHARACTER_SETH] = {{

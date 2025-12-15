@@ -95,7 +95,6 @@ bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 
 	for (i = 0; list[i]; i++)
 	{
-		NoCashGBAPrint("Test1"); // Added to break a loop that occurs with the poison staff here
 		if (list[i] == jid)
 		{
 			goto check_null_effective;

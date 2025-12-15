@@ -34,14 +34,6 @@ typedef struct {
 } PrepItemSuppyText;
 extern const int sExpaConvoyItemAmount;
 
-#if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
-FORCE_DECLARE static const u8 classIndexes_SP[6] = { CLASS_TARVOS, CLASS_BAEL, CLASS_GARGOYLE, CLASS_GORGONEGG, CLASS_MOGALL, CLASS_MAUTHEDOOG };
-FORCE_DECLARE static const u8 classPromotedIndexes_SP[6] = { CLASS_MAELDUIN, CLASS_ELDER_BAEL, CLASS_DEATHGOYLE, CLASS_GORGON, CLASS_ARCH_MOGALL, CLASS_GWYLLGI };
-
-FORCE_DECLARE static const u8 classWeapons_SP[6] = { ITEM_AXE_IRON, ITEM_MONSTER_POISON_CLAW, ITEM_LANCE_JAVELIN, ITEM_MONSTER_DEMON_SURGE, ITEM_MONSTER_EVIL_EYE, ITEM_MONSTER_FIRE_FANG };
-FORCE_DECLARE static const u8 classPromotedWeapons_SP[6] = { ITEM_AXE_BRAVE, ITEM_MONSTER_LETHAL_TALON, ITEM_LANCE_SPEAR, ITEM_MONSTER_SHADOW_SHOT, ITEM_MONSTER_CRIMSON_EYE, ITEM_MONSTER_HELL_FANG };
-#endif
-
 //! FE8U = 0x08098620
 LYN_REPLACE_CHECK(PrepItemScreen_SetupGfx);
 void PrepItemScreen_SetupGfx(struct PrepItemScreenProc* proc)
@@ -1297,6 +1289,11 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
                 PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetClassData(classIndexes_SP[proc->itemCurrent])->defaultPortraitId, 0x200, 5);
         }
 #endif
+
+#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+        if (gActionData.unk08 == SID_EmergencyExitPlus)
+            PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(gUndeployedUnitCount[proc->itemCurrent])->portraitId, 0x200, 5);
+#endif
     }
 
     // Handle down keyin
@@ -1334,6 +1331,11 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
             else
                 PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetClassData(classIndexes_SP[proc->itemCurrent])->defaultPortraitId, 0x200, 5);
         }
+#endif
+
+#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+        if (gActionData.unk08 == SID_EmergencyExitPlus)
+            PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(gUndeployedUnitCount[proc->itemCurrent])->portraitId, 0x200, 5);
 #endif
     }
 
@@ -4219,4 +4221,35 @@ int GetCurrentMapMusicIndex(void) {
     }
 
     return 0; // JESTER - We'll never get here, but the function demands a return value;
+}
+
+void SaveSuspendUnitList(u8 *dst, const u32 size)
+{
+	if (size < sizeof(gUndeployedUnitCount)) {
+		Errorf("ENOMEM: %d", size);
+		hang();
+	}
+
+	// sRandSeedsC[3] = Checksum16(sRandSeedsC, 6);
+
+	WriteAndVerifySramFast(
+		gUndeployedUnitCount,
+		dst,
+		sizeof(gUndeployedUnitCount));
+}
+
+void LoadSuspendUnitList(u8 *src, const u32 size)
+{
+	if (size < sizeof(gUndeployedUnitCount)) {
+		Errorf("ENOMEM: %#x", size);
+		hang();
+	}
+
+	ReadSramFast(
+		src,
+		gUndeployedUnitCount,
+		sizeof(gUndeployedUnitCount));
+
+	// if (sRandSeedsC[3] != Checksum16(sRandSeedsC, 6))
+	// 	InitRandC();
 }

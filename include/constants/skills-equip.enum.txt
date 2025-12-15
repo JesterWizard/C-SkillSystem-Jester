@@ -85,6 +85,7 @@ SID_DoubleTime
 SID_BloodyAlchemy
 SID_GateOfBabylon
 SID_EmergencyExit
+SID_EmergencyExitPlus
 
 //////// PRE-BATTLE SKILLS
 SID_DefiantStr

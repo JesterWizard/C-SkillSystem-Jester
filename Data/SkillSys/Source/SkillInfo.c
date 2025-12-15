@@ -8930,4 +8930,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_EmergencyExitPlus) && COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+    [SID_EmergencyExitPlus] = {
+        .name = MSG_SKILL_EmergencyExitPlus_NAME,
+        .desc = MSG_SKILL_EmergencyExitPlus_DESC,
+        .capacity = MSG_SKILL_EmergencyExitPlus_CAPACITY,
+        .price = MSG_SKILL_EmergencyExitPlus_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

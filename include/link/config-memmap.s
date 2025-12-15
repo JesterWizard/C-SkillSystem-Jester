@@ -99,15 +99,16 @@ _kernel_malloc sEfxResireEfxIndexCacheData, 1
 _kernel_malloc gSkillDbgList, 20 * 4
 
 // JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
-_kernel_malloc sDemoUnitExpaAlly, 51 * 4
-_kernel_malloc sDemoUnitExpaEnemy, 51 * 4
-_kernel_malloc sDemoUnitExpaNpc, 8 * 4
-_kernel_malloc sDemoUnitExpaBattle, 2 * 4
+@ _kernel_malloc sDemoUnitExpaAlly, 51 * 4
+@ _kernel_malloc sDemoUnitExpaEnemy, 51 * 4
+@ _kernel_malloc sDemoUnitExpaNpc, 8 * 4
+@ _kernel_malloc sDemoUnitExpaBattle, 2 * 4
+
+_kernel_malloc gUndeployedUnitCount, 32;
 
 _kernel_malloc gBattleFlagExt, 0x10
 _kernel_malloc BanimSwitcherBuf, 0x40
 _kernel_malloc BanimSwitcherAnimDef, 0x8
-_kernel_malloc ChapterID, 0x8
 
 // For Eebit's FE7 Mode Select port
 @ _kernel_malloc gUnk_ModeSelect_02000000, 1

@@ -104,7 +104,7 @@
 #include "MenuSkills/DoubleTime.lyn.event"
 #include "MenuSkills/BloodyAlchemy.lyn.event"
 #include "MenuSkills/EmergencyExit.lyn.event"
-
+#include "MenuSkills/EmergencyExitPlus.lyn.event"
 
 #include "MenuSkills/ReciprocalAid.lyn.event"
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"

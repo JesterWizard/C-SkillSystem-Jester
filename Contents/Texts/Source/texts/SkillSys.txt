@@ -74,3 +74,6 @@ All gold has been expended.[X]
 
 ## MSG_RerollSelect
 Select skill to reroll.[X]
+
+## MSG_SelectUndeployedUnit
+Choose an undeployed unit.[X]

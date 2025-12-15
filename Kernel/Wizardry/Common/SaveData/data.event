@@ -55,7 +55,8 @@ gEmsSavChunks:
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
 
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
-    EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
+    EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
+    // EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
 
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunkEnd
@@ -98,7 +99,8 @@ gEmsSusChunks:
     EmsChunk($0008, MSU_SaveSelectionPos, MSU_LoadSelectionPos)
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
     EmsChunk((CONFIG_UNIT_AMT_ALLY + CONFIG_UNIT_AMT_ENEMY + CONFIG_UNIT_AMT_NPC + CONFIG_UNIT_AMT_FOURTH) * 16, MSU_SaveStatDebuff, MSU_LoadStatDebuff)
-    EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
+    // EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
+    EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
 
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunkEnd

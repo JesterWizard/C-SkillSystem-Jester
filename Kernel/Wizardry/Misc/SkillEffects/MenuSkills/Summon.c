@@ -9,6 +9,11 @@
 
 extern u16 gUnknown_085A0D4C[];
 
+const u8 classIndexes_SP[6] = { CLASS_TARVOS, CLASS_BAEL, CLASS_GARGOYLE, CLASS_GORGONEGG, CLASS_MOGALL, CLASS_MAUTHEDOOG };
+const u8 classPromotedIndexes_SP[6] = { CLASS_MAELDUIN, CLASS_ELDER_BAEL, CLASS_DEATHGOYLE, CLASS_GORGON, CLASS_ARCH_MOGALL, CLASS_GWYLLGI };
+const u8 classWeapons_SP[6] = { ITEM_AXE_IRON, ITEM_MONSTER_POISON_CLAW, ITEM_LANCE_JAVELIN, ITEM_MONSTER_DEMON_SURGE, ITEM_MONSTER_EVIL_EYE, ITEM_MONSTER_FIRE_FANG };
+const u8 classPromotedWeapons_SP[6] = { ITEM_AXE_BRAVE, ITEM_MONSTER_LETHAL_TALON, ITEM_LANCE_SPEAR, ITEM_MONSTER_SHADOW_SHOT, ITEM_MONSTER_CRIMSON_EYE, ITEM_MONSTER_HELL_FANG };
+
 LYN_REPLACE_CHECK(SummonCommandUsability);
 u8 SummonCommandUsability(const struct MenuItemDef * def, int number)
 {
@@ -92,7 +97,7 @@ STATIC_DECLAR u8 GenerateSummons_OnCancel(struct MenuProc * menu, struct MenuIte
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
-/* Add a condition here later to not display the summon menu if there are no free adjacent spots */
+/* Maybe add a condition here later to not display the summon menu if there are no free adjacent spots */
 STATIC_DECLAR u8 GenerateSummons_Usability(const struct MenuItemDef * self, int number)
 {
     return MENU_ENABLED;
