@@ -130,15 +130,15 @@ STATIC_DECLAR const struct MenuItemDef RemoveSkillMenuItems[] =
     RemoveSkillMenuItem(2),
     RemoveSkillMenuItem(3),
     RemoveSkillMenuItem(4),
-#ifndef CONFIG_TURN_ON_ALL_SKILLS
     RemoveSkillMenuItem(5),
+#ifndef CONFIG_TURN_ON_ALL_SKILLS
     RemoveSkillMenuItem(6),
 
     /* Enemy skills */
     RemoveSkillMenuItem(7),
 #else
     /* Enemy skills */
-    RemoveSkillMenuItem(5),
+    RemoveSkillMenuItem(6),
 #endif
     { 0 }
 };
@@ -151,8 +151,8 @@ STATIC_DECLAR const struct MenuItemDef PredationSkillMenuItems[] =
     PredationSkillMenuItem(2),
     PredationSkillMenuItem(3),
     PredationSkillMenuItem(4),
-#ifndef CONFIG_TURN_ON_ALL_SKILLS
     PredationSkillMenuItem(5),
+#ifndef CONFIG_TURN_ON_ALL_SKILLS
     PredationSkillMenuItem(6),
 #endif
     { 0 }

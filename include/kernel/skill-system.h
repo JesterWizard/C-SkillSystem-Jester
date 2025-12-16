@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-#define UNIT_RAM_SKILLS_LEN 5
+#define UNIT_RAM_SKILLS_LEN 6
 #else
 #define UNIT_RAM_SKILLS_LEN 7
 #endif
@@ -107,7 +107,8 @@ enum SkillInfoListss {
     (((u64)(unit)->supports[3]) << 24) |           \
     (((u64)(unit)->supports[4]) << 32) |           \
     (((u64)(unit)->supports[5]) << 40) |           \
-    (((u64)(unit)->supports[6]) << 48)) >> ((i) * 10)) & 0x3FF)
+    (((u64)(unit)->supports[6]) << 48) |           \
+    (((u64)(unit)->supports[7]) << 56)) >> ((i) * 10)) & 0x3FF)
 
 #define UNIT_RAM_SKILLS(unit) ((u16 *)((unit)->supports))
 
@@ -235,7 +236,7 @@ struct PrepEquipSkillList* GetPrepEquipSkillList(struct Unit* unit);
 
 /* Game data */
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-#define SKILL_ROM_DATA_AMT 5
+#define SKILL_ROM_DATA_AMT 6
 #else
 #define SKILL_ROM_DATA_AMT 7 /* Unit can learn 7 skills on lv0/5/10/15/20 */
 #endif

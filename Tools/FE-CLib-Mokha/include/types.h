@@ -401,7 +401,7 @@ struct MapChange
     /* 08 */ const void* data;
 };
 
-enum { UNIT_SUPPORT_MAX_COUNT = 7 };
+enum { UNIT_SUPPORT_MAX_COUNT = 8 };
 
 enum
 {

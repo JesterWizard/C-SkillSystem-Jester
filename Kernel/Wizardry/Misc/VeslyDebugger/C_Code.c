@@ -940,7 +940,7 @@ void EditWExpIdle(DebuggerProc* proc) {
 #define SkillsWidth 12
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-    #define SkillsLearnable 5
+    #define SkillsLearnable 6
 #else
     #define SkillsLearnable 7
 #endif
@@ -953,7 +953,7 @@ void EditSkillsInit(DebuggerProc* proc) {
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
     u64 buffer = 0;
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
         buffer |= ((u64)unit->supports[i]) << (8 * i);
 
     for (int i = 0; i < SkillsLearnable; ++i)
@@ -1052,7 +1052,7 @@ void SaveSkills(DebuggerProc* proc) {
     }
 
     // Write the packed buffer into unit->supports[7]
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i) {
         unit->supports[i] = (bitbuf >> (i * 8)) & 0xFF;
     }
 #else
