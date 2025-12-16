@@ -145,13 +145,13 @@ STATIC_DECLAR int EmergencyExitPlusMenu_OnDraw(struct MenuProc * menu, struct Me
 
     Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_GOLD);
     Text_DrawString(&item->text, GetStringFromIndex(undeployedUnit->nameTextId));
-    PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile, item->yTile));
+    PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 1, item->yTile));
 
     /* Draw portrait only for first item */
     if (item->itemNumber == 0)
     {
         PutFace80x72_Core(
-            gBG0TilemapBuffer + 0x63 + 0x40,
+            gBG0TilemapBuffer + TILEMAP_INDEX(3, 5),
             undeployedUnit->portraitId,
             0x200,
             5

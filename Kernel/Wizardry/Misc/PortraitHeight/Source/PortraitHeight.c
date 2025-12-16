@@ -1,5 +1,4 @@
 #include <common-chax.h>
-
 #include "PortraitHeight.h"
 
 LYN_REPLACE_CHECK(ShouldFaceBeRaised);
