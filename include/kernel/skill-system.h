@@ -31,7 +31,7 @@ static inline u16 GetUnitSkillIndex(const struct Unit* unit, int index) {
 	if (index < 0 || index >= UNIT_RAM_SKILLS_LEN) return 0xFFFF;
 
 	u64 buffer = 0;
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
 		buffer |= ((u64)unit->supports[i]) << (8 * i);
 
 	return (buffer >> (index * 10)) & 0x3FF;
@@ -41,13 +41,13 @@ static inline void SetUnitSkillIndex(struct Unit* unit, int index, u16 sid) {
 	if (index < 0 || index >= UNIT_RAM_SKILLS_LEN) return;
 
 	u64 buffer = 0;
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
 		buffer |= ((u64)unit->supports[i]) << (8 * i);
 
 	buffer &= ~(((u64)0x3FF) << (index * 10));
 	buffer |= ((u64)(sid & 0x3FF)) << (index * 10);
 
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
 		unit->supports[i] = (buffer >> (8 * i)) & 0xFF;
 }
 
