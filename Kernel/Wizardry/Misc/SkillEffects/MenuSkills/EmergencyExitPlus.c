@@ -143,7 +143,7 @@ STATIC_DECLAR int EmergencyExitPlusMenu_OnDraw(struct MenuProc * menu, struct Me
 
     CallARM_FillTileRect(gBG1TilemapBuffer + 0x42, gUnknown_085A0D4C, 0x1000);
 
-    Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_GOLD);
+    Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_WHITE);
     Text_DrawString(&item->text, GetStringFromIndex(undeployedUnit->nameTextId));
     PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 1, item->yTile));
 
@@ -194,6 +194,9 @@ STATIC_DECLAR u8 EmergencyExitPlus_OnCancel(struct MenuProc * menu, struct MenuI
 
     /* Prevent other menus from freezing because of our little dpad hack in ProcessMenuDpadInput */
     gActionData.unk08 = 0;
+
+    gActionDataExpa.refrain_action = true;
+    EndAllMus();
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A;
 }

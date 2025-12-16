@@ -4273,11 +4273,24 @@ void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
         Decompress(info->img, (void *)(chr * 0x20 + VRAM));
         ApplyPalette(info->pal, pal);
 
+#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+        if (gActionData.unk08 == SID_EmergencyExitPlus)
+            PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
+        else
+        {
+            if (ShouldFaceBeRaised(fid) != 0) {
+                PutFace80x72_Raised(tm, (pal << 12) + (0x3FF & chr), info);
+            } else {
+                PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
+            }
+        }
+#else
         if (ShouldFaceBeRaised(fid) != 0) {
             PutFace80x72_Raised(tm, (pal << 12) + (0x3FF & chr), info);
         } else {
             PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
         }
+#endif
 
         for (i = 0; i < 5; i++) {
             tm[i * 0x20 + 0] = 0;
@@ -4289,5 +4302,44 @@ void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
         PutAppliedBitmap(tm, (pal << 12) + (0x3FF & chr), 10, 9);
     }
 
+    return;
+}
+
+//! FE8U = 0x08005B78
+LYN_REPLACE_CHECK(PutFace80x72_Standard);
+void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
+    CallARM_FillTileRect(tm, gUnknown_085A0838, (u16)tileref);
+
+#ifdef SID_EmergencyExitPlus
+    if (gActionData.unk08 != SID_EmergencyExitPlus)
+    {
+        int x = info->xMouth - 1;
+        int y = info->yMouth;
+
+        tm[TILEMAP_INDEX(x, y) + 0x00 + 0] = tileref + 0x00 + 0x1C;
+        tm[TILEMAP_INDEX(x, y) + 0x00 + 1] = tileref + 0x00 + 0x1D;
+        tm[TILEMAP_INDEX(x, y) + 0x00 + 2] = tileref + 0x00 + 0x1E;
+        tm[TILEMAP_INDEX(x, y) + 0x00 + 3] = tileref + 0x00 + 0x1F;
+
+        tm[TILEMAP_INDEX(x, y) + 0x20 + 0] = tileref + 0x20 + 0x1C;
+        tm[TILEMAP_INDEX(x, y) + 0x20 + 1] = tileref + 0x20 + 0x1D;
+        tm[TILEMAP_INDEX(x, y) + 0x20 + 2] = tileref + 0x20 + 0x1E;
+        tm[TILEMAP_INDEX(x, y) + 0x20 + 3] = tileref + 0x20 + 0x1F;   
+    }
+
+#else
+    int x = info->xMouth - 1;
+    int y = info->yMouth;
+
+    tm[TILEMAP_INDEX(x, y) + 0x00 + 0] = tileref + 0x00 + 0x1C;
+    tm[TILEMAP_INDEX(x, y) + 0x00 + 1] = tileref + 0x00 + 0x1D;
+    tm[TILEMAP_INDEX(x, y) + 0x00 + 2] = tileref + 0x00 + 0x1E;
+    tm[TILEMAP_INDEX(x, y) + 0x00 + 3] = tileref + 0x00 + 0x1F;
+
+    tm[TILEMAP_INDEX(x, y) + 0x20 + 0] = tileref + 0x20 + 0x1C;
+    tm[TILEMAP_INDEX(x, y) + 0x20 + 1] = tileref + 0x20 + 0x1D;
+    tm[TILEMAP_INDEX(x, y) + 0x20 + 2] = tileref + 0x20 + 0x1E;
+    tm[TILEMAP_INDEX(x, y) + 0x20 + 3] = tileref + 0x20 + 0x1F;
+#endif
     return;
 }
