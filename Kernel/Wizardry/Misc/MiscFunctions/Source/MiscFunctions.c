@@ -1886,13 +1886,6 @@ void SwitchPhases(void)
 
     case FACTION_PURPLE:
         gPlaySt.faction = FACTION_BLUE;
-        break;
-#else
-    case FACTION_GREEN:
-        gPlaySt.faction = FACTION_BLUE;
-        break;
-#endif
-    }
 
     if (gPlaySt.chapterTurnNumber < 999)
         gPlaySt.chapterTurnNumber++;
@@ -1900,6 +1893,19 @@ void SwitchPhases(void)
 #ifndef CONFIG_VESLY_SUPPORT_POST_BATTLE
     ProcessTurnSupportExp();
 #endif
+#else
+    case FACTION_GREEN:
+        gPlaySt.faction = FACTION_BLUE;
+    if (gPlaySt.chapterTurnNumber < 999)
+        gPlaySt.chapterTurnNumber++;
+
+#ifndef CONFIG_VESLY_SUPPORT_POST_BATTLE
+    ProcessTurnSupportExp();
+#endif
+
+#endif
+    }
+
 }
 
 LYN_REPLACE_CHECK(RefreshUnitsOnBmMap);
