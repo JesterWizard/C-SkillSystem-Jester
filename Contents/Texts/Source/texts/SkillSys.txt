@@ -1,5 +1,5 @@
-## MSG_PREPSKILL_RightTopBar
-Equiped[X]
+## MSG_PREPSKILL_LeftTopBar
+Equipped skills[X]
 
 ## MSG_PREPSKILL_AddSkill
      Skill added[X]
@@ -8,15 +8,15 @@ Equiped[X]
      Skill removed[X]
 
 ## MSG_PREPSKILL_FailAddSkill
-No enough space to equip,[NL]
+Not enough space to equip[N]
 please remove a skill first.[X]
 
 ## MSG_PREPSKILL_FailRemoveSkill
-This skill is[NL]
+This skill is[N]
 not removable.[X]
 
 ## MSG_ITEM_SkillScrollName
-Occult Scroll[X]
+Skill Scroll[X]
 
 ## MSG_ITEM_RemoveSkillScrollName
 Oblivion Scroll[X]
@@ -31,7 +31,7 @@ Remove skill back to scroll[X]
 Skill learned.[X]
 
 ## MSG_SkillRemoved
-Skill Removed.[X]
+Skill removed.[X]
 
 ## MSG_ScrollObtained
 Scroll.[X]

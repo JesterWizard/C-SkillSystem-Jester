@@ -68,7 +68,7 @@ STATIC_DECLAR void ProcPrepSkill1_InitScreen(struct ProcPrepSkill1 *proc)
 	for (i = 0; i < 6; i++)
 		PrepUnit_DrawUnitListNames((ProcPtr)proc, proc->yDiff_cur / 0x10 + i);
 
-	StartParallelFiniteLoop(PrepSkill1_DrawRightTopBar, 0, proc);
+	StartParallelFiniteLoop(PrepSkill1_DrawLeftTopBar, 0, proc);
 
 	StartGreenText(proc);
 	LoadHelpBoxGfx(BG_SCREEN_ADDR(0x29), 5);
@@ -141,7 +141,7 @@ STATIC_DECLAR void ProcPrepSkill1_Idle(struct ProcPrepSkill1 *proc)
 
 		StartParallelFiniteLoop(PrepSkill1_DrawLeftSkillIcon, 0, proc);
 		StartParallelFiniteLoop(PrepUnit_DrawLeftUnitNameCur, 0, proc);
-		StartParallelFiniteLoop(PrepSkill1_DrawRightTopBar, 0, proc);
+		StartParallelFiniteLoop(PrepSkill1_DrawLeftTopBar, 0, proc);
 		PlaySoundEffect(0x65);
 
 		if (ShouldPrepUnitMenuScroll(proc)) {

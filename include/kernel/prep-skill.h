@@ -20,7 +20,7 @@ enum ProcPrepSkill1Label {
 
 void PrepSkill1_DrawLeftSkillIcon(struct ProcPrepSkill1 *proc);
 void PrepSkill1_InitTexts(void);
-void PrepSkill1_DrawRightTopBar(struct ProcPrepSkill1 *proc);
+void PrepSkill1_DrawLeftTopBar(struct ProcPrepSkill1 *proc);
 
 /* On select skills */
 enum PrepSkill2ScrollType {

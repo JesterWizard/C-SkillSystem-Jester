@@ -332,6 +332,7 @@
  * Unit amount, since it is hard to modify, it is recommanded not change this value
  */
 
+// For now don't turn it off, it'll break the game
 #define CONFIG_FOURTH_ALLEGIANCE // Run a full make clean every time you toggle this
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
