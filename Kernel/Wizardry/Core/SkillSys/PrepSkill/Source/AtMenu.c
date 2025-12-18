@@ -808,9 +808,9 @@ void StartChapterStatusScreen_FromPrep(ProcPtr parent)
 LYN_REPLACE_CHECK(PrepHelpPrompt_Init);
 void PrepHelpPrompt_Init(struct ProcPrepSallyCursor * proc)
 {
-    // StartHelpPromptSprite(170, 140, 2, proc);
-    // Decompress(Img_PrepHelpButtonSprites, (void *)(OBJ_VRAM1 + 0x3000));
-    // proc->unk_58 = 0;
+    StartHelpPromptSprite(170, 140, 2, proc);
+    Decompress(Img_PrepHelpButtonSprites, (void *)(OBJ_VRAM1 + 0x3000));
+    proc->unk_58 = 0;
     return;
 }
 

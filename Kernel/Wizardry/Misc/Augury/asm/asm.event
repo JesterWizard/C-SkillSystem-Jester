@@ -20,10 +20,10 @@ PROC_END
 PUSH
 
   // Add prepmenu entry
-  ORG 0x955AE
-  SHORT 0x1C22
-  callHack_r0(PREEXT_AddExtraEntry)
-  SHORT 0x46C0
+  // ORG 0x955AE
+  // SHORT 0x1C22
+  // callHack_r0(PREEXT_AddExtraEntry)
+  // SHORT 0x46C0
   
   // Add entry helptext
   ORG 0xA18240
