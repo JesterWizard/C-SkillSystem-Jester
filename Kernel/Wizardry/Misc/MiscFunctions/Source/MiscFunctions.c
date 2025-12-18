@@ -4349,3 +4349,92 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 #endif
     return;
 }
+
+
+// JESTER - Freezing when opened on a text box
+// extern struct Text sTalkText[3];
+// extern struct TalkState sTalkStateCore;
+// struct TalkState* const sTalkState = &sTalkStateCore;
+// #define TALK_TEXT_BY_LINE(line) (sTalkText + ((line) + sTalkState->topTextNum) % sTalkState->lines)
+
+// //! FE8U = 0x08006C34
+// LYN_REPLACE_CHECK(Talk_OnIdle);
+// void Talk_OnIdle(ProcPtr proc) {
+
+//     if (IsTalkFaceMoving()) {
+//         return;
+//     }
+
+//     if (!sTalkState->instantScroll) {
+//         sTalkState->printClock++;
+
+//         if (sTalkState->printClock < sTalkState->printDelay) {
+//             return;
+//         }
+//     }
+
+//     sTalkState->printClock = 0;
+
+//     while (1) {
+//         SetTalkFaceNoMouthMove(sTalkState->activeFaceSlot);
+
+//         switch (TalkInterpret(proc)) {
+//             case 0:
+//                 Proc_Break(proc);
+//                 return;
+
+//             case 2:
+//                 if (sTalkState->instantScroll || sTalkState->printDelay <= 0) {
+//                     break;
+//                 }
+
+//                 return;
+
+//             case 3:
+//                 sTalkState->printClock = sTalkState->printDelay;
+//                 sTalkState->instantScroll = 0;
+
+//                 return;
+
+//             case 1:
+//             default:
+//                 if (!(CheckTalkFlag(TALK_FLAG_SPRITE))) {
+//                     if (TalkPrepNextChar(proc) == 1) {
+//                         return;
+//                     }
+//                 } else {
+//                     if (TalkSpritePrepNextChar(proc) == 1) {
+//                         return;
+//                     }
+//                 }
+
+//                 sTalkState->str = Text_DrawCharacter(TALK_TEXT_BY_LINE(sTalkState->lineActive), sTalkState->str);
+
+//                 if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
+//                     if (CheckTalkFlag(TALK_FLAG_7)) {
+//                         PlaySoundEffect(SONG_7A);
+//                         // m4aMPlayPitchControl(gMPlayTable[gSongTable[SONG_7A].ms].info, 0xFFFF, 1);
+//                     } else {
+//                         if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {
+//                             break;
+//                         }
+
+//                         if (sTalkState->instantScroll && sTalkState->unk82) {
+//                             break;
+//                         }
+
+//                         sTalkState->unk82 = 1;
+//                         PlaySoundEffect(SONG_6E);
+//                         // m4aMPlayPitchControl(gMPlayTable[gSongTable[SONG_6E].ms].info, 0xFFFF, 1);
+//                     }
+//                 }
+//         }
+
+
+//         if (!sTalkState->instantScroll && sTalkState->printDelay > 0) {
+//             return;
+//         }
+//     }
+
+//     return;
+// }

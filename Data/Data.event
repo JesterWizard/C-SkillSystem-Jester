@@ -33,5 +33,6 @@
 #include "CustomItems/CustomItems.event"
 #include "ClassData/ClassData.lyn.event"
 #include "CustomPortraits/CustomPortraits.event"
+#include "CustomBGs/CustomBGs.event"
 
 #endif
