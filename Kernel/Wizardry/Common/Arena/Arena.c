@@ -58,7 +58,7 @@
 //     return;
 // };
 
-static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
+FORCE_DECLARE static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
 
     u8 *iter;
 

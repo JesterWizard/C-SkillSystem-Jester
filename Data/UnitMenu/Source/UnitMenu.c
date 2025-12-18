@@ -176,9 +176,7 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 #ifdef CONFIG_MOKHA_AOE
 	{"", GambitAssemblyName, GambitSelectMenu_Desc, TEXT_COLOR_SYSTEM_GREEN, 0, GambitSelectMenu_Usability, 0, GambitSelectMenu_Effect, 0, GambitSelectMenu_Hover, GambitSelectMenu_Unhover},
 #endif
-#ifdef CONFIG_REFUGE_FEATURE
     {"　救出", MSG_MenuCommand_Refuge_NAME, MSG_MenuCommand_Refuge_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6C, Refuge_Usability, 0, Refuge_OnSelected, 0, 0, 0}, // Refuge > 
-#endif
 #ifdef CONFIG_LAGUZ_BARS
     {"　救出", MSG_MenuCommand_Transform_Laguz_NAME, MSG_MenuCommand_Transform_Laguz_DESC, TEXT_COLOR_SYSTEM_GOLD, 0x6C, Transform_Laguz_Usability, 0, Transform_Laguz_Effect, 0, 0, 0}, // Laguz Transform > 
 #endif

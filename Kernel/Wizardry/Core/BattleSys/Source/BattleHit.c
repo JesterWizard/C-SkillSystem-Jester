@@ -683,7 +683,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 
 		if (gBattleTarget.unit.curHP == 0) {
 			gBattleActorGlobalFlag.enemy_defeated = true;
-		    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
+		    FORCE_DECLARE struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
 
 #ifdef CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT
 			struct Unit* enemyUnit = GetUnit(gBattleActor.unit.index);

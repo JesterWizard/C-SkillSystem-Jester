@@ -58,6 +58,11 @@ static void MakeRefugeTargetList(struct Unit* unit) {
 
 u8 Refuge_Usability(const struct MenuItemDef * def, int number)
 {
+    
+#ifndef CONFIG_REFUGE_FEATURE
+    return MENU_NOTSHOWN;
+#endif
+
     if (gActiveUnit->state & US_HAS_MOVED) {
         return MENU_NOTSHOWN;
     }

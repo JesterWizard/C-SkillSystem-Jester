@@ -735,9 +735,15 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         StartPrepSaveScreen(proc);
         break;
 
+#ifdef CONFIG_PREPS_INFUSE
+    case 4: /* Infuse */
+        StartFortuneSubMenu(2, proc);
+        break;
+#else
     case 4: /* Support */
         StartFortuneSubMenu(2, proc);
         break;
+#endif
 
 #ifdef CONFIG_PREPS_AUGURY
     case 5: /* Augury */
