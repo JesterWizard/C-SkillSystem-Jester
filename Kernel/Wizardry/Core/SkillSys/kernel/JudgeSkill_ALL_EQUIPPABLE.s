@@ -81,8 +81,8 @@ _SkillTester_Generic:
     
     @ Load the skill value (need up to 2 bytes to get 10 bits)
     ldrb    r11, [r1, r12]       @ Load first byte
-    cmp     r12, #7              @ Check if we can safely load next byte
-    bge     .Lsingle_byte        @ If offset >= 7, only use single byte
+    cmp     r12, #6              @ Check if we can safely load next byte
+    bge     .Lsingle_byte        @ If offset >= 6, only use single byte
     
     add     r12, r12, #1         @ r12 = next byte offset
     ldrb    r0, [r1, r12]        @ Load next byte (using r0 as temp)

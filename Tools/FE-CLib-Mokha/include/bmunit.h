@@ -156,12 +156,12 @@ struct Unit
     /* 12 */ s8 maxHP;
     /* 13 */ s8 curHP;
 #endif
-    /* 14 */ u8 pow : 6;
-    /* 15 */ u8 skl : 6;
-    /* 16 */ u8 spd : 7;
-    /* 17 */ u8 def : 7;
-    /* 18 */ u8 res : 7;
-    /* 19 */ u8 lck : 7;
+    /* 14 */ u8 pow;
+    /* 15 */ u8 skl;
+    /* 16 */ u8 spd;
+    /* 17 */ u8 def;
+    /* 18 */ u8 res;
+    /* 19 */ u8 lck;
 #ifdef CONFIG_MISC_UNIT_COUNTERS
     /* 1A */ u8 conBonus : 5;
     /* 1A */ u8 counters : 3;

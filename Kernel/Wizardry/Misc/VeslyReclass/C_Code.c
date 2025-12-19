@@ -434,23 +434,23 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
     // {
     //     unit->maxHP = 0;
     // }
-    if (unit->pow < 0)
+    if (unit->pow <= 0)
     {
         unit->pow = 0;
     }
-    if (unit->skl < 0)
+    if (unit->skl <= 0)
     {
         unit->skl = 0;
     }
-    if (unit->spd < 0)
+    if (unit->spd <= 0)
     {
         unit->spd = 0;
     }
-    if (unit->def < 0)
+    if (unit->def <= 0)
     {
         unit->def = 0;
     }
-    if (unit->res < 0)
+    if (unit->res <= 0)
     {
         unit->res = 0;
     }

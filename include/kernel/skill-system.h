@@ -107,8 +107,7 @@ enum SkillInfoListss {
     (((u64)(unit)->supports[3]) << 24) |           \
     (((u64)(unit)->supports[4]) << 32) |           \
     (((u64)(unit)->supports[5]) << 40) |           \
-    (((u64)(unit)->supports[6]) << 48) |           \
-    (((u64)(unit)->supports[7]) << 56)) >> ((i) * 10)) & 0x3FF)
+    (((u64)(unit)->supports[6]) << 48)) >> ((i) * 10)) & 0x3FF)
 
 #define UNIT_RAM_SKILLS(unit) ((u16 *)((unit)->supports))
 
