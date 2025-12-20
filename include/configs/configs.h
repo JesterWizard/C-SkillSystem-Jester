@@ -375,7 +375,7 @@
 #define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
 // #define CONFIG_CASUAL_MODE // Doesn't seem to work right now, look into remaking in C
 #define CONFIG_RES_TERRAIN_WINDOW
-// #define CONFIG_MODULAR_MINIMUG_BOX
+#define CONFIG_MODULAR_MINIMUG_BOX
 #define CONFIG_INSTANT_LEVEL_UP
 #define CONFIG_MIRROR_MAP_SPRITES
 #define CONFIG_TEXT_ENGINE_REWORK
@@ -524,6 +524,7 @@
 
 #define CONFIG_HOTFIXES
 
-#define CONFIG_INFUSE_MENU
+/* Very much not complete, still a WIP */
+// #define CONFIG_PREPS_INFUSE
 
 #endif /* CONFIG_INSTALLED */

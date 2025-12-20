@@ -163,7 +163,7 @@ enum {
 #endif
 
 #define GIVE_SKILL_SCROLL_TO(skill_id, character) \
-    SVAL(EVT_SLOT_3, (((skill_id) & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(skill_id)) \
+    SVAL(EVT_SLOT_3, (((skill_id+1) & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(skill_id+1)) \
     GIVEITEMTO(character)
 
 /*

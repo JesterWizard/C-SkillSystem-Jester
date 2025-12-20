@@ -10,11 +10,11 @@
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
     [CHARACTER_EIRIKA] = {{
-        [0] = SID_EmergencyExitPlus,
+        // [0] = SID_EmergencyExitPlus,
     }},
     // 02
     [CHARACTER_SETH] = {{
-        [0] = SID_Minions,
+        // [0] = SID_Minions,
         // [1] = SID_Blacksmith,
         // [2] = SID_Sol,
         // [3] = SID_Adept,
@@ -400,11 +400,11 @@ const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
        //     },
        // },
        // // 68
-       [CHARACTER_ONEILL] = {
-           .skills = {
-               [0] = SID_InitSturdy,
-           },
-       },
+    //    [CHARACTER_ONEILL] = {
+    //        .skills = {
+    //            [0] = SID_InitSturdy,
+    //        },
+    //    },
        // // 69
        // [CHARACTER_GLEN] = {
        //     .skills = {

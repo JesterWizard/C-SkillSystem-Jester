@@ -68,7 +68,7 @@ static const struct UnitDefinition Renais_Outside_Castle_Enemy[] = {
 static const struct UnitDefinition Grado_Reinforcements_Enemy[] = {
     UNIT_ENTRY(CHARACTER_ONEILL, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 4, 14, 8, 1, REDAs_ONeill_Enemy, 0x3, 0x3, 0x4, 0x20, ITEM_AXE_IRON), // NeverModAI
     UNIT_ENTRY(0x82, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 1, 14, 7, 1, REDAs_Fighter1_Enemy, AttackInRange, RossMovementAI, NormalRecovery, DefaultAI4, ITEM_AXE_IRON),
-    UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_PURPLE, NO_ITEM_DROP, NO_AUTOLEVEL, 2, 14, 7, 1, REDAs_Fighter2_Enemy, AttackInRange, HealInjuredAllies, LowRecovery, DefaultAI4, ITEM_AXE_IRON),
+    UNIT_ENTRY(CHARACTER_SOLDIER_80, CLASS_FIGHTER, FACTION_ID_RED, NO_ITEM_DROP, NO_AUTOLEVEL, 2, 14, 7, 1, REDAs_Fighter2_Enemy, AttackInRange, HealInjuredAllies, LowRecovery, DefaultAI4, ITEM_AXE_IRON),
     {}
 };
 

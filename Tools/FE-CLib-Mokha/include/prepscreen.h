@@ -46,7 +46,11 @@ struct PrepScreenItemListEnt {
         PREP_MAINMENU_UNIT = 0,
         PREP_MAINMENU_ITEM = 1,
         PREP_MAINMENU_SAVE = 2,
+#ifdef CONFIG_PREPS_INFUSE
+        PREP_MAINMENU_INFUSE = 3,
+#else
         PREP_MAINMENU_SUPPORT = 3,
+#endif
         PREP_MAINMENU_AUGURY = 4,
         PREP_MAINMENU_BONUS_EXP = 5,
         PREP_MAINMENU_CHECKMAP = 6,

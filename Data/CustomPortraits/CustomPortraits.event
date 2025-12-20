@@ -61,3 +61,7 @@ setMugEntry(0x67,Portrait_0x67,3,2,3,3)
 Portrait_0x68:
    #incext PortraitFormatter "Portraits/secret_shop.png"
 setMugEntry(0x68,Portrait_0x68,3,3,3,3)
+
+Portrait_0xAC:
+   #incext PortraitFormatter "Portraits/infuse.png"
+setMugEntry(0xAC,Portrait_0xAC,3,3,3,3)

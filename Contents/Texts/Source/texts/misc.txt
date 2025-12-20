@@ -154,6 +154,13 @@ amongst your units.[N]
 Weaker units take less[N]
 bonus EXP to level.[X]
 
+## MSG_PREP_SCREEN_TITLE_INFUSE
+Infuse[X]
+## MSG_PREP_SCREEN_DESC_INFUSE
+Upgrade selected[N]
+weapons and items by[N]
+using dragon glass.[X]
+
 ## MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS
 Base[X]
 ## MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS

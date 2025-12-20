@@ -41,8 +41,6 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     TEXT(Chapter_01_Scene_04_Convo_01)
 
-   // ASMC(SetGameOptions_Chapter1)
-
     /**
      * Temporary flag(11) is used for triggering event: EventScr_Ch1_Turn_EnemyReinforceArrive,
      * this flag will be unset by event: EventScr_Ch1_Misc_Area
@@ -102,11 +100,26 @@ static const EventListScr EventListScr_HOUSE_TALK_2[] = {
     END_MAIN
 };
 
-static const EventListScr EventScr_Misc_Area[] = {
-    SVAL(EVT_SLOT_2, CHARACTER_EIRIKA)
-    CALL(EventScr_UnTriggerIfNotUnit)   /* This event may directly ENDB if the condition is not matched */
+static const EventListScr EventListScr_HOUSE_TALK_3[] = {
+    HOUSE_EVENT_NO_END(0x26, Chapter_01_Scene_13_Convo_01)
+    CALL(EventScr_RemoveBGIfNeeded)
+    GIVE_SKILL_SCROLL_TO(SID_KnackSpeed, CHARACTER_EVT_ACTIVE)
+    NOFADE
+    ENDA
+};
 
+static const EventListScr EventScr_Misc_Area_1[] = {
+    SVAL(EVT_SLOT_2, CHARACTER_EIRIKA)
+    CALL(EventScr_UnTriggerIfNotUnit)
     ENUF(EVFLAG_TMP(11))
+    NOFADE
+    ENDA
+};
+
+static const EventListScr EventScr_Misc_Area_2[] = {
+    SVAL(EVT_SLOT_2, CHARACTER_EIRIKA)
+    CALL(EventScr_UnTriggerIfNotUnit)
+    CALL(EventListScr_HOUSE_TALK_3)
     NOFADE
     ENDA
 };
@@ -135,7 +148,8 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    AREA(EVFLAG_TMP(10), EventScr_Misc_Area, 0, 0, 7, 9)
+    AREA(EVFLAG_TMP(10), EventScr_Misc_Area_1, 0, 0, 7, 9)
+    AREA(EVFLAG_TMP(12), EventScr_Misc_Area_2, 0, 0, 7, 7)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

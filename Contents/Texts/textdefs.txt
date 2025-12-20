@@ -37,12 +37,12 @@
 [SendToBack] = 28
 [.] = 31
 
-# A special hook on "#" :\
+// A special hook on "#" :\
 [HASH] = 0x23
 
 [DashedLine] = 0x7F
 
-# LoadOverworldFaces is wrongly named, it pauses the current dialogue, and waits to resume
+// LoadOverworldFaces is wrongly named, it pauses the current dialogue, and waits to resume
 [LoadOverworldFaces] = 0x80, 0x04
 [BreakTalk] = 0x80, 0x04
 

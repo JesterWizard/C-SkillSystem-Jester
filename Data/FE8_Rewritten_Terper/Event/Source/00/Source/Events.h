@@ -40,7 +40,6 @@ static const EventScr EventScr_Beginning[] = {
 
     /* Escape Castle Renais */
     LOAD_MAP_XY(0, 0, OUTSIDE_RENAIS)
-    ASMC(SetWeatherToRain)
     FADE_TO_BLACK(16)
     LOAD_WAIT(Renais_Runaways_Allies)
     HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
@@ -79,7 +78,6 @@ static const EventScr EventScr_Beginning[] = {
 
     /* Highway map with O'Neil and company */
     LOAD_MAP_XY(0, 0, PROLOGUE)
-    ASMC(SetWeatherToRain)
     FADE_TO_BLACK(16)
     LOAD_WAIT_PERSIST(Eirika_Seth_Allies)
     SET_UNIT_HP(CHARACTER_SETH, 10)
@@ -96,7 +94,6 @@ static const EventScr EventScr_Beginning[] = {
     LOAD_WAIT(Grado_Reinforcements_Enemy)
     HIGHLIGHT_CHARACTER(CHARACTER_ONEILL, 60)
     TEXT(Chapter_00_Scene_03_Convo_04)
-    GIVE_SKILL_SCROLL_TO(SID_GoddessDance, CHARACTER_EIRIKA)
     ASMC(SetGameOptions)
     NOFADE
     ENDA
