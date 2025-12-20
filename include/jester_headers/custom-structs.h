@@ -41,3 +41,9 @@ extern const UnitPromotions unit_promotions[];
 enum {
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
 };
+
+extern const struct gfx_set gConvoBackgroundData_NEW[];
+
+extern void Seth_Wounded_IMG();
+extern void Seth_Wounded_TSA();
+extern void Seth_Wounded_PAL();
