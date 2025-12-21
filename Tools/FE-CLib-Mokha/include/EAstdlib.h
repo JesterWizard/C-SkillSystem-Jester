@@ -83,7 +83,7 @@
 #define CHECK_POSTGAME EvtGetIsGameCompleted
 #define TEXTSTART EvtTextStart
 #define REMOVEPORTRAITS EvtTextStartType1
-#define _1A22 EvtTextStartType2
+#define CGTEXTBOXSTART EvtTextStartType2
 #define TUTORIALTEXTBOXSTART EvtTextTutorialStart
 #define SOLOTEXTBOXSTART EvtTextStartType4
 #define _1A25 EvtTextStartType5

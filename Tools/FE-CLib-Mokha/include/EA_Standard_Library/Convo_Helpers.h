@@ -6,6 +6,12 @@
     TEXTEND \
     REMA
 
+#define CG_TEXT(msg) \
+    CGTEXTBOXSTART \
+    TEXTSHOW(msg) \
+    TEXTEND \
+    REMA
+
 #define TEXT_CONSECUTIVE(msg) \
     EvtTextShow2(msg) \
     TEXTEND

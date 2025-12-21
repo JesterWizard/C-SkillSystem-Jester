@@ -527,4 +527,6 @@
 /* Very much not complete, still a WIP */
 // #define CONFIG_PREPS_INFUSE
 
+#define CONFIG_MAX_COLOR_BACKGROUNDS
+
 #endif /* CONFIG_INSTALLED */
