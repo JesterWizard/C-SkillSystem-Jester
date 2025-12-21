@@ -71,22 +71,20 @@ WORD 0x0894F4AC 0x08953538 0x089539EC
 WORD 0x08953AEC 0x089584A4 0x08958958
 WORD 0x08958A58 0x0895D1A8 0x0895D65C
 WORD 0x0895D75C 0x0895D768 0x0895DC1C
-WORD 0x0 0x0 0x0                                    // Not sure what this is used for.
-WORD 0x0 0x0 0x0                                    // ID used for random BG.
-POIN Sommie256BG; WORD 0x0; POIN Sommie256Pal       // TSA == 0 indicates 256-colour BGs.
-POIN Sommie224BG; WORD 0x1; POIN Sommie224Pal       // TSA == 1 indicates 224-colour BGs.
-POIN MyrrhMorvaBG; WORD 0x0; POIN MyrrhMorvaPal
+WORD 0x0 0x0 0x0                                       // Not sure what this is used for.
+WORD 0x0 0x0 0x0                                       // ID used for random BG.
+// POIN Sommie256BG; WORD 0x0; POIN Sommie256Pal       // TSA == 0 indicates 256-colour BGs.
+// POIN Sommie224BG; WORD 0x1; POIN Sommie224Pal       // TSA == 1 indicates 224-colour BGs.
+POIN CG_Myrrh_Morva_IMG; WORD 0x1; POIN CG_Myrrh_Morva_PAL
+POIN CG_Ismaire_IMG;     WORD 0x1; POIN CG_Ismaire_PAL
 
-ALIGN 4; Sommie256BG:
-#incbin "256Sommie.dmp"
-ALIGN 4; Sommie256Pal:
-#incbin "256SommiePal.dmp"
-ALIGN 4; Sommie224BG:
-#incbin "224Sommie.dmp"
-ALIGN 4; Sommie224Pal:
-#incbin "224SommiePal.dmp"
+ALIGN 4
+CG_Myrrh_Morva_IMG:
+#incbin "224_CG_Morva_Myrrh_IMG.dmp"
+CG_Myrrh_Morva_PAL:
+#incbin "224_CG_Morva_Myrrh_PAL.dmp"
 
-ALIGN 4; MyrrhMorvaBG:
-#incbin "224Morva_Myrrh.dmp"
-ALIGN 4; MyrrhMorvaPal:
-#incbin "224Morva_MyrrhPal.dmp"
+CG_Ismaire_IMG:
+#incbin "224_CG_Ismaire_IMG.dmp"
+CG_Ismaire_PAL:
+#incbin "224_CG_Ismaire_PAL.dmp"
