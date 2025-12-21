@@ -56,7 +56,7 @@ Things to keep in mind:
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **BG Storage Folder** | [`gfx/BG`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/) | This is where the compressed images and palettes go |
-| **BG Insertion**   [`gfx/BG/BG.event`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/BG.event) | This is the insertion point for your new backgrounds |
+| **BG Insertion**  |  [`gfx/BG/BG.event`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/BG.event) | This is the insertion point for your new backgrounds |
 
 ---
 
