@@ -139,7 +139,7 @@ extern void AddExp_Event(int exp);
 
 extern void TransferStatsandExperience(void);
 
-// extern const struct ProcCmd ProcScr_AddExp[];
+extern const struct ProcCmd ProcScr_AddExp[];
 
 bool isWeaponTriangleAdvantage(int attackerWeapon, int defenderWeapon); // weapon type
 bool weaponHasSpecialEffect(int weaponAttributes);  // weaponID
@@ -163,3 +163,13 @@ extern const struct ProcCmd ProcPopup_GotItem[];
 extern void displayScrollBackground_INFUSE(void);
 extern void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc);
 extern struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[];
+
+
+/* Bonus EXP events */
+struct ProcGrantBEXP {
+    PROC_HEADER;
+    int unitIndex;
+};
+extern void GrantBEXP_Loop(struct ProcGrantBEXP* proc);
+extern const struct ProcCmd ProcScr_GrantBEXP[];
+extern void GrantBEXP(ProcPtr parent);

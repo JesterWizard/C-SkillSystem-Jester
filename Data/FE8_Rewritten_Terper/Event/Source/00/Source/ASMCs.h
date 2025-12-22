@@ -6,6 +6,7 @@
 #include "jester_headers/miscellaneous.h"
 #include "debuff.h"
 #include "jester_headers/Forging.h"
+#include "jester_headers/custom-functions.h"
 
 void SetGameOptions() 
 {

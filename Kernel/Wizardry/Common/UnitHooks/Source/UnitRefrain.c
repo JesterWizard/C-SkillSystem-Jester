@@ -96,7 +96,6 @@ void ChapterChangeUnitCleanup(void)
 		for (it = gpUnitRefrainHooks; *it; it++)
 			(*it)(unit);
 #endif
-
         /* Reset the transformed state of any units with the skill */
 #if defined(SID_Transform) && (COMMON_SKILL_VALID(SID_Transform))
         if (SkillTester(unit, SID_Transform))

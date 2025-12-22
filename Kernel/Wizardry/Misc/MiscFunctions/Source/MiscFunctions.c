@@ -2746,7 +2746,7 @@ void TransferStatsandExperience(void)
     gActiveUnit->state |= US_UNSELECTABLE;  // Ensure the unit cannot be selected again
 }
 
-static const struct ProcCmd ProcScr_AddExp[] = {
+const struct ProcCmd ProcScr_AddExp[] = {
     PROC_CALL(LockGame),
     PROC_WHILE(BattleEventEngineExists),
     PROC_CALL(EndMapAnimInfoWindow),
@@ -4438,3 +4438,53 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 
 //     return;
 // }
+
+void GrantBEXP_Loop(struct ProcGrantBEXP* proc)
+{
+    struct Unit* unit;
+    int BEXP = gEventSlots[EVT_SLOT_7];
+
+    // Find next valid unit
+    while (proc->unitIndex < FACTION_GREEN) {
+        unit = GetUnit(proc->unitIndex++);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+        if (unit->state & US_DEAD)
+            continue;
+
+        // Grant EXP to THIS unit
+        gActiveUnit = unit;
+
+        gManimSt.actorCount = 1;
+        gManimSt.subjectActorId = 0;
+        gManimSt.targetActorId = 0;
+
+        InitBattleUnit(&gBattleActor, unit);
+        BattleApplyMiscActionExpGains_Modular(BEXP); // Bonus EXP
+
+        SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArray);
+        ResetText();
+        EndAllMus();
+
+        // Block here until EXP anim finishes,
+        // then PROC_REPEAT will call us again
+        Proc_StartBlocking(ProcScr_AddExp, proc);
+        return;
+    }
+
+    // No more units → exit PROC_REPEAT
+    Proc_Break(proc);
+}
+
+const struct ProcCmd ProcScr_GrantBEXP[] = {
+    PROC_REPEAT(GrantBEXP_Loop),
+    PROC_END,
+};
+
+void GrantBEXP(ProcPtr parent)
+{
+    struct ProcGrantBEXP* proc = Proc_StartBlocking(ProcScr_GrantBEXP, parent);
+
+    proc->unitIndex = 1; // Unit IDs start at 1
+}
