@@ -73,10 +73,12 @@ WORD 0x08958A58 0x0895D1A8 0x0895D65C
 WORD 0x0895D75C 0x0895D768 0x0895DC1C
 WORD 0x0 0x0 0x0                                       // Not sure what this is used for.
 WORD 0x0 0x0 0x0                                       // ID used for random BG.
-// POIN Sommie256BG; WORD 0x0; POIN Sommie256Pal       // TSA == 0 indicates 256-colour BGs.
-// POIN Sommie224BG; WORD 0x1; POIN Sommie224Pal       // TSA == 1 indicates 224-colour BGs.
-POIN CG_Myrrh_Morva_IMG; WORD 0x1; POIN CG_Myrrh_Morva_PAL
-POIN CG_Ismaire_IMG;     WORD 0x1; POIN CG_Ismaire_PAL
+POIN CG_Myrrh_Morva_IMG;   WORD 0x1; POIN CG_Myrrh_Morva_PAL   // 0x38
+POIN CG_Ismaire_IMG;       WORD 0x1; POIN CG_Ismaire_PAL       // 0x39
+POIN CG_Seth_Attacked_IMG; WORD 0x1; POIN CG_Seth_Attacked_PAL // 0x3A
+
+// TSA == 0 indicates 256-colour BGs.
+// TSA == 1 indicates 224-colour BGs.
 
 ALIGN 4
 CG_Myrrh_Morva_IMG:
@@ -88,3 +90,9 @@ CG_Ismaire_IMG:
 #incbin "224_CG_Ismaire_IMG.dmp"
 CG_Ismaire_PAL:
 #incbin "224_CG_Ismaire_PAL.dmp"
+
+CG_Seth_Attacked_IMG:
+#incbin "224_CG_Seth_Attacked_IMG.dmp"
+CG_Seth_Attacked_PAL:
+#incbin "224_CG_Seth_Attacked_PAL.dmp"
+

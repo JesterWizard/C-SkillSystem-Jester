@@ -8,9 +8,7 @@ static const EventScr EventScr_Beginning[] = {
     LOAD_WAIT(Panicked_Soldier_Allies)
     CAMERA(17, 2)
     HIGHLIGHT_CHARACTER(CHARACTER_EPHRAIM, 60)
-    SET_BACKGROUND(0x39)
-    CG_TEXT(Chapter_00_Scene_01_Convo_01)
-   // TEXT(Chapter_00_Scene_01_Convo_01)
+    TEXT(Chapter_00_Scene_01_Convo_01)
     MOVE_WAIT(0, CHARACTER_EPHRAIM, 13, 11)
     ERASE(CHARACTER_EPHRAIM)
     MOVE_1STEP_WAIT(0, CHARACTER_EIRIKA, MOVE_LEFT)
@@ -66,7 +64,8 @@ static const EventScr EventScr_Beginning[] = {
     
     /* Escape Valter */
     HIGHLIGHT_CHARACTER(CHARACTER_VALTER_PROLOGUE, 60)
-    TEXT(Chapter_00_Scene_02_Convo_04)
+    TEXT_CG(0x3A, Chapter_00_Scene_02_Convo_04_1)
+    TEXT(Chapter_00_Scene_02_Convo_04_2)
     MOVE_1STEP_WAIT(0, CHARACTER_SETH, MOVE_LEFT)
     ERASE(CHARACTER_EIRIKA)
     MOVE_THRICE_WAIT(0, CHARACTER_SETH, 4, 4, 4, 2, 0, 2)

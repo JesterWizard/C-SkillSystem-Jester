@@ -6,11 +6,15 @@
     TEXTEND \
     REMA
 
-#define CG_TEXT(msg) \
+#define TEXT_CG(bg, msg) \
+    SVAL(EVT_SLOT_2, (bg)) \
+    SVAL(EVT_SLOT_3, (msg)) \
+    CALL(EventScr_SetBackground) \
+    SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0) \
     CGTEXTBOXSTART \
-    TEXTSHOW(msg) \
+    TEXTSHOW(-1) \
     TEXTEND \
-    REMA
+    CALL(EventScr_TextShowWithFadeIn)
 
 #define TEXT_CONSECUTIVE(msg) \
     EvtTextShow2(msg) \

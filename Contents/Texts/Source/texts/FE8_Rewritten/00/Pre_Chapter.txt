@@ -1,7 +1,24 @@
 ## Chapter_00_Scene_01_Convo_01
-[SetName]Morva[.][N]
-No matter how far you travel,[N]
-I will always be with you.[A][X]
+[OpenMidLeft][LoadFace_Fado]
+[OpenMidRight][LoadFace_SoldierBlue]
+[BoopPitch_Highest]
+The castle gate has been breached,[N]
+Your Majesty![A][N]
+Emperor Vigarde's forces are within[N]
+the castle walls![A]
+[OpenMidLeft]
+[BoopPitch_Lowest]
+I... I understand.[A]
+[OpenMidRight]
+[BoopPitch_Highest]
+The garrison has fallen...[A][N]
+We've lost contact with Prince Ephraim...[A][N]
+Your Majesty, what are we to do?![A][N]
+[OpenMidLeft]
+[BoopPitch_Lowest]
+What else can we do?[A][N]
+Order your men to lay[N]
+down their arms and surrender.[A][X]
 
 ## Chapter_00_Scene_01_Convo_02
 [OpenMidRight][LoadFace_Eirika]
@@ -128,10 +145,12 @@ Another kill to add to my collection!![A][N]
 [OpenMidLeft]
 Dastard![A][X]
 
-## Chapter_00_Scene_02_Convo_04
-[OpenMidRight][LoadFace_Valter]
+## Chapter_00_Scene_02_Convo_04_1
+[SetName]Valter[N]
 Ha! So Renais' loyal dog has the[N]
-bite to match his bark![A][N]
+bite to match his bark![A][X]
+
+## Chapter_00_Scene_02_Convo_04_2
 [OpenMidLeft][LoadFace_Seth]
 Argh...![A][N]
 [OpenMidLeft]
