@@ -120,7 +120,7 @@ static const EventListScr EventScr_PROLOGUE_TURN_3_WARNING[] = {
     CHECK_TURNS //Store current turn count in slot C
     SVAL(EVT_SLOT_7, 3)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
-    // HIGHLIGHT_CHARACTER(CHARACTER_SETH)
+    HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
     TEXT(Chapter_00_Seth_Warning)
     GOTO(0x1)
 
