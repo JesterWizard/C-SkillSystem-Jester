@@ -375,41 +375,50 @@ void BattleApplyExpGains(void)
     InitBattleUnit(&gBattleActor, GetUnit(CHARACTER_EIRIKA + 1));
 #endif
 
-    // Only process EXP if this is not an extra map
     if (!(gPlaySt.chapterStateBits & PLAY_FLAG_EXTRA_MAP))
     {
-        // Apply EXP only if the unit belongs to the blue faction
-        if (UNIT_FACTION(GetUnit(gBattleActor.unit.index)) == FACTION_BLUE  && gBattleActor.unit.curHP > 0)
+        bool actorBlue  = (UNIT_FACTION(&gBattleActor.unit)  == FACTION_BLUE);
+        bool targetBlue = (UNIT_FACTION(&gBattleTarget.unit) == FACTION_BLUE);
+
+        if (actorBlue)
         {
             gBattleActor.expGain = GetBattleUnitExpGainRework(&gBattleActor, &gBattleTarget);
             gBattleActor.unit.exp += gBattleActor.expGain;
-
-#if CHAX
-            ResetPopupSkillStack();
-#endif
-
-            // Handle replicate status (copy EXP to original unit)
-            if (GetUnitStatusIndex(GetUnit(gBattleActor.unit.index)) == NEW_UNIT_STATUS_REPLICATE)
-            {
-                for (int i = FACTION_BLUE; i < FACTION_GREEN; i++)
-                {
-                    struct Unit* unit = GetUnit(i);
-
-                    if (!UNIT_IS_VALID(unit))
-                        continue;
-
-                    if (gBattleActor.unit.pCharacterData->number == unit->pCharacterData->number &&
-                        GetUnitStatusIndex(unit) != NEW_UNIT_STATUS_REPLICATE)
-                    {
-                        unit->exp += gBattleActor.expGain;
-                        gBattleActor.unit.exp -= gBattleActor.expGain;
-                        InitBattleUnit(&gBattleActor, unit);
-                        break;
-                    }
-                }
-            }
-
             CheckBattleUnitLevelUp(&gBattleActor);
         }
+
+        if (targetBlue)
+        {
+            gBattleTarget.expGain = GetBattleUnitExpGainRework(&gBattleTarget, &gBattleActor);
+            gBattleTarget.unit.exp += gBattleTarget.expGain;
+            CheckBattleUnitLevelUp(&gBattleTarget);
+        }
+
+    #if CHAX
+        ResetPopupSkillStack();
+    #endif
+
+        // Handle replicate status (copy EXP to original unit)
+        if (GetUnitStatusIndex(GetUnit(gBattleActor.unit.index)) == NEW_UNIT_STATUS_REPLICATE)
+        {
+            for (int i = FACTION_BLUE; i < FACTION_GREEN; i++)
+            {
+                struct Unit* unit = GetUnit(i);
+
+                if (!UNIT_IS_VALID(unit))
+                    continue;
+
+                if (gBattleActor.unit.pCharacterData->number == unit->pCharacterData->number &&
+                    GetUnitStatusIndex(unit) != NEW_UNIT_STATUS_REPLICATE)
+                {
+                    unit->exp += gBattleActor.expGain;
+                    gBattleActor.unit.exp -= gBattleActor.expGain;
+                    InitBattleUnit(&gBattleActor, unit);
+                    break;
+                }
+            }
+        }
+
+        CheckBattleUnitLevelUp(&gBattleActor);
     }
 }
