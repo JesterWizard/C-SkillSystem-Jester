@@ -48,15 +48,15 @@ STATIC_DECLAR void SkillSoulSapPostAnimEffect(ProcPtr proc)
 	AddUnitHp(unit, heal_amt);
 }
 
-STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSkillSoulSap[] = {
-	PROC_NAME("PostActionSkillSoulSap"),
+STATIC_DECLAR const struct ProcCmd ProcScr_PostAction_SoulSap[] = {
+	PROC_NAME("PostAction_SoulSap"),
 	PROC_YIELD,
 	PROC_CALL(ExecSkillSoulSapEffectAnim),
 	PROC_CALL(SkillSoulSapPostAnimEffect),
 	PROC_END
 };
 
-bool PostActionSkillSoulSap(ProcPtr parent)
+bool PostAction_SoulSap(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 
@@ -73,6 +73,6 @@ bool PostActionSkillSoulSap(ProcPtr parent)
 	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
 		return false;
 
-	Proc_StartBlocking(ProcScr_PostActionSkillSoulSap, parent);
+	Proc_StartBlocking(ProcScr_PostAction_SoulSap, parent);
 	return true;
 }

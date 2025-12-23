@@ -344,6 +344,13 @@ Hawk Eye[X]
 Hawk Eye:[N]
 User will always hit the enemy.[X]
 
+## MSG_SKILL_MagicEye_NAME
+Magic Eye[X]
+## MSG_SKILL_MagicEye_DESC
+Magic Eye:[N]
+Unit will not lose hit range when[N]
+attacking from distance[X]
+
 ## MSG_SKILL_KeenFighter_NAME
 Keen Fighter[X]
 ## MSG_SKILL_KeenFighter_DESC

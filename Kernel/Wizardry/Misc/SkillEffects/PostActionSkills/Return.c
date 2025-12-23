@@ -48,7 +48,7 @@ static void check_skipping(void)
 		PostActionReturnToOrigin();
 }
 
-STATIC_DECLAR const EventScr EventScr_PostActionPositionReturn[] = {
+STATIC_DECLAR const EventScr EventScr_PostAction_PositionReturn[] = {
 	EVBIT_MODIFY(0x4)
 	// ASMC(MapAnim_CommonInit)
 	ASMC(PostActionReturnSkipMenuIfNotAlly)
@@ -84,7 +84,7 @@ LABEL(99)
 	ENDA
 };
 
-bool PostActionPositionReturn(ProcPtr proc)
+bool PostAction_PositionReturn(ProcPtr proc)
 {
 	if (!UNIT_IS_VALID(gActiveUnit))
 		return false;
@@ -114,6 +114,6 @@ bool PostActionPositionReturn(ProcPtr proc)
 	if (gActiveUnitMoveOrigin.x == gActiveUnit->xPos && gActiveUnitMoveOrigin.y == gActiveUnit->yPos)
 		return false;
 
-	KernelCallEvent(EventScr_PostActionPositionReturn, EV_EXEC_CUTSCENE, proc);
+	KernelCallEvent(EventScr_PostAction_PositionReturn, EV_EXEC_CUTSCENE, proc);
 	return true;
 }

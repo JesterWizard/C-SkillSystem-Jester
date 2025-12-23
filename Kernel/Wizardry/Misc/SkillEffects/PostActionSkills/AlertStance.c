@@ -24,7 +24,7 @@ FORCE_DECLARE static void callback_refrain(ProcPtr proc)
 	StartTemporaryLock(proc, 15);
 }
 
-bool PostActionAlertStance(ProcPtr parent)
+bool PostAction_AlertStance(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 

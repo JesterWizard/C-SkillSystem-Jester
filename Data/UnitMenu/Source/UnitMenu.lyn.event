@@ -20,7 +20,7 @@ WORD $0 $8022B31 $0
 POIN pr_AttackActionCommandHoverFix
 POIN pr_AttackActionCommandUnhoverFix
 POIN CURRENTOFFSET-436
-WORD $15021501 $6C00
+WORD $15041503 $6C00
 POIN pr_CombatArtActionCommandUsability
 POIN pr_CombatArtActionCommandOnDarw
 POIN pr_CombatArtActionCommandEffect
@@ -34,7 +34,7 @@ WORD $6D60691 $5204 $80248C5 $0 $8024921 $0 $0 $0
 POIN CURRENTOFFSET-512
 WORD $6D70692 $5304 $802494D $0 $8024981 $0 $0 $0
 POIN CURRENTOFFSET-532
-WORD $15541553 $8000
+WORD $15561555 $8000
 POIN pr_GaidenBMagActionCommandUsability
 POIN pr_GaidenBMagActionCommandOnDarw
 POIN pr_GaidenBMagActionCommandEffect
@@ -42,7 +42,7 @@ WORD $0
 POIN pr_GaidenBMagActionCommandHover
 POIN pr_GaidenBMagActionCommandUnhover
 POIN CURRENTOFFSET-552
-WORD $15561555 $8000
+WORD $15581557 $8000
 POIN pr_GaidenWMagActionCommandUsability
 POIN pr_GaidenWMagActionCommandOnDarw
 POIN pr_GaidenWMagActionCommandEffect
@@ -50,7 +50,7 @@ WORD $0
 POIN pr_GaidenWMagActionCommandHover
 WORD $8023B85
 POIN CURRENTOFFSET-572
-WORD $130A1309 $8000
+WORD $130C130B $8000
 POIN pr_UpperMenuSkill_Usability
 WORD $0
 POIN pr_UpperMenuSkill_OnSelected
@@ -76,7 +76,7 @@ WORD $6D20688 $6200 $80240ED $0 $8024145 $0 $0 $0
 POIN CURRENTOFFSET-800
 WORD $6C50689 $6300 $80228A5 $0 $80228DD $0 $0 $0
 POIN CURRENTOFFSET-836
-WORD $13AE13AD $6C00
+WORD $13B013AF $6C00
 POIN Refuge_Usability
 WORD $0
 POIN Refuge_OnSelected

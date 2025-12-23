@@ -179,6 +179,7 @@
 #define MSG_SKILL_Pursuit_PRICE 1000
 #define MSG_SKILL_DragonSkin_PRICE 1000
 #define MSG_SKILL_Hawkeye_PRICE 1000
+#define MSG_SKILL_MagicEye_PRICE 1
 #define MSG_SKILL_KeenFighter_PRICE 1000
 #define MSG_SKILL_FireBoost_PRICE 1000
 #define MSG_SKILL_WindBoost_PRICE 1000

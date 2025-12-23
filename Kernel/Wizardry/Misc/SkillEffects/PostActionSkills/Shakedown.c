@@ -20,7 +20,7 @@ FORCE_DECLARE static void callback2(ProcPtr proc)
 	NewPopup_GoldGot(proc, gActiveUnit, gPostActionCommonBuffer.total_damage_actor);
 }
 
-bool PostActionSkillShakedown(ProcPtr parent)
+bool PostAction_Shakedown(ProcPtr parent)
 {
 	if (!UNIT_IS_VALID(gActiveUnit))
 		return false;

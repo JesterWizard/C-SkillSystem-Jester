@@ -8,7 +8,7 @@
 #include "constants/texts.h"
 #include "strmag.h"
 
-STATIC_DECLAR void PostActionNecroCopySkipMenuIfNotAlly(struct EventEngineProc * proc)
+STATIC_DECLAR void PostAction_NecroCopySkipMenuIfNotAlly(struct EventEngineProc * proc)
 {
     ShowUnitSprite(gActiveUnit);
 
@@ -62,9 +62,9 @@ STATIC_DECLAR void PrepareNecroCopy(void)
     }
 }
 
-STATIC_DECLAR const EventScr EventScr_PostActionNecroCopy[] = {
+STATIC_DECLAR const EventScr EventScr_PostAction_NecroCopy[] = {
     EVBIT_MODIFY(0x4)
-    ASMC(PostActionNecroCopySkipMenuIfNotAlly)
+    ASMC(PostAction_NecroCopySkipMenuIfNotAlly)
     BEQ(0, EVT_SLOT_C, EVT_SLOT_0)
 
     TUTORIALTEXTBOXSTART
@@ -88,7 +88,7 @@ LABEL(99)
     ENDA
 };
 
-bool PostActionNecroCopy(ProcPtr proc)
+bool PostAction_NecroCopy(ProcPtr proc)
 {
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
         return false;
@@ -97,7 +97,7 @@ bool PostActionNecroCopy(ProcPtr proc)
         return false;
 
 #if defined(SID_NecroCopy) && (COMMON_SKILL_VALID(SID_NecroCopy))
-    if (!SkillTester(gActiveUnit, SID_NecroCopy))
+    if (!SkillListTester(gActiveUnit, SID_NecroCopy))
 #else
     if (1)
 #endif
@@ -106,7 +106,7 @@ bool PostActionNecroCopy(ProcPtr proc)
     if (gBattleActorGlobalFlag.enemy_defeated == false)
         return false;
 
-    KernelCallEvent(EventScr_PostActionNecroCopy, EV_EXEC_CUTSCENE, proc);
+    KernelCallEvent(EventScr_PostAction_NecroCopy, EV_EXEC_CUTSCENE, proc);
 
     return true;
 }

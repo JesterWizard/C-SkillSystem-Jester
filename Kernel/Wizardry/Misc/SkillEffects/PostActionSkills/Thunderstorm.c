@@ -98,7 +98,7 @@ STATIC_DECLAR const EventScr EventScr_CallThunderfxAtPosition[] = {
 	ENDA
 };
 
-bool PostActionThunderstorm(ProcPtr parent)
+bool PostAction_Thunderstorm(ProcPtr parent)
 {
 	struct Unit *unit = gActiveUnit;
 

@@ -23,7 +23,7 @@ STATIC_DECLAR void PrepareResurrection(void)
 }
 #endif
 
-STATIC_DECLAR const EventScr EventScr_PostActionResurrection[] = {
+STATIC_DECLAR const EventScr EventScr_PostAction_Resurrection[] = {
     ASMC(PrepareResurrection)
     BREAKSTONE_TARGET_UNIT
     ASMC(MapAnim_CommonEnd)
@@ -31,7 +31,7 @@ STATIC_DECLAR const EventScr EventScr_PostActionResurrection[] = {
     ENDA
 };
 
-bool PostActionResurrection(ProcPtr proc)
+bool PostAction_Resurrection(ProcPtr proc)
 {
 
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
@@ -41,11 +41,9 @@ bool PostActionResurrection(ProcPtr proc)
         return false;
 
 #if (defined(SID_Resurrection) && (COMMON_SKILL_VALID(SID_Resurrection)))
-    struct Unit * targetUnit = GetUnit(gBattleTarget.unit.index);
-    
-    if (SkillTester(targetUnit, SID_Resurrection) && gBattleTargetGlobalFlag.skill_activated_resurrection)
+    if (SkillTester(GetUnit(gBattleTarget.unit.index), SID_Resurrection) && gBattleTargetGlobalFlag.skill_activated_resurrection)
     {
-        KernelCallEvent(EventScr_PostActionResurrection, EV_EXEC_CUTSCENE, proc);
+        KernelCallEvent(EventScr_PostAction_Resurrection, EV_EXEC_CUTSCENE, proc);
         return true;
     }
 #endif

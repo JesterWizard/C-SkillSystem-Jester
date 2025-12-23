@@ -6,7 +6,7 @@
 #include "map-anims.h"
 #include "constants/skills.h"
 
-STATIC_DECLAR void PostActionSynchronize_Init(ProcPtr proc)
+STATIC_DECLAR void PostAction_Synchronize_Init(ProcPtr proc)
 {
 	struct Unit *unit;
 	struct MuProc *mu;
@@ -22,14 +22,14 @@ STATIC_DECLAR void PostActionSynchronize_Init(ProcPtr proc)
 	EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
 }
 
-STATIC_DECLAR void PostActionSynchronize_StartActor(ProcPtr proc)
+STATIC_DECLAR void PostAction_Synchronize_StartActor(ProcPtr proc)
 {
 	struct Unit *unit = GetUnit(gActionData.subjectIndex);
 
 	StartMuActionAnim(GetUnitMu(unit));
 }
 
-STATIC_DECLAR void PostActionSynchronize_StartTargetAnim(ProcPtr proc)
+STATIC_DECLAR void PostAction_Synchronize_StartTargetAnim(ProcPtr proc)
 {
 	struct Unit *unit_tar = GetUnit(gActionData.targetIndex);
 
@@ -45,7 +45,7 @@ STATIC_DECLAR void PostActionSynchronize_StartTargetAnim(ProcPtr proc)
 	}
 }
 
-STATIC_DECLAR void PostActionSynchronize_ResetActor(ProcPtr proc)
+STATIC_DECLAR void PostAction_Synchronize_ResetActor(ProcPtr proc)
 {
 	struct Unit *unit = GetUnit(gActionData.subjectIndex);
 	struct MuProc *mu = GetUnitMu(unit);
@@ -54,7 +54,7 @@ STATIC_DECLAR void PostActionSynchronize_ResetActor(ProcPtr proc)
 	EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
 }
 
-STATIC_DECLAR void PostActionSynchronize_End(ProcPtr proc)
+STATIC_DECLAR void PostAction_Synchronize_End(ProcPtr proc)
 {
 	SetUnitStatus(
 		GetUnit(gActionData.targetIndex),
@@ -63,22 +63,22 @@ STATIC_DECLAR void PostActionSynchronize_End(ProcPtr proc)
 	MapAnim_CommonEnd();
 }
 
-STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSynchronize[] = {
+STATIC_DECLAR const struct ProcCmd ProcScr_PostAction_Synchronize[] = {
 	PROC_CALL(LockGame),
-	PROC_CALL(PostActionSynchronize_Init),
+	PROC_CALL(PostAction_Synchronize_Init),
 	PROC_SLEEP(2),
-	PROC_CALL(PostActionSynchronize_StartActor),
+	PROC_CALL(PostAction_Synchronize_StartActor),
 	PROC_SLEEP(30),
-	PROC_CALL(PostActionSynchronize_StartTargetAnim),
+	PROC_CALL(PostAction_Synchronize_StartTargetAnim),
 	PROC_SLEEP(0xA),
-	PROC_CALL(PostActionSynchronize_ResetActor),
+	PROC_CALL(PostAction_Synchronize_ResetActor),
 	PROC_SLEEP(2),
 	PROC_CALL(UnlockGame),
-	PROC_CALL(PostActionSynchronize_End),
+	PROC_CALL(PostAction_Synchronize_End),
 	PROC_END
 };
 
-bool PostActionSynchronize(ProcPtr parent)
+bool PostAction_Synchronize(ProcPtr parent)
 {
 	struct Unit *unit_act, *unit_tar;
 	int debuff_act;
@@ -138,6 +138,6 @@ bool PostActionSynchronize(ProcPtr parent)
 	EndAllMus();
 	RenderBmMap();
 	ShowUnitSprite(GetUnit(gActionData.targetIndex));
-	Proc_Start(ProcScr_PostActionSynchronize, PROC_TREE_3);
+	Proc_Start(ProcScr_PostAction_Synchronize, PROC_TREE_3);
 	return true;
 }

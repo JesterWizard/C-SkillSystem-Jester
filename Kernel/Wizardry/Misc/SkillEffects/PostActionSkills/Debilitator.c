@@ -11,21 +11,13 @@
 
 void PostAction_Debilitator(ProcPtr parent)
 {
-    FORCE_DECLARE struct Unit * unit = gActiveUnit;
+    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+        return;
 
-    switch (gActionData.unitActionType)
-    {
-        case UNIT_ACTION_COMBAT:
 #if defined(SID_Debilitator) && (COMMON_SKILL_VALID(SID_Debilitator))
-            if (SkillTester(unit, SID_Debilitator) &&
-                gBattleActorGlobalFlag.skill_activated_debilitator)
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_DEBILITATOR);
-            else if (
-                SkillTester(GetUnit(gActionData.targetIndex), SID_Debilitator) &&
-                gBattleActorGlobalFlag.skill_activated_debilitator)
-                SetUnitStatDebuff(unit, UNIT_STAT_DEBUFF_DEBILITATOR);
+    if (SkillListTester(gActiveUnit, SID_Debilitator) && gBattleActorGlobalFlag.skill_activated_debilitator)
+        SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_DEBILITATOR);
+    else if (SkillTester(GetUnit(gActionData.targetIndex), SID_Debilitator) && gBattleActorGlobalFlag.skill_activated_debilitator)
+        SetUnitStatDebuff(gActiveUnit, UNIT_STAT_DEBUFF_DEBILITATOR);
 #endif
-        default:
-            break;
-    }
 }

@@ -11,21 +11,13 @@
 
 void PostAction_AngerPoint(ProcPtr parent)
 {
-    FORCE_DECLARE struct Unit * unit = gActiveUnit;
+    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+        return;
 
-    switch (gActionData.unitActionType)
-    {
-        case UNIT_ACTION_COMBAT:
 #if defined(SID_AngerPoint) && (COMMON_SKILL_VALID(SID_AngerPoint))
-            if (SkillTester(unit, SID_AngerPoint) &&
-                gBattleActorGlobalFlag.skill_activated_angerpoint)
-                SetUnitStatDebuff(unit, UNIT_STAT_BUFF_ANGERPOINT);
-            else if (
-                SkillTester(GetUnit(gActionData.targetIndex), SID_AngerPoint) &&
-                gBattleActorGlobalFlag.skill_activated_angerpoint)
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_BUFF_ANGERPOINT);
+    if (SkillTester(gActiveUnit, SID_AngerPoint) && gBattleActorGlobalFlag.skill_activated_angerpoint)
+        SetUnitStatDebuff(gActiveUnit, UNIT_STAT_BUFF_ANGERPOINT);
+    else if (SkillTester(GetUnit(gActionData.targetIndex), SID_AngerPoint) && gBattleActorGlobalFlag.skill_activated_angerpoint)
+        SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_BUFF_ANGERPOINT);
 #endif
-        default:
-            break;
-    }
 }

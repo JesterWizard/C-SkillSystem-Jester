@@ -8,41 +8,64 @@
 #include "constants/texts.h"
 #include "strmag.h"
 
-bool PostActionMendArms(ProcPtr proc)
-{   
-#if defined(SID_MendArms) && (COMMON_SKILL_VALID(SID_MendArms))
-    struct Unit * survivor = gActiveUnit;
-    
-    int weaponUsesExpended = 0;
-
+bool PostAction_MendArms(ProcPtr proc)
+{
+#if defined(SID_MendArms) && COMMON_SKILL_VALID(SID_MendArms)
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
         return false;
 
-    if (BattleFastSkillTester(&gBattleActor, SID_MendArms) && UNIT_ALIVE(GetUnit(gBattleActor.unit.index)) && !UNIT_ALIVE(GetUnit(gBattleTarget.unit.index)))
+    struct Unit *actorUnit  = GetUnit(gBattleActor.unit.index);
+    struct Unit *targetUnit = GetUnit(gBattleTarget.unit.index);
+
+    struct Unit *survivor = NULL;
+    int weaponUsesExpended;
+
+    // Actor kills target
+    if (UNIT_ALIVE(actorUnit) && !UNIT_ALIVE(targetUnit))
     {
+        if (!BattleFastSkillTester(&gBattleActor, SID_MendArms))
+            return false;
+
         weaponUsesExpended = GetItemUses(gBattleActor.weaponBefore) - GetItemUses(gBattleActor.weapon);
-        survivor = GetUnit(gBattleActor.unit.index);
+        survivor = actorUnit;
     }
-    else if (BattleFastSkillTester(&gBattleTarget, SID_MendArms) && UNIT_ALIVE(GetUnit(gBattleTarget.unit.index)) && !UNIT_ALIVE(GetUnit(gBattleActor.unit.index)))
+    // Target kills actor
+    else if (UNIT_ALIVE(targetUnit) && !UNIT_ALIVE(actorUnit))
     {
+        if (!BattleFastSkillTester(&gBattleTarget, SID_MendArms))
+            return false;
+
         weaponUsesExpended = GetItemUses(gBattleTarget.weaponBefore) - GetItemUses(gBattleTarget.weapon);
-        survivor = GetUnit(gBattleTarget.unit.index);
+        survivor = targetUnit;
     }
     else
+    {
         return false;
+    }
 
-    /* Skill holder needs to beat enemy in one hit. This might conflict with other skills that restore weapon durability */
+    // Must be exactly one use expended
     if (weaponUsesExpended != 1)
         return false;
 
-    for (int i = 0; i < 5; i++) 
+    // Repair usable weapons by +1 use
+    for (int i = 0; i < 5; i++)
     {
-        int item = GetItemIndex(survivor->items[i]);
+        int item = survivor->items[i];
+        if (!item)
+            continue;
 
-        if (CanUnitUseWeapon(survivor, item))
-            if (GetItemUses(item) < GetItemMaxUses(item))
-				survivor->items[i] = (item += ((GetItemUses(survivor->items[i]) + 1) << 8));
+        int itemIndex = GetItemIndex(item);
+
+        if (!CanUnitUseWeapon(survivor, itemIndex))
+            continue;
+
+        int uses    = GetItemUses(item);
+        int maxUses = GetItemMaxUses(itemIndex);
+
+        if (uses < maxUses)
+            survivor->items[i] = item + (1 << 8);
     }
 #endif
+
     return true;
 }

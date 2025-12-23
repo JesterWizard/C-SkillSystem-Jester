@@ -9,71 +9,91 @@
 #include "constants/skills.h"
 #include "constants/combat-arts.h"
 
-void PostActionSealSkills(ProcPtr parent)
+// These seal skills will only currently work on the unit's given phase, but that's fine since they only last a turn anyways
+
+void PostAction_SealSkills(ProcPtr parent)
 {
-    FORCE_DECLARE struct Unit * unit = gActiveUnit;
-    bool fullMetalBodyProc = false;
+    struct Unit * subject = GetUnit(gActionData.subjectIndex);
+    struct Unit * target  = GetUnit(gActionData.targetIndex);
+    bool isSubject = (gActiveUnit == subject);
+    bool isTarget  = (gActiveUnit == target);
+
+    if (!isSubject && !isTarget)
+        return;
 
 #if defined(SID_FullMetalBody) && (COMMON_SKILL_VALID(SID_FullMetalBody))
-    if (SkillTester(GetUnit(gActionData.targetIndex), SID_FullMetalBody))
-        fullMetalBodyProc = true;
+    if (SkillTester(target, SID_FullMetalBody))
+        return;
 #endif
 
-    if (!fullMetalBodyProc)
-    {
-        switch (gActionData.unitActionType)
-        {
-        case UNIT_ACTION_COMBAT:
 #if defined(SID_SealDefense) && (COMMON_SKILL_VALID(SID_SealDefense))
-            if (SkillTester(unit, SID_SealDefense) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_DEF);
-            else if (SkillTester(unit, SID_SealDefense) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_DEF);
+    if (SkillListTester(gActiveUnit, SID_SealDefense)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_DEF);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_DEF);
+    }
 #endif
 
 #if defined(SID_SealLuck) && (COMMON_SKILL_VALID(SID_SealLuck))
-            if (SkillTester(unit, SID_SealLuck) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_LCK);
-            else if (SkillTester(unit, SID_SealLuck) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_LCK);
+    if (SkillListTester(gActiveUnit, SID_SealLuck)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_LCK);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_LCK);
+    }
 #endif
 
 #if defined(SID_SealMagic) && (COMMON_SKILL_VALID(SID_SealMagic))
-            if (SkillTester(unit, SID_SealMagic) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_MAG);
-            else if (SkillTester(unit, SID_SealMagic) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_MAG);
+    if (SkillListTester(gActiveUnit, SID_SealMagic)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_MAG);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_MAG);
+    }
 #endif
 
 #if defined(SID_SealResistance) && (COMMON_SKILL_VALID(SID_SealResistance))
-            if (SkillTester(unit, SID_SealResistance) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_RES);
-            else if (SkillTester(unit, SID_SealResistance) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_RES);
+    if (SkillTester(gActiveUnit, SID_SealResistance)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_RES);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_RES);
+    }
 #endif
 
 #if defined(SID_SealSkill) && (COMMON_SKILL_VALID(SID_SealSkill))
-            if (SkillTester(unit, SID_SealSkill) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_SKL);
-            else if (SkillTester(unit, SID_SealSkill) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_SKL);
+    if (SkillListTester(gActiveUnit, SID_SealSkill)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_SKL);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_SKL);
+    }
 #endif
 
 #if defined(SID_SealSpeed) && (COMMON_SKILL_VALID(SID_SealSpeed))
-            if (SkillTester(unit, SID_SealSpeed) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_SPD);
-            else if (SkillTester(unit, SID_SealSpeed) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_SPD);
+    if (SkillListTester(gActiveUnit, SID_SealSpeed)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_SPD);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_SPD);
+    }
 #endif
 
 #if defined(SID_SealStrength) && (COMMON_SKILL_VALID(SID_SealStrength))
-            if (SkillTester(unit, SID_SealStrength) && unit == GetUnit(gActionData.subjectIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_DEBUFF_SEAL_POW);
-            else if (SkillTester(unit, SID_SealStrength) && unit == GetUnit(gActionData.targetIndex))
-                SetUnitStatDebuff(GetUnit(gActionData.subjectIndex), UNIT_STAT_DEBUFF_SEAL_POW);
+    if (SkillListTester(gActiveUnit, SID_SealStrength)) 
+    {
+        if (isSubject)
+            SetUnitStatDebuff(target, UNIT_STAT_DEBUFF_SEAL_POW);
+        else
+            SetUnitStatDebuff(subject, UNIT_STAT_DEBUFF_SEAL_POW);
+    }
 #endif
 
-            break;
-        }
-    }
 }

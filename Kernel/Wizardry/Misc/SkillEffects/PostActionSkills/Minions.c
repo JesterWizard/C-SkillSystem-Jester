@@ -40,8 +40,11 @@ static void callback_exec(ProcPtr proc)
     SummonMinion(gEventSlots[EVT_SLOT_7], gEventSlots[EVT_SLOT_8], gEventSlots[EVT_SLOT_9], gEventSlots[EVT_SLOT_A], gEventSlots[EVT_SLOT_B]);
 }
 
-void PostAction_Minions(ProcPtr parent)
+bool PostAction_Minions(ProcPtr parent)
 {
+    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+        return false;
+
     FORCE_DECLARE struct Unit * unit_act = GetUnit(gBattleActor.unit.index);
     FORCE_DECLARE struct Unit * unit_tar = GetUnit(gBattleTarget.unit.index);
 
@@ -61,7 +64,7 @@ void PostAction_Minions(ProcPtr parent)
                     gEventSlots[EVT_SLOT_A] = unit_act->index / 0x40;
                     gEventSlots[EVT_SLOT_B] = minions[i][2];
                     NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
-                    break;
+                    return true;
                 }
             }
         }
@@ -81,10 +84,13 @@ void PostAction_Minions(ProcPtr parent)
                     gEventSlots[EVT_SLOT_A] = unit_tar->index / 0x40;
                     gEventSlots[EVT_SLOT_B] = minions[i][2];
                     NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
-                    break;
+                    return true;
                 }
             }
         }
     };
 #endif
+
+    return false;
+
 }

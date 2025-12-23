@@ -4,38 +4,37 @@
 #include "kernel-lib.h"
 #include "constants/skills.h"
 
-bool PostAction_EXPShare(ProcPtr parent)
+void PostAction_EXPShare(ProcPtr parent)
 {
-	FORCE_DECLARE struct Unit *unit = gActiveUnit;
+    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+        return;
 
-	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
-		return false;
+    struct Unit *actor = gActiveUnit;
 
-	if (gActionData.unitActionType == UNIT_ACTION_COMBAT) {
-#if defined(SID_EXPShare) && (COMMON_SKILL_VALID(SID_EXPShare))
-		for (int i = 0; i < ARRAY_COUNT_RANGE2x2; i++)
-		{
-			int _x = unit->xPos + gVecs_2x2[i].x;
-			int _y = unit->yPos + gVecs_2x2[i].y;
+    if (!UnitAvaliable(actor) || UNIT_STONED(actor))
+        return;
 
-			struct Unit *unit_ally = GetUnitAtPosition(_x, _y);
+#if defined(SID_EXPShare) && COMMON_SKILL_VALID(SID_EXPShare)
+    int x = actor->xPos;
+    int y = actor->yPos;
+    int actorIndex = actor->index;
 
-			if (!UNIT_IS_VALID(unit_ally))
-				continue;
+    for (int i = 0; i < ARRAY_COUNT_RANGE2x2; i++)
+    {
+        struct Unit * ally = GetUnitAtPosition(x + gVecs_2x2[i].x, y + gVecs_2x2[i].y);
 
-			if (!AreUnitsAllied(unit->index, unit_ally->index))
-				continue;
+        if (!UNIT_IS_VALID(ally))
+            continue;
 
-			if (unit_ally->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
-				continue;
+        if (!AreUnitsAllied(actorIndex, ally->index))
+            continue;
 
-			/* JESTER - I want to have the EXP bar display but I just do not understand procs enough to make it happen */
+        if (ally->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
+            continue;
 
-			if (SkillListTester(unit_ally, SID_EXPShare)) 
-				unit_ally->exp += 10;
-		
-		}
+        // Skill check LAST
+        if (SkillTester(ally, SID_EXPShare))
+            ally->exp += 10;
+    }
 #endif
-	}
-	return false;
 }

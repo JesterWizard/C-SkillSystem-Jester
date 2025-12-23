@@ -50,8 +50,8 @@ STATIC_DECLAR void SkillBreathOfLifePostAnimEffect(ProcPtr proc)
 	}
 }
 
-STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSkillBreathOfLife[] = {
-	PROC_NAME("PostActionSkillBreathOfLife"),
+STATIC_DECLAR const struct ProcCmd ProcScr_PostAction_BreathOfLife[] = {
+	PROC_NAME("PostAction_BreathOfLife"),
 	PROC_YIELD,
 	PROC_CALL(ExecSkillBreathOfLifeEffectAnim),
 	// PROC_WHILE(MapAnimHeavyGravityExists),
@@ -59,7 +59,7 @@ STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSkillBreathOfLife[] = {
 	PROC_END
 };
 
-bool PostActionSkillBreathOfLife(ProcPtr parent)
+bool PostAction_BreathOfLife(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 
@@ -73,6 +73,6 @@ bool PostActionSkillBreathOfLife(ProcPtr parent)
 #endif
 		return false;
 
-	Proc_StartBlocking(ProcScr_PostActionSkillBreathOfLife, parent);
+	Proc_StartBlocking(ProcScr_PostAction_BreathOfLife, parent);
 	return true;
 }

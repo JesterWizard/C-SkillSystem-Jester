@@ -6,38 +6,33 @@
 
 bool PostAction_Pyrotechnics(ProcPtr parent)
 {
-	FORCE_DECLARE struct Unit *unit = gActiveUnit;
+    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+        return false;
 
-	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
-		return false;
+    if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
+        return false;
 
-	if (gActionData.unitActionType == UNIT_ACTION_COMBAT) {
-#if defined(SID_Pyrotechnics) && (COMMON_SKILL_VALID(SID_Pyrotechnics))
-		if (SkillListTester(unit, SID_Pyrotechnics)) 
-		{
-			for (int i = 0; i < ARRAY_COUNT_RANGE2x2; i++)
-			{
-				int _x = unit->xPos + gVecs_2x2[i].x;
-				int _y = unit->yPos + gVecs_2x2[i].y;
+#if defined(SID_Pyrotechnics) && COMMON_SKILL_VALID(SID_Pyrotechnics)
+    if (!SkillListTester(gActiveUnit, SID_Pyrotechnics))
+        return false;
 
-				struct Unit *unit_enemy = GetUnitAtPosition(_x, _y);
+    int x = gActiveUnit->xPos;
+    int y = gActiveUnit->yPos;
 
-				if (!UNIT_IS_VALID(unit_enemy))
-					continue;
+    for (int i = 0; i < ARRAY_COUNT_RANGE2x2; i++)
+    {
+        struct Unit * enemy = GetUnitAtPosition(x + gVecs_2x2[i].x, y + gVecs_2x2[i].y);
 
-				if (unit_enemy->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
-					continue;
+        if (!UNIT_IS_VALID(enemy))
+            continue;
 
-				int temp_hp = unit_enemy->curHP - (unit_enemy->maxHP / 5);
+        if (enemy->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
+            continue;
 
-				if (temp_hp > 0) {
-					unit_enemy->curHP = temp_hp;
-				} else {
-					unit_enemy->curHP = 1;
-				}
-			}
-		}
+        int hp = enemy->curHP - (enemy->maxHP / 5);
+        enemy->curHP = (hp > 1) ? hp : 1;
+    }
 #endif
-	}
-	return false;
+
+    return false;
 }

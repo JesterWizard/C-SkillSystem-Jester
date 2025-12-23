@@ -73,16 +73,16 @@ LABEL(0x1)
 
 #endif
 
-bool PostActionScavenger(ProcPtr parent)
+bool PostAction_Scavenger(ProcPtr parent)
 {
 #if defined(SID_Scavenger) && (COMMON_SKILL_VALID(SID_Scavenger))
     if (!UNIT_ALIVE(gActiveUnit) || UNIT_STONED(gActiveUnit))
         return false;
 
-    if (gPlaySt.chapterTurnNumber > 10)
+    if (!SkillListTester(gActiveUnit, SID_Scavenger))
         return false;
 
-    if (!SkillTester(gActiveUnit, SID_Scavenger))
+    if (gPlaySt.chapterTurnNumber > 10)
         return false;
 
     KernelCallEvent(EventScr_Scavenger, EV_EXEC_CUTSCENE, parent);

@@ -2,18 +2,21 @@
 ALIGN 4
 gPostActionFuncs:
     POIN PostAction_CommonStart
-    POIN PostActionThunderstorm
-    POIN PostActionCombatArtEffect PostActionSkillSavageBlow PostActionSkillBreathOfLife PostActionSkillSoulSap
-    POIN PostActionSynchronize
-    POIN PostActionBattleActorHurt PostActionBattleTargetHurt
+    POIN PostAction_Thunderstorm
+    POIN PostAction_CombatArtEffect
+    POIN PostAction_SavageBlow 
+    POIN PostAction_BreathOfLife
+    POIN PostAction_SoulSap
+    POIN PostAction_Synchronize
+    POIN PostAction_BattleActorHurt PostAction_BattleTargetHurt
     POIN PostAction_BattleActorHeal PostAction_BattleTargetHeal
-    POIN PostActionAlertStance
-    POIN PostActionTsuzuku
-    POIN PostActionGetItem
-    POIN PostActionPositionReturn
-    POIN PostActionRemoveChillDebuff
+    POIN PostAction_AlertStance
+    POIN PostAction_Tsuzuku
+    POIN PostAction_GetItem
+    POIN PostAction_PositionReturn
+    POIN PostAction_RemoveChillDebuff
     POIN PostAction_Glorifier
-    POIN PostActionSkillShakedown
+    POIN PostAction_Shakedown
     POIN PostAction_Clearance
     POIN PostAction_TargetClearance
     POIN PostAction_EvasionLock
@@ -22,15 +25,15 @@ gPostActionFuncs:
     POIN PostAction_EXPShare
     POIN PostAction_Debilitator
     POIN PostAction_AngerPoint
-    POIN PostActionNecroCopy
-    POIN PostActionResurrection
-    POIN PostActionMendArms
-    POIN PostActionGuerillaTactics
-    POIN PostActionScavenger
-    POIN PostActionPredation
-    POIN PostActionShadowStep
-    POIN PostActionSealSkills
-    POIN PostActionUndying
+    POIN PostAction_NecroCopy
+    POIN PostAction_Resurrection
+    POIN PostAction_MendArms
+    POIN PostAction_GuerillaTactics
+    POIN PostAction_Scavenger
+    POIN PostAction_Predation
+    POIN PostAction_ShadowStep
+    POIN PostAction_SealSkills
+    POIN PostAction_Undying
     POIN PostAction_Minions
     POIN ResetComboAtkList
 

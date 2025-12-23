@@ -179,6 +179,7 @@
 #define MSG_SKILL_Pursuit_CAPACITY 1
 #define MSG_SKILL_DragonSkin_CAPACITY 1
 #define MSG_SKILL_Hawkeye_CAPACITY 1
+#define MSG_SKILL_MagicEye_CAPACITY 1
 #define MSG_SKILL_KeenFighter_CAPACITY 1
 #define MSG_SKILL_FireBoost_CAPACITY 1
 #define MSG_SKILL_WindBoost_CAPACITY 1

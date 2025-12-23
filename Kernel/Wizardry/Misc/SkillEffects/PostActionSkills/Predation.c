@@ -69,7 +69,7 @@ static void callback_exec_predation(ProcPtr proc)
 }
 #endif
 
-bool PostActionPredation(ProcPtr proc)
+bool PostAction_Predation(ProcPtr proc)
 {
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
         return false;
@@ -89,7 +89,7 @@ bool PostActionPredation(ProcPtr proc)
 #endif
 
 #if defined(SID_Predation) && (COMMON_SKILL_VALID(SID_Predation))
-        if (SkillTester(gActiveUnit, SID_Predation))
+        if (SkillListTester(gActiveUnit, SID_Predation))
         {
             NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec_predation);
             return true;

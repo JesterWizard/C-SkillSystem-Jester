@@ -47,7 +47,7 @@ STATIC_DECLAR const struct ProcCmd ProcScr_CombatArtPostActionEffect[] = {
 	PROC_END
 };
 
-bool PostActionCombatArtEffect(ProcPtr parent)
+bool PostAction_CombatArtEffect(ProcPtr parent)
 {
 	struct Unit *unit = gActiveUnit;
 	u8 cid = GetCombatArtInForce(unit);

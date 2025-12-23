@@ -1827,6 +1827,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_MagicEye) && COMMON_SKILL_VALID(SID_MagicEye))
+    [SID_MagicEye] = {
+        .name = MSG_SKILL_MagicEye_NAME,
+        .desc = MSG_SKILL_MagicEye_DESC,
+        .capacity = MSG_SKILL_MagicEye_CAPACITY,
+        .price = MSG_SKILL_MagicEye_PRICE,
+        .icon = GFX_SkillIcon_MagicEye,
+    },
+#endif
+
 #if (defined(SID_KeenFighter) && COMMON_SKILL_VALID(SID_KeenFighter))
     [SID_KeenFighter] = {
         .name = MSG_SKILL_KeenFighter_NAME,

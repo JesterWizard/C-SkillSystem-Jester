@@ -10,14 +10,14 @@
 #include "jester_headers/macros.h"
 #include "unit-expa.h"
 
-STATIC_DECLAR const EventScr EventScr_PostActionUndying[] = {
+STATIC_DECLAR const EventScr EventScr_PostAction_Undying[] = {
     BREAKSTONE_CHOSEN_UNIT
     ASMC(MapAnim_CommonEnd)
     NOFADE
     ENDA
 };
 
-bool PostActionUndying(ProcPtr proc)
+bool PostAction_Undying(ProcPtr proc)
 {
 
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
@@ -39,7 +39,7 @@ bool PostActionUndying(ProcPtr proc)
         ClearFlag(EVFLAG_GAMEOVER);
         gEventSlots[EVT_SLOT_2] = targetUnit->pCharacterData->number;
         AddUnitHp(targetUnit, (targetUnit->maxHP - targetUnit->curHP));
-        KernelCallEvent(EventScr_PostActionUndying, EV_EXEC_CUTSCENE, proc);
+        KernelCallEvent(EventScr_PostAction_Undying, EV_EXEC_CUTSCENE, proc);
         return true;
     }
     else if (SkillTester(actorUnit, SID_Undying))
@@ -47,7 +47,7 @@ bool PostActionUndying(ProcPtr proc)
         ClearFlag(EVFLAG_GAMEOVER);
         gEventSlots[EVT_SLOT_2] = actorUnit->pCharacterData->number;
         AddUnitHp(actorUnit, (actorUnit->maxHP - actorUnit->curHP));   
-        KernelCallEvent(EventScr_PostActionUndying, EV_EXEC_CUTSCENE, proc);
+        KernelCallEvent(EventScr_PostAction_Undying, EV_EXEC_CUTSCENE, proc);
         return true;
     }
 #endif

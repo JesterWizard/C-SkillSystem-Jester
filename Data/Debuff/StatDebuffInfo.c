@@ -22,7 +22,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.battle_status = { .avo = 10 }
 	},
-
 	[UNIT_STAT_DEBUFF_POW] = {
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
@@ -63,7 +62,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.unit_status = { .mov = -4 },
 	},
-
 	[UNIT_STAT_BUFF_POW] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
@@ -104,7 +102,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 4 },
 	},
-
 	[UNIT_STAT_BUFF_INIT_POW] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
@@ -145,7 +142,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
 		.unit_status = { .mov = 7 },
 	},
-
     [UNIT_STAT_BUFF_MOODY_POW] = {
         .positive_type = STATUS_DEBUFF_POSITIVE,
         .tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
@@ -186,7 +182,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
         .tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
         .unit_status = {.mov = +8},
     },
-
 	[UNIT_STAT_BUFF_OATHROUSE_POW] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
@@ -309,7 +304,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 4 },
 	},
-
 	[UNIT_STAT_DEBUFF_YuneWhispers] = {
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
@@ -319,55 +313,46 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 			.spd = -6,
 		},
 	},
-
     [UNIT_STAT_DEBUFF_SEAL_POW] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.pow = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_MAG] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.mag = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_SKL] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.skl = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_SPD] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.spd = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_LCK] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.lck = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_DEF] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_NO_TICK,
         .unit_status = {.def = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_RES] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.res = -6},
     },
-
     [UNIT_STAT_DEBUFF_SEAL_MOV] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
         .unit_status = {.mov = -6},
     },
-
 	[UNIT_STAT_BUFF_JOB_HONE] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
@@ -387,7 +372,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 			.res = 6,
 		},
 	},
-
 	[UNIT_STAT_DEBUFF_AversaNight] = {
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
@@ -399,7 +383,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 			.res = -3,
 		},
 	},
-
     [UNIT_STAT_DEBUFF_DEBILITATOR] = {
         .positive_type = STATUS_DEBUFF_NEGATIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
@@ -413,7 +396,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
             .res = -4,
         },
     },
-
 	[UNIT_STAT_BUFF_PLUSMINUS] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
@@ -427,7 +409,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 			.res = 4,
 		},
 	},
-
     [UNIT_STAT_BUFF_ANGERPOINT] = {
         .positive_type = STATUS_DEBUFF_POSITIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
@@ -436,38 +417,32 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
             .mag = +10,
         },
     },
-
 	[UNIT_STAT_BUFF_INDOOR_MARCH_MOV] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 2 },
 	},
-
 	[UNIT_STAT_BUFF_NATURE_RUSH_MOV] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 2 },
 	},
-
 	[UNIT_STAT_BUFF_KEEPUP] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 2 },
 	},
-
 	[UNIT_STAT_BUFF_ARMOR_MARCH] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 2 },
 	},
-
 	[UNIT_STAT_BUFF_STRIDE] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.unit_status = { .mov = 3 },
 	},
-
- [UNIT_STAT_BUFF_VIGORDANCE] = {
+ 	[UNIT_STAT_BUFF_VIGORDANCE] = {
         .positive_type = STATUS_DEBUFF_POSITIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
         .unit_status = {
@@ -475,7 +450,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
             .def = +2,
         },
     },
-
     [UNIT_STAT_BUFF_TRANSFORM] = {
         .positive_type = STATUS_DEBUFF_POSITIVE,
         .tick_type = STATUS_DEBUFF_NO_TICK,
@@ -521,7 +495,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
             .maxHP = +3,
         },
 	},
-
 	[UNIT_STAT_DEBUFF_CHILL_POW] = {
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
@@ -557,7 +530,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
 		.unit_status = { .res = -7 },
 	},
-
 	[UNIT_STAT_BUFF_GLORIFIER] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
@@ -571,7 +543,6 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 			.res = 3,
 		},
 	},
-
 	[UNIT_STAT_BUFF_FREESPIRIT] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,

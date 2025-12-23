@@ -24,7 +24,7 @@ FORCE_DECLARE static void callback_exec(ProcPtr proc)
     gActionData.yMove = gpPathArrowProc->pathY[gpPathArrowProc->pathLen - 1];
 }
 
-bool PostActionGuerillaTactics(ProcPtr parent)
+bool PostAction_GuerillaTactics(ProcPtr parent)
 {
 #if defined(SID_GuerillaTactics) && (COMMON_SKILL_VALID(SID_GuerillaTactics))
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
@@ -33,7 +33,6 @@ bool PostActionGuerillaTactics(ProcPtr parent)
     if (gActionData.moveCount == 0)
         return false;
 
-    FORCE_DECLARE struct Unit * unit = gActiveUnit;
     FORCE_DECLARE struct Unit * target = GetUnit(gActionData.targetIndex);
 
     if (!UNIT_ALIVE(gActiveUnit) || UNIT_STONED(gActiveUnit))
@@ -42,7 +41,7 @@ bool PostActionGuerillaTactics(ProcPtr parent)
     if (!UNIT_ALIVE(target))
         return false;
 
-    if (!SkillTester(unit, SID_GuerillaTactics) || !UNIT_IS_VALID(target))
+    if (!SkillListTester(gActiveUnit, SID_GuerillaTactics) || !UNIT_IS_VALID(target))
         return false;
 
     NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);

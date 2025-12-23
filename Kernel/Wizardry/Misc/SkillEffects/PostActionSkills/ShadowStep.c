@@ -24,7 +24,7 @@ FORCE_DECLARE static void callback_exec(ProcPtr proc)
     SetUnitStatus(gActiveUnit, NEW_UNIT_STATUS_HIDE);
 }
 
-bool PostActionShadowStep(ProcPtr proc)
+bool PostAction_ShadowStep(ProcPtr proc)
 {
 #if defined(SID_ShadowStep) && (COMMON_SKILL_VALID(SID_ShadowStep))
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
@@ -37,14 +37,13 @@ bool PostActionShadowStep(ProcPtr proc)
         return false;
 
 #if defined(SID_ShadowStep) && (COMMON_SKILL_VALID(SID_ShadowStep))
-        if (SkillTester(gActiveUnit, SID_ShadowStep))
-        {
-            NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
-            return true;
-        }
+    if (SkillListTester(gActiveUnit, SID_ShadowStep))
+    {
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+        return true;
+    }
 #endif
 
-    return false;
 #endif
     return false;
 }

@@ -293,7 +293,7 @@ bool PrePhaseFunc_Chill(ProcPtr proc)
 	return true;
 }
 
-bool PostActionRemoveChillDebuff(ProcPtr proc)
+bool PostAction_RemoveChillDebuff(ProcPtr proc)
 {
 	ClearUnitStatDebuff(gActiveUnit, UNIT_STAT_DEBUFF_CHILL_POW);
 	ClearUnitStatDebuff(gActiveUnit, UNIT_STAT_DEBUFF_CHILL_MAG);

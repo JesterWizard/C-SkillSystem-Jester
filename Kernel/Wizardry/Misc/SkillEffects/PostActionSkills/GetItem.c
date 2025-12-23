@@ -8,7 +8,7 @@
 #include "constants/skills.h"
 #include "jester_headers/macros.h"
 
-bool PostActionGetItem(ProcPtr parent)
+bool PostAction_GetItem(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 
@@ -25,6 +25,7 @@ bool PostActionGetItem(ProcPtr parent)
 
 #ifdef CONFIG_ITEM_INDEX_SKILL_STEALER
         if (UNIT_CATTRIBUTES(&gBattleTarget.unit) & CA_BOSS)
+		{
             for (int i = 0; i < 5; i++) 
                 if(GetItemIndex(unit->items[i]) == CONFIG_ITEM_INDEX_SKILL_STEALER)
                 {
@@ -34,32 +35,33 @@ bool PostActionGetItem(ProcPtr parent)
 					NewPopup_ItemGot(parent, unit, (((list->sid[0] +1) << 8) | GET_SKILL_SCROLL_INDEX(list->sid[0] + 1)));
 					break;
                 }
+			}
 #endif
 
 
 #if defined(SID_Despoil) && (COMMON_SKILL_VALID(SID_Despoil))
-			if (SkillListTester(unit, SID_Despoil)) {
-				NewPopup_ItemGot(parent, unit, ITEM_REDGEM);
-				return true;
-			}
+		if (SkillListTester(unit, SID_Despoil)) {
+			NewPopup_ItemGot(parent, unit, ITEM_REDGEM);
+			return true;
+		}
 #endif
 
 #if defined(SID_GoldDigger) && (COMMON_SKILL_VALID(SID_GoldDigger))
-			if (SkillListTester(unit, SID_GoldDigger) && gBattleActorGlobalFlag.enemy_defeated) {
-				NewPopup_GoldGot(parent, unit, SKILL_EFF0(SID_GoldDigger));
-				return true;
-			}
+		if (SkillListTester(unit, SID_GoldDigger) && gBattleActorGlobalFlag.enemy_defeated) {
+			NewPopup_GoldGot(parent, unit, SKILL_EFF0(SID_GoldDigger));
+			return true;
+		}
 #endif
 
 #if defined(SID_MakeAKilling) && (COMMON_SKILL_VALID(SID_MakeAKilling))
-			if (SkillListTester(unit, SID_MakeAKilling) && gBattleActorGlobalFlag.enemy_defeated)
+		if (SkillListTester(unit, SID_MakeAKilling) && gBattleActorGlobalFlag.enemy_defeated)
+		{
+			if (Roll1RN(unit->lck))
 			{
-				if (Roll1RN(unit->lck))
-				{
-					NewPopup_GoldGot(parent, unit, SKILL_EFF0(SID_MakeAKilling) * 100);
-					return true;
-				}
+				NewPopup_GoldGot(parent, unit, SKILL_EFF0(SID_MakeAKilling) * 100);
+				return true;
 			}
+		}
 #endif
 		}
 		break;

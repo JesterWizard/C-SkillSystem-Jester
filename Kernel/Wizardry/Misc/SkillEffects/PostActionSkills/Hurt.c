@@ -6,7 +6,7 @@
 #include "constants/skills.h"
 #include "jester_headers/custom-functions.h"
 
-bool PostActionBattleActorHurt(ProcPtr parent)
+bool PostAction_BattleActorHurt(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 	FORCE_DECLARE struct Unit *target = GetUnit(gActionData.targetIndex);
@@ -71,7 +71,7 @@ bool PostActionBattleActorHurt(ProcPtr parent)
 	return true;
 }
 
-bool PostActionBattleTargetHurt(ProcPtr parent)
+bool PostAction_BattleTargetHurt(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = GetUnit(gActionData.targetIndex);
 	FORCE_DECLARE struct Unit *actor = GetUnit(gActionData.subjectIndex);

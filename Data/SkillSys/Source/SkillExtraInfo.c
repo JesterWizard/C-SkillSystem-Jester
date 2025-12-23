@@ -1059,34 +1059,6 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 	[SID_CriticalOverload] = {{ 3 }},
 #endif
 
-#if (defined(SID_SealDefense) && COMMON_SKILL_VALID(SID_SealDefense))
-	[SID_SealDefense] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealLuck) && COMMON_SKILL_VALID(SID_SealLuck))
-	[SID_SealLuck] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealMagic) && COMMON_SKILL_VALID(SID_SealMagic))
-	[SID_SealMagic] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealResistance) && COMMON_SKILL_VALID(SID_SealResistance))
-	[SID_SealResistance] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealSkill) && COMMON_SKILL_VALID(SID_SealSkill))
-	[SID_SealSkill] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealSpeed) && COMMON_SKILL_VALID(SID_SealSpeed))
-	[SID_SealSpeed] = {{ 6 }},
-#endif
-
-#if (defined(SID_SealStrength) && COMMON_SKILL_VALID(SID_SealStrength))
-	[SID_SealStrength] = {{ 6 }},
-#endif
-
 #if (defined(SID_WyvernFlight) && COMMON_SKILL_VALID(SID_WyvernFlight))
 	[SID_WyvernFlight] = {{ 10, 7 }},
 #endif

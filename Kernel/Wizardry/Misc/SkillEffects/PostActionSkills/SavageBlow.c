@@ -46,8 +46,8 @@ STATIC_DECLAR void SkillSavageBlowPostAnimEffect(ProcPtr proc)
 	}
 }
 
-STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSkillSavageBlow[] = {
-	PROC_NAME("PostActionSkillSavageBlow"),
+STATIC_DECLAR const struct ProcCmd ProcScr_PostAction_SavageBlow[] = {
+	PROC_NAME("PostAction_SavageBlow"),
 	PROC_YIELD,
 	PROC_CALL(ExecSkillSavageBlowEffectAnim),
 	PROC_WHILE(MapAnimHeavyGravityExists),
@@ -55,7 +55,7 @@ STATIC_DECLAR const struct ProcCmd ProcScr_PostActionSkillSavageBlow[] = {
 	PROC_END
 };
 
-bool PostActionSkillSavageBlow(ProcPtr parent)
+bool PostAction_SavageBlow(ProcPtr parent)
 {
 	FORCE_DECLARE struct Unit *unit = gActiveUnit;
 	FORCE_DECLARE struct Unit *target = GetUnit(gActionData.targetIndex);
@@ -73,6 +73,6 @@ bool PostActionSkillSavageBlow(ProcPtr parent)
 	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
 		return false;
 
-	Proc_StartBlocking(ProcScr_PostActionSkillSavageBlow, parent);
+	Proc_StartBlocking(ProcScr_PostAction_SavageBlow, parent);
 	return true;
 }
