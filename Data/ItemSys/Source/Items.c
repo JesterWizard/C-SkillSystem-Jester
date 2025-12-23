@@ -3222,21 +3222,6 @@ const struct ItemData gItemData_New[255] = {
 		.weaponExp = 1,
 	},
 #endif
-#ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
-	[CONFIG_ITEM_INDEX_ARMS_SCROLL] = {
-		.nameTextId = MSG_ITEM_ArmsScroll_NAME,
-		.descTextId = MSG_ITEM_ArmsScroll_DESC,
-		.useDescTextId = MSG_ITEM_ArmsScroll_USEDESC,
-		.number = CONFIG_ITEM_INDEX_ARMS_SCROLL,
-		.weaponType = ITYPE_ITEM,
-		.pStatBonuses = NULL,
-		.maxUses = 1,
-		.encodedRange = 0x11,
-		.costPerUse = 8000,
-		.iconId = CONFIG_ICON_INDEX_SKILL_STEALER,
-		.useEffectId = IER_ARMS_SCROLL,
-	},
-#else
 	[ITEM_UNK_CC] = {
 		.nameTextId = 0x403,
 		.descTextId = 0x4ab,
@@ -3246,7 +3231,6 @@ const struct ItemData gItemData_New[255] = {
 		.encodedRange = 0x11,
 		.iconId = 0x9d,
 	},
-#endif
 #ifdef CONFIG_ITEM_INDEX_REWARP_STAFF
 	[CONFIG_ITEM_INDEX_REWARP_STAFF] = {
 		.nameTextId = MSG_ITEM_REWARP_STAFF_NAME,
@@ -3495,6 +3479,21 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.weight = 5,
 		.attributes = IA_STAFF,
+	},
+#endif
+#ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
+	[CONFIG_ITEM_INDEX_ARMS_SCROLL] = {
+		.nameTextId = MSG_ITEM_ArmsScroll_NAME,
+		.descTextId = MSG_ITEM_ArmsScroll_DESC,
+		.useDescTextId = MSG_ITEM_ArmsScroll_USEDESC,
+		.number = CONFIG_ITEM_INDEX_ARMS_SCROLL,
+		.weaponType = ITYPE_ITEM,
+		.pStatBonuses = NULL,
+		.maxUses = 1,
+		.encodedRange = 0x11,
+		.costPerUse = 8000,
+		.iconId = CONFIG_ICON_INDEX_SKILL_STEALER,
+		.useEffectId = IER_ARMS_SCROLL,
 	},
 #endif
 };
