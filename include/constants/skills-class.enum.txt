@@ -86,6 +86,7 @@
 // SID_GateOfBabylon
 // SID_EmergencyExit
 // SID_EmergencyExitPlus
+// SID_Songstress
 
 //////// PRE-BATTLE SKILLS
 // SID_DefiantStr

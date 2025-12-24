@@ -708,3 +708,10 @@ Emergency Exit+[X]
 Emergency Exit+:[N]
 Allow this unit to be replaced with[N]
 an undeployed unit when under half HP.[X]
+
+## MSG_SKILL_Songstress_NAME
+Songstress[X]
+## MSG_SKILL_Songstress_DESC
+Songstress:[N]
+Refresh all allied units once per[N]
+map, but skip their next phase.[X]

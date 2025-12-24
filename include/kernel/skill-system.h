@@ -600,6 +600,8 @@ u8 EmergencyExit_Usability(const struct MenuItemDef* def, int number);
 u8 EmergencyExit_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
 u8 EmergencyExitPlus_Usability(const struct MenuItemDef* def, int number);
 u8 EmergencyExitPlus_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
+u8 Songstress_Usability(const struct MenuItemDef* def, int number);
+u8 Songstress_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
 
 u8 Transform_Laguz_Usability(const struct MenuItemDef* def, int number);
 u8 Transform_Laguz_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
@@ -678,6 +680,7 @@ bool Action_DoubleTime(ProcPtr parent);
 bool Action_BloodyAlchemy(ProcPtr parent);
 bool Action_EmergencyExit(ProcPtr parent);
 bool Action_EmergencyExitPlus(ProcPtr parent);
+bool Action_Songstress(ProcPtr parent);
 
 bool Action_Transform_Laguz(ProcPtr parent);
 

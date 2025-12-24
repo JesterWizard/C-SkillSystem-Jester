@@ -893,3 +893,4 @@
 #define MSG_SKILL_Perseverance_CAPACITY 1
 #define MSG_SKILL_EmergencyExit_CAPACITY 1
 #define MSG_SKILL_EmergencyExitPlus_CAPACITY 1
+#define MSG_SKILL_Songstress_CAPACITY 1

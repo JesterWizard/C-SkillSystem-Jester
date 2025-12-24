@@ -18,6 +18,7 @@
 #include "debuff.h"
 #include "traps.h"
 #include "efxmagic.h"
+#include "playst-expa.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -1885,7 +1886,15 @@ void SwitchPhases(void)
         break;
 
     case FACTION_PURPLE:
-        gPlaySt.faction = FACTION_BLUE;
+    {
+	    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Songstress_InForce))
+        {
+            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Songstress_InForce);
+            gPlaySt.faction = FACTION_RED;
+        }
+        else
+            gPlaySt.faction = FACTION_BLUE;
+    }
 
     if (gPlaySt.chapterTurnNumber < 999)
         gPlaySt.chapterTurnNumber++;
@@ -1895,7 +1904,16 @@ void SwitchPhases(void)
 #endif
 #else
     case FACTION_GREEN:
-        gPlaySt.faction = FACTION_BLUE;
+    {
+	    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Songstress_InForce))
+        {
+            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Songstress_InForce);
+            gPlaySt.faction = FACTION_RED;
+        }
+        else
+            gPlaySt.faction = FACTION_BLUE;
+    }
+
     if (gPlaySt.chapterTurnNumber < 999)
         gPlaySt.chapterTurnNumber++;
 

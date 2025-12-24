@@ -26,6 +26,8 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_Ripple_Used, // Again we'll undo this once it's used
 	PLAYSTEXPA_BIT_BloodyAlchemy_Used, 
 	PLAYSTEXPA_BIT_GateOfBabylon_Used,
+	PLAYSTEXPA_BIT_Songstress_Used, 
+	PLAYSTEXPA_BIT_Songstress_InForce, // Used to check for phase skipping and then unset
 
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,
