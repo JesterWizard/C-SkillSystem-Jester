@@ -529,4 +529,7 @@
 
 #define CONFIG_MAX_COLOR_BACKGROUNDS
 
+/* Very much not complete, still a WIP */
+// #define CONFIG_PORTRAIT_BANIM_CUT_IN_CRITICAL
+
 #endif /* CONFIG_INSTALLED */
