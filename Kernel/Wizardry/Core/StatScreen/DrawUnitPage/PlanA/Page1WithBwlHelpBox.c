@@ -103,24 +103,6 @@ static _DECL_INFO RText_Cond = {
 	NULL, HbPopulate_SSStatus
 };
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-
-#ifdef CONFIG_LAGUZ_BARS
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, &RText_LBar, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_SkillCapacityDesc,
-        NULL, NULL
-    };
-#else
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, NULL, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_SkillCapacityDesc,
-        NULL, NULL
-    };
-#endif
-
-#else 
-
 #ifdef CONFIG_LAGUZ_BARS
     static _DECL_INFO RText_BAmt = {
         &RText_Cond, &RText_LBar, &RText_Res, NULL,
@@ -131,16 +113,6 @@ static _DECL_INFO RText_Cond = {
     static _DECL_INFO RText_BAmt = {
         &RText_Cond, NULL, &RText_Res, NULL,
         0xA6, 0x78, MSG_MSS_BattleAmtDesc,
-        NULL, NULL
-    };
-#endif
-
-#endif
-
-#ifdef CONFIG_LAGUZ_BARS
-    static _DECL_INFO RText_LBar = {
-        &RText_BAmt, NULL, &RText_Res, NULL,
-        0xA6, 0x88, MSG_MSS_LaguzBarDesc,
         NULL, NULL
     };
 #endif
