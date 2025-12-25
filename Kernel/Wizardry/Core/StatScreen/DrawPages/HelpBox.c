@@ -66,12 +66,13 @@ void DisplayPage(int pageid)
 LYN_REPLACE_CHECK(LoadHelpBoxGfx);
 void LoadHelpBoxGfx(void * vram, int palId)
 {
+
 // Repoint the vram used for the stat screen help box
 #ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
     if (vram == NULL) {
         if (Proc_Find(gProcScr_StatScreen))
             if (gStatScreen.page == 6) 
-                vram = (void *)0x060158A0; // This is reliant on CONFIG_STAT_PAGE_PROMOTIONS being the page for this slot
+                vram = (void *)0x060160A0; // This is reliant on CONFIG_STAT_PAGE_PROMOTIONS being the page for this slot
             else
                 vram = (void *)0x06012000;
         else
@@ -89,7 +90,10 @@ void LoadHelpBoxGfx(void * vram, int palId)
 
     palId = (palId & 0xF) + 0x10;
 
-    Decompress(gGfx_HelpTextBox, vram + 0x360);
+    if (Proc_Find(gProcScr_StatScreen) && gStatScreen.page != 6)
+    {
+        Decompress(gGfx_HelpTextBox, vram + 0x360);
+    }
     Decompress(gGfx_HelpTextBox2, vram + 0x760);
     Decompress(gGfx_HelpTextBox3, vram + 0xb60);
     Decompress(gGfx_HelpTextBox4, vram + 0xf60);
@@ -138,7 +142,11 @@ void LoadHelpBoxGfx(void * vram, int palId)
         procFound = true;
 #endif
 
-    if (!procFound)
+    if (Proc_Find(gProcScr_StatScreen))
+    {
+        InitSpriteText(&gHelpBoxSt.text[3]);
+    }
+    else if (!procFound)
     {
         InitSpriteText(&gHelpBoxSt.text[3]);
         InitSpriteText(&gHelpBoxSt.text[4]);

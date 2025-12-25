@@ -14,18 +14,7 @@ void DisplayPageNameSprite(int pageid)
 {
 	int colorid;
 
-    /* 
-    ** This is a stop gap measure to deal with a lack of space and new titles in Gfx_StatScreenObj_9pages.png
-    ** However, I simply do not have enough VRAM space to support both extended text boxes and the SMS sprites on page 7
-    ** This means that page 4 will have its title corrupted if you open R Text on the promotions page and then navigate
-    ** back to the support page
-    */
-    int alteredPageId = pageid;
-    if (alteredPageId > 3)
-    {
-        alteredPageId = 0;
-    }
-
+    /* Display the little arrows either side of the page name */
 	PutSprite(4,
 		111 + gStatScreen.xDispOff, 1 + gStatScreen.yDispOff,
 		sSprite_PageNameBack, TILEREF(0x293, 4) + 0xC00);
@@ -33,8 +22,8 @@ void DisplayPageNameSprite(int pageid)
     /* Display stat screen title */
 	PutSprite(4,
 		114 + gStatScreen.xDispOff, 0 + gStatScreen.yDispOff,
-		gpSprites_PageNameRework[alteredPageId],
-		TILEREF(0x240 + gpPageNameChrOffsetLutRe[alteredPageId], 3) + 0xC00);
+		gpSprites_PageNameRework[pageid],
+		TILEREF(0x240 + gpPageNameChrOffsetLutRe[pageid], 3) + 0xC00);
 
 	colorid = (GetGameClock()/4) % 16;
 
@@ -179,7 +168,7 @@ void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
 {
     int chr = 0x289;
 
-    /* Standard page number calculatins up to page 6 starting at 0x6015100 in the OBJ tile view in NoCashGBA */
+    /* Standard page number calculations up to page 6 starting at 0x6015100 in the OBJ tile view in NoCashGBA */
     int pageAmtShift = gStatScreen.pageAmt - 1;
     int pageNumShift = gStatScreen.page;
 
@@ -332,8 +321,8 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 
         Decompress(capacityGfx[bucket], gGenericBuffer);
 
-        Copy2dChr(gGenericBuffer, (void*)0x60168A0, 4, 4);
-        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x345, 0x0));
+        Copy2dChr(gGenericBuffer, (void*)0x6013760, 4, 4);
+        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x1BB, 0x0));
     }
 #endif
 
