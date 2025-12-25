@@ -406,15 +406,9 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
         case 2:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SAVE);
             break;
-#ifdef CONFIG_PREPS_INFUSE
-        case 3:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_INFUSE);
-            break;
-#else
         case 3:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SUPPORT);
             break;
-#endif
         case 4:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
             break;
@@ -429,6 +423,12 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
             break;
         case 8:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS);
+            break;
+        case 9:
+            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS);
+            break;
+        case 13:
+            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_INFUSE);
             break;
         default:
             break;
@@ -459,15 +459,9 @@ void sub_8095C00(int msg, ProcPtr parent)
         case 2:
             proc->msg = MSG_PREP_SCREEN_DESC_SAVE;
             break;
-#ifdef CONFIG_PREPS_INFUSE
-        case 3:
-            proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;
-            break;
-#else
         case 3:
             proc->msg = MSG_PREP_SCREEN_DESC_SUPPORT;
             break;
-#endif
         case 4:
             proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
             break;
@@ -480,8 +474,14 @@ void sub_8095C00(int msg, ProcPtr parent)
         case 7:
             proc->msg = MSG_PREP_SCREEN_DESC_SKILLS;
             break;
-        case 8:
+        case 8: 
+            proc->msg = MSG_PREP_SCREEN_DESC_CHECK_MAP;
+            break;
+        case 9:
             proc->msg = MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS;
+            break;
+        case 13:
+            proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;
             break;
         default:
             break;
@@ -703,19 +703,14 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, PrepScreenMenu_OnSave, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SAVE, 0);
         else
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, PrepScreenMenu_OnSave, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_SAVE, 0);
-#ifdef CONFIG_PREPS_INFUSE
-        SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
-#else
-        SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
-#endif
 
-#ifdef CONFIG_EXPANDED_PREP_MENU_OPTIONS
+        // SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
+        SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
         // SetPrepScreenMenuItem(PREP_MAINMENU_BONUS_EXP, PrepScreenMenu_OnBEXP, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, PrepScreenMenu_OnEquip, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS, 0);
-#endif
         SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP, 0);
-        //SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnBaseConversations, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, 0);
+        // SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, 0);
     } 
     else 
     {
@@ -759,15 +754,9 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         StartPrepSaveScreen(proc);
         break;
 
-#ifdef CONFIG_PREPS_INFUSE
-    case 4: /* Infuse */
-        Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, proc);
-        break;
-#else
     case 4: /* Support */
         StartFortuneSubMenu(2, proc);
         break;
-#endif
 
 #ifdef CONFIG_PREPS_AUGURY
     case 5: /* Augury */
@@ -788,7 +777,11 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         break;
 
     case 9: /* Base Conversations */
-        // StartChapterStatusScreen_FromPrep(proc);
+        StartChapterStatusScreen_FromPrep(proc);
+        break;
+
+    case 14: /* Infuse */
+        Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, proc);
         break;
 
     default:

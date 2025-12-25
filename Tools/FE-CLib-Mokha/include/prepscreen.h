@@ -46,11 +46,7 @@ struct PrepScreenItemListEnt {
         PREP_MAINMENU_UNIT = 0,
         PREP_MAINMENU_ITEM = 1,
         PREP_MAINMENU_SAVE = 2,
-#ifdef CONFIG_PREPS_INFUSE
-        PREP_MAINMENU_INFUSE = 3,
-#else
         PREP_MAINMENU_SUPPORT = 3,
-#endif
         PREP_MAINMENU_AUGURY = 4,
         PREP_MAINMENU_BONUS_EXP = 5,
         PREP_MAINMENU_CHECKMAP = 6,
@@ -60,6 +56,7 @@ struct PrepScreenItemListEnt {
         PREP_MAINMENU_VIEWMAP = 10,
         PREP_MAINMENU_FORMATION = 11,
         PREP_MAINMENU_OPTIONS = 12,
+        PREP_MAINMENU_INFUSE = 13,
     };
 #else
     enum prep_atmenu_item_index {
