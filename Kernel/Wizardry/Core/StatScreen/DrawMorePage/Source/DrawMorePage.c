@@ -332,8 +332,8 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 
         Decompress(capacityGfx[bucket], gGenericBuffer);
 
-        Copy2dChr(gGenericBuffer, (void*)0x6016880, 4, 4);
-        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x344, 0x0));
+        Copy2dChr(gGenericBuffer, (void*)0x60168A0, 4, 4);
+        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x345, 0x0));
     }
 #endif
 
