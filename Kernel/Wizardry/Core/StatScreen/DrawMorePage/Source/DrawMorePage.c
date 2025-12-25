@@ -3,6 +3,7 @@
 #include "stat-screen.h"
 #include "skill-system.h"
 #include "jester_headers/custom-structs.h"
+#include "jester_headers/custom-functions.h"
 
 extern u16 const *const *const gpSprites_PageNameRework;
 extern u16 const *const gpPageNameChrOffsetLutRe;
@@ -14,7 +15,7 @@ void DisplayPageNameSprite(int pageid)
 	int colorid;
 
     /* 
-    ** JESTER - This is a stop gap measure to deal with a lack of space and new titles in Gfx_StatScreenObj_9pages.png
+    ** This is a stop gap measure to deal with a lack of space and new titles in Gfx_StatScreenObj_9pages.png
     ** However, I simply do not have enough VRAM space to support both extended text boxes and the SMS sprites on page 7
     ** This means that page 4 will have its title corrupted if you open R Text on the promotions page and then navigate
     ** back to the support page
@@ -62,11 +63,11 @@ struct TextInitInfo const sSSMasterTextInitInfo_NEW[] =
     { gStatScreen.text + STATSCREEN_TEXT_RESCUENAME, 9  }, // 12
     { gStatScreen.text + STATSCREEN_TEXT_AFFINLABEL, 7  }, // 13 
     { gStatScreen.text + STATSCREEN_TEXT_STATUS,     9  }, // 14
-    { gStatScreen.text + STATSCREEN_TEXT_ITEM0,      7  }, // 15 
-    { gStatScreen.text + STATSCREEN_TEXT_ITEM1,      7  }, // 16
-    { gStatScreen.text + STATSCREEN_TEXT_ITEM2,      7  }, // 17
-    { gStatScreen.text + STATSCREEN_TEXT_ITEM3,      7  }, // 18
-    { gStatScreen.text + STATSCREEN_TEXT_ITEM4,      7  }, // 19
+    { gStatScreen.text + STATSCREEN_TEXT_ITEM0,      8  }, // 15 
+    { gStatScreen.text + STATSCREEN_TEXT_ITEM1,      8  }, // 16
+    { gStatScreen.text + STATSCREEN_TEXT_ITEM2,      8  }, // 17
+    { gStatScreen.text + STATSCREEN_TEXT_ITEM3,      8  }, // 18
+    { gStatScreen.text + STATSCREEN_TEXT_ITEM4,      8  }, // 19
     { gStatScreen.text + STATSCREEN_TEXT_BSRANGE,    7  }, // 20
     { gStatScreen.text + STATSCREEN_TEXT_BSATKLABEL, 3  }, // 21
     { gStatScreen.text + STATSCREEN_TEXT_BSHITLABEL, 3  }, // 22
@@ -121,12 +122,10 @@ void StatScreen_Display(struct Proc* proc)
     // Init text and icons
     ResetText();
     ResetIconGraphics_();
-
     InitTexts();
 
     // Display portrait
-    PutFace80x72(proc, gBG2TilemapBuffer + TILEMAP_INDEX(1, 1), fid,
-        0x4E0, STATSCREEN_BGPAL_FACE);
+    PutFace80x72(proc, gBG2TilemapBuffer + TILEMAP_INDEX(1, 1), fid, 0x4E0, STATSCREEN_BGPAL_FACE);
 
     if (GetPortraitData(fid)->img)
         ApplyPalette(gUnknown_08A01EE4, STATSCREEN_BGPAL_2);
@@ -288,6 +287,19 @@ void GetPromotedUnitSkillId(struct HelpBoxProc* proc)
     }
 }
 
+// Select graphic
+static const void* capacityGfx[9] = {
+    Gfx_Skill_Capacity_Circle_0_8,
+    Gfx_Skill_Capacity_Circle_1_8,
+    Gfx_Skill_Capacity_Circle_2_8,
+    Gfx_Skill_Capacity_Circle_3_8,
+    Gfx_Skill_Capacity_Circle_4_8,
+    Gfx_Skill_Capacity_Circle_5_8,
+    Gfx_Skill_Capacity_Circle_6_8,
+    Gfx_Skill_Capacity_Circle_7_8,
+    Gfx_Skill_Capacity_Circle_8_8,
+};
+
 LYN_REPLACE_CHECK(PageNumCtrl_DisplayMuPlatform);
 void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 {
@@ -296,6 +308,34 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 		gStatScreen.xDispOff + 64,
 		gStatScreen.yDispOff + 131,
 		gObject_32x16, TILEREF(0x28F, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3));
+
+#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
+    if (gStatScreen.page == 2)
+    {
+        int usedCapacity = GetUnitBattleAmt(gStatScreen.unit);
+        int maxCapacity = CONFIG_TELLIUS_CAPACITY_BASE;
+
+        if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
+            maxCapacity += CONFIG_TELLIUS_CAPACITY_PROMOTED;
+
+        // Compute which 1/8th we're in (0–8)
+        int bucket = (usedCapacity * 8) / maxCapacity;
+
+        // Safety clamp
+        if (bucket < 0)
+            bucket = 0;
+        else if (bucket > 8)
+            bucket = 8;
+
+        if (usedCapacity > 0 && bucket == 0)
+            bucket = 1;
+
+        Decompress(capacityGfx[bucket], gGenericBuffer);
+
+        Copy2dChr(gGenericBuffer, (void*)0x6016880, 4, 4);
+        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x344, 0x0));
+    }
+#endif
 
 	if (gStatScreen.page == 6)
     {

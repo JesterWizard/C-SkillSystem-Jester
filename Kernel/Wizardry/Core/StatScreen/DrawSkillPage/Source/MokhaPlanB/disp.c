@@ -72,17 +72,23 @@ void DrawSkillPage_MokhaPlanB(void)
 	}
 #endif
 
+#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
+	text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
+	ClearText(text);
+	PutDrawText(text, gUiTmScratchA + TILEMAP_INDEX(9, 11), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Skill Capacity");
+
+	int maxCapacity = CONFIG_TELLIUS_CAPACITY_BASE;
+
+	if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
+		maxCapacity += CONFIG_TELLIUS_CAPACITY_PROMOTED;
+
+	PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xD)), TEXT_COLOR_SYSTEM_BLUE, GetUnitBattleAmt(gStatScreen.unit));
+    PutSpecialChar((gUiTmScratchA + TILEMAP_INDEX(0xF, 0xD)), TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
+    PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xF)), TEXT_COLOR_SYSTEM_GREEN, maxCapacity);
+#else
 	/* Arts */
 	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
 		struct CombatArtList *clist = AutoGetCombatArtList(gStatScreen.unit);
-
-		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
-		ClearText(text);
-		PutDrawText(
-			text,
-			gUiTmScratchA + TILEMAP_INDEX(9, 11),
-			TEXT_COLOR_SYSTEM_GOLD, 0, 0,
-			GetStringFromIndex(MSG_MSS_ARTS));
 
 		if (clist->amt == 0) {
 			text = &gStatScreen.text[STATSCREEN_TEXT_ITEM4];
@@ -107,6 +113,7 @@ void DrawSkillPage_MokhaPlanB(void)
 			}
 		}
 	}
+#endif
 }
 
 void HbRedirect_ArtPageOnlyAlly(struct HelpBoxProc *proc)

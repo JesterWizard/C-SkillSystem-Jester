@@ -54,12 +54,16 @@ The system works as follows:
 | **Skill capacity definitions** | [`Skills_Capacity.h`](../../include/kernel/Skills_Capacity.h) | Defines capacity values per skill |
 | **Skill capacity getter** | `GetSkillCapacity(u16 sid)` in [`Infos.c`](../../Kernel/Wizardry/Core/SkillSys/kernel/Infos.c) | Retrieves a skill’s capacity cost |
 | **Scroll usability + capacity check** | `ItemUseAction_SkillScroll` in [`SkillScroll.c`](../../Kernel/Wizardry/Core/SkillSys/SkillScroll/Source/SkillScroll.c) | Prevents scroll use when over capacity |
+| **Skill capacity wheel GFX** | Labels in [`SkillPageGfx_Installer.event`](../../Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/SkillPageGfx_Installer.event) | The labels for the wheel graphics |
+| **Skill capacity wheel label externs** | externs for labels in [`custom-functions.h`](../../include/jester_headers/custom-functions.h) | The externed labels for the GFX so they can be called in C code |
+| **Skill capacity wheel display** | The ``if(gStatScreen.page == 2)`` block in the ``PageNumCtrl_DisplayMuPlatform`` function in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | The code to display the wheel |
+| **Skill capacity wheel title/numbers** | Bottom of the ``DrawSkillPage_MokhaPlanB`` function in [`SkillPageGfx_Installer.event`](../../Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/disp.c) | The display of the skill capacity title as well as the unit's used/max skill capacity |
 
 ---
 
 ## 📝 TODO
 
-_Add items as discovered._
+- Make the wheel scroll with the rest of the background when transitioning between pages/units
 
 ---
 

@@ -173,3 +173,13 @@ struct ProcGrantBEXP {
 extern void GrantBEXP_Loop(struct ProcGrantBEXP* proc);
 extern const struct ProcCmd ProcScr_GrantBEXP[];
 extern void GrantBEXP(ProcPtr parent);
+
+extern u8 Gfx_Skill_Capacity_Circle_0_8[];
+extern u8 Gfx_Skill_Capacity_Circle_1_8[];
+extern u8 Gfx_Skill_Capacity_Circle_2_8[];
+extern u8 Gfx_Skill_Capacity_Circle_3_8[];
+extern u8 Gfx_Skill_Capacity_Circle_4_8[];
+extern u8 Gfx_Skill_Capacity_Circle_5_8[];
+extern u8 Gfx_Skill_Capacity_Circle_6_8[];
+extern u8 Gfx_Skill_Capacity_Circle_7_8[];
+extern u8 Gfx_Skill_Capacity_Circle_8_8[];

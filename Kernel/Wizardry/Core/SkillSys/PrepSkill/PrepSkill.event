@@ -6,7 +6,7 @@
 #include "Source/PrepSkill2.lyn.event"
 #include "Source/PrepSkill2fx.lyn.event"
 
-// ESTER - Hook conflict with PrepScreenMenu_OnCheckMap
+// JESTER - Hook conflict with PrepScreenMenu_OnCheckMap
 // PUSH
 //     ORG $952C0
 //     jumpToHack(PrepScreenMenu_OnEquip)
