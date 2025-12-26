@@ -1,0 +1,449 @@
+## MSG_Eirika_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Eirika][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I can do better than this...[X]
+## MSG_Eirika_Good_Level_Up
+[OpenMidRight][LoadFace_Eirika][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+I'm on the right track![X]
+## MSG_Eirika_Great_Level_Up
+[OpenMidRight][LoadFace_Eirika][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Wow, what a result![X]
+
+## MSG_Seth_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Seth][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+There are lessons in failure[X]
+## MSG_Seth_Good_Level_Up
+[OpenMidRight][LoadFace_Seth][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+An acceptable result.[X]
+## MSG_Seth_Great_Level_Up
+[OpenMidRight][LoadFace_Seth][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Duty demands perfection.[X]
+
+## MSG_Gilliam_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Gilliam][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even steel falters. I'll try again.[X]
+## MSG_Gilliam_Good_Level_Up
+[OpenMidRight][LoadFace_Gilliam][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Slow and steady. As it should be.[X]
+## MSG_Gilliam_Great_Level_Up
+[OpenMidRight][LoadFace_Gilliam][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My shield holds firm![X]
+
+## MSG_Franz_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Franz][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I need to train harder. This won't do.[X]
+## MSG_Franz_Good_Level_Up
+[OpenMidRight][LoadFace_Franz][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Getting better, step by step.[X]
+## MSG_Franz_Great_Level_Up
+[OpenMidRight][LoadFace_Franz][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My training's paying off![X]
+
+## MSG_Moulder_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Moulder][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+The body is weak, but the spirit endures.[X]
+## MSG_Moulder_Good_Level_Up
+[OpenMidRight][LoadFace_Moulder][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Modest, but acceptable progress.[X]
+## MSG_Moulder_Great_Level_Up
+[OpenMidRight][LoadFace_Moulder][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My faith in the divine is renewed![X]
+
+## MSG_Vanessa_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Vanessa][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I won't let this hold me back.[X]
+## MSG_Vanessa_Good_Level_Up
+[OpenMidRight][LoadFace_Vanessa][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Small gains, but I'll soar higher.[X]
+## MSG_Vanessa_Great_Level_Up
+[OpenMidRight][LoadFace_Vanessa][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Fantastic! I'm free as a bird.[X]
+
+## MSG_Ross_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Ross][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Aw, come on![X]
+## MSG_Ross_Good_Level_Up
+[OpenMidRight][LoadFace_Ross][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Not bad![X]
+## MSG_Ross_Great_Level_Up
+[OpenMidRight][LoadFace_Ross][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Look at me, Dad! I'm unstoppable![X]
+
+## MSG_Neimi_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Neimi][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I need to do better...[X]
+## MSG_Neimi_Good_Level_Up
+[OpenMidRight][LoadFace_Neimi][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A little stronger...[X]
+## MSG_Neimi_Great_Level_Up
+[OpenMidRight][LoadFace_Neimi][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+I can feek it! I'm helping![X]
+
+## MSG_Colm_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Colm][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Ugh, this is not my day...[X]
+## MSG_Colm_Good_Level_Up
+[OpenMidRight][LoadFace_Colm][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Decent, I guess.[X]
+## MSG_Colm_Great_Level_Up
+[OpenMidRight][LoadFace_Colm][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Now we're talking![X]
+
+## MSG_Garcia_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Garcia][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even a warrior stumbles sometimes.[X]
+## MSG_Garcia_Good_Level_Up
+[OpenMidRight][LoadFace_Garcia][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Steady progress.[X]
+## MSG_Garcia_Great_Level_Up
+[OpenMidRight][LoadFace_Garcia][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Just like the old days![X]
+
+## MSG_Innes_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Innes][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Unacceptable. I demand perfection.[X]
+## MSG_Innes_Good_Level_Up
+[OpenMidRight][LoadFace_Innes][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Adequate. A prince should improve.[X]
+## MSG_Innes_Great_Level_Up
+[OpenMidRight][LoadFace_Innes][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Excellence is my nature, as expected![X]
+
+## MSG_Lute_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Lute][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+A rare misstep. Not again.[X]
+## MSG_Lute_Good_Level_Up
+[OpenMidRight][LoadFace_Lute][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Acceptable progress. Hardly a challenge.[X]
+## MSG_Lute_Great_Level_Up
+[OpenMidRight][LoadFace_Lute][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Exceptional! My brilliance shines brighter![X]
+
+## MSG_Natasha_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Natasha][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I must stay faithful despite setbacks.[X]
+## MSG_Natasha_Good_Level_Up
+[OpenMidRight][LoadFace_Natasha][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A small blessing. I'll take it.[X]
+## MSG_Natasha_Great_Level_Up
+[OpenMidRight][LoadFace_Natasha][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+The gods grant me greater strength![X]
+
+## MSG_Cormag_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Cormag][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I need to push harder than this.[X]
+## MSG_Cormag_Good_Level_Up
+[OpenMidRight][LoadFace_Cormag][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Improvement, but far from satisfying.[X]
+## MSG_Cormag_Great_Level_Up
+[OpenMidRight][LoadFace_Cormag][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My strength soars, just like my lance![X]
+
+## MSG_Ephraim_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Ephraim][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Is this all I can manage today?[X]
+## MSG_Ephraim_Good_Level_Up
+[OpenMidRight][LoadFace_Ephraim][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Not bad, but there's room to grow.[X]
+## MSG_Ephraim_Great_Level_Up
+[OpenMidRight][LoadFace_Ephraim][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Impressive! I'll lead us to victory![X]
+
+## MSG_Forde_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Forde][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Maybe I've been slacking too much.[X]
+## MSG_Forde_Good_Level_Up
+[OpenMidRight][LoadFace_Forde][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+That's fine, I guess. Could be worse.[X]
+## MSG_Forde_Great_Level_Up
+[OpenMidRight][LoadFace_Forde][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+See? I can be serious sometimes![X]
+
+## MSG_Kyle_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Kyle][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+This isn't enough. I need resolve.[X]
+## MSG_Kyle_Good_Level_Up
+[OpenMidRight][LoadFace_Kyle][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Good progress. I'll keep improving.[X]
+## MSG_Kyle_Great_Level_Up
+[OpenMidRight][LoadFace_Kyle][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Strength and discipline. Ready for anything![X]
+
+## MSG_Amelia_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Amelia][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+No! I have to do much better![X]
+## MSG_Amelia_Good_Level_Up
+[OpenMidRight][LoadFace_Amelia][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+I'll take this. Steady growth is good.[X]
+## MSG_Amelia_Great_Level_Up
+[OpenMidRight][LoadFace_Amelia][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+I'm becoming the knight of my dreams![X]
+
+## MSG_Artur_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Artur][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Faith alone won't be enough now.[X]
+## MSG_Artur_Good_Level_Up
+[OpenMidRight][LoadFace_Artur][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A decent gain. The light is with me.[X]
+## MSG_Artur_Great_Level_Up
+[OpenMidRight][LoadFace_Artur][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+The divine grants me power![X]
+
+## MSG_Gerik_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Gerik][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Not my best, but I'll manage.[X]
+## MSG_Gerik_Good_Level_Up
+[OpenMidRight][LoadFace_Gerik][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Solid gains. That'll do for now.[X]
+## MSG_Gerik_Great_Level_Up
+[OpenMidRight][LoadFace_Gerik][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Ha! The strength of a mercenary![X]
+
+## MSG_Tethys_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Tethys][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even dancers have off days, it seems.[X]
+## MSG_Tethys_Good_Level_Up
+[OpenMidRight][LoadFace_Tethys][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Small gains, but I'll keep moving.[X]
+## MSG_Tethys_Great_Level_Up
+[OpenMidRight][LoadFace_Tethys][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Graceful and powerful! I inspire all![X]
+
+## MSG_Marisa_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Marisa][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I need sharper focus to improve.[X]
+## MSG_Marisa_Good_Level_Up
+[OpenMidRight][LoadFace_Marisa][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A little progress. Must train harder.[X]
+## MSG_Marisa_Great_Level_Up
+[OpenMidRight][LoadFace_Marisa][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My blade sharpens, my skills improve![X]
+
+## MSG_Saleh_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Saleh][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even sages face stagnation at times.[X]
+## MSG_Saleh_Good_Level_Up
+[OpenMidRight][LoadFace_Saleh][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Knowledge grows, even in small steps.[X]
+## MSG_Saleh_Great_Level_Up
+[OpenMidRight][LoadFace_Saleh][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A true sage grows ever stronger![X]
+
+## MSG_Ewan_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Ewan][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Aw, I thought I'd do better![X]
+## MSG_Ewan_Good_Level_Up
+[OpenMidRight][LoadFace_Ewan][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Hey, I'm getting stronger bit by bit![X]
+## MSG_Ewan_Great_Level_Up
+[OpenMidRight][LoadFace_Ewan][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Look out, world! I'm growing strong![X]
+
+## MSG_Larachel_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Larachel][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even perfection must strive to improve.[X]
+## MSG_Larachel_Good_Level_Up
+[OpenMidRight][LoadFace_Larachel][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+An acceptable improvement, fit for royalty.[X]
+## MSG_Larachel_Great_Level_Up
+[OpenMidRight][LoadFace_Larachel][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Ha! Such grace and power are unmatched![X]
+
+## MSG_Dozla_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Dozla][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Oops, not my best! I'll do better![X]
+## MSG_Dozla_Good_Level_Up
+[OpenMidRight][LoadFace_Dozla][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Heh, steady gains! That's the spirit![X]
+## MSG_Dozla_Great_Level_Up
+[OpenMidRight][LoadFace_Dozla][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Ah-ha! I'm stronger than ever now![X]
+
+## MSG_Enemy_1B_Poor_Level_Up
+[OpenMidRight][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+[X]
+## MSG_Enemy_1B_Good_Level_Up
+[OpenMidRight][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+[X]
+## MSG_Enemy_1B_Great_Level_Up
+[OpenMidRight][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+[X]
+
+## MSG_Rennac_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Rennac][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Tch, not great, but it'll do.[X]
+## MSG_Rennac_Good_Level_Up
+[OpenMidRight][LoadFace_Rennac][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Alright, I guess I'm improving a bit.[X]
+## MSG_Rennac_Great_Level_Up
+[OpenMidRight][LoadFace_Rennac][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Huh, looks like I'm getting stronger![X]
+
+## MSG_Duessel_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Duessel][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even veterans need more growth at times.[X]
+## MSG_Duessel_Good_Level_Up
+[OpenMidRight][LoadFace_Duessel][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Solid gains. A warrior's path is steady.[X]
+## MSG_Duessel_Great_Level_Up
+[OpenMidRight][LoadFace_Duessel][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Impressive strength! I'll safeguard our future![X]
+
+## MSG_Myrrh_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Myrrh][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Did I grow? I hope it's enough.[X]
+## MSG_Myrrh_Good_Level_Up
+[OpenMidRight][LoadFace_Myrrh][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+This power... It feels stronger than before.[X]
+## MSG_Myrrh_Great_Level_Up
+[OpenMidRight][LoadFace_Myrrh][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My strength awakens! I'll protect everyone![X]
+
+## MSG_Knoll_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Knoll][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even knowledge falters. I must learn more.[X]
+## MSG_Knoll_Good_Level_Up
+[OpenMidRight][LoadFace_Knoll][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Steady growth. The dark reveals its secrets.[X]
+## MSG_Knoll_Great_Level_Up
+[OpenMidRight][LoadFace_Knoll][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Power builds within me. I feel it clearly![X]
+
+## MSG_Joshua_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Joshua][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Luck wasn't with me this time.[X]
+## MSG_Joshua_Good_Level_Up
+[OpenMidRight][LoadFace_Joshua][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Decent enough. I'll take what I can.[X]
+## MSG_Joshua_Great_Level_Up
+[OpenMidRight][LoadFace_Joshua][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Fortune smiles on me! Let's keep going![X]
+
+## MSG_Syrene_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Syrene][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Not my best, but I'll endure.[X]
+## MSG_Syrene_Good_Level_Up
+[OpenMidRight][LoadFace_Syrene][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A fair improvement. I'll keep trying.[X]
+## MSG_Syrene_Great_Level_Up
+[OpenMidRight][LoadFace_Syrene][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+This strength will help me guard the skies![X]
+
+## MSG_Tana_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Tana][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+I won't let this slow me down.[X]
+## MSG_Tana_Good_Level_Up
+[OpenMidRight][LoadFace_Tana][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Not bad! I'll soar higher soon.[X]
+## MSG_Tana_Great_Level_Up
+[OpenMidRight][LoadFace_Tana][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Amazing! I'll protect everyone with this strength![X]
+
+## MSG_Lyon_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Lyon][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+This... This isn't enough to help them.[X]
+## MSG_Lyon_Good_Level_Up
+[OpenMidRight][LoadFace_Lyon][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A modest gain. I can't stop here.[X]
+## MSG_Lyon_Great_Level_Up
+[OpenMidRight][LoadFace_Lyon][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My power grows... I must use it wisely.[X]
+
+## MSG_Orson_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Orson][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even now, I can't do enough.[X]
+## MSG_Orson_Good_Level_Up
+[OpenMidRight][LoadFace_Orson][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+This strength... It feels bittersweet to gain.[X]
+## MSG_Orson_Great_Level_Up
+[OpenMidRight][LoadFace_Orson][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+I'll fight harder. For the ones I lost.[X]
+
+## MSG_Orson_CH5X_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Orson_CH5X][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Have I reached my limit?[X]
+## MSG_Orson_CH5X_Good_Level_Up
+[OpenMidRight][LoadFace_Orson_CH5X][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+My strength is waning, but I endure.[X]
+## MSG_Orson_CH5X_Great_Level_Up
+[OpenMidRight][LoadFace_Orson_CH5X][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+This strength I gain for you, my love...[X]
+
+## MSG_Glen_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Glen][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+A minor setback. I'll do better.[X]
+## MSG_Glen_Good_Level_Up
+[OpenMidRight][LoadFace_Glen][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Steady progress. A knight's work is unending.[X]
+## MSG_Glen_Great_Level_Up
+[OpenMidRight][LoadFace_Glen][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+This strength will ensure victory for Grado![X]
+
+## MSG_Selena_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Selena][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even the storm falters. I'll recover.[X]
+## MSG_Selena_Good_Level_Up
+[OpenMidRight][LoadFace_Selena][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Power flows steadily, like a calm river.[X]
+## MSG_Selena_Great_Level_Up
+[OpenMidRight][LoadFace_Selena][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+The thunder within me grows stronger still![X]
+
+## MSG_Valter_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Valter][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Hah, is that all? Pathetic gains.[X]
+## MSG_Valter_Good_Level_Up
+[OpenMidRight][LoadFace_Valter][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Acceptable. I'll savor the next battle.[X]
+## MSG_Valter_Great_Level_Up
+[OpenMidRight][LoadFace_Valter][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Hah! This strength will bring more chaos![X]
+
+## MSG_Riev_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Riev][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Darkness is fickle. I must persevere.[X]
+## MSG_Riev_Good_Level_Up
+[OpenMidRight][LoadFace_Riev][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A steady gain. The void grants power.[X]
+## MSG_Riev_Great_Level_Up
+[OpenMidRight][LoadFace_Riev][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Ah, the dark rewards me richly today![X]
+
+## MSG_Caellach_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Caellach][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+This isn't enough! I need more power![X]
+## MSG_Caellach_Good_Level_Up
+[OpenMidRight][LoadFace_Caellach][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Heh, I'm getting closer to my goals.[X]
+## MSG_Caellach_Great_Level_Up
+[OpenMidRight][LoadFace_Caellach][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Hah! My strength is unstoppable now![X]
+
+## MSG_Fado_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Fado][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even a king falters. I must endure.[X]
+## MSG_Fado_Good_Level_Up
+[OpenMidRight][LoadFace_Fado][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Strength returns, little by little. It's enough.[X]
+## MSG_Fado_Great_Level_Up
+[OpenMidRight][LoadFace_Fado][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A king's might! I'll protect my people![X]
+
+## MSG_Ismaire_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Ismaire][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Even blades grow dull. I must sharpen mine.[X]
+## MSG_Ismaire_Good_Level_Up
+[OpenMidRight][LoadFace_Ismaire][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+A fair improvement. Elegance demands growth.[X]
+## MSG_Ismaire_Great_Level_Up
+[OpenMidRight][LoadFace_Ismaire][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Graceful and deadly. None can best me now![X]
+
+## MSG_Hayden_Poor_Level_Up
+[OpenMidRight][LoadFaceFancy_Hayden][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]
+Not my finest, but I'll manage.[X]
+## MSG_Hayden_Good_Level_Up
+[OpenMidRight][LoadFace_Hayden][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Progress, slow but steady, will carry us through.[X]
+## MSG_Hayden_Great_Level_Up
+[OpenMidRight][LoadFace_Hayden][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
+Strength enough to guard the kingdom once more![X]

@@ -90,10 +90,11 @@ void LoadHelpBoxGfx(void * vram, int palId)
 
     palId = (palId & 0xF) + 0x10;
 
-    if (Proc_Find(gProcScr_StatScreen) && gStatScreen.page != 6)
-    {
-        Decompress(gGfx_HelpTextBox, vram + 0x360);
-    }
+    // if (Proc_Find(gProcScr_StatScreen) && gStatScreen.page != 6)
+    // {
+    //     Decompress(gGfx_HelpTextBox, vram + 0x360);
+    // }
+    Decompress(gGfx_HelpTextBox, vram + 0x360);
     Decompress(gGfx_HelpTextBox2, vram + 0x760);
     Decompress(gGfx_HelpTextBox3, vram + 0xb60);
     Decompress(gGfx_HelpTextBox4, vram + 0xf60);

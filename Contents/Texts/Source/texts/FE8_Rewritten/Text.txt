@@ -154,3 +154,5 @@
 
 #include "Quotes/BattleQuotes.txt"
 #include "Quotes/DefeatQuotes.txt"
+
+#include "LevelUpQuotes.txt"
