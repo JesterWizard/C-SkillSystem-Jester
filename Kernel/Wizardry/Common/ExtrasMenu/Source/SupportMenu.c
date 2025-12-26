@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "bmmenu.h"
+#include "jester_headers/custom-arrays.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -9,7 +10,7 @@ void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* i
     int i;
     int j;
 
-    if (gCharacterData[unitId-1].pSupportData == 0) {
+    if (gCharacterData_NEW[unitId-1].pSupportData == 0) {
         for (i = 0; i < UNIT_SUPPORT_MAX_COUNT; data++, i++)
             *data = 0;
 
@@ -36,10 +37,10 @@ void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* i
         // tmp1 = j >> 2;
         // tmp2 = (j & 3) << 1;
 
-        for (i = 0; i < gCharacterData[unitId-1].pSupportData->supportCount; i++) {
+        for (i = 0; i < gCharacterData_NEW[unitId-1].pSupportData->supportCount; i++) {
 
-            if ((ptr->unitA != gCharacterData[unitId-1].pSupportData->characters[i]) &&
-                (ptr->unitB != gCharacterData[unitId-1].pSupportData->characters[i])) {
+            if ((ptr->unitA != gCharacterData_NEW[unitId-1].pSupportData->characters[i]) &&
+                (ptr->unitB != gCharacterData_NEW[unitId-1].pSupportData->characters[i])) {
                 continue;
             }
 
@@ -49,7 +50,7 @@ void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* i
         }
     }
 
-    for (i = gCharacterData[unitId-1].pSupportData->supportCount; i < UNIT_SUPPORT_MAX_COUNT; i++) {
+    for (i = gCharacterData_NEW[unitId-1].pSupportData->supportCount; i < UNIT_SUPPORT_MAX_COUNT; i++) {
         data[i] = 0;
     }
 

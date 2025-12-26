@@ -4363,3 +4363,14 @@ void GrantBEXP(ProcPtr parent)
 
     proc->unitIndex = 1; // Unit IDs start at 1
 }
+
+// Padding issue with the GMapPIProc?
+//! FE8U = 0x080BE918
+// LYN_REPLACE_CHECK(PutGMapPICharName);
+// void PutGMapPICharName(struct GMapPIProc * proc, int pid)
+// {
+//     ClearText(&proc->text[1]);
+//     const char * str = GetStringFromIndex(gCharacterData_NEW[pid - 1].nameTextId);
+//     Text_InsertDrawString(&proc->text[1], GetStringTextCenteredPos(68, str), 5, str);
+//     return;
+// }

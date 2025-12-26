@@ -32,6 +32,7 @@
 #include "SpSystem/SpSystem.lyn.event"
 #include "CustomItems/CustomItems.event"
 #include "ClassData/ClassData.lyn.event"
+#include "CharacterData/CharacterData.lyn.event"
 #include "CustomPortraits/CustomPortraits.event"
 
 #endif

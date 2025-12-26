@@ -814,6 +814,31 @@ struct Unknown0201B0D8
 
 extern struct Unknown0201B0D8 gUnknown_0201B0D8;
 
+struct GMapPIProc
+{
+    /* 00 */ PROC_HEADER;
+    /* 2C */ struct Text text[2];
+    /* 3C */ STRUCT_PAD(0x3C, 0x40);
+    /* 40 */ u16 * unk_40;
+    /* 44 */ u16 unk_44;
+    /* 46 */ STRUCT_PAD(0x46, 0x4C);
+    /* 4C */ s8 xPrev;
+    /* 4D */ s8 yPrev;
+    /* 4E */ s8 xNew;
+    /* 4F */ s8 yNew;
+    /* 50 */ s8 unk_50;
+    /* 51 */ STRUCT_PAD(0x51, 0x54);
+    /* 54 */ u8 unk_54;
+    /* 55 */ u8 unk_55;
+    /* 56 */ u8 unk_56;
+    /* 57 */ u8 unk_57;
+    /* 58 */ int showHideCnt;
+    /* 5C */ u16 nodeId;
+    /* 5E */ u8 interfaceKind;
+    /* 5F */ u8 pid;
+    /* 60 */ u8 jid;
+};
+
 // ??? GmPathsInit(???);
 bool AddGmPath(struct GMapData*, struct OpenPaths*, int);
 bool RemoveGmPath(struct GMapData * pGMapData, struct OpenPaths * pPaths, int idx);
@@ -893,7 +918,7 @@ void sub_80BE5B4(int, int);
 // ??? sub_80BE65C(???);
 // ??? sub_80BE82C(???);
 // ??? PutGMapPINodeName(???);
-// ??? PutGMapPICharName(???);
+void PutGMapPICharName(struct GMapPIProc * proc, int pid);
 // ??? PutGMapPIFace(???);
 // ??? PutGMapPIClassName(???);
 // ??? sub_80BE9D8(???);

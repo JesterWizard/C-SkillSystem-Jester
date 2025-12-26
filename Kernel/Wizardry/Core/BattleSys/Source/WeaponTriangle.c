@@ -251,6 +251,10 @@ void PreBattleCalcWeaponTriangle(struct BattleUnit *attacker, struct BattleUnit 
 
 	struct WtaStatus *status = (attacker == &gBattleActor) ? &gWtaStatus_act : &gWtaStatus_tar;
 
+	/* This is a temporary fix to a problem introduced by Mokha's WTA rewrite. This prevents inflated stats from displaying in the stat screen straiht after a promotion */
+	if (!(gBattleStats.config & BATTLE_CONFIG_REAL) && !(gBattleStats.config & BATTLE_CONFIG_SIMULATE))
+		return;
+
 	if (status->bonus.poise_eff == true) {
 		status->bonus.atk = 0;
 		status->bonus.def = 0;

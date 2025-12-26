@@ -401,6 +401,7 @@ void PreBattleCalcEnd(struct BattleUnit* attacker, struct BattleUnit* defender)
 
 	if (attacker->battleSilencerRate < 0)
 		attacker->battleSilencerRate = 0;
+
 }
 
 void PreBattleCalcDefenderSkills(struct BattleUnit* attacker, struct BattleUnit* defender)
@@ -2199,7 +2200,6 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 			defender->battleAvoidRate -= defender->terrainAvoid * 2;
 			break;
 #endif
-
 
 		case MAX_SKILL_NUM:
 			Fatal("ENOSUPP");
