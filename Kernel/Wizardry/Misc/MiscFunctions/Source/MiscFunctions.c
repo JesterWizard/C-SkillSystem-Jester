@@ -808,6 +808,14 @@ const struct ClassData* GetClassData(int classId) {
     return gClassData_NEW + (classId - 1);
 }
 
+LYN_REPLACE_CHECK(GetCharacterData);
+const struct CharacterData* GetCharacterData(int charId) {
+    if (charId < 1)
+        return NULL;
+
+    return gCharacterData_NEW + (charId - 1);
+}
+
 LYN_REPLACE_CHECK(RefreshUnitStealInventoryInfoWindow);
 void RefreshUnitStealInventoryInfoWindow(struct Unit* unit)
 {

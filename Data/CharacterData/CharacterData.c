@@ -28,7 +28,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 70,
-        .growthPow = 40,
+        .growthPow = 140,
         .growthSkl = 60,
         .growthSpd = 60,
         .growthDef = 30,

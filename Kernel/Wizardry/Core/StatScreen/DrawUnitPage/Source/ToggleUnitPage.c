@@ -106,21 +106,21 @@ STATIC_DECLAR void ToggleUnitPageGrowth(void)
     struct Unit *unit = gStatScreen.unit;
 
 #ifdef CONFIG_GREEN_BONUS_GROWTHS
-    _growth_disp(17, 3, unit->pCharacterData->growthPow);
-    _growth_disp(17, 5, GetUnitBasicMagGrowth(unit));
-    _growth_disp(17, 7, unit->pCharacterData->growthSkl);
-    _growth_disp(17, 9, unit->pCharacterData->growthSpd);
-    _growth_disp(17, 11, unit->pCharacterData->growthLck);
-    _growth_disp(17, 13, unit->pCharacterData->growthDef);
-    _growth_disp(17, 15, unit->pCharacterData->growthRes);
+    _growth_disp(18, 3, unit->pCharacterData->growthPow);
+    _growth_disp(18, 5, GetUnitBasicMagGrowth(unit));
+    _growth_disp(18, 7, unit->pCharacterData->growthSkl);
+    _growth_disp(18, 9, unit->pCharacterData->growthSpd);
+    _growth_disp(18, 11, unit->pCharacterData->growthLck);
+    _growth_disp(18, 13, unit->pCharacterData->growthDef);
+    _growth_disp(18, 15, unit->pCharacterData->growthRes);
 
-    PutNumberBonus((GetUnitPowGrowth(unit) - unit->pCharacterData->growthPow), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 3)));
-    PutNumberBonus((GetUnitMagGrowth(unit) - GetUnitBasicMagGrowth(unit)),     (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 5)));
-    PutNumberBonus((GetUnitSklGrowth(unit) - unit->pCharacterData->growthSkl), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 7)));
-    PutNumberBonus((GetUnitSpdGrowth(unit) - unit->pCharacterData->growthSpd), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 9)));
-    PutNumberBonus((GetUnitLckGrowth(unit) - unit->pCharacterData->growthLck), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 11)));
-    PutNumberBonus((GetUnitDefGrowth(unit) - unit->pCharacterData->growthDef), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 13)));
-    PutNumberBonus((GetUnitResGrowth(unit) - unit->pCharacterData->growthRes), (gBG0TilemapBuffer + TILEMAP_INDEX(17 + 1, 15)));
+    PutNumberBonus((GetUnitPowGrowth(unit) - unit->pCharacterData->growthPow), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 3)));
+    PutNumberBonus((GetUnitMagGrowth(unit) - GetUnitBasicMagGrowth(unit)),     (gBG0TilemapBuffer + TILEMAP_INDEX(19, 5)));
+    PutNumberBonus((GetUnitSklGrowth(unit) - unit->pCharacterData->growthSkl), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 7)));
+    PutNumberBonus((GetUnitSpdGrowth(unit) - unit->pCharacterData->growthSpd), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 9)));
+    PutNumberBonus((GetUnitLckGrowth(unit) - unit->pCharacterData->growthLck), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 11)));
+    PutNumberBonus((GetUnitDefGrowth(unit) - unit->pCharacterData->growthDef), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 13)));
+    PutNumberBonus((GetUnitResGrowth(unit) - unit->pCharacterData->growthRes), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 15)));
 
 #else 
     _growth_disp(17, 3, GetUnitPowGrowth(unit));

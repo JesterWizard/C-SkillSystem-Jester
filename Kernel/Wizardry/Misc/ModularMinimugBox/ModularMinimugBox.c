@@ -100,17 +100,14 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
     DrawTwoDigits(xBase + 41, yBase, proc->hpMaxHi, proc->hpMaxLo);
 
     /* MP row (one tile below) */
-    if (GetUnitMaxMP(unit) > 0)
-    {
-        u8 mpCurHi, mpCurLo, mpMaxHi, mpMaxLo;
-        int mpY = yBase + 8;
+    u8 mpCurHi, mpCurLo, mpMaxHi, mpMaxLo;
+    int mpY = yBase + 8;
 
-        GetTwoDigits(GetUnitCurrentMP(unit), &mpCurHi, &mpCurLo, false);
-        GetTwoDigits(GetUnitMaxMP(unit),     &mpMaxHi, &mpMaxLo, false);
+    GetTwoDigits(GetUnitCurrentMP(unit), &mpCurHi, &mpCurLo, false);
+    GetTwoDigits(GetUnitMaxMP(unit),     &mpMaxHi, &mpMaxLo, false);
 
-        DrawTwoDigits(xBase + 17, mpY, mpCurHi, mpCurLo);
-        DrawTwoDigits(xBase + 41, mpY, mpMaxHi, mpMaxLo);
-    }
+    DrawTwoDigits(xBase + 17, mpY, mpCurHi, mpCurLo);
+    DrawTwoDigits(xBase + 41, mpY, mpMaxHi, mpMaxLo);
 }
 
 // ! FE8U = 0x0808C5D0

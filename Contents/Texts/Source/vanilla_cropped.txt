@@ -4054,7 +4054,7 @@ Skill[.][X]
 Spd[.][X]
 
 ## MSG_04EE
-Luck[X]
+Lck[X]
 
 ## MSG_04EF
 Def[.][X]
