@@ -436,7 +436,7 @@
 #endif
 
 #define CONFIG_CUSTOM_STAFF_ACCURACY 100
-// #define CONFIG_TALK_LEVEL_UP
+#define CONFIG_TALK_LEVEL_UP
 #define CONFIG_DEATH_DANCE
 // #define CONFIG_SUPPORT_REWARDS // Go to BwlSupport.c in StartSupportTalk to adjust items gained
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)

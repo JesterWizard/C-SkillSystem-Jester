@@ -260,18 +260,23 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 	int message = -1;
 	int unitID = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 
-	if (gEventSlots[EVT_SLOT_2] <= 2)
+	if (gEventSlots[EVT_SLOT_7] <= 2)
 		message = 0;
-	else if (gEventSlots[EVT_SLOT_2] <= 5)
+	else if (gEventSlots[EVT_SLOT_7] <= 5)
 		message = 1;
-	else if (gEventSlots[EVT_SLOT_2] <= 8)
+	else if (gEventSlots[EVT_SLOT_7] <= 8)
 		message = 2;
+	else 
+		message = 0;
 
 	const char* unit_dialogue = character_level_up_strings[unitID].values[message];
 
+	/* Switch out the face for a talking one when the dialogue is triggered */
+	ResetFaces();
+	StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId, 184, 32 - proc->y_scroll_offset, FACE_DISP_KIND(FACE_96x80) | FACE_DISP_TALK_1);
+	DrawUiFrame(gBG1TilemapBuffer, 30 - (GetStringTextLen(unit_dialogue) / 8) - 4, 28, (GetStringTextLen(unit_dialogue) / 8) + 3, 4, 0, 1);
 	PutStringRightAligned(TILEMAP_LOCATED(gBG0TilemapBuffer, (30 - (GetStringTextLen(unit_dialogue) / 8)) - 3, 29), TEXT_COLOR_SYSTEM_WHITE, (GetStringTextLen(unit_dialogue) / 8) + 2, unit_dialogue);
 	BG_EnableSyncByMask(BG1_SYNC_BIT);
-	DrawUiFrame(gBG1TilemapBuffer, 30 - (GetStringTextLen(unit_dialogue) / 8) - 4, 28, (GetStringTextLen(unit_dialogue) / 8) + 3, 4, 0, 1);
 };
 
 #endif
@@ -361,27 +366,7 @@ void ManimLevelUp_InitMainScreen(struct ManimLevelUpProc* proc)
 	/* Level up screen stats */
 	BG_SetPosition(BG_1, 0, proc->y_scroll_offset);
 
-	/* Turn on portrait blinking and talking */
-#ifdef CONFIG_TALK_LEVEL_UP
-
-/* Change the unit's expression during level up depending on their stat gains */
-// if (gEventSlots[EVT_SLOT_2] <= 2) 
-//     StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
-//         184, 32 - proc->y_scroll_offset, (FACE_DISP_KIND(FACE_96x80) | FACE_DISP_TALK_1));
-// else if (gEventSlots[EVT_SLOT_2] <= 5) 
-//     StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
-//         184, 32 - proc->y_scroll_offset, (FACE_DISP_KIND(FACE_96x80) | FACE_DISP_TALK_1));
-// else if (gEventSlots[EVT_SLOT_2 <= 8])
-//     StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
-//         184, 32 - proc->y_scroll_offset, (FACE_DISP_KIND(FACE_96x80) | FACE_DISP_TALK_1));
-	StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
-		184, 32 - proc->y_scroll_offset, (FACE_DISP_KIND(FACE_96x80) | FACE_DISP_TALK_1));
-
-
-#else 
-	StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
-		184, 32 - proc->y_scroll_offset, 0x1042);
-#endif
+	StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId, 184, 32 - proc->y_scroll_offset, 0x1042);
 
 	gFaces[0]->yPos = 32 - proc->y_scroll_offset;
 
