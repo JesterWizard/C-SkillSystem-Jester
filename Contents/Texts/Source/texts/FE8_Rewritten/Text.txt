@@ -156,3 +156,5 @@
 #include "Quotes/DefeatQuotes.txt"
 
 #include "LevelUpQuotes.txt"
+
+#include "VariableCharacterDescriptions.txt"

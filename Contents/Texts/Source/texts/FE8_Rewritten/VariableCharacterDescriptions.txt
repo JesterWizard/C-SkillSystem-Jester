@@ -1,0 +1,185 @@
+## MSG_Eirika_Description_One
+The Princess of Renais.[N]
+She is on a mission to find her brother.[X]
+## MSG_Eirika_Description_Two
+The Princess of Renais.[N]
+She yearns to end this war.[X]
+## MSG_Eirika_Description_Three
+The Princess of Renais.[N]
+She's locked in like skibiddy sigma.[X]
+
+## MSG_Seth_Description_One
+## MSG_Seth_Description_Two
+## MSG_Seth_Description_Three
+
+## MSG_Gilliam_Description_One
+## MSG_Gilliam_Description_Two
+## MSG_Gilliam_Description_Three
+
+## MSG_Franz_Description_One
+## MSG_Franz_Description_Two
+## MSG_Franz_Description_Three
+
+## MSG_Moulder_Description_One
+## MSG_Moulder_Description_Two
+## MSG_Moulder_Description_Three
+
+## MSG_Vanessa_Description_One
+## MSG_Vanessa_Description_Two
+## MSG_Vanessa_Description_Three
+
+## MSG_Ross_Description_One
+## MSG_Ross_Description_Two
+## MSG_Ross_Description_Three
+
+## MSG_Neimi_Description_One
+## MSG_Neimi_Description_Two
+## MSG_Neimi_Description_Three
+
+## MSG_Colm_Description_One
+## MSG_Colm_Description_Two
+## MSG_Colm_Description_Three
+
+## MSG_Garcia_Description_One
+## MSG_Garcia_Description_Two
+## MSG_Garcia_Description_Three
+
+## MSG_Innes_Description_One
+## MSG_Innes_Description_Two
+## MSG_Innes_Description_Three
+
+## MSG_Lute_Description_One
+## MSG_Lute_Description_Two
+## MSG_Lute_Description_Three
+
+## MSG_Natasha_Description_One
+## MSG_Natasha_Description_Two
+## MSG_Natasha_Description_Three
+
+## MSG_Cormag_Description_One
+## MSG_Cormag_Description_Two
+## MSG_Cormag_Description_Three
+
+## MSG_Ephraim_Description_One
+## MSG_Ephraim_Description_Two
+## MSG_Ephraim_Description_Three
+
+## MSG_Forde_Description_One
+## MSG_Forde_Description_Two
+## MSG_Forde_Description_Three
+
+## MSG_Kyle_Description_One
+## MSG_Kyle_Description_Two
+## MSG_Kyle_Description_Three
+
+## MSG_Amelia_Description_One
+## MSG_Amelia_Description_Two
+## MSG_Amelia_Description_Three
+
+## MSG_Artur_Description_One
+## MSG_Artur_Description_Two
+## MSG_Artur_Description_Three
+
+## MSG_Gerik_Description_One
+## MSG_Gerik_Description_Two
+## MSG_Gerik_Description_Three
+
+## MSG_Tethys_Description_One
+## MSG_Tethys_Description_Two
+## MSG_Tethys_Description_Three
+
+## MSG_Marisa_Description_One
+## MSG_Marisa_Description_Two
+## MSG_Marisa_Description_Three
+
+## MSG_Saleh_Description_One
+## MSG_Saleh_Description_Two
+## MSG_Saleh_Description_Three
+
+## MSG_Ewan_Description_One
+## MSG_Ewan_Description_Two
+## MSG_Ewan_Description_Three
+
+## MSG_Larachel_Description_One
+## MSG_Larachel_Description_Two
+## MSG_Larachel_Description_Three
+
+## MSG_Dozla_Description_One
+## MSG_Dozla_Description_Two
+## MSG_Dozla_Description_Three
+
+## MSG_Enemy_1B_Description_One
+## MSG_Enemy_1B_Description_Two
+## MSG_Enemy_1B_Description_Three
+
+## MSG_Rennac_Description_One
+## MSG_Rennac_Description_Two
+## MSG_Rennac_Description_Three
+
+## MSG_Duessel_Description_One
+## MSG_Duessel_Description_Two
+## MSG_Duessel_Description_Three
+
+## MSG_Myrrh_Description_One
+## MSG_Myrrh_Description_Two
+## MSG_Myrrh_Description_Three
+
+## MSG_Knoll_Description_One
+## MSG_Knoll_Description_Two
+## MSG_Knoll_Description_Three
+
+## MSG_Joshua_Description_One
+## MSG_Joshua_Description_Two
+## MSG_Joshua_Description_Three
+
+## MSG_Syrene_Description_One
+## MSG_Syrene_Description_Two
+## MSG_Syrene_Description_Three
+
+## MSG_Tana_Description_One
+## MSG_Tana_Description_Two
+## MSG_Tana_Description_Three
+
+## MSG_Lyon_Description_One
+## MSG_Lyon_Description_Two
+## MSG_Lyon_Description_Three
+
+## MSG_Orson_Description_One
+## MSG_Orson_Description_Two
+## MSG_Orson_Description_Three
+
+## MSG_Orson_CH5X_Description_One
+## MSG_Orson_CH5X_Description_Two
+## MSG_Orson_CH5X_Description_Three
+
+## MSG_Glen_Description_One
+## MSG_Glen_Description_Two
+## MSG_Glen_Description_Three
+
+## MSG_Selena_Description_One
+## MSG_Selena_Description_Two
+## MSG_Selena_Description_Three
+
+## MSG_Valter_Description_One
+## MSG_Valter_Description_Two
+## MSG_Valter_Description_Three
+
+## MSG_Riev_Description_One
+## MSG_Riev_Description_Two
+## MSG_Riev_Description_Three
+
+## MSG_Caellach_Description_One
+## MSG_Caellach_Description_Two
+## MSG_Caellach_Description_Three
+
+## MSG_Fado_Description_One
+## MSG_Fado_Description_Two
+## MSG_Fado_Description_Three
+
+## MSG_Ismaire_Description_One
+## MSG_Ismaire_Description_Two
+## MSG_Ismaire_Description_Three
+
+## MSG_Hayden_Description_One
+## MSG_Hayden_Description_Two
+## MSG_Hayden_Description_Three

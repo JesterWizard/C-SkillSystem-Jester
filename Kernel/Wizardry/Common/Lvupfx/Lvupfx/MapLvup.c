@@ -223,8 +223,6 @@ static const LevelUpStrings character_level_up_strings[] =
 
 };
 
-const int dict_size_level_up_strings = sizeof(character_level_up_strings) / sizeof(character_level_up_strings[0]);
-
 #endif 
 
 LYN_REPLACE_CHECK(StartManimLevelUp);
