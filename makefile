@@ -418,6 +418,12 @@ endif
 
 CLEAN_FILES += $(CHAX_SYM) $(CHAX_REFS) $(CHAX_REFE) $(CHAX_NUPS)
 
+# =============
+# = RAM USAGE =
+# =============
+ramcheck:
+	@python3 $(TOOL_DIR)/FE-PyTools/memory-usage.py $(LINK_DIR)/config-memmap.s
+
 # ========
 # = MISC =
 # ========
