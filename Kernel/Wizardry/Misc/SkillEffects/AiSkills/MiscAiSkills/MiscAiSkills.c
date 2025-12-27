@@ -41,6 +41,9 @@ int AiGetDamageDealtCombatScoreComponent(void)
 #if defined(SID_AssignDecoy) && (COMMON_SKILL_VALID(SID_AssignDecoy))
     if (GetUnitStatusIndex(GetUnit(gBattleTarget.unit.index)) == NEW_UNIT_STATUS_DECOY)
         score += SKILL_EFF0(SID_AssignDecoy);
+#elif defined(SID_AssignDecoy) && (COMMON_SKILL_VALID(SID_AssignDecoy))
+    if (GetUnitStatusIndex(GetUnit(gBattleTarget.unit.index)) == NEW_UNIT_STATUS_DECOY)
+        score += SKILL_EFF0(SID_AssignDecoy);
 #endif
 
 #if defined(SID_LightningRod) && (COMMON_SKILL_VALID(SID_LightningRod))

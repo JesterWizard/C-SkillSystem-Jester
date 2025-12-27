@@ -4389,3 +4389,17 @@ void GrantBEXP(ProcPtr parent)
 //     Text_InsertDrawString(&proc->text[1], GetStringTextCenteredPos(68, str), 5, str);
 //     return;
 // }
+
+//! FE8U = 0x0803C818
+LYN_REPLACE_CHECK(AiIsUnitEnemy);
+s8 AiIsUnitEnemy(struct Unit* unit) {
+
+    if (AreUnitsAllied(gActiveUnit->index, unit->index)) {
+        if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DECOY && gActiveUnit != unit)
+            return 1;
+        else
+            return 0;
+    }
+
+    return 1;
+}

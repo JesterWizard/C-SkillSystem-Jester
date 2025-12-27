@@ -74,6 +74,7 @@
 #include "MenuSkills/Entrepreneur.lyn.event"
 #include "MenuSkills/Arise.lyn.event"
 #include "MenuSkills/AssignDecoy.lyn.event"
+#include "MenuSkills/AssignDecoyPlus.lyn.event"
 #include "MenuSkills/ShadowFlash.lyn.event"
 #include "MenuSkills/DeathBlight.lyn.event"
 #include "MenuSkills/LoadstarRush.lyn.event"

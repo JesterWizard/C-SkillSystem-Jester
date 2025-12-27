@@ -688,6 +688,7 @@
 #define MSG_SKILL_Alacrity_CAPACITY 1
 #define MSG_SKILL_AlacrityPlus_CAPACITY 1
 #define MSG_SKILL_AssignDecoy_CAPACITY 1
+#define MSG_SKILL_AssignDecoyPlus_CAPACITY 1
 #define MSG_SKILL_Canter_CAPACITY 1
 #define MSG_SKILL_Echo_CAPACITY 1
 #define MSG_SKILL_Guardian_CAPACITY 1

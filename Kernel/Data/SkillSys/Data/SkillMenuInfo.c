@@ -756,6 +756,21 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_AssignDecoyPlus) && COMMON_SKILL_VALID(SID_AssignDecoyPlus))
+    [SID_AssignDecoyPlus] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_AssignDecoyPlus_NAME,
+        .helpMsgId = MSG_SKILL_AssignDecoyPlus_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = AssignDecoyPlus_Usability,
+        .onDraw = NULL,
+        .onSelected = AssignDecoyPlus_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 #if (defined(SID_ShadowFlash) && COMMON_SKILL_VALID(SID_ShadowFlash))
     [SID_ShadowFlash] = &(const struct MenuItemDef) {
         .name = "　光の結界",

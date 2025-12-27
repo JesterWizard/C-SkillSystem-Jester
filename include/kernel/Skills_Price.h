@@ -688,6 +688,7 @@
 #define MSG_SKILL_Alacrity_PRICE 1000
 #define MSG_SKILL_AlacrityPlus_PRICE 1000
 #define MSG_SKILL_AssignDecoy_PRICE 1000
+#define MSG_SKILL_AssignDecoyPlus_PRICE 1000
 #define MSG_SKILL_Canter_PRICE 1000
 #define MSG_SKILL_Echo_PRICE 1000
 #define MSG_SKILL_Guardian_PRICE 1000

@@ -6918,6 +6918,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_AssignDecoyPlus) && COMMON_SKILL_VALID(SID_AssignDecoyPlus))
+    [SID_AssignDecoyPlus] = {
+        .name = MSG_SKILL_AssignDecoyPlus_NAME,
+        .desc = MSG_SKILL_AssignDecoyPlus_DESC,
+        .capacity = MSG_SKILL_AssignDecoyPlus_CAPACITY,
+        .price = MSG_SKILL_AssignDecoyPlus_PRICE,
+        .icon = GFX_SkillIcon_AssignDecoyPlus,
+    },
+#endif
+
 #if (defined(SID_Canter) && COMMON_SKILL_VALID(SID_Canter))
     [SID_Canter] = {
         .name = MSG_SKILL_Canter_NAME,

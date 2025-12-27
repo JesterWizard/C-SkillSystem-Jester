@@ -40,6 +40,7 @@ SID_Smite
 SID_Entrepreneur
 SID_Arise
 SID_AssignDecoy
+SID_AssignDecoyPlus
 SID_ShadowFlash
 SID_DeathBlight
 SID_DivineReprieve

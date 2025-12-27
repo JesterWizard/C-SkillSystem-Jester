@@ -183,6 +183,10 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
     [SID_AssignDecoy] = Action_AssignDecoy,
 #endif
 
+#if (defined(SID_AssignDecoyPlus) && COMMON_SKILL_VALID(SID_AssignDecoyPlus))
+    [SID_AssignDecoyPlus] = Action_AssignDecoyPlus,
+#endif
+
 #if (defined(SID_ShadowFlash) && COMMON_SKILL_VALID(SID_ShadowFlash))
     [SID_ShadowFlash] = Action_ShadowFlash,
 #endif

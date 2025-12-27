@@ -715,3 +715,10 @@ Songstress[X]
 Songstress:[N]
 Refresh all allied units once per[N]
 map, but skip their next phase.[X]
+
+## MSG_SKILL_AssignDecoyPlus_NAME
+Assign Decoy+[X]
+## MSG_SKILL_AssignDecoyPlus_DESC
+Assign Decoy+:[N]
+Give any unit the decoy[N]
+status for a turn.[X]
