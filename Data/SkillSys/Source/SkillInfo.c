@@ -8960,4 +8960,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Equlibrium) && COMMON_SKILL_VALID(SID_Equlibrium))
+    [SID_Equlibrium] = {
+        .name = MSG_SKILL_Equlibrium_NAME,
+        .desc = MSG_SKILL_Equlibrium_DESC,
+        .capacity = MSG_SKILL_Equlibrium_CAPACITY,
+        .price = MSG_SKILL_Equlibrium_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

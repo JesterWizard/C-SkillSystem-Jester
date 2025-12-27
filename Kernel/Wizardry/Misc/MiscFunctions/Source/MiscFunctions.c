@@ -19,6 +19,7 @@
 #include "traps.h"
 #include "efxmagic.h"
 #include "playst-expa.h"
+#include "scene.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -4235,10 +4236,16 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 
 
 // JESTER - Freezing when opened on a text box
-// extern struct Text sTalkText[3];
-// extern struct TalkState sTalkStateCore;
-// struct TalkState* const sTalkState = &sTalkStateCore;
-// #define TALK_TEXT_BY_LINE(line) (sTalkText + ((line) + sTalkState->topTextNum) % sTalkState->lines)
+
+// static struct TalkState sTalkStateCore;
+// struct TalkState* CONST_DATA sTalkState = &sTalkStateCore;
+// static struct Text sTalkText[3];
+
+// #define sTalkStateCore (*(struct TalkState*)0x03000048)
+// #define sTalkState     (*(struct TalkState**)0x0859133C)
+// #define sTalkText      (*(struct Text (*)[3])0x030000D0)
+
+// #define TALK_TEXT_BY_LINE(line) (&sTalkText[((line) + sTalkState->topTextNum) % sTalkState->lines])
 
 // //! FE8U = 0x08006C34
 // LYN_REPLACE_CHECK(Talk_OnIdle);
@@ -4295,8 +4302,10 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 
 //                 if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
 //                     if (CheckTalkFlag(TALK_FLAG_7)) {
+//                         RegisterEfxSoundSeExist();
+//                         Sound_SetBGMVolume(1);
+//                         // Sound_SetSEVolume(1);
 //                         PlaySoundEffect(SONG_7A);
-//                         // m4aMPlayPitchControl(gMPlayTable[gSongTable[SONG_7A].ms].info, 0xFFFF, 1);
 //                     } else {
 //                         if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {
 //                             break;
@@ -4308,11 +4317,9 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 
 //                         sTalkState->unk82 = 1;
 //                         PlaySoundEffect(SONG_6E);
-//                         // m4aMPlayPitchControl(gMPlayTable[gSongTable[SONG_6E].ms].info, 0xFFFF, 1);
 //                     }
 //                 }
 //         }
-
 
 //         if (!sTalkState->instantScroll && sTalkState->printDelay > 0) {
 //             return;

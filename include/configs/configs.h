@@ -472,7 +472,7 @@
 
 // #define CONFIG_UNIT_SELECTION_QUOTES /* Leonarth */ /* Needed to turn off unitBeginAction's lynjump for this */
 
-// #define CONFIG_VOICE_ACTED_PROLOGUE
+#define CONFIG_VOICE_ACTED_DIALOGUE
 
 #define CONFIG_FREE_MOVEMENT
 
@@ -529,6 +529,6 @@
 
 #define CONFIG_MAX_COLOR_BACKGROUNDS
 
-#define CONFIG_VARIABLE_UNIT_DESCRIPTIONS
+// #define CONFIG_VARIABLE_UNIT_DESCRIPTIONS
 
 #endif /* CONFIG_INSTALLED */

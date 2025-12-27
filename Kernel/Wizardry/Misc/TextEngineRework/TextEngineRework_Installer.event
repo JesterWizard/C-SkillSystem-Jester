@@ -39,9 +39,9 @@ ORG $7FA6 //fix normal scrolling for 3-line box (hopefully)
 SHORT 0x3006
 
 //PlayTextBoop
-ORG $6D70
-callHack_r3(PlayTextBoop)
-SHORT 0
+// ORG $6D70
+// callHack_r3(PlayTextBoop)
+// SHORT 0
 
 //ChangePortraitPosition: Write the table of face positions to gDialogueState+50 (part of a buffer but it should be fine) during DialogueMain_OnInit
 ORG $6C28

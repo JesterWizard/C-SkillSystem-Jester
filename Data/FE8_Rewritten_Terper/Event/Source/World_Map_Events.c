@@ -13,8 +13,8 @@
 extern const u16* Events_WM_Beginning[];
 extern const u16* Events_WM_ChapterIntro[];
 
-LYN_REPLACE_CHECK(WorldMap_CallBeginningEvent);
 //! FE8U = 0x080BA334
+LYN_REPLACE_CHECK(WorldMap_CallBeginningEvent);
 void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
 {
     int chIndex;
@@ -202,8 +202,8 @@ u8 Event97_WmInitNextStoryNode(struct EventEngineProc* proc)
     return EVC_ADVANCE_CONTINUE;
 };
 
-LYN_REPLACE_CHECK(Event3E_PrepScreenCall);
 //! FE8U = 0x08010968
+LYN_REPLACE_CHECK(Event3E_PrepScreenCall);
 u8 Event3E_PrepScreenCall(struct EventEngineProc* proc)
 {
     HideAllUnits();
@@ -266,7 +266,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_CENTERCAMONLORD(WM_MU_0)
     MUSCFAST(0x7fff)
     STAL(32)
-    MUSC(0x4)
+    MUSC(SONG_THE_BEGINNING)
     WM_SHOWDRAWNMAP(0, 0, 0x10)
     STAL(2)
     WM_FADEOUT(0)
@@ -279,12 +279,12 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_TEXT(Chapter_00_WM, 0)
 
     // The continent of Magvel.
-    MUSC(0xC0)
+    SOUN(0xC0)
     TEXTCONT
     TEXTEND
 
     // For some 800 years, a quiet peace reigned in the absence of the terrible darkness.
-    MUSC(0xC1)
+    SOUN(0xC1)
     TEXTCONT
     TEXTEND
 

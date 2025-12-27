@@ -392,6 +392,11 @@ bool rampartPlus_activated = false;
         result = ((defender->battleAttack - attacker->battleDefense) + (attacker->battleAttack - defender->battleDefense)) / 2;
 #endif
 
+#if (defined(SID_Equlibrium) && (COMMON_SKILL_VALID(SID_Equlibrium)))
+    if (BattleFastSkillTester(attacker, SID_Equlibrium) || BattleFastSkillTester(defender, SID_Equlibrium))
+        result = result / 2;
+#endif
+
 #if (defined(SID_Osmose) && (COMMON_SKILL_VALID(SID_Osmose)))
     if (BattleFastSkillTester(attacker, SID_Osmose))
     {

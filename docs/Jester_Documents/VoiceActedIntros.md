@@ -16,6 +16,8 @@
 
 ## Introduction
 
+``CONFIG_VOICE_ACTED_DIALOGUE``
+
 A lot of guides for music/sound on FEUniverse focus on **MIDI installation**. That makes sense: MIDI files are tiny compared to WAVs, which are relatively large.
 
 The GBA isn’t widely known for advanced audio, but it **can** play voiced audio (see old GBA Video cartridges). For voiced dialogue and short high-quality clips, **WAVs** are a good choice.

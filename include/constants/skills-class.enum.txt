@@ -318,6 +318,7 @@
 // SID_Malidiction
 // SID_SPConversion
 // SID_Enlightenment
+// SID_Equlibrium
 
 //////// POST-BATTLE SKILLS
 // SID_Canto

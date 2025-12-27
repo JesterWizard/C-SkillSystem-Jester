@@ -894,3 +894,4 @@
 #define MSG_SKILL_EmergencyExit_PRICE 1000
 #define MSG_SKILL_EmergencyExitPlus_PRICE 1000
 #define MSG_SKILL_Songstress_PRICE 1
+#define MSG_SKILL_Equlibrium_PRICE 1

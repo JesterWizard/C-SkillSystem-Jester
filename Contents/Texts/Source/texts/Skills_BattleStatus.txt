@@ -1828,3 +1828,10 @@ Slice n' Dice:[N]
 Lowers this unit's critical rate[N]
 until their hit rate reaches 100[N]
 (or as close as possible).[X]
+
+## MSG_SKILL_Equlibrium_NAME
+Equlibrium[X]
+## MSG_SKILL_Equlibrium_DESC
+Equlibrium:[N]
+This unit takes and receives[N]
+half damage in battle.[X]
