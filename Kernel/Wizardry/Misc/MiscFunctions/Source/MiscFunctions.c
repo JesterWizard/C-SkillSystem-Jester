@@ -2477,7 +2477,7 @@ u8 ItemSubMenu_IsEquipAvailable(const struct MenuItemDef* def, int number) {
     }
 
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
-    if (CheckBitUES(gActiveUnit, UES_BIT_GorillaTactics_USED))
+    if (CheckBitUES(gActiveUnit, UES_BIT_GORILLA_TACTICS_SKILL_USED))
         return MENU_NOTSHOWN;
 #endif
 

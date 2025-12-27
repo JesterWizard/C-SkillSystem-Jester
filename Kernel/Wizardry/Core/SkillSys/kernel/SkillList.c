@@ -139,6 +139,12 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_MPBoost) && defined(SID_MPBoostPlus)
         [SID_MPBoostPlus] = SID_MPBoost,
     #endif
+    #if defined(SID_AssignDecoy) && defined(SID_AssignDecoyPlus)
+        [SID_AssignDecoyPlus] = SID_AssignDecoy,
+    #endif
+    #if defined(SID_Galeforce) && defined(SID_GaleforcePlus)
+        [SID_GaleforcePlus] = SID_Galeforce,
+    #endif
 };
 
 const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
@@ -255,6 +261,12 @@ const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
     #endif
     #if defined(SID_MPBoost) && defined(SID_MPBoostPlus)
         [SID_MPBoost] = SID_MPBoostPlus,
+    #endif
+    #if defined(SID_AssignDecoyPlus) && defined(SID_AssignDecoy)
+        [SID_AssignDecoy] = SID_AssignDecoyPlus,
+    #endif
+    #if defined(SID_GaleforcePlus) && defined(SID_Galeforce)
+        [SID_Galeforce] = SID_GaleforcePlus,
     #endif
 };
 

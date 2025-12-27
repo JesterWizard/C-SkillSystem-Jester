@@ -48,10 +48,10 @@ static void callback_anim(ProcPtr proc)
 
 static void callback_exec(ProcPtr proc)
 {
-	if (!CheckBitUES(gActiveUnit, UES_BIT_GorillaTactics_USED))
-		SetBitUES(gActiveUnit, UES_BIT_GorillaTactics_USED);
+	if (!CheckBitUES(gActiveUnit, UES_BIT_GORILLA_TACTICS_SKILL_USED))
+		SetBitUES(gActiveUnit, UES_BIT_GORILLA_TACTICS_SKILL_USED);
 	else
-		ClearBitUES(gActiveUnit, UES_BIT_GorillaTactics_USED);
+		ClearBitUES(gActiveUnit, UES_BIT_GORILLA_TACTICS_SKILL_USED);
 }
 
 bool Action_GorillaTactics(ProcPtr parent)

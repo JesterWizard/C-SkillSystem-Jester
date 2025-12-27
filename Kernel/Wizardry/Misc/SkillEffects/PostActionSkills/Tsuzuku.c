@@ -10,10 +10,11 @@
 #include "constants/skills.h"
 #include "constants/combat-arts.h"
 #include "playst-expa.h"
+#include "jester_headers/custom-functions.h"
 
 extern u8 gPostActionGaleforceFlag;
 
-FORCE_DECLARE static void refresh_turn_once(struct Unit * unit, ProcPtr parent)
+FORCE_DECLARE static void refresh_action(struct Unit * unit, ProcPtr parent)
 {
     if (!UNIT_ALIVE(unit) || UNIT_STONED(unit))
         return;
@@ -24,17 +25,7 @@ FORCE_DECLARE static void refresh_turn_once(struct Unit * unit, ProcPtr parent)
     return;
 }
 
-FORCE_DECLARE static void refresh_turn_repeatedly(struct Unit * unit, ProcPtr parent)
-{
-    if (!UNIT_ALIVE(unit) || UNIT_STONED(unit))
-        return;
-
-    gActionDataExpa.refrain_action = true;
-    EndAllMus();
-    StartStatusHealEffect(gActiveUnit, parent);
-}
-
-FORCE_DECLARE static void refresh_turn_repeatedly_no_animation(struct Unit * unit, ProcPtr parent)
+FORCE_DECLARE static void refresh_action_no_animation(struct Unit * unit, ProcPtr parent)
 {
     if (!UNIT_ALIVE(unit) || UNIT_STONED(unit))
         return;
@@ -42,7 +33,7 @@ FORCE_DECLARE static void refresh_turn_repeatedly_no_animation(struct Unit * uni
     gActionDataExpa.refrain_action = true;
 }
 
-FORCE_DECLARE static void refresh_turn_once_aura(struct Unit * unit, ProcPtr parent)
+FORCE_DECLARE static void refresh_action_aura(struct Unit * unit, ProcPtr parent)
 {
     for (int i = 0; i < ARRAY_COUNT_RANGE1x1; i++)
     {
@@ -72,7 +63,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
         if (gActiveUnit->counters > 0)
 	    {
 		    gActiveUnit->counters -= 1;
-		    refresh_turn_once(gActiveUnit, parent);
+		    refresh_action(gActiveUnit, parent);
         }
 	}
 #endif
@@ -101,14 +92,14 @@ bool PostAction_Tsuzuku(ProcPtr parent)
         }
 
     if (nice_thighs)
-        refresh_turn_once(gActiveUnit, parent);
+        refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_AdrenalineRush) && (COMMON_SKILL_VALID(SID_AdrenalineRush))
     if (SkillListTester(gActiveUnit, SID_AdrenalineRush))
     {
         if (gActiveUnit->curHP <= gActiveUnit->maxHP / 4)
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
     }
 #endif
 
@@ -121,7 +112,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
             {
                 /* A bit of a hack to prevent this skill from triggering on other commands afterwards */
                 gBattleActorGlobalFlag.skill_activated_dance = false;
-                refresh_turn_repeatedly(gActiveUnit, parent);
+                refresh_action(gActiveUnit, parent);
             }
         }
     }
@@ -131,7 +122,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
     if (SkillListTester(gActiveUnit, SID_Switcher))
     {
         if (gActionData.unk08 == SID_Switcher)
-            refresh_turn_repeatedly_no_animation(gActiveUnit, parent);
+            refresh_action_no_animation(gActiveUnit, parent);
     }
 #endif
 
@@ -139,24 +130,35 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 	case UNIT_ACTION_COMBAT:
 	case CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat:
 #if defined(SID_Galeforce) && (COMMON_SKILL_VALID(SID_Galeforce))
-        if (SkillListTester(gActiveUnit, SID_Galeforce) && gBattleActorGlobalFlag.skill_activated_galeforce)
-            refresh_turn_once(gActiveUnit, parent);
+        if (SkillListTester(gActiveUnit, SID_Galeforce))
+        {
+            if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED) && gBattleActorGlobalFlag.skill_activated_galeforce)
+            {
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+                refresh_action(gActiveUnit, parent);
+            }
+        }
+#endif
+
+#if defined(SID_GaleforcePlus) && (COMMON_SKILL_VALID(SID_GaleforcePlus))
+        if (SkillTesterPlus(gActiveUnit, SID_GaleforcePlus) && gBattleActorGlobalFlag.skill_activated_galeforce)
+            refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_FailGale) && (COMMON_SKILL_VALID(SID_FailGale))
         if (SkillListTester(gActiveUnit, SID_FailGale) && !gBattleActor.nonZeroDamage)
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_LeadByExample) && (COMMON_SKILL_VALID(SID_LeadByExample))
         if (SkillListTester(gActiveUnit, SID_LeadByExample) && gBattleActorGlobalFlag.skill_activated_lead_by_example)
-            refresh_turn_once_aura(gActiveUnit, parent);
+            refresh_action_aura(gActiveUnit, parent);
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
         if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
         }
 #endif
@@ -164,7 +166,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_DoubleTime) && (COMMON_SKILL_VALID(SID_DoubleTime))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DoubleTime_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_DoubleTime_Used);
         }
 #endif
@@ -172,7 +174,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_Ripple) && (COMMON_SKILL_VALID(SID_Ripple))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Ripple_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Ripple_Used);
         }
 #endif
@@ -192,7 +194,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
         if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
         }
 #endif
@@ -200,7 +202,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_DoubleTime) && (COMMON_SKILL_VALID(SID_DoubleTime))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DoubleTime_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_DoubleTime_Used);
         }
 #endif
@@ -208,7 +210,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_Ripple) && (COMMON_SKILL_VALID(SID_Ripple))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Ripple_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Ripple_Used);
         }
 #endif
@@ -224,7 +226,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 			case ITEM_VULNERARY:
 			case ITEM_VULNERARY_2:
 			case ITEM_ELIXIR:
-				refresh_turn_once(gActiveUnit, parent);
+				refresh_action(gActiveUnit, parent);
 				break;
 			default:
 				break;
@@ -234,13 +236,13 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 
 #if defined(SID_QuickHands) && (COMMON_SKILL_VALID(SID_QuickHands))
         if (SkillListTester(gActiveUnit, SID_QuickHands))
-            refresh_turn_repeatedly(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
         if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
         }
 #endif
@@ -248,7 +250,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_DoubleTime) && (COMMON_SKILL_VALID(SID_DoubleTime))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DoubleTime_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_DoubleTime_Used);
         }
 #endif
@@ -256,7 +258,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_Ripple) && (COMMON_SKILL_VALID(SID_Ripple))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Ripple_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Ripple_Used);
         }
 #endif
@@ -266,18 +268,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 	case UNIT_ACTION_RESCUE:
 #if defined(SID_Samaritan) && (COMMON_SKILL_VALID(SID_Samaritan))
 		if (SkillListTester(gActiveUnit, SID_Samaritan))
-			refresh_turn_once(gActiveUnit, parent);
+			refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_Heroics) && (COMMON_SKILL_VALID(SID_Heroics))
         if (SkillListTester(gActiveUnit, SID_Heroics))
-            refresh_turn_repeatedly(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
         if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
         }
 #endif
@@ -285,7 +287,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_DoubleTime) && (COMMON_SKILL_VALID(SID_DoubleTime))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DoubleTime_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_DoubleTime_Used);
         }
 #endif
@@ -293,7 +295,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_Ripple) && (COMMON_SKILL_VALID(SID_Ripple))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Ripple_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Ripple_Used);
         }
 #endif
@@ -308,12 +310,12 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 
 #if defined(SID_Turret) && (COMMON_SKILL_VALID(SID_Turret))
 		if (SkillListTester(gActiveUnit, SID_Turret) && gActionData.moveCount == 0)
-			refresh_turn_once(gActiveUnit, parent);
+			refresh_action(gActiveUnit, parent);
 #endif
 
 #if defined(SID_SpellBlade) && (COMMON_SKILL_VALID(SID_SpellBlade))
 		if (SkillListTester(gActiveUnit, SID_SpellBlade) && gActionData.unk08 == SID_SpellBlade)
-			refresh_turn_once(gActiveUnit, parent);
+			refresh_action(gActiveUnit, parent);
 #endif
 		break;
 
@@ -321,7 +323,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
         if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
         }
 #endif
@@ -329,7 +331,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_DoubleTime) && (COMMON_SKILL_VALID(SID_DoubleTime))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DoubleTime_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_DoubleTime_Used);
         }
 #endif
@@ -337,7 +339,7 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #if defined(SID_Ripple) && (COMMON_SKILL_VALID(SID_Ripple))
         if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Ripple_Used))
         {
-            refresh_turn_once(gActiveUnit, parent);
+            refresh_action(gActiveUnit, parent);
             PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Ripple_Used);
         }
 #endif
@@ -350,7 +352,6 @@ L_exec_rafrain_action_anim:
 	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
 		return false;
 
-	// SetBitUES(unit, UES_BIT_TSZUKU_SKILL_USED);
 	gActionDataExpa.refrain_action = true;
 	EndAllMus();
 	StartStatusHealEffect(gActiveUnit, parent);

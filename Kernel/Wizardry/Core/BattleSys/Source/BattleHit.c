@@ -711,7 +711,12 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 #endif
 
 #if (defined(SID_Galeforce) && (COMMON_SKILL_VALID(SID_Galeforce)))
-			if (CheckBattleSkillActivate(&gBattleActor, &gBattleTarget, SID_Galeforce, gBattleActor.unit.skl))
+			if (BattleFastSkillTester(&gBattleActor, SID_Galeforce))
+				gBattleActorGlobalFlag.skill_activated_galeforce = true;
+#endif
+
+#if (defined(SID_GaleforcePlus) && (COMMON_SKILL_VALID(SID_GaleforcePlus)))
+			if (SkillTesterPlus(GetUnit(gBattleActor.unit.index), SID_GaleforcePlus))
 				gBattleActorGlobalFlag.skill_activated_galeforce = true;
 #endif
 

@@ -1017,6 +1017,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_GaleforcePlus) && COMMON_SKILL_VALID(SID_GaleforcePlus))
+    [SID_GaleforcePlus] = {
+        .name = MSG_SKILL_GaleforcePlus_NAME,
+        .desc = MSG_SKILL_GaleforcePlus_DESC,
+        .capacity = MSG_SKILL_GaleforcePlus_CAPACITY,
+        .price = MSG_SKILL_GaleforcePlus_PRICE,
+        .icon = GFX_SkillIcon_GaleforcePlus,
+    },
+#endif
+
 #if (defined(SID_COMBAT_Galeforce) && COMMON_SKILL_VALID(SID_COMBAT_Galeforce))
     [SID_COMBAT_Galeforce] = {
         .name = MSG_SKILL_COMBAT_Galeforce_NAME,

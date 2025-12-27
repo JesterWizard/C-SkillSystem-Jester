@@ -26,7 +26,7 @@ bool PrePhsae_ClearMiscUES(ProcPtr proc)
             ClearBitUES(unit, UES_BIT_SHADOWFLASH_SKILL_USED);
 #endif
 #if defined(SID_TwinCrests) && (COMMON_SKILL_VALID(SID_TwinCrests))
-            ClearBitUES(unit, UES_BIT_TWIN_CRESTS_SKILL_USED);
+            ClearBitUES(unit, UES_BIT_MOVE_AGAIN_SKILL_USED);
 #endif
 #if defined(SID_DeathBlight) && (COMMON_SKILL_VALID(SID_DeathBlight))
             ClearBitUES(unit, UES_BIT_DEATHBLIGHT_SKILL_USED);

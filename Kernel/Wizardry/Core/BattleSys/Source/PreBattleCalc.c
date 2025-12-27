@@ -83,7 +83,7 @@ void ComputeBattleUnitAttack(struct BattleUnit* attacker, struct BattleUnit* def
 	status = GetItemMight(attacker->weapon);
 
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
-	if (BattleFastSkillTester(attacker, SID_GorillaTactics) && CheckBitUES(GetUnit(attacker->unit.index), UES_BIT_GorillaTactics_USED))
+	if (BattleFastSkillTester(attacker, SID_GorillaTactics) && CheckBitUES(GetUnit(attacker->unit.index), UES_BIT_GORILLA_TACTICS_SKILL_USED))
 		status += GetItemMight(attacker->weapon) / 2;
 #endif
 

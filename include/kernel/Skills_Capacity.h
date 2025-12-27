@@ -99,6 +99,7 @@
 #define MSG_SKILL_AlertStance_CAPACITY 1
 #define MSG_SKILL_AlertStancePlus_CAPACITY 1
 #define MSG_SKILL_Galeforce_CAPACITY 1
+#define MSG_SKILL_GaleforcePlus_CAPACITY 1
 #define MSG_SKILL_COMBAT_Galeforce_CAPACITY 1
 #define MSG_SKILL_SavageBlow_CAPACITY 1
 #define MSG_SKILL_BreathOfLife_CAPACITY 1

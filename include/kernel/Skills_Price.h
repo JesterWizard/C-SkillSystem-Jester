@@ -99,6 +99,7 @@
 #define MSG_SKILL_AlertStance_PRICE 1000
 #define MSG_SKILL_AlertStancePlus_PRICE 1000
 #define MSG_SKILL_Galeforce_PRICE 1000
+#define MSG_SKILL_GaleforcePlus_PRICE 1000
 #define MSG_SKILL_COMBAT_Galeforce_PRICE 1000
 #define MSG_SKILL_SavageBlow_PRICE 1000
 #define MSG_SKILL_BreathOfLife_PRICE 1000

@@ -325,6 +325,7 @@
 // SID_Canto
 // SID_CantoPlus
 // SID_Galeforce
+// SID_GaleforcePlus
 // SID_AlertStance
 // SID_AlertStancePlus
 // SID_SavageBlow

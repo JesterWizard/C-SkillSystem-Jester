@@ -144,9 +144,9 @@ LYN_REPLACE_CHECK(PlayerPhase_FinishAction);
 void PlayerPhase_FinishAction(ProcPtr proc)
 {
 #if defined(SID_TwinCrests) && (COMMON_SKILL_VALID(SID_TwinCrests))
-    if (SkillTester(gActiveUnit, SID_TwinCrests) && !CheckBitUES(gActiveUnit, UES_BIT_TWIN_CRESTS_SKILL_USED))
+    if (SkillTester(gActiveUnit, SID_TwinCrests) && !CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
     {
-        SetBitUES(gActiveUnit, UES_BIT_TWIN_CRESTS_SKILL_USED);
+        SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
         gActionDataExpa.refrain_action = true;
         EndAllMus();
     }

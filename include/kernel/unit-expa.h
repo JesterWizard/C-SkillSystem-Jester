@@ -27,7 +27,7 @@ enum unit_expa_sus_bitfile_idx {
     UES_BIT_SHADOWFLASH_SKILL_USED,
 #endif
 #if defined(SID_TwinCrests) && (COMMON_SKILL_VALID(SID_TwinCrests))
-    UES_BIT_TWIN_CRESTS_SKILL_USED,
+    UES_BIT_MOVE_AGAIN_SKILL_USED,
 #endif
 #if defined(SID_DeathBlight) && (COMMON_SKILL_VALID(SID_DeathBlight))
     UES_BIT_DEATHBLIGHT_SKILL_USED,
@@ -57,7 +57,7 @@ enum unit_expa_sus_bitfile_idx {
     UES_BIT_PROTECT_SKILL_USED,
 #endif
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
-	UES_BIT_GorillaTactics_USED,
+	UES_BIT_GORILLA_TACTICS_SKILL_USED,
 #endif
 
 };

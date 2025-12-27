@@ -29,9 +29,16 @@ except Wait, grants Avoid +30%.[X]
 ## MSG_SKILL_Galeforce_NAME
 Galeforce[X]
 ## MSG_SKILL_Galeforce_DESC
-Galeforce: Move again after[N]
-attacking and defeating an enemy.[N]
-(Skill % activation).[X]
+Galeforce:[N]
+Move again after attacking and[N]
+defeating an enemy. Once per turn.[X]
+
+## MSG_SKILL_GaleforcePlus_NAME
+Galeforce+[X]
+## MSG_SKILL_GaleforcePlus_DESC
+Galeforce+:[N]
+Move again after attacking and[N]
+defeating an enemy.[X]
 
 ## MSG_SKILL_SavageBlow_NAME
 Savage Blow[X]
