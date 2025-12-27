@@ -8990,4 +8990,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Weatherman) && COMMON_SKILL_VALID(SID_Weatherman))
+    [SID_Weatherman] = {
+        .name = MSG_SKILL_Weatherman_NAME,
+        .desc = MSG_SKILL_Weatherman_DESC,
+        .capacity = MSG_SKILL_Weatherman_CAPACITY,
+        .price = MSG_SKILL_Weatherman_PRICE,
+        .icon = GFX_SkillIcon_Weatherman,
+    },
+#endif
+
 };

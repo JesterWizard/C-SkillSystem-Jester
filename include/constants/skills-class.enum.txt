@@ -897,6 +897,7 @@
 // SID_ManaTransfusion
 // SID_MPBoost
 // SID_MPBoostPlus
+// SID_Weatherman
 
 //////// COMBAT ARTS
 // SID_COMBAT_Grounder

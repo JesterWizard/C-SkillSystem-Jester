@@ -897,3 +897,4 @@
 #define MSG_SKILL_EmergencyExitPlus_CAPACITY 1
 #define MSG_SKILL_Songstress_CAPACITY 1
 #define MSG_SKILL_Equlibrium_CAPACITY 1
+#define MSG_SKILL_Weatherman_CAPACITY 1

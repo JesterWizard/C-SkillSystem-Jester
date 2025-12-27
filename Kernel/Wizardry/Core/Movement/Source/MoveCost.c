@@ -15,43 +15,51 @@ STATIC_DECLAR void CopyTerrainTable(s8 *dst, const s8 *src)
 LYN_REPLACE_CHECK(GetUnitMovementCost);
 const s8 *GetUnitMovementCost(struct Unit *unit)
 {
-	const s8 *cost_src;
-
-	/**
-	 * Well I wanna not to touch ballista
-	 */
     if (unit->state & US_IN_BALLISTA)
+	{
         return Unk_TerrainTable_0880BC18;
-
-    switch (gPlaySt.chapterWeatherId) {
-    case WEATHER_RAIN:
-		cost_src = unit->pClassData->pMovCostTable[1];
-		break;
-
-    case WEATHER_SNOW:
-    case WEATHER_SNOWSTORM:
-        cost_src = unit->pClassData->pMovCostTable[2];
-		break;
-
-    default:
-        cost_src = unit->pClassData->pMovCostTable[0];
-		break;
-    }
-
-	CopyTerrainTable(sTmpMovCostTable, cost_src);
-
-#if (defined(SID_SeaWays) && COMMON_SKILL_VALID(SID_SeaWays))
-	if (SkillTester(unit, SID_SeaWays)) {
-		if (sTmpMovCostTable[TERRAIN_RIVER] < 0)
-			sTmpMovCostTable[TERRAIN_RIVER] = 2;
-
-		if (sTmpMovCostTable[TERRAIN_SEA] < 0)
-			sTmpMovCostTable[TERRAIN_SEA] = 2;
-
-		if (sTmpMovCostTable[TERRAIN_LAKE] < 0)
-			sTmpMovCostTable[TERRAIN_LAKE] = 2;
 	}
+
+	int movIndex = 0;
+
+	switch (gPlaySt.chapterWeatherId) {
+	case WEATHER_RAIN:
+		movIndex = 1;
+		break;
+
+	case WEATHER_SNOW:
+	case WEATHER_SNOWSTORM:
+		movIndex = 2;
+		break;
+
+	default:
+		movIndex = 0;
+		break;
+	}
+
+#if defined(SID_Weatherman) && (COMMON_SKILL_VALID(SID_Weatherman))
+	if (SkillTester(unit, SID_Weatherman) && movIndex != 0)
+		return unit->pClassData->pMovCostTable[0];
 #endif
 
-	return sTmpMovCostTable;
+	return unit->pClassData->pMovCostTable[movIndex];
+
+
+// 	CopyTerrainTable(sTmpMovCostTable, cost_src);
+
+// 	/* I need to remove this at some point, it's a worse copy of an existing skill I already have */
+// #if (defined(SID_SeaWays) && COMMON_SKILL_VALID(SID_SeaWays))
+// 	if (SkillTester(unit, SID_SeaWays)) {
+// 		if (sTmpMovCostTable[TERRAIN_RIVER] < 0)
+// 			sTmpMovCostTable[TERRAIN_RIVER] = 2;
+
+// 		if (sTmpMovCostTable[TERRAIN_SEA] < 0)
+// 			sTmpMovCostTable[TERRAIN_SEA] = 2;
+
+// 		if (sTmpMovCostTable[TERRAIN_LAKE] < 0)
+// 			sTmpMovCostTable[TERRAIN_LAKE] = 2;
+// 	}
+// #endif
+
+	// return sTmpMovCostTable;
 }

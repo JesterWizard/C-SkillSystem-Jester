@@ -579,3 +579,10 @@ MP Boost+[X]
 ## MSG_SKILL_MPBoostPlus_DESC
 MP Boost+:[N]
 Boost maximum MP by +30.[X]
+
+## MSG_SKILL_Weatherman_NAME
+Weatherman[X]
+## MSG_SKILL_Weatherman_DESC
+Weatherman:[N]
+Unaffected by weather based[N]
+movement penalities.[X]
