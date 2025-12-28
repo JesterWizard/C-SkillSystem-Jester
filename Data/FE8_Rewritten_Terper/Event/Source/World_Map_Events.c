@@ -708,6 +708,8 @@ const EventScr EventScrWM_Ch2_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
     ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 0, 32, 45, 0)
@@ -818,6 +820,8 @@ const EventScr EventScrWM_Ch3_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
     ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 0, 72, 60, 0)
@@ -903,6 +907,8 @@ const EventScr EventScrWM_Ch4_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
     ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 22, 94, 60, 0)
@@ -1004,8 +1010,10 @@ const EventScr EventScrWM_Ch5_TRAVEL_TO_NODE[] = {
     CALL(EventScrWM_Intermission_Renvall_To_Serafew)
     GOTO(0x2)
 LABEL(0x1)
-    ASMC(ReduceBGMVolume)
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 26, 112, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -1147,8 +1155,10 @@ const EventScr EventScrWM_Ch6_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch6_TRAVEL_TO_NODE[] = {
-    ASMC(ReduceBGMVolume)
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 48, 132, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -1221,8 +1231,10 @@ const EventScr EventScrWM_Ch7_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
-    ASMC(ReduceBGMVolume)
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 84, 152, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -1350,8 +1362,10 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
-    ASMC(ReduceBGMVolume)
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 64, 0, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -1470,7 +1484,10 @@ const EventScr EventScrWM_Ch10_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch10_TRAVEL_TO_NODE[] = {
+    MUSCFAST(0x7fff)
+    MUSC(SONG_THE_BEGINNING)
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 86, 20, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
