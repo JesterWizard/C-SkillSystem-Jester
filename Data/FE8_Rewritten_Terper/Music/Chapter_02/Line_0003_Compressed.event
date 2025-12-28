@@ -1,4 +1,4 @@
-SongTable(0x146,Chapter_02_Line_0003_Compressed,1)
+SongTable(0x146,Chapter_02_Line_0003_Compressed,0)
 
     #define    loop_sfx_grp_Chapter_02_Line_0003_Compressed  Chapter_02_Line_0003_Compressed_map
     #define    loop_sfx_pri_Chapter_02_Line_0003_Compressed  0

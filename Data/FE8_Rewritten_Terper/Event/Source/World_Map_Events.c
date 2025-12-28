@@ -258,6 +258,12 @@ void StartIntroMonologue(ProcPtr proc) {
     return;
 }
 
+
+void ReduceBGMVolume(void)
+{
+    Sound_SetSEVolume(60);
+}
+
 const EventScr EventScrWM_Prologue_SET_NODE[] = {
     EVBIT_MODIFY(0x1)
     WmEvtNOFADE // ENOSUPP in EAstdlib
@@ -267,6 +273,8 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     MUSCFAST(0x7fff)
     STAL(32)
     MUSC(SONG_THE_BEGINNING)
+    STAL(16)
+    ASMC(ReduceBGMVolume)
     WM_SHOWDRAWNMAP(0, 0, 0x10)
     STAL(2)
     WM_FADEOUT(0)
@@ -289,12 +297,12 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     TEXTEND
 
     // The Sacred Stones have been passed from generation to generation.
-    MUSC(0xC2)
+    SOUN(0xC2)
     TEXTCONT
     TEXTEND
 
     // Nations have been built around their power and their legacy.
-    MUSC(0xC3)
+    SOUN(0xC3)
     TEXTCONT
     TEXTEND
 
@@ -306,7 +314,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Renais)
 
     // The kingdom of Renais, ruled by Fado, the peerless Warrior King.
-    MUSC(0xC4)
+    SOUN(0xC4)
     TEXTCONT
     TEXTEND
 
@@ -323,7 +331,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Frelia)
 
     // The kingdom of Frelia, ruled by Hayden, the venerable Sage King.
-    MUSC(0xC5)
+    SOUN(0xC5)
     TEXTCONT
     TEXTEND
 
@@ -340,7 +348,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Jehanna)
 
     // The kingdom of Jehanna, ruled by Ismaire, Queen of the White Dunes.
-    MUSC(0xC6)
+    SOUN(0xC6)
     TEXTCONT
     TEXTEND
 
@@ -357,7 +365,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Rausten)
 
     // The theocracy of Rausten, ruled by Mansel, the Divine Emperor.
-    MUSC(0xD9)
+    SOUN(0xD9)
     TEXTCONT
     TEXTEND
 
@@ -374,7 +382,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Grado)
 
     // The Grado Empire, ruled by Vigarde, the stalwart Silent Emperor.
-    MUSC(0xDA)
+    SOUN(0xDA)
     TEXTCONT
     TEXTEND
 
@@ -384,7 +392,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_CLEARPORTRAIT(0, 0x0100, 0)
     
     // These five countries house the power of the Sacred Stones.
-    MUSC(0xDB)
+    SOUN(0xDB)
     TEXTCONT
     TEXTEND
 
@@ -396,7 +404,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     STAL(26)
     WM_HIGHLIGHT(WM_NATION_Carcino)
     // They are joined by the emerging mercantile republic of Carcino.
-    MUSC(0xE0)
+    SOUN(0xE0)
     TEXTCONT
     TEXTEND
 
@@ -407,32 +415,32 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     STAL(32)
 
     // Though peace reigns, the harmony is fragile.
-    MUSC(0xE1)
+    SOUN(0xE1)
     TEXTCONT
     TEXTEND
 
     // For months, rumors of Grado's military expansions have reached neighboring courts.
-    MUSC(0xE4)
+    SOUN(0xE4)
     TEXTCONT
     TEXTEND
 
     // Renais, once a close ally of Grado, has grown cautious, strengthening its borders.
-    MUSC(0xE8)
+    SOUN(0xE8)
     TEXTCONT
     TEXTEND
 
     // Preparing for any eventuality.
-    MUSC(0xE9)
+    SOUN(0xE9)
     TEXTCONT
     TEXTEND
 
     // It is now the year 803...
-    MUSC(0xEC)
+    SOUN(0xEC)
     TEXTCONT
     TEXTEND
 
     // In an instant, the whole of Magvel is threatened by a devastating betrayal.
-    MUSC(0xED)
+    SOUN(0xED)
     TEXTCONT
     TEXTEND
 
@@ -445,12 +453,12 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Grado)
 
     // The Grado Empire, the largest of the Sacred Stone nations,
-    MUSC(0xEE)
+    SOUN(0xEE)
     TEXTCONT
     TEXTEND
 
     // has invaded the kingdom of Renais under orders from Emperor Vigarde.
-    MUSC(0x104)
+    SOUN(0x104)
     TEXTCONT
     TEXTEND
 
@@ -466,12 +474,12 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_HIGHLIGHT(WM_NATION_Renais)
 
     // Despite its vigilance, the sheer scale of the operation catches Renais on the backfoot.
-    MUSC(0x105)
+    SOUN(0x105)
     TEXTCONT
     TEXTEND
 
     // Leaving it unable to mount a sufficient resistance.
-    MUSC(0x106)
+    SOUN(0x106)
     TEXTCONT
     TEXTEND
 
@@ -493,7 +501,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     STAL(20)
 
     // Grado's forces move quickly, seizing one territory after another.
-    MUSC(0x107)
+    SOUN(0x107)
     TEXTCONT
     TEXTEND
 
@@ -509,7 +517,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_PUTMOVINGSPRITE(WM_MU_2, 0, 0x5c, 0x64, 0x5c, 0x6c, 180, 0x3, 16)
     
     // Compounding King Fado's worries, his son, Prince Ephraim, has gone missing.
-    MUSC(0x10B)
+    SOUN(0x10B)
     TEXTCONT
     TEXTEND
 
@@ -527,7 +535,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_PUTMOVINGSPRITE(WM_MU_4, 0, 0x95, 0x92, 0x7d, 0x56, 210, 0x1, 0)
     
     // Grado's momentum carries its armies to the gates of Castle Renais itself.
-    MUSC(0x10C)
+    SOUN(0x10C)
     TEXTCONT
     TEXTEND
 
@@ -539,7 +547,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_FADEINSPRITE(WM_MU_5, 60)
 
     // Renais will fall... It is inevitable.
-    MUSC(0x10D)
+    SOUN(0x10D)
     TEXTCONT
     TEXTEND
 
@@ -636,31 +644,33 @@ LABEL(0x1)
     WM_DRAWPATH(WM_PATH_00)
     STAL(70)
     MUSC(SONG_TREASURED_MEMORIES)
+    STAL(16)
+    ASMC(ReduceBGMVolume)
     WM_SHOWTEXTWINDOW(40, 0x0001)
     WM_WAITFORTEXT
     WM_TEXTSTART
     WM_TEXT(Chapter_01_WM, 0)
 
-    MUSC(0x115)
+    SOUN(0x115)
     TEXTCONT
     TEXTEND
 
-    MUSC(0x116)
+    SOUN(0x116)
     TEXTCONT
     TEXTEND
 
-    MUSC(0x117)
+    SOUN(0x117)
     TEXTCONT
     TEXTEND
 
-    MUSC(0x118)
+    SOUN(0x118)
     TEXTCONT
     TEXTEND
 
     STAL(20)
     WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorderMulan, WM_NODE_CastleFrelia, 200, 40)
 
-    MUSC(0x13A)
+    SOUN(0x13A)
     TEXTCONT
     TEXTEND
 
@@ -689,7 +699,7 @@ const EventScr EventScrWM_Ch2_SET_NODE[] = {
     STAL(40)
     WM_DRAWPATH(WM_PATH_01)
     STAL(70)
-    MUSC(0x4)
+    MUSC(SONG_THE_BEGINNING)
     CALL(EventScrWM_Tutorial_SKILL_SCROLL)
     WM_MAKELORDVISIBLE(WM_MU_0)
     EVBIT_MODIFY(0x1)
@@ -699,6 +709,7 @@ const EventScr EventScrWM_Ch2_SET_NODE[] = {
 
 const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 0, 32, 45, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -708,7 +719,7 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_02_WM, 0)
 
     // King Hayden apologizes for being unable to spare soldiers
-    MUSC(0x143)
+    SOUN(0x143)
     TEXTCONT
     TEXTEND
 
@@ -721,7 +732,7 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     STAL(6)
 
     // However, he does provide Eirika with his trusted vassals and his daughter.
-    MUSC(0x144)
+    SOUN(0x144)
     TEXTCONT
     TEXTEND
 
@@ -733,7 +744,7 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     STAL(6)
 
     // Eirika is grateful for the king's aid.
-    MUSC(0x146)
+    SOUN(0x146)
     TEXTCONT
     TEXTEND
 
@@ -747,7 +758,7 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     WM_PLACEDOT(0, 0, WM_NODE_Renvall2, 1)
 
     // Chasing rumors of her brother, she sets out for Grado.
-    MUSC(0x148)
+    SOUN(0x148)
     TEXTCONT
     TEXTEND
 
@@ -758,19 +769,19 @@ const EventScr EventScrWM_Ch2_TRAVEL_TO_NODE[] = {
     WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
 
     // The group's first stop is the remote village of Ide.
-    MUSC(0x149)
+    SOUN(0x149)
     TEXTCONT
     TEXTEND
 
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_CastleFrelia, WM_NODE_Ide, 200, 30)
 
     // Which was, until very recently a part of Renais.
-    MUSC(0x152)
+    SOUN(0x152)
     TEXTCONT
     TEXTEND
 
     // Here, Eirika sees the devastation of Renais with her own eyes
-    MUSC(0x153)
+    SOUN(0x153)
     TEXTCONT
     TEXTEND
 
@@ -797,7 +808,7 @@ const EventScr EventScrWM_Ch3_SET_NODE[] = {
     STAL(40)
     WM_DRAWPATH(WM_PATH_02)
     STAL(70)
-    MUSC(0x4)
+    MUSC(SONG_THE_BEGINNING)
     SVAL(EVT_SLOT_2, EventScrWM_Ch3_BeginningTutorial)
     CALL(EventScr_CallOnTutorialMode)
     WM_MAKELORDVISIBLE(WM_MU_0)
@@ -808,6 +819,7 @@ const EventScr EventScrWM_Ch3_SET_NODE[] = {
 
 const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 0, 72, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -825,7 +837,7 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_03_WM, 0)
 
     // Eirika and company pursue the thief who stole her bracelet
-    MUSC(0x15C)
+    SOUN(0x15C)
     TEXTCONT
     TEXTEND
 
@@ -840,7 +852,7 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     STAL(46)
 
     // Their chase leads them into the mountains,mwhere Bazba's bandits pillage at will.
-    MUSC(0x15D)
+    SOUN(0x15D)
     TEXTCONT
     TEXTEND
 
@@ -853,12 +865,12 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     WM_REMSPRITE(WM_MU_2)
 
     // Eirika cannot ignore her countrymen's pleas for help.
-    MUSC(0x166)
+    SOUN(0x166)
     TEXTCONT
     TEXTEND
 
     // She leads her group in search of the bandits' stronghold
-    MUSC(0x167)
+    SOUN(0x167)
     TEXTCONT
     TEXTEND
 
@@ -892,6 +904,7 @@ const EventScr EventScrWM_Ch4_SET_NODE[] = {
 
 const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
     STAL(6)
+    ASMC(ReduceBGMVolume)
     WM_MOVECAM(-1, -1, 22, 94, 60, 0)
     WM_WAITFORCAM
     CALL(EventScr_WM_FadeCommon)
@@ -902,14 +915,14 @@ const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_04_WM, 0)
 
     // With her bracelet recovered, Eirika sets out with renewed determination.
-    MUSC(0x170)
+    SOUN(0x170)
     TEXTCONT
     TEXTEND
 
     WM_MOVESPRITETO(WM_MU_0, 0x0000, WM_NODE_BorgoRidge, WM_NODE_ZahaWoods, -8, 0)
 
     // Passing through the ancient forest of Za'ha brings them close to Grado's border.
-    MUSC(0x171)
+    SOUN(0x171)
     TEXTCONT
     TEXTEND
 
@@ -922,12 +935,12 @@ const EventScr EventScrWM_Ch4_TRAVEL_TO_NODE[] = {
     WM_FADEINSPRITE(WM_MU_3, 60)
 
     // As they near the town of Serafew, Eirika's fears are assuaged by the lack of troops.
-    MUSC(0x17A)
+    SOUN(0x17A)
     TEXTCONT
     TEXTEND
 
     // But terrors of old crawl in the shadows of the trees.
-    MUSC(0x17B)
+    SOUN(0x17B)
     TEXTCONT
     TEXTEND
 
@@ -991,6 +1004,7 @@ const EventScr EventScrWM_Ch5_TRAVEL_TO_NODE[] = {
     CALL(EventScrWM_Intermission_Renvall_To_Serafew)
     GOTO(0x2)
 LABEL(0x1)
+    ASMC(ReduceBGMVolume)
     STAL(6)
     WM_MOVECAM(-1, -1, 26, 112, 60, 0)
     WM_WAITFORCAM
@@ -1017,7 +1031,7 @@ LABEL(0x1)
     WM_TEXT(Chapter_05_WM, 0)
 
     // An ominous feeling of dread washes over the continent...
-    MUSC(0x184)
+    SOUN(0x184)
     TEXTCONT
     TEXTEND
 
@@ -1041,12 +1055,12 @@ LABEL(0x1)
     STAL(46)
 
     // Eirika's journey to find her brother Ephraim, grows ever more perilous.
-    MUSC(0x185)
+    SOUN(0x185)
     TEXTCONT
     TEXTEND
 
     // Still, she presses on despite the danger, without rest.
-    MUSC(0x18E)
+    SOUN(0x18E)
     TEXTCONT
     TEXTEND
 
@@ -1054,27 +1068,27 @@ LABEL(0x1)
     WM_FADEINSPRITE(WM_MU_2, 60)
 
     // However, a glimmer of hope now exists.
-    MUSC(0x18F)
+    SOUN(0x18F)
     TEXTCONT
     TEXTEND
 
     // Having reunited Renais' former famed military commander: Garcia, with his son: Ross.
-    MUSC(0x196)
+    SOUN(0x196)
     TEXTCONT
     TEXTEND
 
     // A temporary alliance has been born as the group now travels to Serafew.
-    MUSC(0x197)
+    SOUN(0x197)
     TEXTCONT
     TEXTEND
 
     // A bustling border town located between Renais and Grado.
-    MUSC(0x198)
+    SOUN(0x198)
     TEXTCONT
     TEXTEND
 
     // The people of both countries have long used the town as a meeting place.
-    MUSC(0x199)
+    SOUN(0x199)
     TEXTCONT
     TEXTEND
 
@@ -1085,12 +1099,12 @@ LABEL(0x1)
     WM_WAITFORSPRITELOAD
 
     // It once stood as testimony to the harmony the nations have shared these many years.
-    MUSC(0x1A0)
+    SOUN(0x1A0)
     TEXTCONT
     TEXTEND
 
     // Now however, it exists as a grim reflection of a friendship ruined...
-    MUSC(0x1A1)
+    SOUN(0x1A1)
     TEXTCONT
     TEXTEND
 
@@ -1133,6 +1147,7 @@ const EventScr EventScrWM_Ch6_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch6_TRAVEL_TO_NODE[] = {
+    ASMC(ReduceBGMVolume)
     STAL(6)
     WM_MOVECAM(-1, -1, 48, 132, 60, 0)
     WM_WAITFORCAM
@@ -1144,36 +1159,36 @@ const EventScr EventScrWM_Ch6_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_06_WM, 0)
 
     // Eirika suppresses her feelings of unease and continues to search for her brother.
-    MUSC(0x1A2)
+    SOUN(0x1A2)
     TEXTCONT
     TEXTEND
 
     // Passing through Serafew, the group crosses into the Grado Empire.
-    MUSC(0x1A3)
+    SOUN(0x1A3)
     TEXTCONT
     TEXTEND
 
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_Serafew, WM_NODE_AdlasPlains, -4, 0)
     
     // From here forward, there is no doubt that they are walking into hostile territory.
-    MUSC(0x1AA)
+    SOUN(0x1AA)
     TEXTCONT
     TEXTEND
 
     // In hopes of avoiding unnecessary trouble, Eirika and company adjust course slightly.
-    MUSC(0x1AB)
+    SOUN(0x1AB)
     TEXTCONT
     TEXTEND
 
     WM_WAITFORSPRITES(WM_MU_ANY)
     
     // Aiming to pass through seemingly empty fields as they gradually make their way south.
-    MUSC(0x1AC)
+    SOUN(0x1AC)
     TEXTCONT
     TEXTEND
 
     // Grado's machinations, however, will soon be laid bare before her.
-    MUSC(0x1AD)
+    SOUN(0x1AD)
     TEXTCONT
     TEXTEND
 
@@ -1206,6 +1221,7 @@ const EventScr EventScrWM_Ch7_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
+    ASMC(ReduceBGMVolume)
     STAL(6)
     WM_MOVECAM(-1, -1, 84, 152, 60, 0)
     WM_WAITFORCAM
@@ -1214,7 +1230,7 @@ const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_07_WM, 0)
     
     // Rumors say that Ephraim has been defeated and taken prisoner.
-    MUSC(0x1B4)
+    SOUN(0x1B4)
     TEXTCONT
     TEXTEND
 
@@ -1223,34 +1239,34 @@ const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
     STAL(46)
 
     // Now Eirika must find a way to rescue her brother from beneath enemy eyes.
-    MUSC(0x1B5)
+    SOUN(0x1B5)
     TEXTCONT
     TEXTEND
 
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_AdlasPlains, WM_NODE_Renvall1, -8, 0)
     
     // Eirika's company rushes toward Castle Renvall, where Ephraim is being held.
-    MUSC(0x1B6)
+    SOUN(0x1B6)
     TEXTCONT
     TEXTEND
 
     // Surrounded by lakes, Renvall is a natural fortress, all but unassailable.
-    MUSC(0x1B7)
+    SOUN(0x1B7)
     TEXTCONT
     TEXTEND
 
     // A lone bridge, held by the enemy, is its only entrance.
-    MUSC(0x1BE)
+    SOUN(0x1BE)
     TEXTCONT
     TEXTEND
 
     // Eirika has only one choice.
-    MUSC(0x1BF)
+    SOUN(0x1BF)
     TEXTCONT
     TEXTEND
 
     // She resolves to confront Grado's soldiers head on...
-    MUSC(0x1C0)
+    SOUN(0x1C0)
     TEXTCONT
     TEXTEND
 
@@ -1317,7 +1333,7 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
     WmEvtMoveCamToUnit(-1, -1, WM_MU_0, 46, 0) // ENOSUPP in EAstdlib
     STAL(60)
     WM_WAITFORCAM
-    MUSC(0x5)
+    MUSC(SONG_TREASURED_MEMORIES)
     // CALL(EventScrWM_08A3A70C)
     EvtTextStartType5 // These are the events for the above call, up to the commented out ENDA
     SVAL(EVT_SLOT_B, 0x54000c)
@@ -1334,6 +1350,7 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
 };
 
 const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
+    ASMC(ReduceBGMVolume)
     STAL(6)
     WM_MOVECAM(-1, -1, 64, 0, 60, 0)
     WM_WAITFORCAM
@@ -1347,7 +1364,7 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_09_WM, 0)
 
     // The twins choose to travel by sea to the theocracy of Rausten.
-    MUSC(0x1C1)
+    SOUN(0x1C1)
     TEXTCONT
     TEXTEND
 
@@ -1358,7 +1375,7 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_BorderMulan, WM_NODE_PortKiris, -4, 0)
 
     // Their search for a ship leads them to Port Kiris in Carcino.
-    MUSC(0x1C8)
+    SOUN(0x1C8)
     TEXTCONT
     TEXTEND
 
@@ -1370,7 +1387,7 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     STAL(30)
 
     // Carcino is a young nation ruled by a council of merchants, and it is an ally of Frelia.
-    MUSC(0x1C9)
+    SOUN(0x1C9)
     TEXTCONT
     TEXTEND
 
@@ -1382,7 +1399,7 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
 
     // Carcino council leader Klimt, a staunch opponent of Grado's imperialistic actions,
     // has pledged Carcino's support to Frelia in this conflict.
-    MUSC(0x1CA)
+    SOUN(0x1CA)
     TEXTCONT
     TEXTEND
 
@@ -1391,7 +1408,7 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     STAL(46)
 
     // Prince Innes also intends to pass through Carcino on his way to Jehanna.
-    MUSC(0x1CB)
+    SOUN(0x1CB)
     TEXTCONT
     TEXTEND
 
@@ -1411,12 +1428,12 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     WM_WAITFORCAM
 
     // Eirika believes there is nothing to fear in Carcino.
-    MUSC(0x1D2)
+    SOUN(0x1D2)
     TEXTCONT
     TEXTEND
 
     // ...She is wrong.
-    MUSC(0x1D3)
+    SOUN(0x1D3)
     TEXTCONT
     TEXTEND
 

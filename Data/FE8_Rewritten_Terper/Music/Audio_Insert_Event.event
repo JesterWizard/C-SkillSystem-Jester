@@ -1,4 +1,4 @@
-SongTable(0xC0,[AUDIO_FILENAME],1)
+SongTable(0xC0,[AUDIO_FILENAME],1) // Setting the priority to 0 allows it to be played alongside other BGMs in the scene
 
     #define    loop_sfx_grp_[AUDIO_FILENAME]  [AUDIO_FILENAME]_map
     #define    loop_sfx_pri_[AUDIO_FILENAME]  0

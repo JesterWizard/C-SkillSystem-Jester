@@ -5,12 +5,11 @@ PUSH
 
 	// I do not want to put this here, but I get so many protected errors from unrelated functions if I don't
 
-#ifdef CONFIG_VOICE_ACTED_DIALOGUE
+    // CONFIG_VOICE_ACTED_DIALOGUE
 	// Sound effect that's played for text scrolling on world map
 	ORG 0x06D2E
-	BYTE 0    // Mute it
-	BYTE 0x20 // mov r0, 0
-#endif
+	SHORT 0x4801   // ldr r0, [pc, #4]
+	WORD  0x00007FFF
 
 	ORG 0x0FC08
 	BL(CHAX_GetUnitDefinitionFormEventScr)

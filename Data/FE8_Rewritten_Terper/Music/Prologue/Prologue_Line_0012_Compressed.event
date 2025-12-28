@@ -1,4 +1,4 @@
-SongTable(0xE1,Prologue_Line_0012_Compressed,1)
+SongTable(0xE1,Prologue_Line_0012_Compressed,0)
 
     #define    loop_sfx_grp_Prologue_Line_0012_Compressed  Prologue_Line_0012_Compressed_map
     #define    loop_sfx_pri_Prologue_Line_0012_Compressed  0
