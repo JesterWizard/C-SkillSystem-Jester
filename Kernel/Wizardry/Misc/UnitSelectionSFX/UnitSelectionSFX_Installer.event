@@ -1,5 +1,3 @@
-// #define ClearFlagsEveryTurn	//Comment this line to disable the feature or uncomment it to activate it
-
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 #ifndef SongTableOffset
@@ -7,72 +5,2118 @@
 #define SongTable(index,SongPointer,Group) "PUSH; ORG SongTableOffset+(8*index); POIN SongPointer; SHORT Group Group; POP"
 #endif
 
-// This hack just plays a sound effect when you select a unit
-// It's intended to be used with custom samples to get characters to say things when selected, like in echoes
-// Also like in echoes, they will only say their line the first time you select them on each chapter, or if you reload
-// You are meant to customize these with a character ID requirement, here's an exameple:
+// ======================================================
+// Shared Sound Data (ONE TIME)
+// ======================================================
+ALIGN 4
+VoiceSound_data:
+    BYTE $BE $7F $BC $00 $BB $05 $BD $00 $E7 $3C $40 $98 $B1 $79 $83 $83
 
-// ALIGN 2
-// EirikaSoundEffect:
-// BYTE	Eirika	//character ID required for the sound effect to play; 0 means "always play" and is meant to be used as a generic extra sound effect on top of the cursor selection which isn't that useful but whatever why not
-// BYTE 	0x00	//filler byte
-// SHORT	0xB4	//sound effect to play (in this case a warp sound effect), if this is 0 the whole loop will end
-
-// Then you just need to place it in the "SelectSfxList" label in this same file
-// Only one sound effect will be played, if the unit meets requirements for multiple sound effects only the first one in the list will play
-// For examples on how to insert voice samples, check the "StandardFE8voices.event"
-
-
-PUSH
-  ORG $186A8
-  jumpToHack(SelectSfxLoop)
-POP
+// ======================================================
+// JOSHUA
+// ======================================================
+ALIGN 4
+Joshua_1_wav:
+    #incbin "dmp/Joshua/Joshua_Hurry_Up_Will_You_Compressed.dmp"
 
 ALIGN 4
-SelectSfxLoop:
-  #incbin "unitSelectSFX.dmp"
-  POIN SelectSfxList
+Joshua_1_map:
+    WORD $3C00
+    POIN Joshua_1_wav
+    WORD $FF00FF
 
-SelectSfxList:
-  POIN EphraimSoundEffect
-  POIN EirikaSoundEffect
-WORD 0 //End marker
-//Default fire emblem 8 voices definitions and bins
-#include "StandardFE8voices.event"
+ALIGN 4
+Joshua_1_Sound:
+    WORD 1
+    POIN Joshua_1_map
+    POIN VoiceSound_data
 
-/*
-This part changes unused temporary event IDs (wouldn't get saved by suspend and were only reset on load) into event IDs that:
-  - Get reset when starting a new chapter, either after loading or after beating the previous one
-  - Get reset when the "continue" option is selected
-  - Obviously get reset when the game is turned off because they are still not saved
-So these only work once every time you open a map, be it the first time, restarting a chapter or continuing from suspend, exactly like in echoes
-This hack uses 11 bytes, starting at 3005275, which is exactly after the working temporary IDs
-11 bytes are enough to store 0x58 (88) units
-The bit that gets set is based on the character ID, there's room for up to character ID 0x58, IDs bigger than that will be ignored
-If desired they can also clear every turn by undefining the line at the top of the file (or not by just leaving it commented)
-*/
+SongTable(0x26D, Joshua_1_Sound, 7)
 
-ClearIDs1:
-  #incbin "clearIDs1.dmp"
-ClearIDs2:
-  #incbin "clearIDs2.dmp"
+ALIGN 4
+Joshua_2_wav:
+    #incbin "dmp/Joshua/Joshua_Im_Already_There_Compressed.dmp"
 
-PUSH
-  ORG $A5CE0
-  jumpToHack(ClearIDs1)
-  ORG $83C4A
-  SHORT 0x46C0
-  callHack_r0(ClearIDs2)
-POP
+ALIGN 4
+Joshua_2_map:
+    WORD $3C00
+    POIN Joshua_2_wav
+    WORD $FF00FF
 
-/* JESTER - The below seems to crash on C Skill System, which makes clearly the flags every turn not possible without a workaround */
+ALIGN 4
+Joshua_2_Sound:
+    WORD 1
+    POIN Joshua_2_map
+    POIN VoiceSound_data
 
-#ifdef ClearFlagsEveryTurn
-PUSH
-  ORG $1538E
-  SHORT 0x46C0
-  jumpToHack(ClearIDs3)
-POP
-ClearIDs3 :
-  #incbin "clearIDs3.dmp"
-#endif
+SongTable(0x26E, Joshua_2_Sound, 7)
+
+ALIGN 4
+Joshua_3_wav:
+    #incbin "dmp/Joshua/Joshua_Place_Your_Bets_Compressed.dmp"
+
+ALIGN 4
+Joshua_3_map:
+    WORD $3C00
+    POIN Joshua_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Joshua_3_Sound:
+    WORD 1
+    POIN Joshua_3_map
+    POIN VoiceSound_data
+
+SongTable(0x26F, Joshua_3_Sound, 7)
+
+// ======================================================
+// MYRRH
+// ======================================================
+ALIGN 4
+Myrrh_1_wav:
+    #incbin "dmp/Myrrh/Myrrh_Hmm_Compressed.dmp"
+
+ALIGN 4
+Myrrh_1_map:
+    WORD $3C00
+    POIN Myrrh_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Myrrh_1_Sound:
+    WORD 1
+    POIN Myrrh_1_map
+    POIN VoiceSound_data
+
+SongTable(0x270, Myrrh_1_Sound, 7)
+
+ALIGN 4
+Myrrh_2_wav:
+    #incbin "dmp/Myrrh/Myrrh_Now_Then_Compressed.dmp"
+
+ALIGN 4
+Myrrh_2_map:
+    WORD $3C00
+    POIN Myrrh_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Myrrh_2_Sound:
+    WORD 1
+    POIN Myrrh_2_map
+    POIN VoiceSound_data
+
+SongTable(0x271, Myrrh_2_Sound, 7)
+
+ALIGN 4
+Myrrh_3_wav:
+    #incbin "dmp/Myrrh/Myrrh_Of_Course_Compressed.dmp"
+
+ALIGN 4
+Myrrh_3_map:
+    WORD $3C00
+    POIN Myrrh_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Myrrh_3_Sound:
+    WORD 1
+    POIN Myrrh_3_map
+    POIN VoiceSound_data
+
+SongTable(0x272, Myrrh_3_Sound, 7)
+
+// ======================================================
+// LUTE
+// ======================================================
+ALIGN 4
+Lute_1_wav:
+    #incbin "dmp/Lute/Lute_Im_Just_That_Good_Compressed.dmp"
+
+ALIGN 4
+Lute_1_map:
+    WORD $3C00
+    POIN Lute_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lute_1_Sound:
+    WORD 1
+    POIN Lute_1_map
+    POIN VoiceSound_data
+
+SongTable(0x273, Lute_1_Sound, 7)
+
+ALIGN 4
+Lute_2_wav:
+    #incbin "dmp/Lute/Lute_Lets_Begin_Compressed.dmp"
+
+ALIGN 4
+Lute_2_map:
+    WORD $3C00
+    POIN Lute_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lute_2_Sound:
+    WORD 1
+    POIN Lute_2_map
+    POIN VoiceSound_data
+
+SongTable(0x274, Lute_2_Sound, 7)
+
+ALIGN 4
+Lute_3_wav:
+    #incbin "dmp/Lute/Lute_You_Need_Me_Compressed.dmp"
+
+ALIGN 4
+Lute_3_map:
+    WORD $3C00
+    POIN Lute_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lute_3_Sound:
+    WORD 1
+    POIN Lute_3_map
+    POIN VoiceSound_data
+
+SongTable(0x275, Lute_3_Sound, 7)
+
+// ======================================================
+// INNES
+// ======================================================
+ALIGN 4
+Innes_1_wav:
+    #incbin "dmp/Innes/Innes_A_King_Duty_Compressed.dmp"
+
+ALIGN 4
+Innes_1_map:
+    WORD $3C00
+    POIN Innes_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Innes_1_Sound:
+    WORD 1
+    POIN Innes_1_map
+    POIN VoiceSound_data
+
+SongTable(0x276, Innes_1_Sound, 7)
+
+ALIGN 4
+Innes_2_wav:
+    #incbin "dmp/Innes/Innes_Get_Ready_To_Swim_Compressed.dmp"
+
+ALIGN 4
+Innes_2_map:
+    WORD $3C00
+    POIN Innes_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Innes_2_Sound:
+    WORD 1
+    POIN Innes_2_map
+    POIN VoiceSound_data
+
+SongTable(0x277, Innes_2_Sound, 7)
+
+ALIGN 4
+Innes_3_wav:
+    #incbin "dmp/Innes/Innes_Just_So_Compressed.dmp"
+
+ALIGN 4
+Innes_3_map:
+    WORD $3C00
+    POIN Innes_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Innes_3_Sound:
+    WORD 1
+    POIN Innes_3_map
+    POIN VoiceSound_data
+
+SongTable(0x278, Innes_3_Sound, 7)
+
+// ======================================================
+// EIRIKA
+// ======================================================
+ALIGN 4
+Eirika_1_wav:
+    #incbin "dmp/Eirika/Eirika_Am_I_Ready_Compressed.dmp"
+
+ALIGN 4
+Eirika_1_map:
+    WORD $3C00
+    POIN Eirika_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Eirika_1_Sound:
+    WORD 1
+    POIN Eirika_1_map
+    POIN VoiceSound_data
+
+SongTable(0x279, Eirika_1_Sound, 7)
+
+ALIGN 4
+Eirika_2_wav:
+    #incbin "dmp/Eirika/Eirika_Orders_Please_Compressed.dmp"
+
+ALIGN 4
+Eirika_2_map:
+    WORD $3C00
+    POIN Eirika_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Eirika_2_Sound:
+    WORD 1
+    POIN Eirika_2_map
+    POIN VoiceSound_data
+
+SongTable(0x27A, Eirika_2_Sound, 7)
+
+ALIGN 4
+Eirika_3_wav:
+    #incbin "dmp/Eirika/Eirika_What_Should_I_Do_Compressed.dmp"
+
+ALIGN 4
+Eirika_3_map:
+    WORD $3C00
+    POIN Eirika_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Eirika_3_Sound:
+    WORD 1
+    POIN Eirika_3_map
+    POIN VoiceSound_data
+
+SongTable(0x27B, Eirika_3_Sound, 7)
+
+// ======================================================
+// ROSS
+// ======================================================
+ALIGN 4
+Ross_1_wav:
+    #incbin "dmp/Ross/Ross_Sure_Compressed.dmp"
+
+ALIGN 4
+Ross_1_map:
+    WORD $3C00
+    POIN Ross_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ross_1_Sound:
+    WORD 1
+    POIN Ross_1_map
+    POIN VoiceSound_data
+
+SongTable(0x27C, Ross_1_Sound, 7)
+
+ALIGN 4
+Ross_2_wav:
+    #incbin "dmp/Ross/Ross_Uh_Compressed.dmp"
+
+ALIGN 4
+Ross_2_map:
+    WORD $3C00
+    POIN Ross_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ross_2_Sound:
+    WORD 1
+    POIN Ross_2_map
+    POIN VoiceSound_data
+
+SongTable(0x27D, Ross_2_Sound, 7)
+
+ALIGN 4
+Ross_3_wav:
+    #incbin "dmp/Ross/Ross_Yeah_Compressed.dmp"
+
+ALIGN 4
+Ross_3_map:
+    WORD $3C00
+    POIN Ross_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ross_3_Sound:
+    WORD 1
+    POIN Ross_3_map
+    POIN VoiceSound_data
+
+SongTable(0x27E, Ross_3_Sound, 7)
+
+// ======================================================
+// VIGARDE
+// ======================================================
+ALIGN 4
+Vigarde_1_wav:
+    #incbin "dmp/Vigarde/Vigarde_Hm_Compressed.dmp"
+
+ALIGN 4
+Vigarde_1_map:
+    WORD $3C00
+    POIN Vigarde_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vigarde_1_Sound:
+    WORD 1
+    POIN Vigarde_1_map
+    POIN VoiceSound_data
+
+SongTable(0x27F, Vigarde_1_Sound, 7)
+
+ALIGN 4
+Vigarde_2_wav:
+    #incbin "dmp/Vigarde/Vigarde_Shatter_Them_Compressed.dmp"
+
+ALIGN 4
+Vigarde_2_map:
+    WORD $3C00
+    POIN Vigarde_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vigarde_2_Sound:
+    WORD 1
+    POIN Vigarde_2_map
+    POIN VoiceSound_data
+
+SongTable(0x280, Vigarde_2_Sound, 7)
+
+ALIGN 4
+Vigarde_3_wav:
+    #incbin "dmp/Vigarde/Vigarde_Very_Well_Compressed.dmp"
+
+ALIGN 4
+Vigarde_3_map:
+    WORD $3C00
+    POIN Vigarde_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vigarde_3_Sound:
+    WORD 1
+    POIN Vigarde_3_map
+    POIN VoiceSound_data
+
+SongTable(0x281, Vigarde_3_Sound, 7)
+
+// ======================================================
+// KYLE
+// ======================================================
+ALIGN 4
+Kyle_1_wav:
+    #incbin "dmp/Kyle/Kyle_Hm_Compressed.dmp"
+
+ALIGN 4
+Kyle_1_map:
+    WORD $3C00
+    POIN Kyle_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Kyle_1_Sound:
+    WORD 1
+    POIN Kyle_1_map
+    POIN VoiceSound_data
+
+SongTable(0x282, Kyle_1_Sound, 7)
+
+ALIGN 4
+Kyle_2_wav:
+    #incbin "dmp/Kyle/Kyle_Understood_Compressed.dmp"
+
+ALIGN 4
+Kyle_2_map:
+    WORD $3C00
+    POIN Kyle_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Kyle_2_Sound:
+    WORD 1
+    POIN Kyle_2_map
+    POIN VoiceSound_data
+
+SongTable(0x283, Kyle_2_Sound, 7)
+
+ALIGN 4
+Kyle_3_wav:
+    #incbin "dmp/Kyle/Kyle_Your_Orders_Compressed.dmp"
+
+ALIGN 4
+Kyle_3_map:
+    WORD $3C00
+    POIN Kyle_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Kyle_3_Sound:
+    WORD 1
+    POIN Kyle_3_map
+    POIN VoiceSound_data
+
+SongTable(0x284, Kyle_3_Sound, 7)
+
+// ======================================================
+// SALEH
+// ======================================================
+ALIGN 4
+Saleh_1_wav:
+    #incbin "dmp/Saleh/Saleh_I_See_Compressed.dmp"
+
+ALIGN 4
+Saleh_1_map:
+    WORD $3C00
+    POIN Saleh_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Saleh_1_Sound:
+    WORD 1
+    POIN Saleh_1_map
+    POIN VoiceSound_data
+
+SongTable(0x285, Saleh_1_Sound, 7)
+
+ALIGN 4
+Saleh_2_wav:
+    #incbin "dmp/Saleh/Saleh_Spring_Forth_Compressed.dmp"
+
+ALIGN 4
+Saleh_2_map:
+    WORD $3C00
+    POIN Saleh_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Saleh_2_Sound:
+    WORD 1
+    POIN Saleh_2_map
+    POIN VoiceSound_data
+
+SongTable(0x286, Saleh_2_Sound, 7)
+
+ALIGN 4
+Saleh_3_wav:
+    #incbin "dmp/Saleh/Saleh_What_Lovely_Weather_Compressed.dmp"
+
+ALIGN 4
+Saleh_3_map:
+    WORD $3C00
+    POIN Saleh_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Saleh_3_Sound:
+    WORD 1
+    POIN Saleh_3_map
+    POIN VoiceSound_data
+
+SongTable(0x287, Saleh_3_Sound, 7)
+
+// ======================================================
+// GERIK
+// ======================================================
+ALIGN 4
+Gerik_1_wav:
+    #incbin "dmp/Gerik/Gerik_Got_A_Plan_Compressed.dmp"
+
+ALIGN 4
+Gerik_1_map:
+    WORD $3C00
+    POIN Gerik_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gerik_1_Sound:
+    WORD 1
+    POIN Gerik_1_map
+    POIN VoiceSound_data
+
+SongTable(0x288, Gerik_1_Sound, 7)
+
+ALIGN 4
+Gerik_2_wav:
+    #incbin "dmp/Gerik/Gerik_Hey_Compressed.dmp"
+
+ALIGN 4
+Gerik_2_map:
+    WORD $3C00
+    POIN Gerik_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gerik_2_Sound:
+    WORD 1
+    POIN Gerik_2_map
+    POIN VoiceSound_data
+
+SongTable(0x289, Gerik_2_Sound, 7)
+
+ALIGN 4
+Gerik_3_wav:
+    #incbin "dmp/Gerik/Gerik_I_Like_The_Sound_Of_That_Compressed.dmp"
+
+ALIGN 4
+Gerik_3_map:
+    WORD $3C00
+    POIN Gerik_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gerik_3_Sound:
+    WORD 1
+    POIN Gerik_3_map
+    POIN VoiceSound_data
+
+SongTable(0x28A, Gerik_3_Sound, 7)
+
+// ======================================================
+// GILLIAM
+// ======================================================
+ALIGN 4
+Gilliam_1_wav:
+    #incbin "dmp/Gilliam/Gilliam_Fortune_Follow_Us_Compressed.dmp"
+
+ALIGN 4
+Gilliam_1_map:
+    WORD $3C00
+    POIN Gilliam_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gilliam_1_Sound:
+    WORD 1
+    POIN Gilliam_1_map
+    POIN VoiceSound_data
+
+SongTable(0x28B, Gilliam_1_Sound, 7)
+
+ALIGN 4
+Gilliam_2_wav:
+    #incbin "dmp/Gilliam/Gilliam_Grunt_Compressed.dmp"
+
+ALIGN 4
+Gilliam_2_map:
+    WORD $3C00
+    POIN Gilliam_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gilliam_2_Sound:
+    WORD 1
+    POIN Gilliam_2_map
+    POIN VoiceSound_data
+
+SongTable(0x28C, Gilliam_2_Sound, 7)
+
+ALIGN 4
+Gilliam_3_wav:
+    #incbin "dmp/Gilliam/Gilliam_You_Have_A_Plan_Compressed.dmp"
+
+ALIGN 4
+Gilliam_3_map:
+    WORD $3C00
+    POIN Gilliam_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Gilliam_3_Sound:
+    WORD 1
+    POIN Gilliam_3_map
+    POIN VoiceSound_data
+
+SongTable(0x28D, Gilliam_3_Sound, 7)
+
+// ======================================================
+// DOZLA
+// ======================================================
+ALIGN 4
+Dozla_1_wav:
+    #incbin "dmp/Dozla/Dozla_Huh_Compressed.dmp"
+
+ALIGN 4
+Dozla_1_map:
+    WORD $3C00
+    POIN Dozla_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Dozla_1_Sound:
+    WORD 1
+    POIN Dozla_1_map
+    POIN VoiceSound_data
+
+SongTable(0x28E, Dozla_1_Sound, 7)
+
+ALIGN 4
+Dozla_2_wav:
+    #incbin "dmp/Dozla/Dozla_Is_There_Candy_Compressed.dmp"
+
+ALIGN 4
+Dozla_2_map:
+    WORD $3C00
+    POIN Dozla_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Dozla_2_Sound:
+    WORD 1
+    POIN Dozla_2_map
+    POIN VoiceSound_data
+
+SongTable(0x28F, Dozla_2_Sound, 7)
+
+ALIGN 4
+Dozla_3_wav:
+    #incbin "dmp/Dozla/Dozla_Rawr_Compressed.dmp"
+
+ALIGN 4
+Dozla_3_map:
+    WORD $3C00
+    POIN Dozla_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Dozla_3_Sound:
+    WORD 1
+    POIN Dozla_3_map
+    POIN VoiceSound_data
+
+SongTable(0x290, Dozla_3_Sound, 7)
+
+// ======================================================
+// GLEN
+// ======================================================
+ALIGN 4
+Glen_1_wav:
+    #incbin "dmp/Glen_CC/Glen_Hmm_Compressed.dmp"
+
+ALIGN 4
+Glen_1_map:
+    WORD $3C00
+    POIN Glen_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Glen_1_Sound:
+    WORD 1
+    POIN Glen_1_map
+    POIN VoiceSound_data
+
+SongTable(0x291, Glen_1_Sound, 7)
+
+ALIGN 4
+Glen_2_wav:
+    #incbin "dmp/Glen_CC/Glen_Leave_It_To_Me_Compressed.dmp"
+
+ALIGN 4
+Glen_2_map:
+    WORD $3C00
+    POIN Glen_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Glen_2_Sound:
+    WORD 1
+    POIN Glen_2_map
+    POIN VoiceSound_data
+
+SongTable(0x292, Glen_2_Sound, 7)
+
+ALIGN 4
+Glen_3_wav:
+    #incbin "dmp/Glen_CC/Glen_Yes_Compressed.dmp"
+
+ALIGN 4
+Glen_3_map:
+    WORD $3C00
+    POIN Glen_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Glen_3_Sound:
+    WORD 1
+    POIN Glen_3_map
+    POIN VoiceSound_data
+
+SongTable(0x293, Glen_3_Sound, 7)
+
+// ======================================================
+// CAELLACH
+// ======================================================
+ALIGN 4
+Caellach_1_wav:
+    #incbin "dmp/Caellach_CC/Caellach_Follow_Me_Compressed.dmp"
+
+ALIGN 4
+Caellach_1_map:
+    WORD $3C00
+    POIN Caellach_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Caellach_1_Sound:
+    WORD 1
+    POIN Caellach_1_map
+    POIN VoiceSound_data
+
+SongTable(0x294, Caellach_1_Sound, 7)
+
+ALIGN 4
+Caellach_2_wav:
+    #incbin "dmp/Caellach_CC/Caellach_Not_That_I_Care_But_Compressed.dmp"
+
+ALIGN 4
+Caellach_2_map:
+    WORD $3C00
+    POIN Caellach_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Caellach_2_Sound:
+    WORD 1
+    POIN Caellach_2_map
+    POIN VoiceSound_data
+
+SongTable(0x295, Caellach_2_Sound, 7)
+
+ALIGN 4
+Caellach_3_wav:
+    #incbin "dmp/Caellach_CC/Caellach_Whatever_You_Say_Compressed.dmp"
+
+ALIGN 4
+Caellach_3_map:
+    WORD $3C00
+    POIN Caellach_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Caellach_3_Sound:
+    WORD 1
+    POIN Caellach_3_map
+    POIN VoiceSound_data
+
+SongTable(0x296, Caellach_3_Sound, 7)
+
+// ======================================================
+// RENNAC
+// ======================================================
+ALIGN 4
+Rennac_1_wav:
+    #incbin "dmp/Rennac/Rennac_Very_Good_Compressed.dmp"
+
+ALIGN 4
+Rennac_1_map:
+    WORD $3C00
+    POIN Rennac_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Rennac_1_Sound:
+    WORD 1
+    POIN Rennac_1_map
+    POIN VoiceSound_data
+
+SongTable(0x297, Rennac_1_Sound, 7)
+
+ALIGN 4
+Rennac_2_wav:
+    #incbin "dmp/Rennac/Rennac_You_Cant_Be_Serious_Compressed.dmp"
+
+ALIGN 4
+Rennac_2_map:
+    WORD $3C00
+    POIN Rennac_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Rennac_2_Sound:
+    WORD 1
+    POIN Rennac_2_map
+    POIN VoiceSound_data
+
+SongTable(0x298, Rennac_2_Sound, 7)
+
+ALIGN 4
+Rennac_3_wav:
+    #incbin "dmp/Rennac/Rennac_Youre_The_Boss_Compressed.dmp"
+
+ALIGN 4
+Rennac_3_map:
+    WORD $3C00
+    POIN Rennac_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Rennac_3_Sound:
+    WORD 1
+    POIN Rennac_3_map
+    POIN VoiceSound_data
+
+SongTable(0x299, Rennac_3_Sound, 7)
+
+// ======================================================
+// COLM
+// ======================================================
+ALIGN 4
+Colm_1_wav:
+    #incbin "dmp/Colm/Colm_Dont_Worry_Compressed.dmp"
+
+ALIGN 4
+Colm_1_map:
+    WORD $3C00
+    POIN Colm_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Colm_1_Sound:
+    WORD 1
+    POIN Colm_1_map
+    POIN VoiceSound_data
+
+SongTable(0x29A, Colm_1_Sound, 7)
+
+ALIGN 4
+Colm_2_wav:
+    #incbin "dmp/Colm/Colm_Fine_With_Me_Compressed.dmp"
+
+ALIGN 4
+Colm_2_map:
+    WORD $3C00
+    POIN Colm_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Colm_2_Sound:
+    WORD 1
+    POIN Colm_2_map
+    POIN VoiceSound_data
+
+SongTable(0x29B, Colm_2_Sound, 7)
+
+ALIGN 4
+Colm_3_wav:
+    #incbin "dmp/Colm/Colm_Huh_Compressed.dmp"
+
+ALIGN 4
+Colm_3_map:
+    WORD $3C00
+    POIN Colm_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Colm_3_Sound:
+    WORD 1
+    POIN Colm_3_map
+    POIN VoiceSound_data
+
+SongTable(0x29C, Colm_3_Sound, 7)
+
+// ======================================================
+// NATASHA
+// ======================================================
+ALIGN 4
+Natasha_1_wav:
+    #incbin "dmp/Natasha/Natasha_Guide_Me_Compressed.dmp"
+
+ALIGN 4
+Natasha_1_map:
+    WORD $3C00
+    POIN Natasha_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Natasha_1_Sound:
+    WORD 1
+    POIN Natasha_1_map
+    POIN VoiceSound_data
+
+SongTable(0x29D, Natasha_1_Sound, 7)
+
+ALIGN 4
+Natasha_2_wav:
+    #incbin "dmp/Natasha/Natasha_I_Will_Follow_Compressed.dmp"
+
+ALIGN 4
+Natasha_2_map:
+    WORD $3C00
+    POIN Natasha_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Natasha_2_Sound:
+    WORD 1
+    POIN Natasha_2_map
+    POIN VoiceSound_data
+
+SongTable(0x29E, Natasha_2_Sound, 7)
+
+ALIGN 4
+Natasha_3_wav:
+    #incbin "dmp/Natasha/Natasha_Please_Wait_Compressed.dmp"
+
+ALIGN 4
+Natasha_3_map:
+    WORD $3C00
+    POIN Natasha_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Natasha_3_Sound:
+    WORD 1
+    POIN Natasha_3_map
+    POIN VoiceSound_data
+
+SongTable(0x29F, Natasha_3_Sound, 7)
+
+// ======================================================
+// NEIMI
+// ======================================================
+ALIGN 4
+Neimi_1_wav:
+    #incbin "dmp/Neimi/Neimi_Here_Goes_Nothing_Compressed.dmp"
+
+ALIGN 4
+Neimi_1_map:
+    WORD $3C00
+    POIN Neimi_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Neimi_1_Sound:
+    WORD 1
+    POIN Neimi_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2A0, Neimi_1_Sound, 7)
+
+ALIGN 4
+Neimi_2_wav:
+    #incbin "dmp/Neimi/Neimi_Ok_Compressed.dmp"
+
+ALIGN 4
+Neimi_2_map:
+    WORD $3C00
+    POIN Neimi_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Neimi_2_Sound:
+    WORD 1
+    POIN Neimi_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2A1, Neimi_2_Sound, 7)
+
+ALIGN 4
+Neimi_3_wav:
+    #incbin "dmp/Neimi/Neimi_What_Do_We_Do_Compressed.dmp"
+
+ALIGN 4
+Neimi_3_map:
+    WORD $3C00
+    POIN Neimi_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Neimi_3_Sound:
+    WORD 1
+    POIN Neimi_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2A2, Neimi_3_Sound, 7)
+
+// ======================================================
+// SELENA
+// ======================================================
+ALIGN 4
+Selena_1_wav:
+    #incbin "dmp/Selena_CC/Selena_Command_Me_Compressed.dmp"
+
+ALIGN 4
+Selena_1_map:
+    WORD $3C00
+    POIN Selena_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Selena_1_Sound:
+    WORD 1
+    POIN Selena_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2A3, Selena_1_Sound, 7)
+
+ALIGN 4
+Selena_2_wav:
+    #incbin "dmp/Selena_CC/Selena_I_Am_Rather_Nervous_Compressed.dmp"
+
+ALIGN 4
+Selena_2_map:
+    WORD $3C00
+    POIN Selena_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Selena_2_Sound:
+    WORD 1
+    POIN Selena_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2A4, Selena_2_Sound, 7)
+
+ALIGN 4
+Selena_3_wav:
+    #incbin "dmp/Selena_CC/Selena_What_Shall_I_Do_Compressed.dmp"
+
+ALIGN 4
+Selena_3_map:
+    WORD $3C00
+    POIN Selena_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Selena_3_Sound:
+    WORD 1
+    POIN Selena_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2A5, Selena_3_Sound, 7)
+
+// ======================================================
+// AMELIA
+// ======================================================
+ALIGN 4
+Amelia_1_wav:
+    #incbin "dmp/Amelia/Amelia_Heard_Compressed.dmp"
+
+ALIGN 4
+Amelia_1_map:
+    WORD $3C00
+    POIN Amelia_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Amelia_1_Sound:
+    WORD 1
+    POIN Amelia_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2A6, Amelia_1_Sound, 7)
+
+ALIGN 4
+Amelia_2_wav:
+    #incbin "dmp/Amelia/Amelia_I_Will_Do_It_Compressed.dmp"
+
+ALIGN 4
+Amelia_2_map:
+    WORD $3C00
+    POIN Amelia_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Amelia_2_Sound:
+    WORD 1
+    POIN Amelia_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2A7, Amelia_2_Sound, 7)
+
+ALIGN 4
+Amelia_3_wav:
+    #incbin "dmp/Amelia/Amelia_Uh_huh_Compressed.dmp"
+
+ALIGN 4
+Amelia_3_map:
+    WORD $3C00
+    POIN Amelia_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Amelia_3_Sound:
+    WORD 1
+    POIN Amelia_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2A8, Amelia_3_Sound, 7)
+
+// ======================================================
+// TANA
+// ======================================================
+ALIGN 4
+Tana_1_wav:
+    #incbin "dmp/Tana/Tana_Here_I_Go_Compressed.dmp"
+
+ALIGN 4
+Tana_1_map:
+    WORD $3C00
+    POIN Tana_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tana_1_Sound:
+    WORD 1
+    POIN Tana_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2A9, Tana_1_Sound, 7)
+
+ALIGN 4
+Tana_2_wav:
+    #incbin "dmp/Tana/Tana_Um_Compressed.dmp"
+
+ALIGN 4
+Tana_2_map:
+    WORD $3C00
+    POIN Tana_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tana_2_Sound:
+    WORD 1
+    POIN Tana_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2AA, Tana_2_Sound, 7)
+
+ALIGN 4
+Tana_3_wav:
+    #incbin "dmp/Tana/Tana_You_Got_It_Compressed.dmp"
+
+ALIGN 4
+Tana_3_map:
+    WORD $3C00
+    POIN Tana_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tana_3_Sound:
+    WORD 1
+    POIN Tana_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2AB, Tana_3_Sound, 7)
+
+// ======================================================
+// KNOLL
+// ======================================================
+ALIGN 4
+Knoll_1_wav:
+    #incbin "dmp/Knoll/Knoll_Ill_Lend_A_Hand_Compressed.dmp"
+
+ALIGN 4
+Knoll_1_map:
+    WORD $3C00
+    POIN Knoll_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Knoll_1_Sound:
+    WORD 1
+    POIN Knoll_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2AC, Knoll_1_Sound, 7)
+
+ALIGN 4
+Knoll_2_wav:
+    #incbin "dmp/Knoll/Knoll_Its_No_Trouble_Compressed.dmp"
+
+ALIGN 4
+Knoll_2_map:
+    WORD $3C00
+    POIN Knoll_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Knoll_2_Sound:
+    WORD 1
+    POIN Knoll_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2AD, Knoll_2_Sound, 7)
+
+ALIGN 4
+Knoll_3_wav:
+    #incbin "dmp/Knoll/Knoll_Really_Compressed.dmp"
+
+ALIGN 4
+Knoll_3_map:
+    WORD $3C00
+    POIN Knoll_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Knoll_3_Sound:
+    WORD 1
+    POIN Knoll_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2AE, Knoll_3_Sound, 7)
+
+// ======================================================
+// RIEV
+// ======================================================
+ALIGN 4
+Riev_1_wav:
+    #incbin "dmp/Riev_CC/Riev_As_You_Will_Compressed.dmp"
+
+ALIGN 4
+Riev_1_map:
+    WORD $3C00
+    POIN Riev_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Riev_1_Sound:
+    WORD 1
+    POIN Riev_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2AF, Riev_1_Sound, 7)
+
+ALIGN 4
+Riev_2_wav:
+    #incbin "dmp/Riev_CC/Riev_Good_Very_Good_Compressed.dmp"
+
+ALIGN 4
+Riev_2_map:
+    WORD $3C00
+    POIN Riev_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Riev_2_Sound:
+    WORD 1
+    POIN Riev_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2B0, Riev_2_Sound, 7)
+
+ALIGN 4
+Riev_3_wav:
+    #incbin "dmp/Riev_CC/Riev_Very_Well_Compressed.dmp"
+
+ALIGN 4
+Riev_3_map:
+    WORD $3C00
+    POIN Riev_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Riev_3_Sound:
+    WORD 1
+    POIN Riev_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2B1, Riev_3_Sound, 7)
+
+// ======================================================
+// EPHRAIM
+// ======================================================
+ALIGN 4
+Ephraim_1_wav:
+    #incbin "dmp/Ephraim/Ephraim_Oh_You_Dont_Say_Compressed.dmp"
+
+ALIGN 4
+Ephraim_1_map:
+    WORD $3C00
+    POIN Ephraim_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ephraim_1_Sound:
+    WORD 1
+    POIN Ephraim_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2B2, Ephraim_1_Sound, 7)
+
+ALIGN 4
+Ephraim_2_wav:
+    #incbin "dmp/Ephraim/Ephraim_Signed_And_Sealed_Compressed.dmp"
+
+ALIGN 4
+Ephraim_2_map:
+    WORD $3C00
+    POIN Ephraim_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ephraim_2_Sound:
+    WORD 1
+    POIN Ephraim_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2B3, Ephraim_2_Sound, 7)
+
+ALIGN 4
+Ephraim_3_wav:
+    #incbin "dmp/Ephraim/Ephraim_Where_To_Compressed.dmp"
+
+ALIGN 4
+Ephraim_3_map:
+    WORD $3C00
+    POIN Ephraim_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ephraim_3_Sound:
+    WORD 1
+    POIN Ephraim_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2B4, Ephraim_3_Sound, 7)
+
+// ======================================================
+// EWAN
+// ======================================================
+ALIGN 4
+Ewan_1_wav:
+    #incbin "dmp/Ewan/Ewan_Hmm_Compressed.dmp"
+
+ALIGN 4
+Ewan_1_map:
+    WORD $3C00
+    POIN Ewan_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ewan_1_Sound:
+    WORD 1
+    POIN Ewan_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2B5, Ewan_1_Sound, 7)
+
+ALIGN 4
+Ewan_2_wav:
+    #incbin "dmp/Ewan/Ewan_Not_A_Problem_Compressed.dmp"
+
+ALIGN 4
+Ewan_2_map:
+    WORD $3C00
+    POIN Ewan_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ewan_2_Sound:
+    WORD 1
+    POIN Ewan_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2B6, Ewan_2_Sound, 7)
+
+ALIGN 4
+Ewan_3_wav:
+    #incbin "dmp/Ewan/Ewan_Oh_Ill_Help_Compressed.dmp"
+
+ALIGN 4
+Ewan_3_map:
+    WORD $3C00
+    POIN Ewan_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Ewan_3_Sound:
+    WORD 1
+    POIN Ewan_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2B7, Ewan_3_Sound, 7)
+
+// ======================================================
+// FORDE
+// ======================================================
+ALIGN 4
+Forde_1_wav:
+    #incbin "dmp/Forde/Forde_Im_No_Fool_Compressed.dmp"
+
+ALIGN 4
+Forde_1_map:
+    WORD $3C00
+    POIN Forde_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Forde_1_Sound:
+    WORD 1
+    POIN Forde_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2B8, Forde_1_Sound, 7)
+
+ALIGN 4
+Forde_2_wav:
+    #incbin "dmp/Forde/Forde_Lookin_Forward_To_It_Compressed.dmp"
+
+ALIGN 4
+Forde_2_map:
+    WORD $3C00
+    POIN Forde_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Forde_2_Sound:
+    WORD 1
+    POIN Forde_2_map
+    POIN VoiceSound_data
+
+SongTable(0x2B9, Forde_2_Sound, 7)
+
+ALIGN 4
+Forde_3_wav:
+    #incbin "dmp/Forde/Forde_Youre_Serious_Compressed.dmp"
+
+ALIGN 4
+Forde_3_map:
+    WORD $3C00
+    POIN Forde_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Forde_3_Sound:
+    WORD 1
+    POIN Forde_3_map
+    POIN VoiceSound_data
+
+SongTable(0x2BA, Forde_3_Sound, 7)
+
+// ======================================================
+// VANESSA
+// ======================================================
+ALIGN 4
+Vanessa_1_wav:
+    #incbin "dmp/Vanessa/Vanesaa_Im_Ready_Compressed.dmp"
+
+ALIGN 4
+Vanessa_1_map:
+    WORD $3C00
+    POIN Vanessa_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vanessa_1_Sound:
+    WORD 1
+    POIN Vanessa_1_map
+    POIN VoiceSound_data
+
+SongTable(0x2BB, Vanessa_1_Sound, 7)
+
+ALIGN 4
+Vanessa_2_wav:
+    #incbin "dmp/Vanessa/Vanesaa_Ill_Consider_It_Compressed.dmp"
+
+ALIGN 4
+Vanessa_2_map:
+    WORD $3C00
+    POIN Vanessa_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vanessa_2_Sound:
+    WORD 1
+    POIN Vanessa_2_map
+    POIN VoiceSound_data
+
+SongTable(0x385, Vanessa_2_Sound, 7)
+
+ALIGN 4
+Vanessa_3_wav:
+    #incbin "dmp/Vanessa/Vanessa_I_Will_Set_Out_Compressed.dmp"
+
+ALIGN 4
+Vanessa_3_map:
+    WORD $3C00
+    POIN Vanessa_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Vanessa_3_Sound:
+    WORD 1
+    POIN Vanessa_3_map
+    POIN VoiceSound_data
+
+SongTable(0x386, Vanessa_3_Sound, 7)
+
+// ======================================================
+// SYRENE
+// ======================================================
+ALIGN 4
+Syrene_1_wav:
+    #incbin "dmp/Syrene/Syrene_Awaiting_Orders_Compressed.dmp"
+
+ALIGN 4
+Syrene_1_map:
+    WORD $3C00
+    POIN Syrene_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Syrene_1_Sound:
+    WORD 1
+    POIN Syrene_1_map
+    POIN VoiceSound_data
+
+SongTable(0x387, Syrene_1_Sound, 7)
+
+ALIGN 4
+Syrene_2_wav:
+    #incbin "dmp/Syrene/Syrene_Fortune_Follow_Us_Compressed.dmp"
+
+ALIGN 4
+Syrene_2_map:
+    WORD $3C00
+    POIN Syrene_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Syrene_2_Sound:
+    WORD 1
+    POIN Syrene_2_map
+    POIN VoiceSound_data
+
+SongTable(0x388, Syrene_2_Sound, 7)
+
+ALIGN 4
+Syrene_3_wav:
+    #incbin "dmp/Syrene/Syrene_Hm_Compressed.dmp"
+
+ALIGN 4
+Syrene_3_map:
+    WORD $3C00
+    POIN Syrene_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Syrene_3_Sound:
+    WORD 1
+    POIN Syrene_3_map
+    POIN VoiceSound_data
+
+SongTable(0x389, Syrene_3_Sound, 7)
+
+// ======================================================
+// LYON
+// ======================================================
+ALIGN 4
+Lyon_1_wav:
+    #incbin "dmp/Lyon_CC/Lyon_Hmph_Compressed.dmp"
+
+ALIGN 4
+Lyon_1_map:
+    WORD $3C00
+    POIN Lyon_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lyon_1_Sound:
+    WORD 1
+    POIN Lyon_1_map
+    POIN VoiceSound_data
+
+SongTable(0x38A, Lyon_1_Sound, 7)
+
+ALIGN 4
+Lyon_2_wav:
+    #incbin "dmp/Lyon_CC/Lyon_Keep_Up_Compressed.dmp"
+
+ALIGN 4
+Lyon_2_map:
+    WORD $3C00
+    POIN Lyon_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lyon_2_Sound:
+    WORD 1
+    POIN Lyon_2_map
+    POIN VoiceSound_data
+
+SongTable(0x38B, Lyon_2_Sound, 7)
+
+ALIGN 4
+Lyon_3_wav:
+    #incbin "dmp/Lyon_CC/Lyon_Tear_Them_To_Shreds_Compressed.dmp"
+
+ALIGN 4
+Lyon_3_map:
+    WORD $3C00
+    POIN Lyon_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Lyon_3_Sound:
+    WORD 1
+    POIN Lyon_3_map
+    POIN VoiceSound_data
+
+SongTable(0x38C, Lyon_3_Sound, 7)
+
+// ======================================================
+// DUESSEL
+// ======================================================
+ALIGN 4
+Duessel_1_wav:
+    #incbin "dmp/Duessel/Duessel_A_Daring_Plan_Compressed.dmp"
+
+ALIGN 4
+Duessel_1_map:
+    WORD $3C00
+    POIN Duessel_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Duessel_1_Sound:
+    WORD 1
+    POIN Duessel_1_map
+    POIN VoiceSound_data
+
+SongTable(0x38D, Duessel_1_Sound, 7)
+
+ALIGN 4
+Duessel_2_wav:
+    #incbin "dmp/Duessel/Duessel_By_Your_Will_Compressed.dmp"
+
+ALIGN 4
+Duessel_2_map:
+    WORD $3C00
+    POIN Duessel_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Duessel_2_Sound:
+    WORD 1
+    POIN Duessel_2_map
+    POIN VoiceSound_data
+
+SongTable(0x38E, Duessel_2_Sound, 7)
+
+ALIGN 4
+Duessel_3_wav:
+    #incbin "dmp/Duessel/Duessel_Victory_Is_In_Sight_Compressed.dmp"
+
+ALIGN 4
+Duessel_3_map:
+    WORD $3C00
+    POIN Duessel_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Duessel_3_Sound:
+    WORD 1
+    POIN Duessel_3_map
+    POIN VoiceSound_data
+
+SongTable(0x38F, Duessel_3_Sound, 7)
+
+// ======================================================
+// VALTER
+// ======================================================
+ALIGN 4
+Valter_1_wav:
+    #incbin "dmp/Valter_CC/Valter_Entertain_Me_Compressed.dmp"
+
+ALIGN 4
+Valter_1_map:
+    WORD $3C00
+    POIN Valter_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Valter_1_Sound:
+    WORD 1
+    POIN Valter_1_map
+    POIN VoiceSound_data
+
+SongTable(0x390, Valter_1_Sound, 7)
+
+ALIGN 4
+Valter_2_wav:
+    #incbin "dmp/Valter_CC/Valter_I_Feast_Compressed.dmp"
+
+ALIGN 4
+Valter_2_map:
+    WORD $3C00
+    POIN Valter_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Valter_2_Sound:
+    WORD 1
+    POIN Valter_2_map
+    POIN VoiceSound_data
+
+SongTable(0x391, Valter_2_Sound, 7)
+
+ALIGN 4
+Valter_3_wav:
+    #incbin "dmp/Valter_CC/Valter_I_Hunger_Compressed.dmp"
+
+ALIGN 4
+Valter_3_map:
+    WORD $3C00
+    POIN Valter_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Valter_3_Sound:
+    WORD 1
+    POIN Valter_3_map
+    POIN VoiceSound_data
+
+SongTable(0x392, Valter_3_Sound, 7)
+
+// ======================================================
+// SETH
+// ======================================================
+ALIGN 4
+Seth_1_wav:
+    #incbin "dmp/Seth/Seth_As_You_Say_Compressed.dmp"
+
+ALIGN 4
+Seth_1_map:
+    WORD $3C00
+    POIN Seth_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Seth_1_Sound:
+    WORD 1
+    POIN Seth_1_map
+    POIN VoiceSound_data
+
+SongTable(0x393, Seth_1_Sound, 7)
+
+ALIGN 4
+Seth_2_wav:
+    #incbin "dmp/Seth/Seth_Now_Then_Compressed.dmp"
+
+ALIGN 4
+Seth_2_map:
+    WORD $3C00
+    POIN Seth_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Seth_2_Sound:
+    WORD 1
+    POIN Seth_2_map
+    POIN VoiceSound_data
+
+SongTable(0x394, Seth_2_Sound, 7)
+
+ALIGN 4
+Seth_3_wav:
+    #incbin "dmp/Seth/Seth_Right_Compressed.dmp"
+
+ALIGN 4
+Seth_3_map:
+    WORD $3C00
+    POIN Seth_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Seth_3_Sound:
+    WORD 1
+    POIN Seth_3_map
+    POIN VoiceSound_data
+
+SongTable(0x395, Seth_3_Sound, 7)
+
+// ======================================================
+// LARACHEL
+// ======================================================
+ALIGN 4
+LArachel_1_wav:
+    #incbin "dmp/LArachel/LArachel_Dashing_Compressed.dmp"
+
+ALIGN 4
+LArachel_1_map:
+    WORD $3C00
+    POIN LArachel_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+LArachel_1_Sound:
+    WORD 1
+    POIN LArachel_1_map
+    POIN VoiceSound_data
+
+SongTable(0x396, LArachel_1_Sound, 7)
+
+ALIGN 4
+LArachel_2_wav:
+    #incbin "dmp/LArachel/LArachel_Here_I_Go_Compressed.dmp"
+
+ALIGN 4
+LArachel_2_map:
+    WORD $3C00
+    POIN LArachel_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+LArachel_2_Sound:
+    WORD 1
+    POIN LArachel_2_map
+    POIN VoiceSound_data
+
+SongTable(0x397, LArachel_2_Sound, 7)
+
+ALIGN 4
+LArachel_3_wav:
+    #incbin "dmp/LArachel/LArachel_I_See_Compressed.dmp"
+
+ALIGN 4
+LArachel_3_map:
+    WORD $3C00
+    POIN LArachel_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+LArachel_3_Sound:
+    WORD 1
+    POIN LArachel_3_map
+    POIN VoiceSound_data
+
+SongTable(0x398, LArachel_3_Sound, 7)
+
+// ======================================================
+// CORMAG
+// ======================================================
+ALIGN 4
+Cormag_1_wav:
+    #incbin "dmp/Cormag/Cormag_Indeed_Compressed.dmp"
+
+ALIGN 4
+Cormag_1_map:
+    WORD $3C00
+    POIN Cormag_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Cormag_1_Sound:
+    WORD 1
+    POIN Cormag_1_map
+    POIN VoiceSound_data
+
+SongTable(0x399, Cormag_1_Sound, 7)
+
+ALIGN 4
+Cormag_2_wav:
+    #incbin "dmp/Cormag/Cormag_Itll_Be_Done_Compressed.dmp"
+
+ALIGN 4
+Cormag_2_map:
+    WORD $3C00
+    POIN Cormag_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Cormag_2_Sound:
+    WORD 1
+    POIN Cormag_2_map
+    POIN VoiceSound_data
+
+SongTable(0x39A, Cormag_2_Sound, 7)
+
+ALIGN 4
+Cormag_3_wav:
+    #incbin "dmp/Cormag/Cormag_Very_Well_Compressed.dmp"
+
+ALIGN 4
+Cormag_3_map:
+    WORD $3C00
+    POIN Cormag_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Cormag_3_Sound:
+    WORD 1
+    POIN Cormag_3_map
+    POIN VoiceSound_data
+
+SongTable(0x39B, Cormag_3_Sound, 7)
+
+// ======================================================
+// TETHYS
+// ======================================================
+ALIGN 4
+Tethys_1_wav:
+    #incbin "dmp/Tethys/Tethys_Ill_Think_About_It_Compressed.dmp"
+
+ALIGN 4
+Tethys_1_map:
+    WORD $3C00
+    POIN Tethys_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tethys_1_Sound:
+    WORD 1
+    POIN Tethys_1_map
+    POIN VoiceSound_data
+
+SongTable(0x39C, Tethys_1_Sound, 7)
+
+ALIGN 4
+Tethys_2_wav:
+    #incbin "dmp/Tethys/Tethys_Lead_Away_Compressed.dmp"
+
+ALIGN 4
+Tethys_2_map:
+    WORD $3C00
+    POIN Tethys_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tethys_2_Sound:
+    WORD 1
+    POIN Tethys_2_map
+    POIN VoiceSound_data
+
+SongTable(0x39D, Tethys_2_Sound, 7)
+
+ALIGN 4
+Tethys_3_wav:
+    #incbin "dmp/Tethys/Tethys_Of_Course_Compressed.dmp"
+
+ALIGN 4
+Tethys_3_map:
+    WORD $3C00
+    POIN Tethys_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Tethys_3_Sound:
+    WORD 1
+    POIN Tethys_3_map
+    POIN VoiceSound_data
+
+SongTable(0x39E, Tethys_3_Sound, 7)
+
+// ======================================================
+// ARTUR
+// ======================================================
+ALIGN 4
+Artur_1_wav:
+    #incbin "dmp/Artur/Artur_Delivery_Compressed.dmp"
+
+ALIGN 4
+Artur_1_map:
+    WORD $3C00
+    POIN Artur_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Artur_1_Sound:
+    WORD 1
+    POIN Artur_1_map
+    POIN VoiceSound_data
+
+SongTable(0x39F, Artur_1_Sound, 7)
+
+ALIGN 4
+Artur_2_wav:
+    #incbin "dmp/Artur/Artur_Illuminate_My_Path_Compressed.dmp"
+
+ALIGN 4
+Artur_2_map:
+    WORD $3C00
+    POIN Artur_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Artur_2_Sound:
+    WORD 1
+    POIN Artur_2_map
+    POIN VoiceSound_data
+
+SongTable(0x3A0, Artur_2_Sound, 7)
+
+ALIGN 4
+Artur_3_wav:
+    #incbin "dmp/Artur/Artur_Lets_Get_Going_Compressed.dmp"
+
+ALIGN 4
+Artur_3_map:
+    WORD $3C00
+    POIN Artur_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Artur_3_Sound:
+    WORD 1
+    POIN Artur_3_map
+    POIN VoiceSound_data
+
+SongTable(0x3A1, Artur_3_Sound, 7)
+
+// ======================================================
+// MARISA
+// ======================================================
+ALIGN 4
+Marisa_1_wav:
+    #incbin "dmp/Marisa/Marisa_Moving_Out_Compressed.dmp"
+
+ALIGN 4
+Marisa_1_map:
+    WORD $3C00
+    POIN Marisa_1_wav
+    WORD $FF00FF
+
+ALIGN 4
+Marisa_1_Sound:
+    WORD 1
+    POIN Marisa_1_map
+    POIN VoiceSound_data
+
+SongTable(0x3A2, Marisa_1_Sound, 7)
+
+ALIGN 4
+Marisa_2_wav:
+    #incbin "dmp/Marisa/Marisa_Ok_Compressed.dmp"
+
+ALIGN 4
+Marisa_2_map:
+    WORD $3C00
+    POIN Marisa_2_wav
+    WORD $FF00FF
+
+ALIGN 4
+Marisa_2_Sound:
+    WORD 1
+    POIN Marisa_2_map
+    POIN VoiceSound_data
+
+SongTable(0x3A3, Marisa_2_Sound, 7)
+
+ALIGN 4
+Marisa_3_wav:
+    #incbin "dmp/Marisa/Marisa_Who_Do_I_Slice_Compressed.dmp"
+
+ALIGN 4
+Marisa_3_map:
+    WORD $3C00
+    POIN Marisa_3_wav
+    WORD $FF00FF
+
+ALIGN 4
+Marisa_3_Sound:
+    WORD 1
+    POIN Marisa_3_map
+    POIN VoiceSound_data
+
+SongTable(0x3A4, Marisa_3_Sound, 7)

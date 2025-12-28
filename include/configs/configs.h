@@ -470,7 +470,7 @@
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */
 
-// #define CONFIG_UNIT_SELECTION_QUOTES /* Leonarth */ /* Needed to turn off unitBeginAction's lynjump for this */
+#define CONFIG_UNIT_SELECTION_QUOTES
 
 #define CONFIG_VOICE_ACTED_DIALOGUE
 

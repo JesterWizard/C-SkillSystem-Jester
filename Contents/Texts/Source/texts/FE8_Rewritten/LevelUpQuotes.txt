@@ -76,7 +76,7 @@ I need to do better...[X]
 A little stronger...[X]
 ## MSG_Neimi_Great_Level_Up
 [OpenMidRight][LoadFace_Neimi][ToggleSmile][BoxHeight_1][BoxType_Thoughts][TextSpeed_Normal]
-I can feek it! I'm helping![X]
+I can feel it! I'm helping![X]
 
 ## MSG_Colm_Poor_Level_Up
 [OpenMidRight][LoadFaceFancy_Colm][FlipLeft][BoxHeight_1][HalfCloseEyes][BoxType_Thoughts][TextSpeed_Normal]

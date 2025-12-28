@@ -155,3 +155,7 @@
 #ifdef CONFIG_MAX_COLOR_BACKGROUNDS
     #include "Misc/Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"
 #endif
+
+#ifdef CONFIG_UNIT_SELECTION_QUOTES
+    #include "Misc/UnitSelectionSFX/UnitSelectionSFX_Installer.event"
+#endif
