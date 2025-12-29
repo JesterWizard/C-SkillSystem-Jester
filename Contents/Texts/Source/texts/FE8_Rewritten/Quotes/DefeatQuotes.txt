@@ -27,10 +27,6 @@ N-no, no![A][N]
 I'm the mighty Bazba,[N]
 you dogs, ain't gonna...[A][X]
 
-## MSG_DEFEAT_QUOTE_CH4
-[OpenMidLeft]
-Ssss...[A][X]
-
 ## MSG_DEFEAT_QUOTE_SAAR
 [OpenMidLeft][LoadFace_Saar][HalfCloseEyes]
 Agh.[A][N]

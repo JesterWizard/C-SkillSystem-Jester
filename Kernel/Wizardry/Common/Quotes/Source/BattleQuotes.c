@@ -29,6 +29,12 @@ const struct BattleTalkExtEnt gNewBattleTalkList[] = {
     },
     {
         .pidA    = CHARACTER_BREGUET,
+        .pidB    = CHARACTER_FRELIAN,
+        .chapter = CHAPTER_01,
+        .msg     = MSG_BATTLE_QUOTE_FRELIAN_SOLIDER_BORDER_MULAN,
+    },    
+    {
+        .pidA    = CHARACTER_BREGUET,
         .pidB    = CHARACTER_GILLIAM,
         .chapter = CHAPTER_01,
         .flag    = EVFLAG_BATTLE_QUOTES,

@@ -8,7 +8,7 @@ All that's left is their leader...[A][X]
 [OpenMidRight][LoadFace_ONeill]
 Ha, you think you scare me little girl?[A][N]
 I'll have you screaming like the[N]
-wretches in Grado's dungeons![A][N]
+wretches in our dungeons![A][N]
 
 ## Chapter_00_Seth_Warning
 [OpenMidLeft][LoadFace_Seth]

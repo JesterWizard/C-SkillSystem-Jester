@@ -3,6 +3,7 @@
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
+#include "jester_headers/custom-arrays.h"
 
 #define LOCAL_TRACE 0
 
@@ -185,10 +186,11 @@ static const DescriptionStrings character_description_strings[] =
 LYN_REPLACE_CHECK(HbPopulate_SSCharacter);
 void HbPopulate_SSCharacter(struct HelpBoxProc* proc)
 {
-    int midDesc = gStatScreen.unit->pCharacterData->descTextId;
+	int activeUnitCharId = gStatScreen.unit->pCharacterData->number;
+    int midDesc = gCharacterData_NEW[activeUnitCharId-1].descTextId;
 
 #ifdef CONFIG_VARIABLE_UNIT_DESCRIPTIONS
-	if (gStatScreen.unit->pCharacterData->number == CHARACTER_EIRIKA)
+	if (activeUnitCharId == CHARACTER_EIRIKA)
 	{
 		switch (gPlaySt.chapterIndex)
 		{
@@ -202,7 +204,6 @@ void HbPopulate_SSCharacter(struct HelpBoxProc* proc)
 			midDesc = character_description_strings[gStatScreen.unit->pCharacterData->number].values[2];
 			break;
 		default:
-			midDesc = character_description_strings[gStatScreen.unit->pCharacterData->number].values[0];
 			break;
 		}
 	}

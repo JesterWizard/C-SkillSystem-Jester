@@ -49,14 +49,7 @@ const struct DefeatTalkEntNew gNewDefeatTalkList[] = {
         .flag    = EVFLAG_DEFEAT_BOSS,
         .msg     = MSG_DEFEAT_QUOTE_BAZBA,
     },
-    {
-        .pidA    = CHARACTER_ENTOMBED_CH4,
-        .pidB    = 0xFFFF,
-        .route   = CHAPTER_MODE_ANY,
-        .chapter = CHAPTER_04,
-        .flag    = EVFLAG_DEFEAT_BOSS,
-        .msg     = MSG_DEFEAT_QUOTE_CH4,
-    },
+    // Chapter 4 boss is an entombed so we skip it.
     {
         .pidA    = CHARACTER_SAAR,
         .pidB    = 0xFFFF,

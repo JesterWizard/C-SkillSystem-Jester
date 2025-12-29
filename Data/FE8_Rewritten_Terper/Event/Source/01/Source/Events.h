@@ -5,22 +5,18 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_COORDINATES(2, 2, 60)
     TEXT_BG(0x26, Chapter_01_Scene_01_Convo_01)
     LOAD_WAIT(CH1_FRELIAN_FORCES)
-   // MOVE_WAIT(0, 0xC0, 2, 2)
+    // MOVE_WAIT(0, 0xC0, 2, 2)
     ERASE(0xC1)
     HIGHLIGHT_CHARACTER(CHARACTER_BREGUET, 60)
     TEXT_BG(0x1C, Chapter_01_Scene_02_Convo_01)
     MOVE_WAIT(0, CHARACTER_BREGUET, 2, 3)
-    /* Force set battle-quotes flag to make the following script-battle not to show battle quote */
-    ENUT(EVFLAG_BATTLE_QUOTES)
 
+    /* Battle scene */
     START_BATTLE
     CRITICAL_HIT(0, 20)
     NORMAL_DAMAGE(1, 0)
     END_ATTACK
-    FIGHT(CHARACTER_BREGUET, 0xC0, 0, 0)
-
-    /* Clear battle Quotes flag */
-    ENUF(EVFLAG_BATTLE_QUOTES)
+    FIGHT(CHARACTER_BREGUET, CHARACTER_FRELIAN, 0, 0)
 
     KILL(0xC0)
     ERASE(0xC0)
@@ -53,9 +49,9 @@ static const EventScr EventScr_Beginning[] = {
 
 static const EventScr EventScr_Ending[] = {
     MUSC(SONG_VICTORY)
-    TEXT_BG(0x26, Chapter_01_Scene_10_Convo_01)
+    TEXT_BG_HIDE_MAP(0x26, Chapter_01_Scene_10_Convo_01)
     REMA
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     NEXT_CHAPTER_WITH_MAP(0x38)
     ENDA
 };
@@ -85,6 +81,8 @@ static const EventListScr EventScr_ENEMY_REINFORCEMENTS[] = {
     LOAD_WAIT_PERSIST(CH1_REINFORCEMENTS_ENEMIES)
     HIGHLIGHT_CHARACTER(CHARACTER_SOLDIER_83, 60)
     TEXT(Chapter_01_Scene_12_Convo_01)
+    HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
+    TEXT(Chapter_01_Scene_12_Convo_02)
     RESTORE_VOLUME
     NOFADE
     ENDA
@@ -135,7 +133,7 @@ static const EventListScr EventListScr_Turn[] = {
 
 static const EventListScr EventListScr_Character[] = {
     CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_FRANZ_SETH, CHARACTER_FRANZ, CHARACTER_SETH)
-    CharacterEventBothWays(EVFLAG_TMP(10), EventScr_Talk_FRANZ_EIRIKA, CHARACTER_FRANZ, CHARACTER_EIRIKA)
+    CharacterEventBothWays(EVFLAG_TMP(14), EventScr_Talk_FRANZ_EIRIKA, CHARACTER_FRANZ, CHARACTER_EIRIKA)
     END_MAIN
 };
 
@@ -149,7 +147,7 @@ static const EventListScr EventListScr_Location[] = {
 
 static const EventListScr EventListScr_Misc[] = {
     AREA(EVFLAG_TMP(10), EventScr_Misc_Area_1, 0, 0, 7, 9)
-    AREA(EVFLAG_TMP(12), EventScr_Misc_Area_2, 0, 0, 7, 7)
+    AREA(EVFLAG_TMP(12), EventScr_Misc_Area_2, 7, 7, 7, 7)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

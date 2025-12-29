@@ -860,6 +860,11 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     TEXTCONT
     TEXTEND
 
+    // Eirika cannot ignore her countrymen's pleas for help.
+    SOUN(0x166)
+    TEXTCONT
+    TEXTEND
+
     WM_CLEARPORTRAIT(0, 0x01BC, 0)
     STAL(46)
     WM_FADEOUTSPRITE(WM_MU_2, 60)
@@ -867,11 +872,6 @@ const EventScr EventScrWM_Ch3_TRAVEL_TO_NODE[] = {
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_WAITFORSPRITELOAD
     WM_REMSPRITE(WM_MU_2)
-
-    // Eirika cannot ignore her countrymen's pleas for help.
-    SOUN(0x166)
-    TEXTCONT
-    TEXTEND
 
     // She leads her group in search of the bandits' stronghold
     SOUN(0x167)

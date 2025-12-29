@@ -101,11 +101,11 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
-    MUSC(SONG_VICTORY)
     ASMC(DisplayMapClearMapAnim)
     SVAL(EVT_SLOT_7, 10)
     ASMC(GrantBEXP)
-    TEXT_BG(0x1D, Chapter_00_Scene_03_Convo_06)
+    MUSC(SONG_VICTORY)
+    TEXT_BG_HIDE_MAP(0x1D, Chapter_00_Scene_03_Convo_06)
     FADE_TO_BLACK(16)
     NEXT_CHAPTER_WITHOUT_MAP(CHAPTER_01)
     REMA

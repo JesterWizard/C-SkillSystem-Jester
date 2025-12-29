@@ -48,7 +48,7 @@ RightfulArch + Proc skills[X]
 RIGHTFULARCH sets proc[N]
 activation rates to 100%.[N]
 Combined with any proc skill[N]
-ensures perpetua activations[N]
+ensures guranteed activations[N]
 every battle.[X]
 
 ## Guide_Title_Skill_Combo_6

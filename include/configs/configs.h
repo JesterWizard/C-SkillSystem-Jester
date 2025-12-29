@@ -364,7 +364,7 @@
 	#define SUPPORT_RATE_DANCE 100
 #endif
 
-#define CONFIG_VESLY_ANIMS_FAST_FORWARD
+// #define CONFIG_VESLY_ANIMS_FAST_FORWARD
 #define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
 #define CONFIG_VESLY_RECLASS
 // #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
@@ -493,7 +493,7 @@
 
 #define CONFIG_DISPLAY_DROPPABLE_ITEM_ICON
 
-#define CONFIG_BREAKABLE_DOORS
+// #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
 // #define CONFIG_SUPER_FAST_MAP_ANIMATIONS
 

@@ -2,7 +2,6 @@
 static const EventScr EventScr_Beginning[] = {
     MUSC(SONG_ADVANCE)
     TEXT_BG(0x18, Chapter_02_Scene_01_Convo_01)
-    FADE_FROM_BLACK(16)
     LOAD_WAIT_PERSIST(CH2_TANA)
     MUSCMID(SONG_NONE)
     LOAD_WAIT_PERSIST(CH2_BANDITS)
@@ -101,9 +100,7 @@ LABEL(0x1)
 
 LABEL(0x2)
     CALL(EventScr_RemoveBGIfNeeded) // This is vital, the game crashes without it for this event
-#if defined(SID_GoldDigger) && (COMMON_SKILL_VALID(SID_GoldDigger))
-    GIVE_SKILL_SCROLL_TO(SID_GoldDigger, CHARACTER_EVT_ACTIVE)
-#endif
+    GIVE_SKILL_SCROLL_TO(SID_Canto, CHARACTER_EVT_ACTIVE)
     GOTO(0x4)
 
 LABEL(0x3)

@@ -38,6 +38,8 @@ SHORT 0x3006
 ORG $7FA6 //fix normal scrolling for 3-line box (hopefully)
 SHORT 0x3006
 
+/* JESTER - This is sort of in the way of my hook to silence text beeps when the world map dialogue is being played so it's getting axed :/ */
+/* I would like to be able to hook Talk_OnIdle directly but what's in the decomp will not allow me to */
 //PlayTextBoop
 // ORG $6D70
 // callHack_r3(PlayTextBoop)

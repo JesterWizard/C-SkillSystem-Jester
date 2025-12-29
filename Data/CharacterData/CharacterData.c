@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "bmunit.h"
 #include "bmitem.h"
+#include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
 
 const struct CharacterData gCharacterData_NEW[] = {
@@ -2090,7 +2091,7 @@ const struct CharacterData gCharacterData_NEW[] = {
     },
     [CHARACTER_BREGUET - 1] = {
         .nameTextId = 0x239,
-        .descTextId = 0x294,
+        .descTextId = MSG_Breguet_Description_One,
         .number = CHARACTER_BREGUET,
         .defaultClass = CLASS_ARMOR_KNIGHT,
         .portraitId = 0x31,
@@ -2121,7 +2122,7 @@ const struct CharacterData gCharacterData_NEW[] = {
     },
     [CHARACTER_BONE - 1] = {
         .nameTextId = 0x23a,
-        .descTextId = 0x295,
+        .descTextId = MSG_Bone_Description_One,
         .number = CHARACTER_BONE,
         .defaultClass = CLASS_BRIGAND,
         .portraitId = 0x32,
@@ -2152,7 +2153,7 @@ const struct CharacterData gCharacterData_NEW[] = {
     },
     [CHARACTER_BAZBA - 1] = {
         .nameTextId = 0x23b,
-        .descTextId = 0x296,
+        .descTextId = MSG_Bazba_Description_One,
         .number = CHARACTER_BAZBA,
         .defaultClass = CLASS_BRIGAND,
         .portraitId = 0x33,
@@ -3070,7 +3071,7 @@ const struct CharacterData gCharacterData_NEW[] = {
     },
     [CHARACTER_ONEILL - 1] = {
         .nameTextId = 0x249,
-        .descTextId = 0x2a3,
+        .descTextId = MSG_ONeill_Description_One,
         .number = CHARACTER_ONEILL,
         .defaultClass = CLASS_FIGHTER,
         .portraitId = 0x30,

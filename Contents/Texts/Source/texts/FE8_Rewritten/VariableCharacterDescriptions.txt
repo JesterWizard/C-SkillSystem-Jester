@@ -183,3 +183,27 @@ She's locked in like skibiddy sigma.[X]
 ## MSG_Hayden_Description_One
 ## MSG_Hayden_Description_Two
 ## MSG_Hayden_Description_Three
+
+## MSG_ONeill_Description_One
+A troop leader in Grado's army.[N]
+He has fallen on hard times.[X]
+## MSG_ONeill_Description_Two
+## MSG_ONeill_Description_Three
+
+## MSG_Breguet_Description_One
+A Grado military commander.[N]
+He has a penchant for butchery.[X]
+## MSG_Breguet_Description_Two
+## MSG_Breguet_Description_Three
+
+## MSG_Bone_Description_One
+One of Bazba's henchmen.[N]
+He earned his name though acts of cannibalism.[X]
+## MSG_Bone_Description_Two
+## MSG_Bone_Description_Three
+
+## MSG_Bazba_Description_One
+The leader of Bazba's Bandits.[N]
+Vicious and cruel to 
+## MSG_Bazba_Description_Two
+## MSG_Bazba_Description_Three

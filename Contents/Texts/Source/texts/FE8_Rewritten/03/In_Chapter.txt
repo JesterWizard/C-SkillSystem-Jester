@@ -40,6 +40,7 @@ Oh, this is ridiculous.[A][N]
 We'll talk later![A][N]
 Just... don't leave my side, Neimi.[A][N]
 Okay?[A][N]
+[OpenMidRight]
 I-- All right![A][X]
 
 ## Chapter_03_Ross_Appears
@@ -92,8 +93,8 @@ I'll show you what I can do![A][N]
 [OpenMidLeft]
 .....[A][N]
 [ClearFace]
-[OpenMidRight]
-[MoveRight]
+
+[OpenMidRight][MoveRight][BoxType_Thoughts]
 What's with her?[A][N]
 She looked like she was[N]
 about to cry...[A][X]

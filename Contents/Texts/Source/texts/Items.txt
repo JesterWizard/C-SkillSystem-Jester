@@ -158,7 +158,8 @@ Heal all ally's HP in MAG/2 range.[N]
 Heal amount: 10 + unit's MAG.[X]
 
 ## MSG_ITEM_VULNERARY_DESC
-Heal the active unit's HP by 10.[X]
+A basic medicinal powder.[N]
+Heal the active unit by 10 HP.[X]
 
 ## MSG_ITEM_REWARP_STAFF_NAME
 Rewarp[X]

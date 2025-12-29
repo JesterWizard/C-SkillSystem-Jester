@@ -228,7 +228,7 @@ grant completely custom[N]
 EXP values.[X]
 
 ## Guide_Title_Multiple_Death_Quotes
-Multiple Death Quotes.[X]
+Multiple Death Quotes[X]
 ## Guide_Mechanic_Multiple_Death_Quotes
 By: Jester[N]
 Enemy units will say[N]
