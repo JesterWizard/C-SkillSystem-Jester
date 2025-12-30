@@ -1,6 +1,6 @@
 ALIGN 4
 Img_HpBar:
-   #incext Png2Dmp "Gfx/WarningHpSheet_Jester4.png" --lz77
+   #incext Png2Dmp "Gfx/WarningHpSheet_Jester.png" --lz77
    
 PUSH
     ORG $156AC

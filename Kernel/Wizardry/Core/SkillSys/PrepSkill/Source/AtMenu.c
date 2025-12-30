@@ -8,6 +8,7 @@
 #include "uiconfig.h"
 #include "prepscreen.h"
 #include "uichapterstatus.h"
+#include "unitlistscreen.h"
 
 void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc) 
 {
@@ -106,7 +107,8 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
     proc->max_index = 0;
 
     ResetSysHandCursor(proc);
-    DisplaySysHandCursorTextShadow(0x600, 1);
+    // JESTER - Was originally at 0x600, but seems to be overlapping with some map icons, so switching to 0x740
+    DisplaySysHandCursorTextShadow(0x740, 1);
 
     proc->on_PressB = 0;
     proc->on_PressStart = 0;
@@ -119,7 +121,9 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
 
     StartMenuScrollBar(proc);
     PutMenuScrollBarAt(3, 60); // x and y
-    InitMenuScrollBarImg(0x200, 2); 
+
+    // JESTER - This was originally at 0x200, but seems to be overlapping some map icons, so switching to 0xE00
+    InitMenuScrollBarImg(0xE00, 2); 
 }
 
 LYN_REPLACE_CHECK(SetPrepScreenMenuOnBPress);

@@ -29,7 +29,7 @@ void PutUnitSpriteIconsOam(void)
 
 	PutChapterMarkedTileIconOam();
 
-	for (i = 1; i <= 0xC0; i++) {
+	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; i++) {
 		int ix, iy, status;
 		struct Unit *unit = GetUnit(i);
 
