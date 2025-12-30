@@ -5,6 +5,7 @@
 #include "battle-system.h"
 #include "eventinfo.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-structs.h"
 #include "../../../../../Contents/Texts/build/msgs.h"
 
 #define LOCAL_TRACE 0

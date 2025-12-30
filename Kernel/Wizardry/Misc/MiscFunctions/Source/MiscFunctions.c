@@ -4403,3 +4403,44 @@ s8 AiIsUnitEnemy(struct Unit* unit) {
 
     return 1;
 }
+
+// void SupportPopupText(struct EventEngineProc * proc)
+// {
+//     struct Text *text = gPrepItemTexts;
+// 	for (int i = 0; i < 1; i++)
+// 		ClearText(&text[i]);
+//     // NewPopup_VerySimple(textId, SONG_SE_UPDATE, proc);
+//     // struct Unit* target = GetUnit(gActionData.targetIndex);
+
+//     // int targetSupportNum = GetUnitSupporterNum(gActiveUnit, target->pCharacterData->number);
+//     // int subjectSupportNum = GetUnitSupporterNum(target, gActiveUnit->pCharacterData->number);
+//     // int supportLevel = GetUnitSupportLevel(gActiveUnit, targetSupportNum);
+//     PlaySoundEffect(SONG_SE_UPDATE);
+//     const char * supportString = "Support level C -> B";
+//     DrawUiFrame(gBG1TilemapBuffer, 5, 10, 10, 2, 0, 1);
+//     PutDrawText(
+// 		text++,
+// 		TILEMAP_LOCATED(gBG2TilemapBuffer, 21, 1),
+// 		TEXT_COLOR_SYSTEM_WHITE,
+// 		GetStringTextCenteredPos(0x40, supportString),
+// 		0, supportString
+// 	);
+// }
+
+// const EventListScr EventScr_MapSupportConversation_NEW[] = {
+//     EVBIT_MODIFY(0x3)
+//     BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
+//     MUSC(0xffff)
+//     GOTO(0x1)
+// LABEL(0x0)
+//     MUSI
+// LABEL(0x1)
+//     SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0)
+//     TEXTSHOW(0xffff)
+//     TEXTEND
+//     REMA
+//     //NOTIFY(0xc, SONG_5A)
+//     ASMC(SupportPopupText)
+//     EVBIT_T(7)
+//     ENDA
+// };

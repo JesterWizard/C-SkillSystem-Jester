@@ -41,3 +41,5 @@ extern const UnitPromotions unit_promotions[];
 enum {
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
 };
+
+// extern const EventListScr EventScr_MapSupportConversation_NEW[];
