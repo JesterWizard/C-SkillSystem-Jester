@@ -588,9 +588,8 @@ Attack an enemy up to 10 tiles[N]
 away once per map.[X]
 
 ## MSG_MenuCommand_Refuge_NAME
-Refuge[X]
+ Refuge[X]
 ## MSG_MenuCommand_Refuge_DESC
-Refuge:[N]
 Retreat into an ally who's[N]
 AID >= the unit's CON.[X]
 
