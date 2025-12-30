@@ -20,7 +20,7 @@ void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc)
 void PrepScreenMenu_OnAugury(struct ProcAtMenu* proc) 
 {
     proc->state = 5;
-    CallSomeSoundMaybe(SONG_BONDS, 0x100, 0x100, 0x20, 0);
+    // CallSomeSoundMaybe(SONG_BONDS, 0x100, 0x100, 0x20, 0);
     Proc_Goto(proc, 0xA);
 }
 

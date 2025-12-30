@@ -2,6 +2,10 @@
 @ Sets +0x33 to 5, go to label 0xA, play select sound.
 .thumb
 
+.set    ChapterData, 0x202BCF0
+.set    m4aSongNumStart, 0x80D01FD
+.set    Goto6CLabel, 0x8002F25
+
 push  {r4-r7, r14}
 mov   r5, r0
 
