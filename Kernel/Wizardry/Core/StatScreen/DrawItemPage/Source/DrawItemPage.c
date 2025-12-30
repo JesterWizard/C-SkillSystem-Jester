@@ -328,19 +328,14 @@ LYN_REPLACE_CHECK(HbRedirect_SSItem);
 void HbRedirect_SSItem(struct HelpBoxProc *proc)
 {
 
-	/* JESTER - I'm not sure how to prevent the R Text bubble from displaying when shifting between bubbles on this page, proc->mid doesn't refresh in this way */
+	struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
+
+	/* JESTER - A little something to turn off the R text for this page if there are no promotions available for the unit */
 #ifdef CONFIG_STAT_PAGE_PROMOTIONS
 	if (gStatScreen.page == 6)
-	{
-		if (proc->mid == 0)
-		{
-			gKeyStatusPtr->newKeys = B_BUTTON;
-			return;
-		}
-	}
+		if (gEventSlots[EVT_SLOT_8] == 0x1000)
+			TryRelocateHbLeft(proc);
 #endif
-
-	struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
 
 	if (list->ent[0].item == ITEM_NONE)
 		TryRelocateHbLeft(proc);

@@ -50,6 +50,8 @@ void DrawPage7Rework(void)
     // If we found promotion data for this character, use it
     if (promo_data != NULL)
     {
+        // Reset event slot 8 for units who have promotion options so their R Text can be viewed
+        gEventSlots[EVT_SLOT_8] = 0;
         int text_idx = 14;
         int promo_y_offsets[] = {0x1, 0x6, 0xB};
         int skill_y_offsets[] = {0x3, 0x8, 0xD};
@@ -94,5 +96,8 @@ void DrawPage7Rework(void)
             0,
             "No promotions" 
         );
+
+        // Keep this for checking in HbRedirect__SSItem so that R text isn't triggered when no promotions are available for the unit
+        gEventSlots[EVT_SLOT_8] = 0x1000;
     }
 }
