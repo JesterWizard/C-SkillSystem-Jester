@@ -204,6 +204,6 @@ He earned his name though acts of cannibalism.[X]
 
 ## MSG_Bazba_Description_One
 The leader of Bazba's Bandits.[N]
-Vicious and cruel to 
+Vicious and cruel even to children.[X]
 ## MSG_Bazba_Description_Two
 ## MSG_Bazba_Description_Three

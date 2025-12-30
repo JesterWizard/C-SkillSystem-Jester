@@ -1,0 +1,4 @@
+ALIGN 4
+#include "data/data.event"
+#include "source/SpawnAssassinfx.lyn.event"
+#include "source/SpawnAssassinfx-event.lyn.event"

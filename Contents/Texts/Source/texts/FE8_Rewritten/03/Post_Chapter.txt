@@ -380,5 +380,3 @@ on my own.[A][N]
 [OpenFarRight]
 .....[A][N]
 I'll think about it.[A][ClearFace]
-[OpenMidLeft][LoadFace_Vigarde]
-Now be off with you. 

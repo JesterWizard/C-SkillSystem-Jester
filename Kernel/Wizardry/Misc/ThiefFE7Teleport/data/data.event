@@ -1,0 +1,12 @@
+ALIGN 4
+Img_EventSpriteAnim_SpawnAssassin_Red:
+    #incbin "Img_EventSpriteAnim_SpawnAssassinRed.4bpp.lz"
+Img_EventSpriteAnim_SpawnAssassin_Blue:
+    #incbin "Img_EventSpriteAnim_SpawnAssassinBlue.4bpp.lz"
+Img_EventSpriteAnim_SpawnRogue_Blue:
+    #incbin "Img_EventSpriteAnim_SpawnRogueBlue.4bpp.lz"
+Img_EventSpriteAnim_SpawnThief_Blue:
+    #incbin "Img_EventSpriteAnim_SpawnThiefBlue.4bpp.lz"
+
+ApConf_EventSpriteAnim_Spawn:
+    #incbin "ApConf_EventSpriteAnim_Spawn.bin"

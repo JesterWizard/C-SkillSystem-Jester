@@ -159,3 +159,7 @@
 #ifdef CONFIG_UNIT_SELECTION_QUOTES
     #include "Misc/UnitSelectionSFX/UnitSelectionSFX_Installer.event"
 #endif
+
+#ifdef CONFIG_FE7_TELEPORT
+    #include "Misc/ThiefFE7Teleport/ThiefFE7Teleport.event"
+#endif

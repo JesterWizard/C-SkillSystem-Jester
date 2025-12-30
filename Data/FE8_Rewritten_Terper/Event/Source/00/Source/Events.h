@@ -96,6 +96,7 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_ONEILL, 60)
     TEXT(Chapter_00_Scene_03_Convo_04)
     ASMC(SetGameOptions)
+    // FANCY_TELEPORT_ANIMATION_AT_COORDS(7, 5, CLASS_ASSASSIN)
     NOFADE
     ENDA
 };

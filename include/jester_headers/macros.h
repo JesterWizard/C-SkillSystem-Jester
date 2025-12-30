@@ -254,6 +254,13 @@ enum {
     STAL(16) \
     ASMC(EndQuintessenceStealEffect)
 
+#define FANCY_TELEPORT_ANIMATION_AT_COORDS(x, y, classId) \
+    SVAL(EVT_SLOT_3, 6) \
+    SVAL(EVT_SLOT_4, 8) \
+    SVAL(EVT_SLOT_5, classId) \
+    ASMC(CallEvent_SpawnAssassinfx) \
+    STAL(30)
+
 #define ESCAPE_TILE(characterID, EventListscr, x, y) \
     LOCA(characterID, EventListscr, x, y, TILE_COMMAND_VISIT) \
 
