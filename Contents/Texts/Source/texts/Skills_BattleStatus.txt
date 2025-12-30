@@ -1707,7 +1707,7 @@ using half of its stats.[N]
 and its effects.[X]
 
 ## MSG_SKILL_Rampart_NAME
-[X]
+Rampart[X]
 ## MSG_SKILL_Rampart_DESC
 Rampart:[N]
 If attacked, reduces the damage[N]
