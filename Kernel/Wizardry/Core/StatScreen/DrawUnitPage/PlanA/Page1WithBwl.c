@@ -315,10 +315,12 @@ FORCE_DECLARE static void DrawPage1SightBar(void)
     PutNumber(gUiTmScratchA + TILEMAP_INDEX(0xC + CountDigits(amt), 0x7),
         textColor, amt);
 
-    DrawStatWithBarReworkExt(
-        0xA, 0xD, 0x7,
-        gUiTmScratchC,
-        amt, amt, max, max);
+	// JESTER - The addition of this bar for fog sight causes the background equipment graphic on page 2 to glitch slighly
+	// I don't know how to fix it, so I'm just going to disable this bar for now
+    // DrawStatWithBarReworkExt(
+    //     0xA, 0xD, 0x7,
+    //     gUiTmScratchC,
+    //     amt, amt, max, max);
 }
 #endif
 
