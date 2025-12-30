@@ -6,8 +6,8 @@ const struct KernelBattleDesignerConfig gKernelBattleDesignerConfig = {
 	.nosferatu_hpdrain_perc = 50,
 	.rider_debuff_indoor = 20,
 	.crit_correction = 300,
-	.critical_rate_bonus_cavalry = -10,
-	.critical_rate_bonus_attr = 10,
+	.critical_rate_bonus_cavalry = 0,
+	.critical_rate_bonus_attr = 15,
 
 	.combo_base_damage = 5,
 	.combo_additional_damage_en = false,
