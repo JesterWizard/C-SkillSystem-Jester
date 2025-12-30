@@ -380,14 +380,14 @@ void BattleApplyExpGains(void)
         bool actorBlue  = (UNIT_FACTION(&gBattleActor.unit)  == FACTION_BLUE);
         bool targetBlue = (UNIT_FACTION(&gBattleTarget.unit) == FACTION_BLUE);
 
-        if (actorBlue)
+        if (actorBlue && gBattleActor.unit.exp != UNIT_EXP_DISABLED)
         {
             gBattleActor.expGain = GetBattleUnitExpGainRework(&gBattleActor, &gBattleTarget);
             gBattleActor.unit.exp += gBattleActor.expGain;
             CheckBattleUnitLevelUp(&gBattleActor);
         }
 
-        if (targetBlue)
+        if (targetBlue && gBattleTarget.unit.exp != UNIT_EXP_DISABLED)
         {
             gBattleTarget.expGain = GetBattleUnitExpGainRework(&gBattleTarget, &gBattleActor);
             gBattleTarget.unit.exp += gBattleTarget.expGain;
