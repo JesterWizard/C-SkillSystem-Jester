@@ -401,8 +401,6 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
 
     Text_InsertDrawString(text, 0, 3, GetStringFromIndex(0x4E9)); // TODO: msgid "HP"
 
-    NoCashGBAPrintf("Items lot index is: %d", gActionData.itemSlotIndex);
-
 #ifdef CONFIG_SHOW_HEAL_AMOUNT
     int healAmount = GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]);
 

@@ -99,7 +99,7 @@ void CallMapSupportEvent(u16 musicIndex, u16 textIndex) {
 #endif
 
     gEventSlots[0x2] = musicIndex;
-    gEventSlots[0x5] = textIndex;
+    gEventSlots[0x3] = textIndex;
 }
 
 LYN_REPLACE_CHECK(CallSupportViewerEvent);
@@ -117,7 +117,7 @@ struct SupportTalkEnt* GetSupportTalkList(void) {
 #ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
     return (struct SupportTalkEnt* )gNewSupportTalkList;
 #else
-	return gSupportTalkList;
+	return (struct SupportTalkEnt* )gSupportTalkList;
 #endif
 }
 
@@ -128,10 +128,10 @@ struct SupportTalkEnt * GetSupportTalkEntry(u16 pidA, u16 pidB)
     const struct SupportTalkEnt * it;
 
 #ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
-    for (it = gNewSupportTalkList; it->unitA != 0xFFFF; it++)
+    for (it = gNewSupportTalkList; it->unitA != 0xFFFF; it++)	
 #else
-    for (it = gSupportTalkList; it->unitA != 0xFFFF; it++)
-#endif	
+    for (it = gSupportTalkList; it->unitA != 0xFFFF; it++)	
+#endif
 	{
         if ((pidA == it->unitA) && (pidB == it->unitB))
             return (struct SupportTalkEnt *)it;  // Cast const away only on return

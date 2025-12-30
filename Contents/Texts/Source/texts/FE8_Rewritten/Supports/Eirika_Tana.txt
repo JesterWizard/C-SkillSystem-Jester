@@ -1,6 +1,5 @@
 ## C_Eirika_Tana
-[ToggleSmile]
-[OpenMidLeft][LoadFace_Eirika]
+[OpenMidLeft][LoadFace_Eirika][ToggleSmile]
 [OpenMidRight][LoadFace_Tana]
 [OpenMidRight]Ah, Eirika.[.][A][LF]
 Shall we ride together a while?[.][A]
