@@ -362,8 +362,9 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
                                         promo_data->promotions[i].classId);
                 }
             }
-            
-            SyncUnitSpriteSheet();
+
+            // SyncUnitSpriteSheet();
+            RefreshUnitSprites();
         }
     }
 }

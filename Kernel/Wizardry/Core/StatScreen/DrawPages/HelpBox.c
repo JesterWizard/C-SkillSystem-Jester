@@ -71,10 +71,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
 #ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
     if (vram == NULL) {
         if (Proc_Find(gProcScr_StatScreen))
-            if (gStatScreen.page == 6) 
-                vram = (void *)0x060160A0; // This is reliant on CONFIG_STAT_PAGE_PROMOTIONS being the page for this slot
-            else
-                vram = (void *)0x06012000;
+            vram = (void *)0x06012000;
         else
             vram = (void *)0x06013000;
     }
@@ -90,10 +87,6 @@ void LoadHelpBoxGfx(void * vram, int palId)
 
     palId = (palId & 0xF) + 0x10;
 
-    // if (Proc_Find(gProcScr_StatScreen) && gStatScreen.page != 6)
-    // {
-    //     Decompress(gGfx_HelpTextBox, vram + 0x360);
-    // }
     Decompress(gGfx_HelpTextBox, vram + 0x360);
     Decompress(gGfx_HelpTextBox2, vram + 0x760);
     Decompress(gGfx_HelpTextBox3, vram + 0xb60);

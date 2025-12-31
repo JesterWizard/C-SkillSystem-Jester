@@ -207,6 +207,8 @@ STATIC_DECLAR int MenuSkills_StandardDraw(struct MenuProc *menu, struct MenuItem
 	if (item->availability == MENU_DISABLED)
 		Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_GRAY);
 
+	Text_DrawString(&item->text, " ");
+
 	if (def->nameMsgId)
 		Text_DrawString(&item->text, GetStringFromIndex(def->nameMsgId));
 	else if (gpKernelDesigerConfig->menu_skill_disp_msg_en_n == true)
