@@ -42,4 +42,4 @@ enum {
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
 };
 
-// extern const EventListScr EventScr_MapSupportConversation_NEW[];
+extern const EventListScr EventScr_MapSupportConversation_NEW[];

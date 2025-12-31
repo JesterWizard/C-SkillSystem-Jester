@@ -4404,43 +4404,87 @@ s8 AiIsUnitEnemy(struct Unit* unit) {
     return 1;
 }
 
-// void SupportPopupText(struct EventEngineProc * proc)
-// {
-//     struct Text *text = gPrepItemTexts;
-// 	for (int i = 0; i < 1; i++)
-// 		ClearText(&text[i]);
-//     // NewPopup_VerySimple(textId, SONG_SE_UPDATE, proc);
-//     // struct Unit* target = GetUnit(gActionData.targetIndex);
+struct PopupInstruction const NewSupportPopup_C[] = {
+    POPUP_SOUND(SONG_SE_UPDATE),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE),
+    POPUP_SPACE(5),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_GRAY),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_NA),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_ARROW),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_C),
+    POPUP_END
+};
 
-//     // int targetSupportNum = GetUnitSupporterNum(gActiveUnit, target->pCharacterData->number);
-//     // int subjectSupportNum = GetUnitSupporterNum(target, gActiveUnit->pCharacterData->number);
-//     // int supportLevel = GetUnitSupportLevel(gActiveUnit, targetSupportNum);
-//     PlaySoundEffect(SONG_SE_UPDATE);
-//     const char * supportString = "Support level C -> B";
-//     DrawUiFrame(gBG1TilemapBuffer, 5, 10, 10, 2, 0, 1);
-//     PutDrawText(
-// 		text++,
-// 		TILEMAP_LOCATED(gBG2TilemapBuffer, 21, 1),
-// 		TEXT_COLOR_SYSTEM_WHITE,
-// 		GetStringTextCenteredPos(0x40, supportString),
-// 		0, supportString
-// 	);
-// }
+struct PopupInstruction const NewSupportPopup_B[] = {
+    POPUP_SOUND(SONG_SE_UPDATE),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE),
+    POPUP_SPACE(5),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_C),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_ARROW),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_B),
+    POPUP_END
+};
 
-// const EventListScr EventScr_MapSupportConversation_NEW[] = {
-//     EVBIT_MODIFY(0x3)
-//     BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
-//     MUSC(0xffff)
-//     GOTO(0x1)
-// LABEL(0x0)
-//     MUSI
-// LABEL(0x1)
-//     SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0)
-//     TEXTSHOW(0xffff)
-//     TEXTEND
-//     REMA
-//     //NOTIFY(0xc, SONG_5A)
-//     ASMC(SupportPopupText)
-//     EVBIT_T(7)
-//     ENDA
-// };
+struct PopupInstruction const NewSupportPopup_A[] = {
+    POPUP_SOUND(SONG_SE_UPDATE),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE),
+    POPUP_SPACE(5),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_B),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_ARROW),
+    POPUP_SPACE(5),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_GREEN),
+    POPUP_MSG(MSG_SUPPORT_INCREASE_A),
+    POPUP_END
+};
+
+void SupportPopupText(ProcPtr * proc)
+{
+    switch (gEventSlots[EVT_SLOT_8])
+    {
+    case 1:
+        NewPopup_Simple(NewSupportPopup_C, 0x60, 0x00, proc);
+        break;
+    case 2:
+        NewPopup_Simple(NewSupportPopup_B, 0x60, 0x00, proc);
+        break;
+    case 3:
+        NewPopup_Simple(NewSupportPopup_A, 0x60, 0x00, proc);
+        break;
+    default:
+        NewPopup_Simple(NewSupportPopup_C, 0x60, 0x00, proc);
+        break;
+    }
+}
+
+const EventListScr EventScr_MapSupportConversation_NEW[] = {
+    EVBIT_MODIFY(0x3)
+    BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
+    MUSC(0xffff)
+    GOTO(0x1)
+LABEL(0x0)
+    MUSI
+LABEL(0x1)
+    SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0)
+    TEXTSHOW(0xffff)
+    TEXTEND
+    REMA
+    //NOTIFY(0xc, SONG_5A)
+    ASMC(SupportPopupText)
+    EVBIT_T(7)
+    ENDA
+};

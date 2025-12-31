@@ -24,3 +24,16 @@ with this node.[X]
 
 ## FMU_exitMenuHelpText
 Return to world map.[X]
+
+## MSG_SUPPORT_INCREASE
+Support Lv.[X]
+## MSG_SUPPORT_INCREASE_ARROW
+->[X]
+## MSG_SUPPORT_INCREASE_NA
+N/A[X]
+## MSG_SUPPORT_INCREASE_C
+C[X]
+## MSG_SUPPORT_INCREASE_B
+B[X]
+## MSG_SUPPORT_INCREASE_A
+A[X]
