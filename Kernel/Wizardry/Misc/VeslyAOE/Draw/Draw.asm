@@ -155,7 +155,7 @@ blh RegisterObjectTileGraphics, r4
 
 @ comment out these lines to not use palette 27 
 ldr r0, =SaveScreenNumbersPal
-mov r1, #27 @ usual palette # 
+mov r1, #25 @ usual palette # 
 lsl r1, #5 @ multiply by #0x20
 mov	r2,#0x20
 blh CopyToPaletteBuffer @Arguments: r0 = source pointer, r1 = destination offset, r2 = size (0x20 per full palette)
@@ -1457,7 +1457,7 @@ GotOffset:
 add		r3, r2, r3
 
 @ comment - change this line to #26 to not use 27 palette 
-mov r2, #27 @ palette # 26 - or 27 is the light rune palette i think 
+mov r2, #25 @ palette # 26 - or 27 is the light rune palette i think 
 lsl r2, #12 @ bits 12-15 
 orr r3, r2 
 
@@ -1631,7 +1631,7 @@ push {lr}
 @Restore the destroyed palette to draw the numbers.
 ldr r0, =0x0859EEC0	@Right Lune Palette	@{U}
 @ldr r0, =0x085C73E0	@Right Lune Palette	@{J}
-mov r1, #27 @ usual palette # 
+mov r1, #25 @ usual palette # 
 lsl r1, #5 @ multiply by #0x20
 mov	r2,#0x20
 blh CopyToPaletteBuffer @Arguments: r0 = source pointer, r1 = destination offset, r2 = size (0x20 per full palette)
