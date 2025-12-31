@@ -7,17 +7,11 @@
 #define FALSE 0
 
 ALIGN 4
-#ifdef CONFIG_VESLY_DANGER_BONES
+
 US_BIT_SHAKE:
     WORD (1 << 24)
 US_BIT_PAL:
     WORD (1 << 27)
-#else
-US_BIT_SHAKE:
-    WORD 0
-US_BIT_PAL:
-    WORD 0
-#endif
 
 ALIGN 4 
 ShakeSpeed_Link:
@@ -34,7 +28,8 @@ WORD 0x128
 #include "Hooks.lyn.event" 
 
 gPal_DangerBones:
-BYTE $90 $1D $0D $00 $18 $25 $DC $2D $0E $00 $F6 $00 $5F $36 $0C $00 $15 $00 $1C $00 $1F $00 $C7 $01 $5F $01 $50 $00 $1F $46 $08 $00
+// BYTE $90 $1D $0D $00 $18 $25 $DC $2D $0E $00 $F6 $00 $5F $36 $0C $00 $15 $00 $1C $00 $1F $00 $C7 $01 $5F $01 $50 $00 $1F $46 $08 $00
+#incext Png2Dmp "Fourth_Allegiance_Light_Rune_Topazlight-stand.png" --palette-only
 
 #ifndef callHackNew
 	#define callHackNew(offset) "BYTE $01 $4B $9E $46 $00 $F8 $01 $E0; POIN (offset|0x1)"
@@ -47,13 +42,13 @@ ORG $1cc20
 callHackNew(Hook_PlayerPhase_InitUnitMovementSelect) // Finish danger bones if needed 
 
 /* Hooks into HandlePostActionTraps - 0x37744 */
-// ORG $37750
-// callHackNew(Hook_HandlePostActionTraps)
+ORG $37750
+callHackNew(Hook_HandlePostActionTraps)
 
-// #ifdef OVERWRITE_LIGHTRUNE_PAL
-// ORG $2733c 
-// jumpToHack(Hook_RefreshUnitSprites)
-// #endif 
+#ifdef OVERWRITE_LIGHTRUNE_PAL
+ORG $2733c 
+jumpToHack(Hook_RefreshUnitSprites)
+#endif 
 
 ORG $1c894
 jumpToHack(Hook_PlayerPhase_Suspend) 
@@ -69,12 +64,12 @@ ORG $273F8
 callHackNew(Hook_PutUnitSpritesOam) 
 SHORT $46c0 
 
-// #ifdef OVERWRITE_LIGHTRUNE_PAL
-// ORG $59eec0
-// BYTE $90 $1D $0D $00 $18 $25 $DC $2D $0E $00 $F6 $00 $5F $36 $0C $00 $15 $00 $1C $00 $1F $00 $C7 $01 $5F $01 $50 $00 $1F $46 $08 $00
-// ORG $1C068C
-// #incbin "Fourth_Allegiance_Light_Rune_Topazlight-stand.dmp"
-// #endif
+#ifdef OVERWRITE_LIGHTRUNE_PAL
+ORG $59eec0
+BYTE $90 $1D $0D $00 $18 $25 $DC $2D $0E $00 $F6 $00 $5F $36 $0C $00 $15 $00 $1C $00 $1F $00 $C7 $01 $5F $01 $50 $00 $1F $46 $08 $00
+ORG $1C068C
+#incbin "Fourth_Allegiance_Light_Rune_Topazlight-stand.dmp"
+#endif
 
 #ifdef _VERTICAL_ 
 // Vertical instead of Horizontal shaking 

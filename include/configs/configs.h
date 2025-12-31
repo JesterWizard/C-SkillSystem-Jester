@@ -353,7 +353,7 @@
  *  I've also had to change how I install it due to this bug https://github.com/JesterWizard/C-SkillSystem-Jester/issues/352
  * So technically this hack is always installed but it's effect can be toggled off with this definition below
  */
-// #define CONFIG_VESLY_DANGER_BONES 
+#define CONFIG_VESLY_DANGER_BONES 
 
 #define CONFIG_VESLY_SUPPORT_POST_BATTLE
 

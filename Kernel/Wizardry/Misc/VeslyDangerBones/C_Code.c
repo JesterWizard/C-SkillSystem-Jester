@@ -35,61 +35,12 @@ int ShouldDangerBonesNotRun(void)
     return false;
 }
 
-#ifdef FE6
-// fe6 has no bitflags for shaking / 4th palette, so make a buffer
-int IsDangerBonesSetForUnit(const struct Unit * unit)
-{
-    if ((unit->index & 0xFF) < 0x80)
-    {
-        return false;
-    }
-    if (ShouldDangerBonesNotRun())
-    {
-        return false;
-    }
-
-    int id = unit->index & 0x3F;
-    return DangerBonesPalBuffer[id >> 3] & (1 << (id & 7));
-}
-
-void SetDangerBonesForId(int id)
-{
-    id &= 0x3F;
-    DangerBonesPalBuffer[id >> 3] |= (1 << (id & 7));
-}
-void UnsetDangerBonesForId(int id)
-{
-    id &= 0x3F;
-    DangerBonesPalBuffer[id >> 3] &= ~(1 << (id & 7));
-}
-
-int GetUnitDisplayedSpritePalette_FE6(const struct Unit * unit)
-{
-    if (unit->state & US_UNSELECTABLE)
-        return 0xF;
-
-    if (IsDangerBonesSetForUnit(unit))
-        return 0xB;
-
-    return GetUnitSpritePalette(unit); // 22064
-}
-
-#endif
 extern const u16 gPal_DangerBones[];
 void SetDangerBonesPalette(void)
 {
-#ifndef CONFIG_FOURTH_ALLEGIANCE
     if (Pal_4th)
-    {
         CopyToPaletteBuffer(gPal_DangerBones, 0x1B * 0x20, 0x20);
-    }
-#endif
 }
-
-// #define EMPTY_BmUnit
-
-// break point on buffer
-// [0x201c8d0..0x201c8d0+0x2878]!!
 
 int IsUnitInvalid(struct Unit * unit)
 {
@@ -118,21 +69,15 @@ void RemoveEnemyShaking(void)
     {
         return;
     }
-#ifdef FE6
-    for (int i = 0x80; i < 0xC0; ++i)
-    {
-        UnsetDangerBonesForId(i);
-    }
-
-    return;
-#endif
 
     struct Unit * unit;
     int unitState = 0;
+
     if (ShakeIt)
     {
         unitState |= US_BIT_SHAKE;
     }
+
     if (Pal_4th)
     {
         unitState |= US_BIT_PAL;
@@ -157,18 +102,22 @@ void UpdateVisualsForEnemiesWhoCanAttackTile(void)
     int y = gBmSt.playerCursor.y;
     SetLastCoords(x, y);             // vanilla
     SetWorkingBmMap(gBmMapMovement); // vanilla
+
     if (ShouldDangerBonesNotRun())
     {
         return;
     }
+    
     u8 savedUnitId = gBmMapUnit[y][x];
     gBmMapUnit[y][x] = 0;
 
     int unitState = 0;
+
     if (ShakeIt)
     {
         unitState |= US_BIT_SHAKE;
     }
+
     if (Pal_4th)
     {
         unitState |= US_BIT_PAL;
@@ -198,16 +147,15 @@ void UpdateVisualsForEnemiesWhoCanAttackTile(void)
             {
                 continue;
             }
-            deploymentID = 0x80 + ((i << 3) + bit); // i*8 + bit
 
+            deploymentID = 0x80 + ((i << 3) + bit); // i*8 + bit
             unit = GetUnit(deploymentID);
+
             if (IsUnitInvalid(unit))
             {
                 continue; // not a unit
             }
-#ifdef FE6
-            SetDangerBonesForId(deploymentID);
-#endif
+
             unit->state |= unitState;
         }
     }
@@ -269,7 +217,7 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
         return;
     }
 
-    for (int i = proc->id; i < 0xC0; ++i) // Enemy only
+    for (int i = proc->id; i < 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) // Enemy only
     {
         if (counter)
         {
@@ -287,9 +235,7 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
         {
             continue;
         }
-#ifdef EMPTY_BmUnit
-        BmMapFill(gBmMapUnit, 0);
-#endif
+
         counter++;
 
         BmMapFill(gBmMapRange, 0);
@@ -300,26 +246,15 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
         gBmMapUnit[unit->yPos][unit->xPos] = 0;
 
         SetWorkingBmMap(gBmMapRange);
-        if ((unit->ai_config & 0x2000) || (unit->ai1 == 3))
-        { // boss ai: never move
-#ifndef FE8
+        if ((unit->ai_config & 0x2000) || (unit->ai1 == 3)) // boss ai: never move
             GenerateUnitStandingReachRange(unit, GetUnitWeaponReachBits(unit, -1));
-#else
-            GenerateUnitCompleteAttackRange(unit);
-#endif
-        }
         else
-        {
             GenerateUnitCompleteAttackRange(unit);
-        }
 
         CopyAttackRangeIntoBuffer(i & 0x3F, xSize, ySize);
 
         gBmMapUnit[unit->yPos][unit->xPos] = savedUnitId;
     }
-#ifdef EMPTY_BmUnit
-    RefreshUnitsOnBmMap();
-#endif
 }
 
 void DangerBonesWaitForBattle(DangerBonesProc * proc)
@@ -354,11 +289,8 @@ void GenerateDangerBonesRangeAll(int i) // Causes noticable lag if done for 0x80
     u8 savedUnitId;
     int xSize = gBmMapSize.x;
     int ySize = gBmMapSize.y;
-#ifdef EMPTY_BmUnit
-    BmMapFill(gBmMapUnit, 0);
-#endif
 
-    for (; i < 0xC0; ++i) // Enemy only
+    for (; i < 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) // Enemy only
     {
         struct Unit * unit = GetUnit(i);
 
@@ -375,40 +307,26 @@ void GenerateDangerBonesRangeAll(int i) // Causes noticable lag if done for 0x80
 
         SetWorkingBmMap(gBmMapRange);
 
-        if ((unit->ai_config & 0x2000) || (unit->ai1 == 3))
-        { // boss ai: never move
-#ifndef FE8
+        if ((unit->ai_config & 0x2000) || (unit->ai1 == 3)) // boss ai: never move
             GenerateUnitStandingReachRange(unit, GetUnitWeaponReachBits(unit, -1));
-#else
-            GenerateUnitCompleteAttackRange(unit);
-#endif
-        }
         else
-        {
             GenerateUnitCompleteAttackRange(unit);
-        }
+
         CopyAttackRangeIntoBuffer(i & 0x3F, xSize, ySize);
 
         gBmMapUnit[unit->yPos][unit->xPos] = savedUnitId;
     }
+
     BmMapFill(gBmMapRange, 0);
     BmMapFill(gBmMapMovement, 0);
-#ifdef EMPTY_BmUnit
-    RefreshUnitsOnBmMap();
-#endif
-    // brk;
 }
 
 void StartDangerBonesRange(void)
 {
     if (ShouldDangerBonesNotRun())
-    {
         return;
-    }
+
     CpuFill16(0, DangerBonesBuffer, DangerBonesBufferSize);
-#ifdef EMPTY_BmUnit
-    BmMapFill(gBmMapUnit, 0);
-#endif
 
     DangerBonesProc * proc = Proc_Find((ProcPtr)&DangerBonesProcCmd);
     if (proc)
@@ -423,15 +341,13 @@ void StartDangerBonesRange(void)
         proc->selected = false;
         proc->id = 0x80;
     }
-    // GenerateDangerBonesRange();
 }
 
 void FinishDangerBonesRange(void) // if proc didn't finish yet, calc the rest now
 {
     if (ShouldDangerBonesNotRun())
-    {
         return;
-    }
+
     DangerBonesProc * proc = Proc_Find((ProcPtr)&DangerBonesProcCmd);
     int id = 0x80;
     if (proc)
