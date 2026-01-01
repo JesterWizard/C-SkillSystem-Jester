@@ -3936,8 +3936,7 @@ void RestartDebuggerMenu(DebuggerProc* proc) {
     } 
     
     //UnpackUiFramePalette(3);
-    Decompress(
-        gUnknown_08A02274, (void*)(VRAM + 0x10000 + 0x240 * 0x20));
+    Decompress(((u8 *)0x08A02274), (void*)(VRAM + 0x10000 + 0x240 * 0x20));
 
     //RefreshBMapGraphics(); // should not happen on the same frame as starting a menu, or black boxes occur 
     // perhaps they both use the generic buffer 
