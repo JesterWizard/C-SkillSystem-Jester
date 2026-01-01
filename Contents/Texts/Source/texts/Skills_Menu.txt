@@ -721,3 +721,11 @@ Assign Decoy+[X]
 Assign Decoy+:[N]
 Give any unit the decoy[N]
 status for a turn.[X]
+
+## MSG_SKILL_Gungnir_NAME
+Gungnir[X]
+## MSG_SKILL_Gungnir_DESC
+Gungnir:[N]
+Send an arrow through every enemy[N]
+in the same column as this unit.[N]
+Once per map.[X]

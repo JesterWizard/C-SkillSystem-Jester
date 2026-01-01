@@ -1281,4 +1281,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 	},
 #endif
 
+#if (defined(SID_Gungnir) && COMMON_SKILL_VALID(SID_Gungnir))
+    [SID_Gungnir] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Gungnir_NAME,
+        .helpMsgId = MSG_SKILL_Gungnir_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Gungnir_Usability,
+        .onDraw = NULL,
+        .onSelected = Gungnir_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 };

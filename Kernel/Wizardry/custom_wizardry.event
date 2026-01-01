@@ -163,3 +163,5 @@
 #ifdef CONFIG_FE7_TELEPORT
     #include "Misc/ThiefFE7Teleport/ThiefFE7Teleport.event"
 #endif
+
+#include "Misc/VeslyShootArrow/VeslyShootArrow_Installer.event"

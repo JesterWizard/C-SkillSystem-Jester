@@ -415,3 +415,12 @@ enum {
     ENDA
 
 #endif
+
+#define SHOOT_ARROW(x, y, dmg) \
+    SVAL(0xB, COORDS(x, y)) \
+    SVAL(0x1, dmg) \
+    ASMC(ShootArrow_ASMC + 1)
+
+#define SHOOT_ARROW_DYNAMIC(dmg) \
+    SVAL(0x1, dmg) \
+    ASMC(ShootArrow_ASMC + 1)

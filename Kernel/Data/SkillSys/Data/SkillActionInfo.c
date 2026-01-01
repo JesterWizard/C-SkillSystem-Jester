@@ -318,4 +318,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Songstress) && COMMON_SKILL_VALID(SID_Songstress))
 	[SID_Songstress] = Action_Songstress,
 #endif
+
+#if (defined(SID_Gungnir) && COMMON_SKILL_VALID(SID_Gungnir))
+	[SID_Gungnir] = Action_Gungnir,
+#endif
 };

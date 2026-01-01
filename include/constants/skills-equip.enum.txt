@@ -88,6 +88,7 @@ SID_GateOfBabylon
 SID_EmergencyExit
 SID_EmergencyExitPlus
 SID_Songstress
+SID_Gungnir
 
 //////// PRE-BATTLE SKILLS
 SID_DefiantStr
