@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
+#include "utf8.h"
 
 NOINLINE const struct MenuItemDef *GetSkillMenuInfo(int sid)
 {
@@ -210,9 +211,9 @@ STATIC_DECLAR int MenuSkills_StandardDraw(struct MenuProc *menu, struct MenuItem
 	Text_DrawString(&item->text, " ");
 
 	if (def->nameMsgId)
-		Text_DrawString(&item->text, GetStringFromIndex(def->nameMsgId));
+		Text_DrawString(&item->text, Utf8ToNarrowFonts(GetStringFromIndex(def->nameMsgId)));
 	else if (gpKernelDesigerConfig->menu_skill_disp_msg_en_n == true)
-		Text_DrawString(&item->text, GetMenuSkillName(sid));
+		Text_DrawString(&item->text, Utf8ToNarrowFonts(GetMenuSkillName(sid)));
 	else
 		Text_DrawString(&item->text, def->name);
 
