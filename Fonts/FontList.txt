@@ -1,10 +1,12 @@
+// The first font in the generic list that is uncommented will be the one that is displayed in game
 # Generic
-Glyph/basic/font.fontall.txt
+// Glyph/basic/font.fontall.txt
+// Glyph/fe8u/font.fontall.txt
 // Glyph/fe7u/font.fontall.txt
-Glyph/fe8u/font.fontall.txt
 // Glyph/fe7j/font.fontall.txt
 // Glyph/fe6j/font.fontall.txt
 // Glyph/fe8j/font.fontall.txt
+Glyph/PokeEmerald/font.fontall.txt
 
 # Narrow fonts
 Glyph/NarrowFonts/font.fontall.txt
