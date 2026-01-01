@@ -4241,93 +4241,93 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 // struct TalkState* CONST_DATA sTalkState = &sTalkStateCore;
 // static struct Text sTalkText[3];
 
-// #define sTalkStateCore (*(struct TalkState*)0x03000048)
-// #define sTalkState     (*(struct TalkState**)0x0859133C)
-// #define sTalkText      (*(struct Text (*)[3])0x030000D0)
+#define sTalkStateCore (*(struct TalkState*)0x03000048)
+#define sTalkState     (*(struct TalkState**)0x0859133C)
+#define sTalkText      (*(struct Text (*)[3])0x030000D0)
 
-// #define TALK_TEXT_BY_LINE(line) (&sTalkText[((line) + sTalkState->topTextNum) % sTalkState->lines])
+#define TALK_TEXT_BY_LINE(line) (&sTalkText[k_umod(((line) + sTalkState->topTextNum), sTalkState->lines)])
 
-// //! FE8U = 0x08006C34
-// LYN_REPLACE_CHECK(Talk_OnIdle);
-// void Talk_OnIdle(ProcPtr proc) {
+//! FE8U = 0x08006C34
+LYN_REPLACE_CHECK(Talk_OnIdle);
+void Talk_OnIdle(ProcPtr proc) {
 
-//     if (IsTalkFaceMoving()) {
-//         return;
-//     }
+    if (IsTalkFaceMoving()) {
+        return;
+    }
 
-//     if (!sTalkState->instantScroll) {
-//         sTalkState->printClock++;
+    if (!sTalkState->instantScroll) {
+        sTalkState->printClock++;
 
-//         if (sTalkState->printClock < sTalkState->printDelay) {
-//             return;
-//         }
-//     }
+        if (sTalkState->printClock < sTalkState->printDelay) {
+            return;
+        }
+    }
 
-//     sTalkState->printClock = 0;
+    sTalkState->printClock = 0;
 
-//     while (1) {
-//         SetTalkFaceNoMouthMove(sTalkState->activeFaceSlot);
+    while (1) {
+        SetTalkFaceNoMouthMove(sTalkState->activeFaceSlot);
 
-//         switch (TalkInterpret(proc)) {
-//             case 0:
-//                 Proc_Break(proc);
-//                 return;
+        switch (TalkInterpret(proc)) {
+            case 0:
+                Proc_Break(proc);
+                return;
 
-//             case 2:
-//                 if (sTalkState->instantScroll || sTalkState->printDelay <= 0) {
-//                     break;
-//                 }
+            case 2:
+                if (sTalkState->instantScroll || sTalkState->printDelay <= 0) {
+                    break;
+                }
 
-//                 return;
+                return;
 
-//             case 3:
-//                 sTalkState->printClock = sTalkState->printDelay;
-//                 sTalkState->instantScroll = 0;
+            case 3:
+                sTalkState->printClock = sTalkState->printDelay;
+                sTalkState->instantScroll = 0;
 
-//                 return;
+                return;
 
-//             case 1:
-//             default:
-//                 if (!(CheckTalkFlag(TALK_FLAG_SPRITE))) {
-//                     if (TalkPrepNextChar(proc) == 1) {
-//                         return;
-//                     }
-//                 } else {
-//                     if (TalkSpritePrepNextChar(proc) == 1) {
-//                         return;
-//                     }
-//                 }
+            case 1:
+            default:
+                if (!(CheckTalkFlag(TALK_FLAG_SPRITE))) {
+                    if (TalkPrepNextChar(proc) == 1) {
+                        return;
+                    }
+                } else {
+                    if (TalkSpritePrepNextChar(proc) == 1) {
+                        return;
+                    }
+                }
 
-//                 sTalkState->str = Text_DrawCharacter(TALK_TEXT_BY_LINE(sTalkState->lineActive), sTalkState->str);
+                sTalkState->str = Text_DrawCharacter(TALK_TEXT_BY_LINE(sTalkState->lineActive), sTalkState->str);
 
-//                 if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
-//                     if (CheckTalkFlag(TALK_FLAG_7)) {
-//                         RegisterEfxSoundSeExist();
-//                         Sound_SetBGMVolume(1);
-//                         // Sound_SetSEVolume(1);
-//                         PlaySoundEffect(SONG_7A);
-//                     } else {
-//                         if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {
-//                             break;
-//                         }
+                if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
+                    if (CheckTalkFlag(TALK_FLAG_7)) {
+                        RegisterEfxSoundSeExist();
+                        Sound_SetBGMVolume(1);
+                        // Sound_SetSEVolume(1);
+                        PlaySoundEffect(SONG_7A);
+                    } else {
+                        if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {
+                            break;
+                        }
 
-//                         if (sTalkState->instantScroll && sTalkState->unk82) {
-//                             break;
-//                         }
+                        if (sTalkState->instantScroll && sTalkState->unk82) {
+                            break;
+                        }
 
-//                         sTalkState->unk82 = 1;
-//                         PlaySoundEffect(SONG_6E);
-//                     }
-//                 }
-//         }
+                        sTalkState->unk82 = 1;
+                        PlaySoundEffect(SONG_6E);
+                    }
+                }
+        }
 
-//         if (!sTalkState->instantScroll && sTalkState->printDelay > 0) {
-//             return;
-//         }
-//     }
+        if (!sTalkState->instantScroll && sTalkState->printDelay > 0) {
+            return;
+        }
+    }
 
-//     return;
-// }
+    return;
+}
 
 void GrantBEXP_Loop(struct ProcGrantBEXP* proc)
 {

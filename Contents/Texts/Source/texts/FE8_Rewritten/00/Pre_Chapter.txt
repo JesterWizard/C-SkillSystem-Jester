@@ -147,8 +147,8 @@ Dastard![A][X]
 
 ## Chapter_00_Scene_02_Convo_04_1
 [SetName]Valter[N]
-Ha! So Renais' loyal dog has the[N]
-bite to match his bark![A][X]
+Ha! So Renais' loyal dog has[N]
+the bite to match his bark![A][X]
 
 ## Chapter_00_Scene_02_Convo_04_2
 [OpenMidLeft][LoadFace_Seth]
@@ -194,10 +194,8 @@ Sir![A][X]
 [OpenMidLeft][LoadFace_Seth]
 Princess Eirika![A] This way![A] I can[N]
 see no more of Grado's men.[A][N]
-If we've made it this far, we've[N]
-surely earned a moment's rest.[A][N]
 [HalfCloseEyes]
-And... please forgive my grabbing you[N]
+Please... forgive my grabbing you[N]
 so... brusquely earlier.[A][N]
 [OpenMidRight]
 No, it's... it's of no concern, Seth.[A][N]
