@@ -899,3 +899,4 @@
 #define MSG_SKILL_Equlibrium_PRICE 1000
 #define MSG_SKILL_Weatherman_PRICE 1000
 #define MSG_SKILL_Gungnir_PRICE 1000
+#define MSG_SKILL_Transcendence_PRICE 1000

@@ -108,6 +108,7 @@
 #include "MenuSkills/EmergencyExitPlus.lyn.event"
 #include "MenuSkills/Songstress.lyn.event"
 #include "MenuSkills/Gungnir.lyn.event"
+#include "MenuSkills/Transcendence.lyn.event"
 
 #include "MenuSkills/ReciprocalAid.lyn.event"
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"

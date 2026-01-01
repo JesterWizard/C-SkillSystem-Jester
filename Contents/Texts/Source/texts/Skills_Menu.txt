@@ -729,3 +729,10 @@ Gungnir:[N]
 Send an arrow through every enemy[N]
 in the same column as this unit.[N]
 Once per map.[X]
+
+## MSG_SKILL_Transcendence_NAME
+Transcendence[X]
+## MSG_SKILL_Transcendence_DESC
+Transcendence:[N]
+Promote an enemy unit once per map,[N]
+and make their last item droppable.[X]

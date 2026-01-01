@@ -322,4 +322,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Gungnir) && COMMON_SKILL_VALID(SID_Gungnir))
 	[SID_Gungnir] = Action_Gungnir,
 #endif
+
+#if (defined(SID_Transcendence) && COMMON_SKILL_VALID(SID_Transcendence))
+	[SID_Transcendence] = Action_Transcendence,
+#endif
 };

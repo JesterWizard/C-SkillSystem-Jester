@@ -89,6 +89,7 @@ SID_EmergencyExit
 SID_EmergencyExitPlus
 SID_Songstress
 SID_Gungnir
+SID_Transcendence
 
 //////// PRE-BATTLE SKILLS
 SID_DefiantStr

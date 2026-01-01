@@ -29,6 +29,7 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_Songstress_Used, 
 	PLAYSTEXPA_BIT_Songstress_InForce, // Used to check for phase skipping and then unset
 	PLAYSTEXPA_BIT_Gungnir_Used, 
+	PLAYSTEXPA_BIT_Transcendence_Used, 
 
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,

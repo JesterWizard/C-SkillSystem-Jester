@@ -899,3 +899,4 @@
 #define MSG_SKILL_Equlibrium_CAPACITY 1
 #define MSG_SKILL_Weatherman_CAPACITY 1
 #define MSG_SKILL_Gungnir_CAPACITY 1
+#define MSG_SKILL_Transcendence_CAPACITY 1
