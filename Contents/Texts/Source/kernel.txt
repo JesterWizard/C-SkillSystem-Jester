@@ -41,4 +41,4 @@ W.I.P.[X]
 #include "texts/Affinity_Descriptions.txt"
 #include "texts/Items.txt"
 
-#include "texts/FE8_Rewritten/Text.txt"
+#include "../../../Data/FE8_Rewritten_Terper/Text/Text.txt"
