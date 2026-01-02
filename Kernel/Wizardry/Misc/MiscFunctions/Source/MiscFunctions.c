@@ -4234,13 +4234,6 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
     return;
 }
 
-
-// JESTER - Freezing when opened on a text box
-
-// static struct TalkState sTalkStateCore;
-// struct TalkState* CONST_DATA sTalkState = &sTalkStateCore;
-// static struct Text sTalkText[3];
-
 #define sTalkStateCore (*(struct TalkState*)0x03000048)
 #define sTalkState     (*(struct TalkState**)0x0859133C)
 #define sTalkText      (*(struct Text (*)[3])0x030000D0)

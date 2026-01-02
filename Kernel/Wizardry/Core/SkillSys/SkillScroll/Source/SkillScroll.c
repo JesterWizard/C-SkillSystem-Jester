@@ -287,24 +287,38 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
         /* Simply add a new skill */
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
+    {
         AddSkill(unit, ITEM_USES(item));
+        SetPopupItem(ITEM_USES(item));
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
+    {
         AddSkill(unit, ITEM_USES(item) + 0xFF);
+        SetPopupItem(ITEM_USES(item) + 0xFF);
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
+    {
         AddSkill(unit, ITEM_USES(item) + 0x1FF);
+        SetPopupItem(ITEM_USES(item) + 0x1FF);
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
     if (ITEM_INDEX(item) ==  CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
+    {
         AddSkill(unit, ITEM_USES(item) + 0x2FF);
+        SetPopupItem(ITEM_USES(item) + 0x2FF);
+    }
 #endif
         UnitUpdateUsedItem(unit, slot);
     }
 
-    NewPopup_VerySimple(MSG_SkillLearned, 0x5A, proc);
+    SetPopupUnit(gActiveUnit);
+
+    NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
 }
 
 bool ItemUsability_SkillScroll(struct Unit *unit, int item)

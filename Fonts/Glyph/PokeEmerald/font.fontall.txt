@@ -16,7 +16,7 @@ $	item	6	FontItem_24.png
 .	item	2	FontItem_2E.png
 /	item	5	FontItem_2F.png
 0	item	7	FontItem_30.png
-1	item	7	FontItem_31.png
+1	item	6	FontItem_31.png
 2	item	7	FontItem_32.png
 3	item	7	FontItem_33.png
 4	item	7	FontItem_34.png
