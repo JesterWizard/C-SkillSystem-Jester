@@ -104,3 +104,5 @@ u8 GaidenWMagActionCommandUsability(const struct MenuItemDef *def, int number);
 int GaidenWMagActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *item);
 u8 GaidenWMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int GaidenWMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem);
+
+extern void TryAddGaidenMagicPConf(struct Unit * unit, int level);

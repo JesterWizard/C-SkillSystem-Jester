@@ -46,10 +46,10 @@ Spent 1000 Gold.[X]
 Acquired![.][X]
 
 ## MSG_Learned
-Learned [X]
+learned [X]
 
 ## MSG_Obtained
-Obtained [X]
+obtained [X]
 
 ## MSG_PredationSkillChoice
 Select an enemy skill to learn.[X]

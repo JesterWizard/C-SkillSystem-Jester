@@ -5,6 +5,7 @@
 /*
 ** If CONFIG_TURN_ALL_SKILLS_ON is enabled
 ** then you are limited to 5 skills here, otherwise it's 7
+** You can only have one skill learned per level, 0 being the exception
 */
 
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
@@ -444,6 +445,12 @@ const struct SkillPreloadJConf gSkillPreloadJData[0x100] = {
     [CLASS_SNIPER_F] = {
     },
 
-    [CLASS_PALADIN] = {
+    [CLASS_PALADIN] = {{
+        [1] = SID_Astra
     }
+    },
+
+    [CLASS_EIRIKA_MASTER_LORD] = {{
+        [1] = SID_Airlock
+    }}
 };

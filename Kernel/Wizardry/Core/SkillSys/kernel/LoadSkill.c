@@ -3,6 +3,8 @@
 #include "lvup.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
+#include "gaiden-magic.h"
+#include "constants/texts.h"
 
 #define LOCAL_TRACE 0
 
@@ -163,6 +165,29 @@ STATIC_DECLAR void TryAddSkillLvupPConf(struct Unit *unit, int level)
 		if (EQUIP_SKILL_VALID(sid)) {
 			AddSkill(unit, sid);
 			PushSkillListStack(sid);
+			
+			SetPopupItem(sid);
+			ProcPtr * phaseToBlock = Proc_Find(gProcScr_PlayerPhase);
+			switch (gPlaySt.faction) {
+				case FACTION_BLUE:
+					phaseToBlock = Proc_Find(gProcScr_PlayerPhase);
+					SetPopupUnit(gActiveUnit);
+					break;
+				case FACTION_RED:
+					phaseToBlock = Proc_Find(gProcScr_CpDecide);
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;
+				case FACTION_GREEN:
+					phaseToBlock = Proc_Find(gProcScr_CpDecide);
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;
+				case FACTION_PURPLE:
+					phaseToBlock = Proc_Find(gProcScr_CpDecide);
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;		
+			};		
+
+    		NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, phaseToBlock);
 		}
 	}
 }
@@ -203,6 +228,8 @@ void TryAddSkillLvup(struct Unit *unit, int level)
 	_level = level + GetUnitHiddenLevel(unit);
 	if (k_umod(_level, 5) == 0)
 		TryAddSkillLvupPConf(unit, _level);
+	
+	TryAddGaidenMagicPConf(unit, level);
 }
 
 /**
@@ -230,6 +257,26 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 		if (EQUIP_SKILL_VALID(sid)) {
 			AddSkill(unit, sid);
 			PushSkillListStack(sid);
+			
+			SetPopupItem(sid);
+			ProcPtr * phaseToBlock = Proc_Find(ProcScr_ClassChgReal);
+
+			switch (gPlaySt.faction) {
+				case FACTION_BLUE:
+					SetPopupUnit(gActiveUnit);
+					break;
+				case FACTION_RED:
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;
+				case FACTION_GREEN:
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;
+				case FACTION_PURPLE:
+					SetPopupUnit(GetUnit(gActionData.targetIndex));
+					break;		
+			};		
+
+    		NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, phaseToBlock);
 		}
 	}
 

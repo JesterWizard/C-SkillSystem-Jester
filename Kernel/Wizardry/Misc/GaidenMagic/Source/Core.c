@@ -5,6 +5,7 @@
 #include <bwl.h>
 #include <list-verify.h>
 #include <gaiden-magic.h>
+#include "constants/texts.h"
 
 struct GaidenMagicList *const gGaidenMagicList = &sGaidenMagicListObj;
 
@@ -274,4 +275,59 @@ void DrawGaidenMagItemMenuLine(struct Text *text, int item, s8 isUsable, u16 *ma
 	Text_DrawString(text, GetItemName(item));
 	PutText(text, mapOut + 2);
 	DrawIcon(mapOut, GetItemIconId(item), 0x4000);
+}
+
+/* Popup script: "Learned" + item name/icon */
+static const struct PopupInstruction PopupScr_GaidenLearn[] = {
+	POPUP_SOUND(SONG_SE_UPDATE),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+	POPUP_UNIT_NAME,
+	POPUP_SPACE(2),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+	POPUP_MSG(MSG_Learned),
+	POPUP_SPACE(2),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_GOLD),
+	POPUP_ITEM_ICON,
+	POPUP_SPACE(2),
+	POPUP_ITEM_STR,
+	POPUP_END
+};
+
+void TryAddGaidenMagicPConf(struct Unit * unit, int level)
+{
+	const struct GaidenPinfoConfigEnt *conf = GetGaidenPinfoConfigList()[UNIT_CHAR_ID(unit)].ent;
+	ProcPtr * phaseToBlock = Proc_Find(gProcScr_PlayerPhase);
+
+	for (; conf && conf->iid != 0; conf++)
+	{
+		u8 entry_level = conf->level & 0x7F;
+
+		if ((conf->level & 0x80) && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED))
+			continue;
+
+		if (entry_level != level)
+			continue;
+
+		/* Show popup for this gaiden magic item id */
+		int item = conf->iid;
+
+		switch (gPlaySt.faction) {
+			case FACTION_BLUE:
+				phaseToBlock = Proc_Find(gProcScr_PlayerPhase);
+				break;
+			case FACTION_RED:
+			case FACTION_GREEN:
+			case FACTION_PURPLE:
+				phaseToBlock = Proc_Find(gProcScr_CpDecide);
+				unit = GetUnit(gActionData.targetIndex);
+				break;
+			default:
+				break;
+		}
+
+		SetPopupItem(item);
+		SetPopupUnit(unit);
+
+		NewPopup_Simple(PopupScr_GaidenLearn, SONG_SE_UPDATE, 0x00, phaseToBlock);
+	}
 }
