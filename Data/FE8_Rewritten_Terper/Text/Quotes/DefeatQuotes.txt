@@ -77,3 +77,8 @@ not nearly as merciful as I...[A][X]
 [OpenMidLeft][LoadFace_Binks][MoveMidLeft]
 5,000 gold was way too little.[A][N]
 Pablo, you cheap bas...[A][X]
+
+## MSG_DEFEAT_QUOTE_EIRIKA
+[OpenMidLeft][LoadFace_Eirika][HalfCloseEyes]
+Ephraim, Father...[N]
+I'm so s-sorry...[A][X]
