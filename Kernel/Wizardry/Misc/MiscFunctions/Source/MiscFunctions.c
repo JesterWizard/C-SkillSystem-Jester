@@ -4282,10 +4282,12 @@ void Talk_OnIdle(ProcPtr proc) {
                 sTalkState->str = Text_DrawCharacter(TALK_TEXT_BY_LINE(sTalkState->lineActive), sTalkState->str);
 
                 if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
-                    if (CheckTalkFlag(TALK_FLAG_7)) {
+                    if (CheckTalkFlag(TALK_FLAG_7)) { // World map text boop
                         RegisterEfxSoundSeExist();
-                        Sound_SetBGMVolume(1);
-                        // Sound_SetSEVolume(1);
+
+                        if (gpKernelDesigerConfig->voice_acted_dialogue == true) // Reduce the world map boop volume so it's not overpowering the voice acting
+                            Sound_SetBGMVolume(0x60); 
+                        
                         PlaySoundEffect(SONG_7A);
                     } else {
                         if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {

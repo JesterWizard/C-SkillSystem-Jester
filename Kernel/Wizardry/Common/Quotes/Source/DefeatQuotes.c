@@ -115,6 +115,14 @@ const struct DefeatTalkEntNew gNewDefeatTalkList[] = {
         .msg     = MSG_DEFEAT_QUOTE_EIRIKA,
     },
     {
+        .pidA    = CHARACTER_EPHRAIM,
+        .pidB    = 0xFFFF,
+        .route   = CHAPTER_MODE_ANY,
+        .chapter = 0xFF,
+        .flag    = EVFLAG_GAMEOVER,
+        .msg     = MSG_DEFEAT_QUOTE_EPHRAIM,
+    },
+    {
         .pidA    = 0xFFFF,
         .chapter = 0x00,
         .msg     = 0x0000,

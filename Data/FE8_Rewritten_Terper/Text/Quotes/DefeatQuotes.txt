@@ -82,3 +82,8 @@ Pablo, you cheap bas...[A][X]
 [OpenMidLeft][LoadFace_Eirika][HalfCloseEyes]
 Ephraim, Father...[N]
 I'm so s-sorry...[A][X]
+
+## MSG_DEFEAT_QUOTE_EPHRAIM
+[OpenMidLeft][LoadFace_Ephraim][HalfCloseEyes]
+E-Eirika, I-I can't...[A][N]
+protect you any...more...[A][X]
