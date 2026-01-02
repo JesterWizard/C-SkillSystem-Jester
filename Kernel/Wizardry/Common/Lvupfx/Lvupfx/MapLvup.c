@@ -267,6 +267,10 @@ static const EventScr EventScr_LevelUpSpeech[] = {
 
 void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 {
+	/* JESTER - I'm doing this as a little patch for end of map BEXP. The procs intefere with each other and softlock the game so if we've won we return early */
+	if (gEventSlots[EVT_SLOT_8] > 0)
+		return;
+
 	int message = -1;
 	int unitID = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 

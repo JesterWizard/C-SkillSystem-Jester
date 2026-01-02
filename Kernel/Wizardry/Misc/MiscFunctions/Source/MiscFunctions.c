@@ -4325,7 +4325,7 @@ void Talk_OnIdle(ProcPtr proc) {
 void GrantBEXP_Loop(struct ProcGrantBEXP* proc)
 {
     struct Unit* unit;
-    int BEXP = gEventSlots[EVT_SLOT_7];
+    int BEXP = gEventSlots[EVT_SLOT_8];
 
     // Find next valid unit
     while (proc->unitIndex < FACTION_GREEN) {

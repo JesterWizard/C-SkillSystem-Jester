@@ -104,8 +104,7 @@ static const EventScr EventScr_Beginning[] = {
 
 static const EventScr EventScr_Ending[] = {
     ASMC(DisplayMapClearMapAnim)
-    SVAL(EVT_SLOT_7, 10)
-    ASMC(GrantBEXP)
+    GRANT_BEXP(10)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_00_Scene_03_Convo_06)
     FADE_TO_BLACK(16)
