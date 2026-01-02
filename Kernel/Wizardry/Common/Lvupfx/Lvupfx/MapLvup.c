@@ -158,7 +158,9 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 		{
 			gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
 			StartBmPromotion(proc);
-			gActionData.subjectIndex = 0;
+			GetUnit(gActionData.subjectIndex)->level = 1;
+			GetUnit(gActionData.subjectIndex)->exp = 0;
+			gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
 		}
 #endif
 		Proc_Break(proc);
