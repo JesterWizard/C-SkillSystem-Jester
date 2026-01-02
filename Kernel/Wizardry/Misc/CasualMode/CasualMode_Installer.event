@@ -13,8 +13,9 @@
     ORG $8D0DC //Skip Show Objective
       BYTE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 
-    ORG $18418
-      jumpToHack(CasualMode)
+    /* JESTER - This hooks into UnitKill, so I remade this part in C */
+    // ORG $18418
+    //   jumpToHack(CasualMode)
 
 	ORG 0xA2EC28
 	byte $20;

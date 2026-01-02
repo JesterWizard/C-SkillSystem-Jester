@@ -347,16 +347,8 @@
 #define CONFIG_UNIT_AMT_NPC   8
 
 #define CONFIG_VESLY_DEBUGGER
-
-/**
- *  Overwrites light rune paletter and makes it red
- *  I've also had to change how I install it due to this bug https://github.com/JesterWizard/C-SkillSystem-Jester/issues/352
- * So technically this hack is always installed but it's effect can be toggled off with this definition below
- */
 #define CONFIG_VESLY_DANGER_BONES 
-
 #define CONFIG_VESLY_SUPPORT_POST_BATTLE
-
 #ifdef  CONFIG_VESLY_SUPPORT_POST_BATTLE
 	#define SUPPORT_RATE_KILL 100
 	#define SUPPORT_RATE_COMBAT 100
@@ -374,7 +366,7 @@
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
 #define CONFIG_VESLY_SHOOT_ARROW
 #define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
-// #define CONFIG_CASUAL_MODE // Doesn't seem to work right now, look into remaking in C
+#define CONFIG_CASUAL_MODE // Doesn't seem to work right now, look into remaking in C
 #define CONFIG_RES_TERRAIN_WINDOW
 #define CONFIG_MODULAR_MINIMUG_BOX
 #define CONFIG_INSTANT_LEVEL_UP

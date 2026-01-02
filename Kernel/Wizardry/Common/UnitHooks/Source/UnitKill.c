@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "kernel-lib.h"
 
 typedef int (*KillUnitFunc_t)(struct Unit *unit);
 // extern const KillUnitFunc_t gKillUnitHooks[];
@@ -19,8 +20,16 @@ void UnitKill(struct Unit *unit)
 		if (UNIT_IS_PHANTOM(unit))
 			unit->pCharacterData = NULL;
 		else {
-			unit->state |= US_DEAD | US_HIDDEN;
-			InitUnitsupports(unit);
+			
+			if (gpKernelDesigerConfig->casual_mode == true)
+			{
+				unit->state |= US_HIDDEN;
+			}
+			else
+			{
+				unit->state |= US_DEAD | US_HIDDEN;
+				InitUnitsupports(unit);
+			}
 		}
 	} else
 		unit->pCharacterData = NULL;

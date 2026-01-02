@@ -48,6 +48,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.debug_autoload_skills = true,
 #endif
 
+	.casual_mode = true,
+
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
 	.lvup_mode_normal   = CONFIG_LVUP_MODE_NORMAL,
