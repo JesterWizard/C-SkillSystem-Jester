@@ -78,7 +78,11 @@ bool AddBattleHpCost(struct BattleUnit *bu, int round, int hp_cost)
 	bu->unit.curHP -= hp_cost;
 #endif
 
+/* JESTER - Turn off the battle hit from gaiden magic if we're using MP instead of HP */
+#ifndef CONFIG_MP_SYSTEM
 	GetExtBattleHit(round)->hp_cost += hp_cost;
+#endif
+
 	return true;
 }
 
