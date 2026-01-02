@@ -35,7 +35,6 @@ void ResetGaidenMagicList(struct GaidenMagicList *list)
 {
 	memset(list, 0, sizeof(*list));
 }
-
 void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 {
 	int i;
@@ -43,15 +42,20 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 	const struct GaidenChaxConfigEnt  *conf2 = gpGaidenChaxConfigs;
 
 	u8 tmpbuf[0x100];
+	int effectiveLevel = unit->level;
 
 	CpuFastFill16(0, tmpbuf, 0x100);
+
+	/* +20 levels for promoted units */
+	if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+		effectiveLevel += 20;
 
 	if (conf1) {
 		for (; conf1->iid != ITEM_NONE; conf1++) {
 			if ((conf1->level & 0x80) && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED))
 				continue;
 
-			if (unit->level < (conf1->level & 0x7F))
+			if (effectiveLevel < (conf1->level & 0x7F))
 				continue;
 
 			tmpbuf[conf1->iid] = 1;
@@ -69,7 +73,7 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 			if (conf2->jid != 0 && UNIT_CLASS_ID(unit) != conf2->jid)
 				continue;
 
-			if (unit->level < conf2->level)
+			if (effectiveLevel < conf2->level)
 				continue;
 
 			if (COMMON_SKILL_VALID(conf2->skill) && !SkillTester(unit, conf2->skill))
