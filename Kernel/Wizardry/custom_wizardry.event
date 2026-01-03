@@ -164,8 +164,4 @@
     #include "Misc/ThiefFE7Teleport/ThiefFE7Teleport.event"
 #endif
 
-#ifdef CONFIG_VESLY_GOLDEN_SUN_TALK_BEEPS
-    #include "Misc/VeslyGoldenSunTalkBeeps/VeslyGoldenSunTalkBeeps_Installer.event"
-#endif
-
 #include "Misc/VeslyShootArrow/VeslyShootArrow_Installer.event"

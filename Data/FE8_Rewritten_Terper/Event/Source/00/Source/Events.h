@@ -64,8 +64,7 @@ static const EventScr EventScr_Beginning[] = {
     
     /* Escape Valter */
     HIGHLIGHT_CHARACTER(CHARACTER_VALTER_PROLOGUE, 60)
-    TEXT_CG(0x3A, Chapter_00_Scene_02_Convo_04_1)
-    TEXT(Chapter_00_Scene_02_Convo_04_2)
+    TEXT_CG(0x3A, Chapter_00_Scene_02_Convo_04)
     MOVE_1STEP_WAIT(0, CHARACTER_SETH, MOVE_LEFT)
     ERASE(CHARACTER_EIRIKA)
     MOVE_THRICE_WAIT(0, CHARACTER_SETH, 4, 4, 4, 2, 0, 2)

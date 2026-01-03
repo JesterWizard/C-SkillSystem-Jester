@@ -480,15 +480,17 @@ UNIT_SFX_DIR := ./Kernel/Wizardry/Misc/UnitSelectionSFX
 UNIT_SFX_SCRIPT := $(UNIT_SFX_DIR)/generate_sfx_event.py
 UNIT_SFX_EVENT := $(UNIT_SFX_DIR)/UnitSelectionSFX_Installer.event
 
-.PHONY: generate_unit_sfx clean_unit_sfx
-
-generate_unit_sfx:
+.PHONY: rebuild_unit_sfx clean_unit_sfx
+rebuild_unit_sfx:
 	@echo "Deleting old installer if it exists..."
 	@rm -f $(UNIT_SFX_EVENT)
 	@echo "Generating UnitSelectionSFX installer..."
 	@python3 $(UNIT_SFX_SCRIPT)
 	@echo "Installer generated: $(UNIT_SFX_EVENT)"
 
-clean_unit_sfx:
-	@echo "Cleaning UnitSelectionSFX installer..."
-	@rm -f $(UNIT_SFX_EVENT)
+.PHONY: rebuild_msg_indexes
+rebuild_mss_indexes:
+	@echo "Removing Texts build directory..."
+	@rm -rf $(TEXTS_DIR)/build
+	@echo "Rebuilding Texts..."
+	@$(MAKE)

@@ -145,15 +145,12 @@ Another kill to add to my collection!![A][N]
 [OpenMidLeft]
 Dastard![A][X]
 
-## Chapter_00_Scene_02_Convo_04_1
+## Chapter_00_Scene_02_Convo_04
 [SetName]Valter[N]
 Ha! So Renais' loyal dog has[N]
 the bite to match his bark![A][X]
-
-## Chapter_00_Scene_02_Convo_04_2
-[OpenMidLeft][LoadFace_Seth]
+[SetName]Seth[N]
 Argh...![A][N]
-[OpenMidLeft]
 N-No![A][X]
 
 ## Chapter_00_Scene_02_Convo_05
