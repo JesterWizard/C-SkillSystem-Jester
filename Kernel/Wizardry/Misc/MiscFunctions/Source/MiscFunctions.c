@@ -716,13 +716,14 @@ void UnitDrop(struct Unit* actor, int xTarget, int yTarget)
     target->state = target->state & ~(US_RESCUING | US_RESCUED | US_HIDDEN);
 
     /* Let rescued units move after the rescuer dies */
-#ifdef CONFIG_DEATH_DANCE
-    if (UNIT_FACTION(target) == gPlaySt.faction && actor->curHP != 0)
-        target->state |= US_UNSELECTABLE; // TODO: US_GRAYED    
-#else
-    if (UNIT_FACTION(target) == gPlaySt.faction)
-        target->state |= US_UNSELECTABLE; // TODO: US_GRAYED
-#endif
+    if (gpKernelDesigerConfig->death_dance == true) {
+        if (UNIT_FACTION(target) == gPlaySt.faction && actor->curHP != 0)
+            target->state |= US_UNSELECTABLE; // TODO: US_GRAYED    
+    }
+    else {
+        if (UNIT_FACTION(target) == gPlaySt.faction)
+            target->state |= US_UNSELECTABLE; // TODO: US_GRAYED
+    }
 
     actor->rescue = 0;
     target->rescue = 0;

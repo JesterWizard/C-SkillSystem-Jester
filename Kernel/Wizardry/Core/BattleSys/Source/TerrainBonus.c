@@ -29,13 +29,15 @@ void SetBattleUnitTerrainBonuses(struct BattleUnit *bu, int terrain)
 {
 	const struct ClassData *jinfo = GetJInfoForTerrainBonus(&bu->unit);
 
-	bu->terrainId = terrain;
+	bu->terrainId 		  = terrain;
     bu->terrainAvoid      = jinfo->pTerrainAvoidLookup[bu->terrainId];
-	
-#ifndef CONFIG_STAT_SCREEN_TERRAIN_BONUS
-    bu->terrainDefense    = jinfo->pTerrainDefenseLookup[bu->terrainId];
-    bu->terrainResistance = jinfo->pTerrainResistanceLookup[bu->terrainId];
-#endif
+
+	/* This is so we don't apply the numbers twice since they're applied in the getters as well */
+	if (gpKernelDesigerConfig->display_terrain_bonuses_in_stat_screen == false)
+	{
+		bu->terrainDefense    = jinfo->pTerrainDefenseLookup[bu->terrainId];
+		bu->terrainResistance = jinfo->pTerrainResistanceLookup[bu->terrainId];
+	}
 
 #if (defined(SID_Camouflage) && (COMMON_SKILL_VALID(SID_Camouflage)))
     if (BattleFastSkillTester(bu, SID_Camouflage))

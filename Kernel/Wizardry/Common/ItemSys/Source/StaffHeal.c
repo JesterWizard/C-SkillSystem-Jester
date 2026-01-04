@@ -401,45 +401,49 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
 
     Text_InsertDrawString(text, 0, 3, GetStringFromIndex(0x4E9)); // TODO: msgid "HP"
 
-#ifdef CONFIG_SHOW_HEAL_AMOUNT
-    int healAmount = GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]);
 
-    if (healAmount == 0)
+    if (gpKernelDesigerConfig->show_heal_amount == true)
     {
-        switch (gActionData.itemSlotIndex)
+        int healAmount = GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]);
+
+        if (healAmount == 0)
         {
-	    case CHAX_BUISLOT_GAIDEN_BMAG1 ... CHAX_BUISLOT_GAIDEN_BMAG7:
-	    case CHAX_BUISLOT_GAIDEN_WMAG1 ... CHAX_BUISLOT_GAIDEN_WMAG7:
-		    healAmount = GetUnitItemHealAmount(gSubjectUnit, ITEM_INDEX(GetGaidenMagicItem(gSubjectUnit, gActionData.itemSlotIndex)) | (0xFF << 8));
-            break;
-        default:
-            break;
+            switch (gActionData.itemSlotIndex)
+            {
+            case CHAX_BUISLOT_GAIDEN_BMAG1 ... CHAX_BUISLOT_GAIDEN_BMAG7:
+            case CHAX_BUISLOT_GAIDEN_WMAG1 ... CHAX_BUISLOT_GAIDEN_WMAG7:
+                healAmount = GetUnitItemHealAmount(gSubjectUnit, ITEM_INDEX(GetGaidenMagicItem(gSubjectUnit, gActionData.itemSlotIndex)) | (0xFF << 8));
+                break;
+            default:
+                break;
+            }
         }
+
+        int healedHP = GetUnitCurrentHp(unit) + healAmount;
+        int colorId = TEXT_COLOR_SYSTEM_BLUE;
+
+        /* Boost the healed HP amount in the preview window by 50% */
+        #if (defined(SID_WhiteMage) && (COMMON_SKILL_VALID(SID_WhiteMage)))
+        if (SkillTester(gActiveUnit, SID_WhiteMage))
+                healedHP += GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]) / 2;
+        #endif
+
+        if (healedHP > GetUnitMaxHp(unit))
+        {
+            healedHP = GetUnitMaxHp(unit);
+            colorId = TEXT_COLOR_SYSTEM_GREEN;
+        }
+
+        Text_InsertDrawString(text, 36, 3, GetStringFromIndex(Arrow_ID)); // TODO: msgid "/[.]"
+        Text_InsertDrawNumberOrBlank(text, 26, 2, GetUnitCurrentHp(unit));
+        Text_InsertDrawNumberOrBlank(text, 55, colorId, healedHP);
     }
-
-    int healedHP = GetUnitCurrentHp(unit) + healAmount;
-    int colorId = TEXT_COLOR_SYSTEM_BLUE;
-
-    /* Boost the healed HP amount in the preview window by 50% */
-#if (defined(SID_WhiteMage) && (COMMON_SKILL_VALID(SID_WhiteMage)))
-    if (SkillTester(gActiveUnit, SID_WhiteMage))
-            healedHP += GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]) / 2;
-#endif
-
-    if (healedHP > GetUnitMaxHp(unit))
+    else
     {
-        healedHP = GetUnitMaxHp(unit);
-        colorId = TEXT_COLOR_SYSTEM_GREEN;
+        Text_InsertDrawString(text, 40, 3, GetStringFromIndex(0x539)); // TODO: msgid "/[.]"
+        Text_InsertDrawNumberOrBlank(text, 32, 2, GetUnitCurrentHp(unit));
+        Text_InsertDrawNumberOrBlank(text, 56, 2, GetUnitMaxHp(unit));
     }
-
-    Text_InsertDrawString(text, 36, 3, GetStringFromIndex(Arrow_ID)); // TODO: msgid "/[.]"
-    Text_InsertDrawNumberOrBlank(text, 26, 2, GetUnitCurrentHp(unit));
-    Text_InsertDrawNumberOrBlank(text, 55, colorId, healedHP);
-#else
-    Text_InsertDrawString(text, 40, 3, GetStringFromIndex(0x539)); // TODO: msgid "/[.]"
-    Text_InsertDrawNumberOrBlank(text, 32, 2, GetUnitCurrentHp(unit));
-    Text_InsertDrawNumberOrBlank(text, 56, 2, GetUnitMaxHp(unit));
-#endif
 
     return;
 }

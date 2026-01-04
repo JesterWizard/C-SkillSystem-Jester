@@ -34,13 +34,18 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.arena_let_player_use_upgraded_weapons = true,
 	.arena_calculate_weapon_based_on_level = true,
 	.talk_on_level_up = true,
+	.death_dance = true,
+	.s_rank_weapon_no_weight = true,
+	.display_terrain_bonuses_in_stat_screen = true,
+	.show_heal_amount = true,
+	.unlock_all_supports = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
 	.lvup_mode_normal   = CONFIG_LVUP_MODE_NORMAL,
 	.lvup_mode_hard	    = CONFIG_LVUP_MODE_HARD,
 
-	.unit_page_style = CONFIG_PAGE1_WITH_BWL,
+	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
 	.skil_page_style = CONFIG_PAGE4_MOKHA_PLAN_B,
 
 #ifdef CONFIG_USE_GAIDEN_MAGIC

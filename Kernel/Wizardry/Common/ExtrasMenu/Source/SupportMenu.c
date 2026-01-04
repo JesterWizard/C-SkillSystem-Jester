@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "bmmenu.h"
+#include "kernel-lib.h"
 #include "jester_headers/custom-arrays.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
@@ -96,10 +97,13 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
     if (IsExtraSoundRoomEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SOUND_ROOM);
 
-#ifndef CONFIG_UNLOCK_ALL_SUPPORTS
-    if (IsExtraSupportViewerEnabled() != 0)
-#endif
+    if (gpKernelDesigerConfig->unlock_all_supports == true) {
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SUPPORT);
+    }
+    else {
+        if (IsExtraSupportViewerEnabled() != 0)
+            AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SUPPORT);
+    }
 
     if (IsExtraFreeMapEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_MAP);
@@ -117,9 +121,9 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
 LYN_REPLACE_CHECK(GGM_IsCharacterKnown);
 bool GGM_IsCharacterKnown(int index, struct GlobalSaveInfo *buf)
 {
-#ifdef CONFIG_UNLOCK_ALL_SUPPORTS
-    return 1;
-#endif
+    if (gpKernelDesigerConfig->unlock_all_supports == true)
+        return 1;
+
     struct GlobalSaveInfo tmp_header;
     u32 _index = index;
 

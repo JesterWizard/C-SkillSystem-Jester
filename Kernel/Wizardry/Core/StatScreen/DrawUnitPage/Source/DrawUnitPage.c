@@ -39,12 +39,12 @@ void DisplayPage0(void)
 	InstallExpandedTextPal();
 
 	switch (gpKernelDesigerConfig->unit_page_style) {
-	case CONFIG_PAGE1_WITH_BWL:
+	case 1:
 	default:
 		DisplayPage_WithBWL();
 		break;
 
-	case CONFIG_PAGE1_WITH_LEADERSHIP:
+	case 2:
 		DisplayPage_WithLeadership();
 		break;
 	}
@@ -54,12 +54,12 @@ void DisplayPage0(void)
 void StartUnitScreenHelp(int pageid, struct Proc *proc)
 {
 	switch (gpKernelDesigerConfig->unit_page_style) {
-	case CONFIG_PAGE1_WITH_BWL:
+	case 1:
 	default:
 		gStatScreen.help = RTextPageUnit_WithBWL;
 		break;
 
-	case CONFIG_PAGE1_WITH_LEADERSHIP:
+	case 2:
 		gStatScreen.help = RTextPageUnit_WithLeadership;
 		break;
 	}

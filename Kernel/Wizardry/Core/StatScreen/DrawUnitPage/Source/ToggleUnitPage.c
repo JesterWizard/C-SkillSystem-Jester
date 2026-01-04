@@ -272,8 +272,8 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	 * It's true that better to put such process into StatScreen_OnIdle(), but both are okay.
 	 */
 	switch (gpKernelDesigerConfig->unit_page_style) {
-	case CONFIG_PAGE1_WITH_BWL:
-	case CONFIG_PAGE1_WITH_LEADERSHIP:
+	case 1:
+	case 2:
 		if ((gStatScreen.page == STATSCREEN_PAGE_0) && (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)) {
 			if (gStatScreenStExpa.toggle_timer == 0) {
 				if ((gKeyStatusPtr->newKeys & SELECT_BUTTON))

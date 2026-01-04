@@ -24,6 +24,11 @@ struct KernelDesigerConfig {
 	u8 arena_let_player_use_upgraded_weapons;
 	u8 arena_calculate_weapon_based_on_level;
 	u8 talk_on_level_up;
+	u8 death_dance;
+	u8 s_rank_weapon_no_weight;
+	u8 display_terrain_bonuses_in_stat_screen;
+	u8 show_heal_amount;
+	u8 unlock_all_supports;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

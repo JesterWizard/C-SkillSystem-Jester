@@ -166,12 +166,6 @@
 #define CONFIG_LVUP_MODE_HARD 0
 
 /**
-* Page1 styles
-*/
-#define CONFIG_PAGE1_WITH_BWL 0
-#define CONFIG_PAGE1_WITH_LEADERSHIP 1
-
-/**
  * Page4 styles
  */
 #define CONFIG_PAGE4_MOKHA_PLAN_A 0
@@ -372,8 +366,7 @@
 #define CONFIG_INSTANT_LEVEL_UP
 #define CONFIG_MIRROR_MAP_SPRITES
 #define CONFIG_TEXT_ENGINE_REWORK
-#define CONFIG_SHOW_HEAL_AMOUNT
-#define CONFIG_UNLOCK_ALL_SUPPORTS
+
 #define CONFIG_SHOW_CGs_LIKE_FE7
 //#define CONFIG_SEND_INVENTORY_ON_DEATH
 #define CONFIG_NO_WAIT_AFTER_TRADING
@@ -415,8 +408,7 @@
 #endif
 
 // #define CONFIG_AUTO_REPAIR_WEAPONS
-#define CONFIG_S_RANK_NO_WEAPON_WEIGHT
-#define CONFIG_STAT_SCREEN_TERRAIN_BONUS
+
 // #define CONFIG_RESTORE_HP_ON_LEVEL_UP
 #define CONFIG_RESET_BWL_STATS_EACH_CHAPTER
 
@@ -431,7 +423,6 @@
 
 #define CONFIG_CUSTOM_STAFF_ACCURACY 100
 
-#define CONFIG_DEATH_DANCE
 // #define CONFIG_SUPPORT_REWARDS // Go to BwlSupport.c in StartSupportTalk to adjust items gained
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
