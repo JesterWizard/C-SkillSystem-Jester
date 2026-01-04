@@ -695,25 +695,23 @@ void DrawItemMenuLine(struct Text * text, int item, s8 isUsable, u16 * mapOut)
 {
     Text_SetParams(text, 0, (isUsable ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY));
     Text_DrawString(text, GetItemName(item));
-
     PutText(text, mapOut + 2);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-    if (!IsDuraItem(item))
+    // Check if forge is active AND the item is forgeable
+    if (gpKernelDesigerConfig->forge_mechanic == true && CanItemBeForged(item))
     {
-        PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+        PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, (GetForgedItemDurability(item) == 0 ? GetItemMaxUses(item) : GetForgedItemDurability(item)));
+        PutSpecialChar(mapOut + 8, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+        PutNumberOrBlank(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
     }
-#endif
-
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    else // Default behavior: display standard durability
     {
-        if (CanItemBeForged(item)) {
-            PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, (GetForgedItemDurability(item) == 0 ? GetItemMaxUses(item) : GetForgedItemDurability(item)));
-            PutSpecialChar(mapOut + 8, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-        } else {
+        #ifndef CONFIG_INFINITE_DURABILITY
+        if (!IsDuraItem(item))
+        {
             PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
         }
+        #endif
     }
 
     DrawIcon(mapOut, GetItemIconId(item), 0x4000);

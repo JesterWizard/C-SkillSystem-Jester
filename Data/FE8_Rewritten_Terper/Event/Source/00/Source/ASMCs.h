@@ -16,7 +16,7 @@ void SetGameOptions()
 
     SetFlag(0xB4); // Guide Flag
 
-    gPlaySt.partyGoldAmount = 600000;
-    struct Unit * unit = GetUnitFromCharId(CHARACTER_EIRIKA);
-    unit->items[2] = ITEM_SWORD_IRON;
+    // gPlaySt.partyGoldAmount = 600000;
+    // struct Unit * unit = GetUnitFromCharId(CHARACTER_EIRIKA);
+    // unit->items[2] = MakeNewItem(ITEM_SWORD_IRON);
 };
