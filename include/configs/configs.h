@@ -387,9 +387,6 @@
 	#define CONFIG_ITEM_INDEX_SKILL_SCROLL_1 0xBD
 #endif
 
-#define CONFIG_PROMOTION_ON_MAX_LEVEL
-#define CONFIG_GREEN_BONUS_GROWTHS // Must disable CONFIG_GROWTHS_AS_LETTERS
-// #define CONFIG_GROWTHS_AS_LETTERS  // Must disable CONFIG_GREEN_BONUS_GROWTHS
 // #define CONFIG_SKIP_INTRO
 #define SETH_INJURED
 #define INJURED_TURN_COUNT 5
@@ -407,9 +404,6 @@
 	#define CONFIG_QUALITY_OF_LIFE_DISPLAY_SUPPORT_LEVEL_IN_POPUP
 #endif
 
-// #define CONFIG_AUTO_REPAIR_WEAPONS
-
-// #define CONFIG_RESTORE_HP_ON_LEVEL_UP
 #define CONFIG_RESET_BWL_STATS_EACH_CHAPTER
 
 /* Don't turn this on until I have defeat quotes for everyone as MC dying without a quote doesn't trigger a game over screen */
@@ -444,10 +438,7 @@
 
 // 	#define CONFIG_FE4_CRIT_BONUS_ON_KILL
 
-#define CONFIG_CUSTOM_SUPPORT_CONVOS
-
 #define CONFIG_MP_SYSTEM
-#define CONFIG_MODULAR_FOG_UNIT_SIGHT
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */

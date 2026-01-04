@@ -153,16 +153,16 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 
 	if (proc->y_scroll_offset <= -144)
 	{
-#ifdef CONFIG_PROMOTION_ON_MAX_LEVEL
-		if (gManimSt.actor[proc->actor_id].unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_PROMOTED))
-		{
-			gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
-			StartBmPromotion(proc);
-			GetUnit(gActionData.subjectIndex)->level = 1;
-			GetUnit(gActionData.subjectIndex)->exp = 0;
-			gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
+		if (gpKernelDesigerConfig->promotion_on_max_level == true) {
+			if (gManimSt.actor[proc->actor_id].unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_PROMOTED))
+			{
+				gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
+				StartBmPromotion(proc);
+				GetUnit(gActionData.subjectIndex)->level = 1;
+				GetUnit(gActionData.subjectIndex)->exp = 0;
+				gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
+			}
 		}
-#endif
 		Proc_Break(proc);
 	}
 }

@@ -29,6 +29,13 @@ struct KernelDesigerConfig {
 	u8 display_terrain_bonuses_in_stat_screen;
 	u8 show_heal_amount;
 	u8 unlock_all_supports;
+	u8 promotion_on_max_level;
+	u8 stat_screen_growths;
+	u8 restore_hp_on_level_up;
+	u8 auto_repair_weapons;
+	u8 custom_support_conversations;
+	u8 custom_fog_sight;
+	u8 custom_talk_icon;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

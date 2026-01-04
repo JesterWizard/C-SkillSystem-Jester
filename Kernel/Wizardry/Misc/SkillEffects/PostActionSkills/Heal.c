@@ -89,10 +89,23 @@ bool PostAction_BattleActorHeal(ProcPtr parent)
     }
 #endif
 
-#ifdef CONFIG_RESTORE_HP_ON_LEVEL_UP
-    if (gEventSlots[EVT_SLOT_7] == 410) /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
-        heal = gActiveUnit->maxHP - gActiveUnit->curHP;
-#endif
+    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
+	{
+    	if (gEventSlots[EVT_SLOT_7] == 410) /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
+		{
+			if (gPlaySt.faction == FACTION_BLUE)
+			{
+				heal = gActiveUnit->maxHP - gActiveUnit->curHP;
+			}
+			else
+			{
+				struct Unit * targetUnit = GetUnit(gActionData.targetIndex);
+				heal = targetUnit->maxHP - targetUnit->curHP;
+				CallMapAnim_Heal(parent, targetUnit, heal);
+				return true;
+			}
+		}
+	}
 
 	if ((heal >= missingHP))
 		heal = missingHP;

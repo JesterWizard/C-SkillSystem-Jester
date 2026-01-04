@@ -125,11 +125,11 @@ void ChapterChangeUnitCleanup(void)
         }
 #endif
 
-#if defined(CONFIG_AUTO_REPAIR_WEAPONS)
+    if (gpKernelDesigerConfig->auto_repair_weapons == true) 
+    {
 		for (int i = 0; i < 5; i++)
-			// if(GetItemIndex(unit->items[i]) == ITEM_SWORD_RAPIER)
 			unit->items[i] = MakeNewItem(unit->items[i]);
-#endif
+    }
 
 #if defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER)
         if (bwl != NULL)

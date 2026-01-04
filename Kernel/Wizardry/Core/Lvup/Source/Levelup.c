@@ -249,9 +249,9 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
         GetUnit(bu->unit.index)->movBonus += 1;
 #endif
 
-#ifdef CONFIG_RESTORE_HP_ON_LEVEL_UP
-    gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
-#endif
+    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
+        gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
+
 }
 
 STATIC_DECLAR void UnitLvup_RandC(struct BattleUnit* bu, int bonus)
@@ -398,9 +398,8 @@ void CheckBattleUnitLevelUp(struct BattleUnit* bu)
         TryAddSkillLvup(GetUnitFromCharIdAndFaction(UNIT_CHAR_ID(&bu->unit), FACTION_BLUE), bu->unit.level);
         UnitLvupCore(bu, bonus);
 
-#ifdef CONFIG_RESTORE_HP_ON_LEVEL_UP
+    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
-        NoCashGBAPrintf("EVT SLOT 7 Value is: %d", gEventSlots[EVT_SLOT_7]);
-#endif
+
     }
 }

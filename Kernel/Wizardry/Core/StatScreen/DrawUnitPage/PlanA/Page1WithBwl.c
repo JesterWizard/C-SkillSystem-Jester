@@ -105,14 +105,15 @@ STATIC_DECLAR void DrawPage1TextCommon(void)
 		0, 0,
 		GetStringFromIndex(0x4F8)); // Aid
 
-#ifndef CONFIG_MODULAR_FOG_UNIT_SIGHT
-	PutDrawText(
-		&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
-		gUiTmScratchA + TILEMAP_INDEX(0x9, 0x7),
-		TEXT_COLOR_SYSTEM_GOLD,
-		0, 0,
-		GetStringFromIndex(0x4F1)); // Affin
-#endif
+	if (gpKernelDesigerConfig->custom_fog_sight == false) 
+	{
+		PutDrawText(
+			&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
+			gUiTmScratchA + TILEMAP_INDEX(0x9, 0x7),
+			TEXT_COLOR_SYSTEM_GOLD,
+			0, 0,
+			GetStringFromIndex(0x4F1)); // Affin
+	}
 
 	PutDrawText(
 		&gStatScreen.text[STATSCREEN_TEXT_STATUS],
@@ -292,7 +293,6 @@ FORCE_DECLARE static void DrawPage1LaguzBar(void)
 }
 #endif
 
-#ifdef CONFIG_MODULAR_FOG_UNIT_SIGHT
 FORCE_DECLARE static void DrawPage1SightBar(void)
 {
     int amt = GetUnitFogViewRange(gStatScreen.unit);
@@ -322,7 +322,6 @@ FORCE_DECLARE static void DrawPage1SightBar(void)
     //     gUiTmScratchC,
     //     amt, amt, max, max);
 }
-#endif
 
 /* BWL */
 STATIC_DECLAR void DrawPage1BWL(void)
@@ -481,11 +480,10 @@ void DisplayPage_WithBWL(void)
     DrawPage1BWL();
 #endif
 
-#ifdef CONFIG_MODULAR_FOG_UNIT_SIGHT
-	DrawPage1SightBar();
-#else
-	DrawPage1Affin();
-#endif
+	if (gpKernelDesigerConfig->custom_fog_sight == true) 
+		DrawPage1SightBar();
+	else
+		DrawPage1Affin();
 
 	DrawPage1TalkTrv();
 }

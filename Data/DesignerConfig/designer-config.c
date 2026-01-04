@@ -39,6 +39,13 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.display_terrain_bonuses_in_stat_screen = true,
 	.show_heal_amount = true,
 	.unlock_all_supports = true,
+	.promotion_on_max_level = true,
+	.stat_screen_growths = 2, // 1 = Growths as letters, 2 = bonus growths as green
+	.restore_hp_on_level_up = true,
+	.auto_repair_weapons = false,
+	.custom_support_conversations = true,
+	.custom_fog_sight = true,
+	.custom_talk_icon = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

@@ -2,7 +2,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "../../../../Contents/Texts/build/msgs.h"
 
-const struct SupportTalkEnt gNewSupportTalkList[] = 
+const struct SupportTalkEnt gSupportTalkList_NEW[] = 
 {
     { CHARACTER_EIRIKA, CHARACTER_EPHRAIM, {C_Eirika_Ephraim, B_Eirika_Ephraim, A_Eirika_Ephraim}, 0, 0, 0, 0 },
     { CHARACTER_EIRIKA, CHARACTER_SETH, {C_Eirika_Seth, B_Eirika_Seth, A_Eirika_Seth}, 0, 0, 0, 0 },

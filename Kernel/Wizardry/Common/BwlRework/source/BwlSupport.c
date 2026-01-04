@@ -117,32 +117,31 @@ void CallSupportViewerEvent(u16 textIndex) {
 LYN_REPLACE_CHECK(GetSupportTalkList);
 struct SupportTalkEnt* GetSupportTalkList(void) {
 
-#ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
-    return (struct SupportTalkEnt* )gNewSupportTalkList;
-#else
-	return (struct SupportTalkEnt* )gSupportTalkList;
-#endif
+	if (gpKernelDesigerConfig->custom_support_conversations == true) 
+    	return (struct SupportTalkEnt* )gSupportTalkList_NEW;
+	else
+		return (struct SupportTalkEnt* )gSupportTalkList;
+
 }
 
 //! FE8U = 0x08084748
 LYN_REPLACE_CHECK(GetSupportTalkEntry);
-struct SupportTalkEnt * GetSupportTalkEntry(u16 pidA, u16 pidB)
+struct SupportTalkEnt *GetSupportTalkEntry(u16 pidA, u16 pidB)
 {
-    const struct SupportTalkEnt * it;
+    const struct SupportTalkEnt *list;
+    const struct SupportTalkEnt *it;
 
-#ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
-    for (it = gNewSupportTalkList; it->unitA != 0xFFFF; it++)	
-#else
-    for (it = gSupportTalkList; it->unitA != 0xFFFF; it++)	
-#endif
-	{
-        if ((pidA == it->unitA) && (pidB == it->unitB))
-            return (struct SupportTalkEnt *)it;  // Cast const away only on return
-            
-        if ((pidB == it->unitA) && (pidA == it->unitB))
-            return (struct SupportTalkEnt *)it;  // Cast const away only on return
+    list = gpKernelDesigerConfig->custom_support_conversations
+        ? gSupportTalkList_NEW
+        : gSupportTalkList;
+
+    for (it = list; it->unitA != 0xFFFF; it++) {
+        if ((pidA == it->unitA && pidB == it->unitB) ||
+            (pidA == it->unitB && pidB == it->unitA)) {
+            return (struct SupportTalkEnt *)it; // cast away const only here
+        }
     }
-    
+
     return NULL;
 }
 

@@ -14,9 +14,7 @@
     #include "Common/GameOver/GameOver.event"
 #endif
 
-#ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
-    #include "Common/Supports/Supports_Installer.event"
-#endif
+#include "Common/Supports/Supports_Installer.event"
 
 #ifdef CONFIG_VESLY_DEBUGGER
     #include "Misc/VeslyDebugger/VeslyDebugger_Installer.event"

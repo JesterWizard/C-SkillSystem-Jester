@@ -11,16 +11,17 @@ void PutUnitSpriteIconsOam(void)
 {
 	int i;
 	bool icon_blinking;
+	FORCE_DECLARE int cached_talkee_id = 0;
+	FORCE_DECLARE bool have_cached_talkee = false;
 
 	/* Cache talkee id once to avoid repeated expensive GetTalkee() calls inside the loop */
-#ifdef CONFIG_DISPLAY_TALK_ICON
-	int cached_talkee_id = 0;
-	bool have_cached_talkee = false;
-	if (gBmSt.gameStateBits & BM_FLAG_1) {
-		cached_talkee_id = GetTalkee(gActiveUnit);
-		have_cached_talkee = true;
+	if (gpKernelDesigerConfig->custom_talk_icon == true) 
+	{
+		if (gBmSt.gameStateBits & BM_FLAG_1) {
+			cached_talkee_id = GetTalkee(gActiveUnit);
+			have_cached_talkee = true;
+		}
 	}
-#endif
 
 	if (CheckFlag(0x84) != 0)
 		return;
@@ -74,12 +75,13 @@ void PutUnitSpriteIconsOam(void)
 		MapTaskVec.x = ix;
 		MapTaskVec.y = iy;
 
-#ifdef CONFIG_DISPLAY_TALK_ICON
-		if (have_cached_talkee && cached_talkee_id == UNIT_CHAR_ID(unit)) {
-			MapTaskPutOamHi(MTSKCONF_TALK_1, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xB00 / 0x20));
-			MapTaskPutOamHi(MTSKCONF_TALK_2, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xF00 / 0x20));
+		if (gpKernelDesigerConfig->custom_talk_icon == true) 
+		{
+			if (have_cached_talkee && cached_talkee_id == UNIT_CHAR_ID(unit)) {
+				MapTaskPutOamHi(MTSKCONF_TALK_1, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xB00 / 0x20));
+				MapTaskPutOamHi(MTSKCONF_TALK_2, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xF00 / 0x20));
+			}
 		}
-#endif
 
 		/**
 		 * 1. HpBar

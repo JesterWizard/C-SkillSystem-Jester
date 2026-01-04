@@ -9,128 +9,130 @@
 
 static void _growth_disp(int x, int y, int growth)
 {
-#ifdef CONFIG_GROWTHS_AS_LETTERS
-    FORCE_DECLARE int character1 = 0;
-    FORCE_DECLARE int character2 = 0;
+    
+    if (gpKernelDesigerConfig->stat_screen_growths == 1) 
+    {
+        FORCE_DECLARE int character1 = 0;
+        FORCE_DECLARE int character2 = 0;
 
-    if (growth >= 100)
-    {
-        character1 = TEXT_SPECIAL_S;
+        if (growth >= 100)
+        {
+            character1 = TEXT_SPECIAL_S;
+        }
+        else if (growth >= 90)
+        {
+            character1 = TEXT_SPECIAL_A;
+            character2 = TEXT_SPECIAL_PLUS;
+        }
+        else if (growth >= 80)
+        {
+            character1 = TEXT_SPECIAL_A;
+        }
+        else if (growth >= 70)
+        {
+            character1 = TEXT_SPECIAL_B;
+            character2 = TEXT_SPECIAL_PLUS;
+        }
+        else if (growth >= 60)
+        {
+            character1 = TEXT_SPECIAL_B;
+        }
+        else if (growth >= 50)
+        {
+            character1 = TEXT_SPECIAL_C;
+            character2 = TEXT_SPECIAL_PLUS;
+        }
+        else if (growth >= 40)
+        {
+            character1 = TEXT_SPECIAL_C;
+        }
+        else if (growth >= 30)
+        {
+            character1 = TEXT_SPECIAL_D;
+            character2 = TEXT_SPECIAL_PLUS;
+        }
+        else if (growth >= 20)
+        {
+            character1 = TEXT_SPECIAL_D;
+        }
+        else if (growth >= 10)
+        {
+            character1 = TEXT_SPECIAL_E;
+            character2 = TEXT_SPECIAL_PLUS;
+        }
+        else if (growth > 0)
+        {
+            character1 = TEXT_SPECIAL_E;
+        }
+        else 
+        {
+            character1 = TEXT_SPECIAL_BIGNUM_0;
+        }
+
+        PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x-1, y),
+        TEXT_COLOR_SYSTEM_BLUE,
+        character1);
+
+        if (character2 > 0)
+        {
+            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
+            TEXT_COLOR_SYSTEM_BLUE,
+            character2);
+        }
     }
-    else if (growth >= 90)
+    else if (gpKernelDesigerConfig->stat_screen_growths == 2) 
     {
-        character1 = TEXT_SPECIAL_A;
-        character2 = TEXT_SPECIAL_PLUS;
-    }
-    else if (growth >= 80)
-    {
-        character1 = TEXT_SPECIAL_A;
-    }
-    else if (growth >= 70)
-    {
-        character1 = TEXT_SPECIAL_B;
-        character2 = TEXT_SPECIAL_PLUS;
-    }
-    else if (growth >= 60)
-    {
-        character1 = TEXT_SPECIAL_B;
-    }
-    else if (growth >= 50)
-    {
-        character1 = TEXT_SPECIAL_C;
-        character2 = TEXT_SPECIAL_PLUS;
-    }
-    else if (growth >= 40)
-    {
-        character1 = TEXT_SPECIAL_C;
-    }
-    else if (growth >= 30)
-    {
-        character1 = TEXT_SPECIAL_D;
-        character2 = TEXT_SPECIAL_PLUS;
-    }
-    else if (growth >= 20)
-    {
-        character1 = TEXT_SPECIAL_D;
-    }
-    else if (growth >= 10)
-    {
-        character1 = TEXT_SPECIAL_E;
-        character2 = TEXT_SPECIAL_PLUS;
-    }
-    else if (growth > 0)
-    {
-        character1 = TEXT_SPECIAL_E;
+        PutNumberOrBlank(
+            gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
+            TEXT_COLOR_SYSTEM_BLUE,
+            growth);
     }
     else 
     {
-        character1 = TEXT_SPECIAL_BIGNUM_0;
+        int bank, color = GetTextColorFromGrowth(growth);
+
+        ModifyTextPal(bank, color);
+        gActiveFont->tileref = TILEREF(gActiveFont->tileref & 0xFFF, bank);
+
+        PutNumberOrBlank(
+            gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
+            color,
+            growth);
     }
-
-    
-    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x-1, y),
-    TEXT_COLOR_SYSTEM_BLUE,
-    character1);
-
-    if (character2 > 0)
-    {
-        PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
-        TEXT_COLOR_SYSTEM_BLUE,
-        character2);
-    }
-#else
-
-#ifndef CONFIG_GREEN_BONUS_GROWTHS
-    int bank, color = GetTextColorFromGrowth(growth);
-
-    ModifyTextPal(bank, color);
-    gActiveFont->tileref = TILEREF(gActiveFont->tileref & 0xFFF, bank);
-
-    PutNumberOrBlank(
-        gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
-        color,
-        growth);
-
-#else
-    PutNumberOrBlank(
-        gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
-        TEXT_COLOR_SYSTEM_BLUE,
-        growth);
-#endif
-
-#endif
 }
 
 STATIC_DECLAR void ToggleUnitPageGrowth(void)
 {
     struct Unit *unit = gStatScreen.unit;
 
-#ifdef CONFIG_GREEN_BONUS_GROWTHS
-    _growth_disp(18, 3, unit->pCharacterData->growthPow);
-    _growth_disp(18, 5, GetUnitBasicMagGrowth(unit));
-    _growth_disp(18, 7, unit->pCharacterData->growthSkl);
-    _growth_disp(18, 9, unit->pCharacterData->growthSpd);
-    _growth_disp(18, 11, unit->pCharacterData->growthLck);
-    _growth_disp(18, 13, unit->pCharacterData->growthDef);
-    _growth_disp(18, 15, unit->pCharacterData->growthRes);
+    if (gpKernelDesigerConfig->stat_screen_growths == 2) 
+    {
+        _growth_disp(17, 3, unit->pCharacterData->growthPow);
+        _growth_disp(17, 5, GetUnitBasicMagGrowth(unit));
+        _growth_disp(17, 7, unit->pCharacterData->growthSkl);
+        _growth_disp(17, 9, unit->pCharacterData->growthSpd);
+        _growth_disp(17, 11, unit->pCharacterData->growthLck);
+        _growth_disp(17, 13, unit->pCharacterData->growthDef);
+        _growth_disp(17, 15, unit->pCharacterData->growthRes);
 
-    PutNumberBonus((GetUnitPowGrowth(unit) - unit->pCharacterData->growthPow), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 3)));
-    PutNumberBonus((GetUnitMagGrowth(unit) - GetUnitBasicMagGrowth(unit)),     (gBG0TilemapBuffer + TILEMAP_INDEX(19, 5)));
-    PutNumberBonus((GetUnitSklGrowth(unit) - unit->pCharacterData->growthSkl), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 7)));
-    PutNumberBonus((GetUnitSpdGrowth(unit) - unit->pCharacterData->growthSpd), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 9)));
-    PutNumberBonus((GetUnitLckGrowth(unit) - unit->pCharacterData->growthLck), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 11)));
-    PutNumberBonus((GetUnitDefGrowth(unit) - unit->pCharacterData->growthDef), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 13)));
-    PutNumberBonus((GetUnitResGrowth(unit) - unit->pCharacterData->growthRes), (gBG0TilemapBuffer + TILEMAP_INDEX(19, 15)));
-
-#else 
-    _growth_disp(17, 3, GetUnitPowGrowth(unit));
-    _growth_disp(17, 5, GetUnitMagGrowth(unit));
-    _growth_disp(17, 7, GetUnitSklGrowth(unit));
-    _growth_disp(17, 9, GetUnitSpdGrowth(unit));
-    _growth_disp(17, 11, GetUnitLckGrowth(unit));
-    _growth_disp(17, 13, GetUnitDefGrowth(unit));
-    _growth_disp(17, 15, GetUnitResGrowth(unit));
-#endif
+        PutNumberBonus((GetUnitPowGrowth(unit) - unit->pCharacterData->growthPow), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 3)));
+        PutNumberBonus((GetUnitMagGrowth(unit) - GetUnitBasicMagGrowth(unit)),     (gBG0TilemapBuffer + TILEMAP_INDEX(18, 5)));
+        PutNumberBonus((GetUnitSklGrowth(unit) - unit->pCharacterData->growthSkl), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 7)));
+        PutNumberBonus((GetUnitSpdGrowth(unit) - unit->pCharacterData->growthSpd), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 9)));
+        PutNumberBonus((GetUnitLckGrowth(unit) - unit->pCharacterData->growthLck), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 11)));
+        PutNumberBonus((GetUnitDefGrowth(unit) - unit->pCharacterData->growthDef), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 13)));
+        PutNumberBonus((GetUnitResGrowth(unit) - unit->pCharacterData->growthRes), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 15)));
+    }
+    else
+    {
+        _growth_disp(17, 3, GetUnitPowGrowth(unit));
+        _growth_disp(17, 5, GetUnitMagGrowth(unit));
+        _growth_disp(17, 7, GetUnitSklGrowth(unit));
+        _growth_disp(17, 9, GetUnitSpdGrowth(unit));
+        _growth_disp(17, 11, GetUnitLckGrowth(unit));
+        _growth_disp(17, 13, GetUnitDefGrowth(unit));
+        _growth_disp(17, 15, GetUnitResGrowth(unit));       
+    }
 
     ResetActiveFontPal();
 }

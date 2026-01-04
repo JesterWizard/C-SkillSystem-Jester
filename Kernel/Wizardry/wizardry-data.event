@@ -19,9 +19,7 @@ KERNEL_DATA_START:
 #include "Common/UnitHooks/data.event"
 #include "Common/ItemSys/ItemSysData.event"
 
-#ifdef CONFIG_MODULAR_FOG_UNIT_SIGHT
-    #include "Common/FogVision/FogVision_Installer.event"
-#endif
+#include "Common/FogVision/FogVision_Installer.event"
 
 #ifdef CONFIG_KILL_REWARDS
     #include "Common/KillRewards/KillRewards.lyn.event"

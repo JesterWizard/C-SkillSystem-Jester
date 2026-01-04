@@ -6,10 +6,7 @@ extern const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[];
 extern const struct ClassData gClassData_NEW[];
 extern const struct CharacterData gCharacterData_NEW[];
 extern const struct SoundRoomEnt gSoundRoomTable_NEW[];
-
-#ifdef CONFIG_CUSTOM_SUPPORT_CONVOS
-    extern const struct SupportTalkEnt gNewSupportTalkList[];
-#endif
+extern const struct SupportTalkEnt gSupportTalkList_NEW[];
 
 struct MpSystemPInfoConfig 
 { 
