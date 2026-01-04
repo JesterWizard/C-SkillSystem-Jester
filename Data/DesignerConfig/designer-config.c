@@ -4,12 +4,9 @@
 
 const struct KernelDesigerConfig gKernelDesigerConfig = {
 
-	/**
-	 * If set, player can use prep-skill screen to
-	 * select skills to equip for each character.
-	 */
 	.equip_skill_en = true,
 
+	/* JESTER - This doesn't actually work right now, amend later */
 	/**
 	 * Deside whether to allow players to generate a new skill scroll,
 	 * if he try to use skill scroll to a unit who has already filled with skills.
@@ -18,38 +15,17 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	 * 0: just learn the skill (equippable in prep-skill screen)
 	 */
 	.gen_new_scroll = false,
-
-	/**
-	 * Max amount of equip able skill for each unit (0-7)
-	 */
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,
-
-#ifdef CONFIG_REMOVE_MOVE_PATH
-	.remove_move_path = true,
-#endif
-
-#ifdef CONFIG_USE_UTF8_GLYPH
+	.remove_move_path = false,
 	.use_chinese_character = false,
-#endif
-
 	.kernel_tutorial_level = CONFIG_KTUT_LEVEL,
-
-#ifdef CONFIG_USE_COMBO_ATTACK
-	.combo_attack_en = true, // true, // can be opened by the user
-#endif
-
-#ifdef CONFIG_BATTLE_SURROUND
-	.battle_surrend_en = true,
-#endif
-
-	.hit_decrease_on_range = true,
-
-#ifdef CONFIG_DEBUG_UNIT_LOAD_SKILL
-	.debug_autoload_skills = true,
-#endif
-
+	.combo_attack_en = true,
+	.battle_surrend_en = false,
+	.hit_decrease_on_range = false,
+	.debug_autoload_skills = false,
 	.casual_mode = true,
 	.voice_acted_dialogue = true,
+	.forge_mechanic = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
@@ -67,29 +43,19 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gaiden_magic_ext_conf_en = CONFIG_GAIDEN_EXT_CONF_EN,
 #endif
 
-#ifdef CONFIG_NO_SUS_IN_AI_PHASE
 	.no_suspend_in_aiphase = true,
-#endif
 
 #ifdef CONFIG_INSTALL_KERNEL_SHIELD
 	.shield_en = true,
 	.shield_ext_equip_config_en = true,
 #endif
 
-#ifdef CONFIG_AUTO_NARROW_FONT
 	.auto_narrow_font = true,
-#endif
-
 	.skill_sub_menu_width = 10,
-
 	.wrank_bonux_rtext_auto_gen = true,
-
 	.enemy_can_combo_attack = false, // true
-
 	.menu_skill_disp_msg_en_n = CONFIG_MENU_SKILL_DISP_MSG_EN_N,
-
 	.banim_switcher_en = false, // true
-
 	.max_level = UNIT_LEVEL_MAX_RE,
 	.max_level_record = UNIT_RECORDED_LEVEL_MAX,
 };

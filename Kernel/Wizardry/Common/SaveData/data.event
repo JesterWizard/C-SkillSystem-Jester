@@ -50,6 +50,9 @@ gEmsSavChunks:
     EmsChunk($00B0, $0A31E4+1, $0A326C+1, EMS_CHUNK_CONVOYITEMS)      /* Supply */
 #endif
 
+    /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
+    EmsChunk($0064, SaveForgedItems, LoadForgedItems)
+
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
@@ -82,6 +85,9 @@ gEmsSusChunks:
 #else
     EmsChunk($00B0, $0A31E4+1, $0A326C+1, EMS_CHUNK_CONVOYITEMS) /* Supply */
 #endif
+
+    /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
+    EmsChunk($0064, SaveForgedItems, LoadForgedItems)
 
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x34, MSU_SaveBlueUnits,  MSU_LoadBlueUnits, EMS_CHUNK_SAVEUNITS)

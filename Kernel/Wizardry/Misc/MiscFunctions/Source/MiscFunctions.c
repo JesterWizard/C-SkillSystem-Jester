@@ -25,10 +25,7 @@
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
-
-#ifdef CONFIG_FORGING
 #include "jester_headers/Forging.h"
-#endif
 
 typedef struct {
     /* 00 */ struct Font font;
@@ -858,18 +855,19 @@ void RefreshUnitStealInventoryInfoWindow(struct Unit* unit)
 
         PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? 2 : 1, GetItemUses(item));
 
-#ifdef CONFIG_FORGING
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+        if (gpKernelDesigerConfig->forge_mechanic == true)
+        {
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
 
-        if (CanItemBeForged(item)) {
-            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
+            if (CanItemBeForged(item)) {
+                PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
+            }
+            else if (limits.maxCount == 0) {
+                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+            }
         }
-        else if (limits.maxCount == 0) {
-            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-        }
-#endif
 
         DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 1, yPos), GetItemIconId(item), 0x4000);
     }
@@ -914,25 +912,26 @@ void sub_809D300(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1, GetItemUses(item));
 #endif
 
-#ifdef CONFIG_FORGING
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-        if (CanItemBeForged(item)) {
-            PutSpecialChar(tm + TILEMAP_INDEX(8, i * 2 & 0x1f),
-                !unusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(tm + TILEMAP_INDEX(9, i * 2 & 0x1f),
-                !unusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemForgeCount(item));
-            PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
-                GetForgedItemDurability(item));
+        if (gpKernelDesigerConfig->forge_mechanic == true)
+        {
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+            if (CanItemBeForged(item)) {
+                PutSpecialChar(tm + TILEMAP_INDEX(8, i * 2 & 0x1f),
+                    !unusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(tm + TILEMAP_INDEX(9, i * 2 & 0x1f),
+                    !unusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemForgeCount(item));
+                PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
+                    GetForgedItemDurability(item));
+            }
+            else if (limits.maxCount == 0) {
+                PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
+                    GetItemUses(item));
+            }
         }
-        else if (limits.maxCount == 0) {
-            PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
-                GetItemUses(item));
-        }
-#endif
     }
 
     return;
@@ -960,24 +959,25 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
 #endif
 
-#ifdef CONFIG_FORGING
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-        if (CanItemBeForged(item)) {
-            PutSpecialChar(tm + offset + 8,
-                !unusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(tm + offset + 9,
-                !unusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemForgeCount(item));
-            PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
-                GetForgedItemDurability(item));
+        if (gpKernelDesigerConfig->forge_mechanic == true)
+        {
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+            if (CanItemBeForged(item)) {
+                PutSpecialChar(tm + offset + 8,
+                    !unusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(tm + offset + 9,
+                    !unusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemForgeCount(item));
+                PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
+                    GetForgedItemDurability(item));
+            }
+            else if (limits.maxCount == 0) {
+                PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+            }
         }
-        else if (limits.maxCount == 0) {
-            PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-        }
-#endif
     }
 }
 
@@ -1017,29 +1017,30 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
 
         PutText(th, tm + 2 + i * 0x40);
 
-#ifdef CONFIG_FORGING
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-        if (CanItemBeForged(item)) {
-            PutSpecialChar(tm + 8 + i * 0x40,
-                !isUnusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(tm + 9 + i * 0x40,
-                !isUnusable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemForgeCount(item));
-            PutNumberOrBlank(tm + 11 + i * 0x40,
-                !isUnusable ? TEXT_COLOR_SYSTEM_BLUE
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetForgedItemDurability(item));
+        if (gpKernelDesigerConfig->forge_mechanic == true)
+        {
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+            if (CanItemBeForged(item)) {
+                PutSpecialChar(tm + 8 + i * 0x40,
+                    !isUnusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(tm + 9 + i * 0x40,
+                    !isUnusable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemForgeCount(item));
+                PutNumberOrBlank(tm + 11 + i * 0x40,
+                    !isUnusable ? TEXT_COLOR_SYSTEM_BLUE
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetForgedItemDurability(item));
+            }
+            else if (limits.maxCount == 0) {
+                PutNumberOrBlank(tm + 11 + i * 0x40,
+                    !isUnusable ? TEXT_COLOR_SYSTEM_BLUE
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemUses(item));
+            }
         }
-        else if (limits.maxCount == 0) {
-            PutNumberOrBlank(tm + 11 + i * 0x40,
-                !isUnusable ? TEXT_COLOR_SYSTEM_BLUE
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemUses(item));
-        }
-#endif
 
 #ifndef CONFIG_INFINITE_DURABILITY
         PutNumberOrBlank(tm + 11 + i * 0x40, !isUnusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
@@ -1084,28 +1085,29 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
         PutNumberOrBlank(tm + i * 0x40 + 0xB, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
 #endif
 
-#ifdef CONFIG_FORGING
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-        if (CanItemBeForged(item)) {
-            PutSpecialChar(tm + i * 0x40 + 8,
-                isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY,
-                TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(tm + i * 0x40 + 9,
-                isUsable ? TEXT_COLOR_SYSTEM_GOLD
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemForgeCount(item));
-            PutNumberOrBlank(tm + i * 0x40 + 0xB,
-                isUsable ? TEXT_COLOR_SYSTEM_BLUE
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetForgedItemDurability(item));
+        if (gpKernelDesigerConfig->forge_mechanic == true)
+        {
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+            if (CanItemBeForged(item)) {
+                PutSpecialChar(tm + i * 0x40 + 8,
+                    isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY,
+                    TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(tm + i * 0x40 + 9,
+                    isUsable ? TEXT_COLOR_SYSTEM_GOLD
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemForgeCount(item));
+                PutNumberOrBlank(tm + i * 0x40 + 0xB,
+                    isUsable ? TEXT_COLOR_SYSTEM_BLUE
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetForgedItemDurability(item));
+            }
+            else if (limits.maxCount == 0) {
+                PutNumberOrBlank(tm + i * 0x40 + 0xB,
+                    isUsable ? TEXT_COLOR_SYSTEM_BLUE
+                    : TEXT_COLOR_SYSTEM_GRAY,
+                    GetItemUses(item));
+            }
         }
-        else if (limits.maxCount == 0) {
-            PutNumberOrBlank(tm + i * 0x40 + 0xB,
-                isUsable ? TEXT_COLOR_SYSTEM_BLUE
-                : TEXT_COLOR_SYSTEM_GRAY,
-                GetItemUses(item));
-        }
-#endif
 
         DrawIcon(tm + i * 0x40, GetItemIconId(item), 0x4000);
 
@@ -1120,8 +1122,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 {
     proc->itemPrevious = proc->itemCurrent;
 
-    // Handle Up keyin
-
+    // Handle Up key
     if (gKeyStatusPtr->repeatedKeys & DPAD_UP)
     {
         if (proc->itemCurrent == 0)
@@ -1135,16 +1136,17 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         proc->itemCurrent--;
 
         // Reset the last item forge count if we move to another item
-#ifdef CONFIG_FORGING
-        if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
+        if (gpKernelDesigerConfig->forge_mechanic == true)
         {
-            int item = gActiveUnit->items[proc->itemPrevious];
-            gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
-            SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
-            // Set the initial count of the latest item
-            gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
+            if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
+            {
+                int item = gActiveUnit->items[proc->itemPrevious];
+                gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
+                SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
+                // Set the initial count of the latest item
+                gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
+            }
         }
-#endif
 
         /* A little something to change the monster image displayed as the user scrolls the summon select screen */
 #if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
@@ -1178,16 +1180,17 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         proc->itemCurrent++;
 
         // Reset the last item forge count if we move to another item
-#ifdef CONFIG_FORGING
-        if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
+        if (gpKernelDesigerConfig->forge_mechanic == true)
         {
-            int item = gActiveUnit->items[proc->itemPrevious];
-            gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
-            SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
-            // Set the initial count of the latest item
-            gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
+            if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
+            {
+                int item = gActiveUnit->items[proc->itemPrevious];
+                gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
+                SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
+                // Set the initial count of the latest item
+                gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
+            }
         }
-#endif
 
         /* A little something to change the monster image displayed as the user scrolls the summon select screen */
 #if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
@@ -1206,70 +1209,40 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 #endif
     }
 
-#ifdef CONFIG_FORGING
-    if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
+    if (gpKernelDesigerConfig->forge_mechanic == true)
     {
-        // Handle left/right input for forge menu
-        int item = gActiveUnit->items[proc->itemCurrent];
-        struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-        int count = GetItemForgeCount(item);
-
-        if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT)
+        if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
         {
-            // Ensure the forge count can't go below what it started at (which is stored in EVT_SLOT_8)
-            if (count > 0 && (u32)(count - 1) >= gEventSlots[EVT_SLOT_8])
+            // Handle left/right input for forge menu
+            int item = gActiveUnit->items[proc->itemCurrent];
+            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+            int count = GetItemForgeCount(item);
+
+            if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT)
             {
-                int forgeSlot = ITEM_USES(item);
-                if (forgeSlot >= 0)
+                // Ensure the forge count can't go below what it started at (which is stored in EVT_SLOT_8)
+                if (count > 0 && (u32)(count - 1) >= gEventSlots[EVT_SLOT_8])
                 {
-                    // Calculate cumulative cost increase  
-                    u32 costAmount = (count + 1) * limits.baseCost;
-
-                    item = GetItemIndex(item) | (forgeSlot << 8);
-                    // Calculate cumulative cost reduction
-                    u32 refundAmount = 0;
-                    for (int i = count; i > count - 1; i--) // This loop refunds 'count * limits.baseCost'
-                        refundAmount += i * limits.baseCost;
-
-                    gActiveUnit->items[proc->itemCurrent] = DecrementForgeCount(item, 1);
-                    gPlaySt.partyGoldAmount += refundAmount;
-                    gEventSlots[EVT_SLOT_7] -= costAmount;
-
-                    struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
-
-                    if (GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]) < limits.maxCount - 1)
-                        MakeForgedItemUnbreakable(item, false);
-
-                    // Refresh the menu display
-                    if (proc->menuItems[proc->itemCurrent]->def->onSwitchIn)
-                        proc->menuItems[proc->itemCurrent]->def->onSwitchIn(proc, proc->menuItems[proc->itemCurrent]);
-                }
-            }
-        }
-
-        if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT)
-        {
-            if (count < limits.maxCount - 1 && IsItemForgeable(item))
-            {
-                int forgeSlot = ITEM_USES(item);
-                if (!forgeSlot)
-                    forgeSlot = InitFreeForgedItemSlot(item);
-                if (forgeSlot >= 0)
-                {
-                    // Calculate cumulative cost increase  
-                    u32 costAmount = (count + 2) * limits.baseCost;
-
-                    if (costAmount <= gPlaySt.partyGoldAmount)
+                    int forgeSlot = ITEM_USES(item);
+                    if (forgeSlot >= 0)
                     {
+                        // Calculate cumulative cost increase  
+                        u32 costAmount = (count + 1) * limits.baseCost;
+
                         item = GetItemIndex(item) | (forgeSlot << 8);
-                        gPlaySt.partyGoldAmount -= costAmount;
-                        gActiveUnit->items[proc->itemCurrent] = IncrementForgeCount(item, 1);
-                        gEventSlots[EVT_SLOT_7] += costAmount;
+                        // Calculate cumulative cost reduction
+                        u32 refundAmount = 0;
+                        for (int i = count; i > count - 1; i--) // This loop refunds 'count * limits.baseCost'
+                            refundAmount += i * limits.baseCost;
+
+                        gActiveUnit->items[proc->itemCurrent] = DecrementForgeCount(item, 1);
+                        gPlaySt.partyGoldAmount += refundAmount;
+                        gEventSlots[EVT_SLOT_7] -= costAmount;
 
                         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
 
-                        if (GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]) == limits.maxCount - 1)
-                            MakeForgedItemUnbreakable(item, true);
+                        if (GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]) < limits.maxCount - 1)
+                            MakeForgedItemUnbreakable(item, false);
 
                         // Refresh the menu display
                         if (proc->menuItems[proc->itemCurrent]->def->onSwitchIn)
@@ -1277,9 +1250,42 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
                     }
                 }
             }
+            
+            if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT)
+            {
+                if (count < limits.maxCount - 1 && IsItemForgeable(item))
+                {
+                    int forgeSlot = ITEM_USES(item);
+                    
+                    if (!forgeSlot)
+                        forgeSlot = InitFreeForgedItemSlot(item);
+
+                    if (forgeSlot >= 0)
+                    {
+                        // Calculate cumulative cost increase  
+                        u32 costAmount = (count + 2) * limits.baseCost;
+
+                        if (costAmount <= gPlaySt.partyGoldAmount)
+                        {
+                            item = GetItemIndex(item) | (forgeSlot << 8);
+                            gPlaySt.partyGoldAmount -= costAmount;
+                            gActiveUnit->items[proc->itemCurrent] = IncrementForgeCount(item, 1);
+                            gEventSlots[EVT_SLOT_7] += costAmount;
+
+                            struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
+
+                            if (GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]) == limits.maxCount - 1)
+                                MakeForgedItemUnbreakable(item, true);
+
+                            // Refresh the menu display
+                            if (proc->menuItems[proc->itemCurrent]->def->onSwitchIn)
+                                proc->menuItems[proc->itemCurrent]->def->onSwitchIn(proc, proc->menuItems[proc->itemCurrent]);
+                        }
+                    }
+                }
+            }
         }
     }
-#endif
 
     if (proc->itemPrevious != proc->itemCurrent)
     {

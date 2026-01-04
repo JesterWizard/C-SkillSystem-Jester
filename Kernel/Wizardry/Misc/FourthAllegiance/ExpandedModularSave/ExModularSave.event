@@ -66,7 +66,7 @@ gSaveBlockTypeSizeLookup:
 // EMS_CHUNK_CHAPTERSTATE, EMS_CHUNK_BWLENTRIES, EMS_CHUNK_EIDS_PERMANENT, EMS_CHUNK_BONUSCLAIMDATA, EMS_CHUNK_WMDATA
 
 
-// Jester - We don't need to define these here as save-data.h already does so
+// JESTER - We don't need to define these here as save-data.h already does so
 // #define EMS_CHUNK_CHAPTERSTATE   1
 // #define EMS_CHUNK_SAVEUNITS      2
 // #define EMS_CHUNK_CONVOYITEMS    3

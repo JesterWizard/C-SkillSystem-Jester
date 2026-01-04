@@ -97,6 +97,7 @@ _kernel_malloc gKonamiComboStep, 1
 _kernel_malloc sEfxResireEfxIndexCacheMagic, 1
 _kernel_malloc sEfxResireEfxIndexCacheData, 1
 _kernel_malloc gSkillDbgList, 20 * 4
+_kernel_malloc gForgedItemRam, 50 * 2
 
 // JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
 @ _kernel_malloc sDemoUnitExpaAlly, 51 * 4

@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "save-data.h"
 #include "kernel-lib.h"
+#include "jester_headers/Forging.h"
 
 const struct EmsChunk *GetEmsChunkByIndex_Sav(int idx)
 {
@@ -374,4 +375,19 @@ void GameInit_DetectEmsChunks(void)
 		Errorf("SUS chunk overflowed: max=0x%04X, cur=0x%04X", EMS_SIZE_SUS, offset);
 		hang();
 	}
+}
+
+/* Save/load hooks for forged item metadata so it's persisted in game saves. */
+void SaveForgedItems(u8 *dst, const u32 size)
+{
+    u32 want = NumOfForgables * sizeof(struct ForgedItemRam);
+    Assert(size <= want);
+    WriteAndVerifySramFast(gForgedItemRam, dst, size);
+}
+
+void LoadForgedItems(u8 *src, const u32 size)
+{
+    u32 want = NumOfForgables * sizeof(struct ForgedItemRam);
+    Assert(size <= want);
+    ReadSramFast(src, gForgedItemRam, size);
 }

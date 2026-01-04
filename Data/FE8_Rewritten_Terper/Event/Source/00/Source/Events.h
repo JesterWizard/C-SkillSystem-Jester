@@ -196,9 +196,9 @@ LABEL(0x1)
 };
 
 static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
-// #ifdef CONFIG_FORGING
-//     ASMC(CallForgeMenuASMC)
-// #endif
+#ifdef CONFIG_FORGING
+    ASMC(CallForgeMenuASMC)
+#endif
 
 // #ifdef CONFIG_LIGHTS_OUT_GAME
 //     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
@@ -222,7 +222,7 @@ static const EventListScr EventListScr_Turn[] = {
 };
 
 static const EventListScr EventListScr_Character[] = {
-    //CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
+    CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
     END_MAIN
 };
 

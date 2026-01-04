@@ -1,6 +1,5 @@
 #include "gbafe.h"
 
-extern const int UseForgedItemDurability;
 int GetForgedItemDurability(int id); 
 int InitFreeForgedItemSlot(int item); 
 int IncrementForgeCount(int item, int amount); 
@@ -10,8 +9,8 @@ int CanItemBeForged(int item);
 extern struct UnitInfoWindowProc* UnitInfoWindow_DrawBase(struct UnitInfoWindowProc* proc, struct Unit* unit, int x, int y, int width, int lines);
 extern int GetUnitInfoWindowX(struct Unit* unit, int width);
 
-
-
+#define ForgeLevels 6
+#define NumOfForgables 50 // max 63
 struct ForgeBonuses {
 	s8 mtBonus; 	/* 0x00 */
 	s8 hitBonus; 	/* 0x01 */
@@ -25,11 +24,8 @@ struct ForgeLimits {
 	u16 baseCost;	/* 0x02 */
 };
 
-// list in EA of potential forging bonuses
-extern const struct ForgeBonuses gForgeBonuses[];
-
-// table in EA indexed by item id of forge parameters
-extern const struct ForgeLimits gForgeLimits[256];
+extern const struct ForgeBonuses gForgeBonuses[]; 
+extern const struct ForgeLimits gForgeLimits[];
 
 // text definitions
 extern u16 ItemAtMaxForgeCountRText_Link;
@@ -53,7 +49,6 @@ u8 ForgeMenuOnSelect(struct MenuProc* menu, struct MenuItemProc* menuItem);
 
 void MakeForgedItemUnbreakable(int item, bool state);
 
-extern const int NumOfForgables; // Same as max item durability, 0 is invalid
 struct ForgedItemRam {
 	u16 uses : 6;
 	u16 unbreakable : 1; // pay a lot of extra money to make it unbreakable?
@@ -69,7 +64,7 @@ struct ForgedItemRam {
 	// u8 name[7]; // naming forged items would take up a lot of ram and be a pain
 	// to do, good luck Jester
 };
-extern struct ForgedItemRam *gForgedItemRam; // NumOfForgables entries
+extern struct ForgedItemRam gForgedItemRam[50]; // NumOfForgables entries
 
 // in vanilla, GameSavePackedUnit / SuspendSavePackedUnit don't save the 0x80
 // durability bit but if it did, it could be used to determine whether it's

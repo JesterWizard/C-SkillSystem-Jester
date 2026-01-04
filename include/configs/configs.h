@@ -168,8 +168,8 @@
 /**
 * Page1 styles
 */
-#define CONFIG_PAGE1_WITH_BWL 0
-#define CONFIG_PAGE1_WITH_LEADERSHIP 1
+#define CONFIG_PAGE1_WITH_BWL 1
+#define CONFIG_PAGE1_WITH_LEADERSHIP 0
 
 /**
  * Page4 styles
@@ -451,10 +451,8 @@
 #define CONFIG_TELLIUS_CAPACITY_BASE 50
 #define CONFIG_TELLIUS_CAPACITY_PROMOTED 25
 // #define CONFIG_LAGUZ_BARS // Run make clean after turning this off
-// #define CONFIG_FORGING
-// #ifdef CONFIG_FORGING
+
 // 	#define CONFIG_FE4_CRIT_BONUS_ON_KILL
-// #endif
 
 #define CONFIG_CUSTOM_SUPPORT_CONVOS
 
