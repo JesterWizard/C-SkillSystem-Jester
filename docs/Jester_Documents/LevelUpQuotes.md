@@ -17,7 +17,7 @@
 
 ## 🧩 Introduction
 
-``CONFIG_TALK_LEVEL_UP``
+``gpDesignerConfig->talk_on_level_up``
 
 This feature adds a bit of personality to the level up screen by making units comment on their level ups
 

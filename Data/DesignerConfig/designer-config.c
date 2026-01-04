@@ -8,7 +8,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 
 	/* JESTER - This doesn't actually work right now, amend later */
 	/**
-	 * Deside whether to allow players to generate a new skill scroll,
+	 * Decide whether to allow players to generate a new skill scroll,
 	 * if he try to use skill scroll to a unit who has already filled with skills.
 	 *
 	 * 1: choose a equipped skill to replace
@@ -23,13 +23,17 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.battle_surrend_en = false,
 	.hit_decrease_on_range = false,
 	.debug_autoload_skills = false,
+
 	.casual_mode = true,
+#ifdef CONFIG_VOICE_ACTED_DIALOGUE
 	.voice_acted_dialogue = true,
+#endif
 	.forge_mechanic = false,
 	.modular_staff_exp = true,
 	.arena_show_opponent_in_advance = true,
 	.arena_let_player_use_upgraded_weapons = true,
 	.arena_calculate_weapon_based_on_level = true,
+	.talk_on_level_up = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
@@ -57,9 +61,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.auto_narrow_font = true,
 	.skill_sub_menu_width = 10,
 	.wrank_bonux_rtext_auto_gen = true,
-	.enemy_can_combo_attack = false, // true
+	.enemy_can_combo_attack = false,
 	.menu_skill_disp_msg_en_n = CONFIG_MENU_SKILL_DISP_MSG_EN_N,
-	.banim_switcher_en = false, // true
+	.banim_switcher_en = false,
 	.max_level = UNIT_LEVEL_MAX_RE,
 	.max_level_record = UNIT_RECORDED_LEVEL_MAX,
 };

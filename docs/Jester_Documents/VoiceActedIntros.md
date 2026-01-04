@@ -16,7 +16,7 @@
 
 ## Introduction
 
-``CONFIG_VOICE_ACTED_DIALOGUE``
+``Designer Config - voice_acted_dialogue``
 
 A lot of guides for music/sound on FEUniverse focus on **MIDI installation**. That makes sense: MIDI files are tiny compared to WAVs, which are relatively large.
 

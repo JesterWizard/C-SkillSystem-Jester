@@ -1,8 +1,5 @@
 #include "Event/Source/LynJump.event"
 
-#include "Event/Event.event"
-#include "Chapter/Chapter.event"
-
-#ifdef CONFIG_VOICE_ACTED_DIALOGUE
-    #include "Music/Music_Installer.event"
-#endif
+#include "Event/Event_Installer.event"
+#include "Chapter/Chapter_Installer.event"
+#include "Music/Music_Installer.event"

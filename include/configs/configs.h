@@ -430,7 +430,7 @@
 #endif
 
 #define CONFIG_CUSTOM_STAFF_ACCURACY 100
-#define CONFIG_TALK_LEVEL_UP
+
 #define CONFIG_DEATH_DANCE
 // #define CONFIG_SUPPORT_REWARDS // Go to BwlSupport.c in StartSupportTalk to adjust items gained
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
@@ -461,9 +461,9 @@
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */
 
-#define CONFIG_UNIT_SELECTION_QUOTES
+#define CONFIG_UNIT_SELECTION_QUOTES // Need to keep this because of the music installer event file
 
-#define CONFIG_VOICE_ACTED_DIALOGUE
+#define CONFIG_VOICE_ACTED_DIALOGUE // Need to keep this because of the music installer event file
 
 #define CONFIG_FREE_MOVEMENT
 

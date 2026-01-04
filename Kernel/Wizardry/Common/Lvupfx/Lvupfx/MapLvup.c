@@ -167,7 +167,6 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 	}
 }
 
-#ifdef CONFIG_TALK_LEVEL_UP
 typedef struct
 {
 	const int key;
@@ -225,18 +224,20 @@ static const LevelUpStrings character_level_up_strings[] =
 
 };
 
-#endif 
-
 LYN_REPLACE_CHECK(StartManimLevelUp);
 void StartManimLevelUp(int actor_id, ProcPtr parent)
 {
 	struct ManimLevelUpProc* proc;
 
+if (gpKernelDesigerConfig->talk_on_level_up == true) {
 	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_CUSTOM, parent);
-	proc->actor_id = actor_id;
+}
+else {
+	proc = Proc_StartBlocking(ProcScr_ManimLevelUp, parent);
 }
 
-#ifdef CONFIG_TALK_LEVEL_UP
+	proc->actor_id = actor_id;
+}
 
 void PutStringRightAligned(u16* tilemap, int color, int width, const char* str)
 {
@@ -297,8 +298,6 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 	// PutStringRightAligned(TILEMAP_LOCATED(gBG0TilemapBuffer, (30 - (GetStringTextLen(unit_dialogue) / 8)) - 3, 29), TEXT_COLOR_SYSTEM_WHITE, (GetStringTextLen(unit_dialogue) / 8) + 2, unit_dialogue);
 };
 
-#endif
-
 const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[] = {
 	PROC_SET_END_CB(ManimLevelUp_Clear),
 	PROC_SLEEP(1),
@@ -314,16 +313,10 @@ const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[] = {
 	PROC_CALL(ManimLevelUp_InitMainScreen),
 	PROC_YIELD,
 	PROC_REPEAT(ManimLevelUp_ScrollIn),
-#ifdef CONFIG_TALK_LEVEL_UP
 	PROC_SLEEP(15),
 	PROC_REPEAT(ManimLevelUp_PutStatGainLabels),
 	PROC_SLEEP(45),
 	PROC_CALL(DisplayCharacterSpeech), /* My character speech insertion */
-#else
-	PROC_SLEEP(30),
-	PROC_REPEAT(ManimLevelUp_PutStatGainLabels),
-	PROC_SLEEP(60),
-#endif
 	PROC_CALL(EndManimLevelUpStatGainLabels),
 	PROC_SLEEP(1),
 	PROC_REPEAT(ManimLevelUp_ScrollOut),
