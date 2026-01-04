@@ -168,8 +168,8 @@
 /**
 * Page1 styles
 */
-#define CONFIG_PAGE1_WITH_BWL 1
-#define CONFIG_PAGE1_WITH_LEADERSHIP 0
+#define CONFIG_PAGE1_WITH_BWL 0
+#define CONFIG_PAGE1_WITH_LEADERSHIP 1
 
 /**
  * Page4 styles
@@ -444,7 +444,6 @@
 #define CONFIG_REFUGE_FEATURE
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
-#define CONFIG_MODULAR_STAFF_EXP
 #define CONFIG_EXPANDED_PREP_MENU_OPTIONS
 // #define CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
 #define CONFIG_TELLIUS_CAPACITY_SYSTEM

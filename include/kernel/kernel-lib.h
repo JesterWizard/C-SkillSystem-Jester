@@ -19,20 +19,26 @@ struct KernelDesigerConfig {
 	u8 casual_mode;
 	u8 voice_acted_dialogue;
 	u8 forge_mechanic;
+	u8 modular_staff_exp;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
 	u8 lvup_mode_normal;
 	u8 lvup_mode_hard;
 
-	u8 unit_page_style, skil_page_style;
+	u8 unit_page_style;
+	u8 skil_page_style;
 
-	u8 gaiden_magic_en, gaiden_magic_must_be_magic, gaiden_magic_requires_wrank, \
-		gaiden_magic_ai_en, gaiden_magic_ext_conf_en;
+	u8 gaiden_magic_en;
+	u8 gaiden_magic_must_be_magic;
+	u8 gaiden_magic_requires_wrank;
+	u8 gaiden_magic_ai_en;
+	u8 gaiden_magic_ext_conf_en;
 
 	u8 no_suspend_in_aiphase;
 
-	u8 shield_en, shield_ext_equip_config_en;
+	u8 shield_en;
+	u8 shield_ext_equip_config_en;
 
 	u8 auto_narrow_font;
 

@@ -26,6 +26,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.casual_mode = true,
 	.voice_acted_dialogue = true,
 	.forge_mechanic = false,
+	.modular_staff_exp = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

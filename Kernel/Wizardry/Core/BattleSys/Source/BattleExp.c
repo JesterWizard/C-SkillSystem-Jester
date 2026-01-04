@@ -6,7 +6,6 @@
 #include "debuff.h"
 #include "strmag.h"
 
-#ifdef CONFIG_MODULAR_STAFF_EXP
 inline static int StaffEXP(int weapon)
 {
     int exp = 0;
@@ -117,7 +116,6 @@ inline static int StaffEXP(int weapon)
     }
     return exp;
 }
-#endif
 
 LYN_REPLACE_CHECK(GetUnitExpLevel);
 int GetUnitExpLevel(struct Unit* unit)
@@ -306,11 +304,10 @@ int GetBattleUnitStaffExpRework(struct BattleUnit* bu)
 {
     int result = 0;
 
-#ifdef CONFIG_MODULAR_STAFF_EXP
-    result = StaffEXP(ITEM_INDEX(bu->weapon));
-#else
-    result = GetBattleUnitStaffExp(bu);
-#endif
+    if (gpKernelDesigerConfig->modular_staff_exp == true)
+        result = StaffEXP(ITEM_INDEX(bu->weapon));
+    else
+        result = GetBattleUnitStaffExp(bu);
 
     result = KernelModifyBattleUnitExp(
         result,
