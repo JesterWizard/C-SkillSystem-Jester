@@ -20,6 +20,9 @@ struct KernelDesigerConfig {
 	u8 voice_acted_dialogue;
 	u8 forge_mechanic;
 	u8 modular_staff_exp;
+	u8 arena_show_opponent_in_advance;
+	u8 arena_let_player_use_upgraded_weapons;
+	u8 arena_calculate_weapon_based_on_level;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

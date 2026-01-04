@@ -74,23 +74,24 @@ static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
         -1
     };
 
-#ifdef CONFIG_ARENA_CALCULATE_WEAPON_BASED_ON_LEVEL
-    u8 effectiveLevel = unit->level;
-
-    if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
-        effectiveLevel += 20;
-
-    u8 desiredStage =
-        (effectiveLevel <= 10) ? 0 :
-        (effectiveLevel <= 20) ? 1 :
-                                 2;
-             
-    for (int i = 0; i < (int)ARRAY_COUNT(arenaWeaponUpgrades); i += 4)
+    if (gpKernelDesigerConfig->arena_calculate_weapon_based_on_level == true)
     {
-        if (GetItemIndex(item) == arenaWeaponUpgrades[i * 4])
-            return MakeNewItem(arenaWeaponUpgrades[(i * 4) + desiredStage]);
+        u8 effectiveLevel = unit->level;
+
+        if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+            effectiveLevel += 20;
+
+        u8 desiredStage =
+            (effectiveLevel <= 10) ? 0 :
+            (effectiveLevel <= 20) ? 1 :
+                                    2;
+                
+        for (int i = 0; i < (int)ARRAY_COUNT(arenaWeaponUpgrades); i += 4)
+        {
+            if (GetItemIndex(item) == arenaWeaponUpgrades[i * 4])
+                return MakeNewItem(arenaWeaponUpgrades[(i * 4) + desiredStage]);
+        }
     }
-#endif
 
     for (iter = arenaWeaponUpgrades; *iter != (u8) -1; iter++)
     {
@@ -125,9 +126,8 @@ void ArenaGenerateBaseWeapons(void)
 
     gArenaState.playerWeapon = MakeNewItem(arenaWeapons[gArenaState.playerWpnType]);
 
-#ifdef CONFIG_ARENA_LET_PLAYER_USE_UPGRADED_WEAPONS
-    gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
-#endif
+    if (gpKernelDesigerConfig->arena_let_player_use_upgraded_weapons == true)
+        gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
 
     gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
 
@@ -316,25 +316,25 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
         multiplier = 2;
 #endif
 
-#ifdef CONFIG_ARENA_SHOW_OPPONENT_IN_ADVANCE
-    DrawUiFrame2(7, 9, 0x10, 8, 0);
-    SetTextFont(0);
-    InitSystemTextFont();
+    if (gpKernelDesigerConfig->arena_show_opponent_in_advance == true)
+    {
+        DrawUiFrame2(7, 9, 0x10, 8, 0);
+        SetTextFont(0);
+        InitSystemTextFont();
 
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
+        PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
 
-    if (gArenaState.playerPowerWeight - gArenaState.opponentPowerWeight >= 20)
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, "Good match");
-    else if (gArenaState.opponentPowerWeight - gArenaState.playerPowerWeight <= 20)
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, "Okay match");
-    else
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, "Bad match");
-
-#endif
+        if (gArenaState.playerPowerWeight - gArenaState.opponentPowerWeight >= 20)
+            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, "Good match");
+        else if (gArenaState.opponentPowerWeight - gArenaState.playerPowerWeight <= 20)
+            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, "Okay match");
+        else
+            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, "Bad match");
+    }
 
     SetTalkNumber(ArenaGetMatchupGoldValue() * multiplier);
     StartArenaDialogue(0x8D2, proc);

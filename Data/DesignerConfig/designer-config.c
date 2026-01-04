@@ -27,6 +27,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.voice_acted_dialogue = true,
 	.forge_mechanic = false,
 	.modular_staff_exp = true,
+	.arena_show_opponent_in_advance = true,
+	.arena_let_player_use_upgraded_weapons = true,
+	.arena_calculate_weapon_based_on_level = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
