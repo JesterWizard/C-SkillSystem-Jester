@@ -27,24 +27,19 @@ struct SkillPointsSystemPInfoConfig
 
 extern const struct SkillPointsSystemPInfoConfig gSkillPointsSystemPInfoConfigList[];
 
-/* CONFIG_BIORHYTHM */
+#define MAX_BIORHYTHM_STATES 5
 
+struct BiorhythmPInfoConfig {
+    int biorhythm[MAX_BIORHYTHM_STATES];
+    int startOffset; // shift starting point on turn 1
+};
 
-#ifdef CONFIG_BIORHYTHM
-    #define MAX_BIORHYTHM_STATES 5
+extern const struct BiorhythmPInfoConfig gBiorhythmPInfoConfigList[];
 
-    struct BiorhythmPInfoConfig {
-        int biorhythm[MAX_BIORHYTHM_STATES];
-        int startOffset; // shift starting point on turn 1
-    };
-
-    extern const struct BiorhythmPInfoConfig gBiorhythmPInfoConfigList[];
-
-    int GetBiorhythmBonus(struct BattleUnit* bu, int turnCounter);
-#endif
+int GetBiorhythmBonus(struct BattleUnit* bu, int turnCounter);
 
 #ifndef MAX_SKILL_NUM
-#define MAX_SKILL_NUM 0x3FF
+    #define MAX_SKILL_NUM 0x3FF
 #endif
 
 extern const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1]; 

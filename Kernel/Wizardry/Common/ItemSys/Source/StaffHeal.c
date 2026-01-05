@@ -402,7 +402,7 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
     Text_InsertDrawString(text, 0, 3, GetStringFromIndex(0x4E9)); // TODO: msgid "HP"
 
 
-    if (gpKernelDesigerConfig->show_heal_amount == true)
+    if (gpKernelDesignerConfig->show_heal_amount == true)
     {
         int healAmount = GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]);
 

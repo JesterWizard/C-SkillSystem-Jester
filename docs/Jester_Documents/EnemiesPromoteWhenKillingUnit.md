@@ -18,7 +18,7 @@
 
 ## 🧩 Introduction
 
-`CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT`
+`gpKernelDesignerConfig->promote_enemies_on_kill`
 
 Inspired by the **Shiren the Wanderer** DS games, this feature allows enemy units to **promote** when they successfully kill one of your units.
 

@@ -267,7 +267,7 @@ void WriteSuspendSave(int slot)
 		return;
 
 #ifdef CONFIG_NO_SUS_IN_AI_PHASE
-	if ((gpKernelDesigerConfig->no_suspend_in_aiphase == true)) {
+	if ((gpKernelDesignerConfig->no_suspend_in_aiphase == true)) {
 		/* Overwrure this config bit to enable configuration for player runtime */
 		if (gPlaySt.config.disableTerrainDisplay == 0) {
 			switch (gActionData.suspendPointType) {

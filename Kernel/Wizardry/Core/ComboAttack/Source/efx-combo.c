@@ -17,7 +17,7 @@ struct BanimSyncHandler * GetBanimSyncHandler_ComboAtk(struct Anim *anim)
 	int round;
 
 	/* User defined switch */
-	if (!gpKernelDesigerConfig->combo_attack_en)
+	if (!gpKernelDesignerConfig->combo_attack_en)
 		return NULL;
 
 	if (!IsAttackerAnim(anim))

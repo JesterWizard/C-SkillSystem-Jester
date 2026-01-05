@@ -74,7 +74,7 @@ static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
         -1
     };
 
-    if (gpKernelDesigerConfig->arena_calculate_weapon_based_on_level == true)
+    if (gpKernelDesignerConfig->arena_calculate_weapon_based_on_level == true)
     {
         u8 effectiveLevel = unit->level;
 
@@ -126,7 +126,7 @@ void ArenaGenerateBaseWeapons(void)
 
     gArenaState.playerWeapon = MakeNewItem(arenaWeapons[gArenaState.playerWpnType]);
 
-    if (gpKernelDesigerConfig->arena_let_player_use_upgraded_weapons == true)
+    if (gpKernelDesignerConfig->arena_let_player_use_upgraded_weapons == true)
         gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
 
     gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
@@ -316,7 +316,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
         multiplier = 2;
 #endif
 
-    if (gpKernelDesigerConfig->arena_show_opponent_in_advance == true)
+    if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true)
     {
         DrawUiFrame2(7, 9, 0x10, 8, 0);
         SetTextFont(0);

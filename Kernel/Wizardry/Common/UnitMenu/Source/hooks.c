@@ -18,7 +18,7 @@ u8 UnitActionMenu_CancelRe(struct MenuProc* menu, struct MenuItemProc* item)
     ** This way, the left and right dPad buttons do not take effect in other menus
     */
     
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         if (gActionData.unk08 == 10000)
         {

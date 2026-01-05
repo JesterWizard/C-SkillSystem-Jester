@@ -70,7 +70,7 @@ int GetUnitEquippedWeaponSlot(struct Unit *unit)
 
 #if CHAX
 	/* gaiden magic */
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		i = GetGaidenMagicAutoEquipSlot(unit);
 		if (i > 0)
 			return i;
@@ -605,7 +605,7 @@ int GetUnitWeaponUsabilityBits(struct Unit *unit)
 
 #if CHAX
 	/* gaiden magic */
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		struct GaidenMagicList *list = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -745,7 +745,7 @@ void BattleUnitTargetSetEquippedWeapon(struct BattleUnit *bu)
 	}
 
 #if CHAX
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		item = GetGaidenMagicAutoEquipStaff(&bu->unit);
 
 		if (item != ITEM_NONE) {

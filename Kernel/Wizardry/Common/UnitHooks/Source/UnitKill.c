@@ -21,7 +21,7 @@ void UnitKill(struct Unit *unit)
 			unit->pCharacterData = NULL;
 		else {
 			
-			if (gpKernelDesigerConfig->casual_mode == true)
+			if (gpKernelDesignerConfig->casual_mode == true)
 			{
 				unit->state |= US_HIDDEN;
 			}

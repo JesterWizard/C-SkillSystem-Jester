@@ -89,7 +89,7 @@ bool PostAction_BattleActorHeal(ProcPtr parent)
     }
 #endif
 
-    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
+    if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
 	{
     	if (gEventSlots[EVT_SLOT_7] == 410) /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
 		{

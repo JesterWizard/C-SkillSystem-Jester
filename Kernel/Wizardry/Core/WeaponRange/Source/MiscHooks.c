@@ -62,7 +62,7 @@ int GetUnitWeaponReachBits(struct Unit *unit, int slot)
 			if (CanUnitUseWeapon(unit, item))
 				result |= GetItemReachBitsRework(item, unit);
 
-		if (gpKernelDesigerConfig->gaiden_magic_en) {
+		if (gpKernelDesignerConfig->gaiden_magic_en) {
 			struct GaidenMagicList *list = GetGaidenMagicList(unit);
 
 			for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -138,7 +138,7 @@ int GetUnitStaffReachBits(struct Unit *unit)
 			mask |= GetItemReachBitsRework(item, unit);
 	}
 
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		struct GaidenMagicList *list = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {

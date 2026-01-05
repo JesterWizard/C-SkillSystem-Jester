@@ -105,7 +105,7 @@ u8 UpperMenuSkill_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 	const struct MenuDef *def = &sUnitSkillMenuDef;
 	struct MenuRect rect = def->rect;
 
-	rect.w = gpKernelDesigerConfig->skill_sub_menu_width;
+	rect.w = gpKernelDesignerConfig->skill_sub_menu_width;
 
 	if (item->xTile < 12)
 		rect.x = 1;
@@ -212,7 +212,7 @@ STATIC_DECLAR int MenuSkills_StandardDraw(struct MenuProc *menu, struct MenuItem
 
 	if (def->nameMsgId)
 		Text_DrawString(&item->text, Utf8ToNarrowFonts(GetStringFromIndex(def->nameMsgId)));
-	else if (gpKernelDesigerConfig->menu_skill_disp_msg_en_n == true)
+	else if (gpKernelDesignerConfig->menu_skill_disp_msg_en_n == true)
 		Text_DrawString(&item->text, Utf8ToNarrowFonts(GetMenuSkillName(sid)));
 	else
 		Text_DrawString(&item->text, def->name);

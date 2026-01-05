@@ -97,7 +97,7 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
     if (IsExtraSoundRoomEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SOUND_ROOM);
 
-    if (gpKernelDesigerConfig->unlock_all_supports == true) {
+    if (gpKernelDesignerConfig->unlock_all_supports == true) {
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SUPPORT);
     }
     else {
@@ -121,7 +121,7 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
 LYN_REPLACE_CHECK(GGM_IsCharacterKnown);
 bool GGM_IsCharacterKnown(int index, struct GlobalSaveInfo *buf)
 {
-    if (gpKernelDesigerConfig->unlock_all_supports == true)
+    if (gpKernelDesignerConfig->unlock_all_supports == true)
         return 1;
 
     struct GlobalSaveInfo tmp_header;

@@ -125,11 +125,11 @@ int GetTextColorFromGrowth(int growth)
 
 void PutDrawTextRework(struct Text *text, u16 *tm, int color, int x, int tile_width, char const *str)
 {
-	if (gpKernelDesigerConfig->stat_screen_growths == 1)
+	if (gpKernelDesignerConfig->stat_screen_growths == 1)
 	{
     	PutDrawText(text, tm, TEXT_COLOR_SYSTEM_GOLD, x, tile_width, str);
 	} 
-	else if (gpKernelDesigerConfig->stat_screen_growths == 2) 
+	else if (gpKernelDesignerConfig->stat_screen_growths == 2) 
 	{
         PutDrawText(text, tm, TEXT_COLOR_SYSTEM_GOLD, x, tile_width, str);
 	}

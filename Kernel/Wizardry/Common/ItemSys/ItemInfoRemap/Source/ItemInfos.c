@@ -447,7 +447,7 @@ STATIC_DECLAR int MakeNewItemVanilla(int item)
 	if (GetItemAttributes(item) & IA_UNBREAKABLE)
 		uses = 0;
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (limits.maxCount) {
@@ -466,7 +466,7 @@ LYN_REPLACE_CHECK(GetItemHit);
 int GetItemHit(int item) {
 	int result = GetItemData(ITEM_INDEX(item))->hit;
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         struct ForgeBonuses bonuses = gForgeBonuses[limits.forgeIndex];
@@ -483,7 +483,7 @@ LYN_REPLACE_CHECK(GetItemWeight);
 int GetItemWeight(int item) {
 	int result = GetItemData(ITEM_INDEX(item))->weight;
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         struct ForgeBonuses bonuses = gForgeBonuses[limits.forgeIndex];
@@ -503,7 +503,7 @@ LYN_REPLACE_CHECK(GetItemCrit);
 int GetItemCrit(int item) {
 	int result = GetItemData(ITEM_INDEX(item))->crit;
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         struct ForgeBonuses bonuses = gForgeBonuses[limits.forgeIndex];
@@ -621,7 +621,7 @@ int GetItemUses(int item)
 		return 1;
 #endif
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         if (CanItemBeForged(item))
             return GetForgedItemDurability(item);
@@ -677,7 +677,7 @@ LYN_REPLACE_CHECK(GetItemMight);
 int GetItemMight(int item) {
 	int result = GetItemData(ITEM_INDEX(item))->might;
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         struct ForgeBonuses bonuses = gForgeBonuses[limits.forgeIndex];
@@ -698,7 +698,7 @@ void DrawItemMenuLine(struct Text * text, int item, s8 isUsable, u16 * mapOut)
     PutText(text, mapOut + 2);
 
     // Check if forge is active AND the item is forgeable
-    if (gpKernelDesigerConfig->forge_mechanic == true && CanItemBeForged(item))
+    if (gpKernelDesignerConfig->forge_mechanic == true && CanItemBeForged(item))
     {
         PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, (GetForgedItemDurability(item) == 0 ? GetItemMaxUses(item) : GetForgedItemDurability(item)));
         PutSpecialChar(mapOut + 8, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
@@ -734,7 +734,7 @@ void DrawItemMenuLineLong(struct Text * text, int item, s8 isUsable, u16 * mapOu
     }
 #endif
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
@@ -766,7 +766,7 @@ void DrawItemMenuLineNoColor(struct Text * text, int item, u16 * mapOut)
     }
 #endif
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
@@ -805,7 +805,7 @@ void DrawItemStatScreenLine(struct Text * text, int item, int nameColor, u16 * m
     }
 #endif
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
@@ -842,7 +842,7 @@ u16 GetItemAfterUse(int item)
         return 0;
 #endif
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         if (CanItemBeForged(item))
         {
@@ -937,7 +937,7 @@ void RefreshUnitInventoryInfoWindow(struct Unit* unit) {
 
         PutText(proc->lines + i, gBG0TilemapBuffer + TILEMAP_INDEX(xPos+3, yPos));
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -981,7 +981,7 @@ void RefreshHammerneUnitInfoWindow(struct Unit* unit) {
 
         PutText(proc->lines + i, gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 3, yPos));
 		
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {     
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -1076,7 +1076,7 @@ void PrepUnit_DrawUnitItems(struct Unit *unit)
             TILEMAP_LOCATED( gBG0TilemapBuffer, 3, 5 + 2 * i),
             IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, 0, 0, GetItemName(item)
         );
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {

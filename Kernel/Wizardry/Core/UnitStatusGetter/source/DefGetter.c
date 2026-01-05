@@ -12,7 +12,7 @@ int _GetUnitDefense(struct Unit *unit)
 	const StatusGetterFunc_t *it;
 	int status = unit->def;
 
-    if (gpKernelDesigerConfig->display_terrain_bonuses_in_stat_screen == true)
+    if (gpKernelDesignerConfig->display_terrain_bonuses_in_stat_screen == true)
     {
         int terrainID = GetTrueTerrainAt(unit->xPos, unit->yPos);
         status += unit->pClassData->pTerrainDefenseLookup[terrainID];

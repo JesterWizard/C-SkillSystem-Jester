@@ -153,7 +153,7 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 
 	if (proc->y_scroll_offset <= -144)
 	{
-		if (gpKernelDesigerConfig->promotion_on_max_level == true) {
+		if (gpKernelDesignerConfig->promotion_on_max_level == true) {
 			if (gManimSt.actor[proc->actor_id].unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_PROMOTED))
 			{
 				gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
@@ -229,7 +229,7 @@ void StartManimLevelUp(int actor_id, ProcPtr parent)
 {
 	struct ManimLevelUpProc* proc;
 
-if (gpKernelDesigerConfig->talk_on_level_up == true) {
+if (gpKernelDesignerConfig->talk_on_level_up == true) {
 	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_CUSTOM, parent);
 }
 else {

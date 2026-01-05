@@ -16,7 +16,7 @@ NOINLINE static bool IsBMag(int iid)
 	if (!(attr & IA_WEAPON))
 		return false;
 
-	if (gpKernelDesigerConfig->gaiden_magic_must_be_magic)
+	if (gpKernelDesignerConfig->gaiden_magic_must_be_magic)
 		if (!(attr & IA_MAGIC))
 			return false;
 
@@ -62,7 +62,7 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 		}
 	}
 
-	if (gpKernelDesigerConfig->gaiden_magic_ext_conf_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_ext_conf_en) {
 		for (; conf2->iid != ITEM_NONE; conf2++) {
 			if (conf2->faction != UNIT_FACTION(unit))
 				continue;
@@ -120,7 +120,7 @@ struct GaidenMagicList *GetGaidenMagicList(struct Unit *unit)
 
 bool CanUnitUseGaidenMagic(struct Unit *unit, int item)
 {
-	if (gpKernelDesigerConfig->gaiden_magic_requires_wrank) {
+	if (gpKernelDesignerConfig->gaiden_magic_requires_wrank) {
 		if (GetItemAttributes(item) & IA_WEAPON)
 			return CanUnitUseWeapon(unit, item);
 		else if (GetItemType(item) == ITYPE_STAFF)

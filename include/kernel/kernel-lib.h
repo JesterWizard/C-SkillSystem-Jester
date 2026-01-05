@@ -36,6 +36,18 @@ struct KernelDesigerConfig {
 	u8 custom_support_conversations;
 	u8 custom_fog_sight;
 	u8 custom_talk_icon;
+	u8 custom_droppable_item_icon;
+	u8 l_button_same_faction_cycling;
+	u8 two_random_number_growths;
+	u8 max_simultaneous_support_conversations;
+	u8 kill_rewards;
+	u8 menu_option_refuge;
+	u8 promote_enemy_on_kill;
+	u8 promote_enemy_boost;
+	u8 no_wait_after_trading;
+	u8 send_inventory_on_death;
+	u8 biorhythm_mechanic;
+	u8 skip_intro;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
@@ -102,7 +114,7 @@ struct KernelBattleDesignerConfig {
 	u8 battle_followup_speed_threshold;
 };
 
-extern const struct KernelDesigerConfig *const gpKernelDesigerConfig;
+extern const struct KernelDesigerConfig *const gpKernelDesignerConfig;
 extern const struct KernelBattleDesignerConfig *const gpKernelBattleDesignerConfig;
 
 /**

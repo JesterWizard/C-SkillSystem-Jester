@@ -8,7 +8,7 @@
 LYN_REPLACE_CHECK(DisplayPage2);
 void DisplayPage2(void)
 {
-	switch (gpKernelDesigerConfig->skil_page_style) {
+	switch (gpKernelDesignerConfig->skil_page_style) {
 	case CONFIG_PAGE4_MOKHA_PLAN_A:
 	default:
 		DrawSkillPage_MokhaPlanA();
@@ -22,7 +22,7 @@ void DisplayPage2(void)
 
 void StartSkillScreenHelp(int pageid, struct Proc *proc)
 {
-	switch (gpKernelDesigerConfig->skil_page_style) {
+	switch (gpKernelDesignerConfig->skil_page_style) {
 	case CONFIG_PAGE4_MOKHA_PLAN_A:
 	default:
 		gStatScreen.help = RTextSkillPage_MokhaPlanA;

@@ -33,7 +33,7 @@ void SetBattleUnitTerrainBonuses(struct BattleUnit *bu, int terrain)
     bu->terrainAvoid      = jinfo->pTerrainAvoidLookup[bu->terrainId];
 
 	/* This is so we don't apply the numbers twice since they're applied in the getters as well */
-	if (gpKernelDesigerConfig->display_terrain_bonuses_in_stat_screen == false)
+	if (gpKernelDesignerConfig->display_terrain_bonuses_in_stat_screen == false)
 	{
 		bu->terrainDefense    = jinfo->pTerrainDefenseLookup[bu->terrainId];
 		bu->terrainResistance = jinfo->pTerrainResistanceLookup[bu->terrainId];

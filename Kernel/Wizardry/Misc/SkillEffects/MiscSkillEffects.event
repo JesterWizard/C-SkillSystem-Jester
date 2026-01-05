@@ -113,9 +113,8 @@
 #include "MenuSkills/ReciprocalAid.lyn.event"
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"
 
-#ifdef CONFIG_REFUGE_FEATURE
 #include "MenuSkills/Refuge.lyn.event"
-#endif
+
 #ifdef CONFIG_LAGUZ_BARS
 #include "MenuSkills/Laguz.lyn.event"
 #endif

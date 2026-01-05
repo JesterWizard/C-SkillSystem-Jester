@@ -10,7 +10,7 @@ POIN SkillTester
 WORD $20284AC
 POIN gpSkillExtraInfo
 WORD $16F8 $2D5
-POIN gpKernelDesigerConfig
+POIN gpKernelDesignerConfig
 POIN CheckKernelHookSkippingFlag
 POIN CallMapAnim_Heal
 WORD $30004B8 $202BCF0 $D66

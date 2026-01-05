@@ -38,7 +38,7 @@ void DisplayPage0(void)
 
 	InstallExpandedTextPal();
 
-	switch (gpKernelDesigerConfig->unit_page_style) {
+	switch (gpKernelDesignerConfig->unit_page_style) {
 	case 1:
 	default:
 		DisplayPage_WithBWL();
@@ -53,7 +53,7 @@ void DisplayPage0(void)
 /* External hook */
 void StartUnitScreenHelp(int pageid, struct Proc *proc)
 {
-	switch (gpKernelDesigerConfig->unit_page_style) {
+	switch (gpKernelDesignerConfig->unit_page_style) {
 	case 1:
 	default:
 		gStatScreen.help = RTextPageUnit_WithBWL;

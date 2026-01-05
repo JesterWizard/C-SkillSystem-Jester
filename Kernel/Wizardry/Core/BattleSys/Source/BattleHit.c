@@ -685,22 +685,23 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 			gBattleActorGlobalFlag.enemy_defeated = true;
 		    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
 
-#ifdef CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT
+        if (gpKernelDesignerConfig->promote_enemy_on_kill == true) 
+	    {
 			struct Unit* enemyUnit = GetUnit(gBattleActor.unit.index);
 			if (UNIT_FACTION(enemyUnit) == FACTION_RED)
 			{
 				ApplyUnitDefaultPromotion(enemyUnit);
-				enemyUnit->maxHP += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->curHP += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->pow += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->_u47 += CONFIG_ENEMY_PROMOTION_BOOST; // magic
-				enemyUnit->skl += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->spd += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->lck += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->def += CONFIG_ENEMY_PROMOTION_BOOST;
-				enemyUnit->res += CONFIG_ENEMY_PROMOTION_BOOST;
+				enemyUnit->maxHP += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->curHP += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->pow += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->_u47 += gpKernelDesignerConfig->promote_enemy_boost; // magic
+				enemyUnit->skl += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->spd += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->lck += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->def += gpKernelDesignerConfig->promote_enemy_boost;
+				enemyUnit->res += gpKernelDesignerConfig->promote_enemy_boost;
 			}
-#endif
+        }
 
 #if (defined(SID_Emulate) && (COMMON_SKILL_VALID(SID_Emulate)))
             if (SkillTester(GetUnit(gBattleActor.unit.index), SID_Emulate))
@@ -768,7 +769,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
     }
 #endif
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
     #ifdef CONFIG_FE4_CRIT_BONUS_ON_KILL
                 u16 item = GetUnitEquippedWeapon(GetUnit(gBattleActor.unit.index));
@@ -870,12 +871,13 @@ bool BATTLE_HandleItemDrop(struct CombatActionProc* proc) {
         return true;
     }
 
-#ifdef CONFIG_KILL_REWARDS
-    int itemReward = GetItemReward(unitB, unitA);
+    if (gpKernelDesignerConfig->kill_rewards == true)
+    {
+        int itemReward = GetItemReward(unitB, unitA);
 
-    if (itemReward != 0)
-        NewPopup_ItemGot(proc, unitB, itemReward);
-#endif
+        if (itemReward != 0)
+            NewPopup_ItemGot(proc, unitB, itemReward);
+    }
 
     if (!(unitA->state & US_DROP_ITEM)) {
         return true;

@@ -279,7 +279,7 @@ void DisplayPage1(void)
 	DrawItemPageSubfix(slot);
 
 	// CONFIG_INSTALL_KERNEL_SHIELD
-	if (gpKernelDesigerConfig->shield_en)
+	if (gpKernelDesignerConfig->shield_en)
 		DrawItemPage_ShieldEquipLine();
 }
 
@@ -349,7 +349,7 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 
 	/* JESTER - A little something to turn off the RText box when moving up and down to empty positions in the Gaiden Magic list */
 #ifdef CONFIG_USE_GAIDEN_MAGIC
-	if (gpKernelDesigerConfig->gaiden_magic_en && gStatScreen.page == 4)
+	if (gpKernelDesignerConfig->gaiden_magic_en && gStatScreen.page == 4)
 	{
 		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 
@@ -369,7 +369,7 @@ void HbPopulate_SSItem(struct HelpBoxProc *proc)
 	proc->mid  = GetItemDescId(item);
 
 #ifdef CONFIG_USE_GAIDEN_MAGIC
-	if (gpKernelDesigerConfig->gaiden_magic_en)
+	if (gpKernelDesignerConfig->gaiden_magic_en)
 	{
 		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 

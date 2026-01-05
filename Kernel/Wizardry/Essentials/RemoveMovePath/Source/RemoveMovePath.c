@@ -5,7 +5,7 @@
 LYN_REPLACE_CHECK(PlayerPhase_DisplayUnitMovement);
 void PlayerPhase_DisplayUnitMovement(void)
 {
-	if (gpKernelDesigerConfig->remove_move_path == false)
+	if (gpKernelDesignerConfig->remove_move_path == false)
 		GetMovementScriptFromPath();
 	else
 		GenerateBestMovementScript(
@@ -20,7 +20,7 @@ void PlayerPhase_DisplayUnitMovement(void)
 LYN_REPLACE_CHECK(DrawUpdatedPathArrow);
 void DrawUpdatedPathArrow(void)
 {
-	if (gpKernelDesigerConfig->remove_move_path == false) {
+	if (gpKernelDesignerConfig->remove_move_path == false) {
 		UpdatePathArrowWithCursor();
 		DrawPathArrow();
 	}

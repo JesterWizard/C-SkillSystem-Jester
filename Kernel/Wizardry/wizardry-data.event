@@ -18,12 +18,8 @@ KERNEL_DATA_START:
 #include "Common/SaveData/data.event"
 #include "Common/UnitHooks/data.event"
 #include "Common/ItemSys/ItemSysData.event"
-
 #include "Common/FogVision/FogVision_Installer.event"
-
-#ifdef CONFIG_KILL_REWARDS
-    #include "Common/KillRewards/KillRewards.lyn.event"
-#endif
+#include "Common/KillRewards/KillRewards.lyn.event"
 
 #include "Core/BattleSys/data.event"
 #include "Core/MapTask/data.event"

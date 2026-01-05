@@ -304,7 +304,7 @@ int GetBattleUnitStaffExpRework(struct BattleUnit* bu)
 {
     int result = 0;
 
-    if (gpKernelDesigerConfig->modular_staff_exp == true)
+    if (gpKernelDesignerConfig->modular_staff_exp == true)
         result = StaffEXP(ITEM_INDEX(bu->weapon));
     else
         result = GetBattleUnitStaffExp(bu);

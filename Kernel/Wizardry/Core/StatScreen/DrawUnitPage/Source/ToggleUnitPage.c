@@ -10,7 +10,7 @@
 static void _growth_disp(int x, int y, int growth)
 {
     
-    if (gpKernelDesigerConfig->stat_screen_growths == 1) 
+    if (gpKernelDesignerConfig->stat_screen_growths == 1) 
     {
         FORCE_DECLARE int character1 = 0;
         FORCE_DECLARE int character2 = 0;
@@ -80,7 +80,7 @@ static void _growth_disp(int x, int y, int growth)
             character2);
         }
     }
-    else if (gpKernelDesigerConfig->stat_screen_growths == 2) 
+    else if (gpKernelDesignerConfig->stat_screen_growths == 2) 
     {
         PutNumberOrBlank(
             gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
@@ -105,7 +105,7 @@ STATIC_DECLAR void ToggleUnitPageGrowth(void)
 {
     struct Unit *unit = gStatScreen.unit;
 
-    if (gpKernelDesigerConfig->stat_screen_growths == 2) 
+    if (gpKernelDesignerConfig->stat_screen_growths == 2) 
     {
         _growth_disp(17, 3, unit->pCharacterData->growthPow);
         _growth_disp(17, 5, GetUnitBasicMagGrowth(unit));
@@ -273,7 +273,7 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	 * We direcly put page toggle here since here has been a hook during statscreen IDLE.
 	 * It's true that better to put such process into StatScreen_OnIdle(), but both are okay.
 	 */
-	switch (gpKernelDesigerConfig->unit_page_style) {
+	switch (gpKernelDesignerConfig->unit_page_style) {
 	case 1:
 	case 2:
 		if ((gStatScreen.page == STATSCREEN_PAGE_0) && (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)) {

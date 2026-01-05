@@ -13,7 +13,7 @@
 
 ## 🧩 Introduction
 
-`CONFIG_KILL_REWARDS`
+`gpKernelDesignerConfig->killRewards`
 
 This feature is designed to **award items** to a unit if they happen to defeat a certain unit.
 

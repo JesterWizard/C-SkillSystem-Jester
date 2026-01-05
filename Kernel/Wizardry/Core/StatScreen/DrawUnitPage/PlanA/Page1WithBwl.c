@@ -105,7 +105,7 @@ STATIC_DECLAR void DrawPage1TextCommon(void)
 		0, 0,
 		GetStringFromIndex(0x4F8)); // Aid
 
-	if (gpKernelDesigerConfig->custom_fog_sight == false) 
+	if (gpKernelDesignerConfig->custom_fog_sight == false) 
 	{
 		PutDrawText(
 			&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
@@ -337,7 +337,7 @@ STATIC_DECLAR void DrawPage1BWL(void)
 	ClearText(&gStatScreen.text[STATSCREEN_TEXT_BWL]);
 
 #if 0
-	if (gpKernelDesigerConfig->use_chinese_character == true) {
+	if (gpKernelDesignerConfig->use_chinese_character == true) {
 		// Draw B label
 		Text_InsertDrawString(&gStatScreen.text[STATSCREEN_TEXT_BWL],
 			0, TEXT_COLOR_SYSTEM_GOLD,
@@ -412,7 +412,7 @@ STATIC_DECLAR void DrawPage1Affin(void)
 			GetUnitAffinityIcon(unit),
 			TILEREF(0, STATSCREEN_BGPAL_EXTICONS));
 
-		if (gpKernelDesigerConfig->use_chinese_character == true) {
+		if (gpKernelDesignerConfig->use_chinese_character == true) {
 			PutDrawText(
 				&gStatScreen.text[STATSCREEN_TEXT_ITEM1],
 				gUiTmScratchA + TILEMAP_INDEX(0xE, 0x7),
@@ -480,7 +480,7 @@ void DisplayPage_WithBWL(void)
     DrawPage1BWL();
 #endif
 
-	if (gpKernelDesigerConfig->custom_fog_sight == true) 
+	if (gpKernelDesignerConfig->custom_fog_sight == true) 
 		DrawPage1SightBar();
 	else
 		DrawPage1Affin();

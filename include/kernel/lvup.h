@@ -4,10 +4,10 @@
 #include "kernel-lib.h"
 
 #define CHAX_MAX_LEVEL \
-	MIN(gpKernelDesigerConfig->max_level, UNIT_LEVEL_MAX_RE)
+	MIN(gpKernelDesignerConfig->max_level, UNIT_LEVEL_MAX_RE)
 
 #define CHAX_MAX_RECORD_LEVEL \
-	MIN(gpKernelDesigerConfig->max_level_record, UNIT_RECORDED_LEVEL_MAX)
+	MIN(gpKernelDesignerConfig->max_level_record, UNIT_RECORDED_LEVEL_MAX)
 
 extern const u8 MetisTomeGrowthBonus;
 

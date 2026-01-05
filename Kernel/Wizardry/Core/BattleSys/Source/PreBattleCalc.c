@@ -30,7 +30,7 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 
 	con += k_udiv(bu->battleAttack * gpKernelBattleDesignerConfig->as_calc_atk_perc, 100);
 
-	if (gpKernelDesigerConfig->s_rank_weapon_no_weight == true)
+	if (gpKernelDesignerConfig->s_rank_weapon_no_weight == true)
 	{
 		int itemType = GetItemType(bu->weaponBefore);
 
@@ -206,9 +206,8 @@ void ComputeBattleUnitAvoidRate_Rework(struct BattleUnit* bu)
 			status -= gpKernelBattleDesignerConfig->rider_debuff_indoor;
 	}
 
-#ifdef CONFIG_BIORHYTHM
-	status += GetBiorhythmBonus(bu, gPlaySt.chapterTurnNumber);
-#endif
+	if (gpKernelDesignerConfig->biorhythm_mechanic == true) 
+		status += GetBiorhythmBonus(bu, gPlaySt.chapterTurnNumber);
 
 	bu->battleAvoidRate = status;
 	if (bu->battleAvoidRate < 0)
@@ -255,9 +254,8 @@ void ComputeBattleUnitHitRate(struct BattleUnit* bu) {
 	status += bu->unit.lck / 2;
 	status += bu->wTriangleHitBonus;
 
-#ifdef CONFIG_BIORHYTHM
-	status += GetBiorhythmBonus(bu, gPlaySt.chapterTurnNumber);
-#endif
+	if (gpKernelDesignerConfig->biorhythm_mechanic == true) 
+		status += GetBiorhythmBonus(bu, gPlaySt.chapterTurnNumber);
 
 	bu->battleHitRate = status;
 }
@@ -2608,7 +2606,7 @@ void PreBattleCalcAuraEffect(struct BattleUnit* attacker, struct BattleUnit* def
 #endif
 	}
 
-	if (gpKernelDesigerConfig->battle_surrend_en && attacker == &gBattleTarget && (gBattleStats.config & BATTLE_CONFIG_REAL)) {
+	if (gpKernelDesignerConfig->battle_surrend_en && attacker == &gBattleTarget && (gBattleStats.config & BATTLE_CONFIG_REAL)) {
 		/* Flyer in outdoor environments are not affected by this effect (todo) */
 		if (!(UNIT_CATTRIBUTES(&attacker->unit) & CA_FLYER) || (0)) {
 			int surround_enemies = enmies_gRange1_In3x3 - 1;

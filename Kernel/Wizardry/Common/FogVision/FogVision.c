@@ -15,7 +15,7 @@ int GetUnitFogViewRange(struct Unit * unit)
 {
     int result = gPlaySt.chapterVisionRange;
 
-	if (gpKernelDesigerConfig->custom_fog_sight == true) 
+	if (gpKernelDesignerConfig->custom_fog_sight == true) 
     {
         switch (unit->pClassData->number)
         {        

@@ -384,19 +384,20 @@ void KillUnitOnCombatDeath(struct Unit* unitA, struct Unit* unitB) {
         UnitKill(unitB);
 #endif
 
-#ifdef CONFIG_SEND_INVENTORY_ON_DEATH
-    if (UNIT_FACTION(unitA) == FACTION_BLUE)
+    if (gpKernelDesignerConfig->send_inventory_on_death == true) 
     {
-        for (int i = 0; i < 5; i++)
+        if (UNIT_FACTION(unitA) == FACTION_BLUE)
         {
-            if (unitA->items[i] == 0)
-                break;
+            for (int i = 0; i < 5; i++)
+            {
+                if (unitA->items[i] == 0)
+                    break;
 
-            if (GetConvoyItemCount() < sExpaConvoyItemAmount)
-                AddItemToConvoy(unitA->items[i]);
+                if (GetConvoyItemCount() < sExpaConvoyItemAmount)
+                    AddItemToConvoy(unitA->items[i]);
+            }
         }
     }
-#endif
 
     PidStatsRecordDefeatInfo(unitA->pCharacterData->number, unitB->pCharacterData->number, DEFEAT_CAUSE_COMBAT);
 
@@ -412,19 +413,20 @@ void KillUnitOnArenaDeathMaybe(struct Unit* unit) {
         return;
     }
 
-#ifdef CONFIG_SEND_INVENTORY_ON_DEATH
-    if (UNIT_FACTION(unit) == FACTION_BLUE)
+    if (gpKernelDesignerConfig->send_inventory_on_death == true) 
     {
-        for (int i = 0; i < 5; i++)
+        if (UNIT_FACTION(unit) == FACTION_BLUE)
         {
-            if (unit->items[i] == 0)
-                break;
+            for (int i = 0; i < 5; i++)
+            {
+                if (unit->items[i] == 0)
+                    break;
 
-            if (GetConvoyItemCount() < sExpaConvoyItemAmount)
-                AddItemToConvoy(unit->items[i]);
+                if (GetConvoyItemCount() < sExpaConvoyItemAmount)
+                    AddItemToConvoy(unit->items[i]);
+            }
         }
     }
-#endif
 
     UnitKill(unit);
 
@@ -444,9 +446,8 @@ s8 PlayerPhase_PrepareAction(ProcPtr proc)
         proc, GetUnit(gActionData.subjectIndex)->xPos, GetUnit(gActionData.subjectIndex)->yPos);
     cameraReturn ^= 1;
 
-#ifdef CONFIG_NO_WAIT_AFTER_TRADING
-    gBmSt.taken_action = 0;
-#endif
+    if (gpKernelDesignerConfig->no_wait_after_trading == true)
+        gBmSt.taken_action = 0;
 
     switch (gActionData.unitActionType)
     {
@@ -716,7 +717,7 @@ void UnitDrop(struct Unit* actor, int xTarget, int yTarget)
     target->state = target->state & ~(US_RESCUING | US_RESCUED | US_HIDDEN);
 
     /* Let rescued units move after the rescuer dies */
-    if (gpKernelDesigerConfig->death_dance == true) {
+    if (gpKernelDesignerConfig->death_dance == true) {
         if (UNIT_FACTION(target) == gPlaySt.faction && actor->curHP != 0)
             target->state |= US_UNSELECTABLE; // TODO: US_GRAYED    
     }
@@ -856,7 +857,7 @@ void RefreshUnitStealInventoryInfoWindow(struct Unit* unit)
 
         PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? 2 : 1, GetItemUses(item));
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
 
@@ -913,7 +914,7 @@ void sub_809D300(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1, GetItemUses(item));
 #endif
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -960,7 +961,7 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
 #endif
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -1018,7 +1019,7 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
 
         PutText(th, tm + 2 + i * 0x40);
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -1086,7 +1087,7 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
         PutNumberOrBlank(tm + i * 0x40 + 0xB, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
 #endif
 
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
@@ -1137,7 +1138,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         proc->itemCurrent--;
 
         // Reset the last item forge count if we move to another item
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
             {
@@ -1181,7 +1182,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         proc->itemCurrent++;
 
         // Reset the last item forge count if we move to another item
-        if (gpKernelDesigerConfig->forge_mechanic == true)
+        if (gpKernelDesignerConfig->forge_mechanic == true)
         {
             if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
             {
@@ -1210,7 +1211,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 #endif
     }
 
-    if (gpKernelDesigerConfig->forge_mechanic == true)
+    if (gpKernelDesignerConfig->forge_mechanic == true)
     {
         if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
         {
@@ -3868,35 +3869,38 @@ void TrySwitchViewedUnit(int x, int y)
     int unitId = gBmMapUnit[y][x];
     int factionMin, factionMax;
     
-#ifdef CONFIG_L_BUTTON_SAME_FACTION_CYCLING
-    // Determine faction range based on current unit
-    if (unitId & 0x80)
-    {
-        // Enemy Faction (Red)
-        factionMin = 0x80;
-        factionMax = 0xBF;
-    }
-    else if (unitId & 0x40)
-    {
-        // NPC Faction (Green)
-        factionMin = 0x40;
-        factionMax = 0x7F;
+    if (gpKernelDesignerConfig->l_button_same_faction_cycling == true) 
+	{
+        // Determine faction range based on current unit
+        if (unitId & 0x80)
+        {
+            // Enemy Faction (Red)
+            factionMin = 0x80;
+            factionMax = 0xBF;
+        }
+        else if (unitId & 0x40)
+        {
+            // NPC Faction (Green)
+            factionMin = 0x40;
+            factionMax = 0x7F;
+        }
+        else
+        {
+            // Player Faction (Blue)
+            factionMin = 0x01;
+            factionMax = 0x3F;
+        }
     }
     else
     {
-        // Player Faction (Blue)
+        // Original behavior: only cycle through Blue faction
+        if ((unitId & 0xC0) != FACTION_BLUE)
+        {
+            unitId = 0;
+        }
         factionMin = 0x01;
         factionMax = 0x3F;
     }
-#else
-    // Original behavior: only cycle through Blue faction
-    if ((unitId & 0xC0) != FACTION_BLUE)
-    {
-        unitId = 0;
-    }
-    factionMin = 0x01;
-    factionMax = 0x3F;
-#endif
     
     // Normalize unitId if outside faction range
     if (unitId < factionMin || unitId > factionMax)
@@ -3939,11 +3943,9 @@ void InitSupportSubScreenRemainingSupports(struct SubScreenProc* proc) {
     int i;
 
     if (proc->fromPrepScreen) {
-#ifdef CONFIG_UNLOCK_SUPPORT_CONVO_LIMIT
-        proc->remainingSupports = MAX_SIMULTANEOUS_SUPPORT_COUNT - GetTotalSupportLevel(proc->unitIdx);
-#else
-        proc->remainingSupports = 5 - GetTotalSupportLevel(proc->unitIdx);
-#endif
+
+        proc->remainingSupports = gpKernelDesignerConfig->max_simultaneous_support_conversations - GetTotalSupportLevel(proc->unitIdx);
+
     } else {
         int charId = GetSupportScreenCharIdAt(proc->unitIdx);
 
@@ -3963,10 +3965,8 @@ void InitSupportSubScreenRemainingSupports(struct SubScreenProc* proc) {
 LYN_REPLACE_CHECK(BmMain_StartIntroFx);
 void BmMain_StartIntroFx(ProcPtr proc)
 {
-
-#ifdef CONFIG_SKIP_CHAPTER_INTROS
-    return;
-#endif
+    if (gpKernelDesignerConfig->skip_intro == true)
+        return;
 
 #ifdef CONFIG_BASE_CHAPTERS
     if (CheckFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP))
@@ -4292,7 +4292,7 @@ void Talk_OnIdle(ProcPtr proc) {
                     if (CheckTalkFlag(TALK_FLAG_7)) { // World map text boop
                         RegisterEfxSoundSeExist();
 
-                        if (gpKernelDesigerConfig->voice_acted_dialogue == true) // Reduce the world map boop volume so it's not overpowering the voice acting
+                        if (gpKernelDesignerConfig->voice_acted_dialogue == true) // Reduce the world map boop volume so it's not overpowering the voice acting
                             Sound_SetBGMVolume(0x60); 
                         
                         PlaySoundEffect(SONG_7A);

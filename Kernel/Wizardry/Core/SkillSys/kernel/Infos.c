@@ -51,7 +51,7 @@ char *GetSkillDescStr(const u16 sid)
 	if (msg != 0)
 		str = GetStringFromIndex(msg);
 
-	if (gpKernelDesigerConfig->auto_narrow_font)
+	if (gpKernelDesignerConfig->auto_narrow_font)
 		return Utf8ToNarrowFonts(str);
 	else
 		return str;
@@ -100,7 +100,7 @@ char *GetSkillNameStr(const u16 sid)
 	else
 		str = GetStringFromIndex(msg);
 
-	if (gpKernelDesigerConfig->auto_narrow_font)
+	if (gpKernelDesignerConfig->auto_narrow_font)
 		return Utf8ToNarrowFonts(str);
 	else
 		return str;

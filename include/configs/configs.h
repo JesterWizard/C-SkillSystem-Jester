@@ -368,8 +368,7 @@
 #define CONFIG_TEXT_ENGINE_REWORK
 
 #define CONFIG_SHOW_CGs_LIKE_FE7
-//#define CONFIG_SEND_INVENTORY_ON_DEATH
-#define CONFIG_NO_WAIT_AFTER_TRADING
+
 #define CONFIG_LIMITED_SHOP_STOCK
 // #define CONFIG_DENY_STAT_SCREEN
 #define CONFIG_CHAPTER_NAMES
@@ -420,13 +419,6 @@
 // #define CONFIG_SUPPORT_REWARDS // Go to BwlSupport.c in StartSupportTalk to adjust items gained
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
-#define CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT
-
-#ifdef CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT
-	#define CONFIG_ENEMY_PROMOTION_BOOST 3
-#endif
-
-#define CONFIG_REFUGE_FEATURE
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
 #define CONFIG_EXPANDED_PREP_MENU_OPTIONS
@@ -449,36 +441,22 @@
 
 #define CONFIG_FREE_MOVEMENT
 
-// #define CONFIG_BIORHYTHM
-
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
 // #define CONFIG_LIGHTS_OUT_GAME
-
-// #define CONFIG_2RN_GROWTHS
 
 #define CONFIG_BASE_CHAPTERS
 
 #define CONFIG_STAT_PAGE_PERSONAL_INFO
 #define CONFIG_STAT_PAGE_PROMOTIONS
 
-#define CONFIG_DISPLAY_TALK_ICON
-
-#define CONFIG_DISPLAY_DROPPABLE_ITEM_ICON
-
 // #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
 // #define CONFIG_SUPER_FAST_MAP_ANIMATIONS
 
-#define CONFIG_L_BUTTON_SAME_FACTION_CYCLING
-
 // #define CONFIG_ANIMA_WEAPON_TRIANGLE
 
-#define CONFIG_UNLOCK_SUPPORT_CONVO_LIMIT 10
-
 // #define CONFIG_SKILL_POINTS_ENGAGE
-
-// #define CONFIG_SKIP_CHAPTER_INTROS
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
@@ -488,8 +466,6 @@
 ** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
 */
 // #define CONFIG_HALF_BODY_PORTRAITS
-
-#define CONFIG_KILL_REWARDS
 
 #define CONFIG_HOTFIXES
 

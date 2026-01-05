@@ -114,9 +114,7 @@
     #include "Misc/FreeMovement/FreeMovement_Installer.event"
 #endif
 
-#ifdef CONFIG_BIORHYTHM
-    #include "Misc/Biorhythm/Biorhythm_Installer.event"
-#endif
+#include "Misc/Biorhythm/Biorhythm_Installer.event"
 
 #ifdef CONFIG_MOKHA_AOE
     #include "Misc/MokhaAOE/MokhaAOE_Installer.event"

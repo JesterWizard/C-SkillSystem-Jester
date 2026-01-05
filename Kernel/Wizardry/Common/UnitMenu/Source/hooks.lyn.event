@@ -9,5 +9,5 @@ WORD $4B0DB510 $F824F000 $F0004B0C $4B0CF821 $F81EF000 $681B4B0B $2B017B1B $201B
 POIN ResetCombatArtStatus
 POIN ResetSkillLists
 POIN ResetCombatArtList
-POIN gpKernelDesigerConfig
+POIN gpKernelDesignerConfig
 WORD $203A958 $2710 $46C04718

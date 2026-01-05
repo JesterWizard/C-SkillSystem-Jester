@@ -112,8 +112,8 @@ enum SkillInfoListss {
 #define UNIT_RAM_SKILLS(unit) ((u16 *)((unit)->supports))
 
 #define RAM_SKILL_LEN_EXT ( \
-	gpKernelDesigerConfig->max_equipable_skill < UNIT_RAM_SKILLS_LEN \
-		? gpKernelDesigerConfig->max_equipable_skill \
+	gpKernelDesignerConfig->max_equipable_skill < UNIT_RAM_SKILLS_LEN \
+		? gpKernelDesignerConfig->max_equipable_skill \
 		: UNIT_RAM_SKILLS_LEN)
 
 extern u16 const* const gpConstSkillTable_Person;

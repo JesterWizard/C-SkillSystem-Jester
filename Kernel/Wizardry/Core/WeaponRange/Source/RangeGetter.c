@@ -131,7 +131,7 @@ int GetUnitMinRange(struct Unit *unit)
 		}
 	}
 
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		struct GaidenMagicList *list = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -180,7 +180,7 @@ int GetUnitMaxRange(struct Unit *unit)
 		}
 	}
 
-	if (gpKernelDesigerConfig->gaiden_magic_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_en) {
 		struct GaidenMagicList *list = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {

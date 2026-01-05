@@ -172,7 +172,7 @@ void ItemUseEffect_SkillScroll(struct Unit *unit)
 	gActionData.unk08 = -1;
 	SetItemUseAction(unit);
 
-	if (gpKernelDesigerConfig->gen_new_scroll == false) {
+	if (gpKernelDesignerConfig->gen_new_scroll == false) {
 		/**
 		 * If the unit has been filled with equipable skills,
 		 * player need to select to remove a equipped skill.
@@ -389,7 +389,7 @@ void PrepItemEffect_SkillScroll(struct ProcPrepItemUse *proc, u16 item)
 
 bool PrepItemUsability_SkillScroll(struct Unit *unit, int item)
 {
-	if (gpKernelDesigerConfig->gen_new_scroll == false) {
+	if (gpKernelDesignerConfig->gen_new_scroll == false) {
 		/**
 		 * If skillsys is configured unequipable,
 		 * then we need to find a free-slot to equip the skill.

@@ -20,11 +20,11 @@ POIN SortMax
 WORD $201FF60
 POIN GetTalkee
 POIN InstallExpandedTextPal
-POIN gpKernelDesigerConfig
+POIN gpKernelDesignerConfig
 POIN DisplayPage_WithBWL
 POIN DisplayPage_WithLeadership
 WORD $681B4B06 $2B027E5B $4B05D004 $4B05681A $4770615A $681A4B04 $46C0E7F9
-POIN gpKernelDesigerConfig
+POIN gpKernelDesignerConfig
 POIN RTextPageUnit_WithBWL
 WORD $2003BFC
 POIN RTextPageUnit_WithLeadership

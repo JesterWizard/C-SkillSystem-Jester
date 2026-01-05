@@ -17,7 +17,7 @@ extern u8 sShileldInfoNext;
 
 STATIC_DECLAR bool check_config_en(void)
 {
-	return gpKernelDesigerConfig->shield_en;
+	return gpKernelDesignerConfig->shield_en;
 }
 
 NOINLINE STATIC_DECLAR bool get_unit_item_slot(struct Unit *unit, u16 item)
@@ -106,7 +106,7 @@ const struct ShieldInfo *GetUnitShield(struct Unit *unit)
 	if (sinfo)
 		return sinfo;
 
-	if (gpKernelDesigerConfig->shield_ext_equip_config_en) {
+	if (gpKernelDesignerConfig->shield_ext_equip_config_en) {
 		sinfo = GetExtUnitShield(unit);
 
 		if (sinfo != NULL) {

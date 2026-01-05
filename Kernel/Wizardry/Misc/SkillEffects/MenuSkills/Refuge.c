@@ -8,7 +8,6 @@
 #include "unit-expa.h"
 #include "action-expa.h"
 
-#ifdef CONFIG_REFUGE_FEATURE
 static s8 CanUnitRefuge(struct Unit* actor, struct Unit* target) {
     int actorCon  = UNIT_CON(actor);
     int targetAid = GetUnitAid(target);
@@ -58,21 +57,26 @@ static void MakeRefugeTargetList(struct Unit* unit) {
 
 u8 Refuge_Usability(const struct MenuItemDef * def, int number)
 {
-    if (gActiveUnit->state & US_HAS_MOVED) {
-        return MENU_NOTSHOWN;
+    if (gpKernelDesignerConfig->menu_option_refuge == true) 
+	{
+        if (gActiveUnit->state & US_HAS_MOVED) {
+            return MENU_NOTSHOWN;
+        }
+
+        if (gActiveUnit->state & (US_IN_BALLISTA | US_RESCUING)) {
+            return MENU_NOTSHOWN;
+        }
+
+        MakeRefugeTargetList(gActiveUnit);
+
+        if (GetSelectTargetCount() == 0) {
+            return MENU_NOTSHOWN;
+        }
+
+        return MENU_ENABLED;
     }
 
-    if (gActiveUnit->state & (US_IN_BALLISTA | US_RESCUING)) {
-        return MENU_NOTSHOWN;
-    }
-
-    MakeRefugeTargetList(gActiveUnit);
-
-    if (GetSelectTargetCount() == 0) {
-        return MENU_NOTSHOWN;
-    }
-
-    return MENU_ENABLED;
+    return MENU_NOTSHOWN;
 }
 
 static u8 Refuge_OnSelectTarget(ProcPtr proc, struct SelectTarget * target)
@@ -152,4 +156,3 @@ bool Action_Refuge(ProcPtr parent)
 
     return true;
 }
-#endif

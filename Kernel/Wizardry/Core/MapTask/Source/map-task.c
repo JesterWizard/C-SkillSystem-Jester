@@ -15,7 +15,7 @@ void PutUnitSpriteIconsOam(void)
 	FORCE_DECLARE bool have_cached_talkee = false;
 
 	/* Cache talkee id once to avoid repeated expensive GetTalkee() calls inside the loop */
-	if (gpKernelDesigerConfig->custom_talk_icon == true) 
+	if (gpKernelDesignerConfig->custom_talk_icon == true) 
 	{
 		if (gBmSt.gameStateBits & BM_FLAG_1) {
 			cached_talkee_id = GetTalkee(gActiveUnit);
@@ -75,7 +75,7 @@ void PutUnitSpriteIconsOam(void)
 		MapTaskVec.x = ix;
 		MapTaskVec.y = iy;
 
-		if (gpKernelDesigerConfig->custom_talk_icon == true) 
+		if (gpKernelDesignerConfig->custom_talk_icon == true) 
 		{
 			if (have_cached_talkee && cached_talkee_id == UNIT_CHAR_ID(unit)) {
 				MapTaskPutOamHi(MTSKCONF_TALK_1, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xB00 / 0x20));
@@ -256,10 +256,11 @@ void PutUnitSpriteIconsOam(void)
 					OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x220 / 0x20));
 			}
 
-#ifdef CONFIG_DISPLAY_DROPPABLE_ITEM_ICON
-			if (unit->state & US_DROP_ITEM)
-   				MapTaskPutOamHi(MTSKCONF_DROP_ITEM, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xC80 / 0x20));	
-#endif
+			if (gpKernelDesignerConfig->custom_droppable_item_icon == true) 
+			{
+				if (unit->state & US_DROP_ITEM)
+   					MapTaskPutOamHi(MTSKCONF_DROP_ITEM, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xC80 / 0x20));
+			}	
 		}
 	}
 }

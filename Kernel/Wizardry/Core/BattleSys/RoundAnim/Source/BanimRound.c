@@ -179,7 +179,7 @@ void ParseBattleHitToBanimCmd(void)
 		/**
 		 * Modify for combo attack
 		 */
-		if (gpKernelDesigerConfig->combo_attack_en) {
+		if (gpKernelDesignerConfig->combo_attack_en) {
 			if (i < COMBO_ATK_MAX) {
 				struct ComboAtkTarget *combo = &gComboAtkList[i];
 

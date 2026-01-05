@@ -40,7 +40,7 @@ gpMsa_Loader:   WORD 0
 gpMsu_Saver:    WORD 0
 gpMsu_Loader:   WORD 0
 
-gpKernelDesigerConfig: POIN gKernelDesigerConfig
+gpKernelDesignerConfig: POIN gKernelDesigerConfig
 
 gpGFX_SkillIcon_WIP: POIN GFX_SkillIcon_WIP
 

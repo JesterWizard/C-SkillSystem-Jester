@@ -117,7 +117,7 @@ void CallSupportViewerEvent(u16 textIndex) {
 LYN_REPLACE_CHECK(GetSupportTalkList);
 struct SupportTalkEnt* GetSupportTalkList(void) {
 
-	if (gpKernelDesigerConfig->custom_support_conversations == true) 
+	if (gpKernelDesignerConfig->custom_support_conversations == true) 
     	return (struct SupportTalkEnt* )gSupportTalkList_NEW;
 	else
 		return (struct SupportTalkEnt* )gSupportTalkList;
@@ -131,7 +131,7 @@ struct SupportTalkEnt *GetSupportTalkEntry(u16 pidA, u16 pidB)
     const struct SupportTalkEnt *list;
     const struct SupportTalkEnt *it;
 
-    list = gpKernelDesigerConfig->custom_support_conversations
+    list = gpKernelDesignerConfig->custom_support_conversations
         ? gSupportTalkList_NEW
         : gSupportTalkList;
 

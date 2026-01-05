@@ -22,7 +22,7 @@ POIN GetNewBwl
 WORD $8019191 $8019369 $80178D9 $631E004
 POIN gpUnitRefrainHooks
 POIN SkillTester
-POIN gpKernelDesigerConfig
+POIN gpKernelDesignerConfig
 WORD $631E000 $FFDFFFFF $333
 POIN gpSkillExtraInfo
 WORD $1FFE $80D1AD5

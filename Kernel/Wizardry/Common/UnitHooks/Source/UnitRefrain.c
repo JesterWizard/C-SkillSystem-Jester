@@ -125,7 +125,7 @@ void ChapterChangeUnitCleanup(void)
         }
 #endif
 
-    if (gpKernelDesigerConfig->auto_repair_weapons == true) 
+    if (gpKernelDesignerConfig->auto_repair_weapons == true) 
     {
 		for (int i = 0; i < 5; i++)
 			unit->items[i] = MakeNewItem(unit->items[i]);

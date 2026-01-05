@@ -151,7 +151,7 @@ bool BattleComboGenerateHits(void)
 
 	ResetComboAtkList();
 
-	if (!gpKernelDesigerConfig->combo_attack_en)
+	if (!gpKernelDesignerConfig->combo_attack_en)
 		return false;
 
 	/* Not considering on simulation */
@@ -159,7 +159,7 @@ bool BattleComboGenerateHits(void)
 		return false;
 
 	/* Not considering on enemy */
-	if (!gpKernelDesigerConfig->enemy_can_combo_attack && UNIT_FACTION(&gBattleActor.unit) != FACTION_BLUE)
+	if (!gpKernelDesignerConfig->enemy_can_combo_attack && UNIT_FACTION(&gBattleActor.unit) != FACTION_BLUE)
 		return false;
 
 	if (AreUnitsAllied(gBattleActor.unit.index, gBattleTarget.unit.index))

@@ -199,7 +199,7 @@ struct BanimSyncHandler *GetBanimSyncHandler_BanimSwitcher(struct Anim *anim)
 	struct BanimSyncHandler *handler = &gBanimSyncHandler;
 	struct BattleUnit *bu;
 
-	if (!gpKernelDesigerConfig->banim_switcher_en)
+	if (!gpKernelDesignerConfig->banim_switcher_en)
 		return NULL;
 
 	if (!IsActorAnim(anim))

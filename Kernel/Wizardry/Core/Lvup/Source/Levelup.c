@@ -59,13 +59,16 @@ int GetStatIncrease_NEW(int growth, int expGained) {
         growth -= 100;
     }
 
-#ifdef CONFIG_2RN_GROWTHS
-    if (Roll2RN(growth))
-        result++;
-#else
-    if (Roll1RN(growth))
-        result++;
-#endif
+    if (gpKernelDesignerConfig->two_random_number_growths == true) 
+	{
+        if (Roll2RN(growth))
+            result++;
+    }
+    else
+    {
+        if (Roll1RN(growth))
+            result++;
+    }
 
     return result;
 }
@@ -143,7 +146,7 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
     statCounter += *statChanges[6] > 0 ? 1 : 0;
     statCounter += *statChanges[7] > 0 ? 1 : 0;
 
-    if (gpKernelDesigerConfig->talk_on_level_up == true)
+    if (gpKernelDesignerConfig->talk_on_level_up == true)
         gEventSlots[EVT_SLOT_7] = statCounter;
 
 #if (defined(SID_FaustianBargain) && (COMMON_SKILL_VALID(SID_FaustianBargain)))
@@ -249,7 +252,7 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
         GetUnit(bu->unit.index)->movBonus += 1;
 #endif
 
-    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
+    if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
 
 }
@@ -316,11 +319,11 @@ STATIC_DECLAR void UnitLvupCore(struct BattleUnit* bu, int bonus)
     int mode, total_lvup, i, retry;
 
     if (TUTORIAL_MODE())
-        mode = gpKernelDesigerConfig->lvup_mode_tutorial;
+        mode = gpKernelDesignerConfig->lvup_mode_tutorial;
     if (gPlaySt.config.controller || (gPlaySt.chapterStateBits & PLAY_FLAG_HARD))
-        mode = gpKernelDesigerConfig->lvup_mode_hard;
+        mode = gpKernelDesignerConfig->lvup_mode_hard;
     else
-        mode = gpKernelDesigerConfig->lvup_mode_normal;
+        mode = gpKernelDesignerConfig->lvup_mode_normal;
 
     if (mode > 4)
         mode = 0;
@@ -330,7 +333,7 @@ STATIC_DECLAR void UnitLvupCore(struct BattleUnit* bu, int bonus)
     /**
      * Retry
      */
-    retry = gpKernelDesigerConfig->guaranteed_lvup ? 10 : 0;
+    retry = gpKernelDesignerConfig->guaranteed_lvup ? 10 : 0;
 
     for (i = 0; i < retry; i++) {
         total_lvup = bu->changeHP + bu->changePow + bu->changeSkl + bu->changeSpd +
@@ -398,7 +401,7 @@ void CheckBattleUnitLevelUp(struct BattleUnit* bu)
         TryAddSkillLvup(GetUnitFromCharIdAndFaction(UNIT_CHAR_ID(&bu->unit), FACTION_BLUE), bu->unit.level);
         UnitLvupCore(bu, bonus);
 
-    if (gpKernelDesigerConfig->restore_hp_on_level_up == true) 
+    if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
 
     }
