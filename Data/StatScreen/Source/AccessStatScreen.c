@@ -1,15 +1,17 @@
 #include "common-chax.h"
+#include "kernel-lib.h"
 #include "jester_headers/custom-arrays.h"
 
 //! FE8U = 0x0801C928
 LYN_REPLACE_CHECK(CanShowUnitStatScreen);
 bool CanShowUnitStatScreen(struct Unit * unit)
 {
-#ifdef CONFIG_DENY_STAT_SCREEN
-	for (int i = 0; i < sizeOfDenyClasses; i++)
-		if (UNIT_CLASS_ID(unit) == statScreenDenyClasses[i])
-			return false;
-#endif
+    if (gpKernelDesignerConfig->deny_stat_screen_access == true)
+    {
+        for (int i = 0; i < (int)ARRAY_COUNT(statScreenDenyClasses); i++)
+            if (UNIT_CLASS_ID(unit) == statScreenDenyClasses[i])
+                return false;
+    }
 
 /* If the unit is in fog, deny access to their stat screen */
 #ifdef CONFIG_MULTIPLE_FOG_STAGES
@@ -57,13 +59,14 @@ struct Unit* FindNextUnit(struct Unit* u, int direction)
         if ((sStatScreenInfo.config & STATSCREEN_CONFIG_NONSUPPLY) && (UNIT_CATTRIBUTES(unit) & CA_SUPPLY))
             continue;
 
-#ifdef CONFIG_DENY_STAT_SCREEN
-        for (int i = 0; i < sizeOfDenyClasses; i++)
+    if (gpKernelDesignerConfig->deny_stat_screen_access == true)
+    {
+        for (int i = 0; i < (int)ARRAY_COUNT(statScreenDenyClasses); i++)
         {
             if (UNIT_CLASS_ID(unit) == statScreenDenyClasses[i])
                 continue;
         }
-#endif
+    }
 
 /* If the unit is in fog, deny access to their stat screen */
 #ifdef CONFIG_MULTIPLE_FOG_STAGES

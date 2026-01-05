@@ -360,17 +360,16 @@
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
 #define CONFIG_VESLY_SHOOT_ARROW
 #define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
-#define CONFIG_CASUAL_MODE // Doesn't seem to work right now, look into remaking in C
+
 #define CONFIG_RES_TERRAIN_WINDOW
 #define CONFIG_MODULAR_MINIMUG_BOX
-#define CONFIG_INSTANT_LEVEL_UP
+
 #define CONFIG_MIRROR_MAP_SPRITES
 #define CONFIG_TEXT_ENGINE_REWORK
 
 #define CONFIG_SHOW_CGs_LIKE_FE7
 
 #define CONFIG_LIMITED_SHOP_STOCK
-// #define CONFIG_DENY_STAT_SCREEN
 #define CONFIG_CHAPTER_NAMES
 #define CONFIG_PREPS_AUGURY
 // #define CONFIG_ARENA_LIMITS
@@ -386,7 +385,6 @@
 	#define CONFIG_ITEM_INDEX_SKILL_SCROLL_1 0xBD
 #endif
 
-// #define CONFIG_SKIP_INTRO
 #define SETH_INJURED
 #define INJURED_TURN_COUNT 5
 
@@ -416,7 +414,6 @@
 
 #define CONFIG_CUSTOM_STAFF_ACCURACY 100
 
-// #define CONFIG_SUPPORT_REWARDS // Go to BwlSupport.c in StartSupportTalk to adjust items gained
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
 /* Not installed because of conflicts with phase suspend and sound mixer */
@@ -445,18 +442,12 @@
 
 // #define CONFIG_LIGHTS_OUT_GAME
 
-#define CONFIG_BASE_CHAPTERS
-
 #define CONFIG_STAT_PAGE_PERSONAL_INFO
 #define CONFIG_STAT_PAGE_PROMOTIONS
 
 // #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
-// #define CONFIG_SUPER_FAST_MAP_ANIMATIONS
-
 // #define CONFIG_ANIMA_WEAPON_TRIANGLE
-
-// #define CONFIG_SKILL_POINTS_ENGAGE
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 

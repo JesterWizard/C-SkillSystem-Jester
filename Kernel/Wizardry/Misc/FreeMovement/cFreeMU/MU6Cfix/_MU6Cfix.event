@@ -6,8 +6,8 @@ PUSH
 	ORG 0x78D10
 	jumpToHack(MU_CALL2_FixForFreeMU)
 
-	ORG 0x7947C
-	jumpToHack(MU_GetSpeed_FixForFreeMU)
+	// ORG 0x7947C
+	// jumpToHack(MU_GetSpeed_FixForFreeMU)
 POP
 
 

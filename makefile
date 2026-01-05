@@ -489,8 +489,15 @@ rebuild_unit_sfx:
 	@echo "Installer generated: $(UNIT_SFX_EVENT)"
 
 .PHONY: rebuild_msg_indexes
-rebuild_mss_indexes:
+rebuild_msg_indexes:
 	@echo "Removing Texts build directory..."
 	@rm -rf $(TEXTS_DIR)/build
 	@echo "Rebuilding Texts..."
+	@$(MAKE)
+
+.PHONY: rebuild_font_indexes
+rebuild_font_indexes:
+	@echo "Removing font glyph installer..."
+	@rm -rf $(GLYPH_INSTALLER)
+	@echo "Rebuilding font indexes..."
 	@$(MAKE)

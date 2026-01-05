@@ -3813,52 +3813,51 @@ void SyncUnitSpriteSheet(void)
         CpuFastCopy(gSMSGfxBuffer[1], (void*)0x06011000, sizeof(gSMSGfxBuffer[1]));
 }
 
-// static u8 const sMuWalkSpeedLut[2] = {
-//     [UNIT_WALKSPEED_FAST] = 2,
-//     [UNIT_WALKSPEED_SLOW] = 1,
-// };
+static u8 const sMuWalkSpeedLut[2] = {
+    [UNIT_WALKSPEED_FAST] = 2,
+    [UNIT_WALKSPEED_SLOW] = 1,
+};
 
-// LYN_REPLACE_CHECK(GetMuQ4MovementSpeed);
-// u16 GetMuQ4MovementSpeed(struct MuProc * proc)
-// {
-// #ifdef CONFIG_SUPER_FAST_MAP_ANIMATIONS
-//     return 0x200;
-// #endif
+LYN_REPLACE_CHECK(GetMuQ4MovementSpeed);
+u16 GetMuQ4MovementSpeed(struct MuProc * proc)
+{
+    if (gpKernelDesignerConfig->fast_map_animations == true)
+        return 0x200;
 
-//     int config = proc->moveConfig;
+    int config = proc->moveConfig;
 
-//     if (config & 0x80)
-//         config += 0x80; // I don't really get that one
+    if (config & 0x80)
+        config += 0x80; // I don't really get that one
 
-//     if (proc->fast_walk_b)
-//         return 0x100;
+    if (proc->fast_walk_b)
+        return 0x100;
 
-//     if (config != 0x40)
-//     {
-//         if (config != 0x00)
-//         {
-//             int speed = config;
+    if (config != 0x40)
+    {
+        if (config != 0x00)
+        {
+            int speed = config;
 
-//             if (speed & 0x40)
-//                 speed ^= 0x40;
-//             else if (gPlaySt.config.gameSpeed || (gKeyStatusPtr->heldKeys & A_BUTTON))
-//                 speed *= 4;
+            if (speed & 0x40)
+                speed ^= 0x40;
+            else if (gPlaySt.config.gameSpeed || (gKeyStatusPtr->heldKeys & A_BUTTON))
+                speed *= 4;
 
-//             if (speed > 0x80)
-//                 speed = 0x80;
+            if (speed > 0x80)
+                speed = 0x80;
 
-//             return speed;
-//         }
+            return speed;
+        }
 
-//         if (!IsFirstPlaythrough() && (gKeyStatusPtr->heldKeys & A_BUTTON))
-//             return 0x80;
+        if (!IsFirstPlaythrough() && (gKeyStatusPtr->heldKeys & A_BUTTON))
+            return 0x80;
 
-//         if (gPlaySt.config.gameSpeed)
-//             return 0x40;
-//     }
+        if (gPlaySt.config.gameSpeed)
+            return 0x40;
+    }
 
-//     return 16 * sMuWalkSpeedLut[GetClassData(proc->jid)->slowWalking];
-// }
+    return 16 * sMuWalkSpeedLut[GetClassData(proc->jid)->slowWalking];
+}
 
 
 //! FE8U = 0x0801DB4C
@@ -4292,10 +4291,15 @@ void Talk_OnIdle(ProcPtr proc) {
                     if (CheckTalkFlag(TALK_FLAG_7)) { // World map text boop
                         RegisterEfxSoundSeExist();
 
-                        if (gpKernelDesignerConfig->voice_acted_dialogue == true) // Reduce the world map boop volume so it's not overpowering the voice acting
-                            Sound_SetBGMVolume(0x60); 
-                        
-                        PlaySoundEffect(SONG_7A);
+                        if (gpKernelDesignerConfig->voice_acted_dialogue == true)
+                        {   // Reduce the world map boop volume so it's not overpowering the voice acting
+                            PlaySoundEffect(SONG_SILENT);
+                        }
+                        else
+                        {
+                            PlaySoundEffect(SONG_7A);
+                        }
+
                     } else {
                         if ((GetTextDisplaySpeed() == 1) && !(GetGameClock() & 1)) {
                             break;
@@ -4462,21 +4466,29 @@ void SupportPopupText(ProcPtr * proc)
 }
 
 const EventListScr EventScr_MapSupportConversation_NEW[] = {
-    EVBIT_MODIFY(0x3)
-    BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
-    MUSC(0xffff)
-    GOTO(0x1)
+	EVBIT_MODIFY(0x3)
+	BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
+	MUSC(0xffff)
+	GOTO(0x1)
 LABEL(0x0)
-    MUSI
+	MUSI
 LABEL(0x1)
-    SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0)
-    TEXTSHOW(0xffff)
-    TEXTEND
-    REMA
-    //NOTIFY(0xc, SONG_5A)
+	SADD(EVT_SLOT_2, EVT_SLOT_5, EVT_SLOT_0)
+	TEXTSHOW(0xffff)
+	TEXTEND
+	REMA
+	BEQ(0x2, EVT_SLOT_4, EVT_SLOT_7)
+	GOTO(0x3) // This isn't an A support and/or these aren't the required support partners, so we skip giving the item
+
+LABEL(0x2)
+	GIVEITEMTO(CHARACTER_EIRIKA)
+	SVAL(EVT_SLOT_4, 0)
+
+LABEL(0x3)
+    //NOTIFY(0xc, SONG_SE_UPDATE)
     ASMC(SupportPopupText)
-    EVBIT_T(7)
-    ENDA
+	EVBIT_T(7)
+	ENDA
 };
 
 LYN_REPLACE_CHECK(ClassChgExecPromotionReal);

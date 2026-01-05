@@ -194,7 +194,7 @@ const int gNewSummonConfig[5][2] = {
     { CHARACTER_SETH, CHARACTER_MONSTER_BD},
 };
 
-const int statScreenDenyClasses[] = {
+const int statScreenDenyClasses[2] = {
     CLASS_GORGONEGG, 
     CLASS_GORGONEGG2, 
 };

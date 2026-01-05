@@ -273,7 +273,7 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     MUSCFAST(0x7fff)
     STAL(32)
     MUSC(SONG_THE_BEGINNING)
-    STAL(16)
+    STAL(8)
     ASMC(ReduceBGMVolume)
     WM_SHOWDRAWNMAP(0, 0, 0x10)
     STAL(2)

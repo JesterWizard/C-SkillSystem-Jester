@@ -48,6 +48,12 @@ struct KernelDesigerConfig {
 	u8 send_inventory_on_death;
 	u8 biorhythm_mechanic;
 	u8 skip_intro;
+	u8 base_chapters;
+	u8 fast_map_animations;
+	u8 skill_points_engage;
+	u8 stat_gain_frame_speed;
+	u8 deny_stat_screen_access;
+	u8 support_rewards;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

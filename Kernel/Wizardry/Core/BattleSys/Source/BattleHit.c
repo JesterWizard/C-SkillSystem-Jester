@@ -802,24 +802,25 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 			}	
 #endif
 
-#ifdef CONFIG_SKILL_POINTS_ENGAGE
-            if (bwl != NULL)
+            if (gpKernelDesignerConfig->skill_points_engage)
             {
-                int spBoost = 0;
+                if (bwl != NULL)
+                {
+                    int spBoost = 0;
 
-                if (UNIT_CATTRIBUTES(&defender->unit) & CA_BOSS)
-                    spBoost += gSkillPointsSystemPInfoConfigList[0].boostedRate;    
-                else
-                    spBoost += gSkillPointsSystemPInfoConfigList[0].standardRate;
+                    if (UNIT_CATTRIBUTES(&defender->unit) & CA_BOSS)
+                        spBoost += gSkillPointsSystemPInfoConfigList[0].boostedRate;    
+                    else
+                        spBoost += gSkillPointsSystemPInfoConfigList[0].standardRate;
 
-#if (defined(SID_SPConversion) && (COMMON_SKILL_VALID(SID_SPConversion)))
-			if (BattleFastSkillTester(&gBattleActor, SID_SPConversion))
-                spBoost += SKILL_EFF0(SID_SPConversion);
-#endif
+    #if (defined(SID_SPConversion) && (COMMON_SKILL_VALID(SID_SPConversion)))
+                if (BattleFastSkillTester(&gBattleActor, SID_SPConversion))
+                    spBoost += SKILL_EFF0(SID_SPConversion);
+    #endif
 
-                bwl->skillPoints = bwl->skillPoints + spBoost > 255 ? 255 : bwl->skillPoints + spBoost;
+                    bwl->skillPoints = bwl->skillPoints + spBoost > 255 ? 255 : bwl->skillPoints + spBoost;
+                }
             }
-#endif
 
 			gBattleHitIterator->info |= BATTLE_HIT_INFO_KILLS_TARGET;
 		}

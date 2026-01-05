@@ -64,7 +64,8 @@ static const EventScr EventScr_Beginning[] = {
     
     /* Escape Valter */
     HIGHLIGHT_CHARACTER(CHARACTER_VALTER_PROLOGUE, 60)
-    TEXT_CG(0x3A, Chapter_00_Scene_02_Convo_04)
+    TEXT_CG(0x3A, Chapter_00_Scene_02_Convo_04_1)
+    TEXT(Chapter_00_Scene_02_Convo_04_2)
     MOVE_1STEP_WAIT(0, CHARACTER_SETH, MOVE_LEFT)
     ERASE(CHARACTER_EIRIKA)
     MOVE_THRICE_WAIT(0, CHARACTER_SETH, 4, 4, 4, 2, 0, 2)
@@ -90,7 +91,7 @@ static const EventScr EventScr_Beginning[] = {
     MOVE_WAIT(0, CHARACTER_EIRIKA, 4, 5)
     HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
     TEXT(Chapter_00_Scene_03_Convo_03)
-    GIVE_ITEM_TO(ITEM_SWORD_RAPIER, CHARACTER_EIRIKA)
+    // GIVE_ITEM_TO(ITEM_SWORD_RAPIER, CHARACTER_EIRIKA)
     LOAD_WAIT(Grado_Reinforcements_Enemy)
     HIGHLIGHT_CHARACTER(CHARACTER_ONEILL, 60)
     TEXT(Chapter_00_Scene_03_Convo_04)

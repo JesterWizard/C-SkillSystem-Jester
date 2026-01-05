@@ -56,21 +56,22 @@ void DrawSkillPage_MokhaPlanB(void)
 	}
 
 	/* Skill Points*/
-#ifdef CONFIG_SKILL_POINTS_ENGAGE
-	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
-		struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(gStatScreen.unit));
+	if (gpKernelDesignerConfig->skill_points_engage)
+	{
+		if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
+			struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(gStatScreen.unit));
 
-		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM2];
-		ClearText(text);
-		PutDrawText(
-			text,
-			gUiTmScratchA + TILEMAP_INDEX(9, 9),
-			TEXT_COLOR_SYSTEM_GOLD, 0, 0,
-			GetStringFromIndex(MSG_STAT_SCREEN_SKILL_POINTS));
+			text = &gStatScreen.text[STATSCREEN_TEXT_ITEM2];
+			ClearText(text);
+			PutDrawText(
+				text,
+				gUiTmScratchA + TILEMAP_INDEX(9, 9),
+				TEXT_COLOR_SYSTEM_GOLD, 0, 0,
+				GetStringFromIndex(MSG_STAT_SCREEN_SKILL_POINTS));
 
-		PutNumberOrBlank(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
+			PutNumberOrBlank(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
+		}
 	}
-#endif
 
 #ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
 	text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];

@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 #include "worldmap.h"
+#include "kernel-lib.h"
 #include "jester_headers/custom-structs.h"
 
 typedef struct {
@@ -15,6 +16,10 @@ static const EnterTownNode EnterTownNodes[] = {
 
 u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
 {
+
+    if (gpKernelDesignerConfig->base_chapters == false)
+        return MENU_NOTSHOWN;
+
     u8 location = *(volatile u8*)0x03005291;
 
     // Loop through array entries
@@ -153,7 +158,6 @@ u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc 
 
 static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
 {
-#ifdef CONFIG_BASE_CHAPTERS
     {
         .name = "　アイテム整理",
         .nameMsgId = MSG_Enter_District_NAME, // TODO: msgid " Enter District "
@@ -162,7 +166,6 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
         .isAvailable = WMMenu_IsDistrictAvailable,
         .onSelected = WMMenu_OnDistrictSelected,
     },
-#endif
     {
         .name = "　武器屋に入る",
         .nameMsgId = 0x066E, // TODO: msgid " Enter Armory[.]"

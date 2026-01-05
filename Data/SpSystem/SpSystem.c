@@ -4,8 +4,6 @@
 #include <constants/skills.h>
 #include "jester_headers/custom-arrays.h"
 
-/* CONFIG_SKILL_POINTS_ENGAGE */
-
 const struct SkillPointsSystemPInfoConfig gSkillPointsSystemPInfoConfigList[] =
 {
     {

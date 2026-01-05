@@ -1,6 +1,3 @@
-#ifndef CASUAL_MODE
-#define CASUAL_MODE
-
 #include "Extensions/Hack Installation.txt"
 #include "../../../../Contents/Texts/build/msgs.h"
 

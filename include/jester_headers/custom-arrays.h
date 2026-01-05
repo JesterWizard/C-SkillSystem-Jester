@@ -1,7 +1,6 @@
 #include "common-chax.h"
 
-extern const int statScreenDenyClasses[];
-extern const int sizeOfDenyClasses;
+extern const int statScreenDenyClasses[2];
 extern const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[];
 extern const struct ClassData gClassData_NEW[];
 extern const struct CharacterData gCharacterData_NEW[];

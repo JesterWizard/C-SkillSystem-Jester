@@ -17,7 +17,7 @@
 
 ## 🧩 Introduction
 
-`CONFIG_BASE_CHAPTERS`
+`gpKernelDesignerConfig->base_chapters`
 
 This feature is a C-based rewrite of **Myi64’s** `Enter Town` ASM hack (not to be confused with Huicheelar’s Base Chapters system).
 

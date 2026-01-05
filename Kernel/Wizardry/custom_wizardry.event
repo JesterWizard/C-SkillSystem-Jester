@@ -50,9 +50,7 @@
     #include "Misc/StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #endif
 
-#ifdef CONFIG_CASUAL_MODE
-    #include "Misc/CasualMode/CasualMode_Installer.event"
-#endif
+#include "Misc/CasualMode/CasualMode_Installer.event"
 
 #ifdef CONFIG_RES_TERRAIN_WINDOW
     #include "Misc/ResTerrainWindow/ResTerrainWindow_Installer.event"
@@ -60,10 +58,6 @@
 
 #ifdef CONFIG_MODULAR_MINIMUG_BOX
     #include "Misc/ModularMinimugBox/ModularMinimugBox_Installer.event"
-#endif
-
-#ifdef CONFIG_INSTANT_LEVEL_UP
-    #include "Misc/InstantLevelUp/InstantLevelUp_Installer.event"
 #endif
 
 #ifdef CONFIG_MIRROR_MAP_SPRITES
@@ -124,9 +118,7 @@
     #include "Misc/LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #endif
 
-#ifdef CONFIG_BASE_CHAPTERS
-    #include "Misc/EnterTown/EnterTown_Installer.event"
-#endif
+#include "Misc/EnterTown/EnterTown_Installer.event"
 
 #ifdef CONFIG_BREAKABLE_DOORS
     #include "Misc/BreakableDoors/BreakableDoors.event"

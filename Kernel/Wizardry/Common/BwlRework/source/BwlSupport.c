@@ -60,40 +60,13 @@ s8 ActionSupport(ProcPtr proc)
 	return 0;
 }
 
-#ifdef CONFIG_SUPPORT_REWARDS
-	static const EventListScr EventScr_NewMapSupportConversation[] = {
-		EVBIT_MODIFY(0x3)
-		BEQ(0x0, EVT_SLOT_2, EVT_SLOT_0)
-		MUSC(0xffff)
-		GOTO(0x1)
-	LABEL(0x0)
-		MUSI
-	LABEL(0x1)
-		SADD(EVT_SLOT_2, EVT_SLOT_5, EVT_SLOT_0)
-		TEXTSHOW(0xffff)
-		TEXTEND
-		REMA
-		BEQ(0x2, EVT_SLOT_4, EVT_SLOT_7)
-		GOTO(0x3) // This isn't an A support and/or these aren't the required support partners, so we skip giving the item
-
-	LABEL(0x2)
-		GIVEITEMTO(CHARACTER_EIRIKA)
-		SVAL(EVT_SLOT_4, 0)
-
-	LABEL(0x3)
-		NOTIFY(0xc, SONG_SE_UPDATE)
-		EVBIT_T(7)
-		ENDA
-	};
-#endif
-
 LYN_REPLACE_CHECK(CallMapSupportEvent);
 void CallMapSupportEvent(u16 musicIndex, u16 textIndex) {
     // Calls text with music (just quiets music when id is 0)
     // On-map supports?
-#ifdef CONFIG_SUPPORT_REWARDS
-	gEventSlots[EVT_SLOT_7] = SUPPORT_EXP_A;
-#endif
+
+	if (gpKernelDesignerConfig->support_rewards == true)
+		gEventSlots[EVT_SLOT_7] = SUPPORT_EXP_A;
 
 #ifdef CONFIG_QUALITY_OF_LIFE_DISPLAY_SUPPORT_LEVEL_IN_POPUP
     CallEvent((u16 *)EventScr_MapSupportConversation_NEW, EV_EXEC_CUTSCENE);

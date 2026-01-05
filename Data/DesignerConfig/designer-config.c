@@ -41,7 +41,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.unlock_all_supports = true,
 	.promotion_on_max_level = true,
 	.stat_screen_growths = 2, // 1 = Growths as letters, 2 = bonus growths as green
-	.restore_hp_on_level_up = true,
+	.restore_hp_on_level_up = false,
 	.auto_repair_weapons = false,
 	.custom_support_conversations = true,
 	.custom_fog_sight = true,
@@ -58,6 +58,12 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.send_inventory_on_death = true,
 	.biorhythm_mechanic = false,
 	.skip_intro = false,
+	.base_chapters = true,
+	.fast_map_animations = false, // This is funny when free movement is enabled, might fix later
+	.skill_points_engage = false,
+	.stat_gain_frame_speed = 10,
+	.deny_stat_screen_access = true,
+	.support_rewards = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

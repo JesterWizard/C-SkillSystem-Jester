@@ -24,9 +24,7 @@ struct NewBwl {
     u8 laguzBar;
 #endif
 
-#ifdef CONFIG_SKILL_POINTS_ENGAGE
     u8 skillPoints;
-#endif
 
 } BITPACKED;
 
