@@ -34,7 +34,7 @@ void PreBattleCalcLeadershipBonus(struct BattleUnit *actor, struct BattleUnit *t
 {
 	int leadership;
 
-	if (gpLeaderShipConf->en == false)
+	if (gpKernelDesignerConfig->leadership == false)
 		return;
 
 	if (gBattleStats.config & BATTLE_CONFIG_ARENA)

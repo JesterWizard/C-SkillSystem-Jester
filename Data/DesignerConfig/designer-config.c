@@ -64,6 +64,11 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.stat_gain_frame_speed = 10,
 	.deny_stat_screen_access = true,
 	.support_rewards = true,
+	.konami_style_bonus_screen = true,
+	.battle_max_damage = 127,
+	.ignore_stop_on_petrify_sleep = true,
+	.leadership = true,
+
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

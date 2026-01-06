@@ -1,5 +1,5 @@
 #include <common-chax.h>
-
+#include "kernel-lib.h"
 #include "Bonus.h"
 
 // Add a secret Easter egg to the game
@@ -56,27 +56,30 @@ void KernelTitle_IDLE(struct TitleScreenProc *proc)
 	if (gKeyStatusPtr->newKeys == 0)
 		return;
 
-	if (gKeyStatusPtr->newKeys == konami_codes[gKonamiComboStep]) {
-		Printf("step=%d, getc:0x%X!", gKonamiComboStep, gKeyStatusPtr->newKeys);
+	if (gpKernelDesignerConfig->konami_style_bonus_screen == true)
+	{
+		if (gKeyStatusPtr->newKeys == konami_codes[gKonamiComboStep]) {
+			Printf("step=%d, getc:0x%X!", gKonamiComboStep, gKeyStatusPtr->newKeys);
 
-		gKonamiComboStep++;
+			gKonamiComboStep++;
 
-		if (gKonamiComboStep >= ARRAY_COUNT(konami_codes)) {
-			Print("KONAMI BONUS!\n");
-			GiveKernelBonus();
-			PrintStringToDBG(KERNEL_BONUS_NOTE);
-			StartKernelBonusScreen();
+			if (gKonamiComboStep >= ARRAY_COUNT(konami_codes)) {
+				Print("KONAMI BONUS!\n");
+				GiveKernelBonus();
+				PrintStringToDBG(KERNEL_BONUS_NOTE);
+				StartKernelBonusScreen();
 
-			Error("You should now get here");
-			hang();
+				Error("You should now get here");
+				hang();
+			}
+
+			return;
 		}
 
-		return;
-	}
-
-	if (gKonamiComboStep > 0) {
-		Print("Reset KONAMI code");
-		gKonamiComboStep = 0;
+		if (gKonamiComboStep > 0) {
+			Print("Reset KONAMI code");
+			gKonamiComboStep = 0;
+		}
 	}
 
 	/**

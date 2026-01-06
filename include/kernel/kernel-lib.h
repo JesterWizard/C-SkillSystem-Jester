@@ -54,6 +54,10 @@ struct KernelDesigerConfig {
 	u8 stat_gain_frame_speed;
 	u8 deny_stat_screen_access;
 	u8 support_rewards;
+	u8 konami_style_bonus_screen; // If you press ↑↑↓↓←→←→BA at titlescreen, then...
+	u8 battle_max_damage;
+	u8 ignore_stop_on_petrify_sleep;
+	u8 leadership;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

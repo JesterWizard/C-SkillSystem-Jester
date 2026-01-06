@@ -4,7 +4,7 @@
 //#include "config-debug.h"
 #include "config-memmap.h"
 
-#define CONFIG_FE8_REWRITE
+#define CONFIG_FE8_REWRITE // This needs to remain as a build config
 
 /**
  * If uncomment, kernel may remove vanilla dislogue text
@@ -17,7 +17,7 @@
  * If you're planning to develop a new game instead of making minor
  * changes on vanilla, it is recommanded to uncomment this config to save space.
  */
-#define CONFIG_CROP_VANILLA_MSG
+#define CONFIG_CROP_VANILLA_MSG // This needs to remain as a build config
 
  /* CommonProtection.event */
 #define CONFIG_COMMON_PROTECTION_ENABLED
@@ -30,18 +30,6 @@
 
 /* Engage style combo attack */
 #define CONFIG_USE_COMBO_ATTACK
-
-/**
- * Surround:
- * When a unit is attacked and adjacent to the enemy,
- * each side with enemy may cause unit avoid -10%
- *
- * If completely surrounded (each side stands an enemy),
- * unit may cause def-5 additionally.
- *
- * Flyer in outdoor environments are not affected by this effect
- */
-// #define CONFIG_BATTLE_SURROUND
 
 /**
  * 0: Not show any kernel tutorial
@@ -60,7 +48,7 @@
 * If uncommented, fasten function GenerateUnitCompleteAttackRange
 * with lower accuracy.
 */
-#define CONFIG_FASTER_MAP_RANGE
+#define CONFIG_FASTER_MAP_RANGE // Leave this as a buildtime config for performance reasons
 
 /**
  * Try narrow font on skill-name/skill-desc/menu-disp
@@ -104,12 +92,6 @@
 #endif /* USE_GAIDEN_MAGIC */
 
 /**
- * 1. Petrify should not stop battle
- * 2. Petrified/sleeped unit should not attack
- */
-#define CONFIG_STOP_COUNTER_ENABLED
-
-/**
  * In banim, unit status flashing is desicded by ext-hit rather than ANIM_ROUND_POISON
  */
 #define CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
@@ -118,11 +100,6 @@
 * C03 not flush efx-status
 */
 #define CONFIG_C03_NOT_FLUSH_EFXSTATUS
-
-/**
- * Enable leader-ship features
- */
-// #define CONFIG_LEADER_SHIP_EN
 
 /**
 * If uncommented, this will disable move-path calculation and display.
@@ -186,15 +163,6 @@
 */
 // #define CONFIG_INSTALL_STATSCREENFX
 
-/**
-* Battle max damage
-*/
-#define CONFIG_BATTLE_MAX_DAMAGE 127
-
-/**
- * Install Bow2Decrease
- */
-// #define CONFIG_INSTALL_BOW2DECREASE
 
 /**
 * Install none-kernel related patches (not necessary)
@@ -217,11 +185,6 @@
  * This may also overwrite PlaySt::disableTerrainDisplay config for player configuration in runtime.
  */
 #define CONFIG_NO_SUS_IN_AI_PHASE
-
-/**
- * If you press ↑↑↓↓←→←→BA at titlescreen, then...
- */
-#define CONFIG_USE_KONAMI_CODE_BONUS
 
 /**
 * IER

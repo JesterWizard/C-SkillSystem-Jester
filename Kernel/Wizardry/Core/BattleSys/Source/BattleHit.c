@@ -837,13 +837,14 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 		return true;
 	}
 
-#ifndef CONFIG_STOP_COUNTER_ENABLED
-	if (defender->statusOut == UNIT_STATUS_PETRIFY || defender->statusOut == UNIT_STATUS_13 || defender->statusOut == UNIT_STATUS_SLEEP) {
-		gBattleHitIterator->info |= BATTLE_HIT_INFO_FINISHES;
-		gBattleHitIterator++;
-		return true;
-	}
-#endif
+    if (gpKernelDesignerConfig->ignore_stop_on_petrify_sleep == false)
+    {
+        if (defender->statusOut == UNIT_STATUS_PETRIFY || defender->statusOut == UNIT_STATUS_13 || defender->statusOut == UNIT_STATUS_SLEEP) {
+            gBattleHitIterator->info |= BATTLE_HIT_INFO_FINISHES;
+            gBattleHitIterator++;
+            return true;
+        }
+    }
 
 	gBattleHitIterator++;
 	return false;

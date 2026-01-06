@@ -40,7 +40,7 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 	- `1`: Only show kernel tutorial in tutorial mode
 	- `2`: show kernel tutorial at anytime
 
-- `combo_attack_en`
+- `engage_combo_attack`
 
 	Enable FE-Engage style combo-attack.
 

@@ -89,8 +89,7 @@ int CalcBattleRealDamage(struct BattleUnit* attacker, struct BattleUnit* defende
 
 int GetMaxDamage(struct BattleUnit* attacker, struct BattleUnit* defender)
 {
-	/* TODO: better to put this to designer config */
-	return CONFIG_BATTLE_MAX_DAMAGE;
+	return gpKernelDesignerConfig->battle_max_damage;
 }
 
 void PreBattleCalcInit_BaseDamage(struct BattleUnit* attacker, struct BattleUnit* defender)
