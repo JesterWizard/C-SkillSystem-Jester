@@ -458,8 +458,6 @@
 */
 // #define CONFIG_HALF_BODY_PORTRAITS
 
-#define CONFIG_HOTFIXES
-
 /* Very much not complete, still a WIP */
 // #define CONFIG_PREPS_INFUSE
 
