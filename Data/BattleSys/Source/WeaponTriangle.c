@@ -196,7 +196,6 @@ const struct WeaponTriangleItemConf gWeaponTriangleItemConf[0x100] = {
 		.battle_status.hit = 15,
 	},
 
-#ifdef CONFIG_ANIMA_WEAPON_TRIANGLE
 	[ITEM_ANIMA_FIRE] = {
 		.valid = true,
 		.weaponId_1 = ITEM_ANIMA_FIMBULVETR,
@@ -245,5 +244,4 @@ const struct WeaponTriangleItemConf gWeaponTriangleItemConf[0x100] = {
 		.battle_status.atk = 3,
 		.battle_status.hit = 15,
 	}
-#endif
 };

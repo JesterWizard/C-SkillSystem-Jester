@@ -123,7 +123,6 @@ void PutUnitMapUiStatus(u16 *buffer, struct Unit *unit)
 	}
 }
 
-#ifdef CONFIG_VARIABLE_UNIT_DESCRIPTIONS
 typedef struct
 {
 	const int key;
@@ -181,16 +180,13 @@ static const DescriptionStrings character_description_strings[] =
 
 };
 
-#endif 
-
 LYN_REPLACE_CHECK(HbPopulate_SSCharacter);
 void HbPopulate_SSCharacter(struct HelpBoxProc* proc)
 {
 	int activeUnitCharId = gStatScreen.unit->pCharacterData->number;
     int midDesc = gCharacterData_NEW[activeUnitCharId-1].descTextId;
 
-#ifdef CONFIG_VARIABLE_UNIT_DESCRIPTIONS
-	if (activeUnitCharId == CHARACTER_EIRIKA)
+	if (gpKernelDesignerConfig->variable_unit_descriptions == true)
 	{
 		switch (gPlaySt.chapterIndex)
 		{
@@ -207,7 +203,6 @@ void HbPopulate_SSCharacter(struct HelpBoxProc* proc)
 			break;
 		}
 	}
-#endif
 
     if (midDesc)
         proc->mid = midDesc;

@@ -68,7 +68,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.battle_max_damage = 127,
 	.ignore_stop_on_petrify_sleep = true,
 	.leadership = true,
-
+	.variable_unit_descriptions = false,
+	.anima_weapon_triangle = false,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
@@ -98,7 +99,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.wrank_bonux_rtext_auto_gen = true,
 	.enemy_can_combo_attack = false,
 	.menu_skill_disp_msg_en_n = CONFIG_MENU_SKILL_DISP_MSG_EN_N,
-	.banim_switcher_en = false,
+	.banim_switcher_en = true,
 	.max_level = UNIT_LEVEL_MAX_RE,
 	.max_level_record = UNIT_RECORDED_LEVEL_MAX,
 };

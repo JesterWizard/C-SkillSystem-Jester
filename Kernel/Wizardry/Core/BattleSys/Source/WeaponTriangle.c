@@ -59,33 +59,36 @@ STATIC_DECLAR bool WtaHandler_Weapon(struct BattleUnit *attacker, struct BattleU
         }
         return true;
     }
-#ifdef CONFIG_ANIMA_WEAPON_TRIANGLE
-    // Check attacker's config for advantage
-    if (
-        (it->valid && (it->weaponId_1 == ITEM_INDEX(defender->weaponBefore) || 
-         it->weaponId_2 == ITEM_INDEX(defender->weaponBefore))))
-    {
-        if (it->is_buff)
-        {
-            status->bonus.atk += it->battle_status.atk;
-            status->bonus.def += it->battle_status.def;
-            status->bonus.hit += it->battle_status.hit;
-            status->bonus.avo += it->battle_status.avo;
-            status->bonus.crt += it->battle_status.crit;
-            status->bonus.sil += it->battle_status.silencer;
-        }
-        else
-        {
-            status->minus.atk -= it->battle_status.atk;
-            status->minus.def -= it->battle_status.def;
-            status->minus.hit -= it->battle_status.hit;
-            status->minus.avo -= it->battle_status.avo;
-            status->minus.crt -= it->battle_status.crit;
-            status->minus.sil -= it->battle_status.silencer;
-        }
-        
-        return true;
-    }
+
+	if (gpKernelDesignerConfig->anima_weapon_triangle == true)
+	{
+		// Check attacker's config for advantage
+		if (
+			(it->valid && (it->weaponId_1 == ITEM_INDEX(defender->weaponBefore) || 
+			it->weaponId_2 == ITEM_INDEX(defender->weaponBefore))))
+		{
+			if (it->is_buff)
+			{
+				status->bonus.atk += it->battle_status.atk;
+				status->bonus.def += it->battle_status.def;
+				status->bonus.hit += it->battle_status.hit;
+				status->bonus.avo += it->battle_status.avo;
+				status->bonus.crt += it->battle_status.crit;
+				status->bonus.sil += it->battle_status.silencer;
+			}
+			else
+			{
+				status->minus.atk -= it->battle_status.atk;
+				status->minus.def -= it->battle_status.def;
+				status->minus.hit -= it->battle_status.hit;
+				status->minus.avo -= it->battle_status.avo;
+				status->minus.crt -= it->battle_status.crit;
+				status->minus.sil -= it->battle_status.silencer;
+			}
+			
+			return true;
+		}
+	}
     
     // Check defender's config for reverse relationship
     const struct WeaponTriangleItemConf *def_it;
@@ -118,7 +121,7 @@ STATIC_DECLAR bool WtaHandler_Weapon(struct BattleUnit *attacker, struct BattleU
         
         return true;
     }
-#endif
+
     return false;
 }
 

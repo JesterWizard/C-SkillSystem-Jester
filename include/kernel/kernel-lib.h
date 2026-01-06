@@ -58,6 +58,8 @@ struct KernelDesigerConfig {
 	u8 battle_max_damage;
 	u8 ignore_stop_on_petrify_sleep;
 	u8 leadership;
+	u8 variable_unit_descriptions;
+	u8 anima_weapon_triangle;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

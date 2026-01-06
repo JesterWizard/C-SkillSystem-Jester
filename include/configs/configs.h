@@ -56,22 +56,9 @@
 #define CONFIG_AUTO_NARROW_FONT
 
 /**
- * Inject fake FEB old AnimNumber patch hooks.
- * This config may cause two functions suffer from ugly ASM hooks:
- *      - StartBattleAnimHitEffect
- *      - NewEfxHpBar
- */
-// #define CONFIG_FAKE_OLD_ANIMNUMBER_PATCH
-
-/**
  * Auto detect on EfxResire weapon judgement
  */
 #define CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
-
-/**
-* Enable patch: BanimSwitch
-*/
-#define CONFIG_BANIM_SWITCHER_EN
 
 /**
  * If uncommented, enable Gaiden style magic system
@@ -410,8 +397,6 @@
 
 // #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
-// #define CONFIG_ANIMA_WEAPON_TRIANGLE
-
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
 /* 
@@ -425,8 +410,6 @@
 // #define CONFIG_PREPS_INFUSE
 
 #define CONFIG_MAX_COLOR_BACKGROUNDS
-
-// #define CONFIG_VARIABLE_UNIT_DESCRIPTIONS
 
 #define CONFIG_FE7_TELEPORT
 
