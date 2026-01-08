@@ -49,7 +49,7 @@ Features include:
 
 | Functionality | Location | Description |
 |--------------|----------|-------------|
-| **R-text redirection** | `HbRedirect_SSItem` inside `CONFIG_STAT_PAGE_PROMOTIONS` in [`DrawItemPage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawItemPage.c) | Routes the help box to promotion data |
+| **R-text redirection** | `HbRedirect_SSItem` inside `gpKernelDesignerConfig->stat_page_promotions` in [`DrawItemPage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawItemPage.c) | Routes the help box to promotion data |
 | **SMS + platforms** | `PageNumCtrl_DisplayMuPlatform` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Handles sprite/platform display |
 | **Promotion data & skill icons** | `unit_promotions` and `DrawPage7Rework` in [`DrawPage7.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage7.c) | Core promotion logic and drawing |
 | **R-text logic** | [`HelpBoxPage7.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBoxPage7.c) | Determines which promotion entry is being referenced |

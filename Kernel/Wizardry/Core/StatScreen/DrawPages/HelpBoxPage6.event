@@ -8,11 +8,9 @@
 #endif /* _RMenu_Defined */
 
 ALIGN 4
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
 RTextPagePersonalData:
     POIN Rtext_Page6_Name
-#endif
-
+    
 /* Left */
 Rtext_Page6_Name:
     _RMenu(Rtext_Page6_Hp, Rtext_Page6_Class, Rtext_Page6_Name, Rtext_Page6_Name, 0x18, 0x50, 0x0, _NameDescGetter)

@@ -1,16 +1,7 @@
 #include "DrawPages/HelpBoxPage4.event"
-
-#ifdef CONFIG_MP_SYSTEM
-    #include "DrawPages/HelpBoxPage5.event"
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
-    #include "DrawPages/HelpBoxPage6.event"
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
-    #include "DrawPages/HelpBoxPage7.lyn.event"
-#endif
+#include "DrawPages/HelpBoxPage5.event"
+#include "DrawPages/HelpBoxPage6.event"
+#include "DrawPages/HelpBoxPage7.lyn.event"
 
 #include "DrawSkillPage/data.event"
 #include "DrawUnitPage/data.event"
@@ -21,13 +12,8 @@ gStatScreenDrawPages:
     POIN 0x08087485
     POIN 0x0808784D
     POIN DrawPage4Rework
-#ifdef CONFIG_MP_SYSTEM
     POIN DrawPage5Rework
-#endif
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
     POIN DrawPage6Rework
-#endif
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
     POIN DrawPage7Rework
-#endif
+gStatScreenDrawPages_End:
     WORD 0

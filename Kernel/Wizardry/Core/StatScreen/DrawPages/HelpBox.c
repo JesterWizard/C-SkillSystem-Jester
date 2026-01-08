@@ -14,7 +14,7 @@ void StartStatScreenHelp(int pageid, struct Proc *proc)
 	LoadHelpBoxGfx(NULL, -1); // default
 
 	if (!gStatScreen.help) {
-		switch (pageid) {
+		switch (TranslateStatPageId(pageid)) {
 		case STATSCREEN_PAGE_0:
 			StartUnitScreenHelp(pageid, proc);
 			break;
@@ -30,37 +30,48 @@ void StartStatScreenHelp(int pageid, struct Proc *proc)
 		case 3:
 			gStatScreen.help = RTextPageSupport;
 			break;
-
-#ifdef CONFIG_MP_SYSTEM
-        case 4:
-            gStatScreen.help = RTextPageMagic;
+        case PAGE_GAIDEN_MAGIC:
+            gStatScreen.help = RTextPageGaidenMagic;
             break;
-#endif
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
-        case 5:
+        case PAGE_PERSONAL_DATA:
             gStatScreen.help = RTextPagePersonalData;
             break;
-#endif
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
-        case 6:
+        case PAGE_PROMOTIONS:
             gStatScreen.help = RTextPagePromotions;
             break;
-#endif
 		} // switch (pageid)
 	}
 	StartMovingHelpBox(gStatScreen.help, proc);
 }
 
+int TranslateStatPageId(int pageid)
+{
+    int real = pageid;
+
+    if (!gpKernelDesignerConfig->stat_page_gaiden_magic && real >= PAGE_GAIDEN_MAGIC)
+        real++;
+
+    if (!gpKernelDesignerConfig->stat_page_personal_info && real >= PAGE_PERSONAL_DATA)
+        real++;
+
+    if (!gpKernelDesignerConfig->stat_page_promotions && real >= PAGE_PROMOTIONS)
+        real++;
+
+    return real;
+}
+
 LYN_REPLACE_CHECK(DisplayPage);
 void DisplayPage(int pageid)
 {
-	typedef void (*func_type)(void);
-	extern const func_type gStatScreenDrawPages[];
+    typedef void (*func_type)(void);
+    extern const func_type gStatScreenDrawPages[];
 
-	CpuFastFill(0, gUiTmScratchA, sizeof(gUiTmScratchA));
-	CpuFastFill(0, gUiTmScratchC, sizeof(gUiTmScratchC));
+    int realPageId = TranslateStatPageId(pageid);
 
-	gStatScreenDrawPages[pageid]();
+    CpuFastFill(0, gUiTmScratchA, sizeof(gUiTmScratchA));
+    CpuFastFill(0, gUiTmScratchC, sizeof(gUiTmScratchC));
+
+    gStatScreenDrawPages[realPageId]();
 }
 
 LYN_REPLACE_CHECK(LoadHelpBoxGfx);

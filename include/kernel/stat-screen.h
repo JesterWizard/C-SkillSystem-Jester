@@ -5,20 +5,20 @@
 
 #define STAT_BAR_MAX_INDENTIFIER 41
 
+enum {
+    PAGE_GAIDEN_MAGIC   = 4,
+    PAGE_PERSONAL_DATA  = 5,
+    PAGE_PROMOTIONS     = 6,
+};
+
+extern int TranslateStatPageId(int pageid);
+extern int GetStatPageCount(void);
+
 typedef const struct HelpBoxInfo _DECL_INFO;
 extern _DECL_INFO *const RTextPageSupport;
-
-#ifdef CONFIG_MP_SYSTEM
-	extern _DECL_INFO *const RTextPageMagic;
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
-	extern _DECL_INFO *const RTextPagePersonalData;
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
-	extern _DECL_INFO *const RTextPagePromotions;
-#endif
+extern _DECL_INFO *const RTextPageGaidenMagic;
+extern _DECL_INFO *const RTextPagePersonalData;
+extern _DECL_INFO *const RTextPagePromotions;
 
 extern void GetPromotedUnitDescId(struct HelpBoxProc* proc);
 extern void GetPromotedUnitSkillId(struct HelpBoxProc* proc);

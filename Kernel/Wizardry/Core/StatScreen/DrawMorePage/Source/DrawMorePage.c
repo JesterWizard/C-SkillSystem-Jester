@@ -22,8 +22,8 @@ void DisplayPageNameSprite(int pageid)
     /* Display stat screen title */
 	PutSprite(4,
 		114 + gStatScreen.xDispOff, 0 + gStatScreen.yDispOff,
-		gpSprites_PageNameRework[pageid],
-		TILEREF(0x240 + gpPageNameChrOffsetLutRe[pageid], 3) + 0xC00);
+		gpSprites_PageNameRework[TranslateStatPageId(pageid)],
+		TILEREF(0x240 + gpPageNameChrOffsetLutRe[TranslateStatPageId(pageid)], 3) + 0xC00);
 
 	colorid = (GetGameClock()/4) % 16;
 
@@ -85,20 +85,7 @@ void InitTexts(void)
 LYN_REPLACE_CHECK(StatScreen_Display);
 void StatScreen_Display(struct Proc* proc)
 {
-    /* JESTER - 3 is the original page amount, the +1 is for the supports page */
-    int pageAmt = 3 + 1;
-
-#ifdef CONFIG_MP_SYSTEM
-    pageAmt += 1;
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
-    pageAmt += 1;
-#endif
-
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
-    pageAmt += 1;
-#endif
+    int pageAmt = GetStatPageCount();
 
     int fid = GetUnitPortraitId(gStatScreen.unit);
 
@@ -163,6 +150,23 @@ enum
     PAGENAME_SCALE_TIME = 6,
 };
 
+int GetStatPageCount(void)
+{
+    int count = 4;
+
+    if (gpKernelDesignerConfig->stat_page_gaiden_magic == true)
+        count++;
+
+    if (gpKernelDesignerConfig->stat_page_personal_info == true)
+        count++;
+
+    if (gpKernelDesignerConfig->stat_page_promotions == true)
+        count++;
+
+    return count;
+}
+
+
 LYN_REPLACE_CHECK(PageNumCtrl_UpdatePageNum);
 void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
 {
@@ -197,7 +201,6 @@ void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
         gStatScreen.yDispOff + PAGENUM_DISPLAY_Y,
         gObject_8x8, TILEREF(chr, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3) + pageNumShift);
 }
-
 void GetPromotedUnitDescId(struct HelpBoxProc* proc)
 {
     struct Unit *unit = gStatScreen.unit;
@@ -326,7 +329,7 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
     }
 #endif
 
-	if (gStatScreen.page == 6)
+    if (TranslateStatPageId(gStatScreen.page) == PAGE_PROMOTIONS)
     {
         struct Unit *unit = gStatScreen.unit;
         int charId = UNIT_CHAR_ID(unit);

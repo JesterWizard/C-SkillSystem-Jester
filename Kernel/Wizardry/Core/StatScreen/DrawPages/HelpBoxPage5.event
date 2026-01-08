@@ -12,7 +12,7 @@
 
 ALIGN 4
 #ifdef CONFIG_MP_SYSTEM
-RTextPageMagic:
+RTextPageGaidenMagic:
     POIN Rtext_Page5_Magic
 #endif
 

@@ -51,19 +51,13 @@ STATIC_DECLAR const u16 Sprite_Page6NameRework[] =
 };
 
 u16 const *const Sprites_PageNameRework[] = {
-		Sprite_Page0NameRework,
-		Sprite_Page1NameRework,
-		Sprite_Page2NameRework,
-		Sprite_Page3NameRework,
-#ifdef CONFIG_MP_SYSTEM
-		Sprite_Page4NameRework,
-#endif
-#ifdef CONFIG_STAT_PAGE_PERSONAL_INFO
-		Sprite_Page5NameRework,
-#endif
-#ifdef CONFIG_STAT_PAGE_PROMOTIONS
-		Sprite_Page6NameRework,
-#endif
+	Sprite_Page0NameRework,
+	Sprite_Page1NameRework,
+	Sprite_Page2NameRework,
+	Sprite_Page3NameRework,
+	Sprite_Page4NameRework,
+	Sprite_Page5NameRework,
+	Sprite_Page6NameRework,
 };
 
 /*

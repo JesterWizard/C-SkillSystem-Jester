@@ -392,9 +392,6 @@
 
 // #define CONFIG_LIGHTS_OUT_GAME
 
-#define CONFIG_STAT_PAGE_PERSONAL_INFO
-#define CONFIG_STAT_PAGE_PROMOTIONS
-
 // #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
