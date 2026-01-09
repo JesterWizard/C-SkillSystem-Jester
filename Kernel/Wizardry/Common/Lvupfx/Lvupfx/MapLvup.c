@@ -268,18 +268,18 @@ static const EventScr EventScr_LevelUpSpeech[] = {
 
 void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 {
-	/* JESTER - I'm doing this as a little patch for end of map BEXP. The procs intefere with each other and softlock the game so if we've won we return early */
+	/* JESTER - I'm doing this as a little patch for end of map BEXP. The procs intefere with each other and softlock the game so if we've beaten the map we return early */
 	if (gEventSlots[EVT_SLOT_8] > 0)
 		return;
 
 	int message = -1;
 	int unitID = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 
-	if (gEventSlots[EVT_SLOT_7] <= 2)
+	if (gEventSlots[EVT_SLOT_9] <= 2)
 		message = 0;
-	else if (gEventSlots[EVT_SLOT_7] <= 5)
+	else if (gEventSlots[EVT_SLOT_9] <= 5)
 		message = 1;
-	else if (gEventSlots[EVT_SLOT_7] <= 8)
+	else if (gEventSlots[EVT_SLOT_9] <= 8)
 		message = 2;
 	else 
 		message = 0;
@@ -430,5 +430,5 @@ void ManimLevelUp_PutStatGainLabels(struct ManimLevelUpProc * proc)
     proc->next_stat_num = stat_num + 1;
 
 	proc->clock = gpKernelDesignerConfig->stat_gain_frame_speed;
-	// proc->clock = 20;
+	// proc->clock = 20; <- old value
 }

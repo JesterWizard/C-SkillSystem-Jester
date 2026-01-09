@@ -147,7 +147,7 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
     statCounter += *statChanges[7] > 0 ? 1 : 0;
 
     if (gpKernelDesignerConfig->talk_on_level_up == true)
-        gEventSlots[EVT_SLOT_7] = statCounter;
+        gEventSlots[EVT_SLOT_9] = statCounter;
 
 #if (defined(SID_FaustianBargain) && (COMMON_SKILL_VALID(SID_FaustianBargain)))
     if (SkillTester(unit, SID_FaustianBargain))
