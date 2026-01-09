@@ -9,7 +9,5 @@
 
 void SetGameOptions_BaseChapter5() 
 {
-#ifdef CONFIG_FREE_MOVEMENT
     EnableFreeMovementASMC();
-#endif
 }

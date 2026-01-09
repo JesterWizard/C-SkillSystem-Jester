@@ -4540,3 +4540,40 @@ void BeginBattleAnimations(void) {
         gBattleStats.config |= BATTLE_CONFIG_MAPANIMS;
     }
 }
+
+//! FE8U = 0x080B9154
+LYN_REPLACE_CHECK(WorldMap_Init);
+void WorldMap_Init(struct WorldMapMainProc * proc)
+{
+    DisableFreeMovementASMC();
+    SetupGraphicSystemsForWorldMap();
+
+    sub_80B8E60(proc);
+    DeployEveryUnit(proc);
+
+    proc->gm_screen = NewMapScreen(PROC_TREE_5);
+    proc->gm_icon = StartGmNodeIconDisplay(PROC_TREE_5, 0, 3, 10, proc->gm_screen);
+    proc->gm_unitc = NewGmapUnitContainer(proc->gm_screen, 0x280, 0xc);
+    proc->gm_cursor = NewGmapCursor(PROC_TREE_5, 0x12c0, 4, proc->gm_screen);
+    proc->gm_mu = StartGmMu(proc);
+
+    RefreshGmNodeLinks(&gGMData);
+    StartWmTextHandler(proc);
+    sub_80B8FEC(proc);
+    sub_80B90CC(proc);
+
+    if (gGMData.state.bits.monster_merged)
+    {
+        sub_80B9114(proc);
+    }
+
+    proc->gm_screen->gmroute->flags |= 3;
+
+    if (gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME)
+    {
+        ResetGmStoryNode();
+        proc->gm_icon->merge_next_node = false;
+    }
+
+    proc->delay_timer = 0;
+}
