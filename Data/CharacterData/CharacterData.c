@@ -164,7 +164,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 70,
-        .growthPow = 40,
+        .growthPow = 30,
         .growthSkl = 50,
         .growthSpd = 40,
         .growthDef = 25,
@@ -395,7 +395,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 45,
-        .growthPow = 65,
+        .growthPow = 5,
         .growthSkl = 30,
         .growthSpd = 45,
         .growthDef = 15,
@@ -429,7 +429,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 50,
-        .growthPow = 60,
+        .growthPow = 10,
         .growthSkl = 25,
         .growthSpd = 40,
         .growthDef = 15,
@@ -630,7 +630,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 55,
-        .growthPow = 50,
+        .growthPow = 20,
         .growthSkl = 50,
         .growthSpd = 40,
         .growthDef = 15,
@@ -794,7 +794,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 50,
-        .growthPow = 45,
+        .growthPow = 10,
         .growthSkl = 40,
         .growthSpd = 35,
         .growthDef = 15,
@@ -827,7 +827,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 45,
-        .growthPow = 50,
+        .growthPow = 40,
         .growthSkl = 45,
         .growthSpd = 45,
         .growthDef = 15,
@@ -1013,7 +1013,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 70,
-        .growthPow = 50,
+        .growthPow = 15,
         .growthSkl = 40,
         .growthSpd = 35,
         .growthDef = 10,
@@ -1149,7 +1149,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 85,
-        .growthPow = 50,
+        .growthPow = 10,
         .growthSkl = 55,
         .growthSpd = 55,
         .growthDef = 45,
@@ -1245,7 +1245,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 85,
-        .growthPow = 40,
+        .growthPow = 10,
         .growthSkl = 55,
         .growthSpd = 40,
         .growthDef = 20,
@@ -1309,7 +1309,7 @@ const struct CharacterData gCharacterData_NEW[] = {
         },
 
         .growthHP  = 75,
-        .growthPow = 45,
+        .growthPow = 20,
         .growthSkl = 50,
         .growthSpd = 40,
         .growthDef = 20,
