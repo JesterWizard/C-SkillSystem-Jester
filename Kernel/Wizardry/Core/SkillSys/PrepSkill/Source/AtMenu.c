@@ -325,6 +325,14 @@ void PrepMenu_OnEnd(struct ProcPrepMenu *proc)
     EndMenuScrollBar();
 }
 
+LYN_REPLACE_CHECK(sub_8095C50);
+void sub_8095C50(int tile, int pal)
+{
+    /* "Chapter 0", "Information" */
+    Decompress(gUnknown_08A1AC88, OBJ_VRAM0 + tile);
+    ApplyPalette(gPal_SupportScreenBanner, pal + 0x10);
+}
+
 LYN_REPLACE_CHECK(AtMenu_Reinitialize);
 void AtMenu_Reinitialize(struct ProcAtMenu* proc)
 {
@@ -358,6 +366,7 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
     Decompress(gUnknown_08A1D510, (void*)0x6016000);
     ApplyPalettes(Pal_SysBrownBox, 0x19, 2);
     
+    /* Chapter text */
     sub_8095C50(0x7000, 0x6);
     ApplyPalette(gUnknown_08A1D4C8, 0x14);
     EnablePaletteSync();

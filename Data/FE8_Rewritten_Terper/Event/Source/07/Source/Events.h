@@ -1,7 +1,7 @@
 static const EventScr EventScr_Beginning[] = {
     LOAD_WAIT_PERSIST(CH7_ENEMY_UNITS)
     FADE_TO_BLACK(16)
-    LOAD_WAIT_DEPLOYMENT_ORDER(CH7_PLAYER_UNITS)
+    LOAD_WAIT(CH7_PLAYER_UNITS)
     STAL(15)
     MOVE_CAMERA_TO_POSITION_CENTER(9, 4)
     HIGHLIGHT_COORDINATES(9, 4, 60)
@@ -18,8 +18,8 @@ static const EventScr EventScr_Beginning[] = {
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_Joshua)
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_Natasha)
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_02_Convo_01)
+    FADE_TO_BLACK(16)
     PREP
-    FADE_FROM_BLACK(16)
     ENDA
 };
 
