@@ -81,7 +81,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
 // Repoint the vram used for the stat screen help box
 #ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
     if (vram == NULL) {
-        if (Proc_Find(gProcScr_StatScreen))
+        if (Proc_Find(gProcScr_StatScreen) || Proc_Find(gProcScr_Shop))
             vram = (void *)0x06012000;
         else
             vram = (void *)0x06013000;

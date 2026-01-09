@@ -4518,3 +4518,25 @@ void ClassChgExecPromotionReal(struct ProcClassChgPostConfirm *proc)
 
     BeginBattleAnimations();
 }
+
+LYN_REPLACE_CHECK(BeginBattleAnimations);
+void BeginBattleAnimations(void) {
+    BG_Fill(gBG2TilemapBuffer, 0);
+    BG_EnableSyncByMask(1 << 2);
+
+    gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
+    EnablePaletteSync();
+
+    RenderBmMap();
+
+    if (sub_8055BC4()) {
+        SetBanimLinkArenaFlag(0);
+        BeginAnimsOnBattleAnimations();
+    } else {
+        EndAllMus();
+        RenderBmMap();
+        BeginBattleMapAnims();
+
+        gBattleStats.config |= BATTLE_CONFIG_MAPANIMS;
+    }
+}
