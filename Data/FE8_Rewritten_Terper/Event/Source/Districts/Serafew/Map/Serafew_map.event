@@ -72,6 +72,6 @@ MapChangesData:
   TileMap(7, 12, 19, 1, 1, Map_Change_7)
   TileMapEnd
 
-EventPointerTable(0x20, MapChangesData)
+EventPointerTable(0x5, MapChangesData)
 
 }
