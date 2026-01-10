@@ -283,8 +283,10 @@ Yes, sire...[A][N]
 ...However, I know this...[A][N]
 You, my Imperial Three, lack the strength[N]
 to claim the Stones... on your own...[A][N]
-I have chosen... three additional generals.[A][N]
-They will join you... in what is to come.[A][N]
+I have chosen...[N]
+three additional generals.[A][N]
+They will join you...[N]
+in what is to come.[A][N]
 ...Enter...[A][X]
 
 ## Chapter_03_Scene_07_Convo_02

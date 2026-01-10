@@ -33,18 +33,17 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_ARTUR, 60)
     TEXT(Chapter_04_Scene_04_Convo_02)
     // Make enemy the active unit again
-    MOVE_POSITION_WAIT(24, 9, 3, 9, 3)
+    // MOVE_WAIT(0, CHARACTER_MONSTER_B8, 9, 3)
 
     // Battle scene
     START_BATTLE
-    NORMAL_DAMAGE(1, 0) // Artur attacks
-    NORMAL_DAMAGE(0, 0) // Enemy attacks 
+    NORMAL_DAMAGE(1, 7) // Artur attacks
     CRITICAL_HIT(1, 20) // Artur criticals for 20 damage
     END_ATTACK
-
-    FIGHT(CHARACTER_MONSTER_B8, CHARACTER_ARTUR, 0, false)
-    DISA(CHARACTER_MONSTER_B8)
+    FIGHT(CHARACTER_ARTUR, CHARACTER_MONSTER_B8, 0, 0)
+    KILL(CHARACTER_MONSTER_B8)
     ERASE(CHARACTER_MONSTER_B8)
+
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     TEXT(Chapter_04_Scene_04_Convo_03)
     LOAD_WAIT_PERSIST(CH4_PLAYER_UNITS)

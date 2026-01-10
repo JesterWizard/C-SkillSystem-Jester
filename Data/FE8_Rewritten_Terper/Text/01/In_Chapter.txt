@@ -93,9 +93,7 @@ fight near our house![A][X]
 [OpenMidLeft][MoveMidLeft]
 What in the stones is the castle up to?![A][N]
 Why pay them taxes if they can't even[N]
-do the job they're here for?![A][N]
-Grado's been ramping up their[N]
-military for weeks now.[A][N]
+keep us safe?![A][N]
 Where's the King's army?![A][X]
 
 ## Chapter_01_Scene_12_Convo_01

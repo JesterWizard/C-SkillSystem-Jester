@@ -17,9 +17,9 @@ static const EventScr EventScr_Beginning[] = {
     NORMAL_DAMAGE(1, 0)
     END_ATTACK
     FIGHT(CHARACTER_BREGUET, CHARACTER_FRELIAN, 0, 0)
-
     KILL(0xC0)
     ERASE(0xC0)
+    
     HIGHLIGHT_CHARACTER(CHARACTER_BREGUET, 60)
     TEXT(Chapter_01_Scene_02_Convo_02)
     MOVE_WAIT(0, CHARACTER_BREGUET, 2, 2)

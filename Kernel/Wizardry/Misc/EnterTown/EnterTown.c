@@ -11,7 +11,7 @@ typedef struct {
 
 static const EnterTownNode EnterTownNodes[] = {
     { NODE_SERAFEW,      CHAPTER_3B },
-    { NODE_ADLAS_PLAINS, CHAPTER_3C },
+    // { NODE_ADLAS_PLAINS, CHAPTER_3C },
 };
 
 u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)

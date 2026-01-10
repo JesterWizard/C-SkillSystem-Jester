@@ -53,6 +53,7 @@ Your judgement is at hand.[A][N][MoveMidRight]
 Hmm? What's this?[A][X]
 
 ## MSG_DEFEAT_QUOTE_NOVALA
+[OpenMidLeft][LoadFace_Novala]
 N-no...[A][N]
 I was so... close to being...
 useful.[A][N]

@@ -41,7 +41,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.unlock_all_supports = true,
 	.promotion_on_max_level = true,
 	.stat_screen_growths = 2, // 1 = Growths as letters, 2 = bonus growths as green
-	.restore_hp_on_level_up = true,
+	.restore_hp_on_level_up = false,
 	.auto_repair_weapons = false,
 	.custom_support_conversations = true,
 	.custom_fog_sight = true,

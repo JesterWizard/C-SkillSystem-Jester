@@ -651,10 +651,12 @@ LABEL(0x1)
     WM_TEXTSTART
     WM_TEXT(Chapter_01_WM, 0)
 
+    // After a fierce battle, Eirika and her companions liberate the captured border castle.
     SOUN(0x115)
     TEXTCONT
     TEXTEND
 
+    // As she leaves the area with Princess Tana in tow, she cannot help but mourn the lost lives.
     SOUN(0x116)
     TEXTCONT
     TEXTEND
