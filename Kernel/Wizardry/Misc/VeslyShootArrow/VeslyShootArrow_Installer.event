@@ -56,7 +56,7 @@ PROC_END
 
 
 ALIGN 4 
-CopyOf_59E490: 
+CopyOf_59E490:
 PROC_SET_DESTRUCTOR(ShootArrowActive2|1) // MMSEndAll added to account for active units 
 PROC_CALL_ROUTINE(TrapDamageDisplay_Init) // 0803629C
 PROC_LABEL(0)
