@@ -21,11 +21,11 @@ static const EventScr EventScr_Beginning[] = {
     TEXTSHOW(Chapter_04_Scene_03_Convo_01)
     TEXTEND
     RESTORE_VOLUME
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     CLEAN
     MOVE_CAMERA_TO_POSITION_CENTER(0, 0)
     REMA
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     LOAD_WAIT(CH4_ARTUR)
     HIGHLIGHT_CHARACTER(CHARACTER_ARTUR, 60)
     TEXT(Chapter_04_Scene_04_Convo_01)
