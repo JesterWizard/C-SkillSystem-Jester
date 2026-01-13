@@ -5,6 +5,7 @@
 #include "constants/texts.h"
 #include "debuff.h"
 #include "unit-expa.h"
+#include "action-expa.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
@@ -45,16 +46,13 @@ static void callback_anim(ProcPtr proc)
 static void callback_exec(ProcPtr proc)
 {
     if (CheckBitUES(gActiveUnit, UES_BIT_SWITCHER_SKILL_USED))
-    {
         ClearBitUES(gActiveUnit, UES_BIT_SWITCHER_SKILL_USED);
-        NoCashGBAPrint("But cleared");
-    }
     else
-    {
         SetBitUES(gActiveUnit, UES_BIT_SWITCHER_SKILL_USED);
-        NoCashGBAPrint("Bit set");
-    }
 
+    gActionDataExpa.refrain_action = true;
+    EndAllMus();
+    StartStatusHealEffect(gActiveUnit, proc);
 }
 
 bool Action_Switcher(ProcPtr parent)
