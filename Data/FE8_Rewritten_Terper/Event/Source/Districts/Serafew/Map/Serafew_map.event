@@ -1,10 +1,11 @@
 #include "EAstdlib.event"
+// #include "../../../PListSplit.event"
 
 ALIGN 4
 MapData:
   #incbin "Serafew_map_data.dmp"
 
-SetChapterData(0x3B, 0x0E, 0, 0x0F, 0x10, 0xCA, MapData, 0x12, 0, 0xCB)
+// SetChapterData(0x3B, 0x0E, 0, 0x0F, 0x10, 0xCA, MapData, 0x12, 0, 0xCB)
 
 ALIGN 4
 Map_Change_0: SHORT $B90 $B94 $C88 $C10 $C14 $D08
@@ -29,3 +30,10 @@ MapChangesData:
   TileMapEnd
   
 EventPointerTable(0xCB, MapChangesData)
+
+// NewEventPointerTable_Event(0x3B, 0xCB)
+// NewEventPointerTable_Maps(0x3B, MapData)
+// NewEventPointerTable_ObjPal(0x3B, 0xF)
+// NewEventPointerTable_TileAnim(0x3B, 0x12)
+// NewEventPointerTable_TileChange(0x3B, 0xCC)
+// NewEventPointerTable_TileConfig(0x3B, 0x10)

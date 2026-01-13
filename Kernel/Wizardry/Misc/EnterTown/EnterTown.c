@@ -10,7 +10,7 @@ typedef struct {
 } EnterTownNode;
 
 static const EnterTownNode EnterTownNodes[] = {
-    { NODE_SERAFEW,      CHAPTER_3B },
+    { NODE_SERAFEW,      0x50 },
     // { NODE_ADLAS_PLAINS, CHAPTER_3C },
 };
 
