@@ -37,6 +37,97 @@ u8 pr_AttackBallistaCommandUsabilityFix(const struct MenuItemDef *def, int numbe
 int pr_AttackActionCommandHoverFix(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int pr_AttackActionCommandUnhoverFix(struct MenuProc *menu, struct MenuItemProc *menuItem);
 
+LYN_REPLACE_CHECK(WeaponSelectMenu_IsAvailable);
+u8 WeaponSelectMenu_IsAvailable(const struct MenuItemDef* def, int number) {
+    int item = gActiveUnit->items[number];
+
+    if (!(GetItemAttributes(item) & IA_WEAPON)) {
+        return MENU_NOTSHOWN;
+    }
+
+    if (!CanUnitUseWeapon(gActiveUnit, item)) {
+        return MENU_NOTSHOWN;
+    }
+
+    MakeTargetListForWeapon(gActiveUnit, item);
+
+    if (GetSelectTargetCount() == 0) {
+        return MENU_NOTSHOWN;
+    }
+
+    return MENU_ENABLED;
+}
+
+LYN_REPLACE_CHECK(WeaponSelectMenu_Selected);
+u8 WeaponSelectMenu_Selected(struct MenuProc* menu, struct MenuItemProc* menuItem) {
+
+    EquipUnitItemSlot(gActiveUnit, menuItem->itemNumber);
+    gActionData.itemSlotIndex = 0;
+
+    ClearBg0Bg1();
+
+    MakeTargetListForWeapon(gActiveUnit, gActiveUnit->items[0]);
+
+    NewTargetSelection(&gSelectInfo_Attack);
+
+    sub_80832C8();
+
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_ENDFACE;
+}
+
+LYN_REPLACE_CHECK(WeaponSelectMenu_Draw);
+int WeaponSelectMenu_Draw(struct MenuProc* menu, struct MenuItemProc* menuItem) {
+    int item = gActiveUnit->items[menuItem->itemNumber];
+
+    s8 isUsable = CanUnitUseWeapon(gActiveUnit, item);
+
+    DrawItemMenuLine(
+        &menuItem->text,
+        item,
+        isUsable,
+        gBG0TilemapBuffer + TILEMAP_INDEX(menuItem->xTile, menuItem->yTile)
+    );
+
+    return 0;
+}
+
+LYN_REPLACE_CHECK(WeaponSelectMenu_SwitchIn);
+int WeaponSelectMenu_SwitchIn(struct MenuProc* menu, struct MenuItemProc* menuItem) {
+
+    int reach;
+
+    UpdateMenuItemPanel(menuItem->itemNumber);
+
+    BmMapFill(gBmMapMovement, -1);
+    BmMapFill(gBmMapRange, 0);
+
+    reach = GetUnitWeaponReachBits(gActiveUnit, menuItem->itemNumber);
+    GenerateUnitStandingReachRange(gActiveUnit, reach);
+
+    DisplayMoveRangeGraphics(2);
+
+    return 0;
+}
+
+const struct MenuItemDef gWeaponSelectMenuItems[] = {
+    {"", 0, 0, 0, 0x49, WeaponSelectMenu_IsAvailable, WeaponSelectMenu_Draw, WeaponSelectMenu_Selected, 0, WeaponSelectMenu_SwitchIn, BallistaRangeMenu_SwitchOut},
+    {"", 0, 0, 0, 0x4A, WeaponSelectMenu_IsAvailable, WeaponSelectMenu_Draw, WeaponSelectMenu_Selected, 0, WeaponSelectMenu_SwitchIn, BallistaRangeMenu_SwitchOut},
+    {"", 0, 0, 0, 0x4B, WeaponSelectMenu_IsAvailable, WeaponSelectMenu_Draw, WeaponSelectMenu_Selected, 0, WeaponSelectMenu_SwitchIn, BallistaRangeMenu_SwitchOut},
+    {"", 0, 0, 0, 0x4C, WeaponSelectMenu_IsAvailable, WeaponSelectMenu_Draw, WeaponSelectMenu_Selected, 0, WeaponSelectMenu_SwitchIn, BallistaRangeMenu_SwitchOut},
+    {"", 0, 0, 0, 0x4D, WeaponSelectMenu_IsAvailable, WeaponSelectMenu_Draw, WeaponSelectMenu_Selected, 0, WeaponSelectMenu_SwitchIn, BallistaRangeMenu_SwitchOut},
+    MenuItemsEnd
+};
+
+const struct MenuDef gWeaponSelectMenuDef = {
+    {1, 1, 14, 0},
+    0,
+    gWeaponSelectMenuItems,
+    0, 0, 0,
+    ItemMenu_ButtonBPressed,
+    MenuAutoHelpBoxSelect,
+    ConvoyMenu_HelpBox
+};
+
 const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　制圧", 0x67A, 0x6CC, 0, 0x4E, UnitActionMenu_CanSeize, 0, UnitActionMenu_Seize, 0, 0, 0}, // Seize
 	{"　攻撃", 0x67B, 0x6C0, 0, 0x4F, pr_AttackCommandUsabilityFix, 0, UnitActionMenu_Attack, 0, pr_AttackActionCommandHoverFix, pr_AttackActionCommandUnhoverFix}, // Attack >

@@ -20,6 +20,7 @@
 #include "efxmagic.h"
 #include "playst-expa.h"
 #include "scene.h"
+#include "menu_def.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"

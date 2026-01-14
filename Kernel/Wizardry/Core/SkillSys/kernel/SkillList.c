@@ -4,6 +4,8 @@
 #include "shield.h"
 #include "constants/skills.h"
 #include "jester_headers/custom-arrays.h"
+#include "action-expa.h"
+#include "unit-expa.h"
 
 /**
  * 0: generic use
@@ -404,6 +406,11 @@ struct SkillList *GetUnitSkillList(struct Unit *unit)
 
 	if (!JudgeUnitList(unit, &list->header)) {
 		Errorf("Ops! regenerate skilllist: uid=%02X, pid=%02X", unit->index & 0xFF, UNIT_CHAR_ID(unit));
+
+#if defined(SID_WyvernCrash) && (COMMON_SKILL_VALID(SID_WyvernCrash))
+        if (gActionData.unk08 == SID_WyvernCrash)
+            gActionDataExpa.refrain_action = true;
+#endif
 
 		GenerateSkillListExt(unit, list);
 	}
