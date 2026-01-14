@@ -11,7 +11,7 @@
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
     [CHARACTER_EIRIKA] = {{
-        [0] = SID_WyvernCrash,
+        [0] = SID_BravelyDefault,
     }},
     // 02
     [CHARACTER_SETH] = {{

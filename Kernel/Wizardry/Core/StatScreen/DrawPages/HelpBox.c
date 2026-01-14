@@ -147,11 +147,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
         procFound = true;
 #endif
 
-    if (Proc_Find(gProcScr_StatScreen))
-    {
-        InitSpriteText(&gHelpBoxSt.text[3]);
-    }
-    else if (!procFound)
+    if (!procFound)
     {
         InitSpriteText(&gHelpBoxSt.text[3]);
         InitSpriteText(&gHelpBoxSt.text[4]);

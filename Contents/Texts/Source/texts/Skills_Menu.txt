@@ -613,8 +613,8 @@ Bravely Default[X]
 ## MSG_SKILL_BravelyDefault_DESC
 Bravely Default:[N]
 Enter a default state for a turn.[N]
-During the next turn this unit can move[N]
-as many times as units who attacked them.[X]
+During the next turn move as many[N]
+times as you were attacked.[X]
 
 ## MSG_SKILL_Fogger_NAME
 Fogger[X]
