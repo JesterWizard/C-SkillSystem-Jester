@@ -6,6 +6,7 @@
 #include "debuff.h"
 #include "bwl.h"
 #include "playst-expa.h"
+#include "unit-expa.h"
 #include "jester_headers/class-pairs.h"
 
 typedef int (*UnitRefrainFunc_t)(struct Unit *unit);
@@ -85,6 +86,9 @@ void ChapterChangeUnitCleanup(void)
 
 		if (UNIT_CATTRIBUTES(unit) & CA_SUPPLY)
 			unit->state = unit->state &~ US_DEAD;
+
+        if (CheckBitUES(unit, UES_BIT_CHANGED_FACTIONS))
+            UnitChangeFaction(unit, FACTION_BLUE);
 
 		unit->state |= US_HIDDEN | US_NOT_DEPLOYED;
 

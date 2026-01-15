@@ -3,24 +3,53 @@
 #include "bwl.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "action-expa.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 
-bool PrePhsae_ClearMiscUES(ProcPtr proc)
+void PrePhase_ResetFaction(ProcPtr proc)
+{
+	if (gPlaySt.faction == FACTION_BLUE)
+	{
+		struct Unit * unit;
+		NoCashGBAPrint("1");
+
+		for (int uid = 1; uid < 0xC0 + CONFIG_UNIT_AMT_FOURTH; uid++)
+		{
+			unit = GetUnit(uid);
+			NoCashGBAPrint("2");
+
+			if (UNIT_IS_VALID(unit) && CheckBitUES(unit, UES_BIT_CHANGED_FACTIONS)) 
+			{
+				if (GetUnitFaction(unit) == FACTION_BLUE)
+				{
+					NoCashGBAPrint("3");
+					ClearBitUES(unit, UES_BIT_CHANGED_FACTIONS);
+					UnitChangeFaction(unit, FACTION_RED);
+				}
+				else
+				{
+					NoCashGBAPrint("4");
+					ClearBitUES(unit, UES_BIT_CHANGED_FACTIONS);
+					UnitChangeFaction(unit, FACTION_BLUE);
+				}
+			}
+		}
+	}
+}
+
+bool PrePhase_ClearMiscUES(ProcPtr proc)
 {
 	int uid;
 	struct Unit* unit;
 
-	for (uid = 1; uid < 0xC0; uid++) {
+	for (uid = 1; uid < 0xC0 + CONFIG_UNIT_AMT_FOURTH; uid++) {
 		unit = GetUnit(uid);
 
 		if (UNIT_IS_VALID(unit)) {
 
 #if defined(SID_Teleportation) && (COMMON_SKILL_VALID(SID_Teleportation))
             ClearBitUES(unit, UES_BIT_TELEPORTATION_SKILL_USED);
-#endif
-#if defined(SID_Turncoat) && (COMMON_SKILL_VALID(SID_Turncoat))
-            ClearBitUES(unit, UES_BIT_CHANGED_FACTIONS);
 #endif
 #if defined(SID_ShadowFlash) && (COMMON_SKILL_VALID(SID_ShadowFlash))
             ClearBitUES(unit, UES_BIT_SHADOWFLASH_SKILL_USED);
@@ -30,9 +59,6 @@ bool PrePhsae_ClearMiscUES(ProcPtr proc)
 #endif
 #if defined(SID_DeathBlight) && (COMMON_SKILL_VALID(SID_DeathBlight))
             ClearBitUES(unit, UES_BIT_DEATHBLIGHT_SKILL_USED);
-#endif
-#if defined(SID_Persuade) && (COMMON_SKILL_VALID(SID_Persuade))
-            ClearBitUES(unit, UES_BIT_CHANGED_FACTIONS);
 #endif
 #if defined(SID_Protect) && (COMMON_SKILL_VALID(SID_Protect))
             ClearBitUES(unit, UES_BIT_PROTECT_SKILL_USED);

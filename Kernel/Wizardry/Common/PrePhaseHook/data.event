@@ -8,7 +8,8 @@ gPrePhaseFuncs:
     POIN PrePhase_TickKeepUpSkillStatus
     POIN PrePhase_TickArmorMarchSkillStatus
     POIN PrePhase_TickMoodySkillStatus
-    POIN PrePhsae_ClearMiscUES
+    POIN PrePhase_ResetFaction
+    POIN PrePhase_ClearMiscUES
     POIN PrePhase_UnitStatusEffectSkills
 #ifdef CONFIG_LAGUZ_BARS
     POIN PrePhase_LaguzBars
