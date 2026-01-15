@@ -373,7 +373,7 @@ Arise[X]
 ## MSG_SKILL_Arise_DESC
 Arise:[N]
 Revive a unit that died this[N]
-chapter. Once oNy.[X]
+chapter. Once only.[X]
 
 ## MSG_SKILL_AssignDecoy_NAME
 Assign Decoy[X]

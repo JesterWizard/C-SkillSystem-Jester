@@ -24,7 +24,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.hit_decrease_on_range = false,
 	.debug_autoload_skills = false,
 
-	.casual_mode = true,
+	.casual_mode = false,
 #ifdef CONFIG_VOICE_ACTED_DIALOGUE
 	.voice_acted_dialogue = true,
 #endif
