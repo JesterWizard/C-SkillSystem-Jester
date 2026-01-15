@@ -3,6 +3,7 @@
 #include "map-anims.h"
 #include "skill-system.h"
 #include "battle-system.h"
+#include "action-expa.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
 
@@ -43,6 +44,8 @@ static u8 MasterForge_OnCancel(struct MenuProc * menu, struct MenuItemProc * ite
     BG_EnableSyncByMask(BG2_SYNC_BIT);
     HideMoveRangeGraphics();
 
+    gActionDataExpa.refrain_action = true;
+
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
@@ -64,6 +67,11 @@ u8 MasterForge_Usability(const struct MenuItemDef *def, int number)
     if (GetItemAttributes(weapon) & IA_UNBREAKABLE)
         return MENU_NOTSHOWN;
 
+    // If not a weapon, do not display
+    if (!GetItemAttributes(weapon)) {
+        return MENU_NOTSHOWN;
+    }
+
     if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_MasterForge_Used))
         return MENU_NOTSHOWN;
 
@@ -76,9 +84,8 @@ static int MasterForge_OnDraw(struct MenuProc * menu, struct MenuItemProc * item
     u16 itemInSlot = gActiveUnit->items[menuIndex];
     
     // Don't draw anything for empty slots (they should be MENU_NOTSHOWN anyway)
-    if (!itemInSlot) {
+    if (!itemInSlot)
         return 0;
-    }
 
     gActionData.unk08 = SID_MasterForge;
 
@@ -88,7 +95,11 @@ static int MasterForge_OnDraw(struct MenuProc * menu, struct MenuItemProc * item
 
     Text_DrawString(&item->text, GetItemName(itemInSlot));
 
-    PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 1, item->yTile));
+    ResetIconGraphics();
+	LoadIconPalettes(4);
+
+    DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(item->xTile, item->yTile), GetItemIconId(itemInSlot), 0x4000);
+    PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 2, item->yTile));
 	PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 11, item->yTile), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(itemInSlot));
 
     PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, gActiveUnit->pCharacterData->portraitId, 0x200, 5);
