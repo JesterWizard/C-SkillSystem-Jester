@@ -10,6 +10,7 @@ extern u8 gUdefCnt;
 extern struct UnitDefinition gUdefs[];
 extern CONST_DATA u8 gAutoUdefJids[2][4];
 
+extern const EventScr EventScrWM_PrologueSkip[];
 extern const EventScr EventScrWM_Prologue_SET_NODE[];
 extern const EventScr EventScrWM_Prologue_TRAVEL_TO_NODE[];
 extern const EventScr EventScrWM_Ch1_ENDING[];

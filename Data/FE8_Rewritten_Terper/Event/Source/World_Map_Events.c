@@ -60,7 +60,11 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
                 CallEvent((const u16*)EventScrWM_Ch1_ENDING, 0);
                 break;
             case 1:
-                CallEvent((const u16*)EventScrWM_Prologue_SET_NODE, 0);
+                if (gpKernelDesignerConfig->skip_intro == true)
+                    CallEvent((const u16*)EventScrWM_PrologueSkip, 0);
+                else
+                    CallEvent((const u16*)EventScrWM_Prologue_SET_NODE, 0);
+
                 break;
             case 2:
                 break;
@@ -251,10 +255,11 @@ extern struct ProcCmd CONST_DATA gProcScr_OpSubtitle[];
 LYN_REPLACE_CHECK(StartIntroMonologue);
 void StartIntroMonologue(ProcPtr proc) {
 
-#ifndef CONFIG_SKIP_INTRO
-    Proc_StartBlocking(gProcScr_OpSubtitle, proc);
-#endif
+    if (gpKernelDesignerConfig->skip_intro == true)
+        return;
 
+    Proc_StartBlocking(gProcScr_OpSubtitle, proc);
+    
     return;
 }
 
@@ -264,10 +269,23 @@ void ReduceBGMVolume(void)
     Sound_SetSEVolume(60);
 }
 
+const EventScr EventScrWM_PrologueSkip[] = {
+    EVBIT_MODIFY(0x1)
+    WmEvtNOFADE // ENOSUPP in EAstdlib
+    SKIPWN
+    WM_FXCLEAR1(-0x1)
+    WM_FXCLEAR2(-0x1)
+    WM_REMSPRITE(WM_MU_2)
+    WM_REMSPRITE(WM_MU_3)
+    WM_REMSPRITE(WM_MU_4)
+    WM_REMSPRITE(WM_MU_5)
+    WM_REMSPRITE(WM_MU_6)
+    ENDA
+};
+
 const EventScr EventScrWM_Prologue_SET_NODE[] = {
     EVBIT_MODIFY(0x1)
     WmEvtNOFADE // ENOSUPP in EAstdlib
-#ifndef CONFIG_SKIP_INTRO
     WM_SPAWNLORD(WM_MU_0, CHARACTER_EIRIKA, WM_NODE_BorderMulan)
     WM_CENTERCAMONLORD(WM_MU_0)
     MUSCFAST(0x7fff)
@@ -555,7 +573,6 @@ const EventScr EventScrWM_Prologue_SET_NODE[] = {
     WM_REMOVETEXT
     STAL(2)
     FADI(16)
-#endif
 
     SKIPWN
     WM_FXCLEAR1(-0x1)
