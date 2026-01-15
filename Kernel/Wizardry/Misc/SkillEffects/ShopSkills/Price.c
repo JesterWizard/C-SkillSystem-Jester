@@ -10,6 +10,11 @@ u16 GetItemPurchasePrice(struct Unit *unit, int item)
 	if (gBmSt.gameStateBits & BM_FLAG_PREPSCREEN)
 		cost = cost + (cost / 2);
 
+#if (defined(SID_Bargain) && COMMON_SKILL_VALID(SID_Bargain))
+	if (gActionData.unk08 == SID_Entrepreneur)
+		cost = cost + (cost / 2);
+#endif
+
 	if (UnitHasItem(unit, ITEM_SILVERCARD)) {
 		cost = cost / 2;
 		return cost;
