@@ -1919,7 +1919,10 @@ LYN_REPLACE_CHECK(TryAddUnitToTradeTargetList);
 void TryAddUnitToTradeTargetList(struct Unit* unit) {
 
     if (!IsSameAllegiance(gSubjectUnit->index, unit->index)) {
-        return;
+        bool rescuingThisUnit = (gSubjectUnit->state & US_RESCUING) && GetUnit(gSubjectUnit->rescue)->index == unit->index;
+
+        if (!rescuingThisUnit)
+            return;
     }
 
     if (gSubjectUnit->pClassData->number == CLASS_PHANTOM || unit->pClassData->number == CLASS_PHANTOM) {
@@ -1937,20 +1940,6 @@ void TryAddUnitToTradeTargetList(struct Unit* unit) {
                 AddTarget(unit->xPos, unit->yPos, unit->index, 0);
             }
         }
-    }
-
-    if (unit->state & US_RESCUING) {
-        struct Unit* rescue = GetUnit(unit->rescue);
-
-        if (UNIT_FACTION(rescue) != FACTION_BLUE) {
-            return;
-        }
-
-        if (gSubjectUnit->items[0] == 0 && rescue->items[0] == 0) {
-            return;
-        }
-
-        AddTarget(unit->xPos, unit->yPos, rescue->index, 0);
     }
 
     return;
@@ -4594,22 +4583,24 @@ static inline s16 GetBanimAllyPosition(int faction1, int faction2)
     return pos;
 }
 
-LYN_REPLACE_CHECK(BeginBattleMapAnims);
-void BeginBattleMapAnims(void)
+LYN_REPLACE_CHECK(BeginMapAnimForDance);
+void BeginMapAnimForDance(void)
 {
-    if (gBattleStats.config & (BATTLE_CONFIG_REFRESH | BATTLE_CONFIG_DANCERING)) {
-       // BeginMapAnimForDance();
+    
+#if (defined(SID_Dance) && (COMMON_SKILL_VALID(SID_Dance)))
+    if (gActionData.unk08 == SID_Dance)
         return;
-    }
+#endif
+
+    gBattleActor.weaponBefore = ITEM_STAFF_FORTIFY;
 
     gManimSt.hp_changing = 0;
-    gManimSt.mapAnimKind = MANIM_KIND_DAMAGE;
+    gManimSt.mapAnimKind = MANIM_KIND_REFRESH;
+    gManimSt.actorCount = 1;
 
-    SetupMapAnimSpellData(&gBattleActor, &gBattleTarget, gBattleHitArray);
+    gManimSt.subjectActorId = 0;
+    gManimSt.targetActorId = 0;
+
     SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArray);
-
-    if (!EventEngineExists())
-        Proc_Start(ProcScr_MapAnimBattle, PROC_TREE_3);
-    else
-        Proc_Start(ProcScr_MapAnimEventBattle, PROC_TREE_3);
+    Proc_Start(ProcScr_MapAnimDance, PROC_TREE_3);
 }
