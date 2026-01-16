@@ -85,9 +85,9 @@ PUSH
     #include "Source/pr_BattleHitArrayRe.lyn.event"
     PROTECT 0x0007B7F0 0x0007B854 // BeginMapAnimForDance
 
-    ORG $7B8B8
-    #include "Source/pr_BattleHitArrayRe.lyn.event"
-    PROTECT 0x0007B854 0x0007B8D4 // BeginBattleMapAnims
+    // ORG $7B8B8
+    // #include "Source/pr_BattleHitArrayRe.lyn.event"
+    // PROTECT 0x0007B854 0x0007B8D4 // BeginBattleMapAnims
 
     ORG $7B9B0
     // #include "Source/pr_BattleHitArrayRe.lyn.event"

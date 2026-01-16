@@ -2939,8 +2939,8 @@ fun 0x08022BD9, StartUnitWeaponSelect
 fun 0x08022C31, DisplayUnitStandingAttackRange
 fun 0x08022C99, HideMoveRangeGraphicsWrapper
 fun 0x08022CA5, UnknownMenu_IsAvailable
-fun 0x08022CF1, UnknownMenu_Selected
-fun 0x08022D35, UnknownMenu_Draw
+fun 0x08022CF1, WeaponSelectMenu_Selected
+fun 0x08022D35, WeaponSelectMenu_Draw
 fun 0x08022D85, UnknownMenu_SwitchIn
 fun 0x08022DD9, BallistaRangeMenu_SwitchOut
 fun 0x08022DF1, AttackMapSelect_Select

@@ -277,18 +277,6 @@ ProcPtr NewTargetSelectionRework(const struct SelectInfo *selectInfo)
 	return proc;
 }
 
-LYN_REPLACE_CHECK(UnknownMenu_Selected);
-u8 UnknownMenu_Selected(struct MenuProc *menu, struct MenuItemProc *menuItem)
-{
-	EquipUnitItemSlot(gActiveUnit, menuItem->itemNumber);
-	gActionData.itemSlotIndex = 0;
-
-	ClearBg0Bg1();
-	MakeTargetListForWeapon(gActiveUnit, GetItemFromSlot(gActiveUnit, gActionData.itemSlotIndex));
-	NewTargetSelectionRework(&gSelectInfo_Attack);
-	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_ENDFACE;
-}
-
 bool CombatArtSelectTargetExist(void)
 {
 	return !!Proc_Find(ProcScr_TargetSelectionRework);

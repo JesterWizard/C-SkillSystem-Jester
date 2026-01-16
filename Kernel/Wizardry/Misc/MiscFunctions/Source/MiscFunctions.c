@@ -4578,3 +4578,38 @@ void WorldMap_Init(struct WorldMapMainProc * proc)
 
     proc->delay_timer = 0;
 }
+
+static inline s16 GetBanimAllyPosition(int faction1, int faction2)
+{
+    int pos = EKR_POS_L;
+    if (GetBanimLinkArenaFlag() != true)
+    {
+        if (FACTION_ID_BLUE == (s16)faction1)
+            pos = EKR_POS_R;
+        else if (FACTION_ID_RED == (s16)faction1)
+            pos = EKR_POS_R;
+        else if (FACTION_ID_GREEN == (s16)faction1 && FACTION_ID_GREEN == faction2)
+            pos = EKR_POS_R;
+    }
+    return pos;
+}
+
+LYN_REPLACE_CHECK(BeginBattleMapAnims);
+void BeginBattleMapAnims(void)
+{
+    if (gBattleStats.config & (BATTLE_CONFIG_REFRESH | BATTLE_CONFIG_DANCERING)) {
+       // BeginMapAnimForDance();
+        return;
+    }
+
+    gManimSt.hp_changing = 0;
+    gManimSt.mapAnimKind = MANIM_KIND_DAMAGE;
+
+    SetupMapAnimSpellData(&gBattleActor, &gBattleTarget, gBattleHitArray);
+    SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArray);
+
+    if (!EventEngineExists())
+        Proc_Start(ProcScr_MapAnimBattle, PROC_TREE_3);
+    else
+        Proc_Start(ProcScr_MapAnimEventBattle, PROC_TREE_3);
+}

@@ -97,8 +97,8 @@ STATIC_DECLAR int GetPrePhaseHealAmount(struct Unit *unit)
         case TERRAIN_FORT:
         case TERRAIN_FLOOR_17:
         case TERRAIN_FLOOR_18:
-        case TERRAIN_WALL_1A:
-        case TERRAIN_WALL_1B:
+        case TERRAIN_WALL_REGULAR:
+        case TERRAIN_WALL_DAMAGED:
         case TERRAIN_RUBBLE:
         case TERRAIN_PILLAR:
         case TERRAIN_DOOR:

@@ -5,13 +5,14 @@ ALIGN 4
 //Hook with r0 for compatibility.
 #define jumpToHack_r0(offset) "BYTE 0x00 0x48 0x87 0x46; POIN (offset|0x1)"
 
-PUSH
-ORG $571E8  //FE8U
-jumpToHack_r0(IndividualAnimation7743)
+// Disabled in order to Lynump PrepareBattleGraphicsMaybe	
+// PUSH
+// ORG $571E8  //FE8U
+// jumpToHack_r0(IndividualAnimation7743)
 
 /* Needed for BreakableDoors */
 //PROTECT 0x00056FF8 0x00057CAC // PrepareBattleGraphicsMaybe
-POP
+// POP
 
 IndividualAnimation7743:
 #incbin "IndividualAnimation7743.dmp.bin"

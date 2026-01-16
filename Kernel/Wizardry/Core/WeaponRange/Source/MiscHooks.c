@@ -623,8 +623,8 @@ void SetWorkingMoveCosts(const s8 mct[])
 #if (defined(SID_PhaseShift) && COMMON_SKILL_VALID(SID_PhaseShift))
     if (SkillTester(gActiveUnit, SID_PhaseShift))
     {
-        APPLY_COST_IF_LOWER(TERRAIN_WALL_1A, 1);
-        APPLY_COST_IF_LOWER(TERRAIN_WALL_1B, 1);
+        APPLY_COST_IF_LOWER(TERRAIN_WALL_REGULAR, 1);
+        APPLY_COST_IF_LOWER(TERRAIN_WALL_DAMAGED, 1);
     }
 #endif
 
