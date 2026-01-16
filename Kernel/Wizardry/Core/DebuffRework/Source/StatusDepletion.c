@@ -68,6 +68,9 @@ void TickActiveFactionTurn(void)
 		FOR_UNITS_ONMAP_FACTION(FACTION_BLUE, unit, {
 			bool doomStatus = false;
 
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
+
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
 				DEC_STATUS(unit);
@@ -79,9 +82,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ALLY);
 		})
@@ -90,6 +91,9 @@ void TickActiveFactionTurn(void)
 		FOR_UNITS_ONMAP_FACTION(FACTION_RED, unit, {
 			bool doomStatus = false;
 
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
+
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
@@ -101,9 +105,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ENEMY);
 		})
@@ -111,6 +113,9 @@ void TickActiveFactionTurn(void)
 		/* Red buff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_RED, unit, {
 			bool doomStatus = false;
+
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
 
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
@@ -123,9 +128,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ALLY);
 		})
@@ -134,6 +137,9 @@ void TickActiveFactionTurn(void)
 		FOR_UNITS_ONMAP_FACTION(FACTION_BLUE, unit, {
 			bool doomStatus = false;
 
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
+
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
@@ -145,9 +151,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ENEMY);
 		})
@@ -156,6 +160,9 @@ void TickActiveFactionTurn(void)
 		FOR_UNITS_ONMAP_FACTION(FACTION_GREEN, unit, {
 		  	bool doomStatus = false;
 
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
+
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
@@ -167,9 +174,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ENEMY);
 		})
@@ -177,6 +182,9 @@ void TickActiveFactionTurn(void)
 		/* Green buff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_GREEN, unit, {
 			bool doomStatus = false;
+
+			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
+				doomStatus = true;
 			
 			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
@@ -189,9 +197,7 @@ void TickActiveFactionTurn(void)
 			}
 
             if (GetUnitStatusDuration(unit) == 0 && doomStatus == true)
-			{
                 UnitKill(unit);
-			}
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ALLY);
 		})
