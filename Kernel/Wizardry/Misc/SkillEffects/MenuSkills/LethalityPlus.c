@@ -36,6 +36,9 @@ u8 LethalityPlus_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
     gActionData.unk08 = SID_LethalityPlus;
     gActionData.unitActionType = CONFIG_UNIT_ACTION_EXPA_ExecSkill;
 
+	ResetIconGraphics();
+	LoadIconPalettes(4);
+
     return StartUnitWeaponSelect(menu, item);
 }
 
