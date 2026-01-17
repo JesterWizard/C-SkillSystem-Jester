@@ -16,11 +16,11 @@
 
 u8 LethalityPlus_Usability(const struct MenuItemDef *def, int number)
 {
+    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_LethalityPlus_Used))
+        return MENU_NOTSHOWN;
+
     if (AttackCommandUsability(def, number) == MENU_ENABLED)
         return MENU_ENABLED;
-
-    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_LethalityPlus_Used))
-        return MENU_DISABLED;
 
     return MENU_NOTSHOWN;
 }
