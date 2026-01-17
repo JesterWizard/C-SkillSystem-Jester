@@ -346,6 +346,7 @@ Capture[X]
 Capture:[N]
 Capture an enemy after defeating[N]
 it with reduced stats.[X]
+Unit CON must be >= Target CON.[X]
 
 ## MSG_SKILL_Doppleganger_NAME
 DoppleGanger[X]

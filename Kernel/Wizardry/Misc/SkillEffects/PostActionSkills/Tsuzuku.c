@@ -50,9 +50,9 @@ FORCE_DECLARE static void refresh_action_aura(struct Unit * unit, ProcPtr parent
 
 bool PostAction_Tsuzuku(ProcPtr parent)
 {
-    if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
-        return false;
-	else if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
+    // if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
+    //     return false;
+	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
 		return false;
 
 #ifdef CONFIG_MISC_UNIT_COUNTERS
@@ -156,10 +156,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
-        if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+        if (SkillListTester(gActiveUnit, SID_CoinFlip))
         {
-            refresh_action(gActiveUnit, parent);
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+            {
+                refresh_action(gActiveUnit, parent);
+                PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            }
+            else if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
+            {
+                refresh_action(gActiveUnit, parent);
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+            }
         }
 #endif
 
@@ -192,10 +200,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
-        if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+        if (SkillListTester(gActiveUnit, SID_CoinFlip))
         {
-            refresh_action(gActiveUnit, parent);
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+            {
+                refresh_action(gActiveUnit, parent);
+                PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            }
+            else if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
+            {
+                refresh_action(gActiveUnit, parent);
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+            }
         }
 #endif
 
@@ -240,10 +256,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
-        if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+        if (SkillListTester(gActiveUnit, SID_CoinFlip))
         {
-            refresh_action(gActiveUnit, parent);
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+            {
+                refresh_action(gActiveUnit, parent);
+                PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            }
+            else if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
+            {
+                refresh_action(gActiveUnit, parent);
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+            }
         }
 #endif
 
@@ -277,10 +301,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 #endif
 
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
-        if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+        if (SkillListTester(gActiveUnit, SID_CoinFlip))
         {
-            refresh_action(gActiveUnit, parent);
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+            {
+                refresh_action(gActiveUnit, parent);
+                PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            }
+            else if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
+            {
+                refresh_action(gActiveUnit, parent);
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+            }
         }
 #endif
 
@@ -321,10 +353,18 @@ bool PostAction_Tsuzuku(ProcPtr parent)
 
 	case UNIT_ACTION_WAIT:
 #if defined(SID_CoinFlip) && (COMMON_SKILL_VALID(SID_CoinFlip))
-        if (SkillListTester(gActiveUnit, SID_CoinFlip) && PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+        if (SkillListTester(gActiveUnit, SID_CoinFlip))
         {
-            refresh_action(gActiveUnit, parent);
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
+            {
+                refresh_action(gActiveUnit, parent);
+                PlayStExpa_ClearBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+            }
+            else if (!CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
+            {
+                refresh_action(gActiveUnit, parent);
+                SetBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED);
+            }
         }
 #endif
 

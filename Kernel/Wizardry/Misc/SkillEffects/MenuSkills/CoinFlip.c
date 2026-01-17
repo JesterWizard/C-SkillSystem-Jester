@@ -21,9 +21,6 @@ u8 CoinFlip_Usability(const struct MenuItemDef * def, int number)
     if (gActiveUnit->state & US_CANTOING)
         return MENU_NOTSHOWN;
 
-    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_CoinFlip_Used))
-		return MENU_NOTSHOWN;
-
     return MENU_ENABLED;
 }
 
@@ -50,8 +47,13 @@ static void callback_exec(ProcPtr proc)
 {
     if(NextRN_100() >= 50)
     {
+        NewPopup_VerySimple(MSG_MoveAgain, 0x5A, proc);
         gActionDataExpa.refrain_action = true;
         PlayStExpa_SetBit(PLAYSTEXPA_BIT_CoinFlip_Used);
+    }
+    else
+    {
+        NewPopup_VerySimple(MSG_NoMove, 0x5A, proc);
     }
 
     // Clear UI

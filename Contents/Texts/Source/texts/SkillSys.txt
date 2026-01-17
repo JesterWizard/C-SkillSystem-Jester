@@ -77,3 +77,9 @@ Select skill to reroll.[X]
 
 ## MSG_SelectUndeployedUnit
 Choose an undeployed unit.[X]
+
+## MSG_MoveAgain
+Unit can move twice![X]
+
+## MSG_NoMove
+Unit's turn is used.[X]
