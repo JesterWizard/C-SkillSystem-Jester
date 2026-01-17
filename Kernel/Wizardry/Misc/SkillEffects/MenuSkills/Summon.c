@@ -591,7 +591,7 @@ void LoadSumMonsterFromDK(struct SumProc* proc)
 
 #if defined(SID_GateOfBabylon) && (COMMON_SKILL_VALID(SID_GateOfBabylon))
 	if (SkillTester(gActiveUnit, SID_GateOfBabylon))
-        gUnitDef2.allegiance = k_umod(UNIT_FACTION(gActiveUnit), 0x40);
+        gUnitDef2.allegiance = k_umod(FACTION_ID_GREEN, 0x40);
 #endif
 
     gUnitDef2.xPosition = proc->x;
