@@ -228,7 +228,10 @@ u8 Rally_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 
 static void callback_anim(ProcPtr proc)
 {
-	StartLightRuneAnim(proc, gActiveUnit->xPos, gActiveUnit->yPos);
+	PlaySoundEffect(0x269);
+	Proc_StartBlocking(ProcScr_DanceringAnim, proc);
+
+    BG_SetPosition(BG_0, -SCREEN_TILE_IX(gActiveUnit->xPos - 1), -SCREEN_TILE_IX(gActiveUnit->yPos - 2));
 }
 
 static void callback_exec(ProcPtr proc)
