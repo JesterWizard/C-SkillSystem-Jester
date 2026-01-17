@@ -186,14 +186,6 @@ const int laguzPairs[77][2] = {
     { CLASS_PIRATE, CLASS_TARVOS },
 };
 
-const int gNewSummonConfig[5][2] = {
-    { CHARACTER_EWAN, CHARACTER_MONSTER_BD, },
-    { CHARACTER_KNOLL, CHARACTER_MONSTER_BD },
-    { CHARACTER_LYON_CC, CHARACTER_MONSTER_BD },
-    { CHARACTER_EIRIKA, CHARACTER_SUMMON_EWAN },
-    { CHARACTER_SETH, CHARACTER_MONSTER_BD},
-};
-
 const int statScreenDenyClasses[2] = {
     CLASS_GORGONEGG, 
     CLASS_GORGONEGG2, 

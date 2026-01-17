@@ -425,6 +425,10 @@ void GenerateSummonUnitDef(void)
             else
                 unit->ranks[ITYPE_AXE] = WPN_EXP_A;
         }
+
+        /* This is for gpKernelDesignerConfig->summons_gain_exp */
+        /* Store the summoner index in an unused byte slot for tramsferring EXP */
+        unit->ranks[ITYPE_STAFF] = gActiveUnit->index;
     }
 #endif
 }

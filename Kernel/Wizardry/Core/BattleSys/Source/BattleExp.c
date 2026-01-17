@@ -257,10 +257,11 @@ void ModifyUnitSpecialExp(struct Unit* actor, struct Unit* target, int* exp) {
         if (target->curHP == 0)
             *exp = 0;
 
-#ifndef CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
-    if (actor->pClassData->number == CLASS_PHANTOM)
-        *exp = 0;
-#endif
+    if (gpKernelDesignerConfig->summons_gain_exp != true)
+    {
+        if (actor->pClassData->number == CLASS_PHANTOM)
+            *exp = 0;
+    }
 }
 
 int GetBattleUnitExpGainRework(struct BattleUnit* actor, struct BattleUnit* target)
@@ -367,15 +368,40 @@ void BattleApplyItemExpGains(void)
 LYN_REPLACE_CHECK(BattleApplyExpGains);
 void BattleApplyExpGains(void)
 {
-
-#ifdef CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
-    InitBattleUnit(&gBattleActor, GetUnit(CHARACTER_EIRIKA + 1));
-#endif
-
     if (!(gPlaySt.chapterStateBits & PLAY_FLAG_EXTRA_MAP))
     {
         bool actorBlue  = (UNIT_FACTION(&gBattleActor.unit)  == FACTION_BLUE);
         bool targetBlue = (UNIT_FACTION(&gBattleTarget.unit) == FACTION_BLUE);
+
+        if (gpKernelDesignerConfig->summons_gain_exp == true)
+        {
+            switch (gBattleActor.unit.pCharacterData->number) 
+            {
+                case CHARACTER_SUMMON_EWAN:
+                case CHARACTER_SUMMON_LYON:
+                case CHARACTER_SUMMON_KNOLL:
+                    if (actorBlue)
+                    {
+                        /* This is causing problems with the summoner becoming the one that fights */
+                        /* Also they are only gaining 1 EXP */
+                        InitBattleUnit(&gBattleActor, GetUnit(gBattleActor.unit.ranks[ITYPE_STAFF]));
+                        gBattleActor.expGain = GetBattleUnitExpGainRework(&gBattleActor, &gBattleTarget);
+                        gBattleActor.unit.exp += gBattleActor.expGain;
+                        CheckBattleUnitLevelUp(&gBattleActor);
+                    }
+                    else
+                    {
+                        /* This is causing problems with the summoner becoming the one that fights */
+                        /* Also they are only gaining 1 EXP */
+                        InitBattleUnit(&gBattleTarget, GetUnit(gBattleTarget.unit.ranks[ITYPE_STAFF]));
+                        gBattleTarget.expGain = GetBattleUnitExpGainRework(&gBattleTarget, &gBattleActor);
+                        gBattleTarget.unit.exp += gBattleTarget.expGain;
+                        CheckBattleUnitLevelUp(&gBattleTarget); 
+                    }
+                    break;
+            }
+        }
+
 
         if (actorBlue && gBattleActor.unit.exp != UNIT_EXP_DISABLED)
         {

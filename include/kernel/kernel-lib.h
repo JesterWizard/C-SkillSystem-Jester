@@ -63,6 +63,7 @@ struct KernelDesigerConfig {
 	u8 stat_page_gaiden_magic;
 	u8 stat_page_personal_info;
 	u8 stat_page_promotions;
+	u8 summons_gain_exp;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
