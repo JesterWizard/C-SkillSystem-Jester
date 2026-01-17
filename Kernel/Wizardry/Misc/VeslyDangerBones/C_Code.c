@@ -1,4 +1,5 @@
 #include "C_Code.h"
+#include "common-chax.h"
 
 #define brk asm("mov r11, r11");
 #define DangerBonesBufferSize 0x2878
@@ -365,4 +366,28 @@ void FinishDangerBonesRange(void) // if proc didn't finish yet, calc the rest no
         proc->id = 0xC0;
     }
     GenerateDangerBonesRangeAll(id);
+}
+
+LYN_REPLACE_CHECK(RenderBmMap);
+void RenderBmMap(void) {
+    int ix, iy;
+
+    gBmSt.mapRenderOrigin.x = gBmSt.camera.x >> 4;
+    gBmSt.mapRenderOrigin.y = gBmSt.camera.y >> 4;
+
+    for (iy = (10 - 1); iy >= 0; --iy)
+        for (ix = (15 - 1); ix >= 0; --ix)
+            DisplayBmTile(gBG3TilemapBuffer, ix, iy,
+                (short) gBmSt.mapRenderOrigin.x + ix, (short) gBmSt.mapRenderOrigin.y + iy);
+
+    BG_EnableSyncByMask(1 << 3);
+    BG_SetPosition(3, 0, 0);
+
+    gLCDControlBuffer.dispcnt.bg0_on = TRUE;
+    gLCDControlBuffer.dispcnt.bg1_on = TRUE;
+    gLCDControlBuffer.dispcnt.bg2_on = TRUE;
+    gLCDControlBuffer.dispcnt.bg3_on = TRUE;
+    gLCDControlBuffer.dispcnt.obj_on = TRUE;
+
+    StartDangerBonesRange();
 }

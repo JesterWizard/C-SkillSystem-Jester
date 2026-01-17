@@ -2768,7 +2768,7 @@ static inline u8 CanUnitAttackNow(struct Unit* unit, bool ignoreCanto)
             continue;
 
         MakeTargetListForWeapon(unit, item);
-        
+
         if (GetSelectTargetCount() == 0)
             continue;
 

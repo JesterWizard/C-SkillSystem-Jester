@@ -807,7 +807,7 @@ void ekrBattle_PostDragonStatusEffect(struct ProcEkrBattle * proc);
 void nullsub_69(struct ProcEkrBattle * proc);
 void NewEkrLvlupFan(void);
 void EkrLvupFanMain(struct ProcEkrLvupFan * proc);
-// ??? sub_8050E40(???);
+void sub_8050E40(void *_src, void *_dst);
 // ??? ModDec(???);
 void NewEkrGauge(void);
 void EndEkrGauge(void);
