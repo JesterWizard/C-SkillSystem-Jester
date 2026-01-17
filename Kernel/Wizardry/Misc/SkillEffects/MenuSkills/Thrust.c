@@ -30,7 +30,7 @@ u8 Thrust_Usability(const struct MenuItemDef * def, int number)
      * Since we can't use gBattleStats.range at this point, we check to
      * see if there are any adjacent enemies instead
      */
-    for (i = 0; i < ARRAY_COUNT_RANGE10x10; i++)
+    for (i = 0; i < ARRAY_COUNT_RANGE5x5; i++)
     {
         int _x = gActiveUnit->xPos + gVecs_1x1[i].x;
         int _y = gActiveUnit->yPos + gVecs_1x1[i].y;
@@ -52,10 +52,7 @@ u8 Thrust_Usability(const struct MenuItemDef * def, int number)
     if (!enemies)
         return MENU_NOTSHOWN;
 
-    if (AttackCommandUsability(def, number) == MENU_ENABLED)
-        return MENU_ENABLED;
-
-    return MENU_NOTSHOWN;
+    return MENU_ENABLED;
 }
 
 u8 Thrust_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)

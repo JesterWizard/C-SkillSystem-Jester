@@ -1445,7 +1445,7 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 #endif
 
 #if (defined(SID_Thrust) && COMMON_SKILL_VALID(SID_Thrust))
-    [SID_Thrust] = {{10}},
+    [SID_Thrust] = {{5}},
 #endif
 
 #if (defined(SID_SPConversion) && COMMON_SKILL_VALID(SID_SPConversion))
