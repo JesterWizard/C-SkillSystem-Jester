@@ -331,24 +331,24 @@ void ManimLevelUp_InitMainScreen(struct ManimLevelUpProc* proc)
 {
 	int i;
 
-	// #ifdef CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
-	//    switch (proc->actor_id) {
-	// 	case CHARACTER_SUMMON_EWAN:
-	// 	   for (int i = 0; i < ARRAY_COUNT(gNewSummonConfig); i ++)
-	// 	   {
-	// 		 if (proc->actor_id == gNewSummonConfig[i][1])
-	// 		 {
-	// 		    proc->actor_id = gNewSummonConfig[i][0];
-	// 			break;
-	// 		 }
-	// 	   }
-	//    }
+	#ifdef CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
+	   switch (proc->actor_id) {
+		case CHARACTER_SUMMON_EWAN:
+		   for (int i = 0; i < ARRAY_COUNT(gNewSummonConfig); i ++)
+		   {
+			 if (proc->actor_id == gNewSummonConfig[i][1])
+			 {
+			    proc->actor_id = gNewSummonConfig[i][0];
+				break;
+			 }
+		   }
+	   }
 
-	//    gManimSt.actor[proc->actor_id].unit = GetUnit(CHARACTER_EIRIKA + 1);
-	//    //InitBattleUnit(&gBattleActor, GetUnit(CHARACTER_EIRIKA + 1));
-	//    gManimSt.actor[proc->actor_id].bu = &gBattleActor;
-	//    gManimSt.actor[proc->actor_id].mu = StartMu(GetUnit(CHARACTER_EIRIKA + 1));
-	// #endif
+	   gManimSt.actor[proc->actor_id].unit = GetUnit(CHARACTER_EIRIKA + 1);
+	   //InitBattleUnit(&gBattleActor, GetUnit(CHARACTER_EIRIKA + 1));
+	   gManimSt.actor[proc->actor_id].bu = &gBattleActor;
+	   gManimSt.actor[proc->actor_id].mu = StartMu(GetUnit(CHARACTER_EIRIKA + 1));
+	#endif
 
 	ResetTextFont();
 	BG_Fill(gBG0TilemapBuffer, 0);

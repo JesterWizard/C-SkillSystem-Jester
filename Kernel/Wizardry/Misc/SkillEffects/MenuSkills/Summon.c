@@ -46,6 +46,8 @@ u8 SummonSelection_OnSelect(ProcPtr proc, struct SelectTarget* target) {
     gActionData.xOther = target->x;
     gActionData.yOther = target->y;
 
+    gActionData.unk08 = SID_Summon;
+
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
@@ -273,12 +275,14 @@ void GenerateSummonUnitDef(void)
         gActionData.unk08 = 0;
 
     }
-    else
+#endif
+#if defined(SID_Summon) && defined(SID_Summon)
+    if (gActionData.unk08 == SID_Summon)
     {
         // 1. Find summoner number from active unit
         summonerNum = -1;
-        for (i = 0; i < (short)ARRAY_COUNT(gSummonConfig); ++i) {
-            if (UNIT_CHAR_ID(gActiveUnit) == gSummonConfig[i][0]) {
+        for (i = 0; i < (short)ARRAY_COUNT(gNewSummonConfig); ++i) {
+            if (UNIT_CHAR_ID(gActiveUnit) == gNewSummonConfig[i][0]) {
                 summonerNum = i;
                 break;
             }
@@ -295,7 +299,7 @@ void GenerateSummonUnitDef(void)
                 struct Unit* unit = GetUnit(i);
 
                 if (UNIT_IS_VALID(unit)) {
-                    if (UNIT_CHAR_ID(unit) == gSummonConfig[summonerNum][1])
+                    if (UNIT_CHAR_ID(unit) == gNewSummonConfig[summonerNum][1])
                         ClearUnit(unit);
                 }
             }
@@ -305,7 +309,7 @@ void GenerateSummonUnitDef(void)
         unit = NULL;
 
         // 3.1. Character/Class/Faction/Level/Position
-        gUnitDef1.charIndex       = gSummonConfig[summonerNum][1];
+        gUnitDef1.charIndex       = gNewSummonConfig[summonerNum][1];
         gUnitDef1.classIndex      = CLASS_PHANTOM;
         gUnitDef1.leaderCharIndex = CHARACTER_NONE;
         gUnitDef1.autolevel       = TRUE;
@@ -371,7 +375,7 @@ void GenerateSummonUnitDef(void)
             gUnitDef1.ai[i] = 0;
 
         // 4. Load unit
-        unit = GetUnitFromCharId(gSummonConfig[summonerNum][1]);
+        unit = GetUnitFromCharId(gNewSummonConfig[summonerNum][1]);
 
         if (unit == NULL) {
             struct BattleUnit bu = gBattleActor;
@@ -380,7 +384,7 @@ void GenerateSummonUnitDef(void)
         }
 
         // 5. Set level and weapon ranks
-        unit = GetUnitFromCharId(gSummonConfig[summonerNum][1]);
+        unit = GetUnitFromCharId(gNewSummonConfig[summonerNum][1]);
 
         for (i = 0; i < 4; ++i)
             unit->ranks[i] = 0;
