@@ -203,326 +203,229 @@ u8 SummonPlusCommandEffect(struct MenuProc* menu, struct MenuItemProc* menuItem)
 }
 #endif
 
+#define PHANTOM_COUNT 3
+
+static const u8 sPhantomCharIds[PHANTOM_COUNT] = {
+    CHARACTER_SUMMON_EWAN,
+    CHARACTER_SUMMON_KNOLL,
+    CHARACTER_SUMMON_LYON,
+};
+
+static struct Unit* FindOrSelectPhantom(struct Unit* summoner)
+{
+    int i, j;
+    struct Unit* found[PHANTOM_COUNT] = { NULL };
+
+    // Collect existing phantoms for this faction
+    for (i = 1; i < 0x40; ++i) {
+        struct Unit* unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        if (UNIT_FACTION(unit) != UNIT_FACTION(summoner))
+            continue;
+
+        for (j = 0; j < PHANTOM_COUNT; ++j) {
+            if (UNIT_CHAR_ID(unit) == sPhantomCharIds[j]) {
+                found[j] = unit;
+                break;
+            }
+        }
+    }
+
+    // Prefer unused phantom IDs
+    for (i = 0; i < PHANTOM_COUNT; ++i) {
+        if (found[i] == NULL)
+            return NULL; // means this phantom ID is free
+    }
+
+    // All are used — replace the oldest (lowest deployment ID)
+    for (i = 1; i < 0x40; ++i) {
+        struct Unit* unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        if (UNIT_FACTION(unit) != UNIT_FACTION(summoner))
+            continue;
+
+        for (j = 0; j < PHANTOM_COUNT; ++j) {
+            if (UNIT_CHAR_ID(unit) == sPhantomCharIds[j])
+                return unit;
+        }
+    }
+
+    return NULL;
+}
+
 LYN_REPLACE_CHECK(GenerateSummonUnitDef);
 void GenerateSummonUnitDef(void)
 {
     u8 rand100 = DivRem(AdvanceGetLCGRNValue(), 101);
-
     struct Unit* unit;
-    short summonerNum, i;
+    int i;
 
-#if defined(SID_SummonPlus) && defined(SID_SummonPlus)
+#if defined(SID_SummonPlus)
     if (gActionData.unk08 == SID_SummonPlus)
     {
-        // 1. Find summoner number from active unit
-        summonerNum = -1;
-        for (i = 0; i < (short)ARRAY_COUNT(gNewSummonConfig); ++i) {
-            if (UNIT_CHAR_ID(gActiveUnit) == gNewSummonConfig[i][0]) {
-                summonerNum = i;
+        struct Unit* replace = FindOrSelectPhantom(gActiveUnit);
+        u8 charId = 0;
+
+        // Pick first unused phantom ID
+        for (i = 0; i < PHANTOM_COUNT; ++i) {
+            if (GetUnitFromCharId(sPhantomCharIds[i]) == NULL) {
+                charId = sPhantomCharIds[i];
                 break;
             }
         }
 
-        if (summonerNum == -1)
+        // Otherwise replace one
+        if (charId == 0 && replace) {
+            charId = UNIT_CHAR_ID(replace);
+            ClearUnit(replace);
+        }
+
+        if (charId == 0)
             return;
-            
-        gUnitDef1.charIndex       = gNewSummonConfig[summonerNum][1];
+
+        gUnitDef1.charIndex       = charId;
         gUnitDef1.classIndex      = gEventSlots[EVT_SLOT_7];
         gUnitDef1.leaderCharIndex = CHARACTER_NONE;
         gUnitDef1.autolevel       = TRUE;
 
         if (UNIT_FACTION(gActiveUnit) == FACTION_BLUE)
-        gUnitDef1.allegiance = 0;
-
-        else if (UNIT_FACTION(gActiveUnit) == FACTION_RED)
-            gUnitDef1.allegiance = 2;
-
+            gUnitDef1.allegiance = 0;
         else if (UNIT_FACTION(gActiveUnit) == FACTION_GREEN)
             gUnitDef1.allegiance = 1;
+        else
+            gUnitDef1.allegiance = 2;
 
-        gUnitDef1.level           = gActiveUnit->level;
-        gUnitDef1.xPosition       = gActionData.xOther;
-        gUnitDef1.yPosition       = gActionData.yOther;
-        gUnitDef1.redaCount       = 0;
-        gUnitDef1.redas           = NULL;
-        gUnitDef1.genMonster      = FALSE;
-        gUnitDef1.itemDrop        = FALSE;
+        gUnitDef1.level     = gActiveUnit->level;
+        gUnitDef1.xPosition = gActionData.xOther;
+        gUnitDef1.yPosition = gActionData.yOther;
+        gUnitDef1.redaCount = 0;
+        gUnitDef1.redas     = NULL;
+        gUnitDef1.genMonster = FALSE;
+        gUnitDef1.itemDrop   = FALSE;
 
-        int i;
-        for (i = 1; i < 0x40; ++i) {
-            struct Unit* unit = GetUnit(i);
-
-            if (UNIT_IS_VALID(unit)) {
-                if (UNIT_CHAR_ID(unit) == gNewSummonConfig[summonerNum][1])
-                    ClearUnit(unit);
-            }
-        }
+        for (i = 0; i < UNIT_DEFINITION_ITEM_COUNT; ++i)
+            gUnitDef1.items[i] = ITEM_NONE;
 
         gUnitDef1.items[0] = gEventSlots[EVT_SLOT_8];
 
-        unit = GetUnitFromCharId(gNewSummonConfig[summonerNum][1]);
-
-        if (unit == NULL) {
+        {
             struct BattleUnit bu = gBattleActor;
             LoadUnits(&gUnitDef1);
             gBattleActor = bu;
         }
 
-        unit->level = gActiveUnit->level;
-        unit->exp   = UNIT_EXP_DISABLED;
+        unit = GetUnitFromCharId(charId);
+        if (unit) {
+            unit->level = gActiveUnit->level;
+            unit->exp   = UNIT_EXP_DISABLED;
+        }
 
-        /* Prevent other menus from freezing because of our little dpad hack in ProcessMenuDpadInput */
         gActionData.unk08 = 0;
-
+        return;
     }
 #endif
-#if defined(SID_Summon) && defined(SID_Summon)
+
+#if defined(SID_Summon)
     if (gActionData.unk08 == SID_Summon)
     {
-        // 1. Find summoner number from active unit
-        summonerNum = -1;
-        for (i = 0; i < (short)ARRAY_COUNT(gNewSummonConfig); ++i) {
-            if (UNIT_CHAR_ID(gActiveUnit) == gNewSummonConfig[i][0]) {
-                summonerNum = i;
+        struct Unit* replace = FindOrSelectPhantom(gActiveUnit);
+        u8 charId = 0;
+
+        for (i = 0; i < PHANTOM_COUNT; ++i) {
+            if (GetUnitFromCharId(sPhantomCharIds[i]) == NULL) {
+                charId = sPhantomCharIds[i];
                 break;
             }
         }
 
-        if (summonerNum == -1)
-            return;
-
-        // 2. Clear existing summon
-        // NOTE: this may have been a macro? (because of different i and unit?)
-        {
-            int i;
-            for (i = 1; i < 0x40; ++i) {
-                struct Unit* unit = GetUnit(i);
-
-                if (UNIT_IS_VALID(unit)) {
-                    if (UNIT_CHAR_ID(unit) == gNewSummonConfig[summonerNum][1])
-                        ClearUnit(unit);
-                }
-            }
+        if (charId == 0 && replace) {
+            charId = UNIT_CHAR_ID(replace);
+            ClearUnit(replace);
         }
 
-        // 3. Set up unit definition
-        unit = NULL;
+        if (charId == 0)
+            return;
 
-        // 3.1. Character/Class/Faction/Level/Position
-        gUnitDef1.charIndex       = gNewSummonConfig[summonerNum][1];
+        gUnitDef1.charIndex       = charId;
         gUnitDef1.classIndex      = CLASS_PHANTOM;
         gUnitDef1.leaderCharIndex = CHARACTER_NONE;
         gUnitDef1.autolevel       = TRUE;
 
         if (UNIT_FACTION(gActiveUnit) == FACTION_BLUE)
             gUnitDef1.allegiance = 0;
-
-        else if (UNIT_FACTION(gActiveUnit) == FACTION_RED)
-            gUnitDef1.allegiance = 2;
-
         else if (UNIT_FACTION(gActiveUnit) == FACTION_GREEN)
             gUnitDef1.allegiance = 1;
+        else
+            gUnitDef1.allegiance = 2;
 
-        gUnitDef1.level = gActiveUnit->level;
-
+        gUnitDef1.level     = gActiveUnit->level;
         gUnitDef1.xPosition = gActionData.xOther;
         gUnitDef1.yPosition = gActionData.yOther;
-
         gUnitDef1.redaCount = 0;
-        gUnitDef1.redas = NULL;
-
+        gUnitDef1.redas     = NULL;
         gUnitDef1.genMonster = FALSE;
-        gUnitDef1.itemDrop = FALSE;
+        gUnitDef1.itemDrop   = FALSE;
 
-        // 3.2. Items (generated from random number)
         for (i = 0; i < UNIT_DEFINITION_ITEM_COUNT; ++i)
             gUnitDef1.items[i] = ITEM_NONE;
 
+        // Vanilla weapon logic
         if (gActiveUnit->level <= 5)
             gUnitDef1.items[0] = ITEM_AXE_IRON;
-        else if (gActiveUnit->level <= 10) {
-            if (rand100 < 6)
-                gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-            else
-                gUnitDef1.items[0] = ITEM_AXE_IRON;
-        }
+        else if (gActiveUnit->level <= 10)
+            gUnitDef1.items[0] = (rand100 < 6) ? ITEM_AXE_DEVIL : ITEM_AXE_IRON;
         else if (gActiveUnit->level <= 15) {
             if (rand100 < 6)
                 gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-
-            else if (rand100 >= 6 && rand100 < 26)
+            else if (rand100 < 26)
                 gUnitDef1.items[0] = ITEM_AXE_KILLER;
-
             else
                 gUnitDef1.items[0] = ITEM_AXE_IRON;
         }
-        else if (gActiveUnit->level <= 20) {
+        else {
             if (rand100 < 6)
                 gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-
-            else if (rand100 >= 6 && rand100 < 26)
+            else if (rand100 < 26)
                 gUnitDef1.items[0] = ITEM_AXE_KILLER;
-
-            else if (rand100 >= 26 && rand100 < 37)
+            else if (rand100 < 37)
                 gUnitDef1.items[0] = ITEM_AXE_TOMAHAWK;
-
             else
                 gUnitDef1.items[0] = ITEM_AXE_IRON;
         }
 
-        // 3.3. Ai (is null)
         for (i = 0; i < 4; ++i)
             gUnitDef1.ai[i] = 0;
 
-        // 4. Load unit
-        unit = GetUnitFromCharId(gNewSummonConfig[summonerNum][1]);
-
-        if (unit == NULL) {
+        {
             struct BattleUnit bu = gBattleActor;
             LoadUnits(&gUnitDef1);
             gBattleActor = bu;
         }
 
-        // 5. Set level and weapon ranks
-        unit = GetUnitFromCharId(gNewSummonConfig[summonerNum][1]);
+        unit = GetUnitFromCharId(charId);
+        if (unit) {
+            for (i = 0; i < 4; ++i)
+                unit->ranks[i] = 0;
 
-        for (i = 0; i < 4; ++i)
-            unit->ranks[i] = 0;
+            unit->level = gActiveUnit->level;
+            unit->exp   = UNIT_EXP_DISABLED;
 
-        unit->level = gActiveUnit->level;
-        unit->exp   = UNIT_EXP_DISABLED;
-
-        if (gActiveUnit->level <= 5)
-            unit->ranks[ITYPE_AXE] = WPN_EXP_D;
-        else if (gActiveUnit->level <= 10)
-            unit->ranks[ITYPE_AXE] = WPN_EXP_C;
-        else if (gActiveUnit->level <= 15)
-            unit->ranks[ITYPE_AXE] = WPN_EXP_B;
-        else if (gActiveUnit->level <= 20)
-            unit->ranks[ITYPE_AXE] = WPN_EXP_A;
-    }
-#else
-    // 1. Find summoner number from active unit
-    summonerNum = -1;
-    for (i = 0; i < (short)ARRAY_COUNT(gSummonConfig); ++i) {
-        if (UNIT_CHAR_ID(gActiveUnit) == gSummonConfig[i][0]) {
-            summonerNum = i;
-            break;
+            if (gActiveUnit->level <= 5)
+                unit->ranks[ITYPE_AXE] = WPN_EXP_D;
+            else if (gActiveUnit->level <= 10)
+                unit->ranks[ITYPE_AXE] = WPN_EXP_C;
+            else if (gActiveUnit->level <= 15)
+                unit->ranks[ITYPE_AXE] = WPN_EXP_B;
+            else
+                unit->ranks[ITYPE_AXE] = WPN_EXP_A;
         }
     }
-
-    if (summonerNum == -1)
-        return;
-
-    // 2. Clear existing summon
-    // NOTE: this may have been a macro? (because of different i and unit?)
-    {
-        int i;
-        for (i = 1; i < 0x40; ++i) {
-            struct Unit* unit = GetUnit(i);
-
-            if (UNIT_IS_VALID(unit)) {
-                if (UNIT_CHAR_ID(unit) == gSummonConfig[summonerNum][1])
-                    ClearUnit(unit);
-            }
-        }
-    }
-
-    // 3. Set up unit definition
-    unit = NULL;
-
-    // 3.1. Character/Class/Faction/Level/Position
-    gUnitDef1.charIndex       = gSummonConfig[summonerNum][1];
-    gUnitDef1.classIndex      = CLASS_PHANTOM;
-    gUnitDef1.leaderCharIndex = CHARACTER_NONE;
-    gUnitDef1.autolevel       = TRUE;
-
-    if (UNIT_FACTION(gActiveUnit) == FACTION_BLUE)
-        gUnitDef1.allegiance = 0;
-
-    else if (UNIT_FACTION(gActiveUnit) == FACTION_RED)
-        gUnitDef1.allegiance = 2;
-
-    else if (UNIT_FACTION(gActiveUnit) == FACTION_GREEN)
-        gUnitDef1.allegiance = 1;
-
-    gUnitDef1.level = gActiveUnit->level;
-
-    gUnitDef1.xPosition = gActionData.xOther;
-    gUnitDef1.yPosition = gActionData.yOther;
-
-    gUnitDef1.redaCount = 0;
-    gUnitDef1.redas = NULL;
-
-    gUnitDef1.genMonster = FALSE;
-    gUnitDef1.itemDrop = FALSE;
-
-    // 3.2. Items (generated from random number)
-    for (i = 0; i < UNIT_DEFINITION_ITEM_COUNT; ++i)
-        gUnitDef1.items[i] = ITEM_NONE;
-
-    if (gActiveUnit->level <= 5)
-        gUnitDef1.items[0] = ITEM_AXE_IRON;
-    else if (gActiveUnit->level <= 10) {
-        if (rand100 < 6)
-            gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-        else
-            gUnitDef1.items[0] = ITEM_AXE_IRON;
-    }
-    else if (gActiveUnit->level <= 15) {
-        if (rand100 < 6)
-            gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-
-        else if (rand100 >= 6 && rand100 < 26)
-            gUnitDef1.items[0] = ITEM_AXE_KILLER;
-
-        else
-            gUnitDef1.items[0] = ITEM_AXE_IRON;
-    }
-    else if (gActiveUnit->level <= 20) {
-        if (rand100 < 6)
-            gUnitDef1.items[0] = ITEM_AXE_DEVIL;
-
-        else if (rand100 >= 6 && rand100 < 26)
-            gUnitDef1.items[0] = ITEM_AXE_KILLER;
-
-        else if (rand100 >= 26 && rand100 < 37)
-            gUnitDef1.items[0] = ITEM_AXE_TOMAHAWK;
-
-        else
-            gUnitDef1.items[0] = ITEM_AXE_IRON;
-    }
-
-    // 3.3. Ai (is null)
-    for (i = 0; i < 4; ++i)
-        gUnitDef1.ai[i] = 0;
-
-    // 4. Load unit
-    unit = GetUnitFromCharId(gSummonConfig[summonerNum][1]);
-
-    if (unit == NULL) {
-        struct BattleUnit bu = gBattleActor;
-        LoadUnits(&gUnitDef1);
-        gBattleActor = bu;
-    }
-
-    // 5. Set level and weapon ranks
-    unit = GetUnitFromCharId(gSummonConfig[summonerNum][1]);
-
-    for (i = 0; i < 4; ++i)
-        unit->ranks[i] = 0;
-
-    unit->level = gActiveUnit->level;
-    unit->exp   = UNIT_EXP_DISABLED;
-
-    if (gActiveUnit->level <= 5)
-        unit->ranks[ITYPE_AXE] = WPN_EXP_D;
-    else if (gActiveUnit->level <= 10)
-        unit->ranks[ITYPE_AXE] = WPN_EXP_C;
-    else if (gActiveUnit->level <= 15)
-        unit->ranks[ITYPE_AXE] = WPN_EXP_B;
-    else if (gActiveUnit->level <= 20)
-        unit->ranks[ITYPE_AXE] = WPN_EXP_A;
 #endif
 }
 
