@@ -9,13 +9,15 @@
 #include "action-expa.h"
 #include "jester_headers/class-pairs.h"
 
+#if (defined(SID_Doppleganger) && (COMMON_SKILL_VALID(SID_Doppleganger)))
+
 u8 Doppleganger_Usability(const struct MenuItemDef * def, int number)
 {
     if (gActiveUnit->state & US_CANTOING)
         return MENU_NOTSHOWN;
 
     if (!HasSelectTarget(gActiveUnit, MakeTargetListForBarrier))
-        return MENU_DISABLED;
+        return MENU_NOTSHOWN;
 
     return MENU_ENABLED;
 }
@@ -32,9 +34,7 @@ static u8 Doppleganger_OnSelectTarget(ProcPtr proc, struct SelectTarget * target
     BG_Fill(gBG2TilemapBuffer, 0);
     BG_EnableSyncByMask(BG2_SYNC_BIT);
 
-#if (defined(SID_Doppleganger) && (COMMON_SKILL_VALID(SID_Doppleganger)))
     gActionData.unk08 = SID_Doppleganger;
-#endif
     gActionData.unitActionType = CONFIG_UNIT_ACTION_EXPA_ExecSkill;
 
     return TARGETSELECTION_ACTION_ENDFAST | TARGETSELECTION_ACTION_END | TARGETSELECTION_ACTION_SE_6A |
@@ -72,15 +72,10 @@ static void callback_anim(ProcPtr proc)
 
 static void callback_exec(ProcPtr proc)
 {
-#if (defined(SID_Doppleganger) && (COMMON_SKILL_VALID(SID_Doppleganger)))
-    for (int i = 0; i < (int)ARRAY_COUNT(dopplegangerPairs); i++)
-        if (gActiveUnit->pCharacterData->number == dopplegangerPairs[i][0])
-        {
-            gActiveUnit->pClassData = GetUnit(gActionData.targetIndex)->pClassData;
-            gActionDataExpa.refrain_action = true;
-            EndAllMus();
-        }
-#endif
+    gActiveUnit->ballistaIndex = gActiveUnit->pClassData->number;
+    gActiveUnit->pClassData = GetUnit(gActionData.targetIndex)->pClassData;
+    gActionDataExpa.refrain_action = true;
+    EndAllMus();
 }
 
 bool Action_Doppleganger(ProcPtr parent)
@@ -88,3 +83,4 @@ bool Action_Doppleganger(ProcPtr parent)
     NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
     return true;
 }
+#endif

@@ -102,10 +102,6 @@ const int dismountPairs[14][2] = {
     { CLASS_WYVERN_LORD_F, CLASS_SOLDIER },
 };
 
-const int dopplegangerPairs[1][2] = {
-    { CHARACTER_EIRIKA, CLASS_EIRIKA_LORD },
-};
-
 const int laguzPairs[77][2] = {
     { CLASS_EIRIKA_LORD, CLASS_BONEWALKER},
     { CLASS_EIRIKA_MASTER_LORD, CLASS_WIGHT },

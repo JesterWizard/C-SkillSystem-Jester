@@ -153,13 +153,10 @@ void ChapterChangeUnitCleanup(void)
 #if defined(SID_Doppleganger) && (COMMON_SKILL_VALID(SID_Doppleganger))
         if (SkillTester(unit, SID_Doppleganger))
         {
-            for (int i = 0; i < (int)ARRAY_COUNT(dopplegangerPairs); i++)
+            if (unit->ballistaIndex > 0)
             {
-                if (unit->pCharacterData->number == dopplegangerPairs[i][0])
-                {
-                    unit->pClassData = GetClassData(dopplegangerPairs[i][1]);
-                    break;
-                }
+                unit->pClassData = GetClassData(unit->ballistaIndex);
+                break;
             }
         }
 #endif

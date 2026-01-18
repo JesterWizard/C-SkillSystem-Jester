@@ -4,14 +4,14 @@
 
 /*
 ** If CONFIG_TURN_ALL_SKILLS_ON is enabled
-** then you are limited to 5 skills here, otherwise it's 7
-** You can only have one skill learned per level, 0 being the exception
+** then you are limited to 6 skills here, otherwise it's 7
+** You can only have one skill learned per 5 levels, 0 being the exception
 */
 
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
     [CHARACTER_EIRIKA] = {{
-        [0] = SID_Transform,
+        [0] = SID_Doppleganger,
     }},
     // 02
     [CHARACTER_SETH] = {{
