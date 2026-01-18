@@ -55,12 +55,14 @@ static void callback_exec(ProcPtr proc)
             SetUnitStatDebuff(gActiveUnit, UNIT_STAT_BUFF_TRANSFORM);
             gActiveUnit->curHP += 7;
             gActiveUnit->maxHP += 7;
+            break;
         }
         else if (gActiveUnit->pClassData->number == transformationPairs[i][1])
         {
             gActiveUnit->pClassData = GetClassData(transformationPairs[i][0]);
             ClearUnitStatDebuff(gActiveUnit, UNIT_STAT_BUFF_TRANSFORM);
             gActiveUnit->maxHP -= 7;
+            break;
         }
     }
 }
