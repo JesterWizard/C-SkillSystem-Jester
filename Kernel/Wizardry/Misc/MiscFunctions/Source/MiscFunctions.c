@@ -2149,12 +2149,7 @@ void PutSubtitleHelpText(struct SubtitleHelpProc* proc, int y)
     for (i = 0; i < 9; i++) {
         int x = (i * 32) - 32 + proc->textOffset;
         int index = k_umod((proc->textNum + i), proc->textCount);
-        /* JESTER - Ensure the subtitle text doesn't overlap with extended item descriptions */
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-        PutSprite(2, x, y, gObject_32x16, 0x4300 + lut[index]);
-#else
         PutSprite(2, x, y, gObject_32x16, 0x4240 + lut[index]);
-#endif
     }
     return;
 }
@@ -2168,12 +2163,7 @@ void InitSubtitleHelpText(struct SubtitleHelpProc* proc)
 
     iter = proc->string;
 
-    /* JESTER - Ensure the subtitle text doesn't overlap with extended item descriptions */
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    InitSpriteTextFont(&proc->font, OBJ_VRAM0 + 0x6000, 0x14);
-#else
     InitSpriteTextFont(&proc->font, OBJ_VRAM0 + 0x4800, 0x14);
-#endif
 
     SetTextFontGlyphs(1);
 
