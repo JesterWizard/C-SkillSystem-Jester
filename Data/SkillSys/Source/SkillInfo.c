@@ -8569,6 +8569,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Necromancy) && COMMON_SKILL_VALID(SID_Necromancy))
+    [SID_Necromancy] = {
+        .name = MSG_SKILL_Necromancy_NAME,
+        .desc = MSG_SKILL_Necromancy_DESC,
+        .capacity = MSG_SKILL_Necromancy_CAPACITY,
+        .price = MSG_SKILL_Necromancy_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 #if (defined(SID_Caltrops) && COMMON_SKILL_VALID(SID_Caltrops))
     [SID_Caltrops] = {
         .name = MSG_SKILL_Caltrops_NAME,

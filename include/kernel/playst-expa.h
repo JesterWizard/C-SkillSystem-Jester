@@ -32,6 +32,7 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_Transcendence_Used, 
 	PLAYSTEXPA_BIT_SkillSwap_Used,
 	PLAYSTEXPA_BIT_SkillSwapPlus_Used,
+	PLAYSTEXPA_BIT_Necromancy_Used,
 
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,

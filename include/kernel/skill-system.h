@@ -610,6 +610,8 @@ u8 Gungnir_Usability(const struct MenuItemDef * def, int number);
 u8 Gungnir_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
 u8 Transcendence_Usability(const struct MenuItemDef * def, int number);
 u8 Transcendence_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
+u8 Necromancy_Usability(const struct MenuItemDef* def, int number);
+u8 Necromancy_OnSelected(struct MenuProc* menu, struct MenuItemProc* menuItem);
 
 u8 Transform_Laguz_Usability(const struct MenuItemDef* def, int number);
 u8 Transform_Laguz_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
@@ -693,6 +695,7 @@ bool Action_EmergencyExitPlus(ProcPtr parent);
 bool Action_Songstress(ProcPtr parent);
 bool Action_Gungnir(ProcPtr parent);
 bool Action_Transcendence(ProcPtr parent);
+bool Action_Necromancy(ProcPtr parent);
 
 bool Action_Transform_Laguz(ProcPtr parent);
 

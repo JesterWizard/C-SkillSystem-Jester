@@ -744,3 +744,11 @@ Transcendence[X]
 Transcendence:[N]
 Promote an enemy unit once per map,[N]
 and make their last item droppable.[X]
+
+## MSG_SKILL_Necromancy_NAME
+Necromancy[X]
+## MSG_SKILL_Necromancy_DESC
+Necromancy:[N]
+Sacrifice 20% of current HP to revive[N]
+last unit killed as a green unit.[N]
+Once per map.[X]

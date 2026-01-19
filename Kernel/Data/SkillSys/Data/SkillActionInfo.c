@@ -330,4 +330,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Transcendence) && COMMON_SKILL_VALID(SID_Transcendence))
 	[SID_Transcendence] = Action_Transcendence,
 #endif
+
+#if (defined(SID_Necromancy) && COMMON_SKILL_VALID(SID_Necromancy))
+	[SID_Necromancy] = Action_Necromancy,
+#endif
 };

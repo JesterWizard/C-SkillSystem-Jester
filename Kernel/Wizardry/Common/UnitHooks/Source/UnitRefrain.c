@@ -7,6 +7,7 @@
 #include "bwl.h"
 #include "playst-expa.h"
 #include "unit-expa.h"
+#include "jester_headers/custom-arrays.h"
 #include "jester_headers/class-pairs.h"
 
 typedef int (*UnitRefrainFunc_t)(struct Unit *unit);
@@ -50,6 +51,12 @@ void ChapterChangeUnitCleanup(void)
 #if defined(SID_HedgeFund) && (COMMON_SKILL_VALID(SID_HedgeFund))
     bool hedgeFundActivated = false;
 #endif
+
+    if (gpKernelDesignerConfig->collect_dead_units == true)
+    {
+        // Reset the dead units array
+        memset(gDeadUnits, 0, sizeof(gDeadUnits));
+    }
 
 	// Clear phantoms
 	FOR_UNITS_VALID_FACTION(FACTION_BLUE, unit, {

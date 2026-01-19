@@ -53,3 +53,9 @@ extern const u8 classPromotedWeapons_SP[6];
 extern u8 gUndeployedUnitCount[MAX_UNDEPLOYED_UNIT_COUNT];
 void SaveSuspendUnitList(u8 *dst, const u32 size);
 void LoadSuspendUnitList(u8 *dst, const u32 size);
+
+extern u8 gDeadUnits[50];
+int GetDeadUnitCount(void);
+void AddDeadUnit(u8 unitId);
+u8 GetLastDeadUnit(void);
+
