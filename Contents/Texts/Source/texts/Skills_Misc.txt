@@ -558,6 +558,7 @@ killing an enemy.[X]
 ## MSG_SKILL_Enlightenment_NAME
 Enlightenment[X]
 ## MSG_SKILL_Enlightenment_DESC
+Enlightenment:[N]
 Unit starts the map at max MP[N]
 but cannot gain any.[X]
 
