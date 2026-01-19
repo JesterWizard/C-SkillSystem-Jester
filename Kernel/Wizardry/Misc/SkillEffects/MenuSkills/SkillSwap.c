@@ -514,6 +514,15 @@ void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
     LoadIconPalettes(4); // TODO: palette id constant
 
     SkillSwapTradeMenu_Update(proc);
+    
+    // Draw initial hand cursor and redraw the skill entry underneath it
+    DrawHand(proc->activeSide, proc->leftSelected, false);
+    RedrawSkillAtCursor(proc, proc->activeSide, proc->leftSelected);
+    
+    // Also redraw the first skill in the right menu to ensure it's fully visible
+    if (IsValidSkillSlot(proc->rightUnit, 0)) {
+        RedrawSkillAtCursor(proc, 1, 0);
+    }
 }
 
 u8 SkillSwap_Usability(const struct MenuItemDef * def, int number)
