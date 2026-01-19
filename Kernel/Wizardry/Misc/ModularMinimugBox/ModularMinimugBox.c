@@ -4,6 +4,8 @@
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 
+extern u16 ModularMinimugBox_TileMap[];
+
 static char * fe8_characters[62] = {
     // Main Story Characters
     "Eirika", "Seth", "Franz", "Gilliam", "Moulder", "Vanessa", "Ross", "Garcia", "Neimi", "Colm", "Lute", "Artur",
@@ -29,39 +31,46 @@ void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct 
     buffer[1] = TILEREF(0x121, 2);
     buffer[2] = 0;
     buffer[3] = 0;
-    buffer[4] = TILEREF(0x13E, 2);
-    buffer[5] = 0;
+    buffer[4] = 0;
+    buffer[5] = TILEREF(0x13E, 2);
     buffer[6] = 0;
 
     return;
 }
 
 //! FE8U = 0x0808C45C
-static inline void GetTwoDigits(int value, u8 *hi, u8 *lo, bool forceLeadingZero)
+static inline void GetThreeDigits(int value, u8 *hundreds, u8 *tens, u8 *ones, bool forceHundredsZero, bool forceTensZero)
 {
-    if (value >= 100)
-        StoreNumberStringOrDashesToSmallBuffer(0xFF);
-    else
-        StoreNumberStringOrDashesToSmallBuffer(value);
+    StoreNumberStringOrDashesToSmallBuffer(value);
 
-    *hi = gNumberStr[6] - '0';
-    *lo = gNumberStr[7] - '0';
+    *hundreds = gNumberStr[5] - '0';
+    *tens     = gNumberStr[6] - '0';
+    *ones     = gNumberStr[7] - '0';
 
-    if (forceLeadingZero && value < 10)
-        *hi = 0;
+    if (forceHundredsZero && value < 100)
+        *hundreds = 0;
+
+    if (forceTensZero && value < 10)
+        *tens = 0;
 }
 
-static inline void DrawTwoDigits(int x, int y, u8 hi, u8 lo)
+static inline void DrawThreeDigits(int x, int y, u8 h, u8 t, u8 o)
 {
-    if (hi != (u8)(' ' - '0'))
+    if (h != (u8)(' ' - '0'))
         CallARM_PushToSecondaryOAM(
             x, y, gObject_8x8,
-            hi + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+            h + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+
+    if (t != (u8)(' ' - '0'))
+        CallARM_PushToSecondaryOAM(
+            x + 7, y, gObject_8x8,
+            t + OAM2_CHR(0x2E0) + OAM2_PAL(8));
 
     CallARM_PushToSecondaryOAM(
-        x + 7, y, gObject_8x8,
-        lo + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        x + 14, y, gObject_8x8,
+        o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
 }
+
 
 LYN_REPLACE_CHECK(UnitMapUiUpdate);
 void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
@@ -77,11 +86,7 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
         if (frameCount & 64)
             PutUnitMapUiStatus(proc->statusTm, unit);
         else
-        {
-            GetTwoDigits(GetUnitCurrentHp(unit), &proc->hpCurHi, &proc->hpCurLo, false);
-            GetTwoDigits(GetUnitMaxHp(unit),     &proc->hpMaxHi, &proc->hpMaxLo, false);
             ClearUnitMapUiStatus(proc, proc->statusTm, unit);
-        }
 
         BG_EnableSyncByMask(BG0_SYNC_BIT);
     }
@@ -91,23 +96,43 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
         ((frameCount & 64) && unit->statusIndex != UNIT_STATUS_NONE))
         return;
 
-    /* Base positions */
     int xBase = proc->xHp * 8;
     int yBase = proc->yHp * 8;
 
-    /* HP row */
-    DrawTwoDigits(xBase + 17, yBase, proc->hpCurHi, proc->hpCurLo);
-    DrawTwoDigits(xBase + 41, yBase, proc->hpMaxHi, proc->hpMaxLo);
+    /* ---------------- HP ---------------- */
+    u8 hpCurH, hpCurT, hpCurO;
+    u8 hpMaxH, hpMaxT, hpMaxO;
 
-    /* MP row (one tile below) */
-    u8 mpCurHi, mpCurLo, mpMaxHi, mpMaxLo;
+    GetThreeDigits(GetUnitCurrentHp(unit),
+        &hpCurH, &hpCurT, &hpCurO,
+        true,   /* force 0 if < 100 */
+        true);  /* force 0 if < 10 */
+
+    GetThreeDigits(GetUnitMaxHp(unit),
+        &hpMaxH, &hpMaxT, &hpMaxO,
+        true,
+        true);
+
+    DrawThreeDigits(xBase + 11, yBase, hpCurH, hpCurT, hpCurO);
+    DrawThreeDigits(xBase + 41, yBase, hpMaxH, hpMaxT, hpMaxO);
+
+    /* ---------------- MP ---------------- */
     int mpY = yBase + 8;
+    u8 mpCurH, mpCurT, mpCurO;
+    u8 mpMaxH, mpMaxT, mpMaxO;
 
-    GetTwoDigits(GetUnitCurrentMP(unit), &mpCurHi, &mpCurLo, false);
-    GetTwoDigits(GetUnitMaxMP(unit),     &mpMaxHi, &mpMaxLo, false);
+    GetThreeDigits(GetUnitCurrentMP(unit),
+        &mpCurH, &mpCurT, &mpCurO,
+        true,   /* force 0 if < 100 */
+        true);  /* force 0 if < 10 */
 
-    DrawTwoDigits(xBase + 17, mpY, mpCurHi, mpCurLo);
-    DrawTwoDigits(xBase + 41, mpY, mpMaxHi, mpMaxLo);
+    GetThreeDigits(GetUnitMaxMP(unit),
+        &mpMaxH, &mpMaxT, &mpMaxO,
+        true,
+        true);
+
+    DrawThreeDigits(xBase + 11, mpY, mpCurH, mpCurT, mpCurO);
+    DrawThreeDigits(xBase + 41, mpY, mpMaxH, mpMaxT, mpMaxO);
 }
 
 // ! FE8U = 0x0808C5D0
@@ -137,48 +162,47 @@ void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit)
     faceId = GetUnitMiniPortraitId(unit);
 
     if (unit->state & US_BIT23)
-    {
         faceId = faceId + 1;
-    }
 
     PutFaceChibi(faceId, gUiTmScratchA + TILEMAP_INDEX(1, 1), 0xF0, 4, 0);
 
-    /* Display HP graphic in MMB */
+    /* Display HP slash graphic in MMB */
     proc->statusTm = gUiTmScratchA + TILEMAP_INDEX(5, 3);
     proc->unitClock = 0;
 
     /* Add slash for MP one tile row down from HP */
-    gUiTmScratchA[TILEMAP_INDEX(9, 4)] = TILEREF(0x13E, 2);
+    gUiTmScratchA[TILEMAP_INDEX(10, 4)] = TILEREF(0x13E, 2);
     /* ensure MP icon (same icon used for HP) is present one tile-row below */
     gUiTmScratchA[TILEMAP_INDEX(5, 4)] = TILEREF(0x160, 2);
     gUiTmScratchA[TILEMAP_INDEX(6, 4)] = TILEREF(0x161, 2);
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
-    {
-        proc->xHp = 5;
-    }
+        proc->xHp = 6;
     else
-    {
-        proc->xHp = 23;
-    }
+        proc->xHp = 24;
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0)
-    {
         proc->yHp = 3;
-    }
     else
-    {
         proc->yHp = 17;
-    }
 
     UnitMapUiUpdate(proc, unit);
     //DrawHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1));
 
-    CallARM_FillTileRect(gUiTmScratchB, gTSA_MinimugBox, TILEREF(0x0, 3));
+    // CallARM_FillTileRect(gUiTmScratchB, gTSA_MinimugBox, TILEREF(0x0, 3));
+    CallARM_FillTileRect(gUiTmScratchB, ModularMinimugBox_TileMap, TILEREF(0x0, 3));
     ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
 
     return;
 }
+
+#define MMBHeight 6
+#define MMBWidth 14
+
+static const s8 sMMBSlideInWidthLut_NEW[4] =
+{
+    6, 10, 13, MMBWidth
+};
 
 //! FE8U = 0x0808BCF8
 LYN_REPLACE_CHECK(MMB_Loop_SlideIn);
@@ -193,32 +217,32 @@ void MMB_Loop_SlideIn(struct PlayerInterfaceProc * proc)
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, 13, 6, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, 13, 6, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
     }
     else
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, 13, 6, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, 13, 6, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
     }
 
     tmIndex = TILEMAP_INDEX(0, y);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 
-    width = sMMBSlideInWidthLut[proc->showHideClock];
+    width = sMMBSlideInWidthLut_NEW[proc->showHideClock];
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
     {
-        TileMap_CopyRect(gUiTmScratchA + (13 - width), gBG0TilemapBuffer + tmIndex, width, 6);
-        TileMap_CopyRect(gUiTmScratchB + (13 - width), gBG1TilemapBuffer + tmIndex, width, 6);
+        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width), gBG0TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width), gBG1TilemapBuffer + tmIndex, width, MMBHeight);
     }
     else
     {
-        TileMap_CopyRect(gUiTmScratchA, gBG0TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, 6);
-        TileMap_CopyRect(gUiTmScratchB, gBG1TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, 6);
+        TileMap_CopyRect(gUiTmScratchA, gBG0TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB, gBG1TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, MMBHeight);
     }
 
     proc->showHideClock++;
@@ -231,6 +255,63 @@ void MMB_Loop_SlideIn(struct PlayerInterfaceProc * proc)
         Proc_Break(proc);
 
         UnitMapUiUpdate(proc, GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]));
+    }
+
+    return;
+}
+
+//! FE8U = 0x0808BE70
+LYN_REPLACE_CHECK(MMB_Loop_SlideOut);
+void MMB_Loop_SlideOut(struct PlayerInterfaceProc * proc)
+{
+    int tmIndex;
+    int width;
+
+    int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;
+
+    proc->hideContents = true;
+
+    if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
+    {
+        tmIndex = TILEMAP_INDEX(0, y);
+
+        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
+    }
+    else
+    {
+        tmIndex = TILEMAP_INDEX(0, y);
+
+        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
+    }
+
+    tmIndex = TILEMAP_INDEX(0, y);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+
+    width = sMMBSlideOutWidthLut[proc->showHideClock];
+
+    if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
+    {
+        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width), gBG0TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width), gBG1TilemapBuffer + tmIndex, width, MMBHeight);
+    }
+    else
+    {
+        TileMap_CopyRect(gUiTmScratchA, gBG0TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB, gBG1TilemapBuffer + TILEMAP_INDEX(30 - width, y), width, MMBHeight);
+    }
+
+    proc->showHideClock++;
+
+    if (proc->showHideClock == 3)
+    {
+        proc->isRetracting = false;
+        proc->showHideClock = 0;
+        proc->windowQuadrant = -1;
+
+        Proc_Break(proc);
     }
 
     return;

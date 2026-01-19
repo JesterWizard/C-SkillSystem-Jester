@@ -1,13 +1,5 @@
 #include "LynJump.event"
+#include "ModularMinimugBox_TileMap.event"
 #include "ModularMinimugBox.lyn.event"
 #include "MMBWindowPalette_Installer.event"
 #include "MMBWindowLabel_Installer.event"
-
-// // DrawUnitMapUi
-// PROTECT $8C5D0 $8C710
-
-// // UnitMapUiUpdate
-// PROTECT $8C45C $8C5D0
-
-// // MMB_Loop_SlideIn
-// PROTECT $8BCF8 $8BE70
