@@ -60,21 +60,31 @@ static int FindNearestValidSlot(struct Unit *unit, int targetRow) {
 }
 
 // A helper to draw a skill entry – it draws the skill name and its icon.
-static void DrawSkillSwapEntry(u16 *tilemap, int xTile, int yTile,
-                               struct Unit *unit, int slot, u16 palette, struct Text *text)
+static void DrawSkillSwapEntry(
+    u16 *tilemap, int xTile, int yTile,
+    struct Unit *unit, int slot, u16 palette, struct Text *text)
 {
+    // Clear icon area (2×2 tiles)
+    for (int y = 0; y < 2; y++)
+        for (int x = 0; x < 2; x++)
+            tilemap[TILEMAP_INDEX(xTile + x, yTile + y)] = 0;
+
+    // Clear text tiles (enough width for name)
+    ClearText(text);
+
     int sid = GET_SKILL(unit, slot);
+    if (!EQUIP_SKILL_VALID(sid))
+        return;
 
-    // Do not clear here – it’s already cleared in the update routine.
     Text_SetParams(text, 0, TEXT_COLOR_SYSTEM_GOLD);
-    if (EQUIP_SKILL_VALID(sid)) {
-        Text_DrawString(text, GetSkillNameStr(sid));
-        DrawIcon(TILEMAP_LOCATED(tilemap, xTile, yTile), SKILL_ICON(sid), palette);
-    }
-    // Otherwise, leave the text blank.
-
-    // Commit the text into the tilemap at an offset.
+    Text_DrawString(text, GetSkillNameStr(sid));
     PutText(text, TILEMAP_LOCATED(tilemap, xTile + 2, yTile));
+
+    DrawIcon(
+        TILEMAP_LOCATED(tilemap, xTile, yTile),
+        SKILL_ICON(sid),
+        palette
+    );
 }
 
 // This proc structure stores both units and selection data.
@@ -161,7 +171,7 @@ static void SkillSwapTradeMenu_Update(struct SkillSwapTradeMenuProc * proc)
 
 // Helper to redraw a menu line for a given side and row.
 static void RedrawSlot(int side, int row, struct SkillSwapTradeMenuProc *proc) {
-    int x = (side == 0) ? (1 + leftX) : (15 + leftX);
+    int x = (side == 0) ? (leftX + 1) : (rightX + 1);
     int y = leftY + 1 + row * 2;
     if (side == 0)
         DrawSkillSwapEntry(gBG0TilemapBuffer, x, y, proc->leftUnit, row, SKILL_ICON_PAL, &proc->leftText[row]);
@@ -171,7 +181,7 @@ static void RedrawSlot(int side, int row, struct SkillSwapTradeMenuProc *proc) {
 
 // Helper to draw a UI hand (or frozen hand) at the correct position.
 static void DrawHand(int side, int row, bool frozen) {
-    int baseX = (side == 0) ? (1 + leftX) : (15 + leftX);
+    int baseX = (side == 0) ? (leftX + 1) : (rightX + 1);
     int handX = baseX * 8;
     int handY = (leftY + 1 + row * 2) * 8;
     if (frozen)
@@ -244,7 +254,6 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
 
     skip_switch:;
     }
-
 
     // Process A button: first press selects, second does transfer.
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
@@ -368,6 +377,8 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
         if (proc->state == 1) {
             proc->state = 0;
             proc->activeSide ^= 1;
+            // Once at menu start
+            SkillSwapTradeMenu_Update(proc);
         } else {
             BG_Fill(gBG0TilemapBuffer, 0);
             BG_Fill(gBG1TilemapBuffer, 0);
@@ -379,7 +390,7 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
     }
 
     // Update menus.
-    SkillSwapTradeMenu_Update(proc);
+    // SkillSwapTradeMenu_Update(proc);
 
     // Fix: when the right slot is active, redraw its skill entry after drawing the UI hand.
     if (proc->state == 0) {
@@ -400,8 +411,9 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
     else {
         // State 1: draw frozen highlight and refresh affected slots.
         DrawHand(proc->selectedColumn, proc->selectedRow, true);
-        RedrawSlot(proc->selectedColumn, proc->selectedRow, proc);
-        RedrawSlot(proc->selectedColumn ^ 1, proc->selectedRow, proc);
+        
+       //  RedrawSlot(proc->selectedColumn, proc->selectedRow, proc);
+        //RedrawSlot(proc->selectedColumn ^ 1, proc->selectedRow, proc);
         // Then update active hand overlay.
         if (proc->activeSide == 0) {
             DrawHand(0, proc->leftSelected, false);
@@ -442,10 +454,13 @@ void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
         // Allocate enough width for the skill name.
         InitText(&proc->leftText[i], 16);
         InitText(&proc->rightText[i], 16);
+
     }
 
     ResetIconGraphics();
     LoadIconPalettes(4); // TODO: palette id constant
+
+    SkillSwapTradeMenu_Update(proc);
 }
 
 u8 SkillSwap_Usability(const struct MenuItemDef * def, int number)
