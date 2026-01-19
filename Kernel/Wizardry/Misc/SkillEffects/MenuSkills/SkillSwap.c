@@ -40,6 +40,25 @@ static bool HasAnySkill(struct Unit *unit) {
     return false;
 }
 
+static int FindNearestValidSlot(struct Unit *unit, int targetRow) {
+    if (IsValidSkillSlot(unit, targetRow))
+        return targetRow;
+
+    // Search outward
+    for (int offset = 1; offset < SKILL_SLOT_COUNT; offset++) {
+        int up = targetRow - offset;
+        int down = targetRow + offset;
+
+        if (up >= 0 && IsValidSkillSlot(unit, up))
+            return up;
+
+        if (down < SKILL_SLOT_COUNT && IsValidSkillSlot(unit, down))
+            return down;
+    }
+
+    return -1; // no valid skills
+}
+
 // A helper to draw a skill entry – it draws the skill name and its icon.
 static void DrawSkillSwapEntry(u16 *tilemap, int xTile, int yTile,
                                struct Unit *unit, int slot, u16 palette, struct Text *text)
@@ -198,31 +217,34 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
 
     // Process LEFT/RIGHT input: attempt to switch sides only if the target menu has any valid skills.
     if (keys & (DPAD_LEFT | DPAD_RIGHT)) {
-        int otherSide = proc->activeSide ^ 1;
-        if (otherSide == 0 && HasAnySkill(proc->leftUnit)) {
-            proc->activeSide = 0;
-            // If the current selected slot on the left is empty, select the first valid one.
-            if (!IsValidSkillSlot(proc->leftUnit, proc->leftSelected)) {
-                for (int i = 0; i < SKILL_SLOT_COUNT; i++) {
-                    if (IsValidSkillSlot(proc->leftUnit, i)) {
-                        proc->leftSelected = i;
-                        break;
-                    }
-                }
-            }
-        }
-        else if (otherSide == 1 && HasAnySkill(proc->rightUnit)) {
-            proc->activeSide = 1;
-            if (!IsValidSkillSlot(proc->rightUnit, proc->rightSelected)) {
-                for (int i = 0; i < SKILL_SLOT_COUNT; i++) {
-                    if (IsValidSkillSlot(proc->rightUnit, i)) {
-                        proc->rightSelected = i;
-                        break;
-                    }
-                }
-            }
-        }
+        int fromSide = proc->activeSide;
+        int toSide = fromSide ^ 1;
+
+        int fromRow = (fromSide == 0)
+            ? proc->leftSelected
+            : proc->rightSelected;
+
+        struct Unit *toUnit = (toSide == 0)
+            ? proc->leftUnit
+            : proc->rightUnit;
+
+        if (!HasAnySkill(toUnit))
+            goto skip_switch;
+
+        int newRow = FindNearestValidSlot(toUnit, fromRow);
+        if (newRow < 0)
+            goto skip_switch;
+
+        proc->activeSide = toSide;
+
+        if (toSide == 0)
+            proc->leftSelected = newRow;
+        else
+            proc->rightSelected = newRow;
+
+    skip_switch:;
     }
+
 
     // Process A button: first press selects, second does transfer.
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
