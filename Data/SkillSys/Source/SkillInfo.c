@@ -7878,6 +7878,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SkillSwap) && COMMON_SKILL_VALID(SID_SkillSwap))
+    [SID_SkillSwap] = {
+        .name = MSG_SKILL_SkillSwap_NAME,
+        .desc = MSG_SKILL_SkillSwap_DESC,
+        .capacity = MSG_SKILL_SkillSwap_CAPACITY,
+        .price = MSG_SKILL_SkillSwap_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 #if (defined(SID_SkillSwapPlus) && COMMON_SKILL_VALID(SID_SkillSwapPlus))
     [SID_SkillSwapPlus] = {
         .name = MSG_SKILL_SkillSwapPlus_NAME,

@@ -241,13 +241,6 @@ STATIC_DECLAR int RemoveSkillMenu_OnDraw(struct MenuProc * menu, struct MenuItem
         }
 #endif
 
-#if defined(SID_SkillSwapPlus) && (COMMON_SKILL_VALID(SID_SkillSwapPlus))
-        if (SkillTester(gActiveUnit, SID_SkillSwapPlus) && gBattleActorGlobalFlag.enemy_defeated)
-        {
-            sid = GET_SKILL(targetUnit, gActionData.unk0A);
-        }
-#endif
-
         if (sid == 0xFFFF)
         {
             if (gBattleActorGlobalFlag.enemy_defeated)

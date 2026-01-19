@@ -465,6 +465,13 @@ Hide:[N]
 Prevent this unit from being[N]
 attacked for one turn.[X]
 
+## MSG_SKILL_SkillSwap_NAME
+Skill Swap[X]
+## MSG_SKILL_SkillSwap_DESC
+Skill Swap:[N]
+Trade learned one skill with an[N]
+adjacent ally unit, once per map.[X]
+
 ## MSG_SKILL_SkillSwapPlus_NAME
 Skill Swap+[X]
 ## MSG_SKILL_SkillSwapPlus_DESC
