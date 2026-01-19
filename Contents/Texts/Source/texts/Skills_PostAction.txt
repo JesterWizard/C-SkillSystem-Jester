@@ -83,6 +83,13 @@ Synchronize:[N]
 Copy status of unit to target.[N]
 Allies only get buffs, and vice-versa.[X]
 
+## MSG_SKILL_LifetakerPlus_NAME
+Lifetaker+[X]
+## MSG_SKILL_LifetakerPlus_DESC
+Lifetaker+:[N]
+Restore up to 50% current HP after[N]
+attacking and defeating an enemy.[X]
+
 ## MSG_SKILL_Lifetaker_NAME
 Lifetaker[X]
 ## MSG_SKILL_Lifetaker_DESC

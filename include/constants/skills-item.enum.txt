@@ -351,6 +351,7 @@
 // SID_PoisonStrike
 // SID_GrislyWound
 // SID_Lifetaker
+// SID_LifetakerPlus
 // SID_VigorDance
 // SID_QuickHands
 // SID_FortifyingStaff

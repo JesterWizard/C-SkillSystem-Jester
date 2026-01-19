@@ -325,6 +325,7 @@
 #define MSG_SKILL_InitStrong_PRICE 1000
 #define MSG_SKILL_InitSturdy_PRICE 1000
 #define MSG_SKILL_Lifetaker_PRICE 1000
+#define MSG_SKILL_LifetakerPlus_PRICE 1000
 #define MSG_SKILL_Analytic_PRICE 1000
 #define MSG_SKILL_OathDefense_PRICE 1000
 #define MSG_SKILL_OathLuck_PRICE 1000

@@ -3297,6 +3297,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_LifetakerPlus) && COMMON_SKILL_VALID(SID_LifetakerPlus))
+    [SID_LifetakerPlus] = {
+        .name = MSG_SKILL_LifetakerPlus_NAME,
+        .desc = MSG_SKILL_LifetakerPlus_DESC,
+        .capacity = MSG_SKILL_LifetakerPlus_CAPACITY,
+        .price = MSG_SKILL_LifetakerPlus_PRICE,
+        .icon = GFX_SkillIcon_LifetakerPlus,
+    },
+#endif
+
 #if (defined(SID_Analytic) && COMMON_SKILL_VALID(SID_Analytic))
     [SID_Analytic] = {
         .name = MSG_SKILL_Analytic_NAME,

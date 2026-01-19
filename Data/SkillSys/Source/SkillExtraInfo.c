@@ -807,6 +807,10 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 	[SID_Lifetaker] = {{ 25 }},
 #endif
 
+#if (defined(SID_LifetakerPlus) && COMMON_SKILL_VALID(SID_LifetakerPlus))
+	[SID_LifetakerPlus] = {{ 50 }},
+#endif
+
 #if (defined(SID_MysticBoost) && COMMON_SKILL_VALID(SID_MysticBoost))
 	[SID_MysticBoost] = {{ 6 }},
 #endif

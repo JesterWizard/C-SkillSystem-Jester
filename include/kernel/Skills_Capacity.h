@@ -325,6 +325,7 @@
 #define MSG_SKILL_InitStrong_CAPACITY 1
 #define MSG_SKILL_InitSturdy_CAPACITY 1
 #define MSG_SKILL_Lifetaker_CAPACITY 1
+#define MSG_SKILL_LifetakerPlus_CAPACITY 1
 #define MSG_SKILL_Analytic_CAPACITY 1
 #define MSG_SKILL_OathDefense_CAPACITY 1
 #define MSG_SKILL_OathLuck_CAPACITY 1

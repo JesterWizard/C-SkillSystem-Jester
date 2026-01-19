@@ -5,6 +5,7 @@
 #include "battle-system.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "jester_headers/custom-functions.h"
 
 bool PostAction_BattleActorHeal(ProcPtr parent)
 {
@@ -20,6 +21,11 @@ bool PostAction_BattleActorHeal(ProcPtr parent)
 #if defined(SID_Lifetaker) && (COMMON_SKILL_VALID(SID_Lifetaker))
 	if (SkillTester(gActiveUnit, SID_Lifetaker) && gBattleActorGlobalFlag.enemy_defeated)
 		heal += perc_of(hp_max, SKILL_EFF0(SID_Lifetaker));
+#endif
+
+#if defined(SID_LifetakerPlus) && (COMMON_SKILL_VALID(SID_LifetakerPlus))
+	if (SkillTesterPlus(gActiveUnit, SID_LifetakerPlus) && gBattleActorGlobalFlag.enemy_defeated)
+		heal += perc_of(hp_max, SKILL_EFF0(SID_LifetakerPlus));
 #endif
 
 #if defined(SID_MysticBoost) && (COMMON_SKILL_VALID(SID_MysticBoost))

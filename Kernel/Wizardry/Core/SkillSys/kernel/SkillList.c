@@ -147,6 +147,12 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_Galeforce) && defined(SID_GaleforcePlus)
         [SID_GaleforcePlus] = SID_Galeforce,
     #endif
+    #if defined(SID_SkillSwap) && defined(SID_SkillSwapPlus)
+        [SID_SkillSwapPlus] = SID_SkillSwap,
+    #endif
+    #if defined(SID_Lifetaker) && defined(SID_LifetakerPlus)
+        [SID_LifetakerPlus] = SID_Lifetaker,
+    #endif
 };
 
 const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
@@ -269,6 +275,12 @@ const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
     #endif
     #if defined(SID_GaleforcePlus) && defined(SID_Galeforce)
         [SID_Galeforce] = SID_GaleforcePlus,
+    #endif
+    #if defined(SID_SkillSwapPlus) && defined(SID_SkillSwap)
+        [SID_SkillSwap] = SID_SkillSwapPlus,
+    #endif
+    #if defined(SID_LifetakerPlus) && defined(SID_Lifetaker)
+        [SID_Lifetaker] = SID_LifetakerPlus,
     #endif
 };
 
