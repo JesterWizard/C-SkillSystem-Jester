@@ -17,6 +17,14 @@
 #define SKILL_SLOT_COUNT UNIT_RAM_SKILLS_LEN
 #define SKILL_ICON_PAL TILEREF(0, STATSCREEN_BGPAL_ITEMICONS)
 
+// Define positions and sizes for the two menus.
+#define leftX 1
+#define leftY 3
+#define menuWidth 14
+#define menuHeight (SKILL_SLOT_COUNT + 1) * 2
+#define rightX 15
+#define rightY 3
+
 // Helper: Check if a given skill slot has a valid skill.
 static bool IsValidSkillSlot(struct Unit *unit, int slot) {
     int sid = GET_SKILL(unit, slot);
@@ -88,10 +96,6 @@ static void SkillSwapTradeMenu_Update(struct SkillSwapTradeMenuProc * proc)
     // Clear the BG (adjust BG0 as needed).
     BG_Fill(gBG0TilemapBuffer, 0);
 
-    // Define positions and sizes for the two menus.
-    int leftX = 1,  leftY = 2,  menuWidth = 14, menuHeight = (SKILL_SLOT_COUNT + 1) * 2;
-    int rightX = 15, rightY = 2;
-
     // Draw outlines (using a UI frame-drawing helper; if not available, you can draw rectangles manually).
     DrawUiFrame2(leftX, leftY, menuWidth, menuHeight, 0);
     DrawUiFrame2(rightX, rightY, menuWidth, menuHeight, 0);
@@ -138,8 +142,8 @@ static void SkillSwapTradeMenu_Update(struct SkillSwapTradeMenuProc * proc)
 
 // Helper to redraw a menu line for a given side and row.
 static void RedrawSlot(int side, int row, struct SkillSwapTradeMenuProc *proc) {
-    int x = (side == 0) ? (1 + 1) : (15 + 1);
-    int y = 2 + 1 + row * 2;
+    int x = (side == 0) ? (1 + leftX) : (15 + leftX);
+    int y = leftY + 1 + row * 2;
     if (side == 0)
         DrawSkillSwapEntry(gBG0TilemapBuffer, x, y, proc->leftUnit, row, SKILL_ICON_PAL, &proc->leftText[row]);
     else
@@ -148,9 +152,9 @@ static void RedrawSlot(int side, int row, struct SkillSwapTradeMenuProc *proc) {
 
 // Helper to draw a UI hand (or frozen hand) at the correct position.
 static void DrawHand(int side, int row, bool frozen) {
-    int baseX = (side == 0) ? (1 + 1) : (15 + 1);
+    int baseX = (side == 0) ? (1 + leftX) : (15 + leftX);
     int handX = baseX * 8;
-    int handY = (2 + 1 + row * 2) * 8;
+    int handY = (leftY + 1 + row * 2) * 8;
     if (frozen)
         DisplayFrozenUiHand(handX, handY);
     else
@@ -394,6 +398,14 @@ static const struct ProcCmd ProcScr_SkillSwapTradeMenu[] = {
 
 void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
 {
+    StartSysBrownBox(6, 0x4800, 0x08, 0x800, 0x400, Proc_Find(gProcScr_PlayerPhase));
+    EnableSysBrownBox(0, -40, -1, 1);
+    EnableSysBrownBox(1, 184, -1, 0);
+    int leftPosition = ((8 * UNIT_PANEL_WIDTH) - GetStringTextLen(GetStringFromIndex(gActiveUnit->pCharacterData->nameTextId))) / 2;
+    int rightPosition = ((8 * UNIT_PANEL_WIDTH) - GetStringTextLen(GetStringFromIndex(GetUnit(gActionData.targetIndex)->pCharacterData->nameTextId))) / 2;
+    PutDrawText(NULL, gBG1TilemapBuffer + TILEMAP_INDEX(0, 0), 0, leftPosition, UNIT_PANEL_WIDTH, GetStringFromIndex(gActiveUnit->pCharacterData->nameTextId));
+    PutDrawText(NULL, gBG1TilemapBuffer + TILEMAP_INDEX(24, 0), 0, rightPosition, UNIT_PANEL_WIDTH, GetStringFromIndex(GetUnit(gActionData.targetIndex)->pCharacterData->nameTextId));
+
     struct SkillSwapTradeMenuProc *proc = Proc_StartBlocking(ProcScr_SkillSwapTradeMenu, Proc_Find(gProcScr_PlayerPhase));
     proc->leftUnit = leftUnit;
     proc->rightUnit = rightUnit;
