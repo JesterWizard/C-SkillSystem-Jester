@@ -921,15 +921,15 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
-#if (defined(SID_SkillSwap) && COMMON_SKILL_VALID(SID_SkillSwap))
-    [SID_SkillSwap] = &(const struct MenuItemDef) {
+#if (defined(SID_SkillSwapPlus) && COMMON_SKILL_VALID(SID_SkillSwapPlus))
+    [SID_SkillSwapPlus] = &(const struct MenuItemDef) {
         .name = "　",
-        .nameMsgId = MSG_SKILL_SkillSwap_NAME,
-        .helpMsgId = MSG_SKILL_SkillSwap_DESC,
+        .nameMsgId = MSG_SKILL_SkillSwapPlus_NAME,
+        .helpMsgId = MSG_SKILL_SkillSwapPlus_DESC,
         .color = TEXT_COLOR_SYSTEM_GOLD,
-        .isAvailable = SkillSwap_Usability,
+        .isAvailable = SkillSwapPlus_Usability,
         .onDraw = NULL,
-        .onSelected = SkillSwap_OnSelected,
+        .onSelected = SkillSwapPlus_OnSelected,
         .onIdle = NULL,
         .onSwitchIn = NULL,
         .onSwitchOut = NULL,

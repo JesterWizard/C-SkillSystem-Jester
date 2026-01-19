@@ -785,7 +785,7 @@
 #define MSG_SKILL_Zenkai_CAPACITY 1
 #define MSG_SKILL_Salve_CAPACITY 1
 #define MSG_SKILL_Forcefield_CAPACITY 1
-#define MSG_SKILL_SkillSwap_CAPACITY 1
+#define MSG_SKILL_SkillSwapPlus_CAPACITY 1
 #define MSG_SKILL_Shuffle_CAPACITY 1
 #define MSG_SKILL_ShufflePlus_CAPACITY 1
 #define MSG_SKILL_Persuade_CAPACITY 1

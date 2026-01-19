@@ -85,7 +85,7 @@
 #include "MenuSkills/LethalityPlus.lyn.event"
 #include "MenuSkills/GrimReaper.lyn.event"
 #include "MenuSkills/Hide.lyn.event"
-#include "MenuSkills/SkillSwap.lyn.event"
+#include "MenuSkills/SkillSwapPlus.lyn.event"
 #include "MenuSkills/Shuffle.lyn.event"
 #include "MenuSkills/ShufflePlus.lyn.event"
 #include "MenuSkills/Persuade.lyn.event"

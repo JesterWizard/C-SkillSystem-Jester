@@ -4595,3 +4595,60 @@ void BeginMapAnimForDance(void)
     SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArray);
     Proc_Start(ProcScr_MapAnimDance, PROC_TREE_3);
 }
+
+extern u16 gUnknown_08A98E2C[];
+extern u16 gUnknown_08A98E4C[];
+extern u16 gUnknown_08A98E6C[];
+extern u16 gUnknown_08A98E8C[];
+
+//! FE8U = 0x080BE5B4
+LYN_REPLACE_CHECK(sub_80BE5B4);
+void sub_80BE5B4(int faction, int palId)
+{
+    u16 * src;
+
+    switch (faction)
+    {
+        case FACTION_BLUE:
+            src = gUnknown_08A98E2C;
+            break;
+
+        case FACTION_RED:
+            src = gUnknown_08A98E4C;
+            break;
+
+        case FACTION_GREEN:
+            src = gUnknown_08A98E6C;
+            break;
+
+        default:
+            src = gUnknown_08A98E8C;
+            break;
+    }
+
+    ApplyPalette(src, palId);
+
+    return;
+}
+
+extern u16 gUnknown_0201B7DA[];
+
+//! FE8U = 0x080BE958
+LYN_REPLACE_CHECK(PutGMapPIFace);
+void PutGMapPIFace(struct GMapPIProc * proc)
+{
+    int fid = 0;
+
+    if (proc->pid != 0)
+    {
+        fid = GetUnitMiniPortraitId(GetUnitFromCharId(proc->pid));
+    }
+    else if (proc->jid != 0)
+    {
+        fid = 0x7F04;
+    }
+
+    PutFaceChibi(fid, gUnknown_0201B7DA, 0x220, 2, 0);
+
+    return;
+}

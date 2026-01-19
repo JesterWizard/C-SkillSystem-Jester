@@ -6,13 +6,14 @@
 #include "debuff.h"
 #include "action-expa.h"
 #include "icon-rework.h"
+#include "playst-expa.h"
 #include "jester_headers/miscellaneous.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
 #endif
 
-#if defined(SID_SkillSwap) && (COMMON_SKILL_VALID(SID_SkillSwap))
+#if defined(SID_SkillSwapPlus) && (COMMON_SKILL_VALID(SID_SkillSwapPlus))
 
 #define SKILL_SLOT_COUNT UNIT_RAM_SKILLS_LEN
 #define SKILL_ICON_PAL TILEREF(0, STATSCREEN_BGPAL_ITEMICONS)
@@ -60,7 +61,7 @@ static int FindNearestValidSlot(struct Unit *unit, int targetRow) {
 }
 
 // A helper to draw a skill entry – it draws the skill name and its icon.
-static void DrawSkillSwapEntry(
+static void DrawSkillSwapPlusEntry(
     u16 *tilemap, int xTile, int yTile,
     struct Unit *unit, int slot, u16 palette, struct Text *text)
 {
@@ -89,7 +90,7 @@ static void DrawSkillSwapEntry(
 
 // This proc structure stores both units and selection data.
 // Proc structure now holds additional fields for a two‐step selection.
-struct SkillSwapTradeMenuProc {
+struct SkillSwapPlusTradeMenuProc {
     PROC_HEADER;
     struct Unit *leftUnit;   // active unit
     struct Unit *rightUnit;  // target unit
@@ -120,7 +121,7 @@ static void DrawUiBox(u16 *tilemap, int x, int y, int width, int height, int col
     }
 }
 
-static void SkillSwapTradeMenu_Update(struct SkillSwapTradeMenuProc * proc)
+static void SkillSwapPlusTradeMenu_Update(struct SkillSwapPlusTradeMenuProc * proc)
 {
     // Clear the BG (adjust BG0 as needed).
     BG_Fill(gBG0TilemapBuffer, 0);
@@ -133,14 +134,14 @@ static void SkillSwapTradeMenu_Update(struct SkillSwapTradeMenuProc * proc)
     for (int i = 0; i < SKILL_SLOT_COUNT; i++) {
         int drawX = leftX + 1;
         int drawY = leftY + 1 + (i * 2);
-        DrawSkillSwapEntry(gBG0TilemapBuffer, drawX, drawY, proc->leftUnit, i, 0x4000, &proc->leftText[i]);
+        DrawSkillSwapPlusEntry(gBG0TilemapBuffer, drawX, drawY, proc->leftUnit, i, 0x4000, &proc->leftText[i]);
     }
 
     // Draw right unit's skill list.
     for (int i = 0; i < SKILL_SLOT_COUNT; i++) {
         int drawX = rightX + 1;
         int drawY = rightY + 1 + (i * 2);
-        DrawSkillSwapEntry(gBG0TilemapBuffer, drawX, drawY, proc->rightUnit, i, 0x4000, &proc->rightText[i]);
+        DrawSkillSwapPlusEntry(gBG0TilemapBuffer, drawX, drawY, proc->rightUnit, i, 0x4000, &proc->rightText[i]);
     }
 
     // Draw highlight boxes.
@@ -181,16 +182,16 @@ static void DrawHand(int side, int row, bool frozen) {
 }
 
 // Helper to redraw skill entry at current cursor position
-static void RedrawSkillAtCursor(struct SkillSwapTradeMenuProc *proc, int side, int row) {
+static void RedrawSkillAtCursor(struct SkillSwapPlusTradeMenuProc *proc, int side, int row) {
     int drawX = (side == 0 ? leftX : rightX) + 1;
     int drawY = (side == 0 ? leftY : rightY) + 1 + (row * 2);
     struct Unit *unit = (side == 0) ? proc->leftUnit : proc->rightUnit;
     struct Text *text = (side == 0) ? &proc->leftText[row] : &proc->rightText[row];
     
-    DrawSkillSwapEntry(gBG0TilemapBuffer, drawX, drawY, unit, row, 0x4000, text);
+    DrawSkillSwapPlusEntry(gBG0TilemapBuffer, drawX, drawY, unit, row, 0x4000, text);
 }
 
-static int GetCurrentSkillId(struct SkillSwapTradeMenuProc *proc)
+static int GetCurrentSkillId(struct SkillSwapPlusTradeMenuProc *proc)
 {
     if (proc->activeSide == 0)
         return GET_SKILL(proc->leftUnit, proc->leftSelected);
@@ -198,7 +199,7 @@ static int GetCurrentSkillId(struct SkillSwapTradeMenuProc *proc)
         return GET_SKILL(proc->rightUnit, proc->rightSelected);
 }
 
-static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
+static void SkillSwapPlusTradeMenu_OnLoop(struct SkillSwapPlusTradeMenuProc *proc)
 {
     u16 keys = gKeyStatusPtr->repeatedKeys;
 
@@ -348,19 +349,19 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
                     SET_SKILL(proc->leftUnit, proc->selectedRow, rightSkill);
                     SET_SKILL(proc->rightUnit, proc->rightSelected, leftSkill);
                     proc->state = 0;
-                    SkillSwapTradeMenu_Update(proc);
+                    SkillSwapPlusTradeMenu_Update(proc);
                 } else {
                     // Target slot is empty: transfer leftSkill and shift up left menu.
                     SET_SKILL(proc->rightUnit, proc->rightSelected, leftSkill);
                     proc->state = 0;
-                    SkillSwapTradeMenu_Update(proc);
+                    SkillSwapPlusTradeMenu_Update(proc);
                     
                     // Shift up the left menu starting at the selected row:
                     for (int i = proc->selectedRow; i < SKILL_SLOT_COUNT - 1; i++) {
                         int nextSkill = GET_SKILL(proc->leftUnit, i + 1);
                         SET_SKILL(proc->leftUnit, i, nextSkill);
                         proc->state = 0;
-                        SkillSwapTradeMenu_Update(proc);
+                        SkillSwapPlusTradeMenu_Update(proc);
                     }
                     // Clear the last slot.
                     SET_SKILL(proc->leftUnit, SKILL_SLOT_COUNT - 1, 0);
@@ -386,19 +387,19 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
                     SET_SKILL(proc->rightUnit, proc->selectedRow, leftSkill);
                     SET_SKILL(proc->leftUnit, proc->leftSelected, rightSkill);
                     proc->state = 0;
-                    SkillSwapTradeMenu_Update(proc);
+                    SkillSwapPlusTradeMenu_Update(proc);
                 } else {
                     // Target slot is empty: transfer rightSkill and shift up right menu.
                     SET_SKILL(proc->leftUnit, proc->leftSelected, rightSkill);
                     proc->state = 0;
-                    SkillSwapTradeMenu_Update(proc);
+                    SkillSwapPlusTradeMenu_Update(proc);
                     
                     // Shift up the right menu starting at the selected row:
                     for (int i = proc->selectedRow; i < SKILL_SLOT_COUNT - 1; i++) {
                         int nextSkill = GET_SKILL(proc->rightUnit, i + 1);
                         SET_SKILL(proc->rightUnit, i, nextSkill);
                         proc->state = 0;
-                        SkillSwapTradeMenu_Update(proc);
+                        SkillSwapPlusTradeMenu_Update(proc);
                     }
                     SET_SKILL(proc->rightUnit, SKILL_SLOT_COUNT - 1, 0);
                     ClearText(&proc->rightText[SKILL_SLOT_COUNT - 1]);
@@ -416,7 +417,7 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
                 }
             }
             proc->state = 0;
-            SkillSwapTradeMenu_Update(proc);
+            SkillSwapPlusTradeMenu_Update(proc);
         }
     }
 
@@ -431,7 +432,7 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
                 proc->state = 0;
                 proc->activeSide ^= 1;
                 // Once at menu start
-                SkillSwapTradeMenu_Update(proc);
+                SkillSwapPlusTradeMenu_Update(proc);
             } else {
                 BG_Fill(gBG0TilemapBuffer, 0);
                 BG_Fill(gBG1TilemapBuffer, 0);
@@ -478,12 +479,12 @@ static void SkillSwapTradeMenu_OnLoop(struct SkillSwapTradeMenuProc *proc)
     }
 }
 
-static const struct ProcCmd ProcScr_SkillSwapTradeMenu[] = {
-    PROC_REPEAT(SkillSwapTradeMenu_OnLoop),
+static const struct ProcCmd ProcScr_SkillSwapPlusTradeMenu[] = {
+    PROC_REPEAT(SkillSwapPlusTradeMenu_OnLoop),
     PROC_END
 };
 
-void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
+void StartSkillSwapPlusTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
 {
     StartSysBrownBox(6, 0x7080, 0x08, 0x800, 0x400, Proc_Find(gProcScr_PlayerPhase));
     EnableSysBrownBox(0, -40, -1, 1);
@@ -493,7 +494,7 @@ void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
     PutDrawText(NULL, gBG1TilemapBuffer + TILEMAP_INDEX(0, 0), 0, leftPosition, UNIT_PANEL_WIDTH, GetStringFromIndex(gActiveUnit->pCharacterData->nameTextId));
     PutDrawText(NULL, gBG1TilemapBuffer + TILEMAP_INDEX(24, 0), 0, rightPosition, UNIT_PANEL_WIDTH, GetStringFromIndex(GetUnit(gActionData.targetIndex)->pCharacterData->nameTextId));
 
-    struct SkillSwapTradeMenuProc *proc = Proc_StartBlocking(ProcScr_SkillSwapTradeMenu, Proc_Find(gProcScr_PlayerPhase));
+    struct SkillSwapPlusTradeMenuProc *proc = Proc_StartBlocking(ProcScr_SkillSwapPlusTradeMenu, Proc_Find(gProcScr_PlayerPhase));
     proc->leftUnit = leftUnit;
     proc->rightUnit = rightUnit;
     proc->leftSelected = 0;
@@ -513,11 +514,13 @@ void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
     ResetIconGraphics();
     LoadIconPalettes(4); // TODO: palette id constant
 
-    SkillSwapTradeMenu_Update(proc);
+    SkillSwapPlusTradeMenu_Update(proc);
     
     // Draw initial hand cursor and redraw the skill entry underneath it
     DrawHand(proc->activeSide, proc->leftSelected, false);
     RedrawSkillAtCursor(proc, proc->activeSide, proc->leftSelected);
+
+    PlayStExpa_SetBit(PLAYSTEXPA_BIT_SkillSwapPlus_Used);
     
     // Also redraw the first skill in the right menu to ensure it's fully visible
     if (IsValidSkillSlot(proc->rightUnit, 0)) {
@@ -525,9 +528,12 @@ void StartSkillSwapTradeMenu(struct Unit * leftUnit, struct Unit * rightUnit)
     }
 }
 
-u8 SkillSwap_Usability(const struct MenuItemDef * def, int number)
+u8 SkillSwapPlus_Usability(const struct MenuItemDef * def, int number)
 {
     if (gActiveUnit->state & US_CANTOING)
+        return MENU_NOTSHOWN;
+
+    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_SkillSwapPlus_Used))
         return MENU_NOTSHOWN;
 
     if (!HasSelectTarget(gActiveUnit, MakeTargetListForAdjacentSameFaction))
@@ -536,7 +542,7 @@ u8 SkillSwap_Usability(const struct MenuItemDef * def, int number)
     return MENU_ENABLED;
 }
 
-static u8 SkillSwap_OnSelectTarget(ProcPtr proc, struct SelectTarget * target)
+static u8 SkillSwapPlus_OnSelectTarget(ProcPtr proc, struct SelectTarget * target)
 {
     gActionData.targetIndex = target->uid;
 
@@ -548,13 +554,13 @@ static u8 SkillSwap_OnSelectTarget(ProcPtr proc, struct SelectTarget * target)
     BG_Fill(gBG2TilemapBuffer, 0);
     BG_EnableSyncByMask(BG2_SYNC_BIT);
 
-    gActionData.unk08 = SID_SkillSwap;
+    gActionData.unk08 = SID_SkillSwapPlus;
     gActionData.unitActionType = CONFIG_UNIT_ACTION_EXPA_ExecSkill;
 
     return TARGETSELECTION_ACTION_ENDFAST | TARGETSELECTION_ACTION_END | TARGETSELECTION_ACTION_SE_6A | TARGETSELECTION_ACTION_CLEARBGS;
 }
 
-u8 SkillSwap_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)
+u8 SkillSwapPlus_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)
 {
  if (item->availability == MENU_DISABLED)
     {
@@ -568,7 +574,7 @@ u8 SkillSwap_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)
     BmMapFill(gBmMapMovement, -1);
 
     StartSubtitleHelp(
-        NewTargetSelection_Specialized(&gSelectInfo_PutTrap, SkillSwap_OnSelectTarget),
+        NewTargetSelection_Specialized(&gSelectInfo_PutTrap, SkillSwapPlus_OnSelectTarget),
         GetStringFromIndex(MSG_SKILL_Common_Target));
 
     PlaySoundEffect(0x6A);
@@ -582,10 +588,10 @@ static void callback_anim(ProcPtr proc)
 static void callback_exec(ProcPtr proc)
 {	
     struct Unit * unit_tar = GetUnit(gActionData.targetIndex);
-    StartSkillSwapTradeMenu(gActiveUnit, unit_tar);
+    StartSkillSwapPlusTradeMenu(gActiveUnit, unit_tar);
 }
 
-bool Action_SkillSwap(ProcPtr parent)
+bool Action_SkillSwapPlus(ProcPtr parent)
 {
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
 	return true;

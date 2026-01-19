@@ -53,7 +53,7 @@ POIN Action_LethalityPlus
 POIN Action_GrimReaper
 POIN Action_Hide
 WORD $0
-POIN Action_SkillSwap
+POIN Action_SkillSwapPlus
 POIN Action_Shuffle
 POIN Action_ShufflePlus
 POIN Action_Persuade

@@ -250,9 +250,9 @@ POIN Shuffle_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-5416
 WORD $13941393 $3
-POIN SkillSwap_Usability
+POIN SkillSwapPlus_Usability
 WORD $0
-POIN SkillSwap_OnSelected
+POIN SkillSwapPlus_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-5396
 WORD $13921391 $3

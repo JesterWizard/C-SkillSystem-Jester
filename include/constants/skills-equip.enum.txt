@@ -53,7 +53,7 @@ SID_LethalityPlus
 SID_GrimReaper
 SID_Hide
 SID_Salve
-SID_SkillSwap
+SID_SkillSwapPlus
 SID_Shuffle
 SID_ShufflePlus
 SID_Persuade

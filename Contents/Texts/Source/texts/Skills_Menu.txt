@@ -465,12 +465,12 @@ Hide:[N]
 Prevent this unit from being[N]
 attacked for one turn.[X]
 
-## MSG_SKILL_SkillSwap_NAME
-Skill Swap[X]
-## MSG_SKILL_SkillSwap_DESC
-Skill Swap:[N]
-This unit can freely trade learned[N]
-skills with adjacent ally units.[X]
+## MSG_SKILL_SkillSwapPlus_NAME
+Skill Swap+[X]
+## MSG_SKILL_SkillSwapPlus_DESC
+Skill Swap+:[N]
+Freely trade learned skills with[N]
+adjacent ally units, once per map.[X]
 
 ## MSG_SKILL_Shuffle_NAME
 Shuffle[X]
