@@ -43,3 +43,16 @@ enum {
 };
 
 extern const EventListScr EventScr_MapSupportConversation_NEW[];
+
+
+struct ChapterTimerProc
+{
+    PROC_HEADER;
+    int frameClock;
+};
+
+void DrawTimeHMS(struct Text *text, int x, int seconds);
+void StartChapterTimer(void);
+void ChapterTimer_OnTick(struct ChapterTimerProc *proc);
+
+extern u16 gChapterTimerSeconds;

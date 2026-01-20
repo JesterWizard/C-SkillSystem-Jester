@@ -4652,3 +4652,203 @@ void PutGMapPIFace(struct GMapPIProc * proc)
 
     return;
 }
+
+void DrawTimeHMS(struct Text *text, int x, int seconds)
+{
+    int h, m, s;
+
+    NoCashGBAPrintf("Timer is: %d", seconds);
+
+    if (seconds < 0)
+        seconds = 0;
+
+    h = seconds / 3600;
+    m = k_umod((seconds / 60), 60);
+    s = k_umod(seconds, 60);
+
+    Text_InsertDrawNumberOrBlank(text, x,      TEXT_COLOR_SYSTEM_BLUE, h);
+    Text_InsertDrawNumberOrBlank(text, x + 9, TEXT_COLOR_SYSTEM_BLUE, h);
+    Text_InsertDrawString       (text, x + 18, TEXT_COLOR_SYSTEM_WHITE, ":");
+    Text_InsertDrawNumberOrBlank(text, x + 23, TEXT_COLOR_SYSTEM_BLUE, m);
+    Text_InsertDrawNumberOrBlank(text, x + 32, TEXT_COLOR_SYSTEM_BLUE, m);
+    Text_InsertDrawString       (text, x + 41, TEXT_COLOR_SYSTEM_WHITE, ":");
+    Text_InsertDrawNumberOrBlank(text, x + 46, TEXT_COLOR_SYSTEM_BLUE, s);
+    Text_InsertDrawNumberOrBlank(text, x + 55, TEXT_COLOR_SYSTEM_BLUE, s);
+}
+
+const struct ProcCmd ProcScr_ChapterTimer[] =
+{
+    PROC_YIELD,
+    PROC_REPEAT(ChapterTimer_OnTick),
+    PROC_END,
+};
+
+void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
+{
+    if (gChapterTimerSeconds <= 0)
+        return;
+
+    proc->frameClock++;
+
+    if (proc->frameClock >= 60)
+    {
+        proc->frameClock = 0;
+        gChapterTimerSeconds--;
+    }
+}
+
+void StartChapterTimer(void)
+{
+    struct ChapterTimerProc *proc;
+
+    gChapterTimerSeconds = 2 * 60 * 60; // example: 2 hours
+
+    proc = Proc_Start(ProcScr_ChapterTimer, PROC_TREE_3);
+    proc->frameClock = 0;
+}
+
+//! FE8U = 0x0808D288
+LYN_REPLACE_CHECK(GoalDisplay_Init);
+void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
+{
+    const bool isSkirmish = (GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH);
+    const struct ROMChapterData *chapter = isSkirmish ? NULL : GetROMChapterStruct(gPlaySt.chapterIndex);
+
+    // int goalTextId;
+    int goalWindowType;
+    int turnNumber;
+    int lastTurnNumber;
+    char *str;
+    struct Text *text;
+
+    proc->showHideClock = 0;
+    proc->isRetracting  = false;
+    proc->cursorQuadrant = 0;
+    proc->windowQuadrant = -1;
+
+    InitText(&proc->texts[0], 8);
+    InitText(&proc->texts[1], 8);
+
+    StartGreenText(proc);
+
+    ClearText(&proc->texts[0]);
+    ClearText(&proc->texts[1]);
+
+    /* --- Goal title --- */
+
+    // goalTextId = isSkirmish
+    //     ? MSG_019E                               // "Defeat enemy"
+    //     : chapter->goalWindowTextId;
+
+    // str = GetStringFromIndex(goalTextId);
+    // Text_InsertDrawString(
+    //     &proc->texts[0],
+    //     GetStringTextCenteredPos(64, str),
+    //     TEXT_COLOR_SYSTEM_WHITE,
+    //     str
+    // );
+
+    /* --- Goal type --- */
+
+    goalWindowType = isSkirmish ? GOAL_TYPE_DEFEAT_ALL : chapter->goalWindowDataType;
+
+    switch (goalWindowType)
+    {
+    case GOAL_TYPE_SEIZE:
+    case GOAL_TYPE_DEFEAT_BOSS:
+    case GOAL_TYPE_SPECIAL:
+        proc->unitClock = 0;
+        return;
+
+    case GOAL_TYPE_DEFEAT_ALL:
+        // Text_InsertDrawString(
+        //     &proc->texts[1], 16, TEXT_COLOR_SYSTEM_WHITE,
+        //     GetStringFromIndex(MSG_01C1)           // "Left"
+        // );
+
+        // if (gPlaySt.chapterVisionRange != 0)
+        // {
+        //     Text_InsertDrawString(
+        //         &proc->texts[1], 40, TEXT_COLOR_SYSTEM_GRAY,
+        //         GetStringFromIndex(MSG_0535)
+        //     );
+        // }
+        // else
+        // {
+        //     Text_InsertDrawNumberOrBlank(
+        //         &proc->texts[1], 48, TEXT_COLOR_SYSTEM_BLUE,
+        //         CountUnitsByFaction(FACTION_RED)
+        //     );
+        // }
+        // break;
+
+        Text_InsertDrawString(
+            &proc->texts[0], 2, TEXT_COLOR_SYSTEM_WHITE,
+            "Time Remain:"
+            //GetStringFromIndex(MSG_TIMER_REMAINING) // e.g. "Time"
+        );
+
+        DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
+
+        proc->unitClock = 1;
+        break;
+
+    case GOAL_TYPE_DEFENSE:
+        turnNumber = gPlaySt.chapterTurnNumber;
+        lastTurnNumber = isSkirmish
+            ? -1
+            : chapter->goalWindowEndTurnNumber - 1;
+
+        if (turnNumber >= lastTurnNumber)
+        {
+            str = GetStringFromIndex(MSG_01C3);    // "Last Turn."
+            Text_InsertDrawString(
+                &proc->texts[1],
+                GetStringTextCenteredPos(64, str),
+                TEXT_COLOR_SYSTEM_GREEN,
+                str
+            );
+            break;
+        }
+
+        text = &proc->texts[1];
+
+        Text_InsertDrawNumberOrBlank(
+            text, 10, TEXT_COLOR_SYSTEM_BLUE, turnNumber
+        );
+        Text_InsertDrawString(
+            text, 18, TEXT_COLOR_SYSTEM_WHITE,
+            GetStringFromIndex(MSG_0539)           // "/."
+        );
+        Text_InsertDrawNumberOrBlank(
+            text, 34, TEXT_COLOR_SYSTEM_BLUE, lastTurnNumber
+        );
+        Text_InsertDrawString(
+            text, 42, TEXT_COLOR_SYSTEM_WHITE,
+            GetStringFromIndex(MSG_01C2)           // "Turn"
+        );
+        break;
+
+    // case GOAL_TYPE_TIMER:
+    // {
+    //     struct Text *text = &proc->texts[1];
+
+    //     Text_InsertDrawString(
+    //         text, 4, TEXT_COLOR_SYSTEM_WHITE,
+    //         "Time Remaining:"
+    //         //GetStringFromIndex(MSG_TIMER_REMAINING) // e.g. "Time"
+    //     );
+
+    //     DrawTimeHMS(text, 36, gChapterTimerSeconds);
+
+    //     proc->unitClock = 1;
+    //     break;
+    // }
+
+
+    default:
+        return;
+    }
+
+    proc->unitClock = 1;
+}

@@ -7,6 +7,7 @@
 #include "debuff.h"
 #include "jester_headers/Forging.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-structs.h"
 
 void SetGameOptions() 
 {
@@ -15,6 +16,8 @@ void SetGameOptions()
     SetGameOption(GAME_OPTION_GAME_SPEED, 3); // Set text speed to max
 
     SetFlag(0xB4); // Guide Flag
+
+    StartChapterTimer();
 
     // gPlaySt.partyGoldAmount = 600000;
     // struct Unit * unit = GetUnitFromCharId(CHARACTER_EIRIKA);
