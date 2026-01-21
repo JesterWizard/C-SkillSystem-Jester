@@ -67,20 +67,20 @@ void DrawTimeHMS(struct Text *text, int x, int seconds)
     s = k_umod(seconds, 60);
 
     /* Hours */
-    Text_InsertDrawNumberOrBlank(text, x,      color, h / 10);
-    Text_InsertDrawNumberOrBlank(text, x + 9,  color, k_umod(h, 10));
+    Text_InsertDrawNumberOrBlank(text, x + 3,      color, h / 10);
+    Text_InsertDrawNumberOrBlank(text, x + 12,  color, k_umod(h, 10));
 
-    Text_InsertDrawString       (text, x + 18, TEXT_COLOR_SYSTEM_WHITE, ":");
+    Text_InsertDrawString       (text, x + 21, TEXT_COLOR_SYSTEM_WHITE, ":");
 
     /* Minutes */
-    Text_InsertDrawNumberOrBlank(text, x + 23, color, m / 10);
-    Text_InsertDrawNumberOrBlank(text, x + 32, color, k_umod(m, 10));
+    Text_InsertDrawNumberOrBlank(text, x + 26, color, m / 10);
+    Text_InsertDrawNumberOrBlank(text, x + 35, color, k_umod(m, 10));
 
-    Text_InsertDrawString       (text, x + 41, TEXT_COLOR_SYSTEM_WHITE, ":");
+    Text_InsertDrawString       (text, x + 44, TEXT_COLOR_SYSTEM_WHITE, ":");
 
     /* Seconds */
-    Text_InsertDrawNumberOrBlank(text, x + 46, color, s / 10);
-    Text_InsertDrawNumberOrBlank(text, x + 55, color, k_umod(s, 10));
+    Text_InsertDrawNumberOrBlank(text, x + 49, color, s / 10);
+    Text_InsertDrawNumberOrBlank(text, x + 58, color, k_umod(s, 10));
 
 }
 
@@ -157,8 +157,8 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
     proc->cursorQuadrant = 0;
     proc->windowQuadrant = -1;
 
-    InitText(&proc->texts[0], 8);
-    InitText(&proc->texts[1], 8);
+    InitText(&proc->texts[0], 9);
+    InitText(&proc->texts[1], 9);
 
     StartGreenText(proc);
 
