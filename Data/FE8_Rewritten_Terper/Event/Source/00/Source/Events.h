@@ -197,9 +197,9 @@ LABEL(0x1)
 };
 
 static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
-#ifdef CONFIG_FORGING
-    ASMC(CallForgeMenuASMC)
-#endif
+    // ASMC(CallForgeMenuASMC)
+
+    // ASMC(AddMoreTime)
 
 // #ifdef CONFIG_LIGHTS_OUT_GAME
 //     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)

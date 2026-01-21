@@ -23,3 +23,9 @@ void SetGameOptions()
     // struct Unit * unit = GetUnitFromCharId(CHARACTER_EIRIKA);
     // unit->items[2] = MakeNewItem(ITEM_SWORD_IRON);
 };
+
+// void AddMoreTime()
+// {
+//     gChapterTimerSeconds += 30;
+//     // NewPopup_VerySimple("Timer Increased", SONG_SE_UPDATE, Proc_Find(gProcScr_PlayerPhase));
+// };

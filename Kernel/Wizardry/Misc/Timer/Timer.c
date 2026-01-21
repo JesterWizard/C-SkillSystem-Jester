@@ -57,7 +57,7 @@ void DrawTimeHMS(struct Text *text, int x, int seconds)
     if (seconds < 0)
         seconds = 0;
 
-    /* Choose color once */
+    /* If we're at half remaining time, switch to yellow colored text */
     color = (seconds <= gChapterTimerSeconds_Initial / 2)
         ? TEXT_COLOR_SYSTEM_GOLD
         : TEXT_COLOR_SYSTEM_BLUE;
@@ -67,15 +67,13 @@ void DrawTimeHMS(struct Text *text, int x, int seconds)
     s = k_umod(seconds, 60);
 
     /* Hours */
-    Text_InsertDrawNumberOrBlank(text, x + 3,      color, h / 10);
-    Text_InsertDrawNumberOrBlank(text, x + 12,  color, k_umod(h, 10));
-
+    Text_InsertDrawNumberOrBlank(text, x + 3,  color, h / 10);
+    Text_InsertDrawNumberOrBlank(text, x + 12, color, k_umod(h, 10));
     Text_InsertDrawString       (text, x + 21, TEXT_COLOR_SYSTEM_WHITE, ":");
 
     /* Minutes */
     Text_InsertDrawNumberOrBlank(text, x + 26, color, m / 10);
     Text_InsertDrawNumberOrBlank(text, x + 35, color, k_umod(m, 10));
-
     Text_InsertDrawString       (text, x + 44, TEXT_COLOR_SYSTEM_WHITE, ":");
 
     /* Seconds */
@@ -106,6 +104,9 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
     {
         proc->frameClock = 0;
         gChapterTimerSeconds--;
+
+        if (CheckFlag(EVFLAG_WIN))
+            Proc_End(proc);
 
         if (gChapterTimerSeconds == 0)
         {
