@@ -96,7 +96,8 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
     if (gChapterTimerSeconds <= 0)
         return;
 
-    if (Proc_Find(ProcScr_BattleEventEngine))
+    /* Freeze timer when battle animations are on */
+    if (Proc_Find(ProcScr_efxHPBarColorChange))
         return;
 
     proc->frameClock++;
@@ -256,6 +257,7 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
              "Remaining:"
         );
 
+        /* If the proc hasn't already begun then start it here to assure several seconds aren't lost on initialization */
         if (!Proc_Find(ProcScr_ChapterTimer))
             StartChapterTimer(gChapterTimerSeconds);
 
