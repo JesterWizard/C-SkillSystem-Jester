@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "save-data.h"
 #include "kernel-lib.h"
+#include "jester_headers/custom-structs.h"
 #include "jester_headers/Forging.h"
 
 const struct EmsChunk *GetEmsChunkByIndex_Sav(int idx)
@@ -390,4 +391,18 @@ void LoadForgedItems(u8 *src, const u32 size)
     u32 want = NumOfForgables * sizeof(struct ForgedItemRam);
     Assert(size <= want);
     ReadSramFast(src, gForgedItemRam, size);
+}
+
+void SaveTimer(u8 *dst, const u32 size)
+{
+	u32 want = sizeof(gChapterTimerSeconds);
+    Assert(size <= want);
+    WriteAndVerifySramFast(&gChapterTimerSeconds, dst, size);
+}
+
+void LoadTimer(u8 *src, const u32 size)
+{
+	u32 want = sizeof(gChapterTimerSeconds);
+    Assert(size <= want);
+    ReadSramFast(src, &gChapterTimerSeconds, size);
 }

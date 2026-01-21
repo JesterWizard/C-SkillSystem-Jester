@@ -149,3 +149,5 @@
 #endif
 
 #include "Misc/VeslyShootArrow/VeslyShootArrow_Installer.event"
+
+#include "Misc/Timer/Timer_Installer.event"
