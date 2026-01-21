@@ -17,7 +17,7 @@ void SetGameOptions()
 
     SetFlag(0xB4); // Guide Flag
 
-    StartChapterTimer();
+    StartChapterTimer(30);
 
     // gPlaySt.partyGoldAmount = 600000;
     // struct Unit * unit = GetUnitFromCharId(CHARACTER_EIRIKA);
