@@ -126,6 +126,9 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
 
 void StartChapterTimer(int seconds)
 {
+    if (gpKernelDesignerConfig->goal_timer != true)
+        return;
+
     /* If already started, then we return early */
     if (Proc_Find(ProcScr_ChapterTimer) || seconds > 65000)
         return;

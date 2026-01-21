@@ -65,6 +65,7 @@ struct KernelDesigerConfig {
 	u8 stat_page_promotions;
 	u8 summons_gain_exp;
 	u8 collect_dead_units;
+	u8 goal_timer;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
