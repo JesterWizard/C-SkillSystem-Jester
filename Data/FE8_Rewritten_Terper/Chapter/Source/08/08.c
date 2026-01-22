@@ -50,7 +50,7 @@ const struct ROMChapterData Chapter08 = {
     .protectCharacterIndex = 0,
     .destPosX = 255,
     .destPosY = 0,
-    .unk91 = 29,
+    .unk91 = 9,
     .unk92 = 0,
     .unk93 = 0,
 };

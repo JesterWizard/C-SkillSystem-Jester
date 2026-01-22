@@ -18,8 +18,9 @@ static const EventScr EventScr_Beginning[] = {
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_Joshua)
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_Natasha)
     TEXT_CONSECUTIVE(Chapter_07_Pre_Scene_02_Convo_01)
-    FADE_TO_BLACK(16)
-    PREP
+    // FADE_TO_BLACK(16)
+    // PREP
+    PREP_ALT
     ENDA
 };
 

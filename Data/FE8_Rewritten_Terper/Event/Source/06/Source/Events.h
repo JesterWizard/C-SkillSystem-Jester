@@ -40,8 +40,7 @@ static const EventScr EventScr_Beginning[] = {
     WARP_CHARACTER_TO_COORDINATES(0xFB, 25, 12)
     HIGHLIGHT_CHARACTER(0xF9, 60)
     TEXT_BG(0x1E, Chapter_06_Pre_Scene_03_Convo_02)
-    FADE_FROM_BLACK(16)
-    PREP
+    PREP_ALT
     ENDA
 };
 

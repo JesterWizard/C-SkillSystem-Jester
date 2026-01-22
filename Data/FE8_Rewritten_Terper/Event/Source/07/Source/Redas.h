@@ -37,6 +37,11 @@ static const struct REDA REDAs_CHARACTER_8[] = {
     { .x = 1, .y = 18, .b = -1, .delayFrames = 0, },
     {},
 };
+static const struct REDA REDAs_CHARACTER_9[] = {
+    { .x = 5, .y = 18, .b = -1, .delayFrames = 0, },
+    {},
+};
+
 
 static const struct REDA REDAs_EIRIKA_ARRIVES[] = {
     { .x = 3, .y = 4, .b = -1, .delayFrames = 0, },

@@ -49,7 +49,7 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Pre_Scene_03_Convo_01)
-    PREP
+    PREP_ALT
     ENUT(15) // Temporary flag for special reinforcements
     ENDA
 };
