@@ -70,12 +70,12 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.leadership = true,
 	.variable_unit_descriptions = false,
 	.anima_weapon_triangle = false,
-	.stat_page_gaiden_magic = false,
+	.stat_page_gaiden_magic = true,
 	.stat_page_personal_info = true,
 	.stat_page_promotions = true,
 	.summons_gain_exp = false, // Doesn't work yet
 	.collect_dead_units = true,
-	.goal_timer = true,
+	.goal_timer = false,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

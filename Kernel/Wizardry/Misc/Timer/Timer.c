@@ -10,9 +10,12 @@ void GoalDisplay_Loop_Display(struct PlayerInterfaceProc *proc)
 {
     /* --- NEW: redraw timer every frame --- */
 
-    ClearText(&proc->texts[1]);
-    DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
-    BG_EnableSyncByMask(BG0_SYNC_BIT);
+    if (gpKernelDesignerConfig->goal_timer == true)
+    {
+        ClearText(&proc->texts[1]);
+        DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
+        BG_EnableSyncByMask(BG0_SYNC_BIT);
+    }
 
     /* --- Vanilla cursor / retract logic below --- */
 
