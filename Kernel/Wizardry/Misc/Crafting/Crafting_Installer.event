@@ -1,0 +1,73 @@
+#define SynthesisMenuDef(x, y, w, h, style, commands) "BYTE x y w h; WORD style; POIN commands; WORD DrawExternalSynthesisUI|IsPointer 0 0 SynthesisMenuBPress|IsPointer 0x0804F521 0x0804F459"
+#define SynthesisMenuOption(name, desc, recipe) "WORD 0; SHORT name desc; BYTE 0 recipe 0 0; POIN RecipeOptionUsability DrawRecipeOption OnRecipeSelect 0 RecipeSwitchIn RecipeSwitchOut"
+#define MenuTerminator "WORD 0 0 0 0 0 0 0 0 0"
+#define CallSynthesisMenu(menu) "SVAL s1 menu|IsPointer; ASMC CallSynthesisMenuASMC|1"
+
+ALIGN 4
+FirstSynthesisMenu:
+SynthesisMenuDef(15, 1, 13, 0, 1, FirstSynthesisMenuCommands)
+
+ALIGN 4
+SecondSynthesisMenu:
+SynthesisMenuDef(15, 1, 13, 0, 1, SecondSynthesisMenuCommands)
+
+ALIGN 4
+FirstSynthesisMenuCommands:
+
+//SynthesisMenuOption(PreviousPageName, IronSwordRecipe, 0)
+SynthesisMenuOption(LancereaverName, IronSwordRecipe, Lancereaver)
+SynthesisMenuOption(IronSwordName, IronSwordRecipe, IronSword)
+SynthesisMenuOption(SteelSwordName, SteelSwordRecipe, SteelSword)
+SynthesisMenuOption(SilverSwordName, SilverSwordRecipe, SilverSword)
+
+SynthesisMenuOption(KillingEdgeName, IronSwordRecipe, KillingEdge)
+SynthesisMenuOption(BraveSwordName, IronSwordRecipe, BraveSword)
+SynthesisMenuOption(LightBrandName, IronSwordRecipe, LightBrand)
+SynthesisMenuOption(NextPageName, IronSwordRecipe, 0xFF)
+MenuTerminator
+
+ALIGN 4
+SecondSynthesisMenuCommands:
+SynthesisMenuOption(PreviousPageName, IronSwordRecipe, 0)
+SynthesisMenuOption(IronSwordName, IronSwordRecipe, IronSword)
+SynthesisMenuOption(SteelSwordName, SteelSwordRecipe, SteelSword)
+SynthesisMenuOption(SilverSwordName, SilverSwordRecipe, SilverSword)
+SynthesisMenuOption(NextPageName, IronSwordRecipe, 0xFF)
+MenuTerminator
+
+#define RecipeEntry(recipe, level, ing1, ing2, ing3, ing4, ing5) "PUSH; ORG RecipeTable + (recipe * 6); BYTE level ing1 ing2 ing3 ing4 ing5; POP"
+
+ALIGN 4
+RecipeTable:
+FILL 255 * 6 // table indexed by item id, each item has a level and can have up to 5 ingredients
+
+// let's fucking do this
+RecipeEntry(IronSword, 1, IronBar, SwordHilt, 0, 0, 0)
+RecipeEntry(SteelSword, 5, SteelBar, SwordHilt, 0, 0, 0)
+RecipeEntry(SilverSword, 20, SilverBar, SwordHilt, 0, 0, 0)
+RecipeEntry(KillingEdge, 10, Excalibur, SwordHilt, 0, 0, 0)
+RecipeEntry(Lancereaver, 1, SteelBar, SwordHilt, ReverseGel, 0, 0)
+RecipeEntry(BraveSword, 20, Excalibur, SwordHilt, Elixir, 0, 0)
+RecipeEntry(LightBrand, 15, Excalibur, SwordHilt, 0, 0, 0)
+
+ALIGN 4
+InsufficientIngredientsRText_Link:
+WORD InsufficientIngredientsRText
+
+ALIGN 4
+AlchemyLevelTextID_Link:
+WORD AlchemyLevelTextID
+
+ALIGN 4
+ExperienceTextID_Link:
+WORD ExperienceTextID
+
+ALIGN 4
+AlchemyLevelTooLowRText_Link:
+WORD AlchemyLevelTooLowRText
+
+ALIGN 4
+ResultQualityName_Link:
+WORD ResultQualityName
+
+#include "Crafting.lyn.event"
