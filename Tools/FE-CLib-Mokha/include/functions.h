@@ -400,7 +400,7 @@ int sub_8095024();
 int sub_8095094(int, int);
 int sub_80950C4(int);
 void sub_80950E8(int, int);
-// ??? sub_8095138(???);
+void sub_8095138(u16 * tm, int b, u32 c, int d);
 void PrepScreenMenu_OnPickUnits(struct ProcAtMenu* proc);
 void PrepScreenMenu_OnItems(struct ProcAtMenu* proc);
 void PrepScreenMenu_OnSupport(struct ProcAtMenu* proc);

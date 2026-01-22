@@ -37,6 +37,7 @@ const struct ROMChapterData Chapter01 = {
         [MAP_BGM_PROLOGUE] = 65535,
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
+    .prepScreenNumber = 2,
     .mapCrackedWallHeath = 50,
     .mapEventDataId = 0xA,
     .gmapEventId = 0x2,

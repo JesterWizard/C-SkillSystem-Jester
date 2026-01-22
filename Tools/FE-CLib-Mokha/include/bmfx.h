@@ -117,7 +117,7 @@ void ChapterIntro_SetSkipTarget(s16 arg, struct ChapterIntroFXProc * proc);
 void ChapterIntro_Init_PlaySound316(struct ChapterIntroFXProc * proc);
 void ChapterIntro_DrawingLights(struct ChapterIntroFXProc * proc);
 void ChapterIntro_InitBLDCNT(void);
-void ChapterIntro_DrawChapterTitleMaybe(void);
+void ChapterIntro_DrawChapterTitle(void);
 void ChapterIntro_80204AC(struct ChapterIntroFXProc * proc);
 void ChapterIntro_UnknownFX8020578(struct ChapterIntroFXProc * proc);
 void ChapterIntro_SetBG_802009C(void);

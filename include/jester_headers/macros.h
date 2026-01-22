@@ -400,7 +400,6 @@ enum {
 
 #define PREP_ALT CALL(EventScr_08591FD8)
 
-
 #ifdef CONFIG_LIGHTS_OUT_GAME
 
 #define PLAY_LIGHTS_OUT_GAME(dimensions, icon_count, toggle_skip, reward, flag) \
