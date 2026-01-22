@@ -423,7 +423,9 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SUPPORT);
             break;
         case 4:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
+            if (gpKernelDesignerConfig->prep_menu_augury == true)
+                ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
+
             break;
         case 5:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BEXP);
@@ -476,7 +478,9 @@ void sub_8095C00(int msg, ProcPtr parent)
             proc->msg = MSG_PREP_SCREEN_DESC_SUPPORT;
             break;
         case 4:
-            proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
+            if (gpKernelDesignerConfig->prep_menu_augury == true)
+                proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
+                
             break;
         case 5:
             proc->msg = MSG_PREP_SCREEN_DESC_BEXP;
@@ -720,10 +724,13 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         // SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
 
-        if (gPlaySt.chapterIndex == CHAPTER_L_4)
-            SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
-        else
-            SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
+        if (gpKernelDesignerConfig->prep_menu_augury == true)
+        {
+            if (gPlaySt.chapterIndex == CHAPTER_L_4)
+                SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
+            else
+                SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
+        }
             
         // SetPrepScreenMenuItem(PREP_MAINMENU_BONUS_EXP, PrepScreenMenu_OnBEXP, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, PrepScreenMenu_OnEquip, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS, 0);
@@ -776,11 +783,11 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         StartFortuneSubMenu(2, proc);
         break;
 
-#ifdef CONFIG_PREPS_AUGURY
     case 5: /* Augury */
-        Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+        if (gpKernelDesignerConfig->prep_menu_augury == true)
+            Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+
         break;
-#endif
 
     case 6: /* Bonus EXP */
         StartChapterStatusScreen_FromPrep(proc);

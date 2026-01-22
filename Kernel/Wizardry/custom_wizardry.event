@@ -80,9 +80,7 @@
     #include "Misc/ChapterNames/ChapterNames_Installer.event"
 #endif
 
-#ifdef CONFIG_PREPS_AUGURY
     #include "Misc/Augury/Augury_Installer.event"
-#endif
 
 #ifdef CONFIG_ARENA_LIMITS
     #include "Misc/ArenaLimits/ArenaLimits_Installer.event"
