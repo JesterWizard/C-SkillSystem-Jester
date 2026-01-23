@@ -49,7 +49,6 @@ static const EventScr EventScr_Beginning[] = {
     LOAD_WAIT_PERSIST(CH4_PLAYER_UNITS)
     PREP_ALT // Prep screen
     MOVE_CAMERA_TO_POSITION_CENTER(0, 0)
-    FADE_FROM_BLACK(16)
     MUSC(SONG_DISTANT_ROADS)
     HIGHLIGHT_CHARACTER(CHARACTER_ARTUR, 60)
     TEXT(Chapter_04_Scene_05_Convo_01)

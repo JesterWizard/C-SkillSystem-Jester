@@ -1,5 +1,4 @@
 #include "C_Code.h"
-#include "common-chax.h"
 
 #define brk asm("mov r11, r11");
 #define DangerBonesBufferSize 0x2878
@@ -212,7 +211,7 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
     int ySize = gBmMapSize.y;
 
     int counter = 0;
-    if (proc->id >= 0xC0 + CONFIG_UNIT_AMT_FOURTH)
+    if (proc->id >= 0xC0)
     {
         Proc_Break(proc);
         return;
@@ -225,11 +224,11 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
             break;
         }
         struct Unit * unit = GetUnit(i);
-        // if (proc->id == 0xBF)
-        // {
-        //     BmMapFill(gBmMapRange, 0);
-        //     BmMapFill(gBmMapMovement, 0);
-        // }
+        if (proc->id == 0xBF)
+        {
+            BmMapFill(gBmMapRange, 0);
+            BmMapFill(gBmMapMovement, 0);
+        }
         proc->id = i + 1;
 
         if (IsUnitInvalid(unit))
@@ -239,9 +238,9 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
 
         counter++;
 
-        // BmMapFill(gBmMapRange, 0);
-        // BmMapFill(gBmMapOther, 0); // all movable squares expects this to be empty to make a range map
-        // GenerateUnitMovementMap(unit);
+        BmMapFill(gBmMapRange, 0);
+        BmMapFill(gBmMapOther, 0); // all movable squares expects this to be empty to make a range map
+        GenerateUnitMovementMap(unit);
 
         savedUnitId = gBmMapUnit[unit->yPos][unit->xPos];
         gBmMapUnit[unit->yPos][unit->xPos] = 0;
@@ -366,30 +365,4 @@ void FinishDangerBonesRange(void) // if proc didn't finish yet, calc the rest no
         proc->id = 0xC0;
     }
     GenerateDangerBonesRangeAll(id);
-}
-
-LYN_REPLACE_CHECK(RenderBmMap);
-void RenderBmMap(void) 
-{
-    StartDangerBonesRange();
-
-    int ix, iy;
-
-    gBmSt.mapRenderOrigin.x = gBmSt.camera.x >> 4;
-    gBmSt.mapRenderOrigin.y = gBmSt.camera.y >> 4;
-
-    /* Draw map tiles */
-    for (iy = (10 - 1); iy >= 0; --iy)
-        for (ix = (15 - 1); ix >= 0; --ix)
-            DisplayBmTile(gBG3TilemapBuffer, ix, iy,
-                (short) gBmSt.mapRenderOrigin.x + ix, (short) gBmSt.mapRenderOrigin.y + iy);
-
-    BG_EnableSyncByMask(1 << 3);
-    BG_SetPosition(3, 0, 0);
-
-    gLCDControlBuffer.dispcnt.bg0_on = TRUE;
-    gLCDControlBuffer.dispcnt.bg1_on = TRUE;
-    gLCDControlBuffer.dispcnt.bg2_on = TRUE;
-    gLCDControlBuffer.dispcnt.bg3_on = TRUE;
-    gLCDControlBuffer.dispcnt.obj_on = TRUE;
 }

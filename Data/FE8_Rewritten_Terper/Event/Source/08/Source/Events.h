@@ -1,8 +1,13 @@
 static const EventScr EventScr_Beginning[] = {
+    MUSC(SONG_TENSION)
     LOAD_WAIT(CH8_EIRIKA_SETH_ORSON)
     HIGHLIGHT_CHARACTER(CHARACTER_ORSON, 60)
     SET_BACKGROUND(0x10)
-    TEXT_NO_REMA(Chapter_08_Pre_Scene_01_Convo_01)
+    TEXTSTART
+    TEXTSHOW(Chapter_08_Pre_Scene_01_Convo_01)
+    MUSC(SONG_SILENT)
+    TEXTCONT
+    TEXTEND
     CALL(EventScr_TextShowWithFadeIn)
     LOAD_WAIT(CH8_TIRADO_AND_SOLDIERS)
     HIGHLIGHT_CHARACTER(CHARACTER_TIRADO, 60)
@@ -49,8 +54,9 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Pre_Scene_03_Convo_01)
-    PREP_ALT
-    ENUT(15) // Temporary flag for special reinforcements
+    FADE_FROM_BLACK(16)
+    PREP
+    ENUT(0xC) // Temporary flag for special reinforcements
     ENDA
 };
 
@@ -65,7 +71,6 @@ static const EventScr EventScr_Ending[] = {
     TEXT(Chapter_08_Post_Scene_01_Convo_02)
     FADE_FROM_BLACK(4)
     SET_BACKGROUND(0x10)
-    // FADE_TO_BLACK(3)
     TEXT(Chapter_08_Post_Scene_01_Convo_03)
     FADE_FROM_BLACK(1)
     MUSC(SONG_NONE)

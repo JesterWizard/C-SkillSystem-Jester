@@ -25,6 +25,11 @@
     SVAL(EVT_SLOT_3, (msg)) \
     CALL(Event_TextWithBG)
 
+#define TEXT_BG_TEST(bg, msg) \
+    TEXTSTART \
+    SET_BACKGROUND(bg) \
+    CALL(Event_TextWithBG)
+
 #define SET_BACKGROUND(bg) \
     SVAL(EVT_SLOT_2, bg) \
     CALL(EventScr_SetBackground)

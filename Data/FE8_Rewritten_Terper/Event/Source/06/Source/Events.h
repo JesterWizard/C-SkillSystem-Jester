@@ -41,6 +41,7 @@ static const EventScr EventScr_Beginning[] = {
     HIGHLIGHT_CHARACTER(0xF9, 60)
     TEXT_BG(0x1E, Chapter_06_Pre_Scene_03_Convo_02)
     PREP_ALT
+    NOFADE
     ENDA
 };
 
