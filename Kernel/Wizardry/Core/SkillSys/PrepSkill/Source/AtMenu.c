@@ -501,6 +501,7 @@ void sub_8095C00(int msg, ProcPtr parent)
             proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;
             break;
         default:
+            proc->msg = msg;
             break;
     }
 }
@@ -786,6 +787,8 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
     case 5: /* Augury */
         if (gpKernelDesignerConfig->prep_menu_augury == true)
             Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+        else
+            StartChapterStatusScreen_FromPrep(proc);
 
         break;
 
@@ -817,36 +820,11 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
 };
 
 
-struct ProcCmd const ProcScr_ChapterStatusScreen_FromPrep_NEW[] =
-{
-    PROC_YIELD,
-
-    PROC_CALL(ChapterStatus_Init),
-    PROC_CALL(ChapterStatus_DrawText),
-    PROC_YIELD,
-
-    PROC_CALL(ChapterStatus_ShowAllLayers),
-    PROC_CALL(FadeInBlackSpeed40),
-    PROC_YIELD,
-
-PROC_LABEL(0),
-    PROC_REPEAT(ChapterStatus_LoopKeyHandler),
-
-PROC_LABEL(1),
-    PROC_CALL(sub_8013F58),
-    PROC_YIELD,
-
-    PROC_CALL(EndMuralBackground),
-    PROC_CALL(ChapterStatus_OnEnd),
-
-    PROC_END,
-};
-
 //! FE8U = 0x0808E79C
 LYN_REPLACE_CHECK(StartChapterStatusScreen_FromPrep);
 void StartChapterStatusScreen_FromPrep(ProcPtr parent)
 {
-    struct ChapterStatusProc * proc = Proc_StartBlocking(ProcScr_ChapterStatusScreen_FromPrep_NEW, parent);
+    struct ChapterStatusProc * proc = Proc_StartBlocking(ProcScr_ChapterStatusScreen_FromPrep, parent);
     proc->unk_3f = 1;
 
     return;
@@ -902,12 +880,7 @@ void PrepScreenProc_StartMapMenu(struct ProcPrepSallyCursor * proc)
         SetPrepScreenMenuItem(9, PrepMapMenu_OnSave, TEXT_COLOR_SYSTEM_GRAY, 0x579, 0x5BE);
     }
 
-    /* JESTER - 
-    ** This turns off the other two button icons in the prep screen
-    ** This is to combat a problem where leftover graphics from this screeb
-    ** display in the prep menu and on the map.
-    */ 
-    // StartPrepHelpPrompt(proc);
+    StartPrepHelpPrompt(proc);
     SetPrepScreenMenuOnBPress(PrepMapMenu_OnBPress);
     SetPrepScreenMenuOnStartPress(PrepMapMenu_OnStartPress);
     SetPrepScreenMenuOnEnd(PrepMapMenu_OnEnd);
