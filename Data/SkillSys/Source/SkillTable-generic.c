@@ -446,6 +446,6 @@ const struct SkillPreloadJConf gSkillPreloadJData[0x100] = {
     },
 
     [CLASS_EIRIKA_MASTER_LORD] = {{
-        [1] = SID_Airlock
+        [1] = SID_Airlock,
     }}
 };

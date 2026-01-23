@@ -4480,13 +4480,13 @@ void ClassChgExecPromotionReal(struct ProcClassChgPostConfirm *proc)
 
     struct Unit *unit = GetUnitFromCharId(parent->pid);
 
-    /* JESTER - Set the active unit here to reference for skill popups */
-    gActiveUnit = unit;
-
     if (unit == NULL) {
         Proc_End(proc);
         return;
     }
+
+    /* JESTER - Set the active unit here to reference for skill popups */
+    gActiveUnit = unit;
 
     proc->game_lock = GetGameLock();
     SetWinEnable(0, 0, 0);
@@ -4651,4 +4651,15 @@ void PutGMapPIFace(struct GMapPIProc * proc)
     PutFaceChibi(fid, gUnknown_0201B7DA, 0x220, 2, 0);
 
     return;
+}
+
+LYN_REPLACE_CHECK(ClassChgPostConfirmWaitBanimEnd);
+void ClassChgPostConfirmWaitBanimEnd(struct ProcClassChgPostConfirm *proc)
+{
+    int game_lock = proc->game_lock;
+    if (game_lock == GetGameLock())
+    {
+        NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
+        Proc_Break(proc);
+    }
 }

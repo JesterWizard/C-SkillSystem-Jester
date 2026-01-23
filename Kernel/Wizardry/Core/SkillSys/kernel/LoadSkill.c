@@ -257,9 +257,7 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 		if (EQUIP_SKILL_VALID(sid)) {
 			AddSkill(unit, sid);
 			PushSkillListStack(sid);
-			
 			SetPopupItem(sid);
-			ProcPtr * phaseToBlock = Proc_Find(ProcScr_ClassChgReal);
 
 			switch (gPlaySt.faction) {
 				case FACTION_BLUE:
@@ -271,12 +269,18 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 				case FACTION_GREEN:
 					SetPopupUnit(GetUnit(gActionData.targetIndex));
 					break;
-				case FACTION_PURPLE:
-					SetPopupUnit(GetUnit(gActionData.targetIndex));
-					break;		
-			};		
-
-    		NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, phaseToBlock);
+				/* This causes problems in the prep screen, plus I don't think we need to concern ourselves with other phases gaining level up skills anyway */
+				// case FACTION_PURPLE:
+				// 	SetPopupUnit(GetUnit(gActionData.targetIndex));
+				// 	break;		
+				default:
+					SetPopupUnit(gActiveUnit);
+					break;
+			};	
+			
+			/* Keeping this here for posterity, but the popup display has been moved to ClassChgPostConfirmWaitBanimEnd */
+			// ProcPtr * phaseToBlock = Proc_Find(ProcScr_ClassChgReal);
+    		// NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, phaseToBlock);
 		}
 	}
 
