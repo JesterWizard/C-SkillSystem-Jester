@@ -136,7 +136,7 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
     firstVisibleIndex = 0;
 
     StartMenuScrollBar(proc);
-    PutMenuScrollBarAt(3, 60); // x and y
+    PutMenuScrollBarAt(3, 65); // x and y
 
     // JESTER - This was originally at 0x200, but seems to be overlapping some map icons, so switching to 0xE00
     InitMenuScrollBarImg(0xE00, 2); 
@@ -172,14 +172,14 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
     struct ProcPrepMenuItem* cmd;
     int index = proc->cur_index;
     int xPos = (proc->xPos + 1) * 8 + 4;
-    int yPos = (proc->yPos + 1) * 8 + proc->cur_index * 16;
+    // int yPos = (proc->yPos + 1) * 8 + proc->cur_index * 16;
 
     int visibleX = (proc->xPos + 1) * 8 + (4 - firstVisibleIndex);
     int visibleY = (proc->yPos + 1) * 8 + (proc->cur_index - firstVisibleIndex) * 16;
     ShowSysHandCursor(xPos, visibleY, 0x6, 0x400);
-    struct MenuProc* proc2 = Proc_Find(sProc_Menu);
-    GetMenuCursorPosition(proc2, &xPos, &yPos);
-    ApplyMenuCursorVScroll(proc2, &xPos, &yPos);
+    // struct MenuProc* proc2 = Proc_Find(sProc_Menu);
+    // GetMenuCursorPosition(proc2, &xPos, &yPos);
+    // ApplyMenuCursorVScroll(proc2, &xPos, &yPos);
 
     cmd = proc->cmds[proc->cur_index];
 
@@ -203,7 +203,7 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
                 PlaySoundEffect(SONG_6C);
                 return;
             } else {
-                Proc_Goto(proc, 0x0);
+                // Proc_Goto(proc, 0x0);
                 cmd->effect(proc->proc_parent);
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
                 return;
@@ -286,7 +286,11 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
 LYN_REPLACE_CHECK(PrepMenu_ShowFrozenHand);
 void PrepMenu_ShowFrozenHand(struct ProcPrepMenu *proc)
 {
-    DisplayFrozenUiHand((proc->xPos + 1) * 8 + 4, (proc->yPos + 1) * 8 + proc->cur_index * 16);
+    DisplayFrozenUiHand(
+        (proc->xPos + 1) * 8 + 4,
+        (proc->yPos + 1) * 8 + (proc->cur_index - firstVisibleIndex) * 16
+);
+
 }
 
 /* I need to hook this or otherwise the map menu is never seen when pressing B and the map starts */
