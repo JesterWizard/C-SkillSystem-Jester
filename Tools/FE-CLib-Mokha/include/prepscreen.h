@@ -894,3 +894,6 @@ void sub_809FB70(struct PrepItemListProc * proc);
 void PrepItemList_Loop_UnitInvKeyHandler(struct PrepItemListProc * proc);
 void PrepItemList_StartTradeScreen(struct PrepItemListProc * proc);
 void StartPrepItemListScreenProc(struct Unit * unit, ProcPtr parent);
+void WmSell_OnLoop_MainKeyHandler(struct WmSellProc* proc);
+s8 WmSell_MainLoop_HandleDpadKeys(struct WmSellProc* proc);
+void WmSell_DrawItemGoldValue(int item);

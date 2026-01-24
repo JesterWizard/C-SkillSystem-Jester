@@ -21,6 +21,7 @@
 #include "playst-expa.h"
 #include "scene.h"
 #include "menu_def.h"
+#include "prepscreen.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -4662,4 +4663,63 @@ void ClassChgPostConfirmWaitBanimEnd(struct ProcClassChgPostConfirm *proc)
         NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
         Proc_Break(proc);
     }
+}
+
+//! FE8U = 0x080A0424
+LYN_REPLACE_CHECK(WmSell_OnLoop_MainKeyHandler);
+void WmSell_OnLoop_MainKeyHandler(struct WmSellProc* proc) {
+    u16 item;
+
+    if (proc->unk_34 == 1) {
+        if (gKeyStatusPtr->newKeys & (R_BUTTON | B_BUTTON)) {
+            CloseHelpBox();
+            proc->unk_34 = 0;
+            return;
+        }
+    } else {
+        if (gKeyStatusPtr->newKeys & R_BUTTON) {
+            item = proc->unit->items[proc->unk_30];
+            if (item) {
+                StartItemHelpBox(0x10, proc->unk_30 * 0x10 + 0x48, item);
+                proc->unk_34 = 1;
+            }
+
+            return;
+        }
+
+        if (gKeyStatusPtr->newKeys & A_BUTTON) {
+            u16 item = proc->unit->items[proc->unk_30];
+            if ((GetItemSellPrice(item) == 0) || (GetItemAttributes(item) & IA_UNSELLABLE)) {
+                StartPrepErrorHelpbox(
+                    16,
+                    proc->unk_30 * 16 + 72,
+                    0x850, // TODO: msgid "Treasure can't be sold.[.]"
+                    proc
+                );
+            } else {
+                Proc_Goto(proc, 2);
+                PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+            }
+            return;
+        }
+
+        if (gKeyStatusPtr->newKeys & B_BUTTON) {
+            Proc_Goto(proc, 3);
+            PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+            return;
+        }
+    }
+
+    if (WmSell_MainLoop_HandleDpadKeys(proc) != 0) {
+        ShowSysHandCursor(16, proc->unk_30 * 16 + 72, 11, 0x400);
+        WmSell_DrawItemGoldValue(proc->unit->items[proc->unk_30]);
+        if (proc->unk_34 == 1) {
+            item = proc->unit->items[proc->unk_30];
+            if (item) {
+                StartItemHelpBox(0x10, proc->unk_30 * 0x10 + 0x48, item);
+            }
+        }
+    }
+
+    return;
 }

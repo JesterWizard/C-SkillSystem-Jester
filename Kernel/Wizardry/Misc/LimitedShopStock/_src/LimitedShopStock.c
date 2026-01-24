@@ -151,79 +151,63 @@ void Shop_Loop_BuyKeyHandler(struct ProcShop* proc) {
     proc->head_idx = proc->head_loc;
     proc->hand_idx = proc->hand_loc;
 
-    a = proc->head_loc;
-    a *= 16;
-
-    b = ((proc->hand_loc * 16)) - 72;
+    a = proc->head_loc * 16;
+    b = (proc->hand_loc * 16) - 72;
 
     DisplayUiHand(40, a - b);
 
+    /* Reposition helpbox when cursor moves */
     if ((proc->helpTextActive != 0) && (unkC != 0)) {
-        a = (proc->head_loc * 16);
-        b = ((proc->hand_loc * 16) - 72);
         StartItemHelpBox(56, a - b, proc->shopItems[proc->head_loc]);
     }
 
     DisplayShopUiArrows();
 
-    if (IsShopPageScrolling() != 0) {
+    if (IsShopPageScrolling() != 0)
         return;
-    }
 
+    /* === HELPBOX ACTIVE === */
     if (proc->helpTextActive != 0) {
-        if (sKeyStatusBuffer.heldKeys & (B_BUTTON | R_BUTTON)) {
+        if (sKeyStatusBuffer.newKeys & (B_BUTTON | R_BUTTON)) {
             proc->helpTextActive = 0;
             CloseHelpBox();
         }
-
         return;
     }
 
-    if (sKeyStatusBuffer.heldKeys & R_BUTTON) {
+    /* === OPEN HELPBOX === */
+    if (sKeyStatusBuffer.newKeys & R_BUTTON) {
         proc->helpTextActive = 1;
-        a = (proc->head_loc * 16);
-        b = ((proc->hand_loc * 16) - 72);
         StartItemHelpBox(56, a - b, proc->shopItems[proc->head_loc]);
-
         return;
     }
 
     price = GetItemPurchasePrice(proc->unit, proc->shopItems[proc->head_loc]);
 
-    if (sKeyStatusBuffer.heldKeys & A_BUTTON) {
+    /* === CONFIRM BUY === */
+    if (sKeyStatusBuffer.newKeys & A_BUTTON) {
         if (!IsItemInStock(proc->shopItems[proc->head_loc])) {
             StartShopDialogue(OutOfStockTextBase, proc);
-
             Proc_Goto(proc, 1);
         }
         else if (price > (int)GetPartyGoldAmount()) {
             StartShopDialogue(0x8B2, proc);
-            // SHOP_TYPE_ARMORY: "You don't have the money![.][A]"
-            // SHOP_TYPE_VENDOR: "You're short of funds.[A]"
-            // SHOP_TYPE_SECRET_SHOP: "Heh! Not enough money![A]"
-
             Proc_Goto(proc, 1);
-        } else {
+        }
+        else {
             SetTalkNumber(price);
             StartShopDialogue(0x8B5, proc);
-            // SHOP_TYPE_ARMORY: "How does [.][G] gold[.][NL]sound to you?[.][Yes]"
-            // SHOP_TYPE_VENDOR: "That's worth [.][G] gold.[NL]Is that all right?[Yes]"
-            // SHOP_TYPE_SECRET_SHOP: "That is worth [G] gold.[NL]Is that acceptable?[.][Yes]"
-
             Proc_Break(proc);
         }
-
         return;
     }
 
-    if (sKeyStatusBuffer.heldKeys & B_BUTTON) {
+    /* === EXIT SHOP === */
+    if (sKeyStatusBuffer.newKeys & B_BUTTON) {
         PlaySFX(0x6B, 0x100, 0, 1);
         Proc_Goto(proc, 7);
-
         return;
     }
-
-    return;
 }
 
 LYN_REPLACE_CHECK(HandleShopBuyAction);
