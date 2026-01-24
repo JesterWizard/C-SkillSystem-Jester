@@ -22,7 +22,7 @@ void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc)
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
     proc->state = 4; // Sets the index AtMenu_StartSubMenu will look for
-    Proc_Goto(proc, 0x8); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu
+    Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu, was originally 0x8
 }
 
 void PrepScreenMenu_OnAugury(struct ProcAtMenu* proc) 
