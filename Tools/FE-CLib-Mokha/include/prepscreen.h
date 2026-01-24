@@ -522,26 +522,11 @@ ProcPtr StartPrepSpecialCharEffect(ProcPtr parent);
 void EndPrepSpecialCharEffect(void);
 // ??? sub_8096C34(???);
 
-// struct ProcPrepMenu {
-//     PROC_HEADER;
-//     /* 29 */ s8 do_help;
-//     /* 2A */ u8 cur_index;
-//     /* 2B */ u8 max_index;
-//     /* 2C */ void (*unk2C)(ProcPtr);
-//     /* 30 */ int msg_rtext;
-//     /* 34 */ s16 xPos;
-//     /* 36 */ s16 yPos;
-//     /* 38 */ struct ProcPrepMenuItem* cmds[0x8];
-//     /* 58 */ u8 (*on_PressB)(ProcPtr);
-//     /* 5C */ u8 (*on_PressStart)(ProcPtr);
-//     /* 60 */ u8 (*on_End)(ProcPtr);
-// };
-
 
 #define PREP_MENU_VISIBLE_COUNT 5
-#define PREP_MENU_MAX_COUNT 9
+#define PREP_MENU_MAX_COUNT 8
 
-struct ProcPrepMenu_Scroll {
+struct ProcPrepMenu {
     PROC_HEADER;
     /* 29 */ s8 do_help;
     /* 2A */ u8 cur_index;
@@ -554,20 +539,15 @@ struct ProcPrepMenu_Scroll {
     /* 58 */ u8 (*on_PressB)(ProcPtr);
     /* 5C */ u8 (*on_PressStart)(ProcPtr);
     /* 60 */ u8 (*on_End)(ProcPtr);
-    /* 61 */ u8 firstVisibleIndex;
 };
 
-void PrepMenu_OnInit(struct ProcPrepMenu_Scroll * proc);
-void PrepMenu_CtrlLoop(struct ProcPrepMenu_Scroll * proc);
-void PrepMenu_ShowFrozenHand(struct ProcPrepMenu_Scroll * proc);
-void PrepMenu_ShowActiveHand(struct ProcPrepMenu_Scroll * proc);
-void PrepMenu_OnEnd(struct ProcPrepMenu_Scroll * proc);
+void PrepMenu_OnInit(struct ProcPrepMenu * proc);
+void PrepMenu_CtrlLoop(struct ProcPrepMenu * proc);
+void PrepMenu_ShowFrozenHand(struct ProcPrepMenu * proc);
+void PrepMenu_ShowActiveHand(struct ProcPrepMenu * proc);
+void PrepMenu_OnEnd(struct ProcPrepMenu * proc);
 
-// void PrepMenu_OnInit(struct ProcPrepMenu * proc);
-// void PrepMenu_CtrlLoop(struct ProcPrepMenu * proc);
-// void PrepMenu_ShowFrozenHand(struct ProcPrepMenu * proc);
-// void PrepMenu_ShowActiveHand(struct ProcPrepMenu * proc);
-// void PrepMenu_OnEnd(struct ProcPrepMenu * proc);
+extern u8 firstVisibleIndex;
 
 void StartPrepScreenMenu(ProcPtr);
 void SetPrepScreenMenuOnBPress(const void*);

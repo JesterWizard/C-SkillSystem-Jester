@@ -4,6 +4,7 @@
 #include "uichapterstatus.h"
 #include "jester_headers/procs.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/miscellaneous.h"
 #include "constants/texts.h"
 #include "uiconfig.h"
 #include "prepscreen.h"
@@ -114,10 +115,10 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
 };
 
 LYN_REPLACE_CHECK(PrepMenu_OnInit);
-void PrepMenu_OnInit(struct ProcPrepMenu_Scroll * proc)
+void PrepMenu_OnInit(struct ProcPrepMenu * proc)
 {
     int i;
-    for (i = 0; i < proc->max_index; i++)
+    for (i = 0; i < PREP_MENU_MAX_COUNT; i++)
         proc->cmds[i] = 0;
 
     proc->cur_index = 0;
@@ -132,7 +133,7 @@ void PrepMenu_OnInit(struct ProcPrepMenu_Scroll * proc)
     proc->on_End = 0;
     proc->do_help = 0;
 
-    proc->firstVisibleIndex = 0;
+    firstVisibleIndex = 0;
 
     StartMenuScrollBar(proc);
     PutMenuScrollBarAt(3, 60); // x and y
@@ -144,7 +145,7 @@ void PrepMenu_OnInit(struct ProcPrepMenu_Scroll * proc)
 LYN_REPLACE_CHECK(SetPrepScreenMenuOnBPress);
 void SetPrepScreenMenuOnBPress(const void* func)
 {
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 
@@ -155,7 +156,7 @@ void SetPrepScreenMenuOnBPress(const void* func)
 LYN_REPLACE_CHECK(SetPrepScreenMenuOnStartPress);
 void SetPrepScreenMenuOnStartPress(const void* func)
 {
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 
@@ -166,15 +167,15 @@ void SetPrepScreenMenuOnStartPress(const void* func)
 extern struct ProcCmd sProc_Menu[];
 
 LYN_REPLACE_CHECK(PrepMenu_CtrlLoop);
-void PrepMenu_CtrlLoop(struct ProcPrepMenu_Scroll *proc)
+void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
 {
     struct ProcPrepMenuItem* cmd;
     int index = proc->cur_index;
     int xPos = (proc->xPos + 1) * 8 + 4;
     int yPos = (proc->yPos + 1) * 8 + proc->cur_index * 16;
 
-    int visibleX = (proc->xPos + 1) * 8 + (4 - proc->firstVisibleIndex);
-    int visibleY = (proc->yPos + 1) * 8 + (proc->cur_index - proc->firstVisibleIndex) * 16;
+    int visibleX = (proc->xPos + 1) * 8 + (4 - firstVisibleIndex);
+    int visibleY = (proc->yPos + 1) * 8 + (proc->cur_index - firstVisibleIndex) * 16;
     ShowSysHandCursor(xPos, visibleY, 0x6, 0x400);
     struct MenuProc* proc2 = Proc_Find(sProc_Menu);
     GetMenuCursorPosition(proc2, &xPos, &yPos);
@@ -262,11 +263,11 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu_Scroll *proc)
         }
     }
 
-    if (proc->cur_index < proc->firstVisibleIndex) {
-        proc->firstVisibleIndex = proc->cur_index;
+    if (proc->cur_index < firstVisibleIndex) {
+        firstVisibleIndex = proc->cur_index;
     }
-    if (proc->cur_index >= proc->firstVisibleIndex + PREP_MENU_VISIBLE_COUNT - 1) {
-        proc->firstVisibleIndex = proc->cur_index - PREP_MENU_VISIBLE_COUNT + 1;
+    if (proc->cur_index >= firstVisibleIndex + PREP_MENU_VISIBLE_COUNT - 1) {
+        firstVisibleIndex = proc->cur_index - PREP_MENU_VISIBLE_COUNT + 1;
     }
 
     /* This is what's causing the additional menu items to persist when switching to the view map screen */
@@ -276,21 +277,21 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu_Scroll *proc)
 
     UpdateMenuScrollBarConfig(
         (u8)proc->max_index,                       // Height of scrollbar (should be set to max)
-        (u16)proc->firstVisibleIndex*16,           // currentSegment: which is topmost, every segment is in batches of 16 pixels
+        (u16)firstVisibleIndex*16,           // currentSegment: which is topmost, every segment is in batches of 16 pixels
         (u16)proc->max_index,                      // totalRows: total number of items - should be actual max
         (u8)PREP_MENU_VISIBLE_COUNT                // visibleRows: window size
     );
 }
 
 LYN_REPLACE_CHECK(PrepMenu_ShowFrozenHand);
-void PrepMenu_ShowFrozenHand(struct ProcPrepMenu_Scroll *proc)
+void PrepMenu_ShowFrozenHand(struct ProcPrepMenu *proc)
 {
     DisplayFrozenUiHand((proc->xPos + 1) * 8 + 4, (proc->yPos + 1) * 8 + proc->cur_index * 16);
 }
 
 /* I need to hook this or otherwise the map menu is never seen when pressing B and the map starts */
 LYN_REPLACE_CHECK(PrepMenu_OnEnd);
-void PrepMenu_OnEnd(struct ProcPrepMenu_Scroll *proc)
+void PrepMenu_OnEnd(struct ProcPrepMenu *proc)
 {
     if (proc->on_End)
         proc->on_End(proc->proc_parent);
@@ -476,7 +477,7 @@ void DrawPrepScreenMenuFrameAt(int x, int y)
 {
     int i;
 
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     struct ProcPrepMenuItem *cmd;
     proc = Proc_Find(ProcScr_PrepMenu);
@@ -510,7 +511,7 @@ void SetPrepScreenMenuPosition(int x, int y)
 {
     int i;
 
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     struct ProcPrepMenuItem *cmd;
     proc = Proc_Find(ProcScr_PrepMenu);
@@ -524,7 +525,7 @@ void SetPrepScreenMenuPosition(int x, int y)
     
             for (i = 0; i < PREP_MENU_VISIBLE_COUNT; i++) {
                 // Calculate the actual index of the menu item that should be in this visible slot
-                int actualItemIndex = proc->firstVisibleIndex + i;
+                int actualItemIndex = firstVisibleIndex + i;
 
                 if (actualItemIndex < proc->max_index) {
                     cmd = proc->cmds[actualItemIndex]; // Get the menu item data
@@ -549,7 +550,7 @@ void SetPrepScreenMenuSelectedItem(int index)
 {
     int i, cur = 0;
 
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 
@@ -572,7 +573,7 @@ int GetActivePrepMenuItemIndex()
 {
     int i, cur = 0;
 
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 
@@ -597,7 +598,7 @@ void SetPrepScreenMenuItem(int index, const void* func, int color, int msg, int 
     // int max_index; // Not used?
     // struct ProcPrepMenuItem* cmd; // Not used?
 
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 
@@ -684,7 +685,7 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
 LYN_REPLACE_CHECK(SetPrepScreenMenuOnEnd);
 void SetPrepScreenMenuOnEnd(const void * func)
 {
-    struct ProcPrepMenu_Scroll *proc;
+    struct ProcPrepMenu *proc;
 
     proc = Proc_Find(ProcScr_PrepMenu);
 

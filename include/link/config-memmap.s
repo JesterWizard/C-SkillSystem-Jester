@@ -101,6 +101,7 @@ _kernel_malloc gForgedItemRam, 50 * 2
 _kernel_malloc gDeadUnits, 50
 _kernel_malloc gChapterTimerSeconds, 2
 _kernel_malloc gChapterTimerSeconds_Initial, 2
+_kernel_malloc firstVisibleIndex, 1
 
 // JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
 @ _kernel_malloc sDemoUnitExpaAlly, 51 * 4
