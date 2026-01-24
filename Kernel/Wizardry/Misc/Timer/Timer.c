@@ -122,6 +122,7 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
             BG_Fill(gBG2TilemapBuffer, 0);
             BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
             Proc_End(Proc_Find(gProcScr_UnitDisplay_MinimugBox));
+            WriteAndVerifySramFast(&gChapterTimerSeconds, SramOffsetToAddr(gChapterTimerSeconds), sizeof(gChapterTimerSeconds));
             CallGameOverEvent();
         }
     }

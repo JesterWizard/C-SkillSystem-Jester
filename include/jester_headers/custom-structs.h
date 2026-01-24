@@ -40,6 +40,7 @@ extern const UnitPromotions unit_promotions[];
 /* Global flags use */
 enum {
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
+    GLOBAL_FLAG_TIME_RAN_OUT = 0xED,
 };
 
 extern const EventListScr EventScr_MapSupportConversation_NEW[];
