@@ -142,28 +142,6 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
     InitMenuScrollBarImg(0xE00, 2); 
 }
 
-LYN_REPLACE_CHECK(SetPrepScreenMenuOnBPress);
-void SetPrepScreenMenuOnBPress(const void* func)
-{
-    struct ProcPrepMenu *proc;
-
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc)
-        proc->on_PressB = func;
-}
-
-LYN_REPLACE_CHECK(SetPrepScreenMenuOnStartPress);
-void SetPrepScreenMenuOnStartPress(const void* func)
-{
-    struct ProcPrepMenu *proc;
-
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc)
-        proc->on_PressStart = func;
-}
-
 extern struct ProcCmd sProc_Menu[];
 
 LYN_REPLACE_CHECK(PrepMenu_CtrlLoop);
@@ -172,14 +150,10 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
     struct ProcPrepMenuItem* cmd;
     int index = proc->cur_index;
     int xPos = (proc->xPos + 1) * 8 + 4;
-    // int yPos = (proc->yPos + 1) * 8 + proc->cur_index * 16;
 
     int visibleX = (proc->xPos + 1) * 8 + (4 - firstVisibleIndex);
     int visibleY = (proc->yPos + 1) * 8 + (proc->cur_index - firstVisibleIndex) * 16;
     ShowSysHandCursor(xPos, visibleY, 0x6, 0x400);
-    // struct MenuProc* proc2 = Proc_Find(sProc_Menu);
-    // GetMenuCursorPosition(proc2, &xPos, &yPos);
-    // ApplyMenuCursorVScroll(proc2, &xPos, &yPos);
 
     cmd = proc->cmds[proc->cur_index];
 
@@ -203,7 +177,6 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
                 PlaySoundEffect(SONG_6C);
                 return;
             } else {
-                // Proc_Goto(proc, 0x0);
                 cmd->effect(proc->proc_parent);
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
                 return;
@@ -213,7 +186,6 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
         if (B_BUTTON & gKeyStatusPtr->newKeys) {
             if (proc->on_PressB) {
                 if (proc->on_PressB(proc->proc_parent)) {
-                    // Proc_Goto(proc, 0x0);
                     PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
                     return;
                 } else {
@@ -242,15 +214,15 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
     if (DPAD_UP & gKeyStatusPtr->repeatedKeys) {
         if (proc->cur_index)
             proc->cur_index = proc->cur_index - 1;
-        // else if (DPAD_UP & gKeyStatusPtr->newKeys) // Allows looping of cursor when at top
-        //     proc->cur_index = proc->max_index - 1;
+        else if (DPAD_UP & gKeyStatusPtr->newKeys) // Allows looping of cursor when at top
+            proc->cur_index = proc->max_index - 1;
     }
 
     if (DPAD_DOWN & gKeyStatusPtr->repeatedKeys) {
         if (proc->cur_index < (proc->max_index - 1)) // Need this to start moving the UI hand cursor at all
             proc->cur_index = proc->cur_index + 1;
-        // else if (DPAD_DOWN & gKeyStatusPtr->newKeys) // Allows looping of cursor when at bottom
-        //     proc->cur_index = 0;
+        else if (DPAD_DOWN & gKeyStatusPtr->newKeys) // Allows looping of cursor when at bottom
+            proc->cur_index = 0;
     }
 
     if (index != proc->cur_index) {
@@ -276,31 +248,11 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
         SetPrepScreenMenuPosition(1, 6);
 
     UpdateMenuScrollBarConfig(
-        (u8)proc->max_index,                       // Height of scrollbar (should be set to max)
+        (u8)proc->max_index,                 // Height of scrollbar (should be set to max)
         (u16)firstVisibleIndex*16,           // currentSegment: which is topmost, every segment is in batches of 16 pixels
-        (u16)proc->max_index,                      // totalRows: total number of items - should be actual max
-        (u8)PREP_MENU_VISIBLE_COUNT                // visibleRows: window size
+        (u16)proc->max_index,                // totalRows: total number of items - should be actual max
+        (u8)PREP_MENU_VISIBLE_COUNT          // visibleRows: window size
     );
-}
-
-LYN_REPLACE_CHECK(PrepMenu_ShowFrozenHand);
-void PrepMenu_ShowFrozenHand(struct ProcPrepMenu *proc)
-{
-    DisplayFrozenUiHand(
-        (proc->xPos + 1) * 8 + 4,
-        (proc->yPos + 1) * 8 + (proc->cur_index - firstVisibleIndex) * 16
-);
-
-}
-
-/* I need to hook this or otherwise the map menu is never seen when pressing B and the map starts */
-LYN_REPLACE_CHECK(PrepMenu_OnEnd);
-void PrepMenu_OnEnd(struct ProcPrepMenu *proc)
-{
-    if (proc->on_End)
-        proc->on_End(proc->proc_parent);
-
-    EndMenuScrollBar();
 }
 
 LYN_REPLACE_CHECK(AtMenu_Reinitialize);
@@ -476,40 +428,6 @@ void sub_8095C00(int msg, ProcPtr parent)
     }
 }
 
-LYN_REPLACE_CHECK(DrawPrepScreenMenuFrameAt);
-void DrawPrepScreenMenuFrameAt(int x, int y)
-{
-    int i;
-
-    struct ProcPrepMenu *proc;
-
-    struct ProcPrepMenuItem *cmd;
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc) {
-        proc->xPos = x;
-        proc->yPos = y;
-
-        DrawUiFrame2(x, y, 0xA, proc->max_index * 2 + 2, 0);
-
-        if (proc->max_index > 1) {
-            for (i = 0; i < proc->max_index; i++) {
-                cmd = proc->cmds[i];
-                ClearText(&cmd->text);
-    
-                PutDrawText(
-    				&cmd->text,
-    				TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y + 2 * i + 1),
-    				1 & cmd->color,
-    				0, 0,
-    				GetStringFromIndex(cmd->msg) );
-            }
-        }
-
-        BG_EnableSyncByMask(0x3);
-    }
-}
-
 LYN_REPLACE_CHECK(SetPrepScreenMenuPosition);
 void SetPrepScreenMenuPosition(int x, int y)
 {
@@ -547,52 +465,6 @@ void SetPrepScreenMenuPosition(int x, int y)
         }
         BG_EnableSyncByMask(0x1);
     }
-}
-
-LYN_REPLACE_CHECK(SetPrepScreenMenuSelectedItem);
-void SetPrepScreenMenuSelectedItem(int index)
-{
-    int i, cur = 0;
-
-    struct ProcPrepMenu *proc;
-
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc) {
-        for (i = 0; i < proc->max_index; i++) {
-            if (!proc->cmds[i])
-                continue;
-
-            if (proc->cmds[i]->index == index) {
-                proc->cur_index = cur;
-                return;
-            }
-            cur++;
-        }
-    }
-}
-
-LYN_REPLACE_CHECK(GetActivePrepMenuItemIndex);
-int GetActivePrepMenuItemIndex()
-{
-    int i, cur = 0;
-
-    struct ProcPrepMenu *proc;
-
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc) {
-        for (i = 0; i < proc->max_index; i++) {
-            if (!proc->cmds[i])
-                    continue;
-    
-            if (proc->cur_index == cur) {
-                return proc->cmds[i]->index;
-            }
-            cur++;
-        }
-    }
-    return 0;
 }
 
 LYN_REPLACE_CHECK(SetPrepScreenMenuItem);
@@ -684,15 +556,4 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
 
     SetPrepScreenMenuSelectedItem(proc->cur_cmd);
 
-}
-
-LYN_REPLACE_CHECK(SetPrepScreenMenuOnEnd);
-void SetPrepScreenMenuOnEnd(const void * func)
-{
-    struct ProcPrepMenu *proc;
-
-    proc = Proc_Find(ProcScr_PrepMenu);
-
-    if (proc)
-        proc->on_End = func;
 }
