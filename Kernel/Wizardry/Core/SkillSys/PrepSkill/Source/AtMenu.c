@@ -21,7 +21,7 @@ void PrepScreenMenu_OnEquip(struct ProcAtMenu *proc)
 void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc) 
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-    proc->state = 4; // Sets the index AtMenu_StartSubMenu will look for
+    proc->state = 14; // Sets the index AtMenu_StartSubMenu will look for
     Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu, was originally 0x8
 }
 
@@ -520,7 +520,7 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         else
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, PrepScreenMenu_OnSave, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_SAVE, 0);
 
-        // SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
+        SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
 
         if (gpKernelDesignerConfig->prep_menu_augury == true)

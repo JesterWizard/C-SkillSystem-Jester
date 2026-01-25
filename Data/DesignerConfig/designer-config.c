@@ -77,6 +77,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.collect_dead_units = false,
 	.goal_timer = true,
 	.prep_menu_augury = true,
+	.prep_menu_infuse = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

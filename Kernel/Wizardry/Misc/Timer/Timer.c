@@ -10,7 +10,7 @@ typedef struct {
 } TimerAmount;
 
 const TimerAmount chapter_timers[] = {
-    {CHAPTER_L_PROLOGUE,    180},
+    {CHAPTER_L_PROLOGUE,    30},
     {CHAPTER_L_1,           0},
     {CHAPTER_L_2,           60},
     {CHAPTER_L_3,           60},
@@ -372,4 +372,30 @@ void Mu_OnLoop(struct MuProc * proc)
         PutMuSMS(proc);
     else
         PutMu(proc);
+}
+
+u8 EWRAM_DATA gSMSGfxBuffer[3][8*0x20*0x20] = {};
+
+LYN_REPLACE_CHECK(SyncUnitSpriteSheet);
+void SyncUnitSpriteSheet(void)
+{
+    int clock = GetGameClock();
+
+    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2) {  
+        clock *= 4;
+    }
+
+    int frame = k_umod(clock, 72);
+
+    if (frame == 0)
+        CpuFastCopy(gSMSGfxBuffer[0], (void*)0x06011000, sizeof(gSMSGfxBuffer[0]));
+
+    if (frame == 32)
+        CpuFastCopy(gSMSGfxBuffer[1], (void*)0x06011000, sizeof(gSMSGfxBuffer[1]));
+
+    if (frame == 36)
+        CpuFastCopy(gSMSGfxBuffer[2], (void*)0x06011000, sizeof(gSMSGfxBuffer[2]));
+
+    if (frame == 68)
+        CpuFastCopy(gSMSGfxBuffer[1], (void*)0x06011000, sizeof(gSMSGfxBuffer[1]));
 }

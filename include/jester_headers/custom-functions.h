@@ -159,7 +159,7 @@ extern u8 GetItemReward(struct Unit * winner, struct Unit * loser);
 extern void Popup_GotItem(ProcPtr proc);
 extern const struct ProcCmd ProcPopup_GotItem[];
 
-/* CONFIG_INFUSE_MENU */
+/* gpKernelDesignerConfig->prep_menu_infuse */
 extern void displayScrollBackground_INFUSE(void);
 extern void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc);
 extern struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[];

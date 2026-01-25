@@ -402,9 +402,6 @@
 */
 // #define CONFIG_HALF_BODY_PORTRAITS
 
-/* Very much not complete, still a WIP */
-// #define CONFIG_PREPS_INFUSE
-
 #define CONFIG_MAX_COLOR_BACKGROUNDS
 
 #define CONFIG_FE7_TELEPORT
