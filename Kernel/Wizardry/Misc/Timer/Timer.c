@@ -4,6 +4,34 @@
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 
+typedef struct {
+    int chapter_id;   // ID of the chapter
+    int time_seconds; // time in seconds
+} TimerAmount;
+
+const TimerAmount chapter_timers[] = {
+    {CHAPTER_L_PROLOGUE,    180},
+    {CHAPTER_L_1,           60},
+    {CHAPTER_L_2,           60},
+    {CHAPTER_L_3,           60},
+    {CHAPTER_L_4,           60},
+    {CHAPTER_L_5,           60},
+    {CHAPTER_L_5X,          60},
+    {CHAPTER_L_6,           60},
+    {CHAPTER_L_7,           60},
+    {CHAPTER_L_8,           60},
+    {CHAPTER_E_9,           60},
+    {CHAPTER_E_10,          60},
+    {CHAPTER_E_11,          60},
+    {CHAPTER_E_12,          60},
+    {CHAPTER_E_13,          60},
+    {CHAPTER_E_14,          60},
+    {CHAPTER_E_15,          60},
+    {CHAPTER_E_16,          60},
+    {CHAPTER_E_17,          60},
+    {CHAPTER_E_18,          60}
+};
+
 //! FE8U = 0x0808D784
 LYN_REPLACE_CHECK(GoalDisplay_Loop_Display);
 void GoalDisplay_Loop_Display(struct PlayerInterfaceProc *proc)
@@ -61,7 +89,7 @@ void DrawTimeHMS(struct Text *text, int x, int seconds)
         seconds = 0;
 
     /* If we're at half remaining time, switch to yellow colored text */
-    color = (seconds <= gChapterTimerSeconds_Initial / 2)
+    color = (seconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2)
         ? TEXT_COLOR_SYSTEM_GOLD
         : TEXT_COLOR_SYSTEM_BLUE;
 
@@ -108,8 +136,13 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
         proc->frameClock = 0;
         gChapterTimerSeconds--;
 
+        /* We've won now so we reset the timer and exit early to prevent the game over screen triggering */
         if (CheckFlag(EVFLAG_WIN))
+        {
             Proc_End(proc);
+            gChapterTimerSeconds = 0;
+            return;
+        }
 
         if (gChapterTimerSeconds == 0)
         {
@@ -122,7 +155,6 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
             BG_Fill(gBG2TilemapBuffer, 0);
             BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
             Proc_End(Proc_Find(gProcScr_UnitDisplay_MinimugBox));
-            WriteAndVerifySramFast(&gChapterTimerSeconds, SramOffsetToAddr(gChapterTimerSeconds), sizeof(gChapterTimerSeconds));
             CallGameOverEvent();
         }
     }
@@ -140,7 +172,6 @@ void StartChapterTimer(int seconds)
     struct ChapterTimerProc *proc;
 
     gChapterTimerSeconds = seconds;
-    gChapterTimerSeconds_Initial = seconds;
 
     proc = Proc_Start(ProcScr_ChapterTimer, PROC_TREE_3);
     proc->frameClock = 0;
@@ -188,8 +219,9 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
     goalWindowType = isSkirmish ? GOAL_TYPE_DEFEAT_ALL : chapter->goalWindowDataType;
 
     /* Since we're adding custom objectives now I'm putting this forced text string under a condition */
-    if (goalWindowType < GOAL_TYPE_TIMER)
-        Text_InsertDrawString(&proc->texts[0], GetStringTextCenteredPos(64, str), TEXT_COLOR_SYSTEM_WHITE, str);
+    if (gpKernelDesignerConfig->goal_timer == true)
+        if (gPlaySt.chapterIndex == chapter_timers[gPlaySt.chapterIndex].chapter_id)
+            goalWindowType = GOAL_TYPE_TIMER;
 
     switch (goalWindowType)
     {
@@ -267,7 +299,13 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
 
         /* If the proc hasn't already begun then start it here to assure several seconds aren't lost on initialization */
         if (!Proc_Find(ProcScr_ChapterTimer))
+        {
+            if (gChapterTimerSeconds == 0)
+            {
+                gChapterTimerSeconds = chapter_timers[gPlaySt.chapterIndex].time_seconds;
+            }
             StartChapterTimer(gChapterTimerSeconds);
+        }
 
         DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
 

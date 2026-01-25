@@ -8,6 +8,7 @@
 
 ## 📑 Index
 - [Introduction](#introduction)
+- [How-To-Use](#How-To-Use)
 - [Plan](#plan)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
@@ -22,6 +23,16 @@
 This features adds a new goal type in the form of a real-time ticking clock. E.g. you have to complete a map within 15 or you lose.
 
 In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
+
+---
+
+## 🛠️ How To Use
+
+Inside [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) set the `.goal_timer` option to true.
+
+Inside [`Timer.c`](../../include/jester_headers/custom-structs.h) there is a struct called `chapter_timers`. It is comprised of two elements; the `chapter index`
+and the `time in seconds`. Set each chapter to the timer value you want. If it is set to 0, then the timer won't appear. If it is greater than 0, then the timer
+will override whatever that chapter's original objective was (this is so you don't have to make unnecessary edits to other files).
 
 ---
 
@@ -40,7 +51,7 @@ In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Global variables** | `gChapterTimerSeconds` and `gChapterTimerSeconds_Initial` in [`Timer.c`](../../include/jester_headers/custom-structs.h) | Holds the current and initial time respectively |
+| **Global variables** | `gChapterTimerSeconds` in [`Timer.c`](../../include/jester_headers/custom-structs.h) | Holds the current and initial time respectively |
 | **Initialize timer** | `StartChapterTimer` in [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Takes care of setting the global variables and starting the timer proc |
 | **New goal type** | `GOAL_TYPE_TIMER` in `GoalDisplay_Init` [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the display initialization of the new goal |
 | **Draw countdown** | `DrawTimeHMS` in [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the calculations to update the digits |
@@ -58,7 +69,6 @@ In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
 
 Please report issues in the repository’s **Issues** tab.
 
-- The timer restarts when reaching 0 and then exiting/resuming
 - Some graphics on resume have been known to slightly glitch intermittently but it's quickly resolved when the map is viewed again
 
 ---

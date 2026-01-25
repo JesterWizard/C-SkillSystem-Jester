@@ -8,6 +8,7 @@
 #include "playst-expa.h"
 #include "unit-expa.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-structs.h"
 #include "jester_headers/class-pairs.h"
 
 typedef int (*UnitRefrainFunc_t)(struct Unit *unit);
