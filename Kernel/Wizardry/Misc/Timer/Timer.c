@@ -330,3 +330,46 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
 
     proc->unitClock = 1;
 }
+
+LYN_REPLACE_CHECK(StartMuSpeedUpAnim);
+void StartMuSpeedUpAnim(struct MuProc * proc)
+{
+    proc->sprite_anim->frameTimer    = 0;
+    proc->sprite_anim->frameInterval = 0x40;
+
+    CallDelayedArg(MuSlowDownAnimFreezeFunc, (int) proc->sprite_anim, 10);
+}
+
+static const MuStateFunc sMuStateFuncs[] = {
+    [MU_STATE_NONE]       = Mu_OnStateNone,
+    [MU_STATE_INACTIVE]   = Mu_OnStateDoNothing,
+    [MU_STATE_MOVEMENT]   = Mu_OnStateMovement,
+    [MU_STATE_SLEEPING]   = Mu_OnStateSleeping,
+    [MU_STATE_UNK4]       = Mu_OnStateUnk4,
+    [MU_STATE_BUMPING]    = Mu_OnStateBump,
+    [MU_STATE_DISPLAY_UI] = Mu_OnStateDoNothing,
+    [MU_STATE_DEATHFADE]  = Mu_OnStateDoNothing,
+};
+
+LYN_REPLACE_CHECK(Mu_OnLoop);
+void Mu_OnLoop(struct MuProc * proc)
+{
+    // If our timer hack is active and we're under half the remainin time, increase the active unit animations speed
+    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2) {
+        proc->sprite_anim->frameInterval = 0x60; // Quad speed (Default is 0x100)
+    }
+
+    if (proc->state)
+    {
+        if (proc->move_clock_q4 == 0)
+            if (proc->state == MU_STATE_SLEEPING || proc->state == MU_STATE_MOVEMENT)
+                RunMuMoveScript(proc);
+
+        sMuStateFuncs[proc->state](proc);
+    }
+
+    if (proc->facing == MU_FACING_STANDING)
+        PutMuSMS(proc);
+    else
+        PutMu(proc);
+}
