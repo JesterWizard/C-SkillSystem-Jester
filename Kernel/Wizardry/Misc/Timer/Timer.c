@@ -11,7 +11,7 @@ typedef struct {
 
 const TimerAmount chapter_timers[] = {
     {CHAPTER_L_PROLOGUE,    180},
-    {CHAPTER_L_1,           60},
+    {CHAPTER_L_1,           0},
     {CHAPTER_L_2,           60},
     {CHAPTER_L_3,           60},
     {CHAPTER_L_4,           60},
@@ -219,9 +219,10 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
     goalWindowType = isSkirmish ? GOAL_TYPE_DEFEAT_ALL : chapter->goalWindowDataType;
 
     /* Since we're adding custom objectives now I'm putting this forced text string under a condition */
-    if (gpKernelDesignerConfig->goal_timer == true)
-        if (gPlaySt.chapterIndex == chapter_timers[gPlaySt.chapterIndex].chapter_id)
-            goalWindowType = GOAL_TYPE_TIMER;
+    if (gpKernelDesignerConfig->goal_timer == true && gPlaySt.chapterIndex == chapter_timers[gPlaySt.chapterIndex].chapter_id && chapter_timers[gPlaySt.chapterIndex].time_seconds > 0)
+        goalWindowType = GOAL_TYPE_TIMER;
+    else
+        Text_InsertDrawString(&proc->texts[0], GetStringTextCenteredPos(64, str), TEXT_COLOR_SYSTEM_WHITE, str);
 
     switch (goalWindowType)
     {
@@ -300,11 +301,21 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
         /* If the proc hasn't already begun then start it here to assure several seconds aren't lost on initialization */
         if (!Proc_Find(ProcScr_ChapterTimer))
         {
-            if (gChapterTimerSeconds == 0)
+            // Case 1: resuming with an existing timer
+            if (gChapterTimerSeconds > 0)
             {
-                gChapterTimerSeconds = chapter_timers[gPlaySt.chapterIndex].time_seconds;
+                StartChapterTimer(gChapterTimerSeconds);
             }
-            StartChapterTimer(gChapterTimerSeconds);
+            else
+            {
+                // Case 2: fresh start, pull from chapter data
+                gChapterTimerSeconds = chapter_timers[gPlaySt.chapterIndex].time_seconds;
+
+                if (gChapterTimerSeconds > 0)
+                {
+                    StartChapterTimer(gChapterTimerSeconds);
+                }
+            }
         }
 
         DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
