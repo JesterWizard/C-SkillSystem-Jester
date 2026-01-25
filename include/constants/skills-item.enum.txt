@@ -325,6 +325,7 @@
 // SID_Enlightenment
 // SID_Equlibrium
 // SID_Axiom
+// SID_AxiomPlus
 
 //////// POST-BATTLE SKILLS
 // SID_Canto

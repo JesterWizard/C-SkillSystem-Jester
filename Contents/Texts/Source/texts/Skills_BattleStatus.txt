@@ -1842,3 +1842,11 @@ Axiom[X]
 Axiom:[N]
 Unit always hits but effective[N]
 accuracy becomes damage modifier.[X]
+
+
+## MSG_SKILL_AxiomPlus_NAME
+Axiom+[X]
+## MSG_SKILL_AxiomPlus_DESC
+Axiom+:[N]
+Unit always hits but battle[N]
+accuracy becomes damage modifier.[X]

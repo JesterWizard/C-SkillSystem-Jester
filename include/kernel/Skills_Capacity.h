@@ -904,3 +904,4 @@
 #define MSG_SKILL_Transcendence_CAPACITY 1
 #define MSG_SKILL_Necromancy_CAPACITY 1
 #define MSG_SKILL_Axiom_CAPACITY 1
+#define MSG_SKILL_AxiomPlus_CAPACITY 1

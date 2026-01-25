@@ -359,6 +359,13 @@ void ComputeBattleUnitEffectiveHitRate(struct BattleUnit *attacker, struct Battl
 		}
 	}
 
+#if (defined(SID_AxiomPlus) && (COMMON_SKILL_VALID(SID_AxiomPlus)))
+	if (SkillTesterPlus(GetUnit(attacker->unit.index), SID_AxiomPlus))
+	{
+		attacker->battleAttack = (attacker->battleAttack * attacker->battleEffectiveHitRate) / 100;
+	}
+#endif
+
 	if (attacker->battleEffectiveHitRate > 100)
 		attacker->battleEffectiveHitRate = 100;
 

@@ -188,19 +188,22 @@ Adjacent allies gain +4 RES.[X]
 Gentilhomme[X]
 ## MSG_SKILL_Gentilhomme_DESC
 Gentilhomme:[N]
-Female allies within 2 tiles receive -2 damage.[X]
+Female allies within 2 tiles[N]
+receive -2 damage.[X]
 
 ## MSG_SKILL_Demoiselle_NAME
 Demoiselle[X]
 ## MSG_SKILL_Demoiselle_DESC
 Demoiselle:[N]
-Male allies within 2 tiles receive -2 damage.[X]
+Male allies within 2 tiles[N]
+receive -2 damage.[X]
 
 ## MSG_SKILL_Solidarity_NAME
 Solidarity[X]
 ## MSG_SKILL_Solidarity_DESC
 Solidarity:[N]
-+10 Crit and Crit Avoid to adjacent allies.[X]
++10 Crit and Crit Avoid to[N]
+adjacent allies.[X]
 
 ## MSG_SKILL_Plus_NAME
 Plus[X]

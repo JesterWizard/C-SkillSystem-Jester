@@ -153,6 +153,9 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_Lifetaker) && defined(SID_LifetakerPlus)
         [SID_LifetakerPlus] = SID_Lifetaker,
     #endif
+    #if defined(SID_Axiom) && defined(SID_AxiomPlus)
+        [SID_AxiomPlus] = SID_Axiom,
+    #endif
 };
 
 const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
@@ -281,6 +284,9 @@ const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
     #endif
     #if defined(SID_LifetakerPlus) && defined(SID_Lifetaker)
         [SID_Lifetaker] = SID_LifetakerPlus,
+    #endif
+    #if defined(SID_AxiomPlus) && defined(SID_Axiom)
+        [SID_Axiom] = SID_AxiomPlus,
     #endif
 };
 
