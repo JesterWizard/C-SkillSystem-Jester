@@ -297,6 +297,14 @@ STATIC_DECLAR void BattleCalcReal_ComputSkills(struct BattleUnit *attacker, stru
 	if (gBattleStats.range > 1 && BattleFastSkillTester(attacker, SID_Dazzling))
 		attacker->battleDefense = 999;
 #endif
+
+#if (defined(SID_Axiom) && (COMMON_SKILL_VALID(SID_Axiom)))
+	if (BattleFastSkillTester(attacker, SID_Axiom))
+	{
+		attacker->battleAttack = (attacker->battleAttack * attacker->battleEffectiveHitRate) / 100;
+		attacker->battleEffectiveHitRate = 100;
+	}
+#endif
 }
 
 LYN_REPLACE_CHECK(ComputeBattleUnitSilencerRate);

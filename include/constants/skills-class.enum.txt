@@ -324,6 +324,7 @@
 // SID_SPConversion
 // SID_Enlightenment
 // SID_Equlibrium
+// SID_Axiom
 
 //////// POST-BATTLE SKILLS
 // SID_Canto

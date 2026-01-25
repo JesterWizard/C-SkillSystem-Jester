@@ -9050,4 +9050,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Axiom) && COMMON_SKILL_VALID(SID_Axiom))
+    [SID_Axiom] = {
+        .name = MSG_SKILL_Axiom_NAME,
+        .desc = MSG_SKILL_Axiom_DESC,
+        .capacity = MSG_SKILL_Axiom_CAPACITY,
+        .price = MSG_SKILL_Axiom_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
+
 };

@@ -1835,3 +1835,10 @@ Equlibrium[X]
 Equlibrium:[N]
 This unit takes and receives[N]
 half damage in battle.[X]
+
+## MSG_SKILL_Axiom_NAME
+Axiom[X]
+## MSG_SKILL_Axiom_DESC
+Axiom:[N]
+Unit always hits but effective[N]
+accuracy becomes damage modifier.[X]

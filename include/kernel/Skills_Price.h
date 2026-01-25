@@ -903,3 +903,4 @@
 #define MSG_SKILL_Gungnir_PRICE 1000
 #define MSG_SKILL_Transcendence_PRICE 1000
 #define MSG_SKILL_Necromancy_PRICE 1000
+#define MSG_SKILL_Axiom_PRICE 1000
