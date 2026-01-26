@@ -53,6 +53,7 @@ gEmsSavChunks:
     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
     EmsChunk($0064, SaveForgedItems, LoadForgedItems)
     EmsChunk($0002, SaveTimer, LoadTimer)
+    EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
 
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
@@ -90,6 +91,7 @@ gEmsSusChunks:
     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
     EmsChunk($0064, SaveForgedItems, LoadForgedItems)
     EmsChunk($0002, SaveTimer, LoadTimer)
+    EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
 
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x34, MSU_SaveBlueUnits,  MSU_LoadBlueUnits, EMS_CHUNK_SAVEUNITS)

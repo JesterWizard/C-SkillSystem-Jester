@@ -406,3 +406,17 @@ void LoadTimer(u8 *src, const u32 size)
     Assert(size <= want);
     ReadSramFast(src, &gChapterTimerSeconds, size);
 }
+
+void SaveDragonGlass(u8 *dst, const u32 size)
+{
+	u32 want = sizeof(gDragonGlass);
+    Assert(size <= want);
+    WriteAndVerifySramFast(&gDragonGlass, dst, size);
+}
+
+void LoadDragonGlass(u8 *src, const u32 size)
+{
+	u32 want = sizeof(gDragonGlass);
+    Assert(size <= want);
+    ReadSramFast(src, &gDragonGlass, size);
+}

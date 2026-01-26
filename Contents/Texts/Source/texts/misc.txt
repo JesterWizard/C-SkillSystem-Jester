@@ -276,3 +276,6 @@ map node to see different events.[X]
 ## MSG_TOGGLE_GROWTH_VIEW
 Press Select to toggle between[N]
 stat and growth views.[X]
+
+## MSG_SELECT_WEAPON
+Select a weapon.[X]
