@@ -54,6 +54,13 @@ void displayScrollBackground_INFUSE(void)
     Decompress(Gfx_Down_Arrow, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6014B20, 2, 4);
 
+    Decompress(Gfx_UI_Frame_One_Line_1, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017000, 4, 4);
+    Decompress(Gfx_UI_Frame_One_Line_2, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017080, 4, 4);
+    Decompress(Gfx_UI_Frame_One_Line_3, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017100, 4, 4);
+
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 13), GetItemIconId(0xAA), 0x4000);
 
@@ -130,8 +137,8 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     /* Now we can start drawing additional TSAs */
     // CallARM_FillTileRect(TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 0x9), gTSA_GoalBox_OneLine,  0x1000);
     // CallARM_FillTileRect(TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 0x10), gTSA_GoalBox_OneLine,  0x1000);
-    DrawUiFrame(gBG1TilemapBuffer, 1, 8, 12, 3, 0, 1);
-    DrawUiFrame(gBG1TilemapBuffer, 1, 16, 12, 3, 0, 1);
+    // DrawUiFrame(gBG1TilemapBuffer, 1, 8, 12, 3, 0, 1);
+    // DrawUiFrame(gBG1TilemapBuffer, 1, 16, 12, 3, 0, 1);
 
     /* Load top left scroll container */
     Decompress(gUnknown_08A1BCC0, gGenericBuffer);
@@ -380,7 +387,17 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
     int idx = proc->idxPerPage[proc->currentPage];
 
     /* Display down arrow */
-    PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0)); 
+    PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0));
+
+    /* UI Line 1 - parts 1, 2, 3 */
+    PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
+    PutSprite(1, 40, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
+    PutSprite(1, 72, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+    
+    /* UI Line 2 - parts 1, 2, 3 */
+    PutSprite(1, 8, 132, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
+    PutSprite(1, 40, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
+    PutSprite(1, 72, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
 
     gLastInfuseIdx = -1; // Track the previous item
 
@@ -397,20 +414,20 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
         if (gUnknown_02012F56 == 0)
         {
             /* Draw selected item name */
-            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), TEXT_COLOR_SYSTEM_GRAY, 4, 0, "Nothing");
+            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9), TEXT_COLOR_SYSTEM_GRAY, 4, 0, "Nothing");
             PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), TEXT_COLOR_SYSTEM_GRAY, 2, 0, "No fusable target");
         }
         else
         {
             /* Draw item we're currently selecting */
-            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), GetItemIconId(item), 0x4000);
+            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9), GetItemIconId(item), 0x4000);
 
             /* Draw the fuse item cost */
             PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
 
             /* Draw selected item name */
             ClearText(&PrepItemSuppyTexts.th[2]);
-            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 8), 0, 2, 0, GetItemName(item));
+            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 9), 0, 2, 0, GetItemName(item));
 
             if (target != 0) {
                 /* Draw fused item icon */

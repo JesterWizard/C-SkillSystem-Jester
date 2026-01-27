@@ -185,6 +185,9 @@ extern u8 Gfx_Skill_Capacity_Circle_7_8[];
 extern u8 Gfx_Skill_Capacity_Circle_8_8[];
 
 extern u8 Gfx_Down_Arrow[];
+extern u8 Gfx_UI_Frame_One_Line_1[];
+extern u8 Gfx_UI_Frame_One_Line_2[];
+extern u8 Gfx_UI_Frame_One_Line_3[];
 
 /* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
