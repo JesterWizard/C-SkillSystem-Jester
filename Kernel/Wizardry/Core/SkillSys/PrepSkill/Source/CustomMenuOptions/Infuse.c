@@ -6,15 +6,8 @@
 #include "jester_headers/custom-structs.h"
 
 /*
-** I've haven't gotten too far with this, I've managed to get a cutom graphic to display
-** and a custom value alongside it.
-**
 ** This is my shopping list:
-** - Add Dragon Stone Shard resource
-** - Add Resource and Infused item boxes
 ** - Add dragon stone shard graphic
-** - Add long black background and text
-** - Ensure graphics update as I move up and down the target list
 ** - When I click A on a resource one of two things should happen:
 **   1) I have enough dragon stone shards and a new item is generated
 **   2) I do not have enough dragon stone shards and a popup appears telling me as such
@@ -33,7 +26,6 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
     [ITEM_SWORD_IRON]   = { ITEM_SWORD_SLIM, 2 },
     [ITEM_SWORD_RAPIER] = { ITEM_SWORD_POISON, 4 },
     [ITEM_VULNERARY] = {ITEM_ELIXIR, 3}
-    // All other entries will default to {0, 0}
 };
 
 /* Helper function */
@@ -43,14 +35,14 @@ void drawInfuseSprites(void)
     PutSprite(1, 32, 92, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x259));
 
     /* UI Line 1 - parts 1, 2, 3 */
-    PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
-    PutSprite(1, 40, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
-    PutSprite(1, 72, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+    PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E0));
+    PutSprite(1, 40, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E4));
+    PutSprite(1, 72, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E8));
     
     /* UI Line 2 - parts 1, 2, 3 */
-    PutSprite(1, 8, 132, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
-    PutSprite(1, 40, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
-    PutSprite(1, 72, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+    PutSprite(1, 8, 132, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E0));
+    PutSprite(1, 40, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E4));
+    PutSprite(1, 72, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E8));
 }
 
 void displayScrollBackground_INFUSE(void)
@@ -72,15 +64,14 @@ void displayScrollBackground_INFUSE(void)
     Copy2dChr(gGenericBuffer, (void*)0x6014B20, 2, 4);
 
     Decompress(Gfx_UI_Frame_One_Line_1, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017000, 4, 4);
+    Copy2dChr(gGenericBuffer, (void*)0x6015C00, 4, 4);
     Decompress(Gfx_UI_Frame_One_Line_2, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017080, 4, 4);
+    Copy2dChr(gGenericBuffer, (void*)0x6015C80, 4, 4);
     Decompress(Gfx_UI_Frame_One_Line_3, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017100, 4, 4);
+    Copy2dChr(gGenericBuffer, (void*)0x6015D00, 4, 4);
 
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 13), GetItemIconId(0xAA), 0x4000);
-
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 
     return;
@@ -150,12 +141,6 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 
     /* This is used to fill in the area used by the first set of TSA above */
     TileMap_FillRect(gBG1TilemapBuffer + (0x8 * 32), 14, 12, 0);
-
-    /* Now we can start drawing additional TSAs */
-    // CallARM_FillTileRect(TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 0x9), gTSA_GoalBox_OneLine,  0x1000);
-    // CallARM_FillTileRect(TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 0x10), gTSA_GoalBox_OneLine,  0x1000);
-    // DrawUiFrame(gBG1TilemapBuffer, 1, 8, 12, 3, 0, 1);
-    // DrawUiFrame(gBG1TilemapBuffer, 1, 16, 12, 3, 0, 1);
 
     /* Load top left scroll container */
     Decompress(gUnknown_08A1BCC0, gGenericBuffer);
@@ -262,14 +247,6 @@ void sub_809F150_INFUSE(struct PrepItemListProc * proc)
     sub_809F370(proc);
 
     sub_809D300(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4, proc->unit);
-    // DrawPrepScreenItemIcons(gBG0TilemapBuffer + 0x122, proc->unit);
-
-    ShowSysHandCursor(
-        0x80,
-        proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage],
-        0xb,
-        0x800
-    );
 
     BG_EnableSyncByMask(5);
 
@@ -382,7 +359,6 @@ void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amou
     ResetIconGraphics_();
 
     sub_809D418(gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4);
-    // DrawPrepScreenItemIcons(gBG0TilemapBuffer + 0x122, proc->unit);
 
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 13), GetItemIconId(0xAA), 0x4000);
@@ -410,10 +386,10 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 
     drawInfuseSprites();
 
-    gLastInfuseIdx = -1; // Track the previous item
+    gInfuseMenuArray[1] = -1; // Track the previous item
 
     // Only redraw the infusion info if the cursor moved
-    if (idx != gLastInfuseIdx) {
+    if (idx != gInfuseMenuArray[1]) {
         u16 item = gPrepScreenItemList[idx].item;
         u8 itemId = ITEM_INDEX(item);
         u8 target = gInfusionLookupTable[itemId].targetItemId;
@@ -454,7 +430,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
         }
 
         BG_EnableSyncByMask(BG0_SYNC_BIT);
-        gLastInfuseIdx = idx;
+        gInfuseMenuArray[1] = idx;
     }
 
     if ((proc->yOffsetPerPage[proc->currentPage] & 0xf) == 0) {
@@ -476,37 +452,63 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             }
 
             if (gKeyStatusPtr->newKeys & A_BUTTON) {
-                if (gUnknown_02012F56 == 0) {
-                    PlaySoundEffect(SONG_6C);
-                    return;
-                }
 
-                if (gPrepScreenItemList[idx].pid == 0) {
-                    SetUiCursorHandConfig(
-                        0,
-                        0x80,
-                        proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage],
-                        2
-                    );
-                    Proc_Goto(proc, 7);
-                    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-                    return;
-                } else {
-                    Proc_Goto(proc, 6);
-                    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-                    return;
-                }
-            }
-
-            if (gKeyStatusPtr->newKeys & B_BUTTON) {
-                SetPrimaryHBlankHandler(NULL);
-                Proc_Goto(proc, 9);
-                // Proc_Break(proc);
-                StartPrepAtMenuWithConfig();
-                PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-                proc->unk_36 = 0;
+            // 🚫 No items
+            if (gUnknown_02012F56 == 0) {
+                PlaySoundEffect(SONG_6C);
                 return;
             }
+
+            // 🟢 Already in infuse mode → show Yes/No popup
+            if (gInfuseMenuArray[4] == 1) {
+                PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+                // StartInfuseYesNoPopup(proc);
+                return;
+            }
+
+
+            // Save original cursor
+            gInfuseMenuArray[2] = 0x80;
+            gInfuseMenuArray[3] =
+                proc->idxPerPage[proc->currentPage] * 16
+                + 40
+                - proc->yOffsetPerPage[proc->currentPage];
+            gInfuseMenuArray[4] = 1;
+
+            // Move cursor to infuse UI
+            EndUiCursorHand();
+            ShowSysHandCursor(16, 135, 0xB, 0x800);
+
+            PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+            return;
+        }
+
+        if (gKeyStatusPtr->newKeys & B_BUTTON) {
+
+            // 🔁 If in infuse mode, go back to list
+            if (gInfuseMenuArray[4] == 1) {
+
+                gInfuseMenuArray[4] = 0;
+
+                EndUiCursorHand();
+                // Restore cursor to original position
+                ShowSysHandCursor(gInfuseMenuArray[2], gInfuseMenuArray[3], 0xB, 0x800);
+
+
+                PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+                return;
+            }
+
+            // ⬅️ Normal list cancel
+            SetPrimaryHBlankHandler(NULL);
+            Proc_Goto(proc, 9);
+            StartPrepAtMenuWithConfig();
+            PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+            proc->unk_36 = 0;
+            return;
+        }
+
+
         } else {
             if (gKeyStatusPtr->newKeys & (R_BUTTON | B_BUTTON)) {
                 CloseHelpBox();
@@ -515,7 +517,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             }
         }
 
-        if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT) {
+        if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT && gInfuseMenuArray[4] == 0) {
             SetUiSpinningArrowFastMaybe(0);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
             Proc_Goto(proc, 3);
@@ -524,7 +526,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             return;
         }
 
-        if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT) {
+        if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT && gInfuseMenuArray[4] == 0) {
             SetUiSpinningArrowFastMaybe(1);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
             Proc_Goto(proc, 4);
@@ -539,8 +541,8 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             proc->scrollAmount = 4;
         }
 
-        if ((gKeyStatusPtr->repeatedKeys & DPAD_UP) ||
-            ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8))) {
+        if ((gKeyStatusPtr->repeatedKeys & DPAD_UP && gInfuseMenuArray[4] == 0) ||
+            ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] == 0)) {
             if (proc->idxPerPage[proc->currentPage] != 0) {
                 proc->idxPerPage[proc->currentPage]--;
             }
@@ -548,8 +550,8 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             
         }
 
-        if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN) ||
-            ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8))) {
+        if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN && gInfuseMenuArray[4] == 0) ||
+            ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] == 0)) {
             if (proc->idxPerPage[proc->currentPage] < gUnknown_02012F56 - 1) {
                 proc->idxPerPage[proc->currentPage]++;
             }
@@ -626,7 +628,6 @@ struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
 PROC_LABEL(0),
     PROC_CALL(PrepItemList_InitGfx_INFUSE),
 
-    PROC_CALL_ARG(NewFadeIn, 16),
     PROC_WHILE(FadeInExists),
 
     // fallthrough
@@ -646,7 +647,6 @@ PROC_LABEL(6),
     PROC_WHILE(FadeOutExists),
 
     PROC_CALL(PrepItemList_OnEnd),
-    // PROC_CALL(PrepItemList_StartTradeScreen),
     PROC_SLEEP(0),
 
     PROC_GOTO(0),

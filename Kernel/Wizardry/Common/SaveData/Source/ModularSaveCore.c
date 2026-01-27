@@ -409,14 +409,14 @@ void LoadTimer(u8 *src, const u32 size)
 
 void SaveDragonGlass(u8 *dst, const u32 size)
 {
-	u32 want = sizeof(gDragonGlass);
+	u32 want = sizeof(gInfuseMenuArray[0]);
     Assert(size <= want);
-    WriteAndVerifySramFast(&gDragonGlass, dst, size);
+    WriteAndVerifySramFast(&gInfuseMenuArray[0], dst, size);
 }
 
 void LoadDragonGlass(u8 *src, const u32 size)
 {
-	u32 want = sizeof(gDragonGlass);
+	u32 want = sizeof(gInfuseMenuArray[0]);
     Assert(size <= want);
-    ReadSramFast(src, &gDragonGlass, size);
+    ReadSramFast(src, &gInfuseMenuArray[0], size);
 }

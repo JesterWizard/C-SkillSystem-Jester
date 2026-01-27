@@ -905,7 +905,7 @@ extern u8 CONST_DATA gUnknown_08A20B14[];
 extern struct ProcCmd CONST_DATA gProcScr_DrawDifficultyMenuSprites[];
 // extern ??? gSprite_UiCursorHand_08A20B3C
 // extern ??? gSprite_UiCursorHand_08A20B44
-// extern ??? gProcScr_UiCursorHand
+extern struct ProcCmd gProcScr_UiCursorHand[];
 // extern ??? gSprite_UiSpinningArrows_Horizontal
 // extern ??? gSprite_UiSpinningArrows_Vertical
 // extern ??? gProcScr_UiSpinningArrows
