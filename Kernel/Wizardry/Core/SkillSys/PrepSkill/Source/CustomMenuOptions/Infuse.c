@@ -37,11 +37,10 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
 };
 
 /* Helper function */
-
 void drawInfuseSprites(void)
 {
     /* Display down arrow */
-    PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0));
+    PutSprite(1, 32, 92, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x259));
 
     /* UI Line 1 - parts 1, 2, 3 */
     PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
@@ -303,7 +302,7 @@ void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
     drawInfuseSprites();
-    
+
     int x = 0;
 
     int four = 4;
