@@ -1,7 +1,9 @@
 #include "common-chax.h"
 #include "utf8.h"
+#include "kernel-lib.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-structs.h"
 
 /*
 ** I've haven't gotten too far with this, I've managed to get a cutom graphic to display
@@ -30,6 +32,7 @@ struct InfuseRecipe {
 const struct InfuseRecipe gInfusionLookupTable[256] = {
     [ITEM_SWORD_IRON]   = { ITEM_SWORD_SLIM, 2 },
     [ITEM_SWORD_RAPIER] = { ITEM_SWORD_POISON, 4 },
+    [ITEM_VULNERARY] = {ITEM_ELIXIR, 3}
     // All other entries will default to {0, 0}
 };
 
@@ -40,7 +43,7 @@ void displayScrollBackground_INFUSE(void)
 
     InitText(&PrepItemSuppyTexts.th[0], 0xA);
     InitText(&PrepItemSuppyTexts.th[2], 0xA);
-    InitText(&PrepItemSuppyTexts.th[3], 0xA);
+    InitText(&PrepItemSuppyTexts.th[3], 0xC);
 
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
     PutFaceChibi(FID_SUPPLY + 1, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 1), 0x270, 2, 0);
@@ -226,6 +229,152 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     return;
 }
 
+/* Redraw the current owner name when switching left and right in the supply without overwriting part of the minimug graphic in the top left */
+void sub_809F150_INFUSE(struct PrepItemListProc * proc)
+{
+    ResetIconGraphics_();
+
+    SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
+    sub_809F370(proc);
+
+    sub_809D300(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4, proc->unit);
+    // DrawPrepScreenItemIcons(gBG0TilemapBuffer + 0x122, proc->unit);
+
+    ShowSysHandCursor(
+        0x80,
+        proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage],
+        0xb,
+        0x800
+    );
+
+    BG_EnableSyncByMask(5);
+
+    StartParallelFiniteLoop(PrepItemList_DrawCurrentOwnerText_INFUSE, 2, proc);
+
+    /* Draw dragon egg icon */
+    DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 13), GetItemIconId(0xAA), 0x4000);
+
+    if (proc->unk_36 == 0) {
+        return;
+    }
+
+    if (gUnknown_02012F56 != 0) {
+        int item = gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item;
+        StartItemHelpBox(
+            0x80,
+            proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage],
+            item
+        );
+        proc->unk_36 = 1;
+    } else {
+        CloseHelpBox();
+        proc->unk_36 = 0xff;
+    }
+
+    return;
+}
+
+//! FE8U = 0x0809F218
+void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
+{
+    int x = 0;
+
+    int four = 4;
+
+    proc->unk_32++;
+
+    if (proc->unk_32 < four) {
+        int tmp = (((4 - proc->unk_32) * 0x60 * (4 - proc->unk_32)) / (four * four));
+        x = tmp - 0x60;
+    }
+
+    if (proc->unk_32 == four) {
+        if (proc->currentPage == 0) {
+            proc->currentPage = 8;
+        } else {
+            proc->currentPage--;
+        }
+        sub_809F150_INFUSE(proc);
+    }
+
+    if (proc->unk_32 >= four) {
+        int tmp = four - (proc->unk_32 - four);
+        x = (tmp * 0x60 * tmp) / (four * four);
+    }
+
+    BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
+
+    if (proc->unk_32 == four * 2) {
+        Proc_Goto(proc, 1);
+    }
+
+    return;
+}
+
+//! FE8U = 0x0809F2C4
+void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
+    int x = 0;
+
+    int four = 4;
+
+    proc->unk_32++;
+
+    if (proc->unk_32 < four) {
+        int tmp = (((4 - proc->unk_32) * 0x60 * (4 - proc->unk_32)) / (four * four));
+        x = 0x60 - tmp;
+    }
+
+    if (proc->unk_32 == four) {
+        if (proc->currentPage == 8) {
+            proc->currentPage = 0;
+        } else {
+            proc->currentPage++;
+        }
+        sub_809F150_INFUSE(proc);
+    }
+
+    if (proc->unk_32 >= four) {
+        int tmp = four - (proc->unk_32 - four);
+        x = -((tmp * 0x60 * tmp) / (four * four));
+    }
+
+    BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
+
+    if (proc->unk_32 == four * 2) {
+        Proc_Goto(proc, 1);
+    }
+
+    return;
+}
+
+//! FE8U = 0x0809F3F4
+void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
+{
+    ResetIconGraphics_();
+
+    sub_809D418(gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4);
+    // DrawPrepScreenItemIcons(gBG0TilemapBuffer + 0x122, proc->unit);
+
+    /* Draw dragon egg icon */
+    DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 13), GetItemIconId(0xAA), 0x4000);
+
+    BG_EnableSyncByMask(5);
+
+    if (amount < 0) {
+        sub_809D47C(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, (proc->yOffsetPerPage[proc->currentPage] >> 4) - 1,  proc->unit);
+    }
+
+    if (amount > 0) {
+        sub_809D47C(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, (proc->yOffsetPerPage[proc->currentPage] >> 4) + 7, proc->unit);
+    }
+
+    proc->yOffsetPerPage[proc->currentPage] += amount;
+
+    BG_SetPosition(2, 0, proc->yOffsetPerPage[proc->currentPage] - 40);
+
+    return;
+}
+
 void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 {
     int idx = proc->idxPerPage[proc->currentPage];
@@ -233,41 +382,51 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
     /* Display down arrow */
     PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0)); 
 
-    // /* Draw item we're currently selecting in the supply */
-    // DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), GetItemIconId(gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item), 0x4000);
-    // PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 8), 0, 2, 0, GetItemName(gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item));
-
-    // /* Draw its fuse result */
-    // DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(gInfusionLookupTable[gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item].targetItemId), 0x4000);
-    // PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 17), 0, 2, 0, GetItemName(gInfusionLookupTable[gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item].targetItemId));
-
-    int lastIdx = -1; // Track the previous item
+    gLastInfuseIdx = -1; // Track the previous item
 
     // Only redraw the infusion info if the cursor moved
-    if (idx != lastIdx) {
+    if (idx != gLastInfuseIdx) {
         u16 item = gPrepScreenItemList[idx].item;
         u8 itemId = ITEM_INDEX(item);
-
-        /* Draw item we're currently selecting */
-        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), GetItemIconId(item), 0x4000);
-
-        /* Draw the fuse item cost */
-        PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
-        
-        ClearText(&PrepItemSuppyTexts.th[2]); // Clear old name
-        PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 8), 0, 2, 0, GetItemName(item));
-
-        /* Draw its fuse result from O(1) table */
         u8 target = gInfusionLookupTable[itemId].targetItemId;
-        if (target != 0) {
-            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(target), 0x4000);
-            
-            ClearText(&PrepItemSuppyTexts.th[3]);
-            PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 17), 0, 2, 0, GetItemName(target));
+
+        ClearText(&PrepItemSuppyTexts.th[2]);
+        ClearText(&PrepItemSuppyTexts.th[3]);
+
+        /* Something that checks if we're currently looking at an item in supply/list view or not */
+        if (gUnknown_02012F56 == 0)
+        {
+            /* Draw selected item name */
+            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), TEXT_COLOR_SYSTEM_GRAY, 4, 0, "Nothing");
+            PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), TEXT_COLOR_SYSTEM_GRAY, 2, 0, "No fusable target");
         }
-        
+        else
+        {
+            /* Draw item we're currently selecting */
+            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 8), GetItemIconId(item), 0x4000);
+
+            /* Draw the fuse item cost */
+            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
+
+            /* Draw selected item name */
+            ClearText(&PrepItemSuppyTexts.th[2]);
+            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 8), 0, 2, 0, GetItemName(item));
+
+            if (target != 0) {
+                /* Draw fused item icon */
+                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(target), 0x4000);
+
+                /* Draw fused item name */
+                PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 17), TEXT_COLOR_SYSTEM_GREEN, 2, 0, GetItemName(target));
+            } 
+            else {
+                /* Draw fallback text */
+                PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), TEXT_COLOR_SYSTEM_GRAY, 2, 0, "No fusable target");
+            }   
+        }
+
         BG_EnableSyncByMask(BG0_SYNC_BIT);
-        lastIdx = idx;
+        gLastInfuseIdx = idx;
     }
 
     if ((proc->yOffsetPerPage[proc->currentPage] & 0xf) == 0) {
@@ -329,20 +488,20 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
         }
 
         if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT) {
-            // SetUiSpinningArrowFastMaybe(0);
-            // PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-            // Proc_Goto(proc, 3);
-            // proc->unk_32 = 0;
-            // PrepItemList_SwitchPageLeft(proc);
+            SetUiSpinningArrowFastMaybe(0);
+            PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
+            Proc_Goto(proc, 3);
+            proc->unk_32 = 0;
+            PrepItemList_SwitchPageLeft_INFUSE(proc);
             return;
         }
 
         if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT) {
-            // SetUiSpinningArrowFastMaybe(1);
-            // PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-            // Proc_Goto(proc, 4);
-            // proc->unk_32 = 0;
-            // PrepItemList_SwitchPageRight(proc);
+            SetUiSpinningArrowFastMaybe(1);
+            PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
+            Proc_Goto(proc, 4);
+            proc->unk_32 = 0;
+            PrepItemList_SwitchPageRight_INFUSE(proc);
             return;
         }
 
@@ -397,7 +556,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
                 );
             }
 
-            PrepItemList_ScrollVertical(proc, -proc->scrollAmount);
+            PrepItemList_ScrollVertical_INFUSE(proc, -proc->scrollAmount);
         } else {
             if ((proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage] > 0x78)
                 && (proc->idxPerPage[proc->currentPage] != gUnknown_02012F56 - 1)) {
@@ -409,7 +568,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
                         item
                     );
                 }
-                PrepItemList_ScrollVertical(proc, +proc->scrollAmount);
+                PrepItemList_ScrollVertical_INFUSE(proc, +proc->scrollAmount);
             } else {
                 if (proc->unk_36 != 0) {
                     StartItemHelpBox(
@@ -471,12 +630,12 @@ PROC_LABEL(7),
     PROC_GOTO(1),
 
 PROC_LABEL(3),
-    PROC_REPEAT(PrepItemList_SwitchPageLeft),
+    PROC_REPEAT(PrepItemList_SwitchPageLeft_INFUSE),
 
     // fallthrough
 
 PROC_LABEL(4),
-    PROC_REPEAT(PrepItemList_SwitchPageRight),
+    PROC_REPEAT(PrepItemList_SwitchPageRight_INFUSE),
 
     // fallthrough
 

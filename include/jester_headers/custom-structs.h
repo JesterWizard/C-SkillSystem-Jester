@@ -58,4 +58,5 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc);
 void GoalDisplay_Loop(struct PlayerInterfaceProc *proc);
 
 extern u16 gChapterTimerSeconds;
-extern u16 gDragonGlass;
+extern u8 gDragonGlass;
+extern u8 gLastInfuseIdx;
