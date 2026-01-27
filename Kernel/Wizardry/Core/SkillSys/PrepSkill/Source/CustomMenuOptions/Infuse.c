@@ -36,6 +36,24 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
     // All other entries will default to {0, 0}
 };
 
+/* Helper function */
+
+void drawInfuseSprites(void)
+{
+    /* Display down arrow */
+    PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0));
+
+    /* UI Line 1 - parts 1, 2, 3 */
+    PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
+    PutSprite(1, 40, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
+    PutSprite(1, 72, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+    
+    /* UI Line 2 - parts 1, 2, 3 */
+    PutSprite(1, 8, 132, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
+    PutSprite(1, 40, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
+    PutSprite(1, 72, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+}
+
 void displayScrollBackground_INFUSE(void)
 {
     SetTextFont(NULL);
@@ -284,6 +302,8 @@ void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 //! FE8U = 0x0809F218
 void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
+    drawInfuseSprites();
+    
     int x = 0;
 
     int four = 4;
@@ -320,6 +340,9 @@ void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 
 //! FE8U = 0x0809F2C4
 void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
+
+    drawInfuseSprites();
+
     int x = 0;
 
     int four = 4;
@@ -386,18 +409,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 {
     int idx = proc->idxPerPage[proc->currentPage];
 
-    /* Display down arrow */
-    PutSprite(1, 32, 92, gObject_16x32, TILEREF(0x259, 0x0));
-
-    /* UI Line 1 - parts 1, 2, 3 */
-    PutSprite(1, 8, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
-    PutSprite(1, 40, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
-    PutSprite(1, 72, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
-    
-    /* UI Line 2 - parts 1, 2, 3 */
-    PutSprite(1, 8, 132, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x380));
-    PutSprite(1, 40, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x384));
-    PutSprite(1, 72, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x388));
+    drawInfuseSprites();
 
     gLastInfuseIdx = -1; // Track the previous item
 
