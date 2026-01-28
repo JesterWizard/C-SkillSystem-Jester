@@ -59,9 +59,10 @@ void GoalDisplay_Loop(struct PlayerInterfaceProc *proc);
 
 extern u16 gChapterTimerSeconds;
 
-// /* 0x1 */ gInfuseDragonGlass
-// /* 0x2 */ gInfuseLastIndex
-// /* 0x3 */ gInfuseHandOriginX
-// /* 0x4 */ gInfuseHandOriginY
-// /* 0x5 */ gInfuseHandMode
-extern u8 gInfuseMenuArray[5];
+// /* 0x0 */ gInfuseDragonGlass
+// /* 0x1 */ gInfuseLastIndex
+// /* 0x2 */ gInfuseHandOriginX
+// /* 0x3 */ gInfuseHandOriginY
+// /* 0x4 */ gInfuseHandMode
+// /* 0x5 */ gInfuseSelectedOption
+extern u8 gInfuseMenuArray[6];

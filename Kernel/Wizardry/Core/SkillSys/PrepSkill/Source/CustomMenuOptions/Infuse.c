@@ -32,7 +32,7 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
 void drawInfuseSprites(void)
 {
     /* Display down arrow */
-    PutSprite(1, 40, 92, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x259));
+    PutSprite(1, 40, 96, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x259));
 
     /* UI Line 1 - parts 1, 2, 3 */
     PutSprite(1, 14, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0x2E0));
@@ -53,6 +53,8 @@ void displayScrollBackground_INFUSE(void)
     InitText(&PrepItemSuppyTexts.th[0], 0xA);
     InitText(&PrepItemSuppyTexts.th[2], 0xA);
     InitText(&PrepItemSuppyTexts.th[3], 0xC);
+    InitText(&PrepItemSuppyTexts.th[4], 0x4);
+    InitText(&PrepItemSuppyTexts.th[5], 0x4);
 
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
     PutFaceChibi(FID_SUPPLY + 1, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 1), 0x270, 2, 0);
@@ -124,6 +126,15 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     LoadUiFrameGraphics();
     LoadObjUIGfx();
 
+    InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)0x06011000, 0xb);
+    ApplyPalette(Pal_Text, 0x1B);
+    InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
+    SetTextFont(&PrepItemSuppyTexts.font);
+    SetTextFontGlyphs(0);
+    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
+
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, proc->yOffsetPerPage[proc->currentPage] - 40);
@@ -134,6 +145,7 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     RestartMuralBackground();
 
     PutImg_PrepItemUseUnk(0x5000, 5);
+    PutImg_PrepPopupWindow(0x800, 10);
 
     /* Load Unit's 5 item menu and convoy menu together */
     Decompress(gUnknown_08A1B9EC, gGenericBuffer);
@@ -464,9 +476,17 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 
             // 🟢 Already in infuse mode → show Yes/No popup
             if (gInfuseMenuArray[4] == 1) {
+                gInfuseMenuArray[4] = 2;
                 ClearText(&PrepItemSuppyTexts.th[0]);
                 PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, "Infuse weapon?");
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+
+                StartParallelWorker(PutGiveTakeBoxSprites, proc);
+                EndUiCursorHand();
+                ShowSysHandCursor(68, 36, 0xB, 0x800);
+
+                BG_EnableSyncByMask(7);
+
                 return;
             }
 
@@ -490,9 +510,10 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
         if (gKeyStatusPtr->newKeys & B_BUTTON) {
 
             // 🔁 If in infuse mode, go back to list
-            if (gInfuseMenuArray[4] == 1) {
+            if (gInfuseMenuArray[4] > 0) {
 
                 gInfuseMenuArray[4] = 0;
+                Proc_End(GetParallelWorker(PutGiveTakeBoxSprites));
 
                 EndUiCursorHand();
                 // Restore cursor to original position
@@ -546,8 +567,8 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             proc->scrollAmount = 4;
         }
 
-        if ((gKeyStatusPtr->repeatedKeys & DPAD_UP && gInfuseMenuArray[4] == 0) ||
-            ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] == 0)) {
+        if ((gKeyStatusPtr->repeatedKeys & DPAD_UP && gInfuseMenuArray[4] != 1) ||
+            ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != 1)) {
             if (proc->idxPerPage[proc->currentPage] != 0) {
                 proc->idxPerPage[proc->currentPage]--;
             }
@@ -555,8 +576,8 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             
         }
 
-        if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN && gInfuseMenuArray[4] == 0) ||
-            ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] == 0)) {
+        if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN && gInfuseMenuArray[4] != 1) ||
+            ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != 1)) {
             if (proc->idxPerPage[proc->currentPage] < gUnknown_02012F56 - 1) {
                 proc->idxPerPage[proc->currentPage]++;
             }
