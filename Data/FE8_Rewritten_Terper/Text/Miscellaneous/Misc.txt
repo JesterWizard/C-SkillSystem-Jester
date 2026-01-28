@@ -37,3 +37,6 @@ C[X]
 B[X]
 ## MSG_SUPPORT_INCREASE_A
 A[X]
+
+## MSG_INFUSED
+Infused a[X]
