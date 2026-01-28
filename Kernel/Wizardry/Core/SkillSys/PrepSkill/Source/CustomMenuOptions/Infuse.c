@@ -24,16 +24,17 @@ struct InfuseRecipe {
 // Allocate a table for all 256 possible items
 // Initializing with [256] ensures O(1) access via itemId index
 const struct InfuseRecipe gInfusionLookupTable[256] = {
-    [ITEM_SWORD_IRON]   = { ITEM_SWORD_SLIM, 2 },
-    [ITEM_SWORD_RAPIER] = { ITEM_SWORD_POISON, 4 },
+    [ITEM_SWORD_IRON]   = { ITEM_LIGHT_PURGE, 2 },
+    [ITEM_SWORD_RAPIER] = { ITEM_ANIMA_THUNDER, 4 },
     [ITEM_VULNERARY] = {ITEM_ELIXIR, 3}
 };
 
 struct PopupInstruction const InfusedPopup[] = {
     POPUP_SOUND(SONG_SE_UPDATE),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_SPACE(3),
     POPUP_MSG(MSG_INFUSED),
-    POPUP_SPACE(5),
+    POPUP_SPACE(3),
     POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
     POPUP_ITEM_STR,
     POPUP_SPACE(1),
@@ -59,6 +60,10 @@ void drawInfuseSprites(void)
     PutSprite(1, 14, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E0));
     PutSprite(1, 46, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E4));
     PutSprite(1, 78, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E8));
+}
+
+void InfuseSpriteWorker(ProcPtr proc) {
+    drawInfuseSprites();
 }
 
 void displayScrollBackground_INFUSE(void)
@@ -133,9 +138,9 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     BG_Fill(BG_GetMapBuffer(1), 0);
     BG_Fill(BG_GetMapBuffer(2), 0);
 
-    gLCDControlBuffer.bg0cnt.priority = 1;
+    gLCDControlBuffer.bg0cnt.priority = 0;
     gLCDControlBuffer.bg1cnt.priority = 2;
-    gLCDControlBuffer.bg2cnt.priority = 0;
+    gLCDControlBuffer.bg2cnt.priority = 1;
     gLCDControlBuffer.bg3cnt.priority = 3;
 
     ResetFaces();
@@ -264,6 +269,7 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     /* Displays "Owner" text in top right brown box */
     sub_809EBF0();
     PrepItemList_DrawCurrentOwnerText_INFUSE(proc);
+    StartParallelWorker(InfuseSpriteWorker, proc);
 
     return;
 }
@@ -308,7 +314,6 @@ void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 //! FE8U = 0x0809F218
 void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
-    drawInfuseSprites();
 
     int x = 0;
 
@@ -346,8 +351,6 @@ void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 
 //! FE8U = 0x0809F2C4
 void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
-
-    drawInfuseSprites();
 
     int x = 0;
 
@@ -414,21 +417,40 @@ void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost)
     // 1. Deduct Shards
     gInfuseMenuArray[0] -= cost;
 
-    // 2. Replace the item while preserving (or resetting) durability
-    // Here we create the new item with max uses for the new ID
-    gPrepScreenItemList[idx].item = MakeNewItem(target);
+    struct PrepScreenItemListEnt* ent = &gPrepScreenItemList[idx];
+    u16 newItem = target | (GetItemMaxUses(target) << 8);
 
-    // 3. Visual/Audio feedback
-    PlaySoundEffect(0x5A); // Level up/Success sound
-    
-    // 4. Force UI Refresh
-    // sub_809F150_INFUSE(proc); 
+    // 2. Update ACTUAL game data
+    if (ent->pid == 0) {
+        gConvoyItemArray[ent->itemSlot] = newItem;
+    } else {
+        struct Unit* unit = GetUnitFromCharId(ent->pid);
+        unit->items[ent->itemSlot] = newItem;
+    }
 
-    /* Redraw amount of dragon glass */
+    // 3. Force Prep Screen cache refresh
+    SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
+
+    // 4. Feedback
+    PlaySoundEffect(0x5A); 
+    // Update the Shard count number
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 5), TEXT_COLOR_SYSTEM_WHITE, gInfuseMenuArray[0]);
 
+    // 5. REPAIR THE UI (The critical part)
+    // Instead of DrawPrepScreenItemIcons (which causes the ghosts), 
+    // we call your custom refresh function.
+    sub_809F150_INFUSE(proc); 
+
+    // 6. Refresh the Infuse Boxes immediately
+    // This forces the Loop_MainKeyHandler to notice the "new" item 
+    // and redraw the box contents in the next frame.
+    gInfuseMenuArray[1] = -1; 
+    
+    // 7. Popup
     SetPopupItem(target);
-    NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
+    // NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
 void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
@@ -438,8 +460,6 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
     u8 itemId = ITEM_INDEX(item);
     u8 target = gInfusionLookupTable[itemId].targetItemId;
     u8 cost = gInfusionLookupTable[itemId].cost;
-
-    drawInfuseSprites();
 
     // Forces redraw every frame by resetting the "previous index" tracker
     gInfuseMenuArray[1] = -1; 
@@ -669,8 +689,21 @@ EXIT_SUB_MENU:
     EndUiCursorHand();
     ShowSysHandCursor(gInfuseMenuArray[2], gInfuseMenuArray[3], 0xB, 0x800);
     ClearText(&PrepItemSuppyTexts.th[0]);
-    PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, 
-                Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
+    PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
+    
+    // --- ADD THESE LINES TO RESTORE ICON VRAM ---
+    // ResetIconGraphics_(); 
+    // SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
+    // sub_809D300(
+    //     PrepItemSuppyTexts.th + 7, 
+    //     gBG2TilemapBuffer + 0xF, 
+    //     proc->yOffsetPerPage[proc->currentPage] >> 4, 
+    //     proc->unit
+    // );
+    sub_809F150_INFUSE(proc);
+
+    // --------------------------------------------
+
     PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
     return;
 }
