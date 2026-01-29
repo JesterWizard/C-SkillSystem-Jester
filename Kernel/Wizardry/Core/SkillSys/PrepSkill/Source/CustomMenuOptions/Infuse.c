@@ -521,8 +521,24 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
                     PlaySoundEffect(SONG_6C);
                     return;
                 } else {
-                    int item = gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item;
-                    StartItemHelpBox(0x80, proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage], item);
+                    // Determine which item to show based on state
+                    u16 helpItem;
+                    int helpX;
+                    int helpY;
+                    
+                    if (gInfuseMenuArray[4] == 1) {
+                        // We're in infuse state, show the TARGET item
+                        helpItem = target;
+                        helpX = 20;  // X position of the infuse box 
+                        helpY = 125; // Y position of the infuse box
+                    } else {
+                        // Normal state, show the selected list item
+                        helpItem = gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item;
+                        helpX = 0x80;
+                        helpY = proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage];
+                    }
+                    
+                    StartItemHelpBox(helpX, helpY, helpItem);
                     proc->unk_36 = 1;
                     return;
                 }
