@@ -221,7 +221,6 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     }
 
     /* Display the transparent black banner behind the text */
-    SetPrimaryHBlankHandler(NULL);
     SetPrimaryHBlankHandler(PrepItemSupply_OnHBlank);
 
     /* Display weapon type graphics at top of convoy on the right */
@@ -343,7 +342,7 @@ void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
     BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
 
     if (proc->unk_32 == four * 2) {
-        Proc_Goto(proc, 1);
+        Proc_Goto(proc, PL_INFUSE_SHOW_CURSOR);
     }
 
     return;
@@ -380,7 +379,7 @@ void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
     BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
 
     if (proc->unk_32 == four * 2) {
-        Proc_Goto(proc, 1);
+        Proc_Goto(proc, PL_INFUSE_SHOW_CURSOR);
     }
 
     return;
@@ -607,8 +606,8 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
                     goto EXIT_SUB_MENU;
                 }
                 SetPrimaryHBlankHandler(NULL);
-                Proc_Goto(proc, 9);
-                StartPrepAtMenuWithConfig();
+                Proc_Goto(proc, PL_INFUSE_PRESS_B);
+              //  StartPrepAtMenuWithConfig();
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
                 proc->unk_36 = 0;
                 return;
@@ -627,7 +626,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT && gInfuseMenuArray[4] == 0) {
                 SetUiSpinningArrowFastMaybe(0);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-                Proc_Goto(proc, 3);
+                Proc_Goto(proc, PL_INFUSE_PRESS_LEFT);
                 proc->unk_32 = 0;
                 PrepItemList_SwitchPageLeft_INFUSE(proc);
                 return;
@@ -635,7 +634,7 @@ void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
             if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT && gInfuseMenuArray[4] == 0) {
                 SetUiSpinningArrowFastMaybe(1);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-                Proc_Goto(proc, 4);
+                Proc_Goto(proc, PL_INFUSE_PRESS_RIGHT);
                 proc->unk_32 = 0;
                 PrepItemList_SwitchPageRight_INFUSE(proc);
                 return;
@@ -724,60 +723,69 @@ EXIT_SUB_MENU:
     return;
 }
 
+void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
+{
+
+    if (gGMData.state.bits.state_0) {
+        struct GMapBaseMenuProc* pGMapBaseMenuProc = FindGMapBaseMenu();
+        if (pGMapBaseMenuProc) {
+            pGMapBaseMenuProc->unk_2a = proc->currentPage;
+        }
+    } else {
+        struct ProcAtMenu* pAtMenuProc = Proc_Find(ProcScr_AtMenu);
+        pAtMenuProc->unk_31 = proc->currentPage;
+    }
+
+    EndAllProcChildren(proc);
+   // EndFaceById(0);
+    EndMuralBackground_();
+
+    // NoCashGBAPrint("Shit");
+
+    return;
+}
+
 struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
-    PROC_SLEEP(0),
+    PROC_NAME("PrepItemListScreen_INFUSE"),
+    PROC_YIELD,
+    PROC_SET_END_CB(PrepItemList_OnEnd_INFUSE),
+
+PROC_LABEL(PL_INFUSE_INIT),
     PROC_CALL(PrepItemList_Init),
-
-PROC_LABEL(0),
     PROC_CALL(PrepItemList_InitGfx_INFUSE),
-
+	PROC_CALL_ARG(NewFadeIn, 0x10),
     PROC_WHILE(FadeInExists),
 
-    // fallthrough
-
-PROC_LABEL(1),
+PROC_LABEL(PL_INFUSE_SHOW_CURSOR),
     PROC_CALL(sub_809F5F4),
 
-    // fallthrough
-
-PROC_LABEL(2),
+PROC_LABEL(PL_INFUSE_IDLE),
     PROC_REPEAT(PrepItemList_Loop_MainKeyHandler_INFUSE),
 
-    // fallthrough
-
-PROC_LABEL(6),
-    PROC_CALL_ARG(NewFadeOut, 16),
+PROC_LABEL(PL_INFUSE_REFRESH_VIEW),
+    PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
-
-    PROC_CALL(PrepItemList_OnEnd),
+    PROC_CALL(PrepItemList_OnEnd_INFUSE),
     PROC_SLEEP(0),
+    PROC_GOTO(PL_INFUSE_IDLE),
 
-    PROC_GOTO(0),
-
-PROC_LABEL(7),
+PROC_LABEL(PL_INFUSE_SHOW_INVENTORY),
     PROC_CALL(PrepItemList_SwitchToUnitInventory),
     PROC_REPEAT(PrepItemList_Loop_UnitInvKeyHandler),
+    PROC_GOTO(PL_INFUSE_SHOW_CURSOR),
 
-    PROC_GOTO(1),
-
-PROC_LABEL(3),
+PROC_LABEL(PL_INFUSE_PRESS_LEFT),
     PROC_REPEAT(PrepItemList_SwitchPageLeft_INFUSE),
+    PROC_GOTO(PL_INFUSE_IDLE),
 
-    // fallthrough
-
-PROC_LABEL(4),
+PROC_LABEL(PL_INFUSE_PRESS_RIGHT),
     PROC_REPEAT(PrepItemList_SwitchPageRight_INFUSE),
+    PROC_GOTO(PL_INFUSE_IDLE),
 
-    // fallthrough
-
-PROC_LABEL(8),
-    PROC_CALL_ARG(NewFadeOut, 16),
+PROC_LABEL(PL_INFUSE_PRESS_B),
+    PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
 
-    // fallthrough
-
-PROC_LABEL(9),
-    PROC_CALL(PrepItemList_OnEnd),
-
-    PROC_END,
+PROC_LABEL(PL_INFUSE_END),
+    PROC_END
 };
