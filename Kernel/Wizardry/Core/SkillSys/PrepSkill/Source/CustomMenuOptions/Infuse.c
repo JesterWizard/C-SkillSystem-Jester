@@ -3,33 +3,25 @@
 #include "kernel-lib.h"
 #include "constants/texts.h"
 #include "popup.h"
+#include "prep-skill.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 
-/*
-** This is my shopping list:
-** - Add dragon stone shard graphic
-** - When I click A on a resource one of two things should happen:
-**   1) I have enough dragon stone shards and a new item is generated
-**   2) I do not have enough dragon stone shards and a popup appears telling me as such
-**
-*/
-
 // A simpler struct for the mapping
-struct InfuseRecipe {
+STATIC_DECLAR struct InfuseRecipe {
     u8 targetItemId;
     u8 cost;
 };
 
 // Allocate a table for all 256 possible items
 // Initializing with [256] ensures O(1) access via itemId index
-const struct InfuseRecipe gInfusionLookupTable[256] = {
+STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
     [ITEM_SWORD_IRON]   = { ITEM_LIGHT_PURGE, 2 },
     [ITEM_SWORD_RAPIER] = { ITEM_ANIMA_THUNDER, 4 },
     [ITEM_VULNERARY] = {ITEM_ELIXIR, 3}
 };
 
-struct PopupInstruction const InfusedPopup[] = {
+STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
     POPUP_SOUND(SONG_SE_UPDATE),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
     POPUP_SPACE(3),
@@ -46,7 +38,7 @@ struct PopupInstruction const InfusedPopup[] = {
 };
 
 /* Helper function */
-void drawInfuseSprites(void)
+STATIC_DECLAR void drawInfuseSprites(void)
 {
     /* Display down arrow */
     PutSprite(1, 40, 96, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x259));
@@ -62,11 +54,11 @@ void drawInfuseSprites(void)
     PutSprite(1, 78, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E8));
 }
 
-void InfuseSpriteWorker(ProcPtr proc) {
+STATIC_DECLAR void InfuseSpriteWorker(ProcPtr proc) {
     drawInfuseSprites();
 }
 
-void displayScrollBackground_INFUSE(void)
+STATIC_DECLAR void displayScrollBackground_INFUSE(void)
 {
     SetTextFont(NULL);
     TileMap_FillRect(gBG0TilemapBuffer + 0x34, 12, 1, 0);
@@ -100,7 +92,7 @@ void displayScrollBackground_INFUSE(void)
     return;
 }
 
-void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
+STATIC_DECLAR void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
     int idx = proc->idxPerPage[proc->currentPage];
 
     TileMap_FillRect(gBG0TilemapBuffer + 0x38, 8, 1, 0);
@@ -124,7 +116,7 @@ void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
     return;
 }
 
-void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
+STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 {
     int i;
 
@@ -274,7 +266,7 @@ void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 }
 
 /* Redraw the current owner name when switching left and right in the supply without overwriting part of the minimug graphic in the top left */
-void sub_809F150_INFUSE(struct PrepItemListProc * proc)
+STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 {
     ResetIconGraphics_();
 
@@ -310,8 +302,7 @@ void sub_809F150_INFUSE(struct PrepItemListProc * proc)
     return;
 }
 
-//! FE8U = 0x0809F218
-void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
+STATIC_DECLAR void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
 
     int x = 0;
@@ -348,8 +339,7 @@ void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
     return;
 }
 
-//! FE8U = 0x0809F2C4
-void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
+STATIC_DECLAR void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
 
     int x = 0;
 
@@ -385,8 +375,7 @@ void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
     return;
 }
 
-//! FE8U = 0x0809F3F4
-void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
+STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
 {
     ResetIconGraphics_();
 
@@ -412,7 +401,7 @@ void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amou
     return;
 }
 
-void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
+STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
     // 1. Deduct Shards
     gInfuseMenuArray[0] -= cost;
 
@@ -452,7 +441,7 @@ void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost)
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
-void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
+STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 {
     int idx = proc->idxPerPage[proc->currentPage];
     u16 item = gPrepScreenItemList[idx].item;
@@ -706,7 +695,7 @@ EXIT_SUB_MENU:
     ClearText(&PrepItemSuppyTexts.th[0]);
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
     
-    // --- ADD THESE LINES TO RESTORE ICON VRAM ---
+    // --- ADD THESE LINES TO RESTORE ICON VRAM AFTER POPUP IS SHOWN - THIS NEEDS WORKSHOPPING ---
     // ResetIconGraphics_(); 
     // SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
     // sub_809D300(
@@ -723,29 +712,21 @@ EXIT_SUB_MENU:
     return;
 }
 
-void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
+STATIC_DECLAR void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
 {
+    struct ProcAtMenu *pproc = proc->proc_parent;
 
-    if (gGMData.state.bits.state_0) {
-        struct GMapBaseMenuProc* pGMapBaseMenuProc = FindGMapBaseMenu();
-        if (pGMapBaseMenuProc) {
-            pGMapBaseMenuProc->unk_2a = proc->currentPage;
-        }
-    } else {
-        struct ProcAtMenu* pAtMenuProc = Proc_Find(ProcScr_AtMenu);
-        pAtMenuProc->unk_31 = proc->currentPage;
-    }
+    pproc->state = 1;
 
+    EndAllParallelWorkers();
     EndAllProcChildren(proc);
-   // EndFaceById(0);
+    EndFaceById(0);
     EndMuralBackground_();
-
-    // NoCashGBAPrint("Shit");
 
     return;
 }
 
-struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
+STATIC_DECLAR struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
     PROC_NAME("PrepItemListScreen_INFUSE"),
     PROC_YIELD,
     PROC_SET_END_CB(PrepItemList_OnEnd_INFUSE),
@@ -789,3 +770,9 @@ PROC_LABEL(PL_INFUSE_PRESS_B),
 PROC_LABEL(PL_INFUSE_END),
     PROC_END
 };
+
+void StartInfuseScreen(struct ProcAtMenu *pproc)
+{
+    Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, pproc);
+    return;
+}

@@ -191,3 +191,4 @@ extern u8 Gfx_UI_Frame_One_Line_3[];
 
 /* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
+void StartInfuseScreen(struct ProcAtMenu *parent);

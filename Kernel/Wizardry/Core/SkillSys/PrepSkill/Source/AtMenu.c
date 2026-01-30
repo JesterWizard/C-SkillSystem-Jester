@@ -22,7 +22,7 @@ void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc)
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
     proc->state = 14; // Sets the index AtMenu_StartSubMenu will look for
-    Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu, was originally 0x8
+    Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu
 }
 
 void PrepScreenMenu_OnAugury(struct ProcAtMenu* proc) 
@@ -104,7 +104,7 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         break;
 
     case 14: /* Infuse */
-        Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, proc);
+        StartInfuseScreen(proc);
         break;
 
     default:
@@ -125,6 +125,7 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
     proc->max_index = 0;
 
     ResetSysHandCursor(proc);
+
     // JESTER - Was originally at 0x600, but seems to be overlapping with some map icons, so switching to 0x740
     DisplaySysHandCursorTextShadow(0x740, 1);
 
@@ -141,8 +142,6 @@ void PrepMenu_OnInit(struct ProcPrepMenu * proc)
     // JESTER - This was originally at 0x200, but seems to be overlapping some map icons, so switching to 0xE00
     InitMenuScrollBarImg(0xE00, 2); 
 }
-
-extern struct ProcCmd sProc_Menu[];
 
 LYN_REPLACE_CHECK(PrepMenu_CtrlLoop);
 void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
