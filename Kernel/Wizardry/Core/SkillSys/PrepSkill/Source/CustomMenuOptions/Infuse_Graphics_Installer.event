@@ -9,3 +9,26 @@ Gfx_UI_Frame_One_Line_2:
 
 Gfx_UI_Frame_One_Line_3:
 #incext Png2Dmp "one_line_ui_bg_3_32x32.png" --lz77
+
+
+
+Gfx_UI_Number_0:
+#incext Png2Dmp "number_0_16x16.png" --lz77
+Gfx_UI_Number_1:
+#incext Png2Dmp "number_1_16x16.png" --lz77
+Gfx_UI_Number_2:
+#incext Png2Dmp "number_2_16x16.png" --lz77
+Gfx_UI_Number_3:
+#incext Png2Dmp "number_3_16x16.png" --lz77
+Gfx_UI_Number_4:
+#incext Png2Dmp "number_4_16x16.png" --lz77
+Gfx_UI_Number_5:
+#incext Png2Dmp "number_5_16x16.png" --lz77
+Gfx_UI_Number_6:
+#incext Png2Dmp "number_6_16x16.png" --lz77
+Gfx_UI_Number_7:
+#incext Png2Dmp "number_7_16x16.png" --lz77
+Gfx_UI_Number_8:
+#incext Png2Dmp "number_8_16x16.png" --lz77
+Gfx_UI_Number_9:
+#incext Png2Dmp "number_9_16x16.png" --lz77

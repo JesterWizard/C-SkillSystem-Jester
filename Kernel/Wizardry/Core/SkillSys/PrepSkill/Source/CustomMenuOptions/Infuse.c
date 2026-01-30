@@ -16,9 +16,106 @@ STATIC_DECLAR struct InfuseRecipe {
 // Allocate a table for all 256 possible items
 // Initializing with [256] ensures O(1) access via itemId index
 STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
-    [ITEM_SWORD_IRON]   = { ITEM_LIGHT_PURGE, 2 },
-    [ITEM_SWORD_RAPIER] = { ITEM_ANIMA_THUNDER, 4 },
-    [ITEM_VULNERARY] = {ITEM_ELIXIR, 3}
+// Swords
+[ITEM_SWORD_IRON]        = { ITEM_SWORD_STEEL,      1 },
+[ITEM_SWORD_SLIM]        = { ITEM_SWORD_RAPIER,     2 },
+[ITEM_SWORD_STEEL]       = { ITEM_SWORD_SILVER,     3 },
+[ITEM_SWORD_SILVER]      = { ITEM_SWORD_BRAVE,      6 },
+[ITEM_SWORD_POISON]      = { ITEM_SWORD_KILLER,     4 },
+[ITEM_SWORD_RAPIER]      = { ITEM_SWORD_ARMORSLAYER,5 },
+[ITEM_SWORD_KILLER]      = { ITEM_SWORD_SHAMSIR,    6 },
+[ITEM_SWORD_ARMORSLAYER] = { ITEM_SWORD_ZANBATO,    5 },
+[ITEM_SWORD_LIGHTBRAND]  = { ITEM_SWORD_RUNESWORD,  7 },
+[ITEM_SWORD_LANCEREAVER] = { ITEM_SWORD_WYRMSLAYER, 6 },
+
+// Blades
+[ITEM_BLADE_IRON]        = { ITEM_BLADE_STEEL,      2 },
+[ITEM_BLADE_STEEL]       = { ITEM_BLADE_SILVER,     4 },
+[ITEM_BLADE_SILVER]      = { ITEM_SWORD_BRAVE,      7 },
+
+// Lances
+[ITEM_LANCE_IRON]        = { ITEM_LANCE_STEEL,      1 },
+[ITEM_LANCE_SLIM]        = { ITEM_LANCE_JAVELIN,    2 },
+[ITEM_LANCE_STEEL]       = { ITEM_LANCE_SILVER,     3 },
+[ITEM_LANCE_POISON]      = { ITEM_LANCE_KILLER,     4 },
+[ITEM_LANCE_SILVER]      = { ITEM_LANCE_BRAVE,      6 },
+[ITEM_LANCE_KILLER]      = { ITEM_LANCE_HORSESLAYER,5 },
+[ITEM_LANCE_JAVELIN]     = { ITEM_LANCE_SPEAR,      4 },
+[ITEM_LANCE_AXEREAVER]   = { ITEM_LANCE_REGINLEIF,  7 },
+
+// Axes
+[ITEM_AXE_IRON]          = { ITEM_AXE_STEEL,        1 },
+[ITEM_AXE_STEEL]         = { ITEM_AXE_SILVER,       3 },
+[ITEM_AXE_POISON]        = { ITEM_AXE_KILLER,       4 },
+[ITEM_AXE_SILVER]        = { ITEM_AXE_BRAVE,        6 },
+[ITEM_AXE_KILLER]        = { ITEM_AXE_HALBERD,      5 },
+[ITEM_AXE_HALBERD]       = { ITEM_AXE_HAMMER,       4 },
+[ITEM_AXE_HANDAXE]       = { ITEM_AXE_TOMAHAWK,     5 },
+[ITEM_AXE_SWORDREAVER]   = { ITEM_AXE_SWORDSLAYER,  6 },
+[ITEM_AXE_DRAGON]        = { ITEM_AXE_GARM,         9 },
+
+// Bows
+[ITEM_BOW_IRON]          = { ITEM_BOW_STEEL,        1 },
+[ITEM_BOW_STEEL]         = { ITEM_BOW_SILVER,       3 },
+[ITEM_BOW_POISON]        = { ITEM_BOW_KILLER,       4 },
+[ITEM_BOW_SILVER]        = { ITEM_BOW_BRAVE,        6 },
+[ITEM_BOW_SHORTBOW]      = { ITEM_BOW_LONGBOW,      3 },
+[ITEM_BOW_KILLER]        = { ITEM_BOW_BEACONBOW,    7 },
+
+// Ballistae
+[ITEM_BALLISTA_REGULAR]  = { ITEM_BALLISTA_LONG,    3 },
+[ITEM_BALLISTA_LONG]     = { ITEM_BALLISTA_KILLER,  5 },
+
+// Anima magic
+[ITEM_ANIMA_FIRE]        = { ITEM_ANIMA_ELFIRE,     2 },
+[ITEM_ANIMA_THUNDER]     = { ITEM_ANIMA_BOLTING,    4 },
+[ITEM_ANIMA_ELFIRE]      = { ITEM_ANIMA_FORBLAZE,   6 },
+[ITEM_ANIMA_FIMBULVETR]  = { ITEM_ANIMA_EXCALIBUR,  7 },
+[ITEM_ANIMA_EXCALIBUR]   = { ITEM_ANIMA_AIRCALIBUR, 8 },
+
+// Light magic
+[ITEM_LIGHT_LIGHTNING]   = { ITEM_LIGHT_SHINE,      1 },
+[ITEM_LIGHT_SHINE]       = { ITEM_LIGHT_DIVINE,     3 },
+[ITEM_LIGHT_DIVINE]      = { ITEM_LIGHT_PURGE,      5 },
+[ITEM_LIGHT_AURA]        = { ITEM_LIGHT_LUCE,       6 },
+[ITEM_LIGHT_LUCE]        = { ITEM_LIGHT_IVALDI,     9 },
+
+// Dark magic
+[ITEM_DARK_FLUX]         = { ITEM_DARK_LUNA,        2 },
+[ITEM_DARK_LUNA]         = { ITEM_DARK_NOSFERATU,   4 },
+[ITEM_DARK_NOSFERATU]    = { ITEM_DARK_ECLIPSE,     6 },
+[ITEM_DARK_FENRIR]       = { ITEM_DARK_GLEIPNIR,    7 },
+[ITEM_DARK_GLEIPNIR]     = { ITEM_DARK_NAGLFAR,     9 },
+
+// Staves
+[ITEM_STAFF_HEAL]        = { ITEM_STAFF_MEND,       1 },
+[ITEM_STAFF_MEND]        = { ITEM_STAFF_RECOVER,    3 },
+[ITEM_STAFF_RECOVER]     = { ITEM_STAFF_PHYSIC,     4 },
+[ITEM_STAFF_PHYSIC]      = { ITEM_STAFF_FORTIFY,    6 },
+[ITEM_STAFF_RESTORE]     = { ITEM_STAFF_BARRIER,   4 },
+[ITEM_STAFF_SILENCE]     = { ITEM_STAFF_SLEEP,     4 },
+[ITEM_STAFF_SLEEP]       = { ITEM_STAFF_BERSERK,    6 },
+[ITEM_STAFF_WARP]        = { ITEM_STAFF_RESCUE,     7 },
+[ITEM_STAFF_RESCUE]      = { ITEM_STAFF_LATONA,     9 },
+
+// Consumables & misc
+[ITEM_VULNERARY]         = { ITEM_ELIXIR,           3 },
+[ITEM_CHESTKEY]          = { ITEM_CHESTKEY_BUNDLE,  2 },
+[ITEM_DOORKEY]           = { ITEM_LOCKPICK,         4 },
+[ITEM_TORCH]             = { ITEM_LIGHTRUNE,        2 },
+
+// Stat boosters
+[ITEM_BOOSTER_HP]        = { ITEM_BOOSTER_DEF,      5 },
+[ITEM_BOOSTER_POW]       = { ITEM_BOOSTER_SKL,      4 },
+[ITEM_BOOSTER_SPD]       = { ITEM_BOOSTER_MOV,      8 },
+[ITEM_BOOSTER_RES]       = { ITEM_BOOSTER_CON,      6 },
+
+// Promotion
+[ITEM_HEROCREST]         = { ITEM_MASTERSEAL,       7 },
+[ITEM_KNIGHTCREST]       = { ITEM_MASTERSEAL,       7 },
+[ITEM_ORIONSBOLT]        = { ITEM_MASTERSEAL,       7 },
+[ITEM_GUIDINGRING]       = { ITEM_METISSTOME,       6 },
+
 };
 
 STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
@@ -58,6 +155,33 @@ STATIC_DECLAR void InfuseSpriteWorker(ProcPtr proc) {
     drawInfuseSprites();
 }
 
+STATIC_DECLAR void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit * unit)
+{
+    int i;
+
+    TileMap_FillRect(tm, 12, 31, 0);
+
+    if (gUnknown_02012F56 == 0) {
+        ClearText(textBase);
+        Text_InsertDrawString(textBase, 0, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(0x5a8)); // TODO: msgid "Nothing[.]"
+        PutText(textBase, tm + 3);
+        return;
+    }
+
+    for (i = yLines; (i < yLines + 7) && (i < gUnknown_02012F56); i++) {
+        struct Text* th = textBase + (i & 7);
+        int item = gPrepScreenItemList[i].item;
+
+        ClearText(th);
+        Text_InsertDrawString(th, 0, TEXT_COLOR_SYSTEM_WHITE, GetItemName(item));
+        DrawIcon(tm + TILEMAP_INDEX(1, i*2 & 0x1f), GetItemIconId(item), 0x4000);
+        PutText(th, tm + TILEMAP_INDEX(3, i*2 & 0x1f));
+        PutNumberOrBlank(tm + TILEMAP_INDEX(12, i*2 & 0x1f), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
+    }
+
+    return;
+}
+
 STATIC_DECLAR void displayScrollBackground_INFUSE(void)
 {
     SetTextFont(NULL);
@@ -78,12 +202,35 @@ STATIC_DECLAR void displayScrollBackground_INFUSE(void)
     Decompress(Gfx_Down_Arrow, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6014B20, 2, 4);
 
+    /* Decompress graphics for frames to hold the left side items */
     Decompress(Gfx_UI_Frame_One_Line_1, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6015C00, 4, 4);
     Decompress(Gfx_UI_Frame_One_Line_2, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6015C80, 4, 4);
     Decompress(Gfx_UI_Frame_One_Line_3, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6015D00, 4, 4);
+
+    /* Decomoress graphics for numbers */
+    Decompress(Gfx_UI_Number_0, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017800, 2, 2);
+    Decompress(Gfx_UI_Number_1, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017840, 2, 2);
+    Decompress(Gfx_UI_Number_2, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017880, 2, 2);
+    Decompress(Gfx_UI_Number_3, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x60178C0, 2, 2);
+    Decompress(Gfx_UI_Number_4, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017900, 2, 2);
+    Decompress(Gfx_UI_Number_5, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017940, 2, 2);
+    Decompress(Gfx_UI_Number_6, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017980, 2, 2);
+    Decompress(Gfx_UI_Number_7, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x60179C0, 2, 2);
+    Decompress(Gfx_UI_Number_8, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017A00, 2, 2);
+    Decompress(Gfx_UI_Number_9, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6017A40, 2, 2);
 
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
@@ -112,6 +259,20 @@ STATIC_DECLAR void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListP
     }
 
     BG_EnableSyncByMask(1);
+
+    return;
+}
+
+STATIC_DECLAR void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
+    int x = proc->currentPage * 12 + 124;
+
+    gPaletteBuffer[0x14D] = *(gUnknown_08A1BD60 + (GetGameClock() >> 2 & 0xf));
+    EnablePaletteSync();
+
+    PutSprite(4, x, 24, gUnknown_08A19608[proc->currentPage], OAM2_PAL(3) + OAM2_LAYER(3) + OAM2_CHR(0x280));
+    PutSprite(4, x, 24, gUnknown_08A195F8, OAM2_PAL(3) + OAM2_LAYER(3) + OAM2_CHR(0x280));
+
+    UpdateMenuScrollBarConfig(0xc, proc->yOffsetPerPage[proc->currentPage], gUnknown_02012F56, 7);
 
     return;
 }
@@ -159,6 +320,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 
     RestartMuralBackground();
 
+    /* The little highlight on selected weapon icons */
     PutImg_PrepItemUseUnk(0x5000, 5);
     PutImg_PrepPopupWindow(0x800, 10);
 
@@ -230,7 +392,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     sub_809F5F4(proc);
 
     /* Display weapon texts in prep item list */
-    sub_809D300(
+    drawItems_INFUSE(
         PrepItemSuppyTexts.th + 7,
         gBG2TilemapBuffer + 0xF,
         (proc->yOffsetPerPage[proc->currentPage]) >> 4,
@@ -244,7 +406,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     SetUiSpinningArrowPositions(0x78, 0x18, 0xe9, 0x18);
     SetUiSpinningArrowConfig(3);
 
-    StartParallelWorker(List_PutHighlightedCategorySprites, proc);
+    StartParallelWorker(List_PutHighlightedCategorySprites_INFUSE, proc);
     
     StartSysBrownBox(0xd, 0xe00, 0xf, 0xc00, 0x400, proc);
 
@@ -273,7 +435,7 @@ STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
     SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
     sub_809F370(proc);
 
-    sub_809D300(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4, proc->unit);
+    drawItems_INFUSE(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4, proc->unit);
 
     BG_EnableSyncByMask(5);
 
@@ -466,6 +628,9 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             /* Draw selected item name */
             PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9), TEXT_COLOR_SYSTEM_GRAY, 4, 0, "Nothing");
             PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), TEXT_COLOR_SYSTEM_GRAY, 2, 0, "No fusable target");
+
+            /* Overwrite last durability value and display nothing */
+            TileMap_FillRect(gBG0TilemapBuffer + (9 * 32) + 12, 3, 1, 0);
         }
         else
         {
@@ -479,7 +644,41 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 9), TEXT_COLOR_SYSTEM_BLUE, ITEM_USES(item));
 
             /* Draw the fuse item cost */
-            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 9, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
+            // PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 9, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
+
+            switch (gInfusionLookupTable[itemId].cost)
+            {
+            case 0:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C0));
+                break;
+            case 1:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C2));
+                break;
+            case 2:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C4));
+                break;
+            case 3:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C6));
+                break;
+            case 4:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C8));
+                break;
+            case 5:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CA));
+                break;
+            case 6:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CC));
+                break;
+            case 7:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CE));
+                break;
+            case 8:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3D0));
+                break;
+            case 9:
+                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3D2));
+                break;
+            }
 
             if (target != 0) {
                 /* Draw fused item icon */
@@ -698,7 +897,7 @@ EXIT_SUB_MENU:
     // --- ADD THESE LINES TO RESTORE ICON VRAM AFTER POPUP IS SHOWN - THIS NEEDS WORKSHOPPING ---
     // ResetIconGraphics_(); 
     // SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
-    // sub_809D300(
+    // drawItems_INFUSE(
     //     PrepItemSuppyTexts.th + 7, 
     //     gBG2TilemapBuffer + 0xF, 
     //     proc->yOffsetPerPage[proc->currentPage] >> 4, 

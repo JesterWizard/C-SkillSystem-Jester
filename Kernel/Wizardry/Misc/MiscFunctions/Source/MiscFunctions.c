@@ -951,6 +951,10 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         int item = gPrepScreenItemList[yLines].item;
         int unusable = !IsItemDisplayUsable(unit, item);
 
+        /* When scrolling down the infuse list, ensure all the items are white */
+        if(Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
+            unusable = TEXT_COLOR_SYSTEM_WHITE;
+
         int offset = TILEMAP_INDEX(0, y);
         TileMap_FillRect(tm + offset, 12, 1, 0);
 

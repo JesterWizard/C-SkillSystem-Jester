@@ -189,6 +189,17 @@ extern u8 Gfx_UI_Frame_One_Line_1[];
 extern u8 Gfx_UI_Frame_One_Line_2[];
 extern u8 Gfx_UI_Frame_One_Line_3[];
 
+extern u8 Gfx_UI_Number_0[];
+extern u8 Gfx_UI_Number_1[];
+extern u8 Gfx_UI_Number_2[];
+extern u8 Gfx_UI_Number_3[];
+extern u8 Gfx_UI_Number_4[];
+extern u8 Gfx_UI_Number_5[];
+extern u8 Gfx_UI_Number_6[];
+extern u8 Gfx_UI_Number_7[];
+extern u8 Gfx_UI_Number_8[];
+extern u8 Gfx_UI_Number_9[];
+
 /* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
 void StartInfuseScreen(struct ProcAtMenu *parent);
