@@ -151,3 +151,5 @@
 #include "Misc/Timer/Timer_Installer.event"
 
 // #include "Misc/Crafting/Crafting_Installer.event"
+
+#include "Misc/HPBarPalettes/HPBarPalettes_Installer.event"
