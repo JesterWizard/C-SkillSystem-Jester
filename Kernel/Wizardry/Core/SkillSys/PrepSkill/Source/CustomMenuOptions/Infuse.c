@@ -238,7 +238,7 @@ void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
     UpdateMenuScrollBarConfig(0xc, proc->yOffsetPerPage[proc->currentPage], gUnknown_02012F56, 7);
 }
 
-STATIC_DECLAR void SetupSpriteTextDestination(u32 vram)
+STATIC_DECLAR void SetupSpriteTextDestination(u32 vram, int target)
 {
     InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)vram, 0xb);
     ApplyPalette(Pal_Text, 0x1B);
@@ -250,13 +250,7 @@ STATIC_DECLAR void SetupSpriteTextDestination(u32 vram)
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused a");
-
-    // struct PrepItemListProc * proc = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
-    // int idx = proc->idxPerPage[proc->currentPage];
-    // u16 item = gPrepScreenItemList[idx].item;
-    // u8 itemId = ITEM_INDEX(item);
-    // u8 target = gInfusionLookupTable[itemId].targetItemId;
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, "WEAPON"); // Should be GetItemName(target) but I can't get it to dynamically update
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
 }
 
 STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
@@ -282,7 +276,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     LoadUiFrameGraphics();
     LoadObjUIGfx();
 
-    SetupSpriteTextDestination(0x6011000);
+    SetupSpriteTextDestination(0x6011000, 0);
 
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
@@ -659,6 +653,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                     EndUiCursorHand();
                     ShowSysHandCursor(68, 36, 0x4, 0x000); // Priority adjusted per original
                     BG_EnableSyncByMask(7);
+                    // SetupSpriteTextDestination(0x06011000, target);
                     return;
                 }
 
