@@ -203,3 +203,5 @@ extern u8 Gfx_UI_Number_9[];
 /* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
 void StartInfuseScreen(struct ProcAtMenu *parent);
+
+extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc);

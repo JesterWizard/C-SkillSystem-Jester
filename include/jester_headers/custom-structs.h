@@ -78,3 +78,16 @@ enum {
     PL_INFUSE_PRESS_B = 8,
     PL_INFUSE_END = 9
 };
+
+enum {
+    INFUSE_STATE_LIST = 0,
+    INFUSE_STATE_INFUSE_UI = 1,
+    INFUSE_STATE_CONFIRM = 2
+};
+
+struct InfuseRecipe {
+    u8 targetItemId;
+    u8 cost;
+};
+
+extern const struct InfuseRecipe gInfusionLookupTable[256];

@@ -7,16 +7,7 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 
-// A simpler struct for the mapping
-STATIC_DECLAR struct InfuseRecipe {
-    u8 targetItemId;
-    u8 cost;
-};
-
-// Allocate a table for all 256 possible items
-// Initializing with [256] ensures O(1) access via itemId index
-STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
-// Swords
+const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_SWORD_IRON]        = { ITEM_SWORD_STEEL,      1 },
 [ITEM_SWORD_SLIM]        = { ITEM_SWORD_RAPIER,     2 },
 [ITEM_SWORD_STEEL]       = { ITEM_SWORD_SILVER,     3 },
@@ -28,12 +19,10 @@ STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_SWORD_LIGHTBRAND]  = { ITEM_SWORD_RUNESWORD,  7 },
 [ITEM_SWORD_LANCEREAVER] = { ITEM_SWORD_WYRMSLAYER, 6 },
 
-// Blades
 [ITEM_BLADE_IRON]        = { ITEM_BLADE_STEEL,      2 },
 [ITEM_BLADE_STEEL]       = { ITEM_BLADE_SILVER,     4 },
 [ITEM_BLADE_SILVER]      = { ITEM_SWORD_BRAVE,      7 },
 
-// Lances
 [ITEM_LANCE_IRON]        = { ITEM_LANCE_STEEL,      1 },
 [ITEM_LANCE_SLIM]        = { ITEM_LANCE_JAVELIN,    2 },
 [ITEM_LANCE_STEEL]       = { ITEM_LANCE_SILVER,     3 },
@@ -43,7 +32,6 @@ STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_LANCE_JAVELIN]     = { ITEM_LANCE_SPEAR,      4 },
 [ITEM_LANCE_AXEREAVER]   = { ITEM_LANCE_REGINLEIF,  7 },
 
-// Axes
 [ITEM_AXE_IRON]          = { ITEM_AXE_STEEL,        1 },
 [ITEM_AXE_STEEL]         = { ITEM_AXE_SILVER,       3 },
 [ITEM_AXE_POISON]        = { ITEM_AXE_KILLER,       4 },
@@ -54,7 +42,6 @@ STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_AXE_SWORDREAVER]   = { ITEM_AXE_SWORDSLAYER,  6 },
 [ITEM_AXE_DRAGON]        = { ITEM_AXE_GARM,         9 },
 
-// Bows
 [ITEM_BOW_IRON]          = { ITEM_BOW_STEEL,        1 },
 [ITEM_BOW_STEEL]         = { ITEM_BOW_SILVER,       3 },
 [ITEM_BOW_POISON]        = { ITEM_BOW_KILLER,       4 },
@@ -62,60 +49,51 @@ STATIC_DECLAR const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_BOW_SHORTBOW]      = { ITEM_BOW_LONGBOW,      3 },
 [ITEM_BOW_KILLER]        = { ITEM_BOW_BEACONBOW,    7 },
 
-// Ballistae
 [ITEM_BALLISTA_REGULAR]  = { ITEM_BALLISTA_LONG,    3 },
 [ITEM_BALLISTA_LONG]     = { ITEM_BALLISTA_KILLER,  5 },
 
-// Anima magic
 [ITEM_ANIMA_FIRE]        = { ITEM_ANIMA_ELFIRE,     2 },
 [ITEM_ANIMA_THUNDER]     = { ITEM_ANIMA_BOLTING,    4 },
 [ITEM_ANIMA_ELFIRE]      = { ITEM_ANIMA_FORBLAZE,   6 },
 [ITEM_ANIMA_FIMBULVETR]  = { ITEM_ANIMA_EXCALIBUR,  7 },
 [ITEM_ANIMA_EXCALIBUR]   = { ITEM_ANIMA_AIRCALIBUR, 8 },
 
-// Light magic
 [ITEM_LIGHT_LIGHTNING]   = { ITEM_LIGHT_SHINE,      1 },
 [ITEM_LIGHT_SHINE]       = { ITEM_LIGHT_DIVINE,     3 },
 [ITEM_LIGHT_DIVINE]      = { ITEM_LIGHT_PURGE,      5 },
 [ITEM_LIGHT_AURA]        = { ITEM_LIGHT_LUCE,       6 },
 [ITEM_LIGHT_LUCE]        = { ITEM_LIGHT_IVALDI,     9 },
 
-// Dark magic
 [ITEM_DARK_FLUX]         = { ITEM_DARK_LUNA,        2 },
 [ITEM_DARK_LUNA]         = { ITEM_DARK_NOSFERATU,   4 },
 [ITEM_DARK_NOSFERATU]    = { ITEM_DARK_ECLIPSE,     6 },
 [ITEM_DARK_FENRIR]       = { ITEM_DARK_GLEIPNIR,    7 },
 [ITEM_DARK_GLEIPNIR]     = { ITEM_DARK_NAGLFAR,     9 },
 
-// Staves
 [ITEM_STAFF_HEAL]        = { ITEM_STAFF_MEND,       1 },
 [ITEM_STAFF_MEND]        = { ITEM_STAFF_RECOVER,    3 },
 [ITEM_STAFF_RECOVER]     = { ITEM_STAFF_PHYSIC,     4 },
 [ITEM_STAFF_PHYSIC]      = { ITEM_STAFF_FORTIFY,    6 },
-[ITEM_STAFF_RESTORE]     = { ITEM_STAFF_BARRIER,   4 },
-[ITEM_STAFF_SILENCE]     = { ITEM_STAFF_SLEEP,     4 },
+[ITEM_STAFF_RESTORE]     = { ITEM_STAFF_BARRIER,    4 },
+[ITEM_STAFF_SILENCE]     = { ITEM_STAFF_SLEEP,      4 },
 [ITEM_STAFF_SLEEP]       = { ITEM_STAFF_BERSERK,    6 },
 [ITEM_STAFF_WARP]        = { ITEM_STAFF_RESCUE,     7 },
 [ITEM_STAFF_RESCUE]      = { ITEM_STAFF_LATONA,     9 },
 
-// Consumables & misc
 [ITEM_VULNERARY]         = { ITEM_ELIXIR,           3 },
 [ITEM_CHESTKEY]          = { ITEM_CHESTKEY_BUNDLE,  2 },
 [ITEM_DOORKEY]           = { ITEM_LOCKPICK,         4 },
 [ITEM_TORCH]             = { ITEM_LIGHTRUNE,        2 },
 
-// Stat boosters
 [ITEM_BOOSTER_HP]        = { ITEM_BOOSTER_DEF,      5 },
 [ITEM_BOOSTER_POW]       = { ITEM_BOOSTER_SKL,      4 },
 [ITEM_BOOSTER_SPD]       = { ITEM_BOOSTER_MOV,      8 },
 [ITEM_BOOSTER_RES]       = { ITEM_BOOSTER_CON,      6 },
 
-// Promotion
 [ITEM_HEROCREST]         = { ITEM_MASTERSEAL,       7 },
 [ITEM_KNIGHTCREST]       = { ITEM_MASTERSEAL,       7 },
 [ITEM_ORIONSBOLT]        = { ITEM_MASTERSEAL,       7 },
 [ITEM_GUIDINGRING]       = { ITEM_METISSTOME,       6 },
-
 };
 
 STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
@@ -123,8 +101,8 @@ STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
     POPUP_SPACE(3),
     POPUP_MSG(MSG_INFUSED),
-    POPUP_SPACE(3),
     POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_SPACE(4),
     POPUP_ITEM_STR,
     POPUP_SPACE(1),
     POPUP_ITEM_ICON,
@@ -133,6 +111,14 @@ STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
     POPUP_MSG(0x022),                   /* .[.] */
     POPUP_END
 };
+
+STATIC_DECLAR bool CanAffordInfusion(u8 cost) {
+    return gInfuseMenuArray[0] >= cost;
+}
+
+STATIC_DECLAR bool HasValidTarget(u8 targetItemId) {
+    return targetItemId != 0;
+}
 
 /* Helper function */
 STATIC_DECLAR void drawInfuseSprites(void)
@@ -146,9 +132,9 @@ STATIC_DECLAR void drawInfuseSprites(void)
     PutSprite(1, 78, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E8));
     
     /* UI Line 2 - parts 1, 2, 3 */
-    PutSprite(1, 14, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E0));
-    PutSprite(1, 46, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E4));
-    PutSprite(1, 78, 132, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E8));
+    PutSprite(1, 14, 133, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E0));
+    PutSprite(1, 46, 133, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E4));
+    PutSprite(1, 78, 133, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E8));
 }
 
 STATIC_DECLAR void InfuseSpriteWorker(ProcPtr proc) {
@@ -178,8 +164,26 @@ STATIC_DECLAR void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines
         PutText(th, tm + TILEMAP_INDEX(3, i*2 & 0x1f));
         PutNumberOrBlank(tm + TILEMAP_INDEX(12, i*2 & 0x1f), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
     }
+}
 
-    return;
+// Refactor #5: Consolidate number graphics decompression into a loop
+STATIC_DECLAR void LoadNumberGraphics(void) {
+    const void* numberGfx[] = {
+        Gfx_UI_Number_0, Gfx_UI_Number_1, Gfx_UI_Number_2, Gfx_UI_Number_3, Gfx_UI_Number_4,
+        Gfx_UI_Number_5, Gfx_UI_Number_6, Gfx_UI_Number_7, Gfx_UI_Number_8, Gfx_UI_Number_9
+    };
+    
+    for (int i = 0; i < 10; i++) {
+        Decompress(numberGfx[i], gGenericBuffer);
+        Copy2dChr(gGenericBuffer, (void*)(0x6017800 + i * 0x40), 2, 2);
+    }
+}
+
+// Refactor #4: Extract cost sprite drawing into a helper function
+STATIC_DECLAR void DrawCostSprite(u8 cost) {
+    if (cost <= 9) {
+        PutSprite(1, 70, 102, gObject_16x16, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C0 + cost * 2));
+    }
 }
 
 STATIC_DECLAR void displayScrollBackground_INFUSE(void)
@@ -210,33 +214,12 @@ STATIC_DECLAR void displayScrollBackground_INFUSE(void)
     Decompress(Gfx_UI_Frame_One_Line_3, gGenericBuffer);
     Copy2dChr(gGenericBuffer, (void*)0x6015D00, 4, 4);
 
-    /* Decomoress graphics for numbers */
-    Decompress(Gfx_UI_Number_0, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017800, 2, 2);
-    Decompress(Gfx_UI_Number_1, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017840, 2, 2);
-    Decompress(Gfx_UI_Number_2, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017880, 2, 2);
-    Decompress(Gfx_UI_Number_3, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x60178C0, 2, 2);
-    Decompress(Gfx_UI_Number_4, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017900, 2, 2);
-    Decompress(Gfx_UI_Number_5, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017940, 2, 2);
-    Decompress(Gfx_UI_Number_6, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017980, 2, 2);
-    Decompress(Gfx_UI_Number_7, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x60179C0, 2, 2);
-    Decompress(Gfx_UI_Number_8, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017A00, 2, 2);
-    Decompress(Gfx_UI_Number_9, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void*)0x6017A40, 2, 2);
+    /* Decompress graphics for numbers */
+    LoadNumberGraphics();
 
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
-
-    return;
 }
 
 STATIC_DECLAR void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
@@ -259,11 +242,9 @@ STATIC_DECLAR void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListP
     }
 
     BG_EnableSyncByMask(1);
-
-    return;
 }
 
-STATIC_DECLAR void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
+void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
     int x = proc->currentPage * 12 + 124;
 
     gPaletteBuffer[0x14D] = *(gUnknown_08A1BD60 + (GetGameClock() >> 2 & 0xf));
@@ -273,8 +254,27 @@ STATIC_DECLAR void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemList
     PutSprite(4, x, 24, gUnknown_08A195F8, OAM2_PAL(3) + OAM2_LAYER(3) + OAM2_CHR(0x280));
 
     UpdateMenuScrollBarConfig(0xc, proc->yOffsetPerPage[proc->currentPage], gUnknown_02012F56, 7);
+}
 
-    return;
+STATIC_DECLAR void SetupSpriteTextDestination(u32 vram)
+{
+    InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)vram, 0xb);
+    ApplyPalette(Pal_Text, 0x1B);
+    InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
+    SetTextFont(&PrepItemSuppyTexts.font);
+    SetTextFontGlyphs(0);
+    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
+
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused a ");
+
+    struct PrepItemListProc * proc = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
+    int idx = proc->idxPerPage[proc->currentPage];
+    u16 item = gPrepScreenItemList[idx].item;
+    u8 itemId = ITEM_INDEX(item);
+    u8 target = gInfusionLookupTable[itemId].targetItemId;
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xB0, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
 }
 
 STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
@@ -282,9 +282,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     int i;
 
     gInfuseMenuArray[0] = 7;
-
     gLCDControlBuffer.dispcnt.mode = 0;
-
     SetupBackgrounds(NULL);
 
     BG_Fill(BG_GetMapBuffer(0), 0);
@@ -302,14 +300,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     LoadUiFrameGraphics();
     LoadObjUIGfx();
 
-    InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)0x06011000, 0xb);
-    ApplyPalette(Pal_Text, 0x1B);
-    InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
-    SetTextFont(&PrepItemSuppyTexts.font);
-    SetTextFontGlyphs(0);
-    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
+    SetupSpriteTextDestination(0x6011000);
 
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
@@ -364,10 +355,8 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     SetBlendConfig(0, 0, 0, 8);
     StartGreenText(proc);
     StartHelpPromptSprite(195, 147, 9, proc);
-
     InitText(PrepItemSuppyTexts.th + 0, 6);
     InitText(PrepItemSuppyTexts.th + 1, 5);
-
     InitText(PrepItemSuppyTexts.th + 15, 4);
 
     for (i = 0; i < 8; i++) {
@@ -382,7 +371,6 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 
     /* Display weapon tiles */
     sub_809D8D4(gBG0TilemapBuffer + 0x6F, 0x4000, 6);
-
     Decompress(gUnknown_08A19CCC, (void*)0x06015000);
     ApplyPalette(Pal_SpinningArrow, 0x14);
 
@@ -400,18 +388,13 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     );
 
     BG_EnableSyncByMask(4);
-
     StartUiSpinningArrows(proc);
     LoadUiSpinningArrowGfx(0, 0x280, 2);
     SetUiSpinningArrowPositions(0x78, 0x18, 0xe9, 0x18);
     SetUiSpinningArrowConfig(3);
-
     StartParallelWorker(List_PutHighlightedCategorySprites_INFUSE, proc);
-    
     StartSysBrownBox(0xd, 0xe00, 0xf, 0xc00, 0x400, proc);
-
     EnableSysBrownBox(1, 0x98, 6, 2);
-
     SetBlendConfig(1, 0xe, 4, 0);
     SetBlendTargetA(0, 0, 0, 0, 0);
     SetBlendTargetB(0, 0, 0, 1, 0);
@@ -423,22 +406,16 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     sub_809EBF0();
     PrepItemList_DrawCurrentOwnerText_INFUSE(proc);
     StartParallelWorker(InfuseSpriteWorker, proc);
-
-    return;
 }
 
 /* Redraw the current owner name when switching left and right in the supply without overwriting part of the minimug graphic in the top left */
 STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 {
     ResetIconGraphics_();
-
     SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
     sub_809F370(proc);
-
     drawItems_INFUSE(PrepItemSuppyTexts.th + 7, gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4, proc->unit);
-
     BG_EnableSyncByMask(5);
-
     StartParallelFiniteLoop(PrepItemList_DrawCurrentOwnerText_INFUSE, 2, proc);
 
     /* Draw dragon egg icon */
@@ -460,92 +437,69 @@ STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
         CloseHelpBox();
         proc->unk_36 = 0xff;
     }
+}
 
-    return;
+// Refactor #3: Consolidated page switching function
+STATIC_DECLAR void PrepItemList_SwitchPage_INFUSE(struct PrepItemListProc * proc, int direction)
+{
+    int x = 0;
+    int four = 4;
+
+    proc->unk_32++;
+
+    if (proc->unk_32 < four) {
+        int tmp = (((4 - proc->unk_32) * 0x60 * (4 - proc->unk_32)) / (four * four));
+        x = direction * (tmp - 0x60);
+    }
+
+    if (proc->unk_32 == four) {
+        if (direction < 0) {
+            // Left
+            if (proc->currentPage == 0) {
+                proc->currentPage = 8;
+            } else {
+                proc->currentPage--;
+            }
+        } else {
+            // Right
+            if (proc->currentPage == 8) {
+                proc->currentPage = 0;
+            } else {
+                proc->currentPage++;
+            }
+        }
+        sub_809F150_INFUSE(proc);
+    }
+
+    if (proc->unk_32 >= four) {
+        int tmp = four - (proc->unk_32 - four);
+        x = direction * ((tmp * 0x60 * tmp) / (four * four));
+    }
+
+    BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
+
+    if (proc->unk_32 == four * 2) {
+        Proc_Goto(proc, PL_INFUSE_SHOW_CURSOR);
+    }
 }
 
 STATIC_DECLAR void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
-
-    int x = 0;
-
-    int four = 4;
-
-    proc->unk_32++;
-
-    if (proc->unk_32 < four) {
-        int tmp = (((4 - proc->unk_32) * 0x60 * (4 - proc->unk_32)) / (four * four));
-        x = tmp - 0x60;
-    }
-
-    if (proc->unk_32 == four) {
-        if (proc->currentPage == 0) {
-            proc->currentPage = 8;
-        } else {
-            proc->currentPage--;
-        }
-        sub_809F150_INFUSE(proc);
-    }
-
-    if (proc->unk_32 >= four) {
-        int tmp = four - (proc->unk_32 - four);
-        x = (tmp * 0x60 * tmp) / (four * four);
-    }
-
-    BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
-
-    if (proc->unk_32 == four * 2) {
-        Proc_Goto(proc, PL_INFUSE_SHOW_CURSOR);
-    }
-
-    return;
+    PrepItemList_SwitchPage_INFUSE(proc, -1);
 }
 
-STATIC_DECLAR void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc) {
-
-    int x = 0;
-
-    int four = 4;
-
-    proc->unk_32++;
-
-    if (proc->unk_32 < four) {
-        int tmp = (((4 - proc->unk_32) * 0x60 * (4 - proc->unk_32)) / (four * four));
-        x = 0x60 - tmp;
-    }
-
-    if (proc->unk_32 == four) {
-        if (proc->currentPage == 8) {
-            proc->currentPage = 0;
-        } else {
-            proc->currentPage++;
-        }
-        sub_809F150_INFUSE(proc);
-    }
-
-    if (proc->unk_32 >= four) {
-        int tmp = four - (proc->unk_32 - four);
-        x = -((tmp * 0x60 * tmp) / (four * four));
-    }
-
-    BG_SetPosition(2, (x & 0xff), proc->yOffsetPerPage[proc->currentPage] - 40);
-
-    if (proc->unk_32 == four * 2) {
-        Proc_Goto(proc, PL_INFUSE_SHOW_CURSOR);
-    }
-
-    return;
+STATIC_DECLAR void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc)
+{
+    PrepItemList_SwitchPage_INFUSE(proc, 1);
 }
 
 STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
 {
     ResetIconGraphics_();
-
     sub_809D418(gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4);
 
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
-
     BG_EnableSyncByMask(5);
 
     if (amount < 0) {
@@ -560,7 +514,6 @@ STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * 
 
     BG_SetPosition(2, 0, proc->yOffsetPerPage[proc->currentPage] - 40);
 
-    return;
 }
 
 STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
@@ -598,7 +551,7 @@ STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 ta
     
     // 7. Popup
     SetPopupItem(target);
-    // NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
+    NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
@@ -643,44 +596,10 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             /* Draw selected item durability */
             PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 9), TEXT_COLOR_SYSTEM_BLUE, ITEM_USES(item));
 
-            /* Draw the fuse item cost */
-            // PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 9, 13), TEXT_COLOR_SYSTEM_WHITE, gInfusionLookupTable[itemId].cost);
+            /* Draw the fuse item cost using helper function */
+            DrawCostSprite(cost);
 
-            switch (gInfusionLookupTable[itemId].cost)
-            {
-            case 0:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C0));
-                break;
-            case 1:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C2));
-                break;
-            case 2:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C4));
-                break;
-            case 3:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C6));
-                break;
-            case 4:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C8));
-                break;
-            case 5:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CA));
-                break;
-            case 6:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CC));
-                break;
-            case 7:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3CE));
-                break;
-            case 8:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3D0));
-                break;
-            case 9:
-                PutSprite(1, 70, 102, gObject_16x16,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3D2));
-                break;
-            }
-
-            if (target != 0) {
+            if (HasValidTarget(target)) {
                 /* Draw fused item icon */
                 DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(target), 0x4000);
                 /* Draw fused item name */
@@ -713,7 +632,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                     int helpX;
                     int helpY;
                     
-                    if (gInfuseMenuArray[4] == 1) {
+                    if (gInfuseMenuArray[4] == INFUSE_STATE_INFUSE_UI) {
                         // We're in infuse state, show the TARGET item
                         helpItem = target;
                         helpX = 20;  // X position of the infuse box 
@@ -739,12 +658,12 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                 }
 
                 // State 1: Highlighted Infuse UI -> Open Confirmation
-                if (gInfuseMenuArray[4] == 1) {
-                    if (target == 0) {
+                if (gInfuseMenuArray[4] == INFUSE_STATE_INFUSE_UI) {
+                    if (!HasValidTarget(target)) {
                         PlaySoundEffect(SONG_6C);
                         return;
                     }
-                    gInfuseMenuArray[4] = 2;
+                    gInfuseMenuArray[4] = INFUSE_STATE_CONFIRM;
                     gInfuseMenuArray[5] = 0; // Default to Yes
                     ClearText(&PrepItemSuppyTexts.th[0]);
                     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), TEXT_COLOR_SYSTEM_WHITE, 2, 0, "Infuse weapon?");
@@ -757,10 +676,37 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                 }
 
                 // State 2: Confirmation Box Open -> Perform Action
-                if (gInfuseMenuArray[4] == 2) {
+                if (gInfuseMenuArray[4] == INFUSE_STATE_CONFIRM) {
                     if (gInfuseMenuArray[5] == 0) {
-                        if (gInfuseMenuArray[0] >= cost)
+                        if (CanAffordInfusion(cost))
                         {
+                            PrepItemList_InitGfx_INFUSE(proc);
+
+                            ClearText(&PrepItemSuppyTexts.th[2]);
+
+                            /* Draw selected item icon */
+                            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9), GetItemIconId(item), 0x4000);
+                            /* Draw selected item name */
+                            PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 9), 0, 2, 0, GetItemName(item));
+                            /* Draw selected item durability */
+                            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 9), TEXT_COLOR_SYSTEM_BLUE, ITEM_USES(item));
+
+                            /* Draw the fuse item cost using helper function */
+                            DrawCostSprite(cost);
+
+                            if (HasValidTarget(target)) {
+                                /* Draw fused item icon */
+                                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(target), 0x4000);
+                                /* Draw fused item name */
+                                PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 17), TEXT_COLOR_SYSTEM_GREEN, 2, 0, GetItemName(target));
+                                /* Draw fused item durability */
+                                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 17), TEXT_COLOR_SYSTEM_BLUE, GetItemMaxUses(target));
+                            } 
+                            else {
+                                /* Draw fallback text */
+                                PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), TEXT_COLOR_SYSTEM_GRAY, 2, 0, "No fusable target");
+                            }   
+
                             PerformInfusion(proc, idx, target, cost);
                             PlaySoundEffect(0x5A);
                         }
@@ -781,7 +727,8 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                 // Default State: List -> Infuse UI
                 gInfuseMenuArray[2] = 0x80;
                 gInfuseMenuArray[3] = proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage];
-                gInfuseMenuArray[4] = 1;
+                gInfuseMenuArray[4] = INFUSE_STATE_INFUSE_UI;
+
                 EndUiCursorHand();
                 ShowSysHandCursor(14, 135, 0xB, 0x800);
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
@@ -790,7 +737,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
 
             // B-Button Logic
             if (gKeyStatusPtr->newKeys & B_BUTTON) {
-                if (gInfuseMenuArray[4] > 0) {
+                if (gInfuseMenuArray[4] > INFUSE_STATE_LIST) {
                     goto EXIT_SUB_MENU;
                 }
                 SetPrimaryHBlankHandler(NULL);
@@ -802,7 +749,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             }
 
             // Yes/No Selection Toggle (Up/Down)
-            if (gInfuseMenuArray[4] == 2 && (gKeyStatusPtr->newKeys & (DPAD_UP | DPAD_DOWN))) {
+            if (gInfuseMenuArray[4] == INFUSE_STATE_CONFIRM && (gKeyStatusPtr->newKeys & (DPAD_UP | DPAD_DOWN))) {
                 gInfuseMenuArray[5] ^= 1;
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
                 int cursorY = (gInfuseMenuArray[5] == 0) ? 36 : 52;
@@ -811,7 +758,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             }
 
             // DPAD Left/Right Page Switching (Restored to Original)
-            if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT && gInfuseMenuArray[4] == 0) {
+            if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT && gInfuseMenuArray[4] == INFUSE_STATE_LIST) {
                 SetUiSpinningArrowFastMaybe(0);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
                 Proc_Goto(proc, PL_INFUSE_PRESS_LEFT);
@@ -819,7 +766,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                 PrepItemList_SwitchPageLeft_INFUSE(proc);
                 return;
             }
-            if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT && gInfuseMenuArray[4] == 0) {
+            if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT && gInfuseMenuArray[4] == INFUSE_STATE_LIST) {
                 SetUiSpinningArrowFastMaybe(1);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
                 Proc_Goto(proc, PL_INFUSE_PRESS_RIGHT);
@@ -831,14 +778,14 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
             // Scrolling Logic
             proc->scrollAmount = (gKeyStatusPtr->heldKeys & L_BUTTON) ? 8 : 4;
 
-            if ((gKeyStatusPtr->repeatedKeys & DPAD_UP && gInfuseMenuArray[4] != 1) ||
-                ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != 1)) {
+            if ((gKeyStatusPtr->repeatedKeys & DPAD_UP && gInfuseMenuArray[4] != INFUSE_STATE_INFUSE_UI) ||
+                ((gKeyStatusPtr->heldKeys & DPAD_UP) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != INFUSE_STATE_INFUSE_UI)) {
                 if (proc->idxPerPage[proc->currentPage] != 0) proc->idxPerPage[proc->currentPage]--;
                 ClearText(&PrepItemSuppyTexts.th[3]);
             }
 
-            if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN && gInfuseMenuArray[4] != 1) ||
-                ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != 1)) {
+            if ((gKeyStatusPtr->repeatedKeys & DPAD_DOWN && gInfuseMenuArray[4] != INFUSE_STATE_INFUSE_UI) ||
+                ((gKeyStatusPtr->heldKeys & DPAD_DOWN) && (proc->scrollAmount == 8) && gInfuseMenuArray[4] != INFUSE_STATE_INFUSE_UI)) {
                 if (proc->idxPerPage[proc->currentPage] < gUnknown_02012F56 - 1) proc->idxPerPage[proc->currentPage]++;
                 ClearText(&PrepItemSuppyTexts.th[3]);
             }
@@ -887,42 +834,25 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
     return;
 
 EXIT_SUB_MENU:
-    gInfuseMenuArray[4] = 0;
+    gInfuseMenuArray[4] = INFUSE_STATE_LIST;
     Proc_End(GetParallelWorker(PutGiveTakeBoxSprites));
     EndUiCursorHand();
     ShowSysHandCursor(gInfuseMenuArray[2], gInfuseMenuArray[3], 0xB, 0x800);
     ClearText(&PrepItemSuppyTexts.th[0]);
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), 0, 2, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_SELECT_WEAPON)));
-    
-    // --- ADD THESE LINES TO RESTORE ICON VRAM AFTER POPUP IS SHOWN - THIS NEEDS WORKSHOPPING ---
-    // ResetIconGraphics_(); 
-    // SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
-    // drawItems_INFUSE(
-    //     PrepItemSuppyTexts.th + 7, 
-    //     gBG2TilemapBuffer + 0xF, 
-    //     proc->yOffsetPerPage[proc->currentPage] >> 4, 
-    //     proc->unit
-    // );
     sub_809F150_INFUSE(proc);
-
-    // --------------------------------------------
-
     PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-    return;
 }
 
 STATIC_DECLAR void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
 {
     struct ProcAtMenu *pproc = proc->proc_parent;
-
     pproc->state = 1;
 
     EndAllParallelWorkers();
     EndAllProcChildren(proc);
     EndFaceById(0);
     EndMuralBackground_();
-
-    return;
 }
 
 STATIC_DECLAR struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
@@ -973,5 +903,4 @@ PROC_LABEL(PL_INFUSE_END),
 void StartInfuseScreen(struct ProcAtMenu *pproc)
 {
     Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, pproc);
-    return;
 }
