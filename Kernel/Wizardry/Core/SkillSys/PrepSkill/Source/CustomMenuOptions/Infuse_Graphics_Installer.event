@@ -6,7 +6,9 @@ Gfx_UI_Frame_One_Line_1:
 Gfx_UI_Frame_One_Line_2:
 #incext Png2Dmp "graphics/one_line_ui_bg_2_32x32.png" --lz77
 Gfx_UI_Frame_One_Line_3:
-#incext Png2Dmp "graphics/one_line_ui_bg_3_32x32.png" --lz77
+#incext Png2Dmp "graphics/one_line_ui_bg_3_8x32.png" --lz77
+Gfx_UI_Frame_One_Line_4:
+#incext Png2Dmp "graphics/one_line_ui_bg_4_32x32.png" --lz77
 
 Gfx_UI_Number_0:
 #incext Png2Dmp "graphics/number_0_16x16.png" --lz77

@@ -188,6 +188,7 @@ extern u8 Gfx_Down_Arrow[];
 extern u8 Gfx_UI_Frame_One_Line_1[];
 extern u8 Gfx_UI_Frame_One_Line_2[];
 extern u8 Gfx_UI_Frame_One_Line_3[];
+extern u8 Gfx_UI_Frame_One_Line_4[];
 
 extern u8 Gfx_UI_Number_0[];
 extern u8 Gfx_UI_Number_1[];
@@ -205,3 +206,4 @@ extern void ShootArrow_ASMC();
 void StartInfuseScreen(struct ProcAtMenu *parent);
 
 extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc);
+extern void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit * unit);
