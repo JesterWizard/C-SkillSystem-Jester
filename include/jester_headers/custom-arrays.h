@@ -59,3 +59,6 @@ int GetDeadUnitCount(void);
 void AddDeadUnit(u8 unitId);
 u8 GetLastDeadUnit(void);
 
+extern u16 gPalEfxHpBarRed[];
+extern u16 gPalEfxHpBarYellow[];
+extern u16 gPalEfxHpBarBlue[];

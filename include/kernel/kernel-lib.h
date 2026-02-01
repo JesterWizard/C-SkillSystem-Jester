@@ -68,6 +68,7 @@ struct KernelDesigerConfig {
 	u8 goal_timer;
 	u8 prep_menu_augury;
 	u8 prep_menu_infuse;
+	u8 expanded_hp;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
