@@ -259,6 +259,7 @@ void NewEkrGauge(void)
     ApplyPalette(gPal_MiscUiGraphics, 0x10);
 }
 
+//Original
 LYN_REPLACE_CHECK(ekrGaugeMain);
 void ekrGaugeMain(struct ProcEkrGauge * proc)
 {
@@ -284,9 +285,17 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
     s16 sVar16;
     s16 sVar5;
     s16 uVar15;
-    u8 hp_threshold = 250;
+    u8 hp_threshold = 99;
     bool expanded_hp = gpKernelDesignerConfig->expanded_hp;
     s32 num_digits = expanded_hp ? 3 : 2;
+    u16 player_hp_tilemap_index = 0x1CE;
+    u16 enemy_hp_tilemap_index = 0x1EE;
+
+    if (expanded_hp)
+    {
+        player_hp_tilemap_index = 0x1D;
+        enemy_hp_tilemap_index = 0x3D;
+    }
 
     hp_changed = 0;
     clk = DivRem(GetGameClock() / 8, 3);
@@ -419,19 +428,6 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
                 local_d0[4] = 0xb;
             }
         }
-
-        // If HP is over threshold, display "?" (0xc)
-        if (gEkrGaugeHp[0] > hp_threshold) {
-            local_d0[0] = 0xc;
-            local_d0[1] = 0xc;
-            local_d0[2] = 0xc;
-        }
-
-        if (gEkrGaugeHp[1] > hp_threshold) {
-            local_d0[3] = 0xc;
-            local_d0[4] = 0xc;
-            local_d0[5] = 0xc;
-        }
     } else {
         // Original 2-digit support
         local_d0[0] = Div(gEkrGaugeHp[0], 10);
@@ -476,13 +472,12 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
             }
         }
 
-        RegisterDataMove(gUnk_Banim_02016DC8 + 0x20, (void *)0x060139C0, 0x40); // Original player HP sprite location - 0x060139C0
-        RegisterDataMove((u16 *)gUnk_Banim_02016DC8 + 0x20, (void *)0x06013DC0, 0x40); // Orginal player HP sprite location - 0x06013DC0
+        RegisterDataMove(gUnk_Banim_02016DC8 + 0x00, (void *)0x06010000 + (player_hp_tilemap_index * 0x20), 0x40); // Original player HP sprite location - 0x060139C0
+        RegisterDataMove((u16 *)gUnk_Banim_02016DC8 + 0x20, (void *)0x06010000 + (enemy_hp_tilemap_index * 0x20), 0x40); // Orginal enemy HP sprite location - 0x06013DC0
     }
 
-    AStack_130.oam2Base = 0x0000B1CE;
+    AStack_130.oam2Base = 0x0000B000 + player_hp_tilemap_index;
     AStack_130.oam2Base |= proc->unk44;
-
     AStack_130.xPosition = x + 9;
     AStack_130.yPosition = y + 0x91;
     AStack_130.state2 = 0;
@@ -505,7 +500,7 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
 
     AStack_130.oamBase = 0;
 
-    AStack_130.oam2Base = 0x0000C1EE;
+    AStack_130.oam2Base = 0x0000C000 + enemy_hp_tilemap_index;
     AStack_130.oam2Base |= proc->unk44;
 
     AStack_130.xPosition = x + 0x81;
