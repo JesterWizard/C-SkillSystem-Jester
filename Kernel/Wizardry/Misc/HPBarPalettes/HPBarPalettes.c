@@ -287,15 +287,11 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
     s16 uVar15;
     u8 hp_threshold = 99;
     bool expanded_hp = gpKernelDesignerConfig->expanded_hp;
-    s32 num_digits = expanded_hp ? 3 : 2;
-    u16 player_hp_tilemap_index = 0x1CE;
-    u16 enemy_hp_tilemap_index = 0x1EE;
+    u16 player_hp_tilemap_index = expanded_hp ? 0x1E1 : 0x1CE;
+    u16 enemy_hp_tilemap_index = expanded_hp ? 0x1E5 : 0x1EE;
+    s32 hp_hundreds_digit[2] = {0, 0};  // For enemy 0 and player 1
 
-    if (expanded_hp)
-    {
-        player_hp_tilemap_index = 0x1D;
-        enemy_hp_tilemap_index = 0x3D;
-    }
+    u8 * hp_digits_oam_array = gUnknown_085B940C;
 
     hp_changed = 0;
     clk = DivRem(GetGameClock() / 8, 3);
@@ -401,32 +397,44 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
 
     // Calculate HP digits based on expanded_hp setting
     if (expanded_hp) {
-        // 3-digit support
-        local_d0[0] = Div(gEkrGaugeHp[0], 100);
-        s32 remainder = gEkrGaugeHp[0] - local_d0[0] * 100;
-        local_d0[1] = Div(remainder, 10);
-        local_d0[2] = remainder - local_d0[1] * 10;
-
-        // Hide leading zeros
-        if (local_d0[0] == 0) {
+        // Calculate hundreds digit for enemy
+        if (gEkrGaugeHp[0] >= 200) {
+            hp_hundreds_digit[0] = 2;
+            local_d0[0] = Div(gEkrGaugeHp[0] - 200, 10);
+            local_d0[1] = (gEkrGaugeHp[0] - 200) - local_d0[0] * 10;
+        } else if (gEkrGaugeHp[0] >= 100) {
+            hp_hundreds_digit[0] = 1;
+            local_d0[0] = Div(gEkrGaugeHp[0] - 100, 10);
+            local_d0[1] = (gEkrGaugeHp[0] - 100) - local_d0[0] * 10;
+        } else {
+            hp_hundreds_digit[0] = 0;
+            local_d0[0] = Div(gEkrGaugeHp[0], 10);
+            local_d0[1] = gEkrGaugeHp[0] - local_d0[0] * 10;
+        }
+        
+        // Hide leading zero for tens place
+        if (local_d0[0] == 0 && hp_hundreds_digit[0] == 0) {
             local_d0[0] = 0xb;
-            if (local_d0[1] == 0) {
-                local_d0[1] = 0xb;
-            }
         }
 
-        // Player 2
-        local_d0[3] = Div(gEkrGaugeHp[1], 100);
-        remainder = gEkrGaugeHp[1] - local_d0[3] * 100;
-        local_d0[4] = Div(remainder, 10);
-        local_d0[5] = remainder - local_d0[4] * 10;
-
-        // Hide leading zeros
-        if (local_d0[3] == 0) {
-            local_d0[3] = 0xb;
-            if (local_d0[4] == 0) {
-                local_d0[4] = 0xb;
-            }
+        // Calculate hundreds digit for player
+        if (gEkrGaugeHp[1] >= 200) {
+            hp_hundreds_digit[1] = 2;
+            local_d0[2] = Div(gEkrGaugeHp[1] - 200, 10);
+            local_d0[3] = (gEkrGaugeHp[1] - 200) - local_d0[2] * 10;
+        } else if (gEkrGaugeHp[1] >= 100) {
+            hp_hundreds_digit[1] = 1;
+            local_d0[2] = Div(gEkrGaugeHp[1] - 100, 10);
+            local_d0[3] = (gEkrGaugeHp[1] - 100) - local_d0[2] * 10;
+        } else {
+            hp_hundreds_digit[1] = 0;
+            local_d0[2] = Div(gEkrGaugeHp[1], 10);
+            local_d0[3] = gEkrGaugeHp[1] - local_d0[2] * 10;
+        }
+        
+        // Hide leading zero for tens place
+        if (local_d0[2] == 0 && hp_hundreds_digit[1] == 0) {
+            local_d0[2] = 0xb;
         }
     } else {
         // Original 2-digit support
@@ -463,17 +471,36 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
         CpuFastFill(0, gUnk_Banim_02016DC8, 0x80);
 
         for (i = 0; i < 2; i++) {
-            for (j = 0; j < num_digits; j++) {
+            for (j = 0; j < 2; j++) {  // Always use 2 digits for the main display
                 CpuCopy16(
-                    gUnknown_088026E4 + local_d0[i * num_digits + j] * 0x10,
+                    gUnknown_088026E4 + local_d0[i * 2 + j] * 0x10,
                     (u16 *)gUnk_Banim_02016DC8 + ((i * 0x20) + (j * 0x10)),
                     0x20
                 );
             }
         }
 
-        RegisterDataMove(gUnk_Banim_02016DC8 + 0x00, (void *)0x06010000 + (player_hp_tilemap_index * 0x20), 0x40); // Original player HP sprite location - 0x060139C0
-        RegisterDataMove((u16 *)gUnk_Banim_02016DC8 + 0x20, (void *)0x06010000 + (enemy_hp_tilemap_index * 0x20), 0x40); // Orginal enemy HP sprite location - 0x06013DC0
+        RegisterDataMove(gUnk_Banim_02016DC8, (void *)(0x06010000 + (player_hp_tilemap_index * 0x20)), 0x40);
+        RegisterDataMove((u16 *)gUnk_Banim_02016DC8 + 0x20, (void *)(0x06010000 + (enemy_hp_tilemap_index * 0x20)), 0x40);
+        
+        // Handle hundreds digit sprites if expanded_hp is enabled
+        if (expanded_hp) {
+            if (hp_hundreds_digit[0] > 0) {
+                // Point directly to the digit graphic in ROM
+                void* pSrc = (void*)(gUnknown_088026E4 + (hp_hundreds_digit[0] * 0x10));
+                void* pDest = (void*)(0x06010000 + ((player_hp_tilemap_index - 1) * 0x20));
+                
+                RegisterDataMove(pSrc, pDest, 0x20);
+            }
+            
+            if (hp_hundreds_digit[1] > 0) {
+                // Point directly to the digit graphic in ROM
+                void* pSrc = (void*)(gUnknown_088026E4 + (hp_hundreds_digit[1] * 0x10));
+                void* pDest = (void*)(0x06010000 + ((enemy_hp_tilemap_index - 1) * 0x20));
+                
+                RegisterDataMove(pSrc, pDest, 0x20);
+            }
+        }
     }
 
     AStack_130.oam2Base = 0x0000B000 + player_hp_tilemap_index;
@@ -483,19 +510,31 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
     AStack_130.state2 = 0;
 
     if (CheckEkrHitNow(POS_L) != 1) {
-        AStack_130.pSpriteData = gUnknown_085B940C;
+        AStack_130.pSpriteData = hp_digits_oam_array;
         AStack_130.oamBase = 0;
     } else {
         AStack_130.pSpriteData = auStack_c8;
         AStack_130.oamBase = 0x200;
         AStack_130.xPosition = AStack_130.xPosition - 8;
         AStack_130.yPosition = AStack_130.yPosition - 8;
-        BanimUpdateSpriteRotScale(gUnknown_085B940C, auStack_c8, 0x100, 0x80, 1);
+        BanimUpdateSpriteRotScale(hp_digits_oam_array, auStack_c8, 0x100, 0x80, 1);
     }
 
     /* Display enemy HP digits */
     if (proc->unk4C == 0) {
         AnimDisplay(&AStack_130);
+        
+        // Display hundreds digit if needed
+        if (expanded_hp && hp_hundreds_digit[0] > 0) {
+            AStack_130.oam2Base = 0x0000B000 + (player_hp_tilemap_index - 1);
+            AStack_130.oam2Base |= proc->unk44;
+            AStack_130.xPosition = x + 1;  // Position before the other digits
+            AStack_130.yPosition = y + 0x91;
+            AStack_130.state2 = 0;
+            AStack_130.pSpriteData = hp_digits_oam_array;
+            AStack_130.oamBase = 0;
+            AnimDisplay(&AStack_130);
+        }
     }
 
     AStack_130.oamBase = 0;
@@ -508,19 +547,31 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
     AStack_130.state2 = 0;
 
     if (CheckEkrHitNow(POS_R) != 1) {
-        AStack_130.pSpriteData = gUnknown_085B940C;
+        AStack_130.pSpriteData = hp_digits_oam_array;
         AStack_130.oamBase = 0;
     } else {
         AStack_130.pSpriteData = auStack_c8;
         AStack_130.oamBase = 0x200;
         AStack_130.xPosition = AStack_130.xPosition - 8;
         AStack_130.yPosition = AStack_130.yPosition - 8;
-        BanimUpdateSpriteRotScale(gUnknown_085B940C, auStack_c8, 0x100, 0x80, 1);
+        BanimUpdateSpriteRotScale(hp_digits_oam_array, auStack_c8, 0x100, 0x80, 1);
     }
 
     /* Display player HP digits */
     if (proc->unk50 == 0) {
         AnimDisplay(&AStack_130);
+        
+        // Display hundreds digit if needed
+        if (expanded_hp && hp_hundreds_digit[1] > 0) {
+            AStack_130.oam2Base = 0x0000C000 + (enemy_hp_tilemap_index - 1);
+            AStack_130.oam2Base |= proc->unk44;
+            AStack_130.xPosition = x + 0x79;  // Position before player digits
+            AStack_130.yPosition = y + 0x91;
+            AStack_130.state2 = 0;
+            AStack_130.pSpriteData = hp_digits_oam_array;
+            AStack_130.oamBase = 0;
+            AnimDisplay(&AStack_130);
+        }
     }
 
     uVar15 = (r7_ - 0x28);
