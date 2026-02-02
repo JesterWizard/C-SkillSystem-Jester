@@ -53,7 +53,7 @@ struct BattleUnit {
     /* 70 */ s8 levelPrevious;
     /* 71 */ u8 expPrevious; // JESTER - Changed from s8 to u8 for SID_Prodigy
 
-    /* 72 */ s8 hpInitial;
+    /* 72 */ u8 hpInitial;
 
     /* 73 */ s8 changeHP;
     /* 74 */ s8 changePow;

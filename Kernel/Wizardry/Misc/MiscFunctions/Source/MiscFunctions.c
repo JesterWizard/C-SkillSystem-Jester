@@ -4544,7 +4544,7 @@ void WorldMap_Init(struct WorldMapMainProc * proc)
     proc->delay_timer = 0;
 }
 
-static inline s16 GetBanimAllyPosition(int faction1, int faction2)
+s16 GetBanimAllyPosition(int faction1, int faction2)
 {
     int pos = EKR_POS_L;
     if (GetBanimLinkArenaFlag() != true)
