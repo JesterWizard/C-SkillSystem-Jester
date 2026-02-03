@@ -309,6 +309,7 @@
 // #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
 #define CONFIG_VESLY_SHOOT_ARROW
+// #define CONFIG_VESLY_AVATAR
 #define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
 
 #define CONFIG_RES_TERRAIN_WINDOW

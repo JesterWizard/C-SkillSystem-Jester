@@ -102,6 +102,10 @@
     #include "Misc/VeslyAOE/AOE_Installer.event"
 #endif
 
+#ifdef CONFIG_VESLY_AVATAR
+    #include "Misc/VeslyAvatar/VeslyAvatar_Installer.event"
+#endif
+
 #ifdef CONFIG_FREE_MOVEMENT
     #include "Misc/FreeMovement/FreeMovement_Installer.event"
 #endif

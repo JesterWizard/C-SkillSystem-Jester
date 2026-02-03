@@ -1,0 +1,115 @@
+#include "EAstdlib.event" 
+
+ORG $1F00000
+
+
+#include "C_Code.lyn.event" 
+
+#define FirstMugID 0x00 //0x100 
+#define RobinF101Mug (FirstMugID+36)
+#define RobinF201Mug (FirstMugID+40)
+#define RobinM101Mug (FirstMugID+45)
+#define RobinM201Mug (FirstMugID+49)
+#define CorrinF101Mug (FirstMugID+116)
+#define CorrinF201Mug (FirstMugID+128)
+#define CorrinM101Mug (FirstMugID+141)
+#define CorrinM201Mug (FirstMugID+153)
+
+ALIGN 4 
+AvatarPortraits: 
+SHORT RobinF101Mug RobinF201Mug RobinM101Mug RobinM201Mug CorrinF101Mug CorrinF201Mug CorrinM101Mug CorrinM201Mug
+SHORT 0 
+
+ALIGN 4 
+AvatarClasses:
+BYTE Cavalier Knight Mercenary Archer Mage 
+BYTE 0 0 0 0 0 0 0 0 
+
+
+
+// PUSH 
+// ORG $9E85D6 
+// BYTE 0 // Prologue event flag 
+// ORG $9EF0D8 
+// ALIGN 4
+// ExampleEvent_AVATAR:
+// ASMC StartAvatarEdits_ASMC
+// NOFADE
+// ENDA 
+// POP 
+
+
+ALIGN 4 
+BottomMenuBGEnabled_AVATAR:
+WORD 1
+ClassDescEnabled_AVATAR:
+WORD 1
+ClassNameTopEnabled_AVATAR:
+WORD 1 
+PlatformYPos_AVATAR:
+WORD 0x58 // 0x58 vanilla 0x78 max 
+
+ALIGN 4 
+// #ifndef MagClassTable
+MagClassTable_AVATAR:
+// #endif 
+WORD 0 
+
+#ifndef TextTable 
+	// #define TextTable 0x15D48C 
+	#define TextTable 0xFE4000
+#endif 
+#ifndef setText 
+#define setText(textID, offset) "PUSH; ORG (TextTable+(4*textID)); POIN (offset|0x80000000); POP"
+#endif 
+
+// Debug text entries 
+setText(0x2B, PronounMenuText) // "Viwer Map" 
+setText(0x2C, PortraitMenuText) // "Viwer Face" 
+setText(0x2D, BoonMenuText) // "Viwer BG" 
+setText(0x31, TheyMenuText) // "BASE Capture"
+setText(0x32, HimMenuText) // "BASE Devil A"
+setText(0x33, HerMenuText) // "BASE Devil B"
+setText(0x34, BaneMenuText) // "BASE Devil C"
+setText(0x2E, PortraitHairstyleText) // "MODE Tutorial"
+setText(0x2F, PortraitHairColourText) // "MODE Normal"
+setText(0x30, PortraitSkinToneText) // "MODE Hard"
+setText(0x29, EyeColourText) // "Initialize File"
+
+PortraitHairstyleText: 
+String("Hairstyle") ; BYTE 0 
+PortraitHairColourText: 
+String("Hair Colour") ; BYTE 0 
+PortraitSkinToneText: 
+String("Skin Tone") ; BYTE 0 
+EyeColourText: 
+String("Eye Colour") ; BYTE 0 
+
+
+ALIGN 4 
+PronounMenuText: 
+String("Pronoun") ; BYTE 0 
+
+ALIGN 4 
+PortraitMenuText: 
+String("Portrait") ; BYTE 0 
+
+ALIGN 4 
+BoonMenuText: 
+String("Boon") ; BYTE 0 
+ALIGN 4 
+BaneMenuText: 
+String("Bane") ; BYTE 0 
+
+ALIGN 4 
+TheyMenuText: 
+String(" they/them") ; BYTE 0 
+
+ALIGN 4 
+HimMenuText: 
+String(" he/him") ; BYTE 0 
+
+HerMenuText: 
+String(" she/her") ; BYTE 0 
+
+

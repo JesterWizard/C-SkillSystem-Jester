@@ -207,3 +207,6 @@ void StartInfuseScreen(struct ProcAtMenu *parent);
 
 extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc);
 extern void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit * unit);
+
+extern void StartCreditsProc_ASMC(ProcPtr parent);
+extern int StartAvatarEdits_ASMC(ProcPtr proc);

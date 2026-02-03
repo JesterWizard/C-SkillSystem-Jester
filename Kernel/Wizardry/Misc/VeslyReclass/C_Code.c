@@ -622,7 +622,7 @@ u8 ReclassSubConfirmMenuOnSelect(struct MenuProc * proc, struct MenuItemProc * b
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A;
 }
 
-u8 ReclassMenuSel_OnBPress(struct MenuProc * _proc, struct MenuItemProc * _proc2)
+static u8 ReclassMenuSel_OnBPress(struct MenuProc * _proc, struct MenuItemProc * _proc2)
 {
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6B;
 }

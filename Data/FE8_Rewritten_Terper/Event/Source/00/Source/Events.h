@@ -201,6 +201,8 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 
     // ASMC(AddMoreTime)
 
+    ASMC(StartAvatarEdits_ASMC)
+
 // #ifdef CONFIG_LIGHTS_OUT_GAME
 //     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
 // #endif

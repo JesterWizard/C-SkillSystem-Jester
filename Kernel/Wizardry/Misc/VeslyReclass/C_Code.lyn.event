@@ -1,7 +1,6 @@
 ALIGN 4
 PUSH
-ORG CURRENTOFFSET+$1;ReclassMenuSel_OnBPress:
-ORG CURRENTOFFSET+$4;ReclassSubConfirm_OnInit:
+ORG CURRENTOFFSET+$5;ReclassSubConfirm_OnInit:
 ORG CURRENTOFFSET+$14;SetLevelFunc:
 ORG CURRENTOFFSET+$44;ReclassPostConfirmWaitBanimEnd:
 ORG CURRENTOFFSET+$40;StartAndWaitReclassSelect:

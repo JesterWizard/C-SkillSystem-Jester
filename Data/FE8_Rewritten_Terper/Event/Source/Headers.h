@@ -10,7 +10,6 @@
 #include "jester_headers/flags.h"
 #include "jester_headers/miscellaneous.h"
 #include "jester_headers/LimitedShopStock.h"
-#include "jester_headers/credits.h"
 #include "jester_headers/custom-functions.h"
 #include "EAstdlib.h"
 
