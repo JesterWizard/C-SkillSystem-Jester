@@ -96,7 +96,7 @@ In battle animations (banim), unit status flashing is decided by ext-hit rather 
 
 C03 does not flush efx-status.
 
-## CONFIG_UNLOCK_ALLY_MHP_LIMIT
+## CONFIG_UNLOCK_ALLY_MHP_LIMIT (Changed to gpKernelDesignerConfig->expanded_hp)
 
 Enable leadership features.
 

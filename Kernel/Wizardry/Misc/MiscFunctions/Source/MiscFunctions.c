@@ -787,19 +787,24 @@ LYN_REPLACE_CHECK(StoreNumberStringOrDashesToSmallBuffer);
 void StoreNumberStringOrDashesToSmallBuffer(int n)
 {
     ClearSmallStringBuffer();
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    StoreNumberStringToSmallBuffer(n);
-#else
-    if (n == 255 || n == -1)
-    {
-        gNumberStr[7] = ':';
-        gNumberStr[6] = ':';
-    }
-    else
+
+    if (gpKernelDesignerConfig->expanded_hp)
     {
         StoreNumberStringToSmallBuffer(n);
     }
-#endif
+    else
+    {
+        if (n == 255 || n == -1)
+        {
+            gNumberStr[7] = ':';
+            gNumberStr[6] = ':';
+        }
+        else
+        {
+            StoreNumberStringToSmallBuffer(n);
+        }
+    }
+
 }
 
 LYN_REPLACE_CHECK(GetClassData);

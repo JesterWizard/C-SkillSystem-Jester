@@ -69,12 +69,7 @@ struct ClassData
     /* 07 */ u8 slowWalking;
     /* 08 */ u16 defaultPortraitId;
     /* 0A */ u8 sort_order;
-
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    /* 0B */ u8 baseHP;
-#else
-    /* 0B */ s8 baseHP;
-#endif
+    /* 0B */ u8 baseHP; // Originally s8 - gpKernelDesignerConfig->expanded_hp
     /* 0C */ s8 basePow;
     /* 0D */ s8 baseSkl;
     /* 0E */ s8 baseSpd;
@@ -82,13 +77,7 @@ struct ClassData
     /* 10 */ s8 baseRes;
     /* 11 */ s8 baseCon;
     /* 12 */ s8 baseMov;
-
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    /* 13 */ u8 maxHP;
-#else
-    /* 13 */ s8 maxHP;
-#endif
-
+    /* 13 */ u8 maxHP; // Originally s8 - gpKernelDesignerConfig->expanded_hp
     /* 14 */ s8 maxPow;
     /* 15 */ s8 maxSkl;
     /* 16 */ s8 maxSpd;
@@ -149,13 +138,8 @@ struct Unit
 
     /* 10 */ s8 xPos;
     /* 11 */ s8 yPos;
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    /* 12 */ u8 maxHP;
-    /* 13 */ u8 curHP;
-#else
-    /* 12 */ s8 maxHP;
-    /* 13 */ s8 curHP;
-#endif
+    /* 12 */ u8 maxHP; // Originally s8 - gpKernelDesignerConfig->expanded_hp
+    /* 13 */ u8 curHP; // Originally s8 - gpKernelDesignerConfig->expanded_hp
     /* 14 */ u8 pow;
     /* 15 */ u8 skl;
     /* 16 */ u8 spd;
@@ -503,11 +487,7 @@ void UnitRemoveItem(struct Unit* unit, int slot);
 
 #define UNIT_NAME_ID(aUnit) ((aUnit)->pCharacterData->nameTextId)
 
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    #define UNIT_MHP_MAX(aUnit) 255
-#else
-    #define UNIT_MHP_MAX(aUnit) (UNIT_FACTION(unit) == FACTION_RED ? 120 : 60)
-#endif
+#define UNIT_MHP_MAX(aUnit) gpKernelDesignerConfig->expanded_hp ? 254 : (UNIT_FACTION(unit) == FACTION_RED ? 120 : 60)
 
 #define UNIT_POW_MAX(aUnit) ((aUnit)->pClassData->maxPow)
 #define UNIT_SKL_MAX(aUnit) ((aUnit)->pClassData->maxSkl)

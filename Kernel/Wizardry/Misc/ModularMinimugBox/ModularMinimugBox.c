@@ -38,7 +38,6 @@ void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct 
     return;
 }
 
-//! FE8U = 0x0808C45C
 static inline void GetThreeDigits(int value, u8 *hundreds, u8 *tens, u8 *ones, bool forceHundredsZero, bool forceTensZero)
 {
     StoreNumberStringOrDashesToSmallBuffer(value);
@@ -54,21 +53,45 @@ static inline void GetThreeDigits(int value, u8 *hundreds, u8 *tens, u8 *ones, b
         *tens = 0;
 }
 
+static inline void DrawTwoDigits(int x, int y, u8 h, u8 t, u8 o)
+{
+    if (h > 0) // We have > 99 HP 
+    {
+        CallARM_PushToSecondaryOAM(x, y, gObject_8x8, OAM2_CHR(0x2EA) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8, OAM2_CHR(0x2EA) + OAM2_PAL(8));
+    }
+    else if (t > 0) // We have > 9 HP
+    {
+        CallARM_PushToSecondaryOAM(x , y, gObject_8x8, t + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8, o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    }
+    else // We have < 10 HP
+    {
+        CallARM_PushToSecondaryOAM(x, y, gObject_8x8, OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8, o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    }
+}
+
 static inline void DrawThreeDigits(int x, int y, u8 h, u8 t, u8 o)
 {
-    if (h != (u8)(' ' - '0'))
-        CallARM_PushToSecondaryOAM(
-            x, y, gObject_8x8,
-            h + OAM2_CHR(0x2E0) + OAM2_PAL(8));
-
-    if (t != (u8)(' ' - '0'))
-        CallARM_PushToSecondaryOAM(
-            x + 7, y, gObject_8x8,
-            t + OAM2_CHR(0x2E0) + OAM2_PAL(8));
-
-    CallARM_PushToSecondaryOAM(
-        x + 14, y, gObject_8x8,
-        o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    if (h > 0) // We have > 99 HP
+    {
+        CallARM_PushToSecondaryOAM(x, y, gObject_8x8, h + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8, t + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 14, y, gObject_8x8, o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    }
+    else if (t > 0) // We have > 9 HP
+    {
+        CallARM_PushToSecondaryOAM(x, y, gObject_8x8,OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8, t + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 14, y, gObject_8x8, o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    }
+    else // We have < 10 HP
+    {
+        CallARM_PushToSecondaryOAM(x, y, gObject_8x8, OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 7, y, gObject_8x8,OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + 14, y, gObject_8x8, o + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+    }
 }
 
 
@@ -113,8 +136,16 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
         true,
         true);
 
-    DrawThreeDigits(xBase + 11, yBase, hpCurH, hpCurT, hpCurO);
-    DrawThreeDigits(xBase + 41, yBase, hpMaxH, hpMaxT, hpMaxO);
+    if (gpKernelDesignerConfig->expanded_hp)
+    {
+        DrawThreeDigits(xBase + 11, yBase, hpCurH, hpCurT, hpCurO);
+        DrawThreeDigits(xBase + 41, yBase, hpMaxH, hpMaxT, hpMaxO);
+    }
+    else
+    {
+        DrawTwoDigits(xBase + 18, yBase, hpCurH, hpCurT, hpCurO);
+        DrawTwoDigits(xBase + 41, yBase, hpMaxH, hpMaxT, hpMaxO);
+    }
 
     /* ---------------- MP ---------------- */
     int mpY = yBase + 8;
@@ -131,8 +162,16 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc *proc, struct Unit *unit)
         true,
         true);
 
-    DrawThreeDigits(xBase + 11, mpY, mpCurH, mpCurT, mpCurO);
-    DrawThreeDigits(xBase + 41, mpY, mpMaxH, mpMaxT, mpMaxO);
+    if (gpKernelDesignerConfig->expanded_hp)
+    {
+        DrawThreeDigits(xBase + 11, mpY, mpCurH, mpCurT, mpCurO);
+        DrawThreeDigits(xBase + 41, mpY, mpMaxH, mpMaxT, mpMaxO);
+    }
+    else
+    {
+        DrawTwoDigits(xBase + 18, mpY, mpCurH, mpCurT, mpCurO);
+        DrawTwoDigits(xBase + 41, mpY, mpMaxH, mpMaxT, mpMaxO);
+    }
 }
 
 // ! FE8U = 0x0808C5D0
@@ -166,18 +205,29 @@ void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit)
 
     PutFaceChibi(faceId, gUiTmScratchA + TILEMAP_INDEX(1, 1), 0xF0, 4, 0);
 
-    /* Display HP slash graphic in MMB */
-    proc->statusTm = gUiTmScratchA + TILEMAP_INDEX(5, 3);
+    gUiTmScratchA[TILEMAP_INDEX(5, 3)] = TILEREF(0x120, 2); // H character
+    gUiTmScratchA[TILEMAP_INDEX(6, 3)] = TILEREF(0x121, 2); // P character
+
+    if (gpKernelDesignerConfig->expanded_hp)
+        gUiTmScratchA[TILEMAP_INDEX(10, 3)] = TILEREF(0x13E, 2); // Slash character
+    else
+        gUiTmScratchA[TILEMAP_INDEX(9, 3)] = TILEREF(0x13E, 2); // Slash character
+        
     proc->unitClock = 0;
 
-    /* Add slash for MP one tile row down from HP */
-    gUiTmScratchA[TILEMAP_INDEX(10, 4)] = TILEREF(0x13E, 2);
-    /* ensure MP icon (same icon used for HP) is present one tile-row below */
-    gUiTmScratchA[TILEMAP_INDEX(5, 4)] = TILEREF(0x160, 2);
-    gUiTmScratchA[TILEMAP_INDEX(6, 4)] = TILEREF(0x161, 2);
+    if (gpKernelDesignerConfig->expanded_hp)
+        gUiTmScratchA[TILEMAP_INDEX(10, 4)] = TILEREF(0x13E, 2); // Slash character
+    else
+        gUiTmScratchA[TILEMAP_INDEX(9, 4)] = TILEREF(0x13E, 2); // Slash character
+
+    gUiTmScratchA[TILEMAP_INDEX(5, 4)] = TILEREF(0x160, 2); // M character
+    gUiTmScratchA[TILEMAP_INDEX(6, 4)] = TILEREF(0x161, 2); // P character
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
-        proc->xHp = 6;
+        if (gpKernelDesignerConfig->expanded_hp)
+            proc->xHp = 6;
+        else
+            proc->xHp = 5;
     else
         proc->xHp = 24;
 
@@ -187,9 +237,6 @@ void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit)
         proc->yHp = 17;
 
     UnitMapUiUpdate(proc, unit);
-    //DrawHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1));
-
-    // CallARM_FillTileRect(gUiTmScratchB, gTSA_MinimugBox, TILEREF(0x0, 3));
     CallARM_FillTileRect(gUiTmScratchB, ModularMinimugBox_TileMap, TILEREF(0x0, 3));
     ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
 
@@ -199,9 +246,14 @@ void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit)
 #define MMBHeight 6
 #define MMBWidth 14
 
-static const s8 sMMBSlideInWidthLut_NEW[4] =
+static const s8 sMMBSlideInWidthLut_ThreeDigits[4] =
 {
     6, 10, 13, MMBWidth
+};
+
+static const s8 sMMBSlideInWidthLut_TwoDigits[4] =
+{
+    5, 9, 11, 13
 };
 
 //! FE8U = 0x0808BCF8
@@ -210,6 +262,7 @@ void MMB_Loop_SlideIn(struct PlayerInterfaceProc * proc)
 {
     int tmIndex;
     int width;
+    int widthAdjustment = gpKernelDesignerConfig->expanded_hp ? 0 : 1;
 
     int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;
 
@@ -217,27 +270,30 @@ void MMB_Loop_SlideIn(struct PlayerInterfaceProc * proc)
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
     }
     else
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
     }
 
     tmIndex = TILEMAP_INDEX(0, y);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 
-    width = sMMBSlideInWidthLut_NEW[proc->showHideClock];
+    if (gpKernelDesignerConfig->expanded_hp)
+        width = sMMBSlideInWidthLut_ThreeDigits[proc->showHideClock];
+    else
+        width = sMMBSlideInWidthLut_TwoDigits[proc->showHideClock];
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
     {
-        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width), gBG0TilemapBuffer + tmIndex, width, MMBHeight);
-        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width), gBG1TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width) - widthAdjustment, gBG0TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width) - widthAdjustment, gBG1TilemapBuffer + tmIndex, width, MMBHeight);
     }
     else
     {
@@ -266,6 +322,7 @@ void MMB_Loop_SlideOut(struct PlayerInterfaceProc * proc)
 {
     int tmIndex;
     int width;
+    int widthAdjustment = gpKernelDesignerConfig->expanded_hp ? 0 : 1;
 
     int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;
 
@@ -275,15 +332,15 @@ void MMB_Loop_SlideOut(struct PlayerInterfaceProc * proc)
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
     }
     else
     {
         tmIndex = TILEMAP_INDEX(0, y);
 
-        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
-        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth, MMBHeight, 0);
+        TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
+        TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(17, 0) + tmIndex, MMBWidth - widthAdjustment, MMBHeight, 0);
     }
 
     tmIndex = TILEMAP_INDEX(0, y);
@@ -294,8 +351,8 @@ void MMB_Loop_SlideOut(struct PlayerInterfaceProc * proc)
 
     if (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0)
     {
-        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width), gBG0TilemapBuffer + tmIndex, width, MMBHeight);
-        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width), gBG1TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchA + (MMBWidth - width) - widthAdjustment, gBG0TilemapBuffer + tmIndex, width, MMBHeight);
+        TileMap_CopyRect(gUiTmScratchB + (MMBWidth - width) - widthAdjustment, gBG1TilemapBuffer + tmIndex, width, MMBHeight);
     }
     else
     {

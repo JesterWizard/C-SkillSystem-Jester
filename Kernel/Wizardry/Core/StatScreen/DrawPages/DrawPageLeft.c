@@ -131,57 +131,41 @@ STATIC_DECLAR void DisplayHpBmValue(void)
 			  ? TEXT_COLOR_SYSTEM_GREEN
 			  : TEXT_COLOR_SYSTEM_BLUE;
 
+    bool expanded_hp = gpKernelDesignerConfig->expanded_hp;
+
 	// Display '/' labels
-	#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
-    if (hpmax > 99)
+    if (expanded_hp && hpmax > 99)
         PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(6, 17), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_SLASH);
     else
         PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(5, 17), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_SLASH);
-#else
-    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(5, 17), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_SLASH);
-#endif
 
     /* Display current hp */
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
     if (hpmax > 99)
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(5, 17),
-            color, hpcur);
+    {
+        if (expanded_hp)
+            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(5, 17), color, hpcur);
+        else
+        {
+            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(3, 17), TEXT_COLOR_SYSTEM_BLUE, TEXT_SPECIAL_DASH);
+            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(4, 17), TEXT_COLOR_SYSTEM_BLUE, TEXT_SPECIAL_DASH);
+        }
+    }
     else
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(4, 17),
-            color, hpcur);
-#else
-    if (hpcur > 99)
-        PutTwoSpecialChar(
-            gBG0TilemapBuffer + TILEMAP_INDEX(3, 17),
-            color, 0x14, 0x14);
-    else
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(4, 17),
-            color, hpcur);
-#endif
+        PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(4, 17), color, hpcur);
 
     /* Display max hp */
-#ifdef CONFIG_UNLOCK_ALLY_MHP_LIMIT
     if (hpmax > 99)
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(9, 17),
-            color, hpmax);
+    {
+        if (expanded_hp)
+            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(9, 17), color, hpmax);
+        else
+        {
+            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(6, 17), TEXT_COLOR_SYSTEM_BLUE, TEXT_SPECIAL_DASH);
+            PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(7, 17), TEXT_COLOR_SYSTEM_BLUE, TEXT_SPECIAL_DASH);
+        }
+    }
     else
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(7, 17),
-            color, hpmax);
-#else
-    if (hpmax > 99)
-        PutTwoSpecialChar(
-            gBG0TilemapBuffer + TILEMAP_INDEX(6, 17),
-            color, 0x14, 0x14);
-    else
-        PutNumberOrBlank(
-            gBG0TilemapBuffer + TILEMAP_INDEX(7, 17),
-            color, hpmax);
-#endif
+        PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(7, 17), color, hpmax);
 }
 
 void ToggleUnitLeftPage(bool toggle)
