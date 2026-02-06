@@ -1,6 +1,7 @@
 #include <common-chax.h>
 #include <strmag.h>
 #include <status-getter.h>
+#include "kernel-lib.h"
 
 #define UNIT_STATUS_MAX 120
 

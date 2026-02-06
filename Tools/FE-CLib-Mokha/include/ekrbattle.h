@@ -1085,4 +1085,4 @@ void NewEkrHenseiEnd(void);
 // ??? sub_8076514(???);
 void NewEkrDragonDemonKing(struct Anim * anim);
 
-#define gBG0TilemapBuffer2D ((u16 (*)[1])gBG0TilemapBuffer)
+#define gBG0TilemapBuffer2D ((u16 (*)[16])gBG0TilemapBuffer)

@@ -400,7 +400,7 @@ struct ProcEkrDispUP2
     /* 50 */ u32 unk50;
 };
 // decomp says [1], not [16] !
-#define gBG0TilemapBuffer2D ((u16(*)[16])gBG0TilemapBuffer)
+//#define gBG0TilemapBuffer2D ((u16(*)[16])gBG0TilemapBuffer)
 static const void * sBUiFrame_880210C[] = {
 
     gUnknown_0880210C, // vanilla
