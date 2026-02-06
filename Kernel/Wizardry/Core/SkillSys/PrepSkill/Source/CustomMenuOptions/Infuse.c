@@ -249,8 +249,21 @@ STATIC_DECLAR void SetupSpriteTextDestination(u32 vram, int target)
 
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused a");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused an ");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xC0, TEXT_COLOR_SYSTEM_BLUE, "item");
+    // Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
+}
+
+STATIC_DECLAR void UpdateTargetItemNameSprite(u8 target)
+{
+    // Clear and reinitialize the sprite text handle
+    ClearText(&PrepItemSuppyTexts.th[0xf]);
+    
+    // Clear the VRAM for the sprite text (this is the critical step!)
+    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
+    
+    // Now draw the updated item name
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, "shit fuck");
 }
 
 STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
@@ -493,11 +506,13 @@ STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * 
 }
 
 STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
+    // 1. Deduct Shards
     gInfuseMenuArray[0] -= cost;
 
     struct PrepScreenItemListEnt* ent = &gPrepScreenItemList[idx];
     u16 newItem = target | (GetItemMaxUses(target) << 8);
 
+    // 2. Update ACTUAL game data
     if (ent->pid == 0) {
         gConvoyItemArray[ent->itemSlot] = newItem;
     } else {
@@ -505,15 +520,26 @@ STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 ta
         unit->items[ent->itemSlot] = newItem;
     }
 
+    // 3. Force Prep Screen cache refresh
     SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
+
+    // 4. Feedback
     PlaySoundEffect(0x5A); 
+    // Update the Shard count number
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 5), TEXT_COLOR_SYSTEM_WHITE, gInfuseMenuArray[0]);
 
+    // 5. REPAIR THE UI (The critical part)
+    // Instead of DrawPrepScreenItemIcons (which causes the ghosts), 
+    // we call your custom refresh function.
     sub_809F150_INFUSE(proc); 
 
+    // 6. Refresh the Infuse Boxes immediately
+    // This forces the Loop_MainKeyHandler to notice the "new" item 
+    // and redraw the box contents in the next frame.
     gInfuseMenuArray[1] = -1; 
     
-    SetPopupItem(newItem);
+    // 7. Popup
+   // SetPopupItem(newItem);
     NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
@@ -527,8 +553,10 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
     u8 target = gInfusionLookupTable[itemId].targetItemId;
     u8 cost = gInfusionLookupTable[itemId].cost;
 
+    // Forces redraw every frame by resetting the "previous index" tracker
     gInfuseMenuArray[1] = -1; 
 
+    // --- 1. INITIAL DRAWING LOGIC (Exact Restoration) ---
     if (idx != gInfuseMenuArray[1]) {
         u16 item = gPrepScreenItemList[idx].item;
         u8 itemId = ITEM_INDEX(item);
@@ -638,7 +666,7 @@ STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListPr
                     EndUiCursorHand();
                     ShowSysHandCursor(68, 36, 0x4, 0x000); // Priority adjusted per original
                     BG_EnableSyncByMask(7);
-                    // SetupSpriteTextDestination(0x06011000, target);
+                    UpdateTargetItemNameSprite(target);
                     return;
                 }
 

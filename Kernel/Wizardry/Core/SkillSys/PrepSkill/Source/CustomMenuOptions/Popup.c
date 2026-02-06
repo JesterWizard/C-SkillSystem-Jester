@@ -255,7 +255,7 @@ static void PutInfuseWeaponTextSprite(void)
     struct PopupProc* proc = Proc_Find(ProcScr_Popup);
     int base_x = ((proc->xTileReal + 1) * 8) + 2;
     PutSpriteExt(4, base_x, 72, gObject_64x32, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x90));
-    PutSpriteExt(4, base_x + 40, 72, gObject_64x32, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x95));
+    PutSpriteExt(4, base_x + 40, 72, gObject_64x32, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x97));
 }
 
 LYN_REPLACE_CHECK(PopupProc_GfxDraw);
