@@ -55,7 +55,8 @@ static const EventScr EventScr_Beginning[] = {
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Pre_Scene_03_Convo_01)
     FADE_FROM_BLACK(16)
-    PREP
+    PREP_ALT
+    NOFADE
     ENUT(0xC) // Temporary flag for special reinforcements
     ENDA
 };
