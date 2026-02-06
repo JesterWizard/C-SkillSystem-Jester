@@ -5,6 +5,7 @@
 #include "constants/texts.h"
 #include "debuff.h"
 #include "playst-expa.h"
+#include "jester_headers/custom-functions.h"
 #include "jester_headers/miscellaneous.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
@@ -105,9 +106,23 @@ static void callback_exec(ProcPtr proc)
 
 bool Action_Shuffle(ProcPtr parent)
 {
+    
+#if defined(SID_ShufflePlus) && (COMMON_SKILL_VALID(SID_ShufflePlus))
+	if (SkillTesterPlus(gActiveUnit, SID_ShufflePlus))
+    {
+        PlayStExpa_SetBit(PLAYSTEXPA_BIT_ShufflePlus_Used);
+		Action_ShufflePlus(parent);
+    }
+    else
+    {
+        PlayStExpa_SetBit(PLAYSTEXPA_BIT_Shuffle_Used);
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+    }
+#else
     PlayStExpa_SetBit(PLAYSTEXPA_BIT_Shuffle_Used);
-
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#endif
+
 	return true;
 }
 #endif

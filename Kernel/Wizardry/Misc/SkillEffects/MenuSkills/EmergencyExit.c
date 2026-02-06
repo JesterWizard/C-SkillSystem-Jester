@@ -6,6 +6,7 @@
 #include "debuff.h"
 #include "playst-expa.h"
 #include "action-expa.h"
+#include "jester_headers/custom-functions.h"
 #include "jester_headers/miscellaneous.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
@@ -92,7 +93,16 @@ static void callback_exec(ProcPtr proc)
 
 bool Action_EmergencyExit(ProcPtr parent)
 {
+
+#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+	if (SkillTesterPlus(gActiveUnit, SID_EmergencyExitPlus))
+		Action_EmergencyExitPlus(parent);
+    else
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#else
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#endif
+
 	return true;
 }
 #endif

@@ -8,6 +8,7 @@
 #include "icon-rework.h"
 #include "playst-expa.h"
 #include "jester_headers/miscellaneous.h"
+#include "jester_headers/custom-functions.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
@@ -611,7 +612,16 @@ static void callback_exec(ProcPtr proc)
 
 bool Action_SkillSwap(ProcPtr parent)
 {
+
+#if defined(SID_SkillSwapPlus) && (COMMON_SKILL_VALID(SID_SkillSwapPlus))
+	if (SkillTesterPlus(gActiveUnit, SID_SkillSwapPlus))
+		Action_SkillSwapPlus(parent);
+    else
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#else
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#endif
+
 	return true;
 }
 #endif

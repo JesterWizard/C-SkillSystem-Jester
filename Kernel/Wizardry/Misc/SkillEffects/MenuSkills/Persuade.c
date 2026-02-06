@@ -6,6 +6,7 @@
 #include "debuff.h"
 #include "unit-expa.h"
 #include "playst-expa.h"
+#include "jester_headers/custom-functions.h"
 #include "jester_headers/miscellaneous.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
@@ -96,9 +97,22 @@ static void callback_exec(ProcPtr proc)
 
 bool Action_Persuade(ProcPtr parent)
 {
+#if defined(SID_PersuadePlus) && (COMMON_SKILL_VALID(SID_PersuadePlus))
+	if (SkillTesterPlus(gActiveUnit, SID_PersuadePlus))
+    {
+        PlayStExpa_SetBit(PLAYSTEXPA_BIT_PersuadePlus_Used);
+		Action_PersuadePlus(parent);
+    }
+    else
+    {
+        PlayStExpa_SetBit(PLAYSTEXPA_BIT_Persuade_Used);
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+    }
+#else
     PlayStExpa_SetBit(PLAYSTEXPA_BIT_Persuade_Used);
-
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#endif
+
 	return true;
 }
 #endif

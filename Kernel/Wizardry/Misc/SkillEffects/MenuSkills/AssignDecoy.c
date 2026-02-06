@@ -4,6 +4,7 @@
 #include "constants/skills.h"
 #include "constants/texts.h"
 #include "debuff.h"
+#include "jester_headers/custom-functions.h"
 #include "jester_headers/miscellaneous.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
@@ -78,7 +79,16 @@ static void callback_exec(ProcPtr proc)
 
 bool Action_AssignDecoy(ProcPtr parent)
 {
+
+#if defined(SID_AssignDecoyPlus) && (COMMON_SKILL_VALID(SID_AssignDecoyPlus))
+	if (SkillTesterPlus(gActiveUnit, SID_AssignDecoyPlus))
+		Action_AssignDecoyPlus(parent);
+    else
+        NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#else
 	NewMuSkillAnimOnActiveUnit(gActionData.unk08, callback_anim, callback_exec);
+#endif
+
 	return true;
 }
 #endif
