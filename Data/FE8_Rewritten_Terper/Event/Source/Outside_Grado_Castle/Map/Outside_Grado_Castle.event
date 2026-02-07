@@ -10,6 +10,6 @@ ALIGN 4
 MapData:
   #incbin "Outside_Grado_Castle_data.dmp"
 
-SetChapterData(0x3F, 0x01, 0, 0x02, 0x03, 0xD6, MapData, 0, 0, 0)
+// SetChapterData(0x3F, 0x01, 0, 0x02, 0x03, 0xD6, MapData, 0, 0, 0)
 
 }

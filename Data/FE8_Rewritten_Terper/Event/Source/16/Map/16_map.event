@@ -10,7 +10,7 @@ ALIGN 4
 MapData:
   #incbin "16_map_data.dmp"
 
-SetChapterData(0x10, 0x18, 0, 0x48, 0x1A, 0x49, MapData, 0, 0, 0x4A)
+// SetChapterData(0x10, 0x18, 0, 0x48, 0x1A, 0x49, MapData, 0, 0, 0x4A)
 
 ALIGN 4
 Map_Change_0:
@@ -61,6 +61,6 @@ MapChangesData:
   TileMap(8, 14, 2, 2, 2, Map_Change_8)
   TileMapEnd
 
-EventPointerTable(0x4A, MapChangesData)
+NewEventPointerTable_Event(0x4A, MapChangesData)
 
 }

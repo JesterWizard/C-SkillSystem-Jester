@@ -50,7 +50,7 @@ Chapters come in two parts, the actual chapter settings and its events. We'll co
 This is the basic structure:
 
 ```
-EventPointerTable(0x7, Chapter00Event)
+NewEventPointerTable_Event(0x7, Chapter00Event)
 #include "Source/00/00.lyn.event"
 #include "Source/00/Map/00_Map.event"
 ```

@@ -8,27 +8,27 @@
 
 ALIGN 4
 SplitedChapterData_Events:
-    #incbin "bin/event-list.bin"
+    #incbin "PListBins/event-list.bin"
 
 ALIGN 4
 SplitedChapterData_MapPlist:
-    #incbin "bin/map-plist.bin"
+    #incbin "PListBins/map-plist.bin"
 
 ALIGN 4
 SplitedChapterData_ObjPal:
-    #incbin "bin/obj-palette.bin"
+    #incbin "PListBins/obj-palette.bin"
 
 ALIGN 4
 SplitedChapterData_TileAnim:
-    #incbin "bin/tile-anim.bin"
+    #incbin "PListBins/tile-anim.bin"
 
 ALIGN 4
 SplitedChapterData_TileChange:
-    #incbin "bin/tile-changes.bin"
+    #incbin "PListBins/tile-changes.bin"
 
 ALIGN 4
 SplitedChapterData_TileConfig:
-    #incbin "bin/tile-configs.bin"
+    #incbin "PListBins/tile-configs.bin"
 
 /* Reset EA stdlib event installer to new event table, other need the unique definitions */
 #undef EventPointerListOffset
@@ -84,7 +84,7 @@ PUSH
 
     /* Fill up vanilla */
     ORG 0x8B3640
-    #incbin "bin/008B3640.bin"
+    #incbin "PListBins/008B3640.bin"
     PROTECT 0x8B363C 0x8B39EC
 POP
 

@@ -1,42 +1,44 @@
 // No maps for prologue and chapter 1 as they don't have tile changes
 
+#include "Source/PListSplit.event"
+
 #define ChapterDataTable 0x8B0890
 #define ChapterDataTableEntSize 148
 #define SetChapterData(ChapterID,ObjectType1,ObjectType2,PaletteID,TileConfig,MapID,MapPointer,Anims1,Anims2,MapChanges) "PUSH; ORG ChapterDataTable+(ChapterID*ChapterDataTableEntSize)+4; BYTE ObjectType1 ObjectType2 PaletteID TileConfig MapID Anims1 Anims2 MapChanges; EventPointerTable(MapID,MapPointer); POP";
 
-EventPointerTable(0x7, Chapter00Event)
+NewEventPointerTable_Event(0x7, Chapter00Event)
 #include "Source/00/00.lyn.event"
 #include "Source/00/Map/00_Map.event"
-EventPointerTable(0xA, Chapter01Event)
+NewEventPointerTable_Event(0xA, Chapter01Event)
 #include "Source/01/01.lyn.event"
 #include "Source/01/Map/01_Map.event"
-EventPointerTable(0xC5, IntermissionEvent)
+NewEventPointerTable_Event(0xC5, IntermissionEvent)
 #include "Source/Intermission/Intermission.lyn.event"
-EventPointerTable(0xD, Chapter02Event)
+NewEventPointerTable_Event(0xD, Chapter02Event)
 #include "Source/02/02.lyn.event"
 #include "Source/02/Map/02_map.event"
-EventPointerTable(0x14, Chapter03Event)
+NewEventPointerTable_Event(0x14, Chapter03Event)
 #include "Source/03/03.lyn.event"
 #include "Source/03/Map/03_map.event"
-EventPointerTable(0x17, Chapter04Event)
+NewEventPointerTable_Event(0x17, Chapter04Event)
 #include "Source/04/04.lyn.event"
 #include "Source/04/Map/04_map.event"
-EventPointerTable(0x21, Chapter05Event)
+NewEventPointerTable_Event(0x21, Chapter05Event)
 #include "Source/05/05.lyn.event"
 #include "Source/05/Map/05_map.event"
-EventPointerTable(0x1E, Chapter05xEvent)
+NewEventPointerTable_Event(0x1E, Chapter05xEvent)
 #include "Source/05x/05x.lyn.event"
 #include "Source/05x/Map/05x_map.event"
-EventPointerTable(0x24, Chapter06Event)
+NewEventPointerTable_Event(0x24, Chapter06Event)
 #include "Source/06/06.lyn.event"
 #include "Source/06/Map/06_map.event"
-EventPointerTable(0x27, Chapter07Event)
+NewEventPointerTable_Event(0x27, Chapter07Event)
 #include "Source/07/07.lyn.event"
 #include "Source/07/Map/07_map.event"
-EventPointerTable(0x2A, Chapter08Event)
+NewEventPointerTable_Event(0x2A, Chapter08Event)
 #include "Source/08/08.lyn.event"
 #include "Source/08/Map/08_map.event"
-EventPointerTable(0x2D, Chapter09Event)
+NewEventPointerTable_Event(0x2D, Chapter09Event)
 #include "Source/09/09.lyn.event"
 #include "Source/09/Map/09_map.event"
 // EventPointerTable(0xCD, SerafewEvent)

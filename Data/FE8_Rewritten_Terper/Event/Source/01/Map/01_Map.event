@@ -10,6 +10,6 @@ ALIGN 4
 MapData:
   #incbin "01_Map_data.dmp"
 
-SetChapterData(1, 0x1, 0, 0x2, 0x3, 0x8, MapData, 0, 0, 0)
+// SetChapterData(1, 0x1, 0, 0x2, 0x3, 0x8, MapData, 0, 0, 0)
 
 }

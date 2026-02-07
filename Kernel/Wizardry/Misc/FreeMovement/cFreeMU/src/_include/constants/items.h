@@ -229,6 +229,9 @@ enum {
     // ...
 
     ITEM_UNK_CC            = 0xCC,
+
+    /* Since Gaiden Magics have no durability I can just use that byte for the ID */
+    ITEM_GAIDEN_MAGIC      = 0xDB,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H

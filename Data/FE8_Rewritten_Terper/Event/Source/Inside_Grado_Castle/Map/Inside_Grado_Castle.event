@@ -10,7 +10,7 @@ ALIGN 4
 MapData:
   #incbin "Inside_Grado_Castle_data.dmp"
 
-SetChapterData(0x3F, 0x79, 0, 0x7A, 0x7B, 0x7C, MapData, 0, 0, 0x7E)
+// SetChapterData(0x3F, 0x79, 0, 0x7A, 0x7B, 0x7C, MapData, 0, 0, 0x7E)
 
 ALIGN 4
 Map_Change_0:
@@ -61,6 +61,6 @@ MapChangesData:
   TileMap(8, 14, 18, 1, 1, Map_Change_8)
   TileMapEnd
 
-EventPointerTable(0x7E, MapChangesData)
+NewEventPointerTable_Event(0x7E, MapChangesData)
 
 }

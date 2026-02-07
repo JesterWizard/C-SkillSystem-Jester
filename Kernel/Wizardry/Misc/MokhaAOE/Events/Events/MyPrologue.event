@@ -8,7 +8,7 @@ ORG FreeSpace
 #endif
 
 MyPrologue:
-EventPointerTable(7,PrologueTable)
+NewEventPointerTable_Event(7,PrologueTable)
 PrologueTable:
 POIN TurnBasedEvents
 POIN CharacterBasedEvents

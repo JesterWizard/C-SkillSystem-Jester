@@ -1,5 +1,4 @@
 #include "EAstdlib.event"
-// #include "../../../PListSplit.event"
 
 ALIGN 4
 MapData:
@@ -29,7 +28,7 @@ MapChangesData:
   TileMap(7, 12, 19, 1, 1, Map_Change_7)
   TileMapEnd
   
-EventPointerTable(0xCB, MapChangesData)
+NewEventPointerTable_Event(0x50, MapChangesData)
 
 // NewEventPointerTable_Event(0x3B, 0xCB)
 // NewEventPointerTable_Maps(0x3B, MapData)

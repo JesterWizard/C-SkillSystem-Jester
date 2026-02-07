@@ -1,5 +1,5 @@
 {
-EventPointerTable(7,MyEvents)
+NewEventPointerTable_Event(7,MyEvents)
 PUSH; ORG 0x8B091C; BYTE 0x0; POP       // Seize objective.
 
 MyEvents:
