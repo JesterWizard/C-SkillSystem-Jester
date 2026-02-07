@@ -117,21 +117,22 @@ STATIC_DECLAR void UnitCheckStatCapsVanilla(struct Unit *unit)
         limitBreaker = SKILL_EFF0(SID_LimitBreakerPlus);
 #endif
 
-#if defined(SID_OgreBody) && (COMMON_SKILL_VALID(SID_OgreBody))
-    if (SkillTester(unit, SID_OgreBody))
-    {
-        if (unit->maxHP > SKILL_EFF0(SID_OgreBody))
-            unit->maxHP = SKILL_EFF0(SID_OgreBody);
-    }
-    else
-    {
-        if (unit->maxHP > UNIT_MHP_MAX(unit) + limitBreaker)
-            unit->maxHP = UNIT_MHP_MAX(unit) + limitBreaker;
-    }
-#endif
+/* Having an issue with HP maxing out with this turned on right now */
+// #if defined(SID_OgreBody) && (COMMON_SKILL_VALID(SID_OgreBody))
+//     if (SkillTester(unit, SID_OgreBody))
+//     {
+//         if (unit->maxHP > SKILL_EFF0(SID_OgreBody))
+//             unit->maxHP = SKILL_EFF0(SID_OgreBody);
+//     }
+//     else
+//     {
+//         if (unit->maxHP > UNIT_MHP_MAX(unit) + limitBreaker)
+//             unit->maxHP = UNIT_MHP_MAX(unit) + limitBreaker;
+//     }
+// #endif
 
-    if (unit->maxHP > UNIT_MHP_MAX(unit) + limitBreaker)
-        unit->maxHP = UNIT_MHP_MAX(unit);
+//     if (unit->maxHP > UNIT_MHP_MAX(unit) + limitBreaker)
+//         unit->maxHP = UNIT_MHP_MAX(unit) + limitBreaker;
 
 #if defined(SID_Dismount) && (COMMON_SKILL_VALID(SID_Dismount))
     if (SkillTester(unit, SID_Dismount) && GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DISMOUNT)
