@@ -279,3 +279,12 @@ stat and growth views.[X]
 
 ## MSG_SELECT_WEAPON
 Select a weapon.[X]
+
+## MSG_BEXP_INSTRUCTION
+Add up to 100 experience points at a time.[X]
+## MSG_BEXP_AMOUNT_TITLE
+Bonus Experience: [X]
+## MSG_BEXP_MULTIPLIER
+Multiplier:[X]
+## MSG_BEXP_APPLIED
+Applied Amount:[X]

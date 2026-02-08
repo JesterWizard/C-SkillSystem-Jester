@@ -160,8 +160,6 @@ extern void Popup_GotItem(ProcPtr proc);
 extern const struct ProcCmd ProcPopup_GotItem[];
 
 /* gpKernelDesignerConfig->prep_menu_infuse */
-extern void displayScrollBackground_INFUSE(void);
-extern void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc);
 extern struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[];
 
 
@@ -203,10 +201,12 @@ extern u8 Gfx_UI_Number_9[];
 
 /* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
-void StartInfuseScreen(struct ProcAtMenu *parent);
+void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
 
 extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc);
 extern void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit * unit);
 
 extern void StartCreditsProc_ASMC(ProcPtr parent);
 extern int StartAvatarEdits_ASMC(ProcPtr proc);
+
+void StartBEXPScreen_FromPrep(struct ProcAtMenu * parent);

@@ -78,6 +78,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.goal_timer = false,
 	.prep_menu_augury = true,
 	.prep_menu_infuse = true,
+	.prep_menu_bexp = true,
 	.expanded_hp = true,
 
 	.guaranteed_lvup = false,

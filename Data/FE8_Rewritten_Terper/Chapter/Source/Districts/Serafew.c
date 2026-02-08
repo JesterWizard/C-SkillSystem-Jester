@@ -15,7 +15,7 @@ const struct ROMChapterData BaseChapter05 = {
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
-    .chapTitleId = 0x3B, // Chapter 5 - The Empire's Reach
+    .chapTitleId = 0x50, // Chapter 5 - The Empire's Reach
     .chapTitleIdInHectorStory = 0,
     .chapTitleTextId = MSG_BASE_TITLE_SERAFEW,
     .initialPosX = 14,   // Starting position of the camera

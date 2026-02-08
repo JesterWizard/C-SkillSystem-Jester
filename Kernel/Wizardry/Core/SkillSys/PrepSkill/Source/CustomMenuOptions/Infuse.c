@@ -74,7 +74,7 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_ORIONSBOLT]        = { ITEM_MASTERSEAL,       7 },
 };
 
-STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
+static struct PopupInstruction const InfusedPopup[] = {
     POPUP_SOUND(SONG_SE_UPDATE),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
     POPUP_SPACE(3),
@@ -82,24 +82,24 @@ STATIC_DECLAR struct PopupInstruction const InfusedPopup[] = {
     POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
     POPUP_SPACE(4),
     POPUP_ITEM_STR,
-    POPUP_SPACE(1),
-    POPUP_ITEM_ICON,
+    POPUP_SPACE(15),
+   // POPUP_ITEM_ICON,
     POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
     POPUP_SPACE(1),
     POPUP_MSG(0x022),                   /* .[.] */
     POPUP_END
 };
 
-STATIC_DECLAR bool CanAffordInfusion(u8 cost) {
+static bool CanAffordInfusion(u8 cost) {
     return gInfuseMenuArray[0] >= cost;
 }
 
-STATIC_DECLAR bool HasValidTarget(u8 targetItemId) {
+static bool HasValidTarget(u8 targetItemId) {
     return targetItemId != 0;
 }
 
 /* Helper function */
-STATIC_DECLAR void drawInfuseSprites(void)
+static void drawInfuseSprites(void)
 {
     /* Display down arrow */
     PutSprite(1, 42, 96, gObject_16x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x259));
@@ -117,7 +117,7 @@ STATIC_DECLAR void drawInfuseSprites(void)
     PutSprite(1, 86, 133, gObject_32x32, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E9));
 }
 
-STATIC_DECLAR void InfuseSpriteWorker(ProcPtr proc) {
+static void InfuseSpriteWorker(ProcPtr proc) {
     drawInfuseSprites();
 }
 
@@ -147,7 +147,7 @@ void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit 
 }
 
 // Refactor #5: Consolidate number graphics decompression into a loop
-STATIC_DECLAR void LoadNumberGraphics(void) {
+static void LoadNumberGraphics(void) {
     const void* numberGfx[] = {
         Gfx_UI_Number_0, Gfx_UI_Number_1, Gfx_UI_Number_2, Gfx_UI_Number_3, Gfx_UI_Number_4,
         Gfx_UI_Number_5, Gfx_UI_Number_6, Gfx_UI_Number_7, Gfx_UI_Number_8, Gfx_UI_Number_9
@@ -160,13 +160,13 @@ STATIC_DECLAR void LoadNumberGraphics(void) {
 }
 
 // Refactor #4: Extract cost sprite drawing into a helper function
-STATIC_DECLAR void DrawCostSprite(u8 cost) {
+static void DrawCostSprite(u8 cost) {
     if (cost <= 9) {
         PutSprite(1, 68, 102, gObject_16x16, OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x3C0 + cost * 2));
     }
 }
 
-STATIC_DECLAR void displayScrollBackground_INFUSE(void)
+static void displayScrollBackground_INFUSE(void)
 {
     SetTextFont(NULL);
     TileMap_FillRect(gBG0TilemapBuffer + 0x34, 12, 1, 0);
@@ -204,7 +204,7 @@ STATIC_DECLAR void displayScrollBackground_INFUSE(void)
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-STATIC_DECLAR void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
+static void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* proc) {
     int idx = proc->idxPerPage[proc->currentPage];
 
     TileMap_FillRect(gBG0TilemapBuffer + 0x38, 8, 1, 0);
@@ -238,7 +238,7 @@ void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
     UpdateMenuScrollBarConfig(0xc, proc->yOffsetPerPage[proc->currentPage], gUnknown_02012F56, 7);
 }
 
-STATIC_DECLAR void SetupSpriteTextDestination(u32 vram, int target)
+static void SetupSpriteTextDestination(u32 vram, int target)
 {
     InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)vram, 0xb);
     ApplyPalette(Pal_Text, 0x1B);
@@ -254,7 +254,7 @@ STATIC_DECLAR void SetupSpriteTextDestination(u32 vram, int target)
     // Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
 }
 
-STATIC_DECLAR void UpdateTargetItemNameSprite(u8 target)
+static void UpdateTargetItemNameSprite(u8 target)
 {
     // Clear and reinitialize the sprite text handle
     ClearText(&PrepItemSuppyTexts.th[0xf]);
@@ -266,7 +266,7 @@ STATIC_DECLAR void UpdateTargetItemNameSprite(u8 target)
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, "shit fuck");
 }
 
-STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
+static void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 {
     int i;
 
@@ -398,7 +398,7 @@ STATIC_DECLAR void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 }
 
 /* Redraw the current owner name when switching left and right in the supply without overwriting part of the minimug graphic in the top left */
-STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
+static void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 {
     ResetIconGraphics_();
     SomethingPrepListRelated(proc->unit, proc->currentPage, 3);
@@ -429,7 +429,7 @@ STATIC_DECLAR void sub_809F150_INFUSE(struct PrepItemListProc * proc)
 }
 
 // Refactor #3: Consolidated page switching function
-STATIC_DECLAR void PrepItemList_SwitchPage_INFUSE(struct PrepItemListProc * proc, int direction)
+static void PrepItemList_SwitchPage_INFUSE(struct PrepItemListProc * proc, int direction)
 {
     int x = 0;
     int four = 4;
@@ -472,17 +472,17 @@ STATIC_DECLAR void PrepItemList_SwitchPage_INFUSE(struct PrepItemListProc * proc
     }
 }
 
-STATIC_DECLAR void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
+static void PrepItemList_SwitchPageLeft_INFUSE(struct PrepItemListProc * proc)
 {
     PrepItemList_SwitchPage_INFUSE(proc, -1);
 }
 
-STATIC_DECLAR void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc)
+static void PrepItemList_SwitchPageRight_INFUSE(struct PrepItemListProc* proc)
 {
     PrepItemList_SwitchPage_INFUSE(proc, 1);
 }
 
-STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
+static void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * proc, int amount)
 {
     ResetIconGraphics_();
     sub_809D418(gBG2TilemapBuffer + 0xF, proc->yOffsetPerPage[proc->currentPage] >> 4);
@@ -505,7 +505,7 @@ STATIC_DECLAR void PrepItemList_ScrollVertical_INFUSE(struct PrepItemListProc * 
 
 }
 
-STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
+static void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u8 cost) {
     // 1. Deduct Shards
     gInfuseMenuArray[0] -= cost;
 
@@ -545,7 +545,7 @@ STATIC_DECLAR void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 ta
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
-STATIC_DECLAR void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
+static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 {
     int idx = proc->idxPerPage[proc->currentPage];
     u16 item = gPrepScreenItemList[idx].item;
@@ -819,7 +819,7 @@ EXIT_SUB_MENU:
     PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
 }
 
-STATIC_DECLAR void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
+static void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
 {
     struct ProcAtMenu *pproc = proc->proc_parent;
     pproc->state = 1;
@@ -830,7 +830,7 @@ STATIC_DECLAR void PrepItemList_OnEnd_INFUSE(struct PrepItemListProc * proc)
     EndMuralBackground_();
 }
 
-STATIC_DECLAR struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
+struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[] = {
     PROC_NAME("PrepItemListScreen_INFUSE"),
     PROC_YIELD,
     PROC_SET_END_CB(PrepItemList_OnEnd_INFUSE),
@@ -875,7 +875,7 @@ PROC_LABEL(PL_INFUSE_END),
     PROC_END
 };
 
-void StartInfuseScreen(struct ProcAtMenu *pproc)
+void StartInfuseScreen_FromPrep(struct ProcAtMenu *pproc)
 {
     Proc_StartBlocking(ProcScr_PrepItemListScreen_INFUSE, pproc);
 }

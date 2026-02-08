@@ -91,3 +91,17 @@ struct InfuseRecipe {
 };
 
 extern const struct InfuseRecipe gInfusionLookupTable[256];
+
+extern u16 gBEXP;
+
+enum {
+    PL_BEXP_INIT = 0,
+    PL_BEXP_SHOW_CURSOR = 1,
+    PL_BEXP_IDLE = 2,
+    PL_BEXP_PRESS_LEFT = 3,
+    PL_BEXP_PRESS_RIGHT = 4,
+    PL_BEXP_REFRESH_VIEW = 6,
+    PL_BEXP_SHOW_INVENTORY = 7,
+    PL_BEXP_PRESS_B = 8,
+    PL_BEXP_END = 9
+};

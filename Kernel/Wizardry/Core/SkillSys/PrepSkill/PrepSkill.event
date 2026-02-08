@@ -2,6 +2,7 @@
 #include "Source/CustomMenuOptions/LynJump.event"
 #include "Source/CustomMenuOptions/Infuse_Graphics_Installer.event"
 #include "Source/CustomMenuOptions/Infuse.lyn.event"
+#include "Source/CustomMenuOptions/BEXP.lyn.event"
 #include "Source/CustomMenuOptions/Popup.lyn.event"
 #include "Source/AtMenu.lyn.event"
 #include "Source/PrepSkill1.lyn.event"
