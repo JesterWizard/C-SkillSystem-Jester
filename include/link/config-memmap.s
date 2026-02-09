@@ -102,7 +102,7 @@ _kernel_malloc gDeadUnits, 50
 _kernel_malloc gChapterTimerSeconds, 2
 _kernel_malloc firstVisibleIndex, 1
 _kernel_malloc gInfuseMenuArray, 6
-_kernel_malloc gBEXP, 2
+_kernel_malloc gBEXP, 4
 
 // JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
 @ _kernel_malloc sDemoUnitExpaAlly, 51 * 4

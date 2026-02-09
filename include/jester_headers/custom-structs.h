@@ -59,12 +59,12 @@ void GoalDisplay_Loop(struct PlayerInterfaceProc *proc);
 
 extern u16 gChapterTimerSeconds;
 
-// /* 0x0 */ gInfuseDragonGlass
-// /* 0x1 */ gInfuseLastIndex
-// /* 0x2 */ gInfuseHandOriginX
-// /* 0x3 */ gInfuseHandOriginY
-// /* 0x4 */ gInfuseHandMode
-// /* 0x5 */ gInfuseSelectedOption
+// 0x0 - gInfuseDragonGlass
+// 0x1 - gInfuseLastIndex
+// 0x2 - gInfuseHandOriginX
+// 0x3 - gInfuseHandOriginY
+// 0x4 - gInfuseHandMode
+// 0x5 - gInfuseSelectedOption
 extern u8 gInfuseMenuArray[6];
 
 enum {
@@ -92,7 +92,10 @@ struct InfuseRecipe {
 
 extern const struct InfuseRecipe gInfusionLookupTable[256];
 
-extern u16 gBEXP;
+// 0x0-0x1 - gBEXP_Amount
+// 0x2 - gBEXP_TopVisibleUnitListIndex
+// 0x3 - gBEXP_PreviousTopUnitListIndex
+extern u16 gBEXP[4];
 
 enum {
     PL_BEXP_INIT = 0,

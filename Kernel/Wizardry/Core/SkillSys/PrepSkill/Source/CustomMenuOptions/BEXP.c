@@ -7,61 +7,67 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 
-static void DrawUnits_BEXP(struct ProcPrepUnit *proc, int x, int y)
+#define BEXP_VISIBLE_COUNT 5
+
+static void DrawUnits_BEXP(int x, int y)
 {
+    int i;
     struct Unit *unit;
+    int unitCount = PrepGetUnitAmount();
 
-    for (int i = 0; i < 5; i++) 
-    {
-        unit = GetUnitFromPrepList(i);
+    // Clear old unit sprites
+    ClearSprites();
 
-        PutUnitSprite(0, ((x - 1) * 8) + 4, (((y + (i * 2)) * 8) + 4), unit);
-        PutDrawText(&gPrepUnitTexts[i+5], TILEMAP_LOCATED(gBG0TilemapBuffer, (x + 2), y + (i * 2)), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(unit->pCharacterData->nameTextId));
+    for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
+        int unitIndex = gBEXP[3] + i;
+
+        // Clear the text for this slot
+        ClearText(&gPrepUnitTexts[i + 5]);
+
+        // Stop if we've run out of units
+        if (unitIndex >= unitCount)
+            continue;
+
+        unit = GetUnitFromPrepList(unitIndex);
+
+        // Draw sprite at visual position 'i' (not unitIndex)
+        PutUnitSprite(
+            0,
+            ((x - 1) * 8) + 4,
+            ((y + (i * 2)) * 8) + 4,
+            unit
+        );
+
+        // Draw name at visual position 'i' (not unitIndex)
+        PutDrawText(
+            &gPrepUnitTexts[i + 5],
+            TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y + (i * 2)),
+            TEXT_COLOR_SYSTEM_WHITE,
+            0,
+            0,
+            GetStringFromIndex(unit->pCharacterData->nameTextId)
+        );
     }
 
     RefreshUnitSprites();
     SyncUnitSpriteSheet();
-    BG_EnableSyncByMask(BG0_SYNC_BIT); // With this the unit name text will display
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-
 /* X and Y are tilemap coordinates (8x8) */
+/* Draw only the minimug and level/exp - called when cursor moves */
 static void DrawUnitMinimugAndLevel(struct Unit *unit, int x, int y)
 {
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 4, x + 2), x + 5, y, 0);
+    // Clear only the minimug and level/exp area (rows y to y+3)
+    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 4, 4, 0);
+    
     PutFaceChibi(GetUnitPortraitId(unit), TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0x270, 2, 0);
-    ClearText(&gPrepUnitTexts[0x13]);
-    PutDrawText(
-        &gPrepUnitTexts[0x13],
-        TILEMAP_LOCATED(gBG0TilemapBuffer, x + 4, y),
-        TEXT_COLOR_SYSTEM_WHITE,
-        GetStringTextCenteredPos(0x38, GetStringFromIndex(unit->pCharacterData->nameTextId)),
-        0,
-        GetStringFromIndex(unit->pCharacterData->nameTextId)
-    );
 
     PutTwoSpecialChar(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 4, y + 2), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_LV_A, TEXT_SPECIAL_LV_B);
-    PutSpecialChar(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 8, y + 2), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_E);
-
     PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 7, y + 2), TEXT_COLOR_SYSTEM_BLUE, unit->level);
-    PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 10, y + 2), TEXT_COLOR_SYSTEM_BLUE, unit->exp);
-
-    gBEXP = 1000;
-    int bexp_color = gBEXP == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-
-    InitText(&PrepItemSuppyTexts.th[1], 10);
-    PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 14), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, 1000);
-
-    InitText(&PrepItemSuppyTexts.th[2], 6);
-    PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 8), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_TITLE)));
-
-    InitText(&PrepItemSuppyTexts.th[3], 4);
-    PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 8), TEXT_COLOR_SYSTEM_GRAY, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_1_00)));
-
-    InitText(&PrepItemSuppyTexts.th[4], 10);
-    PutDrawText(&PrepItemSuppyTexts.th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 16), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED)));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), TEXT_COLOR_SYSTEM_WHITE, 50);
+    
+    PutSpecialChar(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 8, y + 2), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_E);
+    PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 11, y + 2), TEXT_COLOR_SYSTEM_BLUE, unit->exp);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
@@ -149,11 +155,7 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     UpdateMenuScrollBarConfig(0xA, proc->yDiff_cur, (PrepGetUnitAmount() - 1) / 2 + 1, 6);
     sub_8097668();
     BG_EnableSyncByMask(4);
-    // StartUiSpinningArrows(proc);
-    // LoadUiSpinningArrowGfx(0, 0x280, 2);
-    // SetUiSpinningArrowPositions(0x78, 0x18, 0xe9, 0x18);
-    // SetUiSpinningArrowConfig(3);
-    // StartParallelWorker(List_PutHighlightedCategorySprites_INFUSE, proc);
+
     char * experience_string = GetStringFromIndex(MSG_PREP_SCREEN_TITLE_BEXP);
     int leftPosition = ((8 * ITEM_PANEL_LEFT_Y) - GetStringTextLen(experience_string)) / 2;
     PutDrawText(NULL, gBG1TilemapBuffer + TILEMAP_INDEX(0, 0), 0, leftPosition, ITEM_PANEL_LEFT_Y, experience_string);
@@ -161,72 +163,103 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     SetBlendTargetA(0, 0, 0, 0, 0);
     SetBlendTargetB(0, 0, 0, 1, 0);
 
-  //  PrepUnit_DrawLeftUnitName(GetUnitFromPrepList(proc->list_num_cur));
-    DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
-
-    // for (i = 0; i < 6; i++)
-    //     PrepUnit_DrawUnitListNames(proc, proc->yDiff_cur / 0x10 + i);
-
     InitText(&PrepItemSuppyTexts.th[0], 22);
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 3), TEXT_COLOR_SYSTEM_WHITE, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_INSTRUCTION)));
     
-    InitText(&gPrepUnitTexts[5], 10);
-    InitText(&gPrepUnitTexts[6], 10);
-    InitText(&gPrepUnitTexts[7], 10);
-    InitText(&gPrepUnitTexts[8], 10);
-    InitText(&gPrepUnitTexts[9], 10);
+    // Initialize text buffers for unit names
+    for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
+        InitText(&gPrepUnitTexts[i + 5], 10);
+        ClearText(&gPrepUnitTexts[i + 5]);
+    }
 
-    ClearText(&gPrepUnitTexts[5]);
-    ClearText(&gPrepUnitTexts[6]);
-    ClearText(&gPrepUnitTexts[7]);
-    ClearText(&gPrepUnitTexts[8]);
-    ClearText(&gPrepUnitTexts[9]);
+    // Initialize scroll position and cursor
+    gBEXP[3] = 0;  // First visible unit index
+    proc->list_num_cur = 0;  // Current cursor position
 
     ApplyUnitSpritePalettes();
 
+    // Draw static BEXP UI elements (these don't change) - DRAWN ONCE
+    gBEXP[1] = 1000;
+    int bexp_color = gBEXP[1] == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+
+    InitText(&PrepItemSuppyTexts.th[1], 10);
+    PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 14), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, 1000);
+
+    // Multiplier label and value (next to minimug)
+    InitText(&PrepItemSuppyTexts.th[2], 6);
+    PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 8), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_TITLE)));
+
+    InitText(&PrepItemSuppyTexts.th[3], 4);
+    PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 8), TEXT_COLOR_SYSTEM_GRAY, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_1_00)));
+
+    // Applied EXP label and value
+    InitText(&PrepItemSuppyTexts.th[4], 10);
+    PutDrawText(&PrepItemSuppyTexts.th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 16), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED)));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), TEXT_COLOR_SYSTEM_WHITE, 50);
+
+    // Draw initial unit list and minimug
+    DrawUnits_BEXP(3, 8);
+    DrawUnitMinimugAndLevel(GetUnitFromPrepList(0), 15, 8);
+
     StartSysBrownBox(0xd, 0xe00, 0xf, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -20, -1, 1);
-    // CpuFastFill(0, PAL_OBJ(0x0B), 0x20);
-    // ForceSyncUnitSpriteSheet();
 }
 
 static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
 {
-  //  int idx = proc->idxPerPage[proc->currentPage];
-    // int i;
-    // struct Unit *unit;
+    int unitCount = PrepGetUnitAmount();
 
-    // for (i = 0; i < PrepGetUnitAmount(); i++) {
-    //     unit = GetUnitFromPrepList(i);
-
-    //     ClearText(&gPrepUnitTexts[i]);
-    //     Text_DrawString(&gPrepUnitTexts[i],  GetStringFromIndex(unit->pCharacterData->nameTextId));
-    //     PutText(&gPrepUnitTexts[i], gBG0TilemapBuffer + TILEMAP_INDEX(2, 5 + i));
-    // }
-
-    DrawUnits_BEXP(proc, 3, 8);
+    // Redraw units every frame (handles scrolling)
+    DrawUnits_BEXP(3, 8);
 
     if (gKeyStatusPtr->newKeys & B_BUTTON) {
-        SetPrimaryHBlankHandler(NULL); // Remove black banner
+        SetPrimaryHBlankHandler(NULL);
         Proc_Goto(proc, PL_BEXP_PRESS_B);
         PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
         return;
     }
 
-    if (gKeyStatusPtr->newKeys & DPAD_UP && proc->list_num_cur > 0) { 
-        proc->list_num_cur -= 1;
-        ShowSysHandCursor(12, 64 + (proc->list_num_cur * 16), 0, 0x800);
+    if (gKeyStatusPtr->newKeys & DPAD_UP) { 
+        if (proc->list_num_cur > 0) {
+            proc->list_num_cur--;
+            
+            // Scroll window up if cursor moves above visible area
+            if (proc->list_num_cur < gBEXP[3]) {
+                gBEXP[3]--;
+            }
+            
+            // Update cursor position (visual position relative to scroll)
+            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP[3]) * 16), 0, 0x800);
+            
+            // Update minimug for new unit
+            DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
+            PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+        }
         return;
     }
 
-    if (gKeyStatusPtr->newKeys & DPAD_DOWN && proc->list_num_cur < 4) { 
-        proc->list_num_cur += 1;
-        ShowSysHandCursor(12, 64 + (proc->list_num_cur * 16), 0, 0x800);
+    if (gKeyStatusPtr->newKeys & DPAD_DOWN) { 
+        if (proc->list_num_cur < unitCount - 1) {
+            proc->list_num_cur++;
+            
+            // Scroll window down if cursor moves below visible area
+            if (proc->list_num_cur >= gBEXP[3] + BEXP_VISIBLE_COUNT) {
+                gBEXP[3]++;
+            }
+            
+            // Update cursor position (visual position relative to scroll)
+            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP[3]) * 16), 0, 0x800);
+            
+            // Update minimug for new unit
+            DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
+            PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+        }
         return;
     }
 
     if (gKeyStatusPtr->newKeys & R_BUTTON) {
-        SetPrimaryHBlankHandler(NULL); // Remove black banner
+        SetPrimaryHBlankHandler(NULL);
         PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
         Proc_Goto(proc, PL_BEXP_PRESS_R);
         return;
@@ -248,7 +281,7 @@ static void PrepItemList_OnEnd_BEXP(struct ProcPrepUnit * proc)
 }
 
 struct ProcCmd const ProcScr_PrepItemListScreen_BEXP[] = {
-    PROC_NAME("PrepItemListScreen_INFUSE"),
+    PROC_NAME("PrepItemListScreen_BEXP"),
     PROC_YIELD,
     PROC_SET_END_CB(PrepItemList_OnEnd_BEXP),
 
@@ -256,9 +289,6 @@ PROC_LABEL(PL_BEXP_INIT),
     PROC_CALL(PrepInitGfx_BEXP),
 	PROC_CALL_ARG(NewFadeIn, 0x10),
     PROC_WHILE(FadeInExists),
-
-// PROC_LABEL(PL_BEXP_SHOW_CURSOR),
-//     PROC_CALL(sub_809F5F4),
 
 PROC_LABEL(PL_BEXP_IDLE),
     PROC_REPEAT(PrepLoop_MainKeyHandler_BEXP),
