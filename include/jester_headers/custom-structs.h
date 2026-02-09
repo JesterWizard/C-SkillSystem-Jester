@@ -92,10 +92,8 @@ struct InfuseRecipe {
 
 extern const struct InfuseRecipe gInfusionLookupTable[256];
 
-// 0x0-0x1 - gBEXP_Amount
-// 0x2 - gBEXP_TopVisibleUnitListIndex
-// 0x3 - gBEXP_PreviousTopUnitListIndex
-extern u16 gBEXP[4];
+extern u16 gBEXP_Amount;
+extern u8 gBEXP_TopVisibleIndex;
 
 enum {
     PL_BEXP_INIT = 0,

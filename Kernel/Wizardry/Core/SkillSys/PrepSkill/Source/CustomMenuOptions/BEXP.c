@@ -19,7 +19,7 @@ static void DrawUnits_BEXP(int x, int y)
     ClearSprites();
 
     for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
-        int unitIndex = gBEXP[3] + i;
+        int unitIndex = gBEXP_TopVisibleIndex + i;
 
         // Clear the text for this slot
         ClearText(&gPrepUnitTexts[i + 5]);
@@ -29,6 +29,8 @@ static void DrawUnits_BEXP(int x, int y)
             continue;
 
         unit = GetUnitFromPrepList(unitIndex);
+
+        NoCashGBAPrintf("Y index is: %d", ((y + (i * 2)) * 8) + 4);
 
         // Draw sprite at visual position 'i' (not unitIndex)
         PutUnitSprite(
@@ -172,15 +174,11 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
         ClearText(&gPrepUnitTexts[i + 5]);
     }
 
-    // Initialize scroll position and cursor
-    gBEXP[3] = 0;  // First visible unit index
-    proc->list_num_cur = 0;  // Current cursor position
-
     ApplyUnitSpritePalettes();
 
     // Draw static BEXP UI elements (these don't change) - DRAWN ONCE
-    gBEXP[1] = 1000;
-    int bexp_color = gBEXP[1] == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+    gBEXP_Amount = 1000;
+    int bexp_color = gBEXP_Amount == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
 
     InitText(&PrepItemSuppyTexts.th[1], 10);
     PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 14), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
@@ -197,6 +195,10 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     InitText(&PrepItemSuppyTexts.th[4], 10);
     PutDrawText(&PrepItemSuppyTexts.th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 16), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED)));
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), TEXT_COLOR_SYSTEM_WHITE, 50);
+
+    // Initialize scroll position and cursor
+    gBEXP_TopVisibleIndex = 0;  // First visible unit index
+    proc->list_num_cur = 0;  // Current cursor position
 
     // Draw initial unit list and minimug
     DrawUnits_BEXP(3, 8);
@@ -225,12 +227,12 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
             proc->list_num_cur--;
             
             // Scroll window up if cursor moves above visible area
-            if (proc->list_num_cur < gBEXP[3]) {
-                gBEXP[3]--;
+            if (proc->list_num_cur < gBEXP_TopVisibleIndex) {
+                gBEXP_TopVisibleIndex--;
             }
             
             // Update cursor position (visual position relative to scroll)
-            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP[3]) * 16), 0, 0x800);
+            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0, 0x800);
             
             // Update minimug for new unit
             DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
@@ -244,12 +246,12 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
             proc->list_num_cur++;
             
             // Scroll window down if cursor moves below visible area
-            if (proc->list_num_cur >= gBEXP[3] + BEXP_VISIBLE_COUNT) {
-                gBEXP[3]++;
+            if (proc->list_num_cur >= gBEXP_TopVisibleIndex + BEXP_VISIBLE_COUNT) {
+                gBEXP_TopVisibleIndex++;
             }
             
             // Update cursor position (visual position relative to scroll)
-            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP[3]) * 16), 0, 0x800);
+            ShowSysHandCursor(12, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0, 0x800);
             
             // Update minimug for new unit
             DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
