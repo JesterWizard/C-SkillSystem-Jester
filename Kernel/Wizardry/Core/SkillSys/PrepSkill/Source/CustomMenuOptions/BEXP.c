@@ -15,8 +15,8 @@ static void DrawUnits_BEXP(struct ProcPrepUnit *proc, int x, int y)
     {
         unit = GetUnitFromPrepList(i);
 
-        PutUnitSprite(0, ((x - 1) * 8), ((y + (i * 2)) * 8), unit);
-        PutDrawText(&gPrepUnitTexts[i+4], TILEMAP_LOCATED(gBG0TilemapBuffer, (x + 2), y + (i * 2)), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(unit->pCharacterData->nameTextId));
+        PutUnitSprite(0, ((x - 1) * 8) + 4, (((y + (i * 2)) * 8) + 4), unit);
+        PutDrawText(&gPrepUnitTexts[i+5], TILEMAP_LOCATED(gBG0TilemapBuffer, (x + 2), y + (i * 2)), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(unit->pCharacterData->nameTextId));
     }
 
     RefreshUnitSprites();
@@ -46,13 +46,22 @@ static void DrawUnitMinimugAndLevel(struct Unit *unit, int x, int y)
     PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 7, y + 2), TEXT_COLOR_SYSTEM_BLUE, unit->level);
     PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 10, y + 2), TEXT_COLOR_SYSTEM_BLUE, unit->exp);
 
-    InitText(&PrepItemSuppyTexts.th[2], 6);
-    PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 8), TEXT_COLOR_SYSTEM_GOLD, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER)));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 25, 8), TEXT_COLOR_SYSTEM_GRAY, 1);
+    gBEXP = 1000;
+    int bexp_color = gBEXP == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
 
-    InitText(&PrepItemSuppyTexts.th[3], 10);
-    PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 14, 16), TEXT_COLOR_SYSTEM_GOLD, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED)));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 25, 16), TEXT_COLOR_SYSTEM_WHITE, 50);
+    InitText(&PrepItemSuppyTexts.th[1], 10);
+    PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 14), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, 1000);
+
+    InitText(&PrepItemSuppyTexts.th[2], 6);
+    PutDrawText(&PrepItemSuppyTexts.th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 8), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_TITLE)));
+
+    InitText(&PrepItemSuppyTexts.th[3], 4);
+    PutDrawText(&PrepItemSuppyTexts.th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 8), TEXT_COLOR_SYSTEM_GRAY, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_MULTIPLIER_1_00)));
+
+    InitText(&PrepItemSuppyTexts.th[4], 10);
+    PutDrawText(&PrepItemSuppyTexts.th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 16), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED)));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), TEXT_COLOR_SYSTEM_WHITE, 50);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
@@ -100,7 +109,7 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     StartUiCursorHand(proc);
     ResetSysHandCursor(proc);
     DisplaySysHandCursorTextShadow(0x600, 1);
-    ShowSysHandCursor(10, 64, 0, 0x800);
+    ShowSysHandCursor(12, 66, 0, 0x800);
 
     gLCDControlBuffer.dispcnt.win0_on = 1;
     gLCDControlBuffer.dispcnt.win1_on = 0;
@@ -161,26 +170,17 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     InitText(&PrepItemSuppyTexts.th[0], 22);
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 3), TEXT_COLOR_SYSTEM_WHITE, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_INSTRUCTION)));
     
-    InitText(&PrepItemSuppyTexts.th[1], 9);
-    PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 14, 14), TEXT_COLOR_SYSTEM_GOLD, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
-    
-    
-    gBEXP = 1000;
-    int bexp_color = gBEXP == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 14), bexp_color, gBEXP);
-
-    InitText(&gPrepUnitTexts[4], 10);
     InitText(&gPrepUnitTexts[5], 10);
     InitText(&gPrepUnitTexts[6], 10);
     InitText(&gPrepUnitTexts[7], 10);
     InitText(&gPrepUnitTexts[8], 10);
+    InitText(&gPrepUnitTexts[9], 10);
 
-    ClearText(&gPrepUnitTexts[4]);
     ClearText(&gPrepUnitTexts[5]);
     ClearText(&gPrepUnitTexts[6]);
     ClearText(&gPrepUnitTexts[7]);
     ClearText(&gPrepUnitTexts[8]);
+    ClearText(&gPrepUnitTexts[9]);
 
     ApplyUnitSpritePalettes();
 
@@ -210,6 +210,25 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         SetPrimaryHBlankHandler(NULL); // Remove black banner
         Proc_Goto(proc, PL_BEXP_PRESS_B);
         PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+        return;
+    }
+
+    if (gKeyStatusPtr->newKeys & DPAD_UP && proc->list_num_cur > 0) { 
+        proc->list_num_cur -= 1;
+        ShowSysHandCursor(12, 64 + (proc->list_num_cur * 16), 0, 0x800);
+        return;
+    }
+
+    if (gKeyStatusPtr->newKeys & DPAD_DOWN && proc->list_num_cur < 4) { 
+        proc->list_num_cur += 1;
+        ShowSysHandCursor(12, 64 + (proc->list_num_cur * 16), 0, 0x800);
+        return;
+    }
+
+    if (gKeyStatusPtr->newKeys & R_BUTTON) {
+        SetPrimaryHBlankHandler(NULL); // Remove black banner
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+        Proc_Goto(proc, PL_BEXP_PRESS_R);
         return;
     }
 
@@ -250,6 +269,17 @@ PROC_LABEL(PL_BEXP_REFRESH_VIEW),
     PROC_CALL(PrepItemList_OnEnd_BEXP),
     PROC_SLEEP(0),
     PROC_GOTO(PL_BEXP_IDLE),
+
+PROC_LABEL(PL_BEXP_PRESS_R),
+    PROC_CALL(PrepUnitDisableDisp),
+    PROC_SLEEP(0x2),
+    PROC_CALL(sub_809B014),
+    PROC_CALL(sub_809B504),
+    PROC_YIELD,
+    PROC_CALL(sub_809B520),
+    PROC_CALL(ProcPrepUnit_InitScreen),
+    PROC_SLEEP(0x2),
+    PROC_CALL(PrepUnitEnableDisp),
 
 PROC_LABEL(PL_BEXP_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 0x10),
