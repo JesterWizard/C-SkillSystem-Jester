@@ -58,8 +58,8 @@ static void DrawUnits_BEXP(int x, int y)
 /* Draw only the minimug and level/exp - called when cursor moves */
 static void DrawUnitMinimugAndLevel(struct Unit *unit, int x, int y)
 {
-    // Clear only the minimug and level/exp area (rows y to y+3)
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 4, 4, 0);
+    // Strangely the unit's EXP value doesn't update on the background if I don't clear the area it occupies beforehand
+    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 0x19, 0xA), 2, 2, 0);
     
     PutFaceChibi(GetUnitPortraitId(unit), TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0x270, 2, 0);
 
