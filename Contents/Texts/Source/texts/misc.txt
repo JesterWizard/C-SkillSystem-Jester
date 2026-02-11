@@ -284,6 +284,14 @@ Select a weapon.[X]
 Add up to 100 experience points at a time.[X]
 ## MSG_BEXP_AMOUNT_TITLE
 Bonus Experience: [X]
+## MSG_BEXP_AMOUNT_DESC
+The total amount of unused bonus[N]
+experience you have acquired.[X]
+## MSG_BEXP_APPLIED_TITLE
+Applied Amount:[X]
+## MSG_BEXP_APPLIED_DESC
+How much bonus experience being[N]
+applied to the current unit.[X]
 ## MSG_BEXP_MULTIPLIER_TITLE
 Multiplier:[X]
 ## MSG_BEXP_MULTIPLIER_1_00
@@ -304,5 +312,3 @@ Multiplier:[X]
 2.75x[X]
 ## MSG_BEXP_MULTIPLIER_3_00
 3.00x[X]
-## MSG_BEXP_APPLIED
-Applied Amount:[X]

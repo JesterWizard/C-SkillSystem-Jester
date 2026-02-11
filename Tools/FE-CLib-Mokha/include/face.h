@@ -109,7 +109,7 @@ int GetFaceDisplayBitsById(int slot);
 void FaceRefreshSprite(struct FaceProc* proc);
 void PutFaceTm(u16 * tm, u8* data, int tileref, s8 isFlipped);
 void UnpackFaceChibiGraphics(int fid, int chr, int pal);
-void PutFaceChibi(int, u16*, int, int, s8);
+void PutFaceChibi(int fid, u16 * tm, int chr, int pal, s8 isFlipped);
 void UnpackFaceChibiSprGraphics(int fid, int chr, int pal);
 void FaceChibiSpr_OnIdle(struct FaceProc* proc);
 void StartFaceChibiSpr(int x, int y, int fid, int chr, int pal, s8 isFlipped, ProcPtr parent);

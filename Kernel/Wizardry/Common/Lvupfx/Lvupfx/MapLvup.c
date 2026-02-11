@@ -230,7 +230,7 @@ void StartManimLevelUp(int actor_id, ProcPtr parent)
 	struct ManimLevelUpProc* proc;
 
 if (gpKernelDesignerConfig->talk_on_level_up == true) {
-	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_CUSTOM, parent);
+	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_UnitComment, parent);
 }
 else {
 	proc = Proc_StartBlocking(ProcScr_ManimLevelUp, parent);
@@ -298,7 +298,7 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 	// PutStringRightAligned(TILEMAP_LOCATED(gBG0TilemapBuffer, (30 - (GetStringTextLen(unit_dialogue) / 8)) - 3, 29), TEXT_COLOR_SYSTEM_WHITE, (GetStringTextLen(unit_dialogue) / 8) + 2, unit_dialogue);
 };
 
-const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[] = {
+const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
 	PROC_SET_END_CB(ManimLevelUp_Clear),
 	PROC_SLEEP(1),
 	PROC_CALL(InitManimLevelUpWindow),

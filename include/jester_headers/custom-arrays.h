@@ -1,7 +1,7 @@
 #include "common-chax.h"
 
 extern const int statScreenDenyClasses[2];
-extern const struct ProcCmd ProcScr_ManimLevelUp_CUSTOM[];
+extern const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[];
 extern const struct ClassData gClassData_NEW[];
 extern const struct CharacterData gCharacterData_NEW[];
 extern const struct SoundRoomEnt gSoundRoomTable_NEW[];

@@ -238,7 +238,7 @@ void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
     UpdateMenuScrollBarConfig(0xc, proc->yOffsetPerPage[proc->currentPage], gUnknown_02012F56, 7);
 }
 
-static void SetupSpriteTextDestination(u32 vram, int target)
+static void SetupSpriteTextDestination_INFUSE(u32 vram, int target)
 {
     InitSpriteTextFont(&PrepItemSuppyTexts.font, (void*)vram, 0xb);
     ApplyPalette(Pal_Text, 0x1B);
@@ -289,7 +289,7 @@ static void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
     LoadUiFrameGraphics();
     LoadObjUIGfx();
 
-    SetupSpriteTextDestination(0x6011000, 0);
+    SetupSpriteTextDestination_INFUSE(0x6011000, 0);
 
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
