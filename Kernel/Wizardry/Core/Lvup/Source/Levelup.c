@@ -8,6 +8,7 @@
 #include "jester_headers/custom-functions.h"
 #include "constants/skills.h"
 #include "mapanim.h"
+#include "jester_headers/procs.h"
 
 static bool IsStatUncapped(struct Unit* unit, int statIndex, int limitBreaker)
 {
@@ -255,6 +256,46 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
     if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
 
+
+    if (Proc_Find(ProcScr_PrepItemListScreen_BEXP))
+    {
+        // Check if any values are greater than 0
+        int anyStatIncrease = 0; // Flag to track if there's any stats to increase
+        for (u8 i = 0; i < ARRAY_COUNT(statChanges); i++)
+        {
+            if (*statChanges[i] == 0)
+            {
+                anyStatIncrease = 1; // Set the flag if any stat is greater than 0
+                break;               // No need to continue checking once we find a positive value
+            }
+        }
+
+        if (anyStatIncrease)
+        {
+            // Set the upper limit of stats to increase (accounting for previous increases before this skill)
+            while (statCounter < 3)
+            {
+                // Count available uncapped stats that haven't increased yet
+                int available = 0;
+                for (u8 i = 0; i < ARRAY_COUNT(statChanges); i++)
+                {
+                    if (*statChanges[i] == 0 && IsStatUncapped(unit, i, limitBreaker))
+                        available++;
+                }
+                if (available == 0)
+                    break; // Exit if none are available
+
+                int randIndex = NextRN_N(ARRAY_COUNT(statChanges));
+
+                if (*statChanges[randIndex] == 0 && IsStatUncapped(unit, randIndex, limitBreaker))
+                {
+                    *statChanges[randIndex] = 1;
+                    statCounter++;
+                }
+            }
+            tripleUpExecuted = true;
+        }
+    }
 }
 
 STATIC_DECLAR void UnitLvup_RandC(struct BattleUnit* bu, int bonus)
