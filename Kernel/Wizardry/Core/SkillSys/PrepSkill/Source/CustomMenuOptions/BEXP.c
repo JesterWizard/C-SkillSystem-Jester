@@ -84,7 +84,6 @@ static void DrawUnitMinimugAndLevel(struct Unit *unit, int x, int y)
 
     /* Change the text color of the unit's EXP if they've hit 100 */
     int exp_color = ((unit->exp + gBEXP_Applied) == 100) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_BLUE;
-
     PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, x + 11, y + 2), exp_color, unit->exp + gBEXP_Applied);
 
     int multiplier_index = 0;
@@ -235,12 +234,8 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     ApplyUnitSpritePalettes();
 
     // Draw static BEXP UI elements (these don't change) - DRAWN ONCE
-    gBEXP_Total = 1000;
-    int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-
     InitText(&PrepItemSuppyTexts.th[1], 10);
     PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 14), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_AMOUNT_TITLE)));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, 1000);
 
     // Multiplier label and value (next to minimug)
     InitText(&PrepItemSuppyTexts.th[2], 6);
@@ -253,6 +248,9 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     InitText(&PrepItemSuppyTexts.th[4], 10);
     PutDrawText(&PrepItemSuppyTexts.th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 16), TEXT_COLOR_SYSTEM_GOLD, 0, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_APPLIED_TITLE)));
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, 0);
+
+    int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
 
     // Initialize scroll position and cursor
     gBEXP_TopVisibleIndex = 0;  // First visible unit index
@@ -375,6 +373,7 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         }
         else if (gBEXP_State == BEXP_STATE_APPLY && GetUnitFromPrepList(proc->list_num_cur)->exp + gBEXP_Applied == 100)
         {
+            ClearBg0Bg1();
             HideSysHandCursor();
             // Prepare the data (Roll stats)
             SetupBexpLevelUp(proc);
@@ -406,8 +405,9 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         }
         else if (gBEXP_State == BEXP_STATE_APPLY)
         {
+            gBEXP_Total += gBEXP_Applied;
             gBEXP_Applied = 0;
-            TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
+            TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 16), 3, 2, 0);
             PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
 
             EndUiCursorHand();
@@ -442,11 +442,17 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
 
         if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            if (gBEXP_Applied + GetUnitFromPrepList(proc->list_num_cur)->exp < 96)
+            if (gBEXP_Applied + GetUnitFromPrepList(proc->list_num_cur)->exp < 96 && gBEXP_Total >= 5)
             {
+                gBEXP_Total -= 5;
+                int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 3, 2, 0);
+                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
+
                 gBEXP_Applied += 5;
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
+
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
             }
         }
@@ -475,11 +481,18 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
 
         if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            if (gBEXP_Applied > 4)
+            if (gBEXP_Applied >= 5)
             {
+
+                gBEXP_Total += 5;
+                int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 4, 2, 0);
+                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
+
                 gBEXP_Applied -= 5;
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
+
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
             }
         }
@@ -585,5 +598,6 @@ PROC_LABEL(PL_BEXP_END),
 
 void StartBEXPScreen_FromPrep(struct ProcAtMenu *pproc)
 {
+    gBEXP_Total = 1000;
     Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, pproc);
 }

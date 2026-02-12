@@ -102,10 +102,13 @@ _kernel_malloc gDeadUnits, 50
 _kernel_malloc gChapterTimerSeconds, 2
 _kernel_malloc firstVisibleIndex, 1
 _kernel_malloc gInfuseMenuArray, 6
-_kernel_malloc gBEXP_Total, 2
 _kernel_malloc gBEXP_TopVisibleIndex, 1
 _kernel_malloc gBEXP_State, 1
 _kernel_malloc gBEXP_Applied, 1
+_kernel_malloc gBEXP_Total, 2
+
+// JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
+// Ensure that if you assign a byte for something, you include an addition one to keep the next available address even
 
 // JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
 @ _kernel_malloc sDemoUnitExpaAlly, 51 * 4
