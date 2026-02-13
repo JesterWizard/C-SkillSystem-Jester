@@ -423,7 +423,3 @@ enum {
 #define SHOOT_ARROW_DYNAMIC(dmg) \
     SVAL(0x1, dmg) \
     ASMC(ShootArrow_ASMC + 1)
-
-#define GRANT_BEXP(exp) \
-    SVAL(EVT_SLOT_8, exp) \
-    ASMC(GrantBEXP)

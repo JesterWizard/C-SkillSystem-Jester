@@ -174,7 +174,7 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     StartUiCursorHand(proc);
     ResetSysHandCursor(proc);
     DisplaySysHandCursorTextShadow(0x600, 1);
-    ShowSysHandCursor(14, 66, 0x8, 0x800);
+    ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
 
     gLCDControlBuffer.dispcnt.win0_on = 1;
     gLCDControlBuffer.dispcnt.win1_on = 0;
@@ -234,6 +234,8 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     SetBlendTargetB(0, 0, 0, 1, 0);
 
     InitText(&PrepItemSuppyTexts.th[0], 22);
+
+    /* This is needed to be drawn on both background 0 and 2 so that it persists when the level up proc is called */
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 3), TEXT_COLOR_SYSTEM_WHITE, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_INSTRUCTION)));
     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG2TilemapBuffer, 3, 3), TEXT_COLOR_SYSTEM_WHITE, 8, 0, Utf8ToNarrowFonts(GetStringFromIndex(MSG_BEXP_INSTRUCTION)));
     
@@ -264,16 +266,12 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
 
-    // Initialize scroll position and cursor
-    gBEXP_TopVisibleIndex = 0;  // First visible unit index
-    proc->list_num_cur = 0;  // Current cursor position
-
     // Draw initial unit list and minimug
     DrawUnitText_BEXP(3, 8);    // Draw Text Once
     DrawUnitSprites_BEXP(3, 8); // Draw Sprites
     DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
 
-    StartSysBrownBox(0x0, 0xe00, 0xf, 0xc00, 0x400, proc);
+    StartSysBrownBox(0x0, 0x7080, 0xf, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -20, -1, 1);
 }
 
@@ -406,8 +404,8 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         return;
     }
 
-    if (gKeyStatusPtr->newKeys & B_BUTTON) {
-
+    if (gKeyStatusPtr->newKeys & B_BUTTON) 
+    {
         if (Proc_Find(gProcScr_HelpBox)) 
         {
             CloseHelpBox();
@@ -490,7 +488,6 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
                      multiplied_exp = round_up_mul(multiplied_exp, 11, 4);
                 else if (unit_level < 36)
                      multiplied_exp *= 3;
-
 
                 gBEXP_Total -= multiplied_exp;
                 int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
@@ -604,6 +601,57 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
     return;
 }
 
+static void ResetScrollerBarVariables(struct ProcPrepUnit *proc) {
+    gBEXP_TopVisibleIndex = 0;  // First visible unit index
+    proc->list_num_cur = 0;  // Current cursor position
+}
+
+const struct PopupInstruction BEXPPopup[] = {
+    POPUP_SOUND(SONG_SE_UPDATE),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_SPACE(3),
+    POPUP_MSG(MSG_BEXP_POPUP_TEXT_1),
+    POPUP_SPACE(2),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_NUM,
+    POPUP_SPACE(4),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_MSG(MSG_BEXP_POPUP_TEXT_2),
+    POPUP_MSG(0x022),                   /* .[.] */
+    POPUP_END
+};
+
+void GrantBEXP_Loop(struct ProcGrantBEXP* proc)
+{
+    if (gBEXP_MapGain > 0)
+    {
+        gBEXP_Total += gBEXP_MapGain;
+        SetPopupNumber(gBEXP_MapGain);
+        NewPopup_Simple(BEXPPopup, 0x60, 0x00, proc);
+    }
+
+    gBEXP_Applied = 0;
+}
+
+bool PopupProcExists()
+{
+    if (Proc_Find(ProcScr_Popup))
+        return true;
+    else
+        return false;
+}
+
+const struct ProcCmd ProcScr_GrantBEXP[] = {
+    PROC_CALL(GrantBEXP_Loop),
+    PROC_WHILE(PopupProcExists),
+    PROC_END,
+};
+
+void GrantBEXP(ProcPtr parent)
+{
+    Proc_StartBlocking(ProcScr_GrantBEXP, parent);
+}
+
 static void PrepItemList_OnEnd_BEXP(struct ProcPrepUnit * proc)
 {
     struct ProcAtMenu *pproc = proc->proc_parent;
@@ -620,6 +668,7 @@ const struct ProcCmd ProcScr_PrepItemListScreen_BEXP[] = {
     PROC_NAME("PrepItemListScreen_BEXP"),
     PROC_YIELD,
     PROC_SET_END_CB(PrepItemList_OnEnd_BEXP),
+    PROC_CALL(ResetScrollerBarVariables),
 
 PROC_LABEL(PL_BEXP_INIT),
     PROC_CALL(PrepInitGfx_BEXP),
@@ -654,15 +703,13 @@ PROC_LABEL(PL_BEXP_REFRESH_VIEW),
     PROC_GOTO(PL_BEXP_IDLE),
 
 PROC_LABEL(PL_BEXP_PRESS_R),
-    PROC_CALL(PrepUnitDisableDisp),
-    PROC_SLEEP(0x2),
     PROC_CALL(sub_809B014),
     PROC_CALL(sub_809B504),
     PROC_YIELD,
     PROC_CALL(sub_809B520),
-    PROC_CALL(ProcPrepUnit_InitScreen),
-    PROC_SLEEP(0x2),
-    PROC_CALL(PrepUnitEnableDisp),
+    PROC_CALL_ARG(NewFadeOut, 0x10),
+    PROC_WHILE(FadeOutExists),
+    PROC_GOTO(PL_BEXP_INIT),
 
 PROC_LABEL(PL_BEXP_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 0x10),
@@ -673,7 +720,6 @@ PROC_LABEL(PL_BEXP_END),
 };
 
 void StartBEXPScreen_FromPrep(struct ProcAtMenu *pproc)
-{
-    gBEXP_Total = 1000;
+{    
     Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, pproc);
 }

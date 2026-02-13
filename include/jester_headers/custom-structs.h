@@ -96,6 +96,7 @@ extern u16 gBEXP_Total;
 extern u8 gBEXP_TopVisibleIndex;
 extern u8 gBEXP_State;
 extern u8 gBEXP_Applied;
+extern u16 gBEXP_MapGain;
 
 enum {
     BEXP_STATE_LIST = 0,

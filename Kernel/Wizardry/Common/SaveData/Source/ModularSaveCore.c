@@ -420,3 +420,31 @@ void LoadDragonGlass(u8 *src, const u32 size)
     Assert(size <= want);
     ReadSramFast(src, &gInfuseMenuArray[0], size);
 }
+
+void SaveBEXPTotal(u8 *dst, const u32 size)
+{
+	u32 want = sizeof(gBEXP_Total);
+    Assert(size <= want);
+    WriteAndVerifySramFast(&gBEXP_Total, dst, size);
+}
+
+void LoadBEXPTotal(u8 *src, const u32 size)
+{
+	u32 want = sizeof(gBEXP_Total);
+    Assert(size <= want);
+    ReadSramFast(src, &gBEXP_Total, size);
+}
+
+void SaveBEXPMapGain(u8 *dst, const u32 size)
+{
+	u32 want = sizeof(gBEXP_MapGain);
+    Assert(size <= want);
+    WriteAndVerifySramFast(&gBEXP_MapGain, dst, size);
+}
+
+void LoadBEXPMapGain(u8 *src, const u32 size)
+{
+	u32 want = sizeof(gBEXP_MapGain);
+    Assert(size <= want);
+    ReadSramFast(src, &gBEXP_MapGain, size);
+}

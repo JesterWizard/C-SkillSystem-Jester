@@ -58,6 +58,8 @@ void PrepUnitEnableDisp(void);
 void sub_809B504(struct ProcPrepUnit *proc);
 void sub_809B014(void);
 void sub_809B520(struct ProcPrepUnit *proc);
+void sub_809B458(struct ProcPrepUnit *proc);
+void sub_809B478(struct ProcPrepUnit *proc);
 void ProcPrepUnit_InitScreen(struct ProcPrepUnit *proc);
 
 void AiPhaseInit(struct Proc *proc);

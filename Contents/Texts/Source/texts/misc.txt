@@ -312,3 +312,9 @@ Multiplier:[X]
 2.75x[X]
 ## MSG_BEXP_MULTIPLIER_3_00
 3.00x[X]
+
+## MSG_BEXP_POPUP_TEXT_1
+You have obtained [X]
+
+## MSG_BEXP_POPUP_TEXT_2
+Bonus EXP[X]

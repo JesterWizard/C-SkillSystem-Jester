@@ -106,6 +106,7 @@ _kernel_malloc gBEXP_TopVisibleIndex, 1
 _kernel_malloc gBEXP_State, 1
 _kernel_malloc gBEXP_Applied, 1
 _kernel_malloc gBEXP_Total, 2
+_kernel_malloc gBEXP_MapGain, 2
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even

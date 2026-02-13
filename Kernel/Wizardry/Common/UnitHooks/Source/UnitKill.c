@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-structs.h"
 
 typedef int (*KillUnitFunc_t)(struct Unit *unit);
 // extern const KillUnitFunc_t gKillUnitHooks[];
@@ -55,6 +56,12 @@ void UnitKill(struct Unit *unit)
 #endif
 
 	AddDeadUnit(unit->index);
+
+	if (gpKernelDesignerConfig->prep_menu_bexp == true)
+	{
+		if (UNIT_FACTION(unit) == FACTION_RED) 
+			gBEXP_MapGain += 2;
+	}
 
 	if (UNIT_FACTION(unit) == FACTION_BLUE) {
 		if (UNIT_IS_PHANTOM(unit))
