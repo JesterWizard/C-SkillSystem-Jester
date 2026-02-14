@@ -116,3 +116,11 @@ enum {
     PL_BEXP_PRESS_B = 8,
     PL_BEXP_END = 9
 };
+
+
+struct BexpGains {
+    u8 normal;
+    u8 boss;
+};
+
+extern const struct BexpGains gBexpGainConstants;

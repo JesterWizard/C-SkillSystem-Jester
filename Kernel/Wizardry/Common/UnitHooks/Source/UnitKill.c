@@ -59,8 +59,13 @@ void UnitKill(struct Unit *unit)
 
 	if (gpKernelDesignerConfig->prep_menu_bexp == true)
 	{
-		if (UNIT_FACTION(unit) == FACTION_RED) 
-			gBEXP_MapGain += 2;
+		if (UNIT_FACTION(unit) == FACTION_RED)
+		{
+			if (UNIT_CATTRIBUTES(unit) & CA_BOSS)
+				gBEXP_MapGain += gBexpGainConstants.boss;
+			else
+				gBEXP_MapGain += gBexpGainConstants.normal;
+		} 
 	}
 
 	if (UNIT_FACTION(unit) == FACTION_BLUE) {

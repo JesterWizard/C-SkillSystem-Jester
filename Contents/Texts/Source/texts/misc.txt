@@ -288,7 +288,7 @@ Bonus Experience: [X]
 The total amount of unused bonus[N]
 experience you have acquired.[X]
 ## MSG_BEXP_APPLIED_TITLE
-Applied Amount:[X]
+Amount To Apply:[X]
 ## MSG_BEXP_APPLIED_DESC
 How much bonus experience being[N]
 applied to the current unit.[X]

@@ -10,6 +10,12 @@
 
 #define BEXP_VISIBLE_COUNT 5
 
+// Initialize the struct with your specific values
+const struct BexpGains gBexpGainConstants = {
+    .normal = 2,
+    .boss = 10
+};
+
 static int round_up_mul(int value, int numerator, int denominator)
 {
     int product = value * numerator;
@@ -18,6 +24,35 @@ static int round_up_mul(int value, int numerator, int denominator)
     return (product + denominator - 1) / denominator;
 }
 
+static int GetBexpCost(struct Unit* unit, int expToGain) {
+    int cost = expToGain;
+    int level = unit->level;
+
+    if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+        level += 20;
+
+    if (level < 4)
+        return cost * 1;
+    else if (level < 8)
+        return round_up_mul(cost, 5, 4);  // 1.25x
+    else if (level < 12)
+        return round_up_mul(cost, 6, 4);  // 1.50x
+    else if (level < 16)
+        return round_up_mul(cost, 7, 4);  // 1.75x
+    else if (level < 20)
+        return cost * 2;                  // 2.00x
+    else if (level < 24)
+        return round_up_mul(cost, 9, 4);  // 2.25x
+    else if (level < 28)
+        return round_up_mul(cost, 10, 4); // 2.50x
+    else if (level < 32)
+        return round_up_mul(cost, 11, 4); // 2.75x
+    else if (level < 36)
+        return cost * 3;                  // 3.00x
+    
+    // Fallback for very high levels (optional, keeping consistent with max case)
+    return cost * 3;
+}
 
 static int LevelUpProcExists(struct ProcPrepUnit* proc) {
     return Proc_Find(ProcScr_ManimLevelUp) || Proc_Find(ProcScr_ManimLevelUp_UnitComment);
@@ -359,7 +394,6 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
     DrawUnitSprites_BEXP(3, 8);
 
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
-
         if (gBEXP_State == BEXP_STATE_LIST)
         {
             gBEXP_State = BEXP_STATE_RTEXT;
@@ -376,34 +410,38 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         }
         else if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            if (GetUnitFromPrepList(proc->list_num_cur)->exp + gBEXP_Applied == 100)
+            struct Unit* currentUnit = GetUnitFromPrepList(proc->list_num_cur);
+            
+            // Check if ready to level up
+            if ((currentUnit->exp + gBEXP_Applied) >= 100)
             {
                 EndMenuScrollBar();
                 EndSysBrownBox();
                 ClearBg0Bg1();
                 HideSysHandCursor();
-                // Prepare the data (Roll stats)
                 SetupBexpLevelUp(proc);
-                
-                // Break the loop and jump to the Level Up sequence
                 Proc_Goto(proc, PL_BEXP_LEVELUP);
             }
             else
             {
-                GetUnitFromPrepList(proc->list_num_cur)->exp += gBEXP_Applied;
+                // Commit the applied EXP (without leveling up)
+                currentUnit->exp += gBEXP_Applied;
                 gBEXP_Applied = 0;   
+                
+                // Redraw UI
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
-                int bexp_applied_color = gBEXP_Applied == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                // Color logic: if exactly 100 (ready to level), Green. Else Blue.
+                // Note: logic slightly adjusted to handle the exact moment of commitment
+                int bexp_applied_color = TEXT_COLOR_SYSTEM_WHITE; 
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), bexp_applied_color, gBEXP_Applied);
-                DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
+                DrawUnitMinimugAndLevel(currentUnit, 15, 8);
             }
-
             return;
         }
-    
         return;
     }
 
+    // --- B BUTTON ---
     if (gKeyStatusPtr->newKeys & B_BUTTON) 
     {
         if (Proc_Find(gProcScr_HelpBox)) 
@@ -423,11 +461,17 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         }
         else if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            gBEXP_Total += gBEXP_Applied;
+            // Refund everything applied so far
+            gBEXP_Total += GetBexpCost(GetUnitFromPrepList(proc->list_num_cur), gBEXP_Applied);
+            
             gBEXP_Applied = 0;
             TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 16), 3, 2, 0);
-            int bexp_applied_color = gBEXP_Applied == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), bexp_applied_color, gBEXP_Applied);
+            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
+
+            // Redraw Total
+            int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+            TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 4, 2, 0);
+            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
 
             EndUiCursorHand();
             ShowSysHandCursor(112, 112, 0x0, 0x800);
@@ -438,21 +482,18 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         return;
     }
 
+    // --- DPAD UP (Add EXP) ---
     if (gKeyStatusPtr->newKeys & DPAD_UP) { 
         if (gBEXP_State == BEXP_STATE_LIST)
         {
             if (proc->list_num_cur > 0) {
                 proc->list_num_cur--;
-                
-                // Scroll window up if cursor moves above visible area
                 if (proc->list_num_cur < gBEXP_TopVisibleIndex) {
                     gBEXP_TopVisibleIndex--;
                 }
-                
-                // Update cursor position (visual position relative to scroll)
+                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
+                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
                 ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
-                
-                // Update minimug for new unit
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
                 hasScrolled = 1;
@@ -461,112 +502,111 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
 
         if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            if (gBEXP_Applied + GetUnitFromPrepList(proc->list_num_cur)->exp < 96 && gBEXP_Total >= 5)
+            struct Unit* unit = GetUnitFromPrepList(proc->list_num_cur);
+            int currentExp = unit->exp + gBEXP_Applied;
+
+            // Stop if already at 100
+            if (currentExp < 100)
             {
-                int multiplied_exp = 5;
+                // 1. Determine maximum possible add (Targeting 5, but capped by 100)
+                int amountToAdd = 5;
+                if (currentExp + amountToAdd > 100) {
+                    amountToAdd = 100 - currentExp;
+                }
 
-                int unit_level = GetUnitFromPrepList(proc->list_num_cur)->level;
+                // 2. Calculate Cost
+                int cost = GetBexpCost(unit, amountToAdd);
 
-                if (UNIT_CATTRIBUTES(GetUnitFromPrepList(proc->list_num_cur)) & CA_PROMOTED)
-                    unit_level += 20;
+                // 3. Handle Low BEXP reserves
+                // If we can't afford the amount, reduce amountToAdd until we can
+                // This handles the "User has less than 5 Bonus EXP" case by adding whatever they can afford
+                while (cost > gBEXP_Total && amountToAdd > 0) {
+                    amountToAdd--;
+                    cost = GetBexpCost(unit, amountToAdd);
+                }
 
-                if (unit_level < 4)
-                    multiplied_exp = multiplied_exp * 1;
-                else if (unit_level < 8)
-                     multiplied_exp = round_up_mul(multiplied_exp, 5, 4); 
-                else if (unit_level < 12)
-                     multiplied_exp = round_up_mul(multiplied_exp, 6, 4); 
-                else if (unit_level < 16)
-                     multiplied_exp = round_up_mul(multiplied_exp, 7, 4); 
-                else if (unit_level < 20)
-                     multiplied_exp *= 2;
-                else if (unit_level < 24)
-                     multiplied_exp = round_up_mul(multiplied_exp, 9, 4); 
-                else if (unit_level < 28)
-                     multiplied_exp = round_up_mul(multiplied_exp, 10, 4); 
-                else if (unit_level < 32)
-                     multiplied_exp = round_up_mul(multiplied_exp, 11, 4);
-                else if (unit_level < 36)
-                     multiplied_exp *= 3;
+                // 4. Apply changes if valid
+                if (amountToAdd > 0) {
+                    gBEXP_Total -= cost;
+                    gBEXP_Applied += amountToAdd;
 
-                gBEXP_Total -= multiplied_exp;
-                int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 3, 2, 0);
-                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
+                    // UI Updates
+                    int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 4, 2, 0);
+                    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
 
-                gBEXP_Applied += 5;
-                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
-                int bexp_applied_color = gBEXP_Applied == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
-                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), bexp_applied_color, gBEXP_Applied);
+                    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
+                    int bexp_applied_color = (unit->exp + gBEXP_Applied) == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), bexp_applied_color, gBEXP_Applied);
 
-                DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
+                    DrawUnitMinimugAndLevel(unit, 15, 8);
+                    
+                    // Optional: Sound effect for adding EXP
+                    // PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1); 
+                }
             }
         }
     }
 
-    if (gKeyStatusPtr->newKeys & DPAD_DOWN) { 
+    // --- DPAD DOWN (Remove EXP) ---
+   if (gKeyStatusPtr->newKeys & DPAD_DOWN) { 
         if (gBEXP_State == BEXP_STATE_LIST)
         {
             if (proc->list_num_cur < unitCount - 1) {
                 proc->list_num_cur++;
-                
-                // Scroll window down if cursor moves below visible area
                 if (proc->list_num_cur >= gBEXP_TopVisibleIndex + BEXP_VISIBLE_COUNT) {
                     gBEXP_TopVisibleIndex++;
                 }
-                
-                // Update cursor position (visual position relative to scroll)
+                TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
+                PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
                 ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
-                
-                // Update minimug for new unit
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
                 hasScrolled = 1;
             }
         }
-
-        if (gBEXP_State == BEXP_STATE_APPLY)
+        else if (gBEXP_State == BEXP_STATE_APPLY)
         {
-            if (gBEXP_Applied >= 5)
+            if (gBEXP_Applied > 0)
             {
-                int multiplied_exp = 5;
+                struct Unit * unit = GetUnitFromPrepList(proc->list_num_cur);
+                
+                // Default removal is 5
+                int amountToRemove = 5;
 
-                int unit_level = GetUnitFromPrepList(proc->list_num_cur)->level;
+                // Handle partial removals (CASE 3)
+                // If we have 2 EXP applied: remainder = 2. Remove 2.
+                // If we have 12 EXP applied: remainder = 2. Remove 2 (down to 10).
+                // If we have 10 EXP applied: remainder = 0. Remove 5 (down to 5).
+                int remainder = gBEXP_Applied % 5;
+                if (remainder != 0) {
+                    amountToRemove = remainder;
+                }
+                
+                // Safety check: Don't remove more than we have applied
+                if (amountToRemove > gBEXP_Applied) {
+                    amountToRemove = gBEXP_Applied;
+                }
 
-                if (UNIT_CATTRIBUTES(GetUnitFromPrepList(proc->list_num_cur)) & CA_PROMOTED)
-                    unit_level += 20;
+                // Calculate proper refund based on the multiplier (CASE 2)
+                int refund = GetBexpCost(unit, amountToRemove);
 
-                if (unit_level < 4)
-                    multiplied_exp = multiplied_exp * 1;
-                else if (unit_level < 8)
-                     multiplied_exp = round_up_mul(multiplied_exp, 5, 4); 
-                else if (unit_level < 12)
-                     multiplied_exp = round_up_mul(multiplied_exp, 6, 4); 
-                else if (unit_level < 16)
-                     multiplied_exp = round_up_mul(multiplied_exp, 7, 4); 
-                else if (unit_level < 20)
-                     multiplied_exp *= 2;
-                else if (unit_level < 24)
-                     multiplied_exp = round_up_mul(multiplied_exp, 9, 4); 
-                else if (unit_level < 28)
-                     multiplied_exp = round_up_mul(multiplied_exp, 10, 4); 
-                else if (unit_level < 32)
-                     multiplied_exp = round_up_mul(multiplied_exp, 11, 4);
-                else if (unit_level < 36)
-                     multiplied_exp *= 3;
+                gBEXP_Total += refund;
+                gBEXP_Applied -= amountToRemove;
 
-
-                gBEXP_Total += multiplied_exp;
+                // UI Updates
                 int bexp_color = gBEXP_Total == 1000 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 14), 4, 2, 0);
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 14), bexp_color, gBEXP_Total);
 
-                gBEXP_Applied -= 5;
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
-                int bexp_applied_color = gBEXP_Applied == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
+                int bexp_applied_color = (unit->exp + gBEXP_Applied) == 100 ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE;
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), bexp_applied_color, gBEXP_Applied);
 
-                DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
+                DrawUnitMinimugAndLevel(unit, 15, 8);
+                
+                // Sound effect for decrementing
+                PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
             }
         }
     }
@@ -679,20 +719,12 @@ PROC_LABEL(PL_BEXP_IDLE),
     PROC_REPEAT(PrepLoop_MainKeyHandler_BEXP),
 
 PROC_LABEL(PL_BEXP_LEVELUP),
-    // 1. Prepare data
     PROC_CALL(SetupBexpLevelUp),
-    
-    // 2. Start the animation proc (Non-blocking call here, we handle blocking via WHILE)
     PROC_CALL(CallLevelUpProc), 
     PROC_WHILE(LevelUpProcExists),
-
-    // 3. Start the scroll-out animation and clear text
     PROC_CALL(StartLevelUpExitAndCleanup),
-
-    // 4. Hard-restore the BEXP interface
     PROC_CALL(RestoreBexpGraphics),
     PROC_CALL(ManimLevelUp_RestoreBgm),
-    
     PROC_GOTO(PL_BEXP_IDLE),
 
 PROC_LABEL(PL_BEXP_REFRESH_VIEW),
