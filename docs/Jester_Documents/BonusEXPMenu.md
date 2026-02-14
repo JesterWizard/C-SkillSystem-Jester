@@ -1,4 +1,4 @@
-# Timer
+# Bonus EXP
 
 <p align="center">
   <img src="../Gifs/Bonus_EXP_Menu.gif" alt="Bonus EXP" width="600"/>
