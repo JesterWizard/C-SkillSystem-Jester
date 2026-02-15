@@ -11,26 +11,12 @@
 #include "uichapterstatus.h"
 #include "unitlistscreen.h"
 
-void PrepScreenMenu_OnEquip(struct ProcAtMenu *proc)
-{
-    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-	proc->state = 8;
-	Proc_Goto(proc, 0xA);
-}
-
-void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc) 
-{
-    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-    proc->state = 14; // Sets the index AtMenu_StartSubMenu will look for
-    Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu
-}
-
-void PrepScreenMenu_OnAugury(struct ProcAtMenu* proc) 
+LYN_REPLACE_CHECK(PrepScreenMenu_OnCheckMap);
+void PrepScreenMenu_OnCheckMap(struct ProcAtMenu* proc) 
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
     proc->state = 5;
-    // CallSomeSoundMaybe(SONG_BONDS, 0x100, 0x100, 0x20, 0);
-    Proc_Goto(proc, 0xA);
+    Proc_Goto(proc, 0x5);
 }
 
 void PrepScreenMenu_OnBEXP(struct ProcAtMenu* proc) 
@@ -40,19 +26,33 @@ void PrepScreenMenu_OnBEXP(struct ProcAtMenu* proc)
     Proc_Goto(proc, 0xA);
 }
 
-LYN_REPLACE_CHECK(PrepScreenMenu_OnCheckMap);
-void PrepScreenMenu_OnCheckMap(struct ProcAtMenu* proc) 
+void PrepScreenMenu_OnEquip(struct ProcAtMenu *proc)
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-    proc->state = 7;
-    Proc_Goto(proc, 0x5);
+	proc->state = 7;
+	Proc_Goto(proc, 0xA);
 }
 
-void PrepScreenMenu_BaseConversations(struct ProcAtMenu* proc) 
+void PrepScreenMenu_OnBaseConversations(struct ProcAtMenu* proc) 
+{
+    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    proc->state = 8;
+    Proc_Goto(proc, 0xA);
+}
+
+void PrepScreenMenu_OnAugury(struct ProcAtMenu* proc) 
 {
     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
     proc->state = 9;
+    // CallSomeSoundMaybe(SONG_BONDS, 0x100, 0x100, 0x20, 0);
     Proc_Goto(proc, 0xA);
+}
+
+void PrepScreenMenu_OnInfuse(struct ProcAtMenu* proc) 
+{
+    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    proc->state = 10; // Sets the index AtMenu_StartSubMenu will look for
+    Proc_Goto(proc, 0xA); // Sets a fade out and then calls AtMenu_StartSubMenu in ProcScr_AtMenu
 }
 
 /* This handles where each menu option should go when selected */
@@ -63,47 +63,43 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
 
     switch (proc->state) {
 
-    case 1: /* Pick Units */
+    case PREP_MAINMENU_UNIT + 1: /* Pick Units */
         Proc_StartBlocking(ProcScr_PrepUnitScreen, proc);
         break;
 
-    case 2: /* Items */
+    case PREP_MAINMENU_ITEM + 1: /* Items */
         StartPrepItemScreen(proc);
         break;
 
-    case 3: /* Save */
+    case PREP_MAINMENU_SAVE + 1: /* Save */
         StartPrepSaveScreen(proc);
         break;
 
-    case 4: /* Support */
+    case PREP_MAINMENU_SUPPORT + 1: /* Support */
         StartFortuneSubMenu(2, proc);
         break;
 
-    case 5: /* Augury */
-        if (gpKernelDesignerConfig->prep_menu_augury == true)
-            Proc_StartBlocking(PREEXT_Procs_Augury, proc);
-        else
-            StartChapterStatusScreen_FromPrep(proc);
-
+    case PREP_MAINMENU_CHECKMAP + 1: /* Check Map */
+        StartChapterStatusScreen_FromPrep(proc);
         break;
 
-    case 6: /* Bonus EXP */
+    case PREP_MAINMENU_BONUS_EXP + 1: /* Bonus EXP */
         StartBEXPScreen_FromPrep(proc);
         break;
 
-    case 7: /* Chapter Status */
-        StartChapterStatusScreen_FromPrep(proc);
-        break;
-
-    case 8: /* Skills */
+    case PREP_MAINMENU_SKILLS + 1: /* Skills */
         StartPrepEquipScreen(proc); 
         break;
 
-    case 9: /* Base Conversations */
-        StartChapterStatusScreen_FromPrep(proc);
+    case PREP_MAINMENU_BASE_CONVERSATIONS + 1: /* Base Conversations */
+        StartBaseScreen_FromPrep(proc);
         break;
 
-    case 14: /* Infuse */
+    case PREP_MAINMENU_AUGURY + 1: /* Augury */
+        Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+        break;
+
+    case PREP_MAINMENU_INFUSE + 1: /* Infuse */
         StartInfuseScreen_FromPrep(proc);
         break;
 
@@ -331,39 +327,34 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
     proc->unk_35 = GetActivePrepMenuItemIndex();
 
     switch ((proc->unk_35)) {
-        case 0:
+        case PREP_MAINMENU_UNIT:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_UNITS);
             break;
-        case 1:
+        case PREP_MAINMENU_ITEM:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_ITEMS);
             break;
-        case 2:
+        case PREP_MAINMENU_SAVE:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SAVE);
             break;
-        case 3:
+        case PREP_MAINMENU_SUPPORT:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SUPPORT);
             break;
-        case 4:
-            if (gpKernelDesignerConfig->prep_menu_augury == true)
-                ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
-
+        case PREP_MAINMENU_CHECKMAP:
+            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_CHECK_MAP);
             break;
-        case 5:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BEXP);
+        case PREP_MAINMENU_BONUS_EXP:
+            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BEXP);    
             break;
-        case 6:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_START_MAP);
-            break;
-        case 7:
+        case PREP_MAINMENU_SKILLS:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SKILLS);
             break;
-        case 8:
+        case PREP_MAINMENU_BASE_CONVERSATIONS:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS);
             break;
-        case 9:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS);
+        case PREP_MAINMENU_AUGURY:
+            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
             break;
-        case 13:
+        case PREP_MAINMENU_INFUSE:
             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_INFUSE);
             break;
         default:
@@ -386,42 +377,35 @@ void sub_8095C00(int msg, ProcPtr parent)
 
     /* So this is actually what replaces the prep menu descriptions when moving the cursor up and down */
     switch (GetActivePrepMenuItemIndex()) {
-        case 0:
+        case PREP_MAINMENU_UNIT:
             proc->msg = MSG_PREP_SCREEN_DESC_UNITS;
             break;
-        case 1:
+        case PREP_MAINMENU_ITEM:
             proc->msg = MSG_PREP_SCREEN_DESC_ITEMS;
             break;
-        case 2:
+        case PREP_MAINMENU_SAVE:
             proc->msg = MSG_PREP_SCREEN_DESC_SAVE;
             break;
-        case 3:
+        case PREP_MAINMENU_SUPPORT:
             proc->msg = MSG_PREP_SCREEN_DESC_SUPPORT;
             break;
-        case 4:
-            if (gpKernelDesignerConfig->prep_menu_augury == true)
-                proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
-                
+        case PREP_MAINMENU_CHECKMAP:
+            proc->msg = MSG_PREP_SCREEN_DESC_CHECK_MAP;  
             break;
-        case 5:
-            if (gpKernelDesignerConfig->prep_menu_bexp == true)
-                proc->msg = MSG_PREP_SCREEN_DESC_BEXP;
-
+        case PREP_MAINMENU_BONUS_EXP:
+            proc->msg = MSG_PREP_SCREEN_DESC_BEXP;
             break;
-        case 6:
-            proc->msg = MSG_PREP_SCREEN_DESC_START_MAP;
+        case PREP_MAINMENU_SKILLS:
+            proc->msg = MSG_PREP_SCREEN_DESC_SKILLS;   
             break;
-        case 7:
-            proc->msg = MSG_PREP_SCREEN_DESC_SKILLS;
-            break;
-        case 8: 
-            proc->msg = MSG_PREP_SCREEN_DESC_CHECK_MAP;
-            break;
-        case 9:
+        case PREP_MAINMENU_BASE_CONVERSATIONS:
             proc->msg = MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS;
             break;
-        case 13:
-            proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;
+        case PREP_MAINMENU_AUGURY: 
+            proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
+            break;
+        case PREP_MAINMENU_INFUSE:
+            proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;    
             break;
         default:
             proc->msg = msg;
@@ -521,8 +505,8 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         else
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, PrepScreenMenu_OnSave, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_SAVE, 0);
 
-        SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
-        // SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
+        // SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
+        SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
 
         if (gpKernelDesignerConfig->prep_menu_augury == true)
         {
@@ -535,15 +519,18 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         if (gpKernelDesignerConfig->prep_menu_bexp == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_BONUS_EXP, PrepScreenMenu_OnBEXP, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP, 0);
 
-        SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, PrepScreenMenu_OnEquip, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS, 0);
-        SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP, 0);
-        // SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, 0);
+        if (gpKernelDesignerConfig->prep_menu_skills == true)
+            SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, PrepScreenMenu_OnEquip, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS, 0);
+
+        // SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP, 0);
+        if (gpKernelDesignerConfig->prep_menu_base_conversations == true) 
+            SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnBaseConversations, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, 0);
     } 
     else 
     {
         SetPrepScreenMenuItem(PREP_MAINMENU_UNIT, PrepScreenMenu_OnPickUnits, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_UNITS, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_ITEM, PrepScreenMenu_OnItems, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_ITEMS, 0);
-        SetPrepScreenMenuItem(PREP_MAINMENU_UNK3, sub_8095284, TEXT_COLOR_SYSTEM_WHITE, 0x75C, 0);
+        // SetPrepScreenMenuItem(PREP_MAINMENU_UNK3, sub_8095284, TEXT_COLOR_SYSTEM_WHITE, 0x75C, 0);
     }
 
     SetPrepScreenMenuOnBPress(PrepScreenMenu_OnBPress);

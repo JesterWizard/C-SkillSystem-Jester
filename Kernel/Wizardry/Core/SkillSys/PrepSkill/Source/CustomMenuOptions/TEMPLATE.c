@@ -7,7 +7,7 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 
-static void PrepLoop_MainKeyHandler_BEXP(struct PrepItemListProc * proc)
+static void PrepLoop_MainKeyHandler_TEMPLATE(struct PrepItemListProc * proc)
 {
     int idx = proc->idxPerPage[proc->currentPage];
 
@@ -167,7 +167,7 @@ static void PrepLoop_MainKeyHandler_BEXP(struct PrepItemListProc * proc)
     return;
 }
 
-static void PrepInitGfx_BEXP(struct PrepItemListProc * proc)
+static void PrepInitGfx_TEMPLATE(struct PrepItemListProc * proc)
 {
     int i;
 
@@ -243,7 +243,7 @@ static void PrepInitGfx_BEXP(struct PrepItemListProc * proc)
     SetBlendTargetB(0, 0, 0, 1, 0);
 }
 
-static void PrepItemList_OnEnd_BEXP(struct PrepItemListProc * proc)
+static void PrepItemList_OnEnd_TEMPLATE(struct PrepItemListProc * proc)
 {
     struct ProcAtMenu *pproc = proc->proc_parent;
     pproc->state = 1;
@@ -254,13 +254,13 @@ static void PrepItemList_OnEnd_BEXP(struct PrepItemListProc * proc)
     EndMuralBackground_();
 }
 
-struct ProcCmd const ProcScr_PrepItemListScreen_BEXP[] = {
+struct ProcCmd const ProcScr_PrepItemListScreen_TEMPLATE[] = {
     PROC_NAME("PrepItemListScreen_INFUSE"),
     PROC_YIELD,
-    PROC_SET_END_CB(PrepItemList_OnEnd_BEXP),
+    PROC_SET_END_CB(PrepItemList_OnEnd_TEMPLATE),
 
 PROC_LABEL(PL_INFUSE_INIT),
-    PROC_CALL(PrepInitGfx_BEXP),
+    PROC_CALL(PrepInitGfx_TEMPLATE),
 	PROC_CALL_ARG(NewFadeIn, 0x10),
     PROC_WHILE(FadeInExists),
 
@@ -268,12 +268,12 @@ PROC_LABEL(PL_INFUSE_SHOW_CURSOR),
     PROC_CALL(sub_809F5F4),
 
 PROC_LABEL(PL_INFUSE_IDLE),
-    PROC_REPEAT(PrepLoop_MainKeyHandler_BEXP),
+    PROC_REPEAT(PrepLoop_MainKeyHandler_TEMPLATE),
 
 PROC_LABEL(PL_INFUSE_REFRESH_VIEW),
     PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
-    PROC_CALL(PrepItemList_OnEnd_BEXP),
+    PROC_CALL(PrepItemList_OnEnd_TEMPLATE),
     PROC_SLEEP(0),
     PROC_GOTO(PL_INFUSE_IDLE),
 
@@ -285,7 +285,7 @@ PROC_LABEL(PL_INFUSE_END),
     PROC_END
 };
 
-void StartBEXPScreen_FromPrep(struct ProcAtMenu *pproc)
+void StartTEMPLATEScreen_FromPrep(struct ProcAtMenu *pproc)
 {
-    Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, pproc);
+    Proc_StartBlocking(ProcScr_PrepItemListScreen_TEMPLATE, pproc);
 }

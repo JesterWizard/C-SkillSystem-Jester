@@ -103,13 +103,6 @@ Support[X]
 Check the compatibility[N]
 of your units.[X]
 
-## MSG_PREP_SCREEN_TITLE_START_MAP
-Start Map[X]
-## MSG_PREP_SCREEN_DESC_START_MAP
-The battle will begin.[N]
-You can also press[N]
-START to begin.[X]
-
 ## MSG_PREP_SCREEN_TITLE_SAVE
 Save[X]
 ## MSG_PREP_SCREEN_DESC_SAVE
@@ -312,9 +305,10 @@ Multiplier:[X]
 2.75x[X]
 ## MSG_BEXP_MULTIPLIER_3_00
 3.00x[X]
-
 ## MSG_BEXP_POPUP_TEXT_1
 You have obtained [X]
-
 ## MSG_BEXP_POPUP_TEXT_2
 Bonus EXP[X]
+
+## MSG_BASE_CONVERSATIONS_INSTRUCTION
+Select a conversation to view[X]

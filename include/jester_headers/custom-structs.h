@@ -39,6 +39,12 @@ extern const UnitPromotions unit_promotions[];
 
 /* Global flags use */
 enum {
+    GLOBAL_FLAG_BASE_CONVERSATION_1 = 0x8B,
+    GLOBAL_FLAG_BASE_CONVERSATION_2 = 0x8C,
+    GLOBAL_FLAG_BASE_CONVERSATION_3 = 0x8D,
+    GLOBAL_FLAG_BASE_CONVERSATION_4 = 0x8E,
+    GLOBAL_FLAG_BASE_CONVERSATION_5 = 0x8F,
+
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
     GLOBAL_FLAG_TIME_RAN_OUT = 0xED,
 };
@@ -71,13 +77,23 @@ enum {
     PL_INFUSE_INIT = 0,
     PL_INFUSE_SHOW_CURSOR = 1,
     PL_INFUSE_IDLE = 2,
-    PL_INFUSE_PRESS_LEFT = 3,
-    PL_INFUSE_PRESS_RIGHT = 4,
-    PL_INFUSE_REFRESH_VIEW = 6,
-    PL_INFUSE_SHOW_INVENTORY = 7,
+    PL_INFUSE_REFRESH_VIEW = 3,
+    PL_INFUSE_SHOW_INVENTORY = 4,
+    PL_INFUSE_PRESS_LEFT = 5,
+    PL_INFUSE_PRESS_RIGHT = 6,
+    PL_INFUSE_PRESS_R = 7,
     PL_INFUSE_PRESS_B = 8,
     PL_INFUSE_END = 9
 };
+
+enum {
+    PL_BASE_CONVERSATIONS_INIT = 0,
+    PL_BASE_CONVERSATIONS_IDLE = 1,
+    PL_BASE_CONVERSATIONS_EVENT = 2,
+    PL_BASE_CONVERSATIONS_PRESS_B = 3,
+    PL_BASE_CONVERSATIONS_END = 4
+};
+
 
 enum {
     INFUSE_STATE_LIST = 0,
@@ -93,7 +109,7 @@ struct InfuseRecipe {
 extern const struct InfuseRecipe gInfusionLookupTable[256];
 
 extern u16 gBEXP_Total;
-extern u8 gBEXP_TopVisibleIndex;
+extern u8 gTopVisibleListIndex;
 extern u8 gBEXP_State;
 extern u8 gBEXP_Applied;
 extern u16 gBEXP_MapGain;
@@ -124,3 +140,5 @@ struct BexpGains {
 };
 
 extern const struct BexpGains gBexpGainConstants;
+
+extern u8 gBaseConversations_Total;

@@ -66,9 +66,11 @@ struct KernelDesigerConfig {
 	u8 summons_gain_exp;
 	u8 collect_dead_units;
 	u8 goal_timer;
+	u8 prep_menu_skills;
 	u8 prep_menu_augury;
 	u8 prep_menu_infuse;
 	u8 prep_menu_bexp;
+	u8 prep_menu_base_conversations;
 	u8 expanded_hp;
 
 	u8 guaranteed_lvup;

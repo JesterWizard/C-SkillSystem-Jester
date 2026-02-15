@@ -69,7 +69,7 @@ static void DrawUnitSprites_BEXP(int x, int y)
     ClearSprites();
 
     for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
-        int unitIndex = gBEXP_TopVisibleIndex + i;
+        int unitIndex = gTopVisibleListIndex + i;
 
         if (unitIndex >= unitCount)
             continue;
@@ -93,7 +93,7 @@ static void DrawUnitText_BEXP(int x, int y)
     int unitCount = PrepGetUnitAmount();
 
     for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
-        int unitIndex = gBEXP_TopVisibleIndex + i;
+        int unitIndex = gTopVisibleListIndex + i;
 
         // Clear the text handle for this slot to prevent ghosting
         ClearText(&gPrepUnitTexts[i + 5]);
@@ -209,7 +209,7 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     StartUiCursorHand(proc);
     ResetSysHandCursor(proc);
     DisplaySysHandCursorTextShadow(0x600, 1);
-    ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
+    ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 0x8, 0x800);
 
     gLCDControlBuffer.dispcnt.win0_on = 1;
     gLCDControlBuffer.dispcnt.win1_on = 0;
@@ -253,7 +253,7 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
     /* Initial configuration to set the bar size/pos */
     UpdateMenuScrollBarConfig(
         PrepGetUnitAmount(),        // Total Height (max items)
-        gBEXP_TopVisibleIndex * 16, // Current Top Pixel (Index * 16px per row)
+        gTopVisibleListIndex * 16, // Current Top Pixel (Index * 16px per row)
         PrepGetUnitAmount(),        // Total Rows
         BEXP_VISIBLE_COUNT          // Visible Rows
     );
@@ -365,7 +365,7 @@ static void StartLevelUpExitAndCleanup(struct ProcPrepUnit* proc) {
 void RestoreBexpGraphics(struct ProcPrepUnit * proc)
 {
     int saved_cursor = proc->list_num_cur;
-    int saved_scroll = gBEXP_TopVisibleIndex;
+    int saved_scroll = gTopVisibleListIndex;
 
     // Fully clear VRAM to prevent "ghost" tiles from Level Up
     SetPrimaryHBlankHandler(NULL);
@@ -376,7 +376,7 @@ void RestoreBexpGraphics(struct ProcPrepUnit * proc)
     PrepInitGfx_BEXP(proc);
 
     proc->list_num_cur = saved_cursor;
-    gBEXP_TopVisibleIndex = saved_scroll;
+    gTopVisibleListIndex = saved_scroll;
     
     DrawUnitText_BEXP(3, 8);
     DrawUnitSprites_BEXP(3, 8);
@@ -456,7 +456,7 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         else if (gBEXP_State == BEXP_STATE_RTEXT)
         {
             EndUiCursorHand();
-            ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
+            ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 0x8, 0x800);
             gBEXP_State = BEXP_STATE_LIST;
         }
         else if (gBEXP_State == BEXP_STATE_APPLY)
@@ -488,12 +488,12 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         {
             if (proc->list_num_cur > 0) {
                 proc->list_num_cur--;
-                if (proc->list_num_cur < gBEXP_TopVisibleIndex) {
-                    gBEXP_TopVisibleIndex--;
+                if (proc->list_num_cur < gTopVisibleListIndex) {
+                    gTopVisibleListIndex--;
                 }
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
-                ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
+                ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 0x8, 0x800);
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
                 hasScrolled = 1;
@@ -554,12 +554,12 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         {
             if (proc->list_num_cur < unitCount - 1) {
                 proc->list_num_cur++;
-                if (proc->list_num_cur >= gBEXP_TopVisibleIndex + BEXP_VISIBLE_COUNT) {
-                    gBEXP_TopVisibleIndex++;
+                if (proc->list_num_cur >= gTopVisibleListIndex + BEXP_VISIBLE_COUNT) {
+                    gTopVisibleListIndex++;
                 }
                 TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 24, 16), 3, 2, 0);
                 PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 16), TEXT_COLOR_SYSTEM_WHITE, gBEXP_Applied);
-                ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gBEXP_TopVisibleIndex) * 16), 0x8, 0x800);
+                ShowSysHandCursor(14, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 0x8, 0x800);
                 DrawUnitMinimugAndLevel(GetUnitFromPrepList(proc->list_num_cur), 15, 8);
                 PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
                 hasScrolled = 1;
@@ -617,7 +617,7 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
         
         UpdateMenuScrollBarConfig(
             unitCount,                  // Max Index
-            gBEXP_TopVisibleIndex * 16, // Current top pixel
+            gTopVisibleListIndex * 16, // Current top pixel
             unitCount,                  // Total items
             BEXP_VISIBLE_COUNT          // Visible items
         );
@@ -642,7 +642,7 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
 }
 
 static void ResetScrollerBarVariables(struct ProcPrepUnit *proc) {
-    gBEXP_TopVisibleIndex = 0;  // First visible unit index
+    gTopVisibleListIndex = 0;  // First visible unit index
     proc->list_num_cur = 0;  // Current cursor position
 }
 
@@ -725,13 +725,6 @@ PROC_LABEL(PL_BEXP_LEVELUP),
     PROC_CALL(StartLevelUpExitAndCleanup),
     PROC_CALL(RestoreBexpGraphics),
     PROC_CALL(ManimLevelUp_RestoreBgm),
-    PROC_GOTO(PL_BEXP_IDLE),
-
-PROC_LABEL(PL_BEXP_REFRESH_VIEW),
-    PROC_CALL_ARG(NewFadeOut, 0x10),
-    PROC_WHILE(FadeOutExists),
-    PROC_CALL(PrepItemList_OnEnd_BEXP),
-    PROC_SLEEP(0),
     PROC_GOTO(PL_BEXP_IDLE),
 
 PROC_LABEL(PL_BEXP_PRESS_R),

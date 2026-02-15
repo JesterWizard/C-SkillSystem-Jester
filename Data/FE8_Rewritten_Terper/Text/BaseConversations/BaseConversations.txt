@@ -1,0 +1,7 @@
+// Chapter 04
+## MSG_BASE_CONVERSATION_01_CHAPTER_04
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Seth]
+Sup ur highness?[A][N]
+[OpenMidLeft]
+Not much tbh.[A][X]
