@@ -49,7 +49,7 @@ Acquired![.][X]
 learned [X]
 
 ## MSG_Obtained
-obtained [X]
+Obtained a [X]
 
 ## MSG_PredationSkillChoice
 Select an enemy skill to learn.[X]

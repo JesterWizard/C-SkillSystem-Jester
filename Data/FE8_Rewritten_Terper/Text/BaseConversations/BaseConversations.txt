@@ -1,7 +1,167 @@
 // Chapter 04
-## MSG_BASE_CONVERSATION_01_CHAPTER_04
+## MSG_BASE_CH4_01_TITLE
+Eirika and Seth[X]
+## MSG_BASE_CH4_01_TEXT
 [OpenMidLeft][LoadFace_Eirika]
 [OpenMidRight][LoadFace_Seth]
 Sup ur highness?[A][N]
 [OpenMidLeft]
-Not much tbh.[A][X]
+Not much tbh.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_02_TITLE
+Eirika and Franz[X]
+## MSG_BASE_CH4_02_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Franz]
+Want to elope?[A][N]
+[OpenMidLeft]
+Lol sure.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_03_TITLE
+Eirika and Gilliam[X]
+## MSG_BASE_CH4_03_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Gilliam]
+[OpenMidLeft]
+Who'd you rather date, me or Tana?[A][N]
+[OpenMidRight][LoadFace_Gilliam][CloseEyes]
+My ass is grass no matter[N]
+how I answer.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_04_TITLE
+Eirika and Colm[X]
+## MSG_BASE_CH4_04_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Colm]
+I could do with a smoke.[A][N]
+[OpenMidLeft][HalfCloseEyes]
+Pass the packet over here then.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_05_TITLE
+Eirika and Neimi[X]
+## MSG_BASE_CH4_05_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Neimi]
+Hey, uh, Princess Eirika, do you[N]
+want to, uh, hang out?[A][N]
+[OpenMidLeft]
+I'd rather just hang.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_06_TITLE
+Eirika and Moulder[X]
+## MSG_BASE_CH4_06_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Moulder]
+So to continue the lecture[N]
+I was just giv-[A][N]
+[OpenMidLeft][CloseEyes]
+I've been to funerals that made[N]
+me happier than this.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_07_TITLE
+Eirika and Tana[X]
+## MSG_BASE_CH4_07_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Tana]
+So, like, does this dress make[N]
+me look fat?[A][N]
+[OpenMidLeft]
+On a scale of 1 to 10 tons, how[N]
+honest do you want me to be?
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_08_TITLE
+Eirika and Ephraim
+## MSG_BASE_CH4_08_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Ephraim]
+Lol, you should stay home and[N]
+knit or something, idk.[A][N]
+[OpenMidLeft]
+One more word and I stick this[N]
+needle in your eye.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_09_TITLE
+Eirika and L'Arachel[X]
+## MSG_BASE_CH4_09_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Larachel]
+Light! Chosen One! Providence![A][N]
+[OpenMidLeft]
+Let's play a game, I vote for[N]
+hide and seek.[A][N]
+I'll hide and you seek[N]
+professional help.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]
+
+## MSG_BASE_CH4_10_TITLE
+Eirika and Lyon[X]
+## MSG_BASE_CH4_10_TEXT
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Lyon]
+Um, h-hi Eirika.[A][N]
+[OpenMidLeft]
+...hello.[A][N]
+[OpenMidRight]
+Um, I wanted, t-to tell you that[N]
+I um, I really, r-really like you.[A][N]
+[OpenMidLeft]
+...Ew.
+[A]
+[OpenMidLeft]
+[ClearFace]
+[OpenMidRight]
+[ClearFace]
+[X]

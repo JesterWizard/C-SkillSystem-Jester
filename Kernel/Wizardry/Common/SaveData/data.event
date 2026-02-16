@@ -56,6 +56,7 @@ gEmsSavChunks:
     EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
+    EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
 
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
@@ -96,6 +97,7 @@ gEmsSusChunks:
     EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
+    EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
 
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x34, MSU_SaveBlueUnits,  MSU_LoadBlueUnits, EMS_CHUNK_SAVEUNITS)

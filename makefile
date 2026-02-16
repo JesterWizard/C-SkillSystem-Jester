@@ -421,8 +421,13 @@ CLEAN_FILES += $(CHAX_SYM) $(CHAX_REFS) $(CHAX_REFE) $(CHAX_NUPS)
 # =============
 # = RAM USAGE =
 # =============
+COMMON_WIZARDRY_SAVE_DATA := ./Kernel/Wizardry/Common/SaveData
+
 ramcheck:
-	@python3 $(TOOL_DIR)/FE-PyTools/memory-usage.py $(LINK_DIR)/config-memmap.s
+	@python3 $(TOOL_DIR)/FE-PyTools/ram-memory-usage.py $(LINK_DIR)/config-memmap.s
+
+savecheck:
+	@python3 $(TOOL_DIR)/FE-PyTools/save-memory-usage.py $(COMMON_WIZARDRY_SAVE_DATA)/data.event
 
 # ========
 # = MISC =

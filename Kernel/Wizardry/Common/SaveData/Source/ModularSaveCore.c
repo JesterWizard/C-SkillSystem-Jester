@@ -448,3 +448,17 @@ void LoadBEXPMapGain(u8 *src, const u32 size)
     Assert(size <= want);
     ReadSramFast(src, &gBEXP_MapGain, size);
 }
+
+void SaveBaseConversationFlags(u8 *dst, const u32 size)
+{
+	u32 want = sizeof(gBaseConversations_Flags);
+    Assert(size <= want);
+    WriteAndVerifySramFast(&gBaseConversations_Flags, dst, size);
+}
+
+void LoadBaseConversationFlags(u8 *src, const u32 size)
+{
+	u32 want = sizeof(gBaseConversations_Flags);
+    Assert(size <= want);
+    ReadSramFast(src, &gBaseConversations_Flags, size);
+}

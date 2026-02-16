@@ -129,7 +129,7 @@ void InitTalk(int, int, s8);
 void InitSpriteTalk(int chr, int lines, int palId);
 void sub_8006964(void);
 void SetInitTalkTextFont(void);
-ProcPtr StartTalkExt(int, int, const char*, ProcPtr);
+ProcPtr StartTalkExt(int x, int y, const char * msg, ProcPtr parent);
 ProcPtr StartTalkMsg(int, int, int);
 ProcPtr StartTalkMsgExt(int x, int y, int msgId, ProcPtr parent);
 ProcPtr StartTalk(int x, int y, const char* str);

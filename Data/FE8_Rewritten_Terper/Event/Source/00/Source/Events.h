@@ -195,22 +195,22 @@ LABEL(0x1)
     ENDA
 };
 
-static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
-    // ASMC(CallForgeMenuASMC)
+// static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
+//     // ASMC(CallForgeMenuASMC)
 
-    // ASMC(AddMoreTime)
+//     // ASMC(AddMoreTime)
 
-   // ASMC(StartAvatarEdits_ASMC)
+//    // ASMC(StartAvatarEdits_ASMC)
 
-// #ifdef CONFIG_LIGHTS_OUT_GAME
-//     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
-// #endif
+// // #ifdef CONFIG_LIGHTS_OUT_GAME
+// //     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
+// // #endif
 
-// #ifdef CONFIG_VESLY_CREDITS_SEQUENCE
-//     FADE_TO_BLACK(16) // slow fade to black (optional)
-//     ASMC(StartCreditsProc_ASMC)
-// #endif
-};
+// // #ifdef CONFIG_VESLY_CREDITS_SEQUENCE
+// //     FADE_TO_BLACK(16) // slow fade to black (optional)
+// //     ASMC(StartCreditsProc_ASMC)
+// // #endif
+// };
 
 /**
  * Event lists
@@ -224,7 +224,7 @@ static const EventListScr EventListScr_Turn[] = {
 };
 
 static const EventListScr EventListScr_Character[] = {
-    CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
+    // CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
     END_MAIN
 };
 

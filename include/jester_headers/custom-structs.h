@@ -142,3 +142,4 @@ struct BexpGains {
 extern const struct BexpGains gBexpGainConstants;
 
 extern u8 gBaseConversations_Total;
+extern u8 gBaseConversations_Flags[10];
