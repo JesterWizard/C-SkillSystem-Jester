@@ -1,7 +1,7 @@
 # Bonus EXP
 
 <p align="center">
-  <img src="../Gifs/Bonus_EXP_Menu.gif" alt="Bonus EXP" width="600"/>
+  <img src="../Gifs/Base_Conversations.gif" alt="Bonus EXP" width="600"/>
 </p>
 
 ---
@@ -17,25 +17,26 @@
 
 ## 🧩 Introduction
 
-``gpKernelDesignerConfig->prep_menu_bexp``
+``gpKernelDesignerConfig->prep_menu_base_conversations``
 
-This feature introduces a prep menu implementation of FE9/FE10's bonus experience feature. Leveling up in the menu is supported, as is the triple stat ups from Radiant Dawn (though disabled by default)
+This feature is a reimplementation of Snek's prep menu base conversations.
 
 The aim is to ensure:
 
-- Units can be displayed in a list
-- Seleted units can have partial BEXP applied or enough for a full level up
-- Units can then level up if enough experience is applied
-- A multiplier is present where stronger units require more BEXP to level up, to discourage funnelling it all into one unit
+- It works with C Skill System
+- No custom structs are required
+- No hijacking of the support structs are required
+- The user can determine what background, music and items are made available per conversation
+- Played conversations can be replayed, but awarded items are not awarded again
+- An unlimited number of base conversations can be handled per chapter, courtesy of my list scroller
 
 ---
 
 ## 🛠️ How To Use
 
-- Inside [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) set the `.prep_menu_bexp` option to true.
-- Use the ASMC ``ASMC(GrantBEXP)`` in the end event for a chapter to trigger the popup display for granting BEXP
-- Navigate to the prep menu and select "Bonus EXP"
-- Select a unit in the list and apply an amount of BEXP to them (in increments of 5)
+- Inside [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) set the `.prep_menu_base_conversations` option to true.
+- Set the maximum number of conversations you want to have per chapter in the ``ChapterConversations`` struct.
+- Set the conversation titleid, textid, background, music, item to award and flag index in ``gBaseConversationTable``
 
 ---
 
@@ -43,27 +44,25 @@ The aim is to ensure:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **BEXP table** | `gBexpGainConstants` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Holds the table for awarded BEXP amounts |
-| **BEXP popup** | `BEXPPopup` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for the popup |
-| **BEXP sprites** | `DrawUnitSprites_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Handles the continous drawing of sprites every frame |
-| **Setup graphics** | `PrepInitGfx_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Setup graphics at the init stage |
-| **Level up proc** | `CallLevelUpProc` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Starts the level up sequence |
-| **Award BEXP** | `GrantBEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for granting BEXP at the end of a given map |
-| **Frame loop** | `PrepLoop_MainKeyHandler_BEXP` in [BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The loop that runs every frame check for button states etc |
-| **Parent proc for BEXP** | `ProcScr_PrepItemListScreen_BEXP` in [BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc that handles the entire BEXP menu experience |
+| **RAM - Allocation 1** | `gBaseConversations_Total` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
+| **RAM - Allocation 2** | `gBaseConversations_Flags` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
+| **Base Conversation table** | `gBaseConversationTable` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Handles all elements of the convos |
+| **Get number of conos per chapter** | `NumberOfChapterBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) |
+| **Redraw UI elements** | `DrawBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Redraw various UI elements when required |
+| **Initialize UI elements** | `PrepInitGfx_BASE` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Set up backgrounds and UI elements |
+| **Frame loop** | `PrepLoop_MainKeyHandler_BASE` in [BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The loop that runs every frame check for button states etc |
+| **Popup proc for awarding items** | `BasePopup` in [BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The proc that handles the notifying of item awards |
 
 ---
 
 ## 📝 TODO
 
-- Move the location of the level up sprite to the center of the screen
+- Turn off base maps or fade it out as a prep screen option if there are no base conversations to have for a chapter
 
 ---
 
 ## 🐛 Limitations & Bugs
 
 Please report issues in the repository’s **Issues** tab.
-
-- There's a slight visual glitch for a split second when displaying a unit's stat screen in the bexp menu and then exiting it. But it's minor and automatically corrected.
 
 ---
