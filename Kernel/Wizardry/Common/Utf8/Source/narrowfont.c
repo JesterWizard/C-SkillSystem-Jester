@@ -6,46 +6,41 @@
  */
 char *Utf8ToNarrowFonts(char *str)
 {
-	int i;
-	char *buf_cur, *ret_cur, *ret, *buf = (void *)gGenericBuffer;
+    int i;
+    char *src_cur;
+    char *ret_cur;
+    char *ret = (void *)gGenericBuffer;
 
-	if (!str)
-		return NULL;
+    if (!str)
+        return NULL;
 
-	strcpy(buf, str);
+    src_cur = (char *)str;
+    ret_cur = ret;
 
-	buf_cur = buf;
-	ret = ret_cur = str;
+    while (*src_cur != '\0') {
+        int utf8_len = GetChLenUtf8(src_cur);
 
-	while (*buf_cur != '\0') {
-		int utf8_len = GetChLenUtf8(buf_cur);
+        Assert(utf8_len > 0);
 
-		Assert(utf8_len > 0);
+        if (utf8_len == 1) {
+            const char *narrow_str =
+                gpAutoNarrowFontConf[(u8)*src_cur].narrow_str;
 
-		if (utf8_len == 1) {
-			/**
-			 * Try narrow
-			 */
-			const char *narrow_str = gpAutoNarrowFontConf[(u8)*buf_cur].narrow_str;
+            if (narrow_str) {
+                while (*narrow_str != '\0')
+                    *ret_cur++ = *narrow_str++;
 
-			if (narrow_str) {
-				while (*narrow_str != '\0')
-					*ret_cur++ = *narrow_str++;
+                src_cur++;
+                continue;
+            }
+        }
 
-				buf_cur++;
-				continue;
-			}
-		}
+        for (i = 0; i < utf8_len; i++)
+            *ret_cur++ = *src_cur++;
+    }
 
-		/**
-		 * UTF8 encoded
-		 */
-		for (i = 0; i < utf8_len; i++)
-			*ret_cur++ = *buf_cur++;
-	}
-
-	*ret_cur = '\0';
-	return ret;
+    *ret_cur = '\0';
+    return ret;
 }
 
 char NarrowFontsUtf8ToAscii(const char *str)

@@ -212,3 +212,9 @@ extern int StartAvatarEdits_ASMC(ProcPtr proc);
 void StartBEXPScreen_FromPrep(struct ProcAtMenu * parent);
 
 void StartBaseScreen_FromPrep(struct ProcAtMenu * parent);
+
+u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef* def, int number);
+int MapMenu_BiographyCommandDraw(struct MenuProc* menu, struct MenuItemProc* menuItem);
+u8 MapMenu_BiographyCommand(struct MenuProc* menu, struct MenuItemProc* menuItem);
+
+void StartDebuggerProc(ProcPtr playerPhaseProc);

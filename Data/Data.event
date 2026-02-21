@@ -35,4 +35,7 @@
 #include "CharacterData/CharacterData.lyn.event"
 #include "CustomPortraits/CustomPortraits.event"
 
+#include "MapMenus/Usability.lyn.event"
+#include "MapMenus/CharacterBiographies.lyn.event"
+
 #endif

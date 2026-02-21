@@ -1,0 +1,4 @@
+## MSG_MAP_MENU_BIOGRAPHY_TITLE
+ Biography[X]
+## MSG_MAP_MENU_BIOGRAPHY_DESC
+Read character biographies[X]

@@ -40,13 +40,12 @@ With this feature, we can also skip the requirement for TSA files (which are ann
 ## 🛠️ Plan
 
 The BG table has been repointed in order to add new backgrounds (which can also be used for CGs).
-The original CG table has been left along since the BG one serves both purposes.
+The original CG table has been left alone since the BG one serves both purposes.
 
 Details regarding the exact usage for new backgrounds can be found in Huichelaar's [`README`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/README.md)
 
 Things to keep in mind:
-  - Your backgrounds need to be processed with a special script that is not included in this buildfile for storage reasons.
-    So you will need to download the folder again from here https://github.com/Huichelaar/FE8U_256ColCG
+  - Your backgrounds need to be processed with a special script called ``Sommie`` you can download from here ``https://github.com/Benst1996/FE8U_256ColCG/tree/main/gfx/BG``.
   - Understand that new backgrounds start from 0x38 as the original pointers have been copied over.
 
 ---

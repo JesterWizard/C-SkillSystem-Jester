@@ -29,10 +29,11 @@ ALIGN 4
 KonamiCodeEnabled:
 WORD 1 // if 0, it is disabled 
 
-PUSH 
-ORG 0x1ca0c
-callHackNew(CallDebuggerProc)
-POP 
+/* JESTER - Now that I've hooked PlayerPhase_MainIdle we need to call the debugger directly there */
+// PUSH 
+// ORG 0x1ca0c
+// callHackNew(CallDebuggerProc)
+// POP 
 
 #ifndef UNIT_MENU_DEFINITIONS
     #define MenuCommand(name,description,colour,usability,effect) "WORD $80d7d94; SHORT name description; BYTE colour $4e; SHORT 0; POIN usability|1; WORD 0; POIN effect|1; WORD 0 0 0"

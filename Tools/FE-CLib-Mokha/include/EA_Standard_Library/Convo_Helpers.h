@@ -16,6 +16,22 @@
     TEXTEND \
     CALL(EventScr_TextShowWithFadeIn)
 
+#define TEXT_CG_CONSECUTIVE(bg, msg) \
+    SVAL(EVT_SLOT_2, (bg)) \
+    SVAL(EVT_SLOT_3, (msg)) \
+    CALL(EventScr_SetBackground) \
+    SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0) \
+    CGTEXTBOXSTART \
+    TEXTSHOW(-1) \
+    TEXTEND
+
+#define TEXT_CG_BIOGRAPHY \
+    CALL(EventScr_SetBackground) \
+    SADD(EVT_SLOT_2, EVT_SLOT_3, EVT_SLOT_0) \
+    CGTEXTBOXSTART \
+    TEXTSHOW(-1) \
+    TEXTEND
+
 #define TEXT_CONSECUTIVE(msg) \
     EvtTextShow2(msg) \
     TEXTEND
@@ -23,11 +39,6 @@
 #define TEXT_BG(bg, msg) \
     SVAL(EVT_SLOT_2, (bg)) \
     SVAL(EVT_SLOT_3, (msg)) \
-    CALL(Event_TextWithBG)
-
-#define TEXT_BG_TEST(bg, msg) \
-    TEXTSTART \
-    SET_BACKGROUND(bg) \
     CALL(Event_TextWithBG)
 
 #define SET_BACKGROUND(bg) \

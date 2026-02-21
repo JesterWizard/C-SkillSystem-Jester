@@ -72,6 +72,7 @@ struct KernelDesigerConfig {
 	u8 prep_menu_bexp;
 	u8 prep_menu_base_conversations;
 	u8 expanded_hp;
+	u8 vesly_debugger;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

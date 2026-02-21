@@ -383,7 +383,7 @@ u8 Event18_ColorFade(struct EventEngineProc * proc);
 u8 Event19_Checks(struct EventEngineProc * proc);
 u8 Event1A_TEXTSTART(struct EventEngineProc * proc);
 // ??? sub_800E210(???);
-// ??? sub_800E290(???);
+void sub_800E290(struct EventEngineProc * proc, u16 stringIndex, u32 flags);
 // ??? sub_800E31C(???);
 u8 Event1B_TEXTSHOW(struct EventEngineProc * proc);
 u8 Event1D_TalkContinue(struct EventEngineProc * proc);

@@ -40,5 +40,6 @@ W.I.P.[X]
 #include "texts/misc.txt"
 #include "texts/Affinity_Descriptions.txt"
 #include "texts/Items.txt"
+#include "texts/MapMenu_Biographies.txt"
 
 #include "../../../Data/FE8_Rewritten_Terper/Text/Text.txt"

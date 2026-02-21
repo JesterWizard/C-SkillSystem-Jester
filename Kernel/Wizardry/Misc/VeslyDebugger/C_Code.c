@@ -8,6 +8,7 @@
 #include "../../../include/common-chax.h"
 #include "../../../include/kernel/debuff.h"
 #include "../../../include/kernel/bwl.h"
+#include "../../../include/jester_headers/custom-functions.h"
 
 #define PACKED __attribute__((packed))
 

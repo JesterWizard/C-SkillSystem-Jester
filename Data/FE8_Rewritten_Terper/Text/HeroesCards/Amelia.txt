@@ -1,0 +1,28 @@
+## MSG_HEROES_CARDS_AMELIA_01
+Amelia is a brave young soldier[N]
+from Grado. She doesn't have[N]
+much combat experience yet,[N]
+but great things are surely[N]
+in store for this[N]
+up-and-coming Hero![A][X]
+## MSG_HEROES_CARDS_AMELIA_02
+Amelia was born and raised in[N]
+a remote village, but sadly,[N]
+her childhood was not as[N]
+peaceful as you might think.[A][N]
+One day, bandits raided the[N]
+village, and Amelia's mother[N]
+was kidnapped during the attack![A][X]
+## MSG_HEROES_CARDS_AMELIA_03
+Frustrated at being powerless[N]
+to save her mother, Amelia[N]
+swore she’d become stronger[N]
+and rushed to join the army.[A][X]
+## MSG_HEROES_CARDS_AMELIA_04
+What Amelia lacks in[N]
+experience, she makes up for[N]
+in sheer determination.[A][N]
+I hope her adventures will see[N]
+her reunited with her mother[N]
+someday… I'm rooting for you,[N]
+Amelia![A][X]

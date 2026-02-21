@@ -73,26 +73,537 @@ WORD 0x08958A58 0x0895D1A8 0x0895D65C
 WORD 0x0895D75C 0x0895D768 0x0895DC1C
 WORD 0x0 0x0 0x0                                       // Not sure what this is used for.
 WORD 0x0 0x0 0x0                                       // ID used for random BG.
-POIN CG_Myrrh_Morva_IMG;   WORD 0x1; POIN CG_Myrrh_Morva_PAL   // 0x38
-POIN CG_Ismaire_IMG;       WORD 0x1; POIN CG_Ismaire_PAL       // 0x39
-POIN CG_Seth_Attacked_IMG; WORD 0x1; POIN CG_Seth_Attacked_PAL // 0x3A
+POIN CG_Myrrh_Morva_IMG;          WORD 0x1; POIN CG_Myrrh_Morva_PAL      // 0x38
+POIN CG_Ismaire_IMG;              WORD 0x1; POIN CG_Ismaire_PAL          // 0x39
+POIN CG_Seth_Attacked_IMG;        WORD 0x1; POIN CG_Seth_Attacked_PAL    // 0x3A
+POIN BG_Heroes_Eirika_01_IMG;     WORD 0x1; POIN BG_Heroes_Eirika_01_PAL // 0x3B
+POIN BG_Heroes_Eirika_02_IMG;     WORD 0x1; POIN BG_Heroes_Eirika_02_PAL // 0x3C
+POIN BG_Heroes_Eirika_03_IMG;     WORD 0x1; POIN BG_Heroes_Eirika_03_PAL // 0x3D
+POIN BG_Heroes_Eirika_04_IMG;     WORD 0x1; POIN BG_Heroes_Eirika_04_PAL // 0x3E
+POIN BG_Heroes_Amelia_01_IMG;     WORD 0x1; POIN BG_Heroes_Amelia_01_PAL // 0x3F
+POIN BG_Heroes_Amelia_02_IMG;     WORD 0x1; POIN BG_Heroes_Amelia_02_PAL // 0x40
+POIN BG_Heroes_Amelia_03_IMG;     WORD 0x1; POIN BG_Heroes_Amelia_03_PAL // 0x41
+POIN BG_Heroes_Amelia_04_IMG;     WORD 0x1; POIN BG_Heroes_Amelia_04_PAL // 0x42
+POIN BG_Heroes_Artur_01_IMG;      WORD 0x1; POIN BG_Heroes_Artur_01_PAL // 0x43
+POIN BG_Heroes_Artur_02_IMG;      WORD 0x1; POIN BG_Heroes_Artur_02_PAL // 0x44
+POIN BG_Heroes_Artur_03_IMG;      WORD 0x1; POIN BG_Heroes_Artur_03_PAL // 0x45
+POIN BG_Heroes_Artur_04_IMG;      WORD 0x1; POIN BG_Heroes_Artur_04_PAL // 0x46
+POIN BG_Heroes_Caellach_01_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_01_PAL // 0x47
+POIN BG_Heroes_Caellach_02_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_02_PAL // 0x48
+POIN BG_Heroes_Caellach_03_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_03_PAL // 0x49
+POIN BG_Heroes_Caellach_04_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_04_PAL // 0x4A
+POIN BG_Heroes_Colm_01_IMG;       WORD 0x1; POIN BG_Heroes_Colm_01_PAL // 0x4B
+POIN BG_Heroes_Colm_02_IMG;       WORD 0x1; POIN BG_Heroes_Colm_02_PAL // 0x4C
+POIN BG_Heroes_Colm_03_IMG;       WORD 0x1; POIN BG_Heroes_Colm_03_PAL // 0x4D
+POIN BG_Heroes_Colm_04_IMG;       WORD 0x1; POIN BG_Heroes_Colm_04_PAL // 0x4E
+POIN BG_Heroes_Cormag_01_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_01_PAL // 0x4F
+POIN BG_Heroes_Cormag_02_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_02_PAL // 0x50
+POIN BG_Heroes_Cormag_03_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_03_PAL // 0x51
+POIN BG_Heroes_Cormag_04_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_04_PAL // 0x52
+POIN BG_Heroes_Dozla_01_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_01_PAL // 0x53
+POIN BG_Heroes_Dozla_02_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_02_PAL // 0x54
+POIN BG_Heroes_Dozla_03_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_03_PAL // 0x55
+POIN BG_Heroes_Dozla_04_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_04_PAL // 0x56
+POIN BG_Heroes_Duessel_01_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_01_PAL // 0x57
+POIN BG_Heroes_Duessel_02_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_02_PAL // 0x58
+POIN BG_Heroes_Duessel_03_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_03_PAL // 0x59
+POIN BG_Heroes_Duessel_04_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_04_PAL // 0x5A
+POIN BG_Heroes_Ephraim_01_IMG;    WORD 0x1; POIN BG_Heroes_Ephraim_01_PAL // 0x5B
+POIN BG_Heroes_Ephraim_02_IMG;    WORD 0x1; POIN BG_Heroes_Ephraim_02_PAL // 0x5C
+POIN BG_Heroes_Ephraim_03_IMG;    WORD 0x1; POIN BG_Heroes_Ephraim_03_PAL // 0x5D
+POIN BG_Heroes_Ephraim_04_IMG;    WORD 0x1; POIN BG_Heroes_Ephraim_04_PAL // 0x5E
+POIN BG_Heroes_Ewan_01_IMG;       WORD 0x1; POIN BG_Heroes_Ewan_01_PAL // 0x5F
+POIN BG_Heroes_Ewan_02_IMG;       WORD 0x1; POIN BG_Heroes_Ewan_02_PAL // 0x60
+POIN BG_Heroes_Ewan_03_IMG;       WORD 0x1; POIN BG_Heroes_Ewan_03_PAL // 0x61
+POIN BG_Heroes_Ewan_04_IMG;       WORD 0x1; POIN BG_Heroes_Ewan_04_PAL // 0x62
+POIN BG_Heroes_Forde_01_IMG;      WORD 0x1; POIN BG_Heroes_Forde_01_PAL // 0x63
+POIN BG_Heroes_Forde_02_IMG;      WORD 0x1; POIN BG_Heroes_Forde_02_PAL // 0x64
+POIN BG_Heroes_Forde_03_IMG;      WORD 0x1; POIN BG_Heroes_Forde_03_PAL // 0x65
+POIN BG_Heroes_Forde_04_IMG;      WORD 0x1; POIN BG_Heroes_Forde_04_PAL // 0x66
+POIN BG_Heroes_Formortiis_01_IMG; WORD 0x1; POIN BG_Heroes_Formortiis_01_PAL // 0x67
+POIN BG_Heroes_Formortiis_02_IMG; WORD 0x1; POIN BG_Heroes_Formortiis_02_PAL // 0x68
+POIN BG_Heroes_Formortiis_03_IMG; WORD 0x1; POIN BG_Heroes_Formortiis_03_PAL // 0x69
+POIN BG_Heroes_Formortiis_04_IMG; WORD 0x1; POIN BG_Heroes_Formortiis_04_PAL // 0x6A
+POIN BG_Heroes_Franz_01_IMG;      WORD 0x1; POIN BG_Heroes_Franz_01_PAL // 0x6B
+POIN BG_Heroes_Franz_02_IMG;      WORD 0x1; POIN BG_Heroes_Franz_02_PAL // 0x6C
+POIN BG_Heroes_Franz_03_IMG;      WORD 0x1; POIN BG_Heroes_Franz_03_PAL // 0x6D
+POIN BG_Heroes_Franz_04_IMG;      WORD 0x1; POIN BG_Heroes_Franz_04_PAL // 0x6E
+POIN BG_Heroes_Garcia_01_IMG;     WORD 0x1; POIN BG_Heroes_Garcia_01_PAL // 0x6F
+POIN BG_Heroes_Garcia_02_IMG;     WORD 0x1; POIN BG_Heroes_Garcia_02_PAL // 0x70
+POIN BG_Heroes_Garcia_03_IMG;     WORD 0x1; POIN BG_Heroes_Garcia_03_PAL // 0x71
+POIN BG_Heroes_Garcia_04_IMG;     WORD 0x1; POIN BG_Heroes_Garcia_04_PAL // 0x72
+POIN BG_Heroes_Gerik_01_IMG;      WORD 0x1; POIN BG_Heroes_Gerik_01_PAL // 0x73
+POIN BG_Heroes_Gerik_02_IMG;      WORD 0x1; POIN BG_Heroes_Gerik_02_PAL // 0x74
+POIN BG_Heroes_Gerik_03_IMG;      WORD 0x1; POIN BG_Heroes_Gerik_03_PAL // 0x75
+POIN BG_Heroes_Gerik_04_IMG;      WORD 0x1; POIN BG_Heroes_Gerik_04_PAL // 0x76
+POIN BG_Heroes_Gilliam_01_IMG;    WORD 0x1; POIN BG_Heroes_Gilliam_01_PAL // 0x77
+POIN BG_Heroes_Gilliam_02_IMG;    WORD 0x1; POIN BG_Heroes_Gilliam_02_PAL // 0x78
+POIN BG_Heroes_Gilliam_03_IMG;    WORD 0x1; POIN BG_Heroes_Gilliam_03_PAL // 0x79
+POIN BG_Heroes_Gilliam_04_IMG;    WORD 0x1; POIN BG_Heroes_Gilliam_04_PAL // 0x7A
+POIN BG_Heroes_Glen_01_IMG;       WORD 0x1; POIN BG_Heroes_Glen_01_PAL // 0x7B
+POIN BG_Heroes_Glen_02_IMG;       WORD 0x1; POIN BG_Heroes_Glen_02_PAL // 0x7C
+POIN BG_Heroes_Glen_03_IMG;       WORD 0x1; POIN BG_Heroes_Glen_03_PAL // 0x7D
+POIN BG_Heroes_Glen_04_IMG;       WORD 0x1; POIN BG_Heroes_Glen_04_PAL // 0x7E
+POIN BG_Heroes_Innes_01_IMG;      WORD 0x1; POIN BG_Heroes_Innes_01_PAL // 0x7F
+POIN BG_Heroes_Innes_02_IMG;      WORD 0x1; POIN BG_Heroes_Innes_02_PAL // 0x80
+POIN BG_Heroes_Innes_03_IMG;      WORD 0x1; POIN BG_Heroes_Innes_03_PAL // 0x81
+POIN BG_Heroes_Innes_04_IMG;      WORD 0x1; POIN BG_Heroes_Innes_04_PAL // 0x82
+POIN BG_Heroes_Joshua_01_IMG;     WORD 0x1; POIN BG_Heroes_Joshua_01_PAL // 0x83
+POIN BG_Heroes_Joshua_02_IMG;     WORD 0x1; POIN BG_Heroes_Joshua_02_PAL // 0x84
+POIN BG_Heroes_Joshua_03_IMG;     WORD 0x1; POIN BG_Heroes_Joshua_03_PAL // 0x85
+POIN BG_Heroes_Joshua_04_IMG;     WORD 0x1; POIN BG_Heroes_Joshua_04_PAL // 0x86
+POIN BG_Heroes_Knoll_01_IMG;      WORD 0x1; POIN BG_Heroes_Knoll_01_PAL // 0x87
+POIN BG_Heroes_Knoll_02_IMG;      WORD 0x1; POIN BG_Heroes_Knoll_02_PAL // 0x88
+POIN BG_Heroes_Knoll_03_IMG;      WORD 0x1; POIN BG_Heroes_Knoll_03_PAL // 0x89
+POIN BG_Heroes_Knoll_04_IMG;      WORD 0x1; POIN BG_Heroes_Knoll_04_PAL // 0x8A
+POIN BG_Heroes_Kyle_01_IMG;       WORD 0x1; POIN BG_Heroes_Kyle_01_PAL // 0x8B
+POIN BG_Heroes_Kyle_02_IMG;       WORD 0x1; POIN BG_Heroes_Kyle_02_PAL // 0x8C
+POIN BG_Heroes_Kyle_03_IMG;       WORD 0x1; POIN BG_Heroes_Kyle_03_PAL // 0x8D
+POIN BG_Heroes_Kyle_04_IMG;       WORD 0x1; POIN BG_Heroes_Kyle_04_PAL // 0x8E
+POIN BG_Heroes_Larachel_01_IMG;   WORD 0x1; POIN BG_Heroes_Larachel_01_PAL // 0x8F
+POIN BG_Heroes_Larachel_02_IMG;   WORD 0x1; POIN BG_Heroes_Larachel_02_PAL // 0x90
+POIN BG_Heroes_Larachel_03_IMG;   WORD 0x1; POIN BG_Heroes_Larachel_03_PAL // 0x91
+POIN BG_Heroes_Larachel_04_IMG;   WORD 0x1; POIN BG_Heroes_Larachel_04_PAL // 0x92
+POIN BG_Heroes_Lute_01_IMG;       WORD 0x1; POIN BG_Heroes_Lute_01_PAL // 0x93
+POIN BG_Heroes_Lute_02_IMG;       WORD 0x1; POIN BG_Heroes_Lute_02_PAL // 0x94
+POIN BG_Heroes_Lute_03_IMG;       WORD 0x1; POIN BG_Heroes_Lute_03_PAL // 0x95
+POIN BG_Heroes_Lute_04_IMG;       WORD 0x1; POIN BG_Heroes_Lute_04_PAL // 0x96
+POIN BG_Heroes_Lyon_01_IMG;       WORD 0x1; POIN BG_Heroes_Lyon_01_PAL // 0x97
+POIN BG_Heroes_Lyon_02_IMG;       WORD 0x1; POIN BG_Heroes_Lyon_02_PAL // 0x98
+POIN BG_Heroes_Lyon_03_IMG;       WORD 0x1; POIN BG_Heroes_Lyon_03_PAL // 0x99
+POIN BG_Heroes_Lyon_04_IMG;       WORD 0x1; POIN BG_Heroes_Lyon_04_PAL // 0x9A
+POIN BG_Heroes_Marisa_01_IMG;     WORD 0x1; POIN BG_Heroes_Marisa_01_PAL // 0x9B
+POIN BG_Heroes_Marisa_02_IMG;     WORD 0x1; POIN BG_Heroes_Marisa_02_PAL // 0x9C
+POIN BG_Heroes_Marisa_03_IMG;     WORD 0x1; POIN BG_Heroes_Marisa_03_PAL // 0x9D
+POIN BG_Heroes_Marisa_04_IMG;     WORD 0x1; POIN BG_Heroes_Marisa_04_PAL // 0x9E
+POIN BG_Heroes_Morva_01_IMG;      WORD 0x1; POIN BG_Heroes_Morva_01_PAL // 0x9F
+POIN BG_Heroes_Morva_02_IMG;      WORD 0x1; POIN BG_Heroes_Morva_02_PAL // 0xA0
+POIN BG_Heroes_Morva_03_IMG;      WORD 0x1; POIN BG_Heroes_Morva_03_PAL // 0xA1
+POIN BG_Heroes_Morva_04_IMG;      WORD 0x1; POIN BG_Heroes_Morva_04_PAL // 0xA2
+POIN BG_Heroes_Myrrh_01_IMG;      WORD 0x1; POIN BG_Heroes_Myrrh_01_PAL // 0xA3
+POIN BG_Heroes_Myrrh_02_IMG;      WORD 0x1; POIN BG_Heroes_Myrrh_02_PAL // 0xA4
+POIN BG_Heroes_Myrrh_03_IMG;      WORD 0x1; POIN BG_Heroes_Myrrh_03_PAL // 0xA5
+POIN BG_Heroes_Myrrh_04_IMG;      WORD 0x1; POIN BG_Heroes_Myrrh_04_PAL // 0xA6
+POIN BG_Heroes_Natasha_01_IMG;    WORD 0x1; POIN BG_Heroes_Natasha_01_PAL // 0xA7
+POIN BG_Heroes_Natasha_02_IMG;    WORD 0x1; POIN BG_Heroes_Natasha_02_PAL // 0xA8
+POIN BG_Heroes_Natasha_03_IMG;    WORD 0x1; POIN BG_Heroes_Natasha_03_PAL // 0xA9
+POIN BG_Heroes_Natasha_04_IMG;    WORD 0x1; POIN BG_Heroes_Natasha_04_PAL // 0xAA
+POIN BG_Heroes_Neimi_01_IMG;      WORD 0x1; POIN BG_Heroes_Neimi_01_PAL // 0xAB
+POIN BG_Heroes_Neimi_02_IMG;      WORD 0x1; POIN BG_Heroes_Neimi_02_PAL // 0xAC
+POIN BG_Heroes_Neimi_03_IMG;      WORD 0x1; POIN BG_Heroes_Neimi_03_PAL // 0xAD
+POIN BG_Heroes_Neimi_04_IMG;      WORD 0x1; POIN BG_Heroes_Neimi_04_PAL // 0xAE
+POIN BG_Heroes_Orson_01_IMG;      WORD 0x1; POIN BG_Heroes_Orson_01_PAL // 0xAF
+POIN BG_Heroes_Orson_02_IMG;      WORD 0x1; POIN BG_Heroes_Orson_02_PAL // 0xB0
+POIN BG_Heroes_Orson_03_IMG;      WORD 0x1; POIN BG_Heroes_Orson_03_PAL // 0xB1
+POIN BG_Heroes_Orson_04_IMG;      WORD 0x1; POIN BG_Heroes_Orson_04_PAL // 0xB2
+POIN BG_Heroes_Rennac_01_IMG;     WORD 0x1; POIN BG_Heroes_Rennac_01_PAL // 0xB3
+POIN BG_Heroes_Rennac_02_IMG;     WORD 0x1; POIN BG_Heroes_Rennac_02_PAL // 0xB4
+POIN BG_Heroes_Rennac_03_IMG;     WORD 0x1; POIN BG_Heroes_Rennac_03_PAL // 0xB5
+POIN BG_Heroes_Rennac_04_IMG;     WORD 0x1; POIN BG_Heroes_Rennac_04_PAL // 0xB6
+POIN BG_Heroes_Riev_01_IMG;       WORD 0x1; POIN BG_Heroes_Riev_01_PAL // 0xB7
+POIN BG_Heroes_Riev_02_IMG;       WORD 0x1; POIN BG_Heroes_Riev_02_PAL // 0xB8
+POIN BG_Heroes_Riev_03_IMG;       WORD 0x1; POIN BG_Heroes_Riev_03_PAL // 0xB9
+POIN BG_Heroes_Riev_04_IMG;       WORD 0x1; POIN BG_Heroes_Riev_04_PAL // 0xBA
+POIN BG_Heroes_Ross_01_IMG;       WORD 0x1; POIN BG_Heroes_Ross_01_PAL // 0xBB
+POIN BG_Heroes_Ross_02_IMG;       WORD 0x1; POIN BG_Heroes_Ross_02_PAL // 0xBC
+POIN BG_Heroes_Ross_03_IMG;       WORD 0x1; POIN BG_Heroes_Ross_03_PAL // 0xBD
+POIN BG_Heroes_Ross_04_IMG;       WORD 0x1; POIN BG_Heroes_Ross_04_PAL // 0xBE
+POIN BG_Heroes_Selena_01_IMG;     WORD 0x1; POIN BG_Heroes_Selena_01_PAL // 0xBF
+POIN BG_Heroes_Selena_02_IMG;     WORD 0x1; POIN BG_Heroes_Selena_02_PAL // 0xC0
+POIN BG_Heroes_Selena_03_IMG;     WORD 0x1; POIN BG_Heroes_Selena_03_PAL // 0xC1
+POIN BG_Heroes_Selena_04_IMG;     WORD 0x1; POIN BG_Heroes_Selena_04_PAL // 0xC2
+POIN BG_Heroes_Seth_01_IMG;       WORD 0x1; POIN BG_Heroes_Seth_01_PAL // 0xC3
+POIN BG_Heroes_Seth_02_IMG;       WORD 0x1; POIN BG_Heroes_Seth_02_PAL // 0xC4
+POIN BG_Heroes_Seth_03_IMG;       WORD 0x1; POIN BG_Heroes_Seth_03_PAL // 0xC5
+POIN BG_Heroes_Seth_04_IMG;       WORD 0x1; POIN BG_Heroes_Seth_04_PAL // 0xC6
+POIN BG_Heroes_Syrene_01_IMG;     WORD 0x1; POIN BG_Heroes_Syrene_01_PAL // 0xC7
+POIN BG_Heroes_Syrene_02_IMG;     WORD 0x1; POIN BG_Heroes_Syrene_02_PAL // 0xC8
+POIN BG_Heroes_Syrene_03_IMG;     WORD 0x1; POIN BG_Heroes_Syrene_03_PAL // 0xC9
+POIN BG_Heroes_Syrene_04_IMG;     WORD 0x1; POIN BG_Heroes_Syrene_04_PAL // 0xCA
+POIN BG_Heroes_Tana_01_IMG;       WORD 0x1; POIN BG_Heroes_Tana_01_PAL // 0xCB
+POIN BG_Heroes_Tana_02_IMG;       WORD 0x1; POIN BG_Heroes_Tana_02_PAL // 0xCC
+POIN BG_Heroes_Tana_03_IMG;       WORD 0x1; POIN BG_Heroes_Tana_03_PAL // 0xCD
+POIN BG_Heroes_Tana_04_IMG;       WORD 0x1; POIN BG_Heroes_Tana_04_PAL // 0xCE
+POIN BG_Heroes_Tethys_01_IMG;     WORD 0x1; POIN BG_Heroes_Tethys_01_PAL // 0xCF
+POIN BG_Heroes_Tethys_02_IMG;     WORD 0x1; POIN BG_Heroes_Tethys_02_PAL // 0xD0
+POIN BG_Heroes_Tethys_03_IMG;     WORD 0x1; POIN BG_Heroes_Tethys_03_PAL // 0xD1
+POIN BG_Heroes_Tethys_04_IMG;     WORD 0x1; POIN BG_Heroes_Tethys_04_PAL // 0xD2
+POIN BG_Heroes_Valter_01_IMG;     WORD 0x1; POIN BG_Heroes_Valter_01_PAL // 0xD3
+POIN BG_Heroes_Valter_02_IMG;     WORD 0x1; POIN BG_Heroes_Valter_02_PAL // 0xD4
+POIN BG_Heroes_Valter_03_IMG;     WORD 0x1; POIN BG_Heroes_Valter_03_PAL // 0xD5
+POIN BG_Heroes_Valter_04_IMG;     WORD 0x1; POIN BG_Heroes_Valter_04_PAL // 0xD6
+POIN BG_Heroes_Vigarde_01_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_01_PAL // 0xD7
+POIN BG_Heroes_Vigarde_02_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_02_PAL // 0xD8
+POIN BG_Heroes_Vigarde_03_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_03_PAL // 0xD9
+POIN BG_Heroes_Vigarde_04_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_04_PAL // 0xDA
 
 // TSA == 0 indicates 256-colour BGs.
 // TSA == 1 indicates 224-colour BGs.
 
 ALIGN 4
-CG_Myrrh_Morva_IMG:
-#incbin "224_CG_Morva_Myrrh_IMG.dmp"
-CG_Myrrh_Morva_PAL:
-#incbin "224_CG_Morva_Myrrh_PAL.dmp"
+CG_Myrrh_Morva_IMG: #incbin "224_CG_Morva_Myrrh_IMG.dmp"
+CG_Myrrh_Morva_PAL: #incbin "224_CG_Morva_Myrrh_PAL.dmp"
+CG_Ismaire_IMG: #incbin "224_CG_Ismaire_IMG.dmp"
+CG_Ismaire_PAL: #incbin "224_CG_Ismaire_PAL.dmp"
+CG_Seth_Attacked_IMG: #incbin "224_CG_Seth_Attacked_IMG.dmp"
+CG_Seth_Attacked_PAL: #incbin "224_CG_Seth_Attacked_PAL.dmp"
 
-CG_Ismaire_IMG:
-#incbin "224_CG_Ismaire_IMG.dmp"
-CG_Ismaire_PAL:
-#incbin "224_CG_Ismaire_PAL.dmp"
+BG_Heroes_Eirika_01_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_IMG.dmp"
+BG_Heroes_Eirika_01_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_PAL.dmp"
+BG_Heroes_Eirika_02_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_02_IMG.dmp"
+BG_Heroes_Eirika_02_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_02_PAL.dmp"
+BG_Heroes_Eirika_03_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_03_IMG.dmp"
+BG_Heroes_Eirika_03_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_03_PAL.dmp"
+BG_Heroes_Eirika_04_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_04_IMG.dmp"
+BG_Heroes_Eirika_04_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_04_PAL.dmp"
 
-CG_Seth_Attacked_IMG:
-#incbin "224_CG_Seth_Attacked_IMG.dmp"
-CG_Seth_Attacked_PAL:
-#incbin "224_CG_Seth_Attacked_PAL.dmp"
+BG_Heroes_Amelia_01_IMG: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_01_IMG.dmp"
+BG_Heroes_Amelia_01_PAL: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_01_PAL.dmp"
+BG_Heroes_Amelia_02_IMG: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_02_IMG.dmp"
+BG_Heroes_Amelia_02_PAL: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_02_PAL.dmp"
+BG_Heroes_Amelia_03_IMG: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_03_IMG.dmp"
+BG_Heroes_Amelia_03_PAL: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_03_PAL.dmp"
+BG_Heroes_Amelia_04_IMG: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_04_IMG.dmp"
+BG_Heroes_Amelia_04_PAL: #incbin "FireEmblemHeroesCards/Amelia/224_BG_Amelia_04_PAL.dmp"
 
+BG_Heroes_Artur_01_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_01_IMG.dmp"
+BG_Heroes_Artur_01_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_01_PAL.dmp"
+BG_Heroes_Artur_02_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_02_IMG.dmp"
+BG_Heroes_Artur_02_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_02_PAL.dmp"
+BG_Heroes_Artur_03_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_IMG.dmp"
+BG_Heroes_Artur_03_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_PAL.dmp"
+BG_Heroes_Artur_04_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_IMG.dmp"
+BG_Heroes_Artur_04_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_PAL.dmp"
+
+BG_Heroes_Caellach_01_IMG: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_01_IMG.dmp"
+BG_Heroes_Caellach_01_PAL: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_01_PAL.dmp"
+BG_Heroes_Caellach_02_IMG: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_02_IMG.dmp"
+BG_Heroes_Caellach_02_PAL: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_02_PAL.dmp"
+BG_Heroes_Caellach_03_IMG: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_03_IMG.dmp"
+BG_Heroes_Caellach_03_PAL: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_03_PAL.dmp"
+BG_Heroes_Caellach_04_IMG: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_04_IMG.dmp"
+BG_Heroes_Caellach_04_PAL: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_04_PAL.dmp"
+
+BG_Heroes_Colm_01_IMG: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_01_IMG.dmp"
+BG_Heroes_Colm_01_PAL: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_01_PAL.dmp"
+BG_Heroes_Colm_02_IMG: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_02_IMG.dmp"
+BG_Heroes_Colm_02_PAL: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_02_PAL.dmp"
+BG_Heroes_Colm_03_IMG: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_03_IMG.dmp"
+BG_Heroes_Colm_03_PAL: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_03_PAL.dmp"
+BG_Heroes_Colm_04_IMG: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_04_IMG.dmp"
+BG_Heroes_Colm_04_PAL: #incbin "FireEmblemHeroesCards/Colm/224_BG_Colm_04_PAL.dmp"
+
+BG_Heroes_Cormag_01_IMG: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_01_IMG.dmp"
+BG_Heroes_Cormag_01_PAL: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_01_PAL.dmp"
+BG_Heroes_Cormag_02_IMG: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_02_IMG.dmp"
+BG_Heroes_Cormag_02_PAL: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_02_PAL.dmp"
+BG_Heroes_Cormag_03_IMG: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_03_IMG.dmp"
+BG_Heroes_Cormag_03_PAL: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_03_PAL.dmp"
+BG_Heroes_Cormag_04_IMG: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_04_IMG.dmp"
+BG_Heroes_Cormag_04_PAL: #incbin "FireEmblemHeroesCards/Cormag/224_BG_Cormag_04_PAL.dmp"
+
+BG_Heroes_Dozla_01_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_01_IMG.dmp"
+BG_Heroes_Dozla_01_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_01_PAL.dmp"
+BG_Heroes_Dozla_02_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
+BG_Heroes_Dozla_02_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
+BG_Heroes_Dozla_03_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
+BG_Heroes_Dozla_03_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
+BG_Heroes_Dozla_04_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
+BG_Heroes_Dozla_04_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
+
+BG_Heroes_Duessel_01_IMG: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_01_IMG.dmp"
+BG_Heroes_Duessel_01_PAL: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_01_PAL.dmp"
+BG_Heroes_Duessel_02_IMG: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_02_IMG.dmp"
+BG_Heroes_Duessel_02_PAL: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_02_PAL.dmp"
+BG_Heroes_Duessel_03_IMG: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_03_IMG.dmp"
+BG_Heroes_Duessel_03_PAL: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_03_PAL.dmp"
+BG_Heroes_Duessel_04_IMG: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_04_IMG.dmp"
+BG_Heroes_Duessel_04_PAL: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_04_PAL.dmp"
+
+BG_Heroes_Ephraim_01_IMG: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_01_IMG.dmp"
+BG_Heroes_Ephraim_01_PAL: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_01_PAL.dmp"
+BG_Heroes_Ephraim_02_IMG: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_02_IMG.dmp"
+BG_Heroes_Ephraim_02_PAL: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_02_PAL.dmp"
+BG_Heroes_Ephraim_03_IMG: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_03_IMG.dmp"
+BG_Heroes_Ephraim_03_PAL: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_03_PAL.dmp"
+BG_Heroes_Ephraim_04_IMG: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_04_IMG.dmp"
+BG_Heroes_Ephraim_04_PAL: #incbin "FireEmblemHeroesCards/Ephraim/224_BG_Ephraim_04_PAL.dmp"
+
+BG_Heroes_Ewan_01_IMG: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_01_IMG.dmp"
+BG_Heroes_Ewan_01_PAL: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_01_PAL.dmp"
+BG_Heroes_Ewan_02_IMG: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_02_IMG.dmp"
+BG_Heroes_Ewan_02_PAL: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_02_PAL.dmp"
+BG_Heroes_Ewan_03_IMG: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_03_IMG.dmp"
+BG_Heroes_Ewan_03_PAL: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_03_PAL.dmp"
+BG_Heroes_Ewan_04_IMG: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_04_IMG.dmp"
+BG_Heroes_Ewan_04_PAL: #incbin "FireEmblemHeroesCards/Ewan/224_BG_Ewan_04_PAL.dmp"
+
+BG_Heroes_Forde_01_IMG: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_01_IMG.dmp"
+BG_Heroes_Forde_01_PAL: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_01_PAL.dmp"
+BG_Heroes_Forde_02_IMG: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_02_IMG.dmp"
+BG_Heroes_Forde_02_PAL: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_02_PAL.dmp"
+BG_Heroes_Forde_03_IMG: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_03_IMG.dmp"
+BG_Heroes_Forde_03_PAL: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_03_PAL.dmp"
+BG_Heroes_Forde_04_IMG: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_04_IMG.dmp"
+BG_Heroes_Forde_04_PAL: #incbin "FireEmblemHeroesCards/Forde/224_BG_Forde_04_PAL.dmp"
+
+BG_Heroes_Formortiis_01_IMG: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_01_IMG.dmp"
+BG_Heroes_Formortiis_01_PAL: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_01_PAL.dmp"
+BG_Heroes_Formortiis_02_IMG: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_02_IMG.dmp"
+BG_Heroes_Formortiis_02_PAL: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_02_PAL.dmp"
+BG_Heroes_Formortiis_03_IMG: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_03_IMG.dmp"
+BG_Heroes_Formortiis_03_PAL: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_03_PAL.dmp"
+BG_Heroes_Formortiis_04_IMG: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_04_IMG.dmp"
+BG_Heroes_Formortiis_04_PAL: #incbin "FireEmblemHeroesCards/Formortiis/224_BG_Formortiis_04_PAL.dmp"
+
+BG_Heroes_Franz_01_IMG: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_01_IMG.dmp"
+BG_Heroes_Franz_01_PAL: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_01_PAL.dmp"
+BG_Heroes_Franz_02_IMG: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_02_IMG.dmp"
+BG_Heroes_Franz_02_PAL: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_02_PAL.dmp"
+BG_Heroes_Franz_03_IMG: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_03_IMG.dmp"
+BG_Heroes_Franz_03_PAL: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_03_PAL.dmp"
+BG_Heroes_Franz_04_IMG: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_04_IMG.dmp"
+BG_Heroes_Franz_04_PAL: #incbin "FireEmblemHeroesCards/Franz/224_BG_Franz_04_PAL.dmp"
+
+BG_Heroes_Garcia_01_IMG: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_01_IMG.dmp"
+BG_Heroes_Garcia_01_PAL: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_01_PAL.dmp"
+BG_Heroes_Garcia_02_IMG: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_02_IMG.dmp"
+BG_Heroes_Garcia_02_PAL: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_02_PAL.dmp"
+BG_Heroes_Garcia_03_IMG: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_03_IMG.dmp"
+BG_Heroes_Garcia_03_PAL: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_03_PAL.dmp"
+BG_Heroes_Garcia_04_IMG: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_04_IMG.dmp"
+BG_Heroes_Garcia_04_PAL: #incbin "FireEmblemHeroesCards/Garcia/224_BG_Garcia_04_PAL.dmp"
+
+BG_Heroes_Gerik_01_IMG: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_01_IMG.dmp"
+BG_Heroes_Gerik_01_PAL: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_01_PAL.dmp"
+BG_Heroes_Gerik_02_IMG: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_02_IMG.dmp"
+BG_Heroes_Gerik_02_PAL: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_02_PAL.dmp"
+BG_Heroes_Gerik_03_IMG: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_03_IMG.dmp"
+BG_Heroes_Gerik_03_PAL: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_03_PAL.dmp"
+BG_Heroes_Gerik_04_IMG: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_04_IMG.dmp"
+BG_Heroes_Gerik_04_PAL: #incbin "FireEmblemHeroesCards/Gerik/224_BG_Gerik_04_PAL.dmp"
+
+BG_Heroes_Gilliam_01_IMG: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_01_IMG.dmp"
+BG_Heroes_Gilliam_01_PAL: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_01_PAL.dmp"
+BG_Heroes_Gilliam_02_IMG: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_02_IMG.dmp"
+BG_Heroes_Gilliam_02_PAL: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_02_PAL.dmp"
+BG_Heroes_Gilliam_03_IMG: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_03_IMG.dmp"
+BG_Heroes_Gilliam_03_PAL: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_03_PAL.dmp"
+BG_Heroes_Gilliam_04_IMG: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_04_IMG.dmp"
+BG_Heroes_Gilliam_04_PAL: #incbin "FireEmblemHeroesCards/Gilliam/224_BG_Gilliam_04_PAL.dmp"
+
+BG_Heroes_Glen_01_IMG: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_01_IMG.dmp"
+BG_Heroes_Glen_01_PAL: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_01_PAL.dmp"
+BG_Heroes_Glen_02_IMG: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_02_IMG.dmp"
+BG_Heroes_Glen_02_PAL: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_02_PAL.dmp"
+BG_Heroes_Glen_03_IMG: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_03_IMG.dmp"
+BG_Heroes_Glen_03_PAL: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_03_PAL.dmp"
+BG_Heroes_Glen_04_IMG: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_04_IMG.dmp"
+BG_Heroes_Glen_04_PAL: #incbin "FireEmblemHeroesCards/Glen/224_BG_Glen_04_PAL.dmp"
+
+BG_Heroes_Innes_01_IMG: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_01_IMG.dmp"
+BG_Heroes_Innes_01_PAL: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_01_PAL.dmp"
+BG_Heroes_Innes_02_IMG: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_02_IMG.dmp"
+BG_Heroes_Innes_02_PAL: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_02_PAL.dmp"
+BG_Heroes_Innes_03_IMG: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_03_IMG.dmp"
+BG_Heroes_Innes_03_PAL: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_03_PAL.dmp"
+BG_Heroes_Innes_04_IMG: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_04_IMG.dmp"
+BG_Heroes_Innes_04_PAL: #incbin "FireEmblemHeroesCards/Innes/224_BG_Innes_04_PAL.dmp"
+
+BG_Heroes_Joshua_01_IMG: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_01_IMG.dmp"
+BG_Heroes_Joshua_01_PAL: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_01_PAL.dmp"
+BG_Heroes_Joshua_02_IMG: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_02_IMG.dmp"
+BG_Heroes_Joshua_02_PAL: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_02_PAL.dmp"
+BG_Heroes_Joshua_03_IMG: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_03_IMG.dmp"
+BG_Heroes_Joshua_03_PAL: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_03_PAL.dmp"
+BG_Heroes_Joshua_04_IMG: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_04_IMG.dmp"
+BG_Heroes_Joshua_04_PAL: #incbin "FireEmblemHeroesCards/Joshua/224_BG_Joshua_04_PAL.dmp"
+
+BG_Heroes_Knoll_01_IMG: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_01_IMG.dmp"
+BG_Heroes_Knoll_01_PAL: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_01_PAL.dmp"
+BG_Heroes_Knoll_02_IMG: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_02_IMG.dmp"
+BG_Heroes_Knoll_02_PAL: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_02_PAL.dmp"
+BG_Heroes_Knoll_03_IMG: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_03_IMG.dmp"
+BG_Heroes_Knoll_03_PAL: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_03_PAL.dmp"
+BG_Heroes_Knoll_04_IMG: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_04_IMG.dmp"
+BG_Heroes_Knoll_04_PAL: #incbin "FireEmblemHeroesCards/Knoll/224_BG_Knoll_04_PAL.dmp"
+
+BG_Heroes_Kyle_01_IMG: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_01_IMG.dmp"
+BG_Heroes_Kyle_01_PAL: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_01_PAL.dmp"
+BG_Heroes_Kyle_02_IMG: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_02_IMG.dmp"
+BG_Heroes_Kyle_02_PAL: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_02_PAL.dmp"
+BG_Heroes_Kyle_03_IMG: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_03_IMG.dmp"
+BG_Heroes_Kyle_03_PAL: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_03_PAL.dmp"
+BG_Heroes_Kyle_04_IMG: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_04_IMG.dmp"
+BG_Heroes_Kyle_04_PAL: #incbin "FireEmblemHeroesCards/Kyle/224_BG_Kyle_04_PAL.dmp"
+
+BG_Heroes_Larachel_01_IMG: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_01_IMG.dmp"
+BG_Heroes_Larachel_01_PAL: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_01_PAL.dmp"
+BG_Heroes_Larachel_02_IMG: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_02_IMG.dmp"
+BG_Heroes_Larachel_02_PAL: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_02_PAL.dmp"
+BG_Heroes_Larachel_03_IMG: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_03_IMG.dmp"
+BG_Heroes_Larachel_03_PAL: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_03_PAL.dmp"
+BG_Heroes_Larachel_04_IMG: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_04_IMG.dmp"
+BG_Heroes_Larachel_04_PAL: #incbin "FireEmblemHeroesCards/Larachel/224_BG_Larachel_04_PAL.dmp"
+
+BG_Heroes_Lute_01_IMG: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_01_IMG.dmp"
+BG_Heroes_Lute_01_PAL: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_01_PAL.dmp"
+BG_Heroes_Lute_02_IMG: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_02_IMG.dmp"
+BG_Heroes_Lute_02_PAL: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_02_PAL.dmp"
+BG_Heroes_Lute_03_IMG: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_03_IMG.dmp"
+BG_Heroes_Lute_03_PAL: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_03_PAL.dmp"
+BG_Heroes_Lute_04_IMG: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_04_IMG.dmp"
+BG_Heroes_Lute_04_PAL: #incbin "FireEmblemHeroesCards/Lute/224_BG_Lute_04_PAL.dmp"
+
+BG_Heroes_Lyon_01_IMG: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_01_IMG.dmp"
+BG_Heroes_Lyon_01_PAL: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_01_PAL.dmp"
+BG_Heroes_Lyon_02_IMG: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_02_IMG.dmp"
+BG_Heroes_Lyon_02_PAL: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_02_PAL.dmp"
+BG_Heroes_Lyon_03_IMG: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_03_IMG.dmp"
+BG_Heroes_Lyon_03_PAL: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_03_PAL.dmp"
+BG_Heroes_Lyon_04_IMG: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_04_IMG.dmp"
+BG_Heroes_Lyon_04_PAL: #incbin "FireEmblemHeroesCards/Lyon/224_BG_Lyon_04_PAL.dmp"
+
+BG_Heroes_Marisa_01_IMG: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_01_IMG.dmp"
+BG_Heroes_Marisa_01_PAL: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_01_PAL.dmp"
+BG_Heroes_Marisa_02_IMG: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_02_IMG.dmp"
+BG_Heroes_Marisa_02_PAL: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_02_PAL.dmp"
+BG_Heroes_Marisa_03_IMG: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_03_IMG.dmp"
+BG_Heroes_Marisa_03_PAL: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_03_PAL.dmp"
+BG_Heroes_Marisa_04_IMG: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_04_IMG.dmp"
+BG_Heroes_Marisa_04_PAL: #incbin "FireEmblemHeroesCards/Marisa/224_BG_Marisa_04_PAL.dmp"
+
+BG_Heroes_Morva_01_IMG: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_01_IMG.dmp"
+BG_Heroes_Morva_01_PAL: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_01_PAL.dmp"
+BG_Heroes_Morva_02_IMG: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_02_IMG.dmp"
+BG_Heroes_Morva_02_PAL: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_02_PAL.dmp"
+BG_Heroes_Morva_03_IMG: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_03_IMG.dmp"
+BG_Heroes_Morva_03_PAL: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_03_PAL.dmp"
+BG_Heroes_Morva_04_IMG: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_04_IMG.dmp"
+BG_Heroes_Morva_04_PAL: #incbin "FireEmblemHeroesCards/Morva/224_BG_Morva_04_PAL.dmp"
+
+BG_Heroes_Myrrh_01_IMG: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_01_IMG.dmp"
+BG_Heroes_Myrrh_01_PAL: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_01_PAL.dmp"
+BG_Heroes_Myrrh_02_IMG: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_02_IMG.dmp"
+BG_Heroes_Myrrh_02_PAL: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_02_PAL.dmp"
+BG_Heroes_Myrrh_03_IMG: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_03_IMG.dmp"
+BG_Heroes_Myrrh_03_PAL: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_03_PAL.dmp"
+BG_Heroes_Myrrh_04_IMG: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_04_IMG.dmp"
+BG_Heroes_Myrrh_04_PAL: #incbin "FireEmblemHeroesCards/Myrrh/224_BG_Myrrh_04_PAL.dmp"
+
+BG_Heroes_Natasha_01_IMG: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_01_IMG.dmp"
+BG_Heroes_Natasha_01_PAL: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_01_PAL.dmp"
+BG_Heroes_Natasha_02_IMG: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_02_IMG.dmp"
+BG_Heroes_Natasha_02_PAL: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_02_PAL.dmp"
+BG_Heroes_Natasha_03_IMG: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_03_IMG.dmp"
+BG_Heroes_Natasha_03_PAL: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_03_PAL.dmp"
+BG_Heroes_Natasha_04_IMG: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_04_IMG.dmp"
+BG_Heroes_Natasha_04_PAL: #incbin "FireEmblemHeroesCards/Natasha/224_BG_Natasha_04_PAL.dmp"
+
+BG_Heroes_Neimi_01_IMG: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_01_IMG.dmp"
+BG_Heroes_Neimi_01_PAL: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_01_PAL.dmp"
+BG_Heroes_Neimi_02_IMG: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_02_IMG.dmp"
+BG_Heroes_Neimi_02_PAL: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_02_PAL.dmp"
+BG_Heroes_Neimi_03_IMG: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_03_IMG.dmp"
+BG_Heroes_Neimi_03_PAL: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_03_PAL.dmp"
+BG_Heroes_Neimi_04_IMG: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_04_IMG.dmp"
+BG_Heroes_Neimi_04_PAL: #incbin "FireEmblemHeroesCards/Neimi/224_BG_Neimi_04_PAL.dmp"
+
+BG_Heroes_Orson_01_IMG: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_01_IMG.dmp"
+BG_Heroes_Orson_01_PAL: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_01_PAL.dmp"
+BG_Heroes_Orson_02_IMG: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_02_IMG.dmp"
+BG_Heroes_Orson_02_PAL: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_02_PAL.dmp"
+BG_Heroes_Orson_03_IMG: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_03_IMG.dmp"
+BG_Heroes_Orson_03_PAL: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_03_PAL.dmp"
+BG_Heroes_Orson_04_IMG: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_04_IMG.dmp"
+BG_Heroes_Orson_04_PAL: #incbin "FireEmblemHeroesCards/Orson/224_BG_Orson_04_PAL.dmp"
+
+BG_Heroes_Rennac_01_IMG: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_01_IMG.dmp"
+BG_Heroes_Rennac_01_PAL: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_01_PAL.dmp"
+BG_Heroes_Rennac_02_IMG: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_02_IMG.dmp"
+BG_Heroes_Rennac_02_PAL: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_02_PAL.dmp"
+BG_Heroes_Rennac_03_IMG: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_03_IMG.dmp"
+BG_Heroes_Rennac_03_PAL: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_03_PAL.dmp"
+BG_Heroes_Rennac_04_IMG: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_04_IMG.dmp"
+BG_Heroes_Rennac_04_PAL: #incbin "FireEmblemHeroesCards/Rennac/224_BG_Rennac_04_PAL.dmp"
+
+BG_Heroes_Riev_01_IMG: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_01_IMG.dmp"
+BG_Heroes_Riev_01_PAL: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_01_PAL.dmp"
+BG_Heroes_Riev_02_IMG: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_02_IMG.dmp"
+BG_Heroes_Riev_02_PAL: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_02_PAL.dmp"
+BG_Heroes_Riev_03_IMG: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_03_IMG.dmp"
+BG_Heroes_Riev_03_PAL: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_03_PAL.dmp"
+BG_Heroes_Riev_04_IMG: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_04_IMG.dmp"
+BG_Heroes_Riev_04_PAL: #incbin "FireEmblemHeroesCards/Riev/224_BG_Riev_04_PAL.dmp"
+
+BG_Heroes_Ross_01_IMG: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_01_IMG.dmp"
+BG_Heroes_Ross_01_PAL: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_01_PAL.dmp"
+BG_Heroes_Ross_02_IMG: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_02_IMG.dmp"
+BG_Heroes_Ross_02_PAL: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_02_PAL.dmp"
+BG_Heroes_Ross_03_IMG: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_03_IMG.dmp"
+BG_Heroes_Ross_03_PAL: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_03_PAL.dmp"
+BG_Heroes_Ross_04_IMG: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_04_IMG.dmp"
+BG_Heroes_Ross_04_PAL: #incbin "FireEmblemHeroesCards/Ross/224_BG_Ross_04_PAL.dmp"
+
+BG_Heroes_Selena_01_IMG: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_01_IMG.dmp"
+BG_Heroes_Selena_01_PAL: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_01_PAL.dmp"
+BG_Heroes_Selena_02_IMG: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_02_IMG.dmp"
+BG_Heroes_Selena_02_PAL: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_02_PAL.dmp"
+BG_Heroes_Selena_03_IMG: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_03_IMG.dmp"
+BG_Heroes_Selena_03_PAL: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_03_PAL.dmp"
+BG_Heroes_Selena_04_IMG: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_04_IMG.dmp"
+BG_Heroes_Selena_04_PAL: #incbin "FireEmblemHeroesCards/Selena/224_BG_Selena_04_PAL.dmp"
+
+BG_Heroes_Seth_01_IMG: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_01_IMG.dmp"
+BG_Heroes_Seth_01_PAL: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_01_PAL.dmp"
+BG_Heroes_Seth_02_IMG: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_02_IMG.dmp"
+BG_Heroes_Seth_02_PAL: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_02_PAL.dmp"
+BG_Heroes_Seth_03_IMG: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_03_IMG.dmp"
+BG_Heroes_Seth_03_PAL: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_03_PAL.dmp"
+BG_Heroes_Seth_04_IMG: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_04_IMG.dmp"
+BG_Heroes_Seth_04_PAL: #incbin "FireEmblemHeroesCards/Seth/224_BG_Seth_04_PAL.dmp"
+
+BG_Heroes_Syrene_01_IMG: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_01_IMG.dmp"
+BG_Heroes_Syrene_01_PAL: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_01_PAL.dmp"
+BG_Heroes_Syrene_02_IMG: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_02_IMG.dmp"
+BG_Heroes_Syrene_02_PAL: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_02_PAL.dmp"
+BG_Heroes_Syrene_03_IMG: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_03_IMG.dmp"
+BG_Heroes_Syrene_03_PAL: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_03_PAL.dmp"
+BG_Heroes_Syrene_04_IMG: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_04_IMG.dmp"
+BG_Heroes_Syrene_04_PAL: #incbin "FireEmblemHeroesCards/Syrene/224_BG_Syrene_04_PAL.dmp"
+
+BG_Heroes_Tana_01_IMG: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_01_IMG.dmp"
+BG_Heroes_Tana_01_PAL: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_01_PAL.dmp"
+BG_Heroes_Tana_02_IMG: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_02_IMG.dmp"
+BG_Heroes_Tana_02_PAL: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_02_PAL.dmp"
+BG_Heroes_Tana_03_IMG: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_03_IMG.dmp"
+BG_Heroes_Tana_03_PAL: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_03_PAL.dmp"
+BG_Heroes_Tana_04_IMG: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_04_IMG.dmp"
+BG_Heroes_Tana_04_PAL: #incbin "FireEmblemHeroesCards/Tana/224_BG_Tana_04_PAL.dmp"
+
+BG_Heroes_Tethys_01_IMG: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_01_IMG.dmp"
+BG_Heroes_Tethys_01_PAL: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_01_PAL.dmp"
+BG_Heroes_Tethys_02_IMG: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_02_IMG.dmp"
+BG_Heroes_Tethys_02_PAL: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_02_PAL.dmp"
+BG_Heroes_Tethys_03_IMG: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_03_IMG.dmp"
+BG_Heroes_Tethys_03_PAL: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_03_PAL.dmp"
+BG_Heroes_Tethys_04_IMG: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_04_IMG.dmp"
+BG_Heroes_Tethys_04_PAL: #incbin "FireEmblemHeroesCards/Tethys/224_BG_Tethys_04_PAL.dmp"
+
+BG_Heroes_Valter_01_IMG: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_01_IMG.dmp"
+BG_Heroes_Valter_01_PAL: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_01_PAL.dmp"
+BG_Heroes_Valter_02_IMG: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_02_IMG.dmp"
+BG_Heroes_Valter_02_PAL: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_02_PAL.dmp"
+BG_Heroes_Valter_03_IMG: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_03_IMG.dmp"
+BG_Heroes_Valter_03_PAL: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_03_PAL.dmp"
+BG_Heroes_Valter_04_IMG: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_04_IMG.dmp"
+BG_Heroes_Valter_04_PAL: #incbin "FireEmblemHeroesCards/Valter/224_BG_Valter_04_PAL.dmp"
+
+BG_Heroes_Vigarde_01_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_01_IMG.dmp"
+BG_Heroes_Vigarde_01_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_01_PAL.dmp"
+BG_Heroes_Vigarde_02_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_02_IMG.dmp"
+BG_Heroes_Vigarde_02_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_02_PAL.dmp"
+BG_Heroes_Vigarde_03_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_03_IMG.dmp"
+BG_Heroes_Vigarde_03_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_03_PAL.dmp"
+BG_Heroes_Vigarde_04_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_04_IMG.dmp"
+BG_Heroes_Vigarde_04_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_04_PAL.dmp"
