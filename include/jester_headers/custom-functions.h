@@ -118,6 +118,8 @@ extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
     extern void PuzzleEvent2();
 #endif
 
+void StartDebuggerProc(ProcPtr playerPhaseProc);
+
 void PrepItemUseScroll_OnInit(struct ProcPrepItemUseJunaFruit * proc);
 void PrepItemUseScroll_OnEnd(struct ProcPrepItemUseJunaFruit * proc);
 void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit * proc, int item, int x, int y);
@@ -217,4 +219,16 @@ u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef* def, int number
 int MapMenu_BiographyCommandDraw(struct MenuProc* menu, struct MenuItemProc* menuItem);
 u8 MapMenu_BiographyCommand(struct MenuProc* menu, struct MenuItemProc* menuItem);
 
-void StartDebuggerProc(ProcPtr playerPhaseProc);
+struct BiographyEntry
+{
+    int textId;
+    u8 backgroundId;
+};
+
+struct CharacterBiography
+{
+    u8 characterId;
+    char * subtitle;
+    u8 songId;
+    struct BiographyEntry entries[4];
+};

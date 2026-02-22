@@ -1,4 +1,28 @@
 ## MSG_HEROES_CARDS_GILLIAM_01
+Gilliam is an armored knight[N]
+who serves Frelia, a kingdom[N]
+on the continent of Magvel.[A][N]
+There, he leads the knights[N]
+who defend the kingdom's[N]
+eastern border.[A][X]
 ## MSG_HEROES_CARDS_GILLIAM_02
+He's a hard worker who trains[N]
+rigorously to improve his[N]
+strength.[A][N]
+Some consider him the[N]
+strongest knight in all[N]
+of Frelia![A][X]
 ## MSG_HEROES_CARDS_GILLIAM_03
+The king of Frelia deeply[N]
+trusts Gilliam, and entrusted[N]
+him with protecting Eirika,[N]
+the princess of Renais.[A][N]
+Who escaped the invasion by[N]
+the Grado Empire.[A][X]
 ## MSG_HEROES_CARDS_GILLIAM_04
+The younger knights look up[N]
+to Gilliam and often approach[N]
+him for advice.[A][N]
+He may not talk a lot, but[N]
+what he does say is often[N]
+very insightful![A][X]

@@ -1,4 +1,28 @@
 ## MSG_HEROES_CARDS_SETH_01
+This time, I'll be introducing[N]
+you to a knight from Renais.[A][N]
+A man who's known for his[N]
+outstanding bravery and[N]
+loyalty.[A][N]
+Seth, the Silver Knight![A][X]
 ## MSG_HEROES_CARDS_SETH_02
+The King of Renais trusted Seth[N]
+a great deal, and even told him[N]
+the secret of the prince and[N]
+princess's bracelets before[N]
+anyone else.[A][N]
+The younger knights all looked[N]
+up to him, too![A][X]
 ## MSG_HEROES_CARDS_SETH_03
+When Renais was subjugated by[N]
+the Grado Empire, Seth took[N]
+Princess Eirika and fled[N]
+the castle.[A][N]
+After their escape, Seth[N]
+continued to fight while[N]
+supporting the young princess.[A][X]
 ## MSG_HEROES_CARDS_SETH_04
+A young knight fighting for the[N]
+princess of a lost kingdom...[A][N]
+That's the kind of chivalry you[N]
+hear about in stories![A][X]

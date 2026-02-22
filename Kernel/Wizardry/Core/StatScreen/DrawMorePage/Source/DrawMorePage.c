@@ -201,6 +201,7 @@ void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
         gStatScreen.yDispOff + PAGENUM_DISPLAY_Y,
         gObject_8x8, TILEREF(chr, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3) + pageNumShift);
 }
+
 void GetPromotedUnitDescId(struct HelpBoxProc* proc)
 {
     struct Unit *unit = gStatScreen.unit;
