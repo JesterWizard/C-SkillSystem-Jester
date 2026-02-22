@@ -252,10 +252,10 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
 
     /* Initial configuration to set the bar size/pos */
     UpdateMenuScrollBarConfig(
-        PrepGetUnitAmount(),        // Total Height (max items)
-        gTopVisibleListIndex * 16, // Current Top Pixel (Index * 16px per row)
-        PrepGetUnitAmount(),        // Total Rows
-        BEXP_VISIBLE_COUNT          // Visible Rows
+        PrepGetUnitAmount(),
+        gTopVisibleListIndex * 16,
+        PrepGetUnitAmount(),
+        BEXP_VISIBLE_COUNT
     );
 
     sub_8097668();

@@ -36,9 +36,7 @@ struct CharacterBiography
 static const struct CharacterBiography gCharacterBiographies[] =
 {
     {
-        CHARACTER_EIRIKA,
-        "Restoration Lady",
-        SONG_POWERFUL_FOE,
+        CHARACTER_EIRIKA, "Restoration Lady", SONG_POWERFUL_FOE,
         {
             { MSG_HEROES_CARDS_EIRIKA_01, 0x3B },
             { MSG_HEROES_CARDS_EIRIKA_02, 0x3C },
@@ -47,9 +45,7 @@ static const struct CharacterBiography gCharacterBiographies[] =
         }
     },
     {
-        CHARACTER_AMELIA,
-        "Rose of the War",
-        SONG_POWERFUL_FOE,
+        CHARACTER_AMELIA, "Rose of the War", SONG_POWERFUL_FOE,
         {
             { MSG_HEROES_CARDS_AMELIA_01, 0x3F },
             { MSG_HEROES_CARDS_AMELIA_02, 0x40 },
@@ -58,9 +54,7 @@ static const struct CharacterBiography gCharacterBiographies[] =
         }
     },
     {
-        CHARACTER_AMELIA,
-        "Rose of the War",
-        SONG_POWERFUL_FOE,
+        CHARACTER_AMELIA, "Rose of the War", SONG_POWERFUL_FOE,
         {
             { MSG_HEROES_CARDS_AMELIA_01, 0x3F },
             { MSG_HEROES_CARDS_AMELIA_02, 0x40 },
@@ -69,9 +63,7 @@ static const struct CharacterBiography gCharacterBiographies[] =
         }
     },
     {
-        CHARACTER_AMELIA,
-        "Rose of the War",
-        SONG_POWERFUL_FOE,
+        CHARACTER_AMELIA, "Rose of the War", SONG_POWERFUL_FOE,
         {
             { MSG_HEROES_CARDS_AMELIA_01, 0x3F },
             { MSG_HEROES_CARDS_AMELIA_02, 0x40 },
@@ -80,9 +72,16 @@ static const struct CharacterBiography gCharacterBiographies[] =
         }
     },
     {
-        CHARACTER_AMELIA,
-        "Rose of the War",
-        SONG_POWERFUL_FOE,
+        CHARACTER_AMELIA, "Rose of the War", SONG_POWERFUL_FOE,
+        {
+            { MSG_HEROES_CARDS_AMELIA_01, 0x3F },
+            { MSG_HEROES_CARDS_AMELIA_02, 0x40 },
+            { MSG_HEROES_CARDS_AMELIA_03, 0x41 },
+            { MSG_HEROES_CARDS_AMELIA_04, 0x42 },
+        }
+    },
+    {
+        CHARACTER_AMELIA, "Rose of the War", SONG_POWERFUL_FOE,
         {
             { MSG_HEROES_CARDS_AMELIA_01, 0x3F },
             { MSG_HEROES_CARDS_AMELIA_02, 0x40 },
@@ -129,6 +128,7 @@ static void Biography_Init(struct ProcPrepUnit * proc)
     BG_Fill(BG_GetMapBuffer(2), 0);
     BG_Fill(BG_GetMapBuffer(3), 0);
 
+    EndGreenText();
     ResetText();
     LoadUiFrameGraphics();
     LoadObjUIGfx();
@@ -149,17 +149,16 @@ static void Biography_Init(struct ProcPrepUnit * proc)
     sub_8097668();
     BG_EnableSyncByMask(4);
 
-    PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 3), TEXT_COLOR_SYSTEM_WHITE, 7, 0, "Select a character to view");
+    PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 3), TEXT_COLOR_SYSTEM_WHITE, 15, 0, "Select a character to view");
     PutDrawText(&PrepItemSuppyTexts.th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 0, 0), TEXT_COLOR_SYSTEM_WHITE, 4, 0, "Biography");
 
     StartSysBrownBox(0x0, 0x7080, 0xf, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -40, -1, 1);
     StartMenuScrollBar(proc); 
-    PutMenuScrollBarAt(42, 64); 
+    PutMenuScrollBarAt(188, 64); 
     InitMenuScrollBarImg(0x7A60, 2); 
 
-    gBaseConversations_Total = NumberOfCharacterBiographies();
-    UpdateMenuScrollBarConfig(gBaseConversations_Total, gTopVisibleListIndex * 16, gBaseConversations_Total, BASE_VISIBLE_COUNT);
+    UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, 10, 9);
     DrawBaseConversations(8, 8);
 }
 
@@ -187,7 +186,7 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
     }
 
     if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
-        if (proc->list_num_cur < gBaseConversations_Total - 1) {
+        if (proc->list_num_cur < NumberOfCharacterBiographies() - 1) {
             proc->list_num_cur++;
             if (proc->list_num_cur >= gTopVisibleListIndex + BASE_VISIBLE_COUNT)
                 gTopVisibleListIndex++;
@@ -199,7 +198,7 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
         ShowSysHandCursor(56, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 15, 0x800);
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         DrawBaseConversations(8, 8);
-        UpdateMenuScrollBarConfig(gBaseConversations_Total, gTopVisibleListIndex * 16, gBaseConversations_Total, BASE_VISIBLE_COUNT);
+        UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, 10, 9);
     }
 }
 
@@ -252,16 +251,15 @@ static void DisablePrepScreenDisplay(struct ProcPrepUnit * proc) {
 }
 
 static void Biography_RestoreMapGraphics(struct ProcPrepUnit * proc) {
-    // 1. Clean up your custom UI FIRST
     EndMuralBackground_();
-    ClearBg0Bg1();
-    
-    // 2. Resume map display and refresh backgrounds
-    BMapDispResume();
-    RefreshBMapGraphics();
-    
-    // 3. Reload the unit sprites and SMS state (Fixes missing map sprites)
+    BMapDispResume(); // I need this here and after as a proc call or the map sprites don't display for some reason?
+
+    EndMenuScrollBar();
+    HideSysHandCursor();
+    EndSysBrownBox();
     ForceSyncUnitSpriteSheet();
+
+    InitPlayerPhaseInterface();
 }
 
 static void ResetScrollerBarVariables(struct ProcPrepUnit *proc) {
@@ -303,9 +301,9 @@ PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_EVENT),
 PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 16),
     PROC_WHILE(FadeOutExists),
-    PROC_CALL(Biography_RestoreMapGraphics),
     PROC_CALL(BMapDispResume),
     PROC_CALL(RefreshBMapGraphics),
+    PROC_CALL(Biography_RestoreMapGraphics),
     PROC_CALL(StartFastFadeFromBlack),
     PROC_REPEAT(WaitForFade),
     PROC_CALL(UnlockGame),
