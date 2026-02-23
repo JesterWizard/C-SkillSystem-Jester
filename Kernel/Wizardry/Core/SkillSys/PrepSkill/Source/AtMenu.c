@@ -506,16 +506,11 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         else
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, PrepScreenMenu_OnSave, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_SAVE, 0);
 
-        // SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
-        SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
+        if (gpKernelDesignerConfig->prep_menu_infuse == true)
+            SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, PrepScreenMenu_OnInfuse, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_INFUSE, 0);
 
         if (gpKernelDesignerConfig->prep_menu_augury == true)
-        {
-            if (gPlaySt.chapterIndex == CHAPTER_L_4)
-                SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
-            else
-                SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_GRAY, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
-        }
+            SetPrepScreenMenuItem(PREP_MAINMENU_AUGURY, PrepScreenMenu_OnAugury, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY, 0);
         
         if (gpKernelDesignerConfig->prep_menu_bexp == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_BONUS_EXP, PrepScreenMenu_OnBEXP, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP, 0);
@@ -523,9 +518,11 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         if (gpKernelDesignerConfig->prep_menu_skills == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, PrepScreenMenu_OnEquip, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS, 0);
 
-        // SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP, 0);
         if (gpKernelDesignerConfig->prep_menu_base_conversations == true) 
             SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnBaseConversations, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, 0);
+
+        // SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT, PrepScreenMenu_OnSupport, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT, 0);
+        // SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, PrepScreenMenu_OnCheckMap, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP, 0);
     } 
     else 
     {

@@ -1,7 +1,14 @@
 ## LOCATION_Grado_Keep
 Grado Keep[X]
 
-## Augury_Chapter_04
+## MSG_AUGURY_DEFAULT
+[OpenFarFarRight][LoadFace_Eirika]
+Hmm, I don't seem to have any[N]
+advice I can offer you right now.[A][N]
+Keep your wits about you though,[N]
+leave no stone unturned![A][X]
+
+## MSG_AUGURY_CHAPTER_04
 [OpenFarFarRight][LoadFace_Eirika]
 Hmm, it seems like a powerful axe[N]
 wielder is on the move.[A][N]

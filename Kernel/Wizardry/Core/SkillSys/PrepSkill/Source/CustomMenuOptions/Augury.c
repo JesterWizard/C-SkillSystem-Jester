@@ -8,11 +8,13 @@
 #define BASE_VISIBLE_COUNT 5
 
 static const struct Auguries gAuguryTable[] = {
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {Augury_Chapter_04, SONG_LAUGHTER},
+    {MSG_AUGURY_DEFAULT, 0},
+    {MSG_AUGURY_DEFAULT, 0},
+    {MSG_AUGURY_DEFAULT, 0},
+    {MSG_AUGURY_DEFAULT, 0},
+    {MSG_AUGURY_CHAPTER_04, SONG_LAUGHTER},
+    {MSG_AUGURY_DEFAULT, 0}, // Chapter 5x
+    {MSG_AUGURY_DEFAULT, 0}, // Chapter 5
 };
 
 static void PrepInitGfx_AUGURY(struct ProcPrepUnit * proc) {
