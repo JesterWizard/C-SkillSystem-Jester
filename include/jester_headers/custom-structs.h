@@ -102,6 +102,13 @@ enum {
     PL_MAP_MENU_BIOGRAPHY_END = 4
 };
 
+enum {
+    PL_AUGURY_INIT = 0,
+    PL_AUGURY_IDLE = 1,
+    PL_AUGURY_EVENT = 2,
+    PL_AUGURY_PRESS_B = 3,
+    PL_AUGURY_END = 4
+};
 
 enum {
     INFUSE_STATE_LIST = 0,
@@ -149,8 +156,13 @@ struct BexpGains {
 
 extern const struct BexpGains gBexpGainConstants;
 
-extern u8 gBaseConversations_Total;
+extern u8 gList_Total;
 extern u8 gBaseConversations_Flags[10];
 
 extern u8 gCharacterBiographyPage;
 extern u8 gCharacterBiographyListNumber;
+
+struct Auguries {
+    int bodyTextId;
+    int songId;
+};

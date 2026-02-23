@@ -212,8 +212,8 @@ extern void StartCreditsProc_ASMC(ProcPtr parent);
 extern int StartAvatarEdits_ASMC(ProcPtr proc);
 
 void StartBEXPScreen_FromPrep(struct ProcAtMenu * parent);
-
 void StartBaseScreen_FromPrep(struct ProcAtMenu * parent);
+void StartAuguryScreen_FromPrep(struct ProcAtMenu * parent);
 
 u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef* def, int number);
 int MapMenu_BiographyCommandDraw(struct MenuProc* menu, struct MenuItemProc* menuItem);

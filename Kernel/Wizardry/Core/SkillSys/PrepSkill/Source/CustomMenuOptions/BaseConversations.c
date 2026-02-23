@@ -175,8 +175,8 @@ static void PrepInitGfx_BASE(struct ProcPrepUnit * proc) {
     PutMenuScrollBarAt(42, 64); 
     InitMenuScrollBarImg(0x7A60, 2); 
 
-    gBaseConversations_Total = NumberOfChapterBaseConversations();
-    UpdateMenuScrollBarConfig(gBaseConversations_Total, gTopVisibleListIndex * 16, gBaseConversations_Total, BASE_VISIBLE_COUNT);
+    gList_Total = NumberOfChapterBaseConversations();
+    UpdateMenuScrollBarConfig(gList_Total, gTopVisibleListIndex * 16, gList_Total, BASE_VISIBLE_COUNT);
     DrawBaseConversations(8, 8);
 }
 
@@ -203,7 +203,7 @@ static void PrepLoop_MainKeyHandler_BASE(struct ProcPrepUnit * proc) {
     }
 
     if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
-        if (proc->list_num_cur < gBaseConversations_Total - 1) {
+        if (proc->list_num_cur < gList_Total - 1) {
             proc->list_num_cur++;
             if (proc->list_num_cur >= gTopVisibleListIndex + BASE_VISIBLE_COUNT)
                 gTopVisibleListIndex++;
@@ -215,7 +215,7 @@ static void PrepLoop_MainKeyHandler_BASE(struct ProcPrepUnit * proc) {
         ShowSysHandCursor(56, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 15, 0x800);
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         DrawBaseConversations(8, 8);
-        UpdateMenuScrollBarConfig(gBaseConversations_Total, gTopVisibleListIndex * 16, gBaseConversations_Total, BASE_VISIBLE_COUNT);
+        UpdateMenuScrollBarConfig(gList_Total, gTopVisibleListIndex * 16, gList_Total, BASE_VISIBLE_COUNT);
     }
 }
 

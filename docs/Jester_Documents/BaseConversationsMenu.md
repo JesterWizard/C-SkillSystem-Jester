@@ -44,7 +44,7 @@ The aim is to ensure:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **RAM - Allocation 1** | `gBaseConversations_Total` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
+| **RAM - Allocation 1** | `gList_Total` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
 | **RAM - Allocation 2** | `gBaseConversations_Flags` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
 | **Base Conversation table** | `gBaseConversationTable` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Handles all elements of the convos |
 | **Get number of conos per chapter** | `NumberOfChapterBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) |

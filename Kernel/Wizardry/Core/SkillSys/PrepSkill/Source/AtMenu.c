@@ -96,7 +96,8 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
         break;
 
     case PREP_MAINMENU_AUGURY + 1: /* Augury */
-        Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+       // Proc_StartBlocking(PREEXT_Procs_Augury, proc);
+        StartAuguryScreen_FromPrep(proc);
         break;
 
     case PREP_MAINMENU_INFUSE + 1: /* Infuse */

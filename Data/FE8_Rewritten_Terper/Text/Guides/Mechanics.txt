@@ -23,6 +23,7 @@ ready to support.[X]
 Preparations Augury[X]
 ## Guide_Mechanic_Augury
 By: Huichelaar[N]
+Remade by: Jester[N]
 This enables the Augury in[N]
 FE7, where units can receive[N]
 useful information about a[N]
