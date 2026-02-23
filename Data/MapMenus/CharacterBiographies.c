@@ -210,7 +210,7 @@ static void DisablePrepScreenDisplay(struct ProcPrepUnit * proc) {
 
 static void Biography_RestoreMapGraphics(struct ProcPrepUnit * proc) {
     EndMuralBackground_();
-    BMapDispResume();
+    ResetUnitSprites();
     RefreshBMapGraphics();
     EndMenuScrollBar();
     HideSysHandCursor();
@@ -228,11 +228,19 @@ static void ResetScrollerBarVariables(struct ProcPrepUnit * proc)
     proc->list_num_cur = 0;
 }
 
+static void ForceBMapDispResume(void)
+{
+    while (gBmSt.gameGfxSemaphore)
+    {
+        BMapDispResume();
+    }
+}
+
 struct ProcCmd const ProcScr_MenuMap_BIOGRAPHY[] =
 {
     PROC_NAME("MapMenu_BIOGRAPHY"),
     PROC_YIELD,
-    PROC_CALL(LockGame),
+    PROC_CALL(LockGame), // Hide the map cursor
     PROC_CALL_ARG(NewFadeOut, 16),
     PROC_WHILE(FadeOutExists),
     PROC_CALL(BMapDispSuspend), // Hide the unit map sprites
@@ -264,7 +272,10 @@ PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 16),
     PROC_WHILE(FadeOutExists),
     PROC_CALL(Biography_RestoreMapGraphics),
-    PROC_CALL(UnlockGame),
+    PROC_CALL(SetAllUnitNotBackSprite),
+    PROC_CALL(ResetUnitSpriteHover),
+    PROC_CALL(ForceBMapDispResume),
+    PROC_CALL(UnlockGame), // Display the map cursor
 
 PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_END),
     PROC_END
