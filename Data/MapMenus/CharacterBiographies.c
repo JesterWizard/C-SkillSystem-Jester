@@ -10,7 +10,10 @@
 #define BASE_VISIBLE_COUNT 5
 
 u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef* def, int number) {
-    return MENU_ENABLED;
+    if (gpKernelDesignerConfig->map_menu_character_biographies == true)
+        return MENU_ENABLED;
+    else
+        return MENU_NOTSHOWN;
 }
 
 int MapMenu_BiographyCommandDraw(struct MenuProc* menu, struct MenuItemProc* menuItem) {
