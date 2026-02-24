@@ -11,6 +11,9 @@
 #include "uichapterstatus.h"
 #include "unitlistscreen.h"
 
+#define PREP_MENU_VISIBLE_COUNT 5
+#define PREP_MENU_MAX_COUNT 8
+
 LYN_REPLACE_CHECK(PrepScreenMenu_OnCheckMap);
 void PrepScreenMenu_OnCheckMap(struct ProcAtMenu* proc) 
 {
@@ -63,49 +66,17 @@ void AtMenu_StartSubmenu(struct ProcAtMenu * proc)
 
     switch (proc->state) {
 
-    case PREP_MAINMENU_UNIT + 1: /* Pick Units */
-        Proc_StartBlocking(ProcScr_PrepUnitScreen, proc);
-        break;
-
-    case PREP_MAINMENU_ITEM + 1: /* Items */
-        StartPrepItemScreen(proc);
-        break;
-
-    case PREP_MAINMENU_SAVE + 1: /* Save */
-        StartPrepSaveScreen(proc);
-        break;
-
-    case PREP_MAINMENU_SUPPORT + 1: /* Support */
-        StartFortuneSubMenu(2, proc);
-        break;
-
-    case PREP_MAINMENU_CHECKMAP + 1: /* Check Map */
-        StartChapterStatusScreen_FromPrep(proc);
-        break;
-
-    case PREP_MAINMENU_BONUS_EXP + 1: /* Bonus EXP */
-        StartBEXPScreen_FromPrep(proc);
-        break;
-
-    case PREP_MAINMENU_SKILLS + 1: /* Skills */
-        StartPrepEquipScreen(proc); 
-        break;
-
-    case PREP_MAINMENU_BASE_CONVERSATIONS + 1: /* Base Conversations */
-        StartBaseScreen_FromPrep(proc);
-        break;
-
-    case PREP_MAINMENU_AUGURY + 1: /* Augury */
-       // Proc_StartBlocking(PREEXT_Procs_Augury, proc);
-        StartAuguryScreen_FromPrep(proc);
-        break;
-
-    case PREP_MAINMENU_INFUSE + 1: /* Infuse */
-        StartInfuseScreen_FromPrep(proc);
-        break;
-
-    default:
-        break;
+    case PREP_MAINMENU_UNIT + 1:               Proc_StartBlocking(ProcScr_PrepUnitScreen, proc); break;
+    case PREP_MAINMENU_ITEM + 1:               StartPrepItemScreen(proc);                        break;
+    case PREP_MAINMENU_SAVE + 1:               StartPrepSaveScreen(proc);                        break;
+    case PREP_MAINMENU_SUPPORT + 1:            StartFortuneSubMenu(2, proc);                     break;
+    case PREP_MAINMENU_CHECKMAP + 1:           StartChapterStatusScreen_FromPrep(proc);          break;
+    case PREP_MAINMENU_BONUS_EXP + 1:          StartBEXPScreen_FromPrep(proc);                   break;
+    case PREP_MAINMENU_SKILLS + 1:             StartPrepEquipScreen(proc);                       break;
+    case PREP_MAINMENU_BASE_CONVERSATIONS + 1: StartBaseScreen_FromPrep(proc);                   break;
+    case PREP_MAINMENU_AUGURY + 1:             StartAuguryScreen_FromPrep(proc);                 break;
+    case PREP_MAINMENU_INFUSE + 1:             StartInfuseScreen_FromPrep(proc);                 break;
+    default: break;
     }
 
     Proc_Break(proc);
@@ -327,39 +298,19 @@ void AtMenu_Reinitialize(struct ProcAtMenu* proc)
     SysBlackBoxSetGfx(0x6800);
     proc->unk_35 = GetActivePrepMenuItemIndex();
 
-    switch ((proc->unk_35)) {
-        case PREP_MAINMENU_UNIT:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_UNITS);
-            break;
-        case PREP_MAINMENU_ITEM:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_ITEMS);
-            break;
-        case PREP_MAINMENU_SAVE:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SAVE);
-            break;
-        case PREP_MAINMENU_SUPPORT:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SUPPORT);
-            break;
-        case PREP_MAINMENU_CHECKMAP:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_CHECK_MAP);
-            break;
-        case PREP_MAINMENU_BONUS_EXP:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BEXP);    
-            break;
-        case PREP_MAINMENU_SKILLS:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SKILLS);
-            break;
-        case PREP_MAINMENU_BASE_CONVERSATIONS:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS);
-            break;
-        case PREP_MAINMENU_AUGURY:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);
-            break;
-        case PREP_MAINMENU_INFUSE:
-            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_INFUSE);
-            break;
-        default:
-            break;
+    switch ((proc->unk_35)) 
+    {
+        case PREP_MAINMENU_UNIT:               ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_UNITS);              break;
+        case PREP_MAINMENU_ITEM:               ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_ITEMS);              break;
+        case PREP_MAINMENU_SAVE:               ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SAVE);               break;
+        case PREP_MAINMENU_SUPPORT:            ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SUPPORT);            break;
+        case PREP_MAINMENU_CHECKMAP:           ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_CHECK_MAP);          break;
+        case PREP_MAINMENU_BONUS_EXP:          ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BEXP);               break;
+        case PREP_MAINMENU_SKILLS:             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_SKILLS);             break;
+        case PREP_MAINMENU_BASE_CONVERSATIONS: ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS); break;
+        case PREP_MAINMENU_AUGURY:             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_AUGURY);             break;
+        case PREP_MAINMENU_INFUSE:             ParsePrepMenuDescTexts(MSG_PREP_SCREEN_DESC_INFUSE);             break;
+        default:                                                                                                break;
     }
     
     DrawPrepMenuDescTexts();
@@ -377,40 +328,19 @@ void sub_8095C00(int msg, ProcPtr parent)
     proc = Proc_Start(ProcScr_PrepMenuDescHandler, parent);
 
     /* So this is actually what replaces the prep menu descriptions when moving the cursor up and down */
-    switch (GetActivePrepMenuItemIndex()) {
-        case PREP_MAINMENU_UNIT:
-            proc->msg = MSG_PREP_SCREEN_DESC_UNITS;
-            break;
-        case PREP_MAINMENU_ITEM:
-            proc->msg = MSG_PREP_SCREEN_DESC_ITEMS;
-            break;
-        case PREP_MAINMENU_SAVE:
-            proc->msg = MSG_PREP_SCREEN_DESC_SAVE;
-            break;
-        case PREP_MAINMENU_SUPPORT:
-            proc->msg = MSG_PREP_SCREEN_DESC_SUPPORT;
-            break;
-        case PREP_MAINMENU_CHECKMAP:
-            proc->msg = MSG_PREP_SCREEN_DESC_CHECK_MAP;  
-            break;
-        case PREP_MAINMENU_BONUS_EXP:
-            proc->msg = MSG_PREP_SCREEN_DESC_BEXP;
-            break;
-        case PREP_MAINMENU_SKILLS:
-            proc->msg = MSG_PREP_SCREEN_DESC_SKILLS;   
-            break;
-        case PREP_MAINMENU_BASE_CONVERSATIONS:
-            proc->msg = MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS;
-            break;
-        case PREP_MAINMENU_AUGURY: 
-            proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;
-            break;
-        case PREP_MAINMENU_INFUSE:
-            proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;    
-            break;
-        default:
-            proc->msg = msg;
-            break;
+    switch (GetActivePrepMenuItemIndex()) 
+    {
+        case PREP_MAINMENU_UNIT:               proc->msg = MSG_PREP_SCREEN_DESC_UNITS;              break;
+        case PREP_MAINMENU_ITEM:               proc->msg = MSG_PREP_SCREEN_DESC_ITEMS;              break;
+        case PREP_MAINMENU_SAVE:               proc->msg = MSG_PREP_SCREEN_DESC_SAVE;               break;
+        case PREP_MAINMENU_SUPPORT:            proc->msg = MSG_PREP_SCREEN_DESC_SUPPORT;            break;
+        case PREP_MAINMENU_CHECKMAP:           proc->msg = MSG_PREP_SCREEN_DESC_CHECK_MAP;          break;
+        case PREP_MAINMENU_BONUS_EXP:          proc->msg = MSG_PREP_SCREEN_DESC_BEXP;               break;
+        case PREP_MAINMENU_SKILLS:             proc->msg = MSG_PREP_SCREEN_DESC_SKILLS;             break;
+        case PREP_MAINMENU_BASE_CONVERSATIONS: proc->msg = MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS; break;
+        case PREP_MAINMENU_AUGURY:             proc->msg = MSG_PREP_SCREEN_DESC_AUGURY;             break;
+        case PREP_MAINMENU_INFUSE:             proc->msg = MSG_PREP_SCREEN_DESC_INFUSE;             break;
+        default:                               proc->msg = msg;                                     break;
     }
 }
 
@@ -543,5 +473,4 @@ void InitPrepScreenMainMenu(struct ProcAtMenu* proc)
         SetPrepScreenMenuPosition(1, 6);
 
     SetPrepScreenMenuSelectedItem(proc->cur_cmd);
-
 }

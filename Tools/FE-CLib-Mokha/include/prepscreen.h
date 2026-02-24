@@ -519,10 +519,6 @@ ProcPtr StartPrepSpecialCharEffect(ProcPtr parent);
 void EndPrepSpecialCharEffect(void);
 // ??? sub_8096C34(???);
 
-
-#define PREP_MENU_VISIBLE_COUNT 5
-#define PREP_MENU_MAX_COUNT 8
-
 struct ProcPrepMenu {
     PROC_HEADER;
     /* 29 */ s8 do_help;
@@ -532,7 +528,7 @@ struct ProcPrepMenu {
     /* 30 */ int msg_rtext;
     /* 34 */ s16 xPos;
     /* 36 */ s16 yPos;
-    /* 38 */ struct ProcPrepMenuItem* cmds[PREP_MENU_MAX_COUNT];
+    /* 38 */ struct ProcPrepMenuItem* cmds[8];
     /* 58 */ u8 (*on_PressB)(ProcPtr);
     /* 5C */ u8 (*on_PressStart)(ProcPtr);
     /* 60 */ u8 (*on_End)(ProcPtr);
