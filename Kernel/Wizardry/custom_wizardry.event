@@ -135,9 +135,7 @@
     #include "Misc/UnitSelectionSFX/UnitSelectionSFX_Installer.event"
 #endif
 
-#ifdef CONFIG_FE7_TELEPORT
-    #include "Misc/ThiefFE7Teleport/ThiefFE7Teleport.event"
-#endif
+#include "Misc/ThiefFE7Teleport/ThiefFE7Teleport.event"
 
 #include "Misc/VeslyShootArrow/VeslyShootArrow_Installer.event"
 
