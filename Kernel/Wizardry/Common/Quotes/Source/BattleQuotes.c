@@ -2,6 +2,7 @@
 #include "types.h"
 #include "eventinfo.h"
 #include "constants/texts.h"
+#include "kernel-lib.h"
 #include "jester_headers/maps.h"
 
 // CONFIG_MULTIPLE_DEATH_QUOTES
@@ -100,9 +101,9 @@ const struct BattleTalkExtEnt gNewBattleTalkList[] = {
 //! FE8U = 0x0808464C
 LYN_REPLACE_CHECK(GetBattleQuoteEntry);
 struct BattleTalkExtEnt* GetBattleQuoteEntry(u16 pidA, u16 pidB) {
-    const struct BattleTalkExtEnt* it;
+    const struct BattleTalkExtEnt* it = gpKernelDesignerConfig->custom_battle_quotes ? gNewBattleTalkList : gBattleTalkList;
 
-    for (it = gNewBattleTalkList; it->pidA != 0xFFFF; it++) {
+    for (; it->pidA != 0xFFFF; it++) {
 
         if (it->chapter != 0xff && it->chapter != gPlaySt.chapterIndex) {
             if (it->chapter != 0xfe || BattleIsTriangleAttack() != 1) {

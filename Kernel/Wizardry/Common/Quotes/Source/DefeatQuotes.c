@@ -2,10 +2,9 @@
 #include "types.h"
 #include "eventinfo.h"
 #include "constants/texts.h"
+#include "kernel-lib.h"
 #include "jester_headers/maps.h"
 #include "jester_headers/custom-structs.h"
-
-// CONFIG_MULTIPLE_DEATH_QUOTES
 
 /* Rewritten to be like the battle quotes, so multiple can be used */
 const struct DefeatTalkEntNew gNewDefeatTalkList[] = {
@@ -159,9 +158,22 @@ struct DefeatTalkEntNew* GetDefeatTalkEntry_NEW(u16 pidA) {
     return NULL;
 }
 
-//! FE8U = 0x080835A8
-LYN_REPLACE_CHECK(CheckBattleDefeatTalk);
-s8 CheckBattleDefeatTalk(u8 pid) {
+static s8 CheckBattleDefeatTalk_OLD(u8 pid) {
+    struct DefeatTalkEnt* ent = GetDefeatTalkEntry(pid);
+
+    if (ent) {
+        if (ent->msg == 0 && ent->event == 0) {
+            SetPidDefeatedFlag(pid, ent->flag);
+        } else {
+            return 1;
+        }
+
+    }
+
+    return 0;
+}
+
+static s8 CheckBattleDefeatTalk_NEW(u8 pid) {
     struct DefeatTalkEntNew* ent = GetDefeatTalkEntry_NEW(pid);
 
     if (ent) {
@@ -174,9 +186,17 @@ s8 CheckBattleDefeatTalk(u8 pid) {
     return 0;
 }
 
-//! FE8U = 0x080835DC
-LYN_REPLACE_CHECK(DisplayDefeatTalkForPid);
-void DisplayDefeatTalkForPid(u8 pid) {
+//! FE8U = 0x080835A8
+LYN_REPLACE_CHECK(CheckBattleDefeatTalk);
+s8 CheckBattleDefeatTalk(u8 pid)
+{
+    if (gpKernelDesignerConfig->custom_defeat_quotes == true)
+        return CheckBattleDefeatTalk_NEW(pid);
+    
+    return CheckBattleDefeatTalk_OLD(pid);
+}
+
+static void DisplayDefeatTalkForPid_NEW(u8 pid) {
     struct DefeatTalkEntNew* ent = GetDefeatTalkEntry_NEW(pid);
 
     if (ent) {
@@ -198,4 +218,43 @@ void DisplayDefeatTalkForPid(u8 pid) {
         SetPidDefeatedFlag(pid, ent->flag);
     }
     return;
+}
+
+static void DisplayDefeatTalkForPid_OLD(u8 pid) {
+    struct DefeatTalkEnt* ent = GetDefeatTalkEntry(pid);
+
+    if (ent) {
+        if ((ent->route == 1) && (ent->flag == 0x65)) {
+            StartBgm(SONG_GAME_OVER, NULL);
+            gPlaySt.config.disableBgm = 1;
+        } else {
+            if (UNIT_FACTION(GetUnitFromCharId(pid)) == FACTION_BLUE) {
+                StartBgm(SONG_IN_SORROWS_SHROUD, NULL);
+            }
+        }
+        if (ent->msg != 0) {
+            CallBattleQuoteEventInBattle(ent->msg);
+        } else {
+            if (ent->event) {
+                EventEngine_CreateBattle((u16 *)ent->event);
+            }
+        }
+
+        SetPidDefeatedFlag(pid, ent->flag);
+    }
+
+    return;
+}
+
+//! FE8U = 0x080835DC
+LYN_REPLACE_CHECK(DisplayDefeatTalkForPid);
+void DisplayDefeatTalkForPid(u8 pid)
+{
+    if (gpKernelDesignerConfig->custom_defeat_quotes == true)
+    {
+        DisplayDefeatTalkForPid_NEW(pid);
+        return;
+    }
+
+    DisplayDefeatTalkForPid_OLD(pid);
 }

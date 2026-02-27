@@ -88,6 +88,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.limited_shop_items = true,
 	.flipped_enemy_sprites = true,
 	.mp_and_triple_digit_minimug_box = true,
+	.custom_battle_quotes = true,
+	.custom_defeat_quotes = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

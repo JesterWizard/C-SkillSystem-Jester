@@ -6,9 +6,7 @@
     #include "Common/Guide/GuideTable.event"
 #endif
 
-#ifdef CONFIG_MULTIPLE_DEATH_QUOTES
-    #include "Common/Quotes/Quotes.event"
-#endif
+#include "Common/Quotes/Quotes.event"
 
 #ifdef CONFIG_GAMEOVER_QUOTES
     #include "Common/GameOver/GameOver.event"

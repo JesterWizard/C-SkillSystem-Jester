@@ -8,8 +8,6 @@ struct DefeatTalkEntNew {
     /* 08 */ EventScr * event;
 };
 
-extern struct DefeatTalkEntNew* GetDefeatTalkEntry_NEW(u16);
-
 /* START - Page 7 - Unit promotions list */
 typedef struct
 {
