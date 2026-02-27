@@ -154,7 +154,7 @@
 /**
 * When display menu skills, directly display skill name, rather than MenuItemDef::nameMsgId
 */
-#define CONFIG_MENU_SKILL_DISP_MSG_EN_N 1
+#define CONFIG_MENU_SKILL_DISP_MSG_EN_N 0
 
 /**
  * Install ConvoyExpa

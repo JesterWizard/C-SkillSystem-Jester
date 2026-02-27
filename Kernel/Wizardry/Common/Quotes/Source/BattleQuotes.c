@@ -5,8 +5,6 @@
 #include "kernel-lib.h"
 #include "jester_headers/maps.h"
 
-// CONFIG_MULTIPLE_DEATH_QUOTES
-
 const struct BattleTalkExtEnt gNewBattleTalkList[] = {
     {
         .pidA    = CHARACTER_VALTER_PROLOGUE,
