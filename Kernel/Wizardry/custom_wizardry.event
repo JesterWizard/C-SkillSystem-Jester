@@ -60,9 +60,7 @@
     #include "Misc/ModularMinimugBox/ModularMinimugBox_Installer.event"
 #endif
 
-#ifdef CONFIG_MIRROR_MAP_SPRITES
-    #include "Misc/MirrorMapSprites/MirrorMapSprites_Installer.event"
-#endif
+#include "Misc/MirrorMapSprites/MirrorMapSprites_Installer.event"
 
 #ifdef CONFIG_TEXT_ENGINE_REWORK
     #include "Misc/TextEngineRework/TextEngineRework_Installer.event"

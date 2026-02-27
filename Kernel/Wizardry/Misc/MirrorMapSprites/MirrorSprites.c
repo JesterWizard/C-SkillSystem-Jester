@@ -1,7 +1,6 @@
 #include "gbafe.h"
+#include "kernel-lib.h"
 #include "common-chax.h"
-//! This file uses decomp-based headers
-//https://github.com/MokhaLeee/FE-CLib-Mokha
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -192,7 +191,7 @@ void PutUnitSpritesOam(void)
         if (it->config & 0x40)
             r3 = GetGameClock() & 2;
 
-		if (it->_u0A == 1) {
+		if (gpKernelDesignerConfig->flipped_enemy_sprites == true && it->_u0A == 1) {
 			switch ((it->config & 0xf)) {
 		    case 0:
 		        CallARM_PushToSecondaryOAM(OAM1_X(x+r3+0x200), OAM0_Y(0x100+y), gObject_16x16_HFlipped, it->oam2Base + OAM2_LAYER(2));

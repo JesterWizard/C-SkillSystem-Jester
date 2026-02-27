@@ -76,6 +76,7 @@ struct KernelDesigerConfig {
 	u8 map_menu_character_biographies;
 	u8 custom_staff_accuracy;
 	u8 limited_shop_items;
+	u8 flipped_enemy_sprites;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;
