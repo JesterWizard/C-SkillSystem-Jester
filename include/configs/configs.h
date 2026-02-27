@@ -361,11 +361,9 @@
 #define CONFIG_TELLIUS_CAPACITY_SYSTEM
 #define CONFIG_TELLIUS_CAPACITY_BASE 50
 #define CONFIG_TELLIUS_CAPACITY_PROMOTED 25
-// #define CONFIG_LAGUZ_BARS // Run make clean after turning this off
 
 // 	#define CONFIG_FE4_CRIT_BONUS_ON_KILL
 
-#define CONFIG_MP_SYSTEM
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */

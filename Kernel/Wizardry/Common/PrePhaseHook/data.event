@@ -12,9 +12,7 @@ gPrePhaseFuncs:
     POIN PrePhase_ResetFaction
     POIN PrePhase_ClearMiscUES
     POIN PrePhase_UnitStatusEffectSkills
-#ifdef CONFIG_LAGUZ_BARS
     POIN PrePhase_LaguzBars
-#endif
 
     POIN PrePhase_ApplyMpStartingAmount
 

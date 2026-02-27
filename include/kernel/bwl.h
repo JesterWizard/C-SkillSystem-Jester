@@ -14,14 +14,11 @@ struct NewBwl {
 	/* bwl support */
 	u8 supports[UNIT_SUPPORT_MAX_COUNT];
 
-    /* my system */
+    /* mp system */
     u8 currentMP;
     u8 maxMP;
 
-#ifdef CONFIG_LAGUZ_BARS
     u8 laguzBar;
-#endif
-
     u8 skillPoints;
 
 } BITPACKED;

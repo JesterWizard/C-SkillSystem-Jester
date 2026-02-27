@@ -124,7 +124,8 @@ void ChapterChangeUnitCleanup(void)
         }
 #endif
 
-#ifdef CONFIG_LAGUZ_BARS
+    if (gpKernelDesignerConfig->laguz_bars == true)
+    {
         for (int i = 0; i < (int)ARRAY_COUNT(laguzPairs); i++)
         {
             if (unit->pClassData->number == laguzPairs[i][1])
@@ -135,7 +136,7 @@ void ChapterChangeUnitCleanup(void)
                 break;
             }
         }
-#endif
+    }
 
     if (gpKernelDesignerConfig->auto_repair_weapons == true) 
     {

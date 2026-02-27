@@ -90,6 +90,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.custom_battle_quotes = true,
 	.custom_defeat_quotes = true,
 	.mp_system = true,
+	.laguz_bars = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

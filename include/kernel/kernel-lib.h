@@ -80,6 +80,7 @@ struct KernelDesigerConfig {
 	u8 custom_battle_quotes;
 	u8 custom_defeat_quotes;
 	u8 mp_system;
+	u8 laguz_bars;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

@@ -258,7 +258,6 @@ STATIC_DECLAR void DrawPage1BattleAmt(void)
 		amt, amt, max, max);
 }
 
-#ifdef CONFIG_LAGUZ_BARS
 static u8 GetUnitLaguzBarValue(struct Unit * unit)
 {
     struct NewBwl * bwl;
@@ -291,7 +290,6 @@ FORCE_DECLARE static void DrawPage1LaguzBar(void)
         gUiTmScratchC,
         amt, amt, max, max);
 }
-#endif
 
 FORCE_DECLARE static void DrawPage1SightBar(void)
 {
@@ -474,11 +472,11 @@ void DisplayPage_WithBWL(void)
 	DrawPage1ValueReal();
 	DrawPage1ValueCommon();
 	DrawPage1BattleAmt();
-#ifdef CONFIG_LAGUZ_BARS
-    DrawPage1LaguzBar();
-#else
-    DrawPage1BWL();
-#endif
+	
+    if (gpKernelDesignerConfig->laguz_bars == true)
+    	DrawPage1LaguzBar();
+	else
+    	DrawPage1BWL();
 
 	if (gpKernelDesignerConfig->custom_fog_sight == true) 
 		DrawPage1SightBar();

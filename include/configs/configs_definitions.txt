@@ -198,7 +198,3 @@ Go to BwlSupport.c in StartSupportTalk to adjust items gained
 ## CONFIG_CUSTOM_CHAPTER_SCREEN
 
 Not installed because of conflicts with phase suspend and sound mixer.
-
-## CONFIG_LAGUZ_BARS
-
-Run `make clean` after turning this off

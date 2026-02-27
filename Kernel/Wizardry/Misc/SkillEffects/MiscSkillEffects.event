@@ -117,10 +117,7 @@
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"
 
 #include "MenuSkills/Refuge.lyn.event"
-
-#ifdef CONFIG_LAGUZ_BARS
 #include "MenuSkills/Laguz.lyn.event"
-#endif
 
 #include "Misc/LynJump.event"
 #include "Misc/HealAmount.lyn.event"
@@ -150,9 +147,7 @@
 #include "PrePhaseSkills/Truant.lyn.event"
 #include "PrePhaseSkills/Moody.lyn.event"
 #include "PrePhaseSkills/Doppleganger.lyn.event"
-#ifdef CONFIG_LAGUZ_BARS
 #include "PrePhaseSkills/PrePhase_LaguzBars.lyn.event"
-#endif
 
 #include "EndTurnSkills/FreeSpirit.lyn.event"
 

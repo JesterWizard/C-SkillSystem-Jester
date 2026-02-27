@@ -179,7 +179,7 @@ void DrawPage4Rework(void)
 	DrawPage4SupportBonus();
 	DrawPage4SupportPInfo();
 
-#ifdef CONFIG_LAGUZ_BARS
-    DrawPage1BWL();
-#endif
+    if (gpKernelDesignerConfig->laguz_bars == true)
+    	DrawPage1BWL();
+
 }

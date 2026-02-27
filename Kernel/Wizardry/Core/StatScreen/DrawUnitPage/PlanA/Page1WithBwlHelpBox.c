@@ -103,19 +103,17 @@ static _DECL_INFO RText_Cond = {
 	NULL, HbPopulate_SSStatus
 };
 
-#ifdef CONFIG_LAGUZ_BARS
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, &RText_LBar, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_BattleAmtDesc,
-        NULL, NULL
-    };
-#else
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, NULL, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_BattleAmtDesc,
-        NULL, NULL
-    };
-#endif
+static _DECL_INFO RText_BAmt = {
+	&RText_Cond, &RText_LBar, &RText_Res, NULL,
+	0xA6, 0x78, MSG_MSS_BattleAmtDesc,
+	NULL, NULL
+};
+
+// static _DECL_INFO RText_BAmt = {
+//     &RText_Cond, NULL, &RText_Res, NULL,
+//     0xA6, 0x78, MSG_MSS_BattleAmtDesc,
+//     NULL, NULL
+// };
 
 /* Page left */
 static _DECL_INFO RText_Name = {
