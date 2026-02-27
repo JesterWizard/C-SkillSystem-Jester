@@ -357,8 +357,6 @@
 	//#define CONFIG_GAMEOVER_COMEDIC
 #endif
 
-#define CONFIG_CUSTOM_STAFF_ACCURACY 100
-
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
 /* Not installed because of conflicts with phase suspend and sound mixer */

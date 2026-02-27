@@ -72,9 +72,7 @@
     #include "Misc/ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
 #endif
 
-#ifdef CONFIG_LIMITED_SHOP_STOCK
-    #include "Misc/LimitedShopStock/LimitedShopStock_Installer.event"
-#endif
+#include "Misc/LimitedShopStock/LimitedShopStock_Installer.event"
 
 #ifdef CONFIG_CHAPTER_NAMES
     #include "Misc/ChapterNames/ChapterNames_Installer.event"

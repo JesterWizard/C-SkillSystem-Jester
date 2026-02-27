@@ -37,7 +37,6 @@ static const EventScr EventScr_Beginning[] = {
     TEXT(Chapter_02_Scene_06_Convo_03)
     MOVE_WAIT(24, CHARACTER_TANA, 5, 3)
     NOFADE
-    // ASMC(InitShopStock) // Look in External/LimitedShopStock/Installer.event for details
     ENDA
 };
 

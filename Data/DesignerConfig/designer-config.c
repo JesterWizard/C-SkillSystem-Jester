@@ -84,6 +84,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.expanded_hp = true,
 	.vesly_debugger = true,
 	.map_menu_character_biographies = false,
+	.custom_staff_accuracy = 100,
+	.limited_shop_items = true,
 
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,

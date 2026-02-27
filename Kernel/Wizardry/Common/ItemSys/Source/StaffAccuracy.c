@@ -17,9 +17,7 @@ int GetOffensiveStaffAccuracy(struct Unit *actor, struct Unit *target)
 			result += 15;
 #endif
 
-#ifdef CONFIG_CUSTOM_STAFF_ACCURACY
-    result = CONFIG_CUSTOM_STAFF_ACCURACY;
-#endif
+    result = gpKernelDesignerConfig->custom_staff_accuracy;
 
 	LIMIT_AREA(result, 0, 100);
 	return result;
