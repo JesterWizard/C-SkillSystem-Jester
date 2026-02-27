@@ -10,11 +10,10 @@
     #define _ItemGetter 0x88a01
     #define _HbRedirect_SSItem 0x88b41
 
+    /*gpKernelDesignerConfig->mp_system */
 ALIGN 4
-#ifdef CONFIG_MP_SYSTEM
 RTextPageGaidenMagic:
     POIN Rtext_Page5_Magic
-#endif
 
 Rtext_Page5_Magic:
 Rtext_Page5_White_Magic_Title:

@@ -625,7 +625,7 @@ WORD $0
 POIN LightRune_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-7148
-WORD $133F0000 $3
+WORD $133F133E $3
 POIN Teleportation_Usability
 WORD $0
 POIN Teleportation_OnSelected

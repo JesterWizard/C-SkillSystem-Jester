@@ -184,22 +184,20 @@ void BattleDamageCalc_DefenderSkills(struct BattleUnit* attacker, struct BattleU
 			break;
 #endif
 
-#ifdef CONFIG_MP_SYSTEM
 #if defined(SID_DamageToMP) && (COMMON_SKILL_VALID(SID_DamageToMP))
 		case SID_DamageToMP:
-			struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(defender->unit.index)));
-
-			if (bwl != NULL && bwl->currentMP > 0)
+			if (gpKernelDesignerConfig->mp_system == true)
 			{
-				gActionData.unk08 = SID_DamageToMP;
-				gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_GREATSHLD;
-			}
+				struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(defender->unit.index)));
 
+				if (bwl != NULL && bwl->currentMP > 0)
+				{
+					gActionData.unk08 = SID_DamageToMP;
+					gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_GREATSHLD;
+				}
+			}
 			break;
 #endif
-#endif
-
-
 		case MAX_SKILL_NUM:
 			Fatal("ENOSUPP");
 			break;

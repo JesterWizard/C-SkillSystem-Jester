@@ -478,7 +478,8 @@ void BattleGenerateHitEffects(struct BattleUnit* attacker, struct BattleUnit* de
             }
 #endif
 
-#ifdef CONFIG_MP_SYSTEM
+        if (gpKernelDesignerConfig->mp_system == true)
+        {
 #if defined(SID_DamageToMP) && (COMMON_SKILL_VALID(SID_DamageToMP))
 			if (BattleFastSkillTester(defender, SID_DamageToMP)) {
 				struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(defender->unit.index)));
@@ -491,13 +492,10 @@ void BattleGenerateHitEffects(struct BattleUnit* attacker, struct BattleUnit* de
 				}
 			}
 #endif
-#endif
+        }
 
 			if (!divertDamageToMP && !absorb)
 				defender->unit.curHP -= gBattleStats.damage;
-
-			// if (defender->unit.curHP < 0)
-			// 	defender->unit.curHP = 0;
 		}
 
 #if CHAX
@@ -516,15 +514,16 @@ void BattleGenerateHitEffects(struct BattleUnit* attacker, struct BattleUnit* de
 		BattleHit_InjectNegativeStatus(attacker, defender);
 	}
 
-#ifdef CONFIG_MP_SYSTEM
-#if defined(SID_DamageToMP) && (COMMON_SKILL_VALID(SID_DamageToMP))
-	if (!BattleFastSkillTester(defender, SID_DamageToMP)) {
-		gBattleHitIterator->hpChange = gBattleStats.damage;
-	}
-#else
-	gBattleHitIterator->hpChange = gBattleStats.damage;
-#endif
-#endif
+    if (gpKernelDesignerConfig->mp_system == true)
+    {
+    #if defined(SID_DamageToMP) && (COMMON_SKILL_VALID(SID_DamageToMP))
+        if (!BattleFastSkillTester(defender, SID_DamageToMP)) {
+            gBattleHitIterator->hpChange = gBattleStats.damage;
+        }
+    #else
+        gBattleHitIterator->hpChange = gBattleStats.damage;
+    #endif
+    }
 
     bool absorb = false;
 
@@ -781,7 +780,8 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
     #endif
         }
 
-#ifdef CONFIG_MP_SYSTEM
+        if (gpKernelDesignerConfig->mp_system == true)
+        {
 			if (bwl != NULL)
 			{
                 int killMpGeneration =  gMpSystemPInfoConfigList[UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index))].killGeneration;
@@ -799,8 +799,8 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 				bwl->currentMP += killMpGeneration;
 				if (bwl->currentMP > GetUnitMaxMP(GetUnit(attacker->unit.index)))
 					bwl->currentMP = GetUnitMaxMP(GetUnit(attacker->unit.index));
-			}	
-#endif
+			}
+        }
 
             if (gpKernelDesignerConfig->skill_points_engage)
             {

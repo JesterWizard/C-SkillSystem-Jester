@@ -44,48 +44,49 @@ STATIC_DECLAR void UpdateItemPageListExt(struct Unit *unit, struct ItemPageList 
 					   : TEXT_COLOR_SYSTEM_GRAY;
 	}
 
-#ifndef CONFIG_MP_SYSTEM
-	/**
-	 * Gaiden Magic
-	 */
-	gmag_list = GetGaidenMagicList(unit);
+	if (gpKernelDesignerConfig->mp_system == true)
+	{
+		/**
+		 * Gaiden Magic
+		 */
+		gmag_list = GetGaidenMagicList(unit);
 
-	for (i = 0; i < gmag_list->bmag_cnt; i++) {
-		struct ItemPageEnt *ent;
+		for (i = 0; i < gmag_list->bmag_cnt; i++) {
+			struct ItemPageEnt *ent;
 
-		item = gmag_list->bmags[i];
-		if (item == ITEM_NONE)
-			break;
+			item = gmag_list->bmags[i];
+			if (item == ITEM_NONE)
+				break;
 
-		ent = &list->ent[cnt++];
-		if (cnt > CHAX_ITEM_PAGE_AMT)
-			return;
+			ent = &list->ent[cnt++];
+			if (cnt > CHAX_ITEM_PAGE_AMT)
+				return;
 
-		ent->item = item;
-		ent->slot = CHAX_BUISLOT_GAIDEN_BMAG1 + i;
-		ent->color = CanUnitUseGaidenMagic(unit, item)
-				   ? TEXT_COLOR_SYSTEM_GOLD
-				   : TEXT_COLOR_SYSTEM_GRAY;
+			ent->item = item;
+			ent->slot = CHAX_BUISLOT_GAIDEN_BMAG1 + i;
+			ent->color = CanUnitUseGaidenMagic(unit, item)
+					? TEXT_COLOR_SYSTEM_GOLD
+					: TEXT_COLOR_SYSTEM_GRAY;
+		}
+
+		for (i = 0; i < gmag_list->wmag_cnt; i++) {
+			struct ItemPageEnt *ent;
+
+			item = gmag_list->wmags[i];
+			if (item == ITEM_NONE)
+				break;
+
+			ent = &list->ent[cnt++];
+			if (cnt > CHAX_ITEM_PAGE_AMT)
+				return;
+
+			ent->item = item;
+			ent->slot = CHAX_BUISLOT_GAIDEN_WMAG1 + i;
+			ent->color = CanUnitUseGaidenMagic(unit, item)
+					? TEXT_COLOR_SYSTEM_GOLD
+					: TEXT_COLOR_SYSTEM_GRAY;
+		}
 	}
-
-	for (i = 0; i < gmag_list->wmag_cnt; i++) {
-		struct ItemPageEnt *ent;
-
-		item = gmag_list->wmags[i];
-		if (item == ITEM_NONE)
-			break;
-
-		ent = &list->ent[cnt++];
-		if (cnt > CHAX_ITEM_PAGE_AMT)
-			return;
-
-		ent->item = item;
-		ent->slot = CHAX_BUISLOT_GAIDEN_WMAG1 + i;
-		ent->color = CanUnitUseGaidenMagic(unit, item)
-				   ? TEXT_COLOR_SYSTEM_GOLD
-				   : TEXT_COLOR_SYSTEM_GRAY;
-	}
-#endif
 }
 
 static void dump_item_list(struct ItemPageList *list)
@@ -145,9 +146,8 @@ NOINLINE STATIC_DECLAR void DrawItemLineGaidenMagic(const struct ItemPageEnt *en
 
 	color = (ent->color == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_BLUE;
 
-#ifndef CONFIG_MP_SYSTEM
-	PutGaidenMagicCostNumber(tm + 14, color, GetGaidenWeaponHpCost(gStatScreen.unit, item));
-#endif
+	if (gpKernelDesignerConfig->mp_system != true)
+		PutGaidenMagicCostNumber(tm + 14, color, GetGaidenWeaponHpCost(gStatScreen.unit, item));
 
 	PutText(text, tm + 2);
 	DrawIcon(tm, GetItemIconId(item), 0x4000);
@@ -262,12 +262,14 @@ void DisplayPage1(void)
 			DrawItemLineDefault(ent, i);
 			break;
 
-#ifndef CONFIG_MP_SYSTEM
-		case CHAX_BUISLOT_GAIDEN_BMAG1 ... CHAX_BUISLOT_GAIDEN_BMAG7:
-		case CHAX_BUISLOT_GAIDEN_WMAG1 ... CHAX_BUISLOT_GAIDEN_WMAG7:
-			DrawItemLineGaidenMagic(ent, i);
-			break;
-#endif
+		/* This draws the gaiden magics in any remaining item slots, not a good idea honestly. We have a seperate stat screen page now */
+		// if (gpKernelDesignerConfig->mp_system != true)
+		// {
+		// 	case CHAX_BUISLOT_GAIDEN_BMAG1 ... CHAX_BUISLOT_GAIDEN_BMAG7:
+		// 	case CHAX_BUISLOT_GAIDEN_WMAG1 ... CHAX_BUISLOT_GAIDEN_WMAG7:
+		// 		DrawItemLineGaidenMagic(ent, i);
+		// 		break;
+		// }
 
 		default:
 			break;

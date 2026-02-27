@@ -4,8 +4,6 @@
 #include <constants/skills.h>
 #include "jester_headers/custom-arrays.h"
 
-/* CONFIG_MP_SYSTEM */
-
 const struct MpSystemPInfoConfig gMpSystemPInfoConfigList[0x100] = {
 	[CHARACTER_EIRIKA] = {
 		.initialMP = 0,

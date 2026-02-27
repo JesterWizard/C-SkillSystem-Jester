@@ -14,11 +14,9 @@ struct NewBwl {
 	/* bwl support */
 	u8 supports[UNIT_SUPPORT_MAX_COUNT];
 
-    /* JESTER - Laguz bars and MP are stored here */
-#ifdef CONFIG_MP_SYSTEM
+    /* my system */
     u8 currentMP;
     u8 maxMP;
-#endif
 
 #ifdef CONFIG_LAGUZ_BARS
     u8 laguzBar;

@@ -35,7 +35,7 @@ static void DrawDigits(int x, int y, int count, u8* d) {
 
 LYN_REPLACE_CHECK(ClearUnitMapUiStatus);
 void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct Unit* unit) {
-    bool alt = gpKernelDesignerConfig->mp_and_triple_digit_minimug_box;
+    bool alt = gpKernelDesignerConfig->mp_system;
     buffer[0] = TILEREF(0x120, 2); buffer[1] = TILEREF(0x121, 2);
     buffer[2] = buffer[3] = buffer[alt ? 4 : 5] = buffer[6] = 0;
     buffer[alt ? 5 : 4] = TILEREF(0x13E, 2);
@@ -43,7 +43,7 @@ void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct 
 
 LYN_REPLACE_CHECK(UnitMapUiUpdate);
 void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
-    bool alt = gpKernelDesignerConfig->mp_and_triple_digit_minimug_box;
+    bool alt = gpKernelDesignerConfig->mp_system;
     if (unit->statusIndex == UNIT_STATUS_RECOVER) proc->unitClock = 0;
 
     if ((proc->unitClock & 63) == 0) {
@@ -83,7 +83,7 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
 
 LYN_REPLACE_CHECK(DrawUnitMapUi);
 void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
-    bool alt = gpKernelDesignerConfig->mp_and_triple_digit_minimug_box;
+    bool alt = gpKernelDesignerConfig->mp_system;
     bool exp = gpKernelDesignerConfig->expanded_hp;
     CpuFastFill(0, gUiTmScratchA, 6 * CHR_SIZE * sizeof(u16));
 
@@ -116,7 +116,7 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
 }
 
 static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
-    bool alt = gpKernelDesignerConfig->mp_and_triple_digit_minimug_box;
+    bool alt = gpKernelDesignerConfig->mp_system;
     bool exp = gpKernelDesignerConfig->expanded_hp;
     int adj = (!alt || exp) ? 0 : 1;
     int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;

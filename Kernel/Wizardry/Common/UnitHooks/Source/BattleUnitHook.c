@@ -294,29 +294,30 @@ void UpdateUnitFromBattle(struct Unit* unit, struct BattleUnit* bu)
 	for (it = gpExternalBattleToUnitHook; *it; it++)
 		(*it)(bu, unit);
 
-#ifdef CONFIG_MP_SYSTEM
-	struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
-
-	if (bwl != NULL)
+	if (gpKernelDesignerConfig->mp_system == true)
 	{
-		int battleMpBoost = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].battleGeneration;
+		struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
-#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
-	if (SkillTester(unit, SID_Enlightenment))
-		battleMpBoost = 0;
-#endif
+		if (bwl != NULL)
+		{
+			int battleMpBoost = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].battleGeneration;
 
-#if defined(SID_ManaTransfusion) && (COMMON_SKILL_VALID(SID_ManaTransfusion))
-    if (SkillTester(unit, SID_ManaTransfusion))
-		unit->curHP += battleMpBoost;
-#endif
+	#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+		if (SkillTester(unit, SID_Enlightenment))
+			battleMpBoost = 0;
+	#endif
 
-		bwl->currentMP += battleMpBoost;
+	#if defined(SID_ManaTransfusion) && (COMMON_SKILL_VALID(SID_ManaTransfusion))
+		if (SkillTester(unit, SID_ManaTransfusion))
+			unit->curHP += battleMpBoost;
+	#endif
 
-		if (bwl->currentMP > GetUnitMaxMP(unit))
-			bwl->currentMP = GetUnitMaxMP(unit);
+			bwl->currentMP += battleMpBoost;
+
+			if (bwl->currentMP > GetUnitMaxMP(unit))
+				bwl->currentMP = GetUnitMaxMP(unit);
+		}
 	}
-#endif
 }
 
 LYN_REPLACE_CHECK(BattleGenerateRealInternal);

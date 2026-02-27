@@ -77,9 +77,9 @@ struct KernelDesigerConfig {
 	u8 custom_staff_accuracy;
 	u8 limited_shop_items;
 	u8 flipped_enemy_sprites;
-	u8 mp_and_triple_digit_minimug_box;
 	u8 custom_battle_quotes;
 	u8 custom_defeat_quotes;
+	u8 mp_system;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

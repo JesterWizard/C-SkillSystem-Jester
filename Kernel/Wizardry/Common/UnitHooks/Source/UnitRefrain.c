@@ -152,10 +152,11 @@ void ChapterChangeUnitCleanup(void)
         }
 #endif
 
-#ifdef CONFIG_MP_SYSTEM
+    if (gpKernelDesignerConfig->mp_system == true)
+    {
 		if (bwl != NULL)
 			bwl->currentMP = 0;
-#endif
+    }
 
         /* Reset the doppleganger state of any units with the skill */
 #if defined(SID_Doppleganger) && (COMMON_SKILL_VALID(SID_Doppleganger))

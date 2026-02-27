@@ -26,27 +26,27 @@ void UnitLoadStatsFromChracterVanilla(struct Unit* unit, const struct CharacterD
 
     unit->conBonus = 0;
 
-#ifdef CONFIG_MP_SYSTEM
-    struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
-
-    if (bwl != NULL)
+    if (gpKernelDesignerConfig->mp_system == true)
     {
-        bwl->currentMP = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].initialMP; 
-        bwl->maxMP = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].maxMP;
+        struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
-#if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
-    if (SkillTester(unit, SID_ManaRush))
-        bwl->maxMP = bwl->maxMP * 2;
-#endif
+        if (bwl != NULL)
+        {
+            bwl->currentMP = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].initialMP; 
+            bwl->maxMP = gMpSystemPInfoConfigList[UNIT_CHAR_ID(unit)].maxMP;
 
-#if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
-	if (SkillTester(unit, SID_Enlightenment))
-		bwl->currentMP = bwl->maxMP;
-#endif
+    #if defined(SID_ManaRush) && (COMMON_SKILL_VALID(SID_ManaRush))
+        if (SkillTester(unit, SID_ManaRush))
+            bwl->maxMP = bwl->maxMP * 2;
+    #endif
+
+    #if defined(SID_Enlightenment) && (COMMON_SKILL_VALID(SID_Enlightenment))
+        if (SkillTester(unit, SID_Enlightenment))
+            bwl->currentMP = bwl->maxMP;
+    #endif
+        }
     }
-
-#endif
-
+    
 #if defined(SID_Replicate) && (COMMON_SKILL_VALID(SID_Replicate))
     if (gActionData.unk08 == SID_Replicate)
     {

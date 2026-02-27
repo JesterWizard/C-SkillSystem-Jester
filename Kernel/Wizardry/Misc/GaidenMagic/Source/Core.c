@@ -138,15 +138,18 @@ bool CanUnitUseGaidenMagicNow(struct Unit *unit, int item)
 	if ((GetItemAttributes(item) & (IA_MAGIC | IA_STAFF)) && IsUnitMagicSealed(unit))
 		return false;
 
-#ifdef CONFIG_MP_SYSTEM
-	struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(unit));
-	
-	if (bwl->currentMP < GetGaidenWeaponHpCost(unit, item))
-		return false;
-#else
-	if (unit->curHP <= GetGaidenWeaponHpCost(unit, item))
-		return false;
-#endif
+	if (gpKernelDesignerConfig->mp_system == true)
+	{
+		struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+		
+		if (bwl->currentMP < GetGaidenWeaponHpCost(unit, item))
+			return false;
+	}
+	else
+	{
+		if (unit->curHP <= GetGaidenWeaponHpCost(unit, item))
+			return false;
+	}
 
 	return CanUnitUseGaidenMagic(unit, item);
 }
