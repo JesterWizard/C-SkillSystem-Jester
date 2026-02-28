@@ -280,8 +280,7 @@ void DisplayPage1(void)
 	DrawItemEquipLine(slot);
 	DrawItemPageSubfix(slot);
 
-	// CONFIG_INSTALL_KERNEL_SHIELD
-	if (gpKernelDesignerConfig->shield_en)
+	if (gpKernelDesignerConfig->shield_system == true)
 		DrawItemPage_ShieldEquipLine();
 }
 

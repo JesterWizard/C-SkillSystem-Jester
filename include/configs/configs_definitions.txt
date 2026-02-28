@@ -41,10 +41,6 @@ FEB: Character Custom Animation
 
 If uncommented, the function `GenerateUnitCompleteAttackRange` will be faster but with lower accuracy.
 
-## CONFIG_AUTO_NARROW_FONT
-
-Try narrowing the font on skill-name/skill-desc/menu-disp.
-
 ## CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
 
 Inject fake FEB old AnimNumber patch hooks.

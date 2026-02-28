@@ -48,11 +48,6 @@
 #define CONFIG_FASTER_MAP_RANGE // Leave this as a buildtime config for performance reasons
 
 /**
- * Try narrow font on skill-name/skill-desc/menu-disp
- */
-#define CONFIG_AUTO_NARROW_FONT
-
-/**
  * Auto detect on EfxResire weapon judgement
  */
 #define CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
@@ -69,14 +64,14 @@
 #define CONFIG_USE_GAIDEN_MAGIC
 
 #ifdef CONFIG_USE_GAIDEN_MAGIC
-#define CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC 0 // 0: all weapons are okay
-#define CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK 0 // 0: not requires unit ability to equip that weapon
-#define CONFIG_GAIDEN_MAGIC_AI_EN 1
-#define CONFIG_GAIDEN_EXT_CONF_EN 1
+	#define CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC 0 // 0: all weapons are okay
+	#define CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK 0 // 0: not requires unit ability to equip that weapon
+	#define CONFIG_GAIDEN_MAGIC_AI_EN 1
+	#define CONFIG_GAIDEN_EXT_CONF_EN 1
 #endif /* USE_GAIDEN_MAGIC */
 
 /**
- * In banim, unit status flashing is desicded by ext-hit rather than ANIM_ROUND_POISON
+ * In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
  */
 #define CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
 

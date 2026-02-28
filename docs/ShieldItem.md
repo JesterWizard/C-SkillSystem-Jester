@@ -11,7 +11,7 @@ Additionally, it can be set to consume the shield item only when a hit is not mi
 
 ![image](./gfx/Shield_Patch.png)
 
-Shield item config can be set via FEB patch: `Shile item config`, The configurable contents are as follows:
+Shield item config can be set via FEB patch: `Shield item config`, The configurable contents are as follows:
 
 - `enabled`
 

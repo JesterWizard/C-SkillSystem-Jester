@@ -112,11 +112,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 
 	.no_suspend_in_aiphase = true,
 
-#ifdef CONFIG_INSTALL_KERNEL_SHIELD
-	.shield_en = true,
-	.shield_ext_equip_config_en = true,
-#endif
-
+	.shield_system = false,
+	.shield_ext_equip_config_en = false,
 	.auto_narrow_font = true,
 	.skill_sub_menu_width = 10,
 	.wrank_bonux_rtext_auto_gen = true,

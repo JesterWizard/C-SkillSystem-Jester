@@ -100,7 +100,7 @@ struct KernelDesigerConfig {
 
 	u8 no_suspend_in_aiphase;
 
-	u8 shield_en;
+	u8 shield_system;
 	u8 shield_ext_equip_config_en;
 
 	u8 auto_narrow_font;
