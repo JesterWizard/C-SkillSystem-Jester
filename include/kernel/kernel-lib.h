@@ -82,6 +82,7 @@ struct KernelDesigerConfig {
 	u8 mp_system;
 	u8 laguz_bars;
 	u8 reset_bwl_stats_each_chapter;
+	u8 quality_of_life_fixes;
 
 	u8 guaranteed_lvup;
 	u8 lvup_mode_tutorial;

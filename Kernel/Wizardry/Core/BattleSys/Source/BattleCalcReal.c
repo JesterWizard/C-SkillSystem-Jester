@@ -385,10 +385,11 @@ void ComputeBattleUnitEffectiveCritRate(struct BattleUnit* attacker, struct Batt
 
     attacker->battleEffectiveCritRate = attacker->battleCritRate - defender->battleDodgeRate;
 
-#ifdef CONFIG_QUALITY_OF_LIFE_CAP_CRIT_100
-    if (attacker->battleEffectiveCritRate > 100)
-        attacker->battleEffectiveCritRate = 100;
-#endif
+	if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+	{
+		if (attacker->battleEffectiveCritRate > 100)
+			attacker->battleEffectiveCritRate = 100;
+	}
 
     if (GetItemIndex(attacker->weapon) == ITEM_MONSTER_STONE)
         attacker->battleEffectiveCritRate = 0;

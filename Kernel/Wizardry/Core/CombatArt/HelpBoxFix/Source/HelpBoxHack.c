@@ -174,9 +174,9 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc)
 			DrawHelpBoxLabels_WrankBonus();
 			proc->pretext_lines = 3;
     
-    #ifdef CONFIG_QUALITY_OF_LIFE_WEAPON_EXP_HELPBOX
-            proc->pretext_lines = 2;
-    #endif
+            if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+                proc->pretext_lines = 2;
+
 			break;
 
 		default:

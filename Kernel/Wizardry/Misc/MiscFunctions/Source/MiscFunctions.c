@@ -530,8 +530,6 @@ s8 PlayerPhase_PrepareAction(ProcPtr proc)
     return cameraReturn;
 }
 
-#ifdef CONFIG_QUALITY_OF_LIFE_EPILOGUE_FADE
-
 //! FE8U = 0x080B723C
 LYN_REPLACE_CHECK(PairedEndingBattleDisp_InitBlend);
 void PairedEndingBattleDisp_InitBlend(struct EndingBattleDisplayProc* proc)
@@ -578,10 +576,25 @@ static const struct ProcCmd gProcScr_EndingBattleDisplay_Solo_NEW[] =
     PROC_END,
 };
 
+static struct ProcCmd const gProcScr_EndingBattleDisplay_Solo[] =
+{
+    PROC_YIELD,
+
+    PROC_CALL(SoloEndingBattleDisp_Init),
+    PROC_REPEAT(SoloEndingBattleDisp_Loop),
+
+    PROC_END,
+};
+
 LYN_REPLACE_CHECK(StartSoloEndingBattleDisplay);
 void StartSoloEndingBattleDisplay(struct CharacterEndingEnt* endingEnt, struct Unit* unit, struct CharacterEndingProc* parent)
 {
-    struct EndingBattleDisplayProc* proc = Proc_StartBlocking(gProcScr_EndingBattleDisplay_Solo_NEW, parent);
+    struct EndingBattleDisplayProc* proc;
+    
+    if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+        proc = Proc_StartBlocking(gProcScr_EndingBattleDisplay_Solo_NEW, parent);
+    else
+        proc = Proc_StartBlocking(gProcScr_EndingBattleDisplay_Solo, parent);
 
     proc->units[0] = unit;
     proc->units[1] = NULL;
@@ -590,10 +603,6 @@ void StartSoloEndingBattleDisplay(struct CharacterEndingEnt* endingEnt, struct U
 
     return;
 }
-
-#endif
-
-#ifdef CONFIG_QUALITY_OF_LIFE_UNIT_NAME_DROP
 
 struct PopupInstruction const NewItemDropPopup[] = {
     POPUP_SOUND(0x5A),
@@ -677,10 +686,14 @@ void NewPopup_ItemGot_unused(struct Unit* unit, u16 item, ProcPtr parent)
     SetPopupItem(item);
     SetPopupUnit(unit);
 
-    if (FACTION_BLUE == UNIT_FACTION(unit))
-        NewPopup_Simple(NewItemDropPopup, 0x60, 0x0, parent);
-    else
-        NewPopup_Simple(NewItemPilferedPopup, 0x60, 0x0, parent);
+    const bool isBlue = (FACTION_BLUE == UNIT_FACTION(unit));
+    const bool qol = gpKernelDesignerConfig->quality_of_life_fixes;
+
+    const void* popup = qol
+            ? (isBlue ? PopupScr_GotItem        : PopupScr_ItemWasPilfered)
+            : (isBlue ? NewItemDropPopup        : NewItemPilferedPopup);
+
+    NewPopup_Simple(popup, 0x60, 0x0, parent);
 }
 
 LYN_REPLACE_CHECK(NewPopup_GoldGot);
@@ -689,14 +702,20 @@ void NewPopup_GoldGot(ProcPtr parent, struct Unit* unit, int value)
     SetPopupNumber(value);
     SetPopupUnit(unit);
 
-    if (FACTION_BLUE == UNIT_FACTION(unit))
+    const bool isBlue = (FACTION_BLUE == UNIT_FACTION(unit));
+    const bool qol = gpKernelDesignerConfig->quality_of_life_fixes;
+
+    if (isBlue)
     {
         value += GetPartyGoldAmount();
         SetPartyGoldAmount(value);
-        NewPopup_Simple(NewGoldGotPopup, 0x60, 0x0, parent);
     }
-    else
-        NewPopup_Simple(NewGoldStolenPopup, 0x60, 0x0, parent);
+
+    const void* popup = isBlue
+            ? (qol ? NewGoldGotPopup     : PopupScr_GotGold)
+            : (qol ? NewGoldStolenPopup  : PopupScr_GoldWasStole);
+
+    NewPopup_Simple(popup, 0x60, 0x0, parent);
 }
 
 LYN_REPLACE_CHECK(NewPopup_ItemStealing);
@@ -705,10 +724,15 @@ void NewPopup_ItemStealing(u16 item, ProcPtr parent)
     SetPopupItem(item);
     SetPopupUnit(gActiveUnit);
 
-    NewPopup_Simple(NewItemStolePopup, 0x60, 0x0, parent);
-}
+    const bool qol    = gpKernelDesignerConfig->quality_of_life_fixes;
+    const bool isBlue = (FACTION_BLUE == UNIT_FACTION(gActiveUnit));
 
-#endif
+    const void* popup = qol
+            ? NewItemStolePopup
+            : (isBlue ? PopupScr_StoleItem : PopupScr_ItemStolen);
+
+    NewPopup_Simple(popup, 0x60, 0x0, parent);
+}
 
 LYN_REPLACE_CHECK(UnitDrop);
 void UnitDrop(struct Unit* actor, int xTarget, int yTarget)
@@ -756,26 +780,28 @@ void TradeMenu_InitItemDisplay(struct TradeMenuProc* proc)
     TradeMenu_InitItemText(proc);
     TradeMenu_RefreshItemText(proc);
 
-#ifdef CONFIG_QUALITY_OF_LIFE_AI_TRADE_FIX
-    bool noPortraitUnit_1 = false;
-    bool noPortraitUnit_2 = false;
+    if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+    {
+        bool noPortraitUnit_1 = false;
+        bool noPortraitUnit_2 = false;
 
-    if (proc->units[0]->pCharacterData->portraitId == 0)
-        noPortraitUnit_1 = true;
+        if (proc->units[0]->pCharacterData->portraitId == 0)
+            noPortraitUnit_1 = true;
 
-    if (proc->units[1]->pCharacterData->portraitId == 0)
-        noPortraitUnit_2 = true;
+        if (proc->units[1]->pCharacterData->portraitId == 0)
+            noPortraitUnit_2 = true;
 
-    if (!noPortraitUnit_1)
+        if (!noPortraitUnit_1)
+            StartFace(0, GetUnitPortraitId(proc->units[0]), 64, -4, 3);
+        if (!noPortraitUnit_2)
+            StartFace(1, GetUnitPortraitId(proc->units[1]), 176, -4, 2);
+    }
+    else
+    {
+        // TODO: face display type (arg 5) constants
         StartFace(0, GetUnitPortraitId(proc->units[0]), 64, -4, 3);
-    if (!noPortraitUnit_2)
         StartFace(1, GetUnitPortraitId(proc->units[1]), 176, -4, 2);
-
-#else
-    // TODO: face display type (arg 5) constants
-    StartFace(0, GetUnitPortraitId(proc->units[0]), 64, -4, 3);
-    StartFace(1, GetUnitPortraitId(proc->units[1]), 176, -4, 2);
-#endif
+    }
 
     SetFaceBlinkControlById(0, 5);
     SetFaceBlinkControlById(1, 5);

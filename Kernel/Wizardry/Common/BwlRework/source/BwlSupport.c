@@ -68,11 +68,10 @@ void CallMapSupportEvent(u16 musicIndex, u16 textIndex) {
 	if (gpKernelDesignerConfig->support_rewards == true)
 		gEventSlots[EVT_SLOT_7] = SUPPORT_EXP_A;
 
-#ifdef CONFIG_QUALITY_OF_LIFE_DISPLAY_SUPPORT_LEVEL_IN_POPUP
-    CallEvent((u16 *)EventScr_MapSupportConversation_NEW, EV_EXEC_CUTSCENE);
-#else
-    CallEvent((u16 *)EventScr_MapSupportConversation, EV_EXEC_CUTSCENE);
-#endif
+	if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+    	CallEvent((u16 *)EventScr_MapSupportConversation_NEW, EV_EXEC_CUTSCENE);
+	else
+    	CallEvent((u16 *)EventScr_MapSupportConversation, EV_EXEC_CUTSCENE);
 
     gEventSlots[0x2] = musicIndex;
     gEventSlots[0x3] = textIndex;
