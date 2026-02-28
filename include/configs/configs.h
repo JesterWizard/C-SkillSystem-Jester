@@ -113,16 +113,7 @@
  */
 // #define CONFIG_INSTALL_MAPACTIONANIM
 
-/**
-* Install StatScreenfx
-*/
-// #define CONFIG_INSTALL_STATSCREENFX
-
-
-/**
-* Install none-kernel related patches (not necessary)
-*/
-#define CONFIG_INSTALL_NON_KERNEL_PATCH
+// #define CONFIG_INSTALL_STATSCREENFX // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 
 /**
 * When display menu skills, directly display skill name, rather than MenuItemDef::nameMsgId

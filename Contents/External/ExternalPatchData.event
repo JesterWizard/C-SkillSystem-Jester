@@ -8,12 +8,10 @@
     #include "DrawMapActionAnimation/data.event"
 #endif
 
-#ifdef CONFIG_INSTALL_NON_KERNEL_PATCH
-    #include "m4a_hq_mixer/SoundMixer.txt"
-    #include "AutoGenLeftOAM/installer.txt"
-    #include "DecideOnDangerMap/DecideOnDangerMap.event"
-    #include "MeleeAndMagicFix_ItemFix20220721/MeleeAndMagicFix_ItemFix20220721.event"
-    #include "drumfix/drumfix.event"
-    #include "BattleTransforming/FE8-BattleTransformEA.txt"
-    #include "CSA_Creator_For_FE8U_ver2/Master_Spell_Animation_Installer.event"
-#endif // CONFIG_INSTALL_NON_KERNEL_PATCH
+#include "m4a_hq_mixer/SoundMixer.txt"
+#include "AutoGenLeftOAM/installer.txt"
+#include "DecideOnDangerMap/DecideOnDangerMap.event"
+#include "MeleeAndMagicFix_ItemFix20220721/MeleeAndMagicFix_ItemFix20220721.event"
+#include "drumfix/drumfix.event"
+#include "BattleTransforming/FE8-BattleTransformEA.txt"
+#include "CSA_Creator_For_FE8U_ver2/Master_Spell_Animation_Installer.event"
