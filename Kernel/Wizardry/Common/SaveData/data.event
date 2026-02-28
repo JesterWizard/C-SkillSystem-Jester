@@ -43,29 +43,18 @@ gEmsSavChunks:
     EmsChunk($0021, MSA_SaveWorldMap,   MSA_LoadWorldMap,    EMS_CHUNK_WMDATA)           /* World map */
     EmsChunk($0018, MSA_SaveDungeon,    MSA_LoadDungeon,     EMS_CHUNK_DUNGEON)          /* Dungeon */
     EmsChunk($0008, $0A59E0+1,          $0A5A00+1)           /* Skirmish RN state */
-
-#ifdef CONFIG_INSTALL_CONVOYEXPA
-    EmsChunk($0258, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS)
-#else
-    EmsChunk($00B0, $0A31E4+1, $0A326C+1, EMS_CHUNK_CONVOYITEMS)      /* Supply */
-#endif
-
-    /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
-    EmsChunk($0064, SaveForgedItems, LoadForgedItems)
+    EmsChunk($0190, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS) /* 0x190 is 400 bytes or 200 items (default was 0x256) */
+    EmsChunk($0064, SaveForgedItems, LoadForgedItems)     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
     EmsChunk($0002, SaveTimer, LoadTimer)
     EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
     EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
-
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
-
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
-    // EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
-
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunkEnd
 
@@ -84,40 +73,28 @@ gEmsSusChunks:
     EmsChunk($000C, MSU_SaveDungeon2,   MSU_LoadDungeon2)                                /* Dungeon state */
     EmsChunk($0004, MSU_SaveEvtCounter, MSU_LoadEvtCounter)                              /* Event slot counter */
     EmsChunk($0000, MSU_SaveBonusClaim, MSU_LoadBonusClaimWIP)
-
-#ifdef CONFIG_INSTALL_CONVOYEXPA
-    EmsChunk($0258, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS)
-#else
-    EmsChunk($00B0, $0A31E4+1, $0A326C+1, EMS_CHUNK_CONVOYITEMS) /* Supply */
-#endif
-
-    /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
-    EmsChunk($0064, SaveForgedItems, LoadForgedItems)
+    EmsChunk($0190, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS) /* 0x190 is 400 bytes or 200 items (default was 0x256) */
+    EmsChunk($0064, SaveForgedItems, LoadForgedItems)     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
     EmsChunk($0002, SaveTimer, LoadTimer)
     EmsChunk($0001, SaveDragonGlass, LoadDragonGlass)
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
     EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
-
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x34, MSU_SaveBlueUnits,  MSU_LoadBlueUnits, EMS_CHUNK_SAVEUNITS)
     EmsChunk(CONFIG_UNIT_AMT_ENEMY * 0x34, MSU_SaveRedUnits,   MSU_LoadRedUnits)
-    EmsChunk(CONFIG_UNIT_AMT_NPC  * 0x34, MSU_SaveGreenUnits, MSU_LoadGreenUnits)
-    EmsChunk(CONFIG_UNIT_AMT_FOURTH  * 0x34, MSU_SavePurpleUnits, MSU_LoadPurpleUnits)
-
+    EmsChunk(CONFIG_UNIT_AMT_NPC  * 0x20, MSU_SaveGreenUnits, MSU_LoadGreenUnits)
+    EmsChunk(CONFIG_UNIT_AMT_FOURTH  * 0x10, MSU_SavePurpleUnits, MSU_LoadPurpleUnits)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
     EmsChunk(CONFIG_UNIT_AMT_ENEMY * 4, MSU_SaveRedUnitExtSkills, MSU_LoadRedUnitExtSkills)
     EmsChunk(CONFIG_UNIT_AMT_NPC * 4, MSU_SaveGreenUnitExtSkills, MSU_LoadGreenUnitExtSkills)
     EmsChunk(CONFIG_UNIT_AMT_FOURTH * 4, MSU_SavePurpleUnitExtSkills, MSU_LoadPurpleUnitExtSkills)
-
     EmsChunk($0020, SaveCombatArtStatus, LoadCombatArtStatus)
     EmsChunk($0008, SaveRandC, LoadRandC)
     EmsChunk($0008, MSU_SaveSelectionPos, MSU_LoadSelectionPos)
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
     EmsChunk((CONFIG_UNIT_AMT_ALLY + CONFIG_UNIT_AMT_ENEMY + CONFIG_UNIT_AMT_NPC + CONFIG_UNIT_AMT_FOURTH) * 16, MSU_SaveStatDebuff, MSU_LoadStatDebuff)
-    // EmsChunk(110 * 4, MSU_SaveDemoUnitExpa, MSU_LoadDemoUnitExpa)
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
-
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunkEnd
 

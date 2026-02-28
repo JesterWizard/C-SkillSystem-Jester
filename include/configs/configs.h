@@ -120,11 +120,7 @@
 */
 #define CONFIG_MENU_SKILL_DISP_MSG_EN_N 0
 
-/**
- * Install ConvoyExpa
- */
-#define CONFIG_INSTALL_CONVOYEXPA
-#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // better not to touch this since it will affact on size of gExpaConvoyItemArray
+#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event
 
 /**
  * If uncommented, suspend data may only saved in play-phase starting.

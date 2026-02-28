@@ -131,10 +131,6 @@ Install some performance hooks.
 
 When displaying menu skills, directly display the skill name, rather than `MenuItemDef::nameMsgId`.
 
-## CONFIG_INSTALL_CONVOYEXPA
-
-Install `ConvoyExpa`.
-
 ## CONFIG_NO_SUS_IN_AI_PHASE
 
 If uncommented, suspend data may only be saved at the start of the play-phase. This may also overwrite the `PlaySt::disableTerrainDisplay` config for player configuration at runtime.
