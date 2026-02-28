@@ -2123,15 +2123,17 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 			break;
 #endif
 
-#if (defined(SID_KillStreak) && (COMMON_SKILL_VALID(SID_KillStreak)) && defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER))
+#if (defined(SID_KillStreak) && (COMMON_SKILL_VALID(SID_KillStreak)))
 		case SID_KillStreak:
-			attacker->battleCritRate += (bwl->winAmt * SKILL_EFF0(SID_KillStreak));
+			if (gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
+				attacker->battleCritRate += (bwl->winAmt * SKILL_EFF0(SID_KillStreak));
 			break;
 #endif
 
-#if (defined(SID_HyperFocus) && (COMMON_SKILL_VALID(SID_HyperFocus)) && defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER))
+#if (defined(SID_HyperFocus) && (COMMON_SKILL_VALID(SID_HyperFocus)))
 		case SID_HyperFocus:
-			attacker->battleHitRate += (bwl->battleAmt * SKILL_EFF0(SID_HyperFocus));
+			if (gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
+				attacker->battleHitRate += (bwl->battleAmt * SKILL_EFF0(SID_HyperFocus));
 			break;
 #endif
 

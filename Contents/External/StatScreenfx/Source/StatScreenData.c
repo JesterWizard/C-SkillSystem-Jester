@@ -114,7 +114,7 @@ struct StatScreenBg1Tsa const *const TsaLut_StatScreenBgPlayer[5] = {
 };
 
 struct StatScreenBg1Tsa const *const TsaLut_StatScreenBgNonePlayer[5] = {
-	&Tsa_StatScreenBg1PageNormal,
+	&Tsa_StatScreenBg1PageLong,
 	&Tsa_StatScreenBg1PageLong,
 	&Tsa_StatScreenBg1PageLong,
 	&Tsa_StatScreenBg1PageNormal,

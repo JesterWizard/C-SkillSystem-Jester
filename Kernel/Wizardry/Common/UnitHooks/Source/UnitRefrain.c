@@ -144,14 +144,15 @@ void ChapterChangeUnitCleanup(void)
 			unit->items[i] = MakeNewItem(unit->items[i]);
     }
 
-#if defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER)
+    if(gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
+    {
         if (bwl != NULL)
         {
             bwl->battleAmt = 0;
             bwl->winAmt = 0;
             bwl->lossAmt = 0;
         }
-#endif
+    }
 
     if (gpKernelDesignerConfig->mp_system == true)
     {

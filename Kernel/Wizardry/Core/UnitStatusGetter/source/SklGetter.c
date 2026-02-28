@@ -121,8 +121,8 @@ int SklGetterSkills(int status, struct Unit *unit)
 	}
 #endif
 
-#if (defined(SID_TakerSkill) && (COMMON_SKILL_VALID(SID_TakerSkill)) && defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER))
-    if (SkillTester(unit, SID_TakerSkill))
+#if (defined(SID_TakerSkill) && (COMMON_SKILL_VALID(SID_TakerSkill)))
+    if (SkillTester(unit, SID_TakerSkill) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
         int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSkill);
         
@@ -133,8 +133,8 @@ int SklGetterSkills(int status, struct Unit *unit)
     }
 #endif
 
-#if (defined(SID_TakerSpectrum) && (COMMON_SKILL_VALID(SID_TakerSpectrum)) && defined(CONFIG_RESET_BWL_STATS_EACH_CHAPTER))
-    if (SkillTester(unit, SID_TakerSpectrum))
+#if (defined(SID_TakerSpectrum) && (COMMON_SKILL_VALID(SID_TakerSpectrum)))
+    if (SkillTester(unit, SID_TakerSpectrum) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
         int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSpectrum);
         
