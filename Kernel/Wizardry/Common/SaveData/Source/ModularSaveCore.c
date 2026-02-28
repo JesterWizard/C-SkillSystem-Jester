@@ -267,9 +267,8 @@ void WriteSuspendSave(int slot)
 	if (!IsSramWorking())
 		return;
 
-#ifdef CONFIG_NO_SUS_IN_AI_PHASE
 	if ((gpKernelDesignerConfig->no_suspend_in_aiphase == true)) {
-		/* Overwrure this config bit to enable configuration for player runtime */
+		/* Overwrite this config bit to enable configuration for player runtime */
 		if (gPlaySt.config.disableTerrainDisplay == 0) {
 			switch (gActionData.suspendPointType) {
 			case SUSPEND_POINT_PLAYERIDLE:
@@ -286,7 +285,6 @@ void WriteSuspendSave(int slot)
 			}
 		}
 	}
-#endif
 
 	slot += GetNextSuspendSaveId();
 	dst = GetSaveWriteAddr(slot);

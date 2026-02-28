@@ -123,12 +123,6 @@
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event
 
 /**
- * If uncommented, suspend data may only saved in play-phase starting.
- * This may also overwrite PlaySt::disableTerrainDisplay config for player configuration in runtime.
- */
-#define CONFIG_NO_SUS_IN_AI_PHASE
-
-/**
 * IER
 */
 #define CONFIG_IER_EN

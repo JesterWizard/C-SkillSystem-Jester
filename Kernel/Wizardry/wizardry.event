@@ -78,7 +78,4 @@ ALIGN 4
 #include "Misc/JobGrowth/JobGrowth.lyn.event"
 #include "Misc/MiscFunctions/MiscFunctions.event"
 #include "Misc/ConvoyExpa/ConvoyExpa.event"
-
-#ifdef CONFIG_NO_SUS_IN_AI_PHASE
-    #include "Misc/PhaseSuspend/PhaseSuspend.event"
-#endif
+#include "Misc/PhaseSuspend/PhaseSuspend.event"
