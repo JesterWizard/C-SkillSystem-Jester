@@ -50,19 +50,12 @@ u8 ForgeMenuOnSelect(struct MenuProc* menu, struct MenuItemProc* menuItem);
 void MakeForgedItemUnbreakable(int item, bool state);
 
 struct ForgedItemRam {
-	u16 uses : 6;
+	u16 uses : 6;		 // Limit uses to 2^6 or 63
 	u16 unbreakable : 1; // pay a lot of extra money to make it unbreakable?
-	u16 hit : 3;  // currently forge count, but could be changed to how many times
-					// hit has been forged
-#ifdef CONFIG_FE4_CRIT_BONUS_ON_KILL
-	u16 crit : 6; // Used to store an additional crit every time the user wins a battle, max 50
-#else
-	u16 mt : 3;   // unused: I recommend how many times mt has been forged
-	u16 crit : 3; // also unused: I recommend crit
-#endif
-	// u8 skill; // idea guying here for Jester
-	// u8 name[7]; // naming forged items would take up a lot of ram and be a pain
-	// to do, good luck Jester
+	u16 forgeCount : 3;
+	u16 crit : 6;        // Used to store an additional crit every time the user wins a battle, max 50 (out of 63)
+	// u8 skill;         // We could swap out crit for an an id up to 2^6 which we would use to index another table with a list of approved skills
+	// u8 name[7];       // naming forged items would take up a lot of ram and be a pain to do, good luck Jester
 };
 extern struct ForgedItemRam gForgedItemRam[50]; // NumOfForgables entries
 

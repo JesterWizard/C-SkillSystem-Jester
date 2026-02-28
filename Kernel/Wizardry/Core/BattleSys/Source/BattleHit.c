@@ -770,14 +770,12 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 
         if (gpKernelDesignerConfig->forge_mechanic == true)
         {
-    #ifdef CONFIG_FE4_CRIT_BONUS_ON_KILL
-                u16 item = GetUnitEquippedWeapon(GetUnit(gBattleActor.unit.index));
-                if (CanItemBeForged(item))
-                {
-                    u8 id = ITEM_USES(item);
-                    gForgedItemRam[id].crit += 1;
-                }
-    #endif
+            u16 item = GetUnitEquippedWeapon(GetUnit(gBattleActor.unit.index));
+            if (CanItemBeForged(item))
+            {
+                u8 id = ITEM_USES(item);
+                gForgedItemRam[id].crit += 1;
+            }
         }
 
         if (gpKernelDesignerConfig->mp_system == true)

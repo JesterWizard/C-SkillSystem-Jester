@@ -89,7 +89,7 @@ int InitFreeForgedItemSlot(int item) {
              * forge count and flags. Some memory backing the slot may be
              * non-zero (especially when mapped into convoy space), so
              * explicitly clear these fields. */
-            gForgedItemRam[i].hit = 0;
+            gForgedItemRam[i].forgeCount = 0;
             gForgedItemRam[i].unbreakable = 0;
             gForgedItemRam[i].crit = 0;
 
@@ -115,7 +115,7 @@ int GetItemForgeCount(int item) {
         return 0;
     }
 
-    return gForgedItemRam[id].hit;
+    return gForgedItemRam[id].forgeCount;
 }
 
 int SetItemForgeCount(int item, int val) {
@@ -126,7 +126,7 @@ int SetItemForgeCount(int item, int val) {
         return item;
     }
     
-    gForgedItemRam[id].hit = val;
+    gForgedItemRam[id].forgeCount = val;
     return item;
 }
 
@@ -510,11 +510,9 @@ int GetItemCrit(int item) {
 
         int forgeCrit = (GetItemForgeCount(item) * bonuses.critBonus) / 6;
 
-    #ifdef CONFIG_FE4_CRIT_BONUS_ON_KILL
         FORCE_DECLARE struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(GetUnit(gBattleActor.unit.index)));
         int id = ITEM_USES(item);
         result += gForgedItemRam[id].crit;
-    #endif
 
         result += forgeCrit;
     }

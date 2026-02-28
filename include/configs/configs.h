@@ -1,6 +1,3 @@
-#ifndef CONFIG_INSTALLED
-#define CONFIG_INSTALLED
-
 //#include "config-debug.h"
 #include "config-memmap.h"
 
@@ -87,14 +84,6 @@
 * C03 not flush efx-status
 */
 #define CONFIG_C03_NOT_FLUSH_EFXSTATUS
-
-/**
-* If uncommented, this will disable move-path calculation and display.
-* Since move-path can display no more than 20 steps in vanilla,
-* with the increase of unit's mobility, this limitation may cause
-* risk of overflow error. Thus we directly remove the move-path to avoid overflow.
-*/
-// #define CONFIG_REMOVE_MOVE_PATH
 
 /**
 * Append the same logic on loading skill as old skillsys, as:
@@ -356,13 +345,11 @@
 
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
-#define CONFIG_EXPANDED_PREP_MENU_OPTIONS
+
 // #define CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
 #define CONFIG_TELLIUS_CAPACITY_SYSTEM
 #define CONFIG_TELLIUS_CAPACITY_BASE 50
 #define CONFIG_TELLIUS_CAPACITY_PROMOTED 25
-
-// 	#define CONFIG_FE4_CRIT_BONUS_ON_KILL
 
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
@@ -390,5 +377,3 @@
 // #define CONFIG_HALF_BODY_PORTRAITS
 
 #define CONFIG_MAX_COLOR_BACKGROUNDS
-
-#endif /* CONFIG_INSTALLED */
