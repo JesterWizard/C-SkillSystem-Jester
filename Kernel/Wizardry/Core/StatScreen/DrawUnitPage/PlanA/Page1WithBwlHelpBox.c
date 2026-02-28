@@ -109,12 +109,6 @@ static _DECL_INFO RText_BAmt = {
 	NULL, NULL
 };
 
-// static _DECL_INFO RText_BAmt = {
-//     &RText_Cond, NULL, &RText_Res, NULL,
-//     0xA6, 0x78, MSG_MSS_BattleAmtDesc,
-//     NULL, NULL
-// };
-
 /* Page left */
 static _DECL_INFO RText_Name = {
 	&RText_Hp, &RText_Class, NULL, &RText_Spd,

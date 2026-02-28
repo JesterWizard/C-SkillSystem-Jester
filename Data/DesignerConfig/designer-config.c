@@ -70,6 +70,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.leadership = true,
 	.variable_unit_descriptions = false,
 	.anima_weapon_triangle = false,
+	.stat_page_skill_style = 1, // 0 = Display skills in list with names, 1 = Display skills in grid without names,
 	.stat_page_gaiden_magic = true,
 	.stat_page_personal_info = true,
 	.stat_page_promotions = true,
@@ -90,7 +91,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.custom_battle_quotes = true,
 	.custom_defeat_quotes = true,
 	.mp_system = true,
-	.laguz_bars = true,
+	.laguz_bars = false,
 	.reset_bwl_stats_each_chapter = true,
 	.quality_of_life_fixes = true,
 
@@ -100,7 +101,6 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.lvup_mode_hard	    = CONFIG_LVUP_MODE_HARD,
 
 	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
-	.skil_page_style = CONFIG_PAGE4_MOKHA_PLAN_B,
 
 #ifdef CONFIG_USE_GAIDEN_MAGIC
 	.gaiden_magic_en = true,

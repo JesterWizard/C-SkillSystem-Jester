@@ -60,6 +60,7 @@ struct KernelDesigerConfig {
 	u8 leadership;
 	u8 variable_unit_descriptions;
 	u8 anima_weapon_triangle;
+	u8 stat_page_skill_style;
 	u8 stat_page_gaiden_magic;
 	u8 stat_page_personal_info;
 	u8 stat_page_promotions;
@@ -90,7 +91,6 @@ struct KernelDesigerConfig {
 	u8 lvup_mode_hard;
 
 	u8 unit_page_style;
-	u8 skil_page_style;
 
 	u8 gaiden_magic_en;
 	u8 gaiden_magic_must_be_magic;

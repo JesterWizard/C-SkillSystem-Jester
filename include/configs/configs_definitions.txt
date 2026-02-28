@@ -105,10 +105,6 @@ Install FEB patch: `SetHPClassLimit`
 Append the same logic on loading skills as the old skillsys:
 [https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5](https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5)
 
-## CONFIG_INSTALL_KERNEL_SHIELD
-
-Enable the shield system.
-
 ## CONFIG_MENU_SKILL_NOT_IN_UPPER
 
 Unit menu skill items displayed in the upper menu or a standalone sub-menu.
@@ -126,10 +122,6 @@ Level-up mode:
 ## CONFIG_PAGE1_WITH_BWL
 
 Page 1 styles.
-
-## CONFIG_PAGE4_MOKHA_PLAN_A
-
-Page 4 styles.
 
 ## CONFIG_PERFORMANCE_OPTIMIZATION
 

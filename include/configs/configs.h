@@ -87,11 +87,6 @@
 #define CONFIG_FIT_OLD_SKILLSYS_LIST
 
 /**
- * Enable shield system
- */
-#define CONFIG_INSTALL_KERNEL_SHIELD
-
-/**
  * Unit menu skill item displayed in upper menu or standalone sub-menu.
  */
 #define CONFIG_MENU_SKILL_NOT_IN_UPPER
@@ -107,12 +102,6 @@
 #define CONFIG_LVUP_MODE_TUTORIAL 0
 #define CONFIG_LVUP_MODE_NORMAL 0
 #define CONFIG_LVUP_MODE_HARD 0
-
-/**
- * Page4 styles
- */
-#define CONFIG_PAGE4_MOKHA_PLAN_A 0
-#define CONFIG_PAGE4_MOKHA_PLAN_B 1
 
 /**
  * Install some performance hooks
