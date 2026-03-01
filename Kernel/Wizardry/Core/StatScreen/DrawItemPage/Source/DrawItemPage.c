@@ -347,15 +347,16 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 	}
 
 	/* JESTER - A little something to turn off the RText box when moving up and down to empty positions in the Gaiden Magic list */
-#ifdef CONFIG_USE_GAIDEN_MAGIC
-	if (gStatScreen.page == TranslateStatPageId(4))
+	if (gpKernelDesignerConfig->gaiden_magic == true)
 	{
-		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
+		if (gStatScreen.page == TranslateStatPageId(4))
+		{
+			struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 
-		if ((proc->moveKey == DPAD_DOWN || proc->moveKey == DPAD_UP) && IsGaidenMagicItemMissingAtCursor(proc, list_gaiden))
-			gKeyStatusPtr->newKeys = B_BUTTON;
+			if ((proc->moveKey == DPAD_DOWN || proc->moveKey == DPAD_UP) && IsGaidenMagicItemMissingAtCursor(proc, list_gaiden))
+				gKeyStatusPtr->newKeys = B_BUTTON;
+		}
 	}
-#endif
 }
 
 LYN_REPLACE_CHECK(HbPopulate_SSItem);
@@ -367,8 +368,7 @@ void HbPopulate_SSItem(struct HelpBoxProc *proc)
 	proc->item = item;
 	proc->mid  = GetItemDescId(item);
 
-#ifdef CONFIG_USE_GAIDEN_MAGIC
-	if (gpKernelDesignerConfig->gaiden_magic_en)
+	if (gpKernelDesignerConfig->gaiden_magic == true)
 	{
 		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 
@@ -399,6 +399,4 @@ void HbPopulate_SSItem(struct HelpBoxProc *proc)
 			}
 		}
 	}
-#endif
-
 }

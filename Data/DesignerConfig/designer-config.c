@@ -94,24 +94,17 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.laguz_bars = false,
 	.reset_bwl_stats_each_chapter = true,
 	.quality_of_life_fixes = true,
-
 	.guaranteed_lvup = false,
 	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
 	.lvup_mode_normal   = CONFIG_LVUP_MODE_NORMAL,
 	.lvup_mode_hard	    = CONFIG_LVUP_MODE_HARD,
-
 	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
-
-#ifdef CONFIG_USE_GAIDEN_MAGIC
-	.gaiden_magic_en = true,
-	.gaiden_magic_must_be_magic = CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC,
-	.gaiden_magic_requires_wrank = CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK,
-	.gaiden_magic_ai_en = CONFIG_GAIDEN_MAGIC_AI_EN,
-	.gaiden_magic_ext_conf_en = CONFIG_GAIDEN_EXT_CONF_EN,
-#endif
-
+	.gaiden_magic = true,
+	.gaiden_magic_must_be_magic = false,    // False = all weapons are allowed, True = Only magic weapons
+	.gaiden_magic_requires_wrank = true,   // False = Doesn't require unit to have a rank in that weapon to use
+	.gaiden_magic_ai_use = false,           // False = AI can't use gaiden magic
+	.gaiden_magic_skill_extensions = false, // False = Apply an extenal table with skills that apply more gaiden magic
 	.no_suspend_in_aiphase = true,
-
 	.shield_system = false,
 	.shield_ext_equip_config_en = false,
 	.auto_narrow_font = true,

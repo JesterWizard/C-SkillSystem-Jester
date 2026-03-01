@@ -164,7 +164,7 @@ void CollectAiSimuSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 	}
 
 	/* Gaiden B.Mag */
-	if (gpKernelDesignerConfig->gaiden_magic_en && gpKernelDesignerConfig->gaiden_magic_ai_en) {
+	if (gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_ai_use) {
 		struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -208,7 +208,7 @@ void CollectAiSimuStaffSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 	}
 
 	/* Gaiden w.Mag */
-	if (gpKernelDesignerConfig->gaiden_magic_en && gpKernelDesignerConfig->gaiden_magic_ai_en) {
+	if (gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_ai_use) {
 		struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {

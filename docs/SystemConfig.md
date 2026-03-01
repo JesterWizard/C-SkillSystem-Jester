@@ -92,7 +92,7 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 	- `0`: ![image](./gfx/SystemConfig1_SkillPage1.png)
 	- `1`: ![image](./gfx/SystemConfig1_SkillPage2.png)
 
-- `gaiden_magic_en`
+- `gaiden_magic`
 
 	Enable gaiden style black/white magic system.
 
@@ -104,11 +104,11 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 	If unit can use one magic, he may use that weapon ragardless the weapon-rank level requirement.
 
-- `gaiden_magic_ai_en`
+- `gaiden_magic_ai_use`
 
 	Enemies can also use gaiden magic on AI phase.
 
-- `gaiden_magic_ext_conf_en`
+- `gaiden_magic_skill_extensions`
 
 	**Wizardry option**, enable `gGaidenChaxConfigs` judgement.
 

@@ -92,11 +92,11 @@ struct KernelDesigerConfig {
 
 	u8 unit_page_style;
 
-	u8 gaiden_magic_en;
+	u8 gaiden_magic;
 	u8 gaiden_magic_must_be_magic;
 	u8 gaiden_magic_requires_wrank;
-	u8 gaiden_magic_ai_en;
-	u8 gaiden_magic_ext_conf_en;
+	u8 gaiden_magic_ai_use;
+	u8 gaiden_magic_skill_extensions;
 
 	u8 no_suspend_in_aiphase;
 

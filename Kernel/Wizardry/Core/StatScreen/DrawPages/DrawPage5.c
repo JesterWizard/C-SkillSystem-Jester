@@ -48,7 +48,8 @@ static void WhiteMagicList(struct Unit * unit)
         0, 0,
         "White Magic");
 
-#ifdef CONFIG_USE_GAIDEN_MAGIC
+	if (gpKernelDesignerConfig->gaiden_magic == true)
+	{
         struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (int i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -68,7 +69,7 @@ static void WhiteMagicList(struct Unit * unit)
 
             PutGaidenCost(GetGaidenWeaponHpCost(unit, item), gUiTmScratchA + TILEMAP_INDEX(0x5, 0x3 + (i * 2)));
 		}
-#endif
+    }
 };
 
 static void BlackMagicList(struct Unit * unit)
@@ -80,7 +81,8 @@ static void BlackMagicList(struct Unit * unit)
         0, 0,
         "Black Magic");
 
-#ifdef CONFIG_USE_GAIDEN_MAGIC
+	if (gpKernelDesignerConfig->gaiden_magic == true)
+	{
         struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (int i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -100,7 +102,7 @@ static void BlackMagicList(struct Unit * unit)
 
             PutGaidenCost(GetGaidenWeaponHpCost(unit, item), gUiTmScratchA + TILEMAP_INDEX(0xE, 0x3 + (i * 2)));
 		}
-#endif
+    }
 };
 
 void DisplayMP(struct Unit * unit)

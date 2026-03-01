@@ -55,30 +55,6 @@ Auto detect on EfxResire weapon judgment.
 
 Enable patch: BanimSwitch
 
-## CONFIG_USE_GAIDEN_MAGIC
-
-If uncommented, enable the Gaiden style magic system.
-
-## CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC
-
-If set as 0, then all weapons will be acceptable (rather than magic weapons only).
-
-## CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK
-
-If set as 0, then the unit can directly use the weapon regardless of the vanilla judgment.
-
-## CONFIG_GAIDEN_MAGIC_AI_EN
-
-If set as 1, the AI can also use Gaiden B.Mag.
-
-## CONFIG_GAIDEN_EXT_CONF_EN
-
-Enable `gGaidenChaxConfigs`.
-
-## CONFIG_GAIDEN_MAGIC_REQUIRES_WRANK
-
-	0:	All weapons are acceptable.
-
 ## CONFIG_STOP_COUNTER_ENABLED
 
 	1.	Petrify should not stop battle.

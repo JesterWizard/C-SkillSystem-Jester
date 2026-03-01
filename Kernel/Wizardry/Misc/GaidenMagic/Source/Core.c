@@ -62,7 +62,7 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 		}
 	}
 
-	if (gpKernelDesignerConfig->gaiden_magic_ext_conf_en) {
+	if (gpKernelDesignerConfig->gaiden_magic_skill_extensions) {
 		for (; conf2->iid != ITEM_NONE; conf2++) {
 			if (conf2->faction != UNIT_FACTION(unit))
 				continue;
