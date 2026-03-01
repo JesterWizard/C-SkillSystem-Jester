@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "status-getter.h"
 #include "weapon-range.h"
+#include "kernel-lib.h"
 
 STATIC_DECLAR u32 GetRangeMask(int min, int max)
 {
@@ -42,52 +43,55 @@ bool IsItemCoveringRangeRework(int item, int range, struct Unit *unit)
 
 void AddMap(int x, int y, u32 mask)
 {
-#ifdef CONFIG_FASTER_MAP_RANGE
-	int i;
-	int pre = 0;
-	u32 ref_mask = 1 << 31;
+	if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+	{
+		int i;
+		int pre = 0;
+		u32 ref_mask = 1 << 31;
 
-	for (i = 31; i >= 0; i--) {
-		if ((ref_mask & mask)) {
-			/* 1 */
-			if (pre != 1) {
-				MapAddInRange(x, y, i, 1);
-				pre = 1;
+		for (i = 31; i >= 0; i--) {
+			if ((ref_mask & mask)) {
+				/* 1 */
+				if (pre != 1) {
+					MapAddInRange(x, y, i, 1);
+					pre = 1;
+				}
+			} else {
+				/* 0 */
+				if (pre != 0) {
+					MapAddInRange(x, y, i, -1);
+					pre = 0;
+				}
 			}
-		} else {
-			/* 0 */
-			if (pre != 0) {
-				MapAddInRange(x, y, i, -1);
-				pre = 0;
-			}
-		}
 
-		ref_mask = ref_mask >> 1;
-	}
-#else
-	int ix, iy;
-
-	int X1 = x - 32;
-	int X2 = x + 32;
-	int Y1 = y - 32;
-	int Y2 = y + 32;
-
-	LIMIT_AREA(X1, 0, gBmMapSize.x);
-	LIMIT_AREA(X2, 0, gBmMapSize.x);
-	LIMIT_AREA(Y1, 0, gBmMapSize.y);
-	LIMIT_AREA(Y2, 0, gBmMapSize.y);
-
-	for (iy = Y1; iy < Y2; iy++) {
-		for (ix = X1; ix < X2; ix++) {
-			int distance = RECT_DISTANCE(x, y, ix, iy);
-
-			if (mask & (1 << distance))
-				gWorkingBmMap[iy][ix] += 1;
-			else
-				gWorkingBmMap[iy][ix] += 0;
+			ref_mask = ref_mask >> 1;
 		}
 	}
-#endif
+	else
+	{
+		int ix, iy;
+
+		int X1 = x - 32;
+		int X2 = x + 32;
+		int Y1 = y - 32;
+		int Y2 = y + 32;
+
+		LIMIT_AREA(X1, 0, gBmMapSize.x);
+		LIMIT_AREA(X2, 0, gBmMapSize.x);
+		LIMIT_AREA(Y1, 0, gBmMapSize.y);
+		LIMIT_AREA(Y2, 0, gBmMapSize.y);
+
+		for (iy = Y1; iy < Y2; iy++) {
+			for (ix = X1; ix < X2; ix++) {
+				int distance = RECT_DISTANCE(x, y, ix, iy);
+
+				if (mask & (1 << distance))
+					gWorkingBmMap[iy][ix] += 1;
+				else
+					gWorkingBmMap[iy][ix] += 0;
+			}
+		}
+	}
 }
 
 void AddMapForItem(struct Unit *unit, u16 item)

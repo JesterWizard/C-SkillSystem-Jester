@@ -14,12 +14,6 @@
 #define CONFIG_USE_CHAR_CUSTOM_ANIM
 
 /**
-* If uncommented, fasten function GenerateUnitCompleteAttackRange
-* with lower accuracy.
-*/
-#define CONFIG_FASTER_MAP_RANGE // Leave this as a buildtime config for performance reasons
-
-/**
  * Auto detect on EfxResire weapon judgement
  */
 #define CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON

@@ -266,44 +266,39 @@ LYN_REPLACE_CHECK(GenerateUnitCompleteAttackRange);
 void GenerateUnitCompleteAttackRange(struct Unit *unit)
 {
 	int ix, iy;
-
-#ifdef CONFIG_FASTER_MAP_RANGE
-	int min, max;
-#else
-	u32 mask;
-#endif
+	int min = GetUnitMinRange(unit);
+	int max = GetUnitMaxRange(unit);
+	u32 mask = GetUnitWeaponReachBits(unit, -1);
 
 	BmMapFill(gBmMapRange, 0);
 
-#ifdef CONFIG_FASTER_MAP_RANGE
-	min = GetUnitMinRange(unit);
-	max = GetUnitMaxRange(unit);
-
-#else
-	mask = GetUnitWeaponReachBits(unit, -1);
-#endif
-
-	if (UNIT_CATTRIBUTES(unit) & CA_BALLISTAE) {
+	if (UNIT_CATTRIBUTES(unit) & CA_BALLISTAE) 
+	{
 		u16 item = GetBallistaItemAt(unit->xPos, unit->yPos);
 
-		if (item != 0) {
-#ifdef CONFIG_FASTER_MAP_RANGE
-			int _max = GetItemMaxRangeRework(item, unit);
-			int _min = GetItemMinRangeRework(item, unit);
+		if (item != 0) 
+		{
+			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+			{
+				int _max = GetItemMaxRangeRework(item, unit);
+				int _min = GetItemMinRangeRework(item, unit);
 
-			if (_max > max)
-				max = _max;
+				if (_max > max)
+					max = _max;
 
-			if (_min < min)
-				min = _min;
-#else
-			mask |= GetItemReachBitsRework(item, unit);
-#endif
+				if (_min < min)
+					min = _min;
+			}
+			else
+			{
+				mask |= GetItemReachBitsRework(item, unit);
+			}
 		}
 	}
 
 	for (iy = 0; iy < gBmMapSize.y; iy++) {
-		for (ix = 0; ix < gBmMapSize.x; ix++) {
+		for (ix = 0; ix < gBmMapSize.x; ix++) 
+		{
 			if (gBmMapMovement[iy][ix] > MAP_MOVEMENT_MAX)
 				continue;
 
@@ -313,11 +308,11 @@ void GenerateUnitCompleteAttackRange(struct Unit *unit)
 			if (gBmMapOther[iy][ix])
 				continue;
 
-#ifdef CONFIG_FASTER_MAP_RANGE
+		if (gpKernelDesignerConfig->calculate_map_range_faster == true)
 			MapAddInBoundedRange(ix, iy, min, max);
-#else
+		else
 			AddMap(ix, iy, mask);
-#endif
+
 		}
 	}
 	SetWorkingBmMap(gBmMapMovement);
@@ -330,7 +325,6 @@ void GenerateUnitStandingReachRange(struct Unit *unit, int mask)
 	AddMap(unit->xPos, unit->yPos, mask);
 }
 
-#ifdef CONFIG_FASTER_MAP_RANGE
 static void get_range_from_mask(u32 mask, int *out_min, int *out_max)
 {
 	int i;
@@ -349,20 +343,17 @@ static void get_range_from_mask(u32 mask, int *out_min, int *out_max)
 		}
 	}
 }
-#endif
 
 LYN_REPLACE_CHECK(GenerateUnitCompleteStaffRange);
 void GenerateUnitCompleteStaffRange(struct Unit *unit)
 {
 	int ix, iy;
-	u32 mask = GetUnitStaffReachBits(unit);
-
-#ifdef CONFIG_FASTER_MAP_RANGE
 	int min = 0;
 	int max = 0;
+	u32 mask = GetUnitStaffReachBits(unit);
 
-	get_range_from_mask(mask, &min, &max);
-#endif
+	if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+		get_range_from_mask(mask, &min, &max);
 
 	BmMapFill(gBmMapRange, 0);
 
@@ -386,11 +377,10 @@ void GenerateUnitCompleteStaffRange(struct Unit *unit)
 			if (gBmMapOther[iy][ix])
 				continue;
 
-#ifdef CONFIG_FASTER_MAP_RANGE
-			MapAddInBoundedRange(ix, iy, min, max);
-#else
-			AddMap(ix, iy, mask);
-#endif
+			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+				MapAddInBoundedRange(ix, iy, min, max);
+			else
+				AddMap(ix, iy, mask);
 		}
 	}
 	SetWorkingBmMap(gBmMapMovement);
