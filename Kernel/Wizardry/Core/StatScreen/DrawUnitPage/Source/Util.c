@@ -9,41 +9,43 @@ int GetUnitBattleAmt(struct Unit * unit)
 {
     int total = 0;
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-    struct SkillList *list;
-    list = GetUnitSkillList(unit);
-    int i;
-    int value = -1;
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
+	{
+		struct SkillList *list;
+		list = GetUnitSkillList(unit);
+		int i;
+		int value = -1;
 
-    for (i = 0; i < list->amt; i++)
-    {
-        value = GetSkillCapacity(list->sid[i]);
+		for (i = 0; i < list->amt; i++)
+		{
+			value = GetSkillCapacity(list->sid[i]);
 
-        if (value == -1 ) 
-            value = 0;
+			if (value == -1 ) 
+				value = 0;
 
-        total += value;
-    }
+			total += value;
+		}
 
-#if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
-    if (SkillTester(unit, SID_CapacityHalf))
-            total = total / 2;
-#endif
+	#if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
+		if (SkillTester(unit, SID_CapacityHalf))
+				total = total / 2;
+	#endif
 
-#if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
-    if (SkillTester(unit, SID_CapacityOne))
-            total = list->amt;
-#endif
-
-#else
-    total += GetUnitPower(unit);
-    total += GetUnitMagic(unit);
-    total += GetUnitSkill(unit);
-    total += GetUnitSpeed(unit);
-    total += GetUnitLuck(unit);
-    total += GetUnitDefense(unit);
-    total += GetUnitResistance(unit);
-#endif
+	#if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
+		if (SkillTester(unit, SID_CapacityOne))
+				total = list->amt;
+	#endif
+	}
+	else
+	{
+		total += GetUnitPower(unit);
+		total += GetUnitMagic(unit);
+		total += GetUnitSkill(unit);
+		total += GetUnitSpeed(unit);
+		total += GetUnitLuck(unit);
+		total += GetUnitDefense(unit);
+		total += GetUnitResistance(unit);	
+	}
 
     return total;
 }

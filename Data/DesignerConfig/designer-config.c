@@ -115,4 +115,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.banim_switcher_en = false,
 	.max_level = UNIT_LEVEL_MAX_RE,
 	.max_level_record = UNIT_RECORDED_LEVEL_MAX,
+	.tellius_skill_capacity_system = true,
+	.tellius_skill_capacity_base = 50,
+	.tellius_skill_capacity_promoted = 25,
 };

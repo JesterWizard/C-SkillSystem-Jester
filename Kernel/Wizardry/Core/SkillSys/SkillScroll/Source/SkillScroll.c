@@ -154,7 +154,6 @@ const struct ProcCmd ProcScr_PredationPlusSoftLock[] = {
 /**
  * BLOCK USAGE OF SCROLL IF UNIT WOULD BE ABOVE CAPACITY LIMIT AFTER APPLYING IT
  */
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
 static const EventScr EventScr_SkillCapacityReached[] = {
     EVBIT_MODIFY(0x4)
     TUTORIALTEXTBOXSTART
@@ -165,7 +164,6 @@ static const EventScr EventScr_SkillCapacityReached[] = {
     NOFADE
     ENDA
 };
-#endif
 
 void ItemUseEffect_SkillScroll(struct Unit *unit)
 {
@@ -188,54 +186,56 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
     int slot = gActionData.itemSlotIndex;
     FORCE_DECLARE int item = unit->items[slot];
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-    int amt = GetUnitBattleAmt(gActiveUnit);
-    int total = CONFIG_TELLIUS_CAPACITY_BASE;
-
-    if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
-        total += CONFIG_TELLIUS_CAPACITY_PROMOTED;
-
-    int capacity = 0;
-
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        GetSkillCapacity(GetItemUses(item));
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        GetSkillCapacity(GetItemUses(item) + 0xFF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        GetSkillCapacity(GetItemUses(item) + 0x1FF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        GetSkillCapacity(GetItemUses(item) + 0x2FF);
-#endif
-
-    if (capacity == -1 ) 
-        capacity = 0;
-    else {
-#if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
-        if (SkillTester(unit, SID_CapacityHalf))
-            capacity = capacity / 2;
-#endif
-#if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
-        if (SkillTester(unit, SID_CapacityOne))
-            capacity = 1;
-#endif
-        }
-
-    amt += capacity;
-
-    if (amt > total)
+    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
-        KernelCallEvent(EventScr_SkillCapacityReached, EV_EXEC_CUTSCENE, proc);
-        gActionDataExpa.refrain_action = true;
-        return;
+        int amt = GetUnitBattleAmt(gActiveUnit);
+        int total = gpKernelDesignerConfig->tellius_skill_capacity_base;
+
+        if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+            total += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
+
+        int capacity = 0;
+
+    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
+        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
+            GetSkillCapacity(GetItemUses(item));
+    #endif
+    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
+        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
+            GetSkillCapacity(GetItemUses(item) + 0xFF);
+    #endif
+    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
+        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
+            GetSkillCapacity(GetItemUses(item) + 0x1FF);
+    #endif
+    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
+        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
+            GetSkillCapacity(GetItemUses(item) + 0x2FF);
+    #endif
+
+        if (capacity == -1 ) 
+            capacity = 0;
+        else {
+    #if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
+            if (SkillTester(unit, SID_CapacityHalf))
+                capacity = capacity / 2;
+    #endif
+    #if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
+            if (SkillTester(unit, SID_CapacityOne))
+                capacity = 1;
+    #endif
+            }
+
+        amt += capacity;
+
+        if (amt > total)
+        {
+            KernelCallEvent(EventScr_SkillCapacityReached, EV_EXEC_CUTSCENE, proc);
+            gActionDataExpa.refrain_action = true;
+            return;
+        }
     }
-#endif
+
     if (gEventSlots[EVT_SLOT_7] == 0xFFFF)
     {
         /* Replace skill */

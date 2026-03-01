@@ -84,41 +84,30 @@ struct KernelDesigerConfig {
 	u8 laguz_bars;
 	u8 reset_bwl_stats_each_chapter;
 	u8 quality_of_life_fixes;
-
 	u8 guaranteed_lvup;
 	u8 lvup_mode_easy;
 	u8 lvup_mode_normal;
 	u8 lvup_mode_hard;
-
 	u8 unit_page_style;
-
 	u8 gaiden_magic;
 	u8 gaiden_magic_must_be_magic;
 	u8 gaiden_magic_requires_wrank;
 	u8 gaiden_magic_ai_use;
 	u8 gaiden_magic_skill_extensions;
-
 	u8 no_suspend_in_aiphase;
-
 	u8 shield_system;
 	u8 shield_ext_equip_config_en;
-
 	u8 auto_narrow_font;
-
 	u8 skill_sub_menu_width;
-
-	// auto generate rtext for weapon rank bonus in statscreen
-	u8 wrank_bonux_rtext_auto_gen;
-
+	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
 	u8 enemy_can_combo_attack;
-
 	u8 menu_skill_disp_msg_en_n;
-
-	/* banim switcher */
-	u8 banim_switcher_en;
-
+	u8 banim_switcher_en; 	/* banim switcher */
 	u8 max_level;
 	u8 max_level_record;
+	u8 tellius_skill_capacity_system;
+	u8 tellius_skill_capacity_base;
+	u8 tellius_skill_capacity_promoted;
 };
 
 struct KernelBattleDesignerConfig {
@@ -128,7 +117,7 @@ struct KernelBattleDesignerConfig {
 	// HP drain item percentage
 	u8 nosferatu_hpdrain_perc;
 
-	// AVO deacy indoor for riders
+	// AVO decrease indoors for riders
 	u8 rider_debuff_indoor;
 
 	u8 _pad_03;

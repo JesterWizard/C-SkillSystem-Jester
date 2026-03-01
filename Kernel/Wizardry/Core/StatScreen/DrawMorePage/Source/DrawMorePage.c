@@ -302,33 +302,34 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 		gStatScreen.yDispOff + 131,
 		gObject_32x16, TILEREF(0x28F, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3));
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-    if (gStatScreen.page == 2)
+    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
-        int usedCapacity = GetUnitBattleAmt(gStatScreen.unit);
-        int maxCapacity = CONFIG_TELLIUS_CAPACITY_BASE;
+        if (gStatScreen.page == 2)
+        {
+            int usedCapacity = GetUnitBattleAmt(gStatScreen.unit);
+            int maxCapacity = gpKernelDesignerConfig->tellius_skill_capacity_base;
 
-        if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
-            maxCapacity += CONFIG_TELLIUS_CAPACITY_PROMOTED;
+            if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
+                maxCapacity += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
 
-        // Compute which 1/8th we're in (0–8)
-        int bucket = (usedCapacity * 8) / maxCapacity;
+            // Compute which 1/8th we're in (0–8)
+            int bucket = (usedCapacity * 8) / maxCapacity;
 
-        // Safety clamp
-        if (bucket < 0)
-            bucket = 0;
-        else if (bucket > 8)
-            bucket = 8;
+            // Safety clamp
+            if (bucket < 0)
+                bucket = 0;
+            else if (bucket > 8)
+                bucket = 8;
 
-        if (usedCapacity > 0 && bucket == 0)
-            bucket = 1;
+            if (usedCapacity > 0 && bucket == 0)
+                bucket = 1;
 
-        Decompress(capacityGfx[bucket], gGenericBuffer);
+            Decompress(capacityGfx[bucket], gGenericBuffer);
 
-        Copy2dChr(gGenericBuffer, (void*)0x6013760, 4, 4);
-        PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x1BB, 0x0));
+            Copy2dChr(gGenericBuffer, (void*)0x6013760, 4, 4);
+            PutSprite(4, 164, 120, gObject_32x32, TILEREF(0x1BB, 0x0));
+        }
     }
-#endif
 
     if (TranslateStatPageId(gStatScreen.page) == PAGE_PROMOTIONS)
     {

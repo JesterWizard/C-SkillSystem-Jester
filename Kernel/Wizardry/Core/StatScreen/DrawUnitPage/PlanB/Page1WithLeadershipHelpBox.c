@@ -4,9 +4,6 @@
 
 static _DECL_INFO RText_Pow, RText_Mag, RText_Skl, RText_Spd, RText_Lck, RText_Def, RText_Res;
 static _DECL_INFO RText_Mov, RText_Con, RText_Aid, RText_Affin, RText_Trv, RText_Cond, RText_BAmt;
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-	static _DECL_INFO RText_LBar;
-#endif
 static _DECL_INFO RText_Name, RText_Class, RText_Level, RText_Exp, RText_Hp;
 static _DECL_INFO RText_Lead, RText_Talk;
 
@@ -55,19 +52,11 @@ static _DECL_INFO RText_Res = {
 	NULL, NULL
 };
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, &RText_LBar, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_SkillCapacityDesc,
-        NULL, NULL
-    };
-#else 
-    static _DECL_INFO RText_BAmt = {
-        &RText_Cond, NULL, &RText_Res, NULL,
-        0xA6, 0x78, MSG_MSS_BattleAmtDesc,
-        NULL, NULL
-    };
-#endif
+static _DECL_INFO RText_BAmt = {
+	&RText_Cond, NULL, &RText_Res, NULL,
+	0xA6, 0x78, MSG_MSS_BattleAmtDesc,
+	NULL, NULL
+};
 
 /* Line #2 */
 static _DECL_INFO RText_Mov = {

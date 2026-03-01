@@ -73,48 +73,51 @@ void DrawSkillPage_MokhaPlanB(void)
 		}
 	}
 
-#ifdef CONFIG_TELLIUS_CAPACITY_SYSTEM
-	text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
-	ClearText(text);
-	PutDrawText(text, gUiTmScratchA + TILEMAP_INDEX(9, 11), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Skill Capacity");
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
+	{
+		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
+		ClearText(text);
+		PutDrawText(text, gUiTmScratchA + TILEMAP_INDEX(9, 11), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Skill Capacity");
 
-	int maxCapacity = CONFIG_TELLIUS_CAPACITY_BASE;
+		int maxCapacity = gpKernelDesignerConfig->tellius_skill_capacity_base;
 
-	if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
-		maxCapacity += CONFIG_TELLIUS_CAPACITY_PROMOTED;
+		if (UNIT_CATTRIBUTES(gStatScreen.unit) & CA_PROMOTED)
+			maxCapacity += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
 
-	PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xD)), TEXT_COLOR_SYSTEM_BLUE, GetUnitBattleAmt(gStatScreen.unit));
-    PutSpecialChar((gUiTmScratchA + TILEMAP_INDEX(0xF, 0xD)), TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
-    PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xF)), TEXT_COLOR_SYSTEM_GREEN, maxCapacity);
-#else
-	/* Arts */
-	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
-		struct CombatArtList *clist = AutoGetCombatArtList(gStatScreen.unit);
+		PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xD)), TEXT_COLOR_SYSTEM_BLUE, GetUnitBattleAmt(gStatScreen.unit));
+		PutSpecialChar((gUiTmScratchA + TILEMAP_INDEX(0xF, 0xD)), TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
+		PutNumber((gUiTmScratchA + TILEMAP_INDEX(0xE, 0xF)), TEXT_COLOR_SYSTEM_GREEN, maxCapacity);
+	}
+	else
+	{
+		/* Arts */
+		if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
+			struct CombatArtList *clist = AutoGetCombatArtList(gStatScreen.unit);
 
-		if (clist->amt == 0) {
-			text = &gStatScreen.text[STATSCREEN_TEXT_ITEM4];
-			ClearText(text);
-			PutDrawText(
-				text,
-				gUiTmScratchA + TILEMAP_INDEX(9, 13),
-				TEXT_COLOR_SYSTEM_GRAY, 0, 0,
-				GetStringFromIndex(MSG_MSS_NOARTS));
-		}
+			if (clist->amt == 0) {
+				text = &gStatScreen.text[STATSCREEN_TEXT_ITEM4];
+				ClearText(text);
+				PutDrawText(
+					text,
+					gUiTmScratchA + TILEMAP_INDEX(9, 13),
+					TEXT_COLOR_SYSTEM_GRAY, 0, 0,
+					GetStringFromIndex(MSG_MSS_NOARTS));
+			}
 
-		for (iy = 0; iy < 2; iy++) {
-			for (ix = 0; ix < 4; ix++) {
-				int _index = ix + iy * 4;
+			for (iy = 0; iy < 2; iy++) {
+				for (ix = 0; ix < 4; ix++) {
+					int _index = ix + iy * 4;
 
-				if (_index >= clist->amt)
-					break;
+					if (_index >= clist->amt)
+						break;
 
-				DrawIcon(gUiTmScratchA + TILEMAP_INDEX(9 + 2 * ix, 13 + 2 * iy),
-						COMBART_ICON(clist->cid[_index]),
-						TILEREF(0, STATSCREEN_BGPAL_ITEMICONS));
+					DrawIcon(gUiTmScratchA + TILEMAP_INDEX(9 + 2 * ix, 13 + 2 * iy),
+							COMBART_ICON(clist->cid[_index]),
+							TILEREF(0, STATSCREEN_BGPAL_ITEMICONS));
+				}
 			}
 		}
 	}
-#endif
 }
 
 void HbRedirect_ArtPageOnlyAlly(struct HelpBoxProc *proc)
