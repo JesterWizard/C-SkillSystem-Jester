@@ -8,13 +8,6 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
- * 0: Not show any kernel tutorial
- * 1: Only show kernel tutorial in tutorial mode
- * 2: show kernel tutorial at anytime
- */
-#define CONFIG_KTUT_LEVEL 0
-
-/**
  * If uncommented, enable patch
  * FEB: Character Custom Animation
  */

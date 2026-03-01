@@ -11,7 +11,7 @@ struct KernelDesigerConfig {
 	u8 max_equipable_skill;
 	u8 remove_move_path;
 	u8 use_chinese_character;
-	u8 kernel_tutorial_level;
+	u8 show_tutorial;
 	u8 engage_combo_attack;
 	u8 battle_surrend_en;
 	u8 hit_decrease_on_range;

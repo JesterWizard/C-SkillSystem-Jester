@@ -26,28 +26,6 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 	Since move-path can display no more than 20 steps in vanilla, with the increase of unit's mobility, this limitation may cause risk of overflow error. Thus we can directly remove the move-path to avoid overflow.
 
-- `use_chinese_character`
-
-	![image](./gfx/SystemConfig1_ChChar.png)
-
-	Display Chinese affin character in statscreen unit page.
-
-- `kernel_tutorial_level`
-
-	Optional display kernel system tutorial box.
-
-	- `0`: Not show any kernel tutorial
-	- `1`: Only show kernel tutorial in tutorial mode
-	- `2`: show kernel tutorial at anytime
-
-- `engage_combo_attack`
-
-	Enable FE-Engage style combo-attack.
-
-- `battle_surrend_en`
-
-	Enable battle status loss when unit is surrendered.
-
 - `hit_decrease_on_range`
 
 	Enable FE-ThreeHouses style hit rate loss for far-ranged attack.

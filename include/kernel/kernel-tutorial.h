@@ -16,7 +16,7 @@ enum KTUTORIAL_flags {
 	KTUTORIAL_MAX = 96,
 };
 
-enum kernel_tutorial_level {
+enum show_tutorial {
 	KTUT_LEVEL_NEVER  = 0,
 	KTUT_LEVEL_MIDDLE = 1,
 	KTUT_LEVEL_HIGH   = 2,
