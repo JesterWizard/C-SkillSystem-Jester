@@ -2334,7 +2334,7 @@ SET_FUNC StartSubSpell_efxElfireBGCOL, 0x805DFA5
 SET_FUNC StartSubSpell_efxElfireOBJ, 0x805E031
 SET_FUNC StartSpellAnimFimbulvetr, 0x805E0E5
 SET_FUNC StartSpellAnimNosferatu, 0x805F355
-SET_FUNC EfxResire_Main, 0x805F391
+SET_FUNC EfxNosferatu_Main, 0x805F391
 SET_FUNC StartSpellAnimPurge, 0x805FAE1
 SET_FUNC nullsub_41, 0x805FE81
 SET_FUNC StartSpellAnimDivine, 0x805FE85
@@ -4350,7 +4350,7 @@ SET_DATA gProc_efxFimbulvetr, 0x85D5658
 SET_DATA gProc_efxThunderstorm, 0x85D5770
 SET_DATA gProc_efxAlacalibur, 0x85D5880
 SET_DATA gProc_efxMistyrain, 0x85D58F0
-SET_DATA gProc_efxResire, 0x85D5AE0
+SET_DATA gProc_EfxNosferatu, 0x85D5AE0
 SET_DATA gProc_efxLightning, 0x85D5CF0
 SET_DATA gProc_efxPurge, 0x85D5EAC
 SET_DATA gProc_efxDevine, 0x85D62FC

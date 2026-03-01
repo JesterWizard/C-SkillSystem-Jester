@@ -76,7 +76,7 @@ int GetUnitEquippedWeaponSlot(struct Unit *unit)
 			return i;
 	}
 
-	/* thress houses magic */
+	/* three houses magic */
 
 	/* engage weapon */
 #endif /* CHAX */
@@ -641,7 +641,7 @@ int GetUnitWeaponUsabilityBits(struct Unit *unit)
 		}
 	}
 
-	/* thress houses magic */
+	/* three houses magic */
 
 	/* engage weapon */
 #endif

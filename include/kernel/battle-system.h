@@ -288,9 +288,9 @@ extern s8 const *const gpCriticalBonus;
 extern s8 const *const gpSilencerBonus;
 
 /**
- * HpDrain/EfxResire weapon judgement
+ * HpDrain/EfxNosferatu weapon judgement
  */
-bool CheckWeaponIsEfxResire(int weapon);
+bool CheckWeaponIsEfxNosferatu(int weapon);
 bool CheckEfxMagicIsResire(int efx);
 
 /**

@@ -1,4 +1,4 @@
-#include "Source/EfxResireWeapon.lyn.event"
+#include "Source/EfxNosferatuWeapon.lyn.event"
 
 PUSH
     // efx magic pointer

@@ -169,18 +169,15 @@ void BattleHit_CalcHpDrain(struct BattleUnit *attacker, struct BattleUnit *defen
 	int percentage = 0;
 	int drain = ext_hit->hp_drain;
 
-#ifdef CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
-	if (CheckWeaponIsEfxResire(attacker->weapon))
-#else
-	if (GetItemWeaponEffect(attacker->weapon) == WPN_EFFECT_HPDRAIN)
-#endif
+	if (gpKernelDesignerConfig->apply_dynamic_nosferatu_battle_anim == true)
 	{
-		/**
-		 * If the weapon itself is set as hpdrain,
-		 * then it may directly call EfxHpBarResire() in banim,
-		 * at which time we must set hp-steal flag for battle-parse.
-		 */
-		gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
+		if (CheckWeaponIsEfxNosferatu(attacker->weapon))
+			gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
+	}
+	else
+	{
+		if (GetItemWeaponEffect(attacker->weapon) == WPN_EFFECT_HPDRAIN)
+			gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
 	}
 
 	/**

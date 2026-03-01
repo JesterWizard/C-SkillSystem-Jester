@@ -94,8 +94,8 @@ _kernel_malloc sKernelHookSkippingFlag, 1
 _kernel_malloc sAnimNumberSlot, 1
 _kernel_malloc sStatDebuffMsgBufNext, 1
 _kernel_malloc gKonamiComboStep, 1
-_kernel_malloc sEfxResireEfxIndexCacheMagic, 1
-_kernel_malloc sEfxResireEfxIndexCacheData, 1
+_kernel_malloc sEfxNosferatuEfxIndexCacheMagic, 1
+_kernel_malloc sEfxNosferatuEfxIndexCacheData, 1
 _kernel_malloc gSkillDbgList, 20 * 4
 _kernel_malloc gForgedItemRam, 50 * 2
 _kernel_malloc gDeadUnits, 50

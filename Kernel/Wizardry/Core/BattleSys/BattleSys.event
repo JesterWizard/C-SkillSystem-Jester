@@ -8,7 +8,7 @@
 #include "HpCost/HpCost.event"
 #include "NegateDef/NegateDef.lyn.event"
 #include "WrankBonus/WrankBonus.event"
-#include "EfxResireWeapon/EfxResireWeapon.event"
+#include "EfxNosferatuWeapon/EfxNosferatuWeapon.event"
 
 #include "Source/LynJump.event"
 #include "Source/BattleGenerate.lyn.event"

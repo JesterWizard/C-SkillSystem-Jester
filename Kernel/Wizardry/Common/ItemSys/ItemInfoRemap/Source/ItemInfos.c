@@ -1127,3 +1127,8 @@ LYN_REPLACE_CHECK(GetItemMinRange);
 int GetItemMinRange(int item) {
     return GetItemData(ITEM_INDEX(item))->encodedRange >> 4;
 }
+
+LYN_REPLACE_CHECK(GetItemAwardedExp);
+int GetItemAwardedExp(int item) {
+    return GetItemData(ITEM_INDEX(item))->weaponExp;
+}

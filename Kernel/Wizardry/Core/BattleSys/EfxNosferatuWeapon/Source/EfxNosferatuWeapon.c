@@ -6,14 +6,14 @@
 
 extern SpellAnimFunc const *const pr_EfxMagicTable;
 
-extern EWRAM_DATA u8 sEfxResireEfxIndexCacheMagic;
-extern EWRAM_DATA u8 sEfxResireEfxIndexCacheData;
+extern EWRAM_DATA u8 sEfxNosferatuEfxIndexCacheMagic;
+extern EWRAM_DATA u8 sEfxNosferatuEfxIndexCacheData;
 
 enum { EFX_RESIRE_EFX_INDEX_CACHE_MAGIC = 0x89 };
 
-STATIC_DECLAR int GetEfxResireEfxIndex(void)
+STATIC_DECLAR int GetEfxNosferatuEfxIndex(void)
 {
-	if (sEfxResireEfxIndexCacheMagic != EFX_RESIRE_EFX_INDEX_CACHE_MAGIC) {
+	if (sEfxNosferatuEfxIndexCacheMagic != EFX_RESIRE_EFX_INDEX_CACHE_MAGIC) {
 		const struct SpellAssoc *assoc_it;
 		int i, max_efx;
 		int efx, efx_ref1, efx_ref2;
@@ -52,21 +52,21 @@ STATIC_DECLAR int GetEfxResireEfxIndex(void)
 		else
 			efx = 0x1E; // well...
 
-		sEfxResireEfxIndexCacheMagic = EFX_RESIRE_EFX_INDEX_CACHE_MAGIC;
-		sEfxResireEfxIndexCacheData  = efx;
+		sEfxNosferatuEfxIndexCacheMagic = EFX_RESIRE_EFX_INDEX_CACHE_MAGIC;
+		sEfxNosferatuEfxIndexCacheData  = efx;
 	}
-	return sEfxResireEfxIndexCacheData;
+	return sEfxNosferatuEfxIndexCacheData;
 }
 
 bool CheckEfxMagicIsResire(int efx)
 {
-	if (efx == GetEfxResireEfxIndex())
+	if (efx == GetEfxNosferatuEfxIndex())
 		return true;
 
 	return false;
 }
 
-bool CheckWeaponIsEfxResire(int weapon)
+bool CheckWeaponIsEfxNosferatu(int weapon)
 {
 	int iid = ITEM_INDEX(weapon);
 	const struct SpellAssoc *assoc_it;
@@ -74,7 +74,7 @@ bool CheckWeaponIsEfxResire(int weapon)
 	/* ext spellassoc */
 	for (assoc_it = ExtSpellAssocData; assoc_it->item != 0xFFFF; assoc_it++) {
 		if (assoc_it->item == iid) {
-			if (assoc_it->efx == GetEfxResireEfxIndex())
+			if (assoc_it->efx == GetEfxNosferatuEfxIndex())
 				return true;
 			else
 				return false;
@@ -83,7 +83,7 @@ bool CheckWeaponIsEfxResire(int weapon)
 
 	for (assoc_it = pr_SpellAssocData; assoc_it->item != 0xFFFF; assoc_it++) {
 		if (assoc_it->item == iid) {
-			if (assoc_it->efx == GetEfxResireEfxIndex())
+			if (assoc_it->efx == GetEfxNosferatuEfxIndex())
 				return true;
 			else
 				return false;

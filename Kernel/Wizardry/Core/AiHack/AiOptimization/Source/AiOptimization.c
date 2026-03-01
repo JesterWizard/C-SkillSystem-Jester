@@ -245,9 +245,7 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 	UNIT_AMOUNT = 0xD0;
 #endif
 
-#ifdef CONFIG_PERFORMANCE_OPTIMIZATION
 	int target_count = 0;
-#endif
 
 	int uid;
 	bool ret = 0;
@@ -286,18 +284,15 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 	CollectAiSimuSlots(gActiveUnit, gpAiSimuSlotBuf);
 
 	for (it = gpAiSimuSlotBuf; it->item != 0; it++) {
-#ifdef CONFIG_PERFORMANCE_OPTIMIZATION
 		int move_distance;
-#endif
+
 		u16 item = it->item;
 
 		LTRACEF("[%d] item=0x%04X, slot=0x%02X", it - gpAiSimuSlotBuf, it->item, it->slot);
 
 		tmpResult.itemSlot = it->slot;
 
-#ifdef CONFIG_PERFORMANCE_OPTIMIZATION
 		move_distance = MovGetter(gActiveUnit) + GetItemMaxRangeRework(item, gActiveUnit);
-#endif
 
 		for (uid = 1; uid < UNIT_AMOUNT; uid++) {
 			struct Unit *unit = GetUnit(uid);
@@ -308,13 +303,16 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 			if (unit->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
 				continue;
 
-#ifdef CONFIG_PERFORMANCE_OPTIMIZATION
-			if (move_distance < RECT_DISTANCE(unit->xPos, unit->yPos, gActiveUnit->xPos, gActiveUnit->yPos))
-				continue;
-#else
-			if (!AiReachesByBirdsEyeDistance(gActiveUnit, unit, item))
-				continue;
-#endif
+			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+			{
+				if (move_distance < RECT_DISTANCE(unit->xPos, unit->yPos, gActiveUnit->xPos, gActiveUnit->yPos))
+					continue;
+			}
+			else
+			{
+				if (!AiReachesByBirdsEyeDistance(gActiveUnit, unit, item))
+					continue;
+			}
 
 #if defined(SID_ShadePlus) && (COMMON_SKILL_VALID(SID_ShadePlus))
 			if (SkillTesterPlus(unit, SID_ShadePlus))
@@ -365,10 +363,11 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 				LTRACEF("Find slot: %d", it - gpAiSimuSlotBuf);
 			}
 
-#ifdef CONFIG_PERFORMANCE_OPTIMIZATION
-			if (++target_count >= TARGET_COUNT_TRIGLEVEL)
-				break;
-#endif
+			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
+			{
+				if (++target_count >= TARGET_COUNT_TRIGLEVEL)
+					break;
+			}
 		}
 	}
 

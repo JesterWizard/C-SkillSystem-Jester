@@ -109,6 +109,7 @@ struct KernelDesigerConfig {
 	u8 tellius_skill_capacity_promoted;
 	u8 calculate_map_range_faster;
 	u8 custom_character_animations;
+	u8 apply_dynamic_nosferatu_battle_anim;
 };
 
 struct KernelBattleDesignerConfig {

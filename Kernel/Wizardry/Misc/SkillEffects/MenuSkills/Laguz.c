@@ -34,7 +34,7 @@ u8 Transform_Laguz_Usability(const struct MenuItemDef *def, int number)
         return MENU_ENABLED;
     }
 
-    return MENU_DISABLED;
+    return MENU_NOTSHOWN;
 }
 
 u8 Transform_Laguz_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)

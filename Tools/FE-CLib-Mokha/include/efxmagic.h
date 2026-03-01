@@ -139,12 +139,12 @@ extern u16 * gUnknown_085D5920[];
 extern u16 * gUnknown_085D59C4[];
 extern struct ProcCmd ProcScr_efxMistyrainOBJ[];
 extern struct ProcCmd gProcScr_efxMistyrainOBJ2[];
-// extern ??? ProcScr_efxResire
-// extern ??? ProcScr_efxResireBG
-// extern ??? ProcScr_efxResireBG2
+// extern ??? ProcScr_EfxNosferatu
+// extern ??? ProcScr_EfxNosferatuBG
+// extern ??? ProcScr_EfxNosferatuBG2
 // extern ??? ImgArray_NosferatuBg
 // extern ??? TsaArray_NosferatuBg
-// extern ??? ProcScr_efxResireRST
+// extern ??? ProcScr_EfxNosferatuRST
 // extern ??? ProcScr_efxLightning
 // extern ??? ProcScr_efxLightningBG
 // extern ??? ImgArray_LightningBg
@@ -451,16 +451,16 @@ void efxMistyRainObj_805F2C4(struct ProcEfxOBJ * proc);
 void efxMistyRainObj2_805F300(struct ProcEfxOBJ * proc);
 void efxMistyRainObj2_805F32C(struct ProcEfxOBJ * proc);
 void StartSpellAnimNosferatu(struct Anim * anim);
-void efxResire_Loop_Main(struct ProcEfx * proc);
-void StartSubSpell_efxResireBG(struct Anim * anim, int unk);
-void StartSubSpell_efxResireBG2(struct Anim * anim);
-void efxResireBG_Loop_A(struct ProcEfxBG * proc);
-void efxResireBG_Loop_B(struct ProcEfxBG * proc);
-void efxResireBG_Loop_C(struct ProcEfxBG * proc);
-void efxResireBG_Loop_D(struct ProcEfxBG * proc);
-void efxResireBG2_Loop(struct ProcEfxBG * proc);
-void StartSubSpell_efxResireRST(struct Anim * anim, ProcPtr b, int c);
-void efxResireRST_Loop(struct ProcEfxRST * proc);
+void EfxNosferatu_Loop_Main(struct ProcEfx * proc);
+void StartSubSpell_EfxNosferatuBG(struct Anim * anim, int unk);
+void StartSubSpell_EfxNosferatuBG2(struct Anim * anim);
+void EfxNosferatuBG_Loop_A(struct ProcEfxBG * proc);
+void EfxNosferatuBG_Loop_B(struct ProcEfxBG * proc);
+void EfxNosferatuBG_Loop_C(struct ProcEfxBG * proc);
+void EfxNosferatuBG_Loop_D(struct ProcEfxBG * proc);
+void EfxNosferatuBG2_Loop(struct ProcEfxBG * proc);
+void StartSubSpell_EfxNosferatuRST(struct Anim * anim, ProcPtr b, int c);
+void EfxNosferatuRST_Loop(struct ProcEfxRST * proc);
 void StartSpellAnimLightning(struct Anim * anim);
 void efxLightning_Loop_Main(struct ProcEfx * proc);
 void StartSubSpell_efxLightningBG(struct Anim * anim);

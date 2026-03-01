@@ -101,7 +101,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
 	.gaiden_magic = true,
 	.gaiden_magic_must_be_magic = false,    // False = all weapons are allowed, True = Only magic weapons
-	.gaiden_magic_requires_wrank = true,   // False = Doesn't require unit to have a rank in that weapon to use
+	.gaiden_magic_requires_wrank = false,   // False = Doesn't require unit to have a rank in that weapon to use
 	.gaiden_magic_ai_use = false,           // False = AI can't use gaiden magic
 	.gaiden_magic_skill_extensions = false, // False = Apply an extenal table with skills that apply more gaiden magic
 	.no_suspend_in_aiphase = true,
@@ -119,4 +119,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.tellius_skill_capacity_promoted = 25,
 	.calculate_map_range_faster = true, // Speeds up AI decision making by only calculating the three closest enemies, without it the AI takes forever 
 	.custom_character_animations = true,
+	.apply_dynamic_nosferatu_battle_anim = true // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
 };

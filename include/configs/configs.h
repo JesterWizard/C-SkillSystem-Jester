@@ -8,11 +8,6 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
- * Auto detect on EfxResire weapon judgement
- */
-#define CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON
-
-/**
  * In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
  */
 #define CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
@@ -27,11 +22,6 @@
 * https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5
 */
 #define CONFIG_FIT_OLD_SKILLSYS_LIST
-
-/**
- * Install some performance hooks
- */
-#define CONFIG_PERFORMANCE_OPTIMIZATION
 
 /**
  * Install DrawMapActionAnimation
