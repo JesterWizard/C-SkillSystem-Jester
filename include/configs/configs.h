@@ -1,29 +1,11 @@
 //#include "config-debug.h"
 #include "config-memmap.h"
 
-#define CONFIG_FE8_REWRITE // This needs to remain as a build config
-
-/**
- * If uncomment, kernel may remove vanilla dislogue text
- * so that we can save ~470KByte ROM space in DEMO.
- *
- * Note that enabling this config will make FEB think there are something wrong in
- * ROM and report warnning. But it will be okay since this will not actually
- * introduce any bug.
- *
- * If you're planning to develop a new game instead of making minor
- * changes on vanilla, it is recommanded to uncomment this config to save space.
- */
-#define CONFIG_CROP_VANILLA_MSG // This needs to remain as a build config
-
- /* CommonProtection.event */
-#define CONFIG_COMMON_PROTECTION_ENABLED
-
-/* If comment, CHAX may not verify on FESKILL magic work in SRAM */
-#define CONFIG_VERIFY_SKILLSYS_SRAM
-
-/* If uncomment, use utf-8 characters */
-#define CONFIG_USE_UTF8_GLYPH
+// These need to remain as build time configs
+#define CONFIG_FE8_REWRITE
+#define CONFIG_CROP_VANILLA_MSG 			// Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
+#define CONFIG_COMMON_PROTECTION_ENABLED 	// I'm not even sure what this does, so I ain't touching it
+#define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
  * 0: Not show any kernel tutorial
