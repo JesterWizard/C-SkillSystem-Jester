@@ -81,10 +81,6 @@ Install FEB patch: `SetHPClassLimit`
 Append the same logic on loading skills as the old skillsys:
 [https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5](https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5)
 
-## CONFIG_MENU_SKILL_NOT_IN_UPPER
-
-Unit menu skill items displayed in the upper menu or a standalone sub-menu.
-
 ## CONFIG_LVUP_MODE_TUTORIAL
 
 Level-up mode:

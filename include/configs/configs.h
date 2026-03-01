@@ -69,11 +69,6 @@
 #define CONFIG_FIT_OLD_SKILLSYS_LIST
 
 /**
- * Unit menu skill item displayed in upper menu or standalone sub-menu.
- */
-#define CONFIG_MENU_SKILL_NOT_IN_UPPER
-
-/**
  * Levelup mode
  * 0: vanilla
  * 1: uncontrollable

@@ -11,8 +11,6 @@ NOINLINE const struct MenuItemDef *GetSkillMenuInfo(int sid)
 /**
  * Upper menu
  */
-#ifdef CONFIG_MENU_SKILL_NOT_IN_UPPER
-
 STATIC_DECLAR const struct MenuItemDef sUnitSkillMenuItems[] = {
 	{
 		"　特技",
@@ -117,8 +115,6 @@ u8 UpperMenuSkill_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 
 	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
-
-#endif /* MENU_SKILL_NOT_IN_UPPER */
 
 /**
  * Ext

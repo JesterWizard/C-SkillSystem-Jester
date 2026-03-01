@@ -179,7 +179,6 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 		pr_GaidenWMagActionCommandHover,
 		HideMoveRangeGraphicsWrapper2
 	},
-#ifdef CONFIG_MENU_SKILL_NOT_IN_UPPER
 	{
 		"　特技",
 		MSG_MenuSkill_UM_NAME,
@@ -191,60 +190,58 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 		pr_UpperMenuSkill_OnSelected,
 		NULL, NULL, NULL
 	},
-#else
-	{
-		"　特技",
-		0x4EC,
-		0,
-		TEXT_COLOR_SYSTEM_WHITE,
-		0x54,
-		MenuSkills_Usability,
-		MenuSkills_OnDraw,
-		MenuSkills_OnSelected,
-		MenuSkills_Idle,
-		MenuSkills_Hover,
-		MenuSkills_Unhover
-	},
-	{
-		"　特技",
-		0x4EC,
-		1,
-		TEXT_COLOR_SYSTEM_WHITE,
-		0x55,
-		MenuSkills_Usability,
-		MenuSkills_OnDraw,
-		MenuSkills_OnSelected,
-		MenuSkills_Idle,
-		MenuSkills_Hover,
-		MenuSkills_Unhover
-	},
-	{
-		"　特技",
-		0x4EC,
-		2,
-		TEXT_COLOR_SYSTEM_WHITE,
-		0x56,
-		MenuSkills_Usability,
-		MenuSkills_OnDraw,
-		MenuSkills_OnSelected,
-		MenuSkills_Idle,
-		MenuSkills_Hover,
-		MenuSkills_Unhover
-	},
-	{
-		"　特技",
-		0x4EC,
-		3,
-		TEXT_COLOR_SYSTEM_WHITE,
-		0x57,
-		MenuSkills_Usability,
-		MenuSkills_OnDraw,
-		MenuSkills_OnSelected,
-		MenuSkills_Idle,
-		MenuSkills_Hover,
-		MenuSkills_Unhover
-	},
-#endif /* MENU_SKILL_NOT_IN_UPPER */
+	// {
+	// 	"　特技",
+	// 	0x4EC,
+	// 	0,
+	// 	TEXT_COLOR_SYSTEM_WHITE,
+	// 	0x54,
+	// 	MenuSkills_Usability,
+	// 	MenuSkills_OnDraw,
+	// 	MenuSkills_OnSelected,
+	// 	MenuSkills_Idle,
+	// 	MenuSkills_Hover,
+	// 	MenuSkills_Unhover
+	// },
+	// {
+	// 	"　特技",
+	// 	0x4EC,
+	// 	1,
+	// 	TEXT_COLOR_SYSTEM_WHITE,
+	// 	0x55,
+	// 	MenuSkills_Usability,
+	// 	MenuSkills_OnDraw,
+	// 	MenuSkills_OnSelected,
+	// 	MenuSkills_Idle,
+	// 	MenuSkills_Hover,
+	// 	MenuSkills_Unhover
+	// },
+	// {
+	// 	"　特技",
+	// 	0x4EC,
+	// 	2,
+	// 	TEXT_COLOR_SYSTEM_WHITE,
+	// 	0x56,
+	// 	MenuSkills_Usability,
+	// 	MenuSkills_OnDraw,
+	// 	MenuSkills_OnSelected,
+	// 	MenuSkills_Idle,
+	// 	MenuSkills_Hover,
+	// 	MenuSkills_Unhover
+	// },
+	// {
+	// 	"　特技",
+	// 	0x4EC,
+	// 	3,
+	// 	TEXT_COLOR_SYSTEM_WHITE,
+	// 	0x57,
+	// 	MenuSkills_Usability,
+	// 	MenuSkills_OnDraw,
+	// 	MenuSkills_OnSelected,
+	// 	MenuSkills_Idle,
+	// 	MenuSkills_Hover,
+	// 	MenuSkills_Unhover
+	// },
 #else
 	{"　奏でる", 0x67D, 0x6C3, 0, 0x54, PlayCommandUsability, 0, PlayCommandEffect, 0, 0, 0}, // Play >
 	{"　踊る", 0x67E, 0x6C2, 0, 0x55, DanceCommandUsability, 0, PlayCommandEffect, 0, 0, 0}, // Dance
