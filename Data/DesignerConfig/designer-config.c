@@ -95,9 +95,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.reset_bwl_stats_each_chapter = true,
 	.quality_of_life_fixes = true,
 	.guaranteed_lvup = false,
-	.lvup_mode_tutorial = CONFIG_LVUP_MODE_TUTORIAL,
-	.lvup_mode_normal   = CONFIG_LVUP_MODE_NORMAL,
-	.lvup_mode_hard	    = CONFIG_LVUP_MODE_HARD,
+	.lvup_mode_easy     = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
+	.lvup_mode_normal   = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
+	.lvup_mode_hard	    = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
 	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
 	.gaiden_magic = true,
 	.gaiden_magic_must_be_magic = false,    // False = all weapons are allowed, True = Only magic weapons

@@ -256,46 +256,6 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
     if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */
 
-
-    // if (Proc_Find(ProcScr_PrepItemListScreen_BEXP))
-    // {
-    //     // Check if any values are greater than 0
-    //     int anyStatIncrease = 0; // Flag to track if there's any stats to increase
-    //     for (u8 i = 0; i < ARRAY_COUNT(statChanges); i++)
-    //     {
-    //         if (*statChanges[i] == 0)
-    //         {
-    //             anyStatIncrease = 1; // Set the flag if any stat is greater than 0
-    //             break;               // No need to continue checking once we find a positive value
-    //         }
-    //     }
-
-    //     if (anyStatIncrease)
-    //     {
-    //         // Set the upper limit of stats to increase (accounting for previous increases before this skill)
-    //         while (statCounter < 3)
-    //         {
-    //             // Count available uncapped stats that haven't increased yet
-    //             int available = 0;
-    //             for (u8 i = 0; i < ARRAY_COUNT(statChanges); i++)
-    //             {
-    //                 if (*statChanges[i] == 0 && IsStatUncapped(unit, i, limitBreaker))
-    //                     available++;
-    //             }
-    //             if (available == 0)
-    //                 break; // Exit if none are available
-
-    //             int randIndex = NextRN_N(ARRAY_COUNT(statChanges));
-
-    //             if (*statChanges[randIndex] == 0 && IsStatUncapped(unit, randIndex, limitBreaker))
-    //             {
-    //                 *statChanges[randIndex] = 1;
-    //                 statCounter++;
-    //             }
-    //         }
-    //         tripleUpExecuted = true;
-    //     }
-    // }
 }
 
 STATIC_DECLAR void UnitLvup_RandC(struct BattleUnit* bu, int bonus)
@@ -309,8 +269,22 @@ STATIC_DECLAR void UnitLvup_RandC(struct BattleUnit* bu, int bonus)
     bu->changeLck = GetStatIncreaseRandC(GetUnitLckGrowth(unit) + bonus);
     bu->changeDef = GetStatIncreaseRandC(GetUnitDefGrowth(unit) + bonus);
     bu->changeRes = GetStatIncreaseRandC(GetUnitResGrowth(unit) + bonus);
-
     BU_CHG_MAG(bu) = GetStatIncreaseRandC(GetUnitMagGrowth(unit) + bonus);
+
+    if (gpKernelDesignerConfig->talk_on_level_up == true)
+    {
+        int statUps =
+        (bu->changeHP > 0) +
+        (bu->changePow > 0) +
+        (bu->changeSkl > 0) +
+        (bu->changeSpd > 0) +
+        (bu->changeLck > 0) +
+        (bu->changeDef > 0) +
+        (bu->changeRes > 0) +
+        (BU_CHG_MAG(bu) > 0);
+
+        gEventSlots[EVT_SLOT_9] += statUps;
+    }
 }
 
 STATIC_DECLAR void UnitLvup_Fixed(struct BattleUnit* bu, int bonus)
@@ -329,8 +303,22 @@ STATIC_DECLAR void UnitLvup_Fixed(struct BattleUnit* bu, int bonus)
     bu->changeLck = GetStatIncreaseFixed(GetUnitLckGrowth(unit) + bonus, ref += 5);
     bu->changeDef = GetStatIncreaseFixed(GetUnitDefGrowth(unit) + bonus, ref += 5);
     bu->changeRes = GetStatIncreaseFixed(GetUnitResGrowth(unit) + bonus, ref += 5);
-
     BU_CHG_MAG(bu) = GetStatIncreaseFixed(GetUnitMagGrowth(unit) + bonus, ref += 5);
+
+    if (gpKernelDesignerConfig->talk_on_level_up == true)
+    {
+        int statUps =
+        (bu->changeHP > 0) +
+        (bu->changePow > 0) +
+        (bu->changeSkl > 0) +
+        (bu->changeSpd > 0) +
+        (bu->changeLck > 0) +
+        (bu->changeDef > 0) +
+        (bu->changeRes > 0) +
+        (BU_CHG_MAG(bu) > 0);
+
+        gEventSlots[EVT_SLOT_9] += statUps;
+    }
 }
 
 STATIC_DECLAR void UnitLvup_100(struct BattleUnit* bu, int bonus)
@@ -343,6 +331,9 @@ STATIC_DECLAR void UnitLvup_100(struct BattleUnit* bu, int bonus)
     bu->changeDef = 1;
     bu->changeRes = 1;
     BU_CHG_MAG(bu) = 1;
+
+    if (gpKernelDesignerConfig->talk_on_level_up == true)
+        gEventSlots[EVT_SLOT_9] = 8;
 }
 
 STATIC_DECLAR void UnitLvup_0(struct BattleUnit* bu, int bonus) {}
@@ -360,7 +351,7 @@ STATIC_DECLAR void UnitLvupCore(struct BattleUnit* bu, int bonus)
     int mode, total_lvup, i, retry;
 
     if (TUTORIAL_MODE())
-        mode = gpKernelDesignerConfig->lvup_mode_tutorial;
+        mode = gpKernelDesignerConfig->lvup_mode_easy;
     if (gPlaySt.config.controller || (gPlaySt.chapterStateBits & PLAY_FLAG_HARD))
         mode = gpKernelDesignerConfig->lvup_mode_hard;
     else

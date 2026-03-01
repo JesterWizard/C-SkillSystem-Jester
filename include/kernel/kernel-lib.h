@@ -86,7 +86,7 @@ struct KernelDesigerConfig {
 	u8 quality_of_life_fixes;
 
 	u8 guaranteed_lvup;
-	u8 lvup_mode_tutorial;
+	u8 lvup_mode_easy;
 	u8 lvup_mode_normal;
 	u8 lvup_mode_hard;
 

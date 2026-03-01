@@ -275,6 +275,8 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc* proc)
 	int message = -1;
 	int unitID = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 
+	NoCashGBAPrintf("Number of level ups is: %d", gEventSlots[EVT_SLOT_9]);
+
 	if (gEventSlots[EVT_SLOT_9] <= 2)
 		message = 0;
 	else if (gEventSlots[EVT_SLOT_9] <= 5)

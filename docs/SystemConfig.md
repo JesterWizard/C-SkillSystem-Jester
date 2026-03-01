@@ -60,24 +60,6 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 	If no status increases during level-up, kernel may retry 10 times with a 10% growth bonus.
 
-- `lvup_mode_tutorial`
-
-	Level up mode in tutorial mode,
-
-	- `0`: GBA style lvup, same as vanilla
-	- `1`: 3DS style lvup, uncontrollable random lvup
-	- `2`: fixed lvup
-	- `3`: 100% growth
-	- `4`: 0% growth
-
-- `lvup_mode_normal`
-
-	Level up mode in normal mode, same as `lvup_mode_tutorial`.
-
-- `lvup_mode_hard`
-
-	Level up mode in hard mode, same as `lvup_mode_tutorial`.
-
 - `unit_page_style`
 
 	Display style of statscreen page1.

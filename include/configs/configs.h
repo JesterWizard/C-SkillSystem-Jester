@@ -69,18 +69,6 @@
 #define CONFIG_FIT_OLD_SKILLSYS_LIST
 
 /**
- * Levelup mode
- * 0: vanilla
- * 1: uncontrollable
- * 2: fixed
- * 3: 100%
- * 4: 0%
- */
-#define CONFIG_LVUP_MODE_TUTORIAL 0
-#define CONFIG_LVUP_MODE_NORMAL 0
-#define CONFIG_LVUP_MODE_HARD 0
-
-/**
  * Install some performance hooks
  */
 #define CONFIG_PERFORMANCE_OPTIMIZATION
@@ -97,7 +85,7 @@
 */
 #define CONFIG_MENU_SKILL_DISP_MSG_EN_N 0
 
-#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event
+#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand this safetly
 
 /**
 * IER

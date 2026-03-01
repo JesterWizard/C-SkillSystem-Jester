@@ -81,7 +81,7 @@ Install FEB patch: `SetHPClassLimit`
 Append the same logic on loading skills as the old skillsys:
 [https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5](https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5)
 
-## CONFIG_LVUP_MODE_TUTORIAL
+## CONFIG_lvup_mode_easy
 
 Level-up mode:
 
