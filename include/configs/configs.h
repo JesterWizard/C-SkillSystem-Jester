@@ -8,12 +8,6 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
- * If uncommented, enable patch
- * FEB: Character Custom Animation
- */
-#define CONFIG_USE_CHAR_CUSTOM_ANIM
-
-/**
  * Auto detect on EfxResire weapon judgement
  */
 #define CONFIG_AUTO_DETECT_EFXRESIRE_WEAPON

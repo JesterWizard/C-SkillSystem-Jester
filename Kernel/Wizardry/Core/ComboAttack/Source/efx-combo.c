@@ -40,21 +40,22 @@ struct BanimSyncHandler * GetBanimSyncHandler_ComboAtk(struct Anim *anim)
 
 	gBanimSyncHandler.animdef = NULL;
 
-#ifdef CONFIG_USE_CHAR_CUSTOM_ANIM
-	/* Port for Individual_animation_ea_2 */
-	int i;
-	const struct IndividualAnimConf *aconf = GetPrIndividualAnimConf();
+	if (gpKernelDesignerConfig->custom_character_animations == true)
+	{
+		/* Port for Individual_animation_ea_2 */
+		int i;
+		const struct IndividualAnimConf *aconf = GetPrIndividualAnimConf();
 
-	for (i = 0; aconf[i].pid != 0 || aconf[i].jid != 0; i++) {
-		u8 pid = aconf[i].pid;
-		u8 jid = aconf[i].jid;
+		for (i = 0; aconf[i].pid != 0 || aconf[i].jid != 0; i++) {
+			u8 pid = aconf[i].pid;
+			u8 jid = aconf[i].jid;
 
-		if (pid == UNIT_CHAR_ID(unit) && jid == UNIT_CLASS_ID(unit)) {
-			gBanimSyncHandler.animdef = aconf[i].anim_conf;
-			break;
+			if (pid == UNIT_CHAR_ID(unit) && jid == UNIT_CLASS_ID(unit)) {
+				gBanimSyncHandler.animdef = aconf[i].anim_conf;
+				break;
+			}
 		}
 	}
-#endif
 
 	if (gBanimSyncHandler.animdef == NULL)
 		gBanimSyncHandler.animdef = unit->pClassData->pBattleAnimDef;

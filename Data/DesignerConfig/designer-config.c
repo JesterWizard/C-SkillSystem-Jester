@@ -118,4 +118,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.tellius_skill_capacity_base = 50,
 	.tellius_skill_capacity_promoted = 25,
 	.calculate_map_range_faster = true, // Speeds up AI decision making by only calculating the three closest enemies, without it the AI takes forever 
+	.custom_character_animations = true,
 };

@@ -108,6 +108,7 @@ struct KernelDesigerConfig {
 	u8 tellius_skill_capacity_base;
 	u8 tellius_skill_capacity_promoted;
 	u8 calculate_map_range_faster;
+	u8 custom_character_animations;
 };
 
 struct KernelBattleDesignerConfig {
