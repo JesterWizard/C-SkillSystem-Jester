@@ -10,9 +10,7 @@ POP
 
 ALIGN 4
 gPreMapAnimBattleRoundHooks:
-#ifdef CONFIG_USE_COMBO_ATTACK
     POIN PreMapAnimBattleRound_ComboAttack
-#endif
     POIN MapAnimRoundAnim_DisplaySkillIcon
     POIN MapAnimRoundAnim_DisplayHpCost
     WORD 0 0 0 0

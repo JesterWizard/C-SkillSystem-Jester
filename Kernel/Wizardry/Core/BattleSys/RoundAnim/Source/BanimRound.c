@@ -175,11 +175,10 @@ void ParseBattleHitToBanimCmd(void)
 			gpEkrTriangleUnits[1] = gBattleStats.taUnitB;
 		}
 
-#ifdef CONFIG_USE_COMBO_ATTACK
 		/**
 		 * Modify for combo attack
 		 */
-		if (gpKernelDesignerConfig->combo_attack_en) {
+		if (gpKernelDesignerConfig->engage_combo_attack) {
 			if (i < COMBO_ATK_MAX) {
 				struct ComboAtkTarget *combo = &gComboAtkList[i];
 
@@ -195,7 +194,6 @@ void ParseBattleHitToBanimCmd(void)
 				}
 			}
 		}
-#endif /* USE_COMBO_ATTACK */
 
 		/**
 		 * Attacker round base types

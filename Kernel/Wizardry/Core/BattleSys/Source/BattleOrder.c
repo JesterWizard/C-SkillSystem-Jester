@@ -812,7 +812,6 @@ static bool TryExecuteComboAttackOnce(
     if (!comboDone || !pOldHit)
         return false;
 
-#ifdef CONFIG_USE_COMBO_ATTACK
     // Only run combo once
     if (!(*comboDone))
     {
@@ -834,8 +833,6 @@ static bool TryExecuteComboAttackOnce(
         }
     #endif
     }
-
-#endif /* CONFIG_USE_COMBO_ATTACK */
 
     return false;
 }
@@ -893,10 +890,7 @@ repeat_full_round:;   // <--- label for Accost repeat
     int actor_count  = 0;
     int target_count = 0;
 
-#ifdef CONFIG_USE_COMBO_ATTACK
     bool combo_done = false;
-#endif
-
     bool round_stopped = false;
 
     for (int i = 0; i < 4; i++)
@@ -915,12 +909,10 @@ repeat_full_round:;   // <--- label for Accost repeat
 
         ApplyReturnAttackFlagIfNeeded(atkType);
 
-#ifdef CONFIG_USE_COMBO_ATTACK
         if (TryExecuteComboAttackOnce(atk, def, &combo_done, &roundStart)) {
             round_stopped = true;
             break;
         }
-#endif
 
         int stop = BattleGenerateRoundHits(atk, def);
 

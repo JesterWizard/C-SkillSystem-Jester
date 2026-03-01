@@ -16,10 +16,6 @@ If commented out, CHAX may not verify the FESKILL magic word in SRAM.
 
 If uncommented, use UTF-8 characters.
 
-## CONFIG_USE_COMBO_ATTACK
-
-Engage style combo attack.
-
 ## CONFIG_BATTLE_SURROUND
 
 When a unit is attacked and adjacent to the enemy, each adjacent enemy may cause the unit's avoid to decrease by 10%.

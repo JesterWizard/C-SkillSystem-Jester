@@ -151,7 +151,7 @@ bool BattleComboGenerateHits(void)
 
 	ResetComboAtkList();
 
-	if (!gpKernelDesignerConfig->combo_attack_en)
+	if (!gpKernelDesignerConfig->engage_combo_attack)
 		return false;
 
 	/* Not considering on simulation */

@@ -10,9 +10,7 @@ extern HookProcFunc_t const *const gpPreMapAnimBattleRoundHooks;
 
 STATIC_DECLAR void PreMapAnimBattleRound_OnStart(ProcPtr proc)
 {
-#ifdef CONFIG_USE_COMBO_ATTACK
 	MapAnim_PrepareNextBattleRound_CleanPreRoundCombo();
-#endif
 
 	/**
 	 * This is part of function MapAnim_PrepareNextBattleRound()

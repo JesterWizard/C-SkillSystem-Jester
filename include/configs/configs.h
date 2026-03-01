@@ -25,9 +25,6 @@
 /* If uncomment, use utf-8 characters */
 #define CONFIG_USE_UTF8_GLYPH
 
-/* Engage style combo attack */
-#define CONFIG_USE_COMBO_ATTACK
-
 /**
  * 0: Not show any kernel tutorial
  * 1: Only show kernel tutorial in tutorial mode
@@ -85,7 +82,7 @@
 */
 #define CONFIG_MENU_SKILL_DISP_MSG_EN_N 0
 
-#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand this safetly
+#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 
 /**
 * IER

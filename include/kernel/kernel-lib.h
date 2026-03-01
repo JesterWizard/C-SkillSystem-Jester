@@ -12,7 +12,7 @@ struct KernelDesigerConfig {
 	u8 remove_move_path;
 	u8 use_chinese_character;
 	u8 kernel_tutorial_level;
-	u8 combo_attack_en;
+	u8 engage_combo_attack;
 	u8 battle_surrend_en;
 	u8 hit_decrease_on_range;
 	u8 debug_autoload_skills;
