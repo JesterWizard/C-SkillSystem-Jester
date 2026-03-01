@@ -101,7 +101,6 @@ struct KernelDesigerConfig {
 	u8 skill_sub_menu_width;
 	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
 	u8 enemy_can_combo_attack;
-	u8 menu_skill_disp_msg_en_n;
 	u8 banim_switcher_en; 	/* banim switcher */
 	u8 max_level;
 	u8 max_level_record;

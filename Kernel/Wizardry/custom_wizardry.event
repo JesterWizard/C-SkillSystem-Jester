@@ -14,9 +14,7 @@
 
 #include "Common/Supports/Supports_Installer.event"
 
-#ifdef CONFIG_VESLY_DEBUGGER
-    #include "Misc/VeslyDebugger/VeslyDebugger_Installer.event"
-#endif
+#include "Misc/VeslyDebugger/VeslyDebugger_Installer.event"
 
 #include "Misc/VeslyDangerBones/VeslyDangerBones_Installer.event"
 

@@ -77,11 +77,6 @@
 
 // #define CONFIG_INSTALL_STATSCREENFX // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 
-/**
-* When display menu skills, directly display skill name, rather than MenuItemDef::nameMsgId
-*/
-#define CONFIG_MENU_SKILL_DISP_MSG_EN_N 0
-
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 
 /**
@@ -201,7 +196,6 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
-#define CONFIG_VESLY_DEBUGGER
 #define CONFIG_VESLY_DANGER_BONES 
 #define CONFIG_VESLY_SUPPORT_POST_BATTLE
 #ifdef  CONFIG_VESLY_SUPPORT_POST_BATTLE

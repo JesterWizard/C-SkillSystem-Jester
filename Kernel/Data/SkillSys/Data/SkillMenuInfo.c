@@ -82,9 +82,7 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Teleportation) && COMMON_SKILL_VALID(SID_Teleportation))
 	[SID_Teleportation] = &(const struct MenuItemDef) {
 		.name = "　転移",
-#if !CONFIG_MENU_SKILL_DISP_MSG_EN_N
 		.nameMsgId = MSG_SKILL_Teleportation_NAME,
-#endif
 		.helpMsgId = MSG_SKILL_Teleportation_DESC,
 		.color = TEXT_COLOR_SYSTEM_GOLD,
 		.isAvailable = Teleportation_Usability,
