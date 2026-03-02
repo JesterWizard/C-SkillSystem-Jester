@@ -1,4 +1,5 @@
 #include "C_Code.h"
+#include "kernel-lib.h"
 
 #define brk asm("mov r11, r11");
 #define DangerBonesBufferSize 0x2878
@@ -8,31 +9,25 @@
 
 #define DangerBonesBuffer ((u8*)0x201c8d0)
 
-// extern u8 DangerBonesBuffer[DangerBonesBufferSize];
-
 extern int US_BIT_SHAKE;
 extern int US_BIT_PAL;
-
-// #define EMPTY_BmUnit
-
-// break point on buffer
-// [0x201c8d0..0x201c8d0+0x2878]!!
 
 extern int ShakeIt;
 extern int Pal_4th;
 extern int DangerBonesDisabledFlag;
 
-int ShouldDangerBonesNotRun(void)
+int ShouldDangerBonesRun(void)
 {
+    if (gpKernelDesignerConfig->vesly_danger_bones != true)
+        return false;
+
     if (gPlaySt.faction)
-    {
-        return true;
-    }
+        return false;
+
     if (CheckFlag(DangerBonesDisabledFlag))
-    {
-        return true;
-    }
-    return false;
+        return false;
+    
+    return true;
 }
 
 extern const u16 gPal_DangerBones[];
@@ -45,55 +40,42 @@ void SetDangerBonesPalette(void)
 int IsUnitInvalid(struct Unit * unit)
 {
     if (!UNIT_IS_VALID(unit))
-    {
         return true; // not a unit
-    }
+
     if (gPlaySt.chapterVisionRange)
     {
         if (gBmMapFog[unit->yPos][unit->xPos] == 0)
-        {
             return true; // in the fog
-        }
     }
 
     if (unit->state & US_UNDER_A_ROOF)
-    {
         return true; // under a roof
-    }
+    
     return false;
 }
 
 void RemoveEnemyShaking(void)
 {
-    if (ShouldDangerBonesNotRun())
-    {
+    if (!ShouldDangerBonesRun())
         return;
-    }
 
     struct Unit * unit;
     int unitState = 0;
 
     if (ShakeIt)
-    {
         unitState |= US_BIT_SHAKE;
-    }
 
     if (Pal_4th)
-    {
         unitState |= US_BIT_PAL;
-    }
 
     for (int i = 0x80; i < 0xC0; ++i)
     {
         unit = GetUnit(i);
         if (IsUnitInvalid(unit))
-        {
             continue;
-        }
 
         unit->state &= ~unitState;
     }
-    // RefreshUnitSprites(); // displays SMS under MMS when killing
 }
 
 void UpdateVisualsForEnemiesWhoCanAttackTile(void)
@@ -103,10 +85,8 @@ void UpdateVisualsForEnemiesWhoCanAttackTile(void)
     SetLastCoords(x, y);             // vanilla
     SetWorkingBmMap(gBmMapMovement); // vanilla
 
-    if (ShouldDangerBonesNotRun())
-    {
+    if (!ShouldDangerBonesRun())
         return;
-    }
     
     u8 savedUnitId = gBmMapUnit[y][x];
     gBmMapUnit[y][x] = 0;
@@ -114,14 +94,10 @@ void UpdateVisualsForEnemiesWhoCanAttackTile(void)
     int unitState = 0;
 
     if (ShakeIt)
-    {
         unitState |= US_BIT_SHAKE;
-    }
 
     if (Pal_4th)
-    {
         unitState |= US_BIT_PAL;
-    }
 
     struct Unit * unit;
     RemoveEnemyShaking();
@@ -136,25 +112,19 @@ void UpdateVisualsForEnemiesWhoCanAttackTile(void)
         if (mightExceedBuffer)
         {
             if (((y * gBmMapSize.x * enemySize) + (x * enemySize) + i) > DangerBonesBufferSize)
-            {
                 continue;
-            }
         }
         u8 byte = row[(x * enemySize) + i];
         for (int bit = 0; bit < 8; bit++)
         {
             if (!(byte & (1 << bit)))
-            {
                 continue;
-            }
 
             deploymentID = 0x80 + ((i << 3) + bit); // i*8 + bit
             unit = GetUnit(deploymentID);
 
             if (IsUnitInvalid(unit))
-            {
                 continue; // not a unit
-            }
 
             unit->state |= unitState;
         }
@@ -181,15 +151,12 @@ void CopyAttackRangeIntoBuffer(int i, int xSize, int ySize)
         for (int x = 0; x < xSize; x++)
         {
             if (!rangeMapY[x])
-            {
                 continue;
-            }
+
             if (mightExceedBuffer)
             {
                 if (((y * xSize * enemySize) + (x * enemySize) + byteID) > DangerBonesBufferSize)
-                {
                     continue;
-                }
             }
             buf[(x * enemySize) + byteID] |= i;
         }
@@ -220,9 +187,8 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
     for (int i = proc->id; i < 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) // Enemy only
     {
         if (counter)
-        {
             break;
-        }
+
         struct Unit * unit = GetUnit(i);
         if (proc->id == 0xBF)
         {
@@ -232,9 +198,7 @@ void GenerateDangerBones(DangerBonesProc * proc) // do 1 valid unit per frame to
         proc->id = i + 1;
 
         if (IsUnitInvalid(unit))
-        {
             continue;
-        }
 
         counter++;
 
@@ -265,12 +229,6 @@ void DangerBonesWaitForBattle(DangerBonesProc * proc)
     }
 }
 
-void CallRefreshUnitSprites(void)
-{
-    // asm("mov r11, r11");
-    // RefreshUnitSprites();
-}
-
 const struct ProcCmd DangerBonesProcCmd[] = {
     PROC_YIELD,
     PROC_NAME("DangerBones"),
@@ -278,8 +236,6 @@ const struct ProcCmd DangerBonesProcCmd[] = {
     PROC_CALL(SetDangerBonesPalette),
     PROC_REPEAT(GenerateDangerBones),
     PROC_REPEAT(DangerBonesWaitForBattle),
-    // PROC_CALL(CallRefreshUnitSprites), // this was making sms appear under mms in fe8 - Nov 2025
-    // perhaps this was necessary for fe6/fe7?
     PROC_END,
 };
 
@@ -295,9 +251,8 @@ void GenerateDangerBonesRangeAll(int i) // Causes noticable lag if done for 0x80
         struct Unit * unit = GetUnit(i);
 
         if (IsUnitInvalid(unit))
-        {
             continue;
-        }
+
         BmMapFill(gBmMapRange, 0);
         BmMapFill(gBmMapOther, 0); // all movable squares expects this to be empty to make a range map
         GenerateUnitMovementMap(unit);
@@ -323,7 +278,7 @@ void GenerateDangerBonesRangeAll(int i) // Causes noticable lag if done for 0x80
 
 void StartDangerBonesRange(void)
 {
-    if (ShouldDangerBonesNotRun())
+    if (!ShouldDangerBonesRun())
         return;
 
     CpuFill16(0, DangerBonesBuffer, DangerBonesBufferSize);
@@ -345,7 +300,7 @@ void StartDangerBonesRange(void)
 
 void FinishDangerBonesRange(void) // if proc didn't finish yet, calc the rest now
 {
-    if (ShouldDangerBonesNotRun())
+    if (!ShouldDangerBonesRun())
         return;
 
     DangerBonesProc * proc = Proc_Find((ProcPtr)&DangerBonesProcCmd);

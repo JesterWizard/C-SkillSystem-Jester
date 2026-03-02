@@ -14,6 +14,7 @@
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
 #define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
+#define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
 /**
  * Icon config
@@ -110,7 +111,6 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
-#define CONFIG_VESLY_DANGER_BONES 
 #define CONFIG_VESLY_SUPPORT_POST_BATTLE
 #ifdef  CONFIG_VESLY_SUPPORT_POST_BATTLE
 	#define SUPPORT_RATE_KILL 100
@@ -160,8 +160,6 @@
 	#define CONFIG_GAMEOVER_SPECIFIC
 	//#define CONFIG_GAMEOVER_COMEDIC
 #endif
-
-#define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN

@@ -124,4 +124,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.c03_do_not_flush_efx_status = true, // Honestly, no clue. but Mokha used it so I'm moving it here
 	.load_skills_through_feb_formatted_list = true, // Honestly, this one only means anything if you're using FEBuilder
 	.item_effect_revamp = true,
+	.vesly_danger_bones = false,
 };
