@@ -115,6 +115,11 @@ struct KernelDesigerConfig {
 	u8 load_skills_through_feb_formatted_list;
 	u8 item_effect_revamp;
 	u8 vesly_danger_bones;
+	u8 vesly_support_after_battle;
+	u8 vesly_support_after_battle_kill_rate;
+	u8 vesly_support_after_battle_combat_rate;
+	u8 vesly_support_after_battle_dance_rate;
+	u8 vesly_support_after_battle_staff_rate;
 };
 
 struct KernelBattleDesignerConfig {

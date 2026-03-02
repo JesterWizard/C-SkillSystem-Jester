@@ -1808,11 +1808,15 @@ void SwitchPhases(void)
     }
 
     if (gPlaySt.chapterTurnNumber < 999)
+    {
         gPlaySt.chapterTurnNumber++;
+    }
 
-#ifndef CONFIG_VESLY_SUPPORT_POST_BATTLE
-    ProcessTurnSupportExp();
-#endif
+	if (gpKernelDesignerConfig->vesly_support_after_battle != true)
+    {
+        ProcessTurnSupportExp();
+    }
+
 #else
     case FACTION_GREEN:
     {
@@ -1828,9 +1832,8 @@ void SwitchPhases(void)
     if (gPlaySt.chapterTurnNumber < 999)
         gPlaySt.chapterTurnNumber++;
 
-#ifndef CONFIG_VESLY_SUPPORT_POST_BATTLE
-    ProcessTurnSupportExp();
-#endif
+	if (gpKernelDesignerConfig->vesly_support_after_battle != true)
+        ProcessTurnSupportExp();
 
 #endif
     }

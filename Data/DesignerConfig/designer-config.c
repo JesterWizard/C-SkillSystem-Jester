@@ -125,4 +125,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.load_skills_through_feb_formatted_list = true, // Honestly, this one only means anything if you're using FEBuilder
 	.item_effect_revamp = true,
 	.vesly_danger_bones = false,
+	.vesly_support_after_battle = true,
+	.vesly_support_after_battle_kill_rate = 100,
+	.vesly_support_after_battle_combat_rate = 100,
+	.vesly_support_after_battle_dance_rate = 100,
+	.vesly_support_after_battle_staff_rate = 100,
 };

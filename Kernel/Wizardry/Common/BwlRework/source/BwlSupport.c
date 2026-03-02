@@ -160,18 +160,21 @@ void UnitGainSupportExp(struct Unit * unit, int num)
     {
         int gain = 0;
 
-#ifdef CONFIG_VESLY_SUPPORT_POST_BATTLE
-    if (gBattleActorGlobalFlag.enemy_defeated)
-        gain = SUPPORT_RATE_KILL;
-    else if (gActionData.unitActionType == UNIT_ACTION_COMBAT)
-        gain = SUPPORT_RATE_COMBAT;
-    else if (gActionData.unitActionType == UNIT_ACTION_DANCE)
-        gain = SUPPORT_RATE_DANCE;
-    else if (gActionData.unitActionType == UNIT_ACTION_STAFF)
-        gain = SUPPORT_RATE_STAFF;
-#else
+	if (gpKernelDesignerConfig->vesly_support_after_battle == true)
+	{
+		if (gBattleActorGlobalFlag.enemy_defeated)
+			gain = gpKernelDesignerConfig->vesly_support_after_battle_kill_rate;
+		else if (gActionData.unitActionType == UNIT_ACTION_COMBAT)
+			gain = gpKernelDesignerConfig->vesly_support_after_battle_combat_rate;
+		else if (gActionData.unitActionType == UNIT_ACTION_DANCE)
+			gain = gpKernelDesignerConfig->vesly_support_after_battle_dance_rate;
+		else if (gActionData.unitActionType == UNIT_ACTION_STAFF)
+			gain = gpKernelDesignerConfig->vesly_support_after_battle_staff_rate;
+	}
+	else
+	{
 		gain = UNIT_SUPPORT_DATA(unit)->supportExpGrowth[num];
-#endif
+	}
 
         int currentExp = supp[num];
         int maxExp = sSupportMaxExpLookup[GetUnitSupportLevel(unit, num)];
