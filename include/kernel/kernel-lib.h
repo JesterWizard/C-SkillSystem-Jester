@@ -111,6 +111,7 @@ struct KernelDesigerConfig {
 	u8 custom_character_animations;
 	u8 apply_dynamic_nosferatu_battle_anim;
 	u8 display_status_flash_on_hit;
+	u8 c03_do_not_flush_efx_status;
 };
 
 struct KernelBattleDesignerConfig {
