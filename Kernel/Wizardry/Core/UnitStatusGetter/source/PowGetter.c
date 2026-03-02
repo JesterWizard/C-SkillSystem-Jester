@@ -25,10 +25,11 @@ int _GetUnitPower(struct Unit *unit)
 	if (gpExternalPowGetters)
 		status = gpExternalPowGetters(status, unit);
 
-#ifdef SETH_INJURED
-    if (unit->pCharacterData->number == CHARACTER_SETH)
-        status -= gPlaySt.chapterIndex < INJURED_TURN_COUNT ? INJURED_TURN_COUNT - gPlaySt.chapterIndex : 0;
-#endif
+    if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
+    {
+        if (unit->pCharacterData->number == CHARACTER_SETH)
+            status -= gPlaySt.chapterIndex < 5 ? 5 - gPlaySt.chapterIndex : 0;
+    }
 
 	return status;
 }

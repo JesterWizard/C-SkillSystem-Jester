@@ -125,6 +125,7 @@ struct KernelDesigerConfig {
 	u8 free_movement;
 	u8 gameover_quotes;
 	u8 vesly_credits_cgs;
+	u8 fe8_rewritten_specific_changes;
 };
 
 struct KernelBattleDesignerConfig {

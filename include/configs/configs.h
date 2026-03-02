@@ -135,9 +135,6 @@
 	#define CONFIG_ITEM_INDEX_SKILL_SCROLL_1 0xBD
 #endif
 
-#define SETH_INJURED
-#define INJURED_TURN_COUNT 5
-
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
 

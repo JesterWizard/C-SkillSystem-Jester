@@ -135,4 +135,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.free_movement = true,
 	.gameover_quotes = true,
 	.vesly_credits_cgs = true,
+	.fe8_rewritten_specific_changes = true,
 };
