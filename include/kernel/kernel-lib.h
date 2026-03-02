@@ -124,6 +124,7 @@ struct KernelDesigerConfig {
 	u8 vesly_extended_help_boxes;
 	u8 free_movement;
 	u8 gameover_quotes;
+	u8 vesly_credits_cgs;
 };
 
 struct KernelBattleDesignerConfig {

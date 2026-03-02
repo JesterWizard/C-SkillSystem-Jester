@@ -69,9 +69,7 @@
     #include "Misc/QuintessanceEffect/QuintessanceEffect_Installer.event"
 #endif
 
-#ifdef CONFIG_VESLY_CREDITS_SEQUENCE
-    #include "Misc/VeslyCredits/VeslyCredits_Installer.event"
-#endif
+#include "Misc/VeslyCredits/VeslyCredits_Installer.event"
 
 #ifdef CONFIG_VESLY_NOTIFICATION_SYSTEM
     #include "Misc/VeslyNotificationWindow/VeslyNotificationWindow_Installer.event"

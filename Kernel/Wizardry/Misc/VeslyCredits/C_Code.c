@@ -2,9 +2,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 
-// //JOQUXY
 extern ProcPtr StartClassNameIntroLetter(ProcPtr parent, u8 index);
-// #define brk asm("mov r11, r11");
 
 #define CreditsSpeed 1
 #define NumOfStrs 2
@@ -1046,10 +1044,9 @@ struct ProcCmd const ProcScr_CreditsText[] = {
 
 void StartCreditsProc_ASMC(ProcPtr parent)
 {
-    // RegisterBlankTile(0x400);
-    // BG_Fill(gBG3TilemapBuffer, 0);
-    // BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG3_SYNC_BIT);
-    // CreditsTextProc * proc = Proc_Start(ProcScr_CreditsText, (void *)3);
+    if (gpKernelDesignerConfig->vesly_credits_cgs != true)
+        return;
+
     CreditsTextProc * proc = Proc_StartBlocking(ProcScr_CreditsText, parent);
 
     for (int i = 0; i < LinesBuffered; ++i)
