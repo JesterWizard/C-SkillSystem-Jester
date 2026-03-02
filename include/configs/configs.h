@@ -136,8 +136,6 @@
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
 
-// #define CONFIG_SUMMONERS_GAIN_EXP_FROM_SUMMON_FIGHTS
-
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */
