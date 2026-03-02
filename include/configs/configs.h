@@ -3,27 +3,17 @@
 
 // These need to remain as build time configs
 #define CONFIG_FE8_REWRITE
-#define CONFIG_CROP_VANILLA_MSG 			// Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
-#define CONFIG_COMMON_PROTECTION_ENABLED 	// I'm not even sure what this does, so I ain't touching it
-#define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
-// #define CONFIG_INSTALL_STATSCREENFX 		// FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
-#define CONFIG_INSTALL_CONVOYEXPA_AMT 200   // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
-
-/**
- * Ai action expansion
- */
-#define CONFIG_AI_ACTION_AMT 20
-#define CONFIG_AI_ACTION_EXPA_Teleportation 14
-
-/**
- * Unit action expansion
- */
-#define CONFIG_UNIT_ACTION_AMT 0x30
+#define CONFIG_CROP_VANILLA_MSG 			   // Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
+#define CONFIG_COMMON_PROTECTION_ENABLED 	   // I'm not even sure what this does, so I ain't touching it
+#define CONFIG_VERIFY_SKILLSYS_SRAM 		   // This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
+// #define CONFIG_INSTALL_STATSCREENFX 		   // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
+#define CONFIG_INSTALL_CONVOYEXPA_AMT 200      // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
+#define CONFIG_AI_ACTION_EXPA_Teleportation 14 // Needs to remain for now as it's injected in Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation.event
+#define CONFIG_AI_ACTION_AMT 20				   // Ai action expansion
 #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 0x23
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
-
-#define CONFIG_MULTIPLE_BOOST_STAVES
+#define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
 
 /**
  * Icon config
@@ -34,6 +24,7 @@
 #define CONFIG_ICON_INDEX_SKILL_STEALER 0xCC
 #define CONFIG_ICON_INDEX_ARMS_SCROLL 0xCD
 
+#define CONFIG_MULTIPLE_BOOST_STAVES
 #ifdef CONFIG_MULTIPLE_BOOST_STAVES
 	#define CONFIG_ICON_INDEX_FORCE_STAFF 0xCE
 	#define CONFIG_ICON_INDEX_ACUITY_STAFF 0xCF
