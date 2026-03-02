@@ -7,11 +7,6 @@
 #define CONFIG_COMMON_PROTECTION_ENABLED 	// I'm not even sure what this does, so I ain't touching it
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
-/**
- * Install DrawMapActionAnimation
- */
-// #define CONFIG_INSTALL_MAPACTIONANIM
-
 // #define CONFIG_INSTALL_STATSCREENFX // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 

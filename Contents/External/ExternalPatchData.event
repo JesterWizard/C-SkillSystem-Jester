@@ -4,10 +4,6 @@
     #include "StatScreenfx/_data.event"
 #endif
 
-#ifdef CONFIG_INSTALL_MAPACTIONANIM
-    #include "DrawMapActionAnimation/data.event"
-#endif
-
 #include "m4a_hq_mixer/SoundMixer.txt"
 #include "AutoGenLeftOAM/installer.txt"
 #include "DecideOnDangerMap/DecideOnDangerMap.event"

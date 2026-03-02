@@ -4,10 +4,6 @@
 
 #include "Individual_animation_ea_2/Installer.event"
 
-#ifdef CONFIG_INSTALL_MAPACTIONANIM
-    #include "DrawMapActionAnimation/Installer.event"
-#endif
-
 #ifdef CONFIG_INSTALL_STATSCREENFX
     #include "StatScreenfx/StatScreenfx.event"
 #endif
