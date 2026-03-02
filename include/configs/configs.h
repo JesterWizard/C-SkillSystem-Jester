@@ -21,6 +21,8 @@
 #define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
 #define CONFIG_TEXT_ENGINE_REWORK
 #define CONFIG_SHOW_CGs_LIKE_FE7
+#define CONFIG_UNIT_SELECTION_QUOTES // Installs assets so needs a build time config
+#define CONFIG_VOICE_ACTED_DIALOGUE  // Installs assets so needs a build time config
 
 /**
  * Icon config
@@ -152,12 +154,6 @@
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
 #define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */
-
-#define CONFIG_UNIT_SELECTION_QUOTES // Need to keep this because of the music installer event file
-
-#define CONFIG_VOICE_ACTED_DIALOGUE // Need to keep this because of the music installer event file
-
-#define CONFIG_FREE_MOVEMENT
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 

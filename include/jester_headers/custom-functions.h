@@ -73,10 +73,8 @@ extern void SecondaryGoalWindow_Loop_Display(struct SecondaryGoalWindowProc *pro
 extern void GetGoalWindowPosition(int* x, int* y);
 extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
 
-#ifdef CONFIG_FREE_MOVEMENT
-    extern void EnableFreeMovementASMC();
-    extern void DisableFreeMovementASMC();
-#endif
+extern void EnableFreeMovementASMC();
+extern void DisableFreeMovementASMC();
 
 #ifdef CONFIG_LIGHTS_OUT_GAME
 

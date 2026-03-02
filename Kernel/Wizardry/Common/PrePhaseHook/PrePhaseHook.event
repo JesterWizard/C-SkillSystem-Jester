@@ -7,8 +7,5 @@ PUSH
     ORG 0x59A2C0
     PROC_CALL_ROUTINE_2(PrePhaseHook)
 
-#ifndef CONFIG_FREE_MOVEMENT
     // PROTECT 0x0059A1F0 0x0059A438 // gProc_BMapMain
-#endif
-
 POP

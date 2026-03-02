@@ -87,9 +87,7 @@
     #include "Misc/VeslyAvatar/VeslyAvatar_Installer.event"
 #endif
 
-#ifdef CONFIG_FREE_MOVEMENT
-    #include "Misc/FreeMovement/FreeMovement_Installer.event"
-#endif
+#include "Misc/FreeMovement/FreeMovement_Installer.event"
 
 #include "Misc/Biorhythm/Biorhythm_Installer.event"
 

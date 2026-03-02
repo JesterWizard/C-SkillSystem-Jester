@@ -1,5 +1,6 @@
 #include "FreeMU.h"
 #include "common-chax.h"
+#include "kernel-lib.h"
 
 /*
  * Basic! 
@@ -16,12 +17,11 @@ bool FMU_CanUnitBeOnPos(struct Unit* unit, s8 x, s8 y){
 	return CanUnitCrossTerrain(unit, gBmMapTerrain[y][x]);
 }
 
-
-
- 
-
 void EnableFreeMovementASMC(void){
-	*FreeMoveFlag |= 1;
+	if (gpKernelDesignerConfig->free_movement == true)
+	{
+		*FreeMoveFlag |= 1;
+	}
 	return;
 }
  
