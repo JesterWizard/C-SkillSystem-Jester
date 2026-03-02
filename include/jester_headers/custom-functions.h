@@ -199,7 +199,6 @@ extern u8 Gfx_UI_Number_7[];
 extern u8 Gfx_UI_Number_8[];
 extern u8 Gfx_UI_Number_9[];
 
-/* CONFIG_VESLY_SHOOT_ARROW */
 extern void ShootArrow_ASMC();
 void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
 

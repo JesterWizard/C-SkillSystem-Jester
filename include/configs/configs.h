@@ -17,12 +17,14 @@
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 #define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
 // #define CONFIG_VESLY_RECLASS // Ovewrites the juna fruit. Maybe look into not using an item at all?
-#define CONFIG_CHAPTER_NAMES
-#define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
-#define CONFIG_TEXT_ENGINE_REWORK
-#define CONFIG_SHOW_CGs_LIKE_FE7
+#define CONFIG_CHAPTER_NAMES         // All ASM, so easier to use build time config
+#define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS // All ASM, so easier to use build time config
+#define CONFIG_TEXT_ENGINE_REWORK    // All ASM, so easier to use build time config
+#define CONFIG_SHOW_CGs_LIKE_FE7     // All ASM, so easier to use build time config
 #define CONFIG_UNIT_SELECTION_QUOTES // Installs assets so needs a build time config
 #define CONFIG_VOICE_ACTED_DIALOGUE  // Installs assets so needs a build time config
+#define CONFIG_VESLY_SHOOT_ARROW     // All ASM, so easier to use build time config
+#define CONFIG_RES_TERRAIN_WINDOW    // All ASM, so easier to use build time config
 
 /**
  * Icon config
@@ -117,10 +119,7 @@
 // #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
 // #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
-#define CONFIG_VESLY_SHOOT_ARROW
 // #define CONFIG_VESLY_AVATAR
-
-#define CONFIG_RES_TERRAIN_WINDOW
 
 #define CONFIG_TURN_ON_ALL_SKILLS
 
