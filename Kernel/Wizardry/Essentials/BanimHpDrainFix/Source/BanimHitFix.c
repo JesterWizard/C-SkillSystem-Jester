@@ -3,17 +3,18 @@
 
 STATIC_DECLAR void BanimRoundUpdateEfxStatus(struct Anim *anim)
 {
-#ifdef CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
-	struct Anim *act_anim = GetAnimAnotherSide(anim);
-	struct Anim *tar_anim = GetAnimAnotherSide(act_anim);
-	struct ExtBattleHit *exthit = GetExtBattleHit(anim->nextRoundId - 1);
+	if (gpKernelDesignerConfig->display_status_flash_on_hit == true)
+	{
+		struct Anim *act_anim = GetAnimAnotherSide(anim);
+		struct Anim *tar_anim = GetAnimAnotherSide(act_anim);
+		struct ExtBattleHit *exthit = GetExtBattleHit(anim->nextRoundId - 1);
 
-	if (exthit->act_debuff >= 0)
-		SetUnitEfxDebuff(act_anim, exthit->act_debuff);
+		if (exthit->act_debuff >= 0)
+			SetUnitEfxDebuff(act_anim, exthit->act_debuff);
 
-	if (exthit->tar_debuff >= 0)
-		SetUnitEfxDebuff(tar_anim, exthit->tar_debuff);
-#endif
+		if (exthit->tar_debuff >= 0)
+			SetUnitEfxDebuff(tar_anim, exthit->tar_debuff);
+	}
 }
 
 LYN_REPLACE_CHECK(StartBattleAnimHitEffectsDefault);

@@ -8,11 +8,6 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
- * In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
- */
-#define CONFIG_EFX_STATUS_DISPLAY_ON_EXTHIT
-
-/**
 * C03 not flush efx-status
 */
 #define CONFIG_C03_NOT_FLUSH_EFXSTATUS

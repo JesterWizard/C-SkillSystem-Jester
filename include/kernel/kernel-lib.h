@@ -110,6 +110,7 @@ struct KernelDesigerConfig {
 	u8 calculate_map_range_faster;
 	u8 custom_character_animations;
 	u8 apply_dynamic_nosferatu_battle_anim;
+	u8 display_status_flash_on_hit;
 };
 
 struct KernelBattleDesignerConfig {

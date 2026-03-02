@@ -119,5 +119,6 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.tellius_skill_capacity_promoted = 25,
 	.calculate_map_range_faster = true, // Speeds up AI decision making by only calculating the three closest enemies, without it the AI takes forever 
 	.custom_character_animations = true,
-	.apply_dynamic_nosferatu_battle_anim = true // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
+	.apply_dynamic_nosferatu_battle_anim = true, // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
+	.display_status_flash_on_hit = true, // In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
 };
