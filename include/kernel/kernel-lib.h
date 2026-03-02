@@ -123,6 +123,7 @@ struct KernelDesigerConfig {
 	u8 vesly_fast_forward_battle_animations;
 	u8 vesly_extended_help_boxes;
 	u8 free_movement;
+	u8 gameover_quotes;
 };
 
 struct KernelBattleDesignerConfig {

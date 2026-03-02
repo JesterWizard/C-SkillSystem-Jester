@@ -8,9 +8,7 @@
 
 #include "Common/Quotes/Quotes.event"
 
-#ifdef CONFIG_GAMEOVER_QUOTES
-    #include "Common/GameOver/GameOver.event"
-#endif
+#include "Common/GameOver/GameOver.event"
 
 #include "Common/Supports/Supports_Installer.event"
 

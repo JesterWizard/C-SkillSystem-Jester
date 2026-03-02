@@ -1,43 +1,11 @@
 #include "common-chax.h"
+#include "../../../include/kernel/kernel-lib.h"
 
 typedef struct
 {
     const char * values[3];
 } GameOverQuotes;
 
-#ifdef CONFIG_GAMEOVER_COMEDIC
-static const GameOverQuotes game_over_quotes[] = 
-{ 
-    {{
-        "If you want to see it jiggle",
-        "then make her giggle.",
-        "---------Genghas Khan---------"
-    }}
-};
-#endif
-
-#ifdef CONFIG_GAMEOVER_GENERIC
-static const GameOverQuotes game_over_quotes[] = 
-{ 
-    {{ 
-        "Never interrupt your enemy when",
-        "they are making a mistake.     ",
-        "------------Sun Tzu----------" 
-    }},
-    {{ 
-        "Those who play with the devil's toys",
-        "will be brought by degrees to wield his sword.",
-        "------------Buckminster Fuller----------" 
-    }},
-    {{
-        "The supreme art of war is to subdue",
-        "the enemy without fighting.",
-        "------------Sun Tsu----------"
-    }},
-};
-#endif
-
-#ifdef CONFIG_GAMEOVER_SPECIFIC
 static const GameOverQuotes game_over_quotes[] = 
 { 
     {{
@@ -71,7 +39,7 @@ static const GameOverQuotes game_over_quotes[] =
         "Build their supports for stat bonuses."
     }},
 };
-#endif
+
 
 int HorizontalCenterText(const char *str)
 {
@@ -96,20 +64,22 @@ void GameOverScreen_Init(struct ProcGameOverScreen *proc)
     ApplyPalette(Pal_GameOverText1, BGPAL_GAMEOVER_4);
     Decompress(Img_ChapterIntroFog, BG_CHR_ADDR(BGCHR_BMFX_IMG));
 
-#ifndef CONFIG_GAMEOVER_QUOTES
-    Decompress(Img_GameOverText, BG_CHR_ADDR(BGCHR_GAMEOVER_TEXT));
-    ApplyPalette(Pal_GameOverText2, BGPAL_GAMEOVER_TEXT);
-#endif
+    if (gpKernelDesignerConfig->gameover_quotes != true)
+    {
+        Decompress(Img_GameOverText, BG_CHR_ADDR(BGCHR_GAMEOVER_TEXT));
+        ApplyPalette(Pal_GameOverText2, BGPAL_GAMEOVER_TEXT);
+    }
 
     BG_SetPosition(0, 0, 0);
     ClearBg0Bg1();
 
-#ifndef CONFIG_GAMEOVER_QUOTES
-    CallARM_FillTileRect(
-        TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 9),
-        Tsa_GameOverFx,
-        TILEREF(BGCHR_GAMEOVER_TEXT, BGPAL_GAMEOVER_TEXT));
-#endif
+    if (gpKernelDesignerConfig->gameover_quotes != true)
+    {
+        CallARM_FillTileRect(
+            TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 9),
+            Tsa_GameOverFx,
+            TILEREF(BGCHR_GAMEOVER_TEXT, BGPAL_GAMEOVER_TEXT));
+    }
 
     PutScreenFogEffectOverlayed();
     PutScreenFogEffect();
@@ -132,17 +102,18 @@ void GameOverScreen_Init(struct ProcGameOverScreen *proc)
     for (int i = 0; i < 10; ++i)
         CALLARM_ColorFadeTick();
     
-#ifdef CONFIG_GAMEOVER_QUOTES
-    int xStart    = 0;
-    int tileWidth = 24;
-    int chosenMessage = NextRN_N(ARRAY_COUNT(game_over_quotes));
-    
-    for (unsigned i = 0; i < ARRAY_COUNT(game_over_quotes[chosenMessage].values); i++)
+    if (gpKernelDesignerConfig->gameover_quotes == true)
     {
-        const char *line = game_over_quotes[chosenMessage].values[i];
-        PutDrawText(NULL, gBG0TilemapBuffer + TILEMAP_INDEX(HorizontalCenterText(line), 7 + (i * 2)), TEXT_COLOR_SYSTEM_GOLD, xStart, tileWidth, line);
-    }
-#endif    
+        int xStart    = 0;
+        int tileWidth = 24;
+        int chosenMessage = NextRN_N(ARRAY_COUNT(game_over_quotes));
+        
+        for (unsigned i = 0; i < ARRAY_COUNT(game_over_quotes[chosenMessage].values); i++)
+        {
+            const char *line = game_over_quotes[chosenMessage].values[i];
+            PutDrawText(NULL, gBG0TilemapBuffer + TILEMAP_INDEX(HorizontalCenterText(line), 7 + (i * 2)), TEXT_COLOR_SYSTEM_GOLD, xStart, tileWidth, line);
+        }
+    }    
 
     EnablePaletteSync();
 }

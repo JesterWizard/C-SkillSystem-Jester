@@ -139,13 +139,6 @@
 #define SETH_INJURED
 #define INJURED_TURN_COUNT 5
 
-#define CONFIG_GAMEOVER_QUOTES
-#ifdef CONFIG_GAMEOVER_QUOTES
-	//#define CONFIG_GAMEOVER_GENERIC
-	#define CONFIG_GAMEOVER_SPECIFIC
-	//#define CONFIG_GAMEOVER_COMEDIC
-#endif
-
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
 

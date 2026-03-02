@@ -133,4 +133,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_fast_forward_battle_animations = true,
 	.vesly_extended_help_boxes = true,
 	.free_movement = true,
+	.gameover_quotes = true,
 };
