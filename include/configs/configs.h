@@ -8,12 +8,6 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 
 /**
-* Append the same logic on loading skill as old skillsys, as:
-* https://feuniverse.us/t/the-skill-system-and-you-maximizing-your-usage-of-fe8s-most-prolific-bundle-of-wizardry/8232/5
-*/
-#define CONFIG_FIT_OLD_SKILLSYS_LIST
-
-/**
  * Install DrawMapActionAnimation
  */
 // #define CONFIG_INSTALL_MAPACTIONANIM

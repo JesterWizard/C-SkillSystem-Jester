@@ -132,9 +132,9 @@ void UnitAutoLoadSkills(struct Unit *unit)
 		level_j = level_j - 5;
 	}
 
-#ifdef CONFIG_FIT_OLD_SKILLSYS_LIST
-	FebList_LoadUnitSkill(unit);
-#endif /* FIT_OLD_SKILLSYS_LIST */
+	 /* FIT_OLD_SKILLSYS_LIST */
+	if (gpKernelDesignerConfig->load_skills_through_feb_formatted_list == true)
+		FebList_LoadUnitSkill(unit);
 
 	/* For debug, we enable unit learn all of skills */
 	if (gpKernelDesignerConfig->debug_autoload_skills) {
@@ -217,9 +217,8 @@ void TryAddSkillLvup(struct Unit *unit, int level)
 	if (!UNIT_IS_VALID(unit))
 		return;
 
-#ifdef CONFIG_FIT_OLD_SKILLSYS_LIST
-	FebList_LvupAddSkill(unit, level);
-#endif
+	if (gpKernelDesignerConfig->load_skills_through_feb_formatted_list == true)
+		FebList_LvupAddSkill(unit, level);
 
 	_level = level;
 	if (k_umod(_level, 5) == 0)
@@ -247,9 +246,8 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 	if (!UNIT_IS_VALID(unit))
 		return;
 
-#ifdef CONFIG_FIT_OLD_SKILLSYS_LIST
-	FebList_PromotionAddSkill(unit);
-#endif
+	if (gpKernelDesignerConfig->load_skills_through_feb_formatted_list == true)
+		FebList_PromotionAddSkill(unit);
 
 	for (i = 0; i < 5; i++) {
 		sid = jConf->skills[0 + i];

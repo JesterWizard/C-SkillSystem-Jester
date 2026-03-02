@@ -3,9 +3,9 @@
 #include "constants/skills.h"
 
 /**
- * If you want use this list, make sure that the following config has been uncommented:
+ * If you want use this list, make sure that the following config is set to true:
  *
- * CONFIG_FIT_OLD_SKILLSYS_LIST
+ * load_skills_through_feb_formatted_list
  */
 
 struct FebListEnt const *const CharLevelUpSkillTable[0x100] = {

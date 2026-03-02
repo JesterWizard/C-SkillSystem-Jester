@@ -122,4 +122,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.apply_dynamic_nosferatu_battle_anim = true, // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
 	.display_status_flash_on_hit = true, // In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
 	.c03_do_not_flush_efx_status = true, // Honestly, no clue. but Mokha used it so I'm moving it here
+	.load_skills_through_feb_formatted_list = true, // Honestly, this one only means anything if you're using FEBuilder
 };
