@@ -113,6 +113,7 @@ struct KernelDesigerConfig {
 	u8 display_status_flash_on_hit;
 	u8 c03_do_not_flush_efx_status;
 	u8 load_skills_through_feb_formatted_list;
+	u8 item_effect_revamp;
 };
 
 struct KernelBattleDesignerConfig {

@@ -2467,14 +2467,16 @@ LYN_REPLACE_CHECK(ItemSubMenu_IsUseAvailable);
 u8 ItemSubMenu_IsUseAvailable(const struct MenuItemDef* def, int number) {
     int item = gActiveUnit->items[gActionData.itemSlotIndex];
 
-#ifdef CONFIG_IER_EN
-    if (!GetIERevamp(item))
-        return MENU_NOTSHOWN;
-#else
-    if (GetItemUseEffect(item) == 0) {
-        return MENU_NOTSHOWN;
+    if (gpKernelDesignerConfig->item_effect_revamp == true)
+    {
+        if (!GetIERevamp(item))
+            return MENU_NOTSHOWN;
     }
-#endif
+    else
+    {
+        if (GetItemUseEffect(item) == 0)
+            return MENU_NOTSHOWN;
+    }
 
     if (GetItemType(item) == ITYPE_STAFF) {
         return MENU_NOTSHOWN;

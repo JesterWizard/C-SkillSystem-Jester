@@ -6,16 +6,8 @@
 #define CONFIG_CROP_VANILLA_MSG 			// Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
 #define CONFIG_COMMON_PROTECTION_ENABLED 	// I'm not even sure what this does, so I ain't touching it
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		// This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
-
-// #define CONFIG_INSTALL_STATSCREENFX // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
-
-#define CONFIG_INSTALL_CONVOYEXPA_AMT 200 // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
-
-/**
-* IER
-*/
-#define CONFIG_IER_EN
-#define CONFIG_FEB_SKILL_SCROLL_OVERFLOW_HOTFIX // If item index is overflowed, modify to skill scroll index
+// #define CONFIG_INSTALL_STATSCREENFX 		// FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
+#define CONFIG_INSTALL_CONVOYEXPA_AMT 200   // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 
 /**
  * Ai action expansion
@@ -74,7 +66,6 @@
 #define CONFIG_PR_ITEM_TABLE 0x809B10
 #define CONFIG_ITEM_INDEX_MAG_BOOSTER 0xBC
 // #define CONFIG_ITEM_INDEX_SKILL_SCROLL 0xBD
-#define CONFIG_ITEM_INDEX_SKILL_SCROLL_FEB 0xFF
 
 #define CONFIG_ITEM_INDEX_SKILL_STEALER 0xBE
 #define CONFIG_ITEM_INDEX_ARMS_SCROLL 0xDA

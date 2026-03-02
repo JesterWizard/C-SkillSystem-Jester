@@ -76,52 +76,55 @@ int GetUnitItemHealAmount(struct Unit *unit, int item)
 {
 	int result = 0;
 
-#ifdef CONFIG_IER_EN
-	result = GetItemMight(item) + IER_BYTE(item);
+    if (gpKernelDesignerConfig->item_effect_revamp == true)
+    {
+		result = GetItemMight(item) + IER_BYTE(item);
 
-	if (result == 0) {
-		switch (GetItemData(ITEM_INDEX(item))->useEffectId) {
-		case IER_STAFF_HEAL:
-		case IER_STAFF_PHYSIC:
-		case IER_STAFF_FORTIFY:
-		case IER_VULNERARY:
-		case IER_VULNERARY_2:
+		if (result == 0) {
+			switch (GetItemData(ITEM_INDEX(item))->useEffectId) {
+			case IER_STAFF_HEAL:
+			case IER_STAFF_PHYSIC:
+			case IER_STAFF_FORTIFY:
+			case IER_VULNERARY:
+			case IER_VULNERARY_2:
+				result = 10;
+				break;
+
+			case IER_STAFF_MEND:
+				result = 20;
+				break;
+
+			case IER_STAFF_RECOVER:
+			case IER_ELIXIR:
+				result = 80;
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+	else
+	{
+		switch (GetItemIndex(item)) {
+		case ITEM_STAFF_HEAL:
+		case ITEM_STAFF_PHYSIC:
+		case ITEM_STAFF_FORTIFY:
+		case ITEM_VULNERARY:
+		case ITEM_VULNERARY_2:
 			result = 10;
 			break;
 
-		case IER_STAFF_MEND:
+		case ITEM_STAFF_MEND:
 			result = 20;
 			break;
 
-		case IER_STAFF_RECOVER:
-		case IER_ELIXIR:
+		case ITEM_STAFF_RECOVER:
+		case ITEM_ELIXIR:
 			result = 80;
 			break;
-
-		default:
-			break;
-		}
+		} // switch (GetItemIndex(item))
 	}
-#else
-	switch (GetItemIndex(item)) {
-	case ITEM_STAFF_HEAL:
-	case ITEM_STAFF_PHYSIC:
-	case ITEM_STAFF_FORTIFY:
-	case ITEM_VULNERARY:
-	case ITEM_VULNERARY_2:
-		result = 10;
-		break;
-
-	case ITEM_STAFF_MEND:
-		result = 20;
-		break;
-
-	case ITEM_STAFF_RECOVER:
-	case ITEM_ELIXIR:
-		result = 80;
-		break;
-	} // switch (GetItemIndex(item))
-#endif // IER_EN
 
 	if (GetItemAttributes(item) & IA_STAFF)
 		result += MagGetter(unit);
@@ -247,19 +250,23 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	const struct ItemStatBonuses *statBonuses = GetItemStatBonuses(item);
 	int msg = GetStatBoosterText(unit, item);
 
-#ifdef CONFIG_IER_EN
-	if (iinfo->useEffectId == IER_METISSTOME) {
-		unit->state |= US_GROWTH_BOOST;
-		UnitUpdateUsedItem(unit, slot);
-		return msg;
+    if (gpKernelDesignerConfig->item_effect_revamp == true)
+    {
+		if (iinfo->useEffectId == IER_METISSTOME) {
+			unit->state |= US_GROWTH_BOOST;
+			UnitUpdateUsedItem(unit, slot);
+			return msg;
+		}
 	}
-#else
-	if (GetItemIndex(item) == ITEM_METISSTOME) {
-		unit->state |= US_GROWTH_BOOST;
-		UnitUpdateUsedItem(unit, slot);
-		return 0x1D; /* Maturity increased */
+	else
+	{
+		if (GetItemIndex(item) == ITEM_METISSTOME) 
+		{
+			unit->state |= US_GROWTH_BOOST;
+			UnitUpdateUsedItem(unit, slot);
+			return 0x1D; /* Maturity increased */
+		}
 	}
-#endif
 
 #if (defined(SID_ShrewdPotential) && COMMON_SKILL_VALID(SID_ShrewdPotential))
 	if (SkillTester(unit, SID_ShrewdPotential)) {
@@ -304,32 +311,35 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	UnitCheckStatCaps(unit);
 	UnitUpdateUsedItem(unit, slot);
 
-#ifdef CONFIG_IER_EN
-	return msg;
-#else
-	if (statBonuses->hpBonus > 0)
-		return 0x1C;
-	else if (statBonuses->powBonus > 0)
-		return 0x13;
-	else if (ITEM_MAG_BONUS(statBonuses) > 0)
-		return 0x14;
-	else if (statBonuses->sklBonus > 0)
-		return 0x15;
-	else if (statBonuses->spdBonus > 0)
-		return 0x16;
-	else if (statBonuses->lckBonus > 0)
-		return 0x17;
-	else if (statBonuses->defBonus > 0)
-		return 0x18;
-	else if (statBonuses->resBonus > 0)
-		return 0x19;
-	else if (statBonuses->movBonus > 0)
-		return 0x1A;
-	else if (statBonuses->conBonus > 0)
-		return 0x1B;
+    if (gpKernelDesignerConfig->item_effect_revamp == true)
+    {
+		return msg;
+	}
+	else
+	{
+		if (statBonuses->hpBonus > 0)
+			return 0x1C;
+		else if (statBonuses->powBonus > 0)
+			return 0x13;
+		else if (ITEM_MAG_BONUS(statBonuses) > 0)
+			return 0x14;
+		else if (statBonuses->sklBonus > 0)
+			return 0x15;
+		else if (statBonuses->spdBonus > 0)
+			return 0x16;
+		else if (statBonuses->lckBonus > 0)
+			return 0x17;
+		else if (statBonuses->defBonus > 0)
+			return 0x18;
+		else if (statBonuses->resBonus > 0)
+			return 0x19;
+		else if (statBonuses->movBonus > 0)
+			return 0x1A;
+		else if (statBonuses->conBonus > 0)
+			return 0x1B;
 
-	return 0;
-#endif
+		return 0;
+	}
 }
 
 LYN_REPLACE_CHECK(DoUseBarrierStaff);
