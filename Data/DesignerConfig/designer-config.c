@@ -136,4 +136,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gameover_quotes = true,
 	.vesly_credits_cgs = true,
 	.fe8_rewritten_specific_changes = true,
+	.arena_limits = false,
 };

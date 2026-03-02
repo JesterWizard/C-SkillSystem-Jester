@@ -126,6 +126,7 @@ struct KernelDesigerConfig {
 	u8 gameover_quotes;
 	u8 vesly_credits_cgs;
 	u8 fe8_rewritten_specific_changes;
+	u8 arena_limits;
 };
 
 struct KernelBattleDesignerConfig {
