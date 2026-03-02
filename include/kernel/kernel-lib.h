@@ -120,6 +120,7 @@ struct KernelDesigerConfig {
 	u8 vesly_support_after_battle_combat_rate;
 	u8 vesly_support_after_battle_dance_rate;
 	u8 vesly_support_after_battle_staff_rate;
+	u8 vesly_fast_forward_battle_animations;
 };
 
 struct KernelBattleDesignerConfig {

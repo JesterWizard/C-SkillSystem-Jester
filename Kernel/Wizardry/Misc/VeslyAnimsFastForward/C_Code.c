@@ -1,16 +1,8 @@
 #include "C_Code.h"
+#include "../../../../include/kernel/kernel-lib.h"
 #include "common-chax.h"
 #include "types.h"
 
-#define brk asm("mov r11, r11");
-
-// enum PlaySt_AnimConfType
-// {
-//     PLAY_ANIMCONF_ON = 0,
-//     PLAY_ANIMCONF_OFF = 1,
-//     PLAY_ANIMCONF_SOLO_ANIM = 2,
-//     PLAY_ANIMCONF_ON_UNIQUE_BG = 3,
-// };
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 extern u16 HeldButton_AnimOff;
 extern u16 PlayerPhaseOnlyFlag;
@@ -27,15 +19,16 @@ struct TimedHitsDifficultyStruct // 1 byte
 
 int ShouldNotShowAnim(void)
 {
+    if (gpKernelDesignerConfig->vesly_fast_forward_battle_animations != true)
+        return true;
+
     u16 keys = sKeyStatusBuffer.newKeys | sKeyStatusBuffer.heldKeys;
     if (keys & HeldButton_AnimOff)
-    {
         return true;
-    }
+
     if (CheckFlag(PlayerPhaseOnlyFlag) && (!gPlaySt.faction))
-    {
         return true;
-    }
+
     return false;
 }
 
@@ -45,19 +38,14 @@ int ShouldSpeedupAnims(void)
     if (TimedHitsDifficultyRam_Link)
     {
         if (TimedHitsDifficultyRam_Link->difficulty > 1)
-        {
-            keys &= L_BUTTON | START_BUTTON | R_BUTTON |
-                SELECT_BUTTON; // if timed hits are on, only these buttons are valid
-        }
+            keys &= L_BUTTON | START_BUTTON | R_BUTTON | SELECT_BUTTON; // if timed hits are on, only these buttons are valid
     }
     if (keys & HeldButton_FastForwardAnims)
-    {
         return true;
-    }
+
     if (CheckFlag(SpeedupAnimsFlag))
-    {
         return true;
-    }
+
     return false;
 }
 
@@ -83,9 +71,7 @@ LYN_REPLACE_CHECK(GetBattleAnimPreconfType);
 int GetBattleAnimPreconfType(void)
 {
     if (ShouldNotShowAnim())
-    {
         return PLAY_ANIMCONF_OFF;
-    }
 
     // If not solo anim, return global type
     if (gPlaySt.config.animationType != PLAY_ANIMCONF_SOLO_ANIM)
@@ -125,9 +111,8 @@ void FastForwardBattles(void)
     Proc_Run(*gProcTreeRootArray);
     SyncLoOam();
     if (!gBmSt.main_loop_ended)
-    {
         return;
-    }
+
     gBmSt.main_loop_ended = false;
     FlushLCDControl();
     FlushBackgrounds();

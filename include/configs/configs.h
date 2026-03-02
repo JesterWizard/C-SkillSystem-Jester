@@ -111,7 +111,6 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
-// #define CONFIG_VESLY_ANIMS_FAST_FORWARD
 #define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
 #define CONFIG_VESLY_RECLASS
 // #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
