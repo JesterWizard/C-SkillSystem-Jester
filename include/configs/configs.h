@@ -1,7 +1,7 @@
 //#include "config-debug.h"
 #include "config-memmap.h"
 
-// These need to remain as build time configs
+// These need to remain as build time configs due to predominately using event/asm files
 #define CONFIG_FE8_REWRITE
 #define CONFIG_CROP_VANILLA_MSG 			   // Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
 #define CONFIG_COMMON_PROTECTION_ENABLED 	   // I'm not even sure what this does, so I ain't touching it
@@ -15,6 +15,8 @@
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
 #define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
+#define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
+// #define CONFIG_VESLY_RECLASS // Ovewrites the juna fruit. Maybe look into not using an item at all?
 
 /**
  * Icon config
@@ -111,8 +113,6 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
-#define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
-#define CONFIG_VESLY_RECLASS
 // #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
 #define CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
 #define CONFIG_VESLY_CREDITS_SEQUENCE

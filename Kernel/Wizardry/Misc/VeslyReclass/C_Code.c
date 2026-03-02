@@ -17,20 +17,13 @@ ProcPtr StartReclassSelect(ProcPtr parent);
 extern u8 const ReclassTable[][6];
 extern u8 const UnitOverrideReclassTable_Unpromoted[][7];
 extern u8 const UnitOverrideReclassTable_Promoted[][7];
-// extern u8* pPromoJidLut;
 
 int GetReclassTableID(const u8 * table, int size, int classID)
 {
     for (int i = 0; i < size; ++i)
     {
-        // if (i > ID)
-        // {
-        // break;
-        // }
         if (table[i] == classID)
-        {
             return i;
-        }
     }
     return (-1);
 }
@@ -50,14 +43,11 @@ int GetReclassOption(int unitID, int classID, int ID)
             {
                 ID--;
                 if (!ID_orig)
-                {
                     return classID;
-                }
             }
             if ((ID >= reclassTableID) && (reclassTableID >= 0))
-            {
                 ID++;
-            }
+
             return UnitOverrideReclassTable_Promoted[unitID][ID];
         }
     }
@@ -168,8 +158,6 @@ void ReclassSubConfirm_OnEnd(struct MenuProc * proc)
     proc = proc->proc_parent;
     parent = proc->proc_parent;
     gparent = parent->proc_parent;
-    // gparent->stat = 1;
-    // gparent->main_select = _proc2->itemNumber;
 
     struct Unit * unit = GetUnitFromCharId(gparent->pid);
     const struct ClassData * classData =
@@ -179,21 +167,19 @@ void ReclassSubConfirm_OnEnd(struct MenuProc * proc)
 
 bool StartAndWaitReclassSelect(struct ProcPromoMain * proc);
 void ReclassHandlerIdle(struct ProcPromoHandler * proc);
+
 const struct ProcCmd ProcScr_ReclassHandler[] = {
     PROC_SLEEP(3), PROC_NAME("Reclass Handler"),
     PROC_LABEL(0), PROC_CALL(PromoHandler_SetInitStat),
-
     PROC_LABEL(1), PROC_REPEAT(ReclassHandlerIdle),
-
     PROC_LABEL(7), PROC_END,
 };
 
 void SetLevelFunc(ProcPtr proc)
 {
     if (!Proc_Find(ProcScr_ReclassHandler))
-    {
         Proc_Break(proc);
-    }
+
     gEkrLvupPostLevel = gActiveUnit->level;
 }
 
@@ -248,12 +234,7 @@ void ReclassChgExecPromotionReal(struct ProcClassChgPostConfirm * proc)
     BeginBattleAnimations();
 }
 
-// extern void SetBlendConfig(int, int, int, int);
 extern void sub_80CDE98(struct ProcClassChgPostConfirm * proc);
-//{
-//    struct ProcPromoMain *parent = proc->proc_parent;
-//    GetUnitFromCharId(parent->pid);
-//}
 
 void ExecReclassChgReal(struct ProcPromoMain * proc)
 {
@@ -430,10 +411,6 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
     }
     unit->_u3A = tmp;
 
-    // if (unit->maxHP < 0)
-    // {
-    //     unit->maxHP = 0;
-    // }
     if (unit->pow <= 0)
     {
         unit->pow = 0;
@@ -454,8 +431,6 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
     {
         unit->res = 0;
     }
-    // unit->lck += newClass->baseLck - oldClass->basePow;
-    // unit->_u3A += newClass->basePow - oldClass->basePow; // mag
 
     // Remove base class' base wexp from unit wexp
     for (i = 0; i < 8; ++i)
@@ -489,8 +464,6 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
         unit->ranks[i] = wexp;
     }
 
-    // unit->level = 1;
-    // unit->exp   = 0;
     UnitCheckStatCaps(unit);
     unit->curHP += newClass->promotionHp;
 
@@ -519,7 +492,6 @@ void ExecUnitReclass(struct Unit * unit, u8 classId, int itemIdx, s8 unk)
         weapon = 0;
     }
     gBattleActor.weapon = gBattleTarget.weapon = weapon;
-    // gBattleActor.weaponBefore = weapon;
 
     InitBattleUnitWithoutBonuses(&gBattleTarget, unit);
 
@@ -528,22 +500,15 @@ void ExecUnitReclass(struct Unit * unit, u8 classId, int itemIdx, s8 unk)
     InitBattleUnitWithoutBonuses(&gBattleActor, unit);
 
     GenerateBattleUnitStatGainsComparatively(&gBattleActor, &gBattleTarget.unit);
-    // save from battle?
-    // struct Unit* actor  = GetUnit(gBattleActor.unit.index);
-    // UpdateUnitFromBattle(actor, &gBattleActor);
-    // BattleApplyUnitUpdates();
+
     SetBattleUnitTerrainBonusesAuto(&gBattleActor);
     SetBattleUnitTerrainBonusesAuto(&gBattleTarget);
 
     if (unk)
-    {
         unit->state |= US_HAS_MOVED;
-    }
 
     if (itemIdx != -1)
-    {
         UnitUpdateUsedItem(unit, itemIdx);
-    }
 
     gBattleHitArray[0].attributes = 0;
     gBattleHitArray[0].info = BATTLE_HIT_INFO_END;
@@ -762,7 +727,7 @@ void DrawStatDiff(int x, int y, int id, struct Unit * unit, const struct ClassDa
     struct Text * th = gStatScreen.text;
     const struct ClassData * oldClass = unit->pClassData;
     int num = GetStatDiff(id, unit, oldClass, classData);
-    // PutDrawText(&th[id], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0, 0, 2, stats[id]);
+
     if (ClassHasMagicRank(classData) && (id == 1) && (!IsStrMagInstalled()))
     {
         id += 7;
@@ -781,15 +746,9 @@ void DrawStatDiff(int x, int y, int id, struct Unit * unit, const struct ClassDa
     th[id].x++;
 
     if (ABS(num) > 9)
-    {
         Text_InsertDrawNumberOrBlank(&th[id], th[id].x + 8, th[id].colorId, ABS(num));
-        // PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, x+4, y), 0, ABS(num));
-    }
     else
-    {
         Text_InsertDrawNumberOrBlank(&th[id], th[id].x, th[id].colorId, ABS(num));
-        // PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, x+3, y), 0, ABS(num));
-    }
 }
 
 struct SpecialCharSt
@@ -854,18 +813,8 @@ void ReclassDrawStatChanges(struct Unit * unit, const struct ClassData * classDa
     {
         DrawStatDiff(25, y + 6, 7, unit, classData); // mov
     }
-
-    // PutDrawText(&th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 13, 1), 0, 0, 5, "HP");
-    // PutDrawText(&th[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 3), 0, 0, 5, "Str");
-    // PutDrawText(&th[2], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 5), 0, 0, 5, "Skl");
-    // PutDrawText(&th[3], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 7), 0, 0, 5, "Spd");
-    // PutDrawText(&th[4], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 9), 0, 0, 5, "Def");
-    // PutDrawText(&th[5], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 11), 0, 0, 5, "Res");
-    // PutDrawText(&th[6], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 13), 0, 0, 5, "Lck");
-    // PutDrawText(&th[7], TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 15), 0, 0, 5, "Mag");
-
-    // PutDrawText(struct Text* text, u16* dest, int colorId, int x, int tileWidth, const char* string);
 }
+
 extern int ClassDescEnabled;
 int ReclassMenuItem_OnChange(struct MenuProc * pmenu, struct MenuItemProc * pmitem)
 {
@@ -882,7 +831,7 @@ int ReclassMenuItem_OnChange(struct MenuProc * pmenu, struct MenuItemProc * pmit
         GetClassData(GetReclassOption(gparent->pid, unit->pClassData->number, pmenu->itemCurrent));
     ReclassDrawStatChanges(unit, classData);
     int msg_desc = classData->descTextId; // pmenu->itemCurrent
-    // ChangeClassDescription(gparent->msg_desc[gparent->main_select]);
+
     if (ClassDescEnabled)
     {
         ChangeClassDescription(msg_desc);
@@ -959,9 +908,7 @@ void ReclassMenuExec(struct ProcClassChgMenuSel * proc)
     ResetTextFont();
     ResetText();
     SetTextFontGlyphs(0);
-    // InitTextFont(&gFontClassChg, (void *)BG_VRAM + 0x1400, 0xA0, 5);
     InitTextFont(&gFontClassChg, (void *)BG_VRAM + 0x3400, 0x1A0, 5);
-    // InitTextFont(&gFontClassChg, (void *)BG_VRAM + 0x1000, 160, 5);
     SetTextFont(&gFontClassChg);
     proc->pmenu = StartMenuCore(&gMenuDef_ReclassSel, ReclassMenuRect, 2, 0, 0, 0, (struct Proc *)proc);
 }
@@ -1045,8 +992,6 @@ void Make6C_ReclassMenuSelect(struct ProcReclassSel * proc)
 
     for (i = 1; i < 0x40; i++)
     {
-        // u16 classFromSwitch;
-
         u16 weapon;
         s32 j;
         unit = GetUnit(i);
@@ -1062,27 +1007,19 @@ void Make6C_ReclassMenuSelect(struct ProcReclassSel * proc)
 
         int maybeWep = 0;
 
-        // for (j = 0; j < 2; j++) {
         for (j = 0; j < NumberOfReclassOptions; j++)
         {
             int reclassID = GetReclassOption(proc->pid, pid, j);
             proc->jid[j] = reclassID;
             maybeWep = 0;
             if (CanClassEquipWeapon(weapon, reclassID))
-            {
                 maybeWep = weapon;
-            }
-            // proc->use_wpn[j] =
 
-            // LoadClassBattleSprite((void*)&proc->sprite[j], ReclassTable[pid][j], weapon);
             if (j < 2)
-            {
                 proc->msg_desc[j] = GetClassData(reclassID)->descTextId; // i dunno
-            }
+
             if (reclassID)
-            {
                 LoadClassBattleSprite((void *)&proc->sprite[j], reclassID, maybeWep);
-            }
         }
 
         proc->weapon = weapon;
@@ -1181,7 +1118,6 @@ void LoadBattleSpritesForBranchScreen2(struct ProcReclassSel * proc)
             sub_80CD47C((s16)ret, (s16)chara_pal, (s16)(p2->sprite[0] + 0x28), PlatformYPos, 6);
             sub_805AE14(&gUnknown_0201FADC);
             sub_80CD408(proc->u50, p2->sprite[0], p2->msg_desc[1]); // I dunno
-            // sub_80CD408(proc->u50, 0x8c * 2, PlatformYPos+0x10);
         }
         else
         {
@@ -1369,14 +1305,7 @@ u32 ReclassHandler_SetupAndStartUI(struct ProcPromoHandler * proc)
             RefreshBMapGraphics();
             return PROMO_HANDLER_STAT_END;
         }
-        // if (reclassID_A && !reclassID_B) {
-        // proc->jid = reclassID_A;
-        // proc->sel_en = 0;
-        // }
-        // if (!reclassID_A && reclassID_B) {
-        // proc->jid = reclassID_B;
-        // proc->sel_en = 0;
-        // }
+
         MakeReclassScreen(proc, proc->pid, terrain);
         return PROMO_HANDLER_STAT_IDLE;
     }
@@ -1420,30 +1349,6 @@ s8 CanUnitReclass(struct Unit * unit)
 {
     return GetReclassOption(unit->pCharacterData->number, unit->pClassData->number, 0);
 }
-/*
-const struct ProcCmd ProcScr_PrepItemUseJunaFruit[] = {
-    //PROC_SET_END_CB(PrepItemUseJuna_OnEnd),
-    //PROC_CALL(PrepItemUseJuna_OnInit),
-    //PROC_REPEAT(PrepItemUseJuna_IDLE),
-    //PROC_CALL(EndManimLevelUpStatGainLabels),
-    //PROC_SLEEP(0x1),
-    PROC_CALL_ARG(NewFadeOut, 0x10),
-    PROC_WHILE(FadeOutExists),
-    PROC_CALL(StartMidFadeToBlack),
-    PROC_REPEAT(WaitForFade),
-    PROC_CALL(StartPrepScreenReclass),
-    PROC_SLEEP(0x8),
-    PROC_CALL(PrepItemUse_ResetBgmAfterPromo),
-    PROC_SLEEP(0x1E),
-    PROC_CALL(PrepItemUse_PostPromotion),
-
-    PROC_CALL(PrepItemUse_InitDisplay),
-    PROC_CALL_ARG(NewFadeIn, 0x10),
-    PROC_WHILE(FadeInExists),
-    PROC_WHILE(MusicProc4Exists),
-    PROC_END,
-};
-*/
 
 void CallPrepItemUse_InitDisplay(struct ProcPrepItemUse * proc)
 {
@@ -1529,23 +1434,12 @@ void StartPrepScreenReclass(struct ProcPrepItemUse * proc)
     proc->unk34 = aParent->unk34;
     proc->slot_rtext = aParent->slot_rtext;
     proc->pos_subbox = aParent->pos_subbox;
-    // proc->game_lock = aParent->game_lock;
 
     gActiveUnit = proc->unit;
-    // struct BattleUnit *actor, *target;
+
     struct ProcPromoHandler * new_proc;
     struct ProcPrepItemUse * parent;
 
-    // u32 weapon;
-    // u32 slot = proc->slot;
-    // if (slot != -1) {
-    //     struct BattleUnit *actor, *target;
-    //     actor = &gBattleActor;
-    //     target = &gBattleTarget;
-    //     target->weaponBefore = proc->unit->items[slot];
-    //     actor->weaponBefore = proc->unit->items[slot];
-    // }
-    // ApplyPalette(Pal_SpinningArrow, 0x3);
     gBattleActor.weaponBefore = gBattleTarget.weaponBefore = proc->unit->items[gActionData.itemSlotIndex];
 
     int weapon = GetUnitEquippedWeapon(proc->unit);
@@ -1566,7 +1460,3 @@ void StartPrepScreenReclass(struct ProcPrepItemUse * proc)
     new_proc->unit = parent->unit;
     new_proc->item_slot = parent->slot;
 }
-
-// void StartBmPromotion(ProcPtr proc) { // test hook
-// StartBmReclass(proc);
-// }
