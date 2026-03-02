@@ -197,11 +197,10 @@ void PrepItemTrade_Init(struct PrepMenuTradeProc* proc)
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, 0);
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    LoadHelpBoxGfx((void*)0x06012000, -1);
-#else
-    LoadHelpBoxGfx((void*)0x06014000, -1);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        LoadHelpBoxGfx((void*)0x06012000, -1);
+    else
+        LoadHelpBoxGfx((void*)0x06014000, -1);
 
     LoadIconPalettes(4);
 
@@ -298,11 +297,10 @@ void sub_809D914(struct PrepItemSupplyProc* proc)
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, proc->yOffsetPerPage[proc->currentPage] - 0x28);
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    LoadHelpBoxGfx((void*)0x06012000, -1);
-#else
-    LoadHelpBoxGfx((void*)0x06013000, -1);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        LoadHelpBoxGfx((void*)0x06012000, -1);
+    else
+        LoadHelpBoxGfx((void*)0x06013000, -1);
 
     LoadIconPalettes(4);
     RestartMuralBackground();
@@ -324,11 +322,10 @@ void TradeMenu_InitUnitNameDisplay(struct TradeMenuProc* proc)
     int xStart;
 
     // TODO: constants
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    StartSysBrownBox(6, 0x7080, 0x08, 0x800, 0x400, (struct Proc*)(proc));
-#else
-    StartSysBrownBox(6, 0x4800, 0x08, 0x800, 0x400, (struct Proc*)(proc));
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        StartSysBrownBox(6, 0x7080, 0x08, 0x800, 0x400, (struct Proc*)(proc));
+    else
+        StartSysBrownBox(6, 0x4800, 0x08, 0x800, 0x400, (struct Proc*)(proc));
 
     EnableSysBrownBox(0, -40, -1, 1);
     EnableSysBrownBox(1, 184, -1, 0);
@@ -3600,11 +3597,10 @@ void PrepItemUseBooster_OnEnd(struct ProcPrepItemUseBooster * proc)
     EndManimLevelUpStatGainLabels();
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    LoadHelpBoxGfx((void*)0x06012000, -1);
-#else
-    LoadHelpBoxGfx(OBJ_VRAM1, -1);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        LoadHelpBoxGfx((void*)0x06012000, -1);
+    else
+        LoadHelpBoxGfx(OBJ_VRAM1, -1);
 }
 
 LYN_REPLACE_CHECK(PrepItemUseJuna_OnEnd);
@@ -3634,11 +3630,10 @@ void PrepItemUseJuna_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
     sub_80ACA84(0);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    LoadHelpBoxGfx((void*)0x06012000, -1);
-#else
-    LoadHelpBoxGfx(OBJ_VRAM1, -1);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        LoadHelpBoxGfx((void*)0x06012000, -1);
+    else
+        LoadHelpBoxGfx(OBJ_VRAM1, -1);
 }
 
 LYN_REPLACE_CHECK(PrepItemUse_InitDisplay);
@@ -3680,11 +3675,10 @@ void PrepItemUse_InitDisplay(struct ProcPrepItemUse *proc)
     BG_SetPosition(BG_2, 0,0);
 
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    LoadHelpBoxGfx((void*)0x06013000, -1);
-#else
-    LoadHelpBoxGfx(OBJ_VRAM1, -1);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+        LoadHelpBoxGfx((void*)0x06013000, -1);
+    else
+        LoadHelpBoxGfx(OBJ_VRAM1, -1);
 
     LoadIconPalettes(4);
     RestartMuralBackground();

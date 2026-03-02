@@ -79,18 +79,21 @@ void LoadHelpBoxGfx(void * vram, int palId)
 {
 
 // Repoint the vram used for the stat screen help box
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    if (vram == NULL) {
-        if (Proc_Find(gProcScr_StatScreen) || Proc_Find(gProcScr_Shop))
-            vram = (void *)0x06012000;
-        else
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        if (vram == NULL) {
+            if (Proc_Find(gProcScr_StatScreen) || Proc_Find(gProcScr_Shop))
+                vram = (void *)0x06012000;
+            else
+                vram = (void *)0x06013000;
+        }
+    }
+    else
+    {
+        if (vram == NULL) {
             vram = (void *)0x06013000;
+        }
     }
-#else
-    if (vram == NULL) {
-        vram = (void *)0x06013000;
-    }
-#endif
 
     if (palId < 0) {
         palId = 5;
@@ -111,48 +114,48 @@ void LoadHelpBoxGfx(void * vram, int palId)
     InitSpriteText(&gHelpBoxSt.text[2]);
 
     /* Don't provide the extra text box tiles if we're using any of the procs in this list */
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-
-    const struct ProcCmd * procExceptionsList[14] = 
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
     {
-        ProcScr_SaveMenu,
-        gProcScr_SaveMenuPostChapter,
-        gProcScr_ChapterStatusScreen,
-        gProcScr_DrawUnitInfoBgSprites,
-        ProcScr_bmview,
-        ProcScr_UnitListScreen_Field,
-        ProcScr_UnitListScreen_PrepMenu,
-        ProcScr_UnitListScreen_SoloAnim,
-        ProcScr_UnitListScreen_WorldMap,
-        ProcScr_PrepUnitScreen,
-        ProcScr_PrepItemUseScreen,
-        gProcScr_DrawPrepFundsSprite,
-        gProcScr_PrepWMShopSell,
-        ProcScr_SlidingWallBg,
-    };
-
-    FORCE_DECLARE bool procFound = false;
-    
-    for (int i = 0; i < (int)ARRAY_COUNT(procExceptionsList); i++)
-    {
-        if (Proc_Find(procExceptionsList[i]))
+        const struct ProcCmd * procExceptionsList[14] = 
         {
+            ProcScr_SaveMenu,
+            gProcScr_SaveMenuPostChapter,
+            gProcScr_ChapterStatusScreen,
+            gProcScr_DrawUnitInfoBgSprites,
+            ProcScr_bmview,
+            ProcScr_UnitListScreen_Field,
+            ProcScr_UnitListScreen_PrepMenu,
+            ProcScr_UnitListScreen_SoloAnim,
+            ProcScr_UnitListScreen_WorldMap,
+            ProcScr_PrepUnitScreen,
+            ProcScr_PrepItemUseScreen,
+            gProcScr_DrawPrepFundsSprite,
+            gProcScr_PrepWMShopSell,
+            ProcScr_SlidingWallBg,
+        };
+
+        FORCE_DECLARE bool procFound = false;
+        
+        for (int i = 0; i < (int)ARRAY_COUNT(procExceptionsList); i++)
+        {
+            if (Proc_Find(procExceptionsList[i]))
+            {
+                procFound = true;
+                break;
+            }
+        }
+
+    #if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
+        if (gActionData.unk08 == SID_SummonPlus && !procFound)
             procFound = true;
-            break;
+    #endif
+
+        if (!procFound)
+        {
+            InitSpriteText(&gHelpBoxSt.text[3]);
+            InitSpriteText(&gHelpBoxSt.text[4]);
         }
     }
-
-#if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
-    if (gActionData.unk08 == SID_SummonPlus && !procFound)
-        procFound = true;
-#endif
-
-    if (!procFound)
-    {
-        InitSpriteText(&gHelpBoxSt.text[3]);
-        InitSpriteText(&gHelpBoxSt.text[4]);
-    }
-#endif
 
     SetTextFont(0);
 
@@ -176,10 +179,11 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
     Text_SetColor(&gHelpBoxSt.text[1], 6);
     Text_SetColor(&gHelpBoxSt.text[2], 6);
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    Text_SetColor(&gHelpBoxSt.text[3], 6);
-    Text_SetColor(&gHelpBoxSt.text[4], 6);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        Text_SetColor(&gHelpBoxSt.text[3], 6);
+        Text_SetColor(&gHelpBoxSt.text[4], 6);
+    }
 
     SetTextFont(0);
 
@@ -192,10 +196,11 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
     otherProc->texts[1] = &gHelpBoxSt.text[1];
     otherProc->texts[2] = &gHelpBoxSt.text[2];
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    otherProc->texts[3] = &gHelpBoxSt.text[3];
-    otherProc->texts[4] = &gHelpBoxSt.text[4];
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        otherProc->texts[3] = &gHelpBoxSt.text[3];
+        otherProc->texts[4] = &gHelpBoxSt.text[4];
+    }
 
     otherProc->pretext_lines = proc->pretext_lines;
 
@@ -233,16 +238,18 @@ LYN_REPLACE_CHECK(sub_80898C4);
 void sub_80898C4(void* vram, int palId) {
 
 // Repoint the vram used for the stat screen help box
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    if (vram == NULL) {
-        vram = (void *)0x06012000;
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        if (vram == NULL) {
+            vram = (void *)0x06012000;
+        }
     }
-#else
-    if (vram == NULL) {
-        vram = (void *)0x06013000;
+    else
+    {
+        if (vram == NULL) {
+            vram = (void *)0x06013000;
+        }
     }
-#endif
-
 
     if (palId < 0) {
         palId = 5;
@@ -261,11 +268,12 @@ void sub_80898C4(void* vram, int palId) {
     InitSpriteText(&gHelpBoxSt.text[0]);
     InitSpriteText(&gHelpBoxSt.text[1]);
     
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    InitSpriteText(&gHelpBoxSt.text[2]);
-    InitSpriteText(&gHelpBoxSt.text[3]);
-    InitSpriteText(&gHelpBoxSt.text[4]);
-#endif
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        InitSpriteText(&gHelpBoxSt.text[2]);
+        InitSpriteText(&gHelpBoxSt.text[3]);
+        InitSpriteText(&gHelpBoxSt.text[4]);
+    }
 
     gHelpBoxSt.text[2].tile_width = 0;
 

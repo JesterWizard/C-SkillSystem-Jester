@@ -81,12 +81,8 @@ struct HelpBox8A01800Proc {
 struct HelpBoxSt {
     /* 00 */ struct Font font;
 
-/* Vanilla was text[3], the additiontal two lines to [5] are needed for CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS */
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    /* 16 */ struct Text text[5];
-#else
-    /* 16 */ struct Text text[3];
-#endif
+    /* 16 */ struct Text text[5]; // Vanilla was [3], gpKernelDesignerConfig->vesly_extended_help_boxes requires 5, I'm probably overwriting something but no ill effects so far
+
     /* 30 */ u16 oam2_base;
 };
 

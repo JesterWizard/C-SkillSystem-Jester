@@ -17,6 +17,10 @@
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 #define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
 // #define CONFIG_VESLY_RECLASS // Ovewrites the juna fruit. Maybe look into not using an item at all?
+#define CONFIG_CHAPTER_NAMES
+#define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
+#define CONFIG_TEXT_ENGINE_REWORK
+#define CONFIG_SHOW_CGs_LIKE_FE7
 
 /**
  * Icon config
@@ -94,11 +98,6 @@
 	#define CONFIG_FORGE_CHECKER 5000
 #endif
 
-
-/**
- * Unit amount, since it is hard to modify, it is recommanded not change this value
- */
-
 // For now don't turn it off, it'll break the game
 #define CONFIG_FOURTH_ALLEGIANCE // Run a full make clean every time you toggle this
 
@@ -114,21 +113,14 @@
 #define CONFIG_UNIT_AMT_NPC   8
 
 // #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
-#define CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
 #define CONFIG_VESLY_CREDITS_SEQUENCE
 // #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
 #define CONFIG_VESLY_SHOOT_ARROW
 // #define CONFIG_VESLY_AVATAR
-#define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
 
 #define CONFIG_RES_TERRAIN_WINDOW
 
-#define CONFIG_TEXT_ENGINE_REWORK
-
-#define CONFIG_SHOW_CGs_LIKE_FE7
-
-#define CONFIG_CHAPTER_NAMES
 // #define CONFIG_ARENA_LIMITS
 #define CONFIG_QUINTESSANCE_EFFECT
 #define CONFIG_TURN_ON_ALL_SKILLS

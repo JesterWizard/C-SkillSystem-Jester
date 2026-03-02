@@ -34,9 +34,7 @@
     #include "Misc/VeslyUI/VeslyUI_Installer.event"
 #endif
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    #include "Misc/VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
-#endif
+#include "Misc/VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
 
 #ifdef CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
     #include "Misc/StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"

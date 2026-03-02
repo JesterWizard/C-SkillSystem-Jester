@@ -447,17 +447,20 @@ void DisplayHelpBoxObj(int x, int y, int w, int h, int unk) {
         h = 0x10;
     }
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    /* Now we limit it to 5 lines (0x10 * 5) */
-    if (h > 0x50) {
-        h = 0x50;
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        /* Now we limit it to 5 lines (0x10 * 5) */
+        if (h > 0x50) {
+            h = 0x50;
+        }
     }
-#else
-    /* Vanilla behaviour to limit the help text box to three lines (0x10 * 3) */
-    if (h > 0x30) {
-        h = 0x30;
+    else
+    {
+        /* Vanilla behaviour to limit the help text box to three lines (0x10 * 3) */
+        if (h > 0x30) {
+            h = 0x30;
+        }
     }
-#endif
 
     xCount = (w + 0x1f) / 0x20;
     yCount = (h + 0x0f) / 0x10;
@@ -568,39 +571,39 @@ void ClearHelpBoxText(void) {
     SpriteText_DrawBackground(&gHelpBoxSt.text[2]);
 
     /* Do not allocate additional text box space if we're using any of these procs */
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-
-    const struct ProcCmd * procExceptionsList[9] = 
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
     {
-        ProcScr_SaveMenu,
-        gProcScr_SaveMenuPostChapter,
-        gProcScr_ChapterStatusScreen,
-        gProcScr_DrawUnitInfoBgSprites,
-        ProcScr_bmview,
-        ProcScr_UnitListScreen_Field,
-        ProcScr_UnitListScreen_PrepMenu,
-        ProcScr_UnitListScreen_SoloAnim,
-        ProcScr_UnitListScreen_WorldMap,
-        // PrepScreenProc_MapIdle,
-    };
-
-    FORCE_DECLARE bool procFound = false;
-    
-    for (int i = 0; i < (int)ARRAY_COUNT(procExceptionsList); i++)
-    {
-        if (Proc_Find(procExceptionsList[i]))
+        const struct ProcCmd * procExceptionsList[9] = 
         {
-            procFound = true;
-            break;
+            ProcScr_SaveMenu,
+            gProcScr_SaveMenuPostChapter,
+            gProcScr_ChapterStatusScreen,
+            gProcScr_DrawUnitInfoBgSprites,
+            ProcScr_bmview,
+            ProcScr_UnitListScreen_Field,
+            ProcScr_UnitListScreen_PrepMenu,
+            ProcScr_UnitListScreen_SoloAnim,
+            ProcScr_UnitListScreen_WorldMap,
+            // PrepScreenProc_MapIdle,
+        };
+
+        FORCE_DECLARE bool procFound = false;
+        
+        for (int i = 0; i < (int)ARRAY_COUNT(procExceptionsList); i++)
+        {
+            if (Proc_Find(procExceptionsList[i]))
+            {
+                procFound = true;
+                break;
+            }
+        }
+
+        if (!procFound)
+        {
+            SpriteText_DrawBackground(&gHelpBoxSt.text[3]);
+            SpriteText_DrawBackground(&gHelpBoxSt.text[4]);
         }
     }
-
-    if (!procFound)
-    {
-    	SpriteText_DrawBackground(&gHelpBoxSt.text[3]);
-    	SpriteText_DrawBackground(&gHelpBoxSt.text[4]);
-    }
-#endif
 
     Proc_EndEach(gProcScr_HelpBoxTextScroll);
     Proc_EndEach(ProcScr_HelpBoxIntro);
@@ -649,16 +652,19 @@ void InitBoxDialogue(void * vram_dst, int pad_idx) {
     FORCE_DECLARE int iVar4;
     FORCE_DECLARE int iVar5;
 
-#ifdef CONFIG_VESLY_EXTENDED_ITEM_DESCRIPTIONS
-    if (vram_dst == 0) {
-        vram_dst = (void *)0x06012000;
+    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    {
+        if (vram_dst == 0) {
+            vram_dst = (void *)0x06012000;
+        }
     }
-#else
-    if (vram_dst == 0) {
-        vram_dst = (void *)0x06013000;
+    else
+    {
+        if (vram_dst == 0) {
+            vram_dst = (void *)0x06013000;
+        }
     }
-#endif
-
+    
     if (pad_idx < 0) {
         pad_idx = 5;
     }
