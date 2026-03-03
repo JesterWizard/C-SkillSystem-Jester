@@ -4555,36 +4555,6 @@ extern u16 gUnknown_08A98E4C[];
 extern u16 gUnknown_08A98E6C[];
 extern u16 gUnknown_08A98E8C[];
 
-//! FE8U = 0x080BE5B4
-LYN_REPLACE_CHECK(sub_80BE5B4);
-void sub_80BE5B4(int faction, int palId)
-{
-    u16 * src;
-
-    switch (faction)
-    {
-        case FACTION_BLUE:
-            src = gUnknown_08A98E2C;
-            break;
-
-        case FACTION_RED:
-            src = gUnknown_08A98E4C;
-            break;
-
-        case FACTION_GREEN:
-            src = gUnknown_08A98E6C;
-            break;
-
-        default:
-            src = gUnknown_08A98E8C;
-            break;
-    }
-
-    ApplyPalette(src, palId);
-
-    return;
-}
-
 extern u16 gUnknown_0201B7DA[];
 
 //! FE8U = 0x080BE958

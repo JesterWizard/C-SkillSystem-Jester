@@ -127,6 +127,7 @@ struct KernelDesigerConfig {
 	u8 vesly_credits_cgs;
 	u8 fe8_rewritten_specific_changes;
 	u8 arena_limits;
+	u8 vesly_custom_ui;
 };
 
 struct KernelBattleDesignerConfig {

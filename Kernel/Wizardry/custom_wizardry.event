@@ -28,9 +28,7 @@
     #include "Misc/VeslyReclass/VeslyReclass_Installer.event"
 #endif
 
-#ifdef CONFIG_VESLY_UI
-    #include "Misc/VeslyUI/VeslyUI_Installer.event"
-#endif
+#include "Misc/VeslyUI/VeslyUI_Installer.event"
 
 #include "Misc/VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
 

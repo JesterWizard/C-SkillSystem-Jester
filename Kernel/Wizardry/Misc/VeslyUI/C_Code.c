@@ -1,6 +1,6 @@
-
-#include "C_Code.h" // headers
+#include "gbafe.h" 
 #include "bmshop.h"
+#include "kernel-lib.h"
 
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
@@ -89,6 +89,10 @@ extern int GammaStyleFlag;
 extern int PikminStyleFlag;
 int GetUI_id(void)
 {
+
+    if (gpKernelDesignerConfig->vesly_custom_ui != true)
+        return 0;
+
     if (CheckFlag(StephanoStyleFlag))
     {
         return 1;

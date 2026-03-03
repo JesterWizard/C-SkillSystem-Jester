@@ -62,8 +62,10 @@ extern u8 MaxLevel;
 u8 CheckArenaLimits(void)
 {
     if (gpKernelDesignerConfig->arena_limits != true)
+    {
         return ARENA_OK;
-
+    }
+    
 	ProcPtr playerPhaseProc = Proc_Find(gProcScr_PlayerPhase); 
     for (int x = 0; ArenaLimitTable[x].ChapterID != 0xFF; x++)
     {

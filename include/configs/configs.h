@@ -116,7 +116,6 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
-// #define CONFIG_VESLY_UI //Conflicts graphically with RES_TERRAIN_WINDOW
 // #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
 // #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
 // #define CONFIG_VESLY_AVATAR
