@@ -196,20 +196,17 @@ LABEL(0x1)
 };
 
 // static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
-//     // ASMC(CallForgeMenuASMC)
+// ASMC(CallForgeMenuASMC)
 
-//     // ASMC(AddMoreTime)
+// ASMC(AddMoreTime)
 
-//    // ASMC(StartAvatarEdits_ASMC)
+// ASMC(StartAvatarEdits_ASMC)
 
-// // #ifdef CONFIG_LIGHTS_OUT_GAME
-// //     PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
-// // #endif
+// PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
 
-// // #ifdef CONFIG_VESLY_CREDITS_SEQUENCE
-// //     FADE_TO_BLACK(16) // slow fade to black (optional)
-// //     ASMC(StartCreditsProc_ASMC)
-// // #endif
+// FADE_TO_BLACK(16) // slow fade to black (optional)
+// ASMC(StartCreditsProc_ASMC)
+
 // };
 
 /**

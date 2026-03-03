@@ -25,6 +25,9 @@
 #define CONFIG_VOICE_ACTED_DIALOGUE  // Installs assets so needs a build time config
 #define CONFIG_VESLY_SHOOT_ARROW     // All ASM, so easier to use build time config
 #define CONFIG_RES_TERRAIN_WINDOW    // All ASM, so easier to use build time config
+#define CONFIG_MAX_COLOR_BACKGROUNDS // All ASM, so easier to use build time config
+// #define CONFIG_LIGHTS_OUT_GAME    // All ASM, so easier to use build time config
+#define CONFIG_MISC_UNIT_COUNTERS    // Used for Skill - Bravely Default (It also edits the unit struct bits) 
 
 /**
  * Icon config
@@ -36,6 +39,7 @@
 #define CONFIG_ICON_INDEX_ARMS_SCROLL 0xCD
 
 #define CONFIG_MULTIPLE_BOOST_STAVES
+
 #ifdef CONFIG_MULTIPLE_BOOST_STAVES
 	#define CONFIG_ICON_INDEX_FORCE_STAFF 0xCE
 	#define CONFIG_ICON_INDEX_ACUITY_STAFF 0xCF
@@ -136,11 +140,7 @@
 
 // #define CONFIG_MULTIPLE_FOG_STAGES /* Still a work in progress */
 
-#define CONFIG_MISC_UNIT_COUNTERS /* Used for Skill - Bravely Default */
-
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
-
-// #define CONFIG_LIGHTS_OUT_GAME
 
 // #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
 
@@ -152,5 +152,3 @@
 ** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
 */
 // #define CONFIG_HALF_BODY_PORTRAITS
-
-#define CONFIG_MAX_COLOR_BACKGROUNDS
