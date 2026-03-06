@@ -166,25 +166,26 @@ struct PlaySt_OptionBits {
     u32 debugControlPurple: 2;
     u32 unk43_4:3; // I'm not sure if reducing this from 5 -> 3 has negative implications
 
-    // u8  unk44[0x48 - 0x44];
+    // u8  unk44[0x48 - 0x44]; // I'm commenting this out to use its bits below as toggles for custom menu options
 
-    u32 custom_option_1: 1;
-    u32 custom_option_2: 1;
-    u32 custom_option_3: 1;
-    u32 custom_option_4: 1;
-    u32 custom_option_5: 1;
-    u32 custom_option_6: 1;
-    u32 custom_option_7: 1;
-    u32 custom_option_8: 1;
+    u32 skill_capacity: 1;
+    u32 casual_mode: 1;
+    u32 talk_on_level_up: 1;
+    u32 restore_hp_on_level_up: 1;
+    u32 promote_enemy_on_kill: 1;
+    u32 danger_bones: 1;
+    u32 fast_battle_animatons: 1;
+    u32 expanded_max_hp: 1;
+    u32 flip_enemy_sprites: 1;
 
-    u32 custom_option_9: 1;
-    u32 custom_option_10: 1;
-    u32 custom_option_11: 1;
-    u32 custom_option_12: 1;
-    u32 custom_option_13: 1;
-    u32 custom_option_14: 1;
-    u32 custom_option_15: 1;
-    u32 custom_option_16: 1;
+    u32 summons_gain_exp: 1;
+    u32 promote_unit_on_max_level: 1;
+    u32 show_arena_opponent_in_advance: 1;
+    u32 send_inventory_on_death: 1;
+    u32 fast_map_animations: 1;
+    u32 anima_weapon_triangle: 1;
+    u32 support_after_battle: 1;
+    u32 gameover_quotes: 1;
 
     u32 custom_option_17: 1;
     u32 custom_option_18: 1;

@@ -302,7 +302,7 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 		gStatScreen.yDispOff + 131,
 		gObject_32x16, TILEREF(0x28F, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3));
 
-    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
+    if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
     {
         if (gStatScreen.page == 2)
         {

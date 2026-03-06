@@ -73,7 +73,6 @@ struct KernelDesigerConfig {
 	u8 prep_menu_bexp;
 	u8 prep_menu_base_conversations;
 	u8 expanded_hp;
-	u8 vesly_debugger;
 	u8 map_menu_character_biographies;
 	u8 custom_staff_accuracy;
 	u8 limited_shop_items;
@@ -114,6 +113,7 @@ struct KernelDesigerConfig {
 	u8 c03_do_not_flush_efx_status;
 	u8 load_skills_through_feb_formatted_list;
 	u8 item_effect_revamp;
+	u8 vesly_debugger;
 	u8 vesly_danger_bones;
 	u8 vesly_support_after_battle;
 	u8 vesly_support_after_battle_kill_rate;
@@ -122,12 +122,12 @@ struct KernelDesigerConfig {
 	u8 vesly_support_after_battle_staff_rate;
 	u8 vesly_fast_forward_battle_animations;
 	u8 vesly_extended_help_boxes;
+	u8 vesly_credits_cgs;
+	u8 vesly_custom_ui;
 	u8 free_movement;
 	u8 gameover_quotes;
-	u8 vesly_credits_cgs;
 	u8 fe8_rewritten_specific_changes;
 	u8 arena_limits;
-	u8 vesly_custom_ui;
 	u8 custom_menu_options;
 };
 

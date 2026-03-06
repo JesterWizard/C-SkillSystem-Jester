@@ -164,3 +164,7 @@ struct Auguries {
     int bodyTextId;
     int songId;
 };
+
+extern u8 Img_ConfigUiIcons_NEW[];
+extern const u8 gGameOptionsUiOrder_NEW[30];
+extern const struct GameOption gGameOptions_NEW[];

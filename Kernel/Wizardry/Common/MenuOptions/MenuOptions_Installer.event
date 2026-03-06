@@ -1,2 +1,6 @@
+Img_ConfigUiIcons_NEW:
+#incext Png2Dmp "FE8_All_System_Icons.png" --lz77
+
 #include "LynJump.event"
+#include "MenuMisc.lyn.event"
 #include "MenuOptions.lyn.event"

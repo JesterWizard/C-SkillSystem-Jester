@@ -183,7 +183,7 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
     int slot = gActionData.itemSlotIndex;
     FORCE_DECLARE int item = unit->items[slot];
 
-    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
+    if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
     {
         int amt = GetUnitBattleAmt(gActiveUnit);
         int total = gpKernelDesignerConfig->tellius_skill_capacity_base;
