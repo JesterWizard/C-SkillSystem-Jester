@@ -128,6 +128,7 @@ struct KernelDesigerConfig {
 	u8 fe8_rewritten_specific_changes;
 	u8 arena_limits;
 	u8 vesly_custom_ui;
+	u8 custom_menu_options;
 };
 
 struct KernelBattleDesignerConfig {

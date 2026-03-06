@@ -138,4 +138,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.fe8_rewritten_specific_changes = true,
 	.arena_limits = false,
 	.vesly_custom_ui = true, // About 200KB per style (600KB so far)
+	.custom_menu_options = true,
 };

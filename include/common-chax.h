@@ -13,11 +13,7 @@
 #define BUGFIX 1
 
 /* Set static declaration as a macro for debug purpose */
-#ifdef CONFIG_USE_DEBUG
 #define STATIC_DECLAR
-#else
-#define STATIC_DECLAR // static
-#endif
 
 #ifndef hang
 #define hang() do { while (1); } while (0)

@@ -33,9 +33,6 @@ bool IsSkillScrollItem(int item)
         return true;
 #endif
 
-	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_FEB)
-		return true;
-
     return false;
 
 }

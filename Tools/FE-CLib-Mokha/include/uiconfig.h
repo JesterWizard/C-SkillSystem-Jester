@@ -67,6 +67,8 @@ enum
     GAME_OPTION_OBJECTIVE      = 14,
     GAME_OPTION_CONTROLLER     = 15,
     GAME_OPTION_RANK_DISPLAY   = 16,
+
+    GAME_OPTION_CUSTOM_1 = 17,
 };
 
 enum

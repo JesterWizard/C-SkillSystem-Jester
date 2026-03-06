@@ -7,7 +7,6 @@ bool IsDuraItem(int item)
     switch (ITEM_INDEX(item)) {
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_1:
-	case CONFIG_ITEM_INDEX_SKILL_SCROLL_FEB:
         return true;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2

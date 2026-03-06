@@ -36,7 +36,7 @@
     #include "Misc/StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #endif
 
-#include "Misc/CasualMode/CasualMode_Installer.event"
+// #include "Misc/CasualMode/CasualMode_Installer.event"
 
 #ifdef CONFIG_RES_TERRAIN_WINDOW
     #include "Misc/ResTerrainWindow/ResTerrainWindow_Installer.event"
