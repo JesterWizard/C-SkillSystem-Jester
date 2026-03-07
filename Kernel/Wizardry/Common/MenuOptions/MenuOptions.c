@@ -304,7 +304,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x20,
         .func = GenericOptionChangeHandler,
     },
 
@@ -318,7 +318,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x24,
         .func = GenericOptionChangeHandler,
     },
 
@@ -332,7 +332,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x26,
         .func = GenericOptionChangeHandler,
     },
 
@@ -346,7 +346,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x28,
         .func = GenericOptionChangeHandler,
     },
 
@@ -360,7 +360,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x2A,
         .func = GenericOptionChangeHandler,
     },
 
@@ -374,7 +374,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x2C,
         .func = GenericOptionChangeHandler,
     },
 
@@ -388,7 +388,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x2E,
         .func = GenericOptionChangeHandler,
     },
 
@@ -402,7 +402,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x30,
         .func = GenericOptionChangeHandler,
     },
 
@@ -416,7 +416,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x32,
         .func = GenericOptionChangeHandler,
     },
 
@@ -430,7 +430,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x34,
         .func = GenericOptionChangeHandler,
     },
 
@@ -444,7 +444,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x36,
         .func = GenericOptionChangeHandler,
     },
 
@@ -458,7 +458,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x38,
         .func = GenericOptionChangeHandler,
     },
 
@@ -472,7 +472,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x3A,
         .func = GenericOptionChangeHandler,
     },
 
@@ -486,7 +486,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x3C,
         .func = GenericOptionChangeHandler,
     },
 
@@ -500,7 +500,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x3E,
         .func = GenericOptionChangeHandler,
     },
 
@@ -514,7 +514,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x22,
+        .icon = 0x40,
         .func = GenericOptionChangeHandler,
     },
 
