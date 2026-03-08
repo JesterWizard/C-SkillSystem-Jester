@@ -235,7 +235,8 @@ void GetPromotedUnitDescId(struct HelpBoxProc* proc)
                 proc->mid = GetClassData(promo_data->promotions[2].classId)->descTextId;
         }
         else
-            proc->mid = 0;
+            gKeyStatusPtr->newKeys = B_BUTTON; // Prevent empty text boxes
+            // proc->mid = 0;
     }
 }
 
@@ -276,8 +277,10 @@ void GetPromotedUnitSkillId(struct HelpBoxProc* proc)
             proc->mid = GetSkillDescMsg(promo_data->promotions[2].skills[1]);
         else if (proc->info->xDisplay == (0x16 * 0x8) && proc->info->yDisplay == (0xF * 0x8))
             proc->mid = GetSkillDescMsg(promo_data->promotions[2].skills[2]);
-
     }
+
+    if (proc->mid == 0)
+        CloseHelpBox();
 }
 
 // Select graphic

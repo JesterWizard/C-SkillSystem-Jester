@@ -93,9 +93,9 @@
 
 #include "Misc/EnterTown/EnterTown_Installer.event"
 
-#ifdef CONFIG_BREAKABLE_DOORS
-    #include "Misc/BreakableDoors/BreakableDoors.event"
-#endif
+// #ifdef CONFIG_BREAKABLE_DOORS
+//     #include "Misc/BreakableDoors/BreakableDoors.event"
+// #endif
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     #include "Misc/FourthAllegiance/FourthAllegiance_Installer.event"
