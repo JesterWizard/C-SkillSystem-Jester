@@ -221,12 +221,6 @@ STATIC_DECLAR int KernelModifyBattleUnitExp(int base, struct BattleUnit* actor, 
             status += 5;
 #endif
 
-    /* Check last */
-#if defined(SID_VoidCurse) && (COMMON_SKILL_VALID(SID_VoidCurse))
-    if (BattleFastSkillTester(target, SID_VoidCurse))
-        status = 0;
-#endif
-
 #if defined(SID_Carnage) && (COMMON_SKILL_VALID(SID_Carnage))
     if (BattleFastSkillTester(actor, SID_Carnage))
         status += ((target->hpInitial - target->unit.curHP) / 2);
@@ -237,9 +231,28 @@ STATIC_DECLAR int KernelModifyBattleUnitExp(int base, struct BattleUnit* actor, 
         status += ((actor->hpInitial - actor->unit.curHP) / 2);
 #endif
 
-    // LIMIT_AREA(status, 0, 100); // JESTER - Turned off for skill Prodigy
-    if (base > 0 && status <= 0)
-        status = 1;
+// LIMIT_AREA(status, 0, 100); // JESTER - Turned off for skill Prodigy
+if (base > 0 && status <= 0)
+    status = 1;
+
+    /* Check last */
+#if defined(SID_VoidCurse) && (COMMON_SKILL_VALID(SID_VoidCurse))
+    if (BattleFastSkillTester(target, SID_VoidCurse))
+        status = 0;
+#endif
+
+    switch (gActionData.itemSlotIndex)
+    {
+        case CHAX_BUISLOT_GAIDEN_WMAG1:
+        case CHAX_BUISLOT_GAIDEN_WMAG2:
+        case CHAX_BUISLOT_GAIDEN_WMAG3:
+        case CHAX_BUISLOT_GAIDEN_WMAG4:
+        case CHAX_BUISLOT_GAIDEN_WMAG5:
+            status = 0;
+            break;
+        default:
+            break;
+    }
 
     return status;
 }
