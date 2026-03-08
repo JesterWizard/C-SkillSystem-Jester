@@ -4706,3 +4706,52 @@ int GetBattleUnitUpdatedWeaponExp(struct BattleUnit* bu) {
 
     return result;
 }
+
+static const u16 sTraineePromoMsgLut[] = {
+    [CHARACTER_ROSS]   = MSG_TRAINEE_PROMO_ROSS,
+    [CHARACTER_AMELIA] = MSG_TRAINEE_PROMO_AMELIA,
+    [CHARACTER_EWAN]   = MSG_TRAINEE_PROMO_EWAN,
+};
+
+void PromoTrainee_Talk(struct ProcPromoTraineeEvent *proc)
+{
+    u32 msg;
+
+    msg = sTraineePromoMsgLut[proc->pid];
+
+    StartTalkFace(proc->face, 0xd4, 0x50, 0x82, 0);
+
+    gFaces[0]->displayBits = FACE_DISP_KIND(2) | FACE_DISP_HLAYER(2);
+    gFaces[1]->displayBits = FACE_DISP_HIDDEN;
+    gFaces[2]->displayBits = FACE_DISP_HIDDEN;
+    gFaces[3]->displayBits = FACE_DISP_HIDDEN;
+
+    gUnknown_03005398 = -1;
+
+    StartCgText(0x16, 0x12, 0x12, 4, msg, OBJ_VRAM0 + 0x1800, -1, 0);
+    SetCgTextFlags(CG_TEXT_FLAG_1 | CG_TEXT_FLAG_3);
+}
+
+static const struct ProcCmd ProcScr_PromoSelectEvent_NEW[] = {
+    PROC_SLEEP(8),
+	PROC_NAME("ccramify_event"),
+    PROC_LABEL(0),
+    PROC_CALL(PromoTrainee_InitScreen),
+    PROC_LABEL(1),
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
+    PROC_CALL(PromoTrainee_Talk),
+    PROC_WHILE(CgTextExists),
+    PROC_LABEL(3),
+    PROC_WHILE(RemovePromoTraineeEventFace),
+    PROC_LABEL(2),
+    PROC_CALL(PromoTrainee_OnEnd),
+    PROC_LABEL(4),
+    PROC_END,
+};
+
+LYN_REPLACE_CHECK(StartPromoTraineeEvent);
+ProcPtr StartPromoTraineeEvent(ProcPtr proc)
+{
+    return Proc_StartBlocking(ProcScr_PromoSelectEvent_NEW, proc);
+}

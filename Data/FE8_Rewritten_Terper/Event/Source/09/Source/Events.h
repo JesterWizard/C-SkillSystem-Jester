@@ -124,6 +124,7 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
+    ASMC(GrantBEXP)
     MUSC(SONG_INTO_THE_SHADOW_OF_VICTORY)
     FADE_FROM_BLACK(16)
     CLEAR_ALL_UNITS
