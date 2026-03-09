@@ -74,21 +74,21 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_ORIONSBOLT]        = { ITEM_MASTERSEAL,       7 },
 };
 
-static struct PopupInstruction const InfusedPopup[] = {
-    POPUP_SOUND(SONG_SE_UPDATE),
-	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-    POPUP_SPACE(3),
-    POPUP_MSG(MSG_INFUSED),
-    POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
-    POPUP_SPACE(4),
-    POPUP_ITEM_STR,
-    POPUP_SPACE(15),
-   // POPUP_ITEM_ICON,
-    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-    POPUP_SPACE(1),
-    POPUP_MSG(0x022),                   /* .[.] */
-    POPUP_END
-};
+// static struct PopupInstruction const InfusedPopup[] = {
+//     POPUP_SOUND(SONG_SE_UPDATE),
+// 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+//     POPUP_SPACE(3),
+//     POPUP_MSG(MSG_INFUSED),
+//     POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+//     POPUP_SPACE(4),
+//     POPUP_ITEM_STR,
+//     POPUP_SPACE(15),
+//    // POPUP_ITEM_ICON,
+//     POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+//     POPUP_SPACE(1),
+//     POPUP_MSG(0x022),                   /* .[.] */
+//     POPUP_END
+// };
 
 static bool CanAffordInfusion(u8 cost) {
     return gInfuseMenuArray[0] >= cost;
@@ -252,18 +252,6 @@ static void SetupSpriteTextDestination_INFUSE(u32 vram, int target)
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused an ");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xC0, TEXT_COLOR_SYSTEM_BLUE, "item");
     // Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
-}
-
-static void UpdateTargetItemNameSprite(u8 target)
-{
-    // Clear and reinitialize the sprite text handle
-    ClearText(&PrepItemSuppyTexts.th[0xf]);
-    
-    // Clear the VRAM for the sprite text (this is the critical step!)
-    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
-    
-    // Now draw the updated item name
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, "shit fuck");
 }
 
 static void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
@@ -540,7 +528,9 @@ static void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u
     
     // 7. Popup
    // SetPopupItem(newItem);
-    NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
+
+    // It seems this popup breaks the item draw list and the vertical and horizontal scrolling when used several times disabling for now
+    // NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
@@ -666,7 +656,6 @@ static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * pr
                     EndUiCursorHand();
                     ShowSysHandCursor(68, 36, 0x4, 0x000); // Priority adjusted per original
                     BG_EnableSyncByMask(7);
-                    UpdateTargetItemNameSprite(target);
                     return;
                 }
 
