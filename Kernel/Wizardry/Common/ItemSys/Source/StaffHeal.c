@@ -411,28 +411,30 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
 
     if (gpKernelDesignerConfig->show_heal_amount == true)
     {
-        int healAmount = GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]);
+        int selectedItem = GetItemFromSlot(gSubjectUnit, gActionData.itemSlotIndex);
+        int healAmount = GetUnitItemHealAmount(gSubjectUnit, selectedItem);
 
-        if (healAmount == 0)
-        {
-            switch (gActionData.itemSlotIndex)
-            {
-            case CHAX_BUISLOT_GAIDEN_BMAG1 ... CHAX_BUISLOT_GAIDEN_BMAG7:
-            case CHAX_BUISLOT_GAIDEN_WMAG1 ... CHAX_BUISLOT_GAIDEN_WMAG7:
-                healAmount = GetUnitItemHealAmount(gSubjectUnit, ITEM_INDEX(GetGaidenMagicItem(gSubjectUnit, gActionData.itemSlotIndex)) | (0xFF << 8));
-                break;
-            default:
-                break;
-            }
-        }
+#if CHAX
+        healAmount = HealAmountGetter(healAmount, gSubjectUnit, unit);
+#endif
 
         int healedHP = GetUnitCurrentHp(unit) + healAmount;
         int colorId = TEXT_COLOR_SYSTEM_BLUE;
 
         /* Boost the healed HP amount in the preview window by 50% */
         #if (defined(SID_WhiteMage) && (COMMON_SKILL_VALID(SID_WhiteMage)))
-        if (SkillTester(gActiveUnit, SID_WhiteMage))
-                healedHP += GetUnitItemHealAmount(gSubjectUnit, gSubjectUnit->items[gActionData.itemSlotIndex]) / 2;
+        if (SkillTester(gActiveUnit, SID_WhiteMage)) {
+            switch (GetItemIndex(selectedItem)) {
+            case ITEM_STAFF_HEAL:
+            case ITEM_STAFF_MEND:
+            case ITEM_STAFF_PHYSIC:
+            case ITEM_STAFF_FORTIFY:
+                healedHP += healAmount / 2;
+                break;
+            default:
+                break;
+            }
+        }
         #endif
 
         if (healedHP > GetUnitMaxHp(unit))
