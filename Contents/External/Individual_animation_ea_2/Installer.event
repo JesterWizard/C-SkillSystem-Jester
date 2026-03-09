@@ -10,8 +10,8 @@ ALIGN 4
 // ORG $571E8  //FE8U
 // jumpToHack_r0(IndividualAnimation7743)
 
-/* Needed to disable here for BreakableDoors */
-//PROTECT 0x00056FF8 0x00057CAC // PrepareBattleGraphicsMaybe
+/* Needed to disable here for HP Bar Palettes */
+// PROTECT 0x00056FF8 0x00057CAC // PrepareBattleGraphicsMaybe
 // POP
 
 IndividualAnimation7743:
