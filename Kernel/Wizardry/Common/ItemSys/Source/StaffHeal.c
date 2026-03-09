@@ -271,6 +271,13 @@ void ExecStatusStaff(ProcPtr proc) {
 
     BattleInitItemEffectTarget(GetUnit(gActionData.targetIndex));
 
+    accuracy = GetOffensiveStaffAccuracy(
+        GetUnit(gActionData.subjectIndex),
+        GetUnit(gActionData.targetIndex)
+    );
+
+    gBattleActor.battleEffectiveHitRate = accuracy;
+
 #if defined(SID_NinthCircle) && (COMMON_SKILL_VALID(SID_NinthCircle))
     if (SkillTester(gActiveUnit, SID_NinthCircle))
     {
