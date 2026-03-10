@@ -16,7 +16,7 @@ void InitObstacleBattleUnit(void)
 
     gBattleTarget.unit.pClassData = GetClassData(CLASS_OBSTACLE);
 
-    gBattleTarget.unit.maxHP = GetROMChapterStruct(gPlaySt.chapterIndex)->mapCrackedWallHeath;
+    gBattleTarget.unit.maxHP = GetROMChapterStruct(gPlaySt.chapterIndex)->mapCrackedWallHeath + 3;
     gBattleTarget.unit.curHP = gActionData.trapType; // TODO: better
 
     gBattleTarget.unit.xPos  = gActionData.xOther;
@@ -31,7 +31,7 @@ void InitObstacleBattleUnit(void)
 
     case TERRAIN_SNAG:
         gBattleTarget.unit.pCharacterData = GetCharacterData(CHARACTER_SNAG);
-        gBattleTarget.unit.maxHP = 20;
+        gBattleTarget.unit.maxHP = 20 + 3;
 
         break;
 
