@@ -71,6 +71,8 @@ static void callback_exec_predation(ProcPtr proc)
 
 bool PostAction_Predation(ProcPtr proc)
 {
+    struct Unit *targetUnit;
+
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
         return false;
 
@@ -78,6 +80,10 @@ bool PostAction_Predation(ProcPtr proc)
         return false;
 
     if (gBattleActorGlobalFlag.enemy_defeated == false)
+        return false;
+
+    targetUnit = GetUnit(gBattleTarget.unit.index);
+    if (UNIT_RAM_SKILLS(targetUnit)[0] == 0)
         return false;
 
 #if defined(SID_PredationPlus) && (COMMON_SKILL_VALID(SID_PredationPlus))

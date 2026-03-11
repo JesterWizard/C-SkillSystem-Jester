@@ -114,6 +114,12 @@ bool PostAction_PositionReturn(ProcPtr proc)
 	if (gActiveUnitMoveOrigin.x == gActiveUnit->xPos && gActiveUnitMoveOrigin.y == gActiveUnit->yPos)
 		return false;
 
+	if (CheckKernelHookSkippingFlag()) {
+		PostActionReturnToOrigin();
+		MapAnim_CommonEnd();
+		return false;
+	}
+
 	KernelCallEvent(EventScr_PostAction_PositionReturn, EV_EXEC_CUTSCENE, proc);
 	return true;
 }

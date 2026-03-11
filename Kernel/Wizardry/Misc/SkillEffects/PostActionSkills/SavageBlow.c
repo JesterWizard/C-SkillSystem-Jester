@@ -8,6 +8,16 @@
 STATIC_DECLAR void ExecSkillSavageBlowEffectAnim(ProcPtr proc)
 {
 	int i;
+
+	for (i = 0; i < GetSelectTargetCount(); i++) {
+		struct SelectTarget *starget = GetTarget(i);
+
+		CallMapAnim_HeavyGravity(proc, starget->x, starget->y);
+	}
+}
+
+STATIC_DECLAR void CollectSkillSavageBlowTargets(void)
+{
 	struct Unit *unit = gActiveUnit;
 	struct Unit *target = GetUnit(gActionData.targetIndex);
 
@@ -17,12 +27,6 @@ STATIC_DECLAR void ExecSkillSavageBlowEffectAnim(ProcPtr proc)
 
 	InitTargets(unit->xPos, unit->yPos);
 	ForEachUnitInRange(AddUnitToTargetListIfNotAllied);
-
-	for (i = 0; i < GetSelectTargetCount(); i++) {
-		struct SelectTarget *starget = GetTarget(i);
-
-		CallMapAnim_HeavyGravity(proc, starget->x, starget->y);
-	}
 }
 
 STATIC_DECLAR void SkillSavageBlowPostAnimEffect(ProcPtr proc)
@@ -71,6 +75,10 @@ bool PostAction_SavageBlow(ProcPtr parent)
 		return false;
 
 	if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
+		return false;
+
+	CollectSkillSavageBlowTargets();
+	if (GetSelectTargetCount() == 0)
 		return false;
 
 	Proc_StartBlocking(ProcScr_PostAction_SavageBlow, parent);

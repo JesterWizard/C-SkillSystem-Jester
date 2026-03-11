@@ -95,7 +95,7 @@ bool PostAction_TargetClearance(ProcPtr parent)
 #if defined(SID_Clearance) && (COMMON_SKILL_VALID(SID_Clearance))
 	// target
 	unit = GetUnit(gActionData.targetIndex);
-	if (UnitAvaliable(unit) && SkillListTester(unit, SID_Clearance))
+	if (UnitAvaliable(unit) && SkillListTester(unit, SID_Clearance) && UnitHasNegativeStatus(unit))
 		RemoveUnitNegativeStatus(unit);
 #endif
 
