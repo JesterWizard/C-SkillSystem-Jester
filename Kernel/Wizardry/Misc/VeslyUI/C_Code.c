@@ -1057,3 +1057,28 @@ void StartUiGoldBox(ProcPtr parent)
     InitGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 28, 6));
     DisplayGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6));
 }
+
+LYN_REPLACE_CHECK(DisplayExtendedSysHand);
+void DisplayExtendedSysHand(struct SysHandCursorProc * proc)
+{
+    int i;
+    int windowColor = gPlaySt.config.windowColor;
+
+    // This is mainly for HyperGammaSpaces UI as the darker blue is where the red used to be
+    if (gpKernelDesignerConfig->vesly_custom_ui == true)
+        windowColor -= 1;
+
+    // This controls the color of the shadow highlight for the cursor graphic
+    gPaletteBuffer[proc->pal_bank * 0x10  + 0x10E] = (((windowColor) << 4) + (k_umod((GetGameClock() / 4), 0x10)))[Pal_08A1D448];
+
+    EnablePaletteSync();
+    PutSpriteExt(4, proc->x, proc->y + 8, gObject_8x8,
+        OAM2_PAL(proc->pal_bank) + proc->chr2 + proc->chr);
+
+    for (i = 1; i < proc->shadow_len; i++)
+        PutSpriteExt(4, proc->x + i * 8, proc->y + 8, gObject_8x8,
+            OAM2_PAL(proc->pal_bank) + proc->chr2 + proc->chr + 1);
+
+    PutSpriteExt(4, proc->x + proc->shadow_len * 8, proc->y + 8, gObject_8x8,
+        OAM2_PAL(proc->pal_bank) + proc->chr2 + proc->chr + 2);
+}

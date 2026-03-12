@@ -282,8 +282,8 @@ callHackNew(RestoreLinkArenaUI)
 // // in AtMenu_Reinitialize
 
 
-// // ORG $B4E28 
-// // jumpToHack(DecompressImg_ShopGoldBox_Hook) 
+// ORG $B4E28 
+// jumpToHack(DecompressImg_ShopGoldBox_Hook) 
 
 // ORG $9C658
 // jumpToHack(Decompress_Img_PrepItemUseScreen_Hook) 
@@ -300,7 +300,7 @@ SHORT $46c0
 ORG $51364 
 callHackNew(ekrGaugeMain_Hook2)
 
-// ORG $51384 
-// jumpToHack(ekrGaugeMain_Hook3)
+ORG $51384 
+jumpToHack(ekrGaugeMain_Hook3)
 
 POP 
