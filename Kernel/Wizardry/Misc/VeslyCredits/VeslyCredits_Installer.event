@@ -80,11 +80,7 @@ String("Seliph animation by Obsidian, Zoramine, Eretein"); BYTE 1
 String("T1_Lancer animation by Memae, Skitty, BwdYeti, MOJ"); BYTE 1
 String("Trueblade animation by Dinar87, RobertFPY"); BYTE 1
 String("Katarina_Fencer animation by GabrielKnight, 7743"); BYTE 1
-String("Dragoon animation by MercLord, NYZGamer, Maiser6"); BYTE 1
-String("Tombstone icon by Rootrick and Zarg"); BYTE 1            // https://raw.githubusercontent.com/Klokinator/FE-Repo/refs/heads/main/Item%20Icons/%5BAA%5D%20Icon%20Sheets/(Rootrick%2C%20Zarg)%20Secret%20of%20Evermore%20Collection.png
-String("Two diamonds icon by Rootrick and Zarg"); BYTE 1         // https://raw.githubusercontent.com/Klokinator/FE-Repo/refs/heads/main/Item%20Icons/%5BAA%5D%20Icon%20Sheets/(Rootrick%2C%20Zarg)%20Secret%20of%20Evermore%20Collection.png
-String("Hooded figur icon by Rootrick and Zarg"); BYTE 1         // https://raw.githubusercontent.com/Klokinator/FE-Repo/refs/heads/main/Item%20Icons/%5BAA%5D%20Icon%20Sheets/(Rootrick%2C%20Zarg)%20Secret%20of%20Evermore%20Collection.png
-// BYTE 0 - This signifies the end of the list
+String("Dragoon animation by MercLord, NYZGamer, Maiser6"); BYTE 0
 
 header3: 
 String("Class Sprites"); BYTE 0

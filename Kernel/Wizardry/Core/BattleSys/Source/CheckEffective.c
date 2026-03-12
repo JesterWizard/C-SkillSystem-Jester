@@ -96,7 +96,7 @@ bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 	for (i = 0; list[i]; i++)
 	{
 		// JESTER - I've Added a print statement to break a softlock that occurs with all my custom staves. No I don't understand why it happens either.
-		NoCashGBAPrint("Breaking out of custom stave softlock");
+		NoCashGBAPrint("Test1");
 		if (list[i] == jid)
 		{
 			goto check_null_effective;

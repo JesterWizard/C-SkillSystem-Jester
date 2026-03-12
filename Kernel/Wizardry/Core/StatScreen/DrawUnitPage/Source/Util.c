@@ -9,7 +9,7 @@ int GetUnitBattleAmt(struct Unit * unit)
 {
     int total = 0;
 
-	if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
 	{
 		struct SkillList *list;
 		list = GetUnitSkillList(unit);

@@ -1,0 +1,40 @@
+
+PUSH
+
+ORG $807060
+SHORT 0x1E2 //name for unit 0xFD, used for breakable doors; changed to text ID for door terrain name
+ORG $807065
+BYTE 0x41 //dumb shit A
+ORG $807068
+BYTE 0 //dumb shit B
+ORG $80707C
+BYTE 0 0 0 0 0 0 0 //dumb shit C
+
+ORG $25114
+BYTE 0x1E //(terrain ID - 1) for doors, on an unused extra check
+
+ORG $2E3A8
+jumpToHack(NewAddBreakables)
+
+ORG $250BC
+jumpToHack(NewTryAddTrapsToTargetList)
+
+ORG $2C910
+jumpToHack(MakeSnagTargetAdder)
+
+// JESTER - Hook conflict with MapAnim_BeginRoundSpecificAnims
+// ORG $81784
+// jumpToHack(DoNewBreakAnim)
+
+ORG $7B374
+jumpToHack(DoNewHideMapSprite)
+
+ORG $57C20
+jumpToHack(NewForceMapAnimsForTrap) 
+
+ORG $8CA3C
+jumpToHack(NewTerrainHPDisplay) 
+
+POP
+
+#include "BreakableDoors.lyn.event"

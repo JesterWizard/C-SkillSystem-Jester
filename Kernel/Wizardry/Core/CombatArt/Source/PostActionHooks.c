@@ -8,27 +8,6 @@
 STATIC_DECLAR void ExecCombatArtEffectAnim(ProcPtr proc)
 {
 	int i;
-	u8 cid = GetCombatArtInForce(gActiveUnit);
-	const struct CombatArtInfo *info;
-
-	info = GetCombatArtInfo(cid);
-	if (info->debuff == UNIT_STATUS_NONE)
-		return;
-
-	for (i = 0; i < GetSelectTargetCount(); i++) {
-		struct SelectTarget *starget = GetTarget(i);
-		struct Unit *tunit = GetUnit(starget->uid);
-
-		if (!UNIT_IS_VALID(tunit))
-			continue;
-
-		CallMapAnim_HeavyGravity(proc, starget->x, starget->y);
-		SetUnitStatusExt(tunit, info->debuff, 1);
-	}
-}
-
-STATIC_DECLAR void CollectCombatArtEffectTargets(void)
-{
 	struct Unit *unit = gActiveUnit;
 	u8 cid = GetCombatArtInForce(unit);
 	const struct CombatArtInfo *info;
@@ -47,6 +26,17 @@ STATIC_DECLAR void CollectCombatArtEffectTargets(void)
 
 	InitTargets(unit->xPos, unit->yPos);
 	ForEachUnitInRange(AddUnitToTargetListIfNotAllied);
+
+	for (i = 0; i < GetSelectTargetCount(); i++) {
+		struct SelectTarget *starget = GetTarget(i);
+		struct Unit *tunit = GetUnit(starget->uid);
+
+		if (!UNIT_IS_VALID(tunit))
+			continue;
+
+		CallMapAnim_HeavyGravity(proc, starget->x, starget->y);
+		SetUnitStatusExt(tunit, info->debuff, 1);
+	}
 }
 
 STATIC_DECLAR const struct ProcCmd ProcScr_CombatArtPostActionEffect[] = {
@@ -66,16 +56,9 @@ bool PostAction_CombatArtEffect(ProcPtr parent)
 	if (!COMBART_VALID(cid) || !gBattleActorGlobalFlag.hitted)
 		return false;
 
-	if (!UnitAvaliable(unit) || UNIT_STONED(unit))
-		return false;
-
 	info = GetCombatArtInfo(cid);
 
 	if (info->debuff == UNIT_STATUS_NONE)
-		return false;
-
-	CollectCombatArtEffectTargets();
-	if (GetSelectTargetCount() == 0)
 		return false;
 
 	Proc_StartBlocking(ProcScr_CombatArtPostActionEffect, parent);

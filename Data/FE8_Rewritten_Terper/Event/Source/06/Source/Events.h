@@ -46,7 +46,6 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
-    ASMC(GrantBEXP)
     MUSC(SONG_NONE)
     CHECK_ALIVE(0xfa)
     BEQ(0x0, EVT_SLOT_C, EVT_SLOT_0)

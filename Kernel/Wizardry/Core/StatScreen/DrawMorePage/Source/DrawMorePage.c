@@ -235,8 +235,7 @@ void GetPromotedUnitDescId(struct HelpBoxProc* proc)
                 proc->mid = GetClassData(promo_data->promotions[2].classId)->descTextId;
         }
         else
-            gKeyStatusPtr->newKeys = B_BUTTON; // Prevent empty text boxes
-            // proc->mid = 0;
+            proc->mid = 0;
     }
 }
 
@@ -277,10 +276,8 @@ void GetPromotedUnitSkillId(struct HelpBoxProc* proc)
             proc->mid = GetSkillDescMsg(promo_data->promotions[2].skills[1]);
         else if (proc->info->xDisplay == (0x16 * 0x8) && proc->info->yDisplay == (0xF * 0x8))
             proc->mid = GetSkillDescMsg(promo_data->promotions[2].skills[2]);
-    }
 
-    if (proc->mid == 0)
-        CloseHelpBox();
+    }
 }
 
 // Select graphic
@@ -305,7 +302,7 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 		gStatScreen.yDispOff + 131,
 		gObject_32x16, TILEREF(0x28F, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3));
 
-    if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
+    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
         if (gStatScreen.page == 2)
         {

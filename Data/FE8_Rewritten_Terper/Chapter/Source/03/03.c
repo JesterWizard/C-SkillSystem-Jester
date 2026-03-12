@@ -38,7 +38,7 @@ const struct ROMChapterData Chapter03 = {
         [MAP_BGM_PROLOGUE_HECTOR] = 65535,
     },
     .prepScreenNumber = 6,
-    .mapCrackedWallHeath = 25,
+    .mapCrackedWallHeath = 50,
     .mapEventDataId = 0x14,
     .gmapEventId = 0x4,
     .victorySongEnemyThreshold = SONG_THE_VALIANT,

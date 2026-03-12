@@ -184,7 +184,7 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc)
 		}
 	}
 
-    if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
+    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
         int sid;
         if (TryGetSkillScrollSid(proc->item, &sid))
@@ -342,7 +342,7 @@ void ApplyHelpBoxContentSize(struct HelpBoxProc *proc, int width, int height)
 	}
 
     // Add an extra line of height to the texbox to account for the capacity text
-    if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
+    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
         int sid;
         if (TryGetSkillScrollSid(proc->item, &sid))

@@ -57,7 +57,6 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
-    ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
 /* If Lute wasn't recruited, then have her join here */
     CHECK_EVENTID(EVFLAG_TMP(0x8))

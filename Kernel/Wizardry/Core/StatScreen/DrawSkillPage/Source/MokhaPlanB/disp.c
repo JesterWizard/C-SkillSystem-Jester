@@ -73,7 +73,7 @@ void DrawSkillPage_MokhaPlanB(void)
 		}
 	}
 
-	if (gPlaySt.config.skill_capacity == 0) // gpKernelDesignerConfig->tellius_skill_capacity_system == true
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
 	{
 		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM3];
 		ClearText(text);

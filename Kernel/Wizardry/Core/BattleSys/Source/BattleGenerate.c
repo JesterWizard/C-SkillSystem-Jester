@@ -7,50 +7,6 @@
 typedef void (*PreBattleGenerateFunc) (void);
 extern PreBattleGenerateFunc const* const gpPreBattleGenerateFuncs;
 
-LYN_REPLACE_CHECK(InitObstacleBattleUnit);
-void InitObstacleBattleUnit(void)
-{
-	ClearUnit(&gBattleTarget.unit);
-
-    gBattleTarget.unit.index = 0;
-
-    gBattleTarget.unit.pClassData = GetClassData(CLASS_OBSTACLE);
-
-    gBattleTarget.unit.maxHP = GetROMChapterStruct(gPlaySt.chapterIndex)->mapCrackedWallHeath + 3;
-    gBattleTarget.unit.curHP = gActionData.trapType; // TODO: better
-
-    gBattleTarget.unit.xPos  = gActionData.xOther;
-    gBattleTarget.unit.yPos  = gActionData.yOther;
-
-    switch (gBmMapTerrain[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos]) {
-
-    case TERRAIN_WALL_DAMAGED:
-        gBattleTarget.unit.pCharacterData = GetCharacterData(CHARACTER_WALL);
-
-        break;
-
-    case TERRAIN_SNAG:
-        gBattleTarget.unit.pCharacterData = GetCharacterData(CHARACTER_SNAG);
-        gBattleTarget.unit.maxHP = 20 + 3;
-
-        break;
-
-    } // switch (gBmMapTerrain[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos])
-}
-
-LYN_REPLACE_CHECK(ComputeBattleObstacleStats);
-void ComputeBattleObstacleStats(void)
-{
-    gBattleActor.battleEffectiveHitRate = 100;
-    gBattleActor.battleEffectiveCritRate = 0;
-
-    gBattleTarget.battleSpeed = 0xFF;
-    gBattleTarget.hpInitial = gBattleTarget.unit.curHP;
-
-    gBattleTarget.wTriangleHitBonus = 0;
-    gBattleTarget.wTriangleDmgBonus = 0;
-}
-
 /**
  * This is set an addition routine on start of function: `BattleGenerate()`
  * The goal of introducing this function is to make potential modification on battle unit status.

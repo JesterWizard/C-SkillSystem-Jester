@@ -1,5 +1,5 @@
 #include "C_Code.h"
-#include "kernel/kernel-lib.h"
+#include "../../../../include/kernel/kernel-lib.h"
 #include "common-chax.h"
 #include "types.h"
 

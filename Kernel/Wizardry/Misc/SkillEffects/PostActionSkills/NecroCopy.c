@@ -106,12 +106,6 @@ bool PostAction_NecroCopy(ProcPtr proc)
     if (gBattleActorGlobalFlag.enemy_defeated == false)
         return false;
 
-    if (CheckKernelHookSkippingFlag()) {
-        PrepareNecroCopy();
-        MapAnim_CommonEnd();
-        return false;
-    }
-
     KernelCallEvent(EventScr_PostAction_NecroCopy, EV_EXEC_CUTSCENE, proc);
 
     return true;

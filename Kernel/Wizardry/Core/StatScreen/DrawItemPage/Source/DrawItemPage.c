@@ -331,6 +331,11 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 
 	struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
 
+	/* JESTER - A little something to turn off the R text for this page if there are no promotions available for the unit */
+	if (gStatScreen.page == TranslateStatPageId(6))
+		if (gEventSlots[EVT_SLOT_8] == 0x1000)
+			TryRelocateHbLeft(proc);
+
 	if (list->ent[0].item == ITEM_NONE)
 		TryRelocateHbLeft(proc);
 
@@ -340,11 +345,6 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 		else if (proc->moveKey == DPAD_DOWN)
 			TryRelocateHbDown(proc);
 	}
-
-	/* JESTER - A little something to turn off the R text for this page if there are no promotions available for the unit */
-	if (gStatScreen.page == TranslateStatPageId(6))
-		if (gEventSlots[EVT_SLOT_8] == 0x1000)
-			TryRelocateHbLeft(proc);
 
 	/* JESTER - A little something to turn off the RText box when moving up and down to empty positions in the Gaiden Magic list */
 	if (gpKernelDesignerConfig->gaiden_magic == true)

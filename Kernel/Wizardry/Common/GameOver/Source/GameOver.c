@@ -1,5 +1,5 @@
 #include "common-chax.h"
-#include "kernel/kernel-lib.h"
+#include "../../../include/kernel/kernel-lib.h"
 
 typedef struct
 {

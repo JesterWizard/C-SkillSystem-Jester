@@ -135,10 +135,6 @@ bool PostAction_Synchronize(ProcPtr parent)
 	if (AreUnitsAllied(unit_act->index, unit_tar->index) == IsDebuff(debuff_act))
 		return false;
 
-	/* No-op if target already has the same status. */
-	if (GetUnitStatusIndex(unit_tar) == debuff_act)
-		return false;
-
 	EndAllMus();
 	RenderBmMap();
 	ShowUnitSprite(GetUnit(gActionData.targetIndex));

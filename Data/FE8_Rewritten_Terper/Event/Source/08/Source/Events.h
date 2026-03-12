@@ -62,7 +62,6 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
-    ASMC(GrantBEXP)
     MUSC(SONG_NONE)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Post_Scene_01_Convo_01)

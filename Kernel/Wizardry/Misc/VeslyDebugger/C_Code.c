@@ -3,12 +3,12 @@
 #include "constants/gfx.h"
 #include "mu.h"
 #include "mapanim.h"
-#include "configs/configs.h"
-#include "kernel/skill-system.h"
-#include "common-chax.h"
-#include "kernel/debuff.h"
-#include "kernel/bwl.h"
-#include "jester_headers/custom-functions.h"
+#include "../../../include/configs/configs.h"
+#include "../../../include/kernel/skill-system.h"
+#include "../../../include/common-chax.h"
+#include "../../../include/kernel/debuff.h"
+#include "../../../include/kernel/bwl.h"
+#include "../../../include/jester_headers/custom-functions.h"
 
 #define PACKED __attribute__((packed))
 

@@ -48,7 +48,6 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
-    ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x26, Chapter_01_Scene_10_Convo_01)
     REMA

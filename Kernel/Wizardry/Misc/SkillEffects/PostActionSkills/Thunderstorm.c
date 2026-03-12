@@ -34,6 +34,15 @@ STATIC_DECLAR void CallEventThunderfx(ProcPtr proc)
 STATIC_DECLAR void SetThunderstormAoeDamage(void)
 {
 	int i;
+	struct Unit *unit = gActiveUnit;
+
+	BmMapFill(gBmMapMovement, -1);
+	BmMapFill(gBmMapRange, 0);
+
+	AddMap(gBattleTargetPositionBackup.x, gBattleTargetPositionBackup.y, 0b11);
+
+	InitTargets(unit->xPos, unit->yPos);
+	ForEachUnitInRange(AddUnitToTargetListIfNotAllied);
 
 	for (i = 0; i < GetSelectTargetCount(); i++) {
 		int hp;
@@ -56,19 +65,6 @@ STATIC_DECLAR void SetThunderstormAoeDamage(void)
 
 		SetUnitHp(tunit, hp);
 	}
-}
-
-STATIC_DECLAR void CollectThunderstormTargets(void)
-{
-	struct Unit *unit = gActiveUnit;
-
-	BmMapFill(gBmMapMovement, -1);
-	BmMapFill(gBmMapRange, 0);
-
-	AddMap(gBattleTargetPositionBackup.x, gBattleTargetPositionBackup.y, 0b11);
-
-	InitTargets(unit->xPos, unit->yPos);
-	ForEachUnitInRange(AddUnitToTargetListIfNotAllied);
 }
 
 STATIC_DECLAR const EventScr EventScr_CallThunderfxAtPosition[] = {
@@ -126,17 +122,13 @@ bool PostAction_Thunderstorm(ProcPtr parent)
 	case UNIT_ACTION_COMBAT:
 	case CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat:
 		if (gBattleActorGlobalFlag.hitted == true) {
-			CollectThunderstormTargets();
-			if (GetSelectTargetCount() == 0)
-				return false;
-
-			/**
-			 * Try skip anim
-			 */
-			if (CheckKernelHookSkippingFlag()) {
-				SetThunderstormAoeDamage();
-				return false;
-			}
+				/**
+				 * Try skip anim
+				 */
+				if (CheckKernelHookSkippingFlag()) {
+					SetThunderstormAoeDamage();
+					return false;
+				}
 
 			KernelCallEvent(EventScr_CallThunderfxAtPosition, EV_EXEC_CUTSCENE, parent);
 			return true;
