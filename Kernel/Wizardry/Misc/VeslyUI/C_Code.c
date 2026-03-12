@@ -1051,10 +1051,9 @@ void StartUiGoldBox(ProcPtr parent)
     proc->goldbox_oam2 = OBJ_PALETTE(OBJPAL_SHOP_GOLDBOX) + OBJ_CHAR(OBJCHR_SHOP_GOLDBOX);
 
     int id = GetUIPalID();
-    const u16 * pal = sUiPalLookup[id][0];
+    const u16 * pal = sUiPalLookup[id][gPlaySt.config.windowColor];
     ApplyPalette(pal, 0x10 + OBJPAL_SHOP_GOLDBOX);
 
-    // ApplyPalette(gUiFramePaletteA, 0x10 + OBJPAL_SHOP_GOLDBOX);
     InitGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 28, 6));
     DisplayGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6));
 }
