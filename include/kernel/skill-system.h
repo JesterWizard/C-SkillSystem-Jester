@@ -407,6 +407,7 @@ void TryAddSkillPromotion(struct Unit* unit, int jid);
 void ResetPopupSkillStack(void);
 void PushSkillListStack(u16 sid);
 int PopSkillListStack(void);
+bool SkillPopupHasPendingSkills(void);
 
 int PoprGetLen_SkillIcon(struct PopupProc* proc, const struct PopupInstruction* inst);
 void PoprDisp_SkillIcon(struct Text* text, const struct PopupInstruction* inst);

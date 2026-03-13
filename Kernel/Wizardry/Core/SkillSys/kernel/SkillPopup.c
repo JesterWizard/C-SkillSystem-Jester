@@ -34,6 +34,11 @@ int PopSkillListStack(void)
 	return 0;
 }
 
+bool SkillPopupHasPendingSkills(void)
+{
+	return (sPopupSkillStack.cur > 0);
+}
+
 /**
  * Components
  */

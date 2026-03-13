@@ -4581,9 +4581,14 @@ LYN_REPLACE_CHECK(ClassChgPostConfirmWaitBanimEnd);
 void ClassChgPostConfirmWaitBanimEnd(struct ProcClassChgPostConfirm *proc)
 {
     int game_lock = proc->game_lock;
-    if (game_lock == GetGameLock())
+
+    if (game_lock == GetGameLock() && SkillPopupHasPendingSkills())
     {
         NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
+        Proc_Break(proc);
+    }
+    else if (game_lock == GetGameLock())
+    {
         Proc_Break(proc);
     }
 }
