@@ -752,3 +752,10 @@ Necromancy:[N]
 Sacrifice 20% of current HP to revive[N]
 last unit killed as a green unit.[N]
 Once per map.[X]
+
+## MSG_SKILL_SpatialShift_NAME
+Spatial Shift[X]
+## MSG_SKILL_SpatialShift_DESC
+Spatial Shift:[N]
+Swap with a same-faction unit within[N]
+MAG/2 range. Once per map.[X]

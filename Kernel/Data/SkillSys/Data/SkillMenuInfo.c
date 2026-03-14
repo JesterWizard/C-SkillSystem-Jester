@@ -1339,4 +1339,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 	},
 #endif
 
+#if (defined(SID_SpatialShift) && COMMON_SKILL_VALID(SID_SpatialShift))
+    [SID_SpatialShift] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_SpatialShift_NAME,
+        .helpMsgId = MSG_SKILL_SpatialShift_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = SpatialShift_Usability,
+        .onDraw = NULL,
+        .onSelected = SpatialShift_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 };

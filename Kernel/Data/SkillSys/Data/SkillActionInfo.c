@@ -334,4 +334,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Necromancy) && COMMON_SKILL_VALID(SID_Necromancy))
 	[SID_Necromancy] = Action_Necromancy,
 #endif
+
+#if (defined(SID_SpatialShift) && COMMON_SKILL_VALID(SID_SpatialShift))
+    [SID_SpatialShift] = Action_SpatialShift,
+#endif
 };
