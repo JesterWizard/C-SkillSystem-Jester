@@ -74,21 +74,21 @@ const struct InfuseRecipe gInfusionLookupTable[256] = {
 [ITEM_ORIONSBOLT]        = { ITEM_MASTERSEAL,       7 },
 };
 
-// static struct PopupInstruction const InfusedPopup[] = {
-//     POPUP_SOUND(SONG_SE_UPDATE),
-// 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-//     POPUP_SPACE(3),
-//     POPUP_MSG(MSG_INFUSED),
-//     POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
-//     POPUP_SPACE(4),
-//     POPUP_ITEM_STR,
-//     POPUP_SPACE(15),
-//    // POPUP_ITEM_ICON,
-//     POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-//     POPUP_SPACE(1),
-//     POPUP_MSG(0x022),                   /* .[.] */
-//     POPUP_END
-// };
+static struct PopupInstruction const InfusedPopup[] = {
+    POPUP_SOUND(SONG_SE_UPDATE),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_SPACE(3),
+    POPUP_MSG(MSG_INFUSED),
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+    POPUP_SPACE(2),
+    POPUP_ITEM_STR,
+    POPUP_SPACE(6),
+    POPUP_ITEM_ICON,
+    POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+    POPUP_SPACE(1),
+    POPUP_MSG(0x022),                   /* .[.] */
+    POPUP_END
+};
 
 static bool CanAffordInfusion(u8 cost) {
     return gInfuseMenuArray[0] >= cost;
@@ -249,22 +249,10 @@ static void SetupSpriteTextDestination_INFUSE(u32 vram, int target)
 
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused an ");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xC0, TEXT_COLOR_SYSTEM_BLUE, "item");
-    //Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused a ");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xC0, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
+    SetTextFont(NULL);
 }
-
-// static void UpdateTargetItemNameSprite(u8 target)
-// {
-//     // Clear and reinitialize the sprite text handle
-//     ClearText(&PrepItemSuppyTexts.th[0xf]);
-    
-//     // Clear the VRAM for the sprite text (this is the critical step!)
-//     SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
-    
-//     // Now draw the updated item name
-//     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xAC, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
-// }
 
 static void PrepItemList_InitGfx_INFUSE(struct PrepItemListProc * proc)
 {
@@ -533,20 +521,29 @@ static void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u
     // we call your custom refresh function.
     sub_809F150_INFUSE(proc); 
 
-    // 6. Refresh the Infuse Boxes immediately
-    // This forces the Loop_MainKeyHandler to notice the "new" item 
-    // and redraw the box contents in the next frame.
     gInfuseMenuArray[1] = -1; 
     
-    // 7. Popup
-   // SetPopupItem(newItem);
-    // NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
+    // 6. Popup (UI refresh is deferred to EXIT_SUB_MENU after popup clears)
+    //    Use NewPopupCore with OBJ tile 0x240 to avoid overwriting
+    //    spinning arrow/tab highlight sprites at OBJ tile 0x280.
+    SetPopupItem(newItem);
+    // NewPopupCore(InfusedPopup, 0x60, 0x00, 0x240, 0x10, proc);
+    NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
 static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * proc)
 {
+    // If waiting for the infuse popup to finish, block all input/drawing
+    if (gInfuseMenuArray[4] == INFUSE_STATE_POPUP_WAIT) {
+        if (!Proc_Find(ProcScr_Popup)) {
+            // Popup has cleared — now do the full UI refresh
+            goto EXIT_SUB_MENU;
+        }
+        return;
+    }
+
     int idx = proc->idxPerPage[proc->currentPage];
     u16 item = gPrepScreenItemList[idx].item;
     u8 itemId = ITEM_INDEX(item);
@@ -659,6 +656,7 @@ static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * pr
                     }
                     gInfuseMenuArray[4] = INFUSE_STATE_CONFIRM;
                     gInfuseMenuArray[5] = 0; // Default to Yes
+                    SetupSpriteTextDestination_INFUSE(0x6011000, target);
                     ClearText(&PrepItemSuppyTexts.th[0]);
                     PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), TEXT_COLOR_SYSTEM_WHITE, 2, 0, "Infuse weapon?");
                     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
@@ -666,7 +664,7 @@ static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * pr
                     EndUiCursorHand();
                     ShowSysHandCursor(68, 36, 0x4, 0x000); // Priority adjusted per original
                     BG_EnableSyncByMask(7);
-                    // UpdateTargetItemNameSprite(target);
+
                     return;
                 }
 
@@ -676,7 +674,12 @@ static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * pr
                         if (CanAffordInfusion(cost))
                         {
                             PerformInfusion(proc, idx, target, cost);
-                            PlaySoundEffect(0x5A);
+                            // Enter popup wait state — UI refresh deferred until popup clears
+                            gInfuseMenuArray[4] = INFUSE_STATE_POPUP_WAIT;
+                            Proc_End(GetParallelWorker(PutGiveTakeBoxSprites));
+                            EndUiCursorHand();
+                            HideSysHandCursor();
+                            return;
                         }
                         else
                         {
@@ -710,7 +713,6 @@ static void PrepItemList_Loop_MainKeyHandler_INFUSE(struct PrepItemListProc * pr
                 }
                 SetPrimaryHBlankHandler(NULL);
                 Proc_Goto(proc, PL_INFUSE_PRESS_B);
-              //  StartPrepAtMenuWithConfig();
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
                 proc->unk_36 = 0;
                 return;

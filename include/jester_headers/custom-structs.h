@@ -111,7 +111,8 @@ enum {
 enum {
     INFUSE_STATE_LIST = 0,
     INFUSE_STATE_INFUSE_UI = 1,
-    INFUSE_STATE_CONFIRM = 2
+    INFUSE_STATE_CONFIRM = 2,
+    INFUSE_STATE_POPUP_WAIT = 3
 };
 
 struct InfuseRecipe {
