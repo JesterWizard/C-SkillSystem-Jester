@@ -597,7 +597,7 @@ void DrawConfigUiSprites(void)
 
     int optionIdx = gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx];
 
-    u8 time = (GetGameClock() % 16) & 8;
+    u8 time = k_umod(GetGameClock(), 16) & 8;
 
     CallARM_PushToSecondaryOAM(18, 8, gSprite_ConfigurationUiHeader, OAM2_CHR(0xC0) + OAM2_PAL(2));
 
@@ -790,7 +790,7 @@ bool GenericOptionChangeHandler(ProcPtr proc)
         if (valueChanged)
         {
             Proc_Start(gProcScr_RedrawConfigHelpText, proc);
-            DrawOptionValueTexts(selectedIdx, selectedIdx % 7, selectedIdx * 2 + 5);
+            DrawOptionValueTexts(selectedIdx, k_umod(selectedIdx, 7), selectedIdx * 2 + 5);
             BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
         }
@@ -822,7 +822,7 @@ void Config_Loop_KeyHandler(struct ConfigProc * proc)
                 break;
             }
 
-            if (gGameOptionsUiOrder[gConfigUiState->selectedOptionIdx] != 0)
+            if (gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx] != 0)
             {
                 break;
             }
@@ -892,9 +892,9 @@ void Config_Loop_KeyHandler(struct ConfigProc * proc)
 
         if (gKeyStatusPtr->newKeys & (DPAD_LEFT | DPAD_RIGHT))
         {
-            if (gGameOptions[gGameOptionsUiOrder[gConfigUiState->selectedOptionIdx]].func != NULL)
+            if (gGameOptions_NEW[gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]].func != NULL)
             {
-                gGameOptions[gGameOptionsUiOrder[gConfigUiState->selectedOptionIdx]].func(proc);
+                gGameOptions_NEW[gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]].func(proc);
             }
         }
 
