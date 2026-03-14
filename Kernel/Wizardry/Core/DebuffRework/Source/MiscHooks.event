@@ -245,11 +245,10 @@ PUSH
     BYTE 0x3F
     PROTECT $410F8 $411F8
 
-    /* Needed for BreakableDoors by Sme */
     ORG $7B38A // MakeBattleMOVEUNIT
     SHORT 0x0680 // lsl r0, r0, #0x1A
     SHORT 0x0E80 // lsr r0, r0, #0x1A
-    // PROTECT $7B334 $7B3BC
+    PROTECT $7B334 $7B3BC
 
     ORG $7AC36 // SetBattleMuPaletteByIndex
     SHORT 0x0680 // lsl r0, r0, #0x1A
