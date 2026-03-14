@@ -229,8 +229,12 @@ static void PrepItemList_DrawCurrentOwnerText_INFUSE(struct PrepItemListProc* pr
 void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc) {
     int x = proc->currentPage * 12 + 124;
 
-    gPaletteBuffer[0x14D] = *(gUnknown_08A1BD60 + (GetGameClock() >> 2 & 0xf));
-    EnablePaletteSync();
+    /* Pause the highlight animation while the popup is displayed so its icon
+       doesn't inherit the color-cycling effect from OBJ palette 4. */
+    if (gInfuseMenuArray[4] != INFUSE_STATE_POPUP_WAIT) {
+        gPaletteBuffer[0x14D] = *(gUnknown_08A1BD60 + (GetGameClock() >> 2 & 0xf));
+        EnablePaletteSync();
+    }
 
     PutSprite(4, x, 24, gUnknown_08A19608[proc->currentPage], OAM2_PAL(3) + OAM2_LAYER(3) + OAM2_CHR(0x280));
     PutSprite(4, x, 24, gUnknown_08A195F8, OAM2_PAL(3) + OAM2_LAYER(3) + OAM2_CHR(0x280));
@@ -249,7 +253,7 @@ static void SetupSpriteTextDestination_INFUSE(u32 vram, int target)
 
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
-    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x80, TEXT_COLOR_SYSTEM_WHITE, "Infused a ");
+    Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x84, TEXT_COLOR_SYSTEM_WHITE, "Infused a");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0xC0, TEXT_COLOR_SYSTEM_BLUE, GetItemName(target));
     SetTextFont(NULL);
 }
@@ -398,6 +402,18 @@ static void sub_809F150_INFUSE(struct PrepItemListProc * proc)
     /* Draw dragon egg icon */
     DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
 
+    /* Re-draw the BG0 selected-item and infuse-target icons after ResetIconGraphics_()
+       resets the tile pool, otherwise their tile references point to stale/wrong data. */
+    if (gUnknown_02012F56 > 0) {
+        int idx = proc->idxPerPage[proc->currentPage];
+        u16 selItem = gPrepScreenItemList[idx].item;
+        u8 selItemId = ITEM_INDEX(selItem);
+        u8 tgt = gInfusionLookupTable[selItemId].targetItemId;
+        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),  GetItemIconId(selItem), 0x4000);
+        if (tgt != 0)
+            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(tgt), 0x4000);
+    }
+
     if (proc->unk_36 == 0) {
         return;
     }
@@ -520,14 +536,10 @@ static void PerformInfusion(struct PrepItemListProc* proc, int idx, u8 target, u
     // Instead of DrawPrepScreenItemIcons (which causes the ghosts), 
     // we call your custom refresh function.
     sub_809F150_INFUSE(proc); 
-
     gInfuseMenuArray[1] = -1; 
     
     // 6. Popup (UI refresh is deferred to EXIT_SUB_MENU after popup clears)
-    //    Use NewPopupCore with OBJ tile 0x240 to avoid overwriting
-    //    spinning arrow/tab highlight sprites at OBJ tile 0x280.
     SetPopupItem(newItem);
-    // NewPopupCore(InfusedPopup, 0x60, 0x00, 0x240, 0x10, proc);
     NewPopup_Simple(InfusedPopup, 0x60, 0x00, proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);

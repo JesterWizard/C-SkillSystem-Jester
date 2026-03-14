@@ -269,6 +269,13 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
 
     u32 len;
 
+    /* When inside the infuse prep screen, redirect the popup icon to OBJ palette 2
+       instead of the default OBJ palette 0.  OBJ palette 0 is used by DrawCostSprite
+       (the shard-cost number sprites); clobbering it with the icon palette would make
+       those number sprites display with icon colours after the popup closes. */
+    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
+        proc->iconPalId = 0x12;  /* OBJ palette 2 — not otherwise used in the infuse screen */
+
     len = ParsePopupInstAndGetLen(proc);
     proc->xGfxSize = len;
     tile_len = (len << 0x10) >> 0x13;
@@ -323,6 +330,18 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
 
         /* Draw dragon egg icon */
         DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
+
+        /* Re-draw BG0 selected-item and infuse-target icons after ResetIconGraphics_()
+           resets the tile pool, otherwise their tile references point to stale data. */
+        if (gUnknown_02012F56 > 0) {
+            int idx = procInfuse->idxPerPage[procInfuse->currentPage];
+            u16 selItem = gPrepScreenItemList[idx].item;
+            u8 selItemId = ITEM_INDEX(selItem);
+            u8 tgt = gInfusionLookupTable[selItemId].targetItemId;
+            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),  GetItemIconId(selItem), 0x4000);
+            if (tgt != 0)
+                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(tgt), 0x4000);
+        }
     }
     else
     {
