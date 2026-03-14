@@ -41,6 +41,7 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
+    ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_02_Scene_07_Convo_01)
     FADE_FROM_BLACK(16)

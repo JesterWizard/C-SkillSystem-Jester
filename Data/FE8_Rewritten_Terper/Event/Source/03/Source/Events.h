@@ -23,6 +23,7 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
+    ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x28, Chapter_03_Scene_04_Convo_01)
 /* If Colm wasn't recruited, then have him join */

@@ -144,6 +144,7 @@ LABEL(0x2)
 };
 
 static const EventScr EventScr_Ending[] = {
+    ASMC(GrantBEXP)
     MUSC(SONG_CONFRONT_THE_PAST)
     FADE_FROM_BLACK(16)
     SET_BACKGROUND(0x5)

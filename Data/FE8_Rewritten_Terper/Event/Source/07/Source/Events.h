@@ -24,6 +24,7 @@ static const EventScr EventScr_Beginning[] = {
 };
 
 static const EventScr EventScr_Ending[] = {
+    ASMC(GrantBEXP)
     FADE_FROM_BLACK(16)
     LOMA(0x44)
     CLEAR_ALL_UNITS
