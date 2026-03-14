@@ -338,4 +338,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_SpatialShift) && COMMON_SKILL_VALID(SID_SpatialShift))
     [SID_SpatialShift] = Action_SpatialShift,
 #endif
+
+#if (defined(SID_SpatialShiftPlus) && COMMON_SKILL_VALID(SID_SpatialShiftPlus))
+    [SID_SpatialShiftPlus] = Action_SpatialShiftPlus,
+#endif
 };

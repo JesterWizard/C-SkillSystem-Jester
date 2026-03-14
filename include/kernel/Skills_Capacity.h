@@ -905,4 +905,5 @@
 #define MSG_SKILL_Necromancy_CAPACITY 1
 #define MSG_SKILL_Axiom_CAPACITY 1
 #define MSG_SKILL_SpatialShift_CAPACITY 1
+#define MSG_SKILL_SpatialShiftPlus_CAPACITY 1
 #define MSG_SKILL_AxiomPlus_CAPACITY 1

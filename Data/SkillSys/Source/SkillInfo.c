@@ -9080,4 +9080,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SpatialShiftPlus) && COMMON_SKILL_VALID(SID_SpatialShiftPlus))
+    [SID_SpatialShiftPlus] = {
+        .name = MSG_SKILL_SpatialShiftPlus_NAME,
+        .desc = MSG_SKILL_SpatialShiftPlus_DESC,
+        .capacity = MSG_SKILL_SpatialShiftPlus_CAPACITY,
+        .price = MSG_SKILL_SpatialShiftPlus_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };

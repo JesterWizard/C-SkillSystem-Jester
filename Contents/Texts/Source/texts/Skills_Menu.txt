@@ -759,3 +759,10 @@ Spatial Shift[X]
 Spatial Shift:[N]
 Swap with a same-faction unit within[N]
 MAG/2 range. Once per map.[X]
+
+## MSG_SKILL_SpatialShiftPlus_NAME
+Spatial Shift+[X]
+## MSG_SKILL_SpatialShiftPlus_DESC
+Spatial Shift+:[N]
+Swap with any unit within MAG/2 range.[N]
+Once per map.[X]

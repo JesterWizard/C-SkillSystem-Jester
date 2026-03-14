@@ -613,6 +613,8 @@ u8 Necromancy_Usability(const struct MenuItemDef* def, int number);
 u8 Necromancy_OnSelected(struct MenuProc* menu, struct MenuItemProc* menuItem);
 u8 SpatialShift_Usability(const struct MenuItemDef * def, int number);
 u8 SpatialShift_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
+u8 SpatialShiftPlus_Usability(const struct MenuItemDef * def, int number);
+u8 SpatialShiftPlus_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
 
 u8 Transform_Laguz_Usability(const struct MenuItemDef* def, int number);
 u8 Transform_Laguz_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
@@ -698,6 +700,7 @@ bool Action_Gungnir(ProcPtr parent);
 bool Action_Transcendence(ProcPtr parent);
 bool Action_Necromancy(ProcPtr parent);
 bool Action_SpatialShift(ProcPtr parent);
+bool Action_SpatialShiftPlus(ProcPtr parent);
 
 bool Action_Transform_Laguz(ProcPtr parent);
 

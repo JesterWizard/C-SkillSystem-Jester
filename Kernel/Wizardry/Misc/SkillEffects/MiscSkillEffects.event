@@ -113,6 +113,7 @@
 #include "MenuSkills/Transcendence.lyn.event"
 #include "MenuSkills/Necromancy.lyn.event"
 #include "MenuSkills/SpatialShift.lyn.event"
+#include "MenuSkills/SpatialShiftPlus.lyn.event"
 
 #include "MenuSkills/ReciprocalAid.lyn.event"
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"
