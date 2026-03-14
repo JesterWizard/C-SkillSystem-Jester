@@ -142,8 +142,6 @@
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
-// #define CONFIG_BREAKABLE_DOORS // This seems to turn all the walls to 50HP as well. Rewrite in C
-
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
 
 /* 
