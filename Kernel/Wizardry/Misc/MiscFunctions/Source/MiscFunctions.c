@@ -1864,8 +1864,21 @@ void RefreshUnitsOnBmMap(void) {
 #endif
 
         // If fog is enabled, apply unit vision to fog map
-        if (gPlaySt.chapterVisionRange)
-            MapAddInRange(unit->xPos, unit->yPos, GetUnitFogViewRange(unit) + fogBoost, 1);
+        if (gPlaySt.chapterVisionRange) {
+            if (gpKernelDesignerConfig->multiple_fog_stages == true) {
+                /* Build a graduated fog map so enemies appear in one of four stages:
+                 * gBmMapFog >= 3 -> Stage 0: full visibility
+                 * gBmMapFog == 2 -> Stage 1: visible, stats/forecast hidden
+                 * gBmMapFog == 1 -> Stage 2: replaced with citizen sprite
+                 * gBmMapFog == 0 -> Stage 3: completely hidden */
+                int range = GetUnitFogViewRange(unit) + fogBoost;
+                MapAddInRange(unit->xPos, unit->yPos, range + 2, 1);
+                MapAddInRange(unit->xPos, unit->yPos, range + 1, 1);
+                MapAddInRange(unit->xPos, unit->yPos, range, 1);
+            } else {
+                MapAddInRange(unit->xPos, unit->yPos, GetUnitFogViewRange(unit) + fogBoost, 1);
+            }
+        }
     }
 
     // 2. Red (& Purple) units
@@ -1892,27 +1905,44 @@ void RefreshUnitsOnBmMap(void) {
             if (UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL)
                 MapAddInRange(unit->xPos, unit->yPos, 10, -1);
 
-#ifdef CONFIG_MULTIPLE_FOG_STAGES
-            gBmMapUnit[unit->yPos][unit->xPos] = i;
+            if (gpKernelDesignerConfig->multiple_fog_stages == true) {
+                if (!gPlaySt.chapterVisionRange) {
+                    /* No fog on this chapter - show all enemies normally */
+                    gBmMapUnit[unit->yPos][unit->xPos] = i;
+                    if (unit->state & US_BIT9)
+                        unit->state = (unit->state & ~US_BIT9) | US_BIT8;
+                } else {
+                    int fogVal = gBmMapFog[unit->yPos][unit->xPos];
+                    if (fogVal == 0) {
+                        /* Stage 3: Completely hidden - behaves like vanilla fog */
+                        gBmMapHidden[unit->yPos][unit->xPos] |= HIDDEN_BIT_UNIT;
+                        unit->state |= US_BIT9;
+                    } else {
+                        /* Stages 0-2: Unit is placed on the unit map */
+                        gBmMapUnit[unit->yPos][unit->xPos] = i;
+                        if (unit->state & US_BIT9)
+                            unit->state = (unit->state & ~US_BIT9) | US_BIT8;
+                        /* Stage 2 sprite rendering is handled in PutUnitSpritesOam (MirrorSprites.c):
+                         * the normal SMS sprite is suppressed there and the link arena hidden
+                         * sprite is drawn in its place. */
+                    }
+                }
+            } else {
+                if (gPlaySt.chapterVisionRange && !gBmMapFog[unit->yPos][unit->xPos]) {
+                    // If in fog, set unit bit on the hidden map, and set the "hidden in fog" state
 
-            if (unit->state & US_BIT9)
-                unit->state = (unit->state & ~US_BIT9) | US_BIT8;
-#else
-            if (gPlaySt.chapterVisionRange && !gBmMapFog[unit->yPos][unit->xPos]) {
-                // If in fog, set unit bit on the hidden map, and set the "hidden in fog" state
+                    gBmMapHidden[unit->yPos][unit->xPos] |= HIDDEN_BIT_UNIT;
+                    unit->state = unit->state | US_BIT9;
+                }
+                else {
+                    // If not in fog, put unit on the map, and update state accordingly
 
-                gBmMapHidden[unit->yPos][unit->xPos] |= HIDDEN_BIT_UNIT;
-                unit->state = unit->state | US_BIT9;
+                    gBmMapUnit[unit->yPos][unit->xPos] = i;
+
+                    if (unit->state & US_BIT9)
+                        unit->state = (unit->state & ~US_BIT9) | US_BIT8;
+                }
             }
-            else {
-                // If not in fog, put unit on the map, and update state accordingly
-
-                gBmMapUnit[unit->yPos][unit->xPos] = i;
-
-                if (unit->state & US_BIT9)
-                    unit->state = (unit->state & ~US_BIT9) | US_BIT8;
-            }
-#endif
 
         }
     }

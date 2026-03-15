@@ -139,4 +139,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.arena_limits = false,
 	.vesly_custom_ui = true, // About 200KB per style (600KB so far)
 	.custom_menu_options = false, // This is broken for now
+	.multiple_fog_stages = true,
 };

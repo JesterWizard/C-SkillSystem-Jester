@@ -7,7 +7,7 @@ POIN gpKernelDesignerConfig
 POIN GetNewBwl
 WORD $202BCF0
 POIN CheckUnitStatDebuff
-WORD $8019431 $352
+WORD $8019431 $355
 POIN SkillTester
 POIN laguzPairs+4
 POIN laguzPairs

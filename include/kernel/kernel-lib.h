@@ -129,6 +129,7 @@ struct KernelDesigerConfig {
 	u8 arena_limits;
 	u8 vesly_custom_ui;
 	u8 custom_menu_options;
+	u8 multiple_fog_stages;
 };
 
 struct KernelBattleDesignerConfig {

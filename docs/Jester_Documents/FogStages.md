@@ -57,7 +57,7 @@ To improve fog, this redesign introduces **three distinct fog stages**:
 | **0** | Full visibility | Enemy fully visible (stats, forecast, everything) |
 | **1** | Limited info | Enemy visible, but stats/MMB/forecast are hidden |
 | **2** | Low clarity | Enemy replaced with a neutral **citizen sprite** (identity obscured) |
-| **3** | Full fog | Enemy completely hidden (as in vanilla), terrain also obscured |
+| **3** | Full fog | Enemy completely hidden (as in vanilla) |
 
 This layered fog provides partial information instead of the all-or-nothing approach of vanilla fog, leading to more strategic decision-making.
 
@@ -65,7 +65,7 @@ This layered fog provides partial information instead of the all-or-nothing appr
 
 ## 🗂️ Code Locations
 
-All modifications are gated behind the `CONFIG_MULTIPLE_FOG_STAGES` preprocessor flag.
+All modifications are gated behind the `gpKernelDesignerConfig->multiple_fog_stages` runtime flag (set in `designer-config.c`).
 
 | Feature | Location | Description |
 |--------|----------|-------------|

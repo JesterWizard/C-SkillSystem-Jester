@@ -132,24 +132,21 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
 
     PutBattleForecastUnitName(gUiTmScratchA + 0x23, &proc->unitNameTextA, &gBattleActor.unit);
 
-	/* Only show the target's information if they're not in fog */
-#ifdef CONFIG_MULTIPLE_FOG_STAGES
-	if (gBmMapFog[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos])
+	/* Only show the target's full identity at Stage 0 (full visibility) */
+	if (!gpKernelDesignerConfig->multiple_fog_stages
+			|| !gPlaySt.chapterVisionRange
+			|| gBmMapFog[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos] >= 3)
 	{
 		PutBattleForecastUnitName(gUiTmScratchA + 0x161, &proc->unitNameTextA, &gBattleTarget.unit);
-    	PutBattleForecastItemName(gUiTmScratchA + 0x1A1, &proc->itemNameText, gBattleTarget.weaponBefore);
+		PutBattleForecastItemName(gUiTmScratchA + 0x1A1, &proc->itemNameText, gBattleTarget.weaponBefore);
 	}
-	else 
+	else
 	{
 		char* str = "N/A";
 		int position = GetStringTextCenteredPos(48, str);
 		ClearText(&proc->unitNameTextA);
 		PutDrawText(&proc->unitNameTextA, gUiTmScratchA + 0x161, 0, position, 0, str);
 	}
-#else
-    PutBattleForecastUnitName(gUiTmScratchA + 0x161, &proc->unitNameTextA, &gBattleTarget.unit);
-    PutBattleForecastItemName(gUiTmScratchA + 0x1A1, &proc->itemNameText, gBattleTarget.weaponBefore);
-#endif
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
     if (SkillTester(GetUnit(gBattleActor.unit.index), SID_UnarmedCombat))
@@ -187,8 +184,9 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
         }
     }
 
-#ifdef CONFIG_MULTIPLE_FOG_STAGES
-	if (!gBmMapFog[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos])
+	if (gpKernelDesignerConfig->multiple_fog_stages == true
+			&& gPlaySt.chapterVisionRange
+			&& gBmMapFog[gBattleTarget.unit.yPos][gBattleTarget.unit.xPos] < 3)
 	{
 		PutNumberTwoChr(gUiTmScratchA + 0x62, 2, 0xFF);
 		PutNumberTwoChr(gUiTmScratchA + 0xA2, 2, 0xFF);
@@ -207,17 +205,6 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
 		PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x40, 2, gBattleTarget.battleEffectiveHitRate);
 		PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x80, 2, gBattleTarget.battleEffectiveCritRate);
 	}
-#else
-    if (gBattleTarget.hpInitial > 99) {
-        PutNumberTwoChr(gUiTmScratchA + 0x62, 2, 0xFF);
-    } else {
-        PutNumberTwoChr(gUiTmScratchA + 0x62, 2, gBattleTarget.hpInitial);
-    }
-
-    PutNumberTwoChr(gUiTmScratchA + 0xA2, 2, damage);
-    PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x40, 2, gBattleTarget.battleEffectiveHitRate);
-    PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x80, 2, gBattleTarget.battleEffectiveCritRate);
-#endif
 
     damage = gBattleActor.battleAttack - gBattleTarget.battleDefense;
 

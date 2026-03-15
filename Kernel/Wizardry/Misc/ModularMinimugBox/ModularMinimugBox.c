@@ -46,6 +46,11 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
     if (unit->statusIndex == UNIT_STATUS_RECOVER) proc->unitClock = 0;
 
+/* Stage 2: suppress HP text, slash, and digit OAM entirely */
+    if (gpKernelDesignerConfig->multiple_fog_stages == true
+            && gPlaySt.chapterVisionRange && gBmMapFog[unit->yPos][unit->xPos] == 1)
+        return;
+
     if ((proc->unitClock & 63) == 0) {
         (proc->unitClock & 64) ? PutUnitMapUiStatus(proc->statusTm, unit) : ClearUnitMapUiStatus(proc, proc->statusTm, unit);
         BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -86,6 +91,19 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
     bool exp = gpKernelDesignerConfig->expanded_hp;
     CpuFastFill(0, gUiTmScratchA, 6 * CHR_SIZE * sizeof(u16));
+
+    if (gpKernelDesignerConfig->multiple_fog_stages == true
+            && gPlaySt.chapterVisionRange && gBmMapFog[unit->yPos][unit->xPos] == 1) {
+        proc->hideContents = true;
+        /* Point statusTm into the already-zeroed scratch buffer so any stale
+         * proc->unitClock tick that escapes our UnitMapUiUpdate guard writes
+         * to safe memory rather than leftover data from a previous unit. */
+        proc->statusTm = gUiTmScratchA + TILEMAP_INDEX(5, 3);
+        proc->unitClock = 0;
+        CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
+        ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
+        return;
+    }
 
     char* str = GetStringFromIndex(unit->pCharacterData->nameTextId);
 #if (defined(SID_IdentityProblems) && (COMMON_SKILL_VALID(SID_IdentityProblems)))

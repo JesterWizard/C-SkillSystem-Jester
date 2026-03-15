@@ -67,6 +67,12 @@ void RefreshUnitSprites(void)
         if (unit->state & (US_HIDDEN | US_BIT9))
             continue;
 
+        /* Stage 2 fog: suppress the real SMS sprite here; the link arena hidden
+         * sprite is drawn separately in PutUnitSpritesOam instead. */
+        if (gpKernelDesignerConfig->multiple_fog_stages == true
+                && gPlaySt.chapterVisionRange && gBmMapFog[unit->yPos][unit->xPos] == 1)
+            continue;
+
         if (gBmMapUnit[unit->yPos][unit->xPos] == 0)
             continue;
 
@@ -162,6 +168,8 @@ void RefreshUnitSprites(void)
         ForceSyncUnitSpriteSheet();
 }
 
+static void PutFogStage2Sprites(void);
+
 LYN_REPLACE_CHECK(PutUnitSpritesOam);
 void PutUnitSpritesOam(void)
 {
@@ -246,5 +254,52 @@ void PutUnitSpritesOam(void)
 		        break;
 		    }
 		}
+    }
+
+    if (gpKernelDesignerConfig->multiple_fog_stages == true)
+        PutFogStage2Sprites();
+}
+
+/* Draws the link arena "hidden unit" sprite (gUnknown_085AD9CC, decompressed
+ * to OBJ VRAM tile 0x1F0 by sub_8049788) for any enemy at fog stage 2
+ * (gBmMapFog == 1). Mirrors the visual logic of sub_804B278 for the field map. */
+static void PutFogStage2Sprites(void)
+{
+    if (!gPlaySt.chapterVisionRange)
+        return;
+
+    /* Load the hidden-unit sprite sheet into OBJ VRAM. Called every frame
+     * so VRAM stays coherent across chapter transitions and palette changes. */
+    sub_8049788();
+
+    /* CHR tile indices (OAM2 bits 0-9) matching sub_804B278's 0x9f0 / 0x9F2.
+     * Those values encode tile 0x1F0 / 0x1F2 with priority bits in bits 10-11. */
+    enum {
+        FOG2_CHR_TOP    = 0x1F0, /* top    16x8 half of the hidden sprite */
+        FOG2_CHR_BOTTOM = 0x1F2, /* bottom 16x8 half */
+    };
+
+    /* 1-pixel bob: alternates each 8 game-clock ticks. */
+    int yBob = (GetGameClock() >> 3) & 1;
+
+    for (int i = FACTION_RED + 1; i < FACTION_PURPLE; i++) {
+        struct Unit *unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+        if (unit->state & US_HIDDEN)
+            continue;
+        if (gBmMapFog[unit->yPos][unit->xPos] != 1)
+            continue;
+
+        int x = unit->xPos * 16 - gBmSt.camera.x;
+        int y = unit->yPos * 16 - gBmSt.camera.y - yBob;
+
+        if (x < -16 || x > DISPLAY_WIDTH)  continue;
+        if (y < -16 || y > DISPLAY_HEIGHT) continue;
+
+        u16 pal    = (u16)((GetUnitDisplayedSpritePalette(unit) & 0xf) << 12);
+        CallARM_PushToSecondaryOAM(OAM1_X(x + 0x200),     OAM0_Y(0x100 + y),     gObject_16x8, pal | OAM2_LAYER(2) | FOG2_CHR_TOP);
+        CallARM_PushToSecondaryOAM(OAM1_X(x + 0x200),     OAM0_Y(0x100 + y + 8), gObject_16x8, pal | OAM2_LAYER(2) | FOG2_CHR_BOTTOM);
     }
 }

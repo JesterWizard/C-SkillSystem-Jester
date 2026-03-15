@@ -13,11 +13,10 @@ bool CanShowUnitStatScreen(struct Unit * unit)
                 return false;
     }
 
-/* If the unit is in fog, deny access to their stat screen */
-#ifdef CONFIG_MULTIPLE_FOG_STAGES
-    if (!gBmMapFog[unit->yPos][unit->xPos])
+/* Deny stat screen access for stages 1-3 (any fog obscures the unit in some way) */
+    if (gpKernelDesignerConfig->multiple_fog_stages == true
+            && gPlaySt.chapterVisionRange && gBmMapFog[unit->yPos][unit->xPos] < 3)
         return false;
-#endif
 
     if (UNIT_IS_GORGON_EGG(unit))
         return false;
@@ -68,11 +67,10 @@ struct Unit* FindNextUnit(struct Unit* u, int direction)
         }
     }
 
-/* If the unit is in fog, deny access to their stat screen */
-#ifdef CONFIG_MULTIPLE_FOG_STAGES
-        if (!gBmMapFog[unit->yPos][unit->xPos])
+/* Deny browsing to units in any fog stage (stages 1-3 all obscure the unit) */
+        if (gpKernelDesignerConfig->multiple_fog_stages == true
+                && gPlaySt.chapterVisionRange && gBmMapFog[unit->yPos][unit->xPos] < 3)
             continue;
-#endif
 
         if (UNIT_IS_GORGON_EGG(unit))
             continue;
