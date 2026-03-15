@@ -92,6 +92,9 @@
 // SID_Gungnir
 // SID_Transcendence
 // SID_Necromancy
+// SID_SpatialRift
+// SID_SpatialRiftPlus
+// SID_Hellscape
 
 //////// PRE-BATTLE SKILLS
 // SID_DefiantStr

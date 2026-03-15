@@ -36,6 +36,7 @@ gPostActionFuncs:
     POIN PostAction_Undying
     POIN PostAction_Minions
     POIN PostAction_Turncoat
+    POIN PostAction_HellscapeVoidTile
     POIN ResetComboAtkList
 
     //End

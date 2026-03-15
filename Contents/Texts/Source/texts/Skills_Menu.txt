@@ -766,3 +766,11 @@ Spatial Shift+[X]
 Spatial Shift+:[N]
 Swap with any unit within MAG/2 range.[N]
 Once per map.[X]
+
+## MSG_SKILL_Hellscape_NAME
+Hellscape[X]
+## MSG_SKILL_Hellscape_DESC
+Hellscape:[N]
+Open a void on an adjacent tile.[N]
+Any unit that enters is instantly slain.[N]
+Lasts 3 turns.[X]

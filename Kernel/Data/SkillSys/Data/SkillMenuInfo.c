@@ -1369,4 +1369,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Hellscape) && COMMON_SKILL_VALID(SID_Hellscape))
+    [SID_Hellscape] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Hellscape_NAME,
+        .helpMsgId = MSG_SKILL_Hellscape_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Hellscape_Usability,
+        .onDraw = NULL,
+        .onSelected = Hellscape_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 };

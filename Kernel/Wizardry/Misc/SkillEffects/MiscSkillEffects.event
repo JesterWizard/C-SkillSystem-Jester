@@ -114,6 +114,7 @@
 #include "MenuSkills/Necromancy.lyn.event"
 #include "MenuSkills/SpatialShift.lyn.event"
 #include "MenuSkills/SpatialShiftPlus.lyn.event"
+#include "MenuSkills/Hellscape.lyn.event"
 
 #include "MenuSkills/ReciprocalAid.lyn.event"
 #include "MenuSkills/ReciprocalAid_ASM_Extras/Installer.event"

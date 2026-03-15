@@ -28,6 +28,7 @@ gPrePhaseFuncs:
     POIN PrePhase_Truant
 
     // End
+    POIN PrePhase_HellscapeTrapDecay
     POIN CallExternalPrePhaseHook
     POIN PrePhaseHook_VanillaEnd
     WORD 0 0 0 0 0

@@ -615,6 +615,8 @@ u8 SpatialShift_Usability(const struct MenuItemDef * def, int number);
 u8 SpatialShift_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
 u8 SpatialShiftPlus_Usability(const struct MenuItemDef * def, int number);
 u8 SpatialShiftPlus_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
+u8 Hellscape_Usability(const struct MenuItemDef * def, int number);
+u8 Hellscape_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
 
 u8 Transform_Laguz_Usability(const struct MenuItemDef* def, int number);
 u8 Transform_Laguz_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
@@ -701,6 +703,9 @@ bool Action_Transcendence(ProcPtr parent);
 bool Action_Necromancy(ProcPtr parent);
 bool Action_SpatialShift(ProcPtr parent);
 bool Action_SpatialShiftPlus(ProcPtr parent);
+void PostAction_HellscapeVoidTile(ProcPtr proc);
+bool Action_Hellscape(ProcPtr parent);
+bool PrePhase_HellscapeTrapDecay(ProcPtr parent);
 
 bool Action_Transform_Laguz(ProcPtr parent);
 
