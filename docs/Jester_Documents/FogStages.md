@@ -51,13 +51,15 @@ To improve fog, this redesign introduces **three distinct fog stages**:
 
 ### How It Works
 
-| Stage | Visibility | Description |
-|-------|------------|-------------|
-| **U** | — | Player unit position |
-| **0** | Full visibility | Enemy fully visible (stats, forecast, everything) |
-| **1** | Limited info | Enemy visible, but stats/MMB/forecast are hidden |
-| **2** | Low clarity | Enemy replaced with a neutral **citizen sprite** (identity obscured) |
-| **3** | Full fog | Enemy completely hidden (as in vanilla) |
+The internal `gBmMapFog` map cell value determines each enemy's stage:
+
+| Stage | `gBmMapFog` | On map? | Sprite | Stat screen | Forecast | Minimug box |
+|-------|-------------|---------|--------|-------------|----------|-------------|
+| **U** | — | — | Player unit | — | — | — |
+| **0** | ≥ 3 | Yes | Real class sprite | Accessible | Full info | HP/MP shown |
+| **1** | 2 | Yes | Real class sprite | Blocked | Name & stats hidden | Blank (no HP/MP) |
+| **2** | 1 | Yes | Hidden "shadow" sprite | Blocked | Name & stats hidden | Blank box |
+| **3** | 0 | No | Invisible | Blocked | Cannot target | N/A |
 
 This layered fog provides partial information instead of the all-or-nothing approach of vanilla fog, leading to more strategic decision-making.
 
@@ -69,23 +71,20 @@ All modifications are gated behind the `gpKernelDesignerConfig->multiple_fog_sta
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Stat screen accessibility** | `CanShowUnitStatScreen` and `FindNextUnit` in [`AccessStatScreen.c`](../../Data/StatScreen/Source/AccessStatScreen.c) | Controls whether a fog-obscured unit’s stats may be viewed |
-| **Fog-based unit hiding** | `RefreshUnitsOnBmMap` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Determines if an enemy should be visually hidden |
-| **Battle forecast data visibility** | `DrawBattleForecastContentsStandard` and `DrawBattleForecastContentsExtended` in [`BattleForecast.c`](../../Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BattleForcast.c) | Determines whether enemy stats appear in the forecast |
+| **Fog map population** | `RefreshUnitsOnBmMap` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Builds the graduated `gBmMapFog` cell values and decides which enemies are placed on `gBmMapUnit` (stage 3 enemies are withheld entirely) |
+| **Stage 2 sprite rendering** | `RefreshUnitSprites` and `PutUnitSpritesOam` / `PutFogStage2Sprites` in [`MirrorSprites.c`](../../Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c) | Suppresses the real class sprite for stage 2 units and draws a bobbing "shadow" sprite (link-arena hidden-unit sheet) in its place |
+| **Stat screen accessibility** | `CanShowUnitStatScreen` and `FindNextUnit` in [`AccessStatScreen.c`](../../Data/StatScreen/Source/AccessStatScreen.c) | Blocks the stat screen and unit-browsing for any unit at stages 1–3 (`gBmMapFog < 3`) |
+| **Battle forecast data visibility** | `DrawBattleForecastContentsStandard` and `DrawBattleForecastContentsExtended` in [`BattleForcast.c`](../../Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BattleForcast.c) | Replaces the target's name and weapon with "N/A", and blanks all combat stat values, for stages 1–2 |
+| **Minimug box (MMB)** | `DrawUnitMapUi`, `UnitMapUiUpdate`, and `MMB_Slide_Common` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/Misc/ModularMinimugBox/ModularMinimugBox.c) | Shows an empty box (no name, no portrait, no HP/MP) for stage 2 units; correctly transitions `hideContents` during slide-in/out so HP/MP digits appear or stay hidden as the cursor moves between fog stages |
 
 ---
 
 ## 📝 TODO
 
-- Expand mechanical and graphical functionality of **stages 2 and 3**
-- Resolve issues involving **multiple fog overlays** sharing a single layer
-- Optimize palette usage (must stay under 16 colors)
-
 ---
 
 ## 🐛 Limitations & Bugs
 
-Currently, stages **2** and **3** are incomplete and require further development.  
 There are technical challenges around rendering multiple fog layers simultaneously. Ideally, all fog patterns should programmatically coexist as long as the palette remains within hardware limits.
 
 Please report any issues in the repository’s **Issues** tab.

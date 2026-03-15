@@ -133,6 +133,11 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
 }
 
+static bool IsUnitFogStage2(struct Unit* cu) {
+    return cu && gpKernelDesignerConfig->multiple_fog_stages
+        && gPlaySt.chapterVisionRange && gBmMapFog[cu->yPos][cu->xPos] == 1;
+}
+
 static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
     bool alt = gpKernelDesignerConfig->mp_system;
     bool exp = gpKernelDesignerConfig->expanded_hp;
@@ -141,7 +146,19 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
     int xOff = sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0 ? 0 : 17;
     int width = out ? sMMBSlideOutWidthLut[proc->showHideClock] : sMMBSlideInLut[!exp][proc->showHideClock];
 
-    if (out) proc->hideContents = true;
+    if (out) {
+        proc->hideContents = true;
+    } else if (proc->showHideClock == 0) {
+        /* On the first slide-in frame, sync hideContents to the incoming unit's fog
+         * state.  The slide-out always leaves hideContents=true; without this reset,
+         * visible units keep it true through the whole slide (Bug 2: HP/MP never
+         * shown during the slide-in after a fog→visible switch).  Conversely, fog
+         * units must keep it true so the OAM digit guard in UnitMapUiUpdate has a
+         * second line of defence (Bug 1: HP/slash bleeding onto fog unit boxes). */
+        struct Unit* cu = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
+        proc->hideContents = IsUnitFogStage2(cu);
+    }
+
     TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(xOff, y), MMBWidth - adj, MMBHeight, 0);
     TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(xOff, y), MMBWidth - adj, MMBHeight, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
@@ -155,9 +172,17 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
 
     if (++proc->showHideClock == (out ? 3 : 4)) {
         proc->showHideClock = 0;
-        if (out) { proc->isRetracting = false; proc->windowQuadrant = -1; } 
-        else { proc->hideContents = false; UnitMapUiUpdate(proc, GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x])); }
+        if (out) { proc->isRetracting = false; proc->windowQuadrant = -1; }
+        else {
+            struct Unit* cu = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
+            proc->hideContents = IsUnitFogStage2(cu);
+            UnitMapUiUpdate(proc, cu);
+        }
         Proc_Break(proc);
+    } else if (!out && !proc->hideContents) {
+        /* Push HP/MP OAM digits on each intermediate slide-in frame so the values
+         * are visible throughout the slide, not only on the final frame. */
+        UnitMapUiUpdate(proc, GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]));
     }
 }
 
