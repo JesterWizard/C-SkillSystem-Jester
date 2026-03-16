@@ -771,7 +771,7 @@ struct MenuProc *StartWMGeneralMenu(ProcPtr parent);
 // ??? WMMenu_OnGuideDraw(???);
 // ??? WMMenu_OnGuideSelected(???);
 // ??? WMMenu_OnOptionsSelected(???);
-// ??? WMMenu_OnSaveSelected(???);
+u8 WMMenu_OnSaveSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
 struct MenuProc *StartWMNodeMenu(struct WorldMapMainProc *parent);
 int WMNodeMenu_OnInit(struct MenuProc * menu);
 int WMNodeMenu_OnEnd(struct MenuProc * menu);

@@ -34,6 +34,7 @@ When quality_of_life_fixes is enabled, the engine applies a compact bundle of UI
 | Trade portrait safety | Always attempts to start both faces | Skips StartFace for units with portraitId = 0 | Prevents portrait glitches in trade scenes |
 | Weapon-rank helpbox compact mode | Standard 3-line pretext behavior | 2-line pretext plus focused WEXP/Rank Up fields | Faster readability for weapon-rank details |
 | Map support event routing | Calls baseline map support event | Calls QoL map support event variant | Cleaner support-conversation event flow |
+| World-map Home command | No Home command in world-map general menu | Adds Home command; fades out and returns to title through title-direct flow | Faster session exit and correct title music resume |
 
 ---
 
@@ -51,6 +52,7 @@ All modifications are gated behind gpKernelDesignerConfig->quality_of_life_fixes
 | Weapon-rank helpbox compact mode | DrawHelpBoxLabels_WrankBonus and DrawHelpBoxStats_WrankBonus in Kernel/Wizardry/Core/BattleSys/WrankBonus/Source/WrankBonus.c | Reworks labels and displayed fields for compact helpbox output |
 | Weapon-rank helpbox line budget | HelpBoxSetupstringLines in Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.c | Reduces pretext line count for NEW_HB_WRANK_STATSCREEN in QoL mode |
 | Map support event routing | CallMapSupportEvent in Kernel/Wizardry/Common/BwlRework/source/BwlSupport.c | Selects EventScr_MapSupportConversation_NEW when QoL mode is active |
+| World-map Home command | WMMenu_IsHomeAvailable_NEW and WMMenu_OnHomeSelected_NEW in Kernel/Wizardry/Misc/EnterTown/EnterTown.c | Shows Home only in QoL mode and routes to LGAMECTRL_TITLE_DIRECT for title music-aware return |
 
 ---
 

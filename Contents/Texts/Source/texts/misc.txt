@@ -281,6 +281,12 @@ Would you like to skip this puzzle?[X]
 Choose to enter this world[N]
 map node to see different events.[X]
 
+## MSG_WM_HOME_NAME
+ Home[X]
+## MSG_WM_HOME_DESC
+Return to the title screen[N]
+without saving.[X]
+
 ## MSG_TOGGLE_GROWTH_VIEW
 Press Select to toggle between[N]
 stat and growth views.[X]

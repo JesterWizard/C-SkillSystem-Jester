@@ -1,8 +1,14 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 #include "worldmap.h"
+#include "gamecontrol.h"
 #include "kernel-lib.h"
 #include "jester_headers/custom-structs.h"
+
+extern u8 MapMenu_IsGuideCommandAvailable(const struct MenuItemDef * def, int number);
+extern void sub_80B5D3C(void);
+extern struct MenuRect gMenuRect_WMGeneralMenuRect;
+extern struct ProcCmd ProcScr_WorldMapWrapper[];
 
 typedef struct {
     u8 mapNodeId;
@@ -215,6 +221,212 @@ static struct MenuDef const gMenu_WMNodeMenu_NEW =
     .onRPress = MenuAutoHelpBoxSelect,
     .onHelpBox = MenuStdHelpBox,
 };
+
+static void WMGeneralMenu_OnInit_VOID(struct MenuProc * menu)
+{
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+static void WMGeneralMenu_OnEnd_VOID(struct MenuProc * menu)
+{
+    ClearBg0Bg1();
+}
+
+static u8 WMGeneralMenu_OnCancel_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 3);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6B | MENU_ACT_CLEAR;
+}
+
+static u8 WMMenu_OnUnitSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 9);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static u8 WMMenu_OnStatusSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 12);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static int WMMenu_OnGuideDraw_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    if (!(menuProc->state & MENU_STATE_NOTSHOWN))
+    {
+        if (!BmGuideTextShowGreenOrNormal())
+            Text_SetColor(&menuItemProc->text, TEXT_COLOR_SYSTEM_GREEN);
+
+        if (menuItemProc->availability == MENU_DISABLED)
+            Text_SetColor(&menuItemProc->text, TEXT_COLOR_SYSTEM_GRAY);
+
+        Text_DrawString(&menuItemProc->text, GetStringFromIndex(menuItemProc->def->nameMsgId));
+        PutText(&menuItemProc->text,
+            BG_GetMapBuffer(menuProc->frontBg) + TILEMAP_INDEX(menuItemProc->xTile, menuItemProc->yTile));
+    }
+
+    return 0;
+}
+
+static u8 WMMenu_OnGuideSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 10);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static u8 WMMenu_OnOptionsSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 11);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static u8 WMMenu_OnSaveSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    Proc_Goto(GM_MAIN, 13);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static u8 WMMenu_IsHomeAvailable_NEW(const struct MenuItemDef * def, int number)
+{
+    if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+        return MENU_ENABLED;
+
+    return MENU_NOTSHOWN;
+}
+
+static int WMMenu_OnHomeDraw_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    if (!(menuProc->state & MENU_STATE_NOTSHOWN))
+    {
+        if (menuItemProc->availability == MENU_DISABLED)
+            Text_SetColor(&menuItemProc->text, TEXT_COLOR_SYSTEM_GRAY);
+
+        Text_DrawString(&menuItemProc->text, GetStringFromIndex(menuItemProc->def->nameMsgId));
+        PutText(&menuItemProc->text,
+            BG_GetMapBuffer(menuProc->frontBg) + TILEMAP_INDEX(menuItemProc->xTile, menuItemProc->yTile));
+    }
+
+    return 0;
+}
+
+static u8 WMMenu_OnHomeSelected_NEW(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    struct Proc * gameCtrl = Proc_Find(gProcScr_GameControl);
+    ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
+    ProcPtr wmWrapperProc = Proc_Find(ProcScr_WorldMapWrapper);
+
+    StartFastFadeToBlack();
+
+    if (wmProc != NULL)
+        EndWM(NULL);
+
+    if (wmWrapperProc != NULL)
+        Proc_End(wmWrapperProc);
+
+    if (gameCtrl != NULL)
+        Proc_Goto(gameCtrl, LGAMECTRL_TITLE_DIRECT);
+    else
+        StartTitleScreen_FlagFalse(NULL);
+
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 WMMenu_IsSuspendAvailable(const struct MenuItemDef * def, int number)
+{
+    if (gPlaySt.chapterStateBits & PLAY_FLAG_TUTORIAL)
+        return MENU_DISABLED;
+
+    if (gBmSt.gameStateBits & BM_FLAG_LINKARENA)
+        return MENU_DISABLED;
+
+    return MENU_ENABLED;
+}
+
+u8 WMMenu_OnSuspendSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    if (menuItemProc->availability == MENU_DISABLED)
+    {
+        MenuFrozenHelpBox(menuProc, 0x864);
+        return MENU_ACT_SND6B;
+    }
+
+    sub_80B5D3C();
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+static struct MenuItemDef const MenuItemDef_WMGeneralMenu_NEW[] =
+{
+    {
+        .name = "　部隊",
+        .nameMsgId = 0x0645,
+        .helpMsgId = 0x06DF,
+        .overrideId = 0,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnUnitSelected_NEW,
+    },
+    {
+        .name = "　状況",
+        .nameMsgId = 0x0646,
+        .helpMsgId = 0x06E0,
+        .overrideId = 1,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnStatusSelected_NEW,
+    },
+    {
+        .name = "　辞書",
+        .nameMsgId = 0x0647,
+        .helpMsgId = 0x06E5,
+        .overrideId = 2,
+        .isAvailable = MapMenu_IsGuideCommandAvailable,
+        .onDraw = WMMenu_OnGuideDraw_NEW,
+        .onSelected = WMMenu_OnGuideSelected_NEW,
+    },
+    {
+        .name = "　設定",
+        .nameMsgId = 0x0648,
+        .helpMsgId = 0x06E1,
+        .overrideId = 3,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnOptionsSelected_NEW,
+    },
+    {
+        .name = "　記録",
+        .nameMsgId = 0x0649,
+        .helpMsgId = 0x0679,
+        .overrideId = 4,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnSaveSelected_NEW,
+    },
+    {
+        .name = " Home",
+        .nameMsgId = MSG_WM_HOME_NAME,
+        .helpMsgId = MSG_WM_HOME_DESC,
+        .overrideId = 5,
+        .isAvailable = WMMenu_IsHomeAvailable_NEW,
+        .onDraw = WMMenu_OnHomeDraw_NEW,
+        .onSelected = WMMenu_OnHomeSelected_NEW,
+    },
+    { 0 },
+};
+
+static struct MenuDef const gMenu_WMGeneralMenu_NEW =
+{
+    .rect = { 1, 1, 6, 0 },
+    .menuItems = MenuItemDef_WMGeneralMenu_NEW,
+    .onInit = WMGeneralMenu_OnInit_VOID,
+    .onEnd = WMGeneralMenu_OnEnd_VOID,
+    .onBPress = WMGeneralMenu_OnCancel_NEW,
+    .onRPress = MenuAutoHelpBoxSelect,
+    .onHelpBox = MenuStdHelpBox,
+};
+
+LYN_REPLACE_CHECK(StartWMGeneralMenu);
+struct MenuProc * StartWMGeneralMenu(ProcPtr parent)
+{
+    gGMData.sprite_disp = 0;
+    InitTextFont(&gFont_0201AFC0, (void *)0x06001000, 0x80, 0);
+    return StartMenuAt(&gMenu_WMGeneralMenu_NEW, gMenuRect_WMGeneralMenuRect, parent);
+}
 
 LYN_REPLACE_CHECK(StartWMNodeMenu);
 struct MenuProc * StartWMNodeMenu(struct WorldMapMainProc * parent)
