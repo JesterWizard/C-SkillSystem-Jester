@@ -18,3 +18,4 @@ chaptercheck:
 
 #include "LynJump.event"
 #include "EnterTown.lyn.event"
+#include "ManageSkills.lyn.event"

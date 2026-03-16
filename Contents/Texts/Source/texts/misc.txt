@@ -138,6 +138,23 @@ unit will equip/remove.[N]
 Removed skills are saved[N]
 into a seperate list.[X]
 
+## MSG_WM_MANAGE_SKILLS_NAME
+ Manage Skills[X]
+
+## MSG_WM_MANAGE_SKILLS_DESC
+Manage your unit's skills.[N]
+Choose which skill each unit[N]
+will equip/remove.[X]
+
+## MSG_WM_MANAGE_SKILLS_CHOOSE_UNIT
+Manage Skills Choose Unit[X]
+
+## MSG_WM_MANAGE_SKILLS_OPTION_REMOVE_ALL
+Remove all skills[X]
+
+## MSG_WM_MANAGE_SKILLS_OPTION_EDIT
+Edit Skills[X]
+
 ## MSG_PREP_SCREEN_TITLE_BEXP
 Bonus EXP[X]
 ## MSG_PREP_SCREEN_DESC_BEXP

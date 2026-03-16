@@ -4,7 +4,7 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 ![image](./gfx/SystemConfig1.png)
 
-- `equip_skill_en`
+- `prep_menu_skills`
 
 	Three-Houses style skill equipment in prepscreen is enabled to Allow units equip skills in prepscreen. Otherwise the entrance of equip option in prepscreen will be removed.
 

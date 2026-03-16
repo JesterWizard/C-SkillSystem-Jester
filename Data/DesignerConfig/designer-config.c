@@ -4,8 +4,6 @@
 
 const struct KernelDesigerConfig gKernelDesigerConfig = {
 
-	.equip_skill_en = true,
-
 	/* JESTER - This doesn't actually work right now, amend later */
 	/**
 	 * Decide whether to allow players to generate a new skill scroll,

@@ -1,0 +1,523 @@
+[GEN]	/home/username/C-SkillSystem-Mokha/Contents/Texts/build/msgs.h
+[AS ]	include/link/config-memmap.o
+[CC ]	Data/SkillSys/Source/SkillInfo.o
+[CC ]	Data/SkillSys/SkillScroll/ItemData_Scroll_1.o
+[CC ]	Data/SkillSys/SkillScroll/ItemData_Scroll_2.o
+[CC ]	Data/SkillSys/SkillScroll/ItemData_Scroll_3.o
+[CC ]	Data/SkillSys/SkillScroll/ItemData_Scroll_4.o
+[CC ]	Data/CombatArt/Data/CombatArtInfo.o
+[LYN]	Data/CombatArt/Data/EfxCombatArtAnim.lyn.event
+[LYN]	Data/CombatArt/Data/CombatArtSkill.lyn.event
+[LYN]	Data/CombatArt/Data/CombatArtWeapon.lyn.event
+[LYN]	Data/CombatArt/Data/RomTables.lyn.event
+[LYN]	Data/HiddenLevel/HiddenLevel.lyn.event
+[CC ]	Data/KernelTutorial/ktut.o
+[LYN]	Data/BattleSys/Source/WeaponTriangle.lyn.event
+[LYN]	Data/BattleSys/Source/LeaderShip.lyn.event
+[LYN]	Data/BattleSys/Source/NegateDef.lyn.event
+[LYN]	Data/BattleSys/Source/CriticalBonus.lyn.event
+[LYN]	Data/BattleSys/Source/WrankBonus.lyn.event
+[LYN]	Data/BattleSys/Source/WeaponHpCost.lyn.event
+[LYN]	Data/BattleSys/Source/WeaponHpDrain.lyn.event
+[LYN]	Data/BattleSys/Source/WeaponEffectiveness.lyn.event
+[LYN]	Data/BattleSys/WeaponLockEx/Source/WeaponLockEx.lyn.event
+[LYN]	Data/StrMag/Source/JobMagicInfo.lyn.event
+[LYN]	Data/StrMag/Source/PersonMagicInfo.lyn.event
+[CC ]	Data/StrMag/Source/ItemData_MagBooster.o
+[CC ]	Data/Debuff/DebuffInfo.o
+[LYN]	Data/Debuff/StatDebuffInfo.lyn.event
+[LYN]	Data/GaidenMagic/GaidenMagicData.lyn.event
+[LYN]	Data/MaxStatus/MaxStatus.lyn.event
+[LYN]	Data/JobGrowth/JobGrowth.lyn.event
+[LYN]	Data/Shield/ShieldConfig.lyn.event
+[LYN]	Data/ClassTypes/ClassTypes.lyn.event
+[LYN]	Data/PortraitHeight/PortraitHeight.lyn.event
+[LYN]	Data/Anims/Source/animscr_num.lyn.event
+[LYN]	Data/Anims/Source/BanimSwitcher.lyn.event
+[CC ]	Data/ItemSys/Source/IERevamp-extra.o
+[CC ]	Data/ItemSys/Source/Items.o
+[LYN]	Data/ItemSys/Source/BoostStaves.lyn.event
+[LYN]	Data/ItemSys/SpellAssoc/Source/SpellAssocAlloc.lyn.event
+[LYN]	Data/ItemSys/SpellAssoc/Source/spellassoc-data.lyn.event
+[CC ]	Data/UnitMenu/Source/UnitMenu.o
+[LYN]	Data/StatScreen/Source/PageNameSprite.lyn.event
+[LYN]	Data/StatScreen/Source/AccessStatScreen.lyn.event
+[LYN]	Data/Misc/FarAttackAnimItem.lyn.event
+[LYN]	Data/Misc/IconTable.lyn.event
+[LYN]	Data/MpSystem/MpSystem.lyn.event
+[LYN]	Data/SpSystem/SpSystem.lyn.event
+[CC ]	Data/CustomItems/RewarpStaff/RewarpStaff.o
+[LYN]	Data/ClassData/ClassData.lyn.event
+[CC ]	Data/CharacterData/CharacterData.o
+[CC ]	Data/MapMenus/Usability.o
+[CC ]	Data/MapMenus/CharacterBiographies.o
+[LYN]	Debug/Event/Source/debug-event.lyn.event
+[LYN]	Debug/Chapter/Source/debug-chapter.lyn.event
+[LYN]	Debug/GameIntro/Source/GameIntro.lyn.event
+[CC ]	Kernel/Wizardry/Common/EventRework/Source/NewEventScripts.o
+[CC ]	Kernel/Wizardry/Common/EventRework/Source/EventTable.o
+[CC ]	Kernel/Wizardry/Common/ArmFunc/Source/ArmFuncConf.o
+[CC ]	Kernel/Wizardry/Common/UnitAction/Source/UnitActionData.o
+[CC ]	Kernel/Wizardry/Common/IconDisplay/Source/data.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/ranges.o
+[LYN]	Kernel/Wizardry/Common/MapAnims/NinianPray/Source/ap_ninianprayfx.lyn.event
+[CC ]	Kernel/Wizardry/Common/MapAnims/NinianPray/Source/SpriteAnimConf.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/SpellAssoc/ExtSpellAssoc/ExtSpellAssocData.o
+[CC ]	Kernel/Wizardry/Common/FogVision/FogVision.o
+[CC ]	Kernel/Wizardry/Common/KillRewards/KillRewards.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/data.o
+[CC ]	Kernel/Wizardry/Core/MapTask/Source/MapTaskData.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/StatDebuff/StatDebuffData.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBoxPage7.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanA/rtext.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/rtext.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwlHelpBox.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadershipHelpBox.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiAction/Source/AiActionConf.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/RText.o
+[LYN]	Kernel/Wizardry/Core/Movement/Source/MapFloodArm.lyn.event
+[CC ]	Kernel/Wizardry/Misc/Reorganize/Source/ReorganizeData.o
+[CC ]	Kernel/Data/SkillSys/Data/SkillMenuInfo.o
+[CC ]	Kernel/Data/SkillSys/Data/SkillActionInfo.o
+[CC ]	Kernel/Data/ItemSys/Source/IERevampTable.o
+[CC ]	Kernel/Wizardry/Essentials/EfxMagicDummyFix/Source/EfxMagicDummy.o
+[CC ]	Kernel/Wizardry/Essentials/LeaderFix/Source/LeaderFix.o
+[CC ]	Kernel/Wizardry/Essentials/RemoveMovePath/Source/RemoveMovePath.o
+[CC ]	Kernel/Wizardry/Essentials/UnitLimitation/Source/UnitLimitation.o
+[CC ]	Kernel/Wizardry/Essentials/BanimHpDrainFix/Source/BanimHitFix.o
+[CC ]	Kernel/Wizardry/Essentials/BanimHpDrainFix/Source/BanimHpDrainFix.o
+[CC ]	Kernel/Wizardry/Essentials/BattleForcastFix/Source/BattleForcastFix.o
+[CC ]	Kernel/Wizardry/Essentials/LoadUnitFix/Source/LoadUnitFix.o
+[CC ]	Kernel/Wizardry/Common/AI/Source/AI.o
+[CC ]	Kernel/Wizardry/Common/Arena/Arena.o
+[CC ]	Kernel/Wizardry/Common/OverflowDetection/Source/OverflowDetection.o
+[LYN]	Kernel/Wizardry/Common/AntiHuffman/Source/FakeDecoding.lyn.event
+[CC ]	Kernel/Wizardry/Common/AntiHuffman/Source/AntiHuffman.o
+[CC ]	Kernel/Wizardry/Common/PopupRework/Source/PopupR.o
+[CC ]	Kernel/Wizardry/Common/PopupRework/Source/PopRConfig.o
+[CC ]	Kernel/Wizardry/Common/PopupRework/Source/BmPopup.o
+[CC ]	Kernel/Wizardry/Common/PopupRework/Source/EfxPopup.o
+[CC ]	Kernel/Wizardry/Common/EventRework/Source/EventRework.o
+[CC ]	Kernel/Wizardry/Common/UnitAction/Source/UnitAction.o
+[CC ]	Kernel/Wizardry/Common/GameInitHook/source/GameInit.o
+[CC ]	Kernel/Wizardry/Common/DebugKit/source/mgba.o
+[CC ]	Kernel/Wizardry/Common/DebugKit/source/nocashgba.o
+[CC ]	Kernel/Wizardry/Common/DebugKit/source/printf.o
+[CC ]	Kernel/Wizardry/Common/DebugKit/source/stdio.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/U.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/map.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/math.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/banim.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/event-call.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/hook-proc.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/mapanim.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/pad.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/wexp.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/faction.o
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/unit-validation.o
+[LYN]	Kernel/Wizardry/Common/KernelLib/Source/UnitList.lyn.event
+[CC ]	Kernel/Wizardry/Common/KernelLib/Source/cache.o
+[CC ]	Kernel/Wizardry/Common/ArmFunc/Source/copy-ram.o
+[CC ]	Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/AnimNumber.o
+[CC ]	Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxMoji.o
+[CC ]	Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxHpBarLive.o
+[CC ]	Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxHpBarResire.o
+[LYN]	Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/FakeOldAnimNumberPatch.lyn.event
+[CC ]	Kernel/Wizardry/Common/BanimHack/Source/C07.o
+[CC ]	Kernel/Wizardry/Common/BanimHack/Source/C03.o
+[CC ]	Kernel/Wizardry/Common/BwlRework/source/BriefBwl.o
+[CC ]	Kernel/Wizardry/Common/BwlRework/source/BwlSupport.o
+[CC ]	Kernel/Wizardry/Common/BwlRework/source/BwlHiddenLevel.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/Source/StaffAccuracy.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/Source/StaffHeal.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/Source/ItemUse.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/ItemInfos.o
+[LYN]	Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/ItemInfos_hook.lyn.event
+[CC ]	Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/DuraItem.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-components.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-core.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-extra.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/SpellAssoc/ExtSpellAssoc/ExtSpellAssoc.o
+[CC ]	Kernel/Wizardry/Common/ItemSys/PrepItem/PrepItemUseScreen.o
+[CC ]	Kernel/Wizardry/Common/ClassTypes/Source/class-types.o
+[CC ]	Kernel/Wizardry/Common/RN/RandNumberC.o
+[CC ]	Kernel/Wizardry/Common/MoveLimitViewHack/Source/MoveLimitViewHack.o
+[CC ]	Kernel/Wizardry/Common/IconDisplay/Source/Icon.o
+[CC ]	Kernel/Wizardry/Common/IconDisplay/Source/UsrFunc.o
+[CC ]	Kernel/Wizardry/Common/IconDisplay/Source/hooks.o
+[CC ]	Kernel/Wizardry/Common/UnitMenu/Source/hooks.o
+[CC ]	Kernel/Wizardry/Common/EndTurnHook/Source/EndTurnHook.o
+[CC ]	Kernel/Wizardry/Common/EndTurnHook/Source/usr-func.o
+[CC ]	Kernel/Wizardry/Common/PostActionHook/source/PostActionHook.o
+[CC ]	Kernel/Wizardry/Common/PostActionHook/source/usr-func.o
+[CC ]	Kernel/Wizardry/Common/ChapterInitHook/Source/ChapterInit.o
+[CC ]	Kernel/Wizardry/Common/StrMagSplit/Source/core.o
+[CC ]	Kernel/Wizardry/Common/StrMagSplit/Source/Hooks.o
+[CC ]	Kernel/Wizardry/Common/StrMagSplit/Source/BoosterHook.o
+[CC ]	Kernel/Wizardry/Common/StrMagSplit/ArenaFix/Source/ArenaFix.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/ModularSaveCore.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/NewGameSaveHook.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/MsaFunc.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/MsuFunc.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/ExternalLoader.o
+[CC ]	Kernel/Wizardry/Common/SaveData/Source/SramVerify.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/LoadUnit.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/BattleUnitHook.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/CopyUnit.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/ClearUnit.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/UnitKill.o
+[CC ]	Kernel/Wizardry/Common/UnitHooks/Source/UnitRefrain.o
+[CC ]	Kernel/Wizardry/Common/Lvupfx/Lvupfx/MapLvup.o
+[CC ]	Kernel/Wizardry/Common/Lvupfx/Lvupfx/EfxLvup.o
+[CC ]	Kernel/Wizardry/Common/UnitExpa/Source/UES.o
+[CC ]	Kernel/Wizardry/Common/PrePhaseHook/Source/PrePhaseHook.o
+[LYN]	Kernel/Wizardry/Common/BanimSync/Source/BanimMainHookASM.lyn.event
+[CC ]	Kernel/Wizardry/Common/BanimSync/Source/BanimMainHook.o
+[CC ]	Kernel/Wizardry/Common/BanimSync/Source/ekrbattledeamon-hook.o
+[CC ]	Kernel/Wizardry/Common/BanimSync/Source/utils.o
+[CC ]	Kernel/Wizardry/Common/BanimSync/BanimSwitcher/Source/BanimSwitcher.o
+[CC ]	Kernel/Wizardry/Common/KernelTutorial/Source/ktut-core.o
+[CC ]	Kernel/Wizardry/Common/KernelTutorial/Source/exec-ktut.o
+[CC ]	Kernel/Wizardry/Common/BeginActionHook/Source/BeginActionHook.o
+[CC ]	Kernel/Wizardry/Common/BeginActionHook/Source/usr-func.o
+[CC ]	Kernel/Wizardry/Common/MapAnimBattleHook/Source/PreHit.o
+[CC ]	Kernel/Wizardry/Common/MapAnims/HeavyGravity/Source/HeavyGravity.o
+[CC ]	Kernel/Wizardry/Common/MapAnims/ThunderStorm/Source/Bmfx-Thunder.o
+[CC ]	Kernel/Wizardry/Common/MapAnims/NinianPray/Source/NinianPray.o
+[CC ]	Kernel/Wizardry/Common/MapAnims/Misc/Heal.o
+[CC ]	Kernel/Wizardry/Common/MapAnims/Misc/Hurt.o
+[CC ]	Kernel/Wizardry/Common/Utf8/Source/utf8.o
+[CC ]	Kernel/Wizardry/Common/Utf8/Source/narrowfont.o
+[CC ]	Kernel/Wizardry/Common/Utf8/Source/decoding.o
+[CC ]	Kernel/Wizardry/Common/Utf8/Source/data.o
+[CC ]	Kernel/Wizardry/Common/PlayStExpa/Source/PlayStExpa.o
+[CC ]	Kernel/Wizardry/Common/FebCompat/IndividualAnim/Source/IndividualAnim.o
+[CC ]	Kernel/Wizardry/Common/FebCompat/Devil/Source/DevilFix.o
+[CC ]	Kernel/Wizardry/Common/ExtrasMenu/Source/SupportMenu.o
+[CC ]	Kernel/Wizardry/Common/UnitTarget/UnitTarget/Source/UnitTarget.o
+[CC ]	Kernel/Wizardry/Common/UnitSelection/Source/UnitSelection.o
+[CC ]	Kernel/Wizardry/Common/MenuOptions/MenuOptions.o
+[LYN]	Kernel/Wizardry/Core/SkillSys/kernel/JudgeSkill_ALL_EQUIPPABLE.lyn.event
+[LYN]	Kernel/Wizardry/Core/SkillSys/kernel/JudgeSkill_NORMAL.lyn.event
+[LYN]	Kernel/Wizardry/Core/SkillSys/kernel/SkillList_.lyn.event
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/Infos.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/LearnSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/LoadSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/FebList.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/EquipSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillList.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillDebugList.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillMenu.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillAction.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillPopup.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/EfxSkill/EkrSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/EfxSkill/EfxSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/EfxSkill/EfxSkillBox.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/EfxSkill/Utils.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Popup.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Augury.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/AtMenu.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill1.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill1fx.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill2.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill2fx.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/kernel/SkillEventCmd.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkill.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkillfx.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkillMini.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/SkillScroll/Source/SkillScroll.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/SkillScroll/Source/RemoveSkillMenu.o
+[CC ]	Kernel/Wizardry/Core/SkillSys/ArmsScroll/ArmsScroll.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/Core.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/MiscHooks.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/DebuffIconBlink.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/StatusDepletion.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/EfxStatusUnit.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/ExternalHooks.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/StatDebuff/StatDebuff.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/StatDebuff/Hooks.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/Source/EventCmd.o
+[CC ]	Kernel/Wizardry/Core/DebuffRework/api/api.o
+[CC ]	Kernel/Wizardry/Core/WeaponRange/Source/RangeGetter.o
+[CC ]	Kernel/Wizardry/Core/WeaponRange/Source/Utils.o
+[CC ]	Kernel/Wizardry/Core/WeaponRange/Source/MiscHooks.o
+[CC ]	Kernel/Wizardry/Core/WeaponRange/Source/StaffRange.o
+[CC ]	Kernel/Wizardry/Core/WeaponRange/Source/RangeString.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/HpGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/PowGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/MagGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/SklGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/SpdGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/LckGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/DefGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/ResGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/MovGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/ConGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/AidGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/MiscGetter.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/MiscHooks.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/source/StatusGetterExample.o
+[CC ]	Kernel/Wizardry/Core/UnitStatusGetter/UnitMaxStatus/UnitMaxStatus.o
+[LYN]	Kernel/Wizardry/Core/BattleSys/BattleHitExpasion/Source/pr_EfxHpLutRe.lyn.event
+[LYN]	Kernel/Wizardry/Core/BattleSys/BattleHitExpasion/Source/pr_BattleHitArrayRe.lyn.event
+[LYN]	Kernel/Wizardry/Core/BattleSys/BattleHitExpasion/Source/pr_AnimRoundDataRe.lyn.event
+[CC ]	Kernel/Wizardry/Core/BattleSys/BattleHitExpasion/Source/BattleHitExpa.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/WeaponLockEx/Source/weapon-lockex.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/LeaderShip/Source/LeaderShip.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/RoundAnim/Source/BanimRound.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/RoundAnim/Source/MapAnimRound.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/HpCost/Source/HpCost.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/HpCost/Source/EfxHpCost.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/HpCost/Source/MapAnimHpCost.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/NegateDef/NegateDef.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/WrankBonus/Source/WrankBonus.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/EfxNosferatuWeapon/Source/EfxNosferatuWeapon.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleGenerate.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/PreBattleCalc.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleCalcReal.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/WeaponTriangle.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleHit.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleHitAttr.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleDamage.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleForcast.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleOrder.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleWeapon.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/CheckEffective.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/TerrainBonus.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleExp.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/BattleUI.o
+[CC ]	Kernel/Wizardry/Core/BattleSys/Source/Misc.o
+[CC ]	Kernel/Wizardry/Core/Lvup/Source/GrowthGetter.o
+[CC ]	Kernel/Wizardry/Core/Lvup/Source/Promotion.o
+[CC ]	Kernel/Wizardry/Core/Lvup/Source/AutoLevel.o
+[CC ]	Kernel/Wizardry/Core/Lvup/Source/CheckCap.o
+[CC ]	Kernel/Wizardry/Core/Lvup/Source/Levelup.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPageLeft.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage4.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage5.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage6.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage7.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/DrawUnitPage.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/ToggleUnitPage.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/Util.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawItemPage/Source/DrawItemPage.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/DrawSkillPage.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanA/disp.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/disp.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.o
+[CC ]	Kernel/Wizardry/Core/StatScreen/MiscFix/HelpBoxFix.o
+[CC ]	Kernel/Wizardry/Core/MapTask/Source/map-task.o
+[LYN]	Kernel/Wizardry/Core/MapTask/Source/MapTaskArm.lyn.event
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/CombatArtList.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/CombatArtStatus.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/SelectTarget.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/PostActionHooks.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/MiscHooks.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/Source/EfxCombatArtAnim.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BattleForcast.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BkselHelpBox.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/RText_.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/CombatArtMenu/ActionMenu.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/CombatArtMenu/ItemSelectMenu.o
+[CC ]	Kernel/Wizardry/Core/CombatArt/CombatArtMenu/SelectTarget.o
+[CC ]	Kernel/Wizardry/Core/ComboAttack/Source/battle-order-combo.o
+[CC ]	Kernel/Wizardry/Core/ComboAttack/Source/combo-atk.o
+[CC ]	Kernel/Wizardry/Core/ComboAttack/Source/efx-combo.o
+[CC ]	Kernel/Wizardry/Core/ComboAttack/Source/combo-mapanim.o
+[CC ]	Kernel/Wizardry/Core/Movement/Source/Movement.o
+[CC ]	Kernel/Wizardry/Core/Movement/Source/MoveCost.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiAction/Source/AiAction.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiAction/Source/AiActionCursor.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiAction/Source/AiPerformEnd.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiDecide/Source/PreAiDecide.o
+[CC ]	Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/AlertStance.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Tsuzuku.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SavageBlow.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/BreathOfLife.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SoulSap.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Canto.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Thunderstorm.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Return.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Heal.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Hurt.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Synchronize.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Clearance.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/GetItem.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SealSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Glorifier.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Shakedown.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/EvasionLock.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Pyrotechnics.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Caltrops.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/EXPShare.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/AngerPoint.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Debilitator.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/NecroCopy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Resurrection.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/MendArms.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/GuerillaTactics.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Scavenger.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Predation.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/ShadowStep.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Undying.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Minions.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Turncoat.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Dance.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pick.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Steal.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Summon.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Supply.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/HealingFocus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Mine.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Rally.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GoddessDance.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Stride.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Teleportation.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Swarp.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Repair.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DivineReprieve/Source/DivineReprieve.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Replicate.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/MasterForge.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/BravelyDefault.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Fogger.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/StealPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Duplicate.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reroll.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpellBlade.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/FocusEnergy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GorillaTactics.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GraceOfFire.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GraceOfWater.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Swap.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Transform.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DrawBack.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pivot.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reposition.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Shove.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Smite.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ArdentSacrifice.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Sacrifice.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Capture.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Doppleganger.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Dismount.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Entrepreneur.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Arise.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/AssignDecoy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/AssignDecoyPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ShadowFlash.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DeathBlight.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LoadstarRush.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/WyvernCrash.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Sellsword.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Switcher.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LethalityPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GrimReaper.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Hide.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SkillSwap.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SkillSwapPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Shuffle.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ShufflePlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Persuade.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/PersuadePlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Kamikaze.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reinforcements.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ResolvedHeart.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Ballistary.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Bide.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/CoinFlip.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Geomancy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ScrollScribePlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DancePlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Acidic.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reinforce.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SealedZone.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Thrust.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DoubleTime.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/BloodyAlchemy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/EmergencyExit.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/EmergencyExitPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Songstress.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Gungnir.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Transcendence.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Necromancy.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpatialShift.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpatialShiftPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Hellscape.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ReciprocalAid.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Refuge.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Laguz.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/Misc/HealAmount.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/Misc/SkillActRate.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/Misc/ItemSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/Misc/JesterFunctionsStructs.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/ChapterInitSkills/Initiative.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseMisc.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseHeal.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/AversaNight.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/HoneFortify.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/ArmorMarch.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/OathRouseSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PlusAndMinusSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/WeatherSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/StatusEffects.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/YuneWhisper.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/TileCheck.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/KeepUp.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/ChillSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/WitchsBrew.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseHurt.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/BlacksmithPlus.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Truant.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Moody.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Doppleganger.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhase_LaguzBars.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/EndTurnSkills/FreeSpirit.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/Teleportation.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAiAction.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAiDecide.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAction.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/BattleSkills/LightAndDark.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/BattleDamage/AttackerSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/BattleDamage/DefenderSkills.o
+[CC ]	Kernel/Wizardry/Misc/SkillEffects/ShopSkills/Price.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/Core.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/HpCost.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/BMagMenu.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/WMagMenu.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/MagAction.o
+[CC ]	Kernel/Wizardry/Misc/GaidenMagic/Source/ActionFix.o
+[CC ]	Kernel/Wizardry/Misc/Reorganize/Source/Reorganize.o
+[CC ]	Kernel/Wizardry/Misc/Shield/Source/ShieldCore.o
+[CC ]	Kernel/Wizardry/Misc/PortraitHeight/Source/PortraitHeight.o
+[CC ]	Kernel/Wizardry/Misc/EasterEgg/Source/KonamiCode.o
+[CC ]	Kernel/Wizardry/Misc/EasterEgg/Source/GiveBonus.o
+[CC ]	Kernel/Wizardry/Misc/EasterEgg/Source/BonusScreen.o
+[CC ]	Kernel/Wizardry/Misc/JobGrowth/JobGrowth.o
+[CC ]	Kernel/Wizardry/Misc/MiscFunctions/Source/CustomFunctions.o
+[CC ]	Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.o
+[CC ]	Kernel/Wizardry/Misc/ConvoyExpa/Source/ConvoyExpa.o
+Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c: In function 'WMManageSkills_GetDisplayLabelMsgId':
+Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c:4817:12: error: 'MSG_PREP_SCREEN_LABEL_CHOOSE_UNIT' undeclared (first use in this function); did you mean 'MSG_PREP_SCREEN_TITLE_UNITS'?
+ 4817 |     return MSG_PREP_SCREEN_LABEL_CHOOSE_UNIT;
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |            MSG_PREP_SCREEN_TITLE_UNITS
+Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c:4817:12: note: each undeclared identifier is reported only once for each function it appears in
+Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c:4818:1: error: control reaches end of non-void function [-Werror=return-type]
+ 4818 | }
+      | ^
+cc1: all warnings being treated as errors
+make[1]: *** [makefile:153: Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+rm Kernel/Wizardry/Core/ComboAttack/Source/efx-combo.o Kernel/Wizardry/Common/KernelLib/Source/banim.o Kernel/Wizardry/Common/KernelLib/Source/cache.o Kernel/Wizardry/Misc/Shield/Source/ShieldCore.o Kernel/Wizardry/Core/DebuffRework/Source/ExternalHooks.o Kernel/Wizardry/Common/KernelLib/Source/wexp.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reinforce.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/WyvernCrash.o Kernel/Wizardry/Core/ComboAttack/Source/combo-mapanim.o Kernel/Wizardry/Core/StatScreen/MiscFix/HelpBoxFix.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ScrollScribePlus.o Kernel/Wizardry/Core/AiHack/AiAction/Source/AiActionConf.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/BravelyDefault.o Kernel/Wizardry/Core/UnitStatusGetter/source/DefGetter.o Kernel/Wizardry/Common/ClassTypes/Source/class-types.o Kernel/Wizardry/Core/UnitStatusGetter/source/PowGetter.o Kernel/Wizardry/Core/SkillSys/EfxSkill/EkrSkill.o Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BattleForcast.o Kernel/Wizardry/Core/DebuffRework/Source/EfxStatusUnit.o Kernel/Wizardry/Common/PrePhaseHook/Source/PrePhaseHook.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Replicate.o Kernel/Wizardry/Core/CombatArt/Source/EfxCombatArtAnim.o Kernel/Wizardry/Misc/MiscFunctions/Source/CustomFunctions.o Kernel/Wizardry/Core/AiHack/AiAction/Source/AiAction.o Kernel/Wizardry/Common/UnitExpa/Source/UES.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Glorifier.o Kernel/Wizardry/Common/ItemSys/Source/StaffHeal.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LethalityPlus.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Return.o Kernel/Wizardry/Common/KernelLib/Source/event-call.o Kernel/Wizardry/Misc/ConvoyExpa/Source/ConvoyExpa.o Kernel/Wizardry/Core/SkillSys/kernel/SkillAction.o Kernel/Wizardry/Core/DebuffRework/Source/MiscHooks.o Kernel/Wizardry/Core/UnitStatusGetter/source/SpdGetter.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DeathBlight.o Kernel/Wizardry/Common/PostActionHook/source/usr-func.o Kernel/Wizardry/Misc/Reorganize/Source/Reorganize.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ArdentSacrifice.o Kernel/Wizardry/Common/FogVision/FogVision.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/KeepUp.o Kernel/Wizardry/Misc/GaidenMagic/Source/WMagMenu.o Kernel/Wizardry/Core/UnitStatusGetter/source/LckGetter.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Bide.o Kernel/Wizardry/Core/BattleSys/Source/WeaponTriangle.o Kernel/Wizardry/Common/BanimSync/Source/BanimMainHook.o Kernel/Wizardry/Core/BattleSys/WeaponLockEx/Source/weapon-lockex.o Kernel/Wizardry/Common/MapAnims/NinianPray/Source/SpriteAnimConf.o Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.o Kernel/Wizardry/Core/DebuffRework/StatDebuff/StatDebuffData.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Resurrection.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Songstress.o Kernel/Wizardry/Core/WeaponRange/Source/RangeGetter.o Kernel/Wizardry/Misc/SkillEffects/Misc/HealAmount.o Kernel/Wizardry/Core/SkillSys/EfxSkill/EfxSkill.o Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkillMini.o Kernel/Wizardry/Core/Movement/Source/MoveCost.o Kernel/Wizardry/Common/Utf8/Source/decoding.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/AngerPoint.o Kernel/Wizardry/Common/PlayStExpa/Source/PlayStExpa.o Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.o Kernel/Wizardry/Misc/SkillEffects/ShopSkills/Price.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Repair.o Kernel/Wizardry/Core/AiHack/AiDecide/Source/PreAiDecide.o Kernel/Wizardry/Core/ComboAttack/Source/battle-order-combo.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/MendArms.o Kernel/Wizardry/Common/KernelTutorial/Source/exec-ktut.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill2.o Kernel/Wizardry/Essentials/UnitLimitation/Source/UnitLimitation.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Thrust.o Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/disp.o Kernel/Wizardry/Common/UnitAction/Source/UnitAction.o Kernel/Wizardry/Common/UnitAction/Source/UnitActionData.o Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanA/disp.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Laguz.o Kernel/Wizardry/Core/CombatArt/Source/PostActionHooks.o Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage6.o Kernel/Wizardry/Misc/GaidenMagic/Source/HpCost.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/WitchsBrew.o Kernel/Wizardry/Core/SkillSys/SkillScroll/Source/RemoveSkillMenu.o Kernel/Data/ItemSys/Source/IERevampTable.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Teleportation.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PlusAndMinusSkills.o Kernel/Wizardry/Common/BanimHack/Source/C03.o Kernel/Wizardry/Core/AiHack/AiAction/Source/AiPerformEnd.o Kernel/Wizardry/Common/KernelLib/Source/U.o Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage7.o Kernel/Wizardry/Core/Lvup/Source/AutoLevel.o Kernel/Wizardry/Misc/JobGrowth/JobGrowth.o Kernel/Wizardry/Common/ArmFunc/Source/copy-ram.o Kernel/Wizardry/Core/UnitStatusGetter/source/HpGetter.o Kernel/Wizardry/Core/CombatArt/Source/CombatArtStatus.o Kernel/Wizardry/Core/UnitStatusGetter/source/MovGetter.o Kernel/Wizardry/Common/Utf8/Source/utf8.o Kernel/Wizardry/Common/DebugKit/source/nocashgba.o Kernel/Wizardry/Common/MapAnims/ThunderStorm/Source/Bmfx-Thunder.o Kernel/Wizardry/Core/DebuffRework/StatDebuff/StatDebuff.o Kernel/Wizardry/Common/Utf8/Source/narrowfont.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/CoinFlip.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Doppleganger.o Kernel/Wizardry/Core/ComboAttack/Source/combo-atk.o Kernel/Wizardry/Core/DebuffRework/Source/Core.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/FocusEnergy.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/GetItem.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/StatusEffects.o Kernel/Wizardry/Core/CombatArt/Source/SelectTarget.o Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkillfx.o Kernel/Wizardry/Core/DebuffRework/api/api.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SavageBlow.o Kernel/Wizardry/Common/EventRework/Source/EventRework.o Kernel/Wizardry/Core/UnitStatusGetter/source/AidGetter.o Kernel/Wizardry/Common/PopupRework/Source/BmPopup.o Kernel/Wizardry/Core/SkillSys/EfxSkill/Utils.o Kernel/Wizardry/Common/StrMagSplit/Source/Hooks.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/TileCheck.o Kernel/Wizardry/Common/Lvupfx/Lvupfx/EfxLvup.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.o Kernel/Wizardry/Core/SkillSys/kernel/SkillMenu.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Debilitator.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Ballistary.o Kernel/Wizardry/Common/BwlRework/source/BwlHiddenLevel.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill2fx.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwlHelpBox.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ShadowFlash.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/AversaNight.o Kernel/Wizardry/Core/DebuffRework/StatDebuff/Hooks.o Kernel/Wizardry/Core/UnitStatusGetter/UnitMaxStatus/UnitMaxStatus.o Kernel/Wizardry/Common/KernelLib/Source/faction.o Kernel/Wizardry/Core/CombatArt/CombatArtMenu/ActionMenu.o Kernel/Wizardry/Common/KernelLib/Source/hook-proc.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DrawBack.o Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-core.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Stride.o Kernel/Wizardry/Common/StrMagSplit/Source/core.o Kernel/Wizardry/Core/StatScreen/DrawItemPage/Source/DrawItemPage.o Kernel/Wizardry/Core/SkillSys/kernel/LearnSkill.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pick.o Kernel/Wizardry/Core/UnitStatusGetter/source/ConGetter.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Persuade.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GrimReaper.o Kernel/Wizardry/Common/OverflowDetection/Source/OverflowDetection.o Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxMoji.o Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAiDecide.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/YuneWhisper.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/PersuadePlus.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.o Kernel/Wizardry/Misc/SkillEffects/Misc/ItemSkills.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/WeatherSkills.o Kernel/Wizardry/Misc/Reorganize/Source/ReorganizeData.o Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/RText_.o Kernel/Wizardry/Common/KernelLib/Source/map.o Kernel/Wizardry/Core/WeaponRange/Source/MiscHooks.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reinforcements.o Kernel/Wizardry/Misc/SkillEffects/Misc/SkillActRate.o Kernel/Wizardry/Common/EventRework/Source/EventTable.o Kernel/Wizardry/Core/UnitStatusGetter/source/SklGetter.o Kernel/Wizardry/Common/ExtrasMenu/Source/SupportMenu.o Kernel/Wizardry/Core/SkillSys/kernel/Infos.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/ChillSkills.o Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/Teleportation.o Kernel/Wizardry/Core/CombatArt/Source/CombatArtList.o Kernel/Wizardry/Common/UnitTarget/UnitTarget/Source/UnitTarget.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Shuffle.o Kernel/Wizardry/Common/IconDisplay/Source/UsrFunc.o Kernel/Wizardry/Common/StrMagSplit/Source/BoosterHook.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpatialShiftPlus.o Kernel/Wizardry/Common/BanimHack/Source/C07.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Refuge.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Shakedown.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Doppleganger.o Kernel/Wizardry/Core/SkillSys/kernel/SkillPopup.o Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanB/rtext.o Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAiAction.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Capture.o Kernel/Wizardry/Misc/GaidenMagic/Source/ActionFix.o Kernel/Wizardry/Common/PopupRework/Source/PopupR.o Kernel/Wizardry/Core/UnitStatusGetter/source/ResGetter.o Kernel/Wizardry/Common/SaveData/Source/NewGameSaveHook.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Acidic.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseHeal.o Kernel/Wizardry/Common/EventRework/Source/NewEventScripts.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/GuerillaTactics.o Kernel/Wizardry/Common/BwlRework/source/BriefBwl.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Transcendence.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Sacrifice.o Kernel/Wizardry/Core/BattleSys/Source/BattleExp.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Popup.o Kernel/Wizardry/Common/SaveData/Source/ModularSaveCore.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Clearance.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadershipHelpBox.o Kernel/Wizardry/Common/KernelLib/Source/ranges.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Hurt.o Kernel/Wizardry/Misc/EasterEgg/Source/KonamiCode.o Kernel/Wizardry/Core/BattleSys/LeaderShip/Source/LeaderShip.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/BloodyAlchemy.o Kernel/Wizardry/Core/Movement/Source/Movement.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Canto.o Kernel/Wizardry/Essentials/BattleForcastFix/Source/BattleForcastFix.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.o Kernel/Wizardry/Common/UnitHooks/Source/LoadUnit.o Kernel/Wizardry/Common/Arena/Arena.o Kernel/Wizardry/Common/UnitHooks/Source/BattleUnitHook.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GraceOfFire.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.o Kernel/Wizardry/Core/Lvup/Source/GrowthGetter.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/OathRouseSkills.o Kernel/Wizardry/Core/SkillSys/SkillScroll/Source/SkillScroll.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Transform.o Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-extra.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Steal.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Scavenger.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill1fx.o Kernel/Wizardry/Core/BattleSys/Source/TerrainBonus.o Kernel/Wizardry/Core/BattleSys/Source/BattleHitAttr.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Gungnir.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Swarp.o Kernel/Wizardry/Common/StrMagSplit/ArenaFix/Source/ArenaFix.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Synchronize.o Kernel/Wizardry/Common/UnitMenu/Source/hooks.o Kernel/Wizardry/Core/BattleSys/Source/BattleHit.o Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/DrawSkillPage.o Kernel/Wizardry/Common/KernelLib/Source/math.o Kernel/Wizardry/Core/DebuffRework/Source/EventCmd.o Kernel/Wizardry/Core/UnitStatusGetter/source/MiscGetter.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Switcher.o Kernel/Wizardry/Common/MenuOptions/MenuOptions.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SoulSap.o Kernel/Data/SkillSys/Data/SkillMenuInfo.o Kernel/Wizardry/Core/SkillSys/kernel/FebList.o Kernel/Wizardry/Misc/SkillEffects/Misc/JesterFunctionsStructs.o Kernel/Wizardry/Core/Lvup/Source/Promotion.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/AlertStance.o Kernel/Wizardry/Core/DebuffRework/Source/StatusDepletion.o Kernel/Wizardry/Common/ItemSys/SpellAssoc/ExtSpellAssoc/ExtSpellAssocData.o Kernel/Wizardry/Core/SkillSys/EfxSkill/EfxSkillBox.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/EXPShare.o Kernel/Wizardry/Common/MapAnims/HeavyGravity/Source/HeavyGravity.o Kernel/Wizardry/Core/StatScreen/DrawSkillPage/Source/MokhaPlanA/rtext.o Kernel/Wizardry/Common/RN/RandNumberC.o Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage5.o Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPageLeft.o Kernel/Wizardry/Common/ChapterInitHook/Source/ChapterInit.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ReciprocalAid.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/StealPlus.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pivot.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Fogger.o Kernel/Wizardry/Core/BattleSys/Source/Misc.o Kernel/Wizardry/Common/ItemSys/Source/ItemUse.o Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBoxPage7.o Kernel/Wizardry/Common/MapAnimBattleHook/Source/PreHit.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/AssignDecoy.o Kernel/Wizardry/Core/UnitStatusGetter/source/MagGetter.o Kernel/Wizardry/Common/SaveData/Source/ExternalLoader.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Swap.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DancePlus.o Kernel/Wizardry/Core/Lvup/Source/CheckCap.o Kernel/Wizardry/Common/ItemSys/Source/StaffAccuracy.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Thunderstorm.o Kernel/Wizardry/Common/AntiHuffman/Source/AntiHuffman.o Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/ItemInfos.o Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BkselHelpBox.o Kernel/Wizardry/Core/CombatArt/CombatArtMenu/SelectTarget.o Kernel/Wizardry/Common/SaveData/Source/MsuFunc.o Kernel/Data/SkillSys/Data/SkillActionInfo.o Kernel/Wizardry/Common/SaveData/Source/MsaFunc.o Kernel/Wizardry/Common/PopupRework/Source/EfxPopup.o Kernel/Wizardry/Common/KernelLib/Source/mapanim.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/MasterForge.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/AssignDecoyPlus.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Turncoat.o Kernel/Wizardry/Core/BattleSys/EfxNosferatuWeapon/Source/EfxNosferatuWeapon.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LoadstarRush.o Kernel/Wizardry/Common/AI/Source/AI.o Kernel/Wizardry/Core/SkillSys/ArmsScroll/ArmsScroll.o Kernel/Wizardry/Core/BattleSys/HpCost/Source/HpCost.o Kernel/Wizardry/Essentials/LeaderFix/Source/LeaderFix.o Kernel/Wizardry/Core/BattleSys/RoundAnim/Source/BanimRound.o Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/AnimNumber.o Kernel/Wizardry/Common/PopupRework/Source/PopRConfig.o Kernel/Wizardry/Core/AiHack/AiAction/Source/AiActionCursor.o Kernel/Wizardry/Core/BattleSys/Source/BattleDamage.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Dance.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/Util.o Kernel/Wizardry/Common/BeginActionHook/Source/usr-func.o Kernel/Wizardry/Common/MapAnims/NinianPray/Source/NinianPray.o Kernel/Wizardry/Common/GameInitHook/source/GameInit.o Kernel/Wizardry/Common/KernelLib/Source/unit-validation.o Kernel/Wizardry/Common/MapAnims/Misc/Heal.o Kernel/Wizardry/Misc/GaidenMagic/Source/MagAction.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reposition.o Kernel/Wizardry/Core/SkillSys/kernel/LoadSkill.o Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-components.o Kernel/Wizardry/Common/KernelTutorial/Source/ktut-core.o Kernel/Wizardry/Common/UnitHooks/Source/UnitKill.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Duplicate.o Kernel/Wizardry/Essentials/RemoveMovePath/Source/RemoveMovePath.o Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/DuraItem.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Entrepreneur.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/HealingFocus.o Kernel/Wizardry/Core/BattleSys/Source/BattleCalcReal.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Hide.o Kernel/Wizardry/Essentials/EfxMagicDummyFix/Source/EfxMagicDummy.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/EvasionLock.o Kernel/Wizardry/Core/BattleSys/HpCost/Source/MapAnimHpCost.o Kernel/Wizardry/Core/BattleSys/NegateDef/NegateDef.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Necromancy.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/EmergencyExit.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpellBlade.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ShufflePlus.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Smite.o Kernel/Wizardry/Common/BanimSync/Source/ekrbattledeamon-hook.o Kernel/Wizardry/Common/UnitSelection/Source/UnitSelection.o Kernel/Wizardry/Misc/SkillEffects/BattleDamage/DefenderSkills.o Kernel/Wizardry/Core/BattleSys/RoundAnim/Source/MapAnimRound.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Minions.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Sellsword.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GraceOfWater.o Kernel/Wizardry/Common/UnitHooks/Source/UnitRefrain.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SealedZone.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseHurt.o Kernel/Wizardry/Misc/GaidenMagic/Source/Core.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/EmergencyExitPlus.o Kernel/Wizardry/Core/MapTask/Source/map-task.o Kernel/Wizardry/Common/MapAnims/Misc/Hurt.o Kernel/Wizardry/Core/BattleSys/Source/BattleOrder.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Truant.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Dismount.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Geomancy.o Kernel/Wizardry/Common/UnitHooks/Source/CopyUnit.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GoddessDance.o Kernel/Wizardry/Misc/SkillEffects/ChapterInitSkills/Initiative.o Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.o Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/RText.o Kernel/Wizardry/Common/MoveLimitViewHack/Source/MoveLimitViewHack.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Rally.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SpatialShift.o Kernel/Wizardry/Common/BanimSync/Source/utils.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/HoneFortify.o Kernel/Wizardry/Common/SaveData/Source/SramVerify.o Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage4.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/NecroCopy.o Kernel/Wizardry/Common/BwlRework/source/BwlSupport.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Arise.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/ResolvedHeart.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Predation.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Kamikaze.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Tsuzuku.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Heal.o Kernel/Wizardry/Core/BattleSys/BattleHitExpasion/Source/BattleHitExpa.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/ShadowStep.o Kernel/Wizardry/Core/SkillSys/kernel/EquipSkill.o Kernel/Wizardry/Common/EndTurnHook/Source/EndTurnHook.o Kernel/Wizardry/Core/WeaponRange/Source/RangeString.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SkillSwapPlus.o Kernel/Wizardry/Common/FebCompat/Devil/Source/DevilFix.o Kernel/Wizardry/Core/BattleSys/Source/PreBattleCalc.o Kernel/Wizardry/Common/IconDisplay/Source/data.o Kernel/Wizardry/Common/IconDisplay/Source/hooks.o Kernel/Wizardry/Core/BattleSys/WrankBonus/Source/WrankBonus.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DoubleTime.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Undying.o Kernel/Wizardry/Common/BeginActionHook/Source/BeginActionHook.o Kernel/Wizardry/Core/WeaponRange/Source/Utils.o Kernel/Wizardry/Common/ItemSys/PrepItem/PrepItemUseScreen.o Kernel/Wizardry/Core/BattleSys/Source/BattleForcast.o Kernel/Wizardry/Misc/PortraitHeight/Source/PortraitHeight.o Kernel/Wizardry/Core/DebuffRework/Source/DebuffIconBlink.o Kernel/Wizardry/Core/WeaponRange/Source/StaffRange.o Kernel/Wizardry/Common/Lvupfx/Lvupfx/MapLvup.o Kernel/Wizardry/Common/KernelLib/Source/pad.o Kernel/Wizardry/Core/BattleSys/Source/BattleWeapon.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/BlacksmithPlus.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhaseMisc.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Hellscape.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhase_LaguzBars.o Kernel/Wizardry/Core/UnitStatusGetter/source/StatusGetterExample.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/Moody.o Kernel/Wizardry/Core/BattleSys/Source/data.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.o Kernel/Wizardry/Common/PostActionHook/source/PostActionHook.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Mine.o Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxHpBarResire.o Kernel/Wizardry/Common/ArmFunc/Source/ArmFuncConf.o Kernel/Wizardry/Core/MapTask/Source/MapTaskData.o Kernel/Wizardry/Misc/GaidenMagic/Source/BMagMenu.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/DrawUnitPage.o Kernel/Wizardry/Core/BattleSys/HpCost/Source/EfxHpCost.o Kernel/Wizardry/Core/BattleSys/Source/CheckEffective.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/Source/ToggleUnitPage.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Shove.o Kernel/Wizardry/Core/BattleSys/Source/BattleGenerate.o Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/DivineReprieve/Source/DivineReprieve.o Kernel/Wizardry/Common/IconDisplay/Source/Icon.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/SkillSwap.o Kernel/Wizardry/Common/KillRewards/KillRewards.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Pyrotechnics.o Kernel/Wizardry/Core/BattleSys/Source/BattleUI.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Reroll.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.o Kernel/Wizardry/Misc/SkillEffects/EndTurnSkills/FreeSpirit.o Kernel/Wizardry/Common/EndTurnHook/Source/usr-func.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/BreathOfLife.o Kernel/Wizardry/Misc/SkillEffects/BattleSkills/LightAndDark.o Kernel/Wizardry/Common/DebugKit/source/mgba.o Kernel/Wizardry/Misc/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.o Kernel/Wizardry/Misc/SkillEffects/BattleDamage/AttackerSkills.o Kernel/Wizardry/Common/DebugKit/source/stdio.o Kernel/Wizardry/Common/BanimSync/BanimSwitcher/Source/BanimSwitcher.o Kernel/Wizardry/Core/Lvup/Source/Levelup.o Kernel/Wizardry/Common/Utf8/Source/data.o Kernel/Wizardry/Common/BanimHack/AnimNumber/Source/EfxHpBarLive.o Kernel/Wizardry/Core/CombatArt/CombatArtMenu/ItemSelectMenu.o Kernel/Wizardry/Core/SkillSys/kernel/SkillList.o Kernel/Wizardry/Core/SkillSys/SkillMapAnim/MapAnimSkill.o Kernel/Wizardry/Essentials/LoadUnitFix/Source/LoadUnitFix.o Kernel/Wizardry/Common/UnitHooks/Source/ClearUnit.o Kernel/Wizardry/Misc/EasterEgg/Source/GiveBonus.o Kernel/Wizardry/Common/ItemSys/SpellAssoc/ExtSpellAssoc/ExtSpellAssoc.o Kernel/Wizardry/Core/SkillSys/kernel/SkillDebugList.o Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation/TeleportationAction.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/PrepSkill1.o Kernel/Wizardry/Essentials/BanimHpDrainFix/Source/BanimHpDrainFix.o Kernel/Wizardry/Core/UnitStatusGetter/source/MiscHooks.o Kernel/Wizardry/Common/DebugKit/source/printf.o Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/ArmorMarch.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Supply.o Kernel/Wizardry/Core/CombatArt/Source/MiscHooks.o Kernel/Wizardry/Core/SkillSys/kernel/SkillEventCmd.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/SealSkills.o Kernel/Wizardry/Common/FebCompat/IndividualAnim/Source/IndividualAnim.o Kernel/Wizardry/Essentials/BanimHpDrainFix/Source/BanimHitFix.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Augury.o Kernel/Wizardry/Misc/EasterEgg/Source/BonusScreen.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/GorillaTactics.o Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Summon.o Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.o Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/AtMenu.o Kernel/Wizardry/Misc/SkillEffects/PostActionSkills/Caltrops.o
+make: *** [makefile:37: all] Error 1
