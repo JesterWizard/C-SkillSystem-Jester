@@ -138,8 +138,6 @@
 /* Not installed because of conflicts with phase suspend and sound mixer */
 // #define CONFIG_CUSTOM_CHAPTER_SCREEN
 
-// CONFIG_MULTIPLE_FOG_STAGES has been folded into gpKernelDesignerConfig->multiple_fog_stages
-
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
 // #define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
