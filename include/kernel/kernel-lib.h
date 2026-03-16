@@ -72,6 +72,7 @@ struct KernelDesigerConfig {
 	u8 prep_menu_infuse;
 	u8 prep_menu_bexp;
 	u8 prep_menu_base_conversations;
+	u8 prep_menu_event_replay;
 	u8 expanded_hp;
 	u8 vesly_debugger;
 	u8 map_menu_character_biographies;

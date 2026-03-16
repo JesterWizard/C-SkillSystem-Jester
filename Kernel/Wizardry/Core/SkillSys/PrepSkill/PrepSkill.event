@@ -4,6 +4,7 @@
 #include "Source/CustomMenuOptions/Infuse.lyn.event"
 #include "Source/CustomMenuOptions/BEXP.lyn.event"
 #include "Source/CustomMenuOptions/BaseConversations.lyn.event"
+#include "Source/CustomMenuOptions/EventReplay.lyn.event"
 #include "Source/CustomMenuOptions/Popup.lyn.event"
 #include "Source/CustomMenuOptions/Augury.lyn.event"
 #include "Source/AtMenu.lyn.event"

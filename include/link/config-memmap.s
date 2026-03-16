@@ -111,6 +111,8 @@ _kernel_malloc gList_Total, 1
 _kernel_malloc gBaseConversations_Flags, 10
 _kernel_malloc gCharacterBiographyPage, 1
 _kernel_malloc gCharacterBiographyListNumber, 1
+_kernel_malloc gEventReplay_SelectedChapter, 1
+_kernel_malloc gEventReplay_ChapterScrollIndex, 1
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even

@@ -12,6 +12,8 @@
 #include "uichapterstatus.h"
 #include "unitlistscreen.h"
 
+extern void StartEventReplayScreen_FromPrep(struct ProcAtMenu *pproc);
+
 #define PREP_MENU_VISIBLE_COUNT 5
 #define PREP_MENU_MAX_COUNT 8
 
@@ -58,6 +60,13 @@ void PrepScreenMenu_OnInfuse(struct ProcAtMenu *proc)
     Proc_Goto(proc, 0xA);
 }
 
+void PrepScreenMenu_OnEventReplay(struct ProcAtMenu *proc)
+{
+    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    proc->state = 11;
+    Proc_Goto(proc, 0xA);
+}
+
 /* -----------------------------------------------------------------------
  * ROM-backed menu item table.
  * Placed after all callbacks it references so no forward declarations are
@@ -82,6 +91,7 @@ static const struct PrepMenuItem gPrepMenuTable[] = {
     { PREP_MAINMENU_BONUS_EXP,          PrepScreenMenu_OnBEXP,              TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP,               MSG_PREP_SCREEN_DESC_BEXP,               0 },
     { PREP_MAINMENU_SKILLS,             PrepScreenMenu_OnEquip,             TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS,             MSG_PREP_SCREEN_DESC_SKILLS,             0 },
     { PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnBaseConversations, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS, 0 },
+    { PREP_MAINMENU_EVENT_REPLAY,        PrepScreenMenu_OnEventReplay,        TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_EVENT_REPLAY,        MSG_PREP_SCREEN_DESC_EVENT_REPLAY,        0 },
     { PREP_MAINMENU_SUPPORT,            PrepScreenMenu_OnSupport,           TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT,            MSG_PREP_SCREEN_DESC_SUPPORT,            0 },
     { PREP_MAINMENU_CHECKMAP,           PrepScreenMenu_OnCheckMap,          TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP,          MSG_PREP_SCREEN_DESC_CHECK_MAP,          0 },
 };
@@ -114,9 +124,10 @@ void AtMenu_StartSubmenu(struct ProcAtMenu *proc)
         case PREP_MAINMENU_CHECKMAP + 1:           StartChapterStatusScreen_FromPrep(proc);          break;
         case PREP_MAINMENU_BONUS_EXP + 1:          StartBEXPScreen_FromPrep(proc);                   break;
         case PREP_MAINMENU_SKILLS + 1:             StartPrepEquipScreen(proc);                       break;
-        case PREP_MAINMENU_BASE_CONVERSATIONS + 1: StartBaseScreen_FromPrep(proc);                   break;
-        case PREP_MAINMENU_AUGURY + 1:             StartAuguryScreen_FromPrep(proc);                 break;
-        case PREP_MAINMENU_INFUSE + 1:             StartInfuseScreen_FromPrep(proc);                 break;
+        case PREP_MAINMENU_BASE_CONVERSATIONS + 1: StartBaseScreen_FromPrep(proc);          break;
+        case PREP_MAINMENU_AUGURY + 1:             StartAuguryScreen_FromPrep(proc);        break;
+        case PREP_MAINMENU_INFUSE + 1:             StartInfuseScreen_FromPrep(proc);        break;
+        case PREP_MAINMENU_EVENT_REPLAY + 1:       StartEventReplayScreen_FromPrep(proc);   break;
         default: break;
     }
 
@@ -473,6 +484,9 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 
         if (gpKernelDesignerConfig->prep_menu_base_conversations == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
+
+        if (gpKernelDesignerConfig->prep_menu_event_replay == true)
+            SetPrepScreenMenuItem(PREP_MAINMENU_EVENT_REPLAY, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 
         SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT,  NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);

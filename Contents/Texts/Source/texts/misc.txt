@@ -162,6 +162,21 @@ conversations between[N]
 allied units for this[N]
 chapter.[X]
 
+## MSG_PREP_SCREEN_TITLE_EVENT_REPLAY
+Replay[X]
+## MSG_PREP_SCREEN_DESC_EVENT_REPLAY
+Rewatch a conversation[N]
+event from the game[N]
+so far.[X]
+
+## MSG_EVENT_REPLAY_SELECT_CHAPTER_INSTRUCTION
+Select a chapter[X]
+## MSG_EVENT_REPLAY_SELECT_CONV_INSTRUCTION
+Select a conversation to rewatch[X]
+
+## MSG_EVENT_REPLAY_CONV_LABEL
+Conversation[X]
+
 ## MSG_MenuCommand_Transform_Laguz_NAME
  Laguz-T[X]
 ## MSG_MenuCommand_Transform_Laguz_DESC

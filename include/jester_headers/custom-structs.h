@@ -161,6 +161,21 @@ extern u8 gBaseConversations_Flags[10];
 extern u8 gCharacterBiographyPage;
 extern u8 gCharacterBiographyListNumber;
 
+extern u8 gEventReplay_SelectedChapter;
+extern u8 gEventReplay_ChapterScrollIndex;
+
+enum {
+    PL_EVENT_REPLAY_CHAPTER_INIT = 0,
+    PL_EVENT_REPLAY_CHAPTER_IDLE = 1,
+    PL_EVENT_REPLAY_CHAPTER_TO_CONV = 2,
+    PL_EVENT_REPLAY_CONV_INIT = 3,
+    PL_EVENT_REPLAY_CONV_IDLE = 4,
+    PL_EVENT_REPLAY_PLAY = 5,
+    PL_EVENT_REPLAY_CONV_TO_CHAPTER = 6,
+    PL_EVENT_REPLAY_EXIT = 7,
+    PL_EVENT_REPLAY_END = 8
+};
+
 struct Auguries {
     int bodyTextId;
     int songId;

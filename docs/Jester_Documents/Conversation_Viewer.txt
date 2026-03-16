@@ -1,0 +1,118 @@
+# Conversation Viewer
+
+<p align="center">
+  <img src="../Gifs/Conversation_Viewer.gif" alt="Fog Stages Demo" width="600"/>
+</p>
+
+---
+
+## 📑 Index
+- [Introduction](#introduction)
+- [Plan](#plan)
+- [Code Locations](#code-locations)
+- [How To Add Conversations](#how-to-add-conversations)
+- [TODO](#todo)
+- [Limitations & Bugs](#limitations--bugs)
+
+---
+
+## 🧩 Introduction
+
+The **Conversation Viewer** is a prep screen option that lets the player rewatch any conversation from a chapter they have already reached.
+
+It presents a two-level scrollable menu:
+
+1. **Chapter list** — only chapters up to the player's current progress (`gPlaySt.chapterIndex`) are shown
+2. **Conversation list** — numbered entries for every conversation registered for the selected chapter
+
+Selecting a conversation plays it in full using the same text-rendering path as the original event, complete with background image and music.
+
+---
+
+## 🛠️ Plan
+
+### Navigation flow
+
+```
+Prep Menu
+└─ Replay
+   ├─ Chapter 1          ← Level 1: chapter list (unlocked only)
+   ├─ Chapter 2
+   ├─ ...
+   └─ Chapter N
+         ├─ Conversation 1   ← Level 2: conversation list
+         ├─ Conversation 2
+         └─ ...
+               └─ [plays conversation in full, returns to level 2]
+```
+
+### Data model
+
+Two structs define the catalog:
+
+| Struct | Fields | Purpose |
+|--------|--------|---------|
+| `EventReplayConv` | `bodyTextId`, `songId`, `bgId` | A single replayable conversation |
+| `EventReplayChapterDef` | `chapterTitleTextId`, `chapterIndex`, `convs*`, `convCount` | A chapter entry with its conversation list |
+
+`songId` and `bgId` may be set to `0` to pick a random song / background at runtime.
+
+### Chapter filtering
+
+At runtime, `GetUnlockedChapterAt(displayIdx)` iterates `gEventReplayTable[]` and returns only entries where `chapterIndex <= gPlaySt.chapterIndex`, so the chapter list automatically grows as the player progresses.
+
+### Proc state machine
+
+The screen is driven by `ProcScr_EventReplay`:
+
+| Label | Action |
+|-------|--------|
+| `PL_EVENT_REPLAY_CHAPTER_INIT` | Build and display the chapter list |
+| `PL_EVENT_REPLAY_CHAPTER_IDLE` | Poll input; A → go to conv list, B → exit |
+| `PL_EVENT_REPLAY_CHAPTER_TO_CONV` | Fade out, transition to conv list |
+| `PL_EVENT_REPLAY_CONV_INIT` | Build and display the conversation list |
+| `PL_EVENT_REPLAY_CONV_IDLE` | Poll input; A → play, B → back to chapters |
+| `PL_EVENT_REPLAY_PLAY` | Fade, launch conversation via `StartTalkExt`, wait for completion |
+| `PL_EVENT_REPLAY_CONV_TO_CHAPTER` | Restore chapter-list cursor state, fade back |
+| `PL_EVENT_REPLAY_EXIT` | Fade out, return to prep screen |
+
+---
+
+## 🗂️ Code Locations
+
+The feature is gated behind the `gpKernelDesignerConfig->prep_menu_event_replay` runtime flag (set in `designer-config.c`).
+
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **Conversation catalog & proc** | `ProcScr_EventReplay`, `gEventReplayTable[]`, `gReplay_ChXX[]` in [`EventReplay.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c) | Defines all per-chapter conversation lists, filters by `gPlaySt.chapterIndex`, drives the two-level menu proc, and plays conversations via `StartTalkExt` |
+| **Prep menu integration** | `PrepScreenMenu_OnEventReplay`, `StartEventReplayScreen_FromPrep`, `InitPrepScreenMainMenu` in [`AtMenu.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/AtMenu.c) | Registers the "Replay" entry in `gPrepMenuTable[]`, dispatches to `ProcScr_EventReplay` via `AtMenu_StartSubmenu`, and conditionally shows the menu item based on the designer config flag |
+| **Menu item enum** | `PREP_MAINMENU_EVENT_REPLAY = 10` in [`prepscreen.h`](../../Tools/FE-CLib-Mokha/include/prepscreen.h) | Assigns the prep menu slot index for the Replay option |
+| **Designer config flag** | `prep_menu_event_replay` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Runtime toggle; set to `true` by default to enable the menu item |
+| **RAM allocations** | `gEventReplay_SelectedChapter`, `gEventReplay_ChapterScrollIndex` in [`config-memmap.s`](../../include/link/config-memmap.s) | Persistent RAM slots (1 byte each) that hold the cursor and scroll state across the two menu levels |
+| **Text strings** | `MSG_PREP_SCREEN_TITLE_EVENT_REPLAY`, `MSG_PREP_SCREEN_DESC_EVENT_REPLAY`, `MSG_EVENT_REPLAY_SELECT_CHAPTER_INSTRUCTION`, `MSG_EVENT_REPLAY_SELECT_CONV_INSTRUCTION`, `MSG_EVENT_REPLAY_CONV_LABEL` in [`misc.txt`](../../Contents/Texts/Source/texts/misc.txt) | All UI strings for the feature |
+
+---
+
+## 📝 How To Add Conversations
+
+1. Open [`EventReplay.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c).
+2. Find the `gReplay_ChXX[]` array for the relevant chapter.
+3. Append an entry using the message ID from `Contents/Texts/build/msgs.h`:
+   ```c
+   { Chapter_04_Scene_11_Convo_01, 0, 0 },
+   ```
+   - Third field is `songId` (0 = random)
+   - Fourth field is `bgId` (0 = random)
+4. Rebuild.
+
+To add an entirely new chapter, add a `gReplay_ChXX[]` array and a corresponding row to `gEventReplayTable[]`, using the appropriate `MSG_CHAPTER_XX_TITLE` text ID.
+
+---
+
+## 📝 TODO
+
+---
+
+## 🐛 Limitations & Bugs
+
+---

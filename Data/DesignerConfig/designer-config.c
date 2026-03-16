@@ -82,6 +82,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.prep_menu_infuse = true,
 	.prep_menu_bexp = true,
 	.prep_menu_base_conversations = true,
+	.prep_menu_event_replay = true,
 	.expanded_hp = true,
 	.vesly_debugger = true,
 	.map_menu_character_biographies = false,
