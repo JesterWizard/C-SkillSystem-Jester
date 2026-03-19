@@ -1456,4 +1456,8 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
     [SID_SPConversion] = {{5}},
 #endif
 
+#if (defined(SID_Override) && COMMON_SKILL_VALID(SID_Override))
+    [SID_Override] = {{10}},
+#endif
+
 };

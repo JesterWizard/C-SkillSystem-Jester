@@ -346,4 +346,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Hellscape) && COMMON_SKILL_VALID(SID_Hellscape))
     [SID_Hellscape] = Action_Hellscape,
 #endif
+
+#if (defined(SID_Override) && COMMON_SKILL_VALID(SID_Override))
+    [SID_Override] = Action_Override,
+#endif
 };

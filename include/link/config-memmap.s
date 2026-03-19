@@ -185,6 +185,7 @@ _kernel_malloc_overlay0 gWtaStatus_act, 0x38
 _kernel_malloc_overlay0 gWtaStatus_tar, 0x38
 _kernel_malloc_overlay0 gActorBaseDmg,  0x0C
 _kernel_malloc_overlay0 gTargetBaseDmg, 0x0C
+_kernel_malloc_overlay0 sOverrideState, 0x48
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

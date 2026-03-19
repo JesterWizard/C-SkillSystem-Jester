@@ -1384,4 +1384,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Override) && COMMON_SKILL_VALID(SID_Override))
+    [SID_Override] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Override_NAME,
+        .helpMsgId = MSG_SKILL_Override_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Override_Usability,
+        .onDraw = NULL,
+        .onSelected = Override_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 };

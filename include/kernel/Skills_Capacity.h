@@ -907,4 +907,5 @@
 #define MSG_SKILL_SpatialShift_CAPACITY 1
 #define MSG_SKILL_SpatialShiftPlus_CAPACITY 1
 #define MSG_SKILL_Hellscape_CAPACITY 1
+#define MSG_SKILL_Override_CAPACITY 1
 #define MSG_SKILL_AxiomPlus_CAPACITY 1

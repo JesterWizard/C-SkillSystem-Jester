@@ -707,6 +707,10 @@ void PostAction_HellscapeVoidTile(ProcPtr proc);
 bool Action_Hellscape(ProcPtr parent);
 bool PrePhase_HellscapeTrapDecay(ProcPtr parent);
 
+u8 Override_Usability(const struct MenuItemDef *def, int number);
+u8 Override_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+bool Action_Override(ProcPtr parent);
+
 bool Action_Transform_Laguz(ProcPtr parent);
 
 u8 SummonPlusCommandEffect(struct MenuProc * menu, struct MenuItemProc * menuItem);

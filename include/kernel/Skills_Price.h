@@ -907,4 +907,5 @@
 #define MSG_SKILL_AxiomPlus_PRICE 1000
 #define MSG_SKILL_SpatialShift_PRICE 1000
 #define MSG_SKILL_Hellscape_PRICE 1000
+#define MSG_SKILL_Override_PRICE 1000
 #define MSG_SKILL_SpatialShiftPlus_PRICE 1000

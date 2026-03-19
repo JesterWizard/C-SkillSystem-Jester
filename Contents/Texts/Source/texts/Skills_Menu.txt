@@ -774,3 +774,10 @@ Hellscape:[N]
 Open a void on an adjacent tile.[N]
 Any unit that enters is instantly slain.[N]
 Lasts 3 turns.[X]
+
+## MSG_SKILL_Override_NAME
+Override[X]
+## MSG_SKILL_Override_DESC
+Override:[N]
+Deal damage to all enemies in an[N]
+adjacently connected line.[X]

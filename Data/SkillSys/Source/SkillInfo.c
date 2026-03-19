@@ -9100,4 +9100,14 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Override) && COMMON_SKILL_VALID(SID_Override))
+    [SID_Override] = {
+        .name = MSG_SKILL_Override_NAME,
+        .desc = MSG_SKILL_Override_DESC,
+        .capacity = MSG_SKILL_Override_CAPACITY,
+        .price = MSG_SKILL_Override_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+    },
+#endif
+
 };
