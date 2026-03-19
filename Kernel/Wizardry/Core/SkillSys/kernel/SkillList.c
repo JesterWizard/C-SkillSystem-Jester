@@ -389,6 +389,58 @@ void GenerateSkillListExt(struct Unit *unit, struct SkillList *list)
 		ADD_LIST(shield->skills[1]);
 	}
 
+	/* Symbiosis+: if this unit is rescuing someone, include ALL of the rescuee's skills.
+	 * We read directly from the rescuee's unit struct to avoid re-entering GenerateSkillListExt
+	 * (which would conflict on gGenericBuffer / SkillListGeneric).
+	 */
+#if defined(SID_SymbiosisPlus) && (COMMON_SKILL_VALID(SID_SymbiosisPlus))
+	if (UNIT_IS_VALID(unit) && unit->rescue != 0) {
+		bool _has_symp = false;
+		for (int _si = 0; _si < list->amt; _si++) {
+			if (list->sid[_si] == SID_SymbiosisPlus) { _has_symp = true; break; }
+		}
+		if (_has_symp) {
+			struct Unit *_rescuee = GetUnit(unit->rescue);
+			if (UNIT_IS_VALID(_rescuee)) {
+				int _r_pid = UNIT_CHAR_ID(_rescuee);
+				int _r_jid = UNIT_CLASS_ID(_rescuee);
+				/* equippable */
+#ifdef CONFIG_TURN_ON_ALL_SKILLS
+				for (int _ri = 0; _ri < UNIT_RAM_SKILLS_LEN; _ri++)
+					ADD_LIST(GET_UNIT_SKILL(_rescuee, _ri));
+#else
+				for (int _ri = 0; _ri < UNIT_RAM_SKILLS_LEN; _ri++)
+					ADD_LIST(UNIT_RAM_SKILLS(_rescuee)[_ri]);
+#endif
+				/* person / job */
+				ADD_LIST(gpConstSkillTable_Person[_r_pid * 2 + 0]);
+				ADD_LIST(gpConstSkillTable_Person[_r_pid * 2 + 1]);
+				ADD_LIST(gpConstSkillTable_Job[_r_jid * 2 + 0]);
+				ADD_LIST(gpConstSkillTable_Job[_r_jid * 2 + 1]);
+				/* item */
+				for (int _ri = 0; _ri < UNIT_ITEM_COUNT; _ri++) {
+					u8 _iid = ITEM_INDEX(_rescuee->items[_ri]);
+					if (_iid == ITEM_NONE) break;
+					ADD_LIST(gpConstSkillTable_Item[_iid * 2 + 0]);
+					ADD_LIST(gpConstSkillTable_Item[_iid * 2 + 1]);
+				}
+				/* weapon */
+				int _r_weapon = ITEM_INDEX(GetUnitEquippedWeapon(_rescuee));
+				if (_r_weapon != ITEM_NONE) {
+					ADD_LIST(gpConstSkillTable_Weapon[_r_weapon * 2 + 0]);
+					ADD_LIST(gpConstSkillTable_Weapon[_r_weapon * 2 + 1]);
+				}
+				/* shield */
+				const struct ShieldInfo *_r_shield = GetUnitShield(_rescuee);
+				if (_r_shield) {
+					ADD_LIST(_r_shield->skills[0]);
+					ADD_LIST(_r_shield->skills[1]);
+				}
+			}
+		}
+	}
+#endif
+
 	/* external */
 	AppendSkillListViaDebugList(unit, list, tmp_list);
 

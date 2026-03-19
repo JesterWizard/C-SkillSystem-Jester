@@ -15,7 +15,7 @@ const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     }},
     // 02
     [CHARACTER_SETH] = {{
-        [0] = SID_Minions
+        [0] = SID_SymbiosisPlus
         }},
 
         // // 03

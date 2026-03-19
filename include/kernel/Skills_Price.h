@@ -883,6 +883,7 @@
 #define MSG_SKILL_SliceNDice_PRICE 1000
 #define MSG_SKILL_ManaRush_PRICE 1000
 #define MSG_SKILL_Symbiosis_PRICE 1000
+#define MSG_SKILL_SymbiosisPlus_PRICE 1500
 #define MSG_SKILL_Residium_PRICE 1000
 #define MSG_SKILL_Malidiction_PRICE 1000
 #define MSG_SKILL_AirWalk_PRICE 1000

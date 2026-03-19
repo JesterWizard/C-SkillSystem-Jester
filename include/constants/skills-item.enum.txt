@@ -322,6 +322,7 @@
 // SID_ChargeCrit
 // SID_SliceNDice
 // SID_Symbiosis
+// SID_SymbiosisPlus
 // SID_Residium
 // SID_Malidiction
 // SID_SPConversion

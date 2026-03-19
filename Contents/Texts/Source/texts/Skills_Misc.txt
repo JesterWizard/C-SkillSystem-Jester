@@ -527,6 +527,13 @@ Symbiosis:[N]
 When rescuing, this unit can use[N]
 the rescuee's battle skills.[X]
 
+## MSG_SKILL_SymbiosisPlus_NAME
+Symbiosis+[X]
+## MSG_SKILL_SymbiosisPlus_DESC
+Symbiosis+:[N]
+When rescuing, this unit gains[N]
+all of the rescuee's skills.[X]
+
 ## MSG_SKILL_Residium_NAME
 Residium[X]
 ## MSG_SKILL_Residium_DESC
