@@ -34,6 +34,29 @@ const u16 gObject_32x32_HFlipped[] =
     1, OAM0_SHAPE_32x32, OAM1_SIZE_32x32 + OAM1_HFLIP, 0,
 };
 
+static u16 ApplyTrapSpritePalette(u16 oam2Base, const struct Trap *trap)
+{
+    switch (GetTrapMapSpritePalette(trap)) {
+    case TRAP_MAPSPRITE_PAL_LIGHT_RUNE:
+        return (oam2Base & 0x0FFF) | 0xB000;
+
+    case TRAP_MAPSPRITE_PAL_PLAYER:
+        return (oam2Base & 0x0FFF) | 0xC000;
+
+    case TRAP_MAPSPRITE_PAL_ENEMY:
+        return (oam2Base & 0x0FFF) | 0xD000;
+
+    case TRAP_MAPSPRITE_PAL_NPC:
+        return (oam2Base & 0x0FFF) | 0xE000;
+
+    case TRAP_MAPSPRITE_PAL_GREY:
+        return (oam2Base & 0x0FFF) | 0xF000;
+
+    default:
+        return oam2Base;
+    }
+}
+
 LYN_REPLACE_CHECK(RefreshUnitSprites);
 void RefreshUnitSprites(void)
 {
@@ -154,23 +177,26 @@ void RefreshUnitSprites(void)
 
         if (trap->type == TRAP_LIGHT_RUNE)
         {
+            oam2 = UseUnitSprite(0x66) - 0x5000 + 0x80;
+
             smsHandle = AddUnitSprite(trap->yPos * 16);
             smsHandle->yDisplay = trap->yPos * 16;
             smsHandle->xDisplay = trap->xPos * 16;
 
-            smsHandle->oam2Base = UseUnitSprite(0x66) - 0x5000 + 0x80;
+            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
 
             smsHandle->config = GetInfo(0x66).size;
         }
 
         if (trap->type == TRAP_HEAL_TILE)
         {
+            oam2 = UseUnitSprite(0x68) - 0x5000 + 0x80;
+
             smsHandle = AddUnitSprite(trap->yPos * 16);
             smsHandle->yDisplay = trap->yPos * 16;
             smsHandle->xDisplay = trap->xPos * 16;
 
-            /* TODO: replace 0x66 with the heal tile sprite index once art is loaded */
-            smsHandle->oam2Base = UseUnitSprite(0x68) - 0x5000 + 0x80;
+            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
 
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
@@ -179,21 +205,25 @@ void RefreshUnitSprites(void)
         {
             int spriteId = (trap->extra > 0) ? 0x6A : 0x6B;
 
+            oam2 = UseUnitSprite(spriteId) - 0x5000 + 0x80;
+
             smsHandle = AddUnitSprite(trap->yPos * 16);
             smsHandle->yDisplay = trap->yPos * 16;
             smsHandle->xDisplay = trap->xPos * 16;
 
-            smsHandle->oam2Base = UseUnitSprite(spriteId) - 0x5000 + 0x80;
+            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_TELEPORT_TILE)
         {
+            oam2 = UseUnitSprite(0x6C) - 0x5000 + 0x80;
+
             smsHandle = AddUnitSprite(trap->yPos * 16);
             smsHandle->yDisplay = trap->yPos * 16;
             smsHandle->xDisplay = trap->xPos * 16;
 
-            smsHandle->oam2Base = UseUnitSprite(0x6C) - 0x5000 + 0x80;
+            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }

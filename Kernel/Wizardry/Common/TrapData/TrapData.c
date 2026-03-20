@@ -36,6 +36,67 @@ static const EventScr EventScr_PostAction_TeleportTile[] = {
     ENDA
 };
 
+static struct Trap *(*const sVanillaAddLightRune)(int x, int y) = (void *) 0x0802EA59;
+
+static int SanitizeTrapMapSpritePalette(int palette)
+{
+    if (palette < TRAP_MAPSPRITE_PAL_DEFAULT || palette > TRAP_MAPSPRITE_PAL_GREY)
+        return TRAP_MAPSPRITE_PAL_DEFAULT;
+
+    return palette;
+}
+
+int GetTrapMapSpritePalette(const struct Trap *trap)
+{
+    if (!trap)
+        return TRAP_MAPSPRITE_PAL_DEFAULT;
+
+    switch (trap->type) {
+    case TRAP_LIGHT_RUNE:
+        return SanitizeTrapMapSpritePalette(trap->extra);
+
+    case TRAP_HEAL_TILE:
+        return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_HEALTILE_PALETTE]);
+
+    case TRAP_TOGGLE_TORCH:
+        return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_TOGGLE_TORCH_PALETTE]);
+
+    case TRAP_TELEPORT_TILE:
+        return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_TELEPORT_PALETTE]);
+
+    default:
+        return TRAP_MAPSPRITE_PAL_DEFAULT;
+    }
+}
+
+void SetTrapMapSpritePalette(struct Trap *trap, int palette)
+{
+    int sanitizedPalette;
+
+    if (!trap)
+        return;
+
+    sanitizedPalette = SanitizeTrapMapSpritePalette(palette);
+
+    switch (trap->type) {
+    case TRAP_LIGHT_RUNE:
+        trap->extra = sanitizedPalette;
+        break;
+
+    case TRAP_HEAL_TILE:
+        trap->data[TRAP_EXTDATA_HEALTILE_PALETTE] = sanitizedPalette;
+        break;
+
+    case TRAP_TOGGLE_TORCH:
+        trap->data[TRAP_EXTDATA_TOGGLE_TORCH_PALETTE] = sanitizedPalette;
+        break;
+
+    case TRAP_TELEPORT_TILE:
+        trap->data[TRAP_EXTDATA_TELEPORT_PALETTE] = sanitizedPalette;
+        break;
+    }
+}
+
 LYN_REPLACE_CHECK(LoadTrapData);
 void LoadTrapData(const struct TrapData * data)
 {
@@ -78,15 +139,15 @@ void LoadTrapData(const struct TrapData * data)
             break;
 
         case TRAP_HEAL_TILE:
-            AddHealTile(data->xPos, data->yPos, 10, data->turn_counter);
+            AddHealTile(data->xPos, data->yPos, 10, data->turn_counter, data->subtype);
             break;
 
         case TRAP_TOGGLE_TORCH:
-            AddToggleTorch(data->xPos, data->yPos, data->turn_counter, data->subtype);
+            AddToggleTorch(data->xPos, data->yPos, data->turn_counter, data->subtype, data->turn);
             break;
 
         case TRAP_TELEPORT_TILE:
-            AddTeleportTile(data->xPos, data->yPos, data->subtype, data->turn_counter);
+            AddTeleportTile(data->xPos, data->yPos, data->subtype, data->turn_counter, data->turn);
             break;
         }
 
@@ -159,13 +220,21 @@ void DecayTraps(void)
     }
 }
 
-void AddHealTile(int x, int y, int healAmount, int turnsLeft)
+struct Trap *AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette)
 {
-    struct Trap* trap = AddTrap(x, y, TRAP_HEAL_TILE, healAmount);
+    struct Trap *trap = AddTrap(x, y, TRAP_HEAL_TILE, healAmount);
+
+    if (!trap)
+        return NULL;
+
     trap->data[TRAP_EXTDATA_HEALTILE_TURNSLEFT] = turnsLeft;
+
+    SetTrapMapSpritePalette(trap, palette);
+
+    return trap;
 }
 
-void AddToggleTorch(int x, int y, int duration, int startsLit)
+struct Trap *AddToggleTorch(int x, int y, int duration, int startsLit, int palette)
 {
     struct Trap *trap;
 
@@ -173,11 +242,18 @@ void AddToggleTorch(int x, int y, int duration, int startsLit)
         duration = 3;
 
     trap = AddTrap(x, y, TRAP_TOGGLE_TORCH, 0);
+    if (!trap)
+        return NULL;
+
     trap->data[TRAP_EXTDATA_TOGGLE_TORCH_DURATION] = duration;
     trap->extra = startsLit ? duration : 0;
+
+    SetTrapMapSpritePalette(trap, palette);
+
+    return trap;
 }
 
-struct Trap* AddTeleportTile(int x, int y, int destX, int destY)
+struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette)
 {
     struct Trap *trap = AddTrap(x, y, TRAP_TELEPORT_TILE, 0);
 
@@ -186,13 +262,25 @@ struct Trap* AddTeleportTile(int x, int y, int destX, int destY)
 
     trap->data[TRAP_EXTDATA_TELEPORT_DEST_X] = destX;
     trap->data[TRAP_EXTDATA_TELEPORT_DEST_Y] = destY;
+
+    SetTrapMapSpritePalette(trap, palette);
+
     return trap;
 }
 
 void AddTeleportTilePair(int x1, int y1, int x2, int y2)
 {
-    AddTeleportTile(x1, y1, x2, y2);
-    AddTeleportTile(x2, y2, x1, y1);
+    AddTeleportTile(x1, y1, x2, y2, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+    AddTeleportTile(x2, y2, x1, y1, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+}
+
+struct Trap *AddLightRune(int x, int y, int palette)
+{
+    struct Trap *trap = sVanillaAddLightRune(x, y);
+
+    SetTrapMapSpritePalette(trap, palette);
+
+    return trap;
 }
 
 bool PostAction_TeleportTile(ProcPtr parent)

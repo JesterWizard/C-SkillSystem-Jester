@@ -513,7 +513,7 @@ void ExecLightRune(ProcPtr proc) {
     BattleInitItemEffect(GetUnit(gActionData.subjectIndex),
         gActionData.itemSlotIndex);
 
-    AddLightRune(gActionData.xOther, gActionData.yOther);
+	AddLightRune(gActionData.xOther, gActionData.yOther, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
 
     BattleApplyItemEffect(proc);
 

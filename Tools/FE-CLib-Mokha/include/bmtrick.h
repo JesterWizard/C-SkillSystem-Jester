@@ -32,6 +32,17 @@ enum
 
 enum
 {
+    TRAP_MAPSPRITE_PAL_DEFAULT = 0,
+    TRAP_MAPSPRITE_PAL_LIGHT_RUNE,
+    TRAP_MAPSPRITE_PAL_PLAYER,
+    TRAP_MAPSPRITE_PAL_ENEMY,
+    TRAP_MAPSPRITE_PAL_NPC,
+    TRAP_MAPSPRITE_PAL_GREY,
+    TRAP_MAPSPRITE_PAL_FOURTH = TRAP_MAPSPRITE_PAL_GREY,
+};
+
+enum
+{
     // Ballista extdata definitions
     TRAP_EXTDATA_BLST_RIDDEN   = 1, // "is ridden" boolean
     TRAP_EXTDATA_BLST_ITEMUSES = 2, // ballista item uses
@@ -43,17 +54,21 @@ enum
     TRAP_EXTDATA_TRAP_DAMAGE    = 3, // trap damage (needs confirmation)
 
     // Light Rune extdata definitions
+    TRAP_EXTDATA_RUNE_PALETTE          = 0, // map sprite palette selector
     TRAP_EXTDATA_RUNE_TURNSLEFT        = 2, // turns left before wearing out
 
     // Heal Tile extdata definitions
     TRAP_EXTDATA_HEALTILE_TURNSLEFT = 0, // turns remaining (0 = permanent)
+    TRAP_EXTDATA_HEALTILE_PALETTE   = 1, // map sprite palette selector
 
     // Toggle Torch extdata definitions
     TRAP_EXTDATA_TOGGLE_TORCH_DURATION = 0, // turns to stay lit when switched on
+    TRAP_EXTDATA_TOGGLE_TORCH_PALETTE  = 1, // map sprite palette selector
 
     // Teleport tile extdata definitions
     TRAP_EXTDATA_TELEPORT_DEST_X = 0,
     TRAP_EXTDATA_TELEPORT_DEST_Y = 1,
+    TRAP_EXTDATA_TELEPORT_PALETTE = 2,
 };
 
 struct Trap
@@ -72,10 +87,12 @@ struct Trap
 void ClearTraps(void);
 struct Trap* GetTrapAt(int x, int y);
 struct Trap* GetTypedTrapAt(int x, int y, int trapType);
+int GetTrapMapSpritePalette(const struct Trap* trap);
+void SetTrapMapSpritePalette(struct Trap* trap, int palette);
 struct Trap* AddTrap(int x, int y, int trapType, int meta);
 struct Trap* AddDamagingTrap(int x, int y, int trapType, int meta, int turnCountdown, int turnInterval, int damage);
 struct Trap* RemoveTrap(struct Trap* trap);
-struct Trap* AddTeleportTile(int x, int y, int destX, int destY);
+struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
 void AddGasTrap(int x, int y, int facing, int turnCountdown, int turnInterval);
@@ -102,20 +119,27 @@ void ResetCountedDownTraps(void);
 void sub_802EA00(void);
 void sub_802EA1C(void);
 void PostTrapExecFlag(void);
-struct Trap* AddLightRune(int x, int y);
+struct Trap* AddLightRune(int x, int y, int palette);
 struct Trap* RemoveLightRune(struct Trap* trap);
 void DecayTraps(void);
 void DisableAllLightRunes(void);
 void EnableAllLightRunes(void);
 struct Trap* GetTrap(int id);
 
-#define TELEPORT_TILE(x, y, destX, destY) \
-    TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), 0
+#define TELEPORT_TILE(x, y, destX, destY, palette) \
+    TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), (palette)
 
 #define TELEPORT_TILE_PAIR(x1, y1, x2, y2) \
-    TELEPORT_TILE((x1), (y1), (x2), (y2)), \
-    TELEPORT_TILE((x2), (y2), (x1), (y1))
-void AddHealTile(int x, int y, int healAmount, int turnsLeft);
-void AddToggleTorch(int x, int y, int duration, int startsLit);
+    TELEPORT_TILE((x1), (y1), (x2), (y2), TRAP_MAPSPRITE_PAL_DEFAULT), \
+    TELEPORT_TILE((x2), (y2), (x1), (y1), TRAP_MAPSPRITE_PAL_DEFAULT)
+
+#define HEAL_TILE(x, y, turnsLeft, palette) \
+    TRAP_HEAL_TILE, (x), (y), (palette), (turnsLeft), 0
+
+#define TOGGLE_TORCH(x, y, duration, startsLit, palette) \
+    TRAP_TOGGLE_TORCH, (x), (y), (startsLit), (duration), (palette)
+
+struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
+struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);
 
 #endif // GUARD_BMTRICK_H

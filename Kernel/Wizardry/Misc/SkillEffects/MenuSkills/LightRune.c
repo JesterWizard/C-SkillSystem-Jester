@@ -63,7 +63,7 @@ static void callback_anim(ProcPtr proc)
 
 static void callback_exec(ProcPtr proc)
 {
-	AddLightRune(gActionData.xOther, gActionData.yOther);
+	AddLightRune(gActionData.xOther, gActionData.yOther, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
 	AddUnitHp(gActiveUnit, -SKILL_EFF0(SID_LightRune));
 }
 

@@ -59,7 +59,7 @@ static void callback_exec(ProcPtr proc)
                 int y = centerY + dy;
                 
                 if (!GetUnitAtPosition(x, y))
-                    AddLightRune(x, y);
+                    AddLightRune(x, y, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
             }
         }
     }
