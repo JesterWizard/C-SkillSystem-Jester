@@ -186,6 +186,16 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = UseUnitSprite(spriteId) - 0x5000 + 0x80;
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        if (trap->type == TRAP_TELEPORT_TILE)
+        {
+            smsHandle = AddUnitSprite(trap->yPos * 16);
+            smsHandle->yDisplay = trap->yPos * 16;
+            smsHandle->xDisplay = trap->xPos * 16;
+
+            smsHandle->oam2Base = UseUnitSprite(0x6C) - 0x5000 + 0x80;
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)

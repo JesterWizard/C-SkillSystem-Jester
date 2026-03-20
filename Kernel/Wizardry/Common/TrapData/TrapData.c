@@ -1,4 +1,40 @@
 #include "common-chax.h"
+#include "action-expa.h"
+#include "debuff.h"
+#include "event-rework.h"
+#include "kernel-lib.h"
+#include "kernel/traps.h"
+
+static void PrepareTeleportTileWarp(void)
+{
+    EndAllMus();
+    RefreshUnitSprites();
+}
+
+static void SetTeleportActorUnit(void)
+{
+    gEventSlots[EVT_SLOT_2] = gActiveUnit->index;
+}
+
+static void SetTeleportDestination(void)
+{
+    gActiveUnit->xPos = gActionData.xMove;
+    gActiveUnit->yPos = gActionData.yMove;
+}
+
+static const EventScr EventScr_PostAction_TeleportTile[] = {
+    EVBIT_MODIFY(0x4)
+    ASMC(PrepareTeleportTileWarp)
+    ASMC(SetTeleportActorUnit)
+    CALL(EventScr_UidWarpOUT)
+    STAL(20)
+    ASMC(SetTeleportDestination)
+    ASMC(SetTeleportActorUnit)
+    CALL(EventScr_UidWarpIN)
+    STAL(20)
+    NOFADE
+    ENDA
+};
 
 LYN_REPLACE_CHECK(LoadTrapData);
 void LoadTrapData(const struct TrapData * data)
@@ -47,6 +83,10 @@ void LoadTrapData(const struct TrapData * data)
 
         case TRAP_TOGGLE_TORCH:
             AddToggleTorch(data->xPos, data->yPos, data->turn_counter, data->subtype);
+            break;
+
+        case TRAP_TELEPORT_TILE:
+            AddTeleportTile(data->xPos, data->yPos, data->subtype, data->turn_counter);
             break;
         }
 
@@ -135,4 +175,61 @@ void AddToggleTorch(int x, int y, int duration, int startsLit)
     trap = AddTrap(x, y, TRAP_TOGGLE_TORCH, 0);
     trap->data[TRAP_EXTDATA_TOGGLE_TORCH_DURATION] = duration;
     trap->extra = startsLit ? duration : 0;
+}
+
+struct Trap* AddTeleportTile(int x, int y, int destX, int destY)
+{
+    struct Trap *trap = AddTrap(x, y, TRAP_TELEPORT_TILE, 0);
+
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_TELEPORT_DEST_X] = destX;
+    trap->data[TRAP_EXTDATA_TELEPORT_DEST_Y] = destY;
+    return trap;
+}
+
+void AddTeleportTilePair(int x1, int y1, int x2, int y2)
+{
+    AddTeleportTile(x1, y1, x2, y2);
+    AddTeleportTile(x2, y2, x1, y1);
+}
+
+bool PostAction_TeleportTile(ProcPtr parent)
+{
+    struct Trap *trap;
+    int destX;
+    int destY;
+
+    if (!UNIT_IS_VALID(gActiveUnit))
+        return false;
+
+    if (gActionData.moveCount <= 0)
+        return false;
+
+    if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
+        return false;
+
+    trap = GetTypedTrapAt(gActiveUnit->xPos, gActiveUnit->yPos, TRAP_TELEPORT_TILE);
+    if (!trap)
+        return false;
+
+    destX = trap->data[TRAP_EXTDATA_TELEPORT_DEST_X];
+    destY = trap->data[TRAP_EXTDATA_TELEPORT_DEST_Y];
+
+    if (destX < 0 || destY < 0 || destX >= gBmMapSize.x || destY >= gBmMapSize.y)
+        return false;
+
+    if ((destX == gActiveUnit->xPos) && (destY == gActiveUnit->yPos))
+        return false;
+
+    if (gBmMapUnit[destY][destX] != 0)
+        return false;
+
+    gActionData.xMove = destX;
+    gActionData.yMove = destY;
+    gActionDataExpa.refrain_action = true;
+
+    KernelCallEvent(EventScr_PostAction_TeleportTile, EV_EXEC_CUTSCENE, parent);
+    return true;
 }

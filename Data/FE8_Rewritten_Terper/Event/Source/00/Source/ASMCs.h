@@ -18,7 +18,10 @@ void SetGameOptions()
 
     SetFlag(0xB4); // Guide Flag
 
-    AddToggleTorch(3, 3, 3, 1);
+    // AddToggleTorch(3, 3, 3, 1);
+
+    AddTeleportTilePair(1, 1, 3, 3);
+    AddTeleportTilePair(5, 5, 9, 5);
 
     // gChapterTimerSeconds = 30;
 

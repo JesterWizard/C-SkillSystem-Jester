@@ -27,6 +27,7 @@ enum
     TRAP_MINE_ASSASSIN = 16,
     TRAP_HEAL_TILE = 17,
     TRAP_TOGGLE_TORCH = 18,
+    TRAP_TELEPORT_TILE = 19,
 };
 
 enum
@@ -49,6 +50,10 @@ enum
 
     // Toggle Torch extdata definitions
     TRAP_EXTDATA_TOGGLE_TORCH_DURATION = 0, // turns to stay lit when switched on
+
+    // Teleport tile extdata definitions
+    TRAP_EXTDATA_TELEPORT_DEST_X = 0,
+    TRAP_EXTDATA_TELEPORT_DEST_Y = 1,
 };
 
 struct Trap
@@ -70,6 +75,8 @@ struct Trap* GetTypedTrapAt(int x, int y, int trapType);
 struct Trap* AddTrap(int x, int y, int trapType, int meta);
 struct Trap* AddDamagingTrap(int x, int y, int trapType, int meta, int turnCountdown, int turnInterval, int damage);
 struct Trap* RemoveTrap(struct Trap* trap);
+struct Trap* AddTeleportTile(int x, int y, int destX, int destY);
+void AddTeleportTilePair(int x1, int y1, int x2, int y2);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
 void AddGasTrap(int x, int y, int facing, int turnCountdown, int turnInterval);
 void AddArrowTrap(int x, int turnCountdown, int turnInterval);
@@ -101,6 +108,13 @@ void DecayTraps(void);
 void DisableAllLightRunes(void);
 void EnableAllLightRunes(void);
 struct Trap* GetTrap(int id);
+
+#define TELEPORT_TILE(x, y, destX, destY) \
+    TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), 0
+
+#define TELEPORT_TILE_PAIR(x1, y1, x2, y2) \
+    TELEPORT_TILE((x1), (y1), (x2), (y2)), \
+    TELEPORT_TILE((x2), (y2), (x1), (y1))
 void AddHealTile(int x, int y, int healAmount, int turnsLeft);
 void AddToggleTorch(int x, int y, int duration, int startsLit);
 

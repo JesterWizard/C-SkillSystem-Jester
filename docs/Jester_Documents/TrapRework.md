@@ -9,11 +9,12 @@
 3. [Trap IDs and Data Model](#trap-ids-and-data-model)
 4. [Chapter-Start Trap Placement](#chapter-start-trap-placement)
 5. [Runtime Trap Placement with ASMC](#runtime-trap-placement-with-asmc)
-6. [Trap Sprite Registration](#trap-sprite-registration)
-7. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-8. [Code Locations](#code-locations)
-9. [TODO](#todo)
-10. [Limitations & Bugs](#limitations--bugs)
+6. [Applying Existing Traps](#applying-existing-traps)
+7. [Trap Sprite Registration](#trap-sprite-registration)
+8. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+9. [Code Locations](#code-locations)
+10. [TODO](#todo)
+11. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -59,6 +60,8 @@ Important extdata examples from this file:
 - `TRAP_EXTDATA_TRAP_TURNFIRST`, `TRAP_EXTDATA_TRAP_TURNNEXT`, `TRAP_EXTDATA_TRAP_COUNTER`, `TRAP_EXTDATA_TRAP_DAMAGE`
 - `TRAP_EXTDATA_RUNE_TURNSLEFT`
 - `TRAP_EXTDATA_HEALTILE_TURNSLEFT`
+- `TRAP_EXTDATA_TOGGLE_TORCH_DURATION`
+- `TRAP_EXTDATA_TELEPORT_DEST_X`, `TRAP_EXTDATA_TELEPORT_DEST_Y`
 
 ### LoadTrapData in TrapData.c
 
@@ -72,6 +75,8 @@ File: `Kernel/Wizardry/Common/TrapData/TrapData.c`
 - `TRAP_LIGHTARROW` -> `AddArrowTrap(...)`
 - `TRAP_GORGON_EGG` -> `AddGorgonEggTrap(...)`
 - `TRAP_HEAL_TILE` -> `AddHealTile(...)`
+- `TRAP_TOGGLE_TORCH` -> `AddToggleTorch(...)`
+- `TRAP_TELEPORT_TILE` -> `AddTeleportTile(...)`
 
 When adding a new trap type that needs special initialization, add a `case` here.
 
@@ -163,8 +168,75 @@ Recommended pattern for custom runtime trap setup:
 2. Inside it, call one of:
 - `AddTrap(x, y, trapType, meta)`
 - `AddHealTile(x, y, healAmount, turnsLeft)`
+- `AddToggleTorch(x, y, duration, startsLit)`
+- `AddTeleportTile(x, y, destX, destY)`
+- `AddTeleportTilePair(x1, y1, x2, y2)`
 - other trap-specific constructors
 3. Call that function from event script via `ASMC(YourFunctionName)`.
+
+## Applying Existing Traps
+
+This section covers the contributor-facing workflow for traps that already exist in the rework.
+
+### Runtime usage from ASMC
+
+For event-driven trap placement, call the trap constructor directly inside your ASMC C function.
+
+| Trap | Runtime call | What the parameters mean |
+|--------|----------|-------------|
+| Heal tile | `AddHealTile(x, y, healAmount, turnsLeft)` | Place a healing tile at `(x, y)` with a heal amount and optional lifetime |
+| Toggle torch | `AddToggleTorch(x, y, duration, startsLit)` | Place a torch tile at `(x, y)` with a lit duration and initial lit state |
+| Teleport tile pair | `AddTeleportTilePair(x1, y1, x2, y2)` | Create two linked teleport tiles, one at each coordinate pair |
+| One-way teleport tile | `AddTeleportTile(x, y, destX, destY)` | Create a single teleport tile that sends units from `(x, y)` to `(destX, destY)` |
+
+Runtime example from chapter ASMC code:
+
+```c
+void SetGameOptions()
+{
+    AddTeleportTilePair(1, 1, 3, 3);
+    AddTeleportTilePair(5, 5, 9, 5);
+}
+```
+
+For warp tiles specifically, use `AddTeleportTilePair` with two coordinate pairs.
+
+- The first pair is the first tile's map position.
+- The second pair is the linked destination tile's map position.
+- The helper creates both trap entries automatically.
+
+Example:
+
+```c
+AddTeleportTilePair(1, 1, 3, 3);
+```
+
+This creates:
+
+- a teleport tile at `(1, 1)` that sends the unit to `(3, 3)`
+- a teleport tile at `(3, 3)` that sends the unit back to `(1, 1)`
+
+### Chapter-start usage in TrapData arrays
+
+For chapter-start trap placement, use the trap table helpers from `bmtrick.h` instead of manually counting bytes for teleport entries.
+
+Example:
+
+```c
+static const u8 TrapData_ThisEvent[] = {
+    TELEPORT_TILE_PAIR(1, 1, 3, 3),
+    TELEPORT_TILE_PAIR(5, 5, 9, 5),
+    TRAP_NONE
+};
+```
+
+Use `TELEPORT_TILE(x, y, destX, destY)` if you want one-way behavior in the chapter trap table.
+
+Practical rule:
+
+- Use `AddTeleportTilePair(...)` when spawning paired warp tiles from ASMC code.
+- Use `TELEPORT_TILE_PAIR(...)` when placing paired warp tiles in chapter startup trap arrays.
+- Use the single-tile variants only when you intentionally want one-way teleport behavior.
 
 ## Trap Sprite Registration
 
@@ -255,19 +327,13 @@ Implementation notes:
 | Chapter trap declaration | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h` | Defines startup trap arrays for normal/hard modes |
 | Chapter trap binding | `Data/FE8_Rewritten_Terper/Event/Source/00/00.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
 | Event ASMC call site | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Events.h` | Invokes ASMC function during chapter event flow |
-| ASMC runtime trap spawn | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example `AddHealTile(...)` runtime trap creation |
+| ASMC runtime trap spawn | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime trap creation with `AddTeleportTilePair(...)` |
+| Teleport trap helpers | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TELEPORT_TILE`, `TELEPORT_TILE_PAIR`, and teleport trap extdata |
+| Teleport trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
 | Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list |
 
 ## TODO
 
-- Add a shared helper API for runtime trap spawns with clear event-slot parameter conventions.
-- Standardize sprite ID constants for trap visuals (instead of ad-hoc numeric literals).
-- Add one chapter example that demonstrates all 6 trap data bytes being used.
 - Document removal/update workflows for runtime traps (remove, replace, refresh behavior).
 
 ## Limitations & Bugs
-
-- New trap IDs need integration in multiple places (enum, loader, render path), so partial setups can silently fail.
-- `RefreshUnitSprites` currently uses hardcoded sprite IDs and oam2 offsets for some trap types; mismatches can cause wrong tiles or invisible sprites.
-- Trap array entries are raw byte sequences; malformed ordering is easy to introduce without compile-time checks.
-- Not all trap types require or interpret extdata bytes the same way; reusing fields without explicit conventions can cause behavior conflicts.
