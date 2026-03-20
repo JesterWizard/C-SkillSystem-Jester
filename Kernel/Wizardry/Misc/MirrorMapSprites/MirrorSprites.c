@@ -174,6 +174,18 @@ void RefreshUnitSprites(void)
 
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        if (trap->type == TRAP_TOGGLE_TORCH)
+        {
+            int spriteId = (trap->extra > 0) ? 0x6A : 0x6B;
+
+            smsHandle = AddUnitSprite(trap->yPos * 16);
+            smsHandle->yDisplay = trap->yPos * 16;
+            smsHandle->xDisplay = trap->xPos * 16;
+
+            smsHandle->oam2Base = UseUnitSprite(spriteId) - 0x5000 + 0x80;
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)

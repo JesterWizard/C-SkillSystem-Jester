@@ -1851,6 +1851,7 @@ void SwitchPhases(void)
 LYN_REPLACE_CHECK(RefreshUnitsOnBmMap);
 void RefreshUnitsOnBmMap(void) {
     struct Unit* unit;
+    struct Trap* trap;
     int i;
 
     // 1. Blue & Green units
@@ -1889,6 +1890,18 @@ void RefreshUnitsOnBmMap(void) {
             } else {
                 MapAddInRange(unit->xPos, unit->yPos, GetUnitFogViewRange(unit) + fogBoost, 1);
             }
+        }
+    }
+
+    if (gPlaySt.chapterVisionRange) {
+        for (trap = GetTrap(0); trap->type != TRAP_NONE; ++trap) {
+            if (trap->type != TRAP_TOGGLE_TORCH)
+                continue;
+
+            if (trap->extra <= 0)
+                continue;
+
+            MapAddInRange(trap->xPos, trap->yPos, 5, 1);
         }
     }
 

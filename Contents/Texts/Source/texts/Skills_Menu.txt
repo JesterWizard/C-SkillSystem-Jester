@@ -601,6 +601,12 @@ away once per map.[X]
 Retreat into an ally who's[N]
 AID >= the unit's CON.[X]
 
+## MSG_MenuCommand_Interact_NAME
+ Interact[X]
+## MSG_MenuCommand_Interact_DESC
+Interact with an adjacent object[N]
+to produce an effect.[X]
+
 ## MSG_SKILL_Replicate_NAME
 Replicate[X]
 ## MSG_SKILL_Replicate_DESC

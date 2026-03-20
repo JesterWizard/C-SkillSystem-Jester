@@ -26,6 +26,7 @@ enum
     TRAP_FIRE_THIEF = 15,
     TRAP_MINE_ASSASSIN = 16,
     TRAP_HEAL_TILE = 17,
+    TRAP_TOGGLE_TORCH = 18,
 };
 
 enum
@@ -45,6 +46,9 @@ enum
 
     // Heal Tile extdata definitions
     TRAP_EXTDATA_HEALTILE_TURNSLEFT = 0, // turns remaining (0 = permanent)
+
+    // Toggle Torch extdata definitions
+    TRAP_EXTDATA_TOGGLE_TORCH_DURATION = 0, // turns to stay lit when switched on
 };
 
 struct Trap
@@ -97,7 +101,7 @@ void DecayTraps(void);
 void DisableAllLightRunes(void);
 void EnableAllLightRunes(void);
 struct Trap* GetTrap(int id);
+void AddHealTile(int x, int y, int healAmount, int turnsLeft);
+void AddToggleTorch(int x, int y, int duration, int startsLit);
 
 #endif // GUARD_BMTRICK_H
-
-void AddHealTile(int x, int y, int healAmount, int turnsLeft);

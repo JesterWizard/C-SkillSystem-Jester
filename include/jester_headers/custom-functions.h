@@ -229,6 +229,3 @@ struct CharacterBiography
     u8 songId;
     struct BiographyEntry entries[4];
 };
-
-/* Custom Trap Images */
-extern u8 Gfx_Heal_Tile[];

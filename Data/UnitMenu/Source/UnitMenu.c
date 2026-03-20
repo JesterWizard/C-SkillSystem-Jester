@@ -16,6 +16,9 @@ extern u8 GambitSelectMenu_Effect(struct MenuProc * menu, struct MenuItemProc * 
 extern int GambitSelectMenu_Hover(struct MenuProc * menu, struct MenuItemProc * menuItem);
 extern int GambitSelectMenu_Unhover(struct MenuProc * menu, struct MenuItemProc * menuItem);
 
+extern u8 InteractCommandUsability(const struct MenuItemDef *def, int number);
+extern u8 InteractCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
+
 u8 pr_CombatArtActionCommandUsability(const struct MenuItemDef *def, int number);
 int pr_CombatArtActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *item);
 u8 pr_CombatArtActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
@@ -251,6 +254,7 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　かぎ開", 0x694, 0x6DE, 0, 0x59, PickCommandUsability, 0, PickCommandEffect, 0, 0, 0}, // Pick >
 #endif
 
+	{" Interact", MSG_MenuCommand_Interact_NAME, MSG_MenuCommand_Interact_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x79, InteractCommandUsability, 0, InteractCommandEffect, 0, 0, 0}, // Interact with adjacent object
 	{"　話す", 0x680, 0x6C9, 0, 0x5A, TalkCommandUsability, 0, TalkCommandEffect, 0, 0, 0}, // Talk >
 	{"　支援", 0x681, 0x6CA, 0, 0x5B, SupportCommandUsability, 0, SupportCommandEffect, 0, 0, 0}, // Support
 	{"　訪問", 0x682, 0x6CB, 0, 0x5C, VisitCommandUsability, 0, VisitCommandEffect, 0, 0, 0}, // Visit

@@ -18,7 +18,7 @@ void SetGameOptions()
 
     SetFlag(0xB4); // Guide Flag
 
-    AddHealTile(3, 3, 10, 2);
+    AddToggleTorch(3, 3, 3, 1);
 
     // gChapterTimerSeconds = 30;
 

@@ -44,6 +44,10 @@ void LoadTrapData(const struct TrapData * data)
         case TRAP_HEAL_TILE:
             AddHealTile(data->xPos, data->yPos, 10, data->turn_counter);
             break;
+
+        case TRAP_TOGGLE_TORCH:
+            AddToggleTorch(data->xPos, data->yPos, data->turn_counter, data->subtype);
+            break;
         }
 
         data++;
@@ -105,6 +109,12 @@ void DecayTraps(void)
 
             break;
 
+        case TRAP_TOGGLE_TORCH:
+            if (trap->extra > 0)
+                trap->extra--;
+
+            break;
+
         } // switch (trap->type)
     }
 }
@@ -113,4 +123,16 @@ void AddHealTile(int x, int y, int healAmount, int turnsLeft)
 {
     struct Trap* trap = AddTrap(x, y, TRAP_HEAL_TILE, healAmount);
     trap->data[TRAP_EXTDATA_HEALTILE_TURNSLEFT] = turnsLeft;
+}
+
+void AddToggleTorch(int x, int y, int duration, int startsLit)
+{
+    struct Trap *trap;
+
+    if (duration <= 0)
+        duration = 3;
+
+    trap = AddTrap(x, y, TRAP_TOGGLE_TORCH, 0);
+    trap->data[TRAP_EXTDATA_TOGGLE_TORCH_DURATION] = duration;
+    trap->extra = startsLit ? duration : 0;
 }
