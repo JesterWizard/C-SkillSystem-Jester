@@ -152,7 +152,7 @@ void RefreshUnitSprites(void)
             smsHandle->config = GetInfo(0x5b).size;
         }
 
-        if (trap->type == 0xd)
+        if (trap->type == TRAP_LIGHT_RUNE)
         {
             smsHandle = AddUnitSprite(trap->yPos * 16);
             smsHandle->yDisplay = trap->yPos * 16;
@@ -161,6 +161,18 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = UseUnitSprite(0x66) - 0x5000 + 0x80;
 
             smsHandle->config = GetInfo(0x66).size;
+        }
+
+        if (trap->type == TRAP_HEAL_TILE)
+        {
+            smsHandle = AddUnitSprite(trap->yPos * 16);
+            smsHandle->yDisplay = trap->yPos * 16;
+            smsHandle->xDisplay = trap->xPos * 16;
+
+            /* TODO: replace 0x66 with the heal tile sprite index once art is loaded */
+            smsHandle->oam2Base = UseUnitSprite(0x68) - 0x5000 + 0x80;
+
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }
 

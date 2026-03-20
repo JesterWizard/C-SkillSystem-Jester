@@ -18,6 +18,8 @@ void SetGameOptions()
 
     SetFlag(0xB4); // Guide Flag
 
+    AddHealTile(3, 3, 10, 2);
+
     // gChapterTimerSeconds = 30;
 
     // gPlaySt.partyGoldAmount = 600000;

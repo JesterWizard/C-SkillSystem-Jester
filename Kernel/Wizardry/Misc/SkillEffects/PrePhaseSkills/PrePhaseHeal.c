@@ -162,10 +162,12 @@ void MakeTerrainHealTargetList(int faction)
 
 		if (GetUnitCurrentHp(unit) != GetUnitMaxHp(unit)) {
 			/* Heal */
+			struct Trap* htrap = GetTypedTrapAt(unit->xPos, unit->yPos, TRAP_HEAL_TILE);
 			int terrain_heal = Div(GetTerrainHealAmount(terrainId) * GetUnitMaxHp(unit), 100);
-			int skill_heal = GetPrePhaseHealAmount(unit);
+			int skill_heal   = GetPrePhaseHealAmount(unit);
+			int trap_heal    = htrap ? htrap->extra : 0;
 
-			amount = terrain_heal + skill_heal;
+			amount = terrain_heal + skill_heal + trap_heal;
 			if (amount != 0)
 				AddTarget(unit->xPos, unit->yPos, unit->index, amount);
 		}

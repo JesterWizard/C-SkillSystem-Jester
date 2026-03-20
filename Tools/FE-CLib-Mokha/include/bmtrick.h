@@ -25,6 +25,7 @@ enum
     TRAP_14         = 14,
     TRAP_FIRE_THIEF = 15,
     TRAP_MINE_ASSASSIN = 16,
+    TRAP_HEAL_TILE = 17,
 };
 
 enum
@@ -40,7 +41,10 @@ enum
     TRAP_EXTDATA_TRAP_DAMAGE    = 3, // trap damage (needs confirmation)
 
     // Light Rune extdata definitions
-    TRAP_EXTDATA_RUNE_TURNSLEFT        = 2, // turns left beofre wearing out
+    TRAP_EXTDATA_RUNE_TURNSLEFT        = 2, // turns left before wearing out
+
+    // Heal Tile extdata definitions
+    TRAP_EXTDATA_HEALTILE_TURNSLEFT = 0, // turns remaining (0 = permanent)
 };
 
 struct Trap
@@ -95,3 +99,5 @@ void EnableAllLightRunes(void);
 struct Trap* GetTrap(int id);
 
 #endif // GUARD_BMTRICK_H
+
+void AddHealTile(int x, int y, int healAmount, int turnsLeft);

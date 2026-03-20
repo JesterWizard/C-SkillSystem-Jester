@@ -20,6 +20,7 @@ KERNEL_DATA_START:
 #include "Common/ItemSys/ItemSysData.event"
 #include "Common/FogVision/FogVision_Installer.event"
 #include "Common/KillRewards/KillRewards.lyn.event"
+#include "Common/TrapData/TrapData_Installer.event"
 
 #include "Core/BattleSys/data.event"
 #include "Core/MapTask/data.event"

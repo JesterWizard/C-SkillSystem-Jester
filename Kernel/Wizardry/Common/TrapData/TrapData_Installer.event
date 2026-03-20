@@ -1,0 +1,67 @@
+#include "LynJump.event"
+#include "TrapData.lyn.event"
+
+/* Heal Tile */
+#define Gfx_Heal_Tile_ID 0x68
+
+Gfx_Heal_Tile:
+#incext Png2Dmp "images/Heal_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Heal_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Heal_Tile
+POP
+
+/* Dragon Vein Tile */
+#define Gfx_Dragon_Vein_Tile_ID 0x69
+
+Gfx_Dragon_Vein_Tile:
+#incext Png2Dmp "images/Dragon_Vein_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Dragon_Vein_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Dragon_Vein_Tile
+POP
+
+/* Lit Torch Tile*/
+#define Gfx_Lit_Torch_ID 0x6A
+
+Gfx_Lit_Torch:
+#incext Png2Dmp "images/Lit_Torch_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Lit_Torch_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Lit_Torch
+POP
+
+/* Unlit Torch Tile */
+#define Gfx_Unlit_Torch_ID 0x6B
+
+Gfx_Unlit_Torch:
+#incext Png2Dmp "images/Unlit_Torch_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Unlit_Torch_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Unlit_Torch
+POP
+
+/* Teleport Tile */
+#define Gfx_Teleport_Tile_ID 0x6C
+
+Gfx_Teleport_Tile:
+#incext Png2Dmp "images/Teleport_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Teleport_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Teleport_Tile
+POP
