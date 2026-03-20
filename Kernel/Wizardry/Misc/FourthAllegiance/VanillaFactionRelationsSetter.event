@@ -1,3 +1,12 @@
+// Keep this file self-contained so it does not rely on macros from other installers.
+#ifndef TRUE
+	#define TRUE 1
+#endif
+
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
 PUSH
 ORG 0x8B08B6
 FactionRelations( /* Blue Units */ TRUE, TRUE, FALSE, FALSE, /* Green Units */ TRUE, TRUE, FALSE, FALSE, /* Red Units */ FALSE, FALSE, TRUE, FALSE, /* Purple Units */ FALSE, FALSE, FALSE, TRUE) // Blue, Green, Red, Gray

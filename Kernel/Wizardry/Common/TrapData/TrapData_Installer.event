@@ -56,8 +56,8 @@ POP
 /* Teleport Tile */
 #define Gfx_Teleport_Tile_ID 0x6C
 
-Gfx_Teleport_Tile:
-#incext Png2Dmp "images/Teleport_Tile.png" --lz77
+Gfx_Teleport_Tile: #incext Png2Dmp "images/Teleport_Tile.png" --lz77
+// Pal_Teleport_Tile: #incext Png2Dmp "images/Teleport_Tile.png" --palette-only
 
 PUSH
 	ORG (0x8AF880+0x8*Gfx_Teleport_Tile_ID)

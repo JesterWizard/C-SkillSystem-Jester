@@ -4,8 +4,9 @@
 
 PUSH
 
-ORG 0x59EEC0 
-BYTE $90 $42 $0B $35 $B5 $76 $9C $7F $8F $29 $38 $26 $FF $67 $0B $31 $90 $49 $77 $72 $1A $7F $5D $0C $FF $17 $30 $3A $FF $7F $A9 $20
+// Grey palette for forth allegiance (also light rune palette)
+// ORG 0x59EEC0 
+// BYTE $90 $42 $0B $35 $B5 $76 $9C $7F $8F $29 $38 $26 $FF $67 $0B $31 $90 $49 $77 $72 $1A $7F $5D $0C $FF $17 $30 $3A $FF $7F $A9 $20
 
 ORG 0x30E3C
 BYTE 0xC0 // Makes turn 0 start on Neutral Phase, so it can properly switch to player phase on turn 1
