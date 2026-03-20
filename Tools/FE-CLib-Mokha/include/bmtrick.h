@@ -28,6 +28,7 @@ enum
     TRAP_HEAL_TILE = 17,
     TRAP_TOGGLE_TORCH = 18,
     TRAP_TELEPORT_TILE = 19,
+    TRAP_GRASS_TILE = 20,
 };
 
 enum
@@ -94,6 +95,7 @@ struct Trap* AddDamagingTrap(int x, int y, int trapType, int meta, int turnCount
 struct Trap* RemoveTrap(struct Trap* trap);
 struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
+struct Trap* AddGrassTile(int x, int y);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
 void AddGasTrap(int x, int y, int facing, int turnCountdown, int turnInterval);
 void AddArrowTrap(int x, int turnCountdown, int turnInterval);
@@ -125,6 +127,7 @@ void DecayTraps(void);
 void DisableAllLightRunes(void);
 void EnableAllLightRunes(void);
 struct Trap* GetTrap(int id);
+int GetEffectiveTerrainAt(int x, int y);
 
 #define TELEPORT_TILE(x, y, destX, destY, palette) \
     TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), (palette)
@@ -138,6 +141,9 @@ struct Trap* GetTrap(int id);
 
 #define TOGGLE_TORCH(x, y, duration, startsLit, palette) \
     TRAP_TOGGLE_TORCH, (x), (y), (startsLit), (duration), (palette)
+
+#define GRASS_TILE(x, y) \
+    TRAP_GRASS_TILE, (x), (y), 0, 0, 0
 
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);

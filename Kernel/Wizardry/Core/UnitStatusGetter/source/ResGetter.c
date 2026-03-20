@@ -6,6 +6,7 @@
 #include "unit-expa.h"
 #include "debuff.h"
 #include "jester_headers/custom-functions.h"
+#include "kernel/traps.h"
 
 int _GetUnitResistance(struct Unit *unit)
 {
@@ -14,7 +15,7 @@ int _GetUnitResistance(struct Unit *unit)
 
     if (gpKernelDesignerConfig->display_terrain_bonuses_in_stat_screen == true)
     {
-	    int terrainID = GetTrueTerrainAt(unit->xPos, unit->yPos);
+	    int terrainID = GetEffectiveTerrainAt(unit->xPos, unit->yPos);
 	    status += unit->pClassData->pTerrainResistanceLookup[terrainID];
     }
 

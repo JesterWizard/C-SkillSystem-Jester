@@ -57,11 +57,23 @@ POP
 #define Gfx_Teleport_Tile_ID 0x6C
 
 Gfx_Teleport_Tile: #incext Png2Dmp "images/Teleport_Tile.png" --lz77
-// Pal_Teleport_Tile: #incext Png2Dmp "images/Teleport_Tile.png" --palette-only
 
 PUSH
 	ORG (0x8AF880+0x8*Gfx_Teleport_Tile_ID)
 		SHORT 0x0002
 		SHORT 0x0000
 		POIN Gfx_Teleport_Tile
+POP
+
+/* Grass Tile */
+#define Gfx_Grass_Tile_ID 0x6D
+
+Gfx_Grass_Tile: #incext Png2Dmp "images/Grass_Tile.png" --lz77
+Pal_Grass_Tile: #incext Png2Dmp "images/Grass_Tile.png" --palette-only
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Grass_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Grass_Tile
 POP

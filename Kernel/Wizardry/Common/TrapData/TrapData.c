@@ -64,6 +64,9 @@ int GetTrapMapSpritePalette(const struct Trap *trap)
     case TRAP_TELEPORT_TILE:
         return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_TELEPORT_PALETTE]);
 
+    case TRAP_GRASS_TILE:
+        return TRAP_MAPSPRITE_PAL_DEFAULT;
+
     default:
         return TRAP_MAPSPRITE_PAL_DEFAULT;
     }
@@ -94,7 +97,18 @@ void SetTrapMapSpritePalette(struct Trap *trap, int palette)
     case TRAP_TELEPORT_TILE:
         trap->data[TRAP_EXTDATA_TELEPORT_PALETTE] = sanitizedPalette;
         break;
+
+    case TRAP_GRASS_TILE:
+        break;
     }
+}
+
+int GetEffectiveTerrainAt(int x, int y)
+{
+    if (GetTypedTrapAt(x, y, TRAP_GRASS_TILE))
+        return TERRAIN_FOREST;
+
+    return GetTrueTerrainAt(x, y);
 }
 
 LYN_REPLACE_CHECK(LoadTrapData);
@@ -148,6 +162,10 @@ void LoadTrapData(const struct TrapData * data)
 
         case TRAP_TELEPORT_TILE:
             AddTeleportTile(data->xPos, data->yPos, data->subtype, data->turn_counter, data->turn);
+            break;
+
+        case TRAP_GRASS_TILE:
+            AddGrassTile(data->xPos, data->yPos);
             break;
         }
 
@@ -234,6 +252,11 @@ struct Trap *AddHealTile(int x, int y, int healAmount, int turnsLeft, int palett
     return trap;
 }
 
+struct Trap *AddGrassTile(int x, int y)
+{
+    return AddTrap(x, y, TRAP_GRASS_TILE, 0);
+}
+
 struct Trap *AddToggleTorch(int x, int y, int duration, int startsLit, int palette)
 {
     struct Trap *trap;
@@ -274,6 +297,7 @@ void AddTeleportTilePair(int x1, int y1, int x2, int y2)
     AddTeleportTile(x2, y2, x1, y1, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
 }
 
+LYN_REPLACE_CHECK(AddLightRune);
 struct Trap *AddLightRune(int x, int y, int palette)
 {
     struct Trap *trap = sVanillaAddLightRune(x, y);

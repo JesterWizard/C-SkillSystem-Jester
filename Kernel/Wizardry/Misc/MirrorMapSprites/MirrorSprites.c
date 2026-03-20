@@ -8,6 +8,9 @@ extern struct SMSHandle gSMSHandleArray[100];
 extern struct SMSHandle* gSMSHandleIt;
 
 extern u32 gMirrorSpriteOptions;
+extern u16 Pal_Grass_Tile[];
+
+#define GRASS_TRAP_OBJ_PAL 9
 
 enum {
 	FLIP_PLAYER = 0x1,
@@ -57,6 +60,11 @@ static u16 ApplyTrapSpritePalette(u16 oam2Base, const struct Trap *trap)
     }
 }
 
+static u16 ApplyGrassTrapSpritePalette(u16 oam2Base)
+{
+    return (oam2Base & 0x0FFF) | (GRASS_TRAP_OBJ_PAL << 12);
+}
+
 LYN_REPLACE_CHECK(RefreshUnitSprites);
 void RefreshUnitSprites(void)
 {
@@ -73,6 +81,8 @@ void RefreshUnitSprites(void)
     gSMSHandleIt->yDisplay = 0x400;
 
     gSMSHandleIt = &gSMSHandleArray[1];
+
+    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     for (i = 1; i < 0xD0; i++)
@@ -224,6 +234,18 @@ void RefreshUnitSprites(void)
             smsHandle->xDisplay = trap->xPos * 16;
 
             smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
+
+        if (trap->type == TRAP_GRASS_TILE)
+        {
+            oam2 = UseUnitSprite(0x6D) - 0x5000 + 0x80;
+
+            smsHandle = AddUnitSprite(trap->yPos * 16);
+            smsHandle->yDisplay = trap->yPos * 16;
+            smsHandle->xDisplay = trap->xPos * 16;
+
+            smsHandle->oam2Base = ApplyGrassTrapSpritePalette(oam2);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }

@@ -3,6 +3,7 @@
 #include "class-types.h"
 #include "constants/skills.h"
 #include "battle-system.h"
+#include "kernel/traps.h"
 
 STATIC_DECLAR const struct ClassData *GetJInfoForTerrainBonus(struct Unit *unit)
 {
@@ -48,14 +49,14 @@ void SetBattleUnitTerrainBonuses(struct BattleUnit *bu, int terrain)
 LYN_REPLACE_CHECK(SetBattleUnitTerrainBonusesAuto);
 void SetBattleUnitTerrainBonusesAuto(struct BattleUnit *bu)
 {
-	SetBattleUnitTerrainBonuses(bu, gBmMapTerrain[bu->unit.yPos][bu->unit.xPos]);
+	SetBattleUnitTerrainBonuses(bu, GetEffectiveTerrainAt(bu->unit.xPos, bu->unit.yPos));
 }
 
 LYN_REPLACE_CHECK(AiGetTerrainCombatPositionScoreComponent);
 int AiGetTerrainCombatPositionScoreComponent(int x, int y)
 {
 	const struct ClassData *jinfo = GetJInfoForTerrainBonus(gActiveUnit);
-	int terrainId = gBmMapTerrain[y][x];
+	int terrainId = GetEffectiveTerrainAt(x, y);
 
 	return jinfo->pTerrainAvoidLookup[terrainId]
 		 + jinfo->pTerrainDefenseLookup[terrainId]
