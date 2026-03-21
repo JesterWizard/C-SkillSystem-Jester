@@ -6,7 +6,7 @@
 
 extern u16 ModularMinimugBox_TileMap[];
 #define MMBHeight 6
-#define MMBWidth 14
+#define MMBWidth 16
 
 static const char* fe8_names[] = {
     "Eirika", "Seth", "Franz", "Gilliam", "Moulder", "Vanessa", "Ross", "Garcia", "Neimi", "Colm", "Lute", "Artur",
@@ -17,7 +17,8 @@ static const char* fe8_names[] = {
     "Valter", "Fado", "Lyon"
 };
 
-static const s8 sMMBSlideInLut[2][4] = { {6, 10, 13, 14}, {5, 9, 11, 13} };
+static const s8 sMMBSlideInLut[2][4] = { {8, 12, 14, 16}, {7, 11, 14, 16} };
+static const s8 sMMBSlideOutLut[3] = { 12, 8, 4 };
 
 static void GetDigits(int val, u8* d) {
     StoreNumberStringOrDashesToSmallBuffer(val);
@@ -31,6 +32,19 @@ static void DrawDigits(int x, int y, int count, u8* d) {
         u16 tile = (count == 2 && d[0] > 0 && i < 2) ? 0x2EA : (d[i] + 0x2E0);
         CallARM_PushToSecondaryOAM(x + (i * 7), y, gObject_8x8, OAM2_CHR(tile) + OAM2_PAL(8));
     }
+}
+
+static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
+    if (alt) {
+        UnpackUiFramePalette(3);
+        return;
+    }
+
+    ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
+}
+
+static int GetMMBBaseX(struct PlayerInterfaceProc *proc) {
+    return (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0) ? 0 : (30 - MMBWidth);
 }
 
 LYN_REPLACE_CHECK(ClearUnitMapUiStatus);
@@ -101,7 +115,7 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
         proc->statusTm = gUiTmScratchA + TILEMAP_INDEX(5, 3);
         proc->unitClock = 0;
         CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
-        ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
+        ApplyMMBFramePalette(unit, alt);
         return;
     }
 
@@ -130,7 +144,7 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     UnitMapUiUpdate(proc, unit);
     if (!alt) DrawHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1));
     CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
-    ApplyUnitMapUiFramePal(UNIT_FACTION(unit), 3);
+    ApplyMMBFramePalette(unit, alt);
 }
 
 static bool IsUnitFogStage2(struct Unit* cu) {
@@ -139,12 +153,11 @@ static bool IsUnitFogStage2(struct Unit* cu) {
 }
 
 static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
-    bool alt = gpKernelDesignerConfig->mp_system;
     bool exp = gpKernelDesignerConfig->expanded_hp;
-    int adj = (!alt || exp) ? 0 : 1;
     int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;
-    int xOff = sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0 ? 0 : 17;
-    int width = out ? sMMBSlideOutWidthLut[proc->showHideClock] : sMMBSlideInLut[!exp][proc->showHideClock];
+    int baseX = GetMMBBaseX(proc);
+    bool left = (baseX == 0);
+    int width = out ? sMMBSlideOutLut[proc->showHideClock] : sMMBSlideInLut[!exp][proc->showHideClock];
 
     if (out) {
         proc->hideContents = true;
@@ -159,20 +172,26 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
         proc->hideContents = IsUnitFogStage2(cu);
     }
 
-    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(xOff, y), MMBWidth - adj, MMBHeight, 0);
-    TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(xOff, y), MMBWidth - adj, MMBHeight, 0);
+    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(baseX, y), MMBWidth, MMBHeight, 0);
+    TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(baseX, y), MMBWidth, MMBHeight, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 
     u16 *srcA = gUiTmScratchA, *srcB = gUiTmScratchB;
-    int destX = (xOff == 0) ? 0 : 30 - width;
-    if (xOff == 0) { srcA += (MMBWidth - width - adj); srcB += (MMBWidth - width - adj); }
+    int destX = left ? 0 : 30 - width;
+    if (left) { srcA += (MMBWidth - width); srcB += (MMBWidth - width); }
 
     TileMap_CopyRect(srcA, gBG0TilemapBuffer + TILEMAP_INDEX(destX, y), width, MMBHeight);
     TileMap_CopyRect(srcB, gBG1TilemapBuffer + TILEMAP_INDEX(destX, y), width, MMBHeight);
 
     if (++proc->showHideClock == (out ? 3 : 4)) {
         proc->showHideClock = 0;
-        if (out) { proc->isRetracting = false; proc->windowQuadrant = -1; }
+        if (out) {
+            TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(baseX, y), MMBWidth, MMBHeight, 0);
+            TileMap_FillRect(gBG1TilemapBuffer + TILEMAP_INDEX(baseX, y), MMBWidth, MMBHeight, 0);
+            BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+            proc->isRetracting = false;
+            proc->windowQuadrant = -1;
+        }
         else {
             struct Unit* cu = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
             proc->hideContents = IsUnitFogStage2(cu);
