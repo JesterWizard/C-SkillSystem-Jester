@@ -14,6 +14,7 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 	FORCE_DECLARE bool FlierFormation_activated;
 	FORCE_DECLARE bool SoaringWings_activated;
 	FORCE_DECLARE bool self_flier;
+	FORCE_DECLARE bool ai_spin_tile_barrier;
 
 	struct Unit *unit;
 	struct Trap *trap;
@@ -42,6 +43,7 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 	unit = GetUnit(gMovMapFillState.unitId);
 
 	self_flier = CheckClassFlier(UNIT_CLASS_ID(unit));
+	ai_spin_tile_barrier = !self_flier && (UNIT_FACTION(unit) != FACTION_BLUE);
 	Aerobatics_activated = false;
 	FlierFormation_activated = false;
 	SoaringWings_activated = false;
@@ -230,7 +232,16 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 
 	if (!(UNIT_CATTRIBUTES(unit) & CA_FLYER)) {
 		for (trap = GetTrap(0); trap->type != TRAP_NONE; ++trap) {
-			if (trap->type != TRAP_BOULDER_TILE)
+			if (trap->type == TRAP_BOULDER_TILE) {
+				if (!IsPositionValid(trap->xPos, trap->yPos))
+					continue;
+
+				KernelExtMoveBarrierMap[trap->yPos][trap->xPos] = -1;
+				KernelMoveMapFlags |= FMOVSTRE_BARRIER;
+				continue;
+			}
+
+			if (!ai_spin_tile_barrier || trap->type != TRAP_SPIN_TILE)
 				continue;
 
 			if (!IsPositionValid(trap->xPos, trap->yPos))
