@@ -38,6 +38,17 @@ static const EventScr EventScr_PostAction_TeleportTile[] = {
 
 static struct Trap *(*const sVanillaAddLightRune)(int x, int y) = (void *) 0x0802EA59;
 
+static struct Trap *RemoveGrassTile(struct Trap *trap)
+{
+    if (!trap || trap->type != TRAP_GRASS_TILE)
+        return trap;
+
+    if (IsPositionValid(trap->xPos, trap->yPos))
+        gBmMapTerrain[trap->yPos][trap->xPos] = trap->extra;
+
+    return RemoveTrap(trap);
+}
+
 static int SanitizeTrapMapSpritePalette(int palette)
 {
     if (palette < TRAP_MAPSPRITE_PAL_DEFAULT || palette > TRAP_MAPSPRITE_PAL_GREY)
@@ -165,7 +176,7 @@ void LoadTrapData(const struct TrapData * data)
             break;
 
         case TRAP_GRASS_TILE:
-            AddGrassTile(data->xPos, data->yPos);
+            AddGrassTile(data->xPos, data->yPos, data->turn_counter);
             break;
         }
 
@@ -234,6 +245,20 @@ void DecayTraps(void)
 
             break;
 
+        case TRAP_GRASS_TILE:
+            if (trap->data[TRAP_EXTDATA_GRASS_TILE_TURNSLEFT] > 0)
+            {
+                trap->data[TRAP_EXTDATA_GRASS_TILE_TURNSLEFT]--;
+
+                if (trap->data[TRAP_EXTDATA_GRASS_TILE_TURNSLEFT] == 0)
+                {
+                    RemoveGrassTile(trap);
+                    trap--;
+                }
+            }
+
+            break;
+
         } // switch (trap->type)
     }
 }
@@ -252,9 +277,32 @@ struct Trap *AddHealTile(int x, int y, int healAmount, int turnsLeft, int palett
     return trap;
 }
 
-struct Trap *AddGrassTile(int x, int y)
+struct Trap *AddGrassTile(int x, int y, int turnsLeft)
 {
-    return AddTrap(x, y, TRAP_GRASS_TILE, 0);
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    if (turnsLeft < 0)
+        turnsLeft = 0;
+
+    trap = GetTypedTrapAt(x, y, TRAP_GRASS_TILE);
+    if (trap)
+    {
+        trap->data[TRAP_EXTDATA_GRASS_TILE_TURNSLEFT] = turnsLeft;
+        return trap;
+    }
+
+    trap = AddTrap(x, y, TRAP_GRASS_TILE, gBmMapTerrain[y][x]);
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_GRASS_TILE_TURNSLEFT] = turnsLeft;
+
+    gBmMapTerrain[y][x] = TERRAIN_FOREST;
+
+    return trap;
 }
 
 struct Trap *AddToggleTorch(int x, int y, int duration, int startsLit, int palette)

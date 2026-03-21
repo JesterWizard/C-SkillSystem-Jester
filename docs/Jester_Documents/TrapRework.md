@@ -11,11 +11,12 @@
 5. [Runtime Trap Placement with ASMC](#runtime-trap-placement-with-asmc)
 6. [Applying Existing Traps](#applying-existing-traps)
 7. [Trap Palette Selection](#trap-palette-selection)
-8. [Trap Sprite Registration](#trap-sprite-registration)
-9. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-10. [Code Locations](#code-locations)
-11. [TODO](#todo)
-12. [Limitations & Bugs](#limitations--bugs)
+8. [Grass Trap Notes](#grass-trap-notes)
+9. [Trap Sprite Registration](#trap-sprite-registration)
+10. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+11. [Code Locations](#code-locations)
+12. [TODO](#todo)
+13. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -25,6 +26,7 @@ This document explains how to add new traps in this project from a contributor w
 - Place traps at chapter load via chapter trap headers.
 - Spawn traps at runtime via event ASMC calls.
 - Select which trap map sprite palette is used.
+- Optionally make a trap behave like a terrain override instead of only a sprite overlay.
 - Register map sprite graphics for new trap visuals.
 - Render new trap types in the map sprite refresh loop.
 
@@ -66,11 +68,13 @@ Important extdata examples from this file:
 - `TRAP_EXTDATA_HEALTILE_TURNSLEFT`, `TRAP_EXTDATA_HEALTILE_PALETTE`
 - `TRAP_EXTDATA_TOGGLE_TORCH_DURATION`, `TRAP_EXTDATA_TOGGLE_TORCH_PALETTE`
 - `TRAP_EXTDATA_TELEPORT_DEST_X`, `TRAP_EXTDATA_TELEPORT_DEST_Y`, `TRAP_EXTDATA_TELEPORT_PALETTE`
+- `TRAP_EXTDATA_GRASS_TILE_TURNSLEFT`
 
 Palette handling summary:
 
 - `TRAP_LIGHT_RUNE` stores its palette in `trap->extra`.
 - `TRAP_HEAL_TILE`, `TRAP_TOGGLE_TORCH`, and `TRAP_TELEPORT_TILE` store their palette in trap extdata.
+- `TRAP_GRASS_TILE` uses a dedicated custom OBJ palette path instead of the shared trap palette enum.
 - `SetTrapMapSpritePalette(...)` sanitizes out-of-range values and falls back to `TRAP_MAPSPRITE_PAL_DEFAULT`.
 
 ### LoadTrapData in TrapData.c
@@ -87,6 +91,7 @@ File: `Kernel/Wizardry/Common/TrapData/TrapData.c`
 - `TRAP_HEAL_TILE` -> `AddHealTile(...)`
 - `TRAP_TOGGLE_TORCH` -> `AddToggleTorch(...)`
 - `TRAP_TELEPORT_TILE` -> `AddTeleportTile(...)`
+- `TRAP_GRASS_TILE` -> `AddGrassTile(...)`
 
 When adding a new trap type that needs special initialization, add a `case` here.
 
@@ -119,6 +124,7 @@ For the reworked trap types, these bytes now also carry palette data:
 | Heal tile | palette | turns left | unused |
 | Toggle torch | starts lit | duration | palette |
 | Teleport tile | destination X | destination Y | palette |
+| Grass tile | unused | turns left (`0` = permanent) | unused |
 
 Example pattern:
 
@@ -191,6 +197,7 @@ Recommended pattern for custom runtime trap setup:
 - `AddTeleportTile(x, y, destX, destY, palette)`
 - `AddTeleportTilePair(x1, y1, x2, y2)`
 - `AddLightRune(x, y, palette)`
+- `AddGrassTile(x, y, turnsLeft)`
 - other trap-specific constructors
 
 1. Call that function from event script via `ASMC(YourFunctionName)`.
@@ -210,6 +217,7 @@ For event-driven trap placement, call the trap constructor directly inside your 
 | Teleport tile pair | `AddTeleportTilePair(x1, y1, x2, y2)` | Create two linked teleport tiles, one at each coordinate pair |
 | One-way teleport tile | `AddTeleportTile(x, y, destX, destY, palette)` | Create a single teleport tile that sends units from `(x, y)` to `(destX, destY)` with a selected sprite palette |
 | Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite |
+| Grass tile | `AddGrassTile(x, y, turnsLeft)` | Create a grass trap tile that draws with `Pal_Grass_Tile`, behaves like forest terrain, and optionally expires after `turnsLeft` turns (`0` = permanent) |
 
 Runtime example from chapter ASMC code:
 
@@ -220,6 +228,7 @@ void SetGameOptions()
     AddToggleTorch(6, 6, 3, true, TRAP_MAPSPRITE_PAL_NPC);
     AddTeleportTile(8, 3, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY);
     AddLightRune(10, 5, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+    AddGrassTile(3, 3, 3);
 }
 ```
 
@@ -250,6 +259,7 @@ Example:
 
 ```c
 static const u8 TrapData_ThisEvent[] = {
+    GRASS_TILE(2, 2, 3),
     HEAL_TILE(3, 3, 2, TRAP_MAPSPRITE_PAL_PLAYER),
     TOGGLE_TORCH(6, 5, 3, true, TRAP_MAPSPRITE_PAL_NPC),
     TELEPORT_TILE(8, 2, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY),
@@ -306,6 +316,35 @@ static const u8 TrapData_ThisEvent[] = {
 
 If you pass an invalid palette value, `SetTrapMapSpritePalette(...)` clamps it back to `TRAP_MAPSPRITE_PAL_DEFAULT`.
 
+## Grass Trap Notes
+
+The grass trap is the current example of a trap that does more than draw a sprite.
+
+Behavior summary:
+
+- Runtime API: `AddGrassTile(x, y, turnsLeft)`
+- Chapter-start macro: `GRASS_TILE(x, y, turnsLeft)`
+- Sprite source: `Gfx_Grass_Tile`
+- Palette source: `Pal_Grass_Tile`
+- Gameplay terrain: the tile is forced to `TERRAIN_FOREST` when the trap is placed
+- Lifetime: `turnsLeft` controls how many `DecayTraps()` passes remain before the trap removes itself; `0` means permanent
+
+What that means for the player:
+
+- The map sprite uses the custom grass graphics and custom grass palette.
+- Standing on the tile gives standard forest terrain bonuses.
+- Movement cost and passability follow forest terrain rules.
+- The normal terrain UI should report the tile as forest, just like a standard forest tile.
+- When a timed grass trap expires, the original terrain under it is restored automatically.
+
+Implementation note:
+
+- This grass trap currently achieves its terrain behavior by updating `gBmMapTerrain[y][x]` to `TERRAIN_FOREST` when placed.
+- The original terrain is saved in `trap->extra` when the grass trap is created.
+- If the trap expires, `DecayTraps()` restores that saved terrain before removing the grass trap.
+- Replacing a grass trap on the same tile refreshes its lifetime instead of overwriting the saved original terrain.
+- The trap itself remains responsible for the visual overlay, while the engine's normal terrain systems handle the bonuses and terrain display.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -335,6 +374,7 @@ Current registered trap-like sprite IDs in this file:
 - `0x6A` Lit Torch Tile
 - `0x6B` Unlit Torch Tile
 - `0x6C` Teleport Tile
+- `0x6D` Grass Tile
 
 When adding a new trap sprite:
 
@@ -363,6 +403,7 @@ It already draws map sprites for several trap types, including:
 - `TRAP_HEAL_TILE`
 - `TRAP_TOGGLE_TORCH`
 - `TRAP_TELEPORT_TILE`
+- `TRAP_GRASS_TILE`
 
 ### Pattern to display a new trap type
 
@@ -386,6 +427,7 @@ Implementation notes:
 - The subtraction term (`-0x5000` or `-0x4000`) depends on sprite source conventions already used in this file; match an existing trap pattern for consistency.
 - `smsHandle->config` controls shape/size; use an existing trap's config as your baseline.
 - Palette remapping is applied through `ApplyTrapSpritePalette(...)`, which reads the stored palette via `GetTrapMapSpritePalette(...)`.
+- The grass trap is the current exception: it uses a dedicated OBJ palette bank loaded from `Pal_Grass_Tile` rather than the shared trap palette remap enum.
 
 ## Code Locations
 
@@ -396,6 +438,7 @@ Implementation notes:
 | Trap table struct | `Tools/FE-CLib-Mokha/include/bmtrap.h` | `struct TrapData` format used by chapter trap arrays |
 | Chapter trap loader | `LoadTrapData` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Dispatches trap entries from chapter data to constructors |
 | Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
+| Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
 | Trap graphics installer | `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
 | Chapter trap declaration | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h` | Defines startup trap arrays for normal/hard modes |
 | Chapter trap binding | `Data/FE8_Rewritten_Terper/Event/Source/00/00.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
@@ -403,16 +446,21 @@ Implementation notes:
 | ASMC runtime trap spawn | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime trap creation with `AddTeleportTilePair(...)` |
 | Teleport trap helpers | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TELEPORT_TILE`, `TELEPORT_TILE_PAIR`, and teleport trap extdata |
 | Teleport trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
+| Grass trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
 | Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
+| Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
 | Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
 | Light rune menu skill usage | `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
+| Example chapter ASMC usage | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
 
 ## TODO
 
 - Document removal/update workflows for runtime traps (remove, replace, refresh behavior).
 - Add a short reference table that maps each palette constant to a screenshot or gif once assets exist.
+- Document a shared removal helper if more terrain-override trap types are added in the future.
 
 ## Limitations & Bugs
 
 - `AddTeleportTilePair(...)` does not currently take a palette parameter; it uses the light rune palette internally.
 - `TELEPORT_TILE_PAIR(...)` still defaults to `TRAP_MAPSPRITE_PAL_DEFAULT`, so pair helpers and runtime pair creation do not currently share the same palette default.
+- Grass trap lifetime is stored in a signed extdata byte, so keep `turnsLeft` within normal trap-duration ranges.
