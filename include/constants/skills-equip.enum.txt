@@ -910,6 +910,7 @@ SID_MPBoost
 SID_MPBoostPlus
 SID_Weatherman
 SID_Override
+SID_Portal
 
 //////// COMBAT ARTS
 // SID_COMBAT_Grounder

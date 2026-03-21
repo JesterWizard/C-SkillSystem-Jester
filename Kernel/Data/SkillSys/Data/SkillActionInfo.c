@@ -11,6 +11,10 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 	[SID_Teleportation] = Action_Teleportation,
 #endif
 
+#if (defined(SID_Portal) && COMMON_SKILL_VALID(SID_Portal))
+	[SID_Portal] = Action_Portal,
+#endif
+
 #if (defined(SID_LightRune) && COMMON_SKILL_VALID(SID_LightRune))
 	[SID_LightRune] = Action_LightRune,
 #endif

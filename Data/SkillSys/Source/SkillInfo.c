@@ -2897,6 +2897,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Portal) && COMMON_SKILL_VALID(SID_Portal))
+    [SID_Portal] = {
+        .name = MSG_SKILL_Portal_NAME,
+        .desc = MSG_SKILL_Portal_DESC,
+        .capacity = MSG_SKILL_Portal_CAPACITY,
+        .price = MSG_SKILL_Portal_PRICE,
+        .icon = GFX_SkillIcon_Teleportation,
+    },
+#endif
+
 #if (defined(SID_Dance) && COMMON_SKILL_VALID(SID_Dance))
     [SID_Dance] = {
         .name = MSG_SKILL_Dance_NAME,

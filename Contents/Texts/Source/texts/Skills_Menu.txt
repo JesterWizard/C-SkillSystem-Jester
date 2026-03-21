@@ -96,6 +96,13 @@ the required threshold.[X]
 No free tiles or HP is below[N]
 the required threshold.[X]
 
+## MSG_SKILL_Portal_FRtext
+Need two open tiles within[N]
+MAG/2 range.[X]
+
+## MSG_SKILL_Portal_Target
+Select two portal tiles.[X]
+
 ## MSG_SKILL_Dance_NAME
 Dance[X]
 ## MSG_SKILL_Dance_DESC
@@ -150,6 +157,13 @@ Teleport[X]
 Teleport:[N]
 Randomly teleport to an open tile[N]
 on the map... good luck![X]
+
+## MSG_SKILL_Portal_NAME
+Portal[X]
+## MSG_SKILL_Portal_DESC
+Portal:[N]
+Create a linked pair of teleport[N]
+tiles within MAG/2 range.[X]
 
 ## MSG_SKILL_LightRune_NAME
 Light Rune[X]

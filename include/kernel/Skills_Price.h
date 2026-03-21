@@ -286,6 +286,7 @@
 #define MSG_SKILL_ShadePlus_PRICE 1000
 #define MSG_SKILL_Provoke_PRICE 1000
 #define MSG_SKILL_Teleportation_PRICE 1000
+#define MSG_SKILL_Portal_PRICE 1000
 #define MSG_SKILL_Dance_PRICE 1000
 #define MSG_SKILL_LockTouch_PRICE 1000
 #define MSG_SKILL_Summon_PRICE 1000

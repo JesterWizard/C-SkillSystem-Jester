@@ -286,6 +286,7 @@
 #define MSG_SKILL_ShadePlus_CAPACITY 1
 #define MSG_SKILL_Provoke_CAPACITY 1
 #define MSG_SKILL_Teleportation_CAPACITY 1
+#define MSG_SKILL_Portal_CAPACITY 1
 #define MSG_SKILL_Dance_CAPACITY 1
 #define MSG_SKILL_LockTouch_CAPACITY 1
 #define MSG_SKILL_Summon_CAPACITY 1

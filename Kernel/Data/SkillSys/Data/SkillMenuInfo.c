@@ -94,6 +94,21 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
 	},
 #endif
 
+#if (defined(SID_Portal) && COMMON_SKILL_VALID(SID_Portal))
+    [SID_Portal] = &(const struct MenuItemDef) {
+        .name = "　門",
+        .nameMsgId = MSG_SKILL_Portal_NAME,
+        .helpMsgId = MSG_SKILL_Portal_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Portal_Usability,
+        .onDraw = NULL,
+        .onSelected = Portal_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 #if (defined(SID_LightRune) && COMMON_SKILL_VALID(SID_LightRune))
 	[SID_LightRune] = &(const struct MenuItemDef) {
 		.name = "　光の結界",

@@ -35,6 +35,7 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_Necromancy_Used,
 	PLAYSTEXPA_BIT_SpatialShift_Used,
 	PLAYSTEXPA_BIT_SpatialShiftPlus_Used,
+	PLAYSTEXPA_BIT_Portal_Used,
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,
 	PLAYSTEXPA_BIT_MAX = 128,
