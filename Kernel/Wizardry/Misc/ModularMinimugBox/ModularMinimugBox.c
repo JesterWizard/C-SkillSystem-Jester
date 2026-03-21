@@ -5,6 +5,11 @@
 #include "jester_headers/custom-functions.h"
 
 extern u16 ModularMinimugBox_TileMap[];
+extern const u16 gUiFramePaletteA[];
+extern const u16 MenuTilesPalette_Gamma[];
+extern const u16 MenuTilesPalette_Pikmin[];
+
+int GetUIPalID(void);
 
 #define MMB_NUMBER_OBJ_PAL 15
 #define MMBHeight 6
@@ -40,8 +45,56 @@ static void ApplyMMBNumberPalette(void) {
     ApplyPalette(Pal_Text, 0x10 + MMB_NUMBER_OBJ_PAL);
 }
 
+static const u16 *GetMMBWindowPaletteRow(int uiPalId, int windowColor) {
+    switch (uiPalId) {
+    case 2:
+        return &MenuTilesPalette_Gamma[windowColor * 0x10];
+
+    case 3:
+        return &MenuTilesPalette_Pikmin[windowColor * 0x10];
+
+    default:
+        return &gUiFramePaletteA[windowColor * 0x10];
+    }
+}
+
+static int GetMMBUnitWindowColor(struct Unit *unit) {
+    switch (UNIT_FACTION(unit)) {
+    case FACTION_RED:
+        return 0;
+
+    case FACTION_BLUE:
+        return 1;
+
+    case FACTION_GREEN:
+        return 2;
+
+    case FACTION_PURPLE:
+        return 3;
+
+    default:
+        return gPlaySt.config.windowColor;
+    }
+}
+
 static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
     if (alt) {
+        if (gpKernelDesignerConfig->vesly_custom_ui) {
+            const u16 *basePalette = GetMMBWindowPaletteRow(GetUIPalID(), gPlaySt.config.windowColor);
+            const u16 *fillPalette = GetMMBWindowPaletteRow(GetUIPalID(), GetMMBUnitWindowColor(unit));
+            u16 blendedPalette[0x10];
+
+            CpuFastCopy(basePalette, blendedPalette, 0x20);
+
+            /* Keep the frame border entries from the active window color and only
+             * retint the interior shades for the unit's allegiance. */
+            for (int i = 5; i < 0x10; ++i)
+                blendedPalette[i] = fillPalette[i];
+
+            ApplyPalette(blendedPalette, 3);
+            return;
+        }
+
         UnpackUiFramePalette(3);
         return;
     }
