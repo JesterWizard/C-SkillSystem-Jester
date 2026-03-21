@@ -60,7 +60,7 @@ FILL(256 * 4)
     
 ALIGN 4 
 NumberOfPages:
-WORD 2
+WORD 3
 
 ggDebuggerMenuItems:
 POIN gDebuggerMenuItems gDebuggerMenuItemsPage2 gDebuggerMenuItemsPage3 
@@ -101,8 +101,10 @@ MenuCommand1(PageText, PageDesc, NormalText, MenuAlwaysEnabled, PageMenuItemDraw
 WORD 0 0 0 0 0 0 0 0 0 // terminator 
 ALIGN 4 
 gDebuggerMenuItemsPage3: // must be immediately after gDebuggerMenuItemsPage2 
-// MenuCommand1(SupportMenuText, SupportMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, EditSupportsNow)
-// MenuCommand1(AiControlRemainingUnitsText,AiControlRemainingUnitsDesc, NormalText, MenuAlwaysEnabled, AiControlRemainingUnitsDrawText, AiControlRemainingUnitsNow) 
+MenuCommand1(BgmMenuText, BgmMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, EditBgmNow)
+MenuCommand1(BackgroundMenuText, BackgroundMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewBackgroundNow)
+MenuCommand1(PortraitMenuText, PortraitMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewPortraitNow)
+MenuCommand1(TrapMenuText, TrapMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewTrapNow)
 MenuCommand1(PageText, PageDesc, NormalText, MenuAlwaysEnabled, PageMenuItemDraw, PageIncrementNow) // sprite draw assumes always on the bottom 
 #ifdef DEBUG_SKILL_EDIT_INCLUDED 
 //MenuCommand(EditSkillsText,EditSkillsDesc, OrangeText, $04F449,DebuggerMenuItemDraw, SkillDebugCommand_OnSelect)
@@ -186,10 +188,10 @@ PageDesc:
 
 
 EditMiscText:
-    String(" Misc"); EndText 
+    String(" Personal"); EndText 
 EditMiscDesc:
-    String("Edit unit's ID, class,"); NL
-    String("bonuses, and more."); EndText 
+    String("Edit unit identity,"); NL
+    String("allegiance, and more."); EndText 
 
 LoadUnitsText:
     String(" Load units"); EndText 
@@ -220,6 +222,30 @@ SkillsMenuText:
 SkillsMenuDesc:
     String("Edit skill IDs"); NL
     String("for the unit."); EndText
+
+BgmMenuText:
+    String(" BGM"); EndText
+BgmMenuDesc:
+    String("Play any music track"); NL
+    String("from the sound room."); EndText
+
+BackgroundMenuText:
+    String(" Background"); EndText
+BackgroundMenuDesc:
+    String("Preview text box"); NL
+    String("backgrounds by ID."); EndText
+
+PortraitMenuText:
+    String(" Portrait"); EndText
+PortraitMenuDesc:
+    String("Preview portrait IDs"); NL
+    String("directly."); EndText
+
+TrapMenuText:
+    String(" Trap view"); EndText
+TrapMenuDesc:
+    String("Inspect active trap"); NL
+    String("entries on the map."); EndText
      
 SupportMenuText:
     String(" Supports"); EndText 

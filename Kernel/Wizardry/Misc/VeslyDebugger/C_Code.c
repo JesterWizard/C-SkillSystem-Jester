@@ -8,11 +8,15 @@
 #include "common-chax.h"
 #include "kernel/debuff.h"
 #include "kernel/bwl.h"
+#include "soundroom.h"
+#include "soundwrapper.h"
+#include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 
 #define PACKED __attribute__((packed))
 
 extern char * GetSkillNameStr(const u16 sid);
+extern void PutFace80x72_Core(u16 *tm, int fid, int chr, int pal);
 
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
@@ -20,6 +24,8 @@ int Mod(int a, int b) PUREFUNC;
 #define xTilesAmount 15
 #define favTilesAmount 15
 #define tmpSize 15
+#define BACKGROUND_VIEWER_MAX_ID 0x33
+#define PORTRAIT_VIEWER_MAX_ID 0x1FF
 
 typedef struct {
     /* 00 */ PROC_HEADER;
@@ -98,6 +104,223 @@ int StartKeyListenerProc(void) {
 int Mod(int a, int b)
 {
     return a % b;
+}
+
+static void CycleWrapS16(s16 *value, int delta, int min, int max)
+{
+    int next = *value + delta;
+
+    if (next > max)
+        next = min;
+
+    if (next < min)
+        next = max;
+
+    *value = next;
+}
+
+static bool IsDebuggerAiControlDisabled(void)
+{
+    if (gPlaySt.config.debugControlRed || gPlaySt.config.debugControlGreen)
+        return true;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    if (gPlaySt.config.debugControlPurple)
+        return true;
+#endif
+
+    return false;
+}
+
+static void PrepareDebuggerViewer(bool hideSprites)
+{
+    RefreshEntityBmMaps();
+    RenderBmMap();
+
+    if (hideSprites)
+        gLCDControlBuffer.dispcnt.obj_on = 0;
+
+    NewBMXFADE(0);
+}
+
+static void RestoreDebuggerViewer(bool restoreSprites)
+{
+    if (restoreSprites) {
+        gLCDControlBuffer.dispcnt.obj_on = 1;
+        RefreshUnitSprites();
+    }
+}
+
+static int GetDebuggerAllegianceCount(void)
+{
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    return 4;
+#else
+    return 3;
+#endif
+}
+
+static int GetDebuggerAllegianceIndex(int faction)
+{
+    switch (faction) {
+    case FACTION_RED:
+        return 1;
+
+    case FACTION_GREEN:
+        return 2;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    case FACTION_PURPLE:
+        return 3;
+#endif
+
+    case FACTION_BLUE:
+    default:
+        return 0;
+    }
+}
+
+static int GetDebuggerFactionFromIndex(int index)
+{
+    switch (index) {
+    case 1:
+        return FACTION_RED;
+
+    case 2:
+        return FACTION_GREEN;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    case 3:
+        return FACTION_PURPLE;
+#endif
+
+    case 0:
+    default:
+        return FACTION_BLUE;
+    }
+}
+
+static const char *GetDebuggerAllegianceName(int index)
+{
+    switch (index) {
+    case 1:
+        return "Enemy";
+
+    case 2:
+        return "NPC";
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    case 3:
+        return "Purple";
+#endif
+
+    case 0:
+    default:
+        return "Player";
+    }
+}
+
+extern struct Unit *GetFreeUnit(int faction);
+extern void CopyUnit(struct Unit *from, struct Unit *to);
+
+static struct Unit *DebuggerTryChangeUnitAllegiance(struct Unit *unit, int faction)
+{
+    struct Unit *target;
+
+    if (!unit)
+        return unit;
+
+    if (UNIT_FACTION(unit) == faction)
+        return unit;
+
+    target = GetFreeUnit(faction);
+    if (!target)
+        return unit;
+
+    ClearUnit(target);
+    CopyUnit(unit, target);
+    ClearUnit(unit);
+
+    gActiveUnit = target;
+    gActiveUnitId = target->index;
+
+    return target;
+}
+
+static int GetDebuggerSoundRoomCount(void)
+{
+    int count = 0;
+
+    while (gSoundRoomTable_NEW[count].bgmId != -1)
+        count++;
+
+    return count;
+}
+
+static int GetDebuggerSoundRoomIndex(int songId)
+{
+    int count = GetDebuggerSoundRoomCount();
+
+    for (int index = 0; index < count; ++index) {
+        if (gSoundRoomTable_NEW[index].bgmId == songId)
+            return index;
+    }
+
+    return 0;
+}
+
+static const struct SoundRoomEnt *GetDebuggerSoundRoomEntry(int index)
+{
+    int count = GetDebuggerSoundRoomCount();
+
+    if (count <= 0)
+        return NULL;
+
+    if (index < 0)
+        index = 0;
+
+    if (index >= count)
+        index = count - 1;
+
+    return &gSoundRoomTable_NEW[index];
+}
+
+static const char *GetDebuggerPortraitName(int portraitId)
+{
+    const struct CharacterData *character;
+    const struct ClassData *classData;
+
+    for (int id = 1; id < 0x100; ++id) {
+        character = GetCharacterData(id);
+
+        if (!character)
+            continue;
+
+        if (character->number != id)
+            continue;
+
+        if (character->portraitId != portraitId)
+            continue;
+
+        return GetStringFromIndex(character->nameTextId);
+    }
+
+    for (int id = 1; id < 0x100; ++id) {
+        classData = GetClassData(id);
+
+        if (!classData)
+            continue;
+
+        if (classData->number != id)
+            continue;
+
+        if (classData->defaultPortraitId != portraitId)
+            continue;
+
+        return GetStringFromIndex(classData->nameTextId);
+    }
+
+    return "-";
 }
 
 void CopyProcVariables(DebuggerProc* dst, DebuggerProc* src) { 
@@ -212,6 +435,14 @@ void EditSkillsInit(DebuggerProc* proc);
 void EditSkillsIdle(DebuggerProc* proc);
 void EditSupportsInit(DebuggerProc* proc);
 void EditSupportsIdle(DebuggerProc* proc);
+void EditBgmInit(DebuggerProc* proc);
+void EditBgmIdle(DebuggerProc* proc);
+void ViewBackgroundInit(DebuggerProc* proc);
+void ViewBackgroundIdle(DebuggerProc* proc);
+void ViewPortraitInit(DebuggerProc* proc);
+void ViewPortraitIdle(DebuggerProc* proc);
+void ViewTrapInit(DebuggerProc* proc);
+void ViewTrapIdle(DebuggerProc* proc);
 u8 CanActiveUnitPromote(void);
 
 #define InitProcLabel 0
@@ -234,7 +465,11 @@ u8 CanActiveUnitPromote(void);
 #define SkillsLabel 17
 #define SupportLabel 18
 #define LoopLabel 19
-#define ListLabel 20
+#define BgmLabel 20
+#define BackgroundLabel 21
+#define PortraitLabel 22
+#define TrapViewLabel 23
+#define ListLabel 24
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -364,6 +599,26 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_LABEL(SupportLabel), // Supports
     PROC_CALL(EditSupportsInit),
     PROC_REPEAT(EditSupportsIdle),
+    PROC_GOTO(EndLabel),
+
+    PROC_LABEL(BgmLabel), // BGM
+    PROC_CALL(EditBgmInit),
+    PROC_REPEAT(EditBgmIdle),
+    PROC_GOTO(EndLabel),
+
+    PROC_LABEL(BackgroundLabel), // Background viewer
+    PROC_CALL(ViewBackgroundInit),
+    PROC_REPEAT(ViewBackgroundIdle),
+    PROC_GOTO(EndLabel),
+
+    PROC_LABEL(PortraitLabel), // Portrait viewer
+    PROC_CALL(ViewPortraitInit),
+    PROC_REPEAT(ViewPortraitIdle),
+    PROC_GOTO(EndLabel),
+
+    PROC_LABEL(TrapViewLabel), // Trap viewer
+    PROC_CALL(ViewTrapInit),
+    PROC_REPEAT(ViewTrapIdle),
     PROC_GOTO(EndLabel),
     
     PROC_LABEL(EndLabel), 
@@ -2273,8 +2528,8 @@ void ChStateIdle(DebuggerProc* proc) {
 } 
 
 
-#define NumberOfMisc 8
-#define MiscNameWidth 8 
+#define NumberOfMisc 9
+#define MiscNameWidth 10
  
 void SaveMisc(DebuggerProc* proc) { 
 
@@ -2288,6 +2543,8 @@ void SaveMisc(DebuggerProc* proc) {
     if (UNIT_MOV(unit) > 15) { unit->movBonus = 15 - UNIT_MOV_BASE(unit); } 
     SetUnitStatusIndex(unit, proc->tmp[6] & 0x3F);
     SetUnitStatusDuration(unit, proc->tmp[7]);
+    unit = DebuggerTryChangeUnitAllegiance(unit, GetDebuggerFactionFromIndex(proc->tmp[8]));
+    proc->unit = unit;
     // if (unit->statusIndex) { SetUnitStatusDuration(unit, 3); }
 
 }  
@@ -2308,6 +2565,7 @@ void EditMiscInit(DebuggerProc* proc) {
     proc->tmp[5] = unit->movBonus; 
     proc->tmp[6] = (GetUnitStatusIndex(unit) & 0x3F);
     proc->tmp[7] = (GetUnitStatusDuration(unit));
+    proc->tmp[8] = GetDebuggerAllegianceIndex(UNIT_FACTION(unit));
     
     
     int x = NUMBER_X - MiscNameWidth - 1; 
@@ -2322,7 +2580,7 @@ void EditMiscInit(DebuggerProc* proc) {
 
     struct Text* th = gStatScreen.text;
     
-    for (int i = 0; i < NumberOfMisc; ++i) { 
+    for (int i = 0; i < (NumberOfMisc + 1); ++i) { 
         InitText(&th[i], MiscNameWidth);
     } 
 
@@ -2364,6 +2622,7 @@ void RedrawMiscMenu(DebuggerProc* proc) {
         Text_DrawString(&th[i], GetStringFromIndex(gpDebuffInfos[proc->tmp[6] & 0x3F].name)); i++;
     } 
     Text_DrawString(&th[i], "Duration"); i++; 
+    Text_DrawString(&th[i], "Allegiance"); i++; 
     
     int x = NUMBER_X - (MiscNameWidth); 
     for (i = 0; i < NumberOfMisc; ++i) { 
@@ -2374,6 +2633,11 @@ void RedrawMiscMenu(DebuggerProc* proc) {
         if (i < 2) { 
         PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         } 
+        else if (i == 8) {
+        ClearText(&th[NumberOfMisc]);
+        Text_DrawString(&th[NumberOfMisc], GetDebuggerAllegianceName(proc->tmp[i]));
+        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND + (i*2)));
+        }
         else { 
         PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         }
@@ -2430,6 +2694,7 @@ int GetMiscMax(int id) {
         case 5: { result = 15; break; } // + mov  
         case 6: { result = 63; break; } // status index
         case 7: { result = 4; break; }  // status duration  
+        case 8: { result = GetDebuggerAllegianceCount() - 1; break; } // allegiance
         default: 
     } 
     return result; 
@@ -2512,6 +2777,535 @@ void EditMiscIdle(DebuggerProc* proc) {
     } 
 } 
 
+
+#define NumberOfBgmView 4
+#define BgmViewWidth 22
+
+static void RedrawBgmMenu(DebuggerProc* proc)
+{
+    const struct SoundRoomEnt *current = GetDebuggerSoundRoomEntry(proc->tmp[4]);
+    const struct SoundRoomEnt *selected = GetDebuggerSoundRoomEntry(proc->tmp[0]);
+    struct Text *th = gStatScreen.text;
+    const char *currentName = current ? GetStringFromIndex(current->nameTextId) : "-";
+    const char *selectedName = selected ? GetStringFromIndex(selected->nameTextId) : "-";
+    int currentColor = proc->tmp[2] ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE;
+
+    BG_Fill(gBG0TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    for (int index = 0; index < 4; ++index)
+        ClearText(&th[index]);
+
+    Text_DrawString(&th[0], "Current");
+    PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(2, 4));
+
+    SetTextFontGlyphs(0);
+    Text_SetColor(&th[1], currentColor);
+    Text_DrawString(&th[1], currentName);
+    PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(10, 4));
+
+    if (current)
+        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(26, 4), currentColor, current->bgmId);
+
+    Text_DrawString(&th[2], "Select");
+    PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(2, 8));
+
+    SetTextFontGlyphs(0);
+    Text_SetColor(&th[3], TEXT_COLOR_SYSTEM_WHITE);
+    Text_DrawString(&th[3], selectedName);
+    PutText(&th[3], gBG0TilemapBuffer + TILEMAP_INDEX(10, 8));
+
+    if (selected)
+        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(26, 8), TEXT_COLOR_SYSTEM_WHITE, selected->bgmId);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void EditBgmInit(DebuggerProc* proc)
+{
+    SomeMenuInit(proc);
+
+    DrawUiFrame(BG_GetMapBuffer(1), 1, 2, 28, 10, TILEREF(0, 0), 0);
+
+    for (int index = 0; index < 4; ++index)
+        InitText(&gStatScreen.text[index], BgmViewWidth);
+
+    proc->tmp[0] = GetDebuggerSoundRoomIndex(GetCurrentBgmSong());
+    proc->tmp[1] = proc->tmp[0];
+    proc->tmp[2] = 0;
+    proc->tmp[4] = proc->tmp[0];
+    RedrawBgmMenu(proc);
+}
+
+void EditBgmIdle(DebuggerProc* proc)
+{
+    u16 keys = sKeyStatusBuffer.repeatedKeys;
+    int count = GetDebuggerSoundRoomCount();
+    const struct SoundRoomEnt *entry;
+
+    DisplayUiHand(8, 8 * 8);
+
+    if (keys & (B_BUTTON | START_BUTTON)) {
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if (count <= 0)
+        return;
+
+    if (keys & (DPAD_UP | DPAD_RIGHT))
+        CycleWrapS16(&proc->tmp[0], 1, 0, count - 1);
+
+    if (keys & (DPAD_DOWN | DPAD_LEFT))
+        CycleWrapS16(&proc->tmp[0], -1, 0, count - 1);
+
+    entry = GetDebuggerSoundRoomEntry(proc->tmp[0]);
+    if (!entry)
+        return;
+
+    if (keys & (DPAD_UP | DPAD_RIGHT | DPAD_DOWN | DPAD_LEFT)) {
+        proc->tmp[2] = 0;
+        RedrawBgmMenu(proc);
+    }
+
+    if (keys & A_BUTTON) {
+        StartBgm(entry->bgmId, 0);
+        proc->tmp[1] = proc->tmp[0];
+        proc->tmp[4] = proc->tmp[0];
+        proc->tmp[2] = 1;
+        RedrawBgmMenu(proc);
+    }
+}
+
+#define BackgroundViewWidth 6
+
+static void RedrawBackgroundMenu(DebuggerProc* proc)
+{
+    struct Text *th = gStatScreen.text;
+
+    BG_Fill(gBG0TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    for (int index = 0; index < 1; ++index)
+        ClearText(&th[index]);
+
+    Text_DrawString(&th[0], "BG ID");
+    PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(22, 16));
+
+    PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(27, 16), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[0]);
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void ViewBackgroundInit(DebuggerProc* proc)
+{
+    SomeMenuInit(proc);
+
+    PrepareDebuggerViewer(true);
+
+    DrawUiFrame(BG_GetMapBuffer(1), 21, 15, 8, 4, TILEREF(0, 0), 0);
+
+    for (int index = 0; index < 1; ++index)
+        InitText(&gStatScreen.text[index], BackgroundViewWidth);
+
+    proc->tmp[0] = 1;
+    EventShowTextBgDirect(1, proc->tmp[0]);
+    RedrawBackgroundMenu(proc);
+}
+
+void ViewBackgroundIdle(DebuggerProc* proc)
+{
+    u16 keys = sKeyStatusBuffer.repeatedKeys;
+
+    DisplayUiHand(20 * 8, 16 * 8);
+
+    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+        RestoreDebuggerViewer(true);
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if (keys & (DPAD_UP | DPAD_RIGHT))
+        CycleWrapS16(&proc->tmp[0], 1, 1, BACKGROUND_VIEWER_MAX_ID);
+
+    if (keys & (DPAD_DOWN | DPAD_LEFT))
+        CycleWrapS16(&proc->tmp[0], -1, 1, BACKGROUND_VIEWER_MAX_ID);
+
+    if (keys & (DPAD_UP | DPAD_RIGHT | DPAD_DOWN | DPAD_LEFT)) {
+        EventShowTextBgDirect(1, proc->tmp[0]);
+        RedrawBackgroundMenu(proc);
+    }
+}
+
+#define PortraitViewWidth 13
+
+static void RedrawPortraitMenu(DebuggerProc* proc)
+{
+    struct Text *th = gStatScreen.text;
+    const char *portraitName = GetDebuggerPortraitName(proc->tmp[0]);
+
+    BG_Fill(gBG0TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    for (int index = 0; index < 3; ++index)
+        ClearText(&th[index]);
+
+    Text_DrawString(&th[0], "Portrait ID");
+    PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(2, 2));
+
+    Text_DrawString(&th[1], "Portrait Name");
+    PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(2, 4));
+
+    PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(13, 2), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[0]);
+    Text_DrawString(&th[2], portraitName);
+    PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(2, 6));
+    PutFace80x72_Core(gBG0TilemapBuffer + TILEMAP_INDEX(17, 7), proc->tmp[0], 0x200, 5);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void ViewPortraitInit(DebuggerProc* proc)
+{
+    SomeMenuInit(proc);
+
+    PrepareDebuggerViewer(true);
+
+    DrawUiFrame(BG_GetMapBuffer(1), 1, 1, 15, 6, TILEREF(0, 0), 0);
+    DrawUiFrame(BG_GetMapBuffer(1), 16, 6, 12, 11, TILEREF(0, 0), 0);
+
+    for (int index = 0; index < 3; ++index)
+        InitText(&gStatScreen.text[index], PortraitViewWidth);
+
+    proc->tmp[0] = GetUnitPortraitId(proc->unit);
+    RedrawPortraitMenu(proc);
+}
+
+void ViewPortraitIdle(DebuggerProc* proc)
+{
+    u16 keys = sKeyStatusBuffer.repeatedKeys;
+
+    DisplayUiHand(8, 2 * 8);
+
+    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+        RestoreDebuggerViewer(true);
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if (keys & (DPAD_UP | DPAD_RIGHT))
+        CycleWrapS16(&proc->tmp[0], 1, 0, PORTRAIT_VIEWER_MAX_ID);
+
+    if (keys & (DPAD_DOWN | DPAD_LEFT))
+        CycleWrapS16(&proc->tmp[0], -1, 0, PORTRAIT_VIEWER_MAX_ID);
+
+    if (keys & (DPAD_UP | DPAD_RIGHT | DPAD_DOWN | DPAD_LEFT))
+        RedrawPortraitMenu(proc);
+}
+
+#define TrapViewWidth 10
+
+enum {
+    DEBUGGER_TRAP_PAL_DEFAULT,
+    DEBUGGER_TRAP_PAL_MAP,
+    DEBUGGER_TRAP_PAL_GRASS,
+    DEBUGGER_TRAP_PAL_BOULDER,
+    DEBUGGER_TRAP_PAL_SPIN,
+};
+
+struct DebuggerTrapViewDef {
+    u8 type;
+    u8 spriteId;
+    u8 paletteKind;
+    u8 defaultExtra;
+    s8 defaultData0;
+    const char *name;
+};
+
+static const struct DebuggerTrapViewDef sDebuggerTrapViewDefs[] = {
+    { TRAP_LIGHT_RUNE, 0x66, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Light Rune" },
+    { TRAP_HEAL_TILE, 0x68, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Heal" },
+    { TRAP_TOGGLE_TORCH, 0x6A, DEBUGGER_TRAP_PAL_MAP, 1, 0, "Torch" },
+    { TRAP_TELEPORT_TILE, 0x6C, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Teleport" },
+    { TRAP_GRASS_TILE, 0x6D, DEBUGGER_TRAP_PAL_GRASS, 0, 0, "Grass" },
+    { TRAP_BOULDER_TILE, 0x6E, DEBUGGER_TRAP_PAL_BOULDER, 0, 0, "Boulder" },
+    { TRAP_SPIN_TILE, 0x6F, DEBUGGER_TRAP_PAL_SPIN, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
+};
+
+static int GetDebuggerTrapViewDefCount(void)
+{
+    return sizeof(sDebuggerTrapViewDefs) / sizeof(sDebuggerTrapViewDefs[0]);
+}
+
+static const struct DebuggerTrapViewDef *GetDebuggerTrapViewDef(int index)
+{
+    if (index < 0 || index >= GetDebuggerTrapViewDefCount())
+        return NULL;
+
+    return &sDebuggerTrapViewDefs[index];
+}
+
+static u16 GetDebuggerTrapPreviewPalette(u16 oam2, const struct Trap *trap, const struct DebuggerTrapViewDef *def)
+{
+    if (!def)
+        return oam2;
+
+    switch (def->paletteKind) {
+    case DEBUGGER_TRAP_PAL_MAP:
+        if (!trap)
+            return oam2;
+
+        switch (GetTrapMapSpritePalette(trap)) {
+        case TRAP_MAPSPRITE_PAL_LIGHT_RUNE:
+            return (oam2 & 0x0FFF) | 0xB000;
+
+        case TRAP_MAPSPRITE_PAL_PLAYER:
+            return (oam2 & 0x0FFF) | 0xC000;
+
+        case TRAP_MAPSPRITE_PAL_ENEMY:
+            return (oam2 & 0x0FFF) | 0xD000;
+
+        case TRAP_MAPSPRITE_PAL_NPC:
+            return (oam2 & 0x0FFF) | 0xE000;
+
+        case TRAP_MAPSPRITE_PAL_GREY:
+            return (oam2 & 0x0FFF) | 0xF000;
+
+        default:
+            return oam2;
+        }
+
+    case DEBUGGER_TRAP_PAL_GRASS:
+        return (oam2 & 0x0FFF) | (9 << 12);
+
+    case DEBUGGER_TRAP_PAL_BOULDER:
+        return (oam2 & 0x0FFF) | (10 << 12);
+
+    case DEBUGGER_TRAP_PAL_SPIN:
+        return (oam2 & 0x0FFF) | (8 << 12);
+
+    default:
+        return oam2;
+    }
+}
+
+static int GetDebuggerTrapPreviewSpriteId(const struct Trap *trap, const struct DebuggerTrapViewDef *def)
+{
+    int direction;
+
+    if (!def)
+        return 0x66;
+
+    if (def->type == TRAP_TOGGLE_TORCH)
+        return (trap && trap->extra <= 0) ? 0x6B : 0x6A;
+
+    if (def->type != TRAP_SPIN_TILE)
+        return def->spriteId;
+
+    direction = trap ? trap->data[TRAP_EXTDATA_SPIN_TILE_DIRECTION] : def->defaultData0;
+
+    switch (direction) {
+    case SPIN_TILE_DIR_LEFT:
+        return 0x70;
+
+    case SPIN_TILE_DIR_UP:
+        return 0x71;
+
+    case SPIN_TILE_DIR_DOWN:
+        return 0x72;
+
+    case SPIN_TILE_DIR_RIGHT:
+    default:
+        return 0x6F;
+    }
+}
+
+static void DisplayTrapPreview(DebuggerProc *proc)
+{
+    const struct DebuggerTrapViewDef *def = GetDebuggerTrapViewDef(proc->tmp[0]);
+    struct Trap fallback;
+    struct Trap *trap;
+    u16 oam2;
+
+    if (!def)
+        return;
+
+    trap = GetTypedTrapAt(proc->tmp[1], proc->tmp[2], def->type);
+    if (!trap) {
+        fallback.xPos = proc->tmp[1];
+        fallback.yPos = proc->tmp[2];
+        fallback.type = def->type;
+        fallback.extra = def->defaultExtra;
+        fallback.data[0] = def->defaultData0;
+        fallback.data[1] = 0;
+        fallback.data[2] = 0;
+        fallback.data[3] = 0;
+        trap = &fallback;
+    }
+
+    oam2 = UseUnitSprite(GetDebuggerTrapPreviewSpriteId(trap, def)) - 0x5000 + 0x80;
+    oam2 = GetDebuggerTrapPreviewPalette(oam2, trap, def);
+    PutSprite(0, 23 * 8, 10 * 8, gObject_16x16, oam2);
+}
+
+static struct Trap *CreateDebuggerTrap(const struct DebuggerTrapViewDef *def, int x, int y)
+{
+    if (!def)
+        return NULL;
+
+    switch (def->type) {
+    case TRAP_LIGHT_RUNE:
+        return AddLightRune(x, y, TRAP_MAPSPRITE_PAL_DEFAULT);
+
+    case TRAP_HEAL_TILE:
+        return AddHealTile(x, y, 0, 0, TRAP_MAPSPRITE_PAL_DEFAULT);
+
+    case TRAP_TOGGLE_TORCH:
+        return AddToggleTorch(x, y, 3, 1, TRAP_MAPSPRITE_PAL_DEFAULT);
+
+    case TRAP_TELEPORT_TILE:
+        return AddTeleportTile(x, y, x, y, TRAP_MAPSPRITE_PAL_DEFAULT);
+
+    case TRAP_GRASS_TILE:
+        return AddGrassTile(x, y, 0);
+
+    case TRAP_BOULDER_TILE:
+        return AddBoulderTile(x, y);
+
+    case TRAP_SPIN_TILE:
+        return AddSpinTile(x, y, SPIN_TILE_DIR_RIGHT);
+
+    default:
+        return AddTrap(x, y, def->type, def->defaultExtra);
+    }
+}
+
+static void RedrawTrapMenu(DebuggerProc* proc)
+{
+    struct Text *th = gStatScreen.text;
+    const struct DebuggerTrapViewDef *def = GetDebuggerTrapViewDef(proc->tmp[0]);
+    struct Trap *trap = def ? GetTypedTrapAt(proc->tmp[1], proc->tmp[2], def->type) : NULL;
+
+    BG_Fill(gBG0TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    for (int index = 0; index < 7; ++index)
+        ClearText(&th[index]);
+
+    Text_DrawString(&th[0], "Type");
+    PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(2, 2));
+
+    Text_DrawString(&th[1], def ? def->name : "-");
+    PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(9, 2));
+
+    Text_DrawString(&th[2], "X");
+    PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(2, 4));
+    PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(5, 4), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[1]);
+
+    Text_DrawString(&th[3], "Y");
+    PutText(&th[3], gBG0TilemapBuffer + TILEMAP_INDEX(2, 6));
+    PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(5, 6), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[2]);
+
+    Text_DrawString(&th[4], "Status");
+    PutText(&th[4], gBG0TilemapBuffer + TILEMAP_INDEX(2, 8));
+
+    Text_SetColor(&th[5], trap ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE);
+    Text_DrawString(&th[5], trap ? "Found" : "Missing");
+    PutText(&th[5], gBG0TilemapBuffer + TILEMAP_INDEX(9, 8));
+
+    Text_DrawString(&th[6], "Preview");
+    PutText(&th[6], gBG0TilemapBuffer + TILEMAP_INDEX(21, 8));
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void ViewTrapInit(DebuggerProc* proc)
+{
+    SomeMenuInit(proc);
+
+    DrawUiFrame(BG_GetMapBuffer(1), 1, 1, 16, 11, TILEREF(0, 0), 0);
+    DrawUiFrame(BG_GetMapBuffer(1), 20, 7, 8, 6, TILEREF(0, 0), 0);
+
+    for (int index = 0; index < 7; ++index)
+        InitText(&gStatScreen.text[index], TrapViewWidth);
+
+    proc->tmp[0] = 0;
+    proc->tmp[1] = proc->unit->xPos;
+    proc->tmp[2] = proc->unit->yPos;
+    proc->tmp[3] = 0;
+    RedrawTrapMenu(proc);
+}
+
+void ViewTrapIdle(DebuggerProc* proc)
+{
+    u16 keys = sKeyStatusBuffer.repeatedKeys;
+    int count = GetDebuggerTrapViewDefCount();
+    int maxX = gBmMapSize.x - 1;
+    int maxY = gBmMapSize.y - 1;
+    const struct DebuggerTrapViewDef *def = GetDebuggerTrapViewDef(proc->tmp[0]);
+    struct Trap *trap;
+
+    DisplayUiHand(8, (2 + (proc->tmp[3] * 2)) * 8);
+    DisplayTrapPreview(proc);
+
+    if (keys & (B_BUTTON | START_BUTTON)) {
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if (keys & A_BUTTON) {
+        trap = def ? GetTypedTrapAt(proc->tmp[1], proc->tmp[2], def->type) : NULL;
+
+        if (!trap)
+            trap = CreateDebuggerTrap(def, proc->tmp[1], proc->tmp[2]);
+
+        if (trap)
+            m4aSongNumStart(0x6A);
+        else
+            m4aSongNumStart(0x6B);
+
+        RedrawTrapMenu(proc);
+        return;
+    }
+
+    if (count <= 0)
+        return;
+
+    if (maxX < 0)
+        maxX = 0;
+
+    if (maxY < 0)
+        maxY = 0;
+
+    if (keys & DPAD_UP)
+        CycleWrapS16(&proc->tmp[3], -1, 0, 2);
+
+    if (keys & DPAD_DOWN)
+        CycleWrapS16(&proc->tmp[3], 1, 0, 2);
+
+    if (keys & DPAD_RIGHT) {
+        if (proc->tmp[3] == 0)
+            CycleWrapS16(&proc->tmp[0], 1, 0, count - 1);
+        else if (proc->tmp[3] == 1)
+            CycleWrapS16(&proc->tmp[1], 1, 0, maxX);
+        else
+            CycleWrapS16(&proc->tmp[2], 1, 0, maxY);
+    }
+
+    if (keys & DPAD_LEFT) {
+        if (proc->tmp[3] == 0)
+            CycleWrapS16(&proc->tmp[0], -1, 0, count - 1);
+        else if (proc->tmp[3] == 1)
+            CycleWrapS16(&proc->tmp[1], -1, 0, maxX);
+        else
+            CycleWrapS16(&proc->tmp[2], -1, 0, maxY);
+    }
+
+    if (keys & (DPAD_UP | DPAD_RIGHT | DPAD_DOWN | DPAD_LEFT))
+        RedrawTrapMenu(proc);
+}
 
 #define NumberOfLoad 6 
 #define LoadNameWidth 12 
@@ -3320,12 +4114,19 @@ u8 ControlAiNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	proc = Proc_Find(DebuggerProcCmd); 
     proc->actionID = 0; 
     Proc_Goto(proc, RestartLabel); // 0xb7 
-    //DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
-    if (gPlaySt.config.debugControlRed) { 
+    if (IsDebuggerAiControlDisabled()) { 
         gPlaySt.config.debugControlRed = 0; 
+        gPlaySt.config.debugControlGreen = 0;
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+        gPlaySt.config.debugControlPurple = 0;
+#endif
     } 
     else { 
-        gPlaySt.config.debugControlRed = 2; 
+        gPlaySt.config.debugControlRed = 1; 
+        gPlaySt.config.debugControlGreen = 1;
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+        gPlaySt.config.debugControlPurple = 1;
+#endif
     } 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
@@ -3442,6 +4243,34 @@ u8 EditSkillsNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	DebuggerProc* proc; 
 	proc = Proc_Find(DebuggerProcCmd); 
     Proc_Goto(proc, SkillsLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 EditBgmNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, BgmLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 ViewBackgroundNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, BackgroundLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 ViewPortraitNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, PortraitLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 ViewTrapNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, TrapViewLabel);
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
@@ -3601,8 +4430,8 @@ int ControlAiDrawText(struct MenuProc * menu, struct MenuItemProc * menuItem) {
         Text_SetColor(&menuItem->text, 1);
     }
     //DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
-    if (gPlaySt.config.debugControlRed) { 
-        Text_DrawString(&menuItem->text, " AI is off");
+    if (IsDebuggerAiControlDisabled()) { 
+        Text_DrawString(&menuItem->text, " Manual mode");
     } 
     else { 
         DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
