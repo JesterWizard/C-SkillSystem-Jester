@@ -548,6 +548,7 @@
 #define MSG_SKILL_HyperCutter_CAPACITY 1
 #define MSG_SKILL_ClearBody_CAPACITY 1
 #define MSG_SKILL_LeadByExample_CAPACITY 1
+#define MSG_SKILL_GrassySurge_CAPACITY 1
 #define MSG_SKILL_GoodAsGold_CAPACITY 1
 #define MSG_SKILL_PsychUp_CAPACITY 1
 #define MSG_SKILL_Moody_CAPACITY 1

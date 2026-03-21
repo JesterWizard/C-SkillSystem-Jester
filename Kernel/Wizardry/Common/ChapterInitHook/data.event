@@ -7,4 +7,5 @@ ChapterInitHooks:
     POIN ResetStatDeuffBuf
     POIN ChapterInit_SetInitiativeStatus
     POIN ChapterInit_ResetPlayStExpa
+    POIN ChapterInit_ApplyGrassySurge
     WORD 0

@@ -2,7 +2,48 @@
 #include "debuff.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
+#include "traps.h"
 #include "constants/skills.h"
+
+#define GRASSY_SURGE_TURNS 3
+
+static bool _IsGrassySurgeBlockedTerrain(int terrain)
+{
+	switch (terrain) {
+	case TERRAIN_VILLAGE_03:
+	case TERRAIN_VILLAGE_04:
+	case TERRIAN_HOUSE:
+	case TERRAIN_ARMORY:
+	case TERRAIN_VENDOR:
+	case TERRAIN_ARENA_08:
+	case TERRAIN_ARENA_30:
+	case TERRAIN_CHURCH:
+	case TERRAIN_INN:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static void _TryApplyGrassySurge(struct Unit *unit)
+{
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	if (unit->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
+		return;
+
+#if (defined(SID_GrassySurge) && COMMON_SKILL_VALID(SID_GrassySurge))
+	if (!SkillTester(unit, SID_GrassySurge))
+		return;
+
+	if (_IsGrassySurgeBlockedTerrain(gBmMapTerrain[unit->yPos][unit->xPos]))
+		return;
+
+	AddGrassTile(unit->xPos, unit->yPos, GRASSY_SURGE_TURNS);
+#endif
+}
 
 static void _SetInitiativeStatDebuf(struct Unit *unit)
 {
@@ -76,6 +117,15 @@ bool ChapterInit_SetInitiativeStatus(ProcPtr proc)
 {
 	FOR_UNITS_ONMAP_ALL(unit, {
 		_SetInitiativeStatDebuf(unit);
+	})
+
+	return false;
+}
+
+bool ChapterInit_ApplyGrassySurge(ProcPtr proc)
+{
+	FOR_UNITS_ONMAP_ALL(unit, {
+		_TryApplyGrassySurge(unit);
 	})
 
 	return false;

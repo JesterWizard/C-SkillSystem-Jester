@@ -548,6 +548,7 @@
 #define MSG_SKILL_HyperCutter_PRICE 1000
 #define MSG_SKILL_ClearBody_PRICE 1000
 #define MSG_SKILL_LeadByExample_PRICE 1000
+#define MSG_SKILL_GrassySurge_PRICE 1000
 #define MSG_SKILL_GoodAsGold_PRICE 1000
 #define MSG_SKILL_PsychUp_PRICE 1000
 #define MSG_SKILL_Moody_PRICE 1000

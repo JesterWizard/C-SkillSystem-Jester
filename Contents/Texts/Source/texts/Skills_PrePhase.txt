@@ -47,6 +47,13 @@ Drought:[N]
 Set weather to sunny at[N]
 the start of the turn.[X]
 
+## MSG_SKILL_GrassySurge_NAME
+Grassy Surge[X]
+## MSG_SKILL_GrassySurge_DESC
+Grassy Surge:[N]
+At map start, creates grass[N]
+under unit for 3 turns.[X]
+
 ## MSG_SKILL_SnowWarning_NAME
 Snow Warning[X]
 ## MSG_SKILL_SnowWarning_DESC

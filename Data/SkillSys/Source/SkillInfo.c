@@ -3077,6 +3077,16 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_GrassySurge) && COMMON_SKILL_VALID(SID_GrassySurge))
+    [SID_GrassySurge] = {
+        .name = MSG_SKILL_GrassySurge_NAME,
+        .desc = MSG_SKILL_GrassySurge_DESC,
+        .capacity = MSG_SKILL_GrassySurge_CAPACITY,
+        .price = MSG_SKILL_GrassySurge_PRICE,
+        .icon = GFX_SkillIcon_NatureRush,
+    },
+#endif
+
 #if (defined(SID_Drizzle) && COMMON_SKILL_VALID(SID_Drizzle))
     [SID_Drizzle] = {
         .name = MSG_SKILL_Drizzle_NAME,
