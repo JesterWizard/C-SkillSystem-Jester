@@ -5,6 +5,8 @@
 #include "kernel-lib.h"
 #include "kernel/traps.h"
 
+extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
+
 static void PrepareTeleportTileWarp(void)
 {
     EndAllMus();
@@ -35,6 +37,156 @@ static const EventScr EventScr_PostAction_TeleportTile[] = {
     NOFADE
     ENDA
 };
+
+static int SanitizeSpinTileDirection(int direction)
+{
+    switch (direction) {
+    case SPIN_TILE_DIR_LEFT:
+    case SPIN_TILE_DIR_RIGHT:
+    case SPIN_TILE_DIR_UP:
+    case SPIN_TILE_DIR_DOWN:
+        return direction;
+
+    default:
+        return SPIN_TILE_DIR_LEFT;
+    }
+}
+
+static void GetSpinTileOffset(int direction, int *outX, int *outY)
+{
+    *outX = 0;
+    *outY = 0;
+
+    switch (SanitizeSpinTileDirection(direction)) {
+    case SPIN_TILE_DIR_LEFT:
+        *outX = -1;
+        break;
+
+    case SPIN_TILE_DIR_RIGHT:
+        *outX = 1;
+        break;
+
+    case SPIN_TILE_DIR_UP:
+        *outY = -1;
+        break;
+
+    case SPIN_TILE_DIR_DOWN:
+        *outY = 1;
+        break;
+    }
+}
+
+static bool DoesSpinTileBlockTrap(const struct Trap *trap)
+{
+    if (!trap)
+        return false;
+
+    switch (trap->type) {
+    case TRAP_LIGHT_RUNE:
+    case TRAP_OBSTACLE:
+    case TRAP_BOULDER_TILE:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+static bool CanSpinTileMoveUnitTo(struct Unit *unit, int x, int y)
+{
+    if (!Generic_CanUnitBeOnPos(unit, x, y, -1, -1))
+        return false;
+
+    if (DoesSpinTileBlockTrap(GetTrapAt(x, y)))
+        return false;
+
+    return true;
+}
+
+static bool IsSpinTileVisited(const u8 *visited, int x, int y)
+{
+    int index = y * 64 + x;
+
+    return (visited[index >> 3] & (1 << (index & 7))) != 0;
+}
+
+static void SetSpinTileVisited(u8 *visited, int x, int y)
+{
+    int index = y * 64 + x;
+
+    visited[index >> 3] |= 1 << (index & 7);
+}
+
+static bool GetSpinTileNextHop(struct Unit *unit, int startX, int startY, const u8 *visited, int *outX, int *outY)
+{
+    struct Trap *trap;
+    int offsetX;
+    int offsetY;
+    int nextX;
+    int nextY;
+
+    trap = GetTypedTrapAt(startX, startY, TRAP_SPIN_TILE);
+    if (!trap)
+        return false;
+
+    GetSpinTileOffset(trap->data[TRAP_EXTDATA_SPIN_TILE_DIRECTION], &offsetX, &offsetY);
+
+    nextX = startX + offsetX;
+    nextY = startY + offsetY;
+
+    if (!CanSpinTileMoveUnitTo(unit, nextX, nextY))
+        return false;
+
+    if (IsSpinTileVisited(visited, nextX, nextY))
+        return false;
+
+    *outX = nextX;
+    *outY = nextY;
+    return true;
+}
+
+static bool ResolveSpinTileChainDestination(struct Unit *unit, int startX, int startY, int *outX, int *outY)
+{
+    u8 visited[(64 * 64) / 8] = { 0 };
+    int currentX = startX;
+    int currentY = startY;
+    int nextX;
+    int nextY;
+    bool moved = false;
+
+    SetSpinTileVisited(visited, currentX, currentY);
+
+    while (GetSpinTileNextHop(unit, currentX, currentY, visited, &nextX, &nextY)) {
+        SetSpinTileVisited(visited, nextX, nextY);
+        currentX = nextX;
+        currentY = nextY;
+        moved = true;
+    }
+
+    if (!moved)
+        return false;
+
+    *outX = currentX;
+    *outY = currentY;
+    return true;
+}
+
+static void MoveUnitAlongSpinTileChain(struct Unit *unit, int x, int y)
+{
+    gActionData.xMove = x;
+    gActionData.yMove = y;
+    gActionDataExpa.refrain_action = true;
+
+    unit->xPos = x;
+    unit->yPos = y;
+
+    EndAllMus();
+    RefreshEntityBmMaps();
+    RenderBmMap();
+    RefreshUnitSprites();
+
+    PlaySoundEffect(0x6A);
+}
 
 static struct Trap *(*const sVanillaAddLightRune)(int x, int y) = (void *) 0x0802EA59;
 
@@ -77,6 +229,7 @@ int GetTrapMapSpritePalette(const struct Trap *trap)
 
     case TRAP_GRASS_TILE:
     case TRAP_BOULDER_TILE:
+    case TRAP_SPIN_TILE:
         return TRAP_MAPSPRITE_PAL_DEFAULT;
 
     default:
@@ -112,6 +265,7 @@ void SetTrapMapSpritePalette(struct Trap *trap, int palette)
 
     case TRAP_GRASS_TILE:
     case TRAP_BOULDER_TILE:
+    case TRAP_SPIN_TILE:
         break;
     }
 }
@@ -183,6 +337,10 @@ void LoadTrapData(const struct TrapData * data)
 
         case TRAP_BOULDER_TILE:
             AddBoulderTile(data->xPos, data->yPos);
+            break;
+
+        case TRAP_SPIN_TILE:
+            AddSpinTile(data->xPos, data->yPos, data->subtype);
             break;
         }
 
@@ -325,6 +483,24 @@ struct Trap *AddBoulderTile(int x, int y)
     return AddTrap(x, y, TRAP_BOULDER_TILE, 0);
 }
 
+struct Trap *AddSpinTile(int x, int y, int direction)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    trap = GetTypedTrapAt(x, y, TRAP_SPIN_TILE);
+    if (!trap)
+        trap = AddTrap(x, y, TRAP_SPIN_TILE, 0);
+
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_SPIN_TILE_DIRECTION] = SanitizeSpinTileDirection(direction);
+    return trap;
+}
+
 struct Trap *AddToggleTorch(int x, int y, int duration, int startsLit, int palette)
 {
     struct Trap *trap;
@@ -412,4 +588,29 @@ bool PostAction_TeleportTile(ProcPtr parent)
 
     KernelCallEvent(EventScr_PostAction_TeleportTile, EV_EXEC_CUTSCENE, parent);
     return true;
+}
+
+bool PostAction_SpinTile(ProcPtr parent)
+{
+    struct Trap *trap;
+    int destX;
+    int destY;
+
+    (void) parent;
+
+    if (!UNIT_IS_VALID(gActiveUnit))
+        return false;
+
+    if (!UnitAvaliable(gActiveUnit) || UNIT_STONED(gActiveUnit))
+        return false;
+
+    trap = GetTypedTrapAt(gActiveUnit->xPos, gActiveUnit->yPos, TRAP_SPIN_TILE);
+    if (!trap)
+        return false;
+
+    if (!ResolveSpinTileChainDestination(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos, &destX, &destY))
+        return false;
+
+    MoveUnitAlongSpinTileChain(gActiveUnit, destX, destY);
+    return false;
 }

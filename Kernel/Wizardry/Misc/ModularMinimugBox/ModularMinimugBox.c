@@ -5,6 +5,8 @@
 #include "jester_headers/custom-functions.h"
 
 extern u16 ModularMinimugBox_TileMap[];
+
+#define MMB_NUMBER_OBJ_PAL 15
 #define MMBHeight 6
 #define MMBWidth 16
 
@@ -30,8 +32,12 @@ static void GetDigits(int val, u8* d) {
 static void DrawDigits(int x, int y, int count, u8* d) {
     for (int i = 0; i < count; i++) {
         u16 tile = (count == 2 && d[0] > 0 && i < 2) ? 0x2EA : (d[i] + 0x2E0);
-        CallARM_PushToSecondaryOAM(x + (i * 7), y, gObject_8x8, OAM2_CHR(tile) + OAM2_PAL(8));
+        CallARM_PushToSecondaryOAM(x + (i * 7), y, gObject_8x8, OAM2_CHR(tile) + OAM2_PAL(MMB_NUMBER_OBJ_PAL));
     }
+}
+
+static void ApplyMMBNumberPalette(void) {
+    ApplyPalette(Pal_Text, 0x10 + MMB_NUMBER_OBJ_PAL);
 }
 
 static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
@@ -75,16 +81,18 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     int xb = proc->xHp * 8, yb = proc->yHp * 8;
     u8 hp[6], mp[6];
 
+    ApplyMMBNumberPalette();
+
     if (!alt) {
         // Legacy FE8 Logic: Cap at 99 visually
         GetDigits(GetUnitCurrentHp(unit) >= 100 ? 0xFF : GetUnitCurrentHp(unit), hp);
         GetDigits(GetUnitMaxHp(unit) >= 100 ? 0xFF : GetUnitMaxHp(unit), hp + 3);
         
-        if (hp[1] != (u8)(' ' - '0')) CallARM_PushToSecondaryOAM(xb + 17, yb, gObject_8x8, hp[1] + OAM2_CHR(0x2E0) + OAM2_PAL(8));
-        CallARM_PushToSecondaryOAM(xb + 24, yb, gObject_8x8, hp[2] + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        if (hp[1] != (u8)(' ' - '0')) CallARM_PushToSecondaryOAM(xb + 17, yb, gObject_8x8, hp[1] + OAM2_CHR(0x2E0) + OAM2_PAL(MMB_NUMBER_OBJ_PAL));
+        CallARM_PushToSecondaryOAM(xb + 24, yb, gObject_8x8, hp[2] + OAM2_CHR(0x2E0) + OAM2_PAL(MMB_NUMBER_OBJ_PAL));
         
-        if (hp[4] != (u8)(' ' - '0')) CallARM_PushToSecondaryOAM(xb + 41, yb, gObject_8x8, hp[4] + OAM2_CHR(0x2E0) + OAM2_PAL(8));
-        CallARM_PushToSecondaryOAM(xb + 48, yb, gObject_8x8, hp[5] + OAM2_CHR(0x2E0) + OAM2_PAL(8));
+        if (hp[4] != (u8)(' ' - '0')) CallARM_PushToSecondaryOAM(xb + 41, yb, gObject_8x8, hp[4] + OAM2_CHR(0x2E0) + OAM2_PAL(MMB_NUMBER_OBJ_PAL));
+        CallARM_PushToSecondaryOAM(xb + 48, yb, gObject_8x8, hp[5] + OAM2_CHR(0x2E0) + OAM2_PAL(MMB_NUMBER_OBJ_PAL));
         return;
     }
 

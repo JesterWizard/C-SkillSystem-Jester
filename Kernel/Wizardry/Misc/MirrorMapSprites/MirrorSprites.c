@@ -10,9 +10,11 @@ extern struct SMSHandle* gSMSHandleIt;
 extern u32 gMirrorSpriteOptions;
 extern u16 Pal_Grass_Tile[];
 extern u16 Pal_Boulder_Tile[];
+extern u16 Pal_Spin_Tile[];
 
 #define GRASS_TRAP_OBJ_PAL 9
 #define BOULDER_TRAP_OBJ_PAL 10
+#define SPIN_TRAP_OBJ_PAL 8
 
 enum {
 	FLIP_PLAYER = 0x1,
@@ -72,6 +74,50 @@ static u16 ApplyBoulderTrapSpritePalette(u16 oam2Base)
     return (oam2Base & 0x0FFF) | (BOULDER_TRAP_OBJ_PAL << 12);
 }
 
+static u16 ApplySpinTrapSpritePalette(u16 oam2Base)
+{
+    return (oam2Base & 0x0FFF) | (SPIN_TRAP_OBJ_PAL << 12);
+}
+
+static int GetSpinTrapSpriteId(const struct Trap *trap)
+{
+    if (!trap)
+        return 0x6F;
+
+    switch (trap->data[TRAP_EXTDATA_SPIN_TILE_DIRECTION]) {
+    case SPIN_TILE_DIR_LEFT:
+        return 0x70;
+
+    case SPIN_TILE_DIR_UP:
+        return 0x71;
+
+    case SPIN_TILE_DIR_DOWN:
+        return 0x72;
+
+    case SPIN_TILE_DIR_RIGHT:
+    default:
+        return 0x6F;
+    }
+}
+
+static void ReloadCustomTrapSpritePalettes(void)
+{
+    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
+    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
+    ApplyPalette(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL);
+}
+
+static struct SMSHandle *AddTrapSprite(int xDisplay, int yDisplay)
+{
+    struct SMSHandle *smsHandle = AddUnitSprite(yDisplay);
+
+    smsHandle->yDisplay = yDisplay;
+    smsHandle->xDisplay = xDisplay;
+    smsHandle->_u0A = 0;
+
+    return smsHandle;
+}
+
 LYN_REPLACE_CHECK(RefreshUnitSprites);
 void RefreshUnitSprites(void)
 {
@@ -89,8 +135,7 @@ void RefreshUnitSprites(void)
 
     gSMSHandleIt = &gSMSHandleArray[1];
 
-    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
-    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
+    ReloadCustomTrapSpritePalettes();
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     for (i = 1; i < 0xD0; i++)
@@ -183,10 +228,7 @@ void RefreshUnitSprites(void)
                 break;
             }
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = oam2;
 
@@ -197,9 +239,7 @@ void RefreshUnitSprites(void)
         {
             oam2 = UseUnitSprite(0x66) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
 
@@ -210,9 +250,7 @@ void RefreshUnitSprites(void)
         {
             oam2 = UseUnitSprite(0x68) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
 
@@ -225,9 +263,7 @@ void RefreshUnitSprites(void)
 
             oam2 = UseUnitSprite(spriteId) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
@@ -237,9 +273,7 @@ void RefreshUnitSprites(void)
         {
             oam2 = UseUnitSprite(0x6C) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
@@ -249,9 +283,7 @@ void RefreshUnitSprites(void)
         {
             oam2 = UseUnitSprite(0x6D) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyGrassTrapSpritePalette(oam2);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
@@ -261,11 +293,19 @@ void RefreshUnitSprites(void)
         {
             oam2 = UseUnitSprite(0x6E) - 0x5000 + 0x80;
 
-            smsHandle = AddUnitSprite(trap->yPos * 16);
-            smsHandle->yDisplay = trap->yPos * 16;
-            smsHandle->xDisplay = trap->xPos * 16;
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
             smsHandle->oam2Base = ApplyBoulderTrapSpritePalette(oam2);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
+
+        if (trap->type == TRAP_SPIN_TILE)
+        {
+            oam2 = UseUnitSprite(GetSpinTrapSpriteId(trap)) - 0x5000 + 0x80;
+
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
+
+            smsHandle->oam2Base = ApplySpinTrapSpritePalette(oam2);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }
@@ -280,6 +320,8 @@ LYN_REPLACE_CHECK(PutUnitSpritesOam);
 void PutUnitSpritesOam(void)
 {
     struct SMSHandle * it = gSMSHandleArray->pNext;
+
+    ReloadCustomTrapSpritePalettes();
 
     PutUnitSpriteIconsOam();
 

@@ -38,6 +38,7 @@ gPostActionFuncs:
     POIN PostAction_Turncoat
     POIN PostAction_HellscapeVoidTile
     POIN PostAction_TeleportTile
+    POIN PostAction_SpinTile
     POIN ResetComboAtkList
 
     //End

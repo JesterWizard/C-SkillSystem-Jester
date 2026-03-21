@@ -23,7 +23,18 @@ void SetGameOptions()
     // AddTeleportTilePair(1, 1, 3, 3);
     // AddTeleportTilePair(5, 5, 9, 5);
     // AddGrassTile(3, 3, 3);
-    AddBoulderTile(1, 1);
+    // AddBoulderTile(1, 1);
+    AddSpinTile(1, 3, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(2, 3, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(3, 3, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(4, 3, SPIN_TILE_DIR_DOWN);
+    AddSpinTile(4, 4, SPIN_TILE_DIR_DOWN);
+    AddSpinTile(4, 5, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(5, 5, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(6, 5, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(7, 5, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(8, 5, SPIN_TILE_DIR_RIGHT);
+    AddSpinTile(9, 5, SPIN_TILE_DIR_RIGHT);
 
     // gChapterTimerSeconds = 30;
 

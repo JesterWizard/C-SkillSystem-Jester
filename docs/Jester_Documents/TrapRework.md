@@ -13,11 +13,12 @@
 7. [Trap Palette Selection](#trap-palette-selection)
 8. [Grass Trap Notes](#grass-trap-notes)
 9. [Boulder Trap Notes](#boulder-trap-notes)
-10. [Trap Sprite Registration](#trap-sprite-registration)
-11. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-12. [Code Locations](#code-locations)
-13. [TODO](#todo)
-14. [Limitations & Bugs](#limitations--bugs)
+10. [Spin Tile Notes](#spin-tile-notes)
+11. [Trap Sprite Registration](#trap-sprite-registration)
+12. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+13. [Code Locations](#code-locations)
+14. [TODO](#todo)
+15. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -70,6 +71,14 @@ Important extdata examples from this file:
 - `TRAP_EXTDATA_TOGGLE_TORCH_DURATION`, `TRAP_EXTDATA_TOGGLE_TORCH_PALETTE`
 - `TRAP_EXTDATA_TELEPORT_DEST_X`, `TRAP_EXTDATA_TELEPORT_DEST_Y`, `TRAP_EXTDATA_TELEPORT_PALETTE`
 - `TRAP_EXTDATA_GRASS_TILE_TURNSLEFT`
+- `TRAP_EXTDATA_SPIN_TILE_DIRECTION`
+
+Spin tile direction constants:
+
+- `SPIN_TILE_DIR_LEFT`
+- `SPIN_TILE_DIR_RIGHT`
+- `SPIN_TILE_DIR_UP`
+- `SPIN_TILE_DIR_DOWN`
 
 Palette handling summary:
 
@@ -95,6 +104,7 @@ File: `Kernel/Wizardry/Common/TrapData/TrapData.c`
 - `TRAP_TELEPORT_TILE` -> `AddTeleportTile(...)`
 - `TRAP_GRASS_TILE` -> `AddGrassTile(...)`
 - `TRAP_BOULDER_TILE` -> `AddBoulderTile(...)`
+- `TRAP_SPIN_TILE` -> `AddSpinTile(...)`
 
 When adding a new trap type that needs special initialization, add a `case` here.
 
@@ -129,6 +139,7 @@ For the reworked trap types, these bytes now also carry palette data:
 | Teleport tile | destination X | destination Y | palette |
 | Grass tile | unused | turns left (`0` = permanent) | unused |
 | Boulder tile | unused | unused | unused |
+| Spin tile | direction (`SPIN_TILE_DIR_*`) | unused | unused |
 
 Example pattern:
 
@@ -137,6 +148,7 @@ static const u8 TrapData_ThisEvent[] = {
     HEAL_TILE(3, 1, 2, TRAP_MAPSPRITE_PAL_PLAYER),
     TOGGLE_TORCH(6, 4, 3, true, TRAP_MAPSPRITE_PAL_NPC),
     TELEPORT_TILE(8, 2, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY),
+    SPIN_TILE(10, 5, SPIN_TILE_DIR_RIGHT),
     TRAP_NONE
 };
 
@@ -203,6 +215,7 @@ Recommended pattern for custom runtime trap setup:
 - `AddLightRune(x, y, palette)`
 - `AddGrassTile(x, y, turnsLeft)`
 - `AddBoulderTile(x, y)`
+- `AddSpinTile(x, y, direction)`
 - other trap-specific constructors
 
 1. Call that function from event script via `ASMC(YourFunctionName)`.
@@ -224,6 +237,7 @@ For event-driven trap placement, call the trap constructor directly inside your 
 | Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite |
 | Grass tile | `AddGrassTile(x, y, turnsLeft)` | Create a grass trap tile that draws with `Pal_Grass_Tile`, behaves like forest terrain, and optionally expires after `turnsLeft` turns (`0` = permanent) |
 | Boulder tile | `AddBoulderTile(x, y)` | Create a movable boulder trap that blocks non-fliers, renders with `Pal_Boulder_Tile`, and can be pushed with the `Interact` command |
+| Spin tile | `AddSpinTile(x, y, direction)` | Create a directional shove tile that halts grounded movement on contact and then follows connected spin tiles one step at a time until the chain ends or a landing tile is blocked |
 
 Runtime example from chapter ASMC code:
 
@@ -236,6 +250,7 @@ void SetGameOptions()
     AddLightRune(10, 5, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
     AddGrassTile(3, 3, 3);
     AddBoulderTile(9, 4);
+    AddSpinTile(11, 4, SPIN_TILE_DIR_LEFT);
 }
 ```
 
@@ -272,6 +287,7 @@ static const u8 TrapData_ThisEvent[] = {
     TELEPORT_TILE(8, 2, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY),
     TELEPORT_TILE_PAIR(1, 1, 3, 3),
     BOULDER_TILE(9, 4),
+    SPIN_TILE(11, 4, SPIN_TILE_DIR_LEFT),
     TRAP_NONE
 };
 ```
@@ -382,6 +398,39 @@ Implementation note:
 - Non-movement placement checks also reject boulder tiles through `Generic_CanUnitBeOnPos(...)`.
 - Push behavior is implemented in the shared `Interact` command path, alongside toggle torches.
 
+## Spin Tile Notes
+
+The spin tile is the current example of a trap that resolves entirely through movement and post-action hooks.
+
+Behavior summary:
+
+- Runtime API: `AddSpinTile(x, y, direction)`
+- Chapter-start macro: `SPIN_TILE(x, y, direction)`
+- Direction constants: `SPIN_TILE_DIR_LEFT`, `SPIN_TILE_DIR_RIGHT`, `SPIN_TILE_DIR_UP`, `SPIN_TILE_DIR_DOWN`
+- Sprite sources: `Gfx_Spin_Tile_LEFT`, `Gfx_Spin_Tile_RIGHT`, `Gfx_Spin_Tile_UP`, `Gfx_Spin_Tile_DOWN`
+- Palette source: `Pal_Spin_Tile`
+- Movement rule: grounded units stop as soon as their path reaches the tile, even if the selected destination was farther away
+- Flier rule: fliers ignore the mid-path stop and only resolve the trap if they finish an action while standing on the tile
+- Forced move rule: after resolution, the unit is pushed one tile at a time in the configured direction if each landing tile is valid and unobstructed
+- Timing rule: connected spin-tile chains pause for 30 frames between hops so the unit visibly lands on each tile before continuing
+- Blockers: the forced move fails on map edge, occupied tiles, invalid terrain, light runes, boulders, and other tiles the unit cannot legally occupy
+
+What that means for the player:
+
+- Grounded units cannot walk through a spin tile in one move; the trap catches them on contact.
+- If the arrow points at an open tile, the unit is immediately displaced one space after the trap resolves.
+- Connected spin tiles continue to resolve one tile at a time, so a straight run of tiles will carry the unit across the whole chain.
+- If the next destination tile is blocked, the unit stays on the last valid spin tile and the shove stops there.
+- Connected spin tiles keep their configured directions and graphics stable after activation.
+- When a chain continues, the unit visibly appears on each intermediate tile for 30 frames before the next hop begins.
+- Fliers can pass over the tile during movement, but ending an action on it still risks the forced shove.
+
+Implementation note:
+
+- The contact stop is injected in `UnitApplyWorkingMovementScript(...)` instead of the hidden-mine path so thieves and assassins do not inherit vanilla mine immunity.
+- `PostAction_SpinTile(...)` handles the actual shove after the unit is standing on the trap.
+- `GetPickTrapType(...)` returns `TRAP_NONE` for spin tiles so vanilla `ExecTrap(...)` is not asked to process a custom trap type.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -413,6 +462,7 @@ Current registered trap-like sprite IDs in this file:
 - `0x6C` Teleport Tile
 - `0x6D` Grass Tile
 - `0x6E` Boulder Tile
+- `0x6F` Spin Tile
 
 When adding a new trap sprite:
 
@@ -443,6 +493,7 @@ It already draws map sprites for several trap types, including:
 - `TRAP_TELEPORT_TILE`
 - `TRAP_GRASS_TILE`
 - `TRAP_BOULDER_TILE`
+- `TRAP_SPIN_TILE`
 
 ### Pattern to display a new trap type
 
@@ -479,6 +530,8 @@ Implementation notes:
 | Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
 | Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
 | Boulder trap creation | `AddBoulderTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates startup or runtime boulder traps without changing underlying terrain |
+| Spin trap creation and shove logic | `AddSpinTile` and `PostAction_SpinTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores directional spin tile data and resolves connected spin-tile chains one hop at a time with 30-frame pauses until the next hop would be blocked or repeat |
+| Spin trap sprite selection | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Chooses the left/right/up/down spin tile sprite ID from the trap's current direction |
 | Trap graphics installer | `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
 | Chapter trap declaration | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h` | Defines startup trap arrays for normal/hard modes |
 | Chapter trap binding | `Data/FE8_Rewritten_Terper/Event/Source/00/00.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
@@ -489,6 +542,7 @@ Implementation notes:
 | Grass trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
 | Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Core/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
 | Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
+| Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
 | Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
 | Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
 | Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
@@ -503,6 +557,7 @@ Implementation notes:
 - Add a short reference table that maps each palette constant to a screenshot or gif once assets exist.
 - Document a shared removal helper if more terrain-override trap types are added in the future.
 - Decide whether `Interact` should eventually expose a chooser when a unit is adjacent to multiple interactable trap/object types.
+- Add direction-specific SMS artwork if contributors want the tile overlay itself to visually distinguish left, right, up, and down on the map.
 
 ## Limitations & Bugs
 
@@ -510,3 +565,4 @@ Implementation notes:
 - `TELEPORT_TILE_PAIR(...)` still defaults to `TRAP_MAPSPRITE_PAL_DEFAULT`, so pair helpers and runtime pair creation do not currently share the same palette default.
 - Grass trap lifetime is stored in a signed extdata byte, so keep `turnsLeft` within normal trap-duration ranges.
 - Boulder pushes currently block on units, traps, map bounds, and a fixed list of terrain-coded obstacles/buildings; they do not inspect arbitrary custom tile events that live on otherwise normal terrain.
+- Spin tile direction remains fixed to the configured trap data; activation does not mutate the tile's stored direction.

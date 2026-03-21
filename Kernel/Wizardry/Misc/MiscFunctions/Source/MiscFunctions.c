@@ -2577,6 +2577,9 @@ int GetPickTrapType(struct Unit* unit)
     case TRAP_BALLISTA:
         return TRAP_NONE;
 
+    case TRAP_SPIN_TILE:
+        return TRAP_NONE;
+
     case TRAP_FIRETILE:
         if ((UNIT_CATTRIBUTES(unit) & CA_THIEF))
             return TRAP_FIRE_THIEF;
@@ -3033,6 +3036,20 @@ void UnitApplyWorkingMovementScript(struct Unit *unit, int x, int y)
             break;
 
         } // switch (*it)
+
+        if (!(UNIT_CATTRIBUTES(unit) & CA_FLYER))
+        {
+            if (GetTypedTrapAt(x, y, TRAP_SPIN_TILE))
+            {
+                *++it = MOVE_CMD_HALT;
+
+                gActionData.unitActionType = UNIT_ACTION_TRAPPED;
+                gActionData.xMove = x;
+                gActionData.yMove = y;
+
+                return;
+            }
+        }
 
         // BUG -  https://github.com/JesterWizard/C-SkillSystem-Mokha/issues/264
         if (!(UNIT_CATTRIBUTES(unit) & (CA_THIEF | CA_FLYER | CA_ASSASSIN)))

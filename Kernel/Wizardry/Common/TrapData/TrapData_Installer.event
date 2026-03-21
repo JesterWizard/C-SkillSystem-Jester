@@ -90,3 +90,44 @@ PUSH
 		SHORT 0x0000
 		POIN Gfx_Boulder_Tile
 POP
+
+/* Spin Tile */
+#define Gfx_Spin_Tile_RIGHT_ID 0x6F
+#define Gfx_Spin_Tile_LEFT_ID 0x70
+#define Gfx_Spin_Tile_UP_ID 0x71
+#define Gfx_Spin_Tile_DOWN_ID 0x72
+
+Gfx_Spin_Tile_LEFT: #incext Png2Dmp "images/Spin_Tile_LEFT.png" --lz77
+Gfx_Spin_Tile_RIGHT: #incext Png2Dmp "images/Spin_Tile_RIGHT.png" --lz77
+Gfx_Spin_Tile_UP: #incext Png2Dmp "images/Spin_Tile_UP.png" --lz77
+Gfx_Spin_Tile_DOWN: #incext Png2Dmp "images/Spin_Tile_DOWN.png" --lz77
+
+Pal_Spin_Tile: #incext Png2Dmp "images/Spin_Tile_RIGHT.png" --palette-only
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Spin_Tile_LEFT_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Spin_Tile_LEFT
+POP
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Spin_Tile_RIGHT_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Spin_Tile_RIGHT
+POP
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Spin_Tile_UP_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Spin_Tile_UP
+POP
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Spin_Tile_DOWN_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Spin_Tile_DOWN
+POP	

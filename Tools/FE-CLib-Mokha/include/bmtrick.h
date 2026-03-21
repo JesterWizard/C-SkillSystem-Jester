@@ -30,6 +30,7 @@ enum
     TRAP_TELEPORT_TILE = 19,
     TRAP_GRASS_TILE = 20,
     TRAP_BOULDER_TILE = 21,
+    TRAP_SPIN_TILE = 22,
 };
 
 enum
@@ -74,6 +75,17 @@ enum
 
     // Grass tile extdata definitions
     TRAP_EXTDATA_GRASS_TILE_TURNSLEFT = 0,
+
+    // Spin tile extdata definitions
+    TRAP_EXTDATA_SPIN_TILE_DIRECTION = 0,
+};
+
+enum
+{
+    SPIN_TILE_DIR_LEFT = 0,
+    SPIN_TILE_DIR_RIGHT,
+    SPIN_TILE_DIR_UP,
+    SPIN_TILE_DIR_DOWN,
 };
 
 struct Trap
@@ -98,6 +110,7 @@ struct Trap* AddTrap(int x, int y, int trapType, int meta);
 struct Trap* AddDamagingTrap(int x, int y, int trapType, int meta, int turnCountdown, int turnInterval, int damage);
 struct Trap* RemoveTrap(struct Trap* trap);
 struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette);
+struct Trap* AddSpinTile(int x, int y, int direction);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
 struct Trap* AddGrassTile(int x, int y, int turnsLeft);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
@@ -151,6 +164,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define BOULDER_TILE(x, y) \
     TRAP_BOULDER_TILE, (x), (y), 0, 0, 0
+
+#define SPIN_TILE(x, y, direction) \
+    TRAP_SPIN_TILE, (x), (y), (direction), 0, 0
 
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);
