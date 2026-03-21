@@ -348,7 +348,7 @@ int GetTrapMapSpritePalette(const struct Trap *trap)
 
     switch (trap->type) {
     case TRAP_LIGHT_RUNE:
-        return SanitizeTrapMapSpritePalette(trap->extra);
+        return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_RUNE_PALETTE]);
 
     case TRAP_HEAL_TILE:
         return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_HEALTILE_PALETTE]);
@@ -380,7 +380,7 @@ void SetTrapMapSpritePalette(struct Trap *trap, int palette)
 
     switch (trap->type) {
     case TRAP_LIGHT_RUNE:
-        trap->extra = sanitizedPalette;
+        trap->data[TRAP_EXTDATA_RUNE_PALETTE] = sanitizedPalette;
         break;
 
     case TRAP_HEAL_TILE:
@@ -677,6 +677,9 @@ LYN_REPLACE_CHECK(AddLightRune);
 struct Trap *AddLightRune(int x, int y, int palette)
 {
     struct Trap *trap = sVanillaAddLightRune(x, y);
+
+    if (!trap)
+        return NULL;
 
     SetTrapMapSpritePalette(trap, palette);
 

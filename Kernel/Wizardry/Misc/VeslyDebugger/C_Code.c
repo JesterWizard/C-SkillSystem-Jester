@@ -3149,6 +3149,24 @@ static void DisplayTrapPreview(DebuggerProc *proc)
     PutSprite(0, 23 * 8, 10 * 8, gObject_16x16, oam2);
 }
 
+static struct Trap *CreateDebuggerLightRune(int x, int y)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    trap = AddTrap(x, y, TRAP_LIGHT_RUNE, gBmMapTerrain[y][x]);
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_RUNE_TURNSLEFT] = 3;
+    SetTrapMapSpritePalette(trap, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+    gBmMapTerrain[y][x] = 0;
+
+    return trap;
+}
+
 static struct Trap *CreateDebuggerTrap(const struct DebuggerTrapViewDef *def, int x, int y)
 {
     if (!def)
@@ -3156,7 +3174,7 @@ static struct Trap *CreateDebuggerTrap(const struct DebuggerTrapViewDef *def, in
 
     switch (def->type) {
     case TRAP_LIGHT_RUNE:
-        return AddLightRune(x, y, TRAP_MAPSPRITE_PAL_DEFAULT);
+        return CreateDebuggerLightRune(x, y);
 
     case TRAP_HEAL_TILE:
         return AddHealTile(x, y, 0, 0, TRAP_MAPSPRITE_PAL_DEFAULT);
@@ -3181,11 +3199,38 @@ static struct Trap *CreateDebuggerTrap(const struct DebuggerTrapViewDef *def, in
     }
 }
 
+static bool CanDebuggerPlaceTrap(const struct DebuggerTrapViewDef *def, int x, int y)
+{
+    int terrain;
+
+    if (!def)
+        return false;
+
+    if (!IsPositionValid(x, y))
+        return false;
+
+    if (def->type == TRAP_LIGHT_RUNE) {
+        if (GetUnitAtPosition(x, y))
+            return false;
+
+        if (GetTrapAt(x, y))
+            return false;
+
+        terrain = gBmMapTerrain[y][x];
+
+        if (TerrainTable_MovCost_FlyNormal[terrain] <= 0)
+            return false;
+    }
+
+    return true;
+}
+
 static void RedrawTrapMenu(DebuggerProc* proc)
 {
     struct Text *th = gStatScreen.text;
     const struct DebuggerTrapViewDef *def = GetDebuggerTrapViewDef(proc->tmp[0]);
     struct Trap *trap = def ? GetTypedTrapAt(proc->tmp[1], proc->tmp[2], def->type) : NULL;
+    bool canPlace = CanDebuggerPlaceTrap(def, proc->tmp[1], proc->tmp[2]);
 
     BG_Fill(gBG0TilemapBuffer, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -3210,8 +3255,8 @@ static void RedrawTrapMenu(DebuggerProc* proc)
     Text_DrawString(&th[4], "Status");
     PutText(&th[4], gBG0TilemapBuffer + TILEMAP_INDEX(2, 8));
 
-    Text_SetColor(&th[5], trap ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE);
-    Text_DrawString(&th[5], trap ? "Found" : "Missing");
+    Text_SetColor(&th[5], trap ? TEXT_COLOR_SYSTEM_GOLD : (canPlace ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY));
+    Text_DrawString(&th[5], trap ? "Found" : (canPlace ? "Missing" : "Blocked"));
     PutText(&th[5], gBG0TilemapBuffer + TILEMAP_INDEX(9, 8));
 
     Text_DrawString(&th[6], "Preview");
@@ -3258,8 +3303,14 @@ void ViewTrapIdle(DebuggerProc* proc)
     if (keys & A_BUTTON) {
         trap = def ? GetTypedTrapAt(proc->tmp[1], proc->tmp[2], def->type) : NULL;
 
-        if (!trap)
+        if (!trap && CanDebuggerPlaceTrap(def, proc->tmp[1], proc->tmp[2]))
             trap = CreateDebuggerTrap(def, proc->tmp[1], proc->tmp[2]);
+
+        if (trap) {
+            RefreshEntityBmMaps();
+            RenderBmMap();
+            RefreshUnitSprites();
+        }
 
         if (trap)
             m4aSongNumStart(0x6A);
