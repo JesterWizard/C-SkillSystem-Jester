@@ -92,8 +92,26 @@ static bool DoesSpinTileBlockTrap(const struct Trap *trap)
     }
 }
 
+static bool DoesSpinTileBlockUnit(const struct Unit *unit, int x, int y)
+{
+    FOR_UNITS_ONMAP_ALL(otherUnit, {
+        if (otherUnit == unit)
+            continue;
+
+        if (otherUnit->xPos != x || otherUnit->yPos != y)
+            continue;
+
+        return true;
+    });
+
+    return false;
+}
+
 static bool CanSpinTileMoveUnitTo(struct Unit *unit, int x, int y)
 {
+    if (DoesSpinTileBlockUnit(unit, x, y))
+        return false;
+
     if (!Generic_CanUnitBeOnPos(unit, x, y, -1, -1))
         return false;
 
@@ -205,6 +223,9 @@ static void CleanupSpinTileSequence(struct SpinTileSequenceProc *proc)
     if (!UNIT_IS_VALID(proc->unit))
         return;
 
+    gActionData.xMove = proc->unit->xPos;
+    gActionData.yMove = proc->unit->yPos;
+
     mu = GetUnitMu(proc->unit);
     if (mu)
         EndMu(mu);
@@ -218,6 +239,8 @@ static void CleanupSpinTileSequence(struct SpinTileSequenceProc *proc)
 static bool StartSpinTileHop(struct SpinTileSequenceProc *proc)
 {
     struct MuProc *mu;
+    int prevX;
+    int prevY;
     int nextX;
     int nextY;
     int deltaX;
@@ -230,10 +253,13 @@ static bool StartSpinTileHop(struct SpinTileSequenceProc *proc)
     if (!mu)
         return false;
 
+    prevX = proc->unit->xPos;
+    prevY = proc->unit->yPos;
+
     SetSpinTileVisited(proc->visited, nextX, nextY);
 
-    deltaX = nextX - proc->unit->xPos;
-    deltaY = nextY - proc->unit->yPos;
+    deltaX = nextX - prevX;
+    deltaY = nextY - prevY;
 
     proc->unit->xPos = nextX;
     proc->unit->yPos = nextY;
@@ -248,6 +274,7 @@ static bool StartSpinTileHop(struct SpinTileSequenceProc *proc)
     SetMuFacing(mu, GetSpinTileFacingFromDelta(deltaX, deltaY));
 
     RefreshEntityBmMaps();
+
     RenderBmMap();
     PlaySoundEffect(0x6A);
     return true;
@@ -710,8 +737,12 @@ bool PostAction_SpinTile(ProcPtr parent)
     if (!trap)
         return false;
 
-    if (!HasSpinTileNextHop(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos))
+    if (!HasSpinTileNextHop(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos)) {
+        RefreshEntityBmMaps();
+        RenderBmMap();
+        RefreshUnitSprites();
         return false;
+    }
 
     gActionDataExpa.refrain_action = true;
 

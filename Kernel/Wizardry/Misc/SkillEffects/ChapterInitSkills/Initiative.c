@@ -7,24 +7,24 @@
 
 #define GRASSY_SURGE_TURNS 3
 
-static bool _IsGrassySurgeBlockedTerrain(int terrain)
-{
-	switch (terrain) {
-	case TERRAIN_VILLAGE_03:
-	case TERRAIN_VILLAGE_04:
-	case TERRIAN_HOUSE:
-	case TERRAIN_ARMORY:
-	case TERRAIN_VENDOR:
-	case TERRAIN_ARENA_08:
-	case TERRAIN_ARENA_30:
-	case TERRAIN_CHURCH:
-	case TERRAIN_INN:
-		return true;
+// static bool _IsGrassySurgeBlockedTerrain(int terrain)
+// {
+// 	switch (terrain) {
+// 	case TERRAIN_VILLAGE_03:
+// 	case TERRAIN_VILLAGE_04:
+// 	case TERRIAN_HOUSE:
+// 	case TERRAIN_ARMORY:
+// 	case TERRAIN_VENDOR:
+// 	case TERRAIN_ARENA_08:
+// 	case TERRAIN_ARENA_30:
+// 	case TERRAIN_CHURCH:
+// 	case TERRAIN_INN:
+// 		return true;
 
-	default:
-		return false;
-	}
-}
+// 	default:
+// 		return false;
+// 	}
+// }
 
 static void _TryApplyGrassySurge(struct Unit *unit)
 {

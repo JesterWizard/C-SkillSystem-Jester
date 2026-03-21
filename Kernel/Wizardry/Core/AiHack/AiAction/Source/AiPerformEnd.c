@@ -3,6 +3,9 @@
 LYN_REPLACE_CHECK(CpPerform_Cleanup);
 void CpPerform_Cleanup(struct CpPerformProc *proc)
 {
+	int cleanupX;
+	int cleanupY;
+
 	UpdateAllPhaseHealingAIStatus();
 
 #if !CHAX
@@ -10,10 +13,18 @@ void CpPerform_Cleanup(struct CpPerformProc *proc)
 #else
 	gActiveUnit = GetUnit(gActionData.subjectIndex);
 
-	SetCursorMapPosition(gAiDecision.xMove, gAiDecision.yMove);
+	cleanupX = gAiDecision.xMove;
+	cleanupY = gAiDecision.yMove;
+
+	if (gActionData.unitActionType == UNIT_ACTION_TRAPPED) {
+		cleanupX = gActiveUnit->xPos;
+		cleanupY = gActiveUnit->yPos;
+	}
+
+	SetCursorMapPosition(cleanupX, cleanupY);
 	RenderBmMapOnBg2();
 
-	MoveActiveUnit(gAiDecision.xMove, gAiDecision.yMove);
+	MoveActiveUnit(cleanupX, cleanupY);
 
 #if CHAX
 	if (gActiveUnit->curHP != 0) {
