@@ -2764,6 +2764,8 @@ bool Generic_CanUnitBeOnPos(struct Unit* unit, s8 x, s8 y, int x2, int y2)
         return 0; // position out of bounds
     if (x >= gBmMapSize.x || y >= gBmMapSize.y)
         return 0; // position out of bounds
+    if (!(UNIT_CATTRIBUTES(unit) & CA_FLYER) && GetTypedTrapAt(x, y, TRAP_BOULDER_TILE))
+        return 0;
     if (gBmMapUnit[y][x])
         return 0;
     if (gBmMapHidden[y][x] & 1)

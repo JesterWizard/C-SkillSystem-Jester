@@ -29,6 +29,7 @@ enum
     TRAP_TOGGLE_TORCH = 18,
     TRAP_TELEPORT_TILE = 19,
     TRAP_GRASS_TILE = 20,
+    TRAP_BOULDER_TILE = 21,
 };
 
 enum
@@ -148,7 +149,11 @@ int GetEffectiveTerrainAt(int x, int y);
 #define GRASS_TILE(x, y, turnsLeft) \
     TRAP_GRASS_TILE, (x), (y), 0, (turnsLeft), 0
 
+#define BOULDER_TILE(x, y) \
+    TRAP_BOULDER_TILE, (x), (y), 0, 0, 0
+
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);
+struct Trap* AddBoulderTile(int x, int y);
 
 #endif // GUARD_BMTRICK_H

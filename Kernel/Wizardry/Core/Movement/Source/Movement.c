@@ -4,6 +4,7 @@
 #include "class-types.h"
 #include "weapon-range.h"
 #include "kernel-lib.h"
+#include "kernel/traps.h"
 #include "map-movement.h"
 #include "constants/skills.h"
 
@@ -15,6 +16,7 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 	FORCE_DECLARE bool self_flier;
 
 	struct Unit *unit;
+	struct Trap *trap;
 	int i, ix, iy;
 
 	static const struct Vec1 *vec_ref[4] = {
@@ -225,6 +227,19 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 				break;
 			}
 		}
+
+	if (!(UNIT_CATTRIBUTES(unit) & CA_FLYER)) {
+		for (trap = GetTrap(0); trap->type != TRAP_NONE; ++trap) {
+			if (trap->type != TRAP_BOULDER_TILE)
+				continue;
+
+			if (!IsPositionValid(trap->xPos, trap->yPos))
+				continue;
+
+			KernelExtMoveBarrierMap[trap->yPos][trap->xPos] = -1;
+			KernelMoveMapFlags |= FMOVSTRE_BARRIER;
+		}
+	}
 }
 
 LYN_REPLACE_CHECK(GenerateMovementMap);

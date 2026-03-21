@@ -12,11 +12,12 @@
 6. [Applying Existing Traps](#applying-existing-traps)
 7. [Trap Palette Selection](#trap-palette-selection)
 8. [Grass Trap Notes](#grass-trap-notes)
-9. [Trap Sprite Registration](#trap-sprite-registration)
-10. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-11. [Code Locations](#code-locations)
-12. [TODO](#todo)
-13. [Limitations & Bugs](#limitations--bugs)
+9. [Boulder Trap Notes](#boulder-trap-notes)
+10. [Trap Sprite Registration](#trap-sprite-registration)
+11. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+12. [Code Locations](#code-locations)
+13. [TODO](#todo)
+14. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -75,6 +76,7 @@ Palette handling summary:
 - `TRAP_LIGHT_RUNE` stores its palette in `trap->extra`.
 - `TRAP_HEAL_TILE`, `TRAP_TOGGLE_TORCH`, and `TRAP_TELEPORT_TILE` store their palette in trap extdata.
 - `TRAP_GRASS_TILE` uses a dedicated custom OBJ palette path instead of the shared trap palette enum.
+- `TRAP_BOULDER_TILE` also uses a dedicated custom OBJ palette path instead of the shared trap palette enum.
 - `SetTrapMapSpritePalette(...)` sanitizes out-of-range values and falls back to `TRAP_MAPSPRITE_PAL_DEFAULT`.
 
 ### LoadTrapData in TrapData.c
@@ -92,6 +94,7 @@ File: `Kernel/Wizardry/Common/TrapData/TrapData.c`
 - `TRAP_TOGGLE_TORCH` -> `AddToggleTorch(...)`
 - `TRAP_TELEPORT_TILE` -> `AddTeleportTile(...)`
 - `TRAP_GRASS_TILE` -> `AddGrassTile(...)`
+- `TRAP_BOULDER_TILE` -> `AddBoulderTile(...)`
 
 When adding a new trap type that needs special initialization, add a `case` here.
 
@@ -125,6 +128,7 @@ For the reworked trap types, these bytes now also carry palette data:
 | Toggle torch | starts lit | duration | palette |
 | Teleport tile | destination X | destination Y | palette |
 | Grass tile | unused | turns left (`0` = permanent) | unused |
+| Boulder tile | unused | unused | unused |
 
 Example pattern:
 
@@ -198,6 +202,7 @@ Recommended pattern for custom runtime trap setup:
 - `AddTeleportTilePair(x1, y1, x2, y2)`
 - `AddLightRune(x, y, palette)`
 - `AddGrassTile(x, y, turnsLeft)`
+- `AddBoulderTile(x, y)`
 - other trap-specific constructors
 
 1. Call that function from event script via `ASMC(YourFunctionName)`.
@@ -218,6 +223,7 @@ For event-driven trap placement, call the trap constructor directly inside your 
 | One-way teleport tile | `AddTeleportTile(x, y, destX, destY, palette)` | Create a single teleport tile that sends units from `(x, y)` to `(destX, destY)` with a selected sprite palette |
 | Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite |
 | Grass tile | `AddGrassTile(x, y, turnsLeft)` | Create a grass trap tile that draws with `Pal_Grass_Tile`, behaves like forest terrain, and optionally expires after `turnsLeft` turns (`0` = permanent) |
+| Boulder tile | `AddBoulderTile(x, y)` | Create a movable boulder trap that blocks non-fliers, renders with `Pal_Boulder_Tile`, and can be pushed with the `Interact` command |
 
 Runtime example from chapter ASMC code:
 
@@ -229,6 +235,7 @@ void SetGameOptions()
     AddTeleportTile(8, 3, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY);
     AddLightRune(10, 5, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
     AddGrassTile(3, 3, 3);
+    AddBoulderTile(9, 4);
 }
 ```
 
@@ -264,6 +271,7 @@ static const u8 TrapData_ThisEvent[] = {
     TOGGLE_TORCH(6, 5, 3, true, TRAP_MAPSPRITE_PAL_NPC),
     TELEPORT_TILE(8, 2, 12, 7, TRAP_MAPSPRITE_PAL_ENEMY),
     TELEPORT_TILE_PAIR(1, 1, 3, 3),
+    BOULDER_TILE(9, 4),
     TRAP_NONE
 };
 ```
@@ -345,6 +353,35 @@ Implementation note:
 - Replacing a grass trap on the same tile refreshes its lifetime instead of overwriting the saved original terrain.
 - The trap itself remains responsible for the visual overlay, while the engine's normal terrain systems handle the bonuses and terrain display.
 
+## Boulder Trap Notes
+
+The boulder trap is the current example of a trap that behaves like a map object instead of a terrain override.
+
+Behavior summary:
+
+- Runtime API: `AddBoulderTile(x, y)`
+- Chapter-start macro: `BOULDER_TILE(x, y)`
+- Sprite source: `Gfx_Boulder_Tile`
+- Palette source: `Pal_Boulder_Tile`
+- Movement rule: non-fliers treat the tile as blocked in movement-map generation and generic position checks
+- Interaction rule: the `Interact` command can push an adjacent boulder directly away from the acting unit
+- Push range: `floor(GetUnitPower(unit) / 10)` tiles, capped by the first blocked destination in that direction
+
+What that means for the player:
+
+- Wyverns, pegasi, dracozombies, and other fliers ignore the boulder as a passability blocker.
+- Grounded units cannot move onto the boulder tile.
+- If a grounded unit has at least 10 strength, it can push an adjacent boulder one tile.
+- Every additional 10 strength adds one more tile of push distance, as long as each intervening landing tile is valid.
+- Boulder pushes fail if the next landing tile is occupied by a unit, already has a trap, or is a blocked terrain such as a shop, village, wall, chest, water, or map edge.
+
+Implementation note:
+
+- The boulder does not overwrite `gBmMapTerrain`; it stays a trap overlay.
+- Movement blocking is applied through the extended movement barrier map in `PreGenerateMovementMap(...)`.
+- Non-movement placement checks also reject boulder tiles through `Generic_CanUnitBeOnPos(...)`.
+- Push behavior is implemented in the shared `Interact` command path, alongside toggle torches.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -375,6 +412,7 @@ Current registered trap-like sprite IDs in this file:
 - `0x6B` Unlit Torch Tile
 - `0x6C` Teleport Tile
 - `0x6D` Grass Tile
+- `0x6E` Boulder Tile
 
 When adding a new trap sprite:
 
@@ -404,6 +442,7 @@ It already draws map sprites for several trap types, including:
 - `TRAP_TOGGLE_TORCH`
 - `TRAP_TELEPORT_TILE`
 - `TRAP_GRASS_TILE`
+- `TRAP_BOULDER_TILE`
 
 ### Pattern to display a new trap type
 
@@ -427,7 +466,7 @@ Implementation notes:
 - The subtraction term (`-0x5000` or `-0x4000`) depends on sprite source conventions already used in this file; match an existing trap pattern for consistency.
 - `smsHandle->config` controls shape/size; use an existing trap's config as your baseline.
 - Palette remapping is applied through `ApplyTrapSpritePalette(...)`, which reads the stored palette via `GetTrapMapSpritePalette(...)`.
-- The grass trap is the current exception: it uses a dedicated OBJ palette bank loaded from `Pal_Grass_Tile` rather than the shared trap palette remap enum.
+- The grass and boulder traps are the current exceptions: they use dedicated OBJ palette banks loaded from `Pal_Grass_Tile` and `Pal_Boulder_Tile` rather than the shared trap palette remap enum.
 
 ## Code Locations
 
@@ -439,6 +478,7 @@ Implementation notes:
 | Chapter trap loader | `LoadTrapData` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Dispatches trap entries from chapter data to constructors |
 | Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
 | Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
+| Boulder trap creation | `AddBoulderTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates startup or runtime boulder traps without changing underlying terrain |
 | Trap graphics installer | `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
 | Chapter trap declaration | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h` | Defines startup trap arrays for normal/hard modes |
 | Chapter trap binding | `Data/FE8_Rewritten_Terper/Event/Source/00/00.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
@@ -447,8 +487,12 @@ Implementation notes:
 | Teleport trap helpers | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TELEPORT_TILE`, `TELEPORT_TILE_PAIR`, and teleport trap extdata |
 | Teleport trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
 | Grass trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
+| Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Core/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
+| Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
+| Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
 | Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
 | Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
+| Boulder trap custom palette draw | `ApplyBoulderTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the boulder trap with `Pal_Boulder_Tile` in a dedicated OBJ palette bank |
 | Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
 | Light rune menu skill usage | `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
 | Example chapter ASMC usage | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
@@ -458,9 +502,11 @@ Implementation notes:
 - Document removal/update workflows for runtime traps (remove, replace, refresh behavior).
 - Add a short reference table that maps each palette constant to a screenshot or gif once assets exist.
 - Document a shared removal helper if more terrain-override trap types are added in the future.
+- Decide whether `Interact` should eventually expose a chooser when a unit is adjacent to multiple interactable trap/object types.
 
 ## Limitations & Bugs
 
 - `AddTeleportTilePair(...)` does not currently take a palette parameter; it uses the light rune palette internally.
 - `TELEPORT_TILE_PAIR(...)` still defaults to `TRAP_MAPSPRITE_PAL_DEFAULT`, so pair helpers and runtime pair creation do not currently share the same palette default.
 - Grass trap lifetime is stored in a signed extdata byte, so keep `turnsLeft` within normal trap-duration ranges.
+- Boulder pushes currently block on units, traps, map bounds, and a fixed list of terrain-coded obstacles/buildings; they do not inspect arbitrary custom tile events that live on otherwise normal terrain.

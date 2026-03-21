@@ -22,7 +22,8 @@ void SetGameOptions()
 
     // AddTeleportTilePair(1, 1, 3, 3);
     // AddTeleportTilePair(5, 5, 9, 5);
-    AddGrassTile(3, 3, 3);
+    // AddGrassTile(3, 3, 3);
+    AddBoulderTile(1, 1);
 
     // gChapterTimerSeconds = 30;
 

@@ -9,8 +9,10 @@ extern struct SMSHandle* gSMSHandleIt;
 
 extern u32 gMirrorSpriteOptions;
 extern u16 Pal_Grass_Tile[];
+extern u16 Pal_Boulder_Tile[];
 
 #define GRASS_TRAP_OBJ_PAL 9
+#define BOULDER_TRAP_OBJ_PAL 10
 
 enum {
 	FLIP_PLAYER = 0x1,
@@ -65,6 +67,11 @@ static u16 ApplyGrassTrapSpritePalette(u16 oam2Base)
     return (oam2Base & 0x0FFF) | (GRASS_TRAP_OBJ_PAL << 12);
 }
 
+static u16 ApplyBoulderTrapSpritePalette(u16 oam2Base)
+{
+    return (oam2Base & 0x0FFF) | (BOULDER_TRAP_OBJ_PAL << 12);
+}
+
 LYN_REPLACE_CHECK(RefreshUnitSprites);
 void RefreshUnitSprites(void)
 {
@@ -83,6 +90,7 @@ void RefreshUnitSprites(void)
     gSMSHandleIt = &gSMSHandleArray[1];
 
     ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
+    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     for (i = 1; i < 0xD0; i++)
@@ -246,6 +254,18 @@ void RefreshUnitSprites(void)
             smsHandle->xDisplay = trap->xPos * 16;
 
             smsHandle->oam2Base = ApplyGrassTrapSpritePalette(oam2);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
+
+        if (trap->type == TRAP_BOULDER_TILE)
+        {
+            oam2 = UseUnitSprite(0x6E) - 0x5000 + 0x80;
+
+            smsHandle = AddUnitSprite(trap->yPos * 16);
+            smsHandle->yDisplay = trap->yPos * 16;
+            smsHandle->xDisplay = trap->xPos * 16;
+
+            smsHandle->oam2Base = ApplyBoulderTrapSpritePalette(oam2);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }

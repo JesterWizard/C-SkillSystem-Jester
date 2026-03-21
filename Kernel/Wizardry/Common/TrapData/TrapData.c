@@ -76,6 +76,7 @@ int GetTrapMapSpritePalette(const struct Trap *trap)
         return SanitizeTrapMapSpritePalette(trap->data[TRAP_EXTDATA_TELEPORT_PALETTE]);
 
     case TRAP_GRASS_TILE:
+    case TRAP_BOULDER_TILE:
         return TRAP_MAPSPRITE_PAL_DEFAULT;
 
     default:
@@ -110,6 +111,7 @@ void SetTrapMapSpritePalette(struct Trap *trap, int palette)
         break;
 
     case TRAP_GRASS_TILE:
+    case TRAP_BOULDER_TILE:
         break;
     }
 }
@@ -177,6 +179,10 @@ void LoadTrapData(const struct TrapData * data)
 
         case TRAP_GRASS_TILE:
             AddGrassTile(data->xPos, data->yPos, data->turn_counter);
+            break;
+
+        case TRAP_BOULDER_TILE:
+            AddBoulderTile(data->xPos, data->yPos);
             break;
         }
 
@@ -303,6 +309,20 @@ struct Trap *AddGrassTile(int x, int y, int turnsLeft)
     gBmMapTerrain[y][x] = TERRAIN_FOREST;
 
     return trap;
+}
+
+struct Trap *AddBoulderTile(int x, int y)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    trap = GetTypedTrapAt(x, y, TRAP_BOULDER_TILE);
+    if (trap)
+        return trap;
+
+    return AddTrap(x, y, TRAP_BOULDER_TILE, 0);
 }
 
 struct Trap *AddToggleTorch(int x, int y, int duration, int startsLit, int palette)

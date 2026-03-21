@@ -109,6 +109,13 @@ String("Gordin portrait by Thorn"); BYTE 1
 String("Wrys portrait by Thorn BYTE"); BYTE 1
 String("Ogma portrait by Thorn BYTE 1"); BYTE 0
 
+/* Trap Sprites */
+header5: 
+String("Portraits"); BYTE 0
+body5: 
+String(" Boulder Trap by PKLucky"); BYTE 1
+// String("Ogma portrait by Thorn BYTE 1"); BYTE 0
+
 emptyString: 
 String("  "); BYTE 0 // should be 2 or more spaces lol 
 emptyStringLong: // bunch of blank lines while above text finishes displaying  
