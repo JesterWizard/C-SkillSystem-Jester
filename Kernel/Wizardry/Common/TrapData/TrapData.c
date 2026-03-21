@@ -117,6 +117,17 @@ static void SetSpinTileVisited(u8 *visited, int x, int y)
     visited[index >> 3] |= 1 << (index & 7);
 }
 
+struct SpinTileSequenceProc {
+    PROC_HEADER;
+    struct Unit *unit;
+    int waitTimer;
+    u8 visited[(64 * 64) / 8];
+};
+
+enum {
+    SPIN_TILE_STEP_DELAY = 10,
+};
+
 static bool GetSpinTileNextHop(struct Unit *unit, int startX, int startY, const u8 *visited, int *outX, int *outY)
 {
     struct Trap *trap;
@@ -145,48 +156,142 @@ static bool GetSpinTileNextHop(struct Unit *unit, int startX, int startY, const 
     return true;
 }
 
-static bool ResolveSpinTileChainDestination(struct Unit *unit, int startX, int startY, int *outX, int *outY)
+static bool HasSpinTileNextHop(struct Unit *unit, int startX, int startY)
 {
     u8 visited[(64 * 64) / 8] = { 0 };
-    int currentX = startX;
-    int currentY = startY;
     int nextX;
     int nextY;
-    bool moved = false;
 
-    SetSpinTileVisited(visited, currentX, currentY);
-
-    while (GetSpinTileNextHop(unit, currentX, currentY, visited, &nextX, &nextY)) {
-        SetSpinTileVisited(visited, nextX, nextY);
-        currentX = nextX;
-        currentY = nextY;
-        moved = true;
-    }
-
-    if (!moved)
-        return false;
-
-    *outX = currentX;
-    *outY = currentY;
-    return true;
+    return GetSpinTileNextHop(unit, startX, startY, visited, &nextX, &nextY);
 }
 
-static void MoveUnitAlongSpinTileChain(struct Unit *unit, int x, int y)
+static int GetSpinTileFacingFromDelta(int deltaX, int deltaY)
 {
-    gActionData.xMove = x;
-    gActionData.yMove = y;
-    gActionDataExpa.refrain_action = true;
+    if (deltaX < 0)
+        return MU_FACING_LEFT;
 
-    unit->xPos = x;
-    unit->yPos = y;
+    if (deltaX > 0)
+        return MU_FACING_RIGHT;
 
-    EndAllMus();
+    if (deltaY < 0)
+        return MU_FACING_UP;
+
+    return MU_FACING_DOWN;
+}
+
+static struct MuProc *EnsureSpinTileMu(struct Unit *unit)
+{
+    struct MuProc *mu = GetUnitMu(unit);
+
+    if (mu) {
+        FreezeSpriteAnim(mu->sprite_anim);
+        return mu;
+    }
+
+    HideUnitSprite(unit);
+    mu = StartMu(unit);
+    if (!mu)
+        return NULL;
+
+    FreezeSpriteAnim(mu->sprite_anim);
+    SetMuDefaultFacing(mu);
+    return mu;
+}
+
+static void CleanupSpinTileSequence(struct SpinTileSequenceProc *proc)
+{
+    struct MuProc *mu;
+
+    if (!UNIT_IS_VALID(proc->unit))
+        return;
+
+    mu = GetUnitMu(proc->unit);
+    if (mu)
+        EndMu(mu);
+
+    ShowUnitSprite(proc->unit);
     RefreshEntityBmMaps();
     RenderBmMap();
     RefreshUnitSprites();
-
-    PlaySoundEffect(0x6A);
 }
+
+static bool StartSpinTileHop(struct SpinTileSequenceProc *proc)
+{
+    struct MuProc *mu;
+    int nextX;
+    int nextY;
+    int deltaX;
+    int deltaY;
+
+    if (!GetSpinTileNextHop(proc->unit, proc->unit->xPos, proc->unit->yPos, proc->visited, &nextX, &nextY))
+        return false;
+
+    mu = EnsureSpinTileMu(proc->unit);
+    if (!mu)
+        return false;
+
+    SetSpinTileVisited(proc->visited, nextX, nextY);
+
+    deltaX = nextX - proc->unit->xPos;
+    deltaY = nextY - proc->unit->yPos;
+
+    proc->unit->xPos = nextX;
+    proc->unit->yPos = nextY;
+    proc->waitTimer = SPIN_TILE_STEP_DELAY;
+
+    gActionData.xMove = nextX;
+    gActionData.yMove = nextY;
+    gActionDataExpa.refrain_action = true;
+
+    mu->x_q4 = nextX << 8;
+    mu->y_q4 = nextY << 8;
+    SetMuFacing(mu, GetSpinTileFacingFromDelta(deltaX, deltaY));
+
+    RefreshEntityBmMaps();
+    RenderBmMap();
+    PlaySoundEffect(0x6A);
+    return true;
+}
+
+static void SpinTileSequence_Init(struct SpinTileSequenceProc *proc)
+{
+    memset(proc->visited, 0, sizeof(proc->visited));
+    proc->waitTimer = 0;
+
+    if (!UNIT_IS_VALID(proc->unit)) {
+        Proc_Break(proc);
+        return;
+    }
+
+    SetSpinTileVisited(proc->visited, proc->unit->xPos, proc->unit->yPos);
+
+    if (!StartSpinTileHop(proc))
+        Proc_Break(proc);
+}
+
+static void SpinTileSequence_Loop(struct SpinTileSequenceProc *proc)
+{
+    if (!UNIT_IS_VALID(proc->unit)) {
+        Proc_Break(proc);
+        return;
+    }
+
+    if (proc->waitTimer > 0) {
+        proc->waitTimer--;
+        return;
+    }
+
+    if (!StartSpinTileHop(proc))
+        Proc_Break(proc);
+}
+
+static const struct ProcCmd ProcScr_PostAction_SpinTileSequence[] = {
+    PROC_NAME("PostAction_SpinTileSequence"),
+    PROC_SET_END_CB(CleanupSpinTileSequence),
+    PROC_CALL(SpinTileSequence_Init),
+    PROC_REPEAT(SpinTileSequence_Loop),
+    PROC_END,
+};
 
 static struct Trap *(*const sVanillaAddLightRune)(int x, int y) = (void *) 0x0802EA59;
 
@@ -593,10 +698,7 @@ bool PostAction_TeleportTile(ProcPtr parent)
 bool PostAction_SpinTile(ProcPtr parent)
 {
     struct Trap *trap;
-    int destX;
-    int destY;
-
-    (void) parent;
+    struct SpinTileSequenceProc *proc;
 
     if (!UNIT_IS_VALID(gActiveUnit))
         return false;
@@ -608,9 +710,12 @@ bool PostAction_SpinTile(ProcPtr parent)
     if (!trap)
         return false;
 
-    if (!ResolveSpinTileChainDestination(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos, &destX, &destY))
+    if (!HasSpinTileNextHop(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos))
         return false;
 
-    MoveUnitAlongSpinTileChain(gActiveUnit, destX, destY);
-    return false;
+    gActionDataExpa.refrain_action = true;
+
+    proc = Proc_StartBlocking(ProcScr_PostAction_SpinTileSequence, parent);
+    proc->unit = gActiveUnit;
+    return true;
 }

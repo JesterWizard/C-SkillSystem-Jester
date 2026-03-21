@@ -111,9 +111,10 @@ String("Ogma portrait by Thorn BYTE 1"); BYTE 0
 
 /* Trap Sprites */
 header5: 
-String("Portraits"); BYTE 0
+String("Traps"); BYTE 0
 body5: 
-String(" Boulder Trap by PKLucky"); BYTE 1
+String("Boulder Trap by PKLucky"); BYTE 1
+String("Spin Trap from Pokemon FireRed"); BYTE 1
 // String("Ogma portrait by Thorn BYTE 1"); BYTE 0
 
 emptyString: 
