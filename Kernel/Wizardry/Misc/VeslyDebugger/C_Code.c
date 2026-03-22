@@ -3269,7 +3269,7 @@ void ViewTrapInit(DebuggerProc* proc)
 {
     SomeMenuInit(proc);
 
-    DrawUiFrame(BG_GetMapBuffer(1), 1, 1, 16, 11, TILEREF(0, 0), 0);
+    DrawUiFrame(BG_GetMapBuffer(1), 1, 1, 16, 10, TILEREF(0, 0), 0);
     DrawUiFrame(BG_GetMapBuffer(1), 20, 7, 8, 6, TILEREF(0, 0), 0);
 
     for (int index = 0; index < 7; ++index)
