@@ -7,6 +7,8 @@
 #include "event-rework.h"
 #include "bmarena.h"
 
+extern struct ProcCmd CONST_DATA ProcScr_Popup2[];
+
 // LYN_REPLACE_CHECK(ArenaBeginInternal);
 // void ArenaBeginInternal(struct Unit* unit) {
 //     int i;
@@ -330,6 +332,13 @@ static void ArenaUi_RedrawRosterOpponentDetails(ProcPtr proc)
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
+static void ArenaUi_ClearRosterUi(void);
+
+static bool ArenaRosterPopup2Exists(void)
+{
+    return Proc_Find(ProcScr_Popup2) != NULL;
+}
+
 //! FE8U = 0x080B59CC
 LYN_REPLACE_CHECK(ArenaUi_WagerGoldDialogue);
 void ArenaUi_WagerGoldDialogue(ProcPtr proc)
@@ -372,6 +381,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
 
     SetTalkNumber(ArenaGetMatchupGoldValue() * multiplier);
     StartArenaDialogue(0x8D2, proc);
+
     // TODO: msgid "Would you like to wager[.][NL][G] gold?[Yes]"
 
     return;
@@ -380,6 +390,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
 //! FE8U = 0x080B5A7C
 LYN_REPLACE_CHECK(ArenaUi_InstructionsDialogue);
 void ArenaUi_InstructionsDialogue(ProcPtr proc) {
+    ArenaUi_ClearRosterUi();
     ArenaUi_RedrawRosterOpponentDetails(proc);
     StartArenaDialogue(0x8D5, proc);
     // TODO: msgid "Fight 'til you drop, or press[.][NL]the B Button to yield.[A]"
@@ -685,6 +696,13 @@ extern struct Text gBanimText[20];
 extern struct ArenaRosterSuspendState sArenaRosterSuspendState;
 extern struct ArenaRosterRuntimeState sArenaRosterRuntimeState;
 
+STATIC_DECLAR void ArenaUi_ClearRosterUi(void)
+{
+    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, ARENA_ROSTER_LIST_X, ARENA_ROSTER_LIST_Y), ARENA_ROSTER_LIST_W, ARENA_ROSTER_LIST_H, 0);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
 STATIC_DECLAR const EventScr EventScr_ArenaClosed[] = {
     EVBIT_MODIFY(0x4)
     TUTORIALTEXTBOXSTART
@@ -795,6 +813,7 @@ const u8 MaxLevel = 10;
 STATIC_DECLAR void ArenaRosterSelector_Init(struct ProcArenaRosterSelect *proc);
 STATIC_DECLAR void ArenaRosterSelector_End(struct ProcArenaRosterSelect *proc);
 STATIC_DECLAR void ArenaRosterSelector_Loop(struct ProcArenaRosterSelect *proc);
+STATIC_DECLAR void ArenaRosterSelector_WaitForWagerChoice(struct ProcArenaRosterSelect *proc);
 STATIC_DECLAR int ArenaRosterGetEntryCount(const struct ArenaRosterChapter *chapter);
 STATIC_DECLAR int ArenaRosterGetWagerMultiplier(void);
 STATIC_DECLAR unsigned ArenaRosterGetRewardGold(const struct ArenaRosterEntry *entry);
@@ -807,7 +826,10 @@ STATIC_DECLAR void ArenaRosterCancelSelectionAndExit(struct ProcArenaRosterSelec
 
 STATIC_DECLAR const struct ProcCmd ProcScr_ArenaRosterSelect[] = {
     PROC_CALL(ArenaRosterSelector_Init),
+PROC_LABEL(0),
     PROC_REPEAT(ArenaRosterSelector_Loop),
+PROC_LABEL(1),
+    PROC_REPEAT(ArenaRosterSelector_WaitForWagerChoice),
     PROC_CALL(ArenaRosterSelector_End),
     PROC_END,
 };
@@ -1260,7 +1282,7 @@ STATIC_DECLAR void ArenaRosterSelector_Loop(struct ProcArenaRosterSelect *proc)
         SetTalkNumber(ArenaGetMatchupGoldValue() * ArenaRosterGetWagerMultiplier());
         StartArenaDialogue(0x8D2, parent);
         PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-        Proc_Break(proc);
+        Proc_Goto(proc, 1);
         return;
     }
 
@@ -1268,6 +1290,23 @@ STATIC_DECLAR void ArenaRosterSelector_Loop(struct ProcArenaRosterSelect *proc)
         ArenaRosterDrawList(proc);
     else
         ArenaRosterDrawSpritesOnly(proc, chapter);
+}
+
+STATIC_DECLAR void ArenaRosterSelector_WaitForWagerChoice(struct ProcArenaRosterSelect *proc)
+{
+    const struct ArenaRosterChapter *chapter = ArenaRosterGetChapter(gPlaySt.chapterIndex);
+
+    if (!chapter) {
+        ArenaRosterCancelSelectionAndExit(proc);
+        return;
+    }
+
+    ArenaRosterDrawSpritesOnly(proc, chapter);
+
+    if (ArenaRosterIsDialogueOpen())
+        return;
+
+    Proc_Break(proc);
 }
 
 bool ArenaRosterMenuEnabled(void)
@@ -1323,9 +1362,6 @@ bool ArenaRosterHasConfiguredOpponent(void)
 
 void ArenaRosterFlushDeferredPopup(void)
 {
-    extern struct ProcCmd gProcScr_ArenaUiMain[];
-    extern struct ProcCmd gProcScr_ArenaUiResults[];
-
     ProcPtr proc;
     int item;
 
@@ -1579,7 +1615,7 @@ void StartArenaScreen(void) {
     return;
 }
 
-const struct ProcCmd gProcScr_ArenaUiMain[] = {
+struct ProcCmd gProcScr_ArenaUiMain[] = {
     PROC_CALL(LockGame),
 
     PROC_SLEEP(1),
@@ -1648,7 +1684,7 @@ PROC_LABEL(2),
     PROC_END,
 };
 
-const struct ProcCmd gProcScr_ArenaUiResults[] = {
+struct ProcCmd gProcScr_ArenaUiResults[] = {
 PROC_LABEL(1),
     PROC_CALL(sub_80B5B00),
 
@@ -1664,9 +1700,12 @@ PROC_LABEL(1),
     PROC_SLEEP(0),
 
     PROC_CALL(ArenaUi_ResultsDialogue),
+    PROC_WHILE(ArenaRosterIsDialogueOpen),
     PROC_SLEEP(0),
 
     PROC_CALL(ArenaUi_ShowGoldBoxOnVictoryOrDraw),
+    PROC_CALL(ArenaRosterFlushDeferredPopup),
+    PROC_WHILE(ArenaRosterPopup2Exists),
     PROC_SLEEP(0),
 
 PROC_LABEL(2),
@@ -1697,7 +1736,7 @@ PROC_LABEL(2),
     PROC_END,
 };
 
-const struct ProcCmd gProcScr_ArenaUiResultBgm[] = {
+struct ProcCmd gProcScr_ArenaUiResultBgm[] = {
     PROC_CALL(Arena_PlayResultSong),
     PROC_SLEEP(210),
 
