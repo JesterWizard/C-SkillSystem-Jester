@@ -15,6 +15,7 @@ KERNEL_DATA_START:
 #include "Common/EndTurnHook/data.event"
 #include "Common/PostActionHook/data.event"
 #include "Common/PrePhaseHook/data.event"
+#include "Misc/ArenaLimits/ArenaLimitsData.event"
 #include "Common/SaveData/data.event"
 #include "Common/UnitHooks/data.event"
 #include "Common/ItemSys/ItemSysData.event"

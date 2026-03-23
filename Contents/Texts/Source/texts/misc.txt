@@ -69,6 +69,18 @@ Unpromoted units only.[X]
 ## MSG_ArenaClosedString
 The arena is closed for the day.[X]
 
+## MSG_ArenaPickOpponentString
+Welcome to the arena![.][NL]
+Pick your opponent.[A][X]
+
+## MSG_ArenaCleanedOutString
+You again? You've already[N]
+cleaned me out. Clear off![A][X]
+
+## MSG_ArenaItemPrizeString
+So you won, eh? Here's[N]
+your prize.[A][X]
+
 ## MSG_GOT_ITEM
  got [X]
 ## MSG_STOLE_ITEM

@@ -16,6 +16,7 @@ ALIGN 4
 #include "Essentials/FebPatches/FebPatches.event"
 
 #include "Common/AI/AI.event"
+#include "Misc/ArenaLimits/ArenaLimits.lyn.event"
 #include "Common/Arena/Arena.event"
 #include "Common/OverflowDetection/OverflowDetection.event"
 #include "Common/AntiHuffman/AntiHuffman.event"

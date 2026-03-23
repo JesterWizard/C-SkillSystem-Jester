@@ -129,7 +129,10 @@ void ArenaGenerateBaseWeapons(void)
     if (gpKernelDesignerConfig->arena_let_player_use_upgraded_weapons == true)
         gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
 
-    gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
+    if (ArenaRosterHasConfiguredOpponent())
+        gArenaState.opponentWeapon = MakeNewItem(ArenaRosterGetSelectedWeapon());
+    else
+        gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
 
     gArenaState.range = 1;
 
@@ -224,6 +227,10 @@ void ArenaGenerateBaseWeapons(void)
 
 LYN_REPLACE_CHECK(ArenaAdjustOpponentPowerRanking);
 s8 ArenaAdjustOpponentPowerRanking(void) {
+    if (ArenaRosterHasConfiguredOpponent()) {
+        return 0;
+    }
+
     int max;
     int diff;
 
@@ -304,11 +311,29 @@ s8 ArenaAdjustOpponentPowerRanking(void) {
     return 1;
 }
 
+static void ArenaUi_RedrawRosterOpponentDetails(ProcPtr proc)
+{
+    if (!ArenaRosterHasConfiguredOpponent())
+        return;
+
+    if (gpKernelDesignerConfig->arena_show_opponent_in_advance != true)
+        return;
+
+    DrawUiFrame2(7, 9, 0x10, 8, 0);
+    DrawArenaOpponentDetailsText(proc);
+    RefreshUnitSprites();
+    SyncUnitSpriteSheet();
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
 //! FE8U = 0x080B59CC
 LYN_REPLACE_CHECK(ArenaUi_WagerGoldDialogue);
 void ArenaUi_WagerGoldDialogue(ProcPtr proc)
 {
     int multiplier = 1;
+
+    if (ArenaRosterStartSelection(proc))
+        return;
     
 
 #if defined(SID_Ludopathy) && (COMMON_SKILL_VALID(SID_Ludopathy))
@@ -318,7 +343,12 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
 
     if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true)
     {
-        DrawUiFrame2(7, 9, 0x10, 8, 0);
+        ArenaUi_RedrawRosterOpponentDetails(proc);
+
+        if (!ArenaRosterHasConfiguredOpponent()) {
+            DrawUiFrame2(7, 9, 0x10, 8, 0);
+        }
+
         SetTextFont(0);
         InitSystemTextFont();
 
@@ -343,10 +373,32 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
     return;
 }
 
+//! FE8U = 0x080B5A7C
+LYN_REPLACE_CHECK(ArenaUi_InstructionsDialogue);
+void ArenaUi_InstructionsDialogue(ProcPtr proc) {
+    ArenaUi_RedrawRosterOpponentDetails(proc);
+    StartArenaDialogue(0x8D5, proc);
+    // TODO: msgid "Fight 'til you drop, or press[.][NL]the B Button to yield.[A]"
+    return;
+}
+
+//! FE8U = 0x080B5A90
+LYN_REPLACE_CHECK(ArenaUi_GoodLuckDialogue);
+void ArenaUi_GoodLuckDialogue(ProcPtr proc) {
+    ArenaUi_RedrawRosterOpponentDetails(proc);
+    StartArenaDialogue(0x8D3, proc);
+    // TODO: msgid "Good luck. Don't get[NL]yourself killed.[A]"
+    return;
+}
+
 //! FE8U = 0x080B59EC
 LYN_REPLACE_CHECK(ArenaUi_CheckConfirmation);
 void ArenaUi_CheckConfirmation(ProcPtr proc)
 {
+    if (ArenaRosterHandleConfirmation(proc))
+        return;
+
+    ArenaUi_RedrawRosterOpponentDetails(proc);
 
     int multiplier = 1;
 
@@ -357,6 +409,7 @@ void ArenaUi_CheckConfirmation(ProcPtr proc)
 
     if (GetTalkChoiceResult() != 1)
     {
+        ArenaRosterClearSelection();
         StartArenaDialogue(0x8D4, proc);
         // TODO: msgid "What's that? Bah![.][NL]Get outta here![.][A]"
         Proc_Goto(proc, 2);
@@ -365,6 +418,7 @@ void ArenaUi_CheckConfirmation(ProcPtr proc)
     {
         if (ArenaGetMatchupGoldValue() > (int)GetPartyGoldAmount() * multiplier)
         {
+            ArenaRosterClearSelection();
             StartArenaDialogue(0x8DA, proc);
             // TODO: msgid "You don't have the money![.][NL]Try again later.[A]"
             Proc_Goto(proc, 2);
@@ -419,6 +473,10 @@ int ArenaGetPowerRanking(struct Unit* unit, s8 opponentIsMagic) {
 
 LYN_REPLACE_CHECK(ArenaGenerateOpponentUnit);
 void ArenaGenerateOpponentUnit(void) {
+    if (ArenaRosterGenerateOpponentUnit(&gArenaOpponent)) {
+        return;
+    }
+
     int level;
     int i;
 
@@ -481,5 +539,56 @@ void ArenaSetFallbackWeaponsMaybe(void) {
     // ArenaSetFallbackWeaponForUnit(gArenaState.playerUnit, &gArenaState.playerWeapon);
     // ArenaSetFallbackWeaponForUnit(gArenaState.opponentUnit, &gArenaState.opponentWeapon);
 
+    return;
+}
+
+//! FE8U = 0x080B5B18
+LYN_REPLACE_CHECK(ArenaUi_ResultsDialogue);
+void ArenaUi_ResultsDialogue(ProcPtr proc) {
+    if (ArenaRosterHandleResultsDialogue(proc))
+        return;
+
+    u32 partyGold = GetPartyGoldAmount();
+
+    switch (ArenaGetResult()) {
+        case 1:
+            SetTalkNumber(ArenaGetMatchupGoldValue() * 2);
+            StartArenaDialogue(0x8D6, proc);
+            // TODO: msgid "So you won, eh? Here's[NL]your prize. [G] gold.[A]"
+
+            SetPartyGoldAmount(partyGold = partyGold + (ArenaGetMatchupGoldValue() * 2));
+
+            break;
+
+        case 2:
+            StartArenaDialogue(0x8D7, proc);
+            // TODO: msgid "Ahh, you lost? I'd hoped[NL]for better from you.[A]"
+
+            break;
+
+        case 3:
+            StartArenaDialogue(0x8D9, proc);
+            // TODO: msgid "Looks like no one wins.[.][NL]Here's your money back.[.][A]"
+            SetPartyGoldAmount(partyGold = partyGold + ArenaGetMatchupGoldValue());
+
+            break;
+
+        case 4:
+            // _080B5B88
+            StartArenaDialogue(0x8D8, proc);
+            // TODO: msgid "What? You yield? Well,[NL]your gold is mine, then![A]"
+            break;
+    }
+
+    return;
+}
+
+
+//! FE8U = 0x080B5BE4
+LYN_REPLACE_CHECK(ArenaUi_OnEnd);
+void ArenaUi_OnEnd(void) {
+    Proc_EndEach(gProcScr_GoldBox);
+    Proc_ForEach(ProcScr_Mu, (ProcFunc) ShowMu);
+    // ArenaRosterFlushDeferredPopup();
     return;
 }

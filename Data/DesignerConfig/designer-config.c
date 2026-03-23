@@ -28,7 +28,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 #endif
 	.forge_mechanic = false,
 	.modular_staff_exp = true,
-	.arena_show_opponent_in_advance = true,
+	.arena_show_opponent_in_advance = false,
 	.arena_let_player_use_upgraded_weapons = true,
 	.arena_calculate_weapon_based_on_level = true,
 	.talk_on_level_up = true,
@@ -136,6 +136,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_credits_cgs = true,
 	.fe8_rewritten_specific_changes = true,
 	.arena_limits = false,
+	.arena_roster_menu = true,
 	.vesly_custom_ui = true, // About 200KB per style (600KB so far)
 	.custom_menu_options = false, // This is broken for now
 	.multiple_fog_stages = true,

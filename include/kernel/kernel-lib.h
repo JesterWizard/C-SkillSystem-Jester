@@ -127,6 +127,7 @@ struct KernelDesigerConfig {
 	u8 vesly_credits_cgs;
 	u8 fe8_rewritten_specific_changes;
 	u8 arena_limits;
+	u8 arena_roster_menu;
 	u8 vesly_custom_ui;
 	u8 custom_menu_options;
 	u8 multiple_fog_stages;
@@ -162,6 +163,18 @@ struct KernelBattleDesignerConfig {
 
 extern const struct KernelDesigerConfig *const gpKernelDesignerConfig;
 extern const struct KernelBattleDesignerConfig *const gpKernelBattleDesignerConfig;
+
+bool ArenaRosterMenuEnabled(void);
+bool ArenaRosterStartSelection(ProcPtr proc);
+bool ArenaRosterHandleConfirmation(ProcPtr proc);
+bool ArenaRosterHasConfiguredOpponent(void);
+bool ArenaRosterGenerateOpponentUnit(struct Unit *unit);
+bool ArenaRosterHandleResultsDialogue(ProcPtr proc);
+void ArenaRosterFlushDeferredPopup(void);
+u16 ArenaRosterGetSelectedWeapon(void);
+void ArenaRosterClearSelection(void);
+void SaveArenaRosterProgress(u8 *dst, const u32 size);
+void LoadArenaRosterProgress(u8 *src, const u32 size);
 
 /**
  * map.c

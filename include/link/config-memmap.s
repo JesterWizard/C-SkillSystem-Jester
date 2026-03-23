@@ -115,6 +115,8 @@ _kernel_malloc gEventReplay_SelectedChapter, 1
 _kernel_malloc gEventReplay_ChapterScrollIndex, 1
 _kernel_malloc sWmManageSkillsEmpty, 2
 _kernel_malloc sWmManageSkillsMode, 2
+_kernel_malloc sArenaRosterRuntimeState, 4
+_kernel_malloc sArenaRosterSuspendState, 33
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even
