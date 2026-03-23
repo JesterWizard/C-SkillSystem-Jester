@@ -7,6 +7,9 @@
 #include "event-rework.h"
 #include "bmarena.h"
 
+static const struct ProcCmd gProcScr_ArenaUiMain_NEW[];
+static const struct ProcCmd gProcScr_ArenaUiResults_NEW[];
+
 extern struct ProcCmd CONST_DATA ProcScr_Popup2[];
 
 // LYN_REPLACE_CHECK(ArenaBeginInternal);
@@ -336,7 +339,10 @@ static void ArenaUi_ClearRosterUi(void);
 
 static bool ArenaRosterPopup2Exists(void)
 {
-    return Proc_Find(ProcScr_Popup2) != NULL;
+    if (Proc_Find(ProcScr_Popup2))
+        return true;
+    else
+        return false;
 }
 
 //! FE8U = 0x080B59CC
@@ -603,7 +609,6 @@ LYN_REPLACE_CHECK(ArenaUi_OnEnd);
 void ArenaUi_OnEnd(void) {
     Proc_EndEach(gProcScr_GoldBox);
     Proc_ForEach(ProcScr_Mu, (ProcFunc) ShowMu);
-    // ArenaRosterFlushDeferredPopup();
     return;
 }
 
@@ -1003,7 +1008,22 @@ STATIC_DECLAR void ArenaRosterGrantWinReward(const struct ArenaRosterEntry *entr
     if (entry->rewardType == ARENA_ROSTER_REWARD_ITEM) {
         item = MakeNewItem(entry->reward);
 
-        AddItemToConvoy(item);
+        // AddItemToConvoy(item);
+
+        ProcPtr proc;
+
+        proc = Proc_Find(gProcScr_ArenaUiMain_NEW);
+
+        if (!proc)
+            proc = Proc_Find(gProcScr_ArenaUiResults_NEW);
+
+        if (!proc)
+            proc = Proc_Find(gProcScr_PlayerPhase);
+
+        if (!proc)
+            proc = Proc_Find(gProc_BMapMain);
+
+        NewPopup2_SendItem(proc, item);
 
         return;
     }
@@ -1370,21 +1390,9 @@ void ArenaRosterFlushDeferredPopup(void)
         return;
 
     sArenaRosterRuntimeState.pendingRewardItem = ITEM_NONE;
-    proc = Proc_Find(gProcScr_ArenaUiMain);
+    proc = Proc_Find(gProcScr_ArenaUiMain_NEW);
 
-    if (!proc)
-        proc = Proc_Find(gProcScr_ArenaUiResults);
-
-    if (!proc)
-        proc = Proc_Find(gProcScr_PlayerPhase);
-
-    if (!proc)
-        proc = Proc_Find(gProc_BMapMain);
-
-    if (AddItemToConvoy(item) >= 0)
-        NewPopup2_SendItem(proc, item);
-    else
-        NewPopup2_DropItem(proc, item);
+    NewPopup2_SendItem(proc, item);
 
     ArenaRosterClearSelection();
 }
@@ -1610,7 +1618,10 @@ void ArenaUi_WelcomeDialogue(ProcPtr proc)
 LYN_REPLACE_CHECK(StartArenaScreen);
 void StartArenaScreen(void) {
     ArenaBegin(gActiveUnit);
-    Proc_Start(gProcScr_ArenaUiMain, PROC_TREE_3);
+    if (gpKernelDesignerConfig->arena_roster_menu == true)
+        Proc_Start(gProcScr_ArenaUiMain_NEW, PROC_TREE_3);
+    else
+        Proc_Start(gProcScr_ArenaUiMain, PROC_TREE_3);
     return;
 }
 
@@ -1637,7 +1648,7 @@ void DrawArenaOpponentDetailsText(ProcPtr proc) {
     return;
 }
 
-struct ProcCmd gProcScr_ArenaUiMain[] = {
+FORCE_DECLARE static const struct ProcCmd gProcScr_ArenaUiMain_NEW[] = {
     PROC_CALL(LockGame),
 
     PROC_SLEEP(1),
@@ -1682,7 +1693,7 @@ PROC_LABEL(0),
     PROC_CALL(UnlockGame),
     PROC_CALL(BMapDispResume),
 
-    PROC_JUMP(gProcScr_ArenaUiResults),
+    PROC_JUMP(gProcScr_ArenaUiResults_NEW),
 
 PROC_LABEL(2),
     PROC_SLEEP(1),
@@ -1706,7 +1717,7 @@ PROC_LABEL(2),
     PROC_END,
 };
 
-struct ProcCmd gProcScr_ArenaUiResults[] = {
+FORCE_DECLARE static const struct ProcCmd gProcScr_ArenaUiResults_NEW[] = {
 PROC_LABEL(1),
     PROC_CALL(sub_80B5B00),
 
