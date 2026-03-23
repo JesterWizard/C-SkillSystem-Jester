@@ -775,7 +775,7 @@ STATIC_DECLAR const struct ArenaRosterEntry sArenaRosterChapter6Entries[] = {
 const struct ArenaRosterChapter gArenaRosterTable[] = {
     {
         .chapterId = 6,
-        .maxWins = 5,
+        .maxWins = sizeof(sArenaRosterChapter6Entries) / sizeof(sArenaRosterChapter6Entries[0]),
         .entryCount = sizeof(sArenaRosterChapter6Entries) / sizeof(sArenaRosterChapter6Entries[0]),
         .entries = sArenaRosterChapter6Entries,
     },
@@ -1549,3 +1549,159 @@ bool DidUnitDie(struct Unit *unit)
 
     return TRUE;
 }
+
+//! FE8U = 0x080B5998
+LYN_REPLACE_CHECK(ArenaUi_WelcomeDialogue);
+void ArenaUi_WelcomeDialogue(ProcPtr proc) 
+{
+    if (gpKernelDesignerConfig->arena_roster_menu == true)
+    {
+        StartArenaDialogue(MSG_ArenaPickOpponentString, proc);
+        return;
+    }
+
+    if (UNIT_ARENA_LEVEL(gArenaState.playerUnit) < 5) {
+        StartArenaDialogue(0x8d0, proc);
+        // TODO: msgid "Welcome to the arena![.][A]"
+    } else {
+        StartArenaDialogue(0x8D1, proc);
+        // TODO: msgid "Welcome to the arena.[.][A][NL]Oh! It's you again.[.][A][NL2][NL]I've lost a lot of gold[.][NL]thanks to you...[A][NL2][NL]If you want to continue,[A][NL]we're going to have to[NL]do things differently.[A][NL2][NL]I'm going to prepare some[.][NL]more challenging foes.[A]"
+    }
+
+    return;
+}
+
+//! FE8U = 0x080B576C
+LYN_REPLACE_CHECK(StartArenaScreen);
+void StartArenaScreen(void) {
+    ArenaBegin(gActiveUnit);
+    Proc_Start(gProcScr_ArenaUiMain, PROC_TREE_3);
+    return;
+}
+
+const struct ProcCmd gProcScr_ArenaUiMain[] = {
+    PROC_CALL(LockGame),
+
+    PROC_SLEEP(1),
+    PROC_CALL_ARG(_FadeBgmOut, 65535),
+    PROC_CALL(StartMidFadeToBlack),
+    PROC_REPEAT(WaitForFade),
+
+    PROC_CALL(BMapDispSuspend),
+
+    PROC_CALL_ARG(_StartBgm, 56),
+
+    PROC_CALL(ArenaUi_Init),
+    PROC_CALL(FadeInBlackSpeed20),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_WelcomeDialogue),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_WagerGoldDialogue),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_CheckConfirmation),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_ConfirmWager),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_InstructionsDialogue),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_GoodLuckDialogue),
+    PROC_SLEEP(1),
+
+PROC_LABEL(0),
+    PROC_CALL_ARG(_FadeBgmOut, 2),
+    PROC_CALL(sub_8013F40),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_StartArenaBattle),
+    PROC_SLEEP(1),
+
+    PROC_CALL(UnlockGame),
+    PROC_CALL(BMapDispResume),
+
+    PROC_JUMP(gProcScr_ArenaUiResults),
+
+PROC_LABEL(2),
+    PROC_SLEEP(1),
+
+    PROC_CALL(sub_8013F40),
+    PROC_SLEEP(1),
+
+    PROC_CALL(ArenaUi_OnEnd),
+
+    PROC_CALL(ResetDialogueScreen),
+
+    PROC_CALL(BMapDispResume),
+    PROC_CALL(RefreshBMapGraphics),
+    PROC_CALL(StartMapSongBgm),
+
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
+
+    PROC_CALL(UnlockGame),
+
+    PROC_END,
+};
+
+const struct ProcCmd gProcScr_ArenaUiResults[] = {
+PROC_LABEL(1),
+    PROC_CALL(sub_80B5B00),
+
+    PROC_CALL(LockGame),
+    PROC_CALL(BMapDispSuspend),
+    PROC_SLEEP(0),
+
+    PROC_START_CHILD(gProcScr_ArenaUiResultBgm),
+
+    PROC_CALL(ArenaUi_Init),
+
+    PROC_CALL(FadeInBlackSpeed20),
+    PROC_SLEEP(0),
+
+    PROC_CALL(ArenaUi_ResultsDialogue),
+    PROC_SLEEP(0),
+
+    PROC_CALL(ArenaUi_ShowGoldBoxOnVictoryOrDraw),
+    PROC_SLEEP(0),
+
+PROC_LABEL(2),
+    PROC_SLEEP(1),
+
+    PROC_END_EACH(gProcScr_ArenaUiResultBgm),
+    PROC_SLEEP(0),
+
+    PROC_CALL_ARG(_FadeBgmOut, 2),
+    PROC_CALL(sub_8013F40),
+    PROC_SLEEP(0),
+
+    PROC_CALL(sub_80B5970),
+
+    PROC_CALL(ArenaUi_OnEnd),
+
+    PROC_CALL(ResetDialogueScreen),
+
+    PROC_CALL(BMapDispResume),
+    PROC_CALL(RefreshBMapGraphics),
+    PROC_CALL(StartMapSongBgm),
+
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
+
+    PROC_CALL(UnlockGame),
+
+    PROC_END,
+};
+
+const struct ProcCmd gProcScr_ArenaUiResultBgm[] = {
+    PROC_CALL(Arena_PlayResultSong),
+    PROC_SLEEP(210),
+
+    PROC_CALL(Arena_PlayArenaSong),
+
+    PROC_END,
+};

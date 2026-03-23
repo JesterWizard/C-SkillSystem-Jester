@@ -70,7 +70,7 @@ Unpromoted units only.[X]
 The arena is closed for the day.[X]
 
 ## MSG_ArenaPickOpponentString
-Welcome to the arena![.][NL]
+Welcome to the arena![A][N]
 Pick your opponent.[A][X]
 
 ## MSG_ArenaCleanedOutString
