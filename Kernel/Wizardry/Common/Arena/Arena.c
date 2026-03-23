@@ -390,8 +390,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
 //! FE8U = 0x080B5A7C
 LYN_REPLACE_CHECK(ArenaUi_InstructionsDialogue);
 void ArenaUi_InstructionsDialogue(ProcPtr proc) {
-    ArenaUi_ClearRosterUi();
-    ArenaUi_RedrawRosterOpponentDetails(proc);
+    // ArenaUi_RedrawRosterOpponentDetails(proc);
     StartArenaDialogue(0x8D5, proc);
     // TODO: msgid "Fight 'til you drop, or press[.][NL]the B Button to yield.[A]"
     return;
@@ -699,8 +698,8 @@ extern struct ArenaRosterRuntimeState sArenaRosterRuntimeState;
 STATIC_DECLAR void ArenaUi_ClearRosterUi(void)
 {
     TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, ARENA_ROSTER_LIST_X, ARENA_ROSTER_LIST_Y), ARENA_ROSTER_LIST_W, ARENA_ROSTER_LIST_H, 0);
-
-    BG_EnableSyncByMask(BG0_SYNC_BIT);
+    TileMap_FillRect(TILEMAP_LOCATED(gBG1TilemapBuffer, ARENA_ROSTER_LIST_X, ARENA_ROSTER_LIST_Y), ARENA_ROSTER_LIST_W, ARENA_ROSTER_LIST_H, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
 STATIC_DECLAR const EventScr EventScr_ArenaClosed[] = {
@@ -1612,6 +1611,29 @@ LYN_REPLACE_CHECK(StartArenaScreen);
 void StartArenaScreen(void) {
     ArenaBegin(gActiveUnit);
     Proc_Start(gProcScr_ArenaUiMain, PROC_TREE_3);
+    return;
+}
+
+//! FE8U = 0x080B5C48
+LYN_REPLACE_CHECK(DrawArenaOpponentDetailsText);
+void DrawArenaOpponentDetailsText(ProcPtr proc) {
+
+    if (gpKernelDesignerConfig->arena_roster_menu == true)
+    {
+        ArenaUi_ClearRosterUi();
+        return;
+    }
+
+    DrawUiFrame2(7, 9, 0x10, 6, 0);
+    SetTextFont(0);
+    InitSystemTextFont();
+
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
+
     return;
 }
 
