@@ -1,2 +1,25 @@
 #include "LynJump.event"
 #include "Arena.lyn.event"
+
+#ifdef CONFIG_ARENA_LIMITS
+#define _NonLethalArena 0x1
+
+ALIGN 4
+ArenaLimitHook:
+#incbin "../../Misc/ArenaLimits/ArenaLimitHook.dmp"
+POIN CheckArenaLimits
+
+ALIGN 4
+DeathQuoteHook:
+#incbin "../../Misc/ArenaLimits/DeathQuoteHook.dmp"
+WORD _NonLethalArena
+
+PUSH
+ORG $24132
+ALIGN 4
+jumpToHack(ArenaLimitHook)
+
+ORG $835DC
+jumpToHack(DeathQuoteHook)
+POP
+#endif
