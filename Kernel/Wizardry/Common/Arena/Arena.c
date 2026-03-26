@@ -341,6 +341,9 @@ static bool ArenaRosterPopup2Exists(void)
 {
     if (Proc_Find(ProcScr_Popup2))
         return true;
+
+    if (Proc_Find(ProcScr_Popup))
+        return true;
     else
         return false;
 }
@@ -1008,8 +1011,6 @@ STATIC_DECLAR void ArenaRosterGrantWinReward(const struct ArenaRosterEntry *entr
     if (entry->rewardType == ARENA_ROSTER_REWARD_ITEM) {
         item = MakeNewItem(entry->reward);
 
-        // AddItemToConvoy(item);
-
         ProcPtr proc;
 
         proc = Proc_Find(gProcScr_ArenaUiMain_NEW);
@@ -1379,10 +1380,10 @@ bool ArenaRosterHasConfiguredOpponent(void)
     return ArenaRosterGetSelectedEntry() != NULL;
 }
 
-void ArenaRosterFlushDeferredPopup(void)
+void ArenaRosterFlushDeferredPopup(ProcPtr proc)
 {
-    ProcPtr proc;
     int item;
+    struct Unit *unit;
 
     item = sArenaRosterRuntimeState.pendingRewardItem;
 
@@ -1390,9 +1391,19 @@ void ArenaRosterFlushDeferredPopup(void)
         return;
 
     sArenaRosterRuntimeState.pendingRewardItem = ITEM_NONE;
-    proc = Proc_Find(gProcScr_ArenaUiMain_NEW);
 
-    NewPopup2_SendItem(proc, item);
+    unit = gArenaState.playerUnit;
+
+    if (!UNIT_IS_VALID(unit))
+        unit = gActiveUnit;
+
+    const struct ArenaRosterEntry *entry = ArenaRosterGetSelectedEntry();
+
+    ClearBg0Bg1();
+    Proc_EndEach(gProcScr_GoldBox);
+    Proc_EndEach(gProcScr_E_FACE);
+
+    NewPopup_ItemGot(proc, unit, MakeNewItem(entry->reward));
 
     ArenaRosterClearSelection();
 }

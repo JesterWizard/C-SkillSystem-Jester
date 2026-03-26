@@ -170,7 +170,7 @@ bool ArenaRosterHandleConfirmation(ProcPtr proc);
 bool ArenaRosterHasConfiguredOpponent(void);
 bool ArenaRosterGenerateOpponentUnit(struct Unit *unit);
 bool ArenaRosterHandleResultsDialogue(ProcPtr proc);
-void ArenaRosterFlushDeferredPopup(void);
+void ArenaRosterFlushDeferredPopup(ProcPtr proc);
 u16 ArenaRosterGetSelectedWeapon(void);
 void ArenaRosterClearSelection(void);
 void SaveArenaRosterProgress(u8 *dst, const u32 size);
