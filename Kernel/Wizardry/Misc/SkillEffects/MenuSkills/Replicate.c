@@ -11,6 +11,117 @@
 #endif
 
 #if defined(SID_Replicate) && (COMMON_SKILL_VALID(SID_Replicate))
+static bool IsBattleUnitProxy(const struct Unit *unit)
+{
+	return unit == &gBattleActor.unit || unit == &gBattleTarget.unit;
+}
+
+struct Unit *GetReplicateLinkedUnit(struct Unit *unit)
+{
+	struct Unit *linked;
+
+	if (!UNIT_IS_VALID(unit))
+		return NULL;
+
+	if (unit->_u3B == 0 || unit->_u3B == unit->index)
+		return NULL;
+
+	linked = GetUnit(unit->_u3B);
+
+	if (!UNIT_IS_VALID(linked))
+		return NULL;
+
+	if (linked->_u3B != unit->index)
+		return NULL;
+
+	return linked;
+}
+
+void ClearReplicateUnitLink(struct Unit *unit)
+{
+	struct Unit *linked;
+	u8 linkedIndex;
+
+	if (!UNIT_IS_VALID(unit) || unit->_u3B == 0)
+		return;
+
+	linkedIndex = unit->_u3B;
+	unit->_u3B = 0;
+
+	linked = GetUnit(linkedIndex);
+
+	if (UNIT_IS_VALID(linked) && linked->_u3B == unit->index)
+		linked->_u3B = 0;
+}
+
+void LinkReplicateUnits(struct Unit *unit_a, struct Unit *unit_b)
+{
+	if (!UNIT_IS_VALID(unit_a) || !UNIT_IS_VALID(unit_b) || unit_a == unit_b)
+		return;
+
+	ClearReplicateUnitLink(unit_a);
+	ClearReplicateUnitLink(unit_b);
+
+	unit_a->_u3B = unit_b->index;
+	unit_b->_u3B = unit_a->index;
+}
+
+void SyncReplicateLinkedHp(struct Unit *unit)
+{
+	struct Unit *linked;
+	int hp;
+
+	if (!UNIT_IS_VALID(unit) || IsBattleUnitProxy(unit))
+		return;
+
+	linked = GetReplicateLinkedUnit(unit);
+
+	if (!linked)
+		return;
+
+	hp = unit->curHP;
+
+	if (hp < 0)
+		hp = 0;
+
+	if (hp > GetUnitMaxHp(unit))
+		hp = GetUnitMaxHp(unit);
+
+	unit->curHP = hp;
+
+	if (hp > GetUnitMaxHp(linked))
+		hp = GetUnitMaxHp(linked);
+
+	linked->curHP = hp;
+}
+
+int Replicate_OnBattleToUnit(struct BattleUnit *bu, struct Unit *unit)
+{
+	SyncReplicateLinkedHp(unit);
+	return 0;
+}
+
+void Replicate_OnClearUnit(struct Unit *unit)
+{
+	ClearReplicateUnitLink(unit);
+}
+
+void Replicate_OnUnitKill(struct Unit *unit)
+{
+	struct Unit *linked = GetReplicateLinkedUnit(unit);
+
+	if (!linked)
+		return;
+
+	ClearReplicateUnitLink(unit);
+
+	if (linked->state & (US_DEAD | US_BIT16))
+		return;
+
+	linked->curHP = 0;
+	UnitKill(linked);
+}
+
 u8 Replicate_Usability(const struct MenuItemDef *def, int number)
 {
 
@@ -114,6 +225,7 @@ static void PrepareMenuReplica(void)
 {
     //EndAllMus();
 	SummonReplicaUnit(gActionData.xOther, gActionData.yOther);
+	SyncReplicateLinkedHp(gActiveUnit);
 	RefreshUnitSprites();
 }
 

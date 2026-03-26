@@ -287,6 +287,57 @@ int GetBattleUnitExpGainRework(struct BattleUnit* actor, struct BattleUnit* targ
     return result;
 }
 
+static void ApplyReplicateLevelUpChanges(struct Unit *unit, struct BattleUnit *bu)
+{
+    unit->level = bu->unit.level;
+    unit->exp = bu->unit.exp;
+    unit->maxHP += bu->changeHP;
+    unit->pow += bu->changePow;
+    unit->skl += bu->changeSkl;
+    unit->spd += bu->changeSpd;
+    unit->def += bu->changeDef;
+    unit->res += bu->changeRes;
+    unit->lck += bu->changeLck;
+    UNIT_MAG(unit) += BU_CHG_MAG(bu);
+
+    UnitCheckStatCaps(unit);
+    SyncReplicateLinkedHp(unit);
+}
+
+static void ApplyReplicateExpGain(struct BattleUnit *bu)
+{
+    struct Unit *linked = GetReplicateLinkedUnit(GetUnit(bu->unit.index));
+    struct BattleUnit linkedBattle;
+
+    if (!UNIT_IS_VALID(linked)) {
+        bu->unit.exp += bu->expGain;
+        CheckBattleUnitLevelUp(bu);
+        return;
+    }
+
+    InitBattleUnit(&linkedBattle, linked);
+    linkedBattle.expGain = bu->expGain;
+    linkedBattle.unit.exp += linkedBattle.expGain;
+    CheckBattleUnitLevelUp(&linkedBattle);
+    ApplyReplicateLevelUpChanges(linked, &linkedBattle);
+
+    bu->unit.exp = bu->expPrevious;
+    bu->expGain = 0;
+}
+
+static void ApplyBattleUnitExpGain(struct BattleUnit *bu, struct BattleUnit *opponent)
+{
+    bu->expGain = GetBattleUnitExpGainRework(bu, opponent);
+
+    if (GetUnitStatusIndex(GetUnit(bu->unit.index)) == NEW_UNIT_STATUS_REPLICATE) {
+        ApplyReplicateExpGain(bu);
+        return;
+    }
+
+    bu->unit.exp += bu->expGain;
+    CheckBattleUnitLevelUp(bu);
+}
+
 LYN_REPLACE_CHECK(BattleApplyMiscActionExpGains);
 void BattleApplyMiscActionExpGains(void)
 {
@@ -418,43 +469,16 @@ void BattleApplyExpGains(void)
 
         if (actorBlue && gBattleActor.unit.exp != UNIT_EXP_DISABLED)
         {
-            gBattleActor.expGain = GetBattleUnitExpGainRework(&gBattleActor, &gBattleTarget);
-            gBattleActor.unit.exp += gBattleActor.expGain;
-            CheckBattleUnitLevelUp(&gBattleActor);
+            ApplyBattleUnitExpGain(&gBattleActor, &gBattleTarget);
         }
 
         if (targetBlue && gBattleTarget.unit.exp != UNIT_EXP_DISABLED)
         {
-            gBattleTarget.expGain = GetBattleUnitExpGainRework(&gBattleTarget, &gBattleActor);
-            gBattleTarget.unit.exp += gBattleTarget.expGain;
-            CheckBattleUnitLevelUp(&gBattleTarget);
+            ApplyBattleUnitExpGain(&gBattleTarget, &gBattleActor);
         }
 
     #if CHAX
         ResetPopupSkillStack();
     #endif
-
-        // Handle replicate status (copy EXP to original unit)
-        if (GetUnitStatusIndex(GetUnit(gBattleActor.unit.index)) == NEW_UNIT_STATUS_REPLICATE)
-        {
-            for (int i = FACTION_BLUE; i < FACTION_GREEN; i++)
-            {
-                struct Unit* unit = GetUnit(i);
-
-                if (!UNIT_IS_VALID(unit))
-                    continue;
-
-                if (gBattleActor.unit.pCharacterData->number == unit->pCharacterData->number &&
-                    GetUnitStatusIndex(unit) != NEW_UNIT_STATUS_REPLICATE)
-                {
-                    unit->exp += gBattleActor.expGain;
-                    gBattleActor.unit.exp -= gBattleActor.expGain;
-                    InitBattleUnit(&gBattleActor, unit);
-                    break;
-                }
-            }
-        }
-
-        CheckBattleUnitLevelUp(&gBattleActor);
     }
 }

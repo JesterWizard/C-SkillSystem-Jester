@@ -244,6 +244,8 @@ struct Unit* LoadUnit(const struct UnitDefinition* uDef) {
     if (gActionData.unk08 == SID_Replicate)
     {
         unit->curHP = gActiveUnit->curHP;
+        LinkReplicateUnits(gActiveUnit, unit);
+        SyncReplicateLinkedHp(gActiveUnit);
 
         /* Need to reset this to prevent newly loaded units from having the replicate status set */
         gActionData.unk08 = 0;

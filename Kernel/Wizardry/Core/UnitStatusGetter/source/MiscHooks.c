@@ -33,15 +33,21 @@ void AddUnitHp(struct Unit *unit, int amount)
 		hp = 0;
 
 	unit->curHP = hp;
+	SyncReplicateLinkedHp(unit);
 }
 
 LYN_REPLACE_CHECK(SetUnitHp);
 void SetUnitHp(struct Unit *unit, int value)
 {
+	if (value < 0)
+		value = 0;
+
 	unit->curHP = value;
 
 	if (unit->curHP > GetUnitMaxHp(unit))
 		unit->curHP = GetUnitMaxHp(unit);
+
+	SyncReplicateLinkedHp(unit);
 }
 
 LYN_REPLACE_CHECK(SetupMapBattleAnim);
