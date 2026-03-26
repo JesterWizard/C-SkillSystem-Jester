@@ -6,11 +6,13 @@
 #include "constants/skills.h"
 #include "constants/texts.h"
 #include "debuff.h"
+#include "prepscreen.h"
 #include "playst-expa.h"
 #include "action-expa.h"
 #include "jester_headers/miscellaneous.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-structs.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
@@ -18,8 +20,10 @@
 
 extern u16 gUnknown_085A0D4C[];
 
+#define EMERGENCY_EXIT_PLUS_VISIBLE_COUNT 5
+
 /* Fill gEmergencyExitCandidates with undeployed allies (returns count) */
-static void CollectUndeployedUnits(void)
+static int CollectUndeployedUnits(void)
 {
     memset(gUndeployedUnitCount, 0xFF, sizeof(gUndeployedUnitCount));
 
@@ -36,6 +40,9 @@ static void CollectUndeployedUnits(void)
                 unit->pCharacterData->number;
         }
     }
+
+    gList_Total = unitCounter;
+    return unitCounter;
 }
 
 #if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
@@ -47,6 +54,167 @@ STATIC_DECLAR u8 EmergencyExitPlusMenu_Usability(const struct MenuItemDef * self
 STATIC_DECLAR int EmergencyExitPlusMenu_OnDraw(struct MenuProc * menu, struct MenuItemProc * item);
 STATIC_DECLAR u8 EmergencyExitPlusMenu_OnSelected(struct MenuProc * menu, struct MenuItemProc * item);
 
+static bool EmergencyExitPlus_ShouldShowScrollBar(void)
+{
+    return (gList_Total > EMERGENCY_EXIT_PLUS_VISIBLE_COUNT);
+}
+
+static void EmergencyExitPlus_UpdateScrollBar(void)
+{
+    if (!EmergencyExitPlus_ShouldShowScrollBar())
+        return;
+
+    UpdateMenuScrollBarConfig(
+        gList_Total,
+        gTopVisibleListIndex * 16,
+        gList_Total,
+        EMERGENCY_EXIT_PLUS_VISIBLE_COUNT
+    );
+}
+
+static void EmergencyExitPlus_StartScrollBar(struct MenuProc * menu)
+{
+    if (!EmergencyExitPlus_ShouldShowScrollBar())
+        return;
+
+    StartMenuScrollBar(menu);
+    PutMenuScrollBarAt(200, 32);
+    InitMenuScrollBarImg(0x7A60, 2);
+    EmergencyExitPlus_UpdateScrollBar();
+}
+
+static void EmergencyExitPlus_EndScrollBar(void)
+{
+    if (!EmergencyExitPlus_ShouldShowScrollBar())
+        return;
+
+    EndMenuScrollBar();
+}
+
+static int EmergencyExitPlus_GetVisibleItemCount(void)
+{
+    if (gList_Total < EMERGENCY_EXIT_PLUS_VISIBLE_COUNT)
+        return gList_Total;
+
+    return EMERGENCY_EXIT_PLUS_VISIBLE_COUNT;
+}
+
+static int EmergencyExitPlus_GetAbsoluteIndex(int itemNumber)
+{
+    return gTopVisibleListIndex + itemNumber;
+}
+
+static const struct CharacterData * EmergencyExitPlus_GetCharacterForVisibleIndex(int itemNumber)
+{
+    int index = EmergencyExitPlus_GetAbsoluteIndex(itemNumber);
+
+    if ((index < 0) || (index >= gList_Total))
+        return NULL;
+
+    return GetCharacterData(gUndeployedUnitCount[index]);
+}
+
+static void EmergencyExitPlus_DrawPortrait(int itemNumber)
+{
+    const struct CharacterData * undeployedUnit = EmergencyExitPlus_GetCharacterForVisibleIndex(itemNumber);
+
+    if (!undeployedUnit)
+        return;
+
+    PutFace80x72_Core(
+        gBG0TilemapBuffer + TILEMAP_INDEX(3, 5),
+        undeployedUnit->portraitId,
+        0x200,
+        5
+    );
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void EmergencyExitPlus_ResetMenuState(void)
+{
+    gList_Total = 0;
+    gTopVisibleListIndex = 0;
+}
+
+u8 EmergencyExitPlus_GetCharIdForVisibleIndex(int itemNumber)
+{
+    int index = EmergencyExitPlus_GetAbsoluteIndex(itemNumber);
+
+    if ((index < 0) || (index >= gList_Total))
+        return 0;
+
+    return gUndeployedUnitCount[index];
+}
+
+bool EmergencyExitPlus_HandleMenuScroll(struct MenuProc * menu)
+{
+    int visibleCount = EmergencyExitPlus_GetVisibleItemCount();
+    int maxOffset = gList_Total - visibleCount;
+
+    if (visibleCount <= 0)
+        return false;
+
+    if (gList_Total <= visibleCount)
+        return false;
+
+    if (gKeyStatusPtr->repeatedKeys & DPAD_UP)
+    {
+        if (menu->itemCurrent == 0)
+        {
+            if (gTopVisibleListIndex > 0)
+            {
+                gTopVisibleListIndex--;
+                RedrawMenu(menu);
+                DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+                EmergencyExitPlus_DrawPortrait(menu->itemCurrent);
+                EmergencyExitPlus_UpdateScrollBar();
+                return true;
+            }
+
+            if (gKeyStatusPtr->repeatedKeys != gKeyStatusPtr->newKeys)
+                return true;
+
+            gTopVisibleListIndex = maxOffset;
+            menu->itemCurrent = visibleCount - 1;
+            RedrawMenu(menu);
+            DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+            EmergencyExitPlus_DrawPortrait(menu->itemCurrent);
+            EmergencyExitPlus_UpdateScrollBar();
+            return true;
+        }
+    }
+
+    if (gKeyStatusPtr->repeatedKeys & DPAD_DOWN)
+    {
+        if (menu->itemCurrent == (visibleCount - 1))
+        {
+            if (gTopVisibleListIndex < maxOffset)
+            {
+                gTopVisibleListIndex++;
+                RedrawMenu(menu);
+                DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+                EmergencyExitPlus_DrawPortrait(menu->itemCurrent);
+                EmergencyExitPlus_UpdateScrollBar();
+                return true;
+            }
+
+            if (gKeyStatusPtr->repeatedKeys != gKeyStatusPtr->newKeys)
+                return true;
+
+            gTopVisibleListIndex = 0;
+            menu->itemCurrent = 0;
+            RedrawMenu(menu);
+            DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+            EmergencyExitPlus_DrawPortrait(menu->itemCurrent);
+            EmergencyExitPlus_UpdateScrollBar();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 u8 EmergencyExitPlus_Usability(const struct MenuItemDef * def, int number)
 {
     if (gActiveUnit->state & US_CANTOING)
@@ -55,9 +223,9 @@ u8 EmergencyExitPlus_Usability(const struct MenuItemDef * def, int number)
     if (gActiveUnit->curHP > (gActiveUnit->maxHP / 2))
         return MENU_NOTSHOWN;
 
-    CollectUndeployedUnits();
+    EmergencyExitPlus_ResetMenuState();
 
-    if (gUndeployedUnitCount[0] == 0xFF)
+    if (CollectUndeployedUnits() <= 0)
         return MENU_NOTSHOWN;
 
     return MENU_ENABLED;
@@ -123,10 +291,15 @@ STATIC_DECLAR const struct MenuDef EmergencyExitPlusMenuDef = {
 
 STATIC_DECLAR u8 EmergencyExitPlusMenu_HelpBox(struct MenuProc * menu, struct MenuItemProc * item)
 {
+    const struct CharacterData * undeployedUnit = EmergencyExitPlus_GetCharacterForVisibleIndex(item->itemNumber);
+
+    if (!undeployedUnit)
+        return 0;
+
     StartHelpBox(
         item->xTile * 8,
         item->yTile * 8,
-        GetCharacterData(gUndeployedUnitCount[item->itemNumber])->descTextId
+        undeployedUnit->descTextId
     );
     
     return 0;
@@ -134,29 +307,28 @@ STATIC_DECLAR u8 EmergencyExitPlusMenu_HelpBox(struct MenuProc * menu, struct Me
 
 STATIC_DECLAR u8 EmergencyExitPlusMenu_Usability(const struct MenuItemDef * self, int number)
 {
-    return MENU_ENABLED;
+    if (number < EmergencyExitPlus_GetVisibleItemCount())
+        return MENU_ENABLED;
+
+    return MENU_NOTSHOWN;
 }
 
 STATIC_DECLAR int EmergencyExitPlusMenu_OnDraw(struct MenuProc * menu, struct MenuItemProc * item)
 {
-    const struct CharacterData * undeployedUnit = GetCharacterData(gUndeployedUnitCount[item->itemNumber]);
+    const struct CharacterData * undeployedUnit = EmergencyExitPlus_GetCharacterForVisibleIndex(item->itemNumber);
+
+    if (!undeployedUnit)
+        return 0;
 
     CallARM_FillTileRect(gBG1TilemapBuffer + 0x42, gUnknown_085A0D4C, 0x1000);
 
+    ClearText(&item->text);
     Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_WHITE);
     Text_DrawString(&item->text, GetStringFromIndex(undeployedUnit->nameTextId));
     PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 1, item->yTile));
 
-    /* Draw portrait only for first item */
-    if (item->itemNumber == 0)
-    {
-        PutFace80x72_Core(
-            gBG0TilemapBuffer + TILEMAP_INDEX(3, 5),
-            undeployedUnit->portraitId,
-            0x200,
-            5
-        );
-    }
+    if (item->itemNumber == menu->itemCurrent)
+        EmergencyExitPlus_DrawPortrait(item->itemNumber);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
     return 0;
@@ -164,19 +336,21 @@ STATIC_DECLAR int EmergencyExitPlusMenu_OnDraw(struct MenuProc * menu, struct Me
 
 STATIC_DECLAR u8 EmergencyExitPlusMenu_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)
 {    
-    const u8 menuIndex = MENU_SKILL_INDEX(item->def);
+    const u8 charId = EmergencyExitPlus_GetCharIdForVisibleIndex(item->itemNumber);
 
     struct Unit * unit = GetUnit(gActiveUnit->index);
     HideUnitSprite(unit);
     unit->state |= US_HIDDEN;
 
-    gActiveUnit = GetUnitFromCharId(gUndeployedUnitCount[menuIndex]);
+    gActiveUnit = GetUnitFromCharId(charId);
 
     gActionDataExpa.refrain_action = true;
     EndAllMus();
 
     /* Prevent other menus from freezing because of our little dpad hack in ProcessMenuDpadInput */
     gActionData.unk08 = 0;
+    EmergencyExitPlus_EndScrollBar();
+    EmergencyExitPlus_ResetMenuState();
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
@@ -194,6 +368,8 @@ STATIC_DECLAR u8 EmergencyExitPlus_OnCancel(struct MenuProc * menu, struct MenuI
 
     /* Prevent other menus from freezing because of our little dpad hack in ProcessMenuDpadInput */
     gActionData.unk08 = 0;
+    EmergencyExitPlus_EndScrollBar();
+    EmergencyExitPlus_ResetMenuState();
 
     gActionDataExpa.refrain_action = true;
     EndAllMus();
@@ -203,15 +379,19 @@ STATIC_DECLAR u8 EmergencyExitPlus_OnCancel(struct MenuProc * menu, struct MenuI
 
 static void callback_exec(ProcPtr proc)
 {
-    if (gUndeployedUnitCount[0] == 0xFF) {
+    struct MenuProc * menu;
+
+    EmergencyExitPlus_ResetMenuState();
+
+    if (CollectUndeployedUnits() <= 0) {
         MenuFrozenHelpBox(NULL, MSG_No_Allies);
         return;
     }
 
-    StartSubtitleHelp(
-        StartOrphanMenu(&EmergencyExitPlusMenuDef),
-        GetStringFromIndex(MSG_SelectUndeployedUnit)
-    );
+    menu = StartOrphanMenu(&EmergencyExitPlusMenuDef);
+    EmergencyExitPlus_StartScrollBar(menu);
+
+    StartSubtitleHelp(menu, GetStringFromIndex(MSG_SelectUndeployedUnit));
 }
 
 bool Action_EmergencyExitPlus(ProcPtr parent)

@@ -1169,6 +1169,11 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 {
     proc->itemPrevious = proc->itemCurrent;
 
+#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
+    if ((gActionData.unk08 == SID_EmergencyExitPlus) && EmergencyExitPlus_HandleMenuScroll(proc))
+        return;
+#endif
+
     // Handle Up key
     if (gKeyStatusPtr->repeatedKeys & DPAD_UP)
     {
@@ -1208,7 +1213,12 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 
 #if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
         if (gActionData.unk08 == SID_EmergencyExitPlus)
-            PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(gUndeployedUnitCount[proc->itemCurrent])->portraitId, 0x200, 5);
+        {
+            u8 charId = EmergencyExitPlus_GetCharIdForVisibleIndex(proc->itemCurrent);
+
+            if (charId)
+                PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(charId)->portraitId, 0x200, 5);
+        }
 #endif
     }
 
@@ -1252,7 +1262,12 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 
 #if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
         if (gActionData.unk08 == SID_EmergencyExitPlus)
-            PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(gUndeployedUnitCount[proc->itemCurrent])->portraitId, 0x200, 5);
+        {
+            u8 charId = EmergencyExitPlus_GetCharIdForVisibleIndex(proc->itemCurrent);
+
+            if (charId)
+                PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetCharacterData(charId)->portraitId, 0x200, 5);
+        }
 #endif
     }
 
