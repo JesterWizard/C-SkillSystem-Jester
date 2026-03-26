@@ -10,6 +10,8 @@
 #include "kernel/bwl.h"
 #include "soundroom.h"
 #include "soundwrapper.h"
+#include "bmcontainer.h"
+#include "prepscreen.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 
@@ -443,7 +445,9 @@ void ViewPortraitInit(DebuggerProc* proc);
 void ViewPortraitIdle(DebuggerProc* proc);
 void ViewTrapInit(DebuggerProc* proc);
 void ViewTrapIdle(DebuggerProc* proc);
+void StartSupplyView(DebuggerProc* proc);
 u8 CanActiveUnitPromote(void);
+u8 CanViewSupplyMenu(const struct MenuItemDef* def, int number);
 
 #define InitProcLabel 0
 #define RestartLabel 1
@@ -469,7 +473,7 @@ u8 CanActiveUnitPromote(void);
 #define BackgroundLabel 21
 #define PortraitLabel 22
 #define TrapViewLabel 23
-#define ListLabel 24
+#define SupplyLabel 24
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -620,6 +624,10 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_CALL(ViewTrapInit),
     PROC_REPEAT(ViewTrapIdle),
     PROC_GOTO(EndLabel),
+
+    PROC_LABEL(SupplyLabel), // Supply viewer
+    PROC_CALL(StartSupplyView),
+    PROC_END,
     
     PROC_LABEL(EndLabel), 
     PROC_CALL(ClearActiveUnitStuff),
@@ -4325,6 +4333,61 @@ u8 ViewTrapNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
+u8 ViewSupplyNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, SupplyLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 CanViewSupplyMenu(const struct MenuItemDef* def, int number)
+{
+    if (HasConvoyAccess())
+        return MENU_ENABLED;
+
+    return MENU_DISABLED;
+}
+
+void UnitBeginActionInit(struct Unit* unit) {
+    gActiveUnit = unit;
+    gActiveUnitId = unit->index;
+
+    gActiveUnitMoveOrigin.x = unit->xPos;
+    gActiveUnitMoveOrigin.y = unit->yPos;
+    gActionData.xMove = unit->xPos; 
+    gActionData.yMove = unit->yPos; 
+
+    gActionData.subjectIndex = unit->index;
+    gActionData.itemSlotIndex = -1; 
+    gActionData.unitActionType = 0;
+    gActionData.moveCount = 0;
+
+    gBmSt.taken_action = 0;
+    gBmSt.unk3F = 0xFF;
+
+    sub_802C334(); // zeroes out a few bits of unknown ram 
+
+    //gActiveUnit->state |= US_HIDDEN;
+    //gBmMapUnit[unit->yPos][unit->xPos] = 0;
+}
+
+void StartSupplyView(DebuggerProc* proc)
+{
+    DebuggerProc *procIdler = Proc_Find(DebuggerProcCmdIdler);
+    ProcPtr playerPhaseProc = proc->proc_parent;
+
+    if (procIdler)
+        CopyProcVariables(procIdler, proc);
+
+    ClearActiveUnitStuff(proc);
+    UnitBeginActionInit(proc->unit);
+
+    if (!playerPhaseProc)
+        playerPhaseProc = Proc_Find(gProcScr_PlayerPhase);
+
+    StartBmSupply(gActiveUnit, playerPhaseProc);
+}
+
 u8 AiControlRemainingUnitsNow(struct MenuProc * menu, struct MenuItemProc * menuItem)
 {
     DebuggerProc * proc;
@@ -4685,30 +4748,6 @@ const struct MenuDef gDebuggerMenuDefPage3 = {
     MenuAutoHelpBoxSelect,
     DebuggerHelpBox
 };
-
-
-void UnitBeginActionInit(struct Unit* unit) {
-    gActiveUnit = unit;
-    gActiveUnitId = unit->index;
-
-    gActiveUnitMoveOrigin.x = unit->xPos;
-    gActiveUnitMoveOrigin.y = unit->yPos;
-    gActionData.xMove = unit->xPos; 
-    gActionData.yMove = unit->yPos; 
-
-    gActionData.subjectIndex = unit->index;
-    gActionData.itemSlotIndex = -1; 
-    gActionData.unitActionType = 0;
-    gActionData.moveCount = 0;
-
-    gBmSt.taken_action = 0;
-    gBmSt.unk3F = 0xFF;
-
-    sub_802C334(); // zeroes out a few bits of unknown ram 
-
-    //gActiveUnit->state |= US_HIDDEN;
-    //gBmMapUnit[unit->yPos][unit->xPos] = 0;
-}
 
 int RestartNow(DebuggerProc* proc) { 
     Proc_Goto(proc, RestartLabel); 

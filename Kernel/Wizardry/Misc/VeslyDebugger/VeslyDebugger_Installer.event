@@ -105,6 +105,7 @@ MenuCommand1(BgmMenuText, BgmMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMe
 MenuCommand1(BackgroundMenuText, BackgroundMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewBackgroundNow)
 MenuCommand1(PortraitMenuText, PortraitMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewPortraitNow)
 MenuCommand1(TrapMenuText, TrapMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewTrapNow)
+MenuCommand1(SupplyMenuText, SupplyMenuDesc, NormalText, CanViewSupplyMenu, DebuggerMenuItemDraw, ViewSupplyNow)
 MenuCommand1(PageText, PageDesc, NormalText, MenuAlwaysEnabled, PageMenuItemDraw, PageIncrementNow) // sprite draw assumes always on the bottom 
 #ifdef DEBUG_SKILL_EDIT_INCLUDED 
 //MenuCommand(EditSkillsText,EditSkillsDesc, OrangeText, $04F449,DebuggerMenuItemDraw, SkillDebugCommand_OnSelect)
@@ -246,6 +247,12 @@ TrapMenuText:
 TrapMenuDesc:
     String("Inspect active trap"); NL
     String("entries on the map."); EndText
+
+SupplyMenuText:
+    String(" Supply"); EndText
+SupplyMenuDesc:
+    String("Open the convoy"); NL
+    String("for the current unit."); EndText
      
 SupportMenuText:
     String(" Supports"); EndText 
