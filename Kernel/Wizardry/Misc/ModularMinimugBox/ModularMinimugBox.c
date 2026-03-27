@@ -11,7 +11,10 @@ extern const u16 MenuTilesPalette_Pikmin[];
 
 int GetUIPalID(void);
 
-#define MMB_NUMBER_OBJ_PAL 15
+/* OBJ palette 15 is reserved by the engine for grayed map sprites.
+ * Keep the minimug digits on a free palette bank so acted player units
+ * continue using the vanilla gray palette correctly. */
+#define MMB_NUMBER_OBJ_PAL 11
 #define MMBHeight 6
 #define MMBWidth 16
 
