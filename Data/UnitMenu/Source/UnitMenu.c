@@ -193,6 +193,17 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 		pr_UpperMenuSkill_OnSelected,
 		NULL, NULL, NULL
 	},
+	{
+		"　武器屋",
+		MSG_SKILL_Entrepreneur_NAME,
+		MSG_SKILL_Entrepreneur_DESC,
+		TEXT_COLOR_SYSTEM_GOLD,
+		0x80,
+		Entrepreneur_Usability,
+		NULL,
+		Entrepreneur_OnSelected,
+		NULL, NULL, NULL
+	},
 	// {
 	// 	"　特技",
 	// 	0x4EC,
