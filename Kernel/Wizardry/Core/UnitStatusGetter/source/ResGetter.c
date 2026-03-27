@@ -227,13 +227,6 @@ int ResGetterSkills(int status, struct Unit *unit)
 	return status;
 }
 
-#ifndef CONFIG_MULTIPLE_BOOST_STAVES
-int ResGetterPureWater(int status, struct Unit *unit)
-{
-	return status + unit->barrierDuration;
-}
-#endif
-
 int ResPsychUpCheck(int status, struct Unit *unit)
 {
     FORCE_DECLARE int stolen_status = 0;

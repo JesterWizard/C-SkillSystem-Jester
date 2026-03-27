@@ -100,7 +100,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_UnlockStaff,
 		.prep_effect    = NULL,
 	},
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
 	[IER_STAFF_FORCE] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -108,8 +107,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
 	[IER_STAFF_TEMPEST] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -117,8 +114,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
 	[IER_STAFF_ACUITY] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -126,8 +121,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
 	[IER_STAFF_SPRINT] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -135,8 +128,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
 	[IER_STAFF_FORTUNE] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -144,8 +135,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
 	[IER_STAFF_IRON] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -153,8 +142,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
 	[IER_STAFF_OMNI] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -162,7 +149,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#endif
 	[IER_STAFF_BARRIER] = {
 		.usability      = IER_Usability_Barrier,
 		.prep_usability = NULL,
@@ -170,7 +156,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_BarrierStaff,
 		.prep_effect    = NULL,
 	},
-#ifdef CONFIG_ITEM_INDEX_SLOW_STAFF
 	[IER_STAFF_SLOW] = {
 		.usability      = IER_Usability_Slow,
 		.prep_usability = NULL,
@@ -178,8 +163,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
 	[IER_STAFF_FORGE] = {
 		.usability      = IER_Usability_Forge,
 		.prep_usability = NULL,
@@ -187,8 +170,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_REWARP_STAFF
 	[IER_STAFF_REWARP] = {
 		.usability      = IER_Usability_Rewarp,
 		.prep_usability = NULL,
@@ -196,8 +177,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_Rewarp,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_POISON_STAFF
 	[IER_STAFF_POISON] = {
 		.usability      = IER_Usability_Poison,
 		.prep_usability = NULL,
@@ -205,8 +184,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_DELAY_STAFF
 	[IER_STAFF_DELAY] = {
 		.usability      = IER_Usability_Delay,
 		.prep_usability = NULL,
@@ -214,8 +191,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENTRAP_STAFF
 	[IER_STAFF_ENTRAP] = {
 		.usability      = IER_Usability_Entrap,
 		.prep_usability = NULL,
@@ -223,8 +198,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_Entrap,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_QUICKEN_STAFF
 	[IER_STAFF_QUICKEN] = {
 		.usability      = IER_Usability_Quicken,
 		.prep_usability = NULL,
@@ -232,8 +205,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_HIDE_STAFF
 	[IER_STAFF_HIDE] = {
 		.usability      = IER_Usability_Hide,
 		.prep_usability = NULL,
@@ -241,8 +212,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_PROVOKE_STAFF
 	[IER_STAFF_PROVOKE] = {
 		.usability      = IER_Usability_Provoke,
 		.prep_usability = NULL,
@@ -250,8 +219,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
 	[IER_STAFF_PETRIFY] = {
 		.usability      = IER_Usability_Petrify,
 		.prep_usability = NULL,
@@ -259,8 +226,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
 	[IER_STAFF_SOOTH] = {
 		.usability      = IER_Usability_Sooth,
 		.prep_usability = NULL,
@@ -268,8 +233,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
 	[IER_STAFF_ENFEEBLE] = {
 		.usability      = IER_Usability_Enfeeble,
 		.prep_usability = NULL,
@@ -277,8 +240,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
 	[IER_STAFF_INVEST] = {
 		.usability      = IER_Usability_Invest,
 		.prep_usability = NULL,
@@ -286,7 +247,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_CustomStaves,
 		.prep_effect    = NULL,
 	},
-#endif
 
 	/**
 	 * Boosters
@@ -479,7 +439,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_LightRune,
 		.prep_effect    = NULL,
 	},
-#ifdef CONFIG_ITEM_INDEX_RUNE_STAFF
 	[IER_STAFF_RUNE] = {
 		.usability      = IER_Usability_LightRune,
 		.prep_usability = NULL,
@@ -487,7 +446,6 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_LightRune,
 		.prep_effect    = NULL,
 	},
-#endif
 	[IER_FILLAS_MIGHT] = {
 		.usability      = IER_Usability_DanceRing,
 		.prep_usability = NULL,

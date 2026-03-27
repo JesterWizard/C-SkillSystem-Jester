@@ -349,48 +349,48 @@ void DoUseBarrierStaff(struct Unit* unit)
 
     char * str = "NULL";
 
-    int itemId = GetItemIndex(unit->items[0]);
+	int itemId = GetItemIndex(unit->items[gActionData.itemSlotIndex]);
 
     switch (itemId)
     {
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
-    case CONFIG_ITEM_INDEX_FORCE_STAFF:
+	case ITEM_STAFF_FORCE:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's strength to bolster";
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
-    case CONFIG_ITEM_INDEX_TEMPEST_STAFF:
+	case ITEM_STAFF_TEMPEST:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's magic to bolster";
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
-    case CONFIG_ITEM_INDEX_ACUITY_STAFF:
+	case ITEM_STAFF_ACUITY:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's skill to bolster";
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
-    case CONFIG_ITEM_INDEX_SPRINT_STAFF:
+	case ITEM_STAFF_SPRINT:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's speed to bolster";
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
-    case CONFIG_ITEM_INDEX_FORTUNE_STAFF:
+	case ITEM_STAFF_FORTUNE:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's luck to bolster";
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
-    case CONFIG_ITEM_INDEX_IRON_STAFF:
+	case ITEM_STAFF_IRON:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's defense to bolster";
         break;
-#endif
     case ITEM_STAFF_BARRIER:
         str = "Select which character's resistance to bolster";
         break;
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
-    case CONFIG_ITEM_INDEX_OMNI_STAFF:
+	case ITEM_STAFF_OMNI:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         str = "Select which character's stats to bolster";
         break;
-#endif
 
     default:
         break;
@@ -411,48 +411,48 @@ void ExecBarrierStaff(ProcPtr proc) {
 
     BattleInitItemEffectTarget(unit_tar);
 
-    int itemId = GetItemIndex(unit_act->items[0]);
+	int itemId = GetItemIndex(unit_act->items[gActionData.itemSlotIndex]);
 
     switch (itemId)
     {
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
-    case CONFIG_ITEM_INDEX_FORCE_STAFF:
+	case ITEM_STAFF_FORCE:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 0;
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
-    case CONFIG_ITEM_INDEX_TEMPEST_STAFF:
+	case ITEM_STAFF_TEMPEST:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 1;
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
-    case CONFIG_ITEM_INDEX_ACUITY_STAFF:
+	case ITEM_STAFF_ACUITY:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 2;
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
-    case CONFIG_ITEM_INDEX_SPRINT_STAFF:
+	case ITEM_STAFF_SPRINT:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 3;
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
-    case CONFIG_ITEM_INDEX_FORTUNE_STAFF:
+	case ITEM_STAFF_FORTUNE:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 4;
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
-    case CONFIG_ITEM_INDEX_IRON_STAFF:
+	case ITEM_STAFF_IRON:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 5;
         break;
-#endif
     case ITEM_STAFF_BARRIER:
         unit_tar->boostType = 6;
         break;
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
-    case CONFIG_ITEM_INDEX_OMNI_STAFF:
+	case ITEM_STAFF_OMNI:
+		if (!gpKernelDesignerConfig->custom_staves)
+			break;
         unit_tar->boostType = 7;
         break;
-#endif
     
     default:
         break;
@@ -517,15 +517,16 @@ void ExecLightRune(ProcPtr proc) {
 
     BattleApplyItemEffect(proc);
 
-#ifdef CONFIG_ITEM_INDEX_RUNE_STAFF
-    int x = gActionData.xOther * 0x10 - gBmSt.camera.x - 0x18;
-    int y = gActionData.yOther * 0x10 - gBmSt.camera.y - 0x28;
+	if (gpKernelDesignerConfig->custom_staves == true &&
+		GetItemIndex(GetUnit(gActionData.subjectIndex)->items[gActionData.itemSlotIndex]) == ITEM_STAFF_RUNE) {
+		int x = gActionData.xOther * 0x10 - gBmSt.camera.x - 0x18;
+		int y = gActionData.yOther * 0x10 - gBmSt.camera.y - 0x28;
 
-    BG_SetPosition(0, -x, -y);
-    BeginBattleAnimations(); // This way we can gain EXP for using a light rune staff
-#else
-    StartLightRuneAnim(proc, gActionData.xOther, gActionData.yOther);
-#endif
+		BG_SetPosition(0, -x, -y);
+		BeginBattleAnimations(); // This way we can gain EXP for using a light rune staff
+	} else {
+		StartLightRuneAnim(proc, gActionData.xOther, gActionData.yOther);
+	}
 
     gBattleTarget.statusOut = -1;
 
@@ -542,65 +543,43 @@ void ExecCustomStaves(ProcPtr proc) {
 
     BattleApplyItemEffect(proc);
 
-    int itemId = GetItemIndex(unit_act->items[0]);
+	int itemId = GetItemIndex(unit_act->items[gActionData.itemSlotIndex]);
 
     switch (itemId)
     {   
-#ifdef CONFIG_ITEM_INDEX_SLOW_STAFF
-    case CONFIG_ITEM_INDEX_SLOW_STAFF:
+	case ITEM_STAFF_SLOW:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_SLOW);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
-    case CONFIG_ITEM_INDEX_FORGE_STAFF:
+	case ITEM_STAFF_FORGE:
         // IER_Effect_Forge takes care of this. Splitting out its effects when it depends on the steal menu is... hard.
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_POISON_STAFF
-    case CONFIG_ITEM_INDEX_POISON_STAFF:
+	case ITEM_STAFF_POISON:
         SetUnitStatus(unit_tar, UNIT_STATUS_POISON);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_DELAY_STAFF
-    case CONFIG_ITEM_INDEX_DELAY_STAFF:
+	case ITEM_STAFF_DELAY:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_DELAY);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_QUICKEN_STAFF
-    case CONFIG_ITEM_INDEX_QUICKEN_STAFF:
+	case ITEM_STAFF_QUICKEN:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_QUICKEN);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_HIDE_STAFF
-    case CONFIG_ITEM_INDEX_HIDE_STAFF:
+	case ITEM_STAFF_HIDE:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_HIDE);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_PROVOKE_STAFF
-    case CONFIG_ITEM_INDEX_PROVOKE_STAFF:
+	case ITEM_STAFF_PROVOKE:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_DECOY);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
-    case CONFIG_ITEM_INDEX_PETRIFY_STAFF:
+	case ITEM_STAFF_PETRIFY:
         SetUnitStatus(unit_tar, UNIT_STATUS_PETRIFY);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
-    case CONFIG_ITEM_INDEX_ENFEEBLE_STAFF:
+	case ITEM_STAFF_ENFEEBLE:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_ENFEEBLE);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
-    case CONFIG_ITEM_INDEX_SOOTH_STAFF:
+	case ITEM_STAFF_SOOTH:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_RENEWAL);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
-    case CONFIG_ITEM_INDEX_INVEST_STAFF:
+	case ITEM_STAFF_INVEST:
         SetUnitStatus(unit_tar, NEW_UNIT_STATUS_INVEST);
         break;
-#endif
 
     default:
         break;

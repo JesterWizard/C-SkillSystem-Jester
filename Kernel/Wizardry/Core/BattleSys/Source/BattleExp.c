@@ -6,9 +6,48 @@
 #include "debuff.h"
 #include "strmag.h"
 
+static bool CustomStavesEnabled(void)
+{
+    return gpKernelDesignerConfig->custom_staves == true;
+}
+
 inline static int StaffEXP(int weapon)
 {
     int exp = 0;
+
+    if (CustomStavesEnabled()) {
+        switch (weapon) {
+        case ITEM_STAFF_FORCE:
+        case ITEM_STAFF_TEMPEST:
+        case ITEM_STAFF_ACUITY:
+        case ITEM_STAFF_SPRINT:
+        case ITEM_STAFF_FORTUNE:
+        case ITEM_STAFF_IRON:
+        case ITEM_STAFF_OMNI:
+        case ITEM_STAFF_POISON:
+        case ITEM_STAFF_DELAY:
+        case ITEM_STAFF_INVEST:
+            return 17;
+
+        case ITEM_STAFF_MINE:
+            return 20;
+
+        case ITEM_STAFF_RUNE:
+        case ITEM_STAFF_SLOW:
+        case ITEM_STAFF_FORGE:
+        case ITEM_STAFF_REWARP:
+        case ITEM_STAFF_QUICKEN:
+        case ITEM_STAFF_HIDE:
+        case ITEM_STAFF_PROVOKE:
+        case ITEM_STAFF_PETRIFY:
+        case ITEM_STAFF_SOOTH:
+        case ITEM_STAFF_ENFEEBLE:
+            return 30;
+
+        case ITEM_STAFF_ENTRAP:
+            return 50;
+        }
+    }
 
     switch (weapon)
     {
@@ -16,42 +55,9 @@ inline static int StaffEXP(int weapon)
     case ITEM_STAFF_TORCH:
         exp = 15;
         break;
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
-    case CONFIG_ITEM_INDEX_FORCE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
-    case CONFIG_ITEM_INDEX_TEMPEST_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
-    case CONFIG_ITEM_INDEX_ACUITY_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
-    case CONFIG_ITEM_INDEX_SPRINT_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
-    case CONFIG_ITEM_INDEX_FORTUNE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
-    case CONFIG_ITEM_INDEX_IRON_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
-    case CONFIG_ITEM_INDEX_OMNI_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_POISON_STAFF
-    case CONFIG_ITEM_INDEX_POISON_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_DELAY_STAFF
-    case CONFIG_ITEM_INDEX_DELAY_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
-    case CONFIG_ITEM_INDEX_INVEST_STAFF:
-#endif
     case ITEM_STAFF_BARRIER:
         exp = 17;
         break;
-#ifdef CONFIG_ITEM_INDEX_MINE_STAFF
-    case CONFIG_ITEM_INDEX_MINE_STAFF:
-#endif
     case ITEM_STAFF_MEND:
         exp = 20;
         break;
@@ -64,42 +70,9 @@ inline static int StaffEXP(int weapon)
     case ITEM_STAFF_SLEEP:
     case ITEM_STAFF_SILENCE:
     case ITEM_STAFF_PHYSIC:
-#ifdef CONFIG_ITEM_INDEX_RUNE_STAFF
-    case CONFIG_ITEM_INDEX_RUNE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_SLOW_STAFF
-    case CONFIG_ITEM_INDEX_SLOW_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
-    case CONFIG_ITEM_INDEX_FORGE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_REWARP_STAFF
-    case CONFIG_ITEM_INDEX_REWARP_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_QUICKEN_STAFF
-    case CONFIG_ITEM_INDEX_QUICKEN_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_HIDE_STAFF
-    case CONFIG_ITEM_INDEX_HIDE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_PROVOKE_STAFF
-    case CONFIG_ITEM_INDEX_PROVOKE_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
-    case CONFIG_ITEM_INDEX_PETRIFY_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
-    case CONFIG_ITEM_INDEX_SOOTH_STAFF:
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
-    case CONFIG_ITEM_INDEX_ENFEEBLE_STAFF:
-#endif
         exp = 30;
         break;
     case ITEM_STAFF_RESCUE:
-#ifdef CONFIG_ITEM_INDEX_ENTRAP_STAFF
-    case CONFIG_ITEM_INDEX_ENTRAP_STAFF:
-#endif
         exp = 50;
         break;
     case ITEM_STAFF_WARP:

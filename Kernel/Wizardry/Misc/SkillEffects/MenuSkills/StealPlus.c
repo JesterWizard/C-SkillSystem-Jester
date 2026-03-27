@@ -151,7 +151,6 @@ s8 IsItemStealable(int item) {
 
     bool stealable = false;
 
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
     if (gActionData.unk08 == 5000) // IER_Effect_Forge sets this. It may need to be revisted if we want to have several steal staves with different restrictions
     {
         if (GetItemAttributes(item) & IA_WEAPON || GetItemAttributes(item) & IA_MAGIC || GetItemAttributes(item) & IA_STAFF)
@@ -163,7 +162,6 @@ s8 IsItemStealable(int item) {
             return false;
         }
     }
-#endif
 
 #if defined(SID_StealPlus) && (COMMON_SKILL_VALID(SID_StealPlus))
     if (SkillTesterPlus(gActiveUnit, SID_StealPlus))
@@ -217,13 +215,11 @@ void AddAsTarget_IfCanStealFrom(struct Unit* unit) {
             return;
         }
 
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
 	    if (gActionData.unk08 == CONFIG_FORGE_CHECKER)
         {
             AddTarget(unit->xPos, unit->yPos, unit->index, 0);
             return;
         }
-#endif
 
         if (!IsItemStealable(item)) {
             continue;
@@ -270,7 +266,6 @@ u8 StealItemMenuCommand_Effect(struct MenuProc *menu, struct MenuItemProc *menuI
 
     if (menuItem->availability == MENU_DISABLED)
     {
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
         if (gActionData.unk08 == CONFIG_FORGE_CHECKER)
         {
             if (GetItemType(GetUnit(gActionData.targetIndex)->items[menuItem->itemNumber]) == ITYPE_ITEM)
@@ -284,15 +279,10 @@ u8 StealItemMenuCommand_Effect(struct MenuProc *menu, struct MenuItemProc *menuI
             MenuFrozenHelpBox(menu, MSG_ITEM_CANT_STEAL_PLUS);
             return MENU_ACT_SND6B;
         }
-#else
-        MenuFrozenHelpBox(menu, MSG_ITEM_CANT_STEAL_PLUS);
-        return MENU_ACT_SND6B;
-#endif
     }
 
     gActionData.itemSlotIndex = menuItem->itemNumber;
 
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
         if (gActionData.unk08 == CONFIG_FORGE_CHECKER)
         {
             gActionData.unitActionType = UNIT_ACTION_STAFF;
@@ -300,9 +290,6 @@ u8 StealItemMenuCommand_Effect(struct MenuProc *menu, struct MenuItemProc *menuI
         }
         else
             gActionData.unitActionType = UNIT_ACTION_STEAL;
-#else
-    gActionData.unitActionType = UNIT_ACTION_STEAL;
-#endif
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }

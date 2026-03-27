@@ -1,6 +1,4 @@
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
     PUSH
         ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_ENFEEBLE_STAFF * 0x80
             #incbin "EnfeebleStaff.4bpp"
     POP
-#endif

@@ -53,9 +53,6 @@ gDefGetters:
 gResGetters:
     POIN ResGetterWeaponBonus ResGetterSkills ResPsychUpCheck ResGetterDebuff
     POIN ResGetterStaffBoost
-#ifndef CONFIG_MULTIPLE_BOOST_STAVES
-    POIN ResGetterPureWater
-#endif
     POIN ResGetterStatDebuff ResGetterShield
     POIN StatusGetterCheckCpas
     MSG_END

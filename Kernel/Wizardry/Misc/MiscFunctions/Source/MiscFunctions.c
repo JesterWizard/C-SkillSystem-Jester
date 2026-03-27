@@ -515,7 +515,6 @@ s8 PlayerPhase_PrepareAction(ProcPtr proc)
     case ITEM_OCEANSEAL:
     case ITEM_LUNARBRACE:
     case ITEM_SOLARBRACE:
-    case ITEM_UNK_C1:
         return cameraReturn;
     }
 

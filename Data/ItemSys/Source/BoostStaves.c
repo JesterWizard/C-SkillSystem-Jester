@@ -4,6 +4,11 @@
 #include "constants/skills.h"
 #include "strmag.h"
 
+static bool CustomStavesEnabled(void)
+{
+    return gpKernelDesignerConfig->custom_staves == true;
+}
+
 //! FE8U = 0x08034B48
 LYN_REPLACE_CHECK(DrawUnitResChangeText);
 void DrawUnitResChangeText(struct Text* text, struct Unit* unit, int bonus) {
@@ -16,53 +21,38 @@ void DrawUnitResChangeText(struct Text* text, struct Unit* unit, int bonus) {
 
     switch (itemId)
     {
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
-    case CONFIG_ITEM_INDEX_FORCE_STAFF:
+    case ITEM_STAFF_FORCE:
         statName = "Str";
         statNumber = GetUnitPower(unit);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
-    case CONFIG_ITEM_INDEX_TEMPEST_STAFF:
+    case ITEM_STAFF_TEMPEST:
         statName = "Mag";
         statNumber = GetUnitMagic(unit);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
-    case CONFIG_ITEM_INDEX_ACUITY_STAFF:
+    case ITEM_STAFF_ACUITY:
         statName = "Skl";
         statNumber = GetUnitSkill(unit);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
-    case CONFIG_ITEM_INDEX_SPRINT_STAFF:
+    case ITEM_STAFF_SPRINT:
         statName = "Spd";
         statNumber = GetUnitSpeed(unit);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
-    case CONFIG_ITEM_INDEX_FORTUNE_STAFF:
+    case ITEM_STAFF_FORTUNE:
         statName = "Lck";
         statNumber = GetUnitLuck(unit);
         break;
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
-    case CONFIG_ITEM_INDEX_IRON_STAFF:
+    case ITEM_STAFF_IRON:
         statName = "Def";
         statNumber = GetUnitDefense(unit);
         break;
-#endif
     case ITEM_STAFF_BARRIER:
         statName = "Res";
         statNumber = GetUnitResistance(unit);
         break;
-
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
-    case CONFIG_ITEM_INDEX_OMNI_STAFF:
+    case ITEM_STAFF_OMNI:
         statName = "Omni";
         statNumber = 0;
         break;
-#endif
 
     default:
         break;
@@ -80,6 +70,9 @@ void DrawUnitResChangeText(struct Text* text, struct Unit* unit, int bonus) {
 //! FE8U = 0x080350A4
 LYN_REPLACE_CHECK(RefreshUnitResChangeInfoWindow);
 void RefreshUnitResChangeInfoWindow(struct Unit* unit) {
+    if (!CustomStavesEnabled() && GetItemIndex(gActiveUnit->items[0]) != ITEM_STAFF_BARRIER)
+        return;
+
     int y = 0;
     int x = GetUnitInfoWindowX(unit, 10);
 

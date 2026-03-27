@@ -1,6 +1,4 @@
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
     PUSH
         ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_INVEST_STAFF * 0x80
             #incbin "InvestStaff.4bpp"
     POP
-#endif

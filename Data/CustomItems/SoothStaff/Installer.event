@@ -1,6 +1,4 @@
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
     PUSH
         ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_SOOTH_STAFF * 0x80
             #incbin "SoothStaff.4bpp"
     POP
-#endif

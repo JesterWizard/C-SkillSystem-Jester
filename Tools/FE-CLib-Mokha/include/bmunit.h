@@ -162,14 +162,9 @@ struct Unit
     /* 30 */ u8 statusIndex : 4;
     /* 30 */ u8 statusDuration : 4;
 
-#ifdef CONFIG_MULTIPLE_BOOST_STAVES
-    /* 31 */ u8 torchDuration : 2;
-    /* 31 */ u8 barrierDuration : 3;
-    /* 31 */ u8 boostType : 3;
-#else
-    /* 31 */ u8 torchDuration : 4;
-    /* 31 */ u8 barrierDuration : 4;
-#endif
+    /* 31 */ u8 torchDuration : 2;   // Originally 4 bits.
+    /* 31 */ u8 barrierDuration : 3; // Originally 4 bits.
+    /* 31 */ u8 boostType : 3;       // New field; originally part of the torch/barrier byte.
 
     /* 32 */ u8 supports[UNIT_SUPPORT_MAX_COUNT];
     /* 39 */ s8 supportBits;

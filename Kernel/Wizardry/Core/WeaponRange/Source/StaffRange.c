@@ -7,6 +7,11 @@
 #include "jester_headers/custom-functions.h"
 #include "constants/texts.h"
 
+static bool CustomStavesEnabled(void)
+{
+    return gpKernelDesignerConfig->custom_staves == true;
+}
+
 LYN_REPLACE_CHECK(TryAddUnitToHealTargetList);
 void TryAddUnitToHealTargetList(struct Unit* unit) {
 
@@ -188,10 +193,12 @@ void MakeTargetListForSlow(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_SLOW_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_SLOW_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_SLOW);
 	ForEachAdjacentUnit(x, y, TryAddUnitToSlowTargetList);
 }
 
@@ -230,10 +237,12 @@ void MakeTargetListForForge(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_FORGE_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_FORGE);
 	ForEachUnitInMagBy2Range(TryAddUnitToForgeTargetList);
 }
 
@@ -259,10 +268,12 @@ void MakeTargetListForPoison(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_POISON_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_POISON_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_POISON);
 	ForEachAdjacentUnit(x, y, TryAddUnitToPoisonTargetList);
 }
 
@@ -288,10 +299,12 @@ void MakeTargetListForDelay(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_DELAY_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_DELAY_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_DELAY);
 	ForEachAdjacentUnit(x, y, TryAddUnitToDelayTargetList);
 }
 
@@ -312,10 +325,12 @@ void MakeTargetListForEntrap(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_ENTRAP_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_ENTRAP_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_ENTRAP);
 	ForEachUnit(TryAddUnitToEntrapTargetList, gBmMapRange, 0);
 }
 
@@ -351,10 +366,12 @@ void MakeTargetListForQuicken(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_QUICKEN_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_QUICKEN_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_QUICKEN);
 	ForEachAdjacentUnit(x, y, TryAddUnitToQuickenTargetList);
 }
 
@@ -379,10 +396,12 @@ void MakeTargetListForHide(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_HIDE_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_HIDE_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_HIDE);
 	ForEachAdjacentUnit(x, y, TryAddUnitToHideTargetList);
 }
 
@@ -407,10 +426,12 @@ void MakeTargetListForProvoke(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_PROVOKE_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_PROVOKE);
 	ForEachAdjacentUnit(x, y, TryAddUnitToProvokeTargetList);
 }
 
@@ -435,10 +456,12 @@ void MakeTargetListForPetrify(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_PETRIFY_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_PETRIFY);
 	ForEachAdjacentUnit(x, y, TryAddUnitToPetrifyTargetList);
 }
 
@@ -463,10 +486,12 @@ void MakeTargetListForSooth(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_SOOTH_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_SOOTH);
 	ForEachAdjacentUnit(x, y, TryAddUnitToSoothTargetList);
 }
 
@@ -491,10 +516,12 @@ void MakeTargetListForEnfeeble(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_ENFEEBLE_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_ENFEEBLE);
 	ForEachAdjacentUnit(x, y, TryAddUnitToEnfeebleTargetList);
 }
 
@@ -519,9 +546,11 @@ void MakeTargetListForInvest(struct Unit *unit)
 	gSubjectUnit = unit;
 	InitTargets(x, y);
 
+    if (!CustomStavesEnabled()) {
+        return;
+    }
+
 	BmMapFill(gBmMapRange, 0);
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
-	AddMapForItem(unit, CONFIG_ITEM_INDEX_INVEST_STAFF);
-#endif
+    AddMapForItem(unit, ITEM_STAFF_INVEST);
 	ForEachAdjacentUnit(x, y, TryAddUnitToInvestTargetList);
 }

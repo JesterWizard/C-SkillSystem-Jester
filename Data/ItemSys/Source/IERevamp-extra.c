@@ -39,11 +39,6 @@ const struct IER_PromoConfig IER_PromotionItemTable[] = {
 		.item = ITEM_SOLARBRACE,
 		.job_list = gItemUseJidList_SolarBrace,
 	},
-	{
-		.item = ITEM_UNK_C1,
-		.job_list = gItemUseJidList_C1,
-	},
-
 	// end
 	// { 0 }
 	{

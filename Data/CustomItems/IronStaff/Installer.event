@@ -1,6 +1,4 @@
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
     PUSH
         ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_IRON_STAFF * 0x80
             #incbin "IronStaff.4bpp"
     POP
-#endif

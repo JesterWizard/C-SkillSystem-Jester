@@ -2861,12 +2861,11 @@ const struct ItemData gItemData_New[255] = {
 		.iconId = 0x0,
 		.weaponExp = 1,
 	},
-#ifdef CONFIG_ITEM_INDEX_FORCE_STAFF
-	[CONFIG_ITEM_INDEX_FORCE_STAFF] = {
+	[ITEM_STAFF_FORCE] = {
 		.nameTextId = MSG_ITEM_FORCE_STAFF_NAME,
 		.descTextId = MSG_ITEM_FORCE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_FORCE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_FORCE_STAFF,
+		.number = ITEM_STAFF_FORCE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -2879,24 +2878,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C0] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C0,
-		.weaponType = ITYPE_SWORD,
-		.attributes = IA_WEAPON,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ACUITY_STAFF
-	[CONFIG_ITEM_INDEX_ACUITY_STAFF] = {
+	[ITEM_STAFF_ACUITY] = {
 		.nameTextId = MSG_ITEM_ACUITY_STAFF_NAME,
 		.descTextId = MSG_ITEM_ACUITY_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_ACUITY_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_ACUITY_STAFF,
+		.number = ITEM_STAFF_ACUITY,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -2909,23 +2895,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C1] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C1,
-		.weaponType = ITYPE_ITEM,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_FORTUNE_STAFF
-	[CONFIG_ITEM_INDEX_FORTUNE_STAFF] {
+	[ITEM_STAFF_FORTUNE] = {
 		.nameTextId = MSG_ITEM_FORTUNE_STAFF_NAME,
 		.descTextId = MSG_ITEM_FORTUNE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_FORTUNE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_FORTUNE_STAFF,
+		.number = ITEM_STAFF_FORTUNE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -2937,25 +2911,12 @@ const struct ItemData gItemData_New[255] = {
 		.weaponExp = 4,
 		.hit = 100,
 		.attributes = IA_STAFF,
-},
-#else
-	[ITEM_UNK_C2] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C2,
-		.weaponType = ITYPE_SWORD,
-		.attributes = IA_WEAPON,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_IRON_STAFF
-	[CONFIG_ITEM_INDEX_IRON_STAFF] = {
+	[ITEM_STAFF_IRON] = {
 		.nameTextId = MSG_ITEM_IRON_STAFF_NAME,
 		.descTextId = MSG_ITEM_IRON_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_IRON_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_IRON_STAFF,
+		.number = ITEM_STAFF_IRON,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -2968,24 +2929,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C3] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C3,
-		.weaponType = ITYPE_LANCE,
-		.attributes = IA_WEAPON,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_SPRINT_STAFF
-	[CONFIG_ITEM_INDEX_SPRINT_STAFF] {
+	[ITEM_STAFF_SPRINT] = {
 		.nameTextId = MSG_ITEM_SPRINT_STAFF_NAME,
 		.descTextId = MSG_ITEM_SPRINT_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_SPRINT_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_SPRINT_STAFF,
+		.number = ITEM_STAFF_SPRINT,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -2998,27 +2946,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C4] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C4,
-		.weaponType = ITYPE_AXE,
-		.attributes = IA_WEAPON,
-		.might = 11,
-		.hit = 80,
-		.weight = 10,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_TEMPEST_STAFF
-	[CONFIG_ITEM_INDEX_TEMPEST_STAFF] = {
+	[ITEM_STAFF_TEMPEST] = {
 		.nameTextId = MSG_ITEM_TEMPEST_STAFF_NAME,
 		.descTextId = MSG_ITEM_TEMPEST_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_TEMPEST_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_TEMPEST_STAFF,
+		.number = ITEM_STAFF_TEMPEST,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -3031,27 +2963,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C5] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C5,
-		.weaponType = ITYPE_AXE,
-		.attributes = IA_WEAPON,
-		.might = 11,
-		.hit = 80,
-		.weight = 10,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_RUNE_STAFF
-	[CONFIG_ITEM_INDEX_RUNE_STAFF] = {
+	[ITEM_STAFF_RUNE] = {
 		.nameTextId = MSG_ITEM_RUNE_STAFF_NAME,
 		.descTextId = MSG_ITEM_RUNE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_RUNE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_RUNE_STAFF,
+		.number = ITEM_STAFF_RUNE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -3064,24 +2980,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C6] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C6,
-		.weaponType = ITYPE_SWORD,
-		.attributes = IA_WEAPON,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_MINE_STAFF
-	[CONFIG_ITEM_INDEX_MINE_STAFF] = {
+	[ITEM_STAFF_MINE] = {
 		.nameTextId = MSG_ITEM_MINE_STAFF_NAME,
 		.descTextId = MSG_ITEM_MINE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_MINE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_MINE_STAFF,
+		.number = ITEM_STAFF_MINE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -3094,27 +2997,11 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C7] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C7,
-		.weaponType = ITYPE_BOW,
-		.attributes = IA_WEAPON,
-		.might = 11,
-		.hit = 80,
-		.weight = 10,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_SLOW_STAFF
-	[CONFIG_ITEM_INDEX_SLOW_STAFF] = {
+	[ITEM_STAFF_SLOW] = {
 		.nameTextId = MSG_ITEM_SLOW_STAFF_NAME,
 		.descTextId = MSG_ITEM_SLOW_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_SLOW_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_SLOW_STAFF,
+		.number = ITEM_STAFF_SLOW,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = 0,
 		.maxUses = 15,
@@ -3127,18 +3014,6 @@ const struct ItemData gItemData_New[255] = {
 		.hit = 100,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_C8] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_C8,
-		.weaponType = ITYPE_LANCE,
-		.attributes = IA_WEAPON,
-		.encodedRange = 0x11,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
 	[CONFIG_ITEM_INDEX_SKILL_SCROLL_3] = {
 		.nameTextId = MSG_ITEM_SkillScrollName,
@@ -3192,12 +3067,11 @@ const struct ItemData gItemData_New[255] = {
 		.weaponExp = 1,
 	},
 #endif
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
-	[CONFIG_ITEM_INDEX_FORGE_STAFF] =  {
+	[ITEM_STAFF_FORGE] =  {
     .nameTextId = MSG_ITEM_FORGE_STAFF_NAME,
     .descTextId = MSG_ITEM_FORGE_STAFF_DESC,
     .useDescTextId = MSG_ITEM_FORGE_STAFF_USEDESC,
-    .number = CONFIG_ITEM_INDEX_FORGE_STAFF,
+	.number = ITEM_STAFF_FORGE,
     .weaponType = ITYPE_STAFF,
     .pStatBonuses = 0,
     .maxUses = 5,
@@ -3210,18 +3084,6 @@ const struct ItemData gItemData_New[255] = {
     .hit = 100,
     .attributes = IA_STAFF,
 },
-#else
-	[ITEM_UNK_CB] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_CB,
-		.weaponType = ITYPE_DARK,
-		.attributes = IA_WEAPON | IA_MAGIC,
-		.encodedRange = 0x12,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
 	[ITEM_UNK_CC] = {
 		.nameTextId = 0x403,
 		.descTextId = 0x4ab,
@@ -3231,12 +3093,11 @@ const struct ItemData gItemData_New[255] = {
 		.encodedRange = 0x11,
 		.iconId = 0x9d,
 	},
-#ifdef CONFIG_ITEM_INDEX_REWARP_STAFF
-	[CONFIG_ITEM_INDEX_REWARP_STAFF] = {
+	[ITEM_STAFF_REWARP] = {
 		.nameTextId = MSG_ITEM_REWARP_STAFF_NAME,
 		.descTextId = MSG_ITEM_REWARP_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_REWARP_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_REWARP_STAFF,
+		.number = ITEM_STAFF_REWARP,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 15,
@@ -3250,23 +3111,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#else
-	[ITEM_UNK_CD] = {
-		.nameTextId = 0x403,
-		.descTextId = 0x4ab,
-		.number = ITEM_UNK_CD,
-		.weaponType = ITYPE_12,
-		.encodedRange = 0x12,
-		.iconId = 0x0,
-		.weaponExp = 1,
-	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_OMNI_STAFF
-	[CONFIG_ITEM_INDEX_OMNI_STAFF] = {
+	[ITEM_STAFF_OMNI] = {
 		.nameTextId = MSG_ITEM_OMNI_STAFF_NAME,
 		.descTextId = MSG_ITEM_OMNI_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_OMNI_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_OMNI_STAFF,
+		.number = ITEM_STAFF_OMNI,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3280,13 +3129,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_POISON_STAFF
-	[CONFIG_ITEM_INDEX_POISON_STAFF] = {
+	[ITEM_STAFF_POISON] = {
 		.nameTextId = MSG_ITEM_POISON_STAFF_NAME,
 		.descTextId = MSG_ITEM_POISON_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_POISON_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_POISON_STAFF,
+		.number = ITEM_STAFF_POISON,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 15,
@@ -3300,13 +3147,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_DELAY_STAFF
-	[CONFIG_ITEM_INDEX_DELAY_STAFF] = {
+	[ITEM_STAFF_DELAY] = {
 		.nameTextId = MSG_ITEM_DELAY_STAFF_NAME,
 		.descTextId = MSG_ITEM_DELAY_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_DELAY_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_DELAY_STAFF,
+		.number = ITEM_STAFF_DELAY,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 15,
@@ -3320,13 +3165,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENTRAP_STAFF
-	[CONFIG_ITEM_INDEX_ENTRAP_STAFF] = {
+	[ITEM_STAFF_ENTRAP] = {
 		.nameTextId = MSG_ITEM_ENTRAP_STAFF_NAME,
 		.descTextId = MSG_ITEM_ENTRAP_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_ENTRAP_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_ENTRAP_STAFF,
+		.number = ITEM_STAFF_ENTRAP,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3340,13 +3183,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_QUICKEN_STAFF
-	[CONFIG_ITEM_INDEX_QUICKEN_STAFF] = {
+	[ITEM_STAFF_QUICKEN] = {
 		.nameTextId = MSG_ITEM_QUICKEN_STAFF_NAME,
 		.descTextId = MSG_ITEM_QUICKEN_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_QUICKEN_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_QUICKEN_STAFF,
+		.number = ITEM_STAFF_QUICKEN,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3360,13 +3201,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_HIDE_STAFF
-	[CONFIG_ITEM_INDEX_HIDE_STAFF] = {
+	[ITEM_STAFF_HIDE] = {
 		.nameTextId = MSG_ITEM_HIDE_STAFF_NAME,
 		.descTextId = MSG_ITEM_HIDE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_HIDE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_HIDE_STAFF,
+		.number = ITEM_STAFF_HIDE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3380,13 +3219,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_PROVOKE_STAFF
-	[CONFIG_ITEM_INDEX_PROVOKE_STAFF] = {
+	[ITEM_STAFF_PROVOKE] = {
 		.nameTextId = MSG_ITEM_PROVOKE_STAFF_NAME,
 		.descTextId = MSG_ITEM_PROVOKE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_PROVOKE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_PROVOKE_STAFF,
+		.number = ITEM_STAFF_PROVOKE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3400,13 +3237,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_PETRIFY_STAFF
-	[CONFIG_ITEM_INDEX_PETRIFY_STAFF] = {
+	[ITEM_STAFF_PETRIFY] = {
 		.nameTextId = MSG_ITEM_PETRIFY_STAFF_NAME,
 		.descTextId = MSG_ITEM_PETRIFY_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_PETRIFY_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_PETRIFY_STAFF,
+		.number = ITEM_STAFF_PETRIFY,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3420,13 +3255,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_SOOTH_STAFF
-	[CONFIG_ITEM_INDEX_SOOTH_STAFF] = {
+	[ITEM_STAFF_SOOTH] = {
 		.nameTextId = MSG_ITEM_SOOTH_STAFF_NAME,
 		.descTextId = MSG_ITEM_SOOTH_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_SOOTH_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_SOOTH_STAFF,
+		.number = ITEM_STAFF_SOOTH,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3440,13 +3273,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_ENFEEBLE_STAFF
-	[CONFIG_ITEM_INDEX_ENFEEBLE_STAFF] = {
+	[ITEM_STAFF_ENFEEBLE] = {
 		.nameTextId = MSG_ITEM_ENFEEBLE_STAFF_NAME,
 		.descTextId = MSG_ITEM_ENFEEBLE_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_ENFEEBLE_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_ENFEEBLE_STAFF,
+		.number = ITEM_STAFF_ENFEEBLE,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3460,13 +3291,11 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
-#ifdef CONFIG_ITEM_INDEX_INVEST_STAFF
-	[CONFIG_ITEM_INDEX_INVEST_STAFF] = {
+	[ITEM_STAFF_INVEST] = {
 		.nameTextId = MSG_ITEM_INVEST_STAFF_NAME,
 		.descTextId = MSG_ITEM_INVEST_STAFF_DESC,
 		.useDescTextId = MSG_ITEM_INVEST_STAFF_USEDESC,
-		.number = CONFIG_ITEM_INDEX_INVEST_STAFF,
+		.number = ITEM_STAFF_INVEST,
 		.weaponType = ITYPE_STAFF,
 		.pStatBonuses = NULL,
 		.maxUses = 5,
@@ -3480,7 +3309,6 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
-#endif
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	[CONFIG_ITEM_INDEX_ARMS_SCROLL] = {
 		.nameTextId = MSG_ITEM_ArmsScroll_NAME,

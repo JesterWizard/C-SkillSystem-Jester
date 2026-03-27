@@ -4,6 +4,27 @@
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 
+static bool CustomStavesEnabled(void)
+{
+	return gpKernelDesignerConfig->custom_staves == true;
+}
+
+static bool IsCustomBoostStaff(int item)
+{
+	switch (ITEM_INDEX(item)) {
+	case ITEM_STAFF_FORCE:
+	case ITEM_STAFF_TEMPEST:
+	case ITEM_STAFF_ACUITY:
+	case ITEM_STAFF_SPRINT:
+	case ITEM_STAFF_FORTUNE:
+	case ITEM_STAFF_IRON:
+	case ITEM_STAFF_OMNI:
+		return true;
+	}
+
+	return false;
+}
+
 /**
  * Usability
  */
@@ -29,6 +50,9 @@ bool IER_Usability_Rescue(struct Unit *unit, int item)
 
 bool IER_Usability_Barrier(struct Unit *unit, int item)
 {
+	if (IsCustomBoostStaff(item) && !CustomStavesEnabled())
+		return false;
+
 	return HasSelectTarget(unit, MakeTargetListForBarrier);
 }
 
@@ -114,11 +138,17 @@ bool IER_Usability_Latona(struct Unit *unit, int item)
 
 bool IER_Usability_Mine(struct Unit *unit, int item)
 {
+	if (ITEM_INDEX(item) == ITEM_STAFF_MINE && !CustomStavesEnabled())
+		return false;
+
 	return HasSelectTarget(unit, MakeTargetListForMine);
 }
 
 bool IER_Usability_LightRune(struct Unit *unit, int item)
 {
+	if (ITEM_INDEX(item) == ITEM_STAFF_RUNE && !CustomStavesEnabled())
+		return false;
+
 	return HasSelectTarget(unit, MakeTargetListForLightRune);
 }
 
@@ -152,61 +182,97 @@ bool IER_Usability_NightMare(struct Unit *unit, int item)
 
 bool IER_Usability_Slow(struct Unit *unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
 	return HasSelectTarget(unit, MakeTargetListForSlow);
 }
 
 bool IER_Usability_Forge(struct Unit *unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
 	return HasSelectTarget(unit, MakeTargetListForForge);
 }
 
 bool IER_Usability_Poison(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForPoison);
 }
 
 bool IER_Usability_Delay(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForDelay);
 }
 
 bool IER_Usability_Entrap(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForEntrap);
 }
 
 bool IER_Usability_Quicken(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForQuicken);
 }
 
 bool IER_Usability_Hide(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForHide);
 }
 
 bool IER_Usability_Provoke(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForProvoke);
 }
 
 bool IER_Usability_Petrify(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForPetrify);
 }
 
 bool IER_Usability_Sooth(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForSooth);
 }
 
 bool IER_Usability_Enfeeble(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForEnfeeble);
 }
 
 bool IER_Usability_Invest(struct Unit * unit, int item)
 {
+	if (!CustomStavesEnabled())
+		return false;
+
     return HasSelectTarget(unit, MakeTargetListForInvest);
 }
 
@@ -307,9 +373,7 @@ void IER_Effect_Forge(struct Unit *unit, int item)
 	ResetIconGraphics();
     ResetText();
 
-#ifdef CONFIG_ITEM_INDEX_FORGE_STAFF
 	gActionData.unk08 = CONFIG_FORGE_CHECKER;
-#endif
 
     MakeTargetListForForge(gActiveUnit);
     NewTargetSelection(&gSelectInfo_Steal);
