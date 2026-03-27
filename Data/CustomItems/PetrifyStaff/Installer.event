@@ -1,4 +1,4 @@
     PUSH
-        ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_PETRIFY_STAFF * 0x80
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_STAFF_PETRIFY * 0x80
             #incbin "PetrifyStaff.4bpp"
     POP

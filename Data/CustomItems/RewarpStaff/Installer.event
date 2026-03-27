@@ -1,6 +1,6 @@
 #include "RewarpStaff.lyn.event"
 
     PUSH
-        ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_REWARP_STAFF * 0x80
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_STAFF_REWARP * 0x80
             #incbin "RewarpStaff.4bpp"
     POP

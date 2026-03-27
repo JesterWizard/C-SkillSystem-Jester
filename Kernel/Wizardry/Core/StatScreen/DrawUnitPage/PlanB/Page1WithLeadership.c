@@ -311,7 +311,7 @@ static void DrawPage1LeaderShip(void)
 	} else {
 		DrawIcon(
 			gUiTmScratchA + TILEMAP_INDEX(0xC, 0x9),
-			CONFIG_ICON_INDEX_STAR,
+			ITEM_ICON_STAR,
 			TILEREF(0, STATSCREEN_BGPAL_EXTICONS));
 
 		PutNumberOrBlank(

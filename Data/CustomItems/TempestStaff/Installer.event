@@ -1,4 +1,4 @@
     PUSH
-        ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_TEMPEST_STAFF * 0x80
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_STAFF_TEMPEST * 0x80
             #incbin "TempestStaff.4bpp"
     POP

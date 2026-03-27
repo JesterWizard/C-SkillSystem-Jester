@@ -2,7 +2,7 @@
 #ifdef CONFIG_ITEM_INDEX_MAG_BOOSTER
     PUSH
         /* ITEM ICONS */
-        ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_MAG_BOOSTER * 0x80
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_MAG_BOOSTER * 0x80
             #incbin "SpiritDust.4bpp"
     POP
 #endif

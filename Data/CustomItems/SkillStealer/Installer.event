@@ -1,7 +1,7 @@
 
 #ifdef CONFIG_ITEM_INDEX_SKILL_STEALER
     PUSH
-        ORG CONFIG_PR_ITEM_ICON + CONFIG_ICON_INDEX_SKILL_STEALER * 0x80
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_SKILL_STEALER * 0x80
             #incbin "SkillStealer.4bpp"
     POP
 #endif

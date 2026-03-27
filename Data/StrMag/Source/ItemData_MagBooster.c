@@ -18,6 +18,6 @@ const struct ItemData ItemData_MagBooster = {
 	.maxUses = 1,
 	.encodedRange = 0x11,
 	.costPerUse = 8000,
-	.iconId = CONFIG_ICON_INDEX_MAG_BOOSTER,
+	.iconId = ITEM_ICON_MAG_BOOSTER,
 	.useEffectId = IER_BOOSTER_POW,
 };
