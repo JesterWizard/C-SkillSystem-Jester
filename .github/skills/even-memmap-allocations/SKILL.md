@@ -12,9 +12,11 @@ Enforce even-sized memory reservations in `include/link/config-memmap.s`.
 - The user adds or changes `_kernel_malloc` entries in `include/link/config-memmap.s`.
 - The user asks to reserve RAM for a new symbol or state block.
 - The user wants to prevent odd-byte allocations from shifting later addresses off parity.
+- The user adds a new global variable that is not `const` and needs it reserved in the memmap.
 
 ## Rule
 
+- Every new non-`const` global variable must be reserved in `include/link/config-memmap.s` with a matching `_kernel_malloc` entry.
 - Keep every individual reservation even-sized whenever possible.
 - If a feature naturally needs 1 byte, do not leave it as a standalone odd allocation.
 - Instead, add one byte of padding immediately after it, or combine it with another byte-sized field so the total reservation is even.
@@ -23,10 +25,11 @@ Enforce even-sized memory reservations in `include/link/config-memmap.s`.
 ## Review Checklist
 
 1. Inspect the new or changed `_kernel_malloc` line.
-2. Confirm the requested size is even.
-3. If the size is odd, add an immediate padding byte or pair it with another odd-sized field.
-4. Verify the following reservation still starts on an even address.
-5. Rebuild or reparse the memmap to confirm no downstream symbol drift.
+2. Confirm every new non-`const` global has a reservation in the memmap.
+3. Confirm the requested size is even.
+4. If the size is odd, add an immediate padding byte or pair it with another odd-sized field.
+5. Verify the following reservation still starts on an even address.
+6. Rebuild or reparse the memmap to confirm no downstream symbol drift.
 
 ## Preferred Patterns
 

@@ -1,6 +1,9 @@
 #include "common-chax.h"
+#include "constants/texts.h"
+#include "kernel/help-box.h"
 #include "kernel-lib.h"
 #include "status-getter.h"
+#include "jester_headers/custom-arrays.h"
 
 enum StartMapEffectKind {
     START_MAP_EFFECT_KIND_STAT_PERCENT = 0,
@@ -30,7 +33,8 @@ enum {
 };
 
 struct StartMapEffectDef {
-    const char *name;
+    const char *label;
+    u16 rTextMsgId;
     u8 kind;
     s8 value;
     u8 turns;
@@ -49,6 +53,7 @@ struct StartMapEffectsPromptProc {
     u8 curIndex;
     u8 topVisibleIndex;
     u8 itemCount;
+    u8 helpOpen;
     u8 bg0Priority;
     u8 bg1Priority;
     u8 bg2Priority;
@@ -57,16 +62,21 @@ struct StartMapEffectsPromptProc {
 extern u8 gStartMapEffectsUnlockMask;
 extern struct Text sStartMapEffectsTexts[START_MAP_EFFECT_VISIBLE_ROWS];
 extern struct StartMapEffectsSuspendState sStartMapEffectsSuspendState;
-static const char sStartMapEffectsNoEffectLabel[] = "No effect";
+static const char sStartMapEffectsNoEffectLabel[] = "No Effect";
+
+#define START_MAP_EFFECT_ENTRY(label, rTextMsgId, kind, value, turns, targetFaction) \
+    { label, rTextMsgId, kind, value, turns, targetFaction }
 
 static const struct StartMapEffectDef sStartMapEffectDefs[] = {
-    { "P Rally +10% / 2T", START_MAP_EFFECT_KIND_STAT_PERCENT, 10, 2, FACTION_BLUE },
-    { "E Drag -2 MOV / 2T", START_MAP_EFFECT_KIND_MOV_DELTA, -2, 2, FACTION_RED },
-    { "P Advance +1 MOV / 3T", START_MAP_EFFECT_KIND_MOV_DELTA, 1, 3, FACTION_BLUE },
-    { "E Pressure -10% / 2T", START_MAP_EFFECT_KIND_STAT_PERCENT, -10, 2, FACTION_RED },
-    { "P Bulwark +2 ALL / 1T", START_MAP_EFFECT_KIND_STAT_FLAT, 2, 1, FACTION_BLUE },
-    { "E Collapse -2 ALL / 2T", START_MAP_EFFECT_KIND_STAT_FLAT, -2, 2, FACTION_RED },
+    START_MAP_EFFECT_ENTRY("Rally", MSG_StartMapEffects_Rally_DESC, START_MAP_EFFECT_KIND_STAT_PERCENT, 10, 2, FACTION_BLUE),
+    START_MAP_EFFECT_ENTRY("Drag", MSG_StartMapEffects_Drag_DESC, START_MAP_EFFECT_KIND_MOV_DELTA, -2, 2, FACTION_RED),
+    START_MAP_EFFECT_ENTRY("Advance", MSG_StartMapEffects_Advance_DESC, START_MAP_EFFECT_KIND_MOV_DELTA, 1, 3, FACTION_BLUE),
+    START_MAP_EFFECT_ENTRY("Pressure", MSG_StartMapEffects_Pressure_DESC, START_MAP_EFFECT_KIND_STAT_PERCENT, -10, 2, FACTION_RED),
+    START_MAP_EFFECT_ENTRY("Bulwark", MSG_StartMapEffects_Bulwark_DESC, START_MAP_EFFECT_KIND_STAT_FLAT, 2, 1, FACTION_BLUE),
+    START_MAP_EFFECT_ENTRY("Collapse", MSG_StartMapEffects_Collapse_DESC, START_MAP_EFFECT_KIND_STAT_FLAT, -2, 2, FACTION_RED),
 };
+
+#undef START_MAP_EFFECT_ENTRY
 
 static void StartMapEffects_ClearSuspendState(void)
 {
@@ -98,6 +108,11 @@ static inline const struct StartMapEffectDef *GetStartMapEffectDef(int effectId)
     return &sStartMapEffectDefs[effectId];
 }
 
+static inline int StartMapEffects_GetEffectCount(void)
+{
+    return (int)ARRAY_COUNT(sStartMapEffectDefs);
+}
+
 static inline bool StartMapEffectsUnitMatches(const struct Unit *unit, const struct StartMapEffectDef *def)
 {
     return unit && UNIT_FACTION(unit) == def->targetFaction;
@@ -105,7 +120,7 @@ static inline bool StartMapEffectsUnitMatches(const struct Unit *unit, const str
 
 static inline int StartMapEffects_GetItemCount(void)
 {
-    return (int)ARRAY_COUNT(sStartMapEffectDefs) + 1;
+    return StartMapEffects_GetEffectCount() + 1;
 }
 
 static inline const char *StartMapEffects_GetLabel(int itemNumber)
@@ -113,7 +128,15 @@ static inline const char *StartMapEffects_GetLabel(int itemNumber)
     if (itemNumber == 0)
         return sStartMapEffectsNoEffectLabel;
 
-    return sStartMapEffectDefs[itemNumber - 1].name;
+    return sStartMapEffectDefs[itemNumber - 1].label;
+}
+
+static inline int StartMapEffects_GetRText(int itemNumber)
+{
+    if (itemNumber == 0)
+        return MSG_StartMapEffects_NoEffect_DESC;
+
+    return sStartMapEffectDefs[itemNumber - 1].rTextMsgId;
 }
 
 static inline int StartMapEffects_GetTextColor(int itemNumber)
@@ -132,9 +155,26 @@ static inline int StartMapEffects_GetSelectionColor(int itemNumber, int currentI
     return StartMapEffects_GetTextColor(itemNumber);
 }
 
+static void StartMapEffectsPrompt_UpdateCursorHand(struct StartMapEffectsPromptProc *proc)
+{
+    ShowSysHandCursor(
+        START_MAP_EFFECT_FRAME_X * 8,
+        (START_MAP_EFFECT_FRAME_Y * 8) + 8 + ((proc->curIndex - proc->topVisibleIndex) * 16),
+        15,
+        0x800
+    );
+}
+
 static void StartMapEffectsPrompt_DrawFrame(void)
 {
     DrawUiFrame(gBG2TilemapBuffer, START_MAP_EFFECT_FRAME_X - 1, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0, 0);
+}
+
+static void StartMapEffectsPrompt_UpdateHelpBox(struct StartMapEffectsPromptProc *proc)
+{
+    int rowY = (START_MAP_EFFECT_FRAME_Y * 8) + 8 + ((proc->curIndex - proc->topVisibleIndex) * 16);
+
+    StartHelpBox((START_MAP_EFFECT_FRAME_X + 1) * 8 + 4, rowY, StartMapEffects_GetRText(proc->curIndex));
 }
 
 static void StartMapEffectsPrompt_ClearUi(void)
@@ -170,6 +210,42 @@ static void StartMapEffectsPrompt_RestoreBgPriority(struct StartMapEffectsPrompt
     gLCDControlBuffer.bg0cnt.priority = proc->bg0Priority;
     gLCDControlBuffer.bg1cnt.priority = proc->bg1Priority;
     gLCDControlBuffer.bg2cnt.priority = proc->bg2Priority;
+}
+
+static void StartMapEffectsPrompt_HideUnitSprites(void)
+{
+    int i;
+
+    for (i = 1; i < 0xC0; ++i) {
+        struct Unit *unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        unit->state |= US_HIDDEN;
+        HideUnitSprite(unit);
+    }
+
+    RefreshUnitSprites();
+    SyncUnitSpriteSheet();
+}
+
+static void StartMapEffectsPrompt_ShowUnitSprites(void)
+{
+    int i;
+
+    for (i = 1; i < 0xC0; ++i) {
+        struct Unit *unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        unit->state &= ~US_HIDDEN;
+        ShowUnitSprite(unit);
+    }
+
+    RefreshUnitSprites();
+    SyncUnitSpriteSheet();
 }
 
 static int StartMapEffects_ApplyStatEffect(int status, struct Unit *unit)
@@ -229,6 +305,11 @@ static void StartMapEffectsPrompt_Finish(struct StartMapEffectsPromptProc *proc,
     StartMapEffectsPrompt_ClearUi();
     EndMenuScrollBar();
     StartMapEffectsPrompt_RestoreBgPriority(proc);
+    StartMapEffectsPrompt_ShowUnitSprites();
+    CloseHelpBox();
+    HideSysHandCursor();
+    BG_Fill(gBG2TilemapBuffer, 0);
+    LoadObjUIGfx();
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
@@ -259,6 +340,9 @@ static void StartMapEffectsPrompt_Draw(struct StartMapEffectsPromptProc *proc)
     }
 
     UpdateMenuScrollBarConfig(8, (u16)proc->topVisibleIndex * 16, (u16)proc->itemCount, START_MAP_EFFECT_VISIBLE_ROWS);
+    if (proc->helpOpen)
+        StartMapEffectsPrompt_UpdateHelpBox(proc);
+    StartMapEffectsPrompt_UpdateCursorHand(proc);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
@@ -270,6 +354,7 @@ void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
     proc->curIndex = 0;
     proc->topVisibleIndex = 0;
     proc->itemCount = StartMapEffects_GetItemCount();
+    proc->helpOpen = 0;
 
     SetTextFont(0);
     InitSystemTextFont();
@@ -279,8 +364,14 @@ void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
 
     StartMapEffectsPrompt_ClearUi();
     StartMapEffectsPrompt_ApplyBgPriority(proc);
+    StartMapEffectsPrompt_HideUnitSprites();
     LoadUiFrameGraphics();
+    LoadHelpBoxGfx(NULL, 0xE);
+    LoadObjUIGfx();
     ApplyPalette(gUiFramePaletteD, 2);
+    StartUiCursorHand(proc);
+    ResetSysHandCursor(proc);
+    DisplaySysHandCursorTextShadow(0x600, 1);
 
     for (i = 0; i < START_MAP_EFFECT_VISIBLE_ROWS; ++i)
         InitText(&sStartMapEffectsTexts[i], START_MAP_EFFECT_FRAME_W - 3);
@@ -324,6 +415,24 @@ static void StartMapEffectsPrompt_HandleInput(struct StartMapEffectsPromptProc *
     if (previousIndex != proc->curIndex)
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 
+    if (proc->helpOpen && !Proc_Find(ProcScr_Helpbox_bug_08A01678))
+        proc->helpOpen = 0;
+
+    if (proc->helpOpen) {
+        if (R_BUTTON & gKeyStatusPtr->newKeys || B_BUTTON & gKeyStatusPtr->newKeys) {
+            CloseHelpBox();
+            proc->helpOpen = 0;
+            return;
+        }
+    }
+
+    if (R_BUTTON & gKeyStatusPtr->newKeys) {
+        StartMapEffectsPrompt_UpdateHelpBox(proc);
+        proc->helpOpen = (Proc_Find(ProcScr_Helpbox_bug_08A01678) != NULL);
+
+        return;
+    }
+
     if (A_BUTTON & gKeyStatusPtr->newKeys) {
         if (proc->curIndex == 0 || StartMapEffects_IsUnlocked(proc->curIndex - 1)) {
             StartMapEffectsPrompt_Finish(proc, proc->curIndex - 1);
@@ -338,6 +447,9 @@ static void StartMapEffectsPrompt_HandleInput(struct StartMapEffectsPromptProc *
         StartMapEffectsPrompt_Finish(proc, START_MAP_EFFECT_NONE);
         return;
     }
+
+    if ((previousIndex != proc->curIndex || previousTopVisibleIndex != proc->topVisibleIndex) && proc->helpOpen)
+        StartMapEffectsPrompt_UpdateHelpBox(proc);
 
     if (previousIndex != proc->curIndex || previousTopVisibleIndex != proc->topVisibleIndex)
         StartMapEffectsPrompt_Draw(proc);

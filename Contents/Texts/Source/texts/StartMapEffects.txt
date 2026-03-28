@@ -1,0 +1,20 @@
+## MSG_StartMapEffects_NoEffect_DESC
+Leave the map unchanged.[X]
+
+## MSG_StartMapEffects_Rally_DESC
+Allies gain +10% stats for 2 turns.[X]
+
+## MSG_StartMapEffects_Drag_DESC
+Enemies lose 2 MOV for 2 turns.[X]
+
+## MSG_StartMapEffects_Advance_DESC
+Allies gain +1 MOV for 3 turns.[X]
+
+## MSG_StartMapEffects_Pressure_DESC
+Enemies lose 10% stats for 2 turns.[X]
+
+## MSG_StartMapEffects_Bulwark_DESC
+Allies gain +2 stats for 1 turn.[X]
+
+## MSG_StartMapEffects_Collapse_DESC
+Enemies lose 2 stats for 2 turns.[X]
