@@ -8,5 +8,6 @@ ChapterInitHooks:
     POIN ChapterInit_ResetArenaRosterState
     POIN ChapterInit_SetInitiativeStatus
     POIN ChapterInit_ResetPlayStExpa
+    POIN ChapterInit_ResetStartMapEffects
     POIN ChapterInit_ApplyGrassySurge
     WORD 0

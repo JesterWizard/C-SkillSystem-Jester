@@ -177,6 +177,15 @@ void ArenaRosterClearSelection(void);
 void SaveArenaRosterProgress(u8 *dst, const u32 size);
 void LoadArenaRosterProgress(u8 *src, const u32 size);
 
+bool StartMapEffects_IsUnlocked(int effectId);
+void StartMapEffects_UnlockEffect(int effectId);
+void StartMapEffects_ResetAll(void);
+bool StartMapEffects_PrePhaseHook(ProcPtr proc);
+void SaveStartMapEffectsUnlockMask(u8 *dst, const u32 size);
+void LoadStartMapEffectsUnlockMask(u8 *src, const u32 size);
+void SaveStartMapEffectsSuspendState(u8 *dst, const u32 size);
+void LoadStartMapEffectsSuspendState(u8 *src, const u32 size);
+
 /**
  * map.c
  */

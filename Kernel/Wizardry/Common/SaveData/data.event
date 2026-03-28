@@ -50,6 +50,7 @@ gEmsSavChunks:
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
     EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
+    EmsChunk($0001, SaveStartMapEffectsUnlockMask, LoadStartMapEffectsUnlockMask)
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
@@ -81,6 +82,7 @@ gEmsSusChunks:
     EmsChunk($0002, SaveBEXPTotal, LoadBEXPTotal)
     EmsChunk($0002, SaveBEXPMapGain, LoadBEXPMapGain)
     EmsChunk(10, SaveBaseConversationFlags, LoadBaseConversationFlags)
+    EmsChunk($0001, SaveStartMapEffectsUnlockMask, LoadStartMapEffectsUnlockMask)
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x34, MSU_SaveBlueUnits,  MSU_LoadBlueUnits, EMS_CHUNK_SAVEUNITS)
     EmsChunk(CONFIG_UNIT_AMT_ENEMY * 0x34, MSU_SaveRedUnits,   MSU_LoadRedUnits)
@@ -95,6 +97,7 @@ gEmsSusChunks:
     EmsChunk($0008, MSU_SaveSelectionPos, MSU_LoadSelectionPos)
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
     EmsChunk((CONFIG_UNIT_AMT_ALLY + CONFIG_UNIT_AMT_ENEMY + CONFIG_UNIT_AMT_NPC + CONFIG_UNIT_AMT_FOURTH) * 16, MSU_SaveStatDebuff, MSU_LoadStatDebuff)
+    EmsChunk($0004, SaveStartMapEffectsSuspendState, LoadStartMapEffectsSuspendState)
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
@@ -102,7 +105,7 @@ gEmsSusChunks:
 
 ALIGN 4
 gNewSaveHooks:
-    POIN NewGameSaveGenericHook ClearKtutorialFlags ResetUnitLearnedSkillLists
+    POIN NewGameSaveGenericHook StartMapEffects_ResetAll ClearKtutorialFlags ResetUnitLearnedSkillLists
     POIN NewGame_InitPlayStExpa
     POIN StatDeuff_OnNewGameInit
     POIN ResetStatDeuffBuf ResetSkillDbgList

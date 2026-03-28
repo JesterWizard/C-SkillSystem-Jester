@@ -2,6 +2,7 @@
 ALIGN 4
 gPrePhaseFuncs:
     POIN PrePhase_ClearUnitsActedBit
+    POIN StartMapEffects_PrePhaseHook
     POIN PrePhase_TickInitativeSkillStatus
     POIN PrePhsae_TickOathRouthSkillStatus
     POIN PrePhsae_TickPlusAndMinusSkillStatus

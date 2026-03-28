@@ -37,6 +37,7 @@ ALIGN 4
 #include "Common/UnitMenu/UnitMenu.event"
 #include "Common/EndTurnHook/EndTurnHook.event"
 #include "Common/PostActionHook/PostActionHook.event"
+#include "Common/StartMapEffects/StartMapEffects.event"
 #include "Common/ChapterInitHook/ChapterInitHook.event"
 #include "Common/StrMagSplit/StrMagSplit.event"
 #include "Common/SaveData/SaveData.event"

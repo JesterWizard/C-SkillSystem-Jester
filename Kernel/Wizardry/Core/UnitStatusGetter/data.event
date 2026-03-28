@@ -10,14 +10,14 @@ gHpGetters:
 gPowGetters:
     POIN PowGetterWeaponBonus PowGetterSkills PowPsychUpCheck PowGetterDebuff
     POIN PowGetterStaffBoost
-    POIN PowGetterStatDebuff PowGetterShield
+    POIN PowGetterStatDebuff PowGetterShield PowGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gMagGetters:
     POIN MagGetterSkills MagPsychUpCheck MagGetterDebuff
     POIN MagGetterStaffBoost
-    POIN MagGetterWeaponBonus
+    POIN MagGetterWeaponBonus MagGetterStartMapEffects
     POIN MagGetterStatDebuff MagGetterShield
     POIN StatusGetterCheckCpas
     MSG_END
@@ -25,42 +25,42 @@ gMagGetters:
 gSklGetters:
     POIN SklGetterWeaponBonus SklGetterSkills SklPsychUpCheck SklGetterDebuff
     POIN SklGetterStaffBoost
-    POIN SklGetterStatDebuff SklGetterShield
+    POIN SklGetterStatDebuff SklGetterShield SklGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gSpdGetters:
     POIN SpdGetterWeaponBonus SpdGetterSkills SpdPsychUpCheck SpdGetterDebuff
     POIN SpdGetterStaffBoost
-    POIN SpdGetterStatDebuff SpdGetterShield
+    POIN SpdGetterStatDebuff SpdGetterShield SpdGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gLckGetters:
     POIN LckGetterWeaponBonus LckGetterSkills LckPsychUpCheck LckGetterDebuff
     POIN LckGetterStaffBoost
-    POIN LckGetterStatDebuff LckGetterShield
+    POIN LckGetterStatDebuff LckGetterShield LckGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gDefGetters:
     POIN DefGetterWeaponBonus DefGetterSkills DefPsychUpCheck DefGetterDebuff
     POIN DefGetterStaffBoost
-    POIN DefGetterStatDebuff DefGetterShield
+    POIN DefGetterStatDebuff DefGetterShield DefGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gResGetters:
     POIN ResGetterWeaponBonus ResGetterSkills ResPsychUpCheck ResGetterDebuff
     POIN ResGetterStaffBoost
-    POIN ResGetterStatDebuff ResGetterShield
+    POIN ResGetterStatDebuff ResGetterShield ResGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
 gMovGetters:
     POIN MovGetterSkills
     POIN MovGetterDebuff
-    POIN MovGetterStatDebuff MovGetterShield
+    POIN MovGetterStatDebuff MovGetterShield MovGetterStartMapEffects
     POIN StatusGetterCheckCpas
     MSG_END
 
