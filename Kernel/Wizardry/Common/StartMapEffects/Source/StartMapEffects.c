@@ -21,8 +21,8 @@ enum {
 };
 
 enum {
-    START_MAP_EFFECT_FRAME_X = 5,
-    START_MAP_EFFECT_FRAME_Y = 4,
+    START_MAP_EFFECT_FRAME_X = 7,
+    START_MAP_EFFECT_FRAME_Y = 5,
     START_MAP_EFFECT_FRAME_W = 18,
     START_MAP_EFFECT_FRAME_H = 12,
     START_MAP_EFFECT_SCROLLBAR_X = ((START_MAP_EFFECT_FRAME_X + START_MAP_EFFECT_FRAME_W) * 8) - 7,
@@ -134,7 +134,7 @@ static inline int StartMapEffects_GetSelectionColor(int itemNumber, int currentI
 
 static void StartMapEffectsPrompt_DrawFrame(void)
 {
-    DrawUiFrame(gBG1TilemapBuffer, START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0, 0);
+    DrawUiFrame(gBG2TilemapBuffer, START_MAP_EFFECT_FRAME_X - 1, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0, 0);
 }
 
 static void StartMapEffectsPrompt_ClearUi(void)
@@ -147,7 +147,7 @@ static void StartMapEffectsPrompt_ClearUi(void)
     );
 
     TileMap_FillRect(
-        TILEMAP_LOCATED(gBG1TilemapBuffer, START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y),
+        TILEMAP_LOCATED(gBG2TilemapBuffer, START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y),
         START_MAP_EFFECT_FRAME_W,
         START_MAP_EFFECT_FRAME_H,
         0
@@ -229,7 +229,7 @@ static void StartMapEffectsPrompt_Finish(struct StartMapEffectsPromptProc *proc,
     StartMapEffectsPrompt_ClearUi();
     EndMenuScrollBar();
     StartMapEffectsPrompt_RestoreBgPriority(proc);
-    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
 static void StartMapEffectsPrompt_Draw(struct StartMapEffectsPromptProc *proc)
@@ -259,7 +259,7 @@ static void StartMapEffectsPrompt_Draw(struct StartMapEffectsPromptProc *proc)
     }
 
     UpdateMenuScrollBarConfig(8, (u16)proc->topVisibleIndex * 16, (u16)proc->itemCount, START_MAP_EFFECT_VISIBLE_ROWS);
-    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 }
 
 void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
@@ -286,7 +286,7 @@ void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
         InitText(&sStartMapEffectsTexts[i], START_MAP_EFFECT_FRAME_W - 3);
 
     StartMapEffectsPrompt_DrawFrame();
-    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
 
     StartMenuScrollBarExt((ProcPtr)proc, START_MAP_EFFECT_SCROLLBAR_X, START_MAP_EFFECT_SCROLLBAR_Y, 0x200, START_MAP_EFFECT_VISIBLE_ROWS);
 
