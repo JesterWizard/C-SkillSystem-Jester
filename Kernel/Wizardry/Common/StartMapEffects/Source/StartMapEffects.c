@@ -170,10 +170,21 @@ static void StartMapEffectsPrompt_DrawFrame(void)
     DrawUiFrame(gBG2TilemapBuffer, START_MAP_EFFECT_FRAME_X - 1, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0, 0);
 }
 
+static void StartMapEffectsPrompt_LoadHelpBoxGfx(void)
+{
+    LoadHelpBoxGfx(NULL, 0xE);
+}
+
+static bool StartMapEffectsPrompt_IsHelpBoxOpen(void)
+{
+    return Proc_Find(ProcScr_Helpbox_bug_08A01678) || Proc_Find(gProcScr_HelpBox);
+}
+
 static void StartMapEffectsPrompt_UpdateHelpBox(struct StartMapEffectsPromptProc *proc)
 {
     int rowY = (START_MAP_EFFECT_FRAME_Y * 8) + 8 + ((proc->curIndex - proc->topVisibleIndex) * 16);
 
+    StartMapEffectsPrompt_LoadHelpBoxGfx();
     StartHelpBox((START_MAP_EFFECT_FRAME_X + 1) * 8 + 4, rowY, StartMapEffects_GetRText(proc->curIndex));
 }
 
@@ -366,8 +377,8 @@ void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
     StartMapEffectsPrompt_ApplyBgPriority(proc);
     StartMapEffectsPrompt_HideUnitSprites();
     LoadUiFrameGraphics();
-    LoadHelpBoxGfx(NULL, 0xE);
     LoadObjUIGfx();
+    StartMapEffectsPrompt_LoadHelpBoxGfx();
     ApplyPalette(gUiFramePaletteD, 2);
     StartUiCursorHand(proc);
     ResetSysHandCursor(proc);
@@ -389,6 +400,8 @@ static void StartMapEffectsPrompt_HandleInput(struct StartMapEffectsPromptProc *
 {
     int previousIndex = proc->curIndex;
     int previousTopVisibleIndex = proc->topVisibleIndex;
+
+    proc->helpOpen = StartMapEffectsPrompt_IsHelpBoxOpen();
 
     if (DPAD_UP & gKeyStatusPtr->repeatedKeys) {
         if (proc->curIndex > 0) {
@@ -415,20 +428,9 @@ static void StartMapEffectsPrompt_HandleInput(struct StartMapEffectsPromptProc *
     if (previousIndex != proc->curIndex)
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 
-    if (proc->helpOpen && !Proc_Find(ProcScr_Helpbox_bug_08A01678))
-        proc->helpOpen = 0;
-
-    if (proc->helpOpen) {
-        if (R_BUTTON & gKeyStatusPtr->newKeys || B_BUTTON & gKeyStatusPtr->newKeys) {
-            CloseHelpBox();
-            proc->helpOpen = 0;
-            return;
-        }
-    }
-
     if (R_BUTTON & gKeyStatusPtr->newKeys) {
         StartMapEffectsPrompt_UpdateHelpBox(proc);
-        proc->helpOpen = (Proc_Find(ProcScr_Helpbox_bug_08A01678) != NULL);
+        proc->helpOpen = StartMapEffectsPrompt_IsHelpBoxOpen();
 
         return;
     }
@@ -444,6 +446,12 @@ static void StartMapEffectsPrompt_HandleInput(struct StartMapEffectsPromptProc *
     }
 
     if (B_BUTTON & gKeyStatusPtr->newKeys) {
+        if (StartMapEffectsPrompt_IsHelpBoxOpen()) {
+            CloseHelpBox();
+            proc->helpOpen = 0;
+            return;
+        }
+
         StartMapEffectsPrompt_Finish(proc, START_MAP_EFFECT_NONE);
         return;
     }
