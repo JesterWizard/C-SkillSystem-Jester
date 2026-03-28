@@ -134,14 +134,7 @@ static inline int StartMapEffects_GetSelectionColor(int itemNumber, int currentI
 
 static void StartMapEffectsPrompt_DrawFrame(void)
 {
-    TileMap_FillRect(
-        TILEMAP_LOCATED(gBG1TilemapBuffer, START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y),
-        START_MAP_EFFECT_FRAME_W,
-        START_MAP_EFFECT_FRAME_H,
-        0
-    );
-
-    DrawUiFrame2(START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0);
+    DrawUiFrame(gBG1TilemapBuffer, START_MAP_EFFECT_FRAME_X, START_MAP_EFFECT_FRAME_Y, START_MAP_EFFECT_FRAME_W, START_MAP_EFFECT_FRAME_H, 0, 0);
 }
 
 static void StartMapEffectsPrompt_ClearUi(void)
