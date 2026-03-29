@@ -8,10 +8,8 @@
 #include "jester_headers/miscellaneous.h"
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-arrays.h"
 #include "EAstdlib.h"
-
-extern const u16* Events_WM_Beginning[];
-extern const u16* Events_WM_ChapterIntro[];
 
 //! FE8U = 0x080BA334
 LYN_REPLACE_CHECK(WorldMap_CallBeginningEvent);
