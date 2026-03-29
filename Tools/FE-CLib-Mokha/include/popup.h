@@ -168,7 +168,7 @@ void NewPopup_WRankIncrease(u16 weapon, ProcPtr parent);
 // ??? sub_8011AF4(???);
 // ??? sub_8011B4C(???);
 // ??? sub_8011B90(???);
-// ??? StartBrownTextBoxCore(???);
+void StartBrownTextBoxCore(int x, int y, int textId, int chr, int pal, ProcPtr parent);
 void StartBrownTextBox(int, s16, s16, ProcPtr);
 
 extern struct ProcCmd CONST_DATA ProcScr_Popup[];
