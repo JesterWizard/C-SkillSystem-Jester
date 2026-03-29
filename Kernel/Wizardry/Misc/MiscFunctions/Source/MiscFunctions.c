@@ -16,7 +16,6 @@
 #include "soundroom.h"
 #include "bwl.h"
 #include "debuff.h"
-#include "kernel/manage-skills.h"
 #include "traps.h"
 #include "efxmagic.h"
 #include "playst-expa.h"
@@ -1025,11 +1024,6 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
 
     TileMap_FillRect(tm, 12, 20, 0);
 
-    if (WMManageSkills_IsMode()) {
-        WMManageSkills_DrawPrepSkillRows(tm, th, unit, 5);
-        return;
-    }
-
     if ((flags & 2) != 0) {
         ResetIconGraphics();
     }
@@ -1099,11 +1093,6 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
     int itemCount;
 
     TileMap_FillRect(tm, 11, 9, 0);
-
-    if (WMManageSkills_IsMode()) {
-        WMManageSkills_DrawPrepSkillRows(tm, th, unit, 5);
-        return;
-    }
 
     itemCount = GetUnitItemCount(unit);
 
@@ -4846,32 +4835,4 @@ LYN_REPLACE_CHECK(StartPromoTraineeEvent);
 ProcPtr StartPromoTraineeEvent(ProcPtr proc)
 {
     return Proc_StartBlocking(ProcScr_PromoSelectEvent_NEW, proc);
-}
-
-/**
- * World-Map Manage Skills UI Integration
- * 
- * These functions handle text overrides and action dispatching for the
- * manage-skills mode when accessed from the world map.
- */
-
-/* Handler for popup menu options when in manage-skills mode */
-void WMManageSkills_HandlePopupOptionSelected(struct Unit *unit, int optionIndex)
-{
-    if (!unit || !WMManageSkills_IsMode())
-        return;
-
-    switch (optionIndex)
-    {
-    case 0: /* Remove all skills */
-        WMManageSkills_RemoveAllEquippedSkills(unit);
-        break;
-    
-    case 1: /* Edit Skills */
-        WMManageSkills_LaunchEditSkillsScreen(unit);
-        break;
-    
-    default:
-        break;
-    }
 }

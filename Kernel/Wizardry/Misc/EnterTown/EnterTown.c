@@ -3,7 +3,6 @@
 #include "worldmap.h"
 #include "gamecontrol.h"
 #include "kernel-lib.h"
-#include "kernel/manage-skills.h"
 #include "kernel/prep-skill.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-arrays.h"
@@ -161,29 +160,9 @@ u8 WMMenu_OnSecretShopSelected(struct MenuProc * menuProc, struct MenuItemProc *
 LYN_REPLACE_CHECK(WMMenu_OnManageItemsSelected);
 u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
-    if (menuItemProc != NULL && menuItemProc->def != NULL && menuItemProc->def->overrideId == 4) {
-        ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
-
-        if (wmProc != NULL) {
-            WMManageSkills_SetMode(true);
-            StartPrepEquipScreen(wmProc);
-        }
-    } else {
-        WMManageSkills_SetMode(false);
-
-        gGMData.unk_cd = menuProc->itemCurrent;
-        Proc_Goto(GM_MAIN, 22);
-    }
-
+    gGMData.unk_cd = menuProc->itemCurrent;
+    Proc_Goto(GM_MAIN, 22);
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
-}
-
-static u8 WMMenu_IsManageSkillsAvailable(const struct MenuItemDef * def, int number)
-{
-    if (gpKernelDesignerConfig->prep_menu_skills == true)
-        return MENU_ENABLED;
-
-    return MENU_NOTSHOWN;
 }
 
 static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
@@ -231,15 +210,6 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
     //     .isAvailable = WMMenu_IsManageSkillsAvailable,
     //     .onSelected = WMMenu_OnManageSkillsSelected,
     // },
-
-    {
-        .name = "　特技",
-        .nameMsgId = MSG_WM_MANAGE_SKILLS_NAME,
-        .helpMsgId = MSG_WM_MANAGE_SKILLS_DESC,
-        .overrideId = 4,
-        .isAvailable = WMMenu_IsManageSkillsAvailable,
-        .onSelected = WMMenu_OnManageItemsSelected,
-    },
 
     {
         .name = "　アイテム整理",

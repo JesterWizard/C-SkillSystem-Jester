@@ -247,8 +247,8 @@ ORG $CEE08
 callHackNew(GuideUIPal_Hook)
 SHORT $46c0 
 
-ORG $90ECC 
-callHackNew(Pal_SysBrownBox_Hook) 
+// ORG $90ECC 
+// callHackNew(Pal_SysBrownBox_Hook) 
 
 ORG $4C374 
 callHackNew(RestoreLinkArenaUI) 
