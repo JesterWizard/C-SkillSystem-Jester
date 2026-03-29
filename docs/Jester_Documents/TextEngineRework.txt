@@ -1,0 +1,119 @@
+# FE8 Text Engine Rework
+
+<p align="center">
+  <img src="../Gifs/Text_Engine_Rework.gif" alt="Text Engine Rework" width="600"/>
+</p>
+
+
+---
+
+## Index
+- [Introduction](#introduction)
+- [Plan](#plan)
+- [Code Locations](#code-locations)
+- [TODO](#todo)
+- [Limitations & Bugs](#limitations--bugs)
+
+## Introduction
+
+This rework expands the FE8 dialogue interpreter while keeping existing text functional. It adds new control codes for fonts, text palettes, color groups, box background palettes, box types, box height, boop pitch, sound playback, portrait placement, fancy face loading, variable-speed movement, and text speed.
+
+Player-facing impact:
+- Dialogue can use more than one visual style without hand-written engine hacks.
+- Portraits can carry their own default attributes and reuse them across lines.
+- Text boxes can change appearance directly from script commands.
+- Existing vanilla text remains readable and compatible with the new parser.
+
+This feature is intended for standard cutscene text. It has not been validated against every alternate dialogue path the game can use.
+
+## Plan
+
+The rework is built as a small set of hooks plus shared tables.
+
+| Layer | Behavior | Result |
+|-------|----------|--------|
+| Interpreter dispatch | Replaces the vanilla text code parser with `DialogueInterpret` | Extended commands can be parsed safely |
+| Text measurement | Recalculates box width with `GetStringTextWidthWithDialogueCodes` | Control codes and font changes no longer break width math |
+| Presentation state | Copies and updates text attributes before the box appears | Palette, box, and font settings follow the active speaker |
+| Script-facing aliases | Exposes friendly names through `_Text_Engine_Tables.txt` and `textdefs.txt` | Text writers can use stable macros instead of raw bytes |
+
+Supported extended commands:
+
+| Code | Command | Summary |
+|------|---------|---------|
+| `0x26` | Font | Switches the active font from `FontGlyphsPointerTable` |
+| `0x27` | Text Palette | Selects a palette entry and color group |
+| `0x28` | Color Group | Changes the active color group without changing the palette |
+| `0x29` | Box Background Palette | Swaps the text box background palette |
+| `0x2A` | Box Type | Changes the text box shape and speech-tail behavior |
+| `0x2B` | Box Height | Changes the box height in lines |
+| `0x2C` | Boop Pitch | Changes the text sound pitch |
+| `0x2D` | Play Sound | Plays an arbitrary sound effect |
+| `0x2E` | Portrait Location | Moves the current portrait anchor point |
+| `0x2F` | Fancy LoadFace | Loads a portrait with explicit attributes |
+| `0x30`-`0x37` | Variable-Speed MoveFace | Moves a portrait with command-controlled speed |
+| `0x38` | Text Speed | Overrides the dialogue text speed |
+
+## Examples
+
+The snippets below show the intended use pattern inside a conversation script. They assume the dialogue has already opened with a face load command and that the control code is placed in the text string where the style change should begin.
+
+| Code | Example | What it does |
+|------|---------|--------------|
+| `0x26` | `[Font][0x02]I speak in bold now.` | Switches the speaker text to the bold font for the remainder of the line or until changed again. |
+| `0x27` | `[TextPalette][0x02][0x01]This line uses the red palette.` | Changes the current text palette and color group together. |
+| `0x28` | `[ColorGroup][0x05]This line uses the fifth color group.` | Swaps just the active color group so another color set can be shown on the same screen. |
+| `0x29` | `[BoxBgPalette][0x03]The textbox background is now light blue.` | Changes the textbox background palette before the next text box is drawn. |
+| `0x2A` | `[BoxType][0x03]This uses the thought bubble box.` | Switches the textbox shape and speech-tail behavior. |
+| `0x2B` | `[BoxHeight][0x03]This line uses a taller box.` | Expands the textbox to fit a larger dialogue area. |
+| `0x2C` | `[BoopPitch][0x10]The text sound changes pitch.` | Changes the sound pitch used for dialogue letter playback. |
+| `0x2D` | `[PlaySound][0x8D][0x8C][0x8B][0x8A]A sound plays before this line continues.` | Plays a sound effect using the little-endian sound ID format. |
+| `0x2E` | `[MugLoc][0x04][0x0D]` | Moves the portrait anchor to a different face slot and X offset. |
+| `0x2F` | `[LoadFaceFancy][0x04][0x01][0x02][0x01][0x02][0x01][0x01][0x0D]Hello, I loaded with explicit attributes.` | Loads a portrait while setting its font, color group, background palette, box type, and boop pitch in one command. |
+| `0x30`-`0x37` | `[MFL2][0x10]Move me more slowly than vanilla.` | Moves the portrait with a custom duration instead of the default face-move timing. |
+| `0x38` | `[TextSpeed][0x01]This line prints at slow speed.` | Overrides the dialogue text speed for the current line. |
+
+Typical conversation flow:
+
+```text
+[TextSpeed][0xFF]
+[LoadFaceFancy][0x04][0x01][0x02][0x01][0x02][0x01][0x01][0x0D]
+[Font][0x02]Eirika: I can change the text style mid-sentence.
+[ColorGroup][0x05][TextPalette][0x02][0x05]Another color is now active.
+[BoxType][0x03][BoxHeight][0x03]A different textbox shape can appear on the next line.
+[PlaySound][0x8D][0x8C][0x8B][0x8A]That sound effect fires before the next message.
+```
+
+The exact portrait aliases depend on the text definitions you include in your build. The raw commands above are the most portable form when writing engine-facing dialogue.
+
+The support data lives in the installer tables:
+- `_Text_Engine_Defs.asm` defines the engine constants and offsets.
+- `_Text_Engine_Tables.txt` defines fonts, text palettes, box palettes, box graphics, and boop timing.
+- `TextEngineRework_Installer.event` connects the hooks and pulls the tables into the build.
+
+## Code Locations
+
+| Feature | Location | Description |
+|--------|----------|-------------|
+| Interpreter hook | `DialogueInterpret` in [Kernel/Wizardry/Misc/TextEngineRework/DialogueInterpret.asm](../../Kernel/Wizardry/Misc/TextEngineRework/DialogueInterpret.asm) and [Kernel/Wizardry/Misc/TextEngineRework/DialogueInterpret.lyn.event](../../Kernel/Wizardry/Misc/TextEngineRework/DialogueInterpret.lyn.event) | Replaces the vanilla text-code parser and registers the extended control-code table |
+| Width calculation | `GetStringTextWidthWithDialogueCodes` in [Kernel/Wizardry/Misc/TextEngineRework/GetStringTextWidthWithDialogueCodes.asm](../../Kernel/Wizardry/Misc/TextEngineRework/GetStringTextWidthWithDialogueCodes.asm) and [Kernel/Wizardry/Misc/TextEngineRework/GetStringTextWidthWithDialogueCodes.lyn.event](../../Kernel/Wizardry/Misc/TextEngineRework/GetStringTextWidthWithDialogueCodes.lyn.event) | Measures dialogue with the rework control codes included |
+| Attribute propagation | `Copy_Text_Attributes` in [Kernel/Wizardry/Misc/TextEngineRework/Copy_Text_Attributes.asm](../../Kernel/Wizardry/Misc/TextEngineRework/Copy_Text_Attributes.asm) | Copies the active portrait's text attributes into dialogue state |
+| Font refresh | `UpdateFontBeforeBoxWidthCalc` in [Kernel/Wizardry/Misc/TextEngineRework/UpdateFontBeforeBoxWidthCalc.asm](../../Kernel/Wizardry/Misc/TextEngineRework/UpdateFontBeforeBoxWidthCalc.asm) | Updates the font before box width is calculated |
+| Palette and box hooks | `ChangeTextColorID` and `DecompressTextBoxGraphics` in [Kernel/Wizardry/Misc/TextEngineRework/ChangeTextColorID.asm](../../Kernel/Wizardry/Misc/TextEngineRework/ChangeTextColorID.asm) and [Kernel/Wizardry/Misc/TextEngineRework/DecompressTextBoxGraphics.asm](../../Kernel/Wizardry/Misc/TextEngineRework/DecompressTextBoxGraphics.asm) | Handles text colors, box background palettes, and box graphics changes |
+| Portrait movement | `LoadFaceFlipping` and `WriteFaceXPosTableToRAM` in [Kernel/Wizardry/Misc/TextEngineRework/LoadFaceFlipping.asm](../../Kernel/Wizardry/Misc/TextEngineRework/LoadFaceFlipping.asm) and [Kernel/Wizardry/Misc/TextEngineRework/WriteFaceXPosTableToRAM.asm](../../Kernel/Wizardry/Misc/TextEngineRework/WriteFaceXPosTableToRAM.asm) | Supports `LoadFaceFancy` and the portrait position table |
+| Text engine installer | [Kernel/Wizardry/Misc/TextEngineRework/TextEngineRework_Installer.event](../../Kernel/Wizardry/Misc/TextEngineRework/TextEngineRework_Installer.event) | Hooks the engine into the ROM and includes the shared tables |
+| Table and macro definitions | [Kernel/Wizardry/Misc/TextEngineRework/_Text_Engine_Tables.txt](../../Kernel/Wizardry/Misc/TextEngineRework/_Text_Engine_Tables.txt), [Kernel/Wizardry/Misc/TextEngineRework/_Text_Engine_Defs.asm](../../Kernel/Wizardry/Misc/TextEngineRework/_Text_Engine_Defs.asm), and [Contents/Texts/textdefs.txt](../../Contents/Texts/textdefs.txt) | Stores fonts, palettes, box graphics, pitch data, and text-script aliases |
+
+## TODO
+
+- Fold the remaining prose notes into the same data-driven format as the rest of the project.
+- Add more example scripts for authors who need the raw control-code syntax.
+- Decide whether the legacy note files in this folder should be consolidated into one maintained source of truth.
+
+## Limitations & Bugs
+
+- The rework is intended for standard cutscene text.
+- It has not been tested with world map text, tutorial text, scroll boxes, or brown text boxes.
+- It is not compatible with Zeta's AutoNewLine hack.
+- All arguments must be non-zero, because `0x00` can terminate copied text.
+- Some features depend on the vanilla dialogue interpreter path being the one in use.
