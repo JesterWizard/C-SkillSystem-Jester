@@ -141,4 +141,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.custom_menu_options = false, // This is broken for now
 	.multiple_fog_stages = true,
 	.custom_staves = true,
+	.menu_skill_ai_use = false,
 };

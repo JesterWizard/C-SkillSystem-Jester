@@ -24,6 +24,7 @@ void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc)
 
 #if CHAX
 	case CONFIG_AI_ACTION_EXPA_Teleportation:
+	case CONFIG_AI_ACTION_EXPA_MenuSkill:
 	default:
 #endif
 		return;

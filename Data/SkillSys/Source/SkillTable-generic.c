@@ -397,11 +397,11 @@ const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
        //     },
        // },
        // // 68
-    //    [CHARACTER_ONEILL] = {
-    //        .skills = {
-    //            [0] = SID_InitSturdy,
-    //        },
-    //    },
+       [CHARACTER_ONEILL] = {
+           .skills = {
+               [0] = SID_HealingFocus,
+           },
+       },
        // // 69
        // [CHARACTER_GLEN] = {
        //     .skills = {

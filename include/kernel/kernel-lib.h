@@ -132,6 +132,7 @@ struct KernelDesigerConfig {
 	u8 custom_menu_options;
 	u8 multiple_fog_stages;
 	u8 custom_staves;
+	u8 menu_skill_ai_use;
 };
 
 struct KernelBattleDesignerConfig {

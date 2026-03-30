@@ -11,6 +11,7 @@
 
 extern void CpDecide_Main(ProcPtr proc);
 extern void DecideHealOrEscape(void);
+extern bool AiTryDoMenuSkills(void);
 
 // Function to find an adjacent ally with higher HP and swap positions with the defender
 void SwapDefenderWithAllyIfNecessary(struct Unit* defender) {
@@ -439,6 +440,9 @@ void DecideScriptA(void)
             return;
     }
 
+	if (AiTryDoMenuSkills() == TRUE)
+		return;
+
     AiExecFallbackScriptA();
 }
 
@@ -472,6 +476,9 @@ void DecideScriptB(void)
             return;
     }
 
+	if (AiTryDoMenuSkills() == TRUE)
+		return;
+
     AiExecFallbackScriptB();
 }
 
@@ -494,19 +501,28 @@ void DecideHealOrEscape(void)
             return;
         }
 
-        if (AiTryGetNearestHealPoint(&vec2) != TRUE)
-            return;
+		if (AiTryGetNearestHealPoint(&vec2) == TRUE)
+		{
+			AiTryMoveTowards(vec2.x, vec2.y, 0, 0, 1);
 
-        AiTryMoveTowards(vec2.x, vec2.y, 0, 0, 1);
+			if (gAiDecision.actionPerformed == TRUE)
+				AiTryActionAfterMove();
 
-        if (gAiDecision.actionPerformed == TRUE)
-            AiTryActionAfterMove();
+			if (gAiDecision.actionPerformed == TRUE)
+				return;
+		}
     }
     else
     {
         if ((gActiveUnit->aiFlags & AI_UNIT_FLAG_3) && (AiTryMoveTowardsEscape() == TRUE))
+		{
             AiTryDanceOrStealAfterMove();
+			return;
+		}
     }
+
+	if (AiTryDoMenuSkills() == TRUE)
+		return;
 }
 
 
@@ -536,6 +552,9 @@ bool AiTryDoStaff(s8 (*isEnemy)(struct Unit *unit))
 				exp = GetItemRequiredExp(item);
 		}
 	}
+
+	if (AiTryDoMenuSkills() == TRUE)
+		return true;
 
 	return gAiDecision.actionPerformed;
 }

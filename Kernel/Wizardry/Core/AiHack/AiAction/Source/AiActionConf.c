@@ -58,4 +58,8 @@ const struct AiActionConf gAiActionTable[CONFIG_AI_ACTION_AMT] = {
 		.exec = NULL,
 		.idle = AiPickAction,
 	},
+	[CONFIG_AI_ACTION_EXPA_MenuSkill] = {
+		.exec = AiAction_MenuSkill,
+		.idle = AiAction_MenuSkillIdle,
+	},
 };

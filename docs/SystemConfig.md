@@ -68,6 +68,10 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 	Enemies can also use gaiden magic on AI phase.
 
+- `menu_skill_ai_use`
+
+	Enemies can also use menu skills on AI phase after combat and healing logic finishes.
+
 - `gaiden_magic_skill_extensions`
 
 	**Wizardry option**, enable `gGaidenChaxConfigs` judgement.

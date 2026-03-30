@@ -9,6 +9,7 @@
 // #define CONFIG_INSTALL_STATSCREENFX 		   // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200      // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 #define CONFIG_AI_ACTION_EXPA_Teleportation 14 // Needs to remain for now as it's injected in Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation.event
+#define CONFIG_AI_ACTION_EXPA_MenuSkill 15      // Generic AI menu-skill execution
 #define CONFIG_AI_ACTION_AMT 20				   // Ai action expansion
 #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 0x23
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
