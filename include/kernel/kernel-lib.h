@@ -133,6 +133,8 @@ struct KernelDesigerConfig {
 	u8 multiple_fog_stages;
 	u8 custom_staves;
 	u8 menu_skill_ai_use;
+	u8 rescue_drop_ai_use;
+	u8 start_map_effects;
 };
 
 struct KernelBattleDesignerConfig {

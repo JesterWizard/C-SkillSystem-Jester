@@ -87,6 +87,23 @@ void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc)
 		y = unit->yPos;
 
 		break;
+
+	case CONFIG_AI_ACTION_EXPA_Rescue:
+		if (gAiDecision.targetId == 0)
+			return;
+
+		unit = GetUnit(gAiDecision.targetId);
+
+		x = unit->xPos;
+		y = unit->yPos;
+
+		break;
+
+	case CONFIG_AI_ACTION_EXPA_Drop:
+		x = gAiDecision.xTarget;
+		y = gAiDecision.yTarget;
+
+		break;
 	}
 
 	EnsureCameraOntoPosition(proc, x, y);

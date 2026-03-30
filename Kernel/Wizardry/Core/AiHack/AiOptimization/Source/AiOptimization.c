@@ -12,6 +12,255 @@
 extern void CpDecide_Main(ProcPtr proc);
 extern void DecideHealOrEscape(void);
 extern bool AiTryDoMenuSkills(void);
+extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
+extern s8 AiIsUnitEnemy(struct Unit *unit);
+
+static const int sAdjTileOffsets[4][2] = {
+	{-1, 0},
+	{1, 0},
+	{0, -1},
+	{0, 1},
+};
+
+static struct Unit *AiGetAdjacentRescueTarget(void)
+{
+	int i;
+	struct Unit *bestTarget = NULL;
+	int bestHp = 0;
+
+	for (i = 0; i < 4; ++i)
+	{
+		int x = gActiveUnit->xPos + sAdjTileOffsets[i][0];
+		int y = gActiveUnit->yPos + sAdjTileOffsets[i][1];
+		struct Unit *unit;
+
+		if (x < 0 || y < 0 || x >= gBmMapSize.x || y >= gBmMapSize.y)
+			continue;
+
+		unit = GetUnit(gBmMapUnit[y][x]);
+		if (!unit || !unit->pCharacterData)
+			continue;
+
+		if (!AreUnitsAllied(gActiveUnit->index, unit->index))
+			continue;
+
+		if (unit->state & (US_RESCUING | US_RESCUED | US_DEAD | US_HIDDEN))
+			continue;
+
+		if (GetUnitCurrentHp(unit) * 2 >= GetUnitMaxHp(unit))
+			continue;
+
+		if (!CanUnitRescue(gActiveUnit, unit))
+			continue;
+
+		if (!bestTarget || GetUnitCurrentHp(unit) < bestHp)
+		{
+			bestTarget = unit;
+			bestHp = GetUnitCurrentHp(unit);
+		}
+	}
+
+	return bestTarget;
+}
+
+static int AiGetNearestEnemyDistanceToTile(int x, int y)
+{
+	int i;
+	int bestDistance = 0x7FFF;
+	bool found = false;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+	for (i = 1; i < 0xD0; ++i)
+#else
+	for (i = 1; i < 0xC0; ++i)
+#endif
+	{
+		struct Unit *unit = GetUnit(i);
+		int distance;
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		if (!AiIsUnitEnemy(unit))
+			continue;
+
+		distance = RECT_DISTANCE(x, y, unit->xPos, unit->yPos);
+		if (!found || distance < bestDistance)
+		{
+			bestDistance = distance;
+			found = true;
+		}
+	}
+
+	return found ? bestDistance : 0x7FFF;
+}
+
+static bool AiFindBestDropTile(struct Unit *carriedUnit, int carrierX, int carrierY, struct Vec2 *out, int *outScore)
+{
+	int i;
+	int bestScore = -1;
+	bool found = false;
+
+	for (i = 0; i < 4; ++i)
+	{
+		int x = carrierX + sAdjTileOffsets[i][0];
+		int y = carrierY + sAdjTileOffsets[i][1];
+		int score;
+
+		if (x < 0 || y < 0 || x >= gBmMapSize.x || y >= gBmMapSize.y)
+			continue;
+
+		if (!Generic_CanUnitBeOnPos(carriedUnit, x, y, -1, -1))
+			continue;
+
+		score = AiGetNearestEnemyDistanceToTile(x, y);
+		if (!found || score > bestScore)
+		{
+			bestScore = score;
+			out->x = x;
+			out->y = y;
+			found = true;
+		}
+	}
+
+	if (found && outScore)
+		*outScore = bestScore;
+
+	return found;
+}
+
+static bool AiFindFarthestCarryPosition(struct Unit *carriedUnit, struct Vec2 *movePos, struct Vec2 *dropPos, bool *outHasDrop)
+{
+	int x;
+	int y;
+	int bestMoveScore = -1;
+	int bestDropScore = -1;
+	bool found = false;
+	bool bestHasDrop = false;
+	struct Vec2 bestDrop = { 0, 0 };
+
+	for (y = 0; y < gBmMapSize.y; ++y)
+	{
+		for (x = 0; x < gBmMapSize.x; ++x)
+		{
+			int moveScore;
+			int dropScore = -1;
+			struct Vec2 dropCandidate;
+			bool hasDrop;
+
+			if ((s8)gBmMapMovement[y][x] < 0)
+				continue;
+
+			if (!Generic_CanUnitBeOnPos(gActiveUnit, x, y, -1, -1))
+				continue;
+
+			moveScore = AiGetNearestEnemyDistanceToTile(x, y);
+			hasDrop = AiFindBestDropTile(carriedUnit, x, y, &dropCandidate, &dropScore);
+
+			if (!found
+				|| moveScore > bestMoveScore
+				|| (moveScore == bestMoveScore && hasDrop && !bestHasDrop)
+				|| (moveScore == bestMoveScore && hasDrop == bestHasDrop && dropScore > bestDropScore))
+			{
+				found = true;
+				bestMoveScore = moveScore;
+				bestHasDrop = hasDrop;
+				bestDropScore = dropScore;
+				movePos->x = x;
+				movePos->y = y;
+
+				if (hasDrop)
+					bestDrop = dropCandidate;
+			}
+		}
+	}
+
+	if (!found)
+		return false;
+
+	if (bestHasDrop)
+		*dropPos = bestDrop;
+
+	if (outHasDrop)
+		*outHasDrop = bestHasDrop;
+
+	return true;
+}
+
+static bool AiTryRescueWeakAdjacentAlly(void)
+{
+	struct Unit *target = AiGetAdjacentRescueTarget();
+
+	if (!target)
+		return false;
+
+	AiSetDecision(
+		gActiveUnit->xPos,
+		gActiveUnit->yPos,
+		CONFIG_AI_ACTION_EXPA_Rescue,
+		target->index,
+		0,
+		target->xPos,
+		target->yPos);
+
+	return true;
+}
+
+static bool AiTryRescueCarryDrop(void)
+{
+	struct Unit *carriedUnit;
+	struct Vec2 dropPos = { 0, 0 };
+	struct Vec2 movePos = { 0, 0 };
+	bool canDrop = false;
+
+	if (!(gActiveUnit->state & US_RESCUING))
+		return false;
+
+	carriedUnit = GetUnit(gActiveUnit->rescue);
+	if (!carriedUnit || !carriedUnit->pCharacterData)
+		return false;
+
+	if (AiFindFarthestCarryPosition(carriedUnit, &movePos, &dropPos, &canDrop) == true)
+	{
+		if (canDrop == true)
+		{
+			AiSetDecision(
+				movePos.x,
+				movePos.y,
+				CONFIG_AI_ACTION_EXPA_Drop,
+				0,
+				0,
+				dropPos.x,
+				dropPos.y);
+			return true;
+		}
+
+		AiSetDecision(
+			movePos.x,
+			movePos.y,
+			AI_ACTION_NONE,
+			0,
+			0,
+			0,
+			0);
+
+		return true;
+	}
+
+	{
+		u8 aiFlags = gActiveUnit->aiFlags;
+		bool didEscape;
+
+		gActiveUnit->aiFlags |= AI_UNIT_FLAG_3;
+		didEscape = (AiTryMoveTowardsEscape() == TRUE);
+		gActiveUnit->aiFlags = aiFlags;
+
+		if (didEscape == true)
+			return true;
+	}
+
+	return false;
+}
 
 // Function to find an adjacent ally with higher HP and swap positions with the defender
 void SwapDefenderWithAllyIfNecessary(struct Unit* defender) {
@@ -485,21 +734,33 @@ void DecideScriptB(void)
 LYN_REPLACE_CHECK(DecideHealOrEscape);
 void DecideHealOrEscape(void)
 {
-    if (gAiState.flags & AI_FLAG_BERSERKED)
-        return;
+	if (gAiState.flags & AI_FLAG_BERSERKED)
+		return;
 
-    if (AiUpdateGetUnitIsHealing(gActiveUnit) == TRUE)
-    {
-        struct Vec2 vec2;
+	if (gpKernelDesignerConfig->rescue_drop_ai_use == true) {
+		if (gActiveUnit->state & US_RESCUING)
+		{
+			if (AiTryRescueCarryDrop() == true)
+				return;
+		}
+		else if (AiTryRescueWeakAdjacentAlly() == true)
+		{
+			return;
+		}
+	}
 
-        if (AiTryHealSelf() == TRUE)
-            return;
+	if (AiUpdateGetUnitIsHealing(gActiveUnit) == TRUE)
+	{
+		struct Vec2 vec2;
 
-        if ((gActiveUnit->aiFlags & AI_UNIT_FLAG_3) && (AiTryMoveTowardsEscape() == TRUE))
-        {
-            AiTryDanceOrStealAfterMove();
-            return;
-        }
+		if (AiTryHealSelf() == TRUE)
+			return;
+
+		if ((gActiveUnit->aiFlags & AI_UNIT_FLAG_3) && (AiTryMoveTowardsEscape() == TRUE))
+		{
+			AiTryDanceOrStealAfterMove();
+			return;
+		}
 
 		if (AiTryGetNearestHealPoint(&vec2) == TRUE)
 		{
@@ -511,15 +772,15 @@ void DecideHealOrEscape(void)
 			if (gAiDecision.actionPerformed == TRUE)
 				return;
 		}
-    }
-    else
-    {
-        if ((gActiveUnit->aiFlags & AI_UNIT_FLAG_3) && (AiTryMoveTowardsEscape() == TRUE))
+	}
+	else
+	{
+		if ((gActiveUnit->aiFlags & AI_UNIT_FLAG_3) && (AiTryMoveTowardsEscape() == TRUE))
 		{
-            AiTryDanceOrStealAfterMove();
+			AiTryDanceOrStealAfterMove();
 			return;
 		}
-    }
+	}
 
 	if (AiTryDoMenuSkills() == TRUE)
 		return;

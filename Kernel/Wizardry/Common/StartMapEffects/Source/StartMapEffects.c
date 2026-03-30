@@ -261,6 +261,9 @@ static void StartMapEffectsPrompt_ShowUnitSprites(void)
 
 static int StartMapEffects_ApplyStatEffect(int status, struct Unit *unit)
 {
+    if (gpKernelDesignerConfig->start_map_effects != true)
+        return status;
+
     const struct StartMapEffectDef *def = GetStartMapEffectDef(sStartMapEffectsSuspendState.activeEffectId);
 
     if (!def || !StartMapEffectsUnitMatches(unit, def))
@@ -287,6 +290,9 @@ static int StartMapEffects_ApplyStatEffect(int status, struct Unit *unit)
 
 static int StartMapEffects_ApplyMovEffect(int status, struct Unit *unit)
 {
+    if (gpKernelDesignerConfig->start_map_effects != true)
+        return status;
+
     const struct StartMapEffectDef *def = GetStartMapEffectDef(sStartMapEffectsSuspendState.activeEffectId);
 
     if (!def || def->kind != START_MAP_EFFECT_KIND_MOV_DELTA || !StartMapEffectsUnitMatches(unit, def))
@@ -513,6 +519,9 @@ void ChapterInit_ResetStartMapEffects(void)
 
 bool StartMapEffects_PrePhaseHook(ProcPtr proc)
 {
+    if (gpKernelDesignerConfig->start_map_effects != true)
+        return false;
+
     StartMapEffects_ResetChapterState();
 
     if (sStartMapEffectsSuspendState.promptState == START_MAP_EFFECT_PROMPT_IDLE) {

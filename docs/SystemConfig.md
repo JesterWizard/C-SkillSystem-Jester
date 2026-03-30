@@ -72,6 +72,14 @@ C-SkillSys offers several patches to allow game-designers to configure some of t
 
 	Enemies can also use menu skills on AI phase after combat and healing logic finishes.
 
+- `rescue_drop_ai_use`
+
+	Enemies can use rescue and drop as a retreat option when an adjacent allied unit is below half HP.
+
+- `start_map_effects`
+
+	Enable the pre-phase Start Map Effects menu and the corresponding stat/movement effect hooks.
+
 - `gaiden_magic_skill_extensions`
 
 	**Wizardry option**, enable `gGaidenChaxConfigs` judgement.

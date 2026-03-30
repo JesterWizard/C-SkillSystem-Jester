@@ -30,6 +30,14 @@ const struct AiActionConf gAiActionTable[CONFIG_AI_ACTION_AMT] = {
 		.exec = NULL,
 		.idle = AiUseItemAction,
 	},
+	[CONFIG_AI_ACTION_EXPA_Rescue] = {
+		.exec = AiStartRescueAction,
+		.idle = AiDummyAction,
+	},
+	[CONFIG_AI_ACTION_EXPA_Drop] = {
+		.exec = AiStartDropAction,
+		.idle = AiDummyAction,
+	},
 	[AI_ACTION_REFRESH] = {
 		.exec = NULL,
 		.idle = AiRefreshAction,

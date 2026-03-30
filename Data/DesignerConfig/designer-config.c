@@ -142,4 +142,6 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.multiple_fog_stages = true,
 	.custom_staves = true,
 	.menu_skill_ai_use = false,
+	.rescue_drop_ai_use = true,
+	.start_map_effects = false,
 };

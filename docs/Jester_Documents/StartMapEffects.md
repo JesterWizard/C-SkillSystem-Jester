@@ -13,6 +13,8 @@
 
 The Start Map Effects feature adds a pre-phase map menu that lets the player pick a single map-wide effect before the chapter begins.
 
+The whole system is gated behind `gpKernelDesignerConfig->start_map_effects`, so projects can keep the table and hooks in place while still turning the feature off in designer config.
+
 Player-facing goals:
 - Keep the menu readable by showing only the effect name in the list.
 - Show a short R text description for the highlighted effect.
@@ -49,14 +51,18 @@ That means adding a new effect should usually only require editing the table in 
 
 ## Code Locations
 
+All modifications are gated behind `gpKernelDesignerConfig->start_map_effects` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c).
+
 | Feature | Location | Description |
 |--------|----------|-------------|
+| Designer config flag | `KernelDesigerConfig` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Adds the runtime boolean that turns the start-map-effects system on or off. |
+| Default value | `gKernelDesigerConfig` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Keeps the feature enabled by default so current projects retain the existing behavior unless they turn it off. |
 | Effect table | [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Stores each effect's label, R text, behavior kind, numeric value, duration, and target faction. |
 | Menu setup | `StartMapEffectsPrompt_OnInit` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Initializes text, UI graphics, cursor hand, and the hidden-unit state while the prompt is open. |
 | List rendering | `StartMapEffectsPrompt_Draw` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Draws the visible list, the scroll bar, the cursor hand, and the selected R text. |
 | Menu teardown | `StartMapEffectsPrompt_Finish` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Restores the sprite visibility, clears the menu area, and ends the prompt cleanly. |
 | Effect application | `StartMapEffects_ApplyStatEffect` and `StartMapEffects_ApplyMovEffect` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Applies the selected effect to matching units during stat and movement reads. |
-| Pre-phase hook | `StartMapEffects_PrePhaseHook` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Starts the prompt on the first entry, then counts down the effect duration on later turns. |
+| Pre-phase hook | `StartMapEffects_PrePhaseHook` in [`StartMapEffects.c`](../../Kernel/Wizardry/Common/StartMapEffects/Source/StartMapEffects.c) | Starts the prompt on the first entry, then counts down the effect duration on later turns when the feature is enabled. |
 | Documentation reference | [`StartMapEffects.md`](StartMapEffects.md) | Contributor-facing summary of the feature and extension points. |
 
 ## TODO

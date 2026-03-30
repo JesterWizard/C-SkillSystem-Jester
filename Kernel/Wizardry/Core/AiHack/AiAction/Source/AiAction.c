@@ -76,6 +76,34 @@ void AiStartCombatAction(struct CpPerformProc *proc)
 	ApplyUnitAction(proc);
 }
 
+void AiStartRescueAction(struct CpPerformProc *proc)
+{
+	gActionData.subjectIndex = gActiveUnitId;
+	gActionData.unitActionType = UNIT_ACTION_RESCUE;
+	gActionData.targetIndex = gAiDecision.targetId;
+	gActionData.xOther = gAiDecision.xTarget;
+	gActionData.yOther = gAiDecision.yTarget;
+
+	gActiveUnit->xPos = gAiDecision.xMove;
+	gActiveUnit->yPos = gAiDecision.yMove;
+
+	ApplyUnitAction(proc);
+}
+
+void AiStartDropAction(struct CpPerformProc *proc)
+{
+	gActionData.subjectIndex = gActiveUnitId;
+	gActionData.unitActionType = UNIT_ACTION_DROP;
+	gActionData.targetIndex = gActiveUnit->rescue;
+	gActionData.xOther = gAiDecision.xTarget;
+	gActionData.yOther = gAiDecision.yTarget;
+
+	gActiveUnit->xPos = gAiDecision.xMove;
+	gActiveUnit->yPos = gAiDecision.yMove;
+
+	ApplyUnitAction(proc);
+}
+
 LYN_REPLACE_CHECK(AiStaffAction);
 bool AiStaffAction(struct CpPerformProc *proc)
 {

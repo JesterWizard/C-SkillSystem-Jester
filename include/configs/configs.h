@@ -10,6 +10,8 @@
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200      // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 #define CONFIG_AI_ACTION_EXPA_Teleportation 14 // Needs to remain for now as it's injected in Kernel/Wizardry/Misc/SkillEffects/AiSkills/Teleportation.event
 #define CONFIG_AI_ACTION_EXPA_MenuSkill 15      // Generic AI menu-skill execution
+#define CONFIG_AI_ACTION_EXPA_Rescue 16         // AI rescue action for adjacent low-HP allies
+#define CONFIG_AI_ACTION_EXPA_Drop 17           // AI drop action after reaching a safe tile
 #define CONFIG_AI_ACTION_AMT 20				   // Ai action expansion
 #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 0x23
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
