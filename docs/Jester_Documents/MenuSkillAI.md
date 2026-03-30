@@ -1,5 +1,9 @@
 # Menu Skill AI
 
+<p align="center">
+  <img src="../Gifs/Menu_Skills_AI.gif" alt="Menu Skills AI" width="600"/>
+</p>
+
 ---
 
 ## 📑 Index

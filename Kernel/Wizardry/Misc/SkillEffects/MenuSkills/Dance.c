@@ -4,11 +4,28 @@
 LYN_REPLACE_CHECK(DanceCommandUsability);
 u8 DanceCommandUsability(const struct MenuItemDef *def, int number)
 {
-#if !CHAX
-	if (!(UNIT_CATTRIBUTES(gActiveUnit) & CA_DANCE))
-		return MENU_NOTSHOWN;
-#endif
+	// if (!(UNIT_CATTRIBUTES(gActiveUnit) & CA_DANCE))
+	// 	return MENU_NOTSHOWN;
 
 	gBmSt.um_tmp_item = ITEM_DANCE;
 	return sub_80230F0(def);
+}
+
+//! FE8U = 0x08032358
+LYN_REPLACE_CHECK(ActionDance);
+s8 ActionDance(ProcPtr proc) {
+    GetUnit(gActionData.targetIndex)->state &= ~( US_UNSELECTABLE | US_HAS_MOVED | US_HAS_MOVED_AI );
+
+    BattleInitItemEffect(GetUnit(gActionData.subjectIndex), -1);
+    BattleInitItemEffectTarget(GetUnit(gActionData.targetIndex));
+
+    gBattleStats.config = BATTLE_CONFIG_REFRESH;
+
+    BattleApplyMiscAction(proc);
+	
+	// This is a fix to allow units without the dancer class to use the dance skill
+	if (UNIT_CATTRIBUTES(gActiveUnit) & CA_DANCE)
+    	BeginBattleAnimations();
+
+    return 0;
 }
