@@ -332,7 +332,7 @@ void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit *proc, int item, i
 	int icon = SKILL_ICON(skill);
 	int width = GetStringTextLen(str);
 
-	DrawIcon(TILEMAP_LOCATED(gBG2TilemapBuffer, x, y), icon, 0x4000);
+    DrawIcon(TILEMAP_LOCATED(gBG2TilemapBuffer, x, y), icon, TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(skill)));
 
 	ClearText(text);
 	PutDrawText(

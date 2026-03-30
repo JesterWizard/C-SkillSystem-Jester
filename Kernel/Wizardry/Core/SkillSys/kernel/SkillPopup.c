@@ -46,7 +46,7 @@ int PoprGetLen_SkillIcon(struct PopupProc *proc, const struct PopupInstruction *
 {
 	proc->iconX = proc->xGfxSize;
 	proc->iconId = SKILL_ICON(gPopupItem);
-	LoadIconPalette(0, proc->iconPalId);
+	LoadIconPalette(GetSkillIconPal(gPopupItem), proc->iconPalId);
 	return 0x10;
 }
 

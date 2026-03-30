@@ -225,7 +225,7 @@ void PrepSkill2_DrawLeftSkillIcon(struct ProcPrepSkill2 *proc)
 			DrawIcon(
 				TILEMAP_LOCATED(gBG2TilemapBuffer, 2 + x * 2, 6 + y * 2),
 				SKILL_ICON(list->sid[count]),
-				TILEREF(0, STATSCREEN_BGPAL_ITEMICONS));
+				TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(list->sid[count])));
 		}
 	}
 	BG_EnableSyncByMask(BG2_SYNC_BIT);

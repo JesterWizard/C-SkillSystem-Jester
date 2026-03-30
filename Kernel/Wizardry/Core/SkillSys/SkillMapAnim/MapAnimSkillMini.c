@@ -34,7 +34,7 @@ STATIC_DECLAR void SkillMapAnimMini_Init(struct ProcSkillMapAnimMini *proc)
 
 	/* Icon */
 	LoadIconObjectGraphics(SKILL_ICON(proc->sid), MAPANIMFX_CHR_L);
-	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
+	LoadIconPalette(GetSkillIconPal(proc->sid), 0x10 + MAPANIMFX_PAL);
 	proc->timer = 0;
 }
 

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "skill-system.h"
+#include "icon-rework.h"
 #include "debug-kit.h"
 #include "kernel-lib.h"
 #include "utf8.h"
@@ -21,6 +22,25 @@ const u8 *GetSkillIcon1(const u8 sid) { return _GetSkillIconExt(sid, SKILL_INFO_
 const u8 *GetSkillIcon2(const u8 sid) { return _GetSkillIconExt(sid, SKILL_INFO_CHARACTER); }
 const u8 *GetSkillIcon3(const u8 sid) { return _GetSkillIconExt(sid, SKILL_INFO_CLASS); }
 const u8 *GetSkillIcon4(const u8 sid) { return _GetSkillIconExt(sid, SKILL_INFO_ITEM); }
+
+u8 GetSkillIconPal(const u16 sid)
+{
+	return gpSkillInfos[sid].iconPal & 0x1;
+}
+
+u8 GetIconPal(u32 icon)
+{
+	switch (ICON_SHEET(icon)) {
+	case ICON_SHEET_SKILL0:
+	case ICON_SHEET_SKILL1:
+	case ICON_SHEET_SKILL2:
+	case ICON_SHEET_SKILL3:
+		return GetSkillIconPal(ICON_INDEX(icon));
+
+	default:
+		return 0;
+	}
+}
 
 u16 GetSkillDescMsg(const u16 sid)
 {

@@ -79,7 +79,7 @@ void DrawPage7Rework(void)
                     {
                         DrawIcon(gUiTmScratchA + TILEMAP_INDEX(x_offset, skill_y_offsets[i]), 
                                 SKILL_ICON(promo_data->promotions[i].skills[j]), 
-                                TILEREF(0, STATSCREEN_BGPAL_ITEMICONS));
+                                TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(promo_data->promotions[i].skills[j])));
                         x_offset += 2; // Move to next icon position
                     }
                 }

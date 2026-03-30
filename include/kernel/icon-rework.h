@@ -34,6 +34,7 @@ typedef const u8 *(* IconGetterFunc)(const u8 index);
 extern const IconGetterFunc *const gpIconGetters;
 
 const u8 *GetIconGfx(u32 icon);
+u8 GetIconPal(u32 icon);
 const u8 *IconGetterVanilla(const u8 index);
 const u8 *GetAffinIcon(const u8 index);
 const u8 *GetMountIcon(const u8 index);

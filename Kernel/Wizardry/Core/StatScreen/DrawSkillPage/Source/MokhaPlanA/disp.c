@@ -39,7 +39,7 @@ void DrawSkillPage_MokhaPlanA(void)
 
 		DrawIcon(gUiTmScratchA + TILEMAP_INDEX(8, 0x1 + 2 * i),
 				 SKILL_ICON(list->sid[i]),
-				 TILEREF(0, STATSCREEN_BGPAL_ITEMICONS));
+				 TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(list->sid[i])));
 
 		ClearText(text);
 

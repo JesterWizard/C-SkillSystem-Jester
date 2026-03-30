@@ -1300,7 +1300,7 @@ void RedrawUnitSkillsMenu(DebuggerProc* proc) {
         TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]);
 
         // Draw skill icon
-        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, x, Y_HAND + (i*2)), SKILL_ICON(proc->tmp[i]), 0x4000);
+        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, x, Y_HAND + (i*2)), SKILL_ICON(proc->tmp[i]), TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(proc->tmp[i])));
     }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);

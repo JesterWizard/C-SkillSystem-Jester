@@ -124,6 +124,7 @@ extern u16 const* const gpConstSkillTable_Weapon;
 struct SkillInfo {
 	const u8* icon;
 	u16 name, desc, price, capacity;
+	u8 iconPal;
 };
 
 extern struct SkillInfo const* const gpSkillInfos;
@@ -132,6 +133,7 @@ const u8* GetSkillIcon1(const u8 sid);
 const u8* GetSkillIcon2(const u8 sid);
 const u8* GetSkillIcon3(const u8 sid);
 const u8* GetSkillIcon4(const u8 sid);
+u8 GetSkillIconPal(const u16 sid);
 
 u16 GetSkillDescMsg(const u16 sid);
 u16 GetSkillNameMsg(const u16 sid);

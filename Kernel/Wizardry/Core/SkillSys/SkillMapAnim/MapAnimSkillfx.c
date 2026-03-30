@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "icon-rework.h"
 #include "skill-system.h"
 
 STATIC_DECLAR void MapAnimSkillfx_Initfx(struct ProcMapAnimSkillfx *proc)
@@ -16,7 +17,7 @@ STATIC_DECLAR void MapAnimSkillfx_Initfx(struct ProcMapAnimSkillfx *proc)
 		proc->x += 10;
 		proc->y += 2;
 	}
-	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
+	LoadIconPalette(GetIconPal(proc->icon_idx), 0x10 + MAPANIMFX_PAL);
 }
 
 STATIC_DECLAR void MapAnimSkillfx_DrawIconIDLE(struct ProcMapAnimSkillfx *proc)

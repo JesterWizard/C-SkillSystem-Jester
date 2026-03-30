@@ -203,7 +203,7 @@ STATIC_DECLAR int PredationSkillMenu_OnDraw(struct MenuProc * menu, struct MenuI
     Text_DrawString(&item->text, GetSkillNameStr(sid));
     DrawIcon(
         TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile, item->yTile),
-        SKILL_ICON(sid), 0x4000);
+        SKILL_ICON(sid), TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
 
     PutText(
         &item->text,
@@ -282,7 +282,7 @@ STATIC_DECLAR int RemoveSkillMenu_OnDraw(struct MenuProc * menu, struct MenuItem
 
     DrawIcon(
         TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile, item->yTile),
-        SKILL_ICON(sid), 0x4000);
+        SKILL_ICON(sid), TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
 
     PutText(
         &item->text,

@@ -56,8 +56,12 @@ STATIC_DECLAR void DrawEfxSkillName(struct ProcEfxskillbox *proc)
 STATIC_DECLAR void EfxSkillBoxOnDraw(struct ProcEfxskillbox *proc)
 {
 	struct Anim *anim;
+	u8 iconPal = 0;
 
-	LoadIconPalette(0, 0x10 + ICON_OBJ_PAL);
+	if (proc->skill_or_combatart == EFX_SKILL_BOX_SKILL)
+		iconPal = GetSkillIconPal(proc->sid);
+
+	LoadIconPalette(iconPal, 0x10 + ICON_OBJ_PAL);
 	Copy2dChr(proc->icon, OBJ_VRAM0 + ICON_OBJ_CHR * 0x20, 2, 2);
 
 	/* Icon */

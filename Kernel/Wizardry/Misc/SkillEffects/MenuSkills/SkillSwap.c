@@ -85,7 +85,7 @@ static void DrawSkillSwapEntry(
     DrawIcon(
         TILEMAP_LOCATED(tilemap, xTile, yTile),
         SKILL_ICON(sid),
-        palette
+        TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid))
     );
 }
 
