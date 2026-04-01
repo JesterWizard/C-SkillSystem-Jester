@@ -178,6 +178,11 @@ WORD $0
 POIN IER_Effect_Invest
 POIN IER_Action_CustomStaves
 WORD $0
+POIN IER_Usability_Aum
+WORD $0
+POIN IER_Effect_Aum
+POIN IER_Action_Aum
+WORD $0
 POIN IER_Usability_Booster
 POIN IER_Usability_Booster
 WORD $0

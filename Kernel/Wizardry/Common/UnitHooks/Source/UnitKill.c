@@ -24,6 +24,14 @@ int GetDeadUnitCount(void)
 
 void AddDeadUnit(u8 unitId)
 {
+	struct Unit *unit = GetUnit(unitId);
+
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	if (UNIT_FACTION(unit) != FACTION_BLUE)
+		return;
+
     for (int i = 0; i < (int)ARRAY_COUNT(gDeadUnits); i++)
     {
         if (gDeadUnits[i] == 0x00)  // sentinel
@@ -35,15 +43,59 @@ void AddDeadUnit(u8 unitId)
     // array full → ignore overflow
 }
 
+void RemoveDeadUnit(u8 unitId)
+{
+	for (int i = 0; i < (int)ARRAY_COUNT(gDeadUnits); i++)
+	{
+		if (gDeadUnits[i] != unitId)
+			continue;
+
+		for (int j = i; j < (int)ARRAY_COUNT(gDeadUnits) - 1; j++)
+			gDeadUnits[j] = gDeadUnits[j + 1];
+
+		gDeadUnits[ARRAY_COUNT(gDeadUnits) - 1] = 0x00;
+		i--;
+	}
+}
+
 u8 GetLastDeadUnit(void)
 {
     for (int i = ARRAY_COUNT(gDeadUnits) - 1; i >= 0; i--)
     {
-        if (gDeadUnits[i] != 0x00)
-            return gDeadUnits[i];
+		if (gDeadUnits[i] == 0x00)
+			continue;
+
+		struct Unit *unit = GetUnit(gDeadUnits[i]);
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		if (UNIT_FACTION(unit) != FACTION_BLUE)
+			continue;
+
+		if (!(unit->state & US_DEAD))
+			continue;
+
+		return gDeadUnits[i];
     }
 
     return 0x00; // none stored
+}
+
+void SaveDeadUnits(u8 *dst, const u32 size)
+{
+	if (size < sizeof(gDeadUnits))
+		return;
+
+	WriteAndVerifySramFast(gDeadUnits, dst, sizeof(gDeadUnits));
+}
+
+void LoadDeadUnits(u8 *src, const u32 size)
+{
+	if (size < sizeof(gDeadUnits))
+		return;
+
+	ReadSramFast(src, gDeadUnits, sizeof(gDeadUnits));
 }
 
 LYN_REPLACE_CHECK(UnitKill);

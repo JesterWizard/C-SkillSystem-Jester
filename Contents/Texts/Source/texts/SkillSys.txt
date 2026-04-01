@@ -60,6 +60,9 @@ Select a skill to swap.[X]
 ## MSG_UnitRevived
 Unit has revived.[X]
 
+## MSG_AumUnitRevived
+was revived.[X]
+
 ## MSG_SelectSummon
 Choose a class to summon[X]
 

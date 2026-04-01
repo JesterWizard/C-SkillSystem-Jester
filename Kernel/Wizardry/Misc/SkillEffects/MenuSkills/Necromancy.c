@@ -35,6 +35,7 @@ u8 Necromancy_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 	unit->state &= ~(US_HIDDEN | US_UNSELECTABLE | US_DEAD);
 	UnitChangeFaction(unit, FACTION_GREEN);
     unit->curHP = unit->maxHP;
+	RemoveDeadUnit(unit->index);
 
 	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }

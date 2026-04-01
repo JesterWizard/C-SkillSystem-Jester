@@ -3,6 +3,7 @@
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
+#include "jester_headers/custom-arrays.h"
 
 #ifndef CONFIG_UNIT_ACTION_EXPA_ExecSkill
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
@@ -72,6 +73,7 @@ static void callback_exec(ProcPtr proc)
                 unit->state &= ~(US_HIDDEN | US_UNSELECTABLE | US_DEAD);
                 unit->curHP = 1;
                 unit->ai1 = 0xFF;
+                RemoveDeadUnit(unit->index);
             }
         }
     }

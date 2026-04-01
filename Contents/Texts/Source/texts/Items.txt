@@ -172,6 +172,18 @@ selected location.[X]
 ## MSG_ITEM_REWARP_STAFF_SUBTITLE
 Select space to warp unit.[X]
 
+## MSG_ITEM_AUM_STAFF_NAME
+Aum[X]
+## MSG_ITEM_AUM_STAFF_DESC
+Revive the last dead player unit[N]
+on an adjacent tile.[X]
+## MSG_ITEM_AUM_STAFF_USEDESC
+Revive the last dead[N]
+ally unit onto an[N]
+adjacent tile.[X]
+## MSG_ITEM_AUM_STAFF_SUBTITLE
+Select adjacent tile for revival.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

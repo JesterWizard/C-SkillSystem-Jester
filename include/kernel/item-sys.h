@@ -44,6 +44,7 @@ enum chax_ierevamp_use_effects {
     IER_STAFF_SOOTH,
     IER_STAFF_ENFEEBLE,
     IER_STAFF_INVEST,
+	IER_STAFF_AUM,
 
 
 	/**
@@ -119,7 +120,7 @@ enum chax_ierevamp_use_effects {
 	IER_ARMS_SCROLL,
 #endif
 
-	IER_MAX = 0x51,
+	IER_MAX = 0x52,
 };
 
 #define IER_INVALID IER_START
@@ -236,6 +237,7 @@ IER_DECLEARE_Usability(IER_Usability_Petrify);
 IER_DECLEARE_Usability(IER_Usability_Sooth);
 IER_DECLEARE_Usability(IER_Usability_Enfeeble);
 IER_DECLEARE_Usability(IER_Usability_Invest);
+IER_DECLEARE_Usability(IER_Usability_Aum);
 
 IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
 IER_DECLEARE_Effect(IER_Effect_RangedHeal);
@@ -266,6 +268,7 @@ IER_DECLEARE_Effect(IER_Effect_Petrify);
 IER_DECLEARE_Effect(IER_Effect_Sooth);
 IER_DECLEARE_Effect(IER_Effect_Enfeeble);
 IER_DECLEARE_Effect(IER_Effect_Invest);
+IER_DECLEARE_Effect(IER_Effect_Aum);
 
 IER_DECLEARE_Action(IER_Action_StandardHeal);
 IER_DECLEARE_Action(IER_Action_StatusStaff);
@@ -302,6 +305,7 @@ IER_DECLEARE_Action(IER_Action_Provoke);
 IER_DECLEARE_Action(IER_Action_Petrify);
 IER_DECLEARE_Action(IER_Action_Sooth);
 IER_DECLEARE_Action(IER_Action_Enfeeble);
+IER_DECLEARE_Action(IER_Action_Aum);
 
 IER_DECLEARE_PrepEffect(IER_PrepEffect_StatBooster);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Promotion);

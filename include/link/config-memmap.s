@@ -99,6 +99,7 @@ _kernel_malloc sEfxNosferatuEfxIndexCacheData, 1
 _kernel_malloc gSkillDbgList, 20 * 4
 _kernel_malloc gForgedItemRam, 50 * 2
 _kernel_malloc gDeadUnits, 50
+_kernel_malloc sAumDeadUnit, 1
 _kernel_malloc gChapterTimerSeconds, 2
 _kernel_malloc firstVisibleIndex, 1
 _kernel_malloc gInfuseMenuArray, 6

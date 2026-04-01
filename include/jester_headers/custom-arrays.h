@@ -57,7 +57,10 @@ void LoadSuspendUnitList(u8 *dst, const u32 size);
 extern u8 gDeadUnits[50];
 int GetDeadUnitCount(void);
 void AddDeadUnit(u8 unitId);
+void RemoveDeadUnit(u8 unitId);
 u8 GetLastDeadUnit(void);
+void SaveDeadUnits(u8 *dst, const u32 size);
+void LoadDeadUnits(u8 *src, const u32 size);
 
 extern u16 gPalEfxHpBarRed[];
 extern u16 gPalEfxHpBarYellow[];

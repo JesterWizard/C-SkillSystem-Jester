@@ -58,6 +58,7 @@ gEmsSavChunks:
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
+    EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunkEnd
 
 ALIGN 4
@@ -101,6 +102,7 @@ gEmsSusChunks:
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
+    EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunkEnd
 
 ALIGN 4
