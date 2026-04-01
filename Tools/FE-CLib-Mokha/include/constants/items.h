@@ -250,6 +250,7 @@ enum {
     ITEM_STAFF_ENFEEBLE    = 0xD8,
     ITEM_STAFF_INVEST      = 0xD9,
     ITEM_STAFF_AUM         = 0xDB,
+    ITEM_STAFF_PHOENIX     = 0xDC,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H

@@ -184,6 +184,18 @@ adjacent tile.[X]
 ## MSG_ITEM_AUM_STAFF_SUBTITLE
 Select adjacent tile for revival.[X]
 
+## MSG_ITEM_PHOENIX_STAFF_NAME
+Phoenix[X]
+## MSG_ITEM_PHOENIX_STAFF_DESC
+Revive a chosen fallen ally[N]
+on an adjacent tile.[X]
+## MSG_ITEM_PHOENIX_STAFF_USEDESC
+Choose a fallen ally[N]
+to revive onto an[N]
+adjacent tile.[X]
+## MSG_ITEM_PHOENIX_STAFF_SUBTITLE
+Choose a fallen ally to revive.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

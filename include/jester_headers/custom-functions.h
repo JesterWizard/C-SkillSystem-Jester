@@ -229,3 +229,5 @@ struct CharacterBiography
     u8 songId;
     struct BiographyEntry entries[4];
 };
+
+extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);

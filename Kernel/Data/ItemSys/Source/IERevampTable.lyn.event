@@ -380,3 +380,8 @@ POIN IER_PrepUsability_ArmsScroll
 WORD $0
 POIN IER_ActionEffect_ArmsScroll
 POIN IER_PrepEffect_ArmsScroll
+POIN IER_Usability_Phoenix
+WORD $0
+POIN IER_Effect_Phoenix
+POIN IER_Action_Phoenix
+WORD $0

@@ -4,6 +4,7 @@
 #include "constants/items.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-functions.h"
 #include "bmfx.h"
 #include "mapanim.h"
 #include "popup.h"
@@ -11,8 +12,6 @@
 #include "bmtarget.h"
 #include "bm.h"
 #include "proc.h"
-
-extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
 
 static const int sAdjTileOffsets[4][2] = {
 	{-1, 0},
