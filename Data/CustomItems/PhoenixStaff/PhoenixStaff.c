@@ -5,6 +5,7 @@
 #include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-structs.h"
 #include "bmfx.h"
 #include "mapanim.h"
 #include "popup.h"
@@ -14,21 +15,10 @@
 #include "bmudisp.h"
 #include "prepscreen.h"
 #include "proc.h"
+#include "uimenu.h"
 #include "sysutil.h"
 
-enum {
-	PHOENIX_STATE_INIT = 0,
-	PHOENIX_STATE_IDLE = 1,
-	PHOENIX_STATE_END = 2,
-};
-
 #define PHOENIX_VISIBLE_COUNT 5
-#define PHOENIX_FRAME_X 13
-#define PHOENIX_FRAME_Y 4
-#define PHOENIX_LIST_X 16
-#define PHOENIX_LIST_Y 5
-#define PHOENIX_TEXT_X 16
-#define PHOENIX_CURSOR_X 104
 #define PHOENIX_SCROLLBAR_X 200
 #define PHOENIX_SCROLLBAR_Y 40
 
@@ -39,22 +29,28 @@ static const int sPhoenixAdjTileOffsets[4][2] = {
 	{ 0, 1},
 };
 
-struct PhoenixStaffProc {
-	PROC_HEADER;
-	u8 cursor;
-	u8 scrollTop;
-	u8 unitCount;
-	u8 selectedUnit;
-	u8 placeX;
-	u8 placeY;
-	u8 unitIds[ARRAY_COUNT(gDeadUnits)];
-	struct Text texts[8];
-};
+extern bool sPhoenixMenuActive;
+extern u16 gUnknown_085A0D4C[];
+
+extern u8 sDeadUnitIds[50];
+extern u8 sDeadUnitCount;
 
 extern const struct ProcCmd ProcScr_PhoenixStaff[];
 extern const struct ProcCmd ProcScr_PhoenixRevive[];
 static u8 PhoenixStaff_OnSelectTarget(ProcPtr proc, struct SelectTarget *target);
 extern struct PopupInstruction const PhoenixStaffRevivedPopup[];
+
+STATIC_DECLAR const struct MenuItemDef PhoenixStaffMenuItems[];
+STATIC_DECLAR const struct MenuDef PhoenixStaffMenuDef;
+STATIC_DECLAR u8 PhoenixStaffMenu_OnCancel(struct MenuProc *menu, struct MenuItemProc *item);
+STATIC_DECLAR u8 PhoenixStaffMenu_HelpBox(struct MenuProc *menu, struct MenuItemProc *item);
+STATIC_DECLAR u8 PhoenixStaffMenu_Usability(const struct MenuItemDef *self, int number);
+STATIC_DECLAR int PhoenixStaffMenu_OnDraw(struct MenuProc *menu, struct MenuItemProc *item);
+STATIC_DECLAR int PhoenixStaffMenu_OnSwitchIn(struct MenuProc *menu, struct MenuItemProc *item);
+STATIC_DECLAR u8 PhoenixStaffMenu_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+static void PhoenixStaff_ResetMenuState(void);
+
+/* ─── Validation ─── */
 
 static bool PhoenixStaff_IsValidDeadUnit(struct Unit *unit)
 {
@@ -88,28 +84,214 @@ static bool PhoenixStaff_CanAnyDeadUnitBePlacedAt(int x, int y)
 	return false;
 }
 
+/* ─── Menu state helpers ─── */
+
+static void PhoenixStaff_ResetMenuState(void)
+{
+	sPhoenixMenuActive = false;
+	gList_Total = 0;
+	gTopVisibleListIndex = 0;
+}
+
+static int PhoenixStaff_GetVisibleCount(void)
+{
+	if (gList_Total < PHOENIX_VISIBLE_COUNT)
+		return gList_Total;
+
+	return PHOENIX_VISIBLE_COUNT;
+}
+
+static bool PhoenixStaff_ShouldShowScrollBar(void)
+{
+	return (gList_Total > PHOENIX_VISIBLE_COUNT);
+}
+
+static void PhoenixStaff_UpdateScrollBar(void)
+{
+	if (!PhoenixStaff_ShouldShowScrollBar())
+		return;
+
+	UpdateMenuScrollBarConfig(
+		gList_Total,
+		gTopVisibleListIndex * 16,
+		gList_Total,
+		PHOENIX_VISIBLE_COUNT);
+}
+
+static void PhoenixStaff_StartScrollBar(struct MenuProc *menu)
+{
+	if (!PhoenixStaff_ShouldShowScrollBar())
+		return;
+
+	StartMenuScrollBar(menu);
+	PutMenuScrollBarAt(PHOENIX_SCROLLBAR_X, PHOENIX_SCROLLBAR_Y);
+	InitMenuScrollBarImg(0x7A60, 2);
+	PhoenixStaff_UpdateScrollBar();
+}
+
+static void PhoenixStaff_EndScrollBar(void)
+{
+	if (!PhoenixStaff_ShouldShowScrollBar())
+		return;
+
+	EndMenuScrollBar();
+}
+
+/* ─── Unit list lookup (uses statics, no proc_parent cast) ─── */
+
+static struct Unit *PhoenixStaff_GetUnitForVisibleIndex(int itemNumber)
+{
+	int index = gTopVisibleListIndex + itemNumber;
+
+	if ((index < 0) || (index >= sDeadUnitCount))
+		return NULL;
+
+	return GetUnit(sDeadUnitIds[index]);
+}
+
+/* ─── Portrait (SummonPlus positions) ─── */
+
+static void PhoenixStaff_DrawPortrait(struct Unit *unit)
+{
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	CallARM_FillTileRect(gBG1TilemapBuffer + 0x42, gUnknown_085A0D4C, 0x1000);
+	PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetUnitPortraitId(unit), 0x200, 5);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+/* ─── Cancel / Select ─── */
+
+static void PhoenixStaff_CancelAction(void)
+{
+	gActionData.unitActionType = 0;
+	gActionData.unk08 = 0;
+	gActionData.targetIndex = 0;
+	PhoenixStaff_EndScrollBar();
+	PhoenixStaff_ResetMenuState();
+}
+
+static void PhoenixStaff_SelectUnit(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
+
+	if (!UNIT_IS_VALID(unit)) {
+		PhoenixStaff_CancelAction();
+		return;
+	}
+
+	gActionData.targetIndex = unit->index;
+	PhoenixStaff_EndScrollBar();
+	PhoenixStaff_ResetMenuState();
+}
+
+/* ─── Scroll handler (called from ProcessMenuDpadInput hook) ─── */
+
+bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
+{
+	int visibleCount = PhoenixStaff_GetVisibleCount();
+	int maxOffset = gList_Total - visibleCount;
+
+	if (!sPhoenixMenuActive)
+		return false;
+
+	if (visibleCount <= 0)
+		return false;
+
+	if (gList_Total <= visibleCount)
+		return false;
+
+	if (gKeyStatusPtr->repeatedKeys & DPAD_UP) {
+		if (menu->itemCurrent == 0) {
+			if (gTopVisibleListIndex > 0) {
+				gTopVisibleListIndex--;
+				RedrawMenu(menu);
+				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+				PhoenixStaff_UpdateScrollBar();
+				return true;
+			}
+
+			return true;
+		}
+	}
+
+	if (gKeyStatusPtr->repeatedKeys & DPAD_DOWN) {
+		if (menu->itemCurrent == (visibleCount - 1)) {
+			if (gTopVisibleListIndex < maxOffset) {
+				gTopVisibleListIndex++;
+				RedrawMenu(menu);
+				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
+				PhoenixStaff_UpdateScrollBar();
+				return true;
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/* ─── Menu UI init / cleanup ─── */
+
 static void PhoenixStaff_ClearUi(void)
 {
 	BG_Fill(gBG0TilemapBuffer, 0);
 	BG_Fill(gBG1TilemapBuffer, 0);
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
-	ResetUnitSprites();
-	RefreshUnitSprites();
-	SyncUnitSpriteSheet();
 	HideSysHandCursor();
 	EndMenuScrollBar();
+	PhoenixStaff_ResetMenuState();
+}
+
+static void PhoenixStaff_InitRoster(void)
+{
+	int count = 0;
+
+	sDeadUnitCount = 0;
+	gTopVisibleListIndex = 0;
+
+	for (int i = (int)ARRAY_COUNT(gDeadUnits) - 1; i >= 0; i--) {
+		u8 unitId = gDeadUnits[i];
+		struct Unit *unit;
+		bool duplicate = false;
+
+		if (unitId == 0)
+			continue;
+
+		for (int j = 0; j < count; j++) {
+			if (sDeadUnitIds[j] == unitId) {
+				duplicate = true;
+				break;
+			}
+		}
+
+		if (duplicate)
+			continue;
+
+		unit = GetUnit(unitId);
+		if (!PhoenixStaff_CanUnitBePlacedAt(unit, gActionData.xOther, gActionData.yOther))
+			continue;
+
+		sDeadUnitIds[count++] = unitId;
+	}
+
+	sDeadUnitCount = count;
+	gList_Total = count;
 }
 
 static void PhoenixStaff_StartMenu(ProcPtr proc)
 {
-	(void)proc;
-	Proc_Start(ProcScr_PhoenixStaff, PROC_TREE_3);
+	sPhoenixMenuActive = true;
+	Proc_StartBlocking(ProcScr_PhoenixStaff, proc);
 }
 
 static bool PhoenixStaff_MenuRunning(ProcPtr proc)
 {
 	(void)proc;
-	return Proc_Exists(ProcScr_PhoenixStaff);
+
+	return sPhoenixMenuActive;
 }
 
 static void PhoenixStaff_StartRevive(ProcPtr proc)
@@ -138,224 +320,131 @@ static void MakeTargetListForPhoenix(struct Unit *subject)
 	}
 }
 
-static void PhoenixStaff_InitRoster(struct PhoenixStaffProc *proc)
+static void PhoenixStaff_OnInit(ProcPtr proc)
 {
-	int count = 0;
-	int placeX = gActionData.xOther;
-	int placeY = gActionData.yOther;
+	struct MenuProc *menu;
 
-	proc->cursor = 0;
-	proc->scrollTop = 0;
-	proc->selectedUnit = 0;
-	proc->unitCount = 0;
-	proc->placeX = placeX;
-	proc->placeY = placeY;
+	PhoenixStaff_InitRoster();
 
-	for (int i = (int)ARRAY_COUNT(gDeadUnits) - 1; i >= 0; i--) {
-		u8 unitId = gDeadUnits[i];
-		struct Unit *unit;
-		bool duplicate = false;
-
-		if (unitId == 0)
-			continue;
-
-		for (int j = 0; j < count; j++) {
-			if (proc->unitIds[j] == unitId) {
-				duplicate = true;
-				break;
-			}
-		}
-
-		if (duplicate)
-			continue;
-
-		unit = GetUnit(unitId);
-		if (!PhoenixStaff_CanUnitBePlacedAt(unit, proc->placeX, proc->placeY))
-			continue;
-
-		proc->unitIds[count++] = unitId;
+	if (sDeadUnitCount == 0) {
+		PhoenixStaff_CancelAction();
+		return;
 	}
 
-	proc->unitCount = count;
+	gActionData.unk08 = ITEM_STAFF_PHOENIX;
 
-	for (int i = 0; i < 8; i++)
-		InitText(&proc->texts[i], 20);
+	menu = StartOrphanMenu(&PhoenixStaffMenuDef);
+	PhoenixStaff_StartScrollBar(menu);
+	StartSubtitleHelp(menu, GetStringFromIndex(MSG_ITEM_PHOENIX_STAFF_SUBTITLE));
 }
 
-static void PhoenixStaff_DrawRoster(struct PhoenixStaffProc *proc)
+/* ─── Menu item definitions (SummonPlus layout) ─── */
+
+STATIC_DECLAR const struct MenuItemDef PhoenixStaffMenuItems[] = {
+	{ .isAvailable = PhoenixStaffMenu_Usability, .onDraw = PhoenixStaffMenu_OnDraw, .onSelected = PhoenixStaffMenu_OnSelected, .onSwitchIn = PhoenixStaffMenu_OnSwitchIn },
+	{ .isAvailable = PhoenixStaffMenu_Usability, .onDraw = PhoenixStaffMenu_OnDraw, .onSelected = PhoenixStaffMenu_OnSelected, .onSwitchIn = PhoenixStaffMenu_OnSwitchIn },
+	{ .isAvailable = PhoenixStaffMenu_Usability, .onDraw = PhoenixStaffMenu_OnDraw, .onSelected = PhoenixStaffMenu_OnSelected, .onSwitchIn = PhoenixStaffMenu_OnSwitchIn },
+	{ .isAvailable = PhoenixStaffMenu_Usability, .onDraw = PhoenixStaffMenu_OnDraw, .onSelected = PhoenixStaffMenu_OnSelected, .onSwitchIn = PhoenixStaffMenu_OnSwitchIn },
+	{ .isAvailable = PhoenixStaffMenu_Usability, .onDraw = PhoenixStaffMenu_OnDraw, .onSelected = PhoenixStaffMenu_OnSelected, .onSwitchIn = PhoenixStaffMenu_OnSwitchIn },
+	{ 0 }
+};
+
+STATIC_DECLAR const struct MenuDef PhoenixStaffMenuDef = {
+	{15, 1, 12, 0},
+	0,
+	PhoenixStaffMenuItems,
+	0, 0, 0,
+	PhoenixStaffMenu_OnCancel,
+	MenuAutoHelpBoxSelect,
+	PhoenixStaffMenu_HelpBox
+};
+
+/* ─── Menu callbacks (SummonPlus draw pattern) ─── */
+
+u8 PhoenixStaffMenu_Usability(const struct MenuItemDef *self, int number)
 {
-	ClearSprites();
+	(void)self;
 
-	for (int i = 0; i < PHOENIX_VISIBLE_COUNT; i++) {
-		int index = proc->scrollTop + i;
-		int rowY = PHOENIX_LIST_Y + (i * 2);
+	if (number < PhoenixStaff_GetVisibleCount())
+		return MENU_ENABLED;
 
-		ClearText(&proc->texts[i]);
-		TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, PHOENIX_LIST_X, rowY), 12, 2, 0);
+	return MENU_NOTSHOWN;
+}
 
-		if (index >= proc->unitCount)
-			continue;
+int PhoenixStaffMenu_OnDraw(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
 
-		{
-			struct Unit *unit = GetUnit(proc->unitIds[index]);
-			int color = (index == proc->cursor) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE;
+	if (!UNIT_IS_VALID(unit))
+		return 0;
 
-			if (!PhoenixStaff_IsValidDeadUnit(unit))
-				continue;
+	Text_SetColor(&item->text, TEXT_COLOR_SYSTEM_GOLD);
 
-			Text_SetColor(&proc->texts[i], color);
-			PutDrawText(
-				&proc->texts[i],
-				TILEMAP_LOCATED(gBG0TilemapBuffer, PHOENIX_TEXT_X, rowY),
-				color,
-				0,
-				0,
-				GetStringFromIndex(unit->pCharacterData->nameTextId));
+	CallARM_FillTileRect(gBG1TilemapBuffer + 0x42, gUnknown_085A0D4C, 0x1000);
 
-			PutUnitSprite(0, 24, (rowY * 8) + 4, unit);
-		}
-	}
+	Text_DrawString(&item->text, GetStringFromIndex(unit->pCharacterData->nameTextId));
 
-	RefreshUnitSprites();
-	SyncUnitSpriteSheet();
+	if (item->itemNumber == menu->itemCurrent)
+		PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, GetUnitPortraitId(unit), 0x200, 5);
 
-	if (proc->unitCount > PHOENIX_VISIBLE_COUNT) {
-		UpdateMenuScrollBarConfig(
-			10,
-			proc->scrollTop * 16,
-			proc->unitCount,
-			PHOENIX_VISIBLE_COUNT);
-	}
-
-	if ((proc->cursor >= proc->scrollTop) && (proc->cursor < proc->scrollTop + PHOENIX_VISIBLE_COUNT))
-		ShowSysHandCursor(PHOENIX_CURSOR_X, PHOENIX_SCROLLBAR_Y + ((proc->cursor - proc->scrollTop) * 16), 10, 0x800);
+	PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 1, item->yTile));
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+	return 0;
 }
 
-static void PhoenixStaff_InitUi(struct PhoenixStaffProc *proc)
+int PhoenixStaffMenu_OnSwitchIn(struct MenuProc *menu, struct MenuItemProc *item)
 {
-	gLCDControlBuffer.dispcnt.mode = 0;
-	// SetupBackgrounds(NULL);
-	// BG_Fill(BG_GetMapBuffer(0), 0);
-	// BG_Fill(BG_GetMapBuffer(1), 0);
+	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
 
-	// gLCDControlBuffer.bg0cnt.priority = 0;
-	// gLCDControlBuffer.bg1cnt.priority = 2;
-	// gLCDControlBuffer.bg2cnt.priority = 1;
-	// gLCDControlBuffer.bg3cnt.priority = 3;
+	if (UNIT_IS_VALID(unit))
+		PhoenixStaff_DrawPortrait(unit);
 
-	ResetText();
-	LoadUiFrameGraphics();
-	LoadObjUIGfx();
-	ApplyUnitSpritePalettes();
-	StartUiCursorHand(proc);
-	ResetSysHandCursor(proc);
-	DisplaySysHandCursorTextShadow(0x600, 1);
-
-	DrawUiFrame2(PHOENIX_FRAME_X, PHOENIX_FRAME_Y, 12, 12, 0);
-	StartMenuScrollBar(proc);
-	PutMenuScrollBarAt(PHOENIX_SCROLLBAR_X, PHOENIX_SCROLLBAR_Y);
-	InitMenuScrollBarImg(0x7A60, 2);
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
-	PhoenixStaff_DrawRoster(proc);
+	return 0;
 }
 
-static void PhoenixStaff_EndUi(struct PhoenixStaffProc *proc)
+u8 PhoenixStaffMenu_HelpBox(struct MenuProc *menu, struct MenuItemProc *item)
 {
-	(void)proc;
-	PhoenixStaff_ClearUi();
-	ResetText();
+	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
+
+	if (!UNIT_IS_VALID(unit))
+		return 0;
+
+	StartHelpBox(item->xTile * 8, item->yTile * 8, unit->pCharacterData->descTextId);
+
+	return 0;
 }
 
-static void PhoenixStaff_HandleSelect(struct PhoenixStaffProc *proc)
+u8 PhoenixStaffMenu_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 {
-	if (proc->unitCount == 0)
-		return;
+	PhoenixStaff_SelectUnit(menu, item);
 
-	proc->selectedUnit = proc->unitIds[proc->cursor];
-	gActionData.targetIndex = proc->selectedUnit;
-	PhoenixStaff_EndUi(proc);
-	Proc_Goto(proc, PHOENIX_STATE_END);
+	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
-static void PhoenixStaff_HandleCancel(struct PhoenixStaffProc *proc)
+u8 PhoenixStaffMenu_OnCancel(struct MenuProc *menu, struct MenuItemProc *item)
 {
-	gActionData.unitActionType = 0;
-	gActionData.unk08 = 0;
-	gActionData.targetIndex = 0;
-	PhoenixStaff_EndUi(proc);
-	Proc_Goto(proc, PHOENIX_STATE_END);
+	HideMoveRangeGraphics();
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+	PhoenixStaff_CancelAction();
+
+	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
 static u8 PhoenixStaff_OnSelectTarget(ProcPtr proc, struct SelectTarget *target)
 {
 	gActionData.subjectIndex = gActiveUnit->index;
+	gActionData.targetIndex = target->uid;
 	gActionData.xOther = target->x;
 	gActionData.yOther = target->y;
+	HideMoveRangeGraphics();
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
 	gActionData.unk08 = ITEM_STAFF_PHOENIX;
 
-	return TARGETSELECTION_ACTION_ENDFAST | TARGETSELECTION_ACTION_END | TARGETSELECTION_ACTION_SE_6A |
-		TARGETSELECTION_ACTION_CLEARBGS;
-}
-
-static void PhoenixStaff_OnInit(struct PhoenixStaffProc *proc)
-{
-	PhoenixStaff_InitRoster(proc);
-
-	if (proc->unitCount == 0) {
-		PhoenixStaff_HandleCancel(proc);
-		return;
-	}
-
-	PhoenixStaff_InitUi(proc);
-}
-
-static void PhoenixStaff_OnLoop(struct PhoenixStaffProc *proc)
-{
-	bool scrolled = false;
-
-	if (proc->unitCount == 0) {
-		Proc_Goto(proc, PHOENIX_STATE_END);
-		return;
-	}
-
-	if (gKeyStatusPtr->newKeys & B_BUTTON) {
-		PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-		PhoenixStaff_HandleCancel(proc);
-		return;
-	}
-
-	if (gKeyStatusPtr->newKeys & A_BUTTON) {
-		PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-		PhoenixStaff_HandleSelect(proc);
-		return;
-	}
-
-	if (gKeyStatusPtr->repeatedKeys & DPAD_UP) {
-		if (proc->cursor > 0) {
-			proc->cursor--;
-			scrolled = true;
-		}
-	}
-
-	if (gKeyStatusPtr->repeatedKeys & DPAD_DOWN) {
-		if (proc->cursor < proc->unitCount - 1) {
-			proc->cursor++;
-			scrolled = true;
-		}
-	}
-
-	if (proc->cursor < proc->scrollTop)
-		proc->scrollTop = proc->cursor;
-
-	if (proc->cursor >= proc->scrollTop + PHOENIX_VISIBLE_COUNT)
-		proc->scrollTop = proc->cursor - PHOENIX_VISIBLE_COUNT + 1;
-
-	if (scrolled) {
-		PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
-		PhoenixStaff_DrawRoster(proc);
-	}
+	return TARGETSELECTION_ACTION_ENDFAST | TARGETSELECTION_ACTION_END | TARGETSELECTION_ACTION_SE_6A | TARGETSELECTION_ACTION_CLEARBGS;
 }
 
 static bool PhoenixStaff_HasEligibleTargets(struct Unit *unit)
@@ -414,7 +503,7 @@ static void PhoenixStaff_ShowPopup(ProcPtr proc)
 {
 	struct Unit *target = GetUnit(gActionData.targetIndex);
 
-	if (PhoenixStaff_IsValidDeadUnit(target)) {
+	if (UNIT_IS_VALID(target)) {
 		SetPopupUnit(target);
 		NewPopup_Simple(PhoenixStaffRevivedPopup, 0x5A, 0, proc);
 	}
@@ -452,25 +541,14 @@ STATIC_DECLAR const struct ProcCmd ProcScr_PhoenixAction[] = {
 };
 
 STATIC_DECLAR const struct ProcCmd ProcScr_PhoenixStaff[] = {
-	PROC_NAME("PhoenixStaff"),
-	PROC_YIELD,
-	PROC_SET_END_CB(PhoenixStaff_EndUi),
 	PROC_CALL(PhoenixStaff_OnInit),
-
-	PROC_LABEL(PHOENIX_STATE_INIT),
-	PROC_GOTO(PHOENIX_STATE_IDLE),
-
-	PROC_LABEL(PHOENIX_STATE_IDLE),
-	PROC_REPEAT(PhoenixStaff_OnLoop),
-
-	PROC_LABEL(PHOENIX_STATE_END),
+	PROC_WHILE(PhoenixStaff_MenuRunning),
+	PROC_CALL(PhoenixStaff_ClearUi),
 	PROC_END,
 };
 
 bool IER_Usability_Phoenix(struct Unit *unit, int item)
 {
-	(void)item;
-
 	if (unit->state & US_CANTOING)
 		return false;
 
@@ -479,11 +557,8 @@ bool IER_Usability_Phoenix(struct Unit *unit, int item)
 
 void IER_Effect_Phoenix(struct Unit *unit, int item)
 {
-	(void)item;
-
 	gActionData.unk08 = ITEM_STAFF_PHOENIX;
 	gActionData.subjectIndex = unit->index;
-	gActionData.targetIndex = 0;
 	SetStaffUseAction(unit);
 
 	MakeTargetListForPhoenix(unit);
@@ -494,7 +569,5 @@ void IER_Effect_Phoenix(struct Unit *unit, int item)
 
 void IER_Action_Phoenix(ProcPtr proc, struct Unit *unit, int item)
 {
-	(void)unit;
-	(void)item;
 	Proc_StartBlocking(ProcScr_PhoenixAction, proc);
 }

@@ -121,6 +121,9 @@ _kernel_malloc sArenaRosterSuspendState, 33
 _kernel_malloc gStartMapEffectsUnlockMask, 2
 _kernel_malloc sStartMapEffectsTexts, 5 * 8
 _kernel_malloc sStartMapEffectsSuspendState, 4
+_kernel_malloc sPhoenixMenuActive, 2
+_kernel_malloc sDeadUnitIds, 50
+_kernel_malloc sDeadUnitCount, 2
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even

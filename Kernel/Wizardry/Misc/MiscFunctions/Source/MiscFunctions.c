@@ -1162,6 +1162,9 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         return;
 #endif
 
+    if ((gActionData.unk08 == ITEM_STAFF_PHOENIX) && PhoenixStaff_HandleMenuScroll(proc))
+        return;
+
     // Handle Up key
     if (gKeyStatusPtr->repeatedKeys & DPAD_UP)
     {

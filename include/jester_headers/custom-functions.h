@@ -19,6 +19,8 @@ extern void MakeTargetListForAdjacentUnits(struct Unit* unit);
 extern void TryAddUnitToRangedStatusStavesTargetList(struct Unit* unit);
 extern void MakeTargetListForRangedStatusStaves(struct Unit* unit);
 
+bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu);
+
 extern void ExecCustomStaves(ProcPtr proc);
 extern void TryAddUnitToSlowTargetList(struct Unit* unit);
 extern void MakeTargetListForSlow(struct Unit *unit);
