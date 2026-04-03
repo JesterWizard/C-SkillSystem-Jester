@@ -65,3 +65,7 @@ void LoadDeadUnits(u8 *src, const u32 size);
 extern u16 gPalEfxHpBarRed[];
 extern u16 gPalEfxHpBarYellow[];
 extern u16 gPalEfxHpBarBlue[];
+
+extern const struct ProcCmd ProcScr_PhoenixStaff[];
+extern const struct ProcCmd ProcScr_PhoenixRevive[];
+extern const struct PopupInstruction PhoenixStaffRevivedPopup[];

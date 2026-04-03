@@ -7,6 +7,7 @@
 #include "unitlistscreen.h"
 #include "constants/skills.h"
 #include "item-sys.h"
+#include "jester_headers/custom-arrays.h"
 
 LYN_REPLACE_CHECK(StartStatScreenHelp);
 void StartStatScreenHelp(int pageid, struct Proc *proc)
@@ -116,7 +117,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
     /* Don't provide the extra text box tiles if we're using any of the procs in this list */
     if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
     {
-        const struct ProcCmd * procExceptionsList[14] = 
+        const struct ProcCmd * procExceptionsList[15] = 
         {
             ProcScr_SaveMenu,
             gProcScr_SaveMenuPostChapter,
@@ -132,6 +133,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
             gProcScr_DrawPrepFundsSprite,
             gProcScr_PrepWMShopSell,
             ProcScr_SlidingWallBg,
+            ProcScr_PhoenixStaff,
         };
 
         FORCE_DECLARE bool procFound = false;

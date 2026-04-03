@@ -117,7 +117,7 @@ void EndFaceChibiSpr(void);
 void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info);
 void PutFace80x72_Raised(u16 * tm, int tileref, const struct FaceData* info);
 s8 ShouldFaceBeRaised(int fid);
-void PutFace80x72_Core(u16*, int, int, int);
+void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal);
 void sub_8005D64(struct FaceBlinkProc*);
 void sub_8005D70(struct FaceBlinkProc*);
 void sub_8005D98(struct FaceBlinkProc*);
