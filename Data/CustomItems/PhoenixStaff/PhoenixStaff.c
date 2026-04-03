@@ -475,7 +475,7 @@ static void PhoenixStaff_Exec(ProcPtr proc)
 		return;
 
 	BattleInitItemEffect(unit, gActionData.itemSlotIndex);
-	BattleInitItemEffectTarget(target);
+	BattleInitItemEffectTarget(unit);
 
 	target->state &= ~(US_HIDDEN | US_UNSELECTABLE | US_DEAD);
 	target->xPos = gActionData.xOther;
@@ -505,6 +505,25 @@ static bool PhoenixStaff_PopupRunning(ProcPtr proc)
 	return Proc_Exists(ProcScr_Popup);
 }
 
+static void PhoenixStaff_ShowExpBar(ProcPtr proc)
+{
+    struct Unit *unit = GetUnit(gActionData.subjectIndex);
+    int expGain = StaffEXP(ITEM_STAFF_PHOENIX); // replace with your actual gain
+
+    if (!UNIT_IS_VALID(unit))
+        return;
+
+    if (expGain <= 0)
+        return;
+
+    // If the unit already got updated, use stored old exp instead of unit->exp here.
+    struct MAExpBarProc *barProc = Proc_StartBlocking(ProcScr_MapAnimExpBar, proc);
+
+    barProc->expFrom = unit->exp;
+    barProc->expTo   = unit->exp + expGain;
+    barProc->actorId = 0;
+}
+
 const struct PopupInstruction PhoenixStaffRevivedPopup[] = {
 	POPUP_SOUND(0x5A),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
@@ -515,13 +534,20 @@ const struct PopupInstruction PhoenixStaffRevivedPopup[] = {
 	POPUP_END,
 };
 
+static bool PhoenixStaff_ExpBarRunning(ProcPtr proc)
+{
+	return Proc_Exists(ProcScr_MapAnimExpBar);
+}
+
 const struct ProcCmd ProcScr_PhoenixRevive[] = {
-	PROC_CALL(PhoenixStaff_Anim),
-	PROC_WHILE(PhoenixStaff_IsAnimRunning),
-	PROC_CALL(PhoenixStaff_Exec),
-	PROC_CALL(PhoenixStaff_ShowPopup),
-	PROC_WHILE(PhoenixStaff_PopupRunning),
-	PROC_END,
+    PROC_CALL(PhoenixStaff_Anim),
+    PROC_WHILE(PhoenixStaff_IsAnimRunning),
+    PROC_CALL(PhoenixStaff_Exec),
+    PROC_CALL(PhoenixStaff_ShowPopup),
+    PROC_WHILE(PhoenixStaff_PopupRunning),
+    PROC_CALL(PhoenixStaff_ShowExpBar),
+	PROC_WHILE(PhoenixStaff_ExpBarRunning),
+    PROC_END
 };
 
 const struct ProcCmd ProcScr_PhoenixStaff[] = {

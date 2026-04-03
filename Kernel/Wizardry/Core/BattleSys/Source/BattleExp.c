@@ -5,13 +5,14 @@
 #include "constants/skills.h"
 #include "debuff.h"
 #include "strmag.h"
+#include "jester_headers/custom-functions.h"
 
 static bool CustomStavesEnabled(void)
 {
     return gpKernelDesignerConfig->custom_staves == true;
 }
 
-inline static int StaffEXP(int weapon)
+int StaffEXP(int weapon)
 {
     int exp = 0;
 
