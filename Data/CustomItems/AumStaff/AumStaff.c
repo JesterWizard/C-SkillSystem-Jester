@@ -131,7 +131,7 @@ struct PopupInstruction const AumRevivedPopup[] = {
 	POPUP_UNIT_NAME,
 	POPUP_SPACE(2),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-	POPUP_MSG(MSG_AumUnitRevived),
+	POPUP_MSG(MSG_UnitRevived),
 	POPUP_END,
 };
 

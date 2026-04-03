@@ -6,18 +6,9 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
-#include "bmfx.h"
 #include "mapanim.h"
 #include "popup.h"
-#include "bmitemuse.h"
-#include "bmtarget.h"
-#include "bm.h"
-#include "bmudisp.h"
 #include "prepscreen.h"
-#include "proc.h"
-#include "kernel/no-cash-gba.h"
-#include "uimenu.h"
-#include "sysutil.h"
 
 #define PHOENIX_VISIBLE_COUNT 5
 #define PHOENIX_SCROLLBAR_X 216
@@ -120,15 +111,11 @@ static void PhoenixStaff_UpdateScrollBar(void)
 
 static void PhoenixStaff_StartScrollBar(struct MenuProc *menu)
 {
-	NoCashGBAPrintf("[Phoenix] StartScrollBar deadCount=%d visible=%d\n", sDeadUnitCount, PHOENIX_VISIBLE_COUNT);
-
 	if (!PhoenixStaff_ShouldShowScrollBar())
 	{
-		NoCashGBAPrintf("[Phoenix] StartScrollBar skipped deadCount=%d\n", sDeadUnitCount);
 		return;
 	}
 
-	NoCashGBAPrintf("[Phoenix] StartScrollBar show bar at x=%d y=%d\n", PHOENIX_SCROLLBAR_X, PHOENIX_SCROLLBAR_Y);
 	StartMenuScrollBar(menu);
 	PutMenuScrollBarAt(PHOENIX_SCROLLBAR_X, PHOENIX_SCROLLBAR_Y);
 	InitMenuScrollBarImg(0x7A60, 2);
@@ -185,18 +172,20 @@ static void PhoenixStaff_CancelAction(void)
 	PhoenixStaff_ResetMenuState();
 }
 
-static void PhoenixStaff_SelectUnit(struct MenuProc *menu, struct MenuItemProc *item)
+static bool PhoenixStaff_SelectUnit(struct MenuProc *menu, struct MenuItemProc *item)
 {
 	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
 
 	if (!UNIT_IS_VALID(unit) || !PhoenixStaff_CanUnitBePlacedAt(unit, gActionData.xOther, gActionData.yOther)) {
 		PhoenixStaff_CancelAction();
-		return;
+		return false;
 	}
 
 	gActionData.targetIndex = unit->index;
 	PhoenixStaff_EndScrollBar();
 	PhoenixStaff_ResetMenuState();
+
+	return true;
 }
 
 /* ─── Scroll handler (called from ProcessMenuDpadInput hook) ─── */
@@ -205,14 +194,6 @@ bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
 {
 	int visibleCount = PhoenixStaff_GetVisibleCount();
 	int maxOffset = sDeadUnitCount - visibleCount;
-
-	NoCashGBAPrintf("[Phoenix] HandleMenuScroll active=%d cur=%d top=%d total=%d visible=%d keys=%04x\n",
-		sPhoenixMenuActive,
-		menu->itemCurrent,
-		gTopVisibleListIndex,
-		sDeadUnitCount,
-		visibleCount,
-		gKeyStatusPtr->repeatedKeys);
 
 	if (!sPhoenixMenuActive)
 		return false;
@@ -226,7 +207,6 @@ bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
 	if (gKeyStatusPtr->repeatedKeys & DPAD_UP) {
 		if (menu->itemCurrent == 0) {
 			if (gTopVisibleListIndex > 0) {
-				NoCashGBAPrintf("[Phoenix] ScrollUp top->%d\n", gTopVisibleListIndex - 1);
 				gTopVisibleListIndex--;
 				RedrawMenu(menu);
 				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
@@ -241,7 +221,6 @@ bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
 	if (gKeyStatusPtr->repeatedKeys & DPAD_DOWN) {
 		if (menu->itemCurrent == (visibleCount - 1)) {
 			if (gTopVisibleListIndex < maxOffset) {
-				NoCashGBAPrintf("[Phoenix] ScrollDown top->%d\n", gTopVisibleListIndex + 1);
 				gTopVisibleListIndex++;
 				RedrawMenu(menu);
 				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
@@ -273,8 +252,6 @@ static void PhoenixStaff_InitRoster(void)
 	sDeadUnitCount = GetDeadUnitCount();
 	gList_Total = sDeadUnitCount;
 	gTopVisibleListIndex = 0;
-
-	NoCashGBAPrintf("[Phoenix] InitRoster deadCount=%d listTotal=%d\n", sDeadUnitCount, gList_Total);
 }
 
 static bool PhoenixStaff_MenuRunning(ProcPtr proc)
@@ -307,20 +284,16 @@ static void PhoenixStaff_OnInit(ProcPtr proc)
 	struct MenuProc *menu;
 
 	PhoenixStaff_InitRoster();
-	NoCashGBAPrintf("[Phoenix] OnInit after roster deadCount=%d\n", sDeadUnitCount);
 
 	if (sDeadUnitCount == 0) {
-		NoCashGBAPrint("[Phoenix] OnInit no dead units, cancel\n");
 		PhoenixStaff_CancelAction();
 		return;
 	}
 
 	gActionData.unk08 = ITEM_STAFF_PHOENIX;
 	sPhoenixMenuActive = true;
-	NoCashGBAPrint("[Phoenix] OnInit set active=1\n");
 
 	menu = StartOrphanMenu(&PhoenixStaffMenuDef);
-	NoCashGBAPrintf("[Phoenix] OnInit menu started itemCount=%d\n", menu->itemCount);
 	PhoenixStaff_StartScrollBar(menu);
 	StartSubtitleHelp(menu, GetStringFromIndex(MSG_ITEM_PHOENIX_STAFF_SUBTITLE));
 }
@@ -352,8 +325,6 @@ u8 PhoenixStaffMenu_Usability(const struct MenuItemDef *self, int number)
 {
 	(void)self;
 
-	NoCashGBAPrintf("[Phoenix] Usability num=%d visible=%d deadCount=%d\n", number, PhoenixStaff_GetVisibleCount(), sDeadUnitCount);
-
 	if (number < PhoenixStaff_GetVisibleCount()) {
 		struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(number);
 
@@ -369,13 +340,6 @@ u8 PhoenixStaffMenu_Usability(const struct MenuItemDef *self, int number)
 int PhoenixStaffMenu_OnDraw(struct MenuProc *menu, struct MenuItemProc *item)
 {
 	struct Unit *unit = PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber);
-
-	NoCashGBAPrintf("[Phoenix] OnDraw num=%d cur=%d top=%d unit=%d avail=%d\n",
-		item->itemNumber,
-		menu->itemCurrent,
-		gTopVisibleListIndex,
-		unit ? unit->index : 0,
-		item->availability);
 
 	if (!UNIT_IS_VALID(unit))
 		return 0;
@@ -424,15 +388,16 @@ u8 PhoenixStaffMenu_HelpBox(struct MenuProc *menu, struct MenuItemProc *item)
 
 u8 PhoenixStaffMenu_OnSelected(struct MenuProc *menu, struct MenuItemProc *item)
 {
-	NoCashGBAPrintf("[Phoenix] OnSelected num=%d cur=%d top=%d target=%d\n",
-		item->itemNumber,
-		menu->itemCurrent,
-		gTopVisibleListIndex,
-		PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber) ? PhoenixStaff_GetUnitForVisibleIndex(item->itemNumber)->index : 0);
+	ProcPtr playerPhaseProc = Proc_Find(gProcScr_PlayerPhase);
 
-	PhoenixStaff_SelectUnit(menu, item);
+	if (!PhoenixStaff_SelectUnit(menu, item))
+		return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+
 	PhoenixStaff_ClearUi();
-	Proc_StartBlocking(ProcScr_PhoenixRevive, (ProcPtr)menu);
+	if (playerPhaseProc == NULL)
+		playerPhaseProc = (ProcPtr)menu;
+
+	Proc_StartBlocking(ProcScr_PhoenixRevive, playerPhaseProc);
 
 	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
@@ -492,13 +457,14 @@ static void PhoenixStaff_Exec(ProcPtr proc)
 	struct Unit *unit = GetUnit(gActionData.subjectIndex);
 	struct Unit *target = GetUnit(gActionData.targetIndex);
 
-	NoCashGBAPrintf("[Phoenix] Exec subject=%d target=%d x=%d y=%d\n",
-		gActionData.subjectIndex,
-		gActionData.targetIndex,
-		gActionData.xOther,
-		gActionData.yOther);
 
-	if (!UNIT_IS_VALID(unit) || !PhoenixStaff_IsValidDeadUnit(target))
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	if (!UNIT_IS_VALID(target))
+		return;
+
+	if (!PhoenixStaff_IsValidDeadUnit(target))
 		return;
 
 	BattleInitItemEffect(unit, gActionData.itemSlotIndex);
@@ -511,7 +477,6 @@ static void PhoenixStaff_Exec(ProcPtr proc)
 	target->rescue = 0;
 
 	RemoveDeadUnit(target->index);
-
 	RefreshEntityBmMaps();
 	RenderBmMap();
 	RefreshUnitSprites();
