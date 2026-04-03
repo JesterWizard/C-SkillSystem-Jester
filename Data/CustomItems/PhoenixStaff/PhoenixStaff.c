@@ -216,7 +216,6 @@ bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
 				gTopVisibleListIndex--;
 				RedrawMenu(menu);
 				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
-				PhoenixStaffMenu_HelpBox(menu, menu->menuItems[menu->itemCurrent]);
 				PhoenixStaff_UpdateScrollBar();
 				return true;
 			}
@@ -231,7 +230,6 @@ bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu)
 				gTopVisibleListIndex++;
 				RedrawMenu(menu);
 				DrawMenuItemHover(menu, menu->itemCurrent, TRUE);
-				PhoenixStaffMenu_HelpBox(menu, menu->menuItems[menu->itemCurrent]);
 				PhoenixStaff_UpdateScrollBar();
 				return true;
 			}
@@ -452,7 +450,8 @@ static bool PhoenixStaff_HasEligibleTargets(struct Unit *unit)
 
 static void PhoenixStaff_Anim(ProcPtr proc)
 {
-	StartLightRuneAnim(proc, gActionData.xOther, gActionData.yOther);
+	// There is an issue with this rght now where the coordinates in gActionData are not respected and the light rune animation appears in a static position
+	// StartLightRuneAnim(proc, gActionData.xOther, gActionData.yOther);
 }
 
 static bool PhoenixStaff_IsAnimRunning(ProcPtr proc)

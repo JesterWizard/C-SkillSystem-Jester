@@ -73,6 +73,7 @@ inline static int StaffEXP(int weapon)
         exp = 30;
         break;
     case ITEM_STAFF_RESCUE:
+    case ITEM_STAFF_AUM:
         exp = 50;
         break;
     case ITEM_STAFF_WARP:
@@ -83,6 +84,7 @@ inline static int StaffEXP(int weapon)
         exp = 70;
         break;
     case ITEM_STAFF_LATONA:
+    case ITEM_STAFF_PHOENIX:
         exp = 100;
         break;
 

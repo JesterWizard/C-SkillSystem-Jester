@@ -32,15 +32,19 @@ void AddDeadUnit(u8 unitId)
 	if (UNIT_FACTION(unit) != FACTION_BLUE)
 		return;
 
-    for (int i = 0; i < (int)ARRAY_COUNT(gDeadUnits); i++)
-    {
-        if (gDeadUnits[i] == 0x00)  // sentinel
-        {
-            gDeadUnits[i] = unitId;
-            return; // added
-        }
-    }
-    // array full → ignore overflow
+	for (int i = 0; i < (int)ARRAY_COUNT(gDeadUnits); i++)
+	{
+		if (gDeadUnits[i] == unitId)
+			return;
+
+		if (gDeadUnits[i] != 0x00)
+			continue;
+
+		gDeadUnits[i] = unitId;
+		return;
+	}
+
+	// array full -> ignore overflow
 }
 
 void RemoveDeadUnit(u8 unitId)
