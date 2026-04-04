@@ -228,6 +228,20 @@ PostBattleSupports.ClearOutLoop:
     cmp     r1, #0x10
     ble     PostBattleSupports.ClearOutLoop
 
+    ldrb    r0, [r4, #0x13]
+    cmp     r0, #0x00
+    bne     PostBattleSupports.CheckDefenderHp
+    b       PostBattleSupports.end
+
+PostBattleSupports.CheckDefenderHp:
+
+    ldrb    r0, [r5, #0x13]
+    cmp     r0, #0x00
+    bne     PostBattleSupports.CheckTargetState
+    b       PostBattleSupports.end
+
+PostBattleSupports.CheckTargetState:
+
     mov     r1, #0xB				@allegiance
     ldsb    r1, [r4, r1]
     mov     r0, #0xC0				@don't give bonuses if npc or enemy

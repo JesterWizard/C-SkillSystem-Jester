@@ -154,7 +154,15 @@ int GetUnitSupportLevel(struct Unit *unit, int num)
 LYN_REPLACE_CHECK(UnitGainSupportExp);
 void UnitGainSupportExp(struct Unit * unit, int num)
 {
-    u8 * supp = GetUnitBwlSupports(UNIT_CHAR_ID(unit));
+	if (!UNIT_IS_VALID(unit) || unit->curHP == 0)
+		return;
+
+	struct Unit * other = GetUnitSupporterUnit(unit, num);
+
+	if (!UNIT_ALIVE(other) || other->curHP == 0)
+		return;
+
+	u8 * supp = GetUnitBwlSupports(UNIT_CHAR_ID(unit));
 
     if (UNIT_SUPPORT_DATA(unit) && supp)
     {
@@ -178,8 +186,6 @@ void UnitGainSupportExp(struct Unit * unit, int num)
 
         int currentExp = supp[num];
         int maxExp = sSupportMaxExpLookup[GetUnitSupportLevel(unit, num)];
-
-        FORCE_DECLARE struct Unit * other = GetUnitSupporterUnit(unit, num);
 
 #if defined(SID_SocialButterfly) && (COMMON_SKILL_VALID(SID_SocialButterfly))
         if (SkillTester(unit, SID_SocialButterfly) || SkillTester(other, SID_SocialButterfly))

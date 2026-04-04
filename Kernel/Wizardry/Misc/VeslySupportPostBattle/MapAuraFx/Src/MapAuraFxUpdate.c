@@ -255,7 +255,7 @@ void SetMapAuraFxPalette(const u16 palette[])
 
 void AddMapAuraFxUnit(struct Unit* unit)
 {
-	if (UNIT_IS_VALID(unit) && unit->pMapSpriteHandle)
+	if (UNIT_IS_VALID(unit) && unit->curHP != 0 && unit->pMapSpriteHandle)
 	{
 		struct MapAuraFxProc* parent = (struct MapAuraFxProc*) Proc_Find(sProc_MapAuraFx);
 
