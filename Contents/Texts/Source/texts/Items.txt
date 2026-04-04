@@ -196,6 +196,21 @@ adjacent tile.[X]
 ## MSG_ITEM_PHOENIX_STAFF_SUBTITLE
 Choose a fallen ally to revive.[X]
 
+## MSG_ITEM_SKILL_STAFF_NAME
+Skill Staff[X]
+## MSG_ITEM_SKILL_STAFF_DESC
+Grant one of several skills[N]
+to an adjacent ally for[N]
+3 turns.[X]
+## MSG_ITEM_SKILL_STAFF_USEDESC
+Choose an adjacent[N]
+ally to grant a[N]
+skill to for 3 turns.[X]
+## MSG_ITEM_SKILL_STAFF_SUBTITLE
+Select an adjacent ally.[X]
+## MSG_ITEM_SKILL_STAFF_SKILL_SUBTITLE
+Select a skill to learn.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

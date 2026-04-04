@@ -16,6 +16,7 @@ gPrePhaseFuncs:
     POIN PrePhase_LaguzBars
 
     POIN PrePhase_ApplyMpStartingAmount
+    POIN PrePhase_TickSkillStaffTempState
 
     POIN PrePhaseFunc_AversaNight
     POIN PrePhaseFunc_HoneFortify

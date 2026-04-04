@@ -76,6 +76,7 @@ Use this skill when adding a new custom staff item that needs item data, item-ef
 - Keep visible lists short when possible; use scroll bars only when the list must exceed the visible window.
 - Draw map sprites or icons in the menu only if they help the user choose correctly.
 - Put cleanup in the menu end handler so cursors, sprites, and worker procs are always released.
+- Avoid using `EndTargetSelection` as the handoff point for a blocking menu proc unless the surrounding proc ownership is already correct; starting the menu from the wrong parent can leave the active unit sprite softlocked even when the menu appears.
 
 ### 6. Execution Flow
 

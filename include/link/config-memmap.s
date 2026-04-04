@@ -117,7 +117,9 @@ _kernel_malloc gEventReplay_ChapterScrollIndex, 1
 _kernel_malloc sWmManageSkillsEmpty, 2
 _kernel_malloc sWmManageSkillsMode, 2
 _kernel_malloc sArenaRosterRuntimeState, 4
-_kernel_malloc sArenaRosterSuspendState, 33
+_kernel_malloc sArenaRosterSuspendState, 34
+_kernel_malloc sSkillStaffMenuState, 16
+_kernel_malloc sSkillStaffSuspendState, 68
 _kernel_malloc gStartMapEffectsUnlockMask, 2
 _kernel_malloc sStartMapEffectsTexts, 5 * 8
 _kernel_malloc sStartMapEffectsSuspendState, 4

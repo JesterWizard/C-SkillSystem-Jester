@@ -18,6 +18,7 @@
 #include "RewarpStaff/Installer.event"
 #include "AumStaff/Installer.event"
 #include "PhoenixStaff/Installer.event"
+#include "SkillStaff/Installer.event"
 #include "PoisonStaff/Installer.event"
 #include "DelayStaff/Installer.event"
 #include "EntrapStaff/Installer.event"

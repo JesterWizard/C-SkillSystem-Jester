@@ -43,6 +43,7 @@ int StaffEXP(int weapon)
         case ITEM_STAFF_PETRIFY:
         case ITEM_STAFF_SOOTH:
         case ITEM_STAFF_ENFEEBLE:
+        case ITEM_STAFF_SKILL:
             return 30;
 
         case ITEM_STAFF_ENTRAP:
