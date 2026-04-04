@@ -12,6 +12,13 @@ static bool CustomStavesEnabled(void)
     return gpKernelDesignerConfig->custom_staves == true;
 }
 
+static bool CanUnitGainBattleExp(struct Unit *unit)
+{
+    return UNIT_FACTION(unit) == FACTION_BLUE
+        && unit->exp != UNIT_EXP_DISABLED
+        && unit->curHP > 0;
+}
+
 int StaffEXP(int weapon)
 {
     int exp = 0;
@@ -304,6 +311,9 @@ static void ApplyReplicateExpGain(struct BattleUnit *bu)
 
 static void ApplyBattleUnitExpGain(struct BattleUnit *bu, struct BattleUnit *opponent)
 {
+    if (!CanUnitGainBattleExp(&bu->unit))
+        return;
+
     bu->expGain = GetBattleUnitExpGainRework(bu, opponent);
 
     if (GetUnitStatusIndex(GetUnit(bu->unit.index)) == NEW_UNIT_STATUS_REPLICATE) {
@@ -384,6 +394,9 @@ void BattleApplyItemExpGains(void)
     if (gPlaySt.chapterStateBits & PLAY_FLAG_EXTRA_MAP)
         return;
 
+    if (!CanUnitGainBattleExp(&gBattleActor.unit))
+        return;
+
 #if CHAX
     ResetPopupSkillStack();
 #endif
@@ -411,8 +424,8 @@ void BattleApplyExpGains(void)
 {
     if (!(gPlaySt.chapterStateBits & PLAY_FLAG_EXTRA_MAP))
     {
-        bool actorBlue  = (UNIT_FACTION(&gBattleActor.unit)  == FACTION_BLUE);
-        bool targetBlue = (UNIT_FACTION(&gBattleTarget.unit) == FACTION_BLUE);
+        bool actorBlue  = CanUnitGainBattleExp(&gBattleActor.unit);
+        bool targetBlue = CanUnitGainBattleExp(&gBattleTarget.unit);
 
         if (gpKernelDesignerConfig->summons_gain_exp == true)
         {
