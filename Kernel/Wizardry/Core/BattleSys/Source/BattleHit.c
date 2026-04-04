@@ -687,7 +687,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
         if (gpKernelDesignerConfig->promote_enemy_on_kill == true) 
 	    {
 			struct Unit* enemyUnit = GetUnit(gBattleActor.unit.index);
-			if (UNIT_FACTION(enemyUnit) == FACTION_RED)
+            if (UNIT_FACTION(enemyUnit) == FACTION_RED && !(UNIT_CATTRIBUTES(enemyUnit) & CA_PROMOTED))
 			{
 				ApplyUnitDefaultPromotion(enemyUnit);
 				enemyUnit->maxHP += gpKernelDesignerConfig->promote_enemy_boost;
