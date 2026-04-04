@@ -17,7 +17,6 @@ void ResetItemPageLists(void)
 STATIC_DECLAR void UpdateItemPageListExt(struct Unit *unit, struct ItemPageList *list)
 {
 	int i, item, cnt = 0;
-	FORCE_DECLARE struct GaidenMagicList *gmag_list;
 
 	/**
 	 * Unit items
@@ -44,49 +43,6 @@ STATIC_DECLAR void UpdateItemPageListExt(struct Unit *unit, struct ItemPageList 
 					   : TEXT_COLOR_SYSTEM_GRAY;
 	}
 
-	if (gpKernelDesignerConfig->mp_system == true)
-	{
-		/**
-		 * Gaiden Magic
-		 */
-		gmag_list = GetGaidenMagicList(unit);
-
-		for (i = 0; i < gmag_list->bmag_cnt; i++) {
-			struct ItemPageEnt *ent;
-
-			item = gmag_list->bmags[i];
-			if (item == ITEM_NONE)
-				break;
-
-			ent = &list->ent[cnt++];
-			if (cnt > CHAX_ITEM_PAGE_AMT)
-				return;
-
-			ent->item = item;
-			ent->slot = CHAX_BUISLOT_GAIDEN_BMAG1 + i;
-			ent->color = CanUnitUseGaidenMagic(unit, item)
-					? TEXT_COLOR_SYSTEM_GOLD
-					: TEXT_COLOR_SYSTEM_GRAY;
-		}
-
-		for (i = 0; i < gmag_list->wmag_cnt; i++) {
-			struct ItemPageEnt *ent;
-
-			item = gmag_list->wmags[i];
-			if (item == ITEM_NONE)
-				break;
-
-			ent = &list->ent[cnt++];
-			if (cnt > CHAX_ITEM_PAGE_AMT)
-				return;
-
-			ent->item = item;
-			ent->slot = CHAX_BUISLOT_GAIDEN_WMAG1 + i;
-			ent->color = CanUnitUseGaidenMagic(unit, item)
-					? TEXT_COLOR_SYSTEM_GOLD
-					: TEXT_COLOR_SYSTEM_GRAY;
-		}
-	}
 }
 
 static void dump_item_list(struct ItemPageList *list)
@@ -328,17 +284,22 @@ static inline bool IsGaidenMagicItemMissingAtCursor(struct HelpBoxProc *proc, st
 LYN_REPLACE_CHECK(HbRedirect_SSItem);
 void HbRedirect_SSItem(struct HelpBoxProc *proc)
 {
+	bool isGaidenMagicPage = gpKernelDesignerConfig->gaiden_magic == true
+						 && gStatScreen.page == TranslateStatPageId(PAGE_GAIDEN_MAGIC);
 
-	struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
+	if (!isGaidenMagicPage)
+	{
+		struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
 
-	if (list->ent[0].item == ITEM_NONE)
-		TryRelocateHbLeft(proc);
+		if (list->ent[0].item == ITEM_NONE)
+			TryRelocateHbLeft(proc);
 
-	if (list->ent[proc->info->mid].item == ITEM_NONE) {
-		if (proc->moveKey == 0 || proc->moveKey == DPAD_RIGHT || proc->moveKey == DPAD_UP)
-			TryRelocateHbUp(proc);
-		else if (proc->moveKey == DPAD_DOWN)
-			TryRelocateHbDown(proc);
+		if (list->ent[proc->info->mid].item == ITEM_NONE) {
+			if (proc->moveKey == 0 || proc->moveKey == DPAD_RIGHT || proc->moveKey == DPAD_UP)
+				TryRelocateHbUp(proc);
+			else if (proc->moveKey == DPAD_DOWN)
+				TryRelocateHbDown(proc);
+		}
 	}
 
 	/* JESTER - A little something to turn off the R text for this page if there are no promotions available for the unit */
@@ -347,28 +308,32 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 			TryRelocateHbLeft(proc);
 
 	/* JESTER - A little something to turn off the RText box when moving up and down to empty positions in the Gaiden Magic list */
-	if (gpKernelDesignerConfig->gaiden_magic == true)
+	if (isGaidenMagicPage)
 	{
-		if (gStatScreen.page == TranslateStatPageId(4))
-		{
-			struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
+		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 
-			if ((proc->moveKey == DPAD_DOWN || proc->moveKey == DPAD_UP) && IsGaidenMagicItemMissingAtCursor(proc, list_gaiden))
-				gKeyStatusPtr->newKeys = B_BUTTON;
-		}
+		if ((proc->moveKey == DPAD_DOWN || proc->moveKey == DPAD_UP) && IsGaidenMagicItemMissingAtCursor(proc, list_gaiden))
+			gKeyStatusPtr->newKeys = B_BUTTON;
 	}
 }
 
 LYN_REPLACE_CHECK(HbPopulate_SSItem);
 void HbPopulate_SSItem(struct HelpBoxProc *proc)
 {
-	struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
-	int item = list->ent[proc->info->mid].item;
+	bool isGaidenMagicPage = gpKernelDesignerConfig->gaiden_magic == true
+						 && gStatScreen.page == TranslateStatPageId(PAGE_GAIDEN_MAGIC);
+	int item = ITEM_NONE;
 
-	proc->item = item;
-	proc->mid  = GetItemDescId(item);
+	if (!isGaidenMagicPage)
+	{
+		struct ItemPageList *list = GetUnitItemPageList(gStatScreen.unit);
+		item = list->ent[proc->info->mid].item;
 
-	if (gpKernelDesignerConfig->gaiden_magic == true)
+		proc->item = item;
+		proc->mid  = GetItemDescId(item);
+	}
+
+	if (isGaidenMagicPage)
 	{
 		struct GaidenMagicList *list_gaiden = GetGaidenMagicList(gStatScreen.unit);
 
