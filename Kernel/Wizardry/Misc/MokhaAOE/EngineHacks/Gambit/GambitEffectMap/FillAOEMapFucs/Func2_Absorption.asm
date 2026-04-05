@@ -5,7 +5,7 @@
 @   1
 
 .thumb
-.include 	"../../../../_FuncLib/_Definitions.h.s"
+.include 	"../../include/_Definitions.h.s"
 .include 	"../../../../_FuncLib/MokhaRAMSpace.s"
 
 @(x,y,Direction)

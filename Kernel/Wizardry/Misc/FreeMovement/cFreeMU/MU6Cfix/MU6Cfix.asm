@@ -1,6 +1,6 @@
 .thumb
-.include 	"../../../_FuncLib/_Definitions.h.s"
-.include 	"../../../_FuncLib/MokhaRAMSpace.s"
+.include 	"../src/_include/_Definitions.h.s"
+.include 	"../src/_include/MokhaRAMSpace.s"
 
 SET_FUNC_INLINE		MU_ExecCmd_FixForFreeMU
 SET_FUNC_INLINE 	MU_CALL2_FixForFreeMU

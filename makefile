@@ -153,6 +153,9 @@ Kernel/%.o: Kernel/%.c
 	@echo "[CC ]	$@"
 	@$(CC) $(CFLAGS) $(GCC_LONG_CALL) $(CDEPFLAGS) -g -c $< -o $@
 
+Kernel/Wizardry/Misc/%.asm: Kernel/Wizardry/Misc/%.c
+	@echo "[SKIP]	$@"
+
 Kernel/%.asm: Kernel/%.c
 	@echo "[CC ]	$@"
 	@$(CC) $(CFLAGS) $(GCC_LONG_CALL) $(CDEPFLAGS) -S $< -o $@ -fverbose-asm

@@ -1,5 +1,5 @@
 .thumb
-.include 	"../../_FuncLib/_Definitions.h.s"
+.include 	"../../Gambit/include/_Definitions.h.s"
 .include 	"../../_FuncLib/MokhaRAMSpace.s"
 SET_FUNC_INLINE		_1D9DC_Loop6C_MoveLimitView
 

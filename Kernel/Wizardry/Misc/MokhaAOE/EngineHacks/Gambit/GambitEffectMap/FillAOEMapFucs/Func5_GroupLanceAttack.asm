@@ -1,7 +1,7 @@
 @ 111
 
 .thumb
-.include 	"../../../../_FuncLib/_Definitions.h.s"
+.include 	"../../include/_Definitions.h.s"
 .include 	"../../../../_FuncLib/MokhaRAMSpace.s"
 .include	"_definations_ADDMAP.h.s"
 
