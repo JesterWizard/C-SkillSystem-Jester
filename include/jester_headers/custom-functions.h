@@ -235,3 +235,4 @@ struct CharacterBiography
 extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
 
 extern int StaffEXP(int weapon);
+extern void ExecBallista(ProcPtr proc);

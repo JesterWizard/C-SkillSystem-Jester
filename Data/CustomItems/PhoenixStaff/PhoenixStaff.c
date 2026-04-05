@@ -482,7 +482,7 @@ static void PhoenixStaff_Exec(ProcPtr proc)
 	target->yPos = gActionData.yOther;
 	target->curHP = 1;
 	target->rescue = 0;
-				// Removed portrait blit to prevent BG0 text rows from being overwritten
+	
 	RefreshEntityBmMaps();
 	RenderBmMap();
 	RefreshUnitSprites();
@@ -508,7 +508,7 @@ static bool PhoenixStaff_PopupRunning(ProcPtr proc)
 static void PhoenixStaff_ShowExpBar(ProcPtr proc)
 {
     struct Unit *unit = GetUnit(gActionData.subjectIndex);
-    int expGain = StaffEXP(ITEM_STAFF_PHOENIX); // replace with your actual gain
+    int expGain = StaffEXP(ITEM_STAFF_PHOENIX);
 
     if (!UNIT_IS_VALID(unit))
         return;

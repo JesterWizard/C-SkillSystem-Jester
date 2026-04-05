@@ -226,6 +226,16 @@ void NewMuSkillAnimOnActiveUnitWithDeamon(ProcPtr parent, u16 sid, void (*callba
 	Proc_StartBlocking(ProcScr_MuSkillAnimDeamon, parent);
 }
 
+void NewMuAnimOnActiveUnitWithDeamon(ProcPtr parent, void (*callback1)(ProcPtr proc), void (*callback2)(ProcPtr proc))
+{
+	struct ProcMuSkillAnim *proc = Proc_Start(ProcScr_NoSkillAnim, PROC_TREE_3);
+
+	proc->sid = 0;
+	proc->callback1 = callback1;
+	proc->callback2 = callback2;
+	Proc_StartBlocking(ProcScr_MuSkillAnimDeamon, parent);
+}
+
 static void event_callcamera(ProcPtr proc)
 {
 	EnsureCameraOntoPosition(proc, gActiveUnit->xPos, gActiveUnit->yPos);

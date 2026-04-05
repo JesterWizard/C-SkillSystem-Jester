@@ -7,11 +7,6 @@
 #include "strmag.h"
 #include "jester_headers/custom-functions.h"
 
-static bool CustomStavesEnabled(void)
-{
-    return gpKernelDesignerConfig->custom_staves == true;
-}
-
 static bool CanUnitGainBattleExp(struct Unit *unit)
 {
     return UNIT_FACTION(unit) == FACTION_BLUE
@@ -23,41 +18,6 @@ int StaffEXP(int weapon)
 {
     int exp = 0;
 
-    if (CustomStavesEnabled()) {
-        switch (weapon) {
-        case ITEM_STAFF_FORCE:
-        case ITEM_STAFF_TEMPEST:
-        case ITEM_STAFF_ACUITY:
-        case ITEM_STAFF_SPRINT:
-        case ITEM_STAFF_FORTUNE:
-        case ITEM_STAFF_IRON:
-        case ITEM_STAFF_OMNI:
-        case ITEM_STAFF_POISON:
-        case ITEM_STAFF_DELAY:
-        case ITEM_STAFF_INVEST:
-            return 17;
-
-        case ITEM_STAFF_MINE:
-            return 20;
-
-        case ITEM_STAFF_RUNE:
-        case ITEM_STAFF_SLOW:
-        case ITEM_STAFF_FORGE:
-        case ITEM_STAFF_REWARP:
-        case ITEM_STAFF_QUICKEN:
-        case ITEM_STAFF_HIDE:
-        case ITEM_STAFF_PROVOKE:
-        case ITEM_STAFF_PETRIFY:
-        case ITEM_STAFF_SOOTH:
-        case ITEM_STAFF_ENFEEBLE:
-        case ITEM_STAFF_SKILL:
-            return 30;
-
-        case ITEM_STAFF_ENTRAP:
-            return 50;
-        }
-    }
-
     switch (weapon)
     {
     case ITEM_STAFF_HEAL:
@@ -65,9 +25,21 @@ int StaffEXP(int weapon)
         exp = 15;
         break;
     case ITEM_STAFF_BARRIER:
+    case ITEM_STAFF_FORCE:
+    case ITEM_STAFF_TEMPEST:
+    case ITEM_STAFF_ACUITY:
+    case ITEM_STAFF_SPRINT:
+    case ITEM_STAFF_FORTUNE:
+    case ITEM_STAFF_IRON:
+    case ITEM_STAFF_OMNI:
+    case ITEM_STAFF_POISON:
+    case ITEM_STAFF_DELAY:
+    case ITEM_STAFF_INVEST:
         exp = 17;
         break;
     case ITEM_STAFF_MEND:
+    case ITEM_STAFF_MINE:
+    case ITEM_STAFF_ARBALEST:
         exp = 20;
         break;
     case ITEM_STAFF_UNLOCK:
@@ -79,10 +51,22 @@ int StaffEXP(int weapon)
     case ITEM_STAFF_SLEEP:
     case ITEM_STAFF_SILENCE:
     case ITEM_STAFF_PHYSIC:
+    case ITEM_STAFF_RUNE:
+    case ITEM_STAFF_SLOW:
+    case ITEM_STAFF_FORGE:
+    case ITEM_STAFF_REWARP:
+    case ITEM_STAFF_QUICKEN:
+    case ITEM_STAFF_HIDE:
+    case ITEM_STAFF_PROVOKE:
+    case ITEM_STAFF_PETRIFY:
+    case ITEM_STAFF_SOOTH:
+    case ITEM_STAFF_ENFEEBLE:
+    case ITEM_STAFF_SKILL:
         exp = 30;
         break;
     case ITEM_STAFF_RESCUE:
     case ITEM_STAFF_AUM:
+    case ITEM_STAFF_ENTRAP:
         exp = 50;
         break;
     case ITEM_STAFF_WARP:

@@ -3378,4 +3378,22 @@ const struct ItemData gItemData_New[255] = {
 		.useEffectId = IER_ARMS_SCROLL,
 	},
 #endif
+	[ITEM_STAFF_ARBALEST] = {
+		.nameTextId = MSG_ITEM_ARBALEST_STAFF_NAME,
+		.descTextId = MSG_ITEM_ARBALEST_STAFF_DESC,
+		.useDescTextId = MSG_ITEM_ARBALEST_STAFF_USEDESC,
+		.number = ITEM_STAFF_ARBALEST,
+		.weaponType = ITYPE_STAFF,
+		.pStatBonuses = NULL,
+		.maxUses = 15,
+		.encodedRange = 0x11,
+		.costPerUse = 500,
+		.iconId = ITEM_ICON_STAFF_MINE,
+		.useEffectId = IER_STAFF_ARBALEST,
+		.weaponRank = WPN_EXP_C,
+		.weaponExp = 4,
+		.hit = 100,
+		.weight = 5,
+		.attributes = IA_STAFF,
+	},
 };

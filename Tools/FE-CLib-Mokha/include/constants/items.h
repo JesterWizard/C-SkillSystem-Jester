@@ -232,7 +232,7 @@ enum {
     ITEM_STAFF_RUNE        = 0xC6,
     ITEM_STAFF_MINE        = 0xC7,
     ITEM_STAFF_SLOW        = 0xC8,
-    ITEM_UNK_C9            = 0xC9,
+    ITEM_STAFF_ARBALEST    = 0xDE,
     ITEM_UNK_CA            = 0xCA,
     ITEM_STAFF_FORGE       = 0xCB,
     ITEM_UNK_CC            = 0xCC,

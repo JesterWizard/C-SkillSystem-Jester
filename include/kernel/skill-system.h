@@ -295,6 +295,7 @@ void AnimOnActiveUnit(u16 sid, void (*callback1)(ProcPtr proc), void (*callback2
 void NewMuSkillAnimOnActiveUnit(u16 sid, void (*callback1)(ProcPtr proc), void (*callback2)(ProcPtr proc));
 bool MuSkillAnimExists(void);
 void NewMuSkillAnimOnActiveUnitWithDeamon(ProcPtr parent, u16 sid, void (*callback1)(ProcPtr proc), void (*callback2)(ProcPtr proc));
+void NewMuAnimOnActiveUnitWithDeamon(ProcPtr parent, void (*callback1)(ProcPtr proc), void (*callback2)(ProcPtr proc));
 void RemoveMuForActiveUnit(int delay);
 
 extern const EventScr EventScr_MuSkillAnim[];

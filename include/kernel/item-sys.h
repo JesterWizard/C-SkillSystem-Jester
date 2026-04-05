@@ -47,6 +47,7 @@ enum chax_ierevamp_use_effects {
 	IER_STAFF_AUM,
 	IER_STAFF_PHOENIX,
 	IER_STAFF_SKILL,
+	IER_STAFF_ARBALEST,
 
 
 	/**
@@ -122,7 +123,7 @@ enum chax_ierevamp_use_effects {
 	IER_ARMS_SCROLL,
 #endif
 
-	IER_MAX = 0x54,
+	IER_MAX = 0x60,
 };
 
 #define IER_INVALID IER_START
@@ -242,6 +243,7 @@ IER_DECLEARE_Usability(IER_Usability_Invest);
 IER_DECLEARE_Usability(IER_Usability_Aum);
 IER_DECLEARE_Usability(IER_Usability_Phoenix);
 IER_DECLEARE_Usability(IER_Usability_SkillStaff);
+IER_DECLEARE_Usability(IER_Usability_Arbalest);
 
 IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
 IER_DECLEARE_Effect(IER_Effect_RangedHeal);
@@ -275,6 +277,7 @@ IER_DECLEARE_Effect(IER_Effect_Invest);
 IER_DECLEARE_Effect(IER_Effect_Aum);
 IER_DECLEARE_Effect(IER_Effect_Phoenix);
 IER_DECLEARE_Effect(IER_Effect_SkillStaff);
+IER_DECLEARE_Effect(IER_Effect_Arbalest);
 
 IER_DECLEARE_Action(IER_Action_StandardHeal);
 IER_DECLEARE_Action(IER_Action_StatusStaff);
@@ -314,6 +317,7 @@ IER_DECLEARE_Action(IER_Action_Enfeeble);
 IER_DECLEARE_Action(IER_Action_Aum);
 IER_DECLEARE_Action(IER_Action_Phoenix);
 IER_DECLEARE_Action(IER_Action_SkillStaff);
+IER_DECLEARE_Action(IER_Action_Arbalest);
 
 IER_DECLEARE_PrepEffect(IER_PrepEffect_StatBooster);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Promotion);

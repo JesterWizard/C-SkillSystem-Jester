@@ -112,6 +112,15 @@ an open tile.[X]
 Place a Mine on[N]
 an open tile.[X]
 
+## MSG_ITEM_ARBALEST_STAFF_NAME
+Arbalest[X]
+## MSG_ITEM_ARBALEST_STAFF_DESC
+Summon a ballista on[N]
+an open tile.[X]
+## MSG_ITEM_ARBALEST_STAFF_USEDESC
+Summon a ballista on[N]
+an open tile.[X]
+
 ## MSG_ITEM_SLOW_STAFF_NAME
 Slow[X]
 ## MSG_ITEM_SLOW_STAFF_DESC
