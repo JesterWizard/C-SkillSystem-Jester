@@ -6,6 +6,12 @@
 #include "unit-expa.h"
 #include "debuff.h"
 
+static int GetTonicHpBonus(struct Unit *unit)
+{
+    extern u8 gUnitTonicState[];
+    return gUnitTonicState[unit->index] == 1 ? 2 : 0;
+}
+
 int _GetUnitMaxHp(struct Unit *unit)
 {
 	const StatusGetterFunc_t *it;
@@ -23,6 +29,8 @@ int _GetUnitMaxHp(struct Unit *unit)
 
 	if (gpExternalHpGetters)
 		status = gpExternalHpGetters(status, unit);
+
+    status += GetTonicHpBonus(unit);
 
     if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_HEX) {
         status = status / 2;

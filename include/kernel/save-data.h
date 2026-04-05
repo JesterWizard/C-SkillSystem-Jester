@@ -16,6 +16,7 @@ struct EmsChunk {
 extern const struct EmsChunk gEmsSavChunks[];
 extern const struct EmsChunk gEmsSusChunks[];
 extern const u16 gEmsOffsets[SAVE_ID_MAX];
+extern u8 gUnitTonicState[];
 
 extern const u16 gEmsSizes[2];
 #define EMS_SIZE_SAV (gEmsSizes[0])
@@ -31,6 +32,7 @@ extern const u16 gEmsSizes[2];
 #define EMS_CHUNK_BONUSCLAIMDATA 7
 #define EMS_CHUNK_WMDATA         8
 #define EMS_CHUNK_DUNGEON        9
+#define EMS_CHUNK_TONICSTATE    10
 
 const struct EmsChunk *GetEmsChunkByIndex_Sav(int idx);
 const struct EmsChunk *GetEmsChunkByIndex_Sus(int idx);

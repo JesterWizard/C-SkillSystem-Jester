@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common-chax.h"
+#include "item-sys.h"
 
 typedef int (*StatusGetterFunc_t)(int old, struct Unit *unit);
 

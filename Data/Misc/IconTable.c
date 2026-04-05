@@ -28,3 +28,17 @@ u8 const *const gWTypeIcons[0x100] = {
 	[ITYPE_DARK] = GFX_WtypeIcon_Dark,
 	[ITYPE_STAFF] = GFX_WtypeIcon_Staff,
 };
+
+u8 const *const gTonicIcons[0x100] = {
+	[0xE0] = GFX_TonicIcon_HP_Tonic,
+	[0xE1] = GFX_TonicIcon_STR_Tonic,
+	[0xE2] = GFX_TonicIcon_SKL_Tonic,
+	[0xE3] = GFX_TonicIcon_SPD_Tonic,
+	[0xE4] = GFX_TonicIcon_DEF_Tonic,
+	[0xE5] = GFX_TonicIcon_RES_Tonic,
+	[0xE6] = GFX_TonicIcon_LCK_Tonic,
+	[0xE7] = GFX_TonicIcon_MAG_Tonic,
+	[0xE8] = GFX_TonicIcon_OMNI_Tonic,
+};
+
+u8 const *const *const gpTonicIcons = gTonicIcons;

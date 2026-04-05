@@ -40,6 +40,10 @@ static void reset_expa(s8 uid)
 void ResetUnitsExpaSus(void)
 {
 	int i;
+	extern u16 gTonicChapterState;
+	extern u8 gUnitTonicState[];
+	gTonicChapterState = 0xFF;
+	memset(gUnitTonicState, 0, 0xC0);
 
 	for (i = FACTION_BLUE + 1; i < (FACTION_BLUE + 0x40); i++)
 		reset_expa(i);

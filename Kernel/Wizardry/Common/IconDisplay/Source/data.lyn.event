@@ -11,4 +11,5 @@ POIN GetSkillIcon1
 POIN GetSkillIcon2
 POIN GetSkillIcon3
 POIN GetSkillIcon4
-WORD $0 $0 $0 $0 $0 $0 $0
+POIN GetTonicIcon
+WORD $0 $0 $0 $0 $0 $0

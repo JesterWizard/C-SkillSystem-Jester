@@ -59,6 +59,7 @@ enum unit_expa_sus_bitfile_idx {
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
 	UES_BIT_GORILLA_TACTICS_SKILL_USED,
 #endif
+    UES_BIT_TONIC_USED,
 
 };
 

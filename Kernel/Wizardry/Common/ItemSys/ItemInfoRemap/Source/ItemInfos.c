@@ -541,6 +541,10 @@ char *GetItemName(int item)
 	char *result;
 
 #if CHAX
+    if (IsTonicItem(item)) {
+        return GetTonicItemName(item);
+    }
+
 	if (IsDuraItem(item))
 		return GetDuraItemName(item);
 #endif
@@ -578,6 +582,10 @@ LYN_REPLACE_CHECK(GetItemDescId);
 int GetItemDescId(int item)
 {
 #if CHAX
+    if (IsTonicItem(item)) {
+        return GetTonicItemDescId(item);
+    }
+
 	if (IsDuraItem(item))
 		return GetDuraItemDescId(item);
 #endif
@@ -589,6 +597,10 @@ LYN_REPLACE_CHECK(GetItemUseDescId);
 int GetItemUseDescId(int item)
 {
 #if CHAX
+    if (IsTonicItem(item)) {
+        return GetTonicItemUseDescId(item);
+    }
+
 	if (IsDuraItem(item))
 		return GetDuraItemUseDescId(item);
 #endif
@@ -637,11 +649,15 @@ int GetItemIconId(int item)
 		return -1;
 
 #if CHAX
+    if (IsTonicItem(item)) {
+        return GetTonicItemIconId(item);
+    }
+
 	if (IsDuraItem(item))
 		return GetDuraItemIconId(item);
 #endif
 
-	return GetItemData(ITEM_INDEX(item))->iconId;
+    return GetItemData(ITEM_INDEX(item))->iconId;
 }
 
 LYN_REPLACE_CHECK(GetItemCost);

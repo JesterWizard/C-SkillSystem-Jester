@@ -3,6 +3,8 @@
 #include "save-data.h"
 #include "strmag.h"
 
+extern u8 gUnitTonicState[];
+
 void MSA_SavePlaySt(u8 *dst, const u32 size)
 {
 	gPlaySt.time_saved = GetGameClock();
@@ -55,6 +57,16 @@ void MSA_LoadDungeon(u8 *src, const u32 size)
 
 	ReadSramFast(src, dungeon, sizeof(dungeon));
 	LoadDungeonRecords(dungeon);
+}
+
+void MSA_SaveTonicState(u8 *dst, const u32 size)
+{
+	WriteAndVerifySramFast(gUnitTonicState, dst, size);
+}
+
+void MSA_LoadTonicState(u8 *src, const u32 size)
+{
+	ReadSramFast(src, gUnitTonicState, size);
 }
 
 STATIC_DECLAR void NewPackSaveUnit(struct Unit *src, struct EmsPackedSavUnit *dst)

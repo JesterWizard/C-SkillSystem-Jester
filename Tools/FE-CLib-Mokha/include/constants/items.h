@@ -252,6 +252,7 @@ enum {
     ITEM_STAFF_AUM         = 0xDB,
     ITEM_STAFF_PHOENIX     = 0xDC,
     ITEM_STAFF_SKILL       = 0xDD,
+    ITEM_TONIC             = 0xDF,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H

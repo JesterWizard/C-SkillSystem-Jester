@@ -1,8 +1,11 @@
 #include "common-chax.h"
 #include "item-sys.h"
+#include "unit-expa.h"
 #include "battle-system.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
+
+extern struct ProcCmd CONST_DATA ProcScr_WorldMapMain[];
 
 static bool CustomStavesEnabled(void)
 {
@@ -173,6 +176,14 @@ bool IER_Usability_MetisStone(struct Unit *unit, int item)
 bool IER_Usability_JunaFruit(struct Unit *unit, int item)
 {
 	return CanUnitUseFruitItem(unit);
+}
+
+bool IER_Usability_Tonic(struct Unit *unit, int item)
+{
+	if (Proc_Find(ProcScr_WorldMapMain))
+		return false;
+
+	return true;
 }
 
 bool IER_Usability_NightMare(struct Unit *unit, int item)
@@ -606,4 +617,9 @@ void IER_PrepEffect_Promotion(struct ProcPrepItemUse *proc, u16 item)
 void IER_PrepEffect_JunaFruit(struct ProcPrepItemUse *proc, u16 item)
 {
 	Proc_Goto(proc, PROC_LABEL_PREPITEMUSE_EXEC_JUNA);
+}
+
+void IER_PrepEffect_Tonic(struct ProcPrepItemUse *proc, u16 item)
+{
+	Proc_StartBlocking(ProcScr_PrepItemUseBooster, proc);
 }

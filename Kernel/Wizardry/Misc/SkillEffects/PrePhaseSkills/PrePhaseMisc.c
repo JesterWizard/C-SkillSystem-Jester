@@ -7,6 +7,8 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 
+extern u8 gUnitTonicState[];
+
 void PrePhase_ResetFaction(ProcPtr proc)
 {
 	if (gPlaySt.faction == FACTION_BLUE)

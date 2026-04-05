@@ -12,6 +12,7 @@ enum icon_sheet_idx {
 	ICON_SHEET_SKILL1,
 	ICON_SHEET_SKILL2,
 	ICON_SHEET_SKILL3,
+	ICON_SHEET_TONIC,
 
 	ICON_SHEET_AMT = 16
 };
@@ -39,8 +40,10 @@ const u8 *IconGetterVanilla(const u8 index);
 const u8 *GetAffinIcon(const u8 index);
 const u8 *GetMountIcon(const u8 index);
 const u8 *GetWTypeIcon(const u8 index);
+const u8 *GetTonicIcon(const u8 index);
 
 extern u8 const *const pr_item_icon_tiles;
 extern u8 const *const *const gpAffinIcons;
 extern u8 const *const *const gpMountIcons;
 extern u8 const *const *const gpWTypeIcons;
+extern u8 const *const *const gpTonicIcons;

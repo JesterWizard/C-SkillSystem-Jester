@@ -16,6 +16,9 @@ int _GetUnitMov(struct Unit *unit)
 	if (gpExternalMovGetters)
 		status = gpExternalMovGetters(status, unit);
 
+	extern u8 gUnitTonicState[];
+	status += gUnitTonicState[unit->index] == 8 ? 2 : 0;
+
 	/* Some special effects */
 	if (gpDebuffInfos[GetUnitStatusIndex(unit)].cannot_move)
 		status = 0;

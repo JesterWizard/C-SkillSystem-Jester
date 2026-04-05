@@ -32,6 +32,9 @@ int _GetUnitDefense(struct Unit *unit)
 	if (gpExternalDefGetters)
 		status = gpExternalDefGetters(status, unit);
 
+    extern u8 gUnitTonicState[];
+    status += gUnitTonicState[unit->index] == 6 ? 2 : 0;
+
 	return status;
 }
 
@@ -262,10 +265,12 @@ int DefPsychUpCheck(int status, struct Unit * unit)
 
 int DefGetterStaffBoost(int status, struct Unit *unit)
 {
-    if (unit->boostType == 5)
+    extern u8 gUnitTonicState[];
+
+    if (gUnitTonicState[unit->index] == 5)
 	    return status + unit->barrierDuration;
 
-    if (unit->boostType == 7)
+	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
 
     return status;

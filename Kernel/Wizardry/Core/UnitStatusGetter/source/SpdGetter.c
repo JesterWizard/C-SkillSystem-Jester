@@ -42,6 +42,8 @@ int _GetUnitSpeed(struct Unit *unit)
 	if (gpExternalSpdGetters)
 		status = gpExternalSpdGetters(status, unit);
 
+    status += GetTonicStatBonus(unit, 4);
+
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {
         if (unit->pCharacterData->number == CHARACTER_SETH)
@@ -277,10 +279,12 @@ int SpdPsychUpCheck(int status, struct Unit *unit)
 
 int SpdGetterStaffBoost(int status, struct Unit *unit)
 {
-    if (unit->boostType == 3)
+    extern u8 gUnitTonicState[];
+
+    if (gUnitTonicState[unit->index] == 3)
 	    return status + unit->barrierDuration;
 
-    if (unit->boostType == 7)
+	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
 
     return status;

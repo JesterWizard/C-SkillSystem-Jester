@@ -42,6 +42,8 @@ int _GetUnitSkill(struct Unit *unit)
 	if (gpExternalSklGetters)
 		status = gpExternalSklGetters(status, unit);
 
+    status += GetTonicStatBonus(unit, 3);
+
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {
         if (unit->pCharacterData->number == CHARACTER_SETH)
@@ -255,10 +257,12 @@ int SklPsychUpCheck(int status, struct Unit *unit)
 
 int SklGetterStaffBoost(int status, struct Unit *unit)
 {
-    if (unit->boostType == 2)
+    extern u8 gUnitTonicState[];
+
+    if (gUnitTonicState[unit->index] == 2)
 	    return status + unit->barrierDuration;
 
-    if (unit->boostType == 7)
+	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
 
     return status;

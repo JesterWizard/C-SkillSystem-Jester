@@ -20,3 +20,8 @@ const u8 *GetWTypeIcon(const u8 index)
 {
 	return gpWTypeIcons[index];
 }
+
+const u8 *GetTonicIcon(const u8 index)
+{
+	return gpTonicIcons[index];
+}

@@ -121,6 +121,87 @@ an open tile.[X]
 Summon a ballista on[N]
 an open tile.[X]
 
+## MSG_ITEM_TONIC_NAME
+Tonic[X]
+## MSG_ITEM_TONIC_DESC
+Boost one stat by 2 for the[N]
+rest of the chapter.[X]
+## MSG_ITEM_TONIC_USEDESC
+Boost one stat by 2 for[N]
+the rest of the chapter.[X]
+
+## MSG_ITEM_TONIC_HP_NAME
+HP Tonic[X]
+## MSG_ITEM_TONIC_HP_DESC
+Boosts HP by +2 for a single map.[X]
+## MSG_ITEM_TONIC_HP_USEDESC
+Boosts HP by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_STR_NAME
+STR Tonic[X]
+## MSG_ITEM_TONIC_STR_DESC
+Boosts STR by +2 for a single map.[X]
+## MSG_ITEM_TONIC_STR_USEDESC
+Boosts STR by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_SKL_NAME
+SKL Tonic[X]
+## MSG_ITEM_TONIC_SKL_DESC
+Boosts SKL by +2 for a single map.[X]
+## MSG_ITEM_TONIC_SKL_USEDESC
+Boosts SKL by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_SPD_NAME
+SPD Tonic[X]
+## MSG_ITEM_TONIC_SPD_DESC
+Boosts SPD by +2 for a single map.[X]
+## MSG_ITEM_TONIC_SPD_USEDESC
+Boosts SPD by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_DEF_NAME
+DEF Tonic[X]
+## MSG_ITEM_TONIC_DEF_DESC
+Boosts DEF by +2 for a single map.[X]
+## MSG_ITEM_TONIC_DEF_USEDESC
+Boosts DEF by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_RES_NAME
+RES Tonic[X]
+## MSG_ITEM_TONIC_RES_DESC
+Boosts RES by +2 for a single map.[X]
+## MSG_ITEM_TONIC_RES_USEDESC
+Boosts RES by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_LCK_NAME
+LCK Tonic[X]
+## MSG_ITEM_TONIC_LCK_DESC
+Boosts LCK by +2 for a single map.[X]
+## MSG_ITEM_TONIC_LCK_USEDESC
+Boosts LCK by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_MAG_NAME
+MAG Tonic[X]
+## MSG_ITEM_TONIC_MAG_DESC
+Boosts MAG by +2 for a single map.[X]
+## MSG_ITEM_TONIC_MAG_USEDESC
+Boosts MAG by +2[N]
+for a single map.[X]
+
+## MSG_ITEM_TONIC_OMNI_NAME
+OMNI Tonic[X]
+## MSG_ITEM_TONIC_OMNI_DESC
+Boosts all stats by +2 for a single map.[X]
+## MSG_ITEM_TONIC_OMNI_USEDESC
+Boosts all stats by +2[N]
+for a single map.[X]
+
 ## MSG_ITEM_SLOW_STAFF_NAME
 Slow[X]
 ## MSG_ITEM_SLOW_STAFF_DESC

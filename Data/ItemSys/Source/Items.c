@@ -3396,4 +3396,17 @@ const struct ItemData gItemData_New[255] = {
 		.weight = 5,
 		.attributes = IA_STAFF,
 	},
+	[ITEM_TONIC] = {
+		.nameTextId = MSG_ITEM_TONIC_NAME,
+		.descTextId = MSG_ITEM_TONIC_DESC,
+		.useDescTextId = MSG_ITEM_TONIC_USEDESC,
+		.number = ITEM_TONIC,
+		.weaponType = ITYPE_ITEM,
+		.pStatBonuses = NULL,
+		.maxUses = 1,
+		.encodedRange = 0x11,
+		.costPerUse = 1000,
+		.iconId = ITEM_ICON_TONIC_HP,
+		.useEffectId = IER_TONIC,
+	},
 };

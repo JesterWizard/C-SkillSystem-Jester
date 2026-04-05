@@ -342,6 +342,13 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_Booster,
 		.prep_effect    = IER_PrepEffect_StatBooster,
 	},
+	[IER_TONIC] = {
+		.usability      = IER_Usability_Tonic,
+		.prep_usability = IER_Usability_Tonic,
+		.effect         = NULL,
+		.action_effect  = IER_Action_Booster,
+		.prep_effect    = IER_PrepEffect_Tonic,
+	},
 
 	/**
 	 * Promotion

@@ -41,11 +41,13 @@ struct ItemData
 
     /* 1A */ u16 costPerUse;
     /* 1C */ u8  weaponRank;
-    /* 1D */ u8  iconId;
+    /* 1D */ u16 iconId; // This was originally a u8 that has been expanded to allow for more icon IDs, reset if it starts causing issues
     /* 1E */ u8  useEffectId;
     /* 1F */ u8  weaponEffectId;
     /* 20 */ u8  weaponExp;
 };
+
+#define ITEM_ICON(sheet, index) (((sheet) << 8) | ((index) & 0xFF))
 
 enum {
     // Item attributes

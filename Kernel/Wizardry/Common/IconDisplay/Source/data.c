@@ -13,4 +13,5 @@ const IconGetterFunc IconGetters[ICON_SHEET_AMT] = {
 	[ICON_SHEET_SKILL1] = GetSkillIcon2,
 	[ICON_SHEET_SKILL2] = GetSkillIcon3,
 	[ICON_SHEET_SKILL3] = GetSkillIcon4,
+	[ICON_SHEET_TONIC] = GetTonicIcon,
 };

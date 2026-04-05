@@ -32,6 +32,9 @@ int _GetUnitResistance(struct Unit *unit)
 	if (gpExternalResGetters)
 		status = gpExternalResGetters(status, unit);
 
+    extern u8 gUnitTonicState[];
+    status += gUnitTonicState[unit->index] == 7 ? 2 : 0;
+
 	return status;
 }
 
@@ -255,10 +258,12 @@ int ResPsychUpCheck(int status, struct Unit *unit)
 
 int ResGetterStaffBoost(int status, struct Unit *unit)
 {
-    if (unit->boostType == 6)
+    extern u8 gUnitTonicState[];
+
+    if (gUnitTonicState[unit->index] == 6)
 	    return status + unit->barrierDuration;
 
-    if (unit->boostType == 7)
+	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
 
     return status;

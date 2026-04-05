@@ -1,11 +1,52 @@
 #include "common-chax.h"
 #include "item-sys.h"
+#include "unit-expa.h"
 #include "strmag.h"
 #include "status-getter.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "constants/texts.h"
 #include "debuff.h"
+#include "popup-reowrk.h"
+#include "playerphase.h"
 #include "jester_headers/custom-functions.h"
+
+extern u8 gUnitTonicState[];
+
+static const struct PopupInstruction sTonicUsedPopup[] = {
+	POPUP_SOUND(0x5A),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
+	POPUP_UNIT_NAME,
+	POPUP_SPACE(1),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
+	POPUP_MSG(MSG_USED),
+	POPUP_SPACE(1),
+	POPUP_ITEM_ICON,
+	POPUP_SPACE(1),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_GOLD),
+	POPUP_ITEM_STR,
+	POPUP_END,
+};
+
+bool IsTonicCampaignActive(int item)
+{
+	struct Unit *unit = GetUnit(gActionData.subjectIndex);
+
+	if (!UNIT_IS_VALID(unit))
+		return false;
+
+	return ITEM_INDEX(item) == ITEM_TONIC && gUnitTonicState[unit->index] == ITEM_USES(item);
+}
+
+bool IsTonicCampaignActiveIndex(int tonicIndex)
+{
+	struct Unit *unit = GetUnit(gActiveUnit ? gActiveUnit->index : 0);
+
+	if (!UNIT_IS_VALID(unit))
+		return false;
+
+	return gUnitTonicState[unit->index] == tonicIndex;
+}
 
 #define LOCAL_TRACE 0
 
@@ -242,6 +283,37 @@ STATIC_DECLAR int GetStatBoosterText(struct Unit *unit, int item)
 	return 0;
 }
 
+
+LYN_REPLACE_CHECK(ExecStatBoostItem);
+void ExecStatBoostItem(ProcPtr proc) {
+    int item;
+    int messageId;
+    struct Unit* unit = GetUnit(gActionData.subjectIndex);
+
+    item = unit->items[gActionData.itemSlotIndex];
+
+    gBattleTarget.statusOut = -1;
+
+    messageId = ApplyStatBoostItem(unit, gActionData.itemSlotIndex);
+
+	// This if statement is for the purposes of tonic items only
+	if (GetItemIndex(item) == ITEM_TONIC) {
+		gUnitTonicState[unit->index] = ITEM_USES(item);
+
+		SetPopupUnit(unit);
+		SetPopupItem(item);
+		gPopupNumber = 0;
+		NewPopup_Simple(sTonicUsedPopup, 0x60, 0x00, Proc_Find(gProcScr_PlayerPhase));
+	}
+	else
+	{
+    	PlaySoundEffect(SONG_SE_UPDATE);
+		NewPopup2_PlanA(proc, GetItemIconId(item), GetStringFromIndex(messageId));
+	}
+
+    return;
+}
+
 LYN_REPLACE_CHECK(ApplyStatBoostItem);
 int ApplyStatBoostItem(struct Unit *unit, int slot)
 {
@@ -249,9 +321,16 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	FORCE_DECLARE const struct ItemData *iinfo = GetItemData(ITEM_INDEX(item));
 	const struct ItemStatBonuses *statBonuses = GetItemStatBonuses(item);
 	int msg = GetStatBoosterText(unit, item);
+	int tonicIndex = ITEM_USES(item);
 
     if (gpKernelDesignerConfig->item_effect_revamp == true)
     {
+		if (ITEM_INDEX(item) == ITEM_TONIC) {
+			gUnitTonicState[unit->index] = tonicIndex;
+			UnitUpdateUsedItem(unit, slot);
+			return msg;
+		}
+
 		if (iinfo->useEffectId == IER_METISSTOME) {
 			unit->state |= US_GROWTH_BOOST;
 			UnitUpdateUsedItem(unit, slot);
@@ -260,6 +339,12 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	}
 	else
 	{
+		if (GetItemIndex(item) == ITEM_TONIC) {
+			gUnitTonicState[unit->index] = tonicIndex;
+			UnitUpdateUsedItem(unit, slot);
+			return 0;
+		}
+
 		if (GetItemIndex(item) == ITEM_METISSTOME) 
 		{
 			unit->state |= US_GROWTH_BOOST;

@@ -25,6 +25,8 @@ int _GetUnitLuck(struct Unit *unit)
 	if (gpExternalLckGetters)
 		status = gpExternalLckGetters(status, unit);
 
+    status += GetTonicStatBonus(unit, 5);
+
 	return status;
 }
 
@@ -216,10 +218,12 @@ int LckPsychUpCheck(int status, struct Unit *unit)
 
 int LckGetterStaffBoost(int status, struct Unit *unit)
 {
-    if (unit->boostType == 4)
+    extern u8 gUnitTonicState[];
+
+    if (gUnitTonicState[unit->index] == 4)
 	    return status + unit->barrierDuration;
 
-    if (unit->boostType == 7)
+	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
 
     return status;

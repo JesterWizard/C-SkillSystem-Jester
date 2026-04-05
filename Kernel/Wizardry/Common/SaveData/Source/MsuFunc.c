@@ -5,6 +5,8 @@
 #include "debuff.h"
 #include "battle-system.h"
 
+extern u8 gUnitTonicState[];
+
 void MSU_SavePlaySt(u8 *dst, const u32 size)
 {
 	gPlaySt.time_saved = GetGameClock();
@@ -112,6 +114,16 @@ void MSU_LoadBonusClaimWIP(void)
 
 	ReadSramFast(src + CalcChunkOffset_Sav(chunk), &buf, sizeof(buf)); /* read from save data */
 	SetBonusContentClaimFlags(buf);
+}
+
+void MSU_SaveTonicState(u8 *dst, const u32 size)
+{
+	WriteAndVerifySramFast(gUnitTonicState, dst, size);
+}
+
+void MSU_LoadTonicState(u8 *src, const u32 size)
+{
+	ReadSramFast(src, gUnitTonicState, size);
 }
 
 STATIC_DECLAR void NewPackSuspandUnit(struct Unit *src, struct EmsPackedSusUnit *dst)

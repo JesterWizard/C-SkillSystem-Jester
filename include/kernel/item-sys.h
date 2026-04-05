@@ -119,12 +119,16 @@ enum chax_ierevamp_use_effects {
 	IER_CHAX_SKILL_SCROLL,
 	IER_CHAX_STAFF_NIGHTMARE,
 
+	IER_TONIC,
+
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	IER_ARMS_SCROLL,
 #endif
 
 	IER_MAX = 0x60,
 };
+
+#define IER_TONIC (IER_MAX - 1)
 
 #define IER_INVALID IER_START
 #define IER_IS_VALID(__use_effect) (((__use_effect) > 0) && ((__use_effect) < IER_MAX))
@@ -175,6 +179,14 @@ char *GetDuraItemName(int item);
 int GetDuraItemDescId(int item);
 int GetDuraItemUseDescId(int item);
 int GetDuraItemIconId(int item);
+bool IsTonicItem(int item);
+bool IsTonicCampaignActive(int item);
+bool IsTonicCampaignActiveIndex(int tonicIndex);
+int GetTonicStatBonus(struct Unit *unit, int tonicIndex);
+char *GetTonicItemName(int item);
+int GetTonicItemDescId(int item);
+int GetTonicItemUseDescId(int item);
+int GetTonicItemIconId(int item);
 
 /**
  * Modular heal
@@ -244,6 +256,7 @@ IER_DECLEARE_Usability(IER_Usability_Aum);
 IER_DECLEARE_Usability(IER_Usability_Phoenix);
 IER_DECLEARE_Usability(IER_Usability_SkillStaff);
 IER_DECLEARE_Usability(IER_Usability_Arbalest);
+IER_DECLEARE_Usability(IER_Usability_Tonic);
 
 IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
 IER_DECLEARE_Effect(IER_Effect_RangedHeal);
@@ -322,6 +335,7 @@ IER_DECLEARE_Action(IER_Action_Arbalest);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_StatBooster);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Promotion);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_JunaFruit);
+IER_DECLEARE_PrepEffect(IER_PrepEffect_Tonic);
 
 IER_DECLEARE_Usability(IER_Usability_SkillScroll);
 IER_DECLEARE_PrepUsability(IER_PrepUsability_SkillScroll);
