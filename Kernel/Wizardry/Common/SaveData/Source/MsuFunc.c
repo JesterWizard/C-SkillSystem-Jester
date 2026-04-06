@@ -118,20 +118,16 @@ void MSU_LoadBonusClaimWIP(void)
 
 void MSU_SaveTonicState(u8 *dst, const u32 size)
 {
-	const u32 tonicStateSize = 0xC0;
-
 	WriteAndVerifySramFast(&gTonicChapterState, dst, sizeof(gTonicChapterState));
 	dst += sizeof(gTonicChapterState);
-	WriteAndVerifySramFast(gUnitTonicState, dst, tonicStateSize);
+	WriteAndVerifySramFast(gUnitTonicState, dst, sizeof(gUnitTonicState));
 }
 
 void MSU_LoadTonicState(u8 *src, const u32 size)
 {
-	const u32 tonicStateSize = 0xC0;
-
 	ReadSramFast(src, &gTonicChapterState, sizeof(gTonicChapterState));
 	src += sizeof(gTonicChapterState);
-	ReadSramFast(src, gUnitTonicState, tonicStateSize);
+	ReadSramFast(src, gUnitTonicState, sizeof(gUnitTonicState));
 }
 
 STATIC_DECLAR void NewPackSuspandUnit(struct Unit *src, struct EmsPackedSusUnit *dst)

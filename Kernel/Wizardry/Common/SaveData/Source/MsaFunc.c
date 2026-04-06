@@ -61,7 +61,7 @@ void MSA_LoadDungeon(u8 *src, const u32 size)
 
 void MSA_SaveTonicState(u8 *dst, const u32 size)
 {
-	const u32 tonicStateSize = 0xC0;
+	const u32 tonicStateSize = 50;
 
 	WriteAndVerifySramFast(&gTonicChapterState, dst, sizeof(gTonicChapterState));
 	dst += sizeof(gTonicChapterState);
@@ -70,7 +70,7 @@ void MSA_SaveTonicState(u8 *dst, const u32 size)
 
 void MSA_LoadTonicState(u8 *src, const u32 size)
 {
-	const u32 tonicStateSize = 0xC0;
+	const u32 tonicStateSize = 50;
 
 	ReadSramFast(src, &gTonicChapterState, sizeof(gTonicChapterState));
 	src += sizeof(gTonicChapterState);
