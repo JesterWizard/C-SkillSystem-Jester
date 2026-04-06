@@ -33,6 +33,10 @@ extern void QuintessenceFx_Goto_C(void);
 extern void EndQuintessenceStealEffect(void);
 
 extern void GiveScroll(void);
+extern void CheckPlayersRemainingASMC(void);
+extern void RemoveActiveUnitASMC(void);
+extern void IsEventTileASMC(void);
+extern bool PostAction_Escape(ProcPtr proc);
 
 extern void IsTraineeLevelCappedOrPromoted(void);
 

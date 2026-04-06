@@ -152,7 +152,7 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
 
     case GOAL_TYPE_ESCAPE:
         Text_InsertDrawString(&proc->texts[0], GetStringTextCenteredPos(64, "Escape"), TEXT_COLOR_SYSTEM_WHITE, "Escape");
-        Text_InsertDrawString(&proc->texts[1], GetStringTextCenteredPos(64, "To win"), TEXT_COLOR_SYSTEM_WHITE, "To win");
+        Text_InsertDrawString(&proc->texts[1], GetStringTextCenteredPos(64, "With all"), TEXT_COLOR_SYSTEM_WHITE, "With all");
         break;
 
     default:

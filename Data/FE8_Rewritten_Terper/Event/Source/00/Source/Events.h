@@ -1,3 +1,5 @@
+#include "jester_headers/custom-arrays.h"
+
 static const EventScr EventScr_Beginning[] = {
     LOAD_MAP_XY(17, 13, CHAPTER_16)
     STAL(16)
@@ -102,7 +104,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_00[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_00_Scene_03_Convo_06)
@@ -226,12 +228,11 @@ static const EventListScr EventListScr_Character[] = {
 };
 
 static const EventListScr EventListScr_Location[] = {
-    // ESCAPE(1, 0)
     END_MAIN
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
+    DEFEAT_ALL(EventScr_Ending_Chapter_00)
     AFEV(EVFLAG_TMP(7), EventListScr_OneEnemyLeft, 0)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN

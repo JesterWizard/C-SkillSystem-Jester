@@ -69,3 +69,15 @@ extern u16 gPalEfxHpBarBlue[];
 extern const struct ProcCmd ProcScr_PhoenixStaff[];
 extern const struct ProcCmd ProcScr_PhoenixRevive[];
 extern const struct PopupInstruction PhoenixStaffRevivedPopup[];
+
+extern const EventScr EventScr_Ending_Chapter_00[];
+extern const EventScr EventScr_Ending_Chapter_01[];
+extern const EventScr EventScr_Ending_Chapter_02[];
+extern const EventScr EventScr_Ending_Chapter_03[];
+extern const EventScr EventScr_Ending_Chapter_04[];
+extern const EventScr EventScr_Ending_Chapter_05[];
+extern const EventScr EventScr_Ending_Chapter_06[];
+extern const EventScr EventScr_Ending_Chapter_07[];
+extern const EventScr EventScr_Ending_Chapter_08[];
+extern const EventScr EventScr_Ending_Chapter_09[];
+extern const EventScr EventScr_Ending_Chapter_10[];

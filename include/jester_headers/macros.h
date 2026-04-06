@@ -112,6 +112,9 @@ enum {
 #define CLEAR_PLAYER_UNITS \
     CLEA
 
+#define CHECK_PLAYERS \
+    ASMC(CheckPlayersRemainingASMC)
+
 // Remove all enemy units
 # define CLEAR_ENEMY_UNITS \
     CLEE
@@ -260,27 +263,6 @@ enum {
     SVAL(EVT_SLOT_5, classId) \
     ASMC(CallEvent_SpawnAssassinfx) \
     STAL(30)
-
-#define ESCAPE_TILE(characterID, EventListscr, x, y) \
-    LOCA(characterID, EventListscr, x, y, TILE_COMMAND_VISIT) \
-
-#define ESCAPE_LOGIC(x, y) \
-    SET_ENDTURN(0xFFFF) \
-    ERASE(0xFFFF) \
-    SET_ACTIVE(0xFFFF) \
-    SET_CURSOR(x, y) \
-    CHECK_EVENTID_ \
-    SADD(EVT_SLOT_2, EVT_SLOT_C, EVT_SLOT_0) \
-    ENUF_SLOT2 \
-    CHECK_PLAYERS \
-    SVAL(EVT_SLOT_7, 0) \
-    BEQ(0x0, EVT_SLOT_C, EVT_SLOT_7) \
-    NOFADE \
-    ENDA \
-LABEL(0x0) \
-    ENUT(0x3) \
-    CALL(EventScr_Ending)
-
 
 #define GIVE_GOLD(gold) \
     SVAL(0x3, gold) \

@@ -2,6 +2,7 @@
 ALIGN 4
 gPostActionFuncs:
     POIN PostAction_CommonStart
+    POIN PostAction_Escape // Escape objective
     POIN PostAction_Thunderstorm
     POIN PostAction_CombatArtEffect
     POIN PostAction_SavageBlow 
