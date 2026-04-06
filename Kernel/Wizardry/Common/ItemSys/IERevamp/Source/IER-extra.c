@@ -53,15 +53,15 @@ bool IsTonicCampaignActiveIndex(int tonicIndex)
 
 int GetTonicStatBonus(struct Unit *unit, int tonicIndex)
 {
-    extern u8 gUnitTonicState[];
-    extern u16 gTonicChapterState;
-    if (gTonicChapterState != gPlaySt.chapterIndex)
-        return 0;
+	extern u8 gUnitTonicState[];
+	extern u16 gTonicChapterState;
+	if (gTonicChapterState != gPlaySt.chapterIndex)
+		return 0;
 
-    if (gUnitTonicState[unit->index] == 9 && tonicIndex >= 0 && tonicIndex <= 7)
-        return 2;
+	if (gUnitTonicState[unit->index] == 9 && tonicIndex >= 0 && tonicIndex <= 7)
+		return 2;
 
-    return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
+	return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
 }
 
 #define LOCAL_TRACE 0

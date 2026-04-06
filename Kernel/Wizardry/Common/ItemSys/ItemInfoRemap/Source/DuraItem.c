@@ -8,28 +8,28 @@ bool IsDuraItem(int item)
     switch (ITEM_INDEX(item)) {
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_1:
-        return true;
+	return true;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_2:
-        return true;
+	return true;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_3:
-        return true;
+	return true;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_4:
-        return true;
+	return true;
 #endif
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
     case CONFIG_ITEM_INDEX_ARMS_SCROLL:
-        return true;
+	return true;
 #endif
     case ITEM_TONIC:
-        return true;
+	return true;
     default:
-        return false;
+	return false;
     }
 }
 
@@ -89,6 +89,7 @@ bool IsTonicItem(int item)
 static int TonicIndex(int item)
 {
 	int tonic = ITEM_USES(item);
+
 	if (tonic < 0 || tonic > 8)
 		return 0;
 
@@ -123,6 +124,7 @@ char *GetDuraItemName(int item)
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_ARMS_SCROLL) {
 		char *result = GetStringFromIndex(GetItemData(ITEM_INDEX(item))->nameTextId);
+
 		result = StrInsertTact();
 		return result;
 	}

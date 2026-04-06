@@ -4,61 +4,61 @@ extern void IsTraineeLevelCappedOrPromoted(void);
 extern int GetStatIncrease_NEW(int growth, int expGained);
 extern void MakeHurtTargetList(int faction);
 
-extern void TryAddUnitToAdjacentEnemyTargetList(struct Unit* unit);
-extern void MakeTargetListForAdjacentEnemies(struct Unit* unit);
+extern void TryAddUnitToAdjacentEnemyTargetList(struct Unit *unit);
+extern void MakeTargetListForAdjacentEnemies(struct Unit *unit);
 
-extern void TryAddUnitToAdjacentEnemyNonBossTargetList(struct Unit* unit);
-extern void MakeTargetListForAdjacentNonBossEnemies(struct Unit* unit);
+extern void TryAddUnitToAdjacentEnemyNonBossTargetList(struct Unit *unit);
+extern void MakeTargetListForAdjacentNonBossEnemies(struct Unit *unit);
 
-extern void TryAddUnitToAdjacentSameFactionTargetList(struct Unit* unit);
-extern void MakeTargetListForAdjacentSameFaction(struct Unit* unit);
+extern void TryAddUnitToAdjacentSameFactionTargetList(struct Unit *unit);
+extern void MakeTargetListForAdjacentSameFaction(struct Unit *unit);
 
-extern void TryAddUnitToAdjacentUnitsTargetList(struct Unit* unit);
-extern void MakeTargetListForAdjacentUnits(struct Unit* unit);
+extern void TryAddUnitToAdjacentUnitsTargetList(struct Unit *unit);
+extern void MakeTargetListForAdjacentUnits(struct Unit *unit);
 
-extern void TryAddUnitToRangedStatusStavesTargetList(struct Unit* unit);
-extern void MakeTargetListForRangedStatusStaves(struct Unit* unit);
+extern void TryAddUnitToRangedStatusStavesTargetList(struct Unit *unit);
+extern void MakeTargetListForRangedStatusStaves(struct Unit *unit);
 
 bool PhoenixStaff_HandleMenuScroll(struct MenuProc *menu);
 
 extern void ExecCustomStaves(ProcPtr proc);
-extern void TryAddUnitToSlowTargetList(struct Unit* unit);
+extern void TryAddUnitToSlowTargetList(struct Unit *unit);
 extern void MakeTargetListForSlow(struct Unit *unit);
-extern void TryAddUnitToForgeTargetList(struct Unit* unit);
+extern void TryAddUnitToForgeTargetList(struct Unit *unit);
 extern void MakeTargetListForForge(struct Unit *unit);
 extern void TryAddToRewarpTargetList(int x, int y);
-extern void MakeTargetListForRewarp(struct Unit* unit) ;
-extern void DoUseRewarpStaff(struct Unit * unit);
+extern void MakeTargetListForRewarp(struct Unit *unit);
+extern void DoUseRewarpStaff(struct Unit *unit);
 extern void ExecRewarpStaff(ProcPtr proc);
 extern const struct SelectInfo gSelectInfo_RewarpTile;
 extern void RewarpUnitMapSelect_Init(ProcPtr menu);
 extern void ForEachPosInMagBy2Range(void(*func)(int x, int y));
 extern const struct ProcCmd ProcScr_PostWarpStaffAction[];
-extern u8 RewarpOnSelectTarget(ProcPtr proc, struct SelectTarget* target);
+extern u8 RewarpOnSelectTarget(ProcPtr proc, struct SelectTarget *target);
 extern void RewarpMapSelect_Init(ProcPtr proc);      // Optional: setup help text/UI for tile selection
-extern u8 RewarpMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget* target); // Optional: called when cursor moves to a tile
-extern void MakeRewarpRangeMap(struct Unit* unit);
+extern u8 RewarpMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget *target); // Optional: called when cursor moves to a tile
+extern void MakeRewarpRangeMap(struct Unit *unit);
 extern const struct ProcCmd gProcScr_SquareSelectWarp[];
-extern void TryAddUnitToPoisonTargetList(struct Unit* unit);
+extern void TryAddUnitToPoisonTargetList(struct Unit *unit);
 extern void MakeTargetListForPoison(struct Unit *unit);
-extern void TryAddUnitToDelayTargetList(struct Unit* unit);
+extern void TryAddUnitToDelayTargetList(struct Unit *unit);
 extern void MakeTargetListForDelay(struct Unit *unit);
-extern void TryAddUnitToEntrapTargetList(struct Unit* unit);
+extern void TryAddUnitToEntrapTargetList(struct Unit *unit);
 extern void MakeTargetListForEntrap(struct Unit *unit);
-extern void DoUseEntrapStaff(struct Unit* unit, void(*func)(struct Unit*));
-extern void TryAddUnitToQuickenTargetList(struct Unit* unit);
+extern void DoUseEntrapStaff(struct Unit *unit, void(*func)(struct Unit *));
+extern void TryAddUnitToQuickenTargetList(struct Unit *unit);
 extern void MakeTargetListForQuicken(struct Unit *unit);
-extern void TryAddUnitToHideTargetList(struct Unit* unit);
+extern void TryAddUnitToHideTargetList(struct Unit *unit);
 extern void MakeTargetListForHide(struct Unit *unit);
-extern void TryAddUnitToProvokeTargetList(struct Unit* unit);
+extern void TryAddUnitToProvokeTargetList(struct Unit *unit);
 extern void MakeTargetListForProvoke(struct Unit *unit);
-extern void TryAddUnitToPetrifyTargetList(struct Unit* unit);
+extern void TryAddUnitToPetrifyTargetList(struct Unit *unit);
 extern void MakeTargetListForPetrify(struct Unit *unit);
-extern void TryAddUnitToSoothTargetList(struct Unit* unit);
+extern void TryAddUnitToSoothTargetList(struct Unit *unit);
 extern void MakeTargetListForSooth(struct Unit *unit);
-extern void TryAddUnitToEnfeebleTargetList(struct Unit* unit);
+extern void TryAddUnitToEnfeebleTargetList(struct Unit *unit);
 extern void MakeTargetListForEnfeeble(struct Unit *unit);
-extern void TryAddUnitToInvestTargetList(struct Unit* unit);
+extern void TryAddUnitToInvestTargetList(struct Unit *unit);
 extern void MakeTargetListForInvest(struct Unit *unit);
 
 struct SecondaryGoalWindowProc {
@@ -72,69 +72,69 @@ struct SecondaryGoalWindowProc {
 extern void DrawSecondaryGoalWindow(struct SecondaryGoalWindowProc *proc);
 extern void SecondaryGoalWindow_Init(struct SecondaryGoalWindowProc *proc);
 extern void SecondaryGoalWindow_Loop_Display(struct SecondaryGoalWindowProc *proc);
-extern void GetGoalWindowPosition(int* x, int* y);
+extern void GetGoalWindowPosition(int *x, int *y);
 extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
 
-extern void EnableFreeMovementASMC();
-extern void DisableFreeMovementASMC();
+extern void EnableFreeMovementASMC(void);
+extern void DisableFreeMovementASMC(void);
 
 #ifdef CONFIG_LIGHTS_OUT_GAME
 
     enum {
-        DIMENSIONS_3x3 = 0,
-        DIMENSIONS_3x4 = 1,
-        DIMENSIONS_4x4 = 2,
-        DIMENSIONS_4x5 = 3,
+	DIMENSIONS_3x3 = 0,
+	DIMENSIONS_3x4 = 1,
+	DIMENSIONS_4x4 = 2,
+	DIMENSIONS_4x5 = 3,
 
-        ICON_COUNT_2 = 2,
-        ICON_COUNT_3 = 3,
-        
-        CAN_SKIP = 0,
-        CANT_SKIP = 1,
+	ICON_COUNT_2 = 2,
+	ICON_COUNT_3 = 3,
 
-        REWARD_TIER_1 = 0,
-        REWARD_TIER_2 = 1,
-        REWARD_TIER_3 = 2,
+	CAN_SKIP = 0,
+	CANT_SKIP = 1,
 
-        FLAG_0 = 0,
-        FLAG_1 = 1,
-        FLAG_2 = 2,
-        FLAG_3 = 3,
-        FLAG_4 = 4,
-        FLAG_5 = 5,
-        FLAG_6 = 6,
-        FLAG_7 = 7,
-        FLAG_8 = 8,
-        FLAG_9 = 9,
-        FLAG_10 = 10,
-        FLAG_11 = 11,
-        FLAG_12 = 12,
-        FLAG_13 = 13,
-        FLAG_14 = 14,
-        FLAG_15 = 15
+	REWARD_TIER_1 = 0,
+	REWARD_TIER_2 = 1,
+	REWARD_TIER_3 = 2,
+
+	FLAG_0 = 0,
+	FLAG_1 = 1,
+	FLAG_2 = 2,
+	FLAG_3 = 3,
+	FLAG_4 = 4,
+	FLAG_5 = 5,
+	FLAG_6 = 6,
+	FLAG_7 = 7,
+	FLAG_8 = 8,
+	FLAG_9 = 9,
+	FLAG_10 = 10,
+	FLAG_11 = 11,
+	FLAG_12 = 12,
+	FLAG_13 = 13,
+	FLAG_14 = 14,
+	FLAG_15 = 15
     };
 
-    extern void PuzzleEvent();
-    extern void PuzzleEvent2();
+    extern void PuzzleEvent(void);
+    extern void PuzzleEvent2(void);
 #endif
 
 void StartDebuggerProc(ProcPtr playerPhaseProc);
 
-void PrepItemUseScroll_OnInit(struct ProcPrepItemUseJunaFruit * proc);
-void PrepItemUseScroll_OnEnd(struct ProcPrepItemUseJunaFruit * proc);
-void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit * proc, int item, int x, int y);
+void PrepItemUseScroll_OnInit(struct ProcPrepItemUseJunaFruit *proc);
+void PrepItemUseScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc);
+void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit *proc, int item, int x, int y);
 extern const struct ProcCmd ProcScr_PrepItemUseScroll[];
 
 extern const struct ProcCmd ProcScr_PrepItemUseArmsScroll[];
-bool CanUnitUseArmsScroll(struct Unit * unit);
-void ItemUseAction_ArmsScroll(struct Unit * unit);
-void PrepItemUseArmsScroll_OnInit(struct ProcPrepItemUseJunaFruit * proc);
-void PrepItemUseArmsScroll_OnEnd(struct ProcPrepItemUseJunaFruit * proc);
-void PrepItemUseArmsScroll_OnDraw(struct ProcPrepItemUseJunaFruit * proc, int item, int x, int y);
+bool CanUnitUseArmsScroll(struct Unit *unit);
+void ItemUseAction_ArmsScroll(struct Unit *unit);
+void PrepItemUseArmsScroll_OnInit(struct ProcPrepItemUseJunaFruit *proc);
+void PrepItemUseArmsScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc);
+void PrepItemUseArmsScroll_OnDraw(struct ProcPrepItemUseJunaFruit *proc, int item, int x, int y);
 
-int GetHighestWeaponRank(struct Unit * unit);
+int GetHighestWeaponRank(struct Unit *unit);
 
-void BeginMapAnimForSimultaneousDamage(struct BattleUnit* actor, struct BattleUnit* target, int actorDamage, int targetDamage);
+void BeginMapAnimForSimultaneousDamage(struct BattleUnit *actor, struct BattleUnit *target, int actorDamage, int targetDamage);
 
 extern void BattleApplyMiscActionExpGains_Modular(int exp);
 extern void AddExp_Event(int exp);
@@ -147,16 +147,16 @@ bool isWeaponTriangleAdvantage(int attackerWeapon, int defenderWeapon); // weapo
 bool weaponHasSpecialEffect(int weaponAttributes);  // weaponID
 int findMax(u8 *array, int size);  // find max value in array and return index
 
-int RandSkill(int id, struct Unit * unit);
+int RandSkill(int id, struct Unit *unit);
 extern bool SkillTesterPlus(struct Unit *unit, u16 sid);
 extern bool isMonsterClass(int classId);
 extern int find_item_slot(struct Unit *unit, int item);
-extern int GetUnitCurrentMP(struct Unit * unit);
-extern int GetUnitMaxMP(struct Unit * unit);
+extern int GetUnitCurrentMP(struct Unit *unit);
+extern int GetUnitMaxMP(struct Unit *unit);
 
 extern int GetWEXPForNextLevel(int wexp);
 
-extern u8 GetItemReward(struct Unit * winner, struct Unit * loser);
+extern u8 GetItemReward(struct Unit *winner, struct Unit *loser);
 
 extern void Popup_GotItem(ProcPtr proc);
 extern const struct ProcCmd ProcPopup_GotItem[];
@@ -170,7 +170,7 @@ struct ProcGrantBEXP {
     PROC_HEADER;
     int unitIndex;
 };
-extern void GrantBEXP_Loop(struct ProcGrantBEXP* proc);
+extern void GrantBEXP_Loop(struct ProcGrantBEXP *proc);
 extern const struct ProcCmd ProcScr_GrantBEXP[];
 extern void GrantBEXP(ProcPtr parent);
 
@@ -201,33 +201,31 @@ extern u8 Gfx_UI_Number_7[];
 extern u8 Gfx_UI_Number_8[];
 extern u8 Gfx_UI_Number_9[];
 
-extern void ShootArrow_ASMC();
+extern void ShootArrow_ASMC(void);
 void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
 
-extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc* proc);
-extern void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit * unit);
+extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc *proc);
+extern void drawItems_INFUSE(struct Text *textBase, u16 *tm, int yLines, struct Unit *unit);
 
 extern void StartCreditsProc_ASMC(ProcPtr parent);
 extern int StartAvatarEdits_ASMC(ProcPtr proc);
 
-void StartBEXPScreen_FromPrep(struct ProcAtMenu * parent);
-void StartBaseScreen_FromPrep(struct ProcAtMenu * parent);
-void StartAuguryScreen_FromPrep(struct ProcAtMenu * parent);
+void StartBEXPScreen_FromPrep(struct ProcAtMenu *parent);
+void StartBaseScreen_FromPrep(struct ProcAtMenu *parent);
+void StartAuguryScreen_FromPrep(struct ProcAtMenu *parent);
 
-u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef* def, int number);
-int MapMenu_BiographyCommandDraw(struct MenuProc* menu, struct MenuItemProc* menuItem);
-u8 MapMenu_BiographyCommand(struct MenuProc* menu, struct MenuItemProc* menuItem);
+u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef *def, int number);
+int MapMenu_BiographyCommandDraw(struct MenuProc *menu, struct MenuItemProc *menuItem);
+u8 MapMenu_BiographyCommand(struct MenuProc *menu, struct MenuItemProc *menuItem);
 
-struct BiographyEntry
-{
+struct BiographyEntry {
     int textId;
     u8 backgroundId;
 };
 
-struct CharacterBiography
-{
+struct CharacterBiography {
     u8 characterId;
-    char * subtitle;
+    char *subtitle;
     u8 songId;
     struct BiographyEntry entries[4];
 };

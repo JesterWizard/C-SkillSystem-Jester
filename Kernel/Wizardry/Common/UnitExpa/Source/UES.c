@@ -2,7 +2,7 @@
 #include "unit-expa.h"
 #include "kernel-lib.h"
 
-void SetBitUES_BU(struct BattleUnit * bu, int bit)
+void SetBitUES_BU(struct BattleUnit *bu, int bit)
 {
 	Assert(bit >= 0 && bit < 16);
 	_BIT_SET(&bu->unit._u3A, bit);
@@ -41,6 +41,7 @@ void ResetUnitsExpaSus(void)
 {
 	int i;
 	extern u16 gTonicChapterState;
+
 	gTonicChapterState = 0xFF;
 
 	for (i = FACTION_BLUE + 1; i < (FACTION_BLUE + 0x40); i++)

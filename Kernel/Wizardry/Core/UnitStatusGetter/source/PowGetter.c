@@ -14,24 +14,24 @@ int _GetUnitPower(struct Unit *unit)
 
 #if defined(SID_Unaware) && (COMMON_SKILL_VALID(SID_Unaware))
     if (unit == GetUnit(gBattleActor.unit.index) && GetUnit(gBattleTarget.unit.index) && SkillTester(GetUnit(gBattleTarget.unit.index), SID_Unaware))
-        return status;
+	return status;
     else if (unit == GetUnit(gBattleTarget.unit.index) && GetUnit(gBattleActor.unit.index) && SkillTester(GetUnit(gBattleActor.unit.index), SID_Unaware))
-        return status;
+	return status;
 #endif
 
 	for (it = gpPowGetters; *it; it++)
 		status = (*it)(status, unit);
 
-	if (gpExternalPowGetters)
-		status = gpExternalPowGetters(status, unit);
+    if (gpExternalPowGetters)
+	status = gpExternalPowGetters(status, unit);
 
     status += PowTonic(unit);
     status += OmniTonic(unit);
 
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {
-        if (unit->pCharacterData->number == CHARACTER_SETH)
-            status -= gPlaySt.chapterIndex < 5 ? 5 - gPlaySt.chapterIndex : 0;
+	if (unit->pCharacterData->number == CHARACTER_SETH)
+	    status -= gPlaySt.chapterIndex < 5 ? 5 - gPlaySt.chapterIndex : 0;
     }
 
 	return status;
@@ -54,7 +54,7 @@ int PowGetterSkills(int status, struct Unit *unit)
     int originalStatus = status;
 
     FORCE_DECLARE bool hugePowerPlus = false;
-    FORCE_DECLARE struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+    FORCE_DECLARE struct NewBwl *bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
 #if defined(SID_LifeAndDeath) && (COMMON_SKILL_VALID(SID_LifeAndDeath))
 	if (SkillTester(unit, SID_LifeAndDeath))
@@ -132,30 +132,30 @@ int PowGetterSkills(int status, struct Unit *unit)
 #if (defined(SID_TakerStrength) && (COMMON_SKILL_VALID(SID_TakerStrength)))
     if (SkillTester(unit, SID_TakerStrength) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
-        int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerStrength);
-        
-        if (takerBoost > 10)
-            status += 10;
-        else   
-            status += takerBoost;
+	int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerStrength);
+
+	if (takerBoost > 10)
+	    status += 10;
+	else
+	    status += takerBoost;
     }
 #endif
 
 #if (defined(SID_TakerSpectrum) && (COMMON_SKILL_VALID(SID_TakerSpectrum)))
     if (SkillTester(unit, SID_TakerSpectrum) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
-        int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSpectrum);
-        
-        if (takerBoost > 10)
-            status += 10;
-        else   
-            status += takerBoost;
+	int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSpectrum);
+
+	if (takerBoost > 10)
+	    status += 10;
+	else
+	    status += takerBoost;
     }
 #endif
 
 #if defined(SID_Freelancer) && (COMMON_SKILL_VALID(SID_Freelancer))
     if (SkillTester(unit, SID_Freelancer) && unit->ranks[ITYPE_AXE] >= 1)
-        status += SKILL_EFF0(SID_Freelancer);
+	status += SKILL_EFF0(SID_Freelancer);
 #endif
 
 	if (cur_hp == max_hp) {
@@ -180,101 +180,101 @@ int PowGetterSkills(int status, struct Unit *unit)
 #if (defined(SID_HugePowerPlus) && (COMMON_SKILL_VALID(SID_HugePowerPlus)))
     if (SkillTesterPlus(unit, SID_HugePowerPlus))
     {
-        status += unit->pow / 2;
-        hugePowerPlus = true;
+	status += unit->pow / 2;
+	hugePowerPlus = true;
     }
 #endif
 
 #if (defined(SID_HugePower) && (COMMON_SKILL_VALID(SID_HugePower)))
     if (SkillTester(unit, SID_HugePower) && !hugePowerPlus)
     {
-        if (cur_hp == max_hp)
-            status += unit->pow / 2;
+	if (cur_hp == max_hp)
+	    status += unit->pow / 2;
     }
 #endif
 
 #if (defined(SID_Rampage) && (COMMON_SKILL_VALID(SID_Rampage)))
     if (SkillTester(unit, SID_Rampage))
-        status += unit->pow / 2;
+	status += unit->pow / 2;
 #endif
 
 #if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
     if (SkillTester(unit, SID_PairUp))
-        if (unit->state & US_RESCUING)
-            status += Div(_GetUnitPower(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
+	if (unit->state & US_RESCUING)
+	    status += Div(_GetUnitPower(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
 #endif
 
 #if defined(SID_Sellsword) && (COMMON_SKILL_VALID(SID_Sellsword))
     if (SkillTester(unit, SID_Sellsword) && CheckBitUES(unit, UES_BIT_SELLSWORD_SKILL_USED))
-        status += SKILL_EFF0(SID_Sellsword);
+	status += SKILL_EFF0(SID_Sellsword);
 #endif
 
 #if defined(SID_GoldenGlory) && (COMMON_SKILL_VALID(SID_GoldenGlory))
     if (SkillTester(unit, SID_GoldenGlory))
     {
-        const int statBoost = gPlaySt.partyGoldAmount / 20000;
-        status += statBoost > 5 ? 5 : statBoost;
+	const int statBoost = gPlaySt.partyGoldAmount / 20000;
+
+	status += statBoost > 5 ? 5 : statBoost;
     }
 #endif
 
 #if defined(SID_SupremeOverlord) && (COMMON_SKILL_VALID(SID_SupremeOverlord))
-        if (SkillTester(unit, SID_SupremeOverlord))
-        {
-            int deadAllies = 0;
+	if (SkillTester(unit, SID_SupremeOverlord))
+	{
+	    int deadAllies = 0;
 
-            for (int i = UNIT_FACTION(unit) + 1; i < (UNIT_FACTION(unit) + GetFactionUnitAmount(UNIT_FACTION(unit))); i++)
-            {
-                if (!(GetUnit(i)->pCharacterData))
-                    break;
-                if (!UNIT_ALIVE(GetUnit(i)))
-                    deadAllies += 1;
-            }
+	    for (int i = UNIT_FACTION(unit) + 1; i < (UNIT_FACTION(unit) + GetFactionUnitAmount(UNIT_FACTION(unit))); i++)
+	    {
+		if (!(GetUnit(i)->pCharacterData))
+		    break;
+		if (!UNIT_ALIVE(GetUnit(i)))
+		    deadAllies += 1;
+	    }
 
-            if (UNIT_FACTION(unit) != FACTION_RED)
-                status += deadAllies * 3;
-            else
-                status += deadAllies / 3;
-        }
+	    if (UNIT_FACTION(unit) != FACTION_RED)
+		status += deadAllies * 3;
+	    else
+		status += deadAllies / 3;
+	}
 #endif
 
 #if defined(SID_BonusDoubler) && (COMMON_SKILL_VALID(SID_BonusDoubler))
     if (SkillTester(unit, SID_BonusDoubler))
-        status += (status - originalStatus);
+	status += (status - originalStatus);
 #endif
 
 #if defined(SID_SlowStart) && (COMMON_SKILL_VALID(SID_SlowStart))
     if (SkillTester(unit, SID_SlowStart) && gPlaySt.chapterTurnNumber < 6)
-        status -= Div(status * SKILL_EFF0(SID_SlowStart), 100);
+	status -= Div(status * SKILL_EFF0(SID_SlowStart), 100);
 #endif
 
     if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_ENFEEBLE)
     {
-        status -= GetUnitStatusDuration(unit) * 2;
+	status -= GetUnitStatusDuration(unit) * 2;
     };
 
 	return status;
 }
 
-int PowPsychUpCheck(int status, struct Unit * unit)
+int PowPsychUpCheck(int status, struct Unit *unit)
 {
     FORCE_DECLARE int stolen_status = 0;
 
 #if (defined(SID_PsychUp) && (COMMON_SKILL_VALID(SID_PsychUp)))
     if (unit == GetUnit(gBattleActor.unit.index) && SkillTester(unit, SID_PsychUp))
     {
-        stolen_status = PowGetterWeaponBonus(0, GetUnit(gBattleTarget.unit.index)) + 
-                        PowGetterSkills(0, GetUnit(gBattleTarget.unit.index)) +
-                        GetStatDebuffMsgBuf(GetUnit(gBattleTarget.unit.index))->pow;
+	stolen_status = PowGetterWeaponBonus(0, GetUnit(gBattleTarget.unit.index)) +
+			PowGetterSkills(0, GetUnit(gBattleTarget.unit.index)) +
+			GetStatDebuffMsgBuf(GetUnit(gBattleTarget.unit.index))->pow;
 
-        return status + stolen_status;
-    }
-    else if (unit == GetUnit(gBattleTarget.unit.index) && SkillTester(unit, SID_PsychUp))
+	return status + stolen_status;
+    } else if (unit == GetUnit(gBattleTarget.unit.index) && SkillTester(unit, SID_PsychUp))
     {
-        stolen_status = PowGetterWeaponBonus(0, GetUnit(gBattleTarget.unit.index)) + 
-                        PowGetterSkills(0, GetUnit(gBattleTarget.unit.index)) +
-                        GetStatDebuffMsgBuf(GetUnit(gBattleTarget.unit.index))->pow;
+	stolen_status = PowGetterWeaponBonus(0, GetUnit(gBattleTarget.unit.index)) +
+			PowGetterSkills(0, GetUnit(gBattleTarget.unit.index)) +
+			GetStatDebuffMsgBuf(GetUnit(gBattleTarget.unit.index))->pow;
 
-        return status + stolen_status;
+	return status + stolen_status;
     }
 #endif
 
@@ -283,15 +283,13 @@ int PowPsychUpCheck(int status, struct Unit * unit)
 
 int PowGetterStaffBoost(int status, struct Unit *unit)
 {
-    {
-        extern u8 gUnitTonicState[];
+	extern u8 gUnitTonicState[];
 
     if (gUnitTonicState[unit->index] == 0)
 	    return status + unit->barrierDuration;
 
 	if (gUnitTonicState[unit->index] == 7)
 	    return status + unit->barrierDuration;
-    }
 
     return status;
 }

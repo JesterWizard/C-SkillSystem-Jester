@@ -39,8 +39,8 @@ int _GetUnitSpeed(struct Unit *unit)
 	for (it = gpSpdGetters; *it; it++)
 		status = (*it)(status, unit);
 
-	if (gpExternalSpdGetters)
-		status = gpExternalSpdGetters(status, unit);
+    if (gpExternalSpdGetters)
+        status = gpExternalSpdGetters(status, unit);
 
     status += SpdTonic(unit);
     status += OmniTonic(unit);

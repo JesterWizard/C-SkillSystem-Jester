@@ -31,7 +31,7 @@ int MovGetterSkills(int status, struct Unit *unit)
 	FORCE_DECLARE int cur_hp = GetUnitCurrentHp(unit);
 	FORCE_DECLARE int max_hp = GetUnitMaxHp(unit);
 
-    FORCE_DECLARE struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+    FORCE_DECLARE struct NewBwl *bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
 #if defined(SID_MovBonus) && (COMMON_SKILL_VALID(SID_MovBonus))
 	if (SkillTester(unit, SID_MovBonus))
@@ -116,24 +116,24 @@ int MovGetterSkills(int status, struct Unit *unit)
 #if (defined(SID_TakerMovement) && (COMMON_SKILL_VALID(SID_TakerMovement)))
     if (SkillTester(unit, SID_TakerMovement) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
-        int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerMovement);
-        
-        if (takerBoost > 10)
-            status += 10;
-        else   
-            status += takerBoost;
+	int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerMovement);
+
+	if (takerBoost > 10)
+	    status += 10;
+	else
+	    status += takerBoost;
     }
 #endif
 
 #if (defined(SID_TakerSpectrum) && (COMMON_SKILL_VALID(SID_TakerSpectrum)))
     if (SkillTester(unit, SID_TakerSpectrum) && gpKernelDesignerConfig->reset_bwl_stats_each_chapter == true)
     {
-        int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSpectrum);
-        
-        if (takerBoost > 10)
-            status += 10;
-        else   
-            status += takerBoost;
+	int takerBoost = bwl->winAmt * SKILL_EFF0(SID_TakerSpectrum);
+
+	if (takerBoost > 10)
+	    status += 10;
+	else
+	    status += takerBoost;
     }
 #endif
 

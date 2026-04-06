@@ -29,8 +29,8 @@ int _GetUnitResistance(struct Unit *unit)
 	for (it = gpResGetters; *it; it++)
 		status = (*it)(status, unit);
 
-	if (gpExternalResGetters)
-		status = gpExternalResGetters(status, unit);
+    if (gpExternalResGetters)
+        status = gpExternalResGetters(status, unit);
 
     status += ResTonic(unit);
     status += OmniTonic(unit);

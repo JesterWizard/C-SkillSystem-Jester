@@ -39,8 +39,8 @@ int _GetUnitSkill(struct Unit *unit)
         return status;
 #endif
 
-	if (gpExternalSklGetters)
-		status = gpExternalSklGetters(status, unit);
+    if (gpExternalSklGetters)
+        status = gpExternalSklGetters(status, unit);
 
     status += SklTonic(unit);
     status += OmniTonic(unit);
