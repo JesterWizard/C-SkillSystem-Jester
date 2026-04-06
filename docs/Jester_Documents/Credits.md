@@ -2,24 +2,30 @@
 
 ## Icons
 
-### Skills
-### Items
-### Staves
+| Asset Name | Author Name | Link |
+|------------|-------------|------|
+| Tonic Icons | Pikin | https://feuniverse.us/t/pikmin-asm/8148/36 |
+| Rewarp | Lisandra Brave | https://github.com/Klokinator/FE-Repo/blob/main/Item%20Icons/Magic%20-%20Staves/%7BLisandra%20Brave%7D%20(FE5%20Recolor)%20Rewarp.png |
 
-### Potraits
+## Portraits
 
-Joshua - Dark Skin (JeyTheCount)
-Marisa - Dark Skin (JeyTheCount)
-Aias - Dark Skin (JeyTheCount)
-Caellach - Dark Skin (JeyTheCount)
-Ismaire - Dark Skin (JeyTheCount)
-Carlyle - Dark Skin (JeyTheCount)
-Ewan - Dark Skin (JeyTheCount)
-Gerik - Dark Skin (JeyTheCount)
-Tethys - Dark Skin (JeyTheCount)
-Arena (Vilk)
-Armory (HyperGammaSpaces)
-Shop (HyperGammaSpaces)
-Secret Shop (HyperGammaSpaces)
+| Asset Name | Author Name | Link |
+|------------|-------------|------|
+| Joshua - Dark skin | JeyTheCount | |
+| Marisa - Dark skin | JeyTheCount | |
+| Aias - Dark skin | JeyTheCount | |
+| Caellach - Dark skin | JeyTheCount | |
+| Ismaire - Dark skin | JeyTheCount | |
+| Carlyle - Dark skin | JeyTheCount | |
+| Ewan - Dark skin | JeyTheCount | |
+| Gerik - Dark skin | JeyTheCount | |
+| Tethys - Dark skin | JeyTheCount | |
 
-Rewarp - [Lisandra Brave](https://github.com/Klokinator/FE-Repo/blob/main/Item%20Icons/Magic%20-%20Staves/%7BLisandra%20Brave%7D%20(FE5%20Recolor)%20Rewarp.png)
+## Menu Icons
+
+| Asset Name | Author Name | Link |
+|------------|-------------|------|
+| Arena (FE8 palette) | Vilk | |
+| Armory (FE8 palette) | HyperGammaSpaces | |
+| Shop (FE8 palette) | HyperGammaSpaces | |
+| Secret Shop (FE8 palette) | HyperGammaSpaces | |
