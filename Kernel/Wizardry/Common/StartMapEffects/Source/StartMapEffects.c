@@ -365,6 +365,9 @@ static void StartMapEffectsPrompt_Draw(struct StartMapEffectsPromptProc *proc)
 
 void StartMapEffectsPrompt_OnInit(struct Proc *proc_)
 {
+    if (gpKernelDesignerConfig->start_map_effects != true)
+        return;
+
     struct StartMapEffectsPromptProc *proc = (struct StartMapEffectsPromptProc *)proc_;
     int i;
 

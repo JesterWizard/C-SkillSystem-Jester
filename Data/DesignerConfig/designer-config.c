@@ -75,6 +75,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.summons_gain_exp = false,
 	.collect_dead_units = false,
 	.goal_timer = false,
+	.goal_escape = true,
 	.prep_menu_skills = true,
 	.prep_menu_augury = true,
 	.prep_menu_infuse = true,

@@ -413,7 +413,8 @@ enum
     GOAL_TYPE_DEFENSE = 2,
     GOAL_TYPE_DEFEAT_BOSS = 3,
     GOAL_TYPE_SPECIAL = 4,
-    GOAL_TYPE_TIMER = 5, // Jester, custom
+    GOAL_TYPE_TIMER = 5,
+    GOAL_TYPE_ESCAPE = 6,
 };
 
 struct SMSHandle

@@ -180,3 +180,10 @@ struct Auguries {
     int bodyTextId;
     int songId;
 };
+
+typedef struct {
+    int chapter_id;   // ID of the chapter
+    int time_seconds; // time in seconds
+} TimerAmount;
+
+extern const TimerAmount chapter_timers[];

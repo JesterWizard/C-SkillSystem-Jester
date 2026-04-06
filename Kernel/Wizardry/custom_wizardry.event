@@ -113,7 +113,7 @@
 
 #include "Misc/VeslyShootArrow/VeslyShootArrow_Installer.event"
 
-#include "Misc/Timer/Timer_Installer.event"
+#include "Misc/Goals/Installer.event"
 
 // #include "Misc/Crafting/Crafting_Installer.event"
 
