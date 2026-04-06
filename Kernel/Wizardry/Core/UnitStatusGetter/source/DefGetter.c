@@ -32,8 +32,8 @@ int _GetUnitDefense(struct Unit *unit)
 	if (gpExternalDefGetters)
 		status = gpExternalDefGetters(status, unit);
 
-    extern u8 gUnitTonicState[];
-    status += gUnitTonicState[unit->index] == 6 ? 2 : 0;
+    status += DefTonic(unit);
+    status += OmniTonic(unit);
 
 	return status;
 }

@@ -36,48 +36,48 @@ bool IsDuraItem(int item)
 static const char *const sTonicNames[] = {
 	"HP Tonic",
 	"STR Tonic",
+	"MAG Tonic",
 	"SKL Tonic",
 	"SPD Tonic",
+	"LCK Tonic",
 	"DEF Tonic",
 	"RES Tonic",
-	"LCK Tonic",
-	"MAG Tonic",
 	"OMNI Tonic",
 };
 
 static const int sTonicIconIds[] = {
 	ITEM_ICON_TONIC_HP,
 	ITEM_ICON_TONIC_STR,
+	ITEM_ICON_TONIC_MAG,
 	ITEM_ICON_TONIC_SKL,
 	ITEM_ICON_TONIC_SPD,
+	ITEM_ICON_TONIC_LCK,
 	ITEM_ICON_TONIC_DEF,
 	ITEM_ICON_TONIC_RES,
-	ITEM_ICON_TONIC_LCK,
-	ITEM_ICON_TONIC_MAG,
 	ITEM_ICON_TONIC_OMNI,
 };
 
 static const int sTonicDescIds[] = {
 	MSG_ITEM_TONIC_HP_DESC,
 	MSG_ITEM_TONIC_STR_DESC,
+	MSG_ITEM_TONIC_MAG_DESC,
 	MSG_ITEM_TONIC_SKL_DESC,
 	MSG_ITEM_TONIC_SPD_DESC,
+	MSG_ITEM_TONIC_LCK_DESC,
 	MSG_ITEM_TONIC_DEF_DESC,
 	MSG_ITEM_TONIC_RES_DESC,
-	MSG_ITEM_TONIC_LCK_DESC,
-	MSG_ITEM_TONIC_MAG_DESC,
 	MSG_ITEM_TONIC_OMNI_DESC,
 };
 
 static const int sTonicUseDescIds[] = {
 	MSG_ITEM_TONIC_HP_USEDESC,
 	MSG_ITEM_TONIC_STR_USEDESC,
+	MSG_ITEM_TONIC_MAG_USEDESC,
 	MSG_ITEM_TONIC_SKL_USEDESC,
 	MSG_ITEM_TONIC_SPD_USEDESC,
+	MSG_ITEM_TONIC_LCK_USEDESC,
 	MSG_ITEM_TONIC_DEF_USEDESC,
 	MSG_ITEM_TONIC_RES_USEDESC,
-	MSG_ITEM_TONIC_LCK_USEDESC,
-	MSG_ITEM_TONIC_MAG_USEDESC,
 	MSG_ITEM_TONIC_OMNI_USEDESC,
 };
 
@@ -89,10 +89,10 @@ bool IsTonicItem(int item)
 static int TonicIndex(int item)
 {
 	int tonic = ITEM_USES(item);
-	if (tonic < 1 || tonic > 9)
+	if (tonic < 0 || tonic > 8)
 		return 0;
 
-	return tonic - 1;
+	return tonic;
 }
 
 char *GetTonicItemName(int item)

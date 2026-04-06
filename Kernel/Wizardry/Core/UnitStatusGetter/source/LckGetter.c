@@ -25,7 +25,8 @@ int _GetUnitLuck(struct Unit *unit)
 	if (gpExternalLckGetters)
 		status = gpExternalLckGetters(status, unit);
 
-    status += GetTonicStatBonus(unit, 5);
+    status += LckTonic(unit);
+    status += OmniTonic(unit);
 
 	return status;
 }

@@ -17,6 +17,7 @@ ALIGN 4
 #include "source/ConGetter.lyn.event"
 #include "source/AidGetter.lyn.event"
 #include "source/MiscGetter.lyn.event"
+#include "source/TonicGetter.lyn.event"
 
 #include "source/InjectHPGetters.event"
 #include "source/InjectMovGetters.event"

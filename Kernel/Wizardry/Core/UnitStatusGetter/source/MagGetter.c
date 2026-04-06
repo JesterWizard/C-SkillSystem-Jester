@@ -26,6 +26,9 @@ int _GetUnitMagic(struct Unit *unit)
 	if (gpExternalMagGetters)
 		status = gpExternalMagGetters(status, unit);
 
+    status += MagTonic(unit);
+    status += OmniTonic(unit);
+
 	return status;
 }
 

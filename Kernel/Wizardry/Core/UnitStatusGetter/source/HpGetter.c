@@ -5,12 +5,7 @@
 #include "bwl.h"
 #include "unit-expa.h"
 #include "debuff.h"
-
-static int GetTonicHpBonus(struct Unit *unit)
-{
-    extern u8 gUnitTonicState[];
-    return gUnitTonicState[unit->index] == 1 ? 2 : 0;
-}
+#include "jester_headers/custom-functions.h"
 
 int _GetUnitMaxHp(struct Unit *unit)
 {
@@ -30,7 +25,8 @@ int _GetUnitMaxHp(struct Unit *unit)
 	if (gpExternalHpGetters)
 		status = gpExternalHpGetters(status, unit);
 
-    status += GetTonicHpBonus(unit);
+    status += HPTonic(unit);
+    status += OmniTonic(unit);
 
     if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_HEX) {
         status = status / 2;

@@ -16,8 +16,6 @@ int _GetUnitCon(struct Unit *unit)
     for (it = gpConGetters; *it; it++)
         status = (*it)(status, unit);
 
-    status += IsTonicCampaignActiveIndex(9) ? 2 : 0;
-
     return status;
 }
 

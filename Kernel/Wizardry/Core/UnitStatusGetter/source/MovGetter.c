@@ -3,6 +3,8 @@
 #include "status-getter.h"
 #include "debuff.h"
 #include "constants/skills.h"
+
+extern int GetTonicStatBonus(struct Unit *unit, int tonicIndex);
 #include "bwl.h"
 
 int _GetUnitMov(struct Unit *unit)
@@ -16,8 +18,6 @@ int _GetUnitMov(struct Unit *unit)
 	if (gpExternalMovGetters)
 		status = gpExternalMovGetters(status, unit);
 
-	extern u8 gUnitTonicState[];
-	status += gUnitTonicState[unit->index] == 8 ? 2 : 0;
 
 	/* Some special effects */
 	if (gpDebuffInfos[GetUnitStatusIndex(unit)].cannot_move)

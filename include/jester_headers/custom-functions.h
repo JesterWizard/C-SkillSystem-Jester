@@ -236,3 +236,13 @@ extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2
 
 extern int StaffEXP(int weapon);
 extern void ExecBallista(ProcPtr proc);
+
+extern int HPTonic(struct Unit *unit);
+extern int PowTonic(struct Unit *unit);
+extern int MagTonic(struct Unit *unit);
+extern int SklTonic(struct Unit *unit);
+extern int SpdTonic(struct Unit *unit);
+extern int LckTonic(struct Unit *unit);
+extern int DefTonic(struct Unit *unit);
+extern int ResTonic(struct Unit *unit);
+extern int OmniTonic(struct Unit *unit);

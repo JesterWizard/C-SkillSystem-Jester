@@ -42,7 +42,8 @@ int _GetUnitSkill(struct Unit *unit)
 	if (gpExternalSklGetters)
 		status = gpExternalSklGetters(status, unit);
 
-    status += GetTonicStatBonus(unit, 3);
+    status += SklTonic(unit);
+    status += OmniTonic(unit);
 
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {

@@ -17,6 +17,7 @@ extern const struct EmsChunk gEmsSavChunks[];
 extern const struct EmsChunk gEmsSusChunks[];
 extern const u16 gEmsOffsets[SAVE_ID_MAX];
 extern u8 gUnitTonicState[];
+extern u16 gTonicChapterState;
 
 extern const u16 gEmsSizes[2];
 #define EMS_SIZE_SAV (gEmsSizes[0])

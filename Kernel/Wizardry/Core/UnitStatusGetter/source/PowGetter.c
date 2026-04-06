@@ -7,12 +7,6 @@
 #include "debuff.h"
 #include "jester_headers/custom-functions.h"
 
-int GetTonicStatBonus(struct Unit *unit, int tonicIndex)
-{
-    extern u8 gUnitTonicState[];
-    return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
-}
-
 int _GetUnitPower(struct Unit *unit)
 {
 	const StatusGetterFunc_t *it;
@@ -31,7 +25,8 @@ int _GetUnitPower(struct Unit *unit)
 	if (gpExternalPowGetters)
 		status = gpExternalPowGetters(status, unit);
 
-    status += GetTonicStatBonus(unit, 2);
+    status += PowTonic(unit);
+    status += OmniTonic(unit);
 
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {

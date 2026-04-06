@@ -12,6 +12,7 @@
 #include "jester_headers/custom-functions.h"
 
 extern u8 gUnitTonicState[];
+extern u16 gTonicChapterState;
 
 static const struct PopupInstruction sTonicUsedPopup[] = {
 	POPUP_SOUND(0x5A),
@@ -35,7 +36,9 @@ bool IsTonicCampaignActive(int item)
 	if (!UNIT_IS_VALID(unit))
 		return false;
 
-	return ITEM_INDEX(item) == ITEM_TONIC && gUnitTonicState[unit->index] == ITEM_USES(item);
+	return ITEM_INDEX(item) == ITEM_TONIC
+		&& gUnitTonicState[unit->index] == ITEM_USES(item)
+		&& gTonicChapterState == gPlaySt.chapterIndex;
 }
 
 bool IsTonicCampaignActiveIndex(int tonicIndex)
@@ -46,6 +49,19 @@ bool IsTonicCampaignActiveIndex(int tonicIndex)
 		return false;
 
 	return gUnitTonicState[unit->index] == tonicIndex;
+}
+
+int GetTonicStatBonus(struct Unit *unit, int tonicIndex)
+{
+    extern u8 gUnitTonicState[];
+    extern u16 gTonicChapterState;
+    if (gTonicChapterState != gPlaySt.chapterIndex)
+        return 0;
+
+    if (gUnitTonicState[unit->index] == 9 && tonicIndex >= 0 && tonicIndex <= 7)
+        return 2;
+
+    return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
 }
 
 #define LOCAL_TRACE 0
@@ -299,6 +315,7 @@ void ExecStatBoostItem(ProcPtr proc) {
 	// This if statement is for the purposes of tonic items only
 	if (GetItemIndex(item) == ITEM_TONIC) {
 		gUnitTonicState[unit->index] = ITEM_USES(item);
+		gTonicChapterState = gPlaySt.chapterIndex;
 
 		SetPopupUnit(unit);
 		SetPopupItem(item);
@@ -327,6 +344,7 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
     {
 		if (ITEM_INDEX(item) == ITEM_TONIC) {
 			gUnitTonicState[unit->index] = tonicIndex;
+			gTonicChapterState = gPlaySt.chapterIndex;
 			UnitUpdateUsedItem(unit, slot);
 			return msg;
 		}
@@ -341,6 +359,7 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	{
 		if (GetItemIndex(item) == ITEM_TONIC) {
 			gUnitTonicState[unit->index] = tonicIndex;
+			gTonicChapterState = gPlaySt.chapterIndex;
 			UnitUpdateUsedItem(unit, slot);
 			return 0;
 		}

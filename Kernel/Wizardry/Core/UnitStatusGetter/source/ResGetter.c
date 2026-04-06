@@ -32,8 +32,8 @@ int _GetUnitResistance(struct Unit *unit)
 	if (gpExternalResGetters)
 		status = gpExternalResGetters(status, unit);
 
-    extern u8 gUnitTonicState[];
-    status += gUnitTonicState[unit->index] == 7 ? 2 : 0;
+    status += ResTonic(unit);
+    status += OmniTonic(unit);
 
 	return status;
 }

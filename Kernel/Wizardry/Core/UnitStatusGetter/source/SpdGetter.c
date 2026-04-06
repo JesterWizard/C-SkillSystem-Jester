@@ -42,7 +42,8 @@ int _GetUnitSpeed(struct Unit *unit)
 	if (gpExternalSpdGetters)
 		status = gpExternalSpdGetters(status, unit);
 
-    status += GetTonicStatBonus(unit, 4);
+    status += SpdTonic(unit);
+    status += OmniTonic(unit);
 
     if (gpKernelDesignerConfig->fe8_rewritten_specific_changes == true)
     {

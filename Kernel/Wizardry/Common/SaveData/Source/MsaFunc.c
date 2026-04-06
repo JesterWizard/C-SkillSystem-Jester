@@ -61,12 +61,20 @@ void MSA_LoadDungeon(u8 *src, const u32 size)
 
 void MSA_SaveTonicState(u8 *dst, const u32 size)
 {
-	WriteAndVerifySramFast(gUnitTonicState, dst, size);
+	const u32 tonicStateSize = 0xC0;
+
+	WriteAndVerifySramFast(&gTonicChapterState, dst, sizeof(gTonicChapterState));
+	dst += sizeof(gTonicChapterState);
+	WriteAndVerifySramFast(gUnitTonicState, dst, tonicStateSize);
 }
 
 void MSA_LoadTonicState(u8 *src, const u32 size)
 {
-	ReadSramFast(src, gUnitTonicState, size);
+	const u32 tonicStateSize = 0xC0;
+
+	ReadSramFast(src, &gTonicChapterState, sizeof(gTonicChapterState));
+	src += sizeof(gTonicChapterState);
+	ReadSramFast(src, gUnitTonicState, tonicStateSize);
 }
 
 STATIC_DECLAR void NewPackSaveUnit(struct Unit *src, struct EmsPackedSavUnit *dst)
