@@ -362,3 +362,7 @@ Bonus EXP[X]
 
 ## MSG_BASE_CONVERSATIONS_INSTRUCTION
 Select a conversation to view[X]
+
+## MSG_ESCAPE
+[OpenMidLeft][LoadFace_ActiveUnit]
+Time to get out of here![A][X]

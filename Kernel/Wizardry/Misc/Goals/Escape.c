@@ -12,7 +12,7 @@ STATIC_DECLAR const EventScr EventScr_PostAction_Escape[] = {
     ASMC(IsEventTileASMC)
     SVAL(EVT_SLOT_7, 1)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
-    TEXT(Chapter_00_Scene_03_Convo_05)
+    TEXT(MSG_ESCAPE)
     ASMC(RemoveActiveUnitASMC)
     CHECK_PLAYERS
     SVAL(EVT_SLOT_7, 0)
@@ -23,6 +23,48 @@ LABEL(0x0)
     NOFADE
     ENDA
 };
+
+static const EventScr * GetEscapeEndingEventScr(int chapterIndex)
+{
+    switch (chapterIndex)
+    {
+    case CHAPTER_L_PROLOGUE:
+        return EventScr_Ending_Chapter_00;
+
+    case CHAPTER_L_1:
+        return EventScr_Ending_Chapter_01;
+
+    case CHAPTER_L_2:
+        return EventScr_Ending_Chapter_02;
+
+    case CHAPTER_L_3:
+        return EventScr_Ending_Chapter_03;
+
+    case CHAPTER_L_4:
+        return EventScr_Ending_Chapter_04;
+
+    case CHAPTER_L_5:
+        return EventScr_Ending_Chapter_05;
+
+    case CHAPTER_L_5X:
+        return EventScr_Ending_Chapter_05x;
+
+    case CHAPTER_L_6:
+        return EventScr_Ending_Chapter_06;
+
+    case CHAPTER_L_7:
+        return EventScr_Ending_Chapter_07;
+
+    case CHAPTER_L_8:
+        return EventScr_Ending_Chapter_08;
+
+    case CHAPTER_E_9:
+        return EventScr_Ending_Chapter_09;
+
+    default:
+        return NULL;
+    }
+}
 
 bool HasEscapeObjective(int chapterIndex)
 {
@@ -102,55 +144,10 @@ void CheckPlayersRemainingASMC(void)
 
 void CallEscapeEndingEventASMC(void)
 {
-    switch (gPlaySt.chapterIndex)
-    {
-    case CHAPTER_L_PROLOGUE:
-        KernelCallEvent(EventScr_Ending_Chapter_00, EV_EXEC_CUTSCENE, NULL);
-        break;
+    const EventScr *eventscr = GetEscapeEndingEventScr(gPlaySt.chapterIndex);
 
-    case CHAPTER_L_1:
-        KernelCallEvent(EventScr_Ending_Chapter_01, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_2:
-        KernelCallEvent(EventScr_Ending_Chapter_02, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_3:
-        KernelCallEvent(EventScr_Ending_Chapter_03, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_4:
-        KernelCallEvent(EventScr_Ending_Chapter_04, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_5:
-        KernelCallEvent(EventScr_Ending_Chapter_05, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_5X:
-        KernelCallEvent(EventScr_Ending_Chapter_05x, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_6:
-        KernelCallEvent(EventScr_Ending_Chapter_06, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_7:
-        KernelCallEvent(EventScr_Ending_Chapter_07, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_L_8:
-        KernelCallEvent(EventScr_Ending_Chapter_08, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    case CHAPTER_E_9:
-        KernelCallEvent(EventScr_Ending_Chapter_09, EV_EXEC_CUTSCENE, NULL);
-        break;
-
-    default:
-        break;
-    }
+    if (eventscr != NULL)
+        KernelCallEvent(eventscr, EV_EXEC_CUTSCENE, NULL);
 }
 
 void RemoveActiveUnitASMC(void)

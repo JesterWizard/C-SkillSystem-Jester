@@ -1,7 +1,7 @@
-# Timer
+# Goal - Timer
 
 <p align="center">
-  <img src="../Gifs/Timer.gif" alt="Timer Demo" width="600"/>
+  <img src="../../Gifs/Goal_Timer.gif" alt="Timer Demo" width="600"/>
 </p>
 
 ---
@@ -28,9 +28,9 @@ In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
 
 ## 🛠️ How To Use
 
-Inside [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) set the `.goal_timer` option to true.
+Inside [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c) set the `.goal_timer` option to true.
 
-Inside [`Timer.c`](../../include/jester_headers/custom-structs.h) there is a struct called `chapter_timers`. It is comprised of two elements; the `chapter index`
+Inside [`Timer.c`](../../../include/jester_headers/custom-structs.h) there is a struct called `chapter_timers`. It is comprised of two elements; the `chapter index`
 and the `time in seconds`. Set each chapter to the timer value you want. If it is set to 0, then the timer won't appear. If it is greater than 0, then the timer
 will override whatever that chapter's original objective was (this is so you don't have to make unnecessary edits to other files).
 
@@ -51,11 +51,11 @@ will override whatever that chapter's original objective was (this is so you don
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Global variables** | `gChapterTimerSeconds` in [`Timer.c`](../../include/jester_headers/custom-structs.h) | Holds the current and initial time respectively |
-| **Initialize timer** | `StartChapterTimer` in [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Takes care of setting the global variables and starting the timer proc |
-| **New goal type** | `GOAL_TYPE_TIMER` in `GoalDisplay_Init` [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the display initialization of the new goal |
-| **Draw countdown** | `DrawTimeHMS` in [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the calculations to update the digits |
-| **Update timer** | Hook into `GoalDisplay_Loop_Display` in [`Timer.c`](../../Kernel/Wizardry/Misc/Timer/Timer.c) | Call `DrawTimeHMS` here to display the new time every 60 frames |
+| **Global variables** | `gChapterTimerSeconds` in [`Timer.c`](../../../include/jester_headers/custom-structs.h) | Holds the current and initial time respectively |
+| **Initialize timer** | `StartChapterTimer` in [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Takes care of setting the global variables and starting the timer proc |
+| **New goal type** | `GOAL_TYPE_TIMER` in `GoalDisplay_Init` [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the display initialization of the new goal |
+| **Draw countdown** | `DrawTimeHMS` in [`Timer.c`](../../..//Wizardry/Misc/Timer/Timer.c) | Handles the calculations to update the digits |
+| **Update timer** | Hook into `GoalDisplay_Loop_Display` in [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Call `DrawTimeHMS` here to display the new time every 60 frames |
 
 ---
 
