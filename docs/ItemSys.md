@@ -22,7 +22,11 @@ CSkillSys supports the similar functionality as [teraspark' IER hack](https://fe
 
 	If heal amount is lower than 10 HP, then it will be forcefully set as 10.
 
-3. A new version of the vulnerary that heals off a given value set in item data.
+3. Custom tonic items that store a chapter-scoped stat bonus per unit and reuse the stat getter pipeline.
+
+   See the tonic documentation in [docs/Jester_Documents/Tonics.md](Jester_Documents/Tonics.md).
+
+4. A new version of the vulnerary that heals off a given value set in item data.
 
 	```
 	heal = [item might] + [ItemData + 0x22 (IER Byte)]
