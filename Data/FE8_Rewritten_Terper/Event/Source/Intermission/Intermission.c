@@ -27,5 +27,5 @@ const struct ChapterEventGroup IntermissionEvent = {
     .enemyUnitsChoice3InEncounter = NULL,
 
     .beginningSceneEvents = EventScr_Beginning,
-    .endingSceneEvents    = EventScr_Ending,
+    .endingSceneEvents    = EventScr_Ending_Intermission,
 };

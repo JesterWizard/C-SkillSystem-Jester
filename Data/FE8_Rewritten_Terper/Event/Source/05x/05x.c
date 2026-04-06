@@ -30,5 +30,5 @@ const struct ChapterEventGroup Chapter05xEvent = {
     .enemyUnitsChoice3InEncounter = NULL,
 
     .beginningSceneEvents = EventScr_Beginning,
-    .endingSceneEvents    = EventScr_Ending,
+    .endingSceneEvents    = EventScr_Ending_Chapter_05x,
 };

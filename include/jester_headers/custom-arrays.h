@@ -76,6 +76,7 @@ extern const EventScr EventScr_Ending_Chapter_02[];
 extern const EventScr EventScr_Ending_Chapter_03[];
 extern const EventScr EventScr_Ending_Chapter_04[];
 extern const EventScr EventScr_Ending_Chapter_05[];
+extern const EventScr EventScr_Ending_Chapter_05x[];
 extern const EventScr EventScr_Ending_Chapter_06[];
 extern const EventScr EventScr_Ending_Chapter_07[];
 extern const EventScr EventScr_Ending_Chapter_08[];

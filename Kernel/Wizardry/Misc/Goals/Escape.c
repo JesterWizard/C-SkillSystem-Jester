@@ -17,7 +17,7 @@ STATIC_DECLAR const EventScr EventScr_PostAction_Escape[] = {
     CHECK_PLAYERS
     SVAL(EVT_SLOT_7, 0)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
-    CALL(EventScr_Ending_Chapter_00)
+    ASMC(CallEscapeEndingEventASMC)
 
 LABEL(0x0)
     NOFADE
@@ -100,6 +100,59 @@ void CheckPlayersRemainingASMC(void)
     gEventSlots[EVT_SLOT_C] = count;
 }
 
+void CallEscapeEndingEventASMC(void)
+{
+    switch (gPlaySt.chapterIndex)
+    {
+    case CHAPTER_L_PROLOGUE:
+        KernelCallEvent(EventScr_Ending_Chapter_00, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_1:
+        KernelCallEvent(EventScr_Ending_Chapter_01, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_2:
+        KernelCallEvent(EventScr_Ending_Chapter_02, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_3:
+        KernelCallEvent(EventScr_Ending_Chapter_03, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_4:
+        KernelCallEvent(EventScr_Ending_Chapter_04, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_5:
+        KernelCallEvent(EventScr_Ending_Chapter_05, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_5X:
+        KernelCallEvent(EventScr_Ending_Chapter_05x, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_6:
+        KernelCallEvent(EventScr_Ending_Chapter_06, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_7:
+        KernelCallEvent(EventScr_Ending_Chapter_07, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_L_8:
+        KernelCallEvent(EventScr_Ending_Chapter_08, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    case CHAPTER_E_9:
+        KernelCallEvent(EventScr_Ending_Chapter_09, EV_EXEC_CUTSCENE, NULL);
+        break;
+
+    default:
+        break;
+    }
+}
+
 void RemoveActiveUnitASMC(void)
 {
     if (gActiveUnit == NULL)
@@ -151,6 +204,12 @@ void IsEventTileASMC(void)
 
 bool PostAction_Escape(ProcPtr proc)
 {
+    if (gpKernelDesignerConfig->goal_escape != true)
+        return false;
+
+    if (GetROMChapterStruct(gPlaySt.chapterIndex)->goalWindowDataType != GOAL_TYPE_ESCAPE)
+        return false;
+
     if (!UNIT_IS_VALID(gActiveUnit))
         return false;
 

@@ -23,7 +23,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_07[] = {
     ASMC(GrantBEXP)
     FADE_FROM_BLACK(16)
     LOMA(0x44)

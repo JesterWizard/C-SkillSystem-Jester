@@ -213,7 +213,7 @@ LABEL(0x2)
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+static const EventScr EventScr_Ending_Intermission[] = {
     ENDA
 };
 

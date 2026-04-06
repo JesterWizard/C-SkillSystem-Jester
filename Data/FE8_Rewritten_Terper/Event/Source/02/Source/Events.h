@@ -40,7 +40,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_02[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_02_Scene_07_Convo_01)
@@ -162,7 +162,7 @@ static const EventListScr EventListScr_Location[] = {
 
 // --- Other Scenes ---
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
+    DEFEAT_ALL(EventScr_Ending_Chapter_02)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

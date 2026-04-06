@@ -123,7 +123,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_09[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_INTO_THE_SHADOW_OF_VICTORY)
     FADE_FROM_BLACK(16)
@@ -372,7 +372,7 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
+    DEFEAT_ALL(EventScr_Ending_Chapter_09)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

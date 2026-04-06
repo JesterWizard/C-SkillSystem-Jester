@@ -56,7 +56,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_04[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
 /* If Lute wasn't recruited, then have her join here */
@@ -280,7 +280,7 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
+    DEFEAT_ALL(EventScr_Ending_Chapter_04)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

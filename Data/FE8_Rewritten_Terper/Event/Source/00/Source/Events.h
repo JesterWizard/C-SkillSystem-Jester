@@ -1,5 +1,3 @@
-#include "jester_headers/custom-arrays.h"
-
 static const EventScr EventScr_Beginning[] = {
     LOAD_MAP_XY(17, 13, CHAPTER_16)
     STAL(16)

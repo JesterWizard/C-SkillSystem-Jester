@@ -143,7 +143,7 @@ LABEL(0x2)
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_05[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_CONFRONT_THE_PAST)
     FADE_FROM_BLACK(16)
@@ -318,7 +318,7 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_ALL(EventScr_Ending)
+    DEFEAT_ALL(EventScr_Ending_Chapter_05)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 };

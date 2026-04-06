@@ -15,7 +15,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+static const EventScr EventScr_Ending_Serafew[] = {
     ENDA
 };
 

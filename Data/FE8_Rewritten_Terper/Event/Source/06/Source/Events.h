@@ -45,11 +45,11 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_06[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_NONE)
     CHECK_ALIVE(0xfa)
-    BEQ(0x0, EVT_SLOT_C, EVT_SLOT_0)
+     BEQ(0x0, EVT_SLOT_C, EVT_SLOT_0)
     CHECK_ALIVE(0xfb)
     BEQ(0x0, EVT_SLOT_C, EVT_SLOT_0)
     CHECK_ALIVE(0xf9)
@@ -202,7 +202,7 @@ static const EventListScr EventListScr_Location[] = {
 };
 
 static const EventListScr EventListScr_Misc[] = {
-    DEFEAT_BOSS(EventScr_Ending)
+    DEFEAT_BOSS(EventScr_Ending_Chapter_06)
     CAUSE_GAME_OVER_IF_LORD_DIES
     AFEV(EVFLAG_TMP(8), EventScr_CH6_CHECK_AREA, 0)
     END_MAIN

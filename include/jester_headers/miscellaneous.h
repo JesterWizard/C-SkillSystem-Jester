@@ -34,6 +34,7 @@ extern void EndQuintessenceStealEffect(void);
 
 extern void GiveScroll(void);
 extern void CheckPlayersRemainingASMC(void);
+extern void CallEscapeEndingEventASMC(void);
 extern void RemoveActiveUnitASMC(void);
 extern void IsEventTileASMC(void);
 extern bool PostAction_Escape(ProcPtr proc);

@@ -61,7 +61,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_05x[] = {
     ASMC(GrantBEXP)
     ASMC(HandleCh5xUnits_End)
     SET_BACKGROUND(0x10)

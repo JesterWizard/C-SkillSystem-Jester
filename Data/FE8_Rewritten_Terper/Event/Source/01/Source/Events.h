@@ -47,7 +47,7 @@ static const EventScr EventScr_Beginning[] = {
     ENDA
 };
 
-static const EventScr EventScr_Ending[] = {
+const EventScr EventScr_Ending_Chapter_01[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x26, Chapter_01_Scene_10_Convo_01)
