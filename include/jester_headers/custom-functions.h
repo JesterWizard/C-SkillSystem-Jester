@@ -201,6 +201,21 @@ extern u8 Gfx_UI_Number_7[];
 extern u8 Gfx_UI_Number_8[];
 extern u8 Gfx_UI_Number_9[];
 
+extern u8 Gfx_Chapter_02_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Eirika_Right[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Eirika_Left[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Eirika_Right[];
+
 extern void ShootArrow_ASMC(void);
 void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
 
