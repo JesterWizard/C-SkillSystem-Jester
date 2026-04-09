@@ -52,60 +52,6 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
     return currentCharId;
 }
 
-typedef struct {
-    u8 * const bubble[2];
-} WorldMapThoughtBubbleEntryGraphics;
-
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Eirika_Left, Gfx_Chapter_02_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Eirika_Left, Gfx_Chapter_03_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Eirika_Left, Gfx_Chapter_04_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Eirika_Left, Gfx_Chapter_05_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Eirika_Left, Gfx_Chapter_06_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Eirika_Left, Gfx_Chapter_07_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Eirika_Left, Gfx_Chapter_09_Thought_Bubble_Eirika_Right } },
-};
-
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Seth_Left, Gfx_Chapter_02_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Seth_Left, Gfx_Chapter_03_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Seth_Left, Gfx_Chapter_04_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Seth_Left, Gfx_Chapter_05_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Seth_Left, Gfx_Chapter_06_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Seth_Left, Gfx_Chapter_07_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Seth_Left, Gfx_Chapter_09_Thought_Bubble_Seth_Right } },
-};
-
-static int GetWorldMapThoughtBubbleChapterIndex(void)
-{
-    switch (gPlaySt.chapterIndex)
-    {
-        case CHAPTER_L_2:
-            return 0;
-
-        case CHAPTER_L_3:
-            return 1;
-
-        case CHAPTER_L_4:
-            return 2;
-
-        case CHAPTER_L_5:
-            return 3;
-
-        case CHAPTER_L_6:
-            return 4;
-
-        case CHAPTER_L_7:
-            return 5;
-
-        case CHAPTER_E_9:
-            return 6;
-
-        default:
-            return -1;
-    }
-}
-
 static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUnit(int chapterIndex, int unitId)
 {
     if (chapterIndex < 0)
@@ -127,9 +73,8 @@ static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUni
 static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
 {
     const WorldMapThoughtBubbleEntryGraphics * bubbleEntry;
-    int chapterIndex = GetWorldMapThoughtBubbleChapterIndex();
 
-    bubbleEntry = GetWorldMapThoughtBubbleForUnit(chapterIndex, gGMData.units[0].id);
+    bubbleEntry = GetWorldMapThoughtBubbleForUnit(gPlaySt.chapterIndex, gGMData.units[0].id);
 
     if (bubbleEntry == NULL)
         return;
@@ -143,9 +88,7 @@ static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
 
 static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)
 {
-    int chapterIndex = GetWorldMapThoughtBubbleChapterIndex();
-
-    if (GetWorldMapThoughtBubbleForUnit(chapterIndex, gGMData.units[0].id) == NULL)
+    if (GetWorldMapThoughtBubbleForUnit(gPlaySt.chapterIndex, gGMData.units[0].id) == NULL)
         return;
 
     PutSprite(4, 10, 10, gObject_64x64, TILEREF(0x2C4, 0x0));
@@ -170,6 +113,7 @@ extern u16 gUnknown_0201B7DA[];
 LYN_REPLACE_CHECK(WorldMap_LoopExt);
 void WorldMap_LoopExt(struct WorldMapMainProc * proc)
 {
+    NoCashGBAPrintf("gPlaySt.chapterIndex: %d\n", gPlaySt.chapterIndex);
     int nodeId;
 
     int x = gGMData.ix;
