@@ -145,4 +145,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.menu_skill_ai_use = false,
 	.rescue_drop_ai_use = true,
 	.start_map_effects = false,
+	.world_map_thought_bubbles = true,
 };

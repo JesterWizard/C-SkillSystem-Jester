@@ -136,6 +136,7 @@ struct KernelDesigerConfig {
 	u8 menu_skill_ai_use;
 	u8 rescue_drop_ai_use;
 	u8 start_map_effects;
+	u8 world_map_thought_bubbles;
 };
 
 struct KernelBattleDesignerConfig {

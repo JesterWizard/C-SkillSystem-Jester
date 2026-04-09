@@ -15,6 +15,7 @@ extern void sub_80B5D3C(void);
 extern struct MenuRect gMenuRect_WMGeneralMenuRect;
 extern struct ProcCmd CONST_DATA ProcScr_OpAnim[]; // intro cutscene
 extern struct ProcCmd CONST_DATA ProcScr_WorldMapWrapper[];
+extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
 
 typedef struct {
     u8 mapNodeId;
@@ -26,118 +27,10 @@ typedef struct {
     u16 textId;
 } WorldMapThoughtBubbleEntry;
 
-typedef struct {
-    u8 chapterIndex;
-    u8 * const bubble[2];
-} WorldMapThoughtBubbleEntryGraphics;
-
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubble[] = {
-    {
-        .chapterIndex = CHAPTER_L_2,
-        .bubble = {
-            Gfx_Chapter_02_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_02_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_3,
-        .bubble = {
-            Gfx_Chapter_03_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_03_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_4,
-        .bubble = {
-            Gfx_Chapter_04_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_04_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_5,
-        .bubble = {
-            Gfx_Chapter_05_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_05_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_6,
-        .bubble = {
-            Gfx_Chapter_06_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_06_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_7,
-        .bubble = {
-            Gfx_Chapter_07_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_07_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_E_9,
-        .bubble = {
-            Gfx_Chapter_09_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_09_Thought_Bubble_Eirika_Right,
-        },
-    },
-    
-};
-
 static const EnterTownNode EnterTownNodes[] = {
     { NODE_SERAFEW,      0x50 },
     // { NODE_ADLAS_PLAINS, CHAPTER_3C },
 };
-
-static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
-{
-    unsigned i;
-
-    for (i = 0; i < ARRAY_COUNT(WorldMapThoughtBubble); ++i)
-    {
-        if (WorldMapThoughtBubble[i].chapterIndex != gPlaySt.chapterIndex)
-            continue;
-
-        Decompress(WorldMapThoughtBubble[i].bubble[0], gGenericBuffer);
-        Copy2dChr(gGenericBuffer, (void *)0x6013000, 8, 8);
-
-        Decompress(WorldMapThoughtBubble[i].bubble[1], gGenericBuffer);
-        Copy2dChr(gGenericBuffer, (void *)0x6013100, 8, 8);
-        break;
-    }
-}
-
-static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)
-{
-    unsigned i;
-
-    for (i = 0; i < ARRAY_COUNT(WorldMapThoughtBubble); ++i)
-    {
-        if (WorldMapThoughtBubble[i].chapterIndex != gPlaySt.chapterIndex)
-            continue;
-
-        PutSprite(4, 10, 10, gObject_64x64, TILEREF(0x180, 0x0));
-        PutSprite(4, 74, 10, gObject_64x64, TILEREF(0x188, 0x0));
-        break;
-    }
-}
-
-static void EndWorldMapThoughtBubble(void)
-{
-    /* Sprite is owned by the proc tree; ending the proc removes it. */
-}
-
-struct ProcCmd const sProcScr_WorldMapThoughtBubble[] = {
-    PROC_NAME("WorldMapThoughtBubble"),
-    PROC_CALL(WorldMapThoughtBubble_Init),
-    PROC_REPEAT(WorldMapThoughtBubble_Loop),
-    PROC_END,
-};
-
-static void StartWorldMapThoughtBubble(struct MenuProc * menuProc)
-{
-    Proc_Start(sProcScr_WorldMapThoughtBubble, menuProc);
-}
 
 u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
 {
@@ -187,7 +80,6 @@ static void WMNodeMenu_OnInit_VOID(struct MenuProc * menu)
 static void WMNodeMenu_OnEnd_VOID(struct MenuProc * menu)
 {
     EndAllProcChildren(menu);
-    EndWorldMapThoughtBubble();
     ClearBg0Bg1();
 }
 
