@@ -12,9 +12,10 @@ extern void sub_80B8FEC(struct WorldMapMainProc * proc);
 extern void sub_80B90CC(struct WorldMapMainProc * proc);
 extern void sub_80BEF20(struct GMapPIProc * proc, int nodeId);
 extern void sub_80BE638(struct GMapPIProc * proc, struct Unit * unit);
+extern void sub_80BE5F8(u16 * src, struct Unit * unit);
 extern void PutGMapPICharName(struct GMapPIProc * proc, int pid);
 extern void PutGMapPIFace(struct GMapPIProc * proc);
-extern void sub_80BEA78(struct GMapPIProc * proc);
+extern void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit);
 
 extern s8 IsUnitInCurrentRoster(struct Unit * unit);
 extern struct ProcCmd ProcScr_GMapPlayerInterface[];
@@ -44,33 +45,33 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
     for (i = 1; i <= rosterCount; ++i)
     {
         int cycleIndex = currentIndex + i;
+        struct Unit * prepUnit;
+        u8 nextCharId;
+        struct Unit * unit;
 
         if (cycleIndex >= rosterCount)
             cycleIndex -= rosterCount;
 
-        {
-            struct Unit * prepUnit = GetUnitFromPrepList(cycleIndex);
-            struct Unit * unit = NULL;
-            u8 nextCharId;
+        prepUnit = GetUnitFromPrepList(cycleIndex);
 
-            Debugf("advance idx=%d cycleIndex=%d prepUnit=%p pid=%d", i, cycleIndex, prepUnit, prepUnit ? prepUnit->pCharacterData->number : 0);
+        Debugf("advance idx=%d cycleIndex=%d prepUnit=%p pid=%d", i, cycleIndex, prepUnit, prepUnit ? prepUnit->pCharacterData->number : 0);
 
+        if (!UNIT_IS_VALID(prepUnit))
+            continue;
+
+        nextCharId = prepUnit->pCharacterData->number;
+        unit = GetUnitFromCharId(nextCharId);
+
+        Debugf("resolved unit=%p valid=%d pid=%d", unit, UNIT_IS_VALID(unit), unit ? unit->pCharacterData->number : 0);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        if (!IsUnitInCurrentRoster(unit))
             if (!UNIT_IS_VALID(prepUnit))
-                continue;
+            continue;
 
-            nextCharId = prepUnit->pCharacterData->number;
-            unit = GetUnitFromCharId(nextCharId);
-
-            Debugf("resolved unit=%p valid=%d pid=%d", unit, UNIT_IS_VALID(unit), unit ? unit->pCharacterData->number : 0);
-
-            if (!UNIT_IS_VALID(unit))
-                continue;
-
-            if (!IsUnitInCurrentRoster(unit))
-                continue;
-
-            return nextCharId;
-        }
+        return nextCharId;
     }
 
     return currentCharId;
@@ -217,6 +218,7 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
                 if (playerInterfaceProc != NULL && UNIT_IS_VALID(nextUnit))
                 {
                     Debugf("refreshing PI: oldPid=%d oldJid=%d nodeId=%d", playerInterfaceProc->pid, playerInterfaceProc->jid, playerInterfaceProc->nodeId);
+                    Debugf("PI buffers: unk_40=%p unk_44=%04x", playerInterfaceProc->unk_40, playerInterfaceProc->unk_44);
                     playerInterfaceProc->pid = nextUnitId;
                     playerInterfaceProc->jid = 0;
                     playerInterfaceProc->interfaceKind = 1;
@@ -224,8 +226,9 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
                     Debugf("calling face/name/level redraw for pid=%d", playerInterfaceProc->pid);
                     PutGMapPICharName(playerInterfaceProc, playerInterfaceProc->pid);
                     PutGMapPIFace(playerInterfaceProc);
-                    sub_80BEA78(playerInterfaceProc);
-                    playerInterfaceProc->unk_44 = 0;
+                    Debugf("writing level=%d via sub_80BE5F8 to %p", nextUnit->level, playerInterfaceProc->unk_40);
+                    sub_80BE5F8(playerInterfaceProc->unk_40, nextUnit);
+                    Debugf("level write complete for pid=%d level=%d", nextUnitId, nextUnit->level);
                     sub_80BE638(playerInterfaceProc, nextUnit);
                     BG_EnableSyncByMask(BG0_SYNC_BIT);
                 }
