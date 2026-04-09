@@ -176,7 +176,6 @@ void PrepItemTrade_Init(struct PrepMenuTradeProc* proc)
 
     // TODO: Seems to be necessary to match - there is a "ldrh" here...
     SetupBackgrounds((void*)(u32)*gBgConfig_ItemUseScreen);
-
     SetupFaceGfxData(faceConfig);
 
     gLCDControlBuffer.bg0cnt.priority = 1;

@@ -4,24 +4,7 @@
 #include "prep-skill.h"
 #include "kernel/debug-kit.h"
 #include "player_interface.h"
-#include "jester_headers/custom-functions.h"
-
-extern int sub_80B955C(struct WorldMapMainProc * proc, int nodeId);
-extern void sub_80B961C(struct WorldMapMainProc * proc, int nodeId);
-extern void sub_80B8FEC(struct WorldMapMainProc * proc);
-extern void sub_80B90CC(struct WorldMapMainProc * proc);
-extern void sub_80BEF20(struct GMapPIProc * proc, int nodeId);
-extern void sub_80BE638(struct GMapPIProc * proc, struct Unit * unit);
-extern void sub_80BE5F8(u16 * src, struct Unit * unit);
-extern void PutGMapPICharName(struct GMapPIProc * proc, int pid);
-extern void PutGMapPIFace(struct GMapPIProc * proc);
-extern void DrawUnitMapUi(struct PlayerInterfaceProc * proc, struct Unit * unit);
-
-extern s8 IsUnitInCurrentRoster(struct Unit * unit);
-extern struct ProcCmd ProcScr_GMapPlayerInterface[];
-
-void WorldMap_LoopExt(struct WorldMapMainProc * proc);
-extern struct ProcCmd gProcScr_HelpBox[];
+#include "jester_headers/thought_bubbles.h"
 
 static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 {
@@ -33,11 +16,7 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
     MakePrepUnitList();
     rosterCount = PrepGetUnitAmount();
 
-    Debugf("rosterCount=%d currentCharId=%d", rosterCount, currentCharId);
-
     currentIndex = UnitGetIndexInPrepList(currentCharId);
-
-    Debugf("currentIndex=%d", currentIndex);
 
     if (currentIndex < 0 || currentIndex >= rosterCount)
         currentIndex = -1;
@@ -54,15 +33,11 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 
         prepUnit = GetUnitFromPrepList(cycleIndex);
 
-        Debugf("advance idx=%d cycleIndex=%d prepUnit=%p pid=%d", i, cycleIndex, prepUnit, prepUnit ? prepUnit->pCharacterData->number : 0);
-
         if (!UNIT_IS_VALID(prepUnit))
             continue;
 
         nextCharId = prepUnit->pCharacterData->number;
         unit = GetUnitFromCharId(nextCharId);
-
-        Debugf("resolved unit=%p valid=%d pid=%d", unit, UNIT_IS_VALID(unit), unit ? unit->pCharacterData->number : 0);
 
         if (!UNIT_IS_VALID(unit))
             continue;
@@ -78,93 +53,103 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 }
 
 typedef struct {
-    u8 chapterIndex;
     u8 * const bubble[2];
 } WorldMapThoughtBubbleEntryGraphics;
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubble[] = {
-    {
-        .chapterIndex = CHAPTER_L_2,
-        .bubble = {
-            Gfx_Chapter_02_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_02_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_3,
-        .bubble = {
-            Gfx_Chapter_03_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_03_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_4,
-        .bubble = {
-            Gfx_Chapter_04_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_04_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_5,
-        .bubble = {
-            Gfx_Chapter_05_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_05_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_6,
-        .bubble = {
-            Gfx_Chapter_06_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_06_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_L_7,
-        .bubble = {
-            Gfx_Chapter_07_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_07_Thought_Bubble_Eirika_Right,
-        },
-    },
-    {
-        .chapterIndex = CHAPTER_E_9,
-        .bubble = {
-            Gfx_Chapter_09_Thought_Bubble_Eirika_Left,
-            Gfx_Chapter_09_Thought_Bubble_Eirika_Right,
-        },
-    },
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
+    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Eirika_Left, Gfx_Chapter_02_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Eirika_Left, Gfx_Chapter_03_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Eirika_Left, Gfx_Chapter_04_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Eirika_Left, Gfx_Chapter_05_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Eirika_Left, Gfx_Chapter_06_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Eirika_Left, Gfx_Chapter_07_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Eirika_Left, Gfx_Chapter_09_Thought_Bubble_Eirika_Right } },
 };
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
+    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Seth_Left, Gfx_Chapter_02_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Seth_Left, Gfx_Chapter_03_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Seth_Left, Gfx_Chapter_04_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Seth_Left, Gfx_Chapter_05_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Seth_Left, Gfx_Chapter_06_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Seth_Left, Gfx_Chapter_07_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Seth_Left, Gfx_Chapter_09_Thought_Bubble_Seth_Right } },
+};
+
+static int GetWorldMapThoughtBubbleChapterIndex(void)
+{
+    switch (gPlaySt.chapterIndex)
+    {
+        case CHAPTER_L_2:
+            return 0;
+
+        case CHAPTER_L_3:
+            return 1;
+
+        case CHAPTER_L_4:
+            return 2;
+
+        case CHAPTER_L_5:
+            return 3;
+
+        case CHAPTER_L_6:
+            return 4;
+
+        case CHAPTER_L_7:
+            return 5;
+
+        case CHAPTER_E_9:
+            return 6;
+
+        default:
+            return -1;
+    }
+}
+
+static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUnit(int chapterIndex, int unitId)
+{
+    if (chapterIndex < 0)
+        return NULL;
+
+    switch (unitId)
+    {
+        case CHARACTER_EIRIKA:
+            return &WorldMapThoughtBubbleEirika[chapterIndex];
+
+        case CHARACTER_SETH:
+            return &WorldMapThoughtBubbleSeth[chapterIndex];
+
+        default:
+            return NULL;
+    }
+}
 
 static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
 {
-    unsigned i;
+    const WorldMapThoughtBubbleEntryGraphics * bubbleEntry;
+    int chapterIndex = GetWorldMapThoughtBubbleChapterIndex();
 
-    for (i = 0; i < ARRAY_COUNT(WorldMapThoughtBubble); ++i)
-    {
-        if (WorldMapThoughtBubble[i].chapterIndex != gPlaySt.chapterIndex)
-            continue;
+    bubbleEntry = GetWorldMapThoughtBubbleForUnit(chapterIndex, gGMData.units[0].id);
 
-        Decompress(WorldMapThoughtBubble[i].bubble[0], gGenericBuffer);
-        Copy2dChr(gGenericBuffer, (void *)0x6015880, 8, 8);
+    if (bubbleEntry == NULL)
+        return;
 
-        Decompress(WorldMapThoughtBubble[i].bubble[1], gGenericBuffer);
-        Copy2dChr(gGenericBuffer, (void *)0x6015980, 8, 8);
-        break;
-    }
+    Decompress(bubbleEntry->bubble[0], gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void *)0x6015880, 8, 8);
+
+    Decompress(bubbleEntry->bubble[1], gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void *)0x6015980, 8, 8);
 }
 
 static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)
 {
-    unsigned i;
+    int chapterIndex = GetWorldMapThoughtBubbleChapterIndex();
 
-    for (i = 0; i < ARRAY_COUNT(WorldMapThoughtBubble); ++i)
-    {
-        if (WorldMapThoughtBubble[i].chapterIndex != gPlaySt.chapterIndex)
-            continue;
+    if (GetWorldMapThoughtBubbleForUnit(chapterIndex, gGMData.units[0].id) == NULL)
+        return;
 
-        PutSprite(4, 10, 10, gObject_64x64, TILEREF(0x2C4, 0x0));
-        PutSprite(4, 74, 10, gObject_64x64, TILEREF(0x2CC, 0x0));
-        break;
-    }
+    PutSprite(4, 10, 10, gObject_64x64, TILEREF(0x2C4, 0x0));
+    PutSprite(4, 74, 10, gObject_64x64, TILEREF(0x2CC, 0x0));
 }
 
 struct ProcCmd const sProcScr_WorldMapThoughtBubble[] = {
@@ -197,49 +182,14 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
             u8 currentUnitId = (u8)gGMData.units[0].id;
             u8 nextUnitId = GetNextWorldMapRosterUnitId(currentUnitId);
 
-            Debugf("R pressed: currentUnitId=%d nextUnitId=%d node=%d ix=%d iy=%d", currentUnitId, nextUnitId, gGMData.units[0].location, gGMData.ix, gGMData.iy);
-
             if (nextUnitId != 0)
             {
-                struct GMapPIProc * playerInterfaceProc;
-                struct Unit * nextUnit = GetUnitFromCharId(nextUnitId);
-
-                Debugf("nextUnit lookup: unit=%p valid=%d pid=%d level=%d faction=%d", nextUnit, UNIT_IS_VALID(nextUnit), nextUnit ? nextUnit->pCharacterData->number : 0, nextUnit ? nextUnit->level : 0, nextUnit ? UNIT_FACTION(nextUnit) : 0);
-
                 gGMData.units[0].id = nextUnitId;
                 sub_80B8FEC(proc);
                 sub_80B90CC(proc);
-                // PutFaceChibi(nextUnitId, gUnknown_0201B7DA, 0x220, 4, 0);
 
-                playerInterfaceProc = Proc_Find(ProcScr_GMapPlayerInterface);
-
-                Debugf("player interface proc=%p", playerInterfaceProc);
-
-                if (playerInterfaceProc != NULL && UNIT_IS_VALID(nextUnit))
-                {
-                    Debugf("refreshing PI: oldPid=%d oldJid=%d nodeId=%d", playerInterfaceProc->pid, playerInterfaceProc->jid, playerInterfaceProc->nodeId);
-                    Debugf("PI buffers: unk_40=%p unk_44=%04x", playerInterfaceProc->unk_40, playerInterfaceProc->unk_44);
-                    playerInterfaceProc->pid = nextUnitId;
-                    playerInterfaceProc->jid = 0;
-                    playerInterfaceProc->interfaceKind = 1;
-
-                    Debugf("calling face/name/level redraw for pid=%d", playerInterfaceProc->pid);
-                    PutGMapPICharName(playerInterfaceProc, playerInterfaceProc->pid);
-                    PutGMapPIFace(playerInterfaceProc);
-                    Debugf("writing level=%d via sub_80BE5F8 to %p", nextUnit->level, playerInterfaceProc->unk_40);
-                    sub_80BE5F8(playerInterfaceProc->unk_40, nextUnit);
-                    Debugf("level write complete for pid=%d level=%d", nextUnitId, nextUnit->level);
-                    sub_80BE638(playerInterfaceProc, nextUnit);
-                    BG_EnableSyncByMask(BG0_SYNC_BIT);
-                }
-                else
-                {
-                    Debugf("PI refresh skipped: proc=%p nextUnitValid=%d", playerInterfaceProc, UNIT_IS_VALID(nextUnit));
-                }
-            }
-            else
-            {
-                Debug("R pressed but no next roster unit was found");
+                Proc_EndEach(ProcScr_GMapPlayerInterface);
+                StartWorldMapPlayerInterface((struct Proc *)proc);
             }
         }
     }
@@ -247,13 +197,9 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
     if (gKeyStatusPtr->newKeys & SELECT_BUTTON)
     {
         if (gGMData.state.bits.state_2)
-        {
             gGMData.state.bits.state_2 = 0;
-        }
         else
-        {
             gGMData.state.bits.state_2 = 1;
-        }
     }
 
     nodeId = GetNodeAtPosition(proc->gm_icon, x >> 8, y >> 8, 0, 0);

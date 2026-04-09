@@ -258,3 +258,4 @@ struct UnitDefinition *GetUnitDefinitionFormEventScr(struct UnitDefinition *sour
 void RefreshUnitsOnBmMap(void);
 void RefreshMinesOnBmMap(void);
 extern s16 GetBanimAllyPosition(int faction1, int faction2);
+extern struct ProcCmd ProcScr_GMapPlayerInterface[];

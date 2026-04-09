@@ -604,11 +604,11 @@ void WorldMap_Init(struct WorldMapMainProc * proc);
 void WmMain_MoveCamera(ProcPtr);
 s8 sub_80B92D0(struct WorldMapMainProc *, int);
 void WmMain_MoveCursor(struct WorldMapMainProc *);
-// ??? sub_80B955C(???);
+int sub_80B955C(struct WorldMapMainProc * proc, int nodeId);
 int sub_80B95B0(void);
-// ??? sub_80B961C(???);
+void sub_80B961C(struct WorldMapMainProc * proc, int nodeId);
 void sub_80B96DC(ProcPtr proc);
-// ??? WorldMap_LoopExt(???);
+void WorldMap_LoopExt(struct WorldMapMainProc * proc);
 void sub_80B97F8(void);
 void WorldMap_Loop(ProcPtr proc);
 void sub_80B9810(ProcPtr);
@@ -920,7 +920,7 @@ void sub_80BE5B4(int, int);
 // ??? PutGMapPINodeName(???);
 void PutGMapPICharName(struct GMapPIProc * proc, int pid);
 void PutGMapPIFace(struct GMapPIProc * proc);
-// ??? PutGMapPIClassName(???);
+void PutGMapPIClassName(struct GMapPIProc * proc, int jid);
 // ??? sub_80BE9D8(???);
 // ??? sub_80BEA78(???);
 void sub_80BEB2C(struct GMapPIProc * proc);
@@ -931,10 +931,10 @@ void sub_80BEB2C(struct GMapPIProc * proc);
 // ??? GMapPI_HideLoop(???);
 // ??? GMapPI_GetGMapUnitIndexAndFaction(???);
 // ??? InitGMapPIInterfaceKind(???);
-// ??? sub_80BEF20(???);
+void sub_80BEF20(struct GMapPIProc * proc, int nodeId);
 // ??? sub_80BEF6C(???);
 // ??? GMapPI_Init(???);
-// ??? StartWorldMapPlayerInterface(???);
+void StartWorldMapPlayerInterface(struct Proc * parent);
 ProcPtr sub_80BF13C(ProcPtr);
 void sub_80BF15C(void);
 
@@ -1371,7 +1371,7 @@ extern struct Font gFont_0201AFC0;
 // extern ??? gUnknown_0201B3A4
 // extern ??? gUnknown_0201B430
 // extern ??? gUnknown_0201B458
-// extern ??? gUnknown_0201B718
+extern u16 gUnknown_0201B718[];
 // extern ??? gUnknown_0201B71C
 // extern ??? gUnknown_0201B758
 // extern ??? gUnknown_0201B7DA
