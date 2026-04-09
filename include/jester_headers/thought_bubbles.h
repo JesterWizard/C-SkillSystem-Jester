@@ -1,63 +1,27 @@
 // EIRIKA
-extern u8 Gfx_Chapter_02_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_02_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_03_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_03_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_04_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_04_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_05_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_05_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_06_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_06_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_07_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_07_Thought_Bubble_Eirika_Right[];
-extern u8 Gfx_Chapter_09_Thought_Bubble_Eirika_Left[];
-extern u8 Gfx_Chapter_09_Thought_Bubble_Eirika_Right[];
+#define DECLARE_THOUGHT_BUBBLE_GFX(unit, chapter) \
+extern u8 Gfx_Chapter_##chapter##_Thought_Bubble_##unit##_Left[]; \
+extern u8 Gfx_Chapter_##chapter##_Thought_Bubble_##unit##_Right[]
+
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 02);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 03);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 04);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 05);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 06);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 07);
+DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 09);
 
 // SETH
-extern u8 Gfx_Chapter_02_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_02_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_03_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_03_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_04_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_04_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_05_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_05_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_06_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_06_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_07_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_07_Thought_Bubble_Seth_Right[];
-extern u8 Gfx_Chapter_09_Thought_Bubble_Seth_Left[];
-extern u8 Gfx_Chapter_09_Thought_Bubble_Seth_Right[];
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 02);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 03);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 04);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 05);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 06);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 07);
+DECLARE_THOUGHT_BUBBLE_GFX(Seth, 09);
+
+#undef DECLARE_THOUGHT_BUBBLE_GFX
 
 typedef struct {
     u8 * const bubble[2];
 } WorldMapThoughtBubbleEntryGraphics;
-
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
-    { .bubble = {}}, // Prologue
-    { .bubble = {}}, // Chapter 1
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Eirika_Left, Gfx_Chapter_02_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Eirika_Left, Gfx_Chapter_03_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Eirika_Left, Gfx_Chapter_04_Thought_Bubble_Eirika_Right } },
-    { .bubble = {}}, // Chapter 5x
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Eirika_Left, Gfx_Chapter_05_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Eirika_Left, Gfx_Chapter_06_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Eirika_Left, Gfx_Chapter_07_Thought_Bubble_Eirika_Right } },
-    { .bubble = {}}, // Chapter 8
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Eirika_Left, Gfx_Chapter_09_Thought_Bubble_Eirika_Right } },
-};
-
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
-    { .bubble = {}}, // Prologue
-    { .bubble = {}}, // Chapter 1
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Seth_Left, Gfx_Chapter_02_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Seth_Left, Gfx_Chapter_03_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Seth_Left, Gfx_Chapter_04_Thought_Bubble_Seth_Right } },
-    { .bubble = {}}, // Chapter 5x
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Seth_Left, Gfx_Chapter_05_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Seth_Left, Gfx_Chapter_06_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Seth_Left, Gfx_Chapter_07_Thought_Bubble_Seth_Right } },
-    { .bubble = {}}, // Chapter 8
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Seth_Left, Gfx_Chapter_09_Thought_Bubble_Seth_Right } },
-};

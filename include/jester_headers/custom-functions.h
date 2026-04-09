@@ -244,3 +244,5 @@ extern int LckTonic(struct Unit *unit);
 extern int DefTonic(struct Unit *unit);
 extern int ResTonic(struct Unit *unit);
 extern int OmniTonic(struct Unit *unit);
+
+extern void WorldMap_CenterCamera(ProcPtr proc, int nodeid);

@@ -4,7 +4,36 @@
 #include "prep-skill.h"
 #include "kernel/debug-kit.h"
 #include "player_interface.h"
+#include "jester_headers/custom-functions.h"
 #include "jester_headers/thought_bubbles.h"
+
+const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
+    { .bubble = {}}, // Prologue
+    { .bubble = {}}, // Chapter 1
+    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Eirika_Left, Gfx_Chapter_02_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Eirika_Left, Gfx_Chapter_03_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Eirika_Left, Gfx_Chapter_04_Thought_Bubble_Eirika_Right } },
+    { .bubble = {}}, // Chapter 5x
+    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Eirika_Left, Gfx_Chapter_05_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Eirika_Left, Gfx_Chapter_06_Thought_Bubble_Eirika_Right } },
+    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Eirika_Left, Gfx_Chapter_07_Thought_Bubble_Eirika_Right } },
+    { .bubble = {}}, // Chapter 8
+    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Eirika_Left, Gfx_Chapter_09_Thought_Bubble_Eirika_Right } },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
+    { .bubble = {}}, // Prologue
+    { .bubble = {}}, // Chapter 1
+    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Seth_Left, Gfx_Chapter_02_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Seth_Left, Gfx_Chapter_03_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Seth_Left, Gfx_Chapter_04_Thought_Bubble_Seth_Right } },
+    { .bubble = {}}, // Chapter 5x
+    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Seth_Left, Gfx_Chapter_05_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Seth_Left, Gfx_Chapter_06_Thought_Bubble_Seth_Right } },
+    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Seth_Left, Gfx_Chapter_07_Thought_Bubble_Seth_Right } },
+    { .bubble = {}}, // Chapter 8
+    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Seth_Left, Gfx_Chapter_09_Thought_Bubble_Seth_Right } },
+};
 
 static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 {
@@ -113,7 +142,6 @@ extern u16 gUnknown_0201B7DA[];
 LYN_REPLACE_CHECK(WorldMap_LoopExt);
 void WorldMap_LoopExt(struct WorldMapMainProc * proc)
 {
-    NoCashGBAPrintf("gPlaySt.chapterIndex: %d\n", gPlaySt.chapterIndex);
     int nodeId;
 
     int x = gGMData.ix;
@@ -153,6 +181,10 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
         {
             if (sub_80B92D0(proc, nodeId) != 0)
             {
+                if (gpKernelDesignerConfig->world_map_thought_bubbles == true)
+                {
+                    WorldMap_CenterCamera(proc, nodeId);
+                }
                 PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
                 return;
             }
@@ -188,4 +220,45 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
         WmMain_MoveCamera(proc);
     }
     return;
+}
+
+void WorldMap_CenterCamera(ProcPtr proc, int nodeid)
+{
+    s16 x;
+    s16 y;
+    int unk;
+    s16 xOut;
+    s16 yOut;
+    s16 xCamera;
+    s16 yCamera;
+
+    if (gGMData.units[0].location != nodeid)
+        return;
+
+    x = gWMNodeData[nodeid].x;
+    y = gWMNodeData[nodeid].y;
+
+    gGMData.ix = x << 8;
+    gGMData.iy = y << 8;
+
+    GetWMCenteredCameraPosition(x, y, &xOut, &yOut);
+
+    *&xCamera = gGMData.xCamera;
+    *&yCamera = gGMData.yCamera;
+
+    unk = sub_80C0834(xCamera, yCamera, xOut, yOut, 4);
+    if (unk < 0)
+    {
+        unk = unk + 0x1FF;
+    }
+
+    unk = (unk >> 9) + 6;
+    if (unk > 10)
+    {
+        unk = 10;
+    }
+
+    StartGmScroll(-1, -1, xOut, yOut, unk, 0);
+
+    gGMData.sprite_disp = 0;
 }
