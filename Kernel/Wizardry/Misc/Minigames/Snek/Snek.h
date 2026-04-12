@@ -29,6 +29,11 @@ extern u16 gSnekCoinCoordinates[1]; // Packed x and y coordinates for the coin, 
 extern u8 gSnekSnakeState[4]; // Packed snake state: x, y, direction, frame counter
 extern u16 gSnekCurrentScore;
 extern u16 gSnekHighScore;
+extern u8 gSnekSnakeBodyX[32];
+extern u8 gSnekSnakeBodyY[32];
+extern u16 gSnekSnakeBodyLength;
+extern u16 gSnekLastTravelDirection;
+extern u16 gSnekLastPressedDirection;
 
 struct EventEngineProc;
 

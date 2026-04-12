@@ -130,8 +130,13 @@ _kernel_malloc sDeadUnitCount, 2
 _kernel_malloc gSnekCoinPresent, 2
 _kernel_malloc gSnekCoinCoordinates, 2
 _kernel_malloc gSnekSnakeState, 6
+_kernel_malloc gSnekSnakeBodyX, 32
+_kernel_malloc gSnekSnakeBodyY, 32
+_kernel_malloc gSnekSnakeBodyLength, 2
 _kernel_malloc gSnekCurrentScore, 2
 _kernel_malloc gSnekHighScore, 2
+_kernel_malloc gSnekLastTravelDirection, 2
+_kernel_malloc gSnekLastPressedDirection, 2
 
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
