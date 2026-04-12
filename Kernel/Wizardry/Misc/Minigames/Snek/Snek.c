@@ -128,7 +128,7 @@ static void Snek_DrawGameBackground(struct EventEngineProc * proc)
 	SetBlendConfig(BLEND_EFFECT_NONE, 0, 0x10, 0);
 }
 
-// Random;y draw a coin somewhere on the game background, which the player can collect for points if they run into it with the snek.
+// Randomly draw a coin somewhere on the game background, which the player can collect for points if they run into it with the snek.
 static void Snek_DrawGameCoin(struct EventEngineProc * proc)
 {
 	int x_width = 8;
@@ -159,27 +159,76 @@ static void Snek_DrawGameCoin(struct EventEngineProc * proc)
 }
 extern u16 gSnekCoinCoordinates[1];
 
+static void Snek_HideUnitSprites(void)
+{
+	int i;
+
+	for (i = 1; i < 0xC0; ++i) {
+		struct Unit * unit = GetUnit(i);
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		unit->state |= US_HIDDEN;
+		HideUnitSprite(unit);
+	}
+
+	RefreshUnitSprites();
+	SyncUnitSpriteSheet();
+}
+
+static void Snek_ShowUnitSprites(void)
+{
+	int i;
+
+	for (i = 1; i < 0xC0; ++i) {
+		struct Unit * unit = GetUnit(i);
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		unit->state &= ~US_HIDDEN;
+		ShowUnitSprite(unit);
+	}
+
+	RefreshUnitSprites();
+	SyncUnitSpriteSheet();
+}
+
 static void Snek_DrawSprites(struct EventEngineProc * proc)
 {
 	CpuFastFill(0, (void *)0x06013C00, 0x11E0);
 	ApplyPalette(Pal_SnekGameSheet, 0x10 + 5);
 
-	StartParallelWorker(Snek_DrawStartSprite, proc);
-	StartParallelWorker(Snek_DrawGameSprites, proc);
 	Snek_DrawGameBackground(proc);
-	StartParallelWorker(Snek_DrawTopBarBackground, proc);
-	StartParallelWorker(Snek_DrawGameCoin, proc);
 }
 
 static void Snek_Init(struct EventEngineProc * proc)
 {
+	Snek_HideUnitSprites();
 	Snek_DrawSprites(proc);
+}
+
+static void Snek_EndProc(struct EventEngineProc * proc)
+{
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+	
+	Snek_ShowUnitSprites();
+	Proc_Break(proc);
 }
 
 static void Snek_Loop(struct EventEngineProc * proc)
 {
 	if (gKeyStatusPtr->newKeys & B_BUTTON)
-		Proc_Break(proc);
+		Snek_EndProc(proc);
+
+	CpuFastFill(0, (void *)0x06017000, 0xC60);
+	
+	Snek_DrawStartSprite();
+	Snek_DrawGameSprites();
+	Snek_DrawTopBarBackground(proc);
+	Snek_DrawGameCoin(proc);
 }
 
 static const struct ProcCmd ProcScr_SnekMinigame[] = {
