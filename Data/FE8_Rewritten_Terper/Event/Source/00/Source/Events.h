@@ -195,7 +195,7 @@ LABEL(0x1)
     ENDA
 };
 
-// static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
+static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 // ASMC(CallForgeMenuASMC)
 
 // ASMC(AddMoreTime)
@@ -206,8 +206,9 @@ LABEL(0x1)
 
 // FADE_TO_BLACK(16) // slow fade to black (optional)
 // ASMC(StartCreditsProc_ASMC)
+    ASMC(CallSnekMinigameASMC)
 
-// };
+};
 
 /**
  * Event lists
@@ -221,7 +222,7 @@ static const EventListScr EventListScr_Turn[] = {
 };
 
 static const EventListScr EventListScr_Character[] = {
-    // CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
+    CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
     END_MAIN
 };
 

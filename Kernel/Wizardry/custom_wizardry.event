@@ -120,3 +120,5 @@
 #include "Misc/HPBarPalettes/HPBarPalettes_Installer.event"
 
 #include "Misc/WorldMapThoughts/WorldMapThoughts_Installer.event"
+
+#include "Misc/Minigames/Snek/Snek_Installer.event"

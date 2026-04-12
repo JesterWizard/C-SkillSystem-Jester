@@ -63,3 +63,4 @@ struct BEXP {
 extern struct BEXP sBEXP;
 
 extern void CallEvent_SpawnAssassinfx(struct EventEngineProc * proc);
+extern void CallSnekMinigameASMC(struct EventEngineProc * proc);

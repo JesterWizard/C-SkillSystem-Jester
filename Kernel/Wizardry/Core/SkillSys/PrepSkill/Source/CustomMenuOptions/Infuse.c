@@ -107,7 +107,7 @@ static void drawInfuseSprites(void)
     /* UI Line 1 - parts 1, 2, 3 */
     PutSprite(1, 14, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E0));
     PutSprite(1, 46, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E4));
-    PutSprite(1, 56, 69, gObject_32x32,   OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E5));
+    PutSprite(1, 56, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E5));
     PutSprite(1, 86, 69, gObject_32x32,  OAM2_PAL(0) + OAM2_LAYER(3) + OAM2_CHR(0x2E9));
     
     /* UI Line 2 - parts 1, 2, 3 */

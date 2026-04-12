@@ -237,6 +237,7 @@ POIN BG_Heroes_Vigarde_02_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_02_PAL // 0xD
 POIN BG_Heroes_Vigarde_03_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_03_PAL // 0xD9
 POIN BG_Heroes_Vigarde_04_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_04_PAL // 0xDA
 
+
 // TSA == 0 indicates 256-colour BGs.
 // TSA == 1 indicates 224-colour BGs.
 
