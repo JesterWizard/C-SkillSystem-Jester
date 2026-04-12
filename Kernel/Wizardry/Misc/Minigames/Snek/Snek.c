@@ -7,63 +7,47 @@ static void Snek_DrawStartSprite(void)
 	CpuFastFill(0, (void *)0x06013000, 0xBE0);
 	ApplyPalette(Pal_SnekPressStart, 0x10 + 2);
 
-	Decompress(Gfx_SnekPressStart_1, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013000, 4, 2);
-
-	Decompress(Gfx_SnekPressStart_2, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013080, 4, 2);
-
-	Decompress(Gfx_SnekPressStart_3, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013100, 4, 2);
-
-	Decompress(Gfx_SnekPressStart_4, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013180, 4, 2);
+	Decompress(Gfx_SnekPressStart, gGenericBuffer);
+	Copy2dChr(gGenericBuffer, (void *)0x6013000, 16, 2);
 
 	/* Press Start - Parts 1, 2, 3, 4 */
-	PutSprite(1, 64, 136,  gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x181));
-	PutSprite(1, 96, 136,  gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x185));
-	PutSprite(1, 128, 136, gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x189));
-	PutSprite(1, 160, 136, gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x18D));
+	// PutSprite(1, 64, 136,  gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x181));
+	// PutSprite(1, 96, 136,  gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x185));
+	// PutSprite(1, 128, 136, gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x189));
+	// PutSprite(1, 160, 136, gObject_32x16, OAM2_PAL(2) + OAM2_LAYER(0) + OAM2_CHR(0x18D));
 }
 
 static void Snek_DrawGameSprites(void)
 {
-	Decompress(Gfx_SnekGameSheet_1, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013C00, 2, 4);
+	Decompress(Gfx_SnekGameSheet, gGenericBuffer);
+	Copy2dChr(gGenericBuffer, (void *)0x6013C00, 10, 4);
+}
 
-	Decompress(Gfx_SnekGameSheet_2, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013C40, 2, 4);
+static void Snek_DrawHighScore(struct EventEngineProc * proc)
+{
+	int score = gSnekHighScore;
+	int hundreds = k_umod((score / 100), 10);
+	int tens = k_umod((score / 10), 10);
+	int ones = k_umod(score, 10);
 
-	Decompress(Gfx_SnekGameSheet_3, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013C80, 2, 4);
-
-	Decompress(Gfx_SnekGameSheet_4, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013CC0, 2, 4);
-	
-	Decompress(Gfx_SnekGameSheet_5, gGenericBuffer);
-	Copy2dChr(gGenericBuffer, (void *)0x6013D00, 2, 4);
+	PutSprite(1, 74 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + hundreds));
+	PutSprite(1, 82 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + tens));
+	PutSprite(1, 90 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + ones));
 }
 
 static void Snek_DrawTopBarBackground(struct EventEngineProc * proc)
 {
+	static const u8 sTopBarXPositions[] = {
+		0, 16, 32, 48, 64, 80, 96, 112,
+		128, 144, 160, 176, 192, 208, 224,
+	};
+	unsigned int i;
+
 	Decompress(Gfx_TopBarBackground, gGenericBuffer);
 	Copy2dChr(gGenericBuffer, (void *)0x6014160, 2, 4);
 
-	PutSprite(1, 0, 0,  gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 1
-	PutSprite(1, 16, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 2
-	PutSprite(1, 32, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 3
-	PutSprite(1, 48, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 4
-	PutSprite(1, 64, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 5
-	PutSprite(1, 80, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 6
-	PutSprite(1, 96, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 7
-	PutSprite(1, 112, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 8
-	PutSprite(1, 128, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 9
-	PutSprite(1, 144, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 10
-	PutSprite(1, 160, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 11
-	PutSprite(1, 176, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 12
-	PutSprite(1, 192, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 13
-	PutSprite(1, 208, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 14
-	PutSprite(1, 224, 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B)); // Top Bar Background 15
+	for (i = 0; i < ARRAY_COUNT(sTopBarXPositions); ++i)
+		PutSprite(1, sTopBarXPositions[i], 0, gObject_16x16, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x20B));
 
 	PutSprite(1, 12,  3,  gObject_16x8, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x240)); // Size
 
@@ -85,12 +69,12 @@ static void Snek_DrawTopBarBackground(struct EventEngineProc * proc)
 
 	PutSprite(1, 60,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x243)); // "/"
 
-	// Right side box and numbers (high score)
+	// Right side box and numbers (max obtainable score)
 	PutSprite(1, 68,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x244)); // | (Left)
 	PutSprite(1, 68,  4,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x244)); // | (Left)
-	PutSprite(1, 74,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
-	PutSprite(1, 82,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
-	PutSprite(1, 90,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
+	PutSprite(1, 74,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x229)); // Empty Number
+	PutSprite(1, 82,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x229)); // Empty Number
+	PutSprite(1, 90,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x229)); // Empty Number
 	PutSprite(1, 72,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
 	PutSprite(1, 80,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
 	PutSprite(1, 88,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
@@ -106,9 +90,7 @@ static void Snek_DrawTopBarBackground(struct EventEngineProc * proc)
 	// High Score box and numbers
 	PutSprite(1, 68 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x244)); // | (Left)
 	PutSprite(1, 68 + 117,  4,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x244)); // | (Left)
-	PutSprite(1, 74 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
-	PutSprite(1, 82 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
-	PutSprite(1, 90 + 117,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x209)); // Empty Number
+	Snek_DrawHighScore(proc);
 	PutSprite(1, 72 + 117,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
 	PutSprite(1, 80 + 117,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
 	PutSprite(1, 88 + 117,  0,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x204)); // _ (Top)
@@ -157,7 +139,48 @@ static void Snek_DrawGameCoin(struct EventEngineProc * proc)
 	// Copper coin
 	PutSprite(0, x_pos * x_width, y_pos * y_width, gObject_8x8, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x200));
 }
-extern u16 gSnekCoinCoordinates[1];
+
+static void Snek_HandleCoinCollision(void)
+{
+	int snake_x = gSnekSnakeState[SNEK_STATE_X];
+	int snake_y = gSnekSnakeState[SNEK_STATE_Y];
+	int coin_x = (gSnekCoinCoordinates[0] >> 8) * 8;
+	int coin_y = (gSnekCoinCoordinates[0] & 0xFF) * 8;
+
+	if (!gSnekCoinPresent)
+		return;
+
+	if (snake_x == coin_x && snake_y == coin_y) {
+		gSnekCoinPresent = false;
+		gSnekCurrentScore += 4;
+	}
+}
+
+static void Snek_DrawSnake(void)
+{
+	const u16 * sprite = gObject_8x8;
+	int chr = 0x1E0;
+
+	if (gSnekSnakeState[SNEK_STATE_DIR] == SNEK_DIR_UP || gSnekSnakeState[SNEK_STATE_DIR] == SNEK_DIR_DOWN)
+		chr = 0x1E5;
+
+	if (gSnekSnakeState[SNEK_STATE_DIR] == SNEK_DIR_RIGHT || gSnekSnakeState[SNEK_STATE_DIR] == SNEK_DIR_DOWN)
+		sprite = gObject_8x8_HFlipped_VFlipped;
+
+	PutSprite(0, gSnekSnakeState[SNEK_STATE_X], gSnekSnakeState[SNEK_STATE_Y], sprite, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(chr));
+}
+
+static void Snek_DrawCurrentScore(struct EventEngineProc * proc)
+{
+	int score = gSnekCurrentScore;
+	int hundreds = k_umod((score / 100), 10);
+	int tens = k_umod((score / 10), 10);
+	int ones = k_umod(score, 10);
+
+	PutSprite(1, 34,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + hundreds));
+	PutSprite(1, 42,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + tens));
+	PutSprite(1, 50,  3,  gObject_8x8,  OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x220 + ones));
+}
 
 static void Snek_HideUnitSprites(void)
 {
@@ -205,12 +228,22 @@ static void Snek_DrawSprites(struct EventEngineProc * proc)
 
 static void Snek_Init(struct EventEngineProc * proc)
 {
+	gSnekSnakeState[SNEK_STATE_X] = 120;
+	gSnekSnakeState[SNEK_STATE_Y] = 72;
+	gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_LEFT;
+	gSnekSnakeState[SNEK_STATE_TIMER] = 0;
+
 	Snek_HideUnitSprites();
 	Snek_DrawSprites(proc);
 }
 
 static void Snek_EndProc(struct EventEngineProc * proc)
 {
+	// Set the high score for the next game and reset the current score
+	if (gSnekCurrentScore > gSnekHighScore)
+		gSnekHighScore = gSnekCurrentScore;
+
+	gSnekCurrentScore = 0;
 	BG_Fill(gBG2TilemapBuffer, 0);
 	BG_EnableSyncByMask(BG2_SYNC_BIT);
 	
@@ -219,9 +252,62 @@ static void Snek_EndProc(struct EventEngineProc * proc)
 }
 
 static void Snek_Loop(struct EventEngineProc * proc)
-{
-	if (gKeyStatusPtr->newKeys & B_BUTTON)
+{;
+	if (gSnekSnakeState[SNEK_STATE_X] <= 0 || gSnekSnakeState[SNEK_STATE_X] >= 240 || gSnekSnakeState[SNEK_STATE_Y] <= 8 || gSnekSnakeState[SNEK_STATE_Y] >= 160) {
 		Snek_EndProc(proc);
+		return;
+	}
+
+	if (gKeyStatusPtr->newKeys & B_BUTTON)
+	{
+		Snek_EndProc(proc);
+		return;
+	}
+
+	if (gKeyStatusPtr->newKeys & DPAD_RIGHT)
+	{
+		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_LEFT)
+			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_RIGHT;
+	}
+	else if (gKeyStatusPtr->newKeys & DPAD_LEFT)
+	{
+		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_RIGHT)
+			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_LEFT;
+	}
+	else if (gKeyStatusPtr->newKeys & DPAD_UP)
+	{
+		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_DOWN)
+			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_UP;
+	}
+	else if (gKeyStatusPtr->newKeys & DPAD_DOWN)
+	{
+		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_UP)
+			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_DOWN;
+	}
+
+	if (++gSnekSnakeState[SNEK_STATE_TIMER] >= 16) {
+		gSnekSnakeState[SNEK_STATE_TIMER] = 0;
+
+		switch (gSnekSnakeState[SNEK_STATE_DIR]) {
+		case SNEK_DIR_RIGHT:
+			gSnekSnakeState[SNEK_STATE_X] += 8;
+			break;
+
+		case SNEK_DIR_LEFT:
+			gSnekSnakeState[SNEK_STATE_X] -= 8;
+			break;
+
+		case SNEK_DIR_UP:
+			gSnekSnakeState[SNEK_STATE_Y] -= 8;
+			break;
+
+		case SNEK_DIR_DOWN:
+			gSnekSnakeState[SNEK_STATE_Y] += 8;
+			break;
+		}
+	}
+
+	Snek_HandleCoinCollision();
 
 	CpuFastFill(0, (void *)0x06017000, 0xC60);
 	
@@ -229,6 +315,8 @@ static void Snek_Loop(struct EventEngineProc * proc)
 	Snek_DrawGameSprites();
 	Snek_DrawTopBarBackground(proc);
 	Snek_DrawGameCoin(proc);
+	Snek_DrawCurrentScore(proc);
+	Snek_DrawSnake();
 }
 
 static const struct ProcCmd ProcScr_SnekMinigame[] = {

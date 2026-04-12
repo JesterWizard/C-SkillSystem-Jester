@@ -9,20 +9,13 @@
 // Pal_SnekTitle:
 // #incbin "titlescreen.pal.bin"
 
-Pal_SnekPressStart:   #incext Png2Dmp "press_start_1.png" --palette-only
-Gfx_SnekPressStart_1: #incext Png2Dmp "press_start_1.png" --lz77
-Gfx_SnekPressStart_2: #incext Png2Dmp "press_start_2.png" --lz77
-Gfx_SnekPressStart_3: #incext Png2Dmp "press_start_3.png" --lz77
-Gfx_SnekPressStart_4: #incext Png2Dmp "press_start_4.png" --lz77
+Pal_SnekPressStart:   #incext Png2Dmp "press_start.png" --palette-only
+Gfx_SnekPressStart:   #incext Png2Dmp "press_start.png" --lz77
 
 Gfx_TopBarBackground: #incext Png2Dmp "top_bar_background.png" --lz77
 
-Pal_SnekGameSheet:   #incext Png2Dmp "game_1.png" --palette-only
-Gfx_SnekGameSheet_1: #incext Png2Dmp "game_1.png" --lz77
-Gfx_SnekGameSheet_2: #incext Png2Dmp "game_2.png" --lz77
-Gfx_SnekGameSheet_3: #incext Png2Dmp "game_3.png" --lz77
-Gfx_SnekGameSheet_4: #incext Png2Dmp "game_4.png" --lz77
-Gfx_SnekGameSheet_5: #incext Png2Dmp "game_5.png" --lz77
+Pal_SnekGameSheet: #incext Png2Dmp "game.png" --palette-only
+Gfx_SnekGameSheet: #incext Png2Dmp "game.png" --lz77
 
 Pal_SnekGameBackground: #incext Png2Dmp "game_snek_background.png" --palette-only
 Gfx_SnekGameBackground: #incext Png2Dmp "game_snek_background.png" --lz77
