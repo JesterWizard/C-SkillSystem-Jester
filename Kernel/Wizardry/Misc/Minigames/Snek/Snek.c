@@ -370,7 +370,7 @@ static void Snek_Loop(struct EventEngineProc * proc)
 
 	if (gKeyStatusPtr->newKeys & B_BUTTON)
 	{
-		Snek_EndProc(proc);
+		Proc_Goto(proc, PL_GAME_SNEK_PRESS_B);
 		return;
 	}
 
@@ -463,12 +463,33 @@ static void Snek_Loop(struct EventEngineProc * proc)
 }
 
 static const struct ProcCmd ProcScr_SnekMinigame[] = {
+	PROC_CALL_ARG(NewFadeOut, 0x10),
+	PROC_WHILE(FadeOutExists),
 	PROC_CALL(Snek_Init),
+	PROC_CALL_ARG(NewFadeIn, 0x10),
+    PROC_WHILE(FadeInExists),
 	PROC_REPEAT(Snek_Loop),
+
+PROC_LABEL(PL_GAME_SNEK_PRESS_B),
+    PROC_CALL_ARG(NewFadeOut, 0x10),
+    PROC_WHILE(FadeOutExists),
 	PROC_END,
 };
 
 void CallSnekMinigameASMC(struct EventEngineProc * proc)
 {
 	Proc_StartBlocking(ProcScr_SnekMinigame, proc);
+}
+
+void Snek_SetOutcomeEventSlots(void)
+{
+	if (gSnekCurrentScore > gSnekHighScore)
+		gEventSlots[EVT_SLOT_7] = 0;
+	else if (gSnekCurrentScore == gSnekHighScore)
+		gEventSlots[EVT_SLOT_7] = 1;
+	else
+		gEventSlots[EVT_SLOT_7] = 2;
+
+	gEventSlots[EVT_SLOT_8] = 0;
+	gEventSlots[EVT_SLOT_9] = 1;
 }

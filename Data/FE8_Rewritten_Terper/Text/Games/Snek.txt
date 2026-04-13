@@ -1,0 +1,46 @@
+## GAME_SNEK_CONVO_BEGIN
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Hi there, neighbour![A][N]
+Can I interest you in a game I like[N]
+to call Pied Piper?[N][Yes]
+
+# GAME_SNEK_CONVO_YES
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Great! Then let me just get[N]
+everything set up for you.[A][X]
+
+# GAME_SNEK_CONVO_NO
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Oh I see.[A][N][MoveMidLeft]
+Not to worry, another time then![A][X]
+
+## GAME_SNEK_CONVO_END_WIN
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Well, well. Looks like you've set[N]
+a new record![A][N]
+Take this with you.[A][X]
+
+## GAME_SNEK_CONVO_END_LOSE
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Hmm looks like you still need to work[N]
+on your snake charming a bit more.[A][X]
+
+## GAME_SNEK_CONVO_END_DRAW
+[OpenMidLeft][LoadFace_CivillianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+You tied with the current record,[N]
+not bad at all.[A][N]
+Keep improving and you might one[N]
+day beat it![A][N]
+Take these for your troubles.[A][X]

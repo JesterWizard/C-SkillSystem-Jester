@@ -14,6 +14,10 @@ enum {
 	SNEK_DIR_DOWN,
 };
 
+enum {
+	PL_GAME_SNEK_PRESS_B = 0,
+};
+
 extern const u8 Pal_SnekPressStart[];
 extern const u8 Gfx_SnekPressStart[];
 
@@ -41,3 +45,4 @@ extern u16 gSnekLastPressedDirection;
 struct EventEngineProc;
 
 void CallSnekMinigameASMC(struct EventEngineProc * proc);
+void Snek_SetOutcomeEventSlots(void);

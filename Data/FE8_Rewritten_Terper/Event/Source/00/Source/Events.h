@@ -222,7 +222,7 @@ static const EventListScr EventListScr_Turn[] = {
 };
 
 static const EventListScr EventListScr_Character[] = {
-    CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
+    // CharacterEventBothWays(EVFLAG_TMP(9), EventScr_Talk_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH)
     END_MAIN
 };
 

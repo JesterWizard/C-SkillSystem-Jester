@@ -159,6 +159,8 @@
 #include "VariableCharacterDescriptions/VariableCharacterDescriptions.txt"
 #include "BaseConversations/BaseConversations.txt"
 
+#include "Games/Snek.txt"
+
 #include "HeroesCards/Eirika.txt"
 #include "HeroesCards/Amelia.txt"
 #include "HeroesCards/Artur.txt"
