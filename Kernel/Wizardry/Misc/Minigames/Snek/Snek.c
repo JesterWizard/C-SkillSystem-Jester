@@ -207,8 +207,11 @@ static void Snek_HandleCoinCollision(void)
 		gSnekCurrentScore += 4;
 		if (gSnekCurrentScore >= 999)
 			gSnekCurrentScore = 999;
-		if (gSnekSnakeBodyLength < 32)
+		if (gSnekSnakeBodyLength < 32) {
+			gSnekSnakeBodyX[gSnekSnakeBodyLength] = gSnekSnakeBodyX[gSnekSnakeBodyLength - 1];
+			gSnekSnakeBodyY[gSnekSnakeBodyLength] = gSnekSnakeBodyY[gSnekSnakeBodyLength - 1];
 			++gSnekSnakeBodyLength;
+		}
 	}
 }
 
@@ -363,14 +366,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		Snek_EndProc(proc);
 		return;
 	}
-		static const char * const sDirectionNames[] = {
-			"LEFT",
-			"RIGHT",
-			"UP",
-			"DOWN",
-		};
-		int pressed_direction = -1;
-		int current_direction = gSnekSnakeState[SNEK_STATE_DIR];
 
 
 	if (gKeyStatusPtr->newKeys & B_BUTTON)
@@ -385,7 +380,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		gSnekLastPressedDirection = SNEK_DIR_RIGHT;
 		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_LEFT)
 			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_RIGHT;
-		pressed_direction = SNEK_DIR_RIGHT;
 	}
 	else if (gKeyStatusPtr->newKeys & DPAD_LEFT)
 	{
@@ -393,7 +387,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		gSnekLastPressedDirection = SNEK_DIR_LEFT;
 		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_RIGHT)
 			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_LEFT;
-		pressed_direction = SNEK_DIR_LEFT;
 	}
 	else if (gKeyStatusPtr->newKeys & DPAD_UP)
 	{
@@ -401,7 +394,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		gSnekLastPressedDirection = SNEK_DIR_UP;
 		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_DOWN)
 			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_UP;
-		pressed_direction = SNEK_DIR_UP;
 	}
 	else if (gKeyStatusPtr->newKeys & DPAD_DOWN)
 	{
@@ -409,7 +401,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		gSnekLastPressedDirection = SNEK_DIR_DOWN;
 		if (gSnekSnakeState[SNEK_STATE_DIR] != SNEK_DIR_UP)
 			gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_DOWN;
-		pressed_direction = SNEK_DIR_DOWN;
 	}
 
 	if (++gSnekSnakeState[SNEK_STATE_TIMER] >= 16) {

@@ -132,8 +132,8 @@ _kernel_malloc gSnekCoinCoordinates, 2
 _kernel_malloc gSnekSnakeState, 6
 _kernel_malloc gSnekSnakeX, 2
 _kernel_malloc gSnekSnakeY, 2
-_kernel_malloc gSnekSnakeBodyX, 64
-_kernel_malloc gSnekSnakeBodyY, 64
+_kernel_malloc gSnekSnakeBodyX, 32
+_kernel_malloc gSnekSnakeBodyY, 32
 _kernel_malloc gSnekSnakeBodyLength, 2
 _kernel_malloc gSnekCurrentScore, 2
 _kernel_malloc gSnekHighScore, 2
