@@ -8,31 +8,31 @@
 #include "jester_headers/thought_bubbles.h"
 
 const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
-    { .bubble = {}}, // Prologue
-    { .bubble = {}}, // Chapter 1
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Eirika_Left, Gfx_Chapter_02_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Eirika_Left, Gfx_Chapter_03_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Eirika_Left, Gfx_Chapter_04_Thought_Bubble_Eirika_Right } },
-    { .bubble = {}}, // Chapter 5x
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Eirika_Left, Gfx_Chapter_05_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Eirika_Left, Gfx_Chapter_06_Thought_Bubble_Eirika_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Eirika_Left, Gfx_Chapter_07_Thought_Bubble_Eirika_Right } },
-    { .bubble = {}}, // Chapter 8
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Eirika_Left, Gfx_Chapter_09_Thought_Bubble_Eirika_Right } },
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Eirika },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Eirika },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Eirika },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Eirika },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Eirika },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Eirika },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Eirika },
 };
 
 static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
-    { .bubble = {}}, // Prologue
-    { .bubble = {}}, // Chapter 1
-    { .bubble = { Gfx_Chapter_02_Thought_Bubble_Seth_Left, Gfx_Chapter_02_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_03_Thought_Bubble_Seth_Left, Gfx_Chapter_03_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_04_Thought_Bubble_Seth_Left, Gfx_Chapter_04_Thought_Bubble_Seth_Right } },
-    { .bubble = {}}, // Chapter 5x
-    { .bubble = { Gfx_Chapter_05_Thought_Bubble_Seth_Left, Gfx_Chapter_05_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_06_Thought_Bubble_Seth_Left, Gfx_Chapter_06_Thought_Bubble_Seth_Right } },
-    { .bubble = { Gfx_Chapter_07_Thought_Bubble_Seth_Left, Gfx_Chapter_07_Thought_Bubble_Seth_Right } },
-    { .bubble = {}}, // Chapter 8
-    { .bubble = { Gfx_Chapter_09_Thought_Bubble_Seth_Left, Gfx_Chapter_09_Thought_Bubble_Seth_Right } },
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Seth },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Seth },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Seth },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Seth },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Seth },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Seth },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Seth },
 };
 
 static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
@@ -108,11 +108,9 @@ static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
     if (bubbleEntry == NULL)
         return;
 
-    Decompress(bubbleEntry->bubble[0], gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void *)0x6015880, 8, 8);
+    Decompress(bubbleEntry->bubble, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void *)0x6015880, 16, 8);
 
-    Decompress(bubbleEntry->bubble[1], gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void *)0x6015980, 8, 8);
 }
 
 static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)

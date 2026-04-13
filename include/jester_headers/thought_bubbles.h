@@ -1,7 +1,6 @@
 // EIRIKA
 #define DECLARE_THOUGHT_BUBBLE_GFX(unit, chapter) \
-extern u8 Gfx_Chapter_##chapter##_Thought_Bubble_##unit##_Left[]; \
-extern u8 Gfx_Chapter_##chapter##_Thought_Bubble_##unit##_Right[]
+extern u8 Gfx_Chapter_##chapter##_Thought_Bubble_##unit[];
 
 // Eirika
 DECLARE_THOUGHT_BUBBLE_GFX(Eirika, 02);
@@ -132,5 +131,5 @@ DECLARE_THOUGHT_BUBBLE_GFX(Natasha, 09);
 #undef DECLARE_THOUGHT_BUBBLE_GFX
 
 typedef struct {
-    u8 * const bubble[2];
+    u8 * const bubble;
 } WorldMapThoughtBubbleEntryGraphics;
