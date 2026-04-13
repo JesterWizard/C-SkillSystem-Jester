@@ -4,6 +4,30 @@
 
 static void Snek_ShowUnitSprites(void);
 
+void Snek_SaveHighScore(u8 *dst, const u32 size)
+{
+	static const u16 sSnekHighScoreMagic = 0x534B;
+	u16 buffer[2];
+
+	buffer[0] = gSnekHighScore;
+	buffer[1] = sSnekHighScoreMagic;
+	WriteAndVerifySramFast(buffer, dst, sizeof(buffer));
+}
+
+void Snek_LoadHighScore(u8 *src, const u32 size)
+{
+	u16 buffer[2];
+	static const u16 sSnekHighScoreMagic = 0x534B;
+
+	ReadSramFast(src, buffer, sizeof(buffer));
+	if (buffer[1] == sSnekHighScoreMagic) {
+		gSnekHighScore = buffer[0];
+	} else {
+		gSnekHighScore = 0;
+		gSnekHighScoreMagic = sSnekHighScoreMagic;
+	}
+}
+
 static void Snek_DrawStartSprite(void)
 {
 	CpuFastFill(0, (void *)0x06013000, 0xBE0);
@@ -142,67 +166,36 @@ static void Snek_DrawGameCoin(struct EventEngineProc * proc)
 	PutSprite(0, x_pos * x_width, y_pos * y_width, gObject_8x8, OAM2_PAL(5) + OAM2_LAYER(0) + OAM2_CHR(0x200));
 }
 
-static const char * Snek_GetDirectionName(int direction)
-{
-	switch (direction) {
-	case SNEK_DIR_LEFT:
-		return "LEFT";
-	case SNEK_DIR_RIGHT:
-		return "RIGHT";
-	case SNEK_DIR_UP:
-		return "UP";
-	case SNEK_DIR_DOWN:
-		return "DOWN";
-	default:
-		return "UNKNOWN";
-	}
-}
-
-static const char * Snek_GetSpriteName(const u16 * sprite)
-{
-	if (sprite == gObject_8x8)
-		return "gObject_8x8";
-
-	if (sprite == gObject_8x8_HFlipped)
-		return "gObject_8x8_HFlipped";
-
-	if (sprite == gObject_8x8_VFlipped)
-		return "gObject_8x8_VFlipped";
-
-	if (sprite == gObject_8x8_HFlipped_VFlipped)
-		return "gObject_8x8_HFlipped_VFlipped";
-
-	return "gObject_8x8";
-}
-
-static const u16 * Snek_GetBendSprite(int travel_direction, int pressed_direction)
+static const u16 * Snek_GetBendSprite(int prev_dx, int prev_dy, int next_dx, int next_dy)
 {
 	const u16 * sprite = gObject_8x8;
 
-	if (travel_direction == SNEK_DIR_DOWN && pressed_direction == SNEK_DIR_RIGHT)
-		sprite = gObject_8x8_HFlipped_VFlipped;
-	else if (travel_direction == SNEK_DIR_UP && pressed_direction == SNEK_DIR_RIGHT)
+	/* Horizontal segment entering the bend */
+	if (prev_dx < 0 && next_dy > 0)        // from left, turning down
 		sprite = gObject_8x8_HFlipped;
-	else if (travel_direction == SNEK_DIR_DOWN && pressed_direction == SNEK_DIR_LEFT)
-		sprite = gObject_8x8_VFlipped;
-	else if (travel_direction == SNEK_DIR_UP && pressed_direction == SNEK_DIR_LEFT)
-		sprite = gObject_8x8;
-	else if (travel_direction == SNEK_DIR_RIGHT && pressed_direction == SNEK_DIR_DOWN)
-		sprite = gObject_8x8;
-	else if (travel_direction == SNEK_DIR_LEFT && pressed_direction == SNEK_DIR_DOWN)
-		sprite = gObject_8x8_HFlipped;
-	else if (travel_direction == SNEK_DIR_RIGHT && pressed_direction == SNEK_DIR_UP)
-		sprite = gObject_8x8_VFlipped;
-	else if (travel_direction == SNEK_DIR_LEFT && pressed_direction == SNEK_DIR_UP)
+	else if (prev_dx < 0 && next_dy < 0)   // from left, turning up
 		sprite = gObject_8x8_HFlipped_VFlipped;
+	else if (prev_dx > 0 && next_dy > 0)    // from right, turning down
+		sprite = gObject_8x8;
+	else if (prev_dx > 0 && next_dy < 0)    // from right, turning up
+		sprite = gObject_8x8_HFlipped;
+	/* Vertical segment entering the bend */
+	else if (prev_dy < 0 && next_dx > 0)    // from up, turning right
+		sprite = gObject_8x8_HFlipped;
+	else if (prev_dy < 0 && next_dx < 0)    // from up, turning left
+		sprite = gObject_8x8;
+	else if (prev_dy > 0 && next_dx > 0)    // from down, turning right
+		sprite = gObject_8x8_HFlipped_VFlipped;
+	else if (prev_dy > 0 && next_dx < 0)    // from down, turning left
+		sprite = gObject_8x8_VFlipped;
 
 	return sprite;
 }
 
 static void Snek_HandleCoinCollision(void)
 {
-	int snake_x = gSnekSnakeState[SNEK_STATE_X];
-	int snake_y = gSnekSnakeState[SNEK_STATE_Y];
+	int snake_x = gSnekSnakeX;
+	int snake_y = gSnekSnakeY;
 	int coin_x = (gSnekCoinCoordinates[0] >> 8) * 8;
 	int coin_y = (gSnekCoinCoordinates[0] & 0xFF) * 8;
 
@@ -212,6 +205,8 @@ static void Snek_HandleCoinCollision(void)
 	if (snake_x == coin_x && snake_y == coin_y) {
 		gSnekCoinPresent = false;
 		gSnekCurrentScore += 4;
+		if (gSnekCurrentScore >= 999)
+			gSnekCurrentScore = 999;
 		if (gSnekSnakeBodyLength < 32)
 			++gSnekSnakeBodyLength;
 	}
@@ -271,10 +266,8 @@ static void Snek_DrawSnake(void)
 				const u16 * bend_sprite;
 
 				chr = 0x1E3;
-				bend_sprite = Snek_GetBendSprite(gSnekLastTravelDirection, gSnekLastPressedDirection);
+				bend_sprite = Snek_GetBendSprite(prev_dx, prev_dy, next_dx, next_dy);
 				sprite = bend_sprite;
-
-				NoCashGBAPrintf("Bend travel=%s button=%s sprite=%s", Snek_GetDirectionName(gSnekLastTravelDirection), Snek_GetDirectionName(gSnekLastPressedDirection), Snek_GetSpriteName(bend_sprite));
 			} else if (prev_dx != 0 || next_dx != 0) {
 				chr = 0x1E1;
 			} else {
@@ -330,6 +323,14 @@ static void Snek_Init(struct EventEngineProc * proc)
 	gSnekSnakeState[SNEK_STATE_Y] = 72;
 	gSnekSnakeState[SNEK_STATE_DIR] = SNEK_DIR_LEFT;
 	gSnekSnakeState[SNEK_STATE_TIMER] = 0;
+	gSnekSnakeX = 120;
+	gSnekSnakeY = 72;
+	gSnekLastTravelDirection = SNEK_DIR_LEFT;
+	gSnekLastPressedDirection = SNEK_DIR_LEFT;
+	if (gSnekHighScoreMagic != 0x534B) {
+		gSnekHighScore = 0;
+		gSnekHighScoreMagic = 0x534B;
+	}
 	gSnekSnakeBodyLength = 3;
 	gSnekSnakeBodyX[0] = 120;
 	gSnekSnakeBodyY[0] = 72;
@@ -358,7 +359,7 @@ static void Snek_EndProc(struct EventEngineProc * proc)
 
 static void Snek_Loop(struct EventEngineProc * proc)
 {;
-	if (gSnekSnakeState[SNEK_STATE_X] <= 0 || gSnekSnakeState[SNEK_STATE_X] >= 240 || gSnekSnakeState[SNEK_STATE_Y] <= 8 || gSnekSnakeState[SNEK_STATE_Y] >= 160) {
+	if (gSnekSnakeX < 0 || gSnekSnakeX >= 240 || gSnekSnakeY < 16 || gSnekSnakeY >= 160) {
 		Snek_EndProc(proc);
 		return;
 	}
@@ -411,9 +412,6 @@ static void Snek_Loop(struct EventEngineProc * proc)
 		pressed_direction = SNEK_DIR_DOWN;
 	}
 
-	if (pressed_direction >= 0 && current_direction != gSnekSnakeState[SNEK_STATE_DIR])
-		NoCashGBAPrintf("Direction of travel: %s, Button pressed: %s", sDirectionNames[current_direction], sDirectionNames[pressed_direction]);
-
 	if (++gSnekSnakeState[SNEK_STATE_TIMER] >= 16) {
 		gSnekSnakeState[SNEK_STATE_TIMER] = 0;
 
@@ -428,24 +426,37 @@ static void Snek_Loop(struct EventEngineProc * proc)
 
 		switch (gSnekSnakeState[SNEK_STATE_DIR]) {
 		case SNEK_DIR_RIGHT:
-			gSnekSnakeState[SNEK_STATE_X] += 8;
+			gSnekSnakeX += 8;
 			break;
 
 		case SNEK_DIR_LEFT:
-			gSnekSnakeState[SNEK_STATE_X] -= 8;
+			gSnekSnakeX -= 8;
 			break;
 
 		case SNEK_DIR_UP:
-			gSnekSnakeState[SNEK_STATE_Y] -= 8;
+			gSnekSnakeY -= 8;
 			break;
 
 		case SNEK_DIR_DOWN:
-			gSnekSnakeState[SNEK_STATE_Y] += 8;
+			gSnekSnakeY += 8;
 			break;
 		}
 
-		gSnekSnakeBodyX[0] = gSnekSnakeState[SNEK_STATE_X];
-		gSnekSnakeBodyY[0] = gSnekSnakeState[SNEK_STATE_Y];
+		gSnekSnakeState[SNEK_STATE_X] = (u8)gSnekSnakeX;
+		gSnekSnakeState[SNEK_STATE_Y] = (u8)gSnekSnakeY;
+		gSnekSnakeBodyX[0] = gSnekSnakeX;
+		gSnekSnakeBodyY[0] = gSnekSnakeY;
+
+		{
+			int i;
+
+		for (i = 1; i < gSnekSnakeBodyLength; ++i) {
+			if (gSnekSnakeBodyX[0] == gSnekSnakeBodyX[i] && gSnekSnakeBodyY[0] == gSnekSnakeBodyY[i]) {
+				Snek_EndProc(proc);
+				return;
+			}
+		}
+		}
 	}
 
 	Snek_HandleCoinCollision();

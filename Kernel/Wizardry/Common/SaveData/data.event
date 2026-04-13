@@ -33,6 +33,7 @@ gEmsSizes:
 #define EMS_CHUNK_WMDATA         8
 #define EMS_CHUNK_DUNGEON        9
 #define EMS_CHUNK_TONICSTATE    10
+#define EMS_CHUNK_SNEKHIGHSCORE 11
 
 ALIGN 4
 gEmsSavChunks:
@@ -44,6 +45,7 @@ gEmsSavChunks:
     EmsChunk($0021, MSA_SaveWorldMap,   MSA_LoadWorldMap,    EMS_CHUNK_WMDATA)           /* World map */
     EmsChunk($0018, MSA_SaveDungeon,    MSA_LoadDungeon,     EMS_CHUNK_DUNGEON)          /* Dungeon */
     EmsChunk($0034, MSA_SaveTonicState, MSA_LoadTonicState, EMS_CHUNK_TONICSTATE)
+    EmsChunk($0004, Snek_SaveHighScore, Snek_LoadHighScore, EMS_CHUNK_SNEKHIGHSCORE)
     EmsChunk($0008, $0A59E0+1,          $0A5A00+1)           /* Skirmish RN state */
     EmsChunk($0190, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS) /* 0x190 is 400 bytes or 200 items (default was 0x256) */
     EmsChunk($0064, SaveForgedItems, LoadForgedItems)     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
@@ -79,6 +81,7 @@ gEmsSusChunks:
     EmsChunk($0004, MSU_SaveEvtCounter, MSU_LoadEvtCounter)                              /* Event slot counter */
     EmsChunk($0000, MSU_SaveBonusClaim, MSU_LoadBonusClaimWIP)
     EmsChunk($0034, MSU_SaveTonicState, MSU_LoadTonicState, EMS_CHUNK_TONICSTATE)
+    EmsChunk($0004, Snek_SaveHighScore, Snek_LoadHighScore, EMS_CHUNK_SNEKHIGHSCORE)
     EmsChunk($0190, SaveExpaConvoy, LoadExpaConvoy, EMS_CHUNK_CONVOYITEMS) /* 0x190 is 400 bytes or 200 items (default was 0x256) */
     EmsChunk($0064, SaveForgedItems, LoadForgedItems)     /* Persist forged-item metadata (NumOfForgables * 2 bytes = 0x64) */
     EmsChunk($0002, SaveTimer, LoadTimer)

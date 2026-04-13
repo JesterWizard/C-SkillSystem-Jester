@@ -27,10 +27,13 @@ extern const u8 Tsa_SnekGameBackground[];
 extern u16 gSnekCoinPresent;
 extern u16 gSnekCoinCoordinates[1]; // Packed x and y coordinates for the coin, with x in the upper byte and y in the lower byte
 extern u8 gSnekSnakeState[4]; // Packed snake state: x, y, direction, frame counter
+extern s16 gSnekSnakeX;
+extern s16 gSnekSnakeY;
 extern u16 gSnekCurrentScore;
 extern u16 gSnekHighScore;
-extern u8 gSnekSnakeBodyX[32];
-extern u8 gSnekSnakeBodyY[32];
+extern u16 gSnekHighScoreMagic;
+extern s16 gSnekSnakeBodyX[32];
+extern s16 gSnekSnakeBodyY[32];
 extern u16 gSnekSnakeBodyLength;
 extern u16 gSnekLastTravelDirection;
 extern u16 gSnekLastPressedDirection;
