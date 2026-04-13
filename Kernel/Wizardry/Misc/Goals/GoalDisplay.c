@@ -50,13 +50,17 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
     /* Since we're adding custom objectives now I'm putting this forced text string under a condition */
     if (gpKernelDesignerConfig->goal_timer == true && gPlaySt.chapterIndex == chapter_timers[gPlaySt.chapterIndex].chapter_id && chapter_timers[gPlaySt.chapterIndex].time_seconds > 0)
         goalWindowType = GOAL_TYPE_TIMER;
-    else
-
 
     switch (goalWindowType)
     {
     case GOAL_TYPE_SEIZE:
+        Text_InsertDrawString(&proc->texts[0], GetStringTextCenteredPos(64, GetStringFromIndex(MSG_019F)), TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_019F));
+        proc->unitClock = 0;
+        return;
     case GOAL_TYPE_DEFEAT_BOSS:
+        Text_InsertDrawString(&proc->texts[0], GetStringTextCenteredPos(64, GetStringFromIndex(MSG_019D)), TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_019D));
+        proc->unitClock = 0;
+        return;
     case GOAL_TYPE_SPECIAL:
         proc->unitClock = 0;
         return;
