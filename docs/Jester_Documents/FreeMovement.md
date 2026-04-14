@@ -25,7 +25,11 @@ Free movement can be enabled from any `.c` or `.h` file that includes:
 #include "jester_headers/custom-functions.h"
 ```
 
-To enable it in a chapter, simply add the following to your starting event:
+To enable it in a chapter, add this function as an ASMC to your chapter start event:
+
+```event
+ASMC(EnableFreeMovementASMC);
+```
 
 Once called, the player gains control of free movement for the active unit.
 

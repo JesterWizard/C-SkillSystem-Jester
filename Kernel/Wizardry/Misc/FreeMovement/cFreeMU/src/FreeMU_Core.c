@@ -1,4 +1,5 @@
 #include "FreeMU.h"
+#include "common-chax.h"
 
 static inline bool IsPosInvaild(s8 x, s8 y){
 	return( (x<0) & (x>gBmMapSize.x) & (y<0) & (y>gBmMapSize.y) );
@@ -29,6 +30,7 @@ static inline bool IsCharInvaild(struct Unit* unit){
 */
 
 void pFMU_MainLoop(struct FMUProc* proc){
+	LogPrintf("[FreeMU] pFMU_MainLoop: MuExists=%d active=%p", MuExists(), gActiveUnit);
 	if(MuExists()){
 		/* u8 iKeyDirec = FMU_CheckDirectionButtonPress();
 		if(0!=iKeyDirec)
@@ -50,6 +52,7 @@ void pFMU_MoveUnit(struct FMUProc* proc){	//Label 1
 	u16 iKeyCur = sKeyStatusBuffer.heldKeys;
 	s8 x = gActiveUnit->xPos;
 	s8 y = gActiveUnit->yPos;
+	LogPrintf("[FreeMU] pFMU_MoveUnit: heldKeys=0x%04x active=(%d,%d)", iKeyCur, x, y);
 	
 	//proc->xCur = x;
 	//proc->xCur = y;
@@ -71,10 +74,16 @@ void pFMU_MoveUnit(struct FMUProc* proc){	//Label 1
 		
 	if( FMU_CanUnitBeOnPos(gActiveUnit, x, y) ){
 		if( !IsPosInvaild(x,y) )
+		{
+			LogPrintf("[FreeMU] pFMU_MoveUnit: moving to (%d,%d)", x, y);
 			MuCtr_StartMoveTowards(gActiveUnit, x, y, 0x10, 0x10);
+		}
 	}
 	else
+	{
+		LogPrintf("[FreeMU] pFMU_MoveUnit: invalid destination (%d,%d)", x, y);
 		Proc_Goto((ProcPtr*)proc,0x2);
+	}
 	return;
 }
 
@@ -82,6 +91,7 @@ void pFMU_MoveUnit(struct FMUProc* proc){	//Label 1
 
 void pFMU_HandleKeyMisc(struct FMUProc* proc){	//Label 2
 	u16 iKeyCur = sKeyStatusBuffer.heldKeys;
+	LogPrintf("[FreeMU] pFMU_HandleKeyMisc: heldKeys=0x%04x", iKeyCur);
 	if(1&iKeyCur){ 			//Press A
 		Proc_Goto((ProcPtr*)proc,0x4); 
 		return;

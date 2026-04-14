@@ -1,7 +1,7 @@
 #include "FreeMU.h"
 
 static inline bool IsPosInvaild(s8 x, s8 y) {
-	return( (x<0) & (x>gBmMapSize.x) & (y<0) & (y>gBmMapSize.y) );
+	return (x < 0) || (y < 0) || (x >= gBmMapSize.x) || (y >= gBmMapSize.y);
 }
 
 static inline bool IsCharNotOnMap(struct Unit* unit) {

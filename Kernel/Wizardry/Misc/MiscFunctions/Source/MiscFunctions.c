@@ -4558,7 +4558,7 @@ void BeginBattleAnimations(void) {
 LYN_REPLACE_CHECK(WorldMap_Init);
 void WorldMap_Init(struct WorldMapMainProc * proc)
 {
-    DisableFreeMovementASMC();
+    //DisableFreeMovementASMC();
     SetupGraphicSystemsForWorldMap();
 
     sub_80B8E60(proc);

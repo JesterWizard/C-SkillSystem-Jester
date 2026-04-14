@@ -484,42 +484,24 @@ LYN_REPLACE_CHECK(BmMain_StartPhase);
 void BmMain_StartPhase(ProcPtr proc)
 {
 
-    int phaseControl = gPlaySt.faction;
-    if (gPlaySt.faction == FACTION_RED) 
-    { 
-        if (gPlaySt.config.debugControlRed) 
-        { 
-            phaseControl = FACTION_BLUE; 
-        } 
-    } 
+//     int phaseControl = gPlaySt.faction;
+//     if (gPlaySt.faction == FACTION_RED) 
+//         phaseControl = FACTION_BLUE; 
 
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    if (gPlaySt.faction == FACTION_GREEN) 
-    { 
-        if (gPlaySt.config.debugControlGreen) 
-        { 
-            phaseControl = FACTION_PURPLE; 
-        } 
-    } 
+// #ifdef CONFIG_FOURTH_ALLEGIANCE
+//     if (gPlaySt.faction == FACTION_GREEN) 
+//         phaseControl = FACTION_PURPLE; 
 
-    if (gPlaySt.faction == FACTION_PURPLE) 
-    { 
-        if (gPlaySt.config.debugControlPurple) 
-        { 
-            phaseControl = FACTION_BLUE; 
-        } 
-    } 
-#else
-    if (gPlaySt.faction == FACTION_GREEN) 
-    { 
-        if (gPlaySt.config.debugControlGreen) 
-        { 
-            phaseControl = FACTION_BLUE; 
-        } 
-    } 
-#endif
+//     if (gPlaySt.faction == FACTION_PURPLE) 
+//         phaseControl = FACTION_BLUE; 
 
-    switch (phaseControl) {
+// #else
+//     if (gPlaySt.faction == FACTION_GREEN) 
+//         phaseControl = FACTION_BLUE; 
+// #endif
+
+    switch (gPlaySt.faction)
+    {
     case FACTION_BLUE:
         Proc_StartBlocking(gProcScr_PlayerPhase, proc);
         break;

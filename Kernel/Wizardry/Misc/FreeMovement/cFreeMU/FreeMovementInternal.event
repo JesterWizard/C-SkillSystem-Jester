@@ -11,19 +11,6 @@
 	#include "MU6Cfix/_MU6Cfix.event"
 
 
-PUSH
-	ORG $59A38C
-	POIN NewPlayerPhaseEvaluationFunc|1
-	ORG $59A3B4
-	POIN NewPlayerPhaseEvaluationFunc|1
-			//call FreeMovementControlProc
-	
-	ORG $59A2E4
-	POIN NewMakePhaseControllerFunc|1
-			//call FreeMovementControlProc
-POP
-
-
 ALIGN 4
 	FreeMovementControlProc:
 	_6C_SET_NAME(FreeMovementProcName)
@@ -46,7 +33,6 @@ ALIGN 4
 	_6C_CALL_ROUTINE(pFMU_InitTimer|1)
 	
 	_6C_LABEL(0)	//Idle
-	_6C_YIELD
 	_6C_CALL_ROUTINE(pFMU_OnInit|1)
 	_6C_CALL_ROUTINE(pFMU_CorrectCameraPosition|1)
 	_6C_LABEL(0xD)	

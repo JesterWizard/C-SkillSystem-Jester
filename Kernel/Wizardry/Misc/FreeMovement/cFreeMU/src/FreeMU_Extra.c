@@ -2,6 +2,11 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 
+extern bool (*gpExternalPrePhaseHook)(ProcPtr proc);
+extern struct ProcCmd gProcScr_PlayerPhase[];
+extern struct ProcCmd gProcScr_CpPhase[];
+extern struct ProcCmd ProcScr_StdEventEngine[];
+
 /*
  * Basic! 
  */
@@ -21,12 +26,14 @@ void EnableFreeMovementASMC(void){
 	if (gpKernelDesignerConfig->free_movement == true)
 	{
 		*FreeMoveFlag |= 1;
+		gpExternalPrePhaseHook = NewPlayerPhaseEvaluationFunc;
 	}
 	return;
 }
  
 void DisableFreeMovementASMC(void){
 	*FreeMoveFlag = (*FreeMoveFlag>>1)<<1;
+	gpExternalPrePhaseHook = 0;
 	return;
 }
 
@@ -45,23 +52,34 @@ void End6CInternal_FreeMU(FMUProc* proc){
  */
  
 void ChangeControlledUnitASMC(struct FMUProc* proc){
-	proc->FMUnit=GetUnitStructFromEventParameter(gEventSlots[1]);
-	EnsureCameraOntoPosition(0,proc->FMUnit->xPos, proc->FMUnit->yPos);
+	proc->FMUnit = GetUnitStructFromEventParameter(gEventSlots[1]);
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		proc->FMUnit = gActiveUnit;
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		proc->FMUnit = GetUnit(1);
+	if (proc->FMUnit)
+	{
+		gActiveUnit = proc->FMUnit;
+		EnsureCameraOntoPosition(0, proc->FMUnit->xPos, proc->FMUnit->yPos);
+	}
 	return;
 }
 
-void NewPlayerPhaseEvaluationFunc(ProcPtr* ParentProc){
+bool NewPlayerPhaseEvaluationFunc(ProcPtr ParentProc){
 	if( GetFreeMovementState() )
+	{
 		Proc_StartBlocking(FreeMovementControlProc, ParentProc);
-	else
-		Proc_Goto(Proc_StartBlocking(gProcScr_PlayerPhase, ParentProc), 0x7);
-	Proc_Break(ParentProc);
-	return;
+		Proc_Break(ParentProc);
+		return true;
+	}
+	return false;
 }
  
 void NewMakePhaseControllerFunc(ProcPtr* ParentProc){
-	const struct ProcCmd * pTmpProcCode = FreeMovementControlProc;
-	if(0==GetFreeMovementState())
+	const struct ProcCmd * pTmpProcCode = 0;
+	if (gpKernelDesignerConfig->free_movement == true && GetFreeMovementState())
+		pTmpProcCode = FreeMovementControlProc;
+	else if(0==GetFreeMovementState())
 	{
 		if( 0==gPlaySt.faction )
 			pTmpProcCode=gProcScr_PlayerPhase;
@@ -78,13 +96,14 @@ void NewMakePhaseControllerFunc(ProcPtr* ParentProc){
  * Inside Proc
  */
 void pFMU_OnInit(struct FMUProc* proc){
-	//vaild?
-	if( 0 == proc->FMUnit )
-		proc->FMUnit = gUnitArrayBlue;
-	if( !( 1&(u32)(proc->FMUnit)>>0x11) )
-		proc->FMUnit = gUnitArrayBlue;
-	if( !( 1&(u32)(proc->FMUnit)>>0x19) )
-		proc->FMUnit = gUnitArrayBlue;
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		proc->FMUnit = gActiveUnit;
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		proc->FMUnit = GetUnit(1);
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		proc->FMUnit = GetUnit(2);
+	if (!proc->FMUnit || !proc->FMUnit->pCharacterData)
+		return;
 	
 	gActiveUnit = proc->FMUnit;
 	return;
