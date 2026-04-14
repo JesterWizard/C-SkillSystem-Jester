@@ -503,7 +503,11 @@ void BmMain_StartPhase(ProcPtr proc)
     switch (gPlaySt.faction)
     {
     case FACTION_BLUE:
-        Proc_StartBlocking(gProcScr_PlayerPhase, proc);
+        if (gpKernelDesignerConfig->ai_player_phase == true)
+            Proc_StartBlocking(gProcScr_CpPhase, proc);
+        else
+            Proc_StartBlocking(gProcScr_PlayerPhase, proc);
+
         break;
 
     case FACTION_RED:
