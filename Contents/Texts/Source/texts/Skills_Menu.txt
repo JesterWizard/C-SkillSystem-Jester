@@ -801,3 +801,11 @@ Override[X]
 Override:[N]
 Deal damage to all enemies in an[N]
 adjacently connected line.[X]
+
+## MSG_SKILL_AssumingCommand_NAME
+Command[X]
+## MSG_SKILL_AssumingCommand_DESC
+Assuming Command:[N]
+When activated, green units can[N]
+be manually controlled for the[N]
+rest of the map.[X]

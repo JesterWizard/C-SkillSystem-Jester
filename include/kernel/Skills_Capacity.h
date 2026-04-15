@@ -912,3 +912,4 @@
 #define MSG_SKILL_Hellscape_CAPACITY 1
 #define MSG_SKILL_Override_CAPACITY 1
 #define MSG_SKILL_AxiomPlus_CAPACITY 1
+#define MSG_SKILL_AssumingCommand_CAPACITY 1

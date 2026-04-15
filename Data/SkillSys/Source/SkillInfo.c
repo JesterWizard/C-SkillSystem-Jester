@@ -10051,4 +10051,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_AssumingCommand) && COMMON_SKILL_VALID(SID_AssumingCommand))
+    [SID_AssumingCommand] = {
+        .name = MSG_SKILL_AssumingCommand_NAME,
+        .desc = MSG_SKILL_AssumingCommand_DESC,
+        .capacity = MSG_SKILL_AssumingCommand_CAPACITY,
+        .price = MSG_SKILL_AssumingCommand_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 };

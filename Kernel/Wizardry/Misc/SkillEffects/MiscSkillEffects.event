@@ -110,6 +110,7 @@
 #include "MenuSkills/EmergencyExit.lyn.event"
 #include "MenuSkills/EmergencyExitPlus.lyn.event"
 #include "MenuSkills/Songstress.lyn.event"
+#include "MenuSkills/AssumingCommand.lyn.event"
 #include "MenuSkills/Gungnir.lyn.event"
 #include "MenuSkills/Transcendence.lyn.event"
 #include "MenuSkills/Necromancy.lyn.event"

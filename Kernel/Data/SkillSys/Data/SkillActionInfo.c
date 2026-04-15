@@ -354,4 +354,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Override) && COMMON_SKILL_VALID(SID_Override))
     [SID_Override] = Action_Override,
 #endif
+
+#if (defined(SID_AssumingCommand) && COMMON_SKILL_VALID(SID_AssumingCommand))
+    [SID_AssumingCommand] = Action_AssumingCommand,
+#endif
 };

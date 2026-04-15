@@ -515,7 +515,10 @@ void BmMain_StartPhase(ProcPtr proc)
         break;
 
     case FACTION_GREEN:
-        Proc_StartBlocking(gProcScr_CpPhase, proc);
+        if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_AssumingCommand_Used))
+            Proc_StartBlocking(gProcScr_PlayerPhase, proc);
+        else
+            Proc_StartBlocking(gProcScr_CpPhase, proc);
         break;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
