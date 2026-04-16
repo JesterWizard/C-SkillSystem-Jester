@@ -69,6 +69,21 @@ enum
     GAME_OPTION_RANK_DISPLAY   = 16,
 
     GAME_OPTION_CUSTOM_1 = 17,
+    GAME_OPTION_CUSTOM_2,
+    GAME_OPTION_CUSTOM_3,
+    GAME_OPTION_CUSTOM_4,
+    GAME_OPTION_CUSTOM_5,
+    GAME_OPTION_CUSTOM_6,
+    GAME_OPTION_CUSTOM_7,
+    GAME_OPTION_CUSTOM_8,
+    GAME_OPTION_CUSTOM_9,
+    GAME_OPTION_CUSTOM_10,
+    GAME_OPTION_CUSTOM_11,
+    GAME_OPTION_CUSTOM_12,
+    GAME_OPTION_CUSTOM_13,
+    GAME_OPTION_CUSTOM_14,
+    GAME_OPTION_CUSTOM_15,
+    GAME_OPTION_CUSTOM_16,
 };
 
 enum
@@ -112,6 +127,7 @@ void Config_SetSourceFromPrep(void);
 void Config_SetSourceFromWorldMap(void);
 
 extern struct ConfigScreen * CONST_DATA gConfigUiState;
+extern u8 gGameOptionsUiOrder_NEW[];
 extern u8 CONST_DATA gGameOptionsUiOrder[];
 extern u16 CONST_DATA gSprite_ConfigurationUiHeader[];
 extern struct GameOption CONST_DATA gGameOptions[];

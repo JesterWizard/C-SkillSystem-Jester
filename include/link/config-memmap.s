@@ -114,6 +114,7 @@ _kernel_malloc gCharacterBiographyPage, 1
 _kernel_malloc gCharacterBiographyListNumber, 1
 _kernel_malloc gEventReplay_SelectedChapter, 1
 _kernel_malloc gEventReplay_ChapterScrollIndex, 1
+_kernel_malloc gGameOptionsUiOrder_NEW, 32
 _kernel_malloc sWmManageSkillsEmpty, 2
 _kernel_malloc sWmManageSkillsMode, 2
 _kernel_malloc sArenaRosterRuntimeState, 4

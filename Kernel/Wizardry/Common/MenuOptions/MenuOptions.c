@@ -2,7 +2,9 @@
 #include "kernel-lib.h"
 #include "constants/texts.h"
 
-static const u8 gGameOptionsUiOrder_NEW[13] =
+extern const struct GameOption gGameOptions_NEW[];
+
+static const u8 gGameOptionsUiOrder_NEW_template[] =
 {
     [ 0] = GAME_OPTION_ANIMATION,
     [ 1] = GAME_OPTION_GAME_SPEED,
@@ -21,7 +23,160 @@ static const u8 gGameOptionsUiOrder_NEW[13] =
     // [13] = GAME_OPTION_CUSTOM_1,
 };
 
-static const struct GameOption gGameOptions_NEW[] =
+static const int gGameOptionsUiOrder_NEW_template_count = ARRAY_COUNT(gGameOptionsUiOrder_NEW_template);
+
+enum {
+    GAME_OPTION_CUSTOM_FIRST = GAME_OPTION_CUSTOM_1,
+    GAME_OPTION_CUSTOM_LAST = GAME_OPTION_CUSTOM_16,
+    GAME_OPTION_BASE_COUNT = GAME_OPTION_CUSTOM_FIRST,
+    GAME_OPTION_MAX_COUNT = GAME_OPTION_CUSTOM_LAST + 1,
+};
+
+static const char *GetCustomGameOptionName(int index)
+{
+    static const char *const names[] = {
+        "Custom 1", "Custom 2", "Custom 3", "Custom 4",
+        "Custom 5", "Custom 6", "Custom 7", "Custom 8",
+        "Custom 9", "Custom 10", "Custom 11", "Custom 12",
+        "Custom 13", "Custom 14", "Custom 15", "Custom 16",
+        "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+        "Custom 21", "Custom 22", "Custom 23", "Custom 24",
+        "Custom 25", "Custom 26", "Custom 27", "Custom 28",
+        "Custom 29", "Custom 30", "Custom 31", "Custom 32",
+    };
+
+    if (index < 0 || index >= (int)ARRAY_COUNT(names))
+        return "Custom";
+
+    return names[index];
+}
+
+static int GetCustomMenuOptionCount(void)
+{
+    int count = 16;
+    int maxCustomCount = GAME_OPTION_CUSTOM_16 - GAME_OPTION_CUSTOM_1 + 1;
+
+    if (count > maxCustomCount)
+        count = maxCustomCount;
+
+    if (count < 0)
+        count = 0;
+
+    return count;
+}
+
+static int GetGameOptionIndexCount(void)
+{
+    return gGameOptionsUiOrder_NEW_template_count + GetCustomMenuOptionCount();
+}
+
+static void InitGameOptionUiOrder(void)
+{
+    int i;
+
+    for (i = 0; i < gGameOptionsUiOrder_NEW_template_count; ++i)
+        gGameOptionsUiOrder_NEW[i] = gGameOptionsUiOrder_NEW_template[i];
+
+    for (i = 0; i < GetCustomMenuOptionCount(); ++i)
+        gGameOptionsUiOrder_NEW[gGameOptionsUiOrder_NEW_template_count + i] = GAME_OPTION_CUSTOM_FIRST + i;
+}
+
+static int GetGameOptionRowCount(int optionIdx)
+{
+    int i;
+
+    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+        return 2;
+
+    for (i = 0; i < 4; ++i) {
+        if (gGameOptions_NEW[optionIdx].selectors[i].optionTextId == MSG_000)
+            break;
+    }
+
+    return i;
+}
+
+static const char *GetGameOptionRowTitle(int optionIdx)
+{
+    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+        return GetCustomGameOptionName(optionIdx - GAME_OPTION_CUSTOM_FIRST);
+
+    return GetStringFromIndex(gGameOptions_NEW[optionIdx].msgId);
+}
+
+static const char *GetGameOptionRowHelpText(int optionIdx, int value)
+{
+    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+        return GetCustomGameOptionName(optionIdx - GAME_OPTION_CUSTOM_FIRST);
+
+    return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
+}
+
+static const char *GetGameOptionRowValueText(int optionIdx, int value)
+{
+    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+        return value ? "OFF" : "ON";
+
+    return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
+}
+
+static int GetGameOptionRowX(int optionIdx)
+{
+    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+        return 112;
+
+    return gGameOptions_NEW[optionIdx].selectors[0].xPos;
+}
+
+static int GetCustomGameOptionValue(int index)
+{
+    switch (index)
+    {
+    case GAME_OPTION_CUSTOM_1:  return gPlaySt.config.custom_option_1;
+    case GAME_OPTION_CUSTOM_2:  return gPlaySt.config.custom_option_2;
+    case GAME_OPTION_CUSTOM_3:  return gPlaySt.config.custom_option_3;
+    case GAME_OPTION_CUSTOM_4:  return gPlaySt.config.custom_option_4;
+    case GAME_OPTION_CUSTOM_5:  return gPlaySt.config.custom_option_5;
+    case GAME_OPTION_CUSTOM_6:  return gPlaySt.config.custom_option_6;
+    case GAME_OPTION_CUSTOM_7:  return gPlaySt.config.custom_option_7;
+    case GAME_OPTION_CUSTOM_8:  return gPlaySt.config.custom_option_8;
+    case GAME_OPTION_CUSTOM_9:  return gPlaySt.config.custom_option_9;
+    case GAME_OPTION_CUSTOM_10: return gPlaySt.config.custom_option_10;
+    case GAME_OPTION_CUSTOM_11: return gPlaySt.config.custom_option_11;
+    case GAME_OPTION_CUSTOM_12: return gPlaySt.config.custom_option_12;
+    case GAME_OPTION_CUSTOM_13: return gPlaySt.config.custom_option_13;
+    case GAME_OPTION_CUSTOM_14: return gPlaySt.config.custom_option_14;
+    case GAME_OPTION_CUSTOM_15: return gPlaySt.config.custom_option_15;
+    case GAME_OPTION_CUSTOM_16: return gPlaySt.config.custom_option_16;
+    }
+
+    return 0;
+}
+
+static void SetCustomGameOptionValue(int index, int newValue)
+{
+    switch (index)
+    {
+    case GAME_OPTION_CUSTOM_1:  gPlaySt.config.custom_option_1 = newValue;  break;
+    case GAME_OPTION_CUSTOM_2:  gPlaySt.config.custom_option_2 = newValue;  break;
+    case GAME_OPTION_CUSTOM_3:  gPlaySt.config.custom_option_3 = newValue;  break;
+    case GAME_OPTION_CUSTOM_4:  gPlaySt.config.custom_option_4 = newValue;  break;
+    case GAME_OPTION_CUSTOM_5:  gPlaySt.config.custom_option_5 = newValue;  break;
+    case GAME_OPTION_CUSTOM_6:  gPlaySt.config.custom_option_6 = newValue;  break;
+    case GAME_OPTION_CUSTOM_7:  gPlaySt.config.custom_option_7 = newValue;  break;
+    case GAME_OPTION_CUSTOM_8:  gPlaySt.config.custom_option_8 = newValue;  break;
+    case GAME_OPTION_CUSTOM_9:  gPlaySt.config.custom_option_9 = newValue;  break;
+    case GAME_OPTION_CUSTOM_10: gPlaySt.config.custom_option_10 = newValue; break;
+    case GAME_OPTION_CUSTOM_11: gPlaySt.config.custom_option_11 = newValue; break;
+    case GAME_OPTION_CUSTOM_12: gPlaySt.config.custom_option_12 = newValue; break;
+    case GAME_OPTION_CUSTOM_13: gPlaySt.config.custom_option_13 = newValue; break;
+    case GAME_OPTION_CUSTOM_14: gPlaySt.config.custom_option_14 = newValue; break;
+    case GAME_OPTION_CUSTOM_15: gPlaySt.config.custom_option_15 = newValue; break;
+    case GAME_OPTION_CUSTOM_16: gPlaySt.config.custom_option_16 = newValue; break;
+    }
+}
+
+const struct GameOption gGameOptions_NEW[] =
 {
     [GAME_OPTION_ANIMATION] =
     {
@@ -177,6 +332,20 @@ static const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
+    [GAME_OPTION_OBJECTIVE] =
+    {
+        .msgId = MSG_009E, // Show Objective
+        .selectors =
+        {
+            { MSG_00BB, MSG_00BD, 112, 2 },
+            { MSG_00BB, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1c,
+        .func = GenericOptionChangeHandler,
+    },
+
     [GAME_OPTION_SUBTITLE_HELP] =
     {
         .msgId = MSG_0094, // Subtitle Help[.]
@@ -219,52 +388,240 @@ static const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_OBJECTIVE] =
+    [GAME_OPTION_CUSTOM_1] =
     {
-        .msgId = MSG_009E, // Show Objective
+        .msgId = MSG_009D, // Unit Color
         .selectors =
         {
-            { MSG_00BA, MSG_00BD, 112, 2 },
-            { MSG_00BA, MSG_00BE, 135, 2 },
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1c,
+        .icon = 0x1a,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CONTROLLER] =
+    [GAME_OPTION_CUSTOM_2] =
     {
-        .msgId = MSG_009F, // Controller
+        .msgId = MSG_009D, // Unit Color
         .selectors =
         {
-            { MSG_00BB, MSG_00BD, 112, 2 },
-            { MSG_00BB, MSG_00BE, 135, 2 },
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1e,
+        .icon = 0x1a,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_RANK_DISPLAY] =
+    [GAME_OPTION_CUSTOM_3] =
     {
-        .msgId = MSG_00A0, // Rank Display
+        .msgId = MSG_009D, // Unit Color
         .selectors =
         {
-            { MSG_00BC, MSG_00BD, 112, 2 },
-            { MSG_00BC, MSG_00BE, 135, 2 },
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x20,
+        .icon = 0x1a,
         .func = GenericOptionChangeHandler,
-    }
+    },
+
+    [GAME_OPTION_CUSTOM_4] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_5] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_6] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_7] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_8] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_9] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_10] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_11] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_12] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_13] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_14] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_15] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_CUSTOM_16] =
+    {
+        .msgId = MSG_009D, // Unit Color
+        .selectors =
+        {
+            { MSG_00B9, MSG_00BD, 112, 2 },
+            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x1a,
+        .func = GenericOptionChangeHandler,
+    },
+
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
 void SetGameOption(u8 index, u8 newValue)
 {
+    if (index >= GAME_OPTION_CUSTOM_FIRST && index <= GAME_OPTION_CUSTOM_LAST) {
+        SetCustomGameOptionValue(index, newValue);
+        return;
+    }
+
     switch (index)
     {
     case GAME_OPTION_ANIMATION:
@@ -364,10 +721,6 @@ void SetGameOption(u8 index, u8 newValue)
 
         break;
 
-    // case GAME_OPTION_CUSTOM_1:
-    //     gPlaySt.config.custom_option_1 = newValue;
-    //     break;
-
     }
 
     return;
@@ -378,6 +731,9 @@ LYN_REPLACE_CHECK(GetGameOption);
 u8 GetGameOption(u8 index)
 {
     int value = 0;
+
+    if (index >= GAME_OPTION_CUSTOM_FIRST && index <= GAME_OPTION_CUSTOM_LAST)
+        return GetCustomGameOptionValue(index);
 
     switch (index)
     {
@@ -471,10 +827,6 @@ u8 GetGameOption(u8 index)
 
         break;
 
-    // case GAME_OPTION_CUSTOM_1:
-    //     value = gPlaySt.config.custom_option_1;
-
-    //     break;
     }
 
     return value;
@@ -545,7 +897,7 @@ void DrawGameOptionHelpText(void)
 {
     const char * str;
     ClearText(&gConfigUiState->optionHelpText);
-    str = GetStringFromIndex(gGameOptions_NEW[gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]].selectors[GetSelectedOptionValue()].helpTextId);
+    str = GetGameOptionRowHelpText(gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx], GetSelectedOptionValue());
     PutDrawText(&gConfigUiState->optionHelpText, TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 18), TEXT_COLOR_SYSTEM_WHITE, 0, 22, str);
 }
 
@@ -555,8 +907,8 @@ void DrawGameOptionText(int selectedIdx, int textIdx, int y)
 {
     const char * str;
     ClearText(&gConfigUiState->optionTexts[textIdx]);
-    str = GetStringFromIndex(gGameOptions_NEW[gGameOptionsUiOrder_NEW[selectedIdx]].msgId);
-    PutDrawText(&gConfigUiState->optionTexts[textIdx], TILEMAP_LOCATED(gBG1TilemapBuffer, 4, y), TEXT_COLOR_SYSTEM_WHITE, 0, 9, str);
+    str = GetGameOptionRowTitle(gGameOptionsUiOrder_NEW[selectedIdx]);
+    PutDrawText(&gConfigUiState->optionTexts[textIdx], TILEMAP_LOCATED(gBG1TilemapBuffer, 4, y), TEXT_COLOR_SYSTEM_WHITE, 0, 10, str);
 }
 
 //! FE8U: 0x080B1850
@@ -567,21 +919,16 @@ void DrawOptionValueTexts(int selectedIdx, int textIdx, int y)
 
     int optionIdx = gGameOptionsUiOrder_NEW[selectedIdx];
 
-    int x = gGameOptions_NEW[optionIdx].selectors[0].xPos / 8;
+    int x = GetGameOptionRowX(optionIdx) / 8;
 
     ClearText(&gConfigUiState->valueTexts[textIdx]);
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < GetGameOptionRowCount(optionIdx); i++)
     {
-        if (gGameOptions_NEW[optionIdx].selectors[i].optionTextId == MSG_000)
-        {
-            break;
-        }
-
         Text_InsertDrawString(
-            &gConfigUiState->valueTexts[textIdx], gGameOptions_NEW[optionIdx].selectors[i].xPos - 112,
+            &gConfigUiState->valueTexts[textIdx], gGameOptions_NEW[optionIdx].selectors[i].xPos - GetGameOptionRowX(optionIdx),
             (i == GetGameOption(optionIdx)) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
-            GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[i].optionTextId));
+            GetGameOptionRowValueText(optionIdx, i));
     }
 
     PutText(&gConfigUiState->valueTexts[textIdx], TILEMAP_LOCATED(gBG1TilemapBuffer, x, y));
@@ -643,7 +990,8 @@ void Config_Init(struct ConfigProc * proc)
     SetupBackgrounds(bgConfig);
 
     gConfigUiState->unk_32 = 0;
-    gConfigUiState->maxOption = ARRAY_COUNT(gGameOptionsUiOrder_NEW);
+    InitGameOptionUiOrder();
+    gConfigUiState->maxOption = GetGameOptionIndexCount();
     gConfigUiState->selectedOptionIdx = 0;
     gConfigUiState->headOptionIdx = 0;
     gConfigUiState->bg1YOffset = 0;
@@ -775,15 +1123,11 @@ bool GenericOptionChangeHandler(ProcPtr proc)
         }
         else // if (gKeyStatusPtr->repeatedKeys & (DPAD_RIGHT))
         {
-            if (gGameOptions_NEW[optionIdx].selectors[selectedValue + 1].optionTextId != 0)
-            {
-                if (selectedValue < 3)
-                {
-                    selectedValue++;
-                    SetGameOption(optionIdx, selectedValue);
+            if (selectedValue + 1 < GetGameOptionRowCount(optionIdx)) {
+                selectedValue++;
+                SetGameOption(optionIdx, selectedValue);
 
-                    valueChanged = true;
-                }
+                valueChanged = true;
             }
         }
 
