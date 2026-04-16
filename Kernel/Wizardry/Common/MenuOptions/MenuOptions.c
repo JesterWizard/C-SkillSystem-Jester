@@ -3,89 +3,52 @@
 #include "constants/texts.h"
 
 extern const struct GameOption gGameOptions_NEW[];
+extern u8 Img_ConfigUiIcons_NEW[];
 
-static const u8 gGameOptionsUiOrder_NEW_template[] =
-{
-    [ 0] = GAME_OPTION_ANIMATION,
-    [ 1] = GAME_OPTION_GAME_SPEED,
-    [ 2] = GAME_OPTION_TEXT_SPEED,
-    [ 3] = GAME_OPTION_TERRAIN,
-    [ 4] = GAME_OPTION_UNIT,
-    [ 5] = GAME_OPTION_COMBAT,
-    [ 6] = GAME_OPTION_OBJECTIVE,
-    [ 7] = GAME_OPTION_SUBTITLE_HELP,
-    [ 8] = GAME_OPTION_AUTOCURSOR,
-    [ 9] = GAME_OPTION_AUTOEND_TURNS,
-    [10] = GAME_OPTION_MUSIC,
-    [11] = GAME_OPTION_SOUND_EFFECTS,
-    [12] = GAME_OPTION_WINDOW_COLOR,
+const u8 gGameOptionsUiOrder_NEW[29] = {
+    GAME_OPTION_ANIMATION, 
+    GAME_OPTION_GAME_SPEED, 
+    GAME_OPTION_TEXT_SPEED, 
+    GAME_OPTION_TERRAIN,
+    GAME_OPTION_UNIT, 
+    GAME_OPTION_COMBAT, 
+    GAME_OPTION_OBJECTIVE, 
+    GAME_OPTION_SUBTITLE_HELP,
+    GAME_OPTION_AUTOCURSOR, 
+    GAME_OPTION_AUTOEND_TURNS, 
+    GAME_OPTION_MUSIC, 
+    GAME_OPTION_SOUND_EFFECTS,
+    GAME_OPTION_WINDOW_COLOR, 
 
-    // [13] = GAME_OPTION_CUSTOM_1,
+    // CUSTOM
+    GAME_OPTION_SKILL_CAPACITY,
+    GAME_OPTION_CASUAL_MODE,
+    GAME_OPTION_TALK_ON_LEVEL_UP,
+    GAME_OPTION_RESTORE_HP_ON_LEVEL_UP,
+    GAME_OPTION_PROMOTE_ENEMY_ON_KILL,
+    GAME_OPTION_DANGER_BONES,
+    GAME_OPTION_FAST_FOWARD_BATTLE_ANIMATIONS,
+    GAME_OPTION_EXPANDED_MAX_HP,
+    GAME_OPTION_FLIPPED_ENEMY_SPRITES,
+    GAME_OPTION_SUMMONS_GAIN_EXP,
+    GAME_OPTION_PROMOTE_ON_MAX_LEVEL,
+    GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE,
+    GAME_OPTION_SEND_INVENTORY_ON_DEATH,
+    GAME_OPTION_FAST_MAP_ANIMATIONS,
+    GAME_OPTION_ANIMA_WEAPON_TRIANGLE,
+    GAME_OPTION_SUPPORT_AFTER_BATTLE,
 };
-
-static const int gGameOptionsUiOrder_NEW_template_count = ARRAY_COUNT(gGameOptionsUiOrder_NEW_template);
-
-enum {
-    GAME_OPTION_CUSTOM_FIRST = GAME_OPTION_CUSTOM_1,
-    GAME_OPTION_CUSTOM_LAST = GAME_OPTION_CUSTOM_16,
-    GAME_OPTION_BASE_COUNT = GAME_OPTION_CUSTOM_FIRST,
-    GAME_OPTION_MAX_COUNT = GAME_OPTION_CUSTOM_LAST + 1,
-};
-
-static const char *GetCustomGameOptionName(int index)
-{
-    static const char *const names[] = {
-        "Custom 1", "Custom 2", "Custom 3", "Custom 4",
-        "Custom 5", "Custom 6", "Custom 7", "Custom 8",
-        "Custom 9", "Custom 10", "Custom 11", "Custom 12",
-        "Custom 13", "Custom 14", "Custom 15", "Custom 16",
-        "Custom 17", "Custom 18", "Custom 19", "Custom 20",
-        "Custom 21", "Custom 22", "Custom 23", "Custom 24",
-        "Custom 25", "Custom 26", "Custom 27", "Custom 28",
-        "Custom 29", "Custom 30", "Custom 31", "Custom 32",
-    };
-
-    if (index < 0 || index >= (int)ARRAY_COUNT(names))
-        return "Custom";
-
-    return names[index];
-}
-
-static int GetCustomMenuOptionCount(void)
-{
-    int count = 16;
-    int maxCustomCount = GAME_OPTION_CUSTOM_16 - GAME_OPTION_CUSTOM_1 + 1;
-
-    if (count > maxCustomCount)
-        count = maxCustomCount;
-
-    if (count < 0)
-        count = 0;
-
-    return count;
-}
 
 static int GetGameOptionIndexCount(void)
 {
-    return gGameOptionsUiOrder_NEW_template_count + GetCustomMenuOptionCount();
-}
-
-static void InitGameOptionUiOrder(void)
-{
-    int i;
-
-    for (i = 0; i < gGameOptionsUiOrder_NEW_template_count; ++i)
-        gGameOptionsUiOrder_NEW[i] = gGameOptionsUiOrder_NEW_template[i];
-
-    for (i = 0; i < GetCustomMenuOptionCount(); ++i)
-        gGameOptionsUiOrder_NEW[gGameOptionsUiOrder_NEW_template_count + i] = GAME_OPTION_CUSTOM_FIRST + i;
+    return ARRAY_COUNT(gGameOptionsUiOrder_NEW);
 }
 
 static int GetGameOptionRowCount(int optionIdx)
 {
     int i;
 
-    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+    if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 2;
 
     for (i = 0; i < 4; ++i) {
@@ -98,23 +61,23 @@ static int GetGameOptionRowCount(int optionIdx)
 
 static const char *GetGameOptionRowTitle(int optionIdx)
 {
-    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
-        return GetCustomGameOptionName(optionIdx - GAME_OPTION_CUSTOM_FIRST);
+    if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
+        return GetStringFromIndex(gGameOptions_NEW[optionIdx].msgId);
 
     return GetStringFromIndex(gGameOptions_NEW[optionIdx].msgId);
 }
 
 static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 {
-    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
-        return GetCustomGameOptionName(optionIdx - GAME_OPTION_CUSTOM_FIRST);
+    if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
+        return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
 
     return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
 }
 
 static const char *GetGameOptionRowValueText(int optionIdx, int value)
 {
-    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+    if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return value ? "OFF" : "ON";
 
     return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
@@ -122,58 +85,10 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
 
 static int GetGameOptionRowX(int optionIdx)
 {
-    if (optionIdx >= GAME_OPTION_CUSTOM_FIRST)
+    if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 112;
 
     return gGameOptions_NEW[optionIdx].selectors[0].xPos;
-}
-
-static int GetCustomGameOptionValue(int index)
-{
-    switch (index)
-    {
-    case GAME_OPTION_CUSTOM_1:  return gPlaySt.config.custom_option_1;
-    case GAME_OPTION_CUSTOM_2:  return gPlaySt.config.custom_option_2;
-    case GAME_OPTION_CUSTOM_3:  return gPlaySt.config.custom_option_3;
-    case GAME_OPTION_CUSTOM_4:  return gPlaySt.config.custom_option_4;
-    case GAME_OPTION_CUSTOM_5:  return gPlaySt.config.custom_option_5;
-    case GAME_OPTION_CUSTOM_6:  return gPlaySt.config.custom_option_6;
-    case GAME_OPTION_CUSTOM_7:  return gPlaySt.config.custom_option_7;
-    case GAME_OPTION_CUSTOM_8:  return gPlaySt.config.custom_option_8;
-    case GAME_OPTION_CUSTOM_9:  return gPlaySt.config.custom_option_9;
-    case GAME_OPTION_CUSTOM_10: return gPlaySt.config.custom_option_10;
-    case GAME_OPTION_CUSTOM_11: return gPlaySt.config.custom_option_11;
-    case GAME_OPTION_CUSTOM_12: return gPlaySt.config.custom_option_12;
-    case GAME_OPTION_CUSTOM_13: return gPlaySt.config.custom_option_13;
-    case GAME_OPTION_CUSTOM_14: return gPlaySt.config.custom_option_14;
-    case GAME_OPTION_CUSTOM_15: return gPlaySt.config.custom_option_15;
-    case GAME_OPTION_CUSTOM_16: return gPlaySt.config.custom_option_16;
-    }
-
-    return 0;
-}
-
-static void SetCustomGameOptionValue(int index, int newValue)
-{
-    switch (index)
-    {
-    case GAME_OPTION_CUSTOM_1:  gPlaySt.config.custom_option_1 = newValue;  break;
-    case GAME_OPTION_CUSTOM_2:  gPlaySt.config.custom_option_2 = newValue;  break;
-    case GAME_OPTION_CUSTOM_3:  gPlaySt.config.custom_option_3 = newValue;  break;
-    case GAME_OPTION_CUSTOM_4:  gPlaySt.config.custom_option_4 = newValue;  break;
-    case GAME_OPTION_CUSTOM_5:  gPlaySt.config.custom_option_5 = newValue;  break;
-    case GAME_OPTION_CUSTOM_6:  gPlaySt.config.custom_option_6 = newValue;  break;
-    case GAME_OPTION_CUSTOM_7:  gPlaySt.config.custom_option_7 = newValue;  break;
-    case GAME_OPTION_CUSTOM_8:  gPlaySt.config.custom_option_8 = newValue;  break;
-    case GAME_OPTION_CUSTOM_9:  gPlaySt.config.custom_option_9 = newValue;  break;
-    case GAME_OPTION_CUSTOM_10: gPlaySt.config.custom_option_10 = newValue; break;
-    case GAME_OPTION_CUSTOM_11: gPlaySt.config.custom_option_11 = newValue; break;
-    case GAME_OPTION_CUSTOM_12: gPlaySt.config.custom_option_12 = newValue; break;
-    case GAME_OPTION_CUSTOM_13: gPlaySt.config.custom_option_13 = newValue; break;
-    case GAME_OPTION_CUSTOM_14: gPlaySt.config.custom_option_14 = newValue; break;
-    case GAME_OPTION_CUSTOM_15: gPlaySt.config.custom_option_15 = newValue; break;
-    case GAME_OPTION_CUSTOM_16: gPlaySt.config.custom_option_16 = newValue; break;
-    }
 }
 
 const struct GameOption gGameOptions_NEW[] =
@@ -332,20 +247,6 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_OBJECTIVE] =
-    {
-        .msgId = MSG_009E, // Show Objective
-        .selectors =
-        {
-            { MSG_00BB, MSG_00BD, 112, 2 },
-            { MSG_00BB, MSG_00BE, 135, 2 },
-            { MSG_000,  MSG_000,  190, 0 },
-            { MSG_000,  MSG_000,  189, 0 },
-        },
-        .icon = 0x1c,
-        .func = GenericOptionChangeHandler,
-    },
-
     [GAME_OPTION_SUBTITLE_HELP] =
     {
         .msgId = MSG_0094, // Subtitle Help[.]
@@ -388,448 +289,359 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_1] =
+    [GAME_OPTION_OBJECTIVE] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_009E, // Show Objective
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_00BA, MSG_00BD, 112, 2 },
+            { MSG_00BA, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x1c,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_2] =
+    [GAME_OPTION_CONTROLLER] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_009F, // Controller
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_00BB, MSG_00BD, 112, 2 },
+            { MSG_00BB, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x1e,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_3] =
+    [GAME_OPTION_RANK_DISPLAY] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_00A0, // Rank Display
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_00BC, MSG_00BD, 112, 2 },
+            { MSG_00BC, MSG_00BE, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x20,
         .func = GenericOptionChangeHandler,
     },
-
-    [GAME_OPTION_CUSTOM_4] =
+ [GAME_OPTION_SKILL_CAPACITY] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_SKILL_CAPACITY_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_SKILL_CAPACITY_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SKILL_CAPACITY_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x22,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_5] =
+    [GAME_OPTION_CASUAL_MODE] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_CASUAL_MODE_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_CASUAL_MODE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_CASUAL_MODE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x20,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_6] =
+    [GAME_OPTION_TALK_ON_LEVEL_UP] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_TALK_ON_LEVEL_UP_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_TALK_ON_LEVEL_UP_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_TALK_ON_LEVEL_UP_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x24,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_7] =
+    [GAME_OPTION_RESTORE_HP_ON_LEVEL_UP] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_RESTORE_HP_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_RESTORE_HP_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_RESTORE_HP_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x26,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_8] =
+    [GAME_OPTION_PROMOTE_ENEMY_ON_KILL] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_PROMOTE_ON_KILL_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_PROMOTE_ON_KILL_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_PROMOTE_ON_KILL_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x28,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_9] =
+    [GAME_OPTION_DANGER_BONES] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_DANGER_BONES_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_DANGER_BONES_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_DANGER_BONES_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x2A,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_10] =
+    [GAME_OPTION_FAST_FOWARD_BATTLE_ANIMATIONS] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_FAST_BATTLE_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_FAST_BATTLE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_FAST_BATTLE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x2C,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_11] =
+    [GAME_OPTION_EXPANDED_MAX_HP] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_EXPANDED_HP_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_EXPANDED_HP_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_EXPANDED_HP_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x2E,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_12] =
+    [GAME_OPTION_FLIPPED_ENEMY_SPRITES] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_FLIPPED_ENEMY_SPRITES_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_FLIPPED_ENEMY_SPRITES_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_FLIPPED_ENEMY_SPRITES_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x30,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_13] =
+    [GAME_OPTION_SUMMONS_GAIN_EXP] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_SUMMONS_GAIN_EXP_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_SUMMONS_GAIN_EXP_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SUMMONS_GAIN_EXP_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x32,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_14] =
+    [GAME_OPTION_PROMOTE_ON_MAX_LEVEL] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_PROMOTE_ON_MAX_LEVEL_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_PROMOTE_ON_MAX_LEVEL_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_PROMOTE_ON_MAX_LEVEL_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x34,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_15] =
+    [GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_SHOW_ARENA_OPPONENT_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_SHOW_ARENA_OPPONENT_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SHOW_ARENA_OPPONENT_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x36,
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_CUSTOM_16] =
+    [GAME_OPTION_SEND_INVENTORY_ON_DEATH] =
     {
-        .msgId = MSG_009D, // Unit Color
+        .msgId = MSG_MENU_OPTION_SEND_INVENTORY_ON_DEATH_TITLE,
         .selectors =
         {
-            { MSG_00B9, MSG_00BD, 112, 2 },
-            { MSG_00B9, MSG_00BE, 135, 2 },
+            { MSG_MENU_OPTION_SEND_INVENTORY_ON_DEATH_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SEND_INVENTORY_ON_DEATH_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
-        .icon = 0x1a,
+        .icon = 0x38,
         .func = GenericOptionChangeHandler,
     },
 
+    [GAME_OPTION_FAST_MAP_ANIMATIONS] =
+    {
+        .msgId = MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x3A,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_ANIMA_WEAPON_TRIANGLE] =
+    {
+        .msgId = MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x3C,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_SUPPORT_AFTER_BATTLE] =
+    {
+        .msgId = MSG_MENU_OPTION_SUPPORT_AFTER_BATTLE_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_SUPPORT_AFTER_BATTLE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SUPPORT_AFTER_BATTLE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x3E,
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
-void SetGameOption(u8 index, u8 newValue)
-{
-    if (index >= GAME_OPTION_CUSTOM_FIRST && index <= GAME_OPTION_CUSTOM_LAST) {
-        SetCustomGameOptionValue(index, newValue);
-        return;
+void SetGameOption(u8 index, u8 newValue) {
+    switch (index) {
+        // Condensed switch case formatting
+        case GAME_OPTION_ANIMATION:
+            if (newValue == 0) gPlaySt.config.animationType = PLAY_ANIMCONF_ON;
+            else if (newValue == 1) gPlaySt.config.animationType = PLAY_ANIMCONF_ON_UNIQUE_BG;
+            else if (newValue == 2) gPlaySt.config.animationType = PLAY_ANIMCONF_OFF;
+            else if (newValue == 3) gPlaySt.config.animationType = PLAY_ANIMCONF_SOLO_ANIM;
+            return;
+        case GAME_OPTION_TERRAIN:                        gPlaySt.config.disableTerrainDisplay = newValue; break;
+        case GAME_OPTION_UNIT:                           gPlaySt.config.unitDisplayType = newValue; break;
+        case GAME_OPTION_AUTOCURSOR:                     gPlaySt.config.autoCursor = newValue; break;
+        case GAME_OPTION_TEXT_SPEED:                     gPlaySt.config.textSpeed = newValue; break;
+        case GAME_OPTION_GAME_SPEED:                     gPlaySt.config.gameSpeed = newValue; break;
+        case GAME_OPTION_MUSIC:                          gPlaySt.config.disableBgm = newValue; break;
+        case GAME_OPTION_SOUND_EFFECTS:                  gPlaySt.config.disableSoundEffects = newValue; break;
+        case GAME_OPTION_WINDOW_COLOR:                   gPlaySt.config.windowColor = newValue; break;
+        case GAME_OPTION_COMBAT:                         gPlaySt.config.battleForecastType = newValue; break;
+        case GAME_OPTION_SUBTITLE_HELP:                  gPlaySt.config.noSubtitleHelp = newValue; break;
+        case GAME_OPTION_AUTOEND_TURNS:                  gPlaySt.config.disableAutoEndTurns = newValue; break;
+        case GAME_OPTION_UNIT_COLOR:                     gPlaySt.config.unitColor = newValue; break;
+        case GAME_OPTION_OBJECTIVE:                      gPlaySt.config.disableGoalDisplay = newValue; break;
+        case GAME_OPTION_CONTROLLER:                     gPlaySt.config.controller = newValue; break;
+        case GAME_OPTION_RANK_DISPLAY:                   gPlaySt.config.rankDisplay = newValue; break;
+        case GAME_OPTION_SKILL_CAPACITY:                 gPlaySt.config.skill_capacity = newValue; break;
+        case GAME_OPTION_CASUAL_MODE:                    gPlaySt.config.casual_mode = newValue; break;
+        case GAME_OPTION_TALK_ON_LEVEL_UP:               gPlaySt.config.talk_on_level_up = newValue; break;
+        case GAME_OPTION_RESTORE_HP_ON_LEVEL_UP:         gPlaySt.config.restore_hp_on_level_up = newValue; break;
+        case GAME_OPTION_PROMOTE_ENEMY_ON_KILL:          gPlaySt.config.promote_enemy_on_kill = newValue; break;
+        case GAME_OPTION_DANGER_BONES:                   gPlaySt.config.danger_bones = newValue; break;
+        case GAME_OPTION_FAST_FOWARD_BATTLE_ANIMATIONS:  gPlaySt.config.fast_battle_animations = newValue; break;
+        case GAME_OPTION_EXPANDED_MAX_HP:                gPlaySt.config.expanded_max_hp = newValue; break;
+        case GAME_OPTION_FLIPPED_ENEMY_SPRITES:          gPlaySt.config.flip_enemy_sprites = newValue; break;
+        case GAME_OPTION_SUMMONS_GAIN_EXP:               gPlaySt.config.summons_gain_exp = newValue; break;
+        case GAME_OPTION_PROMOTE_ON_MAX_LEVEL:           gPlaySt.config.promote_unit_on_max_level = newValue; break;
+        case GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE: gPlaySt.config.show_arena_opponent_in_advance = newValue; break;
+        case GAME_OPTION_SEND_INVENTORY_ON_DEATH:        gPlaySt.config.send_inventory_on_death = newValue; break;
+        case GAME_OPTION_FAST_MAP_ANIMATIONS:            gPlaySt.config.fast_map_animations= newValue; break;
+        case GAME_OPTION_ANIMA_WEAPON_TRIANGLE:          gPlaySt.config.anima_weapon_triangle = newValue; break;
+        case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
     }
-
-    switch (index)
-    {
-    case GAME_OPTION_ANIMATION:
-        switch (newValue)
-        {
-        case 0:
-            gPlaySt.config.animationType = PLAY_ANIMCONF_ON;
-            return;
-
-        case 1:
-            gPlaySt.config.animationType = PLAY_ANIMCONF_ON_UNIQUE_BG;
-            return;
-
-        case 2:
-            gPlaySt.config.animationType = PLAY_ANIMCONF_OFF;
-            return;
-
-        case 3:
-            gPlaySt.config.animationType = PLAY_ANIMCONF_SOLO_ANIM;
-            return;
-        }
-
-        // fallthrough
-
-    case GAME_OPTION_TERRAIN:
-        gPlaySt.config.disableTerrainDisplay = newValue;
-
-        break;
-
-    case GAME_OPTION_UNIT:
-        gPlaySt.config.unitDisplayType = newValue;
-
-        break;
-
-    case GAME_OPTION_AUTOCURSOR:
-        gPlaySt.config.autoCursor = newValue;
-
-        break;
-
-    case GAME_OPTION_TEXT_SPEED:
-        gPlaySt.config.textSpeed = newValue;
-
-        break;
-
-    case GAME_OPTION_GAME_SPEED:
-        gPlaySt.config.gameSpeed = newValue;
-
-        break;
-
-    case GAME_OPTION_MUSIC:
-        gPlaySt.config.disableBgm = newValue;
-
-        break;
-
-    case GAME_OPTION_SOUND_EFFECTS:
-        gPlaySt.config.disableSoundEffects = newValue;
-
-        break;
-
-    case GAME_OPTION_WINDOW_COLOR:
-        gPlaySt.config.windowColor = newValue;
-
-        break;
-
-    case GAME_OPTION_COMBAT:
-        gPlaySt.config.battleForecastType = newValue;
-
-        break;
-
-    case GAME_OPTION_SUBTITLE_HELP:
-        gPlaySt.config.noSubtitleHelp = newValue;
-
-        break;
-
-    case GAME_OPTION_AUTOEND_TURNS:
-        gPlaySt.config.disableAutoEndTurns = newValue;
-
-        break;
-
-    case GAME_OPTION_UNIT_COLOR:
-        gPlaySt.config.unitColor = newValue;
-
-        break;
-
-    case GAME_OPTION_OBJECTIVE:
-        gPlaySt.config.disableGoalDisplay = newValue;
-
-        break;
-
-    case GAME_OPTION_CONTROLLER:
-        gPlaySt.config.controller = newValue;
-
-        break;
-
-    case GAME_OPTION_RANK_DISPLAY:
-        gPlaySt.config.rankDisplay = newValue;
-
-        break;
-
-    }
-
-    return;
 }
 
 //! FE8U: 0x080B1DE8
 LYN_REPLACE_CHECK(GetGameOption);
-u8 GetGameOption(u8 index)
-{
-    int value = 0;
-
-    if (index >= GAME_OPTION_CUSTOM_FIRST && index <= GAME_OPTION_CUSTOM_LAST)
-        return GetCustomGameOptionValue(index);
-
-    switch (index)
-    {
-    case GAME_OPTION_ANIMATION:
-        switch (gPlaySt.config.animationType)
-        {
-        case PLAY_ANIMCONF_ON:
-            return 0;
-        case PLAY_ANIMCONF_ON_UNIQUE_BG:
-            return 1;
-        case PLAY_ANIMCONF_OFF:
-            return 2;
-        case PLAY_ANIMCONF_SOLO_ANIM:
-            return 3;
-        }
-
-        // fallthrough
-
-    case GAME_OPTION_TERRAIN:
-        value = gPlaySt.config.disableTerrainDisplay;
-
-        break;
-
-    case GAME_OPTION_UNIT:
-        value = gPlaySt.config.unitDisplayType;
-
-        break;
-
-    case GAME_OPTION_AUTOCURSOR:
-        value = gPlaySt.config.autoCursor;
-
-        break;
-
-    case GAME_OPTION_TEXT_SPEED:
-        value = gPlaySt.config.textSpeed;
-
-        break;
-
-    case GAME_OPTION_GAME_SPEED:
-        value = gPlaySt.config.gameSpeed;
-
-        break;
-
-    case GAME_OPTION_MUSIC:
-        value = gPlaySt.config.disableBgm;
-
-        break;
-
-    case GAME_OPTION_SOUND_EFFECTS:
-        value = gPlaySt.config.disableSoundEffects;
-
-        break;
-
-    case GAME_OPTION_WINDOW_COLOR:
-        value = gPlaySt.config.windowColor;
-
-        break;
-
-    case GAME_OPTION_COMBAT:
-        value = gPlaySt.config.battleForecastType;
-
-        break;
-
-    case GAME_OPTION_SUBTITLE_HELP:
-        value = gPlaySt.config.noSubtitleHelp;
-
-        break;
-
-    case GAME_OPTION_AUTOEND_TURNS:
-        value = gPlaySt.config.disableAutoEndTurns;
-
-        break;
-
-    case GAME_OPTION_UNIT_COLOR:
-        value = gPlaySt.config.unitColor;
-
-        break;
-
-    case GAME_OPTION_OBJECTIVE:
-        value = gPlaySt.config.disableGoalDisplay;
-
-        break;
-
-    case GAME_OPTION_CONTROLLER:
-        value = gPlaySt.config.controller;
-
-        break;
-
-    case GAME_OPTION_RANK_DISPLAY:
-        value = gPlaySt.config.rankDisplay;
-
-        break;
-
+u8 GetGameOption(u8 index) {
+    switch (index) {
+        case GAME_OPTION_ANIMATION:
+            if (gPlaySt.config.animationType == PLAY_ANIMCONF_ON) return 0;
+            if (gPlaySt.config.animationType == PLAY_ANIMCONF_ON_UNIQUE_BG) return 1;
+            if (gPlaySt.config.animationType == PLAY_ANIMCONF_OFF) return 2;
+            if (gPlaySt.config.animationType == PLAY_ANIMCONF_SOLO_ANIM) return 3;
+            return 0; // Default
+        case GAME_OPTION_TERRAIN:                        return gPlaySt.config.disableTerrainDisplay;
+        case GAME_OPTION_UNIT:                           return gPlaySt.config.unitDisplayType;
+        case GAME_OPTION_AUTOCURSOR:                     return gPlaySt.config.autoCursor;
+        case GAME_OPTION_TEXT_SPEED:                     return gPlaySt.config.textSpeed;
+        case GAME_OPTION_GAME_SPEED:                     return gPlaySt.config.gameSpeed;
+        case GAME_OPTION_MUSIC:                          return gPlaySt.config.disableBgm;
+        case GAME_OPTION_SOUND_EFFECTS:                  return gPlaySt.config.disableSoundEffects;
+        case GAME_OPTION_WINDOW_COLOR:                   return gPlaySt.config.windowColor;
+        case GAME_OPTION_COMBAT:                         return gPlaySt.config.battleForecastType;
+        case GAME_OPTION_SUBTITLE_HELP:                  return gPlaySt.config.noSubtitleHelp;
+        case GAME_OPTION_AUTOEND_TURNS:                  return gPlaySt.config.disableAutoEndTurns;
+        case GAME_OPTION_UNIT_COLOR:                     return gPlaySt.config.unitColor;
+        case GAME_OPTION_OBJECTIVE:                      return gPlaySt.config.disableGoalDisplay;
+        case GAME_OPTION_CONTROLLER:                     return gPlaySt.config.controller;
+        case GAME_OPTION_RANK_DISPLAY:                   return gPlaySt.config.rankDisplay;
+        case GAME_OPTION_SKILL_CAPACITY:                 return gPlaySt.config.skill_capacity;
+        case GAME_OPTION_CASUAL_MODE:                    return gPlaySt.config.casual_mode;
+        case GAME_OPTION_TALK_ON_LEVEL_UP:               return gPlaySt.config.talk_on_level_up;
+        case GAME_OPTION_RESTORE_HP_ON_LEVEL_UP:         return gPlaySt.config.restore_hp_on_level_up;
+        case GAME_OPTION_PROMOTE_ENEMY_ON_KILL:          return gPlaySt.config.promote_enemy_on_kill;
+        case GAME_OPTION_DANGER_BONES:                   return gPlaySt.config.danger_bones;
+        case GAME_OPTION_FAST_FOWARD_BATTLE_ANIMATIONS:  return gPlaySt.config.fast_battle_animations;
+        case GAME_OPTION_EXPANDED_MAX_HP:                return gPlaySt.config.expanded_max_hp;
+        case GAME_OPTION_FLIPPED_ENEMY_SPRITES:          return gPlaySt.config.flip_enemy_sprites;
+        case GAME_OPTION_SUMMONS_GAIN_EXP:               return gPlaySt.config.summons_gain_exp;
+        case GAME_OPTION_PROMOTE_ON_MAX_LEVEL:           return gPlaySt.config.promote_unit_on_max_level;
+        case GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE: return gPlaySt.config.show_arena_opponent_in_advance;
+        case GAME_OPTION_SEND_INVENTORY_ON_DEATH:        return gPlaySt.config.send_inventory_on_death;
+        case GAME_OPTION_FAST_MAP_ANIMATIONS:            return gPlaySt.config.fast_map_animations;
+        case GAME_OPTION_ANIMA_WEAPON_TRIANGLE:          return gPlaySt.config.anima_weapon_triangle;
+        case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
     }
-
-    return value;
+    return 0;
 }
 
 LYN_REPLACE_CHECK(InitPlayConfig);
@@ -859,6 +671,18 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.debugControlGreen = 0;
     gPlaySt.config.unitColor = 0;
     gPlaySt.config.unk41_5 = 0;
+    gPlaySt.config.skill_capacity = 0;
+    gPlaySt.config.casual_mode = 0;
+    gPlaySt.config.talk_on_level_up = 0;
+    gPlaySt.config.restore_hp_on_level_up = 0;
+    gPlaySt.config.promote_enemy_on_kill = 0;
+    gPlaySt.config.danger_bones = 0;
+    gPlaySt.config.fast_battle_animations = 0;
+    gPlaySt.config.expanded_max_hp = 0;
+    gPlaySt.config.flip_enemy_sprites = 0;
+    gPlaySt.config.summons_gain_exp = 0;
+    gPlaySt.config.skill_capacity = 0;
+    gPlaySt.config.show_arena_opponent_in_advance = 0;
 }
 
 //! FE8U = 0x080B16DC
@@ -990,7 +814,6 @@ void Config_Init(struct ConfigProc * proc)
     SetupBackgrounds(bgConfig);
 
     gConfigUiState->unk_32 = 0;
-    InitGameOptionUiOrder();
     gConfigUiState->maxOption = GetGameOptionIndexCount();
     gConfigUiState->selectedOptionIdx = 0;
     gConfigUiState->headOptionIdx = 0;
@@ -1032,8 +855,10 @@ void Config_Init(struct ConfigProc * proc)
     ApplyPalette(Pal_ConfigUiSprites, 4);
     ApplyPalette(Pal_ConfigUiSprites, 18);
 
+    // Decompress(Img_ConfigUiSprites, OBJ_CHR_ADDR(0xC0));
+    // Decompress(Img_ConfigUiIcons, BG_CHR_ADDR(0x200));
     Decompress(Img_ConfigUiSprites, OBJ_CHR_ADDR(0xC0));
-    Decompress(Img_ConfigUiIcons, BG_CHR_ADDR(0x200));
+    Decompress(Img_ConfigUiIcons_NEW, BG_CHR_ADDR(0x200));
 
     Decompress(Tsa_ConfigUiFrame, gGenericBuffer + 0x80);
     CallARM_FillTileRect(gBG2TilemapBuffer, gGenericBuffer + 0x80, TILEREF(0x0, 1));
