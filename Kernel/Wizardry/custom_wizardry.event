@@ -88,6 +88,7 @@
 #endif
 
 #include "Misc/EnterTown/EnterTown_Installer.event"
+#include "Misc/WorldMapSkillMenu/WorldMapSkillMenu.lyn.event"
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     #include "Misc/FourthAllegiance/FourthAllegiance_Installer.event"

@@ -16,6 +16,7 @@ extern struct MenuRect gMenuRect_WMGeneralMenuRect;
 extern struct ProcCmd CONST_DATA ProcScr_OpAnim[]; // intro cutscene
 extern struct ProcCmd CONST_DATA ProcScr_WorldMapWrapper[];
 extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
+extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
 
 typedef struct {
     u8 mapNodeId;
@@ -175,6 +176,13 @@ u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
+u8 WMMenu_OnManageSkillsSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    gGMData.unk_cd = menuProc->itemCurrent;
+    StartWMNodeSkillMenuTransition(menuProc);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
 static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
 {
     {
@@ -212,14 +220,14 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
         .onSelected = WMMenu_OnSecretShopSelected,
     },
 
-    // {
-    //     .name = " Manage Skills",
-    //     .nameMsgId = MSG_WM_MANAGE_SKILLS_NAME,
-    //     .helpMsgId = MSG_WM_MANAGE_SKILLS_DESC,
-    //     .overrideId = 4,
-    //     .isAvailable = WMMenu_IsManageSkillsAvailable,
-    //     .onSelected = WMMenu_OnManageSkillsSelected,
-    // },
+    {
+        .name = "　特技変更",
+        .nameMsgId = MSG_WM_MANAGE_SKILLS_NAME,
+        .helpMsgId = MSG_WM_MANAGE_SKILLS_DESC,
+        .overrideId = 4,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnManageSkillsSelected,
+    },
 
     {
         .name = "　アイテム整理",

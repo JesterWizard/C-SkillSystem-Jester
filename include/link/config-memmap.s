@@ -141,6 +141,7 @@ _kernel_malloc gSnekHighScore, 2
 _kernel_malloc gSnekHighScoreMagic, 2
 _kernel_malloc gSnekLastTravelDirection, 2
 _kernel_malloc gSnekLastPressedDirection, 2
+_kernel_malloc gSavedWorldMapUnitId, 2;
 
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
