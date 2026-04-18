@@ -36,7 +36,7 @@ extern u16 gUiTmScratchC[];
 // extern ??? gUnknown_02007838
 // extern ??? gUnknown_020078D8
 // extern ??? sGameStartSaveBuf
-// extern ??? gUnknown_020087A0
+extern u8 gUnknown_020087A0[];
 // extern ??? gUnknown_0200A2D8
 // extern ??? gUnknown_0200A300
 extern u8 gUnknown_0200AF00[];
