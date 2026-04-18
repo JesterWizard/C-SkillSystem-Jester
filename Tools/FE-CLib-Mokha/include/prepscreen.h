@@ -584,7 +584,7 @@ void EndMenuScrollBar(void);
 ProcPtr StartMenuScrollBar(ProcPtr);
 void PutMenuScrollBarAt(int x, int y);
 void UpdateMenuScrollBarConfig(u8 height, u16 currentPosition, u16 totalRows, u8 visibleRows);
-void InitMenuScrollBarImg(int, int);
+void InitMenuScrollBarImg(int chr, int pal);
 ProcPtr StartMenuScrollBarExt(ProcPtr, int, int, int, int);
 void sub_80977AC(struct Text * th, u16 * tm, int color, int x, const char * str);
 void sub_80977EC(u8 * a, u16 * b);

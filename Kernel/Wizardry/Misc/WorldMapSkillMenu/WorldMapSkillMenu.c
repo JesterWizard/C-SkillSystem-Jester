@@ -97,7 +97,7 @@ static void WmSkillMenu_DrawUnitList(struct WmSkillMenuProc *proc)
 		if (!UNIT_IS_VALID(unit))
 			continue;
 
-		PutUnitSprite(0, 20, 60 + (i * 16), unit);
+		PutUnitSprite(0, 20, 64 + (i * 16), unit);
 
 		ClearText(&gPrepUnitTexts[i + 8]);
 		PutDrawText(&gPrepUnitTexts[i + 8], TILEMAP_LOCATED(gBG0TilemapBuffer, 5, 8 + (i * 2)), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(unit->pCharacterData->nameTextId));
@@ -118,13 +118,14 @@ static void WmSkillMenu_DrawSkillIcons(struct WmSkillMenuProc *proc)
 
 	for (i = 0; i < skillCount; ++i) {
 		u16 sid = WmSkillMenu_GetSkillId(unit, i);
-		int tileX = 15 + ((i % WM_SKILL_ICON_COLS) * 2);
-		int tileY = 9 + ((i / WM_SKILL_ICON_COLS) * 2);
+		int tileX = 18 + ((i % WM_SKILL_ICON_COLS) * 2);
+		int tileY = 6 + ((i / WM_SKILL_ICON_COLS) * 2);
 
 		if (!sid)
 			continue;
 
 		DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, tileX, tileY), SKILL_ICON(sid), TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
+		PutDrawText(&gPrepUnitTexts[i + 13], TILEMAP_LOCATED(gBG0TilemapBuffer, tileX + 2, tileY), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetSkillNameStr(sid));
 	}
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -140,7 +141,7 @@ static void WmSkillMenu_DrawSelection(struct WmSkillMenuProc *proc)
 	int iconX = 17 + ((proc->iconCursor % WM_SKILL_ICON_COLS) * 2);
 	int iconY = 8 + ((proc->iconCursor / WM_SKILL_ICON_COLS) * 2);
 
-	ShowSysHandCursor(16, 48 + (listRow * 16), 0x8, 0x800);
+	ShowSysHandCursor(16, 64 + (listRow * 16), 0x8, 0x800);
 	if (proc->mode == WM_SKILL_MODE_ICONS)
 		ShowSysHandCursor((iconX * 8) - 8, (iconY * 8), 0x8, 0x800);
 }
@@ -204,8 +205,8 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 	StartMuralBackgroundExt(proc, NULL, 0, 0, 0);
 
     StartMenuScrollBar(proc); 
-    PutMenuScrollBarAt(2, 66); 
-    InitMenuScrollBarImg(0x7A60, 2); 
+    PutMenuScrollBarAt(14*8, 72); 
+    InitMenuScrollBarImg(0x7A60, 4); 
 	// StartMenuScrollBarExt(proc, 224, 11, 0x200, 4);
 
     /* Initial configuration to set the bar size/pos */
@@ -219,27 +220,39 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
     /* Display the transparent black banner behind the text */
     // SetPrimaryHBlankHandler(PrepItemSupply_OnHBlank);
 
-	DrawUiFrame2(1, 6, 13, 13, 0);
+	DrawUiFrame2(1, 6, 13, 14, 0);
  	TileMap_CopyRect(gUnknown_0201BBD8, TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 3), 13, 4);
 
-	DrawUiFrame2(16, 6, 13, 13, 0);
- 	TileMap_CopyRect(gUnknown_0201BBD8, TILEMAP_LOCATED(gBG1TilemapBuffer, 16, 3), 13, 4);
+	DrawUiFrame2(16, 4, 13, 16, 0);
+ 	TileMap_CopyRect(gUnknown_0201BBD8, TILEMAP_LOCATED(gBG1TilemapBuffer, 16, 1), 13, 4);
 
-    StartSysBrownBox(0x0, 0x7080, 0xf, 0xc00, 0x400, proc);
+    StartSysBrownBox(0x0, 0x5800, 0x4, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -20, -1, 1);
 
+    StartUiCursorHand(proc);
+    ResetSysHandCursor(proc);
+    DisplaySysHandCursorTextShadow(0x600, 1);
+
+	InitText(&gPrepUnitTexts[5], 10);
+	InitText(&gPrepUnitTexts[6], 10);
 	InitText(&gPrepUnitTexts[7], 10);
 	InitText(&gPrepUnitTexts[8], 10);
 	InitText(&gPrepUnitTexts[9], 10);
 	InitText(&gPrepUnitTexts[10], 10);
 	InitText(&gPrepUnitTexts[11], 10);
 	InitText(&gPrepUnitTexts[12], 10);
+	InitText(&gPrepUnitTexts[13], 10);
+	InitText(&gPrepUnitTexts[14], 10);
+	InitText(&gPrepUnitTexts[15], 10);
+	InitText(&gPrepUnitTexts[16], 10);
+	InitText(&gPrepUnitTexts[17], 10);
+	InitText(&gPrepUnitTexts[18], 10);
+	InitText(&gPrepUnitTexts[19], 10);
 
-	PutDrawText(&gPrepUnitTexts[8], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 2), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Skill Change");
-	PutDrawText(&gPrepUnitTexts[9], TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 4), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Units");
-	PutDrawText(&gPrepUnitTexts[10], TILEMAP_LOCATED(gBG0TilemapBuffer, 17, 4), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Skills");
+	PutDrawText(&gPrepUnitTexts[5], TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 0), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Manage Skills");
+	PutDrawText(&gPrepUnitTexts[6], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 4), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Units");
+	PutDrawText(&gPrepUnitTexts[7], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 2), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Skills");
 
-	WmSkillMenu_ClearTextArea();
 	WmSkillMenu_DrawSkillIcons(proc);
 	WmSkillMenu_DrawSelection(proc);
 }
@@ -488,7 +501,6 @@ static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
 	proc->iconCount = 0;
 	proc->hoveredSkill = 0;
 	proc->hoveredHelp = 0;
-	ShowSysHandCursor(16, 48, 0x8, 0x800);
 
 	NewFadeIn(0x10, proc);
 }
