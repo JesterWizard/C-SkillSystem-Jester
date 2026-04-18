@@ -140,9 +140,10 @@ static void WmSkillMenu_DrawSelection(struct WmSkillMenuProc *proc)
 	int iconX = 17 + ((proc->iconCursor % WM_SKILL_ICON_COLS) * 2);
 	int iconY = 8 + ((proc->iconCursor / WM_SKILL_ICON_COLS) * 2);
 
-	ShowSysHandCursor(16, 64 + (listRow * 16), 0x8, 0x800);
-	if (proc->mode != WM_SKILL_MODE_LIST)
-		ShowSysHandCursor((iconX * 8) - 8, (iconY * 8), 0x8, 0x800);
+	if (proc->mode == WM_SKILL_MODE_LIST)
+		ShowSysHandCursor(16, 64 + (listRow * 16), 0x8, 0x800);
+	else if (proc->iconCount > 0)
+		ShowSysHandCursor((iconX * 8) + 4, (iconY * 8) - 16, 0x8, 0x800);
 }
 
 static bool WmSkillMenu_HelpBoxActive(void)
@@ -160,6 +161,11 @@ static void WmSkillMenu_OpenSkillHelp(struct WmSkillMenuProc *proc)
 
 	LoadHelpBoxGfx(NULL, -1);
 	StartHelpBox(17 * 8, 8 * 8, GetSkillDescMsg(sid));
+}
+
+static void WmSkillMenu_SetCursorShadow(struct WmSkillMenuProc *proc)
+{
+	DisplaySysHandCursorTextShadow(0x600, proc->mode == WM_SKILL_MODE_LIST);
 }
 
 static void WmSkillMenu_CloseHoverHelp(void)
@@ -227,7 +233,7 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 
     StartUiCursorHand(proc);
     ResetSysHandCursor(proc);
-    DisplaySysHandCursorTextShadow(0x600, 1);
+	WmSkillMenu_SetCursorShadow(proc);
 
 	InitText(&gPrepUnitTexts[5], 10);
 	InitText(&gPrepUnitTexts[6], 10);
@@ -318,41 +324,35 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 		}
 
 		if (gKeyStatusPtr->newKeys & DPAD_RIGHT) {
-			proc->mode = WM_SKILL_MODE_SKILL_TAB;
+			proc->mode = WM_SKILL_MODE_SKILL_SCREEN;
 			proc->iconCursor = 0;
+			WmSkillMenu_SetCursorShadow(proc);
 			PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 		}
 	}
 	else {
-		if (proc->mode == WM_SKILL_MODE_SKILL_TAB) {
-			if (gKeyStatusPtr->newKeys & DPAD_LEFT) {
-				proc->mode = WM_SKILL_MODE_LIST;
-				PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
-			}
-
-			if (gKeyStatusPtr->newKeys & A_BUTTON) {
-				proc->mode = WM_SKILL_MODE_SKILL_SCREEN;
-				proc->iconCursor = 0;
-				PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-			}
-
-			if (gKeyStatusPtr->newKeys & R_BUTTON) {
-				WmSkillMenu_OpenSkillHelp(proc);
-			}
-		}
-		else if (proc->mode == WM_SKILL_MODE_SKILL_SCREEN) {
+		if (proc->mode == WM_SKILL_MODE_SKILL_SCREEN) {
 			int skillCount = WmSkillMenu_GetVisibleSkillCount(WmSkillMenu_GetUnit(proc->listCursor));
 
 			if (gKeyStatusPtr->newKeys & DPAD_LEFT) {
 				if (proc->iconCursor > 0) {
 					proc->iconCursor--;
+					WmSkillMenu_SetCursorShadow(proc);
+					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+				}
+				else {
+					proc->mode = WM_SKILL_MODE_LIST;
+					WmSkillMenu_SetCursorShadow(proc);
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 				}
 			}
 
 			if (gKeyStatusPtr->newKeys & DPAD_RIGHT) {
-				if (proc->iconCursor + 1 < skillCount) {
+				if (skillCount > 0) {
 					proc->iconCursor++;
+					if (proc->iconCursor >= skillCount)
+						proc->iconCursor = 0;
+					WmSkillMenu_SetCursorShadow(proc);
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 				}
 			}
@@ -360,6 +360,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			if (gKeyStatusPtr->newKeys & DPAD_UP) {
 				if (proc->iconCursor >= WM_SKILL_ICON_COLS) {
 					proc->iconCursor -= WM_SKILL_ICON_COLS;
+					WmSkillMenu_SetCursorShadow(proc);
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 				}
 			}
@@ -367,12 +368,14 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
 				if (proc->iconCursor + WM_SKILL_ICON_COLS < skillCount) {
 					proc->iconCursor += WM_SKILL_ICON_COLS;
+					WmSkillMenu_SetCursorShadow(proc);
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 				}
 			}
 
 			if (gKeyStatusPtr->newKeys & B_BUTTON) {
-				proc->mode = WM_SKILL_MODE_SKILL_TAB;
+				proc->mode = WM_SKILL_MODE_LIST;
+				WmSkillMenu_SetCursorShadow(proc);
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
 				return;
 			}
