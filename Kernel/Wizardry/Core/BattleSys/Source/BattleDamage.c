@@ -146,6 +146,13 @@ int BattleHit_CalcDamage(struct BattleUnit* attacker, struct BattleUnit* defende
 	gDmg.decrease = base_dmg->decrease;
 	gDmg.real_damage = base_dmg->real_damage;
 
+#if defined(SID_EyeForAnEye) && (COMMON_SKILL_VALID(SID_EyeForAnEye))
+    if (BattleFastSkillTester(attacker, SID_EyeForAnEye) && act_flags->last_damage_taken > 0) {
+        gDmg.real_damage += act_flags->last_damage_taken;
+        act_flags->last_damage_taken = 0;
+    }
+#endif
+
 	/**
 	 * Roll critical and silencer attack
 	 */

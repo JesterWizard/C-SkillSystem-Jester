@@ -96,6 +96,13 @@ Prideful Warrior:[N]
 Unit always attacks last in[N]
 the round, but always doubles.[X]
 
+## MSG_SKILL_EyeForAnEye_NAME
+Eye for an Eye[X]
+## MSG_SKILL_EyeForAnEye_DESC
+Eye for an Eye:[N]
+Foe always attacks first.[N]
+Add last hit taken to counterattack.[X]
+
 ## MSG_SKILL_PassionsFlow_NAME
 Passions Flow[X]
 ## MSG_SKILL_PassionsFlow_DESC

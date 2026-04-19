@@ -604,6 +604,8 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 	BattleGenerateHitAttributes(attacker, defender);
 	BattleGenerateHitEffects(attacker, defender);
 
+    GetBattleGlobalFlags(defender)->last_damage_taken = MAX(hp_pre - defender->unit.curHP, 0);
+
 	if (attacker->unit.curHP == 0 || defender->unit.curHP == 0) {
 #if (defined(SID_Discipline) && (COMMON_SKILL_VALID(SID_Discipline)))
 		if (BattleFastSkillTester(attacker, SID_Discipline))

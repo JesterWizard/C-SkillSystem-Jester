@@ -323,6 +323,7 @@
 #define MSG_SKILL_InitNimble_CAPACITY 1
 #define MSG_SKILL_InitQuick_CAPACITY 1
 #define MSG_SKILL_InitSpectrum_CAPACITY 1
+#define MSG_SKILL_EyeForAnEye_CAPACITY 1
 #define MSG_SKILL_InitStrong_CAPACITY 1
 #define MSG_SKILL_InitSturdy_CAPACITY 1
 #define MSG_SKILL_Lifetaker_CAPACITY 1

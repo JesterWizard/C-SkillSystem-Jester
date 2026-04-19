@@ -4438,6 +4438,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_EyeForAnEye) && COMMON_SKILL_VALID(SID_EyeForAnEye))
+    [SID_EyeForAnEye] = {
+        .name = MSG_SKILL_EyeForAnEye_NAME,
+        .desc = MSG_SKILL_EyeForAnEye_DESC,
+        .capacity = MSG_SKILL_EyeForAnEye_CAPACITY,
+        .price = MSG_SKILL_EyeForAnEye_PRICE,
+        .icon = GFX_SkillIcon_PridefulWarrior,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_LiveToServe) && COMMON_SKILL_VALID(SID_LiveToServe))
     [SID_LiveToServe] = {
         .name = MSG_SKILL_LiveToServe_NAME,

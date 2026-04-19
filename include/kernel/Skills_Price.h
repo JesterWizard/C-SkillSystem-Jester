@@ -323,6 +323,7 @@
 #define MSG_SKILL_InitNimble_PRICE 1000
 #define MSG_SKILL_InitQuick_PRICE 1000
 #define MSG_SKILL_InitSpectrum_PRICE 1000
+#define MSG_SKILL_EyeForAnEye_PRICE 1000
 #define MSG_SKILL_InitStrong_PRICE 1000
 #define MSG_SKILL_InitSturdy_PRICE 1000
 #define MSG_SKILL_Lifetaker_PRICE 1000

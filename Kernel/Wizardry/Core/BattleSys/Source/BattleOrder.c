@@ -472,6 +472,14 @@ STATIC_DECLAR bool CheckVantageOrder(void)
 	if (!gBattleTarget.weapon)
 		return false;
 
+#if defined(SID_EyeForAnEye) && (COMMON_SKILL_VALID(SID_EyeForAnEye))
+    if (BattleFastSkillTester(&gBattleActor, SID_EyeForAnEye)) {
+        RegisterBattleOrderSkill(SID_EyeForAnEye, BORDER_VANTAGE);
+        gBattleTemporaryFlag.vantage_order = true;
+        return true;
+    }
+#endif
+
 #if defined(SID_Vantage) && (COMMON_SKILL_VALID(SID_Vantage))
 	if (BattleFastSkillTester(&gBattleTarget, SID_Vantage)) {
 		if ((gBattleTarget.hpInitial * 2) < gBattleTarget.unit.maxHP) {
