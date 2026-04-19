@@ -308,19 +308,15 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 		}
 
 		if (gKeyStatusPtr->newKeys & DPAD_RIGHT) {
-			int skillCount = WmSkillMenu_GetVisibleSkillCount(WmSkillMenu_GetUnit(proc->listCursor));
+			bool helpBoxWasOpen = WmSkillMenu_HelpBoxActive();
 
 			proc->mode = WM_SKILL_MODE_SKILL_SCREEN;
 			proc->iconCursor = 0;
 			redrawSkill = 1;
 			PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 
-			if (skillCount > 0) {
-				if (WmSkillMenu_HelpBoxActive())
-					WmSkillMenu_RefreshHelp(proc);
-				else
-					WmSkillMenu_OpenSkillHelp(proc);
-			}
+			if (helpBoxWasOpen)
+				WmSkillMenu_OpenSkillHelp(proc);
 		}
 
 		if (gKeyStatusPtr->newKeys & R_BUTTON)
@@ -336,11 +332,14 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 				}
 				else {
+					bool helpBoxWasOpen = WmSkillMenu_HelpBoxActive();
+
 					proc->mode = WM_SKILL_MODE_LIST;
 					redrawSkill = 1;
-					WmSkillMenu_CloseHoverHelp();
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
-					WmSkillMenu_OpenUnitHelp(proc);
+
+					if (helpBoxWasOpen)
+						WmSkillMenu_OpenUnitHelp(proc);
 				}
 			}
 
@@ -351,6 +350,13 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 					WmSkillMenu_RefreshHelp(proc);
 				}
+			}
+
+			if (gKeyStatusPtr->newKeys & R_BUTTON) {
+				if (WmSkillMenu_HelpBoxActive())
+					WmSkillMenu_RefreshHelp(proc);
+				else
+					WmSkillMenu_OpenSkillHelp(proc);
 			}
 
 			if (gKeyStatusPtr->newKeys & DPAD_UP) {
@@ -371,10 +377,13 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			}
 
 			if (gKeyStatusPtr->newKeys & B_BUTTON) {
+				bool helpBoxWasOpen = WmSkillMenu_HelpBoxActive();
+
 				proc->mode = WM_SKILL_MODE_LIST;
-				WmSkillMenu_CloseHoverHelp();
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-				WmSkillMenu_OpenUnitHelp(proc);
+
+				if (helpBoxWasOpen)
+					WmSkillMenu_OpenUnitHelp(proc);
 				return;
 			}
 
