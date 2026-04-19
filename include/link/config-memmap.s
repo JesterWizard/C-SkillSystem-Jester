@@ -103,12 +103,12 @@ _kernel_malloc sAumDeadUnit, 1
 _kernel_malloc gChapterTimerSeconds, 2
 _kernel_malloc firstVisibleIndex, 1
 _kernel_malloc gInfuseMenuArray, 6
-_kernel_malloc gTopVisibleListIndex, 1
+_kernel_malloc gTopVisibleListIndex, 2
 _kernel_malloc gBEXP_State, 1
 _kernel_malloc gBEXP_Applied, 1
 _kernel_malloc gBEXP_Total, 2
 _kernel_malloc gBEXP_MapGain, 2
-_kernel_malloc gList_Total, 1
+_kernel_malloc gList_Total, 2
 _kernel_malloc gBaseConversations_Flags, 10
 _kernel_malloc gCharacterBiographyPage, 1
 _kernel_malloc gCharacterBiographyListNumber, 1
