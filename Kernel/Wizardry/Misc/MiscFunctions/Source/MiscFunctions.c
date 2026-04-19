@@ -4889,3 +4889,17 @@ void StartBrownTextBox(int textId, s16 x, s16 y, ProcPtr parent)
     StartBrownTextBoxCore(x, y, textId, 0x5000, 13, parent);
     Proc_StartBlocking(ProcScr_08592530, parent);
 }
+
+const u16 Sprite_PrepInformation[] =
+{
+    3,
+    OAM0_SHAPE_32x16, OAM1_SIZE_32x16, OAM2_CHR(0x12) + OAM2_LAYER(1),
+    OAM0_SHAPE_32x16, OAM1_SIZE_32x16 + OAM1_X(+32), OAM2_CHR(0x16) + OAM2_LAYER(1),
+    OAM0_SHAPE_16x16, OAM1_SIZE_16x16 + OAM1_X(+64), OAM2_CHR(0x1A) + OAM2_LAYER(1),
+};
+
+LYN_REPLACE_CHECK(PutPrepInformationSprite);
+void PutPrepInformationSprite(int xOam1, int yOam0, u16 oam2)
+{
+    PutSpriteExt(4, xOam1, yOam0, Sprite_PrepInformation, oam2);
+}

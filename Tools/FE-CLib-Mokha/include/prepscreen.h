@@ -461,6 +461,7 @@ void sub_8096668();
 void NewPrepScreenTraineePromotionManager();
 int PrepScreenTraineePromotionManagerExists(ProcPtr proc);
 int PrepAtMenuExists(ProcPtr proc);
+void PutPrepInformationSprite(int xOam1, int yOam0, u16 oam2);
 void PutObj8A1856E(int xOam1, int yOam0, u16 oam2);
 void PutObj8A18582_WithConfigs(int xOam1, int yOam0, int a3, u16 oam2);
 void PutObj8A18590_WithConfigs(int xOam1, int yOam0, int a3, u16 oam2);

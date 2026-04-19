@@ -187,3 +187,32 @@ typedef struct {
 } TimerAmount;
 
 extern const TimerAmount chapter_timers[];
+
+struct WmSkillMenuProc {
+	PROC_HEADER;
+	/* 29 */ u8 listCursor;
+	/* 2A */ u8 listTop;
+	/* 2B */ u8 mode;
+	/* 2C */ u8 iconCursor;
+	/* 2D */ u8 iconCount;
+	/* 2E */ u8 iconRows;
+	/* 2F */ u8 _pad;
+	/* 30 */ u8 unitCount;
+	/* 31 */ u8 hoveredSkill;
+	/* 32 */ u16 hoveredHelp;
+};
+
+struct WmSkillMenuTransitionProc {
+	PROC_HEADER;
+};
+
+#define WM_SKILL_VISIBLE_COUNT 5
+#define WM_SKILL_ICON_COLS 4
+#define WM_SKILL_ICON_MAX 12
+#define SKILL_ICON(sid) ((5 << 8) + (sid))
+
+enum {
+	WM_SKILL_MODE_LIST = 0,
+	WM_SKILL_MODE_SKILL_TAB = 1,
+	WM_SKILL_MODE_SKILL_SCREEN = 2,
+};
