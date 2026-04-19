@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "worldmap.h"
 #include "kernel-lib.h"
+#include "icon-rework.h"
 #include "prep-skill.h"
 #include "skill-system.h"
 #include "utf8.h"
@@ -11,6 +12,8 @@ enum {
 };
 
 extern u8 gSavedWorldMapUnitId;
+extern u8 gSavedWorldMapXCoordiate;
+extern u8 gSavedWorldMapYCoordiate;
 
 static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
 static void FillWorldMapBg3(void);
@@ -95,7 +98,7 @@ static void WmSkillMenu_DrawSkillScreen(struct WmSkillMenuProc *proc)
 	for (i = 0; i < skillCount; ++i) {
 		u16 sid = WmSkillMenu_GetSkillId(unit, i);
 		int tileX = 18 + ((i % WM_SKILL_ICON_COLS) * 2);
-		int tileY = 6 + ((i / WM_SKILL_ICON_COLS) * 2);
+		int tileY = 8 + ((i / WM_SKILL_ICON_COLS) * 2);
 
 		if (!sid)
 			continue;
@@ -119,7 +122,7 @@ static void WmSkillMenu_DrawSelection(struct WmSkillMenuProc *proc)
 	if (proc->mode == WM_SKILL_MODE_LIST)
 		ShowSysHandCursor(16, 64 + (listRow * 16), 0x8, 0x800);
 	else if (proc->iconCount > 0)
-		ShowSysHandCursor((iconX * 8) + 4, (iconY * 8) - 16, 0x0, 0x800);
+		ShowSysHandCursor((iconX * 8) + 4, (iconY * 8), 0x0, 0x800);
 }
 
 static bool WmSkillMenu_HelpBoxActive(void)
@@ -168,14 +171,12 @@ static void WmSkillMenu_RefreshHelp(struct WmSkillMenuProc *proc)
 		WmSkillMenu_OpenSkillHelp(proc);
 }
 
-// extern u16 gUnknown_0201B458[]; // Magvel minimap
-// extern u16 gUnknown_0201B758[]; // Unit minimug and name for worldmap
-extern u16 gUnknown_0201BBD8[]; // Two sections of frame for worldmap
-// extern u16 gUnknown_0201B864[]; // World map unit level graphic
-// extern u16 gUnknown_0201B7DA[]; // World map unit minimug, name and level
-
 static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 {
+	gSavedWorldMapUnitId = gGMData.units[0].id;
+	HideGmUnit(0); // Hide world map unit, will need to restore later
+	SetDispEnable(1, 1, 1, 1, 1);
+
 	gLCDControlBuffer.dispcnt.mode = 0;
 	SetupBackgrounds(NULL);
 
@@ -199,7 +200,7 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 	LoadHelpBoxGfx((void *)0x06012000, -1);
 	LoadIconPalettes(4);
 	ApplyUnitSpritePalettes();
-	StartMuralBackgroundExt(proc, NULL, 0, 0, 0);
+	RestartMuralBackground();
 
     StartMenuScrollBar(proc); 
     PutMenuScrollBarAt(14*8, 64); 
@@ -213,11 +214,11 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
         5
     );
 
-	DrawUiFrame2(1, 6, 13, 14, 0);
- 	TileMap_CopyRect(gUnknown_0201BBD8, TILEMAP_LOCATED(gBG1TilemapBuffer, 1, 3), 13, 4);
+	DrawUiFrame2(1, 2, 13, 4, 2); // Top left
+	DrawUiFrame2(1, 6, 13, 14, 0); // Bottom left
 
-	DrawUiFrame2(16, 4, 13, 16, 0);
-	TileMap_CopyRect(gUnknown_0201BBD8, TILEMAP_LOCATED(gBG1TilemapBuffer, 16, 1), 13, 4);
+	DrawUiFrame2(16, 2, 13, 4, 2); // Top right
+	DrawUiFrame2(16, 6, 13, 14, 0); // Bottom right
 
     StartSysBrownBox(0x0, 0x5800, 0x4, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -20, -1, 1);
@@ -230,8 +231,8 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 		InitText(&gPrepUnitTexts[i], 10);
 
 	PutDrawText(&gPrepUnitTexts[5], TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 0), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Manage Skills");
-	PutDrawText(&gPrepUnitTexts[6], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 4), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Units");
-	PutDrawText(&gPrepUnitTexts[7], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 2), TEXT_COLOR_SYSTEM_WHITE, 0, 0, "Skills");
+	PutDrawText(&gPrepUnitTexts[6], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 3), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Units");
+	PutDrawText(&gPrepUnitTexts[7], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 3), TEXT_COLOR_SYSTEM_GOLD, 0, 0, "Skills");
 
 	WmSkillMenu_DrawSkillScreen(proc);
 	WmSkillMenu_DrawSelection(proc);
@@ -267,6 +268,7 @@ static void WmSkillMenu_ClampListCursor(struct WmSkillMenuProc *proc)
 static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 {
 	int redrawList = 0;
+	int redrawSkill = 0;
 
 	WmSkillMenu_DrawUnitList(proc);
 
@@ -288,6 +290,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 				proc->listCursor--;
 				WmSkillMenu_ClampListCursor(proc);
 				redrawList = 1;
+				redrawSkill = 1;
 				WmSkillMenu_RefreshHelp(proc);
 				PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 			}
@@ -298,6 +301,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 				proc->listCursor++;
 				WmSkillMenu_ClampListCursor(proc);
 				redrawList = 1;
+				redrawSkill = 1;
 				WmSkillMenu_RefreshHelp(proc);
 				PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 			}
@@ -308,6 +312,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 
 			proc->mode = WM_SKILL_MODE_SKILL_SCREEN;
 			proc->iconCursor = 0;
+			redrawSkill = 1;
 			PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 
 			if (skillCount > 0) {
@@ -332,6 +337,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 				}
 				else {
 					proc->mode = WM_SKILL_MODE_LIST;
+					redrawSkill = 1;
 					WmSkillMenu_CloseHoverHelp();
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 					WmSkillMenu_OpenUnitHelp(proc);
@@ -341,6 +347,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			if (gKeyStatusPtr->newKeys & DPAD_RIGHT) {
 				if (skillCount > 0) {
 					proc->iconCursor++;
+					redrawSkill = 1;
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 					WmSkillMenu_RefreshHelp(proc);
 				}
@@ -349,6 +356,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			if (gKeyStatusPtr->newKeys & DPAD_UP) {
 				if (proc->iconCursor >= WM_SKILL_ICON_COLS) {
 					proc->iconCursor -= WM_SKILL_ICON_COLS;
+					redrawSkill = 1;
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 					WmSkillMenu_RefreshHelp(proc);
 				}
@@ -356,6 +364,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
 				if (proc->iconCursor + WM_SKILL_ICON_COLS < skillCount) {
 					proc->iconCursor += WM_SKILL_ICON_COLS;
+					redrawSkill = 1;
 					PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 					WmSkillMenu_RefreshHelp(proc);
 				}
@@ -380,7 +389,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 			WM_SKILL_VISIBLE_COUNT);
 	}
 
-	if (proc->mode != WM_SKILL_MODE_LIST)
+	if (redrawSkill || proc->mode == WM_SKILL_MODE_SKILL_SCREEN)
 		WmSkillMenu_DrawSkillScreen(proc);
 
 	WmSkillMenu_DrawSelection(proc);
@@ -422,11 +431,14 @@ static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 {
 	ProcPtr wmProc;
 
+	Proc_EndEach(ProcScr_SlidingWallBg);
     WmSkillMenu_CloseHoverHelp();
     EndAllProcChildren(proc);
     FillWorldMapBg3();
     gGMData.units[0].id = gSavedWorldMapUnitId;
     gGMData.sprite_disp = 1;
+	gGMData.xCamera = gSavedWorldMapXCoordiate;
+	gGMData.yCamera = gSavedWorldMapYCoordiate;
     ClearBg0Bg1();
 	SetDefaultColorEffects();
 
@@ -473,11 +485,10 @@ void StartWMNodeSkillMenu(struct MenuProc *menuProc)
 void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc)
 {
 	// Reset camera position to (0, 0) to prevent weird scrolling behavior during the transition
-	// Will need to store the original camera position and restore it after the transition if we want to support opening the skill menu while the camera is scrolled away from the origin
+	gSavedWorldMapXCoordiate = gGMData.xCamera;
+	gSavedWorldMapYCoordiate = gGMData.yCamera;
 	gGMData.xCamera = 0;
 	gGMData.yCamera = 0;
-	gSavedWorldMapUnitId = gGMData.units[0].id;
-	HideGmUnit(0); // Hide world map unit, will need to restore later
     ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
 	Proc_StartBlocking(ProcScr_WMNodeSkillMenuTransition, wmProc);
 }

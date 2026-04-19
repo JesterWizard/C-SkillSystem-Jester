@@ -209,7 +209,6 @@ struct WmSkillMenuTransitionProc {
 #define WM_SKILL_VISIBLE_COUNT 5
 #define WM_SKILL_ICON_COLS 4
 #define WM_SKILL_ICON_MAX 12
-#define SKILL_ICON(sid) ((5 << 8) + (sid))
 
 enum {
 	WM_SKILL_MODE_LIST = 0,
