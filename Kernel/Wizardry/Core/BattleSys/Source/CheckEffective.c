@@ -52,13 +52,15 @@ LYN_REPLACE_CHECK(IsItemEffectiveAgainst);
 bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 {
 	int i, jid;
+	const struct ItemData * item_data;
 	const u8* list;
 
 	if (!unit->pClassData)
 		return false;
 
 	jid = UNIT_CLASS_ID(unit);
-	list = GetItemEffectiveness(item);
+	item_data = GetItemData(ITEM_INDEX(item));
+	list = item_data->pEffectiveness;
 
     if (!list)
     {
@@ -71,9 +73,10 @@ bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
             {
                 if (GetItemHit(skillHolderUnit->items[i]) > 0 && CanUnitUseWeapon(skillHolderUnit, skillHolderUnit->items[i]))
                 {
-                    if (GetItemEffectiveness(skillHolderUnit->items[i]))
+					const u8 * newListItem = GetItemData(ITEM_INDEX(skillHolderUnit->items[i]))->pEffectiveness;
+
+					if (newListItem)
                     {
-                        FORCE_DECLARE const u8 * newListItem = GetItemEffectiveness(skillHolderUnit->items[i]);
                         for (i = 0; newListItem[i]; i++)
                             if (newListItem[i] == jid)
                                 goto check_null_effective;
@@ -95,8 +98,6 @@ bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 
 	for (i = 0; list[i]; i++)
 	{
-		// JESTER - I've Added a print statement to break a softlock that occurs with all my custom staves. No I don't understand why it happens either.
-		NoCashGBAPrint("Breaking out of custom stave softlock");
 		if (list[i] == jid)
 		{
 			goto check_null_effective;
