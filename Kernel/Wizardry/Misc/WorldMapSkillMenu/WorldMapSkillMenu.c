@@ -8,7 +8,9 @@
 #include "jester_headers/custom-structs.h"
 
 enum {
-	CUSTOM_PROC_PRESS_B = 0,
+	CUSTOM_PROC_PRESS_A = 0,
+	CUSTOM_PROC_PRESS_B = 1,
+	CUSTOM_PROC_IDLE = 2,
 };
 
 extern u8 gSavedWorldMapUnitId;
@@ -171,6 +173,11 @@ static void WmSkillMenu_RefreshHelp(struct WmSkillMenuProc *proc)
 		WmSkillMenu_OpenSkillHelp(proc);
 }
 
+static void WmSkillMenu_StartSelectedSkillScreen(struct WmSkillMenuProc *proc)
+{
+	StartWorldMapSelectSkillScreen((struct MenuProc *)proc, proc->startSkillScreen);
+}
+
 static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 {
 	gSavedWorldMapUnitId = gGMData.units[0].id;
@@ -321,6 +328,17 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 
 		if (gKeyStatusPtr->newKeys & R_BUTTON)
 			WmSkillMenu_OpenUnitHelp(proc);
+
+		if (gKeyStatusPtr->newKeys & A_BUTTON) {
+			bool helpBoxWasOpen = WmSkillMenu_HelpBoxActive();
+
+			WmSkillMenu_CloseHoverHelp();
+			proc->startSkillScreen = proc->listCursor;
+			Proc_Goto(proc, CUSTOM_PROC_PRESS_A);
+
+			if (helpBoxWasOpen)
+				WmSkillMenu_OpenUnitHelp(proc);
+		}
 	}
 	else {
 		if (proc->mode == WM_SKILL_MODE_SKILL_SCREEN) {
@@ -463,7 +481,15 @@ const struct ProcCmd ProcScr_WMNodeSkillMenu[] = {
 	PROC_CALL(WmSkillMenu_InitGraphics),
 	PROC_CALL_ARG(NewFadeIn, 0x10),
 	PROC_WHILE(FadeInExists),
+
+PROC_LABEL(CUSTOM_PROC_IDLE),
 	PROC_REPEAT(WmSkillMenu_Loop),
+PROC_LABEL(CUSTOM_PROC_PRESS_A),
+	PROC_CALL_ARG(NewFadeOut, 0x10),
+	PROC_WHILE(FadeOutExists),
+	PROC_CALL(WmSkillMenu_StartSelectedSkillScreen),
+	PROC_YIELD,
+	PROC_GOTO(CUSTOM_PROC_IDLE),
 PROC_LABEL(CUSTOM_PROC_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
@@ -487,6 +513,11 @@ static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
 }
 
 void StartWMNodeSkillMenu(struct MenuProc *menuProc)
+{
+	StartWMNodeSkillMenuCore(menuProc);
+}
+
+void StartWorldMapSkillMenu(struct MenuProc *menuProc)
 {
 	StartWMNodeSkillMenuCore(menuProc);
 }

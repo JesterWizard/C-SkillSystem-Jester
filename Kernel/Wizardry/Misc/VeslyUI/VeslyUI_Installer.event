@@ -59,49 +59,47 @@ ALIGN 4
 Img_EfxRightItemBox_Fenreir:
 #incbin "png/Fenreir/Fenreir_RightItem.dmp" 
 
+
+// GAMMA
 ALIGN 4 
 Img_08801C14_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_Battle.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_Battle.png" --lz77
 ALIGN 4 
 Img_EfxLeftNameBox_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_Left.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_Left.png" --lz77
 ALIGN 4 
 Img_EfxLeftItemBox_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_LeftItem.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_LeftItem.png" --lz77
 ALIGN 4 
 Img_EfxRightNameBox_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_Right.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_Right.png" --lz77
 ALIGN 4 
 Img_EfxRightItemBox_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_RightItem.dmp" 
-
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_RightItem.png" --lz77
 ALIGN 4 
 gUiFrameImage_Gamma:
-#incbin "png/HyperGammaSpaces/Gamma_Main.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_Main.png" --lz77
 ALIGN 4
 MenuTilesPalette_Gamma:
 #incbin "png/HyperGammaSpaces/Gamma_MenuPal.pal"
-
 ALIGN 4 
 gPrepExtra1_Gamma: 
-#incbin "png/HyperGammaSpaces/Gamma_Preps.dmp" 
-
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_Preps.png" --lz77
 ALIGN 4 
 gPrepUseGfx_Gamma: 
-#incbin "png/HyperGammaSpaces/Gamma_PrepsUseGfx.dmp" 
-
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_PrepsUseGfx.png" --lz77
 ALIGN 4 
 Img_ShopGoldBox_Gamma: 
-#incbin "png/HyperGammaSpaces/Gamma_ShopGoldDisplay.dmp" 
-
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_ShopGoldDisplay.png" --lz77
 ALIGN 4 
 gPrepItemGfx_Gamma: 
-#incbin "png/HyperGammaSpaces/Gamma_PrepItems.dmp" 
-
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_PrepItems.png" --lz77
 ALIGN 4 
 Gamma_PrepPopupWindow:
-#incbin "png/HyperGammaSpaces/Gamma_PrepPopupWindow.dmp" 
+#incext Png2Dmp "png/HyperGammaSpaces/Gamma_PrepPopupWindow.png" --lz77
 
+
+// PIKMIN
 ALIGN 4 
 gUiFrameImage_Pikmin:
 #incbin "png/Pikmin/PikminMain.dmp" 

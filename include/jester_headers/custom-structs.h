@@ -200,6 +200,7 @@ struct WmSkillMenuProc {
 	/* 30 */ u8 unitCount;
 	/* 31 */ u8 hoveredSkill;
 	/* 32 */ u16 hoveredHelp;
+    /* 34 */ u8 startSkillScreen;
 };
 
 struct WmSkillMenuTransitionProc {

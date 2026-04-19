@@ -11,6 +11,9 @@
 
 STATIC_DECLAR void ProcPrepSkill2_OnEnd(struct ProcPrepSkill2 *proc)
 {
+	if (Proc_Find(ProcScr_WorldMapMain) != NULL)
+		StartWorldMapSkillMenu((struct MenuProc *)proc->proc_parent);
+
 	PrepSetLatestCharId(proc->unit->pCharacterData->number);
 	EndGreenText();
 	EndPrepSkillObj();
@@ -499,6 +502,25 @@ void StartPrepSelectSkillScreen(struct ProcPrepSkill1 *pproc)
 	EndAllParallelWorkers();
 	proc = Proc_StartBlocking(ProcScr_PrepSkillSkillSel, pproc);
 	proc->unit = GetUnitFromPrepList(pproc->list_num_cur);
+	proc->hand_pos = POS_R;
+	proc->hand_x = 0;
+	proc->hand_y = 0;
+	proc->left_line = 0;
+	proc->right_line = 0;
+	proc->scroll = PREP_SKILL2_SCROLL_NOPE;
+
+	ResetPrepEquipSkillList();
+	EndHelpPromptSprite();
+}
+
+void StartWorldMapSelectSkillScreen(struct MenuProc *parent, int unitIndex)
+{
+	struct ProcPrepSkill2 *proc;
+
+	EndAllParallelWorkers();
+	EndAllProcChildren(parent);
+	proc = Proc_StartBlocking(ProcScr_PrepSkillSkillSel, parent);
+	proc->unit = GetUnitFromPrepList(unitIndex);
 	proc->hand_pos = POS_R;
 	proc->hand_x = 0;
 	proc->hand_y = 0;

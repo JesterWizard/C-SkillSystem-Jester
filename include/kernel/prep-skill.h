@@ -52,6 +52,8 @@ enum ProcPrepSkill2Label {
 };
 
 void StartPrepSelectSkillScreen(struct ProcPrepSkill1 *pproc);
+void StartWorldMapSelectSkillScreen(struct MenuProc *parent, int unitIndex);
+void StartWorldMapSkillMenu(struct MenuProc *menuProc);
 
 extern u8  const *const gpGfx_PrepPickSkillScreen;
 extern u8  const *const gpGfx_PrepSkillScreen;
