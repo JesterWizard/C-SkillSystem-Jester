@@ -268,6 +268,13 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_SkillStaff,
 		.prep_effect    = NULL,
 	},
+	[IER_STAFF_AGAIN] = {
+		.usability      = IER_Usability_Again,
+		.prep_usability = NULL,
+		.effect         = IER_Effect_Again,
+		.action_effect  = IER_Action_Again,
+		.prep_effect    = NULL,
+	},
 	[IER_STAFF_ARBALEST] = {
 		.usability      = IER_Usability_Arbalest,
 		.prep_usability = NULL,

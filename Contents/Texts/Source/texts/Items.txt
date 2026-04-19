@@ -301,6 +301,15 @@ Select an adjacent ally.[X]
 ## MSG_ITEM_SKILL_STAFF_SKILL_SUBTITLE
 Select a skill to learn.[X]
 
+## MSG_ITEM_AGAIN_STAFF_NAME
+Again[X]
+## MSG_ITEM_AGAIN_STAFF_DESC
+Refresh an adjacent ally[N]
+so they can act again.[X]
+## MSG_ITEM_AGAIN_STAFF_USEDESC
+Select an adjacent ally[N]
+to refresh.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

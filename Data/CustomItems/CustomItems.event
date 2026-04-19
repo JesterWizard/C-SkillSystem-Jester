@@ -16,6 +16,7 @@
 #include "SlowStaff/Installer.event"
 #include "ForgeStaff/Installer.event"
 #include "RewarpStaff/Installer.event"
+#include "AgainStaff/Installer.event"
 #include "AumStaff/Installer.event"
 #include "ArbalestStaff/Installer.event"
 #include "PhoenixStaff/Installer.event"
