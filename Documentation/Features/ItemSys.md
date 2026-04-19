@@ -24,7 +24,7 @@ CSkillSys supports the similar functionality as [teraspark' IER hack](https://fe
 
 3. Custom tonic items that store a chapter-scoped stat bonus per unit and reuse the stat getter pipeline.
 
-   See the tonic documentation in [docs/Jester_Documents/Tonics.md](Jester_Documents/Tonics.md).
+   See the tonic documentation in [docs/Features/Tonics.md](Features/Tonics.md).
 
 4. A new version of the vulnerary that heals off a given value set in item data.
 

@@ -63,14 +63,14 @@ The important rule is that the visible menu entry and the config-backed behavior
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Menu order | `gGameOptionsUiOrder_NEW` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Defines the order and membership of the configuration menu. |
-| Menu data | `gGameOptions_NEW` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Defines titles, selectors, icons, and handlers for each option. |
-| Row title rendering | `GetGameOptionRowTitle` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the title string for the selected option. |
-| Row help rendering | `GetGameOptionRowHelpText` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the help text for the selected option value. |
-| Row value rendering | `GetGameOptionRowValueText` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the value label shown in the menu. |
-| Input handling | `GenericOptionChangeHandler` and `MusicOptionChangeHandler` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Applies the player’s selection changes. |
-| Config storage | `SetGameOption`, `GetGameOption`, and `InitPlayConfig` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Reads, writes, and initializes the persistent config values. |
-| Menu drawing | `DrawGameOptionIcon`, `DrawGameOptionText`, `DrawOptionValueTexts`, and `DrawConfigUiSprites` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Jester_Documents/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Renders the visible menu rows, icons, and cursor state. |
+| Menu order | `gGameOptionsUiOrder_NEW` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Defines the order and membership of the configuration menu. |
+| Menu data | `gGameOptions_NEW` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Defines titles, selectors, icons, and handlers for each option. |
+| Row title rendering | `GetGameOptionRowTitle` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the title string for the selected option. |
+| Row help rendering | `GetGameOptionRowHelpText` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the help text for the selected option value. |
+| Row value rendering | `GetGameOptionRowValueText` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Returns the value label shown in the menu. |
+| Input handling | `GenericOptionChangeHandler` and `MusicOptionChangeHandler` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Applies the player’s selection changes. |
+| Config storage | `SetGameOption`, `GetGameOption`, and `InitPlayConfig` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Reads, writes, and initializes the persistent config values. |
+| Menu drawing | `DrawGameOptionIcon`, `DrawGameOptionText`, `DrawOptionValueTexts`, and `DrawConfigUiSprites` in [Kernel/Wizardry/Common/MenuOptions/MenuOptions.c](../Features/Kernel/Wizardry/Common/MenuOptions/MenuOptions.c) | Renders the visible menu rows, icons, and cursor state. |
 
 ## TODO
 

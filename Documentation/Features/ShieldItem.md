@@ -9,7 +9,7 @@ The shield can be understood as a physical shield, but it can also be seen as a 
 
 Additionally, it can be set to consume the shield item only when a hit is not missed.
 
-![image](./gfx/Shield_Patch.png)
+![image](./Images/Shield_Patch.png)
 
 Shield item config can be set via FEB patch: `Shield item config`, The configurable contents are as follows:
 

@@ -5,7 +5,7 @@ description: "Use when creating or updating project documentation in the same ar
 
 # Documentation Style Docs
 
-Create markdown documentation that mirrors the structure, tone, and readability patterns used in `docs/Jester_Documents/FogStages.md`.
+Create markdown documentation that mirrors the structure, tone, and readability patterns used in `docs/Features/FogStages.md`.
 
 ## Use This Skill When
 

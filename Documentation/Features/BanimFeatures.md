@@ -1,11 +1,11 @@
 
 # 1. Custom banim switcher
 
-![gfx](./gfx/BanimFeatures_1.gif)
+![gfx](./Images/BanimFeatures_1.gif)
 
 Thanks to in-depth research on combo-attacks, the animation switching technology developed from it can be further extended to broader scenarios, such as allowing players to customize the playback of special animations in specific situations.
 
-![gfx](./gfx/BanimFeatures_2.png)
+![gfx](./Images/BanimFeatures_2.png)
 
 Banims could be custom swiched to other by patch "**Csustom banim switcher**", The configurable contents are as follows:
 

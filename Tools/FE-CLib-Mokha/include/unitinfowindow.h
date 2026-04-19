@@ -48,5 +48,4 @@ void RefreshUnitTakeInfoWindows(struct Unit*);
 void StartUnitGiveInfoWindows(ProcPtr);
 void RefreshUnitGiveInfoWindows(struct Unit*);
 
-
 #endif // GUARD_UNITINFOWINDOW_H
