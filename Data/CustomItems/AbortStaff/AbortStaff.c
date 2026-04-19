@@ -3,17 +3,19 @@
 #include "battle-system.h"
 #include "constants/items.h"
 #include "constants/texts.h"
+#include "bmarch.h"
 #include "bmitemuse.h"
 #include "bmtarget.h"
+#include "bmudisp.h"
 #include "jester_headers/custom-functions.h"
-#include "menu_def.h"
 #include "mapanim.h"
+#include "menu_def.h"
 #include "proc.h"
 #include "vanilla.h"
 
-#define AGAIN_STAFF_EXP 30
+#define ABORT_STAFF_EXP 30
 
-static void AgainStaff_Exec(ProcPtr proc)
+static void AbortStaff_Exec(ProcPtr proc)
 {
 	struct Unit *unit = GetUnit(gActionData.subjectIndex);
 	struct Unit *target = GetUnit(gActionData.targetIndex);
@@ -25,14 +27,16 @@ static void AgainStaff_Exec(ProcPtr proc)
 	BattleInitItemEffectTarget(target);
 	BattleApplyItemEffect(proc);
 
-	target->state &= ~(US_UNSELECTABLE | US_HAS_MOVED | US_HAS_MOVED_AI);
+	TryRemoveUnitFromBallista(target);
+	HideUnitSprite(target);
+	target->state |= US_HIDDEN;
 
 	RefreshEntityBmMaps();
 	RenderBmMap();
 	RefreshUnitSprites();
 }
 
-static void AgainStaff_Anim(ProcPtr proc)
+static void AbortStaff_Anim(ProcPtr proc)
 {
 	PlaySoundEffect(0x269);
 	Proc_StartBlocking(ProcScr_DanceringAnim, proc);
@@ -43,12 +47,12 @@ static void AgainStaff_Anim(ProcPtr proc)
 		-SCREEN_TILE_IX(gActiveUnit->yPos - 2));
 }
 
-static bool AgainStaff_IsAnimRunning(ProcPtr proc)
+static bool AbortStaff_IsAnimRunning(ProcPtr proc)
 {
 	return Proc_Exists(ProcScr_DanceringAnim);
 }
 
-static void AgainStaff_ShowExpBar(ProcPtr proc)
+static void AbortStaff_ShowExpBar(ProcPtr proc)
 {
 	int expGain = gBattleActor.expGain;
 
@@ -68,41 +72,41 @@ static void AgainStaff_ShowExpBar(ProcPtr proc)
 	barProc->actorId = 0;
 }
 
-static bool AgainStaff_ExpBarRunning(ProcPtr proc)
+static bool AbortStaff_ExpBarRunning(ProcPtr proc)
 {
 	return Proc_Exists(ProcScr_MapAnimExpBar);
 }
 
-STATIC_DECLAR const struct ProcCmd ProcScr_AgainStaff[] = {
-	PROC_CALL(AgainStaff_Exec),
-	PROC_CALL(AgainStaff_Anim),
-	PROC_WHILE(AgainStaff_IsAnimRunning),
-	PROC_CALL(AgainStaff_ShowExpBar),
-	PROC_WHILE(AgainStaff_ExpBarRunning),
+static const struct ProcCmd ProcScr_AbortStaff[] = {
+	PROC_CALL(AbortStaff_Anim),
+	PROC_WHILE(AbortStaff_IsAnimRunning),
+	PROC_CALL(AbortStaff_Exec),
+	PROC_CALL(AbortStaff_ShowExpBar),
+	PROC_WHILE(AbortStaff_ExpBarRunning),
 	PROC_END,
 };
 
-bool IER_Usability_Again(struct Unit *unit, int item)
+bool IER_Usability_Abort(struct Unit *unit, int item)
 {
 	if (unit->state & US_CANTOING)
 		return false;
 
-	return HasSelectTarget(unit, MakeTargetListForRefresh);
+	return HasSelectTarget(unit, MakeTargetListForAdjacentSameFaction);
 }
 
-void IER_Effect_Again(struct Unit *unit, int item)
+void IER_Effect_Abort(struct Unit *unit, int item)
 {
-	gActionData.unk08 = ITEM_STAFF_AGAIN;
+	gActionData.unk08 = ITEM_STAFF_ABORT;
 	gActionData.subjectIndex = unit->index;
 	SetStaffUseAction(unit);
 
-	MakeTargetListForRefresh(unit);
+	MakeTargetListForAdjacentSameFaction(unit);
 	StartSubtitleHelp(
 		NewTargetSelection_Specialized(&gSelectInfo_Dance, StaffSelectOnSelect),
-		GetStringFromIndex(MSG_ITEM_AGAIN_STAFF_USEDESC));
+		GetStringFromIndex(MSG_ITEM_ABORT_STAFF_USEDESC));
 }
 
-void IER_Action_Again(ProcPtr proc, struct Unit *unit, int item)
+void IER_Action_Abort(ProcPtr proc, struct Unit *unit, int item)
 {
-	Proc_StartBlocking(ProcScr_AgainStaff, proc);
+	Proc_StartBlocking(ProcScr_AbortStaff, proc);
 }

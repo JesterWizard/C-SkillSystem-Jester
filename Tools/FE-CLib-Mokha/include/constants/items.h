@@ -254,6 +254,7 @@ enum {
     ITEM_STAFF_SKILL       = 0xDD,
     ITEM_TONIC             = 0xDF,
     ITEM_STAFF_AGAIN       = 0xE0,
+    ITEM_STAFF_ABORT       = 0xE1,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H
