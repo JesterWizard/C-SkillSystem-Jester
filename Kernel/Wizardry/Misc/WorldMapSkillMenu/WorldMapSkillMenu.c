@@ -18,7 +18,6 @@ extern u8 gSavedWorldMapXCoordiate;
 extern u8 gSavedWorldMapYCoordiate;
 
 static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
-static void FillWorldMapBg3(void);
 
 static int WmSkillMenu_GetUnitCount(void)
 {
@@ -201,6 +200,7 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 
 	ResetFaces();
 	ResetText();
+	ResetUnitSprites();
 	ResetIconGraphics_();
 	LoadUiFrameGraphics();
 	LoadObjUIGfx();
@@ -422,38 +422,6 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 	WmSkillMenu_DrawSelection(proc);
 }
 
-extern u8 gUnknown_08A83364[];
-extern u16 gUnknown_08A95FE4[];
-extern u16 gUnknown_08A96064[];
-
-void FillWorldMapBg3(void)
-{
-    int i;
-
-    // Clear BG3 tilemap buffer
-    BG_Fill(gBG3TilemapBuffer, 0);
-
-    // Copy the full worldmap tile graphics into BG3 VRAM
-    for (i = 0; i < 0x20; i++)
-    {
-        CpuFastCopy(
-            gUnknown_08A83364 + (i * 0x780),
-            (void *)(0x06008000 + (i * 0x400)),
-            0x400);
-    }
-
-    // Copy the palettemap into the BG3 map buffer
-    Decompress(gUnknown_08A96064, gUnknown_020087A0);
-
-    // If you want to apply palettes like the original worldmap init
-    ApplyPalettes(gUnknown_08A95FE4, 9, 4);
-    EnablePaletteSync();
-
-    // Reset BG3 position
-    BG_SetPosition(BG_3, 0, 0);
-    BG_EnableSyncByMask(BG3_SYNC_BIT);
-}
-
 static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 {
 	ProcPtr wmProc;
@@ -461,7 +429,7 @@ static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 	Proc_EndEach(ProcScr_SlidingWallBg);
     WmSkillMenu_CloseHoverHelp();
     EndAllProcChildren(proc);
-    FillWorldMapBg3();
+	WorldMap_Init(GM_MAIN);
     gGMData.units[0].id = gSavedWorldMapUnitId;
     gGMData.sprite_disp = 1;
 	gGMData.xCamera = gSavedWorldMapXCoordiate;
