@@ -3,6 +3,11 @@
 #include "skill-system.h"
 #include "constants/skills.h"
 
+static inline bool IsRecoverLikeStatus(int status)
+{
+	return status == UNIT_STATUS_RECOVER || status == NEW_UNIT_STATUS_RENEWAL;
+}
+
 LYN_REPLACE_CHECK(MapAnim_BeginRoundSpecificAnims);
 void MapAnim_BeginRoundSpecificAnims(ProcPtr proc)
 {
@@ -25,7 +30,7 @@ void MapAnim_BeginRoundSpecificAnims(ProcPtr proc)
 
 	gManimSt.hp_changing = 1;
 
-	if (gManimSt.actor[0].unit->statusIndex == UNIT_STATUS_RECOVER)
+	if (IsRecoverLikeStatus(gManimSt.actor[0].unit->statusIndex))
 		RegisterMapHpChangeAnim(map_actor, -gManimSt.hitDamage);
     else
     {
@@ -77,7 +82,7 @@ void MapAnim_BeginRoundSpecificAnims(ProcPtr proc)
 			MapAnim_BeginWallBreakAnim(gManimSt.actor[map_target].unit, 0);
 		}
 	} else {
-		if (gManimSt.actor[0].unit->statusIndex == UNIT_STATUS_RECOVER)
+		if (IsRecoverLikeStatus(gManimSt.actor[0].unit->statusIndex))
 			sfx = 0x3C9;
 		else {
 			sfx = 0xD2;

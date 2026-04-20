@@ -11,7 +11,7 @@ LYN_REPLACE_CHECK(StatusDecayDisplay_Display);
 void StatusDecayDisplay_Display(struct UnknownBMUSAilmentProc *proc)
 {
 	struct SelectTarget *target = GetTarget(proc->unk_4C);
-	struct Unit *unit = GetUnit(gActionData.subjectIndex);
+	struct Unit *unit = GetUnit(target->uid);
 	int status = GetUnitStatusIndex(unit);
 
 	proc->unk_58 = status;
