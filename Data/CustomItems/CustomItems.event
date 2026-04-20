@@ -18,6 +18,7 @@
 #include "RewarpStaff/Installer.event"
 #include "AgainStaff/Installer.event"
 #include "AbortStaff/Installer.event"
+#include "WhiteWind/Installer.event"
 #include "AumStaff/Installer.event"
 #include "ArbalestStaff/Installer.event"
 #include "PhoenixStaff/Installer.event"

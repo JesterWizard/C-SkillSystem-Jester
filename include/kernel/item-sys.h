@@ -49,6 +49,7 @@ enum chax_ierevamp_use_effects {
 	IER_STAFF_SKILL,
 	IER_STAFF_AGAIN,
 	IER_STAFF_ABORT,
+	IER_STAFF_WHITE_WIND,
 	IER_STAFF_ARBALEST,
 
 

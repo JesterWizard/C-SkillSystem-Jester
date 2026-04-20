@@ -319,6 +319,16 @@ out of the map.[X]
 Select an adjacent ally[N]
 to remove from the map.[X]
 
+## MSG_ITEM_WHITE_WIND_STAFF_NAME
+White Wind[X]
+## MSG_ITEM_WHITE_WIND_STAFF_DESC
+Restore an adjacent ally's[N]
+HP by the caster's max HP.[X]
+## MSG_ITEM_WHITE_WIND_STAFF_USEDESC
+Select an adjacent[N]
+ally to restore[N]
+HP to.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

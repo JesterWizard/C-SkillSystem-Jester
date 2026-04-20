@@ -44,6 +44,13 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_Restore,
 		.prep_effect    = NULL,
 	},
+	[IER_STAFF_WHITE_WIND] = {
+		.usability      = IER_Usability_AdjacentHeal,
+		.prep_usability = NULL,
+		.effect         = IER_Effect_AdjacentHeal,
+		.action_effect  = IER_Action_StandardHeal,
+		.prep_effect    = NULL,
+	},
 	[IER_STAFF_SILENCE] = {
 		.usability      = IER_Usability_Silence,
 		.prep_usability = NULL,
