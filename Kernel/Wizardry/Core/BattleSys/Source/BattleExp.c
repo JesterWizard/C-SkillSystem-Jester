@@ -65,6 +65,7 @@ int StaffEXP(int weapon)
     case ITEM_STAFF_AGAIN:
     case ITEM_STAFF_ABORT:
     case ITEM_STAFF_WHITE_WIND:
+    case ITEM_STAFF_GREEN_WIND:
         exp = 30;
         break;
     case ITEM_STAFF_RESCUE:

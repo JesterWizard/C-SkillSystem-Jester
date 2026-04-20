@@ -329,6 +329,16 @@ Select an adjacent[N]
 ally to restore[N]
 HP to.[X]
 
+## MSG_ITEM_GREEN_WIND_STAFF_NAME
+Green Wind[X]
+## MSG_ITEM_GREEN_WIND_STAFF_DESC
+Restore an adjacent ally's[N]
+MP by the caster's max MP.[X]
+## MSG_ITEM_GREEN_WIND_STAFF_USEDESC
+Select an adjacent[N]
+ally to restore[N]
+MP to.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

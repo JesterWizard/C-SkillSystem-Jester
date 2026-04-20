@@ -50,6 +50,7 @@ enum chax_ierevamp_use_effects {
 	IER_STAFF_AGAIN,
 	IER_STAFF_ABORT,
 	IER_STAFF_WHITE_WIND,
+	IER_STAFF_GREEN_WIND,
 	IER_STAFF_ARBALEST,
 
 
@@ -261,6 +262,7 @@ IER_DECLEARE_Usability(IER_Usability_SkillStaff);
 IER_DECLEARE_Usability(IER_Usability_Again);
 IER_DECLEARE_Usability(IER_Usability_Abort);
 IER_DECLEARE_Usability(IER_Usability_Arbalest);
+IER_DECLEARE_Usability(IER_Usability_GreenWind);
 IER_DECLEARE_Usability(IER_Usability_Tonic);
 
 IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
@@ -298,6 +300,7 @@ IER_DECLEARE_Effect(IER_Effect_SkillStaff);
 IER_DECLEARE_Effect(IER_Effect_Again);
 IER_DECLEARE_Effect(IER_Effect_Abort);
 IER_DECLEARE_Effect(IER_Effect_Arbalest);
+IER_DECLEARE_Effect(IER_Effect_GreenWind);
 
 IER_DECLEARE_Action(IER_Action_StandardHeal);
 IER_DECLEARE_Action(IER_Action_StatusStaff);
@@ -340,6 +343,7 @@ IER_DECLEARE_Action(IER_Action_SkillStaff);
 IER_DECLEARE_Action(IER_Action_Again);
 IER_DECLEARE_Action(IER_Action_Abort);
 IER_DECLEARE_Action(IER_Action_Arbalest);
+IER_DECLEARE_Action(IER_Action_GreenWind);
 
 IER_DECLEARE_PrepEffect(IER_PrepEffect_StatBooster);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Promotion);
