@@ -433,6 +433,8 @@ void EditWExpInit(DebuggerProc* proc);
 void EditWExpIdle(DebuggerProc* proc);
 void EditSkillsInit(DebuggerProc* proc);
 void EditSkillsIdle(DebuggerProc* proc);
+void EditBwlStatsInit(DebuggerProc* proc);
+void EditBwlStatsIdle(DebuggerProc* proc);
 void EditSupportsInit(DebuggerProc* proc);
 void EditSupportsIdle(DebuggerProc* proc);
 void EditBgmInit(DebuggerProc* proc);
@@ -466,14 +468,15 @@ u8 CanActiveUnitPromote(void);
 #define ChStateLabel 15
 #define WExpLabel 16
 #define SkillsLabel 17
-#define SupportLabel 18
-#define LoopLabel 19
-#define BgmLabel 20
-#define BackgroundLabel 21
-#define PortraitLabel 22
-#define TrapViewLabel 23
-#define SupplyLabel 24
-#define ListLabel 25
+#define BwlStatsLabel 18
+#define SupportLabel 19
+#define LoopLabel 20
+#define BgmLabel 21
+#define BackgroundLabel 22
+#define PortraitLabel 23
+#define TrapViewLabel 24
+#define SupplyLabel 25
+#define ListLabel 26
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -599,6 +602,11 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_CALL(EditSkillsInit),
     PROC_REPEAT(EditSkillsIdle), 
     PROC_GOTO(EndLabel), 
+
+    PROC_LABEL(BwlStatsLabel), // BWL
+    PROC_CALL(EditBwlStatsInit),
+    PROC_REPEAT(EditBwlStatsIdle),
+    PROC_GOTO(EndLabel),
 
     PROC_LABEL(SupportLabel), // Supports
     PROC_CALL(EditSupportsInit),
@@ -1715,6 +1723,190 @@ void EditSupportsInit(DebuggerProc* proc) {
         }
     }
     RedrawUnitSupportsMenu(proc);
+}
+
+enum {
+    BWL_STAT_CURRENT_MP,
+    BWL_STAT_MAX_MP,
+    BWL_STAT_LAGUZ_BAR,
+    BWL_STAT_SKILL_POINTS,
+    BWL_STAT_COUNT,
+};
+
+#define BwlStatsWidth 10
+
+static const char *const sBwlStatNames[BWL_STAT_COUNT] = {
+    "Cur. MP",
+    "Max MP",
+    "Laguz",
+    "SP",
+};
+
+static void RedrawUnitBwlStatsMenu(DebuggerProc* proc)
+{
+    struct Text *th = gStatScreen.text;
+    int x = NUMBER_X - BwlStatsWidth;
+
+    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X - 2, Y_HAND), 9, 2 * BWL_STAT_COUNT, 0);
+
+    for (int i = 0; i < BWL_STAT_COUNT; ++i) {
+        ClearText(&th[i]);
+        Text_DrawString(&th[i], sBwlStatNames[i]);
+        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND + (i * 2)));
+        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i * 2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]);
+    }
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+void EditBwlStatsInit(DebuggerProc* proc)
+{
+    struct Unit *unit;
+    struct NewBwl *bwl;
+    struct Text *th;
+    int x;
+    int y;
+    int w;
+    int h;
+
+    SomeMenuInit(proc);
+
+    unit = proc->unit;
+    bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+
+    proc->tmp[BWL_STAT_CURRENT_MP] = bwl ? bwl->currentMP : 0;
+    proc->tmp[BWL_STAT_MAX_MP] = bwl ? bwl->maxMP : 0;
+    proc->tmp[BWL_STAT_LAGUZ_BAR] = bwl ? bwl->laguzBar : 0;
+    proc->tmp[BWL_STAT_SKILL_POINTS] = bwl ? bwl->skillPoints : 0;
+
+    x = NUMBER_X - BwlStatsWidth - 1;
+    y = Y_HAND - 1;
+    w = BwlStatsWidth + (START_X - NUMBER_X) + 3;
+    h = (BWL_STAT_COUNT * 2) + 2;
+
+    DrawUiFrame(BG_GetMapBuffer(1), x, y, w, h, TILEREF(0, 0), 0);
+
+    th = gStatScreen.text;
+    for (int i = 0; i < 15; ++i) {
+        InitText(&th[i], BwlStatsWidth);
+        Text_DrawString(&th[i], "");
+    }
+
+    RedrawUnitBwlStatsMenu(proc);
+}
+
+static void SaveBwlStats(DebuggerProc* proc)
+{
+    struct Unit *unit = proc->unit;
+    struct NewBwl *bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+
+    if (!bwl)
+        return;
+
+    bwl->currentMP = proc->tmp[BWL_STAT_CURRENT_MP];
+    bwl->maxMP = proc->tmp[BWL_STAT_MAX_MP];
+    bwl->laguzBar = proc->tmp[BWL_STAT_LAGUZ_BAR];
+    bwl->skillPoints = proc->tmp[BWL_STAT_SKILL_POINTS];
+}
+
+void EditBwlStatsIdle(DebuggerProc* proc)
+{
+    u16 keys = sKeyStatusBuffer.repeatedKeys;
+
+    if (keys & B_BUTTON) {
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if ((keys & START_BUTTON) || (keys & A_BUTTON)) {
+        SaveBwlStats(proc);
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return;
+    }
+
+    if (proc->editing) {
+        int max = 255;
+        int min = 0;
+        int max_digits = GetMaxDigits(max, 0);
+
+        DisplayVertUiHand(CursorLocationTable[proc->digit].x, (Y_HAND + (proc->id * 2)) * 8);
+
+        if (keys & DPAD_RIGHT) {
+            if (proc->digit > 0)
+                proc->digit--;
+            else {
+                proc->digit = max_digits - 1;
+                proc->editing = false;
+            }
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+
+        if (keys & DPAD_LEFT) {
+            if (proc->digit < (max_digits - 1))
+                proc->digit++;
+            else {
+                proc->digit = 0;
+                proc->editing = false;
+            }
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+
+        if (keys & DPAD_UP) {
+            if (proc->tmp[proc->id] == max)
+                proc->tmp[proc->id] = min;
+            else {
+                proc->tmp[proc->id] += DigitDecimalTable[proc->digit];
+                if (proc->tmp[proc->id] > max)
+                    proc->tmp[proc->id] = max;
+            }
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+
+        if (keys & DPAD_DOWN) {
+            if (proc->tmp[proc->id] == min)
+                proc->tmp[proc->id] = max;
+            else {
+                proc->tmp[proc->id] -= DigitDecimalTable[proc->digit];
+                if (proc->tmp[proc->id] < min)
+                    proc->tmp[proc->id] = min;
+            }
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+    } else {
+        DisplayUiHand(CursorLocationTable[0].x - ((BwlStatsWidth + 2) * 8), (Y_HAND + (proc->id * 2)) * 8);
+
+        if (keys & DPAD_RIGHT) {
+            proc->digit = 1;
+            proc->editing = true;
+        }
+
+        if (keys & DPAD_LEFT) {
+            proc->digit = 0;
+            proc->editing = true;
+        }
+
+        if (keys & DPAD_UP) {
+            proc->id--;
+            if (proc->id < 0)
+                proc->id = BWL_STAT_COUNT - 1;
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+
+        if (keys & DPAD_DOWN) {
+            proc->id++;
+            if (proc->id >= BWL_STAT_COUNT)
+                proc->id = 0;
+
+            RedrawUnitBwlStatsMenu(proc);
+        }
+    }
 }
 
 void RedrawUnitSupportsMenu(DebuggerProc* proc) {
@@ -4303,6 +4495,12 @@ u8 EditSkillsNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	DebuggerProc* proc; 
 	proc = Proc_Find(DebuggerProcCmd); 
     Proc_Goto(proc, SkillsLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+u8 EditBwlStatsNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+    DebuggerProc* proc;
+    proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, BwlStatsLabel);
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 

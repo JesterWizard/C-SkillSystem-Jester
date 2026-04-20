@@ -106,6 +106,7 @@ MenuCommand1(BackgroundMenuText, BackgroundMenuDesc, NormalText, MenuAlwaysEnabl
 MenuCommand1(PortraitMenuText, PortraitMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewPortraitNow)
 MenuCommand1(TrapMenuText, TrapMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewTrapNow)
 MenuCommand1(SupplyMenuText, SupplyMenuDesc, NormalText, CanViewSupplyMenu, DebuggerMenuItemDraw, ViewSupplyNow)
+MenuCommand1(BwlMenuText, BwlMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, EditBwlStatsNow)
 MenuCommand1(PageText, PageDesc, NormalText, MenuAlwaysEnabled, PageMenuItemDraw, PageIncrementNow) // sprite draw assumes always on the bottom 
 #ifdef DEBUG_SKILL_EDIT_INCLUDED 
 //MenuCommand(EditSkillsText,EditSkillsDesc, OrangeText, $04F449,DebuggerMenuItemDraw, SkillDebugCommand_OnSelect)
@@ -168,6 +169,12 @@ EditSkillsText:
 EditSkillsDesc:
     String("Edit a unit's"); NL
     String("learned skills."); EndText 
+
+BwlMenuText:
+    String(" BWL"); EndText
+BwlMenuDesc:
+    String("Edit BWL bytes for"); NL
+    String("MP, laguz, and SP."); EndText
 
 GodmodeText:
     String(" Godmode off"); EndText 
