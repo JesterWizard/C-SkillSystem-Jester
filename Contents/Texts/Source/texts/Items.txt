@@ -339,6 +339,15 @@ Select an adjacent[N]
 ally to restore[N]
 MP to.[X]
 
+## MSG_ITEM_KIRIN_STAFF_NAME
+Kirin[X]
+## MSG_ITEM_KIRIN_STAFF_DESC
+Bestow Renewal on allied[N]
+units in a 3x3 area.[X]
+## MSG_ITEM_KIRIN_STAFF_USEDESC
+Select a tile to bestow[N]
+Renewal in a 3x3 area.[X]
+
 ## MSG_ITEM_POISON_STAFF_NAME
 Poison[X]
 ## MSG_ITEM_POISON_STAFF_DESC

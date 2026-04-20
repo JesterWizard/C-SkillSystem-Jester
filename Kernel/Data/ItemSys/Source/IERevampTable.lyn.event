@@ -213,6 +213,11 @@ WORD $0
 POIN IER_Effect_GreenWind
 POIN IER_Action_GreenWind
 WORD $0
+POIN IER_Usability_Kirin
+WORD $0
+POIN IER_Effect_Kirin
+POIN IER_Action_Kirin
+WORD $0
 POIN IER_Usability_Arbalest
 WORD $0
 POIN IER_Effect_Arbalest
@@ -415,7 +420,7 @@ POIN IER_PrepUsability_ArmsScroll
 WORD $0
 POIN IER_ActionEffect_ArmsScroll
 POIN IER_PrepEffect_ArmsScroll
-WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
+WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
 POIN IER_Usability_Tonic
 POIN IER_Usability_Tonic
 WORD $0

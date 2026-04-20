@@ -58,6 +58,13 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_GreenWind,
 		.prep_effect    = NULL,
 	},
+	[IER_STAFF_KIRIN] = {
+		.usability      = IER_Usability_Kirin,
+		.prep_usability = NULL,
+		.effect         = IER_Effect_Kirin,
+		.action_effect  = IER_Action_Kirin,
+		.prep_effect    = NULL,
+	},
 	[IER_STAFF_SILENCE] = {
 		.usability      = IER_Usability_Silence,
 		.prep_usability = NULL,

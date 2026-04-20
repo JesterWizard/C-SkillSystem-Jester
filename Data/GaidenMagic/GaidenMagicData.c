@@ -13,6 +13,7 @@ const u8 gGaidenWeaponCostList[0x100] = {
 	[ITEM_STAFF_HEAL] = 2,
 	[ITEM_STAFF_WHITE_WIND] = 8,
 	[ITEM_STAFF_GREEN_WIND] = 8,
+	[ITEM_STAFF_KIRIN] = 8,
 	[ITEM_STAFF_PHYSIC] = 5,
 	[ITEM_STAFF_SLEEP] = 5,
 	[ITEM_STAFF_LATONA] = 10,
@@ -35,6 +36,7 @@ struct GaidenPinfoConfig const gGaidenPinfoConfigList[0x100] = {
 		{ 1, ITEM_STAFF_BERSERK },
 		{ 1, ITEM_STAFF_PHYSIC },
 		{ 1, ITEM_STAFF_GREEN_WIND },
+		{ 1, ITEM_STAFF_KIRIN },
 		{ 0 }
 	}},
 	[CHARACTER_NATASHA] = { .ent = (const struct GaidenPinfoConfigEnt []) {

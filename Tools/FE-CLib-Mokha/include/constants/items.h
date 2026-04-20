@@ -257,6 +257,7 @@ enum {
     ITEM_STAFF_ABORT       = 0xE1,
     ITEM_STAFF_WHITE_WIND  = 0xE2,
     ITEM_STAFF_GREEN_WIND  = 0xE3,
+    ITEM_STAFF_KIRIN       = 0xE4,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H
