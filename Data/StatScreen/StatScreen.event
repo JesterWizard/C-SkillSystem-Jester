@@ -9,6 +9,10 @@ ALIGN 4
 NewPageNamePalette:
     #incbin "Data/palettecycler.bin"
 
+ALIGN 4
+Pal_PresitgeStar: #incext Png2Dmp "Data/Gfx_Prestige_Star.png" --palette-only
+Gfx_PrestigeStar: #incext Png2Dmp "Data/Gfx_Prestige_Star.png" --lz77
+
 /* Text colors */
 ALIGN 4
 ExpandedTextPals:

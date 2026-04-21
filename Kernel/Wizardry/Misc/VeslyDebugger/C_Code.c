@@ -1730,6 +1730,7 @@ enum {
     BWL_STAT_MAX_MP,
     BWL_STAT_LAGUZ_BAR,
     BWL_STAT_SKILL_POINTS,
+    BWL_STAT_PRESTIGE,
     BWL_STAT_COUNT,
 };
 
@@ -1740,6 +1741,7 @@ static const char *const sBwlStatNames[BWL_STAT_COUNT] = {
     "Max MP",
     "Laguz",
     "SP",
+    "Prestige",
 };
 
 static void RedrawUnitBwlStatsMenu(DebuggerProc* proc)
@@ -1778,6 +1780,7 @@ void EditBwlStatsInit(DebuggerProc* proc)
     proc->tmp[BWL_STAT_MAX_MP] = bwl ? bwl->maxMP : 0;
     proc->tmp[BWL_STAT_LAGUZ_BAR] = bwl ? bwl->laguzBar : 0;
     proc->tmp[BWL_STAT_SKILL_POINTS] = bwl ? bwl->skillPoints : 0;
+    proc->tmp[BWL_STAT_PRESTIGE] = bwl ? bwl->prestigeAmt : 0;
 
     x = NUMBER_X - BwlStatsWidth - 1;
     y = Y_HAND - 1;
@@ -1807,6 +1810,7 @@ static void SaveBwlStats(DebuggerProc* proc)
     bwl->maxMP = proc->tmp[BWL_STAT_MAX_MP];
     bwl->laguzBar = proc->tmp[BWL_STAT_LAGUZ_BAR];
     bwl->skillPoints = proc->tmp[BWL_STAT_SKILL_POINTS];
+    bwl->prestigeAmt = proc->tmp[BWL_STAT_PRESTIGE];
 }
 
 void EditBwlStatsIdle(DebuggerProc* proc)
@@ -1827,7 +1831,7 @@ void EditBwlStatsIdle(DebuggerProc* proc)
     }
 
     if (proc->editing) {
-        int max = 255;
+        int max = (proc->id == BWL_STAT_PRESTIGE) ? 3 : 255;
         int min = 0;
         int max_digits = GetMaxDigits(max, 0);
 

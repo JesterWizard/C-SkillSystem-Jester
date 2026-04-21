@@ -3,6 +3,7 @@
 #include "skill-system.h"
 #include "strmag.h"
 #include "shield.h"
+#include "kernel-lib.h"
 #include "constants/skills.h"
 #include "bwl.h"
 #include "debuff.h"
@@ -37,6 +38,13 @@ STATIC_DECLAR int GetUnitCommonGrowthBonus(int status, struct Unit* unit)
 		}
 	}
 #endif
+
+	if (gpKernelDesignerConfig->prestige) {
+		struct NewBwl *bwl = GetNewBwl(UNIT_CHAR_ID(unit));
+
+		if (bwl)
+			new += 10 * bwl->prestigeAmt;
+	}
 
 /* This must come last */
 #if defined(SID_NecroCopy) && (COMMON_SKILL_VALID(SID_NecroCopy))
@@ -95,11 +103,6 @@ int GetUnitMagGrowthBonus(int status, struct Unit* unit)
 	status = GetUnitCommonGrowthBonus(status, unit);
 	status = GetUnitMagGrowthJobBonus(status, unit);
 	status = MagGrowthGetterShield(status, unit);
-
-#if defined(SID_DarkHorse) && (COMMON_SKILL_VALID(SID_DarkHorse))
-	if (SkillTester(unit, SID_DarkHorse))
-		status = status + GetUnitMagic(unit);
-#endif
 
 #if defined(SID_KnackMagic) && (COMMON_SKILL_VALID(SID_KnackMagic))
 	if (SkillTester(unit, SID_KnackMagic))

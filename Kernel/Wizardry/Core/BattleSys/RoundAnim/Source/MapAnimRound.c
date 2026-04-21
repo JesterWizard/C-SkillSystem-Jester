@@ -2,6 +2,7 @@
 #include <battle-system.h>
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "debuff.h"
 
 static inline bool IsRecoverLikeStatus(int status)
 {

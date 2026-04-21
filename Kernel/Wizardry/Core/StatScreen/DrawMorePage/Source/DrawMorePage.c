@@ -2,12 +2,40 @@
 #include "icon-rework.h"
 #include "stat-screen.h"
 #include "skill-system.h"
+#include "bwl.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 
 extern u16 const *const *const gpSprites_PageNameRework;
 extern u16 const *const gpPageNameChrOffsetLutRe;
 extern u16 const *const gpPageNamePaletteRe;
+
+extern const u16 Pal_PresitgeStar[];
+extern const u8 Gfx_PrestigeStar[];
+
+STATIC_DECLAR void DisplayPrestigeStars(void)
+{
+    struct NewBwl *bwl = GetNewBwl(UNIT_CHAR_ID(gStatScreen.unit));
+    int starCount;
+
+    if (!bwl)
+        return;
+
+    if (bwl->prestigeAmt == 0)
+        return;
+
+    starCount = bwl->prestigeAmt;
+    if (starCount > 3)
+        starCount = 3;
+
+    Decompress(Gfx_PrestigeStar, gGenericBuffer);
+    Copy2dChr(gGenericBuffer, (void*)0x6016880, 2, 2);
+    ApplyPalette(Pal_PresitgeStar, 1);
+
+    for (int i = 0; i < starCount; i++) {
+        PutSprite(4, 45 + i * 16, 98, gObject_16x16, TILEREF(0x344, 0x0));
+    }
+}
 
 LYN_REPLACE_CHECK(DisplayPageNameSprite);
 void DisplayPageNameSprite(int pageid)
@@ -304,6 +332,9 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
 		gStatScreen.xDispOff + 64,
 		gStatScreen.yDispOff + 131,
 		gObject_32x16, TILEREF(0x28F, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3));
+
+    // Display pretiget stars
+    DisplayPrestigeStars();
 
     if (gpKernelDesignerConfig->tellius_skill_capacity_system == true) // (gPlaySt.config.skill_capacity == 0)
     {

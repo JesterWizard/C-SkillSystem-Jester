@@ -26,6 +26,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `menu_skill_ai_use` | Allows enemies to use menu skills during AI phase after combat and healing logic finishes. |
 | `rescue_drop_ai_use` | Allows enemies to use rescue and drop as a retreat tool when an adjacent ally is below half HP. |
 | `start_map_effects` | Enables the pre-phase Start Map Effects menu and its related hooks. |
+| `prestige` | Enables the Prestige system's unit-menu command, the +10% growth bonus per prestige, and the Prestige stars on the left stat-screen page. |
 | `gaiden_magic_skill_extensions` | Wizardry option that enables `gGaidenChaxConfigs` checks. |
 | `auto_narrow_font` | Converts ASCII text to narrow font when displaying skill descriptions, skill names, and menu items. |
 | `skill_sub_menu_width` | Sets the width of the action menu's Skills submenu. |

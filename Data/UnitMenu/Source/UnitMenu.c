@@ -39,6 +39,8 @@ u8 pr_AttackCommandUsabilityFix(const struct MenuItemDef *def, int number);
 u8 pr_AttackBallistaCommandUsabilityFix(const struct MenuItemDef *def, int number);
 int pr_AttackActionCommandHoverFix(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int pr_AttackActionCommandUnhoverFix(struct MenuProc *menu, struct MenuItemProc *menuItem);
+u8 PrestigeCommandUsability(const struct MenuItemDef *def, int number);
+u8 PrestigeCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
 
 LYN_REPLACE_CHECK(WeaponSelectMenu_IsAvailable);
 u8 WeaponSelectMenu_IsAvailable(const struct MenuItemDef* def, int number) {
@@ -275,6 +277,7 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　道具屋", 0x686, 0x6D0, 0, 0x60, VendorCommandUsability, 0, VendorCommandEffect, 0, 0, 0}, //Vendor >
 	{"　秘密店", 0x687, 0x6D1, 0, 0x61, SecretShopCommandUsability, 0, SecretShopCommandEffect, 0, 0, 0}, //SecretShop >
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
+	{" Prestige", 0, 0, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
 	{"　救出", 0x689, 0x6C5, 0, 0x63, RescueUsability, 0, RescueEffect, 0, 0, 0}, // Rescue >
 #ifdef CONFIG_MOKHA_AOE
 	{"", GambitAssemblyName, GambitSelectMenu_Desc, TEXT_COLOR_SYSTEM_GREEN, 0, GambitSelectMenu_Usability, 0, GambitSelectMenu_Effect, 0, GambitSelectMenu_Hover, GambitSelectMenu_Unhover},

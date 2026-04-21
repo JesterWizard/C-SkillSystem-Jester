@@ -1,6 +1,8 @@
 #include "common-chax.h"
 #include "stat-screen.h"
+#include "kernel-lib.h"
 #include "lvup.h"
+#include "bwl.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 
@@ -207,6 +209,9 @@ LYN_REPLACE_CHECK(DisplayLeftPanel);
 void DisplayLeftPanel(void)
 {
     int unitNameIndex = UNIT_NAME_ID(gStatScreen.unit);
+    if (!gpKernelDesignerConfig->prestige)
+        return;
+
     char * namestr = GetStringFromIndex(unitNameIndex);
 
 #if (defined(SID_IdentityProblems) && (COMMON_SKILL_VALID(SID_IdentityProblems)))

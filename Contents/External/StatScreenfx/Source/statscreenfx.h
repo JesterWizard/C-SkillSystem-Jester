@@ -36,3 +36,6 @@ extern u16 const *const gpPal_StatScreenUI;
 
 extern u8 const *const gpImg_StatScreenUIRed;
 extern u16 const *const gpPal_StatScreenUIRed;
+
+extern u8 const *const Pal_PrestigeStar;
+extern u8 const *const Gfx_PrestigeStar;

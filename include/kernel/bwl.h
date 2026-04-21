@@ -6,10 +6,11 @@
 
 struct NewBwl {
 	/* vanilla */
-	u32 battleAmt : 12;
-	u32 winAmt    : 11;
-	u32 lossAmt   : 8;
-	u32 levelGain : 9;
+	u32 battleAmt   : 12;
+	u32 winAmt      : 11;
+	u32 lossAmt     : 8;
+	u32 levelGain   : 6;
+	u32 prestigeAmt : 3;
 
 	/* bwl support */
 	u8 supports[UNIT_SUPPORT_MAX_COUNT];

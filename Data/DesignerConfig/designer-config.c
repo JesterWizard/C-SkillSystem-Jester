@@ -147,4 +147,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.start_map_effects = false,
 	.world_map_thought_bubbles = true,
 	.ai_player_phase = false,
+	.prestige = true,
 };

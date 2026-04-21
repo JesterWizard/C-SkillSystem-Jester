@@ -9,6 +9,7 @@ struct KernelDesigerConfig {
 	u8 gen_new_scroll;
 	u8 max_equipable_skill;
 	u8 remove_move_path;
+	u8 prestige;
 	u8 use_chinese_character;
 	u8 show_tutorial;
 	u8 engage_combo_attack;
