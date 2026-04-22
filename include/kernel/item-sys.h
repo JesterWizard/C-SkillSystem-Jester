@@ -119,6 +119,7 @@ enum chax_ierevamp_use_effects {
 	IER_UNK_GREENNOTE,
 	IER_UNK_REDNOTE,
 	IER_JUNAFRUIT,
+	IER_RARE_CANDY,
 
 	IER_CHAX_STAFF_LATONA,
 	IER_CHAX_SKILL_SCROLL,
@@ -243,6 +244,7 @@ IER_DECLEARE_Usability(IER_Usability_StaffTorch);
 IER_DECLEARE_Usability(IER_Usability_DanceRing);
 IER_DECLEARE_Usability(IER_Usability_MetisStone);
 IER_DECLEARE_Usability(IER_Usability_JunaFruit);
+IER_DECLEARE_Usability(IER_Usability_RareCandy);
 IER_DECLEARE_Usability(IER_Usability_NightMare);
 IER_DECLEARE_Usability(IER_Usability_Slow);
 IER_DECLEARE_Usability(IER_Usability_Forge);
@@ -329,6 +331,7 @@ IER_DECLEARE_Action(IER_Action_LightRune);
 IER_DECLEARE_Action(IER_Action_TorchStaff);
 IER_DECLEARE_Action(IER_Action_DanceRing);
 IER_DECLEARE_Action(IER_Action_JunaFruitItem);
+IER_DECLEARE_Action(IER_Action_RareCandyItem);
 IER_DECLEARE_Action(IER_Action_CustomStaves);
 IER_DECLEARE_Action(IER_Action_Rewarp);
 IER_DECLEARE_Action(IER_Action_Poison);
@@ -352,6 +355,7 @@ IER_DECLEARE_Action(IER_Action_Kirin);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_StatBooster);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Promotion);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_JunaFruit);
+IER_DECLEARE_PrepEffect(IER_PrepEffect_RareCandy);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_Tonic);
 
 IER_DECLEARE_Usability(IER_Usability_SkillScroll);

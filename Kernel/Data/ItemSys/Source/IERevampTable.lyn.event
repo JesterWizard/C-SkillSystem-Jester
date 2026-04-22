@@ -401,6 +401,10 @@ POIN IER_Usability_JunaFruit
 WORD $0 $0
 POIN IER_Action_JunaFruitItem
 POIN IER_PrepEffect_JunaFruit
+POIN IER_Usability_RareCandy
+WORD $0 $0
+POIN IER_Action_RareCandyItem
+POIN IER_PrepEffect_RareCandy
 POIN IER_Usability_Latona
 WORD $0
 POIN IER_Effect_CommonStaff
@@ -420,7 +424,7 @@ POIN IER_PrepUsability_ArmsScroll
 WORD $0
 POIN IER_ActionEffect_ArmsScroll
 POIN IER_PrepEffect_ArmsScroll
-WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
+WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
 POIN IER_Usability_Tonic
 POIN IER_Usability_Tonic
 WORD $0

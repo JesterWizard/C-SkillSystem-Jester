@@ -2726,6 +2726,17 @@ const struct ItemData gItemData_New[255] = {
 		.iconId = 0xdd,
 		.useEffectId = IER_JUNAFRUIT,
 	},
+	[ITEM_RARE_CANDY] = {
+		.nameTextId = MSG_ITEM_RARE_CANDY_NAME,
+		.descTextId = MSG_ITEM_RARE_CANDY_DESC,
+		.useDescTextId = MSG_ITEM_RARE_CANDY_USEDESC,
+		.number = ITEM_RARE_CANDY,
+		.weaponType = ITYPE_ITEM,
+		.maxUses = 1,
+		.encodedRange = 0x11,
+		.iconId = 0xdd,
+		.useEffectId = IER_RARE_CANDY,
+	},
 	[ITEM_150G] = {
 		.nameTextId = 0x3fe,
 		.descTextId = 0x4a1,

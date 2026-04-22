@@ -2,10 +2,41 @@
 #include "item-sys.h"
 #include "unit-expa.h"
 #include "battle-system.h"
+#include "mapanim.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 
 extern struct ProcCmd CONST_DATA ProcScr_WorldMapMain[];
+
+static bool RareCandy_CanUse(struct Unit *unit)
+{
+	struct BattleUnit battleUnit;
+
+	if (!UNIT_IS_VALID(unit))
+		return false;
+
+	if (unit->state & US_CANTOING)
+		return false;
+
+	if (UNIT_FACTION(unit) != FACTION_BLUE)
+		return false;
+
+	if (unit->exp == UNIT_EXP_DISABLED)
+		return false;
+
+	InitBattleUnit(&battleUnit, unit);
+	return CanBattleUnitGainLevels(&battleUnit);
+}
+
+static void RareCandy_ExecItem(struct Unit *unit, int itemSlot)
+{
+	if (!RareCandy_CanUse(unit))
+		return;
+
+	AddExp_Event(100);
+
+	UnitUpdateUsedItem(&gBattleActor.unit, itemSlot);
+}
 
 static bool CustomStavesEnabled(void)
 {
@@ -176,6 +207,11 @@ bool IER_Usability_MetisStone(struct Unit *unit, int item)
 bool IER_Usability_JunaFruit(struct Unit *unit, int item)
 {
 	return CanUnitUseFruitItem(unit);
+}
+
+bool IER_Usability_RareCandy(struct Unit *unit, int item)
+{
+	return RareCandy_CanUse(unit);
 }
 
 bool IER_Usability_Tonic(struct Unit *unit, int item)
@@ -590,6 +626,15 @@ void IER_Action_JunaFruitItem(ProcPtr proc, struct Unit *unit, int item)
 	ExecJunaFruitItem(proc);
 }
 
+void IER_Action_RareCandyItem(ProcPtr proc, struct Unit *unit, int item)
+{
+	RareCandy_ExecItem(unit, gActionData.itemSlotIndex);
+
+	RefreshEntityBmMaps();
+	RenderBmMap();
+	RefreshUnitSprites();
+}
+
 void IER_Action_CustomStaves(ProcPtr proc, struct Unit *unit, int item)
 {
 	ExecCustomStaves(proc);
@@ -617,6 +662,11 @@ void IER_PrepEffect_Promotion(struct ProcPrepItemUse *proc, u16 item)
 void IER_PrepEffect_JunaFruit(struct ProcPrepItemUse *proc, u16 item)
 {
 	Proc_Goto(proc, PROC_LABEL_PREPITEMUSE_EXEC_JUNA);
+}
+
+void IER_PrepEffect_RareCandy(struct ProcPrepItemUse *proc, u16 item)
+{
+	RareCandy_ExecItem(proc->unit, proc->slot);
 }
 
 void IER_PrepEffect_Tonic(struct ProcPrepItemUse *proc, u16 item)

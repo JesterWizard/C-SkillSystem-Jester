@@ -253,6 +253,8 @@ void PrepItemUseBooster_OnInit(struct ProcPrepItemUseBooster *proc)
 	int i, item, msg;
 	struct ProcPrepItemUse *parent = proc->proc_parent;
 
+	item = parent->unit->items[parent->slot];
+
 	StartManimLevelUpStatGainLabels(0x1C0, 3, 0, proc);
 
 	proc->status_pre[0] = GetUnitCurrentHp(parent->unit);
@@ -263,8 +265,6 @@ void PrepItemUseBooster_OnInit(struct ProcPrepItemUseBooster *proc)
 	proc->status_pre[5] = SpdGetter(parent->unit);
 	proc->status_pre[6] = DefGetter(parent->unit);
 	proc->status_pre[7] = ResGetter(parent->unit);
-
-	item = parent->unit->items[parent->slot];
 
 	msg = ApplyStatBoostItem(parent->unit, parent->slot);
 

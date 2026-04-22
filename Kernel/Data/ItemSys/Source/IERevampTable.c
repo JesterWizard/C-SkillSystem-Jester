@@ -623,6 +623,13 @@ struct IERevamp const IERevampTable[IER_MAX] = {
 		.action_effect  = IER_Action_JunaFruitItem,
 		.prep_effect    = IER_PrepEffect_JunaFruit,
 	},
+	[IER_RARE_CANDY] = {
+		.usability      = IER_Usability_RareCandy,
+		.prep_usability = NULL,
+		.effect         = NULL,
+		.action_effect  = IER_Action_RareCandyItem,
+		.prep_effect    = IER_PrepEffect_RareCandy,
+	},
 	[IER_CHAX_STAFF_LATONA] = {
 		.usability      = IER_Usability_Latona,
 		.prep_usability = NULL,

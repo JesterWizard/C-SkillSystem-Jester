@@ -202,6 +202,13 @@ Boosts all stats by +2 for a single map.[X]
 Boosts all stats by +2[N]
 for a single map.[X]
 
+## MSG_ITEM_RARE_CANDY_NAME
+Rare Candy[X]
+## MSG_ITEM_RARE_CANDY_DESC
+Gain +100 EXP.[X]
+## MSG_ITEM_RARE_CANDY_USEDESC
+Gain +100 EXP.[X]
+
 ## MSG_ITEM_SLOW_STAFF_NAME
 Slow[X]
 ## MSG_ITEM_SLOW_STAFF_DESC
