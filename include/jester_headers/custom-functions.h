@@ -246,3 +246,5 @@ extern int ResTonic(struct Unit *unit);
 extern int OmniTonic(struct Unit *unit);
 
 extern void WorldMap_CenterCamera(ProcPtr proc, int nodeid);
+
+extern void StartUiGoldBox_New(int x, int y, ProcPtr parent);

@@ -1,6 +1,7 @@
 #include "gbafe.h" 
 #include "bmshop.h"
 #include "kernel-lib.h"
+#include "jester_headers/custom-functions.h"
 
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
@@ -1056,6 +1057,22 @@ void StartUiGoldBox(ProcPtr parent)
 
     InitGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 28, 6));
     DisplayGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6));
+}
+
+void StartUiGoldBox_New(int x, int y, ProcPtr parent)
+{
+    struct ProcShop * proc;
+
+    Decompress(GetUiGoldBox(), OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
+
+    proc = Proc_Start(gProcScr_GoldBox, parent);
+    proc->goldbox_x = x;
+    proc->goldbox_y = y;
+    proc->goldbox_oam2 = OBJ_PALETTE(OBJPAL_SHOP_GOLDBOX) + OBJ_CHAR(OBJCHR_SHOP_GOLDBOX);
+
+    int id = GetUIPalID();
+    const u16 * pal = sUiPalLookup[id][gPlaySt.config.windowColor];
+    ApplyPalette(pal, 0x10 + OBJPAL_SHOP_GOLDBOX);
 }
 
 LYN_REPLACE_CHECK(DisplayExtendedSysHand);

@@ -166,6 +166,12 @@ Purchase skills using[N]
 the selected unit's[N]
 skill points.[X]
 
+## MSG_WM_SKILL_SHOP_DIALOGUE
+Welcome to my[N]
+humble aboad.[A][CR][LF]
+Do you want to buy anything?[N]
+[Yes][X]
+
 ## MSG_WM_MANAGE_SKILLS_CHOOSE_UNIT
 Manage Skills Choose Unit[X]
 
