@@ -64,7 +64,33 @@ static u8 WorldMapSkillShop_GetUnitSkillPoints(struct Unit *unit)
 static void WorldMapSkillShop_CloseHelp(void)
 {
     if (Proc_Find(gProcScr_HelpBox) != NULL)
+    {
         CloseHelpBox();
+        StartUiGoldBox_New(160, 45, 4, NULL);
+    }
+}
+
+static bool WorldMapSkillShop_HelpBoxActive(void)
+{
+    return Proc_Find(gProcScr_HelpBox) != NULL;
+}
+
+static void WorldMapSkillShop_ShowHelp(struct WorldMapSkillShopProc *proc)
+{
+    u16 sid = sWorldMapSkillShopSkillIds[proc->cursor];
+    int row = proc->cursor - proc->listTop;
+
+    LoadHelpBoxGfx(NULL, 2);
+    StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
+    StartUiGoldBox_New(160, 45, 4, proc);
+}
+
+static void WorldMapSkillShop_RefreshHelp(struct WorldMapSkillShopProc *proc)
+{
+    if (!WorldMapSkillShop_HelpBoxActive())
+        return;
+
+    WorldMapSkillShop_ShowHelp(proc);
 }
 
 static void WorldMapSkillShop_ClampCursor(struct WorldMapSkillShopProc *proc)
@@ -90,7 +116,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
     for (i = 0; i < WM_SKILL_SHOP_TEXT_COUNT; ++i)
         ClearText(&gPrepUnitTexts[i]);
 
-    StartUiGoldBox_New(160, 45, proc);
+    StartUiGoldBox_New(160, 45, 4, proc);
 
     DrawUiFrame2(3, 8, 23, 12, 0);
 
@@ -141,10 +167,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
 
 static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
 {
-    u16 sid = sWorldMapSkillShopSkillIds[proc->cursor];
-    int row = proc->cursor - proc->listTop;
-
-    StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
+    WorldMapSkillShop_ShowHelp(proc);
 }
 
 static bool WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
@@ -272,7 +295,11 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
 static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
 {
     if (gKeyStatusPtr->newKeys & B_BUTTON) {
-        WorldMapSkillShop_CloseHelp();
+        if (WorldMapSkillShop_HelpBoxActive()) {
+            WorldMapSkillShop_CloseHelp();
+            return;
+        }
+
         Proc_Break(proc);
         PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
         return;
@@ -282,8 +309,8 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
         if (proc->cursor > 0) {
             proc->cursor--;
             WorldMapSkillShop_ClampCursor(proc);
-            WorldMapSkillShop_CloseHelp();
             WorldMapSkillShop_Draw(proc);
+            WorldMapSkillShop_RefreshHelp(proc);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         }
     }
@@ -292,22 +319,25 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
         if (proc->cursor + 1 < WM_SKILL_SHOP_ITEM_COUNT) {
             proc->cursor++;
             WorldMapSkillShop_ClampCursor(proc);
-            WorldMapSkillShop_CloseHelp();
             WorldMapSkillShop_Draw(proc);
+            WorldMapSkillShop_RefreshHelp(proc);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         }
     }
 
     if (gKeyStatusPtr->newKeys & R_BUTTON) {
-        WorldMapSkillShop_CloseHelp();
         WorldMapSkillShop_OpenHelp(proc);
     }
 
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
+        bool helpWasActive = WorldMapSkillShop_HelpBoxActive();
+
         WorldMapSkillShop_CloseHelp();
 
         if (WorldMapSkillShop_TryPurchase(proc)) {
             WorldMapSkillShop_Draw(proc);
+            if (helpWasActive)
+                WorldMapSkillShop_RefreshHelp(proc);
             PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
         } else {
             PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);

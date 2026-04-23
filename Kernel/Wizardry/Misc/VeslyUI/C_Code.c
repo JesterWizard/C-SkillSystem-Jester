@@ -1059,7 +1059,7 @@ void StartUiGoldBox(ProcPtr parent)
     DisplayGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6));
 }
 
-void StartUiGoldBox_New(int x, int y, ProcPtr parent)
+void StartUiGoldBox_New(int x, int y, int palNum, ProcPtr parent)
 {
     struct ProcShop * proc;
 
@@ -1072,7 +1072,7 @@ void StartUiGoldBox_New(int x, int y, ProcPtr parent)
 
     int id = GetUIPalID();
     const u16 * pal = sUiPalLookup[id][gPlaySt.config.windowColor];
-    ApplyPalette(pal, 0x10 + OBJPAL_SHOP_GOLDBOX);
+    ApplyPalette(pal, 0x10 + palNum);
 }
 
 LYN_REPLACE_CHECK(DisplayExtendedSysHand);
