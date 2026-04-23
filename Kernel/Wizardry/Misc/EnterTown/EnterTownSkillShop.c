@@ -18,6 +18,7 @@ enum {
     WM_SKILL_SHOP_ITEM_COUNT = 7,
     WM_SKILL_SHOP_VISIBLE_COUNT = 5,
     WM_SKILL_SHOP_TEXT_COUNT = 2 + WM_SKILL_SHOP_VISIBLE_COUNT,
+    WM_SKILL_SHOP_TEXT_BASE = 0x0C,
 };
 
 struct WorldMapSkillShopProc {
@@ -66,7 +67,6 @@ static void WorldMapSkillShop_CloseHelp(void)
     if (Proc_Find(gProcScr_HelpBox) != NULL)
     {
         CloseHelpBox();
-        StartUiGoldBox_New(160, 45, 4, NULL);
     }
 }
 
@@ -82,7 +82,6 @@ static void WorldMapSkillShop_ShowHelp(struct WorldMapSkillShopProc *proc)
 
     LoadHelpBoxGfx(NULL, 2);
     StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
-    StartUiGoldBox_New(160, 45, 4, proc);
 }
 
 static void WorldMapSkillShop_RefreshHelp(struct WorldMapSkillShopProc *proc)
@@ -111,16 +110,18 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
     struct Unit *unit = WorldMapSkillShop_GetUnit(proc);
     u8 skillPoints = WorldMapSkillShop_GetUnitSkillPoints(unit);
 
+    SetTextFont(0);
+    InitSystemTextFont();
+
+    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 8), 23, 12, 0);
     BG_Fill(gBG1TilemapBuffer, 0);
 
     for (i = 0; i < WM_SKILL_SHOP_TEXT_COUNT; ++i)
-        ClearText(&gPrepUnitTexts[i]);
-
-    StartUiGoldBox_New(160, 45, 4, proc);
+        ClearText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + i]);
 
     DrawUiFrame2(3, 8, 23, 12, 0);
 
-    PutDrawText(&gPrepUnitTexts[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 6), TEXT_COLOR_SYSTEM_BLUE, 0, 0, "SP:");
+    PutDrawText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + 0], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 6), TEXT_COLOR_SYSTEM_BLUE, 0, 0, "SP:");
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 6), TEXT_COLOR_SYSTEM_BLUE, skillPoints);
 
     UpdateMenuScrollBarConfig(8, proc->listTop * 16, WM_SKILL_SHOP_ITEM_COUNT, WM_SKILL_SHOP_VISIBLE_COUNT);
@@ -149,7 +150,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
             TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
 
         PutDrawText(
-            &gPrepUnitTexts[1 + i],
+            &gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + 1 + i],
             TILEMAP_LOCATED(gBG0TilemapBuffer, 7, y),
             textColor,
             0,
@@ -162,7 +163,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
     if (proc->handEnabled)
         ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
 
-    BG_EnableSyncByMask(BG1_SYNC_BIT);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
 static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
@@ -197,9 +198,9 @@ static bool WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
         return false;
 
     bwl->skillPoints -= cost;
-    SetPopupUnit(unit);
-    SetPopupItem(sid);
-    NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
+    // SetPopupUnit(unit);
+    // SetPopupItem(sid);
+    // NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
 
     return true;
 }
@@ -222,6 +223,7 @@ static void WorldMapSkillShop_StartShopUi(struct WorldMapSkillShopProc *proc)
     StartMenuScrollBar(proc);
     PutMenuScrollBarAt(2 * 8, 76);
     InitMenuScrollBarImg(0x7A60, 5);
+    StartUiGoldBox_New(160, 45, 4, proc);
 
     WorldMapSkillShop_Draw(proc);
 }
@@ -289,7 +291,7 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     CallARM_FillTileRect(gBG3TilemapBuffer, Tsa_CommGameBgScreenInShop, OBJ_PALETTE(BGPAL_SHOP_MAINBG));
 
     for (int i = 0; i < WM_SKILL_SHOP_TEXT_COUNT; ++i)
-        InitText(&gPrepUnitTexts[i], 16);
+        InitText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + i], 16);
 }
 
 static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
