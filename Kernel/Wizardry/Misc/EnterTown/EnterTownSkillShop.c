@@ -37,7 +37,7 @@ static const u16 sWorldMapSkillShopSkillIds[WM_SKILL_SHOP_ITEM_COUNT] = {
 };
 
 static const u8 sWorldMapSkillShopSkillCosts[WM_SKILL_SHOP_ITEM_COUNT] = {
-    5, 10, 15, 20, 25, 30, 35,
+    250, 10, 15, 20, 25, 30, 35,
 };
 
 static struct Unit *WorldMapSkillShop_GetUnit(struct WorldMapSkillShopProc *proc)
@@ -84,6 +84,14 @@ static void WorldMapSkillShop_ShowHelp(struct WorldMapSkillShopProc *proc)
     StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
 }
 
+static bool WorldMapSkillShop_IsSkillListFull(struct Unit *unit)
+{
+    if (!UNIT_IS_VALID(unit))
+        return false;
+
+    return GetFreeSkillSlot(unit) == -1;
+}
+
 static void WorldMapSkillShop_RefreshHelp(struct WorldMapSkillShopProc *proc)
 {
     if (!WorldMapSkillShop_HelpBoxActive())
@@ -120,6 +128,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
         ClearText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + i]);
 
     DrawUiFrame2(3, 8, 23, 12, 0);
+    DrawUiFrame2(0, 0, 8, 8, 2); // Vendor frame
 
     PutDrawText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + 0], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 6), TEXT_COLOR_SYSTEM_BLUE, 0, 0, "SP:");
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 6), TEXT_COLOR_SYSTEM_BLUE, skillPoints);
@@ -141,7 +150,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
 
         if (unit && SkillTester(unit, sid))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
-        else if (skillPoints < cost)
+        else if (WorldMapSkillShop_IsSkillListFull(unit))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
 
         DrawIcon(
@@ -171,7 +180,7 @@ static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
     WorldMapSkillShop_ShowHelp(proc);
 }
 
-static bool WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
+static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
 {
     struct Unit *unit = WorldMapSkillShop_GetUnit(proc);
     struct NewBwl *bwl;
@@ -179,30 +188,40 @@ static bool WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
     u8 cost = sWorldMapSkillShopSkillCosts[proc->cursor];
 
     if (!UNIT_IS_VALID(unit))
-        return false;
+        return 0;
 
     if (!CheckHasBwl(UNIT_CHAR_ID(unit)))
-        return false;
+        return 0;
 
     bwl = GetNewBwl(UNIT_CHAR_ID(unit));
     if (!bwl)
-        return false;
+        return 0;
 
     if (SkillTester(unit, sid))
-        return false;
+        return 0;
 
     if (bwl->skillPoints < cost)
-        return false;
+    {
+        StartShopDialogue(MSG_WM_SKILL_SHOP_NO_FUNDS, (struct ProcShop *)proc);
+        Proc_Goto(proc, 1);
+        return -1;
+    }
+
+    if (WorldMapSkillShop_IsSkillListFull(unit)) {
+        StartShopDialogue(MSG_WM_SKILL_SHOP_NO_SPACE, (struct ProcShop *)proc);
+        Proc_Goto(proc, 1);
+        return -1;
+    }
 
     if (AddSkill(unit, sid) != 0)
-        return false;
+        return 0;
 
     bwl->skillPoints -= cost;
     // SetPopupUnit(unit);
     // SetPopupItem(sid);
     // NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
 
-    return true;
+    return 1;
 }
 
 static void WorldMapSkillShop_EntryDialogue(struct WorldMapSkillShopProc *proc)
@@ -286,6 +305,7 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     StartTalkFace(FID_SHOP_VENDOR, 32, 8, 3, 1);
     ApplyPalette(Pal_TalkBubble, 3);
 
+
     ApplyPalette(Pal_CommGameBgScreenInShop, BGPAL_SHOP_MAINBG);
     Decompress(Img_CommGameBgScreen, (void *)BG_VRAM + GetBackgroundTileDataOffset(BG_3));
     CallARM_FillTileRect(gBG3TilemapBuffer, Tsa_CommGameBgScreenInShop, OBJ_PALETTE(BGPAL_SHOP_MAINBG));
@@ -333,15 +353,18 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
 
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
         bool helpWasActive = WorldMapSkillShop_HelpBoxActive();
+        int purchaseResult;
 
         WorldMapSkillShop_CloseHelp();
 
-        if (WorldMapSkillShop_TryPurchase(proc)) {
+        purchaseResult = WorldMapSkillShop_TryPurchase(proc);
+
+        if (purchaseResult > 0) {
             WorldMapSkillShop_Draw(proc);
             if (helpWasActive)
                 WorldMapSkillShop_RefreshHelp(proc);
             PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-        } else {
+        } else if (purchaseResult == 0) {
             PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
         }
     }

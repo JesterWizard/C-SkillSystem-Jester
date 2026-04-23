@@ -172,6 +172,14 @@ humble aboad.[A][CR][LF]
 Do you want to buy anything?[N]
 [Yes][X]
 
+## MSG_WM_SKILL_SHOP_NO_SPACE
+Oops, looks like you've[N]
+run out of space.[X]
+
+## MSG_WM_SKILL_SHOP_NO_FUNDS
+Looks like you're out of[N]
+funds there, friend.[X]
+
 ## MSG_WM_MANAGE_SKILLS_CHOOSE_UNIT
 Manage Skills Choose Unit[X]
 
