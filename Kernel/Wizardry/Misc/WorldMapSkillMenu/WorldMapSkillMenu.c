@@ -13,10 +13,6 @@ enum {
 	CUSTOM_PROC_IDLE = 2,
 };
 
-extern u8 gSavedWorldMapUnitId;
-extern u8 gSavedWorldMapXCoordiate;
-extern u8 gSavedWorldMapYCoordiate;
-
 static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
 
 static int WmSkillMenu_GetUnitCount(void)

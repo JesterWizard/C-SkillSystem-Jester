@@ -24,7 +24,8 @@ extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
 
 enum {
     WM_SKILL_SHOP_ITEM_COUNT = 7,
-    WM_SKILL_SHOP_TEXT_COUNT = 2 + WM_SKILL_SHOP_ITEM_COUNT,
+    WM_SKILL_SHOP_VISIBLE_COUNT = 5,
+    WM_SKILL_SHOP_TEXT_COUNT = 2 + WM_SKILL_SHOP_VISIBLE_COUNT,
 };
 
 struct WorldMapSkillShopProc {
@@ -75,6 +76,18 @@ static void WorldMapSkillShop_CloseHelp(void)
         CloseHelpBox();
 }
 
+static void WorldMapSkillShop_ClampCursor(struct WorldMapSkillShopProc *proc)
+{
+    if (proc->cursor >= WM_SKILL_SHOP_ITEM_COUNT)
+        proc->cursor = WM_SKILL_SHOP_ITEM_COUNT - 1;
+
+    if (proc->cursor < proc->listTop)
+        proc->listTop = proc->cursor;
+
+    if (proc->cursor >= proc->listTop + WM_SKILL_SHOP_VISIBLE_COUNT)
+        proc->listTop = proc->cursor - (WM_SKILL_SHOP_VISIBLE_COUNT - 1);
+}
+
 static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
 {
     int i;
@@ -86,38 +99,31 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
     for (i = 0; i < WM_SKILL_SHOP_TEXT_COUNT; ++i)
         ClearText(&gPrepUnitTexts[i]);
 
-    // Decompress(Img_ShopGoldBox, OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
-    // struct ProcShop * procGoldBox;
-    // procGoldBox = Proc_Start(gProcScr_GoldBox, proc);
-    // procGoldBox->goldbox_x = 160;
-    // procGoldBox->goldbox_y = 42;
-    // procGoldBox->goldbox_oam2 = OBJ_PALETTE(OBJPAL_SHOP_GOLDBOX) + OBJ_CHAR(OBJCHR_SHOP_GOLDBOX);
-    // ApplyPalette(gUiFramePaletteA, 0x10 + OBJPAL_SHOP_GOLDBOX);
-
     StartUiGoldBox(proc);
 
-    StartMenuScrollBar(proc); 
-    PutMenuScrollBarAt(2*8, 64); 
-    InitMenuScrollBarImg(0x7A60, 4); 
-
-    /* Initial configuration to set the bar size/pos */
     UpdateMenuScrollBarConfig(
-        10,
+        8,
 		proc->listTop * 16,
-        PrepGetUnitAmount(),
-        5
+        WM_SKILL_SHOP_ITEM_COUNT,
+        WM_SKILL_SHOP_VISIBLE_COUNT
     );
 
     DrawUiFrame2(3, 8, 23, 12, 0);
-    PutDrawText(&gPrepUnitTexts[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 2), TEXT_COLOR_SYSTEM_GOLD, 0, 0, GetStringFromIndex(MSG_WM_SKILL_SHOP_NAME));
     PutDrawText(&gPrepUnitTexts[1], TILEMAP_LOCATED(gBG0TilemapBuffer, 23, 6), TEXT_COLOR_SYSTEM_BLUE, 0, 0, "SP:");
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6), TEXT_COLOR_SYSTEM_BLUE, skillPoints);
 
-    for (i = 0; i < WM_SKILL_SHOP_ITEM_COUNT; ++i) {
+    for (i = 0; i < WM_SKILL_SHOP_VISIBLE_COUNT; ++i) {
+        int skillIndex = proc->listTop + i;
         int y = 9 + (i * 2);
-        u16 sid = sWorldMapSkillShopSkillIds[i];
-        u8 cost = sWorldMapSkillShopSkillCosts[i];
+        u16 sid;
+        u8 cost;
         int textColor = TEXT_COLOR_SYSTEM_WHITE;
+
+        if (skillIndex >= WM_SKILL_SHOP_ITEM_COUNT)
+            continue;
+
+        sid = sWorldMapSkillShopSkillIds[skillIndex];
+        cost = sWorldMapSkillShopSkillCosts[skillIndex];
 
         if (unit && SkillTester(unit, sid))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
@@ -140,14 +146,16 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
         PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 22, y), TEXT_COLOR_SYSTEM_BLUE, cost);
     }
 
-    ShowSysHandCursor(28, 72 + (proc->cursor * 16), 0x0, 0x800);
+    ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
 static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
 {
     u16 sid = sWorldMapSkillShopSkillIds[proc->cursor];
-    StartHelpBox(2 * 8, (4 + (proc->cursor * 2)) * 8, GetSkillDescMsg(sid));
+    int row = proc->cursor - proc->listTop;
+
+    StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
 }
 
 static bool WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
@@ -190,6 +198,9 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     proc->savedX = gGMData.xCamera;
     proc->savedY = gGMData.yCamera;
     proc->cursor = 0;
+    proc->listTop = 0;
+
+    StartBgm(SONG_SHOPS, 0);
 
     HideGmUnit(0);
     SetDispEnable(1, 1, 1, 1, 1);
@@ -222,6 +233,14 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     ResetSysHandCursor(proc);
     DisplaySysHandCursorTextShadow(0x600, false);
 
+    StartMenuScrollBar(proc);
+    PutMenuScrollBarAt(2 * 8, 76);
+    InitMenuScrollBarImg(0x7A60, 0);
+
+    ApplyPalette(Pal_CommGameBgScreenInShop, BGPAL_SHOP_MAINBG);
+    Decompress(Img_CommGameBgScreen, (void *)BG_VRAM + GetBackgroundTileDataOffset(BG_3));
+    CallARM_FillTileRect(gBG3TilemapBuffer, Tsa_CommGameBgScreenInShop, OBJ_PALETTE(BGPAL_SHOP_MAINBG));
+
     for (int i = 0; i < WM_SKILL_SHOP_TEXT_COUNT; ++i)
         InitText(&gPrepUnitTexts[i], 16);
 
@@ -240,6 +259,7 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
     if (gKeyStatusPtr->newKeys & DPAD_UP) {
         if (proc->cursor > 0) {
             proc->cursor--;
+            WorldMapSkillShop_ClampCursor(proc);
             WorldMapSkillShop_CloseHelp();
             WorldMapSkillShop_Draw(proc);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
@@ -249,6 +269,7 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
     if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
         if (proc->cursor + 1 < WM_SKILL_SHOP_ITEM_COUNT) {
             proc->cursor++;
+            WorldMapSkillShop_ClampCursor(proc);
             WorldMapSkillShop_CloseHelp();
             WorldMapSkillShop_Draw(proc);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
@@ -481,6 +502,8 @@ u8 WMMenu_OnManageSkillsSelected(struct MenuProc * menuProc, struct MenuItemProc
 
 u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
+	gGMData.xCamera = 0;
+	gGMData.yCamera = 0;
     gGMData.unk_cd = menuProc->itemCurrent;
     StartWMNodeSkillShop(menuProc);
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;

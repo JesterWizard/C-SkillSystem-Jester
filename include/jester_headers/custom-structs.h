@@ -216,3 +216,7 @@ enum {
 	WM_SKILL_MODE_SKILL_TAB = 1,
 	WM_SKILL_MODE_SKILL_SCREEN = 2,
 };
+
+extern u8 gSavedWorldMapUnitId;
+extern u8 gSavedWorldMapXCoordiate;
+extern u8 gSavedWorldMapYCoordiate;
