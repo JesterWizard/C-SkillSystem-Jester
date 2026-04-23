@@ -1,4 +1,4 @@
-# Timer
+# Infuse - Prep Menu
 
 <p align="center">
   <img src="../Gifs/Infuse_Menu.gif" alt="Timer Demo" width="600"/>

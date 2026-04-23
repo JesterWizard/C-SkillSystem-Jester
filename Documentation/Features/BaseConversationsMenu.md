@@ -1,4 +1,4 @@
-# Bonus EXP
+# Base Conversations Menu
 
 <p align="center">
   <img src="../Gifs/Base_Conversations.gif" alt="Bonus EXP" width="600"/>

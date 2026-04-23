@@ -1,4 +1,4 @@
-# Timer
+# Expanded HP
 
 <p align="center">
   <img src="../Gifs/Expanded_HP.gif" alt="Timer Demo" width="600"/>

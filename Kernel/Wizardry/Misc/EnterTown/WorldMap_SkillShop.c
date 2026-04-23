@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "constants/faces.h"
+#include "constants/skills.h"
 #include "constants/texts.h"
 #include "bwl.h"
 #include "gamecontrol.h"
@@ -15,10 +16,11 @@
 #include "worldmap.h"
 
 enum {
-    WM_SKILL_SHOP_ITEM_COUNT = 7,
     WM_SKILL_SHOP_VISIBLE_COUNT = 5,
     WM_SKILL_SHOP_TEXT_COUNT = 2 + WM_SKILL_SHOP_VISIBLE_COUNT,
     WM_SKILL_SHOP_TEXT_BASE = 0x0C,
+    WM_SKILL_SHOP_NODE_COUNT = 2,
+    WM_SKILL_SHOP_ITEM_COUNT = 7,
 };
 
 struct WorldMapSkillShopProc {
@@ -30,15 +32,124 @@ struct WorldMapSkillShopProc {
     u8 cursor;
     u8 listTop;
     u8 handEnabled;
+    u8 itemCount;
+    u8 skillCount;
+    u8 scrollEnabled;
+    s8 nodeIndex;
 };
 
-static const u16 sWorldMapSkillShopSkillIds[WM_SKILL_SHOP_ITEM_COUNT] = {
-    1, 2, 3, 4, 5, 6, 7,
+static const u8 sWorldMapSkillShopNodeIds[WM_SKILL_SHOP_NODE_COUNT] = {
+    NODE_IDE,
+    NODE_SERAFEW,
 };
 
-static const u8 sWorldMapSkillShopSkillCosts[WM_SKILL_SHOP_ITEM_COUNT] = {
-    250, 10, 15, 20, 25, 30, 35,
+static const u16 sWorldMapSkillShopSkillIds[WM_SKILL_SHOP_NODE_COUNT][WM_SKILL_SHOP_ITEM_COUNT] = {
+    {
+        SID_Absolve,
+        SID_Astra,
+        SID_Fury,
+        SID_Counter,
+    },
+    {
+        SID_Fury,
+        SID_FuryPlus,
+        SID_FortressDef,
+        SID_FortressRes,
+        SID_BlowDarting,
+        SID_BlowDeath,
+        SID_BlowArmored,
+    },
 };
+
+static const u8 sWorldMapSkillShopSkillCosts[WM_SKILL_SHOP_NODE_COUNT][WM_SKILL_SHOP_ITEM_COUNT] = {
+    {
+        10,
+        20,
+        30,
+        40,
+    },
+    {
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+    },
+};
+
+static u8 WorldMapSkillShop_GetSkillCount(int nodeIndex)
+{
+    int i;
+    u8 count = 0;
+
+    if (nodeIndex < 0)
+        return 0;
+
+    for (i = 0; i < WM_SKILL_SHOP_ITEM_COUNT; ++i) {
+        if (sWorldMapSkillShopSkillIds[nodeIndex][i] != 0)
+            ++count;
+    }
+
+    return count;
+}
+
+static bool WorldMapSkillShop_IsBlankSlot(int nodeIndex, int skillIndex)
+{
+    return nodeIndex < 0 || skillIndex < 0 || skillIndex >= WM_SKILL_SHOP_ITEM_COUNT || sWorldMapSkillShopSkillIds[nodeIndex][skillIndex] == 0;
+}
+
+static bool WorldMapSkillShop_MoveCursorToNextSkill(struct WorldMapSkillShopProc *proc, int direction)
+{
+    int cursor;
+
+    if (proc->nodeIndex < 0)
+        return false;
+
+    cursor = proc->cursor;
+
+    if (direction > 0) {
+        for (cursor++; cursor < proc->itemCount; ++cursor) {
+            if (!WorldMapSkillShop_IsBlankSlot(proc->nodeIndex, cursor)) {
+                proc->cursor = cursor;
+                return true;
+            }
+        }
+    } else {
+        for (cursor--; cursor >= 0; --cursor) {
+            if (!WorldMapSkillShop_IsBlankSlot(proc->nodeIndex, cursor)) {
+                proc->cursor = cursor;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+static void WorldMapSkillShop_UpdateHandCursor(struct WorldMapSkillShopProc *proc)
+{
+    if (proc->handEnabled)
+        ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
+}
+
+static int WorldMapSkillShop_GetNodeIndex(u8 nodeId)
+{
+    unsigned i;
+
+    for (i = 0; i < WM_SKILL_SHOP_NODE_COUNT; ++i) {
+        if (sWorldMapSkillShopNodeIds[i] == nodeId)
+            return i;
+    }
+
+    return -1;
+}
+
+bool WorldMapSkillShop_HasNodeShop(u8 nodeId)
+{
+    return WorldMapSkillShop_GetNodeIndex(nodeId) >= 0;
+}
 
 static struct Unit *WorldMapSkillShop_GetUnit(struct WorldMapSkillShopProc *proc)
 {
@@ -65,9 +176,7 @@ static u8 WorldMapSkillShop_GetUnitSkillPoints(struct Unit *unit)
 static void WorldMapSkillShop_CloseHelp(void)
 {
     if (Proc_Find(gProcScr_HelpBox) != NULL)
-    {
         CloseHelpBox();
-    }
 }
 
 static bool WorldMapSkillShop_HelpBoxActive(void)
@@ -77,11 +186,17 @@ static bool WorldMapSkillShop_HelpBoxActive(void)
 
 static void WorldMapSkillShop_ShowHelp(struct WorldMapSkillShopProc *proc)
 {
-    u16 sid = sWorldMapSkillShopSkillIds[proc->cursor];
+    u16 sid;
     int row = proc->cursor - proc->listTop;
+
+    if (proc->nodeIndex < 0 || proc->cursor >= proc->itemCount || WorldMapSkillShop_IsBlankSlot(proc->nodeIndex, proc->cursor))
+        return;
+
+    sid = sWorldMapSkillShopSkillIds[proc->nodeIndex][proc->cursor];
 
     LoadHelpBoxGfx(NULL, 2);
     StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
+    StartUiGoldBox_New(160, 45, 4, proc);
 }
 
 static bool WorldMapSkillShop_IsSkillListFull(struct Unit *unit)
@@ -94,16 +209,20 @@ static bool WorldMapSkillShop_IsSkillListFull(struct Unit *unit)
 
 static void WorldMapSkillShop_RefreshHelp(struct WorldMapSkillShopProc *proc)
 {
-    if (!WorldMapSkillShop_HelpBoxActive())
-        return;
-
-    WorldMapSkillShop_ShowHelp(proc);
+    if (WorldMapSkillShop_HelpBoxActive())
+        WorldMapSkillShop_ShowHelp(proc);
 }
 
 static void WorldMapSkillShop_ClampCursor(struct WorldMapSkillShopProc *proc)
 {
-    if (proc->cursor >= WM_SKILL_SHOP_ITEM_COUNT)
-        proc->cursor = WM_SKILL_SHOP_ITEM_COUNT - 1;
+    if (proc->itemCount == 0) {
+        proc->cursor = 0;
+        proc->listTop = 0;
+        return;
+    }
+
+    if (proc->cursor >= proc->itemCount)
+        proc->cursor = proc->itemCount - 1;
 
     if (proc->cursor < proc->listTop)
         proc->listTop = proc->cursor;
@@ -117,6 +236,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
     int i;
     struct Unit *unit = WorldMapSkillShop_GetUnit(proc);
     u8 skillPoints = WorldMapSkillShop_GetUnitSkillPoints(unit);
+    int visibleCount = proc->itemCount < WM_SKILL_SHOP_VISIBLE_COUNT ? proc->itemCount : WM_SKILL_SHOP_VISIBLE_COUNT;
 
     SetTextFont(0);
     InitSystemTextFont();
@@ -128,25 +248,26 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
         ClearText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + i]);
 
     DrawUiFrame2(3, 8, 23, 12, 0);
-    DrawUiFrame2(0, 0, 8, 8, 2); // Vendor frame
+    DrawUiFrame2(0, 0, 8, 8, 2);
 
     PutDrawText(&gPrepUnitTexts[WM_SKILL_SHOP_TEXT_BASE + 0], TILEMAP_LOCATED(gBG0TilemapBuffer, 21, 6), TEXT_COLOR_SYSTEM_BLUE, 0, 0, "SP:");
     PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 26, 6), TEXT_COLOR_SYSTEM_BLUE, skillPoints);
 
-    UpdateMenuScrollBarConfig(8, proc->listTop * 16, WM_SKILL_SHOP_ITEM_COUNT, WM_SKILL_SHOP_VISIBLE_COUNT);
+    if (proc->scrollEnabled)
+        UpdateMenuScrollBarConfig(8, proc->listTop * 16, proc->skillCount, WM_SKILL_SHOP_VISIBLE_COUNT);
 
-    for (i = 0; i < WM_SKILL_SHOP_VISIBLE_COUNT; ++i) {
+    for (i = 0; i < visibleCount; ++i) {
         int skillIndex = proc->listTop + i;
         int y = 9 + (i * 2);
         u16 sid;
         u8 cost;
         int textColor = TEXT_COLOR_SYSTEM_WHITE;
 
-        if (skillIndex >= WM_SKILL_SHOP_ITEM_COUNT)
+        if (skillIndex >= proc->itemCount || WorldMapSkillShop_IsBlankSlot(proc->nodeIndex, skillIndex))
             continue;
 
-        sid = sWorldMapSkillShopSkillIds[skillIndex];
-        cost = sWorldMapSkillShopSkillCosts[skillIndex];
+        sid = sWorldMapSkillShopSkillIds[proc->nodeIndex][skillIndex];
+        cost = sWorldMapSkillShopSkillCosts[proc->nodeIndex][skillIndex];
 
         if (unit && SkillTester(unit, sid))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
@@ -169,8 +290,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
         PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 22, y), TEXT_COLOR_SYSTEM_BLUE, cost);
     }
 
-    if (proc->handEnabled)
-        ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
+    WorldMapSkillShop_UpdateHandCursor(proc);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
@@ -184,8 +304,14 @@ static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
 {
     struct Unit *unit = WorldMapSkillShop_GetUnit(proc);
     struct NewBwl *bwl;
-    u16 sid = sWorldMapSkillShopSkillIds[proc->cursor];
-    u8 cost = sWorldMapSkillShopSkillCosts[proc->cursor];
+    u16 sid;
+    u8 cost;
+
+    if (proc->nodeIndex < 0 || proc->cursor >= proc->itemCount || WorldMapSkillShop_IsBlankSlot(proc->nodeIndex, proc->cursor))
+        return 0;
+
+    sid = sWorldMapSkillShopSkillIds[proc->nodeIndex][proc->cursor];
+    cost = sWorldMapSkillShopSkillCosts[proc->nodeIndex][proc->cursor];
 
     if (!UNIT_IS_VALID(unit))
         return 0;
@@ -200,8 +326,7 @@ static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
     if (SkillTester(unit, sid))
         return 0;
 
-    if (bwl->skillPoints < cost)
-    {
+    if (bwl->skillPoints < cost) {
         StartShopDialogue(MSG_WM_SKILL_SHOP_NO_FUNDS, (struct ProcShop *)proc);
         Proc_Goto(proc, 1);
         return -1;
@@ -217,10 +342,6 @@ static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
         return 0;
 
     bwl->skillPoints -= cost;
-    // SetPopupUnit(unit);
-    // SetPopupItem(sid);
-    // NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
-
     return 1;
 }
 
@@ -239,9 +360,12 @@ static void WorldMapSkillShop_EntryDialogue(struct WorldMapSkillShopProc *proc)
 
 static void WorldMapSkillShop_StartShopUi(struct WorldMapSkillShopProc *proc)
 {
-    StartMenuScrollBar(proc);
-    PutMenuScrollBarAt(2 * 8, 76);
-    InitMenuScrollBarImg(0x7A60, 5);
+    if (proc->scrollEnabled) {
+        StartMenuScrollBar(proc);
+        PutMenuScrollBarAt(2 * 8, 76);
+        InitMenuScrollBarImg(0x7A60, 5);
+    }
+
     StartUiGoldBox_New(160, 45, 4, proc);
 
     WorldMapSkillShop_Draw(proc);
@@ -257,20 +381,30 @@ static void WorldMapSkillShop_HandleEntryChoice(struct WorldMapSkillShopProc *pr
     ResetSysHandCursor(proc);
     StartUiCursorHand(proc);
     DisplaySysHandCursorTextShadow(0x600, false);
-    ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
+    WorldMapSkillShop_UpdateHandCursor(proc);
     proc->handEnabled = 1;
 
     StartShopDialogue(0x8A3, (struct ProcShop *)proc);
+    ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
 }
 
 static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
 {
+    proc->nodeIndex = WorldMapSkillShop_GetNodeIndex(gGMData.units[0].location);
+    proc->itemCount = proc->nodeIndex >= 0 ? WM_SKILL_SHOP_ITEM_COUNT : 0;
+    proc->skillCount = WorldMapSkillShop_GetSkillCount(proc->nodeIndex);
+    proc->scrollEnabled = proc->skillCount >= 6;
     proc->unitId = gGMData.units[0].id;
     proc->savedX = gGMData.xCamera;
     proc->savedY = gGMData.yCamera;
     proc->cursor = 0;
     proc->listTop = 0;
     proc->handEnabled = 0;
+
+    if (proc->nodeIndex < 0) {
+        Proc_End(proc);
+        return;
+    }
 
     StartBgm(SONG_SHOPS, 0);
     InitTalk(0x200, 2, 0);
@@ -305,7 +439,6 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     StartTalkFace(FID_SHOP_VENDOR, 32, 8, 3, 1);
     ApplyPalette(Pal_TalkBubble, 3);
 
-
     ApplyPalette(Pal_CommGameBgScreenInShop, BGPAL_SHOP_MAINBG);
     Decompress(Img_CommGameBgScreen, (void *)BG_VRAM + GetBackgroundTileDataOffset(BG_3));
     CallARM_FillTileRect(gBG3TilemapBuffer, Tsa_CommGameBgScreenInShop, OBJ_PALETTE(BGPAL_SHOP_MAINBG));
@@ -329,34 +462,40 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
 
     if (gKeyStatusPtr->newKeys & DPAD_UP) {
         if (proc->cursor > 0) {
-            proc->cursor--;
-            WorldMapSkillShop_ClampCursor(proc);
-            WorldMapSkillShop_Draw(proc);
-            WorldMapSkillShop_RefreshHelp(proc);
-            PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+            if (WorldMapSkillShop_MoveCursorToNextSkill(proc, -1)) {
+                WorldMapSkillShop_ClampCursor(proc);
+                if (proc->scrollEnabled)
+                    WorldMapSkillShop_Draw(proc);
+                else
+                    WorldMapSkillShop_UpdateHandCursor(proc);
+                WorldMapSkillShop_RefreshHelp(proc);
+                PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+            }
         }
     }
 
     if (gKeyStatusPtr->newKeys & DPAD_DOWN) {
-        if (proc->cursor + 1 < WM_SKILL_SHOP_ITEM_COUNT) {
-            proc->cursor++;
-            WorldMapSkillShop_ClampCursor(proc);
-            WorldMapSkillShop_Draw(proc);
-            WorldMapSkillShop_RefreshHelp(proc);
-            PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+        if (proc->cursor + 1 < proc->itemCount) {
+            if (WorldMapSkillShop_MoveCursorToNextSkill(proc, 1)) {
+                WorldMapSkillShop_ClampCursor(proc);
+                if (proc->scrollEnabled)
+                    WorldMapSkillShop_Draw(proc);
+                else
+                    WorldMapSkillShop_UpdateHandCursor(proc);
+                WorldMapSkillShop_RefreshHelp(proc);
+                PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+            }
         }
     }
 
-    if (gKeyStatusPtr->newKeys & R_BUTTON) {
+    if (gKeyStatusPtr->newKeys & R_BUTTON)
         WorldMapSkillShop_OpenHelp(proc);
-    }
 
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
         bool helpWasActive = WorldMapSkillShop_HelpBoxActive();
         int purchaseResult;
 
         WorldMapSkillShop_CloseHelp();
-
         purchaseResult = WorldMapSkillShop_TryPurchase(proc);
 
         if (purchaseResult > 0) {

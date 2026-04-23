@@ -23,6 +23,7 @@ extern struct ProcCmd CONST_DATA ProcScr_WorldMapWrapper[];
 extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
 extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
 extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
+extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
 
 typedef struct {
     u8 mapNodeId;
@@ -182,6 +183,20 @@ u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
+u8 WMMenu_IsSkillShopAvailable(const struct MenuItemDef * def, int number)
+{
+    if (gpKernelDesignerConfig->skill_points_engage == false)
+        return MENU_NOTSHOWN;
+
+    if (gGMData.nodes[gGMData.units[0].location].state & 2)
+        return MENU_NOTSHOWN;
+
+    if (!WorldMapSkillShop_HasNodeShop(gGMData.units[0].location))
+        return MENU_NOTSHOWN;
+
+    return MENU_ENABLED;
+}
+
 u8 WMMenu_OnManageSkillsSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
     gGMData.unk_cd = menuProc->itemCurrent;
@@ -240,7 +255,7 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
         .nameMsgId = MSG_WM_SKILL_SHOP_NAME,
         .helpMsgId = MSG_WM_SKILL_SHOP_DESC,
         .overrideId = 5,
-        .isAvailable = MenuAlwaysEnabled,
+        .isAvailable = WMMenu_IsSkillShopAvailable,
         .onSelected = WMMenu_OnSkillShopSelected,
     },
 

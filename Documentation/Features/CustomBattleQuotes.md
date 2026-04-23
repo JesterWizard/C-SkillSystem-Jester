@@ -1,4 +1,4 @@
-# Custom Defeat Quotes
+# Custom Battle Quotes
 
 <p align="center">
   <img src="" />
