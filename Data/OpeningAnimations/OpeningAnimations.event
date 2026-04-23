@@ -1,0 +1,13 @@
+// // Null out the other OP anim images
+// PUSH
+// ORG 0xAB0B44
+// FILL 0x43D2C // (277804 bytes)
+// POP
+
+// // Null out opanimX images
+// PUSH
+// ORG 0xAF4870
+// FILL 0x1BB68 // (113512 bytes)
+// POP
+
+// // Frees up 0xAB0B44 to 0xB103D8

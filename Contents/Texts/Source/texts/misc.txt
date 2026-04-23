@@ -158,6 +158,14 @@ Manage your unit's skills.[N]
 Choose which skill each unit[N]
 will equip/remove.[X]
 
+## MSG_WM_SKILL_SHOP_NAME
+ Skill Shop[X]
+
+## MSG_WM_SKILL_SHOP_DESC
+Purchase skills using[N]
+the selected unit's[N]
+skill points.[X]
+
 ## MSG_WM_MANAGE_SKILLS_CHOOSE_UNIT
 Manage Skills Choose Unit[X]
 

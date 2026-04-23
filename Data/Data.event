@@ -38,4 +38,6 @@
 #include "MapMenus/Usability.lyn.event"
 #include "MapMenus/CharacterBiographies.lyn.event"
 
+#include "OpeningAnimations/OpeningAnimations.event"
+
 #endif
