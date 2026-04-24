@@ -7,243 +7,165 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/thought_bubbles.h"
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleArtur[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Artur },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Artur },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Artur },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Artur },
+#define WMTB_IDX_PROLOGUE 0
+#define WMTB_IDX_01 1
+#define WMTB_IDX_02 2
+#define WMTB_IDX_03 3
+#define WMTB_IDX_04 4
+#define WMTB_IDX_05X 5
+#define WMTB_IDX_05 6
+#define WMTB_IDX_06 7
+#define WMTB_IDX_07 8
+#define WMTB_IDX_08 9
+#define WMTB_IDX_09 10
+#define WMTB_COUNT 11
+
+#define WMTB_ENTRY(chapter, unit) [WMTB_IDX_##chapter] = { .bubble = Gfx_Chapter_##chapter##_Thought_Bubble_##unit }
+#define WMTB_TABLE(unit) static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubble##unit[WMTB_COUNT] = {
+
+WMTB_TABLE(Artur)
+    WMTB_ENTRY(05, Artur),
+    WMTB_ENTRY(06, Artur),
+    WMTB_ENTRY(07, Artur),
+    WMTB_ENTRY(09, Artur),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleColm[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Colm },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Colm },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Colm },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Colm },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Colm },
+WMTB_TABLE(Colm)
+    WMTB_ENTRY(04, Colm),
+    WMTB_ENTRY(05, Colm),
+    WMTB_ENTRY(06, Colm),
+    WMTB_ENTRY(07, Colm),
+    WMTB_ENTRY(09, Colm),
 };
 
 const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Eirika },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Eirika },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Eirika },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Eirika },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Eirika },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Eirika },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Eirika },
+    WMTB_ENTRY(02, Eirika),
+    WMTB_ENTRY(03, Eirika),
+    WMTB_ENTRY(04, Eirika),
+    WMTB_ENTRY(05, Eirika),
+    WMTB_ENTRY(06, Eirika),
+    WMTB_ENTRY(07, Eirika),
+    WMTB_ENTRY(09, Eirika),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEphraim[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = NULL }, // Chapter 5
-    { .bubble = NULL }, // Chapter 6
-    { .bubble = NULL }, // Chapter 7
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Ephraim },
+WMTB_TABLE(Ephraim)
+    WMTB_ENTRY(09, Ephraim),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleForde[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = NULL }, // Chapter 5
-    { .bubble = NULL }, // Chapter 6
-    { .bubble = NULL }, // Chapter 7
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Forde },
+WMTB_TABLE(Forde)
+    WMTB_ENTRY(09, Forde),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleFranz[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Franz },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Franz },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Franz },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Franz },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Franz },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Franz },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Franz },
+WMTB_TABLE(Franz)
+    WMTB_ENTRY(02, Franz),
+    WMTB_ENTRY(03, Franz),
+    WMTB_ENTRY(04, Franz),
+    WMTB_ENTRY(05, Franz),
+    WMTB_ENTRY(06, Franz),
+    WMTB_ENTRY(07, Franz),
+    WMTB_ENTRY(09, Franz),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleGarcia[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Garcia },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Garcia },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Garcia },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Garcia },
+WMTB_TABLE(Garcia)
+    WMTB_ENTRY(05, Garcia),
+    WMTB_ENTRY(06, Garcia),
+    WMTB_ENTRY(07, Garcia),
+    WMTB_ENTRY(09, Garcia),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleGilliam[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Gilliam },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Gilliam },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Gilliam },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Gilliam },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Gilliam },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Gilliam },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Gilliam },
+WMTB_TABLE(Gilliam)
+    WMTB_ENTRY(02, Gilliam),
+    WMTB_ENTRY(03, Gilliam),
+    WMTB_ENTRY(04, Gilliam),
+    WMTB_ENTRY(05, Gilliam),
+    WMTB_ENTRY(06, Gilliam),
+    WMTB_ENTRY(07, Gilliam),
+    WMTB_ENTRY(09, Gilliam),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleJoshua[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = NULL }, // Chapter 5
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Joshua },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Joshua },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Joshua },
+WMTB_TABLE(Joshua)
+    WMTB_ENTRY(06, Joshua),
+    WMTB_ENTRY(07, Joshua),
+    WMTB_ENTRY(09, Joshua),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleKyle[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = NULL }, // Chapter 5
-    { .bubble = NULL }, // Chapter 6
-    { .bubble = NULL }, // Chapter 7
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Kyle },
+WMTB_TABLE(Kyle)
+    WMTB_ENTRY(09, Kyle),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleLute[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Lute },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Lute },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Lute },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Lute },
+WMTB_TABLE(Lute)
+    WMTB_ENTRY(05, Lute),
+    WMTB_ENTRY(06, Lute),
+    WMTB_ENTRY(07, Lute),
+    WMTB_ENTRY(09, Lute),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleMoulder[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Moulder },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Moulder },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Moulder },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Moulder },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Moulder },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Moulder },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Moulder },
+WMTB_TABLE(Moulder)
+    WMTB_ENTRY(02, Moulder),
+    WMTB_ENTRY(03, Moulder),
+    WMTB_ENTRY(04, Moulder),
+    WMTB_ENTRY(05, Moulder),
+    WMTB_ENTRY(06, Moulder),
+    WMTB_ENTRY(07, Moulder),
+    WMTB_ENTRY(09, Moulder),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleNatasha[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = NULL }, // Chapter 4
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = NULL }, // Chapter 5
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Natasha },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Natasha },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Natasha },
+WMTB_TABLE(Natasha)
+    WMTB_ENTRY(06, Natasha),
+    WMTB_ENTRY(07, Natasha),
+    WMTB_ENTRY(09, Natasha),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleNeimi[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Neimi },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Neimi },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Neimi },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Neimi },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Neimi },
+WMTB_TABLE(Neimi)
+    WMTB_ENTRY(04, Neimi),
+    WMTB_ENTRY(05, Neimi),
+    WMTB_ENTRY(06, Neimi),
+    WMTB_ENTRY(07, Neimi),
+    WMTB_ENTRY(09, Neimi),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleRoss[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = NULL }, // Chapter 2
-    { .bubble = NULL }, // Chapter 3
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Ross },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Ross },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Ross },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Ross },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Ross },
+WMTB_TABLE(Ross)
+    WMTB_ENTRY(04, Ross),
+    WMTB_ENTRY(05, Ross),
+    WMTB_ENTRY(06, Ross),
+    WMTB_ENTRY(07, Ross),
+    WMTB_ENTRY(09, Ross),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Seth },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Seth },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Seth },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Seth },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Seth },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Seth },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Seth },
+WMTB_TABLE(Seth)
+    WMTB_ENTRY(02, Seth),
+    WMTB_ENTRY(03, Seth),
+    WMTB_ENTRY(04, Seth),
+    WMTB_ENTRY(05, Seth),
+    WMTB_ENTRY(06, Seth),
+    WMTB_ENTRY(07, Seth),
+    WMTB_ENTRY(09, Seth),
 };
 
-static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleTana[] = {
-    { .bubble = NULL }, // Prologue
-    { .bubble = NULL }, // Chapter 1
-    { .bubble = Gfx_Chapter_02_Thought_Bubble_Tana },
-    { .bubble = Gfx_Chapter_03_Thought_Bubble_Tana },
-    { .bubble = Gfx_Chapter_04_Thought_Bubble_Tana },
-    { .bubble = NULL }, // Chapter 5x
-    { .bubble = Gfx_Chapter_05_Thought_Bubble_Tana },
-    { .bubble = Gfx_Chapter_06_Thought_Bubble_Tana },
-    { .bubble = Gfx_Chapter_07_Thought_Bubble_Tana },
-    { .bubble = NULL }, // Chapter 8
-    { .bubble = Gfx_Chapter_09_Thought_Bubble_Tana },
+WMTB_TABLE(Tana)
+    WMTB_ENTRY(02, Tana),
+    WMTB_ENTRY(03, Tana),
+    WMTB_ENTRY(04, Tana),
+    WMTB_ENTRY(05, Tana),
+    WMTB_ENTRY(06, Tana),
+    WMTB_ENTRY(07, Tana),
+    WMTB_ENTRY(09, Tana),
 };
+
+#undef WMTB_TABLE
+#undef WMTB_ENTRY
+#undef WMTB_COUNT
+#undef WMTB_IDX_09
+#undef WMTB_IDX_08
+#undef WMTB_IDX_07
+#undef WMTB_IDX_06
+#undef WMTB_IDX_05
+#undef WMTB_IDX_05X
+#undef WMTB_IDX_04
+#undef WMTB_IDX_03
+#undef WMTB_IDX_02
+#undef WMTB_IDX_01
+#undef WMTB_IDX_PROLOGUE
 
 static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 {
