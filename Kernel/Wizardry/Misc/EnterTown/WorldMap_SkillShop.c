@@ -35,6 +35,9 @@ struct WorldMapSkillShopProc {
     u8 itemCount;
     u8 skillCount;
     u8 scrollEnabled;
+    u8 purchaseConfirming;
+    u8 purchaseDialoguePending;
+    u8 purchaseHelpWasActive;
     s8 nodeIndex;
 };
 
@@ -300,6 +303,22 @@ static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
     WorldMapSkillShop_ShowHelp(proc);
 }
 
+static void WorldMapSkillShop_StartPurchaseConfirm(struct WorldMapSkillShopProc *proc)
+{
+    SetInitTalkTextFont();
+    ClearTalkText();
+    ResetSysHandCursor(proc);
+
+    StartTalkExt(8, 2, GetStringFromIndex(MSG_WM_SKILL_SHOP_CONFIRM), proc);
+    SetTalkPrintColor(0);
+    SetTalkFlag(TALK_FLAG_INSTANTSHIFT);
+    SetTalkFlag(TALK_FLAG_NOBUBBLE);
+    SetTalkFlag(TALK_FLAG_NOSKIP);
+    SetActiveTalkFace(1);
+
+    proc->purchaseConfirming = 1;
+}
+
 static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
 {
     struct Unit *unit = WorldMapSkillShop_GetUnit(proc);
@@ -388,6 +407,39 @@ static void WorldMapSkillShop_HandleEntryChoice(struct WorldMapSkillShopProc *pr
     ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
 }
 
+static void WorldMapSkillShop_HandlePurchaseChoice(struct WorldMapSkillShopProc *proc)
+{
+    int purchaseResult;
+
+    if (!proc->purchaseConfirming)
+        return;
+
+    if (IsTalkActive())
+        return;
+
+    proc->purchaseConfirming = 0;
+    proc->purchaseDialoguePending = 1;
+
+    if (GetTalkChoiceResult() != TALK_CHOICE_YES) {
+        WorldMapSkillShop_UpdateHandCursor(proc);
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+        return;
+    }
+
+    purchaseResult = WorldMapSkillShop_TryPurchase(proc);
+
+    if (purchaseResult > 0) {
+        WorldMapSkillShop_Draw(proc);
+
+        if (proc->purchaseHelpWasActive)
+            WorldMapSkillShop_RefreshHelp(proc);
+
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    } else if (purchaseResult == 0) {
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+    }
+}
+
 static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
 {
     proc->nodeIndex = WorldMapSkillShop_GetNodeIndex(gGMData.units[0].location);
@@ -400,6 +452,9 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     proc->cursor = 0;
     proc->listTop = 0;
     proc->handEnabled = 0;
+    proc->purchaseConfirming = 0;
+    proc->purchaseDialoguePending = 0;
+    proc->purchaseHelpWasActive = 0;
 
     if (proc->nodeIndex < 0) {
         Proc_End(proc);
@@ -449,6 +504,20 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
 
 static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
 {
+    if (proc->purchaseDialoguePending) {
+        if (!IsTalkActive()) {
+            proc->purchaseDialoguePending = 0;
+            StartShopDialogue(0x8A3, (struct ProcShop *)proc);
+        }
+
+        return;
+    }
+
+    if (proc->purchaseConfirming) {
+        WorldMapSkillShop_HandlePurchaseChoice(proc);
+        return;
+    }
+
     if (gKeyStatusPtr->newKeys & B_BUTTON) {
         if (WorldMapSkillShop_HelpBoxActive()) {
             WorldMapSkillShop_CloseHelp();
@@ -492,20 +561,9 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
         WorldMapSkillShop_OpenHelp(proc);
 
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
-        bool helpWasActive = WorldMapSkillShop_HelpBoxActive();
-        int purchaseResult;
-
+        proc->purchaseHelpWasActive = WorldMapSkillShop_HelpBoxActive();
         WorldMapSkillShop_CloseHelp();
-        purchaseResult = WorldMapSkillShop_TryPurchase(proc);
-
-        if (purchaseResult > 0) {
-            WorldMapSkillShop_Draw(proc);
-            if (helpWasActive)
-                WorldMapSkillShop_RefreshHelp(proc);
-            PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-        } else if (purchaseResult == 0) {
-            PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-        }
+        WorldMapSkillShop_StartPurchaseConfirm(proc);
     }
 }
 

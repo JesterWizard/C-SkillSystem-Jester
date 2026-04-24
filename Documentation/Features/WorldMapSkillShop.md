@@ -26,7 +26,9 @@ From a player perspective, the feature is meant to feel like a compact transacti
 - the shop only appears on nodes that are explicitly marked as skill shops
 - the shop opens with the cursor on the first valid skill entry, then moves one slot at a time
 - the list shows skill icons, names, costs, and the unit’s current SP total
-- pressing `A` buys the selected skill if the unit can afford it and still has room to learn it
+- pressing `A` opens a confirmation prompt before the selected skill is bought
+- pressing `A` on the confirmation prompt with `Yes` proceeds with the purchase if the unit can afford it and still has room to learn it
+- pressing `No` cancels the purchase and returns to browsing
 - pressing `R` opens the help box for the selected skill
 - pressing `B` leaves the shop and returns to the world map
 
@@ -44,7 +46,7 @@ The feature is built around a short lifecycle with clear state transitions.
 | Entry | Selecting the menu item launches the shop proc from the world map menu. | `WMMenu_OnSkillShopSelected` stores the current menu selection and starts the shop proc. |
 | Opening | The UI opens on the first valid skill entry and the visible list starts at the top. | `WorldMapSkillShop_Init` seeds the cursor and list position, and the cursor movement helper skips blank slots. |
 | Browsing | The player can move up and down through the list one skill at a time, with help text available for the highlighted skill. | `WorldMapSkillShop_Loop`, `WorldMapSkillShop_MoveCursorToNextSkill`, `WorldMapSkillShop_ShowHelp`, and `WorldMapSkillShop_UpdateHandCursor` drive the interaction. |
-| Purchase | `A` attempts to buy the highlighted skill and shows failure feedback for low SP, full skill lists, or duplicate skills. | `WorldMapSkillShop_TryPurchase` validates the unit, skill points, and skill capacity before calling `AddSkill`. |
+| Purchase | `A` opens a yes/no confirmation prompt; `Yes` proceeds with the buy, `No` cancels it. | `WorldMapSkillShop_StartPurchaseConfirm`, `WorldMapSkillShop_HandlePurchaseChoice`, and `WorldMapSkillShop_TryPurchase` split the confirm step from the actual SP and skill capacity checks. |
 | Exit | `B` cancels the shop and the world map state is restored on proc end. | `WorldMapSkillShop_OnEnd` restores the camera, unit id, and world map state. |
 
 ### Shop behavior summary
@@ -54,7 +56,7 @@ The feature is built around a short lifecycle with clear state transitions.
 | Current node is not a supported shop node | The Skill Shop option does not appear. |
 | Feature flag is disabled | The Skill Shop option does not appear. |
 | Cursor is on a valid skill | The name, icon, cost, and help text can be shown. |
-| Unit already has the skill | The entry is shown as unavailable for purchase. |
+| Unit already has the skill | The entry is shown as unavailable for purchase, and the confirmation path still denies the buy. |
 | Unit has insufficient SP | Purchase fails with the no-funds dialogue. |
 | Unit has no free skill slots | Purchase fails with the no-space dialogue. |
 | Shop has 6 or more skills | The scroll bar is enabled for the list. |
