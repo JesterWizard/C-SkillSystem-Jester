@@ -7,6 +7,34 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/thought_bubbles.h"
 
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleArtur[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Artur },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Artur },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Artur },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Artur },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleColm[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Colm },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Colm },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Colm },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Colm },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Colm },
+};
+
 const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
     { .bubble = NULL }, // Prologue
     { .bubble = NULL }, // Chapter 1
@@ -21,6 +49,174 @@ const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEirika[] = {
     { .bubble = Gfx_Chapter_09_Thought_Bubble_Eirika },
 };
 
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleEphraim[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = NULL }, // Chapter 5
+    { .bubble = NULL }, // Chapter 6
+    { .bubble = NULL }, // Chapter 7
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Ephraim },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleForde[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = NULL }, // Chapter 5
+    { .bubble = NULL }, // Chapter 6
+    { .bubble = NULL }, // Chapter 7
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Forde },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleFranz[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Franz },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Franz },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Franz },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Franz },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Franz },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Franz },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Franz },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleGarcia[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Garcia },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Garcia },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Garcia },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Garcia },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleGilliam[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Gilliam },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Gilliam },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Gilliam },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Gilliam },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Gilliam },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Gilliam },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Gilliam },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleJoshua[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = NULL }, // Chapter 5
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Joshua },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Joshua },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Joshua },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleKyle[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = NULL }, // Chapter 5
+    { .bubble = NULL }, // Chapter 6
+    { .bubble = NULL }, // Chapter 7
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Kyle },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleLute[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Lute },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Lute },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Lute },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Lute },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleMoulder[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Moulder },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Moulder },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Moulder },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Moulder },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Moulder },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Moulder },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Moulder },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleNatasha[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = NULL }, // Chapter 4
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = NULL }, // Chapter 5
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Natasha },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Natasha },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Natasha },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleNeimi[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Neimi },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Neimi },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Neimi },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Neimi },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Neimi },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleRoss[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = NULL }, // Chapter 2
+    { .bubble = NULL }, // Chapter 3
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Ross },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Ross },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Ross },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Ross },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Ross },
+};
+
 static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
     { .bubble = NULL }, // Prologue
     { .bubble = NULL }, // Chapter 1
@@ -33,6 +229,20 @@ static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleSeth[] = {
     { .bubble = Gfx_Chapter_07_Thought_Bubble_Seth },
     { .bubble = NULL }, // Chapter 8
     { .bubble = Gfx_Chapter_09_Thought_Bubble_Seth },
+};
+
+static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubbleTana[] = {
+    { .bubble = NULL }, // Prologue
+    { .bubble = NULL }, // Chapter 1
+    { .bubble = Gfx_Chapter_02_Thought_Bubble_Tana },
+    { .bubble = Gfx_Chapter_03_Thought_Bubble_Tana },
+    { .bubble = Gfx_Chapter_04_Thought_Bubble_Tana },
+    { .bubble = NULL }, // Chapter 5x
+    { .bubble = Gfx_Chapter_05_Thought_Bubble_Tana },
+    { .bubble = Gfx_Chapter_06_Thought_Bubble_Tana },
+    { .bubble = Gfx_Chapter_07_Thought_Bubble_Tana },
+    { .bubble = NULL }, // Chapter 8
+    { .bubble = Gfx_Chapter_09_Thought_Bubble_Tana },
 };
 
 static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
@@ -88,11 +298,56 @@ static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUni
 
     switch (unitId)
     {
+        case CHARACTER_ARTUR:
+            return &WorldMapThoughtBubbleArtur[chapterIndex];
+
+        case CHARACTER_COLM:
+            return &WorldMapThoughtBubbleColm[chapterIndex];
+
         case CHARACTER_EIRIKA:
             return &WorldMapThoughtBubbleEirika[chapterIndex];
 
         case CHARACTER_SETH:
             return &WorldMapThoughtBubbleSeth[chapterIndex];
+
+        case CHARACTER_EPHRAIM:
+            return &WorldMapThoughtBubbleEphraim[chapterIndex];
+
+        case CHARACTER_FORDE:
+            return &WorldMapThoughtBubbleForde[chapterIndex];
+
+        case CHARACTER_FRANZ:
+            return &WorldMapThoughtBubbleFranz[chapterIndex];
+
+        case CHARACTER_GARCIA:
+            return &WorldMapThoughtBubbleGarcia[chapterIndex];
+
+        case CHARACTER_GILLIAM:
+            return &WorldMapThoughtBubbleGilliam[chapterIndex];
+
+        case CHARACTER_JOSHUA:
+            return &WorldMapThoughtBubbleJoshua[chapterIndex];
+
+        case CHARACTER_KYLE:
+            return &WorldMapThoughtBubbleKyle[chapterIndex];
+
+        case CHARACTER_LUTE:
+            return &WorldMapThoughtBubbleLute[chapterIndex];
+
+        case CHARACTER_MOULDER:
+            return &WorldMapThoughtBubbleMoulder[chapterIndex];
+
+        case CHARACTER_NATASHA:
+            return &WorldMapThoughtBubbleNatasha[chapterIndex];
+
+        case CHARACTER_NEIMI:
+            return &WorldMapThoughtBubbleNeimi[chapterIndex];
+
+        case CHARACTER_ROSS:
+            return &WorldMapThoughtBubbleRoss[chapterIndex];
+
+        case CHARACTER_TANA:
+            return &WorldMapThoughtBubbleTana[chapterIndex];
 
         default:
             return NULL;
