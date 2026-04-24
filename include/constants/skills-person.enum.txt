@@ -938,3 +938,4 @@
 // SID_COMBAT_Detonate
 // SID_COMBAT_AstraStorm
 // SID_COMBAT_Practice
+// SID_HalfSP

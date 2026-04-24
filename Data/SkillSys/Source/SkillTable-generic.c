@@ -10,10 +10,9 @@
 
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
-    // [CHARACTER_EIRIKA] = {{
-    //     [0] = SID_AssumingCommand,
-    //     [1] = SID_EyeForAnEye,
-    // }},
+    [CHARACTER_EIRIKA] = {{
+        [0] = SID_HalfSP,
+    }},
     // // 02
     // [CHARACTER_SETH] = {{
     //     [0] = SID_SymbiosisPlus

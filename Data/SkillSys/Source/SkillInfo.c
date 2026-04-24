@@ -9214,6 +9214,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_HalfSP) && COMMON_SKILL_VALID(SID_HalfSP))
+    [SID_HalfSP] = {
+        .name = MSG_SKILL_HalfSP_NAME,
+        .desc = MSG_SKILL_HalfSP_DESC,
+        .capacity = MSG_SKILL_HalfSP_CAPACITY,
+        .price = MSG_SKILL_HalfSP_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_TurboMP) && COMMON_SKILL_VALID(SID_TurboMP))
     [SID_TurboMP] = {
         .name = MSG_SKILL_TurboMP_NAME,

@@ -176,6 +176,14 @@ static u8 WorldMapSkillShop_GetUnitSkillPoints(struct Unit *unit)
     return bwl->skillPoints;
 }
 
+static u8 WorldMapSkillShop_GetDiscountedCost(struct Unit *unit, u8 cost)
+{
+    if (UNIT_IS_VALID(unit) && SkillTester(unit, SID_HalfSP))
+        return cost / 2;
+
+    return cost;
+}
+
 static void WorldMapSkillShop_CloseHelp(void)
 {
     if (Proc_Find(gProcScr_HelpBox) != NULL)
@@ -271,6 +279,7 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
 
         sid = sWorldMapSkillShopSkillIds[proc->nodeIndex][skillIndex];
         cost = sWorldMapSkillShopSkillCosts[proc->nodeIndex][skillIndex];
+        cost = WorldMapSkillShop_GetDiscountedCost(unit, cost);
 
         if (unit && SkillTester(unit, sid))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
@@ -331,6 +340,7 @@ static int WorldMapSkillShop_TryPurchase(struct WorldMapSkillShopProc *proc)
 
     sid = sWorldMapSkillShopSkillIds[proc->nodeIndex][proc->cursor];
     cost = sWorldMapSkillShopSkillCosts[proc->nodeIndex][proc->cursor];
+    cost = WorldMapSkillShop_GetDiscountedCost(unit, cost);
 
     if (!UNIT_IS_VALID(unit))
         return 0;

@@ -562,6 +562,13 @@ SP Conversion:[N]
 Gain +5 SP (skill points) upon[N]
 killing an enemy.[X]
 
+## MSG_SKILL_HalfSP_NAME
+Half SP[X]
+## MSG_SKILL_HalfSP_DESC
+Half SP:[N]
+Skill shop costs half as much[N]
+SP for this unit.[X]
+
 ## MSG_SKILL_Enlightenment_NAME
 Enlightenment[X]
 ## MSG_SKILL_Enlightenment_DESC
