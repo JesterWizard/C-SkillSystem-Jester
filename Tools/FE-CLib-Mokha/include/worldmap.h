@@ -524,12 +524,12 @@ extern const u8 WmMonsterGenerateRates_XmapEirika[WM_MON_LOC_MAX];
 extern const u8 WmMonsterGenerateRates_EphraimMode[WM_MON_LOC_MAX * 10];
 extern const u8 WmMonsterGenerateRates_XmapEphraim[WM_MON_LOC_MAX];
 
-// ??? GetWmMonsterGenAmount(???);
-// ??? GenerateRandomonsterMergeNode(???);
-// ??? GenerateRandomonsterMergeConf(???);
+int GetWmMonsterGenAmount(int idx);
+int GenerateRandomonsterMergeNode(const u8 * lut, int idx);
+int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out);
 // ??? nullsub_72(???);
-// ??? GmapTimeMons_Init(???);
-// ??? GmapTimeMons_ExecMonsterMergeMu(???);
+void GmapTimeMons_Init(struct ProcGmapTimeMons * proc);
+void GmapTimeMons_ExecMonsterMergeMu(struct ProcGmapTimeMons * proc);
 // ??? GmapTimeMons_WaitSpriteDone(???);
 ProcPtr NewGmapTimeMons(ProcPtr parent, int * monster_amt);
 void WmRemoveRandomMonsters(void);

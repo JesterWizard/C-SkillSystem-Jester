@@ -4903,3 +4903,199 @@ void PutPrepInformationSprite(int xOam1, int yOam0, u16 oam2)
 {
     PutSpriteExt(4, xOam1, yOam0, Sprite_PrepInformation, oam2);
 }
+
+//! FE8U = 0x080B9D14
+LYN_REPLACE_CHECK(WorldMap_GenerateRandomMonsters);
+void WorldMap_GenerateRandomMonsters(ProcPtr proc)
+{
+    int i;
+    int monster_amt;
+
+    s8 flag = 0;
+
+    if (!(gGMData.state.bits.monster_merged))
+    {
+        flag = 1;
+    }
+    else
+    {
+        if (gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME)
+        {
+            for (i = WM_MONS_UID_ENTRY; i < WM_MONS_UID_END; i++)
+                if (gGMData.units[i].id != 0)
+                    break;
+
+            if (i == 7)
+                flag = 1;
+        }
+        else
+        {
+            if (gGMData.units[0].location[gWMNodeData].placementFlag == GMAP_NODE_PLACEMENT_DUNGEON)
+            {
+                for (i = WM_MONS_UID_ENTRY; i < WM_MONS_UID_END; i++)
+                    if (gGMData.units[i].id != 0)
+                        break;
+
+                if (i == WM_MONS_UID_END)
+                    flag = 1;
+            }
+        }
+    }
+
+    if (flag)
+    {
+        NewGmapTimeMons(NULL, &monster_amt);
+        if (monster_amt > 0)
+            Proc_Goto(proc, 2);
+    }
+    WmShowMonsters();
+}
+
+LYN_REPLACE_CHECK(GmapTimeMons_Init);
+void GmapTimeMons_Init(struct ProcGmapTimeMons * proc)
+{
+    int ret;
+
+    proc->trigger = true;
+    // proc->trigger = false; // This is set to false in vanilla, but that blocks skirmish units from displaying in GmapTimeMons_ExecMonsterMergeMu. Perhaps a mistake?
+    ret = GenerateRandomonsterMergeConf(GetNextUnclearedChapter(), proc->confs);
+    proc->monster_amt = ret;
+
+    if (!(u8)ret)
+        Proc_Goto(proc, 0);
+}
+
+LYN_REPLACE_CHECK(GmapTimeMons_ExecMonsterMergeMu);
+void GmapTimeMons_ExecMonsterMergeMu(struct ProcGmapTimeMons * proc)
+{
+    int i, wm_uid;
+    if (proc->trigger != false)
+    {
+        PlaySoundEffect(SONG_312);
+        for (i = 0; i < proc->monster_amt; i++)
+        {
+            s16 x, y;
+            s16 x1, y1, x2, y2;
+
+            *&x1 = proc->confs[i].node[gWMNodeData].x;
+            *&y1 = proc->confs[i].node[gWMNodeData].y;
+
+            *&x2 = GM_SCREEN->x;
+            *&y2 = GM_SCREEN->y;
+        
+            x = x1 - x2;
+            y = y1 - y2 + 8;
+
+            if ((y >= 0 && y < 0xB0) && (x >= 0 && x < 0xF0))
+                proc->ap_procs[i] = APProc_Create(Sprite_08A97AEC, (s16)x, (s16)y, 0x3880, 0, 7);
+
+            wm_uid = i + 4;
+            SetGmClassUnit(wm_uid, proc->confs[i].jid, WM_FACTION_RED, proc->confs[i].node);
+            gGMData.units[wm_uid].state |= GM_UNIT_STATE_B0;
+            GmShowMuUnit(GM_MU, wm_uid);
+            NoCashGBAPrintf("Merge Conf: %d, %d, %d, %d\n", proc->confs[i].node[gWMNodeData].x, proc->confs[i].node[gWMNodeData].y, proc->confs[i].jid, wm_uid);
+        }
+        Proc_Break(proc);
+    }
+}
+
+LYN_REPLACE_CHECK(GenerateRandomonsterMergeConf);
+int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
+{
+    // int r0; // Not used?
+    int cnt;
+    int rn;
+#ifdef NONMATCHING
+    int node;
+    u16 * ptr;
+    u8 * zeromus;
+#else
+    register int node asm("r5");
+    register u16 * ptr asm("r5");
+    register u8 * zeromus asm("r0");
+#endif
+    int i;
+    u32 idx;
+    u8 array[WM_MON_LOC_MAX];
+    u8 list[WM_MONS_AMT];
+    u16 seeds[WM_MONS_AMT];
+    const u8 * lut1;
+
+    if (chapter >= 0)
+    {
+        if (chapter < 10 || chapter == 0x38)
+            return 0;
+
+        if (chapter < 0)
+            goto handle_xmap;
+
+        switch (gPlaySt.chapterModeIndex) {
+        case CHAPTER_MODE_EIRIKA:
+        default:
+            for (idx = 0; idx < 11; ++idx)
+            {
+                if (WmMonsterGenerateRatesIdx_EirikaMode[idx] == chapter)
+                    break;
+            }
+            lut1 = WmMonsterGenerateRates_EirikaMode + idx * WM_MON_LOC_MAX;
+            break;
+
+        case CHAPTER_MODE_EPHRAIM:
+            for (idx = 0; idx < 11; ++idx) {
+                if (WmMonsterGenerateRatesIdx_EphraimMode[idx] == chapter)
+                    break;
+            }
+            lut1 = WmMonsterGenerateRates_EphraimMode + idx * WM_MON_LOC_MAX;
+            break;
+        }
+        cnt = GetWmMonsterGenAmount(idx);
+        if (cnt <= 0)
+            return 0;
+    }
+    else
+    {
+    /* xmap? */
+    handle_xmap:
+
+        switch (gPlaySt.chapterModeIndex) {
+        case CHAPTER_MODE_EIRIKA:
+        default:
+            lut1 = WmMonsterGenerateRates_XmapEirika;
+            break;
+
+        case CHAPTER_MODE_EPHRAIM:
+            lut1 = WmMonsterGenerateRates_XmapEphraim;
+            break;
+        }
+        cnt = 3;
+    }
+
+    memcpy(array, lut1, sizeof(array));
+    for (i = 0; i < WM_MON_LOC_MAX; i++)
+    {
+        /* Monster will not generate at unit location */
+        if (gWMMonsterSpawnLocations[i] == gGMData.units[0].location)
+            array[i] = 0;
+    }
+    StoreRNState(seeds);
+    ptr = gGmMonsterRnState;
+    LoadRNState(ptr);
+
+    for (i = 0; i < cnt; i++)
+    {
+        node = GenerateRandomonsterMergeNode(array, WM_MON_LOC_MAX);
+        if (node < 0)
+            return i;
+        out[i].node = gWMMonsterSpawnLocations[node];
+        GetChapterSkirmishLeaderClasses(WMLoc_GetChapterId(out[i].node), list);
+        rn = NextRN_N(sizeof(list));
+        out[i].jid = list[rn];
+        out[i].unk2 = 0;
+        gGMData.unk_c9[i] = rn;
+        zeromus = array + node;
+        *zeromus = 0;
+    }
+    StoreRNState(gGmMonsterRnState);
+    LoadRNState(seeds);
+    return cnt;
+}

@@ -1329,7 +1329,7 @@ const EventScr EventScrWM_Ch8_TRAVEL_TO_NODE[] = {
 };
 
 void SetMode() {
-    gPlaySt.chapterModeIndex = 3; // Set gameplay mode
+    gPlaySt.chapterModeIndex = CHAPTER_MODE_EPHRAIM;
     // NoCashGBAPrintf("Current mode is: %d", gPlaySt.chapterModeIndex);
 };
 
