@@ -377,8 +377,8 @@ struct WMSongTableEnt
 
 extern struct WMSongTableEnt gWMSongTable[];
 
-extern u8 const gWMMonsterSpawnsSize;
-extern u8 const gWMMonsterSpawnLocations[];
+// extern u8 const gWMMonsterSpawnsSize;
+// extern u8 const gWMMonsterSpawnLocations[];
 
 extern struct ProcCmd ProcScr_WorldMapMain[];
 

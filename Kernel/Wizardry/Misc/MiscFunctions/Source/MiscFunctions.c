@@ -4904,6 +4904,20 @@ void PutPrepInformationSprite(int xOam1, int yOam0, u16 oam2)
     PutSpriteExt(4, xOam1, yOam0, Sprite_PrepInformation, oam2);
 }
 
+static const u8 gWMMonsterSpawnLocations[WM_MON_LOC_MAX] = {
+    [WM_MON_LOC_0] = WM_NODE_ZahaWoods,
+    [WM_MON_LOC_1] = WM_NODE_AdlasPlains,
+    [WM_MON_LOC_2] = WM_NODE_TerazPlateau,
+    [WM_MON_LOC_3] = WM_NODE_HamillCanyon,
+    [WM_MON_LOC_4] = WM_NODE_Bethroen,
+    [WM_MON_LOC_5] = WM_NODE_ZaalbulMarsh,
+    [WM_MON_LOC_6] = WM_NODE_NarubeRiver,
+    [WM_MON_LOC_7] = WM_NODE_NelerasPeak,
+    [WM_MON_LOC_8] = WM_NODE_MelkaenCoast,
+};
+
+// static const u8 gWMMonsterSpawnsSize = WM_MON_LOC_MAX;
+
 //! FE8U = 0x080B9D14
 LYN_REPLACE_CHECK(WorldMap_GenerateRandomMonsters);
 void WorldMap_GenerateRandomMonsters(ProcPtr proc)
