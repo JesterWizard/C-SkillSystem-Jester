@@ -5007,7 +5007,6 @@ void GmapTimeMons_ExecMonsterMergeMu(struct ProcGmapTimeMons * proc)
             SetGmClassUnit(wm_uid, proc->confs[i].jid, WM_FACTION_RED, proc->confs[i].node);
             gGMData.units[wm_uid].state |= GM_UNIT_STATE_B0;
             GmShowMuUnit(GM_MU, wm_uid);
-            NoCashGBAPrintf("Merge Conf: %d, %d, %d, %d\n", proc->confs[i].node[gWMNodeData].x, proc->confs[i].node[gWMNodeData].y, proc->confs[i].jid, wm_uid);
         }
         Proc_Break(proc);
     }
@@ -5034,6 +5033,7 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
     u8 list[WM_MONS_AMT];
     u16 seeds[WM_MONS_AMT];
     const u8 * lut1;
+    const u32 rateCount = ARRAY_COUNT(WmMonsterGenerateRatesIdx_EirikaMode);
 
     if (chapter >= 0)
     {
@@ -5046,7 +5046,7 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
         switch (gPlaySt.chapterModeIndex) {
         case CHAPTER_MODE_EIRIKA:
         default:
-            for (idx = 0; idx < 11; ++idx)
+            for (idx = 0; idx < rateCount; ++idx)
             {
                 if (WmMonsterGenerateRatesIdx_EirikaMode[idx] == chapter)
                     break;
@@ -5055,7 +5055,7 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
             break;
 
         case CHAPTER_MODE_EPHRAIM:
-            for (idx = 0; idx < 11; ++idx) {
+            for (idx = 0; idx < rateCount; ++idx) {
                 if (WmMonsterGenerateRatesIdx_EphraimMode[idx] == chapter)
                     break;
             }
@@ -5112,4 +5112,56 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
     StoreRNState(gGmMonsterRnState);
     LoadRNState(seeds);
     return cnt;
+}
+
+// //! FE8U = 0x080BD048
+// LYN_REPLACE_CHECK(GetNextUnclearedChapter);
+// u32 GetNextUnclearedChapter(void)
+// {
+//     int nodeId = GetNextUnclearedNode(&gGMData);
+
+//     if (nodeId < 0)
+//     {
+//         return -1;
+//     }
+
+//     return WMLoc_GetChapterId(nodeId);
+// }
+
+// //! FE8U = 0x080BD014
+// LYN_REPLACE_CHECK(GetNextUnclearedNode);
+// int GetNextUnclearedNode(struct GMapData * worldMapData)
+// {
+//     int i;
+
+//     for (i = 0; i < NODE_MAX; i++)
+//     {
+//         if (!(worldMapData->nodes[i].state & GM_NODE_STATE_VALID))
+//         {
+//             continue;
+//         }
+
+//         if (!(worldMapData->nodes[i].state & GM_NODE_STATE_CLEARED))
+//         {
+//             continue;
+//         }
+
+//         return i;
+//     }
+
+//     return -1;
+// }
+
+//! FE8U = 0x080153D4
+LYN_REPLACE_CHECK(CallBeginningEvents);
+int CallBeginningEvents(void)
+{
+    const struct ChapterEventGroup* pChapterEvents = GetChapterEventDataPointer(gPlaySt.chapterIndex);
+
+    if (GetBattleMapKind() != BATTLEMAP_KIND_SKIRMISH)
+        CallEvent(pChapterEvents->beginningSceneEvents, 1);
+    else
+        CallEvent((u16 *)EventScr_SkirmishCommonBeginning, 1);
+
+    return 0;
 }

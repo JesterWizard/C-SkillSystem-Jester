@@ -341,39 +341,39 @@ void ReadSuspendSave(int slot)
 
 void GameInit_DetectEmsChunks(void)
 {
-	FORCE_DECLARE int i;
-	const struct EmsChunk *cur;
-	u32 offset;
+	// FORCE_DECLARE int i;
+	// const struct EmsChunk *cur;
+	// u32 offset;
 
-	i = 0;
+	// i = 0;
 
-	Print("Dump SAV");
-	for (offset = 0, cur = gEmsSavChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; i++, cur++) {
-		Printf("[%02d]: offset=0x%04X, size=0x%04X, saver=%p, loader=%p",
-				i, offset, cur->size, cur->save, cur->load);
+	// Print("Dump SAV");
+	// for (offset = 0, cur = gEmsSavChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; i++, cur++) {
+	// 	Printf("[%02d]: offset=0x%04X, size=0x%04X, saver=%p, loader=%p",
+	// 			i, offset, cur->size, cur->save, cur->load);
 
-		offset += cur->size;
-	}
+	// 	offset += cur->size;
+	// }
 
-	if (offset > EMS_SIZE_SAV) {
-		Errorf("SAV chunk overflowed: max=0x%04X, cur=0x%04X", EMS_SIZE_SAV, offset);
-		hang();
-	}
+	// if (offset > EMS_SIZE_SAV) {
+	// 	Errorf("SAV chunk overflowed: max=0x%04X, cur=0x%04X", EMS_SIZE_SAV, offset);
+	// 	hang();
+	// }
 
-	i = 0;
+	// i = 0;
 
-	Print("Dump SUS");
-	for (offset = 0, cur = gEmsSusChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; i++, cur++) {
-		Printf("[%02d]: offset=0x%04X, size=0x%04X, saver=%p, loader=%p",
-				i, offset, cur->size, cur->save, cur->load);
+	// Print("Dump SUS");
+	// for (offset = 0, cur = gEmsSusChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; i++, cur++) {
+	// 	Printf("[%02d]: offset=0x%04X, size=0x%04X, saver=%p, loader=%p",
+	// 			i, offset, cur->size, cur->save, cur->load);
 
-		offset += cur->size;
-	}
+	// 	offset += cur->size;
+	// }
 
-	if (offset > EMS_SIZE_SUS) {
-		Errorf("SUS chunk overflowed: max=0x%04X, cur=0x%04X", EMS_SIZE_SUS, offset);
-		hang();
-	}
+	// if (offset > EMS_SIZE_SUS) {
+	// 	Errorf("SUS chunk overflowed: max=0x%04X, cur=0x%04X", EMS_SIZE_SUS, offset);
+	// 	hang();
+	// }
 }
 
 /* Save/load hooks for forged item metadata so it's persisted in game saves. */

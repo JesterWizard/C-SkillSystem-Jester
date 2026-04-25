@@ -11,6 +11,38 @@
 #include "jester_headers/custom-arrays.h"
 #include "EAstdlib.h"
 
+const u16 * const EventScrWM_SET_NODE[] = {
+    NULL,
+    (const u16 *)EventScrWM_Prologue_SET_NODE,
+    NULL,
+    (const u16 *)EventScrWM_Ch2_SET_NODE,
+    (const u16 *)EventScrWM_Ch3_SET_NODE,
+    (const u16 *)EventScrWM_Ch4_SET_NODE,
+    NULL,
+    (const u16 *)EventScrWM_Ch5_SET_NODE,
+    (const u16 *)EventScrWM_Ch6_SET_NODE,
+    (const u16 *)EventScrWM_Ch7_SET_NODE,
+    (const u16 *)EventScrWM_Ch8_SET_NODE,
+    (const u16 *)EventScrWM_Ch9_SET_NODE,
+    (const u16 *)EventScrWM_Ch10_SET_NODE,
+};
+
+const u16 * const EventScrWM_TRAVEL_TO_NODE[] = {
+    NULL,
+    (const u16 *)EventScrWM_Prologue_TRAVEL_TO_NODE,
+    NULL,
+    (const u16 *)EventScrWM_Ch2_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch3_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch4_TRAVEL_TO_NODE,
+    NULL,
+    (const u16 *)EventScrWM_Ch5_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch6_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch7_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch8_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch9_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch10_TRAVEL_TO_NODE,
+};
+
 //! FE8U = 0x080BA334
 LYN_REPLACE_CHECK(WorldMap_CallBeginningEvent);
 void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
@@ -45,60 +77,21 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
             proc->gm_icon->merge_next_node = false;
 
             /**
-             * JESTER - I've resorted to hooking into the WM call function to directly load the
-             * WM events I want based on the supplied eventSCR. It's an unfortunate bit of hardcoding
-             * I'm looking to remove, but it frees me from having to rely on the list in ASM in vanilla.
+             * New event list helper
              */
-            int eventID = GetROMChapterStruct(chIndex)->gmapEventId;
+            int eventId = GetROMChapterStruct(chIndex)->gmapEventId;
 
-            // NoCashGBAPrintf("SET event id is: %d", eventID);
-
-            switch (eventID) {
-            case 55:
+            if (eventId == 55)
                 CallEvent((const u16*)EventScrWM_Ch1_ENDING, 0);
-                break;
-            case 1:
+            else if (eventId == 1)
+            {
                 if (gpKernelDesignerConfig->skip_intro == true)
                     CallEvent((const u16*)EventScrWM_PrologueSkip, 0);
                 else
                     CallEvent((const u16*)EventScrWM_Prologue_SET_NODE, 0);
-
-                break;
-            case 2:
-                break;
-            case 3:
-                CallEvent((const u16*)EventScrWM_Ch2_SET_NODE, 0);
-                break;
-            case 4:
-                CallEvent((const u16*)EventScrWM_Ch3_SET_NODE, 0);
-                break;
-            case 5:
-                CallEvent((const u16*)EventScrWM_Ch4_SET_NODE, 0);
-                break;
-            case 6:
-                break;
-            case 7:
-                CallEvent((const u16*)EventScrWM_Ch5_SET_NODE, 0);
-                break;
-            case 8:
-                CallEvent((const u16*)EventScrWM_Ch6_SET_NODE, 0);
-                break;
-            case 9:
-                CallEvent((const u16*)EventScrWM_Ch7_SET_NODE, 0);
-                break;
-            case 10:
-                CallEvent((const u16*)EventScrWM_Ch8_SET_NODE, 0);
-                break;
-            case 11:
-                CallEvent((const u16*)EventScrWM_Ch9_SET_NODE, 0);
-                break;
-            case 12:
-                CallEvent((const u16*)EventScrWM_Ch10_SET_NODE, 0);
-                break;
-            default:
-                CallEvent(Events_WM_Beginning[eventID], 0);
-                break;
             }
+            else if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_SET_NODE) / sizeof(EventScrWM_SET_NODE[0])) && EventScrWM_SET_NODE[eventId] != NULL)
+                CallEvent(EventScrWM_SET_NODE[eventId], 0);
         }
     }
 
@@ -113,55 +106,15 @@ void CallChapterWMIntroEvents(ProcPtr proc)
     if (Events_WM_ChapterIntro[GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId] != NULL)
     {
         /**
-       * JESTER - I've resorted to hooking into the WM call function to directly load the
-       * WM events I want based on the supplied eventSCR. It's an unfortunate bit of hardcoding
-       * I'm looking to remove, but it frees me from having to rely on the list in ASM in vanilla.
-       */
-        int eventID = GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId;
+         * New event list helper
+         */
+        int eventId = GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId;
 
-        // NoCashGBAPrintf("TRAVEL event id is: %d", eventID);
-
-        switch (eventID) {
-        case 55:
-            break;
-        case 1:
-            CallEvent((const u16*)EventScrWM_Prologue_TRAVEL_TO_NODE, 0);
-            break;
-        case 2:
-            break;
-        case 3:
-            CallEvent((const u16*)EventScrWM_Ch2_TRAVEL_TO_NODE, 0);
-            break;
-        case 4:
-            CallEvent((const u16*)EventScrWM_Ch3_TRAVEL_TO_NODE, 0);
-            break;
-        case 5:
-            CallEvent((const u16*)EventScrWM_Ch4_TRAVEL_TO_NODE, 0);
-            break;
-        case 6:
-            break;
-        case 7:
-            CallEvent((const u16*)EventScrWM_Ch5_TRAVEL_TO_NODE, 0);
-            break;
-        case 8:
-            CallEvent((const u16*)EventScrWM_Ch6_TRAVEL_TO_NODE, 0);
-            break;
-        case 9:
-            CallEvent((const u16*)EventScrWM_Ch7_TRAVEL_TO_NODE, 0);
-            break;
-        case 10:
-            CallEvent((const u16*)EventScrWM_Ch8_TRAVEL_TO_NODE, 0);
-            break;
-        case 11:
-            CallEvent((const u16*)EventScrWM_Ch9_TRAVEL_TO_NODE, 0);
-            break;
-        case 12:
-            CallEvent((const u16*)EventScrWM_Ch10_TRAVEL_TO_NODE, 0);
-            break;
-        default:
-            CallEvent(Events_WM_ChapterIntro[eventID], 0);
-            break;
-        }
+        if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_TRAVEL_TO_NODE) / sizeof(EventScrWM_TRAVEL_TO_NODE[0])) && EventScrWM_TRAVEL_TO_NODE[eventId] != NULL)
+            CallEvent(EventScrWM_TRAVEL_TO_NODE[eventId], 0);
+        else if (eventId != 2 && eventId != 6)
+            CallEvent((const u16*)Events_WM_ChapterIntro[eventId], 0);
+        
         StartWMFaceCtrl(proc);
         StartGmapMuEntry(NULL);
     }
@@ -174,8 +127,6 @@ u8 Event97_WmInitNextStoryNode(struct EventEngineProc* proc)
     // struct WorldMapMainProc * worldMapProc;
 
     int nodeId = WMLoc_GetNextLocId(gGMData.current_node);
-
-    // NoCashGBAPrintf("Next node ID is: %d", nodeId);
 
     if (nodeId < 0)
     {
