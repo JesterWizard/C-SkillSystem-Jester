@@ -242,21 +242,21 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
     },
 
     {
-        .name = "　特技変更",
-        .nameMsgId = MSG_WM_MANAGE_SKILLS_NAME,
-        .helpMsgId = MSG_WM_MANAGE_SKILLS_DESC,
-        .overrideId = 4,
-        .isAvailable = MenuAlwaysEnabled,
-        .onSelected = WMMenu_OnManageSkillsSelected,
-    },
-
-    {
         .name = " Skill Shop",
         .nameMsgId = MSG_WM_SKILL_SHOP_NAME,
         .helpMsgId = MSG_WM_SKILL_SHOP_DESC,
-        .overrideId = 5,
+        .overrideId = 4,
         .isAvailable = WMMenu_IsSkillShopAvailable,
         .onSelected = WMMenu_OnSkillShopSelected,
+    },
+
+    {
+        .name = "　特技変更",
+        .nameMsgId = MSG_WM_MANAGE_SKILLS_NAME,
+        .helpMsgId = MSG_WM_MANAGE_SKILLS_DESC,
+        .overrideId = 5,
+        .isAvailable = MenuAlwaysEnabled,
+        .onSelected = WMMenu_OnManageSkillsSelected,
     },
 
     {
