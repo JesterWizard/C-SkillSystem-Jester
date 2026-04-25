@@ -1280,7 +1280,7 @@ const EventScr EventScrWM_Ch8_TRAVEL_TO_NODE[] = {
 };
 
 void SetMode() {
-    gPlaySt.chapterModeIndex = CHAPTER_MODE_EPHRAIM;
+    gPlaySt.chapterModeIndex = CHAPTER_MODE_EIRIKA;
     // NoCashGBAPrintf("Current mode is: %d", gPlaySt.chapterModeIndex);
 };
 

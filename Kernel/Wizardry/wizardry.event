@@ -70,6 +70,7 @@ ALIGN 4
 #include "Core/ComboAttack/ComboAttack.event"
 #include "Core/Movement/Movement.event"
 #include "Core/AiHack/AiHack.event"
+#include "Core/WorldMap/WorldMap_Installer.event"
 
 #include "Misc/SkillEffects/MiscSkillEffects.event"
 #include "Misc/GaidenMagic/GaidenMagic.event"

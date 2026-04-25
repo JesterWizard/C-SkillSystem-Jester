@@ -517,12 +517,12 @@ struct ProcGmapTimeMons {
     /* 3C */ ProcPtr ap_procs[WM_MONS_AMT];
 };
 
-extern const u8 WmMonsterGenerateRatesIdx_EirikaMode[11];
-extern const u8 WmMonsterGenerateRatesIdx_EphraimMode[11];
-extern const u8 WmMonsterGenerateRates_EirikaMode[WM_MON_LOC_MAX * 10];
-extern const u8 WmMonsterGenerateRates_XmapEirika[WM_MON_LOC_MAX];
-extern const u8 WmMonsterGenerateRates_EphraimMode[WM_MON_LOC_MAX * 10];
-extern const u8 WmMonsterGenerateRates_XmapEphraim[WM_MON_LOC_MAX];
+// extern const u8 WmMonsterGenerateRatesIdx_EirikaMode[11];
+// extern const u8 WmMonsterGenerateRatesIdx_EphraimMode[11];
+// extern const u8 WmMonsterGenerateRates_EirikaMode[WM_MON_LOC_MAX * 10];
+// extern const u8 WmMonsterGenerateRates_XmapEirika[WM_MON_LOC_MAX];
+// extern const u8 WmMonsterGenerateRates_EphraimMode[WM_MON_LOC_MAX * 10];
+// extern const u8 WmMonsterGenerateRates_XmapEphraim[WM_MON_LOC_MAX];
 
 int GetWmMonsterGenAmount(int idx);
 int GenerateRandomonsterMergeNode(const u8 * lut, int idx);
