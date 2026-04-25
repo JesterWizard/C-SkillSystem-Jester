@@ -989,8 +989,8 @@ void StartGmScroll(s16 xStart, s16 yStart, s16 xEnd, s16 yEnd, s16 speed, s16 de
 bool CheckGmScrolling(void);
 void EndGmScroll(void);
 
-void SetGmClassUnit(int, int, int, int);
-void SetGmCharUnit(int, int, int, int);
+void SetGmClassUnit(int id, int jid, int allegiance, int nodeId);
+void SetGmCharUnit(int id, int pid, int allegiance, int nodeId);
 void RemoveGmUnit(int);
 void ShowGmUnit(int);
 void HideGmUnit(int);

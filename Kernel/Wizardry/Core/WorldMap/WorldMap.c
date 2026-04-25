@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "kernel/no-cash-gba.h"
 
 static const u8 WmMonsterGenerateRatesIdx_EirikaMode[11] = {
     /* chapter idx */
@@ -89,9 +90,7 @@ void WorldMap_GenerateRandomMonsters(ProcPtr proc)
     s8 flag = 0;
 
     if (!(gGMData.state.bits.monster_merged))
-    {
         flag = 1;
-    }
     else
     {
         if (gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME)
@@ -131,8 +130,7 @@ void GmapTimeMons_Init(struct ProcGmapTimeMons * proc)
 {
     int ret;
 
-    proc->trigger = true;
-    // proc->trigger = false; // This is set to false in vanilla, but that blocks skirmish units from displaying in GmapTimeMons_ExecMonsterMergeMu. Perhaps a mistake?
+    proc->trigger = false;
     ret = GenerateRandomonsterMergeConf(GetNextUnclearedChapter(), proc->confs);
     proc->monster_amt = ret;
 
@@ -171,6 +169,22 @@ void GmapTimeMons_ExecMonsterMergeMu(struct ProcGmapTimeMons * proc)
         }
         Proc_Break(proc);
     }
+
+    s16 x, y;
+    s16 x1, y1, x2, y2;
+    *&x1 = proc->confs[0].node[gWMNodeData].x;
+    *&y1 = proc->confs[0].node[gWMNodeData].y;
+
+    *&x2 = GM_SCREEN->x;
+    *&y2 = GM_SCREEN->y;
+
+    x = x1 - x2;
+    y = y1 - y2 + 8;
+    proc->ap_procs[0] = APProc_Create(Sprite_08A97AEC, (s16)x, (s16)y, 0x3880, 0, 7); // Puff of smoke sprite for world map units
+    SetGmClassUnit(4, CLASS_BRIGAND, WM_FACTION_RED, WM_NODE_ZahaWoods);
+    gGMData.units[4].state |= GM_UNIT_STATE_B0;
+    GmShowMuUnit(GM_MU, 4);
+    Proc_Break(proc);
 }
 
 LYN_REPLACE_CHECK(GenerateRandomonsterMergeConf);
@@ -205,6 +219,31 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
             goto handle_xmap;
 
         switch (gPlaySt.chapterModeIndex) {
+        case CHAPTER_MODE_COMMON:
+            for (idx = 0; idx < rateCount; ++idx)
+            {
+                if (WmMonsterGenerateRatesIdx_EirikaMode[idx] == chapter)
+                    break;
+            }
+
+            if (idx < rateCount)
+            {
+                lut1 = WmMonsterGenerateRates_EirikaMode + idx * WM_MON_LOC_MAX;
+                break;
+            }
+
+            for (idx = 0; idx < rateCount; ++idx)
+            {
+                if (WmMonsterGenerateRatesIdx_EphraimMode[idx] == chapter)
+                    break;
+            }
+
+            if (idx >= rateCount)
+                return 0;
+
+            lut1 = WmMonsterGenerateRates_EphraimMode + idx * WM_MON_LOC_MAX;
+            break;
+
         case CHAPTER_MODE_EIRIKA:
         default:
             for (idx = 0; idx < rateCount; ++idx)
@@ -212,6 +251,10 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
                 if (WmMonsterGenerateRatesIdx_EirikaMode[idx] == chapter)
                     break;
             }
+            // Defensive check to prevent the world map from crashing if no chapter indexes match
+            if (idx >= rateCount)
+                return 0;
+
             lut1 = WmMonsterGenerateRates_EirikaMode + idx * WM_MON_LOC_MAX;
             break;
 
@@ -220,10 +263,15 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
                 if (WmMonsterGenerateRatesIdx_EphraimMode[idx] == chapter)
                     break;
             }
+            // Defensive check to prevent the world map from crashing if no chapter indexes match
+            if (idx >= rateCount)
+                return 0;
+
             lut1 = WmMonsterGenerateRates_EphraimMode + idx * WM_MON_LOC_MAX;
             break;
         }
         cnt = GetWmMonsterGenAmount(idx);
+
         if (cnt <= 0)
             return 0;
     }
@@ -233,6 +281,10 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
     handle_xmap:
 
         switch (gPlaySt.chapterModeIndex) {
+        case CHAPTER_MODE_COMMON:
+            lut1 = WmMonsterGenerateRates_XmapEirika;
+            break;
+
         case CHAPTER_MODE_EIRIKA:
         default:
             lut1 = WmMonsterGenerateRates_XmapEirika;
@@ -262,7 +314,10 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
         if (node < 0)
             return i;
         out[i].node = gWMMonsterSpawnLocations[node];
-        GetChapterSkirmishLeaderClasses(WMLoc_GetChapterId(out[i].node), list);
+
+        // Use the progression chapter that selected the spawn table.
+        // Node chapter IDs can be non-story placeholders in common mode.
+        GetChapterSkirmishLeaderClasses(chapter, list);
         rn = NextRN_N(sizeof(list));
         out[i].jid = list[rn];
         out[i].unk2 = 0;
@@ -275,19 +330,17 @@ int GenerateRandomonsterMergeConf(int chapter, struct GmapTimeMonsConf * out)
     return cnt;
 }
 
-// //! FE8U = 0x080BD048
-// LYN_REPLACE_CHECK(GetNextUnclearedChapter);
-// u32 GetNextUnclearedChapter(void)
-// {
-//     int nodeId = GetNextUnclearedNode(&gGMData);
+//! FE8U = 0x080BD048
+LYN_REPLACE_CHECK(GetNextUnclearedChapter);
+u32 GetNextUnclearedChapter(void)
+{
+    int nodeId = GetNextUnclearedNode(&gGMData);
 
-//     if (nodeId < 0)
-//     {
-//         return -1;
-//     }
+    if (nodeId < 0)
+        return -1;
 
-//     return WMLoc_GetChapterId(nodeId);
-// }
+    return WMLoc_GetChapterId(nodeId);
+}
 
 // //! FE8U = 0x080BD014
 // LYN_REPLACE_CHECK(GetNextUnclearedNode);
@@ -319,8 +372,16 @@ int CallBeginningEvents(void)
 {
     const struct ChapterEventGroup* pChapterEvents = GetChapterEventDataPointer(gPlaySt.chapterIndex);
 
+    if (gPlaySt.chapterIndex < 0 || pChapterEvents == NULL)
+        return 0;
+
     if (GetBattleMapKind() != BATTLEMAP_KIND_SKIRMISH)
+    {
+        if (pChapterEvents->beginningSceneEvents == NULL)
+            return 0;
+
         CallEvent(pChapterEvents->beginningSceneEvents, 1);
+    }
     else
         CallEvent((u16 *)EventScr_SkirmishCommonBeginning, 1);
 

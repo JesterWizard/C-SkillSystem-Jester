@@ -49,6 +49,8 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
 {
     int chIndex;
     int node_next;
+    int eventId;
+    const struct ROMChapterData * chapterData;
 
     Sound_FadeOutBGM(4);
 
@@ -62,16 +64,31 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
 
         gGMData.current_node = loc;
         node_next = WMLoc_GetNextLocId(loc);
+        NoCashGBAPrintf("[WM] CallBeginning loc=%d node_next=%d mode=%d merged=%d\n",
+                        loc,
+                        node_next,
+                        gPlaySt.chapterModeIndex,
+                        gGMData.state.bits.monster_merged);
 
         if (node_next > -1)
         {
+            if (node_next >= NODE_MAX)
+                return;
+
             chIndex = WMLoc_GetChapterId(node_next);
+            NoCashGBAPrintf("[WM] CallBeginning chapter=%d node_next=%d\n", chIndex, node_next);
+
+            if (chIndex < 0)
+                return;
+
+            chapterData = GetROMChapterStruct(chIndex);
+            if (chapterData == NULL)
+                return;
 
             gPlaySt.chapterIndex = chIndex;
 
-
-            if (Events_WM_Beginning[GetROMChapterStruct(chIndex)->gmapEventId] == NULL)
-                return;
+            eventId = chapterData->gmapEventId;
+            NoCashGBAPrintf("[WM] CallBeginning gmapEventId=%d chapter=%d\n", eventId, chIndex);
 
             ResetGmStoryNode();
             proc->gm_icon->merge_next_node = false;
@@ -79,8 +96,6 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
             /**
              * New event list helper
              */
-            int eventId = GetROMChapterStruct(chIndex)->gmapEventId;
-
             if (eventId == 55)
                 CallEvent((const u16*)EventScrWM_Ch1_ENDING, 0);
             else if (eventId == 1)
@@ -92,6 +107,8 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
             }
             else if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_SET_NODE) / sizeof(EventScrWM_SET_NODE[0])) && EventScrWM_SET_NODE[eventId] != NULL)
                 CallEvent(EventScrWM_SET_NODE[eventId], 0);
+            else
+                return;
         }
     }
 
@@ -103,21 +120,51 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
 LYN_REPLACE_CHECK(CallChapterWMIntroEvents);
 void CallChapterWMIntroEvents(ProcPtr proc)
 {
-    if (Events_WM_ChapterIntro[GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId] != NULL)
-    {
-        /**
-         * New event list helper
-         */
-        int eventId = GetROMChapterStruct(gPlaySt.chapterIndex)->gmapEventId;
+    int chapterIndex;
+    int eventId;
+    const u16 * eventScript;
+    const struct ROMChapterData * chapterData;
+    const int maxSafeEventId = 12;
 
-        if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_TRAVEL_TO_NODE) / sizeof(EventScrWM_TRAVEL_TO_NODE[0])) && EventScrWM_TRAVEL_TO_NODE[eventId] != NULL)
-            CallEvent(EventScrWM_TRAVEL_TO_NODE[eventId], 0);
-        else if (eventId != 2 && eventId != 6)
-            CallEvent((const u16*)Events_WM_ChapterIntro[eventId], 0);
-        
-        StartWMFaceCtrl(proc);
-        StartGmapMuEntry(NULL);
+    chapterIndex = gPlaySt.chapterIndex;
+
+    if (chapterIndex < 0)
+        return;
+
+    chapterData = GetROMChapterStruct(chapterIndex);
+    if (chapterData == NULL)
+        return;
+
+    /**
+     * New event list helper
+     */
+    eventId = chapterData->gmapEventId;
+    NoCashGBAPrintf("[WM] CallIntro chapter=%d gmapEventId=%d\n", chapterIndex, eventId);
+
+    eventScript = NULL;
+
+    if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_TRAVEL_TO_NODE) / sizeof(EventScrWM_TRAVEL_TO_NODE[0])) && EventScrWM_TRAVEL_TO_NODE[eventId] != NULL)
+    {
+        NoCashGBAPrintf("[WM] CallIntro using travel script idx=%d\n", eventId);
+        eventScript = EventScrWM_TRAVEL_TO_NODE[eventId];
     }
+    else if (eventId != 2 && eventId != 6 && eventId >= 0 && eventId < maxSafeEventId)
+    {
+        NoCashGBAPrintf("[WM] CallIntro using intro script idx=%d\n", eventId);
+        eventScript = (const u16 *)Events_WM_ChapterIntro[eventId];
+    }
+    else
+    {
+        NoCashGBAPrintf("[WM] CallIntro no script chapter=%d eventId=%d\n", chapterIndex, eventId);
+    }
+
+    if (eventScript == NULL)
+        return;
+
+    CallEvent(eventScript, 0);
+
+    StartWMFaceCtrl(proc);
+    StartGmapMuEntry(NULL);
 }
 
 LYN_REPLACE_CHECK(Event97_WmInitNextStoryNode);
@@ -128,7 +175,7 @@ u8 Event97_WmInitNextStoryNode(struct EventEngineProc* proc)
 
     int nodeId = WMLoc_GetNextLocId(gGMData.current_node);
 
-    if (nodeId < 0)
+    if (nodeId < 0 || nodeId >= NODE_MAX)
     {
         return EVC_ADVANCE_CONTINUE;
     }
@@ -170,17 +217,35 @@ u8 Event3E_PrepScreenCall(struct EventEngineProc* proc)
 LYN_REPLACE_CHECK(WorldMap_CallIntroEvent);
 void WorldMap_CallIntroEvent(struct WorldMapMainProc* proc)
 {
+    int nodeId;
+    int chapterId;
+
     GmMu_80BE108(proc->gm_mu, 0, 0);
 
     if (gGMData.units[0].location[gWMNodeData].placementFlag != GMAP_NODE_PLACEMENT_DUNGEON)
     {
-        gPlaySt.chapterIndex = WMLoc_GetChapterId(proc->unk_3e);
+        nodeId = proc->unk_3e;
         gGMData.state.bits.monster_merged = false;
     }
     else
     {
-        gPlaySt.chapterIndex = WMLoc_GetChapterId(gGMData.units[0].location);
+        nodeId = gGMData.units[0].location;
     }
+
+    if (nodeId < 0 || nodeId >= NODE_MAX)
+        return;
+
+    chapterId = WMLoc_GetChapterId(nodeId);
+    NoCashGBAPrintf("[WM] CallIntro node=%d chapter=%d mode=%d dungeon=%d\n",
+                    nodeId,
+                    chapterId,
+                    gPlaySt.chapterModeIndex,
+                    gGMData.units[0].location[gWMNodeData].placementFlag == GMAP_NODE_PLACEMENT_DUNGEON);
+
+    if (chapterId < 0)
+        return;
+
+    gPlaySt.chapterIndex = chapterId;
 
     CallChapterWMIntroEvents(proc);
 
@@ -1280,7 +1345,7 @@ const EventScr EventScrWM_Ch8_TRAVEL_TO_NODE[] = {
 };
 
 void SetMode() {
-    gPlaySt.chapterModeIndex = CHAPTER_MODE_EIRIKA;
+    gPlaySt.chapterModeIndex = CHAPTER_MODE_COMMON;
     // NoCashGBAPrintf("Current mode is: %d", gPlaySt.chapterModeIndex);
 };
 
