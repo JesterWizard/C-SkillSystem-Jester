@@ -845,9 +845,12 @@ static bool TryExecuteComboAttackOnce(
     return false;
 }
 
-bool TryTriggerAccostRoundRepeat(struct BattleUnit * attacker, struct BattleUnit * defender)
+bool TryTriggerAccostRoundRepeat(struct BattleUnit * attacker, struct BattleUnit * defender, bool * alreadyTriggered)
 {
 #if defined(SID_Accost) && COMMON_SKILL_VALID(SID_Accost)
+    if (alreadyTriggered && *alreadyTriggered)
+        return false;
+
     // Unit must actually have Accost
     if (!BattleFastSkillTester(attacker, SID_Accost))
         return false;
@@ -862,6 +865,9 @@ bool TryTriggerAccostRoundRepeat(struct BattleUnit * attacker, struct BattleUnit
 
     if (!CheckCanContinueAttack(&gBattleTarget))
         return false;
+
+    if (alreadyTriggered)
+        *alreadyTriggered = true;
 
     return true;
 #else
@@ -900,6 +906,8 @@ repeat_full_round:;   // <--- label for Accost repeat
 
     bool combo_done = false;
     bool round_stopped = false;
+    bool actor_accost_done = false;
+    bool target_accost_done = false;
 
     for (int i = 0; i < 4; i++)
     {
@@ -947,8 +955,8 @@ repeat_full_round:;   // <--- label for Accost repeat
 #if defined(SID_Accost) && COMMON_SKILL_VALID(SID_Accost)
     if (!round_stopped)
     {
-        bool actor_accost  = TryTriggerAccostRoundRepeat(&gBattleActor, &gBattleTarget);
-        bool target_accost = TryTriggerAccostRoundRepeat(&gBattleTarget, &gBattleActor);
+        bool actor_accost  = TryTriggerAccostRoundRepeat(&gBattleActor, &gBattleTarget, &actor_accost_done);
+        bool target_accost = TryTriggerAccostRoundRepeat(&gBattleTarget, &gBattleActor, &target_accost_done);
 
         if (actor_accost || target_accost)
         {
