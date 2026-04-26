@@ -408,16 +408,11 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
 
     Text_InsertDrawString(text, 0, 3, GetStringFromIndex(0x4E9)); // TODO: msgid "HP"
 
+    int selectedItem = GetItemFromSlot(gSubjectUnit, gActionData.itemSlotIndex);
+    int healAmount = HealAmountGetter(GetUnitItemHealAmount(gSubjectUnit, selectedItem), gSubjectUnit, unit);
 
-    if (gpKernelDesignerConfig->show_heal_amount == true)
+    if (gpKernelDesignerConfig->show_heal_amount == true && GetUnitItemHealAmount(gSubjectUnit, selectedItem) > 0)
     {
-        int selectedItem = GetItemFromSlot(gSubjectUnit, gActionData.itemSlotIndex);
-        int healAmount = GetUnitItemHealAmount(gSubjectUnit, selectedItem);
-
-#if CHAX
-        healAmount = HealAmountGetter(healAmount, gSubjectUnit, unit);
-#endif
-
         int healedHP = GetUnitCurrentHp(unit) + healAmount;
         int colorId = TEXT_COLOR_SYSTEM_BLUE;
 
@@ -443,9 +438,12 @@ void DrawUnitHpText(struct Text* text, struct Unit* unit) {
             colorId = TEXT_COLOR_SYSTEM_GREEN;
         }
 
+        if (healedHP == 0)
+            healedHP = GetUnitMaxHp(unit);
+
         Text_InsertDrawString(text, 36, 3, GetStringFromIndex(Arrow_ID)); // TODO: msgid "/[.]"
         Text_InsertDrawNumberOrBlank(text, 26, 2, GetUnitCurrentHp(unit));
-        Text_InsertDrawNumberOrBlank(text, 55, colorId, healedHP);
+        Text_InsertDrawNumberOrBlank(text, 55, colorId, GetUnitMaxHp(unit));
     }
     else
     {
