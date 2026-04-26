@@ -6,14 +6,9 @@
 #include "skill-system.h"
 #include "utf8.h"
 #include "jester_headers/custom-structs.h"
+#include "jester_headers/custom-functions.h"
 
-enum {
-	CUSTOM_PROC_PRESS_A = 0,
-	CUSTOM_PROC_PRESS_B = 1,
-	CUSTOM_PROC_IDLE = 2,
-};
-
-static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
+static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
 
 static int WmSkillMenu_GetUnitCount(void)
 {
@@ -242,20 +237,6 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 
 }
 
-static void WmSkillMenu_TransitionOpen(struct WmSkillMenuTransitionProc *transition)
-{
-	StartWMNodeSkillMenuCore((struct MenuProc *)transition->proc_parent);
-}
-
-const struct ProcCmd ProcScr_WMNodeSkillMenuTransition[] = {
-	PROC_NAME("WMNodeSkillMenuTransition"),
-	PROC_YIELD,
-	PROC_CALL_ARG(NewFadeOut, 0x10),
-	PROC_WHILE(FadeOutExists),
-	PROC_CALL(WmSkillMenu_TransitionOpen),
-	PROC_END,
-};
-
 static void WmSkillMenu_ClampListCursor(struct WmSkillMenuProc *proc)
 {
 	if (proc->listCursor >= proc->unitCount)
@@ -282,7 +263,8 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 		}
 
 		WmSkillMenu_CloseHoverHelp();
-		Proc_Goto(proc, CUSTOM_PROC_PRESS_B);
+		EndAllProcChildren(proc);
+		Proc_Goto(proc, 3);
 		PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
 		return;
 	}
@@ -330,7 +312,7 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 
 			WmSkillMenu_CloseHoverHelp();
 			proc->startSkillScreen = proc->listCursor;
-			Proc_Goto(proc, CUSTOM_PROC_PRESS_A);
+			Proc_Goto(proc, 2);
 
 			if (helpBoxWasOpen)
 				WmSkillMenu_OpenUnitHelp(proc);
@@ -420,12 +402,9 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 
 static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 {
-	ProcPtr wmProc;
-
 	Proc_EndEach(ProcScr_SlidingWallBg);
     WmSkillMenu_CloseHoverHelp();
     EndAllProcChildren(proc);
-	WorldMap_Init(GM_MAIN);
     gGMData.units[0].id = gSavedWorldMapUnitId;
     gGMData.sprite_disp = 1;
 	gGMData.xCamera = gSavedWorldMapXCoordiate;
@@ -433,34 +412,42 @@ static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
     ClearBg0Bg1();
 	SetDefaultColorEffects();
 
-	wmProc = Proc_Find(ProcScr_WorldMapMain);
-	if (wmProc != NULL)
-		NewFadeIn(0x10, wmProc);
+ 	returnToWorldMap_External();
 }
 
 const struct ProcCmd ProcScr_WMNodeSkillMenu[] = {
 	PROC_NAME("WMNodeSkillMenu"),
 	PROC_YIELD,
 	PROC_SET_END_CB(WmSkillMenu_OnEnd),
+
+PROC_LABEL(0),
 	PROC_CALL(WmSkillMenu_InitGraphics),
 	PROC_CALL_ARG(NewFadeIn, 0x10),
 	PROC_WHILE(FadeInExists),
 
-PROC_LABEL(CUSTOM_PROC_IDLE),
+PROC_LABEL(1),
 	PROC_REPEAT(WmSkillMenu_Loop),
-PROC_LABEL(CUSTOM_PROC_PRESS_A),
+
+PROC_LABEL(2),
 	PROC_CALL_ARG(NewFadeOut, 0x10),
 	PROC_WHILE(FadeOutExists),
 	PROC_CALL(WmSkillMenu_StartSelectedSkillScreen),
 	PROC_YIELD,
-	PROC_GOTO(CUSTOM_PROC_IDLE),
-PROC_LABEL(CUSTOM_PROC_PRESS_B),
+	PROC_GOTO(0),
+
+
+PROC_LABEL(3),
     PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
 	PROC_END,
+
+PROC_LABEL(4),
+	PROC_CALL_ARG(NewFadeOut, 0x10),
+	PROC_WHILE(FadeOutExists),
+	PROC_GOTO(0),
 };
 
-static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
+static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
 {
 	struct WmSkillMenuProc *proc = Proc_StartBlocking(ProcScr_WMNodeSkillMenu, menuProc);
 
@@ -474,6 +461,8 @@ static void StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
 	proc->iconCount = 0;
 	proc->hoveredSkill = 0;
 	proc->hoveredHelp = 0;
+
+	return proc;
 }
 
 void StartWMNodeSkillMenu(struct MenuProc *menuProc)
@@ -494,5 +483,6 @@ void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc)
 	gGMData.xCamera = 0;
 	gGMData.yCamera = 0;
     ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
-	Proc_StartBlocking(ProcScr_WMNodeSkillMenuTransition, wmProc);
+	struct WmSkillMenuProc *proc = StartWMNodeSkillMenuCore(wmProc);
+	Proc_Goto(proc, 4);
 }

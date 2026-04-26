@@ -11,9 +11,6 @@
 
 STATIC_DECLAR void ProcPrepSkill2_OnEnd(struct ProcPrepSkill2 *proc)
 {
-	if (Proc_Find(ProcScr_WorldMapMain) != NULL)
-		StartWorldMapSkillMenu((struct MenuProc *)proc->proc_parent);
-
 	PrepSetLatestCharId(proc->unit->pCharacterData->number);
 	EndGreenText();
 	EndPrepSkillObj();

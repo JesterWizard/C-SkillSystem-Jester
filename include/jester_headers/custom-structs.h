@@ -220,3 +220,9 @@ enum {
 extern u8 gSavedWorldMapUnitId;
 extern u8 gSavedWorldMapXCoordiate;
 extern u8 gSavedWorldMapYCoordiate;
+
+enum {
+	CUSTOM_PROC_PRESS_A = 0,
+	CUSTOM_PROC_PRESS_B = 1,
+	CUSTOM_PROC_IDLE = 2,
+};
