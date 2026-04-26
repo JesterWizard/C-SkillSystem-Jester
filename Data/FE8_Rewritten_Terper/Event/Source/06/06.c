@@ -21,13 +21,13 @@ const struct ChapterEventGroup Chapter06Event = {
     .playerUnitsInNormal = CH6_PLAYER_UNITS,
     .playerUnitsInHard   = CH6_PLAYER_UNITS,
 
-    .playerUnitsChoice1InEncounter = NULL,
-    .playerUnitsChoice2InEncounter = NULL,
-    .playerUnitsChoice3InEncounter = NULL,
+    .playerUnitsChoice1InEncounter = UnitDef_088B6540,
+    .playerUnitsChoice2InEncounter = UnitDef_088B6838,
+    .playerUnitsChoice3InEncounter = UnitDef_088B6B30,
 
-    .enemyUnitsChoice1InEncounter = NULL,
-    .enemyUnitsChoice2InEncounter = NULL,
-    .enemyUnitsChoice3InEncounter = NULL,
+    .enemyUnitsChoice1InEncounter = UnitDef_088B6608,
+    .enemyUnitsChoice2InEncounter = UnitDef_088B6900,
+    .enemyUnitsChoice3InEncounter = UnitDef_088B6BF8,
 
     .beginningSceneEvents = EventScr_Beginning,
     .endingSceneEvents    = EventScr_Ending_Chapter_06,

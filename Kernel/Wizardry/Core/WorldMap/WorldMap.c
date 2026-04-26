@@ -129,7 +129,7 @@ void GmapTimeMons_Init(struct ProcGmapTimeMons * proc)
 {
     int ret;
 
-    proc->trigger = false;
+    proc->trigger = true; // This was false in vanilla but it was causing skirmishes to not appear, maybe a mistake?
     ret = GenerateRandomonsterMergeConf(GetNextUnclearedChapter(), proc->confs);
     proc->monster_amt = ret;
 
