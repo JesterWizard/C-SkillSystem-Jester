@@ -428,7 +428,7 @@ static void WorldMapSkillShop_HandlePurchaseChoice(struct WorldMapSkillShopProc 
         return;
 
     proc->purchaseConfirming = 0;
-    proc->purchaseDialoguePending = 1;
+    proc->purchaseDialoguePending = 0;
 
     if (GetTalkChoiceResult() != TALK_CHOICE_YES) {
         WorldMapSkillShop_UpdateHandCursor(proc);
@@ -447,6 +447,8 @@ static void WorldMapSkillShop_HandlePurchaseChoice(struct WorldMapSkillShopProc 
         PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
     } else if (purchaseResult == 0) {
         PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+    } else {
+        proc->purchaseDialoguePending = 1;
     }
 }
 
@@ -577,27 +579,39 @@ static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
     }
 }
 
+void returnToWorldMap_External(void)
+{
+    ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
+    NewFadeIn(0x10, wmProc);
+    SetPrimaryHBlankHandler(NULL);
+    SetupGraphicSystemsForWorldMap();
+    sub_80B8E60(wmProc);
+    DeployEveryUnit(wmProc);
+    NewMapScreen(GM_MAIN);
+    RefreshGmNodeLinks(&gGMData);
+    StartWmTextHandler(wmProc);
+    sub_80B8FEC(wmProc);
+    sub_80B90CC(wmProc);
+    Proc_Goto(GM_MAIN, 3);
+}
+
 static void WorldMapSkillShop_OnEnd(struct WorldMapSkillShopProc *proc)
 {
-    ProcPtr wmProc;
-
     Proc_EndEach(ProcScr_SlidingWallBg);
     WorldMapSkillShop_CloseHelp();
+    EndMenuScrollBar();
     EndAllProcChildren(proc);
     ResetDialogueScreen();
 
-    WorldMap_Init(GM_MAIN);
-    gGMData.units[0].id = proc->unitId;
+    gGMData.units[0].id = gSavedWorldMapUnitId;
     gGMData.sprite_disp = 1;
-    gGMData.xCamera = proc->savedX;
-    gGMData.yCamera = proc->savedY;
+    gGMData.xCamera = gSavedWorldMapXCoordiate;
+    gGMData.yCamera = gSavedWorldMapYCoordiate;
 
     ClearBg0Bg1();
     SetDefaultColorEffects();
 
-    wmProc = Proc_Find(ProcScr_WorldMapMain);
-    if (wmProc != NULL)
-        NewFadeIn(0x10, wmProc);
+    returnToWorldMap_External();
 }
 
 static const struct ProcCmd ProcScr_WMNodeSkillShop[] = {
@@ -621,11 +635,14 @@ static const struct ProcCmd ProcScr_WMNodeSkillShop[] = {
 
 static void StartWMNodeSkillShop(struct MenuProc *menuProc)
 {
-    Proc_StartBlocking(ProcScr_WMNodeSkillShop, Proc_Find(ProcScr_WorldMapMain));
+    Proc_StartBlocking(ProcScr_WMNodeSkillShop, GM_MAIN);
 }
 
 u8 WMMenu_OnSkillShopSelected(struct MenuProc *menuProc, struct MenuItemProc *menuItemProc)
 {
+    gSavedWorldMapUnitId = gGMData.units[0].id;
+    gSavedWorldMapXCoordiate = gGMData.xCamera;
+    gSavedWorldMapYCoordiate = gGMData.yCamera;
     gGMData.xCamera = 0;
     gGMData.yCamera = 0;
     gGMData.unk_cd = menuProc->itemCurrent;

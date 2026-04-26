@@ -139,7 +139,6 @@ struct KernelDesigerConfig {
 	u8 start_map_effects;
 	u8 world_map_thought_bubbles;
 	u8 ai_player_phase;
-	u8 custom_campaign; // Used for skirmishes when overriding the route split
 };
 
 struct KernelBattleDesignerConfig {
