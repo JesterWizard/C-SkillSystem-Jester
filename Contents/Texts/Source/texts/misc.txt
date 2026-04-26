@@ -166,11 +166,12 @@ Purchase skills using[N]
 the selected unit's[N]
 skill points.[X]
 
-## MSG_WM_SKILL_SHOP_DIALOGUE
+## MSG_WM_SKILL_SHOP_OPENING_DIALOGUE
 Welcome to my[N]
-humble aboad.[A][CR][LF]
-Do you want to buy anything?[N]
-[Yes][X]
+humble aboad.[A][X]
+
+## MSG_WM_SKILL_SHOP_IDLE_DIALOGUE
+What would you like?[X]
 
 ## MSG_WM_SKILL_SHOP_CONFIRM
 Buy this skill?[N]
@@ -178,11 +179,11 @@ Buy this skill?[N]
 
 ## MSG_WM_SKILL_SHOP_NO_SPACE
 Oops, looks like you've[N]
-run out of space.[X]
+run out of space.[A][X]
 
 ## MSG_WM_SKILL_SHOP_NO_FUNDS
 Looks like you're out of[N]
-funds there, friend.[X]
+funds there, friend.[A][X]
 
 ## MSG_WM_MANAGE_SKILLS_CHOOSE_UNIT
 Manage Skills Choose Unit[X]

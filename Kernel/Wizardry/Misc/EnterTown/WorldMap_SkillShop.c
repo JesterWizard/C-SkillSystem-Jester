@@ -35,6 +35,8 @@ struct WorldMapSkillShopProc {
     u8 itemCount;
     u8 skillCount;
     u8 scrollEnabled;
+    u8 openingDialoguePending;
+    u8 idleDialoguePending;
     u8 purchaseConfirming;
     u8 purchaseDialoguePending;
     u8 purchaseHelpWasActive;
@@ -284,6 +286,8 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
             textColor = TEXT_COLOR_SYSTEM_GRAY;
         else if (WorldMapSkillShop_IsSkillListFull(unit))
             textColor = TEXT_COLOR_SYSTEM_GRAY;
+        else if (cost > skillPoints)
+            textColor = TEXT_COLOR_SYSTEM_GRAY;
 
         DrawIcon(
             TILEMAP_LOCATED(gBG0TilemapBuffer, 4, y),
@@ -309,6 +313,34 @@ static void WorldMapSkillShop_Draw(struct WorldMapSkillShopProc *proc)
 static void WorldMapSkillShop_OpenHelp(struct WorldMapSkillShopProc *proc)
 {
     WorldMapSkillShop_ShowHelp(proc);
+}
+
+static void WorldMapSkillShop_StartIdleDialogue(struct WorldMapSkillShopProc *proc)
+{
+    SetInitTalkTextFont();
+    ClearTalkText();
+    ResetSysHandCursor(proc);
+    proc->handEnabled = 0;
+
+    SetTalkPrintColor(0);
+    SetTalkFlag(TALK_FLAG_INSTANTSHIFT);
+    SetTalkFlag(TALK_FLAG_NOBUBBLE);
+    SetTalkFlag(TALK_FLAG_NOSKIP);
+    SetActiveTalkFace(1);
+
+    proc->idleDialoguePending = 1;
+}
+
+static void WorldMapSkillShop_StartEntryPrompt(struct WorldMapSkillShopProc *proc)
+{
+    ResetSysHandCursor(proc);
+    StartUiCursorHand(proc);
+    DisplaySysHandCursorTextShadow(0x600, false);
+    WorldMapSkillShop_UpdateHandCursor(proc);
+    proc->handEnabled = 1;
+
+    StartShopDialogue(0x8A3, (struct ProcShop *)proc);
+    ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
 }
 
 static void WorldMapSkillShop_StartPurchaseConfirm(struct WorldMapSkillShopProc *proc)
@@ -378,12 +410,14 @@ static void WorldMapSkillShop_EntryDialogue(struct WorldMapSkillShopProc *proc)
     SetInitTalkTextFont();
     ClearTalkText();
 
-    StartTalkExt(8, 2, GetStringFromIndex(MSG_WM_SKILL_SHOP_DIALOGUE), proc);
+    StartTalkExt(8, 2, GetStringFromIndex(MSG_WM_SKILL_SHOP_OPENING_DIALOGUE), proc);
     SetTalkPrintColor(0);
     SetTalkFlag(TALK_FLAG_INSTANTSHIFT);
     SetTalkFlag(TALK_FLAG_NOBUBBLE);
     SetTalkFlag(TALK_FLAG_NOSKIP);
     SetActiveTalkFace(1);
+
+    proc->openingDialoguePending = 1;
 }
 
 static void WorldMapSkillShop_StartShopUi(struct WorldMapSkillShopProc *proc)
@@ -397,23 +431,6 @@ static void WorldMapSkillShop_StartShopUi(struct WorldMapSkillShopProc *proc)
     StartUiGoldBox_New(160, 45, 4, 0x380, proc);
 
     WorldMapSkillShop_Draw(proc);
-}
-
-static void WorldMapSkillShop_HandleEntryChoice(struct WorldMapSkillShopProc *proc)
-{
-    if (GetTalkChoiceResult() != TALK_CHOICE_YES) {
-        Proc_End(proc);
-        return;
-    }
-
-    ResetSysHandCursor(proc);
-    StartUiCursorHand(proc);
-    DisplaySysHandCursorTextShadow(0x600, false);
-    WorldMapSkillShop_UpdateHandCursor(proc);
-    proc->handEnabled = 1;
-
-    StartShopDialogue(0x8A3, (struct ProcShop *)proc);
-    ShowSysHandCursor(28, 72 + ((proc->cursor - proc->listTop) * 16), 0x0, 0x800);
 }
 
 static void WorldMapSkillShop_HandlePurchaseChoice(struct WorldMapSkillShopProc *proc)
@@ -430,7 +447,8 @@ static void WorldMapSkillShop_HandlePurchaseChoice(struct WorldMapSkillShopProc 
     proc->purchaseDialoguePending = 0;
 
     if (GetTalkChoiceResult() != TALK_CHOICE_YES) {
-        WorldMapSkillShop_UpdateHandCursor(proc);
+        proc->purchaseConfirming = 0;
+        proc->idleDialoguePending = 1;
         PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
         return;
     }
@@ -457,6 +475,8 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
     proc->itemCount = proc->nodeIndex >= 0 ? WM_SKILL_SHOP_ITEM_COUNT : 0;
     proc->skillCount = WorldMapSkillShop_GetSkillCount(proc->nodeIndex);
     proc->scrollEnabled = proc->skillCount >= 6;
+    proc->openingDialoguePending = 0;
+    proc->idleDialoguePending = 0;
     proc->unitId = gGMData.units[0].id;
     proc->savedX = gGMData.xCamera;
     proc->savedY = gGMData.yCamera;
@@ -515,6 +535,24 @@ static void WorldMapSkillShop_Init(struct WorldMapSkillShopProc *proc)
 
 static void WorldMapSkillShop_Loop(struct WorldMapSkillShopProc *proc)
 {
+    if (proc->openingDialoguePending) {
+        if (!IsTalkActive()) {
+            proc->openingDialoguePending = 0;
+            WorldMapSkillShop_StartIdleDialogue(proc);
+        }
+
+        return;
+    }
+
+    if (proc->idleDialoguePending) {
+        if (!IsTalkActive()) {
+            proc->idleDialoguePending = 0;
+            WorldMapSkillShop_StartEntryPrompt(proc);
+        }
+
+        return;
+    }
+
     if (proc->purchaseDialoguePending) {
         if (!IsTalkActive()) {
             proc->purchaseDialoguePending = 0;
@@ -624,8 +662,6 @@ static const struct ProcCmd ProcScr_WMNodeSkillShop[] = {
     PROC_WHILE(FadeInExists),
     PROC_CALL(WorldMapSkillShop_StartShopUi),
     PROC_CALL(WorldMapSkillShop_EntryDialogue),
-    PROC_WHILE(IsTalkActive),
-    PROC_CALL(WorldMapSkillShop_HandleEntryChoice),
     PROC_REPEAT(WorldMapSkillShop_Loop),
     PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),

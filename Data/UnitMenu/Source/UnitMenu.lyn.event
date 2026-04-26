@@ -110,7 +110,7 @@ WORD $0
 POIN Refuge_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-984
-WORD $15CC15CB $6C03
+WORD $15CD15CC $6C03
 POIN Transform_Laguz_Usability
 WORD $0
 POIN Transform_Laguz_Effect
