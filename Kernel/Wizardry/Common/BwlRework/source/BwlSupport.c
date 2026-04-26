@@ -2,11 +2,11 @@
 #include "bwl.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "constants/texts.h"
 #include "battle-system.h"
 #include "eventinfo.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-structs.h"
-#include "../../../../../Contents/Texts/build/msgs.h"
 
 #define LOCAL_TRACE 0
 
@@ -24,6 +24,7 @@ LYN_REPLACE_CHECK(ActionSupport);
 s8 ActionSupport(ProcPtr proc)
 {
 	u8 *supp1, *supp2;
+	int rank;
 
 	struct Unit *target = GetUnit(gActionData.targetIndex);
 
@@ -35,11 +36,14 @@ s8 ActionSupport(ProcPtr proc)
 	UnitGainSupportLevel(gActiveUnit, targetSupportNum);
 	UnitGainSupportLevel(target, subjectSupportNum);
 
-	StartSupportTalk(
-		gActiveUnit->pCharacterData->number,
-		target->pCharacterData->number,
-		GetUnitSupportLevel(gActiveUnit, targetSupportNum)
-	);
+	rank = GetUnitSupportLevel(gActiveUnit, targetSupportNum);
+	if (rank > SUPPORT_LEVEL_NONE) {
+		StartSupportTalk(
+			gActiveUnit->pCharacterData->number,
+			target->pCharacterData->number,
+			rank
+		);
+	}
 
 	supp1 = GetUnitBwlSupports(UNIT_CHAR_ID(gActiveUnit));
 	supp2 = GetUnitBwlSupports(UNIT_CHAR_ID(target));
@@ -68,21 +72,21 @@ void CallMapSupportEvent(u16 musicIndex, u16 textIndex) {
 	if (gpKernelDesignerConfig->support_rewards == true)
 		gEventSlots[EVT_SLOT_7] = SUPPORT_EXP_A;
 
+	gEventSlots[0x2] = musicIndex;
+	gEventSlots[0x5] = textIndex;  // EventScr_MapSupportConversation_NEW uses SADD to read from slot 5
+
 	if (gpKernelDesignerConfig->quality_of_life_fixes == true)
     	CallEvent((u16 *)EventScr_MapSupportConversation_NEW, EV_EXEC_CUTSCENE);
 	else
     	CallEvent((u16 *)EventScr_MapSupportConversation, EV_EXEC_CUTSCENE);
-
-    gEventSlots[0x2] = musicIndex;
-    gEventSlots[0x3] = textIndex;
 }
 
 LYN_REPLACE_CHECK(CallSupportViewerEvent);
 void CallSupportViewerEvent(u16 textIndex) {
     // Calls text with random background (support viewer?)
-    CallEvent((u16 *)EventScr_SupportViewerConversation, EV_EXEC_QUIET);
-
     gEventSlots[0x2] = textIndex;
+
+    CallEvent((u16 *)EventScr_SupportViewerConversation, EV_EXEC_QUIET);
 }
 
 //! FE8U = 0x080847F8

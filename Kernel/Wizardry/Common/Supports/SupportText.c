@@ -1,6 +1,6 @@
 #include "common-chax.h"
 #include "jester_headers/custom-arrays.h"
-#include "../../../../Contents/Texts/build/msgs.h"
+#include "constants/texts.h"
 
 const struct SupportTalkEnt gSupportTalkList_NEW[] = 
 {
