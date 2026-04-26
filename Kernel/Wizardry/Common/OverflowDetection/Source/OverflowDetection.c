@@ -11,11 +11,11 @@ extern u8 EwramOverlay0_FreeRamSpaceTop[], EwramOverlay0_UsedFreeRamSpaceTop[], 
 
 void GameInit_OverflowDetection(void)
 {
-	Print("Dump RAM space");
-	Printf("[1] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpaceTop, FreeRamSpaceBottom - UsedFreeRamSpaceTop, UsedFreeRamSpaceTop - FreeRamSpaceTop);
-	Printf("[2] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpace2Bottom, UsedFreeRamSpace2Bottom - FreeRamSpace2Top, FreeRamSpace2Bottom - UsedFreeRamSpace2Bottom);
-	Printf("[3] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpace3Top, FreeRamSpace3Bottom - UsedFreeRamSpace3Top, UsedFreeRamSpace3Top - FreeRamSpace3Top);
-	Printf("[4] top=0x%08X, used=%06X, free=0x%06X", EwramOverlay0_UsedFreeRamSpaceTop, EwramOverlay0_FreeRamSpaceBottom - EwramOverlay0_UsedFreeRamSpaceTop, EwramOverlay0_UsedFreeRamSpaceTop - EwramOverlay0_FreeRamSpaceTop);
+	// Print("Dump RAM space");
+	// Printf("[1] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpaceTop, FreeRamSpaceBottom - UsedFreeRamSpaceTop, UsedFreeRamSpaceTop - FreeRamSpaceTop);
+	// Printf("[2] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpace2Bottom, UsedFreeRamSpace2Bottom - FreeRamSpace2Top, FreeRamSpace2Bottom - UsedFreeRamSpace2Bottom);
+	// Printf("[3] top=0x%08X, used=%06X, free=0x%06X", UsedFreeRamSpace3Top, FreeRamSpace3Bottom - UsedFreeRamSpace3Top, UsedFreeRamSpace3Top - FreeRamSpace3Top);
+	// Printf("[4] top=0x%08X, used=%06X, free=0x%06X", EwramOverlay0_UsedFreeRamSpaceTop, EwramOverlay0_FreeRamSpaceBottom - EwramOverlay0_UsedFreeRamSpaceTop, EwramOverlay0_UsedFreeRamSpaceTop - EwramOverlay0_FreeRamSpaceTop);
 
 	/* Free RAM space */
 	Assert(&FreeRamSpaceTop[0] < &UsedFreeRamSpaceTop[0]);

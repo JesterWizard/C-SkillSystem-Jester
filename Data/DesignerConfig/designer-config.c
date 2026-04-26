@@ -148,4 +148,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.world_map_thought_bubbles = true,
 	.ai_player_phase = false,
 	.prestige = true,
+	.custom_campaign = true, // Used for skirmishes when overriding the route split
 };

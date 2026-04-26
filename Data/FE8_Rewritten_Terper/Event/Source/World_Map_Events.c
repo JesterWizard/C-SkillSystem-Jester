@@ -193,6 +193,7 @@ u8 Event97_WmInitNextStoryNode(struct EventEngineProc* proc)
     {
         if (!(gGMData.nodes[nodeId].state & 1))
         {
+            GM_ICON->nodeId = nodeId;
             StartGmBaseEntry(nodeId, 0, NULL);
             ResetGmStoryNode();
             gGMData.nodes[nodeId].state |= 2;
