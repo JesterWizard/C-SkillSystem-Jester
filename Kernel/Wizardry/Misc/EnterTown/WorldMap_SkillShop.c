@@ -207,7 +207,6 @@ static void WorldMapSkillShop_ShowHelp(struct WorldMapSkillShopProc *proc)
 
     LoadHelpBoxGfx(NULL, 2);
     StartHelpBox(2 * 8, (9 + (row * 2)) * 8, GetSkillDescMsg(sid));
-    StartUiGoldBox_New(160, 45, 4, proc);
 }
 
 static bool WorldMapSkillShop_IsSkillListFull(struct Unit *unit)
@@ -395,7 +394,7 @@ static void WorldMapSkillShop_StartShopUi(struct WorldMapSkillShopProc *proc)
         InitMenuScrollBarImg(0x7A60, 5);
     }
 
-    StartUiGoldBox_New(160, 45, 4, proc);
+    StartUiGoldBox_New(160, 45, 4, 0x380, proc);
 
     WorldMapSkillShop_Draw(proc);
 }

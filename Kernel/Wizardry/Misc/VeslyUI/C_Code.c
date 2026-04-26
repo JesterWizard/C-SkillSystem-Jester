@@ -1059,16 +1059,16 @@ void StartUiGoldBox(ProcPtr parent)
     DisplayGoldBoxText(TILEMAP_LOCATED(gBG0TilemapBuffer, 27, 6));
 }
 
-void StartUiGoldBox_New(int x, int y, int palNum, ProcPtr parent)
+void StartUiGoldBox_New(int x, int y, int palNum, int oam_tiles, ProcPtr parent)
 {
     struct ProcShop * proc;
 
-    Decompress(GetUiGoldBox(), OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
+    Decompress(GetUiGoldBox(), (void *)(0x06010000 + (0x20 * oam_tiles)));
 
     proc = Proc_Start(gProcScr_GoldBox, parent);
     proc->goldbox_x = x;
     proc->goldbox_y = y;
-    proc->goldbox_oam2 = OBJ_PALETTE(OBJPAL_SHOP_GOLDBOX) + OBJ_CHAR(OBJCHR_SHOP_GOLDBOX);
+    proc->goldbox_oam2 = OBJ_PALETTE(OBJPAL_SHOP_GOLDBOX) + oam_tiles;
 
     int id = GetUIPalID();
     const u16 * pal = sUiPalLookup[id][gPlaySt.config.windowColor];
