@@ -51,7 +51,7 @@ static void WmSkillMenu_DrawUnitList(struct WmSkillMenuProc *proc)
 	int i;
 	int unitCount = proc->unitCount;
 
-	ClearSprites();
+	// ClearSprites();
 
 	for (i = 0; i < WM_SKILL_VISIBLE_COUNT; ++i) {
 		int unitIndex = proc->listTop + i;
@@ -96,7 +96,6 @@ static void WmSkillMenu_DrawSkillScreen(struct WmSkillMenuProc *proc)
 			continue;
 
 		DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, tileX, tileY), SKILL_ICON(sid), TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
-		// PutDrawText(&gPrepUnitTexts[i + 13], TILEMAP_LOCATED(gBG0TilemapBuffer, tileX + 2, tileY), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetSkillNameStr(sid));
 	}
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
