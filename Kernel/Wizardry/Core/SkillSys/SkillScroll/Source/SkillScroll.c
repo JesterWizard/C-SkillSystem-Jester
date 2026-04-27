@@ -10,6 +10,28 @@
 #include "action-expa.h"
 
 /* External hooks */
+static int GetSkillScrollSid(int item)
+{
+#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
+    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
+        return ITEM_USES(item);
+#endif
+#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
+    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
+        return ITEM_USES(item) + 0x100;
+#endif
+#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
+    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
+        return ITEM_USES(item) + 0x200;
+#endif
+#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
+    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
+        return ITEM_USES(item) + 0x300;
+#endif
+
+    return ITEM_USES(item);
+}
+
 bool IsSkillScrollItem(int item)
 {
 
@@ -39,45 +61,12 @@ bool IsSkillScrollItem(int item)
 
 char * GetSkillScrollItemName(int item)
 {
-
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        return GetSkillNameStr(ITEM_USES(item));
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        return GetSkillNameStr(ITEM_USES(item) + 0xFF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        return GetSkillNameStr(ITEM_USES(item) + 0x1FF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        return GetSkillNameStr(ITEM_USES(item) + 0x2FF);
-#endif
-    return "";
+    return GetSkillNameStr(GetSkillScrollSid(item));
 }
 
 int GetSkillScrollItemDescId(int item)
 {
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        return GetSkillDescMsg(ITEM_USES(item));
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        return GetSkillDescMsg(ITEM_USES(item) + 0xFF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        return GetSkillDescMsg(ITEM_USES(item) + 0x1FF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        return GetSkillDescMsg(ITEM_USES(item) + 0x2FF);
-#endif
-    return 0;
+    return GetSkillDescMsg(GetSkillScrollSid(item));
 }
 
 int GetSkillScrollItemUseDescId(int item)
@@ -88,23 +77,7 @@ int GetSkillScrollItemUseDescId(int item)
 
 int GetSkillScrollItemIconId(int item)
 {
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        return SKILL_ICON(ITEM_USES(item));
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        return SKILL_ICON(ITEM_USES(item) + 0xFF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        return SKILL_ICON(ITEM_USES(item) + 0x1FF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        return SKILL_ICON(ITEM_USES(item) + 0x2FF);
-#endif
-    return 0;
+    return SKILL_ICON(GetSkillScrollSid(item));
 }
 
 /* Item use */
@@ -124,12 +97,19 @@ static void call_predation_skill_menu(void)
     );
 }
 
+static void wait_for_skill_scroll_selection(struct Proc *proc)
+{
+    if (gEventSlots[EVT_SLOT_7] == 0xFFFF)
+        Proc_Break(proc);
+}
+
 
 /* After the skill menu is called, this proc ends and what it was blocking resumes */
 
 const struct ProcCmd ProcScr_SkillScrollUseSoftLock[] = {
     PROC_YIELD,
     PROC_CALL(call_remove_skill_menu),
+    PROC_REPEAT(wait_for_skill_scroll_selection),
     PROC_END
 };
 
@@ -182,6 +162,7 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
     struct Unit * unit = GetUnit(gActionData.subjectIndex);
     int slot = gActionData.itemSlotIndex;
     FORCE_DECLARE int item = unit->items[slot];
+    int sid = GetSkillScrollSid(item);
 
     if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
@@ -191,26 +172,9 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
         if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
             total += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
 
-        int capacity = 0;
+        int capacity = GetSkillCapacity(sid);
 
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-            GetSkillCapacity(GetItemUses(item));
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-            GetSkillCapacity(GetItemUses(item) + 0xFF);
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-            GetSkillCapacity(GetItemUses(item) + 0x1FF);
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-            GetSkillCapacity(GetItemUses(item) + 0x2FF);
-    #endif
-
-        if (capacity == -1 ) 
+        if (capacity == -1)
             capacity = 0;
         else {
     #if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
@@ -239,38 +203,19 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
         int slot_rep = gActionData.unk08;
         int sid_rep = GET_SKILL(unit, slot_rep);
 
-        RemoveSkill(unit, sid_rep);
+        if (slot_rep >= 0 && slot_rep < UNIT_RAM_SKILLS_LEN) {
+            LearnSkill(unit, sid);
+            SET_SKILL(unit, slot_rep, sid);
+            ResetSkillLists();
+        }
 
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        AddSkill(unit, ITEM_USES(item));
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        AddSkill(unit, ITEM_USES(item) + 0xFF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        AddSkill(unit, ITEM_USES(item) + 0x1FF);
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        AddSkill(unit, ITEM_USES(item) + 0x2FF);
-#endif
+        PushSkillListStack(sid);
+        SetPopupItem(sid);
 
 #if defined(SID_ScrollScribe) && (COMMON_SKILL_VALID(SID_ScrollScribe))
         if (SkillTester(unit, SID_ScrollScribe))
         {
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-            if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-                unit->items[slot] = ITEM_INDEX(item)         | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-                unit->items[slot] = ITEM_INDEX(item + 0xFF)  | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-                unit->items[slot] = ITEM_INDEX(item + 0x1FF) | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-                unit->items[slot] = ITEM_INDEX(item + 0x2FF) | (sid_rep << 8);
-#endif
+            unit->items[slot] = ITEM_INDEX(item) | (sid_rep << 8);
         }
         else 
             UnitUpdateUsedItem(unit, slot);
@@ -282,34 +227,10 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
     else
     {
         /* Simply add a new skill */
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-    {
-        AddSkill(unit, ITEM_USES(item));
-        SetPopupItem(ITEM_USES(item));
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-    {
-        AddSkill(unit, ITEM_USES(item) + 0xFF);
-        SetPopupItem(ITEM_USES(item) + 0xFF);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-    {
-        AddSkill(unit, ITEM_USES(item) + 0x1FF);
-        SetPopupItem(ITEM_USES(item) + 0x1FF);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) ==  CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-    {
-        AddSkill(unit, ITEM_USES(item) + 0x2FF);
-        SetPopupItem(ITEM_USES(item) + 0x2FF);
-    }
-#endif
+
+        AddSkill(unit, sid);
+        PushSkillListStack(sid);
+        SetPopupItem(sid);
         UnitUpdateUsedItem(unit, slot);
     }
 
@@ -320,13 +241,13 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
 
 bool ItemUsability_SkillScroll(struct Unit *unit, int item)
 {
-	return !IsSkillLearned(unit, ITEM_USES(item));
+    return !IsSkillLearned(unit, GetSkillScrollSid(item));
 }
 
 /* Prep item use */
 void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit *proc, int item, int x, int y)
 {
-	int skill = ITEM_USES(item);
+    int skill = GetSkillScrollSid(item);
 	const char *str = GetStringFromIndex(MSG_SkillLearned);
 	struct Text *text = &gPrepItemTexts[TEXT_PREPITEM_POPUP];
 	int icon = SKILL_ICON(skill);
@@ -354,10 +275,16 @@ void PrepItemUseScroll_OnInit(struct ProcPrepItemUseJunaFruit *proc)
 {
 	struct ProcPrepItemUse *parent = proc->proc_parent;
 
+    gActionData.unk08 = -1;
+    gEventSlots[EVT_SLOT_7] = 0;
 	DrawPrepScreenItemUseStatBars(parent->unit, 0);
 	DrawPrepScreenItemUseStatValues(parent->unit);
 
 	PrepItemUseScroll_OnDraw(proc, parent->unit->items[parent->slot], 0x11, 0x0E);
+
+    if (GetFreeSkillSlot(parent->unit) == -1) {
+        Proc_StartBlocking(ProcScr_SkillScrollUseSoftLock, proc);
+    }
 
 	proc->timer = 0x78;
 	PlaySoundEffect(0x5A);
@@ -366,8 +293,19 @@ void PrepItemUseScroll_OnInit(struct ProcPrepItemUseJunaFruit *proc)
 void PrepItemUseScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
 {
 	struct ProcPrepItemUse *parent = proc->proc_parent;
+    int sid = GetSkillScrollSid(parent->unit->items[parent->slot]);
+    int slot = gActionData.unk08;
 
-	AddSkill(parent->unit, ITEM_USES(parent->unit->items[parent->slot]));
+    if (slot >= 0 && slot < UNIT_RAM_SKILLS_LEN) {
+        LearnSkill(parent->unit, sid);
+        SET_SKILL(parent->unit, slot, sid);
+        ResetSkillLists();
+    }
+    else {
+        AddSkill(parent->unit, sid);
+    }
+
+    gActionData.unk08 = -1;
 	UnitUpdateUsedItem(parent->unit, parent->slot);
 	PrepItemUseJuna_OnEnd(proc);
 }
@@ -387,13 +325,6 @@ void PrepItemEffect_SkillScroll(struct ProcPrepItemUse *proc, u16 item)
 bool PrepItemUsability_SkillScroll(struct Unit *unit, int item)
 {
 	if (gpKernelDesignerConfig->gen_new_scroll == false) {
-		/**
-		 * If skillsys is configured unequipable,
-		 * then we need to find a free-slot to equip the skill.
-		 */
-		if (GetFreeSkillSlot(unit) == -1)
-			return false;
-
 		return true;
 	}
 
@@ -401,7 +332,7 @@ bool PrepItemUsability_SkillScroll(struct Unit *unit, int item)
 	 * If player can equip skill by themself,
 	 * then they just need to avoid from learned skill.
 	 */
-	return !IsSkillLearned(unit, ITEM_USES(item));
+    return !IsSkillLearned(unit, GetSkillScrollSid(item));
 }
 
 /**

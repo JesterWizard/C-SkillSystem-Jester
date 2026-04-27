@@ -54,7 +54,8 @@ struct EmsPackedSavUnit {
 	/* 17 */ u8 skills[7];
 	/* 1E */ u16 items[UNIT_ITEM_COUNT];
 	/* 28 */ u32 state;
-	/* 2C */
+	/* 2C */ u8 supportBits;
+	/* 2D */
 } BITPACKED;
 
 struct EmsPackedSusUnit {
@@ -118,7 +119,7 @@ struct EmsPackedSusUnit {
 	/* 33 */ u8 _u3B;
 } BITPACKED;
 
-#define SIZE_OF_SAV_UNIT_PACK 0x2C
+#define SIZE_OF_SAV_UNIT_PACK 0x30
 #define SIZE_OF_SUS_UNIT_PACK 0x34
 
 extern void (*const gpMsa_Saver)(u8 *dst, const u32 size);

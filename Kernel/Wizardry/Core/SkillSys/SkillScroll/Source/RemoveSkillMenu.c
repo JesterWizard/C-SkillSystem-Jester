@@ -257,15 +257,15 @@ STATIC_DECLAR int RemoveSkillMenu_OnDraw(struct MenuProc * menu, struct MenuItem
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
                 if (itemIndex == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-                    sid = ITEM_USES(item) + 0xFF;
+                    sid = ITEM_USES(item) + 0x100;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
                 if (itemIndex == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-                    sid = ITEM_USES(item) + 0x1FF;
+                    sid = ITEM_USES(item) + 0x200;
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
                 if (itemIndex == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-                    sid = ITEM_USES(item) + 0x2FF;
+                    sid = ITEM_USES(item) + 0x300;
 #endif
             }
         }
@@ -306,9 +306,7 @@ STATIC_DECLAR void PredationSkillRemove(void)
     RemoveSkill(gActiveUnit, GET_SKILL(gActiveUnit, gActionData.unk08));
     AddSkill(gActiveUnit, GET_SKILL(targetUnit, 0));
     
-    // Build popup item with the full 10-bit skill ID.
-    SetPopupItem((GET_SKILL(gActiveUnit, gActionData.unk08) << 8) | 
-                 GET_SKILL_SCROLL_INDEX(GET_SKILL(gActiveUnit, gActionData.unk08)));
+    SetPopupItem(GET_SKILL(gActiveUnit, gActionData.unk08));
 }
 #endif
 
@@ -321,9 +319,7 @@ STATIC_DECLAR void PredationPlusSkillRemove(void)
     RemoveSkill(gActiveUnit, GET_SKILL(gActiveUnit, gActionData.unk08));
     AddSkill(gActiveUnit, GET_SKILL(targetUnit, 0));
     
-    // Build popup item with the full 10-bit skill ID.
-    SetPopupItem((GET_SKILL(gActiveUnit, gActionData.unk08) << 8) | 
-                 GET_SKILL_SCROLL_INDEX(GET_SKILL(gActiveUnit, gActionData.unk08)));
+    SetPopupItem(GET_SKILL(gActiveUnit, gActionData.unk08));
 }
 #endif
 
@@ -333,8 +329,7 @@ STATIC_DECLAR void PredationTryAddSkill()
 
     AddSkill(gActiveUnit, GET_SKILL(targetUnit, gActionData.unk0A));
     
-    // Build popup item with the full 10-bit skill ID.
-    SetPopupItem((GET_SKILL(targetUnit, gActionData.unk0A) << 8) | GET_SKILL_SCROLL_INDEX(GET_SKILL(targetUnit, gActionData.unk0A)));
+    SetPopupItem(GET_SKILL(targetUnit, gActionData.unk0A));
 
     NewPopup_Simple(PopupScr_LearnSkill, 0x5A, 0, Proc_Find(gProcScr_PlayerPhase));
 }
@@ -364,14 +359,14 @@ STATIC_DECLAR u8 RemoveSkillMenu_OnSelected(struct MenuProc * menu, struct MenuI
         RemoveSkill(gActiveUnit, sid);
 
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        if (sid < 0xFF)
-            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_1) | (sid << 8);
-        else if (sid > 0xFF && sid < 0x1FF)
-            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_2) | ((sid - 0xFF) << 8);
-        else if (sid > 0x1FF && sid < 0x2FF)
-            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_3) | ((sid - 0x1FF) << 8);
-        else if (sid < 0x3FF)
-            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_4) | ((sid - 0x2FF) << 8);
+        if (sid < 0x100)
+            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_1) | ((sid & 0xFF) << 8);
+        else if (sid < 0x200)
+            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_2) | ((sid & 0xFF) << 8);
+        else if (sid < 0x300)
+            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_3) | ((sid & 0xFF) << 8);
+        else if (sid < 0x400)
+            item = ITEM_INDEX(CONFIG_ITEM_INDEX_SKILL_SCROLL_4) | ((sid & 0xFF) << 8);
 #endif
 
         if (gActiveUnit->items[4] == ITEM_NONE)
@@ -427,8 +422,6 @@ STATIC_DECLAR u8 RemoveSkillMenu_OnSelected(struct MenuProc * menu, struct MenuI
         return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR; 
     }
 #endif
-
-    RemoveSkill(gActiveUnit, sid);
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
