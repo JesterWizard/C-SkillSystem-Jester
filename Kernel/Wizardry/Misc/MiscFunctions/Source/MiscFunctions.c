@@ -322,9 +322,9 @@ void TradeMenu_InitUnitNameDisplay(struct TradeMenuProc* proc)
 
     // TODO: constants
     if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
-        StartSysBrownBox(6, 0x7080, 0x08, 0x800, 0x400, (struct Proc*)(proc));
+        StartSysBrownBox(6, 0x7080, 0x0F, 0x800, 0x400, (struct Proc*)(proc)); // Used to be 0x8 for the palette but it no longer works
     else
-        StartSysBrownBox(6, 0x4800, 0x08, 0x800, 0x400, (struct Proc*)(proc));
+        StartSysBrownBox(6, 0x4800, 0x0F, 0x800, 0x400, (struct Proc*)(proc));
 
     EnableSysBrownBox(0, -40, -1, 1);
     EnableSysBrownBox(1, 184, -1, 0);
