@@ -4,6 +4,7 @@
 #include "jester_headers/LimitedShopStock.h"
 
 extern struct KeyStatusBuffer sKeyStatusBuffer;
+extern struct ProcCmd CONST_DATA ProcScr_ShopSellInit[];
 
 void SU_SaveShopStock(void* target, int size) {
     WriteAndVerifySramFast(gCurrentShopStocks, target, size);
@@ -103,6 +104,40 @@ static u8 GetItemStatColor(int item, s8 isUsable)
 
 // --- END NEW COLOR HELPERS ---
 
+static void DrawStockedSellItemLine(struct Text* text, int item, s8 isUsable, u16* mapOut)
+{
+    u8 nameColor = GetItemNameColor(item, isUsable);
+    u8 statColor = GetItemStatColor(item, isUsable);
+
+    Text_SetParams(text, 0, nameColor);
+    Text_DrawString(text, GetItemName(item));
+
+    if (gpKernelDesignerConfig->limited_shop_items == true)
+        PutText(text, mapOut - 1);
+    else
+        PutText(text, mapOut + 2);
+
+#ifndef CONFIG_INFINITE_DURABILITY
+    if (gpKernelDesignerConfig->limited_shop_items == true)
+        PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
+    else
+        PutNumberOrBlank(mapOut + 11, statColor, GetItemUses(item));
+#endif
+
+    if (gpKernelDesignerConfig->limited_shop_items == true)
+        DrawIcon(mapOut - 3, GetItemIconId(item), 0x4000);
+    else
+        DrawIcon(mapOut, GetItemIconId(item), 0x4000);
+}
+
+static void ClearShopItemIconArea(u16* mapOut)
+{
+    mapOut[0] = 0;
+    mapOut[1] = 0;
+    mapOut[0x20] = 0;
+    mapOut[0x21] = 0;
+}
+
 void DrawStockedItemLine(struct Text* text, int item, s8 isUsable, u16* mapOut)
 {
     int stock = GetItemStock(item);
@@ -156,6 +191,95 @@ void DrawShopItemPriceLine(struct Text* th, int item, struct Unit* unit, u16* ds
         PutNumber(dst + 14, statColor, price);
     else
         PutNumber(dst + 17, statColor, price);
+}
+
+LYN_REPLACE_CHECK(DrawShopItemLine);
+void DrawShopItemLine(struct Text* th, int item, struct Unit* unit, u16* dst)
+{
+    s8 usable = (unit == 0) ? true : IsItemDisplayUsable(unit, item);
+
+    if (gpKernelDesignerConfig->limited_shop_items == true)
+        DrawStockedSellItemLine(th, item, usable, dst);
+    else
+        DrawItemMenuLine(th, item, usable, dst);
+
+    if (IsItemSellable(item) != 0)
+        PutNumber(dst + (gpKernelDesignerConfig->limited_shop_items == true ? 14 : 17), TEXT_COLOR_SYSTEM_BLUE, GetItemSellPrice(item));
+    else
+        Text_InsertDrawString(th, 0x5C, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(0x537));
+}
+
+LYN_REPLACE_CHECK(DrawShopSoldItems);
+void DrawShopSoldItems(struct ProcShop * proc)
+{
+    int item;
+    int index;
+    int i;
+
+    SetTextFont(0);
+    InitSystemTextFont();
+
+    for (i = proc->hand_idx; i < proc->hand_idx + SHOP_TEXT_LINES; i++)
+    {
+        u16 * dst = gBG2TilemapBuffer + TILEMAP_INDEX(7, ((i * 2) & 0x1F));
+
+        index = DivRem(i, SHOP_TEXT_LINES + 1);
+        ClearText(&gShopItemTexts[index]);
+
+        if (gpKernelDesignerConfig->limited_shop_items == true)
+            ClearShopItemIconArea(dst - 3);
+        else
+            ClearShopItemIconArea(dst);
+    }
+
+    for (i = proc->hand_idx; i < proc->hand_idx + SHOP_TEXT_LINES; i++)
+    {
+        index = DivRem(i, SHOP_TEXT_LINES + 1);
+        item = proc->shopItems[i];
+
+        if (item == 0)
+            break;
+
+        DrawShopItemPriceLine(
+            &gShopItemTexts[index],
+            item,
+            proc->unit,
+            gBG2TilemapBuffer + TILEMAP_INDEX(7, ((i * 2) & 0x1F))
+        );
+    }
+
+    BG_SetPosition(BG_2, 0, (proc->hand_idx * 0x10) - 0x48);
+    BG_EnableSyncByMask(BG2_SYNC_BIT);
+}
+
+LYN_REPLACE_CHECK(ShopInitTexts_OnSell);
+void ShopInitTexts_OnSell(struct ProcShop * parent)
+{
+    struct ProcShopInit * proc;
+    int i;
+
+    parent->buy_or_sel = SHOP_ST_SELL;
+
+    proc = Proc_Start(ProcScr_ShopSellInit, PROC_TREE_3);
+    proc->shopproc = parent;
+
+    SetTextFont(0);
+    InitSystemTextFont();
+
+    for (i = 0; i < SHOP_TEXT_LINES; i++)
+    {
+        u16 * dst = gBG2TilemapBuffer + TILEMAP_INDEX(7, ((i * 2) & 0x1F));
+
+        PutBlankText(
+            &gShopItemTexts[DivRem(i, SHOP_TEXT_LINES + 1)],
+            dst);
+
+        if (gpKernelDesignerConfig->limited_shop_items == true)
+            ClearShopItemIconArea(dst - 3);
+    }
+
+    BG_SetPosition(2, 0, -0x48);
+    BG_EnableSyncByMask(BG2_SYNC_BIT);
 }
 
 LYN_REPLACE_CHECK(Shop_Loop_BuyKeyHandler);
@@ -239,6 +363,90 @@ void Shop_Loop_BuyKeyHandler(struct ProcShop* proc) {
     if (sKeyStatusBuffer.newKeys & B_BUTTON) {
         PlaySFX(0x6B, 0x100, 0, 1);
         Proc_Goto(proc, 7);
+        return;
+    }
+}
+
+LYN_REPLACE_CHECK(Shop_Loop_SellKeyHandler);
+void Shop_Loop_SellKeyHandler(struct ProcShop* proc)
+{
+    u8 cur;
+    u32 cursor_at_head;
+    int a;
+    int b;
+    int ui_hand_x_position = 56;
+
+    Shop_TryMoveHandPage();
+
+    BG_SetPosition(BG_2, 0, ShopSt_GetBg2Offset());
+
+    cur = proc->head_loc;
+    cursor_at_head = ShopSt_GetHeadLoc() != cur;
+
+    proc->head_loc = ShopSt_GetHeadLoc();
+    proc->hand_loc = ShopSt_GetHandLoc();
+
+    a = proc->head_loc;
+    a *= 16;
+    b = ((proc->hand_loc * 16)) - 0x48;
+
+    if (gpKernelDesignerConfig->limited_shop_items == true)
+        ui_hand_x_position -= 32;
+
+    DisplayUiHand(ui_hand_x_position, a - b);
+
+    if (proc->helpTextActive && (cursor_at_head != 0))
+    {
+        a = (proc->head_loc * 16);
+        b = ((proc->hand_loc * 16) - 0x48);
+        StartItemHelpBox(56, a - b, proc->unit->items[proc->head_loc]);
+    }
+
+    DisplayShopUiArrows();
+
+    if (IsShopPageScrolling() != 0)
+        return;
+
+    if (proc->helpTextActive)
+    {
+        if (sKeyStatusBuffer.newKeys & (B_BUTTON | R_BUTTON))
+        {
+            proc->helpTextActive = 0;
+            CloseHelpBox();
+        }
+        return;
+    }
+
+    if (sKeyStatusBuffer.newKeys & R_BUTTON)
+    {
+        proc->helpTextActive = 1;
+        a = (proc->head_loc * 16);
+        b = ((proc->hand_loc * 16) - 0x48);
+        StartItemHelpBox(56, a - b, proc->unit->items[proc->head_loc]);
+        return;
+    }
+
+    if (sKeyStatusBuffer.newKeys & A_BUTTON)
+    {
+        if (!IsItemSellable(proc->unit->items[proc->head_loc]))
+        {
+            StartShopDialogue(0x8BB, proc);
+            Proc_Goto(proc, PL_SHOP_SELL);
+        }
+        else
+        {
+            SetTalkNumber(GetItemSellPrice(proc->unit->items[proc->head_loc]));
+            StartShopDialogue(0x8B5, proc);
+            Proc_Break(proc);
+        }
+
+        return;
+    }
+
+    if (sKeyStatusBuffer.newKeys & B_BUTTON)
+    {
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+        Proc_Goto(proc, PL_SHOP_ANYTHING_ELSE);
         return;
     }
 }
