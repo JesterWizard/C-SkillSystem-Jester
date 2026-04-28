@@ -127,7 +127,6 @@ STATIC_DECLAR void NewPackSaveUnit(struct Unit *src, struct EmsPackedSavUnit *ds
 		dst->items[i] = src->items[i];
 
 	dst->state = src->state;
-	dst->supportBits = src->supportBits;
 }
 
 STATIC_DECLAR void NewUnpackSaveUnit(struct EmsPackedSavUnit *src, struct Unit *dst)
@@ -164,9 +163,9 @@ STATIC_DECLAR void NewUnpackSaveUnit(struct EmsPackedSavUnit *src, struct Unit *
 		dst->items[i] = src->items[i];
 
 	dst->state = src->state;
-	dst->supportBits = src->supportBits;
 
 	SetUnitHp(dst, GetUnitMaxHp(dst));
+	dst->supportBits = 0;
 
 	if (dst->exp > 99)
 		dst->exp = -1;

@@ -104,13 +104,13 @@ bool TryGetSkillScrollSid(int item, int *outSid)
         { CONFIG_ITEM_INDEX_SKILL_SCROLL_1, 0x000 },
     #endif
     #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-        { CONFIG_ITEM_INDEX_SKILL_SCROLL_2, 0x100 },
+        { CONFIG_ITEM_INDEX_SKILL_SCROLL_2, 0x0FF },
     #endif
     #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-        { CONFIG_ITEM_INDEX_SKILL_SCROLL_3, 0x200 },
+        { CONFIG_ITEM_INDEX_SKILL_SCROLL_3, 0x1FF },
     #endif
     #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-        { CONFIG_ITEM_INDEX_SKILL_SCROLL_4, 0x300 },
+        { CONFIG_ITEM_INDEX_SKILL_SCROLL_4, 0x2FF },
     #endif
     };
 
