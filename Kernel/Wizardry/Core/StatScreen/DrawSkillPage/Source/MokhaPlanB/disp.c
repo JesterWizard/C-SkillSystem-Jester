@@ -74,7 +74,7 @@ void DrawSkillPage_MokhaPlanB(void)
 				TEXT_COLOR_SYSTEM_GOLD, 0, 0,
 				GetStringFromIndex(MSG_STAT_SCREEN_SKILL_POINTS));
 
-			PutNumberOrBlank(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
+			PutNumber(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
 		}
 	}
 
