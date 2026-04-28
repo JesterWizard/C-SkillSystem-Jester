@@ -705,6 +705,7 @@ bool Action_Bide(ProcPtr parent);
 bool Action_CoinFlip(ProcPtr parent);
 bool Action_Geomancy(ProcPtr parent);
 bool Action_ScrollScribePlus(ProcPtr parent);
+bool Action_Dance(ProcPtr parent);
 bool Action_DancePlus(ProcPtr parent);
 bool Action_Acidic(ProcPtr parent);
 bool Action_AcidicPlus(ProcPtr parent);
