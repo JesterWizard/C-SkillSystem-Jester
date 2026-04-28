@@ -148,5 +148,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.world_map_thought_bubbles = true,
 	.ai_player_phase = false,
 	.prestige = true,
+<<<<<<< copilot/add-promote-talk-event-feature
 	.promote_talk_events = true,
+=======
+	.promote_trainees_in_chapter = true,
+>>>>>>> main
 };

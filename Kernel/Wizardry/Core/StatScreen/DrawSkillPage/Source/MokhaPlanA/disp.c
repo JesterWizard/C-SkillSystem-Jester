@@ -19,6 +19,8 @@ void DrawSkillPage_MokhaPlanA(void)
 		STATSCREEN_TEXT_SUPPORT2,
 	};
 
+	struct SkillList *list = GetUnitSkillList(&gBattleActor.unit /* gStatScreen.unit */);
+
 	DisplayWeaponExp(0, 1, 0x1, ITYPE_SWORD);
 	DisplayWeaponExp(1, 1, 0x3, ITYPE_LANCE);
 	DisplayWeaponExp(2, 1, 0x5, ITYPE_AXE);
@@ -31,17 +33,13 @@ void DrawSkillPage_MokhaPlanA(void)
 
 	for (i = 0; i < STAT_SKILL_NUM_MAX; i++) {
 		struct Text *text = &gStatScreen.text[text_id[i]];
-		int sid = GET_SKILL(gStatScreen.unit, i);
 
-		if (i >= UNIT_RAM_SKILLS_LEN)
+		if (i >= list->amt)
 			break;
 
-		if (!sid)
-			continue;
-
 		DrawIcon(gUiTmScratchA + TILEMAP_INDEX(8, 0x1 + 2 * i),
-				 SKILL_ICON(sid),
-				 TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
+				 SKILL_ICON(list->sid[i]),
+				 TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(list->sid[i])));
 
 		ClearText(text);
 
@@ -49,6 +47,6 @@ void DrawSkillPage_MokhaPlanA(void)
 			text,
 			gUiTmScratchA + TILEMAP_INDEX(10, 0x1 + 2 * i),
 			TEXT_COLOR_SYSTEM_WHITE, 0, 0,
-			GetSkillNameStr(sid));
+			GetSkillNameStr(list->sid[i]));
 	}
 }

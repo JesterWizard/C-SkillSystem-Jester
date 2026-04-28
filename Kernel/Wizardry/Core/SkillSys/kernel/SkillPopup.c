@@ -29,7 +29,7 @@ void PushSkillListStack(u16 sid)
 int PopSkillListStack(void)
 {
 	if (sPopupSkillStack.cur > 0)
-		return sPopupSkillStack.sids[--sPopupSkillStack.cur];
+		return sPopupSkillStack.sids[sPopupSkillStack.cur--];
 
 	return 0;
 }

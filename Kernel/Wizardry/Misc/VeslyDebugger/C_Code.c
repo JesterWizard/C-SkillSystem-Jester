@@ -5,7 +5,6 @@
 #include "mapanim.h"
 #include "configs/configs.h"
 #include "kernel/skill-system.h"
-#include "kernel/stat-screen.h"
 #include "common-chax.h"
 #include "kernel/debuff.h"
 #include "kernel/bwl.h"
@@ -815,6 +814,8 @@ void FixCursorOverflow(void) {
 void SomeMenuInit(DebuggerProc* proc) { 
     ResetTextFont();
     SetTextFontGlyphs(0);
+//		ChapterStatus_SetupFont((void*)proc);
+
     BG_Fill(gBG0TilemapBuffer, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
     ResetTextFont();
@@ -848,6 +849,10 @@ void EditStatsInit(DebuggerProc* proc) {
         BG_GetMapBuffer(1), // back BG
         x, y, w, h,
         TILEREF(0, 0), 0); // style as 0 ? 
+
+    //ClearUiFrame(
+    //    BG_GetMapBuffer(1), // front BG 
+    //    x, y, w, h);
     
     struct Text* th = gStatScreen.text;
     
@@ -920,7 +925,9 @@ const s8 StatCapLookup[] = {
 
 void SaveStats(DebuggerProc* proc) { 
     struct Unit* unit = proc->unit; 
+    //int hpDiff = proc->tmp[0] - unit->maxHP; 
     unit->maxHP = proc->tmp[0]; 
+    //if (hpDiff) { unit->curHP += hpDiff; } 
     unit->curHP = proc->tmp[1]; 
     unit->pow = proc->tmp[2]; 
     unit->skl = proc->tmp[3]; 
@@ -945,7 +952,8 @@ void SaveItems(DebuggerProc* proc) {
 
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 void EditStatsIdle(DebuggerProc* proc) { 
-
+    
+	//DisplayVertUiHand(CursorLocationTable[proc->digit].x, CursorLocationTable[proc->digit].y); // 6 is the tile of the downwards hand 	
 	u16 keys = sKeyStatusBuffer.repeatedKeys; 
     if (keys & B_BUTTON) { //press B to not save stats 
         Proc_Goto(proc, RestartLabel);
@@ -1030,6 +1038,7 @@ void EditWExpInit(DebuggerProc* proc) {
     for (int i = 0; i < WExpOptions; ++i) { 
         proc->tmp[i] = unit->ranks[i]; 
     } 
+    
     
     int x = NUMBER_X - WExpWidth - 1; 
     int y = Y_HAND - 1; 
@@ -1216,8 +1225,12 @@ void EditSkillsInit(DebuggerProc* proc) {
     struct Unit* unit = proc->unit; 
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
+    u64 buffer = 0;
+    for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
+        buffer |= ((u64)unit->supports[i]) << (8 * i);
+
     for (int i = 0; i < SkillsLearnable; ++i)
-        proc->tmp[i] = GET_SKILL(unit, i);
+        proc->tmp[i] = (buffer >> (i * 10)) & 0x3FF;
 #else
     for (int i = 0; i < SkillsLearnable; ++i)
         proc->tmp[i] = unit->supports[i];
@@ -1247,7 +1260,7 @@ void EditSkillsInit(DebuggerProc* proc) {
     
     int uid; 
     for (int i = 0; i < SkillsLearnable; ++i) { 
-        uid = proc->tmp[i]; 
+        uid = unit->supports[i]; 
         if (uid) { 
         Text_DrawString(&th[i], GetSkillNameStr(uid));
         } 
@@ -1272,7 +1285,7 @@ enum icon_sheet_idx {
 #define SKILL_ICON(sid)   ((ICON_SHEET_SKILL0 << 8) + (sid))
 
 void RedrawUnitSkillsMenu(DebuggerProc* proc) { 
-    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, (2 * SkillsLearnable), 0);
+    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, 2 * SkillsLearnable, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
     ResetIconGraphics(); // Add this to reset icon state
 
@@ -1306,8 +1319,14 @@ void SaveSkills(DebuggerProc* proc) {
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
     // Compose the 5 skill IDs into a bit buffer
+    u64 bitbuf = 0;
     for (int i = 0; i < SkillsLearnable; ++i) {
-        SET_SKILL(unit, i, proc->tmp[i]);
+        bitbuf |= ((u64)(proc->tmp[i] & 0x3FF)) << (i * 10); // store 10 bits per skill
+    }
+
+    // Write the packed buffer into unit->supports[7]
+    for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i) {
+        unit->supports[i] = (bitbuf >> (i * 8)) & 0xFF;
     }
 #else
     for (int i = 0; i < SkillsLearnable; ++i) { 
@@ -1350,6 +1369,9 @@ struct ProcCmd const ProcScr_HelpBoxIntroString[] = {
 
     PROC_END,
 };
+
+// extern signed char sMsgString[0x1000];
+// extern struct MsgBuffer sMsgString;
 
 extern int sActiveMsg; 
 void LoadStringIntoBuffer(char* a) {      
@@ -1398,6 +1420,7 @@ void HelpBoxIntroDrawTextsString(struct ProcHelpBoxIntroString * proc)
 
     otherProc->pretext_lines = proc->pretext_lines;
 
+    //GetStringFromIndex(proc->msg);
     LoadStringIntoBuffer(proc->string); 
 
     otherProc->string = StringInsertSpecialPrefixByCtrl();
@@ -2302,12 +2325,9 @@ void EditItemsIdle(DebuggerProc* proc) {
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
-                if ((proc->tmp[proc->id] & 0xFF) == min) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF00); } 
-                else { 
-                    val = (proc->tmp[proc->id] & 0xFF) - pDigitTable[1][proc->digit]; 
-                    if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
-                    else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
-                } 
+                val = (proc->tmp[proc->id] & 0xFF) - pDigitTable[1][proc->digit]; 
+                if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
+                else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
                 RedrawItemMenu(proc); 
             }
@@ -2338,12 +2358,9 @@ void EditItemsIdle(DebuggerProc* proc) {
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
-                
-                if ((proc->tmp[proc->id] & 0xFF00) == min) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF); } 
-                else { 
-                    proc->tmp[proc->id] -= DigitDecimalTable[proc->digit] << 8; 
-                    if ((proc->tmp[proc->id] & 0xFF00) < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
-                } 
+                int decrement = DigitDecimalTable[proc->digit] << 8;
+                if ((proc->tmp[proc->id] & 0xFF00) < decrement) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
+                else { proc->tmp[proc->id] -= decrement; } 
                 
                 RedrawItemMenu(proc); 
             }
@@ -2751,7 +2768,7 @@ void EditMiscInit(DebuggerProc* proc) {
     
     
     int x = NUMBER_X - MiscNameWidth - 1; 
-    int y = Y_HAND - 2; 
+    int y = Y_HAND - 1; 
     int w = MiscNameWidth + (START_X - NUMBER_X) + 3; 
     int h = (NumberOfMisc * 2) + 2; 
     
@@ -2808,23 +2825,29 @@ void RedrawMiscMenu(DebuggerProc* proc) {
     
     int x = NUMBER_X - (MiscNameWidth); 
     for (i = 0; i < NumberOfMisc; ++i) { 
-        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND - 1 + (i*2))); 
+        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND + (i*2))); 
     } 
     for (i = 0; i < NumberOfMisc; ++i) { 
         //
         if (i < 2) { 
-        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         } 
         else if (i == 8) {
         ClearText(&th[NumberOfMisc]);
         Text_DrawString(&th[NumberOfMisc], GetDebuggerAllegianceName(proc->tmp[i]));
-        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND - 1 + (i*2)));
+        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND + (i*2)));
         }
         else { 
-        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         }
         
     } 
+    
+    //for (i = 0; i < NumberOfMisc; ++i) { // uses 
+    //    if (proc->tmp[i]) { n = (proc->tmp[i] & 0xFF00) >> 8; } else { n = 0; } 
+    //    PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X + 3, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, n); 
+    //} 
+
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 
@@ -2929,7 +2952,7 @@ void EditMiscIdle(DebuggerProc* proc) {
         }
     }
     else { 
-        DisplayUiHand(CursorLocationTable[0].x - ((MiscNameWidth + 2) * 8), (Y_HAND - 1 + (proc->id * 2)) * 8);
+        DisplayUiHand(CursorLocationTable[0].x - ((MiscNameWidth + 2) * 8), (Y_HAND + (proc->id * 2)) * 8);
         if (keys & DPAD_RIGHT) {
             proc->digit = 1; 
           proc->editing = true; 

@@ -681,9 +681,15 @@ bool PopupProcExists()
         return false;
 }
 
+static void GrantBEXP_ResetAccumulator(struct ProcGrantBEXP* proc)
+{
+    gBEXP_MapGain = 0;
+}
+
 const struct ProcCmd ProcScr_GrantBEXP[] = {
     PROC_CALL(GrantBEXP_Loop),
     PROC_WHILE(PopupProcExists),
+    PROC_CALL(GrantBEXP_ResetAccumulator),
     PROC_END,
 };
 

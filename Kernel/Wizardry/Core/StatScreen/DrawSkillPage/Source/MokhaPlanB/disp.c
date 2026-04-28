@@ -10,7 +10,8 @@ void DrawSkillPage_MokhaPlanB(void)
 {
 	int iy, ix;
 	struct Text *text;
-	bool hasSkill = false;
+
+	struct SkillList *slist = GetUnitSkillList(&gBattleActor.unit /* gStatScreen.unit */);
 
 	DisplayWeaponExp(0, 1, 0x1, ITYPE_SWORD);
 	DisplayWeaponExp(1, 1, 0x3, ITYPE_LANCE);
@@ -31,26 +32,7 @@ void DrawSkillPage_MokhaPlanB(void)
 		TEXT_COLOR_SYSTEM_GOLD, 0, 0,
 		GetStringFromIndex(MSG_MSS_SKILLS));
 
-	for (iy = 0; iy < 4; iy++) {
-		for (ix = 0; ix < 4; ix++) {
-			int _index = ix + iy * 4;
-			int sid = GET_SKILL(gStatScreen.unit, _index);
-
-			if (_index >= UNIT_RAM_SKILLS_LEN)
-				break;
-
-			if (!sid)
-				continue;
-
-			hasSkill = true;
-
-			DrawIcon(gUiTmScratchA + TILEMAP_INDEX(9 + 2 * ix, 3 + 2 * iy),
-					SKILL_ICON(sid),
-					TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(sid)));
-		}
-	}
-
-	if (!hasSkill) {
+	if (slist->amt == 0) {
 		text = &gStatScreen.text[STATSCREEN_TEXT_ITEM1];
 		ClearText(text);
 		PutDrawText(
@@ -58,6 +40,19 @@ void DrawSkillPage_MokhaPlanB(void)
 			gUiTmScratchA + TILEMAP_INDEX(9, 3),
 			TEXT_COLOR_SYSTEM_GRAY, 0, 0,
 			GetStringFromIndex(MSG_MSS_NOSKILLS));
+	}
+
+	for (iy = 0; iy < 4; iy++) {
+		for (ix = 0; ix < 4; ix++) {
+			int _index = ix + iy * 4;
+
+			if (_index >= slist->amt)
+				break;
+
+			DrawIcon(gUiTmScratchA + TILEMAP_INDEX(9 + 2 * ix, 3 + 2 * iy),
+					SKILL_ICON(slist->sid[_index]),
+					TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + GetSkillIconPal(slist->sid[_index])));
+		}
 	}
 
 	/* Skill Points*/
@@ -74,7 +69,7 @@ void DrawSkillPage_MokhaPlanB(void)
 				TEXT_COLOR_SYSTEM_GOLD, 0, 0,
 				GetStringFromIndex(MSG_STAT_SCREEN_SKILL_POINTS));
 
-			PutNumberOrBlank(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
+			PutNumber(gUiTmScratchA + TILEMAP_INDEX(13, 9), TEXT_COLOR_SYSTEM_BLUE, bwl->skillPoints);
 		}
 	}
 

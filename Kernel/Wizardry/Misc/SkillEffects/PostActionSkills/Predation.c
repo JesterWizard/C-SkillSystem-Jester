@@ -34,10 +34,9 @@ static void callback_anim(ProcPtr proc)
 static void callback_exec_predationPlus(ProcPtr proc)
 {
     struct Unit * targetUnit = GetUnit(gBattleTarget.unit.index);
-    u16 sid = GET_SKILL(targetUnit, 0);
 
     /* If the target unit's first learned skill slot is empty, we can assume they have no skills learned */
-    if (sid == 0)
+    if (UNIT_RAM_SKILLS(targetUnit)[0] == 0)
         return;
 
     Proc_StartBlocking(ProcScr_PredationPlusSoftLock, proc);
@@ -48,23 +47,22 @@ static void callback_exec_predationPlus(ProcPtr proc)
 static void callback_exec_predation(ProcPtr proc)
 {
     struct Unit * targetUnit = GetUnit(gBattleTarget.unit.index);
-    u16 sid = GET_SKILL(targetUnit, 0);
 
     /* If the target unit's first learned skill slot is empty, we can assume they have no skills learned */
-    if (sid == 0)
+    if (UNIT_RAM_SKILLS(targetUnit)[0] == 0)
         return;
 
      /* The active unit has space for an additional skill */
-    if (GetFreeSkillSlot(gActiveUnit) != -1)
+    if (UNIT_RAM_SKILLS(gActiveUnit)[UNIT_RAM_SKILLS_LEN-1] == 0)
     {
         /* The first learned skill in the target unit's struct */
-        AddSkill(gActiveUnit, sid);
-        SetPopupItem(((sid & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(sid));
+        AddSkill(gActiveUnit, GET_SKILL(targetUnit, 0));
+        SetPopupItem(((targetUnit->supports[0] & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(targetUnit->supports[0]));
         NewPopup_Simple(PopupScr_LearnSkill, 0x5A, 0, proc);
     }
     else
     {
-        SetPopupItem(((sid & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(sid));
+        SetPopupItem(((targetUnit->supports[0] & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(targetUnit->supports[0]));
         NewPopup_Simple(PopupScr_ObtainedSkill, 0x5A, 0, proc);
         Proc_StartBlocking(ProcScr_PredationSoftLock, proc);
     }
