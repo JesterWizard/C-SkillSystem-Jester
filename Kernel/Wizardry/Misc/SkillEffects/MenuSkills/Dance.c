@@ -30,7 +30,6 @@ s8 ActionDance(ProcPtr proc) {
     return 0;
 }
 
-#if defined(SID_Dance) && (COMMON_SKILL_VALID(SID_Dance))
 bool Action_Dance(ProcPtr parent)
 {
     struct Unit *target = GetUnit(gActionData.targetIndex);
@@ -39,4 +38,3 @@ bool Action_Dance(ProcPtr parent)
     target->state &= ~(US_UNSELECTABLE | US_HAS_MOVED | US_HAS_MOVED_AI);
     return true;
 }
-#endif
