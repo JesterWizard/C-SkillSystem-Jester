@@ -51,7 +51,7 @@ static void WmSkillMenu_DrawUnitList(struct WmSkillMenuProc *proc)
 	int i;
 	int unitCount = proc->unitCount;
 
-	// ClearSprites();
+	ClearSprites();
 
 	for (i = 0; i < WM_SKILL_VISIBLE_COUNT; ++i) {
 		int unitIndex = proc->listTop + i;
