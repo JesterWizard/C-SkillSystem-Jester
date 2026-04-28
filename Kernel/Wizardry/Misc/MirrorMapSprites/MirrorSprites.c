@@ -103,18 +103,13 @@ static int GetSpinTrapSpriteId(const struct Trap *trap)
 
 static void ReloadCustomTrapSpritePalettes(void)
 {
-    ApplyPalette(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL);
-    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
-    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
-}
-
-static void ReloadCustomTrapSpritePalettes(void)
-{
     // Do not reload these palettes if we have characters talking, as they need those palette banks as well
     if (IsTalkActive())
         return;
 
-    ReloadCustomTrapSpritePalettes();
+    ApplyPalette(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL);
+    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
+    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
 }
 
 static struct SMSHandle *AddTrapSprite(int xDisplay, int yDisplay)
@@ -331,7 +326,7 @@ void PutUnitSpritesOam(void)
 {
     struct SMSHandle * it = gSMSHandleArray->pNext;
 
-    ReloadCustomTrapSpritePalettesIfNotTalking();
+    ReloadCustomTrapSpritePalettes();
 
     PutUnitSpriteIconsOam();
 
