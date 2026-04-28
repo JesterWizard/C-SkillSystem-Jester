@@ -155,6 +155,10 @@ bool AiTryDoMenuSkills(void)
         AI_MENU_SELF_CASE(SID_DancePlus);
         #endif
 
+        #if defined(SID_Dance) && (COMMON_SKILL_VALID(SID_Dance))
+        AI_MENU_TARGET_CASE(SID_Dance, MakeTargetListForRefresh);
+        #endif
+
         #if defined(SID_Transform) && (COMMON_SKILL_VALID(SID_Transform))
         AI_MENU_SELF_CASE(SID_Transform);
         #endif
