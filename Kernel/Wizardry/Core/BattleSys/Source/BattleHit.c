@@ -582,9 +582,11 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 
 #if CHAX
 	/**
-	 * Gaiden magic needs hp-cost
+	 * Gaiden magic needs hp-cost.
+	 * Only gate on cost availability for the initial attack; follow-up
+	 * attacks (speed doubles, brave second hits, etc.) are free.
 	 */
-	if (CheckGaidenMagicAttack(attacker)) {
+	if (CheckGaidenMagicAttack(attacker) && IsFirstGaidenMagicAttackInBattle(attacker)) {
 		int hp_cost = GetGaidenWeaponHpCost(&attacker->unit, attacker->weapon);
 
 		if (!TryBattleHpCost(attacker, hp_cost)) {

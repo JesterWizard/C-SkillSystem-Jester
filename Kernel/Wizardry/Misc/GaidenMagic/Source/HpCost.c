@@ -18,7 +18,7 @@ int GetGaidenWeaponHpCost(struct Unit *unit, int item)
 
 void BattleGenerateHitHpCostForGaidenMagic(struct BattleUnit *attacker, struct BattleUnit *defender)
 {
-	if (CheckGaidenMagicAttack(attacker)) {
+	if (CheckGaidenMagicAttack(attacker) && IsFirstGaidenMagicAttackInBattle(attacker)) {
 		int cost = GetGaidenWeaponHpCost(&attacker->unit, attacker->weapon);
 		int round = GetCurrentBattleHitRound();
 

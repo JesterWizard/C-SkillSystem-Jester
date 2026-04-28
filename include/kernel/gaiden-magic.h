@@ -84,6 +84,25 @@ static inline bool CheckGaidenMagicAttack(struct BattleUnit *bu)
 	}
 }
 
+/**
+ * Returns true if this is the first time this attacker is attacking in the
+ * current battle. Follow-up attacks (speed doubles, brave second hit, etc.)
+ * return false. The distinction is made by checking whether any previous
+ * battle hit was made by the same side (actor vs. retaliator).
+ */
+static inline bool IsFirstGaidenMagicAttackInBattle(struct BattleUnit *attacker)
+{
+	bool isRetaliation = (attacker == &gBattleTarget);
+	int currentRound = GetCurrentBattleHitRound();
+
+	for (int i = 0; i < currentRound; i++) {
+		bool prevIsRetaliation = (gBattleHitArrayRe[i].info & BATTLE_HIT_INFO_RETALIATION) != 0;
+		if (prevIsRetaliation == isRetaliation)
+			return false;
+	}
+	return true;
+}
+
 int GetGaidenWeaponHpCost(struct Unit *unit, int item);
 void BattleGenerateHitHpCostForGaidenMagic(struct BattleUnit *attacker, struct BattleUnit *defender);
 int GetGaidenMagicAutoEquipSlot(struct Unit *unit);
