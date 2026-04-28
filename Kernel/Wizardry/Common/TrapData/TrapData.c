@@ -4,6 +4,7 @@
 #include "event-rework.h"
 #include "kernel-lib.h"
 #include "kernel/traps.h"
+#include "jester_headers/custom-functions.h"
 
 extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
 
@@ -474,6 +475,10 @@ void LoadTrapData(const struct TrapData * data)
         case TRAP_SPIN_TILE:
             AddSpinTile(data->xPos, data->yPos, data->subtype);
             break;
+
+        case TRAP_REPEAT_HOUSE:
+            AddRepeatHouse(data->xPos, data->yPos, data->subtype);
+            break;
         }
 
         data++;
@@ -752,4 +757,52 @@ bool PostAction_SpinTile(ProcPtr parent)
     proc = Proc_StartBlocking(ProcScr_PostAction_SpinTileSequence, parent);
     proc->unit = gActiveUnit;
     return true;
+}
+
+#ifndef CONFIG_REPEAT_HOUSE_DEFAULT_EXP
+#define CONFIG_REPEAT_HOUSE_DEFAULT_EXP 10
+#endif
+
+struct Trap *AddRepeatHouse(int x, int y, int exp)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    /* trap->extra stores the configured EXP amount (0 = use default) */
+    trap = AddTrap(x, y, TRAP_REPEAT_HOUSE, exp);
+    if (!trap)
+        return NULL;
+
+    /* Explicitly clear visited flag; AddTrap may not zero-initialize data[] */
+    trap->data[TRAP_EXTDATA_REPEAT_HOUSE_VISITED] = 0;
+    return trap;
+}
+
+bool PostAction_RepeatHouse(ProcPtr parent)
+{
+    struct Trap *trap;
+    int exp;
+
+    if (!UNIT_IS_VALID(gActiveUnit))
+        return false;
+
+    if (gActionData.unitActionType != UNIT_ACTION_VISIT)
+        return false;
+
+    trap = GetTypedTrapAt(gActiveUnit->xPos, gActiveUnit->yPos, TRAP_REPEAT_HOUSE);
+    if (!trap)
+        return false;
+
+    if (trap->data[TRAP_EXTDATA_REPEAT_HOUSE_VISITED])
+        return false;
+
+    trap->data[TRAP_EXTDATA_REPEAT_HOUSE_VISITED] = 1;
+
+    /* trap->extra holds the EXP amount set when the trap was created; fall back to default */
+    exp = trap->extra ? trap->extra : CONFIG_REPEAT_HOUSE_DEFAULT_EXP;
+    AddExp_Event(exp);
+
+    return false;
 }

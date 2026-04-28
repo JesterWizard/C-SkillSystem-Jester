@@ -40,6 +40,7 @@ gPostActionFuncs:
     POIN PostAction_HellscapeVoidTile
     POIN PostAction_TeleportTile
     POIN PostAction_SpinTile
+    POIN PostAction_RepeatHouse
     POIN ResetComboAtkList
 
     //End

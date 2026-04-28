@@ -31,6 +31,7 @@ enum
     TRAP_GRASS_TILE = 20,
     TRAP_BOULDER_TILE = 21,
     TRAP_SPIN_TILE = 22,
+    TRAP_REPEAT_HOUSE = 23,
 };
 
 enum
@@ -78,6 +79,9 @@ enum
 
     // Spin tile extdata definitions
     TRAP_EXTDATA_SPIN_TILE_DIRECTION = 0,
+
+    // Repeat house extdata definitions
+    TRAP_EXTDATA_REPEAT_HOUSE_VISITED = 0, // first-visit flag (0 = not yet visited, 1 = already visited)
 };
 
 enum
@@ -113,6 +117,7 @@ struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette);
 struct Trap* AddSpinTile(int x, int y, int direction);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
 struct Trap* AddGrassTile(int x, int y, int turnsLeft);
+struct Trap* AddRepeatHouse(int x, int y, int exp);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
 void AddGasTrap(int x, int y, int facing, int turnCountdown, int turnInterval);
 void AddArrowTrap(int x, int turnCountdown, int turnInterval);
@@ -167,6 +172,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define SPIN_TILE(x, y, direction) \
     TRAP_SPIN_TILE, (x), (y), (direction), 0, 0
+
+#define REPEAT_HOUSE(x, y, exp) \
+    TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0
 
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);
