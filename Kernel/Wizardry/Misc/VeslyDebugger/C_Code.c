@@ -2302,12 +2302,9 @@ void EditItemsIdle(DebuggerProc* proc) {
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
-                if ((proc->tmp[proc->id] & 0xFF) == min) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF00); } 
-                else { 
-                    val = (proc->tmp[proc->id] & 0xFF) - pDigitTable[1][proc->digit]; 
-                    if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
-                    else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
-                } 
+                val = (proc->tmp[proc->id] & 0xFF) - pDigitTable[1][proc->digit]; 
+                if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
+                else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
                 RedrawItemMenu(proc); 
             }
@@ -2338,12 +2335,9 @@ void EditItemsIdle(DebuggerProc* proc) {
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
-                
-                if ((proc->tmp[proc->id] & 0xFF00) == min) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF); } 
-                else { 
-                    proc->tmp[proc->id] -= DigitDecimalTable[proc->digit] << 8; 
-                    if ((proc->tmp[proc->id] & 0xFF00) < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
-                } 
+                int decrement = DigitDecimalTable[proc->digit] << 8;
+                if ((proc->tmp[proc->id] & 0xFF00) < decrement) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
+                else { proc->tmp[proc->id] -= decrement; } 
                 
                 RedrawItemMenu(proc); 
             }
