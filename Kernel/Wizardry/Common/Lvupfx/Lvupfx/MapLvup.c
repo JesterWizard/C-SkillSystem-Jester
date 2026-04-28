@@ -163,6 +163,15 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 				gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
 			}
 		}
+		if (gpKernelDesignerConfig->promote_trainees_in_chapter == true) {
+			if ((UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_MAXLEVEL10) &&
+				gManimSt.actor[proc->actor_id].unit->level >= 10)
+			{
+				gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
+				StartBmPromotion(proc);
+				gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
+			}
+		}
 		Proc_Break(proc);
 	}
 }
