@@ -1,0 +1,202 @@
+## MSG_PROMO_TALK_EIRIKA
+[OpenMidRight][LoadFace_Eirika][ToggleSmile]
+This is it. I've grown[N]
+stronger for those I love.[A][N]
+I won't give up now.[N]
+I'll protect everyone![A][X]
+
+## MSG_PROMO_TALK_SETH
+[OpenMidRight][LoadFace_Seth][ToggleSmile]
+My blade serves Eirika[N]
+and Renais above all.[A][N]
+Let no enemy stand before[N]
+this renewed resolve.[A][X]
+
+## MSG_PROMO_TALK_GILLIAM
+[OpenMidRight][LoadFace_Gilliam][ToggleSmile]
+Good. I can feel the[N]
+power in these muscles.[A][N]
+Let them come. This shield[N]
+will not yield.[A][X]
+
+## MSG_PROMO_TALK_FRANZ
+[OpenMidRight][LoadFace_Franz][ToggleSmile]
+I've trained hard for this.[N]
+Lord Seth would be proud.[A][N]
+I'll keep pushing forward[N]
+and honor his example![A][X]
+
+## MSG_PROMO_TALK_MOULDER
+[OpenMidRight][LoadFace_Moulder][ToggleSmile]
+The Saint watches over us.[N]
+With this new strength,[A][N]
+I can keep these soldiers[N]
+on their feet.[A][X]
+
+## MSG_PROMO_TALK_VANESSA
+[OpenMidRight][LoadFace_Vanessa][ToggleSmile]
+The skies belong to those[N]
+with the will to claim them.[A][N]
+I'll soar higher than ever[N]
+and guard those below![A][X]
+
+## MSG_PROMO_TALK_NEIMI
+[OpenMidRight][LoadFace_Neimi][ToggleSmile]
+Colm... I've gotten stronger.[N]
+I won't be a burden anymore.[A][N]
+Every arrow will fly true[N]
+from here on out.[A][X]
+
+## MSG_PROMO_TALK_COLM
+[OpenMidRight][LoadFace_Colm][ToggleSmile]
+Ha! Look at me now.[N]
+Not bad for a thief, right?[A][N]
+I'll keep an eye on Neimi[N]
+and watch all our backs.[A][X]
+
+## MSG_PROMO_TALK_GARCIA
+[OpenMidRight][LoadFace_Garcia][ToggleSmile]
+Ross... you'll catch up to[N]
+your old man soon enough.[A][N]
+Until then, I'll show you[N]
+what a real warrior looks like.[A][X]
+
+## MSG_PROMO_TALK_INNES
+[OpenMidRight][LoadFace_Innes][ToggleSmile]
+I've honed myself to this.[N]
+Tana will be well protected.[A][N]
+No arrow will miss. No enemy[N]
+will escape my sight.[A][X]
+
+## MSG_PROMO_TALK_LUTE
+[OpenMidRight][LoadFace_Lute][ToggleSmile]
+Naturally. My studies have[N]
+led to this result.[A][N]
+My calculations show I am[N]
+the best mage here. Obviously.[A][X]
+
+## MSG_PROMO_TALK_NATASHA
+[OpenMidRight][LoadFace_Natasha][ToggleSmile]
+Latona's light guides me.[N]
+I have grown in faith.[A][N]
+I'll continue to heal and[N]
+strengthen those around me.[A][X]
+
+## MSG_PROMO_TALK_CORMAG
+[OpenMidRight][LoadFace_Cormag][ToggleSmile]
+Glen... I'll carry on[N]
+in your name.[A][N]
+This dragon and I will fly[N]
+toward our own path now.[A][X]
+
+## MSG_PROMO_TALK_EPHRAIM
+[OpenMidRight][LoadFace_Ephraim][ToggleSmile]
+It's time to push forward.[N]
+Eirika is counting on me.[A][N]
+My lance will pierce[N]
+through every obstacle![A][X]
+
+## MSG_PROMO_TALK_FORDE
+[OpenMidRight][LoadFace_Forde][ToggleSmile]
+Would you look at that.[N]
+Didn't think I'd get here.[A][N]
+I'll be sure to protect[N]
+Ephraim... when I feel like it.[A][X]
+
+## MSG_PROMO_TALK_KYLE
+[OpenMidRight][LoadFace_Kyle][ToggleSmile]
+I've worked hard for this.[N]
+No more half-measures.[A][N]
+Lord Ephraim's safety is[N]
+my one responsibility.[A][X]
+
+## MSG_PROMO_TALK_ARTUR
+[OpenMidRight][LoadFace_Artur][ToggleSmile]
+The light has guided me here.[N]
+I've grown strong in faith.[A][N]
+Let this power serve[N]
+justice and the weak.[A][X]
+
+## MSG_PROMO_TALK_GERIK
+[OpenMidRight][LoadFace_Gerik][ToggleSmile]
+Tethys... I've made it[N]
+to another level.[A][N]
+I'll make sure you stay safe[N]
+wherever we go.[A][X]
+
+## MSG_PROMO_TALK_TETHYS
+[OpenMidRight][LoadFace_Tethys][ToggleSmile]
+I dance to keep everyone[N]
+fighting, and it's paid off.[A][N]
+Whatever comes next,[N]
+I'll be right here.[A][X]
+
+## MSG_PROMO_TALK_MARISA
+[OpenMidRight][LoadFace_Marisa][ToggleSmile]
+I've grown stronger.[N]
+The Crimson Flash lives on.[A][N]
+I'll continue to hone[N]
+my blade in silence.[A][X]
+
+## MSG_PROMO_TALK_SALEH
+[OpenMidRight][LoadFace_Saleh][ToggleSmile]
+The mountains have made[N]
+me resilient and patient.[A][N]
+Ewan and Myrrh are safe[N]
+as long as I stand.[A][X]
+
+## MSG_PROMO_TALK_LARACHEL
+[OpenMidRight][LoadFace_Larachel][ToggleSmile]
+The light of Latona[N]
+fills me with warmth.[A][N]
+Let this power be[N]
+a beacon for the lost.[A][X]
+
+## MSG_PROMO_TALK_DOZLA
+[OpenMidRight][LoadFace_Dozla][ToggleSmile]
+GWAHAHA! NOW WE'RE TALKING![N]
+Lady L'Arachel will be proud![A][N]
+Let every enemy tremble[N]
+before this axe![A][X]
+
+## MSG_PROMO_TALK_RENNAC
+[OpenMidRight][LoadFace_Rennac][ToggleSmile]
+I didn't sign up for heroics,[N]
+but here I am...[A][N]
+Fine. I'll keep fighting.[N]
+For a fee, of course.[A][X]
+
+## MSG_PROMO_TALK_DUESSEL
+[OpenMidRight][LoadFace_Duessel][ToggleSmile]
+Old soldiers don't rest.[N]
+They grow stronger with time.[A][N]
+I'll defend Renais and[N]
+make good on my failures.[A][X]
+
+## MSG_PROMO_TALK_KNOLL
+[OpenMidRight][LoadFace_Knoll][ToggleSmile]
+The dark arts demand much.[N]
+I have paid that price.[A][N]
+I'll use this power to[N]
+serve whatever good remains.[A][X]
+
+## MSG_PROMO_TALK_JOSHUA
+[OpenMidRight][LoadFace_Joshua][ToggleSmile]
+Ha! The odds were in my favor[N]
+all along, it seems.[A][N]
+Ismaire... I'll see this through.[N]
+I won't let you down.[A][X]
+
+## MSG_PROMO_TALK_SYRENE
+[OpenMidRight][LoadFace_Syrene][ToggleSmile]
+Vanessa has grown so much.[N]
+It's time I kept pace.[A][N]
+I'll fly by her side and[N]
+guard her as she guards others.[A][X]
+
+## MSG_PROMO_TALK_TANA
+[OpenMidRight][LoadFace_Tana][ToggleSmile]
+Finally, all those lessons[N]
+have paid off.[A][N]
+This time I'll be protecting[N]
+you, brother.[A][X]

@@ -4839,6 +4839,108 @@ ProcPtr StartPromoTraineeEvent(ProcPtr proc)
     return Proc_StartBlocking(ProcScr_PromoSelectEvent_NEW, proc);
 }
 
+/* Promotion talk event for non-trainee player units */
+static const u16 sPromoTalkMsgLut[] = {
+    [CHARACTER_EIRIKA]  = MSG_PROMO_TALK_EIRIKA,
+    [CHARACTER_SETH]    = MSG_PROMO_TALK_SETH,
+    [CHARACTER_GILLIAM] = MSG_PROMO_TALK_GILLIAM,
+    [CHARACTER_FRANZ]   = MSG_PROMO_TALK_FRANZ,
+    [CHARACTER_MOULDER] = MSG_PROMO_TALK_MOULDER,
+    [CHARACTER_VANESSA] = MSG_PROMO_TALK_VANESSA,
+    [CHARACTER_NEIMI]   = MSG_PROMO_TALK_NEIMI,
+    [CHARACTER_COLM]    = MSG_PROMO_TALK_COLM,
+    [CHARACTER_GARCIA]  = MSG_PROMO_TALK_GARCIA,
+    [CHARACTER_INNES]   = MSG_PROMO_TALK_INNES,
+    [CHARACTER_LUTE]    = MSG_PROMO_TALK_LUTE,
+    [CHARACTER_NATASHA] = MSG_PROMO_TALK_NATASHA,
+    [CHARACTER_CORMAG]  = MSG_PROMO_TALK_CORMAG,
+    [CHARACTER_EPHRAIM] = MSG_PROMO_TALK_EPHRAIM,
+    [CHARACTER_FORDE]   = MSG_PROMO_TALK_FORDE,
+    [CHARACTER_KYLE]    = MSG_PROMO_TALK_KYLE,
+    [CHARACTER_ARTUR]   = MSG_PROMO_TALK_ARTUR,
+    [CHARACTER_GERIK]   = MSG_PROMO_TALK_GERIK,
+    [CHARACTER_TETHYS]  = MSG_PROMO_TALK_TETHYS,
+    [CHARACTER_MARISA]  = MSG_PROMO_TALK_MARISA,
+    [CHARACTER_SALEH]   = MSG_PROMO_TALK_SALEH,
+    [CHARACTER_LARACHEL]= MSG_PROMO_TALK_LARACHEL,
+    [CHARACTER_DOZLA]   = MSG_PROMO_TALK_DOZLA,
+    [CHARACTER_RENNAC]  = MSG_PROMO_TALK_RENNAC,
+    [CHARACTER_DUESSEL] = MSG_PROMO_TALK_DUESSEL,
+    [CHARACTER_KNOLL]   = MSG_PROMO_TALK_KNOLL,
+    [CHARACTER_JOSHUA]  = MSG_PROMO_TALK_JOSHUA,
+    [CHARACTER_SYRENE]  = MSG_PROMO_TALK_SYRENE,
+    [CHARACTER_TANA]    = MSG_PROMO_TALK_TANA,
+};
+
+void PromoTalk_Talk(struct ProcPromoTraineeEvent *proc)
+{
+    u32 msg;
+
+    if (proc->pid >= (sizeof(sPromoTalkMsgLut) / sizeof(sPromoTalkMsgLut[0])) ||
+        sPromoTalkMsgLut[proc->pid] == 0)
+        return;
+
+    msg = sPromoTalkMsgLut[proc->pid];
+
+    StartTalkFace(proc->face, 0xd4, 0x50, 0x82, 0);
+
+    gFaces[0]->displayBits = FACE_DISP_KIND(2) | FACE_DISP_HLAYER(2);
+    gFaces[1]->displayBits = FACE_DISP_HIDDEN;
+    gFaces[2]->displayBits = FACE_DISP_HIDDEN;
+    gFaces[3]->displayBits = FACE_DISP_HIDDEN;
+
+    gUnknown_03005398 = -1;
+
+    StartCgText(0x16, 0x12, 0x12, 4, msg, OBJ_VRAM0 + 0x1800, -1, 0);
+    SetCgTextFlags(CG_TEXT_FLAG_1 | CG_TEXT_FLAG_3);
+}
+
+static const struct ProcCmd ProcScr_PromoTalkEvent[] = {
+    PROC_SLEEP(8),
+    PROC_NAME("promo_talk_event"),
+    PROC_LABEL(0),
+    PROC_CALL(PromoTrainee_InitScreen),
+    PROC_LABEL(1),
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
+    PROC_CALL(PromoTalk_Talk),
+    PROC_WHILE(CgTextExists),
+    PROC_LABEL(3),
+    PROC_WHILE(RemovePromoTraineeEventFace),
+    PROC_LABEL(2),
+    PROC_CALL(PromoTrainee_OnEnd),
+    PROC_LABEL(4),
+    PROC_END,
+};
+
+ProcPtr StartPromoTalkEvent(ProcPtr proc)
+{
+    return Proc_StartBlocking(ProcScr_PromoTalkEvent, proc);
+}
+
+LYN_REPLACE_CHECK(PromoMain_SetupTraineeEvent_);
+bool PromoMain_SetupTraineeEvent_(struct ProcPromoMain *proc)
+{
+    /* Handle promote_talk_events for non-trainee player units */
+    if (gpKernelDesignerConfig->promote_talk_events &&
+        proc->stat != PROMO_MAIN_STAT_TRAINEE_EVENT &&
+        UNIT_FACTION(proc->unit) == FACTION_BLUE &&
+        proc->pid < (sizeof(sPromoTalkMsgLut) / sizeof(sPromoTalkMsgLut[0])) &&
+        sPromoTalkMsgLut[proc->pid] != 0) {
+
+        StartPromoTalkEvent((ProcPtr)proc);
+        return true;
+    }
+
+    /* Original: start the trainee event for trainee units */
+    if (proc->stat == PROMO_MAIN_STAT_TRAINEE_EVENT) {
+        StartPromoTraineeEvent((ProcPtr)proc);
+        return true;
+    }
+
+    return true;
+}
+
 LYN_REPLACE_CHECK(StartBrownTextBoxCore);
 void StartBrownTextBoxCore(int x, int y, int textId, int chr, int pal, ProcPtr parent)
 {
