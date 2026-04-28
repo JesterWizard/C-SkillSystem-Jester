@@ -15,6 +15,8 @@ struct Trap* AddBoulderTile(int x, int y);
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);
 struct Trap* AddLightRune(int x, int y, int palette);
+struct Trap* AddRepeatHouse(int x, int y, int exp);
 int GetEffectiveTerrainAt(int x, int y);
 bool PostAction_TeleportTile(ProcPtr parent);
 bool PostAction_SpinTile(ProcPtr parent);
+bool PostAction_RepeatHouse(ProcPtr parent);
