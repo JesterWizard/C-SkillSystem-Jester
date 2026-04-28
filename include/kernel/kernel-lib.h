@@ -139,6 +139,7 @@ struct KernelDesigerConfig {
 	u8 start_map_effects;
 	u8 world_map_thought_bubbles;
 	u8 ai_player_phase;
+	u8 promote_trainees_in_chapter;
 };
 
 struct KernelBattleDesignerConfig {
