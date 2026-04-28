@@ -701,7 +701,8 @@ static inline int GetGameOptionIconChr(int icon)
 LYN_REPLACE_CHECK(DrawGameOptionIcon);
 void DrawGameOptionIcon(int selectedIdx, int yBase)
 {
-    int y = 0x20 * ((selectedIdx * 2 + yBase) & 0x1f);
+    int yTop = 0x20 * ((selectedIdx * 2 + yBase) & 0x1f);
+    int yBot = 0x20 * ((selectedIdx * 2 + yBase + 1) & 0x1f);
     int icon = gGameOptions_NEW[gGameOptionsUiOrder_NEW[selectedIdx]].icon;
     int chr = GetGameOptionIconChr(icon);
 
@@ -709,10 +710,10 @@ void DrawGameOptionIcon(int selectedIdx, int yBase)
     icon = TILEREF(chr, 4);
 
     // Loads the icons in quarters
-    gBG1TilemapBuffer[TILEMAP_INDEX(2, 0) + y] = icon + 0;    // Top Left
-    gBG1TilemapBuffer[TILEMAP_INDEX(3, 0) + y] = icon + 1;    // Top Right
-    gBG1TilemapBuffer[TILEMAP_INDEX(2, 1) + y] = icon + 0x20; // Bottom Right
-    gBG1TilemapBuffer[TILEMAP_INDEX(3, 1) + y] = icon + 0x21; // Bottom Left
+    gBG1TilemapBuffer[TILEMAP_INDEX(2, 0) + yTop] = icon + 0;    // Top Left
+    gBG1TilemapBuffer[TILEMAP_INDEX(3, 0) + yTop] = icon + 1;    // Top Right
+    gBG1TilemapBuffer[TILEMAP_INDEX(2, 0) + yBot] = icon + 0x20; // Bottom Left
+    gBG1TilemapBuffer[TILEMAP_INDEX(3, 0) + yBot] = icon + 0x21; // Bottom Right
 }
 
 //! FE8U: 0x080B1784
@@ -871,7 +872,7 @@ void Config_Init(struct ConfigProc * proc)
 
     StartMenuScrollBarExt(proc, 224, 47, 0x390 * CHR_SIZE, 1);
 
-    InitText(&gConfigUiState->text_68, 9);
+    InitText(&gConfigUiState->text_68, 10);
     InitText(&gConfigUiState->text_a0, 14);
 
     for (; i < 6; i++)
@@ -880,7 +881,7 @@ void Config_Init(struct ConfigProc * proc)
 
         DrawGameOptionIcon(i, 5);
 
-        InitText(&gConfigUiState->optionTexts[i], 9);
+        InitText(&gConfigUiState->optionTexts[i], 10);
         InitText(&gConfigUiState->valueTexts[i], 14);
 
         DrawGameOptionText(i, i, y);
@@ -1121,11 +1122,12 @@ void PutGameOptionRow(ProcPtr proc, int selectedIdx, int c)
     int y = ((selectedIdx * 2) + 5) & 0x1f;
 
     int yTmp = 0x20 * y;
+    int yNextTmp = 0x20 * ((y + 1) & 0x1f);
 
     for (i = 0; i <= 26; i++)
     {
         gBG1TilemapBuffer[yTmp + 0x02 + i] = 0;
-        gBG1TilemapBuffer[yTmp + 0x22 + i] = 0;
+        gBG1TilemapBuffer[yNextTmp + 0x02 + i] = 0;
     }
 
     textIdx = k_umod(selectedIdx, 7);
