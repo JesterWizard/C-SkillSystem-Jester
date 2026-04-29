@@ -149,4 +149,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.ai_player_phase = false,
 	.prestige = true,
 	.promote_trainees_in_chapter = true,
+	.rescue_drop_move_again = true,
 };
