@@ -183,6 +183,18 @@ void TryAddUnitToWarpTargetList(struct Unit* unit) {
     return;
 }
 
+LYN_REPLACE_CHECK(TryAddUnitToRefreshTargetList);
+void TryAddUnitToRefreshTargetList(struct Unit *unit)
+{
+    if (!AreUnitsAllied(gSubjectUnit->index, unit->index))
+        return;
+
+    if (!(unit->state & US_HAS_MOVED))
+        return;
+
+    AddTarget(unit->xPos, unit->yPos, unit->index, 0);
+}
+
 LYN_REPLACE_CHECK(TryAddUnitToHammerneTargetList);
 void TryAddUnitToHammerneTargetList(struct Unit* unit) {
 
