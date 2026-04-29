@@ -737,14 +737,20 @@ void UnitDrop(struct Unit* actor, int xTarget, int yTarget)
     actor->state = actor->state & ~(US_RESCUING | US_RESCUED);
     target->state = target->state & ~(US_RESCUING | US_RESCUED | US_HIDDEN);
 
+    /* Let rescued unit move again if they haven't moved yet */
+    const bool can_move_again = gpKernelDesignerConfig->rescue_drop_move_again
+        && !(target->state & US_HAS_MOVED);
+
     /* Let rescued units move after the rescuer dies */
-    if (gpKernelDesignerConfig->death_dance == true) {
-        if (UNIT_FACTION(target) == gPlaySt.faction && actor->curHP != 0)
-            target->state |= US_UNSELECTABLE; // TODO: US_GRAYED    
-    }
-    else {
-        if (UNIT_FACTION(target) == gPlaySt.faction)
-            target->state |= US_UNSELECTABLE; // TODO: US_GRAYED
+    if (!can_move_again) {
+        if (gpKernelDesignerConfig->death_dance == true) {
+            if (UNIT_FACTION(target) == gPlaySt.faction && actor->curHP != 0)
+                target->state |= US_UNSELECTABLE; // TODO: US_GRAYED
+        }
+        else {
+            if (UNIT_FACTION(target) == gPlaySt.faction)
+                target->state |= US_UNSELECTABLE; // TODO: US_GRAYED
+        }
     }
 
     actor->rescue = 0;
