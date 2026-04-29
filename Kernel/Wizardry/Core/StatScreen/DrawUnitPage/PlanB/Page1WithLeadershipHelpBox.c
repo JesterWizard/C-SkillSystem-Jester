@@ -1,13 +1,21 @@
 #include "common-chax.h"
 #include "stat-screen.h"
+#include "kernel-lib.h"
 #include "constants/texts.h"
 
 static _DECL_INFO RText_Pow, RText_Mag, RText_Skl, RText_Spd, RText_Lck, RText_Def, RText_Res;
-static _DECL_INFO RText_Mov, RText_Con, RText_Aid, RText_Affin, RText_Trv, RText_Cond, RText_BAmt;
+static _DECL_INFO RText_Mov, RText_Con, RText_Aid, RText_Trv, RText_Cond, RText_BAmt;
 static _DECL_INFO RText_Name, RText_Class, RText_Level, RText_Exp, RText_Hp;
 static _DECL_INFO RText_Lead, RText_Talk;
+static _DECL_INFO RText_Affin;
 
 _DECL_INFO *const RTextPageUnit_WithLeadership = &RText_Pow;
+
+void HbPopulate_Page1WithLeadership_Affin(struct HelpBoxProc *proc);
+void HbPopulate_Page1WithLeadership_Affin(struct HelpBoxProc *proc)
+{
+	proc->mid = gpKernelDesignerConfig->custom_fog_sight == true ? MSG_StatMenu_Sight_DESC : 0x551;
+}
 
 /* Line #1 */
 static _DECL_INFO RText_Pow = {
@@ -77,19 +85,11 @@ static _DECL_INFO RText_Aid = {
 	NULL, NULL
 };
 
-#ifdef CONFIG_MODULAR_FOG_UNIT_SIGHT
-	static _DECL_INFO RText_Affin = {
-		&RText_Aid, &RText_Lead, &RText_Spd, NULL,
-		0xA6, 0x48, MSG_StatMenu_Sight_DESC,
-		NULL, NULL
-	};
-#else
-	static _DECL_INFO RText_Affin = {
-		&RText_Aid, &RText_Lead, &RText_Spd, NULL,
-		0xA6, 0x48, 0x551,
-		NULL, NULL
-	};
-#endif
+static _DECL_INFO RText_Affin = {
+	&RText_Aid, &RText_Lead, &RText_Spd, NULL,
+	0xA6, 0x48, 0x551,
+	NULL, HbPopulate_Page1WithLeadership_Affin
+};
 
 static _DECL_INFO RText_Lead = {
 	&RText_Affin, &RText_Trv, &RText_Lck, NULL,
