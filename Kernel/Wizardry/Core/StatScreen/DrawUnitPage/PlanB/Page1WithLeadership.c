@@ -103,12 +103,15 @@ static void DrawPage1TextCommon(void)
 		0, 0,
 		GetStringFromIndex(0x4F8)); // Aid
 
-	PutDrawText(
-		&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
-		gUiTmScratchA + TILEMAP_INDEX(0x9, 0x7),
-		TEXT_COLOR_SYSTEM_GOLD,
-		0, 0,
-		GetStringFromIndex(0x4F1)); // Affin
+	if (gpKernelDesignerConfig->custom_fog_sight == false)
+	{
+		PutDrawText(
+			&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
+			gUiTmScratchA + TILEMAP_INDEX(0x9, 0x7),
+			TEXT_COLOR_SYSTEM_GOLD,
+			0, 0,
+			GetStringFromIndex(0x4F1)); // Affin
+	}
 
 	PutDrawText(
 		&gStatScreen.text[STATSCREEN_TEXT_STATUS],
@@ -255,6 +258,29 @@ else
         amt, amt, max, max);
 }
 
+static void DrawPage1SightBar(void)
+{
+	int amt = GetUnitFogViewRange(gStatScreen.unit);
+
+#if defined(SID_HazeHunter) && (COMMON_SKILL_VALID(SID_HazeHunter))
+	if (SkillTester(gStatScreen.unit, SID_HazeHunter))
+		amt += 5;
+#endif
+
+	int max = 15;
+	int textColor = (amt == max) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_BLUE;
+
+	PutDrawText(
+		&gStatScreen.text[STATSCREEN_TEXT_SUPPORT4],
+		gUiTmScratchA + TILEMAP_INDEX(0x9, 0x7),
+		TEXT_COLOR_SYSTEM_GOLD,
+		0, 0,
+		GetStringFromIndex(MSG_StatMenu_Sight_NAME));
+
+	PutNumber(gUiTmScratchA + TILEMAP_INDEX(0xC + CountDigits(amt), 0x7),
+		textColor, amt);
+}
+
 static void DrawPage1Affin(void)
 {
 	struct Unit *unit = gStatScreen.unit;
@@ -369,7 +395,12 @@ void DisplayPage_WithLeadership(void)
 	DrawPage1ValueReal();
 	DrawPage1ValueCommon();
 	DrawPage1BattleAmt();
-	DrawPage1Affin();
+
+	if (gpKernelDesignerConfig->custom_fog_sight == true)
+		DrawPage1SightBar();
+	else
+		DrawPage1Affin();
+
 	DrawPage1LeaderShip();
 	DrawPage1TalkTrv();
 }
