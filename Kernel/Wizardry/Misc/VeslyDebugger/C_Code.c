@@ -959,7 +959,7 @@ void EditStatsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveStats(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -1143,7 +1143,7 @@ void EditWExpIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update WExp and continue 
+    if (keys & START_BUTTON) { //press Start to update WExp and continue 
         SaveWExp(proc); 
         ClearTilesetRow(proc); 
         Proc_Goto(proc, RestartLabel);
@@ -1569,7 +1569,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
             m4aSongNumStart(0x6B);
         }
     }
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { // press A or Start to update Supports and continue
+    if (keys & START_BUTTON) { // press Start to update Supports and continue
         CloseHelpBox(); 
         SaveSkills(proc); 
         Proc_Goto(proc, RestartLabel);
@@ -1823,7 +1823,7 @@ void EditBwlStatsIdle(DebuggerProc* proc)
         return;
     }
 
-    if ((keys & START_BUTTON) || (keys & A_BUTTON)) {
+    if (keys & START_BUTTON) {
         SaveBwlStats(proc);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -1964,7 +1964,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
         return;
     }
 
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) {
+    if (keys & START_BUTTON) {
         SaveSupports(proc);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -2291,7 +2291,7 @@ void EditItemsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveItems(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -2628,7 +2628,7 @@ void ChStateIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update ch state and continue 
+    if (keys & START_BUTTON) { //press Start to update ch state and continue 
         SaveChState(proc);
         if (proc->id != 6) { 
         Proc_Goto(proc, RestartLabel);
@@ -2640,6 +2640,13 @@ void ChStateIdle(DebuggerProc* proc) {
             else { SetFlag(flag); } 
             RedrawChStateMenu(proc);
         } 
+    };
+    if ((keys & A_BUTTON) && (proc->id == 6)) { //press A to toggle flag when on flags row 
+        int flag = proc->tmp[6]; 
+        if (CheckFlag(flag)) { ClearFlag(flag); } 
+        else { SetFlag(flag); } 
+        SaveChState(proc);
+        RedrawChStateMenu(proc);
     };
     int id = proc->id; 
     int type = chStateHexOrDecimal[id]; 
@@ -2907,7 +2914,7 @@ void EditMiscIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveMisc(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -3118,7 +3125,7 @@ void ViewBackgroundIdle(DebuggerProc* proc)
 
     DisplayUiHand(20 * 8, 16 * 8);
 
-    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+    if (keys & (B_BUTTON | START_BUTTON)) {
         RestoreDebuggerViewer(true);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -3186,7 +3193,7 @@ void ViewPortraitIdle(DebuggerProc* proc)
 
     DisplayUiHand(8, 2 * 8);
 
-    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+    if (keys & (B_BUTTON | START_BUTTON)) {
         RestoreDebuggerViewer(true);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -3919,7 +3926,7 @@ void LoadUnitsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveLoadUnits(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
