@@ -130,9 +130,10 @@ PUSH
     BYTE 0x3F
     PROTECT $25A64 $25B18
 
-    ORG $25B44 // TryAddUnitToRefreshTargetList
-    BYTE 0x3F
-    PROTECT $25B18 $25B6C
+    /* JESTER - Needed for LynJump of function */
+    // ORG $25B44 // TryAddUnitToRefreshTargetList
+    // BYTE 0x3F
+    // PROTECT $25B18 $25B6C
 
     ORG $25F20 // AddToTargetListIfNotAllied
     BYTE 0x3F
