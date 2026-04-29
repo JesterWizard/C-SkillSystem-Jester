@@ -4,7 +4,6 @@
 
 static _DECL_INFO RText_Pow, RText_Mag, RText_Skl, RText_Spd, RText_Lck, RText_Def, RText_Res;
 static _DECL_INFO RText_Mov, RText_Con, RText_Aid, RText_Affin, RText_Trv, RText_Cond, RText_BAmt;
-FORCE_DECLARE static _DECL_INFO RText_LBar;
 static _DECL_INFO RText_Name, RText_Class, RText_Level, RText_Exp, RText_Hp;
 
 _DECL_INFO *const RTextPageUnit_WithBWL = &RText_Pow;
@@ -104,7 +103,7 @@ static _DECL_INFO RText_Cond = {
 };
 
 static _DECL_INFO RText_BAmt = {
-	&RText_Cond, &RText_LBar, &RText_Res, NULL,
+	&RText_Cond, NULL, &RText_Res, NULL,
 	0xA6, 0x78, MSG_MSS_BattleAmtDesc,
 	NULL, NULL
 };
