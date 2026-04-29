@@ -40,7 +40,7 @@ Oh, this is ridiculous.[A][N]
 We'll talk later![A][N]
 Just... don't leave my side, Neimi.[A][N]
 Okay?[A][N]
-[OpenMidRight]
+[OpenMidLeft]
 I-- All right![A][X]
 
 ## Chapter_03_Ross_Appears
