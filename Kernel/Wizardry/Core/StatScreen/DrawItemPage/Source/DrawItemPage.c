@@ -6,6 +6,7 @@
 #include <shield.h>
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "jester_headers/custom-structs.h"
 
 #define LOCAL_TRACE 0
 
@@ -278,6 +279,66 @@ static inline bool IsGaidenMagicItemMissingAtCursor(struct HelpBoxProc *proc, st
     return false; // Not pointing at a valid column
 }
 
+/*
+ * Determine whether the current help-box cursor position on the promotions
+ * page corresponds to a slot that has no class or no skill icon.
+ *
+ * Coordinate layout (pixel values stored in u8 xDisplay / yDisplay):
+ *   Promo name slots:  x=PROMO_ICON_X,         y=0x20/0x48/0x70  (rows 0/1/2)
+ *   Skill icon slots:  x=SKILL_ICON_BASE_X + col*SKILL_ICON_STRIDE (cols 0/1/2)
+ *                      y=0x28/0x50/0x78 (rows 0/1/2)
+ */
+
+/* x-coordinate (pixels) of the promotion-class name column */
+#define PROMO_ICON_X         0x6C
+/* x-coordinate of the first skill icon column */
+#define SKILL_ICON_BASE_X    0x90
+/* pixel spacing between adjacent skill icon columns */
+#define SKILL_ICON_STRIDE    0x10
+/* y-coordinate boundary separating row 0 from row 1 */
+#define PROMO_ROW1_Y_MIN     0x40
+/* y-coordinate boundary separating row 1 from row 2 */
+#define PROMO_ROW2_Y_MIN     0x68
+
+static bool IsPromoPageCursorOnEmptySlot(struct HelpBoxProc *proc)
+{
+	struct Unit *unit = gStatScreen.unit;
+	int charId = UNIT_CHAR_ID(unit);
+	const UnitPromotions *promo_data = NULL;
+	int x = proc->info->xDisplay;
+	int y = proc->info->yDisplay;
+	int row;
+
+	for (int i = 0; unit_promotions[i].key != 0; i++) {
+		if (unit_promotions[i].key == charId) {
+			promo_data = &unit_promotions[i];
+			break;
+		}
+	}
+
+	if (promo_data == NULL)
+		return false;
+
+	/* Map y-coordinate to promo row 0/1/2 */
+	if (y < PROMO_ROW1_Y_MIN)
+		row = 0;
+	else if (y < PROMO_ROW2_Y_MIN)
+		row = 1;
+	else
+		row = 2;
+
+	/* Promotion name slot */
+	if (x == PROMO_ICON_X)
+		return promo_data->promotions[row].classId == 0;
+
+	/* Skill icon slot */
+	int col = (x - SKILL_ICON_BASE_X) / SKILL_ICON_STRIDE;
+	if (col < 0 || col > 2)
+		return false;
+
+	return promo_data->promotions[row].skills[col] == 0;
+}
+
 /**
  * Helpbox
  */
@@ -306,6 +367,29 @@ void HbRedirect_SSItem(struct HelpBoxProc *proc)
 	if (gStatScreen.page == TranslateStatPageId(6))
 		if (gEventSlots[EVT_SLOT_8] == 0x1000)
 			TryRelocateHbLeft(proc);
+
+	/* Prevent cursor from landing on empty promotion name or skill icon slots */
+	if (gStatScreen.page == TranslateStatPageId(PAGE_PROMOTIONS) && gEventSlots[EVT_SLOT_8] != 0x1000)
+	{
+		if (IsPromoPageCursorOnEmptySlot(proc))
+		{
+			switch (proc->moveKey)
+			{
+			case DPAD_DOWN:
+				TryRelocateHbDown(proc);
+				break;
+			case DPAD_LEFT:
+				TryRelocateHbLeft(proc);
+				break;
+			case DPAD_RIGHT:
+				TryRelocateHbRight(proc);
+				break;
+			default: /* DPAD_UP or initial (0) */
+				TryRelocateHbUp(proc);
+				break;
+			}
+		}
+	}
 
 	/* JESTER - A little something to turn off the RText box when moving up and down to empty positions in the Gaiden Magic list */
 	if (isGaidenMagicPage)

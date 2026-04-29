@@ -11,14 +11,15 @@
 5. [Runtime Trap Placement with ASMC](#runtime-trap-placement-with-asmc)
 6. [Applying Existing Traps](#applying-existing-traps)
 7. [Trap Palette Selection](#trap-palette-selection)
-8. [Grass Trap Notes](#grass-trap-notes)
-9. [Boulder Trap Notes](#boulder-trap-notes)
-10. [Spin Tile Notes](#spin-tile-notes)
-11. [Trap Sprite Registration](#trap-sprite-registration)
-12. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-13. [Code Locations](#code-locations)
-14. [TODO](#todo)
-15. [Limitations & Bugs](#limitations--bugs)
+8. [Repeat House Notes](#repeat-house-notes)
+9. [Grass Trap Notes](#grass-trap-notes)
+10. [Boulder Trap Notes](#boulder-trap-notes)
+11. [Spin Tile Notes](#spin-tile-notes)
+12. [Trap Sprite Registration](#trap-sprite-registration)
+13. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+14. [Code Locations](#code-locations)
+15. [TODO](#todo)
+16. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -29,6 +30,7 @@ This document explains how to add new traps in this project from a contributor w
 - Spawn traps at runtime via event ASMC calls.
 - Select which trap map sprite palette is used.
 - Optionally make a trap behave like a terrain override instead of only a sprite overlay.
+- Award EXP from a repeatable house visit trap without giving the player a second reward on later visits.
 - Register map sprite graphics for new trap visuals.
 - Render new trap types in the map sprite refresh loop.
 
@@ -340,6 +342,34 @@ static const u8 TrapData_ThisEvent[] = {
 
 If you pass an invalid palette value, `SetTrapMapSpritePalette(...)` clamps it back to `TRAP_MAPSPRITE_PAL_DEFAULT`.
 
+## Repeat House Notes
+
+The repeat house trap is a chapter object that awards EXP the first time a unit visits it.
+
+Behavior summary:
+
+- Runtime API: `AddRepeatHouse(x, y, exp)`
+- Chapter-start macro: `REPEAT_HOUSE(x, y, exp)`
+- Trap type: `TRAP_REPEAT_HOUSE`
+- EXP source: the constructor stores the requested EXP in `trap->extra`
+- Default EXP: `CONFIG_REPEAT_HOUSE_DEFAULT_EXP` is used when the stored EXP is `0`
+- Visit gate: the reward only fires when the active unit's action type is `UNIT_ACTION_VISIT`
+- One-time reward: `TRAP_EXTDATA_REPEAT_HOUSE_VISITED` blocks later visits from awarding EXP again
+
+What that means for the player:
+
+- A house can hand out a small EXP reward instead of only a fixed event reward.
+- The reward is consumed the first time the unit visits the tile.
+- Later visits to the same house do nothing, so the reward cannot be farmed by reopening the same house.
+- Chapter authors can tune the reward per house by changing the `exp` argument in the trap data or runtime constructor.
+
+Implementation note:
+
+- `AddRepeatHouse(...)` creates the trap and clears the visited flag because `AddTrap(...)` may leave `trap->data[]` uninitialized.
+- `PostAction_RepeatHouse(...)` checks both the active unit and the visit action before it looks up the trap at the unit's position.
+- The reward is applied through `AddExp_Event(exp)`, so the house behaves like an event-driven EXP grant rather than a combat result.
+- A value of `0` for the `exp` parameter is treated as "use the default" rather than "award no EXP".
+
 ## Grass Trap Notes
 
 The grass trap is the current example of a trap that does more than draw a sprite.
@@ -528,6 +558,8 @@ Implementation notes:
 | Trap table struct | `Tools/FE-CLib-Mokha/include/bmtrap.h` | `struct TrapData` format used by chapter trap arrays |
 | Chapter trap loader | `LoadTrapData` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Dispatches trap entries from chapter data to constructors |
 | Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
+| Repeat house trap creation | `AddRepeatHouse` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates a repeat house trap with a stored EXP reward and resets the visited flag |
+| Repeat house post-action hook | `PostAction_RepeatHouse` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Awards EXP on the first `UNIT_ACTION_VISIT` and marks the trap as visited |
 | Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
 | Boulder trap creation | `AddBoulderTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates startup or runtime boulder traps without changing underlying terrain |
 | Spin trap creation and shove logic | `AddSpinTile` and `PostAction_SpinTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores directional spin tile data and resolves connected spin-tile chains one hop at a time with 30-frame pauses until the next hop would be blocked or repeat |
@@ -556,6 +588,7 @@ Implementation notes:
 - Document removal/update workflows for runtime traps (remove, replace, refresh behavior).
 - Add a short reference table that maps each palette constant to a screenshot or gif once assets exist.
 - Document a shared removal helper if more terrain-override trap types are added in the future.
+- Add a short example showing how to place a repeat house in a chapter trap header and tune its EXP reward.
 - Decide whether `Interact` should eventually expose a chooser when a unit is adjacent to multiple interactable trap/object types.
 - Add direction-specific SMS artwork if contributors want the tile overlay itself to visually distinguish left, right, up, and down on the map.
 
@@ -563,6 +596,8 @@ Implementation notes:
 
 - `AddTeleportTilePair(...)` does not currently take a palette parameter; it uses the light rune palette internally.
 - `TELEPORT_TILE_PAIR(...)` still defaults to `TRAP_MAPSPRITE_PAL_DEFAULT`, so pair helpers and runtime pair creation do not currently share the same palette default.
+- `REPEAT_HOUSE(x, y, exp)` stores the EXP reward in the trap's `extra` field, so a value of `0` intentionally means "use the default EXP" rather than "award nothing".
+- Repeat house rewards only trigger from the visit action, so scripts or alternate unit actions that end on the tile will not award EXP unless they also set `UNIT_ACTION_VISIT`.
 - Grass trap lifetime is stored in a signed extdata byte, so keep `turnsLeft` within normal trap-duration ranges.
 - Boulder pushes currently block on units, traps, map bounds, and a fixed list of terrain-coded obstacles/buildings; they do not inspect arbitrary custom tile events that live on otherwise normal terrain.
 - Spin tile direction remains fixed to the configured trap data; activation does not mutate the tile's stored direction.

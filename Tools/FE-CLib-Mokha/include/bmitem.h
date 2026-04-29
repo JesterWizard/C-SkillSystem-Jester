@@ -41,10 +41,12 @@ struct ItemData
 
     /* 1A */ u16 costPerUse;
     /* 1C */ u8  weaponRank;
-    /* 1D */ u16 iconId; // This was originally a u8 that has been expanded to allow for more icon IDs, reset if it starts causing issues
-    /* 1E */ u8  useEffectId;
-    /* 1F */ u8  weaponEffectId;
-    /* 20 */ u8  weaponExp;
+    /* 1D */ u8  _pad_1D;    // explicit padding so u16 iconId aligns to 0x1E
+    /* 1E */ u16 iconId;     // was originally u8; expanded to allow more icon IDs
+    /* 20 */ u8  useEffectId;
+    /* 21 */ u8  weaponEffectId;
+    /* 22 */ u8  weaponExp;
+    /* 23 */ u8  healByte;   // custom heal-amount override for IER (0 = use defaults)
 };
 
 #define ITEM_ICON(sheet, index) (((sheet) << 8) | ((index) & 0xFF))

@@ -17,7 +17,7 @@ CSkillSys supports the similar functionality as [teraspark' IER hack](https://fe
 2. Staves that heal based on a value a given value set in item data.
 
 	```
-	heal = [unit magic] + [item might] + [ItemData + 0x22 (IER Byte)]
+	heal = [unit magic] + [item might] + [ItemData + 0x23 (IER Byte)]
 	```
 
 	If heal amount is lower than 10 HP, then it will be forcefully set as 10.
@@ -29,7 +29,7 @@ CSkillSys supports the similar functionality as [teraspark' IER hack](https://fe
 4. A new version of the vulnerary that heals off a given value set in item data.
 
 	```
-	heal = [item might] + [ItemData + 0x22 (IER Byte)]
+	heal = [item might] + [ItemData + 0x23 (IER Byte)]
 	```
 
 	If heal amount is lower than 10 HP, then it will be forcefully set as 10.

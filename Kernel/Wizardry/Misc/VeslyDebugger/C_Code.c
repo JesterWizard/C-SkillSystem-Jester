@@ -959,7 +959,7 @@ void EditStatsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveStats(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -991,6 +991,7 @@ void EditStatsIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveStats(proc);
             RedrawUnitStatsMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -1001,6 +1002,7 @@ void EditStatsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveStats(proc);
             RedrawUnitStatsMenu(proc); 
         }
     }
@@ -1143,7 +1145,7 @@ void EditWExpIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update WExp and continue 
+    if (keys & START_BUTTON) { //press Start to update WExp and continue 
         SaveWExp(proc); 
         ClearTilesetRow(proc); 
         Proc_Goto(proc, RestartLabel);
@@ -1172,6 +1174,7 @@ void EditWExpIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveWExp(proc);
             RedrawUnitWExpMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -1182,6 +1185,7 @@ void EditWExpIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveWExp(proc);
             RedrawUnitWExpMenu(proc); 
         }
     }
@@ -1569,7 +1573,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
             m4aSongNumStart(0x6B);
         }
     }
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { // press A or Start to update Supports and continue
+    if (keys & START_BUTTON) { // press Start to update Supports and continue
         CloseHelpBox(); 
         SaveSkills(proc); 
         Proc_Goto(proc, RestartLabel);
@@ -1599,6 +1603,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
                 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveSkills(proc);
             RedrawUnitSkillsMenu(proc); 
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -1615,6 +1620,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveSkills(proc);
             RedrawUnitSkillsMenu(proc); 
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -1823,7 +1829,7 @@ void EditBwlStatsIdle(DebuggerProc* proc)
         return;
     }
 
-    if ((keys & START_BUTTON) || (keys & A_BUTTON)) {
+    if (keys & START_BUTTON) {
         SaveBwlStats(proc);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -1964,7 +1970,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
         return;
     }
 
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) {
+    if (keys & START_BUTTON) {
         SaveSupports(proc);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -1994,6 +2000,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveSupports(proc);
             RedrawUnitSupportsMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2004,6 +2011,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveSupports(proc);
             RedrawUnitSupportsMenu(proc); 
         }
     }
@@ -2291,7 +2299,7 @@ void EditItemsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveItems(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -2322,6 +2330,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                     if ((proc->tmp[proc->id] & 0xFF) > max) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF00); } 
                 } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
@@ -2329,6 +2338,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                 if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
                 else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
         }
@@ -2355,6 +2365,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                     proc->tmp[proc->id] += DigitDecimalTable[proc->digit] << 8; 
                     if ((proc->tmp[proc->id] & 0xFF00) > max) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF); } 
                 } 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
@@ -2362,6 +2373,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                 if ((proc->tmp[proc->id] & 0xFF00) < decrement) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
                 else { proc->tmp[proc->id] -= decrement; } 
                 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
         }
@@ -2628,7 +2640,7 @@ void ChStateIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update ch state and continue 
+    if (keys & START_BUTTON) { //press Start to update ch state and continue 
         SaveChState(proc);
         if (proc->id != 6) { 
         Proc_Goto(proc, RestartLabel);
@@ -2640,6 +2652,13 @@ void ChStateIdle(DebuggerProc* proc) {
             else { SetFlag(flag); } 
             RedrawChStateMenu(proc);
         } 
+    };
+    if ((keys & A_BUTTON) && (proc->id == 6)) { //press A to toggle flag when on flags row 
+        int flag = proc->tmp[6]; 
+        if (CheckFlag(flag)) { ClearFlag(flag); } 
+        else { SetFlag(flag); } 
+        SaveChState(proc);
+        RedrawChStateMenu(proc);
     };
     int id = proc->id; 
     int type = chStateHexOrDecimal[id]; 
@@ -2679,6 +2698,7 @@ void ChStateIdle(DebuggerProc* proc) {
                     if ((proc->tmp[id]) > max) { proc->tmp[id] = max; } 
                 } 
             } 
+            SaveChState(proc);
             RedrawChStateMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2698,6 +2718,7 @@ void ChStateIdle(DebuggerProc* proc) {
                     else { proc->tmp[id] = val; } 
                 } 
             } 
+                SaveChState(proc);
             RedrawChStateMenu(proc); 
         }
     }
@@ -2768,7 +2789,7 @@ void EditMiscInit(DebuggerProc* proc) {
     
     
     int x = NUMBER_X - MiscNameWidth - 1; 
-    int y = Y_HAND - 1; 
+    int y = Y_HAND - 2; 
     int w = MiscNameWidth + (START_X - NUMBER_X) + 3; 
     int h = (NumberOfMisc * 2) + 2; 
     
@@ -2825,20 +2846,20 @@ void RedrawMiscMenu(DebuggerProc* proc) {
     
     int x = NUMBER_X - (MiscNameWidth); 
     for (i = 0; i < NumberOfMisc; ++i) { 
-        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND + (i*2))); 
+        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND - 1 + (i*2))); 
     } 
     for (i = 0; i < NumberOfMisc; ++i) { 
         //
         if (i < 2) { 
-        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         } 
         else if (i == 8) {
         ClearText(&th[NumberOfMisc]);
         Text_DrawString(&th[NumberOfMisc], GetDebuggerAllegianceName(proc->tmp[i]));
-        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND + (i*2)));
+        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND - 1 + (i*2)));
         }
         else { 
-        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         }
         
     } 
@@ -2907,7 +2928,7 @@ void EditMiscIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveMisc(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
@@ -2938,6 +2959,7 @@ void EditMiscIdle(DebuggerProc* proc) {
                 if ((proc->tmp[proc->id]) > max) { proc->tmp[proc->id] = max; } 
             } 
             //proc->tmp[proc->id] = GetPrevMisc(proc->tmp[proc->id], proc->id, min, max); 
+            SaveMisc(proc);
             RedrawMiscMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2948,6 +2970,7 @@ void EditMiscIdle(DebuggerProc* proc) {
                 else { proc->tmp[proc->id] = val; } 
             } 
             //proc->tmp[proc->id] = GetNextMisc(proc->tmp[proc->id], proc->id, min, max); 
+            SaveMisc(proc);
             RedrawMiscMenu(proc); 
         }
     }
@@ -3118,7 +3141,7 @@ void ViewBackgroundIdle(DebuggerProc* proc)
 
     DisplayUiHand(20 * 8, 16 * 8);
 
-    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+    if (keys & (B_BUTTON | START_BUTTON)) {
         RestoreDebuggerViewer(true);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -3186,7 +3209,7 @@ void ViewPortraitIdle(DebuggerProc* proc)
 
     DisplayUiHand(8, 2 * 8);
 
-    if (keys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
+    if (keys & (B_BUTTON | START_BUTTON)) {
         RestoreDebuggerViewer(true);
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);
@@ -3919,7 +3942,7 @@ void LoadUnitsIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
-    if ((keys & START_BUTTON)||(keys & A_BUTTON)) { //press A or Start to update stats and continue 
+    if (keys & START_BUTTON) { //press Start to update stats and continue 
         SaveLoadUnits(proc); 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 

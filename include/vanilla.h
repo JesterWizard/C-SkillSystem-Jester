@@ -124,6 +124,7 @@ void TryAddUnitToSilenceTargetList(struct Unit *unit);
 void TryAddUnitToSleepTargetList(struct Unit *unit);
 void TryAddUnitToBerserkTargetList(struct Unit *unit);
 void TryAddUnitToWarpTargetList(struct Unit *unit);
+void TryAddUnitToRefreshTargetList(struct Unit *unit);
 void TryAddUnitToHammerneTargetList(struct Unit *unit);
 
 extern struct ProcCmd CONST_DATA ProcScr_DanceringAnim[];

@@ -99,8 +99,10 @@ Consider redesigning layout to accommodate a 4th promotion option if needed.
 
 ## 🐛 Limitations & Bugs
 
-R-text / Help box disabling is imperfect.
-The ``HbRedirect_SSItem`` logic in ``DrawItemPage.c`` attempts to disable R-text on unused promotion slots, but suppression isn't fully bulletproof when navigating with the D-Pad. Currently the system prevents direct activation of R-text on unused slots but may still briefly allow focus transitions into them.
+R-text / Help box disabling is now handled by ``IsPromoPageCursorOnEmptySlot`` inside
+``HbRedirect_SSItem`` in ``DrawItemPage.c``.  The cursor hand is redirected away from
+any promotion-name or skill-icon slot that has no corresponding class or skill assigned,
+so navigating with the D-Pad no longer allows focus transitions into empty slots.
 
 Page index expectations
 Some code assumes this promotions page is located at a specific index (page 7 / index 6) in ``gStatScreen.page``. If MP or personal-info pages are disabled or reordered, certain behaviors may break. Consider ensuring required pages are present or refactoring any hardcoded page-index logic.
