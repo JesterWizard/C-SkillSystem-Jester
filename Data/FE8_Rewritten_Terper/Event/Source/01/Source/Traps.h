@@ -1,5 +1,5 @@
 static const u8 TrapData_ThisEvent[] = {
-    TRAP_NONE
+  REPEAT_HOUSE(10, 4, 10)
 };
 
 static const u8 TrapData_ThisEventHard[] = {
