@@ -659,30 +659,30 @@ int ShouldAIControlRemainingUnits(void)
     return false;
 }
 
-// extern void AiPhaseBerserkInit(struct Proc* proc);
+extern void AiPhaseBerserkInit(struct Proc* proc);
 
-// LYN_REPLACE_CHECK(AiPhaseBerserkInit);
-// void AiPhaseBerserkInit(struct Proc * proc)
-// {
-//     int i;
+LYN_REPLACE_CHECK(AiPhaseBerserkInit);
+void AiPhaseBerserkInit(struct Proc * proc)
+{
+    int i;
 
-//     gAiState.flags = AI_FLAG_BERSERKED;
-//     if (ShouldAIControlRemainingUnits())
-//     {
-//         gAiState.flags = AI_FLAG_0; // do not attack allies
-//     }
-//     gAiState.unk7E = -1;
+    gAiState.flags = AI_FLAG_BERSERKED;
+    if (ShouldAIControlRemainingUnits())
+    {
+        gAiState.flags = AI_FLAG_0; // do not attack allies
+    }
+    gAiState.unk7E = -1;
 
-//     for (i = 0; i < 8; ++i)
-//         gAiState.unk86[i] = 0; // cmd_result
+    for (i = 0; i < 8; ++i)
+        gAiState.cmd_result[i] = 0; // cmd_result
 
-//     gAiState.specialItemFlags = gAiItemConfigTable[gPlaySt.chapterIndex];
+    gAiState.specialItemFlags = gAiItemConfigTable[gPlaySt.chapterIndex];
 
-//     UpdateAllPhaseHealingAIStatus();
-//     SetupUnitInventoryAIFlags();
+    UpdateAllPhaseHealingAIStatus();
+    SetupUnitInventoryAIFlags();
 
-//     Proc_StartBlocking(gProcScr_BerserkCpOrder, proc);
-// }
+    Proc_StartBlocking(gProcScr_BerserkCpOrder, proc);
+}
 
 // extern void CpOrderBerserkInit(ProcPtr proc);
 
@@ -4722,7 +4722,7 @@ int ControlAiDrawText(struct MenuProc * menu, struct MenuItemProc * menuItem) {
     }
     //DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
     if (IsDebuggerAiControlDisabled()) { 
-        Text_DrawString(&menuItem->text, " Manual mode");
+        Text_DrawString(&menuItem->text, " Ai off");
     } 
     else { 
         DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
