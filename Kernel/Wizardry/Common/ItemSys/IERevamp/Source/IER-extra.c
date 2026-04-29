@@ -184,7 +184,7 @@ int GetUnitItemHealAmount(struct Unit *unit, int item)
 	}
 
 	if (GetItemAttributes(item) & IA_STAFF)
-		result += MagGetter(unit);
+		result += UNIT_MAG(unit);
 
 	if (result > 80)
 		result = 80;

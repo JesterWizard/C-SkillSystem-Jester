@@ -991,6 +991,7 @@ void EditStatsIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveStats(proc);
             RedrawUnitStatsMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -1001,6 +1002,7 @@ void EditStatsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveStats(proc);
             RedrawUnitStatsMenu(proc); 
         }
     }
@@ -1172,6 +1174,7 @@ void EditWExpIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveWExp(proc);
             RedrawUnitWExpMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -1182,6 +1185,7 @@ void EditWExpIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveWExp(proc);
             RedrawUnitWExpMenu(proc); 
         }
     }
@@ -1599,6 +1603,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
                 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveSkills(proc);
             RedrawUnitSkillsMenu(proc); 
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -1615,6 +1620,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveSkills(proc);
             RedrawUnitSkillsMenu(proc); 
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -1994,6 +2000,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
                 proc->tmp[proc->id] += DigitDecimalTable[proc->digit]; 
                 if (proc->tmp[proc->id] > max) { proc->tmp[proc->id] = max; } 
             } 
+            SaveSupports(proc);
             RedrawUnitSupportsMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2004,6 +2011,7 @@ void EditSupportsIdle(DebuggerProc* proc) {
                 if (proc->tmp[proc->id] < min) { proc->tmp[proc->id] = min; } 
             } 
             
+            SaveSupports(proc);
             RedrawUnitSupportsMenu(proc); 
         }
     }
@@ -2322,6 +2330,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                     if ((proc->tmp[proc->id] & 0xFF) > max) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF00); } 
                 } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
@@ -2329,6 +2338,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                 if (val < min) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF00); } 
                 else { proc->tmp[proc->id] = val | (proc->tmp[proc->id] & 0xFF00); } 
                 proc->tmp[proc->id] = MakeNewItem(proc->tmp[proc->id] & 0xFF); 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
         }
@@ -2355,6 +2365,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                     proc->tmp[proc->id] += DigitDecimalTable[proc->digit] << 8; 
                     if ((proc->tmp[proc->id] & 0xFF00) > max) { proc->tmp[proc->id] = max | (proc->tmp[proc->id] & 0xFF); } 
                 } 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
             if (keys & DPAD_DOWN) {
@@ -2362,6 +2373,7 @@ void EditItemsIdle(DebuggerProc* proc) {
                 if ((proc->tmp[proc->id] & 0xFF00) < decrement) { proc->tmp[proc->id] = min | (proc->tmp[proc->id] & 0xFF); } 
                 else { proc->tmp[proc->id] -= decrement; } 
                 
+                SaveItems(proc);
                 RedrawItemMenu(proc); 
             }
         }
@@ -2686,6 +2698,7 @@ void ChStateIdle(DebuggerProc* proc) {
                     if ((proc->tmp[id]) > max) { proc->tmp[id] = max; } 
                 } 
             } 
+            SaveChState(proc);
             RedrawChStateMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2705,6 +2718,7 @@ void ChStateIdle(DebuggerProc* proc) {
                     else { proc->tmp[id] = val; } 
                 } 
             } 
+                SaveChState(proc);
             RedrawChStateMenu(proc); 
         }
     }
@@ -2945,6 +2959,7 @@ void EditMiscIdle(DebuggerProc* proc) {
                 if ((proc->tmp[proc->id]) > max) { proc->tmp[proc->id] = max; } 
             } 
             //proc->tmp[proc->id] = GetPrevMisc(proc->tmp[proc->id], proc->id, min, max); 
+            SaveMisc(proc);
             RedrawMiscMenu(proc); 
         }
         if (keys & DPAD_DOWN) {
@@ -2955,6 +2970,7 @@ void EditMiscIdle(DebuggerProc* proc) {
                 else { proc->tmp[proc->id] = val; } 
             } 
             //proc->tmp[proc->id] = GetNextMisc(proc->tmp[proc->id], proc->id, min, max); 
+            SaveMisc(proc);
             RedrawMiscMenu(proc); 
         }
     }
