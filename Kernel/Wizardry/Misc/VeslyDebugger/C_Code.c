@@ -2775,7 +2775,7 @@ void EditMiscInit(DebuggerProc* proc) {
     
     
     int x = NUMBER_X - MiscNameWidth - 1; 
-    int y = Y_HAND - 1; 
+    int y = Y_HAND - 2; 
     int w = MiscNameWidth + (START_X - NUMBER_X) + 3; 
     int h = (NumberOfMisc * 2) + 2; 
     
@@ -2832,20 +2832,20 @@ void RedrawMiscMenu(DebuggerProc* proc) {
     
     int x = NUMBER_X - (MiscNameWidth); 
     for (i = 0; i < NumberOfMisc; ++i) { 
-        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND + (i*2))); 
+        PutText(&th[i], gBG0TilemapBuffer + TILEMAP_INDEX(x, Y_HAND - 1 + (i*2))); 
     } 
     for (i = 0; i < NumberOfMisc; ++i) { 
         //
         if (i < 2) { 
-        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         } 
         else if (i == 8) {
         ClearText(&th[NumberOfMisc]);
         Text_DrawString(&th[NumberOfMisc], GetDebuggerAllegianceName(proc->tmp[i]));
-        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND + (i*2)));
+        PutText(&th[NumberOfMisc], gBG0TilemapBuffer + TILEMAP_INDEX(START_X - 3, Y_HAND - 1 + (i*2)));
         }
         else { 
-        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
+        PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND - 1 + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
         }
         
     } 
