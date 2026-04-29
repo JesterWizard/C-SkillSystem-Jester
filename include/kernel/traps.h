@@ -2,6 +2,10 @@
 
 #include "common-chax.h"
 
+#define GRASS_TRAP_OBJ_PAL   9
+#define BOULDER_TRAP_OBJ_PAL 10
+#define SPIN_TRAP_OBJ_PAL    8
+
 void GenerateFireTileTrapTargets(int x, int y, int damage);
 void GenerateArrowTrapTargets(int x, int y, int damage);
 void GenerateGasTrapTargets(int x, int y, int damage, int facing);

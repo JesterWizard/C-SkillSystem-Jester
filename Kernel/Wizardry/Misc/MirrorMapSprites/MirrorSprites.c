@@ -1,6 +1,7 @@
 #include "gbafe.h"
 #include "kernel-lib.h"
 #include "common-chax.h"
+#include "kernel/traps.h"
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -11,10 +12,6 @@ extern u32 gMirrorSpriteOptions;
 extern u16 Pal_Grass_Tile[];
 extern u16 Pal_Boulder_Tile[];
 extern u16 Pal_Spin_Tile[];
-
-#define GRASS_TRAP_OBJ_PAL 9
-#define BOULDER_TRAP_OBJ_PAL 10
-#define SPIN_TRAP_OBJ_PAL 8
 
 enum {
 	FLIP_PLAYER = 0x1,

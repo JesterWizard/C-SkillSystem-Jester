@@ -8,6 +8,7 @@
 #include "common-chax.h"
 #include "kernel/debuff.h"
 #include "kernel/bwl.h"
+#include "kernel/traps.h"
 #include "soundroom.h"
 #include "soundwrapper.h"
 #include "jester_headers/custom-arrays.h"
@@ -3276,13 +3277,13 @@ static u16 GetDebuggerTrapPreviewPalette(u16 oam2, const struct Trap *trap, cons
         }
 
     case DEBUGGER_TRAP_PAL_GRASS:
-        return (oam2 & 0x0FFF) | (9 << 12);
+        return (oam2 & 0x0FFF) | (GRASS_TRAP_OBJ_PAL << 12);
 
     case DEBUGGER_TRAP_PAL_BOULDER:
-        return (oam2 & 0x0FFF) | (10 << 12);
+        return (oam2 & 0x0FFF) | (BOULDER_TRAP_OBJ_PAL << 12);
 
     case DEBUGGER_TRAP_PAL_SPIN:
-        return (oam2 & 0x0FFF) | (8 << 12);
+        return (oam2 & 0x0FFF) | (SPIN_TRAP_OBJ_PAL << 12);
 
     default:
         return oam2;
