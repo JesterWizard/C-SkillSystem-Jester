@@ -3167,21 +3167,18 @@ static void RedrawPortraitMenu(DebuggerProc* proc)
     struct Text *th = gStatScreen.text;
     const char *portraitName = GetDebuggerPortraitName(proc->tmp[0]);
 
-    BG_Fill(gBG0TilemapBuffer, 0);
-    BG_EnableSyncByMask(BG0_SYNC_BIT);
-
     for (int index = 0; index < 3; ++index)
         ClearText(&th[index]);
 
-    Text_DrawString(&th[0], "Portrait ID");
+    Text_DrawString(&th[0], "ID");
     PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(2, 2));
 
-    Text_DrawString(&th[1], "Portrait Name");
+    Text_DrawString(&th[1], "Name");
     PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(2, 4));
 
     PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(13, 2), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[0]);
     Text_DrawString(&th[2], portraitName);
-    PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(2, 6));
+    PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(11, 4));
     PutFace80x72_Core(gBG0TilemapBuffer + TILEMAP_INDEX(17, 7), proc->tmp[0], 0x200, 5);
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
