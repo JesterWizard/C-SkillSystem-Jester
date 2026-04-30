@@ -2,7 +2,7 @@
  * Players
  */
 static const struct REDA REDAs_TANA[] = { 
-    { .x = 2, .y = 13, .b = -1, .delayFrames = 0, },
+    { .x = 1, .y = 10, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_EIRIKA[] = {
@@ -14,11 +14,11 @@ static const struct REDA REDAs_SETH[] = {
 };
 
 static const struct REDA REDAs_FRANZ[] = { 
-    { .x = 0, .y = 11, .b = -1, .delayFrames = 0, },
+    { .x = 3, .y = 10, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_GILLIAM[] = {
-    { .x = 1, .y = 8, .b = -1, .delayFrames = 0, },
+    { .x = 2, .y = 9, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_MOULDER[] = {
@@ -26,7 +26,7 @@ static const struct REDA REDAs_MOULDER[] = {
 };
 
 static const struct REDA REDAs_NEIMI[] = {
-    { .x = 1, .y = 10, .b = -1, .delayFrames = 0, },
+    { .x = 3, .y = 8, .b = -1, .delayFrames = 0, },
 };
 
 /**

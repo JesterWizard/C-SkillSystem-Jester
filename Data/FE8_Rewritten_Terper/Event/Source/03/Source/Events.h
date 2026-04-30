@@ -81,6 +81,9 @@ static const EventListScr EventScr_COLM_APPEARS[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_COLM, 60)
     TEXT(Chapter_03_Colm_Appears)
     MOVE_CLOSEST_ENUN(0, CHARACTER_COLM, 2, 4)
+    SOUN(SONG_SE_UNLOCKING_DOOR)
+    TILECHANGE_COORDINATES(2, 3) // door at (2,3)
+    ENUT(EVFLAG_TMP(11))         // mark door as already opened (matches DOOR(2,3, EVFLAG_TMP(11)))
     GOTO(0x1)
 
 LABEL(0x0)

@@ -14,7 +14,8 @@ POIN Action_Teleportation
 POIN Action_Swarp
 POIN Action_Swap
 POIN Action_HealingFocus
-WORD $0 $0 $0 $0 $0
+POIN Action_Dance
+WORD $0 $0 $0 $0
 POIN Action_LightRune
 POIN Action_Mine
 POIN Action_Rally
