@@ -440,7 +440,9 @@ void EditSupportsIdle(DebuggerProc* proc);
 void EditBgmInit(DebuggerProc* proc);
 void EditBgmIdle(DebuggerProc* proc);
 void ViewBackgroundInit(DebuggerProc* proc);
+void ViewBackgroundLoad(DebuggerProc* proc);
 void ViewBackgroundIdle(DebuggerProc* proc);
+void ViewBackgroundExit(DebuggerProc* proc);
 void ViewPortraitInit(DebuggerProc* proc);
 void ViewPortraitIdle(DebuggerProc* proc);
 void ViewTrapInit(DebuggerProc* proc);
@@ -477,6 +479,8 @@ u8 CanActiveUnitPromote(void);
 #define TrapViewLabel 24
 #define SupplyLabel 25
 #define ListLabel 26
+#define BackgroundChangeLabel 27
+#define BackgroundExitLabel 28
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -620,8 +624,24 @@ const struct ProcCmd DebuggerProcCmd[] =
 
     PROC_LABEL(BackgroundLabel), // Background viewer
     PROC_CALL(ViewBackgroundInit),
+    PROC_GOTO(BackgroundChangeLabel),
+
+    PROC_LABEL(BackgroundChangeLabel),
+    PROC_CALL(StartMidFadeToBlack),
+    PROC_REPEAT(WaitForFade),
+    PROC_CALL(ViewBackgroundLoad),
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
     PROC_REPEAT(ViewBackgroundIdle),
     PROC_GOTO(EndLabel),
+
+    PROC_LABEL(BackgroundExitLabel),
+    PROC_CALL(StartMidFadeToBlack),
+    PROC_REPEAT(WaitForFade),
+    PROC_CALL(ViewBackgroundExit),
+    PROC_CALL(StartMidFadeFromBlack),
+    PROC_REPEAT(WaitForFade),
+    PROC_GOTO(RestartLabel),
 
     PROC_LABEL(PortraitLabel), // Portrait viewer
     PROC_CALL(ViewPortraitInit),
@@ -3123,16 +3143,46 @@ void ViewBackgroundInit(DebuggerProc* proc)
 {
     SomeMenuInit(proc);
 
-    PrepareDebuggerViewer(true);
-
-    DrawUiFrame(BG_GetMapBuffer(1), 21, 15, 8, 4, TILEREF(0, 0), 0);
+    PrepareDebuggerViewer(false);
 
     for (int index = 0; index < 1; ++index)
         InitText(&gStatScreen.text[index], BackgroundViewWidth);
 
     proc->tmp[0] = 1;
+}
+
+void ViewBackgroundLoad(DebuggerProc* proc)
+{
+    BG_Fill(gBG3TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG3_SYNC_BIT);
+
+    SetBackgroundTileDataOffset(BG_3, 0x8000);
+    gLCDControlBuffer.bg3cnt.colorMode = 0;
+    gLCDControlBuffer.bg3cnt.priority = 3;
+    gLCDControlBuffer.bldcnt.target2_bd_on = false;
+    BG_SetPosition(BG_3, 0, 0);
+
+    BMapDispResume();
+    BMapDispSuspend();
     EventShowTextBgDirect(1, proc->tmp[0]);
+    SetDispEnable(TRUE, TRUE, FALSE, TRUE, FALSE);
+
+    DrawUiFrame(BG_GetMapBuffer(1), 21, 15, 8, 4, TILEREF(0, 0), 0);
+    BG_EnableSyncByMask(BG1_SYNC_BIT);
+
     RedrawBackgroundMenu(proc);
+}
+
+void ViewBackgroundExit(DebuggerProc* proc)
+{
+    BG_Fill(gBG3TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG3_SYNC_BIT);
+
+    BMapDispResume();
+    RefreshBMapGraphics();
+    BG_SetPosition(BG_3, 0, 0);
+    SetDispEnable(TRUE, TRUE, TRUE, TRUE, TRUE);
+    RestoreDebuggerViewer(true);
 }
 
 void ViewBackgroundIdle(DebuggerProc* proc)
@@ -3142,8 +3192,7 @@ void ViewBackgroundIdle(DebuggerProc* proc)
     DisplayUiHand(20 * 8, 16 * 8);
 
     if (keys & (B_BUTTON | START_BUTTON)) {
-        RestoreDebuggerViewer(true);
-        Proc_Goto(proc, RestartLabel);
+        Proc_Goto(proc, BackgroundExitLabel);
         m4aSongNumStart(0x6B);
         return;
     }
@@ -3155,8 +3204,7 @@ void ViewBackgroundIdle(DebuggerProc* proc)
         CycleWrapS16(&proc->tmp[0], -1, 1, BACKGROUND_VIEWER_MAX_ID);
 
     if (keys & (DPAD_UP | DPAD_RIGHT | DPAD_DOWN | DPAD_LEFT)) {
-        EventShowTextBgDirect(1, proc->tmp[0]);
-        RedrawBackgroundMenu(proc);
+        Proc_Goto(proc, BackgroundChangeLabel);
     }
 }
 
