@@ -14,7 +14,6 @@ void SetGameOptions()
     SetGameOption(GAME_OPTION_ANIMATION, 2);  // Set battle animations off
     SetGameOption(GAME_OPTION_TEXT_SPEED, 1); // Set game speed to max
     SetGameOption(GAME_OPTION_GAME_SPEED, 3); // Set text speed to max
-    SetGameOption(GAME_OPTION_WINDOW_COLOR, 1);
 
     SetFlag(0xB4); // Guide Flag
 

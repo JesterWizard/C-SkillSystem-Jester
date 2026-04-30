@@ -783,7 +783,7 @@ static const u16 * const sUiPalLookupVanilla[] = {
 };
 
 static const u16 * const sUiPalLookupGamma[] = {
-    &MenuTilesPalette_Gamma[0x0],  &MenuTilesPalette_Gamma[0x10], &MenuTilesPalette_Gamma[0x20],
+    &MenuTilesPalette_Gamma[0x10], &MenuTilesPalette_Gamma[0x0],  &MenuTilesPalette_Gamma[0x20],
     &MenuTilesPalette_Gamma[0x30], &MenuTilesPalette_Gamma[0x40], &MenuTilesPalette_Gamma[0x50],
     &MenuTilesPalette_Gamma[0x60], &MenuTilesPalette_Gamma[0x70],
 
