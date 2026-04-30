@@ -168,7 +168,7 @@
 #define DontMove					0x03
 #define BrigandMove					0x04
 
-#define RossMovementAI				0x0A
+#define BossMovementAI				0x0A
 
 //AI3 helpers
 #define NormalRecovery				0x00
