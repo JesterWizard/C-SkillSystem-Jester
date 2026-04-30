@@ -201,5 +201,3 @@
 #include "HeroesCards/Tethys.txt"
 #include "HeroesCards/Valter.txt"
 #include "HeroesCards/Vigarde.txt"
-
-#include "Miscellaneous/Skirmish.txt"

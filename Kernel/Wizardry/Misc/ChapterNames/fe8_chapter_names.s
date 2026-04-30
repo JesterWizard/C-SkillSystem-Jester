@@ -1,5 +1,5 @@
 @fe8 routine at 8089624. Replace that routine with this one from fe7 to show text instead of gfx
-@@ Skirmish maps use a shared title label.
+@@ TODO: fix skirmish text
 .thumb
 @ .include "header.h"
 
@@ -121,17 +121,6 @@ bx      r0                @@ 080823DA 4700
 sub_80822a4:
 push    {r4,r14}                @@ 080822A4 B510     
 mov     r4,r0               @@ 080822A6 1C04     
-ldr     r0, =0x08A200B8 @ ProcScr_SaveMenu
-blh     0x08002E9D
-cmp     r0, #0
-bne     loc_80822AE
-ldr     r0, =0x08A203A8 @ gProcScr_SaveMenuPostChapter
-blh     0x08002E9D
-cmp     r0, #0
-bne     loc_80822AE
-blh     0x080BD069
-cmp     r0,#0x2
-beq     skirmish_text
 cmp     r4,#0x0               @@ 080822A8 2C00     
 bge     loc_80822AE               @@ 080822AA DA00     
 mov     r4,#0x4A                @@ 080822AC 244A  
@@ -162,12 +151,6 @@ postgame_text:
 ldr     r0,=0x7D0 @????             @@ 080822DC 4801     @@text ID --TRIAL--: 0x5d4
 blh      0x800a240                @@ 080822DE F790FCBF 
 b       end_80822a4               @@ 080822E2 E00E     
-.ltorg
-
-skirmish_text:
-ldr     r0, =0x1BDF @ MSG_SKIRMISH_TITLE
-blh     0x800a240
-b       end_80822a4
 .ltorg
 
 chapter_text:    
