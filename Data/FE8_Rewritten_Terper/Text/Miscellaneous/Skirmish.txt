@@ -1,0 +1,2 @@
+## MSG_SKIRMISH_TITLE
+Skirmish[X]
