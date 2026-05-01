@@ -26,41 +26,40 @@ const u8 gGaidenWeaponCostList[0x100] = {
 
 struct GaidenPinfoConfig const gGaidenPinfoConfigList[0x100] = {
 	[CHARACTER_EIRIKA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_SWORD_KILLER },
-		{ 1, ITEM_SWORD_AUDHULMA},
-		{ 1, ITEM_ANIMA_THUNDER },
-		{ 1, ITEM_AXE_KILLER },
-		{ 1, ITEM_DARK_GLEIPNIR },
-		{ 1, ITEM_STAFF_SLEEP },
-		{ 1, ITEM_STAFF_LATONA},
-		{ 1, ITEM_STAFF_BERSERK },
-		{ 1, ITEM_STAFF_PHYSIC },
-		{ 1, ITEM_STAFF_GREEN_WIND },
-		{ 1, ITEM_STAFF_KIRIN },
+		// { 1, ITEM_SWORD_KILLER },
+		// { 1, ITEM_SWORD_AUDHULMA},
+		// { 1, ITEM_ANIMA_THUNDER },
+		// { 1, ITEM_AXE_KILLER },
+		// { 1, ITEM_DARK_GLEIPNIR },
+		// { 1, ITEM_STAFF_SLEEP },
+		// { 1, ITEM_STAFF_LATONA},
+		// { 1, ITEM_STAFF_BERSERK },
+		// { 1, ITEM_STAFF_PHYSIC },
+		// { 1, ITEM_STAFF_GREEN_WIND },
 		{ 0 }
 	}},
 	[CHARACTER_NATASHA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_STAFF_HEAL },
-		{ 1, ITEM_DARK_LUNA },
-		{ 1, ITEM_STAFF_SLEEP },
+		// { 1, ITEM_STAFF_HEAL },
+		// { 1, ITEM_DARK_LUNA },
+		// { 1, ITEM_STAFF_SLEEP },
 		{ 0 }
 	}},
 	[CHARACTER_SALEH] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_DARK_NOSFERATU },
-		{ 1, ITEM_STAFF_PHYSIC },
-		{ 1, ITEM_STAFF_HEAL },
+		// { 1, ITEM_DARK_NOSFERATU },
+		// { 1, ITEM_STAFF_PHYSIC },
+		// { 1, ITEM_STAFF_HEAL },
 		{ 0 }
 	}},
 	[CHARACTER_SELENA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_STAFF_PHYSIC },
+		// { 1, ITEM_STAFF_PHYSIC },
 		{ 0 }
 	}},
 	[CHARACTER_NOVALA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_DARK_FLUX },
+		// { 1, ITEM_DARK_FLUX },
 		{ 0 }
 	}},
 	[CHARACTER_RIEV] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_STAFF_SLEEP },
+		// { 1, ITEM_STAFF_SLEEP },
 		{ 0 }
 	}},
 };
