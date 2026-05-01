@@ -71,6 +71,7 @@ static const EventListScr EventScr_Talk_ROSS_EIRIKA[] = {
     TEXT(Chapter_02_Ross_Eirika)
     RESTORE_PREVIOUS_MUSIC
     CHANGE_TO_BLUE(CHARACTER_ROSS)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };
@@ -80,6 +81,7 @@ static const EventListScr EventScr_Talk_ROSS_GARCIA[] = {
     STAL(33)
     ConvoEvent(Chapter_02_Ross_Garcia)
     RESTORE_PREVIOUS_MUSIC
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };

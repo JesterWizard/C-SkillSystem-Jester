@@ -12,6 +12,7 @@
 #include "constants/texts.h"
 #include "action-expa.h"
 #include "item-sys.h"
+#include "map-anims.h"
 #include "player_interface.h"
 #include "soundroom.h"
 #include "bwl.h"
@@ -4465,23 +4466,15 @@ struct PopupInstruction const NewSupportPopup_A[] = {
     POPUP_END
 };
 
-void SupportPopupText(ProcPtr * proc)
+void TalkEXPGain(ProcPtr * proc)
 {
-    switch (gEventSlots[EVT_SLOT_8])
-    {
-    case 1:
-        NewPopup_Simple(NewSupportPopup_C, 0x60, 0x00, proc);
-        break;
-    case 2:
-        NewPopup_Simple(NewSupportPopup_B, 0x60, 0x00, proc);
-        break;
-    case 3:
-        NewPopup_Simple(NewSupportPopup_A, 0x60, 0x00, proc);
-        break;
-    default:
-        NewPopup_Simple(NewSupportPopup_C, 0x60, 0x00, proc);
-        break;
-    }
+    int exp = gpKernelDesignerConfig->talk_conversation_exp_reward;
+
+    if (exp == 0)
+        return;
+
+    AddExp_Event(exp);
+    return;
 }
 
 const EventListScr EventScr_MapSupportConversation_NEW[] = {
@@ -4505,7 +4498,7 @@ LABEL(0x2)
 
 LABEL(0x3)
     //NOTIFY(0xc, SONG_SE_UPDATE)
-    ASMC(SupportPopupText)
+    ASMC(TalkEXPGain)
 	EVBIT_T(7)
 	ENDA
 };

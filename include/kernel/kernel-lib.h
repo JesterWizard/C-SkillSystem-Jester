@@ -141,6 +141,7 @@ struct KernelDesigerConfig {
 	u8 ai_player_phase;
 	u8 promote_trainees_in_chapter;
 	u8 rescue_drop_move_again;
+	u8 talk_conversation_exp_reward;
 };
 
 struct KernelBattleDesignerConfig {

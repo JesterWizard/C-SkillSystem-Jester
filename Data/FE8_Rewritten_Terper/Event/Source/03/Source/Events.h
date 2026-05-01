@@ -123,6 +123,7 @@ static const EventListScr EventScr_Talk_ROSS_EIRIKA[] = {
     TEXT(Chapter_03_Ross_Eirika)
     RESTORE_PREVIOUS_MUSIC
     // CHANGE_TO_BLUE(CHARACTER_ROSS)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };
@@ -133,6 +134,7 @@ static const EventListScr EventScr_Talk_COLM_NEIMI[] = {
     TEXT(Chapter_03_Colm_Neimi)
     RESTORE_PREVIOUS_MUSIC
     CHANGE_TO_BLUE(CHARACTER_COLM)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };

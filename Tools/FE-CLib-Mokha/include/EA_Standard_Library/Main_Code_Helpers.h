@@ -44,9 +44,12 @@
     NOFADE \
     ENDA
 
+extern void TalkEXPGain(ProcPtr * proc);
+
 #define ConvoEvent(textID) \
     MUSI \
     TEXT(textID) \
     MUNO \
+    ASMC(TalkEXPGain) \
     NOFADE \
     ENDA

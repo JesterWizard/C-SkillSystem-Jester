@@ -152,29 +152,29 @@ struct Trap* GetTrap(int id);
 int GetEffectiveTerrainAt(int x, int y);
 
 #define TELEPORT_TILE(x, y, destX, destY, palette) \
-    TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), (palette)
+    TRAP_TELEPORT_TILE, (x), (y), (destX), (destY), (palette),
 
 #define TELEPORT_TILE_PAIR(x1, y1, x2, y2) \
     TELEPORT_TILE((x1), (y1), (x2), (y2), TRAP_MAPSPRITE_PAL_DEFAULT), \
     TELEPORT_TILE((x2), (y2), (x1), (y1), TRAP_MAPSPRITE_PAL_DEFAULT)
 
 #define HEAL_TILE(x, y, turnsLeft, palette) \
-    TRAP_HEAL_TILE, (x), (y), (palette), (turnsLeft), 0
+    TRAP_HEAL_TILE, (x), (y), (palette), (turnsLeft), 0,
 
 #define TOGGLE_TORCH(x, y, duration, startsLit, palette) \
-    TRAP_TOGGLE_TORCH, (x), (y), (startsLit), (duration), (palette)
+    TRAP_TOGGLE_TORCH, (x), (y), (startsLit), (duration), (palette),
 
 #define GRASS_TILE(x, y, turnsLeft) \
-    TRAP_GRASS_TILE, (x), (y), 0, (turnsLeft), 0
+    TRAP_GRASS_TILE, (x), (y), 0, (turnsLeft), 0,
 
 #define BOULDER_TILE(x, y) \
-    TRAP_BOULDER_TILE, (x), (y), 0, 0, 0
+    TRAP_BOULDER_TILE, (x), (y), 0, 0, 0,
 
 #define SPIN_TILE(x, y, direction) \
-    TRAP_SPIN_TILE, (x), (y), (direction), 0, 0
+    TRAP_SPIN_TILE, (x), (y), (direction), 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
-    TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0
+    TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,
 
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);

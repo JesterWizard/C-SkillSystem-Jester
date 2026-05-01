@@ -150,4 +150,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.prestige = true,
 	.promote_trainees_in_chapter = true,
 	.rescue_drop_move_again = true,
+	.talk_conversation_exp_reward = 10,
 };

@@ -302,6 +302,7 @@ static const EventListScr EventScr_Talk_EIRIKA_AMELIA[] = {
     STAL(33)
     TEXT(Chapter_09_In_Scene_Ameila_Eirika)
     CHANGE_TO_BLUE(CHARACTER_AMELIA)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };
@@ -310,6 +311,7 @@ static const EventListScr EventScr_Talk_FRANZ_AMELIA[] = {
     STAL(33)
     TEXT(Chapter_09_In_Scene_Ameila_Franz)
     CHANGE_TO_BLUE(CHARACTER_AMELIA)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };

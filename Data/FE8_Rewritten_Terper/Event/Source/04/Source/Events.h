@@ -211,6 +211,7 @@ static const EventListScr EventScr_Talk_ROSS_GARCIA[] = {
     TEXT(Chapter_04_ROSS_GARCIA)
     RESTORE_PREVIOUS_MUSIC
     CHANGE_TO_BLUE(CHARACTER_GARCIA)
+    ASMC(TalkEXPGain)
     NOFADE
     ENDA
 };

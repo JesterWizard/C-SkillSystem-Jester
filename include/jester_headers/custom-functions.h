@@ -249,3 +249,5 @@ extern void WorldMap_CenterCamera(ProcPtr proc, int nodeid);
 
 extern void StartUiGoldBox_New(int x, int y, int palNum, int oam_tile, ProcPtr parent);
 extern void returnToWorldMap_External(void);
+
+extern void TalkEXPGain(ProcPtr * proc);
