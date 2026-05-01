@@ -1,0 +1,30 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+PUSH
+//ORG $CA278	//{J}
+ORG $C54B0	//{U}
+jumpToHack(display_version)
+
+
+//���̒l�́AFEBuilderGBA��UPS���쐬����ƁA�����I�ɍX�V����܂��B
+//FEBuilderGBA��UPS�����Ȃ��ꍇ�́A�����ł��̒l�������ւ��Ă��������B
+//This value is automatically updated when you create a UPS with FEBuilderGBA.
+//If you do not make UPS with FEBuilderGBA, please rewrite this string by yourself.
+//ORG $DC110	//{J}
+ORG $D74D0	//{U}
+String("01/05/2026") ; BYTE 0 // BUILD_DATE
+
+POP
+
+display_version:
+ALIGN 4
+#incbin "display_version.dmp"
+POIN display_version_info
+
+display_version_info:
+BYTE 0x0  //X
+BYTE 0x0  //Y
+BYTE 0x9 //PAL
+BYTE 0x01 //Show
+
+ALIGN 4

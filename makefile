@@ -113,7 +113,19 @@ BTLPALETTEARGS    := -pn 80
 # ========
 
 PRE_BUILD ?=
-chax: $(FE8_CHX)
+BUILD_VERSION_TITLESCREEN_EVENT := Kernel/Wizardry/Misc/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event
+BUILD_VERSION_TITLESCREEN_DATE := $(shell date +%d/%m/%Y)
+
+build_version_title_screen_date:
+	@echo "[GEN]	$@"
+	@awk -v date="$(BUILD_VERSION_TITLESCREEN_DATE)" '($$0 ~ /^String\(".*"\) ; BYTE 0.*$$/) { print "String(\"" date "\") ; BYTE 0 // BUILD_DATE"; next } 1' "$(BUILD_VERSION_TITLESCREEN_EVENT)" > "$(BUILD_VERSION_TITLESCREEN_EVENT).tmp"
+	@mv "$(BUILD_VERSION_TITLESCREEN_EVENT).tmp" "$(BUILD_VERSION_TITLESCREEN_EVENT)"
+
+PRE_BUILD += build_version_title_screen_date
+
+.PHONY: build_version_title_screen_date
+
+chax: $(PRE_BUILD) $(FE8_CHX)
 
 EA_FLAG := A FE8
 
