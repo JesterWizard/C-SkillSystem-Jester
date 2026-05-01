@@ -102,6 +102,9 @@ static int GetSpinTrapSpriteId(const struct Trap *trap)
 
 static void ReloadCustomTrapSpritePalettes(void)
 {
+    if (IsTalkActive())
+        return;
+
     ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
     ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
     ApplyPalette(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL);
