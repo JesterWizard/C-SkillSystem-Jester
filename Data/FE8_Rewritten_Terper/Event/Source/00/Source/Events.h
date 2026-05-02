@@ -105,6 +105,7 @@ static const EventScr EventScr_Beginning[] = {
 
 const EventScr EventScr_Ending_Chapter_00[] = {
     ASMC(GrantBEXP)
+    TUTORIAL_CHECK(EventScr_Tutorial_BONUS_EXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_00_Scene_03_Convo_06)
     FADE_TO_BLACK(16)

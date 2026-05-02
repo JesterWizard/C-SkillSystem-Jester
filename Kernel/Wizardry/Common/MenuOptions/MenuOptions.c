@@ -35,7 +35,7 @@ const u8 gGameOptionsUiOrder_NEW[29] = {
     GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE,
     GAME_OPTION_SEND_INVENTORY_ON_DEATH,
     GAME_OPTION_FAST_MAP_ANIMATIONS,
-    GAME_OPTION_ANIMA_WEAPON_TRIANGLE,
+    GAME_OPTION_TUTORIALS,
     GAME_OPTION_SUPPORT_AFTER_BATTLE,
 };
 
@@ -526,13 +526,13 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
-    [GAME_OPTION_ANIMA_WEAPON_TRIANGLE] =
+    [GAME_OPTION_TUTORIALS] =
     {
-        .msgId = MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_TITLE,
+        .msgId = MSG_MENU_OPTION_TUTORIALS_TITLE,
         .selectors =
         {
-            { MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
-            { MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_MENU_OPTION_TUTORIALS_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_TUTORIALS_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
             { MSG_000,  MSG_000,  190, 0 },
             { MSG_000,  MSG_000,  189, 0 },
         },
@@ -594,7 +594,7 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE: gPlaySt.config.show_arena_opponent_in_advance = newValue; break;
         case GAME_OPTION_SEND_INVENTORY_ON_DEATH:        gPlaySt.config.send_inventory_on_death = newValue; break;
         case GAME_OPTION_FAST_MAP_ANIMATIONS:            gPlaySt.config.fast_map_animations= newValue; break;
-        case GAME_OPTION_ANIMA_WEAPON_TRIANGLE:          gPlaySt.config.anima_weapon_triangle = newValue; break;
+        case GAME_OPTION_TUTORIALS:                      gPlaySt.config.show_tutorial = newValue; break;
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
     }
 }
@@ -638,7 +638,7 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_SHOW_ARENA_OPPONENT_IN_ADVANCE: return gPlaySt.config.show_arena_opponent_in_advance;
         case GAME_OPTION_SEND_INVENTORY_ON_DEATH:        return gPlaySt.config.send_inventory_on_death;
         case GAME_OPTION_FAST_MAP_ANIMATIONS:            return gPlaySt.config.fast_map_animations;
-        case GAME_OPTION_ANIMA_WEAPON_TRIANGLE:          return gPlaySt.config.anima_weapon_triangle;
+        case GAME_OPTION_TUTORIALS:                      return gPlaySt.config.show_tutorial;
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
     }
     return 0;

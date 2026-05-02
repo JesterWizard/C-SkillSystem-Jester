@@ -3,6 +3,7 @@
 #include "eventscript.h"
 #include "./miscellaneous.h"
 #include "EAstdlib.h"
+#include "kernel-tutorial.h"
 
 #ifndef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
 	#define CONFIG_ITEM_INDEX_SKILL_SCROLL_1 0x0A
@@ -405,3 +406,9 @@ enum {
 #define SHOOT_ARROW_DYNAMIC(dmg) \
     SVAL(0x1, dmg) \
     ASMC(ShootArrow_ASMC + 1)
+
+#define TUTORIAL_CHECK(tutorial_event) \
+    ASMC(CanExecKTutorial) \
+    BEQ(0x1, EVT_SLOT_C, EVT_SLOT_0) \
+    CALL(tutorial_event) \
+LABEL(0x1) 

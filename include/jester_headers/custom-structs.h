@@ -226,3 +226,7 @@ enum {
 	CUSTOM_PROC_PRESS_B = 1,
 	CUSTOM_PROC_IDLE = 2,
 };
+
+// Tutorial events
+extern const EventScr EventScr_Tutorial_SKILL_SCROLL[];
+extern const EventScr EventScr_Tutorial_BONUS_EXP[];

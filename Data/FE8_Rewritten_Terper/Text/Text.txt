@@ -145,6 +145,7 @@
 #include "Miscellaneous/Notifications.txt"
 #include "Miscellaneous/Objectives.txt"
 #include "Miscellaneous/Misc.txt"
+#include "Miscellaneous/Tutorials.txt"
 
 #include "Guides/Skill_Talks.txt"
 #include "Guides/Skill_Combos.txt"

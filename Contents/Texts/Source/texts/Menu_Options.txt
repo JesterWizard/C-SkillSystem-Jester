@@ -74,10 +74,10 @@ Fast Map Anims[X]
 ## MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_DESC
 Make map unit movements instant[X]
 
-## MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_TITLE
-Anima Triangle[X]
-## MSG_MENU_OPTION_ANIMA_WEAPON_TRIANGLE_DESC
-Toggle an anima weapon triangle[X]
+## MSG_MENU_OPTION_TUTORIALS_TITLE
+Show Tutorials[X]
+## MSG_MENU_OPTION_TUTORIALS_DESC
+Toggle in game tutorials for mechanics[X]
 
 ## MSG_MENU_OPTION_SUPPORT_AFTER_BATTLE_TITLE
 Supports Gains[X]

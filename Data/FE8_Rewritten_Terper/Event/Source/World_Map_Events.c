@@ -9,7 +9,9 @@
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/custom-structs.h"
 #include "EAstdlib.h"
+#include "kernel-tutorial.h"
 
 const u16 * const EventScrWM_SET_NODE[] = {
     NULL,
@@ -254,15 +256,6 @@ void WorldMap_CallIntroEvent(struct WorldMapMainProc* proc)
 
     WmRemoveRandomMonsters();
 }
-
-const EventScr EventScrWM_Tutorial_SKILL_SCROLL[] = {
-    EvtTextStartType5 // ENOSUPP in EAstdlib
-    SVAL(EVT_SLOT_B, 0xFFFFFFFF) // Center text box
-    TEXTSHOW(Chapter_01_SKILL_SCROLL)
-    TEXTEND
-    REMA
-    ENDA
-};
 
 extern struct ProcCmd CONST_DATA gProcScr_OpSubtitle[];
 
@@ -734,7 +727,7 @@ const EventScr EventScrWM_Ch2_SET_NODE[] = {
     WM_DRAWPATH(WM_PATH_01)
     STAL(70)
     MUSC(SONG_THE_BEGINNING)
-    CALL(EventScrWM_Tutorial_SKILL_SCROLL)
+    TUTORIAL_CHECK(EventScr_Tutorial_SKILL_SCROLL)
     WM_MAKELORDVISIBLE(WM_MU_0)
     EVBIT_MODIFY(0x1)
     CALL(EventScr_RemoveBGIfNeeded)

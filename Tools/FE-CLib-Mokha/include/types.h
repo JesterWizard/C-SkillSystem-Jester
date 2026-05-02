@@ -183,7 +183,7 @@ struct PlaySt_OptionBits {
     u32 promote_unit_on_max_level: 1;
     u32 send_inventory_on_death: 1;
     u32 fast_map_animations: 1;
-    u32 anima_weapon_triangle: 1;
+    u32 show_tutorial: 1;
     u32 support_after_battle: 1;
     u32 gameover_quotes: 1;
 

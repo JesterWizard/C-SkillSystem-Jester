@@ -10,12 +10,47 @@ const u16 gConstSkillTable_Job[0x100][2] = {
 	},
 
 	[CLASS_EPHRAIM_MASTER_LORD] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_PALADIN] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_PALADIN_F] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_GREAT_KNIGHT] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_GREAT_KNIGHT_F] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_RANGER] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_RANGER_F] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_MAGE_KNIGHT] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_MAGE_KNIGHT_F] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_VALKYRIE] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_TROUBADOUR] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_THIEF] = {
@@ -48,16 +83,28 @@ const u16 gConstSkillTable_Job[0x100][2] = {
 	[CLASS_SNIPER_F] = {
 	},
 
+	[CLASS_WYVERN_RIDER] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_WYVERN_RIDER_F] = {
+		[0] = SID_Canto,
+	},
+
 	[CLASS_WYVERN_LORD] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_WYVERN_LORD_F] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_WYVERN_KNIGHT] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_WYVERN_KNIGHT_F] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_SUMMONER] = {
@@ -79,6 +126,11 @@ const u16 gConstSkillTable_Job[0x100][2] = {
 	},
 
 	[CLASS_PEGASUS_KNIGHT] = {
+		[0] = SID_Canto,
+	},
+
+	[CLASS_FALCON_KNIGHT] = {
+		[0] = SID_Canto,
 	},
 
 	[CLASS_DANCER] = {

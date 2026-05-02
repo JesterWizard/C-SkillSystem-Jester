@@ -1,0 +1,22 @@
+## MSG_TUTORIAL_SKILL_SCROLL
+You have just received a skill scroll.[A][N]
+Skills are powerful abilities that[N]
+can help you turn the tide of battle.[A][N]
+To equip a unit with this skill,[N]
+use it in a unit's item menu.[A][N]
+Keep in mind, skill scrolls are[N]
+single use.[A][N]
+So plan wisely who you're going to[N]
+use each skill scroll on.[A][X]
+
+## MSG_TUTORIAL_BONUS_EXP
+As you defeat enemies you will[N]
+gradually acquire a secondary[A][N]
+form of experience known as[N]
+Bonus Experience (BEXP).[A][N]
+This can be used to strengthen[N]
+weaker units in your party.[A][N]
+For now it will remain dormant[N]
+but later on you will be able[A][N]
+to access it from the battle[N]
+map prep menu.[A][X]

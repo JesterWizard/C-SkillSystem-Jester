@@ -49,18 +49,13 @@ void EMS_LoadKTutorialFlags(u8 *src, const u32 size)
 /* API */
 bool CanExecKTutorial(void)
 {
-	if (gpKernelDesignerConfig->show_tutorial == KTUT_LEVEL_NEVER)
+	// if (gpKernelDesignerConfig->show_tutorial == 0)
+	// 	return false;
+
+	if (gPlaySt.config.show_tutorial == 0)
 		return false;
 
-	if (gpKernelDesignerConfig->show_tutorial == KTUT_LEVEL_MIDDLE) {
-		/* Only in tutorial mode */
-		if (!TUTORIAL_MODE())
-			return false;
-	}
-
-	if (gpKernelDesignerConfig->show_tutorial == KTUT_LEVEL_HIGH)
-		return true;
-
+	gEventSlots[EVT_SLOT_C] = 1;
 	return true;
 }
 

@@ -11,6 +11,7 @@
 #include "jester_headers/miscellaneous.h"
 #include "jester_headers/LimitedShopStock.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-structs.h"
 #include "EAstdlib.h"
 
 #define NO_REDA 0
