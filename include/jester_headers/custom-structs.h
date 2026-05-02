@@ -127,6 +127,7 @@ extern u8 gTopVisibleListIndex;
 extern u8 gBEXP_State;
 extern u8 gBEXP_Applied;
 extern u16 gBEXP_MapGain;
+extern u8 gPrepMenuVisibleTableSlots[12];
 
 enum {
     BEXP_STATE_LIST = 0,

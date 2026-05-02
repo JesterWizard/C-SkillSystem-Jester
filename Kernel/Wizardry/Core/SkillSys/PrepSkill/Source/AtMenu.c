@@ -97,6 +97,12 @@ static const struct PrepMenuItem gPrepMenuTable[] = {
 };
 
 #define PREP_MENU_TABLE_SIZE (int)(sizeof(gPrepMenuTable) / sizeof(gPrepMenuTable[0]))
+
+#define GET_VISIBLE_PREP_MENU_ITEM(proc, visibleIndex) \
+    (((proc) && (visibleIndex) >= 0 && (visibleIndex) < (proc)->max_index && \
+      gPrepMenuVisibleTableSlots[(visibleIndex)] < PREP_MENU_TABLE_SIZE) ? \
+         &gPrepMenuTable[gPrepMenuVisibleTableSlots[(visibleIndex)]] : NULL)
+
 struct CheckMapMenuItem {
     int msg;        /* title string id               */
     int msg_rtext;  /* R-button help text string id  */
@@ -178,8 +184,9 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
                 if (proc->cur_index < CHECK_MAP_MENU_TABLE_SIZE)
                     rtext = gCheckMapMenuTable[proc->cur_index].msg_rtext;
             } else {
-                if (proc->cur_index < PREP_MENU_TABLE_SIZE)
-                    rtext = gPrepMenuTable[proc->cur_index].msg_rtext;
+                const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, proc->cur_index);
+                if (entry)
+                    rtext = entry->msg_rtext;
             }
 
             if (rtext) {
@@ -207,17 +214,18 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
             } 
             else 
             {    
-                if (proc->cur_index < PREP_MENU_TABLE_SIZE) {
-                    const struct PrepMenuItem *entry = &gPrepMenuTable[proc->cur_index];
-                    if (1 & entry->color) {
-                        PlaySoundEffect(SONG_6C);
-                        return;
-                    }
-                    if (entry->effect) {
-                        PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-                        entry->effect((struct ProcAtMenu *)proc->proc_parent);
-                        return;
-                    }
+                const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, proc->cur_index);
+                if (!entry)
+                    return;
+
+                if (1 & entry->color) {
+                    PlaySoundEffect(SONG_6C);
+                    return;
+                }
+                if (entry->effect) {
+                    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+                    entry->effect((struct ProcAtMenu *)proc->proc_parent);
+                    return;
                 }
             }
         }
@@ -272,8 +280,9 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
                 if (proc->cur_index < CHECK_MAP_MENU_TABLE_SIZE)
                     rtext = gCheckMapMenuTable[proc->cur_index].msg_rtext;
             } else {
-                if (proc->cur_index < PREP_MENU_TABLE_SIZE)
-                    rtext = gPrepMenuTable[proc->cur_index].msg_rtext;
+                const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, proc->cur_index);
+                if (entry)
+                    rtext = entry->msg_rtext;
             }
 
             if (rtext)
@@ -373,9 +382,10 @@ void AtMenu_Reinitialize(struct ProcAtMenu *proc)
 
     {
         struct ProcPrepMenu *menuProc = Proc_Find(ProcScr_PrepMenu);
-        int slot = menuProc ? menuProc->cur_index : 0;
-        if (slot < PREP_MENU_TABLE_SIZE)
-            ParsePrepMenuDescTexts(gPrepMenuTable[slot].msg_desc);
+        const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(menuProc, menuProc ? menuProc->cur_index : 0);
+
+        if (entry)
+            ParsePrepMenuDescTexts(entry->msg_desc);
     }
 
     DrawPrepMenuDescTexts();
@@ -390,7 +400,7 @@ void sub_8095C00(int msg, ProcPtr parent)
 {
     struct ProcPrepMenuDesc *proc;
     struct ProcPrepMenu     *menuProc;
-    int slot;
+    const struct PrepMenuItem *entry;
 
     proc = Proc_Find(ProcScr_PrepMenuDescHandler);
     if (proc)
@@ -399,10 +409,10 @@ void sub_8095C00(int msg, ProcPtr parent)
     proc = Proc_Start(ProcScr_PrepMenuDescHandler, parent);
 
     menuProc = Proc_Find(ProcScr_PrepMenu);
-    slot     = menuProc ? menuProc->cur_index : 0;
+    entry = GET_VISIBLE_PREP_MENU_ITEM(menuProc, menuProc ? menuProc->cur_index : 0);
 
-    if (slot < PREP_MENU_TABLE_SIZE)
-        proc->msg = gPrepMenuTable[slot].msg_desc;
+    if (entry)
+        proc->msg = entry->msg_desc;
     else
         proc->msg = msg;
 }
@@ -424,13 +434,17 @@ void SetPrepScreenMenuPosition(int x, int y)
                 if (slot >= proc->max_index)
                     break;
 
+                const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, slot);
+                if (!entry)
+                    continue;
+
                 ClearText(&gPrepMainMenuTexts[i]);
                 PutDrawText(
                     &gPrepMainMenuTexts[i],
                     TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y + 2 * i + 1),
                     TEXT_COLOR_SYSTEM_WHITE,
                     0, 0,
-                    GetStringFromIndex(gPrepMenuTable[slot].msg)
+                    GetStringFromIndex(entry->msg)
                 );
             }
         }
@@ -449,17 +463,32 @@ LYN_REPLACE_CHECK(SetPrepScreenMenuItem);
 void SetPrepScreenMenuItem(int index, const void *func, int color, int msg, int msg_rtext)
 {
     struct ProcPrepMenu *proc = Proc_Find(ProcScr_PrepMenu);
+    int slot;
 
-    if (proc)
-        proc->max_index++;
+    if (proc) {
+        for (slot = 0; slot < PREP_MENU_TABLE_SIZE; ++slot) {
+            if (gPrepMenuTable[slot].index == index) {
+                if (proc->max_index < PREP_MENU_TABLE_SIZE) {
+                    gPrepMenuVisibleTableSlots[proc->max_index] = (u8)slot;
+                    proc->max_index++;
+                }
+                break;
+            }
+        }
+    }
 
-    (void)index; (void)func; (void)color; (void)msg; (void)msg_rtext;
+    (void)func; (void)color; (void)msg; (void)msg_rtext;
 }
 
 LYN_REPLACE_CHECK(InitPrepScreenMainMenu);
 void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 {
+    int i;
+
     StartPrepScreenMenu(proc);
+
+    for (i = 0; i < PREP_MENU_TABLE_SIZE; ++i)
+        gPrepMenuVisibleTableSlots[i] = 0;
 
     if (!CheckInLinkArena()) {
         SetPrepScreenMenuItem(PREP_MAINMENU_UNIT, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
@@ -511,8 +540,8 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 
 /* -----------------------------------------------------------------------
  * SetPrepScreenMenuSelectedItem — stubbed.
- * cur_index is a direct index into gPrepMenuTable; no PREP_MAINMENU_*
- * lookup is required.  cur_index is already zeroed in PrepMenu_OnInit.
+ * cur_index is a direct index into the visible menu list.
+ * cur_index is already zeroed in PrepMenu_OnInit.
  * ----------------------------------------------------------------------- */
 LYN_REPLACE_CHECK(SetPrepScreenMenuSelectedItem);
 void SetPrepScreenMenuSelectedItem(int index)
@@ -523,15 +552,16 @@ void SetPrepScreenMenuSelectedItem(int index)
 /* -----------------------------------------------------------------------
  * GetActivePrepMenuItemIndex
  * Returns the PREP_MAINMENU_* index of the entry at the current cursor
- * position by reading directly from gPrepMenuTable.
+ * position by reading from the visible menu list.
  * ----------------------------------------------------------------------- */
 LYN_REPLACE_CHECK(GetActivePrepMenuItemIndex);
 int GetActivePrepMenuItemIndex(void)
 {
     struct ProcPrepMenu *proc = Proc_Find(ProcScr_PrepMenu);
+    const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, proc ? proc->cur_index : 0);
 
-    if (proc && proc->cur_index < PREP_MENU_TABLE_SIZE)
-        return gPrepMenuTable[proc->cur_index].index;
+    if (entry)
+        return entry->index;
 
     return 0;
 }

@@ -1083,7 +1083,7 @@ void DisplayExtendedSysHand(struct SysHandCursorProc * proc)
 
     // This is mainly for HyperGammaSpaces UI as the darker blue is where the red used to be
     if (gpKernelDesignerConfig->vesly_custom_ui == true)
-        windowColor -= 1;
+        windowColor = k_umod((windowColor + 3), 3);
 
     // This controls the color of the shadow highlight for the cursor graphic
     gPaletteBuffer[proc->pal_bank * 0x10  + 0x10E] = (((windowColor) << 4) + (k_umod((GetGameClock() / 4), 0x10)))[Pal_08A1D448];
