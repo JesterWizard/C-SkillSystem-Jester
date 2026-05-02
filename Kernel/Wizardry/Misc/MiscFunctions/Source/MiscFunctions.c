@@ -945,9 +945,10 @@ void sub_809D300(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
 
         PutText(th, tm + TILEMAP_INDEX(3, i * 2 & 0x1f));
 
-#ifndef CONFIG_INFINITE_DURABILITY
-        PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1, GetItemUses(item));
-#endif
+        if (gpKernelDesignerConfig->infinite_durability == false)
+        {
+            PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1, GetItemUses(item));
+        }
 
         if (gpKernelDesignerConfig->forge_mechanic == true)
         {
@@ -996,9 +997,10 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         DrawIcon(tm + offset + 1, GetItemIconId(item), 0x4000);
         PutText(th, tm + offset + 3);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-        PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-#endif
+        if (gpKernelDesignerConfig->infinite_durability == false)
+        {
+            PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+        }
 
         if (gpKernelDesignerConfig->forge_mechanic == true)
         {
@@ -1082,10 +1084,10 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
                     GetItemUses(item));
             }
         }
-
-#ifndef CONFIG_INFINITE_DURABILITY
-        PutNumberOrBlank(tm + 11 + i * 0x40, !isUnusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-#endif
+        if (gpKernelDesignerConfig->infinite_durability == false)
+        {
+            PutNumberOrBlank(tm + 11 + i * 0x40, !isUnusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+        }
     }
 
     return;
@@ -1122,9 +1124,10 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
             GetItemName(item)
         );
 
-#ifndef CONFIG_INFINITE_DURABILITY
-        PutNumberOrBlank(tm + i * 0x40 + 0xB, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-#endif
+        if (gpKernelDesignerConfig->infinite_durability == false)
+        {
+            PutNumberOrBlank(tm + i * 0x40 + 0xB, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+        }
 
         if (gpKernelDesignerConfig->forge_mechanic == true)
         {

@@ -185,7 +185,7 @@ u8 WMMenu_OnManageItemsSelected(struct MenuProc * menuProc, struct MenuItemProc 
 
 u8 WMMenu_IsSkillShopAvailable(const struct MenuItemDef * def, int number)
 {
-    if (gpKernelDesignerConfig->skill_points_engage == false)
+    if (gpKernelDesignerConfig->skill_shop == false)
         return MENU_NOTSHOWN;
 
     if (gGMData.nodes[gGMData.units[0].location].state & 2)

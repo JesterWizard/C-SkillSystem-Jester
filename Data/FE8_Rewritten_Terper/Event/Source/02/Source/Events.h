@@ -102,7 +102,7 @@ LABEL(0x1)
 
 LABEL(0x2)
     CALL(EventScr_RemoveBGIfNeeded) // This is vital, the game crashes without it for this event
-    GIVE_SKILL_SCROLL_TO(SID_Canto, CHARACTER_EVT_ACTIVE)
+    GIVE_SKILL_SCROLL_TO(SID_Hasty, CHARACTER_EVT_ACTIVE)
     GOTO(0x4)
 
 LABEL(0x3)
@@ -155,9 +155,9 @@ static const EventListScr EventListScr_Character[] = {
 
 // --- Facilitate Location Scenes ---
 static const EventListScr EventListScr_Location[] = {
-    VILLAGE(EVFLAG_TMP(9), EventListScr_VILLAGE_1_TALK, 1, 12)
+    VILLAGE(EVFLAG_TMP(9), EventListScr_VILLAGE_1_TALK, 4, 2)
     VILLAGE(EVFLAG_TMP(10), EventListScr_VILLAGE_2_TALK, 7, 2)
-    VILLAGE(EVFLAG_TMP(11), EventListScr_VILLAGE_3_TALK, 4, 2)
+    VILLAGE(EVFLAG_TMP(11), EventListScr_VILLAGE_3_TALK, 1, 12)
     ARMORY(ShopList_Event_WeaponShop, 5, 7)
     END_MAIN
 };

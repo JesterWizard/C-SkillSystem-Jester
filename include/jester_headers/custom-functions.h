@@ -251,3 +251,4 @@ extern void StartUiGoldBox_New(int x, int y, int palNum, int oam_tile, ProcPtr p
 extern void returnToWorldMap_External(void);
 
 extern void TalkEXPGain(ProcPtr * proc);
+extern void StartWMNodeSkillShop(void);

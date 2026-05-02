@@ -56,7 +56,7 @@ void DrawSkillPage_MokhaPlanB(void)
 	}
 
 	/* Skill Points*/
-	if (gpKernelDesignerConfig->skill_points_engage)
+	if (gpKernelDesignerConfig->skill_shop)
 	{
 		if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE) {
 			struct NewBwl* bwl = GetNewBwl(UNIT_CHAR_ID(gStatScreen.unit));

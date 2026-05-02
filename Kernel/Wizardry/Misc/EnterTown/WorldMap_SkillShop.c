@@ -668,7 +668,7 @@ static const struct ProcCmd ProcScr_WMNodeSkillShop[] = {
     PROC_END,
 };
 
-static void StartWMNodeSkillShop(struct MenuProc *menuProc)
+void StartWMNodeSkillShop(void)
 {
     Proc_StartBlocking(ProcScr_WMNodeSkillShop, GM_MAIN);
 }
@@ -681,6 +681,6 @@ u8 WMMenu_OnSkillShopSelected(struct MenuProc *menuProc, struct MenuItemProc *me
     gGMData.xCamera = 0;
     gGMData.yCamera = 0;
     gGMData.unk_cd = menuProc->itemCurrent;
-    StartWMNodeSkillShop(menuProc);
+    StartWMNodeSkillShop();
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }

@@ -137,7 +137,7 @@ void UnitAutoLoadSkills(struct Unit *unit)
 		FebList_LoadUnitSkill(unit);
 
 	/* For debug, we enable unit learn all of skills */
-	if (gpKernelDesignerConfig->debug_autoload_skills) {
+	if (gpKernelDesignerConfig->debug_autoload_skills == true) {
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
 		int allSkills = 1023;
 #else

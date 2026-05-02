@@ -58,7 +58,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.skip_intro = false,
 	.base_chapters = false,
 	.fast_map_animations = false, // This is funny when free movement is enabled, might fix later
-	.skill_points_engage = true,
+	.skill_shop = false,
 	.stat_gain_frame_speed = 10,
 	.deny_stat_screen_access = true,
 	.support_rewards = true,
@@ -68,12 +68,12 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.leadership = true,
 	.variable_unit_descriptions = false,
 	.anima_weapon_triangle = false,
-	.stat_page_skill_style = 1, // 0 = Display skills in list with names, 1 = Display skills in grid without names,
+	.stat_page_skill_style = 0, // 0 = Display skills in list with names, 1 = Display skills in grid without names,
 	.stat_page_gaiden_magic = true,
 	.stat_page_personal_info = true,
 	.stat_page_promotions = true,
 	.summons_gain_exp = false,
-	.collect_dead_units = false,
+	.collect_dead_units = true,
 	.goal_timer = false,
 	.goal_escape = false,
 	.prep_menu_skills = true,
@@ -103,8 +103,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gaiden_magic_must_be_magic = false,    // False = all weapons are allowed, True = Only magic weapons
 	.gaiden_magic_requires_wrank = false,   // False = Doesn't require unit to have a rank in that weapon to use
 	.gaiden_magic_ai_use = false,           // False = AI can't use gaiden magic
-	.gaiden_magic_skill_extensions = false, // False = Apply an extenal table with skills that apply more gaiden magic
-	.no_suspend_in_aiphase = true,
+	.gaiden_magic_skill_extensions = true, // False = Apply an extenal table with skills that apply more gaiden magic
+	.no_suspend_in_aiphase = false,
 	.shield_system = false,
 	.shield_ext_equip_config_en = false,
 	.auto_narrow_font = true,
@@ -122,14 +122,14 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.apply_dynamic_nosferatu_battle_anim = true, // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
 	.display_status_flash_on_hit = true, // In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
 	.c03_do_not_flush_efx_status = true, // Honestly, no clue. but Mokha used it so I'm moving it here
-	.load_skills_through_feb_formatted_list = true, // Honestly, this one only means anything if you're using FEBuilder
+	.load_skills_through_feb_formatted_list = false, // Honestly, this one only means anything if you're using FEBuilder
 	.item_effect_revamp = true,
 	.vesly_danger_bones = false,
 	.vesly_support_after_battle = true,
-	.vesly_support_after_battle_kill_rate = 100,
-	.vesly_support_after_battle_combat_rate = 100,
-	.vesly_support_after_battle_dance_rate = 100,
-	.vesly_support_after_battle_staff_rate = 100,
+	.vesly_support_after_battle_kill_rate = 10,
+	.vesly_support_after_battle_combat_rate = 5,
+	.vesly_support_after_battle_dance_rate = 10,
+	.vesly_support_after_battle_staff_rate = 10,
 	.vesly_fast_forward_battle_animations = true,
 	.vesly_extended_help_boxes = true,
 	.free_movement = true,
@@ -151,4 +151,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.promote_trainees_in_chapter = true,
 	.rescue_drop_move_again = true,
 	.talk_conversation_exp_reward = 10,
+	.infinite_durability = true,
 };

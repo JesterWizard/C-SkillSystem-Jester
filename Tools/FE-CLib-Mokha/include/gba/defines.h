@@ -60,6 +60,7 @@
 #define PLTT_SIZE_8BPP PLTT_SIZEOF(256)
 
 #define RGB(r, g, b) ((r) | ((g) << 5) | ((b) << 10))
+#define RGB5(r, g, b) RGB((r), (g), (b))
 
 #define RGB_BLACK RGB(0, 0, 0)
 #define RGB_WHITE RGB(31, 31, 31)

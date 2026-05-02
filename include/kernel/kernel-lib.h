@@ -50,7 +50,7 @@ struct KernelDesigerConfig {
 	u8 skip_intro;
 	u8 base_chapters;
 	u8 fast_map_animations;
-	u8 skill_points_engage;
+	u8 skill_shop;
 	u8 stat_gain_frame_speed;
 	u8 deny_stat_screen_access;
 	u8 support_rewards;
@@ -142,6 +142,7 @@ struct KernelDesigerConfig {
 	u8 promote_trainees_in_chapter;
 	u8 rescue_drop_move_again;
 	u8 talk_conversation_exp_reward;
+	u8 infinite_durability;
 };
 
 struct KernelBattleDesignerConfig {

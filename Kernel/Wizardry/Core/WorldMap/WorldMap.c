@@ -406,13 +406,9 @@ void WmMergeMonsters(void)
 {
     struct ProcGmapTimeMons * proc;
     proc = Proc_Find(ProcScr_GmapTimeMons);
+
     if (proc)
-    {
         proc->trigger = true;
-        NoCashGBAPrint("ProcScr_GmapTimeMons triggered");
-    }
-    else
-        NoCashGBAPrint("ProcScr_GmapTimeMons has not been created");
 }
 
 LYN_REPLACE_CHECK(NewGmapTimeMons);
@@ -428,4 +424,99 @@ ProcPtr NewGmapTimeMons(ProcPtr parent, int * out)
         *out = proc->monster_amt;
 
     return proc;
+}
+
+// Displays Worldmap background for text
+//! FE8U = 0x080BFD28
+LYN_REPLACE_CHECK(sub_80BFD28);
+void sub_80BFD28(void)
+{
+    ApplyPalette(gPal_08A9E5BC, 2);
+    EnablePaletteSync();
+
+    Decompress(gImg_08A9E544, (void *)0x06004C00);
+    Decompress(gTsa_08A9E5DC, gGenericBuffer);
+    CallARM_FillTileRect(gBG0TilemapBuffer, gGenericBuffer, 0x2260);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    return;
+}
+
+#define RGB(r, g, b) ((r) | ((g) << 5) | ((b) << 10))
+#define RGB5(r, g, b) RGB((r), (g), (b))
+
+
+// Color banding for worldmap background for text
+// Rewrote to make it use a 
+//! FE8U = 0x080BFDA0
+LYN_REPLACE_CHECK(sub_80BFDA0);
+void sub_80BFDA0(struct GmapMuEntryProc * proc, int unused)
+{
+    // int r;
+    // int g;
+    // int b;
+
+    // int i;
+    // int j;
+
+    // u16 * palA = sub_80C1DA0(0, 1);
+    // u16 * palB = sub_80C1DA0(1, 1);
+
+    // for (i = 0; i < DISPLAY_HEIGHT; i++)
+    // {
+    //     palA[i] = (0x40 - i) & 0x1FF;
+    //     palB[i] = 0;
+    // }
+
+    // for (i = 0; i < proc->unk_2a; i++)
+    // {
+    //     palA[i] = 0x10 - proc->unk_2a;
+
+    //     r = ((proc->unk_2a - i) * -6 / proc->unk_2a) + 13;
+    //     g = ((proc->unk_2a - i) * -10 / proc->unk_2a) + 17;
+    //     b = ((proc->unk_2a - i) * -7 / proc->unk_2a) + 23;
+    //     palB[i] = (b << 10) + (g << 5) + r;
+    // }
+
+    // for (i = 0; i < proc->unk_2b; i++)
+    // {
+    //     j = DISPLAY_HEIGHT - (proc->unk_2b - i);
+    //     palA[j] = proc->unk_2b + 200;
+
+    //     r = (i * -6 / proc->unk_2b) + 13;
+    //     g = (i * -10 / proc->unk_2b) + 17;
+    //     b = (i * -7 / proc->unk_2b) + 23;
+    //     palB[j] = (b << 10) + (g << 5) + r;
+    // }
+
+    int i;
+    int j;
+
+    // Blue, Green, Red
+    u16 color = RGB5(9, 5, 24);
+
+    u16 * palA = sub_80C1DA0(0, 1);
+    u16 * palB = sub_80C1DA0(1, 1);
+
+    for (i = 0; i < DISPLAY_HEIGHT; i++)
+    {
+        palA[i] = (0x40 - i) & 0x1FF;
+        palB[i] = color;
+    }
+
+    for (i = 0; i < proc->unk_2a; i++)
+    {
+        palA[i] = 0x10 - proc->unk_2a;
+    }
+
+    for (i = 0; i < proc->unk_2b; i++)
+    {
+        j = DISPLAY_HEIGHT - (proc->unk_2b - i);
+        palA[j] = proc->unk_2b + 200;
+    }
+
+    sub_80C1DC8();
+
+    return;
 }

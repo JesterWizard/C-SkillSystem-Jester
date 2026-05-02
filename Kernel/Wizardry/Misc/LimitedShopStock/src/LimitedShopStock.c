@@ -117,12 +117,13 @@ static void DrawStockedSellItemLine(struct Text* text, int item, s8 isUsable, u1
     else
         PutText(text, mapOut + 2);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-    if (gpKernelDesignerConfig->limited_shop_items == true)
-        PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
-    else
-        PutNumberOrBlank(mapOut + 11, statColor, GetItemUses(item));
-#endif
+    if (gpKernelDesignerConfig->infinite_durability == false)
+    {
+        if (gpKernelDesignerConfig->limited_shop_items == true)
+            PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
+        else
+            PutNumberOrBlank(mapOut + 11, statColor, GetItemUses(item));
+    }
 
     if (gpKernelDesignerConfig->limited_shop_items == true)
         DrawIcon(mapOut - 3, GetItemIconId(item), 0x4000);
@@ -153,22 +154,21 @@ void DrawStockedItemLine(struct Text* text, int item, s8 isUsable, u16* mapOut)
     else
         PutText(text, mapOut + 2);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-
-    // Uses
-    if (gpKernelDesignerConfig->limited_shop_items == true)
-        PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
-    else
-        PutNumberOrBlank(mapOut + 11, statColor, GetItemUses(item));
-
-    // Stock
-    if (gpKernelDesignerConfig->limited_shop_items == true)
+    if (gpKernelDesignerConfig->infinite_durability == false)
     {
-        if (stock >= 0)
-            PutNumber(mapOut + 17, statColor, stock);
-    }
+        // Uses
+        if (gpKernelDesignerConfig->limited_shop_items == true)
+            PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
+        else
+            PutNumberOrBlank(mapOut + 11, statColor, GetItemUses(item));
 
-#endif
+        // Stock
+        if (gpKernelDesignerConfig->limited_shop_items == true)
+        {
+            if (stock >= 0)
+                PutNumber(mapOut + 17, statColor, stock);
+        }
+    }
 
     // Icon
     if (gpKernelDesignerConfig->limited_shop_items == true)

@@ -151,23 +151,30 @@ enum {
     SVAL(EVT_SLOT_3, item) \
     GIVEITEMTO(character)
 
-// This macro converts a full skill id (0–0x3FF) into the proper item:
+// This macro converts a full skill id (0–0x3FF) into the proper scroll item:
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-    // Choose the proper scroll index based on the high byte of the skill id.
+    // Choose the proper scroll index based on the skill id range.
     #define GET_SKILL_SCROLL_INDEX(sid) (((sid) > 0x2FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_4 : \
                                         (((sid) > 0x1FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_3 : \
                                         (((sid) > 0x0FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_2 : \
                                                            CONFIG_ITEM_INDEX_SKILL_SCROLL_1)))
+    // Convert the skill id into the 8-bit payload stored in the scroll item.
+    #define GET_SKILL_SCROLL_VALUE(sid) (((sid) > 0x2FF) ? ((sid) - 0x2FF) : \
+                                        (((sid) > 0x1FF) ? ((sid) - 0x1FF) : \
+                                        (((sid) > 0x0FF) ? ((sid) - 0x0FF) : \
+                                                           (sid))))
 #else
     #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
         #define GET_SKILL_SCROLL_INDEX(sid) CONFIG_ITEM_INDEX_SKILL_SCROLL_1
+        #define GET_SKILL_SCROLL_VALUE(sid) (sid)
     #else
         #define GET_SKILL_SCROLL_INDEX(sid) 200 // Ignore this, it's just here for filler
+        #define GET_SKILL_SCROLL_VALUE(sid) (sid)
     #endif
 #endif
 
 #define GIVE_SKILL_SCROLL_TO(skill_id, character) \
-    SVAL(EVT_SLOT_3, (((skill_id) & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(skill_id)) \
+    SVAL(EVT_SLOT_3, (((GET_SKILL_SCROLL_VALUE(skill_id)) & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(skill_id)) \
     GIVEITEMTO(character)
 
 /*

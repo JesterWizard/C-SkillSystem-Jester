@@ -708,12 +708,13 @@ void DrawItemMenuLine(struct Text * text, int item, s8 isUsable, u16 * mapOut)
     }
     else // Default behavior: display standard durability
     {
-        #ifndef CONFIG_INFINITE_DURABILITY
-        if (!IsDuraItem(item))
+        if (gpKernelDesignerConfig->infinite_durability == false) // if infinite durability is off, show durability as normal
         {
-            PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+            if (!IsDuraItem(item))
+            {
+                PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+            }
         }
-        #endif
     }
 
     DrawIcon(mapOut, GetItemIconId(item), 0x4000);
@@ -727,14 +728,15 @@ void DrawItemMenuLineLong(struct Text * text, int item, s8 isUsable, u16 * mapOu
 
     PutText(text, mapOut + 2);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-    if (!IsDuraItem(item))
+    if (gpKernelDesignerConfig->infinite_durability == false)
     {
-        PutNumberOrBlank(mapOut + 10, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
-        PutNumberOrBlank(mapOut + 13, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemMaxUses(item));
-        PutSpecialChar(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_SLASH);
+        if (!IsDuraItem(item))
+        {
+            PutNumberOrBlank(mapOut + 10, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
+            PutNumberOrBlank(mapOut + 13, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemMaxUses(item));
+            PutSpecialChar(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_SLASH);
+        }
     }
-#endif
 
     if (gpKernelDesignerConfig->forge_mechanic == true)
     {
@@ -761,12 +763,13 @@ void DrawItemMenuLineNoColor(struct Text * text, int item, u16 * mapOut)
 
     PutText(text, mapOut + 2);
 
-#ifndef CONFIG_INFINITE_DURABILITY
-    if (!IsDuraItem(item))
+    if (gpKernelDesignerConfig->infinite_durability == false)
     {
-        PutNumberOrBlank(mapOut + 11, Text_GetColor(text), GetItemUses(item));
+        if (!IsDuraItem(item))
+        {
+            PutNumberOrBlank(mapOut + 11, Text_GetColor(text), GetItemUses(item));
+        }
     }
-#endif
 
     if (gpKernelDesignerConfig->forge_mechanic == true)
     {
@@ -795,17 +798,18 @@ void DrawItemStatScreenLine(struct Text * text, int item, int nameColor, u16 * m
 
     Text_DrawString(text, GetItemName(item));
 
-#ifndef CONFIG_INFINITE_DURABILITY
-    if (!IsDuraItem(item))
+    if (gpKernelDesignerConfig->infinite_durability == false)
     {
-        color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
-        PutSpecialChar(mapOut + 12, color, TEXT_SPECIAL_SLASH);
+        if (!IsDuraItem(item))
+        {
+            color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
+            PutSpecialChar(mapOut + 12, color, TEXT_SPECIAL_SLASH);
 
-        color = (nameColor != TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY;
-        PutNumberOrBlank(mapOut + 11, color, GetItemUses(item));
-        PutNumberOrBlank(mapOut + 14, color, GetItemMaxUses(item));
+            color = (nameColor != TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY;
+            PutNumberOrBlank(mapOut + 11, color, GetItemUses(item));
+            PutNumberOrBlank(mapOut + 14, color, GetItemMaxUses(item));
+        }
     }
-#endif
 
     if (gpKernelDesignerConfig->forge_mechanic == true)
     {

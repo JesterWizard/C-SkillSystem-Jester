@@ -980,6 +980,24 @@ struct GMapScrollManageProc {
     /* 44 */ int timer;
     /* 48 */ s16 delay;
 };
+
+struct GmapMuEntryProc
+{
+    /* 00 */ PROC_HEADER;
+    /* 29 */ u8 flags_0 : 1;
+    /* 2A */ u8 unk_2a;
+    /* 2B */ u8 unk_2b;
+    /* 2C */ u8 unk_2c;
+    /* 2D */ u8 unk_2d;
+    /* 2E */ u8 unk_2e;
+    /* 2F */ u8 unk_2f;
+    /* 30 */ s16 unk_30;
+    /* 34 */ int unk_34;
+    /* 38 */ int unk_38;
+    /* 3C */ int unk_3c;
+    /* 40 */ int unk_40;
+};
+
 void GmScrollManage_OnEnd(struct GMapScrollManageProc * proc);
 void GmScrollManage_OnInit(struct GMapScrollManageProc * proc);
 void GmScrollManage_OnLoop(struct GMapScrollManageProc * proc);
@@ -1022,7 +1040,7 @@ s8 GmBaseEntryExists(void);
 void sub_80BFD28(void);
 // ??? GmMuEntry_OnEnd_Null(???);
 // ??? GmMuEntry_Init(???);
-// ??? sub_80BFDA0(???);
+void sub_80BFDA0(struct GmapMuEntryProc * proc, int unused);
 // ??? GmMuEntry_80BFEF8(???);
 // ??? GmMuEntry_80BFFD0(???);
 // ??? GmMuEntry_80C0080(???);

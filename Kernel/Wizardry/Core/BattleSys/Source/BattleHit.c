@@ -804,7 +804,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 			}
         }
 
-            if (gpKernelDesignerConfig->skill_points_engage)
+            if (gpKernelDesignerConfig->skill_shop)
             {
                 if (bwl != NULL)
                 {

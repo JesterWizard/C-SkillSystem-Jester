@@ -10,11 +10,11 @@ static const struct REDA REDAs_EIRIKA[] = {
 };
 
 static const struct REDA REDAs_SETH[] = {
-    { .x = 1, .y = 12, .b = -1, .delayFrames = 0, },
+    { .x = 3, .y = 10, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_FRANZ[] = { 
-    { .x = 3, .y = 10, .b = -1, .delayFrames = 0, },
+    { .x = 1, .y = 12, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_GILLIAM[] = {
