@@ -416,6 +416,7 @@ enum {
 
 #define TUTORIAL_CHECK(tutorial_event) \
     ASMC(CanExecKTutorial) \
-    BEQ(0x1, EVT_SLOT_C, EVT_SLOT_0) \
+    SVAL(EVT_SLOT_1, 0x1) \
+    BEQ(0x1, EVT_SLOT_C, EVT_SLOT_1) \
     CALL(tutorial_event) \
 LABEL(0x1) 
