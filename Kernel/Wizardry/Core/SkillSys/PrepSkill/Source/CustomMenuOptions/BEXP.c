@@ -58,6 +58,11 @@ static int LevelUpProcExists(struct ProcPrepUnit* proc) {
     return Proc_Find(ProcScr_ManimLevelUp) || Proc_Find(ProcScr_ManimLevelUp_UnitComment);
 }
 
+static bool CanUnitReceiveBEXP(struct Unit *unit)
+{
+    return unit->exp != 255;
+}
+
 // Only draws the sprites (Face/Class icons). Run this every frame.
 static void DrawUnitSprites_BEXP(int x, int y)
 {
@@ -104,7 +109,14 @@ static void DrawUnitText_BEXP(int x, int y)
         unit = GetUnitFromPrepList(unitIndex);
 
         // Draw name at visual position 'i'
-        PutDrawText(&gPrepUnitTexts[i + 5], TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y + (i * 2)), TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(unit->pCharacterData->nameTextId));
+        PutDrawText(
+            &gPrepUnitTexts[i + 5],
+            TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y + (i * 2)),
+            CanUnitReceiveBEXP(unit) ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY,
+            0,
+            0,
+            GetStringFromIndex(unit->pCharacterData->nameTextId)
+        );
     }
     
     // Enable BG0 Sync to show the new text
@@ -396,6 +408,13 @@ static void PrepLoop_MainKeyHandler_BEXP(struct ProcPrepUnit * proc)
     if (gKeyStatusPtr->newKeys & A_BUTTON) {
         if (gBEXP_State == BEXP_STATE_LIST)
         {
+            struct Unit *currentUnit = GetUnitFromPrepList(proc->list_num_cur);
+
+            if (!CanUnitReceiveBEXP(currentUnit)) {
+                PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+                return;
+            }
+
             gBEXP_State = BEXP_STATE_RTEXT;
             EndUiCursorHand();
             ShowSysHandCursor(112, 112, 0x0, 0x000);
