@@ -182,6 +182,7 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
     struct Unit * unit = GetUnit(gActionData.subjectIndex);
     int slot = gActionData.itemSlotIndex;
     FORCE_DECLARE int item = unit->items[slot];
+    int learnedSid = 0;
 
     if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
@@ -243,20 +244,34 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
 
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-        AddSkill(unit, ITEM_USES(item));
+    {
+        learnedSid = ITEM_USES(item);
+        AddSkill(unit, learnedSid);
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-        AddSkill(unit, ITEM_USES(item) + 0xFF);
+    {
+        learnedSid = ITEM_USES(item) + 0xFF;
+        AddSkill(unit, learnedSid);
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-        AddSkill(unit, ITEM_USES(item) + 0x1FF);
+    {
+        learnedSid = ITEM_USES(item) + 0x1FF;
+        AddSkill(unit, learnedSid);
+    }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-        AddSkill(unit, ITEM_USES(item) + 0x2FF);
+    {
+        learnedSid = ITEM_USES(item) + 0x2FF;
+        AddSkill(unit, learnedSid);
+    }
 #endif
+
+        SetPopupItem(learnedSid);
 
 #if defined(SID_ScrollScribe) && (COMMON_SKILL_VALID(SID_ScrollScribe))
         if (SkillTester(unit, SID_ScrollScribe))
@@ -285,29 +300,33 @@ void ItemUseAction_SkillScroll(ProcPtr proc)
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
     {
-        AddSkill(unit, ITEM_USES(item));
-        SetPopupItem(ITEM_USES(item));
+        learnedSid = ITEM_USES(item);
+        AddSkill(unit, learnedSid);
+        SetPopupItem(learnedSid);
     }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
     {
-        AddSkill(unit, ITEM_USES(item) + 0xFF);
-        SetPopupItem(ITEM_USES(item) + 0xFF);
+        learnedSid = ITEM_USES(item) + 0xFF;
+        AddSkill(unit, learnedSid);
+        SetPopupItem(learnedSid);
     }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
     if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
     {
-        AddSkill(unit, ITEM_USES(item) + 0x1FF);
-        SetPopupItem(ITEM_USES(item) + 0x1FF);
+        learnedSid = ITEM_USES(item) + 0x1FF;
+        AddSkill(unit, learnedSid);
+        SetPopupItem(learnedSid);
     }
 #endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
     if (ITEM_INDEX(item) ==  CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
     {
-        AddSkill(unit, ITEM_USES(item) + 0x2FF);
-        SetPopupItem(ITEM_USES(item) + 0x2FF);
+        learnedSid = ITEM_USES(item) + 0x2FF;
+        AddSkill(unit, learnedSid);
+        SetPopupItem(learnedSid);
     }
 #endif
         UnitUpdateUsedItem(unit, slot);

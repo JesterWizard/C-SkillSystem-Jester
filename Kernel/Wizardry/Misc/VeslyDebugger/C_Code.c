@@ -1236,12 +1236,6 @@ void EditWExpIdle(DebuggerProc* proc) {
 
 #define SkillsWidth 12
 
-#ifdef CONFIG_TURN_ON_ALL_SKILLS
-    #define SkillsLearnable 6
-#else
-    #define SkillsLearnable 7
-#endif
-
 void RedrawUnitSkillsMenu(DebuggerProc* proc);
 void EditSkillsInit(DebuggerProc* proc) { 
     SomeMenuInit(proc); 
@@ -1253,10 +1247,10 @@ void EditSkillsInit(DebuggerProc* proc) {
     for (int i = 0; i < UNIT_SUPPORT_MAX_COUNT; ++i)
         buffer |= ((u64)unit->supports[i]) << (8 * i);
 
-    for (int i = 0; i < SkillsLearnable; ++i)
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i)
         proc->tmp[i] = (buffer >> (i * 10)) & 0x3FF;
 #else
-    for (int i = 0; i < SkillsLearnable; ++i)
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i)
         proc->tmp[i] = unit->supports[i];
 #endif
 
@@ -1264,7 +1258,7 @@ void EditSkillsInit(DebuggerProc* proc) {
     int x = NUMBER_X - SkillsWidth + 1; 
     int y = Y_HAND - 1; 
     int w = SkillsWidth + (START_X - NUMBER_X) + 3; 
-    int h = (SkillsLearnable * 2) + 2; 
+    int h = (UNIT_RAM_SKILLS_LEN * 2) + 2; 
     
     DrawUiFrame(
         BG_GetMapBuffer(1), // back BG
@@ -1283,7 +1277,7 @@ void EditSkillsInit(DebuggerProc* proc) {
     } 
     
     int uid; 
-    for (int i = 0; i < SkillsLearnable; ++i) { 
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i) { 
         uid = unit->supports[i]; 
         if (uid) { 
         Text_DrawString(&th[i], GetSkillNameStr(uid));
@@ -1309,7 +1303,7 @@ enum icon_sheet_idx {
 #define SKILL_ICON(sid)   ((ICON_SHEET_SKILL0 << 8) + (sid))
 
 void RedrawUnitSkillsMenu(DebuggerProc* proc) { 
-    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, 2 * SkillsLearnable, 0);
+    TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, 2 * UNIT_RAM_SKILLS_LEN, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
     ResetIconGraphics(); // Add this to reset icon state
 
@@ -1317,7 +1311,7 @@ void RedrawUnitSkillsMenu(DebuggerProc* proc) {
     int x = NUMBER_X - SkillsWidth + 2;
 
     // Clear and redraw all skill name texts
-    for (int i = 0; i < SkillsLearnable; ++i) {
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i) {
         ClearText(&th[i]);
         // Only draw name if skill ID is non-zero
         if (proc->tmp[i]) {
@@ -1344,7 +1338,7 @@ void SaveSkills(DebuggerProc* proc) {
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
     // Compose the 5 skill IDs into a bit buffer
     u64 bitbuf = 0;
-    for (int i = 0; i < SkillsLearnable; ++i) {
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i) {
         bitbuf |= ((u64)(proc->tmp[i] & 0x3FF)) << (i * 10); // store 10 bits per skill
     }
 
@@ -1353,7 +1347,7 @@ void SaveSkills(DebuggerProc* proc) {
         unit->supports[i] = (bitbuf >> (i * 8)) & 0xFF;
     }
 #else
-    for (int i = 0; i < SkillsLearnable; ++i) { 
+    for (int i = 0; i < UNIT_RAM_SKILLS_LEN; ++i) { 
         unit->supports[i] = proc->tmp[i]; 
     } 
 #endif
@@ -1669,7 +1663,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
         
         if (keys & DPAD_UP) {
             proc->id--; 
-            if (proc->id < 0) { proc->id = SkillsLearnable - 1; } 
+            if (proc->id < 0) { proc->id = UNIT_RAM_SKILLS_LEN - 1; } 
             RedrawUnitSkillsMenu(proc);
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -1681,7 +1675,7 @@ void EditSkillsIdle(DebuggerProc* proc) {
         }
         if (keys & DPAD_DOWN) {
             proc->id++;
-            if (proc->id >= SkillsLearnable) { proc->id = 0; }    
+            if (proc->id >= UNIT_RAM_SKILLS_LEN) { proc->id = 0; }    
             RedrawUnitSkillsMenu(proc); 
 
             if (Proc_Find(gProcScr_HelpBox)) {
@@ -2268,16 +2262,12 @@ void RedrawItemMenu(DebuggerProc* proc) {
     BG_Fill(gBG0TilemapBuffer, 0); 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
     ResetIconGraphics();
-    //ResetText();
-    const struct ItemData* itemData[5]; 
     struct Text* th = gStatScreen.text;
-    for (int i = 0; i < NumberOfItems; ++i) { 
-        itemData[i] = GetItemData(proc->tmp[i] & 0xFF); 
-    } 
+
     for (int i = 0; i < NumberOfItems; ++i) { 
         ClearText(&th[i]); 
         if (proc->tmp[i]) { 
-            Text_DrawString(&th[i], GetStringFromIndex(itemData[i]->nameTextId));
+            Text_DrawString(&th[i], GetItemName(proc->tmp[i]));
         } 
     } 
     
@@ -2289,7 +2279,7 @@ void RedrawItemMenu(DebuggerProc* proc) {
     } 
     int n = 0; 
     for (int i = 0; i < NumberOfItems; ++i) { // item id 
-        if (proc->tmp[i]) { n = itemData[i]->number; } else { n = 0; } 
+        if (proc->tmp[i]) { n = ITEM_INDEX(proc->tmp[i]); } else { n = 0; } 
         PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, n); 
     } 
     

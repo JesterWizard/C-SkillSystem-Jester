@@ -428,8 +428,6 @@ STATIC_DECLAR u8 RemoveSkillMenu_OnSelected(struct MenuProc * menu, struct MenuI
     }
 #endif
 
-    RemoveSkill(gActiveUnit, sid);
-
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 

@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-#define UNIT_RAM_SKILLS_LEN 6
+#define UNIT_RAM_SKILLS_LEN 5
 #else
 #define UNIT_RAM_SKILLS_LEN 7
 #endif
