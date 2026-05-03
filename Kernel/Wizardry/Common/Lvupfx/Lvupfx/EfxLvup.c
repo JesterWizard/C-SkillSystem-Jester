@@ -7,6 +7,17 @@ struct EfxLvupInfo {
 	u16 msg;
 };
 
+enum {
+	EFXLVUP_DISP_HP = 0,
+	EFXLVUP_DISP_POW,
+	EFXLVUP_DISP_MAG,
+	EFXLVUP_DISP_SKL,
+	EFXLVUP_DISP_SPD,
+	EFXLVUP_DISP_LCK,
+	EFXLVUP_DISP_DEF,
+	EFXLVUP_DISP_RES,
+};
+
 STATIC_DECLAR const struct EfxLvupInfo NewEfxLvupInfos[] = {
 	{0x02, 0x0B, 0x4E9}, /* HP */
 	{0x02, 0x0D, 0x4FE}, /* Str */
@@ -65,8 +76,7 @@ void EkrLvup_InitStatusText(struct ProcEkrLevelup *proc)
 	struct Unit *unit;
 	const u16 *stat_label_pos;
 
-	if (proc->ais_main == NULL)
-	{
+	if (proc->ais_main == NULL) {
 		bunit2 = gpEkrBattleUnitLeft;
 		gpEkrLvupUnit = unit = &bunit2->unit;
 		gpEkrLvupBattleUnit = bunit = gpEkrBattleUnitRight;
@@ -76,25 +86,49 @@ void EkrLvup_InitStatusText(struct ProcEkrLevelup *proc)
 		gpEkrLvupBattleUnit = bunit = gpEkrBattleUnitLeft;
 	}
 
-	gEkrLvupPreLevel = unit->level;
-	gEkrLvupBaseStatus[0] = unit->maxHP;
-	gEkrLvupBaseStatus[1] = unit->pow;
-	gEkrLvupBaseStatus[2] = UNIT_MAG(unit);
-	gEkrLvupBaseStatus[3] = unit->skl;
-	gEkrLvupBaseStatus[4] = unit->spd;
-	gEkrLvupBaseStatus[5] = unit->lck;
-	gEkrLvupBaseStatus[6] = unit->def;
-	gEkrLvupBaseStatus[7] = unit->res;
-	gEkrLvupPostLevel = 1;
+	if (proc->is_promotion == false) {
+		unit = GetUnit(unit->index);
 
-	gEkrLvupPostStatus[0] = bunit->unit.maxHP;
-	gEkrLvupPostStatus[1] = bunit->unit.pow;
-	gEkrLvupPostStatus[2] = UNIT_MAG(&bunit->unit);
-	gEkrLvupPostStatus[3] = bunit->unit.skl;
-	gEkrLvupPostStatus[4] = bunit->unit.spd;
-	gEkrLvupPostStatus[5] = bunit->unit.lck;
-	gEkrLvupPostStatus[6] = bunit->unit.def;
-	gEkrLvupPostStatus[7] = bunit->unit.res;
+		gEkrLvupPreLevel = bunit2->levelPrevious;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_HP]  = unit->maxHP;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_POW] = unit->pow;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_MAG] = UNIT_MAG(unit);
+		gEkrLvupBaseStatus[EFXLVUP_DISP_SKL] = unit->skl;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_SPD] = unit->spd;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_LCK] = unit->lck;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_DEF] = unit->def;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_RES] = unit->res;
+		gEkrLvupPostLevel = bunit2->levelPrevious + 1;
+
+		gEkrLvupPostStatus[EFXLVUP_DISP_HP]  = unit->maxHP + bunit2->changeHP;
+		gEkrLvupPostStatus[EFXLVUP_DISP_POW] = unit->pow + bunit2->changePow;
+		gEkrLvupPostStatus[EFXLVUP_DISP_MAG] = UNIT_MAG(unit) + BU_CHG_MAG(bunit2);
+		gEkrLvupPostStatus[EFXLVUP_DISP_SKL] = unit->skl + bunit2->changeSkl;
+		gEkrLvupPostStatus[EFXLVUP_DISP_SPD] = unit->spd + bunit2->changeSpd;
+		gEkrLvupPostStatus[EFXLVUP_DISP_LCK] = unit->lck + bunit2->changeLck;
+		gEkrLvupPostStatus[EFXLVUP_DISP_DEF] = unit->def + bunit2->changeDef;
+		gEkrLvupPostStatus[EFXLVUP_DISP_RES] = unit->res + bunit2->changeRes;
+	} else {
+		gEkrLvupPreLevel = unit->level;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_HP]  = unit->maxHP;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_POW] = unit->pow;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_MAG] = UNIT_MAG(unit);
+		gEkrLvupBaseStatus[EFXLVUP_DISP_SKL] = unit->skl;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_SPD] = unit->spd;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_LCK] = unit->lck;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_DEF] = unit->def;
+		gEkrLvupBaseStatus[EFXLVUP_DISP_RES] = unit->res;
+		gEkrLvupPostLevel = 1;
+
+		gEkrLvupPostStatus[EFXLVUP_DISP_HP]  = bunit->unit.maxHP;
+		gEkrLvupPostStatus[EFXLVUP_DISP_POW] = bunit->unit.pow;
+		gEkrLvupPostStatus[EFXLVUP_DISP_MAG] = UNIT_MAG(&bunit->unit);
+		gEkrLvupPostStatus[EFXLVUP_DISP_SKL] = bunit->unit.skl;
+		gEkrLvupPostStatus[EFXLVUP_DISP_SPD] = bunit->unit.spd;
+		gEkrLvupPostStatus[EFXLVUP_DISP_LCK] = bunit->unit.lck;
+		gEkrLvupPostStatus[EFXLVUP_DISP_DEF] = bunit->unit.def;
+		gEkrLvupPostStatus[EFXLVUP_DISP_RES] = bunit->unit.res;
+	}
 
 	InitTextFont(&gBanimFont, BG_CHR_ADDR(0x146), 0x146, 0);
 	stat_label_pos = sEfxLvupPartsPos;
