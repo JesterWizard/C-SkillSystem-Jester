@@ -149,3 +149,54 @@ void UnitKill(struct Unit *unit)
 			unit->pCharacterData = NULL;
 	}
 }
+
+//! FE8U = 0x0803286C
+LYN_REPLACE_CHECK(BATTLE_HandleCombatDeaths);
+void BATTLE_HandleCombatDeaths(struct CombatActionProc* proc) {
+    struct Unit* unitA = GetUnit(proc->unitIdA);
+    struct Unit* unitB = GetUnit(proc->unitIdB);
+
+    DropRescueOnDeath(proc, unitA);
+    DropRescueOnDeath(proc, unitB);
+
+    KillUnitOnCombatDeath(unitA, unitB);
+    KillUnitOnCombatDeath(unitB, unitA);
+
+    return;
+}
+
+//! FE8U = 0x080327C8
+LYN_REPLACE_CHECK(BATTLE_PostCombatDeathFades);
+void BATTLE_PostCombatDeathFades(struct CombatActionProc* proc) {
+    struct MuProc* muProc;
+
+    proc->unk_54 = NULL;
+
+    if (DidUnitDie(&gBattleActor.unit)) {
+        muProc = Proc_Find(ProcScr_Mu);
+        MU_StartDeathFade(muProc);
+        proc->unk_54 = muProc;
+
+        TryRemoveUnitFromBallista(&gBattleActor.unit);
+    }
+
+    if (DidUnitDie(&gBattleTarget.unit)) {
+        struct Unit* target = GetUnit(gBattleTarget.unit.index);
+        target->state |= US_HIDDEN;
+
+        TryRemoveUnitFromBallista(target);
+
+        RefreshUnitSprites();
+        muProc = StartMu(&gBattleTarget.unit);
+
+        gWorkingMovementScript[0] = GetFacingDirection(gBattleActor.unit.xPos, gBattleActor.unit.yPos, gBattleTarget.unit.xPos, gBattleTarget.unit.yPos);
+        gWorkingMovementScript[1] = MOVE_CMD_HALT;
+
+        SetMuMoveScript(muProc, gWorkingMovementScript);
+        MU_StartDeathFade(muProc);
+
+        proc->unk_54 = muProc;
+    }
+
+    return;
+}

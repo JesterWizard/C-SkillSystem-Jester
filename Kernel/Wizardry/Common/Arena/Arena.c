@@ -1589,19 +1589,30 @@ void KillUnitIfNoHealth(struct Unit *unit)
             unit->curHP = 1;
 }
 
-LYN_REPLACE_CHECK(DidUnitDie);
-bool DidUnitDie(struct Unit *unit)
-{
-    if (GetUnitCurrentHp(unit) == 0) {
-        if (gArenaState.result == ARENA_LOSS && NonLethalArena) {
-            unit->curHP = 1;
-            return TRUE;
-        }
+// LYN_REPLACE_CHECK(DidUnitDie);
+// bool DidUnitDie(struct Unit *unit)
+// {
+//     if (GetUnitCurrentHp(unit) == 0) {
+//         if (gArenaState.result == ARENA_LOSS && NonLethalArena) {
+//             unit->curHP = 1;
+//             return TRUE;
+//         }
 
-        return FALSE;
+//         return FALSE;
+//     }
+
+//     return TRUE;
+// }
+
+
+//! FE8U = 0x080327B4
+LYN_REPLACE_CHECK(DidUnitDie);
+bool DidUnitDie(struct Unit* unit) {
+    if (GetUnitCurrentHp(unit) != 0) {
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 //! FE8U = 0x080B5998
