@@ -143,7 +143,6 @@ void UnitKill(struct Unit *unit)
 		if (gpKernelDesignerConfig->collect_dead_units == true)
 		{
 			unit->state |= US_DEAD | US_HIDDEN;
-			unit->curHP = unit->maxHP;
 		}
 		else
 			unit->pCharacterData = NULL;
