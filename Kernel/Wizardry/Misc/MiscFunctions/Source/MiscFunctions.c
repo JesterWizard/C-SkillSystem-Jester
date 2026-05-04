@@ -36,6 +36,14 @@ typedef struct {
 } PrepItemSuppyText;
 extern const int sExpaConvoyItemAmount;
 
+static bool ShouldDisplayItemDurability(int item)
+{
+    if (!gpKernelDesignerConfig->infinite_durability)
+        return true;
+
+    return !(GetItemAttributes(item) & IA_WEAPON);
+}
+
 //! FE8U = 0x08098620
 LYN_REPLACE_CHECK(PrepItemScreen_SetupGfx);
 void PrepItemScreen_SetupGfx(struct PrepItemScreenProc* proc)
@@ -945,7 +953,7 @@ void sub_809D300(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
 
         PutText(th, tm + TILEMAP_INDEX(3, i * 2 & 0x1f));
 
-        if (gpKernelDesignerConfig->infinite_durability == false)
+        if (ShouldDisplayItemDurability(item))
         {
             PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1, GetItemUses(item));
         }
@@ -997,7 +1005,7 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
         DrawIcon(tm + offset + 1, GetItemIconId(item), 0x4000);
         PutText(th, tm + offset + 3);
 
-        if (gpKernelDesignerConfig->infinite_durability == false)
+        if (ShouldDisplayItemDurability(item))
         {
             PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
         }
@@ -1084,7 +1092,7 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
                     GetItemUses(item));
             }
         }
-        if (gpKernelDesignerConfig->infinite_durability == false)
+        if (ShouldDisplayItemDurability(item))
         {
             PutNumberOrBlank(tm + 11 + i * 0x40, !isUnusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
         }
@@ -1124,7 +1132,7 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
             GetItemName(item)
         );
 
-        if (gpKernelDesignerConfig->infinite_durability == false)
+        if (ShouldDisplayItemDurability(item))
         {
             PutNumberOrBlank(tm + i * 0x40 + 0xB, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
         }

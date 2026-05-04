@@ -6,6 +6,14 @@
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 extern struct ProcCmd CONST_DATA ProcScr_ShopSellInit[];
 
+static bool ShouldDisplayItemDurability(int item)
+{
+    if (!gpKernelDesignerConfig->infinite_durability)
+        return true;
+
+    return !(GetItemAttributes(item) & IA_WEAPON);
+}
+
 void SU_SaveShopStock(void* target, int size) {
     WriteAndVerifySramFast(gCurrentShopStocks, target, size);
 }
@@ -117,7 +125,7 @@ static void DrawStockedSellItemLine(struct Text* text, int item, s8 isUsable, u1
     else
         PutText(text, mapOut + 2);
 
-    if (gpKernelDesignerConfig->infinite_durability == false)
+    if (ShouldDisplayItemDurability(item))
     {
         if (gpKernelDesignerConfig->limited_shop_items == true)
             PutNumberOrBlank(mapOut + 8, statColor, GetItemUses(item));
@@ -154,7 +162,7 @@ void DrawStockedItemLine(struct Text* text, int item, s8 isUsable, u16* mapOut)
     else
         PutText(text, mapOut + 2);
 
-    if (gpKernelDesignerConfig->infinite_durability == false)
+    if (ShouldDisplayItemDurability(item))
     {
         // Uses
         if (gpKernelDesignerConfig->limited_shop_items == true)

@@ -107,6 +107,14 @@ int CanItemBeForged(int item) { // for item line drawing
     return true;
 }
 
+static bool ShouldDisplayItemDurability(int item)
+{
+    if (!gpKernelDesignerConfig->infinite_durability)
+        return true;
+
+    return !(GetItemAttributes(item) & IA_WEAPON);
+}
+
 int GetItemForgeCount(int item) {
     struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
     int id = ITEM_USES(item);
@@ -708,7 +716,7 @@ void DrawItemMenuLine(struct Text * text, int item, s8 isUsable, u16 * mapOut)
     }
     else // Default behavior: display standard durability
     {
-        if (gpKernelDesignerConfig->infinite_durability == false) // if infinite durability is off, show durability as normal
+        if (ShouldDisplayItemDurability(item)) // non-weapons always show durability; weapons obey infinite durability
         {
             if (!IsDuraItem(item))
             {
@@ -728,7 +736,7 @@ void DrawItemMenuLineLong(struct Text * text, int item, s8 isUsable, u16 * mapOu
 
     PutText(text, mapOut + 2);
 
-    if (gpKernelDesignerConfig->infinite_durability == false)
+    if (ShouldDisplayItemDurability(item))
     {
         if (!IsDuraItem(item))
         {
@@ -763,7 +771,7 @@ void DrawItemMenuLineNoColor(struct Text * text, int item, u16 * mapOut)
 
     PutText(text, mapOut + 2);
 
-    if (gpKernelDesignerConfig->infinite_durability == false)
+    if (ShouldDisplayItemDurability(item))
     {
         if (!IsDuraItem(item))
         {
@@ -798,7 +806,7 @@ void DrawItemStatScreenLine(struct Text * text, int item, int nameColor, u16 * m
 
     Text_DrawString(text, GetItemName(item));
 
-    if (gpKernelDesignerConfig->infinite_durability == false)
+    if (ShouldDisplayItemDurability(item))
     {
         if (!IsDuraItem(item))
         {
