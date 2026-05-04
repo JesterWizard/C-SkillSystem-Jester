@@ -7,7 +7,56 @@
 #include "unitlistscreen.h"
 #include "constants/skills.h"
 #include "item-sys.h"
+#include "jester_headers/maps.h"
 #include "jester_headers/custom-arrays.h"
+
+static const struct StatScreenPageChapterLock sStatScreenPageChapterLocks[] = {
+    { PAGE_GAIDEN_MAGIC, CHAPTER_06 },
+    { PAGE_PERSONAL_DATA, CHAPTER_08 },
+    { PAGE_PROMOTIONS, CHAPTER_10 },
+};
+
+static bool IsStatScreenPageEnabledByConfig(int page)
+{
+    switch (page) {
+    case PAGE_GAIDEN_MAGIC:
+        return gpKernelDesignerConfig->stat_page_gaiden_magic;
+
+    case PAGE_PERSONAL_DATA:
+        return gpKernelDesignerConfig->stat_page_personal_info;
+
+    case PAGE_PROMOTIONS:
+        return gpKernelDesignerConfig->stat_page_promotions;
+
+    default:
+        return true;
+    }
+}
+
+int GetStatScreenPageUnlockChapter(int page)
+{
+    for (int i = 0; i < (int)ARRAY_COUNT(sStatScreenPageChapterLocks); i++) {
+        if (sStatScreenPageChapterLocks[i].page == page)
+            return sStatScreenPageChapterLocks[i].chapterId;
+    }
+
+    return -1;
+}
+
+bool IsStatScreenPageAvailable(int page)
+{
+    int unlockChapter;
+
+    if (!IsStatScreenPageEnabledByConfig(page))
+        return false;
+
+    unlockChapter = GetStatScreenPageUnlockChapter(page);
+
+    if (unlockChapter >= 0 && gPlaySt.chapterIndex < unlockChapter)
+        return false;
+
+    return true;
+}
 
 LYN_REPLACE_CHECK(StartStatScreenHelp);
 void StartStatScreenHelp(int pageid, struct Proc *proc)
@@ -49,13 +98,13 @@ int TranslateStatPageId(int pageid)
 {
     int real = pageid;
 
-    if (!gpKernelDesignerConfig->stat_page_gaiden_magic && real >= PAGE_GAIDEN_MAGIC)
+    if (!IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC) && real >= PAGE_GAIDEN_MAGIC)
         real++;
 
-    if (!gpKernelDesignerConfig->stat_page_personal_info && real >= PAGE_PERSONAL_DATA)
+    if (!IsStatScreenPageAvailable(PAGE_PERSONAL_DATA) && real >= PAGE_PERSONAL_DATA)
         real++;
 
-    if (!gpKernelDesignerConfig->stat_page_promotions && real >= PAGE_PROMOTIONS)
+    if (!IsStatScreenPageAvailable(PAGE_PROMOTIONS) && real >= PAGE_PROMOTIONS)
         real++;
 
     return real;

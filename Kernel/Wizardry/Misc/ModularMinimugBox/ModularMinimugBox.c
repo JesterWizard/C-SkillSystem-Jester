@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "stat-screen.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
@@ -109,6 +110,23 @@ static int GetMMBBaseX(struct PlayerInterfaceProc *proc) {
     return (sPlayerInterfaceConfigLut[proc->cursorQuadrant].xMinimug < 0) ? 0 : (30 - MMBWidth);
 }
 
+static void DrawLongHpBar(u16 *buffer, struct Unit *unit, int tileBase, int length)
+{
+    int i;
+
+    DrawHpBar(buffer, unit, tileBase);
+
+    if (length <= 0)
+        return;
+
+    /* Vanilla DrawHpBar fills a fixed-width bar. Stretch its trailing middle
+     * segment to the requested length and move the right cap outward. */
+    for (i = 0; i < length; i++)
+        buffer[5 + i] = buffer[3 + i];
+
+    buffer[5 + length] = buffer[3 + length];
+}
+
 LYN_REPLACE_CHECK(ClearUnitMapUiStatus);
 void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
@@ -120,6 +138,7 @@ void ClearUnitMapUiStatus(struct PlayerInterfaceProc* proc, u16* buffer, struct 
 LYN_REPLACE_CHECK(UnitMapUiUpdate);
 void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
+    // bool showMpNumbers = IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC);
     if (unit->statusIndex == UNIT_STATUS_RECOVER) proc->unitClock = 0;
 
 /* Stage 2: suppress HP text, slash, and digit OAM entirely */
@@ -135,7 +154,7 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     if (proc->hideContents || ((proc->unitClock & 64) && unit->statusIndex != UNIT_STATUS_NONE)) return;
 
     int xb = proc->xHp * 8, yb = proc->yHp * 8;
-    u8 hp[6], mp[6];
+    u8 hp[6];
 
     ApplyMMBNumberPalette();
 
@@ -158,15 +177,19 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     GetDigits(GetUnitCurrentHp(unit), hp); GetDigits(GetUnitMaxHp(unit), hp + 3);
     DrawDigits(curX, yb, exp ? 3 : 2, hp + (exp ? 0 : 1)); 
     DrawDigits(maxX, yb, exp ? 3 : 2, hp + 3 + (exp ? 0 : 1));
-    
-    GetDigits(GetUnitCurrentMP(unit), mp); GetDigits(GetUnitMaxMP(unit), mp + 3);
-    DrawDigits(curX, yb + 8, exp ? 3 : 2, mp + (exp ? 0 : 1)); 
-    DrawDigits(maxX, yb + 8, exp ? 3 : 2, mp + 3 + (exp ? 0 : 1));
+
+    // if (!showMpNumbers)
+    //     return;
+    //
+    // GetDigits(GetUnitCurrentMP(unit), mp); GetDigits(GetUnitMaxMP(unit), mp + 3);
+    // DrawDigits(curX, yb + 8, exp ? 3 : 2, mp + (exp ? 0 : 1));
+    // DrawDigits(maxX, yb + 8, exp ? 3 : 2, mp + 3 + (exp ? 0 : 1));
 }
 
 LYN_REPLACE_CHECK(DrawUnitMapUi);
 void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
+    // bool showMpNumbers = IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC);
     bool exp = gpKernelDesignerConfig->expanded_hp;
     CpuFastFill(0, gUiTmScratchA, 6 * CHR_SIZE * sizeof(u16));
 
@@ -206,7 +229,9 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     proc->yHp = (sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0) ? 3 : 17;
 
     UnitMapUiUpdate(proc, unit);
-    if (!alt) DrawHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1));
+    // if (!alt || !showMpNumbers)
+    //     DrawLongHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1), 3);
+    DrawLongHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1), 3);
     CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
     ApplyMMBFramePalette(unit, alt);
 }

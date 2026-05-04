@@ -182,13 +182,13 @@ int GetStatPageCount(void)
 {
     int count = 4;
 
-    if (gpKernelDesignerConfig->stat_page_gaiden_magic == true)
+    if (IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC))
         count++;
 
-    if (gpKernelDesignerConfig->stat_page_personal_info == true)
+    if (IsStatScreenPageAvailable(PAGE_PERSONAL_DATA))
         count++;
 
-    if (gpKernelDesignerConfig->stat_page_promotions == true)
+    if (IsStatScreenPageAvailable(PAGE_PROMOTIONS))
         count++;
 
     return count;

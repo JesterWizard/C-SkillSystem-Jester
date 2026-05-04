@@ -11,8 +11,15 @@ enum {
     PAGE_PROMOTIONS     = 6,
 };
 
+struct StatScreenPageChapterLock {
+    int page;
+    int chapterId;
+};
+
 extern int TranslateStatPageId(int pageid);
 extern int GetStatPageCount(void);
+extern bool IsStatScreenPageAvailable(int page);
+extern int GetStatScreenPageUnlockChapter(int page);
 
 typedef const struct HelpBoxInfo _DECL_INFO;
 extern _DECL_INFO *const RTextPageSupport;

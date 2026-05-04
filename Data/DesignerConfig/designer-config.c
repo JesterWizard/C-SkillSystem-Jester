@@ -70,7 +70,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.anima_weapon_triangle = false,
 	.stat_page_skill_style = 0, // 0 = Display skills in list with names, 1 = Display skills in grid without names,
 	.stat_page_gaiden_magic = true,
-	.stat_page_personal_info = true,
+	.stat_page_personal_info = false,
 	.stat_page_promotions = true,
 	.summons_gain_exp = false,
 	.collect_dead_units = true,
