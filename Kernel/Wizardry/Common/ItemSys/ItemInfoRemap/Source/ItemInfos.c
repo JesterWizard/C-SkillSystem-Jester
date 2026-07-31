@@ -568,6 +568,64 @@ const struct ItemData * GetItemData(int itemIndex)
     return gItemData_New + itemIndex;
 }
 
+LYN_REPLACE_CHECK(GetItemStatBonuses);
+const struct ItemStatBonuses *GetItemStatBonuses(int item)
+{
+    if (!item)
+        return NULL;
+
+    return GetItemData(ITEM_INDEX(item))->pStatBonuses;
+}
+
+LYN_REPLACE_CHECK(GetItemHpBonus);
+int GetItemHpBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->hpBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemPowBonus);
+int GetItemPowBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->powBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemSklBonus);
+int GetItemSklBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->sklBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemSpdBonus);
+int GetItemSpdBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->spdBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemDefBonus);
+int GetItemDefBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->defBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemResBonus);
+int GetItemResBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->resBonus : 0;
+}
+
+LYN_REPLACE_CHECK(GetItemLckBonus);
+int GetItemLckBonus(int item)
+{
+    const struct ItemStatBonuses *bonuses = GetItemStatBonuses(item);
+    return bonuses ? bonuses->lckBonus : 0;
+}
+
 LYN_REPLACE_CHECK(GetItemAttributes);
 int GetItemAttributes(int item) {
     return GetItemData(ITEM_INDEX(item))->attributes;
