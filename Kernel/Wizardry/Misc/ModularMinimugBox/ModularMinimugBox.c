@@ -139,6 +139,9 @@ LYN_REPLACE_CHECK(UnitMapUiUpdate);
 void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     bool alt = gpKernelDesignerConfig->mp_system;
     // bool showMpNumbers = IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC);
+    if (!UNIT_IS_VALID(unit))
+        return;
+
     if (unit->statusIndex == UNIT_STATUS_RECOVER) proc->unitClock = 0;
 
 /* Stage 2: suppress HP text, slash, and digit OAM entirely */
@@ -237,8 +240,13 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
 }
 
 static bool IsUnitFogStage2(struct Unit* cu) {
-    return cu && gpKernelDesignerConfig->multiple_fog_stages
+    return UNIT_IS_VALID(cu) && gpKernelDesignerConfig->multiple_fog_stages
         && gPlaySt.chapterVisionRange && gBmMapFog[cu->yPos][cu->xPos] == 1;
+}
+
+static struct Unit *GetMMBCursorUnit(void) {
+    int unitId = gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x];
+    return unitId ? GetUnit(unitId) : NULL;
 }
 
 static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
@@ -257,7 +265,7 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
          * shown during the slide-in after a fog→visible switch).  Conversely, fog
          * units must keep it true so the OAM digit guard in UnitMapUiUpdate has a
          * second line of defence (Bug 1: HP/slash bleeding onto fog unit boxes). */
-        struct Unit* cu = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
+        struct Unit* cu = GetMMBCursorUnit();
         proc->hideContents = IsUnitFogStage2(cu);
     }
 
@@ -282,7 +290,7 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
             proc->windowQuadrant = -1;
         }
         else {
-            struct Unit* cu = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
+            struct Unit* cu = GetMMBCursorUnit();
             proc->hideContents = IsUnitFogStage2(cu);
             UnitMapUiUpdate(proc, cu);
         }
@@ -290,7 +298,7 @@ static void MMB_Slide_Common(struct PlayerInterfaceProc* proc, bool out) {
     } else if (!out && !proc->hideContents) {
         /* Push HP/MP OAM digits on each intermediate slide-in frame so the values
          * are visible throughout the slide, not only on the final frame. */
-        UnitMapUiUpdate(proc, GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]));
+        UnitMapUiUpdate(proc, GetMMBCursorUnit());
     }
 }
 
