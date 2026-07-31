@@ -9,6 +9,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 ### - [Setup Guide](./Documentation/Setup.md)
 ### - [How to contribute](./Documentation/CONTRIBUTING.md)
 ### - [Community Discussion on FEUniverse](https://feuniverse.us/t/fe8-modern-c-skillsystem-release/24614)
+### - [Runtime configuration source](./Data/DesignerConfig/designer-config.c)
 
 ## Features
 

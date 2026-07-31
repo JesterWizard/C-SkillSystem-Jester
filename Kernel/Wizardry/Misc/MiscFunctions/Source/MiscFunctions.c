@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "weapon-slots.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "battle-system.h"
@@ -3335,116 +3336,116 @@ s8 HasBattleUnitGainedWeaponLevel(struct BattleUnit * bu)
 #if (defined(SID_ShadowGiftPlus) && (COMMON_SKILL_VALID(SID_ShadowGiftPlus)))
     if (BattleFastSkillTester(bu, SID_ShadowGiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_DARK)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_DARK) == 0)
                 return false;
 #endif
 
 #if (defined(SID_ShadowGift) && (COMMON_SKILL_VALID(SID_ShadowGift)))
     if (BattleFastSkillTester(bu, SID_ShadowGift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_DARK)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_DARK) == 0)
                 return false;
 #endif
 
 #if (defined(SID_LightGiftPlus) && (COMMON_SKILL_VALID(SID_LightGiftPlus)))
     if (BattleFastSkillTester(bu, SID_LightGiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_LIGHT)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_LIGHT] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_LIGHT) == 0)
                 return false;
 #endif
 
 #if (defined(SID_StormgiftPlus) && (COMMON_SKILL_VALID(SID_StormgiftPlus)))
     if (BattleFastSkillTester(bu, SID_StormgiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_ANIMA)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_ANIMA) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Stormgift) && (COMMON_SKILL_VALID(SID_Stormgift)))
     if (BattleFastSkillTester(bu, SID_Stormgift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_ANIMA)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_ANIMA) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Gracegift) && (COMMON_SKILL_VALID(SID_Gracegift)))
     if (BattleFastSkillTester(bu, SID_Gracegift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_STAFF)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_STAFF] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_STAFF) == 0)
                 return false;
 #endif
 
 #if (defined(SID_GracegiftPlus) && (COMMON_SKILL_VALID(SID_GracegiftPlus)))
     if (BattleFastSkillTester(bu, SID_GracegiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_STAFF)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_STAFF] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_STAFF) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Gracegift) && (COMMON_SKILL_VALID(SID_Gracegift)))
     if (BattleFastSkillTester(bu, SID_Gracegift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_STAFF)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_STAFF] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_STAFF) == 0)
                 return false;
 #endif
 
 #if (defined(SID_BladegiftPlus) && (COMMON_SKILL_VALID(SID_BladegiftPlus)))
     if (BattleFastSkillTester(bu, SID_BladegiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_SWORD)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_SWORD) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Bladegift) && (COMMON_SKILL_VALID(SID_Bladegift)))
     if (BattleFastSkillTester(bu, SID_Bladegift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_SWORD)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_SWORD) == 0)
                 return false;
 #endif
 
 #if (defined(SID_PiercegiftPlus) && (COMMON_SKILL_VALID(SID_PiercegiftPlus)))
     if (BattleFastSkillTester(bu, SID_PiercegiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_LANCE)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_LANCE) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Piercegift) && (COMMON_SKILL_VALID(SID_Piercegift)))
     if (BattleFastSkillTester(bu, SID_Piercegift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_LANCE)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_LANCE) == 0)
                 return false;
 #endif
 
 #if (defined(SID_HackgiftPlus) && (COMMON_SKILL_VALID(SID_HackgiftPlus)))
     if (BattleFastSkillTester(bu, SID_HackgiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_AXE)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_AXE) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Hackgift) && (COMMON_SKILL_VALID(SID_Hackgift)))
     if (BattleFastSkillTester(bu, SID_Hackgift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_AXE)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_AXE) == 0)
                 return false;
 #endif
 
 #if (defined(SID_ArcgiftPlus) && (COMMON_SKILL_VALID(SID_ArcgiftPlus)))
     if (BattleFastSkillTester(bu, SID_ArcgiftPlus))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_BOW)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_BOW) == 0)
                 return false;
 #endif
 
 #if (defined(SID_Arcgift) && (COMMON_SKILL_VALID(SID_Arcgift)))
     if (BattleFastSkillTester(bu, SID_Arcgift))
         if (GetItemType(GetUnit(bu->unit.index)->items[0]) == ITYPE_BOW)
-            if (GetUnit(bu->unit.index)->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(GetUnit(bu->unit.index), ITYPE_BOW) == 0)
                 return false;
 #endif
 
-    int oldWexp = bu->unit.ranks[bu->weaponType];
+    int oldWexp = UNIT_WRANK(&bu->unit, bu->weaponType);
     int newWexp = GetBattleUnitUpdatedWeaponExp(bu);
 
     if (newWexp < 0)
@@ -4742,7 +4743,7 @@ void WmSell_OnLoop_MainKeyHandler(struct WmSellProc* proc) {
 
 LYN_REPLACE_CHECK(GetBattleUnitUpdatedWeaponExp);
 int GetBattleUnitUpdatedWeaponExp(struct BattleUnit* bu) {
-    int i, result;
+    int i, result, weapon_slot;
 
     if (UNIT_FACTION(&bu->unit) != FACTION_BLUE)
         return -1;
@@ -4767,14 +4768,22 @@ int GetBattleUnitUpdatedWeaponExp(struct BattleUnit* bu) {
             return -1;
     }
 
-    result = bu->unit.ranks[bu->weaponType];
+    result = UNIT_WRANK(&bu->unit, bu->weaponType);
     result += GetItemAwardedExp(bu->weapon) * bu->wexpMultiplier;
 
-    for (i = 0; i < 8; ++i) {
-        if (i == bu->weaponType)
+    weapon_slot = GetUnitWeaponRankSlot(&bu->unit, bu->weaponType);
+
+    for (i = 0; i < UNIT_WEAPON_SLOT_COUNT; ++i) {
+        int slot_wtype;
+
+        if (i == weapon_slot)
             continue;
 
-        if (bu->unit.pClassData->baseRanks[i] == WPN_EXP_S)
+        slot_wtype = GetUnitWeaponSlotType(&bu->unit, i);
+        if (slot_wtype == WEAPON_SLOT_NONE)
+            continue;
+
+        if (GetClassWeaponRank(UNIT_CLASS_ID(&bu->unit), slot_wtype) == WPN_EXP_S)
             continue;
 
         if (bu->unit.ranks[i] < WPN_EXP_S)

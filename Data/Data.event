@@ -20,6 +20,7 @@
 #include "JobGrowth/JobGrowth.lyn.event"
 #include "Shield/ShieldConfig.lyn.event"
 #include "ClassTypes/ClassTypes.lyn.event"
+#include "WeaponSlots/WeaponSlots.lyn.event"
 #include "PortraitHeight/PortraitHeight.lyn.event"
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"

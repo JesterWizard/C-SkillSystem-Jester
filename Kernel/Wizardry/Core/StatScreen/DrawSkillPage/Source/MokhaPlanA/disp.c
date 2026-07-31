@@ -2,6 +2,7 @@
 #include "stat-screen.h"
 #include "skill-system.h"
 #include "icon-rework.h"
+#include "weapon-slots.h"
 #include "constants/texts.h"
 #include "bwl.h"
 
@@ -10,6 +11,8 @@
 void DrawSkillPage_MokhaPlanA(void)
 {
 	int i;
+	int wcount;
+	u8 wtypes[UNIT_WEAPON_SLOT_COUNT];
 	struct Text *text;
 
 	const u8 text_id[8] = {
@@ -23,17 +26,15 @@ void DrawSkillPage_MokhaPlanA(void)
 		STATSCREEN_TEXT_SUPPORT2,
 	};
 
+	const int wexp_y[UNIT_WEAPON_SLOT_COUNT] = {
+		0x1, 0x3, 0x5, 0x7, 0x9, 0xB, 0xD, 0xF,
+	};
+
 	struct SkillList *list = GetUnitSkillList(&gBattleActor.unit /* gStatScreen.unit */);
 
-	DisplayWeaponExp(0, 1, 0x1, ITYPE_SWORD);
-	DisplayWeaponExp(1, 1, 0x3, ITYPE_LANCE);
-	DisplayWeaponExp(2, 1, 0x5, ITYPE_AXE);
-	DisplayWeaponExp(3, 1, 0x7, ITYPE_BOW);
-
-	DisplayWeaponExp(4, 1, 0x9, ITYPE_ANIMA);
-	DisplayWeaponExp(5, 1, 0xB, ITYPE_LIGHT);
-	DisplayWeaponExp(6, 1, 0xD, ITYPE_DARK);
-	DisplayWeaponExp(7, 1, 0xF, ITYPE_STAFF);
+	wcount = ListUnitMappedWeaponTypes(gStatScreen.unit, wtypes, UNIT_WEAPON_SLOT_COUNT);
+	for (i = 0; i < wcount; i++)
+		DisplayWeaponExp(i, 1, wexp_y[i], wtypes[i]);
 
 	for (i = 0; i < STAT_SKILL_NUM_MAX; i++) {
 		struct Text *text = &gStatScreen.text[text_id[i]];

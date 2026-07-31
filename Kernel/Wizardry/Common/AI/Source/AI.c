@@ -137,7 +137,7 @@ static int BuildAiUnitList_Proc(ProcPtr proc) {
             if (GetUnitEquippedWeapon(unit) == 0)
             {
                 int weaponType = GetUnitBestWRankType(unit);
-                int weaponRank = unit->ranks[weaponType];
+                int weaponRank = UNIT_WRANK(unit, weaponType);
                 int chosen_weapon = GetRearmWeapon(weaponType, weaponRank);
 
                 if (chosen_weapon)

@@ -4,6 +4,8 @@
 #include "battle-system.h"
 #include "status-getter.h"
 #include "combat-art.h"
+#include "kernel-lib.h"
+#include "weapon-slots.h"
 #include "constants/skills.h"
 #include "debuff.h"
 #include "bwl.h"
@@ -96,117 +98,117 @@ STATIC_DECLAR void UpdateUnitFromBattleVanilla(struct Unit* unit, struct BattleU
 #if (defined(SID_ShadowGiftPlus) && (COMMON_SKILL_VALID(SID_ShadowGiftPlus)))
 	if (SkillTesterPlus(unit, SID_ShadowGiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_DARK)
-			if (unit->ranks[ITYPE_DARK] == 0)
+			if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_ShadowGift) && (COMMON_SKILL_VALID(SID_ShadowGift)))
 	if (SkillTester(unit, SID_ShadowGift))
 		if (GetItemType(unit->items[0]) == ITYPE_DARK)
-			if (unit->ranks[ITYPE_DARK] == 0)
+			if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_LightGiftPlus) && (COMMON_SKILL_VALID(SID_LightGiftPlus)))
 	if (SkillTesterPlus(unit, SID_LightGiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_LIGHT)
-			if (unit->ranks[ITYPE_LIGHT] == 0)
+			if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_LightGift) && (COMMON_SKILL_VALID(SID_LightGift)))
 	if (SkillTester(unit, SID_LightGift))
 		if (GetItemType(unit->items[0]) == ITYPE_LIGHT)
-			if (unit->ranks[ITYPE_LIGHT] == 0)
+			if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_StormgiftPlus) && (COMMON_SKILL_VALID(SID_StormgiftPlus)))
 	if (SkillTesterPlus(unit, SID_StormgiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_ANIMA)
-			if (unit->ranks[ITYPE_ANIMA] == 0)
+			if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Stormgift) && (COMMON_SKILL_VALID(SID_Stormgift)))
 	if (SkillTester(unit, SID_Stormgift))
 		if (GetItemType(unit->items[0]) == ITYPE_ANIMA)
-			if (unit->ranks[ITYPE_ANIMA] == 0)
+			if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_GracegiftPlus) && (COMMON_SKILL_VALID(SID_GracegiftPlus)))
 	if (SkillTesterPlus(unit, SID_GracegiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_STAFF)
-			if (unit->ranks[ITYPE_STAFF] == 0)
+			if (UNIT_WRANK(unit, ITYPE_STAFF) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Gracegift) && (COMMON_SKILL_VALID(SID_Gracegift)))
 	if (SkillTester(unit, SID_Gracegift))
 		if (GetItemType(unit->items[0]) == ITYPE_STAFF)
-			if (unit->ranks[ITYPE_STAFF] == 0)
+			if (UNIT_WRANK(unit, ITYPE_STAFF) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_BladegiftPlus) && (COMMON_SKILL_VALID(SID_BladegiftPlus)))
 	if (SkillTesterPlus(unit, SID_BladegiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_SWORD)
-			if (unit->ranks[ITYPE_SWORD] == 0)
+			if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Bladegift) && (COMMON_SKILL_VALID(SID_Bladegift)))
 	if (SkillTester(unit, SID_Bladegift))
 		if (GetItemType(unit->items[0]) == ITYPE_SWORD)
-			if (unit->ranks[ITYPE_SWORD] == 0)
+			if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_PiercegiftPlus) && (COMMON_SKILL_VALID(SID_PiercegiftPlus)))
 	if (SkillTesterPlus(unit, SID_PiercegiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_LANCE)
-			if (unit->ranks[ITYPE_LANCE] == 0)
+			if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Piercegift) && (COMMON_SKILL_VALID(SID_Piercegift)))
 	if (SkillTester(unit, SID_Piercegift))
 		if (GetItemType(unit->items[0]) == ITYPE_LANCE)
-			if (unit->ranks[ITYPE_LANCE] == 0)
+			if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_HackgiftPlus) && (COMMON_SKILL_VALID(SID_HackgiftPlus)))
 	if (SkillTesterPlus(unit, SID_HackgiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_AXE)
-			if (unit->ranks[ITYPE_AXE] == 0)
+			if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Hackgift) && (COMMON_SKILL_VALID(SID_Hackgift)))
 	if (SkillTester(unit, SID_Hackgift))
 		if (GetItemType(unit->items[0]) == ITYPE_AXE)
-			if (unit->ranks[ITYPE_AXE] == 0)
+			if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_ArcgiftPlus) && (COMMON_SKILL_VALID(SID_ArcgiftPlus)))
 	if (SkillTesterPlus(unit, SID_ArcgiftPlus))
 		if (GetItemType(unit->items[0]) == ITYPE_BOW)
-			if (unit->ranks[ITYPE_BOW] == 0)
+			if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
 				tmp = 0;
 #endif
 
 #if (defined(SID_Arcgift) && (COMMON_SKILL_VALID(SID_Arcgift)))
 	if (SkillTester(unit, SID_Arcgift))
 		if (GetItemType(unit->items[0]) == ITYPE_BOW)
-			if (unit->ranks[ITYPE_BOW] == 0)
+			if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
 				tmp = 0;
 #endif
 
 	if (tmp > 0)
-		UNIT_WRANK(unit, bu->weaponType) = tmp;
+		SetUnitWeaponExp(unit, bu->weaponType, tmp);
 
 	for (tmp = 0; tmp < UNIT_ITEM_COUNT; ++tmp)
 		unit->items[tmp] = bu->unit.items[tmp];

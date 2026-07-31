@@ -1,6 +1,7 @@
 #include <common-chax.h>
 #include <battle-system.h>
 #include <kernel-lib.h>
+#include <weapon-slots.h>
 #include <weapon-range.h>
 #include <combat-art.h>
 #include <kernel-tutorial.h>
@@ -21,7 +22,7 @@ STATIC_DECLAR void UpdateMenuItemPanelGaidenWMag(int slot);
 STATIC_DECLAR bool CanUnitUseGaidenWMagItem(struct Unit *unit, int item)
 {
 	/* Replacement of CanUnitUseItem() */
-	int staff_wexp = unit->ranks[ITYPE_STAFF];
+	int staff_wexp = UNIT_WRANK(unit, ITYPE_STAFF);
 	bool ret;
 
 	/**
@@ -29,10 +30,10 @@ STATIC_DECLAR bool CanUnitUseGaidenWMagItem(struct Unit *unit, int item)
 	 * so that we may directly skip the judgement on staff required weapon rank!
 	 * The wexp judgement has been completed in GetGaidenMagicList()!
 	 */
-	unit->ranks[ITYPE_STAFF] = WPN_EXP_S;
+	SetUnitWeaponExp(unit, ITYPE_STAFF, WPN_EXP_S);
 	ret = CanUnitUseItem(unit, MakeNewItem(item));
 
-	unit->ranks[ITYPE_STAFF] = staff_wexp;
+	SetUnitWeaponExp(unit, ITYPE_STAFF, staff_wexp);
 	return ret;
 }
 

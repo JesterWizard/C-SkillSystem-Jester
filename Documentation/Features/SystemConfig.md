@@ -35,6 +35,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `banim_switcher_en` | Enables the Custom Banim Switcher patch. See [BanimFeatures](./BanimFeatures.md). |
 | `max_level` | Maximum displayed unit level, from `0` to `25`. |
 | `max_level_record` | Maximum total level, including current and hidden level, from `0` to `80`. See [SkillSys.md](./SkillSys.md). |
+| `dynamic_weapon_slots` | Enables per-class weapon-type-to-rank-slot mapping so custom types (knives, guns, etc.) can use unused `Unit::ranks` slots. See [DynamicWeaponSlots.md](./DynamicWeaponSlots.md). |
 
 ### Skill Scroll Behavior
 

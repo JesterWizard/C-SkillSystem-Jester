@@ -143,6 +143,7 @@ struct KernelDesigerConfig {
 	u8 rescue_drop_move_again;
 	u8 talk_conversation_exp_reward;
 	u8 infinite_durability;
+	u8 dynamic_weapon_slots; /* class-driven weapon-type-to-rank-slot mapping */
 };
 
 struct KernelBattleDesignerConfig {
@@ -429,9 +430,14 @@ enum BattleStatusIdxRef {
 };
 
 /**
- * unit.c
+ * unit.c / weapon-slots.c
+ *
+ * UNIT_WRANK is read-only. Use SetUnitWeaponExp for writes so weapon-type
+ * indices are remapped through the class slot table.
  */
-#define UNIT_WRANK(unit, wtype) ((unit)->ranks[wtype])
+int GetUnitWeaponExp(struct Unit *unit, int wtype);
+void SetUnitWeaponExp(struct Unit *unit, int wtype, int exp);
+#define UNIT_WRANK(unit, wtype) GetUnitWeaponExp((unit), (wtype))
 
 /**
  * cache.c

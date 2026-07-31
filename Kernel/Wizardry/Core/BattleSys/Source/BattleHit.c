@@ -293,98 +293,98 @@ void BattleGenerateHitEffects(struct BattleUnit* attacker, struct BattleUnit* de
 #if (defined(SID_ShadowGiftPlus) && (COMMON_SKILL_VALID(SID_ShadowGiftPlus)))
     if (BattleFastSkillTester(attacker, SID_ShadowGiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_DARK)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_DARK) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_ShadowGift) && (COMMON_SKILL_VALID(SID_ShadowGift)))
     if (BattleFastSkillTester(attacker, SID_ShadowGift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_DARK)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_DARK) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_LightGiftPlus) && (COMMON_SKILL_VALID(SID_LightGiftPlus)))
     if (BattleFastSkillTester(attacker, SID_LightGiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_LIGHT)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_LIGHT] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_LIGHT) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_LightGift) && (COMMON_SKILL_VALID(SID_LightGift)))
     if (BattleFastSkillTester(attacker, SID_LightGift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_LIGHT)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_LIGHT] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_LIGHT) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_StormgiftPlus) && (COMMON_SKILL_VALID(SID_StormgiftPlus)))
     if (BattleFastSkillTester(attacker, SID_StormgiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_ANIMA)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_ANIMA) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_Stormgift) && (COMMON_SKILL_VALID(SID_Stormgift)))
     if (BattleFastSkillTester(attacker, SID_Stormgift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_ANIMA)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_ANIMA) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_BladegiftPlus) && (COMMON_SKILL_VALID(SID_BladegiftPlus)))
     if (BattleFastSkillTester(attacker, SID_BladegiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_SWORD)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_SWORD) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_Bladegift) && (COMMON_SKILL_VALID(SID_Bladegisft)))
     if (BattleFastSkillTester(attacker, SID_Bladegift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_SWORD)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_SWORD) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_PiercegiftPlus) && (COMMON_SKILL_VALID(SID_PiercegiftPlus)))
     if (BattleFastSkillTester(attacker, SID_PiercegiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_LANCE)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_LANCE) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_Piercegift) && (COMMON_SKILL_VALID(SID_Piercegisft)))
     if (BattleFastSkillTester(attacker, SID_Piercegift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_LANCE)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_LANCE) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_HackgiftPlus) && (COMMON_SKILL_VALID(SID_HackgiftPlus)))
     if (BattleFastSkillTester(attacker, SID_HackgiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_AXE)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_AXE) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_Hackgift) && (COMMON_SKILL_VALID(SID_Hackgisft)))
     if (BattleFastSkillTester(attacker, SID_Hackgift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_AXE)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_AXE) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_ArcgiftPlus) && (COMMON_SKILL_VALID(SID_ArcgiftPlus)))
     if (BattleFastSkillTester(attacker, SID_ArcgiftPlus))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_BOW)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_BOW) == 0)
                 gainWEXP = false;
 #endif
 
 #if (defined(SID_Arcgift) && (COMMON_SKILL_VALID(SID_Arcgift)))
     if (BattleFastSkillTester(attacker, SID_Arcgift))
         if (GetItemType(GetUnitEquippedWeapon(GetUnit(attacker->unit.index))) == ITYPE_BOW)
-            if (GetUnit(attacker->unit.index)->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(GetUnit(attacker->unit.index), ITYPE_BOW) == 0)
                 gainWEXP = false;
 #endif
 

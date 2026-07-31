@@ -93,12 +93,16 @@ enum {
     ITYPE_ANIMA = 5,
     ITYPE_LIGHT = 6,
     ITYPE_DARK  = 7,
-    ITYPE_BLLST = 8,
-    ITYPE_ITEM  = 9,
-    ITYPE_DRAGN = 10,
+	ITYPE_BLLST = 8,
+	ITYPE_ITEM  = 9,
+	ITYPE_DRAGN = 10,
 
-    ITYPE_11    = 11,
-    ITYPE_12    = 12,
+	/* Rank-bearing custom types (assigned per-class via weapon slots) */
+	ITYPE_KNIFE = 11,
+	ITYPE_GUN   = 12,
+
+	ITYPE_11    = ITYPE_KNIFE,
+	ITYPE_12    = ITYPE_GUN,
 };
 
 enum {

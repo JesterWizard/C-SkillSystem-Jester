@@ -56,6 +56,10 @@ The battle system changes several core combat formulas.
 
 Weapons with **S rank** gain extra value.
 
+Classes can optionally remap the eight weapon-rank slots onto custom types (knives, guns, and similar) without expanding save size.
+
+- [Dynamic Weapon Slots documentation](./DynamicWeaponSlots.md)
+
 - Units using an S-rank weapon gain `atk +1`.
 - S-rank weapons also ignore attack speed decay.
 

@@ -1,0 +1,6 @@
+ALIGN 4
+PUSH
+ORG CURRENTOFFSET+$0;gClassWeaponSlotConf:
+POP
+WORD $0 $0
+BYTE $0

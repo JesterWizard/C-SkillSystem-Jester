@@ -34,7 +34,7 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 	{
 		int itemType = GetItemType(bu->weaponBefore);
 
-		if (GetUnit(bu->unit.index)->ranks[itemType] == WPN_EXP_S)
+		if (UNIT_WRANK(GetUnit(bu->unit.index), itemType) == WPN_EXP_S)
 			wt = 0;
 		else
 			wt -= con;
@@ -48,7 +48,7 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 	{
 		if (wt > 0)
 		{
-			int unitWeaponRank = bu->unit.ranks[GetItemType(bu->weapon)];
+			int unitWeaponRank = UNIT_WRANK(&bu->unit, GetItemType(bu->weapon));
 
 			if (unitWeaponRank >= WPN_EXP_S)
 				wt -= 5;
@@ -1549,7 +1549,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_MageSlayer) && (COMMON_SKILL_VALID(SID_MageSlayer)))
 		case SID_MageSlayer:
-			if (defender->unit.ranks[ITYPE_ANIMA] != 0 || defender->unit.ranks[ITYPE_LIGHT] != 0 || defender->unit.ranks[ITYPE_DARK] != 0 || defender->unit.ranks[ITYPE_STAFF]) {
+			if (UNIT_WRANK(&defender->unit, ITYPE_ANIMA) != 0 || UNIT_WRANK(&defender->unit, ITYPE_LIGHT) != 0 || UNIT_WRANK(&defender->unit, ITYPE_DARK) != 0 || UNIT_WRANK(&defender->unit, ITYPE_STAFF)) {
 				attacker->battleAttack += SKILL_EFF0(SID_MageSlayer);
 				attacker->battleCritRate += SKILL_EFF1(SID_MageSlayer);
 			}
@@ -1873,7 +1873,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_SwordProwess) && (COMMON_SKILL_VALID(SID_SwordProwess)))
 		case SID_SwordProwess:
-			unitRank = attacker->unit.ranks[ITYPE_SWORD];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_SWORD);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_SwordProwess);
@@ -1909,7 +1909,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_LanceProwess) && (COMMON_SKILL_VALID(SID_LanceProwess)))
 		case SID_LanceProwess:
-			unitRank = attacker->unit.ranks[ITYPE_LANCE];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_LANCE);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_LanceProwess);
@@ -1945,7 +1945,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_AxeProwess) && (COMMON_SKILL_VALID(SID_AxeProwess)))
 		case SID_AxeProwess:
-			unitRank = attacker->unit.ranks[ITYPE_AXE];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_AXE);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_AxeProwess);
@@ -1981,7 +1981,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_BowProwess) && (COMMON_SKILL_VALID(SID_BowProwess)))
 		case SID_BowProwess:
-			unitRank = attacker->unit.ranks[ITYPE_BOW];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_BOW);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_BowProwess);
@@ -2017,7 +2017,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_AnimaProwess) && (COMMON_SKILL_VALID(SID_AnimaProwess)))
 		case SID_AnimaProwess:
-			unitRank = attacker->unit.ranks[ITYPE_ANIMA];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_ANIMA);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_AnimaProwess);
@@ -2053,7 +2053,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_DarkProwess) && (COMMON_SKILL_VALID(SID_DarkProwess)))
 		case SID_DarkProwess:
-			unitRank = attacker->unit.ranks[ITYPE_DARK];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_DARK);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_DarkProwess);
@@ -2089,7 +2089,7 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 
 #if (defined(SID_LightProwess) && (COMMON_SKILL_VALID(SID_LightProwess)))
 		case SID_LightProwess:
-			unitRank = attacker->unit.ranks[ITYPE_LIGHT];
+			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_LIGHT);
 			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
 			{
 				attacker->battleHitRate += SKILL_EFF0(SID_LightProwess);

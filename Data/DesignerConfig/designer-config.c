@@ -152,4 +152,10 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.rescue_drop_move_again = true,
 	.talk_conversation_exp_reward = 10,
 	.infinite_durability = true,
+	/**
+	 * When true, classes may remap the eight Unit::ranks slots onto any
+	 * rank-bearing weapon types via gClassWeaponSlotConf (knives, guns, etc.).
+	 * When false, slot N always stores weapon type N (vanilla behaviour).
+	 */
+	.dynamic_weapon_slots = true,
 };

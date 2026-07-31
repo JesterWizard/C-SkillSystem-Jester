@@ -138,7 +138,7 @@ int DefGetterSkills(int status, struct Unit *unit)
                 break;
             if (GetItemType(unit->items[i]) != ITYPE_STAFF)
                 continue;
-            if (GetItemRequiredExp(unit->items[i]) <= unit->ranks[ITYPE_STAFF])
+            if (GetItemRequiredExp(unit->items[i]) <= UNIT_WRANK(unit, ITYPE_STAFF))
             {
                 hasUsableStaff = true;
                 break;

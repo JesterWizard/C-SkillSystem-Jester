@@ -3,33 +3,16 @@
 #include "lvup.h"
 #include "bwl.h"
 #include "skill-system.h"
+#include "weapon-slots.h"
 #include "constants/skills.h"
 #include "jester_headers/custom-functions.h"
 
 STATIC_DECLAR NOINLINE void ApplyUnitPromotionVanilla(struct Unit *unit, u8 classId, int bonusCaps)
 {
 	const struct ClassData *promotedClass = GetClassData(classId);
+	const struct ClassData *oldClass = unit->pClassData;
 
-	int i;
-
-	// Remove base class' base wexp from unit wexp
-	for (i = 0; i < 8; ++i)
-		unit->ranks[i] -= unit->pClassData->baseRanks[i];
-
-	// Update unit class
-	unit->pClassData = promotedClass;
-
-	// Add promoted class' base wexp to unit wexp
-	for (i = 0; i < 8; ++i) {
-		int wexp = unit->ranks[i];
-
-		wexp += unit->pClassData->baseRanks[i];
-
-		if (wexp > WPN_EXP_S)
-			wexp = WPN_EXP_S;
-
-		unit->ranks[i] = wexp;
-	}
+	RemapUnitWeaponRanksOnClassChange(unit, oldClass, promotedClass, false);
 
 	// Apply stat ups
 

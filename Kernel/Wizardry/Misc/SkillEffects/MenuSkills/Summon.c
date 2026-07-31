@@ -417,13 +417,13 @@ void GenerateSummonUnitDef(void)
             unit->exp   = UNIT_EXP_DISABLED;
 
             if (gActiveUnit->level <= 5)
-                unit->ranks[ITYPE_AXE] = WPN_EXP_D;
+                SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_D);
             else if (gActiveUnit->level <= 10)
-                unit->ranks[ITYPE_AXE] = WPN_EXP_C;
+                SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_C);
             else if (gActiveUnit->level <= 15)
-                unit->ranks[ITYPE_AXE] = WPN_EXP_B;
+                SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_B);
             else
-                unit->ranks[ITYPE_AXE] = WPN_EXP_A;
+                SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_A);
         }
 
         /* This is for gpKernelDesignerConfig->summons_gain_exp */

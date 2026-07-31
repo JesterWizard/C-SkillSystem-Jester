@@ -104,7 +104,7 @@ s8 CanUnitUseStaff(struct Unit* unit, int item) {
 #if (defined(SID_GracegiftPlus) && (COMMON_SKILL_VALID(SID_GracegiftPlus)))
     if (SkillTester(unit, SID_GracegiftPlus))
         if (GetItemType(item) == ITYPE_STAFF)
-            if (unit->ranks[ITYPE_STAFF] == 0)
+            if (UNIT_WRANK(unit, ITYPE_STAFF) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -112,14 +112,14 @@ s8 CanUnitUseStaff(struct Unit* unit, int item) {
 #if (defined(SID_Gracegift) && (COMMON_SKILL_VALID(SID_Gracegift)))
     if (SkillTesterPlus(unit, SID_Gracegift))
         if (GetItemType(item) == ITYPE_STAFF)
-            if (unit->ranks[ITYPE_STAFF] == 0)
+            if (UNIT_WRANK(unit, ITYPE_STAFF) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
 
     {
         int wRank = GetItemRequiredExp(item);
-        int uRank = unit->ranks[GetItemType(item)];
+        int uRank = UNIT_WRANK(unit, GetItemType(item));
 
         return (uRank >= wRank) ? TRUE : FALSE;
     }
@@ -449,7 +449,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_ShadowGiftPlus) && (COMMON_SKILL_VALID(SID_ShadowGiftPlus)))
     if (SkillTesterPlus(unit, SID_ShadowGiftPlus))
         if (GetItemType(item) == ITYPE_DARK)
-            if (unit->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -457,7 +457,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_ShadowGift) && (COMMON_SKILL_VALID(SID_ShadowGift)))
     if (SkillTester(unit, SID_ShadowGift))
         if (GetItemType(item) == ITYPE_DARK)
-            if (unit->ranks[ITYPE_DARK] == 0)
+            if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -465,7 +465,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_LightGiftPlus) && (COMMON_SKILL_VALID(SID_LightGiftPlus)))
     if (SkillTesterPlus(unit, SID_LightGiftPlus))
         if (GetItemType(item) == ITYPE_LIGHT)
-            if (unit->ranks[ITYPE_LIGHT] == 0)
+            if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -473,7 +473,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_LightGift) && (COMMON_SKILL_VALID(SID_LightGift)))
     if (SkillTester(unit, SID_LightGift))
         if (GetItemType(item) == ITYPE_LIGHT)
-            if (unit->ranks[ITYPE_LIGHT] == 0)
+            if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -481,7 +481,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_StormgiftPlus) && (COMMON_SKILL_VALID(SID_StormgiftPlus)))
     if (SkillTesterPlus(unit, SID_StormgiftPlus))
         if (GetItemType(item) == ITYPE_ANIMA)
-            if (unit->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -489,7 +489,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_Stormgift) && (COMMON_SKILL_VALID(SID_Stormgift)))
     if (SkillTester(unit, SID_Stormgift))
         if (GetItemType(item) == ITYPE_ANIMA)
-            if (unit->ranks[ITYPE_ANIMA] == 0)
+            if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -497,7 +497,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_BladegiftPlus) && (COMMON_SKILL_VALID(SID_BladegiftPlus)))
     if (SkillTesterPlus(unit, SID_BladegiftPlus))
         if (GetItemType(item) == ITYPE_SWORD)
-            if (unit->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -505,7 +505,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_Bladegift) && (COMMON_SKILL_VALID(SID_Bladegift)))
     if (SkillTester(unit, SID_Bladegift))
         if (GetItemType(item) == ITYPE_SWORD)
-            if (unit->ranks[ITYPE_SWORD] == 0)
+            if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -513,7 +513,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_PiercegiftPlus) && (COMMON_SKILL_VALID(SID_PiercegiftPlus)))
     if (SkillTesterPlus(unit, SID_PiercegiftPlus))
         if (GetItemType(item) == ITYPE_LANCE)
-            if (unit->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -521,7 +521,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_Piercegift) && (COMMON_SKILL_VALID(SID_Piercegift)))
     if (SkillTester(unit, SID_Piercegift))
         if (GetItemType(item) == ITYPE_LANCE)
-            if (unit->ranks[ITYPE_LANCE] == 0)
+            if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -529,7 +529,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_HackgiftPlus) && (COMMON_SKILL_VALID(SID_HackgiftPlus)))
     if (SkillTesterPlus(unit, SID_HackgiftPlus))
         if (GetItemType(item) == ITYPE_AXE)
-            if (unit->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -537,7 +537,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_Hackgift) && (COMMON_SKILL_VALID(SID_Hackgift)))
     if (SkillTester(unit, SID_Hackgift))
         if (GetItemType(item) == ITYPE_AXE)
-            if (unit->ranks[ITYPE_AXE] == 0)
+            if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif
@@ -545,7 +545,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_ArcgiftPlus) && (COMMON_SKILL_VALID(SID_ArcgiftPlus)))
     if (SkillTesterPlus(unit, SID_ArcgiftPlus))
         if (GetItemType(item) == ITYPE_BOW)
-            if (unit->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
                     return true;
 #endif
@@ -553,7 +553,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if (defined(SID_Arcgift) && (COMMON_SKILL_VALID(SID_Arcgift)))
     if (SkillTester(unit, SID_Arcgift))
         if (GetItemType(item) == ITYPE_BOW)
-            if (unit->ranks[ITYPE_BOW] == 0)
+            if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
                 if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
                     return true;
 #endif

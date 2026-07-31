@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "item-sys.h"
 #include "battle-system.h"
+#include "weapon-slots.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 
@@ -77,9 +78,15 @@ int GetHighestWeaponRank(struct Unit * unit)
 {
     int weaponLevel = 0; // 0 means the unit doesn't have a rank in this weapon type
     int weaponRank = -1; // If we return -1, then there are no weapon ranks we can increase for this unit
+    int i;
 
-    for (int i = 0; i < 7; i++)
+    for (i = 0; i < UNIT_WEAPON_SLOT_COUNT; i++)
     {
+        int wtype = GetUnitWeaponSlotType(unit, i);
+
+        if (wtype == WEAPON_SLOT_NONE)
+            continue;
+
         if (unit->ranks[i] > weaponLevel && unit->ranks[i] < WPN_EXP_S)
         {
             weaponLevel = unit->ranks[i];

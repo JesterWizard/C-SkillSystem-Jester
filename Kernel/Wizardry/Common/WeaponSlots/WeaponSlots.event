@@ -1,0 +1,7 @@
+#ifndef WEAPON_SLOTS_INSTALLED
+#define WEAPON_SLOTS_INSTALLED
+
+#include "Source/LynJump.event"
+#include "Source/weapon-slots.lyn.event"
+
+#endif /* WEAPON_SLOTS_INSTALLED */

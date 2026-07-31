@@ -49,25 +49,25 @@ STATIC_DECLAR void CalcCombatArtListExt(struct Unit *unit, int item)
 
 	/* ROM table */
 	for (i = WPN_LEVEL_E; i <= WPN_LEVEL_S; i++) {
-		if (unit->ranks[ITYPE_SWORD] >= WRankToWExp(i)) {
+		if (UNIT_WRANK(unit, ITYPE_SWORD) >= WRankToWExp(i)) {
 			APPEND_TMPLIST(gpCombatArtDefaultTable->cid_sword[i]);
 			APPEND_TMPLIST(gpCombatArtRomPTable[pid].cid_sword[i]);
 			APPEND_TMPLIST(gpCombatArtRomJTable[jid].cid_sword[i]);
 		}
 
-		if (unit->ranks[ITYPE_LANCE] >= WRankToWExp(i)) {
+		if (UNIT_WRANK(unit, ITYPE_LANCE) >= WRankToWExp(i)) {
 			APPEND_TMPLIST(gpCombatArtDefaultTable->cid_lance[i]);
 			APPEND_TMPLIST(gpCombatArtRomPTable[pid].cid_lance[i]);
 			APPEND_TMPLIST(gpCombatArtRomJTable[jid].cid_lance[i]);
 		}
 
-		if (unit->ranks[ITYPE_AXE] >= WRankToWExp(i)) {
+		if (UNIT_WRANK(unit, ITYPE_AXE) >= WRankToWExp(i)) {
 			APPEND_TMPLIST(gpCombatArtDefaultTable->cid_axe[i]);
 			APPEND_TMPLIST(gpCombatArtRomPTable[pid].cid_axe[i]);
 			APPEND_TMPLIST(gpCombatArtRomJTable[jid].cid_axe[i]);
 		}
 
-		if (unit->ranks[ITYPE_BOW] >= WRankToWExp(i)) {
+		if (UNIT_WRANK(unit, ITYPE_BOW) >= WRankToWExp(i)) {
 			APPEND_TMPLIST(gpCombatArtDefaultTable->cid_bow[i]);
 			APPEND_TMPLIST(gpCombatArtRomPTable[pid].cid_bow[i]);
 			APPEND_TMPLIST(gpCombatArtRomJTable[jid].cid_bow[i]);

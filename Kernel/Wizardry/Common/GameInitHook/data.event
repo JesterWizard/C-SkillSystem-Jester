@@ -14,6 +14,7 @@ gGameInitHookTable:
     POIN StatDeuff_OnNewGameInit
     POIN GameInit_ResetShieldInfo DumpNarrowFontsUnicode
     POIN GameInit_InitCache
+    POIN GameInit_ValidateWeaponSlots
 
     POIN GameInitHookFuncPad
     POIN GameInitHookFuncPad

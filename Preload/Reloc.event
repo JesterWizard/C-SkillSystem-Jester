@@ -96,6 +96,8 @@ gpKernelClassList_Beast:       POIN KernelClassList_Beast
 gpKernelClassList_Infantry:    POIN KernelClassList_Infantry
 gpKernelClassList_Bandit:    POIN KernelClassList_Bandit
 
+gpClassWeaponSlotConf: POIN gClassWeaponSlotConf
+
 WORD 0
 
 gpImg_MapAnimSKILL: POIN Img_MapAnimSKILL

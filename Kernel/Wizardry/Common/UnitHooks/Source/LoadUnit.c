@@ -4,6 +4,7 @@
 #include "lvup.h"
 #include "debuff.h"
 #include "skill-system.h"
+#include "weapon-slots.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
@@ -60,12 +61,7 @@ void UnitLoadStatsFromChracterVanilla(struct Unit* unit, const struct CharacterD
     }
     else
     {
-        for (i = 0; i < 8; ++i) {
-            unit->ranks[i] = unit->pClassData->baseRanks[i];
-
-            if (unit->pCharacterData->baseRanks[i])
-                unit->ranks[i] = unit->pCharacterData->baseRanks[i];
-        }
+        InitUnitWeaponRanks(unit, unit->pCharacterData);
 
         if (UNIT_FACTION(unit) == FACTION_BLUE && (unit->level != CHAX_MAX_LEVEL))
             unit->exp = 0;
@@ -75,12 +71,7 @@ void UnitLoadStatsFromChracterVanilla(struct Unit* unit, const struct CharacterD
 
 #else
 
-    for (i = 0; i < 8; ++i) {
-        unit->ranks[i] = unit->pClassData->baseRanks[i];
-
-        if (unit->pCharacterData->baseRanks[i])
-            unit->ranks[i] = unit->pCharacterData->baseRanks[i];
-    }
+    InitUnitWeaponRanks(unit, unit->pCharacterData);
 
     if (UNIT_FACTION(unit) == FACTION_BLUE && (unit->level != CHAX_MAX_LEVEL))
         unit->exp = 0;

@@ -1089,7 +1089,7 @@ void DebuggerDisplayWeaponExp(int num, int x, int y, int wtype, int wexp)
 {
     int progress, progressMax, color;
 
-    //int wexp = gStatScreen.unit->ranks[wtype];
+        //int wexp = UNIT_WRANK(gStatScreen.unit, wtype);
 
     // Display weapon type icon
     DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(x, y),

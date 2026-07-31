@@ -150,7 +150,7 @@ int SklGetterSkills(int status, struct Unit *unit)
 #endif
 
 #if defined(SID_Freelancer) && (COMMON_SKILL_VALID(SID_Freelancer))
-    if (SkillTester(unit, SID_Freelancer) && unit->ranks[ITYPE_LANCE] >= 1)
+    if (SkillTester(unit, SID_Freelancer) && UNIT_WRANK(unit, ITYPE_LANCE) >= 1)
         status += SKILL_EFF0(SID_Freelancer);
 #endif
 

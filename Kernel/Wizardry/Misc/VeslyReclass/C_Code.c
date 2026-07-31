@@ -1,5 +1,6 @@
 
 #include "C_Code.h" // headers
+#include "weapon-slots.h"
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
 
@@ -394,8 +395,6 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
 
     const struct ClassData * oldClass = GetClassData(baseClassId);
 
-    int i;
-
     int tmp;
     unit->maxHP += GetStatDiff(0, unit, oldClass, newClass);
     unit->pow += GetStatDiff(1, unit, oldClass, newClass);
@@ -432,37 +431,8 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
         unit->res = 0;
     }
 
-    // Remove base class' base wexp from unit wexp
-    for (i = 0; i < 8; ++i)
-    {
-        tmp = unit->ranks[i] - oldClass->baseRanks[i];
-        if (tmp >= 0)
-        {
-            unit->ranks[i] = tmp;
-        }
-    }
-
-    // Update unit class
-    unit->pClassData = newClass;
-
-    // Add promoted class' base wexp to unit wexp
-    for (i = 0; i < 8; ++i)
-    {
-        int wexp = unit->ranks[i];
-        tmp = newClass->baseRanks[i];
-
-        if (!tmp)
-        {
-            unit->ranks[i] = 0;
-            continue;
-        } // if new class has no rank, set to 0
-        wexp += tmp;
-
-        if (wexp > WPN_EXP_S)
-            wexp = WPN_EXP_S;
-
-        unit->ranks[i] = wexp;
-    }
+    // Remap weapon EXP by type into the new class's slot layout
+    RemapUnitWeaponRanksOnClassChange(unit, oldClass, newClass, true);
 
     UnitCheckStatCaps(unit);
     unit->curHP += newClass->promotionHp;
@@ -475,7 +445,7 @@ int CanClassEquipWeapon(int weapon, int reclassID)
 {
     weapon &= 0xFF; // id only
     int weaponType = GetItemData(weapon)->weaponType;
-    return GetClassData(reclassID)->baseRanks[weaponType];
+    return GetClassWeaponRank(reclassID, weaponType);
 }
 
 void ExecUnitReclass(struct Unit * unit, u8 classId, int itemIdx, s8 unk)
@@ -707,14 +677,12 @@ int ReclassMenuItem_OnTextDraw(struct MenuProc * pmenu, struct MenuItemProc * pm
 
 int ClassHasMagicRank(const struct ClassData * data)
 { // UnitHasMagicRank
-    int combinedRanks = 0;
+    int jid = data->number;
 
-    combinedRanks |= data->baseRanks[ITYPE_STAFF];
-    combinedRanks |= data->baseRanks[ITYPE_ANIMA];
-    combinedRanks |= data->baseRanks[ITYPE_LIGHT];
-    combinedRanks |= data->baseRanks[ITYPE_DARK];
-
-    return combinedRanks ? TRUE : FALSE;
+    return (GetClassWeaponRank(jid, ITYPE_STAFF)
+         || GetClassWeaponRank(jid, ITYPE_ANIMA)
+         || GetClassWeaponRank(jid, ITYPE_LIGHT)
+         || GetClassWeaponRank(jid, ITYPE_DARK)) ? TRUE : FALSE;
 }
 
 extern struct Font gDefaultFont;

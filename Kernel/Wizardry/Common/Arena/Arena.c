@@ -1472,7 +1472,7 @@ bool ArenaRosterGenerateOpponentUnit(struct Unit *unit)
     UnitAutolevel(unit);
 
     if (GetItemType(entry->item) < 8)
-        unit->ranks[GetItemType(entry->item)] = 0xFB;
+        SetUnitWeaponExp(unit, GetItemType(entry->item), 0xFB);
 
     UnitCheckStatCaps(unit);
     SetUnitHp(unit, GetUnitMaxHp(unit));
