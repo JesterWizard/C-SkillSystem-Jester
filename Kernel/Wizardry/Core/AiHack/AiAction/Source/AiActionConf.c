@@ -39,8 +39,8 @@ const struct AiActionConf gAiActionTable[CONFIG_AI_ACTION_AMT] = {
 		.idle = AiDummyAction,
 	},
 	[AI_ACTION_REFRESH] = {
-		.exec = NULL,
-		.idle = AiRefreshAction,
+		.exec = AiAction_RefreshDance,
+		.idle = AiDummyAction,
 	},
 	[AI_ACTION_TALK] = {
 		.exec = NULL,

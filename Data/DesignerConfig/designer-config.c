@@ -158,4 +158,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	 * When false, slot N always stores weapon type N (vanilla behaviour).
 	 */
 	.dynamic_weapon_slots = true,
+	.ai_dance_use = true, // False = AI never uses the dance command
 };

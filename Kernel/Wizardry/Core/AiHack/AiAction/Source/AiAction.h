@@ -9,6 +9,7 @@ struct AiActionConf {
 
 void AiAction_MenuSkill(struct CpPerformProc *proc);
 bool AiAction_MenuSkillIdle(struct CpPerformProc *proc);
+void AiAction_RefreshDance(struct CpPerformProc *proc);
 void AiStartRescueAction(struct CpPerformProc *proc);
 void AiStartDropAction(struct CpPerformProc *proc);
 

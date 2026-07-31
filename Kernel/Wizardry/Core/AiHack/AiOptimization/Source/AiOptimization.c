@@ -12,6 +12,8 @@
 extern void CpDecide_Main(ProcPtr proc);
 extern void DecideHealOrEscape(void);
 extern bool AiTryDoMenuSkills(void);
+extern bool AiTryDoDanceCommand(void);
+extern void AiPhaseMarkUnitPerformed(u8 uid);
 extern bool Generic_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y, int x2, int y2);
 extern s8 AiIsUnitEnemy(struct Unit *unit);
 
@@ -367,6 +369,7 @@ next_unit:
             }
             else
             {
+                AiPhaseMarkUnitPerformed(gActiveUnitId);
                 gAiState.unitIt++;
                 Proc_StartBlocking(gProcScr_CpPerform, proc);
             }
@@ -689,6 +692,9 @@ void DecideScriptA(void)
             return;
     }
 
+	if (AiTryDoDanceCommand() == TRUE)
+		return;
+
 	if (AiTryDoMenuSkills() == TRUE)
 		return;
 
@@ -724,6 +730,9 @@ void DecideScriptB(void)
         if (AiTryExecScriptB() == TRUE)
             return;
     }
+
+	if (AiTryDoDanceCommand() == TRUE)
+		return;
 
 	if (AiTryDoMenuSkills() == TRUE)
 		return;
@@ -781,6 +790,9 @@ void DecideHealOrEscape(void)
 			return;
 		}
 	}
+
+	if (AiTryDoDanceCommand() == TRUE)
+		return;
 
 	if (AiTryDoMenuSkills() == TRUE)
 		return;

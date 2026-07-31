@@ -274,7 +274,20 @@ int GetUnitAiPriority(struct Unit* unit)
     u16 lead = GetUnitLeaderCharId(unit);
 
     if (UNIT_CATTRIBUTES(unit) & (CA_DANCE | CA_PLAY))
+    {
+        /* With AI dance enabled, dancers act after every other unit
+         * (even leader-grouped ones) so that there is someone worth
+         * refreshing; SortAiUnitList is stable for ties */
+        if (gpKernelDesignerConfig->ai_dance_use == true)
+            return 0x7FFF;
+
         return priority - 149;
+    }
+
+#if defined(SID_Dance) && (COMMON_SKILL_VALID(SID_Dance))
+    if (gpKernelDesignerConfig->ai_dance_use == true && SkillTester(unit, SID_Dance))
+        return 0x7FFF;
+#endif
 
     if (!(unit->aiFlags & AI_UNIT_FLAG_0))
     {
@@ -481,6 +494,7 @@ s8 AiFindTargetInReachByClassId(int classId, struct Vec2* out) {
 
 //! FE8U = 0x08015450
 extern void DisableDebuggerAiControl(void);
+extern void AiPhaseClearPerformedFlags(void);
 
 static bool ShouldAiControlPlayerPhase(void)
 {
@@ -506,6 +520,7 @@ static bool ShouldAiControlPlayerPhase(void)
 LYN_REPLACE_CHECK(BmMain_StartPhase);
 void BmMain_StartPhase(ProcPtr proc)
 {
+    AiPhaseClearPerformedFlags();
 
 //     int phaseControl = gPlaySt.faction;
 //     if (gPlaySt.faction == FACTION_RED) 

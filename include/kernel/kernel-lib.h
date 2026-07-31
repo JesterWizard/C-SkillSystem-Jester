@@ -144,6 +144,7 @@ struct KernelDesigerConfig {
 	u8 talk_conversation_exp_reward;
 	u8 infinite_durability;
 	u8 dynamic_weapon_slots; /* class-driven weapon-type-to-rank-slot mapping */
+	u8 ai_dance_use; /* AI dancers refresh allies that already acted, refreshed allies act again */
 };
 
 struct KernelBattleDesignerConfig {
