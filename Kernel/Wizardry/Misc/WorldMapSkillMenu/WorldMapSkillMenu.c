@@ -8,7 +8,46 @@
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 
+enum {
+	WM_SKILL_WORLD_MAP_UNIT_COUNT = 7,
+};
+
 static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
+static void WmSkillMenu_ClearOam(void);
+
+static void WmSkillMenu_SuspendWorldMapSprites(struct WmSkillMenuProc *proc)
+{
+	int i;
+
+	if (!proc->worldMapSpritesSuspended) {
+		for (i = 0; i < WM_SKILL_WORLD_MAP_UNIT_COUNT; ++i)
+			proc->savedWorldMapUnitStates[i] = gGMData.units[i].state & GM_UNIT_STATE_B0;
+
+		proc->savedWorldMapNodeIconState = GM_ICON->skip;
+		proc->worldMapSpritesSuspended = true;
+	}
+
+	HideGmUnit(-1);
+	GM_ICON->skip = 0;
+}
+
+static void WmSkillMenu_RestoreWorldMapSprites(struct WmSkillMenuProc *proc)
+{
+	int i;
+
+	if (!proc->worldMapSpritesSuspended)
+		return;
+
+	HideGmUnit(-1);
+
+	for (i = 0; i < WM_SKILL_WORLD_MAP_UNIT_COUNT; ++i) {
+		if (proc->savedWorldMapUnitStates[i])
+			ShowGmUnit(i);
+	}
+
+	GM_ICON->skip = proc->savedWorldMapNodeIconState;
+	proc->worldMapSpritesSuspended = false;
+}
 
 static int WmSkillMenu_GetUnitCount(void)
 {
@@ -52,6 +91,7 @@ static void WmSkillMenu_DrawUnitList(struct WmSkillMenuProc *proc)
 	int unitCount = proc->unitCount;
 
 	ClearSprites();
+	WmSkillMenu_ClearOam();
 
 	for (i = 0; i < WM_SKILL_VISIBLE_COUNT; ++i) {
 		int unitIndex = proc->listTop + i;
@@ -167,11 +207,24 @@ static void WmSkillMenu_StartSelectedSkillScreen(struct WmSkillMenuProc *proc)
 	StartWorldMapSelectSkillScreen((struct MenuProc *)proc, proc->startSkillScreen);
 }
 
+static void WmSkillMenu_ClearOam(void)
+{
+	ClearOAMBuffer(sOamLo.buf, sOamLo.count);
+	ClearOAMBuffer(sOamHi.buf, sOamHi.count);
+
+	gOamLoPutIt = sOamLo.buf;
+	gOamHiPutIt = (u32 *)sOamHi.buf;
+	gOamAffinePutIt = gOam;
+	gOamAffinePutId = 0;
+}
+
 static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 {
 	gSavedWorldMapUnitId = gGMData.units[0].id;
-	HideGmUnit(0); // Hide world map unit, will need to restore later
-	SetDispEnable(1, 1, 1, 1, 1);
+	WmSkillMenu_SuspendWorldMapSprites(proc);
+	SetDispEnable(0, 0, 0, 0, 0);
+	ClearSprites();
+	WmSkillMenu_ClearOam();
 
 	gLCDControlBuffer.dispcnt.mode = 0;
 	SetupBackgrounds(NULL);
@@ -233,6 +286,7 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 
 	WmSkillMenu_DrawSkillScreen(proc);
 	WmSkillMenu_DrawSelection(proc);
+	SetDispEnable(1, 1, 1, 1, 1);
 
 }
 
@@ -404,6 +458,7 @@ static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 	Proc_EndEach(ProcScr_SlidingWallBg);
     WmSkillMenu_CloseHoverHelp();
     EndAllProcChildren(proc);
+	WmSkillMenu_RestoreWorldMapSprites(proc);
     gGMData.units[0].id = gSavedWorldMapUnitId;
     gGMData.sprite_disp = 1;
 	gGMData.xCamera = gSavedWorldMapXCoordiate;
@@ -450,6 +505,8 @@ static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuPro
 {
 	struct WmSkillMenuProc *proc = Proc_StartBlocking(ProcScr_WMNodeSkillMenu, menuProc);
 
+	proc->worldMapSpritesSuspended = false;
+	WmSkillMenu_SuspendWorldMapSprites(proc);
 	MakePrepUnitList();
 	proc->unitCount = WmSkillMenu_GetUnitCount();
 	proc->listCursor = 0;

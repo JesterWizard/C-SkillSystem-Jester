@@ -18,7 +18,9 @@
 #define WMTB_IDX_07 8
 #define WMTB_IDX_08 9
 #define WMTB_IDX_09 10
-#define WMTB_COUNT 11
+enum {
+    WMTB_COUNT = 11,
+};
 
 #define WMTB_ENTRY(chapter, unit) [WMTB_IDX_##chapter] = { .bubble = Gfx_Chapter_##chapter##_Thought_Bubble_##unit }
 #define WMTB_TABLE(unit) static const WorldMapThoughtBubbleEntryGraphics WorldMapThoughtBubble##unit[WMTB_COUNT] = {
@@ -154,7 +156,6 @@ WMTB_TABLE(Tana)
 
 #undef WMTB_TABLE
 #undef WMTB_ENTRY
-#undef WMTB_COUNT
 #undef WMTB_IDX_09
 #undef WMTB_IDX_08
 #undef WMTB_IDX_07
@@ -215,65 +216,89 @@ static u8 GetNextWorldMapRosterUnitId(u8 currentCharId)
 
 static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUnit(int chapterIndex, int unitId)
 {
-    if (chapterIndex < 0)
+    const WorldMapThoughtBubbleEntryGraphics *entry;
+
+    if (chapterIndex < 0 || chapterIndex >= WMTB_COUNT)
         return NULL;
 
     switch (unitId)
     {
         case CHARACTER_ARTUR:
-            return &WorldMapThoughtBubbleArtur[chapterIndex];
+            entry = &WorldMapThoughtBubbleArtur[chapterIndex];
+            break;
 
         case CHARACTER_COLM:
-            return &WorldMapThoughtBubbleColm[chapterIndex];
+            entry = &WorldMapThoughtBubbleColm[chapterIndex];
+            break;
 
         case CHARACTER_EIRIKA:
-            return &WorldMapThoughtBubbleEirika[chapterIndex];
+            entry = &WorldMapThoughtBubbleEirika[chapterIndex];
+            break;
 
         case CHARACTER_SETH:
-            return &WorldMapThoughtBubbleSeth[chapterIndex];
+            entry = &WorldMapThoughtBubbleSeth[chapterIndex];
+            break;
 
         case CHARACTER_EPHRAIM:
-            return &WorldMapThoughtBubbleEphraim[chapterIndex];
+            entry = &WorldMapThoughtBubbleEphraim[chapterIndex];
+            break;
 
         case CHARACTER_FORDE:
-            return &WorldMapThoughtBubbleForde[chapterIndex];
+            entry = &WorldMapThoughtBubbleForde[chapterIndex];
+            break;
 
         case CHARACTER_FRANZ:
-            return &WorldMapThoughtBubbleFranz[chapterIndex];
+            entry = &WorldMapThoughtBubbleFranz[chapterIndex];
+            break;
 
         case CHARACTER_GARCIA:
-            return &WorldMapThoughtBubbleGarcia[chapterIndex];
+            entry = &WorldMapThoughtBubbleGarcia[chapterIndex];
+            break;
 
         case CHARACTER_GILLIAM:
-            return &WorldMapThoughtBubbleGilliam[chapterIndex];
+            entry = &WorldMapThoughtBubbleGilliam[chapterIndex];
+            break;
 
         case CHARACTER_JOSHUA:
-            return &WorldMapThoughtBubbleJoshua[chapterIndex];
+            entry = &WorldMapThoughtBubbleJoshua[chapterIndex];
+            break;
 
         case CHARACTER_KYLE:
-            return &WorldMapThoughtBubbleKyle[chapterIndex];
+            entry = &WorldMapThoughtBubbleKyle[chapterIndex];
+            break;
 
         case CHARACTER_LUTE:
-            return &WorldMapThoughtBubbleLute[chapterIndex];
+            entry = &WorldMapThoughtBubbleLute[chapterIndex];
+            break;
 
         case CHARACTER_MOULDER:
-            return &WorldMapThoughtBubbleMoulder[chapterIndex];
+            entry = &WorldMapThoughtBubbleMoulder[chapterIndex];
+            break;
 
         case CHARACTER_NATASHA:
-            return &WorldMapThoughtBubbleNatasha[chapterIndex];
+            entry = &WorldMapThoughtBubbleNatasha[chapterIndex];
+            break;
 
         case CHARACTER_NEIMI:
-            return &WorldMapThoughtBubbleNeimi[chapterIndex];
+            entry = &WorldMapThoughtBubbleNeimi[chapterIndex];
+            break;
 
         case CHARACTER_ROSS:
-            return &WorldMapThoughtBubbleRoss[chapterIndex];
+            entry = &WorldMapThoughtBubbleRoss[chapterIndex];
+            break;
 
         case CHARACTER_TANA:
-            return &WorldMapThoughtBubbleTana[chapterIndex];
+            entry = &WorldMapThoughtBubbleTana[chapterIndex];
+            break;
 
         default:
             return NULL;
     }
+
+    if (entry->bubble == NULL)
+        return NULL;
+
+    return entry;
 }
 
 static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)

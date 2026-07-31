@@ -202,6 +202,9 @@ struct WmSkillMenuProc {
 	/* 31 */ u8 hoveredSkill;
 	/* 32 */ u16 hoveredHelp;
     /* 34 */ u8 startSkillScreen;
+    /* 35 */ u8 savedWorldMapUnitStates[7];
+    /* 3C */ u8 savedWorldMapNodeIconState;
+    /* 3D */ u8 worldMapSpritesSuspended;
 };
 
 struct WmSkillMenuTransitionProc {
