@@ -123,10 +123,18 @@ push    {r4,r14}                @@ 080822A4 B510
 mov     r4,r0               @@ 080822A6 1C04     
 cmp     r4,#0x0               @@ 080822A8 2C00     
 bge     loc_80822AE               @@ 080822AA DA00     
-mov     r4,#0x4A                @@ 080822AC 244A  
+b       nodata_text
 loc_80822AE:   
 cmp     r4,#0x55                @@ 080822AE 2C4B     
 beq     epilogue_text               @@ 080822B0 D00E     
+cmp     r4,#0x54
+beq     nodata_text
+@ FE8 uses 0x46-0x53 for world-map skirmish title graphics.
+cmp     r4,#0x46
+blo     non_skirmish_title
+cmp     r4,#0x54
+blo     skirmish_text
+non_skirmish_title:
 cmp     r4,#0x4B                @@ 080822B2 2C4B     
 bgt     loc_80822BC               @@ 080822B4 DC02     
 cmp     r4,#0x4A                @@ 080822B6 2C4A     
@@ -151,6 +159,11 @@ postgame_text:
 ldr     r0,=0x7D0 @????             @@ 080822DC 4801     @@text ID --TRIAL--: 0x5d4
 blh      0x800a240                @@ 080822DE F790FCBF 
 b       end_80822a4               @@ 080822E2 E00E     
+.ltorg
+
+skirmish_text:
+adr     r0,SkirmishMapText
+b       end_80822a4
 .ltorg
 
 chapter_text:    
@@ -444,6 +457,9 @@ mov     r0,r2               @@ 080820E0 1C10
 bx      r14               @@ 080820E2 4770     
 .ltorg
 
+.align
+SkirmishMapText:
+.asciz "Skirmish Map"
 .align
 Font_Graphic_Ptr:
 .set UnknownTablePtr, Font_Graphic_Ptr+4
