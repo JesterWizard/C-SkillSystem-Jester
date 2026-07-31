@@ -119,7 +119,17 @@ static void CycleWrapS16(s16 *value, int delta, int min, int max)
     *value = next;
 }
 
-static bool IsDebuggerAiControlDisabled(void)
+void DisableDebuggerAiControl(void)
+{
+    gPlaySt.config.debugControlRed = 0;
+    gPlaySt.config.debugControlGreen = 0;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    gPlaySt.config.debugControlPurple = 0;
+#endif
+}
+
+static bool IsDebuggerAiControlEnabled(void)
 {
     if (gPlaySt.config.debugControlRed || gPlaySt.config.debugControlGreen)
         return true;
@@ -4422,12 +4432,8 @@ u8 ControlAiNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	proc = Proc_Find(DebuggerProcCmd); 
     proc->actionID = 0; 
     Proc_Goto(proc, RestartLabel); // 0xb7 
-    if (IsDebuggerAiControlDisabled()) { 
-        gPlaySt.config.debugControlRed = 0; 
-        gPlaySt.config.debugControlGreen = 0;
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-        gPlaySt.config.debugControlPurple = 0;
-#endif
+    if (IsDebuggerAiControlEnabled()) {
+        DisableDebuggerAiControl();
     } 
     else { 
         gPlaySt.config.debugControlRed = 1; 
@@ -4672,6 +4678,7 @@ u8 CallEndEventNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	DebuggerProc* proc; 
 	proc = Proc_Find(DebuggerProcCmd); 
     Proc_Goto(proc, EndLabel);
+    DisableDebuggerAiControl();
     CallEndEvent(); 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
@@ -4759,13 +4766,13 @@ int ControlAiDrawText(struct MenuProc * menu, struct MenuItemProc * menuItem) {
         Text_SetColor(&menuItem->text, 1);
     }
     //DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
-    if (IsDebuggerAiControlDisabled()) { 
-        Text_DrawString(&menuItem->text, " Ai off");
-    } 
-    else { 
+    if (IsDebuggerAiControlEnabled()) {
         DebuggerProc* procIdler = Proc_Find(DebuggerProcCmdIdler); 
         Text_DrawString(&menuItem->text, GetDebuggerMenuText(procIdler, menuItem->itemNumber));
     } 
+    else {
+        Text_DrawString(&menuItem->text, " Ai off");
+    }
     PutText(&menuItem->text, BG_GetMapBuffer(menu->frontBg) + TILEMAP_INDEX(menuItem->xTile, menuItem->yTile));
     return 0;
 } 

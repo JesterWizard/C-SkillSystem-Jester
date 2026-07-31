@@ -31,6 +31,8 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/Forging.h"
 
+extern void DisableDebuggerAiControl(void);
+
 typedef struct {
     /* 00 */ struct Font font;
     /* 18 */ struct Text th[18];
@@ -4083,7 +4085,11 @@ void RunWaitEvents(void) {
     struct EventInfo* pInfo;
     struct EventInfo info;
 
+    if (CheckFlag(EVFLAG_WIN))
+        DisableDebuggerAiControl();
+
     if (AreAnyEnemyUnitDead() == 0) {
+        DisableDebuggerAiControl();
         SetFlag(EVFLAG_DEFEAT_ALL);
         if (GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH) {
             CallEndEvent();

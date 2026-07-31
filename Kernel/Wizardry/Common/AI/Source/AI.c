@@ -480,6 +480,29 @@ s8 AiFindTargetInReachByClassId(int classId, struct Vec2* out) {
 }
 
 //! FE8U = 0x08015450
+extern void DisableDebuggerAiControl(void);
+
+static bool ShouldAiControlPlayerPhase(void)
+{
+    if (AreAnyEnemyUnitDead() == 0
+            || CheckFlag(EVFLAG_DEFEAT_ALL)
+            || CheckFlag(EVFLAG_WIN))
+    {
+        DisableDebuggerAiControl();
+        return false;
+    }
+
+    if (gPlaySt.config.debugControlRed || gPlaySt.config.debugControlGreen)
+        return true;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    if (gPlaySt.config.debugControlPurple)
+        return true;
+#endif
+
+    return false;
+}
+
 LYN_REPLACE_CHECK(BmMain_StartPhase);
 void BmMain_StartPhase(ProcPtr proc)
 {
@@ -503,7 +526,8 @@ void BmMain_StartPhase(ProcPtr proc)
     switch (gPlaySt.faction)
     {
     case FACTION_BLUE:
-        if (gpKernelDesignerConfig->ai_player_phase == true)
+        if (gpKernelDesignerConfig->ai_player_phase == true
+                || ShouldAiControlPlayerPhase())
             Proc_StartBlocking(gProcScr_CpPhase, proc);
         else
             Proc_StartBlocking(gProcScr_PlayerPhase, proc);
