@@ -113,18 +113,62 @@ static int GetMMBBaseX(struct PlayerInterfaceProc *proc) {
 static void DrawLongHpBar(u16 *buffer, struct Unit *unit, int tileBase, int length)
 {
     int i;
+    int hpCurrent = GetUnitCurrentHp(unit);
+    int hpMax = GetUnitMaxHp(unit);
+    int hpPercent;
+    int middleHp;
+    int middleCount;
 
-    DrawHpBar(buffer, unit, tileBase);
-
-    if (length <= 0)
+    if (length <= 0) {
+        DrawHpBar(buffer, unit, tileBase);
         return;
+    }
 
-    /* Vanilla DrawHpBar fills a fixed-width bar. Stretch its trailing middle
-     * segment to the requested length and move the right cap outward. */
-    for (i = 0; i < length; i++)
-        buffer[5 + i] = buffer[3 + i];
+    if (hpCurrent < 0)
+        hpCurrent = 0;
+    if (hpMax <= 0)
+        hpPercent = 0;
+    else {
+        if (hpCurrent > hpMax)
+            hpCurrent = hpMax;
+        hpPercent = 50 * hpCurrent / hpMax;
+    }
 
-    buffer[5 + length] = buffer[3 + length];
+    if (hpPercent > 50)
+        hpPercent = 50;
+
+    /* The vanilla bar reserves five percentage points for each cap. */
+    buffer[0] = tileBase + (hpPercent > 5 ? 5 : hpPercent);
+
+    /*
+     * The modular layout has seven middle tiles.  Distribute the vanilla
+     * middle range (5..45) across them instead of copying overlapping tiles;
+     * this keeps the visual fill proportional at every HP value.
+     */
+    middleCount = 4 + length;
+    middleHp = hpPercent - 5;
+    if (middleHp < 0)
+        middleHp = 0;
+    if (middleHp > 40)
+        middleHp = 40;
+
+    for (i = 0; i < middleCount; ++i) {
+        int fill = ((middleHp * middleCount - 40 * i) * 8) / 40;
+
+        if (fill <= 0)
+            buffer[1 + i] = tileBase + 6;
+        else if (fill >= 8)
+            buffer[1 + i] = tileBase + 14;
+        else
+            buffer[1 + i] = tileBase + 6 + fill;
+    }
+
+    hpPercent -= 45;
+    if (hpPercent < 0)
+        hpPercent = 0;
+    if (hpPercent > 5)
+        hpPercent = 5;
+    buffer[middleCount + 1] = tileBase + 15 + hpPercent;
 }
 
 LYN_REPLACE_CHECK(ClearUnitMapUiStatus);

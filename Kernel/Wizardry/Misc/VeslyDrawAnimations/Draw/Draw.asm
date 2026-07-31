@@ -1,4 +1,6 @@
 .thumb 
+.equ MapNumbersPalette, 23 @ global palette 23 / OBJ palette 7; trap sprites use OBJ palettes 8-10
+
 .macro blh to, reg=r3
   ldr \reg, =\to
   mov lr, \reg
@@ -148,20 +150,14 @@ mov r3, #2
 @ Arguments: r0 = Source gfx (uncompressed), r1 = Target pointer, r2 = Tile Width, r3 = Tile Height
 blh RegisterObjectTileGraphics, r4
 
-@ default 8x8 sprite uses 24th palette? 
-@ we should set the palette to something, at least 
-@ 24th palette used by transformed myrrh 
+@ Use the dedicated map-number palette slot; OBJ palettes 8-10 are used by traps.
 @ldr r0, =0x80A8EE4 @ poin to save menu palette (for the numbers to draw)	{U}
 
-@ comment out these lines to not use palette 27 
 ldr r0, =SaveScreenNumbersPal
-mov r1, #25 @ usual palette # 
+mov r1, #MapNumbersPalette
 lsl r1, #5 @ multiply by #0x20
 mov	r2,#0x20
 blh CopyToPaletteBuffer @Arguments: r0 = source pointer, r1 = destination offset, r2 = size (0x20 per full palette)
-@ commenting this out would require adding the blue colour to the numbers palette 
-
-
 @ AoE test 
 @ldr r0, =0x202E4E0 @ Movement map	{U}
 @ldr r0, [r0] 
@@ -194,12 +190,10 @@ mov r3, #2
 @ Arguments: r0 = Source gfx (uncompressed), r1 = Target pointer, r2 = Tile Width, r3 = Tile Height
 blh RegisterObjectTileGraphics, r4
 
-@ default 8x8 sprite uses 24th palette? 
-@ we should set the palette to something, at least 
-@ 24th palette used by transformed myrrh 
+@ Use the same dedicated palette slot for healing numbers.
 @ldr r0, =0x80A8EE4 @ poin to save menu palette (for the numbers to draw)	{U}
 ldr r0, =SaveScreenNumbersPal_Blue
-mov r1, #25 @ usual palette # 
+mov r1, #MapNumbersPalette
 lsl r1, #5 @ multiply by #0x20
 mov	r2,#0x20
 blh CopyToPaletteBuffer @Arguments: r0 = source pointer, r1 = destination offset, r2 = size (0x20 per full palette)
@@ -927,6 +921,11 @@ lsr r1, #24
 mov r4, r0 @ XX 
 mov r5, r1 @ YY 
 
+bl Draw_LoadNumbers @ ensure normal damage numbers use the yellow palette
+ldr r0, =0x300000E @ palette update flag
+mov r1, #1
+strb r1, [r0]
+
 @If the flag 0xEE is enabled, the numbers will not be drawn.
 ldr r0, =BATTLE_MAPANIMATION_NUMBERS_FLAGLink
 ldr r0, [r0]
@@ -1278,6 +1277,11 @@ orr r5, r0
 cmp r5, #0 
 beq Break_DrawHealsplatFunc 
 
+bl LoadBlueNumbers @ ensure healing numbers use the light-blue palette
+ldr r0, =0x300000E @ palette update flag
+mov r1, #1
+strb r1, [r0]
+
 mov r0, r4 
 mov r1, #0x2C 
 
@@ -1455,14 +1459,17 @@ sub r2, #6
 GotOffset:
 add		r3, r2, r3
 
-@ comment - change this line to #26 to not use 27 palette 
-mov r2, #25 @ palette # 26 - or 27 is the light rune palette i think 
+mov r2, #0xF0
+lsl r2, #8
+bic r3, r2 @ clear palette bits baked into the 0x81C0/0x81E0 base tile constants (orr would corrupt slots lacking bit 3)
+
+mov r2, #MapNumbersPalette @ match the palette loaded by Draw_LoadNumbers
 lsl r2, #12 @ bits 12-15 
 orr r3, r2 
 
-mov r2, #2 
+mov r2, #1 
 lsl r2, #10 
-orr r3, r2 @ priority 2 (display above unit sprites but below battle stats with anims off etc) 
+orr r3, r2 @ priority 1 (keep damage numbers above Vesly's animation sprites)
 
 
 @ palette | flips | tile 
@@ -1630,7 +1637,7 @@ push {lr}
 @Restore the destroyed palette to draw the numbers.
 ldr r0, =0x0859EEC0	@Right Lune Palette	@{U}
 @ldr r0, =0x085C73E0	@Right Lune Palette	@{J}
-mov r1, #25 @ usual palette # 
+mov r1, #25 @ restore Right Lune; map numbers use MapNumbersPalette
 lsl r1, #5 @ multiply by #0x20
 mov	r2,#0x20
 blh CopyToPaletteBuffer @Arguments: r0 = source pointer, r1 = destination offset, r2 = size (0x20 per full palette)
