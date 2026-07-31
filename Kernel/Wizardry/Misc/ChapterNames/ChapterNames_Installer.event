@@ -2,6 +2,8 @@
 
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
+#include "LynJump.event"
+#include "SaveMenuChapterTitle.lyn.event"
 PUSH
 ORG $89624
 jumpToHack(Chname)

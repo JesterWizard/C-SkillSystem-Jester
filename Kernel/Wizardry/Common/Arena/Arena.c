@@ -6,11 +6,15 @@
 #include "constants/texts.h"
 #include "event-rework.h"
 #include "bmarena.h"
+#include "weapon-slots.h"
 
 static const struct ProcCmd gProcScr_ArenaUiMain_NEW[];
 static const struct ProcCmd gProcScr_ArenaUiResults_NEW[];
 
 extern struct ProcCmd CONST_DATA ProcScr_Popup2[];
+extern const u8 gClassList_MeleeArena[];
+extern const u8 gClassList_BowArena[];
+extern const u8 gClassList_MagicArena[];
 
 // LYN_REPLACE_CHECK(ArenaBeginInternal);
 // void ArenaBeginInternal(struct Unit* unit) {
@@ -66,6 +70,132 @@ extern struct ProcCmd CONST_DATA ProcScr_Popup2[];
 
 //     return;
 // };
+
+LYN_REPLACE_CHECK(GetClassBestWRankType);
+int GetClassBestWRankType(const struct ClassData *classData)
+{
+	int slot;
+	int bestExp = 0;
+	int bestType = -1;
+
+	if (!classData)
+		return -1;
+
+	for (slot = 0; slot < UNIT_WEAPON_SLOT_COUNT; ++slot) {
+		int wtype = GetClassWeaponSlotType(classData->number, slot);
+		int exp;
+
+		if (wtype == WEAPON_SLOT_NONE || wtype == ITYPE_STAFF)
+			continue;
+
+		exp = GetClassWeaponSlotBaseRank(classData->number, slot);
+		if (exp > bestExp) {
+			bestExp = exp;
+			bestType = wtype;
+		}
+	}
+
+	return bestType;
+}
+
+LYN_REPLACE_CHECK(ArenaGenerateOpposingClassId);
+int ArenaGenerateOpposingClassId(int weaponType)
+{
+	const u8 *classList;
+	int i;
+	int classCount = 0;
+	int classNum;
+	u32 promotedFlag;
+
+	switch (weaponType) {
+	case ITYPE_SWORD:
+	case ITYPE_LANCE:
+	case ITYPE_AXE:
+	case ITYPE_KNIFE:
+		classList = gClassList_MeleeArena;
+		break;
+
+	case ITYPE_BOW:
+	case ITYPE_GUN:
+		classList = gClassList_BowArena;
+		break;
+
+	case ITYPE_ANIMA:
+	case ITYPE_LIGHT:
+	case ITYPE_DARK:
+		classList = gClassList_MagicArena;
+		break;
+
+	default:
+		/* Keep custom physical types from reaching a null class list. */
+		classList = gClassList_MeleeArena;
+		break;
+	}
+
+	promotedFlag = UNIT_CATTRIBUTES(gArenaState.playerUnit) & CA_PROMOTED;
+
+	for (i = 0; classList[i] != 0; ++i) {
+		if ((GetClassData(classList[i])->attributes & CA_PROMOTED) != promotedFlag)
+			continue;
+
+		++classCount;
+	}
+
+	if (classCount == 0)
+		return classList[0];
+
+	classNum = NextRN_N(classCount);
+
+	for (i = 0, classCount = 0; classList[i] != 0; ++i) {
+		if ((GetClassData(classList[i])->attributes & CA_PROMOTED) != promotedFlag)
+			continue;
+
+		if (classCount == classNum)
+			return classList[i];
+
+		++classCount;
+	}
+
+	return classList[0];
+}
+
+LYN_REPLACE_CHECK(IsWeaponMagic);
+s8 IsWeaponMagic(int weaponType)
+{
+	switch (weaponType) {
+	case ITYPE_ANIMA:
+	case ITYPE_LIGHT:
+	case ITYPE_DARK:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static u16 ArenaGetBaseWeaponForType(int weaponType)
+{
+	switch (weaponType) {
+	case ITYPE_SWORD:
+		return ITEM_SWORD_IRON;
+	case ITYPE_LANCE:
+		return ITEM_LANCE_IRON;
+	case ITYPE_AXE:
+		return ITEM_AXE_IRON;
+	case ITYPE_BOW:
+		return ITEM_BOW_IRON;
+	case ITYPE_ANIMA:
+		return ITEM_ANIMA_FIRE;
+	case ITYPE_LIGHT:
+		return ITEM_LIGHT_LIGHTNING;
+	case ITYPE_DARK:
+		return ITEM_DARK_FLUX;
+	case ITYPE_KNIFE:
+		return ITEM_KNIFE_IRON;
+	default:
+		return ITEM_NONE;
+	}
+}
 
 static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
 
@@ -123,17 +253,10 @@ static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
 LYN_REPLACE_CHECK(ArenaGenerateBaseWeapons);
 void ArenaGenerateBaseWeapons(void)
 {
-    u8 arenaWeapons[] = {
-        [ITYPE_SWORD] = ITEM_SWORD_IRON,
-        [ITYPE_LANCE] = ITEM_LANCE_IRON,
-        [ITYPE_AXE] = ITEM_AXE_IRON,
-        [ITYPE_BOW] = ITEM_BOW_IRON,
-        [ITYPE_STAFF] = ITEM_NONE,
-        [ITYPE_ANIMA] = ITEM_ANIMA_FIRE,
-        [ITYPE_LIGHT] = ITEM_LIGHT_LIGHTNING,
-        [ITYPE_DARK] = ITEM_DARK_FLUX};
+    u16 playerWeapon = ArenaGetBaseWeaponForType(gArenaState.playerWpnType);
+    u16 opponentWeapon = ArenaGetBaseWeaponForType(gArenaState.opponentWpnType);
 
-    gArenaState.playerWeapon = MakeNewItem(arenaWeapons[gArenaState.playerWpnType]);
+    gArenaState.playerWeapon = playerWeapon ? MakeNewItem(playerWeapon) : ITEM_NONE;
 
     if (gpKernelDesignerConfig->arena_let_player_use_upgraded_weapons == true)
         gArenaState.playerWeapon = ArenaGetUpgradedWeapon_NEW(gArenaState.playerUnit, gArenaState.playerWeapon);
@@ -141,7 +264,7 @@ void ArenaGenerateBaseWeapons(void)
     if (ArenaRosterHasConfiguredOpponent())
         gArenaState.opponentWeapon = MakeNewItem(ArenaRosterGetSelectedWeapon());
     else
-        gArenaState.opponentWeapon = MakeNewItem(arenaWeapons[gArenaState.opponentWpnType]);
+        gArenaState.opponentWeapon = opponentWeapon ? MakeNewItem(opponentWeapon) : ITEM_NONE;
 
     gArenaState.range = 1;
 
@@ -1471,8 +1594,7 @@ bool ArenaRosterGenerateOpponentUnit(struct Unit *unit)
     unit->level = entry->level;
     UnitAutolevel(unit);
 
-    if (GetItemType(entry->item) < 8)
-        SetUnitWeaponExp(unit, GetItemType(entry->item), 0xFB);
+    SetUnitWeaponExp(unit, GetItemType(entry->item), 0xFB);
 
     UnitCheckStatCaps(unit);
     SetUnitHp(unit, GetUnitMaxHp(unit));

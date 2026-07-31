@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "strmag.h"
 #include "lvup.h"
+#include "weapon-slots.h"
 
 #ifndef INT8_MAX
 #define INT8_MAX 127
@@ -23,6 +24,44 @@ void UnitAutolevelRealistic(struct Unit *unit)
 
 	UnitCheckStatCaps(unit);
 	unit->curHP = GetUnitMaxHp(unit);
+}
+
+LYN_REPLACE_CHECK(UnitAutolevelWExp);
+void UnitAutolevelWExp(struct Unit *unit, const struct UnitDefinition *uDef)
+{
+	int i;
+
+	if (!uDef->autolevel)
+		return;
+
+	for (i = 0; i < GetUnitItemCount(unit); ++i) {
+		int item = unit->items[i];
+		int wtype;
+
+		if (!(GetItemAttributes(item) & IA_REQUIRES_WEXP))
+			continue;
+
+		if ((GetItemAttributes(item) & IA_WEAPON) && CanUnitUseWeapon(unit, item))
+			continue;
+
+		if ((GetItemAttributes(item) & IA_STAFF) && CanUnitUseStaff(unit, item))
+			continue;
+
+		if (GetItemAttributes(item) & IA_LOCK_ANY)
+			continue;
+
+		wtype = GetItemType(item);
+
+		/*
+		 * Preserve vanilla behavior: do not grant a rank to a class that
+		 * has no rank-bearing slot for this weapon type. The helper also
+		 * remaps custom types through the active class slot table.
+		 */
+		if (GetUnitWeaponExp(unit, wtype) == 0)
+			item = 0;
+
+		SetUnitWeaponExp(unit, wtype, GetItemRequiredExp(item));
+	}
 }
 
 LYN_REPLACE_CHECK(UnitAutolevelCore);
