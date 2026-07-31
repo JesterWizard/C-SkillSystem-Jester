@@ -64,75 +64,77 @@ void UpdateMenuItemPanel(int slot_or_item)
 		break;
 	}
 
-	switch (GetItemType(item)) {
-	case ITYPE_STAFF:
-	case ITYPE_ITEM:
-	case ITYPE_11:
-	case ITYPE_12:
-		str = GetStringFromIndex(GetItemUseDescId(item));
-		i = 0;
-		while (1) {
-			Text_InsertDrawString(&texts[i], 0, TEXT_COLOR_SYSTEM_WHITE, str);
-			str = GetStringLineEnd(str);
+	{
+		int itype = GetItemType(item);
+		bool itemLike = (itype == ITYPE_STAFF || itype == ITYPE_ITEM);
 
-			if (*str == '\0')
-				break;
+		/* Vanilla ITYPE_11/12 are monster weapons; knife/gun reuse those IDs but are IA_WEAPON. */
+		if ((itype == ITYPE_11 || itype == ITYPE_12) && !(GetItemAttributes(item) & IA_WEAPON))
+			itemLike = true;
 
-			str++;
-			i++;
-		}
+		if (itemLike) {
+			str = GetStringFromIndex(GetItemUseDescId(item));
+			i = 0;
+			while (1) {
+				Text_InsertDrawString(&texts[i], 0, TEXT_COLOR_SYSTEM_WHITE, str);
+				str = GetStringLineEnd(str);
 
-		gBattleActor.battleAttack = gBattleTarget.battleAttack;
-		gBattleActor.battleHitRate = gBattleTarget.battleHitRate;
-		gBattleActor.battleCritRate = gBattleTarget.battleCritRate;
-		gBattleActor.battleAvoidRate = gBattleTarget.battleAvoidRate;
+				if (*str == '\0')
+					break;
 
-		PutText(&texts[0], TILEMAP_LOCATED(bg_base, 1, 1));
-		PutText(&texts[1], TILEMAP_LOCATED(bg_base, 1, 3));
-		PutText(&texts[2], TILEMAP_LOCATED(bg_base, 1, 5));
-		break;
+				str++;
+				i++;
+			}
 
-	default:
-		BattleGenerateUiStats(unit, slot_or_item);
+			gBattleActor.battleAttack = gBattleTarget.battleAttack;
+			gBattleActor.battleHitRate = gBattleTarget.battleHitRate;
+			gBattleActor.battleCritRate = gBattleTarget.battleCritRate;
+			gBattleActor.battleAvoidRate = gBattleTarget.battleAvoidRate;
 
-		if (slot_or_item == BU_ISLOT_BALLISTA) {
-			gBattleTarget.battleAttack = gBattleActor.battleAttack;
-			gBattleTarget.battleHitRate = gBattleActor.battleHitRate;
-			gBattleTarget.battleCritRate = gBattleActor.battleCritRate;
-			gBattleTarget.battleAvoidRate = gBattleActor.battleAvoidRate;
-		}
+			PutText(&texts[0], TILEMAP_LOCATED(bg_base, 1, 1));
+			PutText(&texts[1], TILEMAP_LOCATED(bg_base, 1, 3));
+			PutText(&texts[2], TILEMAP_LOCATED(bg_base, 1, 5));
+		} else {
+			BattleGenerateUiStats(unit, slot_or_item);
 
-		color = CanUnitUseWeapon(unit, gBattleActor.weapon) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY;
+			if (slot_or_item == BU_ISLOT_BALLISTA) {
+				gBattleTarget.battleAttack = gBattleActor.battleAttack;
+				gBattleTarget.battleHitRate = gBattleActor.battleHitRate;
+				gBattleTarget.battleCritRate = gBattleActor.battleCritRate;
+				gBattleTarget.battleAvoidRate = gBattleActor.battleAvoidRate;
+			}
 
-		Text_InsertDrawString(&texts[0], 0x1C, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F1));
-		Text_InsertDrawString(&texts[1], 0x02, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F3));
-		Text_InsertDrawString(&texts[2], 0x02, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F4));
-		Text_InsertDrawString(&texts[1], 0x32, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x501));
+			color = CanUnitUseWeapon(unit, gBattleActor.weapon) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY;
 
-		if (gpKernelDesignerConfig->quality_of_life_fixes == true)
-        	Text_InsertDrawString(&texts[2], 0x32, TEXT_COLOR_SYSTEM_WHITE, "Avd");
-		else
-        	Text_InsertDrawString(&texts[2], 0x32, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F5));
+			Text_InsertDrawString(&texts[0], 0x1C, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F1));
+			Text_InsertDrawString(&texts[1], 0x02, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F3));
+			Text_InsertDrawString(&texts[2], 0x02, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F4));
+			Text_InsertDrawString(&texts[1], 0x32, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x501));
 
-		Text_InsertDrawNumberOrBlank(&texts[1], 0x24, color, gBattleActor.battleAttack);
-		Text_InsertDrawNumberOrBlank(&texts[2], 0x24, color, gBattleActor.battleHitRate);
-		Text_InsertDrawNumberOrBlank(&texts[1], 0x54, color, gBattleActor.battleCritRate);
-		Text_InsertDrawNumberOrBlank(&texts[2], 0x54, color, gBattleActor.battleAvoidRate);
+			if (gpKernelDesignerConfig->quality_of_life_fixes == true)
+				Text_InsertDrawString(&texts[2], 0x32, TEXT_COLOR_SYSTEM_WHITE, "Avd");
+			else
+				Text_InsertDrawString(&texts[2], 0x32, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(0x4F5));
 
-		PutText(&proc->text[0], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x1));
-		PutText(&proc->text[1], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x3));
-		PutText(&proc->text[2], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x5));
+			Text_InsertDrawNumberOrBlank(&texts[1], 0x24, color, gBattleActor.battleAttack);
+			Text_InsertDrawNumberOrBlank(&texts[2], 0x24, color, gBattleActor.battleHitRate);
+			Text_InsertDrawNumberOrBlank(&texts[1], 0x54, color, gBattleActor.battleCritRate);
+			Text_InsertDrawNumberOrBlank(&texts[2], 0x54, color, gBattleActor.battleAvoidRate);
 
-		DrawIcon(
-			TILEMAP_LOCATED(bg_base, 8, 1),
+			PutText(&proc->text[0], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x1));
+			PutText(&proc->text[1], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x3));
+			PutText(&proc->text[2], TILEMAP_LOCATED(gBG0TilemapBuffer, proc->x + 1, proc->y + 0x5));
+
+			DrawIcon(
+				TILEMAP_LOCATED(bg_base, 8, 1),
 #if CHAX
-			WTYPE_ICON(GetItemType(gBattleActor.weapon)),
+				WTYPE_ICON(GetItemType(gBattleActor.weapon)),
 #else
-			GetItemType(gBattleActor.weapon) + 0x70,
+				GetItemType(gBattleActor.weapon) + 0x70,
 #endif
-			icon_pal << 0xC);
-		break;
-	} /* switch item type */
+				icon_pal << 0xC);
+		}
+	}
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }

@@ -52,6 +52,25 @@ int GetClassWeaponSlotType(int jid, int slot)
 	return slot;
 }
 
+int GetClassWeaponSlotBaseRank(int jid, int slot)
+{
+	const struct ClassWeaponSlotConf *conf;
+	const struct ClassData *jinfo;
+
+	if (slot < 0 || slot >= UNIT_WEAPON_SLOT_COUNT)
+		return 0;
+
+	conf = GetClassWeaponSlotConf(jid);
+	if (conf && conf->baseRanks[slot] != 0)
+		return conf->baseRanks[slot];
+
+	jinfo = GetClassData(jid);
+	if (!jinfo)
+		return 0;
+
+	return jinfo->baseRanks[slot];
+}
+
 int GetClassWeaponRankSlot(int jid, int wtype)
 {
 	int slot;
@@ -69,17 +88,12 @@ int GetClassWeaponRankSlot(int jid, int wtype)
 
 int GetClassWeaponRank(int jid, int wtype)
 {
-	const struct ClassData *jinfo;
 	int slot = GetClassWeaponRankSlot(jid, wtype);
 
 	if (slot < 0)
 		return 0;
 
-	jinfo = GetClassData(jid);
-	if (!jinfo)
-		return 0;
-
-	return jinfo->baseRanks[slot];
+	return GetClassWeaponSlotBaseRank(jid, slot);
 }
 
 bool ClassHasWeaponType(int jid, int wtype)
@@ -164,7 +178,7 @@ void InitUnitWeaponRanks(struct Unit *unit, const struct CharacterData *characte
 			continue;
 		}
 
-		exp = unit->pClassData->baseRanks[slot];
+		exp = GetClassWeaponSlotBaseRank(jid, slot);
 
 		/**
 		 * Character baseRanks remain type-indexed for the classic 0-7 set.
@@ -198,11 +212,13 @@ void RemapUnitWeaponRanksOnClassChange(struct Unit *unit, const struct ClassData
 	for (slot = 0; slot < UNIT_WEAPON_SLOT_COUNT; slot++) {
 		int wtype = GetClassWeaponSlotType(oldJid, slot);
 		int exp;
+		int baseRank;
 
 		if (wtype == WEAPON_SLOT_NONE)
 			continue;
 
-		exp = unit->ranks[slot] - oldClass->baseRanks[slot];
+		baseRank = GetClassWeaponSlotBaseRank(oldJid, slot);
+		exp = unit->ranks[slot] - baseRank;
 		if (exp < 0)
 			exp = 0;
 
@@ -215,24 +231,27 @@ void RemapUnitWeaponRanksOnClassChange(struct Unit *unit, const struct ClassData
 	for (slot = 0; slot < UNIT_WEAPON_SLOT_COUNT; slot++) {
 		int wtype = GetClassWeaponSlotType(newJid, slot);
 		int exp;
+		int baseRank;
 
 		if (wtype == WEAPON_SLOT_NONE) {
 			unit->ranks[slot] = 0;
 			continue;
 		}
 
+		baseRank = GetClassWeaponSlotBaseRank(newJid, slot);
+
 		/**
 		 * Reclass zeroes slots the new class does not actually use
-		 * (baseRanks[slot] == 0). Promotion keeps earned EXP even when
+		 * (base rank == 0). Promotion keeps earned EXP even when
 		 * the new base is 0, matching vanilla subtract/add behaviour.
 		 * In both cases EXP follows weapon type into the new slot map.
 		 */
-		if (zeroUnmapped && newClass->baseRanks[slot] == 0) {
+		if (zeroUnmapped && baseRank == 0) {
 			unit->ranks[slot] = 0;
 			continue;
 		}
 
-		exp = newClass->baseRanks[slot];
+		exp = baseRank;
 
 		if (present[wtype])
 			exp += earned[wtype];

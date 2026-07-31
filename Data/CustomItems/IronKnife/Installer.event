@@ -1,0 +1,4 @@
+PUSH
+    ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_KNIFE_IRON * 0x80
+        #incbin "IronKnife.4bpp"
+POP

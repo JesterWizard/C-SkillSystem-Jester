@@ -89,6 +89,7 @@ void HbRedirect_SkillPageCommon(struct HelpBoxProc *proc);
 void HbPopuplate_ArtPageCommon(struct HelpBoxProc *proc);
 void HbRedirect_ArtPageCommon(struct HelpBoxProc *proc);
 void HbRedirect_ArtPageOnlyAlly(struct HelpBoxProc *proc);
+/* HbRedirect_WrankPage / HbPopuplate_WrankBonus live in wrank-bonus.h */
 
 void DrawSkillPage_MokhaPlanA(void);
 void DrawSkillPage_MokhaPlanB(void);

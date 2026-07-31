@@ -456,3 +456,17 @@ Boost growths[N]
 by 7%.[X]
 ## MSG_ITEM_INVEST_STAFF_SUBTITLE
 Select a unit to boost.[X]
+
+## MSG_ITEM_IRON_KNIFE_NAME
+Iron Knife[X]
+## MSG_ITEM_IRON_KNIFE_DESC
+A simple iron knife.[X]
+
+## MSG_WRANK_KNIFE_MASTERY
+Knife mastery level.[X]
+
+## MSG_WTYPE_KNIFE
+Knife[.][X]
+
+## MSG_WTYPE_GUN
+Gun[.][X]

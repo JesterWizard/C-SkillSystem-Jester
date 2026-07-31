@@ -10,6 +10,8 @@ struct WrankRtextConfEnt const gWrankRtextConf[] = {
 	{ MSG_0565, ITYPE_ANIMA },
 	{ MSG_0566, ITYPE_LIGHT },
 	{ MSG_0567, ITYPE_DARK },
+	{ MSG_0568, ITYPE_STAFF },
+	{ MSG_WRANK_KNIFE_MASTERY, ITYPE_KNIFE },
 	{}
 };
 

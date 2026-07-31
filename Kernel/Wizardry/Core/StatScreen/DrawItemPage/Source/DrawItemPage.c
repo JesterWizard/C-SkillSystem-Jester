@@ -5,6 +5,7 @@
 #include <stat-screen.h>
 #include <shield.h>
 #include "skill-system.h"
+#include "help-box.h"
 #include "constants/skills.h"
 #include "jester_headers/custom-structs.h"
 
@@ -407,6 +408,8 @@ void HbPopulate_SSItem(struct HelpBoxProc *proc)
 	bool isGaidenMagicPage = gpKernelDesignerConfig->gaiden_magic == true
 						 && gStatScreen.page == TranslateStatPageId(PAGE_GAIDEN_MAGIC);
 	int item = ITEM_NONE;
+
+	sHelpBoxType = NEW_HB_DEFAULT;
 
 	if (!isGaidenMagicPage)
 	{

@@ -581,6 +581,35 @@ int GetItemType(int item) {
     return GetItemData(ITEM_INDEX(item))->weaponType;
 }
 
+LYN_REPLACE_CHECK(GetWeaponTypeDisplayString);
+char *GetWeaponTypeDisplayString(int wpnType)
+{
+    static const u16 vanillaTextIds[] = {
+        [ITYPE_SWORD] = 0x505,
+        [ITYPE_LANCE] = 0x506,
+        [ITYPE_AXE]   = 0x507,
+        [ITYPE_BOW]   = 0x508,
+        [ITYPE_STAFF] = 0x509,
+        [ITYPE_ANIMA] = 0x50A,
+        [ITYPE_LIGHT] = 0x50B,
+        [ITYPE_DARK]  = 0x50C,
+        [ITYPE_BLLST] = 0x50E,
+        [ITYPE_ITEM]  = 0x50D,
+        [ITYPE_DRAGN] = 0x50F,
+    };
+
+    if (wpnType == ITYPE_KNIFE)
+        return GetStringFromIndex(MSG_WTYPE_KNIFE);
+
+    if (wpnType == ITYPE_GUN)
+        return GetStringFromIndex(MSG_WTYPE_GUN);
+
+    if (wpnType < 0 || wpnType >= (int)ARRAY_COUNT(vanillaTextIds))
+        return GetStringFromIndex(0x50D); /* Item */
+
+    return GetStringFromIndex(vanillaTextIds[wpnType]);
+}
+
 LYN_REPLACE_CHECK(GetItemRequiredExp);
 int GetItemRequiredExp(int item) {
     return GetItemData(ITEM_INDEX(item))->weaponRank;

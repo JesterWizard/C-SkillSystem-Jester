@@ -2,6 +2,7 @@
 #include "SkillStealer/Installer.event"
 #include "SpiritDust/Installer.event"
 #include "ArmsScroll/Installer.event"
+#include "IronKnife/Installer.event"
 
 #include "ForceStaff/Installer.event"   // ATK boost
 #include "TempestStaff/Installer.event" // MAG boost

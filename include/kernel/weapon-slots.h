@@ -18,6 +18,7 @@
 struct ClassWeaponSlotConf {
 	/* 00 */ u8 jid;
 	/* 01 */ u8 wtypes[UNIT_WEAPON_SLOT_COUNT]; /* slot -> weapon type; WEAPON_SLOT_NONE = unused */
+	/* 09 */ u8 baseRanks[UNIT_WEAPON_SLOT_COUNT]; /* optional slot starting WEXP; 0 = ClassData fallback */
 };
 
 extern struct ClassWeaponSlotConf const gClassWeaponSlotConf[];
@@ -26,6 +27,7 @@ extern struct ClassWeaponSlotConf const *const gpClassWeaponSlotConf;
 /* Class / slot queries */
 const struct ClassWeaponSlotConf *GetClassWeaponSlotConf(int jid);
 int GetClassWeaponSlotType(int jid, int slot);
+int GetClassWeaponSlotBaseRank(int jid, int slot);
 int GetClassWeaponRankSlot(int jid, int wtype);
 int GetClassWeaponRank(int jid, int wtype);
 bool ClassHasWeaponType(int jid, int wtype);

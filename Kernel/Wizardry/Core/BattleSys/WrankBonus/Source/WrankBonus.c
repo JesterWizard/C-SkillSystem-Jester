@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "help-box.h"
 #include "wrank-bonus.h"
+#include "weapon-slots.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 
@@ -28,6 +29,33 @@ int GetWtypeFromRTextMsg(u16 msg)
 	return -1;
 }
 
+int GetWtypeMasteryMsg(int wtype)
+{
+	const struct WrankRtextConfEnt *it;
+
+	for (it = gpWrankRtextConf; it->msg != 0; it++) {
+		if (it->wtype == wtype)
+			return it->msg;
+	}
+
+	return MSG_0561; /* fallback */
+}
+
+int GetDisplayedWeaponTypeAt(struct Unit *unit, int index)
+{
+	u8 wtypes[UNIT_WEAPON_SLOT_COUNT];
+	int wcount;
+
+	if (!unit || index < 0)
+		return -1;
+
+	wcount = ListUnitMappedWeaponTypes(unit, wtypes, UNIT_WEAPON_SLOT_COUNT);
+	if (index >= wcount)
+		return -1;
+
+	return wtypes[index];
+}
+
 /**
  * pre-battle
  */
@@ -52,85 +80,84 @@ void PreBattleCalc_WrankBonus(struct BattleUnit *attacker, struct BattleUnit *de
 /**
  * help-box
  */
+void HbRedirect_WrankPage(struct HelpBoxProc *proc)
+{
+	u8 wtypes[UNIT_WEAPON_SLOT_COUNT];
+	int wcount = ListUnitMappedWeaponTypes(gStatScreen.unit, wtypes, UNIT_WEAPON_SLOT_COUNT);
+
+	if (proc->info->mid < wcount)
+		return;
+
+	switch (proc->moveKey) {
+	case DPAD_DOWN:
+		TryRelocateHbDown(proc);
+		break;
+
+	case DPAD_UP:
+		TryRelocateHbUp(proc);
+		break;
+
+	case DPAD_LEFT:
+		TryRelocateHbLeft(proc);
+		break;
+
+	case DPAD_RIGHT:
+	default:
+		TryRelocateHbRight(proc);
+		break;
+	}
+}
+
 void HbPopuplate_WrankBonus(struct HelpBoxProc *proc)
 {
-	// int wtype;
-	// const struct WrankBonusConfEnt *conf;
+	int wtype = GetDisplayedWeaponTypeAt(gStatScreen.unit, proc->info->mid);
 
 	sHelpBoxType = NEW_HB_DEFAULT;
 
-	if (!gpKernelDesignerConfig->wrank_bonux_rtext_auto_gen)
+	if (wtype < 0)
 		return;
 
-	// wtype = GetWtypeFromRTextMsg(proc->info->mid);
+	proc->item = 0;
+	proc->mid = GetWtypeMasteryMsg(wtype);
 
-	// if (wtype < 0)
-	// 	return;
-
-	// conf = GetWrankBonusConf(gStatScreen.unit, wtype, GetWeaponLevelFromExp(UNIT_WRANK(gStatScreen.unit, wtype)));
-	// if (!conf)
-	// 	return;
+	if (!gpKernelDesignerConfig->wrank_bonux_rtext_auto_gen)
+		return;
 
 	sHelpBoxType = NEW_HB_WRANK_STATSCREEN;
 }
 
 void DrawHelpBoxLabels_WrankBonus(void)
 {
-
-	if (gpKernelDesignerConfig->quality_of_life_fixes == true)
-	{
+	if (gpKernelDesignerConfig->quality_of_life_fixes == true) {
 		Text_InsertDrawString(&gHelpBoxSt.text[0], 0x00, TEXT_COLOR_47CF, "WEXP");
 		Text_InsertDrawString(&gHelpBoxSt.text[0], 0x40, TEXT_COLOR_47CF, "Rank Up");
 
-		Text_InsertDrawString(&gHelpBoxSt.text[1], 0x00, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04F4)); // atk
-		Text_InsertDrawString(&gHelpBoxSt.text[1], 0x40, TEXT_COLOR_47CF, GetStringFromIndex(MSG_0501)); // hit
-
-		// These all are all the weapon ran bonuses, but by default I only display ATK and HIT
-		// Text_InsertDrawString(&gHelpBoxSt.text[0], 0x00, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04F3)); // atk
-		// Text_InsertDrawString(&gHelpBoxSt.text[0], 0x30, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04EF)); // def
-		// Text_InsertDrawString(&gHelpBoxSt.text[0], 0x60, TEXT_COLOR_47CF, GetStringFromIndex(MSG_0504)); // as
-
-		// Text_InsertDrawString(&gHelpBoxSt.text[1], 0x00, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04F4)); // hit
-		// Text_InsertDrawString(&gHelpBoxSt.text[1], 0x30, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04F5));  // avo
-		// Text_InsertDrawString(&gHelpBoxSt.text[1], 0x60, TEXT_COLOR_47CF, GetStringFromIndex(MSG_0501));  // crit
-
-		// Text_InsertDrawString(&gHelpBoxSt.text[2], 0x00, TEXT_COLOR_47CF, GetStringFromIndex(MSG_51E)); // dodge
-		// Text_InsertDrawString(&gHelpBoxSt.text[2], 0x30, TEXT_COLOR_47CF, GetStringFromIndex(MSG_SILENCER));  // dodge
-		// Text_InsertDrawString(&gHelpBoxSt.text[2], 0x70, TEXT_COLOR_47CF, GetStringFromIndex(MSG_MSS_SupportBonus));  // bonus
+		Text_InsertDrawString(&gHelpBoxSt.text[1], 0x00, TEXT_COLOR_47CF, GetStringFromIndex(MSG_04F4)); /* atk */
+		Text_InsertDrawString(&gHelpBoxSt.text[1], 0x40, TEXT_COLOR_47CF, GetStringFromIndex(MSG_0501)); /* hit */
 	}
 }
 
 void DrawHelpBoxStats_WrankBonus(struct ProcHelpBoxIntro *proc)
 {
 	int wtype = GetWtypeFromRTextMsg(proc->msg);
-	int wrank = GetWeaponLevelFromExp(UNIT_WRANK(gStatScreen.unit, wtype));
+	int wrank;
 	const struct WrankBonusConfEnt _conf = { 0 };
-	const struct WrankBonusConfEnt *conf = GetWrankBonusConf(gStatScreen.unit, wtype, wrank);
+	const struct WrankBonusConfEnt *conf;
 
-	if (!conf) {
-		Errorf("failed to get conf: wtype=%d, wrank=%d", wtype, wrank);
+	if (wtype < 0)
+		return;
+
+	wrank = GetWeaponLevelFromExp(UNIT_WRANK(gStatScreen.unit, wtype));
+	conf = GetWrankBonusConf(gStatScreen.unit, wtype, wrank);
+	if (!conf)
 		conf = &_conf;
-	}
 
-	if (gpKernelDesignerConfig->quality_of_life_fixes == true)
-	{
+	if (gpKernelDesignerConfig->quality_of_life_fixes == true) {
 		Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 0x30, TEXT_COLOR_456F, UNIT_WRANK(gStatScreen.unit, wtype));
 		Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 0x80, TEXT_COLOR_456F, GetWEXPForNextLevel(UNIT_WRANK(gStatScreen.unit, wtype)));
 
 		Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[1], 0x30, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_HIT]);
 		Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[1], 0x80, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_CRIT]);
-
-		// These all are all the weapon ran bonuses, but by default I only display ATK and HIT
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 0x20, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_ATK]);
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 0x50, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_DEF]);
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 0x80, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_AS]);
-
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[1], 0x20, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_HIT]);
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[1], 0x50, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_AVO]);
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[1], 0x80, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_CRIT]);
-
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[2], 0x20, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_DODGE]);
-		// Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[2], 0x50, TEXT_COLOR_456F, conf->bonus[BATTLE_STATUS_SILENCER]);
 	}
 }
 
