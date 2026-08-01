@@ -585,7 +585,8 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	floatProc->glyph = glyph;
 	floatProc->cursorX = cursorX;
 	floatProc->screenX = state->xText * 8 + cursorX;
-	floatProc->destY = state->yText * 8 + state->lineActive * 16;
+	/* Match vanilla talk OBJ anchors (see wait-bubble placement). */
+	floatProc->destY = state->yText * 8 + state->lineActive * 16 + 4;
 	floatProc->timer = 0;
 	floatProc->slot = slot;
 	floatProc->color = state->printColor;
