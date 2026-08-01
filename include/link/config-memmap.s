@@ -177,12 +177,14 @@ _kernel_malloc BanimSwitcherBuf, 0x40
 _kernel_malloc BanimSwitcherAnimDef, 0x8
 
 // For Eebit's FE7 Mode Select port
-@ _kernel_malloc gUnk_ModeSelect_02000000, 1
-@ _kernel_malloc gUnk_ModeSelect_02000001, 1
-@ _kernel_malloc gUnk_0201E8D4, 50
-@ _kernel_malloc gUnk_0201E97C, 50
-@ _kernel_malloc gUnk_020000A4, 50
-@ _kernel_malloc gUnk_0201E9F4, 50
+// Keep the two byte-sized blend state values in one even-sized allocation.
+_kernel_malloc gUnk_ModeSelect_02000000, 2
+SET_DATA gUnk_ModeSelect_02000001, gUnk_ModeSelect_02000000 + 1
+// The menu can display three characters at once.
+_kernel_malloc gUnk_0201E8D4, 0x38 * 3 // struct AnimBuffer[3]
+_kernel_malloc gUnk_0201E97C, 0x28 * 3 // struct AnimMagicFxBuffer[3]
+_kernel_malloc gUnk_020000A4, 0x50 // struct Font plus struct Text[7]
+_kernel_malloc gUnk_0201E9F4, 0x5A // u16[3][15]
 
 
 /* CONFIG */

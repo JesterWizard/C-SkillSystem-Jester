@@ -60,6 +60,7 @@ dat 0x0201E9F4, gUnk_0201E9F4
 
 #define gBg0Tm gBG0TilemapBuffer
 #define gBg1Tm gBG1TilemapBuffer
+#define gBg2Tm gBG2TilemapBuffer
 #define gBg3Tm gBG3TilemapBuffer
 #define gPal gPaletteBuffer
 
@@ -945,7 +946,7 @@ struct FaceVramEntry const FaceConfig_ModeSelect[] = {
 
 extern u16 Pal_084150C0[]; // pal
 extern u8 Img_08414940[];  // gfx
-extern u8 Tsa_084150E0[];  // tsa
+extern u8 Tsa_084150E0_Full[];  // tsa
 
 extern u16 Pal_08415AA0[]; // pal
 extern u8 Img_08415594[];  // gfx
@@ -976,7 +977,7 @@ void ModeSelect_Init(struct ModeSelectProc * proc) {
     ApplyPalette(Pal_08415AA0, 0xF);
     
     Decompress(Img_08415594, (void *)(0x6000000 + GetBgChrOffset(1)));
-    TmApplyTsa_thm(gBg0Tm, Tsa_084150E0, 0);
+    TmApplyTsa_thm(gBg0Tm, Tsa_084150E0_Full, 0);
     fe7u_func_080AACD8(gBg1Tm, Tsa_08415AC0, 0xf000); // this loads the "claw menu" and bg of the chapters
     ApplyPalette(Pal_084150C0, 0x1B);
     
@@ -1413,9 +1414,14 @@ void ModeSelect_Loop_RotateCarousel(struct ModeSelectProc * proc)
 // FE7U: 0x080A8624
 void ModeSelect_End(struct ModeSelectProc * proc)
 {
+    struct SaveMenuProc * saveMenuProc = (struct SaveMenuProc *)proc->proc_parent;
+
     EndModeSelectAnims(proc->unk_4c);
     EndEfxAnimeDrvProc();
     EndFaceById(0);
+
+    Proc_UnblockEachMarked(PROC_MARK_SAVEDRAW);
+    Proc_UnblockEachMarked(PROC_MARK_D);
 
     if (!(proc->unk_42 & 1))
     {
@@ -1424,6 +1430,19 @@ void ModeSelect_End(struct ModeSelectProc * proc)
     else
     {
         SetPrimaryHBlankHandler(NULL);
+
+        // Recreate the full save-menu screen, including its background and
+        // save-draw process, just as the normal save-menu entry path does.
+        if (saveMenuProc != NULL && saveMenuProc->savedraw != NULL)
+            Proc_End(saveMenuProc->savedraw);
+
+        SaveMenu_Init();
+
+        if (saveMenuProc != NULL)
+        {
+            SaveMenu_InitScreen(saveMenuProc);
+            SaveMenu_LoadExtraMenuGraphics(saveMenuProc);
+        }
     }
 
     return;
@@ -1484,30 +1503,16 @@ void StartModeSelect(ProcPtr parent)
 
 // HOOKS
 
-extern u16 gBgConfig_SaveMenu[];
-
 //! Hook; overwrite function at FE8U:0x080AA1EC
 LYN_REPLACE_CHECK(SaveMenu_ResetLcdFormDifficulty);
 void SaveMenu_ResetLcdFormDifficulty(struct SaveMenuProc * proc)
 {
     proc->scroll_cnt = 0;
 
-    SetupBackgrounds(gBgConfig_SaveMenu);
-
     SetWinEnable(0, 0, 0);
 
     SetWin0Layers(1, 1, 1, 1, 1);
     SetWOutLayers(0, 0, 0, 0, 0);
-
-    gLCDControlBuffer.dispcnt.mode = 0;
-
-    gLCDControlBuffer.bg2cnt.screenSize = 0;
-    gLCDControlBuffer.bg2cnt.areaOverflowMode = 0;
-
-    gLCDControlBuffer.bg0cnt.priority = 0;
-    gLCDControlBuffer.bg1cnt.priority = 1;
-    gLCDControlBuffer.bg2cnt.priority = 2;
-    gLCDControlBuffer.bg3cnt.priority = 3;
 
     return;
 }
