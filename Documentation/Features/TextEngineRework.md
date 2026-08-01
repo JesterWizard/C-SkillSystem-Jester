@@ -25,7 +25,7 @@ Player-facing impact:
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
 - Dialogue can apply a horizontal scanline wave to its background layers.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
-- Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump or vibrate continuously while speaking.
+- Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump, vibrate, or shimmy continuously while speaking.
 - Existing vanilla text remains readable and compatible with the new parser.
 
 This feature is intended for **standard cutscene text**. It has not been validated against every alternate dialogue path the game can use.
@@ -96,6 +96,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x40` | `[ToggleOffWave]` | none | Restores the dialogue background layers' normal horizontal offsets |
 | `0x41` | `[ToggleOnVibrating]` | none | Starts a fast, one-pixel vertical vibration on the active portrait |
 | `0x42` | `[ToggleOffVibrating]` | none | Stops vibration and restores the portrait's resting Y |
+| `0x43` | `[ToggleOnShimmy]` | none | Starts a fast, one-pixel horizontal shimmy on the active portrait |
+| `0x44` | `[ToggleOffShimmy]` | none | Stops shimming and restores the portrait's resting X |
 
 ### Fancy LoadFace options
 
@@ -134,6 +136,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffJumping]Okay, I'm calm again.
 [ToggleOnVibrating]This portrait is trembling.
 [ToggleOffVibrating]Now it is steady again.
+[ToggleOnShimmy]This portrait is shimmying.
+[ToggleOffShimmy]Now it is centered again.
 [ToggleOnShakePrint]Every letter hits a little harder now.
 [ToggleOffShakePrint]Back to a steady print.
 [ToggleOnBouncePrint]These letters drop into place.
@@ -163,7 +167,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Talk open / clear | `InitTalk_C`, `StartTalkOpen_C`, `TalkShiftClearAll_OnInit_C`, `TalkShiftClear_OnInit_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Supports 1–3 line boxes and clear origins |
 | Variable-speed face move | `StartTalkFaceMove_C`, `TalkFaceMove_OnInitOverride` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Full C replacement for face moves with custom duration |
 | Fancy / normal face load | `TextEngine_LoadFace` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Shared loader used by `LoadFace` and `LoadFaceFancy` |
-| Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps or gives the active portrait a small rapid vibration until toggled off |
+| Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StartFaceShimmy`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `TextEngine_StopFaceShimmy`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps, vibrates, or shimmies the active portrait until toggled off |
 | Shake / bounce-on-print | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce = per-letter OBJ float-in that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |

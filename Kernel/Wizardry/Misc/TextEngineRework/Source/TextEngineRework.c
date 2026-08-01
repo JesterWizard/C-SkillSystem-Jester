@@ -29,15 +29,17 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x42,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x44,
 };
 
 enum {
 	TEXT_ENGINE_FACE_MOTION_JUMP = 0,
 	TEXT_ENGINE_FACE_MOTION_VIBRATE = 1,
+	TEXT_ENGINE_FACE_MOTION_SHIMMY = 2,
 	TEXT_ENGINE_FACE_JUMP_PERIOD = 16,
 	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
 	TEXT_ENGINE_FACE_VIBRATE_PERIOD = 4,
+	TEXT_ENGINE_FACE_SHIMMY_PERIOD = 4,
 	TEXT_ENGINE_PRINT_SHAKE_FRAMES = 4,
 	TEXT_ENGINE_PRINT_FX_INACTIVE = -1,
 	TEXT_ENGINE_WAVE_AMPLITUDE = 2,
@@ -129,6 +131,8 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
 static void TextEngine_StartFaceVibrate(struct FaceProc *face);
 static void TextEngine_StopFaceVibrate(struct FaceProc *face);
+static void TextEngine_StartFaceShimmy(struct FaceProc *face);
+static void TextEngine_StopFaceShimmy(struct FaceProc *face);
 static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc);
 static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc);
 static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc);
@@ -256,7 +260,12 @@ static struct TextEngineFaceJumpProc *TextEngine_FindFaceJumpProc(struct FacePro
 
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc)
 {
-	if (proc->face)
+	if (!proc->face)
+		return;
+
+	if (proc->mode == TEXT_ENGINE_FACE_MOTION_SHIMMY)
+		proc->face->xPos += proc->offset;
+	else
 		proc->face->yPos += proc->offset;
 }
 
@@ -265,7 +274,7 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc)
 	struct FaceProc *face = proc->face;
 	int phase;
 	int offset;
-	s16 trueY;
+	s16 truePosition;
 
 	if (!face) {
 		Proc_End(proc);
@@ -274,13 +283,21 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc)
 
 	/*
 	 * Undo the previous frame's offset first so other systems that also
-	 * touch yPos (face moves, fades) compose cleanly with continuous jump.
+	 * touch the active position (face moves, fades) compose cleanly with
+	 * continuous motion.
 	 */
-	trueY = face->yPos + proc->offset;
+	if (proc->mode == TEXT_ENGINE_FACE_MOTION_SHIMMY)
+		truePosition = face->xPos + proc->offset;
+	else
+		truePosition = face->yPos + proc->offset;
+
 	proc->timer++;
 
 	if (proc->mode == TEXT_ENGINE_FACE_MOTION_VIBRATE) {
 		phase = proc->timer % TEXT_ENGINE_FACE_VIBRATE_PERIOD;
+		offset = sTextEngineFaceVibrateOffsets[phase];
+	} else if (proc->mode == TEXT_ENGINE_FACE_MOTION_SHIMMY) {
+		phase = proc->timer % TEXT_ENGINE_FACE_SHIMMY_PERIOD;
 		offset = sTextEngineFaceVibrateOffsets[phase];
 	} else {
 		phase = proc->timer % TEXT_ENGINE_FACE_JUMP_PERIOD;
@@ -303,7 +320,11 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc)
 		}
 	}
 
-	face->yPos = trueY - offset;
+	if (proc->mode == TEXT_ENGINE_FACE_MOTION_SHIMMY)
+		face->xPos = truePosition - offset;
+	else
+		face->yPos = truePosition - offset;
+
 	proc->offset = offset;
 }
 
@@ -345,6 +366,11 @@ static void TextEngine_StartFaceVibrate(struct FaceProc *face)
 	TextEngine_StartFaceMotion(face, TEXT_ENGINE_FACE_MOTION_VIBRATE);
 }
 
+static void TextEngine_StartFaceShimmy(struct FaceProc *face)
+{
+	TextEngine_StartFaceMotion(face, TEXT_ENGINE_FACE_MOTION_SHIMMY);
+}
+
 static void TextEngine_StopFaceMotion(struct FaceProc *face, u8 mode)
 {
 	struct TextEngineFaceJumpProc *jump = TextEngine_FindFaceJumpProc(face);
@@ -361,6 +387,11 @@ static void TextEngine_StopFaceJump(struct FaceProc *face)
 static void TextEngine_StopFaceVibrate(struct FaceProc *face)
 {
 	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_VIBRATE);
+}
+
+static void TextEngine_StopFaceShimmy(struct FaceProc *face)
+{
+	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_SHIMMY);
 }
 
 static void TextEnginePrintFx_Apply(struct TextEnginePrintFxProc *proc)
@@ -1316,6 +1347,8 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			case 0x40:
 			case 0x41:
 			case 0x42:
+			case 0x43:
+			case 0x44:
 				cursor++;
 				continue;
 			}
@@ -1790,6 +1823,18 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 
 	case 0x42:
 		TextEngine_StopFaceVibrate(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
+		return 3;
+
+	case 0x43:
+		TextEngine_StartFaceShimmy(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
+		return 3;
+
+	case 0x44:
+		TextEngine_StopFaceShimmy(
 			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
 		);
 		return 3;

@@ -103,4 +103,6 @@ POIN ToggleOnWave			//80 3F
 POIN ToggleOffWave			//80 40
 POIN ToggleOnVibrating		//80 41
 POIN ToggleOffVibrating		//80 42
+POIN ToggleOnShimmy			//80 43
+POIN ToggleOffShimmy		//80 44
 */
