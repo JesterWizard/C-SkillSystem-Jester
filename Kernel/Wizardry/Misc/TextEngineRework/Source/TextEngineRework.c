@@ -15,6 +15,7 @@
 #define sTextEngineText  (*(struct Text (*)[3])0x030000D0)
 
 #define TEXT_ENGINE_FACE_ATTRIBUTES_OFFSET 0x4C
+#define TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET 0x5D
 
 enum TextEngineFaceAttribute {
 	TEXT_ENGINE_ATTR_FONT,
@@ -25,12 +26,13 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3A,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3C,
 };
 
 enum {
 	TEXT_ENGINE_FACE_JUMP_PERIOD = 16,
 	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
+	TEXT_ENGINE_PRINT_SHAKE_FRAMES = 4,
 };
 
 struct TextEngineFaceJumpProc {
@@ -38,6 +40,13 @@ struct TextEngineFaceJumpProc {
 	/* 2C */ struct FaceProc *face;
 	/* 30 */ s16 timer;
 	/* 32 */ s16 offset;
+};
+
+struct TextEnginePrintShakeProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ s16 timer;
+	/* 2E */ s16 baseX;
+	/* 30 */ s16 baseY;
 };
 
 /*
@@ -64,14 +73,31 @@ typedef void (*TextEngineUnsetFaceDisplayBitsFunc)(int position);
 int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
 struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
+void TextEngine_OnCharacterPrinted(void);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
+static void TextEnginePrintShake_OnIdle(struct TextEnginePrintShakeProc *proc);
+static void TextEnginePrintShake_OnEnd(struct TextEnginePrintShakeProc *proc);
+
+static const s8 sTextEnginePrintShakeOffsets[][2] = {
+	{ +1, -1 },
+	{ -1, +1 },
+	{ +1,  0 },
+	{  0,  0 },
+};
 
 static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
 	PROC_NAME("TextEngineFaceJump"),
 	PROC_SET_END_CB(TextEngineFaceJump_OnEnd),
 	PROC_REPEAT(TextEngineFaceJump_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEnginePrintShake[] = {
+	PROC_NAME("TextEnginePrintShake"),
+	PROC_SET_END_CB(TextEnginePrintShake_OnEnd),
+	PROC_REPEAT(TextEnginePrintShake_OnIdle),
 	PROC_END,
 };
 
@@ -93,6 +119,11 @@ static struct Text *TextEngine_GetLineText(const struct TalkState *state, int li
 static u8 *TextEngine_GetCurrentSpeakerAttributes(void)
 {
 	return (u8 *)sTextEngineState + 0x58;
+}
+
+static u8 *TextEngine_GetShakePrintFlag(void)
+{
+	return (u8 *)sTextEngineState + TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET;
 }
 
 static u8 *TextEngine_GetFaceAttributes(struct FaceProc *face)
@@ -216,6 +247,74 @@ static void TextEngine_StopFaceJump(struct FaceProc *face)
 		Proc_End(jump);
 }
 
+static void TextEnginePrintShake_Apply(struct TextEnginePrintShakeProc *proc, int frame)
+{
+	const s8 *offset = sTextEnginePrintShakeOffsets[frame];
+
+	BG_SetPosition(BG_0, proc->baseX + offset[0], proc->baseY + offset[1]);
+}
+
+static void TextEnginePrintShake_OnEnd(struct TextEnginePrintShakeProc *proc)
+{
+	BG_SetPosition(BG_0, proc->baseX, proc->baseY);
+}
+
+static void TextEnginePrintShake_OnIdle(struct TextEnginePrintShakeProc *proc)
+{
+	if (proc->timer >= TEXT_ENGINE_PRINT_SHAKE_FRAMES) {
+		Proc_End(proc);
+		return;
+	}
+
+	TextEnginePrintShake_Apply(proc, proc->timer);
+	proc->timer++;
+}
+
+static void TextEngine_StartPrintShake(void)
+{
+	struct TextEnginePrintShakeProc *shake =
+		(struct TextEnginePrintShakeProc *)Proc_Find(gProcScr_TextEnginePrintShake);
+
+	if (shake) {
+		/*
+		 * Keep the original resting scroll and restart the punch so rapid
+		 * glyphs keep jittering instead of stacking offsets forever.
+		 */
+		shake->timer = 0;
+		TextEnginePrintShake_Apply(shake, 0);
+		return;
+	}
+
+	shake = (struct TextEnginePrintShakeProc *)Proc_Start(
+		gProcScr_TextEnginePrintShake,
+		PROC_TREE_3
+	);
+	if (!shake)
+		return;
+
+	shake->timer = 0;
+	shake->baseX = gLCDControlBuffer.bgoffset[BG_0].x;
+	shake->baseY = gLCDControlBuffer.bgoffset[BG_0].y;
+	TextEnginePrintShake_Apply(shake, 0);
+}
+
+void TextEngine_OnCharacterPrinted(void)
+{
+	struct TalkState *state = sTextEngineState;
+
+	if (!*TextEngine_GetShakePrintFlag())
+		return;
+
+	/* Instant scroll dumps many glyphs in one frame; skip the punch noise. */
+	if (state->instantScroll)
+		return;
+
+	if (CheckTalkFlag(TALK_FLAG_SPRITE))
+		return;
+
+	TextEngine_StartPrintShake();
+}
+
 void UpdateFontGlyphSet(int font)
 {
 	gActiveFont->glyphs = FontGlyphsPointerTable[font];
@@ -316,6 +415,8 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_BOX_PALETTE] = 0;
 	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
+	*TextEngine_GetShakePrintFlag() = 0;
+	Proc_EndEach(gProcScr_TextEnginePrintShake);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -739,6 +840,8 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 
 			case 0x39:
 			case 0x3A:
+			case 0x3B:
+			case 0x3C:
 				cursor++;
 				continue;
 			}
@@ -1177,6 +1280,15 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 		TextEngine_StopFaceJump(
 			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
 		);
+		return 3;
+
+	case 0x3B:
+		*TextEngine_GetShakePrintFlag() = 1;
+		return 3;
+
+	case 0x3C:
+		*TextEngine_GetShakePrintFlag() = 0;
+		Proc_EndEach(gProcScr_TextEnginePrintShake);
 		return 3;
 
 	default:

@@ -4339,6 +4339,8 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 
 #define TALK_TEXT_BY_LINE(line) (&sTalkText[k_umod(((line) + sTalkState->topTextNum), sTalkState->lines)])
 
+void TextEngine_OnCharacterPrinted(void);
+
 //! FE8U = 0x08006C34
 LYN_REPLACE_CHECK(Talk_OnIdle);
 void Talk_OnIdle(ProcPtr proc) {
@@ -4391,6 +4393,7 @@ void Talk_OnIdle(ProcPtr proc) {
                 }
 
                 sTalkState->str = Text_DrawCharacter(TALK_TEXT_BY_LINE(sTalkState->lineActive), sTalkState->str);
+                TextEngine_OnCharacterPrinted();
 
                 if (!CheckTalkFlag(TALK_FLAG_SILENT)) {
                     if (CheckTalkFlag(TALK_FLAG_7)) { // World map text boop

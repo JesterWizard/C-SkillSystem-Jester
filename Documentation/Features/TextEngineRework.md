@@ -86,6 +86,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x38` | `[TextSpeed]` | `XX` frames, or `0xFF` | Overrides print delay; `0xFF` restores the Options menu speed |
 | `0x39` | `[ToggleOnJumping]` | none | Starts continuous jumping on the active portrait |
 | `0x3A` | `[ToggleOffJumping]` | none | Stops jumping and restores the portrait's resting Y |
+| `0x3B` | `[ToggleOnShakePrint]` | none | Each printed glyph briefly jitters the dialogue text layer |
+| `0x3C` | `[ToggleOffShakePrint]` | none | Disables shake-on-print and restores BG0 scroll |
 
 ### Fancy LoadFace options
 
@@ -122,6 +124,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [MML2][0x10]Move me more slowly than vanilla.
 [ToggleOnJumping]I can't sit still!
 [ToggleOffJumping]Okay, I'm calm again.
+[ToggleOnShakePrint]Every letter hits a little harder now.
+[ToggleOffShakePrint]Back to a steady print.
 ```
 
 ### Custom fonts
@@ -146,6 +150,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Variable-speed face move | `StartTalkFaceMove_C`, `TalkFaceMove_OnInitOverride` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Full C replacement for face moves with custom duration |
 | Fancy / normal face load | `TextEngine_LoadFace` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Shared loader used by `LoadFace` and `LoadFaceFancy` |
 | Continuous face jump | `TextEngine_StartFaceJump`, `TextEngine_StopFaceJump`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that bounces the active portrait until toggled off |
+| Shake-on-print | `TextEngine_OnCharacterPrinted`, `gProcScr_TextEnginePrintShake` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Brief BG0 micro-shake when each glyph prints (text jitters inside the bubble) |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
@@ -160,6 +165,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 
 - Re-hook pitched text boops so `[BoopPitch_*]` / attribute pitch actually affect letter sounds during print.
 - Add more author-facing example scripts beyond the control-code matrix above.
+- Consider punctuation-pause and heavier typewriter variants now that shake-on-print exists.
 - Consider portrait-shake / other presentation effects now that the engine lives in C.
 
 ---
@@ -171,6 +177,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - All script arguments must be **non-zero**; `0x00` terminates text copies.
 - Custom box types have limited tile variety; new shapes do not include the vanilla multi-frame expand animation.
 - Boop pitch is stored on face/current attributes and accepted by `0x2C`, but the old `PlayTextBoop` idle hook is not currently installed, so pitch changes may not audibly apply until that path is restored in C.
+- Shake-on-print jitters the whole BG0 text layer (not individual glyph OBJs), because dialogue text is tile-baked. Sprite-talk mode is intentionally skipped.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.
