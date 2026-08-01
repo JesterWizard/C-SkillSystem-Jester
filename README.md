@@ -198,7 +198,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Tellius_Skill_Capacity.gif" alt="Tellius Skill Capacity preview" width="600" />
 	</details>
 
-- [Text Engine Rework](./Documentation/Features/TextEngineRework.txt)
+- [Text Engine Rework](./Documentation/Features/TextEngineRework.md)
 
 	<details>
 		<summary>Preview</summary>
