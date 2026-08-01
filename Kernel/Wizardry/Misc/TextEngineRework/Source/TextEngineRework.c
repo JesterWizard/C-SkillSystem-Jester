@@ -39,19 +39,18 @@ extern const u32 *TextBoxTypePointerTable[];
 extern const struct ProcCmd gProcScr_TalkSkipListener[];
 extern const struct ProcCmd gProcScr_TalkPause[];
 extern const struct ProcCmd gProcScr_TalkShiftClearAll[];
+extern const struct ProcCmd gProcScr_TalkFaceMove[];
 extern const struct ChoiceEntryInfo gYesNoTalkChoice[];
 extern const struct ChoiceEntryInfo gBuySellTalkChoice[];
 
-typedef struct Proc *(*TextEngineCreateMovingFaceProcFunc)(int newPosition, int oldPosition, int isSwap);
 typedef void (*TextEngineUnsetFaceDisplayBitsFunc)(int position);
 
-#define TextEngineCreateMovingFaceProc \
-	((TextEngineCreateMovingFaceProcFunc)(uintptr_t)0x08007A59)
 #define TextEngineUnsetFaceDisplayBits \
 	((TextEngineUnsetFaceDisplayBitsFunc)(uintptr_t)0x080089C5)
 
 int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
+struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
 
 static struct Text *TextEngine_GetLineText(const struct TalkState *state, int line)
 {
@@ -174,7 +173,12 @@ void Copy_Text_Attributes(ProcPtr proc)
 	TextEngine_UpdateAttributesFromFace();
 }
 
-static __attribute__((used)) void WriteFaceXPosTableToRAM_Impl(void)
+/*
+ * Full replacement for Talk_OnInit.  Seeds the remappable face X table and
+ * default speaker attributes after the vanilla skip-listener startup.
+ */
+LYN_REPLACE_CHECK(Talk_OnInit);
+void Talk_OnInit_C(void)
 {
 	static const u8 defaultFaceXPositions[] = {
 		0x03, 0x06, 0x09, 0x15, 0x18, 0x1B, 0xF8, 0x26,
@@ -182,15 +186,17 @@ static __attribute__((used)) void WriteFaceXPosTableToRAM_Impl(void)
 	struct TalkState *state = sTextEngineState;
 	volatile u8 *positionTable = (volatile u8 *)state + 0x50;
 	u8 *current = TextEngine_GetCurrentSpeakerAttributes();
+	int position;
 
-	/*
-	 * This is the call that was at the overwritten end of Talk_OnInit.  The
-	 * text engine's skip listener still needs to exist before the first line
-	 * is interpreted.
-	 */
+	if (!CheckTalkFlag(TALK_FLAG_SPRITE)) {
+		LoadObjUIGfx();
+		BG_SetPosition(BG_0, 0, 0);
+		BG_SetPosition(BG_1, 0, 0);
+	}
+
 	Proc_Start(gProcScr_TalkSkipListener, PROC_TREE_3);
 
-	for (int position = 0; position < (int)sizeof(defaultFaceXPositions); position++)
+	for (position = 0; position < (int)sizeof(defaultFaceXPositions); position++)
 		positionTable[position] = defaultFaceXPositions[position];
 
 	current[TEXT_ENGINE_ATTR_FONT] = 0;
@@ -198,29 +204,6 @@ static __attribute__((used)) void WriteFaceXPosTableToRAM_Impl(void)
 	current[TEXT_ENGINE_ATTR_BOX_PALETTE] = 0;
 	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
-}
-
-/*
- * $6C28 is the end of the vanilla initializer, not a normal BL call site.
- * The original ASM hook popped the initializer's saved LR itself; preserve
- * that tail-hook ABI after running the normal C implementation.
- */
-void WriteFaceXPosTableToRAM(void);
-LYN_REPLACE_CHECK(WriteFaceXPosTableToRAM);
-__attribute__((naked)) void WriteFaceXPosTableToRAM(void)
-{
-	__asm volatile(
-		"ldr r3, 1f\n"
-		"mov r2, pc\n"
-		"add r2, #5\n"
-		"mov lr, r2\n"
-		"bx r3\n"
-		"pop {r0}\n"
-		"bx r0\n"
-		".align 2\n"
-		"1:\n"
-		".word WriteFaceXPosTableToRAM_Impl\n"
-	);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -335,42 +318,24 @@ void TalkFaceMove_OnInitOverride(struct Proc *proc)
 }
 
 /*
- * This is called from the tail of StartTalkFaceMove.  At the hook site the
- * newly-created move proc is still in r3, while r0 contains the swap flag
- * shifted into the sign-extension position by the vanilla code.
- *
- * The hook must return through the caller's saved LR, rather than through the
- * branch-back emitted by callHack_r4.  The original routine's literal pool
- * immediately follows that branch-back, so placing a replacement pop sequence
- * there would overwrite gProcScr_TalkFaceMove.
+ * Full replacement for StartTalkFaceMove.  Returns the move proc so variable-
+ * speed callers can write unk5C after creation.
  */
-static __attribute__((used)) struct Proc *StartTalkFaceMoveC_Impl(
-	int encodedSwap,
-	struct Proc *faceMoveProc
-)
+LYN_REPLACE_CHECK(StartTalkFaceMove);
+struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap)
 {
-	faceMoveProc->unk6A = (s8)(encodedSwap >> 24);
-	return faceMoveProc;
-}
+	struct Proc *proc;
+	int slot = GetFaceIdByXPos(GetTalkFaceHPos(talkFaceFrom) * 8);
 
-void StartTalkFaceMoveC(void);
-LYN_REPLACE_CHECK(StartTalkFaceMoveC);
-__attribute__((naked)) void StartTalkFaceMoveC(void)
-{
-	__asm volatile(
-		"mov r1, r3\n"
-		"ldr r3, 1f\n"
-		"mov r2, pc\n"
-		"add r2, #5\n"
-		"mov lr, r2\n"
-		"bx r3\n"
-		"pop {r4-r7}\n"
-		"pop {r1}\n"
-		"bx r1\n"
-		".align 2\n"
-		"1:\n"
-		".word StartTalkFaceMoveC_Impl\n"
-	);
+	if (slot == -1)
+		return NULL;
+
+	proc = (struct Proc *)Proc_Start(gProcScr_TalkFaceMove, gFaces[slot]);
+	proc->unk64 = slot;
+	proc->unk66 = talkFaceTo;
+	proc->unk68 = gFaces[slot]->xPos;
+	proc->unk6A = isSwap;
+	return proc;
 }
 
 LYN_REPLACE_CHECK(StartTalkOpen);
@@ -443,14 +408,14 @@ static void TextEngine_CallMoveFaceAndWriteSpeed(int from, int to, int speed)
 
 	if (TextEngine_GetFaceProcByPosition(to)) {
 		isSwap = 1;
-		proc = TextEngineCreateMovingFaceProc(to, from, 1);
+		proc = StartTalkFaceMove_C(to, from, 1);
 		if (proc) {
 			proc->unk58 = 0;
 			proc->unk5C = speed;
 		}
 	}
 
-	proc = TextEngineCreateMovingFaceProc(from, to, isSwap);
+	proc = StartTalkFaceMove_C(from, to, isSwap);
 	if (proc) {
 		proc->unk58 = 0;
 		proc->unk5C = speed;
