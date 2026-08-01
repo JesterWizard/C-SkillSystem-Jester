@@ -1,7 +1,9 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "utf8.h"
 
 #include "bmlib.h"
+#include "ctc.h"
 #include "fontgrp.h"
 #include "m4a.h"
 #include "scene.h"
@@ -16,6 +18,7 @@
 
 #define TEXT_ENGINE_FACE_ATTRIBUTES_OFFSET 0x4C
 #define TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET 0x5D
+#define TEXT_ENGINE_BOUNCE_PRINT_FLAG_OFFSET 0x5E
 
 enum TextEngineFaceAttribute {
 	TEXT_ENGINE_ATTR_FONT,
@@ -26,13 +29,26 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3C,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3E,
 };
 
 enum {
 	TEXT_ENGINE_FACE_JUMP_PERIOD = 16,
 	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
 	TEXT_ENGINE_PRINT_SHAKE_FRAMES = 4,
+	TEXT_ENGINE_PRINT_FX_INACTIVE = -1,
+	TEXT_ENGINE_FLOAT_SLOTS = 4,
+	/*
+	 * LoadObjUIGfx packs a 0x12x4 sheet into OBJ VRAM with 32-tile pitch:
+	 * rows at 0x00, 0x20, 0x40, 0x60.  Stay clear of those and of
+	 * OBJCHR_MAPSPRITES (0x80).  0x72-0x7F is free for 8x16 float slots.
+	 */
+	TEXT_ENGINE_FLOAT_OBJ_CHR = 0x72,
+	/* OBJPAL_MAPSPRITES is 0xC — never reuse it for float glyphs. */
+	TEXT_ENGINE_FLOAT_OBJ_PAL = 0xA,
+	TEXT_ENGINE_FLOAT_SLOT_STRIDE = 2,
+	TEXT_ENGINE_FLOAT_DURATION = 12,
+	TEXT_ENGINE_FLOAT_LIFT = 10,
 };
 
 struct TextEngineFaceJumpProc {
@@ -42,11 +58,26 @@ struct TextEngineFaceJumpProc {
 	/* 32 */ s16 offset;
 };
 
-struct TextEnginePrintShakeProc {
+struct TextEnginePrintFxProc {
 	/* 00 */ PROC_HEADER;
-	/* 2C */ s16 timer;
-	/* 2E */ s16 baseX;
-	/* 30 */ s16 baseY;
+	/* 2C */ s16 shakeTimer;
+	/* 2E */ s16 unusedBounce;
+	/* 30 */ s16 baseX;
+	/* 32 */ s16 baseY;
+};
+
+struct TextEngineGlyphFloatProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ struct Text *targetText;
+	/* 30 */ struct Glyph *glyph;
+	/* 34 */ s16 cursorX;
+	/* 36 */ s16 screenX;
+	/* 38 */ s16 destY;
+	/* 3A */ s16 timer;
+	/* 3C */ u8 slot;
+	/* 3D */ u8 color;
+	/* 3E */ u8 width;
+	/* 3F */ char ch[5];
 };
 
 /*
@@ -70,15 +101,20 @@ typedef void (*TextEngineUnsetFaceDisplayBitsFunc)(int position);
 #define TextEngineUnsetFaceDisplayBits \
 	((TextEngineUnsetFaceDisplayBitsFunc)(uintptr_t)0x080089C5)
 
+extern u16 *GetColorLut(int color);
+
 int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
 struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
 void TextEngine_OnCharacterPrinted(void);
+s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
-static void TextEnginePrintShake_OnIdle(struct TextEnginePrintShakeProc *proc);
-static void TextEnginePrintShake_OnEnd(struct TextEnginePrintShakeProc *proc);
+static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc);
+static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc);
+static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
+static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
 
 static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ +1, -1 },
@@ -94,10 +130,17 @@ static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
 	PROC_END,
 };
 
-static const struct ProcCmd gProcScr_TextEnginePrintShake[] = {
-	PROC_NAME("TextEnginePrintShake"),
-	PROC_SET_END_CB(TextEnginePrintShake_OnEnd),
-	PROC_REPEAT(TextEnginePrintShake_OnIdle),
+static const struct ProcCmd gProcScr_TextEnginePrintFx[] = {
+	PROC_NAME("TextEnginePrintFx"),
+	PROC_SET_END_CB(TextEnginePrintFx_OnEnd),
+	PROC_REPEAT(TextEnginePrintFx_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineGlyphFloat[] = {
+	PROC_NAME("TextEngineGlyphFloat"),
+	PROC_SET_END_CB(TextEngineGlyphFloat_OnEnd),
+	PROC_REPEAT(TextEngineGlyphFloat_OnIdle),
 	PROC_END,
 };
 
@@ -124,6 +167,11 @@ static u8 *TextEngine_GetCurrentSpeakerAttributes(void)
 static u8 *TextEngine_GetShakePrintFlag(void)
 {
 	return (u8 *)sTextEngineState + TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET;
+}
+
+static u8 *TextEngine_GetBouncePrintFlag(void)
+{
+	return (u8 *)sTextEngineState + TEXT_ENGINE_BOUNCE_PRINT_FLAG_OFFSET;
 }
 
 static u8 *TextEngine_GetFaceAttributes(struct FaceProc *face)
@@ -247,55 +295,311 @@ static void TextEngine_StopFaceJump(struct FaceProc *face)
 		Proc_End(jump);
 }
 
-static void TextEnginePrintShake_Apply(struct TextEnginePrintShakeProc *proc, int frame)
+static void TextEnginePrintFx_Apply(struct TextEnginePrintFxProc *proc)
 {
-	const s8 *offset = sTextEnginePrintShakeOffsets[frame];
+	s16 x = proc->baseX;
+	s16 y = proc->baseY;
 
-	BG_SetPosition(BG_0, proc->baseX + offset[0], proc->baseY + offset[1]);
+	if (proc->shakeTimer >= 0 &&
+		proc->shakeTimer < TEXT_ENGINE_PRINT_SHAKE_FRAMES) {
+		const s8 *offset = sTextEnginePrintShakeOffsets[proc->shakeTimer];
+
+		x += offset[0];
+		y += offset[1];
+	}
+
+	BG_SetPosition(BG_0, x, y);
 }
 
-static void TextEnginePrintShake_OnEnd(struct TextEnginePrintShakeProc *proc)
+static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc)
 {
 	BG_SetPosition(BG_0, proc->baseX, proc->baseY);
 }
 
-static void TextEnginePrintShake_OnIdle(struct TextEnginePrintShakeProc *proc)
+static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc)
 {
-	if (proc->timer >= TEXT_ENGINE_PRINT_SHAKE_FRAMES) {
+	TextEnginePrintFx_Apply(proc);
+
+	if (proc->shakeTimer >= 0)
+		proc->shakeTimer++;
+
+	if (proc->shakeTimer < 0 ||
+		proc->shakeTimer >= TEXT_ENGINE_PRINT_SHAKE_FRAMES) {
 		Proc_End(proc);
 		return;
 	}
+}
 
-	TextEnginePrintShake_Apply(proc, proc->timer);
-	proc->timer++;
+static struct TextEnginePrintFxProc *TextEngine_EnsurePrintFx(void)
+{
+	struct TextEnginePrintFxProc *fx =
+		(struct TextEnginePrintFxProc *)Proc_Find(gProcScr_TextEnginePrintFx);
+
+	if (fx)
+		return fx;
+
+	fx = (struct TextEnginePrintFxProc *)Proc_Start(
+		gProcScr_TextEnginePrintFx,
+		PROC_TREE_3
+	);
+	if (!fx)
+		return NULL;
+
+	fx->shakeTimer = TEXT_ENGINE_PRINT_FX_INACTIVE;
+	fx->unusedBounce = TEXT_ENGINE_PRINT_FX_INACTIVE;
+	fx->baseX = gLCDControlBuffer.bgoffset[BG_0].x;
+	fx->baseY = gLCDControlBuffer.bgoffset[BG_0].y;
+	return fx;
 }
 
 static void TextEngine_StartPrintShake(void)
 {
-	struct TextEnginePrintShakeProc *shake =
-		(struct TextEnginePrintShakeProc *)Proc_Find(gProcScr_TextEnginePrintShake);
+	struct TextEnginePrintFxProc *fx = TextEngine_EnsurePrintFx();
 
-	if (shake) {
-		/*
-		 * Keep the original resting scroll and restart the punch so rapid
-		 * glyphs keep jittering instead of stacking offsets forever.
-		 */
-		shake->timer = 0;
-		TextEnginePrintShake_Apply(shake, 0);
+	if (!fx)
+		return;
+
+	fx->shakeTimer = 0;
+	TextEnginePrintFx_Apply(fx);
+}
+
+static int TextEngine_GetFloatObjChr(int slot)
+{
+	return TEXT_ENGINE_FLOAT_OBJ_CHR + slot * TEXT_ENGINE_FLOAT_SLOT_STRIDE;
+}
+
+static s8 TextEngine_IsFloatSlotBusy(int slot)
+{
+	struct ProcFindIterator it;
+	struct TextEngineGlyphFloatProc *floatProc;
+
+	Proc_FindBegin(&it, gProcScr_TextEngineGlyphFloat);
+	while ((floatProc = (struct TextEngineGlyphFloatProc *)Proc_FindNext(&it)) != NULL) {
+		if (floatProc->slot == slot)
+			return 1;
+	}
+
+	return 0;
+}
+
+static int TextEngine_FindFreeFloatSlot(void)
+{
+	int slot;
+
+	for (slot = 0; slot < TEXT_ENGINE_FLOAT_SLOTS; slot++) {
+		if (!TextEngine_IsFloatSlotBusy(slot))
+			return slot;
+	}
+
+	return -1;
+}
+
+static void TextEngine_PrepareFloatPalette(void)
+{
+	ApplyPalette(Pal_Text, 0x10 + TEXT_ENGINE_FLOAT_OBJ_PAL);
+}
+
+static struct Glyph *TextEngine_FindGlyph(u32 unicod)
+{
+	struct Glyph *glyph;
+	int hi = (unicod >> 8) & 0xFF;
+	int lo = unicod & 0xFF;
+
+	if (!gActiveFont || unicod >= 0x10000)
+		return NULL;
+
+	for (glyph = gActiveFont->glyphs[lo]; glyph != NULL; glyph = glyph->sjisNext) {
+		if (glyph->sjisByte1 == hi)
+			return glyph;
+	}
+
+	return NULL;
+}
+
+/*
+ * Pack one glyph into a pair of OBJ tiles for an 8x16 sprite (top, bottom).
+ * Wide glyphs are clipped to 8px for the float preview; bake still uses the
+ * full glyph width.  Keeping every slot at 2 tiles lets us fit in 0x72-0x7F.
+ */
+static void TextEngine_UploadGlyphToObj(const struct Glyph *glyph, int chr, int color)
+{
+	u16 *lut = GetColorLut(color);
+	u32 *tileTop = (u32 *)OBJ_CHR_ADDR(chr);
+	u32 *tileBot = (u32 *)OBJ_CHR_ADDR(chr + 1);
+	int row;
+
+	CpuFastFill(0, tileTop, 0x20 * 2);
+
+	for (row = 0; row < 8; row++) {
+		u32 bits = glyph->bitmap[row];
+
+		tileTop[row] = lut[bits & 0xFF] | ((u32)lut[(bits >> 8) & 0xFF] << 16);
+	}
+
+	for (row = 0; row < 8; row++) {
+		u32 bits = glyph->bitmap[row + 8];
+
+		tileBot[row] = lut[bits & 0xFF] | ((u32)lut[(bits >> 8) & 0xFF] << 16);
+	}
+}
+
+static struct Glyph *TextEngine_ResolveGlyph(const char *ch)
+{
+	u32 unicod;
+	int decodeLen;
+	struct Glyph *glyph;
+
+	SetInitTalkTextFont();
+
+	if (DecodeUtf8(ch, &unicod, &decodeLen) != 0) {
+		unicod = '?';
+		decodeLen = 1;
+	}
+
+	glyph = TextEngine_FindGlyph(unicod);
+	if (!glyph)
+		glyph = TextEngine_FindGlyph('?');
+
+	return glyph;
+}
+
+static void TextEngine_ClearFloatSlotVram(int slot)
+{
+	int chr = TextEngine_GetFloatObjChr(slot);
+
+	CpuFastFill(0, (void *)OBJ_CHR_ADDR(chr), 0x20 * 2);
+}
+
+static void TextEngine_BakeFloatedGlyph(struct TextEngineGlyphFloatProc *proc)
+{
+	int savedCursor;
+
+	SetInitTalkTextFont();
+	savedCursor = Text_GetCursor(proc->targetText);
+	Text_SetColor(proc->targetText, proc->color);
+	Text_SetCursor(proc->targetText, proc->cursorX);
+	Text_DrawCharacter(proc->targetText, proc->ch);
+	/*
+	 * Text_DrawCharacter advances the cursor.  Later glyphs may already have
+	 * reserved space past this one, so restore the live cursor afterward.
+	 */
+	Text_SetCursor(proc->targetText, savedCursor);
+}
+
+static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc)
+{
+	TextEngine_BakeFloatedGlyph(proc);
+	TextEngine_ClearFloatSlotVram(proc->slot);
+}
+
+static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
+{
+	int y;
+	int oam2;
+
+	if (proc->timer >= TEXT_ENGINE_FLOAT_DURATION) {
+		Proc_End(proc);
 		return;
 	}
 
-	shake = (struct TextEnginePrintShakeProc *)Proc_Start(
-		gProcScr_TextEnginePrintShake,
+	if (proc->glyph) {
+		TextEngine_UploadGlyphToObj(
+			proc->glyph,
+			TextEngine_GetFloatObjChr(proc->slot),
+			proc->color
+		);
+	}
+
+	y = Interpolate(
+		INTERPOLATE_RCUBIC,
+		proc->destY - TEXT_ENGINE_FLOAT_LIFT,
+		proc->destY,
+		proc->timer,
+		TEXT_ENGINE_FLOAT_DURATION
+	);
+
+	oam2 = OAM2_CHR(TextEngine_GetFloatObjChr(proc->slot))
+		| OAM2_PAL(TEXT_ENGINE_FLOAT_OBJ_PAL)
+		| OAM2_LAYER(0);
+
+	PutSpriteExt(4, OAM1_X(proc->screenX), OAM0_Y(y), gObject_8x16, oam2);
+	proc->timer++;
+}
+
+s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
+{
+	struct TalkState *state = sTextEngineState;
+	struct TextEngineGlyphFloatProc *floatProc;
+	struct Glyph *glyph;
+	u32 width;
+	const char *next;
+	int slot;
+	int len;
+	int i;
+	int cursorX;
+
+	if (!*TextEngine_GetBouncePrintFlag())
+		return 0;
+
+	if (!text || !str || !*str)
+		return 0;
+
+	if (state->instantScroll || CheckTalkFlag(TALK_FLAG_SPRITE))
+		return 0;
+
+	SetInitTalkTextFont();
+
+	slot = TextEngine_FindFreeFloatSlot();
+	if (slot < 0)
+		return 0;
+
+	next = GetCharTextLen(*str, &width);
+	if (!next || next == *str || width == 0)
+		return 0;
+
+	len = next - *str;
+	if (len <= 0 || len > 4)
+		return 0;
+
+	cursorX = Text_GetCursor(text);
+	floatProc = (struct TextEngineGlyphFloatProc *)Proc_Start(
+		gProcScr_TextEngineGlyphFloat,
 		PROC_TREE_3
 	);
-	if (!shake)
-		return;
+	if (!floatProc)
+		return 0;
 
-	shake->timer = 0;
-	shake->baseX = gLCDControlBuffer.bgoffset[BG_0].x;
-	shake->baseY = gLCDControlBuffer.bgoffset[BG_0].y;
-	TextEnginePrintShake_Apply(shake, 0);
+	for (i = 0; i < len; i++)
+		floatProc->ch[i] = (*str)[i];
+	floatProc->ch[len] = 0;
+
+	glyph = TextEngine_ResolveGlyph(floatProc->ch);
+	if (!glyph) {
+		Proc_End(floatProc);
+		return 0;
+	}
+
+	TextEngine_PrepareFloatPalette();
+
+	floatProc->targetText = text;
+	floatProc->glyph = glyph;
+	floatProc->cursorX = cursorX;
+	floatProc->screenX = state->xText * 8 + cursorX;
+	floatProc->destY = state->yText * 8 + state->lineActive * 16;
+	floatProc->timer = 0;
+	floatProc->slot = slot;
+	floatProc->color = state->printColor;
+	floatProc->width = width;
+
+	TextEngine_UploadGlyphToObj(
+		glyph,
+		TextEngine_GetFloatObjChr(slot),
+		floatProc->color
+	);
+	SetInitTalkTextFont();
+	Text_SetCursor(text, cursorX + width);
+	*str = next;
+	return 1;
 }
 
 void TextEngine_OnCharacterPrinted(void)
@@ -416,7 +720,10 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
 	*TextEngine_GetShakePrintFlag() = 0;
-	Proc_EndEach(gProcScr_TextEnginePrintShake);
+	*TextEngine_GetBouncePrintFlag() = 0;
+	Proc_EndEach(gProcScr_TextEnginePrintFx);
+	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
+	TextEngine_PrepareFloatPalette();
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -842,6 +1149,8 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			case 0x3A:
 			case 0x3B:
 			case 0x3C:
+			case 0x3D:
+			case 0x3E:
 				cursor++;
 				continue;
 			}
@@ -1288,7 +1597,16 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 
 	case 0x3C:
 		*TextEngine_GetShakePrintFlag() = 0;
-		Proc_EndEach(gProcScr_TextEnginePrintShake);
+		return 3;
+
+	case 0x3D:
+		*TextEngine_GetBouncePrintFlag() = 1;
+		TextEngine_PrepareFloatPalette();
+		return 3;
+
+	case 0x3E:
+		*TextEngine_GetBouncePrintFlag() = 0;
+		Proc_EndEach(gProcScr_TextEngineGlyphFloat);
 		return 3;
 
 	default:
