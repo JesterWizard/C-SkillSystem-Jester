@@ -29,6 +29,13 @@ POIN Talk_OnInit_C
 POP
 
 PUSH
+ORG $7C0C
+ALIGN 4
+WORD $46C04778 $E59FC000 $E12FFF1C
+POIN Talk_OnEnd_C
+POP
+
+PUSH
 ORG $6DC4
 callHack_r3(UpdateFontBeforeBoxWidthCalc)
 SHORT 0x46C0

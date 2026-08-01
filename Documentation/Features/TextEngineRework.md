@@ -24,6 +24,7 @@ Player-facing impact:
 
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
 - Dialogue can apply a horizontal scanline wave to its background layers.
+- Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
 - Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump, vibrate, or shimmy continuously while speaking.
 - Existing vanilla text remains readable and compatible with the new parser.
@@ -43,6 +44,7 @@ The rework is a small set of C hooks plus shared tables.
 | Presentation state | Copies and updates face attributes before the box appears | Palette, box, and font settings follow the active speaker |
 | Face / box hooks | C replacements for load, move, open, clear, and promotion UI | Variable-speed moves, 1–3 line boxes, and fancy face load work on the main dialogue path |
 | Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from double-buffered sine tables | Text, textbox, and background layers move with a continuous horizontal wave |
+| Speaker nameplate | Draws the speaking face’s name on BG0 with a matching BG1 talk-bubble frame above the box | Off by default; `[ToggleOnNameplate]` enables per dialogue |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
@@ -98,6 +100,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x42` | `[ToggleOffVibrating]` | none | Stops vibration and restores the portrait's resting Y |
 | `0x43` | `[ToggleOnShimmy]` | none | Starts a fast, one-pixel horizontal shimmy on the active portrait |
 | `0x44` | `[ToggleOffShimmy]` | none | Stops shimming and restores the portrait's resting X |
+| `0x45` | `[ToggleOnNameplate]` | none | Enables speaker nameplates (default off); redraws if a box is already open |
+| `0x46` | `[ToggleOffNameplate]` | none | Disables speaker nameplates and clears any active plate |
 
 ### Fancy LoadFace options
 
@@ -144,6 +148,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffBouncePrint]And now they don't.
 [ToggleOnWave]The dialogue scene ripples gently.
 [ToggleOffWave]And now it is steady again.
+[ToggleOnNameplate]This line shows a speaker plate.
+[ToggleOffNameplate]And now the nameplate is off again.
 ```
 
 ### Custom fonts
@@ -170,6 +176,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StartFaceShimmy`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `TextEngine_StopFaceShimmy`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps, vibrates, or shimmies the active portrait until toggled off |
 | Shake / bounce-on-print | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce = per-letter OBJ float-in that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
+| Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
@@ -198,6 +205,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Boop pitch is stored on face/current attributes and accepted by `0x2C`, but the old `PlayTextBoop` idle hook is not currently installed, so pitch changes may not audibly apply until that path is restored in C.
 - Shake-on-print jitters the whole BG0 text layer. Bounce-on-print floats each letter in as an OBJ (up to 4 at once) before baking it into the dialogue text; sprite-talk mode is skipped.
 - The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
+- Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

@@ -54,6 +54,21 @@ enum {
 	TEXT_ENGINE_FLOAT_DURATION = 12,
 	TEXT_ENGINE_FLOAT_LIFT = 10,
 	TEXT_ENGINE_BOOP_PITCH_COUNT = 25,
+	/*
+	 * Nameplates are drawn over the top edge of the dialogue box.  These
+	 * values intentionally live next to the engine constants so projects can
+	 * pick a different custom font or text group without changing scripts.
+	 */
+	TEXT_ENGINE_NAMEPLATE_FONT = 1,
+	TEXT_ENGINE_NAMEPLATE_COLOR = TEXT_COLOR_0DEF,
+	TEXT_ENGINE_NAMEPLATE_WIDTH = 30,
+	TEXT_ENGINE_NAMEPLATE_HEIGHT = 2,
+	/* Tiles above yText; 4 = sit 16px above the dialogue top edge. */
+	TEXT_ENGINE_NAMEPLATE_Y_OFFSET = 4,
+	/* Extra inner tiles so short names are not flush against the frame. */
+	TEXT_ENGINE_NAMEPLATE_PAD_TILES = 2,
+	/* PutTalkBubbleTm width/height include the border tiles. */
+	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
 };
 
 struct TextEngineFaceJumpProc {
@@ -93,6 +108,50 @@ struct TextEngineGlyphFloatProc {
 	/* 3D */ u8 color;
 	/* 3E */ u8 width;
 	/* 3F */ char ch[5];
+};
+
+struct TextEngineNameplateState {
+	struct Text text;
+	u16 faceNameTextIds[8];
+	u16 bg1Backup[TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH * TEXT_ENGINE_NAMEPLATE_HEIGHT];
+	u8 active;
+	u8 enabled;
+	u8 x;
+	u8 y;
+	u8 width;
+	u8 bg1X;
+	u8 bg1Y;
+	u8 bg1Width;
+};
+
+extern EWRAM_DATA struct TextEngineNameplateState sTextEngineNameplateState;
+
+struct TextEnginePortraitNameAlias {
+	u8 portraitId;
+	u8 canonicalPortraitId;
+};
+
+static const struct TextEnginePortraitNameAlias sTextEnginePortraitNameAliases[] = {
+	{ 0x03, 0x02 }, /* Eirika closed */
+	{ 0x0B, 0x0A }, /* Neimi closed */
+	{ 0x0D, 0x0C }, /* Colm closed */
+	{ 0x12, 0x11 }, /* Natasha closed */
+	{ 0x15, 0x14 }, /* Ephraim closed */
+	{ 0x17, 0x16 }, /* Forde closed */
+	{ 0x1D, 0x1C }, /* Tethys closed */
+	{ 0x1F, 0x1E }, /* Marisa closed */
+	{ 0x27, 0x26 }, /* Myrrh closed */
+	{ 0x28, 0x26 }, /* Myrrh with wings */
+	{ 0x2D, 0x02 }, /* Eirika past */
+	{ 0x2E, 0x14 }, /* Ephraim past */
+	{ 0x2F, 0x29 }, /* Knoll past */
+	{ 0x41, 0x40 }, /* Vigarde healthy */
+	{ 0x47, 0x46 }, /* Lyon closed */
+	{ 0x4A, 0x46 }, /* Lyon Demon King */
+	{ 0x4E, 0x40 }, /* Vigarde past */
+	{ 0x4F, 0x40 }, /* Vigarde past, closed */
+	{ 0x50, 0x46 }, /* Lyon past */
+	{ 0x57, 0x56 }, /* Ismaire closed */
 };
 
 struct TextEngineCommandDescriptor;
@@ -148,6 +207,7 @@ extern u16 *GetColorLut(int color);
 int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
 struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
+void UpdateFontGlyphSet(int font);
 void TextEngine_OnCharacterPrinted(void);
 void TextEngine_PlayTextBoop(const char *text);
 s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
@@ -155,6 +215,10 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code);
 static void TextEngine_RunCommandCleanup(void);
 static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox);
+static struct FaceProc *TextEngine_GetFaceProcByPosition(int position);
+static void TextEngine_ClearSpeakerNameplate(void);
+static void TextEngine_DrawSpeakerNameplate(ProcPtr proc);
+static u8 *TextEngine_GetFaceAttributes(struct FaceProc *face);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
@@ -224,6 +288,308 @@ static struct Text *TextEngine_GetLineText(const struct TalkState *state, int li
 	 */
 	index = k_umod(line + state->topTextNum, state->lines);
 	return &sTextEngineText[index];
+}
+
+static const struct CharacterData *TextEngine_FindCharacterByPortrait(int portraitId)
+{
+	const struct CharacterData *character;
+	int canonicalPortraitId = portraitId;
+	int characterId;
+
+	/*
+	 * Prefer an exact match so projects can define a distinct character
+	 * entry for a variant portrait.  Fall back to the base portrait aliases
+	 * used by the stock face definitions when no exact entry exists.
+	 */
+	for (characterId = 1; characterId < 0x100; characterId++) {
+		character = GetCharacterData(characterId);
+
+		if (!character ||
+			!character->nameTextId)
+			continue;
+
+		if (character->portraitId == portraitId)
+			return character;
+	}
+
+	for (characterId = 0;
+		characterId < (int)ARRAY_COUNT(sTextEnginePortraitNameAliases);
+		characterId++
+	) {
+		if (sTextEnginePortraitNameAliases[characterId].portraitId == portraitId) {
+			canonicalPortraitId =
+				sTextEnginePortraitNameAliases[characterId].canonicalPortraitId;
+			break;
+		}
+	}
+
+	if (canonicalPortraitId == portraitId)
+		return NULL;
+
+	for (characterId = 1; characterId < 0x100; characterId++) {
+		character = GetCharacterData(characterId);
+
+		if (!character ||
+			!character->nameTextId)
+			continue;
+
+		if (character->portraitId == canonicalPortraitId)
+			return character;
+	}
+
+	return NULL;
+}
+
+static void TextEngine_ClearSpeakerNameplate(void)
+{
+	int row;
+	int col;
+	u16 *backup;
+
+	if (sTextEngineNameplateState.active != 1) {
+		sTextEngineNameplateState.active = 0;
+		return;
+	}
+
+	TileMap_FillRect(
+		gBG0TilemapBuffer + TILEMAP_INDEX(
+			sTextEngineNameplateState.x,
+			sTextEngineNameplateState.y
+		),
+		sTextEngineNameplateState.width,
+		TEXT_ENGINE_NAMEPLATE_HEIGHT,
+		0
+	);
+
+	/*
+	 * Restore the dialogue-bubble tiles that the nameplate frame overwrote
+	 * on BG1 (typically the shared top border row).
+	 */
+	backup = sTextEngineNameplateState.bg1Backup;
+	for (row = 0; row < TEXT_ENGINE_NAMEPLATE_HEIGHT; row++) {
+		for (col = 0; col < sTextEngineNameplateState.bg1Width; col++) {
+			gBG1TilemapBuffer[TILEMAP_INDEX(
+				sTextEngineNameplateState.bg1X + col,
+				sTextEngineNameplateState.bg1Y + row
+			)] = *backup++;
+		}
+	}
+
+	/* Restore vanilla InitTalkTextWin outside-window masking. */
+	SetWOutLayers(0, 1, 1, 1, 1);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	sTextEngineNameplateState.active = 0;
+}
+
+static void TextEngine_ClearFaceNameTextIds(void)
+{
+	int i;
+
+	for (i = 0;
+		i < (int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds);
+		i++
+	)
+		sTextEngineNameplateState.faceNameTextIds[i] = 0;
+}
+
+static int TextEngine_CopyNameplateString(
+	const char *source,
+	char *target,
+	int targetSize,
+	int maxWidth
+)
+{
+	const char *cursor = source;
+	int targetLength = 0;
+	int textWidth = 0;
+
+	while (*cursor && targetLength < targetSize - 1) {
+		const char *next;
+		int charLength;
+		int charWidth;
+		u32 glyphWidth;
+
+		next = GetCharTextLen(cursor, &glyphWidth);
+		if (!next || next <= cursor)
+			break;
+
+		charLength = (int)(next - cursor);
+		charWidth = (int)glyphWidth;
+
+		if (charLength <= 0 ||
+			targetLength + charLength >= targetSize ||
+			charWidth <= 0 ||
+			textWidth + charWidth > maxWidth)
+			break;
+
+		memcpy(target + targetLength, cursor, charLength);
+		targetLength += charLength;
+		textWidth += charWidth;
+		cursor = next;
+	}
+
+	target[targetLength] = '\0';
+	return textWidth;
+}
+
+static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+	const struct CharacterData *character;
+	const char *name;
+	char nameBuffer[0x20];
+	struct Glyph **originalGlyphs;
+	u16 *backup;
+	int innerWidth;
+	int nameWidth;
+	int nameX;
+	int nameY;
+	int bg1X;
+	int bg1Y;
+	int bg1Width;
+	int dialogueWidth;
+	int speakingFaceSlot;
+	int nameFont;
+	int nameColor;
+	int row;
+	int col;
+	u16 nameTextId;
+	u8 *faceAttributes;
+
+	(void)proc;
+
+	TextEngine_ClearSpeakerNameplate();
+
+	if (!state ||
+		!sTextEngineNameplateState.enabled ||
+		CheckTalkFlag(TALK_FLAG_SPRITE) ||
+		CheckTalkFlag(TALK_FLAG_NOBUBBLE))
+		return;
+
+	speakingFaceSlot = (s8)state->speakingFaceSlot;
+	face = TextEngine_GetFaceProcByPosition(speakingFaceSlot);
+	if (!face)
+		return;
+
+	nameTextId = 0;
+	if (speakingFaceSlot >= 0 &&
+		speakingFaceSlot <
+			(int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds))
+		nameTextId = sTextEngineNameplateState.faceNameTextIds[speakingFaceSlot];
+
+	if (!nameTextId) {
+		character = TextEngine_FindCharacterByPortrait(face->faceId);
+		if (!character)
+			return;
+
+		nameTextId = character->nameTextId;
+	}
+
+	name = GetStringFromIndex(nameTextId);
+	if (!name || !*name)
+		return;
+
+	dialogueWidth = state->activeWidth;
+	if (dialogueWidth <= 2)
+		return;
+
+	nameY = state->yText - TEXT_ENGINE_NAMEPLATE_Y_OFFSET;
+	if (nameY < 0)
+		return;
+
+	ClearText(&sTextEngineNameplateState.text);
+	sTextEngineNameplateState.text.tile_width = TEXT_ENGINE_NAMEPLATE_WIDTH;
+
+	originalGlyphs = gActiveFont->glyphs;
+	nameFont = TEXT_ENGINE_NAMEPLATE_FONT;
+	nameColor = TEXT_ENGINE_NAMEPLATE_COLOR;
+	faceAttributes = TextEngine_GetFaceAttributes(face);
+	if (faceAttributes) {
+		nameFont = faceAttributes[TEXT_ENGINE_ATTR_FONT];
+		nameColor = faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP];
+	}
+
+	UpdateFontGlyphSet(nameFont);
+	nameWidth = TextEngine_CopyNameplateString(
+		name,
+		nameBuffer,
+		sizeof(nameBuffer),
+		TEXT_ENGINE_NAMEPLATE_WIDTH * 8
+	);
+
+	if (!nameWidth) {
+		gActiveFont->glyphs = originalGlyphs;
+		return;
+	}
+
+	/*
+	 * Size the BG1 frame to the name, then center it over the dialogue bubble.
+	 * PutTalkBubbleTm width/height include the border tiles.
+	 */
+	innerWidth = (nameWidth + 7) / 8 + TEXT_ENGINE_NAMEPLATE_PAD_TILES;
+	if (innerWidth < 1)
+		innerWidth = 1;
+	if (innerWidth > TEXT_ENGINE_NAMEPLATE_WIDTH)
+		innerWidth = TEXT_ENGINE_NAMEPLATE_WIDTH;
+	if (innerWidth > dialogueWidth - 2)
+		innerWidth = dialogueWidth - 2;
+
+	bg1Width = innerWidth + 2;
+	bg1X = (state->xText - 1) + (dialogueWidth - bg1Width) / 2;
+	bg1Y = nameY;
+	if (bg1X < 0 ||
+		bg1Y < 0 ||
+		bg1Width > TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH ||
+		bg1X + bg1Width > 32 ||
+		bg1Y + TEXT_ENGINE_NAMEPLATE_HEIGHT > 32) {
+		gActiveFont->glyphs = originalGlyphs;
+		return;
+	}
+
+	sTextEngineNameplateState.text.tile_width = innerWidth;
+	nameX = GetStringTextCenteredPos(innerWidth * 8, nameBuffer);
+	if (nameX < 0)
+		nameX = 0;
+
+	Text_SetParams(
+		&sTextEngineNameplateState.text,
+		nameX,
+		nameColor
+	);
+	Text_DrawString(&sTextEngineNameplateState.text, nameBuffer);
+	gActiveFont->glyphs = originalGlyphs;
+
+	backup = sTextEngineNameplateState.bg1Backup;
+	for (row = 0; row < TEXT_ENGINE_NAMEPLATE_HEIGHT; row++) {
+		for (col = 0; col < bg1Width; col++) {
+			*backup++ = gBG1TilemapBuffer[TILEMAP_INDEX(
+				bg1X + col,
+				bg1Y + row
+			)];
+		}
+	}
+
+	PutTalkBubbleTm(BG_1, bg1X, bg1Y, bg1Width, TEXT_ENGINE_NAMEPLATE_HEIGHT);
+	PutText(
+		&sTextEngineNameplateState.text,
+		gBG0TilemapBuffer + TILEMAP_INDEX(bg1X + 1, nameY)
+	);
+
+	/*
+	 * Nameplates sit above the WIN0 dialogue clip region.  Enable BG0 outside
+	 * the window for as long as the plate is active.
+	 */
+	SetWOutLayers(1, 1, 1, 1, 1);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+
+	sTextEngineNameplateState.x = bg1X + 1;
+	sTextEngineNameplateState.y = nameY;
+	sTextEngineNameplateState.width = innerWidth;
+	sTextEngineNameplateState.bg1X = bg1X;
+	sTextEngineNameplateState.bg1Y = bg1Y;
+	sTextEngineNameplateState.bg1Width = bg1Width;
+	sTextEngineNameplateState.active = 1;
 }
 
 static u8 *TextEngine_GetCurrentSpeakerAttributes(void)
@@ -945,6 +1311,10 @@ void Talk_OnInit_C(void)
 	u8 *current = TextEngine_GetCurrentSpeakerAttributes();
 	int position;
 
+	TextEngine_ClearSpeakerNameplate();
+	TextEngine_ClearFaceNameTextIds();
+	sTextEngineNameplateState.enabled = 0;
+
 	if (!CheckTalkFlag(TALK_FLAG_SPRITE)) {
 		LoadObjUIGfx();
 		BG_SetPosition(BG_0, 0, 0);
@@ -965,6 +1335,19 @@ void Talk_OnInit_C(void)
 	TextEngine_PrepareFloatPalette();
 }
 
+/*
+ * Clear the BG0 nameplate when the talk proc ends.  The vanilla callback only
+ * ends the skip-listener and face-shift helper procs.
+ */
+LYN_REPLACE_CHECK(Talk_OnEnd);
+void Talk_OnEnd_C(void)
+{
+	TextEngine_ClearSpeakerNameplate();
+	TextEngine_ClearFaceNameTextIds();
+	Proc_EndEach(gProcScr_TalkSkipListener);
+	Proc_EndEach(gProcScr_TalkShiftClearAll);
+}
+
 LYN_REPLACE_CHECK(InitTalk);
 void InitTalk_C(int fontTileOffset, int lines, s8 loadBoxGraphics)
 {
@@ -979,6 +1362,8 @@ void InitTalk_C(int fontTileOffset, int lines, s8 loadBoxGraphics)
 		+ GetBackgroundTileDataOffset(BG_0)
 	);
 
+	TextEngine_ClearSpeakerNameplate();
+	TextEngine_ClearFaceNameTextIds();
 	InitTextFont(font, fontVram, fontTileOffset, 2);
 	SetInitTalkTextFont();
 	sTextEngineState->lines = lines;
@@ -987,6 +1372,11 @@ void InitTalk_C(int fontTileOffset, int lines, s8 loadBoxGraphics)
 		InitText(&texts[line], 30);
 		Text_SetColor(&texts[line], 1);
 	}
+	InitText(&sTextEngineNameplateState.text, TEXT_ENGINE_NAMEPLATE_WIDTH);
+	Text_SetColor(
+		&sTextEngineNameplateState.text,
+		TEXT_ENGINE_NAMEPLATE_COLOR
+	);
 
 	if (loadBoxGraphics) {
 		Decompress(
@@ -1024,6 +1414,7 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 	struct TalkState *state = sTextEngineState;
 	int nextLine;
 
+	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(state);
 	proc->unk64 = 0;
 
@@ -1042,6 +1433,7 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 LYN_REPLACE_CHECK(TalkShiftClear_OnInit);
 void TalkShiftClear_OnInit_C(struct Proc *proc)
 {
+	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(sTextEngineState);
 	proc->unk64 = 0;
 }
@@ -1163,6 +1555,7 @@ static void TextEngine_CallMoveFaceAndWriteSpeed(int from, int to, int speed)
 	struct TalkState *state = sTextEngineState;
 	struct Proc *proc;
 	struct FaceProc *oldFace;
+	u16 oldNameTextId;
 	int isSwap = 0;
 
 	if (TextEngine_GetFaceProcByPosition(to)) {
@@ -1183,6 +1576,11 @@ static void TextEngine_CallMoveFaceAndWriteSpeed(int from, int to, int speed)
 	oldFace = state->faces[from];
 	state->faces[from] = state->faces[to];
 	state->faces[to] = oldFace;
+
+	oldNameTextId = sTextEngineNameplateState.faceNameTextIds[from];
+	sTextEngineNameplateState.faceNameTextIds[from] =
+		sTextEngineNameplateState.faceNameTextIds[to];
+	sTextEngineNameplateState.faceNameTextIds[to] = oldNameTextId;
 	SetActiveTalkFace(to);
 }
 
@@ -1190,6 +1588,9 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 {
 	struct TalkState *state = sTextEngineState;
 	struct FaceProc *face;
+	const struct CharacterData *character;
+	u16 faceArgument;
+	u16 nameTextId = 0;
 	int faceId;
 	int faceDisplay = 0;
 	int position;
@@ -1213,11 +1614,18 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 		faceDisplay |= FACE_DISP_FLIPPED;
 	}
 
-	faceId = faceText[0] | (faceText[1] << 8);
-	if (faceId == 0xFFFF)
+	faceArgument = faceText[0] | (faceText[1] << 8);
+	faceId = faceArgument;
+	if (faceArgument == 0xFFFF) {
 		faceId = GetUnitPortraitId(gActiveUnit);
-	else
+		if (UNIT_IS_VALID(gActiveUnit) && gActiveUnit->pCharacterData)
+			nameTextId = gActiveUnit->pCharacterData->nameTextId;
+	} else {
 		faceId -= 0x100;
+		character = TextEngine_FindCharacterByPortrait(faceId);
+		if (character)
+			nameTextId = character->nameTextId;
+	}
 
 	face = TextEngine_GetFaceProcByPosition(position);
 
@@ -1234,6 +1642,11 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 		}
 	}
 
+	if (position >= 0 &&
+		position <
+			(int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds))
+		sTextEngineNameplateState.faceNameTextIds[position] =
+			face ? nameTextId : 0;
 }
 
 static int TextEngine_HandleVanillaColor(struct TalkState *state, int colorGroup)
@@ -1432,6 +1845,7 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 
 const struct ProcCmd gProc_DialogueBoxAppearingAnimation[] = {
 	PROC_CALL(Copy_Text_Attributes),
+	PROC_CALL(TextEngine_DrawSpeakerNameplate),
 	PROC_REPEAT(DecompressTextBoxGraphics),
 	PROC_END,
 };
@@ -2205,6 +2619,41 @@ static void TextEngine_CleanupWave(void)
 	TextEngine_StopWave();
 }
 
+static int TextEngine_CommandStartNameplate(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	sTextEngineNameplateState.enabled = 1;
+	TextEngine_DrawSpeakerNameplate(proc);
+	return 3;
+}
+
+static int TextEngine_CommandStopNameplate(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	sTextEngineNameplateState.enabled = 0;
+	TextEngine_ClearSpeakerNameplate();
+	return 3;
+}
+
+static void TextEngine_CleanupNameplate(void)
+{
+	TextEngine_ClearSpeakerNameplate();
+	sTextEngineNameplateState.enabled = 0;
+}
+
 /*
  * Keep every extended command's argument shape and behavior in one table.
  * argumentCount is the number of bytes after [0x80][code].
@@ -2279,6 +2728,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x42, 0, TextEngine_CommandStopFaceVibrate, NULL, NULL },
 	{ 0x43, 0, TextEngine_CommandStartFaceShimmy, NULL, TextEngine_CleanupFaceMotion },
 	{ 0x44, 0, TextEngine_CommandStopFaceShimmy, NULL, NULL },
+	{ 0x45, 0, TextEngine_CommandStartNameplate, NULL, TextEngine_CleanupNameplate },
+	{ 0x46, 0, TextEngine_CommandStopNameplate, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
@@ -2415,6 +2866,7 @@ int TalkInterpret(ProcPtr proc)
 			return 3;
 
 		case CHFE_L_ClearFace:
+			TextEngine_ClearSpeakerNameplate();
 			if (TalkHasCorrectBubble())
 				ClearTalkBubble();
 
@@ -2423,12 +2875,16 @@ int TalkInterpret(ProcPtr proc)
 				StartFaceFadeOut(face);
 				state->faces[state->activeFaceSlot] = NULL;
 			}
+			if (state->activeFaceSlot <
+				(int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds))
+				sTextEngineNameplateState.faceNameTextIds[state->activeFaceSlot] = 0;
 
 			StartTemporaryLock(proc, 0x10);
 			return 3;
 
 		case CHFE_L_CloseSpeechFast:
 		case CHFE_L_CloseSpeechSlow:
+			TextEngine_ClearSpeakerNameplate();
 			ClearTalkBubble();
 			return 3;
 
