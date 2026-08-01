@@ -8,7 +8,6 @@ static const EventScr EventScr_Beginning[] = {
     LOAD_WAIT(Panicked_Soldier_Allies)
     CAMERA(17, 2)
     HIGHLIGHT_CHARACTER(CHARACTER_EPHRAIM, 60)
-    SET_BACKGROUND(0x5)
     TEXT(Chapter_00_Scene_01_Convo_01)
     MOVE_WAIT(0, CHARACTER_EPHRAIM, 13, 11)
     ERASE(CHARACTER_EPHRAIM)
