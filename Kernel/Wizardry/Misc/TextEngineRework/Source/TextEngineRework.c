@@ -1,0 +1,1250 @@
+#include "common-chax.h"
+#include "kernel-lib.h"
+
+#include "fontgrp.h"
+#include "m4a.h"
+#include "scene.h"
+
+/*
+ * The vanilla dialogue state is allocated in EWRAM by the game.  Keep these
+ * aliases local to this module instead of adding another global definition to
+ * the shared library.
+ */
+#define sTextEngineState (*(struct TalkState **)0x0859133C)
+#define sTextEngineText  (*(struct Text (*)[3])0x030000D0)
+
+#define TEXT_ENGINE_FACE_ATTRIBUTES_OFFSET 0x4C
+
+enum TextEngineFaceAttribute {
+	TEXT_ENGINE_ATTR_FONT,
+	TEXT_ENGINE_ATTR_COLOR_GROUP,
+	TEXT_ENGINE_ATTR_BOX_PALETTE,
+	TEXT_ENGINE_ATTR_BOX_TYPE,
+	TEXT_ENGINE_ATTR_BOOP_PITCH,
+};
+
+enum {
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x38,
+};
+
+/*
+ * These tables are emitted by _Text_Engine_Tables.txt, which is included by
+ * the installer after this C module has been linked.
+ */
+extern struct Glyph **FontGlyphsPointerTable[];
+extern const u16 TextPaletteTable[];
+extern const u16 TextBoxBgPaletteTable[];
+extern const u32 *TextBoxTypePointerTable[];
+
+extern const struct ProcCmd gProcScr_TalkSkipListener[];
+extern const struct ProcCmd gProcScr_TalkPause[];
+extern const struct ProcCmd gProcScr_TalkShiftClearAll[];
+extern const struct ChoiceEntryInfo gYesNoTalkChoice[];
+extern const struct ChoiceEntryInfo gBuySellTalkChoice[];
+
+typedef struct Proc *(*TextEngineCreateMovingFaceProcFunc)(int newPosition, int oldPosition, int isSwap);
+typedef void (*TextEngineUnsetFaceDisplayBitsFunc)(int position);
+
+#define TextEngineCreateMovingFaceProc \
+	((TextEngineCreateMovingFaceProcFunc)(uintptr_t)0x08007A59)
+#define TextEngineUnsetFaceDisplayBits \
+	((TextEngineUnsetFaceDisplayBitsFunc)(uintptr_t)0x080089C5)
+
+int TalkInterpret(ProcPtr proc);
+int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
+
+static struct Text *TextEngine_GetLineText(const struct TalkState *state, int line)
+{
+	int index;
+
+	if (!state->lines)
+		return &sTextEngineText[0];
+
+	/*
+	 * Keep this in sync with Talk_OnIdle's line selection.  The target
+	 * runtime's normal modulo path is not reliable for this calculation.
+	 */
+	index = k_umod(line + state->topTextNum, state->lines);
+	return &sTextEngineText[index];
+}
+
+static u8 *TextEngine_GetCurrentSpeakerAttributes(void)
+{
+	return (u8 *)sTextEngineState + 0x58;
+}
+
+static u8 *TextEngine_GetFaceAttributes(struct FaceProc *face)
+{
+	if (!face)
+		return NULL;
+
+	return (u8 *)face + TEXT_ENGINE_FACE_ATTRIBUTES_OFFSET;
+}
+
+static struct FaceProc *TextEngine_GetFaceProcByPosition(int position)
+{
+	if (position < 0 || position >= (int)ARRAY_COUNT(sTextEngineState->faces))
+		return NULL;
+
+	return sTextEngineState->faces[position];
+}
+
+static void TextEngine_SetFaceAttribute(struct FaceProc *face, int attribute, u8 value)
+{
+	u8 *faceAttributes = TextEngine_GetFaceAttributes(face);
+
+	if (faceAttributes)
+		faceAttributes[attribute] = value;
+}
+
+static void TextEngine_SetCurrentAttributeAndFace(int position, int attribute, u8 value)
+{
+	struct FaceProc *face = TextEngine_GetFaceProcByPosition(position);
+
+	TextEngine_SetFaceAttribute(face, attribute, value);
+	TextEngine_GetCurrentSpeakerAttributes()[attribute] = value;
+}
+
+void UpdateFontGlyphSet(int font)
+{
+	gActiveFont->glyphs = FontGlyphsPointerTable[font];
+}
+
+void ChangeTextColorID(int colorGroup)
+{
+	struct TalkState *state = sTextEngineState;
+	int line;
+
+	for (line = 0; line < state->lines; line++)
+		Text_SetColor(TextEngine_GetLineText(state, line), colorGroup);
+
+	state->printColor = colorGroup;
+}
+
+void UpdateTextBoxBgPalette(int palette)
+{
+	CopyToPaletteBuffer(
+		(const u8 *)TextBoxBgPaletteTable + palette * 0x20,
+		0x60,
+		0x20
+	);
+}
+
+static void TextEngine_SetDefaultFaceAttributes(struct FaceProc *face)
+{
+	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_FONT, 0);
+	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_COLOR_GROUP, 1);
+	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOX_PALETTE, 0);
+	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOX_TYPE, 0);
+	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOOP_PITCH, 12);
+}
+
+static void TextEngine_UpdateAttributesFromFace(void)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	u8 *current = TextEngine_GetCurrentSpeakerAttributes();
+	u8 *faceAttributes = TextEngine_GetFaceAttributes(face);
+
+	if (!faceAttributes)
+		return;
+
+	if (current[TEXT_ENGINE_ATTR_FONT] != faceAttributes[TEXT_ENGINE_ATTR_FONT]) {
+		current[TEXT_ENGINE_ATTR_FONT] = faceAttributes[TEXT_ENGINE_ATTR_FONT];
+		UpdateFontGlyphSet(current[TEXT_ENGINE_ATTR_FONT]);
+	}
+
+	if (current[TEXT_ENGINE_ATTR_COLOR_GROUP] != faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP]) {
+		current[TEXT_ENGINE_ATTR_COLOR_GROUP] = faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP];
+		ChangeTextColorID(current[TEXT_ENGINE_ATTR_COLOR_GROUP]);
+	}
+
+	if (current[TEXT_ENGINE_ATTR_BOX_PALETTE] != faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE]) {
+		current[TEXT_ENGINE_ATTR_BOX_PALETTE] = faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE];
+		UpdateTextBoxBgPalette(current[TEXT_ENGINE_ATTR_BOX_PALETTE]);
+	}
+
+	current[TEXT_ENGINE_ATTR_BOX_TYPE] = faceAttributes[TEXT_ENGINE_ATTR_BOX_TYPE];
+	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH];
+}
+
+void Copy_Text_Attributes(ProcPtr proc)
+{
+	(void)proc;
+	TextEngine_UpdateAttributesFromFace();
+}
+
+static __attribute__((used)) void WriteFaceXPosTableToRAM_Impl(void)
+{
+	static const u8 defaultFaceXPositions[] = {
+		0x03, 0x06, 0x09, 0x15, 0x18, 0x1B, 0xF8, 0x26,
+	};
+	struct TalkState *state = sTextEngineState;
+	volatile u8 *positionTable = (volatile u8 *)state + 0x50;
+	u8 *current = TextEngine_GetCurrentSpeakerAttributes();
+
+	/*
+	 * This is the call that was at the overwritten end of Talk_OnInit.  The
+	 * text engine's skip listener still needs to exist before the first line
+	 * is interpreted.
+	 */
+	Proc_Start(gProcScr_TalkSkipListener, PROC_TREE_3);
+
+	for (int position = 0; position < (int)sizeof(defaultFaceXPositions); position++)
+		positionTable[position] = defaultFaceXPositions[position];
+
+	current[TEXT_ENGINE_ATTR_FONT] = 0;
+	current[TEXT_ENGINE_ATTR_COLOR_GROUP] = 1;
+	current[TEXT_ENGINE_ATTR_BOX_PALETTE] = 0;
+	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
+	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
+}
+
+/*
+ * $6C28 is the end of the vanilla initializer, not a normal BL call site.
+ * The original ASM hook popped the initializer's saved LR itself; preserve
+ * that tail-hook ABI after running the normal C implementation.
+ */
+void WriteFaceXPosTableToRAM(void);
+LYN_REPLACE_CHECK(WriteFaceXPosTableToRAM);
+__attribute__((naked)) void WriteFaceXPosTableToRAM(void)
+{
+	__asm volatile(
+		"ldr r3, 1f\n"
+		"mov r2, pc\n"
+		"add r2, #5\n"
+		"mov lr, r2\n"
+		"bx r3\n"
+		"pop {r0}\n"
+		"bx r0\n"
+		".align 2\n"
+		"1:\n"
+		".word WriteFaceXPosTableToRAM_Impl\n"
+	);
+}
+
+LYN_REPLACE_CHECK(InitTalk);
+void InitTalk_C(int fontTileOffset, int lines, s8 loadBoxGraphics)
+{
+	struct Font *font = (struct Font *)0x030000F0;
+	struct Text *texts = (struct Text *)0x030000D0;
+	void *fontVram;
+	int line;
+
+	fontVram = (void *)(
+		VRAM
+		+ ((fontTileOffset & 0x3FF) << 5)
+		+ GetBackgroundTileDataOffset(BG_0)
+	);
+
+	InitTextFont(font, fontVram, fontTileOffset, 2);
+	SetInitTalkTextFont();
+	sTextEngineState->lines = lines;
+
+	for (line = 0; line < 3; line++) {
+		InitText(&texts[line], 30);
+		Text_SetColor(&texts[line], 1);
+	}
+
+	if (loadBoxGraphics) {
+		Decompress(
+			(const void *)0x089E8238,
+			(void *)(VRAM + 0x200 + GetBackgroundTileDataOffset(BG_1))
+		);
+		CopyToPaletteBuffer((const void *)0x089E84D4, 0x60, 0x20);
+	}
+
+	ClearTalkFaceRefs();
+}
+
+static u16 *TextEngine_GetTalkClearTilemap(const struct TalkState *state)
+{
+	return gBG0TilemapBuffer + TILEMAP_INDEX(
+		state->xText,
+		state->yText + 6
+	);
+}
+
+static void TextEngine_ClearTalkTilemap(const struct TalkState *state)
+{
+	TileMap_FillRect(
+		TextEngine_GetTalkClearTilemap(state),
+		state->activeWidth - 2,
+		state->lines * 2,
+		0
+	);
+	TalkBgSync(1);
+}
+
+LYN_REPLACE_CHECK(TalkShiftClearAll_OnInit);
+void TalkShiftClearAll_OnInit_C(struct Proc *proc)
+{
+	struct TalkState *state = sTextEngineState;
+	int nextLine;
+
+	TextEngine_ClearTalkTilemap(state);
+	proc->unk64 = 0;
+
+	if (!state->lineActive) {
+		proc->unk66 = 16;
+		return;
+	}
+
+	nextLine = state->lineActive + 1;
+	if (nextLine >= state->lines)
+		nextLine = state->lines;
+
+	proc->unk66 = nextLine * 16;
+}
+
+LYN_REPLACE_CHECK(TalkShiftClear_OnInit);
+void TalkShiftClear_OnInit_C(struct Proc *proc)
+{
+	TextEngine_ClearTalkTilemap(sTextEngineState);
+	proc->unk64 = 0;
+}
+
+LYN_REPLACE_CHECK(GetTalkFaceHPos);
+int GetTalkFaceHPos(int talkFace)
+{
+	if (IsBattleDeamonActive())
+		return talkFace <= 2 ? 4 : 26;
+
+	return ((s8 *)((u8 *)sTextEngineState + 0x50))[talkFace];
+}
+
+LYN_REPLACE_CHECK(TalkFaceMove_OnInit);
+void TalkFaceMove_OnInitOverride(struct Proc *proc)
+{
+	int distance;
+
+	/*
+	 * Variable-speed moves write their duration before the proc starts.
+	 * Preserve that value instead of recalculating the vanilla duration.
+	 */
+	if (proc->unk5C)
+		return;
+
+	proc->unk58 = 0;
+	distance = GetTalkFaceHPos(proc->unk66) * 8 - proc->unk68;
+
+	if (distance < 0)
+		distance = -distance;
+
+	proc->unk5C = distance > 24 ? 32 : 16;
+}
+
+/*
+ * This is called from the tail of StartTalkFaceMove.  At the hook site the
+ * newly-created move proc is still in r3, while r0 contains the swap flag
+ * shifted into the sign-extension position by the vanilla code.
+ *
+ * The hook must return through the caller's saved LR, rather than through the
+ * branch-back emitted by callHack_r4.  The original routine's literal pool
+ * immediately follows that branch-back, so placing a replacement pop sequence
+ * there would overwrite gProcScr_TalkFaceMove.
+ */
+static __attribute__((used)) struct Proc *StartTalkFaceMoveC_Impl(
+	int encodedSwap,
+	struct Proc *faceMoveProc
+)
+{
+	faceMoveProc->unk6A = (s8)(encodedSwap >> 24);
+	return faceMoveProc;
+}
+
+void StartTalkFaceMoveC(void);
+LYN_REPLACE_CHECK(StartTalkFaceMoveC);
+__attribute__((naked)) void StartTalkFaceMoveC(void)
+{
+	__asm volatile(
+		"mov r1, r3\n"
+		"ldr r3, 1f\n"
+		"mov r2, pc\n"
+		"add r2, #5\n"
+		"mov lr, r2\n"
+		"bx r3\n"
+		"pop {r4-r7}\n"
+		"pop {r1}\n"
+		"bx r1\n"
+		".align 2\n"
+		"1:\n"
+		".word StartTalkFaceMoveC_Impl\n"
+	);
+}
+
+LYN_REPLACE_CHECK(StartTalkOpen);
+void StartTalkOpen_C(int talkFace, ProcPtr parent)
+{
+	struct TalkState *state = sTextEngineState;
+	struct Proc *proc = (struct Proc *)Proc_StartBlocking(
+		gProcScr_TalkOpen,
+		parent
+	);
+
+	proc->unk64 = GetTalkFaceHPos(talkFace);
+	proc->unk66 = 8;
+	proc->unk68 = state->activeWidth;
+	proc->unk6A = state->lines * 2 + 2;
+
+	if (proc->unk64 < 0)
+		proc->unk64 = 0;
+	else if (proc->unk64 > 29)
+		proc->unk64 = 30;
+
+	state->speakingFaceSlot = talkFace;
+	state->speakingWidth = state->activeWidth;
+}
+
+LYN_REPLACE_CHECK(ClassChgLoadUI);
+void ClassChgLoadUI_C(void)
+{
+	Decompress(
+		gUnknown_08A30800,
+		(void *)(VRAM + 0x3000 + GetBackgroundTileDataOffset(BG_2))
+	);
+	RegisterTsaWithOffset(
+		gBG2TilemapBuffer,
+		gUnknown_08A30978,
+		0x11C0
+	);
+}
+
+static void TextEngine_StartPause(ProcPtr parent, int pauseCode)
+{
+	struct Proc *proc;
+
+	proc = Proc_StartBlocking(gProcScr_TalkPause, parent);
+	proc->unk64 = GetTalkPauseCmdDuration(pauseCode);
+}
+
+static void TextEngine_DrawChoice(
+	const struct ChoiceEntryInfo *choice,
+	int defaultChoice,
+	ProcPtr parent
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct Text *text = TextEngine_GetLineText(state, state->lineActive);
+	u16 *tilemap = gBG0TilemapBuffer + TILEMAP_INDEX(
+		state->xText,
+		state->yText + state->lineActive * 2
+	);
+
+	StartTalkChoice(choice, text, tilemap, defaultChoice, state->printColor, parent);
+}
+
+static void TextEngine_CallMoveFaceAndWriteSpeed(int from, int to, int speed)
+{
+	struct TalkState *state = sTextEngineState;
+	struct Proc *proc;
+	struct FaceProc *oldFace;
+	int isSwap = 0;
+
+	if (TextEngine_GetFaceProcByPosition(to)) {
+		isSwap = 1;
+		proc = TextEngineCreateMovingFaceProc(to, from, 1);
+		if (proc) {
+			proc->unk58 = 0;
+			proc->unk5C = speed;
+		}
+	}
+
+	proc = TextEngineCreateMovingFaceProc(from, to, isSwap);
+	if (proc) {
+		proc->unk58 = 0;
+		proc->unk5C = speed;
+	}
+
+	oldFace = state->faces[from];
+	state->faces[from] = state->faces[to];
+	state->faces[to] = oldFace;
+	SetActiveTalkFace(to);
+}
+
+static void TextEngine_LoadFace(ProcPtr parent, int options)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+	int faceId;
+	int faceDisplay = 0;
+	int position;
+	const u8 *faceText = (const u8 *)state->str;
+
+	if (state->activeFaceSlot == 0xFF)
+		SetActiveTalkFace(1);
+
+	position = state->activeFaceSlot;
+
+	if (IsBattleDeamonActive()) {
+		SetupFaceGfxDataInBanim();
+	} else {
+		faceDisplay |= FACE_DISP_KIND(FACE_96x80);
+	}
+
+	if (options == 0xFF) {
+		if (GetTalkFaceHPos(position) <= 14)
+			faceDisplay |= FACE_DISP_FLIPPED;
+	} else if (options & 1) {
+		faceDisplay |= FACE_DISP_FLIPPED;
+	}
+
+	faceId = faceText[0] | (faceText[1] << 8);
+	if (faceId == 0xFFFF)
+		faceId = GetUnitPortraitId(gActiveUnit);
+	else
+		faceId -= 0x100;
+
+	face = TextEngine_GetFaceProcByPosition(position);
+
+	if (face) {
+		sub_80066E0(face, faceId);
+	} else {
+		face = StartFaceAuto(faceId, GetTalkFaceHPos(position) * 8, 80, faceDisplay);
+		state->faces[position] = face;
+
+		if (face) {
+			StartFaceFadeIn(face);
+			SetTalkFaceLayer(position, CheckTalkFlag(TALK_FLAG_4));
+			StartTemporaryLock(parent, 8);
+		}
+	}
+
+}
+
+static int TextEngine_HandleVanillaColor(struct TalkState *state, int colorGroup)
+{
+	if (state->printColor == colorGroup)
+		colorGroup = 1;
+
+	ChangeTextColorID(colorGroup);
+	return 3;
+}
+
+static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
+{
+	struct TalkState *state = sTextEngineState;
+	int activePosition = state->activeFaceSlot;
+	int speakingPosition = (s8)state->speakingFaceSlot;
+	int lineWidth = 0;
+	int maxWidth = 0x18;
+
+	while (1) {
+		u8 code = *cursor;
+
+		if (code == 0)
+			break;
+
+		if (code == 0x80) {
+			u8 subCode;
+
+			cursor++;
+			subCode = *cursor;
+
+			if (subCode > TEXT_ENGINE_MAX_EXTRA_CODE)
+				continue;
+
+			switch (subCode) {
+			case 0x00:
+			case 0x01:
+			case 0x02:
+			case 0x03:
+			case 0x04:
+				cursor++;
+				continue;
+
+			case 0x05:
+				NumberToStringAscii(state->userNumber, state->userNumberString);
+				lineWidth += TextEngine_WidthInternal(
+					(const u8 *)state->userNumberString,
+					stopAtCurrentBox
+				);
+				cursor++;
+				continue;
+
+			case 0x06:
+				lineWidth += TextEngine_WidthInternal(
+					(const u8 *)state->userString,
+					stopAtCurrentBox
+				);
+				cursor++;
+				continue;
+
+			case 0x07:
+			case 0x08:
+			case 0x09:
+				cursor++;
+				continue;
+
+			case 0x0A:
+			case 0x0B:
+			case 0x0C:
+			case 0x0D:
+			case 0x0E:
+			case 0x0F:
+			case 0x10:
+			case 0x11:
+				activePosition = subCode - 0x0A;
+				cursor++;
+				continue;
+
+			case 0x12:
+			case 0x13:
+			case 0x14:
+			case 0x15:
+				continue;
+
+			case 0x16:
+			case 0x17:
+			case 0x18:
+			case 0x19:
+			case 0x1A:
+			case 0x1B:
+			case 0x21:
+			case 0x24:
+			case 0x25:
+				cursor++;
+				continue;
+
+			case 0x20:
+				lineWidth += GetStringTextLen(GetTacticianName());
+				cursor++;
+				continue;
+
+			case 0x22:
+			case 0x23:
+				continue;
+
+			case 0x26:
+				UpdateFontGlyphSet(cursor[1] - 1);
+				cursor += 2;
+				continue;
+
+			case 0x27:
+				cursor += 3;
+				continue;
+
+			case 0x28:
+			case 0x29:
+			case 0x2A:
+			case 0x2B:
+			case 0x2C:
+				cursor += 2;
+				continue;
+
+			case 0x2D:
+				cursor += 5;
+				continue;
+
+			case 0x2E:
+				cursor += 3;
+				continue;
+
+			case 0x2F:
+				cursor += 9;
+				continue;
+
+			case 0x30:
+			case 0x31:
+			case 0x32:
+			case 0x33:
+			case 0x34:
+			case 0x35:
+			case 0x36:
+			case 0x37:
+				activePosition = subCode - 0x30;
+				cursor += 2;
+				continue;
+
+			case 0x38:
+				cursor += 2;
+				continue;
+			}
+		} else if (code <= 0x1D) {
+			switch (code) {
+			case CHFE_L_X:
+				goto width_done;
+
+			case CHFE_L_NL:
+			case CHFE_L_2NL:
+				if (lineWidth > maxWidth)
+					maxWidth = lineWidth;
+				lineWidth = 0;
+				cursor++;
+				continue;
+
+			case CHFE_L_A:
+				lineWidth += 12;
+				cursor++;
+				continue;
+
+			case CHFE_L_OpenFarLeft:
+			case CHFE_L_OpenMidLeft:
+			case CHFE_L_OpenLeft:
+			case CHFE_L_OpenRight:
+			case CHFE_L_OpenMidRight:
+			case CHFE_L_OpenFarRight:
+			case CHFE_L_OpenFarFarLeft:
+			case CHFE_L_OpenFarFarRight:
+				activePosition = code - CHFE_L_OpenFarLeft;
+				cursor++;
+				continue;
+
+			case CHFE_L_LoadFace:
+				cursor += 3;
+				continue;
+
+			case CHFE_L_ClearFace:
+				if (activePosition == speakingPosition)
+					goto width_done;
+				cursor++;
+				continue;
+
+			case CHFE_L_NormalPrint:
+			case CHFE_L_FastPrint:
+			case CHFE_L_CloseSpeechFast:
+				if (!stopAtCurrentBox)
+					goto width_done;
+				cursor++;
+				continue;
+
+			case CHFE_L_CloseSpeechSlow:
+				goto width_done;
+
+			case CHFE_L_ToggleMouthMove:
+			case CHFE_L_ToggleSmile:
+			case CHFE_L_Yes:
+			case CHFE_L_No:
+			case CHFE_L_BuySell:
+			case CHFE_L_ShopContinue:
+			case CHFE_L_SendToBack:
+			case CHFE_L_FastPrint2:
+				if (code == CHFE_L_Yes || code == CHFE_L_No ||
+					code == CHFE_L_BuySell || code == CHFE_L_ShopContinue) {
+					lineWidth += 80;
+				}
+				cursor++;
+				continue;
+			}
+		}
+
+		if (activePosition != speakingPosition && activePosition != 0xFF) {
+			if (stopAtCurrentBox)
+				break;
+
+			stopAtCurrentBox = 1;
+			speakingPosition = activePosition;
+		}
+
+		{
+			u32 glyphWidth;
+			cursor = (const u8 *)GetCharTextLen((const char *)cursor, &glyphWidth);
+			lineWidth += glyphWidth;
+		}
+	}
+
+width_done:
+	if (lineWidth > maxWidth)
+		maxWidth = lineWidth;
+
+	return maxWidth;
+}
+
+LYN_REPLACE_CHECK(GetStringTextWidthWithDialogueCodes);
+int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox)
+{
+	struct Glyph **originalGlyphs = gActiveFont->glyphs;
+	int width = TextEngine_WidthInternal((const u8 *)text, stopAtCurrentBox);
+
+	gActiveFont->glyphs = originalGlyphs;
+	return width;
+}
+
+int UpdateFontBeforeBoxWidthCalc(void)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	u8 *current = TextEngine_GetCurrentSpeakerAttributes();
+	u8 *faceAttributes = TextEngine_GetFaceAttributes(face);
+	const char *text;
+
+	if (faceAttributes && current[TEXT_ENGINE_ATTR_FONT] != faceAttributes[TEXT_ENGINE_ATTR_FONT]) {
+		current[TEXT_ENGINE_ATTR_FONT] = faceAttributes[TEXT_ENGINE_ATTR_FONT];
+		UpdateFontGlyphSet(current[TEXT_ENGINE_ATTR_FONT]);
+	}
+
+	text = state->strBackup ? state->strBackup : state->str;
+	return GetStringTextWidthWithDialogueCodes(text, 0);
+}
+
+void DecompressTextBoxGraphics(ProcPtr procPtr)
+{
+	struct Proc *proc = procPtr;
+	const u32 *graphics;
+	const u32 *frame;
+	u8 boxType = TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOX_TYPE];
+	u16 animationFrame = proc->unk64;
+	u32 currentGraphics;
+	u32 nextGraphics;
+	void *destination;
+
+	proc->unk64++;
+
+	if (animationFrame & 1)
+		return;
+
+	graphics = TextBoxTypePointerTable[boxType];
+	frame = graphics + (animationFrame >> 1);
+	currentGraphics = frame[0];
+	nextGraphics = frame[1];
+
+	destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
+	Decompress((const void *)currentGraphics, destination);
+
+	if (!nextGraphics)
+		Proc_Break(proc);
+}
+
+const struct ProcCmd gProc_DialogueBoxAppearingAnimation[] = {
+	PROC_CALL(Copy_Text_Attributes),
+	PROC_REPEAT(DecompressTextBoxGraphics),
+	PROC_END,
+};
+
+static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
+{
+	struct TalkState *state = sTextEngineState;
+	u8 *argument = (u8 *)state->str;
+	struct FaceProc *face;
+	int colorGroup;
+
+	switch (subCode) {
+	case 0x00:
+	case 0x01:
+	case 0x02:
+	case 0x03:
+		colorGroup = subCode + 1;
+		return TextEngine_HandleVanillaColor(state, colorGroup);
+
+	case 0x04:
+		LockTalk(proc);
+		return 3;
+
+	case 0x05:
+		NumberToStringAscii(state->userNumber, state->userNumberString);
+		state->strBackup = state->str - 2;
+		state->str = state->userNumberString;
+		return TalkInterpret(proc);
+
+	case 0x06:
+		state->strBackup = state->str - 2;
+		state->str = state->userString;
+		return TalkInterpret(proc);
+
+	case 0x07:
+	case 0x08:
+		return 3;
+
+	case 0x12:
+	case 0x13:
+	case 0x14:
+	case 0x15:
+	case 0x22:
+	case 0x23:
+		return 0;
+
+	case 0x09:
+		return 0;
+
+	case 0x0A:
+	case 0x0B:
+	case 0x0C:
+	case 0x0D:
+	case 0x0E:
+	case 0x0F:
+	case 0x10:
+	case 0x11:
+		TextEngine_CallMoveFaceAndWriteSpeed(
+			state->activeFaceSlot,
+			subCode - 0x0A,
+			0
+		);
+		return 3;
+
+	case 0x16:
+	case 0x17:
+	case 0x18:
+	case 0x19:
+	case 0x1A:
+	case 0x1B:
+		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+		if (face) {
+			int blinkControl;
+
+			switch (subCode) {
+			case 0x16:
+				blinkControl = 0;
+				break;
+			case 0x17:
+				blinkControl = 1;
+				break;
+			case 0x18:
+				blinkControl = 3;
+				break;
+			case 0x19:
+				blinkControl = 2;
+				break;
+			case 0x1A:
+				blinkControl = 4;
+				break;
+			default:
+				blinkControl = 5;
+				break;
+			}
+
+			SetFaceBlinkControl(face, blinkControl);
+		}
+		return 3;
+
+	case 0x1C:
+	case 0x1D:
+	case 0x1E:
+	case 0x1F:
+		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+		if (face) {
+			int eyeControl;
+
+			switch (subCode) {
+			case 0x1C:
+				eyeControl = 0;
+				break;
+			case 0x1D:
+				eyeControl = 2;
+				break;
+			case 0x1E:
+				eyeControl = 3;
+				break;
+			default:
+				eyeControl = 4;
+				break;
+			}
+
+			sub_80064D4(face, eyeControl);
+		}
+		return 3;
+
+	case 0x20:
+		state->strBackup = state->str - 2;
+		state->str = GetTacticianName();
+		return TalkInterpret(proc);
+
+	case 0x21:
+		return TextEngine_HandleVanillaColor(state, 4);
+
+	case 0x24:
+		if (state->unk38)
+			state->unk38(proc);
+		return 3;
+
+	case 0x25:
+		state->invertedFlags = 3 - (state->invertedFlags & 1);
+		return 3;
+
+	case 0x26:
+		TextEngine_SetCurrentAttributeAndFace(
+			state->activeFaceSlot,
+			TEXT_ENGINE_ATTR_FONT,
+			argument[0] - 1
+		);
+		UpdateFontGlyphSet(argument[0] - 1);
+		state->str++;
+		return TalkInterpret(proc);
+
+	case 0x27: {
+		int group = argument[0] - 1;
+		int palette = argument[1] - 1;
+		int destination = gActiveFont->palid * 0x20 + group * 6 + 2;
+
+		CopyToPaletteBuffer(&TextPaletteTable[palette * 3], destination, 6);
+		state->str += 2;
+		return 3;
+	}
+
+	case 0x28:
+		TextEngine_SetCurrentAttributeAndFace(
+			state->activeFaceSlot,
+			TEXT_ENGINE_ATTR_COLOR_GROUP,
+			argument[0] - 1
+		);
+		ChangeTextColorID(argument[0] - 1);
+		state->str++;
+		return TalkInterpret(proc);
+
+	case 0x29:
+		TextEngine_SetCurrentAttributeAndFace(
+			state->activeFaceSlot,
+			TEXT_ENGINE_ATTR_BOX_PALETTE,
+			argument[0] - 1
+		);
+		UpdateTextBoxBgPalette(argument[0] - 1);
+		state->str++;
+		return 3;
+
+	case 0x2A:
+		TextEngine_SetCurrentAttributeAndFace(
+			state->activeFaceSlot,
+			TEXT_ENGINE_ATTR_BOX_TYPE,
+			argument[0] - 1
+		);
+		state->str++;
+		return TalkInterpret(proc);
+
+	case 0x2B:
+		state->lines = argument[0];
+		state->str++;
+		return TalkInterpret(proc);
+
+	case 0x2C:
+		TextEngine_SetCurrentAttributeAndFace(
+			state->activeFaceSlot,
+			TEXT_ENGINE_ATTR_BOOP_PITCH,
+			argument[0] - 1
+		);
+		state->str++;
+		return TalkInterpret(proc);
+
+	case 0x2D: {
+		u16 song = (argument[0] & 0xF)
+			| ((argument[1] & 0xF) << 4)
+			| ((argument[2] & 0xF) << 8)
+			| ((argument[3] & 0xF) << 12);
+
+		m4aSongNumStart(song);
+		state->str += 4;
+		return 3;
+	}
+
+	case 0x2E: {
+		int position = argument[0] - 1;
+		u8 x = argument[1];
+
+		if (x == 0x80)
+			x = 0;
+
+		((u8 *)state + 0x50)[position] = x;
+		state->str += 2;
+		return TalkInterpret(proc);
+	}
+
+	case 0x2F: {
+		u8 options = argument[2] & 0x7F;
+		u8 *faceAttributes;
+
+		TextEngine_LoadFace(proc, options & 1);
+
+		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+		faceAttributes = TextEngine_GetFaceAttributes(face);
+
+		if (faceAttributes) {
+			faceAttributes[TEXT_ENGINE_ATTR_FONT] = argument[3] - 1;
+			faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP] = argument[4] - 1;
+			faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE] = argument[5] - 1;
+			faceAttributes[TEXT_ENGINE_ATTR_BOX_TYPE] = argument[6] - 1;
+			faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH] = argument[7] - 1;
+		}
+
+		if ((options & 2) && face)
+			sub_80064D4(face, 2);
+
+		state->str += 8;
+		return 3;
+	}
+
+	case 0x30:
+	case 0x31:
+	case 0x32:
+	case 0x33:
+	case 0x34:
+	case 0x35:
+	case 0x36:
+	case 0x37:
+		TextEngine_CallMoveFaceAndWriteSpeed(
+			state->activeFaceSlot,
+			subCode - 0x30,
+			argument[0]
+		);
+		state->str++;
+		return 3;
+
+	case 0x38:
+		if (argument[0] == 0xFF)
+			state->printDelay = GetTextDisplaySpeed();
+		else
+			state->printDelay = argument[0];
+
+		state->str++;
+		return TalkInterpret(proc);
+
+	default:
+		return 1;
+	}
+}
+
+LYN_REPLACE_CHECK(TalkInterpret);
+int TalkInterpret(ProcPtr proc)
+{
+	struct TalkState *state = sTextEngineState;
+	u8 *text;
+	u8 code;
+	struct FaceProc *face;
+
+	while (1) {
+		text = (u8 *)state->str;
+		code = *text;
+
+		if (code == 0) {
+			if (!state->strBackup)
+				return 0;
+
+			state->str = state->strBackup + 2;
+			state->strBackup = NULL;
+			continue;
+		}
+
+		if (code == 0x80) {
+			code = text[1];
+			state->str = (char *)(text + 2);
+
+			if (code <= TEXT_ENGINE_MAX_EXTRA_CODE)
+				return TextEngine_HandleExtendedCode(proc, code);
+
+			return 1;
+		}
+
+		if (code > 0x1D)
+			return 1;
+
+		state->str = (char *)(text + 1);
+
+		switch (code) {
+		case CHFE_L_NL:
+			if (state->putLines == 1 || state->lineActive == 1)
+				state->lineActive++;
+
+			state->putLines = 0;
+			return 2;
+
+		case CHFE_L_2NL:
+			if (CheckTalkFlag(TALK_FLAG_7)) {
+				TalkFlushAllLine();
+				state->str++;
+			} else if (!CheckTalkFlag(TALK_FLAG_INSTANTSHIFT)) {
+				Proc_StartBlocking(gProcScr_TalkShiftClearAll, proc);
+			} else {
+				ClearTalkText();
+			}
+
+			state->str++;
+			return 3;
+
+		case CHFE_L_A:
+			StartTalkWaitForInput(
+				proc,
+				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, state->lineActive)) + 4,
+				state->yText * 8 + state->lineActive * 16 + 8
+			);
+			return 3;
+
+		case CHFE_L_Pause8:
+		case CHFE_L_Pause16:
+		case CHFE_L_Pause32:
+		case CHFE_L_Pause64:
+			if (state->instantScroll)
+				return 2;
+
+			TextEngine_StartPause(proc, code);
+			return 3;
+
+		case CHFE_L_OpenFarLeft:
+		case CHFE_L_OpenMidLeft:
+		case CHFE_L_OpenLeft:
+		case CHFE_L_OpenRight:
+		case CHFE_L_OpenMidRight:
+		case CHFE_L_OpenFarRight:
+		case CHFE_L_OpenFarFarLeft:
+		case CHFE_L_OpenFarFarRight:
+			TextEngineUnsetFaceDisplayBits(state->activeFaceSlot);
+			SetActiveTalkFace(code - CHFE_L_OpenFarLeft);
+			return 3;
+
+		case CHFE_L_LoadFace:
+			TextEngine_LoadFace(proc, 0xFF);
+			state->str += 2;
+			TextEngine_SetDefaultFaceAttributes(
+				TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+			);
+			return 3;
+
+		case CHFE_L_ClearFace:
+			if (TalkHasCorrectBubble())
+				ClearTalkBubble();
+
+			face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+			if (face) {
+				StartFaceFadeOut(face);
+				state->faces[state->activeFaceSlot] = NULL;
+			}
+
+			StartTemporaryLock(proc, 0x10);
+			return 3;
+
+		case CHFE_L_CloseSpeechFast:
+		case CHFE_L_CloseSpeechSlow:
+			ClearTalkBubble();
+			return 3;
+
+		case CHFE_L_ToggleMouthMove:
+			state->mouthMoveEnabled = 1 - state->mouthMoveEnabled;
+			return 3;
+
+		case CHFE_L_ToggleSmile:
+			state->faceSmileEnabled = 1 - state->faceSmileEnabled;
+			return 3;
+
+		case CHFE_L_Yes:
+			TextEngine_DrawChoice(gYesNoTalkChoice, 1, proc);
+			return 3;
+
+		case CHFE_L_No:
+			TextEngine_DrawChoice(gYesNoTalkChoice, 2, proc);
+			return 3;
+
+		case CHFE_L_BuySell:
+			TextEngine_DrawChoice(gBuySellTalkChoice, 1, proc);
+			return 3;
+
+		case CHFE_L_ShopContinue:
+			TextEngine_DrawChoice(gBuySellTalkChoice, 2, proc);
+			return 3;
+
+		case CHFE_L_SendToBack:
+			SetTalkFlag(TALK_FLAG_4);
+			return 3;
+
+		case CHFE_L_FastPrint2:
+			ClearTalkFlag(TALK_FLAG_4);
+			return 3;
+
+		case CHFE_L_NormalPrint:
+		case CHFE_L_FastPrint:
+		case CHFE_L_DEnd:
+			state->activeWidth = 2 + (
+				GetStringTextWidthWithDialogueCodes(state->str, TalkHasCorrectBubble()) + 7
+			) / 8;
+			continue;
+
+		default:
+			return 1;
+		}
+	}
+}
