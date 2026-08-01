@@ -29,10 +29,6 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x44,
-};
-
-enum {
 	TEXT_ENGINE_FACE_MOTION_JUMP = 0,
 	TEXT_ENGINE_FACE_MOTION_VIBRATE = 1,
 	TEXT_ENGINE_FACE_MOTION_SHIMMY = 2,
@@ -99,6 +95,32 @@ struct TextEngineGlyphFloatProc {
 	/* 3F */ char ch[5];
 };
 
+struct TextEngineCommandDescriptor;
+
+typedef int (*TextEngineCommandHandler)(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+);
+
+typedef void (*TextEngineCommandWidthHandler)(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+);
+
+typedef void (*TextEngineCommandCleanupHandler)(void);
+
+struct TextEngineCommandDescriptor {
+	u8 code;
+	u8 argumentCount;
+	TextEngineCommandHandler handler;
+	TextEngineCommandWidthHandler width;
+	TextEngineCommandCleanupHandler cleanup;
+};
+
 /*
  * These tables are emitted by _Text_Engine_Tables.txt, which is included by
  * the installer after this C module has been linked.
@@ -129,6 +151,10 @@ struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
 void TextEngine_OnCharacterPrinted(void);
 void TextEngine_PlayTextBoop(const char *text);
 s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
+
+static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code);
+static void TextEngine_RunCommandCleanup(void);
+static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
@@ -935,11 +961,7 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_BOX_PALETTE] = 0;
 	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
-	*TextEngine_GetShakePrintFlag() = 0;
-	*TextEngine_GetBouncePrintFlag() = 0;
-	Proc_EndEach(gProcScr_TextEnginePrintFx);
-	TextEngine_StopWave();
-	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
+	TextEngine_RunCommandCleanup();
 	TextEngine_PrepareFloatPalette();
 }
 
@@ -1238,145 +1260,31 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			break;
 
 		if (code == 0x80) {
-			u8 subCode;
+			const struct TextEngineCommandDescriptor *command;
 
-			cursor++;
-			subCode = *cursor;
-
-			if (subCode > TEXT_ENGINE_MAX_EXTRA_CODE)
-				continue;
-
-			switch (subCode) {
-			case 0x00:
-			case 0x01:
-			case 0x02:
-			case 0x03:
-			case 0x04:
-				cursor++;
-				continue;
-
-			case 0x05:
-				NumberToStringAscii(state->userNumber, state->userNumberString);
-				lineWidth += TextEngine_WidthInternal(
-					(const u8 *)state->userNumberString,
-					stopAtCurrentBox
-				);
-				cursor++;
-				continue;
-
-			case 0x06:
-				lineWidth += TextEngine_WidthInternal(
-					(const u8 *)state->userString,
-					stopAtCurrentBox
-				);
-				cursor++;
-				continue;
-
-			case 0x07:
-			case 0x08:
-			case 0x09:
-				cursor++;
-				continue;
-
-			case 0x0A:
-			case 0x0B:
-			case 0x0C:
-			case 0x0D:
-			case 0x0E:
-			case 0x0F:
-			case 0x10:
-			case 0x11:
-				activePosition = subCode - 0x0A;
-				cursor++;
-				continue;
-
-			case 0x12:
-			case 0x13:
-			case 0x14:
-			case 0x15:
-				continue;
-
-			case 0x16:
-			case 0x17:
-			case 0x18:
-			case 0x19:
-			case 0x1A:
-			case 0x1B:
-			case 0x21:
-			case 0x24:
-			case 0x25:
-				cursor++;
-				continue;
-
-			case 0x20:
-				lineWidth += GetStringTextLen(GetTacticianName());
-				cursor++;
-				continue;
-
-			case 0x22:
-			case 0x23:
-				continue;
-
-			case 0x26:
-				UpdateFontGlyphSet(cursor[1] - 1);
+			command = TextEngine_FindCommand(cursor[1]);
+			if (!command) {
+				/*
+				 * Unknown extended commands are control bytes, not glyphs.
+				 * Without a descriptor there is no safe way to infer any
+				 * arguments, so skip the command header and continue.
+				 */
 				cursor += 2;
-				continue;
-
-			case 0x27:
-				cursor += 3;
-				continue;
-
-			case 0x28:
-			case 0x29:
-			case 0x2A:
-			case 0x2B:
-			case 0x2C:
-				cursor += 2;
-				continue;
-
-			case 0x2D:
-				cursor += 5;
-				continue;
-
-			case 0x2E:
-				cursor += 3;
-				continue;
-
-			case 0x2F:
-				cursor += 9;
-				continue;
-
-			case 0x30:
-			case 0x31:
-			case 0x32:
-			case 0x33:
-			case 0x34:
-			case 0x35:
-			case 0x36:
-			case 0x37:
-				activePosition = subCode - 0x30;
-				cursor += 2;
-				continue;
-
-			case 0x38:
-				cursor += 2;
-				continue;
-
-			case 0x39:
-			case 0x3A:
-			case 0x3B:
-			case 0x3C:
-			case 0x3D:
-			case 0x3E:
-			case 0x3F:
-			case 0x40:
-			case 0x41:
-			case 0x42:
-			case 0x43:
-			case 0x44:
-				cursor++;
 				continue;
 			}
+
+			if (command->width) {
+				command->width(
+					command,
+					cursor + 2,
+					stopAtCurrentBox,
+					&lineWidth,
+					&activePosition
+				);
+			}
+
+			cursor += 2 + command->argumentCount;
+			continue;
 		} else if (code <= 0x1D) {
 			switch (code) {
 			case CHFE_L_X:
@@ -1528,344 +1436,882 @@ const struct ProcCmd gProc_DialogueBoxAppearingAnimation[] = {
 	PROC_END,
 };
 
-static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
+static void TextEngine_CommandWidthExpandNumber(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+)
 {
 	struct TalkState *state = sTextEngineState;
-	u8 *argument = (u8 *)state->str;
+
+	(void)command;
+	(void)arguments;
+	(void)activePosition;
+
+	NumberToStringAscii(state->userNumber, state->userNumberString);
+	*lineWidth += TextEngine_WidthInternal(
+		(const u8 *)state->userNumberString,
+		stopAtCurrentBox
+	);
+}
+
+static void TextEngine_CommandWidthExpandUserString(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)command;
+	(void)arguments;
+	(void)activePosition;
+
+	*lineWidth += TextEngine_WidthInternal(
+		(const u8 *)state->userString,
+		stopAtCurrentBox
+	);
+}
+
+static void TextEngine_CommandWidthExpandTacticianName(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+)
+{
+	(void)command;
+	(void)arguments;
+	(void)stopAtCurrentBox;
+	(void)activePosition;
+
+	*lineWidth += GetStringTextLen(GetTacticianName());
+}
+
+static void TextEngine_CommandWidthSetFacePosition(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+)
+{
+	(void)arguments;
+	(void)stopAtCurrentBox;
+	(void)lineWidth;
+
+	if (command->code < 0x30)
+		*activePosition = command->code - 0x0A;
+	else
+		*activePosition = command->code - 0x30;
+}
+
+static void TextEngine_CommandWidthSetFont(
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments,
+	int stopAtCurrentBox,
+	int *lineWidth,
+	int *activePosition
+)
+{
+	(void)command;
+	(void)stopAtCurrentBox;
+	(void)lineWidth;
+	(void)activePosition;
+
+	UpdateFontGlyphSet(arguments[0] - 1);
+}
+
+static int TextEngine_CommandVanillaColor(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)arguments;
+
+	return TextEngine_HandleVanillaColor(
+		sTextEngineState,
+		command->code + 1
+	);
+}
+
+static int TextEngine_CommandPauseDialogue(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	LockTalk(proc);
+	return 3;
+}
+
+static int TextEngine_CommandPrintMonetaryAmount(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)command;
+
+	NumberToStringAscii(state->userNumber, state->userNumberString);
+	state->strBackup = (const char *)(arguments - 2);
+	state->str = state->userNumberString;
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandSwitchToMiniTextBuffer(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)command;
+
+	state->strBackup = (const char *)(arguments - 2);
+	state->str = state->userString;
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandReturnThree(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	return 3;
+}
+
+static int TextEngine_CommandReturnZero(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	return 0;
+}
+
+static int TextEngine_CommandMoveFace(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)proc;
+	(void)arguments;
+
+	TextEngine_CallMoveFaceAndWriteSpeed(
+		state->activeFaceSlot,
+		command->code - 0x0A,
+		0
+	);
+	return 3;
+}
+
+static int TextEngine_CommandFaceBlink(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
 	struct FaceProc *face;
-	int colorGroup;
+	int blinkControl;
 
-	switch (subCode) {
-	case 0x00:
-	case 0x01:
-	case 0x02:
-	case 0x03:
-		colorGroup = subCode + 1;
-		return TextEngine_HandleVanillaColor(state, colorGroup);
+	(void)proc;
+	(void)arguments;
 
-	case 0x04:
-		LockTalk(proc);
+	face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	if (!face)
 		return 3;
 
-	case 0x05:
-		NumberToStringAscii(state->userNumber, state->userNumberString);
-		state->strBackup = state->str - 2;
-		state->str = state->userNumberString;
-		return TalkInterpret(proc);
-
-	case 0x06:
-		state->strBackup = state->str - 2;
-		state->str = state->userString;
-		return TalkInterpret(proc);
-
-	case 0x07:
-	case 0x08:
-		return 3;
-
-	case 0x12:
-	case 0x13:
-	case 0x14:
-	case 0x15:
-	case 0x22:
-	case 0x23:
-		return 0;
-
-	case 0x09:
-		return 0;
-
-	case 0x0A:
-	case 0x0B:
-	case 0x0C:
-	case 0x0D:
-	case 0x0E:
-	case 0x0F:
-	case 0x10:
-	case 0x11:
-		TextEngine_CallMoveFaceAndWriteSpeed(
-			state->activeFaceSlot,
-			subCode - 0x0A,
-			0
-		);
-		return 3;
-
+	switch (command->code) {
 	case 0x16:
+		blinkControl = 0;
+		break;
 	case 0x17:
+		blinkControl = 1;
+		break;
 	case 0x18:
+		blinkControl = 3;
+		break;
 	case 0x19:
+		blinkControl = 2;
+		break;
 	case 0x1A:
-	case 0x1B:
-		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
-		if (face) {
-			int blinkControl;
-
-			switch (subCode) {
-			case 0x16:
-				blinkControl = 0;
-				break;
-			case 0x17:
-				blinkControl = 1;
-				break;
-			case 0x18:
-				blinkControl = 3;
-				break;
-			case 0x19:
-				blinkControl = 2;
-				break;
-			case 0x1A:
-				blinkControl = 4;
-				break;
-			default:
-				blinkControl = 5;
-				break;
-			}
-
-			SetFaceBlinkControl(face, blinkControl);
-		}
-		return 3;
-
-	case 0x1C:
-	case 0x1D:
-	case 0x1E:
-	case 0x1F:
-		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
-		if (face) {
-			int eyeControl;
-
-			switch (subCode) {
-			case 0x1C:
-				eyeControl = 0;
-				break;
-			case 0x1D:
-				eyeControl = 2;
-				break;
-			case 0x1E:
-				eyeControl = 3;
-				break;
-			default:
-				eyeControl = 4;
-				break;
-			}
-
-			sub_80064D4(face, eyeControl);
-		}
-		return 3;
-
-	case 0x20:
-		state->strBackup = state->str - 2;
-		state->str = GetTacticianName();
-		return TalkInterpret(proc);
-
-	case 0x21:
-		return TextEngine_HandleVanillaColor(state, 4);
-
-	case 0x24:
-		if (state->unk38)
-			state->unk38(proc);
-		return 3;
-
-	case 0x25:
-		state->invertedFlags = 3 - (state->invertedFlags & 1);
-		return 3;
-
-	case 0x26:
-		TextEngine_SetCurrentAttributeAndFace(
-			state->activeFaceSlot,
-			TEXT_ENGINE_ATTR_FONT,
-			argument[0] - 1
-		);
-		UpdateFontGlyphSet(argument[0] - 1);
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x27: {
-		int group = argument[0] - 1;
-		int palette = argument[1] - 1;
-		int destination = gActiveFont->palid * 0x20 + group * 6 + 2;
-
-		CopyToPaletteBuffer(&TextPaletteTable[palette * 3], destination, 6);
-		state->str += 2;
-		return 3;
-	}
-
-	case 0x28:
-		TextEngine_SetCurrentAttributeAndFace(
-			state->activeFaceSlot,
-			TEXT_ENGINE_ATTR_COLOR_GROUP,
-			argument[0] - 1
-		);
-		ChangeTextColorID(argument[0] - 1);
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x29:
-		TextEngine_SetCurrentAttributeAndFace(
-			state->activeFaceSlot,
-			TEXT_ENGINE_ATTR_BOX_PALETTE,
-			argument[0] - 1
-		);
-		UpdateTextBoxBgPalette(argument[0] - 1);
-		state->str++;
-		return 3;
-
-	case 0x2A:
-		TextEngine_SetCurrentAttributeAndFace(
-			state->activeFaceSlot,
-			TEXT_ENGINE_ATTR_BOX_TYPE,
-			argument[0] - 1
-		);
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x2B:
-		state->lines = argument[0];
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x2C:
-		TextEngine_SetCurrentAttributeAndFace(
-			state->activeFaceSlot,
-			TEXT_ENGINE_ATTR_BOOP_PITCH,
-			argument[0] - 1
-		);
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x2D: {
-		u16 song = (argument[0] & 0xF)
-			| ((argument[1] & 0xF) << 4)
-			| ((argument[2] & 0xF) << 8)
-			| ((argument[3] & 0xF) << 12);
-
-		m4aSongNumStart(song);
-		state->str += 4;
-		return 3;
-	}
-
-	case 0x2E: {
-		int position = argument[0] - 1;
-		u8 x = argument[1];
-
-		if (x == 0x80)
-			x = 0;
-
-		((u8 *)state + 0x50)[position] = x;
-		state->str += 2;
-		return TalkInterpret(proc);
-	}
-
-	case 0x2F: {
-		u8 options = argument[2] & 0x7F;
-		u8 *faceAttributes;
-
-		TextEngine_LoadFace(proc, options & 1);
-
-		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
-		faceAttributes = TextEngine_GetFaceAttributes(face);
-
-		if (faceAttributes) {
-			faceAttributes[TEXT_ENGINE_ATTR_FONT] = argument[3] - 1;
-			faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP] = argument[4] - 1;
-			faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE] = argument[5] - 1;
-			faceAttributes[TEXT_ENGINE_ATTR_BOX_TYPE] = argument[6] - 1;
-			faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH] = argument[7] - 1;
-		}
-
-		if ((options & 2) && face)
-			sub_80064D4(face, 2);
-
-		state->str += 8;
-		return 3;
-	}
-
-	case 0x30:
-	case 0x31:
-	case 0x32:
-	case 0x33:
-	case 0x34:
-	case 0x35:
-	case 0x36:
-	case 0x37:
-		TextEngine_CallMoveFaceAndWriteSpeed(
-			state->activeFaceSlot,
-			subCode - 0x30,
-			argument[0]
-		);
-		state->str++;
-		return 3;
-
-	case 0x38:
-		if (argument[0] == 0xFF)
-			state->printDelay = GetTextDisplaySpeed();
-		else
-			state->printDelay = argument[0];
-
-		state->str++;
-		return TalkInterpret(proc);
-
-	case 0x39:
-		TextEngine_StartFaceJump(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
-	case 0x3A:
-		TextEngine_StopFaceJump(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
-	case 0x3B:
-		*TextEngine_GetShakePrintFlag() = 1;
-		return 3;
-
-	case 0x3C:
-		*TextEngine_GetShakePrintFlag() = 0;
-		return 3;
-
-	case 0x3D:
-		*TextEngine_GetBouncePrintFlag() = 1;
-		TextEngine_PrepareFloatPalette();
-		return 3;
-
-	case 0x3E:
-		*TextEngine_GetBouncePrintFlag() = 0;
-		Proc_EndEach(gProcScr_TextEngineGlyphFloat);
-		return 3;
-
-	case 0x3F:
-		TextEngine_StartWave();
-		return 3;
-
-	case 0x40:
-		TextEngine_StopWave();
-		return 3;
-
-	case 0x41:
-		TextEngine_StartFaceVibrate(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
-	case 0x42:
-		TextEngine_StopFaceVibrate(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
-	case 0x43:
-		TextEngine_StartFaceShimmy(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
-	case 0x44:
-		TextEngine_StopFaceShimmy(
-			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
-		);
-		return 3;
-
+		blinkControl = 4;
+		break;
 	default:
-		return 1;
+		blinkControl = 5;
+		break;
+	}
+
+	SetFaceBlinkControl(face, blinkControl);
+	return 3;
+}
+
+static int TextEngine_CommandFaceEyes(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+	int eyeControl;
+
+	(void)proc;
+	(void)arguments;
+
+	face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	if (!face)
+		return 3;
+
+	switch (command->code) {
+	case 0x1C:
+		eyeControl = 0;
+		break;
+	case 0x1D:
+		eyeControl = 2;
+		break;
+	case 0x1E:
+		eyeControl = 3;
+		break;
+	default:
+		eyeControl = 4;
+		break;
+	}
+
+	sub_80064D4(face, eyeControl);
+	return 3;
+}
+
+static int TextEngine_CommandTacticianName(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)command;
+
+	state->strBackup = (const char *)(arguments - 2);
+	state->str = GetTacticianName();
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandToggleRed(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	return TextEngine_HandleVanillaColor(sTextEngineState, 4);
+}
+
+static int TextEngine_CommandExecuteRoutine(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	if (sTextEngineState->unk38)
+		sTextEngineState->unk38(proc);
+
+	return 3;
+}
+
+static int TextEngine_CommandToggleColorInvert(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	sTextEngineState->invertedFlags = 3 - (sTextEngineState->invertedFlags & 1);
+	return 3;
+}
+
+static int TextEngine_CommandChangeFont(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int font = arguments[0] - 1;
+
+	(void)command;
+
+	TextEngine_SetCurrentAttributeAndFace(
+		sTextEngineState->activeFaceSlot,
+		TEXT_ENGINE_ATTR_FONT,
+		font
+	);
+	UpdateFontGlyphSet(font);
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandChangeTextPalette(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int group = arguments[0] - 1;
+	int palette = arguments[1] - 1;
+	int destination = gActiveFont->palid * 0x20 + group * 6 + 2;
+
+	(void)proc;
+	(void)command;
+
+	CopyToPaletteBuffer(&TextPaletteTable[palette * 3], destination, 6);
+	return 3;
+}
+
+static int TextEngine_CommandChangeTextColorGroup(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int colorGroup = arguments[0] - 1;
+
+	(void)command;
+
+	TextEngine_SetCurrentAttributeAndFace(
+		sTextEngineState->activeFaceSlot,
+		TEXT_ENGINE_ATTR_COLOR_GROUP,
+		colorGroup
+	);
+	ChangeTextColorID(colorGroup);
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandChangeTextBoxBgPalette(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int palette = arguments[0] - 1;
+
+	(void)proc;
+	(void)command;
+
+	TextEngine_SetCurrentAttributeAndFace(
+		sTextEngineState->activeFaceSlot,
+		TEXT_ENGINE_ATTR_BOX_PALETTE,
+		palette
+	);
+	UpdateTextBoxBgPalette(palette);
+	return 3;
+}
+
+static int TextEngine_CommandChangeTextBoxType(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int boxType = arguments[0] - 1;
+
+	(void)command;
+
+	TextEngine_SetCurrentAttributeAndFace(
+		sTextEngineState->activeFaceSlot,
+		TEXT_ENGINE_ATTR_BOX_TYPE,
+		boxType
+	);
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandChangeTextBoxHeight(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+
+	sTextEngineState->lines = arguments[0];
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandChangeTextBoopPitch(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int pitch = arguments[0] - 1;
+
+	(void)command;
+
+	TextEngine_SetCurrentAttributeAndFace(
+		sTextEngineState->activeFaceSlot,
+		TEXT_ENGINE_ATTR_BOOP_PITCH,
+		pitch
+	);
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandPlaySound(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	u16 song = (arguments[0] & 0xF)
+		| ((arguments[1] & 0xF) << 4)
+		| ((arguments[2] & 0xF) << 8)
+		| ((arguments[3] & 0xF) << 12);
+
+	(void)proc;
+	(void)command;
+
+	m4aSongNumStart(song);
+	return 3;
+}
+
+static int TextEngine_CommandChangePortraitPosition(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int position = arguments[0] - 1;
+	u8 x = arguments[1];
+
+	(void)proc;
+	(void)command;
+
+	if (x == 0x80)
+		x = 0;
+
+	((u8 *)sTextEngineState + 0x50)[position] = x;
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandLoadFaceFancy(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+	u8 *faceAttributes;
+	u8 options = arguments[2] & 0x7F;
+	const char *next;
+
+	(void)command;
+
+	/*
+	 * TextEngine_LoadFace reads the portrait ID from state->str.  The
+	 * descriptor dispatcher has already advanced state->str past all
+	 * arguments, so temporarily point it back at the command payload.
+	 */
+	next = state->str;
+	state->str = (const char *)arguments;
+	TextEngine_LoadFace(proc, options & 1);
+	state->str = next;
+
+	face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	faceAttributes = TextEngine_GetFaceAttributes(face);
+
+	if (faceAttributes) {
+		faceAttributes[TEXT_ENGINE_ATTR_FONT] = arguments[3] - 1;
+		faceAttributes[TEXT_ENGINE_ATTR_COLOR_GROUP] = arguments[4] - 1;
+		faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE] = arguments[5] - 1;
+		faceAttributes[TEXT_ENGINE_ATTR_BOX_TYPE] = arguments[6] - 1;
+		faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH] = arguments[7] - 1;
+	}
+
+	if ((options & 2) && face)
+		sub_80064D4(face, 2);
+
+	return 3;
+}
+
+static int TextEngine_CommandMoveFaceVariableSpeed(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+
+	(void)proc;
+
+	TextEngine_CallMoveFaceAndWriteSpeed(
+		state->activeFaceSlot,
+		command->code - 0x30,
+		arguments[0]
+	);
+	return 3;
+}
+
+static int TextEngine_CommandChangeTextSpeed(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+
+	if (arguments[0] == 0xFF)
+		sTextEngineState->printDelay = GetTextDisplaySpeed();
+	else
+		sTextEngineState->printDelay = arguments[0];
+
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandStartFaceJump(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StartFaceJump(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static int TextEngine_CommandStopFaceJump(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StopFaceJump(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static int TextEngine_CommandStartPrintShake(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	*TextEngine_GetShakePrintFlag() = 1;
+	return 3;
+}
+
+static int TextEngine_CommandStopPrintShake(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	*TextEngine_GetShakePrintFlag() = 0;
+	return 3;
+}
+
+static int TextEngine_CommandStartPrintBounce(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	*TextEngine_GetBouncePrintFlag() = 1;
+	TextEngine_PrepareFloatPalette();
+	return 3;
+}
+
+static int TextEngine_CommandStopPrintBounce(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	*TextEngine_GetBouncePrintFlag() = 0;
+	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
+	return 3;
+}
+
+static int TextEngine_CommandStartWave(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StartWave();
+	return 3;
+}
+
+static int TextEngine_CommandStopWave(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StopWave();
+	return 3;
+}
+
+static int TextEngine_CommandStartFaceVibrate(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StartFaceVibrate(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static int TextEngine_CommandStopFaceVibrate(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StopFaceVibrate(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static int TextEngine_CommandStartFaceShimmy(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StartFaceShimmy(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static int TextEngine_CommandStopFaceShimmy(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_StopFaceShimmy(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot)
+	);
+	return 3;
+}
+
+static void TextEngine_CleanupFaceMotion(void)
+{
+	Proc_EndEach(gProcScr_TextEngineFaceJump);
+}
+
+static void TextEngine_CleanupPrintShake(void)
+{
+	*TextEngine_GetShakePrintFlag() = 0;
+	Proc_EndEach(gProcScr_TextEnginePrintFx);
+}
+
+static void TextEngine_CleanupPrintBounce(void)
+{
+	*TextEngine_GetBouncePrintFlag() = 0;
+	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
+}
+
+static void TextEngine_CleanupWave(void)
+{
+	TextEngine_StopWave();
+}
+
+/*
+ * Keep every extended command's argument shape and behavior in one table.
+ * argumentCount is the number of bytes after [0x80][code].
+ */
+static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
+	{ 0x00, 0, TextEngine_CommandVanillaColor, NULL, NULL },
+	{ 0x01, 0, TextEngine_CommandVanillaColor, NULL, NULL },
+	{ 0x02, 0, TextEngine_CommandVanillaColor, NULL, NULL },
+	{ 0x03, 0, TextEngine_CommandVanillaColor, NULL, NULL },
+	{ 0x04, 0, TextEngine_CommandPauseDialogue, NULL, NULL },
+	{ 0x05, 0, TextEngine_CommandPrintMonetaryAmount, TextEngine_CommandWidthExpandNumber, NULL },
+	{ 0x06, 0, TextEngine_CommandSwitchToMiniTextBuffer, TextEngine_CommandWidthExpandUserString, NULL },
+	{ 0x07, 0, TextEngine_CommandReturnThree, NULL, NULL },
+	{ 0x08, 0, TextEngine_CommandReturnThree, NULL, NULL },
+	{ 0x09, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x0A, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x0B, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x0C, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x0D, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x0E, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x0F, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x10, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x11, 0, TextEngine_CommandMoveFace, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x12, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x13, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x14, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x15, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x16, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x17, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x18, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x19, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x1A, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x1B, 0, TextEngine_CommandFaceBlink, NULL, NULL },
+	{ 0x1C, 0, TextEngine_CommandFaceEyes, NULL, NULL },
+	{ 0x1D, 0, TextEngine_CommandFaceEyes, NULL, NULL },
+	{ 0x1E, 0, TextEngine_CommandFaceEyes, NULL, NULL },
+	{ 0x1F, 0, TextEngine_CommandFaceEyes, NULL, NULL },
+	{ 0x20, 0, TextEngine_CommandTacticianName, TextEngine_CommandWidthExpandTacticianName, NULL },
+	{ 0x21, 0, TextEngine_CommandToggleRed, NULL, NULL },
+	{ 0x22, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x23, 0, TextEngine_CommandReturnZero, NULL, NULL },
+	{ 0x24, 0, TextEngine_CommandExecuteRoutine, NULL, NULL },
+	{ 0x25, 0, TextEngine_CommandToggleColorInvert, NULL, NULL },
+	{ 0x26, 1, TextEngine_CommandChangeFont, TextEngine_CommandWidthSetFont, NULL },
+	{ 0x27, 2, TextEngine_CommandChangeTextPalette, NULL, NULL },
+	{ 0x28, 1, TextEngine_CommandChangeTextColorGroup, NULL, NULL },
+	{ 0x29, 1, TextEngine_CommandChangeTextBoxBgPalette, NULL, NULL },
+	{ 0x2A, 1, TextEngine_CommandChangeTextBoxType, NULL, NULL },
+	{ 0x2B, 1, TextEngine_CommandChangeTextBoxHeight, NULL, NULL },
+	{ 0x2C, 1, TextEngine_CommandChangeTextBoopPitch, NULL, NULL },
+	{ 0x2D, 4, TextEngine_CommandPlaySound, NULL, NULL },
+	{ 0x2E, 2, TextEngine_CommandChangePortraitPosition, NULL, NULL },
+	{ 0x2F, 8, TextEngine_CommandLoadFaceFancy, NULL, NULL },
+	{ 0x30, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x31, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x32, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x33, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x34, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x35, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x36, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x37, 1, TextEngine_CommandMoveFaceVariableSpeed, TextEngine_CommandWidthSetFacePosition, NULL },
+	{ 0x38, 1, TextEngine_CommandChangeTextSpeed, NULL, NULL },
+	{ 0x39, 0, TextEngine_CommandStartFaceJump, NULL, TextEngine_CleanupFaceMotion },
+	{ 0x3A, 0, TextEngine_CommandStopFaceJump, NULL, NULL },
+	{ 0x3B, 0, TextEngine_CommandStartPrintShake, NULL, TextEngine_CleanupPrintShake },
+	{ 0x3C, 0, TextEngine_CommandStopPrintShake, NULL, NULL },
+	{ 0x3D, 0, TextEngine_CommandStartPrintBounce, NULL, TextEngine_CleanupPrintBounce },
+	{ 0x3E, 0, TextEngine_CommandStopPrintBounce, NULL, NULL },
+	{ 0x3F, 0, TextEngine_CommandStartWave, NULL, TextEngine_CleanupWave },
+	{ 0x40, 0, TextEngine_CommandStopWave, NULL, NULL },
+	{ 0x41, 0, TextEngine_CommandStartFaceVibrate, NULL, TextEngine_CleanupFaceMotion },
+	{ 0x42, 0, TextEngine_CommandStopFaceVibrate, NULL, NULL },
+	{ 0x43, 0, TextEngine_CommandStartFaceShimmy, NULL, TextEngine_CleanupFaceMotion },
+	{ 0x44, 0, TextEngine_CommandStopFaceShimmy, NULL, NULL },
+};
+
+static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
+{
+	int i;
+
+	for (i = 0; i < (int)ARRAY_COUNT(sTextEngineCommandTable); i++) {
+		if (sTextEngineCommandTable[i].code == code)
+			return &sTextEngineCommandTable[i];
+	}
+
+	return NULL;
+}
+
+static void TextEngine_RunCommandCleanup(void)
+{
+	int i;
+
+	for (i = 0; i < (int)ARRAY_COUNT(sTextEngineCommandTable); i++) {
+		TextEngineCommandCleanupHandler cleanup =
+			sTextEngineCommandTable[i].cleanup;
+		int previous;
+
+		if (!cleanup)
+			continue;
+
+		for (previous = 0; previous < i; previous++) {
+			if (sTextEngineCommandTable[previous].cleanup == cleanup)
+				break;
+		}
+
+		if (previous == i)
+			cleanup();
 	}
 }
 
@@ -1876,6 +2322,8 @@ int TalkInterpret(ProcPtr proc)
 	u8 *text;
 	u8 code;
 	struct FaceProc *face;
+	const struct TextEngineCommandDescriptor *command;
+	const u8 *arguments;
 
 	while (1) {
 		text = (u8 *)state->str;
@@ -1891,13 +2339,15 @@ int TalkInterpret(ProcPtr proc)
 		}
 
 		if (code == 0x80) {
-			code = text[1];
-			state->str = (char *)(text + 2);
+			arguments = text + 2;
+			state->str = (char *)arguments;
+			command = TextEngine_FindCommand(text[1]);
 
-			if (code <= TEXT_ENGINE_MAX_EXTRA_CODE)
-				return TextEngine_HandleExtendedCode(proc, code);
+			if (!command || !command->handler)
+				return 1;
 
-			return 1;
+			state->str = (char *)(arguments + command->argumentCount);
+			return command->handler(proc, command, arguments);
 		}
 
 		if (code > 0x1D)
