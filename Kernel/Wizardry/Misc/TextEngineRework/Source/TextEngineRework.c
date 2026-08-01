@@ -57,6 +57,7 @@ enum {
 	TEXT_ENGINE_FLOAT_SLOT_STRIDE = 2,
 	TEXT_ENGINE_FLOAT_DURATION = 12,
 	TEXT_ENGINE_FLOAT_LIFT = 10,
+	TEXT_ENGINE_BOOP_PITCH_COUNT = 25,
 };
 
 struct TextEngineFaceJumpProc {
@@ -106,6 +107,7 @@ extern struct Glyph **FontGlyphsPointerTable[];
 extern const u16 TextPaletteTable[];
 extern const u16 TextBoxBgPaletteTable[];
 extern const u32 *TextBoxTypePointerTable[];
+extern const struct SongHeader TextBoopTable[];
 
 extern const struct ProcCmd gProcScr_TalkSkipListener[];
 extern const struct ProcCmd gProcScr_TalkPause[];
@@ -125,6 +127,7 @@ int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
 struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
 void TextEngine_OnCharacterPrinted(void);
+void TextEngine_PlayTextBoop(const char *text);
 s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
@@ -808,6 +811,28 @@ void TextEngine_OnCharacterPrinted(void)
 		return;
 
 	TextEngine_StartPrintShake();
+}
+
+void TextEngine_PlayTextBoop(const char *text)
+{
+	struct MusicPlayerInfo *mplayInfo = gMPlayTable[3].info;
+	u8 pitch = TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOOP_PITCH];
+
+	/*
+	 * The original hook skipped control-code bytes before starting a boop.
+	 * The caller supplies the character pointer from before Text_DrawCharacter
+	 * advances the dialogue string.
+	 */
+	if (!text || ((u8)*text & 0x80))
+		return;
+
+	if (gPlaySt.config.disableSoundEffects)
+		return;
+
+	if (pitch >= TEXT_ENGINE_BOOP_PITCH_COUNT || !mplayInfo)
+		return;
+
+	MPlayStart(mplayInfo, (struct SongHeader *)&TextBoopTable[pitch]);
 }
 
 void UpdateFontGlyphSet(int font)

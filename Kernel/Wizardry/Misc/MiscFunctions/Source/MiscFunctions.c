@@ -4340,6 +4340,7 @@ void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
 #define TALK_TEXT_BY_LINE(line) (&sTalkText[k_umod(((line) + sTalkState->topTextNum), sTalkState->lines)])
 
 void TextEngine_OnCharacterPrinted(void);
+void TextEngine_PlayTextBoop(const char *text);
 s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 
 //! FE8U = 0x08006C34
@@ -4393,6 +4394,8 @@ void Talk_OnIdle(ProcPtr proc) {
                     }
                 }
 
+                const char *printedText = sTalkState->str;
+
                 {
                     struct Text *th = TALK_TEXT_BY_LINE(sTalkState->lineActive);
 
@@ -4425,7 +4428,7 @@ void Talk_OnIdle(ProcPtr proc) {
                         }
 
                         sTalkState->unk82 = 1;
-                        PlaySoundEffect(SONG_6E);
+                        TextEngine_PlayTextBoop(printedText);
                     }
                 }
         }
