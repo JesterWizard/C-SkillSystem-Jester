@@ -8,7 +8,7 @@
 #define REALTIME_TRACE 1
 
 /* Bump on every rebuild so a stale ROM is obvious in the log. */
-#define REALTIME_BUILD_ID "rt-build-9"
+#define REALTIME_BUILD_ID "rt-build-15"
 
 #if REALTIME_TRACE
 #define RT_TRACE(format, ...) LogInfof("[RT] "format, __VA_ARGS__)
@@ -48,6 +48,8 @@ static bool RealtimeScheduler_MapIsIdle(bool trace);
 static bool RealtimeScheduler_HasLoadedEnemy(void);
 static void RealtimeScheduler_RefreshPlayerUnits(void);
 static void RealtimeScheduler_RefreshEnemyCooldowns(void);
+static void RealtimeScheduler_ForceAggressiveAi(void);
+static void RealtimeGuard_OnLoop(ProcPtr proc);
 static void RealtimeAi_Start(struct RealtimeAiProc *proc);
 static void RealtimeAi_TryForcePursuit(struct RealtimeAiProc *proc);
 static void RealtimeAi_End(struct RealtimeAiProc *proc);
@@ -73,6 +75,17 @@ static const struct ProcCmd ProcScr_RealtimeAiUnit[] = {
 	PROC_CALL(RealtimeAi_TryForcePursuit),
 	PROC_YIELD,
 	PROC_CALL(RealtimeAi_End),
+	PROC_END,
+};
+
+/*
+ * Started after the AI proc so it runs later in the same frame: the AI subtree
+ * has already retargeted the cursor by the time this undoes it, so the player
+ * phase never gets to draw the moved position.
+ */
+static const struct ProcCmd ProcScr_RealtimeActionGuard[] = {
+	PROC_NAME("RealtimeGuard"),
+	PROC_REPEAT(RealtimeGuard_OnLoop),
 	PROC_END,
 };
 
@@ -222,6 +235,7 @@ static void RealtimeScheduler_TickRefresh(void)
 	gRealtimeBattleState.refreshTimer = RealtimeBattle_GetRefreshFrames();
 	RealtimeScheduler_RefreshPlayerUnits();
 	RealtimeScheduler_RefreshEnemyCooldowns();
+	RealtimeScheduler_ForceAggressiveAi();
 
 	if (gPlaySt.chapterTurnNumber < 999)
 		gPlaySt.chapterTurnNumber++;
@@ -245,6 +259,34 @@ static void RealtimeScheduler_RefreshPlayerUnits(void)
 
 	RefreshEntityBmMaps();
 	RefreshUnitSprites();
+}
+
+/*
+ * Real-time mode has no phases for a defensive script to wait on, so every
+ * enemy is rewritten to the vanilla "attack, pursue" pair. Reinforcements are
+ * covered because this runs on the periodic refresh rather than once at start.
+ */
+static void RealtimeScheduler_ForceAggressiveAi(void)
+{
+	int i;
+
+	for (i = 1; i <= CONFIG_UNIT_AMT_ENEMY; i++) {
+		struct Unit *unit = RealtimeScheduler_GetEnemyAtSlot(i);
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		if (unit->state & (US_DEAD | US_NOT_DEPLOYED))
+			continue;
+
+		if (unit->ai1 == AI_A_00 && unit->ai2 == AI_B_00)
+			continue;
+
+		unit->ai1 = AI_A_00;
+		unit->ai2 = AI_B_00;
+		unit->ai_a_pc = 0;
+		unit->ai_b_pc = 0;
+	}
 }
 
 static void RealtimeScheduler_RefreshEnemyCooldowns(void)
@@ -338,13 +380,71 @@ static void RealtimeScheduler_TryRunEnemy(struct RealtimeSchedulerProc *proc)
 	/* Serialise: shared AI/action/animation globals allow one actor at a time. */
 	RealtimeBattle_Pause(RT_PAUSE_GATE);
 
+	/*
+	 * Combat, map animations and gActionData are single-instance. Holding the
+	 * map lock for the action stops the player from starting a second one
+	 * through the still-running player phase, which corrupts those globals.
+	 */
+	if (!gRealtimeBattleState.gameLocked) {
+		LockGame();
+		gRealtimeBattleState.gameLocked = 1;
+	}
+
+	gRealtimeBattleState.pinnedCursor = gBmSt.playerCursor;
+	gRealtimeBattleState.pinnedCamera = gBmSt.camera;
+
 	ai = Proc_Start(ProcScr_RealtimeAiUnit, PROC_TREE_3);
 	ai->unitId = unitId;
 	ai->savedFaction = gPlaySt.faction;
 
+	Proc_Start(ProcScr_RealtimeActionGuard, PROC_TREE_3);
+
 	gRealtimeBattleState.inFlightCount = 1;
 	gRealtimeBattleState.slots[0].state = RT_SLOT_COMMITTING;
 	gRealtimeBattleState.slots[0].unitId = unitId;
+}
+
+static void RealtimeGuard_OnLoop(ProcPtr proc)
+{
+	if (gRealtimeBattleState.gateOwner == 0) {
+		Proc_End(proc);
+		return;
+	}
+
+	/* Belt and braces: AiRefreshMap no longer moves it, other steps might. */
+	gBmSt.playerCursor = gRealtimeBattleState.pinnedCursor;
+	gBmSt.cursorPrevious = gRealtimeBattleState.pinnedCursor;
+	gBmSt.cursorTarget = gRealtimeBattleState.pinnedCursor;
+
+	/*
+	 * The AI pans the camera onto whatever it is doing. The cursor sprite is
+	 * clamped to the visible area, so a camera that walks off leaves the cursor
+	 * stuck against the screen edge even though its tile never changed. Hold the
+	 * view still instead. The engine's camera proc runs on its own countdown and
+	 * ends regardless of where the camera actually is, so overwriting its result
+	 * cannot stall the action.
+	 */
+	gBmSt.camera = gRealtimeBattleState.pinnedCamera;
+	gBmSt.cameraPrevious = gRealtimeBattleState.pinnedCamera;
+
+	/*
+	 * The side windows share BG0/BG1 with combat and talk graphics. The player
+	 * phase is still idling underneath, and it rebuilds them as soon as they go
+	 * away, so they have to be ended every frame the action runs rather than
+	 * once. The first pass also clears what they already drew; later passes must
+	 * not, or they would wipe the combat UI drawn into the same layers.
+	 */
+	if (!gRealtimeBattleState.sideWindowsHidden) {
+		gRealtimeBattleState.sideWindowsHidden = 1;
+		EndPlayerPhaseSideWindows();
+		return;
+	}
+
+	Proc_EndEach(gProcScr_UnitDisplay_MinimugBox);
+	Proc_EndEach(gProcScr_UnitDisplay_Burst);
+	Proc_EndEach(gProcScr_TerrainDisplay);
+	Proc_EndEach(gProcScr_GoalDisplay);
+	Proc_EndEach(gProcScr_PrepMap_MenuButtonDisplay);
 }
 
 static void RealtimeAi_Start(struct RealtimeAiProc *proc)
@@ -432,7 +532,20 @@ static void RealtimeAi_TryForcePursuit(struct RealtimeAiProc *proc)
 	struct Unit *unit = RealtimeScheduler_GetEnemyById(proc->unitId);
 	struct Unit *target;
 
-	if (!UNIT_IS_VALID(unit) || unit->ai2 != AI_B_03 || gAiDecision.actionPerformed)
+	/*
+	 * Real-time mode expects every enemy to keep pressing. Any AI script that
+	 * decided to sit still this tick - NeverMove, or a guard script whose
+	 * trigger range is empty - gets overridden into a pursuit instead.
+	 */
+	if (!UNIT_IS_VALID(unit) || gAiDecision.actionPerformed)
+		return;
+
+	/*
+	 * A unit that already ran CpPerform this tick must not run it a second time:
+	 * gAiDecision still holds that action, and replaying it against a target
+	 * that has since died reads freed state.
+	 */
+	if (unit->state & (US_DEAD | US_HIDDEN | US_HAS_MOVED | US_HAS_MOVED_AI))
 		return;
 
 	target = RealtimeAi_FindNearestEnemy(unit);
@@ -442,13 +555,12 @@ static void RealtimeAi_TryForcePursuit(struct RealtimeAiProc *proc)
 		return;
 	}
 
-	/*
-	 * AI2=03 is the vanilla "NeverMove" script. Real-time mode explicitly
-	 * overrides that script, but still asks the vanilla movement planner for a
-	 * legal destination and lets CpPerform animate/update the action.
-	 */
+	/* Ask the vanilla planner for the destination so CpPerform stays in charge. */
 	gActiveUnitId = proc->unitId;
 	gActiveUnit = unit;
+
+	/* Drop whatever the AI script left behind so CpPerform only sees the move. */
+	AiClearDecision();
 	AiTryMoveTowards(target->xPos, target->yPos, AI_ACTION_NONE, 0, 1);
 
 	if (!gAiDecision.actionPerformed ||
@@ -489,8 +601,23 @@ static void RealtimeAi_End(struct RealtimeAiProc *proc)
 	gActiveUnitId = proc->savedActiveId;
 	gAiState.flags = AI_FLAGS_NONE;
 
+	gBmSt.playerCursor = gRealtimeBattleState.pinnedCursor;
+	gBmSt.cursorPrevious = gRealtimeBattleState.pinnedCursor;
+	gBmSt.cursorTarget = gRealtimeBattleState.pinnedCursor;
+	gBmSt.camera = gRealtimeBattleState.pinnedCamera;
+	gBmSt.cameraPrevious = gRealtimeBattleState.pinnedCamera;
+
 	gRealtimeBattleState.slots[0].state = RT_SLOT_FREE;
 	gRealtimeBattleState.inFlightCount = 0;
+
+	if (gRealtimeBattleState.gameLocked) {
+		gRealtimeBattleState.gameLocked = 0;
+		UnlockGame();
+	}
+
+	/* The idling player phase rebuilds its own side windows once we stop
+	 * tearing them down, so nothing has to restart them here. */
+	gRealtimeBattleState.sideWindowsHidden = 0;
 
 	RealtimeBattle_ReleaseGate(proc->unitId);
 	RealtimeBattle_Resume(RT_PAUSE_GATE);

@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "kernel/realtime-battle.h"
 
 LYN_REPLACE_CHECK(CpPerform_Cleanup);
 void CpPerform_Cleanup(struct CpPerformProc *proc)
@@ -21,7 +22,10 @@ void CpPerform_Cleanup(struct CpPerformProc *proc)
 		cleanupY = gActiveUnit->yPos;
 	}
 
-	SetCursorMapPosition(cleanupX, cleanupY);
+	/* Real-time mode leaves the map cursor under the player's control. */
+	if (!IsRealtimeBattleActive())
+		SetCursorMapPosition(cleanupX, cleanupY);
+
 	RenderBmMapOnBg2();
 
 	MoveActiveUnit(cleanupX, cleanupY);

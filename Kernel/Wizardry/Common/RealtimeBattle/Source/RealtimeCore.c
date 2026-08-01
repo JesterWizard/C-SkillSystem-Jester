@@ -183,4 +183,12 @@ void RealtimeBattle_QuiesceInFlight(void)
 
 	gRealtimeBattleState.inFlightCount = 0;
 	gRealtimeBattleState.gateOwner = 0;
+
+	/* An action aborted mid-flight would otherwise leave the map locked. */
+	if (gRealtimeBattleState.gameLocked) {
+		gRealtimeBattleState.gameLocked = 0;
+		UnlockGame();
+	}
+
+	gRealtimeBattleState.sideWindowsHidden = 0;
 }

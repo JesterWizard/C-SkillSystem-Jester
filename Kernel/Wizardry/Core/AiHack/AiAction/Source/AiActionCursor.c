@@ -1,4 +1,28 @@
 #include "common-chax.h"
+#include "kernel/realtime-battle.h"
+
+LYN_REPLACE_CHECK(AiRefreshMap);
+void AiRefreshMap(void)
+{
+	gActiveUnit = GetUnit(gActionData.subjectIndex);
+
+	/*
+	 * This is what drags the map cursor onto the acting AI unit. In real-time
+	 * mode the player still owns that cursor, so leave it where they put it.
+	 */
+	if (!IsRealtimeBattleActive())
+		SetCursorMapPosition(gAiDecision.xMove, gAiDecision.yMove);
+
+	RenderBmMapOnBg2();
+	MoveActiveUnit(gAiDecision.xMove, gAiDecision.yMove);
+	RefreshEntityBmMaps();
+	RenderBmMap();
+	NewBMXFADE(1);
+	EndAllMus();
+	RefreshEntityBmMaps();
+	ShowUnitSprite(gActiveUnit);
+	RefreshUnitSprites();
+}
 
 LYN_REPLACE_CHECK(CpPerform_MoveCameraOntoTarget);
 void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc)
@@ -107,5 +131,11 @@ void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc)
 	}
 
 	EnsureCameraOntoPosition(proc, x, y);
-	StartAiTargetCursor(x * 16, y * 16, 2, proc);
+
+	/*
+	 * The player keeps control of the map cursor in real-time mode, so the AI
+	 * target cursor would fight it for the same sprite.
+	 */
+	if (!IsRealtimeBattleActive())
+		StartAiTargetCursor(x * 16, y * 16, 2, proc);
 }

@@ -46,13 +46,17 @@ struct RealtimeBattleState {
 	u16 scheduleTimer;
 	u16 refreshTimer;
 	u8 nextEnemyIndex;
-	u8 pad;
+	u8 gameLocked; /* set while an enemy action holds LockGame() */
 	struct RealtimeActionContext slots[REALTIME_ACTION_SLOTS];
 	u8 enemyCooldown[REALTIME_ENEMY_COOLDOWN_LEN];
+	struct Vec2 pinnedCursor; /* player cursor held in place during enemy actions */
+	struct Vec2 pinnedCamera; /* view held in place so the cursor stays on screen */
+	u8 sideWindowsHidden;     /* set while combat graphics own the window layers */
+	u8 pad2;
 };
 
 _Static_assert(sizeof(struct RealtimeActionContext) == 12, "RealtimeActionContext size");
-_Static_assert(sizeof(struct RealtimeBattleState) == 110, "RealtimeBattleState size");
+_Static_assert(sizeof(struct RealtimeBattleState) == 120, "RealtimeBattleState size");
 
 extern struct RealtimeBattleState gRealtimeBattleState;
 

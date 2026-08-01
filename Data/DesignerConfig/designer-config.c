@@ -165,7 +165,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	 * When enabled, the map stays on player phase and enemies act on a timer.
 	 * Interval is in frames (GBA runs at 60 FPS, so 60 ~= 1 second).
 	 */
-	.real_time_battle = true,
+	.real_time_battle = false, // Broken mess, do not use
 	.real_time_enemy_interval_frames = 60,  /* 1 second between enemy action attempts */
 	.real_time_refresh_frames = 60 * 30,    /* soft refresh / cooldown clear every 30s */
 };

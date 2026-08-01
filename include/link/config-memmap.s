@@ -152,9 +152,10 @@ _kernel_malloc sAiPhasePerformedBits, 28
 
 /**
  * Real-time battle scheduler / action-context pool.
- * Size kept even: header(10) + 4*12 contexts(48) + enemyCooldown(52) = 110.
+ * Size kept even: header(10) + 4*12 contexts(48) + enemyCooldown(52)
+ * + pinnedCursor(4) + pinnedCamera(4) + flags(2) = 120.
  */
-_kernel_malloc gRealtimeBattleState, 110
+_kernel_malloc gRealtimeBattleState, 120
 
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
