@@ -9225,6 +9225,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SiegeRepair) && COMMON_SKILL_VALID(SID_SiegeRepair))
+    [SID_SiegeRepair] = {
+        .name = MSG_SKILL_SiegeRepair_NAME,
+        .desc = MSG_SKILL_SiegeRepair_DESC,
+        .capacity = MSG_SKILL_SiegeRepair_CAPACITY,
+        .price = MSG_SKILL_SiegeRepair_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_TurboMP) && COMMON_SKILL_VALID(SID_TurboMP))
     [SID_TurboMP] = {
         .name = MSG_SKILL_TurboMP_NAME,

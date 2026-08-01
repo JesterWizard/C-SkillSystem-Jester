@@ -64,12 +64,12 @@ static bool IsCustomBoostStaff(int item)
  */
 bool IER_Usability_AdjacentHeal(struct Unit *unit, int item)
 {
-	return HasSelectTarget(unit, MakeTargetListForAdjacentHeal);
+	return HasSelectTarget(unit, MakeTargetListForAdjacentHealWithObstacles);
 }
 
 bool IER_Usability_RangedHeal(struct Unit *unit, int item)
 {
-	return HasSelectTarget(unit, MakeTargetListForRangedHeal);
+	return HasSelectTarget(unit, MakeTargetListForRangedHealWithObstacles);
 }
 
 bool IER_Usability_Restore(struct Unit *unit, int item)
@@ -328,12 +328,12 @@ bool IER_Usability_Invest(struct Unit * unit, int item)
  */
 void IER_Effect_AdjacentHeal(struct Unit *unit, int item)
 {
-	DoUseHealStaff(unit, MakeTargetListForAdjacentHeal);
+	DoUseHealStaff(unit, MakeTargetListForAdjacentHealWithObstacles);
 }
 
 void IER_Effect_RangedHeal(struct Unit *unit, int item)
 {
-	DoUseHealStaff(unit, MakeTargetListForRangedHeal);
+	DoUseHealStaff(unit, MakeTargetListForRangedHealWithObstacles);
 }
 
 void IER_Effect_RescueStaff(struct Unit *unit, int item)

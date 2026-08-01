@@ -28,6 +28,83 @@ int HealAmountGetter(int base, struct Unit *actor, struct Unit *target)
 	return status;
 }
 
+static bool IsHealObstacleTerrain(int terrain)
+{
+	return terrain == TERRAIN_WALL_DAMAGED || terrain == TERRAIN_SNAG;
+}
+
+static struct Trap *GetHealObstacleAt(int x, int y)
+{
+	if (x < 0 || y < 0 || x >= gBmMapSize.x || y >= gBmMapSize.y)
+		return NULL;
+
+	struct Trap *trap = GetTypedTrapAt(x, y, TRAP_OBSTACLE);
+
+	if (!trap || !IsHealObstacleTerrain(gBmMapTerrain[y][x]))
+		return NULL;
+
+	return trap;
+}
+
+static struct Trap *PrepareHealObstacleTarget(struct Unit *obstacle)
+{
+	struct Trap *trap = GetHealObstacleAt(gActionData.xOther, gActionData.yOther);
+
+	if (!trap || trap->extra == 0)
+		return NULL;
+
+	gActionData.trapType = trap->extra;
+	InitObstacleBattleUnit();
+	*obstacle = gBattleTarget.unit;
+
+	return trap;
+}
+
+LYN_REPLACE_CHECK(HealMapSelect_SwitchIn);
+u8 HealMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget *target)
+{
+	ChangeActiveUnitFacing(target->x, target->y);
+
+	if (target->uid == 0)
+	{
+		struct Trap *trap = GetHealObstacleAt(target->x, target->y);
+
+		if (!trap || trap->extra == 0)
+			return 0;
+
+		gActionData.xOther = target->x;
+		gActionData.yOther = target->y;
+		gActionData.trapType = trap->extra;
+
+		InitObstacleBattleUnit();
+		RefreshUnitHpInfoWindow(&gBattleTarget.unit);
+	}
+	else
+	{
+		RefreshUnitHpInfoWindow(GetUnit(target->uid));
+	}
+
+	return 0;
+}
+
+LYN_REPLACE_CHECK(StaffSelectOnSelect);
+u8 StaffSelectOnSelect(ProcPtr proc, struct SelectTarget *target)
+{
+	gActionData.targetIndex = target->uid;
+
+	if (target->uid == 0)
+	{
+		gActionData.xOther = target->x;
+		gActionData.yOther = target->y;
+		gActionData.trapType = target->extra;
+	}
+
+	SetStaffUseAction(NULL);
+
+	return TARGETSELECTION_ACTION_ENDFAST | TARGETSELECTION_ACTION_END |
+		TARGETSELECTION_ACTION_SE_6A | TARGETSELECTION_ACTION_CLEARBGS;
+}
+
 LYN_REPLACE_CHECK(ExecStandardHeal);
 void ExecStandardHeal(ProcPtr proc)
 {
@@ -35,10 +112,25 @@ void ExecStandardHeal(ProcPtr proc)
 
 	struct Unit *unit_act = GetUnit(gActionData.subjectIndex);
 	struct Unit *unit_tar = GetUnit(gActionData.targetIndex);
+	struct Unit obstacle;
+	struct Trap *obstacleTrap = NULL;
 
 	BattleInitItemEffect(unit_act, gActionData.itemSlotIndex);
 
-	BattleInitItemEffectTarget(unit_tar);
+	if (gActionData.targetIndex == 0)
+	{
+		obstacleTrap = PrepareHealObstacleTarget(&obstacle);
+
+		if (!obstacleTrap)
+			return;
+
+		BattleInitItemEffectTarget(&obstacle);
+		unit_tar = &obstacle;
+	}
+	else
+	{
+		BattleInitItemEffectTarget(unit_tar);
+	}
 
 	amount = GetUnitItemHealAmount(
 		unit_act,
@@ -203,6 +295,9 @@ void ExecStandardHeal(ProcPtr proc)
     }
 #endif
 
+	if (obstacleTrap)
+		obstacleTrap->extra = gBattleTarget.unit.curHP;
+
 
 	BattleApplyItemEffect(proc);
 	BeginBattleAnimations();
@@ -217,11 +312,15 @@ void ExecFortify(ProcPtr proc)
 
 	struct Unit *unit_act = GetUnit(gActionData.subjectIndex);
     FORCE_DECLARE struct Unit *unit_tar = GetUnit(gActionData.targetIndex);
+	struct Unit obstacle;
+	u8 oldXOther = gActionData.xOther;
+	u8 oldYOther = gActionData.yOther;
+	u8 oldTrapType = gActionData.trapType;
 
 	BattleInitItemEffect(unit_act, gActionData.itemSlotIndex);
 
 	BattleInitItemEffectTarget(GetUnitFromCharId(GetPlayerLeaderUnitId()));
-	MakeTargetListForRangedHeal(unit_act);
+	MakeTargetListForRangedHealWithObstacles(unit_act);
 
 	amount = GetUnitItemHealAmount(
 		unit_act,
@@ -248,15 +347,48 @@ void ExecFortify(ProcPtr proc)
 	targetCount = GetSelectTargetCount();
 
 	for (i = 0; i < targetCount; i++) {
-#if CHAX
-		struct Unit *unit_tar = GetUnit(GetTarget(i)->uid);
-		int amound_real = HealAmountGetter(amount, unit_act, unit_tar);
+		struct SelectTarget *target = GetTarget(i);
 
-		AddUnitHp(unit_tar, amound_real);
+		if (target->uid == 0)
+		{
+			struct Trap *trap = GetHealObstacleAt(target->x, target->y);
+
+			if (!trap || trap->extra == 0)
+				continue;
+
+			gActionData.xOther = target->x;
+			gActionData.yOther = target->y;
+			gActionData.trapType = target->extra;
+
+			InitObstacleBattleUnit();
+			obstacle = gBattleTarget.unit;
+
+#if CHAX
+			AddUnitHp(&obstacle, HealAmountGetter(amount, unit_act, &obstacle));
 #else
-		AddUnitHp(GetUnit(GetTarget(i)->uid), amount);
+			AddUnitHp(&obstacle, amount);
+#endif
+
+			trap->extra = obstacle.curHP;
+			continue;
+		}
+
+		unit_tar = GetUnit(target->uid);
+
+		if (!unit_tar)
+			continue;
+
+#if CHAX
+		AddUnitHp(unit_tar, HealAmountGetter(amount, unit_act, unit_tar));
+#else
+		AddUnitHp(unit_tar, amount);
 #endif
 	}
+
+	gActionData.xOther = oldXOther;
+	gActionData.yOther = oldYOther;
+	gActionData.trapType = oldTrapType;
+	BattleInitItemEffectTarget(GetUnitFromCharId(GetPlayerLeaderUnitId()));
 
 	BattleApplyItemEffect(proc);
 	BeginBattleAnimations();

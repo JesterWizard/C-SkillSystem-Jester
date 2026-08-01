@@ -12,6 +12,95 @@ static bool CustomStavesEnabled(void)
     return gpKernelDesignerConfig->custom_staves == true;
 }
 
+static bool HasSiegeRepair(struct Unit *unit)
+{
+#if defined(SID_SiegeRepair) && (COMMON_SKILL_VALID(SID_SiegeRepair))
+    return SkillTester(unit, SID_SiegeRepair);
+#else
+    return false;
+#endif
+}
+
+static bool IsHealObstacleTerrain(int terrain)
+{
+    return terrain == TERRAIN_WALL_DAMAGED || terrain == TERRAIN_SNAG;
+}
+
+static int GetHealObstacleMaxHp(int terrain)
+{
+    if (terrain == TERRAIN_SNAG)
+        return 20 + 3;
+
+    return GetROMChapterStruct(gPlaySt.chapterIndex)->mapCrackedWallHeath + 3;
+}
+
+static void AddHealObstacleTargets(void)
+{
+    for (int i = 0; i < TRAP_MAX_COUNT; ++i)
+    {
+        struct Trap *trap = GetTrap(i);
+
+        if (!trap || trap->type == TRAP_NONE)
+            break;
+
+        if (trap->type != TRAP_OBSTACLE)
+            continue;
+
+        if (gBmMapRange[trap->yPos][trap->xPos] == 0)
+            continue;
+
+        int terrain = gBmMapTerrain[trap->yPos][trap->xPos];
+
+        if (!IsHealObstacleTerrain(terrain))
+            continue;
+
+        if (trap->extra == 0 || trap->extra >= GetHealObstacleMaxHp(terrain))
+            continue;
+
+        /*
+         * Obstacles are represented by target ID 0. The current HP is
+         * carried in SelectTarget.extra for InitObstacleBattleUnit().
+         */
+        AddTarget(trap->xPos, trap->yPos, 0, trap->extra);
+    }
+}
+
+static void MakeTargetListForAdjacentHealInternal(struct Unit *unit, bool includeObstacles)
+{
+    gSubjectUnit = unit;
+    InitTargets(unit->xPos, unit->yPos);
+
+    BmMapFill(gBmMapRange, 0);
+    AddMapForItem(unit, ITEM_STAFF_HEAL);
+    ForEachUnit(TryAddUnitToHealTargetList, gBmMapRange, 0);
+
+#if defined(SID_SelfHealing) && (COMMON_SKILL_VALID(SID_SelfHealing))
+    if (SkillTester(unit, SID_SelfHealing))
+        AddTarget(unit->xPos, unit->yPos, unit->index, 0);
+#endif
+
+    if (includeObstacles && HasSiegeRepair(unit))
+        AddHealObstacleTargets();
+}
+
+static void MakeTargetListForRangedHealInternal(struct Unit *unit, bool includeObstacles)
+{
+    gSubjectUnit = unit;
+    InitTargets(unit->xPos, unit->yPos);
+
+    BmMapFill(gBmMapRange, 0);
+    AddMapForItem(unit, ITEM_STAFF_PHYSIC);
+    ForEachUnit(TryAddUnitToHealTargetList, gBmMapRange, 0);
+
+#if defined(SID_SelfHealing) && (COMMON_SKILL_VALID(SID_SelfHealing))
+    if (SkillTester(unit, SID_SelfHealing))
+        AddTarget(unit->xPos, unit->yPos, unit->index, 0);
+#endif
+
+    if (includeObstacles && HasSiegeRepair(unit))
+        AddHealObstacleTargets();
+}
+
 LYN_REPLACE_CHECK(TryAddUnitToHealTargetList);
 void TryAddUnitToHealTargetList(struct Unit* unit) {
 
@@ -54,33 +143,23 @@ void TryAddUnitToHealTargetList(struct Unit* unit) {
 LYN_REPLACE_CHECK(MakeTargetListForAdjacentHeal);
 void MakeTargetListForAdjacentHeal(struct Unit *unit)
 {
-	gSubjectUnit = unit;
-	InitTargets(unit->xPos, unit->yPos);
+    MakeTargetListForAdjacentHealInternal(unit, false);
+}
 
-	BmMapFill(gBmMapRange, 0);
-	AddMapForItem(unit, ITEM_STAFF_HEAL);
-	ForEachUnit(TryAddUnitToHealTargetList, gBmMapRange, 0);
-
-#if defined(SID_SelfHealing) && (COMMON_SKILL_VALID(SID_SelfHealing))
-    if (SkillTester(unit, SID_SelfHealing))
-         AddTarget(unit->xPos, unit->yPos, unit->index, 0);
-#endif
+void MakeTargetListForAdjacentHealWithObstacles(struct Unit *unit)
+{
+    MakeTargetListForAdjacentHealInternal(unit, true);
 }
 
 LYN_REPLACE_CHECK(MakeTargetListForRangedHeal);
 void MakeTargetListForRangedHeal(struct Unit *unit)
 {
-	gSubjectUnit = unit;
-	InitTargets(unit->xPos, unit->yPos);
+    MakeTargetListForRangedHealInternal(unit, false);
+}
 
-	BmMapFill(gBmMapRange, 0);
-	AddMapForItem(unit, ITEM_STAFF_PHYSIC);
-	ForEachUnit(TryAddUnitToHealTargetList, gBmMapRange, 0);
-
-#if defined(SID_SelfHealing) && (COMMON_SKILL_VALID(SID_SelfHealing))
-    if (SkillTester(unit, SID_SelfHealing))
-         AddTarget(unit->xPos, unit->yPos, unit->index, 0);
-#endif
+void MakeTargetListForRangedHealWithObstacles(struct Unit *unit)
+{
+    MakeTargetListForRangedHealInternal(unit, true);
 }
 
 LYN_REPLACE_CHECK(MakeTargetListForRestore);

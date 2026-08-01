@@ -837,6 +837,7 @@
 #define MSG_SKILL_BloodMagic_PRICE 1000
 #define MSG_SKILL_HalfMP_PRICE 1000
 #define MSG_SKILL_HalfSP_PRICE 1000
+#define MSG_SKILL_SiegeRepair_PRICE 1000
 #define MSG_SKILL_TurboMP_PRICE 1000
 #define MSG_SKILL_Carnage_PRICE 1000
 #define MSG_SKILL_Crisis_PRICE 1000

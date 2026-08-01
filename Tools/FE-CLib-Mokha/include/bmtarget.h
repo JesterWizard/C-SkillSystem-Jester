@@ -49,6 +49,8 @@ void MakeTargetListForSummon(struct Unit* unit);
 void TryAddUnitToHealTargetList(struct Unit* unit);
 void MakeTargetListForAdjacentHeal(struct Unit* unit);
 void MakeTargetListForRangedHeal(struct Unit* unit);
+void MakeTargetListForAdjacentHealWithObstacles(struct Unit* unit);
+void MakeTargetListForRangedHealWithObstacles(struct Unit* unit);
 // ??? AddToTargetListIfNotAllied(???);
 void MakeTargetListForFuckingNightmare(struct Unit* unit);
 // ??? TryAddUnitToRestoreTargetList(???);

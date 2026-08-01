@@ -1850,3 +1850,10 @@ Axiom+[X]
 Axiom+:[N]
 Unit always hits but battle[N]
 accuracy becomes damage modifier.[X]
+
+## MSG_SKILL_SiegeRepair_NAME
+Siege Repair[X]
+## MSG_SKILL_SiegeRepair_DESC
+Siege Repair:[N]
+Healing staves can target and restore[N]
+damaged walls and snags.[X]
