@@ -150,6 +150,12 @@ _kernel_malloc gSavedWorldMapYCoordiate, 1
 // u32[7], one bit per unit index, set when a unit actually performs an AI action this phase
 _kernel_malloc sAiPhasePerformedBits, 28
 
+/**
+ * Real-time battle scheduler / action-context pool.
+ * Size kept even: header(10) + 4*12 contexts(48) + enemyCooldown(52) = 110.
+ */
+_kernel_malloc gRealtimeBattleState, 110
+
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even

@@ -3,6 +3,7 @@
 #include "playst-expa.h"
 #include "popup.h"
 #include "constants/skills.h"
+#include "kernel/realtime-battle.h"
 
 static u32* const sUnitPriorityArray = (void*) gGenericBuffer;
 
@@ -522,21 +523,21 @@ void BmMain_StartPhase(ProcPtr proc)
 {
     AiPhaseClearPerformedFlags();
 
-//     int phaseControl = gPlaySt.faction;
-//     if (gPlaySt.faction == FACTION_RED) 
-//         phaseControl = FACTION_BLUE; 
+    if (IsRealtimeBattleEnabled()) {
+        gRealtimeBattleState.active = true;
+        if (gRealtimeBattleState.scheduleTimer == 0)
+            gRealtimeBattleState.scheduleTimer = RealtimeBattle_GetIntervalFrames();
+        if (gRealtimeBattleState.refreshTimer == 0)
+            gRealtimeBattleState.refreshTimer = RealtimeBattle_GetRefreshFrames();
+        RealtimeBattle_Resume(RT_PAUSE_SUSPEND);
+        gPlaySt.faction = FACTION_BLUE;
+        Proc_StartBlocking(gProcScr_PlayerPhase, proc);
+        RealtimeBattle_StartScheduler(proc);
+        Proc_Break(proc);
+        return;
+    }
 
-// #ifdef CONFIG_FOURTH_ALLEGIANCE
-//     if (gPlaySt.faction == FACTION_GREEN) 
-//         phaseControl = FACTION_PURPLE; 
-
-//     if (gPlaySt.faction == FACTION_PURPLE) 
-//         phaseControl = FACTION_BLUE; 
-
-// #else
-//     if (gPlaySt.faction == FACTION_GREEN) 
-//         phaseControl = FACTION_BLUE; 
-// #endif
+    RealtimeBattle_Shutdown();
 
     switch (gPlaySt.faction)
     {

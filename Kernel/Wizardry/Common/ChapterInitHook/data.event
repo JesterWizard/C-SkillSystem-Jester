@@ -11,4 +11,5 @@ ChapterInitHooks:
     POIN ChapterInit_ResetStartMapEffects
     POIN ChapterInit_ResetSkillStaffTempState
     POIN ChapterInit_ApplyGrassySurge
+    POIN RealtimeBattle_InitChapter
     WORD 0

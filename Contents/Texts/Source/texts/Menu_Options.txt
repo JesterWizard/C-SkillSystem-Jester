@@ -88,3 +88,21 @@ Gain support points after actions[X]
 Gameover Quote[X]
 ## MSG_MENU_OPTION_GAMEOVER_QUOTES_DESC
 Display helpful tips on defeat[X]
+
+## MSG_MENU_OPTION_REAL_TIME_BATTLE_TITLE
+Real-Time Mode[X]
+## MSG_MENU_OPTION_REAL_TIME_BATTLE_DESC
+Enemies act on a timer during your turn[X]
+
+## MSG_MENU_OPTION_REAL_TIME_INTERVAL_TITLE
+RT Enemy Delay[X]
+## MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC
+Seconds between enemy action attempts[X]
+## MSG_MENU_OPTION_REAL_TIME_1S
+1s[X]
+## MSG_MENU_OPTION_REAL_TIME_2S
+2s[X]
+## MSG_MENU_OPTION_REAL_TIME_3S
+3s[X]
+## MSG_MENU_OPTION_REAL_TIME_5S
+5s[X]

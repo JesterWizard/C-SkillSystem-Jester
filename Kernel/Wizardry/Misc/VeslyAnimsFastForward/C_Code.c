@@ -2,6 +2,7 @@
 #include "kernel/kernel-lib.h"
 #include "common-chax.h"
 #include "types.h"
+#include "kernel/realtime-battle.h"
 
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 extern u16 HeldButton_AnimOff;
@@ -70,6 +71,9 @@ int GetSoloAnimPreconfType(struct Unit * unit)
 LYN_REPLACE_CHECK(GetBattleAnimPreconfType);
 int GetBattleAnimPreconfType(void)
 {
+    if (RealtimeBattle_ForceMapAnims())
+        return PLAY_ANIMCONF_OFF;
+
     if (ShouldNotShowAnim())
         return PLAY_ANIMCONF_OFF;
 

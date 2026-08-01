@@ -24,6 +24,7 @@
 #include "scene.h"
 #include "menu_def.h"
 #include "prepscreen.h"
+#include "kernel/realtime-battle.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -1815,6 +1816,11 @@ struct SoundRoomEnt const gSoundRoomTable_NEW[] =
 LYN_REPLACE_CHECK(SwitchPhases);
 void SwitchPhases(void)
 {
+    if (IsRealtimeBattleActive()) {
+        gPlaySt.faction = FACTION_BLUE;
+        return;
+    }
+
     switch (gPlaySt.faction)
     {
     case FACTION_BLUE:

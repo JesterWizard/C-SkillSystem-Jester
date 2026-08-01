@@ -7,6 +7,7 @@
 #include "event-rework.h"
 #include "bmarena.h"
 #include "weapon-slots.h"
+#include "kernel/realtime-battle.h"
 
 static const struct ProcCmd gProcScr_ArenaUiMain_NEW[];
 static const struct ProcCmd gProcScr_ArenaUiResults_NEW[];
@@ -735,6 +736,7 @@ LYN_REPLACE_CHECK(ArenaUi_OnEnd);
 void ArenaUi_OnEnd(void) {
     Proc_EndEach(gProcScr_GoldBox);
     Proc_ForEach(ProcScr_Mu, (ProcFunc) ShowMu);
+    RealtimeBattle_Resume(RT_PAUSE_ARENA);
     return;
 }
 
@@ -1761,6 +1763,8 @@ void ArenaUi_WelcomeDialogue(ProcPtr proc)
 //! FE8U = 0x080B576C
 LYN_REPLACE_CHECK(StartArenaScreen);
 void StartArenaScreen(void) {
+    RealtimeBattle_QuiesceInFlight();
+    RealtimeBattle_Pause(RT_PAUSE_ARENA);
     ArenaBegin(gActiveUnit);
     if (gpKernelDesignerConfig->arena_roster_menu == true)
         Proc_Start(gProcScr_ArenaUiMain_NEW, PROC_TREE_3);

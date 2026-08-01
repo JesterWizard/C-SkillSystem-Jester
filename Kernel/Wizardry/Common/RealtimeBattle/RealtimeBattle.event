@@ -1,0 +1,8 @@
+#ifndef REALTIME_BATTLE_INSTALLED
+#define REALTIME_BATTLE_INSTALLED
+
+#include "Source/RealtimeCore.lyn.event"
+#include "Source/RealtimeScheduler.lyn.event"
+#include "Source/RealtimeHooks.lyn.event"
+
+#endif /* REALTIME_BATTLE_INSTALLED */

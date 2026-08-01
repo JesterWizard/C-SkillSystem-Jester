@@ -187,9 +187,8 @@ struct PlaySt_OptionBits {
     u32 support_after_battle: 1;
     u32 gameover_quotes: 1;
 
-    u32 custom_option_18: 1;
-    u32 custom_option_19: 1;
-    u32 custom_option_20: 1;
+    u32 real_time_battle: 1;   /* 0 = ON, 1 = OFF */
+    u32 real_time_interval: 2; /* 0=1s, 1=2s, 2=3s, 3=5s */
     u32 custom_option_21: 1;
     u32 custom_option_22: 1;
     u32 custom_option_23: 1;

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 
 extern HookProcFunc_t const *const gpEndTurnFuncs;
 
@@ -48,14 +49,20 @@ extern struct ProcCmd *prProcScr_PlayerPhase;
 LYN_REPLACE_CHECK(CommandEffectEndPlayerPhase);
 u8 CommandEffectEndPlayerPhase(struct MenuProc *menu, struct MenuItemProc *menuItem)
 {
-#if CHAX
 	ProcPtr proc = Proc_Find(prProcScr_PlayerPhase);
 
+	(void)menu;
+	(void)menuItem;
+
+	if (RealtimeBattle_HandleEndPlayerPhase(proc))
+		return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+
+#if CHAX
 	if (proc)
 		Proc_Goto(proc, 3);
 #else
-    Proc_EndEach(prProcScr_PlayerPhase);
+	Proc_EndEach(prProcScr_PlayerPhase);
 #endif
 
-    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }

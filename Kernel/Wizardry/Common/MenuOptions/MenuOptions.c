@@ -5,7 +5,7 @@
 extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 
-const u8 gGameOptionsUiOrder_NEW[29] = {
+const u8 gGameOptionsUiOrder_NEW[31] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -37,6 +37,8 @@ const u8 gGameOptionsUiOrder_NEW[29] = {
     GAME_OPTION_FAST_MAP_ANIMATIONS,
     GAME_OPTION_TUTORIALS,
     GAME_OPTION_SUPPORT_AFTER_BATTLE,
+    GAME_OPTION_REAL_TIME_BATTLE,
+    GAME_OPTION_REAL_TIME_INTERVAL,
 };
 
 static int GetGameOptionIndexCount(void)
@@ -47,6 +49,9 @@ static int GetGameOptionIndexCount(void)
 static int GetGameOptionRowCount(int optionIdx)
 {
     int i;
+
+    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+        return 4;
 
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 2;
@@ -77,6 +82,9 @@ static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 
 static const char *GetGameOptionRowValueText(int optionIdx, int value)
 {
+    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+        return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return value ? "OFF" : "ON";
 
@@ -85,6 +93,9 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
 
 static int GetGameOptionRowX(int optionIdx)
 {
+    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+        return gGameOptions_NEW[optionIdx].selectors[0].xPos;
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 112;
 
@@ -553,6 +564,34 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x3E,
         .func = GenericOptionChangeHandler,
     },
+
+    [GAME_OPTION_REAL_TIME_BATTLE] =
+    {
+        .msgId = MSG_MENU_OPTION_REAL_TIME_BATTLE_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_REAL_TIME_BATTLE_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_REAL_TIME_BATTLE_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x40,
+        .func = GenericOptionChangeHandler,
+    },
+
+    [GAME_OPTION_REAL_TIME_INTERVAL] =
+    {
+        .msgId = MSG_MENU_OPTION_REAL_TIME_INTERVAL_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC, MSG_MENU_OPTION_REAL_TIME_1S, 112, 2 },
+            { MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC, MSG_MENU_OPTION_REAL_TIME_2S, 135, 2 },
+            { MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC, MSG_MENU_OPTION_REAL_TIME_3S, 158, 2 },
+            { MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC, MSG_MENU_OPTION_REAL_TIME_5S, 181, 2 },
+        },
+        .icon = 0x42,
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -596,6 +635,8 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_FAST_MAP_ANIMATIONS:            gPlaySt.config.fast_map_animations= newValue; break;
         case GAME_OPTION_TUTORIALS:                      gPlaySt.config.show_tutorial = newValue; break;
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
+        case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
+        case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
     }
 }
 
@@ -640,6 +681,8 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_FAST_MAP_ANIMATIONS:            return gPlaySt.config.fast_map_animations;
         case GAME_OPTION_TUTORIALS:                      return gPlaySt.config.show_tutorial;
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
+        case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
+        case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
     }
     return 0;
 }
@@ -683,6 +726,15 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.summons_gain_exp = 0;
     gPlaySt.config.skill_capacity = 0;
     gPlaySt.config.show_arena_opponent_in_advance = 0;
+    gPlaySt.config.promote_unit_on_max_level = 0;
+    gPlaySt.config.send_inventory_on_death = 0;
+    gPlaySt.config.fast_map_animations = 0;
+    gPlaySt.config.show_tutorial = 0;
+    gPlaySt.config.support_after_battle = 0;
+    gPlaySt.config.gameover_quotes = 0;
+    /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
+    gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
+    gPlaySt.config.real_time_interval = 0; /* display hint; interval frames come from designer config */
 }
 
 //! FE8U = 0x080B16DC

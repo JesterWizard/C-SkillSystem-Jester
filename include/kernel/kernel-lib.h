@@ -145,6 +145,11 @@ struct KernelDesigerConfig {
 	u8 infinite_durability;
 	u8 dynamic_weapon_slots; /* class-driven weapon-type-to-rank-slot mapping */
 	u8 ai_dance_use; /* AI dancers refresh allies that already acted, refreshed allies act again */
+
+	/* Real-time battle: enemies act on a timer during an open player phase */
+	u8 real_time_battle; /* 0 = disabled, 1 = enabled */
+	u16 real_time_enemy_interval_frames; /* frames between enemy action attempts (60 ~= 1s) */
+	u16 real_time_refresh_frames; /* frames between soft unit refreshes (0 = use default 30s) */
 };
 
 struct KernelBattleDesignerConfig {
