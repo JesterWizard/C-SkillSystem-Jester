@@ -29,12 +29,15 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x40,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x42,
 };
 
 enum {
+	TEXT_ENGINE_FACE_MOTION_JUMP = 0,
+	TEXT_ENGINE_FACE_MOTION_VIBRATE = 1,
 	TEXT_ENGINE_FACE_JUMP_PERIOD = 16,
 	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
+	TEXT_ENGINE_FACE_VIBRATE_PERIOD = 4,
 	TEXT_ENGINE_PRINT_SHAKE_FRAMES = 4,
 	TEXT_ENGINE_PRINT_FX_INACTIVE = -1,
 	TEXT_ENGINE_WAVE_AMPLITUDE = 2,
@@ -59,6 +62,8 @@ struct TextEngineFaceJumpProc {
 	/* 2C */ struct FaceProc *face;
 	/* 30 */ s16 timer;
 	/* 32 */ s16 offset;
+	/* 34 */ u8 mode;
+	/* 35 */ u8 unused;
 };
 
 struct TextEnginePrintFxProc {
@@ -122,6 +127,8 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 
 static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
+static void TextEngine_StartFaceVibrate(struct FaceProc *face);
+static void TextEngine_StopFaceVibrate(struct FaceProc *face);
 static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc);
 static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc);
 static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc);
@@ -134,6 +141,10 @@ static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ -1, +1 },
 	{ +1,  0 },
 	{  0,  0 },
+};
+
+static const s8 sTextEngineFaceVibrateOffsets[] = {
+	0, +1, 0, -1,
 };
 
 extern EWRAM_DATA s16 sTextEngineWaveOffsets[2][DISPLAY_HEIGHT];
@@ -268,35 +279,48 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc)
 	trueY = face->yPos + proc->offset;
 	proc->timer++;
 
-	phase = proc->timer % TEXT_ENGINE_FACE_JUMP_PERIOD;
-	if (phase < TEXT_ENGINE_FACE_JUMP_PERIOD / 2) {
-		offset = Interpolate(
-			INTERPOLATE_SQUARE,
-			0,
-			TEXT_ENGINE_FACE_JUMP_HEIGHT,
-			phase,
-			TEXT_ENGINE_FACE_JUMP_PERIOD / 2
-		);
+	if (proc->mode == TEXT_ENGINE_FACE_MOTION_VIBRATE) {
+		phase = proc->timer % TEXT_ENGINE_FACE_VIBRATE_PERIOD;
+		offset = sTextEngineFaceVibrateOffsets[phase];
 	} else {
-		offset = Interpolate(
-			INTERPOLATE_RSQUARE,
-			TEXT_ENGINE_FACE_JUMP_HEIGHT,
-			0,
-			phase - TEXT_ENGINE_FACE_JUMP_PERIOD / 2,
-			TEXT_ENGINE_FACE_JUMP_PERIOD / 2
-		);
+		phase = proc->timer % TEXT_ENGINE_FACE_JUMP_PERIOD;
+		if (phase < TEXT_ENGINE_FACE_JUMP_PERIOD / 2) {
+			offset = Interpolate(
+				INTERPOLATE_SQUARE,
+				0,
+				TEXT_ENGINE_FACE_JUMP_HEIGHT,
+				phase,
+				TEXT_ENGINE_FACE_JUMP_PERIOD / 2
+			);
+		} else {
+			offset = Interpolate(
+				INTERPOLATE_RSQUARE,
+				TEXT_ENGINE_FACE_JUMP_HEIGHT,
+				0,
+				phase - TEXT_ENGINE_FACE_JUMP_PERIOD / 2,
+				TEXT_ENGINE_FACE_JUMP_PERIOD / 2
+			);
+		}
 	}
 
 	face->yPos = trueY - offset;
 	proc->offset = offset;
 }
 
-static void TextEngine_StartFaceJump(struct FaceProc *face)
+static void TextEngine_StartFaceMotion(struct FaceProc *face, u8 mode)
 {
 	struct TextEngineFaceJumpProc *jump;
 
-	if (!face || TextEngine_FindFaceJumpProc(face))
+	if (!face)
 		return;
+
+	jump = TextEngine_FindFaceJumpProc(face);
+	if (jump) {
+		if (jump->mode == mode)
+			return;
+
+		Proc_End(jump);
+	}
 
 	jump = (struct TextEngineFaceJumpProc *)Proc_Start(
 		gProcScr_TextEngineFaceJump,
@@ -308,14 +332,35 @@ static void TextEngine_StartFaceJump(struct FaceProc *face)
 	jump->face = face;
 	jump->timer = 0;
 	jump->offset = 0;
+	jump->mode = mode;
+}
+
+static void TextEngine_StartFaceJump(struct FaceProc *face)
+{
+	TextEngine_StartFaceMotion(face, TEXT_ENGINE_FACE_MOTION_JUMP);
+}
+
+static void TextEngine_StartFaceVibrate(struct FaceProc *face)
+{
+	TextEngine_StartFaceMotion(face, TEXT_ENGINE_FACE_MOTION_VIBRATE);
+}
+
+static void TextEngine_StopFaceMotion(struct FaceProc *face, u8 mode)
+{
+	struct TextEngineFaceJumpProc *jump = TextEngine_FindFaceJumpProc(face);
+
+	if (jump && jump->mode == mode)
+		Proc_End(jump);
 }
 
 static void TextEngine_StopFaceJump(struct FaceProc *face)
 {
-	struct TextEngineFaceJumpProc *jump = TextEngine_FindFaceJumpProc(face);
+	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_JUMP);
+}
 
-	if (jump)
-		Proc_End(jump);
+static void TextEngine_StopFaceVibrate(struct FaceProc *face)
+{
+	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_VIBRATE);
 }
 
 static void TextEnginePrintFx_Apply(struct TextEnginePrintFxProc *proc)
@@ -1269,6 +1314,8 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			case 0x3E:
 			case 0x3F:
 			case 0x40:
+			case 0x41:
+			case 0x42:
 				cursor++;
 				continue;
 			}
@@ -1733,6 +1780,18 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 
 	case 0x40:
 		TextEngine_StopWave();
+		return 3;
+
+	case 0x41:
+		TextEngine_StartFaceVibrate(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
+		return 3;
+
+	case 0x42:
+		TextEngine_StopFaceVibrate(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
 		return 3;
 
 	default:

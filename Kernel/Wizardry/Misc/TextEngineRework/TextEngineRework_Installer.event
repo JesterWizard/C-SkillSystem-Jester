@@ -101,4 +101,6 @@ POIN MoveFaceToPositionVariableSpeed	//80 37 (MoveFarFarRight with variable spee
 POIN ChangeTextSpeed		//80 38
 POIN ToggleOnWave			//80 3F
 POIN ToggleOffWave			//80 40
+POIN ToggleOnVibrating		//80 41
+POIN ToggleOffVibrating		//80 42
 */
