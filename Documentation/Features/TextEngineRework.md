@@ -23,6 +23,7 @@ This rework expands the FE8 dialogue interpreter while keeping existing text fun
 Player-facing impact:
 
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
+- Dialogue can apply a horizontal scanline wave to its background layers.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
 - Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump continuously while speaking.
 - Existing vanilla text remains readable and compatible with the new parser.
@@ -41,6 +42,7 @@ The rework is a small set of C hooks plus shared tables.
 | Text measurement | Recalculates box width with `GetStringTextWidthWithDialogueCodes` | Control codes and font changes no longer break width math |
 | Presentation state | Copies and updates face attributes before the box appears | Palette, box, and font settings follow the active speaker |
 | Face / box hooks | C replacements for load, move, open, clear, and promotion UI | Variable-speed moves, 1–3 line boxes, and fancy face load work on the main dialogue path |
+| Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from double-buffered sine tables | Text, textbox, and background layers move with a continuous horizontal wave |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
@@ -90,6 +92,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x3C` | `[ToggleOffShakePrint]` | none | Disables shake-on-print |
 | `0x3D` | `[ToggleOnBouncePrint]` | none | Each letter floats down into place as an OBJ, then bakes into the text |
 | `0x3E` | `[ToggleOffBouncePrint]` | none | Disables per-letter float-in |
+| `0x3F` | `[ToggleOnWave]` | none | Applies a continuous horizontal wave to BG0–BG3 |
+| `0x40` | `[ToggleOffWave]` | none | Restores the dialogue background layers' normal horizontal offsets |
 
 ### Fancy LoadFace options
 
@@ -130,6 +134,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffShakePrint]Back to a steady print.
 [ToggleOnBouncePrint]These letters drop into place.
 [ToggleOffBouncePrint]And now they don't.
+[ToggleOnWave]The dialogue scene ripples gently.
+[ToggleOffWave]And now it is steady again.
 ```
 
 ### Custom fonts
@@ -155,6 +161,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Fancy / normal face load | `TextEngine_LoadFace` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Shared loader used by `LoadFace` and `LoadFaceFancy` |
 | Continuous face jump | `TextEngine_StartFaceJump`, `TextEngine_StopFaceJump`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that bounces the active portrait until toggled off |
 | Shake / bounce-on-print | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce = per-letter OBJ float-in that bakes into dialogue text |
+| Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
@@ -182,6 +189,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Custom box types have limited tile variety; new shapes do not include the vanilla multi-frame expand animation.
 - Boop pitch is stored on face/current attributes and accepted by `0x2C`, but the old `PlayTextBoop` idle hook is not currently installed, so pitch changes may not audibly apply until that path is restored in C.
 - Shake-on-print jitters the whole BG0 text layer. Bounce-on-print floats each letter in as an OBJ (up to 4 at once) before baking it into the dialogue text; sprite-talk mode is skipped.
+- The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

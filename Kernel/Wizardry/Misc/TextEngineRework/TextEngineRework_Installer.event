@@ -99,4 +99,6 @@ POIN MoveFaceToPositionVariableSpeed
 POIN MoveFaceToPositionVariableSpeed
 POIN MoveFaceToPositionVariableSpeed	//80 37 (MoveFarFarRight with variable speed)
 POIN ChangeTextSpeed		//80 38
+POIN ToggleOnWave			//80 3F
+POIN ToggleOffWave			//80 40
 */

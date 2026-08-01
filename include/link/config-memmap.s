@@ -122,6 +122,8 @@ _kernel_malloc sArenaRosterRuntimeState, 4
 _kernel_malloc sArenaRosterSuspendState, 34
 _kernel_malloc sSkillStaffMenuState, 16
 _kernel_malloc sSkillStaffSuspendState, 68
+_kernel_malloc sTextEngineWaveOffsets, 0x280
+_kernel_malloc sTextEngineWaveActiveBuffer, 2
 _kernel_malloc gTonicChapterState, 2
 _kernel_malloc gUnitTonicState, 50
 _kernel_malloc gStartMapEffectsUnlockMask, 2

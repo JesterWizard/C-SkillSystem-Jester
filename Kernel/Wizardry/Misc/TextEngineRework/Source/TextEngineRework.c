@@ -29,7 +29,7 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3E,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x40,
 };
 
 enum {
@@ -37,6 +37,9 @@ enum {
 	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
 	TEXT_ENGINE_PRINT_SHAKE_FRAMES = 4,
 	TEXT_ENGINE_PRINT_FX_INACTIVE = -1,
+	TEXT_ENGINE_WAVE_AMPLITUDE = 2,
+	TEXT_ENGINE_WAVE_FREQUENCY = 2,
+	TEXT_ENGINE_WAVE_SPEED = 2,
 	TEXT_ENGINE_FLOAT_SLOTS = 4,
 	/*
 	 * LoadObjUIGfx packs a 0x12x4 sheet into OBJ VRAM with 32-tile pitch:
@@ -64,6 +67,14 @@ struct TextEnginePrintFxProc {
 	/* 2E */ s16 unusedBounce;
 	/* 30 */ s16 baseX;
 	/* 32 */ s16 baseY;
+};
+
+struct TextEngineWaveProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ s16 phase;
+	/* 2E */ u8 activeBuffer;
+	/* 2F */ u8 unused;
+	/* 30 */ void (*previousHBlankHandler)(void);
 };
 
 struct TextEngineGlyphFloatProc {
@@ -113,6 +124,8 @@ static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
 static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
 static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc);
 static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc);
+static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc);
+static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc);
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
 
@@ -122,6 +135,9 @@ static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ +1,  0 },
 	{  0,  0 },
 };
+
+extern EWRAM_DATA s16 sTextEngineWaveOffsets[2][DISPLAY_HEIGHT];
+extern EWRAM_DATA volatile u8 sTextEngineWaveActiveBuffer;
 
 static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
 	PROC_NAME("TextEngineFaceJump"),
@@ -134,6 +150,13 @@ static const struct ProcCmd gProcScr_TextEnginePrintFx[] = {
 	PROC_NAME("TextEnginePrintFx"),
 	PROC_SET_END_CB(TextEnginePrintFx_OnEnd),
 	PROC_REPEAT(TextEnginePrintFx_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineWave[] = {
+	PROC_NAME("TextEngineWave"),
+	PROC_SET_END_CB(TextEngineWave_OnEnd),
+	PROC_REPEAT(TextEngineWave_OnIdle),
 	PROC_END,
 };
 
@@ -361,6 +384,97 @@ static void TextEngine_StartPrintShake(void)
 
 	fx->shakeTimer = 0;
 	TextEnginePrintFx_Apply(fx);
+}
+
+static void TextEngineWave_BuildBuffer(
+	struct TextEngineWaveProc *proc,
+	int buffer
+)
+{
+	int line;
+
+	for (line = 0; line < DISPLAY_HEIGHT; line++) {
+		sTextEngineWaveOffsets[buffer][line] =
+			(SIN(proc->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
+				* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;
+	}
+}
+
+static void TextEngineWave_ApplyBaseOffsets(void)
+{
+	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x;
+	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x;
+	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x;
+	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x;
+}
+
+static void TextEngineWave_OnHBlank(void)
+{
+	u16 line = REG_VCOUNT;
+	s16 offset;
+
+	if (line >= DISPLAY_HEIGHT)
+		return;
+
+	offset = sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer][line];
+	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
+	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
+	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
+	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
+}
+
+static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
+{
+	SetSecondaryHBlankHandler(proc->previousHBlankHandler);
+	TextEngineWave_ApplyBaseOffsets();
+}
+
+static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc)
+{
+	int nextBuffer = proc->activeBuffer ^ 1;
+
+	proc->phase += TEXT_ENGINE_WAVE_SPEED;
+	TextEngineWave_BuildBuffer(proc, nextBuffer);
+	proc->activeBuffer = nextBuffer;
+	sTextEngineWaveActiveBuffer = nextBuffer;
+}
+
+static void TextEngine_StartWave(void)
+{
+	struct TextEngineWaveProc *proc;
+
+	if (CheckTalkFlag(TALK_FLAG_SPRITE))
+		return;
+
+	proc = (struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
+	if (proc)
+		return;
+
+	proc = (struct TextEngineWaveProc *)Proc_Start(
+		gProcScr_TextEngineWave,
+		PROC_TREE_3
+	);
+	if (!proc)
+		return;
+
+	proc->phase = 0;
+	proc->activeBuffer = 0;
+	proc->unused = 0;
+	proc->previousHBlankHandler = sHBlankHandler2;
+	TextEngineWave_BuildBuffer(proc, 0);
+	TextEngineWave_BuildBuffer(proc, 1);
+	sTextEngineWaveActiveBuffer = 0;
+
+	/*
+	 * Keep the primary HBlank slot available for existing dialogue effects.
+	 * The secondary slot is restored when the wave proc ends.
+	 */
+	SetSecondaryHBlankHandler(TextEngineWave_OnHBlank);
+}
+
+static void TextEngine_StopWave(void)
+{
+	Proc_EndEach(gProcScr_TextEngineWave);
 }
 
 static int TextEngine_GetFloatObjChr(int slot)
@@ -723,6 +837,7 @@ void Talk_OnInit_C(void)
 	*TextEngine_GetShakePrintFlag() = 0;
 	*TextEngine_GetBouncePrintFlag() = 0;
 	Proc_EndEach(gProcScr_TextEnginePrintFx);
+	TextEngine_StopWave();
 	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
 	TextEngine_PrepareFloatPalette();
 }
@@ -1152,6 +1267,8 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			case 0x3C:
 			case 0x3D:
 			case 0x3E:
+			case 0x3F:
+			case 0x40:
 				cursor++;
 				continue;
 			}
@@ -1608,6 +1725,14 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 	case 0x3E:
 		*TextEngine_GetBouncePrintFlag() = 0;
 		Proc_EndEach(gProcScr_TextEngineGlyphFloat);
+		return 3;
+
+	case 0x3F:
+		TextEngine_StartWave();
+		return 3;
+
+	case 0x40:
+		TextEngine_StopWave();
 		return 3;
 
 	default:
