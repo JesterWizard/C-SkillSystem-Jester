@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 
+#include "bmlib.h"
 #include "fontgrp.h"
 #include "m4a.h"
 #include "scene.h"
@@ -24,7 +25,19 @@ enum TextEngineFaceAttribute {
 };
 
 enum {
-	TEXT_ENGINE_MAX_EXTRA_CODE = 0x38,
+	TEXT_ENGINE_MAX_EXTRA_CODE = 0x3A,
+};
+
+enum {
+	TEXT_ENGINE_FACE_JUMP_PERIOD = 16,
+	TEXT_ENGINE_FACE_JUMP_HEIGHT = 6,
+};
+
+struct TextEngineFaceJumpProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ struct FaceProc *face;
+	/* 30 */ s16 timer;
+	/* 32 */ s16 offset;
 };
 
 /*
@@ -51,6 +64,16 @@ typedef void (*TextEngineUnsetFaceDisplayBitsFunc)(int position);
 int TalkInterpret(ProcPtr proc);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox);
 struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap);
+
+static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc);
+static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc);
+
+static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
+	PROC_NAME("TextEngineFaceJump"),
+	PROC_SET_END_CB(TextEngineFaceJump_OnEnd),
+	PROC_REPEAT(TextEngineFaceJump_OnIdle),
+	PROC_END,
+};
 
 static struct Text *TextEngine_GetLineText(const struct TalkState *state, int line)
 {
@@ -102,6 +125,95 @@ static void TextEngine_SetCurrentAttributeAndFace(int position, int attribute, u
 
 	TextEngine_SetFaceAttribute(face, attribute, value);
 	TextEngine_GetCurrentSpeakerAttributes()[attribute] = value;
+}
+
+static struct TextEngineFaceJumpProc *TextEngine_FindFaceJumpProc(struct FaceProc *face)
+{
+	struct ProcFindIterator it;
+	struct TextEngineFaceJumpProc *jump;
+
+	Proc_FindBegin(&it, gProcScr_TextEngineFaceJump);
+	while ((jump = (struct TextEngineFaceJumpProc *)Proc_FindNext(&it)) != NULL) {
+		if (jump->face == face)
+			return jump;
+	}
+
+	return NULL;
+}
+
+static void TextEngineFaceJump_OnEnd(struct TextEngineFaceJumpProc *proc)
+{
+	if (proc->face)
+		proc->face->yPos += proc->offset;
+}
+
+static void TextEngineFaceJump_OnIdle(struct TextEngineFaceJumpProc *proc)
+{
+	struct FaceProc *face = proc->face;
+	int phase;
+	int offset;
+	s16 trueY;
+
+	if (!face) {
+		Proc_End(proc);
+		return;
+	}
+
+	/*
+	 * Undo the previous frame's offset first so other systems that also
+	 * touch yPos (face moves, fades) compose cleanly with continuous jump.
+	 */
+	trueY = face->yPos + proc->offset;
+	proc->timer++;
+
+	phase = proc->timer % TEXT_ENGINE_FACE_JUMP_PERIOD;
+	if (phase < TEXT_ENGINE_FACE_JUMP_PERIOD / 2) {
+		offset = Interpolate(
+			INTERPOLATE_SQUARE,
+			0,
+			TEXT_ENGINE_FACE_JUMP_HEIGHT,
+			phase,
+			TEXT_ENGINE_FACE_JUMP_PERIOD / 2
+		);
+	} else {
+		offset = Interpolate(
+			INTERPOLATE_RSQUARE,
+			TEXT_ENGINE_FACE_JUMP_HEIGHT,
+			0,
+			phase - TEXT_ENGINE_FACE_JUMP_PERIOD / 2,
+			TEXT_ENGINE_FACE_JUMP_PERIOD / 2
+		);
+	}
+
+	face->yPos = trueY - offset;
+	proc->offset = offset;
+}
+
+static void TextEngine_StartFaceJump(struct FaceProc *face)
+{
+	struct TextEngineFaceJumpProc *jump;
+
+	if (!face || TextEngine_FindFaceJumpProc(face))
+		return;
+
+	jump = (struct TextEngineFaceJumpProc *)Proc_Start(
+		gProcScr_TextEngineFaceJump,
+		face
+	);
+	if (!jump)
+		return;
+
+	jump->face = face;
+	jump->timer = 0;
+	jump->offset = 0;
+}
+
+static void TextEngine_StopFaceJump(struct FaceProc *face)
+{
+	struct TextEngineFaceJumpProc *jump = TextEngine_FindFaceJumpProc(face);
+
+	if (jump)
+		Proc_End(jump);
 }
 
 void UpdateFontGlyphSet(int font)
@@ -624,6 +736,11 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			case 0x38:
 				cursor += 2;
 				continue;
+
+			case 0x39:
+			case 0x3A:
+				cursor++;
+				continue;
 			}
 		} else if (code <= 0x1D) {
 			switch (code) {
@@ -1049,6 +1166,18 @@ static int TextEngine_HandleExtendedCode(ProcPtr proc, u8 subCode)
 
 		state->str++;
 		return TalkInterpret(proc);
+
+	case 0x39:
+		TextEngine_StartFaceJump(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
+		return 3;
+
+	case 0x3A:
+		TextEngine_StopFaceJump(
+			TextEngine_GetFaceProcByPosition(state->activeFaceSlot)
+		);
+		return 3;
 
 	default:
 		return 1;

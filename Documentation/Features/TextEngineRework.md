@@ -24,7 +24,7 @@ Player-facing impact:
 
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
-- Portraits can load with flip / eyes-closed options, move at custom speeds, and use remapped screen positions.
+- Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump continuously while speaking.
 - Existing vanilla text remains readable and compatible with the new parser.
 
 This feature is intended for **standard cutscene text**. It has not been validated against every alternate dialogue path the game can use.
@@ -84,6 +84,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x2F` | `[LoadFaceFancy]` | options + attrs + portrait id | Loads a face with flip / eyes-closed options and explicit attributes |
 | `0x30`–`0x37` | `[MFL2]` … `[MFFR2]` | `YY` frames | Moves a portrait to that slot over `YY` frames |
 | `0x38` | `[TextSpeed]` | `XX` frames, or `0xFF` | Overrides print delay; `0xFF` restores the Options menu speed |
+| `0x39` | `[ToggleOnJumping]` | none | Starts continuous jumping on the active portrait |
+| `0x3A` | `[ToggleOffJumping]` | none | Stops jumping and restores the portrait's resting Y |
 
 ### Fancy LoadFace options
 
@@ -118,6 +120,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [BoxType][0x03][BoxHeight][0x03]A different textbox shape can appear on the next line.
 [PlaySound][0x8D][0x8C][0x8B][0x8A]That sound effect fires before the next message.
 [MML2][0x10]Move me more slowly than vanilla.
+[ToggleOnJumping]I can't sit still!
+[ToggleOffJumping]Okay, I'm calm again.
 ```
 
 ### Custom fonts
@@ -141,6 +145,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Talk open / clear | `InitTalk_C`, `StartTalkOpen_C`, `TalkShiftClearAll_OnInit_C`, `TalkShiftClear_OnInit_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Supports 1–3 line boxes and clear origins |
 | Variable-speed face move | `StartTalkFaceMove_C`, `TalkFaceMove_OnInitOverride` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Full C replacement for face moves with custom duration |
 | Fancy / normal face load | `TextEngine_LoadFace` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Shared loader used by `LoadFace` and `LoadFaceFancy` |
+| Continuous face jump | `TextEngine_StartFaceJump`, `TextEngine_StopFaceJump`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Child proc that bounces the active portrait until toggled off |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |

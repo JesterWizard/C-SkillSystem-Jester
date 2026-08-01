@@ -217,7 +217,8 @@ CLEAN_FILES += $(SFILES:.s=.o) $(SFILES:.s=.dmp) $(SFILES:.s=.lyn.event)
 # = Texts =
 # =========
 TEXTS_DIR   := $(CONTENTS_DIR)/Texts
-TEXT_SOURCE := $(shell find $(TEXTS_DIR) -type f -name '*.txt')
+# The rewritten game's text sources are included by Contents/Texts/Source/kernel.txt.
+TEXT_SOURCE := $(shell find $(TEXTS_DIR) $(GAMEDATA_DIR)/FE8_Rewritten_Terper/Text -type f -name '*.txt')
 
 export TEXT_DEF := $(TEXTS_DIR)/build/msgs.h
 
