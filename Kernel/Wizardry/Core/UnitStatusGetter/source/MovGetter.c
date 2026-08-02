@@ -3,7 +3,6 @@
 #include "status-getter.h"
 #include "debuff.h"
 #include "constants/skills.h"
-#include "pair-up.h"
 
 extern int GetTonicStatBonus(struct Unit *unit, int tonicIndex);
 #include "bwl.h"
@@ -12,8 +11,6 @@ int _GetUnitMov(struct Unit *unit)
 {
 	const StatusGetterFunc_t *it;
 	int status = UNIT_MOV(unit);
-
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_MOV);
 
 	for (it = gpMovGetters; *it; it++)
 		status = (*it)(status, unit);

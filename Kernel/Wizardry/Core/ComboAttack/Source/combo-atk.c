@@ -4,7 +4,6 @@
 #include "combo-attack.h"
 #include "weapon-range.h"
 #include "kernel-tutorial.h"
-#include "pair-up.h"
 
 void ResetComboAtkList(void)
 {
@@ -81,19 +80,6 @@ void BattleGenerateComboAtkList(void)
 		melee_attack = true;
 	else
 		melee_attack = false;
-
-	if (PairUp_IsEnabled()) {
-		unit = PairUp_GetCombatSupport(&gBattleActor.unit);
-		if (unit) {
-			item = GetUnitEquippedWeapon(unit);
-			range = RECT_DISTANCE(
-				unit->xPos, unit->yPos,
-				gBattleTarget.unit.xPos, gBattleTarget.unit.yPos);
-
-			if (item && IsItemCoveringRangeRework(item, range, unit))
-				return;
-		}
-	}
 
 	max_targets = COMBO_ATK_MAX;
 

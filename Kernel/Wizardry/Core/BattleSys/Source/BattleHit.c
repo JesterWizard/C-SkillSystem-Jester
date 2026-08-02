@@ -11,7 +11,6 @@
 #include "constants/skills.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
-#include "pair-up.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/Forging.h"
 #include "playst-expa.h"
@@ -247,22 +246,6 @@ void BattleGenerateHitAttributes(struct BattleUnit* attacker, struct BattleUnit*
 	}
 
 	RegisterHitCnt(attacker, false);
-
-	if (PairUp_GetCombatSupport(GetUnit(defender->unit.index))) {
-		if (gBattleTemporaryFlag.pair_up_guard_result == 0) {
-			gBattleTemporaryFlag.pair_up_guard_result = 1;
-
-			if (BattleRoll1RN(
-				PairUp_GetDualGuardChance(GetUnit(defender->unit.index), attacker->weapon),
-				false))
-				gBattleTemporaryFlag.pair_up_guard_result = 2;
-		}
-
-		if (gBattleTemporaryFlag.pair_up_guard_result == 2) {
-			gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_GREATSHLD;
-			return;
-		}
-	}
 
 	gBattleStats.damage = BattleHit_CalcDamage(attacker, defender);
 

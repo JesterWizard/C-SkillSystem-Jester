@@ -13,22 +13,7 @@ int _GetUnitSpeed(struct Unit *unit)
 	const StatusGetterFunc_t *it;
 	int status = unit->spd;
 
-   if (unit->state & US_RESCUING) {
-        bool hasPairUp = false;
-        bool hasSavior = false;
-
-#if defined(SID_PairUp) && COMMON_SKILL_VALID(SID_PairUp)
-        hasPairUp = SkillTester(unit, SID_PairUp);
-#endif
-
-#if defined(SID_Savior) && COMMON_SKILL_VALID(SID_Savior)
-        hasSavior = SkillTester(unit, SID_Savior);
-#endif
-
-        if (!hasPairUp && !hasSavior) {
-            status = unit->skl / 2;
-        }
-    }
+	status = PairUp_RescueStatScale(status, unit, PAIR_UP_STAT_SPD);
 
 #if defined(SID_Unaware) && (COMMON_SKILL_VALID(SID_Unaware))
     if (unit == GetUnit(gBattleActor.unit.index) && GetUnit(gBattleTarget.unit.index) && SkillTester(GetUnit(gBattleTarget.unit.index), SID_Unaware))
@@ -36,8 +21,6 @@ int _GetUnitSpeed(struct Unit *unit)
     else if (unit == GetUnit(gBattleTarget.unit.index) && GetUnit(gBattleActor.unit.index) && SkillTester(GetUnit(gBattleActor.unit.index), SID_Unaware))
         return status;
 #endif
-
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_SPD);
 
 	for (it = gpSpdGetters; *it; it++)
 		status = (*it)(status, unit);
@@ -195,12 +178,6 @@ int SpdGetterSkills(int status, struct Unit *unit)
 #if (defined(SID_Rampage) && (COMMON_SKILL_VALID(SID_Rampage))) 
     if (SkillTester(unit, SID_Rampage))
             status += unit->spd / 2;
-#endif
-
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-    if (SkillTester(unit, SID_PairUp))
-        if (unit->state & US_RESCUING)
-            status += Div(_GetUnitSpeed(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
 #endif
 
 #if defined(SID_Sellsword) && (COMMON_SKILL_VALID(SID_Sellsword))

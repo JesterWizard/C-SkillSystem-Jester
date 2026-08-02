@@ -1,10 +1,38 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "pair-up.h"
 //#include <stdio.h>
 #include <unistd.h>
 
 typedef void (*BeginActionFunc_t)(struct Unit *unit);
 extern BeginActionFunc_t const *const gpBeginActionHooks;
+
+#define PAIR_UP_VIEWED_UNIT_ADDR ((volatile u8 *) 0x0203A956)
+
+static struct Unit *PairUp_TrySwitchViewedUnit(struct Unit *unit)
+{
+	struct Unit *previous;
+	struct Unit *leader;
+
+	if (!unit || gBmSt.taken_action)
+		return unit;
+
+	previous = GetUnit(*PAIR_UP_VIEWED_UNIT_ADDR);
+	if (!previous || previous == unit)
+		return unit;
+
+	if (PairUp_IsLeader(previous) && PairUp_GetSupport(previous) == unit) {
+		PairUp_Switch(previous);
+		return unit;
+	}
+
+	if (PairUp_IsSupport(previous)
+		&& (leader = PairUp_GetLeader(previous)) == unit
+		&& PairUp_Switch(leader))
+		return previous;
+
+	return unit;
+}
 
 typedef struct
 {
@@ -93,6 +121,9 @@ static void PlayUnitVoiceWithBGMReduced(u16 voiceId, int frames)
 LYN_REPLACE_CHECK(UnitBeginAction);
 void UnitBeginAction(struct Unit *unit)
 {
+	unit = PairUp_TrySwitchViewedUnit(unit);
+	*PAIR_UP_VIEWED_UNIT_ADDR = unit->index;
+
     gActiveUnit = unit;
     gActiveUnitId = unit->index;
 

@@ -50,7 +50,6 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.max_simultaneous_support_conversations = 10,
 	.kill_rewards = true,
 	.menu_option_refuge = false,
-	.menu_option_pair_up = true,
 	.promote_enemy_on_kill = true,
 	.promote_enemy_boost = 3,
 	.no_wait_after_trading = true,

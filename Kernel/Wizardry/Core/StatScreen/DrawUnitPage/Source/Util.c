@@ -167,7 +167,15 @@ void DrawStatWithBarReworkExt(int num, int x, int y, u16 *tm, int base, int tota
 		diff);
 }
 
-void DrawStatWithBarRework(int num, int x, int y, u16 *tm1, u16 *tm2, int base, int total, int max)
+static void DrawStatWithBarReworkInternal(
+	int num,
+	int x,
+	int y,
+	u16 *tm1,
+	u16 *tm2,
+	int base,
+	int total,
+	int max)
 {
 	/**
 	 * Here the max value maybe more than 35,
@@ -183,11 +191,14 @@ void DrawStatWithBarRework(int num, int x, int y, u16 *tm1, u16 *tm2, int base, 
 			: TEXT_COLOR_SYSTEM_BLUE,
 		base);
 
-	PutNumberBonus(
-		diff,
-		tm1 + TILEMAP_INDEX(x + 1, y));
+	PutNumberBonus(diff, tm1 + TILEMAP_INDEX(x + 1, y));
 
 	DrawStatWithBarReworkExt(num, x, y, tm2, base, total, max, max_bar);
+}
+
+void DrawStatWithBarRework(int num, int x, int y, u16 *tm1, u16 *tm2, int base, int total, int max)
+{
+	DrawStatWithBarReworkInternal(num, x, y, tm1, tm2, base, total, max);
 }
 
 void HbPopuplate_Page1TrvTalk(struct HelpBoxProc *proc)

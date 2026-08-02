@@ -387,7 +387,6 @@ const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
        // // 5A
        // [CHARACTER_GHEB] = {
        //     .skills = {
-       //         [0] = SID_PairUp,
        //     },
        // },
        // // 5B

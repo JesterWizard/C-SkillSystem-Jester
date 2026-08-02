@@ -223,7 +223,6 @@ LYN_REPLACE_CHECK(PageNumCtrl_DisplayBlinkIcons);
 void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 {
 	bool blinking;
-	bool saviour_pairup = false;
 	static const u16 palidLut[3] = { 0xC, 0xE, 0xD }; // TODO: palid constants
 
 	/* No idle in transition */
@@ -236,15 +235,10 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	{
         if (gStatScreen.unit->state & US_RESCUING)
         {
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-            if (SkillTester(gStatScreen.unit, SID_PairUp))
-                saviour_pairup = true;
-#endif
-            if (!saviour_pairup)
-            {
-                UpdateStatArrowSprites(120, 56, 1);
-                UpdateStatArrowSprites(120, 72, 1);
-            }
+            UpdateStatArrowSprites(0x78, 0x18, 1);
+            UpdateStatArrowSprites(0x78, 0x28, 1);
+            UpdateStatArrowSprites(0x78, 0x58, 1);
+            UpdateStatArrowSprites(0x78, 0x68, 1);
 
             if (blinking)
             {

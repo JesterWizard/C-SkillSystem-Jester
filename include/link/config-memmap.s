@@ -74,8 +74,6 @@ _kernel_malloc sKTutorialBits, 0xC
 _kernel_malloc sKTutorialBitsHistory, 0xC
 _kernel_malloc gBattleTargetPositionBackup, 0x4
 _kernel_malloc gActionDataExpa, 0x10
-_kernel_malloc gPairUpState, 0x200
-_kernel_malloc gPairUpPreviewWindows, 0x8
 _kernel_malloc sStatDebuffStatusAlly, 40 * 16 // Was originally 51 but reduced to 40 for 4th allegiance
 _kernel_malloc sStatDebuffStatusEnemy, 51 * 16
 _kernel_malloc sStatDebuffStatusNpc, 8 * 16

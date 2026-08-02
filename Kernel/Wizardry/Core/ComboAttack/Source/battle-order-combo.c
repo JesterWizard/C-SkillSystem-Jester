@@ -6,7 +6,6 @@
 #include "debuff.h"
 #include "kernel-lib.h"
 #include "constants/skills.h"
-#include "pair-up.h"
 #include "weapon-range.h"
 
 #define LOCAL_TRACE 0

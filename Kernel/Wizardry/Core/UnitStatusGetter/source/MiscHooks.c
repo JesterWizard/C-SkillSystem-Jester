@@ -2,7 +2,6 @@
 #include "battle-system.h"
 #include "skill-system.h"
 #include "constants/skills.h"
-#include "pair-up.h"
 
 LYN_REPLACE_CHECK(MoveActiveUnit);
 void MoveActiveUnit(int x, int y)
@@ -19,14 +18,6 @@ void MoveActiveUnit(int x, int y)
 
 	UnitFinalizeMovement(gActiveUnit);
 
-	if (PairUp_IsLeader(gActiveUnit)) {
-		struct Unit *support = PairUp_GetSupport(gActiveUnit);
-
-		if (support) {
-			support->xPos = gActiveUnit->xPos;
-			support->yPos = gActiveUnit->yPos;
-		}
-	}
 }
 
 LYN_REPLACE_CHECK(AddUnitHp);

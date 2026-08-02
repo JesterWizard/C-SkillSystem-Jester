@@ -19,6 +19,4 @@ WORD $0 $0 $0 $0
 POIN ActionExecSkill
 POIN ActionGaidenMagicCombat
 POIN ActionGaidenMagicStaff
-WORD $0
-POIN ActionPairUp
-WORD $0 $0 $0 $0 $0 $0 $0 $0
+WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0

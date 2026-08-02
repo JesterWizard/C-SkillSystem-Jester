@@ -41,14 +41,6 @@ int pr_AttackActionCommandHoverFix(struct MenuProc *menu, struct MenuItemProc *m
 int pr_AttackActionCommandUnhoverFix(struct MenuProc *menu, struct MenuItemProc *menuItem);
 u8 PrestigeCommandUsability(const struct MenuItemDef *def, int number);
 u8 PrestigeCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
-u8 PairUp_MenuUsability(const struct MenuItemDef *def, int number);
-u8 PairUp_MenuOnSelected(struct MenuProc *menu, struct MenuItemProc *item);
-u8 PairUp_SwitchUsability(const struct MenuItemDef *def, int number);
-u8 PairUp_SwitchOnSelected(struct MenuProc *menu, struct MenuItemProc *item);
-u8 PairUp_SeparateUsability(const struct MenuItemDef *def, int number);
-u8 PairUp_SeparateOnSelected(struct MenuProc *menu, struct MenuItemProc *item);
-u8 PairUp_TransferUsability(const struct MenuItemDef *def, int number);
-u8 PairUp_TransferOnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 
 LYN_REPLACE_CHECK(WeaponSelectMenu_IsAvailable);
 u8 WeaponSelectMenu_IsAvailable(const struct MenuItemDef* def, int number) {
@@ -145,10 +137,6 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　制圧", 0x67A, 0x6CC, 0, 0x4E, UnitActionMenu_CanSeize, 0, UnitActionMenu_Seize, 0, 0, 0}, // Seize
 	{"　攻撃", 0x67B, 0x6C0, 0, 0x4F, pr_AttackCommandUsabilityFix, 0, UnitActionMenu_Attack, 0, pr_AttackActionCommandHoverFix, pr_AttackActionCommandUnhoverFix}, // Attack >
 	{"　攻撃", 0x67B, 0x6C0, 0, 0x50, pr_AttackBallistaCommandUsabilityFix, 0, UnitActionMenu_Attack, 0, pr_AttackActionCommandHoverFix, pr_AttackActionCommandUnhoverFix}, // Attack w/Ballista >
-	{" Pair Up", MSG_MenuCommand_PairUp_NAME, MSG_MenuCommand_PairUp_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7B, PairUp_MenuUsability, 0, PairUp_MenuOnSelected, 0, 0, 0},
-	{" Switch", MSG_MenuCommand_PairUp_Switch_NAME, MSG_MenuCommand_PairUp_Switch_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7C, PairUp_SwitchUsability, 0, PairUp_SwitchOnSelected, 0, 0, 0},
-	{" Separate", MSG_MenuCommand_PairUp_Separate_NAME, MSG_MenuCommand_PairUp_Separate_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7D, PairUp_SeparateUsability, 0, PairUp_SeparateOnSelected, 0, 0, 0},
-	{" Transfer", MSG_MenuCommand_PairUp_Transfer_NAME, MSG_MenuCommand_PairUp_Transfer_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7E, PairUp_TransferUsability, 0, PairUp_TransferOnSelected, 0, 0, 0},
 
 	/* Combat Art */
 	{

@@ -27,7 +27,7 @@ int _GetUnitDefense(struct Unit *unit)
         return status;
 #endif
 
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_DEF);
+	status = PairUp_RescueStatScale(status, unit, PAIR_UP_STAT_DEF);
 
 	for (it = gpDefGetters; *it; it++)
 		status = (*it)(status, unit);
@@ -186,12 +186,6 @@ int DefGetterSkills(int status, struct Unit *unit)
 #if defined(SID_PushSpectrum) && (COMMON_SKILL_VALID(SID_PushSpectrum))
 		if (SkillTester(unit, SID_PushSpectrum))
 			status += SKILL_EFF0(SID_PushSpectrum);
-#endif
-
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-    if (SkillTester(unit, SID_PairUp))
-        if (unit->state & US_RESCUING)
-            status += Div(_GetUnitDefense(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
 #endif
 
 #if defined(SID_SteadyRider) && (COMMON_SKILL_VALID(SID_SteadyRider))

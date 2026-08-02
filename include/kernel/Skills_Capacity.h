@@ -559,7 +559,6 @@
 #define MSG_SKILL_HeavyMetal_CAPACITY 1
 #define MSG_SKILL_Acrobat_CAPACITY 1
 #define MSG_SKILL_Contrary_CAPACITY 1
-#define MSG_SKILL_PairUp_CAPACITY 1
 #define MSG_SKILL_Reflex_CAPACITY 1
 #define MSG_SKILL_RampUp_CAPACITY 1
 #define MSG_SKILL_Transform_CAPACITY 1

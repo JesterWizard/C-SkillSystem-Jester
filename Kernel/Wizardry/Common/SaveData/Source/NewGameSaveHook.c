@@ -1,6 +1,5 @@
 #include "common-chax.h"
 #include "save-data.h"
-#include "pair-up.h"
 
 void NewGameSaveGenericHook(void)
 {
@@ -8,7 +7,6 @@ void NewGameSaveGenericHook(void)
 
 	SetGameTime(0);
 	InitUnits();
-	PairUp_ResetAll();
 	ClearSupplyItems();
 	ResetPermanentFlags();
 	InvalidateSuspendSave(SAVE_ID_SUSPEND);

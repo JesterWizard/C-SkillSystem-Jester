@@ -6198,17 +6198,6 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
-#if (defined(SID_PairUp) && COMMON_SKILL_VALID(SID_PairUp))
-    [SID_PairUp] = {
-        .name = MSG_SKILL_PairUp_NAME,
-        .desc = MSG_SKILL_PairUp_DESC,
-        .capacity = MSG_SKILL_PairUp_CAPACITY,
-        .price = MSG_SKILL_PairUp_PRICE,
-        .icon = GFX_SkillIcon_WIP,
-        .iconPal = 0,
-    },
-#endif
-
 #if (defined(SID_Reflex) && COMMON_SKILL_VALID(SID_Reflex))
     [SID_Reflex] = {
         .name = MSG_SKILL_Reflex_NAME,

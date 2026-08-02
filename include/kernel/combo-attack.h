@@ -15,7 +15,6 @@ void ResetComboAtkList(void);
 bool ChecComboMagi(int weapon);
 void BattleGenerateComboAtkList(void);
 bool BattleComboGenerateHits(void);
-bool BattlePairUpGenerateSupportAttack(struct BattleUnit *attacker, struct BattleUnit *defender);
 void MapAnim_PrepareNextBattleRound_CleanPreRoundCombo(void);
 
 static inline struct Unit *GetMapAnimComboUnit(int round)

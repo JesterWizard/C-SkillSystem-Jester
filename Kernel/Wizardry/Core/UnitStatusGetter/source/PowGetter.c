@@ -20,7 +20,7 @@ int _GetUnitPower(struct Unit *unit)
 	return status;
 #endif
 
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_POW);
+	status = PairUp_RescueStatScale(status, unit, PAIR_UP_STAT_POW);
 
 	for (it = gpPowGetters; *it; it++)
 		status = (*it)(status, unit);
@@ -199,12 +199,6 @@ int PowGetterSkills(int status, struct Unit *unit)
 #if (defined(SID_Rampage) && (COMMON_SKILL_VALID(SID_Rampage)))
     if (SkillTester(unit, SID_Rampage))
 	status += unit->pow / 2;
-#endif
-
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-    if (SkillTester(unit, SID_PairUp))
-	if (unit->state & US_RESCUING)
-	    status += Div(_GetUnitPower(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
 #endif
 
 #if defined(SID_Sellsword) && (COMMON_SKILL_VALID(SID_Sellsword))

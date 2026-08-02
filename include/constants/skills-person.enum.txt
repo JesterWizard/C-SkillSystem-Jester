@@ -29,7 +29,6 @@
 // SID_GoddessDance
 // SID_Stride
 // SID_Blacksmith
-// SID_PairUp
 // SID_Transform
 // SID_StealPlus
 // SID_DrawBack

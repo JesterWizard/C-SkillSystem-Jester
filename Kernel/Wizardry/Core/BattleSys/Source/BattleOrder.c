@@ -9,7 +9,6 @@
 #include "bwl.h"
 #include "unit-expa.h"
 #include "combo-attack.h"
-#include "pair-up.h"
 #include "constants/skills.h"
 #include "combat-art.h"
 #include "debuff.h"
@@ -1080,8 +1079,6 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
     int  roundIndex       = 0;
     u32  baseAttrs        = 0;
 
-    gBattleTemporaryFlag.pair_up_guard_result = 0;
-
     // ------------------------------------------------------------
     // 1. Validate that attacker can begin combat
     // ------------------------------------------------------------
@@ -1123,9 +1120,6 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
         // Overflow protection
         // --------------------------------------------------------
         if (HandleBattleHitOverflow())
-            return BATTLE_ROUND_END;
-
-        if (BattlePairUpGenerateSupportAttack(attacker, defender))
             return BATTLE_ROUND_END;
 
         // --------------------------------------------------------

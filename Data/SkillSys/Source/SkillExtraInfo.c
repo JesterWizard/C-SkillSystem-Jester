@@ -1183,10 +1183,6 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 	[SID_WitchsBrew] = {{ 7 }},
 #endif
 
-#if (defined(SID_PairUp) && COMMON_SKILL_VALID(SID_PairUp))
-    [SID_PairUp] = {{20}},
-#endif
-
 #if (defined(SID_ArdentSacrifice) && COMMON_SKILL_VALID(SID_ArdentSacrifice))
     [SID_ArdentSacrifice]
     {{ 10 } },

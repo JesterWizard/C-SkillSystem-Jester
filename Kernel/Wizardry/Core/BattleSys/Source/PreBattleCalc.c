@@ -68,7 +68,10 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 	if (wt < 0)
 		wt = 0;
 
-	bu->battleSpeed = bu->unit.spd - wt;
+	bu->battleSpeed = PairUp_RescueStatScale(
+		bu->unit.spd,
+		&bu->unit,
+		PAIR_UP_STAT_SPD) - wt;
 
 	if (bu->battleSpeed < 0)
 		bu->battleSpeed = 0;
@@ -154,9 +157,15 @@ void ComputeBattleUnitAttack(struct BattleUnit* attacker, struct BattleUnit* def
 	if (!nonStrMagStatBase)
 	{
 		if (IsMagicAttack(attacker))
-			status = status + UNIT_MAG(&attacker->unit);
+			status += PairUp_RescueStatScale(
+				UNIT_MAG(&attacker->unit),
+				&attacker->unit,
+				PAIR_UP_STAT_MAG);
 		else
-			status = status + attacker->unit.pow;
+			status += PairUp_RescueStatScale(
+				attacker->unit.pow,
+				&attacker->unit,
+				PAIR_UP_STAT_POW);
 	}
 
 	attacker->battleAttack = status;
@@ -167,8 +176,14 @@ void ComputeBattleUnitDefense(struct BattleUnit* attacker, struct BattleUnit* de
 {
 	int status, def, res;
 
-	def = attacker->unit.def + attacker->terrainDefense;
-	res = attacker->unit.res + attacker->terrainResistance;
+	def = PairUp_RescueStatScale(
+		attacker->unit.def,
+		&attacker->unit,
+		PAIR_UP_STAT_DEF) + attacker->terrainDefense;
+	res = PairUp_RescueStatScale(
+		attacker->unit.res,
+		&attacker->unit,
+		PAIR_UP_STAT_RES) + attacker->terrainResistance;
 
 	if (IsMagicAttack(defender))
 		status = res;
@@ -200,6 +215,19 @@ void ComputeBattleUnitAvoidRate_Rework(struct BattleUnit* bu)
 
 	status = bu->battleAvoidRate;
 
+	if (PairUp_IsLeader(&bu->unit)) {
+		status += (
+			PairUp_RescueStatScale(
+				bu->unit.spd,
+				&bu->unit,
+				PAIR_UP_STAT_SPD)
+			- bu->unit.spd) * 2;
+		status += PairUp_RescueStatScale(
+			bu->unit.lck,
+			&bu->unit,
+			PAIR_UP_STAT_LCK) - bu->unit.lck;
+	}
+
 	if (!CheckOutdoorTerrain(bu->terrainId)) {
 		int jid = UNIT_CLASS_ID(&bu->unit);
 
@@ -221,16 +249,28 @@ void ComputeBattleUnitCritRate(struct BattleUnit* bu)
 	int status;
 	int jid = UNIT_CLASS_ID(&bu->unit);
 
-	status = bu->unit.skl / 2;
+	status = PairUp_RescueStatScale(
+		bu->unit.skl,
+		&bu->unit,
+		PAIR_UP_STAT_SKL) / 2;
 
 #if defined(SID_SuperLuck) && (COMMON_SKILL_VALID(SID_SuperLuck))
 	if (BattleFastSkillTester(bu, SID_SuperLuck))
-		status = bu->unit.lck;
+		status = PairUp_RescueStatScale(
+			bu->unit.lck,
+			&bu->unit,
+			PAIR_UP_STAT_LCK);
 #endif
 
 #if defined(SID_CriticalForce) && (COMMON_SKILL_VALID(SID_CriticalForce))
 	if (BattleFastSkillTester(bu, SID_CriticalForce))
-		status = bu->unit.skl + bu->unit.skl / 2;
+		{
+			int skl = PairUp_RescueStatScale(
+				bu->unit.skl,
+				&bu->unit,
+				PAIR_UP_STAT_SKL);
+			status = skl + skl / 2;
+		}
 #endif
 
 	status += GetItemCrit(bu->weapon);
@@ -249,10 +289,16 @@ LYN_REPLACE_CHECK(ComputeBattleUnitHitRate);
 void ComputeBattleUnitHitRate(struct BattleUnit* bu) {
 	int status;
 
-	status = bu->unit.skl * 2;
+	status = PairUp_RescueStatScale(
+		bu->unit.skl,
+		&bu->unit,
+		PAIR_UP_STAT_SKL) * 2;
 
 	status += GetItemHit(bu->weapon);
-	status += bu->unit.lck / 2;
+	status += PairUp_RescueStatScale(
+		bu->unit.lck,
+		&bu->unit,
+		PAIR_UP_STAT_LCK) / 2;
 	status += bu->wTriangleHitBonus;
 
 	if (gpKernelDesignerConfig->biorhythm_mechanic == true) 
@@ -288,18 +334,6 @@ void ComputeBattleUnitSupportBonuses(struct BattleUnit* attacker, struct BattleU
         attacker->battleCritRate  += tmpBonuses.bonusCrit;
         attacker->battleDodgeRate += tmpBonuses.bonusDodge;
 
-		{
-			int dualSupportRank = PairUp_GetDualSupportRank(&attacker->unit);
-
-			attacker->battleHitRate += PairUp_GetDualSupportBonus(
-				dualSupportRank, PAIR_UP_DUAL_SUPPORT_HIT);
-			attacker->battleAvoidRate += PairUp_GetDualSupportBonus(
-				dualSupportRank, PAIR_UP_DUAL_SUPPORT_AVOID);
-			attacker->battleCritRate += PairUp_GetDualSupportBonus(
-				dualSupportRank, PAIR_UP_DUAL_SUPPORT_CRIT);
-			attacker->battleDodgeRate += PairUp_GetDualSupportBonus(
-				dualSupportRank, PAIR_UP_DUAL_SUPPORT_DODGE);
-		}
     }
 }
 
@@ -320,6 +354,10 @@ STATIC_DECLAR void Local_PreBattleCalcInitExt(struct BattleUnit* attacker, struc
 
 	ComputeBattleUnitCritRate(attacker);
 	ComputeBattleUnitDodgeRate(attacker);
+	attacker->battleDodgeRate += PairUp_RescueStatScale(
+		attacker->unit.lck,
+		&attacker->unit,
+		PAIR_UP_STAT_LCK) - attacker->unit.lck;
 	ComputeBattleUnitSupportBonuses(attacker, defender);
 	// ComputeBattleUnitWeaponRankBonuses(attacker);
 	ComputeBattleUnitStatusBonuses(attacker);

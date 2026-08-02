@@ -20,7 +20,7 @@ int _GetUnitLuck(struct Unit *unit)
         return status;
 #endif
 
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_LCK);
+	status = PairUp_RescueStatScale(status, unit, PAIR_UP_STAT_LCK);
 
 	for (it = gpLckGetters; *it; it++)
 		status = (*it)(status, unit);
@@ -141,12 +141,6 @@ int LckGetterSkills(int status, struct Unit *unit)
 			status += SKILL_EFF0(SID_PushSpectrum);
 #endif
 	}
-
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-    if (SkillTester(unit, SID_PairUp))
-        if (unit->state & US_RESCUING)
-            status += Div(_GetUnitLuck(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
-#endif
 
 #if defined(SID_GoldenGlory) && (COMMON_SKILL_VALID(SID_GoldenGlory))
     if (SkillTester(unit, SID_GoldenGlory))

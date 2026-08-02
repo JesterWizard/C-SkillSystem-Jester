@@ -27,7 +27,7 @@ int _GetUnitResistance(struct Unit *unit)
         return status;
 #endif
 
-	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_RES);
+	status = PairUp_RescueStatScale(status, unit, PAIR_UP_STAT_RES);
 
 	for (it = gpResGetters; *it; it++)
 		status = (*it)(status, unit);
@@ -175,12 +175,6 @@ int ResGetterSkills(int status, struct Unit *unit)
 			status += SKILL_EFF0(SID_PushSpectrum);
 #endif
 	}
-
-#if (defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp)))
-    if (SkillTester(unit, SID_PairUp))
-        if (unit->state & US_RESCUING)
-            status += Div(_GetUnitResistance(GetUnit(unit->rescue)) * SKILL_EFF0(SID_PairUp), 100);
-#endif
 
 #if defined(SID_SteadyRiderPlus) && (COMMON_SKILL_VALID(SID_SteadyRiderPlus))
         if (SkillTesterPlus(unit, SID_SteadyRiderPlus))

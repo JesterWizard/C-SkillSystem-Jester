@@ -559,7 +559,6 @@
 #define MSG_SKILL_HeavyMetal_PRICE 1000
 #define MSG_SKILL_Acrobat_PRICE 1000
 #define MSG_SKILL_Contrary_PRICE 1000
-#define MSG_SKILL_PairUp_PRICE 1000
 #define MSG_SKILL_Reflex_PRICE 1000
 #define MSG_SKILL_RampUp_PRICE 1000
 #define MSG_SKILL_Transform_PRICE 1000

@@ -27,19 +27,16 @@ gExternalUnitToBattleHook: // int (*)(struct Unit *unit, struct BattleUnit *bu);
 gCopyUnitHooks: // void (*)(struct Unit *from, struct Unit *to)
     POIN StatDeuff_OnCopyUnit
     // POIN DemoUnitExpa_OnCopyUnit
-    POIN PairUp_OnCopyUnit
     WORD 0 0 0 0
 
 gClearUnitHooks: // void (*)(struct Unit *unit)
     POIN StatDeuff_OnClearUnit
     POIN Replicate_OnClearUnit
-    POIN PairUp_OnClearUnit
     WORD 0 0 0 0
 
 gKillUnitHooks: // void (*)(struct Unit *unit)
     POIN Replicate_OnUnitKill
     POIN FlushUnitSkillDbgList
-    POIN PairUp_OnUnitKill
     WORD 0 0 0 0
 
 gUnitRefrainHooks: // void (*)(struct Unit *unit)

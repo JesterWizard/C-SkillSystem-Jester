@@ -1,7 +1,6 @@
 #include "gbafe.h"
 #include "kernel-lib.h"
 #include "common-chax.h"
-#include "pair-up.h"
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -174,6 +173,11 @@ void RefreshUnitSprites(void)
         smsHandle->yDisplay = unit->yPos * 16;
         smsHandle->xDisplay = unit->xPos * 16;
 
+        if (unit->state & US_RESCUING) {
+            smsHandle->xDisplay += 2;
+            smsHandle->yDisplay += 2;
+        }
+
         smsHandle->oam2Base = UseUnitSprite(GetUnitSMSId(unit)) + 0x80 + (GetUnitDisplayedSpritePalette(unit) & 0xf) * 0x1000;
 
 		//SMSHandle._u0A appears to be unused, so I'll use it to track who should be flipped
@@ -320,7 +324,7 @@ void RefreshUnitSprites(void)
 
 static void PutFogStage2Sprites(void);
 
-static void PutPairedSupportSpritesOam(void)
+static void PutRescuedSupportSpritesOam(void)
 {
 	int i;
 
@@ -333,18 +337,21 @@ static void PutPairedSupportSpritesOam(void)
 		u16 oam2;
 		bool flip = false;
 
-		if (!PairUp_IsLeader(leader))
+		if (!leader || !UNIT_IS_VALID(leader)
+			|| !(leader->state & US_RESCUING))
 			continue;
 
-		support = PairUp_GetSupport(leader);
-		if (!support || !(support->state & US_HIDDEN))
+		support = leader->rescue ? GetUnit(leader->rescue) : NULL;
+		if (!support || !UNIT_IS_VALID(support)
+			|| !(support->state & US_RESCUED)
+			|| !(support->state & US_HIDDEN))
 			continue;
 
 		if (leader->state & (US_HIDDEN | US_BIT9))
 			continue;
 
-		x = leader->xPos * 16 - gBmSt.camera.x;
-		y = leader->yPos * 16 - gBmSt.camera.y;
+		x = leader->xPos * 16 - gBmSt.camera.x - 6;
+		y = leader->yPos * 16 - gBmSt.camera.y - 6;
 
 		if (x < -16 || x > DISPLAY_WIDTH || y < -32 || y > DISPLAY_HEIGHT)
 			continue;
@@ -366,7 +373,7 @@ static void PutPairedSupportSpritesOam(void)
 
 		sms.config = GetInfo(GetUnitSMSId(support)).size;
 		oam2 = UseUnitSprite(GetUnitSMSId(support)) + 0x80
-			+ (GetUnitDisplayedSpritePalette(support) & 0xF) * 0x1000;
+			+ (GetUnitDisplayedSpritePalette(leader) & 0xF) * 0x1000;
 
 		if (flip) {
 			switch (sms.config & 0xF) {
@@ -420,7 +427,7 @@ void PutUnitSpritesOam(void)
     ReloadCustomTrapSpritePalettes();
 
     PutUnitSpriteIconsOam();
-    PutPairedSupportSpritesOam();
+    PutRescuedSupportSpritesOam();
 
     if (it == NULL)
         return;
