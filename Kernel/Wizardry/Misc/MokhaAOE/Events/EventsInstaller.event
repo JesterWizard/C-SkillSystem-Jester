@@ -1,5 +1,0 @@
-#ifndef EA_STDLIB_EVENT
-#include "EAstdlib.event"
-#endif
-WORD $0
-#include "Events/MyPrologue.event"

@@ -1,10 +1,3 @@
-	#include "EAstdlib.event"
-	#include "Extensions/Hack Installation.txt"
-	#include "CustomDefinitions.event"
-	#include "_6CDefinitions.event"
-	#include "_FuncDefs.event"
-
-// ORG FreeSpace
-	// #include "Texts/_TextMasterInstaller.event"
-	#include "EngineHacks/_MasterHackInstaller.event"
-	// #include "Events/EventsInstaller.event"
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+#include "EngineHacks/_MasterHackInstaller.event"
