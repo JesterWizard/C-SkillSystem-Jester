@@ -24,6 +24,18 @@ bool PairUp_CanPair(struct Unit *support, struct Unit *leader);
 bool PairUp_Attach(struct Unit *support, struct Unit *leader);
 bool PairUp_Separate(struct Unit *leader, int x, int y);
 bool PairUp_Switch(struct Unit *leader);
+bool PairUp_CanTransfer(struct Unit *leader, struct Unit *target);
+bool PairUp_Transfer(struct Unit *leader, struct Unit *target);
 
+int PairUp_GetStatBonus(const struct Unit *unit, int stat);
 int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat);
+
+u8 PairUp_Usability(const struct MenuItemDef *def, int number);
+u8 Shelter_Usability(const struct MenuItemDef *def, int number);
+u8 PairUp_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 Shelter_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 PairUp_TransferUsability(const struct MenuItemDef *def, int number);
+u8 PairUp_TransferEffect(struct MenuProc *menu, struct MenuItemProc *item);
+u8 PairUp_SwitchUsability(const struct MenuItemDef *def, int number);
+u8 PairUp_SwitchEffect(struct MenuProc *menu, struct MenuItemProc *item);
 

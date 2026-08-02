@@ -615,6 +615,30 @@ away once per map.[X]
 Retreat into an ally who's[N]
 AID >= the unit's CON.[X]
 
+## MSG_MenuCommand_PairUp_NAME
+ Pair Up[X]
+## MSG_MenuCommand_PairUp_DESC
+Pair Up with an adjacent ally.[N]
+Gain 30% of their combat stats.[X]
+
+## MSG_MenuCommand_Shelter_NAME
+ Shelter[X]
+## MSG_MenuCommand_Shelter_DESC
+Shelter an adjacent ally.[N]
+Give them 30% of your combat stats.[X]
+
+## MSG_MenuCommand_Transfer_NAME
+ Transfer[X]
+## MSG_MenuCommand_Transfer_DESC
+Swap pair-up companions with[N]
+an adjacent ally.[X]
+
+## MSG_MenuCommand_Switch_NAME
+ Switch[X]
+## MSG_MenuCommand_Switch_DESC
+Switch the active pair-up unit[N]
+with their companion.[X]
+
 ## MSG_MenuCommand_Interact_NAME
  Interact[X]
 ## MSG_MenuCommand_Interact_DESC

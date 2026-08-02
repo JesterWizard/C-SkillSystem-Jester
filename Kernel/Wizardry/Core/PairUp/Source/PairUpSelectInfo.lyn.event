@@ -1,0 +1,12 @@
+ALIGN 4
+PUSH
+ORG CURRENTOFFSET+$0;gSelectInfo_PairUp:
+POP
+POIN PairUp_SelectionOnConstruction
+POIN PairUp_SelectionOnEnd
+WORD $0
+POIN PairUp_SelectionOnSwitchIn
+WORD $0
+POIN PairUp_SelectionOnSelect
+POIN PairUp_SelectionOnCancel
+WORD $80228A1

@@ -132,10 +132,6 @@ void TryAddUnitToRescueTargetList(struct Unit* unit) {
         return;
     }
 
-    if (!CanUnitRescue(gSubjectUnit, unit)) {
-        return;
-    }
-
     AddTarget(unit->xPos, unit->yPos, unit->index, 0);
 
     return;

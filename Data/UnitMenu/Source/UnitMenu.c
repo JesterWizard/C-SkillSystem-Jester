@@ -4,6 +4,7 @@
 #include "gaiden-magic.h"
 #include "constants/texts.h"
 #include "bmmenu.h"
+#include "pair-up.h"
 
 #define MenuItemsEnd {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -278,7 +279,10 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　秘密店", 0x687, 0x6D1, 0, 0x61, SecretShopCommandUsability, 0, SecretShopCommandEffect, 0, 0, 0}, //SecretShop >
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
 	{" Prestige", 0, 0, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
-	{"　救出", 0x689, 0x6C5, 0, 0x63, RescueUsability, 0, RescueEffect, 0, 0, 0}, // Rescue >
+	{"", MSG_MenuCommand_PairUp_NAME, MSG_MenuCommand_PairUp_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x63, PairUp_Usability, 0, PairUp_OnSelected, 0, 0, 0}, // Pair Up >
+	{"", MSG_MenuCommand_Shelter_NAME, MSG_MenuCommand_Shelter_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6A, Shelter_Usability, 0, Shelter_OnSelected, 0, 0, 0}, // Shelter >
+	{"", MSG_MenuCommand_Transfer_NAME, MSG_MenuCommand_Transfer_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6D, PairUp_TransferUsability, 0, PairUp_TransferEffect, 0, 0, 0}, // Transfer >
+	{"", MSG_MenuCommand_Switch_NAME, MSG_MenuCommand_Switch_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6E, PairUp_SwitchUsability, 0, PairUp_SwitchEffect, 0, 0, 0}, // Switch >
 	{"", GambitAssemblyName, GambitSelectMenu_Desc, TEXT_COLOR_SYSTEM_GREEN, 0, Gambit_UpperMenu_Usability, 0, Gambit_UpperMenu_Effect, 0, Gambit_UpperMenu_Hover, Gambit_UpperMenu_Unhover},
 
     {"　救出", MSG_MenuCommand_Refuge_NAME, MSG_MenuCommand_Refuge_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6C, Refuge_Usability, 0, Refuge_OnSelected, 0, 0, 0}, // Refuge > 
