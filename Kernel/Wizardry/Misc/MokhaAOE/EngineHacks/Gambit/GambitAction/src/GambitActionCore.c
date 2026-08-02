@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "map-anims.h"
+#include "mu.h"
 #include "kernel-lib.h"
 #include "mokha-aoe.h"
 #include "battle-system.h"
@@ -21,12 +22,41 @@ struct ProcGambitGrantExp {
 	PROC_HEADER;
 	int remaining;
 	bool waiting;
+	u8 transitionDelay;
 };
 
 struct ProcGambitMuMotion {
 	PROC_HEADER;
 	u8 steps;
 };
+
+struct ProcGambitMapAnim {
+	PROC_HEADER;
+	struct Unit *target;
+	int damage;
+};
+
+STATIC_DECLAR void Gambit_HideMapUnit(struct Unit *unit)
+{
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	HideUnitSprite(unit);
+	unit->state |= US_HIDDEN;
+
+	if (gBmMapUnit[unit->yPos][unit->xPos] == unit->index)
+		gBmMapUnit[unit->yPos][unit->xPos] = 0;
+}
+
+STATIC_DECLAR void Gambit_ShowMapUnit(struct Unit *unit)
+{
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	unit->state &= ~US_HIDDEN;
+	gBmMapUnit[unit->yPos][unit->xPos] = unit->index;
+	ShowUnitSprite(unit);
+}
 
 STATIC_DECLAR void Gambit_ShowActiveUnit(ProcPtr proc)
 {
@@ -35,10 +65,8 @@ STATIC_DECLAR void Gambit_ShowActiveUnit(ProcPtr proc)
 	if (!UNIT_IS_VALID(gActiveUnit))
 		return;
 
-	gActiveUnit->state &= ~US_HIDDEN;
-	gBmMapUnit[gActiveUnit->yPos][gActiveUnit->xPos] = gActiveUnit->index;
+	Gambit_ShowMapUnit(gActiveUnit);
 	RefreshUnitSprites();
-	ShowUnitSprite(gActiveUnit);
 }
 
 STATIC_DECLAR void GambitMapAnim_Approach(struct ProcGambitMuMotion *proc)
@@ -63,19 +91,18 @@ STATIC_DECLAR void GambitMapAnim_Retreat(struct ProcGambitMuMotion *proc)
 		Proc_Break(proc);
 }
 
-STATIC_DECLAR void GambitMapAnim_StartAttack(ProcPtr proc)
+STATIC_DECLAR void GambitMapAnim_EndMotion(ProcPtr proc)
 {
 	(void)proc;
-	StartMuActionAnim(gManimSt.actor[0].mu);
+	EndAllMus();
 }
 
-STATIC_DECLAR void GambitMapAnim_EndMotion(ProcPtr proc)
+STATIC_DECLAR void GambitMapAnim_RestoreUnits(ProcPtr proc)
 {
 	struct Unit *target = GetUnit(gBattleTarget.unit.index);
 
-	EndAllMus();
 	if (UNIT_IS_VALID(target))
-		ShowUnitSprite(target);
+		Gambit_ShowMapUnit(target);
 	Gambit_ShowActiveUnit(proc);
 }
 
@@ -86,23 +113,22 @@ STATIC_DECLAR const struct ProcCmd ProcScr_GambitMuApproach[] = {
 };
 
 STATIC_DECLAR const struct ProcCmd ProcScr_GambitMuRetreat[] = {
-	PROC_CALL(GambitMapAnim_StartAttack),
-	PROC_SLEEP(8),
 	PROC_REPEAT(GambitMapAnim_Retreat),
 	PROC_CALL(GambitMapAnim_EndMotion),
+	PROC_SLEEP(1),
+	PROC_CALL(GambitMapAnim_RestoreUnits),
 	PROC_END,
 };
 
 STATIC_DECLAR void GambitMapAnim_StartMotion(ProcPtr proc)
 {
 	struct ProcGambitMuMotion *motion;
+	struct Unit *target;
 
 	if (!UNIT_IS_VALID(gActiveUnit))
 		return;
 
-	HideUnitSprite(gActiveUnit);
-	gActiveUnit->state |= US_HIDDEN;
-	gBmMapUnit[gActiveUnit->yPos][gActiveUnit->xPos] = 0;
+	Gambit_HideMapUnit(gActiveUnit);
 
 	gManimSt.hp_changing = 0;
 	gManimSt.mapAnimKind = MANIM_KIND_DAMAGE;
@@ -112,6 +138,15 @@ STATIC_DECLAR void GambitMapAnim_StartMotion(ProcPtr proc)
 	SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArrayRe);
 	SetBattleAnimFacing(0, 1, MA_FACING_OPPONENT);
 	SetBattleAnimFacing(1, 0, MA_FACING_OPPONENT);
+
+	/*
+	 * SetupMapBattleAnim receives a BattleUnit copy.  Hide the live target
+	 * after MU setup as well, including its hidden state and map occupancy,
+	 * so RefreshUnitSprites cannot restore its SMS beneath the target MU.
+	 */
+	target = GetUnit(gBattleTarget.unit.index);
+	Gambit_HideMapUnit(target);
+	RefreshUnitSprites();
 
 	motion = Proc_StartBlocking(ProcScr_GambitMuApproach, proc);
 	motion->steps = 0;
@@ -125,14 +160,55 @@ STATIC_DECLAR void GambitMapAnim_EndMotionWait(ProcPtr proc)
 	motion->steps = 0;
 }
 
-STATIC_DECLAR void GambitMapAnim_Callback1(ProcPtr proc)
+STATIC_DECLAR void GambitMapAnim_Init(ProcPtr proc)
 {
-	GambitMapAnim_StartMotion(proc);
+	struct ProcGambitMapAnim *anim = (struct ProcGambitMapAnim *)proc;
+
+	MapAnim_CommonInit();
+	EnsureCameraOntoPosition(proc, anim->target->xPos, anim->target->yPos);
 }
 
-STATIC_DECLAR void GambitMapAnim_Callback2(ProcPtr proc)
+STATIC_DECLAR void GambitMapAnim_StartAttackAndHit(ProcPtr proc)
 {
-	GambitMapAnim_EndMotionWait(proc);
+	struct ProcGambitMapAnim *anim = (struct ProcGambitMapAnim *)proc;
+	struct MuProc *targetMu = gManimSt.actor[1].mu;
+
+	StartMuActionAnim(gManimSt.actor[0].mu);
+
+	if (targetMu)
+		StartMuHitFlash(
+			targetMu,
+			GetSpellAssocFlashColor(gBattleActor.weaponBefore)
+		);
+
+	if (UNIT_IS_VALID(anim->target))
+		AddUnitHp(anim->target, -anim->damage);
+}
+
+STATIC_DECLAR const struct ProcCmd ProcScr_GambitMapAnim[] = {
+	PROC_CALL(GambitMapAnim_Init),
+	PROC_YIELD,
+	PROC_CALL(GambitMapAnim_StartMotion),
+	PROC_YIELD,
+	PROC_CALL(GambitMapAnim_StartAttackAndHit),
+	PROC_SLEEP(8),
+	PROC_CALL(GambitMapAnim_EndMotionWait),
+	PROC_YIELD,
+	PROC_CALL(MapAnim_CommonEnd),
+	PROC_END,
+};
+
+STATIC_DECLAR void GambitMapAnim_Start(
+	ProcPtr parent,
+	struct Unit *target,
+	int damage
+)
+{
+	struct ProcGambitMapAnim *proc;
+
+	proc = Proc_StartBlocking(ProcScr_GambitMapAnim, parent);
+	proc->target = target;
+	proc->damage = damage;
 }
 
 STATIC_DECLAR void Gambit_PrepareMapBattle(struct Unit *target)
@@ -143,7 +219,7 @@ STATIC_DECLAR void Gambit_PrepareMapBattle(struct Unit *target)
 	/*
 	 * Use an ordinary weapon association solely to select the vanilla
 	 * moving map-battle animation.  The Gambit damage is applied by the
-	 * established Hurt proc after the MU approach completes.
+	 * local map-animation proc after the MU approach completes.
 	 */
 	gBattleActor.weapon = ITEM_NONE;
 	gBattleActor.weaponBefore = ITEM_SWORD_IRON;
@@ -231,9 +307,18 @@ STATIC_DECLAR void GambitGrantExp_Loop(struct ProcGambitGrantExp *proc)
 			return;
 
 		proc->waiting = false;
+		proc->transitionDelay = 1;
+		EndAllMus();
+		RefreshUnitSprites();
+	}
+
+	if (proc->transitionDelay) {
+		proc->transitionDelay--;
+		return;
 	}
 
 	if (proc->remaining <= 0) {
+		Gambit_ShowActiveUnit(proc);
 		Proc_Break(proc);
 		return;
 	}
@@ -241,7 +326,11 @@ STATIC_DECLAR void GambitGrantExp_Loop(struct ProcGambitGrantExp *proc)
 	chunk = proc->remaining > 100 ? 100 : proc->remaining;
 	proc->remaining -= chunk;
 
-	ShowUnitSprite(gActiveUnit);
+	/*
+	 * AddExp_Event creates the active unit's MMS for the EXP animation.
+	 * Keep the live SMS hidden until that animation has finished.
+	 */
+	Gambit_HideMapUnit(gActiveUnit);
 
 	/*
 	 * AddExp_Event owns its animation proc on PROC_TREE_3.  Do not parent
@@ -288,13 +377,7 @@ STATIC_DECLAR void GambitAction_Tick(struct ProcGamAction *proc)
 	Gambit_AccumulateExp(proc, target, preHp, damage);
 	Gambit_PrepareMapBattle(target);
 	proc->lastUid = uid;
-	CallMapAnim_HurtExt(
-		proc,
-		target,
-		damage,
-		GambitMapAnim_Callback1,
-		GambitMapAnim_Callback2
-	);
+	GambitMapAnim_Start(proc, target, damage);
 }
 
 STATIC_DECLAR void GambitAction_GrantExp(struct ProcGamAction *proc)
@@ -308,7 +391,6 @@ STATIC_DECLAR void GambitAction_GrantExp(struct ProcGamAction *proc)
 	if (total <= 0)
 		return;
 
-	ShowUnitSprite(gActiveUnit);
 	/*
 	 * Keep the grant sequence independent from the action proc.  The
 	 * standard AddExp_Event proc also lives on PROC_TREE_3; making this
@@ -318,6 +400,7 @@ STATIC_DECLAR void GambitAction_GrantExp(struct ProcGamAction *proc)
 	grant = Proc_Start(ProcScr_GambitGrantExp, PROC_TREE_3);
 	grant->remaining = total;
 	grant->waiting = false;
+	grant->transitionDelay = 0;
 }
 
 STATIC_DECLAR void GambitAction_OnEnd(struct ProcGamAction *proc)
