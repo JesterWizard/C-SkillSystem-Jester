@@ -17,6 +17,7 @@
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
 #define CONFIG_UNIT_ACTION_EXPA_Gambit 0x26
+#define CONFIG_UNIT_ACTION_EXPA_PairUp 0x27
 #define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
 #define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
 #define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB

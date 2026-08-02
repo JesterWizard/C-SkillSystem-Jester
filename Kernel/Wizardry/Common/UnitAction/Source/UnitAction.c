@@ -4,6 +4,7 @@
 #include "kernel-lib.h"
 #include "battle-system.h"
 #include "gaiden-magic.h"
+#include "pair-up.h"
 
 bool PrePhase_ClearUnitsActedBit(ProcPtr proc)
 {
@@ -38,6 +39,7 @@ unsigned int ApplyUnitAction(ProcPtr proc)
 	UnitActionFunc_t it;
 
 	gActiveUnit = GetUnit(gActionData.subjectIndex);
+	PairUp_MarkPairActed(gActiveUnit);
 
 	switch (gActionData.unitActionType) {
 	case UNIT_ACTION_COMBAT:

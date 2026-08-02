@@ -9,9 +9,12 @@
 #include "bwl.h"
 #include "unit-expa.h"
 #include "combo-attack.h"
+#include "pair-up.h"
 #include "constants/skills.h"
 #include "combat-art.h"
 #include "debuff.h"
+
+#pragma GCC optimize("Os", "no-jump-tables")
 
 #define LOCAL_TRACE 0
 
@@ -714,6 +717,11 @@ static bool DuelHitBufferOverflowed(void)
     return CheckBattleHitOverflow();
 }
 
+static bool TryExecuteComboAttackOnce(
+    struct BattleUnit *atk,
+    struct BattleUnit *def,
+    bool *comboDone,
+    struct BattleHit **pOldHit);
 
 static int RunDuelCombatLoop(void)
 {
@@ -721,8 +729,10 @@ static int RunDuelCombatLoop(void)
 
     int actor_count  = 0;
     int target_count = 0;
+    bool combo_done = false;
 
 DuelRoundStart:
+    combo_done = false;
 
     while (true)
     {
@@ -757,6 +767,9 @@ DuelRoundStart:
 
             struct BattleHit *roundStart = gBattleHitIterator;
 
+            if (TryExecuteComboAttackOnce(atk, def, &combo_done, &roundStart))
+                goto DuelFinish;
+
             int stop = BattleGenerateRoundHits(atk, def);
 
             //-----------------------------------------------------
@@ -789,6 +802,7 @@ DuelRoundStart:
 
             if (stop)
                 goto DuelFinish;
+
             if (!CheckCanContinueAttack(def))
                 goto DuelFinish;
         }
@@ -796,6 +810,7 @@ DuelRoundStart:
         //---------------------------------------------------------
         // End of this Duel round → start next
         //---------------------------------------------------------
+        combo_done = false;
     }
 
 DuelFinish:
@@ -832,11 +847,32 @@ static bool TryExecuteComboAttackOnce(
     #if (defined(SID_ChainAttack) && COMMON_SKILL_VALID(SID_ChainAttack))
         if (BattleFastSkillTester(atk, SID_ChainAttack) ||
             BattleFastSkillTester(def, SID_ChainAttack))
+    #else
+        if (false)
+    #endif
         {
             *comboDone = true;
 
             // BattleComboGenerateHits mirrors original behavior: non-zero -> stop unwind
-            int ret = BattleComboGenerateHits();
+            int ret;
+
+            if (atk == &gBattleTarget)
+            {
+                struct BattleUnit swap = gBattleActor;
+
+                gBattleActor = gBattleTarget;
+                gBattleTarget = swap;
+                ret = BattleComboGenerateHits();
+
+                swap = gBattleActor;
+                gBattleActor = gBattleTarget;
+                gBattleTarget = swap;
+            }
+            else
+            {
+                ret = BattleComboGenerateHits();
+            }
+
             if (ret)
                 return true;
 
@@ -844,7 +880,6 @@ static bool TryExecuteComboAttackOnce(
             *pOldHit = gBattleHitIterator;
             LTRACEF("Combo end at round %d", GetBattleHitRound(*pOldHit));
         }
-    #endif
     }
 
     return false;
@@ -884,6 +919,7 @@ LYN_REPLACE_CHECK(BattleUnwind);
 void BattleUnwind(void)
 {
     ClearBattleStateForUnwind();
+    ResetComboAtkList();
 
     // Fake battle? End immediately.
     if (!IsRealBattle()) {
@@ -949,6 +985,11 @@ repeat_full_round:;   // <--- label for Accost repeat
         TryRegisterForcedDouble(atkType, actor_count, target_count, roundStart);
 
         if (stop) {
+            round_stopped = true;
+            break;
+        }
+
+        if (!CheckCanContinueAttack(def)) {
             round_stopped = true;
             break;
         }
@@ -1039,6 +1080,8 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
     int  roundIndex       = 0;
     u32  baseAttrs        = 0;
 
+    gBattleTemporaryFlag.pair_up_guard_result = 0;
+
     // ------------------------------------------------------------
     // 1. Validate that attacker can begin combat
     // ------------------------------------------------------------
@@ -1080,6 +1123,9 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
         // Overflow protection
         // --------------------------------------------------------
         if (HandleBattleHitOverflow())
+            return BATTLE_ROUND_END;
+
+        if (BattlePairUpGenerateSupportAttack(attacker, defender))
             return BATTLE_ROUND_END;
 
         // --------------------------------------------------------

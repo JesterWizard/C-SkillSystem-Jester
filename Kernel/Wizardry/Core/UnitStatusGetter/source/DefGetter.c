@@ -7,6 +7,7 @@
 #include "debuff.h"
 #include "jester_headers/custom-functions.h"
 #include "kernel/traps.h"
+#include "pair-up.h"
 
 int _GetUnitDefense(struct Unit *unit)
 {
@@ -25,6 +26,8 @@ int _GetUnitDefense(struct Unit *unit)
     else if (unit == GetUnit(gBattleTarget.unit.index) && GetUnit(gBattleActor.unit.index) && SkillTester(GetUnit(gBattleActor.unit.index), SID_Unaware))
         return status;
 #endif
+
+	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_DEF);
 
 	for (it = gpDefGetters; *it; it++)
 		status = (*it)(status, unit);

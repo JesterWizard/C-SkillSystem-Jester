@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "pair-up.h"
 #include "kernel-lib.h"
 #include "weapon-slots.h"
 #include "skill-system.h"
@@ -746,6 +747,9 @@ LYN_REPLACE_CHECK(UnitDrop);
 void UnitDrop(struct Unit* actor, int xTarget, int yTarget)
 {
     struct Unit* target = GetUnit(actor->rescue);
+
+    if (PairUp_IsPaired(actor))
+        PairUp_ClearUnit(actor);
 
     actor->state = actor->state & ~(US_RESCUING | US_RESCUED);
     target->state = target->state & ~(US_RESCUING | US_RESCUED | US_HIDDEN);
@@ -2093,6 +2097,19 @@ void MakeTradeTargetList(struct Unit * unit)
 
     ForEachAdjacentUnit(x, y, TryAddUnitToTradeTargetList);
 
+    if (PairUp_IsEnabled() && PairUp_IsLeader(gSubjectUnit)) {
+        int count = GetSelectTargetCount();
+        struct Unit *support = PairUp_GetSupport(gSubjectUnit);
+
+        if (support)
+            TryAddUnitToTradeTargetList(support);
+
+        if (count != GetSelectTargetCount()) {
+            GetTarget(count)->x = gSubjectUnit->xPos;
+            GetTarget(count)->y = gSubjectUnit->yPos;
+        }
+    }
+
     if (gSubjectUnit->state & US_RESCUING)
     {
         int count = GetSelectTargetCount();
@@ -3332,6 +3349,8 @@ void GenerateGasTrapTargets(int x, int y, int damage, int facing)
 
 LYN_REPLACE_CHECK(UnitRescue);
 void UnitRescue(struct Unit* actor, struct Unit* target) {
+    if (PairUp_IsPaired(actor) || PairUp_IsPaired(target))
+        return;
 
 #if defined(SID_DangerRanger) && (COMMON_SKILL_VALID(SID_DangerRanger))
     if (SkillTester(actor, SID_DangerRanger))

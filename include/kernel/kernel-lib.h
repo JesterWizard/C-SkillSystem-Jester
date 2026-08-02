@@ -42,6 +42,7 @@ struct KernelDesigerConfig {
 	u8 max_simultaneous_support_conversations;
 	u8 kill_rewards;
 	u8 menu_option_refuge;
+	u8 menu_option_pair_up;
 	u8 promote_enemy_on_kill;
 	u8 promote_enemy_boost;
 	u8 no_wait_after_trading;

@@ -10,6 +10,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/class-pairs.h"
+#include "pair-up.h"
 
 typedef int (*UnitRefrainFunc_t)(struct Unit *unit);
 // extern const UnitRefrainFunc_t gUnitRefrainHooks[];
@@ -48,6 +49,7 @@ void ResetAllPlayerUnitState(void)
 LYN_REPLACE_CHECK(ChapterChangeUnitCleanup);
 void ChapterChangeUnitCleanup(void)
 {
+	PairUp_ResetAll();
 
 #if defined(SID_HedgeFund) && (COMMON_SKILL_VALID(SID_HedgeFund))
     bool hedgeFundActivated = false;

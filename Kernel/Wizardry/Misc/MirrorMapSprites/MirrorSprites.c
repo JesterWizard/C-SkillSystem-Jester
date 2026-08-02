@@ -1,6 +1,7 @@
 #include "gbafe.h"
 #include "kernel-lib.h"
 #include "common-chax.h"
+#include "pair-up.h"
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -319,6 +320,98 @@ void RefreshUnitSprites(void)
 
 static void PutFogStage2Sprites(void);
 
+static void PutPairedSupportSpritesOam(void)
+{
+	int i;
+
+	for (i = 1; i < 0x100; ++i) {
+		struct Unit *leader = GetUnit(i);
+		struct Unit *support;
+		struct SMSHandle sms;
+		int x;
+		int y;
+		u16 oam2;
+		bool flip = false;
+
+		if (!PairUp_IsLeader(leader))
+			continue;
+
+		support = PairUp_GetSupport(leader);
+		if (!support || !(support->state & US_HIDDEN))
+			continue;
+
+		if (leader->state & (US_HIDDEN | US_BIT9))
+			continue;
+
+		x = leader->xPos * 16 - gBmSt.camera.x;
+		y = leader->yPos * 16 - gBmSt.camera.y;
+
+		if (x < -16 || x > DISPLAY_WIDTH || y < -32 || y > DISPLAY_HEIGHT)
+			continue;
+
+		switch (UNIT_FACTION(support)) {
+		case FACTION_BLUE:
+			flip = gMirrorSpriteOptions & FLIP_PLAYER;
+			break;
+		case FACTION_RED:
+			flip = gMirrorSpriteOptions & FLIP_ENEMY;
+			break;
+		case FACTION_GREEN:
+			flip = gMirrorSpriteOptions & FLIP_NPC;
+			break;
+		case FACTION_PURPLE:
+			flip = gMirrorSpriteOptions & FLIP_FOURTH;
+			break;
+		}
+
+		sms.config = GetInfo(GetUnitSMSId(support)).size;
+		oam2 = UseUnitSprite(GetUnitSMSId(support)) + 0x80
+			+ (GetUnitDisplayedSpritePalette(support) & 0xF) * 0x1000;
+
+		if (flip) {
+			switch (sms.config & 0xF) {
+			case 0:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x + 0x200), OAM0_Y(0x100 + y),
+					gObject_16x16_HFlipped, oam2 + OAM2_LAYER(3));
+				break;
+			case 1:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x + 0x200), OAM0_Y(0x100 + y - 16),
+					gObject_16x32_HFlipped, oam2 + OAM2_LAYER(3));
+				break;
+			case 2:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x - 8 + 0x200), OAM0_Y(0x100 + y - 16),
+					gObject_32x32_HFlipped, oam2 + OAM2_LAYER(3));
+				break;
+			default:
+				break;
+			}
+		} else {
+			switch (sms.config & 0xF) {
+			case 0:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x + 0x200), OAM0_Y(0x100 + y),
+					gObject_16x16, oam2 + OAM2_LAYER(3));
+				break;
+			case 1:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x + 0x200), OAM0_Y(0x100 + y - 16),
+					gObject_16x32, oam2 + OAM2_LAYER(3));
+				break;
+			case 2:
+				CallARM_PushToSecondaryOAM(
+					OAM1_X(x - 8 + 0x200), OAM0_Y(0x100 + y - 16),
+					gObject_32x32, oam2 + OAM2_LAYER(3));
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
 LYN_REPLACE_CHECK(PutUnitSpritesOam);
 void PutUnitSpritesOam(void)
 {
@@ -327,6 +420,7 @@ void PutUnitSpritesOam(void)
     ReloadCustomTrapSpritePalettes();
 
     PutUnitSpriteIconsOam();
+    PutPairedSupportSpritesOam();
 
     if (it == NULL)
         return;

@@ -4,6 +4,7 @@
 #include "combo-attack.h"
 #include "weapon-range.h"
 #include "kernel-tutorial.h"
+#include "pair-up.h"
 
 void ResetComboAtkList(void)
 {
@@ -38,6 +39,22 @@ STATIC_DECLAR bool CheckComboMelee(int weapon)
 	return true;
 }
 
+STATIC_DECLAR bool IsComboWeapon(int weapon)
+{
+	switch (GetItemType(weapon)) {
+	case ITYPE_SWORD:
+	case ITYPE_AXE:
+	case ITYPE_LANCE:
+	case ITYPE_BOW:
+	case ITYPE_ANIMA:
+	case ITYPE_LIGHT:
+	case ITYPE_DARK:
+		return true;
+	}
+
+	return false;
+}
+
 /* This is only valid in after battle unit inited */
 void BattleGenerateComboAtkList(void)
 {
@@ -45,6 +62,7 @@ void BattleGenerateComboAtkList(void)
 	u16 item;
 	int range, battle_range;
 	bool melee_attack;
+	int max_targets;
 	int i, cnt = 0;
 
 	ResetComboAtkList();
@@ -64,63 +82,67 @@ void BattleGenerateComboAtkList(void)
 	else
 		melee_attack = false;
 
-	for (i = 1; i < 0x100; i++) {
-		if (!(cnt < COMBO_ATK_MAX))
-			break;
+	if (PairUp_IsEnabled()) {
+		unit = PairUp_GetCombatSupport(&gBattleActor.unit);
+		if (unit) {
+			item = GetUnitEquippedWeapon(unit);
+			range = RECT_DISTANCE(
+				unit->xPos, unit->yPos,
+				gBattleTarget.unit.xPos, gBattleTarget.unit.yPos);
 
-		if ((i & 0xC0) != UNIT_FACTION(&gBattleActor.unit))
-			continue;
-
-		/* If not valid unit */
-		unit = GetUnit(i);
-		if (!UnitOnMapAvaliable(unit) || UNIT_STONED(unit))
-			continue;
-
-		if (unit->index == gBattleActor.unit.index)
-			continue;
-
-		/* If no weapon */
-		item = GetUnitEquippedWeapon(unit);
-		if (!item)
-			continue;
-
-		/**
-		 * Well I decide to directly lock the monster to combo
-		 */
-		if (GetItemAttributes(item) & IA_LOCK_3)
-			continue;
-
-		switch (GetItemType(item)) {
-		case ITYPE_SWORD:
-		case ITYPE_AXE:
-		case ITYPE_LANCE:
-		case ITYPE_BOW:
-		case ITYPE_ANIMA:
-		case ITYPE_LIGHT:
-		case ITYPE_DARK:
-			break;
-
-		default:
-			continue;
+			if (item && IsItemCoveringRangeRework(item, range, unit))
+				return;
 		}
-
-		if (!ChecComboMagi(item) && CheckComboMelee(item) != melee_attack)
-			continue;
-
-		/**
-		 * ! check in range
-		 */
-		range = RECT_DISTANCE(
-			unit->xPos, unit->yPos,
-			gBattleTarget.unit.xPos, gBattleTarget.unit.yPos);
-
-		if (!IsItemCoveringRangeRework(item, range, unit))
-			continue;
-
-		gComboAtkList[cnt].uid = i;
-		gComboAtkList[cnt].weapon = ITEM_INDEX(item);
-		cnt++;
 	}
+
+	max_targets = COMBO_ATK_MAX;
+
+	for (i = 1; i < 0x100; i++) {
+			if (!(cnt < max_targets))
+				break;
+
+			if ((i & 0xC0) != UNIT_FACTION(&gBattleActor.unit))
+				continue;
+
+			/* If not valid unit */
+			unit = GetUnit(i);
+			if (!UnitOnMapAvaliable(unit) || UNIT_STONED(unit))
+				continue;
+
+			if (unit->index == gBattleActor.unit.index)
+				continue;
+
+			/* If no weapon */
+			item = GetUnitEquippedWeapon(unit);
+			if (!item)
+				continue;
+
+			/**
+			 * Well I decide to directly lock the monster to combo
+			 */
+			if (GetItemAttributes(item) & IA_LOCK_3)
+				continue;
+
+			if (!IsComboWeapon(item))
+				continue;
+
+			if (!ChecComboMagi(item) && CheckComboMelee(item) != melee_attack)
+				continue;
+
+			/**
+			 * ! check in range
+			 */
+			range = RECT_DISTANCE(
+				unit->xPos, unit->yPos,
+				gBattleTarget.unit.xPos, gBattleTarget.unit.yPos);
+
+			if (!IsItemCoveringRangeRework(item, range, unit))
+				continue;
+
+			gComboAtkList[cnt].uid = i;
+			gComboAtkList[cnt].weapon = ITEM_INDEX(item);
+			cnt++;
+		}
 
 	if (cnt > 0)
 		TriggerKtutorial(KTUTORIAL_COMBO_ATK);

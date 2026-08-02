@@ -8,6 +8,7 @@
 #include "SkillSys/SkillSys.event"
 #include "CombatArt/CombatArt.event"
 #include "ComboAttack/ComboAttack.event"
+#include "PairUp/PairUpData.event"
 #include "HiddenLevel/HiddenLevel.lyn.event"
 #include "KernelTutorial/ktut.lyn.event"
 #include "BattleSys/BattleSys.event"

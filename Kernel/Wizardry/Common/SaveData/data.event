@@ -34,6 +34,7 @@ gEmsSizes:
 #define EMS_CHUNK_DUNGEON        9
 #define EMS_CHUNK_TONICSTATE    10
 #define EMS_CHUNK_SNEKHIGHSCORE 11
+#define EMS_CHUNK_PAIRUP        12
 
 ALIGN 4
 gEmsSavChunks:
@@ -57,6 +58,7 @@ gEmsSavChunks:
     EmsChunk($0001, SaveStartMapEffectsUnlockMask, LoadStartMapEffectsUnlockMask)
     EmsChunk($0010, EMS_SavePlayStExpa, EMS_LoadPlayStExpa)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x2C, MSA_SaveUnits, MSA_LoadUnits, EMS_CHUNK_SAVEUNITS)
+    EmsChunk($0200, PairUp_SaveState, PairUp_LoadState, EMS_CHUNK_PAIRUP)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
@@ -95,6 +97,7 @@ gEmsSusChunks:
     EmsChunk(CONFIG_UNIT_AMT_ENEMY * 0x34, MSU_SaveRedUnits,   MSU_LoadRedUnits)
     EmsChunk(CONFIG_UNIT_AMT_NPC  * 0x20, MSU_SaveGreenUnits, MSU_LoadGreenUnits)
     EmsChunk(CONFIG_UNIT_AMT_FOURTH  * 0x10, MSU_SavePurpleUnits, MSU_LoadPurpleUnits)
+    EmsChunk($0200, PairUp_SaveState, PairUp_LoadState, EMS_CHUNK_PAIRUP)
     EmsChunk(CONFIG_UNIT_AMT_ALLY * 0x20, SaveUnitLearnedSkillLists, LoadUnitLearnedSkillLists)
     EmsChunk(CONFIG_UNIT_AMT_ENEMY * 4, MSU_SaveRedUnitExtSkills, MSU_LoadRedUnitExtSkills)
     EmsChunk(CONFIG_UNIT_AMT_NPC * 4, MSU_SaveGreenUnitExtSkills, MSU_LoadGreenUnitExtSkills)

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "action-expa.h"
+#include "pair-up.h"
 
 bool _ActionWait(ProcPtr proc);
 bool _ActionCombat(ProcPtr proc);
@@ -34,4 +35,5 @@ const UnitActionFunc_t gUnitActionTable[CONFIG_UNIT_ACTION_AMT] = {
 	[CONFIG_UNIT_ACTION_EXPA_ExecSkill] = ActionExecSkill,
 	[CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat] = ActionGaidenMagicCombat,
 	[CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff] = ActionGaidenMagicStaff,
+	[CONFIG_UNIT_ACTION_EXPA_PairUp] = ActionPairUp,
 };

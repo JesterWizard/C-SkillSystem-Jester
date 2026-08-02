@@ -99,6 +99,8 @@ void UnitBeginAction(struct Unit *unit)
     gActiveUnitMoveOrigin.x = unit->xPos;
     gActiveUnitMoveOrigin.y = unit->yPos;
 
+    gActionData.xMove = unit->xPos;
+    gActionData.yMove = unit->yPos;
     gActionData.subjectIndex   = unit->index;
     gActionData.unitActionType = 0;
     gActionData.moveCount      = 0;

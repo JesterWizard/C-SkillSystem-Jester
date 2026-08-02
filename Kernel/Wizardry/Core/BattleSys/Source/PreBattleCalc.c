@@ -13,6 +13,7 @@
 #include "unit-expa.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
+#include "pair-up.h"
 
 #define LOCAL_TRACE 0
 
@@ -286,6 +287,19 @@ void ComputeBattleUnitSupportBonuses(struct BattleUnit* attacker, struct BattleU
         attacker->battleAvoidRate += tmpBonuses.bonusAvoid;
         attacker->battleCritRate  += tmpBonuses.bonusCrit;
         attacker->battleDodgeRate += tmpBonuses.bonusDodge;
+
+		{
+			int dualSupportRank = PairUp_GetDualSupportRank(&attacker->unit);
+
+			attacker->battleHitRate += PairUp_GetDualSupportBonus(
+				dualSupportRank, PAIR_UP_DUAL_SUPPORT_HIT);
+			attacker->battleAvoidRate += PairUp_GetDualSupportBonus(
+				dualSupportRank, PAIR_UP_DUAL_SUPPORT_AVOID);
+			attacker->battleCritRate += PairUp_GetDualSupportBonus(
+				dualSupportRank, PAIR_UP_DUAL_SUPPORT_CRIT);
+			attacker->battleDodgeRate += PairUp_GetDualSupportBonus(
+				dualSupportRank, PAIR_UP_DUAL_SUPPORT_DODGE);
+		}
     }
 }
 

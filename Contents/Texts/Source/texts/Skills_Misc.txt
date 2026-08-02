@@ -96,6 +96,30 @@ Pair Up:[N]
 Rescue a unit and gain 20%[N]
 of their stats as boosts.[X]
 
+## MSG_MenuCommand_PairUp_NAME
+Pair Up[X]
+## MSG_MenuCommand_PairUp_DESC
+Join an adjacent ally as[N]
+a support unit.[X]
+
+## MSG_MenuCommand_PairUp_Switch_NAME
+Switch[X]
+## MSG_MenuCommand_PairUp_Switch_DESC
+Swap the lead and support[N]
+units in this pair.[X]
+
+## MSG_MenuCommand_PairUp_Separate_NAME
+Separate[X]
+## MSG_MenuCommand_PairUp_Separate_DESC
+Separate the pair and place[N]
+the support unit nearby.[X]
+
+## MSG_MenuCommand_PairUp_Transfer_NAME
+Transfer[X]
+## MSG_MenuCommand_PairUp_Transfer_DESC
+Transfer the support unit[N]
+to an adjacent ally.[X]
+
 ## MSG_SKILL_Reflex_NAME
 Reflex[X]
 ## MSG_SKILL_Reflex_DESC

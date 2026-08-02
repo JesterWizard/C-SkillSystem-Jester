@@ -3,10 +3,15 @@
 #include "combo-attack.h"
 #include "skill-system.h"
 #include "status-getter.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "constants/skills.h"
+#include "pair-up.h"
+#include "weapon-range.h"
 
 #define LOCAL_TRACE 0
+
+#pragma GCC optimize("Os", "no-jump-tables")
 
 STATIC_DECLAR bool ComboCheckBattleInori(struct Unit *combo_actor)
 {
@@ -80,17 +85,19 @@ STATIC_DECLAR bool BattleComboGenerateHit(void)
 		gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_MISS;
 	} else {
 		// Hitted
-		gBattleStats.damage = ComboGetBattleDamage(unit);
+		if (!(gBattleHitIterator->attributes & BATTLE_HIT_ATTR_GREATSHLD)) {
+			gBattleStats.damage = ComboGetBattleDamage(unit);
 
-		if (gpKernelDesignerConfig->apply_dynamic_nosferatu_battle_anim == true)
-		{
-			if (CheckWeaponIsEfxNosferatu(GetUnitEquippedWeapon(unit)))
-				gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
-		}
-		else
-		{
-			if (GetItemWeaponEffect(GetUnitEquippedWeapon(unit)) == WPN_EFFECT_HPDRAIN)
-				gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
+			if (gpKernelDesignerConfig->apply_dynamic_nosferatu_battle_anim == true)
+			{
+				if (CheckWeaponIsEfxNosferatu(GetUnitEquippedWeapon(unit)))
+					gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
+			}
+			else
+			{
+				if (GetItemWeaponEffect(GetUnitEquippedWeapon(unit)) == WPN_EFFECT_HPDRAIN)
+					gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_HPSTEAL;
+			}
 		}
 	}
 
@@ -146,17 +153,15 @@ bool BattleComboGenerateHits(void)
 	int i;
 	u32 attrs;
 
-	ResetComboAtkList();
-
 	if (!gpKernelDesignerConfig->engage_combo_attack)
 		return false;
 
-	/* Not considering on simulation */
 	if (gBattleStats.config & BATTLE_CONFIG_SIMULATE)
 		return false;
 
 	/* Not considering on enemy */
-	if (!gpKernelDesignerConfig->enemy_can_combo_attack && UNIT_FACTION(&gBattleActor.unit) != FACTION_BLUE)
+	if (!gpKernelDesignerConfig->enemy_can_combo_attack
+		&& UNIT_FACTION(&gBattleActor.unit) != FACTION_BLUE)
 		return false;
 
 	if (AreUnitsAllied(gBattleActor.unit.index, gBattleTarget.unit.index))
@@ -176,3 +181,4 @@ bool BattleComboGenerateHits(void)
 	}
 	return false;
 }
+

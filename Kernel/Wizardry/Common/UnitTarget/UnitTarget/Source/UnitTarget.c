@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "pair-up.h"
 
 LYN_REPLACE_CHECK(TryAddUnitToSleepTargetList);
 void TryAddUnitToSleepTargetList(struct Unit *unit)
@@ -96,6 +97,9 @@ void TryAddUnitToBerserkTargetList(struct Unit *unit)
 
 LYN_REPLACE_CHECK(CanUnitRescue);
 s8 CanUnitRescue(struct Unit* actor, struct Unit* target) {
+    if (PairUp_IsPaired(actor) || PairUp_IsPaired(target))
+        return false;
+
     int actorAid  = GetUnitAid(actor);
     int targetCon = UNIT_CON(target);
 

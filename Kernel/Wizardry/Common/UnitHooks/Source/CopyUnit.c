@@ -9,13 +9,13 @@ void CopyUnit(struct Unit *from, struct Unit *to)
 {
 	u8 id = to->index;
 
+	memcpy(to, from, sizeof(struct Unit));
+	to->index = id;
+
 #if CHAX
 	const CopyUnitFunc_t *it;
 
 	for (it = gpCopyUnitHooks; *it; it++)
 		(*it)(from, to);
 #endif
-
-	memcpy(to, from, sizeof(struct Unit));
-	to->index = id;
 }

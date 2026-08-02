@@ -7,6 +7,7 @@
 #include "unit-expa.h"
 #include "debuff.h"
 #include "jester_headers/custom-functions.h"
+#include "pair-up.h"
 
 int _GetUnitMagic(struct Unit *unit)
 {
@@ -19,6 +20,8 @@ int _GetUnitMagic(struct Unit *unit)
     else if (unit == GetUnit(gBattleTarget.unit.index) && GetUnit(gBattleActor.unit.index) && SkillTester(GetUnit(gBattleActor.unit.index), SID_Unaware))
         return status;
 #endif
+
+	status += PairUp_GetLeadStatBonus(unit, PAIR_UP_STAT_MAG);
 
 	for (it = gpMagGetters; *it; it++)
 		status = (*it)(status, unit);

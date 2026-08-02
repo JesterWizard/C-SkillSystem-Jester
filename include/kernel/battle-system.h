@@ -147,6 +147,7 @@ extern struct {
 	u32 skill_activated_sure_shoot : 1;
 	u32 skill_activated_dead_eye : 1;
 	u32 skill_activated_aether : 1;
+	u32 pair_up_guard_result : 2;
 } gBattleTemporaryFlag;
 
 enum BattleOrderSkills_Type {

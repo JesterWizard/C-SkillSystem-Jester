@@ -34,6 +34,7 @@ extern const u16 gEmsSizes[2];
 #define EMS_CHUNK_WMDATA         8
 #define EMS_CHUNK_DUNGEON        9
 #define EMS_CHUNK_TONICSTATE    10
+#define EMS_CHUNK_PAIRUP        12
 
 const struct EmsChunk *GetEmsChunkByIndex_Sav(int idx);
 const struct EmsChunk *GetEmsChunkByIndex_Sus(int idx);

@@ -68,6 +68,7 @@ ALIGN 4
 #include "Core/MapTask/MapTask.event"
 #include "Core/CombatArt/CombatArt.event"
 #include "Core/ComboAttack/ComboAttack.event"
+#include "Core/PairUp/PairUp.event"
 #include "Core/Movement/Movement.event"
 #include "Core/AiHack/AiHack.event"
 #include "Core/WorldMap/WorldMap_Installer.event"
