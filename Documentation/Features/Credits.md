@@ -1,5 +1,11 @@
 # Credits
 
+## Mechanics & Reference Implementations
+
+| Feature | Contributor | Notes |
+|---------|-------------|-------|
+| Pair-Up initial ASM reference | CirclesEverywhere | Reference rescue/pairing ASM work used for the C port; see [Circles' Compendium](https://feuniverse.us/t/circles-compendium/13510) |
+
 ## Icons
 
 | Asset Name | Author Name | Link |

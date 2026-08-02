@@ -175,6 +175,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 	</details>
 
 - [Overview](./Documentation/Features/Abstract.md)
+- [Pair-Up Commands](./Documentation/Features/PairUp.md)
 - [Popup System](./Documentation/Features/PopupR.md)
 - [Quality Of Life](./Documentation/Features/QualityOfLife.md)
 - [Save System](./Documentation/Features/Save.md)

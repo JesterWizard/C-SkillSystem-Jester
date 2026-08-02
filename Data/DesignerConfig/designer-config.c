@@ -170,4 +170,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.real_time_refresh_frames = 60 * 30,    /* soft refresh / cooldown clear every 30s */
 
 	.mokha_aoe_enabled = true,
+	.pair_up_enabled = true,
 };

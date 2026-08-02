@@ -152,6 +152,7 @@ struct KernelDesigerConfig {
 	u16 real_time_refresh_frames; /* frames between soft unit refreshes (0 = use default 30s) */
 
 	u8 mokha_aoe_enabled; /* Three Houses-style gambit AOE attacks */
+	u8 pair_up_enabled; /* Pair Up, Shelter, Transfer, and Switch commands */
 };
 
 struct KernelBattleDesignerConfig {

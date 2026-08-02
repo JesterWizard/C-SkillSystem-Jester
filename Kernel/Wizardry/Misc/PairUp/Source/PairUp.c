@@ -15,6 +15,7 @@
 #pragma GCC optimize("Os", "no-jump-tables")
 
 #define PAIR_UP_RESCUE_MARKER_ADDR ((volatile u8 *) 0x0203F101)
+#define PAIR_UP_VIEWED_UNIT_ADDR   ((volatile u8 *) 0x0203A956)
 #define PAIR_UP_MODE_PAIR_UP       1
 #define PAIR_UP_MODE_SHELTER       2
 
@@ -191,6 +192,9 @@ static u8 PairUp_RescueUsabilityCore(
 	(void) def;
 	(void) number;
 
+	if (!gpKernelDesignerConfig->pair_up_enabled)
+		return MENU_NOTSHOWN;
+
 	if (!PairUp_IsValidTarget(gActiveUnit)
 		|| (gActiveUnit->state & US_HAS_MOVED))
 		return MENU_NOTSHOWN;
@@ -238,8 +242,12 @@ s8 ActionRescue(ProcPtr proc)
 {
 	struct Unit *actor;
 	struct Unit *target;
+	bool shelter;
 
 	(void) proc;
+
+	if (!gpKernelDesignerConfig->pair_up_enabled)
+		return true;
 
 	actor = GetUnit(gActionData.subjectIndex);
 	target = GetUnit(gActionData.targetIndex);
@@ -247,8 +255,9 @@ s8 ActionRescue(ProcPtr proc)
 		return true;
 
 	TryRemoveUnitFromBallista(actor);
+	shelter = PairUp_GetMode() == PAIR_UP_MODE_SHELTER;
 
-	if (PairUp_GetMode() == PAIR_UP_MODE_SHELTER) {
+	if (shelter) {
 		if (!PairUp_CanPair(actor, target))
 			return true;
 
@@ -287,6 +296,13 @@ s8 ActionRescue(ProcPtr proc)
 
 	RefreshEntityBmMaps();
 	RefreshUnitSprites();
+
+	if (shelter) {
+		gActiveUnit = target;
+		gActiveUnitId = target->index;
+		*PAIR_UP_VIEWED_UNIT_ADDR = target->index;
+	}
+
 	return true;
 }
 
@@ -480,6 +496,7 @@ bool PairUp_Switch(struct Unit *leader)
 	gActionData.unitActionType = UNIT_ACTION_TRADED;
 	gActiveUnit = support;
 	gActiveUnitId = support->index;
+	*PAIR_UP_VIEWED_UNIT_ADDR = support->index;
 
 	EndAllMus();
 	HideUnitSprite(leader);
@@ -812,7 +829,8 @@ static u8 PairUp_OnSelectedCore(
 {
 	(void) menu;
 
-	if (item->availability == MENU_DISABLED)
+	if (!gpKernelDesignerConfig->pair_up_enabled
+		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
 	ClearBg0Bg1();
@@ -867,7 +885,8 @@ u8 PairUp_TransferUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!gActiveUnit
+	if (!gpKernelDesignerConfig->pair_up_enabled
+		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit))
 		return MENU_NOTSHOWN;
@@ -882,7 +901,8 @@ u8 PairUp_TransferEffect(
 {
 	(void) menu;
 
-	if (item->availability == MENU_DISABLED)
+	if (!gpKernelDesignerConfig->pair_up_enabled
+		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
 	ClearBg0Bg1();
@@ -904,7 +924,8 @@ u8 PairUp_SwitchUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!gActiveUnit
+	if (!gpKernelDesignerConfig->pair_up_enabled
+		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit)
 		|| !PairUp_GetSupport(gActiveUnit))
@@ -919,11 +940,15 @@ u8 PairUp_SwitchEffect(
 {
 	(void) menu;
 
-	if (item->availability == MENU_DISABLED)
+	if (!gpKernelDesignerConfig->pair_up_enabled
+		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
 	if (!PairUp_Switch(gActiveUnit))
 		return MENU_ACT_SND6B;
 
-	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A;
+	return MENU_ACT_SKIPCURSOR
+		| MENU_ACT_END
+		| MENU_ACT_SND6A
+		| MENU_ACT_CLEAR;
 }
