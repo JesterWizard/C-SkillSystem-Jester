@@ -1,36 +1,12 @@
 #ifndef GAMBIT_ACTION
 #define GAMBIT_ACTION
 
-#ifdef HAX_ACTION_APPLICATION_REWORK_EVENT	//UnitActionRework
-	//#define ACTION_GAMBIT 0x23
-	SetUnitAction(ACTION_GAMBIT, ActionRoutine( (GambitAction |1) ))
+InjectUnitAction(CONFIG_UNIT_ACTION_EXPA_Gambit, GambitAction)
 
 ALIGN 4
 #include "src/GambitActionCore.lyn.event"
 
 Gambit_ActionIndex:
-	BYTE 0x23
-	
-ALIGN 4
-gpProc_GambitAction:
-{
-	_6C_YIELD
-	_6C_CALL_ROUTINE(cProc_AttackPriority)	
-	_6C_SLEEP(5)
-	_6C_LABEL($1)
-	_6C_CALL_ROUTINE(SMS_UpdateFromGameData)
-	_6C_CALL_ROUTINE(MU_EndAll)
-	_6C_CALL_ROUTINE(cProc_AttackNext)
-	_6C_SLEEP(5)
-	_6C_CALL_ROUTINE(cProc_SetNextGambitTarget)
-	_6C_GOTO($1)
-	_6C_LABEL($2)
-	_6C_YIELD
-	_6C_CALL_ROUTINE(ClearTarget_CommonFlagSaveSu)
-	_6C_CALL_ROUTINE(GambitResetMaps)
-	_6C_END
-}
+	BYTE CONFIG_UNIT_ACTION_EXPA_Gambit
 
-#endif // HAX_ACTION_APPLICATION_REWORK_EVENT	
-#endif // GAMBIT_ACTION	
-	
+#endif // GAMBIT_ACTION

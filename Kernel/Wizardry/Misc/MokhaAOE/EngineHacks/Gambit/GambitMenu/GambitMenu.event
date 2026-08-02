@@ -3,29 +3,4 @@
 
 #include "src/GambitMenuCore.lyn.event"
 
-#define MenuCommandEnd "WORD 0 0 0 0 0 0 0 0 0"
-
-ALIGN 4
-GambitSelectMenu:
-	BYTE 	$1 $3 $09 $0				//Geometry
-	WORD 	$0
-	POIN 	GambitSelectMenuTable		//Pointer to command definitions
-	WORD 	$0 $0 $0 
-	POIN	$22861						//B Press
-	POIN	$4F521 						//R Press
-	POIN	$4F459						//HelpBox
-	
-	
-ALIGN 4
-GambitSelectMenuTable:	
-	// #define 	GambitSelectMenu_Desc			$212	//"Eirika"
-	// MenuCommand(GambitAssemblyName, GambitSelectMenu_Desc, OrangeText, GambitSelectMenu_Usability, GambitSelectMenu_Effect, GambitSelectMenu_Hover, GambitSelectMenu_Unhover)
-	MenuCommandEnd
-	
-/* MESSAGE Gambit_UpperMenu_Usability_ Gambit_UpperMenu_Usability
-MESSAGE Gambit_UpperMenu_Effect_ Gambit_UpperMenu_Effect
-MESSAGE GambitSelectMenu_Effect_ GambitSelectMenu_Effect
-MESSAGE GambitSelectMenu_Hover_ GambitSelectMenu_Hover
-MESSAGE GambitSelectMenu_Unhover_ GambitSelectMenu_Unhover */
 #endif // GAMBIT_MENU
-

@@ -45,9 +45,7 @@
 #include "Misc/ModularMinimugBox/ModularMinimugBox_Installer.event"
 #include "Misc/MirrorMapSprites/MirrorMapSprites_Installer.event"
 
-#ifdef CONFIG_TEXT_ENGINE_REWORK
-    #include "Misc/TextEngineRework/TextEngineRework_Installer.event"
-#endif
+#include "Misc/TextEngineRework/TextEngineRework_Installer.event"
 
 #ifdef CONFIG_SHOW_CGs_LIKE_FE7
     #include "Misc/ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
@@ -67,9 +65,11 @@
     #include "Misc/VeslyNotificationWindow/VeslyNotificationWindow_Installer.event"
 #endif
 
-#ifdef CONFIG_VESLY_AOE
-    #include "Misc/VeslyAOE/AOE_Installer.event"
-#endif
+// #ifdef CONFIG_VESLY_AOE
+//     #include "Misc/VeslyAOE/AOE_Installer.event"
+// #endif
+
+#include "Misc/MokhaAOE/MokhaAOE_Installer.event"
 
 #ifdef CONFIG_VESLY_AVATAR
     #include "Misc/VeslyAvatar/VeslyAvatar_Installer.event"
@@ -78,10 +78,6 @@
 #include "Misc/FreeMovement/FreeMovement_Installer.event"
 
 #include "Misc/Biorhythm/Biorhythm_Installer.event"
-
-#ifdef CONFIG_MOKHA_AOE
-    #include "Misc/MokhaAOE/MokhaAOE_Installer.event"
-#endif
 
 #ifdef CONFIG_LIGHTS_OUT_GAME
     #include "Misc/LightsOutPuzzle/LightsOutPuzzle_Installer.event"

@@ -6,6 +6,17 @@
 
 extern const u8 Gfx_BKSEL[12][0x80];
 
+static inline bool IsUnarmedCombatForecastUnit(struct BattleUnit *bu)
+{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+	return BattleFastSkillTester(bu, SID_UnarmedCombat)
+		&& !bu->weapon
+		&& bu->canCounter;
+#else
+	return false;
+#endif
+}
+
 LYN_REPLACE_CHECK(BattleForecastHitCountUpdate);
 void BattleForecastHitCountUpdate(struct BattleUnit* bu, u8* hitsCounter, int* usesCounter)
 {
@@ -39,13 +50,11 @@ void InitBattleForecastBattleStats(struct BattleForecastProc* proc)
     bool unarmedCombat_Actor = false;
     bool unarmedCombat_Target = false;
 
-#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-        if (SkillTester(GetUnit(gBattleActor.unit.index), SID_UnarmedCombat))
-        {
-            usesA = 100;
-            unarmedCombat_Actor = true;
-        }
-#endif
+	if (IsUnarmedCombatForecastUnit(&gBattleActor))
+	{
+		usesA = 100;
+		unarmedCombat_Actor = true;
+	}
 
     if ((gBattleActor.weapon != 0) || (gBattleActor.weaponBroke) || unarmedCombat_Actor)
     {
@@ -64,13 +73,11 @@ void InitBattleForecastBattleStats(struct BattleForecastProc* proc)
 	proc->hitCountB = 0;
 	proc->isEffectiveB = false;
 
-#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-        if (SkillTester(GetUnit(gBattleTarget.unit.index), SID_UnarmedCombat))
-        {
-            usesB = 100;
-            unarmedCombat_Target = true;
-        }
-#endif
+	if (IsUnarmedCombatForecastUnit(&gBattleTarget))
+	{
+		usesB = 100;
+		unarmedCombat_Target = true;
+	}
 
     if ((gBattleTarget.weapon != 0) || (gBattleTarget.weaponBroke) || unarmedCombat_Target)
     {

@@ -11,10 +11,10 @@ extern u8 AoE_SpecificUsability(const struct MenuItemDef *def, int number);
 extern u8 AoE_SpecificEffect(struct MenuProc * menu, struct MenuItemProc * menuItem);
 extern int AoE_SpecificHover(struct MenuProc * menu, struct MenuItemProc * menuItem);
 
-extern u8 GambitSelectMenu_Usability(const struct MenuItemDef *def, int number);
-extern u8 GambitSelectMenu_Effect(struct MenuProc * menu, struct MenuItemProc * menuItem);
-extern int GambitSelectMenu_Hover(struct MenuProc * menu, struct MenuItemProc * menuItem);
-extern int GambitSelectMenu_Unhover(struct MenuProc * menu, struct MenuItemProc * menuItem);
+extern u8 Gambit_UpperMenu_Usability(const struct MenuItemDef *def, int number);
+extern u8 Gambit_UpperMenu_Effect(struct MenuProc * menu, struct MenuItemProc * menuItem);
+extern int Gambit_UpperMenu_Hover(struct MenuProc * menu, struct MenuItemProc * menuItem);
+extern int Gambit_UpperMenu_Unhover(struct MenuProc * menu, struct MenuItemProc * menuItem);
 
 extern u8 InteractCommandUsability(const struct MenuItemDef *def, int number);
 extern u8 InteractCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
@@ -279,9 +279,9 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
 	{" Prestige", 0, 0, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
 	{"　救出", 0x689, 0x6C5, 0, 0x63, RescueUsability, 0, RescueEffect, 0, 0, 0}, // Rescue >
-#ifdef CONFIG_MOKHA_AOE
-	{"", GambitAssemblyName, GambitSelectMenu_Desc, TEXT_COLOR_SYSTEM_GREEN, 0, GambitSelectMenu_Usability, 0, GambitSelectMenu_Effect, 0, GambitSelectMenu_Hover, GambitSelectMenu_Unhover},
-#endif
+
+	{"", GambitAssemblyName, GambitSelectMenu_Desc, TEXT_COLOR_SYSTEM_GREEN, 0, Gambit_UpperMenu_Usability, 0, Gambit_UpperMenu_Effect, 0, Gambit_UpperMenu_Hover, Gambit_UpperMenu_Unhover},
+
     {"　救出", MSG_MenuCommand_Refuge_NAME, MSG_MenuCommand_Refuge_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6C, Refuge_Usability, 0, Refuge_OnSelected, 0, 0, 0}, // Refuge > 
     {"　救出", MSG_MenuCommand_Transform_Laguz_NAME, MSG_MenuCommand_Transform_Laguz_DESC, TEXT_COLOR_SYSTEM_GOLD, 0x6C, Transform_Laguz_Usability, 0, Transform_Laguz_Effect, 0, 0, 0}, // Laguz Transform > 
 

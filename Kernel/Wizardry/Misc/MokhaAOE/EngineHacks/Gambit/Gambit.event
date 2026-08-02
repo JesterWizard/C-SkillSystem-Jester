@@ -1,11 +1,11 @@
 #ifndef GAMBIT
 #define GAMBIT
 
+#include "src/GambitData.lyn.event"
 #include "GambitEffectMap/GambitEffectMap.event"
 #include "GambitMenu/GambitMenu.event"
 #include "GambitTargetSelect/GambitTargetSelect.event"
 #include "SaveAOETarget/SaveAOETarget.event"
 #include "GambitAction/GambitAction.event"
-
 
 #endif // GAMBIT

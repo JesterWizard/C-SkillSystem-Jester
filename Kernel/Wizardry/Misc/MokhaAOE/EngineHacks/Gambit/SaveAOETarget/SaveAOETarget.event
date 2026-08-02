@@ -4,14 +4,4 @@
 ALIGN 4
 #include "src/GambitSaveCore.lyn.event"
 
-/* MESSAGE SaveTarget_PostGambitTargetSelection_ SaveTarget_PostGambitTargetSelection
-MESSAGE ClearTarget_CommonFlagSaveSu_ ClearTarget_CommonFlagSaveSu
-MESSAGE MsuSave_CommonFlag_ MsuSave_CommonFlag
-MESSAGE MsuLoad_CommonFlag_ MsuLoad_CommonFlag */
-
-ALIGN 4
-gpCommonFlagSaveSu:
-	WORD 0x2026E30
-	
-#endif // GAMBIT_SAVE	
-	
+#endif // GAMBIT_SAVE

@@ -31,7 +31,8 @@ void BattleApplyItemEffect(struct Proc *proc)
 		}
 
 		gBattleActor.weapon = GetItemAfterUse(gBattleActor.weapon);
-		gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = gBattleActor.weapon;
+		if (gBattleActor.weaponSlotIndex < UNIT_ITEM_COUNT)
+			gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = gBattleActor.weapon;
 
 		if (gBattleActor.weapon)
 			gBattleActor.weaponBroke = FALSE;

@@ -22,6 +22,11 @@ typedef int (*UnitToBattleFunc_t)(struct Unit* unit, struct BattleUnit* bu);
 // extern const UnitToBattleFunc_t gExternalUnitToBattleHook[];
 extern UnitToBattleFunc_t const* const gpExternalUnitToBattleHook;
 
+static inline bool IsPhysicalInventorySlot(int slot)
+{
+	return slot >= 0 && slot < UNIT_ITEM_COUNT;
+}
+
 STATIC_DECLAR void InitBattleUnitVanilla(struct BattleUnit* bu, struct Unit* unit)
 {
 	if (!unit)
@@ -383,23 +388,33 @@ void BattleApplyUnitUpdates(void)
 	 */
 #if (defined(SID_Mimic) && (COMMON_SKILL_VALID(SID_Mimic)))
 	if (SkillTester(target, SID_Mimic))
-		gBattleTarget.unit.items[gBattleTarget.weaponSlotIndex] = GetUnitEquippedWeapon(target);
+	{
+		if (IsPhysicalInventorySlot(gBattleTarget.weaponSlotIndex))
+			gBattleTarget.unit.items[gBattleTarget.weaponSlotIndex] = GetUnitEquippedWeapon(target);
+	}
 	else if (SkillTester(actor, SID_Mimic))
-		gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = GetUnitEquippedWeapon(actor);
+	{
+		if (IsPhysicalInventorySlot(gBattleActor.weaponSlotIndex))
+			gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = GetUnitEquippedWeapon(actor);
+	}
 	else
 	{
-		if (gBattleActor.canCounter)
+		if (gBattleActor.canCounter &&
+			IsPhysicalInventorySlot(gBattleActor.weaponSlotIndex))
 			gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = gBattleActor.weapon;
 
-		if (gBattleTarget.canCounter)
+		if (gBattleTarget.canCounter &&
+			IsPhysicalInventorySlot(gBattleTarget.weaponSlotIndex))
 			gBattleTarget.unit.items[gBattleTarget.weaponSlotIndex] = gBattleTarget.weapon;
 	}
 
 #else
-	if (gBattleActor.canCounter)
+	if (gBattleActor.canCounter &&
+		IsPhysicalInventorySlot(gBattleActor.weaponSlotIndex))
 		gBattleActor.unit.items[gBattleActor.weaponSlotIndex] = gBattleActor.weapon;
 
-	if (gBattleTarget.canCounter)
+	if (gBattleTarget.canCounter &&
+		IsPhysicalInventorySlot(gBattleTarget.weaponSlotIndex))
 		gBattleTarget.unit.items[gBattleTarget.weaponSlotIndex] = gBattleTarget.weapon;
 #endif
 

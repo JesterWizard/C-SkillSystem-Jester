@@ -300,9 +300,45 @@ a unit can see in fog.[X]
 Select unit to target.[X]
 
 ## GambitAssemblyName
-Gambit[X]
+ Gambit[X]
 ## GambitSelectMenu_Desc
-Eirika.[X]
+Launch a Three Houses-style[N]
+area attack.[X]
+
+## MSG_MokhaAoe_Default_NAME
+ Strike[X]
+## MSG_MokhaAoe_Default_DESC
+Strike the selected tile.[X]
+
+## MSG_MokhaAoe_Blaze_NAME
+ Blaze[X]
+## MSG_MokhaAoe_Blaze_DESC
+A cone of flame in the[N]
+chosen direction.[X]
+
+## MSG_MokhaAoe_Absorption_NAME
+ Absorption[X]
+## MSG_MokhaAoe_Absorption_DESC
+A wide diamond of force[N]
+around the target.[X]
+
+## MSG_MokhaAoe_Fusillade_NAME
+ Fusillade[X]
+## MSG_MokhaAoe_Fusillade_DESC
+A cross-shaped volley on[N]
+the target tile.[X]
+
+## MSG_MokhaAoe_FireArrows_NAME
+ Fire Arrows[X]
+## MSG_MokhaAoe_FireArrows_DESC
+A straight line of arrows[N]
+through the target.[X]
+
+## MSG_MokhaAoe_GroupLance_NAME
+ Group Lance[X]
+## MSG_MokhaAoe_GroupLance_DESC
+A lateral lance sweep on[N]
+the target row.[X]
 
 ## PuzzleMenuCommandNameText
  Puzzle[X]

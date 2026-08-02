@@ -18,6 +18,17 @@ enum CombatArtBKSELfxConfig {
 	OBJ_ARROW_YPOS = 0x16A,
 };
 
+static inline bool IsUnarmedCombatForecastUnit(struct BattleUnit *bu)
+{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+	return BattleFastSkillTester(bu, SID_UnarmedCombat)
+		&& !bu->weapon
+		&& bu->canCounter;
+#else
+	return false;
+#endif
+}
+
 STATIC_DECLAR void BKSELfxUpdateAoeSprits(struct BattleForecastProc *proc)
 {
 	const u8 Y_SYNC_OFFs[] = {0, 1, 2, 3, 2, 1};
@@ -149,29 +160,24 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
 	}
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-    if (SkillTester(GetUnit(gBattleActor.unit.index), SID_UnarmedCombat))
+    if (IsUnarmedCombatForecastUnit(&gBattleActor))
     {
-        if (gBattleActor.weapon == 0)
-        {
-            int actorAccuracy = gBattleActor.unit.skl * 2;
-            int targetAvoid = gBattleTarget.battleAvoidRate;
-            int calculatedHit = SKILL_EFF0(SID_UnarmedCombat) + actorAccuracy - targetAvoid;
-            gBattleActor.battleEffectiveHitRate = calculatedHit > 100 ? 100 : calculatedHit;
-        }
+        int actorAccuracy = gBattleActor.unit.skl * 2;
+        int targetAvoid = gBattleTarget.battleAvoidRate;
+        int calculatedHit = SKILL_EFF0(SID_UnarmedCombat) + actorAccuracy - targetAvoid;
+        gBattleActor.battleEffectiveHitRate = calculatedHit > 100 ? 100 : calculatedHit;
     }
-    if (SkillTester(GetUnit(gBattleTarget.unit.index), SID_UnarmedCombat))
+    if (IsUnarmedCombatForecastUnit(&gBattleTarget))
     {
-        if (gBattleTarget.weapon == 0)
-        {
-            int targetAccuracy = gBattleTarget.unit.skl * 2;
-            int actorAvoid = gBattleActor.battleAvoidRate;
-            int calculatedHit = SKILL_EFF0(SID_UnarmedCombat) + targetAccuracy - actorAvoid;
-            gBattleTarget.battleEffectiveHitRate = calculatedHit > 100 ? 100 : calculatedHit;
-        }
+        int targetAccuracy = gBattleTarget.unit.skl * 2;
+        int actorAvoid = gBattleActor.battleAvoidRate;
+        int calculatedHit = SKILL_EFF0(SID_UnarmedCombat) + targetAccuracy - actorAvoid;
+        gBattleTarget.battleEffectiveHitRate = calculatedHit > 100 ? 100 : calculatedHit;
     }
 #endif
 
-    if ((gBattleTarget.weapon == 0) && (gBattleTarget.weaponBroke == 0)) {
+    if ((gBattleTarget.weapon == 0) && (gBattleTarget.weaponBroke == 0) &&
+        !IsUnarmedCombatForecastUnit(&gBattleTarget)) {
         damage = -1;
 
         gBattleTarget.battleEffectiveHitRate = 0xFF;
@@ -259,7 +265,8 @@ void DrawBattleForecastContentsExtended(struct BattleForecastProc * proc)
 
     PutBattleForecastItemName(gUiTmScratchA + 0x221, &proc->itemNameText, gBattleTarget.weaponBefore);
 
-    if ((gBattleTarget.weapon == 0) && (!gBattleTarget.weaponBroke)) {
+    if ((gBattleTarget.weapon == 0) && (!gBattleTarget.weaponBroke) &&
+        !IsUnarmedCombatForecastUnit(&gBattleTarget)) {
         gBattleTarget.battleAttack = 0xFF;
         gBattleTarget.battleEffectiveHitRate = 0xFF;
         gBattleTarget.battleEffectiveCritRate = 0xFF;

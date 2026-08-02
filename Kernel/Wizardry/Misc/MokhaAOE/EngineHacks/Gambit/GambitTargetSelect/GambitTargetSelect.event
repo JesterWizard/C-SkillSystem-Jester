@@ -3,25 +3,4 @@
 
 #include "src/TargetSelectCore.lyn.event"
 
-/* MESSAGE MakeTargetListFor_SubGambitMenu_ MakeTargetListFor_SubGambitMenu
-MESSAGE ForEachUnitInRange_ByRangeMovement_ ForEachUnitInRange_ByRangeMovement
-MESSAGE MakeTargetListFor_AfterSelectAPressed_ MakeTargetListFor_AfterSelectAPressed
-MESSAGE _TargetSelect_Gambit4_TargetChange_ _TargetSelect_Gambit4_TargetChange
-MESSAGE _TargetSelect_Gambit5_APressed_ _TargetSelect_Gambit5_APressed
-MESSAGE _TargetSelect_Gambit6_BPressed_ _TargetSelect_Gambit6_BPressed */
-
-ALIGN 4
-pGambit_TargetSelection_Func:
-	POIN 0x8022E8D
-	POIN 0x8022F11
-	WORD 0
-	POIN _TargetSelect_Gambit4_TargetChange
-	WORD 0
-	POIN _TargetSelect_Gambit5_APressed
-	POIN _TargetSelect_Gambit6_BPressed
-	POIN 0x80373F1
-	
-	
-
-ALIGN 4
 #endif // GAMBIT_TARGETSELECT

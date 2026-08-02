@@ -4,23 +4,16 @@
 ALIGN 4
 #include "src/MapCore.lyn.event"
 
-/* MESSAGE FillRangeMapForHover_ FillRangeMapForHover
-MESSAGE FillAOEEffectMay_OnChangeTarget_ FillAOEEffectMay_OnChangeTarget */
-
-
 ALIGN 4
 GambitEffectMap_DrawMapRoutineTable:
+	POIN Func0_Default|1
 	POIN Func1_Basze|1
-	POIN Func0_Default|1	Func1_Basze|1		Func2_Absorption|1 
-	POIN Func3_Fusillade|1	Func4_FireArrows|1	Func5_GroupLanceAttack|1
-	WORD $0 $0 $0 $0
-	WORD $0 $0 $0 $0
-	WORD $0 $0 $0 $0
+	POIN Func2_Absorption|1
+	POIN Func3_Fusillade|1
+	POIN Func4_FireArrows|1
+	POIN Func5_GroupLanceAttack|1
 
-
-
-//  1
-//  1
+//  single tile
 ALIGN 4
 Func0_Default:
 	#include "FillAOEMapFucs/Func0_Default.lyn.event"
@@ -60,8 +53,5 @@ Func4_FireArrows:
 ALIGN 4
 Func5_GroupLanceAttack:
 	#include "FillAOEMapFucs/Func5_GroupLanceAttack.lyn.event"
-
-
-
 
 #endif // GAMBIT_MAP

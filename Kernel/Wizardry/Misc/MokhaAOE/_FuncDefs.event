@@ -1,7 +1,6 @@
 #ifndef MOKHA_FUNCDEFs
 #define MOKHA_FUNCDEFs
 
-	#define	BeginBattleAnimations 0x802CA15
 	#define	BattleApplyGameStateUpdates 0x802A2F5
 	#define	BMXFADEExists 0x801DE19
 	#define	BATTLE_DeleteLinkedMOVEUNIT 0x8032861

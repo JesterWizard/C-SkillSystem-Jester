@@ -26,7 +26,7 @@ STATIC_DECLAR bool CheckCanContinueAttack(struct BattleUnit *bu)
 	}
 
 	if (CheckGaidenMagicAttack(bu))
-		if (bu->unit.curHP <= GetGaidenWeaponHpCost(&bu->unit, bu->weapon))
+		if (!TryBattleHpCost(bu, GetGaidenWeaponHpCost(&bu->unit, bu->weapon)))
 			return false;
 
     if (gpKernelDesignerConfig->ignore_stop_on_petrify_sleep == true)
@@ -1204,7 +1204,7 @@ int GetBattleUnitHitCount(struct BattleUnit *actor)
 #endif
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-    if (BattleFastSkillTester(actor, SID_UnarmedCombat))
+    if (!actor->weapon && BattleFastSkillTester(actor, SID_UnarmedCombat))
 	{
         result = result + 1;
 	}

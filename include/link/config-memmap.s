@@ -160,15 +160,13 @@ _kernel_malloc sAiPhasePerformedBits, 28
  */
 _kernel_malloc gRealtimeBattleState, 120
 
+/* MokhaAOE transient target list + EXP/selection state */
+_kernel_malloc sGambitTargetSaveBuf, 0x42
+_kernel_malloc sGambitExpAccum, 2
+_kernel_malloc sGambitSelectedAttack, 2
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
 // Ensure that if you assign a byte for something, you include an addition one to keep the next available address even
-
-// JESTER - Earmarking these for deletion later along with everything that relies on them. 448 bytes of RAM saved
-@ _kernel_malloc sDemoUnitExpaAlly, 51 * 4
-@ _kernel_malloc sDemoUnitExpaEnemy, 51 * 4
-@ _kernel_malloc sDemoUnitExpaNpc, 8 * 4
-@ _kernel_malloc sDemoUnitExpaBattle, 2 * 4
 
 _kernel_malloc gUndeployedUnitCount, 32
 

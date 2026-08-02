@@ -168,4 +168,6 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.real_time_battle = false, // Broken mess, do not use
 	.real_time_enemy_interval_frames = 60,  /* 1 second between enemy action attempts */
 	.real_time_refresh_frames = 60 * 30,    /* soft refresh / cooldown clear every 30s */
+
+	.mokha_aoe_enabled = true,
 };

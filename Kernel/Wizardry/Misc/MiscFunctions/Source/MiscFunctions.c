@@ -2861,6 +2861,16 @@ int findMax(u8* array, int size) {
     return array_position;
 }
 
+static inline bool CanUseUnarmedCombatMenu(struct Unit *unit)
+{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+    return SkillTester(unit, SID_UnarmedCombat)
+        && !GetUnitEquippedWeapon(unit);
+#else
+    return false;
+#endif
+}
+
 static inline u8 CanUnitAttackNow(struct Unit* unit, bool ignoreCanto)
 {
     // If not ignoring canto, skip if unit can’t act
@@ -2896,7 +2906,7 @@ static inline u8 CanUnitAttackNow(struct Unit* unit, bool ignoreCanto)
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
     // Unarmed combat fallback
-    if (SkillTester(unit, SID_UnarmedCombat))
+    if (CanUseUnarmedCombatMenu(unit))
     {
         MakeTargetListForWeapon(unit, ITEM_SWORD_IRON);
         if (GetSelectTargetCount() > 0)
@@ -2978,9 +2988,10 @@ u8 UnitActionMenu_Attack(struct MenuProc* menu, struct MenuItemProc* menuItem) {
     }
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-    if (SkillTester(gActiveUnit, SID_UnarmedCombat))
+    if (CanUseUnarmedCombatMenu(gActiveUnit))
     {
         ClearBg0Bg1();
+        gActionData.itemSlotIndex = BU_ISLOT_AUTO;
         MakeTargetListForWeapon(gActiveUnit, ITEM_SWORD_IRON);
         NewTargetSelection(&gSelectInfo_Attack);
         sub_80832C8();
@@ -3027,7 +3038,7 @@ u8 AttackMapSelect_Cancel(ProcPtr proc, struct SelectTarget* target) {
     }
 
 #if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-    if (SkillTester(gActiveUnit, SID_UnarmedCombat))
+    if (CanUseUnarmedCombatMenu(gActiveUnit))
     {
         return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6B;
     }
