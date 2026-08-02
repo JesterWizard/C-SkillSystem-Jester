@@ -3,6 +3,9 @@
 #include "common-chax.h"
 #include "types.h"
 #include "kernel/realtime-battle.h"
+#include "skill-system.h"
+#include "battle-system.h"
+#include "constants/skills.h"
 
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 extern u16 HeldButton_AnimOff;
@@ -50,6 +53,18 @@ int ShouldSpeedupAnims(void)
     return false;
 }
 
+static bool IsUnarmedCombatActive(struct BattleUnit *bu)
+{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+    return BattleFastSkillTester(bu, SID_UnarmedCombat)
+        && !bu->weapon
+        && !bu->weaponBefore
+        && bu->canCounter;
+#else
+    return false;
+#endif
+}
+
 LYN_REPLACE_CHECK(GetSoloAnimPreconfType);
 int GetSoloAnimPreconfType(struct Unit * unit)
 {
@@ -71,6 +86,10 @@ int GetSoloAnimPreconfType(struct Unit * unit)
 LYN_REPLACE_CHECK(GetBattleAnimPreconfType);
 int GetBattleAnimPreconfType(void)
 {
+    if (IsUnarmedCombatActive(&gBattleActor) ||
+        IsUnarmedCombatActive(&gBattleTarget))
+        return PLAY_ANIMCONF_OFF;
+
     if (RealtimeBattle_ForceMapAnims())
         return PLAY_ANIMCONF_OFF;
 

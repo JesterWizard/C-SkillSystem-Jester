@@ -18,7 +18,12 @@
 STATIC_DECLAR bool CheckCanContinueAttack(struct BattleUnit *bu)
 {
 	if (!bu->weapon)
-		return false;
+	{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+		if (!BattleFastSkillTester(bu, SID_UnarmedCombat) || !bu->canCounter)
+#endif
+			return false;
+	}
 
 	if (CheckGaidenMagicAttack(bu))
 		if (bu->unit.curHP <= GetGaidenWeaponHpCost(&bu->unit, bu->weapon))
@@ -980,28 +985,10 @@ typedef enum BattleRoundResult {
 
 
 // ================================================================
-// HELPER: Determines if attacker can start combat and sets unarmedCombat out-flag
-// Matches original logic exactly, including the #ifdef behavior.
+// HELPER: Determines if attacker can start combat.
 // ================================================================
-static bool CanInitiateCombat(struct BattleUnit* attacker, bool* outUnarmedCombat)
+static bool CanInitiateCombat(struct BattleUnit* attacker)
 {
-    *outUnarmedCombat = false;
-
-#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
-    if (!BattleFastSkillTester(attacker, SID_UnarmedCombat))
-    {
-        if (!attacker->weapon)
-            return false;
-    }
-    else
-    {
-        *outUnarmedCombat = true;
-    }
-#else
-    if (!attacker->weapon)
-        return false;
-#endif
-
     return CheckCanContinueAttack(attacker);
 }
 
@@ -1048,7 +1035,6 @@ static bool HandleBattleHitOverflow(void)
 LYN_REPLACE_CHECK(BattleGenerateRoundHits);
 bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *defender)
 {
-    bool unarmedCombat    = false;
     int  roundCount       = 0;
     int  roundIndex       = 0;
     u32  baseAttrs        = 0;
@@ -1056,7 +1042,7 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
     // ------------------------------------------------------------
     // 1. Validate that attacker can begin combat
     // ------------------------------------------------------------
-    if (!CanInitiateCombat(attacker, &unarmedCombat))
+    if (!CanInitiateCombat(attacker))
         return BATTLE_ROUND_ABORT;
 
     // ------------------------------------------------------------
@@ -1099,7 +1085,7 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
         // --------------------------------------------------------
         // Mid-round continuation check
         // --------------------------------------------------------
-        if (!CheckCanContinueAttack(attacker) && !unarmedCombat)
+        if (!CheckCanContinueAttack(attacker))
             return BATTLE_ROUND_ABORT;
     }
 

@@ -69,6 +69,12 @@ int GetUnitEquippedWeaponSlot(struct Unit *unit)
 			return i;
 
 #if CHAX
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+	/* Unarmed Combat must win over Gaiden Magic's virtual auto-equip slot. */
+	if (SkillTester(unit, SID_UnarmedCombat))
+		return -1;
+#endif
+
 	/* gaiden magic */
 	if (gpKernelDesignerConfig->gaiden_magic) {
 		i = GetGaidenMagicAutoEquipSlot(unit);
@@ -259,6 +265,90 @@ STATIC_DECLAR void SetBattleUnitWeaponVanilla(struct BattleUnit *bu, int itemSlo
 	}
 }
 
+STATIC_DECLAR bool CanUseUnarmedCombat(struct BattleUnit *bu)
+{
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+	if (!BattleFastSkillTester(bu, SID_UnarmedCombat))
+		return false;
+
+	if (bu->weapon)
+		return false;
+
+	if (gBattleStats.config & (BATTLE_CONFIG_ARENA | BATTLE_CONFIG_BALLISTA))
+		return false;
+
+	if (bu->unit.state & US_IN_BALLISTA)
+		return false;
+
+	if (!IsItemCoveringRangeRework(ITEM_SWORD_IRON, gBattleStats.range, &bu->unit))
+		return false;
+
+	if (bu == &gBattleTarget)
+	{
+#if defined(SID_Counterattack) && (COMMON_SKILL_VALID(SID_Counterattack))
+		if (!BattleFastSkillTester(bu, SID_Counterattack))
+#endif
+		{
+			if ((gBattleActor.weaponAttributes | bu->weaponAttributes) & IA_UNCOUNTERABLE)
+				return false;
+
+#if defined(SID_DualWieldPlus) && (COMMON_SKILL_VALID(SID_DualWieldPlus))
+			if (BattleFastSkillTester(&gBattleActor, SID_DualWieldPlus))
+			{
+				int i;
+
+				for (i = 1; i < UNIT_MAX_INVENTORY; ++i)
+				{
+					if (GetItemMight(gBattleActor.unit.items[i]) > 0 &&
+						CanUnitUseWeapon(&gBattleActor.unit, gBattleActor.unit.items[i]) &&
+						(GetItemAttributes(gBattleActor.unit.items[i]) & IA_UNCOUNTERABLE))
+						return false;
+				}
+			}
+#endif
+		}
+
+		if (UNIT_IS_GORGON_EGG(&bu->unit))
+			return false;
+
+		if (gBattleActor.unit.statusIndex == UNIT_STATUS_BERSERK &&
+			UNIT_FACTION(&gBattleActor.unit) == FACTION_BLUE &&
+			UNIT_FACTION(&bu->unit) == FACTION_BLUE)
+			return false;
+	}
+
+#if (defined(SID_Dazzle) && (COMMON_SKILL_VALID(SID_Dazzle)))
+	if (bu == &gBattleTarget && BattleFastSkillTester(&gBattleActor, SID_Dazzle))
+		return false;
+#endif
+
+#if (defined(SID_Moonlight) && (COMMON_SKILL_VALID(SID_Moonlight)))
+	if (bu == &gBattleTarget && BattleFastSkillTester(&gBattleActor, SID_Moonlight))
+		return false;
+#endif
+
+#if (defined(SID_Comatose) && (COMMON_SKILL_VALID(SID_Comatose)))
+	if (!BattleFastSkillTester(bu, SID_Comatose))
+#endif
+	{
+		switch (GetUnitStatusIndex(&bu->unit))
+		{
+		case UNIT_STATUS_SLEEP:
+		case UNIT_STATUS_PETRIFY:
+		case UNIT_STATUS_13:
+			return false;
+
+		default:
+			break;
+		}
+	}
+
+	return true;
+#else
+	return false;
+#endif
+}
+
 STATIC_DECLAR void PostSetBattleUnitWeaponVanillaHook(struct BattleUnit *bu, int slot)
 {
     FORCE_DECLARE int gBattleActorWeapon;
@@ -268,12 +358,33 @@ STATIC_DECLAR void PostSetBattleUnitWeaponVanillaHook(struct BattleUnit *bu, int
 		if (!IsItemCoveringRangeRework(bu->weapon, gBattleStats.range, &bu->unit)) {
 			bu->weapon = 0;
 			bu->canCounter = false;
+
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+			if (CanUseUnarmedCombat(bu)) {
+				bu->weaponBefore = 0;
+				bu->weaponAttributes = 0;
+				bu->weaponType = 0;
+				bu->weaponSlotIndex = 0xFF;
+				bu->canCounter = true;
+			}
+#endif
+
 			return;
 		}
 
 		if (bu->weaponSlotIndex == 0xFF) {
 			bu->weapon = 0;
 			bu->canCounter = false;
+
+#if defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat))
+			if (CanUseUnarmedCombat(bu)) {
+				bu->weaponBefore = 0;
+				bu->weaponAttributes = 0;
+				bu->weaponType = 0;
+				bu->canCounter = true;
+			}
+#endif
+
 			return;
 		}
 
@@ -696,9 +807,8 @@ void BattleUnitTargetCheckCanCounter(struct BattleUnit *bu)
 	if (bu->canCounter)
 		return;
 
-
 #if (defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat)))
-    if (BattleFastSkillTester(bu, SID_UnarmedCombat))
+	if (CanUseUnarmedCombat(bu))
 	{
 		bu->canCounter = true;
 		return;
@@ -724,6 +834,11 @@ void BattleUnitTargetSetEquippedWeapon(struct BattleUnit *bu)
 
 	if (bu->weaponBefore)
 		return;
+
+#if (defined(SID_UnarmedCombat) && (COMMON_SKILL_VALID(SID_UnarmedCombat)))
+	if (!bu->weapon && BattleFastSkillTester(bu, SID_UnarmedCombat))
+		return;
+#endif
 
 	bu->weaponBefore = GetUnitEquippedWeapon(&bu->unit);
 	if (bu->weaponBefore)
