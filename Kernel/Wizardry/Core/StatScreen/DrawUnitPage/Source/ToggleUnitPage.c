@@ -235,10 +235,7 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	{
         if (gStatScreen.unit->state & US_RESCUING)
         {
-            UpdateStatArrowSprites(0x78, 0x18, 1);
-            UpdateStatArrowSprites(0x78, 0x28, 1);
-            UpdateStatArrowSprites(0x78, 0x58, 1);
-            UpdateStatArrowSprites(0x78, 0x68, 1);
+            /* Skip vanilla rescue down arrows: Pair Up reuses US_RESCUING for boosts */
 
             if (blinking)
             {
