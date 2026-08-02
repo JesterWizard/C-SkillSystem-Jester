@@ -37,13 +37,14 @@ void UpdateMenuItemPanel(int slot_or_item)
 	struct Text *texts = &proc->text[0];
 	struct Unit *unit = proc->unit;
 	int i, item, color, icon_pal = proc->IconPalIndex;
+	int panel_width = gpKernelDesignerConfig->half_body_portraits ? 0x12 : 0x0E;
 	char *str;
 
 	ClearText(&proc->text[0]);
 	ClearText(&proc->text[1]);
 	ClearText(&proc->text[2]);
 
-	DrawUiFrame2(proc->x, proc->y, 0xE, 0x8, 0x0);
+	DrawUiFrame2(proc->x, proc->y, panel_width, 0x8, 0x0);
 
 	switch (slot_or_item) {
 	case 0:

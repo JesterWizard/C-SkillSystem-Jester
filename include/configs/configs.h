@@ -92,4 +92,5 @@
 ** so will not work for anyone else unless they're using WSL (Windows Subsystem in Linux) and put the exe there or using Wine.
 ** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
 */
-// #define CONFIG_HALF_BODY_PORTRAITS
+// Halfbody portraits are controlled at runtime by
+// KernelDesigerConfig::half_body_portraits.

@@ -171,4 +171,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 
 	.mokha_aoe_enabled = true,
 	.pair_up_enabled = true,
+	.half_body_portraits = false,
 };

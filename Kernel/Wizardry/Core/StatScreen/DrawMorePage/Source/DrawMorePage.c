@@ -129,7 +129,13 @@ void StatScreen_Display(struct Proc* proc)
     InitTexts();
 
     // Display portrait
-    PutFace80x72(proc, gBG2TilemapBuffer + TILEMAP_INDEX(1, 1), fid, 0x4E0, STATSCREEN_BGPAL_FACE);
+    PutFace80x72(
+        proc,
+        gBG2TilemapBuffer + TILEMAP_INDEX(1, 1),
+        fid,
+        0x4E0,
+        STATSCREEN_BGPAL_FACE
+    );
 
     if (GetPortraitData(fid)->img)
         ApplyPalette(gUnknown_08A01EE4, STATSCREEN_BGPAL_2);

@@ -18,19 +18,26 @@
 
 ## 🧩 Introduction
 
-`CONFIG_HALF_BODY_PORTRAITS`
+`KernelDesigerConfig::half_body_portraits`
 
 This is a system that was originally developed by the genius Ryrumeli and than redesigned from scratch by Kirb.
 
 It allows for the use of taller portraits in the style of FE9/FE10 whilst also moving the text box to accomodate.
 
+The system is installed unconditionally and gated at runtime through
+`gpKernelDesignerConfig->half_body_portraits`. The default is `true`; setting it
+to `false` selects the vanilla portrait geometry and UI layout without rebuilding
+the hook module.
+
 ---
 
 ## 🛠️ Plan
 
-- Stack two portraits on top of eachother
-- Each portrait will have its own 16 color palette, allowing for 32 colors for the entire halfbody
-- Regular portraits will be showing in stat screens, when trading etc
+- Stack two portraits on top of each other.
+- Give each portrait its own 16-color palette, allowing 32 colors for a halfbody.
+- Select halfbody geometry, palette size, talk-face position, textbox position, and
+  affected UI layouts at runtime.
+- Preserve vanilla portrait and UI behavior when the flag is `false`.
 
 ---
 
@@ -38,7 +45,11 @@ It allows for the use of taller portraits in the style of FE9/FE10 whilst also m
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Halfbody Installer** | [`HalfBodyPortraits_Installer.event`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event) | Handles the combining of portraits, moving of textboxes etc |
+| **Runtime configuration** | [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Defines the `half_body_portraits` flag and enables it by default |
+| **Core runtime hooks** | [`HalfBodyPortraits.c`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Selects vanilla or halfbody face, talk, item-menu, and stat-screen behavior |
+| **Hook installation** | [`LynJump.event`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/LynJump.event) | Redirects vanilla entry points without permanent ROM writebacks |
+| **Halfbody Installer** | [`HalfBodyPortraits_Installer.event`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event) | Provides free-space OAM/TSA data and includes the runtime hooks |
+| **Existing UI hooks** | [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Gates prep/trade face VRAM and stat-screen TSA choices |
 | **Portrait Installation** | [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | Where portraits are installed |
 
 ---
@@ -65,6 +76,9 @@ setMugEntry_Halfbody(0x51,Portrait_0x51,3,7,3,5)
   - The eye frame X location
   - The eye frame Y location
 
+Change `.half_body_portraits` in `designer-config.c` when a build should use
+vanilla portrait behavior by default. The hooks remain installed in either mode.
+
 ## 📝 TODO
 
 - This is more general, but allow more mouth frames to show additional
@@ -76,7 +90,10 @@ emotions without requiring seperate portraits.
 
 Please report issues or enhancement requests in the repository’s **Issues** tab.
 
-- The system is all or nothing. If you use it, **every** portrait must be a halfbody or the regular ones will glitch underneath.
+- The engine toggle is runtime-configurable, but portrait assets are still all or
+  nothing. With the flag enabled, mugs must use `setMugEntry_Halfbody`; with the
+  flag disabled, mugs must use the regular portrait format. Mixing formats will
+  still glitch.
 - Only two halbodies can be loaded at once due to space constraints in the OBJ Tile space. A third might be possible,
 but we would have to sacrifice eye and mouth frames and rejig where the location of the portraits again in OBJ space.
 - The halfbody formatter currently only exists as an EXE (as Kirb never made the source public) so this buildfile assumes the EXE

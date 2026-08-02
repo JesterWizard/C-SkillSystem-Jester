@@ -8,6 +8,8 @@
 #include "m4a.h"
 #include "scene.h"
 
+extern void HalfBody_OnTalkFaceClear(struct FaceProc *proc);
+
 /*
  * The vanilla dialogue state is allocated in EWRAM by the game.  Keep these
  * aliases local to this module instead of adding another global definition to
@@ -1499,7 +1501,7 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 	);
 
 	proc->unk64 = GetTalkFaceHPos(talkFace);
-	proc->unk66 = 8;
+	proc->unk66 = gpKernelDesignerConfig->half_body_portraits ? 0x12 : 0x08;
 	proc->unk68 = state->activeWidth;
 	proc->unk6A = state->lines * 2 + 2;
 
@@ -1632,7 +1634,14 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 	if (face) {
 		sub_80066E0(face, faceId);
 	} else {
-		face = StartFaceAuto(faceId, GetTalkFaceHPos(position) * 8, 80, faceDisplay);
+		int faceY = gpKernelDesignerConfig->half_body_portraits ? 0x20 : 80;
+
+		face = StartFaceAuto(
+			faceId,
+			GetTalkFaceHPos(position) * 8,
+			faceY,
+			faceDisplay
+		);
 		state->faces[position] = face;
 
 		if (face) {
@@ -2866,11 +2875,14 @@ int TalkInterpret(ProcPtr proc)
 			return 3;
 
 		case CHFE_L_ClearFace:
+			face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+			/* Hide halfbodies before bubble/nameplate teardown. */
+			HalfBody_OnTalkFaceClear(face);
+
 			TextEngine_ClearSpeakerNameplate();
 			if (TalkHasCorrectBubble())
 				ClearTalkBubble();
 
-			face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
 			if (face) {
 				StartFaceFadeOut(face);
 				state->faces[state->activeFaceSlot] = NULL;

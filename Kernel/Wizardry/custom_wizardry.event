@@ -94,9 +94,7 @@
 //     #include "Misc/FE7ModeSelect/FE7ModeSelect_Installer.event"
 // #endif
 
-#ifdef CONFIG_HALF_BODY_PORTRAITS
-    #include "Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event"
-#endif
+#include "Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event"
 
 #ifdef CONFIG_MAX_COLOR_BACKGROUNDS
     #include "Misc/Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"

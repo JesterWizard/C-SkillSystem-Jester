@@ -5,140 +5,8 @@
 #define _16x32(x_coord, y_coord, h_flip, v_flip, tile_num, palette) "_8x8(x_coord|0x8000, y_coord|0x8000, h_flip, v_flip, tile_num, palette)"
 #define _32x16(x_coord, y_coord, h_flip, v_flip, tile_num, palette) "_8x8(x_coord|0x8000, y_coord|0x4000, h_flip, v_flip, tile_num, palette)"
 
-PUSH
-ORG 0x78F4
-BYTE 0x20 //y Coordinates
-ORG 0x1C136
-BYTE 0x20
-ORG 0x1C184
-BYTE 0x20
-ORG 0x73DD0 //Level up with anims, portrait removed because it broke too much stuff
-SHORT 0 0
-ORG 0x7F2AC //Level up without anims
-WORD 0x1044
-
-ORG 0x2384E
-BYTE 0x1
-ORG 0x2360A
-BYTE 0x4
-ORG 0x2360E
-BYTE 0x1
-
-ORG 0x1C142
-BYTE 0x2
-ORG 0x1C132
-BYTE 0x2 // Marth
-ORG 0x1C1A0
-BYTE 0x2 //debug bootup(yes this is basically useless)
-
-ORG 0x2DB50
-BYTE 0x2 //Fixing backing out of trading
-ORG 0x2D2EA
-BYTE 0x70 //70<<7 = 0x3800
-ORG 0x2D2FE
-BYTE 10 //Palette ID 10 because 8/9 is used by halfbody //Fixing trading
-
-ORG 0x23318
-BYTE 0x1
-ORG 0x4F238
-BYTE 0x1
-ORG 0x23576
-BYTE 0x1 //Fixing item menu overwriting the moving map sprite
-
-ORG 0x23572
-BYTE 0x4 //Fixing Equip with Item
-
-ORG 0x23314
-BYTE 0x4
-
-
-ORG 0x2332E
-BYTE 0x0D
-ORG 0x1E7AC
-BYTE 0x12 //Extend the Character stat box for Item.
-
-ORG 0x56C2
-BYTE 0x40 //Palette size
-
-ORG 0x5584
-BYTE 0x8 //Portrait ordering quick fix
-
-ORG 0x5586
-BYTE 0x2 //Portrait ordering quick fix
-
-ORG 0x88C4
-BYTE 0x12 //Fixing y
-
-//Fixing Stat Screen
-ORG 0x886A2
-BYTE 0x90 
-
-//Fixing prep screen supports
-ORG 0xA233C
-BYTE 0x70
-ORG 0xA2A5E
-BYTE 0x70
-
-//Fixing Prep Screen Trading
-/*ORG 0x99D5C
-BYTE 0x2
-ORG 0x989E0
-BYTE 0x2
-ORG 0x99BDE
-BYTE 0x2*/
-ORG 0x205C14
-WORD 0x4000
-ORG 0x205C1C
-WORD 0x6000
-ORG 0x205C44
-WORD 0x4000
-ORG 0x205C4C
-WORD 0x6000
-
-ORG 0x5A0838
-#incbin "NewStatScreenPortraitTsa.bin"
-#incbin "NewStatScreenPortraitTsa.bin"
-
-ORG 0x5D22
-SHORT 0 0
-
-//Fixing Text Box
-ORG 0x83AE
-SHORT 0x220C
-
-ORG 0x8540
-SHORT 0x3A01
-
-ORG 0x8578
-WORD 0x3815
-WORD 0x3816
-WORD 0x3814
-WORD 0x3C14
-
-ORG 0x8544
-WORD 0x3C16
-WORD 0x3C15
-WORD 0x3814
-
-ORG 0x5800
-POIN LeftMugOAM
-
-ORG 0x5808
-POIN RightMugOAM
-
-ORG 0x5810
-POIN LeftMugOAM
-
-ORG 0x5818
-POIN RightMugCutOAM
-
-ORG 0x5820
-POIN LeftMugCutOAM
-
-/*ORG 0x5594
-replaceWithHack(Load6CFACEGraphics)*/
-
-POP
+#include "Source/LynJump.event"
+#include "Source/HalfBodyPortraits.lyn.event"
 
 RightMugOAM:
 SHORT 22 //Number of OAM data
@@ -252,7 +120,7 @@ _16x32(208|0x100, 16, 1, 0, 0x94, 0)
 
 ALIGN 4
 
-Load6CFACEGraphics:
-#include "Load6CFACEGraphics.event"
+NewStatScreenPortraitTsa:
+#incbin "NewStatScreenPortraitTsa.bin"
 
 ALIGN 4

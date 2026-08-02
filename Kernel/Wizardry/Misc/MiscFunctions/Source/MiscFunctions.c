@@ -33,6 +33,31 @@
 #include "jester_headers/Forging.h"
 
 extern void DisableDebuggerAiControl(void);
+extern const u8 NewStatScreenPortraitTsa[];
+
+static bool HalfBodyPortraitsEnabled(void)
+{
+    return gpKernelDesignerConfig->half_body_portraits != false;
+}
+
+static bool IsHalfBodyFaceData(const struct FaceData *info)
+{
+    const u8 *img;
+    const u8 *chibi;
+
+    if (info == NULL || info->img == NULL)
+        return false;
+
+    img = info->img;
+    chibi = (const u8 *)info->imgChibi;
+
+    return chibi == img + 0x2648 || chibi == img + 0x2644;
+}
+
+static bool UseHalfBodyGeometry(const struct FaceData *info)
+{
+    return HalfBodyPortraitsEnabled() && IsHalfBodyFaceData(info);
+}
 
 typedef struct {
     /* 00 */ struct Font font;
@@ -55,8 +80,8 @@ void PrepItemScreen_SetupGfx(struct PrepItemScreenProc* proc)
     int i;
 
     struct FaceVramEntry faceConfig[4] = {
-        { 0x5800, 6, },
-        { 0x6800, 7, },
+        { HalfBodyPortraitsEnabled() ? 0x4000 : 0x5800, 6, },
+        { HalfBodyPortraitsEnabled() ? 0x6000 : 0x6800, 7, },
         { 0x0000, 0, },
         { 0x0000, 0, },
     };
@@ -181,8 +206,8 @@ void PrepItemTrade_Init(struct PrepMenuTradeProc* proc)
     int i;
 
     struct FaceVramEntry faceConfig[4] = {
-        { 0x5800, 6 },
-        { 0x6800, 7 },
+        { HalfBodyPortraitsEnabled() ? 0x4000 : 0x5800, 6 },
+        { HalfBodyPortraitsEnabled() ? 0x6000 : 0x6800, 7 },
         { 0x0000, 0 },
         { 0x0000, 0 }
     };
@@ -334,7 +359,9 @@ void TradeMenu_InitUnitNameDisplay(struct TradeMenuProc* proc)
     int xStart;
 
     // TODO: constants
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HalfBodyPortraitsEnabled())
+        StartSysBrownBox(6, 0x3800, 10, 0x800, 0x400, (struct Proc*)(proc));
+    else if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
         StartSysBrownBox(6, 0x7080, 0x0F, 0x800, 0x400, (struct Proc*)(proc)); // Used to be 0x8 for the palette but it no longer works
     else
         StartSysBrownBox(6, 0x4800, 0x0F, 0x800, 0x400, (struct Proc*)(proc));
@@ -3759,8 +3786,8 @@ void PrepItemUse_InitDisplay(struct ProcPrepItemUse *proc)
 
     struct Text *texts;
     struct FaceVramEntry face_config[4] = {
-        {0x5800, 0x6},
-        {0x6800, 0x7},
+        {HalfBodyPortraitsEnabled() ? 0x4000 : 0x5800, 0x6},
+        {HalfBodyPortraitsEnabled() ? 0x6000 : 0x6800, 0x7},
         {0x0000, 0x0},
         {0x0000, 0x0}
     };
@@ -4264,6 +4291,10 @@ void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
 
     info = GetPortraitData(fid);
 
+    /* Original halfbody ORG 0x886A2: statscreen CHR 0x9C -> 0x90 (0x4E0 -> 0x480). */
+    if (UseHalfBodyGeometry(info) && chr == 0x4E0)
+        chr = 0x480;
+
     ApplyPalette(info->pal, pal);
 
     if (info->img != 0) {
@@ -4291,9 +4322,12 @@ void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
         }
 #endif
 
-        for (i = 0; i < 5; i++) {
-            tm[i * 0x20 + 0] = 0;
-            tm[i * 0x20 + 9] = 0;
+        /* Original halfbody ORG 0x5D22: skip the side-column clear for taller TSA. */
+        if (!UseHalfBodyGeometry(info)) {
+            for (i = 0; i < 5; i++) {
+                tm[i * 0x20 + 0] = 0;
+                tm[i * 0x20 + 9] = 0;
+            }
         }
 
     } else {
@@ -4307,7 +4341,11 @@ void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
 //! FE8U = 0x08005B78
 LYN_REPLACE_CHECK(PutFace80x72_Standard);
 void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
-    CallARM_FillTileRect(tm, gUnknown_085A0838, (u16)tileref);
+    CallARM_FillTileRect(
+        tm,
+        UseHalfBodyGeometry(info) ? NewStatScreenPortraitTsa : gUnknown_085A0838,
+        (u16)tileref
+    );
 
 #ifdef SID_EmergencyExitPlus
     if (gActionData.unk08 != SID_EmergencyExitPlus)

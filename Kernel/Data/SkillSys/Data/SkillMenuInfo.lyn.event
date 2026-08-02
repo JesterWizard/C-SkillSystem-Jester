@@ -107,63 +107,63 @@ POIN CURRENTOFFSET+592
 POIN CURRENTOFFSET+3648
 WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
 POIN CURRENTOFFSET-4524
-WORD $13FC13FB $3
+WORD $14041403 $3
 POIN Override_Usability
 WORD $0
 POIN Override_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4560
-WORD $13FA13F9 $3
+WORD $14021401 $3
 POIN Hellscape_Usability
 WORD $0
 POIN Hellscape_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4596
-WORD $13F413F3 $3
+WORD $13FC13FB $3
 POIN Necromancy_Usability
 WORD $0
 POIN Necromancy_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4632
-WORD $13F213F1 $3
+WORD $13FA13F9 $3
 POIN Transcendence_Usability
 WORD $0
 POIN Transcendence_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4668
-WORD $13F013EF $3
+WORD $13F813F7 $3
 POIN Gungnir_Usability
 WORD $0
 POIN Gungnir_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4700
-WORD $13EC13EB $3
+WORD $13F413F3 $3
 POIN Songstress_Usability
 WORD $0
 POIN Songstress_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4716
-WORD $13EA13E9 $3
+WORD $13F213F1 $3
 POIN EmergencyExitPlus_Usability
 WORD $0
 POIN EmergencyExitPlus_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4752
-WORD $13E813E7 $3
+WORD $13F013EF $3
 POIN EmergencyExit_Usability
 WORD $0
 POIN EmergencyExit_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4788
-WORD $13E613E5 $3 $80244FD $0 $8024549 $0 $0 $0
+WORD $13EE13ED $3 $80244FD $0 $8024549 $0 $0 $0
 POIN CURRENTOFFSET-4812
-WORD $13E413E3 $3
+WORD $13EC13EB $3
 POIN BloodyAlchemy_Usability
 WORD $0
 POIN BloodyAlchemy_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4884
-WORD $13E213E1 $3
+WORD $13EA13E9 $3
 POIN DoubleTime_Usability
 WORD $0
 POIN DoubleTime_OnSelected
@@ -345,7 +345,7 @@ WORD $0
 POIN ShadowFlash_Hover
 POIN ShadowFlash_Unhover
 POIN CURRENTOFFSET-5964
-WORD $13EE13ED $3
+WORD $13F613F5 $3
 POIN AssignDecoyPlus_Usability
 WORD $0
 POIN AssignDecoyPlus_OnSelected
@@ -447,25 +447,25 @@ WORD $0
 POIN Swap_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6540
-WORD $13E013DF $3
+WORD $13E813E7 $3
 POIN GraceOfWater_Usability
 WORD $0
 POIN GraceOfWater_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6576
-WORD $13DE13DD $3
+WORD $13E613E5 $3
 POIN GraceOfFire_Usability
 WORD $0
 POIN GraceOfFire_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6648
-WORD $13DC13DB $3
+WORD $13E413E3 $3
 POIN GorillaTactics_Usability
 WORD $0
 POIN GorillaTactics_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6684
-WORD $13DA13D9 $3
+WORD $13E213E1 $3
 POIN FocusEnergy_Usability
 WORD $0
 POIN FocusEnergy_OnSelected
@@ -473,7 +473,7 @@ WORD $0
 POIN FocusEnergy_Hover
 POIN FocusEnergy_Unhover
 POIN CURRENTOFFSET-6720
-WORD $13D813D7 $3
+WORD $13E013DF $3
 POIN SpellBlade_Usability
 WORD $0
 POIN SpellBlade_OnSelected
@@ -481,13 +481,13 @@ WORD $0
 POIN SpellBlade_Hover
 POIN SpellBlade_Unhover
 POIN CURRENTOFFSET-6756
-WORD $13D613D5 $3
+WORD $13DE13DD $3
 POIN Reroll_Usability
 WORD $0
 POIN Reroll_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6792
-WORD $13D413D3 $3
+WORD $13DC13DB $3
 POIN Duplicate_Usability
 WORD $0
 POIN Duplicate_OnSelected
@@ -499,25 +499,25 @@ WORD $0
 POIN StealPlus_Effect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6840
-WORD $13D213D1 $3
+WORD $13DA13D9 $3
 POIN Fogger_Usability
 WORD $0
 POIN Fogger_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6876
-WORD $13D013CF $3
+WORD $13D813D7 $3
 POIN BravelyDefault_Usability
 WORD $0
 POIN BravelyDefault_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6912
-WORD $13CE13CD $3
+WORD $13D613D5 $3
 POIN MasterForge_Usability
 WORD $0
 POIN MasterForge_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-6948
-WORD $13CC13CB $3
+WORD $13D413D3 $3
 POIN Replicate_Usability
 WORD $0
 POIN Replicate_OnSelected

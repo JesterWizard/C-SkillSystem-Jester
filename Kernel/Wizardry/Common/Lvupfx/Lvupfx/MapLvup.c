@@ -382,7 +382,13 @@ void ManimLevelUp_InitMainScreen(struct ManimLevelUpProc* proc)
 	/* Level up screen stats */
 	BG_SetPosition(BG_1, 0, proc->y_scroll_offset);
 
-	StartFace(0, gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId, 184, 32 - proc->y_scroll_offset, 0x1042);
+	StartFace(
+		0,
+		gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
+		184,
+		32 - proc->y_scroll_offset,
+		gpKernelDesignerConfig->half_body_portraits ? 0x1044 : 0x1042
+	);
 
 	gFaces[0]->yPos = 32 - proc->y_scroll_offset;
 

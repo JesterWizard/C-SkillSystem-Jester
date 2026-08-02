@@ -14,6 +14,7 @@
 #include "common-chax.h"
 #include "bwl.h"
 #include "statscreenfx.h"
+#include "kernel-lib.h"
 
 extern const u8 Tsa_StatScreenBg1Left[];
 
@@ -54,8 +55,19 @@ static void StatScreenNewCallBack(ProcPtr proc)
 
 static void StatScreen_InitDisplayScrollingBG(void)
 {
-	StartMuralBackground(NULL, (void *)VRAM + 0xB000, -1);
-	Decompress(gpImg_StatScreenScrollBG, (void *)0x0600B000);
+	/*
+	 * Halfbody statscreen faces decompress at CHR 0x480 (VRAM 0x9000) and need
+	 * ~0x2000 bytes, which collides with the mural at 0xB000. Park the mural in
+	 * charblock 3 (BG3 is cleared by this rework) when halfbodies are enabled.
+	 */
+	if (gpKernelDesignerConfig->half_body_portraits) {
+		StartMuralBackground(NULL, (void *)VRAM + 0xC000, -1);
+		Decompress(gpImg_StatScreenScrollBG, (void *)0x0600C000);
+	} else {
+		StartMuralBackground(NULL, (void *)VRAM + 0xB000, -1);
+		Decompress(gpImg_StatScreenScrollBG, (void *)0x0600B000);
+	}
+
 	ApplyPalettes(gpPal_StatScreenScrollBG, 0xE, 2);
 }
 

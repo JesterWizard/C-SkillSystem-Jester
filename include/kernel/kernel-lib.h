@@ -153,6 +153,7 @@ struct KernelDesigerConfig {
 
 	u8 mokha_aoe_enabled; /* Three Houses-style gambit AOE attacks */
 	u8 pair_up_enabled; /* Pair Up, Shelter, Transfer, and Switch commands */
+	u8 half_body_portraits; /* Use halfbody portraits in dialogue and UI */
 };
 
 struct KernelBattleDesignerConfig {
