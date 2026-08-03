@@ -8,6 +8,7 @@
 #include "status-getter.h"
 #include "gaiden-magic.h"
 #include "jester_headers/custom-functions.h"
+#include "enemy-fog-vision.h"
 
 extern void CpDecide_Main(ProcPtr proc);
 extern void DecideHealOrEscape(void);
@@ -333,6 +334,7 @@ next_unit:
         do
         {
             RefreshEntityBmMaps();
+            BuildEnemyFogVision();
             RenderBmMap();
             RefreshUnitSprites();
 
@@ -588,6 +590,8 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
                 if (AreUnitsAllied(gActiveUnit->index, unit->index))
                     continue;
                 if (gActiveUnit->index == unit->index)
+                    continue;
+                if (!EnemyFogVisionCanSeeUnit(unit))
                     continue;
             }
             else

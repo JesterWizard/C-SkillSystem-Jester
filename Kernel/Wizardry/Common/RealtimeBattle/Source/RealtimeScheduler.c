@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "kernel/realtime-battle.h"
 #include "ai-hack.h"
+#include "enemy-fog-vision.h"
 
 struct RealtimeSchedulerProc {
 	PROC_HEADER;
@@ -437,6 +438,9 @@ static struct Unit *RealtimeAi_FindNearestEnemy(struct Unit *actor)
 			continue;
 
 		if (AreUnitsAllied(actor->index, candidate->index))
+			continue;
+
+		if (!EnemyFogVisionCanTargetUnit(candidate))
 			continue;
 
 		dx = candidate->xPos - actor->xPos;

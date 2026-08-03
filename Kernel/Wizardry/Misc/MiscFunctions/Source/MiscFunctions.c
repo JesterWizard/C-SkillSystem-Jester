@@ -25,6 +25,7 @@
 #include "menu_def.h"
 #include "prepscreen.h"
 #include "kernel/realtime-battle.h"
+#include "enemy-fog-vision.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -4494,7 +4495,7 @@ s8 AiIsUnitEnemy(struct Unit* unit) {
             return 0;
     }
 
-    return 1;
+    return EnemyFogVisionCanSeeUnit(unit);
 }
 
 struct PopupInstruction const NewSupportPopup_C[] = {

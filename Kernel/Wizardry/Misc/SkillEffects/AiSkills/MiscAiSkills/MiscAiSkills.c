@@ -7,6 +7,7 @@
 #include "weapon-range.h"
 #include "status-getter.h"
 #include "debuff.h"
+#include "enemy-fog-vision.h"
 
 extern const struct AiCombatScoreCoefficients *sCombatScoreCoefficients;
 
@@ -48,14 +49,32 @@ STATIC_DECLAR bool AiMenuSkillSetCurrentTile(u16 sid)
 STATIC_DECLAR bool AiMenuSkillSetTargetFromList(u16 sid, void (*makeTargetList)(struct Unit *unit))
 {
     struct SelectTarget *target;
+    int i;
 
     makeTargetList(gActiveUnit);
 
     if (GetSelectTargetCount() == 0)
         return false;
 
-    target = GetTarget(0);
-    if (!target)
+    target = NULL;
+
+    for (i = 0; i < GetSelectTargetCount(); ++i)
+    {
+        struct Unit *targetUnit;
+
+        target = GetTarget(i);
+        if (!target)
+            continue;
+
+        if (target->uid == 0)
+            break;
+
+        targetUnit = GetUnit(target->uid);
+        if (EnemyFogVisionCanTargetUnit(targetUnit))
+            break;
+    }
+
+    if (!target || (target->uid != 0 && !EnemyFogVisionCanTargetUnit(GetUnit(target->uid))))
         return false;
 
     AiSetDecision(

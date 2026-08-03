@@ -26,7 +26,7 @@ Vanilla fog issues include:
 
 - Enemy units outside a unit’s sight radius are completely hidden  
 - Running into hidden enemies **ends your turn immediately**  
-- Enemy units enjoy unfair omniscient vision of the entire map  
+- Enemy units enjoy unfair omniscient vision of the entire map when enemy fog vision is disabled
 
 This system seeks to address those problems.
 
@@ -63,15 +63,18 @@ The internal `gBmMapFog` map cell value determines each enemy's stage:
 
 This layered fog provides partial information instead of the all-or-nothing approach of vanilla fog, leading to more strategic decision-making.
 
+Enemy AI fog knowledge is documented separately in [Enemy Fog Vision](EnemyFogVision.md). That system does not change the player-facing stage table above.
+
 ---
 
 ## 🗂️ Code Locations
 
-All modifications are gated behind the `gpKernelDesignerConfig->multiple_fog_stages` runtime flag (set in `designer-config.c`).
+Player fog-stage modifications are gated behind `gpKernelDesignerConfig->multiple_fog_stages` in `designer-config.c`.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Fog map population** | `RefreshUnitsOnBmMap` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Builds the graduated `gBmMapFog` cell values and decides which enemies are placed on `gBmMapUnit` (stage 3 enemies are withheld entirely) |
+| **Enemy AI vision** | [Enemy Fog Vision](EnemyFogVision.md) | Separate shared faction vision for non-player AI; does not rewrite `gBmMapFog` |
 | **Stage 2 sprite rendering** | `RefreshUnitSprites` and `PutUnitSpritesOam` / `PutFogStage2Sprites` in [`MirrorSprites.c`](../../Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c) | Suppresses the real class sprite for stage 2 units and draws a bobbing "shadow" sprite (link-arena hidden-unit sheet) in its place |
 | **Stat screen accessibility** | `CanShowUnitStatScreen` and `FindNextUnit` in [`AccessStatScreen.c`](../../Data/StatScreen/Source/AccessStatScreen.c) | Blocks the stat screen and unit-browsing for any unit at stages 1–3 (`gBmMapFog < 3`) |
 | **Battle forecast data visibility** | `DrawBattleForecastContentsStandard` and `DrawBattleForecastContentsExtended` in [`BattleForcast.c`](../../Kernel/Wizardry/Core/CombatArt/BKSELfx/Source/BattleForcast.c) | Replaces the target's name and weapon with "N/A", and blanks all combat stat values, for stages 1–2 |
@@ -80,6 +83,8 @@ All modifications are gated behind the `gpKernelDesignerConfig->multiple_fog_sta
 ---
 
 ## 📝 TODO
+
+- Continue refining multi-layer fog palette coexistence within GBA hardware limits.
 
 ---
 

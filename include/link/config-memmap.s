@@ -244,6 +244,10 @@ _kernel_malloc_overlay0 gActorBaseDmg,  0x0C
 _kernel_malloc_overlay0 gTargetBaseDmg, 0x0C
 _kernel_malloc_overlay0 sOverrideState, 0x48
 
+/* Dedicated map storage for enemy fog-of-war AI. */
+_kernel_malloc2 gBmMapEnemyVisionBuffer, 0x800
+_kernel_malloc2 gBmMapEnemyVision, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

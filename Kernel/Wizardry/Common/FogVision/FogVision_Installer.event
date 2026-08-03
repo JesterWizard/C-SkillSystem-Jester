@@ -1,2 +1,3 @@
 #include "LynJump.event"
 #include "FogVision.lyn.event"
+#include "EnemyFogVision.lyn.event"

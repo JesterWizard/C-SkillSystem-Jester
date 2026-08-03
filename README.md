@@ -121,6 +121,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 	</details>
 
 - [Fog Vision](./Documentation/Features/FogVision.md)
+- [Enemy Fog Vision](./Documentation/Features/EnemyFogVision.md)
 - [Free Movement](./Documentation/Features/FreeMovement.md)
 - [Gaiden Magic](./Documentation/Features/GaidenMagic.md)
 - [Halfbodies](./Documentation/Features/Halfbodies.md)

@@ -4,6 +4,7 @@
 #include "popup.h"
 #include "constants/skills.h"
 #include "kernel/realtime-battle.h"
+#include "enemy-fog-vision.h"
 
 static u32* const sUnitPriorityArray = (void*) gGenericBuffer;
 
@@ -407,6 +408,10 @@ s8 AiFindTargetInReachByCharId(int uid, struct Vec2* out)
             continue;
         }
 
+        if (!EnemyFogVisionCanTargetUnit(unit)) {
+            continue;
+        }
+
         if (gBmMapRange[unit->yPos][unit->xPos] > MAP_MOVEMENT_MAX) {
             continue;
         }
@@ -466,6 +471,10 @@ s8 AiFindTargetInReachByClassId(int classId, struct Vec2* out) {
         }
 
         if (unit->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16)) {
+            continue;
+        }
+
+        if (!EnemyFogVisionCanTargetUnit(unit)) {
             continue;
         }
 
