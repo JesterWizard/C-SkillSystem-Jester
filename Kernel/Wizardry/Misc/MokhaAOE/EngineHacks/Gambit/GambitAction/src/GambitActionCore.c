@@ -18,13 +18,6 @@ struct ProcGamAction {
 	/* 31 */ u8 _pad;
 };
 
-struct ProcGambitGrantExp {
-	PROC_HEADER;
-	int remaining;
-	bool waiting;
-	u8 transitionDelay;
-};
-
 struct ProcGambitMuMotion {
 	PROC_HEADER;
 	u8 steps;
@@ -238,10 +231,9 @@ STATIC_DECLAR void Gambit_PrepareMapBattle(struct Unit *target)
 
 STATIC_DECLAR void Gambit_AccumulateExp(struct ProcGamAction *proc, struct Unit *target, int preHp, int damage)
 {
-	struct BattleUnit actorBu;
-	struct BattleUnit targetBu;
 	int postHp;
 	int exp;
+	u8 savedHp;
 
 	if (damage <= 0)
 		return;
@@ -259,22 +251,22 @@ STATIC_DECLAR void Gambit_AccumulateExp(struct ProcGamAction *proc, struct Unit 
 	if (postHp < 0)
 		postHp = 0;
 
-	InitBattleUnit(&actorBu, gActiveUnit);
-	InitBattleUnit(&targetBu, target);
+	/*
+	 * Same helpers Override uses.  Temporarily set curHP so kill-bonus
+	 * detection matches the pending hit, then restore before the anim.
+	 */
+	savedHp = target->curHP;
+	target->curHP = postHp;
+	exp = GetUnitRoundExp(gActiveUnit, target);
+	if (postHp == 0)
+		exp += GetUnitKillExpBonus(gActiveUnit, target);
+	target->curHP = savedHp;
 
-	actorBu.nonZeroDamage = true;
-	targetBu.hpInitial = preHp;
-	targetBu.unit.curHP = postHp;
+	if (exp < 1)
+		exp = 1;
 
-	if (!CanBattleUnitGainLevels(&actorBu) || actorBu.unit.curHP == 0)
-		return;
-
-	exp = GetBattleUnitExpGainRework(&actorBu, &targetBu);
-	if (exp < 0)
-		exp = 0;
-
-	if ((int)proc->expAccum + exp > 0xFFFF)
-		proc->expAccum = 0xFFFF;
+	if ((int)proc->expAccum + exp > 254)
+		proc->expAccum = 254;
 	else
 		proc->expAccum += exp;
 }
@@ -297,54 +289,6 @@ STATIC_DECLAR void Gambit_FinalizePreviousHit(struct ProcGamAction *proc)
 
 	UnitKill(target);
 }
-
-STATIC_DECLAR void GambitGrantExp_Loop(struct ProcGambitGrantExp *proc)
-{
-	int chunk;
-
-	if (proc->waiting) {
-		if (Proc_Exists(ProcScr_AddExp))
-			return;
-
-		proc->waiting = false;
-		proc->transitionDelay = 1;
-		EndAllMus();
-		RefreshUnitSprites();
-	}
-
-	if (proc->transitionDelay) {
-		proc->transitionDelay--;
-		return;
-	}
-
-	if (proc->remaining <= 0) {
-		Gambit_ShowActiveUnit(proc);
-		Proc_Break(proc);
-		return;
-	}
-
-	chunk = proc->remaining > 100 ? 100 : proc->remaining;
-	proc->remaining -= chunk;
-
-	/*
-	 * AddExp_Event creates the active unit's MMS for the EXP animation.
-	 * Keep the live SMS hidden until that animation has finished.
-	 */
-	Gambit_HideMapUnit(gActiveUnit);
-
-	/*
-	 * AddExp_Event owns its animation proc on PROC_TREE_3.  Do not parent
-	 * it below the Gambit action: ending the action while the EXP bar is
-	 * active otherwise leaves the game locked behind a dead child proc.
-	 */
-	proc->waiting = true;
-	AddExp_Event(chunk);
-}
-
-STATIC_DECLAR const struct ProcCmd ProcScr_GambitGrantExp[] = {
-	PROC_REPEAT(GambitGrantExp_Loop),
-	PROC_END,
-};
 
 STATIC_DECLAR void GambitAction_Tick(struct ProcGamAction *proc)
 {
@@ -382,25 +326,30 @@ STATIC_DECLAR void GambitAction_Tick(struct ProcGamAction *proc)
 
 STATIC_DECLAR void GambitAction_GrantExp(struct ProcGamAction *proc)
 {
-	struct ProcGambitGrantExp *grant;
 	int total = proc->expAccum;
 
 	proc->expAccum = 0;
 	sGambitExpAccum = 0;
 
-	if (total <= 0)
+	if (total <= 0) {
+		Gambit_ShowActiveUnit(proc);
 		return;
+	}
 
 	/*
-	 * Keep the grant sequence independent from the action proc.  The
-	 * standard AddExp_Event proc also lives on PROC_TREE_3; making this
-	 * sequence a child of an action that is ending can strand the game
-	 * lock when the EXP bar finishes.
+	 * Match Override: start AddExp on TREE_3 (not as our child — parenting
+	 * softlocks when this action ends), then keep this action alive with
+	 * PROC_WHILE_EXISTS until the bar finishes transferring EXP.
 	 */
-	grant = Proc_Start(ProcScr_GambitGrantExp, PROC_TREE_3);
-	grant->remaining = total;
-	grant->waiting = false;
-	grant->transitionDelay = 0;
+	Gambit_HideMapUnit(gActiveUnit);
+	AddExp_Event(total);
+}
+
+STATIC_DECLAR void GambitAction_AfterExp(struct ProcGamAction *proc)
+{
+	EndAllMus();
+	Gambit_ShowActiveUnit(proc);
+	RefreshUnitSprites();
 }
 
 STATIC_DECLAR void GambitAction_OnEnd(struct ProcGamAction *proc)
@@ -416,6 +365,8 @@ const struct ProcCmd ProcScr_GambitAction[] = {
 	PROC_YIELD,
 	PROC_REPEAT(GambitAction_Tick),
 	PROC_CALL(GambitAction_GrantExp),
+	PROC_WHILE_EXISTS(ProcScr_AddExp),
+	PROC_CALL(GambitAction_AfterExp),
 	PROC_END,
 };
 

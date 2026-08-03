@@ -165,6 +165,17 @@ STATIC_DECLAR u8 GambitSelectMenu_OnCancel(struct MenuProc *menu, struct MenuIte
 	return ItemMenu_ButtonBPressed(menu, item);
 }
 
+void RebuildGambitSelectMenu(void)
+{
+	ResetTextFont();
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+
+	ResetIconGraphics();
+	LoadIconPalettes(4);
+	StartOrphanMenu(&sGambitSelectMenuDef);
+}
+
 STATIC_DECLAR const struct MenuItemDef sGambitSelectMenuItems[] = {
 	{"", MSG_MokhaAoe_Default_NAME, MSG_MokhaAoe_Default_DESC, TEXT_COLOR_SYSTEM_WHITE, 0, GambitSelectMenu_Usability, GambitSelectMenu_OnDraw, GambitSelectMenu_Effect, 0, GambitSelectMenu_Hover, GambitSelectMenu_Unhover},
 	{"", MSG_MokhaAoe_Blaze_NAME, MSG_MokhaAoe_Blaze_DESC, TEXT_COLOR_SYSTEM_WHITE, 1, GambitSelectMenu_Usability, GambitSelectMenu_OnDraw, GambitSelectMenu_Effect, 0, GambitSelectMenu_Hover, GambitSelectMenu_Unhover},

@@ -58,6 +58,7 @@ u8 GambitSelectMenu_Usability(const struct MenuItemDef *def, int number);
 u8 GambitSelectMenu_Effect(struct MenuProc *menu, struct MenuItemProc *item);
 int GambitSelectMenu_Hover(struct MenuProc *menu, struct MenuItemProc *item);
 int GambitSelectMenu_Unhover(struct MenuProc *menu, struct MenuItemProc *item);
+void RebuildGambitSelectMenu(void);
 
 bool GambitAction(ProcPtr proc);
 
