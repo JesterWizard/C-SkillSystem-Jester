@@ -225,6 +225,7 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc);
 void HelpBoxDrawstring(struct ProcHelpBoxIntro *proc);
 void CpPerform_Cleanup(struct CpPerformProc *proc);
 void CpPerform_PerformAction(struct CpPerformProc *proc);
+void CpPerform_MoveCameraOntoUnit(struct CpPerformProc *proc);
 void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc);
 
 void ForEachUnitInRange(void(*func)(struct Unit *unit));

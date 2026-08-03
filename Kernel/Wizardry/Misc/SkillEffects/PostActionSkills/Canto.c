@@ -6,6 +6,7 @@
 #include "constants/skills.h"
 #include "unit-expa.h"
 #include "mapanim.h"
+#include "kernel/realtime-battle.h"
 #include "mu.h"
 #include "jester_headers/custom-functions.h"
 
@@ -143,6 +144,8 @@ bool TryMakeCantoUnit(ProcPtr proc)
 LYN_REPLACE_CHECK(PlayerPhase_FinishAction);
 void PlayerPhase_FinishAction(ProcPtr proc)
 {
+    struct Unit *finishedUnit = gActiveUnit;
+
 #if defined(SID_TwinCrests) && (COMMON_SKILL_VALID(SID_TwinCrests))
     if (SkillTester(gActiveUnit, SID_TwinCrests) && !CheckBitUES(gActiveUnit, UES_BIT_MOVE_AGAIN_SKILL_USED))
     {
@@ -199,8 +202,10 @@ void PlayerPhase_FinishAction(ProcPtr proc)
         RefreshUnitSprites();
         MaybeCallEndEvent_();
         Proc_Goto(proc, 8);
+        RealtimeBattle_OnPlayerActionEnd(finishedUnit);
         return;
     }
 
     EndAllMus();
+    RealtimeBattle_OnPlayerActionEnd(finishedUnit);
 }

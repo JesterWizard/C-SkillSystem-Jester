@@ -55,6 +55,12 @@ void UnitChangeFaction(struct Unit * unit, int faction)
     if (gActiveUnit == unit)
         gActiveUnit = newUnit;
 
+    if (gActiveUnitId == unit->index)
+        gActiveUnitId = newUnit->index;
+
+    if (gActionData.subjectIndex == unit->index)
+        gActionData.subjectIndex = newUnit->index;
+
     CopyUnit(unit, newUnit);
     ClearUnit(unit);
 

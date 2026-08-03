@@ -4,6 +4,7 @@
 LYN_REPLACE_CHECK(CpPerform_Cleanup);
 void CpPerform_Cleanup(struct CpPerformProc *proc)
 {
+	struct Unit *subject;
 	int cleanupX;
 	int cleanupY;
 
@@ -12,12 +13,35 @@ void CpPerform_Cleanup(struct CpPerformProc *proc)
 #if !CHAX
 	AiRefreshMap();
 #else
-	gActiveUnit = GetUnit(gActionData.subjectIndex);
+	subject = GetUnit(gActionData.subjectIndex);
 
-	cleanupX = gAiDecision.xMove;
-	cleanupY = gAiDecision.yMove;
+	/*
+	 * Faction-change post-actions clear the original subject slot and retarget
+	 * gActiveUnit. Prefer the living actor when the stored subject is gone.
+	 */
+	if (!UNIT_IS_VALID(subject) && UNIT_IS_VALID(gActiveUnit))
+		subject = gActiveUnit;
+
+	if (!UNIT_IS_VALID(subject)) {
+		Proc_Goto(proc, 1);
+		return;
+	}
+
+	gActiveUnit = subject;
+	gActiveUnitId = subject->index;
+	gActionData.subjectIndex = subject->index;
+
+	/* Prefer action coords; post-action skills may have rewritten them. */
+	cleanupX = gActionData.xMove;
+	cleanupY = gActionData.yMove;
 
 	if (gActionData.unitActionType == UNIT_ACTION_TRAPPED) {
+		cleanupX = gActiveUnit->xPos;
+		cleanupY = gActiveUnit->yPos;
+	}
+
+	if (cleanupX < 0 || cleanupY < 0
+		|| cleanupX >= gBmMapSize.x || cleanupY >= gBmMapSize.y) {
 		cleanupX = gActiveUnit->xPos;
 		cleanupY = gActiveUnit->yPos;
 	}

@@ -42,8 +42,6 @@ u16 RealtimeBattle_GetRefreshFrames(void)
 
 void RealtimeBattle_InitChapter(ProcPtr proc)
 {
-	int i;
-
 	(void)proc;
 	CpuFill16(0, &gRealtimeBattleState, sizeof(gRealtimeBattleState));
 
@@ -52,9 +50,6 @@ void RealtimeBattle_InitChapter(ProcPtr proc)
 
 	gRealtimeBattleState.scheduleTimer = RealtimeBattle_GetIntervalFrames();
 	gRealtimeBattleState.refreshTimer = RealtimeBattle_GetRefreshFrames();
-
-	for (i = 0; i < REALTIME_ACTION_SLOTS; i++)
-		gRealtimeBattleState.slots[i].state = RT_SLOT_FREE;
 
 	/*
 	 * Do not start the scheduler here. ChapterInitHook runs before the map
@@ -80,6 +75,9 @@ void RealtimeBattle_Resume(u8 reason)
 
 bool RealtimeBattle_TryAcquireGate(u8 ownerId)
 {
+	if (ownerId == 0)
+		return false;
+
 	if (gRealtimeBattleState.gateOwner != 0 && gRealtimeBattleState.gateOwner != ownerId)
 		return false;
 
@@ -108,87 +106,93 @@ bool RealtimeBattle_ForceMapAnims(void)
 	return IsRealtimeBattleActive();
 }
 
-bool RealtimeBattle_TileReserved(int x, int y, u8 exceptUnitId)
+void RealtimeBattle_SnapCameraOntoPosition(int x, int y)
 {
-	int i;
-
-	for (i = 0; i < REALTIME_ACTION_SLOTS; i++) {
-		struct RealtimeActionContext *slot = &gRealtimeBattleState.slots[i];
-
-		if (slot->state == RT_SLOT_FREE)
-			continue;
-
-		if (slot->unitId == exceptUnitId)
-			continue;
-
-		if (slot->reservedTileX == x && slot->reservedTileY == y)
-			return true;
-	}
-
-	return false;
-}
-
-void RealtimeBattle_MarkTileReserved(u8 slotIdx, int x, int y)
-{
-	if (slotIdx >= REALTIME_ACTION_SLOTS)
-		return;
-
-	gRealtimeBattleState.slots[slotIdx].reservedTileX = x;
-	gRealtimeBattleState.slots[slotIdx].reservedTileY = y;
-}
-
-void RealtimeBattle_ClearTileReserved(u8 slotIdx)
-{
-	if (slotIdx >= REALTIME_ACTION_SLOTS)
-		return;
-
-	gRealtimeBattleState.slots[slotIdx].reservedTileX = 0xFF;
-	gRealtimeBattleState.slots[slotIdx].reservedTileY = 0xFF;
+	gBmSt.camera.x = GetCameraCenteredX(x * 16);
+	gBmSt.camera.y = GetCameraCenteredY(y * 16);
+	gBmSt.cameraPrevious = gBmSt.camera;
 }
 
 void RealtimeBattle_OnPlayerActionBegin(struct Unit *unit)
 {
-	(void)unit;
-	/* Intentionally empty: selection pause is inferred from unit state / gBmSt.lock. */
+	u8 ownerId;
+	struct Unit *owner;
+
+	if (!IsRealtimeBattleActive() || !unit || UNIT_FACTION(unit) != FACTION_BLUE)
+		return;
+
+	/*
+	 * UnitBeginAction is reached only after PlayerPhase_MainIdle has checked
+	 * the gate. Pair-up can replace the selected unit before this hook runs,
+	 * so move ownership to the actual active unit when the old blue owner is
+	 * still visible.
+	 */
+	ownerId = gRealtimeBattleState.gateOwner;
+	if (ownerId != 0 && ownerId != unit->index
+		&& (ownerId & 0xC0) == FACTION_BLUE) {
+		owner = GetUnit(ownerId);
+
+		if (!owner || !(owner->state & US_HIDDEN))
+			RealtimeBattle_ReleaseGate(ownerId);
+	}
+
+	if (RealtimeBattle_TryAcquireGate(unit->index))
+		RealtimeBattle_Pause(RT_PAUSE_GATE | RT_PAUSE_PLAYER_ACTION);
 }
 
 void RealtimeBattle_OnPlayerActionEnd(struct Unit *unit)
 {
+	u8 ownerId;
+
 	(void)unit;
-	RealtimeBattle_Resume(RT_PAUSE_PLAYER_ACTION);
-}
-
-void RealtimeBattle_QuiesceForSuspend(void)
-{
-	RealtimeBattle_Pause(RT_PAUSE_SUSPEND);
-	RealtimeBattle_QuiesceInFlight();
-}
-
-void RealtimeBattle_QuiesceInFlight(void)
-{
-	int i;
 
 	if (!IsRealtimeBattleActive())
 		return;
 
-	for (i = 0; i < REALTIME_ACTION_SLOTS; i++) {
-		struct RealtimeActionContext *slot = &gRealtimeBattleState.slots[i];
+	/*
+	 * Pair-up / Turncoat can replace gActiveUnit before FinishAction. Release
+	 * only from the stable gate owner id, and only if that id is a blue slot
+	 * (never an enemy-owned gate).
+	 */
+	ownerId = gRealtimeBattleState.gateOwner;
+	if (ownerId == 0)
+		return;
 
-		if (slot->state == RT_SLOT_FREE)
-			continue;
+	if ((ownerId & 0xC0) != FACTION_BLUE)
+		return;
 
-		RealtimeBattle_ClearTileReserved(i);
-		slot->state = RT_SLOT_FREE;
-	}
+	RealtimeBattle_ReleaseGate(ownerId);
+	RealtimeBattle_Resume(RT_PAUSE_GATE | RT_PAUSE_PLAYER_ACTION);
+}
 
-	gRealtimeBattleState.inFlightCount = 0;
+void RealtimeBattle_QuiesceForSuspend(void)
+{
+	if (!IsRealtimeBattleActive())
+		return;
+
+	RealtimeBattle_Pause(RT_PAUSE_SUSPEND);
+	RealtimeBattle_EndInFlightAi();
 	gRealtimeBattleState.gateOwner = 0;
+	RealtimeBattle_Resume(RT_PAUSE_GATE | RT_PAUSE_PLAYER_ACTION);
+}
 
-	/* An action aborted mid-flight would otherwise leave the map locked. */
-	if (gRealtimeBattleState.gameLocked) {
-		gRealtimeBattleState.gameLocked = 0;
-		UnlockGame();
-	}
+void RealtimeBattle_QuiesceInFlight(void)
+{
+	u8 ownerId;
 
-	gRealtimeBattleState.sideWindowsHidden = 0;
+	if (!IsRealtimeBattleActive())
+		return;
+
+	/*
+	 * Abort any enemy AI still running, but keep a player-owned gate (arena is
+	 * entered mid player action and only adds RT_PAUSE_ARENA).
+	 */
+	RealtimeBattle_EndInFlightAi();
+
+	ownerId = gRealtimeBattleState.gateOwner;
+	if (ownerId != 0 && (ownerId & 0xC0) == FACTION_BLUE)
+		return;
+
+	gRealtimeBattleState.gateOwner = 0;
+	RealtimeBattle_Resume(RT_PAUSE_GATE);
 }

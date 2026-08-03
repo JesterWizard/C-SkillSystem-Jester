@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 #include "combo-attack.h"
 
 /**
@@ -31,8 +32,55 @@ STATIC_DECLAR void PreMapAnimBattleRound_OnEnd(ProcPtr proc)
 {
 	struct Unit *unit = gManimSt.actor[gManimSt.subjectActorId].unit;
 
-	EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
+	if (UNIT_IS_VALID(unit)) {
+		if (IsRealtimeBattleActive())
+			RealtimeBattle_SnapCameraOntoPosition(unit->xPos, unit->yPos);
+		else
+			EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
+	}
+
 	gManimSt.pCurrentRound++;
+}
+
+/*
+ * PlayerPhase_MainIdle keeps running in real-time mode, so a blocking CamMove
+ * started from MapAnim can never finish (the idle loop pulls the camera toward
+ * the free cursor). Snap instead whenever RT is active.
+ */
+LYN_REPLACE_CHECK(MapAnim_MoveCameraOntoSubject);
+void MapAnim_MoveCameraOntoSubject(ProcPtr proc)
+{
+	struct Unit *unit = gManimSt.actor[0].unit;
+
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	if (IsRealtimeBattleActive()) {
+		RealtimeBattle_SnapCameraOntoPosition(unit->xPos, unit->yPos);
+		return;
+	}
+
+	EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
+}
+
+LYN_REPLACE_CHECK(MapAnim_MoveCameraOntoTarget);
+void MapAnim_MoveCameraOntoTarget(ProcPtr proc)
+{
+	struct Unit *unit;
+
+	if (gManimSt.actorCount == 1)
+		return;
+
+	unit = gManimSt.actor[1].unit;
+	if (!UNIT_IS_VALID(unit))
+		return;
+
+	if (IsRealtimeBattleActive()) {
+		RealtimeBattle_SnapCameraOntoPosition(unit->xPos, unit->yPos);
+		return;
+	}
+
+	EnsureCameraOntoPosition(proc, unit->xPos, unit->yPos);
 }
 
 const struct ProcCmd ProcScr_MapAnimBattle_Rework[] = {

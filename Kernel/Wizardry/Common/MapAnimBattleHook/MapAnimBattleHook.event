@@ -1,6 +1,7 @@
 #ifndef MAP_ANIM_BATTLE_HOOK_INSTALLED
 #define MAP_ANIM_BATTLE_HOOK_INSTALLED
 
+#include "Source/LynJump.event"
 #include "Source/PreHit.lyn.event"
 
 PUSH

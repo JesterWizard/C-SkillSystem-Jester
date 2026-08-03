@@ -166,11 +166,11 @@ SET_DATA gSkillTreeHelp, gSkillTreeCursor + 8
 _kernel_malloc sAiPhasePerformedBits, 28
 
 /**
- * Real-time battle scheduler / action-context pool.
- * Size kept even: header(10) + 4*12 contexts(48) + enemyCooldown(52)
- * + pinnedCursor(4) + pinnedCamera(4) + flags(2) = 120.
+ * Real-time battle scheduler state.
+ * Size kept even: active/paused/gateOwner/pad(4) + timers(4)
+ * + nextEnemyIndex/pad(2) + enemyCooldown(52) = 62.
  */
-_kernel_malloc gRealtimeBattleState, 120
+_kernel_malloc gRealtimeBattleState, 62
 
 /* MokhaAOE transient target list + EXP/selection state */
 _kernel_malloc sGambitTargetSaveBuf, 0x42

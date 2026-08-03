@@ -2,6 +2,7 @@
 #include "battle-system.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "kernel/realtime-battle.h"
 
 LYN_REPLACE_CHECK(MoveActiveUnit);
 void MoveActiveUnit(int x, int y)
@@ -56,6 +57,15 @@ void SetupMapBattleAnim(struct BattleUnit *actor, struct BattleUnit *target, str
 {
 	int i;
 	struct BattleHit *hit0 = prBattleHitArray;
+
+	/*
+	 * Real-time enemy actions can still hold a movement MU when map combat
+	 * starts. Free that slot before allocating battle MUs or StartMu can fail
+	 * and the actor MMS never appears. Vanilla already owns MU cleanup in its
+	 * normal action path, so keep this extra cleanup RT-only.
+	 */
+	if (IsRealtimeBattleActive())
+		EndAllMus();
 
 	MakeBattleMOVEUNIT(0, actor, &actor->unit);
 

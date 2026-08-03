@@ -2,6 +2,7 @@
 #include "constants/texts.h"
 #include "utf8.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 #include "jester_headers/custom-functions.h"
 
 int MapMenu_AchievementsCommandDraw(struct MenuProc *menu, struct MenuItemProc *menuItem)
@@ -35,58 +36,151 @@ const struct MenuDef gMapMenuDef_NEW = {
     MenuStdHelpBox
 };
 
+static bool PlayerPhase_TryAcquireRealtimeAction(struct Unit *unit)
+{
+    if (!IsRealtimeBattleActive())
+        return true;
+
+    if (!unit || !RealtimeBattle_TryAcquireGate(unit->index))
+        return false;
+
+    RealtimeBattle_Pause(RT_PAUSE_GATE | RT_PAUSE_PLAYER_ACTION);
+    return true;
+}
+
 //! FE8U = 0x0801C940
+static void PlayerPhase_ReleaseRealtimeGateIfCancelled(void)
+{
+    struct Unit *owner;
+
+    if (!IsRealtimeBattleActive() || RealtimeBattle_IsGateFree())
+        return;
+
+    /*
+     * B-cancel from move range returns to MainIdle without FinishAction.
+     * A visible blue gate owner here means the player action was abandoned.
+     */
+    owner = GetUnit(gRealtimeBattleState.gateOwner);
+    if (!owner || UNIT_FACTION(owner) != FACTION_BLUE)
+        return;
+
+    if (owner->state & US_HIDDEN)
+        return;
+
+    RealtimeBattle_OnPlayerActionEnd(owner);
+}
+
 LYN_REPLACE_CHECK(PlayerPhase_MainIdle);
 void PlayerPhase_MainIdle(ProcPtr proc)
 {
-    HandlePlayerCursorMovement();
+    /*
+     * Real-time mode leaves MainIdle alive during enemy MapAnim. Cursor
+     * camera follow would fight CamMove/MapAnim camera and softlock, and
+     * also pull the view off the battle MMS. Freeze input while locked.
+     */
+    if (gBmSt.lock == 0)
+        HandlePlayerCursorMovement();
 
-    if (gKeyStatusPtr->newKeys & L_BUTTON)
+    PlayerPhase_ReleaseRealtimeGateIfCancelled();
+
+    /*
+     * The cursor remains live while an enemy owns the shared action state,
+     * but no player command may start until that action has completed.
+     */
+    if (!IsRealtimeBattleActive() || RealtimeBattle_IsGateFree())
     {
-        TrySwitchViewedUnit(gBmSt.playerCursor.x, gBmSt.playerCursor.y);
-        PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-    }
-    else if (!DoesBMXFADEExist())
-    {
-        if ((gKeyStatusPtr->newKeys & R_BUTTON) && (gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x] != 0))
+        if (gKeyStatusPtr->newKeys & L_BUTTON)
         {
-            if (CanShowUnitStatScreen(GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x])))
-            {
-
-                EndAllMus();
-
-                EndPlayerPhaseSideWindows();
-                SetStatScreenConfig(
-                    STATSCREEN_CONFIG_NONDEAD | STATSCREEN_CONFIG_NONBENCHED | STATSCREEN_CONFIG_NONUNK9 |
-                    STATSCREEN_CONFIG_NONROOFED | STATSCREEN_CONFIG_NONUNK16);
-
-                StartStatScreen(GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]), proc);
-
-                Proc_Goto(proc, 5);
-
-                return;
-            }
+            TrySwitchViewedUnit(gBmSt.playerCursor.x, gBmSt.playerCursor.y);
+            PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
         }
-
-        /* This is for Vesly's debugger */
-        if (gKeyStatusPtr->newKeys & B_BUTTON)
+        else if (!DoesBMXFADEExist())
         {
-            if (gpKernelDesignerConfig->vesly_debugger == true)
-                StartDebuggerProc(proc);
-        }
-
-        if (gKeyStatusPtr->newKeys & A_BUTTON)
-        {
-            struct Unit * unit = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
-
-            switch (GetPlayerSelectKind(unit))
+            if ((gKeyStatusPtr->newKeys & R_BUTTON) && (gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x] != 0))
             {
-                case PLAYER_SELECT_NOUNIT:
-                case PLAYER_SELECT_TURNENDED:
+                if (CanShowUnitStatScreen(GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x])))
+                {
+
+                    EndAllMus();
+
                     EndPlayerPhaseSideWindows();
+                    SetStatScreenConfig(
+                        STATSCREEN_CONFIG_NONDEAD | STATSCREEN_CONFIG_NONBENCHED | STATSCREEN_CONFIG_NONUNK9 |
+                        STATSCREEN_CONFIG_NONROOFED | STATSCREEN_CONFIG_NONUNK16);
 
-                    gPlaySt.xCursor = gBmSt.playerCursor.x;
-                    gPlaySt.yCursor = gBmSt.playerCursor.y;
+                    StartStatScreen(GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]), proc);
+
+                    Proc_Goto(proc, 5);
+
+                    return;
+                }
+            }
+
+            /* This is for Vesly's debugger */
+            if (gKeyStatusPtr->newKeys & B_BUTTON)
+            {
+                if (gpKernelDesignerConfig->vesly_debugger == true)
+                    StartDebuggerProc(proc);
+            }
+
+            if (gKeyStatusPtr->newKeys & A_BUTTON)
+            {
+                struct Unit * unit = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
+
+                switch (GetPlayerSelectKind(unit))
+                {
+                    case PLAYER_SELECT_NOUNIT:
+                    case PLAYER_SELECT_TURNENDED:
+                        EndPlayerPhaseSideWindows();
+
+                        gPlaySt.xCursor = gBmSt.playerCursor.x;
+                        gPlaySt.yCursor = gBmSt.playerCursor.y;
+
+                        if (unit)
+                        {
+                            EndAllMus();
+                            ShowUnitSprite(unit);
+                        }
+
+                        StartOrphanMenuAdjusted(&gMapMenuDef_NEW, gBmSt.cursorTarget.x - gBmSt.camera.x, 1, 0x17);
+                        sub_80832CC();
+
+                        Proc_Goto(proc, 9);
+
+                        return;
+
+                    case PLAYER_SELECT_CONTROL:
+                        if (!PlayerPhase_TryAcquireRealtimeAction(unit))
+                            break;
+
+                        UnitBeginAction(unit);
+                        PidStatsAddActAmt(gActiveUnit->pCharacterData->number);
+
+                        Proc_Break(proc);
+
+                        break;
+
+                    case PLAYER_SELECT_NOCONTROL:
+                        if (!PlayerPhase_TryAcquireRealtimeAction(unit))
+                            break;
+
+                        UnitBeginAction(unit);
+                        gBmSt.swapActionRangeCount = 0;
+
+                        Proc_Goto(proc, 11);
+
+                        break;
+
+                    default:
+                        goto else_stmt;
+                }
+            }
+            else
+            {
+else_stmt:
+                if ((gKeyStatusPtr->newKeys & START_BUTTON) && !(gKeyStatusPtr->heldKeys & SELECT_BUTTON))
+                {
+                    struct Unit * unit = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
 
                     if (unit)
                     {
@@ -94,56 +188,15 @@ void PlayerPhase_MainIdle(ProcPtr proc)
                         ShowUnitSprite(unit);
                     }
 
-                    StartOrphanMenuAdjusted(&gMapMenuDef_NEW, gBmSt.cursorTarget.x - gBmSt.camera.x, 1, 0x17);
-                    sub_80832CC();
+                    EndPlayerPhaseSideWindows();
+                    StartMinimapPlayerPhase();
 
                     Proc_Goto(proc, 9);
 
                     return;
-
-                case PLAYER_SELECT_CONTROL:
-                    UnitBeginAction(unit);
-                    PidStatsAddActAmt(gActiveUnit->pCharacterData->number);
-
-                    Proc_Break(proc);
-
-                    break;
-
-                case PLAYER_SELECT_NOCONTROL:
-                    UnitBeginAction(unit);
-                    gBmSt.swapActionRangeCount = 0;
-
-                    Proc_Goto(proc, 11);
-
-                    break;
-
-                default:
-                    goto else_stmt;
-            }
-        }
-        else
-        {
-else_stmt:
-            if ((gKeyStatusPtr->newKeys & START_BUTTON) && !(gKeyStatusPtr->heldKeys & SELECT_BUTTON))
-            {
-                struct Unit * unit = GetUnit(gBmMapUnit[gBmSt.playerCursor.y][gBmSt.playerCursor.x]);
-
-                if (unit)
-                {
-                    EndAllMus();
-                    ShowUnitSprite(unit);
                 }
-
-                EndPlayerPhaseSideWindows();
-                StartMinimapPlayerPhase();
-
-                Proc_Goto(proc, 9);
-
-                return;
             }
         }
-
-
     }
 
     UnitSpriteHoverUpdate();
