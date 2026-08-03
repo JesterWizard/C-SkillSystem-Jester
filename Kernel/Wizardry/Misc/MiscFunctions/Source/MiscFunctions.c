@@ -34,6 +34,7 @@
 
 extern void DisableDebuggerAiControl(void);
 extern const u8 NewStatScreenPortraitTsa[];
+extern void UpdateMagicSealVisualPalette(void);
 
 static bool HalfBodyPortraitsEnabled(void)
 {
@@ -1983,11 +1984,6 @@ void RefreshUnitsOnBmMap(void) {
             if (unit->state & US_HIDDEN)
                 continue;
 
-            // If unit is magic seal, set fog in range 0-10.
-            // Magic seal set the fog map probably solely for the alternate map palette.
-            if (UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL)
-                MapAddInRange(unit->xPos, unit->yPos, 10, -1);
-
             if (gpKernelDesignerConfig->multiple_fog_stages == true) {
                 if (!gPlaySt.chapterVisionRange) {
                     /* No fog on this chapter - show all enemies normally */
@@ -2045,10 +2041,6 @@ void RefreshUnitsOnBmMap(void) {
             if (unit->state & US_HIDDEN)
                 continue;
 
-            // See above
-            if (UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL)
-                MapAddInRange(unit->xPos, unit->yPos, 10, -1);
-
             if (gPlaySt.chapterVisionRange) {
                 // Update unit state according to fog level
 
@@ -2062,6 +2054,8 @@ void RefreshUnitsOnBmMap(void) {
             gBmMapUnit[unit->yPos][unit->xPos] = i;
         }
     }
+
+    UpdateMagicSealVisualPalette();
 }
 
 LYN_REPLACE_CHECK(TryAddUnitToTradeTargetList);

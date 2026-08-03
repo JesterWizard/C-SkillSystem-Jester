@@ -34,8 +34,8 @@ SET_DATA FreeRamSpace2Bottom, 0x0203DDE0
 SET_DATA UsedFreeRamSpace2Bottom, FreeRamSpace2Top
 
 .macro _kernel_malloc2 name, size
-    .set UsedFreeRamSpace2Bottom, UsedFreeRamSpace2Bottom + \size
     SET_DATA \name, UsedFreeRamSpace2Bottom
+    .set UsedFreeRamSpace2Bottom, UsedFreeRamSpace2Bottom + \size
 .endm
 
 SET_DATA FreeRamSpace3Top,    0x02026AD0

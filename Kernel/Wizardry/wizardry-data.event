@@ -19,6 +19,7 @@ KERNEL_DATA_START:
 #include "Common/UnitHooks/data.event"
 #include "Common/ItemSys/ItemSysData.event"
 #include "Common/FogVision/FogVision_Installer.event"
+#include "Common/MagicSealVisual/MagicSealVisual_Installer.event"
 #include "Common/KillRewards/KillRewards.lyn.event"
 #include "Common/TrapData/TrapData_Installer.event"
 

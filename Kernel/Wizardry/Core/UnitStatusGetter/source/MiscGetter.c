@@ -49,6 +49,10 @@ s8 IsPositionMagicSealed(int x, int y)
 {
     int i;
 
+    /* Pre/post chapter events (and other map events) must not apply seal. */
+    if (EventEngineExists())
+        return FALSE;
+
     /**
      * Decomp set i to 0x81 initially, but we're now making
      * magic seal a skill, so we have to check player units too
