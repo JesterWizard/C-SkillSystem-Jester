@@ -9,7 +9,7 @@ ORG CURRENTOFFSET+$14;AchievementMenuRefresh_SyncBg0Bg1:
 ORG CURRENTOFFSET+$14;BonusClaim_Loop_PopupDisplayTimer:
 ORG CURRENTOFFSET+$30;AchievementDetailsRedraw_Loop:
 ORG CURRENTOFFSET+$e8;BonusClaim_DrawTargetUnitSprites:
-ORG CURRENTOFFSET+$7c;BonusClaim_StartSelectTargetSubMenu:
+ORG CURRENTOFFSET+$7c;VeslyBonusClaim_StartSelectTargetSubMenu:
 ORG CURRENTOFFSET+$1f0;BonusClaim_ClearItemSentPopup:
 ORG CURRENTOFFSET+$60;BonusClaim_EndSelectTargetSubMenu:
 ORG CURRENTOFFSET+$90;BonusClaim_OnEnd:

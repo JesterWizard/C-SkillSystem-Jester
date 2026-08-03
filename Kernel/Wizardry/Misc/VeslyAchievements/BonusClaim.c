@@ -768,8 +768,9 @@ void sub_80B1008(struct BonusClaimProc * proc)
     return;
 }
 
+// Named distinctly: ConvoyExpa already lynjumps BonusClaim_StartSelectTargetSubMenu.
 //! FE8U = 0x080B1020
-void BonusClaim_StartSelectTargetSubMenu(struct BonusClaimProc * proc)
+void VeslyBonusClaim_StartSelectTargetSubMenu(struct BonusClaimProc * proc)
 {
     int i;
 
@@ -1087,7 +1088,7 @@ struct ProcCmd const ProcScr_BonusClaim[] = {
     PROC_GOTO(100),
 
     PROC_LABEL(1),
-    PROC_CALL(BonusClaim_StartSelectTargetSubMenu),
+    PROC_CALL(VeslyBonusClaim_StartSelectTargetSubMenu),
     PROC_REPEAT(BonusClaim_Loop_SelectTargetKeyHandler),
     PROC_CALL(BonusClaim_EndSelectTargetSubMenu),
 
