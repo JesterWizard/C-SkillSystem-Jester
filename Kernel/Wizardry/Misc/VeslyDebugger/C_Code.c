@@ -8,6 +8,7 @@
 #include "common-chax.h"
 #include "kernel/debuff.h"
 #include "kernel/bwl.h"
+#include "kernel/icon-rework.h"
 #include "soundroom.h"
 #include "soundwrapper.h"
 #include "jester_headers/custom-arrays.h"
@@ -1065,7 +1066,9 @@ void EditStatsIdle(DebuggerProc* proc) {
 #define WExpOptions 8 
 void RedrawUnitWExpMenu(DebuggerProc* proc); 
 void EditWExpInit(DebuggerProc* proc) { 
-    SomeMenuInit(proc); 
+    SomeMenuInit(proc);
+    ResetIconGraphics();
+    LoadIconPalette(1, 2);
     struct Unit* unit = proc->unit; 
     for (int i = 0; i < WExpOptions; ++i) { 
         proc->tmp[i] = unit->ranks[i]; 
@@ -1099,11 +1102,8 @@ void DebuggerDisplayWeaponExp(int num, int x, int y, int wtype, int wexp)
 {
     int progress, progressMax, color;
 
-        //int wexp = UNIT_WRANK(gStatScreen.unit, wtype);
-
-    // Display weapon type icon
     DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(x, y),
-        0x70 + wtype, // TODO: icon id definitions
+        WTYPE_ICON(wtype),
         TILEREF(0, 2));
     
     x += 4; 
@@ -1112,23 +1112,26 @@ void DebuggerDisplayWeaponExp(int num, int x, int y, int wtype, int wexp)
         ? TEXT_COLOR_SYSTEM_GREEN
         : TEXT_COLOR_SYSTEM_BLUE;
 
-    // Display rank letter
-    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x + 4, y),
-        color,
-        GetDisplayRankStringFromExp(wexp));
-
     GetWeaponExpProgressState(wexp, &progress, &progressMax);
 
-    DrawStatBarGfx(0x180 + num*6, 5,
-        //gUiTmScratchC + TILEMAP_INDEX(x + 2, y + 1), TILEREF(0, STATSCREEN_BGPAL_6),
-        gBG1TilemapBuffer + TILEMAP_INDEX(x + 2, y + 1), TILEREF(0, 1),
-        0x22, (progress*34)/(progressMax-1), 0);
+    /* Bars on BG0 so transparent pixels show the BG1 UI frame.
+     * PutSpecialChar is 2 tiles tall, so draw it after the bar or it gets covered. */
+    DrawStatBarGfx(0x200 + num * 6, 5,
+        gBG0TilemapBuffer + TILEMAP_INDEX(x + 2, y + 1), TILEREF(0, 1),
+        0x22, (progress * 34) / (progressMax - 1), 0);
+
+    /* Skip the unranked dash — it sits on the bar and looks like clutter. */
+    if (wexp >= WPN_EXP_E) {
+        PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(x + 4, y),
+            color,
+            GetDisplayRankStringFromExp(wexp));
+    }
 }
 
 void RedrawUnitWExpMenu(DebuggerProc* proc) { 
-	TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, 2 * WExpOptions, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT|BG1_SYNC_BIT);
-    //ResetText();
+	TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X - WExpWidth, Y_HAND), WExpWidth + 6, 2 * WExpOptions, 0);
+	ResetIconGraphics();
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
     int c = 0; 
     struct Text* th = gStatScreen.text;
 
@@ -1150,10 +1153,7 @@ void RedrawUnitWExpMenu(DebuggerProc* proc) {
         PutNumber(gBG0TilemapBuffer + TILEMAP_INDEX(START_X, Y_HAND + (i*2)), TEXT_COLOR_SYSTEM_GOLD, proc->tmp[i]); 
     } 
     
-    
-    SetBlendTargetA(0, 0, 1, 0, 0);
-    //SetBlendTargetB(0, 0, 0, 0, 1);
-	BG_EnableSyncByMask(BG0_SYNC_BIT|BG1_SYNC_BIT);
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
 
 }
 
@@ -1295,22 +1295,6 @@ void EditSkillsInit(DebuggerProc* proc) {
     } 
     RedrawUnitSkillsMenu(proc);
 }
-
-enum icon_sheet_idx {
-    ICON_SHEET_VANILLA,
-    ICON_SHEET_AFFIN,
-    ICON_SHEET_MOUNT,
-    ICON_SHEET_WTYPE,
-    ICON_SHEET_COMBATART,
-    ICON_SHEET_SKILL0,
-    ICON_SHEET_SKILL1,
-    ICON_SHEET_SKILL2,
-    ICON_SHEET_SKILL3,
-
-    ICON_SHEET_AMT = 16
-};
-
-#define SKILL_ICON(sid)   ((ICON_SHEET_SKILL0 << 8) + (sid))
 
 void RedrawUnitSkillsMenu(DebuggerProc* proc) { 
     TileMap_FillRect(gBG0TilemapBuffer + TILEMAP_INDEX(NUMBER_X-2, Y_HAND), 9, 2 * UNIT_RAM_SKILLS_LEN, 0);
