@@ -215,6 +215,9 @@ void StartBaseScreen_FromPrep(struct ProcAtMenu *parent);
 void StartAuguryScreen_FromPrep(struct ProcAtMenu *parent);
 
 u8 MapMenu_IsBiographyCommandAvailable(const struct MenuItemDef *def, int number);
+u8 MapMenu_IsAchievementsCommandAvailable(const struct MenuItemDef *def, int number);
+u8 MapMenu_AchievementsCommand(struct MenuProc *menu, struct MenuItemProc *menuItem);
+int MapMenu_AchievementsCommandDraw(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int MapMenu_BiographyCommandDraw(struct MenuProc *menu, struct MenuItemProc *menuItem);
 u8 MapMenu_BiographyCommand(struct MenuProc *menu, struct MenuItemProc *menuItem);
 

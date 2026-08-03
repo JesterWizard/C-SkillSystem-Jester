@@ -4,8 +4,9 @@
 
 extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
+extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[31] = {
+const u8 gGameOptionsUiOrder_NEW[32] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -39,6 +40,7 @@ const u8 gGameOptionsUiOrder_NEW[31] = {
     GAME_OPTION_SUPPORT_AFTER_BATTLE,
     GAME_OPTION_REAL_TIME_BATTLE,
     GAME_OPTION_REAL_TIME_INTERVAL,
+    GAME_OPTION_ACHIEVEMENTS,
 };
 
 static int GetGameOptionIndexCount(void)
@@ -592,6 +594,20 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x42,
         .func = GenericOptionChangeHandler,
     },
+
+    [GAME_OPTION_ACHIEVEMENTS] =
+    {
+        .msgId = MSG_MENU_OPTION_ACHIEVEMENTS_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_ACHIEVEMENTS_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_ACHIEVEMENTS_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x44,
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -637,6 +653,11 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
+        case GAME_OPTION_ACHIEVEMENTS:
+            gPlaySt.config.achievements = newValue;
+            /* Keep Vesly Achievements flag in sync: SetAchievementsTo(1)=ON. */
+            SetAchievementsTo(newValue == 0);
+            break;
     }
 }
 
@@ -683,6 +704,7 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
         case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
+        case GAME_OPTION_ACHIEVEMENTS:                   return gPlaySt.config.achievements;
     }
     return 0;
 }
@@ -735,6 +757,13 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = 0; /* display hint; interval frames come from designer config */
+    gPlaySt.config.achievements = 0; /* ON */
+    SetAchievementsTo(1);
+}
+
+void ChapterInit_SyncAchievementsOption(void)
+{
+    SetAchievementsTo(gPlaySt.config.achievements == 0);
 }
 
 //! FE8U = 0x080B16DC

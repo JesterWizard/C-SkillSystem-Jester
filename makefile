@@ -177,6 +177,9 @@ Kernel/%.lyn.event: Kernel/%.o $(LYN_REF) $(FE8_SYM)
 	@$(LYN) $(LYN_LONG_CALL) $< $(LYN_REF) > $@
 	@$(LYN_PROTECTOR) $@ $(FE8_SYM) >> $@
 
+# Prebuilt VeslyAchievements object (no C_Code.c in-tree rebuild; keep shipped lyn)
+Kernel/Wizardry/Misc/VeslyAchievements/C_Code.lyn.event: ;
+
 # Others: long call
 %.lyn.event: %.o $(LYN_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"

@@ -149,6 +149,7 @@ _kernel_malloc gSavedWorldMapUnitId, 2
 _kernel_malloc sCameraScrollCounter, 2
 _kernel_malloc gSavedWorldMapXCoordiate, 1
 _kernel_malloc gSavedWorldMapYCoordiate, 1
+_kernel_malloc gAchMenuSaveSt, 4
 
 /* Skill-tree screen state: seven bytes of flags/cursor data plus HelpBoxInfo. */
 _kernel_malloc gSkillTreeCursor, 0x24

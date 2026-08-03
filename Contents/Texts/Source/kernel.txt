@@ -41,6 +41,7 @@ W.I.P.[X]
 #include "texts/Affinity_Descriptions.txt"
 #include "texts/Items.txt"
 #include "texts/MapMenu_Biographies.txt"
+#include "texts/MapMenu_Goals.txt"
 #include "texts/Trainee_Promo.txt"
 #include "texts/StartMapEffects.txt"
 #include "texts/Menu_Options.txt"

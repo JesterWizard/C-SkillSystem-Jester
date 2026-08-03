@@ -106,3 +106,8 @@ Seconds between enemy action attempts[X]
 3s[X]
 ## MSG_MENU_OPTION_REAL_TIME_5S
 5s[X]
+
+## MSG_MENU_OPTION_ACHIEVEMENTS_TITLE
+Achievements[X]
+## MSG_MENU_OPTION_ACHIEVEMENTS_DESC
+Enable achievement tracking and Goals menu[X]

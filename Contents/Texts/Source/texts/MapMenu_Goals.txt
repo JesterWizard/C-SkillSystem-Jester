@@ -1,0 +1,4 @@
+## MSG_MAP_MENU_GOALS_TITLE
+ Goals[X]
+## MSG_MAP_MENU_GOALS_DESC
+View achievements and rewards[X]

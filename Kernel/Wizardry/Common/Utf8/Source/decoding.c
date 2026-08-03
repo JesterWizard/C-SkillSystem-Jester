@@ -88,6 +88,13 @@ const char *Text_DrawCharacter(struct Text *text, const char *str)
 	return str + decode_len;
 }
 
+LYN_REPLACE_CHECK(Text_DrawCharacterAscii);
+const char *Text_DrawCharacterAscii(struct Text *text, const char *str)
+{
+	/* Vanilla ASCII path is incompatible with this kernel's UTF-8 fonts. */
+	return Text_DrawCharacter(text, str);
+}
+
 LYN_REPLACE_CHECK(Text_DrawString);
 void Text_DrawString(struct Text *text, const char *str)
 {

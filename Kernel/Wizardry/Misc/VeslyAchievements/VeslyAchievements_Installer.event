@@ -1,0 +1,768 @@
+
+// Replaces: TerrainDisplay_Init
+// Hooks: SetChapterFlag, SetPermanentFlag
+
+// gProcScr_TitleScreen 
+
+#include "EAstdlib.event"
+#include "Definitions.enu.event" 
+#include "LynJump.event"
+
+ALIGN 4 
+DebugFlag_Link: 
+WORD 0xEC 
+AchievementsDisabledFlag_Link:
+WORD 0x129 
+
+
+#ifndef DebuggerFlag
+// DebuggerProcCmd provided by VeslyDebugger
+#endif
+
+// for testing 
+// PUSH 
+// ORG $1E0C8C0 
+// POIN MapMenu_IsAchievementsCommandAvailable
+
+// ORG $1E0C8C8 
+// POIN MapMenu_AchievementsCommand
+// POP 
+
+
+
+ALIGN 4 
+NotificationWindow_DisplayFrames: 
+WORD 60 // Disappear 1 seconds after it finishes printing 
+DisableBGMNotificationsFlag:
+WORD 0x12A // Choose a flag if you want to disable new BGM notifications ingame 
+MAX_LINE_WIDTH:
+// WORD 144 // 152 will cause a little text to be outside the right side of the box 
+// WORD 184 // longer for sprite text 
+WORD 168 // longer for sprite text 
+
+
+
+#ifndef txt
+    #define txt(string2) "String(string2) ; BYTE 0"
+#endif 
+
+// #define NotificationEntry(stringLabel, textID, flagID) "POIN stringLabel; SHORT textID flagID" 
+#define NotificationEntry(stringLabel, flagID, colour) "POIN stringLabel; SHORT 0 flagID; BYTE colour colour colour colour" 
+#define NotificationEntry(stringLabel, flagID, colour1, colour2) "POIN stringLabel; SHORT 0 flagID; BYTE colour1 colour2 colour2 colour2" 
+#define NotificationEntry(stringLabel, flagID) "POIN stringLabel; SHORT 0 flagID; BYTE 0 0 0 0" 
+#define NotificationEntryTextID(textID, flagID, colour) "POIN 0; SHORT textID flagID; BYTE colour colour colour colour" 
+#define NotificationEntryTextID(textID, flagID, colour1, colour2) "POIN 0; SHORT textID flagID; BYTE colour1 colour2 colour2 colour2" 
+#define NotificationEntryTextID(textID, flagID) "POIN 0; SHORT textID flagID; BYTE 0 0 0 0" 
+
+
+#define TEXT_COLOR_SYSTEM_WHITE 0
+#define TEXT_COLOR_SYSTEM_GRAY  1
+#define TEXT_COLOR_SYSTEM_BLUE  2
+#define TEXT_COLOR_SYSTEM_GOLD  3
+#define TEXT_COLOR_SYSTEM_GREEN 4
+#define TEXT_COLOR_SYSTEM_BLACK 5
+
+
+
+#define achievementEntSize 12 
+#define achievementEnt(id, str, str2, category) "{; ALIGN 4; header: ; txt(str); ALIGN 4; header2: ; txt(str2); PUSH; ORG achievementData + ((id) * achievementEntSize); POIN header header2; SHORT category id; POP; }"
+// flag / func here don't make sense 
+// just call UnlockAchievement from func / SetFlag 
+
+
+
+#define Category_Rewards 1 
+#define Category_Combat 2 
+#define Category_Recruitables 3 
+#define Category_Equipment 4
+#define Category_Promotions 5
+#define Category_ChapterTime 6 
+#define Category_TurnCount 7
+#define Category_Miscellaneous 8
+#define Category_Terminator 12 
+
+ALIGN 4 
+Category_Terminator_Link: 
+WORD Category_Terminator 
+Category_Rewards_Link:
+WORD Category_Rewards
+
+ALIGN 4 
+gTextIds_AchievementsCategoriesTopic: 
+POIN blankStr 
+POIN RewardsHeader
+POIN CombatHeader
+POIN RecruitablesHeader
+POIN EquipmentHeader 
+POIN PromotionsHeader 
+POIN ChapterTimeHeader
+POIN LowTurnCountHeader
+POIN MiscHeader
+POIN OtherHeader 
+
+
+blankStr:
+String(" "); BYTE 0
+RewardsHeader: 
+String("Rewards"); BYTE 0
+CombatHeader: 
+String("Combat"); BYTE 0
+RecruitablesHeader: 
+String("Recruitables"); BYTE 0
+
+EquipmentHeader:
+String("Equipment"); BYTE 0
+PromotionsHeader:
+String("Promotions"); BYTE 0
+LowTurnCountHeader:
+String("Turn Count"); BYTE 0
+ChapterTimeHeader:
+String("Chapter Time"); BYTE 0
+MiscHeader:
+String("Misc."); BYTE 0
+OtherHeader:
+String("Other"); BYTE 0 
+
+
+ALIGN 4 
+AlwaysShowAchievement:
+WORD 1 
+Img_Achievements:
+#incbin "png/Achievements.dmp" 
+
+
+ALIGN 4 
+gAchievementsTable:
+achievementData: // these show up once ever atm
+FILL (1000 * achievementEntSize)
+// other macros write to this 
+achievementEnt(EndID, " ", " ", Category_Terminator)
+
+
+
+
+// promotions into specific classes 
+
+// achieve A rank support 
+// reach level 20 
+// reach promoted level 20 
+
+
+ALIGN 4 
+bonusData:
+FILL (32 * 20) // BONUS_CLAIM_NUM_ENTRIES * size 
+
+#define bonusEnt(id, itemID, str) "PUSH; ORG bonusData + (id * 0x14); BYTE 0 0 itemID; txt(str); BYTE 0; POP" 
+
+// bonusEnt(0, SteelSword, "Enjoy"); 
+
+
+#define RewardTypeItem 0
+#define RewardTypeGold 1 
+#define RewardTypeChar 2
+#define RewardTypeMisc 3
+ALIGN 4 
+rewardsByPercentage:
+FILL(512) 
+#define rewardEnt(orderId, percent, str, str2, str3) "{; ALIGN 4; header3: ; txt(str3); PUSH; ORG rewardsByPercentage + (orderId * 8); SHORT orderId; BYTE percent RewardTypeMisc ; POIN header3; POP; }; achievementEnt(orderId, str2, str, Category_Rewards)"
+#define rewardItem(orderId, bonusId, item, percent, str, str2) "bonusEnt(bonusId, item, str); PUSH; ORG rewardsByPercentage + (orderId * 8); SHORT orderId; BYTE percent RewardTypeItem ; SHORT item bonusId; POP; achievementEnt(orderId, str2, str, Category_Rewards)" 
+// #define rewardGold(orderId, achievementDataId, bonusId, gold, percent, str, str2) "bonusEnt(bonusId, gold, str); PUSH; ORG rewardsByPercentage + (orderId * 8); SHORT orderId; BYTE percent RewardTypeGold ; SHORT gold bonusId; POP; achievementEnt(orderId, str2, str, Category_Rewards)" 
+// str1 and str2 are swapped in this macro 
+
+ALIGN 4 
+Reward_Classes_Link:
+WORD Reward_Classes 
+Reward_Growths_Link:
+WORD Reward_Growths 
+Reward_StatCaps_Link:
+WORD Reward_StatCaps 
+Reward_CasualMode_Link:
+WORD Reward_CasualMode 
+Reward_FromGame_Link:
+WORD Reward_NES 
+
+Reward_BonusLevels_Link:
+WORD Reward_BonusLevels 
+Reward_Recruitment_Link:
+WORD Reward_NES 
+
+Reward_FilterClasses_Link:
+WORD Reward_FilterClasses 
+Reward_FilterChars_Link:
+WORD Reward_FilterChars
+Reward_Skills_Link:
+WORD Reward_Skills
+Reward_TimedHits_Link:
+WORD Reward_TimedHits
+
+Reward_Clutter1_Link:
+WORD Reward_Clutter1
+Reward_Clutter2_Link:
+WORD Reward_Clutter2
+Reward_Clutter3_Link:
+WORD Reward_Clutter3
+Reward_Clutter4_Link:
+WORD Reward_Clutter4
+
+rewardEnt(Reward_Classes, 1, "1% completion", "Unlock Random Classes", "Classes can now be randomized.") 
+rewardEnt(Reward_Growths, 2, "2% completion", "Unlock Growths", "Growths has been added to Config.") 
+rewardEnt(Reward_StatCaps, 3, "3% completion", "Unlock Stat Caps", "Stat Caps has been added to Config.") 
+rewardEnt(Reward_CasualMode, 4, "4% completion", "Unlock Casual Mode", "Casual Mode has been added to Config.") 
+
+rewardEnt(Reward_NES, 5, "5% completion", "Unlock NES Characters", "FE1-FE3 Characters are now unlocked.") 
+
+rewardEnt(Reward_BonusLevels, 6, "6% completion", "Unlock Bonus Levels", "Bonus Levels has been added to Config.") 
+rewardEnt(Reward_Recruitment, 7, "7% completion", "Unlock Recruitment Order", "Recruitment order has been added to Config.") 
+
+rewardItem(Reward_GoddessIcon, 0, GoddessIcon, 8, "8% completion", "Goddess Icon") // 0th bonus ID item 
+rewardItem(Reward_JunaFruit, 1, JunaFruit, 9, "9% completion", "Heart Seal") // Heart seal
+rewardItem(Reward_Physic, 2, Physic, 10, "10% completion", "Physic") 
+rewardEnt(Reward_SNES, 10, "10% completion", "Unlock SNES Characters", "FE4-FE5 Characters are now unlocked.") 
+
+rewardEnt(Reward_FilterClasses, 11, "11% completion", "Unlock Class Filtering", "Player Classes has been added to Config.") 
+rewardEnt(Reward_Clutter1, 12, "12% completion", "Unlock More Configs (1)", "Stuff has been added to Config.") 
+rewardItem(Reward_Item3000G, 3, Item3000G, 13, "13% completion", "3000 Gold") 
+rewardItem(Reward_BodyRing, 4, BodyRing, 14, "14% completion", "Body Ring") 
+rewardItem(Reward_Warp, 5, Warp, 15, "15% completion", "Warp") 
+rewardEnt(Reward_GBA, 15, "15% completion", "Unlock GBA Characters", "GBA Characters are now unlocked.") 
+
+rewardEnt(Reward_FilterChars, 16, "16% completion", "Unlock Character Filtering", "Filter Units has been added to Config.") 
+rewardEnt(Reward_Clutter2, 17, "17% completion", "Unlock More Configs (2)", "More stuff has been added to Config.") 
+rewardItem(Reward_Talisman, 6, Talisman, 18, "18% completion", "Talisman") 
+rewardItem(Reward_GuidingRing, 7, GuidingRing, 19, "19% completion", "Guiding Ring") 
+rewardItem(Reward_MetissTome, 8, MetissTome, 20, "20% completion", "Metis' Tome") 
+rewardEnt(Reward_GCN, 20, "20% completion", "Unlock GCN/Wii Characters", "FE9-FE10 Characters are now unlocked.") 
+
+rewardEnt(Reward_Skills, 21, "21% completion", "Unlock Skills", "Skills has been added to Config.") 
+rewardEnt(Reward_Clutter3, 22, "22% completion", "Unlock More Configs (3)", "Even more stuff has been added to Config.") 
+rewardItem(Reward_Dracoshield, 9, Dracoshield, 23, "23% completion", "Dracoshield") 
+rewardItem(Reward_KnightCrest, 10, KnightCrest, 24, "24% completion", "Knight's Crest") 
+rewardItem(Reward_Item5000G, 11, Item5000G, 25, "25% completion", "5000 Gold") 
+rewardEnt(Reward_3DS, 25, "25% completion", "Unlock 3DS Characters", "FE13-FE14 Characters are now unlocked.") 
+
+rewardEnt(Reward_TimedHits, 26, "26% completion", "Unlock Timed Hits", "Timed Hits has been added to Config.") 
+rewardEnt(Reward_Clutter4, 27, "27% completion", "Unlock More Configs (4)", "Clutter has been added to Config.") 
+rewardItem(Reward_EnergyRing, 12, EnergyRing, 28, "28% completion", "Energy Ring") 
+rewardItem(Reward_HeroCrest, 13, HeroCrest, 29, "29% completion", "Hero's Crest") 
+rewardItem(Reward_HoplonShield, 14, HoplonShield, 30, "30% completion", "Hoplon Guard") 
+rewardEnt(Reward_Switch, 30, "30% completion", "Unlock Switch Characters", "FE16+ Characters are now unlocked.") 
+
+
+rewardItem(Reward_SecretBook, 15, SecretBook, 33, "33% completion", "Secret Book") 
+rewardItem(Reward_OrionBolt, 16, OrionBolt, 34, "34% completion", "Orion's Bolt") 
+rewardItem(Reward_WhiteGem, 17, WhiteGem, 35, "35% completion", "White Gem") 
+
+rewardItem(Reward_Speedwings, 18, Speedwings, 38, "38% completion", "Speedwings") 
+rewardItem(Reward_ElysianWhip, 19, ElysianWhip, 39, "39% completion", "Elysian Whip") 
+rewardItem(Reward_DelphiShield, 20, DelphiShield, 40, "40% completion", "Delphi Shield") 
+
+rewardItem(Reward_AngelicRobe, 21, AngelicRobe, 43, "43% completion", "Angelic Robe") 
+rewardItem(Reward_OceanSeal, 22, OceanSeal, 44, "44% completion", "Ocean Seal") 
+rewardItem(Reward_MemberCard, 23, MemberCard, 45, "45% completion", "Member Card") 
+
+rewardItem(Reward_Boots, 24, Boots, 48, "48% completion", "Boots") 
+rewardItem(Reward_MasterSeal, 25, MasterSeal, 49, "49% completion", "Master Seal") 
+rewardItem(Reward_SilverCard, 26, SilverCard, 50, "50% completion", "Silver Card") 
+
+
+
+
+
+
+ALIGN 4 
+combatAchievements: 
+FILL (512*4) 
+#define combatEnt(func, cmbID, id, str, str2) "PUSH; ORG combatAchievements + (cmbID * 8); POIN func; SHORT id 0 ; POP; achievementEnt(id, str, str2, Category_Combat)" 
+// combatEnt(Check30DmgFunc, 1,    GameOverCombatID, "Combat King I", "Deal 30+ damage in one hit.") 
+combatEnt(Check30DmgFunc, 1,    Damage30CombatID, "Combat King I", "Deal 30+ damage in one hit.") 
+combatEnt(Check50DmgFunc, 2,    Damage50CombatID, "Combat King II", "Deal 50+ damage in one hit.") 
+combatEnt(Check100DmgFunc, 3,    Damage100CombatID, "Combat King III", "Deal 100+ damage in one hit.") 
+combatEnt(CheckOHKODmgFunc, 4,    DamageOHKOCombatID, "One Punch Man", "Defeat a full hp enemy in one hit.") 
+combatEnt(Check1HPSurvFunc, 5,    OneHPSurvCombatID, "Hanging on by a Thread ", "Survive combat with 1 hp.") // space after thread because of weird width issue 
+combatEnt(Check1HPWinFunc, 6,    OneHPWinCombatID, "Against All Odds", "Defeat an enemy with 1 hp.") 
+combatEnt(CheckWTDFunc, 7,            WTDCombatID, "Triangle Reverser", "Defeat an enemy with weapon triangle disadvantage.") 
+combatEnt(CheckBrokeLastWepFunc, 8,    BreakWepCombatID, "Unprepared", "Break your weapon without any extras on hand.") 
+combatEnt(CheckDevilAxe2Func, 9,    DevilAxe2CombatID, "Death Wish II", "Have a Devil Axe backfire.") 
+combatEnt(CheckDevilAxe3Func, 10,    DevilAxe3CombatID, "Death Wish III", "Have a Devil Axe backfire and kill your unit.") 
+combatEnt(CheckLowPercCritPlayerFunc, 11,    LowPercCritPlayerCombatID, "Lucky Crit", "Get a Critical Hit with 3% or less chance.") 
+combatEnt(CheckLowPercCritEnemyFunc, 12,    LowPercCritEnemyCombatID, "Unlucky Crit", "Get hit by a Critical Hit with 3% or less chance.") 
+combatEnt(CheckHighPercMissFunc, 13,    HighPercMissCombatID, "Never Lucky I", "Miss with 90% or higher hitrate.") 
+combatEnt(CheckLowPercHitFunc, 14,    LowPercHitCombatID, "Never Lucky II", "Get hit from 10% or lower hitrate.") 
+combatEnt(RetaliateKOFunc, 15,    RetaliateCombatID, "Enemy Phaser II", "Defeat a full health enemy on their phase.") 
+combatEnt(CheckTriangleAttackFunc, 16,    TriangleAttackCombatID, "Triangular", "Perform a triangle attack.") 
+combatEnt(CheckStonedFunc, 17,    StonedCombatID, "Stoned", "Become Petrified by Stone magic.") 
+combatEnt(CheckAssassinateFunc, 18,    AssassinateCombatID, "Assassinate", "Defeat an enemy with the Silencer ability.") 
+combatEnt(CheckDoubleMissFunc, 19,    DoubleMissCombatID, "A for Effort", "Fail to harm an enemy you double.") 
+combatEnt((-1), 30,    RossRecruitID, " ", " ") // Terminator function 
+
+// miss with a 3-10 range wep? 
+
+
+ALIGN 4 
+recruitmentAchievements: 
+FILL (512) 
+#define recruitmentEnt(charID, id, str, str2) "PUSH; ORG recruitmentAchievements + (charID * 2); SHORT id ; POP; achievementEnt(id, str, str2, Category_Recruitables)" 
+recruitmentEnt(Ross,    RossRecruitID, "The Wounded Trainee", "Recruit Ross") 
+recruitmentEnt(Garcia,  GarciaRecruitID, "The Great Garcia", "Recruit Garcia") 
+recruitmentEnt(Colm,    ColmRecruitID, "The Thief from Renais", "Recruit Colm") 
+recruitmentEnt(Lute,    LuteRecruitID, "The Prodigy", "Recruit Lute") // "The Monk Watcher" 
+recruitmentEnt(Joshua,  JoshuaRecruitID, "The Wandering Swordsman", "Recruit Joshua") 
+recruitmentEnt(Amelia,  AmeliaRecruitID, "The Orphan of Grado", "Recruit Amelia") 
+recruitmentEnt(Innes,   InnesRecruitID, "The Strategician", "Recruit Innes") 
+recruitmentEnt(Gerik,   GerikRecruitID, "The Desert Tiger", "Recruit Gerik") 
+recruitmentEnt(Tethys,  TethysRecruitID, "The Beloved Dancer", "Recruit Tethys") 
+recruitmentEnt(LArachel, LArachelRecruitID, "The Princess of Light", "Recruit L'Arachel") 
+recruitmentEnt(Dozla,   DozlaRecruitID, "The Steady Axe", "Recruit Dozla") 
+recruitmentEnt(Marisa,  MarisaRecruitID, "The Crimson Flash", "Recruit Marisa") 
+recruitmentEnt(Ewan,    EwanRecruitID, "The Pupil", "Recruit Ewan") // some of these don't use CUSA 
+recruitmentEnt(Cormag,  CormagRecruitID, "The Aloof Lanceman", "Recruit Cormag" ) 
+recruitmentEnt(Rennac,  RennacRecruitID, "The 'Merchant'", "Recruit Rennac" ) 
+recruitmentEnt(Duessel, DuesselRecruitID, "The Obsidian", "Recruit Duessel" ) 
+recruitmentEnt(Syrene,  SyreneRecruitID, "The Graceful Rider", "Recruit Syrene") 
+// recruit all characters? 
+
+
+#define flagEnt(flagID, id, header, desc) "PUSH; ORG flagAchievements + (flagID * 2); SHORT id ; POP; achievementEnt(id, header, desc, Category_Miscellaneous)" 
+#define ccEnt(flagID, id, header, desc) "PUSH; ORG flagAchievements + (flagID * 2); SHORT id ; POP; achievementEnt(id, header, desc, Category_Recruitables)" 
+ALIGN 4 
+flagAchievements:
+FILL (0x130*2)
+ccEnt(0x67, CaellachID, "The Tiger's Eye", "Unlock Caellach") 
+ccEnt(0x68, GlenID, "The Sunstone", "Unlock Glen") 
+ccEnt(0x69, OrsonID, "The Devoted Husband", "Unlock Orson") 
+ccEnt(0x6A, ValterID, "The Moonstone", "Unlock Valter") 
+ccEnt(0x6B, RievID, "The Blood Beryl", "Unlock Riev") 
+ccEnt(0x6C, HaydenID, "The King of Frelia", "Unlock Hayden") 
+ccEnt(0x6D, FadoID, "The King of Renais", "Unlock Fado") 
+ccEnt(0x6E, IsmaireID, "The Queen of Jehanna", "Unlock Ismaire") 
+ccEnt(0x6F, SelenaID, "The Fluorspar", "Unlock Selena") 
+ccEnt(0x70, LyonID, "The Dark Prince", "Unlock Lyon") 
+
+flagEnt(0x65, LoserID, "Loser", "Get a game over.") 
+flagEnt(0x82, FightDemonKingID, "Demonic", "Battle the Demon King.") 
+
+
+// #define sideEnt(flagID, id, header, desc) "PUSH; ORG flagAchievements + (flagID * 2); SHORT id ; POP; achievementEnt(id, header, desc, Category_Miscellaneous)" 
+// ALIGN 4 
+// sideAchievements: 
+// FILL(512) 
+// specific villages, chests, secret shops, etc ? 
+
+
+
+#define promoEnt(classID, id, str, str2) "PUSH; ORG promoAchievements + (classID * 2); SHORT id ; POP; achievementEnt(id, str, str2, Category_Promotions)" 
+ALIGN 4 
+promoAchievements:
+FILL (512) 
+promoEnt(EphraimMasterLord, EphraimMasterLordID, "Path of Greatness (1)", "Promote Ephraim.")
+promoEnt(EirikaMasterLord, EirikaMasterLordID, "Path of Greatness (2)", "Promote Eirika.")
+promoEnt(Paladin, PaladinID, " ", " ")
+promoEnt(Paladin_F, PaladinID, "Path of Honor", "Promote into a Paladin.")
+promoEnt(GreatKnight, GreatKnightID, " ", " ")
+promoEnt(GreatKnight_F, GreatKnightID, "Path of Loyalty", "Promote into a Great Knight.")
+promoEnt(General, GeneralID, " ", " ")
+promoEnt(General_F, GeneralID, "Path of the Shield", "Promote into a General.")
+promoEnt(Hero, HeroAchievementID, " ", " ")
+promoEnt(Hero_F, HeroAchievementID, "Path of Gold", "Promote into a Hero.")
+promoEnt(Swordmaster, SwordmasterID, " ", " ")
+promoEnt(Swordmaster_F, SwordmasterID, "Path of the Sword", "Promote into a Swordmaster.")
+promoEnt(Rogue, RogueID, "Path of Silence", "Promote into a Rogue.")
+promoEnt(Assassin, AssassinID, " ", " ")
+promoEnt(Assassin_F, AssassinID, "Path of Death", "Promote into an Assassin.")
+promoEnt(Sniper, SniperID, " ", " ")
+promoEnt(Sniper_F, SniperID, "Path of the Bow", "Promote into a Sniper.")
+promoEnt(Ranger, RangerID, " ", " ")
+promoEnt(Ranger_F, RangerID, "Path of the Land", "Promote into a Ranger.")
+promoEnt(WyvernLord, WyvernLordID, " ", " ")
+promoEnt(WyvernLord_F, WyvernLordID, "Path of the World", "Promote into a Wyvern Lord.")
+promoEnt(WyvernKnight, WyvernKnightID, " ", " ")
+promoEnt(WyvernKnight_F, WyvernKnightID, "Path of the Sky", "Promote into a Wyvern Knight.")
+promoEnt(Warrior, WarriorID, "Path of the Axe", "Promote into a Warrior.")
+promoEnt(Berserker, BerserkerID, "Path of Might", "Promote into a Berserker.")
+promoEnt(Sage, SageID, " ", " ")
+promoEnt(Sage_F, SageID, "Path of Anima", "Promote into a Sage.")
+promoEnt(MageKnight, MageKnightID, " ", " ")
+promoEnt(MageKnight_F, MageKnightID, "Path of Arcana", "Promote into a Mage Knight.")
+promoEnt(Bishop, BishopID, " ", " ")
+promoEnt(Bishop_F, BishopID, "Path of Light", "Promote into a Bishop.")
+promoEnt(Druid, DruidID, " ", " ")
+promoEnt(Druid_F, DruidID, "Path of Darkness", "Promote into a Druid.")
+promoEnt(Summoner, SummonerID, " ", " ")
+promoEnt(Summoner_F, SummonerID, "Path of Phantoms", "Promote into a Summoner.")
+promoEnt(Journeyman_3, Journeyman_3ID, "Path of the Journeyman", "Promote into a Super Journeyman.")
+promoEnt(Pupil_3, Pupil_3ID, "Path of the Pupil", "Promote into a Super Pupil.")
+promoEnt(Recruit_3, Recruit_3ID, "Path of the Recruit", "Promote into a Super Recruit.")
+
+promoEnt(FalcoKnight, FalcoKnightID, "Path of the Wind", "Promote into a Falco Knight.")
+promoEnt(Entombed, EntombedID, "Path of the Zombie", "Promote into an Entombed.")
+promoEnt(Wight, WightID, " ", " ")
+promoEnt(Wight_Bow, WightID, "Path of the Bones", "Promote into a Wight.")
+promoEnt(Maelduin, MaelduinID, "Path of the Centaur", "Promote into a Maelduin.")
+promoEnt(Gwyllgi, GwyllgiID, "Path of the Dog", "Promote into a Gwyllgi.")
+promoEnt(Deathgoyle, DeathgoyleID, "Path of the Gargoyle", "Promote into a Deathgoyle.")
+promoEnt(ArchMogall, ArchMogallID, "Path of the Eye", "Promote into an Arch Mogall.")
+promoEnt(ElderBael, ElderBaelID, "Path of the Spider", "Promote into an Elder Bael.")
+
+
+
+
+ALIGN 4 
+equipAchievements:
+FILL (512)
+#define equipEnt(itemID, id, str, str2) "PUSH; ORG equipAchievements + (itemID * 2); SHORT id ; POP; achievementEnt(id, str, str2, Category_Equipment)" 
+
+// These all use the same text / same achievement ID 
+// so only need the text for the last one 
+equipEnt(PoisonSword, PoisonWepID, " ", " ")
+equipEnt(PoisonAxe, PoisonWepID, " ", " ")
+equipEnt(ToxinLance, PoisonWepID, " ", " ")
+equipEnt(PoisonBow, PoisonWepID, "Dirty Fighter", "Equip a poisoned weapon.")
+
+equipEnt(Shadowkiller, EffectiveWepID, " ", " ")
+equipEnt(BrightLance, EffectiveWepID, " ", " ")
+equipEnt(Fiendcleaver, EffectiveWepID, " ", " ")
+equipEnt(BeaconBow, EffectiveWepID, " ", " ")
+equipEnt(Swordslayer, EffectiveWepID, " ", " ")
+equipEnt(HeavySpear, EffectiveWepID, " ", " ")
+equipEnt(Hammer, EffectiveWepID, " ", " ")
+equipEnt(Halberd, EffectiveWepID, " ", " ")
+equipEnt(Horseslayer, EffectiveWepID, " ", " ")
+equipEnt(Zanbato, EffectiveWepID, " ", " ")
+equipEnt(Armorslayer, EffectiveWepID, "It's Super Effective", "Equip a specialized weapon (other than Rapier).")
+
+equipEnt(Javelin, JavelinWepID, " ", " ")
+equipEnt(HandAxe, JavelinWepID, "Enemy Phaser I", "Equip a Javelin or Handaxe")
+
+equipEnt(Ballista, LongRangeWepID, " ", " ")
+equipEnt(IronBallista, LongRangeWepID, " ", " ")
+equipEnt(KillerBallista, LongRangeWepID, " ", " ")
+equipEnt(Eclipse, LongRangeWepID, " ", " ")
+equipEnt(Purge, LongRangeWepID, " ", " ")
+equipEnt(Bolting, LongRangeWepID, "Sniper", "Equip a siege (3-10 range) weapon.")
+equipEnt(DevilAxe, DevilWepID, "Death Wish", "Equip a Devil Axe.")
+equipEnt(KillingEdge, KillerWepID, " ", " ")
+equipEnt(KillerLance, KillerWepID, " ", " ")
+equipEnt(KillerAxe, KillerWepID, " ", " ")
+equipEnt(KillerBow, KillerWepID, "Killer Instinct", "Equip a Killer Bow, Axe, Lance, or Sword.")
+
+equipEnt(Runesword, NosferatuWepID, " ", " ")
+equipEnt(Nosferatu, NosferatuWepID, "Soul Devourer", "Equip Nosferatu or a Runesword.")
+equipEnt(Restore, RestoreWepID, "Esuna", "Use or equip a Restore staff.")
+equipEnt(Physic, PhysicWepID, "Safe Distance", "Use or equip a Physic staff.")
+equipEnt(Silence, SilenceWepID, "Hush, now!", "Use or equip a Silence staff.")
+equipEnt(Sleep, SleepWepID, "Sleep, now..", "Use or equip a Sleep staff.")
+equipEnt(Berserk, BerserkWepID, "Fight, now!", "Use or equip a Berserk staff.")
+equipEnt(Warp, WarpWepID, "Dimension Twister", "Use or equip a Warp staff.")
+
+equipEnt(BraveSword, BraveWepID, " ", " ")
+equipEnt(BraveLance, BraveWepID, " ", " ")
+equipEnt(BraveAxe, BraveWepID, " ", " ")
+equipEnt(BraveBow, BraveWepID, "Bravery Equipped", "Equip a Brave Sword, Lance, Axe, or Bow.")
+equipEnt(SilverSword, SilverWepID, " ", " ")
+equipEnt(SilverLance, SilverWepID, " ", " ")
+equipEnt(SilverAxe, SilverWepID, " ", " ")
+equipEnt(SilverSword, SilverWepID, "Silver Swag", "Equip a Silver Sword, Lance, Axe, or Bow.")
+
+equipEnt(Vidofnir, VidofnirID, "The Rooster of Yggdrasil", "Equip Vidofnir.")
+equipEnt(Audhulma, AudhulmaID, "The Primordial Norse Cow", "Equip Audhulma.")
+equipEnt(Siegmund, SiegmundID, "The Germanic Hero", "Equip Siegmund.")
+equipEnt(Garm, GarmID, "The Guardian of Hel's Gate", "Equip Garm.")
+equipEnt(Nidhogg, NidhoggID, "The Root-Gnawing Dragon", "Equip Nidhogg.")
+equipEnt(Sieglinde, SieglindeID, "The Germanic Heroine", "Equip Sieglinde.")
+equipEnt(Gleipnir, GleipnirID, "The Binding Chain of Fenrir", "Equip Gleipnir.")
+equipEnt(Excalibur, ExcaliburID, "The Sword of King Arthur", "Equip Excalibur.")
+equipEnt(Ivaldi, IvaldiID, "The Norse Dwarf Blacksmith", "Equip Ivaldi.")
+equipEnt(Naglfar, NaglfarID, "The Ship of the Dead", "Equip Naglfar.")
+
+equipEnt(WretchedAir, UnobtainableItemID, " ", " ")  
+equipEnt(Forblaze, UnobtainableItemID, " ", " ")  
+equipEnt(Luce, UnobtainableItemID, " ", " ")  
+equipEnt(Aircalibur, UnobtainableItemID, " ", " ")  
+equipEnt(Stone, UnobtainableItemID, " ", " ")  
+equipEnt(CrimsonEye, UnobtainableItemID, " ", " ")  
+equipEnt(EvilEye, UnobtainableItemID, " ", " ")  
+equipEnt(DemonSurge, UnobtainableItemID, " ", " ")  
+equipEnt(Shadowshot, UnobtainableItemID, "How'd you get this?", "Equip Wretched Air, Forblaze, Luce, Aircalibur, Stone, Crimson Eye, Evil Eye, Demon Surge, or Shadowshot.")  // They share an ID, so no need to write the text for all 
+
+
+ALIGN 4 
+itemUseAchievements:
+FILL (512)
+#define itemUseEnt(itemID, id, str, str2) "PUSH; ORG itemUseAchievements + (itemID * 2); SHORT id ; POP; achievementEnt(id, str, str2, Category_Miscellaneous)" 
+
+itemUseEnt(Vulnerary, VulneraryUseID, "Feeling Better Now", "Use a Vulnerary.")
+itemUseEnt(Elixir, ElixirUseID, "Tis but a flesh wound", "Use an Elixir.")
+itemUseEnt(TorchStaff, TorchUseID, " ", " ")
+itemUseEnt(TorchItem, TorchUseID, "Fog? Shmog", "Use a Torch.")
+itemUseEnt(PureWater, ResUseID, " ", " ")
+itemUseEnt(Barrier, ResUseID, "Resistant", "Use a Pure Water or Barrier staff.")
+
+itemUseEnt(LightRune, TrapsUseID, " ", " ")
+itemUseEnt(Mine, TrapsUseID, "Traps Expert", "Use a Mine or Light Rune.")
+itemUseEnt(DoorKey, DoorKeyUseID, "Skeleton Key", "Use a Door Key.")
+itemUseEnt(ChestKey_5, LockpickChestKeyUseID, " ", " ")
+itemUseEnt(ChestKey, LockpickChestKeyUseID, " ", " ")
+itemUseEnt(Lockpick, LockpickChestKeyUseID, "Treasure Hunter", "Use a Lockpick or Chest Key.")
+
+itemUseEnt(JunaFruit, HeartSealUseID, "Reclasser", "Use a Heart Seal.")
+itemUseEnt(HeroCrest, PromotionItemUseID, " ", " ")
+itemUseEnt(KnightCrest, PromotionItemUseID, " ", " ")
+itemUseEnt(OrionsBolt, PromotionItemUseID, " ", " ")
+itemUseEnt(ElysianWhip, PromotionItemUseID, " ", " ")
+itemUseEnt(GuidingRing, PromotionItemUseID, " ", " ")
+itemUseEnt(HeavenSeal, PromotionItemUseID, " ", " ")
+itemUseEnt(MasterSeal, PromotionItemUseID, " ", " ")
+itemUseEnt(OceanSeal, PromotionItemUseID, " ", " ")
+itemUseEnt(LunarBracelet, PromotionItemUseID, " ", " ")
+itemUseEnt(SolarBracelet, PromotionItemUseID, "Unlocked Potential", "Use a Promotion Item.")
+
+
+itemUseEnt(EnergyRing, StatboosterUseID, " ", " ")
+itemUseEnt(SecretBook, StatboosterUseID, " ", " ")
+itemUseEnt(Speedwings, StatboosterUseID, " ", " ")
+itemUseEnt(GoddessIcon, StatboosterUseID, " ", " ")
+itemUseEnt(Dragonshield, StatboosterUseID, " ", " ")
+itemUseEnt(Talisman, StatboosterUseID, " ", " ")
+itemUseEnt(Boots, StatboosterUseID, " ", " ")
+itemUseEnt(BodyRing, StatboosterUseID, " ", " ")
+itemUseEnt(AngelicRobe, StatboosterUseID, "Snowballing Time", "Use a stat booster.")
+
+itemUseEnt(FillasMight, DancerRingUseID, " ", " ")
+itemUseEnt(NinissGrace, DancerRingUseID, " ", " ")
+itemUseEnt(ThorsIre, DancerRingUseID, " ", " ")
+itemUseEnt(SetsLitany, DancerRingUseID, "Grace's Embodiment", "Use a dancer's ring.")
+
+
+itemUseEnt(MetissTome, MetisTomeUseID, "Favouritism", "Use Metis's Tome.")
+
+
+
+
+ALIGN 4 
+turnCountAchievements:
+FILL (512)
+ALIGN 4 
+chapterTimeAchievements:
+FILL (512)
+
+
+#define turnEnt(chapterID, turnCount, id, str, str2) "PUSH; ORG turnCountAchievements + (chapterID * 4); SHORT id turnCount; POP; achievementEnt(id, str, str2, Category_TurnCount)" 
+#define speedEnt(chapterID, chapterTime, id, str, str2) "PUSH; ORG chapterTimeAchievements + (chapterID * 4); SHORT id (chapterTime*60); POP; achievementEnt(id, str, str2, Category_ChapterTime)" 
+
+
+speedEnt(Prologue, 1, PrologueSR , "Out of the Frying Pan", "Complete Ch. 0 within 1 minute.")
+turnEnt(Prologue, 1, PrologueLTC, "One Step Ahead", "Complete Ch. 0 within 1 turn.")
+
+speedEnt(Ch1, 2, Ch1SR , "Run for Your Life", "Complete Ch. 1 within 2 minutes.")
+turnEnt(Ch1, 3, Ch1LTC, "Quick on the Draw", "Complete Ch. 1 within 3 turns.")
+
+speedEnt(Ch2, 5, Ch2SR , "Escort Mission Expert", "Complete Ch. 2 within 5 minutes.")
+turnEnt(Ch2, 5, Ch2LTC, "Guardian Angel", "Complete Ch. 2 within 5 turns.")
+
+speedEnt(Ch3, 5, Ch3SR , "Fast and Fearless", "Complete Ch. 3 within 5 minutes.")
+turnEnt(Ch3, 5, Ch3LTC, "Bandit Buster", "Complete Ch. 3 within 5 turns.")
+
+speedEnt(Ch4, 6, Ch4SR , "No Time for Fear", "Complete Ch. 4 within 6 minutes.")
+turnEnt(Ch4, 4, Ch4LTC, "Slay and Play", "Complete Ch. 4 within 4 turns.")
+
+speedEnt(Ch5, 9, Ch5SR, "Empire Crusher", "Complete Ch. 5 within 9 minutes.")
+turnEnt(Ch5, 4, Ch5LTC, "Hit 'Em Hard", "Complete Ch. 5 within 4 turns.")
+
+speedEnt(Ch5x, 9, Ch5xSR, "Speedy Rescuer", "Complete Ch. 5x within 9 minutes.")
+turnEnt(Ch5x, 9, Ch5xLTC, "Treasure Hunter", "Complete Ch. 5x within 9 turns.")
+
+speedEnt(Ch6, 8, Ch6SR, "Warrior's Pace", "Complete Ch. 6 within 8 minutes.")
+turnEnt(Ch6, 3, Ch6LTC, "Swift Justice", "Complete Ch. 6 within 3 turns.")
+
+speedEnt(Ch7, 5, Ch7SR, "Streamline", "Complete Ch. 7 within 5 minutes.")
+turnEnt(Ch7, 4, Ch7LTC, "Tide Turner", "Complete Ch. 7 within 4 turns.")
+
+speedEnt(Ch8, 13, Ch8SR, "Trap Dodger", "Complete Ch. 8 within 13 minutes.")
+turnEnt(Ch8, 6, Ch8LTC, "Quick Reflexes", "Complete Ch. 8 within 6 turns.")
+
+speedEnt(Ch9Eirika, 11, Ch9SREirika, "Swift Strike", "Complete Eirika's Ch. 9 within 11 minutes.")
+turnEnt(Ch9Eirika, 10, Ch9LTCEirika, "Blade Dancer", "Complete Eirika's Ch. 9 within 10 turns.")
+speedEnt(Ch9Ephraim, 12, Ch9SREphraim, "Fort Express", "Complete Ephraim's Ch. 9 within 12 minutes.")
+turnEnt(Ch9Ephraim, 12, Ch9LTCEphraim, "Storm the Fort", "Complete Ephraim's Ch. 9 within 12 turns.")
+
+speedEnt(Ch10Eirika, 12, Ch10SREirika, "Revolt Quashed", "Complete Eirika's Ch. 10 within 12 minutes.")
+turnEnt(Ch10Eirika, 9, Ch10LTCEirika, "Turn the Tables", "Complete Eirika's Ch. 10 within 9 turns.")
+speedEnt(Ch10Ephraim, 11, Ch10SREphraim, "Betrayal Avoided", "Complete Ephraim's Ch. 10 within 11 minutes.")
+turnEnt(Ch10Ephraim, 8, Ch10LTCEphraim, "Quick Justice", "Complete Ephraim's Ch. 10 within 8 turns.")
+
+speedEnt(Ch11Eirika, 12, Ch11SREirika, "Darkness Doesn't Wait", "Complete Eirika's Ch. 11 within 12 minutes.")
+turnEnt(Ch11Eirika, 9, Ch11LTCEirika, "Shadow Slayer", "Complete Eirika's Ch. 11 within 9 turns.")
+speedEnt(Ch11Ephraim, 16, Ch11SREphraim, "Ghostbuster", "Complete Ephraim's Ch. 11 within 16 minutes.")
+turnEnt(Ch11Ephraim, 8, Ch11LTCEphraim, "No Time for Ghosts", "Complete Ephraim's Ch. 11 within 8 turns.")
+
+speedEnt(Ch12Eirika, 15, Ch12SREirika, "Silent but Fast", "Complete Eirika's Ch. 12 within 15 minutes.")
+turnEnt(Ch12Eirika, 12, Ch12LTCEirika, "Swift Rescuer", "Complete Eirika's Ch. 12 within 12 turns.")
+speedEnt(Ch12Ephraim, 9, Ch12SREphraim, "Smooth Landing", "Complete Ephraim's Ch. 12 within 9 minutes.")
+turnEnt(Ch12Ephraim, 5, Ch12LTCEphraim, "Fast Invasion", "Complete Ephraim's Ch. 12 within 5 turns.")
+
+speedEnt(Ch13Eirika, 11, Ch13SREirika, "Canyon Runner", "Complete Eirika's Ch. 13 within 11 minutes.")
+turnEnt(Ch13Eirika, 9, Ch13LTCEirika, "Tactical Master", "Complete Eirika's Ch. 13 within 9 turns.")
+speedEnt(Ch13Ephraim, 15, Ch13SREphraim, "Oath Keeper", "Complete Ephraim's Ch. 13 within 15 minutes.")
+turnEnt(Ch13Ephraim, 6, Ch13LTCEphraim, "Village Savior", "Complete Ephraim's Ch. 13 within 6 turns.")
+
+speedEnt(Ch14Eirika, 13, Ch14SREirika, "Dune Dasher", "Complete Eirika's Ch. 14 within 13 minutes.")
+turnEnt(Ch14Eirika, 10, Ch14LTCEirika, "Royal Efficiency", "Complete Eirika's Ch. 14 within 10 turns.")
+speedEnt(Ch14Ephraim, 12, Ch14SREphraim, "Family Matters", "Complete Ephraim's Ch. 14 within 12 minutes.")
+turnEnt(Ch14Ephraim, 8, Ch14LTCEphraim, "Blood and Honor", "Complete Ephraim's Ch. 14 within 8 turns.")
+
+speedEnt(Ch15Eirika, 15, Ch15SR, " ", " ")
+speedEnt(Ch15Ephraim, 15, Ch15SR, "I don't have all day", "Complete Ch. 15 within 15 minutes.")
+turnEnt(Ch15Eirika, 7, Ch15LTC, " ", " ")
+turnEnt(Ch15Ephraim, 7, Ch15LTC, "Treasure? What treasure?", "Complete Ch. 15 within 8 turns.")
+
+speedEnt(Ch16Eirika, 10, Ch16SR, " ", " ")
+speedEnt(Ch16Ephraim, 10, Ch16SR, "Mad Dash", "Complete Ch. 16 within 10 minutes.")
+turnEnt(Ch16Eirika, 4, Ch16LTC, " ", " ")
+turnEnt(Ch16Ephraim, 4, Ch16LTC, "Lunatic Speed", "Complete Ch. 16 within 6 turns.")
+
+speedEnt(Ch17Eirika, 4, Ch17SR, " ", " ")
+speedEnt(Ch17Ephraim, 4, Ch17SR, "Fast Current", "Complete Ch. 17 within 4 minutes.")
+turnEnt(Ch17Eirika, 3, Ch17LTC, " ", " ")
+turnEnt(Ch17Ephraim, 3, Ch17LTC, "Regret Nothing", "Complete Ch. 17 within 3 turns.")
+
+speedEnt(Ch18Eirika, 15, Ch18SR, " ", " ")
+speedEnt(Ch18Ephraim, 15, Ch18SR, "Eggcellent Time", "Complete Ch. 18 within 15 minutes.")
+turnEnt(Ch18Eirika, 12, Ch18LTC, " ", " ")
+turnEnt(Ch18Ephraim, 12, Ch18LTC, "Egg Smasher", "Complete Ch. 18 within 12 turns.")
+
+speedEnt(Ch19Eirika, 4, Ch19SR, " ", " ")
+speedEnt(Ch19Ephraim, 4, Ch19SR, "Hope in a Hurry", "Complete Ch. 19 within 4 minutes.")
+turnEnt(Ch19Eirika, 5, Ch19LTC, " ", " ")
+turnEnt(Ch19Ephraim, 5, Ch19LTC, "Last Turn Standing", "Complete Ch. 19 within 5 turns.")
+
+speedEnt(Ch20Eirika, 4, Ch20SR, " ", " ")
+speedEnt(Ch20Ephraim, 4, Ch20SR, "Through the Woods", "Complete Ch. 20 within 12 minutes.")
+turnEnt(Ch20Eirika, 5, Ch20LTC, " ", " ")
+turnEnt(Ch20Ephraim, 5, Ch20LTC, "Swift as the Wind", "Complete Ch. 20 within 8 turns.")
+
+speedEnt(FinalCh1Eirika, 5, Ch21SR, " ", " ")
+speedEnt(FinalCh1Ephraim, 5, Ch21SR, "Stone Cold Speed", "Complete Ch. 21 within 5 minutes.")
+turnEnt(FinalCh1Eirika, 7, Ch21LTC, " ", " ")
+turnEnt(FinalCh1Ephraim, 7, Ch21LTC, "Flawless Finish", "Complete Ch. 21 within 7 turns.")
+
+speedEnt(FinalCh2Erika, 1, Ch22SR, " ", " ") // ea has a typo 
+speedEnt(FinalCh2Ephraim, 1, Ch22SR, "Demon King? Defeated!", "Defeat the Demon King within 1 minute.")
+turnEnt(FinalCh2Erika, 1, Ch22LTC, " ", " ")
+turnEnt(FinalCh2Ephraim, 1, Ch22LTC, "No Time to Spare", "Defeat the Demon King within 1 turn.")
+
+
+
+
+
+ALIGN 4 
+gNotificationsData: // these show up when a flag is turned on 
+// NotificationEntryTextID(0x505, 1) // textID "Sword", flagID 
+// NotificationEntryTextID(0x3D, 1) // textID, flagID 
+// NotificationEntry(text0, 0) // text label, flagID 
+// NotificationEntry(text1, 0xA, TEXT_COLOR_SYSTEM_WHITE, TEXT_COLOR_SYSTEM_GREEN) 
+// NotificationEntry(text2, 0x65) 
+
+// NotificationEntry(text3, 0) 
+// NotificationEntry(text4, 0) 
+WORD 0 0 // Terminator 
+
+// don't exceed 6 lines 
+text0: 
+String("Achievement Completed:"); BYTE 1
+String("Scuffed."); BYTE 0 
+
+text1: 
+String("New Game+ Unlock:"); BYTE 1
+String("Silver Sword."); BYTE 0 
+
+text2: 
+String("Achievement unlocked: Loser."); BYTE 0 
+
+text3: 
+String("We slowly drove - He knew no haste"); BYTE 0
+
+text4: 
+String("NG+ feature unlocked: Silver Sword."); BYTE 0 
+
+text5: 
+String("Critical security updates are required."); BYTE 0 
+
+
+
+#ifndef callHackNew
+	#define callHackNew(offset)         "BYTE $01 $4B $9E $46 $00 $F8 $01 $E0; POIN (offset|0x1)"
+#endif 
+#ifndef callHackNew_r4
+	#define callHackNew_r4(offset) 		"BYTE $01 $4C $A6 $46 $00 $F8 $01 $E0; POIN (offset|0x1)"
+#endif 
+#ifndef callHackNew_r2
+    #define callHackNew_r2(offset) 		"BYTE $01 $4A $96 $46 $00 $F8 $01 $E0; POIN (offset|0x1)"
+#endif 
+PUSH 
+
+ORG 0x83be0 
+callHackNew(HookSetLocalFlag_NotificationWindow) 
+
+// Guide menu command/availability replaced via LynJump.event
+
+// Promotion / save / end-event / item-use / map-anim hooks conflict with
+// existing kernel lynjumps (RepointBattleHit, ModularSave, IER, etc.).
+// Equip/recruit still hook via C_Code.lyn.event lynjumps.
+// ORG $2f672 
+// SHORT $4688 $4699 $46c0
+// callHackNew(Hook_ExecUnitPromotion) 
+// ORG $a4eb0
+// callHackNew(Hook_InitSave) 
+// ORG $a9304 
+// callHackNew(Hook_CopyGameSave) 
+// ORG $a9428
+// callHackNew(Hook_WriteGameSave) 
+// ORG $83288 
+// callHackNew(Hook_CallEndEvent) 
+// ORG $84420 
+// callHackNew(Hook_RunWaitEvents) 
+// SHORT $46c0 
+// ORG $28e64
+// callHackNew(Hook_DoItemUse) 
+// ORG $7a908
+// callHackNew(Hook_MapAnim_ShowPoisonEffectIfAny)
+// ORG $52518 
+// callHackNew(Hook_EfxHpBar_MoveCameraOnEnd)
+
+ORG $8d14c 
+POIN New_gProcScr_SideWindowMaker 
+
+ORG 0x83CAC
+callHackNew(HookSetGlobalFlag_NotificationWindow) 
+
+POP 
+
+#include "C_Code.lyn.event" 
+#include "AsmHooks.lyn.event" 
+
+ALIGN 4 
+gGfx_NotificationTextBox1:
+#incbin "png/Helpbox_1.dmp"
+ALIGN 4 
+gGfx_NotificationTextBox2:
+#incbin "png/Helpbox_2.dmp"
+ALIGN 4 
+gGfx_NotificationTextBox3:
+#incbin "png/Helpbox_3.dmp"
+ALIGN 4 
+gGfx_NotificationTextBox4:
+#incbin "png/Helpbox_4.dmp"
+ALIGN 4 
+gGfx_NotificationTextBox5:
+#incbin "png/Helpbox_5.dmp"
+ALIGN 4 
+gGfx_ShowAll:
+#incbin "png/sort_back_gfx_show_all.dmp" 
+ALIGN 4 
+gGfx_ShowDone:
+#incbin "png/sort_back_gfx_show_done.dmp" 
+ALIGN 4 
+gGfx_ShowToDo:
+#incbin "png/sort_back_gfx_show_to_do.dmp" 
+
+

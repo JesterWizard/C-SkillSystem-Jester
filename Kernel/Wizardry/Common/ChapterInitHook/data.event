@@ -12,4 +12,5 @@ ChapterInitHooks:
     POIN ChapterInit_ResetSkillStaffTempState
     POIN ChapterInit_ApplyGrassySurge
     POIN RealtimeBattle_InitChapter
+    POIN ChapterInit_SyncAchievementsOption
     WORD 0

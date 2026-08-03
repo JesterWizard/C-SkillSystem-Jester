@@ -119,3 +119,5 @@
 #include "Misc/Minigames/Snek/Snek_Installer.event"
 
 #include "Misc/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
+
+#include "Misc/VeslyAchievements/VeslyAchievements_Installer.event"
