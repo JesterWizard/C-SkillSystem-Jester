@@ -85,6 +85,76 @@ static const struct SkillTreeNode *SkillTree_GetCursorNode(const struct UnitSkil
 	return &tree->nodes[gSkillTreeCursor];
 }
 
+/*
+ * Pick the nearest visible node in a direction by layout (x/y), not path adj.
+ * Prefer same-row/column alignment, then closer distance along the axis.
+ */
+static int SkillTree_FindNeighbor(const struct UnitSkillTree *tree, int from, int direction)
+{
+	const struct SkillTreeNode *cur;
+	int best = SKILL_TREE_NODE_NONE;
+	int bestScore = 0x7FFFFFFF;
+	int i;
+
+	if (tree == NULL || from < 0 || from >= tree->count || from >= SKILL_TREE_MAX_NODES)
+		return SKILL_TREE_NODE_NONE;
+
+	cur = &tree->nodes[from];
+
+	for (i = 0; i < tree->count && i < SKILL_TREE_MAX_NODES; ++i) {
+		const struct SkillTreeNode *node = &tree->nodes[i];
+		int dx;
+		int dy;
+		int primary;
+		int secondary;
+		int score;
+
+		if (i == from || node->sid == 0)
+			continue;
+
+		dx = (int)node->x - (int)cur->x;
+		dy = (int)node->y - (int)cur->y;
+
+		switch (direction) {
+		case SKILL_TREE_DIR_LEFT:
+			if (dx >= 0)
+				continue;
+			primary = -dx;
+			secondary = dy < 0 ? -dy : dy;
+			break;
+		case SKILL_TREE_DIR_RIGHT:
+			if (dx <= 0)
+				continue;
+			primary = dx;
+			secondary = dy < 0 ? -dy : dy;
+			break;
+		case SKILL_TREE_DIR_UP:
+			if (dy >= 0)
+				continue;
+			primary = -dy;
+			secondary = dx < 0 ? -dx : dx;
+			break;
+		case SKILL_TREE_DIR_DOWN:
+			if (dy <= 0)
+				continue;
+			primary = dy;
+			secondary = dx < 0 ? -dx : dx;
+			break;
+		default:
+			continue;
+		}
+
+		/* Alignment outweighs axial distance so same-row hops win. */
+		score = secondary * 256 + primary;
+		if (score < bestScore) {
+			bestScore = score;
+			best = i;
+		}
+	}
+
+	return best;
+}
+
 static void SkillTree_ResetState(void)
 {
 	u8 pid = gStatScreen.unit != NULL ? UNIT_CHAR_ID(gStatScreen.unit) : 0xFF;
@@ -391,19 +461,6 @@ bool SkillTree_HandleStatScreenInput(struct Proc *proc)
 		return true;
 	}
 
-	/* Left / right always change pages (wrap: 5/5 → 1/5). Prefer newKeys to avoid skip. */
-	if (gKeyStatusPtr->newKeys & DPAD_LEFT) {
-		HideSysHandCursor();
-		StatScreen_ChangePage(proc, -1);
-		return true;
-	}
-
-	if (gKeyStatusPtr->newKeys & DPAD_RIGHT) {
-		HideSysHandCursor();
-		StatScreen_ChangePage(proc, +1);
-		return true;
-	}
-
 	if (gKeyStatusPtr->newKeys & A_BUTTON) {
 		const struct SkillTreeNode *node = SkillTree_GetCursorNode(tree);
 
@@ -431,19 +488,36 @@ bool SkillTree_HandleStatScreenInput(struct Proc *proc)
 		return true;
 	}
 
-	/* Up / down move the tree cursor (left/right are reserved for pages). */
-	if (tree != NULL && (gKeyStatusPtr->repeatedKeys & (DPAD_UP | DPAD_DOWN))) {
-		int direction = (gKeyStatusPtr->repeatedKeys & DPAD_UP)
-			? SKILL_TREE_DIR_UP
-			: SKILL_TREE_DIR_DOWN;
-		int next = tree->nodes[gSkillTreeCursor].adj[direction];
+	/* D-pad moves by on-screen layout; Left/Right change page only at an edge. */
+	if (tree != NULL && (gKeyStatusPtr->repeatedKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT))) {
+		int direction;
+		int next;
 
-		if (next != SKILL_TREE_NODE_NONE && next < tree->count && next < SKILL_TREE_MAX_NODES) {
+		if (gKeyStatusPtr->repeatedKeys & DPAD_UP)
+			direction = SKILL_TREE_DIR_UP;
+		else if (gKeyStatusPtr->repeatedKeys & DPAD_DOWN)
+			direction = SKILL_TREE_DIR_DOWN;
+		else if (gKeyStatusPtr->repeatedKeys & DPAD_LEFT)
+			direction = SKILL_TREE_DIR_LEFT;
+		else
+			direction = SKILL_TREE_DIR_RIGHT;
+
+		next = SkillTree_FindNeighbor(tree, gSkillTreeCursor, direction);
+
+		if (next != SKILL_TREE_NODE_NONE) {
 			gSkillTreeCursor = next;
 			gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
 			PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
-			/* Flush already ran this frame; redraw for new selection. */
 			SkillTree_Redraw();
+			return true;
+		}
+
+		if (
+			(direction == SKILL_TREE_DIR_LEFT || direction == SKILL_TREE_DIR_RIGHT)
+			&& (gKeyStatusPtr->newKeys & (DPAD_LEFT | DPAD_RIGHT))
+		) {
+			HideSysHandCursor();
+			StatScreen_ChangePage(proc, direction == SKILL_TREE_DIR_LEFT ? -1 : 1);
 		}
 
 		return true;
