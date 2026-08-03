@@ -2,73 +2,152 @@
 
 ---
 
-## Index
+## 📑 Index
 - [Introduction](#introduction)
 - [Plan](#plan)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
 - [Limitations & Bugs](#limitations--bugs)
 
-## Introduction
+---
 
-The skill tree gives a unit a dedicated progression page on the stat screen. Eirika can select a starting branch, spend skill points on connected skills, and inspect the skills that become unavailable after a path is chosen.
+## 🧩 Introduction
 
-The proof of concept uses the existing learned-skill bitfield and BWL skill-point counter. It does not add a new save field: the selected path is derived from the first learned path-specific node.
+Vanilla Sacred Stones has no long-term skill progression track on the unit screen. Skills arrive from class lists, scrolls, or shops, but there is no branching “build” the player commits to over a campaign.
 
-## Plan
+This feature adds an optional **Skill Tree** page on the unit status screen. The player spends BWL skill points (`NewBwl.skillPoints`) to unlock skills along a parent-linked tree. Choosing a path locks the other path-specific branches. The first proof of concept ships for **Eirika only**.
 
-The tree is stored as a small ROM definition. Each node identifies its skill, path, parent, screen position, and directional neighbors.
+Design goals:
+
+- Reuse existing learned-skill bits and BWL SP — **no new save or suspend fields** for path choice
+- Keep the page interactive (cursor, confirm purchase, R-text) without starving the Kernel text section (UI lives under `Data/SkillTree/`)
+- Fit a readable layout in the right-hand stat panel (about six icon columns by six rows)
+
+---
+
+## 🛠️ Plan
+
+### Config gates
+
+Both flags are set in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c):
+
+| Flag | Role |
+|------|------|
+| `skill_tree` | Enables the system (including kill SP rewards shared with the skill shop) |
+| `stat_page_skill_tree` | Registers the optional last status-screen page (`PAGE_SKILL_TREE = 7`) |
+
+### Data model
+
+Each unit tree is a ROM table entry (`struct UnitSkillTree`): character ID, node count, and up to `SKILL_TREE_MAX_NODES` (24) nodes.
+
+Each node stores:
+
+| Field | Meaning |
+|-------|---------|
+| `sid` | Equippable skill ID (`0x01`–`0xFE`) |
+| `path` | `0` = shared trunk; `1` / `2` / `3` = mutually exclusive branches |
+| `parent` | Index of prerequisite node, or `SKILL_TREE_NODE_NONE` |
+| `x`, `y` | Tile position inside the 18×18 page scratch |
+| `adj` | Unused by runtime navigation (geometry is used instead) |
+
+SP costs live in a separate SID→cost table (`gSkillTreeSpCostTable`).
+
+### Eirika layout (bottom-up)
+
+The tree grows **upward** from the footer toward the title. Shared trunk first, then three exclusive paths:
 
 ```text
-            [LifeAndDeath]
-           /      |       \
-   [FaireSword] [Patience] [Avoid]
-       /  \                  /  \
-[Flashing] [Luna]    [Chivalry] [QuickDraw]
-                          |
-                   [RightfulKing]
+ y=3       [Astra]       [Sol]       [RightfulKing]
+ y=5   [Flashing] [Luna] [Adept] [Chivalry] [QuickDraw]
+ y=7       [Vantage]     [Renewal]     [Desperation]
+ y=9   [FaireSword]      [Patience]      [Avoid]
+ y=11                 [StrongRiposte]
+ y=13                  [LifeAndDeath]
 ```
+
+| Path | Theme | Head → … → Capstone |
+|------|-------|---------------------|
+| Shared | Trunk | LifeAndDeath → StrongRiposte |
+| 1 | Offense | FaireSword → Vantage → FlashingBlade / LunaAttack → Astra |
+| 2 | Sustain | Patience → Renewal → Adept → Sol |
+| 3 | Tempo | Avoid → Desperation → Chivalry / QuickDraw → RightfulKing |
+
+Typical SP costs by depth: 5 / 10 / 15 / 20 / 25.
+
+### Node states
 
 | State | Condition | Player-facing result |
 |-------|-----------|----------------------|
-| Learned | The node's learned bit is set | Green marker; the skill remains part of the unit's learned pool |
-| Available | Parent is learned, path is valid, and SP covers the dedicated cost | The node can be selected and purchased |
-| Path locked | A different path-specific node was learned | The node remains visible but cannot be purchased |
-| Prerequisite locked | The parent node is not learned | The node remains visible but cannot be purchased |
-| No tree | The unit has no ROM definition | The page displays `No skill tree` and has no interactive cursor |
+| Learned | Skill bit is set | Half-bright icon; purchase blocked; “Learned” message on A |
+| Available | Parent learned, path open, enough SP | Full-color icon; A opens Learn? Yes/No |
+| Path locked | Another path’s skill was learned | Half-bright; “Locked” on A |
+| Prerequisite locked | Parent not learned | Half-bright; “Locked” on A |
+| No SP | Path/parent OK but SP &lt; cost | Half-bright; “No SP” on A |
+| No tree | Unit missing from ROM table | “No tree” placeholder; no cursor |
 
-On an available node, `A` opens an inline confirmation prompt. Confirming deducts the node's dedicated cost and calls `AddSkill`; canceling leaves both the unit and SP unchanged. On the tree page, D-pad moves the cursor only; `L` / `Select` change pages and `R` opens the selected skill's description help. The page draws icons and status markers without skill names.
+Path choice is **inferred**: the first learned node with `path != 0` becomes the locked path for the rest of the run. No extra save byte.
 
-The cursor and help-box state live in a single even-sized EWRAM reservation in `config-memmap.s`. This keeps the state screen-local without consuming normal save or suspend-save bytes.
+### Controls (tree page)
 
-## Code Locations
+| Input | Behavior |
+|-------|----------|
+| D-pad | Move to nearest skill in that direction (layout geometry) |
+| Left / Right at edge | Change status page (wraps last ↔ first) |
+| A | Open confirm if available; otherwise show status message |
+| Confirm Yes | Spend dedicated SP cost, `AddSkill`, refresh icons |
+| Confirm No / B | Cancel confirm |
+| R | Skill description help for the selected node |
+| B (no confirm) | Exit status screen (vanilla) |
+
+### Drawing notes
+
+- Icons draw once when the page becomes idle after a slide (`gSkillTreePageDrawn`). Cursor moves only refresh Cost / SP / messages so VRAM icon uploads are not repeated every frame.
+- Learned and unselectable icons use half-bright copies of the item-icon palettes on BGPAL 6/7; those banks are restored when leaving the page.
+- Page title art temporarily reuses the Skills (“Weapon & Skills”) label until dedicated art exists.
+
+---
+
+## 🗂️ Code Locations
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Skill-tree data model | [`skill-tree.h`](../../include/kernel/skill-tree.h) | Defines node, unit-tree, cost-table, and state-query structures |
-| SP cost table | [`SkillTree.c`](../../Data/SkillTree/Source/SkillTree.c) | Maps each PoC skill ID to its tree cost |
-| Eirika tree | [`SkillTree.c`](../../Data/SkillTree/Source/SkillTree.c) | Defines the nine-node Eirika layout and its directional navigation graph |
-| Path locking | `GetSkillTreeChosenPath`, `IsSkillTreeNodeAvailable`, and `IsSkillTreeNodeLocked` in [`SkillTree.c`](../../Data/SkillTree/Source/SkillTree.c) | Derives the chosen path from learned path-specific skills and validates prerequisites |
-| Stat-screen page | `DrawPageSkillTree` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Draws connectors, icons, SP, node state markers, and selected-node information |
-| Tree input | `SkillTree_HandleStatScreenInput` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Moves the node cursor, opens confirmation, spends SP, and routes help |
-| Stat-screen replacement | `StatScreen_OnIdle` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Preserves vanilla stat-screen controls while dispatching tree-page input |
-| Page registration | [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c), [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c), and [`data.event`](../../Kernel/Wizardry/Core/StatScreen/data.event) | Adds the optional page, visible-page translation, help routing, and draw function |
-| Configuration | [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Enables the tree system and its stat-screen page for the PoC |
-| SP rewards | [`BattleHit.c`](../../Kernel/Wizardry/Core/BattleSys/Source/BattleHit.c) | Grants the existing kill SP reward when either the skill shop or tree system is enabled |
-| Screen state storage | [`config-memmap.s`](../../include/link/config-memmap.s) | Reserves cursor, confirmation, message, and help-box state in EWRAM |
+| Data model / caps | [`skill-tree.h`](../../include/kernel/skill-tree.h) | Node structs, `SKILL_TREE_MAX_NODES`, query prototypes, EWRAM externs |
+| SP costs + Eirika tree | [`SkillTree.c`](../../Data/SkillTree/Source/SkillTree.c) | `gSkillTreeSpCostTable`, `gUnitSkillTreeTable`, path/parent availability |
+| Path / buy checks | `GetSkillTreeChosenPath`, `IsSkillTreeNodeAvailable`, `IsSkillTreeNodeLocked` in [`SkillTree.c`](../../Data/SkillTree/Source/SkillTree.c) | Infer locked path; gate purchases |
+| Page draw | `DrawPageSkillTree` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Title, icons, Cost/SP, confirm prompt, faded pals |
+| Cursor geometry | `SkillTree_FindNeighbor` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Nearest-node D-pad movement from `x`/`y` |
+| Input / learn | `SkillTree_HandleStatScreenInput`, `SkillTree_TryLearn` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Idle hook, confirm, SP spend, help |
+| Idle replace | `StatScreen_OnIdle` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Dispatches tree input; otherwise vanilla unit/page controls |
+| Page id / count | `TranslateStatPageId`, `IsStatScreenPageAvailable` in [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c); `GetStatPageCount` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Visible index ↔ physical page 7 |
+| Draw table | [`data.event`](../../Kernel/Wizardry/Core/StatScreen/data.event) | `POIN DrawPageSkillTree` at index 7 |
+| Installer | [`SkillTree.event`](../../Data/SkillTree/SkillTree.event) via [`Data.event`](../../Data/Data.event) | Lyn events for data + page |
+| Designer flags | [`designer-config.c`](../../Data/DesignerConfig/designer-config.c), [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | `skill_tree`, `stat_page_skill_tree` |
+| Kill SP | [`BattleHit.c`](../../Kernel/Wizardry/Core/BattleSys/Source/BattleHit.c) | Grants SP when `skill_shop` **or** `skill_tree` is on |
+| Screen RAM | [`config-memmap.s`](../../include/link/config-memmap.s) | `gSkillTreeCursor` block (cursor, flags, `gSkillTreePageDrawn`, help box) |
+| Temp page name | [`PageNameSprite.c`](../../Data/StatScreen/Source/PageNameSprite.c) | Page-7 sprite reuses Skills art |
 
-## TODO
+---
 
-- Add ROM definitions for additional units.
-- Replace the temporary page-name art with a dedicated `Skill Tree` label.
-- Add localized confirmation and state messages.
-- Add a respec policy before exposing trees to the full roster.
+## 📝 TODO
 
-## Limitations & Bugs
+- Add ROM trees for more playable units.
+- Dedicated “Skill Tree” page-name graphic (stop reusing Skills).
+- Localized strings instead of hardcoded English (`Learn?`, `Cost`, `SP`, status messages).
+- Optional connector art between parent and child icons.
+- Respec / path-reset policy before roster-wide rollout.
+- Review Tellius capacity interaction when purchasing many tree skills.
 
-- Only Eirika has a tree definition; all other units show an empty page.
-- The path choice is intentionally permanent because it is inferred from learned skills.
-- The tree uses the existing seven/five equipped-skill slot rules. A full skill list prevents a purchase even though learned skills can otherwise remain in the learned pool.
-- Branch links are implied by layout (I / II / III columns); dedicated connector art is still TODO.
-- The page currently reuses the Skills page-name graphic until dedicated art is added.
-- Stat-screen pages no longer wrap from last→first (or first→last); navigation stops at the ends.
+---
+
+## 🐛 Limitations & Bugs
+
+- Only Eirika has a tree; other units show “No tree.”
+- Path lock is permanent for the PoC because it is inferred from learned skills.
+- Purchase still requires a free equip slot when the skill is not already equipped (`AddSkill` / slot rules).
+- Parent links are data-only; there are no drawn branch lines yet.
+- Half-bright icons borrow BGPAL 6/7 for the duration of the page visit.
+- Full icon redraw runs on page enter and after a successful learn — not on every D-pad tick (intentional, to avoid VRAM upload storms).
+
+Please report issues in the repository’s **Issues** tab.
+
+---

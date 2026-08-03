@@ -38,6 +38,43 @@ static void StatScreen_SyncPageAmt(void)
 		gStatScreen.page = pageAmt - 1;
 }
 
+/*
+ * Faded skill icons reuse BGPAL 6/7 as half-bright copies of the item-icon pals.
+ * Restore the stolen banks when leaving the tree page.
+ */
+static void SkillTree_ApplyFadedIconPalettes(void)
+{
+	int bank;
+	int i;
+
+	for (bank = 0; bank < 2; ++bank) {
+		u16 *src = &gPaletteBuffer[0x10 * (STATSCREEN_BGPAL_ITEMICONS + bank)];
+		u16 *dst = &gPaletteBuffer[0x10 * (STATSCREEN_BGPAL_6 + bank)];
+
+		for (i = 0; i < 0x10; ++i) {
+			u16 c = src[i];
+			int r = (c & 0x1F) >> 1;
+			int g = ((c >> 5) & 0x1F) >> 1;
+			int b = ((c >> 10) & 0x1F) >> 1;
+
+			dst[i] = RGB(r, g, b);
+		}
+	}
+
+	EnablePaletteSync();
+}
+
+static void SkillTree_RestoreStolenPalettes(void)
+{
+	if (gStatScreen.unit != NULL && UNIT_FACTION(gStatScreen.unit) == FACTION_RED)
+		ApplyPalette(sStatBarPaletteLookup[1], STATSCREEN_BGPAL_6);
+	else
+		ApplyPalette(sStatBarPaletteLookup[0], STATSCREEN_BGPAL_6);
+
+	LoadIconPalette(1, STATSCREEN_BGPAL_7);
+	EnablePaletteSync();
+}
+
 static bool SkillTree_IsActivePage(void)
 {
 	if (!IsStatScreenPageAvailable(PAGE_SKILL_TREE))
@@ -51,6 +88,7 @@ static void StatScreen_ChangePage(struct Proc *proc, int direction)
 {
 	int pageAmt;
 	int page;
+	bool leavingTree;
 
 	StatScreen_SyncPageAmt();
 
@@ -64,6 +102,8 @@ static void StatScreen_ChangePage(struct Proc *proc, int direction)
 	if (Proc_Find(gProcScr_SSPageSlide) || gStatScreen.inTransition)
 		return;
 
+	leavingTree = SkillTree_IsActivePage();
+
 	page = gStatScreen.page + direction;
 	if (page < 0)
 		page = pageAmt - 1;
@@ -71,6 +111,12 @@ static void StatScreen_ChangePage(struct Proc *proc, int direction)
 		page = 0;
 
 	gStatScreen.page = page;
+
+	if (leavingTree) {
+		SkillTree_RestoreStolenPalettes();
+		gSkillTreePageDrawn = false;
+	}
+
 	StartPageSlide(direction < 0 ? DPAD_LEFT : DPAD_RIGHT, page, proc);
 }
 
@@ -165,6 +211,7 @@ static void SkillTree_ResetState(void)
 	gSkillTreeConfirming = false;
 	gSkillTreeConfirmChoice = 0;
 	gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
+	gSkillTreePageDrawn = false;
 }
 
 static void SkillTree_ResetStateIfNeeded(void)
@@ -197,20 +244,22 @@ static void SkillTree_DrawNode(struct Unit *unit, const struct UnitSkillTree *tr
 	const struct SkillTreeNode *node = &tree->nodes[nodeIndex];
 	bool learned = IsSkillTreeNodeLearned(unit, node);
 	bool available = IsSkillTreeNodeAvailable(unit, tree, nodeIndex);
-	int iconPal;
+	int iconPal = GetSkillIconPal(node->sid);
+	int basePal;
 
 	if (node->sid == 0)
 		return;
 
-	if (learned || available)
-		iconPal = GetSkillIconPal(node->sid);
+	/* Learned or unselectable → half-bright palette; buyable stays full color. */
+	if (learned || !available)
+		basePal = STATSCREEN_BGPAL_6;
 	else
-		iconPal = 0;
+		basePal = STATSCREEN_BGPAL_ITEMICONS;
 
 	DrawIcon(
 		gUiTmScratchA + TILEMAP_INDEX(node->x, node->y),
 		SKILL_ICON(node->sid),
-		TILEREF(0, STATSCREEN_BGPAL_ITEMICONS + iconPal)
+		TILEREF(0, basePal + iconPal)
 	);
 }
 
@@ -221,7 +270,7 @@ static void SkillTree_DrawConfirmPrompt(const struct SkillTreeNode *node)
 
 	SkillTree_DrawText(SKILL_TREE_TEXT_MSG, 1, 16, TEXT_COLOR_SYSTEM_GOLD, "Learn?");
 	PutNumber(
-		gUiTmScratchA + TILEMAP_INDEX(7, 16),
+		gUiTmScratchA + TILEMAP_INDEX(6, 16),
 		TEXT_COLOR_SYSTEM_BLUE,
 		node != NULL ? GetSkillTreeSpCost(node->sid) : 0
 	);
@@ -231,7 +280,8 @@ static void SkillTree_DrawConfirmPrompt(const struct SkillTreeNode *node)
 
 static void SkillTree_DrawSp(struct NewBwl *bwl)
 {
-	SkillTree_DrawText(SKILL_TREE_TEXT_SP, 14, 16, TEXT_COLOR_SYSTEM_GOLD, "SP");
+	/* "SP" then up to 3 digits with ones at x=16 (tiles 14-16). */
+	SkillTree_DrawText(SKILL_TREE_TEXT_SP, 12, 16, TEXT_COLOR_SYSTEM_GOLD, "SP");
 	PutNumber(
 		gUiTmScratchA + TILEMAP_INDEX(16, 16),
 		TEXT_COLOR_SYSTEM_BLUE,
@@ -264,9 +314,10 @@ static void SkillTree_DrawSelectedInfo(struct Unit *unit, const struct UnitSkill
 	if (msg != NULL) {
 		SkillTree_DrawText(SKILL_TREE_TEXT_MSG, 1, 16, msgColor, msg);
 	} else {
+		/* "Cost" + up to 3 digits (ones at x=6 → tiles 4-6). */
 		SkillTree_DrawText(SKILL_TREE_TEXT_COST, 1, 16, TEXT_COLOR_SYSTEM_GOLD, "Cost");
 		PutNumber(
-			gUiTmScratchA + TILEMAP_INDEX(5, 16),
+			gUiTmScratchA + TILEMAP_INDEX(6, 16),
 			TEXT_COLOR_SYSTEM_BLUE,
 			GetSkillTreeSpCost(node->sid)
 		);
@@ -292,6 +343,8 @@ void DrawPageSkillTree(void)
 	tree = GetUnitSkillTree(unit);
 
 	ResetIconGraphics();
+	LoadIconPalettes(STATSCREEN_BGPAL_ITEMICONS);
+	SkillTree_ApplyFadedIconPalettes();
 
 	for (i = STATSCREEN_TEXT_STATUS; i < STATSCREEN_TEXT_MAX; ++i)
 		ClearText(&gStatScreen.text[i]);
@@ -324,6 +377,40 @@ static void SkillTree_FlushToScreen(void)
 	TileMap_CopyRect(gUiTmScratchA, gBG0TilemapBuffer + TILEMAP_INDEX(12, 2), 18, 18);
 	TileMap_CopyRect(gUiTmScratchC, gBG2TilemapBuffer + TILEMAP_INDEX(12, 2), 18, 18);
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
+	gSkillTreePageDrawn = true;
+}
+
+/*
+ * Cursor / Cost / SP updates must not ResetIconGraphics.
+ * Reloading every icon each move floods RegisterDataMove and can crash.
+ */
+static void SkillTree_RedrawFooter(void)
+{
+	struct Unit *unit = gStatScreen.unit;
+	const struct UnitSkillTree *tree = GetUnitSkillTree(unit);
+	struct NewBwl *bwl = unit != NULL ? GetNewBwl(UNIT_CHAR_ID(unit)) : NULL;
+
+	TileMap_FillRect(gUiTmScratchA + TILEMAP_INDEX(0, 16), 18, 2, 0);
+	ClearText(&gStatScreen.text[SKILL_TREE_TEXT_SP]);
+	ClearText(&gStatScreen.text[SKILL_TREE_TEXT_COST]);
+	ClearText(&gStatScreen.text[SKILL_TREE_TEXT_MSG]);
+	ClearText(&gStatScreen.text[SKILL_TREE_TEXT_YES]);
+	ClearText(&gStatScreen.text[SKILL_TREE_TEXT_NO]);
+
+	if (gSkillTreeConfirming)
+		SkillTree_DrawConfirmPrompt(SkillTree_GetCursorNode(tree));
+	else {
+		SkillTree_DrawSelectedInfo(unit, tree);
+		SkillTree_DrawSp(bwl);
+	}
+
+	TileMap_CopyRect(
+		gUiTmScratchA + TILEMAP_INDEX(0, 16),
+		gBG0TilemapBuffer + TILEMAP_INDEX(12, 18),
+		18,
+		2
+	);
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
 static void SkillTree_Redraw(void)
@@ -331,7 +418,19 @@ static void SkillTree_Redraw(void)
 	if (!SkillTree_IsActivePage())
 		return;
 
+	/* Learning / confirm changes icon fade state — full redraw. */
 	SkillTree_FlushToScreen();
+}
+
+static void SkillTree_RedrawSelection(void)
+{
+	if (!SkillTree_IsActivePage())
+		return;
+
+	if (!gSkillTreePageDrawn)
+		SkillTree_FlushToScreen();
+	else
+		SkillTree_RedrawFooter();
 }
 
 static bool SkillTree_TryLearn(struct Unit *unit, const struct UnitSkillTree *tree)
@@ -372,21 +471,21 @@ static bool SkillTree_HandleConfirmInput(void)
 		gSkillTreeConfirming = false;
 		gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
 		PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-		SkillTree_Redraw();
+		SkillTree_RedrawSelection();
 		return true;
 	}
 
 	if (gKeyStatusPtr->newKeys & (DPAD_LEFT | DPAD_UP)) {
 		gSkillTreeConfirmChoice = 0;
 		PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-		SkillTree_Redraw();
+		SkillTree_RedrawSelection();
 		return true;
 	}
 
 	if (gKeyStatusPtr->newKeys & (DPAD_RIGHT | DPAD_DOWN)) {
 		gSkillTreeConfirmChoice = 1;
 		PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
-		SkillTree_Redraw();
+		SkillTree_RedrawSelection();
 		return true;
 	}
 
@@ -397,16 +496,21 @@ static bool SkillTree_HandleConfirmInput(void)
 
 			if (SkillTree_TryLearn(unit, tree)) {
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+				gSkillTreeConfirming = false;
+				/* Icon fade states changed after learning. */
+				SkillTree_Redraw();
 			} else {
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+				gSkillTreeConfirming = false;
+				SkillTree_RedrawSelection();
 			}
 		} else {
 			gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
 			PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+			gSkillTreeConfirming = false;
+			SkillTree_RedrawSelection();
 		}
 
-		gSkillTreeConfirming = false;
-		SkillTree_Redraw();
 		return true;
 	}
 
@@ -429,11 +533,9 @@ bool SkillTree_HandleStatScreenInput(struct Proc *proc)
 
 	SkillTree_ResetStateIfNeeded();
 
-	/*
-	 * Page-slide alone can leave the skill-tree panel blank; flush once per idle
-	 * frame after the slide ends so icons/title/SP always appear.
-	 */
-	SkillTree_FlushToScreen();
+	/* Draw the page once after the slide; never reload icons every idle frame. */
+	if (!gSkillTreePageDrawn)
+		SkillTree_FlushToScreen();
 
 	unit = gStatScreen.unit;
 	tree = GetUnitSkillTree(unit);
@@ -467,21 +569,21 @@ bool SkillTree_HandleStatScreenInput(struct Proc *proc)
 		if (node != NULL) {
 			if (IsSkillTreeNodeLearned(unit, node)) {
 				gSkillTreeMessage = SKILL_TREE_MESSAGE_LEARNED;
-				SkillTree_Redraw();
+				SkillTree_RedrawSelection();
 			} else if (IsSkillTreeNodeAvailable(unit, tree, gSkillTreeCursor)) {
 				gSkillTreeConfirming = true;
 				gSkillTreeConfirmChoice = 0;
 				gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-				SkillTree_Redraw();
+				SkillTree_RedrawSelection();
 			} else if (IsSkillTreeNodeLocked(unit, tree, gSkillTreeCursor)) {
 				gSkillTreeMessage = SKILL_TREE_MESSAGE_LOCKED;
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-				SkillTree_Redraw();
+				SkillTree_RedrawSelection();
 			} else {
 				gSkillTreeMessage = SKILL_TREE_MESSAGE_NO_SP;
 				PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
-				SkillTree_Redraw();
+				SkillTree_RedrawSelection();
 			}
 		}
 
@@ -508,7 +610,7 @@ bool SkillTree_HandleStatScreenInput(struct Proc *proc)
 			gSkillTreeCursor = next;
 			gSkillTreeMessage = SKILL_TREE_MESSAGE_NONE;
 			PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
-			SkillTree_Redraw();
+			SkillTree_RedrawSelection();
 			return true;
 		}
 

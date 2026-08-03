@@ -3,7 +3,7 @@
 #include "common-chax.h"
 
 #define SKILL_TREE_NODE_NONE 0xFF
-#define SKILL_TREE_MAX_NODES 9
+#define SKILL_TREE_MAX_NODES 24
 
 enum SkillTreeNodeDirection {
 	SKILL_TREE_DIR_UP,
@@ -40,6 +40,7 @@ extern EWRAM_DATA u8 gSkillTreeLastPage;
 extern EWRAM_DATA u8 gSkillTreeConfirming;
 extern EWRAM_DATA u8 gSkillTreeConfirmChoice;
 extern EWRAM_DATA u8 gSkillTreeMessage;
+extern EWRAM_DATA u8 gSkillTreePageDrawn;
 extern EWRAM_DATA struct HelpBoxInfo gSkillTreeHelp;
 
 extern const struct SkillTreeSpCost gSkillTreeSpCostTable[];

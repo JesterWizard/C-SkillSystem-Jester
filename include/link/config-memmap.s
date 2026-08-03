@@ -150,13 +150,14 @@ _kernel_malloc sCameraScrollCounter, 2
 _kernel_malloc gSavedWorldMapXCoordiate, 1
 _kernel_malloc gSavedWorldMapYCoordiate, 1
 
-/* Skill-tree screen state: six bytes of flags/cursor data plus HelpBoxInfo. */
+/* Skill-tree screen state: seven bytes of flags/cursor data plus HelpBoxInfo. */
 _kernel_malloc gSkillTreeCursor, 0x24
 SET_DATA gSkillTreeCursorPid, gSkillTreeCursor + 1
 SET_DATA gSkillTreeLastPage, gSkillTreeCursor + 2
 SET_DATA gSkillTreeConfirming, gSkillTreeCursor + 3
 SET_DATA gSkillTreeConfirmChoice, gSkillTreeCursor + 4
 SET_DATA gSkillTreeMessage, gSkillTreeCursor + 5
+SET_DATA gSkillTreePageDrawn, gSkillTreeCursor + 6
 SET_DATA gSkillTreeHelp, gSkillTreeCursor + 8
 
 // u32[7], one bit per unit index, set when a unit actually performs an AI action this phase
