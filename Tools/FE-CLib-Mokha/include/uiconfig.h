@@ -29,12 +29,8 @@ struct ConfigScreen
     /* 34 */ s16 maxOption;
     /* 36 */ STRUCT_PAD(0x36, 0x37);
     /* 37 */ s8 source;
-    /* 38 */ struct Text optionTexts[6];
-
-    /* 68 */ struct Text text_68; // initialized but unused
-    /* 70 */ struct Text valueTexts[6];
-
-    /* A0 */ struct Text text_a0; // initialized but unused
+    /* 38 */ struct Text optionTexts[7]; /* 7 slots: visible 6 + 1 for scroll-in (% 7) */
+    /* 70 */ struct Text valueTexts[7];
     /* A8 */ struct Text optionHelpText;
 };
 

@@ -351,3 +351,21 @@ void MMB_Loop_SlideIn(struct PlayerInterfaceProc* proc) { MMB_Slide_Common(proc,
 
 LYN_REPLACE_CHECK(MMB_Loop_SlideOut);
 void MMB_Loop_SlideOut(struct PlayerInterfaceProc* proc) { MMB_Slide_Common(proc, true); }
+
+/*
+ * Vanilla PutUnitMapUiWindow (sub_808C234) copies a 13x6 rect at x=0/18.
+ * The modular box is 16 wide (right edge at x=14), and DrawLongHpBar writes
+ * its right cap into column 13. Same-quadrant unit switches call this instead
+ * of a full slide, so the old 13-column copy left the previous unit's right
+ * cap on screen whenever both units were damaged.
+ */
+LYN_REPLACE_CHECK(sub_808C234);
+void sub_808C234(struct PlayerInterfaceProc *proc)
+{
+    int y = sPlayerInterfaceConfigLut[proc->cursorQuadrant].yMinimug < 0 ? 0 : 14;
+    int x = GetMMBBaseX(proc);
+
+    TileMap_CopyRect(gUiTmScratchA, gBG0TilemapBuffer + TILEMAP_INDEX(x, y), MMBWidth, MMBHeight);
+    TileMap_CopyRect(gUiTmScratchB, gBG1TilemapBuffer + TILEMAP_INDEX(x, y), MMBWidth, MMBHeight);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}

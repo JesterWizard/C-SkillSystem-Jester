@@ -804,7 +804,39 @@ void DrawGameOptionHelpText(void)
     const char * str;
     ClearText(&gConfigUiState->optionHelpText);
     str = GetGameOptionRowHelpText(gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx], GetSelectedOptionValue());
-    PutDrawText(&gConfigUiState->optionHelpText, TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 18), TEXT_COLOR_SYSTEM_WHITE, 0, 22, str);
+    PutDrawText(&gConfigUiState->optionHelpText, TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 18), TEXT_COLOR_SYSTEM_WHITE, 0, 28, str);
+}
+
+/**
+ * PutText writes bottom glyphs at dest+0x20 with no Y wrap. Option idx 13/29
+ * use tile row 31; place those with an explicit wrap. All other rows use vanilla.
+ */
+static void PutTextYWrapped(struct Text * text, u16 * bg, int x, int y)
+{
+    int i;
+    u16 tmScratch[0x40];
+    int yTop = y & 0x1f;
+    int yBot = (y + 1) & 0x1f;
+    u16 * destTop;
+    u16 * destBot;
+
+    if (yTop != 0x1f)
+    {
+        PutText(text, bg + TILEMAP_INDEX(x, yTop));
+        return;
+    }
+
+    destTop = bg + TILEMAP_INDEX(x, yTop);
+    destBot = bg + TILEMAP_INDEX(x, yBot);
+
+    CpuFill16(0, tmScratch, sizeof(tmScratch));
+    PutText(text, tmScratch);
+
+    for (i = 0; i < text->tile_width; i++)
+    {
+        destTop[i] = tmScratch[i];
+        destBot[i] = tmScratch[0x20 + i];
+    }
 }
 
 //! FE8U = 0x080B17E4
@@ -812,9 +844,26 @@ LYN_REPLACE_CHECK(DrawGameOptionText);
 void DrawGameOptionText(int selectedIdx, int textIdx, int y)
 {
     const char * str;
+
+    y &= 0x1f;
+
     ClearText(&gConfigUiState->optionTexts[textIdx]);
     str = GetGameOptionRowTitle(gGameOptionsUiOrder_NEW[selectedIdx]);
-    PutDrawText(&gConfigUiState->optionTexts[textIdx], TILEMAP_LOCATED(gBG1TilemapBuffer, 4, y), TEXT_COLOR_SYSTEM_WHITE, 0, 10, str);
+
+    /* Match vanilla for the common case so BG1 titles stay clean. */
+    if (y != 0x1f)
+    {
+        PutDrawText(
+            &gConfigUiState->optionTexts[textIdx],
+            TILEMAP_LOCATED(gBG1TilemapBuffer, 4, y),
+            TEXT_COLOR_SYSTEM_WHITE, 0, 9, str);
+        return;
+    }
+
+    Text_SetCursor(&gConfigUiState->optionTexts[textIdx], 0);
+    Text_SetColor(&gConfigUiState->optionTexts[textIdx], TEXT_COLOR_SYSTEM_WHITE);
+    Text_DrawString(&gConfigUiState->optionTexts[textIdx], str);
+    PutTextYWrapped(&gConfigUiState->optionTexts[textIdx], gBG1TilemapBuffer, 4, y);
 }
 
 //! FE8U: 0x080B1850
@@ -824,22 +873,22 @@ void DrawOptionValueTexts(int selectedIdx, int textIdx, int y)
     int i;
 
     int optionIdx = gGameOptionsUiOrder_NEW[selectedIdx];
-
     int x = GetGameOptionRowX(optionIdx) / 8;
+
+    y &= 0x1f;
 
     ClearText(&gConfigUiState->valueTexts[textIdx]);
 
     for (i = 0; i < GetGameOptionRowCount(optionIdx); i++)
     {
         Text_InsertDrawString(
-            &gConfigUiState->valueTexts[textIdx], gGameOptions_NEW[optionIdx].selectors[i].xPos - GetGameOptionRowX(optionIdx),
+            &gConfigUiState->valueTexts[textIdx],
+            gGameOptions_NEW[optionIdx].selectors[i].xPos - GetGameOptionRowX(optionIdx),
             (i == GetGameOption(optionIdx)) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
             GetGameOptionRowValueText(optionIdx, i));
     }
 
-    PutText(&gConfigUiState->valueTexts[textIdx], TILEMAP_LOCATED(gBG1TilemapBuffer, x, y));
-
-    return;
+    PutTextYWrapped(&gConfigUiState->valueTexts[textIdx], gBG1TilemapBuffer, x, y);
 }
 
 //! FE8U = 0x080B1938
@@ -947,24 +996,26 @@ void Config_Init(struct ConfigProc * proc)
 
     ResetTextFont();
 
-    InitText(&gConfigUiState->optionHelpText, 22);
+    /* Custom helps can exceed vanilla's 22 tiles (176px). Overflow walks into
+     * the next InitText slot (optionTexts[0] here) and garbles that row's
+     * title — e.g. Show Tutorials help stomps Supports Gains (textIdx 0). */
+    InitText(&gConfigUiState->optionHelpText, 28);
 
     DrawGameOptionHelpText();
 
     StartMenuScrollBarExt(proc, 224, 47, 0x390 * CHR_SIZE, 1);
 
-    InitText(&gConfigUiState->text_68, 10);
-    InitText(&gConfigUiState->text_a0, 14);
+    for (i = 0; i < 7; i++)
+    {
+        InitText(&gConfigUiState->optionTexts[i], 9);
+        InitText(&gConfigUiState->valueTexts[i], 14);
+    }
 
-    for (; i < 6; i++)
+    for (i = 0; i < 6; i++)
     {
         int y = (i * 2) + 5;
 
         DrawGameOptionIcon(i, 5);
-
-        InitText(&gConfigUiState->optionTexts[i], 10);
-        InitText(&gConfigUiState->valueTexts[i], 14);
-
         DrawGameOptionText(i, i, y);
         DrawOptionValueTexts(i, i, y);
     }
@@ -1041,7 +1092,7 @@ bool GenericOptionChangeHandler(ProcPtr proc)
         if (valueChanged)
         {
             Proc_Start(gProcScr_RedrawConfigHelpText, proc);
-            DrawOptionValueTexts(selectedIdx, k_umod(selectedIdx, 7), selectedIdx * 2 + 5);
+            DrawOptionValueTexts(selectedIdx, k_umod(selectedIdx, 7), (selectedIdx * 2 + 5) & 0x1f);
             BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
             PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
         }
@@ -1212,7 +1263,6 @@ void PutGameOptionRow(ProcPtr proc, int selectedIdx, int c)
     }
 
     textIdx = k_umod(selectedIdx, 7);
-    //textIdx = selectedIdx % 7; // Fucking modulo!!
 
     DrawGameOptionIcon(selectedIdx, 5);
     DrawGameOptionText(selectedIdx, textIdx, y);
