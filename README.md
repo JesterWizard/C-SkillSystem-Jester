@@ -156,6 +156,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif" alt="Limited Shop Stock preview" width="600" />
 	</details>
 
+- [Magic Seal](./Documentation/Features/MagicSeal.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Images/Magic_Seal.png" alt="Magic Seal preview" width="600" />
+	</details>
+
 - [Max Color Backgrounds](./Documentation/Features/MaxColorBackgrounds.md)
 - [Menu Options](./Documentation/Features/MenuOptions.md)
 - [Menu Skill AI](./Documentation/Features/MenuSkillAI.md)
