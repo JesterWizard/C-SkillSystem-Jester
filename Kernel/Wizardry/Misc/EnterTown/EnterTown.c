@@ -22,6 +22,7 @@ extern struct ProcCmd CONST_DATA ProcScr_OpAnim[]; // intro cutscene
 extern struct ProcCmd CONST_DATA ProcScr_WorldMapWrapper[];
 extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
 extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
+extern void StartBEXPScreen_FromWorldMap(void);
 extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
 extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
 
@@ -204,6 +205,21 @@ u8 WMMenu_OnManageSkillsSelected(struct MenuProc * menuProc, struct MenuItemProc
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
+u8 WMMenu_IsManageBEXPAvailable(const struct MenuItemDef * def, int number)
+{
+    if (gpKernelDesignerConfig->prep_menu_bexp == false)
+        return MENU_NOTSHOWN;
+
+    return MENU_ENABLED;
+}
+
+u8 WMMenu_OnManageBEXPSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    gGMData.unk_cd = menuProc->itemCurrent;
+    StartBEXPScreen_FromWorldMap();
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
 static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
 {
     {
@@ -260,10 +276,19 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
     },
 
     {
+        .name = " Manage BEXP",
+        .nameMsgId = MSG_WM_MANAGE_BEXP_NAME,
+        .helpMsgId = MSG_WM_MANAGE_BEXP_DESC,
+        .overrideId = 6,
+        .isAvailable = WMMenu_IsManageBEXPAvailable,
+        .onSelected = WMMenu_OnManageBEXPSelected,
+    },
+
+    {
         .name = "　アイテム整理",
         .nameMsgId = 0x0671, // TODO: msgid " Manage Items[.]"
         .helpMsgId = 0x0678,
-        .overrideId = 6,
+        .overrideId = 7,
         .isAvailable = MenuAlwaysEnabled,
         .onSelected = WMMenu_OnManageItemsSelected,
     },

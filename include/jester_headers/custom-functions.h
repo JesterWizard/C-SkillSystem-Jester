@@ -211,6 +211,7 @@ extern void StartCreditsProc_ASMC(ProcPtr parent);
 extern int StartAvatarEdits_ASMC(ProcPtr proc);
 
 void StartBEXPScreen_FromPrep(struct ProcAtMenu *parent);
+void StartBEXPScreen_FromWorldMap(void);
 void StartBaseScreen_FromPrep(struct ProcAtMenu *parent);
 void StartAuguryScreen_FromPrep(struct ProcAtMenu *parent);
 

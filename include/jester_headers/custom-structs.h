@@ -127,6 +127,7 @@ extern u8 gTopVisibleListIndex;
 extern u8 gBEXP_State;
 extern u8 gBEXP_Applied;
 extern u16 gBEXP_MapGain;
+extern u8 gBexpFromWorldMap;
 extern u8 gPrepMenuVisibleTableSlots[12];
 
 enum {
@@ -145,7 +146,8 @@ enum {
     PL_BEXP_REFRESH_VIEW = 6,
     PL_BEXP_LEVELUP = 7,
     PL_BEXP_PRESS_B = 8,
-    PL_BEXP_END = 9
+    PL_BEXP_END = 9,
+    PL_BEXP_WM_ENTRY = 10
 };
 
 

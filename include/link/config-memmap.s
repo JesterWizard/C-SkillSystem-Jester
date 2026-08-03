@@ -108,6 +108,7 @@ _kernel_malloc gBEXP_State, 1
 _kernel_malloc gBEXP_Applied, 1
 _kernel_malloc gBEXP_Total, 2
 _kernel_malloc gBEXP_MapGain, 2
+_kernel_malloc gBexpFromWorldMap, 2
 _kernel_malloc gList_Total, 2
 _kernel_malloc gPrepMenuVisibleTableSlots, 12
 _kernel_malloc gBaseConversations_Flags, 10

@@ -126,7 +126,7 @@ WORD $0
 POIN PairUp_SwitchEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1056
-WORD $15F215F1 $4
+WORD $15F415F3 $4
 POIN Gambit_UpperMenu_Usability
 WORD $0
 POIN Gambit_UpperMenu_Effect
@@ -140,7 +140,7 @@ WORD $0
 POIN Refuge_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1124
-WORD $15D515D4 $6C03
+WORD $15D715D6 $6C03
 POIN Transform_Laguz_Usability
 WORD $0
 POIN Transform_Laguz_Effect
