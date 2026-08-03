@@ -41,6 +41,12 @@ LYN_REPLACE_CHECK(DisplayPageNameSprite);
 void DisplayPageNameSprite(int pageid)
 {
 	int colorid;
+	int realPageId = TranslateStatPageId(pageid);
+
+	if (realPageId < 0)
+		realPageId = 0;
+	else if (realPageId > PAGE_SKILL_TREE)
+		realPageId = PAGE_SKILL_TREE;
 
     /* Display the little arrows either side of the page name */
 	PutSprite(4,
@@ -50,8 +56,8 @@ void DisplayPageNameSprite(int pageid)
     /* Display stat screen title */
 	PutSprite(4,
 		114 + gStatScreen.xDispOff, 0 + gStatScreen.yDispOff,
-		gpSprites_PageNameRework[TranslateStatPageId(pageid)],
-		TILEREF(0x240 + gpPageNameChrOffsetLutRe[TranslateStatPageId(pageid)], 3) + 0xC00);
+		gpSprites_PageNameRework[realPageId],
+		TILEREF(0x240 + gpPageNameChrOffsetLutRe[realPageId], 3) + 0xC00);
 
 	colorid = (GetGameClock()/4) % 16;
 
@@ -122,6 +128,12 @@ void StatScreen_Display(struct Proc* proc)
 
     // Set page amount (in FE6, this was dependant on whether this is ally or enemy)
     gStatScreen.pageAmt = pageAmt;
+
+    if (gStatScreen.pageAmt <= 0)
+        gStatScreen.pageAmt = 1;
+
+    if (gStatScreen.page >= gStatScreen.pageAmt)
+        gStatScreen.page = gStatScreen.pageAmt - 1;
 
     // Init text and icons
     ResetText();
@@ -197,6 +209,9 @@ int GetStatPageCount(void)
     if (IsStatScreenPageAvailable(PAGE_PROMOTIONS))
         count++;
 
+    if (IsStatScreenPageAvailable(PAGE_SKILL_TREE))
+        count++;
+
     return count;
 }
 
@@ -205,17 +220,30 @@ LYN_REPLACE_CHECK(PageNumCtrl_UpdatePageNum);
 void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
 {
     int chr = 0x289;
+    int pageAmt = gStatScreen.pageAmt;
+    int page = gStatScreen.page;
 
     /* Standard page number calculations up to page 6 starting at 0x6015100 in the OBJ tile view in NoCashGBA */
-    int pageAmtShift = gStatScreen.pageAmt - 1;
-    int pageNumShift = gStatScreen.page;
+    int pageAmtShift;
+    int pageNumShift;
+
+    if (pageAmt <= 0)
+        pageAmt = 1;
+
+    if (page >= pageAmt) {
+        page = pageAmt - 1;
+        gStatScreen.page = page;
+    }
+
+    pageAmtShift = pageAmt - 1;
+    pageNumShift = page;
 
     /* Pages 7,8 and 9 are listed below that starting at 0x6015500 in the OBJ tile view in NoCashGBA  */
-    if (gStatScreen.pageAmt > 6)
+    if (pageAmt > 6)
         pageAmtShift = 0x20 - 1;
     
-    if (gStatScreen.page > 5)
-        pageNumShift = (gStatScreen.page - 7) + 0x20;
+    if (page > 5)
+        pageNumShift = (page - 7) + 0x20;
 
     // page amt
     PutSprite(2,

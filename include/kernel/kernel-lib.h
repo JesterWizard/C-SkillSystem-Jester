@@ -51,6 +51,7 @@ struct KernelDesigerConfig {
 	u8 base_chapters;
 	u8 fast_map_animations;
 	u8 skill_shop;
+	u8 skill_tree;
 	u8 stat_gain_frame_speed;
 	u8 deny_stat_screen_access;
 	u8 support_rewards;
@@ -64,6 +65,7 @@ struct KernelDesigerConfig {
 	u8 stat_page_gaiden_magic;
 	u8 stat_page_personal_info;
 	u8 stat_page_promotions;
+	u8 stat_page_skill_tree;
 	u8 summons_gain_exp;
 	u8 collect_dead_units;
 	u8 goal_timer;

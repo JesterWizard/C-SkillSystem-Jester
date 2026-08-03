@@ -50,6 +50,15 @@ STATIC_DECLAR const u16 Sprite_Page6NameRework[] =
     0x4104, 0x9038, TILEREF(6, 0),
 };
 
+STATIC_DECLAR const u16 Sprite_Page7NameRework[] =
+{
+	/* Reuse the Skills page name until dedicated "Skill Tree" art exists. */
+	4,
+	0x4104, 0x9008, TILEREF(0, 0),
+	0x4104, 0x9028, TILEREF(4, 0),
+	0x4104, 0x9048, TILEREF(8, 0),
+};
+
 u16 const *const Sprites_PageNameRework[] = {
 	Sprite_Page0NameRework,
 	Sprite_Page1NameRework,
@@ -58,6 +67,7 @@ u16 const *const Sprites_PageNameRework[] = {
 	Sprite_Page4NameRework,
 	Sprite_Page5NameRework,
 	Sprite_Page6NameRework,
+    Sprite_Page7NameRework,
 };
 
 /*
@@ -73,5 +83,6 @@ const u16 gPageNameChrOffsetLutRe[] = {
 	0x80, 
 	0x95, 
 	0x00, 
-	0x8B
+	0x8B,
+	0x0C, /* Skill Tree: temporary Skills label */
 };

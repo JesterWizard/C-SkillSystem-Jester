@@ -9,6 +9,7 @@ enum {
     PAGE_GAIDEN_MAGIC   = 4,
     PAGE_PERSONAL_DATA  = 5,
     PAGE_PROMOTIONS     = 6,
+    PAGE_SKILL_TREE     = 7,
 };
 
 struct StatScreenPageChapterLock {
@@ -26,6 +27,8 @@ extern _DECL_INFO *const RTextPageSupport;
 extern _DECL_INFO *const RTextPageGaidenMagic;
 extern _DECL_INFO *const RTextPagePersonalData;
 extern _DECL_INFO *const RTextPagePromotions;
+
+void StartSkillTreeScreenHelp(int pageid, struct Proc *proc);
 
 extern void GetPromotedUnitDescId(struct HelpBoxProc* proc);
 extern void GetPromotedUnitSkillId(struct HelpBoxProc* proc);

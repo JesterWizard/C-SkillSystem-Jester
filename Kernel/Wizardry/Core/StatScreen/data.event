@@ -15,5 +15,6 @@ gStatScreenDrawPages:
     POIN DrawPage5Rework
     POIN DrawPage6Rework
     POIN DrawPage7Rework
+    POIN DrawPageSkillTree
 gStatScreenDrawPages_End:
     WORD 0

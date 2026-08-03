@@ -6,6 +6,7 @@
 #include "DesignerConfig/designer-config.lyn.event"
 #include "DesignerConfig/battle-designer-config.lyn.event"
 #include "SkillSys/SkillSys.event"
+#include "SkillTree/SkillTree.event"
 #include "CombatArt/CombatArt.event"
 #include "ComboAttack/ComboAttack.event"
 #include "HiddenLevel/HiddenLevel.lyn.event"

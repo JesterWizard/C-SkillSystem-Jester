@@ -804,7 +804,7 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 			}
         }
 
-            if (gpKernelDesignerConfig->skill_shop)
+            if (gpKernelDesignerConfig->skill_shop || gpKernelDesignerConfig->skill_tree)
             {
                 if (bwl != NULL)
                 {

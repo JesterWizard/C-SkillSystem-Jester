@@ -28,6 +28,9 @@ static bool IsStatScreenPageEnabledByConfig(int page)
     case PAGE_PROMOTIONS:
         return gpKernelDesignerConfig->stat_page_promotions;
 
+    case PAGE_SKILL_TREE:
+        return gpKernelDesignerConfig->stat_page_skill_tree;
+
     default:
         return true;
     }
@@ -89,6 +92,9 @@ void StartStatScreenHelp(int pageid, struct Proc *proc)
         case PAGE_PROMOTIONS:
             gStatScreen.help = RTextPagePromotions;
             break;
+        case PAGE_SKILL_TREE:
+            StartSkillTreeScreenHelp(pageid, proc);
+            break;
 		} // switch (pageid)
 	}
 	StartMovingHelpBox(gStatScreen.help, proc);
@@ -96,18 +102,25 @@ void StartStatScreenHelp(int pageid, struct Proc *proc)
 
 int TranslateStatPageId(int pageid)
 {
-    int real = pageid;
+	int real = pageid;
 
-    if (!IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC) && real >= PAGE_GAIDEN_MAGIC)
-        real++;
+	if (pageid < 0)
+		return STATSCREEN_PAGE_0;
 
-    if (!IsStatScreenPageAvailable(PAGE_PERSONAL_DATA) && real >= PAGE_PERSONAL_DATA)
-        real++;
+	/* Visible index → physical draw-table index (skip disabled/locked pages). */
+	if (!IsStatScreenPageAvailable(PAGE_GAIDEN_MAGIC) && real >= PAGE_GAIDEN_MAGIC)
+		real++;
 
-    if (!IsStatScreenPageAvailable(PAGE_PROMOTIONS) && real >= PAGE_PROMOTIONS)
-        real++;
+	if (!IsStatScreenPageAvailable(PAGE_PERSONAL_DATA) && real >= PAGE_PERSONAL_DATA)
+		real++;
 
-    return real;
+	if (!IsStatScreenPageAvailable(PAGE_PROMOTIONS) && real >= PAGE_PROMOTIONS)
+		real++;
+
+	if (!IsStatScreenPageAvailable(PAGE_SKILL_TREE) && real >= PAGE_SKILL_TREE)
+		real++;
+
+	return real;
 }
 
 LYN_REPLACE_CHECK(DisplayPage);
@@ -116,10 +129,24 @@ void DisplayPage(int pageid)
     typedef void (*func_type)(void);
     extern const func_type gStatScreenDrawPages[];
 
-    int realPageId = TranslateStatPageId(pageid);
+    int pageAmt = GetStatPageCount();
+    int realPageId;
+
+    if (pageAmt <= 0)
+        pageAmt = 1;
+
+    if (pageid < 0)
+        pageid = 0;
+    else if (pageid >= pageAmt)
+        pageid = pageAmt - 1;
+
+    realPageId = TranslateStatPageId(pageid);
 
     CpuFastFill(0, gUiTmScratchA, sizeof(gUiTmScratchA));
     CpuFastFill(0, gUiTmScratchC, sizeof(gUiTmScratchC));
+
+    if (realPageId < 0 || realPageId > PAGE_SKILL_TREE || gStatScreenDrawPages[realPageId] == NULL)
+        return;
 
     gStatScreenDrawPages[realPageId]();
 }

@@ -15,6 +15,7 @@
 #include "bwl.h"
 #include "statscreenfx.h"
 #include "kernel-lib.h"
+#include "stat-screen.h"
 
 extern const u8 Tsa_StatScreenBg1Left[];
 
@@ -42,10 +43,17 @@ static void LoadStatScreenMuAreaBackGround(void)
 
 static void StatScreenDisplayBG1(int page)
 {
+	int realPageId = TranslateStatPageId(page);
+
+	if (realPageId < 0)
+		realPageId = 0;
+	else if (realPageId > PAGE_SKILL_TREE)
+		realPageId = PAGE_SKILL_TREE;
+
 	if (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)
-		CallARM_FillTileRect(gUiTmScratchB, TsaLut_StatScreenBgPlayer[page], TILEREF(0, 1));
+		CallARM_FillTileRect(gUiTmScratchB, TsaLut_StatScreenBgPlayer[realPageId], TILEREF(0, 1));
 	else
-		CallARM_FillTileRect(gUiTmScratchB, TsaLut_StatScreenBgNonePlayer[page], TILEREF(0, 1));
+		CallARM_FillTileRect(gUiTmScratchB, TsaLut_StatScreenBgNonePlayer[realPageId], TILEREF(0, 1));
 }
 
 static void StatScreenNewCallBack(ProcPtr proc)
