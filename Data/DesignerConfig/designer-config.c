@@ -174,5 +174,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.mokha_aoe_enabled = true,
 	.pair_up_enabled = true,
 	.half_body_portraits = false,
-	.enemy_fog_vision = true,
+	.enemy_fog_vision = false,
 };

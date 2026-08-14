@@ -10,9 +10,9 @@
 
 const struct SkillPreloadPConf gSkillPreloadPData[0x100] = {
     // 01
-    [CHARACTER_EIRIKA] = {{
-        [0] = SID_MagicSeal,
-    }},
+    // [CHARACTER_EIRIKA] = {{
+    //     [0] = SID_MagicSeal,
+    // }},
     // // 02
     // [CHARACTER_SETH] = {{
     //     [0] = SID_SymbiosisPlus
