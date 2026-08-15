@@ -1393,9 +1393,14 @@ void InitTalk_C(int fontTileOffset, int lines, s8 loadBoxGraphics)
 
 static u16 *TextEngine_GetTalkClearTilemap(const struct TalkState *state)
 {
+	/*
+	 * The scroll buffer is the block of rows directly below the visible
+	 * text, so its origin follows the box height instead of assuming three
+	 * lines.
+	 */
 	return gBG0TilemapBuffer + TILEMAP_INDEX(
 		state->xText,
-		state->yText + 6
+		state->yText + state->lines * 2
 	);
 }
 
@@ -2824,6 +2829,11 @@ int TalkInterpret(ProcPtr proc)
 			return 2;
 
 		case CHFE_L_2NL:
+			/*
+			 * Only the world-map path consumes a second byte here; every
+			 * other path must leave state->str on the byte right after the
+			 * 0x02 code, or the following control code is swallowed.
+			 */
 			if (CheckTalkFlag(TALK_FLAG_7)) {
 				TalkFlushAllLine();
 				state->str++;
@@ -2833,7 +2843,6 @@ int TalkInterpret(ProcPtr proc)
 				ClearTalkText();
 			}
 
-			state->str++;
 			return 3;
 
 		case CHFE_L_A:
@@ -2894,7 +2903,6 @@ int TalkInterpret(ProcPtr proc)
 			StartTemporaryLock(proc, 0x10);
 			return 3;
 
-		case CHFE_L_CloseSpeechFast:
 		case CHFE_L_CloseSpeechSlow:
 			TextEngine_ClearSpeakerNameplate();
 			ClearTalkBubble();
@@ -2934,7 +2942,7 @@ int TalkInterpret(ProcPtr proc)
 
 		case CHFE_L_NormalPrint:
 		case CHFE_L_FastPrint:
-		case CHFE_L_DEnd:
+		case CHFE_L_CloseSpeechFast:
 			state->activeWidth = 2 + (
 				GetStringTextWidthWithDialogueCodes(state->str, TalkHasCorrectBubble()) + 7
 			) / 8;

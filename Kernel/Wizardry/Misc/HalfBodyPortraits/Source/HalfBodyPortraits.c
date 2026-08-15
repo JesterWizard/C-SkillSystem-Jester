@@ -10,7 +10,7 @@
 #define sFaceConfig ((struct FaceVramEntry *)0x0202A68C)
 #define sTalkState (*(struct TalkState **)0x0859133C)
 
-extern struct ProcCmd gProcScr_08591204[];
+extern struct ProcCmd gProcScr_0859124C[];
 
 extern u16 LeftMugOAM[];
 extern u16 RightMugOAM[];
@@ -228,7 +228,7 @@ struct FaceProc *StartFace(int slot, int fid, int x, int y, int disp)
 			proc->unk_44 = NULL;
 			proc->pBlinkProc = NULL;
 		} else {
-			proc->unk_44 = Proc_Start(gProcScr_08591204, proc);
+			proc->unk_44 = Proc_Start(gProcScr_0859124C, proc);
 			proc->pBlinkProc = Proc_Start(gProcScr_FaceBlink, proc);
 		}
 	}
