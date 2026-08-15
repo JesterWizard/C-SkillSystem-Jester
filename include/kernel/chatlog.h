@@ -5,9 +5,12 @@
 enum {
 	CHATLOG_CAP = 17,
 	CHATLOG_TEXT_LEN = 56,
-	CHATLOG_VISIBLE = 4,
-	/* Tile rows per visible entry: name/continuation line + message line. */
+	/* Max lines drawn at once: three speakers with a wrapped second line. */
+	CHATLOG_VISIBLE = 6,
+	/* Tile rows for a speaker's nameplate + first message line. */
 	CHATLOG_ENTRY_H = 4,
+	/* Tile rows for one 16px text line (a wrap continuation). */
+	CHATLOG_LINE_H = 2,
 	CHATLOG_FLAG_VISIBLE = (1 << 0),
 	CHATLOG_FLAG_LINEOPEN = (1 << 1),
 	/* Entry flags */

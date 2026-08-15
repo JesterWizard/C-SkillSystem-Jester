@@ -47,7 +47,7 @@ This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores 
 
 | Region | Symbol | Size | Purpose |
 |--------|--------|------|---------|
-| FreeRamSpace2 | `sChatLogState` | `0x444` | 17-entry ring + view cursor (SUS-persisted) |
+| FreeRamSpace2 | `sChatLogState` | `0x444` | 17 line entry ring + view cursor (SUS-persisted) |
 | FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, chibi palette + priority/blend backups, tile allocation, name/draw scratch |
 | SuspendSave EMS | `SaveChatLogSuspendState` | `0x444` | Survive soft reset / resume mid-chapter |
 | NormalSave | — | — | Not used |
