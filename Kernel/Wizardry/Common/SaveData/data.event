@@ -110,6 +110,7 @@ gEmsSusChunks:
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
+    EmsChunk($0478, SaveChatLogSuspendState, LoadChatLogSuspendState)
     EmsChunkEnd
 
 ALIGN 4

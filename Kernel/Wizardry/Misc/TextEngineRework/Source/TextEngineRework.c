@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "utf8.h"
+#include "kernel/chatlog.h"
 
 #include "bmlib.h"
 #include "ctc.h"
@@ -1324,6 +1325,7 @@ void Talk_OnInit_C(void)
 	}
 
 	Proc_Start(gProcScr_TalkSkipListener, PROC_TREE_3);
+	Chatlog_StartSession();
 
 	for (position = 0; position < (int)sizeof(defaultFaceXPositions); position++)
 		positionTable[position] = defaultFaceXPositions[position];
@@ -1344,6 +1346,7 @@ void Talk_OnInit_C(void)
 LYN_REPLACE_CHECK(Talk_OnEnd);
 void Talk_OnEnd_C(void)
 {
+	Chatlog_EndSession();
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearFaceNameTextIds();
 	Proc_EndEach(gProcScr_TalkSkipListener);
@@ -2822,6 +2825,7 @@ int TalkInterpret(ProcPtr proc)
 
 		switch (code) {
 		case CHFE_L_NL:
+			Chatlog_CommitPage();
 			if (state->putLines == 1 || state->lineActive == 1)
 				state->lineActive++;
 
@@ -2829,6 +2833,7 @@ int TalkInterpret(ProcPtr proc)
 			return 2;
 
 		case CHFE_L_2NL:
+			Chatlog_CommitPage();
 			/*
 			 * Only the world-map path consumes a second byte here; every
 			 * other path must leave state->str on the byte right after the
@@ -2846,6 +2851,7 @@ int TalkInterpret(ProcPtr proc)
 			return 3;
 
 		case CHFE_L_A:
+			Chatlog_CommitPage();
 			StartTalkWaitForInput(
 				proc,
 				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, state->lineActive)) + 4,

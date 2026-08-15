@@ -26,6 +26,7 @@
 #include "prepscreen.h"
 #include "kernel/realtime-battle.h"
 #include "enemy-fog-vision.h"
+#include "kernel/chatlog.h"
 
 #include "jester_headers/event-call.h"
 #include "jester_headers/custom-structs.h"
@@ -4390,6 +4391,10 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 LYN_REPLACE_CHECK(Talk_OnIdle);
 void Talk_OnIdle(ProcPtr proc) {
 
+    if (Chatlog_IsVisible()) {
+        return;
+    }
+
     if (IsTalkFaceMoving()) {
         return;
     }
@@ -4445,6 +4450,7 @@ void Talk_OnIdle(ProcPtr proc) {
                     if (!TextEngine_TryStartGlyphFloat(th, (const char **)&sTalkState->str))
                         sTalkState->str = Text_DrawCharacter(th, sTalkState->str);
 
+                    Chatlog_AppendPrinted(printedText);
                     TextEngine_OnCharacterPrinted();
                 }
 

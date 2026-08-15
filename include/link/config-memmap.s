@@ -248,6 +248,10 @@ _kernel_malloc_overlay0 sOverrideState, 0x48
 _kernel_malloc2 gBmMapEnemyVisionBuffer, 0x800
 _kernel_malloc2 gBmMapEnemyVision, 4
 
+/* Chapter talk chatlog (ring buffer + UI scratch). SUS-persisted state is sChatLogState only. */
+_kernel_malloc2 sChatLogState, 0x478
+_kernel_malloc2 sChatlogUiState, 0x600
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

@@ -13,4 +13,5 @@ ChapterInitHooks:
     POIN ChapterInit_ApplyGrassySurge
     POIN RealtimeBattle_InitChapter
     POIN ChapterInit_SyncAchievementsOption
+    POIN ChapterInit_ResetChatlog
     WORD 0

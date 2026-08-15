@@ -46,6 +46,7 @@
 #include "Misc/MirrorMapSprites/MirrorMapSprites_Installer.event"
 
 #include "Misc/TextEngineRework/TextEngineRework_Installer.event"
+#include "Misc/Chatlog/Chatlog_Installer.event"
 
 #ifdef CONFIG_SHOW_CGs_LIKE_FE7
     #include "Misc/ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
