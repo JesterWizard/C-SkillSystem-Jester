@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "kernel-lib.h"
 #include "kernel/chatlog.h"
 #include "kernel/utf8.h"
 #include "scene.h"
@@ -10,19 +11,28 @@
 #include "ctc.h"
 #include "agb_sram.h"
 #include "bmunit.h"
-#include "constants/faces.h"
-#include "constants/characters.h"
 
 enum {
-	/* Keep all overlay tiles below 0x200: 224-color Talk BG3 gfx starts at VRAM 0x4000. */
-	CHATLOG_TEXT_CHR = 0x40,
+	/*
+	 * Talk glyphs live at 0x80..~0x16F. 224-color BG3 starts at tile 0x200.
+	 * Overlay text fits in the gap: 4 rows * (8+8) columns * 2 tiles = 128.
+	 */
+	CHATLOG_TEXT_CHR = 0x180,
 	CHATLOG_TEXT_PAL = 2,
+	/*
+	 * This build's gDefaultFaceConfig parks faces at OBJ 0x4000/0x5000/0x6000/0x7000
+	 * (chr 0x200/0x280/0x300/0x380). 0x280 is slot 1 and the overflow of slot 2 (Seth).
+	 * Low OBJ 0x000-0x1FF is free during Talk; pack four 32x32 chibis at 0x1C0.
+	 */
 	CHATLOG_CHIBI_CHR = 0x1C0,
-	CHATLOG_CHIBI_PAL = 12,
+	CHATLOG_CHIBI_PAL = 0,
+	CHATLOG_CHIBI_CHR_STRIDE = 8,
 	CHATLOG_DIRTY_X = 1,
 	CHATLOG_DIRTY_Y = 1,
 	CHATLOG_DIRTY_W = 21,
-	CHATLOG_DIRTY_H = 4,
+	CHATLOG_DIRTY_H = CHATLOG_VISIBLE * CHATLOG_ENTRY_H,
+	CHATLOG_NAME_W = 8,
+	CHATLOG_BODY_W = 8,
 	CHATLOG_PAL_COUNT = 32,
 };
 
@@ -32,15 +42,22 @@ struct ChatlogUiState {
 	struct Font font;
 	struct Text texts[2];
 	u16 palBackup[CHATLOG_PAL_COUNT * 16];
-	u16 bg0Backup[CHATLOG_DIRTY_W * CHATLOG_DIRTY_H];
 	u8 talkWin0Left;
 	u8 talkWin0Top;
 	u8 talkWin0Right;
 	u8 talkWin0Bottom;
+	u8 capture;
+	u8 chibiMask;
 };
 
 extern struct ChatLogState sChatLogState;
 extern struct ChatlogUiState sChatlogUiState;
+
+static const u16 Sprite_ChatlogChibi[] = {
+	2,
+	OAM0_SHAPE_32x16, OAM1_SIZE_32x16, OAM2_CHR(0),
+	OAM0_SHAPE_32x16 + OAM0_Y(16), OAM1_SIZE_32x16, OAM2_CHR(4),
+};
 
 extern const struct ProcCmd gProcScr_Talk[];
 extern const struct ProcCmd gProcScr_TalkWaitForInput[];
@@ -53,8 +70,9 @@ static void Chatlog_OnIdle(ProcPtr proc);
 static void Chatlog_Open(void);
 static void Chatlog_Close(void);
 static void Chatlog_Draw(void);
-static void Chatlog_GetSpeaker(u16 *faceIdOut, u16 *nameIdOut);
+static void Chatlog_StoreName(struct ChatLogEntry *entry, u16 nameTextId);
 static struct ChatLogEntry *Chatlog_LiveEntry(void);
+static void Chatlog_EnsureLiveEntry(void);
 
 static const struct ProcCmd ProcScr_Chatlog[] = {
 	PROC_NAME("Chatlog"),
@@ -118,58 +136,109 @@ void LoadChatLogSuspendState(u8 *src, const u32 size)
 		Chatlog_ResetRing();
 }
 
-static const struct CharacterData *Chatlog_FindCharacterByPortrait(int portraitId)
+static u8 Chatlog_CurrentSpeakerCharId(void)
 {
-	const struct CharacterData *character;
-	int characterId;
+	u8 charId = TextEngine_GetSpeakingCharacterId();
+	int faceId;
 
-	for (characterId = 1; characterId < 0x100; characterId++) {
-		character = GetCharacterData(characterId);
-		if (!character || !character->nameTextId)
-			continue;
-		if (character->portraitId == portraitId)
-			return character;
-	}
+	if (charId)
+		return charId;
 
-	return NULL;
+	faceId = TextEngine_GetSpeakingFaceId();
+	if (faceId > 0 && faceId <= 0xFF)
+		return (u8)faceId;
+
+	if (UNIT_IS_VALID(gActiveUnit) && gActiveUnit->pCharacterData)
+		return UNIT_CHAR_ID(gActiveUnit);
+
+	return 0;
 }
 
-static void Chatlog_GetSpeaker(u16 *faceIdOut, u16 *nameIdOut)
+static void Chatlog_FillSpeaker(struct ChatLogEntry *entry)
 {
-	struct TalkState *state = sTalkState;
-	struct FaceProc *face;
 	const struct CharacterData *character;
-	int slot;
-	u16 faceId = 0;
-	u16 nameId = 0;
+	int faceId;
+	u16 nameTextId;
 
-	if (!state) {
-		*faceIdOut = 0;
-		*nameIdOut = 0;
-		return;
-	}
+	entry->charId = Chatlog_CurrentSpeakerCharId();
+	faceId = TextEngine_GetSpeakingFaceId();
+	entry->portraitId = (faceId > 0) ? (u16)faceId : 0;
+	entry->name[0] = '\0';
 
-	slot = state->speakingFaceSlot;
-	if (slot < 0)
-		slot = state->activeFaceSlot;
-
-	if (slot >= 0 && slot < (int)ARRAY_COUNT(state->faces)) {
-		face = state->faces[slot];
-		if (face) {
-			faceId = face->faceId;
-			character = Chatlog_FindCharacterByPortrait(faceId);
-			if (character)
-				nameId = character->nameTextId;
+	nameTextId = TextEngine_GetSpeakingNameTextId();
+	if (entry->charId) {
+		character = GetCharacterData(entry->charId);
+		if (character) {
+			if (!entry->portraitId && character->portraitId)
+				entry->portraitId = character->portraitId;
+			if (!nameTextId)
+				nameTextId = character->nameTextId;
 		}
 	}
 
-	if (faceId == 0 && UNIT_IS_VALID(gActiveUnit) && gActiveUnit->pCharacterData) {
-		faceId = GetUnitPortraitId(gActiveUnit);
-		nameId = gActiveUnit->pCharacterData->nameTextId;
+	if (nameTextId)
+		Chatlog_StoreName(entry, nameTextId);
+}
+
+static void Chatlog_StoreName(struct ChatLogEntry *entry, u16 nameTextId)
+{
+	char buf[0x40];
+	int i;
+
+	entry->name[0] = '\0';
+	if (!nameTextId)
+		return;
+
+	GetStringFromIndexInBuffer(nameTextId, buf);
+	for (i = 0; i < CHATLOG_NAME_LEN - 1 && buf[i]; i++) {
+		if ((u8)buf[i] < 0x20)
+			break;
+		entry->name[i] = buf[i];
+	}
+	entry->name[i] = '\0';
+}
+
+static void Chatlog_AppendGlyph(u32 unicod)
+{
+	struct ChatLogEntry *entry;
+	char bytes[4];
+	int used;
+	int len;
+	int i;
+
+	if (unicod < 0x20 || unicod == 0x7F)
+		return;
+
+	if (unicod < 0x80) {
+		bytes[0] = (char)unicod;
+		len = 1;
+	} else if (unicod < 0x800) {
+		bytes[0] = (char)(0xC0 | (unicod >> 6));
+		bytes[1] = (char)(0x80 | (unicod & 0x3F));
+		len = 2;
+	} else if (unicod < 0x10000) {
+		bytes[0] = (char)(0xE0 | (unicod >> 12));
+		bytes[1] = (char)(0x80 | ((unicod >> 6) & 0x3F));
+		bytes[2] = (char)(0x80 | (unicod & 0x3F));
+		len = 3;
+	} else {
+		return;
 	}
 
-	*faceIdOut = faceId;
-	*nameIdOut = nameId;
+	Chatlog_EnsureLiveEntry();
+	entry = Chatlog_LiveEntry();
+	if (entry->charId == 0)
+		Chatlog_FillSpeaker(entry);
+	used = 0;
+	while (entry->text[used])
+		used++;
+
+	if (used + len >= CHATLOG_TEXT_LEN - 1)
+		return;
+
+	for (i = 0; i < len; i++)
+		entry->text[used + i] = bytes[i];
+	entry->text[used + len] = '\0';
 }
 
 static void Chatlog_EnsureLiveEntry(void)
@@ -181,59 +250,73 @@ static void Chatlog_EnsureLiveEntry(void)
 
 	entry = Chatlog_LiveEntry();
 	CpuFill16(0, entry, sizeof(*entry));
-	Chatlog_GetSpeaker(&entry->faceId, &entry->nameTextId);
+	Chatlog_FillSpeaker(entry);
 	sChatLogState.flags |= CHATLOG_FLAG_LINEOPEN;
 }
 
-static void Chatlog_EnsureDrawnLine(void)
+static struct ChatLogEntry *Chatlog_EntryAt(int index)
 {
-	struct ChatLogEntry *entry;
-	const char *fallback = "...";
-	int i;
+	int oldest;
 
-	if (sChatLogState.count > 0)
+	if (index < 0)
+		return NULL;
+
+	if (index < sChatLogState.count) {
+		oldest = (sChatLogState.head - sChatLogState.count + CHATLOG_CAP) % CHATLOG_CAP;
+		return &sChatLogState.entries[(oldest + index) % CHATLOG_CAP];
+	}
+
+	if ((sChatLogState.flags & CHATLOG_FLAG_LINEOPEN) && index == sChatLogState.count)
+		return Chatlog_LiveEntry();
+
+	return NULL;
+}
+
+void Chatlog_BeginGlyphCapture(void)
+{
+	sChatlogUiState.capture = 1;
+}
+
+void Chatlog_EndGlyphCapture(void)
+{
+	sChatlogUiState.capture = 0;
+}
+
+void Chatlog_AppendUnicode(u32 unicod)
+{
+	if (!sChatlogUiState.capture)
 		return;
 
-	Chatlog_EnsureLiveEntry();
-	entry = Chatlog_LiveEntry();
-	if (entry->text[0] != '\0')
+	Chatlog_AppendGlyph(unicod);
+}
+
+void Chatlog_AppendPrintedSpan(const char *start, const char *end)
+{
+	u32 unicod;
+	int decode_len;
+
+	(void)end;
+	if (!start || !*start)
 		return;
 
-	for (i = 0; fallback[i] && i < CHATLOG_TEXT_LEN - 1; i++)
-		entry->text[i] = fallback[i];
-	entry->text[i] = '\0';
+	if (DecodeUtf8(start, &unicod, &decode_len) != 0)
+		return;
+
+	Chatlog_AppendGlyph(unicod);
 }
 
 void Chatlog_AppendPrinted(const char *str)
 {
-	struct ChatLogEntry *entry;
 	int len;
-	int copy;
-	int used;
 
 	if (!str || !*str)
-		return;
-
-	if ((u8)*str < 0x20 || (u8)*str == 0x80)
 		return;
 
 	len = GetChLenUtf8(str);
 	if (len <= 0)
 		len = 1;
 
-	Chatlog_EnsureLiveEntry();
-	entry = Chatlog_LiveEntry();
-	used = 0;
-	while (entry->text[used])
-		used++;
-
-	if (used + len >= CHATLOG_TEXT_LEN - 1)
-		return;
-
-	for (copy = 0; copy < len; copy++)
-		entry->text[used + copy] = str[copy];
-
-	entry->text[used + len] = '\0';
+	Chatlog_AppendPrintedSpan(str, str + len);
 }
 
 void Chatlog_AppendNewline(void)
@@ -293,34 +376,6 @@ void Chatlog_EndSession(void)
 	Proc_EndEach(ProcScr_Chatlog);
 }
 
-static void Chatlog_BackupPanel(void)
-{
-	int y;
-	int x;
-
-	for (y = 0; y < CHATLOG_DIRTY_H; y++) {
-		for (x = 0; x < CHATLOG_DIRTY_W; x++) {
-			sChatlogUiState.bg0Backup[y * CHATLOG_DIRTY_W + x] =
-				gBG0TilemapBuffer[TILEMAP_INDEX(CHATLOG_DIRTY_X + x, CHATLOG_DIRTY_Y + y)];
-		}
-	}
-}
-
-static void Chatlog_RestorePanel(void)
-{
-	int y;
-	int x;
-
-	for (y = 0; y < CHATLOG_DIRTY_H; y++) {
-		for (x = 0; x < CHATLOG_DIRTY_W; x++) {
-			gBG0TilemapBuffer[TILEMAP_INDEX(CHATLOG_DIRTY_X + x, CHATLOG_DIRTY_Y + y)] =
-				sChatlogUiState.bg0Backup[y * CHATLOG_DIRTY_W + x];
-		}
-	}
-
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
-}
-
 static void Chatlog_MoveTalkToBg1Bg2(void)
 {
 	/* Box was BG1, text was BG0. Move them so BG0 is free for the log. */
@@ -353,11 +408,8 @@ static u16 Chatlog_DimColor(u16 color)
 
 static int Chatlog_ShouldDimPalette(int pal)
 {
-	/* Pal 2/3: Talk text + BG1 box. Pal 12-15: free BG banks for the minimug. */
+	/* Pal 2/3: Talk text + box. Pal 16-19: four OBJ minimug pals. */
 	if (pal == 2 || pal == 3)
-		return 0;
-
-	if (pal >= 12 && pal <= 15)
 		return 0;
 
 	if (pal >= 16 && pal <= 19)
@@ -408,55 +460,155 @@ static void Chatlog_ClearDirtyBg0(void)
 	}
 }
 
-static bool Chatlog_ChibiIsEmbedded(const struct FaceData *info)
+static bool Chatlog_ChibiIsLz(const u8 *chibi)
+{
+	u32 size;
+
+	if (!chibi || chibi[0] != 0x10)
+		return false;
+
+	size = chibi[1] | (chibi[2] << 8) | (chibi[3] << 16);
+	return size > 0 && size <= 0x200;
+}
+
+static int Chatlog_EmbeddedChibiOffset(const struct FaceData *info)
 {
 	const u8 *img;
 	const u8 *chibi;
 
 	if (!info || !info->img || !info->imgChibi)
-		return false;
+		return 0;
 
 	img = info->img;
-	chibi = (const u8 *)info->imgChibi;
-	return chibi == img + 0x2648 || chibi == img + 0x2644;
+	chibi = info->imgChibi;
+	if (chibi == img + 0x1624)
+		return 0x1624;
+	if (chibi == img + 0x2648)
+		return 0x2648;
+	if (chibi == img + 0x2644)
+		return 0x2644;
+	return 0;
 }
 
-static void Chatlog_PutChibiTm(u16 *tm, int chr, int pal)
+static int Chatlog_PortraitIdForEntry(struct ChatLogEntry *entry, int charId)
 {
-	int i;
-	int j;
+	const struct CharacterData *character;
+	int faceId;
 
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++)
-			tm[TILEMAP_INDEX(j, i)] = TILEREF(chr + i * 4 + j, pal);
+	if (entry && entry->portraitId)
+		return entry->portraitId;
+
+	faceId = TextEngine_GetSpeakingFaceId();
+	if (faceId > 0)
+		return faceId;
+
+	if (charId > 0) {
+		character = GetCharacterData(charId);
+		if (character && character->portraitId)
+			return character->portraitId;
 	}
+
+	return charId;
 }
 
-static void Chatlog_PutSethMinimug(void)
+static bool Chatlog_LoadLinearChibi(const struct FaceData *info)
 {
-	const struct CharacterData *cd;
+	const u8 *chibi;
+
+	if (!info)
+		return false;
+
+	chibi = info->imgChibi;
+	if (!chibi)
+		return false;
+
+	/*
+	 * Formatter blobs keep a raw 4×4 chibi at img+0x1624 / +0x2648.
+	 * Vanilla mugs (Eirika/Seth) use a separate LZ chibi (header 10 00 02 00).
+	 * Never decompress into a stack buffer; LZ needs 4-byte-aligned WRAM.
+	 */
+	if (Chatlog_EmbeddedChibiOffset(info)) {
+		CpuCopy16(chibi, gGenericBuffer, 0x200);
+		return true;
+	}
+
+	if (Chatlog_ChibiIsLz(chibi)) {
+		Decompress(chibi, gGenericBuffer);
+		return true;
+	}
+
+	if (chibi[0] == 0x10)
+		return false;
+
+	CpuCopy16(chibi, gGenericBuffer, 0x200);
+	return true;
+}
+
+static void Chatlog_UploadChibiObj(const u8 *linear, int chr)
+{
+	CpuCopy16(linear + 0x00, OBJ_CHR_ADDR(chr + 0x00), 0x80);
+	CpuCopy16(linear + 0x80, OBJ_CHR_ADDR(chr + 0x20), 0x80);
+	CpuCopy16(linear + 0x100, OBJ_CHR_ADDR(chr + 0x04), 0x80);
+	CpuCopy16(linear + 0x180, OBJ_CHR_ADDR(chr + 0x24), 0x80);
+}
+
+static void Chatlog_PutMinimug(int portraitId, int row)
+{
 	const struct FaceData *info;
-	u16 *tm = TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 1);
-	int fid;
+	int chr;
+	int pal;
 
-	cd = GetCharacterData(CHARACTER_SETH);
-	info = (cd && cd->portraitId) ? GetPortraitData(cd->portraitId) : NULL;
-
-	if (info && info->pal && Chatlog_ChibiIsEmbedded(info)) {
-		ApplyPalette(info->pal, CHATLOG_CHIBI_PAL);
-		Copy2dChr(
-			(const void *)info->imgChibi,
-			(void *)(VRAM + CHATLOG_CHIBI_CHR * CHR_SIZE),
-			4,
-			4
-		);
-		Chatlog_PutChibiTm(tm, CHATLOG_CHIBI_CHR, CHATLOG_CHIBI_PAL);
-		EnablePaletteSync();
+	if (portraitId <= 0)
 		return;
-	}
 
-	fid = (cd && cd->portraitId) ? cd->portraitId : FID_FACTION_CHIBI;
-	PutFaceChibi(fid, tm, CHATLOG_CHIBI_CHR, CHATLOG_CHIBI_PAL, 0);
+	info = GetPortraitData(portraitId);
+	if (!info || !Chatlog_LoadLinearChibi(info))
+		return;
+
+	chr = CHATLOG_CHIBI_CHR + row * CHATLOG_CHIBI_CHR_STRIDE;
+	pal = CHATLOG_CHIBI_PAL + row;
+	if (info->pal)
+		ApplyPalette(info->pal, 0x10 + pal);
+
+	Chatlog_UploadChibiObj(gGenericBuffer, chr);
+	sChatlogUiState.chibiMask |= (u8)(1 << row);
+}
+
+static void Chatlog_PutMinimugSprites(void)
+{
+	struct ChatLogEntry *entry;
+	int row;
+	int charId;
+	int portraitId;
+	int x;
+	int y;
+	int chr;
+	int pal;
+
+	x = CHATLOG_DIRTY_X * 8;
+	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+		entry = Chatlog_EntryAt(sChatLogState.viewTop + row);
+		if (!entry)
+			break;
+
+		charId = entry->charId;
+		if (!charId &&
+			(sChatLogState.flags & CHATLOG_FLAG_LINEOPEN) &&
+			entry == Chatlog_LiveEntry())
+			charId = Chatlog_CurrentSpeakerCharId();
+
+		if (!(sChatlogUiState.chibiMask & (1 << row)))
+			continue;
+
+		portraitId = Chatlog_PortraitIdForEntry(entry, charId);
+		if (portraitId <= 0)
+			continue;
+
+		y = (CHATLOG_DIRTY_Y + row * CHATLOG_ENTRY_H) * 8;
+		chr = CHATLOG_CHIBI_CHR + row * CHATLOG_CHIBI_CHR_STRIDE;
+		pal = CHATLOG_CHIBI_PAL + row;
+		PutSprite(6, x, y, Sprite_ChatlogChibi, OAM2_CHR(chr) + OAM2_PAL(pal));
+	}
 }
 
 static void Chatlog_BackupTalkWin0(void)
@@ -495,7 +647,8 @@ static void Chatlog_ApplyOverlayHw(void)
 	gLCDControlBuffer.wincnt.win1_enableBlend = 1;
 	gLCDControlBuffer.wincnt.wout_enableBlend = 1;
 	SetBlendTargetA(0, 1, 1, 0, 0);
-	SetBlendTargetB(0, 0, 0, 1, 1);
+	/* OBJ stays out of blend so the four minimugs keep their own palettes. */
+	SetBlendTargetB(0, 0, 0, 1, 0);
 	SetBlendBackdropB(1);
 	SetBlendAlpha(10, 6);
 }
@@ -524,32 +677,81 @@ static void Chatlog_Draw(void)
 	void *vram;
 	struct Text *nameText = &sChatlogUiState.texts[0];
 	struct Text *bodyText = &sChatlogUiState.texts[1];
+	struct ChatLogEntry *entry;
+	int row;
+	int y;
+	int charId;
+	u8 savedCapture = sChatlogUiState.capture;
 
+	sChatlogUiState.capture = 0;
+	sChatlogUiState.chibiMask = 0;
+	gLCDControlBuffer.bg0cnt.colorMode = 0;
 	Chatlog_ApplyOverlayHw();
 	Chatlog_ClearDirtyBg0();
-	Chatlog_PutSethMinimug();
 
 	vram = (void *)(
 		VRAM
 		+ GetBackgroundTileDataOffset(BG_0)
 		+ CHATLOG_TEXT_CHR * CHR_SIZE
 	);
-	InitTextFont(&sChatlogUiState.font, vram, CHATLOG_TEXT_CHR, CHATLOG_TEXT_PAL);
-	SetTextFont(&sChatlogUiState.font);
-	SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+	SetInitTalkTextFont();
+	{
+		struct Glyph **glyphs = gActiveFont->glyphs;
+		void (*drawGlyph)(struct Text *, struct Glyph *) = gActiveFont->drawGlyph;
+		void *(*get_draw_dest)(struct Text *) = gActiveFont->get_draw_dest;
+		u8 lang = gActiveFont->lang;
 
-	InitText(nameText, 8);
-	Text_SetColor(nameText, TEXT_COLOR_SYSTEM_GOLD);
-	Text_DrawString(nameText, "Seth");
-	PutText(nameText, TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 1));
+		InitTextFont(&sChatlogUiState.font, vram, CHATLOG_TEXT_CHR, CHATLOG_TEXT_PAL);
+		sChatlogUiState.font.glyphs = glyphs;
+		sChatlogUiState.font.drawGlyph = drawGlyph;
+		sChatlogUiState.font.get_draw_dest = get_draw_dest;
+		sChatlogUiState.font.lang = lang;
+		SetTextFont(&sChatlogUiState.font);
+	}
 
-	InitText(bodyText, 16);
-	Text_SetColor(bodyText, TEXT_COLOR_SYSTEM_WHITE);
-	Text_DrawString(bodyText, "Princess Eirika");
-	PutText(bodyText, TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 3));
+	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+		entry = Chatlog_EntryAt(sChatLogState.viewTop + row);
+		if (!entry)
+			break;
 
+		y = CHATLOG_DIRTY_Y + row * CHATLOG_ENTRY_H;
+
+		entry->name[CHATLOG_NAME_LEN - 1] = '\0';
+		entry->text[CHATLOG_TEXT_LEN - 1] = '\0';
+
+		if (entry->name[0]) {
+			InitText(nameText, CHATLOG_NAME_W);
+			Text_SetColor(nameText, TEXT_COLOR_SYSTEM_GOLD);
+			Text_DrawString(nameText, entry->name);
+			PutText(nameText, TILEMAP_LOCATED(gBG0TilemapBuffer, 6, y));
+		}
+
+		if (entry->text[0]) {
+			InitText(bodyText, CHATLOG_BODY_W);
+			Text_SetColor(bodyText, TEXT_COLOR_SYSTEM_WHITE);
+			Text_DrawString(bodyText, entry->text);
+			PutText(bodyText, TILEMAP_LOCATED(gBG0TilemapBuffer, 6, y + 2));
+		}
+	}
+
+	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+		entry = Chatlog_EntryAt(sChatLogState.viewTop + row);
+		if (!entry)
+			break;
+
+		charId = entry->charId;
+		if (!charId &&
+			(sChatLogState.flags & CHATLOG_FLAG_LINEOPEN) &&
+			entry == Chatlog_LiveEntry())
+			charId = Chatlog_CurrentSpeakerCharId();
+		Chatlog_PutMinimug(Chatlog_PortraitIdForEntry(entry, charId), row);
+	}
+
+	EnablePaletteSync();
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
-	SetTextFont(NULL);
+	Chatlog_PutMinimugSprites();
+	sChatlogUiState.capture = savedCapture;
+	SetInitTalkTextFont();
 }
 
 static void Chatlog_Open(void)
@@ -557,8 +759,6 @@ static void Chatlog_Open(void)
 	int total;
 
 	Chatlog_SanitizeState();
-	Chatlog_EnsureDrawnLine();
-	Chatlog_BackupPanel();
 	Chatlog_BackupTalkWin0();
 	Chatlog_MoveTalkToBg1Bg2();
 	Chatlog_BackupAndDimPalettes();
@@ -579,7 +779,6 @@ static void Chatlog_Close(void)
 	Chatlog_RestoreOverlayHw();
 	Chatlog_RestorePalettes();
 	Chatlog_RestoreTalkLayers();
-	Chatlog_RestorePanel();
 	SetInitTalkTextFont();
 }
 
@@ -625,6 +824,7 @@ static void Chatlog_OnIdle(ProcPtr proc)
 	}
 
 	Chatlog_ApplyOverlayHw();
+	Chatlog_PutMinimugSprites();
 }
 
 LYN_REPLACE_CHECK(TalkWaitForInput_OnIdle);

@@ -626,6 +626,79 @@ static struct FaceProc *TextEngine_GetFaceProcByPosition(int position)
 	return sTextEngineState->faces[position];
 }
 
+u16 TextEngine_GetSpeakingNameTextId(void)
+{
+	struct TalkState *state = sTextEngineState;
+	const struct CharacterData *character;
+	struct FaceProc *face;
+	int slot;
+
+	if (!state)
+		return 0;
+
+	slot = (s8)state->speakingFaceSlot;
+	if (slot < 0)
+		slot = state->activeFaceSlot;
+
+	face = TextEngine_GetFaceProcByPosition(slot);
+	if (!face)
+		return 0;
+
+	character = TextEngine_FindCharacterByPortrait(face->faceId);
+	if (!character)
+		return 0;
+
+	return character->nameTextId;
+}
+
+int TextEngine_GetSpeakingFaceId(void)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+	int slot;
+	int i;
+
+	if (!state)
+		return 0;
+
+	slot = (s8)state->speakingFaceSlot;
+	if (slot < 0)
+		slot = state->activeFaceSlot;
+
+	face = TextEngine_GetFaceProcByPosition(slot);
+	if (face && face->faceId)
+		return face->faceId;
+
+	if (state->activeFaceSlot != slot) {
+		face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+		if (face && face->faceId)
+			return face->faceId;
+	}
+
+	for (i = 0; i < (int)ARRAY_COUNT(state->faces); i++) {
+		face = state->faces[i];
+		if (face && face->faceId)
+			return face->faceId;
+	}
+
+	return 0;
+}
+
+u8 TextEngine_GetSpeakingCharacterId(void)
+{
+	const struct CharacterData *character;
+	int faceId = TextEngine_GetSpeakingFaceId();
+
+	if (!faceId)
+		return 0;
+
+	character = TextEngine_FindCharacterByPortrait(faceId);
+	if (!character)
+		return 0;
+
+	return character->number;
+}
+
 static void TextEngine_SetFaceAttribute(struct FaceProc *face, int attribute, u8 value)
 {
 	u8 *faceAttributes = TextEngine_GetFaceAttributes(face);

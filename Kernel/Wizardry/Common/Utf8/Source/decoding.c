@@ -1,5 +1,6 @@
 #include <common-chax.h>
 #include <utf8.h>
+#include <kernel/chatlog.h>
 
 FORCE_DECLARE STATIC_DECLAR bool is_ascii(u32 unicod)
 {
@@ -85,6 +86,8 @@ const char *Text_DrawCharacter(struct Text *text, const char *str)
 		glyph = GetCharGlyphUnicode('?', gActiveFont);
 
 	gActiveFont->drawGlyph(text, glyph);
+	if (ret == 0)
+		Chatlog_AppendUnicode(unicod);
 	return str + decode_len;
 }
 

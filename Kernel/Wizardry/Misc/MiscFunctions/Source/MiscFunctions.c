@@ -4447,10 +4447,12 @@ void Talk_OnIdle(ProcPtr proc) {
                 {
                     struct Text *th = TALK_TEXT_BY_LINE(sTalkState->lineActive);
 
+                    Chatlog_BeginGlyphCapture();
                     if (!TextEngine_TryStartGlyphFloat(th, (const char **)&sTalkState->str))
                         sTalkState->str = Text_DrawCharacter(th, sTalkState->str);
-
-                    Chatlog_AppendPrinted(printedText);
+                    else
+                        Chatlog_AppendPrinted(printedText);
+                    Chatlog_EndGlyphCapture();
                     TextEngine_OnCharacterPrinted();
                 }
 

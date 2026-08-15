@@ -54,9 +54,12 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 ### Overlay drawing
 
-- Full-screen dim on **BG0** (alpha-blended over BG1/BG2/BG3/OBJ).
-- Each visible row on **BG0**: **chibi**, gold name, white line text (Talk glyphs at BG chr `0x80`).
-- Opening snapshots BG0; closing restores it and reselects the Talk text font.
+- Talk box/text move to **BG1/BG2** while the log is open so **BG0** can hold names and line text.
+- Each visible row: **OBJ minimug** (32×32, own 16-color pal), gold name, white line text.
+- Names/text use Talk glyphs on BG0 at chr `0x180`, pal 2 (gap between Talk font ~`0x80–0x16F` and 224-color BG3 at `0x200`).
+- Minimugs are four OBJ sprites at chr `0x1C0+` with OBJ pals 0–3 (buffer 16–19), submitted every frame. This build parks faces at OBJ `0x4000+` (chr `0x200+`); chr `0x280` is Seth’s bank and must not be used.
+- Formatter portraits copy the raw chibi from ROM (`img+0x1624` / `img+0x2648`); vanilla portraits LZ-decompress `imgChibi` only. The mug sheet in face VRAM is never sliced.
+- Opening dims palettes except Talk text/box (2–3) and the four minimug OBJ pals; closing restores palettes and Talk layers.
 
 ```
 [chibi] Name
@@ -93,9 +96,9 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 - Chatlog is **Talk-only**; map SELECT is intentionally untouched.
 - History does **not** persist in normal save files—only suspend.
-- Opening the overlay temporarily owns the left BG0 region (Talk glyphs there are restored from a backup on close).
-- Chibis use portrait mini-faces, not half-body OBJ sprites.
-- Portrait→name resolution uses an exact `portraitId` character-table match; some variant faces may show a blank name.
+- Opening the overlay temporarily owns the left BG0 region and OBJ pals 0–3 / chr `0x1C0–0x1FF`.
+- Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite.
+- Portrait→name resolution uses stored `portraitId` plus character-table fallback; some variant faces may show a blank name.
 - B-skipped (`instantScroll`) pages are still logged, which is intentional for completeness.
 
 Please report issues in the repository’s **Issues** tab.

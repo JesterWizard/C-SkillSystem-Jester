@@ -4,7 +4,8 @@
 
 enum {
 	CHATLOG_CAP = 15,
-	CHATLOG_TEXT_LEN = 72,
+	CHATLOG_NAME_LEN = 16,
+	CHATLOG_TEXT_LEN = 56,
 	CHATLOG_VISIBLE = 4,
 	CHATLOG_LINES_PER_ENTRY = 3,
 	CHATLOG_PANEL_W = 32,
@@ -15,8 +16,10 @@ enum {
 };
 
 struct ChatLogEntry {
-	u16 faceId;
-	u16 nameTextId;
+	u8 charId;
+	u8 _pad;
+	u16 portraitId;
+	char name[CHATLOG_NAME_LEN];
 	char text[CHATLOG_TEXT_LEN];
 };
 
@@ -30,6 +33,10 @@ struct ChatLogState {
 
 bool Chatlog_IsVisible(void);
 void Chatlog_AppendPrinted(const char *str);
+void Chatlog_AppendPrintedSpan(const char *start, const char *end);
+void Chatlog_AppendUnicode(u32 unicod);
+void Chatlog_BeginGlyphCapture(void);
+void Chatlog_EndGlyphCapture(void);
 void Chatlog_AppendNewline(void);
 void Chatlog_CommitPage(void);
 void Chatlog_StartSession(void);
@@ -37,3 +44,6 @@ void Chatlog_EndSession(void);
 void ChapterInit_ResetChatlog(void);
 void SaveChatLogSuspendState(u8 *dst, const u32 size);
 void LoadChatLogSuspendState(u8 *src, const u32 size);
+u16 TextEngine_GetSpeakingNameTextId(void);
+int TextEngine_GetSpeakingFaceId(void);
+u8 TextEngine_GetSpeakingCharacterId(void);
