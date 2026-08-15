@@ -349,6 +349,9 @@ static void TextEngine_ClearSpeakerNameplate(void)
 	int col;
 	u16 *backup;
 
+	if (Chatlog_IsVisible())
+		return;
+
 	if (sTextEngineNameplateState.active != 1) {
 		sTextEngineNameplateState.active = 0;
 		return;
@@ -461,6 +464,10 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	u8 *faceAttributes;
 
 	(void)proc;
+
+	/* The chatlog borrows the dialogue layers; leave them alone until it closes. */
+	if (Chatlog_IsVisible())
+		return;
 
 	TextEngine_ClearSpeakerNameplate();
 
@@ -888,6 +895,10 @@ static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc)
 
 static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc)
 {
+	/* The log owns BG0's scroll while it is up. */
+	if (Chatlog_IsVisible())
+		return;
+
 	TextEnginePrintFx_Apply(proc);
 
 	if (proc->shakeTimer >= 0)
@@ -979,6 +990,15 @@ static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
 static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc)
 {
 	int nextBuffer = proc->activeBuffer ^ 1;
+
+	/* Keep the per-scanline shift flat so the log is not sheared. */
+	if (Chatlog_IsVisible()) {
+		int line;
+
+		for (line = 0; line < DISPLAY_HEIGHT; line++)
+			sTextEngineWaveOffsets[proc->activeBuffer][line] = 0;
+		return;
+	}
 
 	proc->phase += TEXT_ENGINE_WAVE_SPEED;
 	TextEngineWave_BuildBuffer(proc, nextBuffer);
@@ -1157,6 +1177,13 @@ static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 {
 	int y;
 	int oam2;
+
+	/*
+	 * Freeze mid-flight glyphs while the log is up: ending would bake them
+	 * into the talk font tiles the log is currently borrowing.
+	 */
+	if (Chatlog_IsVisible())
+		return;
 
 	if (proc->timer >= TEXT_ENGINE_FLOAT_DURATION) {
 		Proc_End(proc);
@@ -2898,7 +2925,7 @@ int TalkInterpret(ProcPtr proc)
 
 		switch (code) {
 		case CHFE_L_NL:
-			Chatlog_CommitPage();
+			Chatlog_AppendSoftBreak();
 			if (state->putLines == 1 || state->lineActive == 1)
 				state->lineActive++;
 

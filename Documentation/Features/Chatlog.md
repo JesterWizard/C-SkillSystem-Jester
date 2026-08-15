@@ -35,9 +35,11 @@ This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores 
 
 | Event | Action |
 |-------|--------|
-| Glyph printed in `Talk_OnIdle` | Append UTF-8 character to the current line buffer |
-| `[N]` / `[2NL]` | Commit that line immediately: face ID, name, text → ring buffer |
-| `[A]` | Commit the current line, then wait for player input |
+| Glyph printed in `Talk_OnIdle` | Append UTF-8 character to the current entry, wrapping to a continuation entry once the panel width is full |
+| `[N]` | Treated as a word separator: the log re-wraps the message to its own width instead of splitting it |
+| `[2NL]` | Commit the entry: speaker id, name text id, portrait, text → ring buffer |
+| `[A]` | Commit the current entry, then wait for player input |
+| Speaker change mid-page | Commit the current entry first |
 | Talk end | Commit any leftover line, tear down UI proc |
 | Chapter init | Clear the ring buffer |
 
@@ -45,21 +47,20 @@ This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores 
 
 | Region | Symbol | Size | Purpose |
 |--------|--------|------|---------|
-| FreeRamSpace2 | `sChatLogState` | `0x478` | 15-entry ring + view cursor (SUS-persisted) |
-| FreeRamSpace2 | `sChatlogUiState` | `0x400` | Font/texts, page accumulate buffer, BG0 panel backup |
-| SuspendSave EMS | `SaveChatLogSuspendState` | `0x478` | Survive soft reset / resume mid-chapter |
+| FreeRamSpace2 | `sChatLogState` | `0x444` | 17-entry ring + view cursor (SUS-persisted) |
+| FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, palette + display backups, name/draw scratch |
+| SuspendSave EMS | `SaveChatLogSuspendState` | `0x444` | Survive soft reset / resume mid-chapter |
 | NormalSave | — | — | Not used |
 
 UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 ### Overlay drawing
 
-- Talk box/text move to **BG1/BG2** while the log is open so **BG0** can hold names and line text.
-- Each visible row: **OBJ minimug** (32×32, own 16-color pal), gold name, white line text.
-- Names/text use Talk glyphs on BG0 at chr `0x180`, pal 2 (gap between Talk font ~`0x80–0x16F` and 224-color BG3 at `0x200`).
-- Minimugs are four OBJ sprites at chr `0x1C0+` with OBJ pals 0–3 (buffer 16–19), submitted every frame. This build parks faces at OBJ `0x4000+` (chr `0x200+`); chr `0x280` is Seth’s bank and must not be used.
-- Formatter portraits copy the raw chibi from ROM (`img+0x1624` / `img+0x2648`); vanilla portraits LZ-decompress `imgChibi` only. The mug sheet in face VRAM is never sliced.
-- Opening dims palettes except Talk text/box (2–3) and the four minimug OBJ pals; closing restores palettes and Talk layers.
+- The panel owns **BG0**, the layer the dialogue text itself uses; every other layer is switched off, because the map engine keeps writing BG1–BG3 behind our back. The talk glyphs at chr `0xC0–0x16F` and the whole BG0 tilemap are stashed in `gGenericBuffer` while the log is open and copied back on close.
+- Each visible row: **BG minimug** drawn with `PutFaceChibi` at chr `0xC0 + row * 0x10` (own 16-color pal), gold name, white message text.
+- Names/message text use the Talk glyph set on BG0 at chr `0x100+`, pal 8, `0x3E` tiles per row; chr `0x1F8` is a solid tile that provides the panel backdrop, since the hardware backdrop colour is rewritten by the scene.
+- Display registers, blend, window, BG0 scroll and the whole BG palette are saved on open, restated every frame (other procs keep poking them), and restored on close.
+- Nameplate, floating glyph, print-shake and wave procs in the text engine are gated on `Chatlog_IsVisible()` so they cannot draw into the layers the log borrows.
 
 ```
 [chibi] Name
@@ -78,7 +79,7 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 | Glyph capture | `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Pause printing while visible; append each printed character |
 | Page commit hooks | `TalkInterpret` / `Talk_OnInit_C` / `Talk_OnEnd_C` in [`TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | `[N]` / `[A]` capture, start/end chatlog session |
 | EWRAM reservation | [`config-memmap.s`](../../include/link/config-memmap.s) | `_kernel_malloc2` for `sChatLogState` and `sChatlogUiState` |
-| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/Common/SaveData/data.event) | SUS-only `0x478` EMS chunk |
+| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/Common/SaveData/data.event) | SUS-only `0x444` EMS chunk |
 | Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/Common/ChapterInitHook/data.event) | Wipe history on chapter start |
 | Public API | [`chatlog.h`](../../include/kernel/chatlog.h) | Caps, structs, and hook entry points |
 
@@ -86,9 +87,9 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 ## TODO
 
-- Tune blend coefficients / panel width against half-body portrait layouts.
 - Optionally filter prep Event Replay / world-map Talk from the chapter ring.
-- Consider a longer page text field if English rewrites routinely truncate at 72 bytes.
+- Consider a longer message field if English rewrites routinely truncate at 56 bytes per wrapped line.
+- Suspend RAM is at 97% with the log's `0x444` chunk in place; shrink `CHATLOG_CAP` if another feature needs suspend space.
 
 ---
 
@@ -96,8 +97,9 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 - Chatlog is **Talk-only**; map SELECT is intentionally untouched.
 - History does **not** persist in normal save files—only suspend.
-- Opening the overlay temporarily owns the left BG0 region and OBJ pals 0–3 / chr `0x1C0–0x1FF`.
-- Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite.
+- Opening the overlay owns all of BG0 (tilemap and chr `0xC0–0x1FF`) plus the whole BG palette; both are restored on close.
+- Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite. Portraits without a chibi show the engine's `?` mug, exactly as they do on the map.
+- Only 17 entries are kept; older lines fall out of the ring.
 - Portrait→name resolution uses stored `portraitId` plus character-table fallback; some variant faces may show a blank name.
 - B-skipped (`instantScroll`) pages are still logged, which is intentional for completeness.
 

@@ -3,23 +3,25 @@
 #include "common-chax.h"
 
 enum {
-	CHATLOG_CAP = 15,
-	CHATLOG_NAME_LEN = 16,
+	CHATLOG_CAP = 17,
 	CHATLOG_TEXT_LEN = 56,
 	CHATLOG_VISIBLE = 4,
-	CHATLOG_LINES_PER_ENTRY = 3,
-	CHATLOG_PANEL_W = 32,
-	CHATLOG_PANEL_H = 20,
+	/* Tile rows per visible entry: name/continuation line + message line. */
 	CHATLOG_ENTRY_H = 4,
 	CHATLOG_FLAG_VISIBLE = (1 << 0),
 	CHATLOG_FLAG_LINEOPEN = (1 << 1),
+	/* Entry flags */
+	CHATLOG_ENTRY_CONT = (1 << 0),
 };
 
 struct ChatLogEntry {
 	u8 charId;
-	u8 _pad;
+	u8 flags;
 	u16 portraitId;
-	char name[CHATLOG_NAME_LEN];
+	u16 nameTextId;
+	/* Pixels already drawn into text, used to wrap at capture time. */
+	u8 width;
+	u8 _pad;
 	char text[CHATLOG_TEXT_LEN];
 };
 
@@ -38,6 +40,7 @@ void Chatlog_AppendUnicode(u32 unicod);
 void Chatlog_BeginGlyphCapture(void);
 void Chatlog_EndGlyphCapture(void);
 void Chatlog_AppendNewline(void);
+void Chatlog_AppendSoftBreak(void);
 void Chatlog_CommitPage(void);
 void Chatlog_StartSession(void);
 void Chatlog_EndSession(void);
