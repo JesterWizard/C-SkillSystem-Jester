@@ -26,7 +26,7 @@ This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores 
 | Input | Context | Behavior |
 |-------|---------|----------|
 | **SELECT** | Talk open, log closed | Open chatlog overlay |
-| **SELECT** | Talk open, log open | Close overlay and restore Talk BG0 |
+| **SELECT** | Talk open, log open | Close overlay and restore layer priorities |
 | **DPAD_UP / DOWN** | Log open | Scroll through stored entries |
 | **A / B / DPAD** | Log open | Ignored for Talk advance / skip |
 | Map **SELECT** | Player phase | Unchanged (not wired to chatlog) |
@@ -48,7 +48,7 @@ This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores 
 | Region | Symbol | Size | Purpose |
 |--------|--------|------|---------|
 | FreeRamSpace2 | `sChatLogState` | `0x444` | 17-entry ring + view cursor (SUS-persisted) |
-| FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, palette + display backups, name/draw scratch |
+| FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, chibi palette + priority/blend backups, tile allocation, name/draw scratch |
 | SuspendSave EMS | `SaveChatLogSuspendState` | `0x444` | Survive soft reset / resume mid-chapter |
 | NormalSave | — | — | Not used |
 
@@ -56,16 +56,17 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 ### Overlay drawing
 
-- The panel owns **BG0**, the layer the dialogue text itself uses; every other layer is switched off, because the map engine keeps writing BG1–BG3 behind our back. The talk glyphs at chr `0xC0–0x16F` and the whole BG0 tilemap are stashed in `gGenericBuffer` while the log is open and copied back on close.
-- Each visible row: **BG minimug** drawn with `PutFaceChibi` at chr `0xC0 + row * 0x10` (own 16-color pal), gold name, white message text.
-- Names/message text use the Talk glyph set on BG0 at chr `0x100+`, pal 8, `0x3E` tiles per row; chr `0x1F8` is a solid tile that provides the panel backdrop, since the hardware backdrop colour is rewritten by the scene.
-- Display registers, blend, window, BG0 scroll and the whole BG palette are saved on open, restated every frame (other procs keep poking them), and restored on close.
-- Nameplate, floating glyph, print-shake and wave procs in the text engine are gated on `Chatlog_IsVisible()` so they cannot draw into the layers the log borrows.
+- The log draws on **BG2**, the one layer a Talk scene leaves empty, so the box (BG1), the dialogue text (BG0) and the map or scene art all keep their own layers and stay visible. Priorities become log → text → box → scene while it is open and are restored on close; BG2 is force-enabled in `DISPCNT` for scenes that had it off.
+- Nothing is filled in: cells the log does not draw stay on blank tile 0 and the frozen scene shows through. It is darkened with the hardware brightness effect (`SetBlendDarken(CHATLOG_DIM)`, every layer except BG2 targeted) purely for legibility — set `CHATLOG_DIM` to `0` for full brightness.
+- Tiles and palettes are claimed at open time, not fixed. BG0/BG1/BG2 share a character base and how much is spare depends on the scene: a map talk leaves roughly 400 unreferenced tiles, a world-map narration about 45. `Chatlog_ScanUsedTiles` walks the four live tilemaps plus the range the talk font has reserved for glyphs it has not printed yet, `Chatlog_AllocTiles` claims the longest free run, and the log shows as many rows as fit (`0x3E` tiles per row: a 16-tile chibi plus the name and message glyphs).
+- Because of that, no scene graphics are ever overwritten and nothing has to be stashed. The only saved state is the layer priorities, the blend registers and the handful of palette slots the chibis borrow, which are likewise picked from slots no live tilemap references.
+- Text uses the dialogue's own font palette (`gActiveFont->palid`), so gold names and white messages match the talk exactly.
+- Nameplate, floating glyph and wave procs in the text engine are gated on `Chatlog_IsVisible()` so the frozen dialogue is not redrawn under the log.
 
 ```
 [chibi] Name
-        Page text line 1
-        Page text line 2
+        Message line
+        (continuation line, no name or chibi)
 ```
 
 ---
@@ -97,7 +98,8 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 - Chatlog is **Talk-only**; map SELECT is intentionally untouched.
 - History does **not** persist in normal save files—only suspend.
-- Opening the overlay owns all of BG0 (tilemap and chr `0xC0–0x1FF`) plus the whole BG palette; both are restored on close.
+- Opening the overlay owns BG2's tilemap; scenes that already draw on BG2, or that leave fewer than `0x3E` spare tiles (world-map narration, for instance), simply do not open the log rather than corrupt their graphics.
+- A scene with room for only some rows shows a shorter log; the scroll range follows the row count actually drawn.
 - Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite. Portraits without a chibi show the engine's `?` mug, exactly as they do on the map.
 - Only 17 entries are kept; older lines fall out of the ring.
 - Portrait→name resolution uses stored `portraitId` plus character-table fallback; some variant faces may show a blank name.

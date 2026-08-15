@@ -13,34 +13,22 @@
 #include "bmunit.h"
 
 /*
- * VRAM budget, measured on a live map talk scene:
+ * The log draws on BG2, the one layer a Talk scene leaves empty, so the box
+ * (BG1), the dialogue text (BG0) and the map or scene art keep their layers and
+ * stay visible behind it.  Priorities are shuffled while the log is up so it
+ * sits on top: log, then text, then box, then the scene.
  *
- *   0x000-0x07F  dialogue box / frame graphics
- *   0x080-0x16F  talk font glyphs (3 lines * 30 cols + a 30 col nameplate)
- *   0x170-0x1FF  free
- *   0x200-0x3FF  unusable (BG3 image and the four tilemaps)
- *
- * The log needs 320 tiles, so it takes 0x0C0-0x1FF and stashes the talk
- * glyphs it overwrites (0x0C0-0x16F) in gGenericBuffer while it is open,
- * together with the BG0 tilemap it draws over.  The first 0x200 bytes are
- * left alone for graphics unpacking.
+ * Tiles and palettes are not fixed either.  BG0, BG1 and BG2 usually share one
+ * character base, and how much of it is spare depends entirely on the scene:
+ * a map talk leaves roughly 400 tiles unused, a world-map narration barely 50.
+ * So on open the log scans the live tilemaps, takes a run of tiles nothing
+ * references and palette slots nothing uses, and draws as many rows as that
+ * budget allows.  Nothing has to be stashed or restored except the palettes it
+ * borrows, and no scene graphics are ever overwritten.
  */
 enum {
-	CHATLOG_CHIBI_CHR = 0x0C0,
 	CHATLOG_CHIBI_CHR_STRIDE = 0x10,
-	CHATLOG_TEXT_CHR = 0x100,
-	/* Blank tile behind the panel, so the backdrop colour is ours alone. */
-	CHATLOG_BLANK_CHR = 0x1F8,
-
-	CHATLOG_VRAM_SAVE_CHR = CHATLOG_CHIBI_CHR,
-	CHATLOG_VRAM_SAVE_SIZE = (0x170 - CHATLOG_CHIBI_CHR) * CHR_SIZE,
-	CHATLOG_VRAM_SAVE_OFFSET = 0x200,
-	CHATLOG_TM_SAVE_SIZE = 0x800,
-	CHATLOG_TM_SAVE_OFFSET = CHATLOG_VRAM_SAVE_OFFSET + CHATLOG_VRAM_SAVE_SIZE,
-
-	/* BG palettes. All of them are backed up, so any free slot works. */
-	CHATLOG_TEXT_PAL = 8,
-	CHATLOG_CHIBI_PAL = 4,
+	CHATLOG_CHR_LIMIT = 0x300,
 	CHATLOG_PAL_COUNT = 16,
 
 	/* Tile coordinates inside the panel. */
@@ -52,8 +40,12 @@ enum {
 	CHATLOG_BODY_PX = CHATLOG_BODY_W * 8,
 	CHATLOG_NAME_PX = CHATLOG_NAME_W * 8,
 
+	CHATLOG_ROW_CHR = CHATLOG_CHIBI_CHR_STRIDE
+		+ (CHATLOG_NAME_W + CHATLOG_BODY_W) * 2,
+
 	CHATLOG_NAME_BUF = 0x40,
-	CHATLOG_BACKDROP = RGB(3, 4, 8),
+	/* How far the scene behind the log is darkened, 0 to leave it alone. */
+	CHATLOG_DIM = 9,
 };
 
 #define sTalkState (*(struct TalkState **)0x0859133C)
@@ -61,14 +53,16 @@ enum {
 struct ChatlogUiState {
 	struct Font font;
 	struct Text texts[CHATLOG_VISIBLE * 2];
-	u16 palBackup[CHATLOG_PAL_COUNT * 16];
-	u8 dispcntBackup[2];
+	/* Only the palettes the chibis borrow are saved. */
+	u16 palBackup[CHATLOG_VISIBLE * 16];
+	u8 chibiPal[CHATLOG_VISIBLE];
+	u8 prioBackup[3];
+	u8 bg2OnBackup;
 	u8 bldcntBackup[2];
-	u8 wincntBackup[4];
-	u8 blendCoeffABackup;
-	u8 blendCoeffBBackup;
-	s16 bg0xBackup;
-	s16 bg0yBackup;
+	u8 blendYBackup;
+	u16 chr;
+	u8 rows;
+	u8 textPal;
 	u8 capture;
 	u8 hwSaved;
 	char nameBuf[CHATLOG_NAME_BUF];
@@ -103,16 +97,6 @@ static const struct ProcCmd ProcScr_Chatlog[] = {
 _Static_assert(sizeof(struct ChatLogEntry) == 64, "ChatLogEntry size");
 _Static_assert(sizeof(struct ChatLogState) == 0x444, "ChatLogState size");
 _Static_assert(sizeof(struct ChatlogUiState) <= 0x600, "ChatlogUiState size");
-_Static_assert(
-	CHATLOG_TM_SAVE_OFFSET + CHATLOG_TM_SAVE_SIZE <= 0x2000,
-	"chatlog VRAM stash overruns gGenericBuffer"
-);
-_Static_assert(
-	CHATLOG_TEXT_CHR + CHATLOG_VISIBLE * 2 * (CHATLOG_NAME_W + CHATLOG_BODY_W)
-		<= CHATLOG_BLANK_CHR,
-	"chatlog glyph tiles overrun the blank tile"
-);
-_Static_assert(CHATLOG_BLANK_CHR < 0x200, "chatlog blank tile overruns BG3 graphics");
 
 bool Chatlog_IsVisible(void)
 {
@@ -129,12 +113,22 @@ static int Chatlog_TotalLines(void)
 	return total;
 }
 
+/* How many rows the current scene had tiles for, once the log is open. */
+static int Chatlog_VisibleRows(void)
+{
+	if (Chatlog_IsVisible() && sChatlogUiState.rows)
+		return sChatlogUiState.rows;
+
+	return CHATLOG_VISIBLE;
+}
+
 static int Chatlog_MaxViewTop(void)
 {
 	int total = Chatlog_TotalLines();
+	int rows = Chatlog_VisibleRows();
 
-	if (total > CHATLOG_VISIBLE)
-		return total - CHATLOG_VISIBLE;
+	if (total > rows)
+		return total - rows;
 
 	return 0;
 }
@@ -512,35 +506,6 @@ void Chatlog_EndSession(void)
 
 /* --- hardware ------------------------------------------------------------ */
 
-static void Chatlog_SaveTalkGfx(void)
-{
-	CpuFastCopy(
-		BG_CHR_ADDR(CHATLOG_VRAM_SAVE_CHR),
-		gGenericBuffer + CHATLOG_VRAM_SAVE_OFFSET,
-		CHATLOG_VRAM_SAVE_SIZE
-	);
-	CpuFastCopy(
-		gBG0TilemapBuffer,
-		gGenericBuffer + CHATLOG_TM_SAVE_OFFSET,
-		CHATLOG_TM_SAVE_SIZE
-	);
-}
-
-static void Chatlog_RestoreTalkGfx(void)
-{
-	CpuFastCopy(
-		gGenericBuffer + CHATLOG_VRAM_SAVE_OFFSET,
-		BG_CHR_ADDR(CHATLOG_VRAM_SAVE_CHR),
-		CHATLOG_VRAM_SAVE_SIZE
-	);
-	CpuFastCopy(
-		gGenericBuffer + CHATLOG_TM_SAVE_OFFSET,
-		gBG0TilemapBuffer,
-		CHATLOG_TM_SAVE_SIZE
-	);
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
-}
-
 static void Chatlog_CopyBytes(u8 *dst, const u8 *src, int size)
 {
 	int i;
@@ -549,63 +514,223 @@ static void Chatlog_CopyBytes(u8 *dst, const u8 *src, int size)
 		dst[i] = src[i];
 }
 
-static void Chatlog_SaveHw(void)
+/* Tilerefs whose tiles live in the same character base as the log's layer. */
+static bool Chatlog_SharesCharBase(int bg)
 {
+	return BG_GetControlBuffer(bg)->charBaseBlock
+		== BG_GetControlBuffer(BG_2)->charBaseBlock;
+}
+
+static void Chatlog_MarkTile(u8 *used, int tile)
+{
+	if (tile >= 0 && tile < CHATLOG_CHR_LIMIT)
+		used[tile >> 3] |= 1 << (tile & 7);
+}
+
+static bool Chatlog_TileUsed(const u8 *used, int tile)
+{
+	return (used[tile >> 3] & (1 << (tile & 7))) != 0;
+}
+
+/*
+ * Everything the scene currently shows, plus everything the talk font has
+ * reserved for glyphs it has not printed yet.
+ */
+static void Chatlog_ScanUsedTiles(u8 *used, u16 *palMask)
+{
+	static const u8 layers[4] = { BG_0, BG_1, BG_2, BG_3 };
+	int i;
+	int n;
+
+	for (i = 0; i < CHATLOG_CHR_LIMIT / 8; i++)
+		used[i] = 0;
+	*palMask = 0;
+
+	for (n = 0; n < 4; n++) {
+		int bg = layers[n];
+		const u16 *tm = BG_GetMapBuffer(bg);
+		bool shared = Chatlog_SharesCharBase(bg);
+
+		for (i = 0; i < 0x400; i++) {
+			u16 entry = tm[i];
+
+			if (!entry)
+				continue;
+
+			*palMask |= 1 << (entry >> 12);
+			if (shared)
+				Chatlog_MarkTile(used, entry & 0x3FF);
+		}
+	}
+
+	SetInitTalkTextFont();
+	if (gActiveFont) {
+		int base = gActiveFont->tileref & 0x3FF;
+
+		*palMask |= 1 << gActiveFont->palid;
+		for (i = 0; i < gActiveFont->chr_counter; i++)
+			Chatlog_MarkTile(used, base + i);
+	}
+
+	/* Tile 0 is the blank the log leaves behind its own rows. */
+	Chatlog_MarkTile(used, 0);
+}
+
+/*
+ * Claim the longest free run of tiles and as many rows as fit in it, so a
+ * cramped scene shows a shorter log instead of eating its graphics.
+ */
+static void Chatlog_AllocTiles(const u8 *used)
+{
+	int best = 0;
+	int bestLen = 0;
+	int start = -1;
+	int tile;
+
+	sChatlogUiState.chr = 0;
+	sChatlogUiState.rows = 0;
+
+	/* Some scenes put their own art on this layer; leave those alone. */
+	for (tile = 0; tile < 0x400; tile++) {
+		if (gBG2TilemapBuffer[tile])
+			return;
+	}
+
+	for (tile = 0; tile <= CHATLOG_CHR_LIMIT; tile++) {
+		if (tile < CHATLOG_CHR_LIMIT && !Chatlog_TileUsed(used, tile)) {
+			if (start < 0)
+				start = tile;
+			continue;
+		}
+
+		if (start >= 0) {
+			if (tile - start > bestLen) {
+				bestLen = tile - start;
+				best = start;
+			}
+			start = -1;
+		}
+	}
+
+	sChatlogUiState.rows = bestLen / CHATLOG_ROW_CHR;
+	if (sChatlogUiState.rows > CHATLOG_VISIBLE)
+		sChatlogUiState.rows = CHATLOG_VISIBLE;
+	sChatlogUiState.chr = best;
+}
+
+static void Chatlog_AllocPalettes(u16 palMask)
+{
+	int slot = 0;
+	int row;
+
+	/* The log's own text reuses the dialogue's palette, so it always
+	 * matches whatever colours the talk is currently using. */
+	sChatlogUiState.textPal = gActiveFont ? gActiveFont->palid : 2;
+
+	for (row = 0; row < CHATLOG_VISIBLE; row++)
+		sChatlogUiState.chibiPal[row] = 0xFF;
+
+	for (row = 0; row < sChatlogUiState.rows; row++) {
+		while (slot < CHATLOG_PAL_COUNT && (palMask & (1 << slot)))
+			slot++;
+
+		if (slot >= CHATLOG_PAL_COUNT)
+			return;
+
+		sChatlogUiState.chibiPal[row] = slot;
+		palMask |= 1 << slot;
+		slot++;
+	}
+}
+
+static void Chatlog_SavePalettes(void)
+{
+	int row;
 	int i;
 
-	Chatlog_CopyBytes(sChatlogUiState.dispcntBackup, (const u8 *)&gLCDControlBuffer.dispcnt, 2);
-	Chatlog_CopyBytes(sChatlogUiState.bldcntBackup, (const u8 *)&gLCDControlBuffer.bldcnt, 2);
-	Chatlog_CopyBytes(sChatlogUiState.wincntBackup, (const u8 *)&gLCDControlBuffer.wincnt, 4);
-	sChatlogUiState.blendCoeffABackup = gLCDControlBuffer.blendCoeffA;
-	sChatlogUiState.blendCoeffBBackup = gLCDControlBuffer.blendCoeffB;
-	sChatlogUiState.bg0xBackup = gLCDControlBuffer.bgoffset[BG_0].x;
-	sChatlogUiState.bg0yBackup = gLCDControlBuffer.bgoffset[BG_0].y;
+	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+		int pal = sChatlogUiState.chibiPal[row];
 
-	for (i = 0; i < CHATLOG_PAL_COUNT * 16; i++)
-		sChatlogUiState.palBackup[i] = gPaletteBuffer[i];
+		if (pal == 0xFF)
+			continue;
+
+		for (i = 0; i < 16; i++)
+			sChatlogUiState.palBackup[row * 16 + i] =
+				gPaletteBuffer[pal * 16 + i];
+	}
 
 	sChatlogUiState.hwSaved = 1;
 }
 
-static void Chatlog_RestoreHw(void)
+static void Chatlog_RestorePalettes(void)
 {
+	int row;
 	int i;
 
 	if (!sChatlogUiState.hwSaved)
 		return;
 
-	Chatlog_CopyBytes((u8 *)&gLCDControlBuffer.dispcnt, sChatlogUiState.dispcntBackup, 2);
-	Chatlog_CopyBytes((u8 *)&gLCDControlBuffer.bldcnt, sChatlogUiState.bldcntBackup, 2);
-	Chatlog_CopyBytes((u8 *)&gLCDControlBuffer.wincnt, sChatlogUiState.wincntBackup, 4);
-	gLCDControlBuffer.blendCoeffA = sChatlogUiState.blendCoeffABackup;
-	gLCDControlBuffer.blendCoeffB = sChatlogUiState.blendCoeffBBackup;
-	BG_SetPosition(BG_0, sChatlogUiState.bg0xBackup, sChatlogUiState.bg0yBackup);
+	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+		int pal = sChatlogUiState.chibiPal[row];
 
-	for (i = 0; i < CHATLOG_PAL_COUNT * 16; i++)
-		gPaletteBuffer[i] = sChatlogUiState.palBackup[i];
+		if (pal == 0xFF)
+			continue;
+
+		for (i = 0; i < 16; i++)
+			gPaletteBuffer[pal * 16 + i] =
+				sChatlogUiState.palBackup[row * 16 + i];
+	}
 
 	EnablePaletteSync();
 	sChatlogUiState.hwSaved = 0;
 }
 
 /*
- * The panel borrows BG0, the layer the dialogue text itself uses, because the
- * map engine writes the other layers behind our back.  Every other layer is
- * switched off so nothing of the box, the map or the portraits shows through,
- * and the log needs no blending of its own.
+ * The log's layer is normally the bottom-most of the three, so lift it above
+ * the dialogue text and the box for as long as it is open.
  */
 static void Chatlog_ApplyHw(void)
 {
-	SetDispEnable(1, 0, 0, 0, 0);
-	SetWinEnable(0, 0, 0);
-	SetBlendNone();
-	BG_SetPosition(BG_0, 0, 0);
+	BG_SetPriority(BG_2, 0);
+	BG_SetPriority(BG_0, 1);
+	BG_SetPriority(BG_1, 2);
+	gLCDControlBuffer.dispcnt.bg2_on = 1;
 
-	/* The scene behind us keeps writing palette RAM, so restate ours. */
-	ApplyPalette(Pal_Text, CHATLOG_TEXT_PAL);
-	gPaletteBuffer[CHATLOG_TEXT_PAL * 16 + 15] = CHATLOG_BACKDROP;
-	gPaletteBuffer[0] = CHATLOG_BACKDROP;
-	EnablePaletteSync();
+	/*
+	 * Everything except the log itself is darkened, so the frozen scene
+	 * still reads as a scene without fighting the text on top of it.
+	 */
+	SetBlendDarken(CHATLOG_DIM);
+	SetBlendTargetA(1, 1, 0, 1, 1);
+	SetBlendBackdropA(1);
+}
+
+static void Chatlog_SaveHw(void)
+{
+	sChatlogUiState.prioBackup[0] = BG_GetPriority(BG_0);
+	sChatlogUiState.prioBackup[1] = BG_GetPriority(BG_1);
+	sChatlogUiState.prioBackup[2] = BG_GetPriority(BG_2);
+	sChatlogUiState.bg2OnBackup = gLCDControlBuffer.dispcnt.bg2_on;
+	Chatlog_CopyBytes(
+		sChatlogUiState.bldcntBackup,
+		(const u8 *)&gLCDControlBuffer.bldcnt,
+		2
+	);
+	sChatlogUiState.blendYBackup = gLCDControlBuffer.blendY;
+}
+
+static void Chatlog_RestoreHw(void)
+{
+	BG_SetPriority(BG_0, sChatlogUiState.prioBackup[0]);
+	BG_SetPriority(BG_1, sChatlogUiState.prioBackup[1]);
+	BG_SetPriority(BG_2, sChatlogUiState.prioBackup[2]);
+	gLCDControlBuffer.dispcnt.bg2_on = sChatlogUiState.bg2OnBackup;
+	Chatlog_CopyBytes(
+		(u8 *)&gLCDControlBuffer.bldcnt,
+		sChatlogUiState.bldcntBackup,
+		2
+	);
+	gLCDControlBuffer.blendY = sChatlogUiState.blendYBackup;
 }
 
 /* --- drawing ------------------------------------------------------------- */
@@ -648,6 +773,18 @@ static const char *Chatlog_ClipToWidth(const char *str, char *out, int outSize, 
 	return out;
 }
 
+/* The chibis take the head of the claimed run, the glyphs the rest. */
+static int Chatlog_ChibiChr(int row)
+{
+	return sChatlogUiState.chr + row * CHATLOG_CHIBI_CHR_STRIDE;
+}
+
+static int Chatlog_TextChr(void)
+{
+	return sChatlogUiState.chr
+		+ sChatlogUiState.rows * CHATLOG_CHIBI_CHR_STRIDE;
+}
+
 static void Chatlog_SetupFont(void)
 {
 	struct Glyph **glyphs;
@@ -665,9 +802,11 @@ static void Chatlog_SetupFont(void)
 
 	InitTextFont(
 		&sChatlogUiState.font,
-		BG_CHR_ADDR(CHATLOG_TEXT_CHR),
-		CHATLOG_TEXT_CHR,
-		CHATLOG_TEXT_PAL
+		(void *)(VRAM
+			+ CHR_SIZE * Chatlog_TextChr()
+			+ GetBackgroundTileDataOffset(BG_2)),
+		Chatlog_TextChr(),
+		sChatlogUiState.textPal
 	);
 	sChatlogUiState.font.glyphs = glyphs;
 	sChatlogUiState.font.drawGlyph = drawGlyph;
@@ -702,14 +841,13 @@ static void Chatlog_Draw(void)
 
 	sChatlogUiState.capture = 0;
 
-	/* Solid colour 15 of the text palette: the hardware backdrop colour is
-	 * not ours to keep, the scene keeps rewriting it. */
-	CpuFill16(0xFFFF, BG_CHR_ADDR(CHATLOG_BLANK_CHR), CHR_SIZE);
-	BG_Fill(gBG0TilemapBuffer, TILEREF(CHATLOG_BLANK_CHR, CHATLOG_TEXT_PAL));
+	/* Tile 0 is blank, so everything the log does not draw over stays
+	 * transparent and the scene behind it shows through. */
+	BG_Fill(gBG2TilemapBuffer, 0);
 	Chatlog_ApplyHw();
 	Chatlog_SetupFont();
 
-	for (row = 0; row < CHATLOG_VISIBLE; row++) {
+	for (row = 0; row < sChatlogUiState.rows; row++) {
 		entry = Chatlog_EntryAt(sChatLogState.viewTop + row);
 
 		/* InitText only reserves tiles; without clearing them the talk
@@ -730,12 +868,12 @@ static void Chatlog_Draw(void)
 		if (!(entry->flags & CHATLOG_ENTRY_CONT)) {
 			const char *name = Chatlog_ResolveName(entry);
 
-			if (entry->portraitId) {
+			if (entry->portraitId && sChatlogUiState.chibiPal[row] != 0xFF) {
 				PutFaceChibi(
 					entry->portraitId,
-					TILEMAP_LOCATED(gBG0TilemapBuffer, CHATLOG_CHIBI_X, y),
-					CHATLOG_CHIBI_CHR + row * CHATLOG_CHIBI_CHR_STRIDE,
-					CHATLOG_CHIBI_PAL + row,
+					TILEMAP_LOCATED(gBG2TilemapBuffer, CHATLOG_CHIBI_X, y),
+					Chatlog_ChibiChr(row),
+					sChatlogUiState.chibiPal[row],
 					0
 				);
 			}
@@ -752,7 +890,7 @@ static void Chatlog_Draw(void)
 						CHATLOG_NAME_PX
 					)
 				);
-				PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, CHATLOG_TEXT_X, y));
+				PutText(text, TILEMAP_LOCATED(gBG2TilemapBuffer, CHATLOG_TEXT_X, y));
 			}
 		}
 
@@ -771,20 +909,30 @@ static void Chatlog_Draw(void)
 					CHATLOG_BODY_PX
 				)
 			);
-			PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, CHATLOG_TEXT_X, bodyY));
+			PutText(text, TILEMAP_LOCATED(gBG2TilemapBuffer, CHATLOG_TEXT_X, bodyY));
 		}
 	}
 
 	EnablePaletteSync();
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
 	SetInitTalkTextFont();
 	sChatlogUiState.capture = savedCapture;
 }
 
 static void Chatlog_Open(void)
 {
+	u8 used[CHATLOG_CHR_LIMIT / 8];
+	u16 palMask = 0;
+
 	Chatlog_SanitizeState();
-	Chatlog_SaveTalkGfx();
+	Chatlog_ScanUsedTiles(used, &palMask);
+	Chatlog_AllocTiles(used);
+	Chatlog_AllocPalettes(palMask);
+
+	if (!sChatlogUiState.rows)
+		return;
+
+	Chatlog_SavePalettes();
 	Chatlog_SaveHw();
 	Chatlog_ApplyHw();
 
@@ -797,7 +945,9 @@ static void Chatlog_Open(void)
 static void Chatlog_Close(void)
 {
 	sChatLogState.flags &= ~CHATLOG_FLAG_VISIBLE;
-	Chatlog_RestoreTalkGfx();
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+	Chatlog_RestorePalettes();
 	Chatlog_RestoreHw();
 	SetInitTalkTextFont();
 }

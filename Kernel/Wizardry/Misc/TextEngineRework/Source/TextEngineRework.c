@@ -465,7 +465,7 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 
 	(void)proc;
 
-	/* The chatlog borrows the dialogue layers; leave them alone until it closes. */
+	/* The dialogue is frozen behind the chatlog; do not redraw over it. */
 	if (Chatlog_IsVisible())
 		return;
 
@@ -895,10 +895,6 @@ static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc)
 
 static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc)
 {
-	/* The log owns BG0's scroll while it is up. */
-	if (Chatlog_IsVisible())
-		return;
-
 	TextEnginePrintFx_Apply(proc);
 
 	if (proc->shakeTimer >= 0)
