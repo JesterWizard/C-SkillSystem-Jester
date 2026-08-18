@@ -173,7 +173,11 @@ void ChapterTimer_OnTick(struct ChapterTimerProc *proc)
             BG_Fill(gBG1TilemapBuffer, 0);
             BG_Fill(gBG2TilemapBuffer, 0);
             BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
-            Proc_End(Proc_Find(gProcScr_UnitDisplay_MinimugBox));
+            Proc_EndEach(gProcScr_UnitDisplay_MinimugBox);
+            Proc_EndEach(gProcScr_UnitDisplay_Burst);
+            Proc_EndEach(gProcScr_TerrainDisplay);
+            Proc_EndEach(gProcScr_GoalDisplay);
+            Proc_EndEach(gProcScr_PrepMap_MenuButtonDisplay);
             CallGameOverEvent();
         }
     }

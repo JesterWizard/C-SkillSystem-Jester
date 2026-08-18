@@ -41,25 +41,52 @@ static const GameOverQuotes game_over_quotes[] =
 };
 
 
-int HorizontalCenterText(const char *str)
-{
-    return (240 - GetStringTextLen(str)+7) / 16;
-}
-
 LYN_REPLACE_CHECK(GameOverScreen_Init);
 void GameOverScreen_Init(struct ProcGameOverScreen *proc)
 {
     BMapDispSuspend();
 
+    /* HUD procs keep writing BG0 (goal timer redraws every frame). */
+    Proc_EndEach(gProcScr_UnitDisplay_MinimugBox);
+    Proc_EndEach(gProcScr_UnitDisplay_Burst);
+    Proc_EndEach(gProcScr_TerrainDisplay);
+    Proc_EndEach(gProcScr_GoalDisplay);
+    Proc_EndEach(gProcScr_PrepMap_MenuButtonDisplay);
+
+    SetSecondaryHBlankHandler(NULL);
+    SetWinEnable(0, 0, 0);
+
     StartBgm(SONG_GAME_OVER, 0);
 
+    gLCDControlBuffer.dispcnt.mode = 0;
     gLCDControlBuffer.bg0cnt.priority = 0;
     gLCDControlBuffer.bg1cnt.priority = 1;
     gLCDControlBuffer.bg2cnt.priority = 2;
     gLCDControlBuffer.bg3cnt.priority = 3;
 
+    gLCDControlBuffer.bg0cnt.screenSize = 0;
+    gLCDControlBuffer.bg1cnt.screenSize = 0;
+    gLCDControlBuffer.bg2cnt.screenSize = 0;
+    gLCDControlBuffer.bg3cnt.screenSize = 0;
+    gLCDControlBuffer.bg0cnt.colorMode = 0;
+    gLCDControlBuffer.bg1cnt.colorMode = 0;
+    gLCDControlBuffer.bg2cnt.colorMode = 0;
+    gLCDControlBuffer.bg3cnt.colorMode = 0;
+    gLCDControlBuffer.bg0cnt.mosaic = 0;
+    gLCDControlBuffer.bg1cnt.mosaic = 0;
+    gLCDControlBuffer.bg2cnt.mosaic = 0;
+    gLCDControlBuffer.bg3cnt.mosaic = 0;
+    gLCDControlBuffer.mosaic = 0;
+
+    SetBackgroundTileDataOffset(0, 0);
+    SetBackgroundTileDataOffset(1, 0);
     SetBackgroundTileDataOffset(2, 0);
     SetBackgroundTileDataOffset(3, 0);
+
+    BG_SetPosition(BG_0, 0, 0);
+    BG_SetPosition(BG_1, 0, 0);
+    BG_SetPosition(BG_2, 0, 0);
+    BG_SetPosition(BG_3, 0, 0);
 
     ApplyPalette(Pal_GameOverText1, BGPAL_GAMEOVER_4);
     Decompress(Img_ChapterIntroFog, BG_CHR_ADDR(BGCHR_BMFX_IMG));
@@ -70,7 +97,6 @@ void GameOverScreen_Init(struct ProcGameOverScreen *proc)
         ApplyPalette(Pal_GameOverText2, BGPAL_GAMEOVER_TEXT);
     }
 
-    BG_SetPosition(0, 0, 0);
     ClearBg0Bg1();
 
     if (gpKernelDesignerConfig->gameover_quotes != true)
@@ -84,7 +110,7 @@ void GameOverScreen_Init(struct ProcGameOverScreen *proc)
     PutScreenFogEffectOverlayed();
     PutScreenFogEffect();
 
-    BG_EnableSyncByMask(BG2_SYNC_BIT + BG3_SYNC_BIT);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
 
     SetPrimaryHBlankHandler(GameOverScreenHBlank);
 
@@ -104,16 +130,31 @@ void GameOverScreen_Init(struct ProcGameOverScreen *proc)
     
     if (gpKernelDesignerConfig->gameover_quotes == true)
     {
-        int xStart    = 0;
-        int tileWidth = 24;
         int chosenMessage = NextRN_N(ARRAY_COUNT(game_over_quotes));
-        
+
+        /* Fog lives at BGCHR_BMFX_IMG (0x100). Reset the font allocator to 0x80
+         * so quote glyphs cannot overwrite the fog tiles and break wrapping. */
+        ResetText();
+
         for (unsigned i = 0; i < ARRAY_COUNT(game_over_quotes[chosenMessage].values); i++)
         {
             const char *line = game_over_quotes[chosenMessage].values[i];
-            PutDrawText(NULL, gBG0TilemapBuffer + TILEMAP_INDEX(HorizontalCenterText(line), 7 + (i * 2)), TEXT_COLOR_SYSTEM_GOLD, xStart, tileWidth, line);
+            int xPx = GetStringTextCenteredPos(DISPLAY_WIDTH, line);
+            int xTile = xPx / 8;
+            int xOff = xPx % 8;
+            int tileWidth = (GetStringTextLen(line) + xOff + 7) / 8;
+
+            PutDrawText(
+                NULL,
+                gBG0TilemapBuffer + TILEMAP_INDEX(xTile, 7 + (i * 2)),
+                TEXT_COLOR_SYSTEM_GOLD,
+                xOff,
+                tileWidth,
+                line);
         }
-    }    
+
+        BG_EnableSyncByMask(BG0_SYNC_BIT);
+    } 
 
     EnablePaletteSync();
 }
