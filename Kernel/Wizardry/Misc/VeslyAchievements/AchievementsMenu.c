@@ -274,7 +274,7 @@ const char * GetStringNextLine_Achievements(const char * str, int maxWidth)
                 nextWordWidth += gw;
             }
 
-            if (ttlWidth + width + nextWordWidth > maxWidth)
+            if ((int)(ttlWidth + width + nextWordWidth) > maxWidth)
             {
                 // Break here before the space and return pointer to first character of next word
                 const char * nextWordStart = charEnd; // skip the space itself
@@ -284,7 +284,7 @@ const char * GetStringNextLine_Achievements(const char * str, int maxWidth)
             }
         }
 
-        if (ttlWidth + width > maxWidth)
+        if ((int)(ttlWidth + width) > maxWidth)
         {
             // Break at this character
             return iter;

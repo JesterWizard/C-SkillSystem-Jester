@@ -155,8 +155,10 @@ ASFLAGS := $(ARCH) $(INC_FLAG)
 CFLAGS += -std=gnu99
 # CFLAGS += -fno-inline -finline-functions
 
-CDEPFLAGS = -MMD -MT "$*.o" -MT "$*.asm" -MF "$(CACHE_DIR)/$(notdir $*).d" -MP
-SDEPFLAGS = --MD "$(CACHE_DIR)/$(notdir $*).d"
+# Use $@ so Kernel/%.o deps point at Kernel/.../foo.o (not Wizardry/.../foo.o).
+# Use a path-unique .d name so basename collisions cannot clobber each other.
+CDEPFLAGS = -MMD -MT "$@" -MT "$(basename $@).asm" -MF "$(CACHE_DIR)/$(subst /,_,$(basename $@)).d" -MP
+SDEPFLAGS = --MD "$(CACHE_DIR)/$(subst /,_,$(basename $@)).d"
 
 LYN_REF := $(EXT_REF:.s=.o) $(RAM_REF:.s=.o) $(FE8_REF)
 
@@ -176,9 +178,6 @@ Kernel/%.lyn.event: Kernel/%.o $(LYN_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"
 	@$(LYN) $(LYN_LONG_CALL) $< $(LYN_REF) > $@
 	@$(LYN_PROTECTOR) $@ $(FE8_SYM) >> $@
-
-# Prebuilt VeslyAchievements object (no C_Code.c in-tree rebuild; keep shipped lyn)
-Kernel/Wizardry/Misc/VeslyAchievements/C_Code.lyn.event: ;
 
 # Others: long call
 %.lyn.event: %.o $(LYN_REF) $(FE8_SYM)

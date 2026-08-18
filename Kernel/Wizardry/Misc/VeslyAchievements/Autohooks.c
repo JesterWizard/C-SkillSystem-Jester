@@ -1,27 +1,5 @@
 
-// LynJump.event replacements (detector round-trip)
-LYN_REPLACE_CHECK(EquipUnitItemSlot);
-LYN_REPLACE_CHECK(UnitChangeFaction);
-LYN_REPLACE_CHECK(IsExtraBonusClaimEnabled);
-LYN_REPLACE_CHECK(sub_80AA550);
-LYN_REPLACE_CHECK(sub_80B0674);
-LYN_REPLACE_CHECK(sub_80B06FC);
-LYN_REPLACE_CHECK(InitBonusClaimData);
-LYN_REPLACE_CHECK(DrawBonusClaimItemText);
-LYN_REPLACE_CHECK(SetBonusItemClaimed);
-LYN_REPLACE_CHECK(SetupBonusClaimTargets);
-LYN_REPLACE_CHECK(BonusClaim_Init);
-LYN_REPLACE_CHECK(BonusClaim_Loop_MainKeyHandler);
-LYN_REPLACE_CHECK(BonusClaim_DrawTargetUnitSprites);
-LYN_REPLACE_CHECK(sub_80B1008);
-LYN_REPLACE_CHECK(TryClaimBonusItem);
-LYN_REPLACE_CHECK(BonusClaim_Loop_SelectTargetKeyHandler);
-LYN_REPLACE_CHECK(BonusClaim_EndSelectTargetSubMenu);
-LYN_REPLACE_CHECK(BonusClaim_DrawItemSentPopup);
-LYN_REPLACE_CHECK(BonusClaim_Loop_PopupDisplayTimer);
-LYN_REPLACE_CHECK(BonusClaim_ClearItemSentPopup);
-LYN_REPLACE_CHECK(BonusClaim_OnEnd);
-LYN_REPLACE_CHECK(StartBonusClaimScreen);
+// ROM hooks for the replacements below are listed in LynJump.event / C_Code.lyn.event
 
 // the entirety of BonusClaim.c replaces functions, too
 void EquipUnitItemSlot(struct Unit * unit, int itemSlot)
@@ -31,11 +9,11 @@ void EquipUnitItemSlot(struct Unit * unit, int itemSlot)
     switch (itemSlot) // compiler was using memmove and causing a crash, so I swapped to a switch case
     {
         case 4:
-            unit->items[4] = unit->items[3]; // no break;
+            unit->items[4] = unit->items[3]; /* fallthrough */
         case 3:
-            unit->items[3] = unit->items[2];
+            unit->items[3] = unit->items[2]; /* fallthrough */
         case 2:
-            unit->items[2] = unit->items[1];
+            unit->items[2] = unit->items[1]; /* fallthrough */
         case 1:
             unit->items[1] = unit->items[0];
     }

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "save-data.h"
+#include "jester_headers/custom-structs.h"
 
 void NewGameSaveGenericHook(void)
 {
@@ -11,6 +12,7 @@ void NewGameSaveGenericHook(void)
 	ResetPermanentFlags();
 	InvalidateSuspendSave(SAVE_ID_SUSPEND);
 	SetBonusContentClaimFlags(0);
+	gChapterTimerSeconds = 0;
 
 	/* ClearWorldMapStuff */
 	ClearWorldMapStuff(dst + CalcChunkOffset_Sav(GetEmsChunkByIndex_Sav(EMS_CHUNK_WMDATA)));

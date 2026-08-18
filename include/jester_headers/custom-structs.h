@@ -60,6 +60,8 @@ void DrawTimeHMS(struct Text *text, int x, int seconds);
 void StartChapterTimer(int seconds);
 void ChapterTimer_OnTick(struct ChapterTimerProc *proc);
 void GoalDisplay_Loop(struct PlayerInterfaceProc *proc);
+u16 GetChapterTimerConfigSeconds(void);
+void ChapterInit_ResetChapterTimer(ProcPtr proc);
 
 extern u16 gChapterTimerSeconds;
 

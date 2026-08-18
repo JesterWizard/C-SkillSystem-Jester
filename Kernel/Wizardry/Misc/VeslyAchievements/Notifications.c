@@ -22,7 +22,7 @@ extern int GetCursorQuadrant();
 extern int GetWindowQuadrant(int, int);
 extern void sub_808D514(int quadrant, int param_2, int param_3);
 
-extern struct ProcCmd const gProcScr_SaveMenuPostChapter[];
+extern struct ProcCmd CONST_DATA gProcScr_SaveMenuPostChapter[];
 extern struct ProcCmd const gProcScr_Talk[];
 int IsNotificationActive(struct NotificationWindowProc * proc)
 {
@@ -266,7 +266,9 @@ void NotificationSetFastPrint(struct NotificationWindowProc * proc)
 
 // #define MAX_LINE_WIDTH 151
 extern const int MAX_LINE_WIDTH;
+#ifndef CHAR_NEWLINE
 #define CHAR_NEWLINE 1
+#endif
 #define CHAR_SPACE 0x20
 #define SpriteTextBG
 // draw text farther down in tile1 page
@@ -440,14 +442,6 @@ int GetSoundRoomIDFromTrack(int id)
     return (-1);
 }
 
-struct MsgBuffer
-{
-    u8 buffer1[0x555];
-    u8 buffer2[0x555];
-    u8 buffer3[0x356];
-    u8 buffer4[0x100];
-    u8 buffer5[0x100];
-};
 extern struct MsgBuffer sMsgString;
 const char * GetPlayingBGMName(struct NotificationWindowProc * proc)
 {

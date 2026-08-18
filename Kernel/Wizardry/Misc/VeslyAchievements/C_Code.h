@@ -58,14 +58,6 @@ extern struct ClassData* classTablePoin[];
 #define availableBonusIdWords ((MAX_ITEMS + 31) / 32)
 #define MAX_ACHIEVEMENTS 1000
 
-struct BonusClaimEnt
-{
-    /* 00 */ u8 unseen;
-    /* 01 */ u8 kind; // 2 = gold, 0/1 = items
-    /* 02 */ u8 itemId;
-    /* 03 */ char str[0x11]; // Only used in FE8
-};
-
 extern const struct BonusClaimEnt bonusData[];
 extern u32* DebuggerProcCmd;
 struct NewBonusClaimRamStruct

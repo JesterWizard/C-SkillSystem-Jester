@@ -48,7 +48,7 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
     goalWindowType = isSkirmish ? GOAL_TYPE_DEFEAT_ALL : chapter->goalWindowDataType;
 
     /* Since we're adding custom objectives now I'm putting this forced text string under a condition */
-    if (gpKernelDesignerConfig->goal_timer == true && gPlaySt.chapterIndex == chapter_timers[gPlaySt.chapterIndex].chapter_id && chapter_timers[gPlaySt.chapterIndex].time_seconds > 0)
+    if (gpKernelDesignerConfig->goal_timer == true && GetChapterTimerConfigSeconds() > 0)
         goalWindowType = GOAL_TYPE_TIMER;
 
     switch (goalWindowType)
@@ -129,23 +129,26 @@ void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
              "Remaining:"
         );
 
-        /* If the proc hasn't already begun then start it here to assure several seconds aren't lost on initialization */
+        /*
+         * Always seed from the chapter table unless we are clearly resuming
+         * with a remaining time in range (suspend LoadTimer path).
+         */
         if (!Proc_Find(ProcScr_ChapterTimer))
         {
-            // Case 1: resuming with an existing timer
-            if (gChapterTimerSeconds > 0)
+            u16 configured = GetChapterTimerConfigSeconds();
+            u16 remaining = gChapterTimerSeconds;
+
+            if (configured == 0)
             {
-                StartChapterTimer(gChapterTimerSeconds);
+                gChapterTimerSeconds = 0;
             }
             else
             {
-                // Case 2: fresh start, pull from chapter data
-                gChapterTimerSeconds = chapter_timers[gPlaySt.chapterIndex].time_seconds;
+                if (remaining == 0 || remaining > configured)
+                    remaining = configured;
 
-                if (gChapterTimerSeconds > 0)
-                {
-                    StartChapterTimer(gChapterTimerSeconds);
-                }
+                gChapterTimerSeconds = remaining;
+                StartChapterTimer(remaining);
             }
         }
 

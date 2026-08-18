@@ -1,8 +1,7 @@
 #define brk asm("mov r11, r11");
 
-extern struct BonusClaimEnt gBonusClaimData[50];
+/* Sizes mirror EMS layout; declarations live in bonusclaim.h */
 extern u8 bonusclaim_maybe_not_pad1[0x18];
-extern struct BonusClaimEnt gBonusClaimDataUpdated[50];
 extern u8 bonusclaim_maybe_not_pad2[0x18];
 extern struct BonusClaimItemEnt gBonusClaimItemList[0x80];
 extern struct BonusClaimConfig gBonusClaimConfig[0x40];
@@ -15,8 +14,6 @@ extern struct Text gBonusClaimText[0x121]; // maybe lower
 // int * const gpBonusClaimItemCount = gBonusClaimItemCounts;
 // struct Text * const gpBonusClaimText = gBonusClaimText;
 // struct BonusClaimConfig * const gpBonusClaimConfig = gBonusClaimConfig;
-
-int LoadBonusContentData(void *);
 
 // MSa_SaveBonusClaim
 // default EMS seems to save 4 bytes for bonus content data that's been claimed
@@ -282,6 +279,7 @@ s8 InitBonusClaimData()
                     {
                         continue;
                     }
+                    /* fallthrough */
 
                 case BONUSKIND_ITEM0:
                 case BONUSKIND_MONEY:
@@ -1004,7 +1002,7 @@ void BonusClaim_DrawItemSentPopup(struct BonusClaimProc * proc)
     {
         case BONUSKIND_ITEM0:
         case BONUSKIND_ITEM1:
-            PlaySoundEffect(SONG_5A);
+            PlaySoundEffect(SONG_SE_UPDATE);
             break;
         case BONUSKIND_MONEY:
             PlaySoundEffect(SONG_SE_MONEY);

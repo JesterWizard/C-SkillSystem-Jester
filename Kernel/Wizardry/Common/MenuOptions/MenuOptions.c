@@ -45,7 +45,15 @@ const u8 gGameOptionsUiOrder_NEW[32] = {
 
 static int GetGameOptionIndexCount(void)
 {
-    return ARRAY_COUNT(gGameOptionsUiOrder_NEW);
+    int count = ARRAY_COUNT(gGameOptionsUiOrder_NEW);
+
+    /* Hide the player Achievements toggle when the designer feature is off. */
+    if (gpKernelDesignerConfig->vesly_achievements != true
+        && count > 0
+        && gGameOptionsUiOrder_NEW[count - 1] == GAME_OPTION_ACHIEVEMENTS)
+        count--;
+
+    return count;
 }
 
 static int GetGameOptionRowCount(int optionIdx)
@@ -654,6 +662,11 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
         case GAME_OPTION_ACHIEVEMENTS:
+            if (gpKernelDesignerConfig->vesly_achievements != true) {
+                gPlaySt.config.achievements = 1; /* OFF */
+                SetAchievementsTo(0);
+                break;
+            }
             gPlaySt.config.achievements = newValue;
             /* Keep Vesly Achievements flag in sync: SetAchievementsTo(1)=ON. */
             SetAchievementsTo(newValue == 0);
@@ -704,7 +717,10 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
         case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
-        case GAME_OPTION_ACHIEVEMENTS:                   return gPlaySt.config.achievements;
+        case GAME_OPTION_ACHIEVEMENTS:
+            if (gpKernelDesignerConfig->vesly_achievements != true)
+                return 1; /* OFF */
+            return gPlaySt.config.achievements;
     }
     return 0;
 }
@@ -757,12 +773,19 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = 0; /* display hint; interval frames come from designer config */
-    gPlaySt.config.achievements = 0; /* ON */
-    SetAchievementsTo(1);
+    /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
+    gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
+    SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);
 }
 
 void ChapterInit_SyncAchievementsOption(void)
 {
+    if (gpKernelDesignerConfig->vesly_achievements != true) {
+        gPlaySt.config.achievements = 1; /* OFF */
+        SetAchievementsTo(0);
+        return;
+    }
+
     SetAchievementsTo(gPlaySt.config.achievements == 0);
 }
 

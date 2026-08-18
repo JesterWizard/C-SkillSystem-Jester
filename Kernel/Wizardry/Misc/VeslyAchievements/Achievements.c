@@ -31,6 +31,8 @@ void SetBgmNotifTo(int id)
 
 int AreAchievementsEnabled()
 {
+    if (gpKernelDesignerConfig->vesly_achievements != true)
+        return false;
 
     return !CheckFlag(AchievementsDisabledFlag_Link);
 }
@@ -39,10 +41,9 @@ int AreBgmNotifsEnabled()
 
     return !CheckFlag(DisableBGMNotificationsFlag);
 }
-int CannotUnlockAchievements(void) // debugger on
+int CannotUnlockAchievements(void)
 {
-    return false;
-    // return !CheckFlag(DebugFlag_Link);
+    return !AreAchievementsEnabled();
 }
 
 extern int AlwaysShowAchievement;

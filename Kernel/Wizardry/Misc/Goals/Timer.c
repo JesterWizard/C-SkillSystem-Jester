@@ -11,22 +11,52 @@ const TimerAmount chapter_timers[] = {
     {CHAPTER_L_2,           60},
     {CHAPTER_L_3,           60},
     {CHAPTER_L_4,           60},
-    {CHAPTER_L_5,           60},
     {CHAPTER_L_5X,          60},
+    {CHAPTER_L_5,           60},
     {CHAPTER_L_6,           60},
     {CHAPTER_L_7,           60},
     {CHAPTER_L_8,           60},
     {CHAPTER_E_9,           60},
     {CHAPTER_E_10,          60},
-    {CHAPTER_E_11,          60},
     {CHAPTER_E_12,          60},
     {CHAPTER_E_13,          60},
     {CHAPTER_E_14,          60},
     {CHAPTER_E_15,          60},
     {CHAPTER_E_16,          60},
     {CHAPTER_E_17,          60},
-    {CHAPTER_E_18,          60}
+    {CHAPTER_E_18,          60},
 };
+
+#define CHAPTER_TIMERS_COUNT (sizeof(chapter_timers) / sizeof(chapter_timers[0]))
+
+u16 GetChapterTimerConfigSeconds(void)
+{
+    u8 chapter = gPlaySt.chapterIndex;
+
+    if (chapter >= CHAPTER_TIMERS_COUNT)
+        return 0;
+
+    if (chapter_timers[chapter].chapter_id != chapter)
+        return 0;
+
+    return chapter_timers[chapter].time_seconds;
+}
+
+/* Fresh chapter only (not suspend). Suspend restores remaining time via LoadTimer. */
+void ChapterInit_ResetChapterTimer(ProcPtr proc)
+{
+    (void)proc;
+
+    Proc_EndEach(ProcScr_ChapterTimer);
+
+    if (gpKernelDesignerConfig->goal_timer != true)
+    {
+        gChapterTimerSeconds = 0;
+        return;
+    }
+
+    gChapterTimerSeconds = GetChapterTimerConfigSeconds();
+}
 
 //! FE8U = 0x0808D784
 LYN_REPLACE_CHECK(GoalDisplay_Loop_Display);
@@ -34,7 +64,7 @@ void GoalDisplay_Loop_Display(struct PlayerInterfaceProc *proc)
 {
     /* --- NEW: redraw timer every frame --- */
 
-    if (gpKernelDesignerConfig->goal_timer == true)
+    if (gpKernelDesignerConfig->goal_timer == true && GetChapterTimerConfigSeconds() > 0)
     {
         ClearText(&proc->texts[1]);
         DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
@@ -85,7 +115,7 @@ void DrawTimeHMS(struct Text *text, int x, int seconds)
         seconds = 0;
 
     /* If we're at half remaining time, switch to yellow colored text */
-    color = (seconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2)
+    color = (seconds <= GetChapterTimerConfigSeconds() / 2)
         ? TEXT_COLOR_SYSTEM_GOLD
         : TEXT_COLOR_SYSTEM_BLUE;
 
@@ -161,8 +191,11 @@ void StartChapterTimer(int seconds)
     if (gpKernelDesignerConfig->goal_timer != true)
         return;
 
+    if (seconds <= 0)
+        return;
+
     /* If already started, then we return early */
-    if (Proc_Find(ProcScr_ChapterTimer) || seconds > 65000)
+    if (Proc_Find(ProcScr_ChapterTimer))
         return;
 
     struct ChapterTimerProc *proc;
@@ -197,7 +230,7 @@ LYN_REPLACE_CHECK(Mu_OnLoop);
 void Mu_OnLoop(struct MuProc * proc)
 {
     // If our timer hack is active and we're under half the remainin time, increase the active unit animations speed
-    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2) {
+    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= GetChapterTimerConfigSeconds() / 2) {
         proc->sprite_anim->frameInterval = 0x60; // Quad speed (Default is 0x100)
     }
 
@@ -223,7 +256,7 @@ void SyncUnitSpriteSheet(void)
 {
     int clock = GetGameClock();
 
-    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= chapter_timers[gPlaySt.chapterIndex].time_seconds / 2) {  
+    if (gpKernelDesignerConfig->goal_timer == true && gChapterTimerSeconds <= GetChapterTimerConfigSeconds() / 2) {
         clock *= 4;
     }
 
