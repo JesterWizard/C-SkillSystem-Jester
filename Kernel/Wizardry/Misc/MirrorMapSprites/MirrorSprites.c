@@ -1,6 +1,7 @@
 #include "gbafe.h"
 #include "kernel-lib.h"
 #include "common-chax.h"
+#include "kernel/chatlog.h"
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -422,6 +423,10 @@ static void PutRescuedSupportSpritesOam(void)
 LYN_REPLACE_CHECK(PutUnitSpritesOam);
 void PutUnitSpritesOam(void)
 {
+	/* Map sprites sit above BG2; hide them while the chatlog owns the screen. */
+	if (Chatlog_IsVisible())
+		return;
+
     struct SMSHandle * it = gSMSHandleArray->pNext;
 
     ReloadCustomTrapSpritePalettes();

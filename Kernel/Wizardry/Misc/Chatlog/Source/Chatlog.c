@@ -11,6 +11,7 @@
 #include "ctc.h"
 #include "agb_sram.h"
 #include "bmunit.h"
+#include "prepscreen.h"
 
 /*
  * The log draws on BG2, the one layer a Talk scene leaves empty, so the box
@@ -47,6 +48,16 @@ enum {
 	CHATLOG_NAME_BUF = 0x40,
 	/* How far the scene behind the log is darkened, 0 to leave it alone. */
 	CHATLOG_DIM = 9,
+
+	/*
+	 * Scroll bar is drawn as BG2 tiles (the log's unblended layer) so the
+	 * yellow thumb stays bright while talk portraits on OBJ still dim.
+	 * Track is a fixed 12 tiles (~96px), vertically centered.
+	 */
+	CHATLOG_SCROLL_X = 0,
+	CHATLOG_SCROLL_Y = 4,
+	CHATLOG_SCROLL_SEGMENTS = 12,
+	CHATLOG_SCROLL_GFX = 16,
 };
 
 #define sTalkState (*(struct TalkState **)0x0859133C)
@@ -59,6 +70,9 @@ struct ChatlogUiState {
 	u8 chibiPal[CHATLOG_CHIBI_MAX];
 	u8 prioBackup[3];
 	u8 bg2OnBackup;
+	u8 win0OnBackup;
+	u8 win1OnBackup;
+	u8 objWinOnBackup;
 	u8 bldcntBackup[2];
 	u8 blendYBackup;
 	u16 chr;
@@ -66,6 +80,9 @@ struct ChatlogUiState {
 	u8 rows;
 	u8 chibis;
 	u8 textPal;
+	u8 scrollPal;
+	u16 scrollChr;
+	u16 scrollPalBackup[16];
 	u8 capture;
 	u8 hwSaved;
 	char nameBuf[CHATLOG_NAME_BUF];
@@ -83,9 +100,11 @@ extern const struct ProcCmd gProcScr_TalkShiftClear[];
 extern u16 const *gPressKeyArrowSpriteLut[];
 
 static void Chatlog_OnIdle(ProcPtr proc);
-static void Chatlog_Open(void);
+static void Chatlog_Open(ProcPtr parent);
 static void Chatlog_Close(void);
 static void Chatlog_Draw(void);
+static void Chatlog_DrawScrollBar(void);
+static void Chatlog_LoadScrollGfx(void);
 static struct ChatLogEntry *Chatlog_LiveEntry(void);
 static struct ChatLogEntry *Chatlog_EntryAt(int index);
 static void Chatlog_EnsureLiveEntry(void);
@@ -637,6 +656,7 @@ static void Chatlog_AllocTiles(const u8 *used)
 	sChatlogUiState.chrLen = 0;
 	sChatlogUiState.rows = 0;
 	sChatlogUiState.chibis = 0;
+	sChatlogUiState.scrollChr = 0xFFFF;
 
 	/* Some scenes put their own art on this layer; leave those alone. */
 	for (tile = 0; tile < 0x400; tile++) {
@@ -661,23 +681,33 @@ static void Chatlog_AllocTiles(const u8 *used)
 	}
 
 	/*
-	 * Chibis live at the head of the run; glyphs take the rest.  Pick the
-	 * split that yields the most text lines (capped at CHATLOG_VISIBLE),
-	 * then as many minimugs as that leftover still allows.
+	 * Reserve scroll-bar tiles at the tail of the free run, then split the
+	 * rest between chibis and glyphs.  Pick the split that yields the most
+	 * text lines (capped at CHATLOG_VISIBLE), then as many minimugs as that
+	 * leftover still allows.
 	 */
 	{
 		int c;
 		int bestRows = 0;
 		int bestChibis = 0;
+		int usable = bestLen;
+
+		if (bestLen >= CHATLOG_SCROLL_GFX
+			+ CHATLOG_CHIBI_CHR_STRIDE
+			+ CHATLOG_NAME_CHR
+			+ CHATLOG_BODY_CHR) {
+			usable = bestLen - CHATLOG_SCROLL_GFX;
+			sChatlogUiState.scrollChr = best + usable;
+		}
 
 		for (c = 1; c <= CHATLOG_CHIBI_MAX; c++) {
 			int textTiles;
 			int rows;
 
-			if (c * CHATLOG_CHIBI_CHR_STRIDE >= bestLen)
+			if (c * CHATLOG_CHIBI_CHR_STRIDE >= usable)
 				break;
 
-			textTiles = bestLen - c * CHATLOG_CHIBI_CHR_STRIDE;
+			textTiles = usable - c * CHATLOG_CHIBI_CHR_STRIDE;
 			if (textTiles < CHATLOG_NAME_CHR + CHATLOG_BODY_CHR)
 				continue;
 
@@ -694,7 +724,7 @@ static void Chatlog_AllocTiles(const u8 *used)
 		sChatlogUiState.rows = bestRows;
 		sChatlogUiState.chibis = bestChibis;
 		sChatlogUiState.chr = best;
-		sChatlogUiState.chrLen = bestLen;
+		sChatlogUiState.chrLen = usable;
 	}
 }
 
@@ -706,6 +736,7 @@ static void Chatlog_AllocPalettes(u16 palMask)
 	/* The log's own text reuses the dialogue's palette, so it always
 	 * matches whatever colours the talk is currently using. */
 	sChatlogUiState.textPal = gActiveFont ? gActiveFont->palid : 2;
+	sChatlogUiState.scrollPal = 0xFF;
 
 	for (row = 0; row < CHATLOG_CHIBI_MAX; row++)
 		sChatlogUiState.chibiPal[row] = 0xFF;
@@ -721,21 +752,38 @@ static void Chatlog_AllocPalettes(u16 palMask)
 		palMask |= 1 << slot;
 		slot++;
 	}
+
+	if (sChatlogUiState.scrollChr == 0xFFFF)
+		return;
+
+	while (slot < CHATLOG_PAL_COUNT && (palMask & (1 << slot)))
+		slot++;
+
+	if (slot < CHATLOG_PAL_COUNT)
+		sChatlogUiState.scrollPal = slot;
 }
 
 static void Chatlog_SavePalettes(void)
 {
 	int row;
 	int i;
+	int pal;
 
 	for (row = 0; row < CHATLOG_CHIBI_MAX; row++) {
-		int pal = sChatlogUiState.chibiPal[row];
+		pal = sChatlogUiState.chibiPal[row];
 
 		if (pal == 0xFF)
 			continue;
 
 		for (i = 0; i < 16; i++)
 			sChatlogUiState.palBackup[row * 16 + i] =
+				gPaletteBuffer[pal * 16 + i];
+	}
+
+	pal = sChatlogUiState.scrollPal;
+	if (pal != 0xFF) {
+		for (i = 0; i < 16; i++)
+			sChatlogUiState.scrollPalBackup[i] =
 				gPaletteBuffer[pal * 16 + i];
 	}
 
@@ -746,12 +794,13 @@ static void Chatlog_RestorePalettes(void)
 {
 	int row;
 	int i;
+	int pal;
 
 	if (!sChatlogUiState.hwSaved)
 		return;
 
 	for (row = 0; row < CHATLOG_CHIBI_MAX; row++) {
-		int pal = sChatlogUiState.chibiPal[row];
+		pal = sChatlogUiState.chibiPal[row];
 
 		if (pal == 0xFF)
 			continue;
@@ -759,6 +808,13 @@ static void Chatlog_RestorePalettes(void)
 		for (i = 0; i < 16; i++)
 			gPaletteBuffer[pal * 16 + i] =
 				sChatlogUiState.palBackup[row * 16 + i];
+	}
+
+	pal = sChatlogUiState.scrollPal;
+	if (pal != 0xFF) {
+		for (i = 0; i < 16; i++)
+			gPaletteBuffer[pal * 16 + i] =
+				sChatlogUiState.scrollPalBackup[i];
 	}
 
 	EnablePaletteSync();
@@ -776,9 +832,13 @@ static void Chatlog_ApplyHw(void)
 	BG_SetPriority(BG_1, 2);
 	gLCDControlBuffer.dispcnt.bg2_on = 1;
 
+	/* Talk's WIN0 still clips layers to the bubble; drop it for the overlay. */
+	SetWinEnable(0, 0, 0);
+
 	/*
-	 * Everything except the log itself is darkened, so the frozen scene
-	 * still reads as a scene without fighting the text on top of it.
+	 * Darken the scene behind the log, including talk portraits (OBJ).
+	 * Map sprites are already suppressed in PutUnitSpritesOam.  BG2 is
+	 * left out so the log text and its BG scroll bar stay full-bright.
 	 */
 	SetBlendDarken(CHATLOG_DIM);
 	SetBlendTargetA(1, 1, 0, 1, 1);
@@ -791,6 +851,9 @@ static void Chatlog_SaveHw(void)
 	sChatlogUiState.prioBackup[1] = BG_GetPriority(BG_1);
 	sChatlogUiState.prioBackup[2] = BG_GetPriority(BG_2);
 	sChatlogUiState.bg2OnBackup = gLCDControlBuffer.dispcnt.bg2_on;
+	sChatlogUiState.win0OnBackup = gLCDControlBuffer.dispcnt.win0_on;
+	sChatlogUiState.win1OnBackup = gLCDControlBuffer.dispcnt.win1_on;
+	sChatlogUiState.objWinOnBackup = gLCDControlBuffer.dispcnt.objWin_on;
 	Chatlog_CopyBytes(
 		sChatlogUiState.bldcntBackup,
 		(const u8 *)&gLCDControlBuffer.bldcnt,
@@ -805,6 +868,9 @@ static void Chatlog_RestoreHw(void)
 	BG_SetPriority(BG_1, sChatlogUiState.prioBackup[1]);
 	BG_SetPriority(BG_2, sChatlogUiState.prioBackup[2]);
 	gLCDControlBuffer.dispcnt.bg2_on = sChatlogUiState.bg2OnBackup;
+	gLCDControlBuffer.dispcnt.win0_on = sChatlogUiState.win0OnBackup;
+	gLCDControlBuffer.dispcnt.win1_on = sChatlogUiState.win1OnBackup;
+	gLCDControlBuffer.dispcnt.objWin_on = sChatlogUiState.objWinOnBackup;
 	Chatlog_CopyBytes(
 		(u8 *)&gLCDControlBuffer.bldcnt,
 		sChatlogUiState.bldcntBackup,
@@ -1015,12 +1081,119 @@ static void Chatlog_Draw(void)
 	BG_EnableSyncByMask(BG2_SYNC_BIT);
 	SetInitTalkTextFont();
 	sChatlogUiState.capture = savedCapture;
+	Chatlog_DrawScrollBar();
 }
 
-static void Chatlog_Open(void)
+/*
+ * Prep scroll-bar tiles (Img_MenuScrollBar):
+ *   0 = track, 1-8 = yellow thumb (partial..full), 9 = end cap, 10-15 = arrows.
+ * Drawn on BG2 so the bar stays out of the dim blend that hits OBJ faces.
+ */
+static void Chatlog_LoadScrollGfx(void)
+{
+	int pal = sChatlogUiState.scrollPal;
+	int chr = sChatlogUiState.scrollChr;
+
+	if (chr == 0xFFFF || pal == 0xFF)
+		return;
+
+	ApplyPalette(Pal_MenuScrollBar, pal);
+	Decompress(
+		Img_MenuScrollBar,
+		(void *)(VRAM
+			+ CHR_SIZE * chr
+			+ GetBackgroundTileDataOffset(BG_2))
+	);
+	EnablePaletteSync();
+}
+
+static void Chatlog_DrawScrollBar(void)
+{
+	int i;
+	int total;
+	int page;
+	int maxTop;
+	int thumbH;
+	int thumbY;
+	int base;
+	int pal;
+	u16 track;
+	u16 thumb;
+	u16 cap;
+
+	if (sChatlogUiState.scrollChr == 0xFFFF
+		|| sChatlogUiState.scrollPal == 0xFF)
+		return;
+
+	if (!Chatlog_IsVisible() || Chatlog_MaxViewTop() <= 0)
+		return;
+
+	total = Chatlog_TotalLines();
+	page = total - Chatlog_MaxViewTop();
+	if (page < 1)
+		page = 1;
+
+	maxTop = Chatlog_MaxViewTop();
+	thumbH = (CHATLOG_SCROLL_SEGMENTS * page) / total;
+	if (thumbH < 1)
+		thumbH = 1;
+	if (thumbH > CHATLOG_SCROLL_SEGMENTS)
+		thumbH = CHATLOG_SCROLL_SEGMENTS;
+
+	thumbY = 0;
+	if (maxTop > 0)
+		thumbY = ((CHATLOG_SCROLL_SEGMENTS - thumbH) * sChatLogState.viewTop)
+			/ maxTop;
+
+	if (thumbY + thumbH > CHATLOG_SCROLL_SEGMENTS)
+		thumbY = CHATLOG_SCROLL_SEGMENTS - thumbH;
+
+	base = sChatlogUiState.scrollChr;
+	pal = sChatlogUiState.scrollPal;
+	track = TILEREF(base + 0, pal);
+	thumb = TILEREF(base + 8, pal);
+	cap = TILEREF(base + 9, pal);
+
+	gBG2TilemapBuffer[TILEMAP_INDEX(CHATLOG_SCROLL_X, CHATLOG_SCROLL_Y - 1)] =
+		cap;
+
+	for (i = 0; i < CHATLOG_SCROLL_SEGMENTS; i++) {
+		u16 tile = track;
+
+		if (i >= thumbY && i < thumbY + thumbH)
+			tile = thumb;
+
+		gBG2TilemapBuffer[TILEMAP_INDEX(CHATLOG_SCROLL_X, CHATLOG_SCROLL_Y + i)] =
+			tile;
+	}
+
+	gBG2TilemapBuffer[TILEMAP_INDEX(
+		CHATLOG_SCROLL_X,
+		CHATLOG_SCROLL_Y + CHATLOG_SCROLL_SEGMENTS
+	)] = cap | TILE_VFLIP;
+
+	/* Static arrow cues (no OBJ animation). */
+	if (sChatLogState.viewTop > 0) {
+		gBG2TilemapBuffer[TILEMAP_INDEX(CHATLOG_SCROLL_X, CHATLOG_SCROLL_Y - 1)] =
+			TILEREF(base + 10, pal) | TILE_VFLIP;
+	}
+
+	if (sChatLogState.viewTop < maxTop) {
+		gBG2TilemapBuffer[TILEMAP_INDEX(
+			CHATLOG_SCROLL_X,
+			CHATLOG_SCROLL_Y + CHATLOG_SCROLL_SEGMENTS
+		)] = TILEREF(base + 10, pal);
+	}
+
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+}
+
+static void Chatlog_Open(ProcPtr parent)
 {
 	u8 used[CHATLOG_CHR_LIMIT / 8];
 	u16 palMask = 0;
+
+	(void)parent;
 
 	Chatlog_SanitizeState();
 	Chatlog_ScanUsedTiles(used, &palMask);
@@ -1033,6 +1206,7 @@ static void Chatlog_Open(void)
 	Chatlog_SavePalettes();
 	Chatlog_SaveHw();
 	Chatlog_ApplyHw();
+	Chatlog_LoadScrollGfx();
 
 	sChatLogState.flags |= CHATLOG_FLAG_VISIBLE;
 	sChatLogState.viewTop = Chatlog_MaxViewTop();
@@ -1052,8 +1226,6 @@ static void Chatlog_Close(void)
 
 static void Chatlog_OnIdle(ProcPtr proc)
 {
-	(void)proc;
-
 	if (!Proc_Find(gProcScr_Talk)) {
 		if (Chatlog_IsVisible())
 			Chatlog_Close();
@@ -1064,7 +1236,7 @@ static void Chatlog_OnIdle(ProcPtr proc)
 		if (Chatlog_IsVisible())
 			Chatlog_Close();
 		else
-			Chatlog_Open();
+			Chatlog_Open(proc);
 		return;
 	}
 

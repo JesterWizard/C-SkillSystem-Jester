@@ -32,6 +32,7 @@ This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17
 | **SELECT** | Talk open, log closed | Open chatlog overlay |
 | **SELECT** | Talk open, log open | Close overlay and restore layer priorities |
 | **DPAD_UP / DOWN** | Log open | Scroll through stored entries |
+| — | Log open, more entries than fit | Prep-menu scroll bar (BG2 tiles) on the left tracks position |
 | **A / B / DPAD** | Log open | Ignored for Talk advance / skip |
 | Map **SELECT** | Player phase | Unchanged (not wired to chatlog) |
 
@@ -61,7 +62,7 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 ### Overlay drawing
 
 - The log draws on **BG2**, the one layer a Talk scene leaves empty, so the box (BG1), the dialogue text (BG0) and the map or scene art all keep their own layers and stay visible. Priorities become log → text → box → scene while it is open and are restored on close; BG2 is force-enabled in `DISPCNT` for scenes that had it off.
-- Nothing is filled in: cells the log does not draw stay on blank tile 0 and the frozen scene shows through. It is darkened with the hardware brightness effect (`SetBlendDarken(CHATLOG_DIM)`, every layer except BG2 targeted) purely for legibility — set `CHATLOG_DIM` to `0` for full brightness.
+- Nothing is filled in: cells the log does not draw stay on blank tile 0 and the frozen scene shows through. It is darkened with the hardware brightness effect (`SetBlendDarken(CHATLOG_DIM)`, every layer except BG2 targeted) purely for legibility — set `CHATLOG_DIM` to `0` for full brightness. The prep-style scroll bar is painted as BG2 tiles so it stays bright with the log text while talk portraits (OBJ) still dim.
 - Tiles and palettes are claimed at open time, not fixed. BG0/BG1/BG2 share a character base and how much is spare depends on the scene: a map talk leaves roughly 400 unreferenced tiles, a world-map narration about 45. `Chatlog_ScanUsedTiles` walks the four live tilemaps plus the range the talk font has reserved for glyphs it has not printed yet, `Chatlog_AllocTiles` claims the longest free run, and the log shows as many rows as fit (`0x3E` tiles per row: a 16-tile chibi plus the name and message glyphs).
 - Because of that, no scene graphics are ever overwritten and nothing has to be stashed. The only saved state is the layer priorities, the blend registers and the handful of palette slots the chibis borrow, which are likewise picked from slots no live tilemap references.
 - Text uses the dialogue's own font palette (`gActiveFont->palid`), so gold names and white messages match the talk exactly.
