@@ -102,6 +102,11 @@ _Static_assert(sizeof(struct ChatLogEntry) == 64, "ChatLogEntry size");
 _Static_assert(sizeof(struct ChatLogState) == 0x444, "ChatLogState size");
 _Static_assert(sizeof(struct ChatlogUiState) <= 0x600, "ChatlogUiState size");
 
+static bool Chatlog_IsEnabled(void)
+{
+	return gpKernelDesignerConfig->chatlog_enabled != false;
+}
+
 bool Chatlog_IsVisible(void)
 {
 	return (sChatLogState.flags & CHATLOG_FLAG_VISIBLE) != 0;
@@ -374,6 +379,9 @@ static void Chatlog_AppendGlyph(u32 unicod)
 	int used;
 	int i;
 
+	if (!Chatlog_IsEnabled())
+		return;
+
 	if (unicod < 0x20 || unicod == 0x7F)
 		return;
 
@@ -523,6 +531,9 @@ void Chatlog_CommitPage(void)
 
 void Chatlog_StartSession(void)
 {
+	if (!Chatlog_IsEnabled())
+		return;
+
 	Chatlog_SanitizeState();
 	sChatLogState.flags &= ~(CHATLOG_FLAG_VISIBLE | CHATLOG_FLAG_LINEOPEN);
 	Proc_EndEach(ProcScr_Chatlog);

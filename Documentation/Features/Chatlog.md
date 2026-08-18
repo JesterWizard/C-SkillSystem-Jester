@@ -15,7 +15,11 @@
 
 Chapter dialogue in FE8 is ephemeral: once a page advances, earlier lines are gone. Players who miss a name, joke, or plot beat have no in-scene way to re-read without restarting the conversation (or using prep Event Replay after the fact).
 
-This feature adds a **Talk-scene chatlog**: a left-side BG0 overlay that stores the last **15** completed dialogue pages for the current chapter, toggled with **SELECT**, scrolled with **DPAD_UP / DPAD_DOWN**, and kept alive across **suspend** (not normal save files).
+This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17** dialogue lines of the current chapter, toggled with **SELECT**, scrolled with **DPAD_UP / DPAD_DOWN**, and kept alive across **suspend** (not normal save files).
+
+### Runtime configuration
+
+`KernelDesigerConfig::chatlog_enabled` (`true` by default) turns the whole feature on and off in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c). With it disabled, no session proc starts, no glyphs are captured, and SELECT behaves exactly as it does in vanilla; the suspend chunk is still written so save layout does not change between builds.
 
 ---
 
@@ -83,6 +87,7 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 | Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/Common/SaveData/data.event) | SUS-only `0x444` EMS chunk |
 | Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/Common/ChapterInitHook/data.event) | Wipe history on chapter start |
 | Public API | [`chatlog.h`](../../include/kernel/chatlog.h) | Caps, structs, and hook entry points |
+| Runtime toggle | `chatlog_enabled` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Gates `Chatlog_StartSession` and glyph capture |
 
 ---
 

@@ -175,4 +175,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.pair_up_enabled = true,
 	.half_body_portraits = false,
 	.enemy_fog_vision = false,
+	.chatlog_enabled = true,
 };
