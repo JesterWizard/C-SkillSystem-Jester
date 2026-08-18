@@ -1,113 +1,191 @@
 #include "WorldMapThoughts.lyn.event"
 
 // ARTUR
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Artur: #incext Png2Dmp "Artur/Chapter_05_Thought_Bubble_Artur.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Artur: #incext Png2Dmp "Artur/Chapter_06_Thought_Bubble_Artur.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Artur: #incext Png2Dmp "Artur/Chapter_07_Thought_Bubble_Artur.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Artur: #incext Png2Dmp "Artur/Chapter_09_Thought_Bubble_Artur.png" --lz77
 
 // COLM
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Colm: #incext Png2Dmp "Colm/Chapter_04_Thought_Bubble_Colm.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Colm: #incext Png2Dmp "Colm/Chapter_05_Thought_Bubble_Colm.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Colm: #incext Png2Dmp "Colm/Chapter_06_Thought_Bubble_Colm.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Colm: #incext Png2Dmp "Colm/Chapter_07_Thought_Bubble_Colm.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Colm: #incext Png2Dmp "Colm/Chapter_09_Thought_Bubble_Colm.png" --lz77
 
 // EIRIKA
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_02_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_03_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_04_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_05_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_06_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_07_Thought_Bubble_Eirika.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Eirika: #incext Png2Dmp "Eirika/Chapter_09_Thought_Bubble_Eirika.png" --lz77
 
 // EPHRAIM
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Ephraim: #incext Png2Dmp "Ephraim/Chapter_09_Thought_Bubble_Ephraim.png" --lz77
 
 // FORDE
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Forde: #incext Png2Dmp "Forde/Chapter_09_Thought_Bubble_Forde.png" --lz77
 
 // FRANZ
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_02_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_03_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_04_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_05_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_06_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_07_Thought_Bubble_Franz.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Franz: #incext Png2Dmp "Franz/Chapter_09_Thought_Bubble_Franz.png" --lz77
 
 // GARCIA
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Garcia: #incext Png2Dmp "Garcia/Chapter_05_Thought_Bubble_Garcia.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Garcia: #incext Png2Dmp "Garcia/Chapter_06_Thought_Bubble_Garcia.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Garcia: #incext Png2Dmp "Garcia/Chapter_07_Thought_Bubble_Garcia.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Garcia: #incext Png2Dmp "Garcia/Chapter_09_Thought_Bubble_Garcia.png" --lz77
 
 // GILLLIAM
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_02_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_03_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_04_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_05_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_06_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_07_Thought_Bubble_Gilliam.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Gilliam: #incext Png2Dmp "Gilliam/Chapter_09_Thought_Bubble_Gilliam.png" --lz77
 
 // JOSHUA
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Joshua: #incext Png2Dmp "Joshua/Chapter_06_Thought_Bubble_Joshua.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Joshua: #incext Png2Dmp "Joshua/Chapter_07_Thought_Bubble_Joshua.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Joshua: #incext Png2Dmp "Joshua/Chapter_09_Thought_Bubble_Joshua.png" --lz77
 
 // KYLE
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Kyle: #incext Png2Dmp "Kyle/Chapter_09_Thought_Bubble_Natasha.png" --lz77
 
 // LUTE
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Lute: #incext Png2Dmp "Lute/Chapter_05_Thought_Bubble_Lute.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Lute: #incext Png2Dmp "Lute/Chapter_06_Thought_Bubble_Lute.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Lute: #incext Png2Dmp "Lute/Chapter_07_Thought_Bubble_Lute.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Lute: #incext Png2Dmp "Lute/Chapter_09_Thought_Bubble_Lute.png" --lz77
 
 // MOULDER
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_02_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_03_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_04_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_05_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_06_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_07_Thought_Bubble_Moulder.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Moulder: #incext Png2Dmp "Moulder/Chapter_09_Thought_Bubble_Moulder.png" --lz77
 
 // NATASHA
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Natasha: #incext Png2Dmp "Natasha/Chapter_06_Thought_Bubble_Natasha.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Natasha: #incext Png2Dmp "Natasha/Chapter_07_Thought_Bubble_Natasha.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Natasha: #incext Png2Dmp "Natasha/Chapter_09_Thought_Bubble_Natasha.png" --lz77
 
 // NEIMI
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Neimi: #incext Png2Dmp "Neimi/Chapter_04_Thought_Bubble_Neimi.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Neimi: #incext Png2Dmp "Neimi/Chapter_05_Thought_Bubble_Neimi.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Neimi: #incext Png2Dmp "Neimi/Chapter_06_Thought_Bubble_Neimi.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Neimi: #incext Png2Dmp "Neimi/Chapter_07_Thought_Bubble_Neimi.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Neimi: #incext Png2Dmp "Neimi/Chapter_09_Thought_Bubble_Neimi.png" --lz77
 
 // ROSS
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Ross: #incext Png2Dmp "Ross/Chapter_04_Thought_Bubble_Ross.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Ross: #incext Png2Dmp "Ross/Chapter_05_Thought_Bubble_Ross.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Ross: #incext Png2Dmp "Ross/Chapter_06_Thought_Bubble_Ross.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Ross: #incext Png2Dmp "Ross/Chapter_07_Thought_Bubble_Ross.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Ross: #incext Png2Dmp "Ross/Chapter_09_Thought_Bubble_Ross.png" --lz77
 
 // SETH
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_02_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_03_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_04_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_05_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_06_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_07_Thought_Bubble_Seth.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Seth: #incext Png2Dmp "Seth/Chapter_09_Thought_Bubble_Seth.png" --lz77
 
 // TANA
+ALIGN 4
 Gfx_Chapter_02_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_02_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_03_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_03_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_04_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_04_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_05_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_05_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_06_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_06_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_07_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_07_Thought_Bubble_Tana.png" --lz77
+ALIGN 4
 Gfx_Chapter_09_Thought_Bubble_Tana: #incext Png2Dmp "Tana/Chapter_09_Thought_Bubble_Tana.png" --lz77

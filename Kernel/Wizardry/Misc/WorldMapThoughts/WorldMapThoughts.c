@@ -301,6 +301,10 @@ static const WorldMapThoughtBubbleEntryGraphics * GetWorldMapThoughtBubbleForUni
     return entry;
 }
 
+#define WMTB_OBJ_CHR 0x300
+#define WMTB_TILE_WIDTH 16
+#define WMTB_TILE_HEIGHT 8
+
 static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
 {
     const WorldMapThoughtBubbleEntryGraphics * bubbleEntry;
@@ -311,8 +315,11 @@ static void WorldMapThoughtBubble_Init(struct MenuProc * menuProc)
         return;
 
     Decompress(bubbleEntry->bubble, gGenericBuffer);
-    Copy2dChr(gGenericBuffer, (void *)0x6016000, 16, 8);
-
+    Copy2dChr(
+        gGenericBuffer,
+        OBJ_VRAM0 + WMTB_OBJ_CHR * CHR_SIZE,
+        WMTB_TILE_WIDTH,
+        WMTB_TILE_HEIGHT);
 }
 
 static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)
@@ -320,8 +327,8 @@ static void WorldMapThoughtBubble_Loop(struct MenuProc * menuProc)
     if (GetWorldMapThoughtBubbleForUnit(gPlaySt.chapterIndex, gGMData.units[0].id) == NULL)
         return;
 
-    PutSprite(4, 10, 10, gObject_64x64, TILEREF(0x300, 0x0));
-    PutSprite(4, 74, 10, gObject_64x64, TILEREF(0x308, 0x0));
+    PutSprite(4, 10, 10, gObject_64x64, TILEREF(WMTB_OBJ_CHR, 0x0));
+    PutSprite(4, 74, 10, gObject_64x64, TILEREF(WMTB_OBJ_CHR + 8, 0x0));
 }
 
 struct ProcCmd const sProcScr_WorldMapThoughtBubble[] = {
