@@ -324,6 +324,9 @@ void NotificationInitVariables(struct NotificationWindowProc * proc)
 
 void StartNotificationProc(int id, int type)
 {
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return;
+
     struct NotificationWindowProc * proc = Proc_Find(gProcScr_NotificationWindow);
     if (!proc)
     {
@@ -377,6 +380,9 @@ void DoNotificationForAchievement(int id)
 
 void RestartNotificationProc(struct PlayerInterfaceProc * parent)
 {
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return;
+
     struct NotificationWindowProc * proc = Proc_Find(gProcScr_NotificationWindow);
     if (!proc)
     {
@@ -501,7 +507,7 @@ int ShowBgm(struct NotificationWindowProc * proc)
     {
         return false;
     }
-    return !CheckFlag(DisableBGMNotificationsFlag);
+    return AreBgmNotifsEnabled();
 }
 
 void NotificationWindow_Idle(struct NotificationWindowProc * proc)

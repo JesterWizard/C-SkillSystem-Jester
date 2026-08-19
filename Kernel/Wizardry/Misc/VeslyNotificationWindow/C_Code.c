@@ -1,5 +1,6 @@
 #include "C_Code.h"
 #include "common-chax.h"
+#include "kernel-lib.h"
 #include "utf8.h"
 #include "jester_headers/custom-arrays.h"
 
@@ -157,6 +158,9 @@ void NotificationInitVariables(struct NotificationWindowProc * proc)
 
 void StartNotificationProc(int id)
 {
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return;
+
     struct NotificationWindowProc * proc = Proc_Find(gProcScr_NotificationWindow);
     if (!proc)
     {
@@ -196,6 +200,9 @@ void DoNotificationsForFlag(int id)
 
 void RestartNotificationProc(void)
 {
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return;
+
     struct NotificationWindowProc * proc = Proc_Find(gProcScr_NotificationWindow);
     if (!proc)
     {
@@ -283,6 +290,8 @@ int ShowBgm(struct NotificationWindowProc * proc)
         return false;
     }
     proc->bgm = bgmId;
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return false;
     return !CheckFlag(DisableBGMNotificationsFlag);
 }
 

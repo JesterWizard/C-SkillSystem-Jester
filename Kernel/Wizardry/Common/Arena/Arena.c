@@ -444,6 +444,34 @@ s8 ArenaAdjustOpponentPowerRanking(void) {
     return 1;
 }
 
+static void ArenaUi_DrawOpponentDetailsWindow(void)
+{
+    int frameHeight = 6;
+
+    if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true)
+        frameHeight = 8;
+
+    DrawUiFrame2(7, 9, 0x10, frameHeight, 0);
+    SetTextFont(0);
+    InitSystemTextFont();
+
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
+    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
+    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
+
+    if (gpKernelDesignerConfig->arena_show_opponent_in_advance != true)
+        return;
+
+    if (gArenaState.playerPowerWeight - gArenaState.opponentPowerWeight >= 20)
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, "Good match");
+    else if (gArenaState.opponentPowerWeight - gArenaState.playerPowerWeight <= 20)
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, "Okay match");
+    else
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, "Bad match");
+}
+
 static void ArenaUi_RedrawRosterOpponentDetails(ProcPtr proc)
 {
     if (!ArenaRosterHasConfiguredOpponent())
@@ -452,7 +480,6 @@ static void ArenaUi_RedrawRosterOpponentDetails(ProcPtr proc)
     if (gpKernelDesignerConfig->arena_show_opponent_in_advance != true)
         return;
 
-    DrawUiFrame2(7, 9, 0x10, 8, 0);
     DrawArenaOpponentDetailsText(proc);
     RefreshUnitSprites();
     SyncUnitSpriteSheet();
@@ -490,26 +517,7 @@ void ArenaUi_WagerGoldDialogue(ProcPtr proc)
     if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true)
     {
         ArenaUi_RedrawRosterOpponentDetails(proc);
-
-        if (!ArenaRosterHasConfiguredOpponent()) {
-            DrawUiFrame2(7, 9, 0x10, 8, 0);
-        }
-
-        SetTextFont(0);
-        InitSystemTextFont();
-
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
-        PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
-
-        if (gArenaState.playerPowerWeight - gArenaState.opponentPowerWeight >= 20)
-            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, "Good match");
-        else if (gArenaState.opponentPowerWeight - gArenaState.playerPowerWeight <= 20)
-            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, "Okay match");
-        else
-            PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, "Bad match");
+        ArenaUi_DrawOpponentDetailsWindow();
     }
 
     SetTalkNumber(ArenaGetMatchupGoldValue() * multiplier);
@@ -1419,10 +1427,8 @@ STATIC_DECLAR void ArenaRosterSelector_Loop(struct ProcArenaRosterSelect *proc)
         sArenaRosterRuntimeState.selectedIndex = proc->cursor;
         ArenaRosterApplySelection(entry);
 
-        if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true) {
-            DrawUiFrame2(7, 9, 0x10, 8, 0);
+        if (gpKernelDesignerConfig->arena_show_opponent_in_advance == true)
             DrawArenaOpponentDetailsText(parent);
-        }
 
         SetTalkNumber(ArenaGetMatchupGoldValue() * ArenaRosterGetWagerMultiplier());
         StartArenaDialogue(0x8D2, parent);
@@ -1776,24 +1782,15 @@ void StartArenaScreen(void) {
 //! FE8U = 0x080B5C48
 LYN_REPLACE_CHECK(DrawArenaOpponentDetailsText);
 void DrawArenaOpponentDetailsText(ProcPtr proc) {
-
     if (gpKernelDesignerConfig->arena_roster_menu == true)
     {
         ArenaUi_ClearRosterUi();
-        return;
+
+        if (gpKernelDesignerConfig->arena_show_opponent_in_advance != true)
+            return;
     }
 
-    DrawUiFrame2(7, 9, 0x10, 6, 0);
-    SetTextFont(0);
-    InitSystemTextFont();
-
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 10), 0, GetStringFromIndex(gMid_Lv));
-    PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 10), 2, gArenaState.opponentUnit->level);
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 12), 0, GetStringFromIndex(gArenaState.opponentUnit->pCharacterData->nameTextId));
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 10), 0, GetStringFromIndex(gArenaState.opponentUnit->pClassData->nameTextId));
-    PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12), 0, GetItemName(gArenaState.opponentWeapon));
-
-    return;
+    ArenaUi_DrawOpponentDetailsWindow();
 }
 
 FORCE_DECLARE static const struct ProcCmd gProcScr_ArenaUiMain_NEW[] = {

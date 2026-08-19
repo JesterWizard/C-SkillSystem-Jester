@@ -38,6 +38,8 @@ int AreAchievementsEnabled()
 }
 int AreBgmNotifsEnabled()
 {
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+        return false;
 
     return !CheckFlag(DisableBGMNotificationsFlag);
 }

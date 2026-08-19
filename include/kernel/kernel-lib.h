@@ -120,6 +120,7 @@ struct KernelDesigerConfig {
 	u8 item_effect_revamp;
 	u8 vesly_danger_bones;
 	u8 vesly_achievements;
+	u8 vesly_notification_window;
 	u8 vesly_support_after_battle;
 	u8 vesly_support_after_battle_kill_rate;
 	u8 vesly_support_after_battle_combat_rate;
