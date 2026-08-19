@@ -645,6 +645,12 @@ with their companion.[X]
 Interact with an adjacent object[N]
 to produce an effect.[X]
 
+## MSG_MenuCommand_Prestige_NAME
+ Prestige[X]
+## MSG_MenuCommand_Prestige_DESC
+Reset to Lv. 1 with base stats.[N]
+Permanently gain +10% growths.[X]
+
 ## MSG_SKILL_Replicate_NAME
 Replicate[X]
 ## MSG_SKILL_Replicate_DESC

@@ -32,20 +32,24 @@ STATIC_DECLAR void SkillMapAnimMini_Init(struct ProcSkillMapAnimMini *proc)
 
 	PlaySeSpacial(0x3D1, SCREEN_TILE_IX(proc->x));
 
-	/* Icon */
-	LoadIconObjectGraphics(SKILL_ICON(proc->sid), MAPANIMFX_CHR_L);
-	LoadIconPalette(GetSkillIconPal(proc->sid), 0x10 + MAPANIMFX_PAL);
+	if (proc->sid != 0) {
+		LoadIconObjectGraphics(SKILL_ICON(proc->sid), MAPANIMFX_CHR_L);
+		LoadIconPalette(GetSkillIconPal(proc->sid), 0x10 + MAPANIMFX_PAL);
+	}
+
 	proc->timer = 0;
 }
 
 STATIC_DECLAR void SkillMapAnimMini_Loop(struct ProcSkillMapAnimMini *proc)
 {
-	PutSprite(
-		4,
-		OAM1_X(SCREEN_TILE_IX(proc->x_disp)),
-		OAM0_Y(SCREEN_TILE_IY(proc->y_disp)) + ATTR0_TYPE_BLENDED,
-		gObject_16x16,
-		OAM2_PAL(MAPANIMFX_PAL) + OAM2_LAYER(0b01) + OAM2_CHR(MAPANIMFX_CHR_L));
+	if (proc->sid != 0) {
+		PutSprite(
+			4,
+			OAM1_X(SCREEN_TILE_IX(proc->x_disp)),
+			OAM0_Y(SCREEN_TILE_IY(proc->y_disp)) + ATTR0_TYPE_BLENDED,
+			gObject_16x16,
+			OAM2_PAL(MAPANIMFX_PAL) + OAM2_LAYER(0b01) + OAM2_CHR(MAPANIMFX_CHR_L));
+	}
 
 	if (++proc->timer == 40)
 		Proc_Break(proc);

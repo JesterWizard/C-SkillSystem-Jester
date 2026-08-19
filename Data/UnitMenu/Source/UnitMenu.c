@@ -278,7 +278,7 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　道具屋", 0x686, 0x6D0, 0, 0x60, VendorCommandUsability, 0, VendorCommandEffect, 0, 0, 0}, //Vendor >
 	{"　秘密店", 0x687, 0x6D1, 0, 0x61, SecretShopCommandUsability, 0, SecretShopCommandEffect, 0, 0, 0}, //SecretShop >
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
-	{" Prestige", 0, 0, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
+	{" Prestige", MSG_MenuCommand_Prestige_NAME, MSG_MenuCommand_Prestige_DESC, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
 	{"", MSG_MenuCommand_PairUp_NAME, MSG_MenuCommand_PairUp_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x63, PairUp_Usability, 0, PairUp_OnSelected, 0, 0, 0}, // Pair Up >
 	{"", MSG_MenuCommand_Shelter_NAME, MSG_MenuCommand_Shelter_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6A, Shelter_Usability, 0, Shelter_OnSelected, 0, 0, 0}, // Shelter >
 	{"", MSG_MenuCommand_Transfer_NAME, MSG_MenuCommand_Transfer_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6D, PairUp_TransferUsability, 0, PairUp_TransferEffect, 0, 0, 0}, // Transfer >

@@ -26,7 +26,7 @@ The system is gated behind `gpKernelDesignerConfig->prestige`, so a project can 
 Player-facing rules:
 - Only unpromoted units can Prestige.
 - The unit must be at least level 10.
-- The unit must still have unused Prestige room relative to its configured promotion count.
+- The unit can Prestige up to `3` times.
 - The growth bonus and stat-screen stars both disappear when the designer-config toggle is disabled.
 
 ## 🛠️ Plan
@@ -36,7 +36,7 @@ Prestige follows a small BWL-backed loop.
 | Step | Behavior | Result |
 |------|----------|--------|
 | 1 | Check `gpKernelDesignerConfig->prestige` before showing the command or applying bonuses. | Designers can disable the whole feature without removing save data or code hooks. |
-| 2 | Check unit legality: valid unit, not cantoing, unpromoted, level 10+, and eligible by promotion count. | The menu option only appears for units that are actually allowed to Prestige. |
+| 2 | Check unit legality: valid unit, not cantoing, unpromoted, level 10+, and under the Prestige cap. | The menu option only appears for units that are actually allowed to Prestige. |
 | 3 | Increment `prestigeAmt` in BWL and safely write level 1. | The persistent Prestige counter survives while level bookkeeping stays in sync with hidden-level handling. |
 | 4 | Restore the unit's default-class baseline stats and clear transient state. | The unit re-enters play as a fresh version of the base class instead of keeping post-level-up stats. |
 | 5 | Add `10 * prestigeAmt` to the shared growth bonus path. | All growth getters inherit the Prestige bonus automatically. |
@@ -59,14 +59,14 @@ All runtime behavior is gated behind `gpKernelDesignerConfig->prestige` in [`ker
 
 ## 📝 TODO
 
-- Decide whether the Prestige command needs a dedicated help box string or popup feedback when used.
+- Consider adding popup feedback when Prestige is used.
 - Consider exposing the growth bonus per Prestige and max Prestige count as designer-config values if projects want different balance.
 - Review whether the stat-screen star position should move when other left-page UI elements are expanded.
 
 ## 🐛 Limitations & Bugs
 
 - `Patches/PATCH_DesignerConfig.txt` currently exposes only the first 32 bytes of `gKernelDesigerConfig`, so the new `prestige` flag is runtime-only unless the editor patch is expanded separately.
-- The maximum Prestige count is hard-capped to `3` in code even if a unit has more promotion routes defined.
+- The maximum Prestige count is hard-capped to `3`.
 - The Vesly debugger can still edit `prestigeAmt` even when the feature is disabled; the runtime toggle simply stops the menu, growth bonus, and stat-screen display from using it.
 
 Please report any issues in the repository's Issues tab.
