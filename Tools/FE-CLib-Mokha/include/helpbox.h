@@ -81,7 +81,7 @@ struct HelpBox8A01800Proc {
 struct HelpBoxSt {
     /* 00 */ struct Font font;
 
-    /* 16 */ struct Text text[5]; // Vanilla was [3], gpKernelDesignerConfig->vesly_extended_help_boxes requires 5, I'm probably overwriting something but no ill effects so far
+    /* 16 */ struct Text text[5]; // Vanilla was [3]; HELP_BOX_MODE_EXTENDED needs 5
 
     /* 30 */ u16 oam2_base;
 };
@@ -118,6 +118,7 @@ void DisplayHelpBoxObj(int x, int y, int w, int h, int unk);
 // ??? DrawHelpBoxSaveMenuLabels(???);
 // ??? DrawHelpBoxSaveMenuStats(???);
 // ??? HelpBoxTextScroll_OnLoop(???);
+void HelpBoxTextScroll_OnLoop(struct HelpBoxScrollProc * proc);
 // ??? HelpBoxDrawOneLineExt(???);
 // ??? HelpBoxSetupPrefixLines(???);
 // ??? HelpBoxDrawPrefix(???);

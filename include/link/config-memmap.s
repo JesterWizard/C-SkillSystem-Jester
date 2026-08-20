@@ -226,6 +226,7 @@ _kernel_malloc_overlay0 sCombatArtList, 0x20
 _kernel_malloc_overlay0 sSelectedComatArtIndex, 4
 _kernel_malloc_overlay0 sCombatArtBKSELfxTimer, 4
 _kernel_malloc_overlay0 sHelpBoxType, 4
+_kernel_malloc_overlay0 sHelpBoxPageState, 8
 _kernel_malloc_overlay0 BattleOrderSkills, 8
 _kernel_malloc_overlay0 gComboMapAnimBattleUnit, 0x80
 _kernel_malloc_overlay0 KernelMoveMapFlags, 4

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "help-box.h"
 #include "weapon-slots.h"
 #include "skill-system.h"
 #include "constants/skills.h"
@@ -237,7 +238,7 @@ void PrepItemTrade_Init(struct PrepMenuTradeProc* proc)
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, 0);
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
         LoadHelpBoxGfx((void*)0x06012000, -1);
     else
         LoadHelpBoxGfx((void*)0x06014000, -1);
@@ -337,7 +338,7 @@ void sub_809D914(struct PrepItemSupplyProc* proc)
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, proc->yOffsetPerPage[proc->currentPage] - 0x28);
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
         LoadHelpBoxGfx((void*)0x06012000, -1);
     else
         LoadHelpBoxGfx((void*)0x06013000, -1);
@@ -364,7 +365,7 @@ void TradeMenu_InitUnitNameDisplay(struct TradeMenuProc* proc)
     // TODO: constants
     if (HalfBodyPortraitsEnabled())
         StartSysBrownBox(6, 0x3800, 10, 0x800, 0x400, (struct Proc*)(proc));
-    else if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    else if (HelpBoxNeedsSafeVram())
         StartSysBrownBox(6, 0x7080, 0x0F, 0x800, 0x400, (struct Proc*)(proc)); // Used to be 0x8 for the palette but it no longer works
     else
         StartSysBrownBox(6, 0x4800, 0x0F, 0x800, 0x400, (struct Proc*)(proc));
@@ -3735,7 +3736,7 @@ void PrepItemUseBooster_OnEnd(struct ProcPrepItemUseBooster * proc)
     EndManimLevelUpStatGainLabels();
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
         LoadHelpBoxGfx((void*)0x06012000, -1);
     else
         LoadHelpBoxGfx(OBJ_VRAM1, -1);
@@ -3768,7 +3769,7 @@ void PrepItemUseJuna_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
     sub_80ACA84(0);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
         LoadHelpBoxGfx((void*)0x06012000, -1);
     else
         LoadHelpBoxGfx(OBJ_VRAM1, -1);
@@ -3813,7 +3814,7 @@ void PrepItemUse_InitDisplay(struct ProcPrepItemUse *proc)
     BG_SetPosition(BG_2, 0,0);
 
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
         LoadHelpBoxGfx((void*)0x06013000, -1);
     else
         LoadHelpBoxGfx(OBJ_VRAM1, -1);

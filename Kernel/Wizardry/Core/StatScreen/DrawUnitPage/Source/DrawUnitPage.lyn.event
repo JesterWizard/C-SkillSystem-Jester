@@ -17,7 +17,7 @@ POIN SkillTesterPlus
 WORD $1CFC
 POIN GetUnitMaxMagic
 POIN SortMax
-WORD $201FF60
+WORD $201FF58
 POIN GetTalkee
 POIN InstallExpandedTextPal
 POIN gpKernelDesignerConfig

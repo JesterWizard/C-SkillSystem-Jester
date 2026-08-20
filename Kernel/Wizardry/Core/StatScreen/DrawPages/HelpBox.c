@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "stat-screen.h"
 #include "kernel-lib.h"
+#include "help-box.h"
 #include "skill-system.h"
 #include "savemenu.h"
 #include "uichapterstatus.h"
@@ -156,7 +157,8 @@ void LoadHelpBoxGfx(void * vram, int palId)
 {
 
 // Repoint the vram used for the stat screen help box
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+// (0x6013000 conflicts with skill-capacity circle at 0x6013760)
+    if (HelpBoxNeedsSafeVram())
     {
         if (vram == NULL) {
             if (Proc_Find(gProcScr_StatScreen) || Proc_Find(gProcScr_Shop))
@@ -191,7 +193,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
     InitSpriteText(&gHelpBoxSt.text[2]);
 
     /* Don't provide the extra text box tiles if we're using any of the procs in this list */
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         const struct ProcCmd * procExceptionsList[15] = 
         {
@@ -234,6 +236,10 @@ void LoadHelpBoxGfx(void * vram, int palId)
             InitSpriteText(&gHelpBoxSt.text[4]);
         }
     }
+    else if (HelpBoxModePaged())
+    {
+        /* Page indicator uses status-screen digit OBJ tiles (0x289) + gold OBJ pal 10. */
+    }
 
     SetTextFont(0);
 
@@ -248,6 +254,7 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
 {
     struct HelpBoxScrollProc * otherProc;
     int textSpeed;
+    const char *string;
 
     SetTextFont(&gHelpBoxSt.font);
 
@@ -257,13 +264,34 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
     Text_SetColor(&gHelpBoxSt.text[1], 6);
     Text_SetColor(&gHelpBoxSt.text[2], 6);
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         Text_SetColor(&gHelpBoxSt.text[3], 6);
         Text_SetColor(&gHelpBoxSt.text[4], 6);
     }
 
-    SetTextFont(0);
+    /*
+     * Resolve the description string first so page counts match the same
+     * buffer the scroll proc will read (avoids GetStringTextBox skew).
+     */
+    GetStringFromIndex(proc->msg);
+    string = StringInsertSpecialPrefixByCtrl();
+
+    if (HelpBoxModePaged() && sHelpBoxPageState.page == 0)
+        sHelpBoxPageState.desc_lines = HelpBoxCountDescLines(string);
+
+    HelpBoxFinalizePageState(proc->pretext_lines);
+    HelpBoxDrawPageIndicator();
+
+    /* Indicator uses system glyphs on text[3]; restore talk glyphs for body. */
+    SetTextFont(&gHelpBoxSt.font);
+    SetTextFontGlyphs(1);
+    Text_SetCursor(&gHelpBoxSt.text[0], 0);
+    Text_SetCursor(&gHelpBoxSt.text[1], 0);
+    Text_SetCursor(&gHelpBoxSt.text[2], 0);
+    Text_SetColor(&gHelpBoxSt.text[0], 6);
+    Text_SetColor(&gHelpBoxSt.text[1], 6);
+    Text_SetColor(&gHelpBoxSt.text[2], 6);
 
     Proc_EndEach(gProcScr_HelpBoxTextScroll);
 
@@ -274,7 +302,7 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
     otherProc->texts[1] = &gHelpBoxSt.text[1];
     otherProc->texts[2] = &gHelpBoxSt.text[2];
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         otherProc->texts[3] = &gHelpBoxSt.text[3];
         otherProc->texts[4] = &gHelpBoxSt.text[4];
@@ -282,12 +310,15 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
 
     otherProc->pretext_lines = proc->pretext_lines;
 
-    // GetStringFromIndex writes to sMsgString.buffer1, which is then used by StringInsertSpecialPrefixByCtrl a couple lines later
-    GetStringFromIndex(proc->msg);
+    if (HelpBoxModePaged())
+        string = HelpBoxSkipDescLines(string, HelpBoxDescLinesToSkip());
 
-    otherProc->string = StringInsertSpecialPrefixByCtrl();
+    otherProc->string = string;
     otherProc->chars_per_step = 1;
     otherProc->step = 0;
+
+    /* Stash the first description text-slot index in unk_64 for the scroll cap. */
+    otherProc->unk_64 = proc->pretext_lines;
 
     textSpeed = gPlaySt.config.textSpeed;
     switch (gPlaySt.config.textSpeed) {
@@ -309,6 +340,8 @@ void HelpBoxIntroDrawTexts(struct ProcHelpBoxIntro * proc)
         otherProc->chars_per_step = 0x7f;
         break;
     }
+
+    SetTextFont(0);
 }
 
 //! FE8U = 0x080898C4
@@ -316,7 +349,7 @@ LYN_REPLACE_CHECK(sub_80898C4);
 void sub_80898C4(void* vram, int palId) {
 
 // Repoint the vram used for the stat screen help box
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
     {
         if (vram == NULL) {
             vram = (void *)0x06012000;
@@ -346,7 +379,7 @@ void sub_80898C4(void* vram, int palId) {
     InitSpriteText(&gHelpBoxSt.text[0]);
     InitSpriteText(&gHelpBoxSt.text[1]);
     
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         InitSpriteText(&gHelpBoxSt.text[2]);
         InitSpriteText(&gHelpBoxSt.text[3]);

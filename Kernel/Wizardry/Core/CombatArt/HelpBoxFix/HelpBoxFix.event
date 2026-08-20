@@ -1,7 +1,11 @@
 #ifndef HELP_BOX_INSTALLED
 #define HELP_BOX_INSTALLED
 
+/**
+ * Jump stubs only here (PUSH/ORG/POP — does not consume KernelSpace_Text).
+ * Function bodies live in FreeSpaceDEMO via custom_wizardry.event so the
+ * paginated-help additions do not overflow kernel .text.
+ */
 #include "Source/LynJump.event"
-#include "Source/HelpBoxHack.lyn.event"
 
 #endif /* HELP_BOX_INSTALLED */

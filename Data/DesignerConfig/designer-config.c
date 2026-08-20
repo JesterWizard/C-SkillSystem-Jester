@@ -135,7 +135,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_dance_rate = 10,
 	.vesly_support_after_battle_staff_rate = 10,
 	.vesly_fast_forward_battle_animations = false,
-	.vesly_extended_help_boxes = true,
+	.vesly_extended_help_boxes = 2, /* 0=vanilla, 1=extended 5-line, 2=paginated */
 	.free_movement = true,
 	.gameover_quotes = false,
 	.vesly_credits_cgs = true,

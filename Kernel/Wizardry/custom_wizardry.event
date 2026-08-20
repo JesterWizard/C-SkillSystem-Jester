@@ -2,6 +2,12 @@
     #include "../../Data/CustomCampaign/FE8Rewrite_Installer.event"
 #endif
 
+/**
+ * Help-box lyn bodies (paginated/extended). Kept out of KernelSpace_Text.
+ * LynJump stubs remain in CombatArt/HelpBoxFix/HelpBoxFix.event.
+ */
+#include "Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.lyn.event"
+
 #ifdef CONFIG_CUSTOM_GUIDE
     #include "Common/Guide/GuideTable.event"
 #endif

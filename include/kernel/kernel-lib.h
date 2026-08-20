@@ -127,6 +127,12 @@ struct KernelDesigerConfig {
 	u8 vesly_support_after_battle_dance_rate;
 	u8 vesly_support_after_battle_staff_rate;
 	u8 vesly_fast_forward_battle_animations;
+	/**
+	 * Help box overflow mode:
+	 * 0 = vanilla (3-line cap, truncate)
+	 * 1 = extended (up to 5 lines)
+	 * 2 = paginated (3-line box, A cycles pages, gold n/m)
+	 */
 	u8 vesly_extended_help_boxes;
 	u8 free_movement;
 	u8 gameover_quotes;

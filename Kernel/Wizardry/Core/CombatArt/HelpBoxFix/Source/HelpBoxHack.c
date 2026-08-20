@@ -7,6 +7,206 @@
 #include "unitlistscreen.h"
 #include "skill-system.h"
 #include "constants/texts.h"
+#include "scene.h"
+#include "statscreen.h"
+
+void HelpBoxResetPageState(void)
+{
+	sHelpBoxPageState.page = 0;
+	sHelpBoxPageState.page_count = 1;
+	sHelpBoxPageState.lines_per_page = 3;
+	sHelpBoxPageState.pretext_lines = 0;
+	sHelpBoxPageState.desc_lines = 0;
+	sHelpBoxPageState.page0_desc_lpp = 3;
+	sHelpBoxPageState.later_desc_lpp = 3;
+	sHelpBoxPageState.indicator_px = 0;
+}
+
+void HelpBoxStoreDescLineCount(int descHeightPx)
+{
+	int lines = descHeightPx / 0x10;
+
+	if (lines < 0)
+		lines = 0;
+
+	sHelpBoxPageState.desc_lines = lines;
+}
+
+int HelpBoxCountDescLines(const char *str)
+{
+	int lines = 0;
+
+	if (!str || *str == CHFE_L_X)
+		return 0;
+
+	while (*str != CHFE_L_X) {
+		lines++;
+		str = GetStringLineEnd((char *)str);
+		if (*str == CHFE_L_NL)
+			str++;
+		else
+			break;
+	}
+
+	return lines;
+}
+
+static int HelpBoxLinesPerPageForPretext(int pretext)
+{
+	int lpp = 3 - pretext;
+
+	if (lpp < 1)
+		lpp = 1;
+
+	return lpp;
+}
+
+static int HelpBoxCalcPageCount(void)
+{
+	int remaining = sHelpBoxPageState.desc_lines;
+	int pages = 0;
+
+	if (remaining <= 0)
+		return 1;
+
+	remaining -= sHelpBoxPageState.page0_desc_lpp;
+	pages = 1;
+
+	while (remaining > 0) {
+		remaining -= sHelpBoxPageState.later_desc_lpp;
+		pages++;
+		if (pages > 16)
+			break;
+	}
+
+	return pages;
+}
+
+void HelpBoxFinalizePageState(int pretext_lines)
+{
+	int lpp;
+
+	if (pretext_lines < 0)
+		pretext_lines = 0;
+	if (pretext_lines > 2)
+		pretext_lines = 2;
+
+	lpp = HelpBoxLinesPerPageForPretext(pretext_lines);
+
+	sHelpBoxPageState.pretext_lines = pretext_lines;
+	sHelpBoxPageState.lines_per_page = lpp;
+
+	if (!HelpBoxModePaged()) {
+		sHelpBoxPageState.page_count = 1;
+		return;
+	}
+
+	if (sHelpBoxPageState.page == 0) {
+		sHelpBoxPageState.page0_desc_lpp = lpp;
+		if (sHelpBoxPageState.page0_desc_lpp > sHelpBoxPageState.desc_lines)
+			sHelpBoxPageState.page0_desc_lpp = sHelpBoxPageState.desc_lines;
+		/* later_desc_lpp is set in HelpBoxSetupstringLines (excludes capacity). */
+		sHelpBoxPageState.page_count = HelpBoxCalcPageCount();
+	}
+
+	if (sHelpBoxPageState.page_count < 1)
+		sHelpBoxPageState.page_count = 1;
+	if (sHelpBoxPageState.page >= sHelpBoxPageState.page_count)
+		sHelpBoxPageState.page = 0;
+}
+
+int HelpBoxDescLinesToSkip(void)
+{
+	int page = sHelpBoxPageState.page;
+
+	if (!HelpBoxModePaged() || page == 0)
+		return 0;
+
+	return sHelpBoxPageState.page0_desc_lpp +
+		(page - 1) * sHelpBoxPageState.later_desc_lpp;
+}
+
+const char *HelpBoxSkipDescLines(const char *str, int linesToSkip)
+{
+	if (!str)
+		return str;
+
+	while (linesToSkip > 0 && *str != CHFE_L_X) {
+		str = GetStringLineEnd((char *)str);
+
+		if (*str == CHFE_L_NL) {
+			str++;
+			linesToSkip--;
+		} else {
+			break;
+		}
+	}
+
+	return str;
+}
+
+/* Unused on the status screen while help is open; pal 4 stays white for "3/4". */
+enum { HELP_BOX_PAGE_NUM_OBJPAL = 10 };
+
+/*
+ * Same layout as item_icon_palette[1] (LoadIconPalette(1, 0x14) → white "3/4"),
+ * but index 1 (the digit fill — white 0x7FDE there) is Capacity gold instead.
+ */
+static const u16 sHelpBoxPageNumPal[16] = {
+	0x67F8,
+	0x47DF, /* was 0x7FDE white → gold */
+	0x6F37,
+	0x4E30,
+	0x212A,
+	0x3BBE,
+	0x1656,
+	0x19B1,
+	0x11FF,
+	0x7DE2,
+	0x7715,
+	0x6238,
+	0x0AE3,
+	0x4BEF,
+	0x594A,
+	0x0000,
+};
+
+void HelpBoxDrawPageIndicator(void)
+{
+	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1) {
+		sHelpBoxPageState.indicator_px = 0;
+		return;
+	}
+
+	/* Install gold remapping for the shared 0x289 digit sheet (does not touch pal 4). */
+	ApplyPalette(sHelpBoxPageNumPal, HELP_BOX_PAGE_NUM_OBJPAL + 0x10);
+	sHelpBoxPageState.indicator_px = 22;
+}
+
+void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
+{
+	int x;
+	int oam2;
+	int cur;
+	int tot;
+
+	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1)
+		return;
+
+	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + 0 => "1" */
+	tot = sHelpBoxPageState.page_count;
+
+	/* Right side, same Y as the "Help" badge. */
+	x = boxX + boxW - 24;
+	if (x < boxX + 48)
+		x = boxX + 48;
+
+	oam2 = TILEREF(0x289, HELP_BOX_PAGE_NUM_OBJPAL);
+
+	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + cur);
+	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2 - 1);
+	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + (tot - 1));
+}
 
 LYN_REPLACE_CHECK(HbMoveCtrl_OnIdle);
 void HbMoveCtrl_OnIdle(struct HelpBoxProc *proc)
@@ -33,8 +233,44 @@ void HbMoveCtrl_OnIdle(struct HelpBoxProc *proc)
 #if CHAX
 		sHelpBoxType = NEW_HB_DEFAULT;
 #endif
+		HelpBoxResetPageState();
 
 		Proc_Break((void *) proc);
+		return;
+	}
+
+	if (HelpBoxModePaged() &&
+		sHelpBoxPageState.page_count > 1 &&
+		(gKeyStatusPtr->newKeys & A_BUTTON)) {
+		struct HelpBoxProc *hb = Proc_Find(gProcScr_HelpBox);
+		int item;
+		int mid;
+
+		/*
+		 * HbMoveCtrl's own item/mid are never filled — use the live help-box
+		 * proc (or info->mid as fallback). Wrong mid was leaving page 2 blank
+		 * until the box was closed and reopened.
+		 */
+		if (!hb)
+			hb = Proc_Find(ProcScr_Helpbox_bug_08A01678);
+
+		if (hb) {
+			item = hb->item;
+			mid = hb->mid;
+		} else if (proc->info) {
+			item = 0;
+			mid = proc->info->mid;
+		} else {
+			return;
+		}
+
+		sHelpBoxPageState.page++;
+		if (sHelpBoxPageState.page >= sHelpBoxPageState.page_count)
+			sHelpBoxPageState.page = 0;
+
+		PlaySoundEffect(0x67);
+		ClearHelpBoxText();
+		StartHelpBoxTextInit(item, mid);
 		return;
 	}
 
@@ -42,6 +278,7 @@ void HbMoveCtrl_OnIdle(struct HelpBoxProc *proc)
 #if CHAX
 		sHelpBoxType = NEW_HB_DEFAULT;
 #endif
+		HelpBoxResetPageState();
 
 		PlaySoundEffect(0x67);
 		Proc_Goto((void *) proc, 0); // TODO: label constants?
@@ -74,11 +311,25 @@ STATIC_DECLAR void sub_808A200_vanilla(const struct HelpBoxInfo *info)
 
 	proc->mid = info->mid;
 
+	HelpBoxResetPageState();
+
 	SetTextFontGlyphs(1);
 	GetStringTextBox(GetStringFromIndex(proc->mid), &wTextBox, &hTextBox);
 	SetTextFontGlyphs(0);
 
+	HelpBoxStoreDescLineCount(hTextBox);
+
+	if (HelpBoxModePaged()) {
+		/* Cap description height to one page; pretext added later by size helpers. */
+		if (hTextBox > 0x30)
+			hTextBox = 0x30;
+	}
+
 	sub_808A384(proc, wTextBox, hTextBox);
+
+	if (HelpBoxModePaged() && proc->hBoxFinal > 0x30)
+		proc->hBoxFinal = 0x30;
+
 	sub_808A3C4(proc, info->xDisplay, info->yDisplay);
 
 	ClearHelpBoxText();
@@ -132,6 +383,7 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc)
     FORCE_DECLARE u8 capacity = 0;
     FORCE_DECLARE bool skillScrollItem = false;
     FORCE_DECLARE int sid;
+	int base_pretext;
 
 	SetTextFont(&gHelpBoxSt.font);
 	SetTextFontGlyphs(0);
@@ -184,10 +436,14 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc)
 		}
 	}
 
+	base_pretext = proc->pretext_lines;
+
     if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
     {
+		bool drawCapacity = !HelpBoxModePaged() || sHelpBoxPageState.page == 0;
+
         int sid;
-        if (TryGetSkillScrollSid(proc->item, &sid))
+        if (drawCapacity && TryGetSkillScrollSid(proc->item, &sid))
         {
             u8 capacity = GetSkillCapacity(sid);
             proc->pretext_lines = 1;
@@ -200,14 +456,20 @@ void HelpBoxSetupstringLines(struct ProcHelpBoxIntro *proc)
         {
             if (GetSkillDescMsg(list->sid[i]) == proc->msg)
             {
-                u8 capacity = GetSkillCapacity(list->sid[i]);
-                proc->pretext_lines = 1;
-                Text_InsertDrawString(&gHelpBoxSt.text[0], 0, TEXT_COLOR_47CF, "Capacity:");
-                Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 50, TEXT_COLOR_456F, capacity);
+				if (drawCapacity) {
+					u8 capacity = GetSkillCapacity(list->sid[i]);
+					proc->pretext_lines = 1;
+					Text_InsertDrawString(&gHelpBoxSt.text[0], 0, TEXT_COLOR_47CF, "Capacity:");
+					Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 50, TEXT_COLOR_456F, capacity);
+				}
                 break;
             }
         }
     }
+
+	/* later pages omit capacity but keep weapon/staff headers (base_pretext). */
+	if (HelpBoxModePaged() && sHelpBoxPageState.page == 0)
+		sHelpBoxPageState.later_desc_lpp = HelpBoxLinesPerPageForPretext(base_pretext);
 
 	SetTextFont(0);
 	Proc_Break(proc);
@@ -360,6 +622,9 @@ void ApplyHelpBoxContentSize(struct HelpBoxProc *proc, int width, int height)
         }
     }
 
+	if (HelpBoxModePaged() && height > 0x30)
+		height = 0x30;
+
 	proc->wBoxFinal = width;
 	proc->hBoxFinal = height;
 
@@ -401,12 +666,19 @@ void StartHelpBoxExt(const struct HelpBoxInfo *info, int unk)
 	sHelpBoxType = NEW_HB_DEFAULT;
 #endif
 
+	HelpBoxResetPageState();
+
 	if (proc->info->populate)
 		proc->info->populate(proc);
 
 	SetTextFontGlyphs(1);
 	GetStringTextBox(GetStringFromIndex(proc->mid), &wContent, &hContent);
 	SetTextFontGlyphs(0);
+
+	HelpBoxStoreDescLineCount(hContent);
+
+	if (HelpBoxModePaged() && hContent > 0x30)
+		hContent = 0x30;
 
 	ApplyHelpBoxContentSize(proc, wContent, hContent);
 	ApplyHelpBoxPosition(proc, info->xDisplay, info->yDisplay);
@@ -447,7 +719,7 @@ void DisplayHelpBoxObj(int x, int y, int w, int h, int unk) {
         h = 0x10;
     }
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         /* Now we limit it to 5 lines (0x10 * 5) */
         if (h > 0x50) {
@@ -456,7 +728,7 @@ void DisplayHelpBoxObj(int x, int y, int w, int h, int unk) {
     }
     else
     {
-        /* Vanilla behaviour to limit the help text box to three lines (0x10 * 3) */
+        /* Vanilla / paginated: limit the help text box to three lines (0x10 * 3) */
         if (h > 0x30) {
             h = 0x30;
         }
@@ -557,7 +829,72 @@ void DisplayHelpBoxObj(int x, int y, int w, int h, int unk) {
         PutSprite(0, x, y - 0xb, gObject_32x16, (0x3FF & gHelpBoxSt.oam2_base) + 0x7b);
     }
 
+    HelpBoxPutPageIndicatorSprites(x, y, w);
+
     return;
+}
+
+//! FE8U = 0x08089E58
+LYN_REPLACE_CHECK(HelpBoxTextScroll_OnLoop);
+void HelpBoxTextScroll_OnLoop(struct HelpBoxScrollProc * proc)
+{
+    int i;
+    int maxLine;
+    int textLimit;
+
+    proc->step--;
+
+    if (proc->step > 0)
+        return;
+
+    proc->step = proc->speed;
+
+    SetTextFont(proc->font);
+    SetTextFontGlyphs(1); /* body R-text uses talk glyphs (black, color 6) */
+
+    textLimit = HelpBoxModeExtended() ? 5 : 3;
+    maxLine = textLimit;
+
+    if (HelpBoxModePaged()) {
+        maxLine = proc->unk_64 + sHelpBoxPageState.lines_per_page;
+        if (maxLine > 3)
+            maxLine = 3;
+    }
+
+    for (i = 0; i < proc->chars_per_step; i++) {
+        switch (*proc->string) {
+        case CHFE_L_X:
+            Proc_Break(proc);
+            goto helpbox_scroll_end;
+
+        case CHFE_L_NL:
+            proc->string++;
+            proc->pretext_lines++;
+
+            if (proc->pretext_lines >= maxLine) {
+                Proc_Break(proc);
+                goto helpbox_scroll_end;
+            }
+            continue;
+
+        case CHFE_L_Pause8:
+            proc->string++;
+            continue;
+
+        default:
+            if (proc->pretext_lines < 0 ||
+                proc->pretext_lines >= textLimit ||
+                proc->texts[proc->pretext_lines] == NULL) {
+                Proc_Break(proc);
+                goto helpbox_scroll_end;
+            }
+            proc->string = Text_DrawCharacter(proc->texts[proc->pretext_lines], proc->string);
+            continue;
+        }
+    }
+
+helpbox_scroll_end:
+    SetTextFont(0);
 }
 
 //! FE8U = 0x0808A118
@@ -571,7 +908,7 @@ void ClearHelpBoxText(void) {
     SpriteText_DrawBackground(&gHelpBoxSt.text[2]);
 
     /* Do not allocate additional text box space if we're using any of these procs */
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxModeExtended())
     {
         const struct ProcCmd * procExceptionsList[9] = 
         {
@@ -652,7 +989,7 @@ void InitBoxDialogue(void * vram_dst, int pad_idx) {
     FORCE_DECLARE int iVar4;
     FORCE_DECLARE int iVar5;
 
-    if (gpKernelDesignerConfig->vesly_extended_help_boxes == true)
+    if (HelpBoxNeedsSafeVram())
     {
         if (vram_dst == 0) {
             vram_dst = (void *)0x06012000;
