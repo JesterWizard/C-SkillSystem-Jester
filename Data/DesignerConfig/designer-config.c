@@ -179,4 +179,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.enemy_fog_vision = true,
 	.chatlog_enabled = true,
 	.show_true_2rn = true, /* Options menu: show true 2RN hit rates */
+	/**
+	 * Lex Talionis: while pathfinding, show a faded moving-map-sprite
+	 * ghost of the active unit at the cursor. Gone after A or B.
+	 */
+	.translucent_unit_sprite = true,
 };

@@ -161,6 +161,12 @@ struct KernelDesigerConfig {
 	u8 enemy_fog_vision; /* Restrict non-player AI to its faction's fog vision */
 	u8 chatlog_enabled; /* SELECT opens a scrollback log of the chapter's dialogue */
 	u8 show_true_2rn; /* Allow Options menu to show true 2RN hit rates */
+	/**
+	 * Lex Talionis-style translucent pathfinding ghost:
+	 * while drawing a move path, show a faded moving-map-sprite of the
+	 * active unit at the cursor. Cleared when A/B ends pathfinding.
+	 */
+	u8 translucent_unit_sprite;
 };
 
 struct KernelBattleDesignerConfig {
@@ -193,6 +199,8 @@ struct KernelBattleDesignerConfig {
 
 extern const struct KernelDesigerConfig *const gpKernelDesignerConfig;
 extern const struct KernelBattleDesignerConfig *const gpKernelBattleDesignerConfig;
+
+extern u16 sPathfindingGhostObjBuf[];
 
 bool ArenaRosterMenuEnabled(void);
 bool ArenaRosterStartSelection(ProcPtr proc);

@@ -196,6 +196,8 @@ _kernel_malloc gUnk_0201E97C, 0x28 * 3 // struct AnimMagicFxBuffer[3]
 _kernel_malloc gUnk_020000A4, 0x50 // struct Font plus struct Text[7]
 _kernel_malloc gUnk_0201E9F4, 0x5A // u16[3][15]
 
+/* Pathfinding ghost: AP obj list copy (count + up to 8 sprites * 3 attrs) */
+_kernel_malloc sPathfindingGhostObjBuf, 50
 
 /* CONFIG */
 
