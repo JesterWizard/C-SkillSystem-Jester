@@ -17,9 +17,9 @@ enum {
 };
 
 #define HelpBoxModeExtended() \
-	(gpKernelDesignerConfig->vesly_extended_help_boxes == HELP_BOX_MODE_EXTENDED)
+	(gpKernelDesignerConfig->text_box_extension_layout == HELP_BOX_MODE_EXTENDED)
 #define HelpBoxModePaged() \
-	(gpKernelDesignerConfig->vesly_extended_help_boxes == HELP_BOX_MODE_PAGED)
+	(gpKernelDesignerConfig->text_box_extension_layout == HELP_BOX_MODE_PAGED)
 
 /* Stat screen / shop: avoid 0x6013000 — skill capacity circle overwrites +0x760 there. */
 #define HelpBoxNeedsSafeVram() \

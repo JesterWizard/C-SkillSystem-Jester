@@ -15,7 +15,7 @@
 
 Skill and item R-text often needs more than three description lines, especially when Tellius-style **Capacity** is shown above the body text. Vanilla FE8 either truncates or (with older Vesly extended boxes) grows the help window taller and fights VRAM on the status screen.
 
-`vesly_extended_help_boxes` is now a **three-mode** overflow setting so designers can pick truncate, expand, or paginate.
+`text_box_extension_layout` is a **three-mode** overflow setting so designers can pick truncate, expand, or paginate.
 
 ---
 
@@ -60,7 +60,7 @@ On the status screen, help-box sprite text uses `0x06012000` so the skill-capaci
 
 ## 🗂️ Code Locations
 
-Gated by `gpKernelDesignerConfig->vesly_extended_help_boxes` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c).
+Gated by `gpKernelDesignerConfig->text_box_extension_layout` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c).
 
 | Feature | Location | Description |
 |--------|----------|-------------|

@@ -65,7 +65,7 @@ All runtime behavior is gated behind `gpKernelDesignerConfig->prestige` in [`ker
 
 ## 🐛 Limitations & Bugs
 
-- `Patches/PATCH_DesignerConfig.txt` currently exposes only the first 32 bytes of `gKernelDesigerConfig`, so the new `prestige` flag is runtime-only unless the editor patch is expanded separately.
+- `Patches/PATCH_DesignerConfig.txt` exposes the full `gKernelDesigerConfig` struct (including `prestige`) for FEBuilder editing.
 - The maximum Prestige count is hard-capped to `3`.
 - The Vesly debugger can still edit `prestigeAmt` even when the feature is disabled; the runtime toggle simply stops the menu, growth bonus, and stat-screen display from using it.
 

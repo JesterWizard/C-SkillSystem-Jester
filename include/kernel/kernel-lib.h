@@ -6,173 +6,174 @@
  * designer-config.c
  */
 struct KernelDesigerConfig {
-	u8 gen_new_scroll;
-	u8 max_equipable_skill;
-	u8 remove_move_path;
-	u8 prestige;
-	u8 use_chinese_character;
-	u8 show_tutorial;
-	u8 engage_combo_attack;
-	u8 battle_surrend_en;
-	u8 hit_decrease_on_range;
-	u8 debug_autoload_skills;
-	u8 casual_mode;
-	u8 voice_acted_dialogue;
-	u8 forge_mechanic;
-	u8 modular_staff_exp;
-	u8 arena_show_opponent_in_advance;
-	u8 arena_let_player_use_upgraded_weapons;
-	u8 arena_calculate_weapon_based_on_level;
-	u8 talk_on_level_up;
-	u8 death_dance;
-	u8 s_rank_weapon_no_weight;
-	u8 display_terrain_bonuses_in_stat_screen;
-	u8 show_heal_amount;
-	u8 unlock_all_supports;
-	u8 promotion_on_max_level;
-	u8 stat_screen_growths;
-	u8 restore_hp_on_level_up;
-	u8 auto_repair_weapons;
-	u8 custom_support_conversations;
-	u8 custom_fog_sight;
-	u8 custom_talk_icon;
-	u8 custom_droppable_item_icon;
-	u8 l_button_same_faction_cycling;
-	u8 two_random_number_growths;
-	u8 max_simultaneous_support_conversations;
-	u8 kill_rewards;
-	u8 menu_option_refuge;
-	u8 promote_enemy_on_kill;
-	u8 promote_enemy_boost;
-	u8 no_wait_after_trading;
-	u8 send_inventory_on_death;
-	u8 biorhythm_mechanic;
-	u8 skip_intro;
-	u8 base_chapters;
-	u8 fast_map_animations;
-	u8 skill_shop;
-	u8 skill_tree;
-	u8 stat_gain_frame_speed;
-	u8 deny_stat_screen_access;
-	u8 support_rewards;
-	u8 konami_style_bonus_screen; // If you press ↑↑↓↓←→←→BA at titlescreen, then...
-	u8 battle_max_damage;
-	u8 ignore_stop_on_petrify_sleep;
-	u8 leadership;
-	u8 variable_unit_descriptions;
+	u8 ai_dance_use; /* AI dancers refresh allies that already acted, refreshed allies act again */
+	u8 ai_player_phase;
 	u8 anima_weapon_triangle;
-	u8 stat_page_skill_style;
+	u8 apply_dynamic_nosferatu_battle_anim;
+	u8 arena_calculate_weapon_based_on_level;
+	u8 arena_let_player_use_upgraded_weapons;
+	u8 arena_limits;
+	u8 arena_roster_menu;
+	u8 arena_show_opponent_in_advance;
+	u8 auto_narrow_font;
+	u8 auto_repair_weapons;
+	u8 banim_switcher_en; 	/* banim switcher */
+	u8 base_chapters;
+	u8 battle_max_damage;
+	u8 battle_surrend_en;
+	u8 biorhythm_mechanic;
+	u8 c03_do_not_flush_efx_status;
+	u8 calculate_map_range_faster;
+	u8 casual_mode;
+	u8 chatlog_enabled; /* SELECT opens a scrollback log of the chapter's dialogue */
+	u8 collect_dead_units;
+	u8 custom_battle_quotes;
+	u8 custom_character_animations;
+	u8 custom_defeat_quotes;
+	u8 custom_droppable_item_icon;
+	u8 custom_fog_sight;
+	u8 custom_menu_options;
+	u8 custom_staff_accuracy;
+	u8 custom_staves;
+	u8 custom_support_conversations;
+	u8 custom_talk_icon;
+	u8 death_dance;
+	u8 debug_autoload_skills;
+	u8 deny_stat_screen_access;
+	u8 display_status_flash_on_hit;
+	u8 display_terrain_bonuses_in_stat_screen;
+	u8 dynamic_weapon_slots; /* class-driven weapon-type-to-rank-slot mapping */
+	u8 enemy_can_combo_attack;
+	u8 enemy_fog_vision; /* Restrict non-player AI to its faction's fog vision */
+	u8 engage_combo_attack;
+	u8 expanded_hp;
+	u8 fast_map_animations;
+	u8 fe8_rewritten_specific_changes;
+	u8 flipped_enemy_sprites;
+	u8 forge_mechanic;
+	u8 free_movement;
+	u8 gaiden_magic;
+	u8 gaiden_magic_ai_use;
+	u8 gaiden_magic_must_be_magic;
+	u8 gaiden_magic_requires_wrank;
+	u8 gaiden_magic_skill_extensions;
+	u8 gameover_quotes;
+	u8 gen_new_scroll;
+	u8 goal_escape;
+	u8 goal_timer;
+	u8 guaranteed_lvup;
+	u8 half_body_portraits; /* Use halfbody portraits in dialogue and UI */
+	u8 hit_decrease_on_range;
+	u8 ignore_stop_on_petrify_sleep;
+	u8 infinite_durability;
+	u8 item_effect_revamp;
+	u8 kill_rewards;
+	u8 konami_style_bonus_screen; // If you press ↑↑↓↓←→←→BA at titlescreen, then...
+	u8 l_button_same_faction_cycling;
+	u8 laguz_bars;
+	u8 leadership;
+	u8 limited_shop_items;
+	u8 load_skills_through_feb_formatted_list;
+	u8 lvup_mode_easy;
+	u8 lvup_mode_hard;
+	u8 lvup_mode_normal;
+	u8 map_menu_character_biographies;
+	u8 max_equipable_skill;
+	u8 max_level;
+	u8 max_level_record;
+	u8 max_simultaneous_support_conversations;
+	u8 menu_option_refuge;
+	u8 menu_skill_ai_use;
+	u8 modular_staff_exp;
+	u8 mokha_aoe_enabled; /* Three Houses-style gambit AOE attacks */
+	u8 mp_system;
+	u8 multiple_fog_stages;
+	u8 no_suspend_in_aiphase;
+	u8 no_wait_after_trading;
+	u8 pair_up_enabled; /* Pair Up, Shelter, Transfer, and Switch commands */
+	u8 prep_menu_augury;
+	u8 prep_menu_base_conversations;
+	u8 prep_menu_bexp;
+	u8 prep_menu_event_replay;
+	u8 prep_menu_infuse;
+	u8 prep_menu_skills;
+	u8 prestige;
+	u8 promote_enemy_boost;
+	u8 promote_enemy_on_kill;
+	u8 promote_trainees_in_chapter;
+	u8 promotion_on_max_level;
+	u8 quality_of_life_fixes;
+
+	/* Real-time battle: enemies act on a timer during an open player phase */
+	u8 real_time_battle; /* 0 = disabled, 1 = enabled */
+	u16 real_time_enemy_interval_frames; /* frames between enemy action attempts (60 ~= 1s) */
+	u16 real_time_refresh_frames; /* frames between soft unit refreshes (0 = use default 30s) */
+	u8 remove_move_path;
+	u8 rescue_drop_ai_use;
+	u8 rescue_drop_move_again;
+	u8 reset_bwl_stats_each_chapter;
+	u8 restore_hp_on_level_up;
+	u8 s_rank_weapon_no_weight;
+	u8 send_inventory_on_death;
+	u8 shield_ext_equip_config_en;
+	u8 shield_system;
+	u8 show_heal_amount;
+	u8 show_true_2rn; /* Allow Options menu to show true 2RN hit rates */
+	u8 show_tutorial;
+	u8 skill_shop;
+	u8 skill_sub_menu_width;
+	u8 skill_tree;
+	u8 skip_intro;
+	u8 start_map_effects;
+	u8 stat_gain_frame_speed;
 	u8 stat_page_gaiden_magic;
 	u8 stat_page_personal_info;
 	u8 stat_page_promotions;
+	u8 stat_page_skill_style;
 	u8 stat_page_skill_tree;
+	u8 stat_screen_growths;
 	u8 summons_gain_exp;
-	u8 collect_dead_units;
-	u8 goal_timer;
-	u8 goal_escape;
-	u8 prep_menu_skills;
-	u8 prep_menu_augury;
-	u8 prep_menu_infuse;
-	u8 prep_menu_bexp;
-	u8 prep_menu_base_conversations;
-	u8 prep_menu_event_replay;
-	u8 expanded_hp;
-	u8 vesly_debugger;
-	u8 map_menu_character_biographies;
-	u8 custom_staff_accuracy;
-	u8 limited_shop_items;
-	u8 flipped_enemy_sprites;
-	u8 custom_battle_quotes;
-	u8 custom_defeat_quotes;
-	u8 mp_system;
-	u8 laguz_bars;
-	u8 reset_bwl_stats_each_chapter;
-	u8 quality_of_life_fixes;
-	u8 guaranteed_lvup;
-	u8 lvup_mode_easy;
-	u8 lvup_mode_normal;
-	u8 lvup_mode_hard;
-	u8 unit_page_style;
-	u8 gaiden_magic;
-	u8 gaiden_magic_must_be_magic;
-	u8 gaiden_magic_requires_wrank;
-	u8 gaiden_magic_ai_use;
-	u8 gaiden_magic_skill_extensions;
-	u8 no_suspend_in_aiphase;
-	u8 shield_system;
-	u8 shield_ext_equip_config_en;
-	u8 auto_narrow_font;
-	u8 skill_sub_menu_width;
-	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
-	u8 enemy_can_combo_attack;
-	u8 banim_switcher_en; 	/* banim switcher */
-	u8 max_level;
-	u8 max_level_record;
-	u8 tellius_skill_capacity_system;
+	u8 support_rewards;
+	u8 talk_conversation_exp_reward;
+	u8 talk_on_level_up;
 	u8 tellius_skill_capacity_base;
 	u8 tellius_skill_capacity_promoted;
-	u8 calculate_map_range_faster;
-	u8 custom_character_animations;
-	u8 apply_dynamic_nosferatu_battle_anim;
-	u8 display_status_flash_on_hit;
-	u8 c03_do_not_flush_efx_status;
-	u8 load_skills_through_feb_formatted_list;
-	u8 item_effect_revamp;
-	u8 vesly_danger_bones;
-	u8 vesly_achievements;
-	u8 vesly_notification_window;
-	u8 vesly_support_after_battle;
-	u8 vesly_support_after_battle_kill_rate;
-	u8 vesly_support_after_battle_combat_rate;
-	u8 vesly_support_after_battle_dance_rate;
-	u8 vesly_support_after_battle_staff_rate;
-	u8 vesly_fast_forward_battle_animations;
+	u8 tellius_skill_capacity_system;
+
 	/**
 	 * Help box overflow mode:
 	 * 0 = vanilla (3-line cap, truncate)
 	 * 1 = extended (up to 5 lines)
 	 * 2 = paginated (3-line box, A cycles pages, gold n/m)
 	 */
-	u8 vesly_extended_help_boxes;
-	u8 free_movement;
-	u8 gameover_quotes;
-	u8 vesly_credits_cgs;
-	u8 fe8_rewritten_specific_changes;
-	u8 arena_limits;
-	u8 arena_roster_menu;
-	u8 vesly_custom_ui;
-	u8 custom_menu_options;
-	u8 multiple_fog_stages;
-	u8 custom_staves;
-	u8 menu_skill_ai_use;
-	u8 rescue_drop_ai_use;
-	u8 start_map_effects;
-	u8 world_map_thought_bubbles;
-	u8 ai_player_phase;
-	u8 promote_trainees_in_chapter;
-	u8 rescue_drop_move_again;
-	u8 talk_conversation_exp_reward;
-	u8 infinite_durability;
-	u8 dynamic_weapon_slots; /* class-driven weapon-type-to-rank-slot mapping */
-	u8 ai_dance_use; /* AI dancers refresh allies that already acted, refreshed allies act again */
+	u8 text_box_extension_layout;
 
-	/* Real-time battle: enemies act on a timer during an open player phase */
-	u8 real_time_battle; /* 0 = disabled, 1 = enabled */
-	u16 real_time_enemy_interval_frames; /* frames between enemy action attempts (60 ~= 1s) */
-	u16 real_time_refresh_frames; /* frames between soft unit refreshes (0 = use default 30s) */
-
-	u8 mokha_aoe_enabled; /* Three Houses-style gambit AOE attacks */
-	u8 pair_up_enabled; /* Pair Up, Shelter, Transfer, and Switch commands */
-	u8 half_body_portraits; /* Use halfbody portraits in dialogue and UI */
-	u8 enemy_fog_vision; /* Restrict non-player AI to its faction's fog vision */
-	u8 chatlog_enabled; /* SELECT opens a scrollback log of the chapter's dialogue */
-	u8 show_true_2rn; /* Allow Options menu to show true 2RN hit rates */
 	/**
 	 * Lex Talionis-style translucent pathfinding ghost:
 	 * while drawing a move path, show a faded moving-map-sprite of the
 	 * active unit at the cursor. Cleared when A/B ends pathfinding.
 	 */
 	u8 translucent_unit_sprite;
+	u8 two_random_number_growths;
+	u8 unit_page_style;
+	u8 unlock_all_supports;
+	u8 use_chinese_character;
+	u8 variable_unit_descriptions;
+	u8 vesly_achievements;
+	u8 vesly_credits_cgs;
+	u8 vesly_custom_ui;
+	u8 vesly_danger_bones;
+	u8 vesly_debugger;
+	u8 vesly_fast_forward_battle_animations;
+	u8 vesly_notification_window;
+	u8 vesly_support_after_battle;
+	u8 vesly_support_after_battle_combat_rate;
+	u8 vesly_support_after_battle_dance_rate;
+	u8 vesly_support_after_battle_kill_rate;
+	u8 vesly_support_after_battle_staff_rate;
+	u8 voice_acted_dialogue;
+	u8 world_map_thought_bubbles;
+	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
 };
 
 struct KernelBattleDesignerConfig {

@@ -15,7 +15,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `max_equipable_skill` | Maximum number of dynamically equipable skills per unit, from `0` to `7`. |
 | `remove_move_path` | Disables move-path calculation and display. This is useful because vanilla move-path display only supports up to 20 steps and can overflow with high-move units. |
 | `translucent_unit_sprite` | While pathfinding (and `remove_move_path` is off), shows a Lex Talionis-style faded MU ghost at the cursor tip. See [TranslucentUnitSprite](./TranslucentUnitSprite.md). |
-| `vesly_extended_help_boxes` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
+| `text_box_extension_layout` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
 | `hit_decrease_on_range` | Enables Three Houses style hit loss for long-range attacks. |
 | `debug_autoload_skills` | Debug option that fills a unit's learned skill list so skills can be freely equipped in the prep screen. |
 | `guaranteed_lvup` | If a level-up would grant no stat gains, the kernel retries up to 10 times with a 10% growth bonus. |
