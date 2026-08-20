@@ -121,7 +121,7 @@ Related trap table struct:
 
 Example file:
 
-- `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h`
+- `Data/CustomCampaign/Chapters/01/events/traps.h`
 
 Chapter trap arrays are encoded in 6-byte groups matching `struct TrapData`:
 
@@ -165,7 +165,7 @@ Prefer the helper macros from `bmtrick.h` for palette-aware trap entries instead
 
 Example file:
 
-- `Data/FE8_Rewritten_Terper/Event/Source/00/00.c`
+- `Data/CustomCampaign/Chapters/00/events/events.c`
 
 The chapter event group binds these arrays:
 
@@ -182,7 +182,7 @@ At chapter load, these are consumed by the trap loader pipeline that reaches `Lo
 
 Example file:
 
-- `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Events.h`
+- `Data/CustomCampaign/Chapters/00/events/events.h`
 
 An ASMC is invoked from event script with:
 
@@ -194,7 +194,7 @@ ASMC(SetGameOptions)
 
 Example file:
 
-- `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h`
+- `Data/CustomCampaign/Chapters/00/events/asmc.h`
 
 `SetGameOptions()` includes:
 
@@ -565,10 +565,10 @@ Implementation notes:
 | Spin trap creation and shove logic | `AddSpinTile` and `PostAction_SpinTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores directional spin tile data and resolves connected spin-tile chains one hop at a time with 30-frame pauses until the next hop would be blocked or repeat |
 | Spin trap sprite selection | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Chooses the left/right/up/down spin tile sprite ID from the trap's current direction |
 | Trap graphics installer | `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
-| Chapter trap declaration | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Traps.h` | Defines startup trap arrays for normal/hard modes |
-| Chapter trap binding | `Data/FE8_Rewritten_Terper/Event/Source/00/00.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
-| Event ASMC call site | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/Events.h` | Invokes ASMC function during chapter event flow |
-| ASMC runtime trap spawn | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime trap creation with `AddTeleportTilePair(...)` |
+| Chapter trap declaration | `Data/CustomCampaign/Chapters/01/events/traps.h` | Defines startup trap arrays for normal/hard modes |
+| Chapter trap binding | `Data/CustomCampaign/Chapters/00/events/events.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
+| Event ASMC call site | `Data/CustomCampaign/Chapters/00/events/events.h` | Invokes ASMC function during chapter event flow |
+| ASMC runtime trap spawn | `Data/CustomCampaign/Chapters/00/events/asmc.h` | Example runtime trap creation with `AddTeleportTilePair(...)` |
 | Teleport trap helpers | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TELEPORT_TILE`, `TELEPORT_TILE_PAIR`, and teleport trap extdata |
 | Teleport trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
 | Grass trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
@@ -581,7 +581,7 @@ Implementation notes:
 | Boulder trap custom palette draw | `ApplyBoulderTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the boulder trap with `Pal_Boulder_Tile` in a dedicated OBJ palette bank |
 | Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
 | Light rune menu skill usage | `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
-| Example chapter ASMC usage | `Data/FE8_Rewritten_Terper/Event/Source/00/Source/ASMCs.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
+| Example chapter ASMC usage | `Data/CustomCampaign/Chapters/00/events/asmc.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
 
 ## TODO
 

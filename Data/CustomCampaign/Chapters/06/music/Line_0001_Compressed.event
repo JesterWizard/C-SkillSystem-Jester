@@ -1,0 +1,49 @@
+SongTable(SONG_VOICE_CH06_LINE_0001,Chapter_06_Line_0001_Compressed,0)
+
+    #define    loop_sfx_grp_Chapter_06_Line_0001_Compressed  Chapter_06_Line_0001_Compressed_map
+    #define    loop_sfx_pri_Chapter_06_Line_0001_Compressed  0
+    #define    loop_sfx_rev_Chapter_06_Line_0001_Compressed  0
+    #define    loop_sfx_mvl_Chapter_06_Line_0001_Compressed  127
+    #define    loop_sfx_key_Chapter_06_Line_0001_Compressed  0
+    #define    loop_sfx_tbs_Chapter_06_Line_0001_Compressed  1
+    #define    loop_sfx_exg_Chapter_06_Line_0001_Compressed  0
+    #define    loop_sfx_cmp_Chapter_06_Line_0001_Compressed  1
+
+    ALIGN 4
+
+loop_sfx_Chapter_06_Line_0001:
+    BYTE        VOL     127*loop_sfx_mvl_Chapter_06_Line_0001_Compressed/mxv
+    BYTE    KEYSH   loop_sfx_key_Chapter_06_Line_0001_Compressed+0
+    BYTE        VOICE   0
+    BYTE        TIE     Cn3   v064
+    BYTE    W96
+loop_sfx_Chapter_06_Line_0001_B1:
+    BYTE    W96
+    BYTE    W96
+    BYTE    GoTo
+     POIN2    loop_sfx_Chapter_06_Line_0001_B1
+loop_sfx_Chapter_06_Line_0001_B2:
+    BYTE    W06
+    BYTE        EOT     Cn3 
+    BYTE    FINE
+
+    ALIGN 4
+
+Chapter_06_Line_0001_Compressed:
+    BYTE    1    // NumTrks
+    BYTE    0    // NumBlks
+    BYTE    loop_sfx_pri_Chapter_06_Line_0001_Compressed    // Priority
+    BYTE    loop_sfx_rev_Chapter_06_Line_0001_Compressed    // Reverb.
+
+    POIN2    loop_sfx_grp_Chapter_06_Line_0001_Compressed
+
+    POIN2    loop_sfx_Chapter_06_Line_0001
+
+    
+Chapter_06_Line_0001_Compressed_map:
+WORD $3c00
+POIN Chapter_06_Line_0001_Compressed_wav
+WORD $FF00FF
+
+Chapter_06_Line_0001_Compressed_wav:
+#incbin "audio/Chapter_06_Line_0001_Compressed.dmp"

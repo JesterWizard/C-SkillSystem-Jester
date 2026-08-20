@@ -1,0 +1,71 @@
+// No maps for prologue and chapter 1 as they don't have tile changes
+
+#include "PListSplit.event"
+
+#include "../Chapters/_shared/empty-event-lists.lyn.event"
+#include "../Chapters/_shared/worldmap-helpers.lyn.event"
+
+NewEventPointerTable_Event(0x7, Chapter00Event)
+#include "../Chapters/00/events/events.lyn.event"
+#include "../Chapters/00/map/00_Map.event"
+NewEventPointerTable_Event(0xA, Chapter01Event)
+#include "../Chapters/01/events/events.lyn.event"
+#include "../Chapters/01/map/01_Map.event"
+NewEventPointerTable_Event(0xC5, IntermissionEvent)
+#include "../Chapters/Intermission/events/events.lyn.event"
+NewEventPointerTable_Event(0xD, Chapter02Event)
+#include "../Chapters/02/events/events.lyn.event"
+#include "../Chapters/02/map/02_map.event"
+NewEventPointerTable_Event(0x14, Chapter03Event)
+#include "../Chapters/03/events/events.lyn.event"
+#include "../Chapters/03/map/03_map.event"
+NewEventPointerTable_Event(0x17, Chapter04Event)
+#include "../Chapters/04/events/events.lyn.event"
+#include "../Chapters/04/map/04_map.event"
+NewEventPointerTable_Event(0x21, Chapter05Event)
+#include "../Chapters/05/events/events.lyn.event"
+#include "../Chapters/05/map/05_map.event"
+NewEventPointerTable_Event(0x1E, Chapter05xEvent)
+#include "../Chapters/05x/events/events.lyn.event"
+#include "../Chapters/05x/map/05x_map.event"
+NewEventPointerTable_Event(0x24, Chapter06Event)
+#include "../Chapters/06/events/events.lyn.event"
+#include "../Chapters/06/map/06_map.event"
+NewEventPointerTable_Event(0x27, Chapter07Event)
+#include "../Chapters/07/events/events.lyn.event"
+#include "../Chapters/07/map/07_map.event"
+NewEventPointerTable_Event(0x2A, Chapter08Event)
+#include "../Chapters/08/events/events.lyn.event"
+#include "../Chapters/08/map/08_map.event"
+NewEventPointerTable_Event(0x2D, Chapter09Event)
+#include "../Chapters/09/events/events.lyn.event"
+#include "../Chapters/09/map/09_map.event"
+// EventPointerTable(0xCD, SerafewEvent)
+#include "../Chapters/Serafew/events/events.lyn.event"
+#include "../Chapters/Serafew/map/Serafew_map.event"
+
+// EventPointerTable(0x33, Chapter10Event)
+// #include "../Chapters/10/events/events.lyn.event"
+
+#include "Maps/16/16_map.event"
+
+#include "World_Map_Events.lyn.event"
+#include "../Chapters/00/events/worldmap.lyn.event"
+#include "../Chapters/01/events/worldmap.lyn.event"
+#include "../Chapters/Intermission/events/worldmap.lyn.event"
+#include "../Chapters/02/events/worldmap.lyn.event"
+#include "../Chapters/03/events/worldmap.lyn.event"
+#include "../Chapters/04/events/worldmap.lyn.event"
+#include "../Chapters/05/events/worldmap.lyn.event"
+#include "../Chapters/05x/events/worldmap.lyn.event"
+#include "../Chapters/06/events/worldmap.lyn.event"
+#include "../Chapters/07/events/worldmap.lyn.event"
+#include "../Chapters/08/events/worldmap.lyn.event"
+#include "../Chapters/09/events/worldmap.lyn.event"
+#include "../Chapters/10/events/worldmap.lyn.event"
+
+#include "Maps/Inside_Grado_Castle/Inside_Grado_Castle.event"
+
+#include "Maps/Outside_Grado_Castle/Outside_Grado_Castle.event"
+
+#include "TutorialsEvents.lyn.event"

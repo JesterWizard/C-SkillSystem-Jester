@@ -1,0 +1,31 @@
+#include "../../_shared/headers.h"
+#include "../../_shared/empty-event-lists.h"
+#include "asmc.h"
+#include "redas.h"
+#include "units.h"
+#include "events.h"
+
+const struct ChapterEventGroup Chapter00Event = {
+    .turnBasedEvents               = EventListScr_Ch00_Turn,
+    .characterBasedEvents          = EventListScr_Ch00_Character,
+    .locationBasedEvents           = EventListScr_Ch00_Location,
+    .miscBasedEvents               = EventListScr_Ch00_Misc,
+    .specialEventsWhenUnitSelected = EventListScr_Empty,
+    .specialEventsWhenDestSelected = EventListScr_Empty,
+    .specialEventsAfterUnitMoved   = EventListScr_Empty,
+    .tutorialEvents                = EventListScr_Tutorial_None,
+
+    .traps                         = TrapData_None,
+    .extraTrapsInHard              = TrapData_None,
+
+    .playerUnitsChoice1InEncounter = NULL,
+    .playerUnitsChoice2InEncounter = NULL,
+    .playerUnitsChoice3InEncounter = NULL,
+
+    .enemyUnitsChoice1InEncounter  = NULL,
+    .enemyUnitsChoice2InEncounter  = NULL,
+    .enemyUnitsChoice3InEncounter  = NULL,
+
+    .beginningSceneEvents          = EventScr_Ch00_Opening,
+    .endingSceneEvents             = EventScr_Ch00_Ending,
+};

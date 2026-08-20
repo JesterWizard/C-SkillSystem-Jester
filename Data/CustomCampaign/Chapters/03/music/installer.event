@@ -1,0 +1,6 @@
+// Voice lines for chapter 03
+
+#include "Line_0001_Compressed.event"
+#include "Line_0002_Compressed.event"
+#include "Line_0003_Compressed.event"
+#include "Line_0004_Compressed.event"

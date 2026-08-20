@@ -29,37 +29,37 @@ static const EventScr * GetEscapeEndingEventScr(int chapterIndex)
     switch (chapterIndex)
     {
     case CHAPTER_L_PROLOGUE:
-        return EventScr_Ending_Chapter_00;
+        return EventScr_Ch00_Ending;
 
     case CHAPTER_L_1:
-        return EventScr_Ending_Chapter_01;
+        return EventScr_Ch01_Ending;
 
     case CHAPTER_L_2:
-        return EventScr_Ending_Chapter_02;
+        return EventScr_Ch02_Ending;
 
     case CHAPTER_L_3:
-        return EventScr_Ending_Chapter_03;
+        return EventScr_Ch03_Ending;
 
     case CHAPTER_L_4:
-        return EventScr_Ending_Chapter_04;
+        return EventScr_Ch04_Ending;
 
     case CHAPTER_L_5:
-        return EventScr_Ending_Chapter_05;
+        return EventScr_Ch05_Ending;
 
     case CHAPTER_L_5X:
-        return EventScr_Ending_Chapter_05x;
+        return EventScr_Ch05x_Ending;
 
     case CHAPTER_L_6:
-        return EventScr_Ending_Chapter_06;
+        return EventScr_Ch06_Ending;
 
     case CHAPTER_L_7:
-        return EventScr_Ending_Chapter_07;
+        return EventScr_Ch07_Ending;
 
     case CHAPTER_L_8:
-        return EventScr_Ending_Chapter_08;
+        return EventScr_Ch08_Ending;
 
     case CHAPTER_E_9:
-        return EventScr_Ending_Chapter_09;
+        return EventScr_Ch09_Ending;
 
     default:
         return NULL;

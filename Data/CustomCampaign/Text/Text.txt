@@ -1,0 +1,79 @@
+#include "../Chapters/titles.txt"
+
+#include "../Chapters/00/text/opening.txt"
+#include "../Chapters/00/text/map.txt"
+#include "../Chapters/00/text/ending.txt"
+
+#include "../Chapters/01/text/opening.txt"
+#include "../Chapters/01/text/map.txt"
+#include "../Chapters/01/text/ending.txt"
+
+#include "../Chapters/Intermission/text/map.txt"
+
+#include "../Chapters/02/text/opening.txt"
+#include "../Chapters/02/text/map.txt"
+#include "../Chapters/02/text/ending.txt"
+
+#include "../Chapters/03/text/opening.txt"
+#include "../Chapters/03/text/map.txt"
+#include "../Chapters/03/text/ending.txt"
+
+#include "../Chapters/04/text/opening.txt"
+#include "../Chapters/04/text/map.txt"
+#include "../Chapters/04/text/ending.txt"
+
+#include "../Chapters/05/text/opening.txt"
+#include "../Chapters/05/text/map.txt"
+#include "../Chapters/05/text/ending.txt"
+
+#include "../Chapters/05x/text/opening.txt"
+#include "../Chapters/05x/text/map.txt"
+#include "../Chapters/05x/text/ending.txt"
+
+#include "../Chapters/06/text/opening.txt"
+#include "../Chapters/06/text/map.txt"
+#include "../Chapters/06/text/ending.txt"
+
+#include "../Chapters/07/text/opening.txt"
+#include "../Chapters/07/text/map.txt"
+#include "../Chapters/07/text/ending.txt"
+
+#include "../Chapters/08/text/opening.txt"
+#include "../Chapters/08/text/map.txt"
+#include "../Chapters/08/text/ending.txt"
+
+#include "../Chapters/09/text/opening.txt"
+#include "../Chapters/09/text/map.txt"
+#include "../Chapters/09/text/ending.txt"
+
+#include "../Chapters/10/text/opening.txt"
+#include "../Chapters/10/text/map.txt"
+#include "../Chapters/10/text/ending.txt"
+
+#include "Supports/Supports.txt"
+
+#include "Endings/Endings.txt"
+
+#include "Miscellaneous/Commands.txt"
+#include "Miscellaneous/WM_Texts.txt"
+#include "Miscellaneous/Notifications.txt"
+#include "Miscellaneous/Objectives.txt"
+#include "Miscellaneous/Misc.txt"
+#include "Miscellaneous/Tutorials.txt"
+
+#include "Guides/Skill_Talks.txt"
+#include "Guides/Skill_Combos.txt"
+#include "Guides/Mechanics.txt"
+#include "Guides/Stat_Screen.txt"
+#include "Guides/Statuses.txt"
+
+#include "Quotes/BattleQuotes.txt"
+#include "Quotes/DefeatQuotes.txt"
+
+#include "LevelUpQuotes/LevelUpQuotes.txt"
+#include "VariableCharacterDescriptions/VariableCharacterDescriptions.txt"
+#include "BaseConversations/BaseConversations.txt"
+
+#include "Games/Snek.txt"
+
+#include "HeroesCards/HeroesCards.txt"

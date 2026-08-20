@@ -21,17 +21,17 @@ ALIGN 4
 PUSH
 ORG CURRENTOFFSET+$2c;EventScr_PostAction_Escape:
 POP
-POIN EventScr_Ending_Chapter_00
-POIN EventScr_Ending_Chapter_01
-POIN EventScr_Ending_Chapter_02
-POIN EventScr_Ending_Chapter_03
-POIN EventScr_Ending_Chapter_04
-POIN EventScr_Ending_Chapter_05x
-POIN EventScr_Ending_Chapter_05
-POIN EventScr_Ending_Chapter_06
-POIN EventScr_Ending_Chapter_07
-POIN EventScr_Ending_Chapter_08
-POIN EventScr_Ending_Chapter_09
+POIN EventScr_Ch00_Ending
+POIN EventScr_Ch01_Ending
+POIN EventScr_Ch02_Ending
+POIN EventScr_Ch03_Ending
+POIN EventScr_Ch04_Ending
+POIN EventScr_Ch05x_Ending
+POIN EventScr_Ch05_Ending
+POIN EventScr_Ch06_Ending
+POIN EventScr_Ch07_Ending
+POIN EventScr_Ch08_Ending
+POIN EventScr_Ch09_Ending
 WORD $D40
 POIN CURRENTOFFSET-647
 WORD $70540 $1 $C41 $7000C $1A20 $16261B20 $1D20 $1B22 $D40

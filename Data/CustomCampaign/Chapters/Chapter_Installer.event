@@ -1,0 +1,43 @@
+PUSH
+{
+    ORG 0x8B0890
+    #include "00/events/chapter.lyn.event"
+
+    ORG 0x8B0924
+    #include "01/events/chapter.lyn.event"
+
+    ORG 0x8B09B8
+    #include "02/events/chapter.lyn.event"
+
+    ORG 0x8B0A4C
+    #include "03/events/chapter.lyn.event"
+
+    ORG 0x8B0AE0
+    #include "04/events/chapter.lyn.event"
+
+    ORG 0x8B0C08
+    #include "05/events/chapter.lyn.event"
+
+    ORG 0x8B0B74
+    #include "05x/events/chapter.lyn.event"
+
+    ORG 0x8B0C9C
+    #include "06/events/chapter.lyn.event"
+
+    ORG 0x8B0D30
+    #include "07/events/chapter.lyn.event"
+
+    ORG 0x8B0DC4
+    #include "08/events/chapter.lyn.event"
+
+    ORG 0x8B0E58
+    #include "09/events/chapter.lyn.event"
+
+    /* Seems to cause a crash when I enable this, might be because of the map? */
+    // ORG 0x8B28F0
+    // #include "Intermission/events/chapter.lyn.event"
+
+    ORG 0x8B2AAC
+    #include "Serafew/events/chapter.lyn.event"
+}
+POP

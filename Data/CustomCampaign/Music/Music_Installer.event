@@ -1,0 +1,15 @@
+#define SongTableOffset  0x224470
+#define SongTable(index,SongPointer,Group) "PUSH; ORG SongTableOffset+(8*index); POIN SongPointer; SHORT Group Group; POP"
+#include "MPlayDef.event"
+#include "voice-songs.event"
+
+#include "../Chapters/00/music/installer.event"
+#include "../Chapters/01/music/installer.event"
+#include "../Chapters/02/music/installer.event"
+#include "../Chapters/03/music/installer.event"
+#include "../Chapters/04/music/installer.event"
+#include "../Chapters/05/music/installer.event"
+#include "../Chapters/06/music/installer.event"
+#include "../Chapters/07/music/installer.event"
+// Chapter 8 is a two-parter, so you don't return to the world map
+#include "../Chapters/09/music/installer.event"

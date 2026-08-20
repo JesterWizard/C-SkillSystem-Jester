@@ -1,0 +1,7 @@
+ALIGN 4
+PUSH
+ORG CURRENTOFFSET+$0;EventListScr_Tutorial_None:
+ORG CURRENTOFFSET+$4;TrapData_None:
+ORG CURRENTOFFSET+$4;EventListScr_Empty:
+POP
+WORD $0 $0 $0
