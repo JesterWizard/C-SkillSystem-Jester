@@ -23,8 +23,10 @@ struct TimedHitsDifficultyStruct // 1 byte
 
 int ShouldNotShowAnim(void)
 {
+    /* Only the hold-to-skip / flag overrides apply when this feature is enabled.
+     * Do not force map anims when the designer gate is off — respect Options. */
     if (gpKernelDesignerConfig->vesly_fast_forward_battle_animations != true)
-        return true;
+        return false;
 
     u16 keys = sKeyStatusBuffer.newKeys | sKeyStatusBuffer.heldKeys;
     if (keys & HeldButton_AnimOff)

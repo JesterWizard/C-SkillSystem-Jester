@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "battle-system.h"
 #include "jester_headers/custom-arrays.h"
 
 /* Helper function to determine HP bar palette based on current HP */
@@ -1165,10 +1166,10 @@ bool PrepareBattleGraphicsMaybe(void)
         gEkrPids[POS_R] = pinfo2->number;
 
     if (valid_l)
-        gEkrGaugeHit[POS_L] = bu1->battleEffectiveHitRate;
+        gEkrGaugeHit[POS_L] = GetDisplayedTrueHitRate(bu1->battleEffectiveHitRate);
 
     if (valid_r)
-        gEkrGaugeHit[POS_R] = bu2->battleEffectiveHitRate;
+        gEkrGaugeHit[POS_R] = GetDisplayedTrueHitRate(bu2->battleEffectiveHitRate);
 
     if (gEkrGaugeHit[POS_L] == 0xFF)
         gEkrGaugeHit[POS_L] = -1;

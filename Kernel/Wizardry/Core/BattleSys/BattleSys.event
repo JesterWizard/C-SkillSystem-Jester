@@ -25,6 +25,7 @@
 #include "Source/TerrainBonus.lyn.event"
 #include "Source/BattleExp.lyn.event"
 #include "Source/BattleUI.lyn.event"
+#include "Source/TrueHitDisplay.lyn.event"
 #include "Source/Misc.lyn.event"
 
 // #include "data.event"

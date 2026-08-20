@@ -208,7 +208,7 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
 		}
 
 		PutNumberTwoChr(gUiTmScratchA + 0xA2, 2, damage);
-		PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x40, 2, gBattleTarget.battleEffectiveHitRate);
+		PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x40, 2, GetDisplayedTrueHitRate(gBattleTarget.battleEffectiveHitRate));
 		PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x80, 2, gBattleTarget.battleEffectiveCritRate);
 	}
 
@@ -239,7 +239,7 @@ void DrawBattleForecastContentsStandard(struct BattleForecastProc * proc)
     }
 
     PutNumberTwoChr(gUiTmScratchA + 0xA8, 2, damage);
-    PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x40, 2, gBattleActor.battleEffectiveHitRate);
+    PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x40, 2, GetDisplayedTrueHitRate(gBattleActor.battleEffectiveHitRate));
     PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x80, 2, critRate);
 
     PutTwoSpecialChar(gUiTmScratchA + 0xA8 - 0x44, TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_HP_A, TEXT_SPECIAL_HP_B);
@@ -280,7 +280,7 @@ void DrawBattleForecastContentsExtended(struct BattleForecastProc * proc)
 
     PutNumberTwoChr(gUiTmScratchA + 0xA2, 2, gBattleTarget.battleAttack);
     PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x40, 2, gBattleTarget.battleDefense);
-    PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x80, 2, gBattleTarget.battleEffectiveHitRate);
+    PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x80, 2, GetDisplayedTrueHitRate(gBattleTarget.battleEffectiveHitRate));
     PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0xC0, 2, gBattleTarget.battleEffectiveCritRate);
     PutNumberTwoChr(gUiTmScratchA + 0xA2 + 0x100, 2, gBattleTarget.battleSpeed);
 
@@ -292,7 +292,7 @@ void DrawBattleForecastContentsExtended(struct BattleForecastProc * proc)
 
     PutNumberTwoChr(gUiTmScratchA + 0xA8, 2, gBattleActor.battleAttack);
     PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x40, 2, gBattleActor.battleDefense);
-    PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x80, 2, gBattleActor.battleEffectiveHitRate);
+    PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x80, 2, GetDisplayedTrueHitRate(gBattleActor.battleEffectiveHitRate));
     PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0xC0, 2, gBattleActor.battleEffectiveCritRate);
     PutNumberTwoChr(gUiTmScratchA + 0xA8 + 0x100, 2, gBattleActor.battleSpeed);
 

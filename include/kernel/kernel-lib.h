@@ -160,6 +160,7 @@ struct KernelDesigerConfig {
 	u8 half_body_portraits; /* Use halfbody portraits in dialogue and UI */
 	u8 enemy_fog_vision; /* Restrict non-player AI to its faction's fog vision */
 	u8 chatlog_enabled; /* SELECT opens a scrollback log of the chapter's dialogue */
+	u8 show_true_2rn; /* Allow Options menu to show true 2RN hit rates */
 };
 
 struct KernelBattleDesignerConfig {

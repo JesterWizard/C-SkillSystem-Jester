@@ -6,7 +6,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[32] = {
+const u8 gGameOptionsUiOrder_NEW[33] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -40,18 +40,52 @@ const u8 gGameOptionsUiOrder_NEW[32] = {
     GAME_OPTION_SUPPORT_AFTER_BATTLE,
     GAME_OPTION_REAL_TIME_BATTLE,
     GAME_OPTION_REAL_TIME_INTERVAL,
+    GAME_OPTION_SHOW_TRUE_2RN,
     GAME_OPTION_ACHIEVEMENTS,
 };
 
+static bool IsGameOptionUiVisible(u8 optionIdx)
+{
+    if (optionIdx == GAME_OPTION_ACHIEVEMENTS
+        && gpKernelDesignerConfig->vesly_achievements != true)
+        return false;
+
+    if (optionIdx == GAME_OPTION_SHOW_TRUE_2RN
+        && gpKernelDesignerConfig->show_true_2rn != true)
+        return false;
+
+    return true;
+}
+
+static u8 GetUiGameOptionAt(int visibleIdx)
+{
+    int i;
+    int visible = 0;
+
+    for (i = 0; i < (int)ARRAY_COUNT(gGameOptionsUiOrder_NEW); i++) {
+        u8 opt = gGameOptionsUiOrder_NEW[i];
+
+        if (!IsGameOptionUiVisible(opt))
+            continue;
+
+        if (visible == visibleIdx)
+            return opt;
+
+        visible++;
+    }
+
+    return gGameOptionsUiOrder_NEW[0];
+}
+
 static int GetGameOptionIndexCount(void)
 {
-    int count = ARRAY_COUNT(gGameOptionsUiOrder_NEW);
+    int i;
+    int count = 0;
 
-    /* Hide the player Achievements toggle when the designer feature is off. */
-    if (gpKernelDesignerConfig->vesly_achievements != true
-        && count > 0
-        && gGameOptionsUiOrder_NEW[count - 1] == GAME_OPTION_ACHIEVEMENTS)
-        count--;
+    for (i = 0; i < (int)ARRAY_COUNT(gGameOptionsUiOrder_NEW); i++) {
+        if (IsGameOptionUiVisible(gGameOptionsUiOrder_NEW[i]))
+            count++;
+    }
 
     return count;
 }
@@ -616,6 +650,20 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x44,
         .func = GenericOptionChangeHandler,
     },
+
+    [GAME_OPTION_SHOW_TRUE_2RN] =
+    {
+        .msgId = MSG_MENU_OPTION_SHOW_TRUE_2RN_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_SHOW_TRUE_2RN_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_SHOW_TRUE_2RN_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x14, /* reuse Combat icon */
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -661,6 +709,13 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
+        case GAME_OPTION_SHOW_TRUE_2RN:
+            if (gpKernelDesignerConfig->show_true_2rn != true) {
+                gPlaySt.config.show_true_2rn = 1; /* OFF */
+                break;
+            }
+            gPlaySt.config.show_true_2rn = newValue;
+            break;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true) {
                 gPlaySt.config.achievements = 1; /* OFF */
@@ -717,6 +772,10 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
         case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
+        case GAME_OPTION_SHOW_TRUE_2RN:
+            if (gpKernelDesignerConfig->show_true_2rn != true)
+                return 1; /* OFF */
+            return gPlaySt.config.show_true_2rn;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true)
                 return 1; /* OFF */
@@ -773,6 +832,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = 0; /* display hint; interval frames come from designer config */
+    gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
     SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);
@@ -793,7 +853,7 @@ void ChapterInit_SyncAchievementsOption(void)
 LYN_REPLACE_CHECK(GetSelectedOptionValue);
 u8 GetSelectedOptionValue(void)
 {
-    return GetGameOption(gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]);
+    return GetGameOption(GetUiGameOptionAt(gConfigUiState->selectedOptionIdx));
 }
 
 static inline int GetGameOptionIconChr(int icon)
@@ -807,7 +867,7 @@ void DrawGameOptionIcon(int selectedIdx, int yBase)
 {
     int yTop = 0x20 * ((selectedIdx * 2 + yBase) & 0x1f);
     int yBot = 0x20 * ((selectedIdx * 2 + yBase + 1) & 0x1f);
-    int icon = gGameOptions_NEW[gGameOptionsUiOrder_NEW[selectedIdx]].icon;
+    int icon = gGameOptions_NEW[GetUiGameOptionAt(selectedIdx)].icon;
     int chr = GetGameOptionIconChr(icon);
 
     // Variable reuse seems to be required to match
@@ -826,7 +886,7 @@ void DrawGameOptionHelpText(void)
 {
     const char * str;
     ClearText(&gConfigUiState->optionHelpText);
-    str = GetGameOptionRowHelpText(gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx], GetSelectedOptionValue());
+    str = GetGameOptionRowHelpText(GetUiGameOptionAt(gConfigUiState->selectedOptionIdx), GetSelectedOptionValue());
     PutDrawText(&gConfigUiState->optionHelpText, TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 18), TEXT_COLOR_SYSTEM_WHITE, 0, 28, str);
 }
 
@@ -871,7 +931,7 @@ void DrawGameOptionText(int selectedIdx, int textIdx, int y)
     y &= 0x1f;
 
     ClearText(&gConfigUiState->optionTexts[textIdx]);
-    str = GetGameOptionRowTitle(gGameOptionsUiOrder_NEW[selectedIdx]);
+    str = GetGameOptionRowTitle(GetUiGameOptionAt(selectedIdx));
 
     /* Match vanilla for the common case so BG1 titles stay clean. */
     if (y != 0x1f)
@@ -895,7 +955,7 @@ void DrawOptionValueTexts(int selectedIdx, int textIdx, int y)
 {
     int i;
 
-    int optionIdx = gGameOptionsUiOrder_NEW[selectedIdx];
+    int optionIdx = GetUiGameOptionAt(selectedIdx);
     int x = GetGameOptionRowX(optionIdx) / 8;
 
     y &= 0x1f;
@@ -920,7 +980,7 @@ void DrawConfigUiSprites(void)
 {
     int y;
 
-    int optionIdx = gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx];
+    int optionIdx = GetUiGameOptionAt(gConfigUiState->selectedOptionIdx);
 
     u8 time = k_umod(GetGameClock(), 16) & 8;
 
@@ -935,7 +995,7 @@ void DrawConfigUiSprites(void)
 
     if (!(gConfigUiState->source & CONFIG_UI_SOURCE_FROMPREP) || (PrepGetDeployedUnitAmt() != 0))
     {
-        if ((GetSelectedGameOption() == GAME_OPTION_ANIMATION) && (GetSelectedOptionValue() == 3))
+        if ((GetUiGameOptionAt(gConfigUiState->selectedOptionIdx) == GAME_OPTION_ANIMATION) && (GetSelectedOptionValue() == 3))
         {
             // Draw sprite for blinking "A Press" prompt
             CallARM_PushToSecondaryOAM(192, 40, gObject_16x16, (time != 0) ? OAM2_CHR(0xCE) + OAM2_PAL(2) : OAM2_CHR(0xCC) + OAM2_PAL(2));
@@ -1059,7 +1119,7 @@ bool MusicOptionChangeHandler(ProcPtr proc)
     if (GenericOptionChangeHandler(proc) == 0)
         return false;
 
-    if (GetGameOption(gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]) != 0)
+    if (GetGameOption(GetUiGameOptionAt(gConfigUiState->selectedOptionIdx)) != 0)
     {
         sub_8002AC8();
         return false;
@@ -1086,7 +1146,7 @@ bool GenericOptionChangeHandler(ProcPtr proc)
     int valueChanged = false;
 
     int selectedIdx = gConfigUiState->selectedOptionIdx;
-    u8 optionIdx = gGameOptionsUiOrder_NEW[selectedIdx];
+    u8 optionIdx = GetUiGameOptionAt(selectedIdx);
 
     u8 selectedValue = GetSelectedOptionValue();
 
@@ -1147,7 +1207,7 @@ void Config_Loop_KeyHandler(struct ConfigProc * proc)
                 break;
             }
 
-            if (gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx] != 0)
+            if (GetUiGameOptionAt(gConfigUiState->selectedOptionIdx) != 0)
             {
                 break;
             }
@@ -1217,9 +1277,9 @@ void Config_Loop_KeyHandler(struct ConfigProc * proc)
 
         if (gKeyStatusPtr->newKeys & (DPAD_LEFT | DPAD_RIGHT))
         {
-            if (gGameOptions_NEW[gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]].func != NULL)
+            if (gGameOptions_NEW[GetUiGameOptionAt(gConfigUiState->selectedOptionIdx)].func != NULL)
             {
-                gGameOptions_NEW[gGameOptionsUiOrder_NEW[gConfigUiState->selectedOptionIdx]].func(proc);
+                gGameOptions_NEW[GetUiGameOptionAt(gConfigUiState->selectedOptionIdx)].func(proc);
             }
         }
 

@@ -23,7 +23,9 @@ WORD 1 // or 0 for false
 
 ALIGN 4 
 HeldButton_AnimOff: 
-SHORT L_BUTTON|R_BUTTON // Holding any of these when battle starts will make the game do map anims instead 
+/* L only: R is the range/help button, so L|R skipped banims whenever you
+ * confirmed an attack while still holding R after checking range. */
+SHORT L_BUTTON 
 
 HeldButton_FastForwardAnims:
 SHORT L_BUTTON|A_BUTTON|B_BUTTON 

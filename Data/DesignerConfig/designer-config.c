@@ -134,7 +134,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_combat_rate = 5,
 	.vesly_support_after_battle_dance_rate = 10,
 	.vesly_support_after_battle_staff_rate = 10,
-	.vesly_fast_forward_battle_animations = true,
+	.vesly_fast_forward_battle_animations = false,
 	.vesly_extended_help_boxes = true,
 	.free_movement = true,
 	.gameover_quotes = false,
@@ -178,4 +178,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.half_body_portraits = false,
 	.enemy_fog_vision = true,
 	.chatlog_enabled = true,
+	.show_true_2rn = true, /* Options menu: show true 2RN hit rates */
 };

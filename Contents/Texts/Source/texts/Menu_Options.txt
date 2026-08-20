@@ -111,3 +111,8 @@ Seconds between enemy action attempts[X]
 Achievements[X]
 ## MSG_MENU_OPTION_ACHIEVEMENTS_DESC
 Enable achievement tracking and Goals menu[X]
+
+## MSG_MENU_OPTION_SHOW_TRUE_2RN_TITLE
+True Hit[X]
+## MSG_MENU_OPTION_SHOW_TRUE_2RN_DESC
+Show real 2RN hit rates in battle[X]

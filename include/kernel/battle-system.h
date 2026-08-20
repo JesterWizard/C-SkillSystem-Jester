@@ -251,6 +251,12 @@ int GetMaxDamage(struct BattleUnit *attacker, struct BattleUnit *defender);
 void ModifyBattleStatusForUI(void);
 
 /**
+ * If the True Hit config option is on, convert a displayed 2RN hit rate
+ * (0-100) to its rounded true probability. Non 0-100 values pass through.
+ */
+int GetDisplayedTrueHitRate(int rate);
+
+/**
  * Leadership
  */
 struct LeaderShipConf {
