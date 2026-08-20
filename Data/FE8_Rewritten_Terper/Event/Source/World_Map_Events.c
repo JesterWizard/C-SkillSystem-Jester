@@ -72,48 +72,46 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
                         gPlaySt.chapterModeIndex,
                         gGMData.state.bits.monster_merged);
 
-        if (node_next > -1)
+        if (node_next > -1 && node_next < NODE_MAX)
         {
-            if (node_next >= NODE_MAX)
-                return;
-
             chIndex = WMLoc_GetChapterId(node_next);
             NoCashGBAPrintf("[WM] CallBeginning chapter=%d node_next=%d\n", chIndex, node_next);
 
-            if (chIndex < 0)
-                return;
+            chapterData = chIndex < 0 ? NULL : GetROMChapterStruct(chIndex);
 
-            chapterData = GetROMChapterStruct(chIndex);
-            if (chapterData == NULL)
-                return;
-
-            gPlaySt.chapterIndex = chIndex;
-
-            eventId = chapterData->gmapEventId;
-            NoCashGBAPrintf("[WM] CallBeginning gmapEventId=%d chapter=%d\n", eventId, chIndex);
-
-            ResetGmStoryNode();
-            proc->gm_icon->merge_next_node = false;
-
-            /**
-             * New event list helper
-             */
-            if (eventId == 55)
-                CallEvent((const u16*)EventScrWM_Ch1_ENDING, 0);
-            else if (eventId == 1)
+            if (chapterData != NULL)
             {
-                if (gpKernelDesignerConfig->skip_intro == true)
-                    CallEvent((const u16*)EventScrWM_PrologueSkip, 0);
+                gPlaySt.chapterIndex = chIndex;
+
+                eventId = chapterData->gmapEventId;
+                NoCashGBAPrintf("[WM] CallBeginning gmapEventId=%d chapter=%d\n", eventId, chIndex);
+
+                ResetGmStoryNode();
+                proc->gm_icon->merge_next_node = false;
+
+                /**
+                 * New event list helper
+                 */
+                if (eventId == 55)
+                    CallEvent((const u16*)EventScrWM_Ch1_ENDING, 0);
+                else if (eventId == 1)
+                {
+                    if (gpKernelDesignerConfig->skip_intro == true)
+                        CallEvent((const u16*)EventScrWM_PrologueSkip, 0);
+                    else
+                        CallEvent((const u16*)EventScrWM_Prologue_SET_NODE, 0);
+                }
+                else if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_SET_NODE) / sizeof(EventScrWM_SET_NODE[0])) && EventScrWM_SET_NODE[eventId] != NULL)
+                    CallEvent(EventScrWM_SET_NODE[eventId], 0);
                 else
-                    CallEvent((const u16*)EventScrWM_Prologue_SET_NODE, 0);
+                    NoCashGBAPrintf("[WM] CallBeginning no script chapter=%d eventId=%d\n", chIndex, eventId);
             }
-            else if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_SET_NODE) / sizeof(EventScrWM_SET_NODE[0])) && EventScrWM_SET_NODE[eventId] != NULL)
-                CallEvent(EventScrWM_SET_NODE[eventId], 0);
-            else
-                return;
         }
     }
 
+    /* These hand the world map back to the player. Skipping them for a chapter
+     * with no beginning script leaves the map faded out with nothing to finish
+     * the transition. */
     StartWMFaceCtrl(proc);
     StartGmapMuEntry(NULL);
 }
@@ -130,41 +128,39 @@ void CallChapterWMIntroEvents(ProcPtr proc)
 
     chapterIndex = gPlaySt.chapterIndex;
 
-    if (chapterIndex < 0)
-        return;
-
-    chapterData = GetROMChapterStruct(chapterIndex);
-    if (chapterData == NULL)
-        return;
-
-    /**
-     * New event list helper
-     */
-    eventId = chapterData->gmapEventId;
-    NoCashGBAPrintf("[WM] CallIntro chapter=%d gmapEventId=%d\n", chapterIndex, eventId);
-
     eventScript = NULL;
+    chapterData = chapterIndex < 0 ? NULL : GetROMChapterStruct(chapterIndex);
 
-    if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_TRAVEL_TO_NODE) / sizeof(EventScrWM_TRAVEL_TO_NODE[0])) && EventScrWM_TRAVEL_TO_NODE[eventId] != NULL)
+    if (chapterData != NULL)
     {
-        NoCashGBAPrintf("[WM] CallIntro using travel script idx=%d\n", eventId);
-        eventScript = EventScrWM_TRAVEL_TO_NODE[eventId];
-    }
-    else if (eventId != 2 && eventId != 6 && eventId >= 0 && eventId < maxSafeEventId)
-    {
-        NoCashGBAPrintf("[WM] CallIntro using intro script idx=%d\n", eventId);
-        eventScript = (const u16 *)Events_WM_ChapterIntro[eventId];
-    }
-    else
-    {
-        NoCashGBAPrintf("[WM] CallIntro no script chapter=%d eventId=%d\n", chapterIndex, eventId);
+        /**
+         * New event list helper
+         */
+        eventId = chapterData->gmapEventId;
+        NoCashGBAPrintf("[WM] CallIntro chapter=%d gmapEventId=%d\n", chapterIndex, eventId);
+
+        if (eventId >= 0 && eventId < (int)(sizeof(EventScrWM_TRAVEL_TO_NODE) / sizeof(EventScrWM_TRAVEL_TO_NODE[0])) && EventScrWM_TRAVEL_TO_NODE[eventId] != NULL)
+        {
+            NoCashGBAPrintf("[WM] CallIntro using travel script idx=%d\n", eventId);
+            eventScript = EventScrWM_TRAVEL_TO_NODE[eventId];
+        }
+        else if (eventId != 2 && eventId != 6 && eventId >= 0 && eventId < maxSafeEventId)
+        {
+            NoCashGBAPrintf("[WM] CallIntro using intro script idx=%d\n", eventId);
+            eventScript = (const u16 *)Events_WM_ChapterIntro[eventId];
+        }
+        else
+        {
+            NoCashGBAPrintf("[WM] CallIntro no script chapter=%d eventId=%d\n", chapterIndex, eventId);
+        }
     }
 
-    if (eventScript == NULL)
-        return;
+    if (eventScript != NULL)
+        CallEvent(eventScript, 0);
 
-    CallEvent(eventScript, 0);
-
+    /* These hand the world map back to the player. Skipping them for a chapter
+     * with no intro script (0x38 reports gmapEventId 55, which is outside every
+     * table here) leaves the map faded out with nothing to finish the transition. */
     StartWMFaceCtrl(proc);
     StartGmapMuEntry(NULL);
 }

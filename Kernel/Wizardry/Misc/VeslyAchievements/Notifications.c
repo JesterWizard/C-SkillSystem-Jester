@@ -125,8 +125,21 @@ int AreAnyUnitsActive(void)
 struct ProcCmd const gProcScr_NotificationWindow[];
 void WhileNotificationActive(struct PlayerInterfaceProc * parent)
 {
-    struct Proc * playerPhase = Proc_Find(gProcScr_PlayerPhase);
-    struct NotificationWindowProc * proc = Proc_Find(gProcScr_NotificationWindow);
+    struct Proc * playerPhase;
+    struct NotificationWindowProc * proc;
+
+    /* This proc replaces vanilla gProcScr_SideWindowMaker unconditionally, so with
+     * notifications off there is never a notification proc to wait on and the gating
+     * below would tear the side windows down whenever no player phase is running. */
+    if (gpKernelDesignerConfig->vesly_notification_window != true)
+    {
+        InitPlayerPhaseInterface();
+        Proc_Break(parent);
+        return;
+    }
+
+    playerPhase = Proc_Find(gProcScr_PlayerPhase);
+    proc = Proc_Find(gProcScr_NotificationWindow);
     if (!CanNotifsDisplayCurrently(proc, playerPhase))
     // ((playerPhase) && (playerPhase->proc_lockCnt))) // player phase has a blocking proc (such as the debugger)
     {

@@ -252,6 +252,18 @@ _kernel_malloc2 gBmMapEnemyVision, 4
 _kernel_malloc2 sChatLogState, 0x444
 _kernel_malloc2 sChatlogUiState, 0x600
 
+/**
+ * EnterTown district-entry handshake. Consumed once by WMLoc_GetChapterId and
+ * WorldMap_Destruct respectively.
+ *
+ * These previously lived at 0x03005268 and 0x03005266, which are bytes 24 and 22
+ * of gPermanentFlagBits, so event IDs 192-199 hijacked the node-to-chapter lookup
+ * and event IDs 176-183 forced a map reload, and reading either wiped those flags.
+ * Keep them out of flag storage. Paired so the reservation stays even-sized.
+ */
+_kernel_malloc2 sWmChapterIdOverride, 1
+_kernel_malloc2 sWmMapReloadPending, 1
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

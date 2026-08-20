@@ -1,20 +1,10 @@
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 
-PUSH
-ORG $BB5C0
-jumpToHack(chaptercheck|1)
-ORG $B8A68
-jumpToHack(mapreload|1)
-POP
-
-ALIGN 4
-mapreload:
-#incbin "Events/mapreloader.dmp"
-
-ALIGN 4
-chaptercheck:
-#incbin "Events/chapterchecker.dmp"
+// The $BB5C0 (chaptercheck) and $B8A68 (mapreload) asm hooks are gone.
+// WMLoc_GetChapterId and WorldMap_Destruct are now replaced in
+// Kernel/Wizardry/Core/WorldMap/WorldMap.c, reading sWmChapterIdOverride and
+// sWmMapReloadPending instead of scribbling on gPermanentFlagBits.
 
 #include "LynJump.event"
 #include "EnterTown.lyn.event"

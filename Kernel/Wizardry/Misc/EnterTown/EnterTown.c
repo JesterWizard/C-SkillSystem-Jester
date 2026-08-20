@@ -15,6 +15,9 @@
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-arrays.h"
 
+extern u8 sWmChapterIdOverride;
+extern u8 sWmMapReloadPending;
+
 extern u8 MapMenu_IsGuideCommandAvailable(const struct MenuItemDef * def, int number);
 extern void sub_80B5D3C(void);
 extern struct MenuRect gMenuRect_WMGeneralMenuRect;
@@ -63,11 +66,11 @@ u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * m
 {
     SetFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP); // Set this to skip intro chapter GFX
 
-    // Matches: *(u8*)0x03005266 = 0x36 not sure what it's for
-    *(volatile u8*)0x03005266 = 0x36;
+    // Tells WorldMap_Destruct to reload into the district map
+    sWmMapReloadPending = true;
 
-    // Map index we want to load from
-    *(volatile u8*)0x03005268 = 0x3B;
+    // Map index we want to load from, consumed by WMLoc_GetChapterId
+    sWmChapterIdOverride = 0x3B;
 
     void * p = Proc_Find(ProcScr_WorldMapMain);
 

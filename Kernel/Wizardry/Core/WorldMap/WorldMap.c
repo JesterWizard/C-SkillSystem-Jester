@@ -1,6 +1,56 @@
 #include "common-chax.h"
 #include "kernel/no-cash-gba.h"
 
+extern u8 sWmChapterIdOverride;
+extern u8 sWmMapReloadPending;
+
+//! FE8U = 0x080B8A18
+LYN_REPLACE_CHECK(WorldMap_Destruct);
+void WorldMap_Destruct(struct WorldMapMainProc * proc)
+{
+    Proc_End(proc->gm_cursor);
+    Proc_End(proc->gm_screen);
+    Proc_End(proc->gm_icon);
+
+    SetSecondaryHBlankHandler(NULL);
+    ClearWmHblank();
+    SetPrimaryHBlankHandler(NULL);
+    EndTalk();
+    ClearTalkText();
+    ResetUnitSprites();
+    SetBlendConfig(BLEND_EFFECT_DARKEN, 0, 0, 0x10);
+    sub_80BF15C();
+    EndWorldmapMinimap();
+
+    /* EnterTown sets this so the district map loads instead of tearing the world map down. */
+    if (sWmMapReloadPending != 0)
+    {
+        sWmMapReloadPending = 0;
+        gGMData.state.raw = 0x36;
+        return;
+    }
+
+    gGMData.state.raw &= ~(GM_STATE_0 | GM_STATE_SKIPPED | GM_STATE_NOFADE);
+}
+
+//! FE8U = 0x080BB5B0
+LYN_REPLACE_CHECK(WMLoc_GetChapterId);
+int WMLoc_GetChapterId(int node)
+{
+    /* EnterTown sets this to launch a district chapter instead of the node's own. */
+    if (sWmChapterIdOverride != 0)
+    {
+        int chapter = sWmChapterIdOverride;
+        sWmChapterIdOverride = 0;
+        return chapter;
+    }
+
+    if (gPlaySt.chapterModeIndex == CHAPTER_MODE_EPHRAIM)
+        return gWMNodeData[node].chapteridx_ephram;
+
+    return gWMNodeData[node].chapteridx_eirika;
+}
+
 // static const u8 WmMonsterGenerateRatesIdx_EirikaMode[11] = {
 //     /* chapter idx */
 //     0x0A,
