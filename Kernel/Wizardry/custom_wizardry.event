@@ -102,6 +102,7 @@
 // #endif
 
 #include "Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event"
+#include "Misc/Portrait32Color/Portrait32Color_Installer.event"
 
 #ifdef CONFIG_MAX_COLOR_BACKGROUNDS
     #include "Misc/Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"

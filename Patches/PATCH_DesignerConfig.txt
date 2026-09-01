@@ -164,6 +164,7 @@ B151:DECIMAL=vesly_support_after_battle_staff_rate
 B152:$COMBO combo.bool.txt=voice_acted_dialogue
 B153:$COMBO combo.bool.txt=world_map_thought_bubbles
 B154:$COMBO combo.bool.txt=wrank_bonux_rtext_auto_gen
+B155:$COMBO combo.bool.txt=portrait_32_color
 
 B0:$COMBO combo.bool.txt.zh=ai_dance_use
 B1:$COMBO combo.bool.txt.zh=ai_player_phase
@@ -318,6 +319,7 @@ B151:DECIMAL.zh=vesly_support_after_battle_staff_rate
 B152:$COMBO combo.bool.txt.zh=voice_acted_dialogue
 B153:$COMBO combo.bool.txt.zh=world_map_thought_bubbles
 B154:$COMBO combo.bool.txt.zh=wrank_bonux_rtext_auto_gen
+B155:$COMBO combo.bool.txt.zh=portrait_32_color
 
 INFO=Editor: gKernelDesigerConfig\nhttps://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md
 https://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md

@@ -1,0 +1,374 @@
+#!/usr/bin/env python3
+"""Format a 32-color GBA Fire Emblem portrait sheet.
+
+Layout matches PortraitFormatter (128x112 sheet). Tiles stay 4bpp.
+
+pal0 is the first 16 colors (base sprite). pal1 holds extra shades in a
+second OBJ palette. The formatter also stores a 4bpp overlay mug whose
+non-zero pixels are only those extra shades. Runtime steals a free OBJ
+palette, packs overlay tiles into unused CHR of the same face (plus a
+small overflow), and draws extra OAM on top of the mug. The stolen pal
+is restored when the face ends.
+
+Usage: PortraitFormatter32 <file.png> [--to-stdout] [-o out.dmp]
+       [--mouth Mx,My] [--eye Ex,Ey]
+"""
+from __future__ import annotations
+
+import os
+import struct
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from PIL import Image
+
+TOOLS_DIR = Path(__file__).resolve().parent
+COMPRESS = TOOLS_DIR / "compress"
+
+MUG_HEADER = bytes([0x00, 0x04, 0x10, 0x00])
+MINI_X0, MINI_Y0, MINI_S = 96, 16, 32
+
+# (src_tx, src_ty, dst_tx, dst_ty, tw, th)
+MUG_COPIES = [
+    (2, 0, 0, 0, 8, 4),
+    (2, 4, 8, 0, 8, 4),
+    (2, 8, 16, 0, 4, 2),
+    (6, 8, 16, 2, 4, 2),
+    (0, 6, 20, 0, 2, 4),
+    (10, 6, 22, 0, 2, 4),
+    (12, 6, 24, 0, 4, 2),
+    (12, 8, 24, 2, 4, 2),
+    (12, 10, 28, 0, 4, 2),
+    (12, 12, 28, 2, 4, 2),
+]
+
+FRAME_COPIES = [
+    (0, 10, 0, 0, 4, 1),
+    (0, 11, 4, 0, 4, 1),
+    (4, 10, 8, 0, 4, 1),
+    (4, 11, 12, 0, 4, 1),
+    (8, 10, 16, 0, 4, 1),
+    (8, 11, 20, 0, 4, 1),
+    (0, 12, 24, 0, 4, 1),
+    (0, 13, 28, 0, 4, 1),
+    (4, 12, 32, 0, 4, 1),
+    (4, 13, 36, 0, 4, 1),
+    (8, 12, 40, 0, 4, 1),
+    (8, 13, 44, 0, 4, 1),
+]
+
+
+def rgb_to_gba(rgb):
+    r, g, b = rgb[0] >> 3, rgb[1] >> 3, rgb[2] >> 3
+    return r | (g << 5) | (b << 10)
+
+
+def write_rom_palette(colors, n=32):
+    out = bytearray()
+    for rgb in colors:
+        out.extend(struct.pack("<H", rgb_to_gba(rgb)))
+    nbytes = n * 2
+    if len(out) < nbytes:
+        out.extend(b"\x00" * (nbytes - len(out)))
+    return bytes(out[:nbytes])
+
+
+def blank_canvas(tw, th, fill=0):
+    w, h = tw * 8, th * 8
+    return [[fill for _ in range(w)] for _ in range(h)]
+
+
+def copy_section(src, dst, sx, sy, dx, dy, tw, th):
+    src_h = len(src)
+    src_w = len(src[0]) if src_h else 0
+    dst_h = len(dst)
+    dst_w = len(dst[0]) if dst_h else 0
+    for ty in range(th):
+        for tx in range(tw):
+            for y in range(8):
+                syy = (sy + ty) * 8 + y
+                dyy = (dy + ty) * 8 + y
+                if dyy < 0 or dyy >= dst_h:
+                    continue
+                for x in range(8):
+                    sxx = (sx + tx) * 8 + x
+                    dxx = (dx + tx) * 8 + x
+                    if dxx < 0 or dxx >= dst_w:
+                        continue
+                    if 0 <= syy < src_h and 0 <= sxx < src_w:
+                        dst[dyy][dxx] = src[syy][sxx]
+
+
+def to_rom_4bpp(canvas):
+    h = len(canvas)
+    w = len(canvas[0]) if h else 0
+    tiles_x = w // 8
+    tiles_y = h // 8
+    out = bytearray()
+    for ty in range(tiles_y):
+        for tx in range(tiles_x):
+            pix = []
+            for y in range(8):
+                for x in range(8):
+                    pix.append(canvas[ty * 8 + y][tx * 8 + x] & 0xF)
+            for i in range(0, 64, 2):
+                out.append((pix[i] & 0xF) | ((pix[i + 1] & 0xF) << 4))
+    return bytes(out)
+
+
+def swap_transparent(canvas, trans_idx):
+    if trans_idx == 0:
+        return canvas
+    out = []
+    for row in canvas:
+        new_row = []
+        for px in row:
+            if px == trans_idx:
+                new_row.append(0)
+            elif px == 0:
+                new_row.append(trans_idx)
+            else:
+                new_row.append(px)
+        out.append(new_row)
+    return out
+
+
+def swap_palette_transparent(colors, trans_idx):
+    colors = list(colors)
+    if trans_idx != 0 and trans_idx < len(colors):
+        colors[0], colors[trans_idx] = colors[trans_idx], colors[0]
+    return colors
+
+
+def load_indexed(path):
+    im = Image.open(path)
+    if im.mode != "P":
+        im = im.convert("P", palette=Image.ADAPTIVE, colors=32)
+    pal = im.getpalette() or []
+    n = max(len(pal) // 3, 1)
+    colors = [tuple(pal[i * 3 : i * 3 + 3]) for i in range(n)]
+    px = im.load()
+    w, h = im.size
+    grid = [[px[x, y] for x in range(w)] for y in range(h)]
+    return grid, colors
+
+
+def dist2(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
+
+
+def nearest_idx(pal, rgb):
+    best, bd = 0, 10 ** 18
+    for i in range(16):
+        d = dist2(pal[i], rgb)
+        if d < bd:
+            best, bd = i, d
+    return best
+
+
+def in_mini(x, y):
+    return MINI_X0 <= x < MINI_X0 + MINI_S and MINI_Y0 <= y < MINI_Y0 + MINI_S
+
+
+def build_pal0(colors, trans):
+    pal0 = (list(colors[:16]) + [(0, 0, 0)] * 16)[:16]
+    pal0[0] = trans
+    return pal0
+
+
+def collect_extras(colors, pal0, trans):
+    pal0_set = set(pal0)
+    extras = []
+    for rgb in colors:
+        if rgb == trans or rgb in pal0_set:
+            continue
+        if rgb not in extras:
+            extras.append(rgb)
+    return extras
+
+
+def pal0_index_map(pal0):
+    pal0_index = {}
+    for i in range(1, 16):
+        pal0_index[pal0[i]] = i
+    return pal0_index
+
+
+def build_pal1(extra_rgbs, trans):
+    pal1 = [trans] * 16
+    extra_map = {}
+    slot = 1
+    for rgb in extra_rgbs:
+        if slot >= 16:
+            raise RuntimeError(
+                "%d extra colors; at most 15 extra shades fit in pal1"
+                % len(extra_rgbs)
+            )
+        pal1[slot] = rgb
+        extra_map[rgb] = slot
+        slot += 1
+    return pal1, extra_map
+
+
+def encode_layers(grid, colors, pal0, extra_map, pal0_index, trans):
+    h = len(grid)
+    w = len(grid[0]) if h else 0
+    base = [[0] * w for _ in range(h)]
+    overlay = [[0] * w for _ in range(h)]
+    for y in range(h):
+        row = grid[y]
+        bdst = base[y]
+        odst = overlay[y]
+        for x in range(w):
+            idx = row[x]
+            rgb = colors[idx] if idx < len(colors) else trans
+            if rgb == trans or idx == 0:
+                continue
+            if in_mini(x, y):
+                bdst[x] = nearest_idx(pal0, rgb)
+                continue
+            pal0_i = pal0_index.get(rgb)
+            extra_i = extra_map.get(rgb)
+            if pal0_i is not None:
+                bdst[x] = pal0_i
+            elif extra_i is not None:
+                odst[x] = extra_i
+            else:
+                bdst[x] = nearest_idx(pal0, rgb)
+    return base, overlay
+
+
+def pad4(data):
+    if len(data) % 4 == 0:
+        return data
+    return data + b"\x00" * (4 - (len(data) % 4))
+
+
+def lz77_compress(raw):
+    if not COMPRESS.exists():
+        raise RuntimeError("EA compress tool not found: %s" % COMPRESS)
+    fd, name = tempfile.mkstemp(prefix="mugmini_", suffix=".bin")
+    try:
+        os.write(fd, raw)
+        os.close(fd)
+        fd = -1
+        out = subprocess.check_output([str(COMPRESS), name, "--to-stdout"])
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        try:
+            os.unlink(name)
+        except OSError:
+            pass
+    return pad4(out)
+
+
+def parse_xy(value, flag):
+    try:
+        a, b = value.split(",")
+        return int(a), int(b)
+    except ValueError:
+        raise RuntimeError("expected %s X,Y" % flag)
+
+
+def format_portrait(path, mouth_xy=(2, 6), eye_xy=(3, 4)):
+    grid, colors = load_indexed(path)
+    trans_idx = grid[0][0] if grid and grid[0] else 0
+    colors = swap_palette_transparent(colors, trans_idx)
+    grid = swap_transparent(grid, trans_idx)
+    trans = colors[0]
+
+    pal0 = build_pal0(colors, trans)
+    extra_rgbs = collect_extras(colors, pal0, trans)
+    pal0_index = pal0_index_map(pal0)
+    pal1, extra_map = build_pal1(extra_rgbs, trans)
+    encoded, overlay_grid = encode_layers(
+        grid, colors, pal0, extra_map, pal0_index, trans
+    )
+
+    mug = blank_canvas(32, 4)
+    overlay_mug = blank_canvas(32, 4)
+    for spec in MUG_COPIES:
+        copy_section(encoded, mug, *spec)
+        copy_section(overlay_grid, overlay_mug, *spec)
+
+    frames = blank_canvas(48, 1)
+    for spec in FRAME_COPIES:
+        copy_section(encoded, frames, *spec)
+
+    mini = blank_canvas(4, 4)
+    copy_section(encoded, mini, 12, 2, 0, 0, 4, 4)
+
+    mug_out = MUG_HEADER + to_rom_4bpp(mug)
+    frames_out = to_rom_4bpp(frames)
+    pal_out = write_rom_palette(pal0 + pal1, 32)
+    overlay_out = to_rom_4bpp(overlay_mug)
+    # Keep imgChibi off 0x2644/0x2648 so halfbody detection does not fire.
+    overlay_pad = b"\x00" * 12
+    mini_out = lz77_compress(to_rom_4bpp(mini))
+    return mug_out + frames_out + pal_out + overlay_out + overlay_pad + mini_out
+
+
+def main(argv):
+    args = [a for a in argv[1:] if a]
+    to_stdout = "--to-stdout" in args
+    args = [a for a in args if a not in ("--to-stdout", "--help")]
+    out_path = None
+    mouth_xy = (2, 6)
+    eye_xy = (3, 4)
+    if "-o" in args:
+        i = args.index("-o")
+        if i + 1 >= len(args):
+            sys.stderr.write("No output file specified.\n")
+            return 1
+        out_path = args[i + 1]
+        del args[i : i + 2]
+    if "--mouth" in args:
+        i = args.index("--mouth")
+        if i + 1 >= len(args):
+            sys.stderr.write("No --mouth X,Y specified.\n")
+            return 1
+        try:
+            mouth_xy = parse_xy(args[i + 1], "--mouth")
+        except RuntimeError as e:
+            sys.stderr.write(str(e) + "\n")
+            return 1
+        del args[i : i + 2]
+    if "--eye" in args:
+        i = args.index("--eye")
+        if i + 1 >= len(args):
+            sys.stderr.write("No --eye X,Y specified.\n")
+            return 1
+        try:
+            eye_xy = parse_xy(args[i + 1], "--eye")
+        except RuntimeError as e:
+            sys.stderr.write(str(e) + "\n")
+            return 1
+        del args[i : i + 2]
+    if len(args) != 1:
+        sys.stderr.write(
+            "usage: PortraitFormatter32 <filename.png> [-o out.dmp] "
+            "[--to-stdout] [--mouth X,Y] [--eye X,Y]\n"
+        )
+        return 1
+
+    try:
+        data = format_portrait(args[0], mouth_xy, eye_xy)
+    except RuntimeError as e:
+        sys.stderr.write(str(e) + "\n")
+        return 1
+    if to_stdout:
+        sys.stdout.buffer.write(data)
+        return 0
+    if out_path:
+        Path(out_path).write_bytes(data)
+        return 0
+    base = Path(args[0]).with_suffix("")
+    Path(str(base) + "_32color.dmp").write_bytes(data)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

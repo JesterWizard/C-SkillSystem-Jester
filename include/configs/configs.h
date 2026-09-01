@@ -94,3 +94,5 @@
 */
 // Halfbody portraits are controlled at runtime by
 // KernelDesigerConfig::half_body_portraits.
+// 32-color portraits copy pal1 into the paired face VRAM/pal bank; gated by
+// KernelDesigerConfig::portrait_32_color.

@@ -174,6 +174,7 @@ struct KernelDesigerConfig {
 	u8 voice_acted_dialogue;
 	u8 world_map_thought_bubbles;
 	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
+	u8 portrait_32_color; /* pal1 overlay in the paired face VRAM/pal bank; max 2 */
 };
 
 struct KernelBattleDesignerConfig {
@@ -208,6 +209,11 @@ extern const struct KernelDesigerConfig *const gpKernelDesignerConfig;
 extern const struct KernelBattleDesignerConfig *const gpKernelBattleDesignerConfig;
 
 extern u16 sPathfindingGhostObjBuf[];
+
+void Portrait32_BindFace(int faceSlot, const struct FaceData *info, int palIndex);
+void Portrait32_UnbindFace(int faceSlot);
+void Portrait32_OnFadeIn(struct FaceProc *proc);
+void Portrait32_LoadOverlayGfx(struct FaceProc *proc);
 
 bool ArenaRosterMenuEnabled(void);
 bool ArenaRosterStartSelection(ProcPtr proc);

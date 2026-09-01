@@ -162,7 +162,11 @@ LYN_REPLACE_CHECK(FindFreeFaceSlot);
 int FindFreeFaceSlot(void)
 {
 	int i;
-	int step = HalfBodyPortraitsEnabled() ? 2 : 1;
+	int step = 1;
+
+	if (HalfBodyPortraitsEnabled()
+			|| gpKernelDesignerConfig->portrait_32_color != false)
+		step = 2;
 
 	for (i = 0; i < FACE_SLOT_COUNT; i += step) {
 		if (gFaces[i] == NULL)
@@ -236,6 +240,8 @@ struct FaceProc *StartFace(int slot, int fid, int x, int y, int disp)
 	proc->displayBits = ~disp;
 	SetFaceDisplayBits(proc, disp);
 
+	Portrait32_BindFace(slot, info, sFaceConfig[vramSlot].paletteId + 0x10);
+
 	return proc;
 }
 
@@ -248,6 +254,7 @@ void Face_OnInit(struct FaceProc *proc)
 		proc->pFaceInfo->img,
 		(void *)(sFaceConfig[vramSlot].tileOffset + 0x06010000)
 	);
+	Portrait32_LoadOverlayGfx(proc);
 }
 
 LYN_REPLACE_CHECK(FaceRefreshSprite);
@@ -338,6 +345,8 @@ void StartFaceFadeIn(struct FaceProc *proc)
 		SetBlackPal(pal + 1);
 		StartPalFade(info->pal + 0x10, pal + 1, 12, proc);
 	}
+
+	Portrait32_OnFadeIn(proc);
 }
 
 struct HbFaceEndProc {
@@ -442,6 +451,13 @@ void sub_8006650(struct UnkFaceProc *proc)
 	faceProc = proc->pFaceProc;
 	faceProc->pFaceInfo = proc->pFaceInfo;
 	faceProc->faceId = proc->faceId;
+
+	Portrait32_BindFace(
+		faceProc->faceSlot,
+		proc->pFaceInfo,
+		sFaceConfig[vramSlot].paletteId + 0x10
+	);
+	Portrait32_LoadOverlayGfx(faceProc);
 }
 
 LYN_REPLACE_CHECK(TalkLoadFace);

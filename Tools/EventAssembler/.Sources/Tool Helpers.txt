@@ -39,4 +39,10 @@
 #define setMugEntry(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x1624; POIN mugLocation+0x1604; POIN mugLocation+0x1004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
 #define setMugEntry(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x1624; POIN mugLocation+0x1604; POIN mugLocation+0x1004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
 
+// 32-color overlay portraits: pal is 0x40 (pal0 then pal1), then 0x1000 overlay
+// tiles at +0x1644. imgCard points at pal1. imgChibi at +0x2650 (after 12-byte pad
+// so the offset is not mistaken for a halfbody mug).
+#define setMugEntry_32Color(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2650; POIN mugLocation+0x1604; POIN mugLocation+0x1004; POIN mugLocation+0x1624; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
+#define setMugEntry_32Color(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2650; POIN mugLocation+0x1604; POIN mugLocation+0x1004; POIN mugLocation+0x1624; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
+
 #endif

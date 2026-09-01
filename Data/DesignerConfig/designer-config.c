@@ -184,4 +184,5 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 #endif
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
+	.portrait_32_color = false,
 };

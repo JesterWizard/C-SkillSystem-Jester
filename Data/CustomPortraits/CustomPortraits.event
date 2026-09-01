@@ -2,9 +2,11 @@
 #define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2648; POIN mugLocation+0x2608; POIN mugLocation+0x2008; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
 
 ALIGN 4
+// 32-color mugs: PortraitFormatter32 + setMugEntry_32Color.
+// pal1 overlay uses the paired face VRAM/pal bank (see Documentation/Features/Portrait32Color.md).
 // Portrait_0x02:
-//    #incext HalfbodyFormatter "Portraits/lyn_bride_halfbody.png"
-// setMugEntry_Halfbody(0x02,Portrait_0x02,2,5,2,3)
+//    #incext PortraitFormatter32 "Portraits/eirika_32.png"
+// setMugEntry_32Color(0x02,Portrait_0x02,2,6,3,4)
 
 // Portrait_0x51:
 //    #incext HalfbodyFormatter "Portraits/Anna.png"

@@ -266,6 +266,15 @@ _kernel_malloc2 sChatlogUiState, 0x600
  */
 _kernel_malloc2 sWmChapterIdOverride, 1
 _kernel_malloc2 sWmMapReloadPending, 1
+/* Word-align sPortrait32State. Pointers in that block need 4-byte alignment. */
+_kernel_malloc2 sPortrait32AlignPad, 2
+
+/**
+ * 32-color portrait overlay state. Four face-slot records (paired-bank pal
+ * backup). Must stay 4-byte aligned. Even-sized; not suspend-persisted.
+ * Slot = 4+32+2+1+1 = 40; four slots + magic = 0xA4.
+ */
+_kernel_malloc2 sPortrait32State, 0xA4
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
