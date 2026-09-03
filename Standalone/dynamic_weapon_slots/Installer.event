@@ -1,0 +1,94 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_CanUnitUseWeapon                 $16574
+#define FE8U_UnitLoadStatsFromChracter        $17E34
+#define FE8U_CanClassWieldWeaponType          $17A8C
+#define FE8U_ApplyUnitPromotion               $2BD50
+#define FE8U_GetBattleUnitUpdatedWeaponExp    $2C0B4
+#define FE8U_HasBattleUnitGainedWeaponLevel   $2C1B0
+#define FE8U_UpdateUnitFromBattle             $2C1EC
+#define FE8U_UpdateUnitDuringBattle           $2C2D4
+#define FE8U_GetUnitBestWRankType             $318B4
+#define FE8U_DisplayWeaponExp                 $87788
+#define FE8U_DisplayPage2                     $8784C
+#define FE8U_StandaloneFreeSpace              $1000000
+
+PUSH
+ORG FE8U_CanUnitUseWeapon
+    jumpToHack(DWS_CanUnitUseWeapon)
+    PROTECT FE8U_CanUnitUseWeapon FE8U_CanUnitUseWeapon + 0x8
+POP
+
+PUSH
+ORG FE8U_UnitLoadStatsFromChracter
+    jumpToHack(DWS_UnitLoadStatsFromChracter)
+    PROTECT FE8U_UnitLoadStatsFromChracter FE8U_UnitLoadStatsFromChracter + 0x8
+POP
+
+PUSH
+ORG FE8U_CanClassWieldWeaponType
+    jumpToHack(DWS_CanClassWieldWeaponType)
+    PROTECT FE8U_CanClassWieldWeaponType FE8U_CanClassWieldWeaponType + 0x8
+POP
+
+PUSH
+ORG FE8U_ApplyUnitPromotion
+    jumpToHack(DWS_ApplyUnitPromotion)
+    PROTECT FE8U_ApplyUnitPromotion FE8U_ApplyUnitPromotion + 0x8
+POP
+
+PUSH
+ORG FE8U_GetBattleUnitUpdatedWeaponExp
+    jumpToHack(DWS_GetBattleUnitUpdatedWeaponExp)
+    PROTECT FE8U_GetBattleUnitUpdatedWeaponExp FE8U_GetBattleUnitUpdatedWeaponExp + 0x8
+POP
+
+PUSH
+ORG FE8U_HasBattleUnitGainedWeaponLevel
+    jumpToHack(DWS_HasBattleUnitGainedWeaponLevel)
+    PROTECT FE8U_HasBattleUnitGainedWeaponLevel FE8U_HasBattleUnitGainedWeaponLevel + 0x8
+POP
+
+PUSH
+ORG FE8U_UpdateUnitFromBattle
+    jumpToHack(DWS_UpdateUnitFromBattle)
+    PROTECT FE8U_UpdateUnitFromBattle FE8U_UpdateUnitFromBattle + 0x8
+POP
+
+PUSH
+ORG FE8U_UpdateUnitDuringBattle
+    jumpToHack(DWS_UpdateUnitDuringBattle)
+    PROTECT FE8U_UpdateUnitDuringBattle FE8U_UpdateUnitDuringBattle + 0x8
+POP
+
+PUSH
+ORG FE8U_GetUnitBestWRankType
+    jumpToHack(DWS_GetUnitBestWRankType)
+    PROTECT FE8U_GetUnitBestWRankType FE8U_GetUnitBestWRankType + 0x8
+POP
+
+PUSH
+ORG FE8U_DisplayWeaponExp
+    jumpToHack(DWS_DisplayWeaponExp)
+    PROTECT FE8U_DisplayWeaponExp FE8U_DisplayWeaponExp + 0x8
+POP
+
+PUSH
+ORG FE8U_DisplayPage2
+    jumpToHack(DWS_DisplayPage2)
+    PROTECT FE8U_DisplayPage2 FE8U_DisplayPage2 + 0x8
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/DynamicWeaponSlots.lyn.event"
+
+ALIGN 4
+gClassWeaponSlotConf:
+#include "ClassWeaponSlotConf.event"
+
+ALIGN 4
+gpClassWeaponSlotConf:
+POIN gClassWeaponSlotConf
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET

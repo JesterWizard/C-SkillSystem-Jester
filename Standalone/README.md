@@ -13,6 +13,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [custom_talk_icon](custom_talk_icon/) | Lex Talionus-style talk icon above the conversation partner |
 | [auto_repair_weapons](auto_repair_weapons/) | Restores unbroken weapons to full durability at chapter transition |
 | [custom_battle_quotes](custom_battle_quotes/) | Dual-character pre-battle quote matching with an editable table |
+| [dynamic_weapon_slots](dynamic_weapon_slots/) | Per-class weapon-type-to-rank-slot mapping for custom types (knives, guns, etc.) |
 
 ## Adding a new patch
 
