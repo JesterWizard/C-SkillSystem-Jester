@@ -1,0 +1,21 @@
+#ifndef STANDALONE_TWO_RN_GROWTHS_INSTALLER
+#define STANDALONE_TWO_RN_GROWTHS_INSTALLER
+
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_GetStatIncrease $2B9A0
+#define FE8U_Roll2RN         $CA9
+#define FE8U_StandaloneFreeSpace $1000000
+
+PUSH
+ORG FE8U_GetStatIncrease
+    jumpToHack(GetStatIncrease_2RN)
+    PROTECT FE8U_GetStatIncrease FE8U_GetStatIncrease + 0x8 // GetStatIncrease hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/GetStatIncrease_2RN.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GetStatIncrease_2RN body
+
+#endif
