@@ -1,0 +1,11 @@
+ALIGN 4
+Img_CustomTalkIconSheet:
+   #incext Png2Dmp "Gfx/WarningHpSheet_Jester.png" --lz77
+
+PUSH
+    ORG $156AC
+    POIN Img_CustomTalkIconSheet
+    ORG $15690 // Widen LoadObjUIGfx sheet for custom talk icon tiles
+    BYTE $20
+    PROTECT 0x00015680 0x000156BC // LoadObjUIGfx
+POP

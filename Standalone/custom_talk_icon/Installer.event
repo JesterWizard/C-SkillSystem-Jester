@@ -1,0 +1,17 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_PutUnitSpriteIconsOam $275E9
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_PutUnitSpriteIconsOam
+    jumpToHack(PutUnitSpriteIconsOam_CustomTalkIcon)
+    PROTECT FE8U_PutUnitSpriteIconsOam FE8U_PutUnitSpriteIconsOam + 0x8 // PutUnitSpriteIconsOam hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CustomTalkIcon.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PutUnitSpriteIconsOam_CustomTalkIcon body
+
+#include "Gfx.event"
