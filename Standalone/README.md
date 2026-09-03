@@ -5,6 +5,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | Patch | Description |
 |-------|-------------|
 | [two_random_number_growths](two_random_number_growths/) | Uses 2RN for fractional level-up growth rolls |
+| [guaranteed_lvup](guaranteed_lvup/) | Retries empty level-ups up to 10 times with +10% growth |
 | [custom_fog_sight](custom_fog_sight/) | Per-class fog vision bonuses |
 
 ## Adding a new patch

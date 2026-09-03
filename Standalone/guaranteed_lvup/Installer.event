@@ -1,0 +1,15 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_CheckBattleUnitLevelUp $2BA28
+#define FE8U_StandaloneFreeSpace    $1000000
+
+PUSH
+ORG FE8U_CheckBattleUnitLevelUp
+    jumpToHack(CheckBattleUnitLevelUp_Guaranteed)
+    PROTECT FE8U_CheckBattleUnitLevelUp FE8U_CheckBattleUnitLevelUp + 0x8 // CheckBattleUnitLevelUp hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CheckBattleUnitLevelUp_Guaranteed body
