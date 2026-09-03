@@ -3,40 +3,9 @@
 #include "event.h"
 #include "bmbattle.h"
 #include "variables.h"
-#include "constants/characters.h"
-#include "constants/chapters.h"
-#include "constants/event-flags.h"
 
 extern const u8 CustomBattleQuotes_UseVanillaFallback;
-
-/*
- * Edit this table, then run `make` in Standalone/custom_battle_quotes.
- *
- * Fields:
- *   pidA    - first character ID (0 = wildcard for pidB-only entries)
- *   pidB    - second character ID (0 = wildcard for pidA-only entries)
- *   chapter - chapter index, CHAPTER_FF for any chapter, 0xFE for triangle attacks
- *   flag    - permanent flag set after the quote plays; skipped if already set
- *   msg     - text ID (0 = use `event` instead)
- *   event   - custom battle event script (used when msg is 0)
- */
-const struct BattleTalkExtEnt gCustomBattleTalkList[] = {
-	/* Example: Eirika vs O'Neill on the prologue */
-	/*
-	{
-		.pidA    = CHARACTER_EIRIKA,
-		.pidB    = CHARACTER_ONEILL,
-		.chapter = CHAPTER_L_PROLOGUE,
-		.flag    = EVFLAG_BATTLE_QUOTES,
-		.msg     = 0x0000,
-	},
-	*/
-	{
-		.pidA    = 0xFFFF,
-		.chapter = 0x00,
-		.msg     = 0x0000,
-	},
-};
+extern const struct BattleTalkExtEnt gCustomBattleTalkList[];
 
 static struct BattleTalkExtEnt* SearchBattleTalkList(
 	const struct BattleTalkExtEnt* it, u16 pidA, u16 pidB)

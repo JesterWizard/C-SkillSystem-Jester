@@ -23,13 +23,19 @@ With `USE_VANILLA_FALLBACK` enabled (default), vanilla `gBattleTalkList` entries
 
 ## Configuration
 
-Edit `USE_VANILLA_FALLBACK` at the top of `Installer.event`, then reinstall the patch. No C recompile is needed.
+Edit `BattleTalkTable.event`, then reinstall the patch. No C recompile is needed.
 
-| Constant | Default | Meaning |
-|----------|---------|---------|
+| Setting | Default | Meaning |
+|---------|---------|---------|
 | `USE_VANILLA_FALLBACK` | `1` | Also search vanilla `gBattleTalkList` when no custom entry matches |
 
-Edit `gCustomBattleTalkList` in `Source/CustomBattleQuotes.c`, then run `make` to rebuild the lyn output.
+Example table entry:
+
+```text
+CustomBattleQuoteEntry($01, $68, $00, $01, $XXXX, 0)
+```
+
+`$01` = Eirika, `$68` = O'Neill, `$00` = prologue, `$01` = battle-quote flag, `$XXXX` = your text ID from FEBuilder.
 
 ## Target ROM
 
@@ -76,8 +82,9 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 | File | Purpose |
 |------|---------|
-| `Installer.event` | EA installer, hook, free-space placement, and fallback toggle |
-| `Source/CustomBattleQuotes.c` | Lookup logic and editable quote table |
+| `Installer.event` | EA installer, hook, and free-space placement |
+| `BattleTalkTable.event` | Fallback toggle and editable quote table (no C rebuild needed) |
+| `Source/CustomBattleQuotes.c` | Lookup logic |
 | `Source/CustomBattleQuotes.lyn.event` | Checked-in lyn output (rebuild with `make` after editing `.c`) |
 | `makefile` | Compiles C to `.lyn.event` |
 

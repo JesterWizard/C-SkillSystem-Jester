@@ -1,0 +1,31 @@
+/* Edit these without recompiling C. */
+
+#ifndef USE_VANILLA_FALLBACK
+#define USE_VANILLA_FALLBACK 1
+#endif
+
+ALIGN 4
+CustomBattleQuotes_UseVanillaFallback:
+BYTE USE_VANILLA_FALLBACK
+
+/* Custom battle quote entries.
+ *
+ * Fields per entry:
+ *   pidA    - first character ID ($00 = wildcard for pidB-only entries)
+ *   pidB    - second character ID ($00 = wildcard for pidA-only entries)
+ *   chapter - chapter index, $FF for any chapter, $FE for triangle attacks
+ *   flag    - permanent flag set after the quote plays; skipped if already set
+ *   msg     - text ID ($0000 = use event instead)
+ *   event   - custom battle event script pointer ($0 = none)
+ *
+ * Use FEBuilder character/chapter/flag IDs, or FE8U hex values.
+ */
+
+#define CustomBattleQuoteEntry(pidA, pidB, chapter, flag, msg, event) "SHORT pidA pidB chapter flag msg 0; WORD event"
+
+/* Example: Eirika vs O'Neill on the prologue */
+/* CustomBattleQuoteEntry($01, $68, $00, $01, $XXXX, 0) */
+
+ALIGN 4
+gCustomBattleTalkList:
+CustomBattleQuoteEntry($FFFF, $00, $00, $00, $00, 0) // end of table

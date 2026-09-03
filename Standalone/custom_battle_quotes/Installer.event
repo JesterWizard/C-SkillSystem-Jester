@@ -4,9 +4,6 @@
 #define FE8U_GetBattleQuoteEntry   $8464C
 #define FE8U_StandaloneFreeSpace   $1000000
 
-/* Edit without recompiling C. */
-#define USE_VANILLA_FALLBACK 1
-
 PUSH
 ORG FE8U_GetBattleQuoteEntry
     jumpToHack(GetBattleQuoteEntry_Custom)
@@ -15,9 +12,6 @@ POP
 
 ORG FE8U_StandaloneFreeSpace
 #include "Source/CustomBattleQuotes.lyn.event"
+#include "BattleTalkTable.event"
 
-ALIGN 4
-CustomBattleQuotes_UseVanillaFallback:
-BYTE USE_VANILLA_FALLBACK
-
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomBattleQuotes body + config
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomBattleQuotes body + table
