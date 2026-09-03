@@ -1,0 +1,27 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_BattleGenerateHit     $2B83D
+#define FE8U_StandaloneFreeSpace   $1000000
+
+/* Edit these without recompiling C. */
+#define PROMOTE_ENEMY_ON_KILL 1
+#define PROMOTE_ENEMY_BOOST   3
+
+PUSH
+ORG FE8U_BattleGenerateHit
+    jumpToHack(BattleGenerateHit_PromoteEnemyOnKill)
+    PROTECT FE8U_BattleGenerateHit FE8U_BattleGenerateHit + 0x8 // BattleGenerateHit hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/PromoteEnemyOnKill.lyn.event"
+
+ALIGN 4
+PromoteEnemyOnKillEnabled:
+BYTE PROMOTE_ENEMY_ON_KILL
+
+PromoteEnemyBoost:
+BYTE PROMOTE_ENEMY_BOOST
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PromoteEnemyOnKill body + config

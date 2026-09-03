@@ -9,6 +9,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [custom_fog_sight](custom_fog_sight/) | Per-class fog vision bonuses |
 | [arena_show_opponent_in_advance](arena_show_opponent_in_advance/) | Shows arena opponent details before the wager prompt |
 | [death_dance](death_dance/) | Rescued units can move when their rescuer dies |
+| [promote_enemy_on_kill](promote_enemy_on_kill/) | Enemies auto-promote and gain stats when they score a kill |
 
 ## Adding a new patch
 
