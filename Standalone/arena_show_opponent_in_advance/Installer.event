@@ -1,0 +1,22 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_ArenaUi_WagerGoldDialogue     $B59CC
+#define FE8U_DrawArenaOpponentDetailsText  $B5C48
+#define FE8U_StandaloneFreeSpace           $1000000
+
+PUSH
+ORG FE8U_ArenaUi_WagerGoldDialogue
+    jumpToHack(ArenaUi_WagerGoldDialogue_ShowInAdvance)
+    PROTECT FE8U_ArenaUi_WagerGoldDialogue FE8U_ArenaUi_WagerGoldDialogue + 0x8 // ArenaUi_WagerGoldDialogue hook
+POP
+
+PUSH
+ORG FE8U_DrawArenaOpponentDetailsText
+    jumpToHack(DrawArenaOpponentDetailsText_ShowInAdvance)
+    PROTECT FE8U_DrawArenaOpponentDetailsText FE8U_DrawArenaOpponentDetailsText + 0x8 // DrawArenaOpponentDetailsText hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ArenaShowOpponentInAdvance.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ArenaShowOpponentInAdvance body

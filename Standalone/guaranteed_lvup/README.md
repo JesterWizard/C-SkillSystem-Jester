@@ -16,17 +16,17 @@ Vanilla FE8U only retries twice, rolling stats one at a time without a growth bo
 
 ## Build
 
-Requires [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo's [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) / [Event Assembler](https://github.com/MokhaLeee/EventAssembler/tree/mokha-fix) tools. See [Documentation/Setup.md](../../Documentation/Setup.md) for full setup.
+No build step is required to install the patch. `Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event` is checked in, so you can install `Installer.event` as-is.
+
+Run `make` only if you edit `Source/CheckBattleUnitLevelUp_Guaranteed.c`:
 
 ```bash
 make -C Standalone/guaranteed_lvup
 ```
 
-This compiles `Source/CheckBattleUnitLevelUp_Guaranteed.c` into `Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event`.
+That requires [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo's [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) / [Event Assembler](https://github.com/MokhaLeee/EventAssembler/tree/mokha-fix) tools. See [Documentation/Setup.md](../../Documentation/Setup.md) for full setup.
 
 ## Installation
-
-Run `make` first so `Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event` exists.
 
 ### FEBuilderGBA
 
@@ -43,7 +43,6 @@ FEBuilder applies the patch to the open ROM. For more detail on Insert EA, see [
 From a copy of clean `fe8.gba`:
 
 ```bash
-make -C Standalone/guaranteed_lvup
 cp /path/to/fe8.gba /path/to/fe8-guaranteed-lvup.gba
 Tools/EventAssembler/ColorzCore A FE8 \
   -input:Standalone/guaranteed_lvup/Installer.event \
@@ -58,7 +57,7 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 |------|---------|
 | `Installer.event` | EA installer, addresses, hook, and free-space placement |
 | `Source/CheckBattleUnitLevelUp_Guaranteed.c` | C implementation |
-| `Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event` | Generated lyn output (build with `make`) |
+| `Source/CheckBattleUnitLevelUp_Guaranteed.lyn.event` | Checked-in lyn output (rebuild with `make` after editing `.c`) |
 | `makefile` | Compiles C to `.lyn.event` |
 
 ## Conflicts
