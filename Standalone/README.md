@@ -8,6 +8,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [guaranteed_lvup](guaranteed_lvup/) | Retries empty level-ups up to 10 times with +10% growth |
 | [custom_fog_sight](custom_fog_sight/) | Per-class fog vision bonuses |
 | [arena_show_opponent_in_advance](arena_show_opponent_in_advance/) | Shows arena opponent details before the wager prompt |
+| [death_dance](death_dance/) | Rescued units can move when their rescuer dies |
 
 ## Adding a new patch
 

@@ -1,0 +1,15 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_UnitDrop              $18371
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_UnitDrop
+    jumpToHack(UnitDrop_DeathDance)
+    PROTECT FE8U_UnitDrop FE8U_UnitDrop + 0x8 // UnitDrop hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/UnitDrop_DeathDance.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // UnitDrop_DeathDance body
