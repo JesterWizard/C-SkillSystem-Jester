@@ -11,6 +11,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [death_dance](death_dance/) | Rescued units can move when their rescuer dies |
 | [promote_enemy_on_kill](promote_enemy_on_kill/) | Enemies auto-promote and gain stats when they score a kill |
 | [custom_talk_icon](custom_talk_icon/) | Lex Talionus-style talk icon above the conversation partner |
+| [auto_repair_weapons](auto_repair_weapons/) | Restores unbroken weapons to full durability at chapter transition |
 
 ## Adding a new patch
 

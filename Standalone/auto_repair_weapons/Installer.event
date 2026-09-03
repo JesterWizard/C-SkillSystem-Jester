@@ -1,0 +1,23 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_ChapterChangeUnitCleanup $31215
+#define FE8U_StandaloneFreeSpace      $1000000
+
+/* Edit without recompiling C. */
+#define AUTO_REPAIR_WEAPONS TRUE
+
+PUSH
+ORG FE8U_ChapterChangeUnitCleanup
+    jumpToHack(ChapterChangeUnitCleanup_AutoRepairWeapons)
+    PROTECT FE8U_ChapterChangeUnitCleanup FE8U_ChapterChangeUnitCleanup + 0x8 // ChapterChangeUnitCleanup hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/AutoRepairWeapons.lyn.event"
+
+ALIGN 4
+AutoRepairWeaponsEnabled:
+BYTE AUTO_REPAIR_WEAPONS
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // AutoRepairWeapons body + config
