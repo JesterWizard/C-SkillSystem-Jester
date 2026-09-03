@@ -5,6 +5,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | Patch | Description |
 |-------|-------------|
 | [two_random_number_growths](two_random_number_growths/) | Uses 2RN for fractional level-up growth rolls |
+| [custom_fog_sight](custom_fog_sight/) | Per-class fog vision bonuses |
 
 ## Adding a new patch
 

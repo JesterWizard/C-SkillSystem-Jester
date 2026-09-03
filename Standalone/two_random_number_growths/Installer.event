@@ -1,6 +1,3 @@
-#ifndef STANDALONE_TWO_RN_GROWTHS_INSTALLER
-#define STANDALONE_TWO_RN_GROWTHS_INSTALLER
-
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 

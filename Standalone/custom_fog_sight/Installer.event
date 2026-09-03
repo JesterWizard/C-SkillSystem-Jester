@@ -1,0 +1,27 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_GetUnitFogViewRange $178A8
+#define FE8U_gPlaySt              $0202BCF0
+#define FE8U_StandaloneFreeSpace  $1000000
+
+PUSH
+ORG FE8U_GetUnitFogViewRange
+    jumpToHack(CustomGetUnitFogViewRange)
+    PROTECT FE8U_GetUnitFogViewRange FE8U_GetUnitFogViewRange + 0x8 // GetUnitFogViewRange hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+// CustomGetUnitFogViewRange(struct Unit * unit)
+// r0 = unit on entry; returns fog range in r0.
+
+ALIGN 4
+CustomGetUnitFogViewRange:
+SHORT $4B06 $6841 $7B5A $7909 $4B05 $5C5B $189B $2231 $5C82 $0712 $0F12 $1898 $4770 $46C0
+WORD FE8U_gPlaySt
+POIN ClassFogSightBonusTable
+
+#include "ClassFogSightBonusTable.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomGetUnitFogViewRange body + bonus table
+
+#endif

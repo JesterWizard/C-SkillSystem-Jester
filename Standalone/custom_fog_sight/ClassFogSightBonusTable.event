@@ -1,0 +1,134 @@
+// Per-class fog sight bonus table.
+// ClassFogSightBonusTable[classId] is added to chapterVisionRange before torch duration.
+// Values are typically 0, 1, 2, or 5.
+
+ClassFogSightBonusTable:
+BYTE 0 // None
+BYTE 0 // Ephraim Lord
+BYTE 0 // Eirika Lord
+BYTE 1 // Ephraim Master Lord
+BYTE 1 // Eirika Master Lord
+BYTE 1 // Cavalier
+BYTE 1 // Cavalier (F)
+BYTE 1 // Paladin
+BYTE 1 // Paladin (F)
+BYTE 0 // Armor Knight
+BYTE 0 // Armor Knight (F)
+BYTE 0 // General
+BYTE 0 // General (F)
+BYTE 5 // Thief
+BYTE 2 // Manakete
+BYTE 0 // Mercenary
+BYTE 0 // Mercenary (F)
+BYTE 0 // Hero
+BYTE 0 // Hero (F)
+BYTE 0 // Myrmidon
+BYTE 0 // Myrmidon (F)
+BYTE 0 // Swordmaster
+BYTE 0 // Swordmaster (F)
+BYTE 5 // Assassin
+BYTE 5 // Assassin (F)
+BYTE 2 // Archer
+BYTE 2 // Archer (F)
+BYTE 2 // Sniper
+BYTE 2 // Sniper (F)
+BYTE 1 // Ranger
+BYTE 1 // Ranger (F)
+BYTE 2 // Wyvern Rider
+BYTE 2 // Wyvern Rider (F)
+BYTE 2 // Wyvern Lord
+BYTE 2 // Wyvern Lord (F)
+BYTE 2 // Wyvern Knight
+BYTE 2 // Wyvern Knight (F)
+BYTE 0 // Mage
+BYTE 0 // Mage (F)
+BYTE 0 // Sage
+BYTE 0 // Sage (F)
+BYTE 1 // Mage Knight
+BYTE 1 // Mage Knight (F)
+BYTE 0 // Bishop
+BYTE 0 // Bishop (F)
+BYTE 0 // Shaman
+BYTE 0 // Shaman (F)
+BYTE 0 // Druid
+BYTE 0 // Druid (F)
+BYTE 0 // Summoner
+BYTE 0 // Summoner (F)
+BYTE 5 // Rogue
+BYTE 0 // Gorgon Egg 2
+BYTE 1 // Great Knight
+BYTE 1 // Great Knight (F)
+BYTE 0 // Recruit T1
+BYTE 0 // Journeyman T2
+BYTE 0 // Pupil T2
+BYTE 0 // Recruit T2
+BYTE 2 // Manakete 2
+BYTE 2 // Manakete (Myrrh)
+BYTE 0 // Journeyman
+BYTE 0 // Pupil
+BYTE 0 // Fighter
+BYTE 0 // Warrior
+BYTE 0 // Brigand
+BYTE 0 // Pirate
+BYTE 0 // Berserker
+BYTE 0 // Monk
+BYTE 0 // Priest
+BYTE 0 // Bard
+BYTE 0 // Recruit
+BYTE 2 // Pegasus Knight
+BYTE 2 // Falcon Knight
+BYTE 0 // Cleric
+BYTE 1 // Troubadour
+BYTE 1 // Valkyrie
+BYTE 0 // Dancer
+BYTE 0 // Soldier
+BYTE 0 // Necromancer
+BYTE 0 // Fleet
+BYTE 2 // Phantom
+BYTE 0 // Revenant
+BYTE 0 // Entombed
+BYTE 0 // Bonewalker
+BYTE 0 // Bonewalker (Bow)
+BYTE 0 // Wight
+BYTE 0 // Wight (Bow)
+BYTE 0 // Bael
+BYTE 0 // Elder Bael
+BYTE 0 // Cyclops
+BYTE 0 // Mauthedoog
+BYTE 0 // Gwyllgi
+BYTE 1 // Tarvos
+BYTE 1 // Maelduin
+BYTE 2 // Mogall
+BYTE 2 // Arch Mogall
+BYTE 0 // Gorgon
+BYTE 0 // Gorgon Egg
+BYTE 2 // Gargoyle
+BYTE 2 // Deathgoyle
+BYTE 2 // Draco Zombie
+BYTE 0 // Demon King
+BYTE 0 // Ballista Regular (Used)
+BYTE 0 // Ballista Long (Used)
+BYTE 0 // Ballista Killer (Used)
+BYTE 0 // Ballista Regular (Empty)
+BYTE 0 // Ballista Long (Empty)
+BYTE 0 // Ballista Killer (Empty)
+BYTE 0 // Civilian M1
+BYTE 0 // Civilian F1
+BYTE 0 // Civilian M2
+BYTE 0 // Civilian F2
+BYTE 0 // Civilian M3
+BYTE 0 // Civilian F3
+BYTE 0 // Peer
+BYTE 0 // Queen
+BYTE 0 // Prince
+BYTE 0 // Queen 2
+BYTE 0 // Unknown 0x77
+BYTE 0 // Fallen Prince
+BYTE 0 // Tent
+BYTE 0 // Pontifex
+BYTE 0 // Fallen Peer
+BYTE 0 // Cyclops 2
+BYTE 0 // Elder Bael 2
+BYTE 0 // Journeyman T1
+BYTE 0 // Pupil T1
+FILL 0x80 0
