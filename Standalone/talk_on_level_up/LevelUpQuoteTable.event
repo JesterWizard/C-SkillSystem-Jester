@@ -1,0 +1,51 @@
+/* row indexes map to LVUP_QUOTE_ID(row*3 + tier). */
+#define LevelUpQuoteRow(charId, row) "BYTE charId 0 0 0; WORD LVUP_QUOTE_ID((row)*3) LVUP_QUOTE_ID((row)*3+1) LVUP_QUOTE_ID((row)*3+2)"
+
+ALIGN 4
+gLevelUpQuoteTable:
+LevelUpQuoteRow($01, 0) // Eirika
+LevelUpQuoteRow($02, 1) // Seth
+LevelUpQuoteRow($03, 2) // Gilliam
+LevelUpQuoteRow($04, 3) // Franz
+LevelUpQuoteRow($05, 4) // Moulder
+LevelUpQuoteRow($06, 5) // Vanessa
+LevelUpQuoteRow($07, 6) // Ross
+LevelUpQuoteRow($08, 7) // Neimi
+LevelUpQuoteRow($09, 8) // Colm
+LevelUpQuoteRow($0A, 9) // Garcia
+LevelUpQuoteRow($0B, 10) // Innes
+LevelUpQuoteRow($0C, 11) // Lute
+LevelUpQuoteRow($0D, 12) // Natasha
+LevelUpQuoteRow($0E, 13) // Cormag
+LevelUpQuoteRow($0F, 14) // Ephraim
+LevelUpQuoteRow($10, 15) // Forde
+LevelUpQuoteRow($11, 16) // Kyle
+LevelUpQuoteRow($12, 17) // Amelia
+LevelUpQuoteRow($13, 18) // Artur
+LevelUpQuoteRow($14, 19) // Gerik
+LevelUpQuoteRow($15, 20) // Tethys
+LevelUpQuoteRow($16, 21) // Marisa
+LevelUpQuoteRow($17, 22) // Saleh
+LevelUpQuoteRow($18, 23) // Ewan
+LevelUpQuoteRow($19, 24) // Larachel
+LevelUpQuoteRow($1A, 25) // Dozla
+LevelUpQuoteRow($1B, 26) // Enemy 1B
+LevelUpQuoteRow($1C, 27) // Rennac
+LevelUpQuoteRow($1D, 28) // Duessel
+LevelUpQuoteRow($1E, 29) // Myrrh
+LevelUpQuoteRow($1F, 30) // Knoll
+LevelUpQuoteRow($20, 31) // Joshua
+LevelUpQuoteRow($21, 32) // Syrene
+LevelUpQuoteRow($22, 33) // Tana
+LevelUpQuoteRow($40, 34) // Lyon
+LevelUpQuoteRow($6D, 35) // Orson
+LevelUpQuoteRow($42, 36) // Orson CH5X
+LevelUpQuoteRow($69, 37) // Glen
+LevelUpQuoteRow($44, 38) // Selena
+LevelUpQuoteRow($43, 39) // Valter
+LevelUpQuoteRow($57, 40) // Riev
+LevelUpQuoteRow($53, 41) // Caellach
+LevelUpQuoteRow($C5, 42) // Fado
+LevelUpQuoteRow($CB, 43) // Ismaire
+LevelUpQuoteRow($C7, 44) // Hayden
+LevelUpQuoteRow($00, 0) // end

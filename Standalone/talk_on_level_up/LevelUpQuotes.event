@@ -1,0 +1,812 @@
+/* Quote text in LVUP_TEXT_BASE order (poor, good, great per character). */
+
+ALIGN 4
+LvUpText0:
+String("[OpenMidRight][LoadFace][$01]I can do better than this...[X]");
+BYTE 0
+setLvupText(0, LvUpText0)
+
+ALIGN 4
+LvUpText1:
+String("[OpenMidRight][LoadFace][$01]I'm on the right track![X]");
+BYTE 0
+setLvupText(1, LvUpText1)
+
+ALIGN 4
+LvUpText2:
+String("[OpenMidRight][LoadFace][$01]Wow, what a result![X]");
+BYTE 0
+setLvupText(2, LvUpText2)
+
+ALIGN 4
+LvUpText3:
+String("[OpenMidRight][LoadFace][$02]There are lessons in failure[X]");
+BYTE 0
+setLvupText(3, LvUpText3)
+
+ALIGN 4
+LvUpText4:
+String("[OpenMidRight][LoadFace][$02]An acceptable result.[X]");
+BYTE 0
+setLvupText(4, LvUpText4)
+
+ALIGN 4
+LvUpText5:
+String("[OpenMidRight][LoadFace][$02]Duty demands perfection.[X]");
+BYTE 0
+setLvupText(5, LvUpText5)
+
+ALIGN 4
+LvUpText6:
+String("[OpenMidRight][LoadFace][$03]Even steel falters. I'll try again.[X]");
+BYTE 0
+setLvupText(6, LvUpText6)
+
+ALIGN 4
+LvUpText7:
+String("[OpenMidRight][LoadFace][$03]Slow and steady. As it should be.[X]");
+BYTE 0
+setLvupText(7, LvUpText7)
+
+ALIGN 4
+LvUpText8:
+String("[OpenMidRight][LoadFace][$03]My shield holds firm![X]");
+BYTE 0
+setLvupText(8, LvUpText8)
+
+ALIGN 4
+LvUpText9:
+String("[OpenMidRight][LoadFace][$04]I need to train harder. This won't do.[X]");
+BYTE 0
+setLvupText(9, LvUpText9)
+
+ALIGN 4
+LvUpText10:
+String("[OpenMidRight][LoadFace][$04]Getting better, step by step.[X]");
+BYTE 0
+setLvupText(10, LvUpText10)
+
+ALIGN 4
+LvUpText11:
+String("[OpenMidRight][LoadFace][$04]My training's paying off![X]");
+BYTE 0
+setLvupText(11, LvUpText11)
+
+ALIGN 4
+LvUpText12:
+String("[OpenMidRight][LoadFace][$05]The body is weak, but the spirit endures.[X]");
+BYTE 0
+setLvupText(12, LvUpText12)
+
+ALIGN 4
+LvUpText13:
+String("[OpenMidRight][LoadFace][$05]Modest, but acceptable progress.[X]");
+BYTE 0
+setLvupText(13, LvUpText13)
+
+ALIGN 4
+LvUpText14:
+String("[OpenMidRight][LoadFace][$05]My faith in the divine is renewed![X]");
+BYTE 0
+setLvupText(14, LvUpText14)
+
+ALIGN 4
+LvUpText15:
+String("[OpenMidRight][LoadFace][$06]I won't let this hold me back.[X]");
+BYTE 0
+setLvupText(15, LvUpText15)
+
+ALIGN 4
+LvUpText16:
+String("[OpenMidRight][LoadFace][$06]Small gains, but I'll soar higher.[X]");
+BYTE 0
+setLvupText(16, LvUpText16)
+
+ALIGN 4
+LvUpText17:
+String("[OpenMidRight][LoadFace][$06]Fantastic! I'm free as a bird.[X]");
+BYTE 0
+setLvupText(17, LvUpText17)
+
+ALIGN 4
+LvUpText18:
+String("[OpenMidRight][LoadFace][$07]Aw, come on![X]");
+BYTE 0
+setLvupText(18, LvUpText18)
+
+ALIGN 4
+LvUpText19:
+String("[OpenMidRight][LoadFace][$07]Not bad![X]");
+BYTE 0
+setLvupText(19, LvUpText19)
+
+ALIGN 4
+LvUpText20:
+String("[OpenMidRight][LoadFace][$07]Look at me, Dad! I'm unstoppable![X]");
+BYTE 0
+setLvupText(20, LvUpText20)
+
+ALIGN 4
+LvUpText21:
+String("[OpenMidRight][LoadFace][$08]I need to do better...[X]");
+BYTE 0
+setLvupText(21, LvUpText21)
+
+ALIGN 4
+LvUpText22:
+String("[OpenMidRight][LoadFace][$08]A little stronger...[X]");
+BYTE 0
+setLvupText(22, LvUpText22)
+
+ALIGN 4
+LvUpText23:
+String("[OpenMidRight][LoadFace][$08]I can feel it! I'm helping![X]");
+BYTE 0
+setLvupText(23, LvUpText23)
+
+ALIGN 4
+LvUpText24:
+String("[OpenMidRight][LoadFace][$09]Ugh, this is not my day...[X]");
+BYTE 0
+setLvupText(24, LvUpText24)
+
+ALIGN 4
+LvUpText25:
+String("[OpenMidRight][LoadFace][$09]Decent, I guess.[X]");
+BYTE 0
+setLvupText(25, LvUpText25)
+
+ALIGN 4
+LvUpText26:
+String("[OpenMidRight][LoadFace][$09]Now we're talking![X]");
+BYTE 0
+setLvupText(26, LvUpText26)
+
+ALIGN 4
+LvUpText27:
+String("[OpenMidRight][LoadFace][$0A]Even a warrior stumbles sometimes.[X]");
+BYTE 0
+setLvupText(27, LvUpText27)
+
+ALIGN 4
+LvUpText28:
+String("[OpenMidRight][LoadFace][$0A]Steady progress.[X]");
+BYTE 0
+setLvupText(28, LvUpText28)
+
+ALIGN 4
+LvUpText29:
+String("[OpenMidRight][LoadFace][$0A]Just like the old days![X]");
+BYTE 0
+setLvupText(29, LvUpText29)
+
+ALIGN 4
+LvUpText30:
+String("[OpenMidRight][LoadFace][$0B]Unacceptable. I demand perfection.[X]");
+BYTE 0
+setLvupText(30, LvUpText30)
+
+ALIGN 4
+LvUpText31:
+String("[OpenMidRight][LoadFace][$0B]Adequate. A prince should improve.[X]");
+BYTE 0
+setLvupText(31, LvUpText31)
+
+ALIGN 4
+LvUpText32:
+String("[OpenMidRight][LoadFace][$0B]Excellence is my nature, as expected![X]");
+BYTE 0
+setLvupText(32, LvUpText32)
+
+ALIGN 4
+LvUpText33:
+String("[OpenMidRight][LoadFace][$0C]A rare misstep. Not again.[X]");
+BYTE 0
+setLvupText(33, LvUpText33)
+
+ALIGN 4
+LvUpText34:
+String("[OpenMidRight][LoadFace][$0C]Acceptable progress. Hardly a challenge.[X]");
+BYTE 0
+setLvupText(34, LvUpText34)
+
+ALIGN 4
+LvUpText35:
+String("[OpenMidRight][LoadFace][$0C]Exceptional! My brilliance shines brighter![X]");
+BYTE 0
+setLvupText(35, LvUpText35)
+
+ALIGN 4
+LvUpText36:
+String("[OpenMidRight][LoadFace][$0D]I must stay faithful despite setbacks.[X]");
+BYTE 0
+setLvupText(36, LvUpText36)
+
+ALIGN 4
+LvUpText37:
+String("[OpenMidRight][LoadFace][$0D]A small blessing. I'll take it.[X]");
+BYTE 0
+setLvupText(37, LvUpText37)
+
+ALIGN 4
+LvUpText38:
+String("[OpenMidRight][LoadFace][$0D]The gods grant me greater strength![X]");
+BYTE 0
+setLvupText(38, LvUpText38)
+
+ALIGN 4
+LvUpText39:
+String("[OpenMidRight][LoadFace][$0E]I need to push harder than this.[X]");
+BYTE 0
+setLvupText(39, LvUpText39)
+
+ALIGN 4
+LvUpText40:
+String("[OpenMidRight][LoadFace][$0E]Improvement, but far from satisfying.[X]");
+BYTE 0
+setLvupText(40, LvUpText40)
+
+ALIGN 4
+LvUpText41:
+String("[OpenMidRight][LoadFace][$0E]My strength soars, just like my lance![X]");
+BYTE 0
+setLvupText(41, LvUpText41)
+
+ALIGN 4
+LvUpText42:
+String("[OpenMidRight][LoadFace][$0F]Is this all I can manage today?[X]");
+BYTE 0
+setLvupText(42, LvUpText42)
+
+ALIGN 4
+LvUpText43:
+String("[OpenMidRight][LoadFace][$0F]Not bad, but there's room to grow.[X]");
+BYTE 0
+setLvupText(43, LvUpText43)
+
+ALIGN 4
+LvUpText44:
+String("[OpenMidRight][LoadFace][$0F]Impressive! I'll lead us to victory![X]");
+BYTE 0
+setLvupText(44, LvUpText44)
+
+ALIGN 4
+LvUpText45:
+String("[OpenMidRight][LoadFace][$10]Maybe I've been slacking too much.[X]");
+BYTE 0
+setLvupText(45, LvUpText45)
+
+ALIGN 4
+LvUpText46:
+String("[OpenMidRight][LoadFace][$10]That's fine, I guess. Could be worse.[X]");
+BYTE 0
+setLvupText(46, LvUpText46)
+
+ALIGN 4
+LvUpText47:
+String("[OpenMidRight][LoadFace][$10]See? I can be serious sometimes![X]");
+BYTE 0
+setLvupText(47, LvUpText47)
+
+ALIGN 4
+LvUpText48:
+String("[OpenMidRight][LoadFace][$11]This isn't enough. I need resolve.[X]");
+BYTE 0
+setLvupText(48, LvUpText48)
+
+ALIGN 4
+LvUpText49:
+String("[OpenMidRight][LoadFace][$11]Good progress. I'll keep improving.[X]");
+BYTE 0
+setLvupText(49, LvUpText49)
+
+ALIGN 4
+LvUpText50:
+String("[OpenMidRight][LoadFace][$11]Strength and discipline. Ready for anything![X]");
+BYTE 0
+setLvupText(50, LvUpText50)
+
+ALIGN 4
+LvUpText51:
+String("[OpenMidRight][LoadFace][$12]No! I have to do much better![X]");
+BYTE 0
+setLvupText(51, LvUpText51)
+
+ALIGN 4
+LvUpText52:
+String("[OpenMidRight][LoadFace][$12]I'll take this. Steady growth is good.[X]");
+BYTE 0
+setLvupText(52, LvUpText52)
+
+ALIGN 4
+LvUpText53:
+String("[OpenMidRight][LoadFace][$12]I'm becoming the knight of my dreams![X]");
+BYTE 0
+setLvupText(53, LvUpText53)
+
+ALIGN 4
+LvUpText54:
+String("[OpenMidRight][LoadFace][$13]Faith alone won't be enough now.[X]");
+BYTE 0
+setLvupText(54, LvUpText54)
+
+ALIGN 4
+LvUpText55:
+String("[OpenMidRight][LoadFace][$13]A decent gain. The light is with me.[X]");
+BYTE 0
+setLvupText(55, LvUpText55)
+
+ALIGN 4
+LvUpText56:
+String("[OpenMidRight][LoadFace][$13]The divine grants me power![X]");
+BYTE 0
+setLvupText(56, LvUpText56)
+
+ALIGN 4
+LvUpText57:
+String("[OpenMidRight][LoadFace][$14]Not my best, but I'll manage.[X]");
+BYTE 0
+setLvupText(57, LvUpText57)
+
+ALIGN 4
+LvUpText58:
+String("[OpenMidRight][LoadFace][$14]Solid gains. That'll do for now.[X]");
+BYTE 0
+setLvupText(58, LvUpText58)
+
+ALIGN 4
+LvUpText59:
+String("[OpenMidRight][LoadFace][$14]Ha! The strength of a mercenary![X]");
+BYTE 0
+setLvupText(59, LvUpText59)
+
+ALIGN 4
+LvUpText60:
+String("[OpenMidRight][LoadFace][$15]Even dancers have off days, it seems.[X]");
+BYTE 0
+setLvupText(60, LvUpText60)
+
+ALIGN 4
+LvUpText61:
+String("[OpenMidRight][LoadFace][$15]Small gains, but I'll keep moving.[X]");
+BYTE 0
+setLvupText(61, LvUpText61)
+
+ALIGN 4
+LvUpText62:
+String("[OpenMidRight][LoadFace][$15]Graceful and powerful! I inspire all![X]");
+BYTE 0
+setLvupText(62, LvUpText62)
+
+ALIGN 4
+LvUpText63:
+String("[OpenMidRight][LoadFace][$16]I need sharper focus to improve.[X]");
+BYTE 0
+setLvupText(63, LvUpText63)
+
+ALIGN 4
+LvUpText64:
+String("[OpenMidRight][LoadFace][$16]A little progress. Must train harder.[X]");
+BYTE 0
+setLvupText(64, LvUpText64)
+
+ALIGN 4
+LvUpText65:
+String("[OpenMidRight][LoadFace][$16]My blade sharpens, my skills improve![X]");
+BYTE 0
+setLvupText(65, LvUpText65)
+
+ALIGN 4
+LvUpText66:
+String("[OpenMidRight][LoadFace][$17]Even sages face stagnation at times.[X]");
+BYTE 0
+setLvupText(66, LvUpText66)
+
+ALIGN 4
+LvUpText67:
+String("[OpenMidRight][LoadFace][$17]Knowledge grows, even in small steps.[X]");
+BYTE 0
+setLvupText(67, LvUpText67)
+
+ALIGN 4
+LvUpText68:
+String("[OpenMidRight][LoadFace][$17]A true sage grows ever stronger![X]");
+BYTE 0
+setLvupText(68, LvUpText68)
+
+ALIGN 4
+LvUpText69:
+String("[OpenMidRight][LoadFace][$18]Aw, I thought I'd do better![X]");
+BYTE 0
+setLvupText(69, LvUpText69)
+
+ALIGN 4
+LvUpText70:
+String("[OpenMidRight][LoadFace][$18]Hey, I'm getting stronger bit by bit![X]");
+BYTE 0
+setLvupText(70, LvUpText70)
+
+ALIGN 4
+LvUpText71:
+String("[OpenMidRight][LoadFace][$18]Look out, world! I'm growing strong![X]");
+BYTE 0
+setLvupText(71, LvUpText71)
+
+ALIGN 4
+LvUpText72:
+String("[OpenMidRight][LoadFace][$19]Even perfection must strive to improve.[X]");
+BYTE 0
+setLvupText(72, LvUpText72)
+
+ALIGN 4
+LvUpText73:
+String("[OpenMidRight][LoadFace][$19]An acceptable improvement, fit for royalty.[X]");
+BYTE 0
+setLvupText(73, LvUpText73)
+
+ALIGN 4
+LvUpText74:
+String("[OpenMidRight][LoadFace][$19]Ha! Such grace and power are unmatched![X]");
+BYTE 0
+setLvupText(74, LvUpText74)
+
+ALIGN 4
+LvUpText75:
+String("[OpenMidRight][LoadFace][$1A]Oops, not my best! I'll do better![X]");
+BYTE 0
+setLvupText(75, LvUpText75)
+
+ALIGN 4
+LvUpText76:
+String("[OpenMidRight][LoadFace][$1A]Heh, steady gains! That's the spirit![X]");
+BYTE 0
+setLvupText(76, LvUpText76)
+
+ALIGN 4
+LvUpText77:
+String("[OpenMidRight][LoadFace][$1A]Ah-ha! I'm stronger than ever now![X]");
+BYTE 0
+setLvupText(77, LvUpText77)
+
+ALIGN 4
+LvUpText78:
+String("[OpenMidRight][X]");
+BYTE 0
+setLvupText(78, LvUpText78)
+
+ALIGN 4
+LvUpText79:
+String("[OpenMidRight][X]");
+BYTE 0
+setLvupText(79, LvUpText79)
+
+ALIGN 4
+LvUpText80:
+String("[OpenMidRight][X]");
+BYTE 0
+setLvupText(80, LvUpText80)
+
+ALIGN 4
+LvUpText81:
+String("[OpenMidRight][LoadFace][$1C]Tch, not great, but it'll do.[X]");
+BYTE 0
+setLvupText(81, LvUpText81)
+
+ALIGN 4
+LvUpText82:
+String("[OpenMidRight][LoadFace][$1C]Alright, I guess I'm improving a bit.[X]");
+BYTE 0
+setLvupText(82, LvUpText82)
+
+ALIGN 4
+LvUpText83:
+String("[OpenMidRight][LoadFace][$1C]Huh, looks like I'm getting stronger![X]");
+BYTE 0
+setLvupText(83, LvUpText83)
+
+ALIGN 4
+LvUpText84:
+String("[OpenMidRight][LoadFace][$1D]Even veterans need more growth at times.[X]");
+BYTE 0
+setLvupText(84, LvUpText84)
+
+ALIGN 4
+LvUpText85:
+String("[OpenMidRight][LoadFace][$1D]Solid gains. A warrior's path is steady.[X]");
+BYTE 0
+setLvupText(85, LvUpText85)
+
+ALIGN 4
+LvUpText86:
+String("[OpenMidRight][LoadFace][$1D]Impressive strength! I'll safeguard our future![X]");
+BYTE 0
+setLvupText(86, LvUpText86)
+
+ALIGN 4
+LvUpText87:
+String("[OpenMidRight][LoadFace][$1E]Did I grow? I hope it's enough.[X]");
+BYTE 0
+setLvupText(87, LvUpText87)
+
+ALIGN 4
+LvUpText88:
+String("[OpenMidRight][LoadFace][$1E]This power... It feels stronger than before.[X]");
+BYTE 0
+setLvupText(88, LvUpText88)
+
+ALIGN 4
+LvUpText89:
+String("[OpenMidRight][LoadFace][$1E]My strength awakens! I'll protect everyone![X]");
+BYTE 0
+setLvupText(89, LvUpText89)
+
+ALIGN 4
+LvUpText90:
+String("[OpenMidRight][LoadFace][$1F]Even knowledge falters. I must learn more.[X]");
+BYTE 0
+setLvupText(90, LvUpText90)
+
+ALIGN 4
+LvUpText91:
+String("[OpenMidRight][LoadFace][$1F]Steady growth. The dark reveals its secrets.[X]");
+BYTE 0
+setLvupText(91, LvUpText91)
+
+ALIGN 4
+LvUpText92:
+String("[OpenMidRight][LoadFace][$1F]Power builds within me. I feel it clearly![X]");
+BYTE 0
+setLvupText(92, LvUpText92)
+
+ALIGN 4
+LvUpText93:
+String("[OpenMidRight][LoadFace][$20]Luck wasn't with me this time.[X]");
+BYTE 0
+setLvupText(93, LvUpText93)
+
+ALIGN 4
+LvUpText94:
+String("[OpenMidRight][LoadFace][$20]Decent enough. I'll take what I can.[X]");
+BYTE 0
+setLvupText(94, LvUpText94)
+
+ALIGN 4
+LvUpText95:
+String("[OpenMidRight][LoadFace][$20]Fortune smiles on me! Let's keep going![X]");
+BYTE 0
+setLvupText(95, LvUpText95)
+
+ALIGN 4
+LvUpText96:
+String("[OpenMidRight][LoadFace][$21]Not my best, but I'll endure.[X]");
+BYTE 0
+setLvupText(96, LvUpText96)
+
+ALIGN 4
+LvUpText97:
+String("[OpenMidRight][LoadFace][$21]A fair improvement. I'll keep trying.[X]");
+BYTE 0
+setLvupText(97, LvUpText97)
+
+ALIGN 4
+LvUpText98:
+String("[OpenMidRight][LoadFace][$21]This strength will help me guard the skies![X]");
+BYTE 0
+setLvupText(98, LvUpText98)
+
+ALIGN 4
+LvUpText99:
+String("[OpenMidRight][LoadFace][$22]I won't let this slow me down.[X]");
+BYTE 0
+setLvupText(99, LvUpText99)
+
+ALIGN 4
+LvUpText100:
+String("[OpenMidRight][LoadFace][$22]Not bad! I'll soar higher soon.[X]");
+BYTE 0
+setLvupText(100, LvUpText100)
+
+ALIGN 4
+LvUpText101:
+String("[OpenMidRight][LoadFace][$22]Amazing! I'll protect everyone with this strength![X]");
+BYTE 0
+setLvupText(101, LvUpText101)
+
+ALIGN 4
+LvUpText102:
+String("[OpenMidRight][LoadFace][$40]This... This isn't enough to help them.[X]");
+BYTE 0
+setLvupText(102, LvUpText102)
+
+ALIGN 4
+LvUpText103:
+String("[OpenMidRight][LoadFace][$40]A modest gain. I can't stop here.[X]");
+BYTE 0
+setLvupText(103, LvUpText103)
+
+ALIGN 4
+LvUpText104:
+String("[OpenMidRight][LoadFace][$40]My power grows... I must use it wisely.[X]");
+BYTE 0
+setLvupText(104, LvUpText104)
+
+ALIGN 4
+LvUpText105:
+String("[OpenMidRight][LoadFace][$6D]Even now, I can't do enough.[X]");
+BYTE 0
+setLvupText(105, LvUpText105)
+
+ALIGN 4
+LvUpText106:
+String("[OpenMidRight][LoadFace][$6D]This strength... It feels bittersweet to gain.[X]");
+BYTE 0
+setLvupText(106, LvUpText106)
+
+ALIGN 4
+LvUpText107:
+String("[OpenMidRight][LoadFace][$6D]I'll fight harder. For the ones I lost.[X]");
+BYTE 0
+setLvupText(107, LvUpText107)
+
+ALIGN 4
+LvUpText108:
+String("[OpenMidRight][LoadFace][$42]Have I reached my limit?[X]");
+BYTE 0
+setLvupText(108, LvUpText108)
+
+ALIGN 4
+LvUpText109:
+String("[OpenMidRight][LoadFace][$42]My strength is waning, but I endure.[X]");
+BYTE 0
+setLvupText(109, LvUpText109)
+
+ALIGN 4
+LvUpText110:
+String("[OpenMidRight][LoadFace][$42]This strength I gain for you, my love...[X]");
+BYTE 0
+setLvupText(110, LvUpText110)
+
+ALIGN 4
+LvUpText111:
+String("[OpenMidRight][LoadFace][$69]A minor setback. I'll do better.[X]");
+BYTE 0
+setLvupText(111, LvUpText111)
+
+ALIGN 4
+LvUpText112:
+String("[OpenMidRight][LoadFace][$69]Steady progress. A knight's work is unending.[X]");
+BYTE 0
+setLvupText(112, LvUpText112)
+
+ALIGN 4
+LvUpText113:
+String("[OpenMidRight][LoadFace][$69]This strength will ensure victory for Grado![X]");
+BYTE 0
+setLvupText(113, LvUpText113)
+
+ALIGN 4
+LvUpText114:
+String("[OpenMidRight][LoadFace][$44]Even the storm falters. I'll recover.[X]");
+BYTE 0
+setLvupText(114, LvUpText114)
+
+ALIGN 4
+LvUpText115:
+String("[OpenMidRight][LoadFace][$44]Power flows steadily, like a calm river.[X]");
+BYTE 0
+setLvupText(115, LvUpText115)
+
+ALIGN 4
+LvUpText116:
+String("[OpenMidRight][LoadFace][$44]The thunder within me grows stronger still![X]");
+BYTE 0
+setLvupText(116, LvUpText116)
+
+ALIGN 4
+LvUpText117:
+String("[OpenMidRight][LoadFace][$43]Hah, is that all? Pathetic gains.[X]");
+BYTE 0
+setLvupText(117, LvUpText117)
+
+ALIGN 4
+LvUpText118:
+String("[OpenMidRight][LoadFace][$43]Acceptable. I'll savor the next battle.[X]");
+BYTE 0
+setLvupText(118, LvUpText118)
+
+ALIGN 4
+LvUpText119:
+String("[OpenMidRight][LoadFace][$43]Hah! This strength will bring more chaos![X]");
+BYTE 0
+setLvupText(119, LvUpText119)
+
+ALIGN 4
+LvUpText120:
+String("[OpenMidRight][LoadFace][$57]Darkness is fickle. I must persevere.[X]");
+BYTE 0
+setLvupText(120, LvUpText120)
+
+ALIGN 4
+LvUpText121:
+String("[OpenMidRight][LoadFace][$57]A steady gain. The void grants power.[X]");
+BYTE 0
+setLvupText(121, LvUpText121)
+
+ALIGN 4
+LvUpText122:
+String("[OpenMidRight][LoadFace][$57]Ah, the dark rewards me richly today![X]");
+BYTE 0
+setLvupText(122, LvUpText122)
+
+ALIGN 4
+LvUpText123:
+String("[OpenMidRight][LoadFace][$53]This isn't enough! I need more power![X]");
+BYTE 0
+setLvupText(123, LvUpText123)
+
+ALIGN 4
+LvUpText124:
+String("[OpenMidRight][LoadFace][$53]Heh, I'm getting closer to my goals.[X]");
+BYTE 0
+setLvupText(124, LvUpText124)
+
+ALIGN 4
+LvUpText125:
+String("[OpenMidRight][LoadFace][$53]Hah! My strength is unstoppable now![X]");
+BYTE 0
+setLvupText(125, LvUpText125)
+
+ALIGN 4
+LvUpText126:
+String("[OpenMidRight][LoadFace][$C5]Even a king falters. I must endure.[X]");
+BYTE 0
+setLvupText(126, LvUpText126)
+
+ALIGN 4
+LvUpText127:
+String("[OpenMidRight][LoadFace][$C5]Strength returns, little by little. It's enough.[X]");
+BYTE 0
+setLvupText(127, LvUpText127)
+
+ALIGN 4
+LvUpText128:
+String("[OpenMidRight][LoadFace][$C5]A king's might! I'll protect my people![X]");
+BYTE 0
+setLvupText(128, LvUpText128)
+
+ALIGN 4
+LvUpText129:
+String("[OpenMidRight][LoadFace][$CB]Even blades grow dull. I must sharpen mine.[X]");
+BYTE 0
+setLvupText(129, LvUpText129)
+
+ALIGN 4
+LvUpText130:
+String("[OpenMidRight][LoadFace][$CB]A fair improvement. Elegance demands growth.[X]");
+BYTE 0
+setLvupText(130, LvUpText130)
+
+ALIGN 4
+LvUpText131:
+String("[OpenMidRight][LoadFace][$CB]Graceful and deadly. None can best me now![X]");
+BYTE 0
+setLvupText(131, LvUpText131)
+
+ALIGN 4
+LvUpText132:
+String("[OpenMidRight][LoadFace][$C7]Not my finest, but I'll manage.[X]");
+BYTE 0
+setLvupText(132, LvUpText132)
+
+ALIGN 4
+LvUpText133:
+String("[OpenMidRight][LoadFace][$C7]Progress, slow but steady, will carry us through.[X]");
+BYTE 0
+setLvupText(133, LvUpText133)
+
+ALIGN 4
+LvUpText134:
+String("[OpenMidRight][LoadFace][$C7]Strength enough to guard the kingdom once more![X]");
+BYTE 0
+setLvupText(134, LvUpText134)
+

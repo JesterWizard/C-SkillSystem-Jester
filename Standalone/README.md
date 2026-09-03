@@ -15,6 +15,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [custom_battle_quotes](custom_battle_quotes/) | Dual-character pre-battle quote matching with an editable table |
 | [dynamic_weapon_slots](dynamic_weapon_slots/) | Per-class weapon-type-to-rank-slot mapping for custom types (knives, guns, etc.) |
 | [alpha_blend_movement_sprites](alpha_blend_movement_sprites/) | Faded MU ghost at the pathfinding cursor tip (uses 50 bytes EWRAM) |
+| [talk_on_level_up](talk_on_level_up/) | Character quotes after level-up stat gains (poor / good / great) |
 
 ## Adding a new patch
 
