@@ -1,0 +1,23 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_GetBattleQuoteEntry   $8464C
+#define FE8U_StandaloneFreeSpace   $1000000
+
+/* Edit without recompiling C. */
+#define USE_VANILLA_FALLBACK 1
+
+PUSH
+ORG FE8U_GetBattleQuoteEntry
+    jumpToHack(GetBattleQuoteEntry_Custom)
+    PROTECT FE8U_GetBattleQuoteEntry FE8U_GetBattleQuoteEntry + 0x8 // GetBattleQuoteEntry hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CustomBattleQuotes.lyn.event"
+
+ALIGN 4
+CustomBattleQuotes_UseVanillaFallback:
+BYTE USE_VANILLA_FALLBACK
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomBattleQuotes body + config
