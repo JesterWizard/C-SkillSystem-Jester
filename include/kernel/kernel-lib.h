@@ -153,7 +153,7 @@ struct KernelDesigerConfig {
 	 * while drawing a move path, show a faded moving-map-sprite of the
 	 * active unit at the cursor. Cleared when A/B ends pathfinding.
 	 */
-	u8 translucent_unit_sprite;
+	u8 alpha_blend_movement_sprites;
 	u8 two_random_number_growths;
 	u8 unit_page_style;
 	u8 unlock_all_supports;

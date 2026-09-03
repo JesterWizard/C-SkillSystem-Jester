@@ -161,7 +161,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	 * Lex Talionis: while pathfinding, show a faded moving-map-sprite
 	 * ghost of the active unit at the cursor. Gone after A or B.
 	 */
-	.translucent_unit_sprite = true,
+	.alpha_blend_movement_sprites = true,
 	.two_random_number_growths = false,
 	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
 	.unlock_all_supports = true,

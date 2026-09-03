@@ -1,0 +1,16 @@
+#include "EAstdlib.event"
+#include "Extensions/Hack Installation.txt"
+
+#define FE8U_DrawUpdatedPathArrow $33248
+#define FE8U_StandaloneFreeSpace  $1000000
+
+PUSH
+ORG FE8U_DrawUpdatedPathArrow
+    jumpToHack(DrawUpdatedPathArrow_AlphaBlendMovementSprites)
+    PROTECT FE8U_DrawUpdatedPathArrow FE8U_DrawUpdatedPathArrow + 0x8 // DrawUpdatedPathArrow hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/AlphaBlendMovementSprites.lyn.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // AlphaBlendMovementSprites body

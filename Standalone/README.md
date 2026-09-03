@@ -14,6 +14,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [auto_repair_weapons](auto_repair_weapons/) | Restores unbroken weapons to full durability at chapter transition |
 | [custom_battle_quotes](custom_battle_quotes/) | Dual-character pre-battle quote matching with an editable table |
 | [dynamic_weapon_slots](dynamic_weapon_slots/) | Per-class weapon-type-to-rank-slot mapping for custom types (knives, guns, etc.) |
+| [alpha_blend_movement_sprites](alpha_blend_movement_sprites/) | Faded MU ghost at the pathfinding cursor tip (uses 50 bytes EWRAM) |
 
 ## Adding a new patch
 

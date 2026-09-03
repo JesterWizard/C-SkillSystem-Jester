@@ -23,7 +23,7 @@ This kernel option adds that ghost while the move path is active, then clears it
 
 | Flag | Default | Effect |
 |------|---------|--------|
-| `translucent_unit_sprite` | `true` | While drawing a move path, show a blended MU ghost at the cursor tip |
+| `alpha_blend_movement_sprites` | `true` | While drawing a move path, show a blended MU ghost at the cursor tip |
 | `remove_move_path` | `false` | When `true`, path arrows (and thus this ghost hook) are skipped |
 
 ### Player-facing rules
@@ -50,11 +50,11 @@ Alpha weights are `8/8`. The ghost OBJ list is copied into EWRAM (`sPathfindingG
 
 ## 🗂️ Code Locations
 
-Gated by `gpKernelDesignerConfig->translucent_unit_sprite` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c). Requires `remove_move_path == false` so `DrawUpdatedPathArrow` still runs.
+Gated by `gpKernelDesignerConfig->alpha_blend_movement_sprites` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c). Requires `remove_move_path == false` so `DrawUpdatedPathArrow` still runs.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Config field | [`kernel-lib.h`](../../include/kernel/kernel-lib.h), [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | `translucent_unit_sprite` toggle |
+| Config field | [`kernel-lib.h`](../../include/kernel/kernel-lib.h), [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | `alpha_blend_movement_sprites` toggle |
 | Ghost draw + blend | [`RemoveMovePath.c`](../../Kernel/Wizardry/Essentials/RemoveMovePath/Source/RemoveMovePath.c) | `ApplyPathfindingBlend`, `DisplayBlendedMuAp`, `DrawPathfindingUnitGhost`; hooked from `DrawUpdatedPathArrow` |
 | Path / movement script | Same file | `PlayerPhase_DisplayUnitMovement` respects `remove_move_path` |
 | EWRAM obj scratch | `sPathfindingGhostObjBuf` in [`config-memmap.s`](../../include/link/config-memmap.s) | 50 bytes for the blended sprite obj list |

@@ -1,21 +1,16 @@
-#include "common-chax.h"
-#include "kernel-lib.h"
-#include "map-movement.h"
+#include "global.h"
+#include "variables.h"
+#include "hardware.h"
+#include "ctc.h"
+#include "mu.h"
+#include "ap.h"
+#include "bmpatharrowdisp.h"
+#include "gba/defines.h"
+
+extern u16 sPathfindingGhostObjBuf[];
 
 /**
- * Lex Talionis "Translucent Unit Sprite":
- * While pathfinding, face the live MU toward the last path step and blit a
- * faded moving-map-sprite ghost at the cursor tip.
- *
- * Blend setup (must satisfy tiles AND semi-transparent OBJ at once):
- *   TargetA = BG2  → range squares blend over the map
- *   TargetB = BG2 + BG3 (no OBJ)
- *     - Range (A) finds BG3 beneath → translucent tiles (vanilla look)
- *     - Ghost OBJ mode-1 finds BG2 beneath → blends with the blue/red
- *       square (visible sprite fade). BG3-only TargetB fails on mGBA when
- *       an opaque range pixel covers the tile, so no 2nd target is found.
- *   OBJ is omitted from TargetB so normal sprites are not pulled into the
- *   alpha pass (avoids the global flicker we hit earlier).
+ * Lex Talionis-style translucent MU ghost at the pathfinding cursor tip.
  *
  * Ghost obj list is copied to EWRAM (sPathfindingGhostObjBuf) because
  * PutSpriteExt only stores a pointer and OAM is flushed later — a stack
@@ -71,9 +66,6 @@ static void DrawPathfindingUnitGhost(void)
 	s8 dx, dy;
 	int x, y;
 
-	if (!gpKernelDesignerConfig->alpha_blend_movement_sprites)
-		return;
-
 	if (!gActiveUnit || !MuExists())
 		return;
 
@@ -96,7 +88,7 @@ static void DrawPathfindingUnitGhost(void)
 		return;
 	}
 
-	/* Only while the cursor sits on the path tip (LT draw_arrows behaviour) */
+	/* Only while the cursor sits on the path tip */
 	if (gBmSt.playerCursor.x != gpPathArrowProc->pathX[pathLen] ||
 	    gBmSt.playerCursor.y != gpPathArrowProc->pathY[pathLen])
 		return;
@@ -117,7 +109,6 @@ static void DrawPathfindingUnitGhost(void)
 	if (mu->facing != facing)
 		SetMuFacing(mu, facing);
 
-	/* Same screen-space origin convention as GetMuDisplayPosition */
 	x = gBmSt.playerCursor.x * 16 - gBmSt.camera.x + 8;
 	y = gBmSt.playerCursor.y * 16 - gBmSt.camera.y + 16;
 
@@ -130,27 +121,9 @@ static void DrawPathfindingUnitGhost(void)
 	DisplayBlendedMuAp(mu->sprite_anim, x, y);
 }
 
-LYN_REPLACE_CHECK(PlayerPhase_DisplayUnitMovement);
-void PlayerPhase_DisplayUnitMovement(void)
+void DrawUpdatedPathArrow_AlphaBlendMovementSprites(void)
 {
-	if (gpKernelDesignerConfig->remove_move_path == false)
-		GetMovementScriptFromPath();
-	else
-		GenerateBestMovementScript(
-			gBmSt.playerCursor.x,
-			gBmSt.playerCursor.y,
-			gWorkingMovementScript);
-
-	UnitApplyWorkingMovementScript(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos);
-	SetAutoMuMoveScript(gWorkingMovementScript);
-}
-
-LYN_REPLACE_CHECK(DrawUpdatedPathArrow);
-void DrawUpdatedPathArrow(void)
-{
-	if (gpKernelDesignerConfig->remove_move_path == false) {
-		UpdatePathArrowWithCursor();
-		DrawPathArrow();
-		DrawPathfindingUnitGhost();
-	}
+	UpdatePathArrowWithCursor();
+	DrawPathArrow();
+	DrawPathfindingUnitGhost();
 }
