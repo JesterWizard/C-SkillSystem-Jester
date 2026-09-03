@@ -538,6 +538,7 @@
 #define MSG_SKILL_Swap_CAPACITY 1
 #define MSG_SKILL_VigorDance_CAPACITY 1
 #define MSG_SKILL_MagicSeal_CAPACITY 1
+#define MSG_SKILL_PhysicalSeal_CAPACITY 1
 #define MSG_SKILL_Mimic_CAPACITY 1
 #define MSG_SKILL_Insomnia_CAPACITY 1
 #define MSG_SKILL_Comatose_CAPACITY 1

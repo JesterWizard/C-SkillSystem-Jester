@@ -138,6 +138,11 @@ bool CanUnitUseGaidenMagicNow(struct Unit *unit, int item)
 	if ((GetItemAttributes(item) & (IA_MAGIC | IA_STAFF)) && IsUnitMagicSealed(unit))
 		return false;
 
+#if (defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal)))
+	if ((GetItemAttributes(item) & IA_WEAPON) && !(GetItemAttributes(item) & IA_MAGIC) && IsUnitPhysicalSealed(unit))
+		return false;
+#endif
+
 	if (gpKernelDesignerConfig->mp_system == true)
 	{
 		struct NewBwl * bwl = GetNewBwl(UNIT_CHAR_ID(unit));

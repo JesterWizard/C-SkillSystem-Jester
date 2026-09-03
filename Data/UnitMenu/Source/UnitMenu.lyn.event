@@ -30,7 +30,7 @@ WORD $0 $8022B31 $0
 POIN pr_AttackActionCommandHoverFix
 POIN pr_AttackActionCommandUnhoverFix
 POIN CURRENTOFFSET-464
-WORD $1540153F $6C00
+WORD $15421541 $6C00
 POIN pr_CombatArtActionCommandUsability
 POIN pr_CombatArtActionCommandOnDarw
 POIN pr_CombatArtActionCommandEffect
@@ -44,7 +44,7 @@ WORD $6D60691 $5204 $80248C5 $0 $8024921 $0 $0 $0
 POIN CURRENTOFFSET-540
 WORD $6D70692 $5304 $802494D $0 $8024981 $0 $0 $0
 POIN CURRENTOFFSET-560
-WORD $15921591 $8000
+WORD $15941593 $8000
 POIN pr_GaidenBMagActionCommandUsability
 POIN pr_GaidenBMagActionCommandOnDarw
 POIN pr_GaidenBMagActionCommandEffect
@@ -52,7 +52,7 @@ WORD $0
 POIN pr_GaidenBMagActionCommandHover
 POIN pr_GaidenBMagActionCommandUnhover
 POIN CURRENTOFFSET-580
-WORD $15941593 $8000
+WORD $15961595 $8000
 POIN pr_GaidenWMagActionCommandUsability
 POIN pr_GaidenWMagActionCommandOnDarw
 POIN pr_GaidenWMagActionCommandEffect
@@ -60,19 +60,19 @@ WORD $0
 POIN pr_GaidenWMagActionCommandHover
 WORD $8023B85
 POIN CURRENTOFFSET-600
-WORD $131E131D $8000
+WORD $1320131F $8000
 POIN pr_UpperMenuSkill_Usability
 WORD $0
 POIN pr_UpperMenuSkill_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-624
-WORD $13871386 $8003
+WORD $13891388 $8003
 POIN Entrepreneur_Usability
 WORD $0
 POIN Entrepreneur_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-644
-WORD $13D213D1 $7900
+WORD $13D413D3 $7900
 POIN InteractCommandUsability
 WORD $0
 POIN InteractCommandEffect
@@ -96,37 +96,37 @@ WORD $6D10687 $6100 $8024091 $0 $80240CD $0 $0 $0
 POIN CURRENTOFFSET-868
 WORD $6D20688 $6200 $80240ED $0 $8024145 $0 $0 $0
 POIN CURRENTOFFSET-888
-WORD $13D413D3 $7A03
+WORD $13D613D5 $7A03
 POIN PrestigeCommandUsability
 WORD $0
 POIN PrestigeCommandEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-912
-WORD $13CA13C9 $6300
+WORD $13CC13CB $6300
 POIN PairUp_Usability
 WORD $0
 POIN PairUp_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-948
-WORD $13CC13CB $6A00
+WORD $13CE13CD $6A00
 POIN Shelter_Usability
 WORD $0
 POIN Shelter_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-984
-WORD $13CE13CD $6D00
+WORD $13D013CF $6D00
 POIN PairUp_TransferUsability
 WORD $0
 POIN PairUp_TransferEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1020
-WORD $13D013CF $6E00
+WORD $13D213D1 $6E00
 POIN PairUp_SwitchUsability
 WORD $0
 POIN PairUp_SwitchEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1056
-WORD $15F615F5 $4
+WORD $15F815F7 $4
 POIN Gambit_UpperMenu_Usability
 WORD $0
 POIN Gambit_UpperMenu_Effect
@@ -134,13 +134,13 @@ WORD $0
 POIN Gambit_UpperMenu_Hover
 POIN Gambit_UpperMenu_Unhover
 POIN CURRENTOFFSET-1088
-WORD $13C813C7 $6C00
+WORD $13CA13C9 $6C00
 POIN Refuge_Usability
 WORD $0
 POIN Refuge_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1124
-WORD $15D915D8 $6C03
+WORD $15DB15DA $6C03
 POIN Transform_Laguz_Usability
 WORD $0
 POIN Transform_Laguz_Effect

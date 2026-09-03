@@ -438,6 +438,8 @@ int GetCombinedEnemyWeaponUsabilityBits(void);
 bool CanUnitMove(void);
 bool IsPositionMagicSealed(int x, int y);
 bool IsUnitMagicSealed(struct Unit* unit);
+bool IsPositionPhysicalSealed(int x, int y);
+bool IsUnitPhysicalSealed(struct Unit* unit);
 int GetUnitLastItem(struct Unit* unit);
 const s8* GetUnitMovementCost(struct Unit* unit);
 int GetClassSMSId(int classId);

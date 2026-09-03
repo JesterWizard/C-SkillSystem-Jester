@@ -853,6 +853,7 @@ SID_Nullify
 SID_Amische
 SID_ShrewdPotential
 SID_MagicSeal
+SID_PhysicalSeal
 SID_HazeHunter
 SID_Insomnia
 SID_Comatose

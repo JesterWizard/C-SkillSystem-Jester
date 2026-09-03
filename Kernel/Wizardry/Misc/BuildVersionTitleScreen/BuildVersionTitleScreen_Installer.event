@@ -12,7 +12,7 @@ jumpToHack(display_version)
 //If you do not make UPS with FEBuilderGBA, please rewrite this string by yourself.
 //ORG $DC110	//{J}
 ORG $D74D0	//{U}
-String("01/09/2026") ; BYTE 0 // BUILD_DATE
+String("03/09/2026") ; BYTE 0 // BUILD_DATE
 
 POP
 

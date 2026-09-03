@@ -5,6 +5,8 @@
 #include "constants/skills.h"
 #include "bwl.h"
 #include "unit-expa.h"
+#include "bmidoten.h"
+#include "event.h"
 
 int StatusGetterCheckCpas(int status, struct Unit *unit)
 {
@@ -92,6 +94,64 @@ s8 IsUnitMagicSealed(struct Unit *unit)
 
     return FALSE;
 }
+
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+s8 IsPositionPhysicalSealed(int x, int y)
+{
+    int i;
+
+    if (EventEngineExists())
+        return FALSE;
+
+    for (i = 0x1; i < 0xC0; ++i) {
+        struct Unit *unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        if (!SkillTester(unit, SID_PhysicalSeal))
+            continue;
+
+        if (RECT_DISTANCE(unit->xPos, unit->yPos, x, y) <= 10)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+s8 IsUnitPhysicalSealed(struct Unit *unit)
+{
+    if (IsPositionPhysicalSealed(unit->xPos, unit->yPos))
+        return TRUE;
+
+    return FALSE;
+}
+
+void GeneratePhysicalSealMap(int value)
+{
+    int i;
+    u8 **savedMap = gWorkingBmMap;
+
+    if (EventEngineExists())
+        return;
+
+    SetWorkingBmMap(gBmMapOther);
+
+    for (i = 0x1; i < 0xC0; ++i) {
+        struct Unit *unit = GetUnit(i);
+
+        if (!UNIT_IS_VALID(unit))
+            continue;
+
+        if (!SkillTester(unit, SID_PhysicalSeal))
+            continue;
+
+        MapSetInRange(unit->xPos, unit->yPos, 10, value);
+    }
+
+    SetWorkingBmMap(savedMap);
+}
+#endif
 
 LYN_REPLACE_CHECK(GetUnitPortraitId);
 inline int GetUnitPortraitId(struct Unit *unit)

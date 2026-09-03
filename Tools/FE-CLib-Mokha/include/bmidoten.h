@@ -39,6 +39,7 @@ void GenerateUnitStandingReachRange(struct Unit * unit, int reach);
 void GenerateUnitCompleteStaffRange(struct Unit * unit);
 void GenerateDangerZoneRange(s8 boolDisplayStaffRange);
 void GenerateMagicSealMap(int value);
+void GeneratePhysicalSealMap(int value);
 void SetWorkingBmMap(u8 ** map);
 void MapAddInBoundedRange(short x, short y, short minRange, short maxRange);
 s8 * GetWorkingMoveCosts(void);

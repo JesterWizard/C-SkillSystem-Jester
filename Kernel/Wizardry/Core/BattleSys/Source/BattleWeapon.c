@@ -547,6 +547,11 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 	if ((GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_BOUND) && !(GetItemAttributes(item) & IA_MAGIC))
 		return false;
 
+#if (defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal)))
+	if (IsUnitPhysicalSealed(unit) && !(GetItemAttributes(item) & IA_MAGIC))
+		return false;
+#endif
+
 #if CHAX
 	switch (CheckWeaponLockEx(unit, item)) {
 	case 1:

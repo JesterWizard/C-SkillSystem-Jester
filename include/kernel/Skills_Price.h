@@ -538,6 +538,7 @@
 #define MSG_SKILL_Swap_PRICE 1000
 #define MSG_SKILL_VigorDance_PRICE 1000
 #define MSG_SKILL_MagicSeal_PRICE 1000
+#define MSG_SKILL_PhysicalSeal_PRICE 1000
 #define MSG_SKILL_Mimic_PRICE 1000
 #define MSG_SKILL_Insomnia_PRICE 1000
 #define MSG_SKILL_Comatose_PRICE 1000

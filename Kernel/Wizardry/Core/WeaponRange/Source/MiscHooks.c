@@ -212,8 +212,29 @@ void DisplayUnitEffectRange(struct Unit *unit)
 	if (!(gActiveUnit->state & US_CANTOING)) {
 		BmMapFill(gBmMapOther, 0);
 
-		if (UnitHasMagicRank(unit))
-			GenerateMagicSealMap(1);
+		switch (GetUnitWeaponUsabilityBits(gActiveUnit)) {
+		case (UNIT_USEBIT_STAFF | UNIT_USEBIT_WEAPON):
+			if (gBmSt.swapActionRangeCount & 1) {
+				if (UnitHasMagicRank(unit))
+					GenerateMagicSealMap(1);
+			} else {
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+				GeneratePhysicalSealMap(1);
+#endif
+			}
+			break;
+
+		case UNIT_USEBIT_STAFF:
+			if (UnitHasMagicRank(unit))
+				GenerateMagicSealMap(1);
+			break;
+
+		case UNIT_USEBIT_WEAPON:
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+			GeneratePhysicalSealMap(1);
+#endif
+			break;
+		}
 
 		BmMapFill(gBmMapRange, 0);
 
@@ -396,6 +417,12 @@ void GenerateDangerZoneRange(bool boolDisplayStaffRange)
 	prevHasMagicRank = -1;
 
 	BmMapFill(gBmMapRange, 0);
+	BmMapFill(gBmMapOther, 0);
+
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+	if (!boolDisplayStaffRange)
+		GeneratePhysicalSealMap(1);
+#endif
 
 	enemyFaction = GetNonActiveFaction();
 
@@ -422,7 +449,7 @@ void GenerateDangerZoneRange(bool boolDisplayStaffRange)
 
 		hasMagicRank = UnitHasMagicRank(unit);
 
-		if (prevHasMagicRank != hasMagicRank) {
+		if (boolDisplayStaffRange && prevHasMagicRank != hasMagicRank) {
 			BmMapFill(gBmMapOther, 0);
 
 			if (hasMagicRank)

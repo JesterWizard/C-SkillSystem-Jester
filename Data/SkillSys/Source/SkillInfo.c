@@ -5978,6 +5978,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_PhysicalSeal) && COMMON_SKILL_VALID(SID_PhysicalSeal))
+    [SID_PhysicalSeal] = {
+        .name = MSG_SKILL_PhysicalSeal_NAME,
+        .desc = MSG_SKILL_PhysicalSeal_DESC,
+        .capacity = MSG_SKILL_PhysicalSeal_CAPACITY,
+        .price = MSG_SKILL_PhysicalSeal_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_Mimic) && COMMON_SKILL_VALID(SID_Mimic))
     [SID_Mimic] = {
         .name = MSG_SKILL_Mimic_NAME,

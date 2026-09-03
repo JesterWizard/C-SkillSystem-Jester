@@ -53,7 +53,7 @@ POIN BattleFastSkillTester
 WORD $252
 POIN CURRENTOFFSET+880
 POIN RegisterTargetEfxSkill
-WORD $336 $24B
+WORD $337 $24B
 POIN GetUnitAtPosition
 WORD $8024D8D
 POIN SkillTester

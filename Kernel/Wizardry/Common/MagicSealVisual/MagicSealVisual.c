@@ -24,9 +24,13 @@
 enum {
 	MAGIC_SEAL_FOG_BANK0 = BGPAL_TILESET + 5,
 	MAGIC_SEAL_OVERLAY_PAL = BGPAL_LIMITVIEW + 1, /* bank 5 */
+	PHYSICAL_SEAL_OVERLAY_PAL = BGPAL_LIMITVIEW + 2, /* bank 6 */
+	SEAL_OVERLAP_PAL = BGPAL_LIMITVIEW + 3, /* bank 7 */
 	/* Past move/attack range squares at 0x280-0x287 — do not share those CHRs. */
 	MAGIC_SEAL_OVERLAY_CHR = BGCHR_LIMITVIEW + 8, /* 0x288 */
 	MAGIC_SEAL_RED = 0x319D,
+	PHYSICAL_SEAL_BLUE = 0x259F,
+	SEAL_OVERLAP_PURPLE = 0x68EF,
 	MAGIC_SEAL_RANGE = 10,
 	MAGIC_SEAL_MAX_SOURCES = 8,
 };
@@ -80,6 +84,34 @@ static void ApplySealOverlayPalette(void)
 	ApplyPalette(pal, MAGIC_SEAL_OVERLAY_PAL);
 	EnablePaletteSync();
 }
+
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+static void ApplyPhysicalSealOverlayPalette(void)
+{
+	u16 pal[16];
+	int i;
+
+	pal[0] = 0;
+	for (i = 1; i < 16; i++)
+		pal[i] = PHYSICAL_SEAL_BLUE;
+
+	ApplyPalette(pal, PHYSICAL_SEAL_OVERLAY_PAL);
+	EnablePaletteSync();
+}
+
+static void ApplyOverlapSealOverlayPalette(void)
+{
+	u16 pal[16];
+	int i;
+
+	pal[0] = 0;
+	for (i = 1; i < 16; i++)
+		pal[i] = SEAL_OVERLAP_PURPLE;
+
+	ApplyPalette(pal, SEAL_OVERLAP_PAL);
+	EnablePaletteSync();
+}
+#endif
 
 static void ApplySealOverlayBlend(void)
 {
@@ -142,6 +174,36 @@ static int CollectMagicSealSources(s8 *xs, s8 *ys)
 	return n;
 }
 
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+static int CollectPhysicalSealSources(s8 *xs, s8 *ys)
+{
+	int i;
+	int n = 0;
+
+	if (EventEngineExists())
+		return 0;
+
+	for (i = 1; i < 0xC0; ++i) {
+		struct Unit *unit = GetUnit(i);
+
+		if (!UNIT_IS_VALID(unit) || (unit->state & US_HIDDEN))
+			continue;
+
+		if (!SkillTester(unit, SID_PhysicalSeal))
+			continue;
+
+		xs[n] = unit->xPos;
+		ys[n] = unit->yPos;
+		n++;
+
+		if (n >= MAGIC_SEAL_MAX_SOURCES)
+			break;
+	}
+
+	return n;
+}
+#endif
+
 static bool IsSealedBySources(int x, int y, const s8 *xs, const s8 *ys, int n)
 {
 	int i;
@@ -154,7 +216,8 @@ static bool IsSealedBySources(int x, int y, const s8 *xs, const s8 *ys, int n)
 	return false;
 }
 
-static void DrawSealOverlayTiles(const s8 *xs, const s8 *ys, int n)
+static void DrawSealOverlayTiles(const s8 *magicXs, const s8 *magicYs, int magicN,
+	const s8 *physicalXs, const s8 *physicalYs, int physicalN)
 {
 	int ix, iy;
 	int xBmBase = gBmSt.camera.x >> 4;
@@ -169,19 +232,39 @@ static void DrawSealOverlayTiles(const s8 *xs, const s8 *ys, int n)
 			int xTile = (xTileBase + ix) & 0xF;
 			int yTile = (yTileBase + iy) & 0xF;
 			u16 *bg = gBG2TilemapBuffer + yTile * 0x40 + xTile * 2;
+			bool magicSealed;
+			bool physicalSealed;
+			u16 pal;
 
-			if (xMap >= 0 && yMap >= 0 && xMap < gBmMapSize.x && yMap < gBmMapSize.y
-				&& IsSealedBySources(xMap, yMap, xs, ys, n)) {
-				bg[0x00 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 0, MAGIC_SEAL_OVERLAY_PAL);
-				bg[0x00 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 1, MAGIC_SEAL_OVERLAY_PAL);
-				bg[0x20 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 2, MAGIC_SEAL_OVERLAY_PAL);
-				bg[0x20 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 3, MAGIC_SEAL_OVERLAY_PAL);
-			} else {
-				bg[0x00 + 0] = 0;
-				bg[0x00 + 1] = 0;
-				bg[0x20 + 0] = 0;
-				bg[0x20 + 1] = 0;
-			}
+			bg[0x00 + 0] = 0;
+			bg[0x00 + 1] = 0;
+			bg[0x20 + 0] = 0;
+			bg[0x20 + 1] = 0;
+
+			if (xMap < 0 || yMap < 0 || xMap >= gBmMapSize.x || yMap >= gBmMapSize.y)
+				continue;
+
+			magicSealed = IsSealedBySources(xMap, yMap, magicXs, magicYs, magicN);
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+			physicalSealed = IsSealedBySources(xMap, yMap, physicalXs, physicalYs, physicalN);
+#else
+			physicalSealed = false;
+#endif
+
+			if (!magicSealed && !physicalSealed)
+				continue;
+
+			if (magicSealed && physicalSealed)
+				pal = SEAL_OVERLAP_PAL;
+			else if (magicSealed)
+				pal = MAGIC_SEAL_OVERLAY_PAL;
+			else
+				pal = PHYSICAL_SEAL_OVERLAY_PAL;
+
+			bg[0x00 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 0, pal);
+			bg[0x00 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 1, pal);
+			bg[0x20 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 2, pal);
+			bg[0x20 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 3, pal);
 		}
 	}
 
@@ -193,9 +276,14 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 {
 	int camTileX;
 	int camTileY;
-	s8 xs[MAGIC_SEAL_MAX_SOURCES];
-	s8 ys[MAGIC_SEAL_MAX_SOURCES];
-	int n;
+	s8 magicXs[MAGIC_SEAL_MAX_SOURCES];
+	s8 magicYs[MAGIC_SEAL_MAX_SOURCES];
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+	s8 physicalXs[MAGIC_SEAL_MAX_SOURCES];
+	s8 physicalYs[MAGIC_SEAL_MAX_SOURCES];
+	int physicalN;
+#endif
+	int magicN;
 
 	/*
 	 * Move/attack range owns BG2 (same tree). Do not BG_Fill / SetBlendNone
@@ -231,8 +319,13 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 		return;
 	}
 
-	n = CollectMagicSealSources(xs, ys);
-	if (n <= 0) {
+	magicN = CollectMagicSealSources(magicXs, magicYs);
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+	physicalN = CollectPhysicalSealSources(physicalXs, physicalYs);
+	if (magicN <= 0 && physicalN <= 0) {
+#else
+	if (magicN <= 0) {
+#endif
 		if (proc->active)
 			ClearSealOverlay(proc);
 		return;
@@ -241,14 +334,26 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 	if (!proc->active) {
 		EnsureSolidOverlayTiles();
 		ApplySealOverlayPalette();
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+		ApplyPhysicalSealOverlayPalette();
+		ApplyOverlapSealOverlayPalette();
+#endif
 		proc->active = true;
 	} else if (proc->dirty) {
 		EnsureSolidOverlayTiles();
 		ApplySealOverlayPalette();
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+		ApplyPhysicalSealOverlayPalette();
+		ApplyOverlapSealOverlayPalette();
+#endif
 	}
 
 	ApplySealOverlayBlend();
-	DrawSealOverlayTiles(xs, ys, n);
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+	DrawSealOverlayTiles(magicXs, magicYs, magicN, physicalXs, physicalYs, physicalN);
+#else
+	DrawSealOverlayTiles(magicXs, magicYs, magicN, NULL, NULL, 0);
+#endif
 
 	proc->lastCamTileX = camTileX;
 	proc->lastCamTileY = camTileY;

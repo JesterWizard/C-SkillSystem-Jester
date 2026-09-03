@@ -152,6 +152,14 @@ Magic Seal:[N]
 Prevent use of magic by all[N]
 units in a 10 tiles of user.[X]
 
+## MSG_SKILL_PhysicalSeal_NAME
+Physical Seal[X]
+## MSG_SKILL_PhysicalSeal_DESC
+Physical Seal:[N]
+Prevent use of physical[N]
+weapons by all units in a[N]
+10 tile radius of user.[X]
+
 ## MSG_SKILL_FullMetalBody_NAME
 Full Metal Body[X]
 ## MSG_SKILL_FullMetalBody_DESC

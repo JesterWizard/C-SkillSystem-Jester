@@ -532,6 +532,10 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 
 		if (UnitHasMagicRank(gActiveUnit))
 			GenerateMagicSealMap(-1);
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+		else
+			GeneratePhysicalSealMap(-1);
+#endif
 	}
 
 	SetWorkingBmMap(gBmMapRange);
