@@ -1,9 +1,5 @@
 # Custom Fog Sight
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `custom_fog_sight`.
-
-## Behavior
-
 Replaces vanilla fog vision with per-class bonuses on top of the chapter base range (`gPlaySt.chapterVisionRange`) and torch duration. Bonuses are defined in `ClassFogSightBonusTable.event`.
 
 Default table values:
@@ -15,8 +11,6 @@ Default table values:
 | +5 | Thief, Rogue, Assassin |
 
 All other classes use the chapter base range only (plus torch).
-
-This matches the integrated C Skill System behavior when `custom_fog_sight` is enabled, but installs on **clean FE8U** without the kernel.
 
 **Note:** This patch only replaces `GetUnitFogViewRange`. It does not include stat-screen vision bars or help text from the full kernel stat menu.
 

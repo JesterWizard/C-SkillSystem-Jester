@@ -1,8 +1,8 @@
 # Custom Talk Icon
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `custom_talk_icon`.
-
-## Behavior
+<p align="center">
+  <img src="./image.png" alt="Custom Talk Icon" width="600"/>
+</p>
 
 Shows a Lex Talionus-style talk icon above the conversation partner while a unit is selected and a talk or support is available.
 

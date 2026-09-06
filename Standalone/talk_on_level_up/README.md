@@ -1,8 +1,8 @@
 # Talk On Level Up
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `talk_on_level_up`.
-
-## Behavior
+<p align="center">
+  <img src="./Feature - Talk on Level Up.gif" alt="Feature - Talk on Level Up" width="600"/>
+</p>
 
 After the level-up stat gains are shown, the unit speaks a short quote based on how many stats increased:
 

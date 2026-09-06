@@ -1,12 +1,9 @@
 # Auto Repair Weapons
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `auto_repair_weapons`.
-
-## Behavior
 
 At the end of each map, when the game runs chapter-transition unit cleanup, unbroken weapons in each player unit's inventory are restored to full durability.
 
-Broken weapons are left unchanged. This matches the integrated C Skill System mechanic described in the in-game guide.
+Broken weapons are left unchanged. 
 
 ## Configuration
 

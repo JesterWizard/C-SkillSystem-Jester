@@ -1,12 +1,10 @@
 # Alpha Blend Movement Sprites
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `alpha_blend_movement_sprites`.
+<p align="center">
+  <img src="./Feature - Alpha Blend Movement Sprites.gif" alt="Alpha Blend Movement Sprites" width="600"/>
+</p>
 
-## Behavior
-
-While drawing a move path, shows a Lex Talionis-style faded copy of the active unit's moving-map sprite at the cursor tip. The live MU faces the last path step. At the origin tile, the ghost is hidden and the selected bounce facing is restored.
-
-Requires vanilla path arrows (`remove_move_path` must stay off if you also use that kernel option).
+While drawing a move path, this shows a Lex Talionis-style faded copy of the active unit's moving-map sprite at the cursor tip. The live MU faces the last path step. At the origin tile, the ghost is hidden and the selected bounce facing is restored.
 
 ## RAM
 

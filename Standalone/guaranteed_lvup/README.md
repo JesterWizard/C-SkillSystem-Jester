@@ -1,9 +1,5 @@
 # Guaranteed Level Up
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `guaranteed_lvup`.
-
-## Behavior
-
 When a battle level-up would grant no stat gains, the patch retries up to **10 times**, re-rolling all stats each time with a **+10% growth bonus** (on top of Metis/Antlion's +5% when applicable).
 
 Vanilla FE8U only retries twice, rolling stats one at a time without a growth bonus. This matches the integrated C Skill System `guaranteed_lvup` behavior for vanilla growth mode, but installs on **clean FE8U** without the kernel.

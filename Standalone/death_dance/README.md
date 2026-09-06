@@ -1,9 +1,5 @@
 # Death Dance
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `death_dance`.
-
-## Behavior
-
 Porting a mechanic from FE6: when a rescuer dies on their own phase, the rescued unit can still move after being dropped.
 
 Vanilla FE8U always marks a dropped ally as unselectable (`US_UNSELECTABLE`), so they cannot act again that turn even if the drop was caused by the rescuer's death. This patch only applies that gray-out when the rescuer is still alive (`curHP != 0`).

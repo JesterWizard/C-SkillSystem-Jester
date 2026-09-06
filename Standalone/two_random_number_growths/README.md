@@ -1,9 +1,5 @@
 # Two Random Number Growths
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `two_random_number_growths`.
-
-## Behavior
-
 During level-up stat gain calculation, fractional growth rolls use **2RN** instead of vanilla **1RN**:
 
 - `0%` growth: always `+0`

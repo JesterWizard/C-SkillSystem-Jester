@@ -1,9 +1,5 @@
 # Custom Battle Quotes
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `custom_battle_quotes`.
-
-## Behavior
-
 Replaces vanilla `GetBattleQuoteEntry` with extended lookup logic that matches battle quotes on **both combat participants**, not just one character.
 
 Each table entry can restrict by:

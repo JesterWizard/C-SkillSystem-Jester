@@ -1,8 +1,8 @@
 # Arena Show Opponent In Advance
 
-Standalone FE8U patch extracted from the C Skill System designer config flag `arena_show_opponent_in_advance`.
-
-## Behavior
+<p align="center">
+  <img src="./Feature - Show Arena Opponent In Advance.gif" alt="Feature - Show Arena Opponent In Advance" width="600"/>
+</p>
 
 Vanilla FE8U only reveals the arena opponent after the player confirms the gold wager. This patch shows opponent details **before** the wager prompt, and adds a matchup quality label:
 
@@ -12,7 +12,7 @@ Vanilla FE8U only reveals the arena opponent after the player confirms the gold 
 | Okay match | Opponent is not more than 20 above the player |
 | Bad match | Opponent is more than 20 above the player |
 
-The details window is taller than vanilla (8 rows instead of 6) to fit the matchup label. Opponent info is still redrawn after the wager is confirmed, matching integrated C Skill System behavior.
+The details window is taller than vanilla (8 rows instead of 6) to fit the matchup label. Opponent info is still redrawn after the wager is confirmed.
 
 ## Target ROM
 

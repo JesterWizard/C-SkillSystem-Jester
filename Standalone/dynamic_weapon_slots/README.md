@@ -1,6 +1,9 @@
 # Dynamic Weapon Slots
 
----
+<p align="center">
+  <img src="./image_1.png" alt="image_1.png" width="600"/>
+  <img src="./image_2.png" alt="image_2.png" width="600"/>
+</p>
 
 ## Index
 - [Introduction](#introduction)

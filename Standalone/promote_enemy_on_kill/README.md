@@ -1,8 +1,8 @@
 # Promote Enemy On Kill
 
-Standalone FE8U patch extracted from the C Skill System designer config flags `promote_enemy_on_kill` and `promote_enemy_boost`.
-
-## Behavior
+<p align="center">
+  <img src="./Feature - Enemies Promote When Killing Your Units.gif" alt="Enemies Promote When Killing Your Units" width="600"/>
+</p>
 
 When an unpromoted enemy unit kills a player (or other non-enemy) unit in battle, that enemy is immediately promoted using its class's default promotion and receives a flat stat boost on every growth stat.
 
