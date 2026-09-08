@@ -41,7 +41,7 @@ This gives complete creative freedom over staff experience design.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Staff EXP logic** | `StaffEXP` — [`BattleExp.c`](../../Kernel/Wizardry/Core/BattleSys/Source/BattleExp.c) | Central function that returns EXP values for staff usage |
+| **Staff EXP logic** | `StaffEXP` — [`BattleExp.c`](../../Kernel/Wizardry/BattleSys/Source/BattleExp.c) | Central function that returns EXP values for staff usage |
 
 ---
 

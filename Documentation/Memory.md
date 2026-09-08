@@ -65,7 +65,7 @@ In the kernel, free-RAM space is allocated from the bottom to the top:
 0x02028E58, FreeRamSpaceBottom
 ```
 
-Developers must ensure that used free RAM does not overflow. In addition, RAM allocations must always be even numbered to prevent allocations being misaligned. In practice, `(gKernelUsedFreeRamSpaceTop > FreeRamSpaceTop)` must remain true. The kernel also detects RAM overflow during [game init](../Kernel/Wizardry/Common/GameInitHook/source/GameInit.c#L14).
+Developers must ensure that used free RAM does not overflow. In addition, RAM allocations must always be even numbered to prevent allocations being misaligned. In practice, `(gKernelUsedFreeRamSpaceTop > FreeRamSpaceTop)` must remain true. The kernel also detects RAM overflow during [game init](../Kernel/Wizardry/GameInitHook/source/GameInit.c#L14).
 
 ### Example
 

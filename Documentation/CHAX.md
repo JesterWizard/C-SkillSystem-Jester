@@ -17,7 +17,7 @@ In practice, CHAX is the foundation that lets this project compile a large set o
 - Share the same header and symbol model with decomp work.
 - Prefer C hacks over ASM hacks when possible.
 - Provide a practical debugging toolkit.
-- Use a faster `SkillTester()` design via [SkillList.c](../Kernel/Wizardry/Core/SkillSys/kernel/SkillList.c).
+- Use a faster `SkillTester()` design via [SkillList.c](../Kernel/Wizardry/SkillSys/kernel/SkillList.c).
 - Improve ROM and RAM allocation control through [config-memmap.h](../include/configs/config-memmap.h) and [config-memmap.s](../include/link/config-memmap.s).
 - Maintain a fixed pointer list through [Reloc.event](../Reloc/Reloc.event) so C hacks and FEBuilder patches can share data locations.
 - Expand battle-system behavior, including a larger battle-hit budget of 20.

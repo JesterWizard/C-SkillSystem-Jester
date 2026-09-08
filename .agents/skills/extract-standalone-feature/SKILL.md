@@ -64,7 +64,7 @@ Stop and ask before proceeding if:
 
 `Standalone/two_random_number_growths/`:
 
-- Integrated source: `Kernel/Wizardry/Core/Lvup/Source/Levelup.c`
+- Integrated source: `Kernel/Wizardry/Lvup/Source/Levelup.c`
 - Config flag: `two_random_number_growths`
 - Standalone strategy: replace vanilla `GetStatIncrease` only
 - C source: `Source/GetStatIncrease_2RN.c`

@@ -52,10 +52,10 @@ All runtime behavior is gated behind `gpKernelDesignerConfig->prestige` in [`ker
 | Default value | `gKernelDesigerConfig` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Enables Prestige by default so current projects keep the feature unless they disable it. |
 | Unit-menu availability | `PrestigeCommandUsability` in [`PrestigeCommand.c`](../../Data/UnitMenu/Source/PrestigeCommand.c) | Hides the command unless the config is enabled and the active unit satisfies the Prestige requirements. |
 | Prestige reset effect | `PrestigeCommandEffect` in [`PrestigeCommand.c`](../../Data/UnitMenu/Source/PrestigeCommand.c) | Increments `prestigeAmt`, resets level and stats, clears status, and restores HP. |
-| Growth bonus hook | `GetUnitCommonGrowthBonus` in [`GrowthGetter.c`](../../Kernel/Wizardry/Core/Lvup/Source/GrowthGetter.c) | Adds the per-Prestige growth bonus through the shared growth-bonus path used by all stats. |
-| Stat-screen stars | `DisplayPrestigeStars` and `DisplayLeftPanel` in [`DrawPageLeft.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPageLeft.c) | Draws up to three Prestige stars on the left stat-screen page when the feature is enabled. |
+| Growth bonus hook | `GetUnitCommonGrowthBonus` in [`GrowthGetter.c`](../../Kernel/Wizardry/Lvup/Source/GrowthGetter.c) | Adds the per-Prestige growth bonus through the shared growth-bonus path used by all stats. |
+| Stat-screen stars | `DisplayPrestigeStars` and `DisplayLeftPanel` in [`DrawPageLeft.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPageLeft.c) | Draws up to three Prestige stars on the left stat-screen page when the feature is enabled. |
 | BWL storage | `NewBwl` in [`bwl.h`](../../include/kernel/bwl.h) | Stores the persistent `prestigeAmt` counter used by the menu, growth bonus, and UI. |
-| Debug editing | `EditBwlStatsInit`, `SaveBwlStats`, and `EditBwlStatsIdle` in [`C_Code.c`](../../Kernel/Wizardry/Misc/VeslyDebugger/C_Code.c) | Lets the Vesly debugger inspect and edit the BWL Prestige counter directly. |
+| Debug editing | `EditBwlStatsInit`, `SaveBwlStats`, and `EditBwlStatsIdle` in [`C_Code.c`](../../Kernel/Wizardry/VeslyDebugger/C_Code.c) | Lets the Vesly debugger inspect and edit the BWL Prestige counter directly. |
 
 ## 📝 TODO
 

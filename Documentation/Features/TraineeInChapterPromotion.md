@@ -43,11 +43,11 @@ All runtime behaviour is gated behind `gpKernelDesignerConfig->promote_trainees_
 |--------|----------|-------------|
 | Designer config flag | `KernelDesigerConfig` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Adds the runtime boolean that enables or disables in-chapter trainee promotion. |
 | Default value | `gKernelDesigerConfig` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Enables the feature by default so current projects get immediate promotion unless they opt out. |
-| Level-up scroll hook | `ManimLevelUp_ScrollOut` in [`MapLvup.c`](../../Kernel/Wizardry/Common/Lvupfx/Lvupfx/MapLvup.c) | Checks for a level-10 trainee after the level-up screen finishes scrolling out and calls `StartBmPromotion` to begin the promotion flow. |
+| Level-up scroll hook | `ManimLevelUp_ScrollOut` in [`MapLvup.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c) | Checks for a level-10 trainee after the level-up screen finishes scrolling out and calls `StartBmPromotion` to begin the promotion flow. |
 | Promotion entry point | `StartBmPromotion` in `classchg.h` (vanilla) | Starts the full battle-map promotion proc, which internally routes trainee units through `PromoMain_SetupTraineeEvent` and `StartPromoTraineeEvent`. |
-| Trainee dialogue proc | `StartPromoTraineeEvent` / `ProcScr_PromoSelectEvent_NEW` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Runs the trainee-specific character dialogue and fade before handing off to class selection. |
-| Trainee message table | `sTraineePromoMsgLut` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Maps character IDs for Ross, Amelia, and Ewan to their respective trainee promotion dialogue strings. |
-| Trainee level cap | `CheckBattleUnitLevelUp` in [`Levelup.c`](../../Kernel/Wizardry/Core/Lvup/Source/Levelup.c) | Caps the trainee's level at 10 and disables further exp gain (`UNIT_EXP_DISABLED`) during battle exp processing. |
+| Trainee dialogue proc | `StartPromoTraineeEvent` / `ProcScr_PromoSelectEvent_NEW` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Runs the trainee-specific character dialogue and fade before handing off to class selection. |
+| Trainee message table | `sTraineePromoMsgLut` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Maps character IDs for Ross, Amelia, and Ewan to their respective trainee promotion dialogue strings. |
+| Trainee level cap | `CheckBattleUnitLevelUp` in [`Levelup.c`](../../Kernel/Wizardry/Lvup/Source/Levelup.c) | Caps the trainee's level at 10 and disables further exp gain (`UNIT_EXP_DISABLED`) during battle exp processing. |
 
 ## 📝 TODO
 

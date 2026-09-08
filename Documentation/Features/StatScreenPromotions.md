@@ -49,11 +49,11 @@ Features include:
 
 | Functionality | Location | Description |
 |--------------|----------|-------------|
-| **R-text redirection** | `HbRedirect_SSItem` inside `gpKernelDesignerConfig->stat_page_promotions` in [`DrawItemPage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawItemPage.c) | Routes the help box to promotion data |
-| **SMS + platforms** | `PageNumCtrl_DisplayMuPlatform` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Handles sprite/platform display |
-| **Promotion data & skill icons** | `unit_promotions` and `DrawPage7Rework` in [`DrawPage7.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage7.c) | Core promotion logic and drawing |
-| **R-text logic** | [`HelpBoxPage7.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBoxPage7.c) | Determines which promotion entry is being referenced |
-| **Page graphics** | `Gfx_StatScreenObj_9Pages.png` and related logic in `DisplayPageNameSprite` and `PageNumCtrl_UpdatePageNum` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Handles page titles and page number sprites |
+| **R-text redirection** | `HbRedirect_SSItem` inside `gpKernelDesignerConfig->stat_page_promotions` in [`DrawItemPage.c`](../../Kernel/Wizardry/StatScreen/DrawItemPage.c) | Routes the help box to promotion data |
+| **SMS + platforms** | `PageNumCtrl_DisplayMuPlatform` in [`DrawMorePage.c`](../../Kernel/Wizardry/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Handles sprite/platform display |
+| **Promotion data & skill icons** | `unit_promotions` and `DrawPage7Rework` in [`DrawPage7.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPage7.c) | Core promotion logic and drawing |
+| **R-text logic** | [`HelpBoxPage7.c`](../../Kernel/Wizardry/StatScreen/DrawPages/HelpBoxPage7.c) | Determines which promotion entry is being referenced |
+| **Page graphics** | `Gfx_StatScreenObj_9Pages.png` and related logic in `DisplayPageNameSprite` and `PageNumCtrl_UpdatePageNum` in [`DrawMorePage.c`](../../Kernel/Wizardry/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Handles page titles and page number sprites |
 
 ---
 
@@ -62,7 +62,7 @@ Features include:
 To edit promotion options:
 
 1. Open  
-   **[`DrawPage7.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage7.c)**  
+   **[`DrawPage7.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPage7.c)**  
 
 2. Find the `unit_promotions` array. Entries use the `UNIT_PROMOS` macro with `PROMO()` entries for each promotion option.
 

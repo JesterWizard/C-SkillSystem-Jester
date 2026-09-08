@@ -15,7 +15,7 @@
 
 `Data/CustomCampaign` is the custom story pack: chapters, events, maps, dialogue, world-map intros, and voice lines. Kernel wizardry stays outside this folder. If a chapter does not show the right map, units, text, or music, the usual cause is a missing wire between the chapter folder and one of the installers listed below.
 
-Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/custom_wizardry.event`, which includes `FE8Rewrite_Installer.event`.
+Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/wizardry.event`, which includes `FE8Rewrite_Installer.event`.
 
 ---
 

@@ -66,9 +66,9 @@ Gated by `gpKernelDesignerConfig->text_box_extension_layout` in [`designer-confi
 |--------|----------|-------------|
 | Mode helpers / page state | [`help-box.h`](../../include/kernel/help-box.h), `sHelpBoxPageState` in [`config-memmap.s`](../../include/link/config-memmap.s) | `HELP_BOX_MODE_*`, `HelpBoxModePaged()`, 8-byte page RAM |
 | Config docs on field | [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Comment block for modes 0/1/2 |
-| Page math, A input, gold `n/m`, scroll slice | [`HelpBoxHack.c`](../../Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.c) | `HelpBoxFinalizePageState`, `HbMoveCtrl_OnIdle`, `HelpBoxPutPageIndicatorSprites`, `HelpBoxTextScroll_OnLoop`, capacity page-0-only |
-| Safe VRAM + text intro | [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c) | `LoadHelpBoxGfx`, `HelpBoxIntroDrawTexts` (string count + skip) |
-| Lyn body placement | [`custom_wizardry.event`](../../Kernel/Wizardry/custom_wizardry.event) | Includes `HelpBoxHack.lyn.event` in FreeSpaceDEMO (kernel text is stubs only) |
+| Page math, A input, gold `n/m`, scroll slice | [`HelpBoxHack.c`](../../Kernel/Wizardry/CombatArt/HelpBoxFix/Source/HelpBoxHack.c) | `HelpBoxFinalizePageState`, `HbMoveCtrl_OnIdle`, `HelpBoxPutPageIndicatorSprites`, `HelpBoxTextScroll_OnLoop`, capacity page-0-only |
+| Safe VRAM + text intro | [`HelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawPages/HelpBox.c) | `LoadHelpBoxGfx`, `HelpBoxIntroDrawTexts` (string count + skip) |
+| Lyn body placement | [`wizardry.event`](../../Kernel/Wizardry/wizardry.event) | Includes `HelpBoxHack.lyn.event` in FreeSpaceDEMO (kernel text is stubs only) |
 
 ---
 

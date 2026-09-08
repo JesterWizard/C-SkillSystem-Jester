@@ -79,17 +79,17 @@ When false, Pair Up, Shelter, Transfer, and Switch are unavailable and their eff
 | Feature | Location | Description |
 |---------|----------|-------------|
 | Runtime flag | `pair_up_enabled` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) / [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Enables the four pair-up commands |
-| Pair state | `PairUp_Attach`, `PairUp_Separate`, `PairUp_GetLeader`, and `PairUp_GetSupport` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Reads and updates the rescue-backed leader/support relationship |
-| Pair and Shelter actions | `ActionRescue` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Applies Pair Up or Shelter mode and updates the active unit |
-| Transfer | `PairUp_Transfer` and `PairUp_TransferOnSelect` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Moves companions between adjacent leaders |
-| Switch | `PairUp_Switch` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Exchanges leader/support state and active-unit tracking |
-| Stat calculation | `PairUp_GetStatBonus` and `PairUp_RescueStatScale` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Applies the rounded 30% bonuses |
-| Movement bonus | `_GetUnitMov` in [`MovGetter.c`](../../Kernel/Wizardry/Core/UnitStatusGetter/source/MovGetter.c) | Applies the pair-up MOV contribution |
-| Target preview | `PairUp_DrawStatPreview` and `PairUp_SelectionOnSwitchIn` in [`PairUp.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUp.c) | Draws and refreshes the live stat preview |
-| Selection callbacks | `gSelectInfo_PairUp` in [`PairUpSelectInfo.c`](../../Kernel/Wizardry/Misc/PairUp/Source/PairUpSelectInfo.c) | Connects target selection to the custom preview |
+| Pair state | `PairUp_Attach`, `PairUp_Separate`, `PairUp_GetLeader`, and `PairUp_GetSupport` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Reads and updates the rescue-backed leader/support relationship |
+| Pair and Shelter actions | `ActionRescue` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Applies Pair Up or Shelter mode and updates the active unit |
+| Transfer | `PairUp_Transfer` and `PairUp_TransferOnSelect` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Moves companions between adjacent leaders |
+| Switch | `PairUp_Switch` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Exchanges leader/support state and active-unit tracking |
+| Stat calculation | `PairUp_GetStatBonus` and `PairUp_RescueStatScale` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Applies the rounded 30% bonuses |
+| Movement bonus | `_GetUnitMov` in [`MovGetter.c`](../../Kernel/Wizardry/UnitStatusGetter/source/MovGetter.c) | Applies the pair-up MOV contribution |
+| Target preview | `PairUp_DrawStatPreview` and `PairUp_SelectionOnSwitchIn` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Draws and refreshes the live stat preview |
+| Selection callbacks | `gSelectInfo_PairUp` in [`PairUpSelectInfo.c`](../../Kernel/Wizardry/PairUp/Source/PairUpSelectInfo.c) | Connects target selection to the custom preview |
 | Unit-menu commands | Pair-up rows in [`UnitMenu.c`](../../Data/UnitMenu/Source/UnitMenu.c) | Registers Pair Up, Shelter, Transfer, and Switch |
 | Command text | Pair-up messages in [`Skills_Menu.txt`](../../Contents/Texts/Source/texts/Skills_Menu.txt) | Defines names and descriptions |
-| Event installation | [`PairUp.event`](../../Kernel/Wizardry/Misc/PairUp/PairUp.event) | Includes the generated pair-up code and selection data |
+| Event installation | [`PairUp.event`](../../Kernel/Wizardry/PairUp/PairUp.event) | Includes the generated pair-up code and selection data |
 
 ---
 

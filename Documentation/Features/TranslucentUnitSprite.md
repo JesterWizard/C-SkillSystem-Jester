@@ -55,10 +55,10 @@ Gated by `gpKernelDesignerConfig->alpha_blend_movement_sprites` in [`designer-co
 | Feature | Location | Description |
 |--------|----------|-------------|
 | Config field | [`kernel-lib.h`](../../include/kernel/kernel-lib.h), [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | `alpha_blend_movement_sprites` toggle |
-| Ghost draw + blend | [`RemoveMovePath.c`](../../Kernel/Wizardry/Essentials/RemoveMovePath/Source/RemoveMovePath.c) | `ApplyPathfindingBlend`, `DisplayBlendedMuAp`, `DrawPathfindingUnitGhost`; hooked from `DrawUpdatedPathArrow` |
+| Ghost draw + blend | [`RemoveMovePath.c`](../../Kernel/Wizardry/RemoveMovePath/Source/RemoveMovePath.c) | `ApplyPathfindingBlend`, `DisplayBlendedMuAp`, `DrawPathfindingUnitGhost`; hooked from `DrawUpdatedPathArrow` |
 | Path / movement script | Same file | `PlayerPhase_DisplayUnitMovement` respects `remove_move_path` |
 | EWRAM obj scratch | `sPathfindingGhostObjBuf` in [`config-memmap.s`](../../include/link/config-memmap.s) | 50 bytes for the blended sprite obj list |
-| Install | [`RemoveMovePath.event`](../../Kernel/Wizardry/Essentials/RemoveMovePath/RemoveMovePath.event) via [`wizardry.event`](../../Kernel/Wizardry/wizardry.event) | Ships with essentials |
+| Install | [`RemoveMovePath.event`](../../Kernel/Wizardry/RemoveMovePath/RemoveMovePath.event) via [`wizardry.event`](../../Kernel/Wizardry/wizardry.event) | Ships with essentials |
 
 ---
 

@@ -33,7 +33,7 @@ Inside [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c) set
 
 Inside each chapter definition, set `.goalWindowDataType = GOAL_TYPE_ESCAPE` for any chapter that should display and use the escape objective.
 
-For the current setup, escape tiles are checked in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) and chapter 0 is wired to use the escape ending flow. The current implementation uses a fixed escape coordinate of `3, 3` for the configured chapters.
+For the current setup, escape tiles are checked in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) and chapter 0 is wired to use the escape ending flow. The current implementation uses a fixed escape coordinate of `3, 3` for the configured chapters.
 
 To show the escape tiles visually, add a trap entry in that chapter's trap header at the same coordinates as the escape tile. Chapters that use traps keep them in `events/traps.h` (see [`Chapters/01/events/traps.h`](../../../Data/CustomCampaign/Chapters/01/events/traps.h)). Keep trap coordinates aligned with the values returned by `IsEscapeTile`.
 
@@ -58,13 +58,13 @@ To add a new escape chapter, update the chapter’s goal type, make sure the cha
 |--------|----------|-------------|
 | **Enable escape objective** | `.goal_escape` in [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c) | Master config flag for the escape system |
 | **Chapter goal type** | `.goalWindowDataType = GOAL_TYPE_ESCAPE` in [`chapter.c`](../../../Data/CustomCampaign/Chapters/00/events/chapter.c) | Marks a chapter as using the escape objective |
-| **Goal display handling** | `GOAL_TYPE_ESCAPE` in [`GoalDisplay.c`](../../../Kernel/Wizardry/Misc/Goals/GoalDisplay.c) | Displays the escape text in the goal window |
-| **Escape entry point** | `PostAction_Escape` in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) | Runs after a unit finishes an action and starts the escape flow |
-| **Escape tile check** | `IsEscapeTile` in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) | Verifies whether the current chapter tile is a valid escape tile |
-| **Remove escaped unit** | `RemoveActiveUnitASMC` in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) | Removes the active unit from the map while keeping roster data intact |
-| **Count remaining players** | `CheckPlayersRemainingASMC` in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) | Recounts deployed blue units after each escape |
-| **Choose ending event** | `CallEscapeEndingEventASMC` in [`Escape.c`](../../../Kernel/Wizardry/Misc/Goals/Escape.c) | Selects the chapter-specific ending event based on the current chapter |
-| **Post-action hook** | `PostAction_Escape` in [`data.event`](../../../Kernel/Wizardry/Common/PostActionHook/data.event) | Registers the escape flow with the post-action hook list |
+| **Goal display handling** | `GOAL_TYPE_ESCAPE` in [`GoalDisplay.c`](../../../Kernel/Wizardry/Goals/GoalDisplay.c) | Displays the escape text in the goal window |
+| **Escape entry point** | `PostAction_Escape` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Runs after a unit finishes an action and starts the escape flow |
+| **Escape tile check** | `IsEscapeTile` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Verifies whether the current chapter tile is a valid escape tile |
+| **Remove escaped unit** | `RemoveActiveUnitASMC` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Removes the active unit from the map while keeping roster data intact |
+| **Count remaining players** | `CheckPlayersRemainingASMC` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Recounts deployed blue units after each escape |
+| **Choose ending event** | `CallEscapeEndingEventASMC` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Selects the chapter-specific ending event based on the current chapter |
+| **Post-action hook** | `PostAction_Escape` in [`data.event`](../../../Kernel/Wizardry/PostActionHook/data.event) | Registers the escape flow with the post-action hook list |
 
 ---
 

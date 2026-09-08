@@ -43,11 +43,11 @@ Enemy AI reuses this calculation through a separate vision map; see [Enemy Fog V
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Vision range logic** | `GetUnitFogViewRange` in [`FogVision.c`](../../Kernel/Wizardry/Common/FogVision/FogVision.c) | Controls how far each unit can see under fog |
+| **Vision range logic** | `GetUnitFogViewRange` in [`FogVision.c`](../../Kernel/Wizardry/FogVision/FogVision.c) | Controls how far each unit can see under fog |
 | **Enemy AI consumer** | [Enemy Fog Vision](EnemyFogVision.md) | Applies the same range table to non-player faction vision |
-| **Vision value text on stat screen** | `DrawPage1TextCommon` in [`Page1WithBwl.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) or `DrawPage1TextCommon` in [`Page1WithLeadership.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.c) | Writes the fog vision number |
-| **Vision bar on stat screen** | `DisplayPage_WithBWL` in [`Page1WithBwl.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) or `DisplayPage_WithLeadership` in [`Page1WithLeadership.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.c) | Draws the graphical vision bar |
-| **Help box navigation links** | `RText` arrays in [`Page1WithBwlHelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwlHelpBox.c) or [`Page1WithLeadershipHelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanB/Page1WithLeadershipHelpBox.c) | Controls which help boxes appear when cycling through stats |
+| **Vision value text on stat screen** | `DrawPage1TextCommon` in [`Page1WithBwl.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) or `DrawPage1TextCommon` in [`Page1WithLeadership.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.c) | Writes the fog vision number |
+| **Vision bar on stat screen** | `DisplayPage_WithBWL` in [`Page1WithBwl.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) or `DisplayPage_WithLeadership` in [`Page1WithLeadership.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanB/Page1WithLeadership.c) | Draws the graphical vision bar |
+| **Help box navigation links** | `RText` arrays in [`Page1WithBwlHelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanA/Page1WithBwlHelpBox.c) or [`Page1WithLeadershipHelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanB/Page1WithLeadershipHelpBox.c) | Controls which help boxes appear when cycling through stats |
 
 ---
 

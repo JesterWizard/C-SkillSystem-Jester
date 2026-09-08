@@ -84,7 +84,7 @@ For a new type, also:
 
 1. Add its `GFX_WtypeIcon_*` entry to `gWTypeIcons` in [`IconTable.c`](../../Data/Misc/IconTable.c).
 2. Add a text entry such as `MSG_WTYPE_KNIFE` in [`Items.txt`](../../Contents/Texts/Source/texts/Items.txt).
-3. Add the type to `GetWeaponTypeDisplayString` in [`ItemInfos.c`](../../Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/ItemInfos.c).
+3. Add the type to `GetWeaponTypeDisplayString` in [`ItemInfos.c`](../../Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ItemInfos.c).
 4. Add its weapon-rank help text/configuration if it appears on the stat screen.
 
 `ITYPE_KNIFE` and `ITYPE_GUN` reuse vanilla monster-weapon IDs `11` and `12`. UI code must distinguish a custom weapon with `IA_WEAPON` from an actual monster/non-weapon entry. The menu panel and item help paths already make this distinction.
@@ -98,17 +98,17 @@ All dynamic remapping is gated behind `gpKernelDesignerConfig->dynamic_weapon_sl
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Config flag** | `dynamic_weapon_slots` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) / [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Enables class slot overrides |
-| **API** | helpers in [`weapon-slots.h`](../../include/kernel/weapon-slots.h) / [`weapon-slots.c`](../../Kernel/Wizardry/Common/WeaponSlots/Source/weapon-slots.c) | Slot lookup, get/set WEXP, init, remap |
+| **API** | helpers in [`weapon-slots.h`](../../include/kernel/weapon-slots.h) / [`weapon-slots.c`](../../Kernel/Wizardry/WeaponSlots/Source/weapon-slots.c) | Slot lookup, get/set WEXP, init, remap |
 | **Class overrides** | `gClassWeaponSlotConf` in [`WeaponSlots.c`](../../Data/WeaponSlots/WeaponSlots.c) | Sparse slot→type mappings and optional per-slot default WEXP |
-| **Unit load** | `InitUnitWeaponRanks` via [`LoadUnit.c`](../../Kernel/Wizardry/Common/UnitHooks/Source/LoadUnit.c) | Seeds ranks from class/character using the slot map |
-| **Promotion** | `RemapUnitWeaponRanksOnClassChange` in [`Promotion.c`](../../Kernel/Wizardry/Core/Lvup/Source/Promotion.c) | Type-preserving WEXP across promotion |
-| **Reclass** | same remap in [`VeslyReclass/C_Code.c`](../../Kernel/Wizardry/Misc/VeslyReclass/C_Code.c) | Type-preserving WEXP across reclass |
+| **Unit load** | `InitUnitWeaponRanks` via [`LoadUnit.c`](../../Kernel/Wizardry/UnitHooks/Source/LoadUnit.c) | Seeds ranks from class/character using the slot map |
+| **Promotion** | `RemapUnitWeaponRanksOnClassChange` in [`Promotion.c`](../../Kernel/Wizardry/Lvup/Source/Promotion.c) | Type-preserving WEXP across promotion |
+| **Reclass** | same remap in [`VeslyReclass/C_Code.c`](../../Kernel/Wizardry/VeslyReclass/C_Code.c) | Type-preserving WEXP across reclass |
 | **Usability / WEXP** | `CanUnitUseWeapon` / `GetBattleUnitUpdatedWeaponExp` and related battle hooks | Rank checks and writes through the API |
 | **Stat screen** | `DrawSkillPage_MokhaPlanA` / `PlanB` | Enumerates mapped weapon types for display |
 | **Weapon-type icons** | `gWTypeIcons` in [`IconTable.c`](../../Data/Misc/IconTable.c) and PNGs in [`WtypeIcon`](../../Contents/Gfx/Sources/WtypeIcon) | Maps custom type IDs to generated rank/panel graphics |
-| **Weapon-type names** | `GetWeaponTypeDisplayString` in [`ItemInfos.c`](../../Kernel/Wizardry/Common/ItemSys/ItemInfoRemap/Source/ItemInfos.c) and messages in [`Items.txt`](../../Contents/Texts/Source/texts/Items.txt) | Provides bounded custom type labels for weapon help |
-| **Item-help classification** | `GetHelpBoxItemInfoKind` in [`HelpBoxHack.c`](../../Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.c) | Treats `IA_WEAPON` custom types as normal weapon help entries |
-| **Equipment panel** | `UpdateMenuItemPanel` in [`hooks.c`](../../Kernel/Wizardry/Common/IconDisplay/Source/hooks.c) | Prevents types `11`/`12` with `IA_WEAPON` from taking the vanilla item/monster path |
+| **Weapon-type names** | `GetWeaponTypeDisplayString` in [`ItemInfos.c`](../../Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ItemInfos.c) and messages in [`Items.txt`](../../Contents/Texts/Source/texts/Items.txt) | Provides bounded custom type labels for weapon help |
+| **Item-help classification** | `GetHelpBoxItemInfoKind` in [`HelpBoxHack.c`](../../Kernel/Wizardry/CombatArt/HelpBoxFix/Source/HelpBoxHack.c) | Treats `IA_WEAPON` custom types as normal weapon help entries |
+| **Equipment panel** | `UpdateMenuItemPanel` in [`hooks.c`](../../Kernel/Wizardry/IconDisplay/Source/hooks.c) | Prevents types `11`/`12` with `IA_WEAPON` from taking the vanilla item/monster path |
 | **Init validation** | `GameInit_ValidateWeaponSlots` | Duplicate/invalid type checks when enabled |
 
 ---

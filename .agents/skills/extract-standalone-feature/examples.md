@@ -4,10 +4,10 @@ This dry-run validates the extraction skill against a second feature **without i
 
 ## Feature trace
 
-- Integrated source: `Kernel/Wizardry/Misc/Biorhythm/Biorhythm.c`
-- Installer: `Kernel/Wizardry/Misc/Biorhythm/Biorhythm_Installer.event`
-- Generated body: `Kernel/Wizardry/Misc/Biorhythm/Biorhythm.lyn.event`
-- Runtime entry: `GetBiorhythmBonus()` called from `Kernel/Wizardry/Core/BattleSys/Source/PreBattleCalc.c`
+- Integrated source: `Kernel/Wizardry/Biorhythm/Biorhythm.c`
+- Installer: `Kernel/Wizardry/Biorhythm/Biorhythm_Installer.event`
+- Generated body: `Kernel/Wizardry/Biorhythm/Biorhythm.lyn.event`
+- Runtime entry: `GetBiorhythmBonus()` called from `Kernel/Wizardry/BattleSys/Source/PreBattleCalc.c`
 - Data: `gBiorhythmPInfoConfigList[0x100]`
 
 ## Dependency closure

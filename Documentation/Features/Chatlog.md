@@ -80,13 +80,13 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Ring buffer + overlay UI | `Chatlog_*` in [`Chatlog.c`](../../Kernel/Wizardry/Misc/Chatlog/Source/Chatlog.c) | Capture API, SELECT toggle, blend/draw, DPAD scroll, SUS save/load |
-| Talk input gates | `TalkWaitForInput_OnIdle`, `TalkSkipListener_OnIdle` in [`Chatlog.c`](../../Kernel/Wizardry/Misc/Chatlog/Source/Chatlog.c) | Block A/B/DPAD Talk advance while the log is open |
-| Glyph capture | `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Pause printing while visible; append each printed character |
-| Page commit hooks | `TalkInterpret` / `Talk_OnInit_C` / `Talk_OnEnd_C` in [`TextEngineRework.c`](../../Kernel/Wizardry/Misc/TextEngineRework/Source/TextEngineRework.c) | `[N]` / `[A]` capture, start/end chatlog session |
+| Ring buffer + overlay UI | `Chatlog_*` in [`Chatlog.c`](../../Kernel/Wizardry/Chatlog/Source/Chatlog.c) | Capture API, SELECT toggle, blend/draw, DPAD scroll, SUS save/load |
+| Talk input gates | `TalkWaitForInput_OnIdle`, `TalkSkipListener_OnIdle` in [`Chatlog.c`](../../Kernel/Wizardry/Chatlog/Source/Chatlog.c) | Block A/B/DPAD Talk advance while the log is open |
+| Glyph capture | `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Pause printing while visible; append each printed character |
+| Page commit hooks | `TalkInterpret` / `Talk_OnInit_C` / `Talk_OnEnd_C` in [`TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[N]` / `[A]` capture, start/end chatlog session |
 | EWRAM reservation | [`config-memmap.s`](../../include/link/config-memmap.s) | `_kernel_malloc2` for `sChatLogState` and `sChatlogUiState` |
-| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/Common/SaveData/data.event) | SUS-only `0x444` EMS chunk |
-| Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/Common/ChapterInitHook/data.event) | Wipe history on chapter start |
+| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | SUS-only `0x444` EMS chunk |
+| Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/ChapterInitHook/data.event) | Wipe history on chapter start |
 | Public API | [`chatlog.h`](../../include/kernel/chatlog.h) | Caps, structs, and hook entry points |
 | Runtime toggle | `chatlog_enabled` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Gates `Chatlog_StartSession` and glyph capture |
 

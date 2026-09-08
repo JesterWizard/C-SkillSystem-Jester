@@ -44,8 +44,8 @@ in each case, a different dialogue label from ``character_description_strings`` 
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Description quotes** | [`VariableCharacterDescriptions.txt`](../../Contents/Texts/Source/texts/FE8_Rewritten/VariableCharacterDescriptions.txt) | Holds all the text strings and labels for the character descriptions |
-| **Description quote struct** | `character_description_strings` in [`MiscHooks.c`](../../Kernel/Wizardry/Common/Lvupfx/Lvupfx/MiscHooks.c) | The struct that we reference for the labels |
-| **Description display logic** | `HbPopulate_SSCharacter` in [`MiscHooks.c`](../../Kernel/Wizardry/Common/Lvupfx/Lvupfx/MiscHooks.c) | Handles the description to display based on the parameters defined in the switch case |
+| **Description quote struct** | `character_description_strings` in [`MiscHooks.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/MiscHooks.c) | The struct that we reference for the labels |
+| **Description display logic** | `HbPopulate_SSCharacter` in [`MiscHooks.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/MiscHooks.c) | Handles the description to display based on the parameters defined in the switch case |
 
 ---
 

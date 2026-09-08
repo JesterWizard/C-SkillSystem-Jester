@@ -42,7 +42,7 @@ This creates dynamic, high-tension gameplay: careless unit deaths now empower th
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Enemy promotion logic** | `CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT` section inside `BattleGenerateHit` — [`BattleHit.c`](../../Kernel/Wizardry/Core/BattleSys/Source/BattleHit.c) | Handles enemy auto-promotion after killing a player unit |
+| **Enemy promotion logic** | `CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT` section inside `BattleGenerateHit` — [`BattleHit.c`](../../Kernel/Wizardry/BattleSys/Source/BattleHit.c) | Handles enemy auto-promotion after killing a player unit |
 
 ---
 

@@ -48,10 +48,10 @@ To update the installation script, simply run ``make generate_unit_sfx`` from th
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **dmp folder** | All folders in [`./dmp`](../../Kernel/Wizardry/Misc/UnitSelectionSFX/dmp/) | Folder containing all the various .s files and their associated dmps for installation |
-| **Python script** | [`generate_sfx_event.py`](../../Kernel/Wizardry/Misc/UnitSelectionSFX/generate_sfx_event.py) | This automates the installation process using music ids in the range ``0x26D-0x2BB, 0x385-0x3AB, 0x3D7-0x3E4``  |
+| **dmp folder** | All folders in [`./dmp`](../../Kernel/Wizardry/UnitSelectionSFX/dmp/) | Folder containing all the various .s files and their associated dmps for installation |
+| **Python script** | [`generate_sfx_event.py`](../../Kernel/Wizardry/UnitSelectionSFX/generate_sfx_event.py) | This automates the installation process using music ids in the range ``0x26D-0x2BB, 0x385-0x3AB, 0x3D7-0x3E4``  |
 | **Installer event file** | [`UnitSelectionSFX_Installer.event`](../../Kernel/Wizardry//Misc//UnitSelectionSFX/UnitSelectionSFX_Installer.event) | The output of the python file which adds the unit selection dmps to the song table |
-| **UnitBeginAction loop** | ``CONFIG_UNIT_SELECTION_QUOTES`` inside ``UnitBeginAction`` in [`BeginActionHook.c`](../../Kernel/Wizardry/Common/BeginActionHook/Source/BeginActionHook.c) | Handles the selection of the voiced quote and the control of the BGM volume |
+| **UnitBeginAction loop** | ``CONFIG_UNIT_SELECTION_QUOTES`` inside ``UnitBeginAction`` in [`BeginActionHook.c`](../../Kernel/Wizardry/BeginActionHook/Source/BeginActionHook.c) | Handles the selection of the voiced quote and the control of the BGM volume |
 
 ---
 

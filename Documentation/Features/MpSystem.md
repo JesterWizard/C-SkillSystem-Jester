@@ -55,9 +55,9 @@ The default Gaiden system tried to display magic as items, which becomes problem
 |--------|----------|-------------|
 | **MP costs** | `gGaidenWeaponCostList` in [`GaidenMagicData.c`](../../Data/GaidenMagic/GaidenMagicData.c) | MP cost per Gaiden magic |
 | **MP configuration per unit** | `gGaidenPinfoConfigList` in [`GaidenMagicData.c`](../../Data/GaidenMagic/GaidenMagicData.c) | Unit MP stats and growth behavior |
-| **Stat screen: MP cost colors** | `PutGaidenCost` in [`DrawPage5.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage5.c) | Colors MP values based on affordability |
-| **Stat screen: White Magic list** | `WhiteMagicList` in [`DrawPage5.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage5.c) | Displays white magic on page 5 |
-| **Stat screen: Black Magic list** | `BlackMagicList` in [`DrawPage5.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPage5.c) | Displays black magic on page 5 |
+| **Stat screen: MP cost colors** | `PutGaidenCost` in [`DrawPage5.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPage5.c) | Colors MP values based on affordability |
+| **Stat screen: White Magic list** | `WhiteMagicList` in [`DrawPage5.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPage5.c) | Displays white magic on page 5 |
+| **Stat screen: Black Magic list** | `BlackMagicList` in [`DrawPage5.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPage5.c) | Displays black magic on page 5 |
 | **MP generation** | `gMpSystemPInfoConfigList` in [`MpSystem.c`](../../Data/MpSystem/MpSystem.c) | MP gain per turn/battle |
 
 ---
@@ -76,7 +76,7 @@ Please report issues in the repository’s **Issues** tab.
 
 ### Known Issues
 
-- Getter functions `GetUnitCurrentMP` and `GetUnitMaxMP` (from [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c)) exist,  
+- Getter functions `GetUnitCurrentMP` and `GetUnitMaxMP` (from [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c)) exist,  
   **but are not fully compatible** with the MP display module:
 
   - The MP minimug display is handled in  

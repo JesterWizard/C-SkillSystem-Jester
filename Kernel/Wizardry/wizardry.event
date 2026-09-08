@@ -1,85 +1,261 @@
+#ifdef WIZARDRY_DATA
+/**
+ * Some file should put at head since it holds some macros
+ */
+ALIGN 4
+KERNEL_DATA_START:
+
+#include "EventRework/data.event"
+#include "ArmFunc/data.event"
+#include "UnitAction/data.event"
+#include "ChapterInitHook/data.event"
+#include "GameInitHook/data.event"
+#include "IconDisplay/data.event"
+#include "KernelLib/data.event"
+#include "MapAnims/data.event"
+#include "EndTurnHook/data.event"
+#include "PostActionHook/data.event"
+#include "PrePhaseHook/data.event"
+#include "SaveData/data.event"
+#include "UnitHooks/data.event"
+#include "ItemSys/ItemSysData.event"
+#include "FogVision/FogVision_Installer.event"
+#include "MagicSealVisual/MagicSealVisual_Installer.event"
+#include "KillRewards/KillRewards.lyn.event"
+#include "TrapData/TrapData_Installer.event"
+
+#include "BattleSys/data.event"
+#include "MapTask/data.event"
+#include "DebuffRework/data.event"
+#include "StatScreen/data.event"
+#include "UnitStatusGetter/data.event"
+#include "WeaponRange/data.event"
+#include "AiHack/data.event"
+#include "CombatArt/data.event"
+#include "Movement/MovementData.event"
+#include "Reorganize/data.event"
+
+KERNEL_DATA_END:
+#endif /* WIZARDRY_DATA */
+
+#ifdef WIZARDRY_TEXT
 ALIGN 4
 
 // Some messed hooks
-#include "Core/DebuffRework/Source/MiscHooks.event"
-#include "Core/UnitStatusGetter/source/InjectHPGetters.event"
-#include "Core/UnitStatusGetter/source/InjectMovGetters.event"
-#include "Core/WeaponRange/Source/MiscHooksWeaponRange.event"
+#include "DebuffRework/Source/MiscHooks.event"
+#include "UnitStatusGetter/source/InjectHPGetters.event"
+#include "UnitStatusGetter/source/InjectMovGetters.event"
+#include "WeaponRange/Source/MiscHooksWeaponRange.event"
 
-#include "Essentials/EfxMagicDummyFix/EfxMagicDummyFix.event"
-#include "Essentials/LeaderFix/LeaderFix.event"
-#include "Essentials/RemoveMovePath/RemoveMovePath.event"
-#include "Essentials/UnitLimitation/UnitLimitation.event"
-#include "Essentials/BanimHpDrainFix/BanimHpDrainFix.event"
-#include "Essentials/BattleForcastFix/BattleForcastFix.event"
-#include "Essentials/LoadUnitFix/LoadUnitFix.event"
-#include "Essentials/FebPatches/FebPatches.event"
+#include "EfxMagicDummyFix/EfxMagicDummyFix.event"
+#include "LeaderFix/LeaderFix.event"
+#include "RemoveMovePath/RemoveMovePath.event"
+#include "UnitLimitation/UnitLimitation.event"
+#include "BanimHpDrainFix/BanimHpDrainFix.event"
+#include "BattleForcastFix/BattleForcastFix.event"
+#include "LoadUnitFix/LoadUnitFix.event"
+#include "FebPatches/FebPatches.event"
 
-#include "Common/AI/AI.event"
-#include "Common/Arena/Arena.event"
-#include "Common/OverflowDetection/OverflowDetection.event"
-#include "Common/AntiHuffman/AntiHuffman.event"
-#include "Common/PopupRework/PopupRework.event"
-#include "Common/EventRework/EventRework.event"
-#include "Common/UnitAction/UnitAction.event"
-#include "Common/GameInitHook/GameInitHook.event"
-#include "Common/DebugKit/DebugKit.event"
-#include "Common/KernelLib/KernelLib.event"
-#include "Common/ArmFunc/ArmFunc.event"
-#include "Common/BanimHack/BanimHack.event"
-#include "Common/BwlRework/BwlRework.event"
-#include "Common/ItemSys/ItemSys.event"
-#include "Common/ClassTypes/ClassTypes.event"
-#include "Common/WeaponSlots/WeaponSlots.event"
-#include "Common/RN/RandNumberC.lyn.event"
-#include "Common/MoveLimitViewHack/MoveLimitViewHack.event"
-#include "Common/IconDisplay/IconDisplay.event"
-#include "Common/NegativeStatBoosts/NegativeStatBoosts.event"
-#include "Common/UnitMenu/UnitMenu.event"
-#include "Common/EndTurnHook/EndTurnHook.event"
-#include "Common/PostActionHook/PostActionHook.event"
-#include "Common/StartMapEffects/StartMapEffects.event"
-#include "Common/ChapterInitHook/ChapterInitHook.event"
-#include "Common/StrMagSplit/StrMagSplit.event"
-#include "Common/SaveData/SaveData.event"
-#include "Common/UnitHooks/UnitHooks.event"
-#include "Common/Lvupfx/Lvupfx.event"
-#include "Common/UnitExpa/UnitExpa.event"
-#include "Common/PrePhaseHook/PrePhaseHook.event"
-#include "Common/BanimSync/BanimSync.event"
-#include "Common/KernelTutorial/KernelTutorial.event"
-#include "Common/BeginActionHook/BeginActionHook.event"
-#include "Common/MapAnimBattleHook/MapAnimBattleHook.event"
-#include "Common/MapAnims/MapAnims.event"
-#include "Common/Utf8/Utf8.event"
-#include "Common/PlayStExpa/PlayStExpa.event"
-#include "Common/FebCompat/FebCompat.event"
-#include "Common/ExtrasMenu/ExtrasMenu_Installer.event"
-#include "Common/UnitTarget/UnitTarget.event"
-#include "Common/UnitSelection/UnitSelection.event"
+#include "AI/AI.event"
+#include "Arena/Arena.event"
+#include "OverflowDetection/OverflowDetection.event"
+#include "AntiHuffman/AntiHuffman.event"
+#include "PopupRework/PopupRework.event"
+#include "EventRework/EventRework.event"
+#include "UnitAction/UnitAction.event"
+#include "GameInitHook/GameInitHook.event"
+#include "DebugKit/DebugKit.event"
+#include "KernelLib/KernelLib.event"
+#include "ArmFunc/ArmFunc.event"
+#include "BanimHack/BanimHack.event"
+#include "BwlRework/BwlRework.event"
+#include "ItemSys/ItemSys.event"
+#include "ClassTypes/ClassTypes.event"
+#include "WeaponSlots/WeaponSlots.event"
+#include "RN/RandNumberC.lyn.event"
+#include "MoveLimitViewHack/MoveLimitViewHack.event"
+#include "IconDisplay/IconDisplay.event"
+#include "NegativeStatBoosts/NegativeStatBoosts.event"
+#include "UnitMenu/UnitMenu.event"
+#include "EndTurnHook/EndTurnHook.event"
+#include "PostActionHook/PostActionHook.event"
+#include "StartMapEffects/StartMapEffects.event"
+#include "ChapterInitHook/ChapterInitHook.event"
+#include "StrMagSplit/StrMagSplit.event"
+#include "SaveData/SaveData.event"
+#include "UnitHooks/UnitHooks.event"
+#include "Lvupfx/Lvupfx.event"
+#include "UnitExpa/UnitExpa.event"
+#include "PrePhaseHook/PrePhaseHook.event"
+#include "BanimSync/BanimSync.event"
+#include "KernelTutorial/KernelTutorial.event"
+#include "BeginActionHook/BeginActionHook.event"
+#include "MapAnimBattleHook/MapAnimBattleHook.event"
+#include "MapAnims/MapAnims.event"
+#include "Utf8/Utf8.event"
+#include "PlayStExpa/PlayStExpa.event"
+#include "FebCompat/FebCompat.event"
+#include "ExtrasMenu/ExtrasMenu_Installer.event"
+#include "UnitTarget/UnitTarget.event"
+#include "UnitSelection/UnitSelection.event"
 
-#include "Core/SkillSys/SkillSys.event"
-#include "Core/DebuffRework/DebuffRework.event"
-#include "Core/WeaponRange/WeaponRange.event"
-#include "Core/UnitStatusGetter/UnitStatusGetter.event"
-#include "Core/BattleSys/BattleSys.event"
-#include "Core/Lvup/Lvup.event"
-#include "Core/StatScreen/StatScreen.event"
-#include "Core/MapTask/MapTask.event"
-#include "Core/CombatArt/CombatArt.event"
-#include "Core/ComboAttack/ComboAttack.event"
-#include "Misc/PairUp/PairUp.event"
-#include "Core/Movement/Movement.event"
-#include "Core/AiHack/AiHack.event"
-#include "Core/WorldMap/WorldMap_Installer.event"
+#include "SkillSys/SkillSys.event"
+#include "DebuffRework/DebuffRework.event"
+#include "WeaponRange/WeaponRange.event"
+#include "UnitStatusGetter/UnitStatusGetter.event"
+#include "BattleSys/BattleSys.event"
+#include "Lvup/Lvup.event"
+#include "StatScreen/StatScreen.event"
+#include "MapTask/MapTask.event"
+#include "CombatArt/CombatArt.event"
+#include "ComboAttack/ComboAttack.event"
+#include "PairUp/PairUp.event"
+#include "Movement/Movement.event"
+#include "AiHack/AiHack.event"
+#include "WorldMap/WorldMap_Installer.event"
 
-#include "Misc/SkillEffects/MiscSkillEffects.event"
-#include "Misc/GaidenMagic/GaidenMagic.event"
-#include "Misc/Reorganize/Reorganize.event"
-#include "Misc/Shield/Shield.event"
-#include "Misc/PortraitHeight/PortraitHeight.event"
-#include "Misc/EasterEgg/EasterEgg.event"
-#include "Misc/JobGrowth/JobGrowth.lyn.event"
-#include "Misc/MiscFunctions/MiscFunctions.event"
-#include "Misc/ConvoyExpa/ConvoyExpa.event"
-#include "Misc/PhaseSuspend/PhaseSuspend.event"
+#include "SkillEffects/MiscSkillEffects.event"
+#include "GaidenMagic/GaidenMagic.event"
+#include "Reorganize/Reorganize.event"
+#include "Shield/Shield.event"
+#include "PortraitHeight/PortraitHeight.event"
+#include "EasterEgg/EasterEgg.event"
+#include "JobGrowth/JobGrowth.lyn.event"
+#include "MiscFunctions/MiscFunctions.event"
+#include "ConvoyExpa/ConvoyExpa.event"
+#include "PhaseSuspend/PhaseSuspend.event"
+#endif /* WIZARDRY_TEXT */
+
+#ifdef WIZARDRY_CUSTOM
+#ifdef CONFIG_FE8_REWRITE
+    #include "../../Data/CustomCampaign/FE8Rewrite_Installer.event"
+#endif
+
+/**
+ * Help-box lyn bodies (paginated/extended). Kept out of KernelSpace_Text.
+ * LynJump stubs remain in CombatArt/HelpBoxFix/HelpBoxFix.event.
+ */
+#include "CombatArt/HelpBoxFix/Source/HelpBoxHack.lyn.event"
+
+#ifdef CONFIG_CUSTOM_GUIDE
+    #include "Guide/GuideTable.event"
+#endif
+
+#include "Quotes/Quotes.event"
+
+#include "GameOver/GameOver.event"
+
+#include "Supports/Supports_Installer.event"
+
+#include "VeslyDebugger/VeslyDebugger_Installer.event"
+
+#include "VeslyDangerBones/VeslyDangerBones_Installer.event"
+
+#include "VeslySupportPostBattle/VeslySupportPostBattle_Installer.event"
+
+#include "VeslyAnimsFastForward/VeslyAnimsFastForward_Installer.event"
+
+#ifdef CONFIG_VESLY_DRAW_ANIMATIONS
+    #include "VeslyDrawAnimations/VeslyDrawAnimations_Installer.event"
+#endif
+
+#ifdef CONFIG_VESLY_RECLASS
+    #include "VeslyReclass/VeslyReclass_Installer.event"
+#endif
+
+#include "VeslyUI/VeslyUI_Installer.event"
+
+#include "VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
+
+#ifdef CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
+    #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
+#endif
+
+// #include "CasualMode/CasualMode_Installer.event"
+
+#ifdef CONFIG_RES_TERRAIN_WINDOW
+    #include "ResTerrainWindow/ResTerrainWindow_Installer.event"
+#endif
+
+#include "ModularMinimugBox/ModularMinimugBox_Installer.event"
+#include "MirrorMapSprites/MirrorMapSprites_Installer.event"
+
+#include "TextEngineRework/TextEngineRework_Installer.event"
+#include "Chatlog/Chatlog_Installer.event"
+
+#ifdef CONFIG_SHOW_CGs_LIKE_FE7
+    #include "ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
+#endif
+
+#include "LimitedShopStock/LimitedShopStock_Installer.event"
+
+#ifdef CONFIG_CHAPTER_NAMES
+    #include "ChapterNames/ChapterNames_Installer.event"
+#endif
+
+#include "QuintessanceEffect/QuintessanceEffect_Installer.event"
+
+#include "VeslyCredits/VeslyCredits_Installer.event"
+
+#ifdef CONFIG_VESLY_NOTIFICATION_SYSTEM
+    #include "VeslyNotificationWindow/VeslyNotificationWindow_Installer.event"
+#endif
+
+// #ifdef CONFIG_VESLY_AOE
+//     #include "VeslyAOE/AOE_Installer.event"
+// #endif
+
+#include "MokhaAOE/MokhaAOE_Installer.event"
+
+#ifdef CONFIG_VESLY_AVATAR
+    #include "VeslyAvatar/VeslyAvatar_Installer.event"
+#endif
+
+#include "FreeMovement/FreeMovement_Installer.event"
+
+#include "Biorhythm/Biorhythm_Installer.event"
+
+#ifdef CONFIG_LIGHTS_OUT_GAME
+    #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
+#endif
+
+#include "EnterTown/EnterTown_Installer.event"
+#include "WorldMapSkillMenu/WorldMapSkillMenu.lyn.event"
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    #include "FourthAllegiance/FourthAllegiance_Installer.event"
+#endif
+
+// #ifdef CONFIG_FE7_MODE_SELECT
+//     #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
+// #endif
+
+#include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"
+#include "Portrait32Color/Portrait32Color_Installer.event"
+
+#ifdef CONFIG_MAX_COLOR_BACKGROUNDS
+    #include "Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"
+#endif
+
+#ifdef CONFIG_UNIT_SELECTION_QUOTES
+    #include "UnitSelectionSFX/UnitSelectionSFX_Installer.event"
+#endif
+
+#include "ThiefFE7Teleport/ThiefFE7Teleport.event"
+
+#include "VeslyShootArrow/VeslyShootArrow_Installer.event"
+
+#include "Goals/Installer.event"
+
+// #include "Crafting/Crafting_Installer.event"
+
+#include "HPBarPalettes/HPBarPalettes_Installer.event"
+
+#include "WorldMapThoughts/WorldMapThoughts_Installer.event"
+
+#include "Minigames/Snek/Snek_Installer.event"
+
+#include "BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
+
+#include "VeslyAchievements/VeslyAchievements_Installer.event"
+#endif /* WIZARDRY_CUSTOM */

@@ -46,10 +46,10 @@ the hook module.
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Runtime configuration** | [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Defines the `half_body_portraits` flag and enables it by default |
-| **Core runtime hooks** | [`HalfBodyPortraits.c`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Selects vanilla or halfbody face, talk, item-menu, and stat-screen behavior |
-| **Hook installation** | [`LynJump.event`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/LynJump.event) | Redirects vanilla entry points without permanent ROM writebacks |
-| **Halfbody Installer** | [`HalfBodyPortraits_Installer.event`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/HalfBodyPortraits_Installer.event) | Provides free-space OAM/TSA data and includes the runtime hooks |
-| **Existing UI hooks** | [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Gates prep/trade face VRAM and stat-screen TSA choices |
+| **Core runtime hooks** | [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Selects vanilla or halfbody face, talk, item-menu, and stat-screen behavior |
+| **Hook installation** | [`LynJump.event`](../../Kernel/Wizardry/HalfBodyPortraits/Source/LynJump.event) | Redirects vanilla entry points without permanent ROM writebacks |
+| **Halfbody Installer** | [`HalfBodyPortraits_Installer.event`](../../Kernel/Wizardry/HalfBodyPortraits/HalfBodyPortraits_Installer.event) | Provides free-space OAM/TSA data and includes the runtime hooks |
+| **Existing UI hooks** | [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Gates prep/trade face VRAM and stat-screen TSA choices |
 | **Portrait Installation** | [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | Where portraits are installed |
 
 ---

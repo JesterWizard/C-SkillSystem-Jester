@@ -44,7 +44,7 @@
 
 #include "OpeningAnimations/OpeningAnimations.event"
 
-#include "../Kernel/Wizardry/Common/MenuOptions/MenuOptions_Installer.event"
-#include "../Kernel/Wizardry/Common/RealtimeBattle/RealtimeBattle.event"
+#include "../Kernel/Wizardry/MenuOptions/MenuOptions_Installer.event"
+#include "../Kernel/Wizardry/RealtimeBattle/RealtimeBattle.event"
 
 #endif

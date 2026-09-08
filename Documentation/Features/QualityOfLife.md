@@ -44,15 +44,15 @@ All modifications are gated behind gpKernelDesignerConfig->quality_of_life_fixes
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Avoid label shorthand | UpdateMenuItemPanel in Kernel/Wizardry/Common/IconDisplay/Source/hooks.c | Replaces the avoid label draw string with Avd in the item panel combat stats UI |
-| Popup unit naming | NewPopup_ItemGot_unused, NewPopup_GoldGot, NewPopup_ItemStealing in Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c | Selects popup scripts that include unit-name-aware message flows |
-| Epilogue transition | StartSoloEndingBattleDisplay and gProcScr_EndingBattleDisplay_Solo_NEW in Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c | Routes solo ending display into a version with fade/blend steps |
-| Effective crit cap | ComputeBattleUnitEffectiveCritRate in Kernel/Wizardry/Core/BattleSys/Source/BattleCalcReal.c | Clamps battleEffectiveCritRate to 100 in QoL mode |
-| Trade portrait safety | TradeMenu_InitItemDisplay in Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c | Guards StartFace calls when a participant has portraitId = 0 |
-| Weapon-rank helpbox compact mode | DrawHelpBoxLabels_WrankBonus and DrawHelpBoxStats_WrankBonus in Kernel/Wizardry/Core/BattleSys/WrankBonus/Source/WrankBonus.c | Reworks labels and displayed fields for compact helpbox output |
-| Weapon-rank helpbox line budget | HelpBoxSetupstringLines in Kernel/Wizardry/Core/CombatArt/HelpBoxFix/Source/HelpBoxHack.c | Reduces pretext line count for NEW_HB_WRANK_STATSCREEN in QoL mode |
-| Map support event routing | CallMapSupportEvent in Kernel/Wizardry/Common/BwlRework/source/BwlSupport.c | Selects EventScr_MapSupportConversation_NEW when QoL mode is active |
-| World-map Home command | WMMenu_IsHomeAvailable_NEW and WMMenu_OnHomeSelected_NEW in Kernel/Wizardry/Misc/EnterTown/EnterTown.c | Shows Home only in QoL mode and routes to LGAMECTRL_TITLE_DIRECT for title music-aware return |
+| Avoid label shorthand | UpdateMenuItemPanel in Kernel/Wizardry/IconDisplay/Source/hooks.c | Replaces the avoid label draw string with Avd in the item panel combat stats UI |
+| Popup unit naming | NewPopup_ItemGot_unused, NewPopup_GoldGot, NewPopup_ItemStealing in Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c | Selects popup scripts that include unit-name-aware message flows |
+| Epilogue transition | StartSoloEndingBattleDisplay and gProcScr_EndingBattleDisplay_Solo_NEW in Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c | Routes solo ending display into a version with fade/blend steps |
+| Effective crit cap | ComputeBattleUnitEffectiveCritRate in Kernel/Wizardry/BattleSys/Source/BattleCalcReal.c | Clamps battleEffectiveCritRate to 100 in QoL mode |
+| Trade portrait safety | TradeMenu_InitItemDisplay in Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c | Guards StartFace calls when a participant has portraitId = 0 |
+| Weapon-rank helpbox compact mode | DrawHelpBoxLabels_WrankBonus and DrawHelpBoxStats_WrankBonus in Kernel/Wizardry/BattleSys/WrankBonus/Source/WrankBonus.c | Reworks labels and displayed fields for compact helpbox output |
+| Weapon-rank helpbox line budget | HelpBoxSetupstringLines in Kernel/Wizardry/CombatArt/HelpBoxFix/Source/HelpBoxHack.c | Reduces pretext line count for NEW_HB_WRANK_STATSCREEN in QoL mode |
+| Map support event routing | CallMapSupportEvent in Kernel/Wizardry/BwlRework/source/BwlSupport.c | Selects EventScr_MapSupportConversation_NEW when QoL mode is active |
+| World-map Home command | WMMenu_IsHomeAvailable_NEW and WMMenu_OnHomeSelected_NEW in Kernel/Wizardry/EnterTown/EnterTown.c | Shows Home only in QoL mode and routes to LGAMECTRL_TITLE_DIRECT for title music-aware return |
 
 ---
 

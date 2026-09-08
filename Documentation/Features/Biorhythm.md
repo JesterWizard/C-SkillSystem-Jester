@@ -58,7 +58,7 @@ Declared in [`custom-arrays.h`](../../include/jester_headers/custom-arrays.h):
   - You may add new variables (e.g., `BiorhythmSpeed`) to control cycle rate
 
 ### Implementation
-Defined in [`Biorhythm.c`](../../Kernel/Wizardry/Misc/Biorhythm/Biorhythm.c):
+Defined in [`Biorhythm.c`](../../Kernel/Wizardry/Biorhythm/Biorhythm.c):
 
 - Supports **unique values for up to 255 units**
 - You may:

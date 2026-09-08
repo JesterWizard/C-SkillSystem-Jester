@@ -19,7 +19,9 @@ MESSAGE Kernel_____Reloc___ end at (CURRENTOFFSET) size as (CURRENTOFFSET - Kern
 ASSERT (KernelSpace_RelocEnd - CURRENTOFFSET)
 
 ORG KernelSpace_KData
-    #include "Wizardry/wizardry-data.event"
+    #define WIZARDRY_DATA
+    #include "Wizardry/wizardry.event"
+    #undef WIZARDRY_DATA
     #include "Data/data.event"
 KernelSpace_KDataTail:
 MESSAGE Kernel______Data___ end at (CURRENTOFFSET) size as (CURRENTOFFSET - KernelSpace_KData) max (KernelKDataSize)
@@ -31,7 +33,9 @@ ORG KernelSpace_Text
      * This part of code is put at in-BL range space
      */
     #include "Preload/CommonProtection.event"
+    #define WIZARDRY_TEXT
     #include "Wizardry/wizardry.event"
+    #undef WIZARDRY_TEXT
 KernelSpace_TextTail:
 MESSAGE Kernel______Text___ end at (CURRENTOFFSET) size as (CURRENTOFFSET - KernelSpace_Text) max (KernelSpace_TextSize)
 ASSERT (KernelSpace_Text + KernelSpace_TextSize - CURRENTOFFSET)

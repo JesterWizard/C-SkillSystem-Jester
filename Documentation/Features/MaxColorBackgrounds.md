@@ -42,7 +42,7 @@ With this feature, we can also skip the requirement for TSA files (which are ann
 The BG table has been repointed in order to add new backgrounds (which can also be used for CGs).
 The original CG table has been left alone since the BG one serves both purposes.
 
-Details regarding the exact usage for new backgrounds can be found in Huichelaar's [`README`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/README.md)
+Details regarding the exact usage for new backgrounds can be found in Huichelaar's [`README`](../../Kernel/Wizardry/Backgrounds_224_256_Colors/README.md)
 
 Things to keep in mind:
   - Your backgrounds need to be processed with a special script called ``Sommie`` you can download from here ``https://github.com/Benst1996/FE8U_256ColCG/tree/main/gfx/BG``.
@@ -54,8 +54,8 @@ Things to keep in mind:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **BG Storage Folder** | [`gfx/BG`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/) | This is where the compressed images and palettes go |
-| **BG Insertion**  |  [`gfx/BG/BG.event`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/BG.event) | This is the insertion point for your new backgrounds |
+| **BG Storage Folder** | [`gfx/BG`](../../Kernel/Wizardry/Backgrounds_224_256_Colors/gfx/BG/) | This is where the compressed images and palettes go |
+| **BG Insertion**  |  [`gfx/BG/BG.event`](../../Kernel/Wizardry/Backgrounds_224_256_Colors/gfx/BG/BG.event) | This is the insertion point for your new backgrounds |
 
 ---
 
@@ -65,7 +65,7 @@ Things to keep in mind:
 > Why is my image messed up?
 
 This could be for one of several reasons, ensure that:
-- Your background is set to ``WORD 0x1`` in [`gfx/BG/BG.event`](../../Kernel/Wizardry/Misc/Backgrounds_224_256_Colors/gfx/BG/BG.event) if you're planning to have characters talk, or ``WORD 0x0`` otherwise
+- Your background is set to ``WORD 0x1`` in [`gfx/BG/BG.event`](../../Kernel/Wizardry/Backgrounds_224_256_Colors/gfx/BG/BG.event) if you're planning to have characters talk, or ``WORD 0x0`` otherwise
 - Your background has 16px of right side padding so the dimensions are ``256x160`` instead of ``240x160`` (don't ask me why, GBA logic)
 - The colors are under 256 (if using ``WORD 0x0``) or 224 (if using ``WORD 0x1``)
 

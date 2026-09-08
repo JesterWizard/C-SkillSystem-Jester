@@ -92,7 +92,7 @@ Palette handling summary:
 
 ### LoadTrapData in TrapData.c
 
-File: `Kernel/Wizardry/Common/TrapData/TrapData.c`
+File: `Kernel/Wizardry/TrapData/TrapData.c`
 
 `LoadTrapData(const struct TrapData * data)` iterates the chapter trap table and dispatches by trap type. For each entry, it calls the corresponding constructor, for example:
 
@@ -465,7 +465,7 @@ Implementation note:
 
 ### TrapData_Installer.event
 
-File: `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event`
+File: `Kernel/Wizardry/TrapData/TrapData_Installer.event`
 
 This file installs trap map sprite graphics into the map sprite table (`0x8AF880 + 0x8 * spriteID`) using entries like:
 
@@ -505,7 +505,7 @@ When adding a new trap sprite:
 
 ### Render hook location
 
-File: `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c`
+File: `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c`
 Function: `RefreshUnitSprites(void)`
 
 After unit sprite handling, this function iterates all traps:
@@ -556,31 +556,31 @@ Implementation notes:
 | Trap type IDs and extdata enums | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Canonical trap constants (`TRAP_*`, `TRAP_EXTDATA_*`) and trap API declarations |
 | Trap palette enum and helper macros | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TRAP_MAPSPRITE_PAL_*`, `HEAL_TILE`, `TOGGLE_TORCH`, and palette-aware `TELEPORT_TILE` helpers |
 | Trap table struct | `Tools/FE-CLib-Mokha/include/bmtrap.h` | `struct TrapData` format used by chapter trap arrays |
-| Chapter trap loader | `LoadTrapData` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Dispatches trap entries from chapter data to constructors |
-| Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
-| Repeat house trap creation | `AddRepeatHouse` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates a repeat house trap with a stored EXP reward and resets the visited flag |
-| Repeat house post-action hook | `PostAction_RepeatHouse` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Awards EXP on the first `UNIT_ACTION_VISIT` and marks the trap as visited |
-| Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
-| Boulder trap creation | `AddBoulderTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates startup or runtime boulder traps without changing underlying terrain |
-| Spin trap creation and shove logic | `AddSpinTile` and `PostAction_SpinTile` in `Kernel/Wizardry/Common/TrapData/TrapData.c` | Stores directional spin tile data and resolves connected spin-tile chains one hop at a time with 30-frame pauses until the next hop would be blocked or repeat |
-| Spin trap sprite selection | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Chooses the left/right/up/down spin tile sprite ID from the trap's current direction |
-| Trap graphics installer | `Kernel/Wizardry/Common/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
+| Chapter trap loader | `LoadTrapData` in `Kernel/Wizardry/TrapData/TrapData.c` | Dispatches trap entries from chapter data to constructors |
+| Trap palette storage and sanitizing | `GetTrapMapSpritePalette` and `SetTrapMapSpritePalette` in `Kernel/Wizardry/TrapData/TrapData.c` | Stores per-trap palette choices and falls back to default when invalid |
+| Repeat house trap creation | `AddRepeatHouse` in `Kernel/Wizardry/TrapData/TrapData.c` | Creates a repeat house trap with a stored EXP reward and resets the visited flag |
+| Repeat house post-action hook | `PostAction_RepeatHouse` in `Kernel/Wizardry/TrapData/TrapData.c` | Awards EXP on the first `UNIT_ACTION_VISIT` and marks the trap as visited |
+| Effective terrain override | `GetEffectiveTerrainAt`, `AddGrassTile`, and `DecayTraps` in `Kernel/Wizardry/TrapData/TrapData.c` | Makes special trap tiles count as a different gameplay terrain, stamps forest terrain for grass tiles, and restores the original terrain when timed grass traps expire |
+| Boulder trap creation | `AddBoulderTile` in `Kernel/Wizardry/TrapData/TrapData.c` | Creates startup or runtime boulder traps without changing underlying terrain |
+| Spin trap creation and shove logic | `AddSpinTile` and `PostAction_SpinTile` in `Kernel/Wizardry/TrapData/TrapData.c` | Stores directional spin tile data and resolves connected spin-tile chains one hop at a time with 30-frame pauses until the next hop would be blocked or repeat |
+| Spin trap sprite selection | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Chooses the left/right/up/down spin tile sprite ID from the trap's current direction |
+| Trap graphics installer | `Kernel/Wizardry/TrapData/TrapData_Installer.event` | Registers trap map sprite sheets and table entries |
 | Chapter trap declaration | `Data/CustomCampaign/Chapters/01/events/traps.h` | Defines startup trap arrays for normal/hard modes |
 | Chapter trap binding | `Data/CustomCampaign/Chapters/00/events/events.c` | Connects trap arrays via `.traps` and `.extraTrapsInHard` |
 | Event ASMC call site | `Data/CustomCampaign/Chapters/00/events/events.h` | Invokes ASMC function during chapter event flow |
 | ASMC runtime trap spawn | `Data/CustomCampaign/Chapters/00/events/asmc.h` | Example runtime trap creation with `AddTeleportTilePair(...)` |
 | Teleport trap helpers | `Tools/FE-CLib-Mokha/include/bmtrick.h` | Defines `TELEPORT_TILE`, `TELEPORT_TILE_PAIR`, and teleport trap extdata |
-| Teleport trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
-| Grass trap runtime behavior | `Kernel/Wizardry/Common/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
-| Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Core/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
-| Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
-| Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
-| Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
-| Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
-| Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
-| Boulder trap custom palette draw | `ApplyBoulderTrapSpritePalette` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Draws the boulder trap with `Pal_Boulder_Tile` in a dedicated OBJ palette bank |
-| Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/Misc/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
-| Light rune menu skill usage | `Kernel/Wizardry/Misc/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
+| Teleport trap runtime behavior | `Kernel/Wizardry/TrapData/TrapData.c` | Loads, constructs, and resolves teleport tile effects |
+| Grass trap runtime behavior | `Kernel/Wizardry/TrapData/TrapData.c` | Creates the grass trap and stamps the map terrain to forest for gameplay and terrain UI |
+| Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
+| Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
+| Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
+| Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
+| Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
+| Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
+| Boulder trap custom palette draw | `ApplyBoulderTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws the boulder trap with `Pal_Boulder_Tile` in a dedicated OBJ palette bank |
+| Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
+| Light rune menu skill usage | `Kernel/Wizardry/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
 | Example chapter ASMC usage | `Data/CustomCampaign/Chapters/00/events/asmc.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
 
 ## TODO

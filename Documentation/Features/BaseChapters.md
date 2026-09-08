@@ -70,7 +70,7 @@ This allows bases to evolve narratively over time.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Base chapter node assignment** | `EnterTownNodes` — [`EnterTown.c`](../../Kernel/Wizardry/Misc/EnterTown/EnterTown.c) | Controls which world map nodes become base chapters and which map each base uses |
+| **Base chapter node assignment** | `EnterTownNodes` — [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | Controls which world map nodes become base chapters and which map each base uses |
 
 ---
 

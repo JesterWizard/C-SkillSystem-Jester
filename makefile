@@ -113,7 +113,7 @@ BTLPALETTEARGS    := -pn 80
 # ========
 
 PRE_BUILD ?=
-BUILD_VERSION_TITLESCREEN_EVENT := Kernel/Wizardry/Misc/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event
+BUILD_VERSION_TITLESCREEN_EVENT := Kernel/Wizardry/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event
 BUILD_VERSION_TITLESCREEN_DATE := $(shell date +%d/%m/%Y)
 
 build_version_title_screen_date:
@@ -167,7 +167,7 @@ Kernel/%.o: Kernel/%.c
 	@echo "[CC ]	$@"
 	@$(CC) $(CFLAGS) $(GCC_LONG_CALL) $(CDEPFLAGS) -g -c $< -o $@
 
-Kernel/Wizardry/Misc/%.asm: Kernel/Wizardry/Misc/%.c
+Kernel/Wizardry/%.asm: Kernel/Wizardry/%.c
 	@echo "[SKIP]	$@"
 
 Kernel/%.asm: Kernel/%.c
@@ -457,7 +457,7 @@ CLEAN_FILES += $(CHAX_SYM) $(CHAX_REFS) $(CHAX_REFE) $(CHAX_NUPS)
 # =============
 # = RAM USAGE =
 # =============
-COMMON_WIZARDRY_SAVE_DATA := ./Kernel/Wizardry/Common/SaveData
+COMMON_WIZARDRY_SAVE_DATA := ./Kernel/Wizardry/SaveData
 CONFIGS_H := ./include/configs/configs.h
 
 ramcheck:
@@ -522,7 +522,7 @@ clean:
 # ==============================
 # = UnitSelectionSFX Installer =
 # ==============================
-UNIT_SFX_DIR := ./Kernel/Wizardry/Misc/UnitSelectionSFX
+UNIT_SFX_DIR := ./Kernel/Wizardry/UnitSelectionSFX
 UNIT_SFX_SCRIPT := $(UNIT_SFX_DIR)/generate_sfx_event.py
 UNIT_SFX_EVENT := $(UNIT_SFX_DIR)/UnitSelectionSFX_Installer.event
 

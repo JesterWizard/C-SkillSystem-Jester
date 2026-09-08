@@ -127,10 +127,10 @@ The feature is gated behind `gpKernelDesignerConfig->menu_skill_ai_use` in [`ker
 |--------|----------|-------------|
 | Designer config flag | `KernelDesigerConfig` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Adds the runtime boolean that gates the AI menu-skill fallback. |
 | Default value | `gKernelDesigerConfig` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Leaves the feature disabled by default so existing projects keep their current behavior. |
-| AI decision hook | `DecideScriptA`, `DecideScriptB`, `DecideHealOrEscape`, and `AiTryDoStaff` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Calls the menu-skill fallback only after the normal higher-priority AI passes do not choose an action. |
-| Menu-skill fallback | `AiTryDoMenuSkills` in [`MiscAiSkills.c`](../../Kernel/Wizardry/Misc/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Scans the acting unit’s skills and applies the first usable menu skill it can execute. |
-| Skill execution path | `AiAction_MenuSkill` in [`MiscAiSkills.c`](../../Kernel/Wizardry/Misc/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Reuses `CONFIG_UNIT_ACTION_EXPA_ExecSkill` so the normal skill action pipeline performs the move. |
-| Menu usability gate | `MenuSkills_Usability` in [`SkillMenu.c`](../../Kernel/Wizardry/Core/SkillSys/kernel/SkillMenu.c) | The AI still respects the same usability callbacks that the player menu uses. |
+| AI decision hook | `DecideScriptA`, `DecideScriptB`, `DecideHealOrEscape`, and `AiTryDoStaff` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Calls the menu-skill fallback only after the normal higher-priority AI passes do not choose an action. |
+| Menu-skill fallback | `AiTryDoMenuSkills` in [`MiscAiSkills.c`](../../Kernel/Wizardry/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Scans the acting unit’s skills and applies the first usable menu skill it can execute. |
+| Skill execution path | `AiAction_MenuSkill` in [`MiscAiSkills.c`](../../Kernel/Wizardry/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Reuses `CONFIG_UNIT_ACTION_EXPA_ExecSkill` so the normal skill action pipeline performs the move. |
+| Menu usability gate | `MenuSkills_Usability` in [`SkillMenu.c`](../../Kernel/Wizardry/SkillSys/kernel/SkillMenu.c) | The AI still respects the same usability callbacks that the player menu uses. |
 
 ---
 

@@ -81,7 +81,7 @@ The feature is disabled for everyone when `mokha_aoe_enabled` is false. The defa
 
 ## ➕ Adding a Unit
 
-1. Open [`GambitData.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/src/GambitData.c).
+1. Open [`GambitData.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/src/GambitData.c).
 2. Confirm the character has a generated constant in `constants/characters.h`.
 3. Add the character PID to `gMokhaAoeEligibleByPid`:
 
@@ -106,9 +106,9 @@ To give a unit only some gambits, the data model must first be extended; see [TO
 Adding a gambit requires keeping four indices synchronized:
 
 1. Add a new enum value before `MOKHA_AOE_ATK_COUNT` in [`mokha-aoe.h`](../../include/kernel/mokha-aoe.h).
-2. Add its name, description, range, damage, and map-routine index to `gMokhaAoeAttackTable` in [`GambitData.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/src/GambitData.c).
-3. Add a matching `MenuItemDef` entry to `sGambitSelectMenuItems` in [`GambitMenuCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c).
-4. Add the matching map-routine pointer and included `.lyn.event` output to [`GambitEffectMap.event`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitEffectMap/GambitEffectMap.event).
+2. Add its name, description, range, damage, and map-routine index to `gMokhaAoeAttackTable` in [`GambitData.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/src/GambitData.c).
+3. Add a matching `MenuItemDef` entry to `sGambitSelectMenuItems` in [`GambitMenuCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c).
+4. Add the matching map-routine pointer and included `.lyn.event` output to [`GambitEffectMap.event`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitEffectMap/GambitEffectMap.event).
 5. Add the attack's text entries to [`misc.txt`](../../Contents/Texts/Source/texts/misc.txt).
 6. Rebuild with `make chax`.
 
@@ -124,18 +124,18 @@ The checked-in `.lyn.event` files under `GambitEffectMap/FillAOEMapFucs` are act
 |--------|----------|-------------|
 | Runtime enable flag | `mokha_aoe_enabled` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Global designer-config switch; defaults to enabled |
 | Configuration field | `KernelDesigerConfig` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Declares the runtime flag |
-| Unit allowlist | `gMokhaAoeEligibleByPid` in [`GambitData.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/src/GambitData.c) | Maps character PIDs to Gambit eligibility |
-| Attack data | `gMokhaAoeAttackTable` in [`GambitData.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/src/GambitData.c) | Stores text IDs, range, damage, and map-routine index |
+| Unit allowlist | `gMokhaAoeEligibleByPid` in [`GambitData.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/src/GambitData.c) | Maps character PIDs to Gambit eligibility |
+| Attack data | `gMokhaAoeAttackTable` in [`GambitData.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/src/GambitData.c) | Stores text IDs, range, damage, and map-routine index |
 | Shared declarations | [`mokha-aoe.h`](../../include/kernel/mokha-aoe.h) | Attack enum, attack data structure, globals, and public functions |
 | Unit-menu command | Gambit row in [`UnitMenu.c`](../../Data/UnitMenu/Source/UnitMenu.c) | Places Gambit in the unit menu |
-| Gambit menu usability | `Gambit_UpperMenu_Usability` in [`GambitMenuCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c) | Checks unit state, eligibility, and available targets |
-| Attack selection | `sGambitSelectMenuItems` in [`GambitMenuCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c) | Defines the six selectable attacks |
-| Area-map routines | `GambitEffectMap_DrawMapRoutineTable` in [`GambitEffectMap.event`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitEffectMap/GambitEffectMap.event) | Connects attack indices to shape routines |
-| Target selection | `gSelectInfo_Gambit` in [`TargetSelectCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitTargetSelect/src/TargetSelectCore.c) | Displays the area, selects a tile, and cleans up map graphics |
-| Target persistence | `SaveTarget_PostGambitTargetSelection` in [`GambitSaveCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/SaveAOETarget/src/GambitSaveCore.c) | Saves up to `0x40` affected target UIDs |
-| Damage, animation, kills, and EXP | `GambitAction` and related procs in [`GambitActionCore.c`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitAction/src/GambitActionCore.c) | Runs the attack sequence, applies damage, kills defeated units, and grants accumulated EXP |
-| Unit-action injection | [`GambitAction.event`](../../Kernel/Wizardry/Misc/MokhaAOE/EngineHacks/Gambit/GambitAction/GambitAction.event) | Installs the Gambit unit action at `CONFIG_UNIT_ACTION_EXPA_Gambit` |
-| Feature installer | [`MokhaAOE_Installer.event`](../../Kernel/Wizardry/Misc/MokhaAOE/MokhaAOE_Installer.event) | Includes the active Gambit installer |
+| Gambit menu usability | `Gambit_UpperMenu_Usability` in [`GambitMenuCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c) | Checks unit state, eligibility, and available targets |
+| Attack selection | `sGambitSelectMenuItems` in [`GambitMenuCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitMenu/src/GambitMenuCore.c) | Defines the six selectable attacks |
+| Area-map routines | `GambitEffectMap_DrawMapRoutineTable` in [`GambitEffectMap.event`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitEffectMap/GambitEffectMap.event) | Connects attack indices to shape routines |
+| Target selection | `gSelectInfo_Gambit` in [`TargetSelectCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitTargetSelect/src/TargetSelectCore.c) | Displays the area, selects a tile, and cleans up map graphics |
+| Target persistence | `SaveTarget_PostGambitTargetSelection` in [`GambitSaveCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/SaveAOETarget/src/GambitSaveCore.c) | Saves up to `0x40` affected target UIDs |
+| Damage, animation, kills, and EXP | `GambitAction` and related procs in [`GambitActionCore.c`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitAction/src/GambitActionCore.c) | Runs the attack sequence, applies damage, kills defeated units, and grants accumulated EXP |
+| Unit-action injection | [`GambitAction.event`](../../Kernel/Wizardry/MokhaAOE/EngineHacks/Gambit/GambitAction/GambitAction.event) | Installs the Gambit unit action at `CONFIG_UNIT_ACTION_EXPA_Gambit` |
+| Feature installer | [`MokhaAOE_Installer.event`](../../Kernel/Wizardry/MokhaAOE/MokhaAOE_Installer.event) | Includes the active Gambit installer |
 | Player-facing text | Gambit entries in [`misc.txt`](../../Contents/Texts/Source/texts/misc.txt) | Defines menu labels, descriptions, and attack names |
 
 ---

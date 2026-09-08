@@ -132,6 +132,7 @@ _kernel_malloc gStartMapEffectsUnlockMask, 2
 _kernel_malloc sStartMapEffectsTexts, 5 * 8
 _kernel_malloc sStartMapEffectsSuspendState, 4
 _kernel_malloc sPhoenixMenuActive, 2
+_kernel_malloc sSkillScrollReplaceMenuActive, 2
 _kernel_malloc sDeadUnitCount, 2
 _kernel_malloc gSnekCoinPresent, 2
 _kernel_malloc gSnekCoinCoordinates, 2

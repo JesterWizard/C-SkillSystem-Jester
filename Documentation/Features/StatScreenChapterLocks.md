@@ -69,10 +69,10 @@ Once the campaign reaches `CHAPTER_10`, the same page becomes visible without ne
 | Feature | Location | Description |
 |--------|----------|-------------|
 | Page constants and API | `stat-screen.h` in [`include/kernel/stat-screen.h`](../../include/kernel/stat-screen.h) | Defines `PAGE_GAIDEN_MAGIC`, `PAGE_PERSONAL_DATA`, `PAGE_PROMOTIONS`, and the chapter-lock helper declarations |
-| Lock table and availability checks | `sStatScreenPageChapterLocks`, `GetStatScreenPageUnlockChapter`, `IsStatScreenPageAvailable`, and `TranslateStatPageId` in [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c) | Central source of truth for chapter locks and page-id remapping |
-| Page drawing and help routing | `DisplayPage` and `StartStatScreenHelp` in [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c) | Uses translated page ids so hidden pages do not break draw/help dispatch |
-| Visible page count | `GetStatPageCount` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Builds the final page total shown to the player |
-| Promotion-page help-box cursor safeguards | `HbRedirect_SSItem` in [`DrawItemPage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawItemPage/Source/DrawItemPage.c) | Contains extra promotions-page handling that assumes the page has already passed availability checks |
+| Lock table and availability checks | `sStatScreenPageChapterLocks`, `GetStatScreenPageUnlockChapter`, `IsStatScreenPageAvailable`, and `TranslateStatPageId` in [`HelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawPages/HelpBox.c) | Central source of truth for chapter locks and page-id remapping |
+| Page drawing and help routing | `DisplayPage` and `StartStatScreenHelp` in [`HelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawPages/HelpBox.c) | Uses translated page ids so hidden pages do not break draw/help dispatch |
+| Visible page count | `GetStatPageCount` in [`DrawMorePage.c`](../../Kernel/Wizardry/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Builds the final page total shown to the player |
+| Promotion-page help-box cursor safeguards | `HbRedirect_SSItem` in [`DrawItemPage.c`](../../Kernel/Wizardry/StatScreen/DrawItemPage/Source/DrawItemPage.c) | Contains extra promotions-page handling that assumes the page has already passed availability checks |
 
 ## TODO
 

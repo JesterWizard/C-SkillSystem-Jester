@@ -76,14 +76,14 @@ The current implementation hardcodes two supported nodes and their inventories:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Menu availability gate | `WMMenu_IsSkillShopAvailable` in [Kernel/Wizardry/Misc/EnterTown/EnterTown.c](../../Kernel/Wizardry/Misc/EnterTown/EnterTown.c) | Enables the menu item only when SP engagement is active and the current node is a supported shop node. |
-| Menu dispatch | `WMMenu_OnSkillShopSelected` in [Kernel/Wizardry/Misc/EnterTown/EnterTown.c](../../Kernel/Wizardry/Misc/EnterTown/EnterTown.c) | Transfers world map menu selection into the skill shop proc. |
-| Shop node lookup | `WorldMapSkillShop_GetNodeIndex` and `WorldMapSkillShop_HasNodeShop` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Maps world map nodes to the supported shop inventory tables. |
-| Proc setup and teardown | `WorldMapSkillShop_Init` and `WorldMapSkillShop_OnEnd` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Sets up the UI, stores world map state, and restores everything when the shop ends. |
-| Cursor and scrolling behavior | `WorldMapSkillShop_MoveCursorToNextSkill` and `WorldMapSkillShop_ClampCursor` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Keeps the cursor on valid skill rows and maintains the top-of-list position. |
-| List rendering | `WorldMapSkillShop_Draw` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Draws the frame, SP counter, skill rows, icons, costs, and text colors. |
-| Help box and cursor hand | `WorldMapSkillShop_ShowHelp`, `WorldMapSkillShop_UpdateHandCursor`, and `WorldMapSkillShop_HandleEntryChoice` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Handles the contextual help box and the on-screen cursor hand. |
-| Purchase flow | `WorldMapSkillShop_TryPurchase` and `WorldMapSkillShop_Loop` in [Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/Misc/EnterTown/WorldMap_SkillShop.c) | Applies the buy check, feedback dialogue, and button handling for the shop. |
+| Menu availability gate | `WMMenu_IsSkillShopAvailable` in [Kernel/Wizardry/EnterTown/EnterTown.c](../../Kernel/Wizardry/EnterTown/EnterTown.c) | Enables the menu item only when SP engagement is active and the current node is a supported shop node. |
+| Menu dispatch | `WMMenu_OnSkillShopSelected` in [Kernel/Wizardry/EnterTown/EnterTown.c](../../Kernel/Wizardry/EnterTown/EnterTown.c) | Transfers world map menu selection into the skill shop proc. |
+| Shop node lookup | `WorldMapSkillShop_GetNodeIndex` and `WorldMapSkillShop_HasNodeShop` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Maps world map nodes to the supported shop inventory tables. |
+| Proc setup and teardown | `WorldMapSkillShop_Init` and `WorldMapSkillShop_OnEnd` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Sets up the UI, stores world map state, and restores everything when the shop ends. |
+| Cursor and scrolling behavior | `WorldMapSkillShop_MoveCursorToNextSkill` and `WorldMapSkillShop_ClampCursor` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Keeps the cursor on valid skill rows and maintains the top-of-list position. |
+| List rendering | `WorldMapSkillShop_Draw` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Draws the frame, SP counter, skill rows, icons, costs, and text colors. |
+| Help box and cursor hand | `WorldMapSkillShop_ShowHelp`, `WorldMapSkillShop_UpdateHandCursor`, and `WorldMapSkillShop_HandleEntryChoice` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Handles the contextual help box and the on-screen cursor hand. |
+| Purchase flow | `WorldMapSkillShop_TryPurchase` and `WorldMapSkillShop_Loop` in [Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c](../../Kernel/Wizardry/EnterTown/WorldMap_SkillShop.c) | Applies the buy check, feedback dialogue, and button handling for the shop. |
 
 ---
 

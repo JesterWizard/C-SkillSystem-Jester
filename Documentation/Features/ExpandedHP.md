@@ -46,11 +46,11 @@ Inside [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) set th
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **HP in stat screen** | `DisplayHpBmValue` in [`DrawPageLeft.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/DrawPageLeft.c) | Displays unit HP |
-| **Clamp HP values** | `StatusGetterCheckCpas` in [`MiscGetter.c`](../../Kernel/Wizardry/Core/UnitStatusGetter//source/MiscGetter.c) | Prevent HP from ging over the specified limits |
-| **HP bar palettes in battle screen** | `EfxHPBarColorChangeMain` in [`HpBarPalettes.c`](../../Kernel/Wizardry/Misc/HPBarPalettes/HPBarPalettes.c) | Handles display of HP in battle screen as well as bar palettes |
-| **Display dashes** | `StoreNumberStringOrDashesToSmallBuffer` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions//Source/MiscFunctions.c) | Handles display of dashes in Minimug box and chapter/status screen |
-| **HP in minimug box** | `UnitMapUiUpdate` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/Misc/ModularMinimugBox/ModularMinimugBox.c) | Handles display of HP in minimug box |
+| **HP in stat screen** | `DisplayHpBmValue` in [`DrawPageLeft.c`](../../Kernel/Wizardry/StatScreen/DrawPages/DrawPageLeft.c) | Displays unit HP |
+| **Clamp HP values** | `StatusGetterCheckCpas` in [`MiscGetter.c`](../../Kernel/Wizardry/UnitStatusGetter//source/MiscGetter.c) | Prevent HP from ging over the specified limits |
+| **HP bar palettes in battle screen** | `EfxHPBarColorChangeMain` in [`HpBarPalettes.c`](../../Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c) | Handles display of HP in battle screen as well as bar palettes |
+| **Display dashes** | `StoreNumberStringOrDashesToSmallBuffer` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions//Source/MiscFunctions.c) | Handles display of dashes in Minimug box and chapter/status screen |
+| **HP in minimug box** | `UnitMapUiUpdate` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/ModularMinimugBox/ModularMinimugBox.c) | Handles display of HP in minimug box |
 
 ---
 

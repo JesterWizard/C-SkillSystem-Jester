@@ -51,10 +51,10 @@ This implementation follows the structure of the Tellius games:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Transform usability & effects** | `Transform_Laguz_Usability`, `Transform_Laguz_OnSelected` in `Transform_Laguz_Effect` — [`Laguz.c`](../../Kernel/Wizardry/Misc/SkillEffects/MenuSkills/Laguz.c) | Handles transform command behavior |
-| **Auto-revert at map end** | `ChapterChangeUnitCleanup` — [`UnitRefrain.c`](../../Kernel/Wizardry/Common/UnitHooks/Source/UnitRefrain.c) | Resets Laguz bars (and other settings) at chapter transition |
-| **Drawing the Laguz Bar** | `DrawPage1LaguzBar` — [`Page1WithBwl.c`](../../Kernel/Wizardry/Core/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) | Renders the bar on the stat screen |
-| **Stat boosts / penalties** | `PrePhase_LaguzBars` — [`PrePhase_LaguzBars.c`](../../Kernel/Wizardry/Misc/SkillEffects/PrePhaseSkills/PrePhase_LaguzBars.c) | Applies transformed/untransformed stat changes |
+| **Transform usability & effects** | `Transform_Laguz_Usability`, `Transform_Laguz_OnSelected` in `Transform_Laguz_Effect` — [`Laguz.c`](../../Kernel/Wizardry/SkillEffects/MenuSkills/Laguz.c) | Handles transform command behavior |
+| **Auto-revert at map end** | `ChapterChangeUnitCleanup` — [`UnitRefrain.c`](../../Kernel/Wizardry/UnitHooks/Source/UnitRefrain.c) | Resets Laguz bars (and other settings) at chapter transition |
+| **Drawing the Laguz Bar** | `DrawPage1LaguzBar` — [`Page1WithBwl.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/PlanA/Page1WithBwl.c) | Renders the bar on the stat screen |
+| **Stat boosts / penalties** | `PrePhase_LaguzBars` — [`PrePhase_LaguzBars.c`](../../Kernel/Wizardry/SkillEffects/PrePhaseSkills/PrePhase_LaguzBars.c) | Applies transformed/untransformed stat changes |
 
 ---
 

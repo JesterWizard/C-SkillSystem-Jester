@@ -52,10 +52,10 @@ will override whatever that chapter's original objective was (this is so you don
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Global variables** | `gChapterTimerSeconds` in [`Timer.c`](../../../include/jester_headers/custom-structs.h) | Holds the current and initial time respectively |
-| **Initialize timer** | `StartChapterTimer` in [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Takes care of setting the global variables and starting the timer proc |
-| **New goal type** | `GOAL_TYPE_TIMER` in `GoalDisplay_Init` [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Handles the display initialization of the new goal |
-| **Draw countdown** | `DrawTimeHMS` in [`Timer.c`](../../..//Wizardry/Misc/Timer/Timer.c) | Handles the calculations to update the digits |
-| **Update timer** | Hook into `GoalDisplay_Loop_Display` in [`Timer.c`](../../../Kernel/Wizardry/Misc/Timer/Timer.c) | Call `DrawTimeHMS` here to display the new time every 60 frames |
+| **Initialize timer** | `StartChapterTimer` in [`Timer.c`](../../../Kernel/Wizardry/Timer/Timer.c) | Takes care of setting the global variables and starting the timer proc |
+| **New goal type** | `GOAL_TYPE_TIMER` in `GoalDisplay_Init` [`Timer.c`](../../../Kernel/Wizardry/Timer/Timer.c) | Handles the display initialization of the new goal |
+| **Draw countdown** | `DrawTimeHMS` in [`Timer.c`](../../..//Wizardry/Timer/Timer.c) | Handles the calculations to update the digits |
+| **Update timer** | Hook into `GoalDisplay_Loop_Display` in [`Timer.c`](../../../Kernel/Wizardry/Timer/Timer.c) | Call `DrawTimeHMS` here to display the new time every 60 frames |
 
 ---
 

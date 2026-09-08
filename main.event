@@ -57,4 +57,6 @@ ASSERT (FreeSpaceFont + FreeSpaceFontSize - CURRENTOFFSET)
 ORG FreeSpaceDEMO
 // Free
 #include "Contents/Contents.event"
-#include "Kernel/Wizardry/custom_wizardry.event"
+#define WIZARDRY_CUSTOM
+#include "Kernel/Wizardry/wizardry.event"
+#undef WIZARDRY_CUSTOM

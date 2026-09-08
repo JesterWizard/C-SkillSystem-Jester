@@ -49,10 +49,10 @@ All modifications are gated behind `gpKernelDesignerConfig->rescue_drop_ai_use` 
 |--------|----------|-------------|
 | Designer config flag | `KernelDesigerConfig` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Adds the runtime boolean that turns the rescue-retreat AI on or off. |
 | Default value | `gKernelDesigerConfig` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Keeps the behavior enabled by default so existing rescue-capable AI keeps working unless a designer disables it. |
-| Rescue target selection | `AiGetAdjacentRescueTarget` and `AiTryRescueWeakAdjacentAlly` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Finds an adjacent allied unit below half HP and turns that into a rescue decision. |
-| Carry retreat logic | `AiFindBestDropTile`, `AiFindFarthestCarryPosition`, and `AiTryRescueCarryDrop` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Chooses a reachable retreat tile by enemy distance and then drops the carried unit on a legal adjacent tile. |
-| AI decision hook | `DecideHealOrEscape` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Calls the rescue-retreat branch before the normal heal-or-move fallback logic. |
-| Rescue action wiring | `AiStartRescueAction` and `AiStartDropAction` in [`AiAction.c`](../../Kernel/Wizardry/Core/AiHack/AiAction/Source/AiAction.c) | Executes the underlying unit actions once the AI has chosen rescue or drop. |
+| Rescue target selection | `AiGetAdjacentRescueTarget` and `AiTryRescueWeakAdjacentAlly` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Finds an adjacent allied unit below half HP and turns that into a rescue decision. |
+| Carry retreat logic | `AiFindBestDropTile`, `AiFindFarthestCarryPosition`, and `AiTryRescueCarryDrop` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Chooses a reachable retreat tile by enemy distance and then drops the carried unit on a legal adjacent tile. |
+| AI decision hook | `DecideHealOrEscape` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Calls the rescue-retreat branch before the normal heal-or-move fallback logic. |
+| Rescue action wiring | `AiStartRescueAction` and `AiStartDropAction` in [`AiAction.c`](../../Kernel/Wizardry/AiHack/AiAction/Source/AiAction.c) | Executes the underlying unit actions once the AI has chosen rescue or drop. |
 
 ## 📝 TODO
 

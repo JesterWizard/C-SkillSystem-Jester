@@ -43,19 +43,19 @@ The design intentionally keeps tonic logic chapter-bound. That makes tonic effec
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Tonic use flow** | `ExecStatBoostItem` and `ApplyStatBoostItem` in [`IER-extra.c`](../../../Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-extra.c) | Detects tonic usage, records the selected tonic index, and triggers the tonic popup |
-| **Tonic validity check** | `IsTonicCampaignActive` and `IsTonicCampaignActiveIndex` in [`IER-extra.c`](../../../Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-extra.c) | Verifies that the stored tonic matches the current unit and chapter |
-| **Tonic bonus lookup** | `GetTonicStatBonus` in [`IER-extra.c`](../../../Kernel/Wizardry/Common/ItemSys/IERevamp/Source/IER-extra.c) | Returns the +2 tonic bonus when the stored chapter and tonic type are valid |
-| **HP tonic getter** | `HPTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into HP status calculation |
-| **STR tonic getter** | `PowTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Strength status calculation |
-| **MAG tonic getter** | `MagTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Magic status calculation |
-| **SKL tonic getter** | `SklTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Skill status calculation |
-| **SPD tonic getter** | `SpdTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Speed status calculation |
-| **LCK tonic getter** | `LckTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Luck status calculation |
-| **DEF tonic getter** | `DefTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Defense status calculation |
-| **RES tonic getter** | `ResTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Resistance status calculation |
-| **OMNI tonic getter** | `OmniTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/Core/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into every tracked stat getter that reads the omni tonic |
-| **Save/load state** | `MSU_SaveTonicState` and `MSU_LoadTonicState` in [`MsuFunc.c`](../../../Kernel/Wizardry/Common/SaveData/Source/MsuFunc.c) | Persists tonic chapter state and the per-unit tonic state array in suspend/save data |
+| **Tonic use flow** | `ExecStatBoostItem` and `ApplyStatBoostItem` in [`IER-extra.c`](../../../Kernel/Wizardry/ItemSys/IERevamp/Source/IER-extra.c) | Detects tonic usage, records the selected tonic index, and triggers the tonic popup |
+| **Tonic validity check** | `IsTonicCampaignActive` and `IsTonicCampaignActiveIndex` in [`IER-extra.c`](../../../Kernel/Wizardry/ItemSys/IERevamp/Source/IER-extra.c) | Verifies that the stored tonic matches the current unit and chapter |
+| **Tonic bonus lookup** | `GetTonicStatBonus` in [`IER-extra.c`](../../../Kernel/Wizardry/ItemSys/IERevamp/Source/IER-extra.c) | Returns the +2 tonic bonus when the stored chapter and tonic type are valid |
+| **HP tonic getter** | `HPTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into HP status calculation |
+| **STR tonic getter** | `PowTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Strength status calculation |
+| **MAG tonic getter** | `MagTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Magic status calculation |
+| **SKL tonic getter** | `SklTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Skill status calculation |
+| **SPD tonic getter** | `SpdTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Speed status calculation |
+| **LCK tonic getter** | `LckTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Luck status calculation |
+| **DEF tonic getter** | `DefTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Defense status calculation |
+| **RES tonic getter** | `ResTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into Resistance status calculation |
+| **OMNI tonic getter** | `OmniTonic` in [`TonicGetter.c`](../../../Kernel/Wizardry/UnitStatusGetter/source/TonicGetter.c) | Feeds the tonic bonus into every tracked stat getter that reads the omni tonic |
+| **Save/load state** | `MSU_SaveTonicState` and `MSU_LoadTonicState` in [`MsuFunc.c`](../../../Kernel/Wizardry/SaveData/Source/MsuFunc.c) | Persists tonic chapter state and the per-unit tonic state array in suspend/save data |
 | **RAM storage** | `gUnitTonicState` and `gTonicChapterState` in [`config-memmap.s`](../../../include/link/config-memmap.s) and [`save-data.h`](../../../include/kernel/save-data.h) | Reserves the shared runtime storage used by the tonic system |
 | **Item text** | `MSG_ITEM_TONIC_*` entries in [`Items.txt`](../../../Contents/Texts/Source/texts/Items.txt) | Stores the visible tonic names, descriptions, and use text |
 | **Item icons** | `GFX_TonicIcon_*` in [`GfxInstaller.event`](../../../Contents/Gfx/GfxInstaller.event) and [`IconTable.c`](../../../Data/Misc/IconTable.c) | Registers the tonic item icons shown in menus and popups |

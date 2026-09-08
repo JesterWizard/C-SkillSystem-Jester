@@ -71,13 +71,13 @@ Gated by `gpKernelDesignerConfig->portrait_32_color` in `designer-config.c`.
 | **Mug formatter** | [`PortraitFormatter32`](../../Tools/EventAssembler/Tools/PortraitFormatter32) | Writes pal0 mug, pal0+pal1 (`0x40`), overlay mug (`0x1000` at `+0x1644`), padded chibi |
 | **Portrait table macros** | `setMugEntry_32Color` in [`Tool Helpers.txt`](../../Tools/EventAssembler/Tools/Tool Helpers.txt) | `imgChibi` at `+0x2650`, `pal` at `+0x1604`, `imgCard` at pal1 (`+0x1624`) |
 | **Test mug** | `Portrait_0x02` in [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | Eirika FID `0x02` via `Portraits/eirika_32.png` |
-| **Bind / unbind / overlay copy** | `Portrait32_BindFace`, `Portrait32_UnbindFace`, `Portrait32_LoadOverlayGfx` in [`Portrait32Color.c`](../../Kernel/Wizardry/Misc/Portrait32Color/Source/Portrait32Color.c) | Pairs slot `n` with bank `n ^ 1`, copies overlay CHR, restores pal on end |
-| **Draw** | `Face_OnIdle` in [`Portrait32Color.c`](../../Kernel/Wizardry/Misc/Portrait32Color/Source/Portrait32Color.c) | Vanilla sprite then overlay sprite at pal1 |
-| **Fade-in** | `Portrait32_OnFadeIn` from `StartFaceFadeIn` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Pal-fades pal1; fade-out does not pal-fade the stolen bank |
-| **Slot pairing** | `FindFreeFaceSlot` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Step 2 when 32-color **or** halfbody is on, so talk only uses slots 0 and 2 |
-| **Decompress hook** | `Face_OnInit` and `sub_8006650` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/Misc/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Decompress pal0 mug, then `Portrait32_LoadOverlayGfx` |
-| **Lyn jumps** | [`LynJump.event`](../../Kernel/Wizardry/Misc/Portrait32Color/Source/LynJump.event) | `$55BC` `Face_OnIdle`, `$5738` `EndFace` |
-| **Installer** | [`Portrait32Color_Installer.event`](../../Kernel/Wizardry/Misc/Portrait32Color/Portrait32Color_Installer.event) | Included from [`custom_wizardry.event`](../../Kernel/Wizardry/custom_wizardry.event) after HalfBody |
+| **Bind / unbind / overlay copy** | `Portrait32_BindFace`, `Portrait32_UnbindFace`, `Portrait32_LoadOverlayGfx` in [`Portrait32Color.c`](../../Kernel/Wizardry/Portrait32Color/Source/Portrait32Color.c) | Pairs slot `n` with bank `n ^ 1`, copies overlay CHR, restores pal on end |
+| **Draw** | `Face_OnIdle` in [`Portrait32Color.c`](../../Kernel/Wizardry/Portrait32Color/Source/Portrait32Color.c) | Vanilla sprite then overlay sprite at pal1 |
+| **Fade-in** | `Portrait32_OnFadeIn` from `StartFaceFadeIn` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Pal-fades pal1; fade-out does not pal-fade the stolen bank |
+| **Slot pairing** | `FindFreeFaceSlot` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Step 2 when 32-color **or** halfbody is on, so talk only uses slots 0 and 2 |
+| **Decompress hook** | `Face_OnInit` and `sub_8006650` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Decompress pal0 mug, then `Portrait32_LoadOverlayGfx` |
+| **Lyn jumps** | [`LynJump.event`](../../Kernel/Wizardry/Portrait32Color/Source/LynJump.event) | `$55BC` `Face_OnIdle`, `$5738` `EndFace` |
+| **Installer** | [`Portrait32Color_Installer.event`](../../Kernel/Wizardry/Portrait32Color/Portrait32Color_Installer.event) | Included from [`wizardry.event`](../../Kernel/Wizardry/wizardry.event) after HalfBody |
 | **RAM** | `sPortrait32State` in [`config-memmap.s`](../../include/link/config-memmap.s) | Four slot records + magic (`0xA4`); not suspend-persisted |
 
 ---

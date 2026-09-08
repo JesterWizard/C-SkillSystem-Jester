@@ -62,10 +62,10 @@ The feature is built around three pieces of behavior:
 
 To add a new thought bubble set for another unit or chapter:
 
-- first create the bubble art as **64x64 graphics** using the **secondary icon palette** as a base; the existing character subfolders under [`Kernel/Wizardry/Misc/WorldMapThoughts`](../../Kernel/Wizardry/Misc/WorldMapThoughts) show the expected palette and can be copied as a template
-- add the graphics as labels in [`WorldMapThoughts_Installer.event`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts_Installer.event) and provide the image file paths there so the assets are generated and linked correctly
+- first create the bubble art as **64x64 graphics** using the **secondary icon palette** as a base; the existing character subfolders under [`Kernel/Wizardry/WorldMapThoughts`](../../Kernel/Wizardry/WorldMapThoughts) show the expected palette and can be copied as a template
+- add the graphics as labels in [`WorldMapThoughts_Installer.event`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts_Installer.event) and provide the image file paths there so the assets are generated and linked correctly
 - once the labels exist, add the single graphics declarations in [`thought_bubbles.h`](../../include/jester_headers/thought_bubbles.h)
-- add the new graphics references to the appropriate chapter table in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c)
+- add the new graphics references to the appropriate chapter table in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c)
 - extend `GetWorldMapThoughtBubbleForUnit` so the new unit returns the correct table
 - keep the chapter indexing aligned with the world map chapter order used by the feature
 
@@ -77,13 +77,13 @@ If a unit does not have a bubble entry for a chapter, the array slot should rema
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| World map thought bubble tables | `WorldMapThoughtBubbleEirika` / `WorldMapThoughtBubbleSeth` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Chapter-indexed bubble graphics used by the UI |
+| World map thought bubble tables | `WorldMapThoughtBubbleEirika` / `WorldMapThoughtBubbleSeth` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Chapter-indexed bubble graphics used by the UI |
 | Bubble asset declarations | [`thought_bubbles.h`](../../include/jester_headers/thought_bubbles.h) | Declares the single bubble graphics symbols used by the feature |
-| Bubble selection logic | `GetWorldMapThoughtBubbleForUnit` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Chooses the active bubble table for the current unit |
-| Bubble initialization | `WorldMapThoughtBubble_Init` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Decompresses one bubble graphic and copies it into both VRAM sprite slots |
-| Bubble rendering loop | `WorldMapThoughtBubble_Loop` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Draws the bubble sprites while the proc is active |
-| Unit switching | `GetNextWorldMapRosterUnitId` and the `R_BUTTON` branch in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Cycles the active world map unit through the roster |
-| Camera centering | `WorldMap_CenterCamera` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/Misc/WorldMapThoughts/WorldMapThoughts.c) | Centers the map camera when the selected node matches the unit's current location |
+| Bubble selection logic | `GetWorldMapThoughtBubbleForUnit` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Chooses the active bubble table for the current unit |
+| Bubble initialization | `WorldMapThoughtBubble_Init` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Decompresses one bubble graphic and copies it into both VRAM sprite slots |
+| Bubble rendering loop | `WorldMapThoughtBubble_Loop` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Draws the bubble sprites while the proc is active |
+| Unit switching | `GetNextWorldMapRosterUnitId` and the `R_BUTTON` branch in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Cycles the active world map unit through the roster |
+| Camera centering | `WorldMap_CenterCamera` in [`WorldMapThoughts.c`](../../Kernel/Wizardry/WorldMapThoughts/WorldMapThoughts.c) | Centers the map camera when the selected node matches the unit's current location |
 
 ---
 

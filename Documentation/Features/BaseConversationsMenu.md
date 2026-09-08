@@ -46,12 +46,12 @@ The aim is to ensure:
 |--------|----------|-------------|
 | **RAM - Allocation 1** | `gList_Total` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
 | **RAM - Allocation 2** | `gBaseConversations_Flags` in [`config-memmap.s`](../../include/link/config-memmap.s) | Holds RAM allocations for various global variables and arrays |
-| **Base Conversation table** | `gBaseConversationTable` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Handles all elements of the convos |
-| **Get number of conos per chapter** | `NumberOfChapterBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) |
-| **Redraw UI elements** | `DrawBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Redraw various UI elements when required |
-| **Initialize UI elements** | `PrepInitGfx_BASE` in [`BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Set up backgrounds and UI elements |
-| **Frame loop** | `PrepLoop_MainKeyHandler_BASE` in [BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The loop that runs every frame check for button states etc |
-| **Popup proc for awarding items** | `BasePopup` in [BaseConversations.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The proc that handles the notifying of item awards |
+| **Base Conversation table** | `gBaseConversationTable` in [`BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Handles all elements of the convos |
+| **Get number of conos per chapter** | `NumberOfChapterBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) |
+| **Redraw UI elements** | `DrawBaseConversations` in [`BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Redraw various UI elements when required |
+| **Initialize UI elements** | `PrepInitGfx_BASE` in [`BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | Set up backgrounds and UI elements |
+| **Frame loop** | `PrepLoop_MainKeyHandler_BASE` in [BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The loop that runs every frame check for button states etc |
+| **Popup proc for awarding items** | `BasePopup` in [BaseConversations.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BaseConversations.c) | The proc that handles the notifying of item awards |
 | **Text strings for convos** | [BaseConversations.txt`](../../Data/CustomCampaign/Text/BaseConversations/BaseConversations.txt) | The text file that handles the storing of base convo titles and text conversations |
 
 ---

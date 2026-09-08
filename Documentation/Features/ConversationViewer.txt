@@ -84,8 +84,8 @@ The feature is gated behind the `gpKernelDesignerConfig->prep_menu_event_replay`
 
 | Feature | Location | Description |
 |---------|----------|-------------|
-| **Conversation catalog & proc** | `ProcScr_EventReplay`, `gEventReplayTable[]`, `gReplay_ChXX[]` in [`EventReplay.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c) | Defines all per-chapter conversation lists, filters by `gPlaySt.chapterIndex`, drives the two-level menu proc, and plays conversations via `StartTalkExt` |
-| **Prep menu integration** | `PrepScreenMenu_OnEventReplay`, `StartEventReplayScreen_FromPrep`, `InitPrepScreenMainMenu` in [`AtMenu.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/AtMenu.c) | Registers the "Replay" entry in `gPrepMenuTable[]`, dispatches to `ProcScr_EventReplay` via `AtMenu_StartSubmenu`, and conditionally shows the menu item based on the designer config flag |
+| **Conversation catalog & proc** | `ProcScr_EventReplay`, `gEventReplayTable[]`, `gReplay_ChXX[]` in [`EventReplay.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c) | Defines all per-chapter conversation lists, filters by `gPlaySt.chapterIndex`, drives the two-level menu proc, and plays conversations via `StartTalkExt` |
+| **Prep menu integration** | `PrepScreenMenu_OnEventReplay`, `StartEventReplayScreen_FromPrep`, `InitPrepScreenMainMenu` in [`AtMenu.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/AtMenu.c) | Registers the "Replay" entry in `gPrepMenuTable[]`, dispatches to `ProcScr_EventReplay` via `AtMenu_StartSubmenu`, and conditionally shows the menu item based on the designer config flag |
 | **Menu item enum** | `PREP_MAINMENU_EVENT_REPLAY = 10` in [`prepscreen.h`](../../Tools/FE-CLib-Mokha/include/prepscreen.h) | Assigns the prep menu slot index for the Replay option |
 | **Designer config flag** | `prep_menu_event_replay` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Runtime toggle; set to `true` by default to enable the menu item |
 | **RAM allocations** | `gEventReplay_SelectedChapter`, `gEventReplay_ChapterScrollIndex` in [`config-memmap.s`](../../include/link/config-memmap.s) | Persistent RAM slots (1 byte each) that hold the cursor and scroll state across the two menu levels |
@@ -95,7 +95,7 @@ The feature is gated behind the `gpKernelDesignerConfig->prep_menu_event_replay`
 
 ## 📝 How To Add Conversations
 
-1. Open [`EventReplay.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c).
+1. Open [`EventReplay.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/EventReplay.c).
 2. Find the `gReplay_ChXX[]` array for the relevant chapter.
 3. Append an entry using the message ID from `Contents/Texts/build/msgs.h`:
    ```c

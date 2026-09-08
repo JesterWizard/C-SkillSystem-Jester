@@ -43,14 +43,14 @@ The aim is to ensure:
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **BEXP table** | `gBexpGainConstants` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Holds the table for awarded BEXP amounts |
-| **BEXP popup** | `BEXPPopup` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for the popup |
-| **BEXP sprites** | `DrawUnitSprites_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Handles the continous drawing of sprites every frame |
-| **Setup graphics** | `PrepInitGfx_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Setup graphics at the init stage |
-| **Level up proc** | `CallLevelUpProc` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Starts the level up sequence |
-| **Award BEXP** | `GrantBEXP` in [`BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for granting BEXP at the end of a given map |
-| **Frame loop** | `PrepLoop_MainKeyHandler_BEXP` in [BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The loop that runs every frame check for button states etc |
-| **Parent proc for BEXP** | `ProcScr_PrepItemListScreen_BEXP` in [BEXP.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc that handles the entire BEXP menu experience |
+| **BEXP table** | `gBexpGainConstants` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Holds the table for awarded BEXP amounts |
+| **BEXP popup** | `BEXPPopup` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for the popup |
+| **BEXP sprites** | `DrawUnitSprites_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Handles the continous drawing of sprites every frame |
+| **Setup graphics** | `PrepInitGfx_BEXP` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Setup graphics at the init stage |
+| **Level up proc** | `CallLevelUpProc` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | Starts the level up sequence |
+| **Award BEXP** | `GrantBEXP` in [`BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc for granting BEXP at the end of a given map |
+| **Frame loop** | `PrepLoop_MainKeyHandler_BEXP` in [BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The loop that runs every frame check for button states etc |
+| **Parent proc for BEXP** | `ProcScr_PrepItemListScreen_BEXP` in [BEXP.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/BEXP.c) | The proc that handles the entire BEXP menu experience |
 
 ---
 

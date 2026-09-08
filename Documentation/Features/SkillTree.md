@@ -118,11 +118,11 @@ Path choice is **inferred**: the first learned node with `path != 0` becomes the
 | Cursor geometry | `SkillTree_FindNeighbor` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Nearest-node D-pad movement from `x`/`y` |
 | Input / learn | `SkillTree_HandleStatScreenInput`, `SkillTree_TryLearn` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Idle hook, confirm, SP spend, help |
 | Idle replace | `StatScreen_OnIdle` in [`SkillTreePage.c`](../../Data/SkillTree/Source/SkillTreePage.c) | Dispatches tree input; otherwise vanilla unit/page controls |
-| Page id / count | `TranslateStatPageId`, `IsStatScreenPageAvailable` in [`HelpBox.c`](../../Kernel/Wizardry/Core/StatScreen/DrawPages/HelpBox.c); `GetStatPageCount` in [`DrawMorePage.c`](../../Kernel/Wizardry/Core/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Visible index ↔ physical page 7 |
-| Draw table | [`data.event`](../../Kernel/Wizardry/Core/StatScreen/data.event) | `POIN DrawPageSkillTree` at index 7 |
+| Page id / count | `TranslateStatPageId`, `IsStatScreenPageAvailable` in [`HelpBox.c`](../../Kernel/Wizardry/StatScreen/DrawPages/HelpBox.c); `GetStatPageCount` in [`DrawMorePage.c`](../../Kernel/Wizardry/StatScreen/DrawMorePage/Source/DrawMorePage.c) | Visible index ↔ physical page 7 |
+| Draw table | [`data.event`](../../Kernel/Wizardry/StatScreen/data.event) | `POIN DrawPageSkillTree` at index 7 |
 | Installer | [`SkillTree.event`](../../Data/SkillTree/SkillTree.event) via [`Data.event`](../../Data/Data.event) | Lyn events for data + page |
 | Designer flags | [`designer-config.c`](../../Data/DesignerConfig/designer-config.c), [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | `skill_tree`, `stat_page_skill_tree` |
-| Kill SP | [`BattleHit.c`](../../Kernel/Wizardry/Core/BattleSys/Source/BattleHit.c) | Grants SP when `skill_shop` **or** `skill_tree` is on |
+| Kill SP | [`BattleHit.c`](../../Kernel/Wizardry/BattleSys/Source/BattleHit.c) | Grants SP when `skill_shop` **or** `skill_tree` is on |
 | Screen RAM | [`config-memmap.s`](../../include/link/config-memmap.s) | `gSkillTreeCursor` block (cursor, flags, `gSkillTreePageDrawn`, help box) |
 | Temp page name | [`PageNameSprite.c`](../../Data/StatScreen/Source/PageNameSprite.c) | Page-7 sprite reuses Skills art |
 

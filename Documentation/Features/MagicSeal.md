@@ -79,10 +79,10 @@ Dirty refresh is kicked from the end of `RefreshUnitsOnBmMap` via `UpdateMagicSe
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Seal gameplay check** | `IsPositionMagicSealed` / `IsUnitMagicSealed` in [`MiscGetter.c`](../../Kernel/Wizardry/Core/UnitStatusGetter/source/MiscGetter.c) | Range-10 scan over `CA_MAGICSEAL` / `SID_MagicSeal`; skips while events run; silence still seals the unit |
-| **Red wash overlay** | `MagicSealOverlay_OnLoop`, `DrawSealOverlayTiles`, `CollectMagicSealSources` in [`MagicSealVisual.c`](../../Kernel/Wizardry/Common/MagicSealVisual/MagicSealVisual.c) | BG2 solid-tile blend overlay; dirty / camera-tile redraw; yields to move-range UI |
-| **Map refresh hook** | `UpdateMagicSealVisualPalette` called from `RefreshUnitsOnBmMap` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Unpacks chapter map palettes and marks the overlay proc dirty after entity maps refresh |
-| **Installer** | [`MagicSealVisual_Installer.event`](../../Kernel/Wizardry/Common/MagicSealVisual/MagicSealVisual_Installer.event) (via `wizardry-data.event`) | Lyn event + `DisplayBmTile` jump |
+| **Seal gameplay check** | `IsPositionMagicSealed` / `IsUnitMagicSealed` in [`MiscGetter.c`](../../Kernel/Wizardry/UnitStatusGetter/source/MiscGetter.c) | Range-10 scan over `CA_MAGICSEAL` / `SID_MagicSeal`; skips while events run; silence still seals the unit |
+| **Red wash overlay** | `MagicSealOverlay_OnLoop`, `DrawSealOverlayTiles`, `CollectMagicSealSources` in [`MagicSealVisual.c`](../../Kernel/Wizardry/MagicSealVisual/MagicSealVisual.c) | BG2 solid-tile blend overlay; dirty / camera-tile redraw; yields to move-range UI |
+| **Map refresh hook** | `UpdateMagicSealVisualPalette` called from `RefreshUnitsOnBmMap` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Unpacks chapter map palettes and marks the overlay proc dirty after entity maps refresh |
+| **Installer** | [`MagicSealVisual_Installer.event`](../../Kernel/Wizardry/MagicSealVisual/MagicSealVisual_Installer.event) (via `wizardry.event`) | Lyn event + `DisplayBmTile` jump |
 | **Skill text** | `MSG_SKILL_MagicSeal_*` in [`Skills_Debuff.txt`](../../Contents/Texts/Source/texts/Skills_Debuff.txt) | Player-facing name / description |
 
 ---

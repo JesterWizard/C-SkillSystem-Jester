@@ -78,17 +78,17 @@ All behavior is gated behind `gpKernelDesignerConfig->enemy_fog_vision` in [`ker
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Public API** | [`enemy-fog-vision.h`](../../include/kernel/enemy-fog-vision.h) | Declares `BuildEnemyFogVision`, `EnemyFogVisionCanSeeUnit`, and `EnemyFogVisionCanTargetUnit` |
-| **Vision builder** | `BuildEnemyFogVision` in [`EnemyFogVision.c`](../../Kernel/Wizardry/Common/FogVision/EnemyFogVision.c) | Allocates the working map and ORs every acting-faction unit's sight plus torch traps |
-| **Visibility helpers** | `EnemyFogVisionCanSeeUnit` / `EnemyFogVisionCanTargetUnit` in [`EnemyFogVision.c`](../../Kernel/Wizardry/Common/FogVision/EnemyFogVision.c) | Tile lookup and allied-target bypass; omniscient fallback when the map was not built |
-| **Decision setup** | `CpDecide_Main` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Rebuilds enemy vision after entity maps refresh and before each AI unit decides |
-| **Enemy recognition gate** | `AiIsUnitEnemy` in [`MiscFunctions.c`](../../Kernel/Wizardry/Misc/MiscFunctions/Source/MiscFunctions.c) | Routes non-allied checks through faction vision |
-| **Offensive bypass gate** | `AiAttemptOffensiveAction` in [`AiOptimization.c`](../../Kernel/Wizardry/Core/AiHack/AiOptimization/Source/AiOptimization.c) | Extra visibility check for rampage / bypass paths |
-| **Scripted target searches** | `AiFindTargetInReachByCharId` / `AiFindTargetInReachByClassId` in [`AI.c`](../../Kernel/Wizardry/Common/AI/Source/AI.c) | Character- and class-specific AI scripts ignore unseen units |
-| **Menu skill AI** | menu-skill target pick in [`MiscAiSkills.c`](../../Kernel/Wizardry/Misc/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Chooses the first visible target from the candidate list |
-| **Realtime AI** | nearest-enemy search in [`RealtimeScheduler.c`](../../Kernel/Wizardry/Common/RealtimeBattle/Source/RealtimeScheduler.c) | Keeps realtime combat selection vision-aware |
-| **Installer** | [`FogVision_Installer.event`](../../Kernel/Wizardry/Common/FogVision/FogVision_Installer.event) | Links `EnemyFogVision.lyn.event` with the fog vision package |
+| **Vision builder** | `BuildEnemyFogVision` in [`EnemyFogVision.c`](../../Kernel/Wizardry/FogVision/EnemyFogVision.c) | Allocates the working map and ORs every acting-faction unit's sight plus torch traps |
+| **Visibility helpers** | `EnemyFogVisionCanSeeUnit` / `EnemyFogVisionCanTargetUnit` in [`EnemyFogVision.c`](../../Kernel/Wizardry/FogVision/EnemyFogVision.c) | Tile lookup and allied-target bypass; omniscient fallback when the map was not built |
+| **Decision setup** | `CpDecide_Main` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Rebuilds enemy vision after entity maps refresh and before each AI unit decides |
+| **Enemy recognition gate** | `AiIsUnitEnemy` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Routes non-allied checks through faction vision |
+| **Offensive bypass gate** | `AiAttemptOffensiveAction` in [`AiOptimization.c`](../../Kernel/Wizardry/AiHack/AiOptimization/Source/AiOptimization.c) | Extra visibility check for rampage / bypass paths |
+| **Scripted target searches** | `AiFindTargetInReachByCharId` / `AiFindTargetInReachByClassId` in [`AI.c`](../../Kernel/Wizardry/AI/Source/AI.c) | Character- and class-specific AI scripts ignore unseen units |
+| **Menu skill AI** | menu-skill target pick in [`MiscAiSkills.c`](../../Kernel/Wizardry/SkillEffects/AiSkills/MiscAiSkills/MiscAiSkills.c) | Chooses the first visible target from the candidate list |
+| **Realtime AI** | nearest-enemy search in [`RealtimeScheduler.c`](../../Kernel/Wizardry/RealtimeBattle/Source/RealtimeScheduler.c) | Keeps realtime combat selection vision-aware |
+| **Installer** | [`FogVision_Installer.event`](../../Kernel/Wizardry/FogVision/FogVision_Installer.event) | Links `EnemyFogVision.lyn.event` with the fog vision package |
 | **Working buffer** | `gBmMapEnemyVisionBuffer` / `gBmMapEnemyVision` in [`config-memmap.s`](../../include/link/config-memmap.s) | Dedicated `0x800` map buffer so enemy vision never writes player `gBmMapFog` |
-| **Range table consumer** | `GetUnitFogViewRange` in [`FogVision.c`](../../Kernel/Wizardry/Common/FogVision/FogVision.c) | Shared per-class vision source for both player fog and enemy AI |
+| **Range table consumer** | `GetUnitFogViewRange` in [`FogVision.c`](../../Kernel/Wizardry/FogVision/FogVision.c) | Shared per-class vision source for both player fog and enemy AI |
 
 ---
 

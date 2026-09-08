@@ -47,13 +47,13 @@ Spending that resource allows the user to upgrade weapons in their supply to the
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Infuse table** | `gInfusionLookupTable` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Holds the table for input/output items and costs |
-| **Infuse popup** | `InfusedPopup` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | The proc for the popup |
-| **Infuse sprites** | `drawInfuseSprites` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Handles the continous drawing of sprites every frame |
-| **Setup graphics** | `PrepItemList_InitGfx_INFUSE` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Setup graphics at the init stage |
-| **Setup sprite text** | `SetupSpriteTextDestination` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Setup the yes/no and popup item sprite texts |
-| **Backend infuse logic** | `PerformInfusion` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Handles the backend logic for infusion |
-| **Frame loop** | `PrepItemList_Loop_MainKeyHandler_INFUSE` in [`Infuse.c`](../../Kernel/Wizardry/Core/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | The loop that runs every frame check for button states etc |
+| **Infuse table** | `gInfusionLookupTable` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Holds the table for input/output items and costs |
+| **Infuse popup** | `InfusedPopup` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | The proc for the popup |
+| **Infuse sprites** | `drawInfuseSprites` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Handles the continous drawing of sprites every frame |
+| **Setup graphics** | `PrepItemList_InitGfx_INFUSE` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Setup graphics at the init stage |
+| **Setup sprite text** | `SetupSpriteTextDestination` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Setup the yes/no and popup item sprite texts |
+| **Backend infuse logic** | `PerformInfusion` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | Handles the backend logic for infusion |
+| **Frame loop** | `PrepItemList_Loop_MainKeyHandler_INFUSE` in [`Infuse.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/Infuse.c) | The loop that runs every frame check for button states etc |
 
 ---
 

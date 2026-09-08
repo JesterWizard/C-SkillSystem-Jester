@@ -19,7 +19,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.battle_max_damage = 127,
 	.battle_surrend_en = false,
 	.biorhythm_mechanic = false,
-	.c03_do_not_flush_efx_status = true, // Mokha leftover; purpose unclear
+	.c03_do_not_flush_efx_status = true, // keep status palette flashes through C03 (attack start); false = vanilla wipe of ids matching 0xC 
 	.calculate_map_range_faster = true, // AI only ranges the 3 closest enemies
 	.casual_mode = false,
 	.chatlog_enabled = true,
@@ -55,7 +55,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gaiden_magic_requires_wrank = false, // true = require weapon rank
 	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table
 	.gameover_quotes = false,
-	.gen_new_scroll = false, // 1 = replace equipped skill and generate a scroll, 0 = learn for prep
+	.gen_new_scroll = false, // true = replace equipped skill and generate a scroll, false = learn for prep
 	.goal_escape = false,
 	.goal_timer = false,
 	.guaranteed_lvup = false,
@@ -71,9 +71,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.leadership = true,
 	.limited_shop_items = true,
 	.load_skills_through_feb_formatted_list = false, // FEBuilder-only skill list loading
-	.lvup_mode_easy     = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
-	.lvup_mode_hard	    = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
-	.lvup_mode_normal   = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_mode_easy = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_mode_hard	= 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_mode_normal = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.map_menu_character_biographies = false,
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,
 	.max_level = UNIT_LEVEL_MAX_RE,
