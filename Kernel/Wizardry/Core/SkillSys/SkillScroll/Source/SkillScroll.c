@@ -108,6 +108,46 @@ int GetSkillScrollItemIconId(int item)
 }
 
 /* Item use */
+static bool sSkillScrollReplaceMenuActive;
+
+void SkillScroll_EndReplaceMenuWait(void)
+{
+	sSkillScrollReplaceMenuActive = false;
+}
+
+static bool SkillScrollReplaceMenuRunning(ProcPtr proc)
+{
+	(void)proc;
+	return sSkillScrollReplaceMenuActive;
+}
+
+static int GetSkillIdFromScroll(int item)
+{
+	int sid;
+
+	if (TryGetSkillScrollSid(item, &sid))
+		return sid;
+
+	return 0;
+}
+
+static u16 MakeSkillScrollItem(u16 sid)
+{
+#ifdef CONFIG_TURN_ON_ALL_SKILLS
+	if (sid > 0x2FF)
+		return ((sid - 0x2FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_4;
+	if (sid > 0x1FF)
+		return ((sid - 0x1FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_3;
+	if (sid > 0x0FF)
+		return ((sid - 0x0FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_2;
+#endif
+#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
+	return (sid << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_1;
+#else
+	return 0;
+#endif
+}
+
 static void call_remove_skill_menu(void)
 {
 	StartSubtitleHelp(
@@ -130,6 +170,7 @@ static void call_predation_skill_menu(void)
 const struct ProcCmd ProcScr_SkillScrollUseSoftLock[] = {
     PROC_YIELD,
     PROC_CALL(call_remove_skill_menu),
+    PROC_WHILE(SkillScrollReplaceMenuRunning),
     PROC_END
 };
 
@@ -164,188 +205,101 @@ static const EventScr EventScr_SkillCapacityReached[] = {
 
 void ItemUseEffect_SkillScroll(struct Unit *unit)
 {
-	gActionData.unk08 = -1;
-	SetItemUseAction(unit);
+	gActionData.unk08 = 0xFFFF;
+	gEventSlots[EVT_SLOT_7] = 0;
 
-	if (gpKernelDesignerConfig->gen_new_scroll == false) {
-		/**
-		 * If the unit has been filled with equipable skills,
-		 * player need to select to remove a equipped skill.
-		 **/
-		if (GetFreeSkillSlot(unit) == -1)
-			Proc_StartBlocking(ProcScr_SkillScrollUseSoftLock, Proc_Find(gProcScr_PlayerPhase));
+	if (gpKernelDesignerConfig->gen_new_scroll && GetFreeSkillSlot(unit) == -1) {
+		sSkillScrollReplaceMenuActive = true;
+		Proc_StartBlocking(ProcScr_SkillScrollUseSoftLock, Proc_Find(gProcScr_PlayerPhase));
+		return;
 	}
+
+	SetItemUseAction(unit);
 }
 
 void ItemUseAction_SkillScroll(ProcPtr proc)
 {
-    struct Unit * unit = GetUnit(gActionData.subjectIndex);
-    int slot = gActionData.itemSlotIndex;
-    FORCE_DECLARE int item = unit->items[slot];
-    int learnedSid = 0;
+	struct Unit *unit = GetUnit(gActionData.subjectIndex);
+	int slot = gActionData.itemSlotIndex;
+	int item = unit->items[slot];
+	int learnedSid = GetSkillIdFromScroll(item);
+	bool replacing = gEventSlots[EVT_SLOT_7] == 0xFFFF;
+	int sid_rep = 0;
 
-    if (gpKernelDesignerConfig->tellius_skill_capacity_system == true)
-    {
-        int amt = GetUnitBattleAmt(gActiveUnit);
-        int total = gpKernelDesignerConfig->tellius_skill_capacity_base;
+	if (!learnedSid)
+		return;
 
-        if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
-            total += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
+	if (replacing)
+		sid_rep = GET_SKILL(unit, gActionData.unk08);
 
-        int capacity = 0;
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system == true) {
+		int amt = GetUnitBattleAmt(unit);
+		int total = gpKernelDesignerConfig->tellius_skill_capacity_base;
+		int capacity = GetSkillCapacity(learnedSid);
 
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-            GetSkillCapacity(GetItemUses(item));
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-            GetSkillCapacity(GetItemUses(item) + 0xFF);
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-            GetSkillCapacity(GetItemUses(item) + 0x1FF);
-    #endif
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-        if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-            GetSkillCapacity(GetItemUses(item) + 0x2FF);
-    #endif
+		if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+			total += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
 
-        if (capacity == -1 ) 
-            capacity = 0;
-        else {
-    #if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
-            if (SkillTester(unit, SID_CapacityHalf))
-                capacity = capacity / 2;
-    #endif
-    #if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
-            if (SkillTester(unit, SID_CapacityOne))
-                capacity = 1;
-    #endif
-            }
-
-        amt += capacity;
-
-        if (amt > total)
-        {
-            KernelCallEvent(EventScr_SkillCapacityReached, EV_EXEC_CUTSCENE, proc);
-            gActionDataExpa.refrain_action = true;
-            return;
-        }
-    }
-
-    if (gEventSlots[EVT_SLOT_7] == 0xFFFF)
-    {
-        /* Replace skill */
-        int slot_rep = gActionData.unk08;
-        int sid_rep = GET_SKILL(unit, slot_rep);
-
-        RemoveSkill(unit, sid_rep);
-
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-    {
-        learnedSid = ITEM_USES(item);
-        AddSkill(unit, learnedSid);
-    }
+#if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
+		if (SkillTester(unit, SID_CapacityHalf))
+			capacity = capacity / 2;
 #endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-    {
-        learnedSid = ITEM_USES(item) + 0xFF;
-        AddSkill(unit, learnedSid);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-    {
-        learnedSid = ITEM_USES(item) + 0x1FF;
-        AddSkill(unit, learnedSid);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-    {
-        learnedSid = ITEM_USES(item) + 0x2FF;
-        AddSkill(unit, learnedSid);
-    }
+#if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
+		if (SkillTester(unit, SID_CapacityOne))
+			capacity = 1;
 #endif
 
-        SetPopupItem(learnedSid);
+		if (replacing)
+			amt -= GetSkillCapacity(sid_rep);
 
+		if (amt < 0)
+			amt = 0;
+
+		amt += capacity;
+
+		if (amt > total) {
+			KernelCallEvent(EventScr_SkillCapacityReached, EV_EXEC_CUTSCENE, proc);
+			gActionDataExpa.refrain_action = true;
+			return;
+		}
+	}
+
+	if (replacing) {
+		RemoveSkill(unit, sid_rep);
+		ForgetSkill(unit, sid_rep);
+	}
+
+	AddSkill(unit, learnedSid);
+	SetPopupItem(learnedSid);
+
+	if (replacing && (gpKernelDesignerConfig->gen_new_scroll
 #if defined(SID_ScrollScribe) && (COMMON_SKILL_VALID(SID_ScrollScribe))
-        if (SkillTester(unit, SID_ScrollScribe))
-        {
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-            if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-                unit->items[slot] = ITEM_INDEX(item)         | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-                unit->items[slot] = ITEM_INDEX(item + 0xFF)  | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-                unit->items[slot] = ITEM_INDEX(item + 0x1FF) | (sid_rep << 8);
-            else if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-                unit->items[slot] = ITEM_INDEX(item + 0x2FF) | (sid_rep << 8);
+		|| SkillTester(unit, SID_ScrollScribe)
 #endif
-        }
-        else 
-            UnitUpdateUsedItem(unit, slot);
-#else 
-        UnitUpdateUsedItem(unit, slot);
-#endif
+		)) {
+		unit->items[slot] = MakeSkillScrollItem(sid_rep);
+	} else {
+		UnitUpdateUsedItem(unit, slot);
+	}
 
-    }
-    else
-    {
-        /* Simply add a new skill */
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_1)
-    {
-        learnedSid = ITEM_USES(item);
-        AddSkill(unit, learnedSid);
-        SetPopupItem(learnedSid);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_2
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_2)
-    {
-        learnedSid = ITEM_USES(item) + 0xFF;
-        AddSkill(unit, learnedSid);
-        SetPopupItem(learnedSid);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_3
-    if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_SKILL_SCROLL_3)
-    {
-        learnedSid = ITEM_USES(item) + 0x1FF;
-        AddSkill(unit, learnedSid);
-        SetPopupItem(learnedSid);
-    }
-#endif
-#ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_4
-    if (ITEM_INDEX(item) ==  CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
-    {
-        learnedSid = ITEM_USES(item) + 0x2FF;
-        AddSkill(unit, learnedSid);
-        SetPopupItem(learnedSid);
-    }
-#endif
-        UnitUpdateUsedItem(unit, slot);
-    }
-
-    SetPopupUnit(gActiveUnit);
-
-    NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
+	SetPopupUnit(gActiveUnit);
+	NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
 }
 
 bool ItemUsability_SkillScroll(struct Unit *unit, int item)
 {
-	return !IsSkillLearned(unit, ITEM_USES(item));
+	int sid = GetSkillIdFromScroll(item);
+
+	if (!sid)
+		return false;
+
+	return !IsSkillLearned(unit, sid);
 }
 
 /* Prep item use */
 void PrepItemUseScroll_OnDraw(struct ProcPrepItemUseJunaFruit *proc, int item, int x, int y)
 {
-	int skill = ITEM_USES(item);
+	int skill = GetSkillIdFromScroll(item);
 	const char *str = GetStringFromIndex(MSG_SkillLearned);
 	struct Text *text = &gPrepItemTexts[TEXT_PREPITEM_POPUP];
 	int icon = SKILL_ICON(skill);
@@ -386,7 +340,7 @@ void PrepItemUseScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
 {
 	struct ProcPrepItemUse *parent = proc->proc_parent;
 
-	AddSkill(parent->unit, ITEM_USES(parent->unit->items[parent->slot]));
+	AddSkill(parent->unit, GetSkillIdFromScroll(parent->unit->items[parent->slot]));
 	UnitUpdateUsedItem(parent->unit, parent->slot);
 	PrepItemUseJuna_OnEnd(proc);
 }
@@ -405,22 +359,16 @@ void PrepItemEffect_SkillScroll(struct ProcPrepItemUse *proc, u16 item)
 
 bool PrepItemUsability_SkillScroll(struct Unit *unit, int item)
 {
-	if (gpKernelDesignerConfig->gen_new_scroll == false) {
-		/**
-		 * If skillsys is configured unequipable,
-		 * then we need to find a free-slot to equip the skill.
-		 */
-		if (GetFreeSkillSlot(unit) == -1)
-			return false;
+	int sid = GetSkillIdFromScroll(item);
 
-		return true;
-	}
+	if (!sid || IsSkillLearned(unit, sid))
+		return false;
 
-	/**
-	 * If player can equip skill by themself,
-	 * then they just need to avoid from learned skill.
-	 */
-	return !IsSkillLearned(unit, ITEM_USES(item));
+	/* Replace-and-generate-scroll needs the map menu; prep has no replace UI */
+	if (gpKernelDesignerConfig->gen_new_scroll && GetFreeSkillSlot(unit) == -1)
+		return false;
+
+	return true;
 }
 
 /**

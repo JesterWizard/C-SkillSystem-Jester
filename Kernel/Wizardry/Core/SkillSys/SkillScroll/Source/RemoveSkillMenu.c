@@ -86,6 +86,7 @@ STATIC_DECLAR u8 PredationSkillMenu_HelpBox(struct MenuProc * menu, struct MenuI
 STATIC_DECLAR u8 RemoveSkillMenu_OnCancel(struct MenuProc * menu, struct MenuItemProc * item)
 {
     /* Reset action */
+    SkillScroll_EndReplaceMenuWait();
     gActionData.unitActionType = 0;
 
     BG_Fill(gBG0TilemapBuffer, 0);
@@ -354,6 +355,8 @@ struct PopupInstruction const PopupScr_GotScroll[] = {
 
 STATIC_DECLAR u8 RemoveSkillMenu_OnSelected(struct MenuProc * menu, struct MenuItemProc * item)
 {
+    SkillScroll_EndReplaceMenuWait();
+
 
 #if defined(SID_ScrollScribePlus) && (COMMON_SKILL_VALID(SID_ScrollScribePlus))
     if (gEventSlots[EVT_SLOT_8] == SID_ScrollScribePlus)

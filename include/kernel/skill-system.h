@@ -368,6 +368,7 @@ extern const struct MenuDef ScrollScribeMenuDef;
 extern const struct ProcCmd ProcScr_SkillScrollUseSoftLock[];
 extern const struct ProcCmd ProcScr_PredationSoftLock[];
 extern const struct ProcCmd ProcScr_PredationPlusSoftLock[];
+void SkillScroll_EndReplaceMenuWait(void);
 
 /**
  * Miscs

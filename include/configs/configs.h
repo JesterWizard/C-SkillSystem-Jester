@@ -26,7 +26,6 @@
 #define CONFIG_TEXT_ENGINE_REWORK    // All ASM, so easier to use build time config
 #define CONFIG_SHOW_CGs_LIKE_FE7     // All ASM, so easier to use build time config
 #define CONFIG_UNIT_SELECTION_QUOTES // Installs assets so needs a build time config
-#define CONFIG_VOICE_ACTED_DIALOGUE  // Installs assets so needs a build time config
 #define CONFIG_VESLY_SHOOT_ARROW     // All ASM, so easier to use build time config
 #define CONFIG_RES_TERRAIN_WINDOW    // All ASM, so easier to use build time config
 #define CONFIG_MAX_COLOR_BACKGROUNDS // All ASM, so easier to use build time config

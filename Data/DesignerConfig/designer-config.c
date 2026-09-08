@@ -3,10 +3,10 @@
 #include "skill-system.h"
 
 const struct KernelDesigerConfig gKernelDesigerConfig = {
-	.ai_dance_use = true, // False = AI never uses the dance command
+	.ai_dance_use = true, // false = AI never dances
 	.ai_player_phase = false,
 	.anima_weapon_triangle = false,
-	.apply_dynamic_nosferatu_battle_anim = true, // This exists to allow the Nosferatu battle animation to be dynamically applied to new spells
+	.apply_dynamic_nosferatu_battle_anim = true, // apply Nosferatu anim to new spells
 	.arena_calculate_weapon_based_on_level = true,
 	.arena_let_player_use_upgraded_weapons = true,
 	.arena_limits = false,
@@ -19,8 +19,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.battle_max_damage = 127,
 	.battle_surrend_en = false,
 	.biorhythm_mechanic = false,
-	.c03_do_not_flush_efx_status = true, // Honestly, no clue. but Mokha used it so I'm moving it here
-	.calculate_map_range_faster = true, // Speeds up AI decision making by only calculating the three closest enemies, without it the AI takes forever 
+	.c03_do_not_flush_efx_status = true, // Mokha leftover; purpose unclear
+	.calculate_map_range_faster = true, // AI only ranges the 3 closest enemies
 	.casual_mode = false,
 	.chatlog_enabled = true,
 	.collect_dead_units = true,
@@ -37,40 +37,25 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.death_dance = true,
 	.debug_autoload_skills = false,
 	.deny_stat_screen_access = true,
-	.display_status_flash_on_hit = true, // In banim, unit status flashing is decided by ext-hit rather than ANIM_ROUND_POISON
+	.display_status_flash_on_hit = true, // banim status flash from ext-hit, not ANIM_ROUND_POISON
 	.display_terrain_bonuses_in_stat_screen = true,
-
-	/**
-	 * When true, classes may remap the eight Unit::ranks slots onto any
-	 * rank-bearing weapon types via gClassWeaponSlotConf (knives, guns, etc.).
-	 * When false, slot N always stores weapon type N (vanilla behaviour).
-	 */
-	.dynamic_weapon_slots = true,
+	.dynamic_weapon_slots = true, // true = remap rank slots via gClassWeaponSlotConf; false = vanilla
 	.enemy_can_combo_attack = false,
 	.enemy_fog_vision = true,
-	.engage_combo_attack = true, // Requires the skill SID_ChainAttack
+	.engage_combo_attack = true, // requires SID_ChainAttack
 	.expanded_hp = true,
-	.fast_map_animations = false, // This is funny when free movement is enabled, might fix later
+	.fast_map_animations = false, // broken with free movement
 	.fe8_rewritten_specific_changes = true,
 	.flipped_enemy_sprites = true,
 	.forge_mechanic = false,
 	.free_movement = true,
 	.gaiden_magic = true,
-	.gaiden_magic_ai_use = false,           // False = AI can't use gaiden magic
-	.gaiden_magic_must_be_magic = false,    // False = all weapons are allowed, True = Only magic weapons
-	.gaiden_magic_requires_wrank = false,   // False = Doesn't require unit to have a rank in that weapon to use
-	.gaiden_magic_skill_extensions = true, // False = Apply an extenal table with skills that apply more gaiden magic
+	.gaiden_magic_ai_use = false, // false = AI can't use gaiden magic
+	.gaiden_magic_must_be_magic = false, // true = magic weapons only
+	.gaiden_magic_requires_wrank = false, // true = require weapon rank
+	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table
 	.gameover_quotes = false,
-
-	/* JESTER - This doesn't actually work right now, amend later */
-	/**
-	 * Decide whether to allow players to generate a new skill scroll,
-	 * if he try to use skill scroll to a unit who has already filled with skills.
-	 *
-	 * 1: choose a equipped skill to replace
-	 * 0: just learn the skill (equippable in prep-skill screen)
-	 */
-	.gen_new_scroll = false,
+	.gen_new_scroll = false, // 1 = replace equipped skill and generate a scroll, 0 = learn for prep
 	.goal_escape = false,
 	.goal_timer = false,
 	.guaranteed_lvup = false,
@@ -85,10 +70,10 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.laguz_bars = false,
 	.leadership = true,
 	.limited_shop_items = true,
-	.load_skills_through_feb_formatted_list = false, // Honestly, this one only means anything if you're using FEBuilder
-	.lvup_mode_easy     = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
-	.lvup_mode_hard	    = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
-	.lvup_mode_normal   = 0,   /* 0: vanilla, 1: random, 2: fixed, 3: 100%, 4: 0% */
+	.load_skills_through_feb_formatted_list = false, // FEBuilder-only skill list loading
+	.lvup_mode_easy     = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_mode_hard	    = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_mode_normal   = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.map_menu_character_biographies = false,
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,
 	.max_level = UNIT_LEVEL_MAX_RE,
@@ -115,15 +100,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.promote_trainees_in_chapter = true,
 	.promotion_on_max_level = true,
 	.quality_of_life_fixes = true,
-
-	/**
-	 * Real-time battle mode.
-	 * When enabled, the map stays on player phase and enemies act on a timer.
-	 * Interval is in frames (GBA runs at 60 FPS, so 60 ~= 1 second).
-	 */
-	.real_time_battle = false, // Broken mess, do not use
-	.real_time_enemy_interval_frames = 60,  /* 1 second between enemy action attempts */
-	.real_time_refresh_frames = 60 * 30,    /* soft refresh / cooldown clear every 30s */
+	.real_time_battle = false, // broken; enemies act on a timer during player phase
+	.real_time_enemy_interval_frames = 60, // 60 frames ≈ 1s between enemy action attempts
+	.real_time_refresh_frames = 60 * 30, // soft refresh / cooldown clear every 30s
 	.remove_move_path = false,
 	.rescue_drop_ai_use = true,
 	.rescue_drop_move_again = true,
@@ -134,8 +113,8 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.shield_ext_equip_config_en = false,
 	.shield_system = false,
 	.show_heal_amount = true,
-	.show_true_2rn = true, /* Options menu: show true 2RN hit rates */
-	.show_tutorial = 1, /* 0: No kernel tutorial, 1: Only show kernel tutorial in easy mode, 2: Show kernel tutorial anytime */
+	.show_true_2rn = true, // Options menu: show true 2RN hit rates
+	.show_tutorial = 1, // 0=off, 1=easy mode only, 2=always
 	.skill_shop = false,
 	.skill_sub_menu_width = 10,
 	.skill_tree = false,
@@ -145,9 +124,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.stat_page_gaiden_magic = true,
 	.stat_page_personal_info = false,
 	.stat_page_promotions = true,
-	.stat_page_skill_style = 0, // 0 = Display skills in list with names, 1 = Display skills in grid without names,
+	.stat_page_skill_style = 0, // 0=named list, 1=unnamed grid
 	.stat_page_skill_tree = false,
-	.stat_screen_growths = 2, // 1 = Growths as letters, 2 = bonus growths as green
+	.stat_screen_growths = 2, // 1=letter growths, 2=bonus growths in green
 	.summons_gain_exp = false,
 	.support_rewards = true,
 	.talk_conversation_exp_reward = 10,
@@ -155,21 +134,16 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.tellius_skill_capacity_base = 50,
 	.tellius_skill_capacity_promoted = 25,
 	.tellius_skill_capacity_system = true,
-	.text_box_extension_layout = 2, /* 0=vanilla, 1=extended 5-line, 2=paginated */
-
-	/**
-	 * Lex Talionis: while pathfinding, show a faded moving-map-sprite
-	 * ghost of the active unit at the cursor. Gone after A or B.
-	 */
-	.alpha_blend_movement_sprites = true,
+	.text_box_extension_layout = 2, // 0=vanilla, 1=extended 5-line, 2=paginated
+	.alpha_blend_movement_sprites = true, // Lex Talionis faded unit ghost while pathfinding
 	.two_random_number_growths = false,
-	.unit_page_style = 1, // 1 = With BWL, 2 = With Leadership
+	.unit_page_style = 1, // 1=with BWL, 2=with Leadership
 	.unlock_all_supports = true,
 	.use_chinese_character = false,
 	.variable_unit_descriptions = false,
 	.vesly_achievements = false,
 	.vesly_credits_cgs = true,
-	.vesly_custom_ui = true, // About 200KB per style (600KB so far)
+	.vesly_custom_ui = true, // ~200KB per style (~600KB so far)
 	.vesly_danger_bones = false,
 	.vesly_debugger = true,
 	.vesly_fast_forward_battle_animations = false,
@@ -179,9 +153,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_dance_rate = 10,
 	.vesly_support_after_battle_kill_rate = 10,
 	.vesly_support_after_battle_staff_rate = 10,
-#ifdef CONFIG_VOICE_ACTED_DIALOGUE
 	.voice_acted_dialogue = true,
-#endif
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
 	.portrait_32_color = false,
