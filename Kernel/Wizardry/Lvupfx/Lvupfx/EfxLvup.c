@@ -145,3 +145,53 @@ void EkrLvup_InitStatusText(struct ProcEkrLevelup *proc)
 
 	EkrLvup_InitStatusTextVanilla(proc);
 }
+
+enum {
+	EFX_LVUP_FRAME_X = 1,
+	EFX_LVUP_FRAME_W = 18,
+	EFX_LVUP_HEADER_Y = 6,
+	EFX_LVUP_HEADER_H = 4,
+	EFX_LVUP_STATS_Y = 10,
+	EFX_LVUP_STATS_H = 10,
+	EFX_LVUP_CHR = 0x100,
+	EFX_LVUP_VRAM_OFF = 0x2000,
+};
+
+LYN_REPLACE_CHECK(EkrLvup_InitLevelUpBox);
+void EkrLvup_InitLevelUpBox(struct ProcEkrLevelup *proc)
+{
+	int portrait;
+	struct BattleUnit *bu1 = gpEkrBattleUnitLeft;
+	struct BattleUnit *bu2 = gpEkrBattleUnitRight;
+	struct Anim *anim = proc->ais_main;
+
+	TileMap_FillRect(TILEMAP_LOCATED(gBG1TilemapBuffer, 0, EFX_LVUP_HEADER_Y),
+			0x20, 0x14, 0);
+	LoadUiFrameGraphicsTo(EFX_LVUP_VRAM_OFF, BGPAL_WINDOW_FRAME);
+	DrawUiFrame(gBG1TilemapBuffer, EFX_LVUP_FRAME_X, EFX_LVUP_HEADER_Y,
+			EFX_LVUP_FRAME_W, EFX_LVUP_HEADER_H, TILEREF(EFX_LVUP_CHR, 0), 0);
+	DrawUiFrame(gBG1TilemapBuffer, EFX_LVUP_FRAME_X, EFX_LVUP_STATS_Y,
+			EFX_LVUP_FRAME_W, EFX_LVUP_STATS_H, TILEREF(EFX_LVUP_CHR, 0), 0);
+
+	LZ77UnCompWram(Img_LvupApfx, gBuf_Banim);
+	RegisterDataMove(gBuf_Banim, OBJ_VRAM0 + 0x1400, 0xC00);
+	CpuFastCopy(Pal_LvupApfx, PAL_OBJ(1), 0x20);
+
+	EnablePaletteSync();
+
+	proc->timer = EKR_LVUP_UI_BASE;
+
+	if (GetAnimPosition(anim) == EKR_POS_L)
+		portrait = bu1->unit.pCharacterData->portraitId;
+	else
+		portrait = bu2->unit.pCharacterData->portraitId;
+
+	SetupFaceGfxData(&gUnknown_087592CC[0]);
+	StartFace(0, portrait, 0xBC, EKR_LVUP_UI_BASE,
+			gpKernelDesignerConfig->half_body_portraits ? 0x1044 : 0x1042);
+	gFaces[0]->yPos = 0xA0;
+
+	CpuFastFill16(0, gBG2TilemapBuffer, 0x800);
+	EkrLvup_InitStatusText(proc);
+	Proc_Break(proc);
+}

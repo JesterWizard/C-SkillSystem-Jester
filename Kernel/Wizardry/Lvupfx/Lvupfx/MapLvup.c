@@ -103,6 +103,15 @@ STATIC_DECLAR const struct MapLvupInfo NewMapLvupInfos[] = {
 	{-1, -1, 0}
 };
 
+enum {
+	MANIM_LVUP_FRAME_X = 1,
+	MANIM_LVUP_FRAME_W = 18,
+	MANIM_LVUP_HEADER_Y = 0,
+	MANIM_LVUP_HEADER_H = 4,
+	MANIM_LVUP_STATS_Y = 4,
+	MANIM_LVUP_STATS_H = 10,
+};
+
 LYN_REPLACE_CHECK(PutManimLevelUpFrame);
 void PutManimLevelUpFrame(int actor_id, int x, int y)
 {
@@ -110,11 +119,11 @@ void PutManimLevelUpFrame(int actor_id, int x, int y)
 
 	BG_Fill(gBG1TilemapBuffer, 0);
 
-	/* Background level up box image */
-	Decompress(Img_LevelUpBoxFrame, (void*)VRAM + GetBackgroundTileDataOffset(1) + 0x200 * CHR_SIZE);
-	Decompress(Tsa_LevelUpBoxFrame, gGenericBuffer);
-	PutTmLinear((void*)gGenericBuffer, (void*)gBG1TilemapBuffer, 0x20 * 0x1C, TILEREF(0x200, BGPAL_MANIM_INFO));
-	ApplyPalette(Pal_LevelUpBoxFrame, BGPAL_MANIM_INFO);
+	LoadUiFrameGraphics();
+	DrawUiFrame(gBG1TilemapBuffer, MANIM_LVUP_FRAME_X, MANIM_LVUP_HEADER_Y,
+			MANIM_LVUP_FRAME_W, MANIM_LVUP_HEADER_H, 0, 0);
+	DrawUiFrame(gBG1TilemapBuffer, MANIM_LVUP_FRAME_X, MANIM_LVUP_STATS_Y,
+			MANIM_LVUP_FRAME_W, MANIM_LVUP_STATS_H, 0, 0);
 
 	PutString(
 		TILEMAP_LOCATED(gBG0TilemapBuffer, x + 2, y),
