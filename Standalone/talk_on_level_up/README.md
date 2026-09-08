@@ -88,4 +88,4 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event` and
 
 ## Credits
 
-Extracted from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester). Quote text from `Data/CustomCampaign/Text/LevelUpQuotes/LevelUpQuotes.txt`.
+Extracted from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester). Quote text from `CustomCampaign/Text/LevelUpQuotes/LevelUpQuotes.txt`.

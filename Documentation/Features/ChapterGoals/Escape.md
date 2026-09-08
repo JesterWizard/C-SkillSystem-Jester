@@ -35,7 +35,7 @@ Inside each chapter definition, set `.goalWindowDataType = GOAL_TYPE_ESCAPE` for
 
 For the current setup, escape tiles are checked in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) and chapter 0 is wired to use the escape ending flow. The current implementation uses a fixed escape coordinate of `3, 3` for the configured chapters.
 
-To show the escape tiles visually, add a trap entry in that chapter's trap file at the same coordinates as the escape tile. Chapters that use traps keep them in `events/traps.c` (see [`Chapters/01/events/traps.c`](../../../Data/CustomCampaign/Chapters/01/events/traps.c)). Keep trap coordinates aligned with the values returned by `IsEscapeTile`.
+To show the escape tiles visually, add a trap entry in that chapter's trap file at the same coordinates as the escape tile. Chapters that use traps keep them in `events/traps.c` (see [`Chapters/01/events/traps.c`](../../../CustomCampaign/Chapters/01/events/traps.c)). Keep trap coordinates aligned with the values returned by `IsEscapeTile`.
 
 To add a new escape chapter, update the chapter’s goal type, make sure the chapter is included in `HasEscapeObjective` and `IsEscapeTile`, and provide the appropriate ending event symbol for that chapter.
 
@@ -57,7 +57,7 @@ To add a new escape chapter, update the chapter’s goal type, make sure the cha
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Enable escape objective** | `.goal_escape` in [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c) | Master config flag for the escape system |
-| **Chapter goal type** | `.goalWindowDataType = GOAL_TYPE_ESCAPE` in [`chapter.c`](../../../Data/CustomCampaign/Chapters/00/events/chapter.c) | Marks a chapter as using the escape objective |
+| **Chapter goal type** | `.goalWindowDataType = GOAL_TYPE_ESCAPE` in [`chapter.c`](../../../CustomCampaign/Chapters/00/events/chapter.c) | Marks a chapter as using the escape objective |
 | **Goal display handling** | `GOAL_TYPE_ESCAPE` in [`GoalDisplay.c`](../../../Kernel/Wizardry/Goals/GoalDisplay.c) | Displays the escape text in the goal window |
 | **Escape entry point** | `PostAction_Escape` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Runs after a unit finishes an action and starts the escape flow |
 | **Escape tile check** | `IsEscapeTile` in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) | Verifies whether the current chapter tile is a valid escape tile |

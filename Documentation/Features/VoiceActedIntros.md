@@ -22,7 +22,7 @@ A lot of guides for music/sound on FEUniverse focus on **MIDI installation**. Th
 
 The GBA isn’t widely known for advanced audio, but it **can** play voiced audio (see old GBA Video cartridges). For voiced dialogue and short high-quality clips, **WAVs** are a good choice.
 
-This guide focuses specifically on preparing and installing WAVs into a buildfile-based ROM project. Campaign-local steps (including auto song IDs) are also in [Data/CustomCampaign/README.md](../../Data/CustomCampaign/README.md).
+This guide focuses specifically on preparing and installing WAVs into a buildfile-based ROM project. Campaign-local steps (including auto song IDs) are also in [CustomCampaign/README.md](../../CustomCampaign/README.md).
 
 As an example, following the standard audio output of the GBA (13379Hz) audio will eat up around ~430KB/minute. Less if you reduce the quality between 8000Hz and 11000Hz.
 
@@ -46,7 +46,7 @@ You will need:
 
 - **SoX** - For mp3 conversion and compression
 - **WAV2AGB** — converts a `.WAV` file into an insertable `.s` file and applies DPCM compression (vital)
-- A copy of the [compress_mp3_to_s](../../Data/CustomCampaign/Music/compress_mp3_to_s.bat) ``.bat`` file
+- A copy of the [compress_mp3_to_s](../../CustomCampaign/Music/compress_mp3_to_s.bat) ``.bat`` file
   - The filepaths of the EXEs may need to be adjusted depending on where you have them installed.
   - Also be sure to move thebat file to your C drive to be able to run it if you're using WSL
 - A good ear for judging audio quality
@@ -69,15 +69,15 @@ Links:
   - It will create a WAV file, compress it, produce a .s file and then delete the WAV file
   - Inside the bat file you will be able to see the settings used. I only recommend changing the audio quality, various presets are in the comments
 
-4) Take the ``.s`` file and grab a template copy of the [Audio_Insert_Event.event](../../Data/CustomCampaign/Music/Audio_Insert_Event.event)
+4) Take the ``.s`` file and grab a template copy of the [Audio_Insert_Event.event](../../CustomCampaign/Music/Audio_Insert_Event.event)
 file and change every instance of ``[AUDIO_FILENAME]`` to the file name of your ``.s`` file
 
 5) Leave ``SongTable(AUTO, ...)`` in the insert event. Do not pick a raw ID in FEBuilder.
 
-6) Rename ``Audio_Insert_Event.event`` to whatever you like, put it in that chapter's ``music/`` folder, and add it to [music/installer.event](../../Data/CustomCampaign/Chapters/00/music/installer.event)
-like so ``#include "Line_0001_Compressed.event"``. [Music_Installer.event](../../Data/CustomCampaign/Music/Music_Installer.event) already includes each chapter's music installer.
+6) Rename ``Audio_Insert_Event.event`` to whatever you like, put it in that chapter's ``music/`` folder, and add it to [music/installer.event](../../CustomCampaign/Chapters/00/music/installer.event)
+like so ``#include "Line_0001_Compressed.event"``. [Music_Installer.event](../../CustomCampaign/Music/Music_Installer.event) already includes each chapter's music installer.
 
-7) Run ``make assign_voice_songs`` (or ``python3 Data/CustomCampaign/Music/assign_voice_song_ids.py``). That dumps unused vanilla table slots from ``fe8.gba``, skips IDs already used by other hacks, writes a named ID into the event, and updates [voice-songs.h](../../include/jester_headers/voice-songs.h). Use ``--next`` / ``--list-free`` to inspect the pool without rewriting files.
+7) Run ``make assign_voice_songs`` (or ``python3 CustomCampaign/Music/assign_voice_song_ids.py``). That dumps unused vanilla table slots from ``fe8.gba``, skips IDs already used by other hacks, writes a named ID into the event, and updates [voice-songs.h](../../include/jester_headers/voice-songs.h). Use ``--next`` / ``--list-free`` to inspect the pool without rewriting files.
 
 8) Call the audio with the generated name, e.g. ``SOUN(SONG_VOICE_CH01_LINE_0001)`` or ``MUSC(SONG_VOICE_CH01_LINE_0001)``.
 

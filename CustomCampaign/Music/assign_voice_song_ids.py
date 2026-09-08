@@ -36,7 +36,7 @@ SOUN_RE = re.compile(r"\bSOUN\(\s*(0x[0-9A-Fa-f]+)\s*\)")
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 TERPER_DIR = SCRIPT_DIR.parent
-REPO_ROOT = TERPER_DIR.parent.parent
+REPO_ROOT = TERPER_DIR.parent
 CHAPTERS_DIR = TERPER_DIR / "Chapters"
 FE8_GBA = REPO_ROOT / "fe8.gba"
 EVENT_OUT = SCRIPT_DIR / "voice-songs.event"

@@ -23,8 +23,9 @@ RAM_REF  := $(LINK_DIR)/config-memmap.s
 WIZARDRY_DIR := Kernel
 CONTENTS_DIR := Contents
 GAMEDATA_DIR := Data
+CAMPAIGN_DIR := CustomCampaign
 
-HACK_DIRS := $(LINK_DIR) $(WIZARDRY_DIR) $(CONTENTS_DIR) $(GAMEDATA_DIR)
+HACK_DIRS := $(LINK_DIR) $(WIZARDRY_DIR) $(CONTENTS_DIR) $(GAMEDATA_DIR) $(CAMPAIGN_DIR)
 
 SKILLS_ENUM_DIR  := include/constants
 SKILLS_ENUM_SRC := $(SKILLS_ENUM_DIR)/skills-equip.enum.txt
@@ -192,7 +193,6 @@ Kernel/%.lyn.event: Kernel/%.c $(LYN_REF) $(FE8_SYM)
 	$(call lyn_strip_o,$(@:.lyn.event=.o))
 
 # Custom campaign chapters: keep .o out of source folders
-CAMPAIGN_DIR := $(GAMEDATA_DIR)/CustomCampaign
 CAMPAIGN_OBJ = $(CACHE_DIR)/$(subst /,_,$(patsubst %.c,%,$<)).o
 
 $(CAMPAIGN_DIR)/%.lyn.event: $(CAMPAIGN_DIR)/%.c $(LYN_REF) $(FE8_SYM)
@@ -257,7 +257,7 @@ CLEAN_FILES += $(SFILES:.s=.o) $(SFILES:.s=.dmp) $(SFILES:.s=.lyn.event)
 # =========
 TEXTS_DIR   := $(CONTENTS_DIR)/Texts
 # The rewritten game's text sources are included by Contents/Texts/Source/kernel.txt.
-TEXT_SOURCE := $(shell find $(TEXTS_DIR) $(GAMEDATA_DIR)/CustomCampaign/Text $(GAMEDATA_DIR)/CustomCampaign/Chapters -type f -name '*.txt')
+TEXT_SOURCE := $(shell find $(TEXTS_DIR) $(CAMPAIGN_DIR)/Text $(CAMPAIGN_DIR)/Chapters -type f -name '*.txt')
 
 export TEXT_DEF := $(TEXTS_DIR)/build/msgs.h
 
@@ -555,7 +555,7 @@ UNIT_SFX_EVENT := $(UNIT_SFX_DIR)/UnitSelectionSFX_Installer.event
 # =================================
 # = Terper voice song ID assigner =
 # =================================
-VOICE_SONG_SCRIPT := ./Data/CustomCampaign/Music/assign_voice_song_ids.py
+VOICE_SONG_SCRIPT := ./$(CAMPAIGN_DIR)/Music/assign_voice_song_ids.py
 
 .PHONY: assign_voice_songs
 assign_voice_songs:

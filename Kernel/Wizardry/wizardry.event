@@ -128,8 +128,24 @@ ALIGN 4
 
 #ifdef WIZARDRY_CUSTOM
 #ifdef CONFIG_FE8_REWRITE
-    #include "../../Data/CustomCampaign/FE8Rewrite_Installer.event"
+    #include "../../CustomCampaign/Installer.event"
 #endif
+
+#ifdef CONFIG_MAX_COLOR_BACKGROUNDS
+    #include "Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"
+#endif
+
+#include "Biorhythm/Biorhythm_Installer.event"
+
+#include "BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
+
+// #include "CasualMode/CasualMode_Installer.event"
+
+#ifdef CONFIG_CHAPTER_NAMES
+    #include "ChapterNames/ChapterNames_Installer.event"
+#endif
+
+#include "Chatlog/Chatlog_Installer.event"
 
 /**
  * Help-box lyn bodies (paginated/extended). Kept out of KernelSpace_Text.
@@ -137,125 +153,113 @@ ALIGN 4
  */
 #include "CombatArt/HelpBoxFix/Source/HelpBoxHack.lyn.event"
 
+// #include "Crafting/Crafting_Installer.event"
+
+#include "EnterTown/EnterTown_Installer.event"
+
+// #ifdef CONFIG_FE7_MODE_SELECT
+//     #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
+// #endif
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    #include "FourthAllegiance/FourthAllegiance_Installer.event"
+#endif
+
+#include "FreeMovement/FreeMovement_Installer.event"
+
+#include "GameOver/GameOver.event"
+
+#include "Goals/Installer.event"
+
 #ifdef CONFIG_CUSTOM_GUIDE
     #include "Guide/GuideTable.event"
 #endif
 
+#include "HPBarPalettes/HPBarPalettes_Installer.event"
+
+#include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"
+
+#ifdef CONFIG_LIGHTS_OUT_GAME
+    #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
+#endif
+
+#include "LimitedShopStock/LimitedShopStock_Installer.event"
+
+#include "Minigames/Snek/Snek_Installer.event"
+
+#include "MirrorMapSprites/MirrorMapSprites_Installer.event"
+
+#include "ModularMinimugBox/ModularMinimugBox_Installer.event"
+
+#include "MokhaAOE/MokhaAOE_Installer.event"
+
+#include "Portrait32Color/Portrait32Color_Installer.event"
+
+#include "QuintessanceEffect/QuintessanceEffect_Installer.event"
+
 #include "Quotes/Quotes.event"
-
-#include "GameOver/GameOver.event"
-
-#include "Supports/Supports_Installer.event"
-
-#include "VeslyDebugger/VeslyDebugger_Installer.event"
-
-#include "VeslyDangerBones/VeslyDangerBones_Installer.event"
-
-#include "VeslySupportPostBattle/VeslySupportPostBattle_Installer.event"
-
-#include "VeslyAnimsFastForward/VeslyAnimsFastForward_Installer.event"
-
-#ifdef CONFIG_VESLY_DRAW_ANIMATIONS
-    #include "VeslyDrawAnimations/VeslyDrawAnimations_Installer.event"
-#endif
-
-#ifdef CONFIG_VESLY_RECLASS
-    #include "VeslyReclass/VeslyReclass_Installer.event"
-#endif
-
-#include "VeslyUI/VeslyUI_Installer.event"
-
-#include "VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
-
-#ifdef CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
-    #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
-#endif
-
-// #include "CasualMode/CasualMode_Installer.event"
 
 #ifdef CONFIG_RES_TERRAIN_WINDOW
     #include "ResTerrainWindow/ResTerrainWindow_Installer.event"
 #endif
 
-#include "ModularMinimugBox/ModularMinimugBox_Installer.event"
-#include "MirrorMapSprites/MirrorMapSprites_Installer.event"
-
-#include "TextEngineRework/TextEngineRework_Installer.event"
-#include "Chatlog/Chatlog_Installer.event"
-
 #ifdef CONFIG_SHOW_CGs_LIKE_FE7
     #include "ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
 #endif
 
-#include "LimitedShopStock/LimitedShopStock_Installer.event"
-
-#ifdef CONFIG_CHAPTER_NAMES
-    #include "ChapterNames/ChapterNames_Installer.event"
+#ifdef CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS
+    #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #endif
 
-#include "QuintessanceEffect/QuintessanceEffect_Installer.event"
+#include "Supports/Supports_Installer.event"
 
-#include "VeslyCredits/VeslyCredits_Installer.event"
+#include "TextEngineRework/TextEngineRework_Installer.event"
 
-#ifdef CONFIG_VESLY_NOTIFICATION_SYSTEM
-    #include "VeslyNotificationWindow/VeslyNotificationWindow_Installer.event"
+#include "ThiefFE7Teleport/ThiefFE7Teleport.event"
+
+#ifdef CONFIG_UNIT_SELECTION_QUOTES
+    #include "UnitSelectionSFX/UnitSelectionSFX_Installer.event"
 #endif
 
 // #ifdef CONFIG_VESLY_AOE
 //     #include "VeslyAOE/AOE_Installer.event"
 // #endif
 
-#include "MokhaAOE/MokhaAOE_Installer.event"
+#include "VeslyAchievements/VeslyAchievements_Installer.event"
+
+#include "VeslyAnimsFastForward/VeslyAnimsFastForward_Installer.event"
 
 #ifdef CONFIG_VESLY_AVATAR
     #include "VeslyAvatar/VeslyAvatar_Installer.event"
 #endif
 
-#include "FreeMovement/FreeMovement_Installer.event"
+#include "VeslyCredits/VeslyCredits_Installer.event"
 
-#include "Biorhythm/Biorhythm_Installer.event"
+#include "VeslyDangerBones/VeslyDangerBones_Installer.event"
 
-#ifdef CONFIG_LIGHTS_OUT_GAME
-    #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
+#include "VeslyDebugger/VeslyDebugger_Installer.event"
+
+#ifdef CONFIG_VESLY_DRAW_ANIMATIONS
+    #include "VeslyDrawAnimations/VeslyDrawAnimations_Installer.event"
 #endif
 
-#include "EnterTown/EnterTown_Installer.event"
-#include "WorldMapSkillMenu/WorldMapSkillMenu.lyn.event"
+#include "VeslyExtendedItemDescriptions/VeslyExtendedItemDescriptions_Installer.event"
 
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    #include "FourthAllegiance/FourthAllegiance_Installer.event"
+#ifdef CONFIG_VESLY_NOTIFICATION_SYSTEM
+    #include "VeslyNotificationWindow/VeslyNotificationWindow_Installer.event"
 #endif
 
-// #ifdef CONFIG_FE7_MODE_SELECT
-//     #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
-// #endif
-
-#include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"
-#include "Portrait32Color/Portrait32Color_Installer.event"
-
-#ifdef CONFIG_MAX_COLOR_BACKGROUNDS
-    #include "Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"
+#ifdef CONFIG_VESLY_RECLASS
+    #include "VeslyReclass/VeslyReclass_Installer.event"
 #endif
-
-#ifdef CONFIG_UNIT_SELECTION_QUOTES
-    #include "UnitSelectionSFX/UnitSelectionSFX_Installer.event"
-#endif
-
-#include "ThiefFE7Teleport/ThiefFE7Teleport.event"
 
 #include "VeslyShootArrow/VeslyShootArrow_Installer.event"
 
-#include "Goals/Installer.event"
+#include "VeslySupportPostBattle/VeslySupportPostBattle_Installer.event"
 
-// #include "Crafting/Crafting_Installer.event"
+#include "VeslyUI/VeslyUI_Installer.event"
 
-#include "HPBarPalettes/HPBarPalettes_Installer.event"
+#include "WorldMapSkillMenu/WorldMapSkillMenu.lyn.event"
 
 #include "WorldMapThoughts/WorldMapThoughts_Installer.event"
-
-#include "Minigames/Snek/Snek_Installer.event"
-
-#include "BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
-
-#include "VeslyAchievements/VeslyAchievements_Installer.event"
 #endif /* WIZARDRY_CUSTOM */

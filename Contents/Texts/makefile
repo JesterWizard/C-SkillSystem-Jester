@@ -20,8 +20,8 @@ TEXT_DIR ?= $(mkfile_dir)
 TEXT_MAIN      := $(TEXT_DIR)texts.txt
 TEXT_MAIN_CROP := $(TEXT_DIR)texts-cropped.txt
 TEXT_DEFS      := $(TEXT_DIR)textdefs.txt
-TEXT_DATA_DIR  := $(abspath $(mkfile_dir)../../Data/CustomCampaign/Text)
-TEXT_CHAPTERS_DIR := $(abspath $(mkfile_dir)../../Data/CustomCampaign/Chapters)
+TEXT_DATA_DIR  := $(abspath $(mkfile_dir)../../CustomCampaign/Text)
+TEXT_CHAPTERS_DIR := $(abspath $(mkfile_dir)../../CustomCampaign/Chapters)
 TEXT_SRC       := $(shell find $(TEXT_DIR) $(TEXT_DATA_DIR) $(TEXT_CHAPTERS_DIR) -type f -name '*.txt')
 
 MSG_HEADER    ?= $(TEXT_DIR)build/msgs.h

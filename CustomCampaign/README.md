@@ -13,9 +13,9 @@
 
 ## 🧩 Introduction
 
-`Data/CustomCampaign` is the custom story pack: chapters, events, maps, dialogue, world-map intros, and voice lines. Kernel wizardry stays outside this folder. If a chapter does not show the right map, units, text, or music, the usual cause is a missing wire between the chapter folder and one of the installers listed below.
+`CustomCampaign` is the custom story pack: chapters, events, maps, dialogue, world-map intros, and voice lines. Kernel wizardry stays outside this folder. If a chapter does not show the right map, units, text, or music, the usual cause is a missing wire between the chapter folder and one of the installers listed below.
 
-Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/wizardry.event`, which includes `FE8Rewrite_Installer.event`.
+Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/wizardry.event`, which includes `Installer.event`.
 
 ---
 
@@ -25,7 +25,7 @@ Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/wizardry.event`, which include
 
 ```
 CustomCampaign/
-  FE8Rewrite_Installer.event   # Event + chapters + music
+  Installer.event              # Event + chapters + music
   Chapters/NN/                 # One folder per chapter
     events/                    # events.c, units.c, redas.c, chapter.c, worldmap.c
     map/                       # TMX / dmp / generated map event
@@ -110,7 +110,7 @@ From repo root: `make -j`. Confirm the new `*.lyn.event` files exist before assu
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Campaign entry | `FE8Rewrite_Installer.event` | Includes event, chapter, and music installers |
+| Campaign entry | `Installer.event` | Includes event, chapter, and music installers |
 | Event pointer table | `Event/Event_Installer.event` | Chapter event IDs, map events, world-map lyn files |
 | Engine hooks | `Event/LynJump.event` | World-map intro / prep hooks |
 | Chapter ROM table | `Chapters/Chapter_Installer.event` | Writes each `ROMChapterData` into the vanilla chapter slots |
@@ -122,7 +122,7 @@ From repo root: `make -j`. Confirm the new `*.lyn.event` files exist before assu
 | Text commands | `Notes/text_commands.txt` | Face / box / font control codes |
 | Voice ID assigner | `Music/assign_voice_song_ids.py` | Fills `SongTable(AUTO, ...)` from unused vanilla slots |
 | Voice name table | `Music/voice-songs.event` and `include/jester_headers/voice-songs.h` | Generated `SONG_VOICE_*` defines |
-| Kernel docs | [HowToMakeAChapter.md](../../Documentation/Features/HowToMakeAChapter.md), [VoiceActedIntros.md](../../Documentation/Features/VoiceActedIntros.md) | Longer walkthroughs with the same layout |
+| Kernel docs | [HowToMakeAChapter.md](../Documentation/Features/HowToMakeAChapter.md), [VoiceActedIntros.md](../Documentation/Features/VoiceActedIntros.md) | Longer walkthroughs with the same layout |
 
 ---
 

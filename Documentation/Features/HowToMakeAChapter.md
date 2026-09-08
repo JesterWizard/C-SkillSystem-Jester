@@ -13,9 +13,9 @@
 
 ## 🧩 Introduction
 
-In this build, one chapter lives in one folder under `Data/CustomCampaign/Chapters/NN/`. That folder holds the map scripts, unit groups, ROM chapter data, dialogue, and world-map intro. The player only sees one chapter, but the build still needs matching entries for the event pointer table, the map data, the chapter event group, and the chapter ROM data.
+In this build, one chapter lives in one folder under `CustomCampaign/Chapters/NN/`. That folder holds the map scripts, unit groups, ROM chapter data, dialogue, and world-map intro. The player only sees one chapter, but the build still needs matching entries for the event pointer table, the map data, the chapter event group, and the chapter ROM data.
 
-The same instructions live next to the content in [Data/CustomCampaign/README.md](../../Data/CustomCampaign/README.md). Use that file when you are working inside the campaign folder.
+The same instructions live next to the content in [CustomCampaign/README.md](../../CustomCampaign/README.md). Use that file when you are working inside the campaign folder.
 
 If those pieces do not agree, the chapter usually fails in one of a few predictable ways: the wrong map loads, the wrong unit group appears in prep, the chapter has no map changes, or the chapter data points at the wrong event script. This guide shows the structure the build expects so you can replace a vanilla chapter with your own content without fighting the file layout.
 
@@ -93,18 +93,18 @@ If the chapter has no prep screen, the player unit fields should usually be `NUL
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Campaign contributor guide | [Data/CustomCampaign/README.md](../../Data/CustomCampaign/README.md) | Event wiring, text, maps, world map, and voice song IDs next to the content |
-| Chapter ROM installer | [Data/CustomCampaign/Chapters/Chapter_Installer.event](../../Data/CustomCampaign/Chapters/Chapter_Installer.event) | Writes each `ROMChapterData` blob into the chapter table |
-| Chapter event group | [Data/CustomCampaign/Chapters/04/events/events.c](../../Data/CustomCampaign/Chapters/04/events/events.c) | Scripts plus bindings for events, traps, and player unit groups |
-| Chapter unit groups | [Data/CustomCampaign/Chapters/04/events/units.c](../../Data/CustomCampaign/Chapters/04/events/units.c) | Defines startup unit groups and inventories |
-| Chapter reinforcements | [Data/CustomCampaign/Chapters/04/events/redas.c](../../Data/CustomCampaign/Chapters/04/events/redas.c) | Defines reinforcement behavior after units spawn |
-| Shared empty lists | [Data/CustomCampaign/Chapters/_shared/empty-event-lists.c](../../Data/CustomCampaign/Chapters/_shared/empty-event-lists.c) | Shared `EventListScr_Empty`, `TrapData_None`, and empty tutorial list |
-| Map event data | [Data/CustomCampaign/Chapters/04/map/04_map.event](../../Data/CustomCampaign/Chapters/04/map/04_map.event) | Generated map payload plus `SetChapterData(...)` and the map-change table |
-| Chapter ROM data | [Data/CustomCampaign/Chapters/04/events/chapter.c](../../Data/CustomCampaign/Chapters/04/events/chapter.c) | Defines the chapter's `ROMChapterData` entry |
-| Chapter dialogue | [Data/CustomCampaign/Chapters/04/text](../../Data/CustomCampaign/Chapters/04/text) | Opening, in-map, and ending text IDs |
-| World-map scripts | [Data/CustomCampaign/Chapters/04/events/worldmap.c](../../Data/CustomCampaign/Chapters/04/events/worldmap.c) | Set-node and travel events for this chapter |
-| Chapter voice lines | [Data/CustomCampaign/Chapters/04/music](../../Data/CustomCampaign/Chapters/04/music) | Per-chapter voiced intro songs; listed from `music/installer.event` |
-| Voice song IDs | [Data/CustomCampaign/Music/assign_voice_song_ids.py](../../Data/CustomCampaign/Music/assign_voice_song_ids.py) | Picks unused vanilla song-table slots; run `make assign_voice_songs` after adding a line with `SongTable(AUTO, ...)` |
+| Campaign contributor guide | [CustomCampaign/README.md](../../CustomCampaign/README.md) | Event wiring, text, maps, world map, and voice song IDs next to the content |
+| Chapter ROM installer | [CustomCampaign/Chapters/Chapter_Installer.event](../../CustomCampaign/Chapters/Chapter_Installer.event) | Writes each `ROMChapterData` blob into the chapter table |
+| Chapter event group | [CustomCampaign/Chapters/04/events/events.c](../../CustomCampaign/Chapters/04/events/events.c) | Scripts plus bindings for events, traps, and player unit groups |
+| Chapter unit groups | [CustomCampaign/Chapters/04/events/units.c](../../CustomCampaign/Chapters/04/events/units.c) | Defines startup unit groups and inventories |
+| Chapter reinforcements | [CustomCampaign/Chapters/04/events/redas.c](../../CustomCampaign/Chapters/04/events/redas.c) | Defines reinforcement behavior after units spawn |
+| Shared empty lists | [CustomCampaign/Chapters/_shared/empty-event-lists.c](../../CustomCampaign/Chapters/_shared/empty-event-lists.c) | Shared `EventListScr_Empty`, `TrapData_None`, and empty tutorial list |
+| Map event data | [CustomCampaign/Chapters/04/map/04_map.event](../../CustomCampaign/Chapters/04/map/04_map.event) | Generated map payload plus `SetChapterData(...)` and the map-change table |
+| Chapter ROM data | [CustomCampaign/Chapters/04/events/chapter.c](../../CustomCampaign/Chapters/04/events/chapter.c) | Defines the chapter's `ROMChapterData` entry |
+| Chapter dialogue | [CustomCampaign/Chapters/04/text](../../CustomCampaign/Chapters/04/text) | Opening, in-map, and ending text IDs |
+| World-map scripts | [CustomCampaign/Chapters/04/events/worldmap.c](../../CustomCampaign/Chapters/04/events/worldmap.c) | Set-node and travel events for this chapter |
+| Chapter voice lines | [CustomCampaign/Chapters/04/music](../../CustomCampaign/Chapters/04/music) | Per-chapter voiced intro songs; listed from `music/installer.event` |
+| Voice song IDs | [CustomCampaign/Music/assign_voice_song_ids.py](../../CustomCampaign/Music/assign_voice_song_ids.py) | Picks unused vanilla song-table slots; run `make assign_voice_songs` after adding a line with `SongTable(AUTO, ...)` |
 
 ---
 
