@@ -1548,7 +1548,8 @@ LYN_REPLACE_CHECK(GetTalkFaceHPos);
 int GetTalkFaceHPos(int talkFace)
 {
 	if (IsBattleDeamonActive())
-		return talkFace <= 2 ? 4 : 26;
+		/* 6/24 = 48px/192px: 96x80 faces sit fully on-screen. */
+		return talkFace <= 2 ? 6 : 24;
 
 	return ((s8 *)((u8 *)sTextEngineState + 0x50))[talkFace];
 }
@@ -1707,11 +1708,16 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 
 	position = state->activeFaceSlot;
 
-	if (IsBattleDeamonActive()) {
+	/*
+	 * Always draw the full 96x80 mug. Vanilla battle quotes omit
+	 * FACE_96x80 (64x80 crop) and park the sprite at tile 4/26, which
+	 * clips shoulders on the screen edge. Keep the banim VRAM config
+	 * but use dialogue-sized faces.
+	 */
+	if (IsBattleDeamonActive())
 		SetupFaceGfxDataInBanim();
-	} else {
-		faceDisplay |= FACE_DISP_KIND(FACE_96x80);
-	}
+
+	faceDisplay |= FACE_DISP_KIND(FACE_96x80);
 
 	if (options == 0xFF) {
 		if (GetTalkFaceHPos(position) <= 14)

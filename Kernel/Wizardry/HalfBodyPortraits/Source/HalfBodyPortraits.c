@@ -472,8 +472,8 @@ void TalkLoadFace(ProcPtr proc)
 
 	if ((s8)IsBattleDeamonActive())
 		SetupFaceGfxDataInBanim();
-	else
-		faceDisp |= FACE_DISP_KIND(FACE_96x80);
+
+	faceDisp |= FACE_DISP_KIND(FACE_96x80);
 
 	if (GetTalkFaceHPos(sTalkState->activeFaceSlot) <= 14)
 		faceDisp |= FACE_DISP_FLIPPED;
@@ -580,51 +580,15 @@ void PutTalkBubble(int xAnchor, int yAnchor, int width, int height)
 	TalkBgSync(2);
 }
 
-/* Vanilla bubble-tail tile refs. */
-static const u16 sTalkBubbleTailTilesVanilla[6][4] = {
-	{
-		TILEREF(0x14, 3),
-		TILEREF(0x14, 3) + 0x400,
-		TILEREF(0x16, 3) + 0x400,
-		TILEREF(0x15, 3) + 0x400,
-	},
-	{
-		TILEREF(0x14, 3),
-		TILEREF(0x14, 3) + 0x400,
-		TILEREF(0x15, 3),
-		TILEREF(0x16, 3),
-	},
-	{
-		TILEREF(0x18, 3) + 0x400,
-		TILEREF(0x19, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400 + 0x800,
-	},
-	{
-		TILEREF(0x17, 3),
-		TILEREF(0x17, 3) + 0x800,
-		TILEREF(0x18, 3),
-		TILEREF(0x19, 3),
-	},
-	{
-		TILEREF(0x19, 3) + 0x400 + 0x800,
-		TILEREF(0x18, 3) + 0x400 + 0x800,
-		TILEREF(0x17, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400 + 0x800,
-	},
-	{
-		TILEREF(0x17, 3),
-		TILEREF(0x17, 3) + 0x800,
-		TILEREF(0x19, 3) + 0x800,
-		TILEREF(0x18, 3) + 0x800,
-	},
-};
-
 /*
  * Halfbody remaps from the original ORG 0x8540 / 0x8544 / 0x8578 patches.
- * Kind 2-5 keep vanilla (battle-demo tails were not patched).
+ * Only kinds 0-1 (map talk, downward tails) were patched.  Battle-demo
+ * kinds 2-5 keep vanilla tile refs and vanilla write order.
+ *
+ * Stored as (x,y), (x+1,y), (x,y+1), (x+1,y+1) — kinds 0-1 use that
+ * same row-major write in vanilla.
  */
-static const u16 sTalkBubbleTailTilesHalfBody[6][4] = {
+static const u16 sTalkBubbleTailTilesHalfBody[2][4] = {
 	{
 		0x3C16,
 		0x3C15,
@@ -637,45 +601,71 @@ static const u16 sTalkBubbleTailTilesHalfBody[6][4] = {
 		0x3814,
 		0x3C14,
 	},
-	{
-		TILEREF(0x18, 3) + 0x400,
-		TILEREF(0x19, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400 + 0x800,
-	},
-	{
-		TILEREF(0x17, 3),
-		TILEREF(0x17, 3) + 0x800,
-		TILEREF(0x18, 3),
-		TILEREF(0x19, 3),
-	},
-	{
-		TILEREF(0x19, 3) + 0x400 + 0x800,
-		TILEREF(0x18, 3) + 0x400 + 0x800,
-		TILEREF(0x17, 3) + 0x400,
-		TILEREF(0x17, 3) + 0x400 + 0x800,
-	},
-	{
-		TILEREF(0x17, 3),
-		TILEREF(0x17, 3) + 0x800,
-		TILEREF(0x19, 3) + 0x800,
-		TILEREF(0x18, 3) + 0x800,
-	},
 };
 
 LYN_REPLACE_CHECK(PutTalkBubbleTail);
 void PutTalkBubbleTail(int bg, int x, int y, int kind)
 {
 	u16 *buf = BG_GetMapBuffer(bg);
-	const u16 (*table)[4] = HalfBodyPortraitsEnabled()
-		? sTalkBubbleTailTilesHalfBody
-		: sTalkBubbleTailTilesVanilla;
-	const u16 *tiles = table[kind];
 
-	buf[TILEMAP_INDEX_UNK(x, y)] = tiles[0];
-	buf[TILEMAP_INDEX_UNK(x + 1, y)] = tiles[1];
-	buf[TILEMAP_INDEX_UNK(x, y + 1)] = tiles[2];
-	buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = tiles[3];
+	/*
+	 * Vanilla kinds 2-5 write column-first, not a uniform 2x2 row.
+	 * A shared table plus row-major stores swapped the side-tail
+	 * tiles and garbled battle-animation speech pointers.
+	 */
+	if (HalfBodyPortraitsEnabled() && kind < 2) {
+		const u16 *tiles = sTalkBubbleTailTilesHalfBody[kind];
+
+		buf[TILEMAP_INDEX_UNK(x, y)] = tiles[0];
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = tiles[1];
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = tiles[2];
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = tiles[3];
+		return;
+	}
+
+	switch (kind) {
+	case 0:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x14, 3);
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x14, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x16, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x15, 3) + 0x400;
+		break;
+
+	case 1:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x14, 3);
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x14, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x15, 3);
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x16, 3);
+		break;
+
+	case 2:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x18, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x19, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x17, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x17, 3) + 0x400 + 0x800;
+		break;
+
+	case 3:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x17, 3);
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x17, 3) + 0x800;
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x18, 3);
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x19, 3);
+		break;
+
+	case 4:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x19, 3) + 0x400 + 0x800;
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x18, 3) + 0x400 + 0x800;
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x17, 3) + 0x400;
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x17, 3) + 0x400 + 0x800;
+		break;
+
+	case 5:
+		buf[TILEMAP_INDEX_UNK(x, y)] = TILEREF(0x17, 3);
+		buf[TILEMAP_INDEX_UNK(x, y + 1)] = TILEREF(0x17, 3) + 0x800;
+		buf[TILEMAP_INDEX_UNK(x + 1, y)] = TILEREF(0x19, 3) + 0x800;
+		buf[TILEMAP_INDEX_UNK(x + 1, y + 1)] = TILEREF(0x18, 3) + 0x800;
+		break;
+	}
 }
 
 LYN_REPLACE_CHECK(PutFace80x72_Raised);
