@@ -27,7 +27,7 @@ Gated by `CONFIG_FE8_REWRITE` in `Kernel/Wizardry/wizardry.event`, which include
 CustomCampaign/
   FE8Rewrite_Installer.event   # Event + chapters + music
   Chapters/NN/                 # One folder per chapter
-    events/                    # events.c/h, units.h, redas.h, chapter.c, worldmap.c
+    events/                    # events.c, units.c, redas.c, chapter.c, worldmap.c
     map/                       # TMX / dmp / generated map event
     text/                      # opening.txt, map.txt, ending.txt
     music/                     # Optional voice lines
@@ -37,17 +37,17 @@ CustomCampaign/
   Text/                        # Supports, quotes, guides, heroes cards
 ```
 
-Copy an existing `Chapters/NN/` folder. Keep unique names (`EventScr_Ch04_Opening`, `Chapter04Event`, `Chapter04`). Shared empties live in `Chapters/_shared/` (`EventListScr_Empty`, `TrapData_None`, `EventListScr_Tutorial_None`). Only add `traps.h` / `asmc.h` when that chapter needs them.
+Copy an existing `Chapters/NN/` folder. Keep unique names (`EventScr_Ch04_Opening`, `Chapter04Event`, `Chapter04`). Shared empties live in `Chapters/_shared/` (`EventListScr_Empty`, `TrapData_None`, `EventListScr_Tutorial_None`). Only add `traps.c` / `asmc.h` when that chapter needs them.
 
 ### 1. Make the events compile and register
 
-Chapter scripts are C (`events.c`, `events.h`, `worldmap.c`, `chapter.c`). `make` builds `*.lyn.event` next to the `.c` files.
+Chapter scripts are C (`events.c`, `worldmap.c`, `chapter.c`). `make` builds `*.lyn.event` next to the `.c` files.
 
-`events.c` must export a `ChapterEventGroup` whose pointers match the scripts in `events.h`:
+`events.c` must export a `ChapterEventGroup` whose pointers match the scripts in the same file:
 
 - `.beginningSceneEvents` / `.endingSceneEvents` → `EventScr_ChNN_Opening` / `EventScr_ChNN_Ending`
 - Unused select/move/tutorial slots → `EventListScr_Empty` / `EventListScr_Tutorial_None`
-- Prep chapters: `.playerUnitsInNormal` and `.playerUnitsInHard` point at a real unit group in `units.h`
+- Prep chapters: `.playerUnitsInNormal` and `.playerUnitsInHard` point at a real unit group in `units.c`
 - No prep: those fields are `NULL`
 
 Include `Chapters/_shared/headers.h` from event `.c` files. That pulls `EAstdlib.h`, `jester_headers/macros.h` (`TEXT`, `LOAD_WAIT`, `HIGHLIGHT_CHARACTER`, …), text IDs, and voice song names.
@@ -64,7 +64,7 @@ Then wire three places:
 
 ### 2. Write event scripts
 
-Put flow in `events.h` as `static const EventScr ...[]`. Call text labels from `text/*.txt` (`TEXT(Chapter_04_Scene_01_Convo_01)`). Call vanilla songs with `SONG_*` from `constants/songs.h`. Call voice lines with `SOUN(SONG_VOICE_CHNN_LINE_0001)` after assigning IDs (below).
+Put flow in `events.c` as `static const EventScr ...[]`. Call text labels from `text/*.txt` (`TEXT(Chapter_04_Scene_01_Convo_01)`). Call vanilla songs with `SONG_*` from `constants/songs.h`. Call voice lines with `SOUN(SONG_VOICE_CHNN_LINE_0001)` after assigning IDs (below).
 
 World-map intros live in `events/worldmap.c`. Prologue-style `TEXTCONT` / `SOUN` pairs belong there, not in the chapter opening unless you want them on the map.
 
@@ -116,8 +116,7 @@ From repo root: `make -j`. Confirm the new `*.lyn.event` files exist before assu
 | Chapter ROM table | `Chapters/Chapter_Installer.event` | Writes each `ROMChapterData` into the vanilla chapter slots |
 | Shared event headers | `Chapters/_shared/headers.h` | Macros, text IDs, voice song names |
 | Empty lists | `Chapters/_shared/empty-event-lists.c` | Shared empty event / trap / tutorial lists |
-| Example chapter group | `Chapters/04/events/events.c` | Binds scripts, units, and traps for one chapter |
-| Example scripts | `Chapters/04/events/events.h` | Opening / turn / talk / village flow |
+| Example chapter group | `Chapters/04/events/events.c` | Scripts plus `ChapterEventGroup` bindings for one chapter |
 | World-map example | `Chapters/00/events/worldmap.c` | Voice `SOUN` names during the prologue intro |
 | Text index | `Text/Text.txt` | Includes every chapter `text/*.txt` plus global text |
 | Text commands | `Notes/text_commands.txt` | Face / box / font control codes |

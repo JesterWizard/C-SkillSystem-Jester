@@ -27,11 +27,10 @@ Start from an existing folder under `Chapters/NN/` and keep that shape:
 
 | File | What it owns |
 |------|----------------|
-| `events/events.c` | `struct ChapterEventGroup` plus unique names like `EventScr_Ch04_Opening` |
-| `events/events.h` | Opening, ending, turn, talk, village, and misc scripts |
-| `events/units.h` | Unit groups loaded at chapter start |
-| `events/redas.h` | Reinforcement movement |
-| `events/traps.h` | Startup traps, only if this map has any; otherwise use `TrapData_None` |
+| `events/events.c` | Opening, ending, turn, talk, village, and misc scripts plus `struct ChapterEventGroup` |
+| `events/units.c` | Unit groups loaded at chapter start |
+| `events/redas.c` | Reinforcement movement |
+| `events/traps.c` | Startup traps, only if this map has any; otherwise use `TrapData_None` |
 | `events/asmc.h` | Custom C helpers, only if this chapter needs them |
 | `events/chapter.c` | `ROMChapterData` (fog, BGM, title, camera, goal) |
 | `events/worldmap.c` | World-map set-node / travel scripts for this chapter |
@@ -96,10 +95,9 @@ If the chapter has no prep screen, the player unit fields should usually be `NUL
 |--------|----------|-------------|
 | Campaign contributor guide | [Data/CustomCampaign/README.md](../../Data/CustomCampaign/README.md) | Event wiring, text, maps, world map, and voice song IDs next to the content |
 | Chapter ROM installer | [Data/CustomCampaign/Chapters/Chapter_Installer.event](../../Data/CustomCampaign/Chapters/Chapter_Installer.event) | Writes each `ROMChapterData` blob into the chapter table |
-| Chapter event group | [Data/CustomCampaign/Chapters/04/events/events.c](../../Data/CustomCampaign/Chapters/04/events/events.c) | Binds events, traps, and player unit groups for a chapter |
-| Chapter event scripts | [Data/CustomCampaign/Chapters/04/events/events.h](../../Data/CustomCampaign/Chapters/04/events/events.h) | Holds the chapter's scripted event flow |
-| Chapter unit groups | [Data/CustomCampaign/Chapters/04/events/units.h](../../Data/CustomCampaign/Chapters/04/events/units.h) | Defines startup unit groups and inventories |
-| Chapter reinforcements | [Data/CustomCampaign/Chapters/04/events/redas.h](../../Data/CustomCampaign/Chapters/04/events/redas.h) | Defines reinforcement behavior after units spawn |
+| Chapter event group | [Data/CustomCampaign/Chapters/04/events/events.c](../../Data/CustomCampaign/Chapters/04/events/events.c) | Scripts plus bindings for events, traps, and player unit groups |
+| Chapter unit groups | [Data/CustomCampaign/Chapters/04/events/units.c](../../Data/CustomCampaign/Chapters/04/events/units.c) | Defines startup unit groups and inventories |
+| Chapter reinforcements | [Data/CustomCampaign/Chapters/04/events/redas.c](../../Data/CustomCampaign/Chapters/04/events/redas.c) | Defines reinforcement behavior after units spawn |
 | Shared empty lists | [Data/CustomCampaign/Chapters/_shared/empty-event-lists.c](../../Data/CustomCampaign/Chapters/_shared/empty-event-lists.c) | Shared `EventListScr_Empty`, `TrapData_None`, and empty tutorial list |
 | Map event data | [Data/CustomCampaign/Chapters/04/map/04_map.event](../../Data/CustomCampaign/Chapters/04/map/04_map.event) | Generated map payload plus `SetChapterData(...)` and the map-change table |
 | Chapter ROM data | [Data/CustomCampaign/Chapters/04/events/chapter.c](../../Data/CustomCampaign/Chapters/04/events/chapter.c) | Defines the chapter's `ROMChapterData` entry |

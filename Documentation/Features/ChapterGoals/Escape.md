@@ -35,7 +35,7 @@ Inside each chapter definition, set `.goalWindowDataType = GOAL_TYPE_ESCAPE` for
 
 For the current setup, escape tiles are checked in [`Escape.c`](../../../Kernel/Wizardry/Goals/Escape.c) and chapter 0 is wired to use the escape ending flow. The current implementation uses a fixed escape coordinate of `3, 3` for the configured chapters.
 
-To show the escape tiles visually, add a trap entry in that chapter's trap header at the same coordinates as the escape tile. Chapters that use traps keep them in `events/traps.h` (see [`Chapters/01/events/traps.h`](../../../Data/CustomCampaign/Chapters/01/events/traps.h)). Keep trap coordinates aligned with the values returned by `IsEscapeTile`.
+To show the escape tiles visually, add a trap entry in that chapter's trap file at the same coordinates as the escape tile. Chapters that use traps keep them in `events/traps.c` (see [`Chapters/01/events/traps.c`](../../../Data/CustomCampaign/Chapters/01/events/traps.c)). Keep trap coordinates aligned with the values returned by `IsEscapeTile`.
 
 To add a new escape chapter, update the chapter’s goal type, make sure the chapter is included in `HasEscapeObjective` and `IsEscapeTile`, and provide the appropriate ending event symbol for that chapter.
 

@@ -5,3 +5,5 @@ export CONFIG_RELEASE_COMPILATION?=0
 export CONFIG_EA_WERR?=0
 export CONFIG_CI_NO_SKILL_TEST?=0
 export CONFIG_KERNEL_ONLY?=0
+# Delete compiler .o files after lyn.event generation (they are not used afterward)
+export CONFIG_STRIP_O?=1

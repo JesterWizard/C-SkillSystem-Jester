@@ -156,11 +156,20 @@ CFLAGS += -std=gnu99
 # CFLAGS += -fno-inline -finline-functions
 
 # Use $@ so Kernel/%.o deps point at Kernel/.../foo.o (not Wizardry/.../foo.o).
-# Use a path-unique .d name so basename collisions cannot clobber each other.
-CDEPFLAGS = -MMD -MT "$@" -MT "$(basename $@).asm" -MF "$(CACHE_DIR)/$(subst /,_,$(basename $@)).d" -MP
-SDEPFLAGS = --MD "$(CACHE_DIR)/$(subst /,_,$(basename $@)).d"
+# Use the full target path in the .d name so same-basename files cannot clobber each other.
+CDEPFLAGS = -MMD -MT "$@" -MT "$(basename $@).asm" -MF "$(CACHE_DIR)/$(subst /,_,$@).d" -MP
+SDEPFLAGS = --MD "$(CACHE_DIR)/$(subst /,_,$@).d"
 
 LYN_REF := $(EXT_REF:.s=.o) $(RAM_REF:.s=.o) $(FE8_REF)
+
+ifeq ($(CONFIG_STRIP_O),1)
+define lyn_strip_o
+	@rm -f $(1)
+endef
+else
+define lyn_strip_o
+endef
+endif
 
 # Kernel dir: in-bl range hack
 Kernel/%.o: Kernel/%.c
@@ -174,14 +183,17 @@ Kernel/%.asm: Kernel/%.c
 	@echo "[CC ]	$@"
 	@$(CC) $(CFLAGS) $(GCC_LONG_CALL) $(CDEPFLAGS) -S $< -o $@ -fverbose-asm
 
-Kernel/%.lyn.event: Kernel/%.o $(LYN_REF) $(FE8_SYM)
+Kernel/%.lyn.event: Kernel/%.c $(LYN_REF) $(FE8_SYM)
+	@echo "[CC ]	$<"
+	@$(CC) $(CFLAGS) $(GCC_LONG_CALL) $(CDEPFLAGS) -g -c $< -o $(@:.lyn.event=.o)
 	@echo "[LYN]	$@"
-	@$(LYN) $(LYN_LONG_CALL) $< $(LYN_REF) > $@
+	@$(LYN) $(LYN_LONG_CALL) $(@:.lyn.event=.o) $(LYN_REF) > $@
 	@$(LYN_PROTECTOR) $@ $(FE8_SYM) >> $@
+	$(call lyn_strip_o,$(@:.lyn.event=.o))
 
 # Custom campaign chapters: keep .o out of source folders
 CAMPAIGN_DIR := $(GAMEDATA_DIR)/CustomCampaign
-CAMPAIGN_OBJ = $(CACHE_DIR)/$(subst /,_,$(basename $<)).o
+CAMPAIGN_OBJ = $(CACHE_DIR)/$(subst /,_,$(patsubst %.c,%,$<)).o
 
 $(CAMPAIGN_DIR)/%.lyn.event: $(CAMPAIGN_DIR)/%.c $(LYN_REF) $(FE8_SYM)
 	@echo "[CC ]	$<"
@@ -189,8 +201,22 @@ $(CAMPAIGN_DIR)/%.lyn.event: $(CAMPAIGN_DIR)/%.c $(LYN_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"
 	@$(LYN) -longcalls $(CAMPAIGN_OBJ) $(LYN_REF) > $@
 	@$(LYN_PROTECTOR) $@ $(FE8_SYM) >> $@
+	$(call lyn_strip_o,$(CAMPAIGN_OBJ))
+
+# Rebuild chapter events when sibling data files change (also tracked via -MMD)
+.SECONDEXPANSION:
+$(CAMPAIGN_DIR)/Chapters/%/events/events.lyn.event: $$(wildcard $(CAMPAIGN_DIR)/Chapters/%/events/units.c) $$(wildcard $(CAMPAIGN_DIR)/Chapters/%/events/redas.c) $$(wildcard $(CAMPAIGN_DIR)/Chapters/%/events/traps.c)
 
 # Others: long call
+%.lyn.event: %.c $(LYN_REF) $(FE8_SYM)
+	@echo "[CC ]	$<"
+	@$(CC) $(CFLAGS) -mlong-calls $(CDEPFLAGS) -g -c $< -o $(@:.lyn.event=.o)
+	@echo "[LYN]	$@"
+	@$(LYN) -longcalls $(@:.lyn.event=.o) $(LYN_REF) > $@
+	@$(LYN_PROTECTOR) $@ $(FE8_SYM) >> $@
+	$(call lyn_strip_o,$(@:.lyn.event=.o))
+
+# Assembly objects that still need lyn (do not strip: lyn.event depends on the .o)
 %.lyn.event: %.o $(LYN_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"
 	@$(LYN) -longcalls $< $(LYN_REF) > $@

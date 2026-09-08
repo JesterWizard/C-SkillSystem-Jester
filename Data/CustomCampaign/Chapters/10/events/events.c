@@ -1,8 +1,3 @@
-#include "../../_shared/headers.h"
-#include "../../_shared/empty-event-lists.h"
-#include "redas.h"
-#include "units.h"
-
 // const struct ChapterEventGroup Chapter10Event = {
 //     .turnBasedEvents               = EventListScr_Ch10_Turn,
 //     .characterBasedEvents          = EventListScr_Ch10_Character,

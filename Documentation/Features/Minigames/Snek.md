@@ -53,7 +53,7 @@ The current implementation uses a tiny helper in C to write the outcome into `EV
 | Minigame runtime | `CallSnekMinigameASMC` in [`Kernel/Wizardry/Minigames/Snek/Snek.c`](../../../Kernel/Wizardry/Minigames/Snek/Snek.c) | Starts the blocking Snek proc from events. |
 | Result slot writer | `Snek_SetOutcomeEventSlots` in [`Kernel/Wizardry/Minigames/Snek/Snek.c`](../../../Kernel/Wizardry/Minigames/Snek/Snek.c) | Compares current score to the high score and writes the result to event slots. |
 | Snek declarations | [`Kernel/Wizardry/Minigames/Snek/Snek.h`](../../../Kernel/Wizardry/Minigames/Snek/Snek.h) | Exposes the Snek entry points and shared globals. |
-| Chapter-one house hook | `EventListScr_GAME_SNEK` in [`Data/CustomCampaign/Chapters/01/events/events.h`](../../../Data/CustomCampaign/Chapters/01/events/events.h) | Shows the conversation, runs the minigame, and branches to the correct ending text. |
+| Chapter-one house hook | `EventListScr_GAME_SNEK` in [`Data/CustomCampaign/Chapters/01/events/events.c`](../../../Data/CustomCampaign/Chapters/01/events/events.c) | Shows the conversation, runs the minigame, and branches to the correct ending text. |
 | Dialogue text | [`Data/CustomCampaign/Text/Games/Snek.txt`](../../../Data/CustomCampaign/Text/Games/Snek.txt) | Holds the opening, accept/decline, and result conversations. |
 
 ## 🎮 Event Usage
