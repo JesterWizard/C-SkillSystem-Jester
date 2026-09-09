@@ -2,11 +2,21 @@
 @ Hooked at 0x8F668.
 .thumb
 
+.set ObjInsert, 0x8005429
+
 @ Vanilla overwritten by hook.
 lsl   r1, #0x9
 and   r1, r0          @ r0 contains which flag we need to check to see if textbox is named.
 cmp   r1, #0x0
 bne   NamedTextBox
+
+push  {r1}
+ldr   r3, =MaxColorBackgroundsEnabled
+mov   r12, r3
+bl    GOTO_R12
+pop   {r1}
+cmp   r0, #0x0
+beq   VanillaNoName
 
 @ No name, draw textbubble.
 @ Mostly copied over from 8F670 up to the first ObjInsert (0x8005428 call).
@@ -28,6 +38,10 @@ bl    GOTO_R12
 
 @ Skip over NamedTextBox draw routines.
 ldr   r3, =0x808F6A7
+bx    r3
+
+VanillaNoName:
+ldr   r3, =0x808F670
 bx    r3
 
 NamedTextBox:

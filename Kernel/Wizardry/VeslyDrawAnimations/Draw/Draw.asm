@@ -53,6 +53,14 @@ bx r0
 Draw_SetupMemorySlots:
 push {lr}
 
+blh VeslyDrawAnimationsEnabled
+cmp r0, #0
+bne Draw_SetupMemorySlots_Go
+pop {r0}
+bx r0
+
+Draw_SetupMemorySlots_Go:
+
 
 @ldr r3, =0x203a608 @gpCurrentRound	{U}
 @ldr r0, [r3] 
@@ -222,6 +230,9 @@ bx r0
 .type Draw_Camera, %function
 Draw_Camera:
 push {lr}
+blh VeslyDrawAnimationsEnabled
+cmp r0, #0
+beq Draw_Camera_End
 ldr r3, =MemorySlot
 add r3, #4*0x0B
 ldrb r1, [r3] @ XX 
@@ -232,6 +243,7 @@ ldrb r2, [r3, #2] @ YY
 mov r0, #0 
 blh EnsureCameraOntoPosition
 
+Draw_Camera_End:
 pop {r0} 
 bx r0 
 
@@ -267,7 +279,10 @@ bx r0
 Draw_WaitXFrames:
 push {r4-r5, lr}
 
-mov r4, r0 @ Parent? 
+mov r4, r0 @ Parent?
+blh VeslyDrawAnimationsEnabled
+cmp r0, #0
+beq BreakProcLoopNow 
 
 
 ldr r3, =MemorySlot
@@ -514,7 +529,14 @@ Draw_PushToOam:
 push {r4-r7, lr}
 
 mov r4, r0 
+blh VeslyDrawAnimationsEnabled
+cmp r0, #0
+bne Draw_PushToOam_Go
+mov r0, r4
+blh BreakProcLoop
+b Skip
 
+Draw_PushToOam_Go:
 bl Draw_WaitXFrames
 cmp r0, #2 
 beq Skip 
@@ -1170,6 +1192,10 @@ str r1, [r0, #0x54]
 add r0, #0x58 
 strh r4, [r0] 
 @ end of vanilla 
+
+blh VeslyDrawAnimationsEnabled
+cmp r0, #0
+beq ExitShowHealsplatProc 
 
 @If the flag 0xEE is enabled, the numbers will not be drawn.
 ldr r0, =BATTLE_MAPANIMATION_NUMBERS_FLAGLink

@@ -770,13 +770,14 @@ struct gfx_set const * GetBGData(int id)
 }
 
 void ModifySaveLinkArenaStruct2B(void * buf, int val);
+extern int GetShowCGsLikeFE7Index(int idx);
 //! FE8U = 0x080B65F8
 LYN_REPLACE_CHECK(DisplayCGfx);
 void DisplayCGfx(u16 * tm, int offset, int palId, int palCount, int idx)
 {
     int i;
 
-    struct CGDataEnt * cgEnt = (void *)GetCGFix(idx);
+    struct CGDataEnt * cgEnt = (void *)GetCGFix(GetShowCGsLikeFE7Index(idx));
 
     for (i = 0; i < 10; i++)
     {

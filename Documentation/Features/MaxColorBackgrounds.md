@@ -21,7 +21,7 @@
 
 ## 🧩 Introduction
 
-``CONFIG_MAX_COLOR_BACKGROUNDS``
+Runtime flag: ``KernelDesigerConfig::max_color_backgrounds`` (FEBuilder B159). Off uses the vanilla 16-color BG load path.
 
 This featured was developed to support the use of all available palette banks the GBA has access to. By default, users are limited to 16 colors,
 which can create horrible banding issues when trying to port in more complex backgrounds. With this, users are provided with the option to use

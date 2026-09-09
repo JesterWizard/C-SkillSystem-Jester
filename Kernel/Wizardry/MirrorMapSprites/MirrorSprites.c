@@ -9,6 +9,7 @@ extern struct SMSHandle gSMSHandleArray[100];
 extern struct SMSHandle* gSMSHandleIt;
 
 extern u32 gMirrorSpriteOptions;
+extern int GetDangerBonesShakeOffset(int shaking);
 extern u16 Pal_Grass_Tile[];
 extern u16 Pal_Boulder_Tile[];
 extern u16 Pal_Spin_Tile[];
@@ -142,7 +143,7 @@ void RefreshUnitSprites(void)
     ReloadCustomTrapSpritePalettes();
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    for (i = 1; i < 0xD0; i++)
+    for (i = 1; i < (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0); i++)
 #else
     for (i = 1; i < 0xC0; i++)
 #endif
@@ -454,7 +455,7 @@ void PutUnitSpritesOam(void)
             continue;
 
         if (it->config & 0x40)
-            r3 = GetGameClock() & 2;
+            r3 = GetDangerBonesShakeOffset(true);
 
 		if (gpKernelDesignerConfig->flipped_enemy_sprites == true && it->_u0A == 1) {
 			switch ((it->config & 0xf)) {

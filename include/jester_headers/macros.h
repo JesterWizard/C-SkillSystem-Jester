@@ -390,9 +390,9 @@ enum {
 
 #define PREP_ALT CALL(EventScr_08591FD8)
 
-#ifdef CONFIG_LIGHTS_OUT_GAME
-
 #define PLAY_LIGHTS_OUT_GAME(dimensions, icon_count, toggle_skip, reward, flag) \
+    ASMC(LightsOutShouldPlayASMC) \
+    BEQ(0x4, EVT_SLOT_C, EVT_SLOT_0) \
     SVAL(EVT_SLOT_1, dimensions) \
     SVAL(EVT_SLOT_2, icon_count) \
     SVAL(EVT_SLOT_3, toggle_skip) \
@@ -402,8 +402,6 @@ enum {
     GIVEITEMTO(-1) \
     LABEL(0x4) \
     ENDA
-
-#endif
 
 #define SHOOT_ARROW(x, y, dmg) \
     SVAL(0xB, COORDS(x, y)) \

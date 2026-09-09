@@ -1,9 +1,15 @@
 @ Start a Lights Out Puzzle
 .thumb
 
-push  {r4, r14}
+push  {r4, r5, r14}
+mov   r5, r0                    @ parent proc
 
-mov   r1, r0
+ldr   r4, =LightsOutGameEnabled
+bl    GOTO_R4
+cmp   r0, #0x0
+beq   SkipPuzzle
+
+mov   r1, r5
 ldr   r0, =Proc_Puzzle
 ldr   r4, =NewBlocking6C
 bl    GOTO_R4
@@ -68,7 +74,8 @@ mov   r2, #0x60
 strb  r1, [r0, r2]
 
 
-pop   {r4}
+SkipPuzzle:
+pop   {r4, r5}
 pop   {r0}
 bx    r0
 GOTO_R4:

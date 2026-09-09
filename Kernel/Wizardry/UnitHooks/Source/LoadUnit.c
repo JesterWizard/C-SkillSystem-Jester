@@ -173,7 +173,8 @@ struct Unit* LoadUnit(const struct UnitDefinition* uDef) {
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     case 3:
-        unit = GetFreeUnit(FACTION_PURPLE);
+        if (gpKernelDesignerConfig->fourth_allegiance)
+            unit = GetFreeUnit(FACTION_PURPLE);
         break;
 #endif
 

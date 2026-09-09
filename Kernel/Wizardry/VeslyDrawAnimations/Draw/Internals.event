@@ -1,6 +1,7 @@
 
 
 #include "MapAnimations/v2Animations.event" 
+#include "VeslyDrawAnimationsEnabled.lyn.event"
 #include "Draw.lyn.event"
 #include "EAstdlib.event"
 #include "ProcDefinitions.event"

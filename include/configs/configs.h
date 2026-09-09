@@ -18,18 +18,7 @@
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
 #define CONFIG_UNIT_ACTION_EXPA_Gambit 0x26
 #define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
-#define CONFIG_CUSTOM_GUIDE //Enable flag 0xB4 to view (configurable in GuideTable.event)
-#define CONFIG_VESLY_DRAW_ANIMATIONS // Installation costs about 200KB
-// #define CONFIG_VESLY_RECLASS // Ovewrites the juna fruit. Maybe look into not using an item at all?
-#define CONFIG_CHAPTER_NAMES         // All ASM, so easier to use build time config
-#define CONFIG_STAT_SCREEN_ALLEGIANCE_COLORS // All ASM, so easier to use build time config
-#define CONFIG_TEXT_ENGINE_REWORK    // All ASM, so easier to use build time config
-#define CONFIG_SHOW_CGs_LIKE_FE7     // All ASM, so easier to use build time config
-#define CONFIG_UNIT_SELECTION_QUOTES // Installs assets so needs a build time config
 #define CONFIG_VESLY_SHOOT_ARROW     // All ASM, so easier to use build time config
-#define CONFIG_RES_TERRAIN_WINDOW    // All ASM, so easier to use build time config
-#define CONFIG_MAX_COLOR_BACKGROUNDS // All ASM, so easier to use build time config
-// #define CONFIG_LIGHTS_OUT_GAME    // All ASM, so easier to use build time config
 #define CONFIG_MISC_UNIT_COUNTERS    // Used for Skill - Bravely Default (It also edits the unit struct bits) 
 
 /**
@@ -50,8 +39,10 @@
 
 #define CONFIG_FORGE_CHECKER 5000
 
-// For now don't turn it off, it'll break the game
-#define CONFIG_FOURTH_ALLEGIANCE // Run a full make clean every time you toggle this
+// Unit counts and save layout stay expanded. Gameplay is gated by
+// KernelDesigerConfig::fourth_allegiance. Run a full make clean if you
+// ever undefine this.
+#define CONFIG_FOURTH_ALLEGIANCE
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
  	#define CONFIG_UNIT_AMT_ALLY  41
@@ -63,10 +54,6 @@
 
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
-
-// #define CONFIG_VESLY_NOTIFICATION_SYSTEM /* Has issues with setting custom notifications and displaying UTF8 text */
-// #define CONFIG_VESLY_AOE /* This needs to be updated with Vesly's latest fixes as it's affecting the item menu and minimug palettes */
-// #define CONFIG_VESLY_AVATAR
 
 #define CONFIG_TURN_ON_ALL_SKILLS
 
@@ -84,14 +71,9 @@
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
-#define CONFIG_FE7_MODE_SELECT // Graphical errors. needs the RAM allocation in config-memmap.s at line 109 turned on
-
-/* 
-** For the portrait formatting, it only works by calling the HalfBodyFormatter.exe in my own local drive in the downloads folder,
-** so will not work for anyone else unless they're using WSL (Windows Subsystem in Linux) and put the exe there or using Wine.
-** For now I've put a copy in EA's "Tools" folder for WSL users to move. If I get Vesly's Python portrait formatter working I may switch.
-*/
-// Halfbody portraits are controlled at runtime by
-// KernelDesigerConfig::half_body_portraits.
-// 32-color portraits copy pal1 into the paired face VRAM/pal bank; gated by
-// KernelDesigerConfig::portrait_32_color.
+// Voiced unit-select clips are gated by KernelDesigerConfig::unit_selection_quotes.
+// FE7-style text chapter titles are gated by KernelDesigerConfig::chapter_names.
+// FE7 difficulty select is gated by KernelDesigerConfig::fe7_mode_select.
+// Heart Seal reclass is gated by KernelDesigerConfig::vesly_reclass.
+// Notification toasts are gated by KernelDesigerConfig::vesly_notification_window.
+// Extra map-action animations are gated by KernelDesigerConfig::vesly_draw_animations.

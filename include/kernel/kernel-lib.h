@@ -175,6 +175,18 @@ struct KernelDesigerConfig {
 	u8 world_map_thought_bubbles;
 	u8 wrank_bonux_rtext_auto_gen; 	// auto generate rtext for weapon rank bonus in statscreen
 	u8 portrait_32_color; /* pal1 overlay in the paired face VRAM/pal bank; max 2 */
+	u8 stat_screen_allegiance_colors; /* allegiance-tinted stat screen BG palettes */
+	u8 res_terrain_window; /* DEF/RES/AVO terrain window; off uses vanilla DEF/AVO */
+	u8 show_cgs_like_fe7; /* event SHOWBG selects a 10-split ending CG by index */
+	u8 max_color_backgrounds; /* 224/256-color conversation backgrounds */
+	u8 custom_guide; /* custom Guide table; off hides the Guide command */
+	u8 lights_out_game; /* Lights Out minigame; off skips start/reward */
+	u8 fourth_allegiance; /* purple faction gameplay; layout stays expanded */
+	u8 unit_selection_quotes; /* voiced unit-select clips; off skips playback */
+	u8 chapter_names; /* FE7-style text chapter titles; off uses vanilla GFX */
+	u8 fe7_mode_select; /* FE7 difficulty select; off uses FE8 NewNewGameDifficultySelect */
+	u8 vesly_reclass; /* Heart Seal reclass via juna fruit; off uses vanilla juna fruit */
+	u8 vesly_draw_animations; /* extra map-action animations; off keeps vanilla map anims */
 };
 
 struct KernelBattleDesignerConfig {
@@ -329,7 +341,7 @@ bool IsUnitStruct(struct Unit *maybe_unit);
 		(faction) == FACTION_BLUE   ? CONFIG_UNIT_AMT_ALLY    : \
 		(faction) == FACTION_RED    ? CONFIG_UNIT_AMT_ENEMY   : \
 		(faction) == FACTION_GREEN  ? CONFIG_UNIT_AMT_NPC     : \
-		(faction) == FACTION_PURPLE ? CONFIG_UNIT_AMT_FOURTH  : \
+		((faction) == FACTION_PURPLE && gpKernelDesignerConfig->fourth_allegiance) ? CONFIG_UNIT_AMT_FOURTH : \
 		0                                                       \
 	)
 #else
@@ -382,10 +394,10 @@ bool IsUnitStruct(struct Unit *maybe_unit);
 #ifdef CONFIG_FOURTH_ALLEGIANCE
 
 	#define FOR_UNITS_ONMAP_ALL(var_name, body) \
-		FOR_UNITS_ONMAP(1, 0xD0, var_name, body)
+		FOR_UNITS_ONMAP(1, (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0), var_name, body)
 
 	#define FOR_UNITS_VALID_ALL(var_name, body) \
-		FOR_UNITS_VALID(1, 0xD0, var_name, body)
+		FOR_UNITS_VALID(1, (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0), var_name, body)
 
 #else
 

@@ -1,6 +1,6 @@
-// #include <stdio.h>
-#include "main.h"
 #include "common-chax.h"
+#include "kernel-lib.h"
+#include "main.h"
 
 // Set 256-col or 224-col BG.
 void CGC_LoadMultiPalBG(struct BGData* bgData, u32 colCount) {

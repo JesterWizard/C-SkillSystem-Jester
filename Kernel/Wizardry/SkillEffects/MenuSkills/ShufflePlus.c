@@ -48,7 +48,7 @@ static void callback_exec(ProcPtr proc)
 #ifdef CONFIG_FOURTH_ALLEGIANCE
     int factionUnitCountLut[4] = { 62, 20, 50, 20 };
     int factionStarts[4] = { 0x01, 0x41, 0x81, 0xC1 };
-    int numFactions = 4;
+    int numFactions = gpKernelDesignerConfig->fourth_allegiance ? 4 : 3;
 #else
     int factionUnitCountLut[3] = { 62, 20, 50 };
     int factionStarts[3] = { 0x01, 0x41, 0x81 };

@@ -1,11 +1,1 @@
-#include "Extensions/Hack Installation.txt"
-
-PUSH
-// Original was 0xB65FE but that caused based code alignment
-ORG 0xB65FC
-jumpToHack(ShowCGsLikeFE7)
-POP
-
-ALIGN 4
-ShowCGsLikeFE7:
-#incbin "show_10split_image_for_fe8u.dmp"
+#include "src/ShowCGsLikeFE7.lyn.event"

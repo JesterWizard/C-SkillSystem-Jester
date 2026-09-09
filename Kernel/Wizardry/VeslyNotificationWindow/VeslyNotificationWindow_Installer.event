@@ -1,3 +1,6 @@
+#ifndef VESLY_NOTIFICATION_WINDOW_INSTALLED
+#define VESLY_NOTIFICATION_WINDOW_INSTALLED 1
+
 // Replaces: TerrainDisplay_Init
 // Hooks: SetChapterFlag, SetPermanentFlag
 
@@ -84,3 +87,5 @@ callHackNew(HookSetLocalFlag_NotificationWindow)
 ORG 0x83CAC
 callHackNew(HookSetGlobalFlag_NotificationWindow) 
 POP
+
+#endif /* VESLY_NOTIFICATION_WINDOW_INSTALLED */

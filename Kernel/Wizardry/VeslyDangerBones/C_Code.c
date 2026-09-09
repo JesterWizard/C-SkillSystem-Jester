@@ -14,6 +14,7 @@ extern int US_BIT_PAL;
 
 extern int ShakeIt;
 extern int Pal_4th;
+extern int ShakeSpeed_Link;
 extern int DangerBonesDisabledFlag;
 
 int ShouldDangerBonesRun(void)
@@ -28,6 +29,20 @@ int ShouldDangerBonesRun(void)
         return false;
     
     return true;
+}
+
+int GetDangerBonesShakeOffset(int shaking)
+{
+    int speed;
+
+    if (!shaking)
+        return 0;
+
+    if (gpKernelDesignerConfig->vesly_danger_bones != true)
+        return GetGameClock() & 2;
+
+    speed = ShakeSpeed_Link;
+    return (GetGameClock() & (1 << speed)) >> speed;
 }
 
 extern const u16 gPal_DangerBones[];

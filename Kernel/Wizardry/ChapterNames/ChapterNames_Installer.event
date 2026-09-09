@@ -4,9 +4,10 @@
 #include "Extensions/Hack Installation.txt"
 #include "LynJump.event"
 #include "SaveMenuChapterTitle.lyn.event"
+#include "ChapterNamesGate.lyn.event"
 PUSH
 ORG $89624
-jumpToHack(Chname)
+jumpToHack(Chname_Gate)
 POP
 
 Chname:

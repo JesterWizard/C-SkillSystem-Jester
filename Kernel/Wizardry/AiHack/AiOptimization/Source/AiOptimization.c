@@ -73,7 +73,7 @@ static int AiGetNearestEnemyDistanceToTile(int x, int y)
 	bool found = false;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-	for (i = 1; i < 0xD0; ++i)
+	for (i = 1; i < (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0); ++i)
 #else
 	for (i = 1; i < 0xC0; ++i)
 #endif
@@ -497,7 +497,8 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 	u8 UNIT_AMOUNT = 0xC0;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-	UNIT_AMOUNT = 0xD0;
+	if (gpKernelDesignerConfig->fourth_allegiance)
+		UNIT_AMOUNT = 0xD0;
 #endif
 
 	int target_count = 0;

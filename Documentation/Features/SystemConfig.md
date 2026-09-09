@@ -38,6 +38,19 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `max_level` | Maximum displayed unit level, from `0` to `25`. |
 | `max_level_record` | Maximum total level, including current and hidden level, from `0` to `80`. See [SkillSys.md](./SkillSys.md). |
 | `dynamic_weapon_slots` | Enables per-class weapon-type-to-rank-slot mapping so custom types (knives, guns, etc.) can use unused `Unit::ranks` slots. See [DynamicWeaponSlots.md](./DynamicWeaponSlots.md). |
+| `stat_screen_allegiance_colors` | Tints the stat screen background blue/red/green/gold from the unit's allegiance. Off uses the vanilla palette. |
+| `res_terrain_window` | Shows DEF, RES, and AVO on the map terrain window. Off uses the vanilla DEF/AVO layout. |
+| `show_cgs_like_fe7` | Lets `SHOWBG` events pick a 10-split ending CG by index. Off uses the `DisplayCGfx` idx argument only. |
+| `max_color_backgrounds` | Enables 224/256-color conversation backgrounds (IDs from `0x38`). Off loads BGs through the vanilla 16-color path. |
+| `custom_guide` | Shows the custom Guide command and table. Off hides Guide. |
+| `lights_out_game` | Enables the Lights Out minigame. Off skips start and its event reward. |
+| `fourth_allegiance` | Enables purple-faction gameplay. Off skips the purple phase; unit RAM/save layout stays expanded. |
+| `unit_selection_quotes` | Plays a random voiced clip when a unit is selected. Off skips playback; song-table assets stay installed. |
+| `chapter_names` | Draws FE7-style text chapter titles. Off uses vanilla chapter-title graphics. |
+| `fe7_mode_select` | Uses the FE7 difficulty-select screen. Off uses vanilla FE8 `NewNewGameDifficultySelect`. |
+| `vesly_reclass` | Makes the juna fruit a Heart Seal reclass item. Off uses vanilla juna fruit (name/icon stay Heart Seal). |
+| `vesly_notification_window` | Shows map notification toasts. Off skips them; flag hooks stay installed. |
+| `vesly_draw_animations` | Plays extra map-action animations. Off keeps vanilla map anims; animation assets stay installed. |
 
 ### Skill Scroll Behavior
 

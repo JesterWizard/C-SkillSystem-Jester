@@ -4,6 +4,10 @@
 push  {r4-r7, r14}
 mov   r5, #0x3
 
+ldr   r4, =LightsOutGameEnabled
+bl    GOTO_R4
+cmp   r0, #0x0
+beq   Return
 
 @ Disregard summon
 ldr   r0, =ActiveUnit

@@ -2,7 +2,14 @@
 @ Hooked at 0x8EB10.
 .thumb
 
+.set CopyTileGfxForObj, 0x8013021
+
 mov   r5, r0            @ ProcState. Need to safekeep.
+
+ldr   r4, =MaxColorBackgroundsEnabled
+bl    GOTO_R4
+cmp   r0, #0x0
+beq   VanillaBubble
 
 @ Load textbubble palette.
 ldr   r0, =0x89E84D4
@@ -24,6 +31,7 @@ mov   r3, #0x4
 ldr   r4, =CopyTileGfxForObj
 bl    GOTO_R4
 
+VanillaBubble:
 @ Vanilla, overwritten by hook.
 mov   r3, r5
 add   r2, r13, #0x18

@@ -8,6 +8,14 @@ add   r4, r6
 lsl   r4, #0x2
 add   r0, r4, r5                @ Arg0 contains address of BGStruct.
 
+push  {r0}
+ldr   r2, =MaxColorBackgroundsEnabled
+bl    GOTO_R2
+mov   r1, r0
+pop   {r0}
+cmp   r1, #0x0
+beq   VanillaBG
+
 mov   r1, #0x80
 lsl   r1, #0x1                  @ Arg1 = 256. Indicates how many colours BG uses.
 ldr   r2, [r0, #0x4]
@@ -16,6 +24,8 @@ beq   LoadMultiPalBG
   sub   r1, #0x20               @ Arg1 = 224. Indicates how many colours BG uses.
   cmp   r2, #0x1                @ Check TSA pointer against 1.
   beq   LoadMultiPalBG
+
+VanillaBG:
     ldr   r1, =0x800E84D        @ Neither 256 nor 224 colour BG, run vanilla.
     bx    r1
 

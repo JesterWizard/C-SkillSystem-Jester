@@ -1862,51 +1862,34 @@ void SwitchPhases(void)
         gPlaySt.faction = FACTION_GREEN;
         break;
 
+    case FACTION_GREEN:
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    case FACTION_GREEN:
-        gPlaySt.faction = FACTION_PURPLE;
-        break;
-
-    case FACTION_PURPLE:
-    {
-	    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Songstress_InForce))
-        {
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Songstress_InForce);
-            gPlaySt.faction = FACTION_RED;
+        if (gpKernelDesignerConfig->fourth_allegiance) {
+            gPlaySt.faction = FACTION_PURPLE;
+            break;
         }
-        else
-            gPlaySt.faction = FACTION_BLUE;
-    }
-
-    if (gPlaySt.chapterTurnNumber < 999)
-    {
-        gPlaySt.chapterTurnNumber++;
-    }
-
-	if (gpKernelDesignerConfig->vesly_support_after_battle != true)
-    {
-        ProcessTurnSupportExp();
-    }
-
-#else
-    case FACTION_GREEN:
-    {
-	    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Songstress_InForce))
-        {
-            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Songstress_InForce);
-            gPlaySt.faction = FACTION_RED;
-        }
-        else
-            gPlaySt.faction = FACTION_BLUE;
-    }
-
-    if (gPlaySt.chapterTurnNumber < 999)
-        gPlaySt.chapterTurnNumber++;
-
-	if (gpKernelDesignerConfig->vesly_support_after_battle != true)
-        ProcessTurnSupportExp();
-
 #endif
+        goto switch_phases_end_turn;
+
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+    case FACTION_PURPLE:
+#endif
+    switch_phases_end_turn:
+	    if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Songstress_InForce))
+        {
+            PlayStExpa_ClearBit(PLAYSTEXPA_BIT_Songstress_InForce);
+            gPlaySt.faction = FACTION_RED;
+        }
+        else
+            gPlaySt.faction = FACTION_BLUE;
+
+        if (gPlaySt.chapterTurnNumber < 999)
+            gPlaySt.chapterTurnNumber++;
+
+        if (gpKernelDesignerConfig->vesly_support_after_battle != true)
+            ProcessTurnSupportExp();
+
+        break;
     }
 
 }
@@ -1974,7 +1957,7 @@ void RefreshUnitsOnBmMap(void) {
         // 2.1. No red phase
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    for (i = FACTION_RED + 1; i < FACTION_PURPLE + 0x10; i++)
+    for (i = FACTION_RED + 1; i < (gpKernelDesignerConfig->fourth_allegiance ? FACTION_PURPLE + 0x10 : FACTION_PURPLE); i++)
 #else
     for (i = FACTION_RED + 1; i < FACTION_PURPLE; i++)
 #endif
@@ -4173,19 +4156,20 @@ LYN_REPLACE_CHECK(AreUnitsAllied);
 s8 AreUnitsAllied(int left, int right) {
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    int l = left  & 0xC0;
-    int r = right & 0xC0;
+    if (gpKernelDesignerConfig->fourth_allegiance) {
+        int l = left  & 0xC0;
+        int r = right & 0xC0;
 
-    /* Collapse Player (0x00) and Green (0x40) */
-    if (l == 0x40) l = 0x00;
-    if (r == 0x40) r = 0x00;
+        /* Collapse Player (0x00) and Green (0x40) */
+        if (l == 0x40) l = 0x00;
+        if (r == 0x40) r = 0x00;
 
-    return l == r;
-#else
+        return l == r;
+    }
+#endif
     int a = left & 0x80;
     int b = right & 0x80;
     return (a == b);
-#endif
 }
 
 static inline int CheckAltBgm(u8 base, u8 alt) {
@@ -4239,7 +4223,9 @@ int GetCurrentMapMusicIndex(void) {
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
         case FACTION_PURPLE:
-            return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[redBgmIdx];
+            if (gpKernelDesignerConfig->fourth_allegiance)
+                return GetROMChapterStruct(gPlaySt.chapterIndex)->mapBgmIds[redBgmIdx];
+            break;
 #endif
     }
 

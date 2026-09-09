@@ -78,8 +78,6 @@ extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
 extern void EnableFreeMovementASMC(void);
 extern void DisableFreeMovementASMC(void);
 
-#ifdef CONFIG_LIGHTS_OUT_GAME
-
     enum {
 	DIMENSIONS_3x3 = 0,
 	DIMENSIONS_3x4 = 1,
@@ -116,7 +114,7 @@ extern void DisableFreeMovementASMC(void);
 
     extern void PuzzleEvent(void);
     extern void PuzzleEvent2(void);
-#endif
+    extern void LightsOutShouldPlayASMC(void);
 
 void StartDebuggerProc(ProcPtr playerPhaseProc);
 

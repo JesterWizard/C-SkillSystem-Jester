@@ -1,57 +1,5 @@
-#include "Extensions/Hack Installation.txt"
-
-// PUSH
-// //New RES. GFX
-// ORG 0x8D0AC
-// POIN FontTiles
-// PROTECT 0x8D0AC currentOffset
-// POP
-
-PUSH
-//Text and foreground positioning
-ORG 0x8CA50
-WORD 0x2003F6C
-WORD 0x200446c
-PROTECT 0x8CA50 currentOffset
-
-//Background TSA location
-ORG 0x8CB2C
-WORD 0x20044ac
-PROTECT 0x8CB2C currentOffset
-
-//Broken Wall TSA location
-ORG 0x8CAA8
-WORD 0x200406E
-PROTECT 0x8CAA8 currentOffset
-
-//Point to new text TSA
-ORG 0x8CA58
-POIN NewTerrainWindowText_TSA
-PROTECT 0x8CA58 currentOffset
-
-//Point to new broken wall TSA
-//Need this to be the same size as the text TSA
-ORG 0x8CAAC
-POIN NewBrokenWall_TSA
-PROTECT 0x8CAAC currentOffset
-
-//Point to new background TSA
-ORG 0x8CB30
-POIN NewTerrainWindow_TSA
-PROTECT 0x8CB30 currentOffset
-POP
-
-// Load DEF/RES/AVO GFX
-PUSH
-ORG 0x8CA1C
-jumpToHack(TerrainDefResAvoDisplay)
-PROTECT 0x8CA1C currentOffset
-POP
-
-
-ALIGN 4
-TerrainDefResAvoDisplay:
-#incbin "src/Terrain_DEF_RES_AVO.dmp"
+#include "src/LynJump.event"
+#include "src/ResTerrainWindow.lyn.event"
 
 ALIGN 4
 NewTerrainWindow_TSA:
@@ -64,8 +12,3 @@ NewBrokenWall_TSA:
 ALIGN 4
 NewTerrainWindowText_TSA:
 #incbin "gfx/TerrainWindowText.dmp"
-
-ALIGN 4
-FontTiles:
-#incbin "gfx/FontTiles_swapped_def_res.dmp"
-//#incbin "gfx/FontTiles_LZ77.dmp"

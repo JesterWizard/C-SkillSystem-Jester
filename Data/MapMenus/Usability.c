@@ -20,10 +20,18 @@ u8 MapMenu_IsAchievementsCommandAvailable_Config(const struct MenuItemDef *def, 
     return MapMenu_IsAchievementsCommandAvailable(def, number);
 }
 
+u8 MapMenu_IsGuideCommandAvailable_Config(const struct MenuItemDef *def, int number)
+{
+    if (gpKernelDesignerConfig->custom_guide == false)
+        return MENU_NOTSHOWN;
+
+    return MapMenu_IsGuideCommandAvailable(def, number);
+}
+
 const struct MenuItemDef gMapMenuItems_NEW[] = {
     {"　部隊", 0x69A, 0x6DF, 0, 0x6e, MenuAlwaysEnabled, 0, MapMenu_UnitCommand, 0, 0, 0}, // Unit >
     {"　状況", 0x690, 0x6E0, 0, 0x6f, MenuAlwaysEnabled, 0, MapMenu_StatusCommand, 0, 0, 0}, // Status >
-    {"　辞書", 0x69C, 0x6E5, 4, 0x74, MapMenu_IsGuideCommandAvailable, MapMenu_GuideCommandDraw, MapMenu_GuideCommand, 0, 0, 0}, // Guide
+    {"　辞書", 0x69C, 0x6E5, 4, 0x74, MapMenu_IsGuideCommandAvailable_Config, MapMenu_GuideCommandDraw, MapMenu_GuideCommand, 0, 0, 0}, // Guide
     {"Goals", MSG_MAP_MENU_GOALS_TITLE, MSG_MAP_MENU_GOALS_DESC, 4, 0x75, MapMenu_IsAchievementsCommandAvailable_Config, MapMenu_AchievementsCommandDraw, MapMenu_AchievementsCommand, 0, 0, 0}, // Goals
     {"　辞書", MSG_MAP_MENU_BIOGRAPHY_TITLE, MSG_MAP_MENU_BIOGRAPHY_DESC, 4, 0x74, MapMenu_IsBiographyCommandAvailable, MapMenu_BiographyCommandDraw, MapMenu_BiographyCommand, 0, 0, 0}, // Bios
     {"　戦績", 0x69E, 0x6E3, 0, 0x70, MapMenu_IsRecordsCommandAvailable, 0, MapMenu_RecordsCommand, 0, 0, 0}, // Records

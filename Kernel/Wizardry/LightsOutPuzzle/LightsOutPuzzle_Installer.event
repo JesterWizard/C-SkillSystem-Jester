@@ -1,3 +1,6 @@
+#include "src/LightsOutGameEnabled.lyn.event"
+#include "src/LightsOutShouldPlayASMC.lyn.event"
+
 #include "Extensions/Hack Installation.txt"
 #include "EAstdlib.event"
 

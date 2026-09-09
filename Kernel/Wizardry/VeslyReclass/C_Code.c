@@ -1,5 +1,7 @@
 
 #include "C_Code.h" // headers
+#include "common-chax.h"
+#include "kernel-lib.h"
 #include "weapon-slots.h"
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
@@ -1315,6 +1317,9 @@ void MakeReclassScreen(struct ProcPromoHandler * proc, u8 pid, u8 terrain)
 void StartPrepScreenReclass(struct ProcPrepItemUse * proc);
 s8 CanUnitReclass(struct Unit * unit)
 {
+    if (gpKernelDesignerConfig->vesly_reclass == false)
+        return unit->level >= 10;
+
     return GetReclassOption(unit->pCharacterData->number, unit->pClassData->number, 0);
 }
 
@@ -1332,6 +1337,18 @@ void CallPrepItemUse_PostPromotion(struct ProcPrepItemUse * proc)
 extern struct ProcCmd sProc_Menu[];
 int StartBmReclass(ProcPtr proc)
 {
+    if (gpKernelDesignerConfig->vesly_reclass == false) {
+        struct Unit * unit = GetUnit(gActionData.subjectIndex);
+        int item = unit->items[gActionData.itemSlotIndex];
+        int levelCount;
+
+        gBattleTarget.statusOut = -1;
+        levelCount = ApplyJunaFruitItem(unit, gActionData.itemSlotIndex);
+        PlaySoundEffect(SONG_SE_UPDATE);
+        NewPopup2_PlanB(proc, GetItemIconId(item), 0, levelCount, GetStringFromIndex(0x1E));
+        return 0;
+    }
+
     struct Unit * unit = gActiveUnit;
     gActiveUnit = unit;
     gActiveUnitId = unit->index;
@@ -1397,6 +1414,12 @@ int StartBmReclass(ProcPtr proc)
 void StartPrepScreenReclass(struct ProcPrepItemUse * proc)
 {
     struct ProcPrepItemUse * aParent = proc->proc_parent;
+
+    if (gpKernelDesignerConfig->vesly_reclass == false) {
+        ApplyJunaFruitItem(aParent->unit, aParent->slot);
+        return;
+    }
+
     proc->unit = aParent->unit;
     proc->slot = aParent->slot;
     proc->unk34 = aParent->unk34;

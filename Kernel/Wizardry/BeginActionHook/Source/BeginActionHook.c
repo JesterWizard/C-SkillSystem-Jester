@@ -139,20 +139,20 @@ void UnitBeginAction(struct Unit *unit)
     gBmSt.taken_action = 0;
     gBmSt.unk3F        = 0xFF;
 
-    sub_802C334();
+	sub_802C334();
 
-	// Play a random unit selection quote
-    u8 charId = unit->pCharacterData->number;
-    for (unsigned i = 0; i < ARRAY_COUNT(character_voice_ids); i++)
-	{
-        if (charId == character_voice_ids[i].key)
-		{
-            int voiceId = character_voice_ids[i].values[NextRN_N(3)];
+	if (gpKernelDesignerConfig->unit_selection_quotes != false) {
+		u8 charId = unit->pCharacterData->number;
 
-            PlayUnitVoiceWithBGMReduced(voiceId, 45); // Hold for 45 frames before restoring
-            break;
-        }
-    }
+		for (unsigned i = 0; i < ARRAY_COUNT(character_voice_ids); i++) {
+			if (charId == character_voice_ids[i].key) {
+				int voiceId = character_voice_ids[i].values[NextRN_N(3)];
+
+				PlayUnitVoiceWithBGMReduced(voiceId, 45);
+				break;
+			}
+		}
+	}
 
     gActiveUnit->state |= US_HIDDEN;
     gBmMapUnit[unit->yPos][unit->xPos] = 0;

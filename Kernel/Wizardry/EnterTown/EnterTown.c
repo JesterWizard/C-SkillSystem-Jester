@@ -19,6 +19,7 @@ extern u8 sWmChapterIdOverride;
 extern u8 sWmMapReloadPending;
 
 extern u8 MapMenu_IsGuideCommandAvailable(const struct MenuItemDef * def, int number);
+extern u8 MapMenu_IsGuideCommandAvailable_Config(const struct MenuItemDef * def, int number);
 extern void sub_80B5D3C(void);
 extern struct MenuRect gMenuRect_WMGeneralMenuRect;
 extern struct ProcCmd CONST_DATA ProcScr_OpAnim[]; // intro cutscene
@@ -465,7 +466,7 @@ static struct MenuItemDef const MenuItemDef_WMGeneralMenu_NEW[] =
         .nameMsgId = 0x0647,
         .helpMsgId = 0x06E5,
         .overrideId = 2,
-        .isAvailable = MapMenu_IsGuideCommandAvailable,
+        .isAvailable = MapMenu_IsGuideCommandAvailable_Config,
         .onDraw = WMMenu_OnGuideDraw_NEW,
         .onSelected = WMMenu_OnGuideSelected_NEW,
     },

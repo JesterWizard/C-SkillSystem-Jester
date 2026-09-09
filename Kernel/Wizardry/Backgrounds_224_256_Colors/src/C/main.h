@@ -10,5 +10,6 @@ struct BGData {
 };
 
 void CGC_LoadMultiPalBG(struct BGData* bgData, u32 colCount);
+bool MaxColorBackgroundsEnabled(void);
 
 #endif // MAIN_H

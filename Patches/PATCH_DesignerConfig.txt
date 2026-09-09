@@ -7,7 +7,7 @@ IF:0xB2A604=0x43 0x53 0x4B 0x49 0x4C 0x4C 0x53 0x59 0x53 0x5F 0x4B 0x2D 0x33
 TYPE=STRUCT
 TAG=#ENGINE
 
-DATASIZE=156
+DATASIZE=168
 DATACOUNT=1
 
 POINTER=0xB2A680
@@ -165,6 +165,18 @@ B152:$COMBO combo.bool.txt=voice_acted_dialogue
 B153:$COMBO combo.bool.txt=world_map_thought_bubbles
 B154:$COMBO combo.bool.txt=wrank_bonux_rtext_auto_gen
 B155:$COMBO combo.bool.txt=portrait_32_color
+B156:$COMBO combo.bool.txt=stat_screen_allegiance_colors
+B157:$COMBO combo.bool.txt=res_terrain_window
+B158:$COMBO combo.bool.txt=show_cgs_like_fe7
+B159:$COMBO combo.bool.txt=max_color_backgrounds
+B160:$COMBO combo.bool.txt=custom_guide
+B161:$COMBO combo.bool.txt=lights_out_game
+B162:$COMBO combo.bool.txt=fourth_allegiance
+B163:$COMBO combo.bool.txt=unit_selection_quotes
+B164:$COMBO combo.bool.txt=chapter_names
+B165:$COMBO combo.bool.txt=fe7_mode_select
+B166:$COMBO combo.bool.txt=vesly_reclass
+B167:$COMBO combo.bool.txt=vesly_draw_animations
 
 B0:$COMBO combo.bool.txt.zh=ai_dance_use
 B1:$COMBO combo.bool.txt.zh=ai_player_phase
@@ -320,6 +332,18 @@ B152:$COMBO combo.bool.txt.zh=voice_acted_dialogue
 B153:$COMBO combo.bool.txt.zh=world_map_thought_bubbles
 B154:$COMBO combo.bool.txt.zh=wrank_bonux_rtext_auto_gen
 B155:$COMBO combo.bool.txt.zh=portrait_32_color
+B156:$COMBO combo.bool.txt.zh=stat_screen_allegiance_colors
+B157:$COMBO combo.bool.txt.zh=res_terrain_window
+B158:$COMBO combo.bool.txt.zh=show_cgs_like_fe7
+B159:$COMBO combo.bool.txt.zh=max_color_backgrounds
+B160:$COMBO combo.bool.txt.zh=custom_guide
+B161:$COMBO combo.bool.txt.zh=lights_out_game
+B162:$COMBO combo.bool.txt.zh=fourth_allegiance
+B163:$COMBO combo.bool.txt.zh=unit_selection_quotes
+B164:$COMBO combo.bool.txt.zh=chapter_names
+B165:$COMBO combo.bool.txt.zh=fe7_mode_select
+B166:$COMBO combo.bool.txt.zh=vesly_reclass
+B167:$COMBO combo.bool.txt.zh=vesly_draw_animations
 
 INFO=Editor: gKernelDesigerConfig\nhttps://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md
 https://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md

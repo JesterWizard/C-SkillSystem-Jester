@@ -6,6 +6,11 @@
 push  {r14}
 sub   sp, #0x4
 
+ldr   r1, =MaxColorBackgroundsEnabled
+bl    GOTO_R1
+cmp   r0, #0x0
+beq   VanillaClear
+
 @ Clear textbubble OBJVRAM.
 mov   r0, #0x0
 str   r0, [sp]
@@ -18,6 +23,7 @@ lsl   r3, #0x3            @ 0x400 words, meaning 0x1000 bytes.
 orr   r2, r3
 swi   #0xC                @ CpuFastSet.
 
+VanillaClear:
 @ Vanilla, overwritten by hook.
 ldr   r1, =0x808EA3D      @ Gets some flags.
 bl    GOTO_R1

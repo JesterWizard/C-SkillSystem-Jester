@@ -2,37 +2,31 @@
 
 //808859c loads palette
 
-//ldr r0,=0x8a06460
-//mov r1, #0xc0
-//lsl r1,#1
-//mov r2,#0x80
-
 PUSH
 ORG $8859c //hook
 jumpToHack(StatscreenAlleg)
 PROTECT $8859c currentOffset
 POP
 
+#include "Source/StatScreenAllegianceColors.lyn.event"
+
 ALIGN 4
 StatscreenAlleg:
 #incbin StatScreenAlleg.dmp
-POIN SSBluePal  //Player
-POIN SSRedPal   //Enemy
-POIN SSGreenPal //NPC
-POIN SSGoldPal  //Other
+POIN GetStatScreenBgPal
 
 ALIGN 4
-SSBluePal:
+Pal_SSBlue:
 #incbin "img/SSBluePal.dmp"
 
 ALIGN 4
-SSRedPal:
+Pal_SSRed:
 #incbin "img/SSRedPal.dmp"
 
 ALIGN 4
-SSGreenPal:
+Pal_SSGreen:
 #incbin "img/SSGreenPal.dmp"
 
 ALIGN 4
-SSGoldPal:
+Pal_SSGold:
 #incbin "img/SSGoldPal.dmp"

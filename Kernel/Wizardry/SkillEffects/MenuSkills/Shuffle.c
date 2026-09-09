@@ -49,7 +49,7 @@ static void callback_exec(ProcPtr proc)
     u32 faction = gPlaySt.faction;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    int factionUnitCountLut[4] = { 62, 20, 50, 20 };
+    int factionUnitCountLut[4] = { 62, 20, 50, gpKernelDesignerConfig->fourth_allegiance ? 20 : 0 };
 #else
     int factionUnitCountLut[3] = { 62, 20, 50 };
 #endif

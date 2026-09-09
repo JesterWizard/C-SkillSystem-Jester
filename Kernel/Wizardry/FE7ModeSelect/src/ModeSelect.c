@@ -20,6 +20,7 @@
 #include "constants/faces.h"
 
 #include "common-chax.h"
+#include "kernel-lib.h"
 
 
 /*
@@ -1496,6 +1497,11 @@ PROC_LABEL(4),
 // FE7U: 0x080A8664
 void StartModeSelect(ProcPtr parent)
 {
+    if (gpKernelDesignerConfig->fe7_mode_select == false) {
+        NewNewGameDifficultySelect(parent);
+        return;
+    }
+
     struct ModeSelectProc * proc = Proc_StartBlocking(ProcScr_ModeSelect, parent);
     proc->unk_42 = 1;
     return;

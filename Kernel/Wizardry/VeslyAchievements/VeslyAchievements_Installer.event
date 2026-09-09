@@ -8,6 +8,9 @@
 #include "Definitions.enu.event" 
 #include "LynJump.event"
 
+/* Achievements ships the notification window. Skip VeslyNotificationWindow_Installer.event. */
+#define VESLY_NOTIFICATION_WINDOW_INSTALLED 1
+
 ALIGN 4 
 DebugFlag_Link: 
 WORD 0xEC 

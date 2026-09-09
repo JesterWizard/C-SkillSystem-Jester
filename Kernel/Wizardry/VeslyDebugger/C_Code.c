@@ -126,7 +126,8 @@ void DisableDebuggerAiControl(void)
     gPlaySt.config.debugControlGreen = 0;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    gPlaySt.config.debugControlPurple = 0;
+    if (gpKernelDesignerConfig->fourth_allegiance)
+        gPlaySt.config.debugControlPurple = 0;
 #endif
 }
 
@@ -136,7 +137,7 @@ static bool IsDebuggerAiControlEnabled(void)
         return true;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    if (gPlaySt.config.debugControlPurple)
+    if (gpKernelDesignerConfig->fourth_allegiance && gPlaySt.config.debugControlPurple)
         return true;
 #endif
 
@@ -165,10 +166,10 @@ static void RestoreDebuggerViewer(bool restoreSprites)
 static int GetDebuggerAllegianceCount(void)
 {
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    return 4;
-#else
-    return 3;
+    if (gpKernelDesignerConfig->fourth_allegiance)
+        return 4;
 #endif
+    return 3;
 }
 
 static int GetDebuggerAllegianceIndex(int faction)
@@ -4423,7 +4424,8 @@ u8 ControlAiNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
         gPlaySt.config.debugControlRed = 1; 
         gPlaySt.config.debugControlGreen = 1;
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-        gPlaySt.config.debugControlPurple = 1;
+        if (gpKernelDesignerConfig->fourth_allegiance)
+            gPlaySt.config.debugControlPurple = 1;
 #endif
     } 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;

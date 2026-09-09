@@ -1,3 +1,4 @@
+#include "C/MaxColorBackgroundsEnabled.lyn.event"
 #include "C/main.lyn.event"
 
 PUSH

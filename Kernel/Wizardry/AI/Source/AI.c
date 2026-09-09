@@ -121,7 +121,7 @@ static int BuildAiUnitList_Proc(ProcPtr proc) {
     u32* prioIt = sUnitPriorityArray;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    int factionUnitCountLut[4] = { 62, 20, 50, 20 }; // TODO: named constant for those
+    int factionUnitCountLut[4] = { 62, 20, 50, gpKernelDesignerConfig->fourth_allegiance ? 20 : 0 }; // TODO: named constant for those
 #else
     int factionUnitCountLut[3] = { 62, 20, 50 }; // TODO: named constant for those
 #endif
@@ -174,7 +174,7 @@ void CpOrderBerserkInit(ProcPtr proc)
     u32 faction = gPlaySt.faction;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    int factionUnitCountLut[4] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY, CONFIG_UNIT_AMT_FOURTH }; // TODO: named constant for those
+    int factionUnitCountLut[4] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY, gpKernelDesignerConfig->fourth_allegiance ? CONFIG_UNIT_AMT_FOURTH : 0 }; // TODO: named constant for those
 #else
     int factionUnitCountLut[3] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY }; // TODO: named constant for those
 #endif
@@ -316,7 +316,7 @@ int BuildAiUnitList(void)
     u32* prioIt = sUnitPriorityArray;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    int factionUnitCountLut[4] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY, CONFIG_UNIT_AMT_FOURTH }; // TODO: named constant for those
+    int factionUnitCountLut[4] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY, gpKernelDesignerConfig->fourth_allegiance ? CONFIG_UNIT_AMT_FOURTH : 0 }; // TODO: named constant for those
 #else
     int factionUnitCountLut[3] = { CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_NPC, CONFIG_UNIT_AMT_ENEMY }; // TODO: named constant for those
 #endif
@@ -397,7 +397,7 @@ s8 AiFindTargetInReachByCharId(int uid, struct Vec2* out)
     out->x = -1;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    for (i = 1; i < 0xD0; i++)
+    for (i = 1; i < (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0); i++)
 #else
     for (i = 1; i < 0xC0; i++)
 #endif
@@ -459,7 +459,7 @@ s8 AiFindTargetInReachByClassId(int classId, struct Vec2* out) {
     out->x = -1;
     
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    for (i = 1; i < 0xD0; i++)
+    for (i = 1; i < (gpKernelDesignerConfig->fourth_allegiance ? 0xD0 : 0xC0); i++)
 #else
     for (i = 1; i < 0xC0; i++)
 #endif
@@ -520,7 +520,7 @@ static bool ShouldAiControlPlayerPhase(void)
         return true;
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    if (gPlaySt.config.debugControlPurple)
+    if (gpKernelDesignerConfig->fourth_allegiance && gPlaySt.config.debugControlPurple)
         return true;
 #endif
 
