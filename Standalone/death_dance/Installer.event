@@ -1,7 +1,7 @@
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 
-#define FE8U_UnitDrop              $18371
+#define FE8U_UnitDrop              $18370
 #define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH

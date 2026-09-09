@@ -18,7 +18,7 @@ Integrated `designer-config.c` defaults this to `false`; set the constant to `1`
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Hook: vanilla `ChapterChangeUnitCleanup` at `0x08031215` (Thumb entry `0x08031215`)
+- Hook: vanilla `ChapterChangeUnitCleanup` at `0x08031215` (installer ORG `$31214`)
 - Free space: `$1000000`
 
 ## Build
@@ -67,7 +67,7 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 ## Conflicts
 
-- Any patch that replaces vanilla `ChapterChangeUnitCleanup` (`0x08031215`), including the full C Skill System `UnitRefrain.c` rewrite.
+- Any patch that replaces vanilla `ChapterChangeUnitCleanup` (`$31214` / `0x08031215`), including the full C Skill System `UnitRefrain.c` rewrite.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
 
 `Installer.event` uses `PROTECT` on both the hook site (`$31215`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.

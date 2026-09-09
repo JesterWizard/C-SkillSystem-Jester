@@ -1,11 +1,11 @@
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 
-#define FE8U_ChapterChangeUnitCleanup $31215
+#define FE8U_ChapterChangeUnitCleanup $31214
 #define FE8U_StandaloneFreeSpace      $1000000
 
 /* Edit without recompiling C. */
-#define AUTO_REPAIR_WEAPONS TRUE
+#define AUTO_REPAIR_WEAPONS 1
 
 PUSH
 ORG FE8U_ChapterChangeUnitCleanup

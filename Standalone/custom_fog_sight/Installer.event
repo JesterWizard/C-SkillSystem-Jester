@@ -1,7 +1,7 @@
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 
-#define FE8U_GetUnitFogViewRange $178A8
+#define FE8U_GetUnitFogViewRange  $178A8
 #define FE8U_gPlaySt              $0202BCF0
 #define FE8U_StandaloneFreeSpace  $1000000
 
@@ -23,5 +23,3 @@ POIN ClassFogSightBonusTable
 
 #include "ClassFogSightBonusTable.event"
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomGetUnitFogViewRange body + bonus table
-
-#endif

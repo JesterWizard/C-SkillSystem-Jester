@@ -9,7 +9,7 @@ Manual drop while the rescuer is alive behaves like vanilla.
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Hook: vanilla `UnitDrop` at `0x08018371` (Thumb entry `0x08018371`)
+- Hook: vanilla `UnitDrop` at `0x08018371` (installer ORG `$18370`)
 - Free space: `$1000000`
 
 ## Build
@@ -58,7 +58,7 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 ## Conflicts
 
-- Any patch that replaces vanilla `UnitDrop` (`0x08018371`), including the full C Skill System `MiscFunctions` rewrite.
+- Any patch that replaces vanilla `UnitDrop` (`$18370` / `0x08018371`), including the full C Skill System `MiscFunctions` rewrite.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
 
 `Installer.event` uses `PROTECT` on both the hook site (`$18371`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.

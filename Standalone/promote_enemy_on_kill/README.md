@@ -22,7 +22,7 @@ Integrated defaults match `Data/DesignerConfig/designer-config.c` (`true` and `3
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Hook: vanilla `BattleGenerateHit` at `0x0802B83D` (Thumb entry `0x0802B83D`)
+- Hook: vanilla `BattleGenerateHit` at `0x0802B83D` (installer ORG `$2B83C`)
 - Free space: `$1000000`
 
 ## Build
@@ -71,7 +71,7 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 ## Conflicts
 
-- Any patch that replaces vanilla `BattleGenerateHit` (`0x0802B83D`), including the full C Skill System battle hit rewrite.
+- Any patch that replaces vanilla `BattleGenerateHit` (`$2B83C` / `0x0802B83D`), including the full C Skill System battle hit rewrite.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
 
 `Installer.event` uses `PROTECT` on both the hook site (`$2B83D`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.

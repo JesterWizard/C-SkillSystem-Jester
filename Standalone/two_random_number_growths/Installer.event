@@ -14,5 +14,3 @@ POP
 ORG FE8U_StandaloneFreeSpace
 #include "Source/GetStatIncrease_2RN.lyn.event"
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GetStatIncrease_2RN body
-
-#endif
