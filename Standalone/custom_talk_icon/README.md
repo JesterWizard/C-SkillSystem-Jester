@@ -13,7 +13,7 @@ Icon art is by Alice (from the integrated C Skill System campaign).
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Hook: vanilla `PutUnitSpriteIconsOam` at `0x080275E9`
+- Hook: vanilla `PutUnitSpriteIconsOam` at `0x080275E9` (installer ORG `$275E8`)
 - Graphics: `LoadObjUIGfx` pointer at `$156AC`, sheet width at `$15690`
 - Free space: `$1000000`
 
@@ -65,7 +65,7 @@ Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 ## Conflicts
 
-- Any patch that replaces vanilla `PutUnitSpriteIconsOam` (`0x080275E9`), including the full C Skill System MapTask rewrite.
+- Any patch that replaces vanilla `PutUnitSpriteIconsOam` (`$275E8` / `0x080275E9`), including the full C Skill System MapTask rewrite.
 - Any patch that changes `LoadObjUIGfx` graphics at `$156AC` / `$15690` (for example HP bar or other OBJ UI sheet hacks).
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
 

@@ -11,12 +11,10 @@
 #include "types.h"
 #include "variables.h"
 
-typedef void (*VoidFunc)(void);
-#define Vanilla_PutUnitSpriteIconsOam ((VoidFunc)0x080275E9)
-
 #define EVT_CMD_LO(cmd) (((cmd) & 0x0000FFFF))
 #define EVT_CMD_HI(cmd) (((cmd) & 0xFFFF0000) >> 16)
 
+extern void Vanilla_PutUnitSpriteIconsOam(void);
 extern struct EventListCmdInfo CONST_DATA gEventListCmdInfoTable[];
 
 struct EvCheck03 {
@@ -38,7 +36,12 @@ static u8 GetTalkee(struct Unit *unit)
 {
 	int i;
 	const struct EventListCmdInfo *cmd_info = &gEventListCmdInfoTable[EVT_LIST_CMD_CHAR];
-	const EventListScr *list = GetChapterEventDataPointer(gPlaySt.chapterIndex)->characterBasedEvents;
+	const EventListScr *list;
+
+	if (!unit)
+		return 0;
+
+	list = GetChapterEventDataPointer(gPlaySt.chapterIndex)->characterBasedEvents;
 
 	for (;;) {
 		u8 cmd = EVT_CMD_LO(list[0]);
@@ -46,10 +49,7 @@ static u8 GetTalkee(struct Unit *unit)
 		if (cmd == EVT_LIST_CMD_END)
 			break;
 
-		if (cmd != EVT_LIST_CMD_CHAR)
-			continue;
-
-		if (!CheckFlag(EVT_CMD_HI(list[0]))) {
+		if (cmd == EVT_LIST_CMD_CHAR && !CheckFlag(EVT_CMD_HI(list[0]))) {
 			const struct EvCheck03 *_chunk = (const void *)list;
 			struct EventInfo info = {
 				.listScript = list,
@@ -65,7 +65,7 @@ static u8 GetTalkee(struct Unit *unit)
 			}
 		}
 
-		list += cmd_info->length;
+		list += gEventListCmdInfoTable[cmd].length;
 	}
 
 	for (i = 0; i < GetUnitSupporterCount(unit); i++) {
@@ -104,7 +104,7 @@ void PutUnitSpriteIconsOam_CustomTalkIcon(void)
 	if (CheckFlag(EVFLAG_HIDE_BLINKING_ICON))
 		return;
 
-	if (gBmSt.gameStateBits & BM_FLAG_1) {
+	if ((gBmSt.gameStateBits & BM_FLAG_1) && gActiveUnit) {
 		cached_talkee_id = GetTalkee(gActiveUnit);
 		have_cached_talkee = (cached_talkee_id != 0);
 	}
