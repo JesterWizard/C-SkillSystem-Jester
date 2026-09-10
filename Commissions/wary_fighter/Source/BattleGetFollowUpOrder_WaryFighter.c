@@ -5,9 +5,10 @@
 #include "constants/items.h"
 
 /**
- * WaryFighterGlobalMode: 0 = unit list, 1 = everyone always-on, 2 = everyone enemy-init.
- * List entries are (pid, version). Version 1 = always-on, 2 = enemy-init.
- * Specific pid beats $FF. Always-on beats enemy-init if both combatants differ.
+ * WaryFighterGlobalMode: 0 = unit/class lists, 1 = everyone always-on, 2 = everyone enemy-init.
+ * List entries are (id, version). Version 1 = always-on, 2 = enemy-init.
+ * Specific pid beats specific jid. Both beat $FF. Unit $FF beats class $FF.
+ * Always-on beats enemy-init if both combatants differ.
  */
 #define WARY_MODE_LIST        0
 #define WARY_VER_ALWAYS       1
@@ -15,27 +16,50 @@
 
 extern const u8 WaryFighterGlobalMode;
 extern const u8 WaryFighterUnits[];
+extern const u8 WaryFighterClasses[];
 
-static int LookupUnitWaryVersion(const struct BattleUnit *bu)
+static int LookupTableEntry(const u8 *table, u8 id, int *wildcard)
 {
 	const u8 *it;
+
+	for (it = table; it[0] != 0; it += 2) {
+		if (it[0] == id)
+			return it[1];
+
+		if (it[0] == 0xFF)
+			*wildcard = it[1];
+	}
+
+	return 0;
+}
+
+static int LookupListWaryVersion(const struct BattleUnit *bu)
+{
+	int unitWild = 0;
+	int classWild = 0;
+	int ver;
 	u8 pid;
-	int wildcard = 0;
+	u8 jid;
 
 	if (!bu->unit.pCharacterData)
 		return 0;
 
 	pid = UNIT_CHAR_ID(&bu->unit);
+	ver = LookupTableEntry(WaryFighterUnits, pid, &unitWild);
+	if (ver)
+		return ver;
 
-	for (it = WaryFighterUnits; it[0] != 0; it += 2) {
-		if (it[0] == pid)
-			return it[1];
-
-		if (it[0] == 0xFF)
-			wildcard = it[1];
+	if (bu->unit.pClassData) {
+		jid = UNIT_CLASS_ID(&bu->unit);
+		ver = LookupTableEntry(WaryFighterClasses, jid, &classWild);
+		if (ver)
+			return ver;
 	}
 
-	return wildcard;
+	if (unitWild)
+		return unitWild;
+
+	return classWild;
 }
 
 static int GetUnitWaryVersion(const struct BattleUnit *bu)
@@ -43,7 +67,7 @@ static int GetUnitWaryVersion(const struct BattleUnit *bu)
 	if (WaryFighterGlobalMode != WARY_MODE_LIST)
 		return WaryFighterGlobalMode;
 
-	return LookupUnitWaryVersion(bu);
+	return LookupListWaryVersion(bu);
 }
 
 static int WaryFighterBlocksFollowUp(void)

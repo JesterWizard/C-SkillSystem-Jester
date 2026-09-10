@@ -1,12 +1,15 @@
-/* 0 = use the unit list below
+/* 0 = use the unit and class lists below
  * 1 = everyone, always-on
  * 2 = everyone, enemy-initiated only
+ *
+ * Specific unit IDs beat specific class IDs. Both beat $FF fallbacks.
  */
 #define WARY_LIST       0
 #define WARY_ALWAYS     1
 #define WARY_ENEMY_INIT 2
 
 #define WaryFighterUnit(pid, version) "BYTE pid version"
+#define WaryFighterClass(jid, version) "BYTE jid version"
 
 ALIGN 4
 WaryFighterGlobalMode:
@@ -65,3 +68,79 @@ WaryFighterUnits:
 // WaryFighterUnit($FF, WARY_ALWAYS)     // everyone else, all combats
 // WaryFighterUnit($FF, WARY_ENEMY_INIT) // everyone else, enemy-initiated only
 WaryFighterUnit($00, $00) // end of table
+
+ALIGN 4
+WaryFighterClasses:
+// WaryFighterClass($01, WARY_ALWAYS)     // Ephraim Lord
+// WaryFighterClass($02, WARY_ALWAYS)     // Eirika Lord
+// WaryFighterClass($03, WARY_ALWAYS)     // Ephraim Great Lord
+// WaryFighterClass($04, WARY_ALWAYS)     // Eirika Great Lord
+// WaryFighterClass($05, WARY_ALWAYS)     // Cavalier
+// WaryFighterClass($06, WARY_ALWAYS)     // Cavalier (F)
+// WaryFighterClass($07, WARY_ALWAYS)     // Paladin
+// WaryFighterClass($08, WARY_ALWAYS)     // Paladin (F)
+// WaryFighterClass($09, WARY_ALWAYS)     // Knight
+// WaryFighterClass($0A, WARY_ALWAYS)     // Knight (F)
+// WaryFighterClass($0B, WARY_ALWAYS)     // General
+// WaryFighterClass($0C, WARY_ALWAYS)     // General (F)
+// WaryFighterClass($0D, WARY_ALWAYS)     // Thief
+// WaryFighterClass($0F, WARY_ALWAYS)     // Mercenary
+// WaryFighterClass($10, WARY_ALWAYS)     // Mercenary (F)
+// WaryFighterClass($11, WARY_ALWAYS)     // Hero
+// WaryFighterClass($12, WARY_ALWAYS)     // Hero (F)
+// WaryFighterClass($13, WARY_ALWAYS)     // Myrmidon
+// WaryFighterClass($14, WARY_ALWAYS)     // Myrmidon (F)
+// WaryFighterClass($15, WARY_ALWAYS)     // Swordmaster
+// WaryFighterClass($16, WARY_ALWAYS)     // Swordmaster (F)
+// WaryFighterClass($17, WARY_ALWAYS)     // Assassin
+// WaryFighterClass($18, WARY_ALWAYS)     // Assassin (F)
+// WaryFighterClass($19, WARY_ALWAYS)     // Archer
+// WaryFighterClass($1A, WARY_ALWAYS)     // Archer (F)
+// WaryFighterClass($1B, WARY_ALWAYS)     // Sniper
+// WaryFighterClass($1C, WARY_ALWAYS)     // Sniper (F)
+// WaryFighterClass($1D, WARY_ALWAYS)     // Ranger
+// WaryFighterClass($1E, WARY_ALWAYS)     // Ranger (F)
+// WaryFighterClass($1F, WARY_ALWAYS)     // Wyvern Rider
+// WaryFighterClass($20, WARY_ALWAYS)     // Wyvern Rider (F)
+// WaryFighterClass($21, WARY_ALWAYS)     // Wyvern Lord
+// WaryFighterClass($22, WARY_ALWAYS)     // Wyvern Lord (F)
+// WaryFighterClass($23, WARY_ALWAYS)     // Wyvern Knight
+// WaryFighterClass($24, WARY_ALWAYS)     // Wyvern Knight (F)
+// WaryFighterClass($25, WARY_ALWAYS)     // Mage
+// WaryFighterClass($26, WARY_ALWAYS)     // Mage (F)
+// WaryFighterClass($27, WARY_ALWAYS)     // Sage
+// WaryFighterClass($28, WARY_ALWAYS)     // Sage (F)
+// WaryFighterClass($29, WARY_ALWAYS)     // Mage Knight
+// WaryFighterClass($2A, WARY_ALWAYS)     // Mage Knight (F)
+// WaryFighterClass($2B, WARY_ALWAYS)     // Bishop
+// WaryFighterClass($2C, WARY_ALWAYS)     // Bishop (F)
+// WaryFighterClass($2D, WARY_ALWAYS)     // Shaman
+// WaryFighterClass($2E, WARY_ALWAYS)     // Shaman (F)
+// WaryFighterClass($2F, WARY_ALWAYS)     // Druid
+// WaryFighterClass($30, WARY_ALWAYS)     // Druid (F)
+// WaryFighterClass($31, WARY_ALWAYS)     // Summoner
+// WaryFighterClass($32, WARY_ALWAYS)     // Summoner (F)
+// WaryFighterClass($33, WARY_ALWAYS)     // Rogue
+// WaryFighterClass($35, WARY_ALWAYS)     // Great Knight
+// WaryFighterClass($36, WARY_ALWAYS)     // Great Knight (F)
+// WaryFighterClass($3F, WARY_ALWAYS)     // Fighter
+// WaryFighterClass($40, WARY_ALWAYS)     // Warrior
+// WaryFighterClass($41, WARY_ALWAYS)     // Brigand
+// WaryFighterClass($42, WARY_ALWAYS)     // Pirate
+// WaryFighterClass($43, WARY_ALWAYS)     // Berserker
+// WaryFighterClass($44, WARY_ALWAYS)     // Monk
+// WaryFighterClass($45, WARY_ALWAYS)     // Priest
+// WaryFighterClass($48, WARY_ALWAYS)     // Pegasus Knight
+// WaryFighterClass($49, WARY_ALWAYS)     // Falcon Knight
+// WaryFighterClass($4A, WARY_ALWAYS)     // Cleric
+// WaryFighterClass($4B, WARY_ALWAYS)     // Troubadour
+// WaryFighterClass($4C, WARY_ALWAYS)     // Valkyrie
+// WaryFighterClass($4E, WARY_ALWAYS)     // Soldier
+// etc etc
+
+/***************************************************************
+** Only enable one of these if you want to enable wary fighter on every class
+****************************************************************/
+// WaryFighterClass($FF, WARY_ALWAYS)     // every other class, all combats
+// WaryFighterClass($FF, WARY_ENEMY_INIT) // every other class, enemy-initiated only
+WaryFighterClass($00, $00) // end of table
