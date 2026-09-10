@@ -14,7 +14,6 @@
 #define EVT_CMD_LO(cmd) (((cmd) & 0x0000FFFF))
 #define EVT_CMD_HI(cmd) (((cmd) & 0xFFFF0000) >> 16)
 
-extern void Vanilla_PutUnitSpriteIconsOam(void);
 extern struct EventListCmdInfo CONST_DATA gEventListCmdInfoTable[];
 
 struct EvCheck03 {
@@ -99,7 +98,7 @@ void PutUnitSpriteIconsOam_CustomTalkIcon(void)
 	int cached_talkee_id = 0;
 	bool have_cached_talkee = false;
 
-	Vanilla_PutUnitSpriteIconsOam();
+	PutUnitSpritesOam();
 
 	if (CheckFlag(EVFLAG_HIDE_BLINKING_ICON))
 		return;

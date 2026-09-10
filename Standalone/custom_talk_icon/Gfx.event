@@ -1,6 +1,6 @@
 ALIGN 4
 Img_CustomTalkIconSheet:
-   #incext Png2Dmp "Gfx/WarningHpSheet_Jester.png" --lz77
+    #incbin "Gfx/WarningHpSheet_Jester.dmp"
 
 PUSH
     ORG $156AC

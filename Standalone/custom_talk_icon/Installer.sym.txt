@@ -1,2 +1,2 @@
 PutUnitSpriteIconsOam_CustomTalkIcon=$1000001
-Img_CustomTalkIconSheet=$100020C
+Img_CustomTalkIconSheet=$1000218

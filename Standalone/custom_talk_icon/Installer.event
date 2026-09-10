@@ -1,27 +1,18 @@
-#include "EAstdlib.event"
-#include "Extensions/Hack Installation.txt"
-
-#define FE8U_PutUnitSpriteIconsOam $275E8
-#define FE8U_StandaloneFreeSpace   $1000000
+#define FE8U_PutUnitSpriteIconsOam     $275E8
+#define FE8U_MapTask_PutUnitSpritesOam $59D934
+#define FE8U_StandaloneFreeSpace       $1000000
 
 PUSH
 ORG FE8U_PutUnitSpriteIconsOam
-    jumpToHack(PutUnitSpriteIconsOam_CustomTalkIcon)
-    PROTECT FE8U_PutUnitSpriteIconsOam FE8U_PutUnitSpriteIconsOam + 0x8 // PutUnitSpriteIconsOam hook
+    SHORT $B5F0 $4657 $464E $4645
+    PROTECT FE8U_PutUnitSpriteIconsOam FE8U_PutUnitSpriteIconsOam + 0x8 // PutUnitSpriteIconsOam vanilla restore
+ORG FE8U_MapTask_PutUnitSpritesOam
+    POIN PutUnitSpriteIconsOam_CustomTalkIcon
+    PROTECT FE8U_MapTask_PutUnitSpritesOam FE8U_MapTask_PutUnitSpritesOam + 0x4 // MapTask PutUnitSpritesOam
 POP
 
 ORG FE8U_StandaloneFreeSpace
 #include "Source/CustomTalkIcon.lyn.event"
-
-// Vanilla first 8 bytes, then continue at $275F0 so the wrap does not re-enter the hook.
-ALIGN 4
-PUSH
-ORG CURRENTOFFSET+$1;Vanilla_PutUnitSpriteIconsOam:
-POP
-SHORT $B5F0 $4657 $464E $4645
-BYTE $00 $4B $18 $47
-POIN ($275F0|0x1)
-
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PutUnitSpriteIconsOam_CustomTalkIcon body
 
 #include "Gfx.event"
