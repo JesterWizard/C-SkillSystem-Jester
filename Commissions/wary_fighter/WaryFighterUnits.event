@@ -1,17 +1,67 @@
-/* Edit these without recompiling C.
- *
- * List FE8U character IDs that have Wary Fighter.
- * $FF = all characters (global). $00 = end of table (required).
- *
- * Delete the $FF line and add character IDs to limit the skill.
- * Use FEBuilder character IDs, or FE8U hex values.
+/* 0 = use the unit list below
+ * 1 = everyone, always-on
+ * 2 = everyone, enemy-initiated only
  */
+#define WARY_LIST       0
+#define WARY_ALWAYS     1
+#define WARY_ENEMY_INIT 2
 
-#define WaryFighterUnit(pid) "BYTE pid"
+#define WaryFighterUnit(pid, version) "BYTE pid version"
+
+ALIGN 4
+WaryFighterGlobalMode:
+BYTE WARY_LIST
 
 ALIGN 4
 WaryFighterUnits:
-WaryFighterUnit($FF) // all units; delete this line to use the list below
-// WaryFighterUnit($01) // Eirika
-// WaryFighterUnit($02) // Seth
-WaryFighterUnit($00) // end of table
+// WaryFighterUnit($01, WARY_ALWAYS)     // Eirika
+// WaryFighterUnit($02, WARY_ENEMY_INIT) // Seth
+// WaryFighterUnit($03, WARY_ALWAYS)     // Gilliam
+// WaryFighterUnit($04, WARY_ALWAYS)     // Franz
+// WaryFighterUnit($05, WARY_ALWAYS)     // Moulder
+// WaryFighterUnit($06, WARY_ALWAYS)     // Vanessa
+// WaryFighterUnit($07, WARY_ALWAYS)     // Ross
+// WaryFighterUnit($08, WARY_ALWAYS)     // Neimi
+// WaryFighterUnit($09, WARY_ALWAYS)     // Colm
+// WaryFighterUnit($0A, WARY_ALWAYS)     // Garcia
+// WaryFighterUnit($0B, WARY_ALWAYS)     // Innes
+// WaryFighterUnit($0C, WARY_ALWAYS)     // Lute
+// WaryFighterUnit($0D, WARY_ALWAYS)     // Natasha
+// WaryFighterUnit($0E, WARY_ALWAYS)     // Cormag
+// WaryFighterUnit($0F, WARY_ALWAYS)     // Ephraim
+// WaryFighterUnit($10, WARY_ALWAYS)     // Forde
+// WaryFighterUnit($11, WARY_ALWAYS)     // Kyle
+// WaryFighterUnit($12, WARY_ALWAYS)     // Amelia
+// WaryFighterUnit($13, WARY_ALWAYS)     // Artur
+// WaryFighterUnit($14, WARY_ALWAYS)     // Gerik
+// WaryFighterUnit($15, WARY_ALWAYS)     // Tethys
+// WaryFighterUnit($16, WARY_ALWAYS)     // Marisa
+// WaryFighterUnit($17, WARY_ALWAYS)     // Saleh
+// WaryFighterUnit($18, WARY_ALWAYS)     // Ewan
+// WaryFighterUnit($19, WARY_ALWAYS)     // L'Arachel
+// WaryFighterUnit($1A, WARY_ALWAYS)     // Dozla
+// WaryFighterUnit($1C, WARY_ALWAYS)     // Rennac
+// WaryFighterUnit($1D, WARY_ALWAYS)     // Duessel
+// WaryFighterUnit($1E, WARY_ALWAYS)     // Myrrh
+// WaryFighterUnit($1F, WARY_ALWAYS)     // Knoll
+// WaryFighterUnit($20, WARY_ALWAYS)     // Joshua
+// WaryFighterUnit($21, WARY_ALWAYS)     // Syrene
+// WaryFighterUnit($22, WARY_ALWAYS)     // Tana
+// WaryFighterUnit($23, WARY_ALWAYS)     // Lyon (CC)
+// WaryFighterUnit($24, WARY_ALWAYS)     // Orson (CC)
+// WaryFighterUnit($25, WARY_ALWAYS)     // Glen (CC)
+// WaryFighterUnit($26, WARY_ALWAYS)     // Selena (CC)
+// WaryFighterUnit($27, WARY_ALWAYS)     // Valter (CC)
+// WaryFighterUnit($28, WARY_ALWAYS)     // Riev (CC)
+// WaryFighterUnit($29, WARY_ALWAYS)     // Caellach (CC)
+// WaryFighterUnit($2A, WARY_ALWAYS)     // Fado (CC)
+// WaryFighterUnit($2B, WARY_ALWAYS)     // Ismaire (CC)
+// WaryFighterUnit($2C, WARY_ALWAYS)     // Hayden (CC)
+// etc etc
+
+/***************************************************************
+** Only enable one of these if you want to enable wary fighter globally
+****************************************************************/
+// WaryFighterUnit($FF, WARY_ALWAYS)     // everyone else, all combats
+// WaryFighterUnit($FF, WARY_ENEMY_INIT) // everyone else, enemy-initiated only
+WaryFighterUnit($00, $00) // end of table

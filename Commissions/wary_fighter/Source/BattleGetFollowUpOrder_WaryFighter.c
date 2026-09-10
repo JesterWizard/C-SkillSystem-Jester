@@ -5,33 +5,59 @@
 #include "constants/items.h"
 
 /**
- * Vanilla BattleGetFollowUpOrder with Wary Fighter.
- * Character IDs come from WaryFighterUnits.event ($FF = all units).
- * If a listed combatant is in the fight, nobody follows up.
+ * WaryFighterGlobalMode: 0 = unit list, 1 = everyone always-on, 2 = everyone enemy-init.
+ * List entries are (pid, version). Version 1 = always-on, 2 = enemy-init.
+ * Specific pid beats $FF. Always-on beats enemy-init if both combatants differ.
  */
+#define WARY_MODE_LIST        0
+#define WARY_VER_ALWAYS       1
+#define WARY_VER_ENEMY_INIT   2
+
+extern const u8 WaryFighterGlobalMode;
 extern const u8 WaryFighterUnits[];
 
-static int UnitHasWaryFighter(const struct BattleUnit *bu)
+static int LookupUnitWaryVersion(const struct BattleUnit *bu)
 {
 	const u8 *it;
 	u8 pid;
+	int wildcard = 0;
 
 	if (!bu->unit.pCharacterData)
-		return FALSE;
+		return 0;
 
 	pid = UNIT_CHAR_ID(&bu->unit);
 
-	for (it = WaryFighterUnits; *it != 0; it++) {
-		if (*it == 0xFF || *it == pid)
-			return TRUE;
+	for (it = WaryFighterUnits; it[0] != 0; it += 2) {
+		if (it[0] == pid)
+			return it[1];
+
+		if (it[0] == 0xFF)
+			wildcard = it[1];
 	}
 
-	return FALSE;
+	return wildcard;
+}
+
+static int GetUnitWaryVersion(const struct BattleUnit *bu)
+{
+	if (WaryFighterGlobalMode != WARY_MODE_LIST)
+		return WaryFighterGlobalMode;
+
+	return LookupUnitWaryVersion(bu);
 }
 
 static int WaryFighterBlocksFollowUp(void)
 {
-	return UnitHasWaryFighter(&gBattleActor) || UnitHasWaryFighter(&gBattleTarget);
+	int actorVer = GetUnitWaryVersion(&gBattleActor);
+	int targetVer = GetUnitWaryVersion(&gBattleTarget);
+
+	if (actorVer == WARY_VER_ALWAYS || targetVer == WARY_VER_ALWAYS)
+		return TRUE;
+
+	if (actorVer != WARY_VER_ENEMY_INIT && targetVer != WARY_VER_ENEMY_INIT)
+		return FALSE;
+
+	return UNIT_FACTION(&gBattleActor.unit) == FACTION_RED;
 }
 
 s8 BattleGetFollowUpOrder_WaryFighter(struct BattleUnit **outAttacker, struct BattleUnit **outDefender)

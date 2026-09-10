@@ -2,15 +2,20 @@
 
 Listed units stop follow-up attacks for both sides. No HP gate. Brave weapons still strike twice.
 
-Edit `WaryFighterUnits.event` (`$FF` = everyone, `$00` = end). Table edits do not need a rebuild.
+Edit `WaryFighterUnits.event`:
+
+- `WaryFighterGlobalMode`: `0` = unit list, `1` = everyone always-on, `2` = everyone enemy-init only
+- List (used when mode is `0`): `WaryFighterUnit(pid, version)` — `1` always-on, `2` enemy-init. `$FF` is the fallback. `$00, $00` ends the table.
 
 ```
-WaryFighterUnit($01) // Eirika
-WaryFighterUnit($00)
+WaryFighterGlobalMode:
+BYTE WARY_LIST
+
+WaryFighterUnit($01, WARY_ALWAYS)
+WaryFighterUnit($FF, WARY_ENEMY_INIT)
+WaryFighterUnit($00, $00)
 ```
 
-Insert EA on `Installer.event`. Hook is `BattleGetFollowUpOrder` at `$2AF90`. Body at `$1000000`.
+Insert EA on `Installer.event`. Hook `$2AF90`, body `$1000000`. Conflicts: Skill System.
 
-Conflicts: Skill System, the [enemy-initiated variant](../wary_fighter_enemy_initiated/), anything else on `$2AF90` or `$1000000`.
-
-Run `make` only if you change the `.c` file.
+`make` only if you change the `.c`.
