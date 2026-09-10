@@ -1,6 +1,6 @@
 # Standalone FEBuilder Patches
 
-Self-contained Event Assembler patches extracted from the integrated C Skill System. Each feature lives in its own folder and installs on clean FE8U without the kernel.
+Self-contained Event Assembler patches extracted from the integrated C Skill System. Each feature lives in its own folder and installs on clean FE8U without the kernel, this repo's Event Assembler includes, or Png2Dmp. Copy one folder and Insert EA on `Installer.event`.
 
 | Patch | Description |
 |-------|-------------|

@@ -22,30 +22,22 @@ All other classes use the chapter base range only (plus torch).
 
 ## Installation
 
-No build step required — this patch is pure Event Assembler.
+This folder is self-contained. It does not include `EAstdlib.event` or `Hack Installation.txt`. FEBuilder’s bundled Event Assembler is enough.
 
 ### FEBuilderGBA
 
-1. Download [FEBuilderGBA (Laqieer branch)](https://nightly.link/laqieer/FEBuilderGBA/workflows/msbuild/master).
-2. In **Settings → Options → Path**, set **Event Assembler** to this repo's [ColorzCore](https://github.com/MokhaLeee/EventAssembler/tree/mokha-fix) executable (see [Setup.md](../../Documentation/Setup.md)).
-3. Open your project ROM in FEBuilder.
-4. Go to **Advanced Editors → Insert EA**.
-5. Click **Select File**, choose `Standalone/custom_fog_sight/Installer.event`, then click **Load Script**.
-
-FEBuilder applies the patch to the open ROM. For more detail on Insert EA, see [Installing ASM / C using Insert EA](https://feuniverse.us/t/installing-asm-c-using-insert-ea/32968).
+1. Copy the `custom_fog_sight` folder (or download this standalone package).
+2. Open a clean FE8U ROM in FEBuilder.
+3. Go to **Advanced Editors → Insert EA**.
+4. Click **Select File**, choose `Installer.event`, then click **Load Script**.
 
 ### Event Assembler
 
-From a copy of clean `fe8.gba`:
+From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-cp /path/to/fe8.gba /path/to/fe8-fog.gba
-Tools/EventAssembler/ColorzCore A FE8 \
-  -input:Standalone/custom_fog_sight/Installer.event \
-  -output:/path/to/fe8-fog.gba
+ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fog.gba
 ```
-
-Run from the repository root so Event Assembler can resolve `EAstdlib.event`.
 
 ## Files
 

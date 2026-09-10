@@ -1,5 +1,4 @@
-#include "EAstdlib.event"
-#include "Extensions/Hack Installation.txt"
+#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"
 
 #define FE8U_BattleGenerateHit     $2B83C
 #define FE8U_StandaloneFreeSpace   $1000000

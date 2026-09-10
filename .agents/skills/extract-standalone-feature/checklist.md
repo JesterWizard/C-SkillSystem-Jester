@@ -16,8 +16,9 @@ Standalone/<feature_name>/
 
 - Target **clean FE8U (USA)** unless the feature explicitly documents another ROM.
 - Install through **Event Assembler** using `Installer.event`.
-- Keep the patch **self-contained**: no dependency on C Skill System kernel, relocation tables, designer config, or project memmap regions.
-- Put address `#define`s and hook placement in **`Installer.event`**.
+- Keep the patch **self-contained**: no Skill System kernel, relocation tables, designer config, project memmap, `EAstdlib.event`, `Hack Installation.txt`, or `#incext Png2Dmp`.
+- Put address `#define`s and hook placement in **`Installer.event`**. Inline `jumpToHack` locally if needed.
+- Check in `Source/*.lyn.event` (and any `.dmp` graphics) so a user can Insert EA without this repo's tools.
 - Implement logic in **`Source/*.c`** and compile with a local **`makefile`** to `Source/*.lyn.event`.
 - Prefer the **smallest vanilla hook** that preserves unrelated behavior.
 - Place new code in **standalone free space** starting at **`$1000000`** using EA `$offset` ORG.
@@ -40,7 +41,7 @@ Before extracting, answer:
 ## Validation gates
 
 - [ ] `make` succeeds in the standalone folder
-- [ ] EA assembles with `ColorzCore A FE8 -input:Installer.event -output:<rom>`
+- [ ] EA assembles from the patch folder (`cd Standalone/<feature>` then `ColorzCore A FE8 -input:Installer.event -output:<rom>`) with no repo includes
 - [ ] Hook bytes and pointer target verified
 - [ ] No writes to ROM offset `0` / header corruption
 - [ ] No unresolved C Skill System globals in standalone build

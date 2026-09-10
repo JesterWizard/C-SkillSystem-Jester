@@ -25,16 +25,22 @@ Classes absent from the override table keep the vanilla identity mapping (slot `
 
 ## Install
 
-1. Build the C sources (optional if `Source/DynamicWeaponSlots.lyn.event` is already present):
+This folder is self-contained. It does not include `EAstdlib.event` or `Hack Installation.txt`. FEBuilder’s bundled Event Assembler is enough.
 
-   ```bash
-   cd Standalone/dynamic_weapon_slots
-   make
-   ```
+### FEBuilderGBA
 
-2. In FEBuilder, add `Standalone/dynamic_weapon_slots/Installer.event` to your build.
+1. Copy the `dynamic_weapon_slots` folder (or download this standalone package).
+2. Open a clean FE8U ROM in FEBuilder.
+3. Go to **Advanced Editors → Insert EA**.
+4. Click **Select File**, choose `Installer.event`, then click **Load Script**.
 
-Target ROM: **clean FE8U (USA)**.
+### Event Assembler
+
+From a copy of clean `fe8.gba`, with this folder as the working directory:
+
+```bash
+ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-dynamic-weapon-slots.gba
+```
 
 ---
 

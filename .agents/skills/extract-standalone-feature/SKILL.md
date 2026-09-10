@@ -30,14 +30,17 @@ Use this skill when turning one integrated C Skill System feature into a standal
    - Use `Standalone/two_random_number_growths/` as the reference implementation.
 
 4. **Write the installer and C source**
-   - `Installer.event` must assemble standalone with:
-     - `#include "EAstdlib.event"`
-     - `#include "Extensions/Hack Installation.txt"`
-     - address `#define`s at the top of the installer
+   - `Installer.event` must assemble from its own folder with no repo EA includes.
+   - Do **not** `#include "EAstdlib.event"`, `"Extensions/Hack Installation.txt"`, or `"Tools/Tool Helpers.txt"`.
+   - If the hook uses `jumpToHack`, define it locally:
+     `#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"`
+   - Put address `#define`s at the top of the installer.
    - Apply the hook with `PUSH` / `ORG` / `POP`.
    - Place generated code at **`ORG $1000000`**. Standalone free space always starts here; later patches continue after the previous body using `CURRENTOFFSET`.
    - Include `Source/<Feature>.lyn.event` from the local build.
    - Keep hook alignment valid: if `jumpToHack`'s `POIN` would land on an odd offset, hook at the preceding even address.
+   - Check in `*.lyn.event` so installers do not need to compile C.
+   - Graphics: convert PNG to DMP (`Png2Dmp --lz77`) and `#incbin` the DMP. Do not use `#incext Png2Dmp` at install time.
    - Add a local **`makefile`** that compiles `Source/*.c` with FE-CLib and `lyn`.
 
 5. **Document**

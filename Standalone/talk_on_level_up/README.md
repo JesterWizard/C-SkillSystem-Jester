@@ -46,26 +46,22 @@ That requires [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this r
 
 ## Installation
 
+This folder is self-contained. It does not include `EAstdlib.event` or `Hack Installation.txt`. FEBuilder’s bundled Event Assembler is enough.
+
 ### FEBuilderGBA
 
-1. Download [FEBuilderGBA (Laqieer branch)](https://nightly.link/laqieer/FEBuilderGBA/workflows/msbuild/master).
-2. In **Settings → Options → Path**, set **Event Assembler** to this repo's [ColorzCore](https://github.com/MokhaLeee/EventAssembler/tree/mokha-fix) executable (see [Setup.md](../../Documentation/Setup.md)).
-3. Open your project ROM in FEBuilder.
-4. Go to **Advanced Editors → Insert EA**.
-5. Click **Select File**, choose `Standalone/talk_on_level_up/Installer.event`, then click **Load Script**.
+1. Copy the `talk_on_level_up` folder (or download this standalone package).
+2. Open a clean FE8U ROM in FEBuilder.
+3. Go to **Advanced Editors → Insert EA**.
+4. Click **Select File**, choose `Installer.event`, then click **Load Script**.
 
 ### Event Assembler
 
-From a copy of clean `fe8.gba`:
+From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-cp /path/to/fe8.gba /path/to/fe8-talk-on-level-up.gba
-Tools/EventAssembler/ColorzCore A FE8 \
-  -input:Standalone/talk_on_level_up/Installer.event \
-  -output:/path/to/fe8-talk-on-level-up.gba
+ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-talk-on-level-up.gba
 ```
-
-Run from the repository root so Event Assembler can resolve `EAstdlib.event` and `Tools/Tool Helpers.txt`.
 
 ## Files
 
