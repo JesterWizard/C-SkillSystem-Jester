@@ -1,0 +1,17 @@
+/* Edit these without recompiling C.
+ *
+ * List FE8U character IDs that have Wary Fighter.
+ * $FF = all characters (global). $00 = end of table (required).
+ *
+ * Delete the $FF line and add character IDs to limit the skill.
+ * Use FEBuilder character IDs, or FE8U hex values.
+ */
+
+#define WaryFighterUnit(pid) "BYTE pid"
+
+ALIGN 4
+WaryFighterUnits:
+WaryFighterUnit($FF) // all units; delete this line to use the list below
+// WaryFighterUnit($01) // Eirika
+// WaryFighterUnit($02) // Seth
+WaryFighterUnit($00) // end of table

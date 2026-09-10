@@ -1,0 +1,13 @@
+#define FE8U_BattleGetFollowUpOrder $2AF90
+#define FE8U_StandaloneFreeSpace    $1000000
+
+PUSH
+ORG FE8U_BattleGetFollowUpOrder
+    jumpToHack(BattleGetFollowUpOrder_WaryFighter)
+    PROTECT FE8U_BattleGetFollowUpOrder FE8U_BattleGetFollowUpOrder + 0x8 // BattleGetFollowUpOrder hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/BattleGetFollowUpOrder_WaryFighter.lyn.event"
+#include "WaryFighterUnits.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // BattleGetFollowUpOrder_WaryFighter body + unit table
