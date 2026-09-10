@@ -32,8 +32,7 @@ Use this skill when turning one integrated C Skill System feature into a standal
 4. **Write the installer and C source**
    - `Installer.event` must assemble from its own folder with no repo EA includes.
    - Do **not** `#include "EAstdlib.event"`, `"Extensions/Hack Installation.txt"`, or `"Tools/Tool Helpers.txt"`.
-   - If the hook uses `jumpToHack`, define it locally:
-     `#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"`
+   - Use `jumpToHack` from FEBuilder/Event Assembler. Do **not** redefine it in the installer.
    - Put address `#define`s at the top of the installer.
    - Apply the hook with `PUSH` / `ORG` / `POP`.
    - Place generated code at **`ORG $1000000`**. Standalone free space always starts here; later patches continue after the previous body using `CURRENTOFFSET`.

@@ -1,0 +1,31 @@
+#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"
+
+#define FE8U_SyncUnitSpriteSheet       $26F2C
+#define FE8U_Mu_OnLoop                 $79030
+#define FE8U_GoalDisplay_Init          $8D288
+#define FE8U_GoalDisplay_Loop_Display  $8D784
+#define FE8U_BMapMain_UndeployEveryone $59A254
+#define FE8U_StandaloneFreeSpace       $1000000
+
+PUSH
+ORG FE8U_GoalDisplay_Init
+    jumpToHack(GoalDisplay_Init_GoalTimer)
+    PROTECT FE8U_GoalDisplay_Init FE8U_GoalDisplay_Init + 0x8 // GoalDisplay_Init hook
+ORG FE8U_GoalDisplay_Loop_Display
+    jumpToHack(GoalDisplay_Loop_Display_GoalTimer)
+    PROTECT FE8U_GoalDisplay_Loop_Display FE8U_GoalDisplay_Loop_Display + 0x8 // GoalDisplay_Loop_Display hook
+ORG FE8U_Mu_OnLoop
+    jumpToHack(Mu_OnLoop_GoalTimer)
+    PROTECT FE8U_Mu_OnLoop FE8U_Mu_OnLoop + 0x8 // Mu_OnLoop hook
+ORG FE8U_SyncUnitSpriteSheet
+    jumpToHack(SyncUnitSpriteSheet_GoalTimer)
+    PROTECT FE8U_SyncUnitSpriteSheet FE8U_SyncUnitSpriteSheet + 0x8 // SyncUnitSpriteSheet hook
+ORG FE8U_BMapMain_UndeployEveryone
+    POIN ChapterInit_ResetChapterTimer
+    PROTECT FE8U_BMapMain_UndeployEveryone FE8U_BMapMain_UndeployEveryone + 0x4 // BMapMain UndeployEveryone
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/GoalTimer.lyn.event"
+#include "ChapterTimers.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GoalTimer body + chapter table

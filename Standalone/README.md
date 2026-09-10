@@ -16,6 +16,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [dynamic_weapon_slots](dynamic_weapon_slots/) | Per-class weapon-type-to-rank-slot mapping for custom types (knives, guns, etc.) |
 | [alpha_blend_movement_sprites](alpha_blend_movement_sprites/) | Faded MU ghost at the pathfinding cursor tip (uses 50 bytes EWRAM) |
 | [talk_on_level_up](talk_on_level_up/) | Character quotes after level-up stat gains (poor / good / great) |
+| [goal_timer](goal_timer/) | Real-time chapter countdown goal; hitting zero is game over |
 
 ## Adding a new patch
 

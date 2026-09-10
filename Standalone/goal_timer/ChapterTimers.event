@@ -1,0 +1,34 @@
+/* Edit these without recompiling C.
+ *
+ * Each entry is chapter ID, then time in seconds.
+ * 0 seconds = vanilla goal window (timer off for that chapter).
+ * A value greater than 0 overrides that chapter's objective with the countdown.
+ *
+ * End the table with chapter ID $FFFFFFFF.
+ */
+
+#define ChapterTimerEntry(chapter, seconds) "WORD chapter; WORD seconds"
+
+ALIGN 4
+ChapterTimers:
+ChapterTimerEntry($00,  0) // Prologue
+ChapterTimerEntry($01,  0) // Ch1
+ChapterTimerEntry($02,  0) // Ch2
+ChapterTimerEntry($03,  0) // Ch3
+ChapterTimerEntry($04,  0) // Ch4
+ChapterTimerEntry($05,  0) // Ch5x
+ChapterTimerEntry($06,  0) // Ch5
+ChapterTimerEntry($07,  0) // Ch6
+ChapterTimerEntry($08,  0) // Ch7
+ChapterTimerEntry($09,  0) // Ch8
+ChapterTimerEntry($0A,  0) // Eirika Ch9
+ChapterTimerEntry($0B,  0) // Eirika Ch10
+ChapterTimerEntry($0C,  0) // Eirika Ch12
+ChapterTimerEntry($0D,  0) // Eirika Ch13
+ChapterTimerEntry($0E,  0) // Eirika Ch14
+ChapterTimerEntry($0F,  0) // Eirika Ch15
+ChapterTimerEntry($10,  0) // Eirika Ch16
+ChapterTimerEntry($11,  0) // Eirika Ch17
+ChapterTimerEntry($12,  0) // Eirika Ch18
+// etc etc
+ChapterTimerEntry($FFFFFFFF, 0) // end of table

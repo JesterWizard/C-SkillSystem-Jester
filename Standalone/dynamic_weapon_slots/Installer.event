@@ -1,5 +1,3 @@
-#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"
-
 #define FE8U_CanUnitUseWeapon                 $16574
 #define FE8U_UnitLoadStatsFromChracter        $17E34
 #define FE8U_CanClassWieldWeaponType          $17A8C

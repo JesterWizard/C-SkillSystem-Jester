@@ -17,7 +17,7 @@ Standalone/<feature_name>/
 - Target **clean FE8U (USA)** unless the feature explicitly documents another ROM.
 - Install through **Event Assembler** using `Installer.event`.
 - Keep the patch **self-contained**: no Skill System kernel, relocation tables, designer config, project memmap, `EAstdlib.event`, `Hack Installation.txt`, or `#incext Png2Dmp`.
-- Put address `#define`s and hook placement in **`Installer.event`**. Inline `jumpToHack` locally if needed.
+- Put address `#define`s and hook placement in **`Installer.event`**. Use FEBuilder/EA `jumpToHack`; do not redefine it.
 - Check in `Source/*.lyn.event` (and any `.dmp` graphics) so a user can Insert EA without this repo's tools.
 - Implement logic in **`Source/*.c`** and compile with a local **`makefile`** to `Source/*.lyn.event`.
 - Prefer the **smallest vanilla hook** that preserves unrelated behavior.

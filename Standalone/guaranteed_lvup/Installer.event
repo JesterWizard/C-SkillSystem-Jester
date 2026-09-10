@@ -1,5 +1,3 @@
-#define jumpToHack(offset) "BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)"
-
 #define FE8U_CheckBattleUnitLevelUp $2BA28
 #define FE8U_StandaloneFreeSpace    $1000000
 
