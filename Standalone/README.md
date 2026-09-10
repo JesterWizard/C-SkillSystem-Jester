@@ -17,6 +17,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [alpha_blend_movement_sprites](alpha_blend_movement_sprites/) | Faded MU ghost at the pathfinding cursor tip (uses 50 bytes EWRAM) |
 | [talk_on_level_up](talk_on_level_up/) | Character quotes after level-up stat gains (poor / good / great) |
 | [goal_timer](goal_timer/) | Real-time chapter countdown goal; hitting zero is game over |
+| [world_map_thought_bubbles](world_map_thought_bubbles/) | Chapter-specific thought bubbles on the world map node menu |
 
 ## Adding a new patch
 

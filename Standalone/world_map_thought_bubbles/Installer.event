@@ -1,0 +1,17 @@
+#define FE8U_WorldMap_LoopExt $B96F8
+#define FE8U_StartWMNodeMenu  $BC5B4
+#define FE8U_StandaloneFreeSpace $1000000
+
+PUSH
+ORG FE8U_WorldMap_LoopExt
+    jumpToHack(WorldMap_LoopExt_ThoughtBubbles)
+    PROTECT FE8U_WorldMap_LoopExt FE8U_WorldMap_LoopExt + 0x8 // WorldMap_LoopExt hook
+ORG FE8U_StartWMNodeMenu
+    jumpToHack(StartWMNodeMenu_ThoughtBubbles)
+    PROTECT FE8U_StartWMNodeMenu FE8U_StartWMNodeMenu + 0x8 // StartWMNodeMenu hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/WorldMapThoughts.lyn.event"
+#include "Gfx.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // WorldMapThoughts body + graphics

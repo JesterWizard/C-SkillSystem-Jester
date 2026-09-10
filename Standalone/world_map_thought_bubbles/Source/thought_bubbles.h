@@ -1,0 +1,87 @@
+#ifndef WORLDMAP_THOUGHT_BUBBLES_H
+#define WORLDMAP_THOUGHT_BUBBLES_H
+
+typedef struct {
+    u8 * const bubble;
+} WorldMapThoughtBubbleEntryGraphics;
+
+extern u8 Gfx_Chapter_05_Thought_Bubble_Artur[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Artur[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Artur[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Artur[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Colm[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Colm[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Colm[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Colm[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Colm[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Eirika[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Ephraim[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Forde[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Franz[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Garcia[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Garcia[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Garcia[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Garcia[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Gilliam[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Joshua[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Joshua[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Joshua[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Kyle[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Lute[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Lute[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Lute[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Lute[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Moulder[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Natasha[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Natasha[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Natasha[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Neimi[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Neimi[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Neimi[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Neimi[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Neimi[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Ross[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Ross[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Ross[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Ross[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Ross[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Seth[];
+extern u8 Gfx_Chapter_02_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_03_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_04_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_05_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_06_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_07_Thought_Bubble_Tana[];
+extern u8 Gfx_Chapter_09_Thought_Bubble_Tana[];
+
+#endif
