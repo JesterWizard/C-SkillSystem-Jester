@@ -32,7 +32,7 @@ Use this skill when turning one integrated C Skill System feature into a standal
 4. **Write the installer and C source**
    - `Installer.event` must assemble from its own folder with no repo EA includes.
    - Do **not** `#include "EAstdlib.event"`, `"Extensions/Hack Installation.txt"`, or `"Tools/Tool Helpers.txt"`.
-   - Use `jumpToHack` from FEBuilder/Event Assembler. Do **not** redefine it in the installer.
+   - Call `jumpToHack` as FEBuilder Insert EA already defines it. Do **not** `#define jumpToHack` (or paste `BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)`) in the installer.
    - Put address `#define`s at the top of the installer.
    - Apply the hook with `PUSH` / `ORG` / `POP`.
    - Place generated code at **`ORG $1000000`**. Standalone free space always starts here; later patches continue after the previous body using `CURRENTOFFSET`.
@@ -71,7 +71,7 @@ Stop and ask before proceeding if:
 - Standalone strategy: replace vanilla `GetStatIncrease` only
 - C source: `Source/GetStatIncrease_2RN.c`
 - Local `makefile` builds `Source/GetStatIncrease_2RN.lyn.event`
-- Addresses and hook live in `Installer.event`
+- Addresses and hook live in `Installer.event` (`jumpToHack` is not redefined)
 - Free space: `$1000000`
 
 ## Output expectations

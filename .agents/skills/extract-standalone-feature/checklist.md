@@ -17,7 +17,7 @@ Standalone/<feature_name>/
 - Target **clean FE8U (USA)** unless the feature explicitly documents another ROM.
 - Install through **Event Assembler** using `Installer.event`.
 - Keep the patch **self-contained**: no Skill System kernel, relocation tables, designer config, project memmap, `EAstdlib.event`, `Hack Installation.txt`, or `#incext Png2Dmp`.
-- Put address `#define`s and hook placement in **`Installer.event`**. Use FEBuilder/EA `jumpToHack`; do not redefine it.
+- Put address `#define`s and hook placement in **`Installer.event`**. Call `jumpToHack` only; never `#define jumpToHack` in the package (FEBuilder Insert EA already provides it).
 - Check in `Source/*.lyn.event` (and any `.dmp` graphics) so a user can Insert EA without this repo's tools.
 - Implement logic in **`Source/*.c`** and compile with a local **`makefile`** to `Source/*.lyn.event`.
 - Prefer the **smallest vanilla hook** that preserves unrelated behavior.
@@ -41,7 +41,17 @@ Before extracting, answer:
 ## Validation gates
 
 - [ ] `make` succeeds in the standalone folder
-- [ ] EA assembles from the patch folder (`cd Standalone/<feature>` then `ColorzCore A FE8 -input:Installer.event -output:<rom>`) with no repo includes
+- [ ] `Installer.event` does not contain `#define jumpToHack`
+- [ ] EA assembles from the patch folder. FEBuilder Insert EA already defines `jumpToHack`. For CLI ColorzCore, prepend EA's Hack Installation via include path; do not add that `#define` to the installer:
+
+```bash
+EA_DIR=<repo>/Tools/EventAssembler
+{
+  echo '#include "Extensions/Hack Installation.txt"'
+  echo '#include "Installer.event"'
+} | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:<rom>
+```
+
 - [ ] Hook bytes and pointer target verified
 - [ ] No writes to ROM offset `0` / header corruption
 - [ ] No unresolved C Skill System globals in standalone build

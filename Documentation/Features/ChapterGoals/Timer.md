@@ -20,7 +20,7 @@
 
 ``gpKernelDesignerConfig->goal_timer``
 
-This features adds a new goal type in the form of a real-time ticking clock. E.g. you have to complete a map within 15 or you lose.
+This feature adds a real-time ticking clock as a lose condition. You still have to complete the map's original objective (seize, defeat the boss, and so on) before the clock hits zero, or you lose. The map goal HUD is taken over by the countdown; open **Status** on the map to read the chapter objective.
 
 In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
 
@@ -31,8 +31,9 @@ In the words of Huichelaar - "Timed stages in FE? That's so evil lmao"
 Inside [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c) set the `.goal_timer` option to true.
 
 Inside [`Timer.c`](../../../include/jester_headers/custom-structs.h) there is a struct called `chapter_timers`. It is comprised of two elements; the `chapter index`
-and the `time in seconds`. Set each chapter to the timer value you want. If it is set to 0, then the timer won't appear. If it is greater than 0, then the timer
-will override whatever that chapter's original objective was (this is so you don't have to make unnecessary edits to other files).
+and the `time in seconds`. Set each chapter to the timer value you want. If it is set to 0, then the timer won't appear. If it is greater than 0, the map HUD
+shows the countdown instead of the usual goal window (so you don't have to edit chapter goal data). The **Status** menu still shows the chapter's original objective,
+and that objective is still how you win. Hitting 0 is game over.
 
 ---
 

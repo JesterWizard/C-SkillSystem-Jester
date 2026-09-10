@@ -4,9 +4,9 @@
   <img src="./Goal_Timer.gif" alt="Timer Demo" width="600"/>
 </p>
 
-Adds a real-time countdown goal. Chapters with a non-zero table entry must be cleared before the clock hits zero, or the game ends. The goal window shows `Remaining: HH:MM:SS`. At half of the chapter's configured time, the digits turn gold and map-sprite animations speed up.
+Adds a real-time countdown lose condition. Chapters with a non-zero table entry must still be cleared the usual way (seize, defeat boss, and so on) before the clock hits zero, or the game ends. The map goal HUD is taken over and shows `Remaining: HH:MM:SS` instead of the chapter objective. Open **Status** on the map to read the original objective. At half of the chapter's configured time, the digits turn gold and map-sprite animations speed up.
 
-Chapters set to **0 seconds** keep their vanilla objective.
+Chapters set to **0 seconds** keep their vanilla goal window.
 
 ## Target ROM
 
