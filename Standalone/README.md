@@ -19,6 +19,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [goal_timer](goal_timer/) | Real-time chapter countdown goal; hitting zero is game over |
 | [world_map_thought_bubbles](world_map_thought_bubbles/) | Chapter-specific thought bubbles on the world map node menu |
 | [gameover_quotes](gameover_quotes/) | Random tip quotes on the game-over fog screen |
+| [refuge](refuge/) | Unit menu command: take refuge in an adjacent ally (reverse Rescue) |
 
 ## Adding a new patch
 

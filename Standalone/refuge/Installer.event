@@ -1,0 +1,23 @@
+#define TextTable        $15D48C
+#define TEXT_REFUGE_DESC $405
+// Vanilla DecodeString has no anti-Huffman bit. Pointers must be Huffman-compressed.
+#define setText(textID, offset) "PUSH; ORG TextTable + (4 * textID); POIN offset; PROTECT TextTable + (4 * textID) TextTable + (4 * textID) + 0x4; POP"
+
+#define FE8U_UnitActionMenuItemsPtr  $59D1F8
+#define FE8U_PlayerPhase_FinishAction $1D344
+#define FE8U_StandaloneFreeSpace     $1000000
+
+PUSH
+ORG FE8U_UnitActionMenuItemsPtr
+    POIN gUnitActionMenuItems_Refuge
+    PROTECT FE8U_UnitActionMenuItemsPtr FE8U_UnitActionMenuItemsPtr + 0x4 // gUnitActionMenuDef.menuItems
+ORG FE8U_PlayerPhase_FinishAction
+    jumpToHack(PlayerPhase_FinishAction_Refuge)
+    PROTECT FE8U_PlayerPhase_FinishAction FE8U_PlayerPhase_FinishAction + 0x8 // PlayerPhase_FinishAction hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/Refuge.lyn.event"
+#include "Menu.event"
+#include "Text.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Refuge body + unit menu + text

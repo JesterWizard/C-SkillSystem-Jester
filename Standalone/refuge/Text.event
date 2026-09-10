@@ -1,0 +1,7 @@
+ALIGN 4
+RefugeDescText:
+// Vanilla Huffman for: "Retreat into an ally who's" [N] "AID is at least this CON."
+// FE8U DecodeString has no anti-Huffman high bit; uncompressed ASCII here crashes R-help.
+BYTE $6E $38 $2F $94 $77 $1A $90 $1E $E2 $37 $51 $45 $F8 $D6 $FD $AE
+BYTE $EE $9F $8B $A0 $9C $22 $25 $DB $8B $DF $A6 $A3 $E7 $F0 $02
+setText(TEXT_REFUGE_DESC, RefugeDescText)
