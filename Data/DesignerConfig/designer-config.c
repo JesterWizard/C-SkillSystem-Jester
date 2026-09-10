@@ -59,7 +59,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gaiden_magic_must_be_magic = false, // true = magic weapons only
 	.gaiden_magic_requires_wrank = false, // true = require weapon rank
 	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table
-	.gameover_quotes = false,
+	.gameover_quotes = true,
 	.gen_new_scroll = false, // true = replace equipped skill and generate a scroll, false = learn for prep
 	.goal_escape = false,
 	.goal_timer = false,

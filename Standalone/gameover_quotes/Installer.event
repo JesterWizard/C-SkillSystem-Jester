@@ -1,0 +1,13 @@
+#define FE8U_GameOverScreen_Init $212C0
+#define FE8U_StandaloneFreeSpace $1000000
+
+PUSH
+ORG FE8U_GameOverScreen_Init
+    jumpToHack(GameOverScreen_Init_Quotes)
+    PROTECT FE8U_GameOverScreen_Init FE8U_GameOverScreen_Init + 0x8 // GameOverScreen_Init hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/GameOverQuotes.lyn.event"
+#include "GameOverQuotes.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GameOverQuotes body + table

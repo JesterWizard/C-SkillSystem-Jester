@@ -1,0 +1,102 @@
+/* Edit these without recompiling C.
+ *
+ * Each quote is three centered gold lines on the game-over fog screen.
+ * Use ASCII only (system font). Keep lines short enough to fit 240px.
+ * Point unused lines at GameOverQuoteEmpty.
+ *
+ * Add more quotes by appending GameOverQuote(...) before GameOverQuotesEnd.
+ */
+
+#define GameOverQuote(line0, line1, line2) "POIN line0 line1 line2"
+
+ALIGN 4
+GameOverQuoteEmpty:
+BYTE 0
+
+ALIGN 4
+GameOverQuote0_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote0_1:
+String("Fliers are weak to bow units.")
+BYTE 0
+ALIGN 4
+GameOverQuote0_2:
+String("Keep them outside of their range.")
+BYTE 0
+
+ALIGN 4
+GameOverQuote1_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote1_1:
+String("Each unit can learn up to 5 skills.")
+BYTE 0
+ALIGN 4
+GameOverQuote1_2:
+String("Equip your army wisely.")
+BYTE 0
+
+ALIGN 4
+GameOverQuote2_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote2_1:
+String("This game uses a 2 random number state")
+BYTE 0
+ALIGN 4
+GameOverQuote2_2:
+String("So hit rates will not always be accurate.")
+BYTE 0
+
+ALIGN 4
+GameOverQuote3_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote3_1:
+String("Reaver weapons not only reverse the weapon")
+BYTE 0
+ALIGN 4
+GameOverQuote3_2:
+String("triangle, but double its effects.")
+BYTE 0
+
+ALIGN 4
+GameOverQuote4_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote4_1:
+String("Complete support convos, visit secret shops")
+BYTE 0
+ALIGN 4
+GameOverQuote4_2:
+String("and defeat bosses to earn skill scrolls.")
+BYTE 0
+
+ALIGN 4
+GameOverQuote5_0:
+String("----------Tip----------")
+BYTE 0
+ALIGN 4
+GameOverQuote5_1:
+String("Don't leave your lord units vulnerable.")
+BYTE 0
+ALIGN 4
+GameOverQuote5_2:
+String("Build their supports for stat bonuses.")
+BYTE 0
+
+ALIGN 4
+GameOverQuotes:
+GameOverQuote(GameOverQuote0_0, GameOverQuote0_1, GameOverQuote0_2)
+GameOverQuote(GameOverQuote1_0, GameOverQuote1_1, GameOverQuote1_2)
+GameOverQuote(GameOverQuote2_0, GameOverQuote2_1, GameOverQuote2_2)
+GameOverQuote(GameOverQuote3_0, GameOverQuote3_1, GameOverQuote3_2)
+GameOverQuote(GameOverQuote4_0, GameOverQuote4_1, GameOverQuote4_2)
+GameOverQuote(GameOverQuote5_0, GameOverQuote5_1, GameOverQuote5_2)
+GameOverQuotesEnd:

@@ -18,6 +18,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [talk_on_level_up](talk_on_level_up/) | Character quotes after level-up stat gains (poor / good / great) |
 | [goal_timer](goal_timer/) | Real-time chapter countdown goal; hitting zero is game over |
 | [world_map_thought_bubbles](world_map_thought_bubbles/) | Chapter-specific thought bubbles on the world map node menu |
+| [gameover_quotes](gameover_quotes/) | Random tip quotes on the game-over fog screen |
 
 ## Adding a new patch
 
