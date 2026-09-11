@@ -4397,7 +4397,11 @@ void Talk_OnIdle(ProcPtr proc) {
     sTalkState->printClock = 0;
 
     while (1) {
-        SetTalkFaceNoMouthMove(sTalkState->activeFaceSlot);
+        u8 talkFace = sTalkState->activeFaceSlot;
+
+        if (talkFace < ARRAY_COUNT(sTalkState->faces) &&
+            sTalkState->faces[talkFace] != NULL)
+            SetTalkFaceNoMouthMove(talkFace);
 
         switch (TalkInterpret(proc)) {
             case 0:

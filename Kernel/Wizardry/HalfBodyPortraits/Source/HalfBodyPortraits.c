@@ -402,8 +402,19 @@ void HalfBody_OnTalkFaceClear(struct FaceProc *proc)
 LYN_REPLACE_CHECK(StartFaceFadeOut);
 void StartFaceFadeOut(struct FaceProc *proc)
 {
-	const struct FaceData *info = GetPortraitData(proc->faceId);
-	int pal = ((proc->oam2 >> 12) & 0xF) + 0x10;
+	const struct FaceData *info;
+	int pal;
+	int vramSlot;
+
+	if (proc == NULL)
+		return;
+
+	info = GetPortraitData(proc->faceId);
+	vramSlot = HalfBodyVramSlot(proc->faceSlot);
+	pal = (sFaceConfig[vramSlot].paletteId & 0xF) + 0x10;
+
+	/* Mouth/blink ignore HIDDEN and flash garbage during pal-fade. */
+	HalfBodyStopFaceOverlays(proc);
 
 	if (UseHalfBodyGeometry(info)) {
 		struct HbFaceEndProc *end;
