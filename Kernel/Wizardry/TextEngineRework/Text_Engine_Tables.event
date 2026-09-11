@@ -73,6 +73,8 @@ POIN SpikyTextBoxGraphics
 POIN ThoughtBoxGraphics
 //4 (Whisper / dashed outline)
 POIN WhisperTextBoxGraphics
+//5 (Royal decree / command)
+POIN CommandTextBoxGraphics
 
 NormalTextBoxGraphics:
 POIN $9E8484
@@ -103,6 +105,13 @@ WORD 0
 
 Whisper:
 #incext Png2Dmp "Text_Box_Graphics/Whisper.png" --lz77
+
+CommandTextBoxGraphics:
+POIN Command
+WORD 0
+
+Command:
+#incext Png2Dmp "Text_Box_Graphics/Command.png" --lz77
 
 //########### TEXT BOOP PITCH ################
 ALIGN 4

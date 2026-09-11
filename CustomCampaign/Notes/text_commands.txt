@@ -15,6 +15,7 @@
  BoxType_Dramatic
  BoxType_Thoughts
  BoxType_Whisper
+ BoxType_Command
  FontType_Bold
  FontType_Italic
  BoxHeight_1
