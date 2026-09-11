@@ -1,0 +1,9 @@
+/*
+ * Starting HP table. Use for testing. Applied once when the unit is loaded.
+ * Each entry is: character ID, HP (1-254). Character ID 0 ends the list.
+ * Edit these bytes without rebuilding C. Common IDs: Eirika $01, Seth $02, Ephraim $0F.
+ */
+ ALIGN 4
+ ExpandedHpTestUnits:
+ BYTE $01 200 // Eirika
+ BYTE $00 $00

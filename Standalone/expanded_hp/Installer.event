@@ -1,0 +1,196 @@
+#define FE8U_StoreNumberStringOrDashesToSmallBuffer $0391C
+#define FE8U_UnitCheckStatCaps                       $181C8
+#define FE8U_GetUnitCurrentHp                        $19150
+#define FE8U_GetUnitMaxHp                            $19190
+#define FE8U_SetUnitHp                               $19368
+#define FE8U_AddUnitHp                               $193A4
+#define FE8U_InitBattleUnit                          $2A584
+#define FE8U_InitBattleUnitWithoutBonuses            $2A668
+#define FE8U_BattleGenerateHitEffects                $2B600
+#define FE8U_CheckBattleUnitStatCaps                 $2BF24
+#define FE8U_NewEkrGauge                             $50EF8
+#define FE8U_ekrGaugeMain                            $51284
+#define FE8U_EfxFlashHPBarMain1                      $54498
+#define FE8U_EfxFlashHPBarRestorePal                 $5452C
+#define FE8U_EfxHPBarColorChangeMain                 $546E4
+#define FE8U_DisplayLeftPanel                        $86E44
+#define FE8U_LoadUnit                                $17AC4
+#define FE8U_MMB_Loop_SlideIn                        $8BCF8
+#define FE8U_MMB_Loop_SlideOut                       $8BE70
+#define FE8U_PutUnitMapUiWindow                      $8C234
+#define FE8U_ClearUnitMapUiStatus                    $8C360
+#define FE8U_UnitMapUiUpdate                         $8C45C
+#define FE8U_DrawUnitMapUi                           $8C5D0
+#define FE8U_PlayerInterfaceNumbers                  $8D0B4
+#define FE8U_StandaloneFreeSpace                     $1000000
+
+PUSH
+ORG FE8U_StoreNumberStringOrDashesToSmallBuffer
+    jumpToHack(StoreNumberStringOrDashesToSmallBuffer_ExpandedHp)
+    PROTECT FE8U_StoreNumberStringOrDashesToSmallBuffer FE8U_StoreNumberStringOrDashesToSmallBuffer + 0x8
+POP
+
+PUSH
+ORG FE8U_UnitCheckStatCaps
+    jumpToHack(UnitCheckStatCaps_ExpandedHp)
+    PROTECT FE8U_UnitCheckStatCaps FE8U_UnitCheckStatCaps + 0x8
+POP
+
+PUSH
+ORG FE8U_GetUnitCurrentHp
+    jumpToHack(GetUnitCurrentHp_ExpandedHp)
+    PROTECT FE8U_GetUnitCurrentHp FE8U_GetUnitCurrentHp + 0x8
+POP
+
+PUSH
+ORG FE8U_GetUnitMaxHp
+    jumpToHack(GetUnitMaxHp_ExpandedHp)
+    PROTECT FE8U_GetUnitMaxHp FE8U_GetUnitMaxHp + 0x8
+POP
+
+PUSH
+ORG FE8U_SetUnitHp
+    jumpToHack(SetUnitHp_ExpandedHp)
+    PROTECT FE8U_SetUnitHp FE8U_SetUnitHp + 0x8
+POP
+
+PUSH
+ORG FE8U_AddUnitHp
+    jumpToHack(AddUnitHp_ExpandedHp)
+    PROTECT FE8U_AddUnitHp FE8U_AddUnitHp + 0x8
+POP
+
+PUSH
+ORG FE8U_InitBattleUnit
+    jumpToHack(InitBattleUnit_ExpandedHp)
+    PROTECT FE8U_InitBattleUnit FE8U_InitBattleUnit + 0x8
+POP
+
+PUSH
+ORG FE8U_InitBattleUnitWithoutBonuses
+    jumpToHack(InitBattleUnitWithoutBonuses_ExpandedHp)
+    PROTECT FE8U_InitBattleUnitWithoutBonuses FE8U_InitBattleUnitWithoutBonuses + 0x8
+POP
+
+PUSH
+ORG FE8U_BattleGenerateHitEffects
+    jumpToHack(BattleGenerateHitEffects_ExpandedHp)
+    PROTECT FE8U_BattleGenerateHitEffects FE8U_BattleGenerateHitEffects + 0x8
+POP
+
+PUSH
+ORG FE8U_CheckBattleUnitStatCaps
+    jumpToHack(CheckBattleUnitStatCaps_ExpandedHp)
+    PROTECT FE8U_CheckBattleUnitStatCaps FE8U_CheckBattleUnitStatCaps + 0x8
+POP
+
+PUSH
+ORG FE8U_NewEkrGauge
+    jumpToHack(NewEkrGauge_ExpandedHp)
+    PROTECT FE8U_NewEkrGauge FE8U_NewEkrGauge + 0x8
+POP
+
+PUSH
+ORG FE8U_ekrGaugeMain
+    jumpToHack(ekrGaugeMain_ExpandedHp)
+    PROTECT FE8U_ekrGaugeMain FE8U_ekrGaugeMain + 0x8
+POP
+
+PUSH
+ORG FE8U_EfxFlashHPBarMain1
+    jumpToHack(EfxFlashHPBarMain1_ExpandedHp)
+    PROTECT FE8U_EfxFlashHPBarMain1 FE8U_EfxFlashHPBarMain1 + 0x8
+POP
+
+PUSH
+ORG FE8U_EfxFlashHPBarRestorePal
+    jumpToHack(EfxFlashHPBarRestorePal_ExpandedHp)
+    PROTECT FE8U_EfxFlashHPBarRestorePal FE8U_EfxFlashHPBarRestorePal + 0x8
+POP
+
+PUSH
+ORG FE8U_EfxHPBarColorChangeMain
+    jumpToHack(EfxHPBarColorChangeMain_ExpandedHp)
+    PROTECT FE8U_EfxHPBarColorChangeMain FE8U_EfxHPBarColorChangeMain + 0x8
+POP
+
+PUSH
+ORG FE8U_DisplayLeftPanel
+    jumpToHack(DisplayLeftPanel_ExpandedHp)
+    PROTECT FE8U_DisplayLeftPanel FE8U_DisplayLeftPanel + 0x8
+POP
+
+PUSH
+ORG FE8U_LoadUnit
+    jumpToHack(LoadUnit_ExpandedHp)
+    PROTECT FE8U_LoadUnit FE8U_LoadUnit + 0x8
+POP
+
+PUSH
+ORG FE8U_MMB_Loop_SlideIn
+    jumpToHack(MMB_Loop_SlideIn_ExpandedHp)
+    PROTECT FE8U_MMB_Loop_SlideIn FE8U_MMB_Loop_SlideIn + 0x8
+POP
+
+PUSH
+ORG FE8U_MMB_Loop_SlideOut
+    jumpToHack(MMB_Loop_SlideOut_ExpandedHp)
+    PROTECT FE8U_MMB_Loop_SlideOut FE8U_MMB_Loop_SlideOut + 0x8
+POP
+
+PUSH
+ORG FE8U_PutUnitMapUiWindow
+    jumpToHack(PutUnitMapUiWindow_ExpandedHp)
+    PROTECT FE8U_PutUnitMapUiWindow FE8U_PutUnitMapUiWindow + 0x8
+POP
+
+PUSH
+ORG FE8U_ClearUnitMapUiStatus
+    jumpToHack(ClearUnitMapUiStatus_ExpandedHp)
+    PROTECT FE8U_ClearUnitMapUiStatus FE8U_ClearUnitMapUiStatus + 0x8
+POP
+
+PUSH
+ORG FE8U_UnitMapUiUpdate
+    jumpToHack(UnitMapUiUpdate_ExpandedHp)
+    PROTECT FE8U_UnitMapUiUpdate FE8U_UnitMapUiUpdate + 0x8
+POP
+
+PUSH
+ORG FE8U_DrawUnitMapUi
+    jumpToHack(DrawUnitMapUi_ExpandedHp)
+    PROTECT FE8U_DrawUnitMapUi FE8U_DrawUnitMapUi + 0x8
+POP
+
+PUSH
+ORG FE8U_PlayerInterfaceNumbers
+    POIN MMBNumberText
+    PROTECT FE8U_PlayerInterfaceNumbers FE8U_PlayerInterfaceNumbers + 0x4
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ExpandedHp.lyn.event"
+
+ALIGN 4
+gPalEfxHpBarYellow:
+#incbin "Gfx/HPBarYellow.dmp"
+
+ALIGN 4
+gPalEfxHpBarRed:
+#incbin "Gfx/HPBarRed.dmp"
+
+ALIGN 4
+gPalEfxHpBarBlue:
+#incbin "Gfx/HPBarBlue.dmp"
+
+ALIGN 4
+ModularMinimugBox_TileMap:
+#incbin "Gfx/MMB_Tilemap.dmp"
+
+ALIGN 4
+MMBNumberText:
+#incbin "Gfx/MMBNumberText.dmp"
+
+#include "HPTableTest.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET
