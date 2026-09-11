@@ -34,6 +34,7 @@ This file is the viability list. `configs.h` should only offer fonts marked viab
 | Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. Missing punctuation falls back to vanilla `fe8u`. |
 | Riviera: The Promised Land | `CONFIG_FONT_RIVIERA` | 5 | Native 8px Latin sheet. Same cap advance as vanilla; `M`/`W`/`a` are 6. Extract: `Fonts/Scripts/extract-riviera-font.py`. `"` and `,` fall back to vanilla `fe8u`. |
 | The Minish Cap | `CONFIG_FONT_MINISH_CAP` | 6 | Native 16px-cell Zelda sheet. Caps and `M`/`W` advance 6. Extract: `Fonts/Scripts/extract-minish-cap-font.py`. Sheet has `,` `.` and Latin-1 letters; other punctuation falls back to vanilla `fe8u`. |
+| Pokémon Mystery Dungeon: Red Rescue Team | `CONFIG_FONT_RED_RESCUE_TEAM` | 6 | Native 8px Latin sheet. Caps advance 6; `M` is 8 and `W` is 10 and may clip in tight menus. Extract: `Fonts/Scripts/extract-red-rescue-team-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
 
 Enable exactly one of those defines (comment the others out). Then:
 
@@ -68,6 +69,7 @@ Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap
 | Mother 3 extract | `Fonts/Scripts/extract-mother3-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Riviera extract | `Fonts/Scripts/extract-riviera-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Minish Cap extract | `Fonts/Scripts/extract-minish-cap-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
+| Red Rescue Team extract | `Fonts/Scripts/extract-red-rescue-team-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Number layout | `Text_DrawNumber` in `Kernel/Wizardry/Utf8/Source/decoding.c` | Per-`CONFIG_FONT_*` digit pitch and alignment. |
 | Fusion extract | `Fonts/Scripts/extract-metroid-fusion-font.py` | Same pipeline; kept for the rejected sheet only. |
 
