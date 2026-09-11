@@ -37,7 +37,8 @@
 // #define CONFIG_FONT_ADVANCE_WARS_2
 // #define CONFIG_FONT_SUPER_STAR_SAGA
 // #define CONFIG_FONT_MOTHER_3
-#define CONFIG_FONT_RIVIERA
+// #define CONFIG_FONT_RIVIERA
+#define CONFIG_FONT_MINISH_CAP
 
 /**
 * Item config
