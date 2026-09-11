@@ -1,11 +1,14 @@
 // Glyph set. The first matching generic font is installed; later lists only
-// fill characters the active font does not provide. Pick exactly one
-// CONFIG_FONT_* in include/configs/configs.h, then rebuild fonts.
+// fill characters the active font does not provide. Pick exactly one viable
+// CONFIG_FONT_* in include/configs/configs.h (see Documentation/Features/Fonts.md).
 #ifdef CONFIG_FONT_POKE_EMERALD
 Glyph/PokeEmerald/font.fontall.txt
 #endif
 #ifdef CONFIG_FONT_ADVANCE_WARS_2
 Glyph/AdvanceWars2/font.fontall.txt
+#endif
+#ifdef CONFIG_FONT_METROID_FUSION
+Glyph/MetroidFusion/font.fontall.txt
 #endif
 
 Glyph/fe8u/font.fontall.txt

@@ -29,6 +29,7 @@
 
 /**
  * UI / dialogue glyph set. Define exactly one, then rebuild fonts.
+ * Viable vs rejected: Documentation/Features/Fonts.md
  * Event Assembler only understands #ifdef, so do not use #if/#error here.
  */
 // #define CONFIG_FONT_VANILLA
