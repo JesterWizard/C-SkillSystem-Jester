@@ -106,7 +106,7 @@ void Text_DrawString(struct Text *text, const char *str)
 		str = Text_DrawCharacter(text, str);
 }
 
-#ifdef CONFIG_FONT_MOTHER_3
+#if defined(CONFIG_FONT_MOTHER_3) || defined(CONFIG_FONT_RIVIERA)
 /* 1px ink-to-ink gap. Ones-place right edge is start+PITCH so 11 and 23 line up. */
 #define TEXT_NUMBER_PITCH 6
 #define TEXT_NUMBER_GAP 1

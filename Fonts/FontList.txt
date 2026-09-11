@@ -13,6 +13,9 @@ Glyph/SuperStarSaga/font.fontall.txt
 #ifdef CONFIG_FONT_MOTHER_3
 Glyph/Mother3/font.fontall.txt
 #endif
+#ifdef CONFIG_FONT_RIVIERA
+Glyph/Riviera/font.fontall.txt
+#endif
 #ifdef CONFIG_FONT_METROID_FUSION
 Glyph/MetroidFusion/font.fontall.txt
 #endif
