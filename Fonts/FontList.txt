@@ -25,6 +25,9 @@ Glyph/MinishCap/font.fontall.txt
 #ifdef CONFIG_FONT_RED_RESCUE_TEAM
 Glyph/RedRescueTeam/font.fontall.txt
 #endif
+#ifdef CONFIG_FONT_DUEL_ACADEMY
+Glyph/DuelAcademy/font.fontall.txt
+#endif
 #ifdef CONFIG_FONT_METROID_FUSION
 Glyph/MetroidFusion/font.fontall.txt
 #endif
