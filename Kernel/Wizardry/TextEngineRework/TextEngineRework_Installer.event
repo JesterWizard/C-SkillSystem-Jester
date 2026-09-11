@@ -4,7 +4,7 @@
 #include "EAstdlib.event"
 #include "Source/LynJump.event"
 #include "Source/TextEngineRework.lyn.event"
-#include "_Text_Engine_Tables.txt"
+#include "Text_Engine_Tables.event"
 
 /* The C interpreter dispatches these codes directly. */
 /*

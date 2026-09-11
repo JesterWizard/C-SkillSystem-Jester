@@ -65,7 +65,7 @@ If you do, then...!![A][N]
 Even now I want to believe, Eirika.[A][N]
 Seth, please![A] Take her to safety![A][N]
 [OpenFarRight][ClearFace]
-[OpenRight]
+[OpenRight][MoveFarRight]
 Father![A][X]
 
 ## Chapter_00_Scene_01_Convo_03

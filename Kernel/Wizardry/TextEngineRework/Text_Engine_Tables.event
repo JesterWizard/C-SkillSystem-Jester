@@ -17,19 +17,19 @@ POIN Text_Narrow_Menu
 
 ALIGN 4
 Text_Bold:
-#include "Fonts/FE8_Text_Bold.txt"
+#include "Fonts/FE8_Text_Bold.event"
 
 ALIGN 4
 Text_Ital:
-#include "Fonts/FE8_Text_Ital.txt"
+#include "Fonts/FE8_Text_Ital.event"
 
 ALIGN 4
 Text_Narrow_Regular:
-#include "Fonts/FE8_Text_Narrow_Regular.txt"
+#include "Fonts/FE8_Text_Narrow_Regular.event"
 
 ALIGN 4
 Text_Narrow_Menu:
-#include "Fonts/FE8_Text_Narrow_Menu.txt"
+#include "Fonts/FE8_Text_Narrow_Menu.event"
 
 
 //########### TEXT GROUP COLORS ################
@@ -98,4 +98,4 @@ Thinking6:
 //########### TEXT BOOP PITCH ################
 ALIGN 4
 TextBoopTable:
-#include "text_boop_table.txt"
+#include "Text_Boop_Table.event"
