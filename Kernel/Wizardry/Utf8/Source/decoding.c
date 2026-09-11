@@ -1,4 +1,5 @@
 #include <common-chax.h>
+#include <kernel-lib.h>
 #include <utf8.h>
 #include <kernel/chatlog.h>
 
@@ -103,6 +104,68 @@ void Text_DrawString(struct Text *text, const char *str)
 {
 	while (*str != 0 && *str != CHAR_NEWLINE)
 		str = Text_DrawCharacter(text, str);
+}
+
+#ifdef CONFIG_FONT_MOTHER_3
+/* 1px ink-to-ink gap. Ones-place right edge is start+PITCH so 11 and 23 line up. */
+#define TEXT_NUMBER_PITCH 6
+#define TEXT_NUMBER_GAP 1
+#define TEXT_NUMBER_EQUAL_SPACING 1
+#elif defined(CONFIG_FONT_ADVANCE_WARS_2) || defined(CONFIG_FONT_SUPER_STAR_SAGA)
+#define TEXT_NUMBER_PITCH 8
+#define TEXT_NUMBER_RIGHT_ALIGN 1
+#define TEXT_NUMBER_EQUAL_SPACING 0
+#else
+#define TEXT_NUMBER_PITCH 8
+#define TEXT_NUMBER_RIGHT_ALIGN 0
+#define TEXT_NUMBER_EQUAL_SPACING 0
+#endif
+
+STATIC_DECLAR void DrawNumberDigit(struct Text *text, int digit)
+{
+	char buf[2];
+	u32 width;
+	int start = text->x;
+
+	buf[0] = '0' + digit;
+	buf[1] = '\0';
+	GetCharTextLen(buf, &width);
+
+#if TEXT_NUMBER_EQUAL_SPACING
+	/* x is this digit's right edge. Next digit's right edge is left of us minus the gap. */
+	text->x = start - (int)width;
+	Text_DrawCharacter(text, buf);
+	text->x = start - (int)width - TEXT_NUMBER_GAP;
+#else
+	if (TEXT_NUMBER_RIGHT_ALIGN) {
+		int pad = TEXT_NUMBER_PITCH - (int)width;
+
+		if (pad < 0)
+			pad = 0;
+		text->x = start + pad;
+	}
+
+	Text_DrawCharacter(text, buf);
+	text->x = start - TEXT_NUMBER_PITCH;
+#endif
+}
+
+LYN_REPLACE_CHECK(Text_DrawNumber);
+void Text_DrawNumber(struct Text *text, int n)
+{
+#if TEXT_NUMBER_EQUAL_SPACING
+	text->x += TEXT_NUMBER_PITCH;
+#endif
+
+	if (n == 0) {
+		DrawNumberDigit(text, 0);
+		return;
+	}
+
+	while (n != 0) {
+		DrawNumberDigit(text, k_umod(n, 10));
+		n = k_udiv(n, 10);
+	}
 }
 
 LYN_REPLACE_CHECK(InsertPrefix);

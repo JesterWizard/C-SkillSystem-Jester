@@ -10,6 +10,9 @@ Glyph/AdvanceWars2/font.fontall.txt
 #ifdef CONFIG_FONT_SUPER_STAR_SAGA
 Glyph/SuperStarSaga/font.fontall.txt
 #endif
+#ifdef CONFIG_FONT_MOTHER_3
+Glyph/Mother3/font.fontall.txt
+#endif
 #ifdef CONFIG_FONT_METROID_FUSION
 Glyph/MetroidFusion/font.fontall.txt
 #endif
