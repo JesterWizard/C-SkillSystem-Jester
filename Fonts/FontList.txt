@@ -4,6 +4,9 @@
 #ifdef CONFIG_FONT_POKE_EMERALD
 Glyph/PokeEmerald/font.fontall.txt
 #endif
+#ifdef CONFIG_FONT_POKE_FIRERED
+Glyph/PokeFireRed/font.fontall.txt
+#endif
 #ifdef CONFIG_FONT_ADVANCE_WARS_2
 Glyph/AdvanceWars2/font.fontall.txt
 #endif

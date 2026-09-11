@@ -29,6 +29,7 @@ This file is the viability list. `configs.h` should only offer fonts marked viab
 |------|--------|---------------|--------|
 | Vanilla FE8 | `CONFIG_FONT_VANILLA` | 5 | Stock glyphs. No extra `FontList.txt` entry; `Glyph/fe8u/` is always the fallback. |
 | Pokémon Emerald | `CONFIG_FONT_POKE_EMERALD` | 5 | Same Latin advance as vanilla. |
+| Pokémon FireRed | `CONFIG_FONT_POKE_FIRERED` | 6 | Native 8px Latin sheet. Caps, `M`, and `W` all advance 6. Extract: `Fonts/Scripts/extract-poke-firered-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
 | Advance Wars 2 | `CONFIG_FONT_ADVANCE_WARS_2` | 6 | Slightly wider than vanilla; fits current UI. Extract: `Fonts/Scripts/extract-aw2-font.py`. |
 | Super Star Saga | `CONFIG_FONT_SUPER_STAR_SAGA` | 8 | Outlined Mario & Luigi battle font. Lowercase is 6; caps match Fusion's 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-superstar-saga-font.py`. Sheet omits `q` (mirrored from `p`) and digits other than `1` (vanilla fills those). |
 | Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. Missing punctuation falls back to vanilla `fe8u`. |
@@ -70,6 +71,7 @@ Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap
 | Riviera extract | `Fonts/Scripts/extract-riviera-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Minish Cap extract | `Fonts/Scripts/extract-minish-cap-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Red Rescue Team extract | `Fonts/Scripts/extract-red-rescue-team-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
+| FireRed extract | `Fonts/Scripts/extract-poke-firered-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Number layout | `Text_DrawNumber` in `Kernel/Wizardry/Utf8/Source/decoding.c` | Per-`CONFIG_FONT_*` digit pitch and alignment. |
 | Fusion extract | `Fonts/Scripts/extract-metroid-fusion-font.py` | Same pipeline; kept for the rejected sheet only. |
 
