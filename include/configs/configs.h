@@ -34,7 +34,8 @@
  */
 // #define CONFIG_FONT_VANILLA
 // #define CONFIG_FONT_POKE_EMERALD
-#define CONFIG_FONT_ADVANCE_WARS_2
+// #define CONFIG_FONT_ADVANCE_WARS_2
+#define CONFIG_FONT_SUPER_STAR_SAGA
 
 /**
 * Item config
