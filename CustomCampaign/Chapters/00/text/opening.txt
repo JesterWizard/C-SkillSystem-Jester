@@ -1,6 +1,7 @@
 ## Chapter_00_Scene_01_Convo_01
 [OpenMidLeft][LoadFace_Fado]
 [OpenMidRight][LoadFace_SoldierBlue]
+[BoxType_Whisper]
 [BoopPitch_Highest]
 The castle gate has been breached,[N]
 Your Majesty![A][N]

@@ -14,6 +14,7 @@
  OpenFarFarRight
  BoxType_Dramatic
  BoxType_Thoughts
+ BoxType_Whisper
  FontType_Bold
  FontType_Italic
  BoxHeight_1

@@ -71,6 +71,8 @@ POIN NormalTextBoxGraphics
 POIN SpikyTextBoxGraphics
 //3 (Thought bubble)
 POIN ThoughtBoxGraphics
+//4 (Whisper / dashed outline)
+POIN WhisperTextBoxGraphics
 
 NormalTextBoxGraphics:
 POIN $9E8484
@@ -82,18 +84,25 @@ POIN $9E8238
 WORD 0
 
 SpikyTextBoxGraphics:
-POIN Spiky6
+POIN Spiky
 WORD 0
 
-Spiky6:
-#incext Png2Dmp "Text_Box_Graphics/Spiky6.png" --lz77
+Spiky:
+#incext Png2Dmp "Text_Box_Graphics/Spiky.png" --lz77
 
 ThoughtBoxGraphics:
-POIN Thinking6
+POIN Thinking
 WORD 0
 
-Thinking6:
-#incext Png2Dmp "Text_Box_Graphics/Thinking6.png" --lz77
+Thinking:
+#incext Png2Dmp "Text_Box_Graphics/Thinking.png" --lz77
+
+WhisperTextBoxGraphics:
+POIN Whisper
+WORD 0
+
+Whisper:
+#incext Png2Dmp "Text_Box_Graphics/Whisper.png" --lz77
 
 //########### TEXT BOOP PITCH ################
 ALIGN 4
