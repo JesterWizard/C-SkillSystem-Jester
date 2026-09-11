@@ -28,6 +28,9 @@ Glyph/RedRescueTeam/font.fontall.txt
 #ifdef CONFIG_FONT_DUEL_ACADEMY
 Glyph/DuelAcademy/font.fontall.txt
 #endif
+#ifdef CONFIG_FONT_BOKTAI_2
+Glyph/Boktai2/font.fontall.txt
+#endif
 #ifdef CONFIG_FONT_METROID_FUSION
 Glyph/MetroidFusion/font.fontall.txt
 #endif

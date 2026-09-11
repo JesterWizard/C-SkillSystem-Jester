@@ -55,6 +55,7 @@ If the font has an extract script, run that first so `font.fontall.txt` and the 
 | Font | Define | Cap `A` width | Why |
 |------|--------|---------------|-----|
 | Metroid Fusion | `CONFIG_FONT_METROID_FUSION` | 8 | Too wide for menus and stat text. Glyphs stay under `Fonts/Glyph/MetroidFusion/` for reference; do not ship it. |
+| Boktai 2: Solar Boy Django | `CONFIG_FONT_BOKTAI_2` | 7 | Too wide for menus and stat text. Caps advance 7; `M`/`W`/`T`/`V`/`X`/`Y` advance 8. Glyphs stay under `Fonts/Glyph/Boktai2/` for reference; do not ship it. |
 
 Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap the list so a local retest only needs the define uncommented.
 
@@ -76,6 +77,7 @@ Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap
 | Duel Academy extract | `Fonts/Scripts/extract-duel-academy-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Number layout | `Text_DrawNumber` in `Kernel/Wizardry/Utf8/Source/decoding.c` | Per-`CONFIG_FONT_*` digit pitch and alignment. |
 | Fusion extract | `Fonts/Scripts/extract-metroid-fusion-font.py` | Same pipeline; kept for the rejected sheet only. |
+| Boktai 2 extract | `Fonts/Scripts/extract-boktai-font.py` | Same pipeline; kept for the rejected sheet only. |
 
 ---
 
