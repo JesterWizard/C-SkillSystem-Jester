@@ -368,6 +368,7 @@ FONT_DIR := Fonts
 
 GLYPH_INSTALLER := $(FONT_DIR)/GlyphInstaller.event
 GLYPH_DEPS := $(FONT_DIR)/FontList.txt
+GLYPH_DEPS += include/configs/configs.h
 
 font: $(GLYPH_INSTALLER)
 
@@ -579,6 +580,6 @@ rebuild_msg_indexes:
 .PHONY: rebuild_font_indexes
 rebuild_font_indexes:
 	@echo "Removing font glyph installer..."
-	@rm -rf $(GLYPH_INSTALLER)
+	@rm -f $(GLYPH_INSTALLER)
 	@echo "Rebuilding font indexes..."
 	@$(MAKE)

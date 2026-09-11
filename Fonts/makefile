@@ -17,10 +17,15 @@ GLYPH_GENERATOR := $(PYTHON3) $(mkfile_dir)Scripts/glyph-installer-generator.py
 GLYPH_INSTALLER := $(mkfile_dir)GlyphInstaller.event
 
 GLYPH_DEPS := $(mkfile_dir)FontList.txt
+GLYPH_DEPS += $(mkfile_dir)../include/configs/configs.h
 
 $(GLYPH_INSTALLER): $(GLYPH_DEPS)
 	@echo "[GEN]	$@"
-	@$(GLYPH_GENERATOR) -i $<
+	@$(GLYPH_GENERATOR) -i $(mkfile_dir)FontList.txt -o $(GLYPH_INSTALLER)
+	@echo "[GEN]	font img.bin"
+	@find $(mkfile_dir)build -name '*_font.png' | while read png; do \
+		$(GRIT) "$$png" -gB2 -p! -tw16 -th16 -ftb -fh! -o "$${png%_font.png}_font"; \
+	done
 
 CLEAN_FILES += $(GLYPH_INSTALLER)
 

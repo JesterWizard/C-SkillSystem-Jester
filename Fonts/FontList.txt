@@ -1,15 +1,12 @@
-// The first font in the generic list that is uncommented will be the one that is displayed in game
-# Generic
-// Glyph/basic/font.fontall.txt
+// Glyph set. The first matching generic font is installed; later lists only
+// fill characters the active font does not provide. Pick exactly one
+// CONFIG_FONT_* in include/configs/configs.h, then rebuild fonts.
+#ifdef CONFIG_FONT_POKE_EMERALD
+Glyph/PokeEmerald/font.fontall.txt
+#endif
+#ifdef CONFIG_FONT_ADVANCE_WARS_2
+Glyph/AdvanceWars2/font.fontall.txt
+#endif
+
 Glyph/fe8u/font.fontall.txt
-// Glyph/fe7u/font.fontall.txt
-// Glyph/fe7j/font.fontall.txt
-// Glyph/fe6j/font.fontall.txt
-// Glyph/fe8j/font.fontall.txt
-// Glyph/PokeEmerald/font.fontall.txt
-
-# Narrow fonts
 Glyph/NarrowFonts/font.fontall.txt
-
-// Glyph/标点符号/道具标点/font.fontall.txt
-// Glyph/标点符号/对话标点/font.fontall.txt

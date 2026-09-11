@@ -28,6 +28,14 @@
 #include "../constants/item-icons.h"
 
 /**
+ * UI / dialogue glyph set. Define exactly one, then rebuild fonts.
+ * Event Assembler only understands #ifdef, so do not use #if/#error here.
+ */
+// #define CONFIG_FONT_VANILLA
+// #define CONFIG_FONT_POKE_EMERALD
+#define CONFIG_FONT_ADVANCE_WARS_2
+
+/**
 * Item config
 */
 #define CONFIG_PR_ITEM_TABLE 0x809B10

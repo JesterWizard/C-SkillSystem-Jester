@@ -24,16 +24,22 @@ def show_exception_and_exit(exc_type, exc_value, tb):
     traceback.print_exception(exc_type, exc_value, tb)
     sys.exit(-1)
 
-def append_glyph(glyphs, fpath, type, out_dir):
+def glyph_label(type_str, unicod, prefix):
+    if prefix:
+        return "Font{0}_{1}_{2}".format(type_str, prefix, "{:04X}".format(unicod))
+    return "Font{0}_{1}".format(type_str, "{:04X}".format(unicod))
+
+def append_glyph(glyphs, fpath, type, out_dir, prefix):
+    type_str = FontType[type].capitalize()
     with open(fpath, 'r', encoding='utf-8') as f:
         for line in f:
-            match = re.search(fr'^(.)\t{FontType[type]}\t([0-9]+)\tFont{FontType[type].capitalize()}(.+).png$', line)
+            match = re.search(fr'^(.)\t{FontType[type]}\t([0-9]+)\tFont{type_str}(.+).png$', line)
 
             if match:
                 character = match.group(1)
 
-                src = "{0}/Font{1}{2}.png".format(os.path.dirname(fpath), FontType[type].capitalize(), match.group(3))
-                dst = "{0}/Font{1}_{2}_font.png".format(out_dir, FontType[type].capitalize(), "{:04X}".format(ord(character)))
+                src = "{0}/Font{1}{2}.png".format(os.path.dirname(fpath), type_str, match.group(3))
+                dst = "{0}/{1}_font.png".format(out_dir, glyph_label(type_str, ord(character), prefix))
 
                 if ord(character) > 0x10000:
                     print("{0}(U_{1}) is not supported for unicode group_1 (U_0000 ~ U10000)".format(character, "{:04X}".format(ord(character))))
@@ -51,7 +57,7 @@ def append_glyph(glyphs, fpath, type, out_dir):
 
                     shutil.copyfile(src, dst)
 
-def make_installer(glyphs, type, fpath):
+def make_installer(glyphs, type, fpath, prefix, overlay_symbol, build_subdir):
     type_str = FontType[type].capitalize()
 
     with open(fpath, 'w', encoding='utf-8') as f:
@@ -63,42 +69,54 @@ def make_installer(glyphs, type, fpath):
             unicod = ord(character)
             unicod_lo = unicod & 0xFF
             unicod_hi = (unicod >> 0x8) & 0xFF
+            label = glyph_label(type_str, unicod, prefix)
 
-            f.write("Font{0}_{1}: /* {2} */\n".format(type_str, "{:04X}".format(ord(character)), character))
+            f.write("{0}: /* {1} */\n".format(label, character))
             if unicod_lo in g:
-                f.write("\tPOIN Font{0}_{1}\n".format(type_str, "{:04X}".format(ord(g[unicod_lo]))))
+                f.write("\tPOIN {0}\n".format(glyph_label(type_str, ord(g[unicod_lo]), prefix)))
             else:
                 f.write("\tWORD 0\n")
 
             f.write("\tBYTE {0} {1} 0 0\n".format(hex(unicod_hi), hex(glyph["width"])))
-            f.write("\t#incbin \"Glyph{0}/{1}.img.bin\"\n".format(type_str, os.path.splitext(os.path.basename(glyph["fpah"]))[0]))
+            f.write("\t#incbin \"{0}/{1}.img.bin\"\n".format(build_subdir, os.path.splitext(os.path.basename(glyph["fpah"]))[0]))
             f.write("\n")
 
             g[unicod_lo] = character
 
-        f.write("PUSH\n")
-        for lo, character in g.items():
-            f.write("ORG {0} + 4 * {1}\n".format(hex(FontTable[type]), hex(lo)))
-            f.write("\tPOIN Font{0}_{1}\n\n".format(type_str, "{:04X}".format(ord(character))))
+        if overlay_symbol:
+            f.write("ALIGN 4\n")
+            f.write("{0}:\n".format(overlay_symbol))
+            for character, glyph in glyphs.items():
+                unicod = ord(character)
+                f.write("\tPOIN {0}\n".format(glyph_label(type_str, unicod, prefix)))
+                f.write("\tBYTE {0} 0 0 0\n".format(hex(unicod & 0xFF)))
+            f.write("\tWORD 0\n")
+            f.write("\tWORD 0\n")
+        else:
+            f.write("PUSH\n")
+            for lo, character in g.items():
+                f.write("ORG {0} + 4 * {1}\n".format(hex(FontTable[type]), hex(lo)))
+                f.write("\tPOIN {0}\n\n".format(glyph_label(type_str, ord(character), prefix)))
+            f.write("POP\n")
 
-        f.write("POP\n")
+def load_defines(configs_h):
+    defs = set()
+    if not os.path.exists(configs_h):
+        return defs
+    with open(configs_h, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('//'):
+                continue
+            match = re.match(r'#define\s+(\w+)', line)
+            if match:
+                defs.add(match.group(1))
+    return defs
 
-def main(args):
-    sys.excepthook = show_exception_and_exit
 
-    argParser = argparse.ArgumentParser(description = "")
-    argParser.add_argument("-i", "--input", help = "input list file")
-    arguments = argParser.parse_args()
-
-    fpath_in = os.path.abspath(arguments.input)
-    fdir_in  = os.path.dirname(fpath_in)
-
-    fpath_out = "{0}/GlyphInstaller.event".format(fdir_in)
-
-    if not os.path.exists(fpath_in):
-        sys.exit("File `{0}` doesn't exist.".format(fpath_in))
-
+def collect_font_lists(fpath_in, fdir_in, defines):
     fpath_list = []
+    skip_depth = 0
 
     with open(fpath_in, 'r') as f:
         for line in f.readlines():
@@ -107,44 +125,93 @@ def main(args):
             if (len(line) == 0):
                 continue
 
-            if line[0] == '/' and line[1] == '/':
+            if line.startswith('#ifdef '):
+                name = line.split(None, 1)[1]
+                if skip_depth or name not in defines:
+                    skip_depth += 1
+                continue
+
+            if line.startswith('#endif'):
+                if skip_depth:
+                    skip_depth -= 1
+                continue
+
+            if skip_depth:
+                continue
+
+            if line[0] == '/' and len(line) > 1 and line[1] == '/':
                 continue
 
             if line[0] == '#':
                 continue
 
-            fpath_list.append(os.path.abspath(line))
+            fpath_list.append(os.path.abspath(os.path.join(fdir_in, line)))
 
-    # Generate system fonts
-    glyphs = {}
-    glyphs_dir = "{0}/build/Glyph{1}".format(fdir_in, FontType[GlyphType.GlyS].capitalize())
-    if not os.path.exists(glyphs_dir):
-        os.makedirs(glyphs_dir)
+    return fpath_list
 
-    for fpath in fpath_list:
-        append_glyph(glyphs, fpath, GlyphType.GlyS, glyphs_dir)
 
-    fpath_installer = "{0}/build/Glyph{1}Installer.event".format(fdir_in, FontType[GlyphType.GlyS].capitalize())
-    make_installer(glyphs, GlyphType.GlyS, fpath_installer)
+def generate_from_list(fpath_in, fdir_in, fpath_out, prefix, overlay_item, overlay_talk, subdir_suffix, defines):
+    fpath_list = collect_font_lists(fpath_in, fdir_in, defines)
+    installers = []
 
-    # Generate text fonts
-    glyphs = {}
-    glyphs_dir = "{0}/build/Glyph{1}".format(fdir_in, FontType[GlyphType.GlyT].capitalize())
+    for gly_type, overlay_symbol in (
+        (GlyphType.GlyS, overlay_item),
+        (GlyphType.GlyT, overlay_talk),
+    ):
+        type_str = FontType[gly_type].capitalize()
+        build_subdir = "Glyph{0}{1}".format(type_str, subdir_suffix)
+        glyphs = {}
+        glyphs_dir = "{0}/build/{1}".format(fdir_in, build_subdir)
+        if not os.path.exists(glyphs_dir):
+            os.makedirs(glyphs_dir)
 
-    if not os.path.exists(glyphs_dir):
-        os.makedirs(glyphs_dir)
+        for fpath in fpath_list:
+            append_glyph(glyphs, fpath, gly_type, glyphs_dir, prefix)
 
-    for fpath in fpath_list:
-        append_glyph(glyphs, fpath, GlyphType.GlyT, glyphs_dir)
-
-    fpath_installer = "{0}/build/Glyph{1}Installer.event".format(fdir_in, FontType[GlyphType.GlyT].capitalize())
-    make_installer(glyphs, GlyphType.GlyT, fpath_installer)
+        fpath_installer = "{0}/build/{1}Installer.event".format(fdir_in, build_subdir)
+        make_installer(glyphs, gly_type, fpath_installer, prefix, overlay_symbol, build_subdir)
+        installers.append("build/{0}Installer.event".format(build_subdir))
 
     with open(fpath_out, 'w') as f:
         f.write("// Auto generated by glyph-installer-generator on {}\n\n".format(date.today()))
         f.write("ALIGN 4\n")
-        f.write("#include \"build/Glyph{}Installer.event\"\n".format(FontType[GlyphType.GlyS].capitalize()))
-        f.write("#include \"build/Glyph{}Installer.event\"\n".format(FontType[GlyphType.GlyT].capitalize()))
+        for installer in installers:
+            f.write("#include \"{0}\"\n".format(installer))
+
+def main(args):
+    sys.excepthook = show_exception_and_exit
+
+    argParser = argparse.ArgumentParser(description = "")
+    argParser.add_argument("-i", "--input", help = "input list file")
+    argParser.add_argument("-o", "--output", help = "output installer path")
+    argParser.add_argument("--prefix", default="", help = "glyph label prefix for overlay fonts")
+    argParser.add_argument("--overlay-item", default="", help = "overlay table symbol for item glyphs")
+    argParser.add_argument("--overlay-talk", default="", help = "overlay table symbol for talk glyphs")
+    argParser.add_argument("--subdir-suffix", default="", help = "build subdirectory suffix")
+    arguments = argParser.parse_args()
+
+    fpath_in = os.path.abspath(arguments.input)
+    fdir_in  = os.path.dirname(fpath_in)
+
+    fpath_out = arguments.output or "{0}/GlyphInstaller.event".format(fdir_in)
+    fpath_out = os.path.abspath(fpath_out)
+
+    if not os.path.exists(fpath_in):
+        sys.exit("File `{0}` doesn't exist.".format(fpath_in))
+
+    configs_h = os.path.abspath(os.path.join(fdir_in, '..', 'include', 'configs', 'configs.h'))
+    defines = load_defines(configs_h)
+
+    generate_from_list(
+        fpath_in,
+        fdir_in,
+        fpath_out,
+        arguments.prefix,
+        arguments.overlay_item,
+        arguments.overlay_talk,
+        arguments.subdir_suffix,
+        defines,
+    )
 
 if __name__ == '__main__':
     main(sys.argv[1:])
