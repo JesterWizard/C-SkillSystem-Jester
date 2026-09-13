@@ -9,7 +9,7 @@ const EventScr EventScrWM_Ch8_SET_NODE[] = {
     WM_LOADLOCATION2(WM_NODE_Renvall2) // Don't show the blue light effect
     WM_SETDESTINATION(WM_NODE_Renvall2)
     WM_DRAWPATH2(WM_PATH_07)
-    WmEvtSetUnitOnNode(WM_MU_0, WM_NODE_Renvall2) // ENOSUPP in EAstdlib
+    WM_SETUNITONNODE(WM_MU_0, WM_NODE_Renvall2)
     SKIPWN
     ENDA
 };

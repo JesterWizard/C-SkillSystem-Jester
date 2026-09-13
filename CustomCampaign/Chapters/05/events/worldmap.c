@@ -3,7 +3,7 @@
 const EventScr EventScrWM_Renval_CH5[] = {
     EVBIT_MODIFY(0x1)
     WM_SPAWNLORD(WM_MU_0, CHARACTER_EIRIKA, WM_NODE_Renvall2)
-    WmEvtSetCamToNode(WM_NODE_AdlasPlains) // ENOSUPP in EAstdlib
+    WM_SETCAMTONODE(WM_NODE_AdlasPlains)
     WM_FADEOUT(0)
     WM_TEXTDECORATE // WaitFade
     EVBIT_MODIFY(0x0)
@@ -11,8 +11,8 @@ const EventScr EventScrWM_Renval_CH5[] = {
     WM_WAITFORSPRITES(WM_MU_0)
     WM_MOVESPRITETO(WM_MU_0, 0x0004, WM_NODE_AdlasPlains, WM_NODE_Serafew, -2, 0)
     WM_WAITFORSPRITES(WM_MU_0)
-    WmEvtSetUnitOnNode(WM_MU_0, WM_NODE_Serafew) // ENOSUPP in EAstdlib
-    WmEvtSetNextStoryNode(WM_NODE_Serafew) // ENOSUPP in EAstdlib
+    WM_SETUNITONNODE(WM_MU_0, WM_NODE_Serafew)
+    WM_SETNEXTSTORYNODE(WM_NODE_Serafew)
     SKIPWN
     ENDA
 };
@@ -23,20 +23,8 @@ const EventScr EventScrWM_Ch5_SET_NODE[] = {
     CALL(EventScrWM_Renval_CH5)
     GOTO(0x2)
 LABEL(0x1)
-    EVBIT_MODIFY(0x1)
-    WM_SPAWNLORD(WM_MU_0, CHARACTER_EIRIKA, WM_NODE_ZahaWoods)
-    WM_CENTERCAMONLORD(WM_MU_0)
-    WM_FADEOUT(0)
-    WM_TEXTDECORATE // WaitFade
-    EVBIT_MODIFY(0x0)
-    STAL(20)
-    WM_LOADLOCATION3(WM_NODE_Serafew)
-    WM_SETDESTINATION(WM_NODE_Serafew)
-    // WM_CREATENEXTDESTINATION
-    WM_WAITFORFX
-    STAL(40)
-    WM_DRAWPATH(WM_PATH_04)
-    STAL(70)
+    WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_ZahaWoods)
+    WM_REVEAL_DEST(WM_NODE_Serafew, WM_PATH_04)
     WM_MAKELORDVISIBLE(WM_MU_0)
     EVBIT_MODIFY(0x1)
     CALL(EventScr_RemoveBGIfNeeded)
@@ -79,9 +67,7 @@ LABEL(0x1)
     WM_TEXT(Chapter_05_WM, 0)
 
     // An ominous feeling of dread washes over the continent...
-    SOUN(SONG_VOICE_CH05_LINE_0001)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0001)
 
     WM_WAITFORSPRITELOAD
     WM_FADEOUTSPRITE(WM_MU_2, 60)
@@ -95,50 +81,34 @@ LABEL(0x1)
     WM_REMSPRITE(WM_MU_4)
     WM_REMSPRITE(WM_MU_5)
     WM_REMSPRITE(WM_MU_6)
-    WmEvtRemoveBigMap // WM_WAITFORFXCLEAR1
+    WM_WAITFORFXCLEAR1
     WM_FADEOUTSPRITE(WM_MU_0, 1)
-    WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
-    WM_SHOWPORTRAIT(0, Overworld_Eirika, 0x0534, 0)
-    STAL(6)
-    STAL(46)
+    WM_WAITFORFXCLEAR2
+    WM_SHOW_FACE_WAIT(0, Overworld_Eirika, WM_FACE_RIGHT, 46)
 
     // Eirika's journey to find her brother Ephraim, grows ever more perilous.
-    SOUN(SONG_VOICE_CH05_LINE_0002)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0002)
 
     // Still, she presses on despite the danger, without rest.
-    SOUN(SONG_VOICE_CH05_LINE_0003)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0003)
 
     PUTSPRITE(WM_MU_2, CLASS_ARMOR_KNIGHT, WM_FACTION_RED, WM_NODE_Serafew)
     WM_FADEINSPRITE(WM_MU_2, 60)
 
     // However, a glimmer of hope now exists.
-    SOUN(SONG_VOICE_CH05_LINE_0004)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0004)
 
     // Having reunited Renais' former famed military commander: Garcia, with his son: Ross.
-    SOUN(SONG_VOICE_CH05_LINE_0005)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0005)
 
     // A temporary alliance has been born as the group now travels to Serafew.
-    SOUN(SONG_VOICE_CH05_LINE_0006)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0006)
 
     // A bustling border town located between Renais and Grado.
-    SOUN(SONG_VOICE_CH05_LINE_0007)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0007)
 
     // The people of both countries have long used the town as a meeting place.
-    SOUN(SONG_VOICE_CH05_LINE_0008)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0008)
 
     WM_WAITFORSPRITELOAD
     STAL(14)
@@ -147,14 +117,10 @@ LABEL(0x1)
     WM_WAITFORSPRITELOAD
 
     // It once stood as testimony to the harmony the nations have shared these many years.
-    SOUN(SONG_VOICE_CH05_LINE_0009)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0009)
 
     // Now however, it exists as a grim reflection of a friendship ruined...
-    SOUN(SONG_VOICE_CH05_LINE_0010)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH05_LINE_0010)
 
     WM_WAITFORSPRITES(WM_MU_ANY)
     STAL(20)

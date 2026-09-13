@@ -26,7 +26,7 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
     STAL(40)
     WM_DRAWPATH(WM_PATH_08)
     STAL(70)
-    WmEvtMoveCamToUnit(-1, -1, WM_MU_0, 46, 0) // ENOSUPP in EAstdlib
+    WM_MOVECAMTOUNIT(-1, -1, WM_MU_0, 46, 0)
     STAL(60)
     WM_WAITFORCAM
     MUSC(SONG_TREASURED_MEMORIES)
@@ -62,20 +62,16 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     WM_TEXT(Chapter_09_WM, 0)
 
     // The twins choose to travel by sea to the theocracy of Rausten.
-    SOUN(SONG_VOICE_CH09_LINE_0001)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0001)
 
     WM_HIGHLIGHTCLEAR1(WM_NATION_Rausten)
     WM_HIGHLIGHTCLEAR2(WM_NATION_Rausten)
-    WmEvtRemoveBigMap // WM_WAITFORFXCLEAR1
-    WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
+    WM_WAITFORFXCLEAR1
+    WM_WAITFORFXCLEAR2
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_BorderMulan, WM_NODE_PortKiris, -4, 0)
 
     // Their search for a ship leads them to Port Kiris in Carcino.
-    SOUN(SONG_VOICE_CH09_LINE_0002)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0002)
 
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_MAKELORDDISAPPEAR(WM_MU_0)
@@ -85,60 +81,41 @@ const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {
     STAL(30)
 
     // Carcino is a young nation ruled by a council of merchants, and it is an ally of Frelia.
-    SOUN(SONG_VOICE_CH09_LINE_0003)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0003)
 
     WM_HIGHLIGHTCLEAR1(WM_NATION_Carcino)
     WM_HIGHLIGHTCLEAR2(WM_NATION_Carcino)
-    WM_SHOWPORTRAIT(0, 0x0054, 0x02BC, 0)
-    STAL(6)
-    STAL(46)
+    WM_SHOW_FACE_WAIT(0, 0x0054, WM_FACE_LEFT, 46)
 
     // Carcino council leader Klimt, a staunch opponent of Grado's imperialistic actions,
     // has pledged Carcino's support to Frelia in this conflict.
-    SOUN(SONG_VOICE_CH09_LINE_0004)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0004)
 
-    WM_SHOWPORTRAIT(1, 0x0052, 0x0534, 0)
-    STAL(6)
-    STAL(46)
+    WM_SHOW_FACE_WAIT(1, 0x0052, WM_FACE_RIGHT, 46)
 
     // Prince Innes also intends to pass through Carcino on his way to Jehanna.
-    SOUN(SONG_VOICE_CH09_LINE_0005)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0005)
 
-    WM_CLEARPORTRAIT(0, 0x01BC, 0)
-    STAL(46)
-    WM_CLEARPORTRAIT(1, 0x0634, 0)
-    STAL(46)
-    WmEvtRemoveBigMap // WM_WAITFORFXCLEAR1
-    WmEvtWaitBigMapRemove // WM_WAITFORFXCLEAR2
+    WM_HIDE_FACE(0, WM_FACE_SLIDE_LEFT)
+    WM_HIDE_FACE(1, WM_FACE_SLIDE_RIGHT)
+    WM_WAITFORFXCLEAR1
+    WM_WAITFORFXCLEAR2
     WM_MOVECAM(-1, -1, 98, 28, 70, 10)
     STAL(30)
-    WM_SHOWPORTRAIT(0, 0x000F, 0x02BC, 0)
-    STAL(6)
-    STAL(46)
+    WM_SHOW_FACE_WAIT(0, 0x000F, WM_FACE_LEFT, 46)
     PUTSPRITE(WM_MU_2, CLASS_SNIPER, WM_FACTION_BLUE, WM_NODE_PortKiris)
     WM_MOVESPRITETO(WM_MU_2, 0x0003, WM_NODE_PortKiris, WM_NODE_TerazPlateau, 180, 0)
     WM_WAITFORCAM
 
     // Eirika believes there is nothing to fear in Carcino.
-    SOUN(SONG_VOICE_CH09_LINE_0006)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0006)
 
     // ...She is wrong.
-    SOUN(SONG_VOICE_CH09_LINE_0007)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH09_LINE_0007)
 
     WM_WAITFORCAM
     WM_WAITFORSPRITES(WM_MU_ANY)
-    WM_CLEARPORTRAIT(0, 0x01BC, 0)
-    STAL(46)
+    WM_HIDE_FACE(0, WM_FACE_SLIDE_LEFT)
     WM_REMSPRITE(WM_MU_2)
     STAL(90)
     WM_REMOVETEXT

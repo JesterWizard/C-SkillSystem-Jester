@@ -7,12 +7,6 @@
 #include "ap.h"
 #include "constants/worldmap.h"
 
-enum worldmap_unit_alignace {
-    WM_FACTION_BLUE  = 0,
-    WM_FACTION_RED   = 1,
-    WM_FACTION_GREEN = 2,
-};
-
 struct Unknown08206498
 {
     /* 00 */ u16 unk_00;

@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - -Iinclude
+    - -Iinclude/kernel
+    - -ITools/FE-CLib-Mokha/include
+    - -std=gnu99

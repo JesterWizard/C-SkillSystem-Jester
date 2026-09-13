@@ -118,6 +118,7 @@ From repo root: `make -j`. Confirm the new `*.lyn.event` files exist before assu
 | Empty lists | `Chapters/_shared/empty-event-lists.c` | Shared empty event / trap / tutorial lists |
 | Example chapter group | `Chapters/04/events/events.c` | Scripts plus `ChapterEventGroup` bindings for one chapter |
 | World-map example | `Chapters/00/events/worldmap.c` | Voice `SOUN` names during the prologue intro |
+| World-map macros | `Chapters/_shared/worldmap-macros.h` | SET_NODE / TRAVEL templates; see [WorldMapEditor.md](../Documentation/Features/WorldMapEditor.md) |
 | Text index | `Text/Text.txt` | Includes every chapter `text/*.txt` plus global text |
 | Text commands | `Notes/text_commands.txt` | Face / box / font control codes |
 | Voice ID assigner | `Music/assign_voice_song_ids.py` | Fills `SongTable(AUTO, ...)` from unused vanilla slots |

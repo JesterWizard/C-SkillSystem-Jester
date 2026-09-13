@@ -118,6 +118,12 @@ System-wide options are documented separately.
 
 - [System Config documentation](./SystemConfig.md)
 
+## World Map Authoring
+
+Custom campaign world-map intros are written as C EventScr with shared macros for SET_NODE / TRAVEL choreography.
+
+- [World Map Editor documentation](./WorldMapEditor.md)
+
 ## Credits
 
 [Credits documentation](./Credits.md)

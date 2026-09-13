@@ -1,7 +1,14 @@
 #pragma once
 
+#include "event.h"
+
 void ReduceBGMVolume(void);
 void SetMode(void);
+
+extern CONST_DATA EventScr EventScr_WM_FadeCommon[];
+extern CONST_DATA EventListScr EventScr_CallOnTutorialMode[];
+extern CONST_DATA EventScr EventScrWM_Ch3_BeginningTutorial[];
+extern const EventScr EventScr_Tutorial_SKILL_SCROLL[];
 
 extern const EventScr EventScrWM_PrologueSkip[];
 extern const EventScr EventScrWM_Prologue_SET_NODE[];

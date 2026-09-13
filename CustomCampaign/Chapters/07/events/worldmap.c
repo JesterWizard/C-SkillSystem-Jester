@@ -1,24 +1,9 @@
 #include "../../_shared/worldmap-include.h"
 
 const EventScr EventScrWM_Ch7_SET_NODE[] = {
-    EVBIT_MODIFY(0x1)
-    WM_SPAWNLORD(WM_MU_0, CHARACTER_EIRIKA, WM_NODE_AdlasPlains)
-    WM_CENTERCAMONLORD(WM_MU_0)
-    WM_FADEOUT(0)
-    WM_TEXTDECORATE // WaitFade
-    EVBIT_MODIFY(0x0)
-    STAL(20)
-    WM_LOADLOCATION3(WM_NODE_Renvall1)
-    WM_SETDESTINATION(WM_NODE_Renvall1)
-    // WM_CREATENEXTDESTINATION
-    WM_WAITFORFX
-    STAL(40)
-    WM_DRAWPATH(WM_PATH_06)
-    STAL(70)
-    WM_MAKELORDVISIBLE(WM_MU_0)
-    EVBIT_MODIFY(0x1)
-    CALL(EventScr_RemoveBGIfNeeded)
-    ENDA
+    WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_AdlasPlains)
+    WM_REVEAL_DEST(WM_NODE_Renvall1, WM_PATH_06)
+    WM_CLOSE_SET_NODE()
 };
 
 const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
@@ -31,47 +16,31 @@ const EventScr EventScrWM_Ch7_TRAVEL_TO_NODE[] = {
     CALL(EventScr_WM_FadeCommon)
     WM_TEXTSTART
     WM_TEXT(Chapter_07_WM, 0)
-    
-    // Rumors say that Ephraim has been defeated and taken prisoner.
-    SOUN(SONG_VOICE_CH07_LINE_0001)
-    TEXTCONT
-    TEXTEND
 
-    WM_SHOWPORTRAIT(0, 0x0002, 0x0534, 0) // Eirika
-    STAL(6)
-    STAL(46)
+    // Rumors say that Ephraim has been defeated and taken prisoner.
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0001)
+
+    WM_SHOW_FACE_WAIT(0, 0x0002, WM_FACE_RIGHT, 46) // Eirika
 
     // Now Eirika must find a way to rescue her brother from beneath enemy eyes.
-    SOUN(SONG_VOICE_CH07_LINE_0002)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0002)
 
     WM_MOVESPRITETO(WM_MU_0, 0x0002, WM_NODE_AdlasPlains, WM_NODE_Renvall1, -8, 0)
-    
+
     // Eirika's company rushes toward Castle Renvall, where Ephraim is being held.
-    SOUN(SONG_VOICE_CH07_LINE_0003)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0003)
 
     // Surrounded by lakes, Renvall is a natural fortress, all but unassailable.
-    SOUN(SONG_VOICE_CH07_LINE_0004)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0004)
 
     // A lone bridge, held by the enemy, is its only entrance.
-    SOUN(SONG_VOICE_CH07_LINE_0005)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0005)
 
     // Eirika has only one choice.
-    SOUN(SONG_VOICE_CH07_LINE_0006)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0006)
 
     // She resolves to confront Grado's soldiers head on...
-    SOUN(SONG_VOICE_CH07_LINE_0007)
-    TEXTCONT
-    TEXTEND
+    WM_VOICE_LINE(SONG_VOICE_CH07_LINE_0007)
 
     WM_WAITFORSPRITES(WM_MU_ANY)
     WM_REMOVETEXT

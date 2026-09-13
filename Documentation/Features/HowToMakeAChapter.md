@@ -103,6 +103,7 @@ If the chapter has no prep screen, the player unit fields should usually be `NUL
 | Chapter ROM data | [CustomCampaign/Chapters/04/events/chapter.c](../../CustomCampaign/Chapters/04/events/chapter.c) | Defines the chapter's `ROMChapterData` entry |
 | Chapter dialogue | [CustomCampaign/Chapters/04/text](../../CustomCampaign/Chapters/04/text) | Opening, in-map, and ending text IDs |
 | World-map scripts | [CustomCampaign/Chapters/04/events/worldmap.c](../../CustomCampaign/Chapters/04/events/worldmap.c) | Set-node and travel events for this chapter |
+| World-map authoring macros | [WorldMapEditor.md](./WorldMapEditor.md) | EA-friendly `WM_*` macros, `gmapEventId` wiring, and SET_NODE / TRAVEL templates |
 | Chapter voice lines | [CustomCampaign/Chapters/04/music](../../CustomCampaign/Chapters/04/music) | Per-chapter voiced intro songs; listed from `music/installer.event` |
 | Voice song IDs | [CustomCampaign/Music/assign_voice_song_ids.py](../../CustomCampaign/Music/assign_voice_song_ids.py) | Picks unused vanilla song-table slots; run `make assign_voice_songs` after adding a line with `SongTable(AUTO, ...)` |
 

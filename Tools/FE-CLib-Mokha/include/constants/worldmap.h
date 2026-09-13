@@ -132,4 +132,10 @@ enum wm_mu_idx {
     WM_MU_ANY = -1,
 };
 
+enum wm_unit_faction {
+    WM_FACTION_BLUE  = 0,
+    WM_FACTION_RED   = 1,
+    WM_FACTION_GREEN = 2,
+};
+
 #endif // GUARD_CONSTANTS_NODES_H
