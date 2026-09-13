@@ -46,6 +46,8 @@ int HelpBoxDescLinesToSkip(void);
 const char *HelpBoxSkipDescLines(const char *str, int linesToSkip);
 void HelpBoxDrawPageIndicator(void);
 void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW);
+void HelpBoxEnsurePageNumGfx(void);
+bool HelpBoxTryAdvancePage(void);
 
 /* From decomp */
 

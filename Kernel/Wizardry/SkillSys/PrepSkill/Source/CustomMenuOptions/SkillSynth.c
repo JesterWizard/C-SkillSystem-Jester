@@ -10,6 +10,7 @@
 #include "icon-rework.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
+#include "help-box.h"
 
 struct SkillSynthListProc {
     PROC_HEADER;
@@ -268,9 +269,9 @@ static void SkillSynth_BuildScrollList(struct SkillSynthListProc *proc)
 }
 
 #define SKILL_SYNTH_VISIBLE 7
-#define SKILL_SYNTH_LIST_X 17
+#define SKILL_SYNTH_LIST_X 16
 #define SKILL_SYNTH_LIST_Y 5
-#define SKILL_SYNTH_LIST_HAND_X 0x88
+#define SKILL_SYNTH_LIST_HAND_X 0x80
 
 static char *SkillSynth_GetName(u16 item)
 {
@@ -486,7 +487,8 @@ static void SkillSynth_InitTexts(void)
     for (i = 0; i < 8; ++i)
         InitText(PrepItemSuppyTexts.th + 7 + i, 7);
 
-    InitText(&PrepItemSuppyTexts.th[0], 0xA);
+    InitText(&PrepItemSuppyTexts.th[0], 12);
+    InitText(&PrepItemSuppyTexts.th[5], 8);
     InitText(&PrepItemSuppyTexts.th[2], 8);
     InitText(&PrepItemSuppyTexts.th[3], 8);
     InitText(&PrepItemSuppyTexts.th[4], 8);
@@ -496,6 +498,8 @@ static void SkillSynth_DrawHeader(void)
 {
     SetTextFont(NULL);
     TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 5, 1), 15, 4, 0);
+    ClearText(&PrepItemSuppyTexts.th[0]);
+    ClearText(&PrepItemSuppyTexts.th[5]);
 
     PutDrawText(
         &PrepItemSuppyTexts.th[0],
@@ -503,7 +507,15 @@ static void SkillSynth_DrawHeader(void)
         TEXT_COLOR_SYSTEM_WHITE,
         2,
         0,
-        Utf8ToNarrowFonts(GetStringFromIndex(MSG_PREP_SCREEN_TITLE_SKILL_SYNTH))
+        "Combine two"
+    );
+    PutDrawText(
+        &PrepItemSuppyTexts.th[5],
+        TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 4),
+        TEXT_COLOR_SYSTEM_WHITE,
+        2,
+        0,
+        "skills"
     );
     PutFaceChibi(FID_SUPPLY + 1, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 1), 0x270, 2, 0);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -587,6 +599,20 @@ static void SkillSynth_PlaceCursor(struct SkillSynthListProc *proc)
     proc->handX = SKILL_SYNTH_LIST_HAND_X;
     proc->handY = yPos;
     SkillSynth_PlaceFocusHand(proc);
+}
+
+static void SkillSynth_ShowHelpBox(struct SkillSynthListProc *proc)
+{
+    int idx = proc->idxPerPage[0];
+    u16 item;
+
+    if (idx < 0 || idx >= gUnknown_02012F56)
+        return;
+
+    item = gPrepScreenItemList[idx].item;
+    HelpBoxResetPageState();
+    StartItemHelpBox(SKILL_SYNTH_LIST_HAND_X, proc->handY, item);
+    proc->unk_36 = 1;
 }
 
 static void SkillSynth_EnsureCursorVisible(struct SkillSynthListProc *proc)
@@ -688,6 +714,7 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     BG_SetPosition(2, 0, 0);
 
     LoadHelpBoxGfx((void *)0x06012000, -1);
+    HelpBoxEnsurePageNumGfx();
     LoadIconPalettes(4);
     RestartMuralBackground();
 
@@ -763,15 +790,7 @@ static void SkillSynth_ExitConfirm(struct SkillSynthListProc *proc)
     StartUiCursorHand(proc);
     HideSysHandCursor();
     SkillSynth_PlaceCursor(proc);
-    ClearText(&PrepItemSuppyTexts.th[0]);
-    PutDrawText(
-        &PrepItemSuppyTexts.th[0],
-        TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2),
-        TEXT_COLOR_SYSTEM_WHITE,
-        2,
-        0,
-        Utf8ToNarrowFonts(GetStringFromIndex(MSG_PREP_SCREEN_TITLE_SKILL_SYNTH))
-    );
+    SkillSynth_DrawHeader();
     SkillSynth_DrawPreview(proc);
 }
 
@@ -818,12 +837,7 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
                     return;
                 }
 
-                StartItemHelpBox(
-                    SKILL_SYNTH_LIST_HAND_X,
-                    proc->idxPerPage[proc->currentPage] * 16 + 40 - proc->yOffsetPerPage[proc->currentPage],
-                    gPrepScreenItemList[proc->idxPerPage[proc->currentPage]].item
-                );
-                proc->unk_36 = 1;
+                SkillSynth_ShowHelpBox(proc);
                 return;
             }
 
@@ -881,7 +895,11 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
                     proc->confirmChoice = 0;
                     SkillSynth_DrawPreview(proc);
                     SkillSynth_SetupConfirmSprites(resultSid);
+                    CloseHelpBox();
+                    proc->unk_36 = 0;
                     ClearText(&PrepItemSuppyTexts.th[0]);
+                    ClearText(&PrepItemSuppyTexts.th[5]);
+                    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 5, 1), 15, 4, 0);
                     PutDrawText(
                         &PrepItemSuppyTexts.th[0],
                         TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2),
@@ -938,7 +956,15 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
                 ShowSysHandCursor(68, proc->confirmChoice == 0 ? 36 : 52, 0x4, 0x000);
                 return;
             }
+        } else if (gKeyStatusPtr->newKeys & (R_BUTTON | B_BUTTON)) {
+            CloseHelpBox();
+            proc->unk_36 = 0;
+            return;
+        } else if (HelpBoxTryAdvancePage()) {
+            return;
+        }
 
+        if (proc->state != SKILL_SYNTH_STATE_CONFIRM) {
             proc->scrollAmount = 16;
 
             if ((gKeyStatusPtr->repeatedKeys & DPAD_UP) ||
@@ -952,23 +978,17 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
                 if (proc->idxPerPage[0] < gUnknown_02012F56 - 1)
                     proc->idxPerPage[0]++;
             }
-        } else if (gKeyStatusPtr->newKeys & (R_BUTTON | B_BUTTON)) {
-            CloseHelpBox();
-            proc->unk_36 = 0;
-            return;
         }
     }
 
     if (idx != proc->idxPerPage[0] && proc->state != SKILL_SYNTH_STATE_CONFIRM) {
-        u16 item = gPrepScreenItemList[proc->idxPerPage[0]].item;
-
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         SkillSynth_EnsureCursorVisible(proc);
         SkillSynth_RedrawList(proc);
         SkillSynth_PlaceCursor(proc);
 
         if (proc->unk_36 != 0)
-            StartItemHelpBox(SKILL_SYNTH_LIST_HAND_X, proc->handY, item);
+            SkillSynth_ShowHelpBox(proc);
     }
 }
 
@@ -976,6 +996,7 @@ static void SkillSynth_OnEnd(struct SkillSynthListProc *proc)
 {
     EndAllParallelWorkers();
     EndAllProcChildren(proc);
+    CloseHelpBox();
     EndFaceById(0);
     EndMuralBackground_();
     ClearBg0Bg1();

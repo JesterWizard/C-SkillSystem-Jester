@@ -10,6 +10,8 @@
 #include "scene.h"
 #include "statscreen.h"
 
+extern u8 gUnknown_08A02274[]; /* Img_StatscreenObjs: slash 0x289, digits 0x28A+ */
+
 void HelpBoxResetPageState(void)
 {
 	sHelpBoxPageState.page = 0;
@@ -193,7 +195,7 @@ void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1)
 		return;
 
-	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + 0 => "1" */
+	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + (page + 1) => "1" */
 	tot = sHelpBoxPageState.page_count;
 
 	/* Right side, same Y as the "Help" badge. */
@@ -203,9 +205,52 @@ void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 
 	oam2 = TILEREF(0x289, HELP_BOX_PAGE_NUM_OBJPAL);
 
-	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + cur);
-	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2 - 1);
-	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + (tot - 1));
+	/* Vanilla sheet: 0x289 = "/", 0x28A = "1", 0x28B = "2", ... */
+	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + cur + 1);
+	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2);
+	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + tot);
+}
+
+void HelpBoxEnsurePageNumGfx(void)
+{
+	if (!HelpBoxModePaged())
+		return;
+
+	/*
+	 * Status-screen object sheet (gUnknown_08A02274 / Img_StatscreenObjs):
+	 * slash at 0x289, digits from 0x28A ("1"). StartItemHelpBox never loads this.
+	 */
+	Decompress(gUnknown_08A02274, (void *)(OBJ_VRAM0 + 0x240 * TILE_SIZE_4BPP));
+}
+
+bool HelpBoxTryAdvancePage(void)
+{
+	struct HelpBoxProc *hb;
+	int item;
+	int mid;
+
+	if (!HelpBoxModePaged() ||
+		sHelpBoxPageState.page_count <= 1 ||
+		!(gKeyStatusPtr->newKeys & A_BUTTON))
+		return false;
+
+	hb = Proc_Find(gProcScr_HelpBox);
+	if (!hb)
+		hb = Proc_Find(ProcScr_Helpbox_bug_08A01678);
+	if (!hb)
+		return false;
+
+	item = hb->item;
+	mid = hb->mid;
+
+	sHelpBoxPageState.page++;
+	if (sHelpBoxPageState.page >= sHelpBoxPageState.page_count)
+		sHelpBoxPageState.page = 0;
+
+	PlaySoundEffect(0x67);
+	ClearHelpBoxText();
+	StartHelpBoxTextInit(item, mid);
+	return true;
 }
 
 LYN_REPLACE_CHECK(HbMoveCtrl_OnIdle);
@@ -239,40 +284,8 @@ void HbMoveCtrl_OnIdle(struct HelpBoxProc *proc)
 		return;
 	}
 
-	if (HelpBoxModePaged() &&
-		sHelpBoxPageState.page_count > 1 &&
-		(gKeyStatusPtr->newKeys & A_BUTTON)) {
-		struct HelpBoxProc *hb = Proc_Find(gProcScr_HelpBox);
-		int item;
-		int mid;
-
-		/*
-		 * HbMoveCtrl's own item/mid are never filled — use the live help-box
-		 * proc (or info->mid as fallback). Wrong mid was leaving page 2 blank
-		 * until the box was closed and reopened.
-		 */
-		if (!hb)
-			hb = Proc_Find(ProcScr_Helpbox_bug_08A01678);
-
-		if (hb) {
-			item = hb->item;
-			mid = hb->mid;
-		} else if (proc->info) {
-			item = 0;
-			mid = proc->info->mid;
-		} else {
-			return;
-		}
-
-		sHelpBoxPageState.page++;
-		if (sHelpBoxPageState.page >= sHelpBoxPageState.page_count)
-			sHelpBoxPageState.page = 0;
-
-		PlaySoundEffect(0x67);
-		ClearHelpBoxText();
-		StartHelpBoxTextInit(item, mid);
+	if (HelpBoxTryAdvancePage())
 		return;
-	}
 
 	if (boxMoved) {
 #if CHAX

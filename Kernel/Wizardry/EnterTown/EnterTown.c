@@ -306,7 +306,7 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
 
     {
         .name = " Skill Synth",
-        .nameMsgId = MSG_PREP_SCREEN_TITLE_SKILL_SYNTH,
+        .nameMsgId = MSG_WM_SKILL_SYNTH_NAME,
         .helpMsgId = MSG_PREP_SCREEN_DESC_SKILL_SYNTH,
         .overrideId = 7,
         .isAvailable = WMMenu_IsSkillSynthAvailable,

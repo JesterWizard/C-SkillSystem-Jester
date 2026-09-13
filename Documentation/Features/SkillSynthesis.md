@@ -29,7 +29,7 @@ Skill Synthesis adds a prep and world map menu that combines two skill scrolls f
 - Open **Synthesize** from the prep menu or from a world map node menu.
 - Press `A` to pick the first scroll, then `A` on a different scroll for the second ingredient.
 - Confirm synthesis when a valid recipe is shown.
-- Press `B` to clear the current pick or exit. Press `R` for the scroll help box.
+- Press `B` to clear the current pick or exit. Press `R` for the scroll help box. With R-text open, up/down moves the list and `A` pages long descriptions.
 
 ---
 
