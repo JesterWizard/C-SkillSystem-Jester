@@ -96,6 +96,7 @@ struct KernelDesigerConfig {
 	u8 prep_menu_bexp;
 	u8 prep_menu_event_replay;
 	u8 prep_menu_infuse;
+	u8 prep_menu_skill_synth;
 	u8 prep_menu_skills;
 	u8 prestige;
 	u8 promote_enemy_boost;

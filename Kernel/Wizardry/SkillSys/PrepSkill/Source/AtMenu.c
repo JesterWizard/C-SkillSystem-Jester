@@ -67,6 +67,13 @@ void PrepScreenMenu_OnEventReplay(struct ProcAtMenu *proc)
     Proc_Goto(proc, 0xA);
 }
 
+void PrepScreenMenu_OnSkillSynth(struct ProcAtMenu *proc)
+{
+    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    proc->state = 12;
+    Proc_Goto(proc, 0xA);
+}
+
 /* -----------------------------------------------------------------------
  * ROM-backed menu item table.
  * Placed after all callbacks it references so no forward declarations are
@@ -90,6 +97,7 @@ static const struct PrepMenuItem gPrepMenuTable[] = {
     { PREP_MAINMENU_AUGURY,             PrepScreenMenu_OnAugury,            TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_AUGURY,             MSG_PREP_SCREEN_DESC_AUGURY,             0 },
     { PREP_MAINMENU_BONUS_EXP,          PrepScreenMenu_OnBEXP,              TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BEXP,               MSG_PREP_SCREEN_DESC_BEXP,               0 },
     { PREP_MAINMENU_SKILLS,             PrepScreenMenu_OnEquip,             TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILLS,             MSG_PREP_SCREEN_DESC_SKILLS,             0 },
+    { PREP_MAINMENU_SKILL_SYNTH,        PrepScreenMenu_OnSkillSynth,        TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SKILL_SYNTH,        MSG_PREP_SCREEN_DESC_SKILL_SYNTH,        0 },
     { PREP_MAINMENU_BASE_CONVERSATIONS, PrepScreenMenu_OnBaseConversations, TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS, MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS, 0 },
     { PREP_MAINMENU_EVENT_REPLAY,        PrepScreenMenu_OnEventReplay,        TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_EVENT_REPLAY,        MSG_PREP_SCREEN_DESC_EVENT_REPLAY,        0 },
     { PREP_MAINMENU_SUPPORT,            PrepScreenMenu_OnSupport,           TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT,            MSG_PREP_SCREEN_DESC_SUPPORT,            0 },
@@ -134,6 +142,7 @@ void AtMenu_StartSubmenu(struct ProcAtMenu *proc)
         case PREP_MAINMENU_AUGURY + 1:             StartAuguryScreen_FromPrep(proc);        break;
         case PREP_MAINMENU_INFUSE + 1:             StartInfuseScreen_FromPrep(proc);        break;
         case PREP_MAINMENU_EVENT_REPLAY + 1:       StartEventReplayScreen_FromPrep(proc);   break;
+        case PREP_MAINMENU_SKILL_SYNTH + 1:        StartSkillSynthScreen_FromPrep(proc);    break;
         default: break;
     }
 
@@ -510,6 +519,9 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 
         if (gpKernelDesignerConfig->prep_menu_skills == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
+
+        if (gpKernelDesignerConfig->prep_menu_skill_synth == true)
+            SetPrepScreenMenuItem(PREP_MAINMENU_SKILL_SYNTH, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 
         if (gpKernelDesignerConfig->prep_menu_base_conversations == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_BASE_CONVERSATIONS, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);

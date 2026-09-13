@@ -27,6 +27,7 @@ extern struct ProcCmd CONST_DATA ProcScr_WorldMapWrapper[];
 extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
 extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
 extern void StartBEXPScreen_FromWorldMap(void);
+extern void StartSkillSynthScreen_FromWorldMap(void);
 extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
 extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
 
@@ -217,6 +218,21 @@ u8 WMMenu_IsManageBEXPAvailable(const struct MenuItemDef * def, int number)
     return MENU_ENABLED;
 }
 
+u8 WMMenu_IsSkillSynthAvailable(const struct MenuItemDef * def, int number)
+{
+    if (gpKernelDesignerConfig->prep_menu_skill_synth == false)
+        return MENU_NOTSHOWN;
+
+    return MENU_ENABLED;
+}
+
+u8 WMMenu_OnSkillSynthSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    gGMData.unk_cd = menuProc->itemCurrent;
+    StartSkillSynthScreen_FromWorldMap();
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
 u8 WMMenu_OnManageBEXPSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
     gGMData.unk_cd = menuProc->itemCurrent;
@@ -289,10 +305,19 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
     },
 
     {
+        .name = " Skill Synth",
+        .nameMsgId = MSG_PREP_SCREEN_TITLE_SKILL_SYNTH,
+        .helpMsgId = MSG_PREP_SCREEN_DESC_SKILL_SYNTH,
+        .overrideId = 7,
+        .isAvailable = WMMenu_IsSkillSynthAvailable,
+        .onSelected = WMMenu_OnSkillSynthSelected,
+    },
+
+    {
         .name = "　アイテム整理",
         .nameMsgId = 0x0671, // TODO: msgid " Manage Items[.]"
         .helpMsgId = 0x0678,
-        .overrideId = 7,
+        .overrideId = 8,
         .isAvailable = MenuAlwaysEnabled,
         .onSelected = WMMenu_OnManageItemsSelected,
     },

@@ -217,6 +217,12 @@ Upgrade selected[N]
 weapons and items by[N]
 using dragon glass.[X]
 
+## MSG_PREP_SCREEN_TITLE_SKILL_SYNTH
+Synthesize[X]
+## MSG_PREP_SCREEN_DESC_SKILL_SYNTH
+Combine two skill scrolls[N]
+into a new skill scroll.[X]
+
 ## MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS
 Base[X]
 ## MSG_PREP_SCREEN_DESC_BASE_CONVERSATIONS

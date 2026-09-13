@@ -9,7 +9,7 @@ ROM space distribution is configured in [config-memmap.h](../include/configs/con
 <!-- markdownlint-disable MD060 -->
 | Address     | Size      | Usage                                    |
 |-------------|-----------|------------------------------------------|
-| `0x00E8414` | `0x785A8` | Kernel text section (**in-BL range**)    |
+| `0x00E8414` | `0x7C000` | Kernel text section (**in-BL range**)    |
 | `0x09875AC` | `0x0F000` | Kernel data section (secure)             |
 | `0x0B2A604` | `0xD59FC` | Common data section (non-secure)         |
 | `0x0EFB2E0` | `0xE4D20` | Font                                     |

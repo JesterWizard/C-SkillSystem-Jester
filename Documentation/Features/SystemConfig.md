@@ -11,6 +11,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | Field | Description |
 | :---- | :---------- |
 | `prep_menu_skills` | Enables Three Houses style skill equipment in the prep screen. If disabled, the skill equip option is removed. |
+| `prep_menu_skill_synth` | Enables the skill scroll synthesis menu in prep and on the world map node menu. See [SkillSynthesis](./SkillSynthesis.md). |
 | `gen_new_scroll` | Controls what happens when a unit uses a skill scroll while all equipable skill slots are full. |
 | `max_equipable_skill` | Maximum number of dynamically equipable skills per unit, from `0` to `7`. |
 | `remove_move_path` | Disables move-path calculation and display. This is useful because vanilla move-path display only supports up to 20 steps and can overflow with high-move units. |

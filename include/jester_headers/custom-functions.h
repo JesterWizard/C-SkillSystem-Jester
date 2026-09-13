@@ -201,6 +201,8 @@ extern u8 Gfx_UI_Number_9[];
 
 extern void ShootArrow_ASMC(void);
 void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
+void StartSkillSynthScreen_FromPrep(struct ProcAtMenu *parent);
+void StartSkillSynthScreen_FromWorldMap(void);
 
 extern void List_PutHighlightedCategorySprites_INFUSE(struct PrepItemListProc *proc);
 extern void drawItems_INFUSE(struct Text *textBase, u16 *tm, int yLines, struct Unit *unit);

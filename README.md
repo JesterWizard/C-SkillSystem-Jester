@@ -190,6 +190,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 - [Shield Item](./Documentation/Features/ShieldItem.md)
 - [Skill Icon Palettes](./Documentation/Features/SkillIconPalettes.md)
 - [Skill System](./Documentation/Features/SkillSys.md)
+- [Skill Synthesis Menu](./Documentation/Features/SkillSynthesis.md)
 - [Skills Glossary](./Documentation/Features/SkillInfo.md)
 - [Start Map Effects](./Documentation/Features/StartMapEffects.md)
 - [Stat Screen Promotions](./Documentation/Features/StatScreenPromotions.md)

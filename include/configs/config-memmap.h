@@ -5,7 +5,7 @@
  * ------------------------------------------
  * Address  | Size  | Usage
  * ------------------------------------------
- * 080E8414 | 785A8 | Kernel .text
+ * 080E8414 | 7C000 | Kernel .text
  * 089875AC | 0F000 | Kernel .rodata (secure)
  * 08B2A604 | D59FC | user configurable .rodata (none-secure)
  * 08EFB2E0 | E4D20 | Font .rodata
@@ -13,7 +13,7 @@
  * ------------------------------------------
  */
 #define KernelSpace_Text 0x0E8414
-#define KernelSpace_TextSize 0x785A8 
+#define KernelSpace_TextSize 0x7C000 
 
 #define KernelSpace_Data 0x9875AC
 #define KernelSpace_DataSize 0xF000

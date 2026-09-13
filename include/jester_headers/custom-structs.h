@@ -124,6 +124,27 @@ struct InfuseRecipe {
 
 extern const struct InfuseRecipe gInfusionLookupTable[256];
 
+struct SkillSynthRecipe {
+    u16 sid_a;
+    u16 sid_b;
+    u16 sid_result;
+};
+
+enum {
+    SKILL_SYNTH_STATE_LIST = 0,
+    SKILL_SYNTH_STATE_CONFIRM = 1,
+    SKILL_SYNTH_STATE_POPUP_WAIT = 2,
+};
+
+enum {
+    PL_SKILL_SYNTH_INIT = 0,
+    PL_SKILL_SYNTH_SHOW_CURSOR = 1,
+    PL_SKILL_SYNTH_IDLE = 2,
+    PL_SKILL_SYNTH_PRESS_B = 3,
+    PL_SKILL_SYNTH_END = 4,
+    PL_SKILL_SYNTH_WM_ENTRY = 5,
+};
+
 extern u16 gBEXP_Total;
 extern u8 gTopVisibleListIndex;
 extern u8 gBEXP_State;

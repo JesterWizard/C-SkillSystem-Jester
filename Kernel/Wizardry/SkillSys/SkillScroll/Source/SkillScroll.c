@@ -131,7 +131,7 @@ static int GetSkillIdFromScroll(int item)
 	return 0;
 }
 
-static u16 MakeSkillScrollItem(u16 sid)
+u16 MakeSkillScrollItem(u16 sid)
 {
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
 	if (sid > 0x2FF)

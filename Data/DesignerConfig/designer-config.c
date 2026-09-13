@@ -102,6 +102,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.prep_menu_bexp = true,
 	.prep_menu_event_replay = false,
 	.prep_menu_infuse = false,
+	.prep_menu_skill_synth = true,
 	.prep_menu_skills = true,
 	.prestige = true,
 	.promote_enemy_boost = 3,
