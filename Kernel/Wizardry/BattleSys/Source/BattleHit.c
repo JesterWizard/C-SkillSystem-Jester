@@ -27,6 +27,10 @@ void BattleUpdateBattleStats(struct BattleUnit* attacker, struct BattleUnit* def
 	int hitRate = attacker->battleEffectiveHitRate;
 	int critRate = attacker->battleEffectiveCritRate;
 	int silencerRate = attacker->battleSilencerRate;
+	bool last_weapon_hit = IsLastWeaponHit(attacker);
+
+	if (last_weapon_hit)
+		critRate = 100;
 
 	/* Fasten simulation */
 	if (gBattleStats.config & BATTLE_CONFIG_SIMULATE) {
@@ -90,6 +94,9 @@ void BattleUpdateBattleStats(struct BattleUnit* attacker, struct BattleUnit* def
 	LIMIT_AREA(hitRate, 0, 100);
 	LIMIT_AREA(critRate, 0, 100);
 	LIMIT_AREA(silencerRate, 0, 100);
+
+	if (last_weapon_hit)
+		critRate = 100;
 
 	gBattleStats.attack = attack;
 	gBattleStats.defense = defense;

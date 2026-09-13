@@ -187,6 +187,7 @@ struct KernelDesigerConfig {
 	u8 fe7_mode_select; /* FE7 difficulty select; off uses FE8 NewNewGameDifficultySelect */
 	u8 vesly_reclass; /* Heart Seal reclass via juna fruit; off uses vanilla juna fruit */
 	u8 vesly_draw_animations; /* extra map-action animations; off keeps vanilla map anims */
+	u8 last_weapon_hit_crit; /* remaining uses <= this hit's cost: guaranteed crit */
 };
 
 struct KernelBattleDesignerConfig {

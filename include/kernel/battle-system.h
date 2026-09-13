@@ -162,6 +162,7 @@ extern u16 BattleOrderSkills[BORDER_MAX];
 #define RegisterBattleOrderSkill(sid, type) (BattleOrderSkills[type] = (sid))
 
 int GetWeaponCost(struct BattleUnit *bu, u16 item);
+bool IsLastWeaponHit(struct BattleUnit *attacker);
 
 extern struct Vec2 gBattleTargetPositionBackup;
 

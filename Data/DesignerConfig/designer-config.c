@@ -73,6 +73,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.konami_style_bonus_screen = true,
 	.l_button_same_faction_cycling = true,
 	.laguz_bars = false,
+	.last_weapon_hit_crit = true,
 	.leadership = true,
 	.lights_out_game = false,
 	.limited_shop_items = true,

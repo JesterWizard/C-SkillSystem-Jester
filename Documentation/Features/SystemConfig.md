@@ -51,6 +51,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `vesly_reclass` | Makes the juna fruit a Heart Seal reclass item. Off uses vanilla juna fruit (name/icon stay Heart Seal). |
 | `vesly_notification_window` | Shows map notification toasts. Off skips them; flag hooks stay installed. |
 | `vesly_draw_animations` | Plays extra map-action animations. Off keeps vanilla map anims; animation assets stay installed. |
+| `last_weapon_hit_crit` | Guarantees a critical on any combat strike whose remaining weapon uses are less than or equal to that hit's durability cost. Covers starting a fight on 1 use and dropping to 1 use mid-battle. Unbreakable, 0xFF-use, and special-slot weapons are excluded. |
 
 ### Skill Scroll Behavior
 

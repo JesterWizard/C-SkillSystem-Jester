@@ -162,7 +162,7 @@ int BattleHit_CalcDamage(struct BattleUnit* attacker, struct BattleUnit* defende
 		SetPartyGoldAmount(GetPartyGoldAmount() + SKILL_EFF0(SID_Chipper));
 #endif
 	 
-	if (BattleRoll1RN(gBattleStats.critRate, false)) {
+	if (BattleRoll1RN(gBattleStats.critRate, false) || IsLastWeaponHit(attacker)) {
 		gBattleHitIterator->attributes |= BATTLE_HIT_ATTR_CRIT;
 		gDmg.crit_atk = true;
 

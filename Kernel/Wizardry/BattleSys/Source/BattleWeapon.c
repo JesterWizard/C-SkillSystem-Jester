@@ -706,6 +706,34 @@ int GetWeaponCost(struct BattleUnit *bu, u16 item)
 	return cost;
 }
 
+bool IsLastWeaponHit(struct BattleUnit *attacker)
+{
+	int uses;
+	int cost;
+
+	if (!gpKernelDesignerConfig->last_weapon_hit_crit)
+		return false;
+
+	if (!attacker || !attacker->weapon)
+		return false;
+
+	if (CheckUnbreakableSpecialSlot(attacker->weaponSlotIndex))
+		return false;
+
+	if (GetItemAttributes(attacker->weapon) & IA_UNBREAKABLE)
+		return false;
+
+	uses = GetItemUses(attacker->weapon);
+	if (uses <= 0 || uses >= 0xFF)
+		return false;
+
+	cost = GetWeaponCost(attacker, attacker->weapon);
+	if (cost <= 0)
+		return false;
+
+	return uses <= cost;
+}
+
 LYN_REPLACE_CHECK(GetUnitWeaponUsabilityBits);
 int GetUnitWeaponUsabilityBits(struct Unit *unit)
 {

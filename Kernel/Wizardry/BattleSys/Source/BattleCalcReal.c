@@ -403,6 +403,9 @@ void ComputeBattleUnitEffectiveCritRate(struct BattleUnit* attacker, struct Batt
             break;
         }
     }
+
+	if (IsLastWeaponHit(attacker))
+		attacker->battleEffectiveCritRate = 100;
 }
 
 LYN_REPLACE_CHECK(ComputeBattleUnitEffectiveStats);
