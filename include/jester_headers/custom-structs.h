@@ -130,6 +130,8 @@ struct SkillSynthRecipe {
     u16 sid_result;
 };
 
+extern const struct SkillSynthRecipe gSkillSynthRecipeTable[];
+
 enum {
     SKILL_SYNTH_STATE_LIST = 0,
     SKILL_SYNTH_STATE_CONFIRM = 1,

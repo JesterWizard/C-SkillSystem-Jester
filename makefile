@@ -392,8 +392,9 @@ ENUM2C := $(TOOL_DIR)/scripts/enum2combo.py
 SKILLS_COMBO_DIR := Patches
 
 SKILLS_ENUM_HEADER := $(SKILLS_ENUM_DIR)/skills.h
+SKILLS_ENUM_EVENT  := $(SKILLS_ENUM_DIR)/skills.event
 
-enum: $(SKILLS_ENUM_HEADER)
+enum: $(SKILLS_ENUM_HEADER) $(SKILLS_ENUM_EVENT)
 
 $(SKILLS_ENUM_HEADER): $(SKILLS_ENUM_SRC)
 	@echo "[GEN]	$(SKILLS_ENUM_HEADER)"
@@ -420,8 +421,15 @@ else
 	@echo "[WARNNING] ======================================"
 endif
 
+$(SKILLS_ENUM_EVENT): $(SKILLS_ENUM_HEADER)
+	@echo "[GEN]	$(SKILLS_ENUM_EVENT)"
+	@printf '%s\n' '#ifndef SKILLS_EVENT' '#define SKILLS_EVENT' '' '// Auto generated from skills.h for Event Assembler.' '' > $(SKILLS_ENUM_EVENT)
+	@grep '^#define SID_' $(SKILLS_ENUM_HEADER) >> $(SKILLS_ENUM_EVENT)
+	@printf '%s\n' '' '#endif /* SKILLS_EVENT */' >> $(SKILLS_ENUM_EVENT)
+
 PRE_BUILD += enum
 CLEAN_FILES += $(SKILLS_ENUM_HEADER)
+CLEAN_FILES += $(SKILLS_ENUM_EVENT)
 CLEAN_FILES += Patches/combo.skills.txt
 CLEAN_FILES += Patches/combo.skills_equip.txt
 CLEAN_FILES += Patches/combo.skills_class.txt
