@@ -82,6 +82,7 @@ Starter recipes include every `SID_*` / `SID_*Plus` self-pair plus mixed combina
 | Synthesis apply | `SkillSynth_PerformSynthesis` in [`SkillSynth.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/CustomMenuOptions/SkillSynth.c) | Removes both ingredients and writes the result scroll. |
 | Prep menu entry | `PrepScreenMenu_OnSkillSynth` and `gPrepMenuTable` in [`AtMenu.c`](../../Kernel/Wizardry/SkillSys/PrepSkill/Source/AtMenu.c) | Prep menu dispatch and ROM table wiring. |
 | World map entry | `WMMenu_OnSkillSynthSelected` in [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | Launches the same screen from the node menu. |
+| Header chibi | `FID_SKILL_SYNTH` (`0xAD`) in [`skill_synth.png`](../../Data/CustomPortraits/Portraits/skill_synth.png) | Unique two-gem fusion icon for the top-left mug slot. |
 | Scroll item helper | `MakeSkillScrollItem` in [`SkillScroll.c`](../../Kernel/Wizardry/SkillSys/SkillScroll/Source/SkillScroll.c) | Builds the result scroll item ID from a SID. |
 | Designer flag | `prep_menu_skill_synth` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Enables or disables both prep and world map entry points. |
 

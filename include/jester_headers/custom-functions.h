@@ -162,6 +162,12 @@ extern const struct ProcCmd ProcPopup_GotItem[];
 /* gpKernelDesignerConfig->prep_menu_infuse */
 extern struct ProcCmd const ProcScr_PrepItemListScreen_INFUSE[];
 
+/* gpKernelDesignerConfig->prep_menu_skill_synth */
+extern struct ProcCmd const ProcScr_PrepItemListScreen_SKILL_SYNTH[];
+struct PopupProc;
+void SkillSynth_OnPopupDraw(struct PopupProc *proc, int x_pos, int y_pos, int tile_w, int icon_pos);
+void SkillSynth_PutResultPopupSprites(void);
+
 
 /* Bonus EXP events */
 struct ProcGrantBEXP {

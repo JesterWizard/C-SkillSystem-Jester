@@ -225,6 +225,8 @@ Synthesize[X]
 ## MSG_PREP_SCREEN_DESC_SKILL_SYNTH
 Combine two skill scrolls[N]
 into a new skill scroll.[X]
+## MSG_SYNTHESIZED
+Synthesized[X]
 
 ## MSG_PREP_SCREEN_TITLE_BASE_CONVERSATIONS
 Base[X]

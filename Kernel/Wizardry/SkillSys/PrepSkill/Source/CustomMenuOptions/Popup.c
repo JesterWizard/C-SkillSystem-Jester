@@ -221,27 +221,23 @@ void DrawUiFrame2(int x, int y, int width, int height, int style)
 LYN_REPLACE_CHECK(PopupProc_GfxClear);
 void PopupProc_GfxClear(struct PopupProc * proc)
 {
-    TileMap_FillRect(
-        TILEMAP_LOCATED(gBG0TilemapBuffer, proc->xTileReal, proc->yTileReal),
-        proc->xTileSize, proc->yTileSize, 0);
-
     if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
     {
-        // struct PrepItemListProc * proc_infuse = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
-
+        TileMap_FillRect(
+            TILEMAP_LOCATED(gBG0TilemapBuffer, proc->xTileReal, proc->yTileReal),
+            proc->xTileSize, proc->yTileSize, 0);
         ShowSysHandCursor(gInfuseMenuArray[2], gInfuseMenuArray[3], 0xB, 0x800);
-
-        // ResetIconGraphics_();
-        // drawItems_INFUSE(
-        //     PrepItemSuppyTexts.th + 7,
-        //     gBG2TilemapBuffer + 0xF,
-        //     proc_infuse->yOffsetPerPage[proc_infuse->currentPage] >> 4,
-        //     proc_infuse->unit
-        // );
-        // BG_EnableSyncByMask(BG2_SYNC_BIT);
+    }
+    else if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+    {
+        Proc_End(GetParallelWorker(SkillSynth_PutResultPopupSprites));
+        gLCDControlBuffer.bg0cnt.priority = 0;
     }
     else
     {
+        TileMap_FillRect(
+            TILEMAP_LOCATED(gBG0TilemapBuffer, proc->xTileReal, proc->yTileReal),
+            proc->xTileSize, proc->yTileSize, 0);
         TileMap_FillRect(
             TILEMAP_LOCATED(gBG1TilemapBuffer, proc->xTileReal, proc->yTileReal),
             proc->xTileSize, proc->yTileSize, 0);
@@ -297,56 +293,64 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
         y_pos = 8;
 
     temp = tile_len + 2;
-    DrawUiFrame2(x_pos, y_pos, temp, 4, proc->winStyle);
 
-    proc->xTileReal = x_pos;
-    proc->yTileReal = y_pos;
-    proc->xTileSize = temp;
-    proc->yTileSize = 3;
-    proc->iconX += icon_pos;
-
-    InitText(&th, tile_len);
-    Text_SetColor(&th, proc->textColorId);
-    Text_SetCursor(&th, icon_pos);
-    GeneratePopupText(proc->pDefinition, th);
-
-    if (0xFFFF != proc->iconId)
-        LoadIconObjectGraphics(proc->iconId, proc->iconObjTileId);
-
-    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
+    if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
     {
-        struct PrepItemListProc * procInfuse = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
-
-        StartParallelWorker(PutInfuseWeaponTextSprite, proc);
-        ResetText();
-        ResetIconGraphics_();
-
-        drawItems_INFUSE(
-            PrepItemSuppyTexts.th + 7,
-            gBG2TilemapBuffer + 0xF,
-            (procInfuse->yOffsetPerPage[procInfuse->currentPage]) >> 4,
-            procInfuse->unit
-        );
-
-        /* Draw dragon egg icon */
-        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
-
-        /* Re-draw BG0 selected-item and infuse-target icons after ResetIconGraphics_()
-           resets the tile pool, otherwise their tile references point to stale data. */
-        if (gUnknown_02012F56 > 0) {
-            int idx = procInfuse->idxPerPage[procInfuse->currentPage];
-            u16 selItem = gPrepScreenItemList[idx].item;
-            u8 selItemId = ITEM_INDEX(selItem);
-            u8 tgt = gInfusionLookupTable[selItemId].targetItemId;
-            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),  GetItemIconId(selItem), 0x4000);
-            if (tgt != 0)
-                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(tgt), 0x4000);
-        }
+        SkillSynth_OnPopupDraw(proc, x_pos, y_pos, temp, icon_pos);
     }
     else
     {
-        PutText(&th, TILEMAP_LOCATED(gBG0TilemapBuffer, x_pos + 1, y_pos + 1));
-        ResetText();
+        DrawUiFrame2(x_pos, y_pos, temp, 4, proc->winStyle);
+
+        proc->xTileReal = x_pos;
+        proc->yTileReal = y_pos;
+        proc->xTileSize = temp;
+        proc->yTileSize = 3;
+        proc->iconX += icon_pos;
+
+        InitText(&th, tile_len);
+        Text_SetColor(&th, proc->textColorId);
+        Text_SetCursor(&th, icon_pos);
+        GeneratePopupText(proc->pDefinition, th);
+
+        if (0xFFFF != proc->iconId)
+            LoadIconObjectGraphics(proc->iconId, proc->iconObjTileId);
+
+        if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
+        {
+            struct PrepItemListProc * procInfuse = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
+
+            StartParallelWorker(PutInfuseWeaponTextSprite, proc);
+            ResetText();
+            ResetIconGraphics_();
+
+            drawItems_INFUSE(
+                PrepItemSuppyTexts.th + 7,
+                gBG2TilemapBuffer + 0xF,
+                (procInfuse->yOffsetPerPage[procInfuse->currentPage]) >> 4,
+                procInfuse->unit
+            );
+
+            /* Draw dragon egg icon */
+            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
+
+            /* Re-draw BG0 selected-item and infuse-target icons after ResetIconGraphics_()
+               resets the tile pool, otherwise their tile references point to stale data. */
+            if (gUnknown_02012F56 > 0) {
+                int idx = procInfuse->idxPerPage[procInfuse->currentPage];
+                u16 selItem = gPrepScreenItemList[idx].item;
+                u8 selItemId = ITEM_INDEX(selItem);
+                u8 tgt = gInfusionLookupTable[selItemId].targetItemId;
+                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),  GetItemIconId(selItem), 0x4000);
+                if (tgt != 0)
+                    DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(tgt), 0x4000);
+            }
+        }
+        else
+        {
+            PutText(&th, TILEMAP_LOCATED(gBG0TilemapBuffer, x_pos + 1, y_pos + 1));
+            ResetText();
+        }
     }
 
     if (0xFFFF != proc->iconId) {
@@ -354,7 +358,10 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
             Proc_Start(ProcScr_PopupUpdateIcon, proc);
 
         child->unk_2C = (proc->xTileReal + 1) * 8 + proc->iconX;
-        child->unk_30 = (proc->yTileReal + 1) * 8;
+        if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+            child->unk_30 = proc->yTileReal * 8 + 4;
+        else
+            child->unk_30 = (proc->yTileReal + 1) * 8;
         child->unk_4A = proc->iconObjTileId | (proc->iconPalId & 0xf) << 0xC;
     }
 }
