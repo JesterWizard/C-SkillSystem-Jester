@@ -650,7 +650,6 @@ static void SkillSynth_PerformSynthesis(struct SkillSynthListProc *proc, u16 res
     proc->secondIdx = -1;
     proc->state = SKILL_SYNTH_STATE_LIST;
 
-    PlaySoundEffect(SONG_SE_UPDATE);
     SkillSynth_RefreshListView(proc);
     SetPopupItem(resultSid);
     NewPopup_Simple(SkillSynthPopup, 0x60, 0x00, proc);

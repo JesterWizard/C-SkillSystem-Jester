@@ -1,5 +1,9 @@
 # Skill Synthesis Menu
 
+<p align="center">
+  <img src="../Gifs/Skill_Synthesis.gif.gif" alt="Skill Synthesis" width="600"/>
+</p>
+
 ---
 
 ## Index
