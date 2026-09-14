@@ -144,7 +144,6 @@ enum {
     PL_SKILL_SYNTH_IDLE = 2,
     PL_SKILL_SYNTH_PRESS_B = 3,
     PL_SKILL_SYNTH_END = 4,
-    PL_SKILL_SYNTH_WM_ENTRY = 5,
 };
 
 extern u16 gBEXP_Total;

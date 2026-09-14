@@ -29,8 +29,6 @@ struct SkillSynthListProc {
     s16 secondIdx;
     u8 handX;
     u8 handY;
-    u8 wmGfxPaused;
-    u8 savedWorldMapNodeIconState;
 };
 
 #define SKILL_SYNTH_VISIBLE 7
@@ -109,62 +107,6 @@ static u16 SkillSynth_LookupResult(u16 sidA, u16 sidB)
     }
 
     return 0;
-}
-
-static void SkillSynth_ShiftWmLock(ProcPtr proc, int add)
-{
-    struct Proc *p = proc;
-
-    if (p == NULL)
-        return;
-
-    if (add) {
-        if (p->proc_lockCnt < 127)
-            p->proc_lockCnt++;
-    } else if (p->proc_lockCnt > 0) {
-        p->proc_lockCnt--;
-    }
-}
-
-static void SkillSynth_PauseWorldMapGfx(struct SkillSynthListProc *proc)
-{
-    if (!proc->fromWorldMap || proc->wmGfxPaused || GM_MAIN == NULL)
-        return;
-
-    proc->savedWorldMapNodeIconState = GM_ICON ? GM_ICON->skip : 0;
-    SkillSynth_ShiftWmLock(GM_SCREEN, 1);
-    SkillSynth_ShiftWmLock(GM_ICON, 1);
-    SkillSynth_ShiftWmLock(GM_UNITC, 1);
-    SkillSynth_ShiftWmLock(GM_CURSOR, 1);
-    SkillSynth_ShiftWmLock(GM_MU, 1);
-
-    HideGmUnit(-1);
-    gGMData.sprite_disp = 0;
-    if (GM_ICON)
-        GM_ICON->skip = 0;
-
-    ClearSprites();
-    ResetUnitSprites();
-    CpuFastFill16(0, (void *)0x06010000, 0x5FE0);
-    proc->wmGfxPaused = true;
-}
-
-static void SkillSynth_ResumeWorldMapGfx(struct SkillSynthListProc *proc)
-{
-    if (!proc->fromWorldMap || !proc->wmGfxPaused)
-        return;
-
-    if (GM_MAIN != NULL) {
-        SkillSynth_ShiftWmLock(GM_MU, 0);
-        SkillSynth_ShiftWmLock(GM_CURSOR, 0);
-        SkillSynth_ShiftWmLock(GM_UNITC, 0);
-        SkillSynth_ShiftWmLock(GM_ICON, 0);
-        SkillSynth_ShiftWmLock(GM_SCREEN, 0);
-        if (GM_ICON)
-            GM_ICON->skip = proc->savedWorldMapNodeIconState;
-    }
-
-    proc->wmGfxPaused = false;
 }
 
 static bool SkillSynth_GetSidFromIdx(int idx, u16 *outSid)
@@ -519,13 +461,6 @@ static void SkillSynth_SpriteWorker(ProcPtr proc)
 {
     struct SkillSynthListProc *synth = proc;
 
-    if (synth->fromWorldMap) {
-        HideGmUnit(-1);
-        gGMData.sprite_disp = 0;
-        if (GM_MAIN && GM_ICON)
-            GM_ICON->skip = 0;
-    }
-
     SkillSynth_ApplyListWindow(synth);
     if (synth->state == SKILL_SYNTH_STATE_CONFIRM)
         gLCDControlBuffer.bg0cnt.priority = 1;
@@ -723,16 +658,12 @@ static void SkillSynth_PerformSynthesis(struct SkillSynthListProc *proc, u16 res
 
 static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
 {
-    if (proc->fromWorldMap)
-        SetDispEnable(0, 0, 0, 0, 0);
+    /* Keep the screen dark until NewFadeIn archives these palettes. */
+    SetDispEnable(0, 0, 0, 0, 0);
 
     gLCDControlBuffer.dispcnt.mode = 0;
     SetupBackgrounds(NULL);
-
-    if (proc->fromWorldMap) {
-        SetDispEnable(0, 0, 0, 0, 0);
-        SkillSynth_PauseWorldMapGfx(proc);
-    }
+    SetDispEnable(0, 0, 0, 0, 0);
 
     BG_Fill(BG_GetMapBuffer(0), 0);
     BG_Fill(BG_GetMapBuffer(1), 0);
@@ -753,11 +684,16 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
     BG_SetPosition(2, 0, 0);
+    BG_SetPosition(3, 0, 0);
+    ResetUnitSprites();
+    ClearSprites();
 
     LoadHelpBoxGfx((void *)0x06012000, -1);
     HelpBoxEnsurePageNumGfx();
     LoadIconPalettes(4);
     RestartMuralBackground();
+    gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
+    EnablePaletteSync();
 
     PutImg_PrepItemUseUnk(0x5000, 5);
     PutImg_PrepPopupWindow(0x800, 10);
@@ -806,7 +742,6 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     SetBlendTargetB(0, 0, 0, 1, 0);
 
     StartParallelWorker(SkillSynth_SpriteWorker, proc);
-    SetDispEnable(1, 1, 1, 1, 1);
     SkillSynth_RedrawList(proc);
     SkillSynth_DrawHeader();
 }
@@ -1005,42 +940,52 @@ static void SkillSynth_OnEnd(struct SkillSynthListProc *proc)
     BG_EnableSyncByMask(BG2_SYNC_BIT);
     SetPrimaryHBlankHandler(NULL);
 
-    if (proc->fromWorldMap) {
-        SkillSynth_ResumeWorldMapGfx(proc);
-        gGMData.units[0].id = gSavedWorldMapUnitId;
-        gGMData.sprite_disp = 1;
-        gGMData.xCamera = gSavedWorldMapXCoordiate;
-        gGMData.yCamera = gSavedWorldMapYCoordiate;
-        SetDefaultColorEffects();
-        returnToWorldMap_External();
-        return;
-    }
-
-    {
+    if (!proc->fromWorldMap) {
         struct ProcAtMenu *pproc = proc->proc_parent;
 
         pproc->state = 1;
     }
 }
 
-static void SkillSynth_WmEntryAfterFade(struct SkillSynthListProc *proc)
+static void SkillSynth_StartAfterWmTeardown(ProcPtr parent)
 {
-    SetDispEnable(0, 0, 0, 0, 0);
-    gGMData.sprite_disp = 0;
-    HideGmUnit(-1);
-    ClearSprites();
-    ResetUnitSprites();
-    CpuFastFill16(0, (void *)0x06010000, 0x5FE0);
-    gGMData.xCamera = 0;
-    gGMData.yCamera = 0;
+    struct SkillSynthListProc *proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_SKILL_SYNTH, parent);
+
     proc->fromWorldMap = true;
-    SkillSynth_PauseWorldMapGfx(proc);
 }
+
+static void SkillSynth_RestoreWorldMap(void)
+{
+    struct WorldMapMainProc *wm = GM_MAIN;
+
+    gGMData.units[0].id = gSavedWorldMapUnitId;
+    gGMData.sprite_disp = 1;
+    gGMData.xCamera = gSavedWorldMapXCoordiate;
+    gGMData.yCamera = gSavedWorldMapYCoordiate;
+    SetDefaultColorEffects();
+    SetPrimaryHBlankHandler(NULL);
+
+    if (wm != NULL) {
+        WorldMap_Init(wm);
+        Proc_Goto(wm, 24);
+    }
+}
+
+static const struct ProcCmd ProcScr_SkillSynthWm[] = {
+    PROC_YIELD,
+    PROC_CALL_ARG(NewFadeOut, 16),
+    PROC_WHILE(FadeOutExists),
+    PROC_CALL(sub_80B9810),
+    PROC_CALL(SkillSynth_StartAfterWmTeardown),
+    PROC_YIELD,
+    PROC_CALL(SkillSynth_RestoreWorldMap),
+    PROC_END,
+};
 
 struct ProcCmd const ProcScr_PrepItemListScreen_SKILL_SYNTH[] = {
     PROC_NAME("PrepItemListScreen_SKILL_SYNTH"),
-    PROC_YIELD,
     PROC_SET_END_CB(SkillSynth_OnEnd),
+    PROC_YIELD,
 
 PROC_LABEL(PL_SKILL_SYNTH_INIT),
     PROC_CALL(PrepItemList_Init),
@@ -1060,12 +1005,6 @@ PROC_LABEL(PL_SKILL_SYNTH_PRESS_B),
 
 PROC_LABEL(PL_SKILL_SYNTH_END),
     PROC_END,
-
-PROC_LABEL(PL_SKILL_SYNTH_WM_ENTRY),
-    PROC_CALL_ARG(NewFadeOut, 0x10),
-    PROC_WHILE(FadeOutExists),
-    PROC_CALL(SkillSynth_WmEntryAfterFade),
-    PROC_GOTO(PL_SKILL_SYNTH_INIT),
 };
 
 void StartSkillSynthScreen_FromPrep(struct ProcAtMenu *pproc)
@@ -1073,22 +1012,13 @@ void StartSkillSynthScreen_FromPrep(struct ProcAtMenu *pproc)
     struct SkillSynthListProc *proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_SKILL_SYNTH, pproc);
 
     proc->fromWorldMap = false;
-    proc->wmGfxPaused = false;
 }
 
 void StartSkillSynthScreen_FromWorldMap(void)
 {
-    struct SkillSynthListProc *proc;
-
     gSavedWorldMapUnitId = gGMData.units[0].id;
     gSavedWorldMapXCoordiate = gGMData.xCamera;
     gSavedWorldMapYCoordiate = gGMData.yCamera;
-    gGMData.sprite_disp = 0;
-    HideGmUnit(-1);
-
     MakePrepUnitList();
-    proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_SKILL_SYNTH, Proc_Find(ProcScr_WorldMapMain));
-    proc->fromWorldMap = true;
-    proc->wmGfxPaused = false;
-    Proc_Goto(proc, PL_SKILL_SYNTH_WM_ENTRY);
+    Proc_StartBlocking(ProcScr_SkillSynthWm, Proc_Find(ProcScr_WorldMapMain));
 }
