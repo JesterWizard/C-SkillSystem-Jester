@@ -71,10 +71,6 @@ static void DrawUnitSprites_BEXP(int x, int y)
     struct Unit *unit;
     int unitCount = PrepGetUnitAmount();
 
-    if (gBexpFromWorldMap)
-        HideGmUnit(-1);
-
-    // Clear old unit sprites (OAM)
     ClearSprites();
 
     for (i = 0; i < BEXP_VISIBLE_COUNT; i++) {
@@ -186,20 +182,16 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
 {
     int i;
 
-    /* Keep the screen blank while rebuilding after a world-map fade-out.
-     * SetupBackgrounds re-enables every layer, so blanking must be reasserted. */
-    if (gBexpFromWorldMap)
-        SetDispEnable(0, 0, 0, 0, 0);
+    SetDispEnable(0, 0, 0, 0, 0);
 
     gLCDControlBuffer.dispcnt.mode = 0;
     SetupBackgrounds(NULL);
-
-    if (gBexpFromWorldMap)
-        SetDispEnable(0, 0, 0, 0, 0);
+    SetDispEnable(0, 0, 0, 0, 0);
 
     BG_Fill(BG_GetMapBuffer(0), 0);
     BG_Fill(BG_GetMapBuffer(1), 0);
     BG_Fill(BG_GetMapBuffer(2), 0);
+    BG_Fill(BG_GetMapBuffer(3), 0);
 
     gLCDControlBuffer.bg0cnt.priority = 0;
     gLCDControlBuffer.bg1cnt.priority = 2;
@@ -215,11 +207,17 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
 
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
+    BG_SetPosition(2, 0, 0);
+    BG_SetPosition(3, 0, 0);
+    ResetUnitSprites();
+    ClearSprites();
 
     LoadHelpBoxGfx((void*)0x06012000, -1);
     LoadIconPalettes(4);
 
     RestartMuralBackground();
+    gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
+    EnablePaletteSync();
 
     /* Draws the left side frame that will hold the unit list */
     DrawUiFrame2(1, 7, 12, 13, 0);
@@ -333,22 +331,6 @@ static void PrepInitGfx_BEXP(struct ProcPrepUnit * proc)
 
     StartSysBrownBox(0x0, 0x7080, 0xf, 0xc00, 0x400, proc);
     EnableSysBrownBox(0, -20, -1, 1);
-
-    if (gBexpFromWorldMap)
-        SetDispEnable(1, 1, 1, 1, 1);
-}
-
-static void BexpWmEntry_AfterFade(struct ProcPrepUnit * proc)
-{
-    SetDispEnable(0, 0, 0, 0, 0);
-    gGMData.sprite_disp = 0;
-    HideGmUnit(-1);
-    ClearSprites();
-    ResetUnitSprites();
-    CpuFastFill16(0, (void *)0x06010000, 0x5FE0);
-
-    gGMData.xCamera = 0;
-    gGMData.yCamera = 0;
 }
 
 // Rolls the stats and sets up the animation pointers
@@ -757,12 +739,6 @@ static void PrepItemList_OnEnd_BEXP(struct ProcPrepUnit * proc)
 
     if (gBexpFromWorldMap) {
         gBexpFromWorldMap = false;
-        gGMData.units[0].id = gSavedWorldMapUnitId;
-        gGMData.sprite_disp = 1;
-        gGMData.xCamera = gSavedWorldMapXCoordiate;
-        gGMData.yCamera = gSavedWorldMapYCoordiate;
-        SetDefaultColorEffects();
-        returnToWorldMap_External();
         return;
     }
 
@@ -808,13 +784,6 @@ PROC_LABEL(PL_BEXP_PRESS_B),
 
 PROC_LABEL(PL_BEXP_END),
     PROC_END,
-
-PROC_LABEL(PL_BEXP_WM_ENTRY),
-    PROC_CALL_ARG(NewFadeOut, 0x10),
-    PROC_WHILE(FadeOutExists),
-    PROC_CALL(BexpWmEntry_AfterFade),
-    PROC_CALL(ResetScrollerBarVariables),
-    PROC_GOTO(PL_BEXP_INIT),
 };
 
 void StartBEXPScreen_FromPrep(struct ProcAtMenu *pproc)
@@ -823,18 +792,45 @@ void StartBEXPScreen_FromPrep(struct ProcAtMenu *pproc)
     Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, pproc);
 }
 
+static void Bexp_StartAfterWmTeardown(ProcPtr parent)
+{
+    gBexpFromWorldMap = true;
+    Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, parent);
+}
+
+static void Bexp_RestoreWorldMap(void)
+{
+    struct WorldMapMainProc *wm = GM_MAIN;
+
+    gGMData.units[0].id = gSavedWorldMapUnitId;
+    gGMData.sprite_disp = 1;
+    gGMData.xCamera = gSavedWorldMapXCoordiate;
+    gGMData.yCamera = gSavedWorldMapYCoordiate;
+    SetDefaultColorEffects();
+    SetPrimaryHBlankHandler(NULL);
+
+    if (wm != NULL) {
+        WorldMap_Init(wm);
+        Proc_Goto(wm, 24);
+    }
+}
+
+static const struct ProcCmd ProcScr_BexpWm[] = {
+    PROC_YIELD,
+    PROC_CALL_ARG(NewFadeOut, 16),
+    PROC_WHILE(FadeOutExists),
+    PROC_CALL(sub_80B9810),
+    PROC_CALL(Bexp_StartAfterWmTeardown),
+    PROC_YIELD,
+    PROC_CALL(Bexp_RestoreWorldMap),
+    PROC_END,
+};
+
 void StartBEXPScreen_FromWorldMap(void)
 {
-    struct ProcPrepUnit *proc;
-
-    gBexpFromWorldMap = true;
     gSavedWorldMapUnitId = gGMData.units[0].id;
     gSavedWorldMapXCoordiate = gGMData.xCamera;
     gSavedWorldMapYCoordiate = gGMData.yCamera;
-    gGMData.sprite_disp = 0;
-    HideGmUnit(-1);
-
     MakePrepUnitList();
-    proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_BEXP, Proc_Find(ProcScr_WorldMapMain));
-    Proc_Goto(proc, PL_BEXP_WM_ENTRY);
+    Proc_StartBlocking(ProcScr_BexpWm, Proc_Find(ProcScr_WorldMapMain));
 }

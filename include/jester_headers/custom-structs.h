@@ -171,7 +171,6 @@ enum {
     PL_BEXP_LEVELUP = 7,
     PL_BEXP_PRESS_B = 8,
     PL_BEXP_END = 9,
-    PL_BEXP_WM_ENTRY = 10
 };
 
 
