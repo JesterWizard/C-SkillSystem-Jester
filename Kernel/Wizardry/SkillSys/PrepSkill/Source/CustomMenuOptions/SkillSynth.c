@@ -497,6 +497,9 @@ static void SkillSynth_DrawListCount(void)
 
     SetTextFont(NULL);
     SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+    *TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 5) = SKILL_SYNTH_BLANK_TILE;
+    *TILEMAP_LOCATED(gBG0TilemapBuffer, 3, 5) = SKILL_SYNTH_BLANK_TILE;
+    *TILEMAP_LOCATED(gBG0TilemapBuffer, 4, 5) = SKILL_SYNTH_BLANK_TILE;
 
     if (n > 99)
         PutNumber(tm, TEXT_COLOR_SYSTEM_WHITE, n);
@@ -578,10 +581,48 @@ static void SkillSynth_RedrawList(struct SkillSynthListProc *proc)
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 }
 
+static void SkillSynth_InitTexts(void)
+{
+    int i;
+
+    SetTextFont(NULL);
+    SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+    InitText(PrepItemSuppyTexts.th + 1, 5);
+    InitText(PrepItemSuppyTexts.th + 15, 4);
+    for (i = 0; i < 8; ++i)
+        InitTextDb(PrepItemSuppyTexts.th + 7 + i, SKILL_SYNTH_LIST_TEXT_W);
+    InitText(&PrepItemSuppyTexts.th[0], 10);
+    InitText(&PrepItemSuppyTexts.th[5], 8);
+    InitText(&PrepItemSuppyTexts.th[2], 8);
+    InitText(&PrepItemSuppyTexts.th[3], 8);
+    InitText(&PrepItemSuppyTexts.th[4], 8);
+}
+
+static void SkillSynth_InitBlankTile(void)
+{
+    CpuFill16(0, (void *)(VRAM + SKILL_SYNTH_BLANK_TILE * CHR_SIZE), CHR_SIZE);
+}
+
+static void SkillSynth_DrawPreviewFrames(void)
+{
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX1_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX2_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+}
+
 static void SkillSynth_RestoreUi(struct SkillSynthListProc *proc, int resetIcons)
 {
-    if (resetIcons)
+    SetTextFont(NULL);
+    SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+
+    if (resetIcons) {
+        ResetText();
         ResetIconGraphics_();
+        LoadIconPalettes(4);
+        SkillSynth_InitTexts();
+        SkillSynth_InitBlankTile();
+        SkillSynth_DrawPreviewFrames();
+    }
 
     SkillSynth_RedrawList(proc);
     SkillSynth_DrawHeader();
@@ -726,9 +767,7 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     TileMap_FillRect(gBG1TilemapBuffer + (0x8 * 32), 14, 12, 0);
     Decompress(gUnknown_08A1BCC0, gGenericBuffer);
     CallARM_FillTileRect(gBG1TilemapBuffer, gGenericBuffer, 0x1000);
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX1_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX2_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+    SkillSynth_DrawPreviewFrames();
 
     BG_EnableSyncByMask(7);
     StartUiCursorHand(proc);
@@ -746,21 +785,8 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     if (proc->unit == NULL && PrepGetUnitAmount() > 0)
         proc->unit = GetUnitFromPrepList(0);
 
-    InitText(PrepItemSuppyTexts.th + 1, 5);
-    InitText(PrepItemSuppyTexts.th + 15, 4);
-    {
-        int i;
-
-        for (i = 0; i < 8; ++i)
-            InitTextDb(PrepItemSuppyTexts.th + 7 + i, SKILL_SYNTH_LIST_TEXT_W);
-    }
-    InitText(&PrepItemSuppyTexts.th[0], 10);
-    InitText(&PrepItemSuppyTexts.th[5], 8);
-    InitText(&PrepItemSuppyTexts.th[2], 8);
-    InitText(&PrepItemSuppyTexts.th[3], 8);
-    InitText(&PrepItemSuppyTexts.th[4], 8);
-
-    CpuFill16(0, (void *)(VRAM + SKILL_SYNTH_BLANK_TILE * CHR_SIZE), CHR_SIZE);
+    SkillSynth_InitTexts();
+    SkillSynth_InitBlankTile();
     SkillSynth_FillBg0(SKILL_SYNTH_LIST_TILE_X, SKILL_SYNTH_LIST_TILE_Y, 12, 14);
     SetPrimaryHBlankHandler(PrepItemSupply_OnHBlank);
     StartMenuScrollBarExt(proc, 225, SKILL_SYNTH_WIN0_TOP + 7, 0x5800, 9);

@@ -235,6 +235,8 @@ void PopupProc_GfxClear(struct PopupProc * proc)
     else if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
     {
         Proc_End(GetParallelWorker(SkillSynth_PutResultPopupSprites));
+        SetTextFont(NULL);
+        SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
         gLCDControlBuffer.bg0cnt.priority = 0;
     }
     else
