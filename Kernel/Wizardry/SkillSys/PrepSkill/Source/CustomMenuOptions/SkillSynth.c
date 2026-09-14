@@ -269,12 +269,12 @@ static void SkillSynth_BuildScrollList(struct SkillSynthListProc *proc)
 }
 
 #define SKILL_SYNTH_VISIBLE 7
-#define SKILL_SYNTH_LIST_X 16
-#define SKILL_SYNTH_LIST_Y 5
 #define SKILL_SYNTH_LIST_TEXT_W 9
 #define SKILL_SYNTH_LIST_HAND_X 0x80
 #define SKILL_SYNTH_WIN0_TOP 40
 #define SKILL_SYNTH_WIN0_BOTTOM 152
+#define SKILL_SYNTH_LIST_TILE_X 16
+#define SKILL_SYNTH_LIST_TILE_Y 5
 #define FID_SKILL_SYNTH 0xAD
 
 static char *SkillSynth_GetName(u16 item)
@@ -297,15 +297,24 @@ static int SkillSynth_GetIcon(u16 item)
     return GetItemIconId(item);
 }
 
+static int SkillSynth_ListTop(const struct SkillSynthListProc *proc)
+{
+    return proc->yOffsetPerPage[0] >> 4;
+}
+
+static int SkillSynth_SlotScreenY(int local)
+{
+    return SKILL_SYNTH_WIN0_TOP + local * 16;
+}
+
+static int SkillSynth_SlotTileY(int local)
+{
+    return SKILL_SYNTH_LIST_TILE_Y + local * 2;
+}
+
 static void SkillSynth_ApplyListWindow(struct SkillSynthListProc *proc)
 {
-    (void)proc;
-
-    /* List is on BG0 at tiles y=5+i*2. Keep VOFS at 0 so those tiles sit at
-       screen Y 40+i*16. BG2 scroll was showing only the last two of seven. */
-    BG_SetPosition(0, 0, 0);
-    BG_SetPosition(1, 0, 0);
-    BG_SetPosition(2, 0, 0);
+    proc->currentPage = 0;
 
     gLCDControlBuffer.dispcnt.win0_on = 1;
     gLCDControlBuffer.dispcnt.win1_on = 0;
@@ -316,7 +325,7 @@ static void SkillSynth_ApplyListWindow(struct SkillSynthListProc *proc)
     gLCDControlBuffer.win0_bottom = SKILL_SYNTH_WIN0_BOTTOM;
     gLCDControlBuffer.wincnt.win0_enableBg0 = 1;
     gLCDControlBuffer.wincnt.win0_enableBg1 = 1;
-    gLCDControlBuffer.wincnt.win0_enableBg2 = 1;
+    gLCDControlBuffer.wincnt.win0_enableBg2 = 0;
     gLCDControlBuffer.wincnt.win0_enableBg3 = 1;
     gLCDControlBuffer.wincnt.win0_enableObj = 1;
     gLCDControlBuffer.wincnt.wout_enableBg0 = 1;
@@ -328,42 +337,44 @@ static void SkillSynth_ApplyListWindow(struct SkillSynthListProc *proc)
 
 static void SkillSynth_DrawScrollItems(struct SkillSynthListProc *proc)
 {
-    int i;
-    int top = proc->yOffsetPerPage[0] >> 4;
+    int local;
+    int top;
 
     proc->currentPage = 0;
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_X, SKILL_SYNTH_LIST_Y), 13, 14, 0);
-    BG_Fill(gBG2TilemapBuffer, 0);
+    top = SkillSynth_ListTop(proc);
+    /* BG2 is scrolled +40px here, so the Infuse index*2 layout starts on
+       skill 6. Draw the seven visible rows on unshifted BG0 at the gold box. */
+    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X, SKILL_SYNTH_LIST_TILE_Y), 12, 14, 0);
+    TileMap_FillRect(gBG2TilemapBuffer + 0xF, 12, 31, 0);
     SkillSynth_ApplyListWindow(proc);
     SetTextFont(NULL);
     SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
 
     if (gUnknown_02012F56 == 0) {
+        int y = SkillSynth_SlotTileY(0);
+
         ClearText(PrepItemSuppyTexts.th + 7);
         Text_InsertDrawString(PrepItemSuppyTexts.th + 7, 0, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(0x5a8));
-        PutText(PrepItemSuppyTexts.th + 7, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_X + 2, SKILL_SYNTH_LIST_Y));
+        PutText(PrepItemSuppyTexts.th + 7, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X + 2, y));
         BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
         return;
     }
 
-    for (i = 0; i < SKILL_SYNTH_VISIBLE; ++i) {
-        int idx = top + i;
-        int y = SKILL_SYNTH_LIST_Y + i * 2;
-        struct Text *th = PrepItemSuppyTexts.th + 7 + i;
+    for (local = 0; local < SKILL_SYNTH_VISIBLE; ++local) {
+        int i = top + local;
+        struct Text *th;
+        int y;
+
+        if (i >= gUnknown_02012F56)
+            break;
+
+        th = PrepItemSuppyTexts.th + 7 + (local & 7);
+        y = SkillSynth_SlotTileY(local);
 
         ClearText(th);
-
-        if (idx >= gUnknown_02012F56)
-            continue;
-
-        DrawIcon(
-            TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_X + 1, y),
-            SkillSynth_GetIcon(gPrepScreenItemList[idx].item),
-            0x4000
-        );
-        Text_InsertDrawString(th, 0, TEXT_COLOR_SYSTEM_WHITE, SkillSynth_GetName(gPrepScreenItemList[idx].item));
-        PutText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_X + 3, y));
-        PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_X + 11, y), TEXT_COLOR_SYSTEM_BLUE, i + 1);
+        Text_InsertDrawString(th, 0, TEXT_COLOR_SYSTEM_WHITE, SkillSynth_GetName(gPrepScreenItemList[i].item));
+        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X, y), SkillSynth_GetIcon(gPrepScreenItemList[i].item), 0x4000);
+        PutText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X + 2, y));
     }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
@@ -689,9 +700,8 @@ static void SkillSynth_PlaceFocusHand(struct SkillSynthListProc *proc)
 
 static void SkillSynth_PlaceCursor(struct SkillSynthListProc *proc)
 {
-    int top = proc->yOffsetPerPage[0] >> 4;
     int idx = proc->idxPerPage[0];
-    int yPos = SKILL_SYNTH_WIN0_TOP + (idx - top) * 16;
+    int yPos = SkillSynth_SlotScreenY(idx - SkillSynth_ListTop(proc));
 
     ShowSysHandCursor(SKILL_SYNTH_LIST_HAND_X, yPos, 0xB, 0x800);
     proc->handX = SKILL_SYNTH_LIST_HAND_X;
