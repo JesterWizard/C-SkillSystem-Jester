@@ -1,10 +1,6 @@
 #include "common-chax.h"
-#include "utf8.h"
-#include "kernel-lib.h"
 #include "constants/texts.h"
-#include "constants/skills.h"
 #include "popup.h"
-#include "prep-skill.h"
 #include "worldmap.h"
 #include "skill-system.h"
 #include "icon-rework.h"
@@ -13,11 +9,9 @@
 #include "help-box.h"
 #include "popup-reowrk.h"
 
-extern struct ProcCmd const ProcScr_PrepItemListScreen_SKILL_SYNTH[];
-
+/* Prefix matches PrepItemListProc so PrepItemList_Init can initialize this proc. */
 struct SkillSynthListProc {
     PROC_HEADER;
-
     struct Unit *unit;
     u8 unitInvIdx;
     s8 scrollAmount;
@@ -38,6 +32,16 @@ struct SkillSynthListProc {
     u8 wmGfxPaused;
     u8 savedWorldMapNodeIconState;
 };
+
+#define SKILL_SYNTH_VISIBLE 7
+#define SKILL_SYNTH_LIST_TEXT_W 9
+#define SKILL_SYNTH_LIST_HAND_X 0x80
+#define SKILL_SYNTH_WIN0_TOP 40
+#define SKILL_SYNTH_WIN0_BOTTOM 152
+#define SKILL_SYNTH_LIST_TILE_X 16
+#define SKILL_SYNTH_LIST_TILE_Y 5
+#define SKILL_SYNTH_BLANK_TILE 0x250
+#define FID_SKILL_SYNTH 0xAD
 
 #define SKILL_SYNTH_BOX_X 1
 #define SKILL_SYNTH_BOX_W 13
@@ -63,14 +67,18 @@ static const struct PopupInstruction SkillSynthPopup[] = {
     POPUP_END
 };
 
+static void SkillSynth_PutConfirmBoxSprites(void);
+static void SkillSynth_PlaceCursor(struct SkillSynthListProc *proc);
+static void SkillSynth_PlaceFocusHand(struct SkillSynthListProc *proc);
+
 static bool SkillSynth_NormalizePair(u16 sidA, u16 sidB, u16 *outLo, u16 *outHi)
 {
-    if (sidA <= sidB) {
-        *outLo = sidA;
-        *outHi = sidB;
-    } else {
+    if (sidA > sidB) {
         *outLo = sidB;
         *outHi = sidA;
+    } else {
+        *outLo = sidA;
+        *outHi = sidB;
     }
 
     return *outLo != 0 && *outHi != 0;
@@ -103,36 +111,32 @@ static u16 SkillSynth_LookupResult(u16 sidA, u16 sidB)
     return 0;
 }
 
-static void SkillSynth_LockWmProc(ProcPtr proc)
+static void SkillSynth_ShiftWmLock(ProcPtr proc, int add)
 {
     struct Proc *p = proc;
 
-    if (p != NULL && p->proc_lockCnt < 127)
-        p->proc_lockCnt++;
-}
+    if (p == NULL)
+        return;
 
-static void SkillSynth_UnlockWmProc(ProcPtr proc)
-{
-    struct Proc *p = proc;
-
-    if (p != NULL && p->proc_lockCnt > 0)
+    if (add) {
+        if (p->proc_lockCnt < 127)
+            p->proc_lockCnt++;
+    } else if (p->proc_lockCnt > 0) {
         p->proc_lockCnt--;
+    }
 }
 
 static void SkillSynth_PauseWorldMapGfx(struct SkillSynthListProc *proc)
 {
-    if (!proc->fromWorldMap || proc->wmGfxPaused)
-        return;
-
-    if (GM_MAIN == NULL)
+    if (!proc->fromWorldMap || proc->wmGfxPaused || GM_MAIN == NULL)
         return;
 
     proc->savedWorldMapNodeIconState = GM_ICON ? GM_ICON->skip : 0;
-    SkillSynth_LockWmProc(GM_SCREEN);
-    SkillSynth_LockWmProc(GM_ICON);
-    SkillSynth_LockWmProc(GM_UNITC);
-    SkillSynth_LockWmProc(GM_CURSOR);
-    SkillSynth_LockWmProc(GM_MU);
+    SkillSynth_ShiftWmLock(GM_SCREEN, 1);
+    SkillSynth_ShiftWmLock(GM_ICON, 1);
+    SkillSynth_ShiftWmLock(GM_UNITC, 1);
+    SkillSynth_ShiftWmLock(GM_CURSOR, 1);
+    SkillSynth_ShiftWmLock(GM_MU, 1);
 
     HideGmUnit(-1);
     gGMData.sprite_disp = 0;
@@ -151,11 +155,11 @@ static void SkillSynth_ResumeWorldMapGfx(struct SkillSynthListProc *proc)
         return;
 
     if (GM_MAIN != NULL) {
-        SkillSynth_UnlockWmProc(GM_MU);
-        SkillSynth_UnlockWmProc(GM_CURSOR);
-        SkillSynth_UnlockWmProc(GM_UNITC);
-        SkillSynth_UnlockWmProc(GM_ICON);
-        SkillSynth_UnlockWmProc(GM_SCREEN);
+        SkillSynth_ShiftWmLock(GM_MU, 0);
+        SkillSynth_ShiftWmLock(GM_CURSOR, 0);
+        SkillSynth_ShiftWmLock(GM_UNITC, 0);
+        SkillSynth_ShiftWmLock(GM_ICON, 0);
+        SkillSynth_ShiftWmLock(GM_SCREEN, 0);
         if (GM_ICON)
             GM_ICON->skip = proc->savedWorldMapNodeIconState;
     }
@@ -197,9 +201,7 @@ static void SkillSynth_RemoveAt(const struct PrepScreenItemListEnt *ent)
 static void SkillSynth_WriteAt(u8 pid, u8 itemSlot, u16 item)
 {
     if (pid == 0) {
-        u16 *convoy = GetConvoyItemArray();
-
-        convoy[itemSlot] = item;
+        GetConvoyItemArray()[itemSlot] = item;
         return;
     }
 
@@ -219,46 +221,39 @@ static void SkillSynth_BuildScrollList(struct SkillSynthListProc *proc)
     int j;
     u16 *convoy = GetConvoyItemArray();
 
-#if CHAX
-    extern u16 sExpaConvoyItemAmount;
+    for (i = FACTION_BLUE + 1; i < FACTION_GREEN; ++i) {
+        struct Unit *unit = GetUnit(i);
 
-    for (j = 0; j < sExpaConvoyItemAmount; ++j) {
-#else
-    for (j = 0; j < CONVOY_ITEM_COUNT; ++j) {
-#endif
-        if (convoy[j] == 0)
+        if (!UNIT_IS_VALID(unit) || (unit->state & US_DEAD))
             continue;
 
-        if (IsSkillScrollItem(convoy[j])) {
-            dst->item = convoy[j];
-            dst->pid = 0;
+        for (j = 0; j < UNIT_ITEM_COUNT; ++j) {
+            if (unit->items[j] == 0 || !IsSkillScrollItem(unit->items[j]))
+                continue;
+
+            dst->pid = unit->pCharacterData->number;
+            dst->item = unit->items[j];
             dst->itemSlot = j;
             dst++;
             count++;
         }
     }
 
-    for (i = FACTION_BLUE + 1; i < FACTION_GREEN; ++i) {
-        struct Unit *unit = GetUnit(i);
+#if CHAX
+    extern const int sExpaConvoyItemAmount;
 
-        if (!UNIT_IS_VALID(unit))
+    for (j = 0; j < sExpaConvoyItemAmount; ++j) {
+#else
+    for (j = 0; j < CONVOY_ITEM_COUNT; ++j) {
+#endif
+        if (convoy[j] == 0 || !IsSkillScrollItem(convoy[j]))
             continue;
 
-        if (unit->state & US_DEAD)
-            continue;
-
-        for (j = 0; j < UNIT_ITEM_COUNT; ++j) {
-            if (unit->items[j] == 0)
-                continue;
-
-            if (IsSkillScrollItem(unit->items[j])) {
-                dst->pid = unit->pCharacterData->number;
-                dst->item = unit->items[j];
-                dst->itemSlot = j;
-                dst++;
-                count++;
-            }
-        }
+        dst->item = convoy[j];
+        dst->pid = 0;
+        dst->itemSlot = j;
+        dst++;
+        count++;
     }
 
     gUnknown_02012F54 = count;
@@ -267,15 +262,6 @@ static void SkillSynth_BuildScrollList(struct SkillSynthListProc *proc)
     proc->idxPerPage[0] = 0;
     proc->yOffsetPerPage[0] = 0;
 }
-
-#define SKILL_SYNTH_VISIBLE 7
-#define SKILL_SYNTH_LIST_TEXT_W 9
-#define SKILL_SYNTH_LIST_HAND_X 0x80
-#define SKILL_SYNTH_WIN0_TOP 40
-#define SKILL_SYNTH_WIN0_BOTTOM 152
-#define SKILL_SYNTH_LIST_TILE_X 16
-#define SKILL_SYNTH_LIST_TILE_Y 5
-#define FID_SKILL_SYNTH 0xAD
 
 static char *SkillSynth_GetName(u16 item)
 {
@@ -302,14 +288,22 @@ static int SkillSynth_ListTop(const struct SkillSynthListProc *proc)
     return proc->yOffsetPerPage[0] >> 4;
 }
 
-static int SkillSynth_SlotScreenY(int local)
+static void SkillSynth_FillBg0(int x, int y, int w, int h)
 {
-    return SKILL_SYNTH_WIN0_TOP + local * 16;
-}
+    int ix;
+    int iy;
 
-static int SkillSynth_SlotTileY(int local)
-{
-    return SKILL_SYNTH_LIST_TILE_Y + local * 2;
+    for (iy = 0; iy < h; iy++) {
+        for (ix = 0; ix < w; ix++) {
+            int px = x + ix;
+            int py = y + iy;
+
+            if (px <= 4 && py <= 6)
+                continue;
+
+            *TILEMAP_LOCATED(gBG0TilemapBuffer, px, py) = SKILL_SYNTH_BLANK_TILE;
+        }
+    }
 }
 
 static void SkillSynth_ApplyListWindow(struct SkillSynthListProc *proc)
@@ -333,47 +327,48 @@ static void SkillSynth_ApplyListWindow(struct SkillSynthListProc *proc)
     gLCDControlBuffer.wincnt.wout_enableBg2 = 0;
     gLCDControlBuffer.wincnt.wout_enableBg3 = 1;
     gLCDControlBuffer.wincnt.wout_enableObj = 1;
+    BG_SetPosition(2, 0, 0);
 }
 
 static void SkillSynth_DrawScrollItems(struct SkillSynthListProc *proc)
 {
     int local;
-    int top;
+    int top = SkillSynth_ListTop(proc);
 
     proc->currentPage = 0;
-    top = SkillSynth_ListTop(proc);
-    /* BG2 is scrolled +40px here, so the Infuse index*2 layout starts on
-       skill 6. Draw the seven visible rows on unshifted BG0 at the gold box. */
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X, SKILL_SYNTH_LIST_TILE_Y), 12, 14, 0);
+    SkillSynth_FillBg0(SKILL_SYNTH_LIST_TILE_X, SKILL_SYNTH_LIST_TILE_Y, 12, 14);
     TileMap_FillRect(gBG2TilemapBuffer + 0xF, 12, 31, 0);
     SkillSynth_ApplyListWindow(proc);
     SetTextFont(NULL);
     SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
 
     if (gUnknown_02012F56 == 0) {
-        int y = SkillSynth_SlotTileY(0);
-
         ClearText(PrepItemSuppyTexts.th + 7);
         Text_InsertDrawString(PrepItemSuppyTexts.th + 7, 0, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(0x5a8));
-        PutText(PrepItemSuppyTexts.th + 7, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X + 2, y));
+        PutText(
+            PrepItemSuppyTexts.th + 7,
+            TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X + 2, SKILL_SYNTH_LIST_TILE_Y)
+        );
         BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
         return;
     }
 
-    for (local = 0; local < SKILL_SYNTH_VISIBLE; ++local) {
+    for (local = 0; local < SKILL_SYNTH_VISIBLE; local++) {
         int i = top + local;
+        int y = SKILL_SYNTH_LIST_TILE_Y + local * 2;
         struct Text *th;
-        int y;
 
         if (i >= gUnknown_02012F56)
             break;
 
         th = PrepItemSuppyTexts.th + 7 + (local & 7);
-        y = SkillSynth_SlotTileY(local);
-
         ClearText(th);
         Text_InsertDrawString(th, 0, TEXT_COLOR_SYSTEM_WHITE, SkillSynth_GetName(gPrepScreenItemList[i].item));
-        DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X, y), SkillSynth_GetIcon(gPrepScreenItemList[i].item), 0x4000);
+        DrawIcon(
+            TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X, y),
+            SkillSynth_GetIcon(gPrepScreenItemList[i].item),
+            0x4000
+        );
         PutText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_LIST_TILE_X + 2, y));
     }
 
@@ -382,17 +377,17 @@ static void SkillSynth_DrawScrollItems(struct SkillSynthListProc *proc)
 
 static void SkillSynth_DrawOwnerText(struct SkillSynthListProc *proc)
 {
-    int idx = proc->idxPerPage[proc->currentPage];
+    int idx = proc->idxPerPage[0];
     u16 *tm = TILEMAP_LOCATED(gBG0TilemapBuffer, 20, 1);
 
-    TileMap_FillRect(tm, 10, 1, 0);
+    SkillSynth_FillBg0(20, 1, 10, 1);
     ClearText(PrepItemSuppyTexts.th + 1);
 
-    if (gUnknown_02012F56 <= idx) {
+    if (gUnknown_02012F56 <= idx)
         PutDrawText(PrepItemSuppyTexts.th + 1, tm, 1, 0, 0, GetStringFromIndex(0x536));
-    } else if (gPrepScreenItemList[idx].pid == 0) {
+    else if (gPrepScreenItemList[idx].pid == 0)
         PutDrawText(PrepItemSuppyTexts.th + 1, tm, 3, 0, 0, GetStringFromIndex(0x598));
-    } else {
+    else
         PutDrawText(
             PrepItemSuppyTexts.th + 1,
             tm,
@@ -401,7 +396,6 @@ static void SkillSynth_DrawOwnerText(struct SkillSynthListProc *proc)
             0,
             GetStringFromIndex(GetUnitFromCharId(gPrepScreenItemList[idx].pid)->pCharacterData->nameTextId)
         );
-    }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
@@ -409,12 +403,12 @@ static void SkillSynth_DrawOwnerText(struct SkillSynthListProc *proc)
 static void SkillSynth_DrawPreviewSlot(struct Text *th, int y, u16 item, int color, const char *emptyStr)
 {
     ClearText(th);
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_SLOT_ICON_X, y), 12, 2, 0);
+    SkillSynth_FillBg0(SKILL_SYNTH_SLOT_ICON_X, y, 11, 2);
 
     if (item == 0) {
         PutDrawText(
             th,
-            TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_SLOT_TEXT_X, y),
+            TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_SLOT_ICON_X, y),
             TEXT_COLOR_SYSTEM_GRAY,
             0,
             0,
@@ -434,16 +428,9 @@ static void SkillSynth_DrawPreviewSlot(struct Text *th, int y, u16 item, int col
     );
 }
 
-static void SkillSynth_DrawPreviewFrames(void)
-{
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX1_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
-    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX2_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
-}
-
 static void SkillSynth_DrawPreview(struct SkillSynthListProc *proc)
 {
-    int cursor = proc->idxPerPage[proc->currentPage];
+    int cursor = proc->idxPerPage[0];
     int sidA = 0;
     int sidB = 0;
     u16 hover = 0;
@@ -451,14 +438,11 @@ static void SkillSynth_DrawPreview(struct SkillSynthListProc *proc)
     u16 itemB = 0;
     u16 resultItem = 0;
     const char *resultEmpty = "Nothing";
+    int i;
 
-    TileMap_FillRect(
-        TILEMAP_LOCATED(gBG0TilemapBuffer, SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y),
-        SKILL_SYNTH_BOX_W,
-        12,
-        0
-    );
-    SkillSynth_DrawPreviewFrames();
+    for (i = 0; i < 3; i++)
+        SkillSynth_FillBg0(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y + i * 4, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H);
+
     ClearText(&PrepItemSuppyTexts.th[2]);
     ClearText(&PrepItemSuppyTexts.th[3]);
     ClearText(&PrepItemSuppyTexts.th[4]);
@@ -489,46 +473,21 @@ static void SkillSynth_DrawPreview(struct SkillSynthListProc *proc)
         }
     }
 
-    SkillSynth_DrawPreviewSlot(
-        &PrepItemSuppyTexts.th[2],
-        SKILL_SYNTH_SLOT0_Y,
-        itemA,
-        TEXT_COLOR_SYSTEM_WHITE,
-        "Nothing"
-    );
-    SkillSynth_DrawPreviewSlot(
-        &PrepItemSuppyTexts.th[3],
-        SKILL_SYNTH_SLOT1_Y,
-        itemB,
-        TEXT_COLOR_SYSTEM_WHITE,
-        "Nothing"
-    );
-    SkillSynth_DrawPreviewSlot(
-        &PrepItemSuppyTexts.th[4],
-        SKILL_SYNTH_SLOT2_Y,
-        resultItem,
-        TEXT_COLOR_SYSTEM_GREEN,
-        resultEmpty
-    );
-
+    SkillSynth_DrawPreviewSlot(&PrepItemSuppyTexts.th[2], SKILL_SYNTH_SLOT0_Y, itemA, TEXT_COLOR_SYSTEM_WHITE, "Nothing");
+    SkillSynth_DrawPreviewSlot(&PrepItemSuppyTexts.th[3], SKILL_SYNTH_SLOT1_Y, itemB, TEXT_COLOR_SYSTEM_WHITE, "Nothing");
+    SkillSynth_DrawPreviewSlot(&PrepItemSuppyTexts.th[4], SKILL_SYNTH_SLOT2_Y, resultItem, TEXT_COLOR_SYSTEM_GREEN, resultEmpty);
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-static void SkillSynth_InitTexts(void)
+static void SkillSynth_DrawPrompt(const char *line0, const char *line1)
 {
-    int i;
-
-    InitText(PrepItemSuppyTexts.th + 1, 5);
-    InitText(PrepItemSuppyTexts.th + 15, 4);
-
-    for (i = 0; i < 8; ++i)
-        InitTextDb(PrepItemSuppyTexts.th + 7 + i, SKILL_SYNTH_LIST_TEXT_W);
-
-    InitText(&PrepItemSuppyTexts.th[0], 12);
-    InitText(&PrepItemSuppyTexts.th[5], 8);
-    InitText(&PrepItemSuppyTexts.th[2], 8);
-    InitText(&PrepItemSuppyTexts.th[3], 8);
-    InitText(&PrepItemSuppyTexts.th[4], 8);
+    SetTextFont(NULL);
+    SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+    SkillSynth_FillBg0(5, 1, 11, 4);
+    ClearText(&PrepItemSuppyTexts.th[0]);
+    ClearText(&PrepItemSuppyTexts.th[5]);
+    PutDrawText(&PrepItemSuppyTexts.th[0], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2), TEXT_COLOR_SYSTEM_WHITE, 2, 0, line0);
+    PutDrawText(&PrepItemSuppyTexts.th[5], TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 4), TEXT_COLOR_SYSTEM_WHITE, 2, 0, line1);
 }
 
 static void SkillSynth_DrawListCount(void)
@@ -539,42 +498,15 @@ static void SkillSynth_DrawListCount(void)
     SetTextFont(NULL);
     SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
 
-    /* Do not FillRect with tile 0 — that is the owner-name glyph sheet, not blank. */
     if (n > 99)
         PutNumber(tm, TEXT_COLOR_SYSTEM_WHITE, n);
     else
         PutNumber2Digit(tm, TEXT_COLOR_SYSTEM_WHITE, n);
 }
 
-static void SkillSynth_DrawTitle(void)
-{
-    SetTextFont(NULL);
-    SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
-    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 5, 1), 11, 4, 0);
-    ClearText(&PrepItemSuppyTexts.th[0]);
-    ClearText(&PrepItemSuppyTexts.th[5]);
-
-    PutDrawText(
-        &PrepItemSuppyTexts.th[0],
-        TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2),
-        TEXT_COLOR_SYSTEM_WHITE,
-        2,
-        0,
-        "Combine two"
-    );
-    PutDrawText(
-        &PrepItemSuppyTexts.th[5],
-        TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 4),
-        TEXT_COLOR_SYSTEM_WHITE,
-        2,
-        0,
-        "skills"
-    );
-}
-
 static void SkillSynth_DrawHeader(void)
 {
-    SkillSynth_DrawTitle();
+    SkillSynth_DrawPrompt("Combine two", "skills");
     PutFaceChibi(FID_SKILL_SYNTH, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, 1), 0x270, 2, 0);
     SkillSynth_DrawListCount();
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -592,11 +524,24 @@ static void SkillSynth_SpriteWorker(ProcPtr proc)
     }
 
     SkillSynth_ApplyListWindow(synth);
-    UpdateMenuScrollBarConfig(0xc, synth->yOffsetPerPage[synth->currentPage], gUnknown_02012F56, 7);
+    if (synth->state == SKILL_SYNTH_STATE_CONFIRM)
+        gLCDControlBuffer.bg0cnt.priority = 1;
+    UpdateMenuScrollBarConfig(0xc, synth->yOffsetPerPage[0], gUnknown_02012F56, 7);
 }
 
-static void SkillSynth_SetupConfirmSprites(void)
+static void SkillSynth_PutConfirmBoxSprites(void)
 {
+    PrepItemDrawPopupBox(0x40, 0x21, 5, 4, OAM2_PAL(10) + OAM2_LAYER(0) + OAM2_CHR(0x40));
+    PutSpriteExt(4, 72, 0x25, gObject_32x16, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x80));
+    PutSpriteExt(4, 72, 0x35, gObject_32x16, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x88));
+}
+
+static void SkillSynth_EnterConfirm(struct SkillSynthListProc *proc)
+{
+    proc->state = SKILL_SYNTH_STATE_CONFIRM;
+    proc->confirmChoice = 0;
+    SkillSynth_DrawPreview(proc);
+
     InitSpriteTextFont(&PrepItemSuppyTexts.font, (void *)0x6011000, 0xb);
     ApplyPalette(Pal_Text, 0x1B);
     InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
@@ -606,77 +551,41 @@ static void SkillSynth_SetupConfirmSprites(void)
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0, TEXT_COLOR_SYSTEM_WHITE, "Yes");
     Text_InsertDrawString(&PrepItemSuppyTexts.th[0xf], 0x40, TEXT_COLOR_SYSTEM_WHITE, "No");
     SetTextFont(NULL);
+
+    CloseHelpBox();
+    proc->unk_36 = 0;
+    SkillSynth_DrawPrompt("Synthesize", "skill?");
+    gLCDControlBuffer.bg0cnt.priority = 1;
+    StartParallelWorker(SkillSynth_PutConfirmBoxSprites, proc);
+    EndUiCursorHand();
+    ShowSysHandCursor(68, 36, 0x4, 0x000);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static void SkillSynth_RefreshPicks(struct SkillSynthListProc *proc, int song)
+{
+    SkillSynth_DrawPreview(proc);
+    SkillSynth_PlaceFocusHand(proc);
+    PlaySoundEffect(song);
 }
 
 static void SkillSynth_RedrawList(struct SkillSynthListProc *proc)
 {
     proc->currentPage = 0;
-    ResetIconGraphics_();
     SkillSynth_DrawOwnerText(proc);
     SkillSynth_DrawPreview(proc);
     SkillSynth_DrawScrollItems(proc);
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
 }
 
-void SkillSynth_PutResultPopupSprites(void)
+static void SkillSynth_RestoreUi(struct SkillSynthListProc *proc, int resetIcons)
 {
-    struct PopupProc *popup = Proc_Find(ProcScr_Popup);
-    int x;
-    int y;
-    int px;
-    int inner_w;
+    if (resetIcons)
+        ResetIconGraphics_();
 
-    if (popup == NULL)
-        return;
-
-    x = popup->xTileReal * 8;
-    y = popup->yTileReal * 8;
-    PrepItemDrawPopupBox(x, y, popup->xTileSize, 2,
-        OAM2_PAL(10) + OAM2_LAYER(0) + OAM2_CHR(0x40));
-
-    x = (popup->xTileReal + 1) * 8;
-    inner_w = (popup->xTileSize - 2) * 8;
-
-    for (px = 0; px < inner_w; px += 32)
-        PutSpriteExt(0, x + px, y + 4,
-            gObject_32x16,
-            OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x80 + px / 8));
-}
-
-void SkillSynth_OnPopupDraw(struct PopupProc *proc, int x_pos, int y_pos, int tile_w, int icon_pos)
-{
-    proc->xTileReal = x_pos;
-    proc->yTileReal = y_pos;
-    proc->xTileSize = tile_w;
-    proc->yTileSize = 2;
-    proc->iconX += icon_pos;
-
-    gLCDControlBuffer.bg0cnt.priority = 1;
-
-    InitSpriteTextFont(&PrepItemSuppyTexts.font, (void *)0x6011000, 0xb);
-    ApplyPalette(Pal_Text, 0x1B);
-    InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
-    SetTextFont(&PrepItemSuppyTexts.font);
-    SetTextFontGlyphs(0);
-    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
-    Text_InsertDrawString(
-        &PrepItemSuppyTexts.th[0xf],
-        icon_pos,
-        TEXT_COLOR_SYSTEM_WHITE,
-        GetStringFromIndex(MSG_SYNTHESIZED)
-    );
-    Text_InsertDrawString(
-        &PrepItemSuppyTexts.th[0xf],
-        proc->iconX + 16,
-        TEXT_COLOR_SYSTEM_GOLD,
-        GetSkillNameStr(gPopupItem)
-    );
-    SetTextFont(NULL);
-
-    if (proc->iconId != 0xFFFF)
-        LoadIconObjectGraphics(proc->iconId, proc->iconObjTileId);
-
-    StartParallelWorker(SkillSynth_PutResultPopupSprites, proc);
+    SkillSynth_RedrawList(proc);
+    SkillSynth_DrawHeader();
+    SkillSynth_PlaceCursor(proc);
 }
 
 static void SkillSynth_PlaceFocusHand(struct SkillSynthListProc *proc)
@@ -700,8 +609,7 @@ static void SkillSynth_PlaceFocusHand(struct SkillSynthListProc *proc)
 
 static void SkillSynth_PlaceCursor(struct SkillSynthListProc *proc)
 {
-    int idx = proc->idxPerPage[0];
-    int yPos = SkillSynth_SlotScreenY(idx - SkillSynth_ListTop(proc));
+    int yPos = SKILL_SYNTH_WIN0_TOP + (proc->idxPerPage[0] - SkillSynth_ListTop(proc)) * 16;
 
     ShowSysHandCursor(SKILL_SYNTH_LIST_HAND_X, yPos, 0xB, 0x800);
     proc->handX = SKILL_SYNTH_LIST_HAND_X;
@@ -712,21 +620,19 @@ static void SkillSynth_PlaceCursor(struct SkillSynthListProc *proc)
 static void SkillSynth_ShowHelpBox(struct SkillSynthListProc *proc)
 {
     int idx = proc->idxPerPage[0];
-    u16 item;
 
     if (idx < 0 || idx >= gUnknown_02012F56)
         return;
 
-    item = gPrepScreenItemList[idx].item;
     HelpBoxResetPageState();
-    StartItemHelpBox(SKILL_SYNTH_LIST_HAND_X, proc->handY, item);
+    StartItemHelpBox(SKILL_SYNTH_LIST_HAND_X, proc->handY, gPrepScreenItemList[idx].item);
     proc->unk_36 = 1;
 }
 
 static void SkillSynth_EnsureCursorVisible(struct SkillSynthListProc *proc)
 {
     int idx = proc->idxPerPage[0];
-    int top = proc->yOffsetPerPage[0] >> 4;
+    int top = SkillSynth_ListTop(proc);
 
     if (idx < top)
         top = idx;
@@ -742,29 +648,25 @@ static void SkillSynth_EnsureCursorVisible(struct SkillSynthListProc *proc)
 static void SkillSynth_ShowCursor(struct SkillSynthListProc *proc)
 {
     SkillSynth_EnsureCursorVisible(proc);
-    SkillSynth_RedrawList(proc);
-    SkillSynth_PlaceCursor(proc);
+    SkillSynth_RestoreUi(proc, false);
 }
 
 static void SkillSynth_RefreshListView(struct SkillSynthListProc *proc)
 {
     SkillSynth_BuildScrollList(proc);
     SkillSynth_EnsureCursorVisible(proc);
-    SkillSynth_RedrawList(proc);
-    SkillSynth_PlaceCursor(proc);
+    SkillSynth_RestoreUi(proc, true);
 }
 
 static void SkillSynth_PerformSynthesis(struct SkillSynthListProc *proc, u16 resultSid)
 {
     const struct PrepScreenItemListEnt *ent1 = &gPrepScreenItemList[proc->firstIdx];
     const struct PrepScreenItemListEnt *ent2 = &gPrepScreenItemList[proc->secondIdx];
-    u16 newItem = MakeSkillScrollItem(resultSid);
 
-    /* Keep the result on the first slot, then consume only the second scroll. */
-    SkillSynth_WriteAt(ent1->pid, ent1->itemSlot, newItem);
+    SkillSynth_WriteAt(ent1->pid, ent1->itemSlot, MakeSkillScrollItem(resultSid));
     SkillSynth_RemoveAt(ent2);
 
-    Proc_End(GetParallelWorker(PutGiveTakeBoxSprites));
+    Proc_End(GetParallelWorker(SkillSynth_PutConfirmBoxSprites));
     SetTextFont(NULL);
     SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
 
@@ -774,14 +676,12 @@ static void SkillSynth_PerformSynthesis(struct SkillSynthListProc *proc, u16 res
 
     PlaySoundEffect(SONG_SE_UPDATE);
     SkillSynth_RefreshListView(proc);
-    SkillSynth_DrawHeader();
     SetPopupItem(resultSid);
     NewPopup_Simple(SkillSynthPopup, 0x60, 0x00, proc);
 }
 
 static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
 {
-
     if (proc->fromWorldMap)
         SetDispEnable(0, 0, 0, 0, 0);
 
@@ -826,7 +726,9 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     TileMap_FillRect(gBG1TilemapBuffer + (0x8 * 32), 14, 12, 0);
     Decompress(gUnknown_08A1BCC0, gGenericBuffer);
     CallARM_FillTileRect(gBG1TilemapBuffer, gGenericBuffer, 0x1000);
-    SkillSynth_DrawPreviewFrames();
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX0_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX1_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
+    DrawUiFrame2(SKILL_SYNTH_BOX_X, SKILL_SYNTH_BOX2_Y, SKILL_SYNTH_BOX_W, SKILL_SYNTH_BOX_H, 0);
 
     BG_EnableSyncByMask(7);
     StartUiCursorHand(proc);
@@ -844,7 +746,22 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     if (proc->unit == NULL && PrepGetUnitAmount() > 0)
         proc->unit = GetUnitFromPrepList(0);
 
-    SkillSynth_InitTexts();
+    InitText(PrepItemSuppyTexts.th + 1, 5);
+    InitText(PrepItemSuppyTexts.th + 15, 4);
+    {
+        int i;
+
+        for (i = 0; i < 8; ++i)
+            InitTextDb(PrepItemSuppyTexts.th + 7 + i, SKILL_SYNTH_LIST_TEXT_W);
+    }
+    InitText(&PrepItemSuppyTexts.th[0], 10);
+    InitText(&PrepItemSuppyTexts.th[5], 8);
+    InitText(&PrepItemSuppyTexts.th[2], 8);
+    InitText(&PrepItemSuppyTexts.th[3], 8);
+    InitText(&PrepItemSuppyTexts.th[4], 8);
+
+    CpuFill16(0, (void *)(VRAM + SKILL_SYNTH_BLANK_TILE * CHR_SIZE), CHR_SIZE);
+    SkillSynth_FillBg0(SKILL_SYNTH_LIST_TILE_X, SKILL_SYNTH_LIST_TILE_Y, 12, 14);
     SetPrimaryHBlankHandler(PrepItemSupply_OnHBlank);
     StartMenuScrollBarExt(proc, 225, SKILL_SYNTH_WIN0_TOP + 7, 0x5800, 9);
     sub_8097668();
@@ -862,28 +779,29 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     SetBlendTargetA(0, 0, 0, 0, 0);
     SetBlendTargetB(0, 0, 0, 1, 0);
 
-    SkillSynth_DrawHeader();
     StartParallelWorker(SkillSynth_SpriteWorker, proc);
     SetDispEnable(1, 1, 1, 1, 1);
     SkillSynth_RedrawList(proc);
+    SkillSynth_DrawHeader();
 }
 
 static void SkillSynth_ExitConfirm(struct SkillSynthListProc *proc)
 {
     proc->state = SKILL_SYNTH_STATE_LIST;
-    Proc_End(GetParallelWorker(PutGiveTakeBoxSprites));
+    Proc_End(GetParallelWorker(SkillSynth_PutConfirmBoxSprites));
     EndUiCursorHand();
     StartUiCursorHand(proc);
     HideSysHandCursor();
+    SetTextFont(NULL);
+    SetTextFontGlyphs(TEXT_GLYPHS_SYSTEM);
+    gLCDControlBuffer.bg0cnt.priority = 0;
+    SkillSynth_DrawPrompt("Combine two", "skills");
     SkillSynth_PlaceCursor(proc);
-    SkillSynth_DrawHeader();
-    SkillSynth_DrawPreview(proc);
 }
 
 static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
 {
     int idx;
-    int cursorIdx;
     u16 sidA = 0;
     u16 sidB = 0;
     u16 resultSid;
@@ -891,35 +809,27 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
     if (proc->state == SKILL_SYNTH_STATE_POPUP_WAIT) {
         if (!Proc_Find(ProcScr_Popup)) {
             proc->state = SKILL_SYNTH_STATE_LIST;
-            /* The count is already correct; redrawing the chibi/numbers here
-               after the sprite-font popup stomps the nameplate glyphs. */
-            SkillSynth_DrawTitle();
-            BG_EnableSyncByMask(BG0_SYNC_BIT);
+            gLCDControlBuffer.bg0cnt.priority = 0;
             StartUiCursorHand(proc);
-            SkillSynth_PlaceCursor(proc);
+            SkillSynth_RestoreUi(proc, true);
         }
         return;
     }
 
     proc->currentPage = 0;
     idx = proc->idxPerPage[0];
-    cursorIdx = proc->idxPerPage[0];
 
     if (proc->firstIdx >= 0)
         SkillSynth_GetSidFromIdx(proc->firstIdx, &sidA);
-    else
-        sidA = 0;
 
     if (proc->secondIdx >= 0)
         SkillSynth_GetSidFromIdx(proc->secondIdx, &sidB);
-    else
-        sidB = 0;
 
     resultSid = (proc->firstIdx >= 0 && proc->secondIdx >= 0)
         ? SkillSynth_LookupResult(sidA, sidB)
         : 0;
 
-    if ((proc->yOffsetPerPage[proc->currentPage] & 0xf) == 0) {
+    if ((proc->yOffsetPerPage[0] & 0xf) == 0) {
         if ((proc->unk_36 == 0) || (proc->unk_36 == 0xff)) {
             if (gKeyStatusPtr->newKeys & R_BUTTON) {
                 if (gUnknown_02012F56 == 0 || proc->state == SKILL_SYNTH_STATE_CONFIRM) {
@@ -952,56 +862,29 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
                 }
 
                 if (proc->firstIdx < 0) {
-                    proc->firstIdx = cursorIdx;
-                    SkillSynth_DrawPreview(proc);
-                    SkillSynth_PlaceFocusHand(proc);
-                    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+                    proc->firstIdx = idx;
+                    SkillSynth_RefreshPicks(proc, SONG_SE_SYS_WINDOW_SELECT1);
                     return;
                 }
 
                 if (proc->secondIdx < 0) {
-                    if (cursorIdx == proc->firstIdx) {
+                    if (idx == proc->firstIdx) {
                         proc->firstIdx = -1;
-                        SkillSynth_DrawPreview(proc);
-                        SkillSynth_PlaceFocusHand(proc);
-                        PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+                        SkillSynth_RefreshPicks(proc, SONG_SE_SYS_WINDOW_CANSEL1);
                         return;
                     }
 
-                    proc->secondIdx = cursorIdx;
+                    proc->secondIdx = idx;
                     SkillSynth_GetSidFromIdx(proc->secondIdx, &sidB);
                     resultSid = SkillSynth_LookupResult(sidA, sidB);
 
                     if (resultSid == 0) {
                         proc->secondIdx = -1;
-                        PlaySoundEffect(SONG_6C);
-                        SkillSynth_DrawPreview(proc);
-                        SkillSynth_PlaceFocusHand(proc);
+                        SkillSynth_RefreshPicks(proc, SONG_6C);
                         return;
                     }
 
-                    proc->state = SKILL_SYNTH_STATE_CONFIRM;
-                    proc->confirmChoice = 0;
-                    SkillSynth_DrawPreview(proc);
-                    SkillSynth_SetupConfirmSprites();
-                    CloseHelpBox();
-                    proc->unk_36 = 0;
-                    ClearText(&PrepItemSuppyTexts.th[0]);
-                    ClearText(&PrepItemSuppyTexts.th[5]);
-                    TileMap_FillRect(TILEMAP_LOCATED(gBG0TilemapBuffer, 5, 1), 11, 4, 0);
-                    PutDrawText(
-                        &PrepItemSuppyTexts.th[0],
-                        TILEMAP_LOCATED(gBG0TilemapBuffer, 6, 2),
-                        TEXT_COLOR_SYSTEM_WHITE,
-                        2,
-                        0,
-                        "Synthesize skill?"
-                    );
-                    StartParallelWorker(PutGiveTakeBoxSprites, proc);
-                    EndUiCursorHand();
-                    ShowSysHandCursor(68, 36, 0x4, 0x000);
-                    SkillSynth_DrawScrollItems(proc);
-                    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+                    SkillSynth_EnterConfirm(proc);
                     PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
                     return;
                 }
@@ -1019,17 +902,13 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
 
                 if (proc->secondIdx >= 0) {
                     proc->secondIdx = -1;
-                    SkillSynth_DrawPreview(proc);
-                    SkillSynth_PlaceFocusHand(proc);
-                    PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+                    SkillSynth_RefreshPicks(proc, SONG_SE_SYS_WINDOW_CANSEL1);
                     return;
                 }
 
                 if (proc->firstIdx >= 0) {
                     proc->firstIdx = -1;
-                    SkillSynth_DrawPreview(proc);
-                    SkillSynth_PlaceFocusHand(proc);
-                    PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+                    SkillSynth_RefreshPicks(proc, SONG_SE_SYS_WINDOW_CANSEL1);
                     return;
                 }
 
@@ -1056,8 +935,6 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
         }
 
         if (proc->state != SKILL_SYNTH_STATE_CONFIRM) {
-            proc->scrollAmount = 16;
-
             if ((gKeyStatusPtr->repeatedKeys & DPAD_UP) ||
                 ((gKeyStatusPtr->heldKeys & DPAD_UP) && (gKeyStatusPtr->heldKeys & L_BUTTON))) {
                 if (proc->idxPerPage[0] != 0)
@@ -1073,9 +950,14 @@ static void SkillSynth_Loop_MainKeyHandler(struct SkillSynthListProc *proc)
     }
 
     if (idx != proc->idxPerPage[0] && proc->state != SKILL_SYNTH_STATE_CONFIRM) {
+        int oldTop = SkillSynth_ListTop(proc);
+
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         SkillSynth_EnsureCursorVisible(proc);
-        SkillSynth_RedrawList(proc);
+        SkillSynth_DrawOwnerText(proc);
+        SkillSynth_DrawPreview(proc);
+        if (SkillSynth_ListTop(proc) != oldTop)
+            SkillSynth_DrawScrollItems(proc);
         SkillSynth_PlaceCursor(proc);
 
         if (proc->unk_36 != 0)
@@ -1162,9 +1044,8 @@ PROC_LABEL(PL_SKILL_SYNTH_WM_ENTRY),
 
 void StartSkillSynthScreen_FromPrep(struct ProcAtMenu *pproc)
 {
-    struct SkillSynthListProc *proc;
+    struct SkillSynthListProc *proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_SKILL_SYNTH, pproc);
 
-    proc = Proc_StartBlocking(ProcScr_PrepItemListScreen_SKILL_SYNTH, pproc);
     proc->fromWorldMap = false;
     proc->wmGfxPaused = false;
 }

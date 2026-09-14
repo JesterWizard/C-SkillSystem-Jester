@@ -2,6 +2,10 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
+#include "constants/texts.h"
+#include "skill-system.h"
+#include "popup.h"
+#include "popup-reowrk.h"
 
 // Helper function to set both BG layers at once
 STATIC_DECLAR void SetBothBGTiles(u16* clearBuffer, u16* tileBuffer, int x, int y, u16 modelTile) {
@@ -269,8 +273,9 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
        instead of the default OBJ palette 0.  OBJ palette 0 is used by DrawCostSprite
        (the shard-cost number sprites); clobbering it with the icon palette would make
        those number sprites display with icon colours after the popup closes. */
-    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
-        proc->iconPalId = 0x12;  /* OBJ palette 2 — not otherwise used in the infuse screen */
+    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE) ||
+        Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+        proc->iconPalId = 0x12;
 
     len = ParsePopupInstAndGetLen(proc);
     proc->xGfxSize = len;
@@ -364,4 +369,65 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
             child->unk_30 = (proc->yTileReal + 1) * 8;
         child->unk_4A = proc->iconObjTileId | (proc->iconPalId & 0xf) << 0xC;
     }
+}
+
+void SkillSynth_PutResultPopupSprites(void)
+{
+    struct PopupProc *popup = Proc_Find(ProcScr_Popup);
+    int x;
+    int y;
+    int px;
+    int inner_w;
+
+    if (popup == NULL)
+        return;
+
+    x = popup->xTileReal * 8;
+    y = popup->yTileReal * 8;
+    PrepItemDrawPopupBox(x, y, popup->xTileSize, 2,
+        OAM2_PAL(10) + OAM2_LAYER(0) + OAM2_CHR(0x40));
+
+    x = (popup->xTileReal + 1) * 8;
+    inner_w = (popup->xTileSize - 2) * 8;
+
+    for (px = 0; px < inner_w; px += 32)
+        PutSpriteExt(0, x + px, y + 4,
+            gObject_32x16,
+            OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x80 + px / 8));
+}
+
+void SkillSynth_OnPopupDraw(struct PopupProc *proc, int x_pos, int y_pos, int tile_w, int icon_pos)
+{
+    proc->xTileReal = x_pos;
+    proc->yTileReal = y_pos;
+    proc->xTileSize = tile_w;
+    proc->yTileSize = 2;
+    proc->iconX += icon_pos;
+
+    gLCDControlBuffer.bg0cnt.priority = 1;
+
+    InitSpriteTextFont(&PrepItemSuppyTexts.font, (void *)0x6011000, 0xb);
+    ApplyPalette(Pal_Text, 0x1B);
+    InitSpriteText(&PrepItemSuppyTexts.th[0xf]);
+    SetTextFont(&PrepItemSuppyTexts.font);
+    SetTextFontGlyphs(0);
+    SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
+    Text_InsertDrawString(
+        &PrepItemSuppyTexts.th[0xf],
+        icon_pos,
+        TEXT_COLOR_SYSTEM_WHITE,
+        GetStringFromIndex(MSG_SYNTHESIZED)
+    );
+    Text_InsertDrawString(
+        &PrepItemSuppyTexts.th[0xf],
+        proc->iconX + 16,
+        TEXT_COLOR_SYSTEM_GOLD,
+        GetSkillNameStr(gPopupItem)
+    );
+    SetTextFont(NULL);
+
+    if (proc->iconId != 0xFFFF)
+        LoadIconObjectGraphics(proc->iconId, proc->iconObjTileId);
+
+    StartParallelWorker(SkillSynth_PutResultPopupSprites, proc);
 }
