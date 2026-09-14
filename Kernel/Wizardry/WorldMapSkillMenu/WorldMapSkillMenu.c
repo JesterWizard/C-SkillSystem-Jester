@@ -8,46 +8,7 @@
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 
-enum {
-	WM_SKILL_WORLD_MAP_UNIT_COUNT = 7,
-};
-
-static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuProc);
 static void WmSkillMenu_ClearOam(void);
-
-static void WmSkillMenu_SuspendWorldMapSprites(struct WmSkillMenuProc *proc)
-{
-	int i;
-
-	if (!proc->worldMapSpritesSuspended) {
-		for (i = 0; i < WM_SKILL_WORLD_MAP_UNIT_COUNT; ++i)
-			proc->savedWorldMapUnitStates[i] = gGMData.units[i].state & GM_UNIT_STATE_B0;
-
-		proc->savedWorldMapNodeIconState = GM_ICON->skip;
-		proc->worldMapSpritesSuspended = true;
-	}
-
-	HideGmUnit(-1);
-	GM_ICON->skip = 0;
-}
-
-static void WmSkillMenu_RestoreWorldMapSprites(struct WmSkillMenuProc *proc)
-{
-	int i;
-
-	if (!proc->worldMapSpritesSuspended)
-		return;
-
-	HideGmUnit(-1);
-
-	for (i = 0; i < WM_SKILL_WORLD_MAP_UNIT_COUNT; ++i) {
-		if (proc->savedWorldMapUnitStates[i])
-			ShowGmUnit(i);
-	}
-
-	GM_ICON->skip = proc->savedWorldMapNodeIconState;
-	proc->worldMapSpritesSuspended = false;
-}
 
 static int WmSkillMenu_GetUnitCount(void)
 {
@@ -220,14 +181,13 @@ static void WmSkillMenu_ClearOam(void)
 
 static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 {
-	gSavedWorldMapUnitId = gGMData.units[0].id;
-	WmSkillMenu_SuspendWorldMapSprites(proc);
 	SetDispEnable(0, 0, 0, 0, 0);
 	ClearSprites();
 	WmSkillMenu_ClearOam();
 
 	gLCDControlBuffer.dispcnt.mode = 0;
 	SetupBackgrounds(NULL);
+	SetDispEnable(0, 0, 0, 0, 0);
 
 	CpuFastFill16(0, (void *)0x06010000, 0x5FE0);
 
@@ -235,6 +195,11 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
     BG_Fill(gBG1TilemapBuffer, 0);
     BG_Fill(gBG2TilemapBuffer, 0);
     BG_Fill(gBG3TilemapBuffer, 0);
+
+	BG_SetPosition(0, 0, 0);
+	BG_SetPosition(1, 0, 0);
+	BG_SetPosition(2, 0, 0);
+	BG_SetPosition(3, 0, 0);
 
 	gLCDControlBuffer.bg0cnt.priority = 0;
 	gLCDControlBuffer.bg1cnt.priority = 2;
@@ -251,6 +216,8 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 	LoadIconPalettes(4);
 	ApplyUnitSpritePalettes();
 	RestartMuralBackground();
+	gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
+	EnablePaletteSync();
 
     StartMenuScrollBar(proc); 
     PutMenuScrollBarAt(14*8, 64); 
@@ -286,8 +253,6 @@ static void WmSkillMenu_InitGraphics(struct WmSkillMenuProc *proc)
 
 	WmSkillMenu_DrawSkillScreen(proc);
 	WmSkillMenu_DrawSelection(proc);
-	SetDispEnable(1, 1, 1, 1, 1);
-
 }
 
 static void WmSkillMenu_ClampListCursor(struct WmSkillMenuProc *proc)
@@ -456,17 +421,11 @@ static void WmSkillMenu_Loop(struct WmSkillMenuProc *proc)
 static void WmSkillMenu_OnEnd(struct WmSkillMenuProc *proc)
 {
 	Proc_EndEach(ProcScr_SlidingWallBg);
-    WmSkillMenu_CloseHoverHelp();
-    EndAllProcChildren(proc);
-	WmSkillMenu_RestoreWorldMapSprites(proc);
-    gGMData.units[0].id = gSavedWorldMapUnitId;
-    gGMData.sprite_disp = 1;
-	gGMData.xCamera = gSavedWorldMapXCoordiate;
-	gGMData.yCamera = gSavedWorldMapYCoordiate;
-    ClearBg0Bg1();
-	SetDefaultColorEffects();
-
- 	returnToWorldMap_External();
+	WmSkillMenu_CloseHoverHelp();
+	EndAllProcChildren(proc);
+	EndMuralBackground_();
+	ClearBg0Bg1();
+	SetPrimaryHBlankHandler(NULL);
 }
 
 const struct ProcCmd ProcScr_WMNodeSkillMenu[] = {
@@ -491,22 +450,15 @@ PROC_LABEL(2),
 
 
 PROC_LABEL(3),
-    PROC_CALL_ARG(NewFadeOut, 0x10),
-    PROC_WHILE(FadeOutExists),
-	PROC_END,
-
-PROC_LABEL(4),
 	PROC_CALL_ARG(NewFadeOut, 0x10),
 	PROC_WHILE(FadeOutExists),
-	PROC_GOTO(0),
+	PROC_END,
 };
 
-static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuProc)
+static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(ProcPtr parent)
 {
-	struct WmSkillMenuProc *proc = Proc_StartBlocking(ProcScr_WMNodeSkillMenu, menuProc);
+	struct WmSkillMenuProc *proc = Proc_StartBlocking(ProcScr_WMNodeSkillMenu, parent);
 
-	proc->worldMapSpritesSuspended = false;
-	WmSkillMenu_SuspendWorldMapSprites(proc);
 	MakePrepUnitList();
 	proc->unitCount = WmSkillMenu_GetUnitCount();
 	proc->listCursor = 0;
@@ -521,6 +473,39 @@ static struct WmSkillMenuProc *StartWMNodeSkillMenuCore(struct MenuProc *menuPro
 	return proc;
 }
 
+static void WmSkillMenu_StartAfterWmTeardown(ProcPtr parent)
+{
+	StartWMNodeSkillMenuCore(parent);
+}
+
+static void WmSkillMenu_RestoreWorldMap(void)
+{
+	struct WorldMapMainProc *wm = GM_MAIN;
+
+	gGMData.units[0].id = gSavedWorldMapUnitId;
+	gGMData.sprite_disp = 1;
+	gGMData.xCamera = gSavedWorldMapXCoordiate;
+	gGMData.yCamera = gSavedWorldMapYCoordiate;
+	SetDefaultColorEffects();
+	SetPrimaryHBlankHandler(NULL);
+
+	if (wm != NULL) {
+		WorldMap_Init(wm);
+		Proc_Goto(wm, 24);
+	}
+}
+
+static const struct ProcCmd ProcScr_WmSkillMenuWm[] = {
+	PROC_YIELD,
+	PROC_CALL_ARG(NewFadeOut, 16),
+	PROC_WHILE(FadeOutExists),
+	PROC_CALL(sub_80B9810),
+	PROC_CALL(WmSkillMenu_StartAfterWmTeardown),
+	PROC_YIELD,
+	PROC_CALL(WmSkillMenu_RestoreWorldMap),
+	PROC_END,
+};
+
 void StartWMNodeSkillMenu(struct MenuProc *menuProc)
 {
 	StartWMNodeSkillMenuCore(menuProc);
@@ -533,12 +518,10 @@ void StartWorldMapSkillMenu(struct MenuProc *menuProc)
 
 void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc)
 {
-	// Reset camera position to (0, 0) to prevent weird scrolling behavior during the transition
+	(void)menuProc;
+
+	gSavedWorldMapUnitId = gGMData.units[0].id;
 	gSavedWorldMapXCoordiate = gGMData.xCamera;
 	gSavedWorldMapYCoordiate = gGMData.yCamera;
-	gGMData.xCamera = 0;
-	gGMData.yCamera = 0;
-    ProcPtr wmProc = Proc_Find(ProcScr_WorldMapMain);
-	struct WmSkillMenuProc *proc = StartWMNodeSkillMenuCore(wmProc);
-	Proc_Goto(proc, 4);
+	Proc_StartBlocking(ProcScr_WmSkillMenuWm, Proc_Find(ProcScr_WorldMapMain));
 }
