@@ -206,16 +206,8 @@ void DrawUiFrame2(int x, int y, int width, int height, int style)
     int xMax = x + width  - 1;
     int yMax = y + height - 1;
 
-    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
-    {
-        DrawFrameInterior(gBG0TilemapBuffer, gBG0TilemapBuffer, x, y, xMax, yMax, model, style);
-        DrawCorners(gBG0TilemapBuffer, gBG0TilemapBuffer, x, y, xMax, yMax, model, style);
-    }
-    else
-    {
-        DrawFrameInterior(gBG0TilemapBuffer, gBG1TilemapBuffer, x, y, xMax, yMax, model, style);
-        DrawCorners(gBG0TilemapBuffer, gBG1TilemapBuffer, x, y, xMax, yMax, model, style); 
-    }
+    DrawFrameInterior(gBG0TilemapBuffer, gBG1TilemapBuffer, x, y, xMax, yMax, model, style);
+    DrawCorners(gBG0TilemapBuffer, gBG1TilemapBuffer, x, y, xMax, yMax, model, style);
 
     BG_SetPosition(0, 0, 0);
     BG_SetPosition(1, 0, 0);
@@ -225,14 +217,8 @@ void DrawUiFrame2(int x, int y, int width, int height, int style)
 LYN_REPLACE_CHECK(PopupProc_GfxClear);
 void PopupProc_GfxClear(struct PopupProc * proc)
 {
-    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
-    {
-        TileMap_FillRect(
-            TILEMAP_LOCATED(gBG0TilemapBuffer, proc->xTileReal, proc->yTileReal),
-            proc->xTileSize, proc->yTileSize, 0);
-        ShowSysHandCursor(gInfuseMenuArray[2], gInfuseMenuArray[3], 0xB, 0x800);
-    }
-    else if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE) ||
+        Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
     {
         Proc_End(GetParallelWorker(SkillSynth_PutResultPopupSprites));
         SetTextFont(NULL);
@@ -252,14 +238,6 @@ void PopupProc_GfxClear(struct PopupProc * proc)
     BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
-static void PutInfuseWeaponTextSprite(void)
-{
-    struct PopupProc* proc = Proc_Find(ProcScr_Popup);
-    int base_x = ((proc->xTileReal + 1) * 8) + 2;
-    PutSpriteExt(4, base_x, 72, gObject_64x32, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x90));
-    PutSpriteExt(4, base_x + 40, 72, gObject_64x32, OAM2_PAL(11) + OAM2_LAYER(0) + OAM2_CHR(0x97));
-}
-
 LYN_REPLACE_CHECK(PopupProc_GfxDraw);
 void PopupProc_GfxDraw(struct PopupProc * proc)
 {
@@ -271,10 +249,7 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
 
     u32 len;
 
-    /* When inside the infuse prep screen, redirect the popup icon to OBJ palette 2
-       instead of the default OBJ palette 0.  OBJ palette 0 is used by DrawCostSprite
-       (the shard-cost number sprites); clobbering it with the icon palette would make
-       those number sprites display with icon colours after the popup closes. */
+    /* Use a dedicated OBJ palette so popup icons do not clobber UI palettes. */
     if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE) ||
         Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
         proc->iconPalId = 0x12;
@@ -301,7 +276,8 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
 
     temp = tile_len + 2;
 
-    if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+    if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH) ||
+        Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
     {
         SkillSynth_OnPopupDraw(proc, x_pos, y_pos, temp, icon_pos);
     }
@@ -323,41 +299,8 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
         if (0xFFFF != proc->iconId)
             LoadIconObjectGraphics(proc->iconId, proc->iconObjTileId);
 
-        if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
-        {
-            struct PrepItemListProc * procInfuse = Proc_Find(ProcScr_PrepItemListScreen_INFUSE);
-
-            StartParallelWorker(PutInfuseWeaponTextSprite, proc);
-            ResetText();
-            ResetIconGraphics_();
-
-            drawItems_INFUSE(
-                PrepItemSuppyTexts.th + 7,
-                gBG2TilemapBuffer + 0xF,
-                (procInfuse->yOffsetPerPage[procInfuse->currentPage]) >> 4,
-                procInfuse->unit
-            );
-
-            /* Draw dragon egg icon */
-            DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 7, 13), GetItemIconId(0xAA), 0x4000);
-
-            /* Re-draw BG0 selected-item and infuse-target icons after ResetIconGraphics_()
-               resets the tile pool, otherwise their tile references point to stale data. */
-            if (gUnknown_02012F56 > 0) {
-                int idx = procInfuse->idxPerPage[procInfuse->currentPage];
-                u16 selItem = gPrepScreenItemList[idx].item;
-                u8 selItemId = ITEM_INDEX(selItem);
-                u8 tgt = gInfusionLookupTable[selItemId].targetItemId;
-                DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),  GetItemIconId(selItem), 0x4000);
-                if (tgt != 0)
-                    DrawIcon(TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 17), GetItemIconId(tgt), 0x4000);
-            }
-        }
-        else
-        {
-            PutText(&th, TILEMAP_LOCATED(gBG0TilemapBuffer, x_pos + 1, y_pos + 1));
-            ResetText();
-        }
+        PutText(&th, TILEMAP_LOCATED(gBG0TilemapBuffer, x_pos + 1, y_pos + 1));
+        ResetText();
     }
 
     if (0xFFFF != proc->iconId) {
@@ -365,7 +308,8 @@ void PopupProc_GfxDraw(struct PopupProc * proc)
             Proc_Start(ProcScr_PopupUpdateIcon, proc);
 
         child->unk_2C = (proc->xTileReal + 1) * 8 + proc->iconX;
-        if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH))
+        if (Proc_Find(ProcScr_PrepItemListScreen_SKILL_SYNTH) ||
+            Proc_Find(ProcScr_PrepItemListScreen_INFUSE))
             child->unk_30 = proc->yTileReal * 8 + 4;
         else
             child->unk_30 = (proc->yTileReal + 1) * 8;
@@ -414,18 +358,34 @@ void SkillSynth_OnPopupDraw(struct PopupProc *proc, int x_pos, int y_pos, int ti
     SetTextFont(&PrepItemSuppyTexts.font);
     SetTextFontGlyphs(0);
     SpriteText_DrawBackgroundExt(&PrepItemSuppyTexts.th[0xf], 0);
-    Text_InsertDrawString(
-        &PrepItemSuppyTexts.th[0xf],
-        icon_pos,
-        TEXT_COLOR_SYSTEM_WHITE,
-        GetStringFromIndex(MSG_SYNTHESIZED)
-    );
-    Text_InsertDrawString(
-        &PrepItemSuppyTexts.th[0xf],
-        proc->iconX + 16,
-        TEXT_COLOR_SYSTEM_GOLD,
-        GetSkillNameStr(gPopupItem)
-    );
+
+    if (Proc_Find(ProcScr_PrepItemListScreen_INFUSE)) {
+        Text_InsertDrawString(
+            &PrepItemSuppyTexts.th[0xf],
+            icon_pos,
+            TEXT_COLOR_SYSTEM_WHITE,
+            GetStringFromIndex(MSG_INFUSED)
+        );
+        Text_InsertDrawString(
+            &PrepItemSuppyTexts.th[0xf],
+            proc->iconX + 16,
+            TEXT_COLOR_SYSTEM_BLUE,
+            GetItemName(gPopupItem)
+        );
+    } else {
+        Text_InsertDrawString(
+            &PrepItemSuppyTexts.th[0xf],
+            icon_pos,
+            TEXT_COLOR_SYSTEM_WHITE,
+            GetStringFromIndex(MSG_SYNTHESIZED)
+        );
+        Text_InsertDrawString(
+            &PrepItemSuppyTexts.th[0xf],
+            proc->iconX + 16,
+            TEXT_COLOR_SYSTEM_GOLD,
+            GetSkillNameStr(gPopupItem)
+        );
+    }
     SetTextFont(NULL);
 
     if (proc->iconId != 0xFFFF)

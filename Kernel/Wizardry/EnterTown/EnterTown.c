@@ -28,6 +28,7 @@ extern void StartWorldMapThoughtBubble(struct MenuProc * menuProc);
 extern void StartWMNodeSkillMenuTransition(struct MenuProc *menuProc);
 extern void StartBEXPScreen_FromWorldMap(void);
 extern void StartSkillSynthScreen_FromWorldMap(void);
+extern void StartInfuseScreen_FromWorldMap(void);
 extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
 extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
 
@@ -226,10 +227,25 @@ u8 WMMenu_IsSkillSynthAvailable(const struct MenuItemDef * def, int number)
     return MENU_ENABLED;
 }
 
+u8 WMMenu_IsInfuseAvailable(const struct MenuItemDef * def, int number)
+{
+    if (gpKernelDesignerConfig->prep_menu_infuse == false)
+        return MENU_NOTSHOWN;
+
+    return MENU_ENABLED;
+}
+
 u8 WMMenu_OnSkillSynthSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
     gGMData.unk_cd = menuProc->itemCurrent;
     StartSkillSynthScreen_FromWorldMap();
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 WMMenu_OnInfuseSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
+{
+    gGMData.unk_cd = menuProc->itemCurrent;
+    StartInfuseScreen_FromWorldMap();
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
@@ -314,10 +330,19 @@ static struct MenuItemDef const MenuItemDef_WMNodeMenu_NEW[] =
     },
 
     {
+        .name = " Infuse",
+        .nameMsgId = MSG_WM_INFUSE_NAME,
+        .helpMsgId = MSG_PREP_SCREEN_DESC_INFUSE,
+        .overrideId = 8,
+        .isAvailable = WMMenu_IsInfuseAvailable,
+        .onSelected = WMMenu_OnInfuseSelected,
+    },
+
+    {
         .name = "　アイテム整理",
         .nameMsgId = 0x0671, // TODO: msgid " Manage Items[.]"
         .helpMsgId = 0x0678,
-        .overrideId = 8,
+        .overrideId = 9,
         .isAvailable = MenuAlwaysEnabled,
         .onSelected = WMMenu_OnManageItemsSelected,
     },

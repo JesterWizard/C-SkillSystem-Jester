@@ -164,6 +164,9 @@ will equip/remove.[X]
 ## MSG_WM_SKILL_SYNTH_NAME
  Synthesize[X]
 
+## MSG_WM_INFUSE_NAME
+ Infuse[X]
+
 ## MSG_WM_MANAGE_BEXP_DESC
 Distribute bonus EXP[N]
 amongst your units.[X]

@@ -188,12 +188,8 @@ extern u8 Gfx_Skill_Capacity_Circle_6_8[];
 extern u8 Gfx_Skill_Capacity_Circle_7_8[];
 extern u8 Gfx_Skill_Capacity_Circle_8_8[];
 
+extern void ShootArrow_ASMC(void);
 extern u8 Gfx_Down_Arrow[];
-extern u8 Gfx_UI_Frame_One_Line_1[];
-extern u8 Gfx_UI_Frame_One_Line_2[];
-extern u8 Gfx_UI_Frame_One_Line_3[];
-extern u8 Gfx_UI_Frame_One_Line_4[];
-
 extern u8 Gfx_UI_Number_0[];
 extern u8 Gfx_UI_Number_1[];
 extern u8 Gfx_UI_Number_2[];
@@ -204,9 +200,8 @@ extern u8 Gfx_UI_Number_6[];
 extern u8 Gfx_UI_Number_7[];
 extern u8 Gfx_UI_Number_8[];
 extern u8 Gfx_UI_Number_9[];
-
-extern void ShootArrow_ASMC(void);
 void StartInfuseScreen_FromPrep(struct ProcAtMenu *parent);
+void StartInfuseScreen_FromWorldMap(void);
 void StartSkillSynthScreen_FromPrep(struct ProcAtMenu *parent);
 void StartSkillSynthScreen_FromWorldMap(void);
 
