@@ -22,6 +22,11 @@ int GetItemMinRangeRework(u16 item, struct Unit *unit)
 		if (SkillTester(unit, SID_PointBlank) && GetItemType(item) == ITYPE_BOW)
 			status = 1;
 #endif
+
+#if defined(SID_MissileArm) && (COMMON_SKILL_VALID(SID_MissileArm))
+		if (SkillTester(unit, SID_MissileArm) && GetItemType(item) == ITYPE_LANCE)
+			status = 1;
+#endif
 	}
 	return status;
 }
@@ -69,6 +74,13 @@ int WeaponRangeGetterSkills(int range, struct Unit *unit, u16 item)
             range = range + 1;
 #endif
         break;
+
+	case ITYPE_LANCE:
+#if defined(SID_MissileArm) && (COMMON_SKILL_VALID(SID_MissileArm))
+		if (SkillTester(unit, SID_MissileArm) && range < 2)
+			range = range + 1;
+#endif
+		break;
 
 	case ITYPE_BOW:
 #if defined(SID_BowRangePlus1) && (COMMON_SKILL_VALID(SID_BowRangePlus1))

@@ -945,3 +945,6 @@ SID_SiegeRepair
 
 //////// ADDITIONAL MENU SKILLS
 SID_Drag
+
+//////// ADDITIONAL PASSIVE SKILLS
+SID_MissileArm

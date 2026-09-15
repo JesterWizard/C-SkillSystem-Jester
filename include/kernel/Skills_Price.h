@@ -917,3 +917,4 @@
 #define MSG_SKILL_SpatialShiftPlus_PRICE 1000
 #define MSG_SKILL_AssumingCommand_PRICE 1000
 #define MSG_SKILL_Drag_PRICE 1000
+#define MSG_SKILL_MissileArm_PRICE 1000

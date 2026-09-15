@@ -884,5 +884,6 @@
 #define SID_HalfSP 0x36F
 #define SID_SiegeRepair 0x370
 #define SID_Drag 0x371
+#define SID_MissileArm 0x372
 
 #endif /* SKILLS_EVENT */

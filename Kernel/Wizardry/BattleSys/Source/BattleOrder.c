@@ -802,8 +802,6 @@ DuelRoundStart:
             if (stop)
                 goto DuelFinish;
 
-            if (!CheckCanContinueAttack(def))
-                goto DuelFinish;
         }
 
         //---------------------------------------------------------
@@ -988,10 +986,6 @@ repeat_full_round:;   // <--- label for Accost repeat
             break;
         }
 
-        if (!CheckCanContinueAttack(def)) {
-            round_stopped = true;
-            break;
-        }
     }
 
     //---------------------------------------------------------

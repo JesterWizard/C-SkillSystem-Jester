@@ -104,3 +104,10 @@ Explosive Buff[X]
 Explosive Buff:[N]
 Single target buff staves also apply[N]
 their effects to all adjacent allies.[X]
+
+## MSG_SKILL_MissileArm_NAME
+Missile Arm[X]
+## MSG_SKILL_MissileArm_DESC
+Missile Arm:[N]
+All lances used by this unit[N]
+become 1-2 range.[X]

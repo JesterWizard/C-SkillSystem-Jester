@@ -1052,6 +1052,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_MissileArm) && COMMON_SKILL_VALID(SID_MissileArm))
+    [SID_MissileArm] = {
+        .name = MSG_SKILL_MissileArm_NAME,
+        .desc = MSG_SKILL_MissileArm_DESC,
+        .capacity = MSG_SKILL_MissileArm_CAPACITY,
+        .price = MSG_SKILL_MissileArm_PRICE,
+        .icon = GFX_SkillIcon_LanceBreaker,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_RunningStart) && COMMON_SKILL_VALID(SID_RunningStart))
     [SID_RunningStart] = {
         .name = MSG_SKILL_RunningStart_NAME,
