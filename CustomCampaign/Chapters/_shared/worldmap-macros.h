@@ -42,13 +42,13 @@
     EVBIT_MODIFY(0x0) \
     STAL(20)
 
-/* Reveal the next destination node and draw the connecting road */
-#define WM_REVEAL_DEST(node, path) \
+/* Reveal the next destination node and draw a dynamically generated road */
+#define WM_REVEAL_DEST(node) \
     WM_LOADLOCATION3(node) \
     WM_SETDESTINATION(node) \
     WM_WAITFORFX \
     STAL(40) \
-    WM_DRAWPATH(path) \
+    ASMC(WmDrawPathFromCurrentToDest) \
     STAL(70)
 
 /* Shared SET_NODE epilogue: show lord and hand control back to the player */

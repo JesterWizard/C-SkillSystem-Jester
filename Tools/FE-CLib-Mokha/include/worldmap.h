@@ -737,8 +737,8 @@ int sub_80BBA4C(int nodeId);
 // ??? GmapCursor_Init(???);
 // ??? GmapCursor_Loop(???);
 ProcPtr NewGmapCursor(ProcPtr, int, int, ProcPtr);
-// ??? sub_80BBBF4(???);
-// ??? sub_80BBC54(???);
+void sub_80BBBF4(u8 * data, u16 * buf, int size, u16 oam2);
+void sub_80BBC54(struct GmRouteProc * proc);
 // ??? sub_80BBCC8(???);
 // ??? sub_80BBDA4(???);
 // ??? nullsub_38(???);
@@ -833,10 +833,10 @@ struct GMapPIProc
     /* 60 */ u8 jid;
 };
 
-// ??? GmPathsInit(???);
+void GmPathsInit(struct OpenPaths * pPaths);
 bool AddGmPath(struct GMapData*, struct OpenPaths*, int);
 bool RemoveGmPath(struct GMapData * pGMapData, struct OpenPaths * pPaths, int idx);
-// ??? RefreshGmNodeLinksExt(???);
+void RefreshGmNodeLinksExt(struct GMapData * param_1, struct GMapNodeLink * param_2);
 void RefreshGmNodeLinks(struct GMapData *);
 int sub_80BCA1C(int);
 // ??? sub_80BCA54(???);
@@ -844,8 +844,11 @@ int sub_80BCA1C(int);
 // ??? sub_80BCAB8(???);
 // ??? sub_80BCBAC(???);
 s8 sub_80BCCFC(s8, s8, s8);
-// ??? sub_80BCDE4(???);
+int sub_80BCDE4(int nodeA, int nodeB, int * startingNode);
+int sub_80BC3D4(int pathId);
 int sub_80BCE34(int, int, s16, u16 *, int *, int);
+
+extern u16 gUnknown_02019D00[];
 void ResetGmStoryNode(void);
 int GetPlayChapterId(u32);
 int GetNextUnclearedNode(struct GMapData *);

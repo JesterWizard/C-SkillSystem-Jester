@@ -17,7 +17,9 @@ World-map intros in this build are written as C `EventScr` arrays, not as FEBuil
 
 This feature adds a **macro layer** in `CustomCampaign/Chapters/_shared/worldmap-macros.h`. The macros expand to the same Event Assembler opcodes the vanilla engine already runs. There is no GUI and no runtime interpreter.
 
-Node and path **geometry** (coordinates, chapter IDs on nodes, road tiles) still lives in vanilla ROM tables (`gWMNodeData`, `gWMPathData`). Editing those tables in C is planned as a follow-up pass.
+**Dynamic pathing** generates roads at runtime from the lord's current node coordinates to the next story node's coordinates. Scripts no longer hard-code a `WM_PATH_*` ID for standard SET_NODE reveals. The engine builds a Magvel-style 2-tile-wide ribbon into the vanilla MapRoute layer: straight H/V when nodes share an axis, a 45° run when the slope is steep, and a two-level 45° ramp when the offset is shallow. Cursor travel stays on the same open-path graph.
+
+Node **geometry** (coordinates, chapter IDs) still lives in vanilla ROM tables (`gWMNodeData`) for now. `GetWmNodeX` / `GetWmNodeY` wrap those coordinates so a future node-generation pass can swap in RAM positions without rewriting path code.
 
 ---
 
@@ -42,6 +44,24 @@ The `gmapEventId` in each chapter's `chapter.c` must match the slot used in thos
 | Prologue | `0x1` | `EventScrWM_Prologue_SET_NODE` | `EventScrWM_Prologue_TRAVEL_TO_NODE` |
 | Ch. 4 | `0x5` | `EventScrWM_Ch4_SET_NODE` | `EventScrWM_Ch4_TRAVEL_TO_NODE` |
 | Ch. 1 ending | `55` (special) | `EventScrWM_Ch1_ENDING` | — |
+
+### Dynamic path flow
+
+```text
+WM_REVEAL_DEST(node)
+  -> WmDrawPathFromCurrentToDest
+       -> sub_80BCDE4(lordNode, nextNode)   // vanilla ROM path slot lookup
+       -> AddAndDrawGmPath(pathId)         // vanilla fade + open-path bit
+MapRoute composite (sub_80BBC54 hook)
+  -> Occupancy-aware Magvel ribbon (straight / 45° / two-level ramp) into gUnknown_02019D00
+WM_MOVESPRITETO (travel scripts)
+  -> sub_80BCE34 hook walks the same generated polyline (corners, not vanilla movementPath)
+```
+
+| Path source | When used | Visual |
+|-------------|-----------|--------|
+| `WM_REVEAL_DEST(node)` | Standard SET_NODE template (ch. 2–7) | Generated Magvel ribbon between live node coords |
+| `WM_DRAWPATH(id)` / `WM_DRAWPATH2(id)` | Ch. 1 ending, ch. 8–10, intermission specials | Same generator (open paths are all composited from node placement) |
 
 ### Macro cookbook
 
@@ -70,17 +90,19 @@ WM_VOICE_LINE(SONG_VOICE_CH04_LINE_0001)
 // expands to SOUN + TEXTCONT + TEXTEND
 ```
 
-**Standard SET_NODE template** (used by chapters 2–4 and 6–7):
+**Standard SET_NODE template** (used by chapters 2–7):
 
 ```c
 const EventScr EventScrWM_Ch4_SET_NODE[] = {
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_BorgoRidge)
-    WM_REVEAL_DEST(WM_NODE_ZahaWoods, WM_PATH_03)
+    WM_REVEAL_DEST(WM_NODE_ZahaWoods)
     WM_CLOSE_SET_NODE()
 };
 ```
 
 Chapters with extra setup (music, tutorials) insert commands between `WM_REVEAL_DEST` and `WM_CLOSE_SET_NODE`.
+
+Use `WM_DRAWPATH(WM_PATH_xx)` only when a chapter must open a specific vanilla path slot (prologue-adjacent beats, ch. 8 branch paths, ch. 10 Port Kiris link, etc.). The visible road still comes from node placement, not from that slot's ROM gfx.
 
 **Prologue-style nation narration:**
 
@@ -106,7 +128,8 @@ Keep sprite `WM_PUTMOVINGSPRITE` coordinates as raw numbers; those are map-pixel
 
 | Area | Chapters | Macros used |
 |------|----------|-------------|
-| SET_NODE template | 2, 3, 4, 5 (normal branch), 6, 7, 10 | `WM_OPEN_MAP`, `WM_REVEAL_DEST` / custom dest, `WM_CLOSE_SET_NODE` |
+| SET_NODE template | 2, 3, 4, 5 (normal branch), 6, 7 | `WM_OPEN_MAP`, `WM_REVEAL_DEST`, `WM_CLOSE_SET_NODE` |
+| SET_NODE vanilla path slot | 1, 8, 9, 10, Intermission | `WM_DRAWPATH` / `WM_DRAWPATH2` kept to open those path IDs |
 | Prologue SET_NODE | 0 | `WM_NOFADE`, `WM_VOICE_LINE`, `WM_NATION_ON/OFF`, `WM_SHOW_FACE_WAIT` |
 | TRAVEL voice/face | 1–7, 9 | `WM_VOICE_LINE`, `WM_SHOW_FACE_WAIT`, `WM_HIDE_FACE` |
 | Unique SET_NODE aliases | 1, 5 (Renvall), 8, Intermission | `WM_SETNODESTATENOT2`, `WM_SETUNITONNODE`, `WM_SETCAMTONODE` |
@@ -119,31 +142,36 @@ Chapter 8 TRAVEL and chapter 5x are flag/fade-only and have no voice or face bea
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Macro header | [`worldmap-macros.h`](../../CustomCampaign/Chapters/_shared/worldmap-macros.h) | Aliases, SET_NODE template, voice/face/nation helpers |
+| Macro header | [`worldmap-macros.h`](../../CustomCampaign/Chapters/_shared/worldmap-macros.h) | Aliases, SET_NODE template, dynamic `WM_REVEAL_DEST`, voice/face/nation helpers |
+| Dynamic path core | [`WmDynamicPath.c`](../../Kernel/Wizardry/WorldMap/WmDynamicPath.c) | Magvel 2-wide ribbon from live node coords; no extra RAM reservations |
+| Lyn hooks | [`LynJump.event`](../../Kernel/Wizardry/WorldMap/LynJump.event) | `sub_80BBC54` (composite), `sub_80BCE34` (travel spline) |
 | Shared include | [`worldmap-include.h`](../../CustomCampaign/Chapters/_shared/worldmap-include.h) | Pulls headers, script externs, and macros into every `worldmap.c` |
-| Script extern table | [`worldmap-scripts.h`](../../CustomCampaign/Chapters/_shared/worldmap-scripts.h) | Declares each chapter's `EventScrWM_*` symbols plus `ReduceBGMVolume` / `SetMode` |
+| Script extern table | [`worldmap-scripts.h`](../../CustomCampaign/Chapters/_shared/worldmap-scripts.h) | Declares each chapter's `EventScrWM_*` symbols plus `WmDrawPathFromCurrentToDest` |
 | Dispatch tables | [`World_Map_Events.c`](../../CustomCampaign/Event/World_Map_Events.c) | `EventScrWM_SET_NODE[]` and `EventScrWM_TRAVEL_TO_NODE[]` indexed by `gmapEventId` |
-| Prologue worked example | [`Chapters/00/events/worldmap.c`](../../CustomCampaign/Chapters/00/events/worldmap.c) | Full nation narration using macros |
-| Short SET_NODE example | [`Chapters/04/events/worldmap.c`](../../CustomCampaign/Chapters/04/events/worldmap.c) | Template SET_NODE plus TRAVEL voice lines |
+| Short SET_NODE example | [`Chapters/04/events/worldmap.c`](../../CustomCampaign/Chapters/04/events/worldmap.c) | Dynamic path reveal plus TRAVEL voice lines |
 | EA opcode aliases | [`EAstdlib.h`](../../Tools/FE-CLib-Mokha/include/EAstdlib.h) | Standard `WM_*` names mapped to `WmEvt*` |
-| Node/path structs | [`worldmap.h`](../../Tools/FE-CLib-Mokha/include/worldmap.h) | `GMapNodeData`, `GMapPathData` layouts for a future table dump |
+| Node/path structs | [`worldmap.h`](../../Tools/FE-CLib-Mokha/include/worldmap.h) | `GMapNodeData`, `GMapPathData`, decomp route helpers |
 | Node constants | [`constants/worldmap.h`](../../Tools/FE-CLib-Mokha/include/constants/worldmap.h) | `WM_NODE_*`, `WM_PATH_*`, `WM_NATION_*`, `WM_MU_*` |
 
 ---
 
 ## TODO
 
-- Dump vanilla `gWMNodeData` and `gWMPathData` into editable C under `CustomCampaign/` and lyn-repoint the tables.
-- Add movement-waypoint helpers once path dumps exist.
+- Dump vanilla `gWMNodeData` into editable C under `CustomCampaign/` and lyn-repoint the table.
+- Generate or relocate nodes at runtime; wire coordinates through `GetWmNodeX` / `GetWmNodeY`.
 - Convert remaining TRAVEL scripts to `WM_VOICE_LINE` where the pattern is a straight voice beat with no sprite timing between lines.
 - Document the ch1 `gmapEventId == 55` special case in `World_Map_Events.c` with a named constant.
+- Migrate ch. 1 / 8 / 9 / 10 SET_NODE scripts to `WM_REVEAL_DEST` where a hard-coded path slot is no longer required.
+- Optional: extra perpendicular jogs on long links to mimic Magvel's hand-wound Path 0 / Path 15 wiggles.
 
 ---
 
 ## Limitations & Bugs
 
-- Vanilla FE8 caps the world map at **29 nodes** (`NODE_MAX` 0x1D) and **32 paths** (`WM_PATH_MAX` 0x20). Expanding either requires save-RAM and engine work beyond this macro layer.
+- Vanilla FE8 caps the world map at **29 nodes** (`NODE_MAX` 0x1D) and **32 paths** (`WM_PATH_MAX` 0x20). Expanding either requires save-RAM and engine work beyond this layer.
+- Roads are Magvel 2-wide H/V ribbons plus a 3-wide 45° band. Node pixels use `p >> 3` (same as vanilla gfx). H-runs skip the start and dest columns so they do not overshoot 8px east; V-runs paint dest so south joins meet the node. Occupancy uses a 1-tile halo at endpoints. Lord travel follows the same corners.
+- Save data still stores only the 32-bit open-path mask. Dynamic geometry is regenerated from node coordinates on load, which is fine while nodes stay in `gWMNodeData`.
+- All open paths are composited from node placement, including those opened with `WM_DRAWPATH`.
 - Macros are C-only. They do not run inside raw `.event` files assembled without the chapter C build.
 - `WM_NATION_OFF` always appends `STAL(32)`. Use `WM_NATION_OFF_CORE` when the original script skipped that wait.
-- Node/path data edited in FEBuilder will not match scripts authored here until the Phase 2 table dump lands.
 - Report desyncs with the chapter ID, `gmapEventId`, and whether `worldmap.lyn.event` was rebuilt after editing `worldmap.c`.

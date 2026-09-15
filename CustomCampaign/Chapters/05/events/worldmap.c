@@ -24,7 +24,7 @@ const EventScr EventScrWM_Ch5_SET_NODE[] = {
     GOTO(0x2)
 LABEL(0x1)
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_ZahaWoods)
-    WM_REVEAL_DEST(WM_NODE_Serafew, WM_PATH_04)
+    WM_REVEAL_DEST(WM_NODE_Serafew)
     WM_MAKELORDVISIBLE(WM_MU_0)
     EVBIT_MODIFY(0x1)
     CALL(EventScr_RemoveBGIfNeeded)
@@ -35,8 +35,8 @@ LABEL(0x2)
 const EventScr EventScrWM_Ch5_TRAVEL_TO_NODE[] = {
     CHECK_EVENTID(136)
     BEQ(0x1, EVT_SLOT_C, EVT_SLOT_0)
-    CALL(EventScrWM_Intermission_Renvall_To_Serafew)
-    GOTO(0x2)
+    /* SET_NODE already walked Renvall → Serafew and SKIPWN'd. */
+    ENDA
 LABEL(0x1)
     MUSCFAST(0x7fff)
     MUSC(SONG_THE_BEGINNING)

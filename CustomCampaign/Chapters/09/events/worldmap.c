@@ -1,7 +1,6 @@
 #include "../../_shared/worldmap-include.h"
 
 const EventScr EventScrWM_Ch9_SET_NODE[] = {
-    ASMC(SetMode)
     EVBIT_MODIFY(0x1)
     WM_SPAWNLORD(WM_MU_0, CHARACTER_EIRIKA, WM_NODE_CastleFrelia)
     WM_CENTERCAMONLORD(WM_MU_0)
@@ -19,9 +18,7 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
     WM_DRAWPATH(WM_PATH_09)
     STAL(70)
     STAL(20)
-    WM_LOADLOCATION3(WM_NODE_PortKiris)
-    WM_SETDESTINATION(WM_NODE_PortKiris)
-    // WM_CREATENEXTDESTINATION
+    WM_CREATENEXTDESTINATION
     WM_WAITFORFX
     STAL(40)
     WM_DRAWPATH(WM_PATH_08)
@@ -30,19 +27,14 @@ const EventScr EventScrWM_Ch9_SET_NODE[] = {
     STAL(60)
     WM_WAITFORCAM
     MUSC(SONG_TREASURED_MEMORIES)
-    // CALL(EventScrWM_08A3A70C)
-    EvtTextStartType5 // These are the events for the above call, up to the commented out ENDA
+    EvtTextStartType5
     SVAL(EVT_SLOT_B, 0x54000c)
-    // TEXTSHOW(0x8e5)
-    // TEXTEND
-    // REMA
+    TEXTSHOW(0x8e5)
+    TEXTEND
+    REMA
     ENUT(229)
     ENUT(235)
-    // ENDA
-    WM_MAKELORDVISIBLE(WM_MU_0)
-    EVBIT_MODIFY(0x1)
-    CALL(EventScr_RemoveBGIfNeeded)
-    ENDA
+    WM_CLOSE_SET_NODE()
 };
 
 const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[] = {

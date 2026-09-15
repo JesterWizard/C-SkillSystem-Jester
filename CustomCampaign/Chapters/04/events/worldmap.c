@@ -2,7 +2,7 @@
 
 const EventScr EventScrWM_Ch4_SET_NODE[] = {
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_BorgoRidge)
-    WM_REVEAL_DEST(WM_NODE_ZahaWoods, WM_PATH_03)
+    WM_REVEAL_DEST(WM_NODE_ZahaWoods)
     WM_CLOSE_SET_NODE()
 };
 

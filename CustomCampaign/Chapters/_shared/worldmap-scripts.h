@@ -4,6 +4,7 @@
 
 void ReduceBGMVolume(void);
 void SetMode(void);
+void WmDrawPathFromCurrentToDest(void);
 
 extern CONST_DATA EventScr EventScr_WM_FadeCommon[];
 extern CONST_DATA EventListScr EventScr_CallOnTutorialMode[];

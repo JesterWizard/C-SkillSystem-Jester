@@ -2,7 +2,7 @@
 
 const EventScr EventScrWM_Ch3_SET_NODE[] = {
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_Ide)
-    WM_REVEAL_DEST(WM_NODE_BorgoRidge, WM_PATH_02)
+    WM_REVEAL_DEST(WM_NODE_BorgoRidge)
     MUSC(SONG_THE_BEGINNING)
     SVAL(EVT_SLOT_2, EventScrWM_Ch3_BeginningTutorial)
     CALL(EventScr_CallOnTutorialMode)

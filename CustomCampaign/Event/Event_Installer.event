@@ -2,6 +2,14 @@
 
 #include "PListSplit.event"
 
+/* Kernel .text at 0x0E8414 grows through vanilla TowerOfValniObjectType
+ * at 0x1609BC. Keep the original graphics in expanded space and retarget
+ * plist 0x88 so Valni (and any LOMA of it) still loads. */
+ALIGN 4
+TowerOfValniObjectType_Reloc:
+    #incbin "PListBins/tower-of-valni-object-type.bin"
+NewEventPointerTable_ObjPal(0x88, TowerOfValniObjectType_Reloc)
+
 #include "../Chapters/_shared/empty-event-lists.lyn.event"
 #include "../Chapters/_shared/worldmap-helpers.lyn.event"
 

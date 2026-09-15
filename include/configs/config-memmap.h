@@ -5,7 +5,7 @@
  * ------------------------------------------
  * Address  | Size  | Usage
  * ------------------------------------------
- * 080E8414 | 7C000 | Kernel .text
+ * 080E8414 | 7C000 | Kernel .text (must stay in vanilla BL range)
  * 089875AC | 0F000 | Kernel .rodata (secure)
  * 08B2A604 | D59FC | user configurable .rodata (none-secure)
  * 08EFB2E0 | E4D20 | Font .rodata

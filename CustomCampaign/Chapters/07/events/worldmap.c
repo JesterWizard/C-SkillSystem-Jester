@@ -2,7 +2,7 @@
 
 const EventScr EventScrWM_Ch7_SET_NODE[] = {
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_AdlasPlains)
-    WM_REVEAL_DEST(WM_NODE_Renvall1, WM_PATH_06)
+    WM_REVEAL_DEST(WM_NODE_Renvall1)
     WM_CLOSE_SET_NODE()
 };
 
