@@ -918,3 +918,4 @@
 #define MSG_SKILL_AssumingCommand_CAPACITY 1
 #define MSG_SKILL_Drag_CAPACITY 1
 #define MSG_SKILL_MissileArm_CAPACITY 1
+#define MSG_SKILL_Bloom_CAPACITY 1

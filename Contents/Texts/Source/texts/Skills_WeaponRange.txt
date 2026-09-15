@@ -111,3 +111,10 @@ Missile Arm[X]
 Missile Arm:[N]
 All lances used by this unit[N]
 become 1-2 range.[X]
+
+## MSG_SKILL_Bloom_NAME
+Bloom[X]
+## MSG_SKILL_Bloom_DESC
+Bloom:[N]
+Healing staves used by this unit[N]
+heal allies in a cross around the target.[X]

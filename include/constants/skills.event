@@ -885,5 +885,6 @@
 #define SID_SiegeRepair 0x370
 #define SID_Drag 0x371
 #define SID_MissileArm 0x372
+#define SID_Bloom 0x373
 
 #endif /* SKILLS_EVENT */

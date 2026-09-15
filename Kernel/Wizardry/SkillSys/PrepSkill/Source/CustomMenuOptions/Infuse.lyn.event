@@ -60,7 +60,7 @@ PUSH
 ORG CURRENTOFFSET+$a8;ProcScr_PrepItemListScreen_INFUSE:
 ORG CURRENTOFFSET+$108;gInfusionLookupTable:
 POP
-WORD $C $5A $8 $0 $6 $19BA $1 $8 $9 $0 $8 $2 $4 $0 $0 $0
+WORD $C $5A $8 $0 $6 $19BC $1 $8 $9 $0 $8 $2 $4 $0 $0 $0
 POIN Gfx_UI_Number_0
 POIN Gfx_UI_Number_1
 POIN Gfx_UI_Number_2

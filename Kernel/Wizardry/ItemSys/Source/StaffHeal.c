@@ -7,6 +7,7 @@
 #include "constants/skills.h"
 #include "strmag.h"
 #include "debuff.h"
+#include "weapon-range.h"
 #include "bmunit.h"
 #include "lvup.h"
 #include "constants/texts.h"
@@ -60,6 +61,99 @@ static struct Trap *PrepareHealObstacleTarget(struct Unit *obstacle)
 	return trap;
 }
 
+#if defined(SID_Bloom) && (COMMON_SKILL_VALID(SID_Bloom))
+static bool Bloom_IsValidTarget(struct Unit *actor, struct Unit *target)
+{
+	if (!UNIT_IS_VALID(target))
+		return false;
+
+	if (target->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
+		return false;
+
+	if (!AreUnitsAllied(actor->index, target->index))
+	{
+#if defined(SID_Saint) && (COMMON_SKILL_VALID(SID_Saint))
+		if (!SkillTester(actor, SID_Saint))
+			return false;
+#else
+		return false;
+#endif
+	}
+
+#if defined(SID_AidRefusal) && (COMMON_SKILL_VALID(SID_AidRefusal))
+	if (SkillTester(target, SID_AidRefusal))
+		return false;
+#endif
+
+#if defined(SID_CursedHeal) && (COMMON_SKILL_VALID(SID_CursedHeal))
+	if (!SkillTester(actor, SID_CursedHeal))
+#endif
+		if (GetUnitCurrentHp(target) == GetUnitMaxHp(target))
+			return false;
+
+	return true;
+}
+
+static void Bloom_ApplyHeal(struct Unit *actor, struct Unit *target, int amount)
+{
+#if defined(SID_CursedHeal) && (COMMON_SKILL_VALID(SID_CursedHeal))
+	if (SkillTester(actor, SID_CursedHeal))
+	{
+		SetUnitHp(
+			target,
+			(GetUnitCurrentHp(target) - amount) > 0
+				? GetUnitCurrentHp(target) - amount
+				: 1);
+		return;
+	}
+#endif
+
+	AddUnitHp(target, amount);
+}
+
+static void Bloom_ApplyCrossHeal(struct Unit *actor, struct Unit *center, int amount)
+{
+	for (int i = 0; i < ARRAY_COUNT_RANGE1x1; ++i)
+	{
+		struct Unit *target = GetUnitAtPosition(
+			center->xPos + gVecs_1x1[i].x,
+			center->yPos + gVecs_1x1[i].y);
+
+		if (!Bloom_IsValidTarget(actor, target))
+			continue;
+
+		Bloom_ApplyHeal(actor, target, HealAmountGetter(amount, actor, target));
+	}
+}
+
+static void Bloom_DisplayCrossRange(struct SelectTarget *target)
+{
+	int centerX = target->x;
+	int centerY = target->y;
+
+	BmMapFill(gBmMapMovement, -1);
+
+	if (centerX >= 0 && centerY >= 0 &&
+		centerX < gBmMapSize.x && centerY < gBmMapSize.y)
+	{
+		gBmMapMovement[centerY][centerX] = 1;
+	}
+
+	for (int i = 0; i < ARRAY_COUNT_RANGE1x1; ++i)
+	{
+		int x = centerX + gVecs_1x1[i].x;
+		int y = centerY + gVecs_1x1[i].y;
+
+		if (x < 0 || y < 0 || x >= gBmMapSize.x || y >= gBmMapSize.y)
+			continue;
+
+		gBmMapMovement[y][x] = 1;
+	}
+
+	DisplayMoveRangeGraphics(MOVLIMITV_MMAP_GREEN | MOVLIMITV_RMAP_GREEN);
+}
+#endif
+
 LYN_REPLACE_CHECK(HealMapSelect_SwitchIn);
 u8 HealMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget *target)
 {
@@ -83,6 +177,19 @@ u8 HealMapSelect_SwitchIn(ProcPtr proc, struct SelectTarget *target)
 	{
 		RefreshUnitHpInfoWindow(GetUnit(target->uid));
 	}
+
+#if defined(SID_Bloom) && (COMMON_SKILL_VALID(SID_Bloom))
+	struct Unit *actor = gSubjectUnit;
+
+	if (!UNIT_IS_VALID(actor))
+		actor = gActiveUnit;
+
+	if (target->uid != 0 && UNIT_IS_VALID(actor) && SkillTester(actor, SID_Bloom))
+	{
+		HideMoveRangeGraphics();
+		Bloom_DisplayCrossRange(target);
+	}
+#endif
 
 	return 0;
 }
@@ -188,6 +295,11 @@ void ExecStandardHeal(ProcPtr proc)
         AddUnitHp(unit_tar, amount);
 #else 
     AddUnitHp(unit_tar, amount);
+#endif
+
+#if defined(SID_Bloom) && (COMMON_SKILL_VALID(SID_Bloom))
+	if (SkillTester(unit_act, SID_Bloom) && gActionData.targetIndex != 0)
+		Bloom_ApplyCrossHeal(unit_act, unit_tar, amount);
 #endif
 
 #if defined(SID_ExplosiveHeal) && (COMMON_SKILL_VALID(SID_ExplosiveHeal))

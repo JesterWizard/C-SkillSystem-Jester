@@ -1063,6 +1063,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Bloom) && COMMON_SKILL_VALID(SID_Bloom))
+    [SID_Bloom] = {
+        .name = MSG_SKILL_Bloom_NAME,
+        .desc = MSG_SKILL_Bloom_DESC,
+        .capacity = MSG_SKILL_Bloom_CAPACITY,
+        .price = MSG_SKILL_Bloom_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_RunningStart) && COMMON_SKILL_VALID(SID_RunningStart))
     [SID_RunningStart] = {
         .name = MSG_SKILL_RunningStart_NAME,
