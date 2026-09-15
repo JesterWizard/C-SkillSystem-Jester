@@ -942,3 +942,6 @@ SID_Portal
 // SID_COMBAT_Practice
 SID_HalfSP
 SID_SiegeRepair
+
+//////// ADDITIONAL MENU SKILLS
+SID_Drag

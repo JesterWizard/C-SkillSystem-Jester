@@ -2050,6 +2050,11 @@ void TryAddUnitToTradeTargetList(struct Unit* unit) {
     if (!IsSameAllegiance(gSubjectUnit->index, unit->index)) {
         bool rescuingThisUnit = (gSubjectUnit->state & US_RESCUING) && GetUnit(gSubjectUnit->rescue)->index == unit->index;
 
+#if defined(SID_Drag) && (COMMON_SKILL_VALID(SID_Drag))
+        if (rescuingThisUnit && SkillTester(gSubjectUnit, SID_Drag))
+            return;
+#endif
+
         if (!rescuingThisUnit)
             return;
     }

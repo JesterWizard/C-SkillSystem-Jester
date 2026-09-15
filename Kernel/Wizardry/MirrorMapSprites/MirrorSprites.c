@@ -349,6 +349,11 @@ static void PutRescuedSupportSpritesOam(void)
 			|| !(support->state & US_HIDDEN))
 			continue;
 
+		/* Do not draw a rescued enemy as a Pair Up support. */
+		if (!AreUnitsAllied(leader->index, support->index)
+			|| !IsSameAllegiance(leader->index, support->index))
+			continue;
+
 		if (leader->state & (US_HIDDEN | US_BIT9))
 			continue;
 

@@ -362,4 +362,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_AssumingCommand) && COMMON_SKILL_VALID(SID_AssumingCommand))
     [SID_AssumingCommand] = Action_AssumingCommand,
 #endif
+
+#if (defined(SID_Drag) && COMMON_SKILL_VALID(SID_Drag))
+    [SID_Drag] = Action_Drag,
+#endif
 };

@@ -1,8 +1,7 @@
 #ifndef SKILLS_EVENT
 #define SKILLS_EVENT
 
-// Event Assembler copy of skills.h SID defines (no #pragma once).
-// Regenerate from include/constants/skills.h if skill IDs change.
+// Auto generated from skills.h for Event Assembler.
 
 #define SID_Dismount 0x001
 #define SID_ReciprocalAid 0x002
@@ -884,5 +883,6 @@
 #define SID_Portal 0x36E
 #define SID_HalfSP 0x36F
 #define SID_SiegeRepair 0x370
+#define SID_Drag 0x371
 
 #endif /* SKILLS_EVENT */

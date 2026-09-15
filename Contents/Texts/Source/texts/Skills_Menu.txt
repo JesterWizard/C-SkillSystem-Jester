@@ -839,3 +839,10 @@ Assuming Command:[N]
 When activated, green units can[N]
 be manually controlled for the[N]
 rest of the map.[X]
+
+## MSG_SKILL_Drag_NAME
+Drag[X]
+## MSG_SKILL_Drag_DESC
+Drag:[N]
+Rescue an adjacent non-boss enemy.[N]
+Dragged enemies cannot trade.[X]

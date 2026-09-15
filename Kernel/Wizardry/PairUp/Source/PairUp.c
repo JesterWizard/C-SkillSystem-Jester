@@ -28,6 +28,7 @@
 static bool PairUp_IsInMap(int x, int y);
 static void PairUp_MakeTargetList(struct Unit *unit, bool shelter);
 static void PairUp_MakeTransferTargetList(struct Unit *unit);
+static struct Unit *PairUp_GetRescuePartner(const struct Unit *unit);
 static void PairUp_ClearStatPreview(void);
 static void PairUp_DrawStatPreview(const struct Unit *target);
 static void PairUp_DrawUnitInfoWindows(
@@ -43,12 +44,24 @@ static bool PairUp_IsValidUnit(const struct Unit *unit)
 
 static bool PairUp_IsRescuer(const struct Unit *unit)
 {
-	return PairUp_IsValidUnit(unit) && (unit->state & US_RESCUING);
+	struct Unit *partner;
+
+	if (!PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUING))
+		return false;
+
+	partner = PairUp_GetRescuePartner(unit);
+	return partner != NULL;
 }
 
 static bool PairUp_IsRescued(const struct Unit *unit)
 {
-	return PairUp_IsValidUnit(unit) && (unit->state & US_RESCUED);
+	struct Unit *partner;
+
+	if (!PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUED))
+		return false;
+
+	partner = PairUp_GetRescuePartner(unit);
+	return partner && IsSameAllegiance(unit->index, partner->index);
 }
 
 static struct Unit *PairUp_GetRescuePartner(const struct Unit *unit)
@@ -63,6 +76,33 @@ static struct Unit *PairUp_GetRescuePartner(const struct Unit *unit)
 		return NULL;
 
 	if (partner->rescue != (u8) unit->index)
+		return NULL;
+
+	/* Cross-faction rescue is Drag, not Pair Up. */
+	if (!AreUnitsAllied(unit->index, partner->index)
+		|| !IsSameAllegiance(unit->index, partner->index))
+		return NULL;
+
+	return partner;
+}
+
+static struct Unit *PairUp_GetRegularRescuePartner(const struct Unit *unit)
+{
+	struct Unit *partner;
+
+	if (!PairUp_IsValidUnit(unit)
+		|| !(unit->state & US_RESCUING)
+		|| !unit->rescue)
+		return NULL;
+
+	partner = GetUnit(unit->rescue);
+	if (!PairUp_IsValidUnit(partner)
+		|| partner == unit
+		|| !(partner->state & US_RESCUED)
+		|| partner->rescue != (u8) unit->index)
+		return NULL;
+
+	if (AreUnitsAllied(unit->index, partner->index))
 		return NULL;
 
 	return partner;
@@ -570,6 +610,14 @@ int PairUp_GetStatBonus(const struct Unit *unit, int stat)
 int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat)
 {
 	struct Unit *support;
+
+	support = PairUp_GetRegularRescuePartner(unit);
+	if (support) {
+		if (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD)
+			return status / 2;
+
+		return status;
+	}
 
 	if (!PairUp_IsRescuer(unit))
 		return status;
