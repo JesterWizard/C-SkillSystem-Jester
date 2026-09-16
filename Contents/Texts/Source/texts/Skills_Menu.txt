@@ -846,3 +846,10 @@ Drag[X]
 Drag:[N]
 Rescue an adjacent non-boss enemy.[N]
 Dragged enemies cannot trade.[X]
+
+## MSG_SKILL_Assemble_NAME
+Assemble[X]
+## MSG_SKILL_Assemble_DESC
+Assemble:[N]
+All allies within 10 tiles[N]
+move toward the user using their full MOV.[X]

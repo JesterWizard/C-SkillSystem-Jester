@@ -949,3 +949,4 @@ SID_Drag
 //////// ADDITIONAL PASSIVE SKILLS
 SID_MissileArm
 SID_Bloom
+SID_Assemble

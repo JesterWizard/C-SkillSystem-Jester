@@ -10128,4 +10128,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Assemble) && COMMON_SKILL_VALID(SID_Assemble))
+    [SID_Assemble] = {
+        .name = MSG_SKILL_Assemble_NAME,
+        .desc = MSG_SKILL_Assemble_DESC,
+        .capacity = MSG_SKILL_Assemble_CAPACITY,
+        .price = MSG_SKILL_Assemble_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 };

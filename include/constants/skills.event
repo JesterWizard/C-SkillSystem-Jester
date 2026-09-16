@@ -886,5 +886,6 @@
 #define SID_Drag 0x371
 #define SID_MissileArm 0x372
 #define SID_Bloom 0x373
+#define SID_Assemble 0x374
 
 #endif /* SKILLS_EVENT */

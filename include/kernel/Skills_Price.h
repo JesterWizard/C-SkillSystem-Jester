@@ -919,3 +919,4 @@
 #define MSG_SKILL_Drag_PRICE 1000
 #define MSG_SKILL_MissileArm_PRICE 1000
 #define MSG_SKILL_Bloom_PRICE 1000
+#define MSG_SKILL_Assemble_PRICE 1000

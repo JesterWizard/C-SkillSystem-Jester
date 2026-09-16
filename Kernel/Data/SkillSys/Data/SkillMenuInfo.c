@@ -1444,4 +1444,19 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Assemble) && COMMON_SKILL_VALID(SID_Assemble))
+    [SID_Assemble] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Assemble_NAME,
+        .helpMsgId = MSG_SKILL_Assemble_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Assemble_Usability,
+        .onDraw = NULL,
+        .onSelected = Assemble_OnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = Assemble_Hover,
+        .onSwitchOut = Assemble_Unhover,
+    },
+#endif
+
 };
