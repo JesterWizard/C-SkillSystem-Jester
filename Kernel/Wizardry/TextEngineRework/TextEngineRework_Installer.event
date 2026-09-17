@@ -112,4 +112,12 @@ POIN ToggleOffGlitch		//80 48
 POIN ToggleOnStatic			//80 49
 POIN ToggleOffStatic		//80 4A
 POIN ClearFaceAsh			//80 4B
+POIN ToggleOnWavyPrint		//80 4C
+POIN ToggleOffWavyPrint		//80 4D
+POIN ToggleOnScramblePrint	//80 4E
+POIN ToggleOffScramblePrint	//80 4F
+POIN ToggleOnDripPrint		//80 50
+POIN ToggleOffDripPrint		//80 51
+POIN ToggleOnGhostPrint		//80 52
+POIN ToggleOffGhostPrint	//80 53
 */

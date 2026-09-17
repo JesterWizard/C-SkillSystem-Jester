@@ -25,7 +25,7 @@ extern void HalfBody_OnTalkFaceClear(struct FaceProc *proc);
 
 #define TEXT_ENGINE_FACE_ATTRIBUTES_OFFSET 0x4C
 #define TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET 0x5D
-#define TEXT_ENGINE_BOUNCE_PRINT_FLAG_OFFSET 0x5E
+#define TEXT_ENGINE_LETTER_FX_MODE_OFFSET 0x5E
 
 enum TextEngineFaceAttribute {
 	TEXT_ENGINE_ATTR_FONT,
@@ -66,6 +66,16 @@ enum {
 	TEXT_ENGINE_FLOAT_SLOT_STRIDE = 2,
 	TEXT_ENGINE_FLOAT_DURATION = 12,
 	TEXT_ENGINE_FLOAT_LIFT = 10,
+	TEXT_ENGINE_DRIP_LIFT = 22,
+	TEXT_ENGINE_WAVY_AMPLITUDE = 3,
+	TEXT_ENGINE_SCRAMBLE_LOCK = 4,
+	TEXT_ENGINE_GHOST_ECHO = 6,
+	TEXT_ENGINE_LETTER_FX_NONE = 0,
+	TEXT_ENGINE_LETTER_FX_BOUNCE = 1,
+	TEXT_ENGINE_LETTER_FX_WAVY = 2,
+	TEXT_ENGINE_LETTER_FX_SCRAMBLE = 3,
+	TEXT_ENGINE_LETTER_FX_DRIP = 4,
+	TEXT_ENGINE_LETTER_FX_GHOST = 5,
 	TEXT_ENGINE_BOOP_PITCH_COUNT = 25,
 	/*
 	 * Nameplates are drawn over the top edge of the dialogue box.  These
@@ -93,6 +103,14 @@ enum {
 	TEXT_ENGINE_ASH_MOSAIC_MAX = 3,
 	TEXT_ENGINE_ASH_OVERLAY_CHIP_LIMIT = 32,
 	TEXT_ENGINE_CMD_CLEAR_FACE_ASH = 0x4B,
+	TEXT_ENGINE_CMD_WAVY_PRINT_ON = 0x4C,
+	TEXT_ENGINE_CMD_WAVY_PRINT_OFF = 0x4D,
+	TEXT_ENGINE_CMD_SCRAMBLE_PRINT_ON = 0x4E,
+	TEXT_ENGINE_CMD_SCRAMBLE_PRINT_OFF = 0x4F,
+	TEXT_ENGINE_CMD_DRIP_PRINT_ON = 0x50,
+	TEXT_ENGINE_CMD_DRIP_PRINT_OFF = 0x51,
+	TEXT_ENGINE_CMD_GHOST_PRINT_ON = 0x52,
+	TEXT_ENGINE_CMD_GHOST_PRINT_OFF = 0x53,
 };
 
 struct TextEngineFaceJumpProc {
@@ -142,6 +160,8 @@ struct TextEngineGlyphFloatProc {
 	/* 3D */ u8 color;
 	/* 3E */ u8 width;
 	/* 3F */ char ch[5];
+	/* 44 */ u8 mode;
+	/* 45 */ u8 duration;
 };
 
 struct TextEngineAshDissolveProc {
@@ -694,9 +714,9 @@ static u8 *TextEngine_GetShakePrintFlag(void)
 	return (u8 *)sTextEngineState + TEXT_ENGINE_SHAKE_PRINT_FLAG_OFFSET;
 }
 
-static u8 *TextEngine_GetBouncePrintFlag(void)
+static u8 *TextEngine_GetLetterFxMode(void)
 {
-	return (u8 *)sTextEngineState + TEXT_ENGINE_BOUNCE_PRINT_FLAG_OFFSET;
+	return (u8 *)sTextEngineState + TEXT_ENGINE_LETTER_FX_MODE_OFFSET;
 }
 
 static u8 *TextEngine_GetFaceAttributes(struct FaceProc *face)
@@ -2086,8 +2106,11 @@ static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc)
 
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 {
-	int y;
+	struct Glyph *glyph = proc->glyph;
+	int x = proc->screenX;
+	int y = proc->destY;
 	int oam2;
+	int duration = proc->duration;
 
 	/*
 	 * Freeze mid-flight glyphs while the log is up: ending would bake them
@@ -2096,32 +2119,100 @@ static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 	if (Chatlog_IsVisible())
 		return;
 
-	if (proc->timer >= TEXT_ENGINE_FLOAT_DURATION) {
+	if (duration <= 0)
+		duration = TEXT_ENGINE_FLOAT_DURATION;
+
+	if (proc->timer >= duration) {
 		Proc_End(proc);
 		return;
 	}
 
-	if (proc->glyph) {
+	switch (proc->mode) {
+	case TEXT_ENGINE_LETTER_FX_DRIP:
+		y = Interpolate(
+			INTERPOLATE_SQUARE,
+			proc->destY - TEXT_ENGINE_DRIP_LIFT,
+			proc->destY,
+			proc->timer,
+			duration
+		);
+		break;
+
+	case TEXT_ENGINE_LETTER_FX_WAVY: {
+		int amp = Interpolate(
+			INTERPOLATE_LINEAR,
+			TEXT_ENGINE_WAVY_AMPLITUDE,
+			0,
+			proc->timer,
+			duration
+		);
+		int angle = (proc->screenX * 8 + proc->timer * 24) & 0xFF;
+
+		x += (SIN(angle) * amp) >> 12;
+		y += (COS(angle) * amp) >> 13;
+		break;
+	}
+
+	case TEXT_ENGINE_LETTER_FX_SCRAMBLE:
+		if (proc->timer + TEXT_ENGINE_SCRAMBLE_LOCK < duration) {
+			struct Glyph *scramble;
+
+			scramble = TextEngine_FindGlyph(
+				'A' + ((proc->screenX + proc->timer * 17) % 26)
+			);
+			if (scramble)
+				glyph = scramble;
+			x += (proc->timer & 1);
+		}
+		break;
+
+	case TEXT_ENGINE_LETTER_FX_GHOST:
+		break;
+
+	case TEXT_ENGINE_LETTER_FX_BOUNCE:
+	default:
+		y = Interpolate(
+			INTERPOLATE_RCUBIC,
+			proc->destY - TEXT_ENGINE_FLOAT_LIFT,
+			proc->destY,
+			proc->timer,
+			duration
+		);
+		break;
+	}
+
+	if (glyph) {
 		TextEngine_UploadGlyphToObj(
-			proc->glyph,
+			glyph,
 			TextEngine_GetFloatObjChr(proc->slot),
 			proc->color
 		);
 	}
 
-	y = Interpolate(
-		INTERPOLATE_RCUBIC,
-		proc->destY - TEXT_ENGINE_FLOAT_LIFT,
-		proc->destY,
-		proc->timer,
-		TEXT_ENGINE_FLOAT_DURATION
-	);
-
 	oam2 = OAM2_CHR(TextEngine_GetFloatObjChr(proc->slot))
 		| OAM2_PAL(TEXT_ENGINE_FLOAT_OBJ_PAL)
 		| OAM2_LAYER(0);
 
-	PutSpriteExt(4, OAM1_X(proc->screenX), OAM0_Y(y), gObject_8x16, oam2);
+	PutSpriteExt(4, OAM1_X(x), OAM0_Y(y), gObject_8x16, oam2);
+
+	if (proc->mode == TEXT_ENGINE_LETTER_FX_GHOST) {
+		int echo = Interpolate(
+			INTERPOLATE_LINEAR,
+			2,
+			TEXT_ENGINE_GHOST_ECHO,
+			proc->timer,
+			duration
+		);
+
+		PutSpriteExt(
+			4,
+			OAM1_X(x + echo),
+			OAM0_Y(y - echo / 2),
+			gObject_8x16,
+			oam2
+		);
+	}
+
 	proc->timer++;
 }
 
@@ -2137,7 +2228,7 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	int i;
 	int cursorX;
 
-	if (!*TextEngine_GetBouncePrintFlag())
+	if (!*TextEngine_GetLetterFxMode())
 		return 0;
 
 	if (!text || !str || !*str)
@@ -2190,6 +2281,21 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	floatProc->slot = slot;
 	floatProc->color = state->printColor;
 	floatProc->width = width;
+	floatProc->mode = *TextEngine_GetLetterFxMode();
+	switch (floatProc->mode) {
+	case TEXT_ENGINE_LETTER_FX_DRIP:
+		floatProc->duration = 18;
+		break;
+	case TEXT_ENGINE_LETTER_FX_WAVY:
+		floatProc->duration = 16;
+		break;
+	case TEXT_ENGINE_LETTER_FX_SCRAMBLE:
+		floatProc->duration = 14;
+		break;
+	default:
+		floatProc->duration = TEXT_ENGINE_FLOAT_DURATION;
+		break;
+	}
 
 	TextEngine_UploadGlyphToObj(
 		glyph,
@@ -3517,32 +3623,52 @@ static int TextEngine_CommandStopPrintShake(
 	return 3;
 }
 
-static int TextEngine_CommandStartPrintBounce(
+static u8 TextEngine_LetterFxModeFromOnCode(u8 code)
+{
+	switch (code) {
+	case 0x3D:
+		return TEXT_ENGINE_LETTER_FX_BOUNCE;
+	case TEXT_ENGINE_CMD_WAVY_PRINT_ON:
+		return TEXT_ENGINE_LETTER_FX_WAVY;
+	case TEXT_ENGINE_CMD_SCRAMBLE_PRINT_ON:
+		return TEXT_ENGINE_LETTER_FX_SCRAMBLE;
+	case TEXT_ENGINE_CMD_DRIP_PRINT_ON:
+		return TEXT_ENGINE_LETTER_FX_DRIP;
+	case TEXT_ENGINE_CMD_GHOST_PRINT_ON:
+		return TEXT_ENGINE_LETTER_FX_GHOST;
+	default:
+		return TEXT_ENGINE_LETTER_FX_NONE;
+	}
+}
+
+static int TextEngine_CommandStartLetterFx(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
 	const u8 *arguments
 )
 {
 	(void)proc;
-	(void)command;
 	(void)arguments;
 
-	*TextEngine_GetBouncePrintFlag() = 1;
+	*TextEngine_GetLetterFxMode() = TextEngine_LetterFxModeFromOnCode(command->code);
 	TextEngine_PrepareFloatPalette();
 	return 3;
 }
 
-static int TextEngine_CommandStopPrintBounce(
+static int TextEngine_CommandStopLetterFx(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
 	const u8 *arguments
 )
 {
+	u8 mode = TextEngine_LetterFxModeFromOnCode(command->code - 1);
+
 	(void)proc;
-	(void)command;
 	(void)arguments;
 
-	*TextEngine_GetBouncePrintFlag() = 0;
+	if (*TextEngine_GetLetterFxMode() == mode)
+		*TextEngine_GetLetterFxMode() = TEXT_ENGINE_LETTER_FX_NONE;
+
 	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
 	return 3;
 }
@@ -3650,9 +3776,9 @@ static void TextEngine_CleanupPrintShake(void)
 	Proc_EndEach(gProcScr_TextEnginePrintFx);
 }
 
-static void TextEngine_CleanupPrintBounce(void)
+static void TextEngine_CleanupLetterFx(void)
 {
-	*TextEngine_GetBouncePrintFlag() = 0;
+	*TextEngine_GetLetterFxMode() = TEXT_ENGINE_LETTER_FX_NONE;
 	Proc_EndEach(gProcScr_TextEngineGlyphFloat);
 }
 
@@ -3849,8 +3975,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x3A, 0, TextEngine_CommandStopFaceJump, NULL, NULL },
 	{ 0x3B, 0, TextEngine_CommandStartPrintShake, NULL, TextEngine_CleanupPrintShake },
 	{ 0x3C, 0, TextEngine_CommandStopPrintShake, NULL, NULL },
-	{ 0x3D, 0, TextEngine_CommandStartPrintBounce, NULL, TextEngine_CleanupPrintBounce },
-	{ 0x3E, 0, TextEngine_CommandStopPrintBounce, NULL, NULL },
+	{ 0x3D, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
+	{ 0x3E, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
 	{ 0x3F, 0, TextEngine_CommandStartWave, NULL, TextEngine_CleanupWave },
 	{ 0x40, 0, TextEngine_CommandStopWave, NULL, NULL },
 	{ 0x41, 0, TextEngine_CommandStartFaceVibrate, NULL, TextEngine_CleanupFaceMotion },
@@ -3864,6 +3990,14 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x49, 0, TextEngine_CommandStartScreenStatic, NULL, NULL },
 	{ 0x4A, 0, TextEngine_CommandStopScreenStatic, NULL, NULL },
 	{ TEXT_ENGINE_CMD_CLEAR_FACE_ASH, 0, TextEngine_CommandClearFaceAsh, NULL, TextEngine_CleanupAshDissolve },
+	{ TEXT_ENGINE_CMD_WAVY_PRINT_ON, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
+	{ TEXT_ENGINE_CMD_WAVY_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
+	{ TEXT_ENGINE_CMD_SCRAMBLE_PRINT_ON, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
+	{ TEXT_ENGINE_CMD_SCRAMBLE_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
+	{ TEXT_ENGINE_CMD_DRIP_PRINT_ON, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
+	{ TEXT_ENGINE_CMD_DRIP_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
+	{ TEXT_ENGINE_CMD_GHOST_PRINT_ON, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
+	{ TEXT_ENGINE_CMD_GHOST_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

@@ -158,6 +158,22 @@ def parse_string_shiftjis_core(data, cur_idx):
             output = "[ToggleColorInvert]"
         elif ctrl == 0x4B:
             output = "[ClearFaceAsh]"
+        elif ctrl == 0x4C:
+            output = "[ToggleOnWavyPrint]"
+        elif ctrl == 0x4D:
+            output = "[ToggleOffWavyPrint]"
+        elif ctrl == 0x4E:
+            output = "[ToggleOnScramblePrint]"
+        elif ctrl == 0x4F:
+            output = "[ToggleOffScramblePrint]"
+        elif ctrl == 0x50:
+            output = "[ToggleOnDripPrint]"
+        elif ctrl == 0x51:
+            output = "[ToggleOffDripPrint]"
+        elif ctrl == 0x52:
+            output = "[ToggleOnGhostPrint]"
+        elif ctrl == 0x53:
+            output = "[ToggleOffGhostPrint]"
         else:
             output = "f[!!ERROR:0x{ctrl:02X}]"
     elif u16_data == 0x4081:

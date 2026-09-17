@@ -24,6 +24,7 @@ Player-facing impact:
 
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
 - Dialogue can apply a horizontal scanline wave to its background layers.
+- Printed letters can bounce in, wave into place, scramble then resolve, drip from above, or leave a ghost echo.
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
 - A rolling screen tear and a separate corruption-static effect can be toggled from dialogue or `ASMC`; both are off by default.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -95,7 +96,7 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x3B` | `[ToggleOnShakePrint]` | none | Each printed glyph briefly jitters the dialogue text layer |
 | `0x3C` | `[ToggleOffShakePrint]` | none | Disables shake-on-print |
 | `0x3D` | `[ToggleOnBouncePrint]` | none | Each letter floats down into place as an OBJ, then bakes into the text |
-| `0x3E` | `[ToggleOffBouncePrint]` | none | Disables per-letter float-in |
+| `0x3E` | `[ToggleOffBouncePrint]` | none | Disables bounce-on-print |
 | `0x3F` | `[ToggleOnWave]` | none | Applies a continuous horizontal wave to BG0–BG3 |
 | `0x40` | `[ToggleOffWave]` | none | Restores the dialogue background layers' normal horizontal offsets |
 | `0x41` | `[ToggleOnVibrating]` | none | Starts a fast, one-pixel vertical vibration on the active portrait |
@@ -109,6 +110,14 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x49` | `[ToggleOnStatic]` | none | Starts white horizontal scanline static over the screen |
 | `0x4A` | `[ToggleOffStatic]` | none | Stops the scanline static |
 | `0x4B` | `[ClearFaceAsh]` / `[AshDissolve]` | none | ClearFace variant: the active portrait dissolves into drifting 16×16 chips, then fades |
+| `0x4C` | `[ToggleOnWavyPrint]` | none | Each letter settles with a decaying sine wobble |
+| `0x4D` | `[ToggleOffWavyPrint]` | none | Disables wavy-on-print |
+| `0x4E` | `[ToggleOnScramblePrint]` | none | Each letter cycles random A–Z glyphs, then resolves to the real character |
+| `0x4F` | `[ToggleOffScramblePrint]` | none | Disables scramble-on-print |
+| `0x50` | `[ToggleOnDripPrint]` | none | Each letter hangs, then drops into place |
+| `0x51` | `[ToggleOffDripPrint]` | none | Disables drip-on-print |
+| `0x52` | `[ToggleOnGhostPrint]` | none | Each letter appears with a trailing ghost echo, then bakes |
+| `0x53` | `[ToggleOffGhostPrint]` | none | Disables ghost-echo-on-print |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)` and `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)` toggle the same effects outside dialogue. Both stay on until turned off; they are not cleared when talk ends.
 
@@ -155,6 +164,14 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffShakePrint]Back to a steady print.
 [ToggleOnBouncePrint]These letters drop into place.
 [ToggleOffBouncePrint]And now they don't.
+[ToggleOnWavyPrint]These letters wobble into place.
+[ToggleOffWavyPrint]Steady again.
+[ToggleOnScramblePrint]These letters decode themselves.
+[ToggleOffScramblePrint]Plain type once more.
+[ToggleOnDripPrint]These letters drip down.
+[ToggleOffDripPrint]No more dripping.
+[ToggleOnGhostPrint]These letters leave an echo.
+[ToggleOffGhostPrint]The echo is gone.
 [ToggleOnWave]The dialogue scene ripples gently.
 [ToggleOffWave]And now it is steady again.
 [ToggleOnNameplate]This line shows a speaker plate.
@@ -188,7 +205,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Variable-speed face move | `StartTalkFaceMove_C`, `TalkFaceMove_OnInitOverride` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Full C replacement for face moves with custom duration |
 | Fancy / normal face load | `TextEngine_LoadFace` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Shared loader used by `LoadFace` and `LoadFaceFancy` |
 | Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StartFaceShimmy`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `TextEngine_StopFaceShimmy`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps, vibrates, or shimmies the active portrait until toggled off |
-| Shake / bounce-on-print | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce = per-letter OBJ float-in that bakes into dialogue text |
+| Shake / letter-print FX | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce / wavy / scramble / drip / ghost = per-letter OBJ that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
 | Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles |
 | Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Horizontal screen tear: a rolling split shifts BG0–BG3 (and matching OBJ) on the X axis; `ASMC(EnableScreenGlitch)` and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
@@ -208,7 +225,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 
 - Re-hook pitched text boops so `[BoopPitch_*]` / attribute pitch actually affect letter sounds during print.
 - Add more author-facing example scripts beyond the control-code matrix above.
-- Consider punctuation-pause and heavier typewriter variants now that shake/bounce-on-print exist.
+- Consider punctuation-pause and heavier typewriter variants now that letter-print FX exist.
 - Consider horizontal or compound portrait effects now that the engine lives in C.
 - Optional ash-dissolve SFX and a slower/faster duration argument if scripts need per-scene timing.
 
@@ -221,7 +238,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - All script arguments must be **non-zero**; `0x00` terminates text copies.
 - Custom box types have limited tile variety; new shapes do not include the vanilla multi-frame expand animation.
 - Boop pitch is stored on face/current attributes and accepted by `0x2C`, but the old `PlayTextBoop` idle hook is not currently installed, so pitch changes may not audibly apply until that path is restored in C.
-- Shake-on-print jitters the whole BG0 text layer. Bounce-on-print floats each letter in as an OBJ (up to 4 at once) before baking it into the dialogue text; sprite-talk mode is skipped.
+- Shake-on-print jitters the whole BG0 text layer. Bounce, wavy, scramble, drip, and ghost-echo each float letters in as OBJs (up to 4 at once) before baking into the dialogue text. Only one of those letter styles is active at a time; sprite-talk mode is skipped. Wide glyphs are clipped to 8px while they are sprites.
 - The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
 - Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
 - The screen glitch is a horizontal tear: scanlines below a rolling split jump sideways on BG0–BG3. Portrait mouths/eyes and map sprites use the same offset so they tear with the picture. It is off until `[ToggleOnGlitch]` or `ASMC(EnableScreenGlitch)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
