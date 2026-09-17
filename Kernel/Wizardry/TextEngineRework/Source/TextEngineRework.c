@@ -2,11 +2,16 @@
 #include "kernel-lib.h"
 #include "utf8.h"
 #include "kernel/chatlog.h"
+#include "event-rework.h"
 
 #include "bmlib.h"
 #include "ctc.h"
+#include "event.h"
+#include "face.h"
 #include "fontgrp.h"
+#include "hardware.h"
 #include "m4a.h"
+#include "rng.h"
 #include "scene.h"
 
 extern void HalfBody_OnTalkFaceClear(struct FaceProc *proc);
@@ -44,6 +49,11 @@ enum {
 	TEXT_ENGINE_WAVE_AMPLITUDE = 2,
 	TEXT_ENGINE_WAVE_FREQUENCY = 2,
 	TEXT_ENGINE_WAVE_SPEED = 2,
+	/* Analog tracking noise: most scanlines shift by at most this many pixels. */
+	TEXT_ENGINE_STATIC_FINE_RANGE = 1,
+	/* Rolling sync-tear band height and extra horizontal slip. */
+	TEXT_ENGINE_STATIC_TEAR_HEIGHT = 10,
+	TEXT_ENGINE_STATIC_TEAR_SHIFT = 8,
 	TEXT_ENGINE_FLOAT_SLOTS = 4,
 	/*
 	 * LoadObjUIGfx packs a 0x12x4 sheet into OBJ VRAM with 32-tile pitch:
@@ -72,8 +82,6 @@ enum {
 	TEXT_ENGINE_NAMEPLATE_PAD_TILES = 2,
 	/* PutTalkBubbleTm width/height include the border tiles. */
 	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
-	/* Maximum random displacement, in pixels, applied to the talk box. */
-	TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET = 4,
 };
 
 struct TextEngineFaceJumpProc {
@@ -99,6 +107,11 @@ struct TextEngineWaveProc {
 	/* 2E */ u8 activeBuffer;
 	/* 2F */ u8 unused;
 	/* 30 */ void (*previousHBlankHandler)(void);
+};
+
+struct TextEngineScreenGlitchProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ void (*previousHBlankHandler)(void);
 };
 
 struct TextEngineGlyphFloatProc {
@@ -235,6 +248,10 @@ static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc);
 static void TextEnginePrintFx_OnEnd(struct TextEnginePrintFxProc *proc);
 static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc);
 static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc);
+static void TextEngineWave_OnHBlank(void);
+static void TextEngineWave_ApplyBaseOffsets(void);
+static void TextEngineScreenGlitch_OnIdle(ProcPtr proc);
+static void TextEngineScreenGlitch_OnEnd(struct TextEngineScreenGlitchProc *proc);
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
 
@@ -270,6 +287,13 @@ static const struct ProcCmd gProcScr_TextEngineWave[] = {
 	PROC_NAME("TextEngineWave"),
 	PROC_SET_END_CB(TextEngineWave_OnEnd),
 	PROC_REPEAT(TextEngineWave_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineScreenGlitch[] = {
+	PROC_NAME("TextEngineScreenGlitch"),
+	PROC_SET_END_CB(TextEngineScreenGlitch_OnEnd),
+	PROC_REPEAT(TextEngineScreenGlitch_OnIdle),
 	PROC_END,
 };
 
@@ -909,37 +933,413 @@ static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc)
 	}
 }
 
-static int TextEngine_TalkGlitchOffset(u32 salt)
+static int TextEngine_StaticLineOffset(u32 clock, int line)
 {
-	int range = TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET * 2 + 1;
-	u32 value = (u32)GetGameClock() * 1664525u
-		+ 1013904223u
-		+ salt;
+	u32 hash = clock * 1103515245u + (u32)line * 12345u;
+	int offset;
+	int band;
+	int dist;
+
+	hash ^= hash >> 13;
 
 	/*
-	 * Use a clock-derived visual hash so enabling the glitch does not consume
-	 * the game's gameplay random-number stream or require extra RAM.
+	 * Fine tracking noise. Most scanlines slip by -1, 0, or 1 pixel so the
+	 * picture stays put and reads as a dirty analog signal instead of a shake.
 	 */
-	value ^= value >> 16;
+	offset = (int)(hash & 3) - 1;
+	if (offset == 2)
+		offset = 0;
 
-	return (int)((value >> 16) % range)
-		- TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET;
+	/* Rolling sync tear: a short band of extra horizontal slip moves down. */
+	band = (int)((clock * 2) % DISPLAY_HEIGHT);
+	dist = line - band;
+	if (dist < 0)
+		dist += DISPLAY_HEIGHT;
+	if (dist < TEXT_ENGINE_STATIC_TEAR_HEIGHT)
+		offset += TEXT_ENGINE_STATIC_TEAR_SHIFT - dist;
+
+	/* Sparse dropouts, like a weak broadcast sparking for a single line. */
+	if ((hash & 0x3F) == 0)
+		offset += (int)((hash >> 6) & 7) - 3;
+
+	return offset;
 }
 
-void TextEngine_ApplyTalkGlitch(void)
+static void TextEngineScanlineFx_BuildBuffer(int buffer)
 {
-#ifndef CONFIG_TALK_GLITCH_EFFECT
-	return;
-#else
+	struct TextEngineWaveProc *wave =
+		(struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
+	s8 glitchOn = Proc_Find(gProcScr_TextEngineScreenGlitch) != NULL;
+	u32 clock = GetGameClock();
+	int line;
+
+	if (Chatlog_IsVisible()) {
+		for (line = 0; line < DISPLAY_HEIGHT; line++)
+			sTextEngineWaveOffsets[buffer][line] = 0;
+		return;
+	}
+
+	for (line = 0; line < DISPLAY_HEIGHT; line++) {
+		s16 offset = 0;
+
+		if (wave)
+			offset += (SIN(wave->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
+				* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;
+		if (glitchOn)
+			offset += TextEngine_StaticLineOffset(clock, line);
+
+		sTextEngineWaveOffsets[buffer][line] = offset;
+	}
+}
+
+static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
+{
+	struct TextEngineWaveProc *wave;
+	struct TextEngineScreenGlitchProc *glitch;
+
+	if (sHBlankHandler2 == TextEngineWave_OnHBlank) {
+		void (*saved)(void) = NULL;
+
+		wave = (struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
+		glitch = (struct TextEngineScreenGlitchProc *)Proc_Find(gProcScr_TextEngineScreenGlitch);
+		if (wave)
+			saved = wave->previousHBlankHandler;
+		if (!saved && glitch)
+			saved = glitch->previousHBlankHandler;
+		*outPrev = saved;
+		return;
+	}
+
+	*outPrev = sHBlankHandler2;
+	TextEngineScanlineFx_BuildBuffer(0);
+	TextEngineScanlineFx_BuildBuffer(1);
+	sTextEngineWaveActiveBuffer = 0;
+	SetSecondaryHBlankHandler(TextEngineWave_OnHBlank);
+}
+
+static void TextEngineScanlineFx_ReleaseHBlank(void (*prev)(void), ProcPtr self)
+{
+	ProcPtr wave = Proc_Find(gProcScr_TextEngineWave);
+	ProcPtr glitch = Proc_Find(gProcScr_TextEngineScreenGlitch);
+
+	if (wave && wave != self)
+		return;
+	if (glitch && glitch != self)
+		return;
+
+	SetSecondaryHBlankHandler(prev);
+	TextEngineWave_ApplyBaseOffsets();
+}
+
+static void TextEngineWave_ApplyBaseOffsets(void)
+{
+	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x;
+	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x;
+	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x;
+	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x;
+}
+
+static void TextEngineWave_OnHBlank(void)
+{
+	u16 line = REG_VCOUNT;
+	s16 offset;
+
+	if (line >= DISPLAY_HEIGHT)
+		return;
+
+	offset = sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][line];
+	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
+	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
+	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
+	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
+}
+
+static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
+{
+	TextEngineScanlineFx_ReleaseHBlank(proc->previousHBlankHandler, proc);
+}
+
+static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc)
+{
+	int nextBuffer = proc->activeBuffer ^ 1;
+
+	proc->phase += TEXT_ENGINE_WAVE_SPEED;
+	TextEngineScanlineFx_BuildBuffer(nextBuffer);
+	proc->activeBuffer = nextBuffer;
+	sTextEngineWaveActiveBuffer = nextBuffer;
+}
+
+static void TextEngine_StartWave(void)
+{
+	struct TextEngineWaveProc *proc;
+
 	if (CheckTalkFlag(TALK_FLAG_SPRITE))
 		return;
-#endif
 
-	BG_SetPosition(
-		BG_1,
-		TextEngine_TalkGlitchOffset(0xA5A5A5A5u),
-		TextEngine_TalkGlitchOffset(0x5A5A5A5Au)
+	proc = (struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
+	if (proc)
+		return;
+
+	proc = (struct TextEngineWaveProc *)Proc_Start(
+		gProcScr_TextEngineWave,
+		PROC_TREE_3
 	);
+	if (!proc)
+		return;
+
+	proc->phase = 0;
+	proc->activeBuffer = 0;
+	proc->unused = 0;
+	TextEngineScanlineFx_AcquireHBlank(&proc->previousHBlankHandler);
+}
+
+static void TextEngineScreenGlitch_OnEnd(struct TextEngineScreenGlitchProc *proc)
+{
+	TextEngineScanlineFx_ReleaseHBlank(proc->previousHBlankHandler, proc);
+}
+
+static void TextEngineScreenGlitch_OnIdle(ProcPtr proc)
+{
+	int nextBuffer;
+
+	(void)proc;
+
+	/* Wave already rebuilds the shared scanline table when both are active. */
+	if (Proc_Find(gProcScr_TextEngineWave))
+		return;
+
+	nextBuffer = sTextEngineWaveActiveBuffer ^ 1;
+	TextEngineScanlineFx_BuildBuffer(nextBuffer);
+	sTextEngineWaveActiveBuffer = nextBuffer;
+}
+
+void EnableScreenGlitch(void)
+{
+	struct TextEngineScreenGlitchProc *proc =
+		(struct TextEngineScreenGlitchProc *)Proc_Find(gProcScr_TextEngineScreenGlitch);
+
+	if (proc)
+		return;
+
+	proc = (struct TextEngineScreenGlitchProc *)Proc_Start(
+		gProcScr_TextEngineScreenGlitch,
+		PROC_TREE_3
+	);
+	if (!proc)
+		return;
+
+	TextEngineScanlineFx_AcquireHBlank(&proc->previousHBlankHandler);
+}
+
+void DisableScreenGlitch(void)
+{
+	Proc_EndEach(gProcScr_TextEngineScreenGlitch);
+}
+
+s16 TextEngine_GetStaticOffsetAtY(int y)
+{
+	if (!Proc_Find(gProcScr_TextEngineScreenGlitch))
+		return 0;
+
+	if (y < 0)
+		y = 0;
+	else if (y >= DISPLAY_HEIGHT)
+		y = DISPLAY_HEIGHT - 1;
+
+	return sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][y];
+}
+
+int TextEngine_ApplyStaticOam1(int xOam1, int screenY)
+{
+	int flags = xOam1 & ~0x1FF;
+	int x = xOam1 & 0x1FF;
+
+	x += TextEngine_GetStaticOffsetAtY(screenY);
+	return flags | (x & 0x1FF);
+}
+
+void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2)
+{
+	if (object == NULL)
+		return;
+
+	/*
+	 * PutSpriteExt stores this object pointer until OAM flush, so the data
+	 * must outlive this call. Apply one scanline slip at the face Y instead
+	 * of rewriting pieces into a stack buffer.
+	 */
+	PutSpriteExt(
+		layer,
+		TextEngine_ApplyStaticOam1(xOam1, yOam0),
+		yOam0,
+		object,
+		oam2
+	);
+}
+
+LYN_REPLACE_CHECK(sub_8005FE0);
+void sub_8005FE0(struct FaceBlinkProc *proc)
+{
+	int oam1;
+	int oam0;
+	struct FaceProc *face = proc->pFaceProc;
+
+	if (!(GetFaceDisplayBits(face) & (FACE_DISP_TALK_1 | FACE_DISP_TALK_2))) {
+		int offsetA = (GetFaceDisplayBits(face) & FACE_DISP_SMILE) ? 0 : 24;
+
+		offsetA += 16;
+		Register2dChrMove(
+			face->pFaceInfo->imgMouth + offsetA * 0x20,
+			(void *)(((face->oam2 + 28) & 0x3FF) * 0x20 + 0x06010000),
+			4,
+			2
+		);
+	} else {
+		proc->unk_32--;
+		if (proc->unk_32 < 0) {
+			int offsetB = (GetFaceDisplayBits(face) & FACE_DISP_SMILE) ? 0 : 24;
+
+			proc->unk_32 = ((AdvanceGetLCGRNValue() >> 16) & 7) + 1;
+			proc->blinkControl = (proc->blinkControl + 1) & 3;
+
+			switch (proc->blinkControl) {
+			case 1:
+			case 3:
+				offsetB += 8;
+				break;
+
+			case 2:
+				offsetB += 16;
+				break;
+
+			case 0:
+			default:
+				offsetB += 0;
+				break;
+			}
+
+			Register2dChrMove(
+				face->pFaceInfo->imgMouth + offsetB * 0x20,
+				(void *)(((face->oam2 + 28) & 0x3FF) * 0x20 + 0x06010000),
+				4,
+				2
+			);
+		}
+	}
+
+	oam1 = 4 - face->pFaceInfo->xMouth;
+	oam1 = (GetFaceDisplayBits(face) & FACE_DISP_FLIPPED) ? oam1 : -oam1;
+	oam1 = OAM1_X((oam1 * 8 + face->xPos) - 16);
+
+	if (GetFaceDisplayBits(face) & FACE_DISP_FLIPPED)
+		oam1 = oam1 + OAM1_HFLIP;
+
+	if (GetFaceDisplayBits(face) & FACE_DISP_BLEND)
+		oam0 = OAM0_BLEND;
+	else
+		oam0 = 0;
+
+	oam0 += (face->yPos + (face->pFaceInfo->yMouth * 8)) & 0xFF;
+
+	/* Same slip as the parent mug so the mouth does not detach. */
+	oam1 = TextEngine_ApplyStaticOam1(oam1, face->yPos);
+
+	PutSpriteExt(
+		face->spriteLayer,
+		oam1,
+		oam0,
+		gObject_32x16,
+		face->oam2 + 28
+	);
+}
+
+void sub_8006134(struct FaceBlinkProc *proc, int unk);
+
+LYN_REPLACE_CHECK(sub_8006134);
+void sub_8006134(struct FaceBlinkProc *proc, int unk)
+{
+	int oam1;
+	int oam0;
+	s8 flag = 0;
+	struct FaceProc *face = proc->pFaceProc;
+
+	switch (unk) {
+	case 0:
+		unk = 88;
+		break;
+
+	case 1:
+		unk = 24;
+		break;
+
+	case 0x80:
+		unk = 88;
+		flag = 1;
+		break;
+
+	case 0x81:
+		unk = 24;
+		flag = 1;
+		break;
+
+	default:
+		return;
+	}
+
+	oam1 = 4 - face->pFaceInfo->xEyes;
+	oam1 = (GetFaceDisplayBits(face) & FACE_DISP_FLIPPED) ? oam1 : -oam1;
+	oam1 = ((oam1 * 8 + face->xPos) - 16) & 0x1FF;
+
+	if (GetFaceDisplayBits(face) & FACE_DISP_FLIPPED)
+		oam1 = oam1 + 0x1000;
+
+	if (GetFaceDisplayBits(face) & FACE_DISP_BLEND)
+		oam0 = OAM0_BLEND;
+	else
+		oam0 = 0;
+
+	oam0 += (face->yPos + (face->pFaceInfo->yEyes * 8)) & 0xFF;
+	oam1 = TextEngine_ApplyStaticOam1(oam1, face->yPos);
+
+	if (flag) {
+		if (!(GetFaceDisplayBits(face) & FACE_DISP_FLIPPED))
+			oam1 = oam1 + 16;
+
+		PutSpriteExt(
+			face->spriteLayer,
+			oam1,
+			oam0,
+			gObject_16x16,
+			face->oam2 + unk + 2
+		);
+	} else {
+		PutSpriteExt(
+			face->spriteLayer,
+			oam1,
+			oam0,
+			gObject_32x16,
+			face->oam2 + unk
+		);
+	}
+}
+
+u8 EventScreenGlitchOperation(struct EventEngineProc *proc)
+{
+	switch (EVT_SUB_CMD(proc->pEventCurrent)) {
+	case EVSUBCMD_SCREEN_GLITCH_ON:
+		EnableScreenGlitch();
+		break;
+
+	case EVSUBCMD_SCREEN_GLITCH_OFF:
+		DisableScreenGlitch();
+		break;
+
+	default:
+		Errorf("Event format error at %p", proc->pEventCurrent);
+		hang();
+	}
+
+	return EVC_ADVANCE_CONTINUE;
 }
 
 static struct TextEnginePrintFxProc *TextEngine_EnsurePrintFx(void)
@@ -973,101 +1373,6 @@ static void TextEngine_StartPrintShake(void)
 
 	fx->shakeTimer = 0;
 	TextEnginePrintFx_Apply(fx);
-}
-
-static void TextEngineWave_BuildBuffer(
-	struct TextEngineWaveProc *proc,
-	int buffer
-)
-{
-	int line;
-
-	for (line = 0; line < DISPLAY_HEIGHT; line++) {
-		sTextEngineWaveOffsets[buffer][line] =
-			(SIN(proc->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
-				* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;
-	}
-}
-
-static void TextEngineWave_ApplyBaseOffsets(void)
-{
-	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x;
-	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x;
-	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x;
-	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x;
-}
-
-static void TextEngineWave_OnHBlank(void)
-{
-	u16 line = REG_VCOUNT;
-	s16 offset;
-
-	if (line >= DISPLAY_HEIGHT)
-		return;
-
-	offset = sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer][line];
-	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
-	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
-	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
-	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
-}
-
-static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
-{
-	SetSecondaryHBlankHandler(proc->previousHBlankHandler);
-	TextEngineWave_ApplyBaseOffsets();
-}
-
-static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc)
-{
-	int nextBuffer = proc->activeBuffer ^ 1;
-
-	/* Keep the per-scanline shift flat so the log is not sheared. */
-	if (Chatlog_IsVisible()) {
-		int line;
-
-		for (line = 0; line < DISPLAY_HEIGHT; line++)
-			sTextEngineWaveOffsets[proc->activeBuffer][line] = 0;
-		return;
-	}
-
-	proc->phase += TEXT_ENGINE_WAVE_SPEED;
-	TextEngineWave_BuildBuffer(proc, nextBuffer);
-	proc->activeBuffer = nextBuffer;
-	sTextEngineWaveActiveBuffer = nextBuffer;
-}
-
-static void TextEngine_StartWave(void)
-{
-	struct TextEngineWaveProc *proc;
-
-	if (CheckTalkFlag(TALK_FLAG_SPRITE))
-		return;
-
-	proc = (struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
-	if (proc)
-		return;
-
-	proc = (struct TextEngineWaveProc *)Proc_Start(
-		gProcScr_TextEngineWave,
-		PROC_TREE_3
-	);
-	if (!proc)
-		return;
-
-	proc->phase = 0;
-	proc->activeBuffer = 0;
-	proc->unused = 0;
-	proc->previousHBlankHandler = sHBlankHandler2;
-	TextEngineWave_BuildBuffer(proc, 0);
-	TextEngineWave_BuildBuffer(proc, 1);
-	sTextEngineWaveActiveBuffer = 0;
-
-	/*
-	 * Keep the primary HBlank slot available for existing dialogue effects.
-	 * The secondary slot is restored when the wave proc ends.
-	 */
-	SetSecondaryHBlankHandler(TextEngineWave_OnHBlank);
 }
 
 static void TextEngine_StopWave(void)
@@ -2811,6 +3116,34 @@ static void TextEngine_CleanupNameplate(void)
 	sTextEngineNameplateState.enabled = 0;
 }
 
+static int TextEngine_CommandStartScreenGlitch(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	EnableScreenGlitch();
+	return 3;
+}
+
+static int TextEngine_CommandStopScreenGlitch(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	DisableScreenGlitch();
+	return 3;
+}
+
 /*
  * Keep every extended command's argument shape and behavior in one table.
  * argumentCount is the number of bytes after [0x80][code].
@@ -2887,6 +3220,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x44, 0, TextEngine_CommandStopFaceShimmy, NULL, NULL },
 	{ 0x45, 0, TextEngine_CommandStartNameplate, NULL, TextEngine_CleanupNameplate },
 	{ 0x46, 0, TextEngine_CommandStopNameplate, NULL, NULL },
+	{ 0x47, 0, TextEngine_CommandStartScreenGlitch, NULL, NULL },
+	{ 0x48, 0, TextEngine_CommandStopScreenGlitch, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

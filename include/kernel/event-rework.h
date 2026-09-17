@@ -36,6 +36,11 @@ enum EventSkillSubOps {
 	EVSUBCMD_REMOVE_SKILL_SC,
 };
 
+enum EventScreenGlitchSubOps {
+	EVSUBCMD_SCREEN_GLITCH_ON = 1,
+	EVSUBCMD_SCREEN_GLITCH_OFF,
+};
+
 #define Evt_AddSkill(sid, pid) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_ADD_SKILL, sid), _EvtParams2(pid, 0),
 #define Evt_AddSkillActive(sid) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_ADD_SKILL_ACTIVE, sid), _EvtParams2(0, 0),
 #define Evt_AddSkillAt(sid, x, y) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_ADD_SKILL_AT, sid), _EvtParams2(x, y),
@@ -45,3 +50,6 @@ enum EventSkillSubOps {
 #define Evt_RemoveSkillActive(sid) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_REMOVE_SKILL_ACTIVE, sid), _EvtParams2(0, 0),
 #define Evt_RemoveSkillAt(sid, x, y) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_REMOVE_SKILL_AT, sid), _EvtParams2(x, y),
 #define Evt_RemoveSkillSC(sid) _EvtArg0(EVENT_CMD_SKILL, 4, EVSUBCMD_REMOVE_SKILL_SC, sid), _EvtParams2(0, 0),
+
+#define Evt_ScreenGlitchOn  _EvtArg0(EVENT_CMD_SCREEN_GLITCH, 2, EVSUBCMD_SCREEN_GLITCH_ON, 0),
+#define Evt_ScreenGlitchOff _EvtArg0(EVENT_CMD_SCREEN_GLITCH, 2, EVSUBCMD_SCREEN_GLITCH_OFF, 0),

@@ -363,6 +363,8 @@ static void PutRescuedSupportSpritesOam(void)
 		if (x < -16 || x > DISPLAY_WIDTH || y < -32 || y > DISPLAY_HEIGHT)
 			continue;
 
+		x += TextEngine_GetStaticOffsetAtY(y);
+
 		switch (UNIT_FACTION(support)) {
 		case FACTION_BLUE:
 			flip = gMirrorSpriteOptions & FLIP_PLAYER;
@@ -455,6 +457,8 @@ void PutUnitSpritesOam(void)
 
         if (y < -32 || y > DISPLAY_HEIGHT)
             continue;
+
+        x += TextEngine_GetStaticOffsetAtY(y);
 
         if (it->config & 0x80)
             continue;
@@ -561,8 +565,71 @@ static void PutFogStage2Sprites(void)
         if (x < -16 || x > DISPLAY_WIDTH)  continue;
         if (y < -16 || y > DISPLAY_HEIGHT) continue;
 
+        x += TextEngine_GetStaticOffsetAtY(y);
+
         u16 pal    = (u16)((GetUnitDisplayedSpritePalette(unit) & 0xf) << 12);
         CallARM_PushToSecondaryOAM(OAM1_X(x + 0x200),     OAM0_Y(0x100 + y),     gObject_16x8, pal | OAM2_LAYER(2) | FOG2_CHR_TOP);
         CallARM_PushToSecondaryOAM(OAM1_X(x + 0x200),     OAM0_Y(0x100 + y + 8), gObject_16x8, pal | OAM2_LAYER(2) | FOG2_CHR_BOTTOM);
     }
+}
+
+void MU_DisplayAsSMS(struct MuProc *proc);
+void MU_DisplayAsMMS(struct MuProc *proc);
+
+LYN_REPLACE_CHECK(MU_DisplayAsSMS);
+void MU_DisplayAsSMS(struct MuProc *proc)
+{
+	struct Vec2 pos;
+
+	if (proc->hidden_b)
+		return;
+
+	if (!GetMuDisplayPosition(proc, &pos))
+		return;
+
+	pos.x += TextEngine_GetStaticOffsetAtY(pos.y);
+	pos.x = OAM1_X(pos.x);
+	pos.y = OAM0_Y(pos.y);
+
+	if (proc->state == MU_STATE_DEATHFADE)
+		pos.y |= OAM0_BLEND;
+
+	sub_8026FF4(proc->slot, proc->pGfxVRAM);
+	sub_8027DB4(
+		proc->sprite_anim->objLayer,
+		pos.x - 8,
+		pos.y - 16,
+		((((unsigned)((uintptr_t)proc->pGfxVRAM - 0x06010000) & 0x1FFFF) >> 5)
+			| ((proc->config->pal & 0xF) << 12))
+			+ proc->layer,
+		proc->jid,
+		proc->slot
+	);
+}
+
+LYN_REPLACE_CHECK(MU_DisplayAsMMS);
+void MU_DisplayAsMMS(struct MuProc *proc)
+{
+	struct Vec2 pos;
+
+	if (proc->hidden_b)
+		return;
+
+	if (!GetMuDisplayPosition(proc, &pos))
+		return;
+
+	if (proc->state != MU_STATE_DISPLAY_UI)
+		if (proc->unit && UNIT_FACTION(proc->unit) == FACTION_RED)
+			if (gPlaySt.chapterVisionRange != 0)
+				if (gBmMapFog[MU_GetDisplayYOrg(proc) >> 4][MU_GetDisplayXOrg(proc) >> 4] == 0)
+					return;
+
+	pos.x += TextEngine_GetStaticOffsetAtY(pos.y);
+	pos.x = OAM1_X(pos.x);
+	pos.y = OAM0_Y(pos.y);
+
+	if (proc->state == MU_STATE_DEATHFADE)
+		pos.y |= OAM0_BLEND;
+
+	AP_Update(proc->sprite_anim, pos.x, pos.y);
 }

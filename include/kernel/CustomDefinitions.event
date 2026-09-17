@@ -34,6 +34,9 @@
 #define Evt_RemoveSkillActive(sid)   "BYTE 0x46 EVENT_CMD_SKILL; SHORT sid 0 0"
 #define Evt_RemoveSkillAt(sid, x, y) "BYTE 0x47 EVENT_CMD_SKILL; SHORT sid x y"
 #define Evt_RemoveSkillSC(sid)       "BYTE 0x48 EVENT_CMD_SKILL; SHORT sid 0 0"
+
+#define Evt_ScreenGlitchOn           "BYTE 0x21 EVENT_CMD_SCREEN_GLITCH"
+#define Evt_ScreenGlitchOff          "BYTE 0x22 EVENT_CMD_SCREEN_GLITCH"
 #define InjectSkillInfo(sid, icon, name, desc) "PUSH ; ORG gSkillInfos + 8 * sid ; WORD ICON; SHORT name desc ; POP"
 
 // banim-main

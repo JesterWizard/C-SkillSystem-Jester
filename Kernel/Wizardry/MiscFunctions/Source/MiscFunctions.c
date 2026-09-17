@@ -4387,8 +4387,6 @@ void Talk_OnIdle(ProcPtr proc) {
         return;
     }
 
-    TextEngine_ApplyTalkGlitch();
-
     if (IsTalkFaceMoving()) {
         return;
     }

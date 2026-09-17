@@ -47,7 +47,6 @@ void Chatlog_AppendSoftBreak(void);
 void Chatlog_CommitPage(void);
 void Chatlog_StartSession(void);
 void Chatlog_EndSession(void);
-void TextEngine_ApplyTalkGlitch(void);
 void ChapterInit_ResetChatlog(void);
 void SaveChatLogSuspendState(u8 *dst, const u32 size);
 void LoadChatLogSuspendState(u8 *src, const u32 size);

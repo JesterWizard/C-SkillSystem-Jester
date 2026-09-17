@@ -77,6 +77,8 @@ extern const struct ProcCmd gProcScr_SecondaryGoalWindow[];
 
 extern void EnableFreeMovementASMC(void);
 extern void DisableFreeMovementASMC(void);
+extern void EnableScreenGlitch(void);
+extern void DisableScreenGlitch(void);
 
     enum {
 	DIMENSIONS_3x3 = 0,

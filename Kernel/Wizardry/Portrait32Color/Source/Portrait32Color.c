@@ -232,7 +232,7 @@ void Face_OnIdle(struct FaceProc *proc)
 	else
 		oam0 = 0;
 
-	PutSpriteExt(
+	TextEngine_PutFaceSprite(
 		proc->spriteLayer,
 		0x1FF & proc->xPos,
 		oam0 + OAM0_Y(proc->yPos),
@@ -249,7 +249,7 @@ void Face_OnIdle(struct FaceProc *proc)
 	if (slot->active != TRUE || slot->overlayPal >= 0x10)
 		return;
 
-	PutSpriteExt(
+	TextEngine_PutFaceSprite(
 		proc->spriteLayer,
 		0x1FF & proc->xPos,
 		oam0 + OAM0_Y(proc->yPos),
