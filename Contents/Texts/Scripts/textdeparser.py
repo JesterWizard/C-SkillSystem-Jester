@@ -156,6 +156,8 @@ def parse_string_shiftjis_core(data, cur_idx):
             output = "[SetName]"
         elif ctrl == 0x25:
             output = "[ToggleColorInvert]"
+        elif ctrl == 0x4B:
+            output = "[ClearFaceAsh]"
         else:
             output = "f[!!ERROR:0x{ctrl:02X}]"
     elif u16_data == 0x4081:

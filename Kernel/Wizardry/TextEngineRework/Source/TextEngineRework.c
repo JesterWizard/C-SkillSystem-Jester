@@ -82,6 +82,17 @@ enum {
 	TEXT_ENGINE_NAMEPLATE_PAD_TILES = 2,
 	/* PutTalkBubbleTm width/height include the border tiles. */
 	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
+	/*
+	 * Ash dissolve rebuilds the mug from its OBJ list each frame, so
+	 * chip motion lives on the proc (seed + origin) instead of EWRAM.
+	 */
+	TEXT_ENGINE_ASH_OAM_BUDGET = 40,
+	TEXT_ENGINE_ASH_DURATION = 48,
+	TEXT_ENGINE_ASH_HOLD = 4,
+	TEXT_ENGINE_ASH_FADE_START = 24,
+	TEXT_ENGINE_ASH_MOSAIC_MAX = 3,
+	TEXT_ENGINE_ASH_OVERLAY_CHIP_LIMIT = 32,
+	TEXT_ENGINE_CMD_CLEAR_FACE_ASH = 0x4B,
 };
 
 struct TextEngineFaceJumpProc {
@@ -131,6 +142,26 @@ struct TextEngineGlyphFloatProc {
 	/* 3D */ u8 color;
 	/* 3E */ u8 width;
 	/* 3F */ char ch[5];
+};
+
+struct TextEngineAshDissolveProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ struct FaceProc *face;
+	/* 30 */ s16 timer;
+	/* 32 */ u16 savedMosaic;
+	/* 34 */ u16 savedBldcnt;
+	/* 36 */ u16 overlayOam2;
+	/* 38 */ u8 savedCoeffA;
+	/* 39 */ u8 savedCoeffB;
+	/* 3A */ u8 savedBlendY;
+	/* 3B */ u8 savedWoutBlend;
+	/* 3C */ u8 layer;
+	/* 3D */ u8 overlayEnabled;
+	/* 3E */ u8 step;
+	/* 3F */ u8 unused;
+	/* 40 */ s16 originX;
+	/* 42 */ s16 originY;
+	/* 44 */ u32 seed;
 };
 
 struct TextEngineNameplateState {
@@ -261,6 +292,10 @@ static void TextEngineScreenStatic_OnIdle(ProcPtr proc);
 static void TextEngineScreenStatic_OnEnd(struct TextEngineScreenStaticProc *proc);
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
+static void TextEngineAshDissolve_OnIdle(struct TextEngineAshDissolveProc *proc);
+static void TextEngineAshDissolve_OnEnd(struct TextEngineAshDissolveProc *proc);
+static void TextEngine_StartAshDissolve(struct FaceProc *face);
+static void TextEngine_CleanupAshDissolve(void);
 
 static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ +1, -1 },
@@ -315,6 +350,13 @@ static const struct ProcCmd gProcScr_TextEngineGlyphFloat[] = {
 	PROC_NAME("TextEngineGlyphFloat"),
 	PROC_SET_END_CB(TextEngineGlyphFloat_OnEnd),
 	PROC_REPEAT(TextEngineGlyphFloat_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineAshDissolve[] = {
+	PROC_NAME("TextEngineAshDissolve"),
+	PROC_SET_END_CB(TextEngineAshDissolve_OnEnd),
+	PROC_REPEAT(TextEngineAshDissolve_OnIdle),
 	PROC_END,
 };
 
@@ -910,6 +952,417 @@ static void TextEngine_StopFaceVibrate(struct FaceProc *face)
 static void TextEngine_StopFaceShimmy(struct FaceProc *face)
 {
 	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_SHIMMY);
+}
+
+static const u8 sTextEngineAshObjWidth[4][4] = {
+	{ 8, 16, 32, 64 },
+	{ 16, 32, 32, 64 },
+	{ 8, 8, 16, 32 },
+	{ 8, 8, 8, 8 },
+};
+
+static const u8 sTextEngineAshObjHeight[4][4] = {
+	{ 8, 16, 32, 64 },
+	{ 8, 8, 16, 32 },
+	{ 16, 32, 32, 64 },
+	{ 8, 8, 8, 8 },
+};
+
+static int TextEngineAsh_OamX(u16 oam1)
+{
+	int x = oam1 & 0x1FF;
+
+	if (x & 0x100)
+		x -= 0x200;
+
+	return x;
+}
+
+static int TextEngineAsh_OamY(u16 oam0)
+{
+	int y = oam0 & 0xFF;
+
+	if (y >= 0x80)
+		y -= 0x100;
+
+	return y;
+}
+
+static const u16 *TextEngineAsh_GetSprite(int w, int h)
+{
+	if (w == 8 && h == 8)
+		return gObject_8x8;
+	if (w == 16 && h == 16)
+		return gObject_16x16;
+	if (w == 32 && h == 32)
+		return gObject_32x32;
+	if (w == 64 && h == 64)
+		return gObject_64x64;
+	if (w == 16 && h == 8)
+		return gObject_16x8;
+	if (w == 32 && h == 8)
+		return gObject_32x8;
+	if (w == 32 && h == 16)
+		return gObject_32x16;
+	if (w == 64 && h == 32)
+		return gObject_64x32;
+	if (w == 8 && h == 16)
+		return gObject_8x16;
+	if (w == 8 && h == 32)
+		return gObject_8x32;
+	if (w == 16 && h == 32)
+		return gObject_16x32;
+	if (w == 32 && h == 64)
+		return gObject_32x64;
+
+	return gObject_16x16;
+}
+
+static int TextEngineAsh_CountPieces(const u16 *sprite, int step)
+{
+	int i;
+	int n = 0;
+	int count;
+	const u16 *obj;
+
+	if (sprite == NULL || step <= 0)
+		return 0;
+
+	count = sprite[0];
+	obj = sprite + 1;
+
+	for (i = 0; i < count; i++, obj += 3) {
+		int shape = obj[0] >> 14;
+		int size = obj[1] >> 14;
+		int w = sTextEngineAshObjWidth[shape][size];
+		int h = sTextEngineAshObjHeight[shape][size];
+		int tx;
+		int ty;
+
+		for (ty = 0; ty < h; ty += step) {
+			for (tx = 0; tx < w; tx += step)
+				n++;
+		}
+	}
+
+	return n;
+}
+
+static u32 TextEngineAsh_NextRnd(u32 *seed)
+{
+	*seed = *seed * 1103515245 + 12345;
+	return *seed;
+}
+
+static void TextEngineAsh_HideLiveFace(struct FaceProc *face)
+{
+	if (face->unk_44 != NULL) {
+		Proc_End(face->unk_44);
+		face->unk_44 = NULL;
+	}
+
+	if (face->pBlinkProc != NULL) {
+		Proc_End(face->pBlinkProc);
+		face->pBlinkProc = NULL;
+	}
+
+	/* Do not call SetFaceDisplayBits — that rebuilds the live mug OAM. */
+	face->displayBits |= FACE_DISP_HIDDEN;
+}
+
+static u16 TextEngineAsh_PackBldcnt(void)
+{
+	const struct BlendCnt *b = &gLCDControlBuffer.bldcnt;
+
+	return (u16)(
+		(b->target1_bg0_on)
+		| (b->target1_bg1_on << 1)
+		| (b->target1_bg2_on << 2)
+		| (b->target1_bg3_on << 3)
+		| (b->target1_obj_on << 4)
+		| (b->target1_bd_on << 5)
+		| (b->effect << 6)
+		| (b->target2_bg0_on << 8)
+		| (b->target2_bg1_on << 9)
+		| (b->target2_bg2_on << 10)
+		| (b->target2_bg3_on << 11)
+		| (b->target2_obj_on << 12)
+		| (b->target2_bd_on << 13)
+	);
+}
+
+static void TextEngineAsh_UnpackBldcnt(u16 value)
+{
+	struct BlendCnt *b = &gLCDControlBuffer.bldcnt;
+
+	b->target1_bg0_on = (value >> 0) & 1;
+	b->target1_bg1_on = (value >> 1) & 1;
+	b->target1_bg2_on = (value >> 2) & 1;
+	b->target1_bg3_on = (value >> 3) & 1;
+	b->target1_obj_on = (value >> 4) & 1;
+	b->target1_bd_on = (value >> 5) & 1;
+	b->effect = (value >> 6) & 3;
+	b->target2_bg0_on = (value >> 8) & 1;
+	b->target2_bg1_on = (value >> 9) & 1;
+	b->target2_bg2_on = (value >> 10) & 1;
+	b->target2_bg3_on = (value >> 11) & 1;
+	b->target2_obj_on = (value >> 12) & 1;
+	b->target2_bd_on = (value >> 13) & 1;
+}
+
+static void TextEngineAsh_RestoreBlend(struct TextEngineAshDissolveProc *proc)
+{
+	TextEngineAsh_UnpackBldcnt(proc->savedBldcnt);
+	gLCDControlBuffer.blendCoeffA = proc->savedCoeffA;
+	gLCDControlBuffer.blendCoeffB = proc->savedCoeffB;
+	gLCDControlBuffer.blendY = proc->savedBlendY;
+	gLCDControlBuffer.mosaic = proc->savedMosaic;
+	gLCDControlBuffer.wincnt.wout_enableBlend = proc->savedWoutBlend;
+}
+
+static void TextEngineAsh_ApplyFx(struct TextEngineAshDissolveProc *proc)
+{
+	int mosaic = 0;
+	int eva;
+	int t = proc->timer;
+
+	if (t > TEXT_ENGINE_ASH_HOLD) {
+		mosaic = Interpolate(
+			INTERPOLATE_LINEAR,
+			0,
+			TEXT_ENGINE_ASH_MOSAIC_MAX,
+			t - TEXT_ENGINE_ASH_HOLD,
+			TEXT_ENGINE_ASH_DURATION - TEXT_ENGINE_ASH_HOLD
+		);
+	}
+
+	gLCDControlBuffer.mosaic =
+		(proc->savedMosaic & 0x00FF) | (mosaic << 8) | (mosaic << 12);
+
+	if (t < TEXT_ENGINE_ASH_FADE_START)
+		return;
+
+	eva = Interpolate(
+		INTERPOLATE_LINEAR,
+		16,
+		0,
+		t - TEXT_ENGINE_ASH_FADE_START,
+		TEXT_ENGINE_ASH_DURATION - TEXT_ENGINE_ASH_FADE_START
+	);
+	if (eva < 0)
+		eva = 0;
+
+	SetBlendConfig(BLEND_EFFECT_ALPHA, eva, 16 - eva, 0);
+	SetBlendTargetA(0, 0, 0, 0, 0);
+	SetBlendTargetB(1, 1, 1, 1, 0);
+	SetBlendBackdropB(1);
+	gLCDControlBuffer.wincnt.wout_enableBlend = 1;
+}
+
+static void TextEngineAsh_DrawChips(struct TextEngineAshDissolveProc *proc)
+{
+	struct FaceProc *face = proc->face;
+	const u16 *sprite;
+	const u16 *obj;
+	int count;
+	int i;
+	int t = proc->timer;
+	int step = proc->step;
+	int mosaic = (gLCDControlBuffer.mosaic >> 8) & 0xF;
+	u32 seed;
+
+	if (face == NULL || face->sprite == NULL || step <= 0)
+		return;
+
+	sprite = face->sprite;
+	count = sprite[0];
+	obj = sprite + 1;
+	seed = proc->seed;
+
+	for (i = 0; i < count; i++, obj += 3) {
+		int shape = obj[0] >> 14;
+		int size = obj[1] >> 14;
+		int hflip = (obj[1] & OAM1_HFLIP) != 0;
+		int w = sTextEngineAshObjWidth[shape][size];
+		int h = sTextEngineAshObjHeight[shape][size];
+		int objX = TextEngineAsh_OamX(obj[1]);
+		int objY = TextEngineAsh_OamY(obj[0]);
+		int objChr = obj[2] & 0x3FF;
+		int tx;
+		int ty;
+
+		for (ty = 0; ty < h; ty += step) {
+			int ph = h - ty;
+
+			if (ph > step)
+				ph = step;
+
+			for (tx = 0; tx < w; tx += step) {
+				int pw = w - tx;
+				int srcTx;
+				int chrOff;
+				int x;
+				int y;
+				int delay;
+				int vx;
+				int vy;
+				int moving;
+				int oam0;
+				int oam1;
+				int oam2;
+				u32 rnd;
+				const u16 *piece;
+
+				if (pw > step)
+					pw = step;
+
+				rnd = TextEngineAsh_NextRnd(&seed);
+				delay = (rnd >> 16) & 7;
+				vx = ((int)((rnd >> 8) & 7)) - 3;
+				vy = -1 - ((int)((rnd >> 4) & 3));
+
+				srcTx = hflip ? (w - tx - pw) : tx;
+				chrOff = objChr + (ty / 8) * 32 + (srcTx / 8);
+				x = proc->originX + objX + tx;
+				y = proc->originY + objY + ty;
+				moving = (t > TEXT_ENGINE_ASH_HOLD + delay);
+				if (moving) {
+					int frames = t - TEXT_ENGINE_ASH_HOLD - delay;
+
+					x += vx * frames;
+					y += vy * frames;
+				}
+
+				if (x <= -pw || x >= DISPLAY_WIDTH)
+					continue;
+				if (y <= -ph || y >= DISPLAY_HEIGHT)
+					continue;
+
+				oam0 = OAM0_Y(y);
+				if (moving && mosaic > 0)
+					oam0 |= OAM0_MOSAIC;
+				if (t >= TEXT_ENGINE_ASH_FADE_START)
+					oam0 |= OAM0_BLEND;
+
+				oam1 = OAM1_X(x);
+				if (hflip)
+					oam1 |= OAM1_HFLIP;
+
+				oam2 = (face->oam2 & 0xFC00) | ((face->oam2 + chrOff) & 0x3FF);
+				piece = TextEngineAsh_GetSprite(pw, ph);
+				TextEngine_PutFaceSprite(proc->layer, oam1, oam0, piece, oam2);
+
+				if (proc->overlayEnabled)
+					TextEngine_PutFaceSprite(
+						proc->layer,
+						oam1,
+						oam0,
+						piece,
+						(proc->overlayOam2 & 0xFC00) |
+							((proc->overlayOam2 + chrOff) & 0x3FF)
+					);
+			}
+		}
+	}
+}
+
+static void TextEngineAshDissolve_OnIdle(struct TextEngineAshDissolveProc *proc)
+{
+	if (proc->face == NULL ||
+		gFaces[proc->face->faceSlot] != proc->face) {
+		Proc_Break(proc);
+		return;
+	}
+
+	TextEngineAsh_ApplyFx(proc);
+	TextEngineAsh_DrawChips(proc);
+
+	proc->timer++;
+	if (proc->timer >= TEXT_ENGINE_ASH_DURATION)
+		Proc_Break(proc);
+}
+
+static void TextEngineAshDissolve_OnEnd(struct TextEngineAshDissolveProc *proc)
+{
+	TextEngineAsh_RestoreBlend(proc);
+
+	if (proc->face != NULL &&
+		gFaces[proc->face->faceSlot] == proc->face)
+		EndFace(proc->face);
+
+	proc->face = NULL;
+}
+
+static void TextEngine_StartAshDissolve(struct FaceProc *face)
+{
+	struct TextEngineAshDissolveProc *ash;
+	struct TextEngineFaceJumpProc *jump;
+	s32 overlay;
+	int originX;
+	int originY;
+	int count;
+	u8 step = 16;
+
+	if (face == NULL)
+		return;
+
+	Proc_EndEach(gProcScr_TextEngineAshDissolve);
+
+	originX = face->xPos;
+	originY = face->yPos;
+	jump = TextEngine_FindFaceJumpProc(face);
+	if (jump)
+		Proc_End(jump);
+
+	HalfBody_OnTalkFaceClear(face);
+	TextEngineAsh_HideLiveFace(face);
+
+	count = TextEngineAsh_CountPieces(face->sprite, 16);
+	if (count > TEXT_ENGINE_ASH_OAM_BUDGET)
+		step = 32;
+
+	count = TextEngineAsh_CountPieces(face->sprite, step);
+	if (count == 0) {
+		StartFaceFadeOut(face);
+		return;
+	}
+
+	ash = (struct TextEngineAshDissolveProc *)Proc_Start(
+		gProcScr_TextEngineAshDissolve,
+		PROC_TREE_5
+	);
+	if (!ash) {
+		StartFaceFadeOut(face);
+		return;
+	}
+
+	ash->face = face;
+	ash->timer = 0;
+	ash->layer = face->spriteLayer;
+	ash->step = step;
+	ash->originX = originX;
+	ash->originY = originY;
+	ash->seed = AdvanceGetLCGRNValue();
+	ash->savedMosaic = gLCDControlBuffer.mosaic;
+	ash->savedBldcnt = TextEngineAsh_PackBldcnt();
+	ash->savedCoeffA = gLCDControlBuffer.blendCoeffA;
+	ash->savedCoeffB = gLCDControlBuffer.blendCoeffB;
+	ash->savedBlendY = gLCDControlBuffer.blendY;
+	ash->savedWoutBlend = gLCDControlBuffer.wincnt.wout_enableBlend;
+
+	overlay = Portrait32_GetOverlayOam2(face);
+	if (overlay >= 0 && count <= TEXT_ENGINE_ASH_OVERLAY_CHIP_LIMIT) {
+		ash->overlayEnabled = 1;
+		ash->overlayOam2 = (u16)overlay;
+	} else {
+		ash->overlayEnabled = 0;
+		ash->overlayOam2 = 0;
+	}
+}
+
+static void TextEngine_CleanupAshDissolve(void)
+{
+	Proc_EndEach(gProcScr_TextEngineAshDissolve);
 }
 
 static void TextEnginePrintFx_Apply(struct TextEnginePrintFxProc *proc)
@@ -1912,6 +2365,7 @@ void Talk_OnEnd_C(void)
 	TextEngine_ClearFaceNameTextIds();
 	Proc_EndEach(gProcScr_TalkSkipListener);
 	Proc_EndEach(gProcScr_TalkShiftClearAll);
+	Proc_EndEach(gProcScr_TextEngineAshDissolve);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -2269,6 +2723,10 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 				cursor += 2;
 				continue;
 			}
+
+			if (command->code == TEXT_ENGINE_CMD_CLEAR_FACE_ASH &&
+				activePosition == speakingPosition)
+				goto width_done;
 
 			if (command->width) {
 				command->width(
@@ -3294,6 +3752,37 @@ static int TextEngine_CommandStopScreenStatic(
 	return 3;
 }
 
+static int TextEngine_CommandClearFaceAsh(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *face;
+
+	(void)command;
+	(void)arguments;
+
+	face = TextEngine_GetFaceProcByPosition(state->activeFaceSlot);
+	HalfBody_OnTalkFaceClear(face);
+
+	TextEngine_ClearSpeakerNameplate();
+	if (TalkHasCorrectBubble())
+		ClearTalkBubble();
+
+	if (face) {
+		TextEngine_StartAshDissolve(face);
+		state->faces[state->activeFaceSlot] = NULL;
+	}
+	if (state->activeFaceSlot <
+		(int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds))
+		sTextEngineNameplateState.faceNameTextIds[state->activeFaceSlot] = 0;
+
+	StartTemporaryLock(proc, TEXT_ENGINE_ASH_DURATION);
+	return 3;
+}
+
 /*
  * Keep every extended command's argument shape and behavior in one table.
  * argumentCount is the number of bytes after [0x80][code].
@@ -3374,6 +3863,7 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x48, 0, TextEngine_CommandStopScreenGlitch, NULL, NULL },
 	{ 0x49, 0, TextEngine_CommandStartScreenStatic, NULL, NULL },
 	{ 0x4A, 0, TextEngine_CommandStopScreenStatic, NULL, NULL },
+	{ TEXT_ENGINE_CMD_CLEAR_FACE_ASH, 0, TextEngine_CommandClearFaceAsh, NULL, TextEngine_CleanupAshDissolve },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

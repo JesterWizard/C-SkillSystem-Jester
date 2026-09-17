@@ -196,6 +196,23 @@ void Portrait32_UnbindFace(int faceSlot)
 	slot->pal1 = NULL;
 }
 
+s32 Portrait32_GetOverlayOam2(struct FaceProc *proc)
+{
+	struct Portrait32Slot *slot;
+
+	if (proc == NULL || proc->faceSlot >= FACE_SLOT_MAX)
+		return -1;
+
+	Portrait32_EnsureInited();
+	slot = &sPortrait32State.slots[proc->faceSlot];
+	if (slot->active != TRUE || slot->overlayPal >= 0x10)
+		return -1;
+
+	return slot->overlayChr
+		+ (slot->overlayPal * 0x1000)
+		+ (proc->oam2 & 0x0C00);
+}
+
 void Portrait32_OnFadeIn(struct FaceProc *proc)
 {
 	struct Portrait32Slot *slot;

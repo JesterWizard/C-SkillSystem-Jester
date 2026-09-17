@@ -229,6 +229,7 @@ void Portrait32_BindFace(int faceSlot, const struct FaceData *info, int palIndex
 void Portrait32_UnbindFace(int faceSlot);
 void Portrait32_OnFadeIn(struct FaceProc *proc);
 void Portrait32_LoadOverlayGfx(struct FaceProc *proc);
+s32 Portrait32_GetOverlayOam2(struct FaceProc *proc);
 s16 TextEngine_GetStaticOffsetAtY(int y);
 int TextEngine_ApplyStaticOam1(int xOam1, int screenY);
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
