@@ -171,6 +171,7 @@ struct PopupComponent const gPopupComponents[CHAX_POPUP_OP_ALLOC_MAX] = {
 	[CHAX_POPUP_OP_SKILL_ICON]   = { PoprGetLen_SkillIcon,   PoprDisp_SkillIcon },
 	[CHAX_POPUP_OP_SKILL_NAME]   = { PoprGetLen_SkillName,   PoprDisp_SkillName },
 	[CHAX_POPUP_OP_COMBART_ICON] = { PoprGetLen_CombArtIcon, PoprDisp_CombArtIcon },
+	[CHAX_POPUP_OP_WTYPE_NAME]   = { PoprGetLen_WTypeName,   PoprDisp_WTypeName },
 
 	/* demo */
 };

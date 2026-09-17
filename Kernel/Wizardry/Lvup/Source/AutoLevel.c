@@ -2,6 +2,7 @@
 #include "strmag.h"
 #include "lvup.h"
 #include "weapon-slots.h"
+#include "skill-system.h"
 
 #ifndef INT8_MAX
 #define INT8_MAX 127
@@ -62,6 +63,8 @@ void UnitAutolevelWExp(struct Unit *unit, const struct UnitDefinition *uDef)
 
 		SetUnitWeaponExp(unit, wtype, GetItemRequiredExp(item));
 	}
+
+	TryAddSkillWRank(unit, false);
 }
 
 LYN_REPLACE_CHECK(UnitAutolevelCore);

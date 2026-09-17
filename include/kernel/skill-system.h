@@ -407,10 +407,36 @@ void TryAddSkillLvup(struct Unit* unit, int level);
 void TryAddSkillPromotion(struct Unit* unit, int jid);
 
 /**
+ * Weapon-rank skill learning (Three Houses style).
+ * gSkillWRankTable[wtype][wrank] lists skills granted at that rank.
+ * Entry.replaces, if set, is forgotten/unequipped when the new skill is learned.
+ */
+#define SKILL_WRANK_TYPE_COUNT 8
+#define SKILL_WRANK_LEVEL_COUNT 8
+#define SKILL_WRANK_SLOTS 2
+
+struct SkillWRankEntry {
+	u16 sid;
+	u16 replaces;
+};
+
+struct SkillWRankRomTable {
+	struct SkillWRankEntry skills[SKILL_WRANK_TYPE_COUNT][SKILL_WRANK_LEVEL_COUNT][SKILL_WRANK_SLOTS];
+};
+
+extern const struct SkillWRankRomTable gSkillWRankTable;
+extern struct SkillWRankRomTable const *const gpSkillWRankTable;
+
+void TryAddSkillWRank(struct Unit *unit, bool popup);
+void TryAddSkillWRankRange(struct Unit *unit, int wtype, int fromLevel, int toLevel, bool popup);
+void TryAddSkillWRankFromBattleUnit(struct BattleUnit *bu, bool popup);
+
+/**
  * Popups
  */
 void ResetPopupSkillStack(void);
 void PushSkillListStack(u16 sid);
+void PushWRankSkillPopup(u16 sid, int newLevel);
 int PopSkillListStack(void);
 bool SkillPopupHasPendingSkills(void);
 
@@ -418,8 +444,12 @@ int PoprGetLen_SkillIcon(struct PopupProc* proc, const struct PopupInstruction* 
 void PoprDisp_SkillIcon(struct Text* text, const struct PopupInstruction* inst);
 int PoprGetLen_SkillName(struct PopupProc* proc, const struct PopupInstruction* inst);
 void PoprDisp_SkillName(struct Text* text, const struct PopupInstruction* inst);
+int PoprGetLen_WTypeName(struct PopupProc* proc, const struct PopupInstruction* inst);
+void PoprDisp_WTypeName(struct Text* text, const struct PopupInstruction* inst);
 bool PopR_SetupLearnSkill(void);
+bool PopR_SetupWRankSkillUpgrade(void);
 extern const struct PopupInstruction PopupScr_LearnSkill[];
+extern const struct PopupInstruction PopupScr_WRankSkillUpgrade[];
 extern const struct PopupInstruction PopupScr_ObtainedSkill[];
 
 /**

@@ -146,6 +146,8 @@ void UnitAutoLoadSkills(struct Unit *unit)
 		for (i = 1; i < allSkills; i++)
 			LearnSkill(unit, i);
 	}
+
+	TryAddSkillWRank(unit, false);
 }
 
 /**
@@ -292,4 +294,6 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 	sid = gpConstSkillTable_Job[jid * 2 + 1];
 	if (COMMON_SKILL_VALID(sid))
 		PushSkillListStack(sid);
+
+	TryAddSkillWRank(unit, true);
 }

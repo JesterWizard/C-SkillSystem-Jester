@@ -608,6 +608,8 @@ void UnitToBattle_SetupSkillList(struct Unit *unit, struct BattleUnit *bu)
 {
 	FORCE_DECLARE bool nihil_on_actor, nihil_on_target;
 
+	TryAddSkillWRank(unit, false);
+
 	/**
 	 * Here we hold 3 assumption:
 	 *

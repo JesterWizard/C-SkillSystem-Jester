@@ -404,6 +404,10 @@ void BattleApplyItemExpGains(void)
 
         CheckBattleUnitLevelUp(&gBattleActor);
     }
+
+#if CHAX
+    TryAddSkillWRankFromBattleUnit(&gBattleActor, true);
+#endif
 }
 
 /* JESTER - Rewrote this to only work for player units to fix a bug where enemies could gain EXP */
@@ -414,6 +418,10 @@ void BattleApplyExpGains(void)
     {
         bool actorBlue  = CanUnitGainBattleExp(&gBattleActor.unit);
         bool targetBlue = CanUnitGainBattleExp(&gBattleTarget.unit);
+
+#if CHAX
+        ResetPopupSkillStack();
+#endif
 
         if (gpKernelDesignerConfig->summons_gain_exp == true)
         {
@@ -444,7 +452,6 @@ void BattleApplyExpGains(void)
             }
         }
 
-
         if (actorBlue && gBattleActor.unit.exp != UNIT_EXP_DISABLED)
         {
             ApplyBattleUnitExpGain(&gBattleActor, &gBattleTarget);
@@ -455,8 +462,9 @@ void BattleApplyExpGains(void)
             ApplyBattleUnitExpGain(&gBattleTarget, &gBattleActor);
         }
 
-    #if CHAX
-        ResetPopupSkillStack();
-    #endif
+#if CHAX
+        TryAddSkillWRankFromBattleUnit(&gBattleActor, true);
+        TryAddSkillWRankFromBattleUnit(&gBattleTarget, true);
+#endif
     }
 }

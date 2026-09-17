@@ -28,6 +28,7 @@ gpWeaponTriangleConfs:      POIN gWeaponTriangleConfs
 gpWeaponTriangleItemConf:   POIN gWeaponTriangleItemConf
 
 gpConstSkillTable_Weapon: POIN gConstSkillTable_Weapon
+gpSkillWRankTable:        POIN gSkillWRankTable
 
 gpDebuffInfos:  POIN gDebuffInfos
 gpStatDebuffInfos: POIN gStatDebuffInfos

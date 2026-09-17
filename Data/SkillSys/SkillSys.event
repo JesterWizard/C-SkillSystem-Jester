@@ -7,6 +7,7 @@
 #include "Source/SkillTable-job.lyn.event"
 #include "Source/SkillTable-item.lyn.event"
 #include "Source/SkillTable-weapon.lyn.event"
+#include "Source/SkillTable-wrank.lyn.event"
 
 #ifndef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
 	#define CONFIG_ITEM_INDEX_SKILL_SCROLL_1 0x0A

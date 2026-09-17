@@ -87,6 +87,7 @@ _kernel_malloc gpActorShileInfo, 4
 _kernel_malloc gpTargetShileInfo, 4
 _kernel_malloc sShileldInfoCache, 0x14 * 4
 _kernel_malloc sPopupSkillStack, 0x10
+_kernel_malloc sWRankPopupStack, 0x20
 _kernel_malloc gPlayStExpa, 0x10
 _kernel_malloc sShileldInfoNext, 1
 _kernel_malloc GenericBufferUsedFlag, 1

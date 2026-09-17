@@ -3,6 +3,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "weapon-slots.h"
+#include "skill-system.h"
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
 
@@ -435,6 +436,7 @@ void ApplyUnitReclass(struct Unit * unit, u8 classId)
 
     // Remap weapon EXP by type into the new class's slot layout
     RemapUnitWeaponRanksOnClassChange(unit, oldClass, newClass, true);
+    TryAddSkillWRank(unit, false);
 
     UnitCheckStatCaps(unit);
     unit->curHP += newClass->promotionHp;

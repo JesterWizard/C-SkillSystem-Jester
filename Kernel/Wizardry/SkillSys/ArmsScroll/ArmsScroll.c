@@ -2,8 +2,33 @@
 #include "item-sys.h"
 #include "battle-system.h"
 #include "weapon-slots.h"
+#include "skill-system.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
+
+static void ArmsScroll_ApplyRankUpSkills(struct Unit *unit, int slot, int oldExp, ProcPtr popupParent)
+{
+	int wtype = GetUnitWeaponSlotType(unit, slot);
+	int oldLevel;
+	int newLevel;
+
+	if (wtype == WEAPON_SLOT_NONE)
+		return;
+
+	oldLevel = GetWeaponLevelFromExp(oldExp);
+	newLevel = GetWeaponLevelFromExp(GetUnitWeaponExpBySlot(unit, slot));
+	if (newLevel <= oldLevel)
+		return;
+
+	TryAddSkillWRankRange(unit, wtype, oldLevel + 1, newLevel, true);
+
+	if (!popupParent)
+		return;
+
+	SetPopupUnit(unit);
+	while (PopR_SetupWRankSkillUpgrade())
+		NewPopup_Simple(PopupScr_WRankSkillUpgrade, SONG_SE_UPDATE, 0, popupParent);
+}
 
 void PrepItemUseArmsScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
 {
@@ -11,10 +36,12 @@ void PrepItemUseArmsScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
 
     gActionData.unk08 = -1;
     int weaponRank = GetHighestWeaponRank(parent->unit);
+    int oldExp = 0;
 
     if (weaponRank > 7)
         return;
-    else 
+    else {
+        oldExp = parent->unit->ranks[weaponRank];
         if (parent->unit->ranks[weaponRank] >= WPN_EXP_A)
             parent->unit->ranks[weaponRank] = WPN_EXP_S;
         else if (parent->unit->ranks[weaponRank] >= WPN_EXP_B)
@@ -25,6 +52,9 @@ void PrepItemUseArmsScroll_OnEnd(struct ProcPrepItemUseJunaFruit *proc)
             parent->unit->ranks[weaponRank] = WPN_EXP_C;
         else if (parent->unit->ranks[weaponRank] >= WPN_EXP_E)
             parent->unit->ranks[weaponRank] = WPN_EXP_D;
+
+        ArmsScroll_ApplyRankUpSkills(parent->unit, weaponRank, oldExp, NULL);
+    }
 
     int slot = gActionData.itemSlotIndex;
 
@@ -109,11 +139,13 @@ void ItemUseAction_ArmsScroll(struct Unit * unit)
 {
     gActionData.unk08 = -1;
     int weaponRank = GetHighestWeaponRank(unit);
+    int oldExp = 0;
     SetItemUseAction(unit);
 
     if (weaponRank > 7)
         return;
-    else 
+    else {
+        oldExp = unit->ranks[weaponRank];
         if (unit->ranks[weaponRank] >= WPN_EXP_A)
             unit->ranks[weaponRank] = WPN_EXP_S;
         else if (unit->ranks[weaponRank] >= WPN_EXP_B)
@@ -124,6 +156,9 @@ void ItemUseAction_ArmsScroll(struct Unit * unit)
             unit->ranks[weaponRank] = WPN_EXP_C;
         else if (unit->ranks[weaponRank] >= WPN_EXP_E)
             unit->ranks[weaponRank] = WPN_EXP_D;
+
+        ArmsScroll_ApplyRankUpSkills(unit, weaponRank, oldExp, Proc_Find(gProcScr_PlayerPhase));
+    }
 
     int slot = gActionData.itemSlotIndex;
     UnitUpdateUsedItem(unit, slot);

@@ -1439,54 +1439,222 @@ Expert's Experience:[N]
 +0 AVO/HIT.[N]
 +1 per chapter.[X]
 
-## MSG_SKILL_SwordProwess_NAME
-Sword Prowess[X]
-## MSG_SKILL_SwordProwess_DESC
-Sword Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_SwordProwess1_NAME
+Swd Prowess Lv1[X]
+## MSG_SKILL_SwordProwess1_DESC
+Sword Prowess Lv1:[N]
+When using a sword:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_SwordProwess2_NAME
+Swd Prowess Lv2[X]
+## MSG_SKILL_SwordProwess2_DESC
+Sword Prowess Lv2:[N]
+When using a sword:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_SwordProwess3_NAME
+Swd Prowess Lv3[X]
+## MSG_SKILL_SwordProwess3_DESC
+Sword Prowess Lv3:[N]
+When using a sword:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_SwordProwess4_NAME
+Swd Prowess Lv4[X]
+## MSG_SKILL_SwordProwess4_DESC
+Sword Prowess Lv4:[N]
+When using a sword:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_SwordProwess5_NAME
+Swd Prowess Lv5[X]
+## MSG_SKILL_SwordProwess5_DESC
+Sword Prowess Lv5:[N]
+When using a sword:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_LanceProwess_NAME
-Lance Prowess[X]
-## MSG_SKILL_LanceProwess_DESC
-Lance Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_LanceProwess1_NAME
+Lnc Prowess Lv1[X]
+## MSG_SKILL_LanceProwess1_DESC
+Lance Prowess Lv1:[N]
+When using a lance:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_LanceProwess2_NAME
+Lnc Prowess Lv2[X]
+## MSG_SKILL_LanceProwess2_DESC
+Lance Prowess Lv2:[N]
+When using a lance:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_LanceProwess3_NAME
+Lnc Prowess Lv3[X]
+## MSG_SKILL_LanceProwess3_DESC
+Lance Prowess Lv3:[N]
+When using a lance:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_LanceProwess4_NAME
+Lnc Prowess Lv4[X]
+## MSG_SKILL_LanceProwess4_DESC
+Lance Prowess Lv4:[N]
+When using a lance:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_LanceProwess5_NAME
+Lnc Prowess Lv5[X]
+## MSG_SKILL_LanceProwess5_DESC
+Lance Prowess Lv5:[N]
+When using a lance:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_AxeProwess_NAME
-Axe Prowess[X]
-## MSG_SKILL_AxeProwess_DESC
-Axe Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_AxeProwess1_NAME
+Axe Prowess Lv1[X]
+## MSG_SKILL_AxeProwess1_DESC
+Axe Prowess Lv1:[N]
+When using an axe:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_AxeProwess2_NAME
+Axe Prowess Lv2[X]
+## MSG_SKILL_AxeProwess2_DESC
+Axe Prowess Lv2:[N]
+When using an axe:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_AxeProwess3_NAME
+Axe Prowess Lv3[X]
+## MSG_SKILL_AxeProwess3_DESC
+Axe Prowess Lv3:[N]
+When using an axe:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_AxeProwess4_NAME
+Axe Prowess Lv4[X]
+## MSG_SKILL_AxeProwess4_DESC
+Axe Prowess Lv4:[N]
+When using an axe:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_AxeProwess5_NAME
+Axe Prowess Lv5[X]
+## MSG_SKILL_AxeProwess5_DESC
+Axe Prowess Lv5:[N]
+When using an axe:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_BowProwess_NAME
-Bow Prowess[X]
-## MSG_SKILL_BowProwess_DESC
-Bow Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_BowProwess1_NAME
+Bow Prowess Lv1[X]
+## MSG_SKILL_BowProwess1_DESC
+Bow Prowess Lv1:[N]
+When using a bow:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_BowProwess2_NAME
+Bow Prowess Lv2[X]
+## MSG_SKILL_BowProwess2_DESC
+Bow Prowess Lv2:[N]
+When using a bow:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_BowProwess3_NAME
+Bow Prowess Lv3[X]
+## MSG_SKILL_BowProwess3_DESC
+Bow Prowess Lv3:[N]
+When using a bow:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_BowProwess4_NAME
+Bow Prowess Lv4[X]
+## MSG_SKILL_BowProwess4_DESC
+Bow Prowess Lv4:[N]
+When using a bow:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_BowProwess5_NAME
+Bow Prowess Lv5[X]
+## MSG_SKILL_BowProwess5_DESC
+Bow Prowess Lv5:[N]
+When using a bow:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_AnimaProwess_NAME
-Anima Prowess[X]
-## MSG_SKILL_AnimaProwess_DESC
-Anima Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_AnimaProwess1_NAME
+Anm Prowess Lv1[X]
+## MSG_SKILL_AnimaProwess1_DESC
+Anima Prowess Lv1:[N]
+When using anima:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_AnimaProwess2_NAME
+Anm Prowess Lv2[X]
+## MSG_SKILL_AnimaProwess2_DESC
+Anima Prowess Lv2:[N]
+When using anima:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_AnimaProwess3_NAME
+Anm Prowess Lv3[X]
+## MSG_SKILL_AnimaProwess3_DESC
+Anima Prowess Lv3:[N]
+When using anima:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_AnimaProwess4_NAME
+Anm Prowess Lv4[X]
+## MSG_SKILL_AnimaProwess4_DESC
+Anima Prowess Lv4:[N]
+When using anima:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_AnimaProwess5_NAME
+Anm Prowess Lv5[X]
+## MSG_SKILL_AnimaProwess5_DESC
+Anima Prowess Lv5:[N]
+When using anima:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_DarkProwess_NAME
-Dark Prowess[X]
-## MSG_SKILL_DarkProwess_DESC
-Dark Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_DarkProwess1_NAME
+Drk Prowess Lv1[X]
+## MSG_SKILL_DarkProwess1_DESC
+Dark Prowess Lv1:[N]
+When using dark magic:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_DarkProwess2_NAME
+Drk Prowess Lv2[X]
+## MSG_SKILL_DarkProwess2_DESC
+Dark Prowess Lv2:[N]
+When using dark magic:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_DarkProwess3_NAME
+Drk Prowess Lv3[X]
+## MSG_SKILL_DarkProwess3_DESC
+Dark Prowess Lv3:[N]
+When using dark magic:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_DarkProwess4_NAME
+Drk Prowess Lv4[X]
+## MSG_SKILL_DarkProwess4_DESC
+Dark Prowess Lv4:[N]
+When using dark magic:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_DarkProwess5_NAME
+Drk Prowess Lv5[X]
+## MSG_SKILL_DarkProwess5_DESC
+Dark Prowess Lv5:[N]
+When using dark magic:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
-## MSG_SKILL_LightProwess_NAME
-Light Prowess[X]
-## MSG_SKILL_LightProwess_DESC
-Light Prowess: Ranks -> D/C/B/A/S[N]
-HIT & AVO: +5/6/7/8/10[N]
-CR.AVO +7/10/13/16/20[X]
+## MSG_SKILL_LightProwess1_NAME
+Lgt Prowess Lv1[X]
+## MSG_SKILL_LightProwess1_DESC
+Light Prowess Lv1:[N]
+When using light magic:[N]
+HIT/CR.AVO +5, AVO +7[X]
+## MSG_SKILL_LightProwess2_NAME
+Lgt Prowess Lv2[X]
+## MSG_SKILL_LightProwess2_DESC
+Light Prowess Lv2:[N]
+When using light magic:[N]
+HIT/CR.AVO +6, AVO +10[X]
+## MSG_SKILL_LightProwess3_NAME
+Lgt Prowess Lv3[X]
+## MSG_SKILL_LightProwess3_DESC
+Light Prowess Lv3:[N]
+When using light magic:[N]
+HIT/CR.AVO +7, AVO +13[X]
+## MSG_SKILL_LightProwess4_NAME
+Lgt Prowess Lv4[X]
+## MSG_SKILL_LightProwess4_DESC
+Light Prowess Lv4:[N]
+When using light magic:[N]
+HIT/CR.AVO +8, AVO +16[X]
+## MSG_SKILL_LightProwess5_NAME
+Lgt Prowess Lv5[X]
+## MSG_SKILL_LightProwess5_DESC
+Light Prowess Lv5:[N]
+When using light magic:[N]
+HIT/CR.AVO +10, AVO +20[X]
 
 ## MSG_SKILL_Seer_NAME
 Seer[X]

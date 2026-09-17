@@ -212,8 +212,15 @@ STATIC_DECLAR void UpdateUnitFromBattleVanilla(struct Unit* unit, struct BattleU
 				tmp = 0;
 #endif
 
-	if (tmp > 0)
+	if (tmp > 0) {
+		int oldLevel = GetWeaponLevelFromExp(UNIT_WRANK(&bu->unit, bu->weaponType));
+		int newLevel = GetWeaponLevelFromExp(tmp);
+
 		SetUnitWeaponExp(unit, bu->weaponType, tmp);
+
+		if (newLevel > oldLevel)
+			TryAddSkillWRankRange(unit, bu->weaponType, oldLevel + 1, newLevel, false);
+	}
 
 	for (tmp = 0; tmp < UNIT_ITEM_COUNT; ++tmp)
 		unit->items[tmp] = bu->unit.items[tmp];

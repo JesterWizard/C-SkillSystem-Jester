@@ -31,6 +31,7 @@ Choose one of the following installation methods.
 The project includes a large skill framework with more than 800 implemented skills.
 
 - Skills can be learned and equipped from the prep screen, depending on designer configuration.
+- Skills can be learned from weapon ranks (Prowess Lv1 at D through Lv5 at S). See [WeaponRankSkills](./WeaponRankSkills.md).
 - Skill scrolls are supported.
 - Skill activation animations work in both battle animations and map animations.
 

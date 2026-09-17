@@ -7,7 +7,7 @@ IF:0xB2A604=0x43 0x53 0x4B 0x49 0x4C 0x4C 0x53 0x59 0x53 0x5F 0x4B 0x2D 0x33
 TYPE=STRUCT
 TAG=#ENGINE
 
-DATASIZE=169
+DATASIZE=170
 DATACOUNT=1
 
 POINTER=0xB2A680
@@ -178,6 +178,7 @@ B165:$COMBO combo.bool.txt=fe7_mode_select
 B166:$COMBO combo.bool.txt=vesly_reclass
 B167:$COMBO combo.bool.txt=vesly_draw_animations
 B168:$COMBO combo.bool.txt=last_weapon_hit_crit
+B169:$COMBO combo.bool.txt=weapon_rank_skills
 
 B0:$COMBO combo.bool.txt.zh=ai_dance_use
 B1:$COMBO combo.bool.txt.zh=ai_player_phase
@@ -346,6 +347,7 @@ B165:$COMBO combo.bool.txt.zh=fe7_mode_select
 B166:$COMBO combo.bool.txt.zh=vesly_reclass
 B167:$COMBO combo.bool.txt.zh=vesly_draw_animations
 B168:$COMBO combo.bool.txt.zh=last_weapon_hit_crit
+B169:$COMBO combo.bool.txt.zh=weapon_rank_skills
 
 INFO=Editor: gKernelDesigerConfig\nhttps://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md
 https://github.com/FireEmblemUniverse/fe8u-cskillsys/tree/main/docs/SystemConfig.md

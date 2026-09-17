@@ -28,6 +28,8 @@ STATIC_DECLAR void UpdatePrepEquipSkillList(struct Unit *unit)
 {
 	int i;
 
+	TryAddSkillWRank(unit, false);
+
 	ResetPrepEquipSkillList();
 
 	for (i = 1; i < MAX_EQUIP_SKILL_NUM; i++)

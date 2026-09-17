@@ -74,6 +74,12 @@ struct PopupConfig const gBattlePopupConfigs[] = {
 	{ PopR_SetupBattleWRankUp, PopupScr_WRankUp, 0x60 },
 
 	/**
+	 * Weapon-rank skill upgrade
+	 */
+	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
+	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
+
+	/**
 	 * Learn new skills
 	 */
 	{ PopR_SetupLearnSkill, PopupScr_LearnSkill, 0x60 },
@@ -96,6 +102,12 @@ struct PopupConfig const gPromotPopupConfigs[] = {
 	{ PopR_SetupPromotionWRankUpLight, PopupScr_WRankUp, 0x60 },
 	{ PopR_SetupPromotionWRankUpDark,  PopupScr_WRankUp, 0x60 },
 	{ PopR_SetupPromotionWRankUpStaff, PopupScr_WRankUp, 0x60 },
+
+	/**
+	 * Weapon-rank skill upgrade
+	 */
+	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
+	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
 
 	/**
 	 * Learn new skills

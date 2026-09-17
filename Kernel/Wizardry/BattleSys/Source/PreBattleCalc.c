@@ -584,6 +584,16 @@ void PreBattleCalcDefenderSkills(struct BattleUnit* attacker, struct BattleUnit*
 	}
 }
 
+STATIC_DECLAR void ApplyProwessBonuses(struct BattleUnit *attacker, int wtype, u16 sid)
+{
+	if (attacker->weaponType != wtype)
+		return;
+
+	attacker->battleHitRate += SKILL_EFF0(sid);
+	attacker->battleAvoidRate += SKILL_EFF1(sid);
+	attacker->battleDodgeRate += SKILL_EFF0(sid);
+}
+
 void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit* defender)
 {
 	FORCE_DECLARE int tmp, i;
@@ -1876,255 +1886,129 @@ void PreBattleCalcAttackerSkills(struct BattleUnit* attacker, struct BattleUnit*
 			break;
 #endif
 
-#if (defined(SID_SwordProwess) && (COMMON_SKILL_VALID(SID_SwordProwess)))
-		case SID_SwordProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_SWORD);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_SwordProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_SwordProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_SwordProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_SwordProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_SwordProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_SwordProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_SwordProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_SwordProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_SwordProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_SwordProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_SwordProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_SwordProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_SwordProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_SwordProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_SwordProwess);
-			}
+#if (defined(SID_SwordProwess1) && (COMMON_SKILL_VALID(SID_SwordProwess1)))
+		case SID_SwordProwess1:
+#if (defined(SID_SwordProwess2) && (COMMON_SKILL_VALID(SID_SwordProwess2)))
+		case SID_SwordProwess2:
+#endif
+#if (defined(SID_SwordProwess3) && (COMMON_SKILL_VALID(SID_SwordProwess3)))
+		case SID_SwordProwess3:
+#endif
+#if (defined(SID_SwordProwess4) && (COMMON_SKILL_VALID(SID_SwordProwess4)))
+		case SID_SwordProwess4:
+#endif
+#if (defined(SID_SwordProwess5) && (COMMON_SKILL_VALID(SID_SwordProwess5)))
+		case SID_SwordProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_SWORD, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_LanceProwess) && (COMMON_SKILL_VALID(SID_LanceProwess)))
-		case SID_LanceProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_LANCE);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_LanceProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_LanceProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_LanceProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_LanceProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_LanceProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_LanceProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_LanceProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_LanceProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_LanceProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_LanceProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_LanceProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_LanceProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_LanceProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_LanceProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_LanceProwess);
-			}
+#if (defined(SID_LanceProwess1) && (COMMON_SKILL_VALID(SID_LanceProwess1)))
+		case SID_LanceProwess1:
+#if (defined(SID_LanceProwess2) && (COMMON_SKILL_VALID(SID_LanceProwess2)))
+		case SID_LanceProwess2:
+#endif
+#if (defined(SID_LanceProwess3) && (COMMON_SKILL_VALID(SID_LanceProwess3)))
+		case SID_LanceProwess3:
+#endif
+#if (defined(SID_LanceProwess4) && (COMMON_SKILL_VALID(SID_LanceProwess4)))
+		case SID_LanceProwess4:
+#endif
+#if (defined(SID_LanceProwess5) && (COMMON_SKILL_VALID(SID_LanceProwess5)))
+		case SID_LanceProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_LANCE, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_AxeProwess) && (COMMON_SKILL_VALID(SID_AxeProwess)))
-		case SID_AxeProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_AXE);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_AxeProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_AxeProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_AxeProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_AxeProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_AxeProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_AxeProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_AxeProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_AxeProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_AxeProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_AxeProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_AxeProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_AxeProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_AxeProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_AxeProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_AxeProwess);
-			}
+#if (defined(SID_AxeProwess1) && (COMMON_SKILL_VALID(SID_AxeProwess1)))
+		case SID_AxeProwess1:
+#if (defined(SID_AxeProwess2) && (COMMON_SKILL_VALID(SID_AxeProwess2)))
+		case SID_AxeProwess2:
+#endif
+#if (defined(SID_AxeProwess3) && (COMMON_SKILL_VALID(SID_AxeProwess3)))
+		case SID_AxeProwess3:
+#endif
+#if (defined(SID_AxeProwess4) && (COMMON_SKILL_VALID(SID_AxeProwess4)))
+		case SID_AxeProwess4:
+#endif
+#if (defined(SID_AxeProwess5) && (COMMON_SKILL_VALID(SID_AxeProwess5)))
+		case SID_AxeProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_AXE, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_BowProwess) && (COMMON_SKILL_VALID(SID_BowProwess)))
-		case SID_BowProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_BOW);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_BowProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_BowProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_BowProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_BowProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_BowProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_BowProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_BowProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_BowProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_BowProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_BowProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_BowProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_BowProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_BowProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_BowProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_BowProwess);
-			}
+#if (defined(SID_BowProwess1) && (COMMON_SKILL_VALID(SID_BowProwess1)))
+		case SID_BowProwess1:
+#if (defined(SID_BowProwess2) && (COMMON_SKILL_VALID(SID_BowProwess2)))
+		case SID_BowProwess2:
+#endif
+#if (defined(SID_BowProwess3) && (COMMON_SKILL_VALID(SID_BowProwess3)))
+		case SID_BowProwess3:
+#endif
+#if (defined(SID_BowProwess4) && (COMMON_SKILL_VALID(SID_BowProwess4)))
+		case SID_BowProwess4:
+#endif
+#if (defined(SID_BowProwess5) && (COMMON_SKILL_VALID(SID_BowProwess5)))
+		case SID_BowProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_BOW, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_AnimaProwess) && (COMMON_SKILL_VALID(SID_AnimaProwess)))
-		case SID_AnimaProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_ANIMA);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_AnimaProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_AnimaProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_AnimaProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_AnimaProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_AnimaProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_AnimaProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_AnimaProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_AnimaProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_AnimaProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_AnimaProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_AnimaProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_AnimaProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_AnimaProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_AnimaProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_AnimaProwess);
-			}
+#if (defined(SID_AnimaProwess1) && (COMMON_SKILL_VALID(SID_AnimaProwess1)))
+		case SID_AnimaProwess1:
+#if (defined(SID_AnimaProwess2) && (COMMON_SKILL_VALID(SID_AnimaProwess2)))
+		case SID_AnimaProwess2:
+#endif
+#if (defined(SID_AnimaProwess3) && (COMMON_SKILL_VALID(SID_AnimaProwess3)))
+		case SID_AnimaProwess3:
+#endif
+#if (defined(SID_AnimaProwess4) && (COMMON_SKILL_VALID(SID_AnimaProwess4)))
+		case SID_AnimaProwess4:
+#endif
+#if (defined(SID_AnimaProwess5) && (COMMON_SKILL_VALID(SID_AnimaProwess5)))
+		case SID_AnimaProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_ANIMA, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_DarkProwess) && (COMMON_SKILL_VALID(SID_DarkProwess)))
-		case SID_DarkProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_DARK);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_DarkProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_DarkProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_DarkProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_DarkProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_DarkProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_DarkProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_DarkProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_DarkProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_DarkProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_DarkProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_DarkProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_DarkProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_DarkProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_DarkProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_DarkProwess);
-			}
+#if (defined(SID_DarkProwess1) && (COMMON_SKILL_VALID(SID_DarkProwess1)))
+		case SID_DarkProwess1:
+#if (defined(SID_DarkProwess2) && (COMMON_SKILL_VALID(SID_DarkProwess2)))
+		case SID_DarkProwess2:
+#endif
+#if (defined(SID_DarkProwess3) && (COMMON_SKILL_VALID(SID_DarkProwess3)))
+		case SID_DarkProwess3:
+#endif
+#if (defined(SID_DarkProwess4) && (COMMON_SKILL_VALID(SID_DarkProwess4)))
+		case SID_DarkProwess4:
+#endif
+#if (defined(SID_DarkProwess5) && (COMMON_SKILL_VALID(SID_DarkProwess5)))
+		case SID_DarkProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_DARK, list->sid[_skill_list_cnt]);
 			break;
 #endif
 
-#if (defined(SID_LightProwess) && (COMMON_SKILL_VALID(SID_LightProwess)))
-		case SID_LightProwess:
-			unitRank = UNIT_WRANK(&attacker->unit, ITYPE_LIGHT);
-			if (unitRank >= WPN_EXP_D && unitRank < WPN_EXP_C)
-			{
-				attacker->battleHitRate += SKILL_EFF0(SID_LightProwess);
-				attacker->battleAvoidRate += SKILL_EFF1(SID_LightProwess);
-				attacker->battleDodgeRate += SKILL_EFF0(SID_LightProwess);
-			}
-			else if (unitRank >= WPN_EXP_C && unitRank < WPN_EXP_B)
-			{
-				attacker->battleHitRate += SKILL_EFF2(SID_LightProwess);
-				attacker->battleAvoidRate += SKILL_EFF3(SID_LightProwess);
-				attacker->battleDodgeRate += SKILL_EFF2(SID_LightProwess);
-			}
-			else if (unitRank >= WPN_EXP_B && unitRank < WPN_EXP_A)
-			{
-				attacker->battleHitRate += SKILL_EFF4(SID_LightProwess);
-				attacker->battleAvoidRate += SKILL_EFF5(SID_LightProwess);
-				attacker->battleDodgeRate += SKILL_EFF4(SID_LightProwess);
-			}
-			else if (unitRank >= WPN_EXP_A && unitRank < WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF6(SID_LightProwess);
-				attacker->battleAvoidRate += SKILL_EFF7(SID_LightProwess);
-				attacker->battleDodgeRate += SKILL_EFF6(SID_LightProwess);
-			}
-			else if (unitRank >= WPN_EXP_S)
-			{
-				attacker->battleHitRate += SKILL_EFF8(SID_LightProwess);
-				attacker->battleAvoidRate += SKILL_EFF9(SID_LightProwess);
-				attacker->battleDodgeRate += SKILL_EFF8(SID_LightProwess);
-			}
+#if (defined(SID_LightProwess1) && (COMMON_SKILL_VALID(SID_LightProwess1)))
+		case SID_LightProwess1:
+#if (defined(SID_LightProwess2) && (COMMON_SKILL_VALID(SID_LightProwess2)))
+		case SID_LightProwess2:
+#endif
+#if (defined(SID_LightProwess3) && (COMMON_SKILL_VALID(SID_LightProwess3)))
+		case SID_LightProwess3:
+#endif
+#if (defined(SID_LightProwess4) && (COMMON_SKILL_VALID(SID_LightProwess4)))
+		case SID_LightProwess4:
+#endif
+#if (defined(SID_LightProwess5) && (COMMON_SKILL_VALID(SID_LightProwess5)))
+		case SID_LightProwess5:
+#endif
+			ApplyProwessBonuses(attacker, ITYPE_LIGHT, list->sid[_skill_list_cnt]);
 			break;
 #endif
 

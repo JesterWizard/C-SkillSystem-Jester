@@ -31,7 +31,8 @@ Other skills are categorized as **generic skills**.
 5. Skills that can be learned upon level-up can be configured via [`gSkillPreloadPData`](../Data/SkillSys/SkillTable-generic.c). Characters can only learn new skills at levels 5, 10, 15, etc. Each character can learn up to 5 skills every 5 levels.
 6. Skills that can be learned upon level-up for classes can be configured via [`gSkillPreloadJData`](../Data/SkillSys/SkillTable-generic.c). Characters can only learn new skills at levels 5, 10, 15, etc. Each class can learn up to 5 skills every 5 levels.
 7. For character based levelup table, the reference level is based on ([total count of level-up history] + [[hidden level](../Patches/PATCH_HiddenLevel.txt)]) regardless from promotion. For class based levelup table, the reference level is directly determined by the current level.
-7. Developers can assign or remove skills directly via events. Refer to: [Skill OPS patch](../Patches/PATCH_EVENTSCRIPT_SkillOps.txt).
+8. Skills can also be learned from weapon ranks. See [WeaponRankSkills](./WeaponRankSkills.md). Prowess skills use this path: Lv1 at rank D through Lv5 at rank S, with each new level replacing the previous one.
+9. Developers can assign or remove skills directly via events. Refer to: [Skill OPS patch](../Patches/PATCH_EVENTSCRIPT_SkillOps.txt).
 
 # 4. Setting Skills (Fitting to FEB Old List)
 

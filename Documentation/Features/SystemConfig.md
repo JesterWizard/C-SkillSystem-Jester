@@ -53,6 +53,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `vesly_notification_window` | Shows map notification toasts. Off skips them; flag hooks stay installed. |
 | `vesly_draw_animations` | Plays extra map-action animations. Off keeps vanilla map anims; animation assets stay installed. |
 | `last_weapon_hit_crit` | Guarantees a critical on any combat strike whose remaining weapon uses are less than or equal to that hit's durability cost. Covers starting a fight on 1 use and dropping to 1 use mid-battle. Unbreakable, 0xFF-use, and special-slot weapons are excluded. |
+| `weapon_rank_skills` | Teaches table skills when a weapon letter rank is reached. Prowess uses this path (Lv1 at D through Lv5 at S). See [WeaponRankSkills](./WeaponRankSkills.md). |
 
 ### Skill Scroll Behavior
 

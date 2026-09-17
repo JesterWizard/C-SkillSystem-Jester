@@ -48,6 +48,9 @@ Acquired![.][X]
 ## MSG_Learned
 learned [X]
 
+## MSG_WRankSkill_Upgraded
+ upgraded to Lv [X]
+
 ## MSG_Obtained
 Obtained a [X]
 

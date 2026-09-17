@@ -169,6 +169,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_kill_rate = 10,
 	.vesly_support_after_battle_staff_rate = 10,
 	.voice_acted_dialogue = true,
+	.weapon_rank_skills = true,
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
 };

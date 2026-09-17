@@ -7288,79 +7288,360 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
-#if (defined(SID_SwordProwess) && COMMON_SKILL_VALID(SID_SwordProwess))
-    [SID_SwordProwess] = {
-        .name = MSG_SKILL_SwordProwess_NAME,
-        .desc = MSG_SKILL_SwordProwess_DESC,
-        .capacity = MSG_SKILL_SwordProwess_CAPACITY,
-        .price = MSG_SKILL_SwordProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_SwordProwess1) && COMMON_SKILL_VALID(SID_SwordProwess1))
+    [SID_SwordProwess1] = {
+        .name = MSG_SKILL_SwordProwess1_NAME,
+        .desc = MSG_SKILL_SwordProwess1_DESC,
+        .capacity = MSG_SKILL_SwordProwess1_CAPACITY,
+        .price = MSG_SKILL_SwordProwess1_PRICE,
+        .icon = GFX_SkillIcon_SwordProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_LanceProwess) && COMMON_SKILL_VALID(SID_LanceProwess))
-    [SID_LanceProwess] = {
-        .name = MSG_SKILL_LanceProwess_NAME,
-        .desc = MSG_SKILL_LanceProwess_DESC,
-        .capacity = MSG_SKILL_LanceProwess_CAPACITY,
-        .price = MSG_SKILL_LanceProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_LanceProwess1) && COMMON_SKILL_VALID(SID_LanceProwess1))
+    [SID_LanceProwess1] = {
+        .name = MSG_SKILL_LanceProwess1_NAME,
+        .desc = MSG_SKILL_LanceProwess1_DESC,
+        .capacity = MSG_SKILL_LanceProwess1_CAPACITY,
+        .price = MSG_SKILL_LanceProwess1_PRICE,
+        .icon = GFX_SkillIcon_LanceProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_AxeProwess) && COMMON_SKILL_VALID(SID_AxeProwess))
-    [SID_AxeProwess] = {
-        .name = MSG_SKILL_AxeProwess_NAME,
-        .desc = MSG_SKILL_AxeProwess_DESC,
-        .capacity = MSG_SKILL_AxeProwess_CAPACITY,
-        .price = MSG_SKILL_AxeProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_AxeProwess1) && COMMON_SKILL_VALID(SID_AxeProwess1))
+    [SID_AxeProwess1] = {
+        .name = MSG_SKILL_AxeProwess1_NAME,
+        .desc = MSG_SKILL_AxeProwess1_DESC,
+        .capacity = MSG_SKILL_AxeProwess1_CAPACITY,
+        .price = MSG_SKILL_AxeProwess1_PRICE,
+        .icon = GFX_SkillIcon_AxeProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_BowProwess) && COMMON_SKILL_VALID(SID_BowProwess))
-    [SID_BowProwess] = {
-        .name = MSG_SKILL_BowProwess_NAME,
-        .desc = MSG_SKILL_BowProwess_DESC,
-        .capacity = MSG_SKILL_BowProwess_CAPACITY,
-        .price = MSG_SKILL_BowProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_BowProwess1) && COMMON_SKILL_VALID(SID_BowProwess1))
+    [SID_BowProwess1] = {
+        .name = MSG_SKILL_BowProwess1_NAME,
+        .desc = MSG_SKILL_BowProwess1_DESC,
+        .capacity = MSG_SKILL_BowProwess1_CAPACITY,
+        .price = MSG_SKILL_BowProwess1_PRICE,
+        .icon = GFX_SkillIcon_BowProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_AnimaProwess) && COMMON_SKILL_VALID(SID_AnimaProwess))
-    [SID_AnimaProwess] = {
-        .name = MSG_SKILL_AnimaProwess_NAME,
-        .desc = MSG_SKILL_AnimaProwess_DESC,
-        .capacity = MSG_SKILL_AnimaProwess_CAPACITY,
-        .price = MSG_SKILL_AnimaProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_AnimaProwess1) && COMMON_SKILL_VALID(SID_AnimaProwess1))
+    [SID_AnimaProwess1] = {
+        .name = MSG_SKILL_AnimaProwess1_NAME,
+        .desc = MSG_SKILL_AnimaProwess1_DESC,
+        .capacity = MSG_SKILL_AnimaProwess1_CAPACITY,
+        .price = MSG_SKILL_AnimaProwess1_PRICE,
+        .icon = GFX_SkillIcon_AnimaProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_DarkProwess) && COMMON_SKILL_VALID(SID_DarkProwess))
-    [SID_DarkProwess] = {
-        .name = MSG_SKILL_DarkProwess_NAME,
-        .desc = MSG_SKILL_DarkProwess_DESC,
-        .capacity = MSG_SKILL_DarkProwess_CAPACITY,
-        .price = MSG_SKILL_DarkProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_DarkProwess1) && COMMON_SKILL_VALID(SID_DarkProwess1))
+    [SID_DarkProwess1] = {
+        .name = MSG_SKILL_DarkProwess1_NAME,
+        .desc = MSG_SKILL_DarkProwess1_DESC,
+        .capacity = MSG_SKILL_DarkProwess1_CAPACITY,
+        .price = MSG_SKILL_DarkProwess1_PRICE,
+        .icon = GFX_SkillIcon_DarkProwess1,
         .iconPal = 0,
     },
 #endif
 
-#if (defined(SID_LightProwess) && COMMON_SKILL_VALID(SID_LightProwess))
-    [SID_LightProwess] = {
-        .name = MSG_SKILL_LightProwess_NAME,
-        .desc = MSG_SKILL_LightProwess_DESC,
-        .capacity = MSG_SKILL_LightProwess_CAPACITY,
-        .price = MSG_SKILL_LightProwess_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+#if (defined(SID_LightProwess1) && COMMON_SKILL_VALID(SID_LightProwess1))
+    [SID_LightProwess1] = {
+        .name = MSG_SKILL_LightProwess1_NAME,
+        .desc = MSG_SKILL_LightProwess1_DESC,
+        .capacity = MSG_SKILL_LightProwess1_CAPACITY,
+        .price = MSG_SKILL_LightProwess1_PRICE,
+        .icon = GFX_SkillIcon_LightProwess1,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_SwordProwess2) && COMMON_SKILL_VALID(SID_SwordProwess2))
+    [SID_SwordProwess2] = {
+        .name = MSG_SKILL_SwordProwess2_NAME,
+        .desc = MSG_SKILL_SwordProwess2_DESC,
+        .capacity = MSG_SKILL_SwordProwess2_CAPACITY,
+        .price = MSG_SKILL_SwordProwess2_PRICE,
+        .icon = GFX_SkillIcon_SwordProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_SwordProwess3) && COMMON_SKILL_VALID(SID_SwordProwess3))
+    [SID_SwordProwess3] = {
+        .name = MSG_SKILL_SwordProwess3_NAME,
+        .desc = MSG_SKILL_SwordProwess3_DESC,
+        .capacity = MSG_SKILL_SwordProwess3_CAPACITY,
+        .price = MSG_SKILL_SwordProwess3_PRICE,
+        .icon = GFX_SkillIcon_SwordProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_SwordProwess4) && COMMON_SKILL_VALID(SID_SwordProwess4))
+    [SID_SwordProwess4] = {
+        .name = MSG_SKILL_SwordProwess4_NAME,
+        .desc = MSG_SKILL_SwordProwess4_DESC,
+        .capacity = MSG_SKILL_SwordProwess4_CAPACITY,
+        .price = MSG_SKILL_SwordProwess4_PRICE,
+        .icon = GFX_SkillIcon_SwordProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_SwordProwess5) && COMMON_SKILL_VALID(SID_SwordProwess5))
+    [SID_SwordProwess5] = {
+        .name = MSG_SKILL_SwordProwess5_NAME,
+        .desc = MSG_SKILL_SwordProwess5_DESC,
+        .capacity = MSG_SKILL_SwordProwess5_CAPACITY,
+        .price = MSG_SKILL_SwordProwess5_PRICE,
+        .icon = GFX_SkillIcon_SwordProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LanceProwess2) && COMMON_SKILL_VALID(SID_LanceProwess2))
+    [SID_LanceProwess2] = {
+        .name = MSG_SKILL_LanceProwess2_NAME,
+        .desc = MSG_SKILL_LanceProwess2_DESC,
+        .capacity = MSG_SKILL_LanceProwess2_CAPACITY,
+        .price = MSG_SKILL_LanceProwess2_PRICE,
+        .icon = GFX_SkillIcon_LanceProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LanceProwess3) && COMMON_SKILL_VALID(SID_LanceProwess3))
+    [SID_LanceProwess3] = {
+        .name = MSG_SKILL_LanceProwess3_NAME,
+        .desc = MSG_SKILL_LanceProwess3_DESC,
+        .capacity = MSG_SKILL_LanceProwess3_CAPACITY,
+        .price = MSG_SKILL_LanceProwess3_PRICE,
+        .icon = GFX_SkillIcon_LanceProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LanceProwess4) && COMMON_SKILL_VALID(SID_LanceProwess4))
+    [SID_LanceProwess4] = {
+        .name = MSG_SKILL_LanceProwess4_NAME,
+        .desc = MSG_SKILL_LanceProwess4_DESC,
+        .capacity = MSG_SKILL_LanceProwess4_CAPACITY,
+        .price = MSG_SKILL_LanceProwess4_PRICE,
+        .icon = GFX_SkillIcon_LanceProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LanceProwess5) && COMMON_SKILL_VALID(SID_LanceProwess5))
+    [SID_LanceProwess5] = {
+        .name = MSG_SKILL_LanceProwess5_NAME,
+        .desc = MSG_SKILL_LanceProwess5_DESC,
+        .capacity = MSG_SKILL_LanceProwess5_CAPACITY,
+        .price = MSG_SKILL_LanceProwess5_PRICE,
+        .icon = GFX_SkillIcon_LanceProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AxeProwess2) && COMMON_SKILL_VALID(SID_AxeProwess2))
+    [SID_AxeProwess2] = {
+        .name = MSG_SKILL_AxeProwess2_NAME,
+        .desc = MSG_SKILL_AxeProwess2_DESC,
+        .capacity = MSG_SKILL_AxeProwess2_CAPACITY,
+        .price = MSG_SKILL_AxeProwess2_PRICE,
+        .icon = GFX_SkillIcon_AxeProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AxeProwess3) && COMMON_SKILL_VALID(SID_AxeProwess3))
+    [SID_AxeProwess3] = {
+        .name = MSG_SKILL_AxeProwess3_NAME,
+        .desc = MSG_SKILL_AxeProwess3_DESC,
+        .capacity = MSG_SKILL_AxeProwess3_CAPACITY,
+        .price = MSG_SKILL_AxeProwess3_PRICE,
+        .icon = GFX_SkillIcon_AxeProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AxeProwess4) && COMMON_SKILL_VALID(SID_AxeProwess4))
+    [SID_AxeProwess4] = {
+        .name = MSG_SKILL_AxeProwess4_NAME,
+        .desc = MSG_SKILL_AxeProwess4_DESC,
+        .capacity = MSG_SKILL_AxeProwess4_CAPACITY,
+        .price = MSG_SKILL_AxeProwess4_PRICE,
+        .icon = GFX_SkillIcon_AxeProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AxeProwess5) && COMMON_SKILL_VALID(SID_AxeProwess5))
+    [SID_AxeProwess5] = {
+        .name = MSG_SKILL_AxeProwess5_NAME,
+        .desc = MSG_SKILL_AxeProwess5_DESC,
+        .capacity = MSG_SKILL_AxeProwess5_CAPACITY,
+        .price = MSG_SKILL_AxeProwess5_PRICE,
+        .icon = GFX_SkillIcon_AxeProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_BowProwess2) && COMMON_SKILL_VALID(SID_BowProwess2))
+    [SID_BowProwess2] = {
+        .name = MSG_SKILL_BowProwess2_NAME,
+        .desc = MSG_SKILL_BowProwess2_DESC,
+        .capacity = MSG_SKILL_BowProwess2_CAPACITY,
+        .price = MSG_SKILL_BowProwess2_PRICE,
+        .icon = GFX_SkillIcon_BowProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_BowProwess3) && COMMON_SKILL_VALID(SID_BowProwess3))
+    [SID_BowProwess3] = {
+        .name = MSG_SKILL_BowProwess3_NAME,
+        .desc = MSG_SKILL_BowProwess3_DESC,
+        .capacity = MSG_SKILL_BowProwess3_CAPACITY,
+        .price = MSG_SKILL_BowProwess3_PRICE,
+        .icon = GFX_SkillIcon_BowProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_BowProwess4) && COMMON_SKILL_VALID(SID_BowProwess4))
+    [SID_BowProwess4] = {
+        .name = MSG_SKILL_BowProwess4_NAME,
+        .desc = MSG_SKILL_BowProwess4_DESC,
+        .capacity = MSG_SKILL_BowProwess4_CAPACITY,
+        .price = MSG_SKILL_BowProwess4_PRICE,
+        .icon = GFX_SkillIcon_BowProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_BowProwess5) && COMMON_SKILL_VALID(SID_BowProwess5))
+    [SID_BowProwess5] = {
+        .name = MSG_SKILL_BowProwess5_NAME,
+        .desc = MSG_SKILL_BowProwess5_DESC,
+        .capacity = MSG_SKILL_BowProwess5_CAPACITY,
+        .price = MSG_SKILL_BowProwess5_PRICE,
+        .icon = GFX_SkillIcon_BowProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AnimaProwess2) && COMMON_SKILL_VALID(SID_AnimaProwess2))
+    [SID_AnimaProwess2] = {
+        .name = MSG_SKILL_AnimaProwess2_NAME,
+        .desc = MSG_SKILL_AnimaProwess2_DESC,
+        .capacity = MSG_SKILL_AnimaProwess2_CAPACITY,
+        .price = MSG_SKILL_AnimaProwess2_PRICE,
+        .icon = GFX_SkillIcon_AnimaProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AnimaProwess3) && COMMON_SKILL_VALID(SID_AnimaProwess3))
+    [SID_AnimaProwess3] = {
+        .name = MSG_SKILL_AnimaProwess3_NAME,
+        .desc = MSG_SKILL_AnimaProwess3_DESC,
+        .capacity = MSG_SKILL_AnimaProwess3_CAPACITY,
+        .price = MSG_SKILL_AnimaProwess3_PRICE,
+        .icon = GFX_SkillIcon_AnimaProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AnimaProwess4) && COMMON_SKILL_VALID(SID_AnimaProwess4))
+    [SID_AnimaProwess4] = {
+        .name = MSG_SKILL_AnimaProwess4_NAME,
+        .desc = MSG_SKILL_AnimaProwess4_DESC,
+        .capacity = MSG_SKILL_AnimaProwess4_CAPACITY,
+        .price = MSG_SKILL_AnimaProwess4_PRICE,
+        .icon = GFX_SkillIcon_AnimaProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_AnimaProwess5) && COMMON_SKILL_VALID(SID_AnimaProwess5))
+    [SID_AnimaProwess5] = {
+        .name = MSG_SKILL_AnimaProwess5_NAME,
+        .desc = MSG_SKILL_AnimaProwess5_DESC,
+        .capacity = MSG_SKILL_AnimaProwess5_CAPACITY,
+        .price = MSG_SKILL_AnimaProwess5_PRICE,
+        .icon = GFX_SkillIcon_AnimaProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_DarkProwess2) && COMMON_SKILL_VALID(SID_DarkProwess2))
+    [SID_DarkProwess2] = {
+        .name = MSG_SKILL_DarkProwess2_NAME,
+        .desc = MSG_SKILL_DarkProwess2_DESC,
+        .capacity = MSG_SKILL_DarkProwess2_CAPACITY,
+        .price = MSG_SKILL_DarkProwess2_PRICE,
+        .icon = GFX_SkillIcon_DarkProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_DarkProwess3) && COMMON_SKILL_VALID(SID_DarkProwess3))
+    [SID_DarkProwess3] = {
+        .name = MSG_SKILL_DarkProwess3_NAME,
+        .desc = MSG_SKILL_DarkProwess3_DESC,
+        .capacity = MSG_SKILL_DarkProwess3_CAPACITY,
+        .price = MSG_SKILL_DarkProwess3_PRICE,
+        .icon = GFX_SkillIcon_DarkProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_DarkProwess4) && COMMON_SKILL_VALID(SID_DarkProwess4))
+    [SID_DarkProwess4] = {
+        .name = MSG_SKILL_DarkProwess4_NAME,
+        .desc = MSG_SKILL_DarkProwess4_DESC,
+        .capacity = MSG_SKILL_DarkProwess4_CAPACITY,
+        .price = MSG_SKILL_DarkProwess4_PRICE,
+        .icon = GFX_SkillIcon_DarkProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_DarkProwess5) && COMMON_SKILL_VALID(SID_DarkProwess5))
+    [SID_DarkProwess5] = {
+        .name = MSG_SKILL_DarkProwess5_NAME,
+        .desc = MSG_SKILL_DarkProwess5_DESC,
+        .capacity = MSG_SKILL_DarkProwess5_CAPACITY,
+        .price = MSG_SKILL_DarkProwess5_PRICE,
+        .icon = GFX_SkillIcon_DarkProwess5,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LightProwess2) && COMMON_SKILL_VALID(SID_LightProwess2))
+    [SID_LightProwess2] = {
+        .name = MSG_SKILL_LightProwess2_NAME,
+        .desc = MSG_SKILL_LightProwess2_DESC,
+        .capacity = MSG_SKILL_LightProwess2_CAPACITY,
+        .price = MSG_SKILL_LightProwess2_PRICE,
+        .icon = GFX_SkillIcon_LightProwess2,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LightProwess3) && COMMON_SKILL_VALID(SID_LightProwess3))
+    [SID_LightProwess3] = {
+        .name = MSG_SKILL_LightProwess3_NAME,
+        .desc = MSG_SKILL_LightProwess3_DESC,
+        .capacity = MSG_SKILL_LightProwess3_CAPACITY,
+        .price = MSG_SKILL_LightProwess3_PRICE,
+        .icon = GFX_SkillIcon_LightProwess3,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LightProwess4) && COMMON_SKILL_VALID(SID_LightProwess4))
+    [SID_LightProwess4] = {
+        .name = MSG_SKILL_LightProwess4_NAME,
+        .desc = MSG_SKILL_LightProwess4_DESC,
+        .capacity = MSG_SKILL_LightProwess4_CAPACITY,
+        .price = MSG_SKILL_LightProwess4_PRICE,
+        .icon = GFX_SkillIcon_LightProwess4,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_LightProwess5) && COMMON_SKILL_VALID(SID_LightProwess5))
+    [SID_LightProwess5] = {
+        .name = MSG_SKILL_LightProwess5_NAME,
+        .desc = MSG_SKILL_LightProwess5_DESC,
+        .capacity = MSG_SKILL_LightProwess5_CAPACITY,
+        .price = MSG_SKILL_LightProwess5_PRICE,
+        .icon = GFX_SkillIcon_LightProwess5,
         .iconPal = 0,
     },
 #endif
