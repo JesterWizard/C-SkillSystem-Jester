@@ -164,6 +164,11 @@ struct TextEngineEarthquakeOffset {
 	s8 y;
 };
 
+struct TextEngineScanlineFxRam {
+	s8 x[DISPLAY_HEIGHT];
+	u8 blend[DISPLAY_HEIGHT / 2];
+};
+
 struct TextEngineGlyphFloatProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ struct Text *targetText;
@@ -357,8 +362,7 @@ static const s8 sTextEngineEarthquakeOffsets[][2] = {
 	{  0, +2 },
 };
 
-extern EWRAM_DATA s16 sTextEngineWaveOffsets[2][DISPLAY_HEIGHT];
-extern EWRAM_DATA volatile u8 sTextEngineWaveActiveBuffer;
+extern EWRAM_DATA struct TextEngineScanlineFxRam sTextEngineWaveOffsets;
 extern EWRAM_DATA struct TextEngineEarthquakeOffset sTextEngineEarthquakeOffset;
 
 static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
@@ -1515,12 +1519,18 @@ static int TextEngine_StaticLineIntensity(u32 clock, int line)
 	return 0;
 }
 
-static s16 TextEngine_ScanlineOffset(s16 packed)
+static void TextEngineScanlineFx_SetBlend(int line, int intensity)
 {
-	return (s8)(packed & 0xFF);
+	u8 *cell = &sTextEngineWaveOffsets.blend[line >> 1];
+	u8 nibble = (u8)intensity & 0xF;
+
+	if (line & 1)
+		*cell = (u8)((*cell & 0x0F) | (nibble << 4));
+	else
+		*cell = (u8)((*cell & 0xF0) | nibble);
 }
 
-static void TextEngineScanlineFx_BuildBuffer(int buffer)
+static void TextEngineScanlineFx_BuildBuffer(void)
 {
 	struct TextEngineWaveProc *wave =
 		(struct TextEngineWaveProc *)Proc_Find(gProcScr_TextEngineWave);
@@ -1529,32 +1539,25 @@ static void TextEngineScanlineFx_BuildBuffer(int buffer)
 	u32 clock = GetGameClock();
 	int line;
 
-	if (Chatlog_IsVisible()) {
-		for (line = 0; line < DISPLAY_HEIGHT; line++)
-			sTextEngineWaveOffsets[buffer][line] = 0;
-		return;
-	}
-
 	for (line = 0; line < DISPLAY_HEIGHT; line++) {
 		s16 offset = 0;
-		u16 packed;
+		int intensity = 0;
 
-		if (wave)
-			offset += (SIN(wave->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
-				* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;
-		if (glitchOn)
-			offset += TextEngine_TearLineOffset(clock, line);
-
-		packed = (u8)(s8)offset;
-		if (staticOn) {
-			int intensity = TextEngine_StaticLineIntensity(clock, line);
-
-			if (intensity > 15)
-				intensity = 15;
-			packed |= (u16)intensity << 8;
+		if (!Chatlog_IsVisible()) {
+			if (wave)
+				offset += (SIN(wave->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
+					* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;
+			if (glitchOn)
+				offset += TextEngine_TearLineOffset(clock, line);
+			if (staticOn) {
+				intensity = TextEngine_StaticLineIntensity(clock, line);
+				if (intensity > 15)
+					intensity = 15;
+			}
 		}
 
-		sTextEngineWaveOffsets[buffer][line] = packed;
+		sTextEngineWaveOffsets.x[line] = (s8)offset;
+		TextEngineScanlineFx_SetBlend(line, intensity);
 	}
 }
 
@@ -1612,9 +1615,7 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 	}
 
 	*outPrev = sHBlankHandler2;
-	TextEngineScanlineFx_BuildBuffer(0);
-	TextEngineScanlineFx_BuildBuffer(1);
-	sTextEngineWaveActiveBuffer = 0;
+	TextEngineScanlineFx_BuildBuffer();
 	SetSecondaryHBlankHandler(TextEngineWave_OnHBlank);
 }
 
@@ -1639,14 +1640,14 @@ static void TextEngine_RestoreBlend(void)
 static void TextEngineWave_OnHBlank(void)
 {
 	u16 line = REG_VCOUNT;
-	s16 packed;
 	s16 offset;
+	int blend;
+	u8 cell;
 
 	if (line >= DISPLAY_HEIGHT)
 		return;
 
-	packed = sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][line];
-	offset = TextEngine_ScanlineOffset(packed) + sTextEngineEarthquakeOffset.x;
+	offset = sTextEngineWaveOffsets.x[line] + sTextEngineEarthquakeOffset.x;
 	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
 	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
 	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
@@ -1656,12 +1657,14 @@ static void TextEngineWave_OnHBlank(void)
 	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y + sTextEngineEarthquakeOffset.y;
 	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y + sTextEngineEarthquakeOffset.y;
 
-	if ((packed >> 8) & 0xF) {
+	cell = sTextEngineWaveOffsets.blend[line >> 1];
+	blend = (line & 1) ? (cell >> 4) : (cell & 0xF);
+	if (blend) {
 		REG_WININ |= 0x2020;
 		REG_WINOUT |= 0x20;
 		REG_BLDCNT = BLDCNT_TGT1_BG0 | BLDCNT_TGT1_BG1 | BLDCNT_TGT1_BG2 |
 			BLDCNT_TGT1_BG3 | BLDCNT_TGT1_OBJ | BLDCNT_EFFECT_LIGHTEN;
-		REG_BLDY = (packed >> 8) & 0xF;
+		REG_BLDY = blend;
 	} else {
 		TextEngine_RestoreBlend();
 	}
@@ -1687,12 +1690,8 @@ static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
 
 static void TextEngineWave_OnIdle(struct TextEngineWaveProc *proc)
 {
-	int nextBuffer = proc->activeBuffer ^ 1;
-
 	proc->phase += TEXT_ENGINE_WAVE_SPEED;
-	TextEngineScanlineFx_BuildBuffer(nextBuffer);
-	proc->activeBuffer = nextBuffer;
-	sTextEngineWaveActiveBuffer = nextBuffer;
+	TextEngineScanlineFx_BuildBuffer();
 }
 
 static void TextEngine_StartWave(void)
@@ -1726,17 +1725,13 @@ static void TextEngineScreenGlitch_OnEnd(struct TextEngineScreenGlitchProc *proc
 
 static void TextEngineScreenGlitch_OnIdle(ProcPtr proc)
 {
-	int nextBuffer;
-
 	(void)proc;
 
 	/* Wave already rebuilds the shared scanline table when both are active. */
 	if (Proc_Find(gProcScr_TextEngineWave))
 		return;
 
-	nextBuffer = sTextEngineWaveActiveBuffer ^ 1;
-	TextEngineScanlineFx_BuildBuffer(nextBuffer);
-	sTextEngineWaveActiveBuffer = nextBuffer;
+	TextEngineScanlineFx_BuildBuffer();
 }
 
 void EnableScreenGlitch(void)
@@ -1769,8 +1764,6 @@ static void TextEngineScreenStatic_OnEnd(struct TextEngineScreenStaticProc *proc
 
 static void TextEngineScreenStatic_OnIdle(ProcPtr proc)
 {
-	int nextBuffer;
-
 	(void)proc;
 
 	if (Proc_Find(gProcScr_TextEngineWave))
@@ -1778,9 +1771,7 @@ static void TextEngineScreenStatic_OnIdle(ProcPtr proc)
 	if (Proc_Find(gProcScr_TextEngineScreenGlitch))
 		return;
 
-	nextBuffer = sTextEngineWaveActiveBuffer ^ 1;
-	TextEngineScanlineFx_BuildBuffer(nextBuffer);
-	sTextEngineWaveActiveBuffer = nextBuffer;
+	TextEngineScanlineFx_BuildBuffer();
 }
 
 void EnableScreenStatic(void)
@@ -1878,9 +1869,7 @@ s16 TextEngine_GetStaticOffsetAtY(int y)
 		else if (y >= DISPLAY_HEIGHT)
 			y = DISPLAY_HEIGHT - 1;
 
-		offset += TextEngine_ScanlineOffset(
-			sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][y]
-		);
+		offset += sTextEngineWaveOffsets.x[y];
 	}
 
 	return offset;

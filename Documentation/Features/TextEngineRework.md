@@ -46,7 +46,7 @@ The rework is a small set of C hooks plus shared tables.
 | Text measurement | Recalculates box width with `GetStringTextWidthWithDialogueCodes` | Control codes and font changes no longer break width math |
 | Presentation state | Copies and updates face attributes before the box appears | Palette, box, and font settings follow the active speaker |
 | Face / box hooks | C replacements for load, move, open, clear, and promotion UI | Variable-speed moves, 1–3 line boxes, fancy face load, and ash-dissolve clear work on the main dialogue path |
-| Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from double-buffered sine tables | Text, textbox, and background layers move with a continuous horizontal wave |
+| Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from a packed 160-line table | Text, textbox, and background layers move with a continuous horizontal wave |
 | Screen earthquake | Secondary HBlank callback adds a 2px XY rumble from a looping offset table | Backgrounds, portraits, and map sprites shake together until toggled off |
 | Speaker nameplate | Draws the speaking face’s name on BG0 with a matching BG1 talk-bubble frame above the box | Off by default; `[ToggleOnNameplate]` enables per dialogue |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
