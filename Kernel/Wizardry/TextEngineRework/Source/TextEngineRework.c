@@ -12,6 +12,8 @@
 #include "m4a.h"
 #include "rng.h"
 #include "scene.h"
+#include "soundwrapper.h"
+#include "constants/songs.h"
 
 extern void HalfBody_OnTalkFaceClear(struct FaceProc *proc);
 
@@ -111,6 +113,9 @@ enum {
 	TEXT_ENGINE_CMD_DRIP_PRINT_OFF = 0x51,
 	TEXT_ENGINE_CMD_GHOST_PRINT_ON = 0x52,
 	TEXT_ENGINE_CMD_GHOST_PRINT_OFF = 0x53,
+	TEXT_ENGINE_CMD_EARTHQUAKE_ON = 0x54,
+	TEXT_ENGINE_CMD_EARTHQUAKE_OFF = 0x55,
+	TEXT_ENGINE_EARTHQUAKE_PERIOD = 2,
 };
 
 struct TextEngineFaceJumpProc {
@@ -146,6 +151,17 @@ struct TextEngineScreenGlitchProc {
 struct TextEngineScreenStaticProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ void (*previousHBlankHandler)(void);
+};
+
+struct TextEngineScreenEarthquakeProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ void (*previousHBlankHandler)(void);
+	/* 30 */ s16 timer;
+};
+
+struct TextEngineEarthquakeOffset {
+	s8 x;
+	s8 y;
 };
 
 struct TextEngineGlyphFloatProc {
@@ -310,6 +326,8 @@ static void TextEngineScreenGlitch_OnIdle(ProcPtr proc);
 static void TextEngineScreenGlitch_OnEnd(struct TextEngineScreenGlitchProc *proc);
 static void TextEngineScreenStatic_OnIdle(ProcPtr proc);
 static void TextEngineScreenStatic_OnEnd(struct TextEngineScreenStaticProc *proc);
+static void TextEngineScreenEarthquake_OnIdle(struct TextEngineScreenEarthquakeProc *proc);
+static void TextEngineScreenEarthquake_OnEnd(struct TextEngineScreenEarthquakeProc *proc);
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineAshDissolve_OnIdle(struct TextEngineAshDissolveProc *proc);
@@ -328,8 +346,20 @@ static const s8 sTextEngineFaceVibrateOffsets[] = {
 	0, +1, 0, -1,
 };
 
+static const s8 sTextEngineEarthquakeOffsets[][2] = {
+	{ +2,  0 },
+	{ -2, +2 },
+	{ +2, -2 },
+	{ -1, +1 },
+	{ +1, -2 },
+	{ -2, +1 },
+	{ +2, -1 },
+	{  0, +2 },
+};
+
 extern EWRAM_DATA s16 sTextEngineWaveOffsets[2][DISPLAY_HEIGHT];
 extern EWRAM_DATA volatile u8 sTextEngineWaveActiveBuffer;
+extern EWRAM_DATA struct TextEngineEarthquakeOffset sTextEngineEarthquakeOffset;
 
 static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
 	PROC_NAME("TextEngineFaceJump"),
@@ -363,6 +393,13 @@ static const struct ProcCmd gProcScr_TextEngineScreenStatic[] = {
 	PROC_NAME("TextEngineScreenStatic"),
 	PROC_SET_END_CB(TextEngineScreenStatic_OnEnd),
 	PROC_REPEAT(TextEngineScreenStatic_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineScreenEarthquake[] = {
+	PROC_NAME("TextEngineScreenEarthquake"),
+	PROC_SET_END_CB(TextEngineScreenEarthquake_OnEnd),
+	PROC_REPEAT(TextEngineScreenEarthquake_OnIdle),
 	PROC_END,
 };
 
@@ -1537,6 +1574,10 @@ static ProcPtr TextEngineScanlineFx_FindOwner(ProcPtr exclude)
 	if (proc && proc != exclude)
 		return proc;
 
+	proc = Proc_Find(gProcScr_TextEngineScreenEarthquake);
+	if (proc && proc != exclude)
+		return proc;
+
 	return NULL;
 }
 
@@ -1549,6 +1590,8 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 			(struct TextEngineScreenGlitchProc *)Proc_Find(gProcScr_TextEngineScreenGlitch);
 		struct TextEngineScreenStaticProc *statik =
 			(struct TextEngineScreenStaticProc *)Proc_Find(gProcScr_TextEngineScreenStatic);
+		struct TextEngineScreenEarthquakeProc *quake =
+			(struct TextEngineScreenEarthquakeProc *)Proc_Find(gProcScr_TextEngineScreenEarthquake);
 
 		if (wave)
 			*outPrev = wave->previousHBlankHandler;
@@ -1556,9 +1599,16 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 			*outPrev = glitch->previousHBlankHandler;
 		else if (statik)
 			*outPrev = statik->previousHBlankHandler;
+		else if (quake)
+			*outPrev = quake->previousHBlankHandler;
 		else
 			*outPrev = NULL;
 		return;
+	}
+
+	if (!Proc_Find(gProcScr_TextEngineScreenEarthquake)) {
+		sTextEngineEarthquakeOffset.x = 0;
+		sTextEngineEarthquakeOffset.y = 0;
 	}
 
 	*outPrev = sHBlankHandler2;
@@ -1596,11 +1646,15 @@ static void TextEngineWave_OnHBlank(void)
 		return;
 
 	packed = sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][line];
-	offset = TextEngine_ScanlineOffset(packed);
+	offset = TextEngine_ScanlineOffset(packed) + sTextEngineEarthquakeOffset.x;
 	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
 	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
 	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
 	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
+	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y;
+	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y;
+	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y + sTextEngineEarthquakeOffset.y;
+	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y + sTextEngineEarthquakeOffset.y;
 
 	if ((packed >> 8) & 0xF) {
 		REG_WININ |= 0x2020;
@@ -1619,6 +1673,10 @@ static void TextEngineWave_ApplyBaseOffsets(void)
 	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x;
 	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x;
 	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x;
+	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y;
+	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y;
+	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y;
+	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y;
 	TextEngine_RestoreBlend();
 }
 
@@ -1748,19 +1806,92 @@ void DisableScreenStatic(void)
 	Proc_EndEach(gProcScr_TextEngineScreenStatic);
 }
 
+static void TextEngine_ClearEarthquakeOffset(void)
+{
+	sTextEngineEarthquakeOffset.x = 0;
+	sTextEngineEarthquakeOffset.y = 0;
+}
+
+static void TextEngineScreenEarthquake_OnEnd(struct TextEngineScreenEarthquakeProc *proc)
+{
+	TextEngine_ClearEarthquakeOffset();
+	TextEngineScanlineFx_ReleaseHBlank(proc->previousHBlankHandler, proc);
+}
+
+static void TextEngineScreenEarthquake_OnIdle(struct TextEngineScreenEarthquakeProc *proc)
+{
+	const s8 *offset;
+	int index;
+
+	if (Chatlog_IsVisible()) {
+		TextEngine_ClearEarthquakeOffset();
+		return;
+	}
+
+	index = (proc->timer / TEXT_ENGINE_EARTHQUAKE_PERIOD)
+		% (int)ARRAY_COUNT(sTextEngineEarthquakeOffsets);
+	offset = sTextEngineEarthquakeOffsets[index];
+	sTextEngineEarthquakeOffset.x = offset[0];
+	sTextEngineEarthquakeOffset.y = offset[1];
+	proc->timer++;
+}
+
+void EnableScreenEarthquake(void)
+{
+	struct TextEngineScreenEarthquakeProc *proc =
+		(struct TextEngineScreenEarthquakeProc *)Proc_Find(gProcScr_TextEngineScreenEarthquake);
+
+	if (proc)
+		return;
+
+	proc = (struct TextEngineScreenEarthquakeProc *)Proc_Start(
+		gProcScr_TextEngineScreenEarthquake,
+		PROC_TREE_3
+	);
+	if (!proc)
+		return;
+
+	proc->timer = 0;
+	TextEngine_ClearEarthquakeOffset();
+	PlaySoundEffect(SONG_26A);
+	TextEngineScanlineFx_AcquireHBlank(&proc->previousHBlankHandler);
+}
+
+void DisableScreenEarthquake(void)
+{
+	if (Proc_Find(gProcScr_TextEngineScreenEarthquake))
+		Sound_FadeOutSE(4);
+
+	Proc_EndEach(gProcScr_TextEngineScreenEarthquake);
+}
+
 s16 TextEngine_GetStaticOffsetAtY(int y)
 {
-	if (!Proc_Find(gProcScr_TextEngineScreenGlitch))
+	s16 offset = 0;
+
+	if (Proc_Find(gProcScr_TextEngineScreenEarthquake))
+		offset += sTextEngineEarthquakeOffset.x;
+
+	if (Proc_Find(gProcScr_TextEngineScreenGlitch)) {
+		if (y < 0)
+			y = 0;
+		else if (y >= DISPLAY_HEIGHT)
+			y = DISPLAY_HEIGHT - 1;
+
+		offset += TextEngine_ScanlineOffset(
+			sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][y]
+		);
+	}
+
+	return offset;
+}
+
+s16 TextEngine_GetFxOffsetY(void)
+{
+	if (!Proc_Find(gProcScr_TextEngineScreenEarthquake))
 		return 0;
 
-	if (y < 0)
-		y = 0;
-	else if (y >= DISPLAY_HEIGHT)
-		y = DISPLAY_HEIGHT - 1;
-
-	return TextEngine_ScanlineOffset(
-		sTextEngineWaveOffsets[sTextEngineWaveActiveBuffer & 1][y]
-	);
+	return sTextEngineEarthquakeOffset.y;
 }
 
 int TextEngine_ApplyStaticOam1(int xOam1, int screenY)
@@ -1770,6 +1901,15 @@ int TextEngine_ApplyStaticOam1(int xOam1, int screenY)
 
 	x += TextEngine_GetStaticOffsetAtY(screenY);
 	return flags | (x & 0x1FF);
+}
+
+int TextEngine_ApplyFxOam0(int yOam0)
+{
+	int flags = yOam0 & ~0xFF;
+	int y = yOam0 & 0xFF;
+
+	y += TextEngine_GetFxOffsetY();
+	return flags | (y & 0xFF);
 }
 
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2)
@@ -1785,7 +1925,7 @@ void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object
 	PutSpriteExt(
 		layer,
 		TextEngine_ApplyStaticOam1(xOam1, yOam0),
-		yOam0,
+		TextEngine_ApplyFxOam0(yOam0),
 		object,
 		oam2
 	);
@@ -1857,6 +1997,7 @@ void sub_8005FE0(struct FaceBlinkProc *proc)
 
 	/* Same slip as the parent mug so the mouth does not detach. */
 	oam1 = TextEngine_ApplyStaticOam1(oam1, face->yPos);
+	oam0 = TextEngine_ApplyFxOam0(oam0);
 
 	PutSpriteExt(
 		face->spriteLayer,
@@ -1914,6 +2055,7 @@ void sub_8006134(struct FaceBlinkProc *proc, int unk)
 
 	oam0 += (face->yPos + (face->pFaceInfo->yEyes * 8)) & 0xFF;
 	oam1 = TextEngine_ApplyStaticOam1(oam1, face->yPos);
+	oam0 = TextEngine_ApplyFxOam0(oam0);
 
 	if (flag) {
 		if (!(GetFaceDisplayBits(face) & FACE_DISP_FLIPPED))
@@ -2193,7 +2335,13 @@ static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 		| OAM2_PAL(TEXT_ENGINE_FLOAT_OBJ_PAL)
 		| OAM2_LAYER(0);
 
-	PutSpriteExt(4, OAM1_X(x), OAM0_Y(y), gObject_8x16, oam2);
+	PutSpriteExt(
+		4,
+		TextEngine_ApplyStaticOam1(OAM1_X(x), y),
+		TextEngine_ApplyFxOam0(OAM0_Y(y)),
+		gObject_8x16,
+		oam2
+	);
 
 	if (proc->mode == TEXT_ENGINE_LETTER_FX_GHOST) {
 		int echo = Interpolate(
@@ -2206,8 +2354,8 @@ static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 
 		PutSpriteExt(
 			4,
-			OAM1_X(x + echo),
-			OAM0_Y(y - echo / 2),
+			TextEngine_ApplyStaticOam1(OAM1_X(x + echo), y - echo / 2),
+			TextEngine_ApplyFxOam0(OAM0_Y(y - echo / 2)),
 			gObject_8x16,
 			oam2
 		);
@@ -3878,6 +4026,34 @@ static int TextEngine_CommandStopScreenStatic(
 	return 3;
 }
 
+static int TextEngine_CommandStartScreenEarthquake(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	EnableScreenEarthquake();
+	return 3;
+}
+
+static int TextEngine_CommandStopScreenEarthquake(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	DisableScreenEarthquake();
+	return 3;
+}
+
 static int TextEngine_CommandClearFaceAsh(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
@@ -3998,6 +4174,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_DRIP_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
 	{ TEXT_ENGINE_CMD_GHOST_PRINT_ON, 0, TextEngine_CommandStartLetterFx, NULL, TextEngine_CleanupLetterFx },
 	{ TEXT_ENGINE_CMD_GHOST_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
+	{ TEXT_ENGINE_CMD_EARTHQUAKE_ON, 0, TextEngine_CommandStartScreenEarthquake, NULL, NULL },
+	{ TEXT_ENGINE_CMD_EARTHQUAKE_OFF, 0, TextEngine_CommandStopScreenEarthquake, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

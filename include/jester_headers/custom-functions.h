@@ -81,6 +81,8 @@ extern void EnableScreenGlitch(void);
 extern void DisableScreenGlitch(void);
 extern void EnableScreenStatic(void);
 extern void DisableScreenStatic(void);
+extern void EnableScreenEarthquake(void);
+extern void DisableScreenEarthquake(void);
 
     enum {
 	DIMENSIONS_3x3 = 0,

@@ -120,4 +120,6 @@ POIN ToggleOnDripPrint		//80 50
 POIN ToggleOffDripPrint		//80 51
 POIN ToggleOnGhostPrint		//80 52
 POIN ToggleOffGhostPrint	//80 53
+POIN ToggleOnEarthquake		//80 54
+POIN ToggleOffEarthquake	//80 55
 */

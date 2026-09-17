@@ -26,7 +26,7 @@ Player-facing impact:
 - Dialogue can apply a horizontal scanline wave to its background layers.
 - Printed letters can bounce in, wave into place, scramble then resolve, drip from above, or leave a ghost echo.
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
-- A rolling screen tear and a separate corruption-static effect can be toggled from dialogue or `ASMC`; both are off by default.
+- A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
 - Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump, vibrate, or shimmy continuously while speaking.
 - Portraits can dissolve into drifting 16×16 chips instead of pal-fading out (`[ClearFaceAsh]`).
@@ -47,6 +47,7 @@ The rework is a small set of C hooks plus shared tables.
 | Presentation state | Copies and updates face attributes before the box appears | Palette, box, and font settings follow the active speaker |
 | Face / box hooks | C replacements for load, move, open, clear, and promotion UI | Variable-speed moves, 1–3 line boxes, fancy face load, and ash-dissolve clear work on the main dialogue path |
 | Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from double-buffered sine tables | Text, textbox, and background layers move with a continuous horizontal wave |
+| Screen earthquake | Secondary HBlank callback adds a 2px XY rumble from a looping offset table | Backgrounds, portraits, and map sprites shake together until toggled off |
 | Speaker nameplate | Draws the speaking face’s name on BG0 with a matching BG1 talk-bubble frame above the box | Off by default; `[ToggleOnNameplate]` enables per dialogue |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
 
@@ -118,8 +119,10 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x51` | `[ToggleOffDripPrint]` | none | Disables drip-on-print |
 | `0x52` | `[ToggleOnGhostPrint]` | none | Each letter appears with a trailing ghost echo, then bakes |
 | `0x53` | `[ToggleOffGhostPrint]` | none | Disables ghost-echo-on-print |
+| `0x54` | `[ToggleOnEarthquake]` | none | Starts a 2px screen rumble on BG0–BG3 and matching OBJ |
+| `0x55` | `[ToggleOffEarthquake]` | none | Stops the rumble and restores resting offsets |
 
-`ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)` and `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)` toggle the same effects outside dialogue. Both stay on until turned off; they are not cleared when talk ends.
+`ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop.
 
 ### Fancy LoadFace options
 
@@ -180,6 +183,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffGlitch]And now it is aligned again.
 [ToggleOnStatic]The picture is breaking up.
 [ToggleOffStatic]And now it is stable again.
+[ToggleOnEarthquake]The ground will not hold still.
+[ToggleOffEarthquake]And now it is still again.
 [ClearFaceAsh]
 ```
 
@@ -210,6 +215,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles |
 | Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Horizontal screen tear: a rolling split shifts BG0–BG3 (and matching OBJ) on the X axis; `ASMC(EnableScreenGlitch)` and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
 | Whole-screen static | `EnableScreenStatic`, `DisableScreenStatic`, `gProcScr_TextEngineScreenStatic` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | White scanline streaks drawn as OBJ over the picture (backgrounds do not wobble); `ASMC(EnableScreenStatic)` and `[ToggleOnStatic]`/`[ToggleOffStatic]` |
+| Whole-screen earthquake | `EnableScreenEarthquake`, `DisableScreenEarthquake`, `gProcScr_TextEngineScreenEarthquake` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | 2px XY rumble on BG0–BG3 plus portraits, float glyphs, and map sprites; `ASMC(EnableScreenEarthquake)` and `[ToggleOnEarthquake]`/`[ToggleOffEarthquake]` |
 | Portrait ash dissolve | `TextEngine_StartAshDissolve`, `gProcScr_TextEngineAshDissolve` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[ClearFaceAsh]` hides the live mug and rebuilds it as 16×16 OBJ chips that drift up and fade; not a screen FX |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
@@ -243,6 +249,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
 - The screen glitch is a horizontal tear: scanlines below a rolling split jump sideways on BG0–BG3. Portrait mouths/eyes and map sprites use the same offset so they tear with the picture. It is off until `[ToggleOnGlitch]` or `ASMC(EnableScreenGlitch)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
 - The screen static flashes scattered scanlines toward white (a few uneven clusters plus stray sparks). Backgrounds do not slide. It is off until `[ToggleOnStatic]` or `ASMC(EnableScreenStatic)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
+- The screen earthquake is a 2px XY rumble: BG0–BG3, portraits (including mouths/eyes), float glyphs, and map sprites share the same offset. It is off until `[ToggleOnEarthquake]` or `ASMC(EnableScreenEarthquake)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot and plays vanilla rumble `SONG_26A` until `[ToggleOffEarthquake]` / `ASMC(DisableScreenEarthquake)` fades it. This is independent of event-script `EARTHQUAKE_START`, which only jitters the map camera or BG3.
 - `[ClearFaceAsh]` is a portrait effect, not a screen FX. It rebuilds the mug from its live OBJ tiles as about 24–30 16×16 chips (a 96×80 talk face). Chip motion is derived each frame from a seed on the effect proc, so it does not reserve extra EWRAM. Chips stay still for a few frames so the mug does not pop away, then drift upward with a light hardware mosaic and an OBJ blend fade. Map sprites should be quiet; 32-color overlays double the sprite count and are skipped on very large mugs. Hardware mosaic is global for mosaic-bit sprites.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 

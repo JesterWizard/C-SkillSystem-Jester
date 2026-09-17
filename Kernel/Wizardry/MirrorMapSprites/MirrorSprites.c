@@ -364,6 +364,7 @@ static void PutRescuedSupportSpritesOam(void)
 			continue;
 
 		x += TextEngine_GetStaticOffsetAtY(y);
+		y += TextEngine_GetFxOffsetY();
 
 		switch (UNIT_FACTION(support)) {
 		case FACTION_BLUE:
@@ -459,6 +460,7 @@ void PutUnitSpritesOam(void)
             continue;
 
         x += TextEngine_GetStaticOffsetAtY(y);
+        y += TextEngine_GetFxOffsetY();
 
         if (it->config & 0x80)
             continue;
@@ -566,6 +568,7 @@ static void PutFogStage2Sprites(void)
         if (y < -16 || y > DISPLAY_HEIGHT) continue;
 
         x += TextEngine_GetStaticOffsetAtY(y);
+        y += TextEngine_GetFxOffsetY();
 
         u16 pal    = (u16)((GetUnitDisplayedSpritePalette(unit) & 0xf) << 12);
         CallARM_PushToSecondaryOAM(OAM1_X(x + 0x200),     OAM0_Y(0x100 + y),     gObject_16x8, pal | OAM2_LAYER(2) | FOG2_CHR_TOP);
@@ -588,6 +591,7 @@ void MU_DisplayAsSMS(struct MuProc *proc)
 		return;
 
 	pos.x += TextEngine_GetStaticOffsetAtY(pos.y);
+	pos.y += TextEngine_GetFxOffsetY();
 	pos.x = OAM1_X(pos.x);
 	pos.y = OAM0_Y(pos.y);
 
@@ -625,6 +629,7 @@ void MU_DisplayAsMMS(struct MuProc *proc)
 					return;
 
 	pos.x += TextEngine_GetStaticOffsetAtY(pos.y);
+	pos.y += TextEngine_GetFxOffsetY();
 	pos.x = OAM1_X(pos.x);
 	pos.y = OAM0_Y(pos.y);
 

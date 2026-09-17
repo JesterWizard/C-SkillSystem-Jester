@@ -174,6 +174,10 @@ def parse_string_shiftjis_core(data, cur_idx):
             output = "[ToggleOnGhostPrint]"
         elif ctrl == 0x53:
             output = "[ToggleOffGhostPrint]"
+        elif ctrl == 0x54:
+            output = "[ToggleOnEarthquake]"
+        elif ctrl == 0x55:
+            output = "[ToggleOffEarthquake]"
         else:
             output = "f[!!ERROR:0x{ctrl:02X}]"
     elif u16_data == 0x4081:

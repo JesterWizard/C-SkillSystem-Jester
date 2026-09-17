@@ -2,6 +2,7 @@
 [OpenMidLeft][LoadFace_Fado]
 [OpenMidRight][LoadFace_SoldierBlue]
 [BoopPitch_Highest]
+[ToggleOnEarthquake]
 The castle gate has been breached,[N]
 Your Majesty![A][N]
 Emperor Vigarde's forces are within[N]

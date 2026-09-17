@@ -231,7 +231,9 @@ void Portrait32_OnFadeIn(struct FaceProc *proc);
 void Portrait32_LoadOverlayGfx(struct FaceProc *proc);
 s32 Portrait32_GetOverlayOam2(struct FaceProc *proc);
 s16 TextEngine_GetStaticOffsetAtY(int y);
+s16 TextEngine_GetFxOffsetY(void);
 int TextEngine_ApplyStaticOam1(int xOam1, int screenY);
+int TextEngine_ApplyFxOam0(int yOam0);
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
 
 bool ArenaRosterMenuEnabled(void);
