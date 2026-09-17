@@ -1,0 +1,34 @@
+#define FE8U_DrawBattleForecastContentsStandard $36818
+#define FE8U_DrawBattleForecastContentsExtended $36A70
+#define FE8U_NewEkrGauge                        $50EF8
+#define FE8U_StandaloneFreeSpace                $1000000
+
+/* Edit these without recompiling C. */
+#define SHOW_TRUE_2RN 1
+
+PUSH
+ORG FE8U_DrawBattleForecastContentsStandard
+    jumpToHack(DrawBattleForecastContentsStandard_TrueHit)
+    PROTECT FE8U_DrawBattleForecastContentsStandard FE8U_DrawBattleForecastContentsStandard + 0x8 // DrawBattleForecastContentsStandard hook
+POP
+
+PUSH
+ORG FE8U_DrawBattleForecastContentsExtended
+    jumpToHack(DrawBattleForecastContentsExtended_TrueHit)
+    PROTECT FE8U_DrawBattleForecastContentsExtended FE8U_DrawBattleForecastContentsExtended + 0x8 // DrawBattleForecastContentsExtended hook
+POP
+
+PUSH
+ORG FE8U_NewEkrGauge
+    jumpToHack(NewEkrGauge_TrueHit)
+    PROTECT FE8U_NewEkrGauge FE8U_NewEkrGauge + 0x8 // NewEkrGauge hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ShowTrue2RN.lyn.event"
+
+ALIGN 4
+ShowTrue2RNEnabled:
+BYTE SHOW_TRUE_2RN
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ShowTrue2RN body + config
