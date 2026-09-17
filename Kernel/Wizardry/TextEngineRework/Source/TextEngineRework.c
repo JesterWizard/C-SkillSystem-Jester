@@ -72,6 +72,8 @@ enum {
 	TEXT_ENGINE_NAMEPLATE_PAD_TILES = 2,
 	/* PutTalkBubbleTm width/height include the border tiles. */
 	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
+	/* Maximum random displacement, in pixels, applied to the talk box. */
+	TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET = 4,
 };
 
 struct TextEngineFaceJumpProc {
@@ -907,6 +909,39 @@ static void TextEnginePrintFx_OnIdle(struct TextEnginePrintFxProc *proc)
 	}
 }
 
+static int TextEngine_TalkGlitchOffset(u32 salt)
+{
+	int range = TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET * 2 + 1;
+	u32 value = (u32)GetGameClock() * 1664525u
+		+ 1013904223u
+		+ salt;
+
+	/*
+	 * Use a clock-derived visual hash so enabling the glitch does not consume
+	 * the game's gameplay random-number stream or require extra RAM.
+	 */
+	value ^= value >> 16;
+
+	return (int)((value >> 16) % range)
+		- TEXT_ENGINE_TALK_GLITCH_MAX_OFFSET;
+}
+
+void TextEngine_ApplyTalkGlitch(void)
+{
+#ifndef CONFIG_TALK_GLITCH_EFFECT
+	return;
+#else
+	if (CheckTalkFlag(TALK_FLAG_SPRITE))
+		return;
+#endif
+
+	BG_SetPosition(
+		BG_1,
+		TextEngine_TalkGlitchOffset(0xA5A5A5A5u),
+		TextEngine_TalkGlitchOffset(0x5A5A5A5Au)
+	);
+}
+
 static struct TextEnginePrintFxProc *TextEngine_EnsurePrintFx(void)
 {
 	struct TextEnginePrintFxProc *fx =
@@ -1442,6 +1477,9 @@ void Talk_OnInit_C(void)
 LYN_REPLACE_CHECK(Talk_OnEnd);
 void Talk_OnEnd_C(void)
 {
+	if (!CheckTalkFlag(TALK_FLAG_SPRITE))
+		BG_SetPosition(BG_1, 0, 0);
+
 	Chatlog_EndSession();
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearFaceNameTextIds();

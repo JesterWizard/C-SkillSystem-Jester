@@ -87,6 +87,11 @@
 
 // #define CONFIG_MOKHA_AOE // This only adds one command rather than letting you define them, turn of Vesly's AOE if using this
 
+// Random BG1 jitter during normal talk. Kept as a build-time flag because
+// KernelDesigerConfig is a fixed-layout table: inserting a field shifts
+// fe7_mode_select and crashes New Game.
+#define CONFIG_TALK_GLITCH_EFFECT
+
 // Voiced unit-select clips are gated by KernelDesigerConfig::unit_selection_quotes.
 // FE7-style text chapter titles are gated by KernelDesigerConfig::chapter_names.
 // FE7 difficulty select is gated by KernelDesigerConfig::fe7_mode_select.

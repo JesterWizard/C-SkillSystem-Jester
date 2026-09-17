@@ -1268,6 +1268,8 @@ void TalkWaitForInput_OnIdle(struct Proc *proc)
 	if (Chatlog_IsVisible())
 		return;
 
+	TextEngine_ApplyTalkGlitch();
+
 	if (!CheckTalkFlag(TALK_FLAG_7))
 		PutSprite(2, proc->unk64, proc->unk66, gPressKeyArrowSpriteLut[frame], 4);
 	else

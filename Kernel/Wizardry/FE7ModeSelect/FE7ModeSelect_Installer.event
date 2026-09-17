@@ -103,8 +103,10 @@ ALIGN 4
 #include "src/LynJump.event"
 #include "src/ModeSelect.lyn.event"
 
-// Proc SaveMenu
+// Proc SaveMenu: keep vanilla New Game difficulty select.
+// StartModeSelect crashes (invalid jump 0x41E90800 after bad face/gfx
+// pointers) and must not replace this fundamental title-screen path.
 PUSH
 ORG 0xA20160
-PROC_CALL_ROUTINE(StartModeSelect|1)
+PROC_CALL_ROUTINE(0x80AC3E1)
 POP
