@@ -25,7 +25,7 @@ Player-facing impact:
 - Dialogue can switch fonts, colors, box styles, and print speed from script commands.
 - Dialogue can apply a horizontal scanline wave to its background layers.
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
-- A whole-screen analog static effect can be toggled from chapter events or dialogue script; it is off by default.
+- A rolling screen tear and a separate corruption-static effect can be toggled from dialogue or `ASMC`; both are off by default.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
 - Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump, vibrate, or shimmy continuously while speaking.
 - Existing vanilla text remains readable and compatible with the new parser.
@@ -103,18 +103,12 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x44` | `[ToggleOffShimmy]` | none | Stops shimming and restores the portrait's resting X |
 | `0x45` | `[ToggleOnNameplate]` | none | Enables speaker nameplates (default off); redraws if a box is already open |
 | `0x46` | `[ToggleOffNameplate]` | none | Disables speaker nameplates and clears any active plate |
-| `0x47` | `[ToggleOnGlitch]` | none | Starts analog-style scanline static (tracking noise + rolling tear) |
-| `0x48` | `[ToggleOffGlitch]` | none | Stops the screen static |
+| `0x47` | `[ToggleOnGlitch]` | none | Starts a horizontal screen tear on BG0–BG3 (a rolling vsync split) |
+| `0x48` | `[ToggleOffGlitch]` | none | Stops the screen tear |
+| `0x49` | `[ToggleOnStatic]` | none | Starts white horizontal scanline static over the screen |
+| `0x4A` | `[ToggleOffStatic]` | none | Stops the scanline static |
 
-Chapter events can also toggle the same effect without a text code:
-
-```c
-Evt_ScreenGlitchOn
-TEXT(SomeConversation)
-Evt_ScreenGlitchOff
-```
-
-or `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`. The glitch stays on until it is turned off; it is not cleared when talk ends.
+`ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)` and `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)` toggle the same effects outside dialogue. Both stay on until turned off; they are not cleared when talk ends.
 
 ### Fancy LoadFace options
 
@@ -163,8 +157,10 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOffWave]And now it is steady again.
 [ToggleOnNameplate]This line shows a speaker plate.
 [ToggleOffNameplate]And now the nameplate is off again.
-[ToggleOnGlitch]The whole scene is tearing.
-[ToggleOffGlitch]And now it is steady again.
+[ToggleOnGlitch]The picture tears across the screen.
+[ToggleOffGlitch]And now it is aligned again.
+[ToggleOnStatic]The picture is breaking up.
+[ToggleOffStatic]And now it is stable again.
 ```
 
 ### Custom fonts
@@ -192,7 +188,8 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Shake / bounce-on-print | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce = per-letter OBJ float-in that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
 | Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles |
-| Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `EventScreenGlitchOperation`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Analog tracking noise: per-scanline horizontal slip plus a rolling sync tear on BG0–BG3; `Evt_ScreenGlitchOn`/`Off`, `ASMC(EnableScreenGlitch)`, and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
+| Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Horizontal screen tear: a rolling split shifts BG0–BG3 (and matching OBJ) on the X axis; `ASMC(EnableScreenGlitch)` and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
+| Whole-screen static | `EnableScreenStatic`, `DisableScreenStatic`, `gProcScr_TextEngineScreenStatic` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | White scanline streaks drawn as OBJ over the picture (backgrounds do not wobble); `ASMC(EnableScreenStatic)` and `[ToggleOnStatic]`/`[ToggleOffStatic]` |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
@@ -222,7 +219,8 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Shake-on-print jitters the whole BG0 text layer. Bounce-on-print floats each letter in as an OBJ (up to 4 at once) before baking it into the dialogue text; sprite-talk mode is skipped.
 - The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
 - Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
-- The screen static is a poor-signal analog look: each scanline slips horizontally by a pixel or two, with a rolling sync-tear bar. Portrait bodies, mouths, and eyes use the same slip so they stay attached; standing and moving map sprites use it too. It is off until an event or `[ToggleOnGlitch]` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
+- The screen glitch is a horizontal tear: scanlines below a rolling split jump sideways on BG0–BG3. Portrait mouths/eyes and map sprites use the same offset so they tear with the picture. It is off until `[ToggleOnGlitch]` or `ASMC(EnableScreenGlitch)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
+- The screen static flashes scattered scanlines toward white (a few uneven clusters plus stray sparks). Backgrounds do not slide. It is off until `[ToggleOnStatic]` or `ASMC(EnableScreenStatic)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

@@ -105,6 +105,10 @@ POIN ToggleOnVibrating		//80 41
 POIN ToggleOffVibrating		//80 42
 POIN ToggleOnShimmy			//80 43
 POIN ToggleOffShimmy		//80 44
+POIN ToggleOnNameplate		//80 45
+POIN ToggleOffNameplate		//80 46
+POIN ToggleOnGlitch			//80 47
+POIN ToggleOffGlitch		//80 48
+POIN ToggleOnStatic			//80 49
+POIN ToggleOffStatic		//80 4A
 */
-
-InjectEventLoCmd(EVENT_CMD_SCREEN_GLITCH, EventScreenGlitchOperation)

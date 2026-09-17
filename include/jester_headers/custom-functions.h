@@ -79,6 +79,8 @@ extern void EnableFreeMovementASMC(void);
 extern void DisableFreeMovementASMC(void);
 extern void EnableScreenGlitch(void);
 extern void DisableScreenGlitch(void);
+extern void EnableScreenStatic(void);
+extern void DisableScreenStatic(void);
 
     enum {
 	DIMENSIONS_3x3 = 0,
