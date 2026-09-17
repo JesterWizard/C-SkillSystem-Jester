@@ -83,6 +83,7 @@ extern void EnableScreenStatic(void);
 extern void DisableScreenStatic(void);
 extern void EnableScreenEarthquake(void);
 extern void DisableScreenEarthquake(void);
+extern void StartScreenImpactFlash(void);
 
     enum {
 	DIMENSIONS_3x3 = 0,

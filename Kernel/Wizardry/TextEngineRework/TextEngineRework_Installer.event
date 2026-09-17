@@ -122,4 +122,5 @@ POIN ToggleOnGhostPrint		//80 52
 POIN ToggleOffGhostPrint	//80 53
 POIN ToggleOnEarthquake		//80 54
 POIN ToggleOffEarthquake	//80 55
+POIN ImpactFlash			//80 56
 */

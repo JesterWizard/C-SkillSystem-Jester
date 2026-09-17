@@ -115,7 +115,12 @@ enum {
 	TEXT_ENGINE_CMD_GHOST_PRINT_OFF = 0x53,
 	TEXT_ENGINE_CMD_EARTHQUAKE_ON = 0x54,
 	TEXT_ENGINE_CMD_EARTHQUAKE_OFF = 0x55,
+	TEXT_ENGINE_CMD_IMPACT_FLASH = 0x56,
 	TEXT_ENGINE_EARTHQUAKE_PERIOD = 2,
+	/* Hard white hit, then a short decay.  One-shot, not a toggle. */
+	TEXT_ENGINE_IMPACT_FLASH_HOLD = 2,
+	TEXT_ENGINE_IMPACT_FLASH_DURATION = 12,
+	TEXT_ENGINE_IMPACT_FLASH_PEAK = 16,
 };
 
 struct TextEngineFaceJumpProc {
@@ -157,6 +162,16 @@ struct TextEngineScreenEarthquakeProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ void (*previousHBlankHandler)(void);
 	/* 30 */ s16 timer;
+};
+
+struct TextEngineImpactFlashProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ s16 timer;
+	/* 2E */ u16 savedBldcnt;
+	/* 30 */ u8 savedCoeffA;
+	/* 31 */ u8 savedCoeffB;
+	/* 32 */ u8 savedBlendY;
+	/* 33 */ u8 savedWinBlend;
 };
 
 struct TextEngineEarthquakeOffset {
@@ -333,6 +348,8 @@ static void TextEngineScreenStatic_OnIdle(ProcPtr proc);
 static void TextEngineScreenStatic_OnEnd(struct TextEngineScreenStaticProc *proc);
 static void TextEngineScreenEarthquake_OnIdle(struct TextEngineScreenEarthquakeProc *proc);
 static void TextEngineScreenEarthquake_OnEnd(struct TextEngineScreenEarthquakeProc *proc);
+static void TextEngineImpactFlash_OnIdle(struct TextEngineImpactFlashProc *proc);
+static void TextEngineImpactFlash_OnEnd(struct TextEngineImpactFlashProc *proc);
 static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc);
 static void TextEngineAshDissolve_OnIdle(struct TextEngineAshDissolveProc *proc);
@@ -404,6 +421,13 @@ static const struct ProcCmd gProcScr_TextEngineScreenEarthquake[] = {
 	PROC_NAME("TextEngineScreenEarthquake"),
 	PROC_SET_END_CB(TextEngineScreenEarthquake_OnEnd),
 	PROC_REPEAT(TextEngineScreenEarthquake_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineImpactFlash[] = {
+	PROC_NAME("TextEngineImpactFlash"),
+	PROC_SET_END_CB(TextEngineImpactFlash_OnEnd),
+	PROC_REPEAT(TextEngineImpactFlash_OnIdle),
 	PROC_END,
 };
 
@@ -1856,6 +1880,107 @@ void DisableScreenEarthquake(void)
 	Proc_EndEach(gProcScr_TextEngineScreenEarthquake);
 }
 
+static void TextEngineImpactFlash_SaveBlend(struct TextEngineImpactFlashProc *proc)
+{
+	proc->savedBldcnt = TextEngineAsh_PackBldcnt();
+	proc->savedCoeffA = gLCDControlBuffer.blendCoeffA;
+	proc->savedCoeffB = gLCDControlBuffer.blendCoeffB;
+	proc->savedBlendY = gLCDControlBuffer.blendY;
+	proc->savedWinBlend =
+		gLCDControlBuffer.wincnt.win0_enableBlend |
+		(gLCDControlBuffer.wincnt.win1_enableBlend << 1) |
+		(gLCDControlBuffer.wincnt.wout_enableBlend << 2) |
+		(gLCDControlBuffer.wincnt.wobj_enableBlend << 3);
+}
+
+static void TextEngineImpactFlash_RestoreBlend(struct TextEngineImpactFlashProc *proc)
+{
+	TextEngineAsh_UnpackBldcnt(proc->savedBldcnt);
+	gLCDControlBuffer.blendCoeffA = proc->savedCoeffA;
+	gLCDControlBuffer.blendCoeffB = proc->savedCoeffB;
+	gLCDControlBuffer.blendY = proc->savedBlendY;
+	gLCDControlBuffer.wincnt.win0_enableBlend = proc->savedWinBlend & 1;
+	gLCDControlBuffer.wincnt.win1_enableBlend = (proc->savedWinBlend >> 1) & 1;
+	gLCDControlBuffer.wincnt.wout_enableBlend = (proc->savedWinBlend >> 2) & 1;
+	gLCDControlBuffer.wincnt.wobj_enableBlend = (proc->savedWinBlend >> 3) & 1;
+	TextEngine_RestoreBlend();
+}
+
+static int TextEngineImpactFlash_GetIntensity(int timer)
+{
+	if (timer < TEXT_ENGINE_IMPACT_FLASH_HOLD)
+		return TEXT_ENGINE_IMPACT_FLASH_PEAK;
+
+	return Interpolate(
+		INTERPOLATE_LINEAR,
+		TEXT_ENGINE_IMPACT_FLASH_PEAK,
+		0,
+		timer - TEXT_ENGINE_IMPACT_FLASH_HOLD,
+		TEXT_ENGINE_IMPACT_FLASH_DURATION - TEXT_ENGINE_IMPACT_FLASH_HOLD
+	);
+}
+
+static void TextEngineImpactFlash_Apply(struct TextEngineImpactFlashProc *proc)
+{
+	int intensity = TextEngineImpactFlash_GetIntensity(proc->timer);
+
+	SetBlendBrighten(intensity);
+	SetBlendTargetA(1, 1, 1, 1, 1);
+	SetBlendBackdropA(1);
+	gLCDControlBuffer.wincnt.win0_enableBlend = 1;
+	gLCDControlBuffer.wincnt.win1_enableBlend = 1;
+	gLCDControlBuffer.wincnt.wout_enableBlend = 1;
+	gLCDControlBuffer.wincnt.wobj_enableBlend = 1;
+	TextEngine_RestoreBlend();
+	/* Talk uses WIN0; force blend inside and outside so the hit is full-screen. */
+	REG_WININ |= 0x2020;
+	REG_WINOUT |= 0x2020;
+}
+
+static void TextEngineImpactFlash_OnEnd(struct TextEngineImpactFlashProc *proc)
+{
+	TextEngineImpactFlash_RestoreBlend(proc);
+}
+
+static void TextEngineImpactFlash_OnIdle(struct TextEngineImpactFlashProc *proc)
+{
+	if (Chatlog_IsVisible()) {
+		TextEngineImpactFlash_RestoreBlend(proc);
+		return;
+	}
+
+	proc->timer++;
+	if (proc->timer >= TEXT_ENGINE_IMPACT_FLASH_DURATION) {
+		Proc_End(proc);
+		return;
+	}
+
+	TextEngineImpactFlash_Apply(proc);
+}
+
+void StartScreenImpactFlash(void)
+{
+	struct TextEngineImpactFlashProc *proc =
+		(struct TextEngineImpactFlashProc *)Proc_Find(gProcScr_TextEngineImpactFlash);
+
+	if (proc) {
+		proc->timer = 0;
+		TextEngineImpactFlash_Apply(proc);
+		return;
+	}
+
+	proc = (struct TextEngineImpactFlashProc *)Proc_Start(
+		gProcScr_TextEngineImpactFlash,
+		PROC_TREE_3
+	);
+	if (!proc)
+		return;
+
+	proc->timer = 0;
+	TextEngineImpactFlash_SaveBlend(proc);
+	TextEngineImpactFlash_Apply(proc);
+}
+
 s16 TextEngine_GetStaticOffsetAtY(int y)
 {
 	s16 offset = 0;
@@ -2609,6 +2734,7 @@ void Talk_OnEnd_C(void)
 	Proc_EndEach(gProcScr_TalkSkipListener);
 	Proc_EndEach(gProcScr_TalkShiftClearAll);
 	Proc_EndEach(gProcScr_TextEngineAshDissolve);
+	Proc_EndEach(gProcScr_TextEngineImpactFlash);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -4043,6 +4169,25 @@ static int TextEngine_CommandStopScreenEarthquake(
 	return 3;
 }
 
+static int TextEngine_CommandImpactFlash(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	StartScreenImpactFlash();
+	return 3;
+}
+
+static void TextEngine_CleanupImpactFlash(void)
+{
+	Proc_EndEach(gProcScr_TextEngineImpactFlash);
+}
+
 static int TextEngine_CommandClearFaceAsh(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
@@ -4165,6 +4310,7 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_GHOST_PRINT_OFF, 0, TextEngine_CommandStopLetterFx, NULL, NULL },
 	{ TEXT_ENGINE_CMD_EARTHQUAKE_ON, 0, TextEngine_CommandStartScreenEarthquake, NULL, NULL },
 	{ TEXT_ENGINE_CMD_EARTHQUAKE_OFF, 0, TextEngine_CommandStopScreenEarthquake, NULL, NULL },
+	{ TEXT_ENGINE_CMD_IMPACT_FLASH, 0, TextEngine_CommandImpactFlash, NULL, TextEngine_CleanupImpactFlash },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
