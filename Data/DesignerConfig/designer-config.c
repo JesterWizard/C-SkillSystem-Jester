@@ -69,6 +69,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.ignore_stop_on_petrify_sleep = true,
 	.infinite_durability = true,
 	.item_effect_revamp = true,
+	.item_stack = true, // merge duplicate inventory items via the Stack command
 	.kill_rewards = true,
 	.konami_style_bonus_screen = true,
 	.l_button_same_faction_cycling = true,
@@ -81,6 +82,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.lvup_mode_easy = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_hard = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_normal = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
+	.lvup_stat_points = 3, // points per level up via Allocate; 0 = off. >0 also skips growths and the level-up screen
 	.map_menu_character_biographies = false,
 	.max_color_backgrounds = true,
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,

@@ -247,6 +247,9 @@ void StartManimLevelUp(int actor_id, ProcPtr parent)
 {
 	struct ManimLevelUpProc* proc;
 
+	if (gpKernelDesignerConfig->lvup_stat_points)
+		return;
+
 if (gpKernelDesignerConfig->talk_on_level_up == true) {
 	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_UnitComment, parent);
 }

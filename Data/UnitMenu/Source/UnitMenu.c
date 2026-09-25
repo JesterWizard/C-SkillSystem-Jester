@@ -5,6 +5,8 @@
 #include "constants/texts.h"
 #include "bmmenu.h"
 #include "pair-up.h"
+#include "lvup.h"
+#include "item-sys.h"
 
 #define MenuItemsEnd {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -279,6 +281,8 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　秘密店", 0x687, 0x6D1, 0, 0x61, SecretShopCommandUsability, 0, SecretShopCommandEffect, 0, 0, 0}, //SecretShop >
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
 	{" Prestige", MSG_MenuCommand_Prestige_NAME, MSG_MenuCommand_Prestige_DESC, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
+	{" Allocate", MSG_MenuCommand_Allocate_NAME, MSG_MenuCommand_Allocate_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7B, AllocateCommandUsability, 0, AllocateCommandEffect, 0, 0, 0},
+	{" Stack", MSG_MenuCommand_Stack_NAME, MSG_MenuCommand_Stack_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7C, StackCommandUsability, 0, StackCommandEffect, 0, 0, 0},
 	{"", MSG_MenuCommand_PairUp_NAME, MSG_MenuCommand_PairUp_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x63, PairUp_Usability, 0, PairUp_OnSelected, 0, 0, 0}, // Pair Up >
 	{"", MSG_MenuCommand_Shelter_NAME, MSG_MenuCommand_Shelter_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6A, Shelter_Usability, 0, Shelter_OnSelected, 0, 0, 0}, // Shelter >
 	{"", MSG_MenuCommand_Transfer_NAME, MSG_MenuCommand_Transfer_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6D, PairUp_TransferUsability, 0, PairUp_TransferEffect, 0, 0, 0}, // Transfer >

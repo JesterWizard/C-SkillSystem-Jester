@@ -7,7 +7,6 @@
 #include "Source/AutoLevel.lyn.event"
 #include "Source/CheckCap.lyn.event"
 #include "Source/Levelup.lyn.event"
-
 PUSH
     /**
     * Here is a little bit complicated.

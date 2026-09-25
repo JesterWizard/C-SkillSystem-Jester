@@ -20,6 +20,8 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `hit_decrease_on_range` | Enables Three Houses style hit loss for long-range attacks. |
 | `debug_autoload_skills` | Debug option that fills a unit's learned skill list so skills can be freely equipped in the prep screen. |
 | `guaranteed_lvup` | If a level-up would grant no stat gains, the kernel retries up to 10 times with a 10% growth bonus. |
+| `lvup_stat_points` | Points granted per level-up, spent with the Allocate unit command. `0` keeps vanilla growths and the level-up screen. Any other value replaces both. See [AllocateStatPoints](./AllocateStatPoints.md). |
+| `item_stack` | Enables the Stack unit-menu command, which merges duplicate inventory items into one slot if total uses are at most 255. |
 | `unit_page_style` | Controls the display style for stat screen page 1. |
 | `skill_page_style` | Controls the display style for stat screen page 3. |
 | `gaiden_magic` | Enables Gaiden-style black and white magic. |

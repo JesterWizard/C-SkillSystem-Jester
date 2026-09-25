@@ -43,3 +43,16 @@ int GetUnitSpdGrowthJobBonus(int status, struct Unit *unit);
 int GetUnitLckGrowthJobBonus(int status, struct Unit *unit);
 int GetUnitDefGrowthJobBonus(int status, struct Unit *unit);
 int GetUnitResGrowthJobBonus(int status, struct Unit *unit);
+
+/* Stat points (indexed by pid - 1) */
+#define LVUP_STAT_POINTS_AMT 50
+extern u8 gLvupStatPoints[LVUP_STAT_POINTS_AMT];
+
+int GetLvupStatPoints(u8 pid);
+void AddLvupStatPoints(u8 pid, int amt);
+void ResetLvupStatPoints(void);
+void SaveLvupStatPoints(u8 *dst, const u32 size);
+void LoadLvupStatPoints(u8 *src, const u32 size);
+
+u8 AllocateCommandUsability(const struct MenuItemDef *def, int number);
+u8 AllocateCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);

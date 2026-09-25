@@ -1,5 +1,7 @@
 #include "Source/LynJump.event"
 #include "Source/PrestigeCommand.lyn.event"
+#include "Source/StatPoints.lyn.event"
+#include "Source/StackCommand.lyn.event"
 #include "Source/UnitMenu.lyn.event"
 #include "Source/UnitMenuRect.event"
 

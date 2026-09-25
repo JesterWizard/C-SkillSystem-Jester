@@ -190,6 +190,8 @@ struct KernelDesigerConfig {
 	u8 vesly_draw_animations; /* extra map-action animations; off keeps vanilla map anims */
 	u8 last_weapon_hit_crit; /* remaining uses <= this hit's cost: guaranteed crit */
 	u8 weapon_rank_skills; /* Three Houses-style skills learned from weapon ranks */
+	u8 lvup_stat_points; /* stat points granted per level up, spent via Allocate; 0 = off. >0 skips growths and the level-up screen */
+	u8 item_stack; /* unit-menu Stack command: merge duplicate inventory items if uses <= 255 */
 };
 
 struct KernelBattleDesignerConfig {

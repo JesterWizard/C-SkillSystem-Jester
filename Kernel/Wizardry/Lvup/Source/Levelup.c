@@ -398,6 +398,7 @@ LYN_REPLACE_CHECK(CheckBattleUnitLevelUp);
 void CheckBattleUnitLevelUp(struct BattleUnit* bu)
 {
     int totalExp = bu->expPrevious + bu->expGain;
+    int levelBefore = bu->unit.level;
 
     if (CanBattleUnitGainLevels(bu) && totalExp >= 100)
     {
@@ -431,7 +432,20 @@ void CheckBattleUnitLevelUp(struct BattleUnit* bu)
         }
 
         TryAddSkillLvup(GetUnitFromCharIdAndFaction(UNIT_CHAR_ID(&bu->unit), FACTION_BLUE), bu->unit.level);
-        UnitLvupCore(bu, bonus);
+
+        /* Stat-point mode replaces growths; leave change* at 0 so no stats apply */
+        if (gpKernelDesignerConfig->lvup_stat_points)
+        {
+            u8 pid = UNIT_CHAR_ID(&bu->unit);
+            int points = (bu->unit.level - levelBefore) * gpKernelDesignerConfig->lvup_stat_points;
+
+            if (UNIT_FACTION(&bu->unit) == FACTION_BLUE && pid != 0 && pid <= LVUP_STAT_POINTS_AMT && points > 0)
+                gLvupStatPoints[pid - 1] = MIN(gLvupStatPoints[pid - 1] + points, 0xFF);
+        }
+        else
+        {
+            UnitLvupCore(bu, bonus);
+        }
 
     if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
         gEventSlots[EVT_SLOT_7] = 410; /* 'Heal' expressed as a hexidecimal and then convert back into decimal and summed */

@@ -370,3 +370,6 @@ IER_DECLEARE_Action(IER_ActionEffect_ArmsScroll);
 IER_DECLEARE_PrepEffect(IER_PrepEffect_ArmsScroll);
 
 extern struct ProcCmd CONST_DATA gProcScr_PrepWMShopSell[];
+
+u8 StackCommandUsability(const struct MenuItemDef *def, int number);
+u8 StackCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
