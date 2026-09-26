@@ -369,7 +369,7 @@ void CallLevelUpProc(struct ProcPrepUnit * proc)
 {
     struct Unit *unit = GetUnitFromPrepList(proc->list_num_cur);
 
-    if (gpKernelDesignerConfig->lvup_stat_points) {
+    if (KernelLvupReplacesGrowths()) {
         StartLvupStatPointsMenu(unit, &gBattleActor, proc);
         return;
     }

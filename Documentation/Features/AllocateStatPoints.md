@@ -17,7 +17,7 @@ Vanilla GBA Fire Emblem rolls every stat independently on level-up. The player w
 
 Allocate Stat Points replaces that lottery with a spendable pool. When `gpKernelDesignerConfig->lvup_stat_points` is greater than `0`, a player unit that levels up gains that many points instead of growth rolls. After the EXP bar finishes, the spend list opens in place of the traditional level-up screen. The unit spends the points immediately, adding `+1` to a chosen stat. Each stat can receive at most one point until the current pool is spent.
 
-The feature is a full replacement for growth-based level-ups, not a bonus on top of them. Set the config to `0` to restore vanilla growths, the level-up screen, and growth display.
+The feature is a full replacement for growth-based level-ups, not a bonus on top of them. Set the config to `0` to restore vanilla growths, the level-up screen, and growth display. If [`lvup_stat_timing`](TimingStatLevelUp.md) is also on, the timing minigame is used instead of this spend list.
 
 Player-facing rules:
 - Only blue units earn and spend points.

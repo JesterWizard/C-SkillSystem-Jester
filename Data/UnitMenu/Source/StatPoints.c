@@ -21,9 +21,12 @@ struct ProcLvupStatPoints {
 	/* 2A */ u8 ekr_mode;
 	/* 2B */ u8 points;
 	/* 2C */ u8 allocated;
-	/* 30 */ struct Unit *unit;
-	/* 34 */ struct Unit *saved_active_unit;
-	/* 38 */ struct BattleUnit *bu;
+	/* 2D */ u8 timing;
+	/* 2E */ u8 delay;
+	/* 2F */ u8 phase[8];
+	/* 38 */ struct Unit *unit;
+	/* 3C */ struct Unit *saved_active_unit;
+	/* 40 */ struct BattleUnit *bu;
 };
 
 enum {
@@ -40,6 +43,15 @@ enum {
 
 #define STAT_POINT_NUMBER_X 7
 #define STAT_POINT_ALL_MASK ((1 << STAT_POINT_COUNT) - 1)
+#define TIMING_FRAME_X 12
+#define TIMING_FRAME_Y 0
+#define TIMING_FRAME_W 12
+#define TIMING_FRAME_H (STAT_POINT_COUNT + 2)
+#define TIMING_COL_X 13
+#define TIMING_BAR_W 10
+#define TIMING_PERIOD 200
+#define TIMING_SPEED 3
+#define TIMING_END_DELAY 60
 
 static struct ProcLvupStatPoints *GetStatPointsProc(struct MenuProc *menu)
 {
@@ -111,9 +123,9 @@ static int GetStatPointCap(struct Unit *unit, int stat)
 	case STAT_POINT_MAG: return GetUnitMaxMagic(unit) + limitBreaker;
 	case STAT_POINT_SKL: return UNIT_SKL_MAX(unit) + limitBreaker;
 	case STAT_POINT_SPD: return UNIT_SPD_MAX(unit) + limitBreaker;
+	case STAT_POINT_RES: return UNIT_RES_MAX(unit) + limitBreaker;
 	case STAT_POINT_LCK: return UNIT_LCK_MAX(unit) + limitBreaker;
 	case STAT_POINT_DEF: return UNIT_DEF_MAX(unit) + limitBreaker;
-	case STAT_POINT_RES: return UNIT_RES_MAX(unit) + limitBreaker;
 	default:             return 0;
 	}
 }
@@ -144,7 +156,7 @@ static void MarkStatPointAllocated(struct ProcLvupStatPoints *proc, int stat)
 {
 	proc->allocated |= (1 << stat);
 
-	if (proc->points == 0 || (proc->allocated & STAT_POINT_ALL_MASK) == STAT_POINT_ALL_MASK)
+	if (!proc->timing && (proc->points == 0 || (proc->allocated & STAT_POINT_ALL_MASK) == STAT_POINT_ALL_MASK))
 		proc->allocated = 0;
 }
 
@@ -165,7 +177,7 @@ static bool StatPointHasSpendableStat(struct ProcLvupStatPoints *proc)
 	return false;
 }
 
-static int GetPendingStatPoints(struct BattleUnit *bu)
+static int GetPendingLevels(struct BattleUnit *bu)
 {
 	int levels;
 
@@ -176,7 +188,12 @@ static int GetPendingStatPoints(struct BattleUnit *bu)
 	if (levels < 1)
 		return 0;
 
-	return levels * gpKernelDesignerConfig->lvup_stat_points;
+	return levels;
+}
+
+static int GetPendingStatPoints(struct BattleUnit *bu)
+{
+	return GetPendingLevels(bu) * gpKernelDesignerConfig->lvup_stat_points;
 }
 
 static void DrawStatPointsRow(struct MenuProc *menu, struct MenuItemProc *item, int labelColor, int numColor, int number)
@@ -288,13 +305,259 @@ static const struct MenuDef sStatPointsMenuDef = {
 	MenuStdHelpBox
 };
 
+static int GetTimingMeter(struct ProcLvupStatPoints *proc, int stat)
+{
+	int p = proc->phase[stat];
+
+	if (p < 100)
+		return p;
+
+	return TIMING_PERIOD - p;
+}
+
+static int GetTimingWindow(void)
+{
+	int window = gpKernelDesignerConfig->lvup_stat_timing;
+
+	if (window < 1)
+		window = 1;
+	if (window > 99)
+		window = 99;
+
+	return window;
+}
+
+static bool TimingInWindow(struct ProcLvupStatPoints *proc, int stat)
+{
+	return GetTimingMeter(proc, stat) >= (100 - GetTimingWindow());
+}
+
+static void AdvanceTimingPhases(struct ProcLvupStatPoints *proc)
+{
+	int stat;
+
+	for (stat = 0; stat < STAT_POINT_COUNT; stat++) {
+		if (StatPointIsAllocated(proc, stat))
+			continue;
+
+		proc->phase[stat] += TIMING_SPEED;
+		if (proc->phase[stat] >= TIMING_PERIOD)
+			proc->phase[stat] -= TIMING_PERIOD;
+	}
+}
+
+static void DrawTimingColumnFrame(struct MenuProc *menu)
+{
+	int y;
+	int h;
+
+	if (menu->itemCount < 1)
+		return;
+
+	y = menu->menuItems[0]->yTile - 1;
+	h = menu->menuItems[menu->itemCount - 1]->yTile - y + 3;
+
+	DrawUiFrame(
+		BG_GetMapBuffer(menu->backBg),
+		TIMING_FRAME_X, y, TIMING_FRAME_W, h,
+		menu->tileref, 0);
+}
+
+static void DrawTimingBar(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	u16 *tm = TILEMAP_LOCATED(BG_GetMapBuffer(menu->frontBg), TIMING_COL_X, item->yTile);
+	int stat = item->itemNumber;
+	int i;
+	int color;
+	int pos;
+	bool locked = StatPointIsAllocated(proc, stat);
+	bool capped = GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat);
+	bool hit = GetStatPointChange(proc->bu, stat) > 0;
+
+	for (i = 0; i < TIMING_BAR_W; i++)
+		PutSpecialChar(tm + i, TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_DASH);
+
+	if (capped && !locked)
+		return;
+
+	pos = GetTimingMeter(proc, stat) * (TIMING_BAR_W - 1) / 99;
+
+	if (locked)
+		color = hit ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GOLD;
+	else
+		color = TimingInWindow(proc, stat) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GOLD;
+
+	PutSpecialChar(tm + pos, color, TEXT_SPECIAL_ARROW);
+}
+
+static int StatTimingMenu_DrawStat(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	int stat = item->itemNumber;
+	int value = GetStatPointDisplay(proc, stat);
+	bool capped = value >= GetStatPointCap(proc->unit, stat);
+	bool locked = StatPointIsAllocated(proc, stat);
+	bool hit = GetStatPointChange(proc->bu, stat) > 0;
+
+	DrawStatPointsRow(menu, item,
+		locked && !hit ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE,
+		(capped || hit) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_BLUE,
+		value);
+
+	DrawTimingBar(menu, item);
+	return 0;
+}
+
+static void TimingClose_Now(ProcPtr proc)
+{
+	EndMenu(((struct Proc *)proc)->proc_parent);
+}
+
+static const struct ProcCmd ProcScr_TimingClose[] = {
+	PROC_SLEEP(TIMING_END_DELAY),
+	PROC_CALL(TimingClose_Now),
+	PROC_END,
+};
+
+static u8 StatTimingMenu_OnIdle(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	int i;
+
+	(void)item;
+	DrawTimingColumnFrame(menu);
+	AdvanceTimingPhases(proc);
+
+	for (i = 0; i < menu->itemCount; i++)
+		DrawTimingBar(menu, menu->menuItems[i]);
+
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	return 0;
+}
+
+static void StatTimingSelectNextRow(struct MenuProc *menu)
+{
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	int start = menu->itemCurrent;
+	int i;
+
+	for (i = 1; i < menu->itemCount; i++) {
+		int idx = start + i;
+		int stat;
+
+		if (idx >= menu->itemCount)
+			idx -= menu->itemCount;
+
+		stat = menu->menuItems[idx]->itemNumber;
+		if (StatPointIsAllocated(proc, stat))
+			continue;
+
+		if (GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
+			continue;
+
+		menu->itemPrevious = menu->itemCurrent;
+		menu->itemCurrent = idx;
+		return;
+	}
+}
+
+static u8 StatTimingMenu_OnSelectStat(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	int stat = item->itemNumber;
+
+	if (StatPointIsAllocated(proc, stat))
+		return MENU_ACT_SND6B;
+
+	if (GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
+		return MENU_ACT_SND6B;
+
+	if (TimingInWindow(proc, stat))
+		ApplyStatPoint(proc->bu, stat);
+
+	MarkStatPointAllocated(proc, stat);
+
+	if (!StatPointHasSpendableStat(proc)) {
+		if (proc->delay == 0) {
+			proc->delay = 1;
+			Proc_Start(ProcScr_TimingClose, menu);
+		}
+
+		RedrawMenu(menu);
+		return MENU_ACT_SND6A;
+	}
+
+	StatTimingSelectNextRow(menu);
+	RedrawMenu(menu);
+	return MENU_ACT_SND6A;
+}
+
+static void StatTimingMenu_OnInit(struct MenuProc *menu)
+{
+	menu->itemCurrent = 0;
+}
+
+static void StatTimingMenu_OnEnd(struct MenuProc *menu)
+{
+	int y;
+	int h;
+
+	if (menu->itemCount < 1)
+		return;
+
+	y = menu->menuItems[0]->yTile - 1;
+	h = menu->menuItems[menu->itemCount - 1]->yTile - y + 3;
+	ClearUiFrame(BG_GetMapBuffer(menu->backBg), TIMING_FRAME_X, y, TIMING_FRAME_W, h);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static u8 StatTimingMenu_OnCancel(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	(void)menu;
+	(void)item;
+	return MENU_ACT_SND6B;
+}
+
+#define STAT_TIMING_ROW(label) \
+	{label, 0, MSG_MenuCommand_Timing_DESC, TEXT_COLOR_SYSTEM_WHITE, 0, MenuAlwaysEnabled, StatTimingMenu_DrawStat, StatTimingMenu_OnSelectStat, StatTimingMenu_OnIdle, 0, 0}
+
+static const struct MenuItemDef sStatTimingMenuItems[] = {
+	STAT_TIMING_ROW(" HP"),
+	STAT_TIMING_ROW(" Str"),
+	STAT_TIMING_ROW(" Mag"),
+	STAT_TIMING_ROW(" Skl"),
+	STAT_TIMING_ROW(" Spd"),
+	STAT_TIMING_ROW(" Lck"),
+	STAT_TIMING_ROW(" Def"),
+	STAT_TIMING_ROW(" Res"),
+	MenuItemsEnd
+};
+
+static const struct MenuDef sStatTimingMenuDef = {
+	{1, 0, 10, STAT_POINT_COUNT + 2},
+	0,
+	sStatTimingMenuItems,
+	StatTimingMenu_OnInit, StatTimingMenu_OnEnd, 0,
+	StatTimingMenu_OnCancel,
+	MenuAutoHelpBoxSelect,
+	MenuStdHelpBox
+};
+
 static void LvupStatPoints_Init(struct ProcLvupStatPoints *proc)
 {
 	gActiveUnit = proc->unit;
 
 	InitSystemTextFont();
 	LoadUiFrameGraphics();
-	StartMenuAt(&sStatPointsMenuDef, sStatPointsMenuDef.rect, proc);
+
+	if (proc->timing) {
+		struct MenuProc *menu = StartMenuAt(&sStatTimingMenuDef, sStatTimingMenuDef.rect, proc);
+
+		DrawTimingColumnFrame(menu);
+	} else {
+		StartMenuAt(&sStatPointsMenuDef, sStatPointsMenuDef.rect, proc);
+	}
 }
 
 static void LvupStatPoints_WaitMenu(struct ProcLvupStatPoints *proc)
@@ -328,17 +591,24 @@ static const struct ProcCmd ProcScr_LvupStatPoints[] = {
 static void StartLvupStatPointsMenuExt(struct Unit *unit, struct BattleUnit *bu, ProcPtr parent, bool ekr_mode)
 {
 	struct ProcLvupStatPoints *proc;
-	int points;
+	bool timing = gpKernelDesignerConfig->lvup_stat_timing != 0;
+	int i;
+	int points = 0;
 
-	if (!gpKernelDesignerConfig->lvup_stat_points)
+	if (!KernelLvupReplacesGrowths())
 		return;
 
 	if (!UNIT_IS_VALID(unit) || UNIT_FACTION(unit) != FACTION_BLUE || !bu)
 		return;
 
-	points = GetPendingStatPoints(bu);
-	if (points <= 0)
-		return;
+	if (timing) {
+		if (GetPendingLevels(bu) <= 0)
+			return;
+	} else {
+		points = GetPendingStatPoints(bu);
+		if (points <= 0)
+			return;
+	}
 
 	if (ekr_mode)
 		proc = Proc_Start(ProcScr_LvupStatPoints, PROC_TREE_3);
@@ -349,9 +619,14 @@ static void StartLvupStatPointsMenuExt(struct Unit *unit, struct BattleUnit *bu,
 	proc->ekr_mode = ekr_mode;
 	proc->points = points > 0xFF ? 0xFF : points;
 	proc->allocated = 0;
+	proc->timing = timing;
+	proc->delay = 0;
 	proc->unit = unit;
 	proc->saved_active_unit = gActiveUnit;
 	proc->bu = bu;
+
+	for (i = 0; i < STAT_POINT_COUNT; i++)
+		proc->phase[i] = i * 25;
 
 	if (ekr_mode)
 		gpProcEkrLevelup = (void *)proc;
@@ -374,13 +649,24 @@ static void StartSkippedEkrLevelup(struct Anim *ais)
 	proc->is_promotion = false;
 }
 
+static bool BattleUnitCanOpenLvupMenu(struct BattleUnit *bu, struct Unit *unit)
+{
+	if (!UNIT_IS_VALID(unit) || UNIT_FACTION(unit) != FACTION_BLUE)
+		return false;
+
+	if (gpKernelDesignerConfig->lvup_stat_timing)
+		return GetPendingLevels(bu) > 0;
+
+	return GetPendingStatPoints(bu) > 0;
+}
+
 LYN_REPLACE_CHECK(NewEkrLevelup);
 void NewEkrLevelup(struct Anim *ais)
 {
 	struct BattleUnit *bu;
 	struct Unit *unit;
 
-	if (!gpKernelDesignerConfig->lvup_stat_points) {
+	if (!KernelLvupReplacesGrowths()) {
 		struct ProcEkrLevelup *proc = Proc_Start(ProcScr_EkrLevelup, PROC_TREE_3);
 
 		gpProcEkrLevelup = proc;
@@ -395,7 +681,7 @@ void NewEkrLevelup(struct Anim *ais)
 	bu = (GetAnimPosition(ais) == EKR_POS_L) ? gpEkrBattleUnitLeft : gpEkrBattleUnitRight;
 	unit = bu ? GetUnit(bu->unit.index) : NULL;
 
-	if (UNIT_IS_VALID(unit) && UNIT_FACTION(unit) == FACTION_BLUE && GetPendingStatPoints(bu) > 0) {
+	if (BattleUnitCanOpenLvupMenu(bu, unit)) {
 		StartLvupStatPointsMenuExt(unit, bu, NULL, true);
 		return;
 	}
@@ -408,7 +694,7 @@ void StartManimLevelUp(int actor_id, ProcPtr parent)
 {
 	struct ManimLevelUpProc *proc;
 
-	if (gpKernelDesignerConfig->lvup_stat_points) {
+	if (KernelLvupReplacesGrowths()) {
 		StartLvupStatPointsMenu(gManimSt.actor[actor_id].unit, gManimSt.actor[actor_id].bu, parent);
 		return;
 	}

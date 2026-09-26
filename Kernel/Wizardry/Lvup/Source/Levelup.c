@@ -432,8 +432,8 @@ void CheckBattleUnitLevelUp(struct BattleUnit* bu)
 
         TryAddSkillLvup(GetUnitFromCharIdAndFaction(UNIT_CHAR_ID(&bu->unit), FACTION_BLUE), bu->unit.level);
 
-        /* Stat-point mode leaves change* at 0; the spend menu writes them after the EXP bar */
-        if (!gpKernelDesignerConfig->lvup_stat_points)
+        /* Spend / timing modes leave change* at 0; the post-EXP menu writes them */
+        if (!KernelLvupReplacesGrowths())
             UnitLvupCore(bu, bonus);
 
     if (gpKernelDesignerConfig->restore_hp_on_level_up == true) 
