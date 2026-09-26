@@ -1,0 +1,76 @@
+#define FE8U_LoadHelpBoxGfx            $89804
+#define FE8U_DisplayHelpBoxObj         $89980
+#define FE8U_HelpBoxTextScroll_OnLoop  $89E58
+#define FE8U_HelpBoxIntroDrawTexts     $8A00C
+#define FE8U_ClearHelpBoxText          $8A118
+#define FE8U_StartHelpBoxExt           $88E9C
+#define FE8U_sub_808A200               $8A200
+#define FE8U_ApplyHelpBoxContentSize   $891AC
+#define FE8U_HbMoveCtrl_OnIdle         $89088
+#define FE8U_StandaloneFreeSpace       $1000000
+
+/* 0 = vanilla 3-line truncate, 1 = up to 5 lines, 2 = 3-line pages (A cycles). */
+#define TEXT_BOX_EXTENSION_LAYOUT 2
+
+PUSH
+ORG FE8U_LoadHelpBoxGfx
+    jumpToHack(LoadHelpBoxGfx_Layout)
+    PROTECT FE8U_LoadHelpBoxGfx FE8U_LoadHelpBoxGfx + 0x8
+POP
+
+PUSH
+ORG FE8U_DisplayHelpBoxObj
+    jumpToHack(DisplayHelpBoxObj_Layout)
+    PROTECT FE8U_DisplayHelpBoxObj FE8U_DisplayHelpBoxObj + 0x8
+POP
+
+PUSH
+ORG FE8U_HelpBoxTextScroll_OnLoop
+    jumpToHack(HelpBoxTextScroll_OnLoop_Layout)
+    PROTECT FE8U_HelpBoxTextScroll_OnLoop FE8U_HelpBoxTextScroll_OnLoop + 0x8
+POP
+
+PUSH
+ORG FE8U_HelpBoxIntroDrawTexts
+    jumpToHack(HelpBoxIntroDrawTexts_Layout)
+    PROTECT FE8U_HelpBoxIntroDrawTexts FE8U_HelpBoxIntroDrawTexts + 0x8
+POP
+
+PUSH
+ORG FE8U_ClearHelpBoxText
+    jumpToHack(ClearHelpBoxText_Layout)
+    PROTECT FE8U_ClearHelpBoxText FE8U_ClearHelpBoxText + 0x8
+POP
+
+PUSH
+ORG FE8U_StartHelpBoxExt
+    jumpToHack(StartHelpBoxExt_Layout)
+    PROTECT FE8U_StartHelpBoxExt FE8U_StartHelpBoxExt + 0x8
+POP
+
+PUSH
+ORG FE8U_sub_808A200
+    jumpToHack(sub_808A200_Layout)
+    PROTECT FE8U_sub_808A200 FE8U_sub_808A200 + 0x8
+POP
+
+PUSH
+ORG FE8U_ApplyHelpBoxContentSize
+    jumpToHack(ApplyHelpBoxContentSize_Layout)
+    PROTECT FE8U_ApplyHelpBoxContentSize FE8U_ApplyHelpBoxContentSize + 0x8
+POP
+
+PUSH
+ORG FE8U_HbMoveCtrl_OnIdle
+    jumpToHack(HbMoveCtrl_OnIdle_Layout)
+    PROTECT FE8U_HbMoveCtrl_OnIdle FE8U_HbMoveCtrl_OnIdle + 0x8
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/TextBoxExtensionLayout.lyn.event"
+
+ALIGN 4
+TextBoxExtensionLayout:
+BYTE TEXT_BOX_EXTENSION_LAYOUT
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET

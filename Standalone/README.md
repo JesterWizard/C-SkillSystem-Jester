@@ -19,6 +19,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [infinite_durability](infinite_durability/) | Weapons never lose uses, and weapon durability numbers are hidden |
 | [last_weapon_hit_crit](last_weapon_hit_crit/) | A strike that spends a weapon's last use is a guaranteed critical |
 | [stat_page_promotions](stat_page_promotions/) | Fourth stat screen page listing a unit's promotion classes from Chapter 10 |
+| [text_box_extension_layout](text_box_extension_layout/) | Help-box overflow: vanilla truncate, 5-line box, or 3-line pages |
 | [custom_battle_quotes](custom_battle_quotes/) | Dual-character pre-battle quote matching with an editable table |
 | [dynamic_weapon_slots](dynamic_weapon_slots/) | Per-class weapon-type-to-rank-slot mapping for custom types (knives, guns, etc.) |
 | [alpha_blend_movement_sprites](alpha_blend_movement_sprites/) | Faded MU ghost at the pathfinding cursor tip (uses 50 bytes EWRAM) |
