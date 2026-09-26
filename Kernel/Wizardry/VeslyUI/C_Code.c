@@ -783,7 +783,7 @@ static const u16 * const sUiPalLookupVanilla[] = {
 };
 
 static const u16 * const sUiPalLookupGamma[] = {
-    &MenuTilesPalette_Gamma[0x10], &MenuTilesPalette_Gamma[0x0],  &MenuTilesPalette_Gamma[0x20],
+    &MenuTilesPalette_Gamma[0x0],  &MenuTilesPalette_Gamma[0x10], &MenuTilesPalette_Gamma[0x20],
     &MenuTilesPalette_Gamma[0x30], &MenuTilesPalette_Gamma[0x40], &MenuTilesPalette_Gamma[0x50],
     &MenuTilesPalette_Gamma[0x60], &MenuTilesPalette_Gamma[0x70],
 
@@ -803,9 +803,9 @@ static const u16 * const sFactionPalLookupVanilla[] = {
 };
 
 static const u16 * const sFactionPalLookupGamma[] = {
-    &MenuTilesPalette_Gamma[0x10],
+    &MenuTilesPalette_Gamma[0x00],
     &MenuTilesPalette_Gamma[0x20],
-    &MenuTilesPalette_Gamma[0x0],
+    &MenuTilesPalette_Gamma[0x10],
     &MenuTilesPalette_Gamma[0x30],
 };
 static const u16 * const sFactionPalLookupPikmin[] = {
@@ -1081,12 +1081,9 @@ void DisplayExtendedSysHand(struct SysHandCursorProc * proc)
     int i;
     int windowColor = gPlaySt.config.windowColor;
 
-    // This is mainly for HyperGammaSpaces UI as the darker blue is where the red used to be
-    if (gpKernelDesignerConfig->vesly_custom_ui == true)
-        windowColor = k_umod((windowColor + 3), 3);
-
     // This controls the color of the shadow highlight for the cursor graphic
-    gPaletteBuffer[proc->pal_bank * 0x10  + 0x10E] = (((windowColor) << 4) + (k_umod((GetGameClock() / 4), 0x10)))[Pal_08A1D448];
+    gPaletteBuffer[proc->pal_bank * 0x10 + 0x10E] =
+        Pal_08A1D448[(windowColor << 4) + k_umod(GetGameClock() / 4, 0x10)];
 
     EnablePaletteSync();
     PutSpriteExt(4, proc->x, proc->y + 8, gObject_8x8,

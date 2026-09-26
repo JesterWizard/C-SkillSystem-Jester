@@ -64,10 +64,10 @@ static const u16 *GetMMBWindowPaletteRow(int uiPalId, int windowColor) {
 
 static int GetMMBUnitWindowColor(struct Unit *unit) {
     switch (UNIT_FACTION(unit)) {
-    case FACTION_RED:
+    case FACTION_BLUE:
         return 0;
 
-    case FACTION_BLUE:
+    case FACTION_RED:
         return 1;
 
     case FACTION_GREEN:
