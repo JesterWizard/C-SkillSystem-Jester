@@ -654,8 +654,8 @@ Permanently gain +10% growths.[X]
 ## MSG_MenuCommand_Allocate_NAME
  Allocate[X]
 ## MSG_MenuCommand_Allocate_DESC
-Spend level-up points to[N]
-raise this unit's stats.[X]
+Spend level-up points.[N]
+One point per stat.[X]
 
 ## MSG_MenuCommand_Stack_NAME
  Stack[X]

@@ -279,13 +279,6 @@ _kernel_malloc2 sPortrait32AlignPad, 2
  */
 _kernel_malloc2 sPortrait32State, 0xA4
 
-/**
- * Level-up stat points, one byte per pid 1..50. SAV/SUS-persisted.
- * Kept out of FreeRamSpace: its low 0x438 bytes hold the 15 purple unit
- * structs (FourthAllegiance/NewUnitRAMPointerSetter.event).
- */
-_kernel_malloc2 gLvupStatPoints, 50
-
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

@@ -267,7 +267,8 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	switch (gpKernelDesignerConfig->unit_page_style) {
 	case 1:
 	case 2:
-		if ((gStatScreen.page == STATSCREEN_PAGE_0) && (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)) {
+		if ((gStatScreen.page == STATSCREEN_PAGE_0) && (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)
+			&& !gpKernelDesignerConfig->lvup_stat_points) {
 			if (gStatScreenStExpa.toggle_timer == 0) {
 				if ((gKeyStatusPtr->newKeys & SELECT_BUTTON))
 					gStatScreenStExpa.toggle_timer = STATSCREEN_TOGGLE_DURATION;

@@ -242,24 +242,6 @@ static const LevelUpStrings character_level_up_strings[] =
 
 };
 
-LYN_REPLACE_CHECK(StartManimLevelUp);
-void StartManimLevelUp(int actor_id, ProcPtr parent)
-{
-	struct ManimLevelUpProc* proc;
-
-	if (gpKernelDesignerConfig->lvup_stat_points)
-		return;
-
-if (gpKernelDesignerConfig->talk_on_level_up == true) {
-	proc = Proc_StartBlocking(ProcScr_ManimLevelUp_UnitComment, parent);
-}
-else {
-	proc = Proc_StartBlocking(ProcScr_ManimLevelUp, parent);
-}
-
-	proc->actor_id = actor_id;
-}
-
 void PutStringRightAligned(u16* tilemap, int color, int width, const char* str)
 {
 	struct Text tmp_text;

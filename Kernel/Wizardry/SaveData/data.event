@@ -63,7 +63,6 @@ gEmsSavChunks:
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
-    EmsChunk($0032, SaveLvupStatPoints, LoadLvupStatPoints)
     EmsChunkEnd
 
 ALIGN 4
@@ -112,7 +111,6 @@ gEmsSusChunks:
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunk($0444, SaveChatLogSuspendState, LoadChatLogSuspendState)
-    EmsChunk($0032, SaveLvupStatPoints, LoadLvupStatPoints)
     EmsChunkEnd
 
 ALIGN 4
@@ -121,5 +119,4 @@ gNewSaveHooks:
     POIN NewGame_InitPlayStExpa
     POIN StatDeuff_OnNewGameInit
     POIN ResetStatDeuffBuf ResetSkillDbgList
-    POIN ResetLvupStatPoints
     WORD 0 0 0 0

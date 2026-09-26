@@ -8,6 +8,7 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-arrays.h"
+#include "lvup.h"
 
 #define BEXP_VISIBLE_COUNT 5
 
@@ -366,6 +367,13 @@ void ApplyBexpLevelUpOutcome(struct ProcPrepUnit * proc)
 // Wrapper to start the blocking proc from the Proc Script
 void CallLevelUpProc(struct ProcPrepUnit * proc)
 {
+    struct Unit *unit = GetUnitFromPrepList(proc->list_num_cur);
+
+    if (gpKernelDesignerConfig->lvup_stat_points) {
+        StartLvupStatPointsMenu(unit, &gBattleActor, proc);
+        return;
+    }
+
     struct ManimLevelUpProc* child;
 
     child = Proc_StartBlocking(ProcScr_ManimLevelUp, proc);

@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "stat-screen.h"
 #include "strmag.h"
+#include "kernel-lib.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "item-sys.h"
@@ -127,7 +128,7 @@ int GetTextColorFromGrowth(int growth)
 
 void PutDrawTextRework(struct Text *text, u16 *tm, int color, int x, int tile_width, char const *str)
 {
-	if (gpKernelDesignerConfig->stat_screen_growths == 1)
+	if (gpKernelDesignerConfig->lvup_stat_points || gpKernelDesignerConfig->stat_screen_growths == 1)
 	{
     	PutDrawText(text, tm, TEXT_COLOR_SYSTEM_GOLD, x, tile_width, str);
 	} 

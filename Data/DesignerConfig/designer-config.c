@@ -82,7 +82,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.lvup_mode_easy = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_hard = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_normal = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
-	.lvup_stat_points = 3, // points per level up via Allocate; 0 = off. >0 also skips growths and the level-up screen
+	.lvup_stat_points = 3, // points per level; 0 = off. >0 skips growths, shows spend menu after EXP bar, applies immediately, hides growth display. 1 point per stat
 	.map_menu_character_biographies = false,
 	.max_color_backgrounds = true,
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,
