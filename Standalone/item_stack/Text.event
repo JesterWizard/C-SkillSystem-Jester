@@ -1,0 +1,6 @@
+ALIGN 4
+StackDescText:
+// Vanilla Huffman for: "Combine duplicate items into" [N] "one stack."
+// FE8U DecodeString has no anti-Huffman high bit.
+BYTE $35 $4F $F5 $EE $54 $52 $8B $6B $4A $9E $AB $96 $81 $9D $E6 $0A $4E $68 $51 $DE $F6 $02
+setText(TEXT_STACK_DESC, StackDescText)
