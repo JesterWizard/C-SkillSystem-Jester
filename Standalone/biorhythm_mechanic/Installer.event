@@ -1,0 +1,27 @@
+#define FE8U_ComputeBattleUnitHitRate   $2ABAC
+#define FE8U_ComputeBattleUnitAvoidRate $2ABE4
+#define FE8U_StandaloneFreeSpace        $1000000
+
+/* Edit without recompiling C. */
+#define BIORHYTHM_MECHANIC 1
+
+PUSH
+ORG FE8U_ComputeBattleUnitHitRate
+    jumpToHack(ComputeBattleUnitHitRate_Biorhythm)
+    PROTECT FE8U_ComputeBattleUnitHitRate FE8U_ComputeBattleUnitHitRate + 0x8 // ComputeBattleUnitHitRate hook
+POP
+
+PUSH
+ORG FE8U_ComputeBattleUnitAvoidRate
+    jumpToHack(ComputeBattleUnitAvoidRate_Biorhythm)
+    PROTECT FE8U_ComputeBattleUnitAvoidRate FE8U_ComputeBattleUnitAvoidRate + 0x8 // ComputeBattleUnitAvoidRate hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/Biorhythm.lyn.event"
+
+ALIGN 4
+BiorhythmMechanicEnabled:
+BYTE BIORHYTHM_MECHANIC
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Biorhythm body + character table + config
