@@ -27,6 +27,7 @@ struct ProcLvupStatPoints {
 	/* 38 */ struct Unit *unit;
 	/* 3C */ struct Unit *saved_active_unit;
 	/* 40 */ struct BattleUnit *bu;
+	/* 44 */ u8 remaining[8];
 };
 
 enum {
@@ -88,6 +89,30 @@ static int GetStatPointValue(struct Unit *unit, int stat)
 	case STAT_POINT_RES: return unit->res;
 	default:             return 0;
 	}
+}
+
+static int GetStatPointGrowth(struct Unit *unit, int stat)
+{
+	int growth;
+
+	switch (stat) {
+	case STAT_POINT_HP:  growth = GetUnitHpGrowth(unit);  break;
+	case STAT_POINT_POW: growth = GetUnitPowGrowth(unit); break;
+	case STAT_POINT_MAG: growth = GetUnitMagGrowth(unit); break;
+	case STAT_POINT_SKL: growth = GetUnitSklGrowth(unit); break;
+	case STAT_POINT_SPD: growth = GetUnitSpdGrowth(unit); break;
+	case STAT_POINT_LCK: growth = GetUnitLckGrowth(unit); break;
+	case STAT_POINT_DEF: growth = GetUnitDefGrowth(unit); break;
+	case STAT_POINT_RES: growth = GetUnitResGrowth(unit); break;
+	default:             growth = 0;                      break;
+	}
+
+	if (growth < 0)
+		return 0;
+	if (growth > 255)
+		return 255;
+
+	return growth;
 }
 
 static int GetStatPointChange(struct BattleUnit *bu, int stat)
@@ -166,6 +191,9 @@ static bool StatPointHasSpendableStat(struct ProcLvupStatPoints *proc)
 
 	for (stat = 0; stat < STAT_POINT_COUNT; stat++) {
 		if (StatPointIsAllocated(proc, stat))
+			continue;
+
+		if (proc->timing && proc->remaining[stat] == 0)
 			continue;
 
 		if (GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
@@ -315,21 +343,30 @@ static int GetTimingMeter(struct ProcLvupStatPoints *proc, int stat)
 	return TIMING_PERIOD - p;
 }
 
-static int GetTimingWindow(void)
+static int GetTimingBarPos(struct ProcLvupStatPoints *proc, int stat)
 {
-	int window = gpKernelDesignerConfig->lvup_stat_timing;
-
-	if (window < 1)
-		window = 1;
-	if (window > 99)
-		window = 99;
-
-	return window;
+	return GetTimingMeter(proc, stat) * (TIMING_BAR_W - 1) / 99;
 }
 
-static bool TimingInWindow(struct ProcLvupStatPoints *proc, int stat)
+static int GetTimingGreenBars(int remaining)
 {
-	return GetTimingMeter(proc, stat) >= (100 - GetTimingWindow());
+	int chunk;
+
+	if (remaining <= 0)
+		return 0;
+
+	chunk = remaining > 100 ? 100 : remaining;
+	return (chunk + 9) / 10;
+}
+
+static bool TimingOnGreenBar(struct ProcLvupStatPoints *proc, int stat)
+{
+	int bars = GetTimingGreenBars(proc->remaining[stat]);
+
+	if (bars <= 0)
+		return false;
+
+	return GetTimingBarPos(proc, stat) < bars;
 }
 
 static void AdvanceTimingPhases(struct ProcLvupStatPoints *proc)
@@ -371,22 +408,25 @@ static void DrawTimingBar(struct MenuProc *menu, struct MenuItemProc *item)
 	int i;
 	int color;
 	int pos;
+	int bars = GetTimingGreenBars(proc->remaining[stat]);
 	bool locked = StatPointIsAllocated(proc, stat);
 	bool capped = GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat);
 	bool hit = GetStatPointChange(proc->bu, stat) > 0;
 
-	for (i = 0; i < TIMING_BAR_W; i++)
-		PutSpecialChar(tm + i, TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_DASH);
+	for (i = 0; i < TIMING_BAR_W; i++) {
+		color = (!locked && !capped && i < bars) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GRAY;
+		PutSpecialChar(tm + i, color, TEXT_SPECIAL_DASH);
+	}
 
 	if (capped && !locked)
 		return;
 
-	pos = GetTimingMeter(proc, stat) * (TIMING_BAR_W - 1) / 99;
+	pos = GetTimingBarPos(proc, stat);
 
 	if (locked)
 		color = hit ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GOLD;
 	else
-		color = TimingInWindow(proc, stat) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GOLD;
+		color = TimingOnGreenBar(proc, stat) ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_GOLD;
 
 	PutSpecialChar(tm + pos, color, TEXT_SPECIAL_ARROW);
 }
@@ -453,6 +493,9 @@ static void StatTimingSelectNextRow(struct MenuProc *menu)
 		if (StatPointIsAllocated(proc, stat))
 			continue;
 
+		if (proc->remaining[stat] == 0)
+			continue;
+
 		if (GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
 			continue;
 
@@ -473,9 +516,24 @@ static u8 StatTimingMenu_OnSelectStat(struct MenuProc *menu, struct MenuItemProc
 	if (GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
 		return MENU_ACT_SND6B;
 
-	if (TimingInWindow(proc, stat))
+	if (proc->remaining[stat] == 0)
+		return MENU_ACT_SND6B;
+
+	if (TimingOnGreenBar(proc, stat))
 		ApplyStatPoint(proc->bu, stat);
 
+	if (proc->remaining[stat] >= 100) {
+		proc->remaining[stat] -= 100;
+
+		if (proc->remaining[stat] > 0 &&
+			GetStatPointDisplay(proc, stat) < GetStatPointCap(proc->unit, stat)) {
+			proc->phase[stat] = 100;
+			RedrawMenu(menu);
+			return MENU_ACT_SND6A;
+		}
+	}
+
+	proc->remaining[stat] = 0;
 	MarkStatPointAllocated(proc, stat);
 
 	if (!StatPointHasSpendableStat(proc)) {
@@ -495,7 +553,15 @@ static u8 StatTimingMenu_OnSelectStat(struct MenuProc *menu, struct MenuItemProc
 
 static void StatTimingMenu_OnInit(struct MenuProc *menu)
 {
+	struct ProcLvupStatPoints *proc = GetStatPointsProc(menu);
+	int stat = menu->menuItems[0]->itemNumber;
+
 	menu->itemCurrent = 0;
+
+	if (StatPointIsAllocated(proc, stat) ||
+		proc->remaining[stat] == 0 ||
+		GetStatPointDisplay(proc, stat) >= GetStatPointCap(proc->unit, stat))
+		StatTimingSelectNextRow(menu);
 }
 
 static void StatTimingMenu_OnEnd(struct MenuProc *menu)
@@ -555,6 +621,11 @@ static void LvupStatPoints_Init(struct ProcLvupStatPoints *proc)
 		struct MenuProc *menu = StartMenuAt(&sStatTimingMenuDef, sStatTimingMenuDef.rect, proc);
 
 		DrawTimingColumnFrame(menu);
+
+		if (!StatPointHasSpendableStat(proc) && proc->delay == 0) {
+			proc->delay = 1;
+			Proc_Start(ProcScr_TimingClose, menu);
+		}
 	} else {
 		StartMenuAt(&sStatPointsMenuDef, sStatPointsMenuDef.rect, proc);
 	}
@@ -625,8 +696,20 @@ static void StartLvupStatPointsMenuExt(struct Unit *unit, struct BattleUnit *bu,
 	proc->saved_active_unit = gActiveUnit;
 	proc->bu = bu;
 
-	for (i = 0; i < STAT_POINT_COUNT; i++)
+	for (i = 0; i < STAT_POINT_COUNT; i++) {
+		int growth = 0;
+
 		proc->phase[i] = i * 25;
+		proc->remaining[i] = 0;
+
+		if (!timing)
+			continue;
+
+		growth = GetStatPointGrowth(unit, i);
+		proc->remaining[i] = growth;
+		if (growth == 0)
+			proc->allocated |= (1 << i);
+	}
 
 	if (ekr_mode)
 		gpProcEkrLevelup = (void *)proc;

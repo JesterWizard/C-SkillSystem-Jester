@@ -658,7 +658,7 @@ Spend level-up points.[N]
 One point per stat.[X]
 
 ## MSG_MenuCommand_Timing_DESC
-Press A when the arrow is green[N]
+Press A on a green bar[N]
 to raise that stat.[X]
 
 ## MSG_MenuCommand_Stack_NAME

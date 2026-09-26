@@ -191,7 +191,7 @@ struct KernelDesigerConfig {
 	u8 last_weapon_hit_crit; /* remaining uses <= this hit's cost: guaranteed crit */
 	u8 weapon_rank_skills; /* Three Houses-style skills learned from weapon ranks */
 	u8 lvup_stat_points; /* points per level; 0 = off. >0 skips growths, shows spend menu after EXP bar, applies immediately, hides growth display. 1 point per stat */
-	u8 lvup_stat_timing; /* 0 = off. >0 timing minigame after EXP bar (overrides allocate). value = hit window, e.g. 20 */
+	u8 lvup_stat_timing; /* 0 = off. >0 timing minigame after EXP bar (overrides allocate). green bars come from growths */
 	u8 item_stack; /* unit-menu Stack command: merge duplicate inventory items if uses <= 255 */
 };
 
@@ -229,6 +229,11 @@ extern const struct KernelBattleDesignerConfig *const gpKernelBattleDesignerConf
 static inline bool KernelLvupReplacesGrowths(void)
 {
 	return gpKernelDesignerConfig->lvup_stat_points || gpKernelDesignerConfig->lvup_stat_timing;
+}
+
+static inline bool KernelLvupHidesGrowthDisplay(void)
+{
+	return gpKernelDesignerConfig->lvup_stat_points && !gpKernelDesignerConfig->lvup_stat_timing;
 }
 
 extern u16 sPathfindingGhostObjBuf[];

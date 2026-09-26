@@ -268,7 +268,7 @@ void PageNumCtrl_DisplayBlinkIcons(struct StatScreenPageNameProc *proc)
 	case 1:
 	case 2:
 		if ((gStatScreen.page == STATSCREEN_PAGE_0) && (UNIT_FACTION(gStatScreen.unit) == FACTION_BLUE)
-			&& !KernelLvupReplacesGrowths()) {
+			&& !KernelLvupHidesGrowthDisplay()) {
 			if (gStatScreenStExpa.toggle_timer == 0) {
 				if ((gKeyStatusPtr->newKeys & SELECT_BUTTON))
 					gStatScreenStExpa.toggle_timer = STATSCREEN_TOGGLE_DURATION;

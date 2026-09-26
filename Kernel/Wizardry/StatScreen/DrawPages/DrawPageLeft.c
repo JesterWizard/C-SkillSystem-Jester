@@ -11,7 +11,7 @@ STATIC_DECLAR void DisplayHpStr(void)
 	FORCE_DECLARE int bank, color;
 	struct Unit *unit = gStatScreen.unit;
 
-	color = (UNIT_FACTION(unit) == FACTION_BLUE && !KernelLvupReplacesGrowths())
+	color = (UNIT_FACTION(unit) == FACTION_BLUE && !KernelLvupHidesGrowthDisplay())
 		  ? GetTextColorFromGrowth(GetUnitHpGrowth(unit))
 		  : TEXT_COLOR_SYSTEM_GOLD;
 
