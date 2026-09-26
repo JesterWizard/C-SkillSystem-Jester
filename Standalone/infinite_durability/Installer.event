@@ -1,0 +1,76 @@
+#define FE8U_DrawItemMenuLine         $16848
+#define FE8U_DrawItemMenuLineLong     $168E0
+#define FE8U_DrawItemMenuLineNoColor  $169A8
+#define FE8U_DrawItemStatScreenLine   $16A2C
+#define FE8U_GetItemAfterUse          $16AEC
+#define FE8U_PrepDrawUnitItems        $99F7C
+#define FE8U_DrawPrepScreenItems      $9B74C
+#define FE8U_PrepSupplyDrawItemList   $9D300
+#define FE8U_PrepSupplyDrawItemRow    $9D47C
+#define FE8U_StandaloneFreeSpace      $1000000
+
+/* Edit without recompiling C. */
+#define INFINITE_DURABILITY 1
+
+PUSH
+ORG FE8U_DrawItemMenuLine
+    jumpToHack(DrawItemMenuLine_InfiniteDurability)
+    PROTECT FE8U_DrawItemMenuLine FE8U_DrawItemMenuLine + 0x8 // DrawItemMenuLine hook
+POP
+
+PUSH
+ORG FE8U_DrawItemMenuLineLong
+    jumpToHack(DrawItemMenuLineLong_InfiniteDurability)
+    PROTECT FE8U_DrawItemMenuLineLong FE8U_DrawItemMenuLineLong + 0x8 // DrawItemMenuLineLong hook
+POP
+
+PUSH
+ORG FE8U_DrawItemMenuLineNoColor
+    jumpToHack(DrawItemMenuLineNoColor_InfiniteDurability)
+    PROTECT FE8U_DrawItemMenuLineNoColor FE8U_DrawItemMenuLineNoColor + 0x8 // DrawItemMenuLineNoColor hook
+POP
+
+PUSH
+ORG FE8U_DrawItemStatScreenLine
+    jumpToHack(DrawItemStatScreenLine_InfiniteDurability)
+    PROTECT FE8U_DrawItemStatScreenLine FE8U_DrawItemStatScreenLine + 0x8 // DrawItemStatScreenLine hook
+POP
+
+PUSH
+ORG FE8U_GetItemAfterUse
+    jumpToHack(GetItemAfterUse_InfiniteDurability)
+    PROTECT FE8U_GetItemAfterUse FE8U_GetItemAfterUse + 0x8 // GetItemAfterUse hook
+POP
+
+PUSH
+ORG FE8U_PrepDrawUnitItems
+    jumpToHack(PrepItemScreen_DrawUnitItems_InfiniteDurability)
+    PROTECT FE8U_PrepDrawUnitItems FE8U_PrepDrawUnitItems + 0x8 // PrepItemScreen_DrawUnitItems hook
+POP
+
+PUSH
+ORG FE8U_DrawPrepScreenItems
+    jumpToHack(DrawPrepScreenItems_InfiniteDurability)
+    PROTECT FE8U_DrawPrepScreenItems FE8U_DrawPrepScreenItems + 0x8 // DrawPrepScreenItems hook
+POP
+
+PUSH
+ORG FE8U_PrepSupplyDrawItemList
+    jumpToHack(PrepItemSupply_DrawItemList_InfiniteDurability)
+    PROTECT FE8U_PrepSupplyDrawItemList FE8U_PrepSupplyDrawItemList + 0x8 // PrepItemSupply_DrawItemList hook
+POP
+
+PUSH
+ORG FE8U_PrepSupplyDrawItemRow
+    jumpToHack(PrepItemSupply_DrawItemListRow_InfiniteDurability)
+    PROTECT FE8U_PrepSupplyDrawItemRow FE8U_PrepSupplyDrawItemRow + 0x8 // PrepItemSupply_DrawItemListRow hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/InfiniteDurability.lyn.event"
+
+ALIGN 4
+InfiniteDurabilityEnabled:
+BYTE INFINITE_DURABILITY
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // InfiniteDurability body + config
