@@ -1,0 +1,48 @@
+#define FE8U_DisplayPage                 $878CC
+#define FE8U_DisplayPageNameSprite       $87EB8
+#define FE8U_PageNumCtrl_DisplayMuPlatform $88354
+#define FE8U_StatScreen_PageAmt          $88690
+#define FE8U_StartStatScreenHelp         $889A0
+#define FE8U_StandaloneFreeSpace         $1000000
+
+/* Edit without recompiling C. The promotion list in Source/StatPagePromotions.c still needs make. */
+#define STAT_PAGE_PROMOTIONS 1
+
+PUSH
+ORG FE8U_DisplayPage
+    jumpToHack(DisplayPage_Promotions)
+    PROTECT FE8U_DisplayPage FE8U_DisplayPage + 0x8 // DisplayPage hook
+POP
+
+PUSH
+ORG FE8U_DisplayPageNameSprite
+    jumpToHack(DisplayPageNameSprite_Promotions)
+    PROTECT FE8U_DisplayPageNameSprite FE8U_DisplayPageNameSprite + 0x8 // DisplayPageNameSprite hook
+POP
+
+PUSH
+ORG FE8U_PageNumCtrl_DisplayMuPlatform
+    jumpToHack(PageNumCtrl_DisplayMuPlatform_Promotions)
+    PROTECT FE8U_PageNumCtrl_DisplayMuPlatform FE8U_PageNumCtrl_DisplayMuPlatform + 0x8 // PageNumCtrl_DisplayMuPlatform hook
+POP
+
+PUSH
+ORG FE8U_StatScreen_PageAmt
+    jumpToHack(StatScreen_PageAmtHook)
+    PROTECT FE8U_StatScreen_PageAmt FE8U_StatScreen_PageAmt + 0x8 // page count store + ResetText call
+POP
+
+PUSH
+ORG FE8U_StartStatScreenHelp
+    jumpToHack(StartStatScreenHelp_Promotions)
+    PROTECT FE8U_StartStatScreenHelp FE8U_StartStatScreenHelp + 0x8 // StartStatScreenHelp hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/StatPagePromotions.lyn.event"
+
+ALIGN 4
+StatPagePromotionsEnabled:
+BYTE STAT_PAGE_PROMOTIONS
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // StatPagePromotions body + config
