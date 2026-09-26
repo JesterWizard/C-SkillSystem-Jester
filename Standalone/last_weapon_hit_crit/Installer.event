@@ -1,0 +1,27 @@
+#define FE8U_ComputeBattleUnitEffectiveCritRate $2AC90
+#define FE8U_BattleUpdateBattleStats            $2B1C4
+#define FE8U_StandaloneFreeSpace                $1000000
+
+/* Edit without recompiling C. */
+#define LAST_WEAPON_HIT_CRIT 1
+
+PUSH
+ORG FE8U_ComputeBattleUnitEffectiveCritRate
+    jumpToHack(ComputeBattleUnitEffectiveCritRate_LastWeapon)
+    PROTECT FE8U_ComputeBattleUnitEffectiveCritRate FE8U_ComputeBattleUnitEffectiveCritRate + 0x8 // ComputeBattleUnitEffectiveCritRate hook
+POP
+
+PUSH
+ORG FE8U_BattleUpdateBattleStats
+    jumpToHack(BattleUpdateBattleStats_LastWeapon)
+    PROTECT FE8U_BattleUpdateBattleStats FE8U_BattleUpdateBattleStats + 0x8 // BattleUpdateBattleStats hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/LastWeaponHitCrit.lyn.event"
+
+ALIGN 4
+LastWeaponHitCritEnabled:
+BYTE LAST_WEAPON_HIT_CRIT
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LastWeaponHitCrit body + config
