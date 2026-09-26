@@ -6,6 +6,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 |-------|-------------|
 | [two_random_number_growths](two_random_number_growths/) | Uses 2RN for fractional level-up growth rolls |
 | [guaranteed_lvup](guaranteed_lvup/) | Retries empty level-ups up to 10 times with +10% growth |
+| [restore_hp_on_level_up](restore_hp_on_level_up/) | Refills the player unit's HP when anyone in that battle levels up |
 | [custom_fog_sight](custom_fog_sight/) | Per-class fog vision bonuses |
 | [arena_show_opponent_in_advance](arena_show_opponent_in_advance/) | Shows arena opponent details before the wager prompt |
 | [death_dance](death_dance/) | Rescued units can move when their rescuer dies |

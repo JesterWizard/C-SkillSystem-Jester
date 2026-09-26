@@ -1,0 +1,20 @@
+#define FE8U_BattleApplyUnitUpdates $2C028
+#define FE8U_StandaloneFreeSpace    $1000000
+
+/* Edit without recompiling C. */
+#define RESTORE_HP_ON_LEVEL_UP 1
+
+PUSH
+ORG FE8U_BattleApplyUnitUpdates
+    jumpToHack(BattleApplyUnitUpdates_RestoreHp)
+    PROTECT FE8U_BattleApplyUnitUpdates FE8U_BattleApplyUnitUpdates + 0x8 // BattleApplyUnitUpdates hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/RestoreHpOnLevelUp.lyn.event"
+
+ALIGN 4
+RestoreHpOnLevelUpEnabled:
+BYTE RESTORE_HP_ON_LEVEL_UP
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // RestoreHpOnLevelUp body + config
