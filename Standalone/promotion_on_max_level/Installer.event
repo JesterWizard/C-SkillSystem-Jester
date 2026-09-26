@@ -1,0 +1,20 @@
+#define FE8U_ManimLevelUp_ScrollOut $7F354
+#define FE8U_StandaloneFreeSpace    $1000000
+
+/* Edit without recompiling C. */
+#define PROMOTION_ON_MAX_LEVEL 1
+
+PUSH
+ORG FE8U_ManimLevelUp_ScrollOut
+    jumpToHack(ManimLevelUp_ScrollOut_Promo)
+    PROTECT FE8U_ManimLevelUp_ScrollOut FE8U_ManimLevelUp_ScrollOut + 0x8 // ManimLevelUp_ScrollOut hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/PromotionOnMaxLevel.lyn.event"
+
+ALIGN 4
+PromotionOnMaxLevelEnabled:
+BYTE PROMOTION_ON_MAX_LEVEL
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PromotionOnMaxLevel body + config

@@ -13,6 +13,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [arena_show_opponent_in_advance](arena_show_opponent_in_advance/) | Shows arena opponent details before the wager prompt |
 | [death_dance](death_dance/) | Rescued units can move when their rescuer dies |
 | [promote_enemy_on_kill](promote_enemy_on_kill/) | Enemies auto-promote and gain stats when they score a kill |
+| [promotion_on_max_level](promotion_on_max_level/) | Unpromoted units promote when the map level-up window closes at level 20 |
 | [custom_talk_icon](custom_talk_icon/) | Lex Talionus-style talk icon above the conversation partner |
 | [auto_repair_weapons](auto_repair_weapons/) | Restores unbroken weapons to full durability at chapter transition |
 | [infinite_durability](infinite_durability/) | Weapons never lose uses, and weapon durability numbers are hidden |
