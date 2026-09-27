@@ -2589,24 +2589,43 @@ void TextEngine_OnCharacterPrinted(void)
 
 void TextEngine_PlayTextBoop(const char *text)
 {
-	struct MusicPlayerInfo *mplayInfo = gMPlayTable[3].info;
-	u8 pitch = TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOOP_PITCH];
+	struct FaceProc *face;
+	u8 *faceAttributes;
+	struct MusicPlayerInfo *mplayInfo;
+	u8 pitch;
 
 	/*
-	 * The original hook skipped control-code bytes before starting a boop.
-	 * The caller supplies the character pointer from before Text_DrawCharacter
-	 * advances the dialogue string.
+	 * Talk_OnIdle calls this after a glyph is drawn. UTF-8 lead bytes are
+	 * >= 0x80, so a high-bit test would silence every non-ASCII letter.
 	 */
-	if (!text || ((u8)*text & 0x80))
+	if (!text || *text == 0)
 		return;
 
 	if (gPlaySt.config.disableSoundEffects)
 		return;
 
-	if (pitch >= TEXT_ENGINE_BOOP_PITCH_COUNT || !mplayInfo)
+	face = TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot);
+	faceAttributes = TextEngine_GetFaceAttributes(face);
+	if (faceAttributes)
+		pitch = faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH];
+	else
+		pitch = TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOOP_PITCH];
+
+	if (pitch >= TEXT_ENGINE_BOOP_PITCH_COUNT)
 		return;
 
-	MPlayStart(mplayInfo, (struct SongHeader *)&TextBoopTable[pitch]);
+	/*
+	 * Tequila's hook loads the word at gMPlayTable+0x24 and indexes
+	 * TextBoopTable by 12 bytes per pitch.
+	 */
+	mplayInfo = *(struct MusicPlayerInfo **)((u8 *)gMPlayTable + 0x24);
+	if (!mplayInfo)
+		return;
+
+	MPlayStart(
+		mplayInfo,
+		(struct SongHeader *)((const u8 *)TextBoopTable + pitch * 12)
+	);
 }
 
 void UpdateFontGlyphSet(int font)
@@ -2641,6 +2660,7 @@ static void TextEngine_SetDefaultFaceAttributes(struct FaceProc *face)
 	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOX_PALETTE, 0);
 	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOX_TYPE, 0);
 	TextEngine_SetFaceAttribute(face, TEXT_ENGINE_ATTR_BOOP_PITCH, 12);
+	TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOOP_PITCH] = 12;
 }
 
 static void TextEngine_UpdateAttributesFromFace(void)
@@ -2713,7 +2733,8 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_COLOR_GROUP] = 1;
 	current[TEXT_ENGINE_ATTR_BOX_PALETTE] = 0;
 	current[TEXT_ENGINE_ATTR_BOX_TYPE] = 0;
-	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 13;
+	/* Script 0x0D is stored as index 12: one octave above the lowest boop. */
+	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 12;
 	TextEngine_RunCommandCleanup();
 	TextEngine_PrepareFloatPalette();
 }
@@ -3784,6 +3805,8 @@ static int TextEngine_CommandLoadFaceFancy(
 		faceAttributes[TEXT_ENGINE_ATTR_BOX_PALETTE] = arguments[5] - 1;
 		faceAttributes[TEXT_ENGINE_ATTR_BOX_TYPE] = arguments[6] - 1;
 		faceAttributes[TEXT_ENGINE_ATTR_BOOP_PITCH] = arguments[7] - 1;
+		TextEngine_GetCurrentSpeakerAttributes()[TEXT_ENGINE_ATTR_BOOP_PITCH] =
+			arguments[7] - 1;
 	}
 
 	if ((options & 2) && face)

@@ -87,7 +87,7 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x29` | `[BoxBgPalette]` | `XX` palette index | Swaps the text-box background palette |
 | `0x2A` | `[BoxType]` | `XX` type index; bit `0x80` controls tails | Changes box graphics / speech-tail behavior before the next bubble opens |
 | `0x2B` | `[BoxHeight]` | `XX` lines (`0x01`–`0x03`) | Sets 1-, 2-, or 3-line box height |
-| `0x2C` | `[BoopPitch_*]` | `XX` pitch (`0x01`–`0x19`, default `0x0D`) | Stores boop pitch for the active face (see limitations) |
+| `0x2C` | `[BoopPitch_*]` | `XX` pitch (`0x01`–`0x19`, default `0x0D`) | Sets the active face's letter-blip pitch. `0x01` is one octave below the default, `0x19` is one octave above |
 | `0x2D` | `[PlaySound]` | four nybble bytes | Plays sound `0xABCD` encoded little-endian with each nybble OR'd with `0x80` |
 | `0x2E` | `[MugLoc]` | `XX` slot (`0x01`–`0x08`), `YY` signed X tiles | Remaps a face-slot X position (`YY = 0x80` means tile 0) |
 | `0x2F` | `[LoadFaceFancy]` | options + attrs + portrait id | Loads a face with flip / eyes-closed options and explicit attributes |
@@ -233,7 +233,6 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 
 ## 📝 TODO
 
-- Re-hook pitched text boops so `[BoopPitch_*]` / attribute pitch actually affect letter sounds during print.
 - Add more author-facing example scripts beyond the control-code matrix above.
 - Consider punctuation-pause and heavier typewriter variants now that letter-print FX exist.
 - Consider horizontal or compound portrait effects now that the engine lives in C.
@@ -247,7 +246,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - **Not compatible** with Zeta's AutoNewLine hack.
 - All script arguments must be **non-zero**; `0x00` terminates text copies.
 - Custom box types have limited tile variety; new shapes do not include the vanilla multi-frame expand animation.
-- Boop pitch is stored on face/current attributes and accepted by `0x2C`, but the old `PlayTextBoop` idle hook is not currently installed, so pitch changes may not audibly apply until that path is restored in C.
+- World-map text still uses the vanilla blip. `[BoopPitch_*]` applies on the standard dialogue path, where each drawn glyph restarts that face's entry in `TextBoopTable`.
 - Shake-on-print jitters the whole BG0 text layer. Bounce, wavy, scramble, drip, and ghost-echo each float letters in as OBJs (up to 4 at once) before baking into the dialogue text. Only one of those letter styles is active at a time; sprite-talk mode is skipped. Wide glyphs are clipped to 8px while they are sprites.
 - The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
 - Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
