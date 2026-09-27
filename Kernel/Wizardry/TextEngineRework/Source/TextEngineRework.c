@@ -121,6 +121,24 @@ enum {
 	TEXT_ENGINE_IMPACT_FLASH_HOLD = 2,
 	TEXT_ENGINE_IMPACT_FLASH_DURATION = 12,
 	TEXT_ENGINE_IMPACT_FLASH_PEAK = 16,
+	/*
+	 * Emotion marks sit past the float-glyph tiles (0x72-0x79).
+	 * 0x7C-0x7F is one 16x16 sprite. Pal 0xB is not the map-sprite pal.
+	 */
+	TEXT_ENGINE_EMOTION_OBJ_CHR = 0x7C,
+	TEXT_ENGINE_EMOTION_OBJ_PAL = 0xB,
+	TEXT_ENGINE_EMOTION_SWEAT = 0,
+	TEXT_ENGINE_EMOTION_ANGER = 1,
+	TEXT_ENGINE_EMOTION_SWEAT_TIME = 56,
+	TEXT_ENGINE_EMOTION_ANGER_AFFINE = 31,
+	TEXT_ENGINE_EMOTION_ANGER_SCALE_MIN = 8,
+	TEXT_ENGINE_EMOTION_ANGER_SCALE_MAX = 24,
+	TEXT_ENGINE_EMOTION_ANGER_PULSE_HALF = 8,
+	TEXT_ENGINE_EMOTION_ANGER_PULSES = 4,
+	TEXT_ENGINE_EMOTION_ANGER_TIME =
+		TEXT_ENGINE_EMOTION_ANGER_PULSE_HALF * 2 * TEXT_ENGINE_EMOTION_ANGER_PULSES,
+	TEXT_ENGINE_CMD_SWEAT = 0x57,
+	TEXT_ENGINE_CMD_ANGER = 0x58,
 };
 
 struct TextEngineFaceJumpProc {
@@ -218,6 +236,19 @@ struct TextEngineAshDissolveProc {
 	/* 40 */ s16 originX;
 	/* 42 */ s16 originY;
 	/* 44 */ u32 seed;
+};
+
+struct TextEngineEmotionProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ struct FaceProc *face;
+	/* 30 */ s16 timer;
+	/* 32 */ u8 kind;
+	/* 33 */ u8 blendActive;
+	/* 34 */ u16 savedBldcnt;
+	/* 36 */ u8 savedCoeffA;
+	/* 37 */ u8 savedCoeffB;
+	/* 38 */ u8 savedBlendY;
+	/* 39 */ u8 savedWinBlend;
 };
 
 struct TextEngineNameplateState {
@@ -356,6 +387,8 @@ static void TextEngineAshDissolve_OnIdle(struct TextEngineAshDissolveProc *proc)
 static void TextEngineAshDissolve_OnEnd(struct TextEngineAshDissolveProc *proc);
 static void TextEngine_StartAshDissolve(struct FaceProc *face);
 static void TextEngine_CleanupAshDissolve(void);
+static void TextEngineEmotion_OnIdle(struct TextEngineEmotionProc *proc);
+static void TextEngine_CleanupEmotion(void);
 
 static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ +1, -1 },
@@ -442,6 +475,12 @@ static const struct ProcCmd gProcScr_TextEngineAshDissolve[] = {
 	PROC_NAME("TextEngineAshDissolve"),
 	PROC_SET_END_CB(TextEngineAshDissolve_OnEnd),
 	PROC_REPEAT(TextEngineAshDissolve_OnIdle),
+	PROC_END,
+};
+
+static const struct ProcCmd gProcScr_TextEngineEmotion[] = {
+	PROC_NAME("TextEngineEmotion"),
+	PROC_REPEAT(TextEngineEmotion_OnIdle),
 	PROC_END,
 };
 
@@ -1037,6 +1076,266 @@ static void TextEngine_StopFaceVibrate(struct FaceProc *face)
 static void TextEngine_StopFaceShimmy(struct FaceProc *face)
 {
 	TextEngine_StopFaceMotion(face, TEXT_ENGINE_FACE_MOTION_SHIMMY);
+}
+
+/*
+ * 16x16 marks. 0 is clear.
+ * Sweat: 1 outline, 2 lower shadow, 3 body, 5 shine, 6 lower edge, 7 glint.
+ * Anger uses 4 only, and fades by rewriting that one entry.
+ */
+static const u16 sTextEngineEmotionPalette[] = {
+	0,
+	RGB(3, 4, 8),
+	RGB(5, 16, 25),
+	RGB(8, 23, 28),
+	RGB(20, 5, 6),
+	RGB(22, 28, 30),
+	RGB(7, 17, 23),
+	RGB(31, 31, 31),
+	0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/* Matches Preview/sweat-drop.png. Point at the top, shine on the right. */
+static const u8 sTextEngineSweatPixels[16 * 16] = {
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,1,3,1,0,0,0,0,0,0,0,
+	0,0,0,0,0,1,3,3,3,1,0,0,0,0,0,0,
+	0,0,0,0,1,3,3,3,5,3,1,0,0,0,0,0,
+	0,0,0,0,1,3,3,3,3,3,1,0,0,0,0,0,
+	0,0,0,1,3,3,3,3,5,5,3,1,0,0,0,0,
+	0,0,0,1,3,3,3,3,5,7,3,1,0,0,0,0,
+	0,0,1,3,3,3,3,3,5,7,5,3,1,0,0,0,
+	0,0,1,3,3,3,3,3,5,7,7,5,1,0,0,0,
+	0,0,1,3,3,3,3,3,3,3,3,3,1,0,0,0,
+	0,0,1,6,2,2,2,2,2,2,6,1,0,0,0,0,
+	0,0,0,1,6,6,2,2,2,6,6,1,0,0,0,0,
+	0,0,0,0,1,1,6,6,6,1,1,0,0,0,0,0,
+	0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,
+};
+
+/* Four separated arms around an open center, matching the anger mark. */
+static const u8 sTextEngineAngerPixels[16 * 16] = {
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	4,4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+	0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0,
+};
+
+static void TextEngine_UploadEmotionGfx(int kind)
+{
+	const u8 *pixels = kind == TEXT_ENGINE_EMOTION_ANGER
+		? sTextEngineAngerPixels
+		: sTextEngineSweatPixels;
+	int tile;
+
+	ApplyPalette(
+		sTextEngineEmotionPalette,
+		0x10 + TEXT_ENGINE_EMOTION_OBJ_PAL
+	);
+
+	for (tile = 0; tile < 4; tile++) {
+		int tx = tile & 1;
+		int ty = tile >> 1;
+		u32 *dst = (u32 *)OBJ_CHR_ADDR(TEXT_ENGINE_EMOTION_OBJ_CHR + tile);
+		int row;
+
+		for (row = 0; row < 8; row++) {
+			u32 word = 0;
+			int col;
+
+			for (col = 0; col < 8; col++) {
+				u32 px = pixels[(ty * 8 + row) * 16 + tx * 8 + col] & 0xF;
+
+				word |= px << (col * 4);
+			}
+
+			dst[row] = word;
+		}
+	}
+}
+
+/* 16 is normal size. Each pulse grows from half size to 1.5x, then shrinks back. */
+static int TextEngine_AngerScale(int timer)
+{
+	int half = TEXT_ENGINE_EMOTION_ANGER_PULSE_HALF;
+	int phase = timer % (half * 2);
+
+	if (phase < half) {
+		return Interpolate(
+			INTERPOLATE_LINEAR,
+			TEXT_ENGINE_EMOTION_ANGER_SCALE_MIN,
+			TEXT_ENGINE_EMOTION_ANGER_SCALE_MAX,
+			phase,
+			half - 1
+		);
+	}
+
+	return Interpolate(
+		INTERPOLATE_LINEAR,
+		TEXT_ENGINE_EMOTION_ANGER_SCALE_MAX,
+		TEXT_ENGINE_EMOTION_ANGER_SCALE_MIN,
+		phase - half,
+		half - 1
+	);
+}
+
+static void TextEngineEmotion_OnIdle(struct TextEngineEmotionProc *proc)
+{
+	struct FaceProc *face = proc->face;
+	int duration;
+	int x;
+	int y;
+	int fall;
+	int angerScale = 16;
+
+	if (!face) {
+		Proc_End(proc);
+		return;
+	}
+
+	if (Chatlog_IsVisible())
+		return;
+
+	duration = proc->kind == TEXT_ENGINE_EMOTION_ANGER
+		? TEXT_ENGINE_EMOTION_ANGER_TIME
+		: TEXT_ENGINE_EMOTION_SWEAT_TIME;
+
+	if (proc->timer >= duration) {
+		Proc_End(proc);
+		return;
+	}
+
+	/* Blink out over the last few frames. Anger pulses instead. */
+	if (proc->kind != TEXT_ENGINE_EMOTION_ANGER &&
+		proc->timer + 6 >= duration && (proc->timer & 1)) {
+		proc->timer++;
+		return;
+	}
+
+	/*
+	 * Eye chip is 32x16. Sweat sits on the cheek under that chip.
+	 * The cross sits on the forehead, centered on the eyes.
+	 */
+	if (face->pFaceInfo) {
+		int flipped = GetFaceDisplayBits(face) & FACE_DISP_FLIPPED;
+
+		x = 4 - face->pFaceInfo->xEyes;
+		x = flipped ? x : -x;
+		x = x * 8 + face->xPos - 16;
+		y = face->yPos + face->pFaceInfo->yEyes * 8;
+	} else {
+		x = face->xPos + 24;
+		y = face->yPos + 24;
+	}
+
+	if (proc->kind == TEXT_ENGINE_EMOTION_ANGER) {
+		x += 4;
+		y -= 14;
+		angerScale = TextEngine_AngerScale(proc->timer);
+	} else {
+		if (GetFaceDisplayBits(face) & FACE_DISP_FLIPPED)
+			x -= 12;
+		else
+			x += 4;
+		y -= 6;
+		fall = proc->timer < 8 ? proc->timer : 8;
+		y = Interpolate(INTERPOLATE_SQUARE, y - 8, y, fall, 8);
+	}
+
+	if (y < 0)
+		y = 0;
+
+	/*
+	 * Dialogue OBJ VRAM is 2D, so one 16x16 reads its bottom tiles 32
+	 * slots later and only the top half appears. Four 8x8s use the
+	 * consecutive tiles we actually uploaded.
+	 */
+	if (y > DISPLAY_HEIGHT - 16)
+		y = DISPLAY_HEIGHT - 16;
+
+	if (proc->kind == TEXT_ENGINE_EMOTION_ANGER) {
+		int pa = (256 * 16) / angerScale;
+		int spread = angerScale / 4;
+
+		SetObjAffine(TEXT_ENGINE_EMOTION_ANGER_AFFINE, pa, 0, 0, pa);
+
+		for (fall = 0; fall < 4; fall++) {
+			int sx = x + ((fall & 1) ? spread : -spread);
+			int sy = y + ((fall & 2) ? spread : -spread);
+
+			PutSpriteExt(
+				0,
+				TextEngine_ApplyStaticOam1(
+					OAM1_X(sx) | OAM1_AFFINE_ID(TEXT_ENGINE_EMOTION_ANGER_AFFINE),
+					sy
+				),
+				TextEngine_ApplyFxOam0(
+					OAM0_Y(sy) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE
+				),
+				gObject_8x8,
+				OAM2_CHR(TEXT_ENGINE_EMOTION_OBJ_CHR + fall)
+					| OAM2_PAL(TEXT_ENGINE_EMOTION_OBJ_PAL)
+					| OAM2_LAYER(0)
+			);
+		}
+	} else {
+		for (fall = 0; fall < 4; fall++) {
+			int sx = x + (fall & 1) * 8;
+			int sy = y + (fall >> 1) * 8;
+
+			PutSpriteExt(
+				0,
+				TextEngine_ApplyStaticOam1(OAM1_X(sx), sy),
+				TextEngine_ApplyFxOam0(OAM0_Y(sy)),
+				gObject_8x8,
+				OAM2_CHR(TEXT_ENGINE_EMOTION_OBJ_CHR + fall)
+					| OAM2_PAL(TEXT_ENGINE_EMOTION_OBJ_PAL)
+					| OAM2_LAYER(0)
+			);
+		}
+	}
+	proc->timer++;
+}
+
+static void TextEngine_StartEmotion(struct FaceProc *face, int kind, ProcPtr parent)
+{
+	struct TextEngineEmotionProc *proc;
+
+	if (!face)
+		return;
+
+	Proc_EndEach(gProcScr_TextEngineEmotion);
+	TextEngine_UploadEmotionGfx(kind);
+
+	proc = (struct TextEngineEmotionProc *)Proc_StartBlocking(
+		gProcScr_TextEngineEmotion,
+		parent
+	);
+	if (!proc)
+		return;
+
+	proc->face = face;
+	proc->timer = 0;
+	proc->kind = kind;
+}
+
+static void TextEngine_CleanupEmotion(void)
+{
+	Proc_EndEach(gProcScr_TextEngineEmotion);
 }
 
 static const u8 sTextEngineAshObjWidth[4][4] = {
@@ -2756,6 +3055,7 @@ void Talk_OnEnd_C(void)
 	Proc_EndEach(gProcScr_TalkShiftClearAll);
 	Proc_EndEach(gProcScr_TextEngineAshDissolve);
 	Proc_EndEach(gProcScr_TextEngineImpactFlash);
+	Proc_EndEach(gProcScr_TextEngineEmotion);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -4211,6 +4511,29 @@ static void TextEngine_CleanupImpactFlash(void)
 	Proc_EndEach(gProcScr_TextEngineImpactFlash);
 }
 
+static int TextEngine_CommandEmotion(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	int kind = command->code == TEXT_ENGINE_CMD_ANGER
+		? TEXT_ENGINE_EMOTION_ANGER
+		: TEXT_ENGINE_EMOTION_SWEAT;
+
+	(void)arguments;
+
+	if (!TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot))
+		return TalkInterpret(proc);
+
+	TextEngine_StartEmotion(
+		TextEngine_GetFaceProcByPosition(sTextEngineState->activeFaceSlot),
+		kind,
+		proc
+	);
+	return 3;
+}
+
 static int TextEngine_CommandClearFaceAsh(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
@@ -4334,6 +4657,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_EARTHQUAKE_ON, 0, TextEngine_CommandStartScreenEarthquake, NULL, NULL },
 	{ TEXT_ENGINE_CMD_EARTHQUAKE_OFF, 0, TextEngine_CommandStopScreenEarthquake, NULL, NULL },
 	{ TEXT_ENGINE_CMD_IMPACT_FLASH, 0, TextEngine_CommandImpactFlash, NULL, TextEngine_CleanupImpactFlash },
+	{ TEXT_ENGINE_CMD_SWEAT, 0, TextEngine_CommandEmotion, NULL, TextEngine_CleanupEmotion },
+	{ TEXT_ENGINE_CMD_ANGER, 0, TextEngine_CommandEmotion, NULL, TextEngine_CleanupEmotion },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

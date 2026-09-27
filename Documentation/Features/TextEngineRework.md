@@ -31,6 +31,7 @@ Player-facing impact:
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
 - Portraits can load with flip / eyes-closed options, move at custom speeds, use remapped screen positions, and jump, vibrate, or shimmy continuously while speaking.
 - Portraits can dissolve into drifting 16×16 chips instead of pal-fading out (`[ClearFaceAsh]`).
+- `[Sweat]` drops a 16×16 sweat bead onto the active portrait's cheek and holds there. `[Anger]` shows a 16×16 anger mark on the forehead and pulses it by growing and shrinking four times before the next text box. Each plays through fully before the following text box continues.
 - Existing vanilla text remains readable and compatible with the new parser.
 
 This feature is intended for **standard cutscene text**. It has not been validated against every alternate dialogue path the game can use.
@@ -123,6 +124,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x54` | `[ToggleOnEarthquake]` | none | Starts a 2px screen rumble on BG0–BG3 and matching OBJ |
 | `0x55` | `[ToggleOffEarthquake]` | none | Stops the rumble and restores resting offsets |
 | `0x56` | `[ImpactFlash]` | none | One-shot white screen flash that peaks for 2 frames, then fades over 10 more |
+| `0x57` | `[Sweat]` | none | One-shot 16×16 sweat drop on the active portrait's cheek. Falls into place, holds, then blinks out. The next text waits until it finishes |
+| `0x58` | `[Anger]` | none | One-shot 16×16 anger mark on the active portrait's forehead. Grows and shrinks four times, then the next text box continues |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 
@@ -188,6 +191,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOnEarthquake]The ground will not hold still.
 [ToggleOffEarthquake]And now it is still again.
 [ImpactFlash]That hit lands all at once.
+[Sweat]I was not ready for that.
+[Anger]That is enough.
 [ClearFaceAsh]
 ```
 
@@ -221,6 +226,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Whole-screen earthquake | `EnableScreenEarthquake`, `DisableScreenEarthquake`, `gProcScr_TextEngineScreenEarthquake` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | 2px XY rumble on BG0–BG3 plus portraits, float glyphs, and map sprites; `ASMC(EnableScreenEarthquake)` and `[ToggleOnEarthquake]`/`[ToggleOffEarthquake]` |
 | Impact flash | `StartScreenImpactFlash`, `gProcScr_TextEngineImpactFlash` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | One-shot full-screen white brighten that decays over 12 frames; `ASMC(StartScreenImpactFlash)` and `[ImpactFlash]` |
 | Portrait ash dissolve | `TextEngine_StartAshDissolve`, `gProcScr_TextEngineAshDissolve` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[ClearFaceAsh]` hides the live mug and rebuilds it as 16×16 OBJ chips that drift up and fade; not a screen FX |
+| Portrait emotion marks | `TextEngine_StartEmotion`, `gProcScr_TextEngineEmotion` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[Sweat]` / `[Anger]` draw one 16×16 OBJ on the active mug. One mark at a time. Cleared when talk ends |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
