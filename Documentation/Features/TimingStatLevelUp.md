@@ -19,7 +19,7 @@
 
 Vanilla GBA Fire Emblem rolls each stat independently. [Allocate Stat Points](AllocateStatPoints.md) lets the player choose which stats go up, but the number of gains is fixed.
 
-Timing Stat Level-Up turns those growth rolls into a skill check. After the EXP bar, the eight-stat menu appears, and each row has an arrow that runs back and forth on a ten-dash track. Growth fills green bars from the left. Press A while the arrow is on a green bar to grant `+1` to that stat. Miss, and that attempt is spent.
+Timing Stat Level-Up turns those growth rolls into a skill check. After the EXP bar, the eight-stat menu appears, and each row has an arrow that runs left to right on a ten-dash track, then wraps back to the first dash. Growth fills green bars from the left. Press A while the arrow is on a green bar to grant `+1` to that stat. Miss, and that attempt is spent.
 
 A practiced player can convert every green bar into a gain. That is the intended ceiling, not a bug.
 
@@ -58,9 +58,9 @@ Green bars come from the current remaining growth, capped at one full track per 
 |------|----------|--------|
 | 1 | `lvup_stat_timing` is `0` and `lvup_stat_points` is `0`. | Vanilla `UnitLvupCore` growths and both level-up screens run as usual. |
 | 2 | `lvup_stat_timing` is `N` (`N > 0`). | Growth `change*` fields stay `0`. After the EXP bar, the timing list opens instead of the vanilla level-up screen. Each row stores that stat's growth as remaining. |
-| 3 | Left window lists HP, Str, Mag, Skl, Spd, Lck, Def, and Res. Right window holds a dash track per row with a bouncing arrow. Left dashes are green from remaining growth. Every unlocked arrow moves at the same speed (`TIMING_SPEED` 3, period 200). Start phases are staggered (`i * 25`) so they do not peak together. | The selected row's idle callback redraws the right frame, advances every unlocked arrow, and stamps every track. |
+| 3 | Left window lists HP, Str, Mag, Skl, Spd, Lck, Def, and Res. Right window holds a dash track per row with an arrow that travels left to right and wraps. Left dashes are green from remaining growth. Every unlocked arrow moves at the same speed (`TIMING_SPEED` 3, period 100). Start phases are staggered (`i * 12`) so they do not line up. | The selected row's idle callback redraws the right frame, advances every unlocked arrow, and stamps every track. |
 | 4 | A on a live row while remaining is under `100%`. | If the arrow is on a green bar, write `+1` into that battle unit's `change*` field (and `bu->unit.curHP` for HP). The row locks and the arrow freezes. The hand jumps to the next open uncapped row. |
-| 5 | A on a live row while remaining is `100%` or more. | The track is all green, so the press is a guaranteed `+1`. Remaining drops by `100`. If anything is left and the stat is not capped, the arrow snaps to the right and that same row starts the next attempt. |
+| 5 | A on a live row while remaining is `100%` or more. | The track is all green, so the press is a guaranteed `+1`. Remaining drops by `100`. If anything is left and the stat is not capped, the arrow snaps to the left and that same row starts the next attempt. |
 | 6 | A on the last remaining row. | The row locks as above. `ProcScr_TimingClose` sleeps 60 frames, then ends the menu. `UpdateUnitFromBattle` commits the `change*` fields. Missed remainder attempts stay unapplied. |
 | 7 | `lvup_stat_timing` is `N` (`N > 0`). | Stat-screen growth display stays available. Allocate-only mode is what hides SELECT growth toggle and gold labels. |
 

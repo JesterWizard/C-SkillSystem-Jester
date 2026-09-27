@@ -50,7 +50,7 @@ enum {
 #define TIMING_FRAME_H (STAT_POINT_COUNT + 2)
 #define TIMING_COL_X 13
 #define TIMING_BAR_W 10
-#define TIMING_PERIOD 200
+#define TIMING_PERIOD 100 /* one left-to-right pass, then wrap */
 #define TIMING_SPEED 3
 #define TIMING_END_DELAY 60
 
@@ -333,19 +333,9 @@ static const struct MenuDef sStatPointsMenuDef = {
 	MenuStdHelpBox
 };
 
-static int GetTimingMeter(struct ProcLvupStatPoints *proc, int stat)
-{
-	int p = proc->phase[stat];
-
-	if (p < 100)
-		return p;
-
-	return TIMING_PERIOD - p;
-}
-
 static int GetTimingBarPos(struct ProcLvupStatPoints *proc, int stat)
 {
-	return GetTimingMeter(proc, stat) * (TIMING_BAR_W - 1) / 99;
+	return proc->phase[stat] * TIMING_BAR_W / TIMING_PERIOD;
 }
 
 static int GetTimingGreenBars(int remaining)
@@ -527,7 +517,7 @@ static u8 StatTimingMenu_OnSelectStat(struct MenuProc *menu, struct MenuItemProc
 
 		if (proc->remaining[stat] > 0 &&
 			GetStatPointDisplay(proc, stat) < GetStatPointCap(proc->unit, stat)) {
-			proc->phase[stat] = 100;
+			proc->phase[stat] = 0;
 			RedrawMenu(menu);
 			return MENU_ACT_SND6A;
 		}
@@ -699,7 +689,7 @@ static void StartLvupStatPointsMenuExt(struct Unit *unit, struct BattleUnit *bu,
 	for (i = 0; i < STAT_POINT_COUNT; i++) {
 		int growth = 0;
 
-		proc->phase[i] = i * 25;
+		proc->phase[i] = i * (TIMING_PERIOD / STAT_POINT_COUNT);
 		proc->remaining[i] = 0;
 
 		if (!timing)
