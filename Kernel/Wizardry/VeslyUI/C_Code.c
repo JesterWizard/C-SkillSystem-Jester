@@ -1278,6 +1278,96 @@ void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
         ApplyPalette(sChapterTitlePalWood, 0x13);
 }
 
+/*
+ * Wood's play-time box is 96 pixels wide instead of 80, so the clock fits on
+ * the board: a 64x32 and a 32x32 object, starting 6 pixels further left.
+ */
+extern u16 CONST_DATA Sprite_ChapterStatus_ChapterBanner[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlaytimeBanner[];
+extern u16 CONST_DATA Sprite_ChapterStatus_ChapterName[];
+extern u16 CONST_DATA Sprite_ChapterStatus_FactionSelector[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlayerLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_EnemyLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_TurnLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_FundsLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_ObjectiveLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlayCountLabel[];
+
+static const u16 sSprite_PlaytimeBannerWood[] = {
+    2,
+    0x4000, 0xC000 + (-6 & 0x1FF), 0x90, // 64x32
+    0x0000, 0x8000 + 58, 0x98,           // 32x32
+};
+
+static const u16 * GetPlaytimeBannerSprite(void)
+{
+    if (GetUI_id() == 4)
+        return sSprite_PlaytimeBannerWood;
+    return Sprite_ChapterStatus_PlaytimeBanner;
+}
+
+LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Loop);
+void StatusScreenSpriteDraw_Loop(struct ChapterStatusProc * proc)
+{
+    int i;
+
+    struct ChapterStatusProc * parent = proc->proc_parent;
+
+    PutSprite(4, 4, 3, Sprite_ChapterStatus_ChapterBanner, OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(8));
+    PutSprite(4, 150, 124, GetPlaytimeBannerSprite(), OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(9));
+
+    if (parent->unk_3f == 0)
+    {
+        PutSprite(4, 4, 11, Sprite_ChapterStatus_ChapterName, OAM2_CHR(0x380) + OAM2_LAYER(1) + OAM2_PAL(3));
+    }
+
+    // Draw rectangle around current selected faction
+    PutSprite(
+        4, parent->unitIndex * 56, 44, Sprite_ChapterStatus_FactionSelector, OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(7));
+
+    PutSprite(4, 8, 37, Sprite_ChapterStatus_PlayerLabel, 0);
+    PutSprite(4, 64, 37, Sprite_ChapterStatus_EnemyLabel, 0);
+    PutSprite(4, 18, 115, Sprite_ChapterStatus_TurnLabel, 0);
+    PutSprite(4, 18, 131, Sprite_ChapterStatus_FundsLabel, 0);
+    PutSprite(4, 28, 67, Sprite_ChapterStatus_ObjectiveLabel, 0);
+
+    // Draw unit name
+    for (i = 0; i < 2; i++)
+    {
+        PutSprite(4, 160 + (i * 32), 60, gObject_32x16, OAM2_CHR(0x3C0) + OAM2_PAL(10) + (i * 4));
+    }
+
+    // Draw unit level
+    PutSprite(4, 180, 75, gObject_32x16, OAM2_CHR(0x3D0) + OAM2_PAL(10));
+
+    // Draw unit HP
+    for (i = 0; i < 2; i++)
+    {
+        PutSprite(4, 156 + (i * 32), 91, gObject_32x16, OAM2_CHR(0x3D4) + OAM2_PAL(10) + (i * 4));
+    }
+
+    PutTime(TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 16), TEXT_COLOR_SYSTEM_BLUE, GetGameClock(), 0);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    if (parent->units[parent->unitIndex] != NULL)
+    {
+        PutUnitSprite(4, 136, 61, parent->units[parent->unitIndex]);
+    }
+
+    SyncUnitSpriteSheet();
+
+    if (parent->timesCompleted != 0)
+    {
+        if (!(gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME))
+        {
+            PutSprite(4, 219, 3, Sprite_ChapterStatus_PlayCountLabel, 0);
+        }
+    }
+
+    UpdateStatusFactionSelectorGlow(parent);
+}
+
 LYN_REPLACE_CHECK(StartUiGoldBox);
 void StartUiGoldBox(ProcPtr parent)
 {

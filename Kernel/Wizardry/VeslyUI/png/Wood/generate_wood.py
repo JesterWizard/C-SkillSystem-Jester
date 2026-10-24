@@ -479,8 +479,11 @@ def save(image, palette, name):
 # windows' planks, chips and broken corners. The rest of the sheet is unused on
 # that screen and stays as is.
 BANNER = (0, 0, 24, 4)        # x, y, width, height in tiles
-PLAYTIME = (16, 4, 10, 4)
-PLAYTIME_LABEL = (11, 2, 55, 8)   # "PLAY TIME" letters inside the box, pixels
+# Wood's play-time box is 12 tiles wide (vanilla's is 10) so the clock fits;
+# StatusScreenSpriteDraw_Loop in C_Code.c draws it with a wider sprite.
+PLAYTIME = (16, 4, 12, 4)
+PLAYTIME_LABEL = (11, 2, 55, 8)   # "PLAY TIME" letters in vanilla's box, pixels
+PLAYTIME_LABEL_SHIFT = 10         # moves the label to the middle of the wider box
 
 # Interchangeable tiles, as in the DrawUiFrame replacement in C_Code.c.
 TOP_BEAMS = [0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33]
@@ -503,7 +506,7 @@ SIGN_PALETTE = [
     "A86C3A",  # 12 edge highlight
     "E8C890",  # 13 raw wood, light
     "3A200E",  # 14 unused
-    "B07A44",  # 15 unused
+    "9A6438",  # 15 lettering drop shadow
 ]
 # Frame tile colours (menu palette indices) -> SIGN_PALETTE.
 MENU_TO_SIGN = {0: 0, D: 1, 1: 10, 5: 13, 6: 13, 7: 9, 8: 8, 9: 12,
@@ -546,7 +549,8 @@ def draw_playtime_label(px, vanilla_px, area):
     """A small plank tab over the box's top beam, carrying vanilla's letters."""
     ax, ay = area[0] * 8, area[1] * 8
     lx, ly, lw, lh = PLAYTIME_LABEL
-    left, top, right, bottom = lx - 2, ly - 2, lx + lw + 1, ly + lh + 1
+    shift = PLAYTIME_LABEL_SHIFT
+    left, top, right, bottom = lx + shift - 2, ly - 2, lx + shift + lw + 1, ly + lh + 1
     for y in range(top, bottom + 1):
         for x in range(left, right + 1):
             edge = x in (left, right) or y in (top, bottom)
@@ -557,18 +561,19 @@ def draw_playtime_label(px, vanilla_px, area):
     px[ax + left + 1, ay + top + 1] = 1
     px[ax + right - 1, ay + bottom - 1] = 1
     px[ax + right - 2, ay + top + 1] = 9
-    # Vanilla letters, in OBJ palette 9 order: 11 and 12 are the light
-    # face, 13 and 14 its shading, and 10 the dark plate around them.
-    letter = {11: 10, 12: 10, 13: 11, 14: 11}
+    # Vanilla letters, in OBJ palette 9 order: 11 and 12 are the light face,
+    # 13 its shading and 14 a mid-tone drop shadow. Their outline is the
+    # plate's dark colour, which palette 9 holds twice (1 and 10); the "Y"
+    # uses 1.
+    letter = {11: 10, 12: 10, 13: 11, 14: 15}
     for y in range(ly, ly + lh):
         for x in range(lx, lx + lw):
             v = vanilla_px[ax + x, ay + y]
             if v in letter:
-                px[ax + x, ay + y] = letter[v]
-            elif v == 10 and any(
-                    vanilla_px[ax + x + dx, ay + y + dy] in letter
-                    for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
-                px[ax + x, ay + y] = 1
+                px[ax + x + shift, ay + y] = letter[v]
+            elif any(vanilla_px[ax + x + dx, ay + y + dy] in letter
+                     for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                px[ax + x + shift, ay + y] = 1
 
 
 def play_status():
