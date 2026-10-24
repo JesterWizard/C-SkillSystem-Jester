@@ -6,6 +6,7 @@ ALIGN 4
 StephanoStyleFlag: WORD 0xAA 
 PikminStyleFlag:   WORD 0xAC
 GammaStyleFlag:    WORD 0xB4 // Lets use the guide flag (0xB4) (0xAB originally)
+WoodStyleFlag:     WORD 0xAB
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -97,6 +98,57 @@ gPrepItemGfx_Gamma:
 ALIGN 4 
 Gamma_PrepPopupWindow:
 #incext Png2Dmp "png/HyperGammaSpaces/Gamma_PrepPopupWindow.png" --lz77
+
+
+// WOOD (png/Wood/generate_wood.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Wood:
+#incext Png2Dmp "png/Wood/Wood_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Wood:
+#incbin "png/Wood/Wood_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Wood:
+#incext Png2Dmp "png/Wood/Wood_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Wood:
+#incext Png2Dmp "png/Wood/Wood_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Wood:
+#incext Png2Dmp "png/Wood/Wood_PrepItems.png" --lz77
+ALIGN 4
+Wood_PrepItemsPalette:
+#incbin "png/Wood/Wood_PrepItemsPal.pal"
+ALIGN 4
+Wood_PrepPopupWindow:
+#incext Png2Dmp "png/Wood/Wood_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Wood:
+#incext Png2Dmp "png/Wood/Wood_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Wood:
+#incext Png2Dmp "png/Wood/Wood_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Wood:
+#incext Png2Dmp "png/Wood/Wood_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Wood:
+#incext Png2Dmp "png/Wood/Wood_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Wood:
+#incext Png2Dmp "png/Wood/Wood_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Wood:
+#incext Png2Dmp "png/Wood/Wood_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Wood: // Battle UI Palette
+#incbin "png/Wood/Wood_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Wood: // chapter status banner and playtime box
+#incext Png2Dmp "png/Wood/Wood_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Wood:
+#incbin "png/Wood/Wood_PlayStatusPal.pal"
 
 
 // PIKMIN

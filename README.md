@@ -232,6 +232,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 	</details>
 
 - [Variable Character Descriptions](./Documentation/Features/VariableCharacterDescriptions.md)
+- [VeslyUI Styles](./Documentation/Features/VeslyUIStyles.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Images/VeslyUI_Wood.png" alt="Wood UI style preview" width="600" />
+	</details>
+
 - [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md)
 - [Wizardry](./Documentation/Features/Wizardry.md)
 - [World Map Thoughts](./Documentation/Features/WorldMapThoughts.md)

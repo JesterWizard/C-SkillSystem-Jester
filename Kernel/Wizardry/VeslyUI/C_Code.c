@@ -85,15 +85,40 @@ extern u16 Img_EfxRightItemBox_Gamma[];
 extern u16 Img_EfxRightItemBox_Fenreir[];
 extern u16 Img_ShopGoldBox_Gamma[];
 
+extern const u8 gUiFrameImage_Wood[];
+extern const u8 gPrepExtra1_Wood[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Wood[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Wood[];      // gUnknown_08A1B1FC
+extern const u16 Wood_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Wood_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Wood[];
+extern const u8 Img_PlayStatusSprites_Wood[];
+extern const u16 Pal_PlayStatusSprites_Wood[];
+extern u16 gUnknown_08802558_Wood[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Wood[];
+extern u16 Img_EfxLeftNameBox_Wood[];
+extern u16 Img_EfxLeftItemBox_Wood[];
+extern u16 Img_EfxRightNameBox_Wood[];
+extern u16 Img_EfxRightItemBox_Wood[];
+
 extern int StephanoStyleFlag;
 extern int GammaStyleFlag;
 extern int PikminStyleFlag;
+extern int WoodStyleFlag;
 int GetUI_id(void)
 {
 
     if (gpKernelDesignerConfig->vesly_custom_ui != true)
         return 0;
 
+    /*
+     * Wood is checked first: GammaStyleFlag is the guide flag, which the
+     * campaign sets early, so a later check could never select wood.
+     */
+    if (CheckFlag(WoodStyleFlag))
+    {
+        return 4;
+    }
     if (CheckFlag(StephanoStyleFlag))
     {
         return 1;
@@ -121,6 +146,7 @@ static const void * sUiFrame[] = {
     gUiFrameImage_Stephano,
     gUiFrameImage_Gamma,
     gUiFrameImage_Pikmin,
+    gUiFrameImage_Wood, // wood
 };
 
 const u8 * GetUiFrame(void)
@@ -139,6 +165,7 @@ static const void * sPIFontTiles[] = {
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles_Stephano,
+    gGfx_PlayerInterfaceFontTiles, // wood
 };
 
 const u8 * GetPIFontTiles(void)
@@ -157,6 +184,7 @@ static const void * sPINumbers[] = {
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers_Stephano,
+    gGfx_PlayerInterfaceNumbers, // wood
 };
 
 const u8 * GetPINumbers(void)
@@ -188,6 +216,7 @@ static const void * sUnknown_08A1B698[] = {
     gUnknown_08A1B698,
     gUnknown_08A1B698_Gamma,
     gUnknown_08A1B698,
+    gUnknown_08A1B698, // wood
 };
 
 const u8 * GetUnknown_08A1B698(void)
@@ -222,6 +251,7 @@ static const void * sPrepExtra1[] = {
     gPrepExtra1_Stephano,
     gPrepExtra1_Gamma,
     gPrepExtra1_Pikmin,
+    gPrepExtra1_Wood, // wood
 };
 
 const u8 * GetPrepExtra1(void)
@@ -241,6 +271,7 @@ static const void * sUnknown_08A1B7C8[] = {
     gUnknown_08A1B7C8,
     gUnknown_08A1B7C8_Gamma,
     gUnknown_08A1B7C8,
+    gUnknown_08A1B7C8, // wood
 };
 
 const u8 * GetUnknown_08A1B7C8(void)
@@ -269,6 +300,7 @@ static const void * sPrepUseItem[] = {
     gPrepUseGfx_Stephano,
     gPrepUseGfx_Gamma,
     gPrepUseGfx_Pikmin,
+    gPrepUseGfx_Wood, // wood
 };
 
 const u8 * GetPrepUseItem(void)
@@ -292,6 +324,7 @@ static const void * sPrepItem[] = {
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Gamma,
+    gPrepItemGfx_Wood, // wood
 };
 
 const u8 * GetPrepItem(void)
@@ -304,11 +337,25 @@ const u8 * GetPrepItem(void)
     return sPrepItem[id];
 }
 
+static const void * sPrepItemPal[] = {
+
+    gUnknown_08A1B638, // vanilla
+    gUnknown_08A1B638,
+    gUnknown_08A1B638,
+    gUnknown_08A1B638,
+    Wood_PrepItemsPalette, // wood
+};
+
+const u16 * GetPrepItemPal(void)
+{
+    return sPrepItemPal[GetUI_id()];
+}
+
 LYN_REPLACE_CHECK(DrawFundsSprite_Init);
 void DrawFundsSprite_Init(struct DrawFundsSpriteProc * proc)
 {
     Decompress(GetPrepItem(), (void *)0x06013000);
-    ApplyPalette(gUnknown_08A1B638, proc->pal + 0x10);
+    ApplyPalette(GetPrepItemPal(), proc->pal + 0x10);
 
     return;
 }
@@ -319,6 +366,7 @@ static const void * sPrepPopupWindow[] = {
     Gamma_PrepPopupWindow,
     Gamma_PrepPopupWindow,
     Gamma_PrepPopupWindow,
+    Wood_PrepPopupWindow, // wood
 };
 
 const u8 * GetPrepPopupWindow(void)
@@ -354,6 +402,101 @@ void PutImg_PrepPopupWindow(int vram, int pal)
 // {
 // Decompress(Img_ShopGoldBox, OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
 // }
+/*
+ * Wood frames are chipped, and a window repeats its edge tiles along each
+ * side. So in wood mode DrawUiFrame picks each beam and left edge tile from a
+ * set of interchangeable ones (see EDGE_CHIPS in png/Wood/generate_wood.py),
+ * chosen by position so the chips don't fall in a regular rhythm.
+ */
+extern const u16 * const sUiFrameModelTilemapLookup[];
+
+static const u8 sWoodTopBeams[8] = { 0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33 };
+static const u8 sWoodBottomBeams[8] = { 0x1B, 0x1C, 0x1B, 0x1D, 0x1E, 0x1B, 0x20, 0x1C };
+static const u8 sWoodLeftEdges[4] = { 0x06, 0x07, 0x06, 0x14 };
+static const u8 sWoodLeftEdgesWhite[4] = { 0x0B, 0x0C, 0x0B, 0x17 };
+
+static u16 WoodFrameTile(u16 ref, int x, int y)
+{
+    u32 pick = ((x * 73 + y * 151) * 2654435761u) >> 24;
+    int tile;
+
+    switch (ref & 0x3FF)
+    {
+    case 0x03:
+        tile = sWoodTopBeams[pick & 7];
+        break;
+    case 0x1B:
+        tile = sWoodBottomBeams[pick & 7];
+        break;
+    case 0x06:
+        tile = sWoodLeftEdges[pick & 3];
+        break;
+    case 0x0B:
+        tile = sWoodLeftEdgesWhite[pick & 3];
+        break;
+    default:
+        return ref;
+    }
+    return (ref & ~0x3FF) | tile;
+}
+
+LYN_REPLACE_CHECK(DrawUiFrame);
+void DrawUiFrame(u16 * tilemap, int x, int y, int width, int height, int tilebase, int style)
+{
+    const u16 * model = sUiFrameModelTilemapLookup[style];
+    int wood = GetUI_id() == 4;
+
+    int xMax = x + width - 1;
+    int yMax = y + height - 1;
+
+    int iy, ix;
+
+    for (iy = y + 1; iy < yMax; iy += 2)
+    {
+        for (ix = x + 1; ix < xMax; ix += 2)
+        {
+            u16 tilemapOffset = TILEMAP_INDEX(ix, iy);
+
+            tilemap[tilemapOffset + TILEMAP_INDEX(0, 0)] = model[6] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(1, 0)] = model[6] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(0, 1)] = model[9] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(1, 1)] = model[10] + tilebase;
+        }
+
+        tilemap[TILEMAP_INDEX(x, iy + 0)] = (wood ? WoodFrameTile(model[8], x, iy) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(xMax, iy + 0)] = model[7] + tilebase;
+        tilemap[TILEMAP_INDEX(x, iy + 1)] = (wood ? WoodFrameTile(model[8], x, iy + 1) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(xMax, iy + 1)] = model[11] + tilebase;
+    }
+
+    for (ix = x + 1; ix < xMax; ix += 2)
+    {
+        if (wood)
+        {
+            tilemap[TILEMAP_INDEX(ix + 0, y)] = WoodFrameTile(model[2], ix, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, y)] = WoodFrameTile(model[2], ix + 1, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 0, yMax)] = WoodFrameTile(model[13], ix, yMax) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, yMax)] = WoodFrameTile(model[14], ix + 1, yMax) + tilebase;
+            continue;
+        }
+        tilemap[TILEMAP_INDEX(ix + 0, y)] = model[2] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 1, y)] = model[2] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 0, yMax)] = model[13] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 1, yMax)] = model[14] + tilebase;
+    }
+
+    tilemap[TILEMAP_INDEX(x + 0, y + 0)] = model[0] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 1, y + 0)] = model[1] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 0, y + 1)] = model[4] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 1, y + 1)] = model[5] + tilebase;
+
+    tilemap[TILEMAP_INDEX(xMax, y)] = model[3] + tilebase;
+
+    tilemap[TILEMAP_INDEX(x, yMax)] = model[12] + tilebase;
+
+    tilemap[TILEMAP_INDEX(xMax, yMax)] = model[15] + tilebase;
+}
+
 LYN_REPLACE_CHECK(UnpackUiFrameImage);
 void UnpackUiFrameImage(void * dest)
 {
@@ -411,6 +554,7 @@ static const void * sBUiFrame_880210C[] = {
     gUnknown_0880210C, // vanilla
     gUnknown_0880210C_Sokaballa, gUnknown_0880210C_Gamma,
     gUnknown_0880210C_Fenreir, // top left box for name TSA
+    gUnknown_0880210C, // wood
 };
 const u8 * GetBUiFrame_880210C(void)
 {
@@ -427,6 +571,7 @@ static const void * sBUiFrame_88021C0[] = {
     gUnknown_088021C0, // vanilla
     gUnknown_088021C0_Alt, gUnknown_088021C0_Gamma,
     gUnknown_088021C0_Fenreir, // top right box for name TSA
+    gUnknown_088021C0, // wood
 };
 const u8 * GetBUiFrame_88021C0(void)
 {
@@ -501,6 +646,7 @@ static const void * sUnknown_08802274[] = {
     gUnknown_08802274, // vanilla
     gUnknown_08802274, gUnknown_08802274_Gamma,
     gUnknown_08802274_Fenreir, // bottom left side TSA
+    gUnknown_08802274, // wood
 };
 
 const u8 * ekrGaugeMain_GetImg()
@@ -518,6 +664,7 @@ static const void * sUnknown_08802348[] = {
     gUnknown_08802348, // vanilla
     gUnknown_08802348, gUnknown_08802348_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA
+    gUnknown_08802348, // wood
 };
 
 const u8 * ekrGaugeMain2_GetImg()
@@ -536,6 +683,7 @@ static const void * sUnknown_08802428[] = {
     // gUnknown_08802428_Alt,
     gUnknown_08802428, gUnknown_08802428_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA alternate
+    gUnknown_08802428, // wood
 };
 
 const u8 * ekrGaugeMain3_GetImg()
@@ -554,6 +702,7 @@ static const void * sUnknown_08802508[] = {
     gUnknown_08802508_Alt,
     gUnknown_08802508,
     gUnknown_08802508,
+    gUnknown_08802508, // wood
 };
 
 const u8 * GetUnknown_08802508()
@@ -572,6 +721,7 @@ static const void * sImg_08801C14[] = {
     Img_08801C14_Sokaballa,
     Img_08801C14_Gamma,
     Img_08801C14_Fenreir,
+    Img_08801C14_Wood, // wood
 };
 
 const u8 * GetImg_08801C14()
@@ -590,6 +740,7 @@ static const void * sBPal_8802558[] = {
     gUnknown_08802558_Sokaballa,
     gUnknown_08802558_Gamma,
     gUnknown_08802558_Fenreir,
+    gUnknown_08802558_Wood, // wood
 };
 const u16 * GetBPal_8802558(void)
 {
@@ -632,6 +783,7 @@ static const void * sImg_EfxLeftNameBox[] = {
     Img_EfxLeftNameBox_Sokaballa,
     Img_EfxLeftNameBox_Gamma,
     Img_EfxLeftNameBox_Fenreir,
+    Img_EfxLeftNameBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxLeftNameBox()
@@ -650,6 +802,7 @@ static const void * sImg_EfxLeftItemBox[] = {
     Img_EfxLeftItemBox_Sokaballa,
     Img_EfxLeftItemBox_Gamma,
     Img_EfxLeftItemBox_Fenreir,
+    Img_EfxLeftItemBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxLeftItemBox()
@@ -668,6 +821,7 @@ static const void * sImg_EfxRightNameBox[] = {
     Img_EfxRightNameBox_Sokaballa,
     Img_EfxRightNameBox_Gamma,
     Img_EfxRightNameBox_Fenreir,
+    Img_EfxRightNameBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxRightNameBox()
@@ -686,6 +840,7 @@ static const void * sImg_EfxRightItemBox[] = {
     Img_EfxRightItemBox_Sokaballa,
     Img_EfxRightItemBox_Gamma,
     Img_EfxRightItemBox_Fenreir,
+    Img_EfxRightItemBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxRightItemBox()
@@ -774,6 +929,7 @@ void EfxPrepareScreenFx(void)
 extern const u16 gUiFramePaletteA[];
 extern const u16 MenuTilesPalette_Gamma[];
 extern const u16 MenuTilesPalette_Pikmin[];
+extern const u16 MenuTilesPalette_Wood[];
 
 static const u16 * const sUiPalLookupVanilla[] = {
     &gUiFramePaletteA[0x0], // gUiFramePaletteA has all 4 in a row anyway
@@ -792,6 +948,13 @@ static const u16 * const sUiPalLookupPikmin[] = {
     &MenuTilesPalette_Pikmin[0x0],  &MenuTilesPalette_Pikmin[0x10], &MenuTilesPalette_Pikmin[0x20],
     &MenuTilesPalette_Pikmin[0x30], &MenuTilesPalette_Pikmin[0x40], &MenuTilesPalette_Pikmin[0x50],
     &MenuTilesPalette_Pikmin[0x60], &MenuTilesPalette_Pikmin[0x70],
+
+};
+
+static const u16 * const sUiPalLookupWood[] = {
+    &MenuTilesPalette_Wood[0x0],  &MenuTilesPalette_Wood[0x10], &MenuTilesPalette_Wood[0x20],
+    &MenuTilesPalette_Wood[0x30], &MenuTilesPalette_Wood[0x40], &MenuTilesPalette_Wood[0x50],
+    &MenuTilesPalette_Wood[0x60], &MenuTilesPalette_Wood[0x70],
 
 };
 
@@ -815,17 +978,27 @@ static const u16 * const sFactionPalLookupPikmin[] = {
     &MenuTilesPalette_Pikmin[0x30],
 };
 
+/* Same row order as vanilla: blue, green (0x40), red (0x80), other (0xC0). */
+static const u16 * const sFactionPalLookupWood[] = {
+    &MenuTilesPalette_Wood[0x00],
+    &MenuTilesPalette_Wood[0x20],
+    &MenuTilesPalette_Wood[0x10],
+    &MenuTilesPalette_Wood[0x30],
+};
+
 static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupVanilla,
     sUiPalLookupVanilla,
     sUiPalLookupGamma,
     sUiPalLookupPikmin,
+    sUiPalLookupWood, // wood
 };
 static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupVanilla,
     sFactionPalLookupVanilla,
     sFactionPalLookupGamma,
     sFactionPalLookupPikmin,
+    sFactionPalLookupWood, // wood
 };
 
 #define BGPAL_WINDOW_FRAME 1
@@ -1031,12 +1204,168 @@ static const void * sUiGoldBox[] = {
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Gamma,
+    Img_ShopGoldBox_Wood, // wood
 };
 
 const u8 * GetUiGoldBox(void)
 {
     int id = GetUI_id();
     return sUiGoldBox[id];
+}
+
+/*
+ * Chapter status screen: the title banner and playtime box are sprites that
+ * ChapterStatus_Init loads from Img_PlayStatusSprites. This step runs right
+ * after it, so it swaps in the style's sheet and palettes. The selector sprite
+ * is loaded into the middle of that sheet, so it is reloaded on top.
+ */
+static const void * sPlayStatusSprites[] = {
+
+    Img_PlayStatusSprites, // vanilla
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites_Wood, // wood
+};
+
+static const void * sPlayStatusPal[] = {
+
+    Pal_PlayStatusSprites, // vanilla
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites_Wood, // wood
+};
+
+/* Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the letters, in cream and brown. */
+static const u16 sChapterTitlePalWood[16] = {
+    0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);
+void ChapterStatus_ShowAllLayers(void)
+{
+    int id = GetUI_id();
+
+    if (sPlayStatusSprites[id] != Img_PlayStatusSprites)
+    {
+        Decompress(sPlayStatusSprites[id], OBJ_CHR_ADDR(0x180));
+        Decompress(Img_ChapterStatusSelectorSprite, OBJ_CHR_ADDR(0x198));
+    }
+    ApplyPalettes(sPlayStatusPal[id], 0x18, 2);
+
+    SetDispEnable(1, 1, 1, 1, 1);
+}
+
+/* Loads the chapter name sprite; wood recolours its green letter ramp. */
+LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Init);
+void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
+{
+    LoadObjUIGfx();
+
+    ApplyPalette(Pal_StatusScreenLabelSprites, 0x14);
+    ApplyPalette(Pal_08A2E8F0, 0x17);
+
+    Decompress(Img_StatusScreenLabelSprites, OBJ_CHR_ADDR(0x340));
+
+    proc->unk_64 = 0;
+
+    sub_80895B4(0x80, 0x13);
+    PutChapterTitleGfx(0xB80, GetChapterTitleWM(&gPlaySt));
+
+    if (GetUI_id() == 4)
+        ApplyPalette(sChapterTitlePalWood, 0x13);
+}
+
+/*
+ * Wood's play-time box is 96 pixels wide instead of 80, so the clock fits on
+ * the board: a 64x32 and a 32x32 object, starting 6 pixels further left.
+ */
+extern u16 CONST_DATA Sprite_ChapterStatus_ChapterBanner[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlaytimeBanner[];
+extern u16 CONST_DATA Sprite_ChapterStatus_ChapterName[];
+extern u16 CONST_DATA Sprite_ChapterStatus_FactionSelector[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlayerLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_EnemyLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_TurnLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_FundsLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_ObjectiveLabel[];
+extern u16 CONST_DATA Sprite_ChapterStatus_PlayCountLabel[];
+
+static const u16 sSprite_PlaytimeBannerWood[] = {
+    2,
+    0x4000, 0xC000 + (-6 & 0x1FF), 0x90, // 64x32
+    0x0000, 0x8000 + 58, 0x98,           // 32x32
+};
+
+static const u16 * GetPlaytimeBannerSprite(void)
+{
+    if (GetUI_id() == 4)
+        return sSprite_PlaytimeBannerWood;
+    return Sprite_ChapterStatus_PlaytimeBanner;
+}
+
+LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Loop);
+void StatusScreenSpriteDraw_Loop(struct ChapterStatusProc * proc)
+{
+    int i;
+
+    struct ChapterStatusProc * parent = proc->proc_parent;
+
+    PutSprite(4, 4, 3, Sprite_ChapterStatus_ChapterBanner, OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(8));
+    PutSprite(4, 150, 124, GetPlaytimeBannerSprite(), OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(9));
+
+    if (parent->unk_3f == 0)
+    {
+        PutSprite(4, 4, 11, Sprite_ChapterStatus_ChapterName, OAM2_CHR(0x380) + OAM2_LAYER(1) + OAM2_PAL(3));
+    }
+
+    // Draw rectangle around current selected faction
+    PutSprite(
+        4, parent->unitIndex * 56, 44, Sprite_ChapterStatus_FactionSelector, OAM2_CHR(0x180) + OAM2_LAYER(1) + OAM2_PAL(7));
+
+    PutSprite(4, 8, 37, Sprite_ChapterStatus_PlayerLabel, 0);
+    PutSprite(4, 64, 37, Sprite_ChapterStatus_EnemyLabel, 0);
+    PutSprite(4, 18, 115, Sprite_ChapterStatus_TurnLabel, 0);
+    PutSprite(4, 18, 131, Sprite_ChapterStatus_FundsLabel, 0);
+    PutSprite(4, 28, 67, Sprite_ChapterStatus_ObjectiveLabel, 0);
+
+    // Draw unit name
+    for (i = 0; i < 2; i++)
+    {
+        PutSprite(4, 160 + (i * 32), 60, gObject_32x16, OAM2_CHR(0x3C0) + OAM2_PAL(10) + (i * 4));
+    }
+
+    // Draw unit level
+    PutSprite(4, 180, 75, gObject_32x16, OAM2_CHR(0x3D0) + OAM2_PAL(10));
+
+    // Draw unit HP
+    for (i = 0; i < 2; i++)
+    {
+        PutSprite(4, 156 + (i * 32), 91, gObject_32x16, OAM2_CHR(0x3D4) + OAM2_PAL(10) + (i * 4));
+    }
+
+    PutTime(TILEMAP_LOCATED(gBG0TilemapBuffer, 19, 16), TEXT_COLOR_SYSTEM_BLUE, GetGameClock(), 0);
+
+    BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+    if (parent->units[parent->unitIndex] != NULL)
+    {
+        PutUnitSprite(4, 136, 61, parent->units[parent->unitIndex]);
+    }
+
+    SyncUnitSpriteSheet();
+
+    if (parent->timesCompleted != 0)
+    {
+        if (!(gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME))
+        {
+            PutSprite(4, 219, 3, Sprite_ChapterStatus_PlayCountLabel, 0);
+        }
+    }
+
+    UpdateStatusFactionSelectorGlow(parent);
 }
 
 LYN_REPLACE_CHECK(StartUiGoldBox);
