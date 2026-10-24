@@ -95,16 +95,6 @@ enum {
 	/* PutTalkBubbleTm width/height include the border tiles. */
 	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
 	/*
-	 * The plate's last text column is never printed to; its two tiles hold
-	 * the frame's corner and edge, recolored so the fill is color 0.
-	 */
-	TEXT_ENGINE_NAMEPLATE_FRAME_COLUMN = TEXT_ENGINE_NAMEPLATE_WIDTH - 1,
-	/* Talk-bubble tiles in BG1 VRAM: 0x10 corner, 0x11 edge, 0x13 fill. */
-	TEXT_ENGINE_BUBBLE_TILE_CORNER = 0x10,
-	TEXT_ENGINE_BUBBLE_TILE_EDGE = 0x11,
-	TEXT_ENGINE_BUBBLE_TILE_FILL = 0x13,
-	TEXT_ENGINE_BUBBLE_PALETTE = 3,
-	/*
 	 * Ash dissolve rebuilds the mug from its OBJ list each frame, so
 	 * chip motion lives on the proc (seed + origin) instead of EWRAM.
 	 */
@@ -717,87 +707,6 @@ static int TextEngine_CopyNameplateString(
 	return textWidth;
 }
 
-/*
- * Copy the bubble's corner and edge tiles into the plate's spare text column
- * with every fill pixel set to color 0.  Returns the BG1 tile number of the
- * corner (the edge follows it), or -1 when BG1 cannot reach that VRAM.
- */
-static int TextEngine_BuildNameplateFrameTiles(void)
-{
-	struct Font *font = (struct Font *)0x030000F0;
-	u8 *bg1Chr = (u8 *)(VRAM + GetBackgroundTileDataOffset(BG_1));
-	const u8 *corner = bg1Chr + TEXT_ENGINE_BUBBLE_TILE_CORNER * CHR_SIZE;
-	const u8 *edge = bg1Chr + TEXT_ENGINE_BUBBLE_TILE_EDGE * CHR_SIZE;
-	u8 fill = bg1Chr[TEXT_ENGINE_BUBBLE_TILE_FILL * CHR_SIZE] & 0xF;
-	u8 *dest = (u8 *)font->vramDest + (
-		sTextEngineNameplateState.text.chr_position
-		+ TEXT_ENGINE_NAMEPLATE_FRAME_COLUMN
-	) * 2 * CHR_SIZE;
-	int tile = (dest - bg1Chr) / CHR_SIZE;
-	int i;
-
-	if (dest < bg1Chr || tile + 1 >= 0x400)
-		return -1;
-
-	/* VRAM takes 16-bit writes, so recolor two bytes (four pixels) at a time. */
-	for (i = 0; i < CHR_SIZE; i += 2) {
-		u16 pixels[2];
-		int tileIndex;
-		int nibble;
-
-		pixels[0] = corner[i] | (corner[i + 1] << 8);
-		pixels[1] = edge[i] | (edge[i + 1] << 8);
-
-		for (tileIndex = 0; tileIndex < 2; tileIndex++) {
-			for (nibble = 0; nibble < 16; nibble += 4) {
-				if (((pixels[tileIndex] >> nibble) & 0xF) == fill)
-					pixels[tileIndex] &= ~(0xF << nibble);
-			}
-		}
-
-		*(u16 *)(dest + i) = pixels[0];
-		*(u16 *)(dest + CHR_SIZE + i) = pixels[1];
-	}
-
-	return tile;
-}
-
-/*
- * The plate is drawn when the box starts opening; recopy the frame once the
- * final box graphics are in so it does not keep an opening-frame tile.
- */
-static void TextEngine_RefreshNameplateFrame(void)
-{
-	if (sTextEngineNameplateState.active == 1)
-		TextEngine_BuildNameplateFrameTiles();
-}
-
-/* Same shape as PutTalkBubbleTm at height 2, using the color-0-fill tiles. */
-static void TextEngine_PutNameplateFrame(int x, int y, int width)
-{
-	u16 *top = gBG1TilemapBuffer + TILEMAP_INDEX(x, y);
-	u16 *bottom = top + 0x20;
-	int tile = TextEngine_BuildNameplateFrameTiles();
-	int i;
-
-	if (tile < 0) {
-		PutTalkBubbleTm(BG_1, x, y, width, TEXT_ENGINE_NAMEPLATE_HEIGHT);
-		return;
-	}
-
-	for (i = 0; i < width; i++) {
-		u16 ref = TILEREF(tile + 1, TEXT_ENGINE_BUBBLE_PALETTE);
-
-		if (i == 0)
-			ref = TILEREF(tile, TEXT_ENGINE_BUBBLE_PALETTE);
-		else if (i == width - 1)
-			ref = TILEREF(tile, TEXT_ENGINE_BUBBLE_PALETTE) + 0x400;
-
-		top[i] = ref;
-		bottom[i] = ref + 0x800;
-	}
-}
-
 static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 {
 	struct TalkState *state = sTextEngineState;
@@ -905,9 +814,8 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	innerWidth = (nameWidth + 7) / 8 + TEXT_ENGINE_NAMEPLATE_PAD_TILES;
 	if (innerWidth < 1)
 		innerWidth = 1;
-	/* Keep clear of the column that holds the frame tiles. */
-	if (innerWidth > TEXT_ENGINE_NAMEPLATE_FRAME_COLUMN)
-		innerWidth = TEXT_ENGINE_NAMEPLATE_FRAME_COLUMN;
+	if (innerWidth > TEXT_ENGINE_NAMEPLATE_WIDTH)
+		innerWidth = TEXT_ENGINE_NAMEPLATE_WIDTH;
 	if (innerWidth > dialogueWidth - 2)
 		innerWidth = dialogueWidth - 2;
 
@@ -949,7 +857,7 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 		}
 	}
 
-	TextEngine_PutNameplateFrame(bg1X, bg1Y, bg1Width);
+	PutTalkBubbleTm(BG_1, bg1X, bg1Y, bg1Width, TEXT_ENGINE_NAMEPLATE_HEIGHT);
 	PutText(
 		&sTextEngineNameplateState.text,
 		gBG0TilemapBuffer + TILEMAP_INDEX(bg1X + 1, nameY)
@@ -3825,7 +3733,6 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 
 		destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
 		Decompress((const void *)frame[0], destination);
-		TextEngine_RefreshNameplateFrame();
 		Proc_Break(proc);
 		return;
 	}
@@ -3837,10 +3744,8 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 	destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
 	Decompress((const void *)currentGraphics, destination);
 
-	if (!nextGraphics) {
-		TextEngine_RefreshNameplateFrame();
+	if (!nextGraphics)
 		Proc_Break(proc);
-	}
 }
 
 const struct ProcCmd gProc_DialogueBoxAppearingAnimation[] = {
