@@ -85,15 +85,38 @@ extern u16 Img_EfxRightItemBox_Gamma[];
 extern u16 Img_EfxRightItemBox_Fenreir[];
 extern u16 Img_ShopGoldBox_Gamma[];
 
+extern const u8 gUiFrameImage_Wood[];
+extern const u8 gPrepExtra1_Wood[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Wood[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Wood[];      // gUnknown_08A1B1FC
+extern const u16 Wood_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Wood_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Wood[];
+extern u16 gUnknown_08802558_Wood[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Wood[];
+extern u16 Img_EfxLeftNameBox_Wood[];
+extern u16 Img_EfxLeftItemBox_Wood[];
+extern u16 Img_EfxRightNameBox_Wood[];
+extern u16 Img_EfxRightItemBox_Wood[];
+
 extern int StephanoStyleFlag;
 extern int GammaStyleFlag;
 extern int PikminStyleFlag;
+extern int WoodStyleFlag;
 int GetUI_id(void)
 {
 
     if (gpKernelDesignerConfig->vesly_custom_ui != true)
         return 0;
 
+    /*
+     * Wood is checked first: GammaStyleFlag is the guide flag, which the
+     * campaign sets early, so a later check could never select wood.
+     */
+    if (CheckFlag(WoodStyleFlag))
+    {
+        return 4;
+    }
     if (CheckFlag(StephanoStyleFlag))
     {
         return 1;
@@ -121,6 +144,7 @@ static const void * sUiFrame[] = {
     gUiFrameImage_Stephano,
     gUiFrameImage_Gamma,
     gUiFrameImage_Pikmin,
+    gUiFrameImage_Wood, // wood
 };
 
 const u8 * GetUiFrame(void)
@@ -139,6 +163,7 @@ static const void * sPIFontTiles[] = {
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles_Stephano,
+    gGfx_PlayerInterfaceFontTiles, // wood
 };
 
 const u8 * GetPIFontTiles(void)
@@ -157,6 +182,7 @@ static const void * sPINumbers[] = {
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers_Stephano,
+    gGfx_PlayerInterfaceNumbers, // wood
 };
 
 const u8 * GetPINumbers(void)
@@ -188,6 +214,7 @@ static const void * sUnknown_08A1B698[] = {
     gUnknown_08A1B698,
     gUnknown_08A1B698_Gamma,
     gUnknown_08A1B698,
+    gUnknown_08A1B698, // wood
 };
 
 const u8 * GetUnknown_08A1B698(void)
@@ -222,6 +249,7 @@ static const void * sPrepExtra1[] = {
     gPrepExtra1_Stephano,
     gPrepExtra1_Gamma,
     gPrepExtra1_Pikmin,
+    gPrepExtra1_Wood, // wood
 };
 
 const u8 * GetPrepExtra1(void)
@@ -241,6 +269,7 @@ static const void * sUnknown_08A1B7C8[] = {
     gUnknown_08A1B7C8,
     gUnknown_08A1B7C8_Gamma,
     gUnknown_08A1B7C8,
+    gUnknown_08A1B7C8, // wood
 };
 
 const u8 * GetUnknown_08A1B7C8(void)
@@ -269,6 +298,7 @@ static const void * sPrepUseItem[] = {
     gPrepUseGfx_Stephano,
     gPrepUseGfx_Gamma,
     gPrepUseGfx_Pikmin,
+    gPrepUseGfx_Wood, // wood
 };
 
 const u8 * GetPrepUseItem(void)
@@ -292,6 +322,7 @@ static const void * sPrepItem[] = {
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Gamma,
+    gPrepItemGfx_Wood, // wood
 };
 
 const u8 * GetPrepItem(void)
@@ -304,11 +335,25 @@ const u8 * GetPrepItem(void)
     return sPrepItem[id];
 }
 
+static const void * sPrepItemPal[] = {
+
+    gUnknown_08A1B638, // vanilla
+    gUnknown_08A1B638,
+    gUnknown_08A1B638,
+    gUnknown_08A1B638,
+    Wood_PrepItemsPalette, // wood
+};
+
+const u16 * GetPrepItemPal(void)
+{
+    return sPrepItemPal[GetUI_id()];
+}
+
 LYN_REPLACE_CHECK(DrawFundsSprite_Init);
 void DrawFundsSprite_Init(struct DrawFundsSpriteProc * proc)
 {
     Decompress(GetPrepItem(), (void *)0x06013000);
-    ApplyPalette(gUnknown_08A1B638, proc->pal + 0x10);
+    ApplyPalette(GetPrepItemPal(), proc->pal + 0x10);
 
     return;
 }
@@ -319,6 +364,7 @@ static const void * sPrepPopupWindow[] = {
     Gamma_PrepPopupWindow,
     Gamma_PrepPopupWindow,
     Gamma_PrepPopupWindow,
+    Wood_PrepPopupWindow, // wood
 };
 
 const u8 * GetPrepPopupWindow(void)
@@ -411,6 +457,7 @@ static const void * sBUiFrame_880210C[] = {
     gUnknown_0880210C, // vanilla
     gUnknown_0880210C_Sokaballa, gUnknown_0880210C_Gamma,
     gUnknown_0880210C_Fenreir, // top left box for name TSA
+    gUnknown_0880210C, // wood
 };
 const u8 * GetBUiFrame_880210C(void)
 {
@@ -427,6 +474,7 @@ static const void * sBUiFrame_88021C0[] = {
     gUnknown_088021C0, // vanilla
     gUnknown_088021C0_Alt, gUnknown_088021C0_Gamma,
     gUnknown_088021C0_Fenreir, // top right box for name TSA
+    gUnknown_088021C0, // wood
 };
 const u8 * GetBUiFrame_88021C0(void)
 {
@@ -501,6 +549,7 @@ static const void * sUnknown_08802274[] = {
     gUnknown_08802274, // vanilla
     gUnknown_08802274, gUnknown_08802274_Gamma,
     gUnknown_08802274_Fenreir, // bottom left side TSA
+    gUnknown_08802274, // wood
 };
 
 const u8 * ekrGaugeMain_GetImg()
@@ -518,6 +567,7 @@ static const void * sUnknown_08802348[] = {
     gUnknown_08802348, // vanilla
     gUnknown_08802348, gUnknown_08802348_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA
+    gUnknown_08802348, // wood
 };
 
 const u8 * ekrGaugeMain2_GetImg()
@@ -536,6 +586,7 @@ static const void * sUnknown_08802428[] = {
     // gUnknown_08802428_Alt,
     gUnknown_08802428, gUnknown_08802428_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA alternate
+    gUnknown_08802428, // wood
 };
 
 const u8 * ekrGaugeMain3_GetImg()
@@ -554,6 +605,7 @@ static const void * sUnknown_08802508[] = {
     gUnknown_08802508_Alt,
     gUnknown_08802508,
     gUnknown_08802508,
+    gUnknown_08802508, // wood
 };
 
 const u8 * GetUnknown_08802508()
@@ -572,6 +624,7 @@ static const void * sImg_08801C14[] = {
     Img_08801C14_Sokaballa,
     Img_08801C14_Gamma,
     Img_08801C14_Fenreir,
+    Img_08801C14_Wood, // wood
 };
 
 const u8 * GetImg_08801C14()
@@ -590,6 +643,7 @@ static const void * sBPal_8802558[] = {
     gUnknown_08802558_Sokaballa,
     gUnknown_08802558_Gamma,
     gUnknown_08802558_Fenreir,
+    gUnknown_08802558_Wood, // wood
 };
 const u16 * GetBPal_8802558(void)
 {
@@ -632,6 +686,7 @@ static const void * sImg_EfxLeftNameBox[] = {
     Img_EfxLeftNameBox_Sokaballa,
     Img_EfxLeftNameBox_Gamma,
     Img_EfxLeftNameBox_Fenreir,
+    Img_EfxLeftNameBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxLeftNameBox()
@@ -650,6 +705,7 @@ static const void * sImg_EfxLeftItemBox[] = {
     Img_EfxLeftItemBox_Sokaballa,
     Img_EfxLeftItemBox_Gamma,
     Img_EfxLeftItemBox_Fenreir,
+    Img_EfxLeftItemBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxLeftItemBox()
@@ -668,6 +724,7 @@ static const void * sImg_EfxRightNameBox[] = {
     Img_EfxRightNameBox_Sokaballa,
     Img_EfxRightNameBox_Gamma,
     Img_EfxRightNameBox_Fenreir,
+    Img_EfxRightNameBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxRightNameBox()
@@ -686,6 +743,7 @@ static const void * sImg_EfxRightItemBox[] = {
     Img_EfxRightItemBox_Sokaballa,
     Img_EfxRightItemBox_Gamma,
     Img_EfxRightItemBox_Fenreir,
+    Img_EfxRightItemBox_Wood, // wood
 };
 
 const u8 * GetImg_EfxRightItemBox()
@@ -774,6 +832,7 @@ void EfxPrepareScreenFx(void)
 extern const u16 gUiFramePaletteA[];
 extern const u16 MenuTilesPalette_Gamma[];
 extern const u16 MenuTilesPalette_Pikmin[];
+extern const u16 MenuTilesPalette_Wood[];
 
 static const u16 * const sUiPalLookupVanilla[] = {
     &gUiFramePaletteA[0x0], // gUiFramePaletteA has all 4 in a row anyway
@@ -792,6 +851,13 @@ static const u16 * const sUiPalLookupPikmin[] = {
     &MenuTilesPalette_Pikmin[0x0],  &MenuTilesPalette_Pikmin[0x10], &MenuTilesPalette_Pikmin[0x20],
     &MenuTilesPalette_Pikmin[0x30], &MenuTilesPalette_Pikmin[0x40], &MenuTilesPalette_Pikmin[0x50],
     &MenuTilesPalette_Pikmin[0x60], &MenuTilesPalette_Pikmin[0x70],
+
+};
+
+static const u16 * const sUiPalLookupWood[] = {
+    &MenuTilesPalette_Wood[0x0],  &MenuTilesPalette_Wood[0x10], &MenuTilesPalette_Wood[0x20],
+    &MenuTilesPalette_Wood[0x30], &MenuTilesPalette_Wood[0x40], &MenuTilesPalette_Wood[0x50],
+    &MenuTilesPalette_Wood[0x60], &MenuTilesPalette_Wood[0x70],
 
 };
 
@@ -815,17 +881,27 @@ static const u16 * const sFactionPalLookupPikmin[] = {
     &MenuTilesPalette_Pikmin[0x30],
 };
 
+/* Same row order as vanilla: blue, green (0x40), red (0x80), other (0xC0). */
+static const u16 * const sFactionPalLookupWood[] = {
+    &MenuTilesPalette_Wood[0x00],
+    &MenuTilesPalette_Wood[0x20],
+    &MenuTilesPalette_Wood[0x10],
+    &MenuTilesPalette_Wood[0x30],
+};
+
 static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupVanilla,
     sUiPalLookupVanilla,
     sUiPalLookupGamma,
     sUiPalLookupPikmin,
+    sUiPalLookupWood, // wood
 };
 static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupVanilla,
     sFactionPalLookupVanilla,
     sFactionPalLookupGamma,
     sFactionPalLookupPikmin,
+    sFactionPalLookupWood, // wood
 };
 
 #define BGPAL_WINDOW_FRAME 1
@@ -1031,6 +1107,7 @@ static const void * sUiGoldBox[] = {
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Gamma,
+    Img_ShopGoldBox_Wood, // wood
 };
 
 const u8 * GetUiGoldBox(void)

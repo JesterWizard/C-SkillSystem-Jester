@@ -9,6 +9,7 @@ extern u16 ModularMinimugBox_TileMap[];
 extern const u16 gUiFramePaletteA[];
 extern const u16 MenuTilesPalette_Gamma[];
 extern const u16 MenuTilesPalette_Pikmin[];
+extern const u16 MenuTilesPalette_Wood[];
 
 int GetUIPalID(void);
 
@@ -56,6 +57,9 @@ static const u16 *GetMMBWindowPaletteRow(int uiPalId, int windowColor) {
 
     case 3:
         return &MenuTilesPalette_Pikmin[windowColor * 0x10];
+
+    case 4:
+        return &MenuTilesPalette_Wood[windowColor * 0x10];
 
     default:
         return &gUiFramePaletteA[windowColor * 0x10];
