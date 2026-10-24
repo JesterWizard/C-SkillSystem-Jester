@@ -95,6 +95,15 @@ enum {
 	/* PutTalkBubbleTm width/height include the border tiles. */
 	TEXT_ENGINE_NAMEPLATE_BG1_MAX_WIDTH = TEXT_ENGINE_NAMEPLATE_WIDTH + 2,
 	/*
+	 * The plate's last text column is never printed to; its top tile holds
+	 * the scene tab's bottom corner, merged with the box's top edge.
+	 */
+	TEXT_ENGINE_NAMEPLATE_SPARE_COLUMN = TEXT_ENGINE_NAMEPLATE_WIDTH - 1,
+	/* Talk-bubble tiles in BG1 VRAM: 0x10 corner, 0x11 top edge. */
+	TEXT_ENGINE_BUBBLE_TILE_CORNER = 0x10,
+	TEXT_ENGINE_BUBBLE_TILE_EDGE = 0x11,
+	TEXT_ENGINE_BUBBLE_PALETTE = 3,
+	/*
 	 * Ash dissolve rebuilds the mug from its OBJ list each frame, so
 	 * chip motion lives on the proc (seed + origin) instead of EWRAM.
 	 */
@@ -707,6 +716,67 @@ static int TextEngine_CopyNameplateString(
 	return textWidth;
 }
 
+static int TextEngine_GetTilePixel(const u8 *tile, int x, int y)
+{
+	return (tile[y * 4 + x / 2] >> ((x & 1) * 4)) & 0xF;
+}
+
+/*
+ * The scene tab's bottom row replaces the box's top-edge tiles on BG1, so the
+ * see-through pixels outside its rounded corners would show the scene.  Build
+ * the bottom-left corner (bubble corner flipped down) with those pixels taken
+ * from the box's top edge, so the box line and fill continue behind the tab.
+ * Returns the BG1 tile number, or -1 when BG1 cannot reach the spare tile.
+ */
+static int TextEngine_BuildSceneTabCornerTile(void)
+{
+	struct Font *font = (struct Font *)0x030000F0;
+	u8 *bg1Chr = (u8 *)(VRAM + GetBackgroundTileDataOffset(BG_1));
+	const u8 *corner = bg1Chr + TEXT_ENGINE_BUBBLE_TILE_CORNER * CHR_SIZE;
+	const u8 *edge = bg1Chr + TEXT_ENGINE_BUBBLE_TILE_EDGE * CHR_SIZE;
+	u8 *dest = (u8 *)font->vramDest + (
+		sTextEngineNameplateState.text.chr_position
+		+ TEXT_ENGINE_NAMEPLATE_SPARE_COLUMN
+	) * 2 * CHR_SIZE;
+	int tile = (dest - bg1Chr) / CHR_SIZE;
+	int x;
+	int y;
+	int i;
+
+	if (dest < bg1Chr || tile >= 0x400)
+		return -1;
+
+	/* VRAM takes 16-bit writes: four pixels at a time. */
+	for (y = 0; y < 8; y++) {
+		for (x = 0; x < 8; x += 4) {
+			u16 pixels = 0;
+
+			for (i = 0; i < 4; i++) {
+				int color = TextEngine_GetTilePixel(corner, x + i, 7 - y);
+
+				if (!color)
+					color = TextEngine_GetTilePixel(edge, x + i, y);
+
+				pixels |= color << (i * 4);
+			}
+
+			*(u16 *)(dest + y * 4 + x / 2) = pixels;
+		}
+	}
+
+	return tile;
+}
+
+/*
+ * The tab is drawn when the box starts opening; rebuild its corner once the
+ * final box graphics are in so it does not keep an opening-frame tile.
+ */
+static void TextEngine_RefreshSceneTabCorner(void)
+{
+	if (sTextEngineNameplateState.active == 1 && TextEngine_IsSceneLayoutActive())
+		TextEngine_BuildSceneTabCornerTile();
+}
+
 static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 {
 	struct TalkState *state = sTextEngineState;
@@ -814,8 +884,9 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	innerWidth = (nameWidth + 7) / 8 + TEXT_ENGINE_NAMEPLATE_PAD_TILES;
 	if (innerWidth < 1)
 		innerWidth = 1;
-	if (innerWidth > TEXT_ENGINE_NAMEPLATE_WIDTH)
-		innerWidth = TEXT_ENGINE_NAMEPLATE_WIDTH;
+	/* Keep clear of the column that holds the scene tab's corner tile. */
+	if (innerWidth > TEXT_ENGINE_NAMEPLATE_SPARE_COLUMN)
+		innerWidth = TEXT_ENGINE_NAMEPLATE_SPARE_COLUMN;
 	if (innerWidth > dialogueWidth - 2)
 		innerWidth = dialogueWidth - 2;
 
@@ -858,6 +929,19 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	}
 
 	PutTalkBubbleTm(BG_1, bg1X, bg1Y, bg1Width, TEXT_ENGINE_NAMEPLATE_HEIGHT);
+
+	/* The scene tab's bottom row sits on the box's top edge: merge its corners. */
+	if (sceneLayout) {
+		int cornerTile = TextEngine_BuildSceneTabCornerTile();
+
+		if (cornerTile >= 0) {
+			u16 *bottom = gBG1TilemapBuffer + TILEMAP_INDEX(bg1X, bg1Y + 1);
+
+			bottom[0] = TILEREF(cornerTile, TEXT_ENGINE_BUBBLE_PALETTE);
+			bottom[bg1Width - 1] =
+				TILEREF(cornerTile, TEXT_ENGINE_BUBBLE_PALETTE) + 0x400;
+		}
+	}
 	PutText(
 		&sTextEngineNameplateState.text,
 		gBG0TilemapBuffer + TILEMAP_INDEX(bg1X + 1, nameY)
@@ -3733,6 +3817,7 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 
 		destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
 		Decompress((const void *)frame[0], destination);
+		TextEngine_RefreshSceneTabCorner();
 		Proc_Break(proc);
 		return;
 	}
@@ -3744,8 +3829,10 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 	destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
 	Decompress((const void *)currentGraphics, destination);
 
-	if (!nextGraphics)
+	if (!nextGraphics) {
+		TextEngine_RefreshSceneTabCorner();
 		Proc_Break(proc);
+	}
 }
 
 const struct ProcCmd gProc_DialogueBoxAppearingAnimation[] = {
