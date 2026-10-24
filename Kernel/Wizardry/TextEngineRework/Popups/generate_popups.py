@@ -7,6 +7,10 @@ The PNGs are committed, so this only needs rerunning to change the art.
 Then convert each PNG with the makefile's grit rule, for example:
     grit Objection.png -gB 4 -gzl -m -mLf -mR4 -mzl -pn 16 -ftb -fh! -o Objection.img.bin
 
+Every shape is drawn as a smooth mask at SUPERSAMPLE times the final size,
+tilted there, scaled down and thresholded, so edges come out as clean pixel
+steps instead of the noise a 1x rotate leaves.
+
 The whole popup must stay within the dialogue text tiles it borrows at
 runtime (240 unique 8x8 tiles after flip reduction); this script reports the
 count for each popup.
@@ -17,10 +21,11 @@ import math
 import os
 import sys
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WIDTH, HEIGHT = 240, 128
+SUPERSAMPLE = 4
 MAX_TILES = 240
 
 # Index 0 is transparent on the GBA.
@@ -40,6 +45,11 @@ POPUPS = [
     ("HoldIt", "Hold it!", 50, -9, 5),
     ("TakeThat", "Take that!", 42, -10, 7),
 ]
+
+# Pixels at the final size.
+OUTLINE = 3
+SHADOW_OFFSET = 3
+HIGHLIGHT = 2
 
 FONT_CANDIDATES = [
     "/usr/share/fonts/opentype/inter/InterDisplay-BlackItalic.otf",
@@ -70,50 +80,101 @@ def burst_points(seed, cx, cy, rx, ry, spikes=22):
     return points
 
 
+def big_canvas():
+    return Image.new("L", (WIDTH * SUPERSAMPLE, HEIGHT * SUPERSAMPLE), 0)
+
+
+def to_pixels(mask):
+    """Scale a supersampled mask down to the final size and threshold it."""
+    small = mask.resize((WIDTH, HEIGHT), Image.BOX)
+    return small.point(lambda v: 255 if v >= 128 else 0)
+
+
+def polygon_mask(points):
+    mask = big_canvas()
+    ImageDraw.Draw(mask).polygon(
+        [(x * SUPERSAMPLE, y * SUPERSAMPLE) for x, y in points], fill=255)
+    return to_pixels(mask)
+
+
+def text_masks(text, size, tilt, font_path):
+    """Fill, outline and shadow masks for the tilted lettering."""
+    font = ImageFont.truetype(font_path, size * SUPERSAMPLE)
+    stroke = OUTLINE * SUPERSAMPLE
+    probe = ImageDraw.Draw(big_canvas())
+    left, top, right, bottom = probe.textbbox((0, 0), text, font=font, stroke_width=stroke)
+    x = (WIDTH * SUPERSAMPLE - (right - left)) // 2 - left
+    y = (HEIGHT * SUPERSAMPLE - (bottom - top)) // 2 - top
+
+    def render(stroke_width, offset):
+        mask = big_canvas()
+        ImageDraw.Draw(mask).text(
+            (x + offset, y + offset), text, font=font, fill=255,
+            stroke_width=stroke_width, stroke_fill=255)
+        mask = mask.rotate(tilt, resample=Image.BICUBIC)
+        return to_pixels(mask)
+
+    fill = render(0, 0)
+    outline = render(stroke, 0)
+    shadow = render(stroke, SHADOW_OFFSET * SUPERSAMPLE)
+    return fill, outline, shadow
+
+
+def shifted(mask, dx, dy):
+    return ImageChops.offset(mask, dx, dy)
+
+
+def despeckle(image):
+    """Recolor pixels whose four neighbours all disagree with them."""
+    data = image.load()
+    source = image.copy().load()
+    for py in range(1, HEIGHT - 1):
+        for px in range(1, WIDTH - 1):
+            color = source[px, py]
+            neighbours = [source[px - 1, py], source[px + 1, py],
+                          source[px, py - 1], source[px, py + 1]]
+            if color not in neighbours:
+                data[px, py] = max(set(neighbours), key=neighbours.count)
+
+
 def draw_popup(text, size, tilt, seed, font_path):
     image = Image.new("P", (WIDTH, HEIGHT), 0)
     image.putpalette([c for rgb in PALETTE for c in rgb] + [0] * (768 - 3 * len(PALETTE)))
-    draw = ImageDraw.Draw(image)
-    draw.fontmode = "1"
 
-    # Burst: shade ring, then white face, then outline.
-    outer = burst_points(seed, WIDTH / 2, HEIGHT / 2, 112, 58)
-    inner = burst_points(seed, WIDTH / 2, HEIGHT / 2, 104, 52)
-    draw.polygon(outer, fill=3, outline=1)
-    draw.polygon(inner, fill=2)
-    draw.line(outer + [outer[0]], fill=1, width=2)
+    outer = polygon_mask(burst_points(seed, WIDTH / 2, HEIGHT / 2, 112, 58))
+    inner = polygon_mask(burst_points(seed, WIDTH / 2, HEIGHT / 2, 104, 52))
+    # Two-pixel burst outline: the outer shape minus itself shrunk by a pixel.
+    outer_core = ImageChops.multiply(
+        ImageChops.multiply(shifted(outer, 1, 0), shifted(outer, -1, 0)),
+        ImageChops.multiply(shifted(outer, 0, 1), shifted(outer, 0, -1)))
+    outer_core = ImageChops.multiply(
+        outer_core,
+        ImageChops.multiply(
+            ImageChops.multiply(shifted(outer_core, 1, 0), shifted(outer_core, -1, 0)),
+            ImageChops.multiply(shifted(outer_core, 0, 1), shifted(outer_core, 0, -1))))
 
-    # Lettering on its own layer so it can be tilted.
-    font = ImageFont.truetype(font_path, size)
-    layer = Image.new("P", (WIDTH * 2, HEIGHT * 2), 0)
-    layer_draw = ImageDraw.Draw(layer)
-    layer_draw.fontmode = "1"
-    left, top, right, bottom = layer_draw.textbbox((0, 0), text, font=font, stroke_width=3)
-    x = (layer.width - (right - left)) // 2 - left
-    y = (layer.height - (bottom - top)) // 2 - top
+    fill, outline, shadow = text_masks(text, size, tilt, font_path)
+    # Highlight: a band along the top edge of each letter.
+    highlight = ImageChops.subtract(fill, shifted(fill, 0, HIGHLIGHT))
 
-    layer_draw.text((x + 4, y + 4), text, font=font, fill=5, stroke_width=3, stroke_fill=5)
-    layer_draw.text((x, y), text, font=font, fill=4, stroke_width=3, stroke_fill=1)
-    # Thin highlight along the top of each letter.
-    highlight = Image.new("1", layer.size, 0)
-    ImageDraw.Draw(highlight).text((x, y), text, font=font, fill=1)
-    pixels = layer.load()
-    mask = highlight.load()
-    for py in range(1, layer.height):
-        for px in range(layer.width):
-            if mask[px, py] and not mask[px, py - 1] and pixels[px, py] == 4:
-                pixels[px, py] = 6
-
-    layer = layer.rotate(tilt, resample=Image.NEAREST, center=(layer.width / 2, layer.height / 2))
-    layer = layer.crop((WIDTH // 2, HEIGHT // 2, WIDTH // 2 + WIDTH, HEIGHT // 2 + HEIGHT))
-
+    layers = [
+        (outer, 1),
+        (outer_core, 3),
+        (inner, 2),
+        (shadow, 5),
+        (outline, 1),
+        (fill, 4),
+        (highlight, 6),
+    ]
     out = image.load()
-    lettering = layer.load()
-    for py in range(HEIGHT):
-        for px in range(WIDTH):
-            if lettering[px, py]:
-                out[px, py] = lettering[px, py]
+    for mask, color in layers:
+        pixels = mask.load()
+        for py in range(HEIGHT):
+            for px in range(WIDTH):
+                if pixels[px, py]:
+                    out[px, py] = color
 
+    despeckle(image)
     return image
 
 
