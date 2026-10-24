@@ -26,6 +26,7 @@ Player-facing impact:
 - Dialogue can apply a horizontal scanline wave to its background layers.
 - Printed letters can bounce in, wave into place, scramble then resolve, drip from above, or leave a ghost echo.
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
+- A scene layout swaps the floating speech bubbles for one full-width box along the bottom of the screen. Portraits stand behind it and the speaker's name sits on a tab across the box's top-left edge, like a classic cutscene. It is off by default and toggled per dialogue.
 - A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - A one-shot white impact flash can fire from dialogue or `ASMC` and decays on its own.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -51,6 +52,7 @@ The rework is a small set of C hooks plus shared tables.
 | Dialogue wave | Secondary HBlank callback updates BG0–BG3 horizontal offsets from a packed 160-line table | Text, textbox, and background layers move with a continuous horizontal wave |
 | Screen earthquake | Secondary HBlank callback adds a 2px XY rumble from a looping offset table | Backgrounds, portraits, and map sprites shake together until toggled off |
 | Speaker nameplate | Draws the speaking face’s name on BG0 with a matching BG1 talk-bubble frame above the box | Off by default; `[ToggleOnNameplate]` enables per dialogue |
+| Scene layout | Replaces the talk-open proc with a full-width bottom box, raises newly loaded portraits so their lower 16px stand behind it, and pins the nameplate to the box's top-left edge | Off by default; `[ToggleOnSceneLayout]` enables per dialogue, `[ToggleOffSceneLayout]` returns to speech bubbles |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
@@ -126,6 +128,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x56` | `[ImpactFlash]` | none | One-shot white screen flash that peaks for 2 frames, then fades over 10 more |
 | `0x57` | `[Sweat]` | none | One-shot 16×16 sweat drop on the active portrait's cheek. Falls into place, holds, then blinks out. The next text waits until it finishes |
 | `0x58` | `[Anger]` | none | One-shot 16×16 anger mark on the active portrait's forehead. Grows and shrinks four times, then the next text box continues |
+| `0x59` | `[ToggleOnSceneLayout]` | none | Starts the scene layout: a full-width box along the bottom of the screen, portraits behind it, and a speaker name tab on the box's top-left edge. Closes any open bubble so the next text reopens in the new layout |
+| `0x5A` | `[ToggleOffSceneLayout]` | none | Returns to normal speech bubbles, moves portraits back to their normal height, and restores the nameplate setting from before the layout was turned on |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 
@@ -193,7 +197,29 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ImpactFlash]That hit lands all at once.
 [Sweat]I was not ready for that.
 [Anger]That is enough.
+[ToggleOnSceneLayout]Emperor Vigarde's forces are within the castle walls.
+[ToggleOffSceneLayout]Back to speech bubbles.
 [ClearFaceAsh]
+```
+
+### Scene layout
+
+`[ToggleOnSceneLayout]` changes how every following text box opens until `[ToggleOffSceneLayout]` or the end of the dialogue:
+
+| Element | Normal bubbles | Scene layout |
+|---------|----------------|--------------|
+| Box | Sized to the text, floats beside the speaker, with a tail | Always 30 tiles wide, pinned to the bottom edge (`[BoxHeight]` sets 1–3 lines), no tail |
+| Speaker change | Old bubble closes, new one slides in | Box redraws in place without the open animation; the text and name tab change |
+| Portraits | Top at Y 80 | Newly loaded mugs, and mugs already on screen when the toggle runs, move up so their lower 16px stand behind the box (half-body portraits keep their normal height) |
+| Nameplate | Off unless `[ToggleOnNameplate]` | On. A 2-tile tab starts at tile column 2 and its bottom edge sits on the box's top border |
+
+Put the toggle at the start of a box. Portrait slots keep their usual X positions, so a two-person scene usually pairs `[OpenMidLeft]` with `[OpenMidRight]`. The box opens with the usual slide-up the first time, and again after `[CloseSpeechSlow]` or a `[ClearFace]` that closes it.
+
+```text
+[ToggleOnSceneLayout][OpenMidLeft][LoadFace][0x02][0x01]
+[OpenMidRight][LoadFace][0x14][0x01]Emperor Vigarde's forces are within
+the castle walls.[A][OpenMidLeft]Then we hold the throne room.[A]
+[ToggleOffSceneLayout]
 ```
 
 ### Custom fonts
@@ -226,6 +252,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Whole-screen earthquake | `EnableScreenEarthquake`, `DisableScreenEarthquake`, `gProcScr_TextEngineScreenEarthquake` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | 2px XY rumble on BG0–BG3 plus portraits, float glyphs, and map sprites; `ASMC(EnableScreenEarthquake)` and `[ToggleOnEarthquake]`/`[ToggleOffEarthquake]` |
 | Impact flash | `StartScreenImpactFlash`, `gProcScr_TextEngineImpactFlash` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | One-shot full-screen white brighten that decays over 12 frames; `ASMC(StartScreenImpactFlash)` and `[ImpactFlash]` |
 | Portrait ash dissolve | `TextEngine_StartAshDissolve`, `gProcScr_TextEngineAshDissolve` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[ClearFaceAsh]` hides the live mug and rebuilds it as 16×16 OBJ chips that drift up and fade; not a screen FX |
+| Scene layout | `TextEngine_SetSceneLayout`, `TextEngine_IsSceneLayoutActive`, `TextEngine_GetTalkFaceY`, `TextEngineSceneOpen_PutBox`, `gProcScr_TextEngineSceneOpen` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `StartTalkOpen_C` starts the scene-open proc instead of `gProcScr_TalkOpen`; box width is forced in `UpdateFontBeforeBoxWidthCalc` and `TalkInterpret`; `DecompressTextBoxGraphics` skips to the final tile frame when the box is redrawn for a new speaker. State lives in `sTextEngineSceneLayoutState` (`include/link/config-memmap.s`) |
 | Portrait emotion marks | `TextEngine_StartEmotion`, `gProcScr_TextEngineEmotion` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[Sweat]` / `[Anger]` draw one 16×16 OBJ on the active mug. One mark at a time. Cleared when talk ends |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
@@ -261,6 +288,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - The screen earthquake is a 2px XY rumble: BG0–BG3, portraits (including mouths/eyes), float glyphs, and map sprites share the same offset. It is off until `[ToggleOnEarthquake]` or `ASMC(EnableScreenEarthquake)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot and plays vanilla rumble `SONG_26A` until `[ToggleOffEarthquake]` / `ASMC(DisableScreenEarthquake)` fades it. This is independent of event-script `EARTHQUAKE_START`, which only jitters the map camera or BG3.
 - `[ImpactFlash]` is a one-shot hardware brighten of BG0–BG3, OBJ, and the backdrop. It does not use the secondary HBlank slot, so it can stack with wave / glitch / static / earthquake. It saves and restores the previous blend config, including talk-window blend bits. Firing it during `[ClearFaceAsh]` will temporarily steal OBJ alpha. It is cleared when talk ends. It plays no sound; pair it with `[PlaySound]` if a hit SFX is needed.
 - `[ClearFaceAsh]` is a portrait effect, not a screen FX. It rebuilds the mug from its live OBJ tiles as about 24–30 16×16 chips (a 96×80 talk face). Chip motion is derived each frame from a seed on the effect proc, so it does not reserve extra EWRAM. Chips stay still for a few frames so the mug does not pop away, then drift upward with a light hardware mosaic and an OBJ blend fade. Map sprites should be quiet; 32-color overlays double the sprite count and are skipped on very large mugs. Hardware mosaic is global for mosaic-bit sprites.
+- The scene layout is cleared when a dialogue starts, like nameplates, so each `TEXTSHOW` that should use it needs its own `[ToggleOnSceneLayout]`. Sprite talk, no-bubble talk, and battle quotes ignore it. Portraits stand behind the box because face OBJ use priority 2 and the box's BG1 uses priority 1; a mug loaded with a different `FACE_DISP_HLAYER` draws over the box. Portraits are placed for the box height when they load or when the toggle runs; changing `[BoxHeight]` later does not move them. The name tab's text is on BG0, so it does not slide up with the box during the first open.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

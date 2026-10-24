@@ -202,6 +202,9 @@ _kernel_malloc gUnk_0201E9F4, 0x5A // u16[3][15]
 /* Pathfinding ghost: AP obj list copy (count + up to 8 sprites * 3 attrs) */
 _kernel_malloc sPathfindingGhostObjBuf, 50
 
+/* Text engine scene layout: enabled, boxShown, instantOpen, savedNameplate */
+_kernel_malloc sTextEngineSceneLayoutState, 4
+
 /* CONFIG */
 
 @ _kernel_malloc _kernel_malloc_align4_pad, 3

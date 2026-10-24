@@ -139,6 +139,24 @@ enum {
 		TEXT_ENGINE_EMOTION_ANGER_PULSE_HALF * 2 * TEXT_ENGINE_EMOTION_ANGER_PULSES,
 	TEXT_ENGINE_CMD_SWEAT = 0x57,
 	TEXT_ENGINE_CMD_ANGER = 0x58,
+	/*
+	 * Scene layout: one full-width box pinned to the bottom of the screen,
+	 * portraits standing behind it, and the speaker's name on a tab that
+	 * straddles the box's top-left edge.
+	 */
+	TEXT_ENGINE_CMD_SCENE_LAYOUT_ON = 0x59,
+	TEXT_ENGINE_CMD_SCENE_LAYOUT_OFF = 0x5A,
+	TEXT_ENGINE_SCENE_BOX_X = 0,
+	TEXT_ENGINE_SCENE_BOX_WIDTH = 30,
+	TEXT_ENGINE_SCENE_SCREEN_ROWS = 20,
+	/* Pixels of a 96x80 mug that stand behind the box's top edge. */
+	TEXT_ENGINE_SCENE_FACE_OVERLAP = 16,
+	TEXT_ENGINE_TALK_FACE_HEIGHT = 80,
+	TEXT_ENGINE_TALK_FACE_Y = 80,
+	TEXT_ENGINE_HALF_BODY_FACE_Y = 0x20,
+	/* Name tab: first tile column, and rows above yText (tab bottom = box top). */
+	TEXT_ENGINE_SCENE_NAMEPLATE_X = 2,
+	TEXT_ENGINE_SCENE_NAMEPLATE_Y_OFFSET = 2,
 };
 
 struct TextEngineFaceJumpProc {
@@ -266,6 +284,18 @@ struct TextEngineNameplateState {
 };
 
 extern EWRAM_DATA struct TextEngineNameplateState sTextEngineNameplateState;
+
+struct TextEngineSceneLayoutState {
+	u8 enabled;
+	/* A scene box is already up: speaker changes redraw it without the open animation. */
+	u8 boxShown;
+	/* The box being opened right now skips the slide and tile animation. */
+	u8 instantOpen;
+	/* Nameplate setting from before the layout was turned on. */
+	u8 savedNameplate;
+};
+
+extern EWRAM_DATA struct TextEngineSceneLayoutState sTextEngineSceneLayoutState;
 
 struct TextEnginePortraitNameAlias {
 	u8 portraitId;
@@ -499,6 +529,39 @@ static struct Text *TextEngine_GetLineText(const struct TalkState *state, int li
 	return &sTextEngineText[index];
 }
 
+static bool TextEngine_IsSceneLayoutActive(void)
+{
+	/* Sprite talk, bubble-less talk and battle quotes keep their own layouts. */
+	return sTextEngineSceneLayoutState.enabled &&
+		!CheckTalkFlag(TALK_FLAG_SPRITE) &&
+		!CheckTalkFlag(TALK_FLAG_NOBUBBLE) &&
+		!IsBattleDeamonActive();
+}
+
+static int TextEngine_GetSceneBoxHeight(void)
+{
+	return sTextEngineState->lines * 2 + 2;
+}
+
+static int TextEngine_GetSceneBoxY(void)
+{
+	return TEXT_ENGINE_SCENE_SCREEN_ROWS - TextEngine_GetSceneBoxHeight();
+}
+
+static int TextEngine_GetTalkFaceY(void)
+{
+	/* Half-body mugs already stand on the bottom edge, behind any box. */
+	if (gpKernelDesignerConfig->half_body_portraits)
+		return TEXT_ENGINE_HALF_BODY_FACE_Y;
+
+	if (TextEngine_IsSceneLayoutActive())
+		return TextEngine_GetSceneBoxY() * 8
+			+ TEXT_ENGINE_SCENE_FACE_OVERLAP
+			- TEXT_ENGINE_TALK_FACE_HEIGHT;
+
+	return TEXT_ENGINE_TALK_FACE_Y;
+}
+
 static const struct CharacterData *TextEngine_FindCharacterByPortrait(int portraitId)
 {
 	const struct CharacterData *character;
@@ -668,6 +731,7 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	int col;
 	u16 nameTextId;
 	u8 *faceAttributes;
+	bool sceneLayout;
 
 	(void)proc;
 
@@ -710,7 +774,10 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	if (dialogueWidth <= 2)
 		return;
 
-	nameY = state->yText - TEXT_ENGINE_NAMEPLATE_Y_OFFSET;
+	sceneLayout = TextEngine_IsSceneLayoutActive();
+	nameY = state->yText - (sceneLayout
+		? TEXT_ENGINE_SCENE_NAMEPLATE_Y_OFFSET
+		: TEXT_ENGINE_NAMEPLATE_Y_OFFSET);
 	if (nameY < 0)
 		return;
 
@@ -741,6 +808,7 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 
 	/*
 	 * Size the BG1 frame to the name, then center it over the dialogue bubble.
+	 * The scene layout pins it to the box's left edge as a tab instead.
 	 * PutTalkBubbleTm width/height include the border tiles.
 	 */
 	innerWidth = (nameWidth + 7) / 8 + TEXT_ENGINE_NAMEPLATE_PAD_TILES;
@@ -752,7 +820,10 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 		innerWidth = dialogueWidth - 2;
 
 	bg1Width = innerWidth + 2;
-	bg1X = (state->xText - 1) + (dialogueWidth - bg1Width) / 2;
+	if (sceneLayout)
+		bg1X = TEXT_ENGINE_SCENE_NAMEPLATE_X;
+	else
+		bg1X = (state->xText - 1) + (dialogueWidth - bg1Width) / 2;
 	bg1Y = nameY;
 	if (bg1X < 0 ||
 		bg1Y < 0 ||
@@ -3205,14 +3276,96 @@ struct Proc *StartTalkFaceMove_C(int talkFaceFrom, int talkFaceTo, s8 isSwap)
 	return proc;
 }
 
+static void TextEngineSceneOpen_PutBox(struct Proc *proc)
+{
+	struct TalkState *state = sTextEngineState;
+	int height = TextEngine_GetSceneBoxHeight();
+	int y = TextEngine_GetSceneBoxY();
+
+	/* Latch now: the tile animation clears instantOpen once it consumes it. */
+	proc->unk64 = sTextEngineSceneLayoutState.instantOpen;
+
+	/*
+	 * The previous speaker's tab backed up box-border tiles; drop it before
+	 * redrawing so a box of a different height cannot get them restored.
+	 */
+	TextEngine_ClearSpeakerNameplate();
+	BG_Fill(gBG1TilemapBuffer, 0);
+
+	state->xText = TEXT_ENGINE_SCENE_BOX_X + 1;
+	state->yText = y + 1;
+
+	PutTalkBubbleTm(
+		BG_1,
+		TEXT_ENGINE_SCENE_BOX_X,
+		y,
+		TEXT_ENGINE_SCENE_BOX_WIDTH,
+		height
+	);
+
+	/* Same palette handoff as PutTalkBubble; the scene box has no tail. */
+	if (state->invertedFlags & 2) {
+		TalkToggleInvertedPalette(state->invertedFlags & 1);
+		state->invertedFlags ^= 2;
+	}
+
+	InitTalkTextWin(
+		TEXT_ENGINE_SCENE_BOX_X,
+		y,
+		TEXT_ENGINE_SCENE_BOX_WIDTH,
+		height
+	);
+
+	if (proc->unk64) {
+		/* The box was up for the previous speaker: land fully open. */
+		BG_SetPosition(BG_1, 0, 0);
+		if (!CheckTalkFlag(TALK_FLAG_8))
+			SetBlendAlpha(16, 1);
+	}
+
+	sTextEngineSceneLayoutState.boxShown = 1;
+	StartOpenTalkBubble();
+	TalkBgSync(2);
+}
+
+static void TextEngineSceneOpen_OnIdle(struct Proc *proc)
+{
+	if (proc->unk64) {
+		Proc_Break(proc);
+		return;
+	}
+
+	/* Vanilla slide-up and blend fade. */
+	TalkOpen_OnIdle(proc);
+}
+
+static const struct ProcCmd gProcScr_TextEngineSceneOpen[] = {
+	PROC_MARK(PROC_MARK_TALK),
+	PROC_CALL(TalkOpen_InitBlend),
+	PROC_CALL(TextEngineSceneOpen_PutBox),
+	PROC_REPEAT(TextEngineSceneOpen_OnIdle),
+	PROC_END,
+};
+
 LYN_REPLACE_CHECK(StartTalkOpen);
 void StartTalkOpen_C(int talkFace, ProcPtr parent)
 {
 	struct TalkState *state = sTextEngineState;
-	struct Proc *proc = (struct Proc *)Proc_StartBlocking(
-		gProcScr_TalkOpen,
-		parent
-	);
+	struct Proc *proc;
+
+	if (TextEngine_IsSceneLayoutActive()) {
+		state->activeWidth = TEXT_ENGINE_SCENE_BOX_WIDTH;
+		sTextEngineSceneLayoutState.instantOpen =
+			sTextEngineSceneLayoutState.boxShown;
+		Proc_StartBlocking(gProcScr_TextEngineSceneOpen, parent);
+
+		state->speakingFaceSlot = talkFace;
+		state->speakingWidth = state->activeWidth;
+		return;
+	}
+
+	sTextEngineSceneLayoutState.instantOpen = 0;
+	proc = (struct Proc *)Proc_StartBlocking(gProcScr_TalkOpen, parent);
 
 	proc->unk64 = GetTalkFaceHPos(talkFace);
 	proc->unk66 = gpKernelDesignerConfig->half_body_portraits ? 0x12 : 0x08;
@@ -3353,12 +3506,10 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 	if (face) {
 		sub_80066E0(face, faceId);
 	} else {
-		int faceY = gpKernelDesignerConfig->half_body_portraits ? 0x20 : 80;
-
 		face = StartFaceAuto(
 			faceId,
 			GetTalkFaceHPos(position) * 8,
-			faceY,
+			TextEngine_GetTalkFaceY(),
 			faceDisplay
 		);
 		state->faces[position] = face;
@@ -3543,6 +3694,10 @@ int UpdateFontBeforeBoxWidthCalc(void)
 		UpdateFontGlyphSet(current[TEXT_ENGINE_ATTR_FONT]);
 	}
 
+	/* The caller turns this into 2 + tiles; the scene box is always full width. */
+	if (TextEngine_IsSceneLayoutActive())
+		return (TEXT_ENGINE_SCENE_BOX_WIDTH - 2) * 8;
+
 	text = state->strBackup ? state->strBackup : state->str;
 	return GetStringTextWidthWithDialogueCodes(text, 0);
 }
@@ -3564,6 +3719,20 @@ void DecompressTextBoxGraphics(ProcPtr procPtr)
 		return;
 
 	graphics = TextBoxTypePointerTable[boxType];
+
+	/* A scene box redrawn for a new speaker skips straight to the final frame. */
+	if (animationFrame == 0 && sTextEngineSceneLayoutState.instantOpen) {
+		sTextEngineSceneLayoutState.instantOpen = 0;
+
+		for (frame = graphics; frame[1]; frame++)
+			;
+
+		destination = (void *)(0x06000200 + GetBackgroundTileDataOffset(1));
+		Decompress((const void *)frame[0], destination);
+		Proc_Break(proc);
+		return;
+	}
+
 	frame = graphics + (animationFrame >> 1);
 	currentGraphics = frame[0];
 	nextGraphics = frame[1];
@@ -4408,6 +4577,81 @@ static void TextEngine_CleanupNameplate(void)
 	sTextEngineNameplateState.enabled = 0;
 }
 
+static void TextEngine_SetSceneLayout(u8 enabled)
+{
+	struct TalkState *state = sTextEngineState;
+	int oldFaceY;
+	int deltaY;
+	int i;
+
+	if (sTextEngineSceneLayoutState.enabled == enabled)
+		return;
+
+	oldFaceY = TextEngine_GetTalkFaceY();
+
+	/* Close the open box so the next text reopens in the new layout. */
+	TextEngine_ClearSpeakerNameplate();
+	if (TalkHasCorrectBubble())
+		ClearTalkBubble();
+
+	/* The scene layout always shows the speaker tab. */
+	if (enabled) {
+		sTextEngineSceneLayoutState.savedNameplate =
+			sTextEngineNameplateState.enabled;
+		sTextEngineNameplateState.enabled = 1;
+	} else {
+		sTextEngineNameplateState.enabled =
+			sTextEngineSceneLayoutState.savedNameplate;
+	}
+
+	sTextEngineSceneLayoutState.enabled = enabled;
+	sTextEngineSceneLayoutState.boxShown = 0;
+	sTextEngineSceneLayoutState.instantOpen = 0;
+
+	/* Portraits already on screen step up behind the box, or back down. */
+	deltaY = TextEngine_GetTalkFaceY() - oldFaceY;
+	for (i = 0; i < (int)ARRAY_COUNT(state->faces); i++) {
+		if (state->faces[i])
+			state->faces[i]->yPos += deltaY;
+	}
+}
+
+static int TextEngine_CommandStartSceneLayout(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_SetSceneLayout(1);
+	return 3;
+}
+
+static int TextEngine_CommandStopSceneLayout(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)proc;
+	(void)command;
+	(void)arguments;
+
+	TextEngine_SetSceneLayout(0);
+	return 3;
+}
+
+static void TextEngine_CleanupSceneLayout(void)
+{
+	sTextEngineSceneLayoutState.enabled = 0;
+	sTextEngineSceneLayoutState.boxShown = 0;
+	sTextEngineSceneLayoutState.instantOpen = 0;
+	sTextEngineSceneLayoutState.savedNameplate = 0;
+}
+
 static int TextEngine_CommandStartScreenGlitch(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
@@ -4659,6 +4903,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_IMPACT_FLASH, 0, TextEngine_CommandImpactFlash, NULL, TextEngine_CleanupImpactFlash },
 	{ TEXT_ENGINE_CMD_SWEAT, 0, TextEngine_CommandEmotion, NULL, TextEngine_CleanupEmotion },
 	{ TEXT_ENGINE_CMD_ANGER, 0, TextEngine_CommandEmotion, NULL, TextEngine_CleanupEmotion },
+	{ TEXT_ENGINE_CMD_SCENE_LAYOUT_ON, 0, TextEngine_CommandStartSceneLayout, NULL, TextEngine_CleanupSceneLayout },
+	{ TEXT_ENGINE_CMD_SCENE_LAYOUT_OFF, 0, TextEngine_CommandStopSceneLayout, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
@@ -4807,8 +5053,10 @@ int TalkInterpret(ProcPtr proc)
 			HalfBody_OnTalkFaceClear(face);
 
 			TextEngine_ClearSpeakerNameplate();
-			if (TalkHasCorrectBubble())
+			if (TalkHasCorrectBubble()) {
 				ClearTalkBubble();
+				sTextEngineSceneLayoutState.boxShown = 0;
+			}
 
 			if (face) {
 				StartFaceFadeOut(face);
@@ -4824,6 +5072,7 @@ int TalkInterpret(ProcPtr proc)
 		case CHFE_L_CloseSpeechSlow:
 			TextEngine_ClearSpeakerNameplate();
 			ClearTalkBubble();
+			sTextEngineSceneLayoutState.boxShown = 0;
 			return 3;
 
 		case CHFE_L_ToggleMouthMove:
@@ -4861,6 +5110,11 @@ int TalkInterpret(ProcPtr proc)
 		case CHFE_L_NormalPrint:
 		case CHFE_L_FastPrint:
 		case CHFE_L_CloseSpeechFast:
+			if (TextEngine_IsSceneLayoutActive()) {
+				state->activeWidth = TEXT_ENGINE_SCENE_BOX_WIDTH;
+				continue;
+			}
+
 			state->activeWidth = 2 + (
 				GetStringTextWidthWithDialogueCodes(state->str, TalkHasCorrectBubble()) + 7
 			) / 8;
