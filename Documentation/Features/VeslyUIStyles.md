@@ -26,7 +26,7 @@ Player-facing impact:
 - Prep screens, the prep popup, the funds/items sprites and the shop gold box follow the style.
 - Faction-coloured frames (battle forecast, status screen counters, world map) use the style's palettes.
 
-**Wood** is the newest style. Its windows are grained boards framed by dark, black-outlined wooden beams, with a riveted iron cap on each corner. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. Four woods replace vanilla's window colours.
+**Wood** is the newest style. Its windows are grained boards framed by dark, black-outlined wooden planks. The edges are chipped and cracked, and at each corner the top and bottom planks run past the window and end in a broken, splintered tip. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. Four woods replace vanilla's window colours.
 
 | Window colour | Vanilla | Wood | Faction it tints |
 |---------------|---------|------|------------------|
@@ -77,7 +77,10 @@ Each getter in `C_Code.c` indexes a 5-entry table by the style ID. A style that 
 - Gold trim bars become beams: outlined, with shading set by each pixel's position across the bar.
 - Every edge that meets the transparent backdrop gets a black outline.
 - Ornament tiles (curls, crests, the battle gem) are replaced with the plain tile of the same role (`PLAIN_COPIES`, `BATTLE_COPIES`).
-- Corner tiles get the 7×7 iron cap (`CORNERS`, `BATTLE_CORNERS`, `CAP`).
+- Corner tiles become broken plank ends (`CORNERS`, `BATTLE_CORNERS`, `CORNER_ART`).
+- Beam and edge tiles get chips, cracks and grain streaks (`EDGE_CHIPS`); other tiles get an occasional small dent.
+
+In wood mode, `DrawUiFrame` (replaced in `C_Code.c`) picks each top beam, bottom beam and left edge tile from a set of interchangeable ones by position. So the chips along a window don't repeat every 8 pixels. The tile sets in `C_Code.c` must match the `EDGE_CHIPS` tiles.
 
 It then swaps in the wood palettes and adds a wood-grain pattern to the fill colours. The pattern repeats every 8×8 tile, so repeated tiles join into continuous grain. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
 
@@ -105,6 +108,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 | Minimug box | `GetMMBWindowPaletteRow` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/ModularMinimugBox/ModularMinimugBox.c) | Map HUD unit window palette per style |
 | Assets | [`VeslyUI_Installer.event`](../../Kernel/Wizardry/VeslyUI/VeslyUI_Installer.event), [`png/`](../../Kernel/Wizardry/VeslyUI/png/) | Style flags, art and palettes |
 | Wood generator | [`png/Wood/generate_wood.py`](../../Kernel/Wizardry/VeslyUI/png/Wood/generate_wood.py) | Builds the wood art from `png/Vanilla` |
+| Wood frame tiles | [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | `DrawUiFrame` replacement that mixes chipped beam tiles in wood mode |
 
 ---
 

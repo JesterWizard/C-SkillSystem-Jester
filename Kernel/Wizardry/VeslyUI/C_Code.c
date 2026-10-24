@@ -400,6 +400,101 @@ void PutImg_PrepPopupWindow(int vram, int pal)
 // {
 // Decompress(Img_ShopGoldBox, OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
 // }
+/*
+ * Wood frames are chipped, and a window repeats its edge tiles along each
+ * side. So in wood mode DrawUiFrame picks each beam and left edge tile from a
+ * set of interchangeable ones (see EDGE_CHIPS in png/Wood/generate_wood.py),
+ * chosen by position so the chips don't fall in a regular rhythm.
+ */
+extern const u16 * const sUiFrameModelTilemapLookup[];
+
+static const u8 sWoodTopBeams[8] = { 0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33 };
+static const u8 sWoodBottomBeams[8] = { 0x1B, 0x1C, 0x1B, 0x1D, 0x1E, 0x1B, 0x20, 0x1C };
+static const u8 sWoodLeftEdges[4] = { 0x06, 0x07, 0x06, 0x14 };
+static const u8 sWoodLeftEdgesWhite[4] = { 0x0B, 0x0C, 0x0B, 0x17 };
+
+static u16 WoodFrameTile(u16 ref, int x, int y)
+{
+    u32 pick = ((x * 73 + y * 151) * 2654435761u) >> 24;
+    int tile;
+
+    switch (ref & 0x3FF)
+    {
+    case 0x03:
+        tile = sWoodTopBeams[pick & 7];
+        break;
+    case 0x1B:
+        tile = sWoodBottomBeams[pick & 7];
+        break;
+    case 0x06:
+        tile = sWoodLeftEdges[pick & 3];
+        break;
+    case 0x0B:
+        tile = sWoodLeftEdgesWhite[pick & 3];
+        break;
+    default:
+        return ref;
+    }
+    return (ref & ~0x3FF) | tile;
+}
+
+LYN_REPLACE_CHECK(DrawUiFrame);
+void DrawUiFrame(u16 * tilemap, int x, int y, int width, int height, int tilebase, int style)
+{
+    const u16 * model = sUiFrameModelTilemapLookup[style];
+    int wood = GetUI_id() == 4;
+
+    int xMax = x + width - 1;
+    int yMax = y + height - 1;
+
+    int iy, ix;
+
+    for (iy = y + 1; iy < yMax; iy += 2)
+    {
+        for (ix = x + 1; ix < xMax; ix += 2)
+        {
+            u16 tilemapOffset = TILEMAP_INDEX(ix, iy);
+
+            tilemap[tilemapOffset + TILEMAP_INDEX(0, 0)] = model[6] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(1, 0)] = model[6] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(0, 1)] = model[9] + tilebase;
+            tilemap[tilemapOffset + TILEMAP_INDEX(1, 1)] = model[10] + tilebase;
+        }
+
+        tilemap[TILEMAP_INDEX(x, iy + 0)] = (wood ? WoodFrameTile(model[8], x, iy) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(xMax, iy + 0)] = model[7] + tilebase;
+        tilemap[TILEMAP_INDEX(x, iy + 1)] = (wood ? WoodFrameTile(model[8], x, iy + 1) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(xMax, iy + 1)] = model[11] + tilebase;
+    }
+
+    for (ix = x + 1; ix < xMax; ix += 2)
+    {
+        if (wood)
+        {
+            tilemap[TILEMAP_INDEX(ix + 0, y)] = WoodFrameTile(model[2], ix, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, y)] = WoodFrameTile(model[2], ix + 1, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 0, yMax)] = WoodFrameTile(model[13], ix, yMax) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, yMax)] = WoodFrameTile(model[14], ix + 1, yMax) + tilebase;
+            continue;
+        }
+        tilemap[TILEMAP_INDEX(ix + 0, y)] = model[2] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 1, y)] = model[2] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 0, yMax)] = model[13] + tilebase;
+        tilemap[TILEMAP_INDEX(ix + 1, yMax)] = model[14] + tilebase;
+    }
+
+    tilemap[TILEMAP_INDEX(x + 0, y + 0)] = model[0] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 1, y + 0)] = model[1] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 0, y + 1)] = model[4] + tilebase;
+    tilemap[TILEMAP_INDEX(x + 1, y + 1)] = model[5] + tilebase;
+
+    tilemap[TILEMAP_INDEX(xMax, y)] = model[3] + tilebase;
+
+    tilemap[TILEMAP_INDEX(x, yMax)] = model[12] + tilebase;
+
+    tilemap[TILEMAP_INDEX(xMax, yMax)] = model[15] + tilebase;
+}
+
 LYN_REPLACE_CHECK(UnpackUiFrameImage);
 void UnpackUiFrameImage(void * dest)
 {

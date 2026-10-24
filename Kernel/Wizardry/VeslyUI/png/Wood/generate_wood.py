@@ -9,7 +9,8 @@ tilemaps still line up. Everything drawn on top of that changes:
   * the frame: vanilla's gold bars with a white stripe become dark wooden
     beams with a black outline, and every window edge gets that outline;
   * the ornaments: the gold scroll curls and gem crests are removed, and
-    window corners get square iron caps with a rivet instead;
+    chips and cracks break up the edges, and at window corners the planks
+    run past the window and end in a broken, splintered tip;
   * a wood-grain pattern on the fill colours. The pattern repeats every 8x8
     tile, so tiles the game repeats side by side join into continuous grain.
 
@@ -38,8 +39,9 @@ def rgb(text):
 # Menu palette index roles (vanilla gUiFramePaletteA):
 #   0 backdrop, 1 white, 2 light trim, 3 mid trim, 4 dark trim,
 #   5-9 light fill ramp (light -> dark), 10-15 frame ramp (light -> dark).
-# Wood uses 2 and 3 only for iron (corner caps), and 4 as the outline.
-TRIM = ["7080A0", "F8F0D8", "B4ACA0", "706860", "24140A"]
+# The redrawn art no longer uses 2 and 3 (vanilla's gold); they stay a light
+# and mid wood for any other graphics that share this palette. 4 is the outline.
+TRIM = ["7080A0", "F8F0D8", "E2C490", "A07040", "24140A"]
 W, L, M, D = 1, 2, 3, 4
 
 WOODS = [
@@ -130,16 +132,12 @@ PLAIN_COPIES = {
     0x1D: 0x1C, 0x1E: 0x1C,                          # bottom bar curl
 }
 
-# Corner tiles: where the 7x7 iron cap goes in the tile, and whether the tile
-# is cleared first (corners with a transparent margin are redrawn as just the
-# cap; full-tile corners keep their beam under it).
+# Corner tiles. Windows with a transparent margin get CORNER_ART: the top and
+# bottom planks run past the window and end in a broken, splintered tip.
+# Style 1 windows fill their whole tile, so their corner is chipped off.
 CORNERS = {
-    0x01: (1, 1, True), 0x10: (1, 1, True),          # top left
-    0x05: (0, 1, True),                              # top right
-    0x1A: (1, 0, True),                              # bottom left
-    0x21: (0, 0, True), 0x1F: (0, 0, True),          # bottom right
-    0x72: (0, 0, False), 0x74: (1, 0, False),        # style 1, no margin
-    0x77: (0, 1, False), 0x79: (1, 1, False),
+    0x01: "TL", 0x10: "TL", 0x05: "TR", 0x1A: "BL", 0x21: "BR", 0x1F: "BR",
+    0x72: "chipTL", 0x74: "chipTR", 0x77: "chipBL", 0x79: "chipBR",
 }
 
 # The battle frame sheet (gUnknown_08801C14, 17 tiles wide) reuses the
@@ -154,11 +152,9 @@ BATTLE_COPIES = {
     battle_tile(9, 0): battle_tile(1, 0),
     battle_tile(10, 0): battle_tile(4, 0),           # curl -> left edge
 }
-BATTLE_CORNERS = {
-    battle_tile(6, 0): (1, 1, True),                 # name box corners
-    battle_tile(3, 0): (0, 1, True),
-    battle_tile(11, 0): (1, 0, True),
-    battle_tile(15, 0): (0, 0, True),
+BATTLE_CORNERS = {                                   # name box corners
+    battle_tile(6, 0): "TL", battle_tile(3, 0): "TR",
+    battle_tile(11, 0): "BL", battle_tile(15, 0): "BR",
 }
 # Gem between the two item boxes: keep only the bar under it.
 BATTLE_GEM = [battle_tile(8, 1), battle_tile(9, 1)]
@@ -168,16 +164,47 @@ BATTLE_SCROLLWORK = (
     + [battle_tile(c, 3) for c in [0, 1] + list(range(3, 16))]
 )
 
-CAP = [
-    "DDDDDDD",
-    "DLLLLMD",
-    "DLMLMMD",
-    "DLLWMMD",
-    "DLMMDMD",
-    "DMMMMMD",
-    "DDDDDDD",
-]
-CAP_INDEX = {"D": D, "L": L, "M": M, "W": W}
+# Plank shading matches beam(): top planks are 4 pixels thick (rows 4-7),
+# bottom planks 5 (rows 0-4). p and q are pale raw wood where it broke.
+CORNER_ART = {
+    "TL": ["........",
+           "........",
+           "........",
+           "........",
+           "...DDDDD",
+           ".DDppHHH",
+           "..DqJJJJ",
+           ".DDDDDDD"],
+    "TR": ["........",
+           "........",
+           "........",
+           "........",
+           "DDDDDD..",
+           "HHHHpD..",
+           "JJJppDD.",
+           "DDDDD..."],
+    "BL": ["...DDDDD",
+           "..DpHHHH",
+           ".DqpIIII",
+           "DDDqJJJJ",
+           "...DDDDD",
+           "........",
+           "........",
+           "........"],
+    "BR": ["DDDDD...",
+           "HHHHpD..",
+           "IIIIqpD.",
+           "JJJqDD..",
+           "DDDDD...",
+           "........",
+           "........",
+           "........"],
+}
+ART_INDEX = {".": 0, "D": D, "H": 12, "I": 13, "J": 14, "p": 7, "q": 8}
+PALE = 7
+
+# Pixels knocked off a full-tile corner, as (x, y) for the top-left case.
+CORNER_CHIP = [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (0, 2)]
 
 
 def beam(n, i):
@@ -262,6 +289,135 @@ def put_tile(px, t, tiles_wide, tile):
             px[tx + x, ty + y] = tile[y][x]
 
 
+def noise(*values):
+    """Deterministic pseudo-random number in [0, 1000) for chip placement."""
+    h = 2166136261
+    for v in values:
+        h = ((h ^ (v & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
+    return h % 1000
+
+
+def outer_edges(tile):
+    """Straight outline runs that face the backdrop: (cells, inward step)."""
+    edges = []
+    for y in range(8):
+        for dy in (1, -1):
+            outside = y - dy
+            if not 0 <= outside < 8:
+                continue
+            run = [x for x in range(1, 7)
+                   if tile[y][x] == D and tile[outside][x] == 0
+                   and 0 <= y + dy < 8 and tile[y + dy][x] not in (0,)]
+            if len(run) >= 5:
+                edges.append(([(x, y) for x in run], (0, dy)))
+    for x in range(8):
+        for dx in (1, -1):
+            outside = x - dx
+            if not 0 <= outside < 8:
+                continue
+            run = [y for y in range(1, 7)
+                   if tile[y][x] == D and tile[y][outside] == 0
+                   and 0 <= x + dx < 8 and tile[y][x + dx] not in (0,)]
+            if len(run) >= 5:
+                edges.append(([(x, y) for y in run], (dx, 0)))
+    return edges
+
+
+# Chips drawn on the interchangeable beam and edge tiles. In wood mode the
+# DrawUiFrame replacement in C_Code.c picks among these tiles by position, so
+# a long frame mixes plain and chipped stretches without a regular rhythm.
+# Each chip: (kind, cell along the edge), cells counting from 0 at pixel 1.
+# A streak is a grain line in the beam, not damage.
+EDGE_CHIPS = {
+    # top beams
+    0x03: [("streak", 1)],
+    0x04: [("dent", 1), ("streak", 4)],
+    0x11: [("nick", 4)],
+    0x12: [("chunk", 2)],
+    0x13: [("streak", 0), ("nick", 5)],
+    0x31: [("dent", 3)],
+    0x32: [("crack", 3)],
+    0x33: [("streak", 2)],
+    # bottom beams
+    0x1B: [("streak", 2)],
+    0x1C: [("chunk", 1)],
+    0x1D: [("dent", 3), ("streak", 0)],
+    0x1E: [("nick", 1), ("streak", 3)],
+    0x20: [("crack", 1), ("nick", 5)],
+    # left edges
+    0x07: [("dent", 1)],
+    0x14: [("nick", 4)],
+    0x0C: [("dent", 3)],
+    0x17: [("nick", 1)],
+}
+
+
+def step(cell, inward, n):
+    return cell[0] + inward[0] * n, cell[1] + inward[1] * n
+
+
+def paint(tile, cell, value, drawn):
+    x, y = cell
+    if 0 <= x < 8 and 0 <= y < 8 and tile[y][x]:
+        tile[y][x] = value
+        drawn.add((x, y))
+
+
+def chip(tile, cells, inward, kind, at, drawn):
+    """Draw one chip on an outer edge: a dent, a deeper chunk, or a crack."""
+    if kind in ("dent", "nick"):
+        width = 2 if kind == "dent" else 1
+        hole = cells[at:at + width]
+        for cell in hole:
+            tile[cell[1]][cell[0]] = 0
+        for cell in hole:
+            paint(tile, step(cell, inward, 1), D, drawn)
+        # Raw wood shows on the wall where the piece broke away.
+        if kind == "dent" and at + width < len(cells):
+            paint(tile, step(cells[at + width], inward, 1), PALE, drawn)
+    elif kind == "chunk":
+        a, b, c = cells[at:at + 3]
+        for cell in (a, b, c, step(b, inward, 1)):
+            tile[cell[1]][cell[0]] = 0
+        paint(tile, step(a, inward, 1), D, drawn)
+        paint(tile, step(c, inward, 1), D, drawn)
+        paint(tile, step(b, inward, 2), D, drawn)
+        paint(tile, step(a, inward, 2), PALE, drawn)
+        paint(tile, step(c, inward, 2), PALE + 1, drawn)
+    elif kind == "crack":
+        paint(tile, step(cells[at], inward, 1), D, drawn)
+        paint(tile, step(cells[at + 1], inward, 2), D, drawn)
+    elif kind == "streak":
+        for cell in cells[at:at + 3]:
+            paint(tile, step(cell, inward, 1), 13, drawn)
+
+
+def chip_edges(tile, t, drawn):
+    """Chip a tile's outer edge: a fixed chip for EDGE_CHIPS tiles, otherwise
+    an occasional small dent so plates and boxes look worn too."""
+    edges = outer_edges(tile)
+    if not edges:
+        return
+    if t in EDGE_CHIPS:
+        cells, inward = edges[0]
+        for kind, at in EDGE_CHIPS[t]:
+            chip(tile, cells, inward, kind, at, drawn)
+        return
+    if t in DRAWUIFRAME_PLAIN:
+        return
+    for n, (cells, inward) in enumerate(edges):
+        roll = noise(t, n)
+        if roll < 700:
+            continue
+        kind = "dent" if roll < 850 else "nick"
+        chip(tile, cells, inward, kind, roll % (len(cells) - 1), drawn)
+
+
+# Plain beam and edge tiles that DrawUiFrame repeats; they stay unchipped.
+DRAWUIFRAME_PLAIN = {0x02, 0x03, 0x11, 0x13, 0x31, 0x33, 0x1B, 0x1E, 0x06, 0x0B,
+                     0x0A, 0x0F, 0x73, 0x75, 0x76, 0x78}
+
+
 def remove_specks(tile):
     """Clear the last few pixels of a curl that spilled into a fill tile."""
     flat = [v for row in tile for v in row]
@@ -287,15 +443,22 @@ def redraw_frame(image, corners=None, copies=None, plain=(), gems=()):
         if t in gems:
             tile = [[0] * 8 for _ in range(6)] + [[D] * 8, [W] * 8]
         drawn = redraw_tile(tile)
-        if t in corners:
-            cx, cy, clear = corners[t]
-            if clear:
-                tile = [[0] * 8 for _ in range(8)]
-                drawn = set()
-            for y, line in enumerate(CAP):
-                for x, ch in enumerate(line):
-                    tile[cy + y][cx + x] = CAP_INDEX[ch]
-                    drawn.add((cx + x, cy + y))
+        corner = corners.get(t)
+        if corner in CORNER_ART:
+            tile = [[ART_INDEX[ch] for ch in line] for line in CORNER_ART[corner]]
+            drawn = {(x, y) for y in range(8) for x in range(8)}
+        elif corner:
+            flip_x, flip_y = corner.endswith("R"), corner[-2] == "B"
+            cut = [(7 - x if flip_x else x, 7 - y if flip_y else y) for x, y in CORNER_CHIP]
+            for x, y in cut:
+                tile[y][x] = 0
+            for x, y in cut:
+                for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                    if 0 <= nx < 8 and 0 <= ny < 8 and tile[ny][nx]:
+                        tile[ny][nx] = D
+                        drawn.add((nx, ny))
+        else:
+            chip_edges(tile, t, drawn)
         put_tile(px, t, wide, tile)
         tx, ty = (t % wide) * 8, (t // wide) * 8
         keep |= {(tx + x, ty + y) for x, y in drawn}
