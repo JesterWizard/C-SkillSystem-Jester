@@ -3357,10 +3357,14 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 		state->activeWidth = TEXT_ENGINE_SCENE_BOX_WIDTH;
 		sTextEngineSceneLayoutState.instantOpen =
 			sTextEngineSceneLayoutState.boxShown;
-		Proc_StartBlocking(gProcScr_TextEngineSceneOpen, parent);
 
+		/*
+		 * Set the speaker first: the scene-open proc draws the box and
+		 * nameplate from PROC_CALLs that run inside Proc_StartBlocking.
+		 */
 		state->speakingFaceSlot = talkFace;
 		state->speakingWidth = state->activeWidth;
+		Proc_StartBlocking(gProcScr_TextEngineSceneOpen, parent);
 		return;
 	}
 
