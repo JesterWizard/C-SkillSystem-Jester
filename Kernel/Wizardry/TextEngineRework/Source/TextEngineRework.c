@@ -13,6 +13,7 @@
 #include "rng.h"
 #include "scene.h"
 #include "soundwrapper.h"
+#include "constants/classes.h"
 #include "constants/songs.h"
 
 extern void HalfBody_OnTalkFaceClear(struct FaceProc *proc);
@@ -170,6 +171,21 @@ enum {
 	TEXT_ENGINE_CMD_BIG_TEXT_ON = 0x5B,
 	TEXT_ENGINE_CMD_BIG_TEXT_OFF = 0x5C,
 	TEXT_ENGINE_BIG_TEXT_SCALE = 2,
+	/* Big letters print no faster than this so each one lands on its own. */
+	TEXT_ENGINE_BIG_TEXT_PRINT_DELAY = 5,
+	/*
+	 * Each landing letter is a 16x16 affine OBJ at double size.  OBJ VRAM is
+	 * 2D here, so a slot is tiles chr, chr + 1, chr + 32 and chr + 33; rows
+	 * 1-2, columns 0x1B-0x1E are free during dialogue.
+	 */
+	TEXT_ENGINE_BIG_POP_SLOTS = 2,
+	TEXT_ENGINE_BIG_POP_OBJ_CHR = 0x3B,
+	TEXT_ENGINE_BIG_POP_SLOT_STRIDE = 2,
+	TEXT_ENGINE_BIG_POP_AFFINE = 29,
+	TEXT_ENGINE_BIG_POP_DURATION = 10,
+	/* Frame the letter is at its biggest; the box jolts here. */
+	TEXT_ENGINE_BIG_POP_IMPACT = 2,
+	TEXT_ENGINE_BIG_JOLT_FRAMES = 6,
 };
 
 struct TextEngineFaceJumpProc {
@@ -314,6 +330,33 @@ struct TextEngineBigTextState {
 	u8 enabled;
 	/* The active line holds big text, so the line below it is taken too. */
 	u8 lineBelow;
+	/* Print delay to restore when big text ends, if it had to be slowed. */
+	s8 savedPrintDelay;
+	u8 printDelayForced;
+};
+
+struct TextEngineBigPopProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ const struct Glyph *glyph;
+	/* 30 */ struct Text *top;
+	/* 34 */ struct Text *bottom;
+	/* 38 */ s16 x;
+	/* 3A */ s16 y;
+	/* 3C */ s16 cursorX;
+	/* 3E */ u8 timer;
+	/* 3F */ u8 slot;
+	/* 40 */ u8 color;
+	/* 41 */ u8 width;
+	/* 42 */ u8 bake;
+};
+
+struct TextEngineBigJoltProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ s16 timer;
+	/* 2E */ s16 bg0X;
+	/* 30 */ s16 bg0Y;
+	/* 32 */ s16 bg1X;
+	/* 34 */ s16 bg1Y;
 };
 
 extern EWRAM_DATA struct TextEngineBigTextState sTextEngineBigTextState;
@@ -344,6 +387,31 @@ static const struct TextEnginePortraitNameAlias sTextEnginePortraitNameAliases[]
 	{ 0x4F, 0x40 }, /* Vigarde past, closed */
 	{ 0x50, 0x46 }, /* Lyon past */
 	{ 0x57, 0x56 }, /* Ismaire closed */
+};
+
+/*
+ * Generic event portraits that no class uses as its default portrait.  The
+ * scene layout names a speaker with one of these after the listed class.
+ */
+struct TextEnginePortraitClassName {
+	u8 portraitId;
+	u8 classId;
+};
+
+static const struct TextEnginePortraitClassName sTextEngineGenericPortraitClasses[] = {
+	{ 0x58, CLASS_CIVILIAN_M1 }, /* Civilian man 1 */
+	{ 0x5A, CLASS_CIVILIAN_M1 }, /* Civilian man 2 */
+	{ 0x5B, CLASS_CIVILIAN_M1 }, /* Civilian man 3 */
+	{ 0x5D, CLASS_CIVILIAN_M1 }, /* Civilian teen boy */
+	{ 0x5F, CLASS_CIVILIAN_F1 }, /* Civilian old woman */
+	{ 0x60, CLASS_CIVILIAN_F1 }, /* Civilian woman 1 */
+	{ 0x6A, CLASS_SOLDIER },     /* Soldier, blue */
+	{ 0x6B, CLASS_SOLDIER },     /* Soldier, brown */
+	{ 0x6C, CLASS_FIGHTER },     /* Fighter, silver */
+	{ 0x6D, CLASS_FIGHTER },     /* Fighter, brown */
+	{ 0x6F, CLASS_SOLDIER },     /* Soldier, green */
+	{ 0x70, CLASS_SOLDIER },     /* Soldier, purple */
+	{ 0x71, CLASS_SOLDIER },     /* Soldier, silver */
 };
 
 struct TextEngineCommandDescriptor;
@@ -633,6 +701,44 @@ static const struct CharacterData *TextEngine_FindCharacterByPortrait(int portra
 	return NULL;
 }
 
+/*
+ * Generic speakers have no character entry for their portrait.  Name them
+ * after a class instead, the way the scene layout's tab shows "Soldier" for a
+ * generic soldier: first the generic event portrait table, then the class
+ * that lists the portrait as its default.  Entries whose number does not
+ * match their slot are past the class table.
+ */
+static u16 TextEngine_FindClassNameByPortrait(int portraitId)
+{
+	const struct ClassData *job;
+	int classId;
+	int i;
+
+	if (portraitId <= 0)
+		return 0;
+
+	for (i = 0; i < (int)ARRAY_COUNT(sTextEngineGenericPortraitClasses); i++) {
+		if (sTextEngineGenericPortraitClasses[i].portraitId != portraitId)
+			continue;
+
+		job = GetClassData(sTextEngineGenericPortraitClasses[i].classId);
+		if (job && job->nameTextId)
+			return job->nameTextId;
+	}
+
+	for (classId = 1; classId < 0x100; classId++) {
+		job = GetClassData(classId);
+
+		if (!job || job->number != classId)
+			continue;
+
+		if (job->nameTextId && job->defaultPortraitId == portraitId)
+			return job->nameTextId;
+	}
+
+	return 0;
+}
+
 static void TextEngine_ClearSpeakerNameplate(void)
 {
 	int row;
@@ -823,6 +929,9 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 
 	TextEngine_ClearSpeakerNameplate();
 
+	/* 2 = tried and drew nothing; the next clear allows another try. */
+	sTextEngineNameplateState.active = 2;
+
 	if (!state ||
 		!sTextEngineNameplateState.enabled ||
 		CheckTalkFlag(TALK_FLAG_SPRITE) ||
@@ -840,13 +949,18 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 			(int)ARRAY_COUNT(sTextEngineNameplateState.faceNameTextIds))
 		nameTextId = sTextEngineNameplateState.faceNameTextIds[speakingFaceSlot];
 
+	sceneLayout = TextEngine_IsSceneLayoutActive();
+
 	if (!nameTextId) {
 		character = TextEngine_FindCharacterByPortrait(face->faceId);
-		if (!character)
-			return;
-
-		nameTextId = character->nameTextId;
+		if (character)
+			nameTextId = character->nameTextId;
+		else if (sceneLayout)
+			nameTextId = TextEngine_FindClassNameByPortrait(face->faceId);
 	}
+
+	if (!nameTextId)
+		return;
 
 	name = GetStringFromIndex(nameTextId);
 	if (!name || !*name)
@@ -856,7 +970,6 @@ static void TextEngine_DrawSpeakerNameplate(ProcPtr proc)
 	if (dialogueWidth <= 2)
 		return;
 
-	sceneLayout = TextEngine_IsSceneLayoutActive();
 	nameY = state->yText - (sceneLayout
 		? TEXT_ENGINE_SCENE_NAMEPLATE_Y_OFFSET
 		: TEXT_ENGINE_NAMEPLATE_Y_OFFSET);
@@ -2973,23 +3086,355 @@ static void TextEngine_DoubleGlyphQuarter(
 }
 
 /*
+ * Draw a pixel-doubled glyph at cursor x: top half into one line's Text and
+ * bottom half into the next.  The lines' live cursors are left untouched.
+ */
+static void TextEngine_DrawDoubledGlyph(
+	struct Text *top,
+	struct Text *bottom,
+	const struct Glyph *glyph,
+	int x,
+	int width,
+	int color
+)
+{
+	struct Glyph big;
+	int topCursor = Text_GetCursor(top);
+	int bottomCursor = Text_GetCursor(bottom);
+	int half;
+
+	SetInitTalkTextFont();
+	Text_SetColor(top, color);
+	Text_SetColor(bottom, color);
+
+	big.width = 16;
+	for (half = 0; half < 2; half++) {
+		/* Narrow letters have nothing in their right half. */
+		if (half && width <= 8)
+			break;
+
+		TextEngine_DoubleGlyphQuarter(glyph, &big, 0, half);
+		Text_SetCursor(top, x + half * 16);
+		gActiveFont->drawGlyph(top, &big);
+
+		TextEngine_DoubleGlyphQuarter(glyph, &big, 8, half);
+		Text_SetCursor(bottom, x + half * 16);
+		gActiveFont->drawGlyph(bottom, &big);
+	}
+
+	Text_SetCursor(top, topCursor);
+	Text_SetCursor(bottom, bottomCursor);
+}
+
+/*
+ * Landing curve, in 1/16 of the glyph's normal size: burst from small to
+ * 2.5x, spring back under 2x, then settle on 2x, the baked big-text size.
+ */
+static const u8 sTextEngineBigPopScale[TEXT_ENGINE_BIG_POP_DURATION] = {
+	12, 26, 40, 40, 35, 30, 30, 33, 32, 32,
+};
+
+/* Tilt while flying in, as cos/sin * 256: -14, +10, -4 degrees, then level. */
+static const s16 sTextEngineBigPopTilt[TEXT_ENGINE_BIG_POP_DURATION][2] = {
+	{ 248, -62 },
+	{ 252, 44 },
+	{ 255, -18 },
+	{ 256, 0 }, { 256, 0 }, { 256, 0 }, { 256, 0 },
+	{ 256, 0 }, { 256, 0 }, { 256, 0 },
+};
+
+static const s8 sTextEngineBigJoltOffsets[TEXT_ENGINE_BIG_JOLT_FRAMES][2] = {
+	{ +2, -2 },
+	{ -2, +1 },
+	{ +1, +2 },
+	{ -1, -1 },
+	{ +1,  0 },
+	{  0,  0 },
+};
+
+static void TextEngineBigJolt_Apply(struct TextEngineBigJoltProc *proc)
+{
+	int x = 0;
+	int y = 0;
+
+	if (proc->timer < TEXT_ENGINE_BIG_JOLT_FRAMES) {
+		x = sTextEngineBigJoltOffsets[proc->timer][0];
+		y = sTextEngineBigJoltOffsets[proc->timer][1];
+	}
+
+	BG_SetPosition(BG_0, proc->bg0X + x, proc->bg0Y + y);
+	BG_SetPosition(BG_1, proc->bg1X + x, proc->bg1Y + y);
+}
+
+static void TextEngineBigJolt_OnEnd(struct TextEngineBigJoltProc *proc)
+{
+	proc->timer = TEXT_ENGINE_BIG_JOLT_FRAMES;
+	TextEngineBigJolt_Apply(proc);
+}
+
+static void TextEngineBigJolt_OnIdle(struct TextEngineBigJoltProc *proc)
+{
+	proc->timer++;
+	TextEngineBigJolt_Apply(proc);
+
+	if (proc->timer >= TEXT_ENGINE_BIG_JOLT_FRAMES)
+		Proc_End(proc);
+}
+
+static const struct ProcCmd gProcScr_TextEngineBigJolt[] = {
+	PROC_NAME("TextEngineBigJolt"),
+	PROC_SET_END_CB(TextEngineBigJolt_OnEnd),
+	PROC_REPEAT(TextEngineBigJolt_OnIdle),
+	PROC_END,
+};
+
+/* Shake the box and its text together; a new landing restarts the shake. */
+static void TextEngine_StartBigJolt(void)
+{
+	struct TextEngineBigJoltProc *proc =
+		(struct TextEngineBigJoltProc *)Proc_Find(gProcScr_TextEngineBigJolt);
+
+	if (!proc) {
+		proc = (struct TextEngineBigJoltProc *)Proc_Start(
+			gProcScr_TextEngineBigJolt,
+			PROC_TREE_3
+		);
+		if (!proc)
+			return;
+
+		proc->bg0X = gLCDControlBuffer.bgoffset[BG_0].x;
+		proc->bg0Y = gLCDControlBuffer.bgoffset[BG_0].y;
+		proc->bg1X = gLCDControlBuffer.bgoffset[BG_1].x;
+		proc->bg1Y = gLCDControlBuffer.bgoffset[BG_1].y;
+	}
+
+	proc->timer = 0;
+	TextEngineBigJolt_Apply(proc);
+}
+
+static int TextEngine_GetBigPopObjChr(int slot)
+{
+	return TEXT_ENGINE_BIG_POP_OBJ_CHR + slot * TEXT_ENGINE_BIG_POP_SLOT_STRIDE;
+}
+
+/* Pack the normal-size glyph into the slot's 2x2 OBJ tiles (2D layout). */
+static void TextEngine_UploadBigPopGlyph(const struct Glyph *glyph, int slot, int color)
+{
+	u16 *lut = GetColorLut(color);
+	int chr = TextEngine_GetBigPopObjChr(slot);
+	u32 *tiles[4];
+	int row;
+	int i;
+
+	tiles[0] = (u32 *)OBJ_CHR_ADDR(chr);
+	tiles[1] = (u32 *)OBJ_CHR_ADDR(chr + 1);
+	tiles[2] = (u32 *)OBJ_CHR_ADDR(chr + 32);
+	tiles[3] = (u32 *)OBJ_CHR_ADDR(chr + 33);
+
+	for (row = 0; row < 16; row++) {
+		u32 bits = glyph->bitmap[row];
+
+		for (i = 0; i < 2; i++) {
+			u32 half = bits >> (i * 16);
+
+			tiles[(row / 8) * 2 + i][row & 7] =
+				lut[half & 0xFF] | ((u32)lut[(half >> 8) & 0xFF] << 16);
+		}
+	}
+}
+
+/* OBJ palette for the landing letters: the live dialogue text palette. */
+static void TextEngine_PrepareBigPopPalette(void)
+{
+	struct Font *font = (struct Font *)0x030000F0;
+
+	CpuCopy16(
+		gPaletteBuffer + font->palid * 0x10,
+		gPaletteBuffer + (0x10 + TEXT_ENGINE_FLOAT_OBJ_PAL) * 0x10,
+		0x20
+	);
+	EnablePaletteSync();
+}
+
+static void TextEngineBigPop_OnEnd(struct TextEngineBigPopProc *proc)
+{
+	int chr = TextEngine_GetBigPopObjChr(proc->slot);
+
+	CpuFastFill(0, (void *)OBJ_CHR_ADDR(chr), CHR_SIZE * 2);
+	CpuFastFill(0, (void *)OBJ_CHR_ADDR(chr + 32), CHR_SIZE * 2);
+
+	if (!proc->bake)
+		return;
+
+	TextEngine_DrawDoubledGlyph(
+		proc->top,
+		proc->bottom,
+		proc->glyph,
+		proc->cursorX,
+		proc->width,
+		proc->color
+	);
+	TalkBgSync(1);
+}
+
+static void TextEngineBigPop_OnIdle(struct TextEngineBigPopProc *proc)
+{
+	int affine = TEXT_ENGINE_BIG_POP_AFFINE + proc->slot;
+	int scale;
+	int inverse;
+	int cosine;
+	int sine;
+	int x = proc->x;
+	int y = proc->y;
+
+	if (Chatlog_IsVisible())
+		return;
+
+	if (proc->timer >= TEXT_ENGINE_BIG_POP_DURATION) {
+		Proc_End(proc);
+		return;
+	}
+
+	if (proc->timer == TEXT_ENGINE_BIG_POP_IMPACT)
+		TextEngine_StartBigJolt();
+
+	/* A little scatter while the letter is still flying in. */
+	if (proc->timer < TEXT_ENGINE_BIG_POP_IMPACT) {
+		x += (proc->timer & 1) ? 2 : -2;
+		y += (proc->timer & 1) ? -1 : 1;
+	}
+
+	/* OBJ affine maps screen to texture: inverse scale, inverse rotation. */
+	scale = sTextEngineBigPopScale[proc->timer];
+	inverse = (256 * 16) / scale;
+	cosine = sTextEngineBigPopTilt[proc->timer][0];
+	sine = sTextEngineBigPopTilt[proc->timer][1];
+	SetObjAffine(
+		affine,
+		(cosine * inverse) >> 8,
+		(sine * inverse) >> 8,
+		(-sine * inverse) >> 8,
+		(cosine * inverse) >> 8
+	);
+
+	/* Double-size 16x16: the 32x32 frame matches the baked letter at 2x. */
+	PutSpriteExt(
+		0,
+		TextEngine_ApplyStaticOam1(OAM1_X(x) | OAM1_AFFINE_ID(affine), y),
+		TextEngine_ApplyFxOam0(OAM0_Y(y) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE),
+		gObject_16x16,
+		OAM2_CHR(TextEngine_GetBigPopObjChr(proc->slot))
+			| OAM2_PAL(TEXT_ENGINE_FLOAT_OBJ_PAL)
+			| OAM2_LAYER(0)
+	);
+
+	proc->timer++;
+}
+
+static const struct ProcCmd gProcScr_TextEngineBigPop[] = {
+	PROC_NAME("TextEngineBigPop"),
+	PROC_SET_END_CB(TextEngineBigPop_OnEnd),
+	PROC_REPEAT(TextEngineBigPop_OnIdle),
+	PROC_END,
+};
+
+static int TextEngine_FindFreeBigPopSlot(void)
+{
+	struct ProcFindIterator it;
+	struct TextEngineBigPopProc *proc;
+	u8 used = 0;
+	int slot;
+
+	Proc_FindBegin(&it, gProcScr_TextEngineBigPop);
+	while ((proc = (struct TextEngineBigPopProc *)Proc_FindNext(&it)) != NULL)
+		used |= 1 << proc->slot;
+
+	for (slot = 0; slot < TEXT_ENGINE_BIG_POP_SLOTS; slot++) {
+		if (!(used & (1 << slot)))
+			return slot;
+	}
+
+	return -1;
+}
+
+/*
+ * End every landing letter.  bake 1 draws them into the text first (lines
+ * about to scroll); bake 0 drops them (the box they belonged to is gone).
+ */
+static void TextEngine_EndBigPops(u8 bake)
+{
+	struct ProcFindIterator it;
+	struct TextEngineBigPopProc *proc;
+
+	Proc_FindBegin(&it, gProcScr_TextEngineBigPop);
+	while ((proc = (struct TextEngineBigPopProc *)Proc_FindNext(&it)) != NULL)
+		proc->bake = bake;
+
+	Proc_EndEach(gProcScr_TextEngineBigPop);
+}
+
+/* Returns 1 when the letter will land as an animated sprite. */
+static s8 TextEngine_StartBigPop(
+	struct Text *top,
+	struct Text *bottom,
+	const struct Glyph *glyph,
+	int cursorX,
+	int width
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct TextEngineBigPopProc *proc;
+	int slot;
+
+	/* Skipping ahead prints at once, without the landing. */
+	if (state->instantScroll)
+		return 0;
+
+	slot = TextEngine_FindFreeBigPopSlot();
+	if (slot < 0)
+		return 0;
+
+	proc = (struct TextEngineBigPopProc *)Proc_Start(
+		gProcScr_TextEngineBigPop,
+		PROC_TREE_3
+	);
+	if (!proc)
+		return 0;
+
+	proc->glyph = glyph;
+	proc->top = top;
+	proc->bottom = bottom;
+	proc->cursorX = cursorX;
+	proc->x = state->xText * 8 + cursorX;
+	proc->y = state->yText * 8 + state->lineActive * 16;
+	proc->timer = 0;
+	proc->slot = slot;
+	proc->color = state->printColor;
+	proc->width = width;
+	proc->bake = 1;
+
+	TextEngine_PrepareBigPopPalette();
+	TextEngine_UploadBigPopGlyph(glyph, slot, proc->color);
+	return 1;
+}
+
+/*
  * Big text draws each letter at twice the size: the top half goes into the
- * active line and the bottom half into the line below.  Normal-size letters
- * that follow on the same line go into the line below so they share the big
- * letters' baseline.  Returns 1 when the character was drawn here.
+ * active line and the bottom half into the line below.  Each letter lands as
+ * a sprite first, then is baked into the lines.  Normal-size letters that
+ * follow on the same line go into the line below so they share the big
+ * letters' baseline.  Returns 1 when the character was handled here.
  */
 static s8 TextEngine_TryDrawBigGlyph(struct Text *text, const char **str)
 {
 	struct TalkState *state = sTextEngineState;
 	struct Text *below;
 	struct Glyph *glyph;
-	struct Glyph big;
 	char ch[5];
 	const char *next;
 	u32 width;
 	int len;
 	int x;
-	int half;
 	int i;
 
 	if (!sTextEngineBigTextState.enabled && !sTextEngineBigTextState.lineBelow)
@@ -3043,20 +3488,8 @@ static s8 TextEngine_TryDrawBigGlyph(struct Text *text, const char **str)
 		sTextEngineBigTextState.lineBelow = 1;
 	}
 
-	big.width = 16;
-	for (half = 0; half < 2; half++) {
-		/* Narrow letters have nothing in their right half. */
-		if (half && width <= 8)
-			break;
-
-		TextEngine_DoubleGlyphQuarter(glyph, &big, 0, half);
-		Text_SetCursor(text, x + half * 16);
-		gActiveFont->drawGlyph(text, &big);
-
-		TextEngine_DoubleGlyphQuarter(glyph, &big, 8, half);
-		Text_SetCursor(below, x + half * 16);
-		gActiveFont->drawGlyph(below, &big);
-	}
+	if (!TextEngine_StartBigPop(text, below, glyph, x, width))
+		TextEngine_DrawDoubledGlyph(text, below, glyph, x, width, state->printColor);
 
 	Text_SetCursor(text, x + width * TEXT_ENGINE_BIG_TEXT_SCALE);
 	Text_SetCursor(below, x + width * TEXT_ENGINE_BIG_TEXT_SCALE);
@@ -3075,6 +3508,13 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	int len;
 	int i;
 	int cursorX;
+
+	/* Page scrolls wipe BG0, nameplate included; put it back on the next letter. */
+	if (sTextEngineNameplateState.enabled &&
+		!sTextEngineNameplateState.active &&
+		!CheckTalkFlag(TALK_FLAG_SPRITE) &&
+		TalkHasCorrectBubble())
+		TextEngine_DrawSpeakerNameplate(NULL);
 
 	if (TextEngine_TryDrawBigGlyph(text, str))
 		return 1;
@@ -3346,6 +3786,8 @@ void Talk_OnEnd_C(void)
 	Proc_EndEach(gProcScr_TextEngineAshDissolve);
 	Proc_EndEach(gProcScr_TextEngineImpactFlash);
 	Proc_EndEach(gProcScr_TextEngineEmotion);
+	TextEngine_EndBigPops(0);
+	Proc_EndEach(gProcScr_TextEngineBigJolt);
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -3419,7 +3861,8 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 	struct TalkState *state = sTextEngineState;
 	int nextLine;
 
-	/* Scroll a big line's lower half out with it. */
+	/* Land letters still in flight, then scroll a big line's lower half out with it. */
+	TextEngine_EndBigPops(1);
 	state->lineActive += sTextEngineBigTextState.lineBelow;
 	sTextEngineBigTextState.lineBelow = 0;
 
@@ -3442,6 +3885,7 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 LYN_REPLACE_CHECK(TalkShiftClear_OnInit);
 void TalkShiftClear_OnInit_C(struct Proc *proc)
 {
+	TextEngine_EndBigPops(1);
 	sTextEngineBigTextState.lineBelow = 0;
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(sTextEngineState);
@@ -3577,7 +4021,8 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 	struct TalkState *state = sTextEngineState;
 	struct Proc *proc;
 
-	/* A new box starts with empty lines. */
+	/* A new box starts with empty lines; drop letters from the old one. */
+	TextEngine_EndBigPops(0);
 	sTextEngineBigTextState.lineBelow = 0;
 
 	if (TextEngine_IsSceneLayoutActive()) {
@@ -4890,8 +5335,18 @@ static int TextEngine_CommandStartBigText(
 	const u8 *arguments
 )
 {
+	struct TalkState *state = sTextEngineState;
+
 	(void)command;
 	(void)arguments;
+
+	/* Slow the print down so each big letter lands on its own. */
+	if (!sTextEngineBigTextState.enabled &&
+		state->printDelay < TEXT_ENGINE_BIG_TEXT_PRINT_DELAY) {
+		sTextEngineBigTextState.savedPrintDelay = state->printDelay;
+		sTextEngineBigTextState.printDelayForced = 1;
+		state->printDelay = TEXT_ENGINE_BIG_TEXT_PRINT_DELAY;
+	}
 
 	sTextEngineBigTextState.enabled = 1;
 	return TalkInterpret(proc);
@@ -4908,6 +5363,12 @@ static int TextEngine_CommandStopBigText(
 
 	/* lineBelow stays set so the rest of this line keeps the big baseline. */
 	sTextEngineBigTextState.enabled = 0;
+
+	if (sTextEngineBigTextState.printDelayForced) {
+		sTextEngineState->printDelay = sTextEngineBigTextState.savedPrintDelay;
+		sTextEngineBigTextState.printDelayForced = 0;
+	}
+
 	return TalkInterpret(proc);
 }
 
@@ -4915,6 +5376,9 @@ static void TextEngine_CleanupBigText(void)
 {
 	sTextEngineBigTextState.enabled = 0;
 	sTextEngineBigTextState.lineBelow = 0;
+	sTextEngineBigTextState.printDelayForced = 0;
+	TextEngine_EndBigPops(0);
+	Proc_EndEach(gProcScr_TextEngineBigJolt);
 }
 
 static void TextEngine_CleanupSceneLayout(void)
