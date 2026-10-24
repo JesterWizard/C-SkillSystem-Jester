@@ -143,6 +143,12 @@ Img_EfxRightItemBox_Wood:
 ALIGN 4
 gUnknown_08802558_Wood: // Battle UI Palette
 #incbin "png/Wood/Wood_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Wood: // chapter status banner and playtime box
+#incext Png2Dmp "png/Wood/Wood_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Wood:
+#incbin "png/Wood/Wood_PlayStatusPal.pal"
 
 
 // PIKMIN

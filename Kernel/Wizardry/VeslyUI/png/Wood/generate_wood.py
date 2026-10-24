@@ -19,6 +19,7 @@ Outputs (next to this script):
   Wood_MenuPal.pal      8 menu palettes (4 window colours + 4 guide rows)
   Wood_BattlePal.pal    4 battle UI palettes (one per faction)
   Wood_PrepItemsPal.pal prep-screen funds/item OBJ palette
+  Wood_PlayStatusPal.pal chapter status banner and playtime box OBJ palettes
 
 Png2Dmp maps pixels by colour, so every PNG palette here has 16 distinct
 colours. Rerun this script after changing a colour, then rebuild.
@@ -471,6 +472,120 @@ def save(image, palette, name):
     image.save(os.path.join(HERE, name), transparency=0)
 
 
+# --- Chapter status banners ---------------------------------------------------
+# Img_PlayStatusSprites (32x8 tiles, 2D OBJ layout) holds the chapter title
+# banner (OBJ palette 8) and the playtime box (OBJ palette 9). Both are rebuilt
+# as wooden signs out of the frame tiles in Wood_Main.png, so they share the
+# windows' planks, chips and broken corners. The rest of the sheet is unused on
+# that screen and stays as is.
+BANNER = (0, 0, 24, 4)        # x, y, width, height in tiles
+PLAYTIME = (16, 4, 10, 4)
+PLAYTIME_LABEL = (11, 2, 55, 8)   # "PLAY TIME" letters inside the box, pixels
+
+# Interchangeable tiles, as in the DrawUiFrame replacement in C_Code.c.
+TOP_BEAMS = [0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33]
+BOTTOM_BEAMS = [0x1B, 0x1C, 0x1B, 0x1D, 0x1E, 0x1B, 0x20, 0x1C]
+LEFT_EDGES = [0x06, 0x07, 0x06, 0x14]
+
+SIGN_PALETTE = [
+    "7080A0",  # 0 transparent
+    "24140A",  # 1 outline
+    "4A2812",  # 2 darkest wood
+    "5C3016",  # 3 plank, dark
+    "6C3A1C",  # 4 plank, mid
+    "7C4624",  # 5 plank, light
+    "8C522A",  # 6 board
+    "7E4826",  # 7 board grain
+    "C08A50",  # 8 raw wood, dark
+    "DCB278",  # 9 raw wood
+    "F8F0D8",  # 10 lettering
+    "C8B090",  # 11 lettering shade
+    "A86C3A",  # 12 edge highlight
+    "E8C890",  # 13 raw wood, light
+    "3A200E",  # 14 unused
+    "B07A44",  # 15 unused
+]
+# Frame tile colours (menu palette indices) -> SIGN_PALETTE.
+MENU_TO_SIGN = {0: 0, D: 1, 1: 10, 5: 13, 6: 13, 7: 9, 8: 8, 9: 12,
+                10: 6, 11: 7, 12: 5, 13: 4, 14: 3, 15: 2}
+
+
+def frame_pick(x, y):
+    return (((x * 73 + y * 151) * 2654435761) & 0xFFFFFFFF) >> 24
+
+
+def sign_tiles(cols, rows):
+    grid = []
+    for ty in range(rows):
+        row = []
+        for tx in range(cols):
+            pick = frame_pick(tx, ty)
+            if ty == 0:
+                t = 0x01 if tx == 0 else 0x05 if tx == cols - 1 else TOP_BEAMS[pick & 7]
+            elif ty == rows - 1:
+                t = 0x1A if tx == 0 else 0x21 if tx == cols - 1 else BOTTOM_BEAMS[pick & 7]
+            else:
+                t = LEFT_EDGES[pick & 3] if tx == 0 else 0x0A if tx == cols - 1 else 0x09
+            row.append(t)
+        grid.append(row)
+    return grid
+
+
+def draw_sign(px, frame_px, area):
+    x0, y0, cols, rows = area
+    for ty, row in enumerate(sign_tiles(cols, rows)):
+        for tx, t in enumerate(row):
+            sx, sy = (t % 32) * 8, (t // 32) * 8
+            for y in range(8):
+                for x in range(8):
+                    v = MENU_TO_SIGN[frame_px[sx + x, sy + y]]
+                    px[(x0 + tx) * 8 + x, (y0 + ty) * 8 + y] = v
+
+
+def draw_playtime_label(px, vanilla_px, area):
+    """A small plank tab over the box's top beam, carrying vanilla's letters."""
+    ax, ay = area[0] * 8, area[1] * 8
+    lx, ly, lw, lh = PLAYTIME_LABEL
+    left, top, right, bottom = lx - 2, ly - 2, lx + lw + 1, ly + lh + 1
+    for y in range(top, bottom + 1):
+        for x in range(left, right + 1):
+            edge = x in (left, right) or y in (top, bottom)
+            px[ax + x, ay + y] = 1 if edge else (5 if y == top + 1 else 4)
+    # Broken corners on the tab.
+    for x, y in ((left, top), (right, top), (left, bottom), (right, bottom)):
+        px[ax + x, ay + y] = 0
+    px[ax + left + 1, ay + top + 1] = 1
+    px[ax + right - 1, ay + bottom - 1] = 1
+    px[ax + right - 2, ay + top + 1] = 9
+    # Vanilla letters, in OBJ palette 9 order: 11 and 12 are the light
+    # face, 13 and 14 its shading, and 10 the dark plate around them.
+    letter = {11: 10, 12: 10, 13: 11, 14: 11}
+    for y in range(ly, ly + lh):
+        for x in range(lx, lx + lw):
+            v = vanilla_px[ax + x, ay + y]
+            if v in letter:
+                px[ax + x, ay + y] = letter[v]
+            elif v == 10 and any(
+                    vanilla_px[ax + x + dx, ay + y + dy] in letter
+                    for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                px[ax + x, ay + y] = 1
+
+
+def play_status():
+    vanilla = Image.open(os.path.join(VANILLA, "Vanilla_PlayStatus.png"))
+    frame = Image.open(os.path.join(HERE, "Wood_Main.png"))
+    image = vanilla.copy()
+    px, vpx, fpx = image.load(), vanilla.load(), frame.load()
+    for area in (BANNER, PLAYTIME):
+        draw_sign(px, fpx, area)
+    draw_playtime_label(px, vpx, PLAYTIME)
+
+    palette = [rgb(c) for c in SIGN_PALETTE]
+    save(image, palette, "Wood_PlayStatus.png")
+    open(os.path.join(HERE, "Wood_PlayStatusPal.pal"), "wb").write(to_gba([palette, palette]))
+    print("Wood_PlayStatus.png")
+
+
 def main():
     menu = menu_palette()
     battle = [[row[i] for i in BATTLE_ORDER] for row in menu[:4]]
@@ -508,6 +623,8 @@ def main():
         add_grain(image, ramps, keep)
         save(image, palette, f"Wood_{name}.png")
         print(f"Wood_{name}.png")
+
+    play_status()
 
 
 if __name__ == "__main__":

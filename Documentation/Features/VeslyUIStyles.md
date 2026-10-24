@@ -25,6 +25,7 @@ Player-facing impact:
 - The battle screen's name plates, weapon boxes and HIT/DMG/CRT panels follow the style, tinted by faction.
 - Prep screens, the prep popup, the funds/items sprites and the shop gold box follow the style.
 - Faction-coloured frames (battle forecast, status screen counters, world map) use the style's palettes.
+- The status screen's chapter title banner and play-time box can follow the style (wood has its own; the other styles keep vanilla's).
 
 **Wood** is the newest style. Its windows are grained boards framed by dark, black-outlined wooden planks. The edges are chipped and cracked, and at each corner the top and bottom planks run past the window and end in a broken, splintered tip. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. Four woods replace vanilla's window colours.
 
@@ -69,6 +70,7 @@ Each getter in `C_Code.c` indexes a 5-entry table by the style ID. A style that 
 | Shop gold box | `Wood_ShopGoldDisplay.png` | `Img_ShopGoldBox` |
 | Battle frame | `Wood_Battle.png`, `Wood_BattlePal.pal` | `Img_08801C14`, `gUnknown_08802558` |
 | Battle name/item boxes | `Wood_Left*.png`, `Wood_Right*.png` | `Img_EfxLeft/Right Name/ItemBox` |
+| Status screen banner and play-time box | `Wood_PlayStatus.png`, `Wood_PlayStatusPal.pal` | `Img_PlayStatusSprites`, `Pal_PlayStatusSprites` |
 
 ### Building the wood art
 
@@ -78,6 +80,7 @@ Each getter in `C_Code.c` indexes a 5-entry table by the style ID. A style that 
 - Every edge that meets the transparent backdrop gets a black outline.
 - Ornament tiles (curls, crests, the battle gem) are replaced with the plain tile of the same role (`PLAIN_COPIES`, `BATTLE_COPIES`).
 - Corner tiles become broken plank ends (`CORNERS`, `BATTLE_CORNERS`, `CORNER_ART`).
+- The status screen's chapter title banner and play-time box are rebuilt from the finished frame tiles, so they match the windows. The play-time box keeps vanilla's letters on a plank tab (`play_status`).
 - Beam and edge tiles get chips, cracks and grain streaks (`EDGE_CHIPS`); other tiles get an occasional small dent.
 
 In wood mode, `DrawUiFrame` (replaced in `C_Code.c`) picks each top beam, bottom beam and left edge tile from a set of interchangeable ones by position. So the chips along a window don't repeat every 8 pixels. The tile sets in `C_Code.c` must match the `EDGE_CHIPS` tiles.
@@ -104,6 +107,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 | Prep screens | `PrepInitGfxHook`, `Decompress_Img_PrepItemUseScreen`, `DrawFundsSprite_Init`, `PutImg_PrepPopupWindow`, `PrepUiPalHook_2`, `PrepUiPalHook_3` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Prep art, funds/items sprite and palettes |
 | Shop | `StartUiGoldBox`, `StartUiGoldBox_New` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Gold box sprite and palette |
 | Battle screen | `EfxPrepareScreenFx`, `ekrDispUPMain`, `GetBPal_8802558` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Battle frame, name/item boxes, faction palettes |
+| Status screen banners | `ChapterStatus_ShowAllLayers`, `StatusScreenSpriteDraw_Init` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Chapter title banner, play-time box and chapter name colours |
 | Faction palettes | `GetFactionBattleForecastFramePalette`, `StatusScreenUIPal_Hook`, `sub_80BE5B4` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Forecast, status screen and world map tints |
 | Minimug box | `GetMMBWindowPaletteRow` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/ModularMinimugBox/ModularMinimugBox.c) | Map HUD unit window palette per style |
 | Assets | [`VeslyUI_Installer.event`](../../Kernel/Wizardry/VeslyUI/VeslyUI_Installer.event), [`png/`](../../Kernel/Wizardry/VeslyUI/png/) | Style flags, art and palettes |
@@ -122,7 +126,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 
 ## 🐛 Limitations & Bugs
 
-- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), the status screen's chapter title banner and play-time box, and the phase banners.
+- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for wood.
 - A style change does not redraw windows already on screen; it shows when a screen next loads its UI graphics.
 - Wood's prep screen, prep popup and shop gold box art follow vanilla's tile layout but have not been checked in-game yet.
 - Each style adds roughly the size of its compressed art to the ROM.

@@ -92,6 +92,8 @@ extern const u8 gPrepItemGfx_Wood[];      // gUnknown_08A1B1FC
 extern const u16 Wood_PrepItemsPalette[]; // gUnknown_08A1B638
 extern const u8 Wood_PrepPopupWindow[];   // Img_PrepPopupWindow
 extern u16 Img_ShopGoldBox_Wood[];
+extern const u8 Img_PlayStatusSprites_Wood[];
+extern const u16 Pal_PlayStatusSprites_Wood[];
 extern u16 gUnknown_08802558_Wood[];      // palette in func EfxPrepareScreenFx
 extern u16 Img_08801C14_Wood[];
 extern u16 Img_EfxLeftNameBox_Wood[];
@@ -1209,6 +1211,71 @@ const u8 * GetUiGoldBox(void)
 {
     int id = GetUI_id();
     return sUiGoldBox[id];
+}
+
+/*
+ * Chapter status screen: the title banner and playtime box are sprites that
+ * ChapterStatus_Init loads from Img_PlayStatusSprites. This step runs right
+ * after it, so it swaps in the style's sheet and palettes. The selector sprite
+ * is loaded into the middle of that sheet, so it is reloaded on top.
+ */
+static const void * sPlayStatusSprites[] = {
+
+    Img_PlayStatusSprites, // vanilla
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites,
+    Img_PlayStatusSprites_Wood, // wood
+};
+
+static const void * sPlayStatusPal[] = {
+
+    Pal_PlayStatusSprites, // vanilla
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites,
+    Pal_PlayStatusSprites_Wood, // wood
+};
+
+/* Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the letters, in cream and brown. */
+static const u16 sChapterTitlePalWood[16] = {
+    0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);
+void ChapterStatus_ShowAllLayers(void)
+{
+    int id = GetUI_id();
+
+    if (sPlayStatusSprites[id] != Img_PlayStatusSprites)
+    {
+        Decompress(sPlayStatusSprites[id], OBJ_CHR_ADDR(0x180));
+        Decompress(Img_ChapterStatusSelectorSprite, OBJ_CHR_ADDR(0x198));
+    }
+    ApplyPalettes(sPlayStatusPal[id], 0x18, 2);
+
+    SetDispEnable(1, 1, 1, 1, 1);
+}
+
+/* Loads the chapter name sprite; wood recolours its green letter ramp. */
+LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Init);
+void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
+{
+    LoadObjUIGfx();
+
+    ApplyPalette(Pal_StatusScreenLabelSprites, 0x14);
+    ApplyPalette(Pal_08A2E8F0, 0x17);
+
+    Decompress(Img_StatusScreenLabelSprites, OBJ_CHR_ADDR(0x340));
+
+    proc->unk_64 = 0;
+
+    sub_80895B4(0x80, 0x13);
+    PutChapterTitleGfx(0xB80, GetChapterTitleWM(&gPlaySt));
+
+    if (GetUI_id() == 4)
+        ApplyPalette(sChapterTitlePalWood, 0x13);
 }
 
 LYN_REPLACE_CHECK(StartUiGoldBox);
