@@ -5,6 +5,7 @@
 #include "Source/LynJump.event"
 #include "Source/TextEngineRework.lyn.event"
 #include "Text_Engine_Tables.event"
+#include "Popups/Popups.event"
 
 /* The C interpreter dispatches these codes directly. */
 /*

@@ -28,6 +28,7 @@ Player-facing impact:
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
 - A scene layout swaps the floating speech bubbles for one full-width box along the bottom of the screen. Portraits stand behind it and the speaker's name sits on a tab across the box's top-left edge, like a classic cutscene. It is off by default and toggled per dialogue.
 - Big text, inspired by Paper Mario, prints letters at twice their usual size across two dialogue lines for shouted or emphasised words. Each letter bursts in, overshoots, springs back into place and jolts the box. It is toggled per dialogue.
+- Popups cut in over the scene like a courtroom "Objection!": the box closes, a white flash hits, a jagged burst with big slanted lettering slams in and shakes, then dialogue resumes in a fresh box. "Objection!", "Hold it!" and "Take that!" ship as examples; more can be added to a table.
 - A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - A one-shot white impact flash can fire from dialogue or `ASMC` and decays on its own.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -133,6 +134,7 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x5A` | `[ToggleOffSceneLayout]` | none | Returns to normal speech bubbles, moves portraits back to their normal height, and restores the nameplate setting from before the layout was turned on |
 | `0x5B` | `[ToggleOnBigText]` | none | Following letters print at twice their size, filling the active line and the line below it. Each one lands explosively, and printing slows to at least 5 frames per letter |
 | `0x5C` | `[ToggleOffBigText]` | none | Returns to normal-size letters and the previous print speed. The rest of that line stays on the big letters' baseline |
+| `0x5D` | `[Popup]` / `[Objection]` / `[HoldIt]` / `[TakeThat]` | `XX` popup index (`0x01`+) | Closes the box and shows popup `XX` from `TextEnginePopupTable` with a flash, sound and shake for 60 frames (A or B skips after 24), then the next text opens a new box |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 
@@ -253,6 +255,35 @@ Start big text at the beginning of a line with a free line under it: the first l
 [ToggleOnBigText]What?![ToggleOffBigText] Already...?[A]
 ```
 
+### Popups
+
+<p align="center">
+  <img src="../Gifs/Text_Engine_Rework_Popups.gif" alt="Popups" width="480"/>
+</p>
+
+`[Objection]` (`[Popup][0x01]`), `[HoldIt]` (`0x02`) and `[TakeThat]` (`0x03`) cut in over the scene:
+
+| Frame | What happens |
+|-------|--------------|
+| Command | The box, text and nameplate close. Any big-text landings in flight are dropped |
+| +1 | The popup is drawn on BG0, centered, above the portraits. The table entry's sound plays and the screen flashes white |
+| +1 to +10 | BG0 shakes hard, then settles |
+| +24 | A or B can dismiss it |
+| +60 | It ends by itself. The text tiles and palette it borrowed are restored and the next text opens a new box (with its open animation) |
+
+```text
+[OpenMidLeft]Then we lay down our arms and...[A]
+[OpenMidRight][Objection]
+[ToggleOnBigText]Never![ToggleOffBigText][A]
+```
+
+**Adding a popup**
+
+1. Draw a 16-color indexed PNG, color 0 transparent, at most 240×160. `Popups/generate_popups.py` draws the shipped burst-and-lettering style; add an entry to its `POPUPS` list, or draw your own.
+2. Keep it to 240 unique 8×8 tiles after flip reduction (the script prints the count). The popup borrows the dialogue text tiles, which hold no more.
+3. Convert it with the makefile's grit rule: `grit Name.png -gB 4 -gzl -m -mLf -mR4 -mzl -pn 16 -ftb -fh! -o Name.img.bin` (this writes `Name.img.bin`, `Name.map.bin`, `Name.pal.bin`).
+4. Add a line to `TextEnginePopupTable` in `Popups/Popups.event` with its width and height in tiles and a sound effect (`0` for none), before the closing `WORD 0 0 0 0`. Its index is its position in the table, starting at `0x01`.
+
 ### Custom fonts
 
 1. Create a PNG using `Fonts/FE8_Text_Norm.png` as a reference.
@@ -285,6 +316,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Portrait ash dissolve | `TextEngine_StartAshDissolve`, `gProcScr_TextEngineAshDissolve` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[ClearFaceAsh]` hides the live mug and rebuilds it as 16×16 OBJ chips that drift up and fade; not a screen FX |
 | Scene layout | `TextEngine_SetSceneLayout`, `TextEngine_IsSceneLayoutActive`, `TextEngine_GetTalkFaceY`, `TextEngineSceneOpen_PutBox`, `gProcScr_TextEngineSceneOpen` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `StartTalkOpen_C` starts the scene-open proc instead of `gProcScr_TalkOpen`; box width is forced in `UpdateFontBeforeBoxWidthCalc` and `TalkInterpret`; `DecompressTextBoxGraphics` skips to the final tile frame when the box is redrawn for a new speaker. State lives in `sTextEngineSceneLayoutState` (`include/link/config-memmap.s`) |
 | Big text | `TextEngine_TryDrawBigGlyph`, `TextEngine_DoubleGlyphQuarter`, `TextEngine_StartBigPop`, `gProcScr_TextEngineBigPop`, `gProcScr_TextEngineBigJolt` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Called first from `TextEngine_TryStartGlyphFloat` (the `Talk_OnIdle` print hook). Splits each doubled letter into up to four 16×16 glyphs drawn into the active and following line's `Text`. The landing is a double-size 16×16 affine OBJ that bakes the letter when it ends. `TalkInterpret` handles `[N]` / `[A]` after a big line; `TextEngine_WidthInternal` doubles big letters' widths. State lives in `sTextEngineBigTextState` (`include/link/config-memmap.s`) |
+| Popups | `TextEngine_CommandPopup`, `TextEnginePopup_Show`, `gProcScr_TextEnginePopup` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); table and art in [`Popups/`](../../Kernel/Wizardry/TextEngineRework/Popups/) | Closes the box, then a blocking proc decompresses the popup into the dialogue font's tiles, maps it on BG0 with the font palette swapped for the popup's, flashes and shakes, and restores the tiles and palette when it ends |
 | Portrait emotion marks | `TextEngine_StartEmotion`, `gProcScr_TextEngineEmotion` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[Sweat]` / `[Anger]` draw one 16×16 OBJ on the active mug. One mark at a time. Cleared when talk ends |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
@@ -323,6 +355,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Page scrolls clear BG0, nameplate included, so the plate is redrawn on the next printed letter. Generic portraits without a class mapping (messenger, shopkeepers, Anna) still get no plate; add them to `sTextEngineGenericPortraitClasses` to name them.
 - The scene layout is cleared when a dialogue starts, like nameplates, so each `TEXTSHOW` that should use it needs its own `[ToggleOnSceneLayout]`. Sprite talk, no-bubble talk, and battle quotes ignore it. Portraits stand behind the box because face OBJ use priority 2 and the box's BG1 uses priority 1; a mug loaded with a different `FACE_DISP_HLAYER` draws over the box. Portraits are placed for the box height when they load or when the toggle runs; changing `[BoxHeight]` later does not move them. The name tab's text is on BG0, so it does not slide up with the box during the first open.
 - Big-text landings use OBJ tiles 0x3B-0x3E / 0x5B-0x5E (two slots, 2D mapping), OBJ palette 0xA and affine slots 29-30. A third letter arriving while both slots are busy prints straight into the text. The jolt moves BG0 and BG1, so it fights any other effect moving those layers for its 6 frames.
+- Popups borrow the dialogue font's tiles (240), BG0 and the text palette, and decompress the tilemap through `gGenericBuffer`. A popup that needs more tiles is skipped. They always close the box, so they work between boxes, not mid-line. Sprite talk skips them. The shipped entries play sound `0xD8` (a vanilla hit sound); change it per entry. Portraits stay visible around the burst, and BG0's priority puts the popup above them.
 - Big text is cleared when a dialogue starts. It takes priority over the letter-print effects (bounce, wavy, scramble, drip, ghost) and skips sprite talk. Letters scaled past the end of the line's 30 text tiles are clipped, so keep a big line to roughly 14 average-width letters.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 

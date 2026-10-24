@@ -186,6 +186,15 @@ enum {
 	/* Frame the letter is at its biggest; the box jolts here. */
 	TEXT_ENGINE_BIG_POP_IMPACT = 2,
 	TEXT_ENGINE_BIG_JOLT_FRAMES = 6,
+	/*
+	 * Popups (an "Objection!"-style cut-in) borrow the dialogue text tiles,
+	 * BG0 and the text palette while the box is closed.
+	 */
+	TEXT_ENGINE_CMD_POPUP = 0x5D,
+	TEXT_ENGINE_POPUP_SHAKE_FRAMES = 10,
+	/* Earliest frame A or B can dismiss the popup, and when it ends by itself. */
+	TEXT_ENGINE_POPUP_MIN_FRAMES = 24,
+	TEXT_ENGINE_POPUP_FRAMES = 60,
 };
 
 struct TextEngineFaceJumpProc {
@@ -350,6 +359,25 @@ struct TextEngineBigPopProc {
 	/* 42 */ u8 bake;
 };
 
+/* One entry of TextEnginePopupTable (Popups/Popups.event). */
+struct TextEnginePopup {
+	const void *tiles;   /* LZ77 4bpp tiles; tile 0 is blank */
+	const void *map;     /* LZ77 tilemap, width x height entries */
+	const u16 *palette;  /* 16 colors */
+	u8 width;            /* tiles, at most 30 */
+	u8 height;           /* tiles, at most 20 */
+	u16 song;            /* sound effect on impact; 0 for none */
+};
+
+struct TextEnginePopupProc {
+	/* 00 */ PROC_HEADER;
+	/* 2C */ const struct TextEnginePopup *popup;
+	/* 30 */ s16 timer;
+	/* 32 */ u16 savedPalette[16];
+	/* 52 */ u16 tileCount;
+	/* 54 */ u8 shown;
+};
+
 struct TextEngineBigJoltProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ s16 timer;
@@ -449,6 +477,7 @@ extern const u16 TextPaletteTable[];
 extern const u16 TextBoxBgPaletteTable[];
 extern const u32 *TextBoxTypePointerTable[];
 extern const struct SongHeader TextBoopTable[];
+extern const struct TextEnginePopup TextEnginePopupTable[];
 
 extern const struct ProcCmd gProcScr_TalkSkipListener[];
 extern const struct ProcCmd gProcScr_TalkPause[];
@@ -4246,6 +4275,10 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 				activePosition == speakingPosition)
 				goto width_done;
 
+			/* A popup closes the box, so the box ends here. */
+			if (command->code == TEXT_ENGINE_CMD_POPUP)
+				goto width_done;
+
 			if (command->code == TEXT_ENGINE_CMD_BIG_TEXT_ON)
 				glyphScale = TEXT_ENGINE_BIG_TEXT_SCALE;
 			else if (command->code == TEXT_ENGINE_CMD_BIG_TEXT_OFF)
@@ -5262,6 +5295,177 @@ static void TextEngine_CleanupNameplate(void)
 	sTextEngineNameplateState.enabled = 0;
 }
 
+static const s8 sTextEnginePopupShake[TEXT_ENGINE_POPUP_SHAKE_FRAMES][2] = {
+	{ +6, -4 },
+	{ -5, +3 },
+	{ +4, +5 },
+	{ -4, -3 },
+	{ +3, +2 },
+	{ -2, -2 },
+	{ +2, +1 },
+	{ -1,  0 },
+	{ +1,  0 },
+	{  0,  0 },
+};
+
+/* Popup index from the script is 1-based; the table ends at a NULL entry. */
+static const struct TextEnginePopup *TextEngine_GetPopup(int index)
+{
+	const struct TextEnginePopup *popup = TextEnginePopupTable;
+
+	if (index < 1)
+		return NULL;
+
+	for (; popup->tiles; popup++) {
+		if (--index == 0)
+			return popup;
+	}
+
+	return NULL;
+}
+
+/*
+ * Put the popup on BG0, centered, using the dialogue font's tiles and
+ * palette.  Returns 0 (nothing shown) when it does not fit in them.
+ */
+static s8 TextEnginePopup_Show(struct TextEnginePopupProc *proc)
+{
+	struct Font *font = (struct Font *)0x030000F0;
+	const struct TextEnginePopup *popup = proc->popup;
+	u16 *map = (u16 *)gGenericBuffer;
+	u16 *palette = gPaletteBuffer + font->palid * 0x10;
+	int chr = font->tileref & 0x3FF;
+	int tileCount = (*(const u32 *)popup->tiles >> 8) / CHR_SIZE;
+	int left = (30 - popup->width) / 2;
+	int top = (20 - popup->height) / 2;
+	int x;
+	int y;
+
+	if (tileCount > font->chr_counter * 2 ||
+		popup->width > 30 ||
+		popup->height > 20)
+		return 0;
+
+	Decompress(popup->tiles, font->vramDest);
+	Decompress(popup->map, map);
+
+	CpuCopy16(palette, proc->savedPalette, sizeof(proc->savedPalette));
+	CpuCopy16(popup->palette, palette, sizeof(proc->savedPalette));
+	EnablePaletteSync();
+
+	BG_Fill(gBG0TilemapBuffer, 0);
+	for (y = 0; y < popup->height; y++) {
+		for (x = 0; x < popup->width; x++) {
+			u16 entry = map[y * popup->width + x];
+
+			if (!(entry & 0x3FF))
+				continue;
+
+			/* Keep grit's flip bits; point at the font tiles and palette. */
+			gBG0TilemapBuffer[TILEMAP_INDEX(left + x, top + y)] =
+				TILEREF(chr + (entry & 0x3FF), font->palid) | (entry & 0xC00);
+		}
+	}
+
+	BG_SetPosition(BG_0, 0, 0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+	proc->tileCount = tileCount;
+	proc->shown = 1;
+
+	if (popup->song)
+		PlaySoundEffect(popup->song);
+
+	StartScreenImpactFlash();
+	return 1;
+}
+
+static void TextEnginePopup_OnEnd(struct TextEnginePopupProc *proc)
+{
+	struct Font *font = (struct Font *)0x030000F0;
+
+	if (!proc->shown)
+		return;
+
+	BG_Fill(gBG0TilemapBuffer, 0);
+	BG_SetPosition(BG_0, 0, 0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
+
+	/* Hand the text tiles and palette back clean. */
+	CpuFastFill(0, font->vramDest, proc->tileCount * CHR_SIZE);
+	CpuCopy16(
+		proc->savedPalette,
+		gPaletteBuffer + font->palid * 0x10,
+		sizeof(proc->savedPalette)
+	);
+	EnablePaletteSync();
+}
+
+static void TextEnginePopup_OnIdle(struct TextEnginePopupProc *proc)
+{
+	if (proc->timer == 0 && !TextEnginePopup_Show(proc)) {
+		Proc_Break(proc);
+		return;
+	}
+
+	if (proc->timer < TEXT_ENGINE_POPUP_SHAKE_FRAMES) {
+		BG_SetPosition(
+			BG_0,
+			sTextEnginePopupShake[proc->timer][0],
+			sTextEnginePopupShake[proc->timer][1]
+		);
+	}
+
+	proc->timer++;
+
+	if (proc->timer >= TEXT_ENGINE_POPUP_FRAMES ||
+		(proc->timer >= TEXT_ENGINE_POPUP_MIN_FRAMES &&
+		 (gKeyStatusPtr->newKeys & (A_BUTTON | B_BUTTON))))
+		Proc_Break(proc);
+}
+
+static const struct ProcCmd gProcScr_TextEnginePopup[] = {
+	PROC_NAME("TextEnginePopup"),
+	PROC_SET_END_CB(TextEnginePopup_OnEnd),
+	/* Let the cleared box tilemap reach VRAM before reusing its tiles. */
+	PROC_SLEEP(1),
+	PROC_REPEAT(TextEnginePopup_OnIdle),
+	PROC_END,
+};
+
+static int TextEngine_CommandPopup(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	const struct TextEnginePopup *popup = TextEngine_GetPopup(arguments[0]);
+	struct TextEnginePopupProc *popupProc;
+
+	(void)command;
+
+	if (!popup || CheckTalkFlag(TALK_FLAG_SPRITE))
+		return TalkInterpret(proc);
+
+	/* The popup cuts in over everything: close the box first. */
+	TextEngine_EndBigPops(0);
+	Proc_EndEach(gProcScr_TextEngineBigJolt);
+	TextEngine_ClearSpeakerNameplate();
+	ClearTalkBubble();
+	sTextEngineSceneLayoutState.boxShown = 0;
+	sTextEngineBigTextState.lineBelow = 0;
+
+	/* Shown from its first idle frame, after these fields are set. */
+	popupProc = (struct TextEnginePopupProc *)Proc_StartBlocking(
+		gProcScr_TextEnginePopup,
+		proc
+	);
+	popupProc->popup = popup;
+	popupProc->timer = 0;
+	popupProc->shown = 0;
+	return 3;
+}
+
 static void TextEngine_SetSceneLayout(u8 enabled)
 {
 	struct TalkState *state = sTextEngineState;
@@ -5644,6 +5848,7 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_SCENE_LAYOUT_OFF, 0, TextEngine_CommandStopSceneLayout, NULL, NULL },
 	{ TEXT_ENGINE_CMD_BIG_TEXT_ON, 0, TextEngine_CommandStartBigText, NULL, TextEngine_CleanupBigText },
 	{ TEXT_ENGINE_CMD_BIG_TEXT_OFF, 0, TextEngine_CommandStopBigText, NULL, NULL },
+	{ TEXT_ENGINE_CMD_POPUP, 1, TextEngine_CommandPopup, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
