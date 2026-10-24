@@ -27,6 +27,7 @@ Player-facing impact:
 - Printed letters can bounce in, wave into place, scramble then resolve, drip from above, or leave a ghost echo.
 - Speaker nameplates can show the active character’s name above the dialogue box, with a matching BG1 frame; they are off by default and toggled per dialogue.
 - A scene layout swaps the floating speech bubbles for one full-width box along the bottom of the screen. Portraits stand behind it and the speaker's name sits on a tab across the box's top-left edge, like a classic cutscene. It is off by default and toggled per dialogue.
+- Big text, inspired by Paper Mario, prints letters at twice their usual size across two dialogue lines for shouted or emphasised words. It is toggled per dialogue.
 - A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - A one-shot white impact flash can fire from dialogue or `ASMC` and decays on its own.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -130,6 +131,8 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x58` | `[Anger]` | none | One-shot 16×16 anger mark on the active portrait's forehead. Grows and shrinks four times, then the next text box continues |
 | `0x59` | `[ToggleOnSceneLayout]` | none | Starts the scene layout: a full-width box along the bottom of the screen, portraits behind it, and a speaker name tab on the box's top-left edge. Closes any open bubble so the next text reopens in the new layout |
 | `0x5A` | `[ToggleOffSceneLayout]` | none | Returns to normal speech bubbles, moves portraits back to their normal height, and restores the nameplate setting from before the layout was turned on |
+| `0x5B` | `[ToggleOnBigText]` | none | Following letters print at twice their size, filling the active line and the line below it |
+| `0x5C` | `[ToggleOffBigText]` | none | Returns to normal-size letters. The rest of that line stays on the big letters' baseline |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 
@@ -199,6 +202,7 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [Anger]That is enough.
 [ToggleOnSceneLayout]Emperor Vigarde's forces are within the castle walls.
 [ToggleOffSceneLayout]Back to speech bubbles.
+[ToggleOnBigText]HALT![ToggleOffBigText] Who goes there?
 [ClearFaceAsh]
 ```
 
@@ -220,6 +224,30 @@ Put the toggle at the start of a box. Portrait slots keep their usual X position
 [OpenMidRight][LoadFace][0x14][0x01]Emperor Vigarde's forces are within
 the castle walls.[A][OpenMidLeft]Then we hold the throne room.[A]
 [ToggleOffSceneLayout]
+```
+
+### Big text
+
+<p align="center">
+  <img src="../Gifs/Text_Engine_Rework_Big_Text.gif" alt="Big text" width="480"/>
+</p>
+
+`[ToggleOnBigText]` pixel-doubles every following letter, Paper Mario style, until `[ToggleOffBigText]`:
+
+| Situation | Result |
+|-----------|--------|
+| Big letters | Twice as wide and twice as tall. The top half prints on the active line and the bottom half on the line below |
+| Normal letters after `[ToggleOffBigText]` on the same line | Print on the lower line so they share the big letters' baseline |
+| `[N]` after a big line | Moves past both lines. If the box has no line left under them, the box clears instead of scrolling half a letter away |
+| `[A]` after a big line | The wait arrow sits on the big letters' baseline |
+| Big text on the box's last line | Prints at normal size, because there is no line below to hold the lower half |
+| Box width | Measured with big letters at double width |
+
+Start big text at the beginning of a line with a free line under it: the first line of the default 2-line box, or either of the first two lines of a 3-line box.
+
+```text
+[ToggleOnBigText]Your Majesty![ToggleOffBigText][A][N]
+[ToggleOnBigText]What?![ToggleOffBigText] Already...?[A]
 ```
 
 ### Custom fonts
@@ -253,6 +281,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Impact flash | `StartScreenImpactFlash`, `gProcScr_TextEngineImpactFlash` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | One-shot full-screen white brighten that decays over 12 frames; `ASMC(StartScreenImpactFlash)` and `[ImpactFlash]` |
 | Portrait ash dissolve | `TextEngine_StartAshDissolve`, `gProcScr_TextEngineAshDissolve` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[ClearFaceAsh]` hides the live mug and rebuilds it as 16×16 OBJ chips that drift up and fade; not a screen FX |
 | Scene layout | `TextEngine_SetSceneLayout`, `TextEngine_IsSceneLayoutActive`, `TextEngine_GetTalkFaceY`, `TextEngineSceneOpen_PutBox`, `gProcScr_TextEngineSceneOpen` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `StartTalkOpen_C` starts the scene-open proc instead of `gProcScr_TalkOpen`; box width is forced in `UpdateFontBeforeBoxWidthCalc` and `TalkInterpret`; `DecompressTextBoxGraphics` skips to the final tile frame when the box is redrawn for a new speaker. State lives in `sTextEngineSceneLayoutState` (`include/link/config-memmap.s`) |
+| Big text | `TextEngine_TryDrawBigGlyph`, `TextEngine_DoubleGlyphQuarter` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Called first from `TextEngine_TryStartGlyphFloat` (the `Talk_OnIdle` print hook). Splits each doubled letter into up to four 16×16 glyphs drawn into the active and following line's `Text`. `TalkInterpret` handles `[N]` / `[A]` after a big line; `TextEngine_WidthInternal` doubles big letters' widths. State lives in `sTextEngineBigTextState` (`include/link/config-memmap.s`) |
 | Portrait emotion marks | `TextEngine_StartEmotion`, `gProcScr_TextEngineEmotion` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[Sweat]` / `[Anger]` draw one 16×16 OBJ on the active mug. One mark at a time. Cleared when talk ends |
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
@@ -289,6 +318,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - `[ImpactFlash]` is a one-shot hardware brighten of BG0–BG3, OBJ, and the backdrop. It does not use the secondary HBlank slot, so it can stack with wave / glitch / static / earthquake. It saves and restores the previous blend config, including talk-window blend bits. Firing it during `[ClearFaceAsh]` will temporarily steal OBJ alpha. It is cleared when talk ends. It plays no sound; pair it with `[PlaySound]` if a hit SFX is needed.
 - `[ClearFaceAsh]` is a portrait effect, not a screen FX. It rebuilds the mug from its live OBJ tiles as about 24–30 16×16 chips (a 96×80 talk face). Chip motion is derived each frame from a seed on the effect proc, so it does not reserve extra EWRAM. Chips stay still for a few frames so the mug does not pop away, then drift upward with a light hardware mosaic and an OBJ blend fade. Map sprites should be quiet; 32-color overlays double the sprite count and are skipped on very large mugs. Hardware mosaic is global for mosaic-bit sprites.
 - The scene layout is cleared when a dialogue starts, like nameplates, so each `TEXTSHOW` that should use it needs its own `[ToggleOnSceneLayout]`. Sprite talk, no-bubble talk, and battle quotes ignore it. Portraits stand behind the box because face OBJ use priority 2 and the box's BG1 uses priority 1; a mug loaded with a different `FACE_DISP_HLAYER` draws over the box. Portraits are placed for the box height when they load or when the toggle runs; changing `[BoxHeight]` later does not move them. The name tab's text is on BG0, so it does not slide up with the box during the first open.
+- Big text is cleared when a dialogue starts. It takes priority over the letter-print effects (bounce, wavy, scramble, drip, ghost) and skips sprite talk. Letters scaled past the end of the line's 30 text tiles are clipped, so keep a big line to roughly 14 average-width letters.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

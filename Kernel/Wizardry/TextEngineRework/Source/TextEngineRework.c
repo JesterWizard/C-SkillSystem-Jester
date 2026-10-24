@@ -166,6 +166,10 @@ enum {
 	/* Name tab: first tile column, and rows above yText (tab bottom = box top). */
 	TEXT_ENGINE_SCENE_NAMEPLATE_X = 2,
 	TEXT_ENGINE_SCENE_NAMEPLATE_Y_OFFSET = 2,
+	/* Big text: letters at twice the size, spanning two dialogue lines. */
+	TEXT_ENGINE_CMD_BIG_TEXT_ON = 0x5B,
+	TEXT_ENGINE_CMD_BIG_TEXT_OFF = 0x5C,
+	TEXT_ENGINE_BIG_TEXT_SCALE = 2,
 };
 
 struct TextEngineFaceJumpProc {
@@ -305,6 +309,14 @@ struct TextEngineSceneLayoutState {
 };
 
 extern EWRAM_DATA struct TextEngineSceneLayoutState sTextEngineSceneLayoutState;
+
+struct TextEngineBigTextState {
+	u8 enabled;
+	/* The active line holds big text, so the line below it is taken too. */
+	u8 lineBelow;
+};
+
+extern EWRAM_DATA struct TextEngineBigTextState sTextEngineBigTextState;
 
 struct TextEnginePortraitNameAlias {
 	u8 portraitId;
@@ -2932,6 +2944,126 @@ static void TextEngineGlyphFloat_OnIdle(struct TextEngineGlyphFloatProc *proc)
 	proc->timer++;
 }
 
+/*
+ * Pixel-double one 8-column half of a glyph (half 0 = columns 0-7, 1 = 8-15)
+ * into a 16x16 glyph, taking source rows firstRow to firstRow + 7.
+ */
+static void TextEngine_DoubleGlyphQuarter(
+	const struct Glyph *source,
+	struct Glyph *dest,
+	int firstRow,
+	int half
+)
+{
+	int row;
+	int px;
+
+	for (row = 0; row < 16; row++) {
+		u32 bits = source->bitmap[firstRow + row / 2] >> (half * 16);
+		u32 doubled = 0;
+
+		for (px = 0; px < 8; px++) {
+			u32 color = (bits >> (px * 2)) & 3;
+
+			doubled |= (color | (color << 2)) << (px * 4);
+		}
+
+		dest->bitmap[row] = doubled;
+	}
+}
+
+/*
+ * Big text draws each letter at twice the size: the top half goes into the
+ * active line and the bottom half into the line below.  Normal-size letters
+ * that follow on the same line go into the line below so they share the big
+ * letters' baseline.  Returns 1 when the character was drawn here.
+ */
+static s8 TextEngine_TryDrawBigGlyph(struct Text *text, const char **str)
+{
+	struct TalkState *state = sTextEngineState;
+	struct Text *below;
+	struct Glyph *glyph;
+	struct Glyph big;
+	char ch[5];
+	const char *next;
+	u32 width;
+	int len;
+	int x;
+	int half;
+	int i;
+
+	if (!sTextEngineBigTextState.enabled && !sTextEngineBigTextState.lineBelow)
+		return 0;
+
+	if (!text || !str || !*str || CheckTalkFlag(TALK_FLAG_SPRITE))
+		return 0;
+
+	/* Big text needs the line below; on the last line it prints normally. */
+	if (state->lineActive + 1 >= state->lines)
+		return 0;
+
+	SetInitTalkTextFont();
+	below = TextEngine_GetLineText(state, state->lineActive + 1);
+	x = Text_GetCursor(text);
+
+	if (!sTextEngineBigTextState.enabled) {
+		Text_SetCursor(below, x);
+		*str = Text_DrawCharacter(below, *str);
+		Text_SetCursor(text, Text_GetCursor(below));
+		return 1;
+	}
+
+	next = GetCharTextLen(*str, &width);
+	if (!next || next == *str || width == 0)
+		return 0;
+
+	len = next - *str;
+	if (len <= 0 || len > 4)
+		return 0;
+
+	for (i = 0; i < len; i++)
+		ch[i] = (*str)[i];
+	ch[len] = 0;
+
+	glyph = TextEngine_ResolveGlyph(ch);
+	if (!glyph)
+		return 0;
+
+	if (!sTextEngineBigTextState.lineBelow) {
+		/* First big letter on this line: show the line below it too. */
+		Text_SetColor(below, state->printColor);
+		PutText(
+			below,
+			gBG0TilemapBuffer + TILEMAP_INDEX(
+				state->xText,
+				state->yText + (state->lineActive + 1) * 2
+			)
+		);
+		TalkBgSync(1);
+		sTextEngineBigTextState.lineBelow = 1;
+	}
+
+	big.width = 16;
+	for (half = 0; half < 2; half++) {
+		/* Narrow letters have nothing in their right half. */
+		if (half && width <= 8)
+			break;
+
+		TextEngine_DoubleGlyphQuarter(glyph, &big, 0, half);
+		Text_SetCursor(text, x + half * 16);
+		gActiveFont->drawGlyph(text, &big);
+
+		TextEngine_DoubleGlyphQuarter(glyph, &big, 8, half);
+		Text_SetCursor(below, x + half * 16);
+		gActiveFont->drawGlyph(below, &big);
+	}
+
+	Text_SetCursor(text, x + width * TEXT_ENGINE_BIG_TEXT_SCALE);
+	Text_SetCursor(below, x + width * TEXT_ENGINE_BIG_TEXT_SCALE);
+	*str = next;
+	return 1;
+}
+
 s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 {
 	struct TalkState *state = sTextEngineState;
@@ -2943,6 +3075,9 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	int len;
 	int i;
 	int cursorX;
+
+	if (TextEngine_TryDrawBigGlyph(text, str))
+		return 1;
 
 	if (!*TextEngine_GetLetterFxMode())
 		return 0;
@@ -3284,6 +3419,10 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 	struct TalkState *state = sTextEngineState;
 	int nextLine;
 
+	/* Scroll a big line's lower half out with it. */
+	state->lineActive += sTextEngineBigTextState.lineBelow;
+	sTextEngineBigTextState.lineBelow = 0;
+
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(state);
 	proc->unk64 = 0;
@@ -3303,6 +3442,7 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 LYN_REPLACE_CHECK(TalkShiftClear_OnInit);
 void TalkShiftClear_OnInit_C(struct Proc *proc)
 {
+	sTextEngineBigTextState.lineBelow = 0;
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(sTextEngineState);
 	proc->unk64 = 0;
@@ -3436,6 +3576,9 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 {
 	struct TalkState *state = sTextEngineState;
 	struct Proc *proc;
+
+	/* A new box starts with empty lines. */
+	sTextEngineBigTextState.lineBelow = 0;
 
 	if (TextEngine_IsSceneLayoutActive()) {
 		state->activeWidth = TEXT_ENGINE_SCENE_BOX_WIDTH;
@@ -3632,6 +3775,7 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 	int speakingPosition = (s8)state->speakingFaceSlot;
 	int lineWidth = 0;
 	int maxWidth = 0x18;
+	int glyphScale = sTextEngineBigTextState.enabled ? TEXT_ENGINE_BIG_TEXT_SCALE : 1;
 
 	while (1) {
 		u8 code = *cursor;
@@ -3656,6 +3800,11 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 			if (command->code == TEXT_ENGINE_CMD_CLEAR_FACE_ASH &&
 				activePosition == speakingPosition)
 				goto width_done;
+
+			if (command->code == TEXT_ENGINE_CMD_BIG_TEXT_ON)
+				glyphScale = TEXT_ENGINE_BIG_TEXT_SCALE;
+			else if (command->code == TEXT_ENGINE_CMD_BIG_TEXT_OFF)
+				glyphScale = 1;
 
 			if (command->width) {
 				command->width(
@@ -3748,7 +3897,7 @@ static int TextEngine_WidthInternal(const u8 *cursor, int stopAtCurrentBox)
 		{
 			u32 glyphWidth;
 			cursor = (const u8 *)GetCharTextLen((const char *)cursor, &glyphWidth);
-			lineWidth += glyphWidth;
+			lineWidth += glyphWidth * glyphScale;
 		}
 	}
 
@@ -4735,6 +4884,39 @@ static int TextEngine_CommandStopSceneLayout(
 	return 3;
 }
 
+static int TextEngine_CommandStartBigText(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	sTextEngineBigTextState.enabled = 1;
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandStopBigText(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	/* lineBelow stays set so the rest of this line keeps the big baseline. */
+	sTextEngineBigTextState.enabled = 0;
+	return TalkInterpret(proc);
+}
+
+static void TextEngine_CleanupBigText(void)
+{
+	sTextEngineBigTextState.enabled = 0;
+	sTextEngineBigTextState.lineBelow = 0;
+}
+
 static void TextEngine_CleanupSceneLayout(void)
 {
 	sTextEngineSceneLayoutState.enabled = 0;
@@ -4996,6 +5178,8 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_ANGER, 0, TextEngine_CommandEmotion, NULL, TextEngine_CleanupEmotion },
 	{ TEXT_ENGINE_CMD_SCENE_LAYOUT_ON, 0, TextEngine_CommandStartSceneLayout, NULL, TextEngine_CleanupSceneLayout },
 	{ TEXT_ENGINE_CMD_SCENE_LAYOUT_OFF, 0, TextEngine_CommandStopSceneLayout, NULL, NULL },
+	{ TEXT_ENGINE_CMD_BIG_TEXT_ON, 0, TextEngine_CommandStartBigText, NULL, TextEngine_CleanupBigText },
+	{ TEXT_ENGINE_CMD_BIG_TEXT_OFF, 0, TextEngine_CommandStopBigText, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
@@ -5075,6 +5259,22 @@ int TalkInterpret(ProcPtr proc)
 		switch (code) {
 		case CHFE_L_NL:
 			Chatlog_AppendSoftBreak();
+			if (sTextEngineBigTextState.lineBelow) {
+				/* A big line also filled the line below it. */
+				sTextEngineBigTextState.lineBelow = 0;
+
+				if (state->lineActive + 2 >= state->lines) {
+					/* No room under it: clear the box instead of scrolling half a letter away. */
+					state->lineActive++;
+					Proc_StartBlocking(gProcScr_TalkShiftClearAll, proc);
+					return 3;
+				}
+
+				state->lineActive += 2;
+				state->putLines = 0;
+				return 2;
+			}
+
 			if (state->putLines == 1 || state->lineActive == 1)
 				state->lineActive++;
 
@@ -5099,14 +5299,18 @@ int TalkInterpret(ProcPtr proc)
 
 			return 3;
 
-		case CHFE_L_A:
+		case CHFE_L_A: {
+			/* After big text the arrow sits on the big letters' baseline. */
+			int line = state->lineActive + sTextEngineBigTextState.lineBelow;
+
 			Chatlog_CommitPage();
 			StartTalkWaitForInput(
 				proc,
-				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, state->lineActive)) + 4,
-				state->yText * 8 + state->lineActive * 16 + 8
+				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, line)) + 4,
+				state->yText * 8 + line * 16 + 8
 			);
 			return 3;
+		}
 
 		case CHFE_L_Pause8:
 		case CHFE_L_Pause16:

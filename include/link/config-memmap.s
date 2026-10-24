@@ -204,6 +204,8 @@ _kernel_malloc sPathfindingGhostObjBuf, 50
 
 /* Text engine scene layout: enabled, boxShown, instantOpen, savedNameplate */
 _kernel_malloc sTextEngineSceneLayoutState, 4
+/* Text engine big text: enabled, lineBelow */
+_kernel_malloc sTextEngineBigTextState, 2
 
 /* CONFIG */
 
