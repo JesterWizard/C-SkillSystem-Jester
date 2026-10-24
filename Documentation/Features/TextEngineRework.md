@@ -10,6 +10,9 @@
 - [Introduction](#introduction)
 - [Plan](#plan)
 - [Supported Control Codes](#supported-control-codes)
+  - [Scene layout](#scene-layout)
+  - [Big text](#big-text)
+  - [Popups](#popups)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
 - [Limitations & Bugs](#limitations--bugs)
@@ -55,7 +58,9 @@ The rework is a small set of C hooks plus shared tables.
 | Screen earthquake | Secondary HBlank callback adds a 2px XY rumble from a looping offset table | Backgrounds, portraits, and map sprites shake together until toggled off |
 | Speaker nameplate | Draws the speaking face’s name on BG0 with a matching BG1 talk-bubble frame above the box | Off by default; `[ToggleOnNameplate]` enables per dialogue |
 | Scene layout | Replaces the talk-open proc with a full-width bottom box, raises newly loaded portraits so their lower 16px stand behind it, and pins the nameplate to the box's top-left edge | Off by default; `[ToggleOnSceneLayout]` enables per dialogue, `[ToggleOffSceneLayout]` returns to speech bubbles |
-| Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `_Text_Engine_Tables.txt` | Text writers can use macros instead of raw bytes |
+| Big text | Doubles each glyph into the active line and the line below; each letter lands first as a scaling affine OBJ, then bakes into the text | Off by default; `[ToggleOnBigText]` / `[ToggleOffBigText]` around the words |
+| Popups | Closes the box and shows a full-screen cut-in on BG0 using the dialogue font's tiles and palette, with a flash, sound and shake | `[Objection]`, `[HoldIt]`, `[TakeThat]` or `[Popup][XX]` from `TextEnginePopupTable` |
+| Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `Text_Engine_Tables.event` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
 
@@ -73,10 +78,11 @@ Updates stick to the face until you change them again, clear the face, or end th
 
 ### Build wiring
 
-1. `TextEngineRework_Installer.event` includes `Source/LynJump.event`, generated `Source/TextEngineRework.lyn.event`, and `_Text_Engine_Tables.txt`.
+1. `TextEngineRework_Installer.event` includes `Source/LynJump.event`, generated `Source/TextEngineRework.lyn.event`, `Text_Engine_Tables.event` and `Popups/Popups.event`.
 2. `Source/LynJump.event` installs whole-function trampolines and a few call-sites.
-3. Tables define fonts, text palettes, box palettes, box graphics, and boop timing data.
-4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, and `[MML2]`.
+3. Tables define fonts, text palettes, box palettes, box graphics, boop timing data, and the popup graphics.
+4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, `[MML2]`, `[ToggleOnSceneLayout]`, `[ToggleOnBigText]` and `[Objection]`.
+5. `include/link/config-memmap.s` reserves `sTextEngineNameplateState`, `sTextEngineSceneLayoutState` and `sTextEngineBigTextState`; the last two sit at the end of the kernel RAM pool.
 
 ---
 
@@ -288,7 +294,7 @@ Start big text at the beginning of a line with a free line under it: the first l
 
 1. Create a PNG using `Fonts/FE8_Text_Norm.png` as a reference.
 2. Edit and run `Fonts/generate_font.py` (Python 3) to emit an installer.
-3. Include the installer from `_Text_Engine_Tables.txt`.
+3. Include the installer from `Text_Engine_Tables.event`.
 
 Glyph width lives in the 6th header byte of each glyph entry; adjust kerning there if bold/italic spacing looks too wide.
 
@@ -308,7 +314,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StartFaceShimmy`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `TextEngine_StopFaceShimmy`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps, vibrates, or shimmies the active portrait until toggled off |
 | Shake / letter-print FX | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce / wavy / scramble / drip / ghost = per-letter OBJ that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
-| Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_BuildSceneTabCornerTile`, `TextEngine_FindClassNameByPortrait`, `sTextEngineGenericPortraitClasses`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles |
+| Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_BuildSceneTabCornerTile`, `TextEngine_FindClassNameByPortrait`, `sTextEngineGenericPortraitClasses`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles. In the scene layout it becomes a tab on the box's top-left edge with merged corners, and unnamed generic speakers are named after a class. Redrawn on the next letter after a page scroll |
 | Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Horizontal screen tear: a rolling split shifts BG0–BG3 (and matching OBJ) on the X axis; `ASMC(EnableScreenGlitch)` and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
 | Whole-screen static | `EnableScreenStatic`, `DisableScreenStatic`, `gProcScr_TextEngineScreenStatic` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | White scanline streaks drawn as OBJ over the picture (backgrounds do not wobble); `ASMC(EnableScreenStatic)` and `[ToggleOnStatic]`/`[ToggleOffStatic]` |
 | Whole-screen earthquake | `EnableScreenEarthquake`, `DisableScreenEarthquake`, `gProcScr_TextEngineScreenEarthquake` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | 2px XY rumble on BG0–BG3 plus portraits, float glyphs, and map sprites; `ASMC(EnableScreenEarthquake)` and `[ToggleOnEarthquake]`/`[ToggleOffEarthquake]` |
@@ -321,10 +327,10 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Promotion UI box fix | `ClassChgLoadUI_C` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Keeps class-change UI box graphics compatible |
 | Explicit hooks | [`Source/LynJump.event`](../../Kernel/Wizardry/TextEngineRework/Source/LynJump.event) | Whole-function trampolines and callHack sites |
 | Generated Lyn output | [`Source/TextEngineRework.lyn.event`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.lyn.event) | Auto-generated from the C object; do not edit by hand |
-| Installer | [`TextEngineRework_Installer.event`](../../Kernel/Wizardry/TextEngineRework/TextEngineRework_Installer.event) | Pulls LynJump, lyn output, and tables into the build |
-| Tables | [`_Text_Engine_Tables.txt`](../../Kernel/Wizardry/TextEngineRework/_Text_Engine_Tables.txt), [`text_boop_table.txt`](../../Kernel/Wizardry/TextEngineRework/text_boop_table.txt) | Fonts, palettes, box graphics, boop timing |
-| Font assets / tools | [`Fonts/`](../../Kernel/Wizardry/TextEngineRework/Fonts/), [`Text_Box_Graphics/`](../../Kernel/Wizardry/TextEngineRework/Text_Box_Graphics/) | Editable font/box assets and generation scripts |
-| Text aliases | [`Contents/Texts/textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Font]`, `[LoadFaceFancy]`, move-speed macros, and related helpers |
+| Installer | [`TextEngineRework_Installer.event`](../../Kernel/Wizardry/TextEngineRework/TextEngineRework_Installer.event) | Pulls LynJump, lyn output, tables and popups into the build |
+| Tables | [`Text_Engine_Tables.event`](../../Kernel/Wizardry/TextEngineRework/Text_Engine_Tables.event), [`Text_Boop_Table.event`](../../Kernel/Wizardry/TextEngineRework/Text_Boop_Table.event), [`Popups/Popups.event`](../../Kernel/Wizardry/TextEngineRework/Popups/Popups.event) | Fonts, palettes, box graphics, boop timing, popup graphics |
+| Font assets / tools | [`Fonts/`](../../Kernel/Wizardry/TextEngineRework/Fonts/), [`Text_Box_Graphics/`](../../Kernel/Wizardry/TextEngineRework/Text_Box_Graphics/), [`Popups/generate_popups.py`](../../Kernel/Wizardry/TextEngineRework/Popups/generate_popups.py) | Editable font/box/popup assets and generation scripts |
+| Text aliases | [`Contents/Texts/textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Font]`, `[LoadFaceFancy]`, move-speed macros, scene layout / big text toggles, popup names, and related helpers |
 
 ---
 
@@ -334,6 +340,9 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Consider punctuation-pause and heavier typewriter variants now that letter-print FX exist.
 - Consider horizontal or compound portrait effects now that the engine lives in C.
 - Optional ash-dissolve SFX and a slower/faster duration argument if scripts need per-scene timing.
+- `ASMC` toggles for the scene layout, so one event can keep it on across several `TEXTSHOW`s.
+- Confirm the popup sound (`0xD8`) by ear, and consider a zoom-in or slide for popups (BG0 cannot scale, so it would need OBJ space).
+- Name the remaining generic portraits (messenger, shopkeepers, Anna) once there are text entries for them.
 
 ---
 
@@ -346,7 +355,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - World-map text still uses the vanilla blip. `[BoopPitch_*]` applies on the standard dialogue path, where each drawn glyph restarts that face's entry in `TextBoopTable`.
 - Shake-on-print jitters the whole BG0 text layer. Bounce, wavy, scramble, drip, and ghost-echo each float letters in as OBJs (up to 4 at once) before baking into the dialogue text. Only one of those letter styles is active at a time; sprite-talk mode is skipped. Wide glyphs are clipped to 8px while they are sprites.
 - The wave affects regular background layers only; portraits, cursors, and other OBJ sprites remain rigid. It temporarily occupies the secondary HBlank handler and is intended for the standard dialogue path.
-- Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it. Sprite-talk / no-bubble modes skip nameplates.
+- Speaker nameplates reuse the loaded talk-bubble tiles on BG1 and temporarily enable BG0 outside WIN0 so the plate above the box is visible. The BG1 frame is sized to the speaker name, centered over the dialogue bubble, and drawn 16px above it; in the scene layout it is instead a tab starting at tile column 2 that straddles the box's top edge (see [Scene layout](#scene-layout)). Sprite-talk / no-bubble modes skip nameplates.
 - The screen glitch is a horizontal tear: scanlines below a rolling split jump sideways on BG0–BG3. Portrait mouths/eyes and map sprites use the same offset so they tear with the picture. It is off until `[ToggleOnGlitch]` or `ASMC(EnableScreenGlitch)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
 - The screen static flashes scattered scanlines toward white (a few uneven clusters plus stray sparks). Backgrounds do not slide. It is off until `[ToggleOnStatic]` or `ASMC(EnableScreenStatic)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot.
 - The screen earthquake is a 2px XY rumble: BG0–BG3, portraits (including mouths/eyes), float glyphs, and map sprites share the same offset. It is off until `[ToggleOnEarthquake]` or `ASMC(EnableScreenEarthquake)` starts it, and it is not cleared automatically when talk ends. It shares the dialogue wave's secondary HBlank slot and plays vanilla rumble `SONG_26A` until `[ToggleOffEarthquake]` / `ASMC(DisableScreenEarthquake)` fades it. This is independent of event-script `EARTHQUAKE_START`, which only jitters the map camera or BG3.
