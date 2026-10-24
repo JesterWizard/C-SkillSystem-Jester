@@ -7,6 +7,7 @@ StephanoStyleFlag: WORD 0xAA
 PikminStyleFlag:   WORD 0xAC
 GammaStyleFlag:    WORD 0xB4 // Lets use the guide flag (0xB4) (0xAB originally)
 WoodStyleFlag:     WORD 0xAB
+TechStyleFlag:     WORD 0xAD
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -149,6 +150,57 @@ Img_PlayStatusSprites_Wood: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Wood:
 #incbin "png/Wood/Wood_PlayStatusPal.pal"
+
+
+// TECH (png/Tech/generate_tech.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Tech:
+#incext Png2Dmp "png/Tech/Tech_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Tech:
+#incbin "png/Tech/Tech_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Tech:
+#incext Png2Dmp "png/Tech/Tech_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Tech:
+#incext Png2Dmp "png/Tech/Tech_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Tech:
+#incext Png2Dmp "png/Tech/Tech_PrepItems.png" --lz77
+ALIGN 4
+Tech_PrepItemsPalette:
+#incbin "png/Tech/Tech_PrepItemsPal.pal"
+ALIGN 4
+Tech_PrepPopupWindow:
+#incext Png2Dmp "png/Tech/Tech_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Tech:
+#incext Png2Dmp "png/Tech/Tech_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Tech: // Battle UI Palette
+#incbin "png/Tech/Tech_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Tech: // chapter status banner and playtime box
+#incext Png2Dmp "png/Tech/Tech_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Tech:
+#incbin "png/Tech/Tech_PlayStatusPal.pal"
 
 
 // PIKMIN
