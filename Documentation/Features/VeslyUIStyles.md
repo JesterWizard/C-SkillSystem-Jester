@@ -26,7 +26,7 @@ Player-facing impact:
 - Prep screens, the prep popup, the funds/items sprites and the shop gold box follow the style.
 - Faction-coloured frames (battle forecast, status screen counters, world map) use the style's palettes.
 
-**Wood** is the newest style: plank-grain fills, brass trim, and four woods in place of vanilla's window colours.
+**Wood** is the newest style. Its windows are grained boards framed by dark, black-outlined wooden beams, with a riveted iron cap on each corner. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. Four woods replace vanilla's window colours.
 
 | Window colour | Vanilla | Wood | Faction it tints |
 |---------------|---------|------|------------------|
@@ -72,7 +72,14 @@ Each getter in `C_Code.c` indexes a 5-entry table by the style ID. A style that 
 
 ### Building the wood art
 
-`png/Wood/generate_wood.py` builds every wood file from the vanilla images in `png/Vanilla`. It keeps each image's palette indices, swaps in the wood palettes, and adds a wood-grain pattern to the fill colours. The pattern repeats every 8×8 tile, so repeated tiles join into continuous grain. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
+`png/Wood/generate_wood.py` builds every wood file from the vanilla images in `png/Vanilla`. It keeps each image's tile layout and window outline, so the game's tilemaps still line up, and redraws what is inside:
+
+- Gold trim bars become beams: outlined, with shading set by each pixel's position across the bar.
+- Every edge that meets the transparent backdrop gets a black outline.
+- Ornament tiles (curls, crests, the battle gem) are replaced with the plain tile of the same role (`PLAIN_COPIES`, `BATTLE_COPIES`).
+- Corner tiles get the 7×7 iron cap (`CORNERS`, `BATTLE_CORNERS`, `CAP`).
+
+It then swaps in the wood palettes and adds a wood-grain pattern to the fill colours. The pattern repeats every 8×8 tile, so repeated tiles join into continuous grain. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
 
 To retune the look, edit the colour lists at the top of the script and rerun it. `Png2Dmp` maps pixels by colour, so each PNG palette must keep 16 distinct colours (the script checks this).
 
