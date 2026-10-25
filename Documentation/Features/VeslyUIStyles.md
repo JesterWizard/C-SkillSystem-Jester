@@ -3,29 +3,13 @@
 <p align="center">
   <img src="../Images/VeslyUI_Wood.png" alt="Wood UI style" width="600"/>
 </p>
-<p align="center">
-  <img src="../Images/VeslyUI_Tech.png" alt="Tech UI style" width="600"/>
-</p>
-<p align="center">
-  <img src="../Images/VeslyUI_Royal.png" alt="Royal UI style" width="600"/>
-</p>
-<p align="center">
-  <img src="../Images/VeslyUI_Glass.png" alt="Stained Glass UI style" width="600"/>
-</p>
-<p align="center">
-  <img src="../Images/VeslyUI_Paper.png" alt="Paper UI style" width="600"/>
-</p>
-<p align="center">
-  <img src="../Images/VeslyUI_Ocean.png" alt="Ocean UI style" width="600"/>
-</p>
-<p align="center">
-  <img src="../Images/VeslyUI_Forest.png" alt="Forest UI style" width="600"/>
-</p>
 
 ---
 
 ## 📑 Index
 - [Introduction](#introduction)
+- [Styles](#styles)
+  - [Wood](#wood) · [Tech](#tech) · [Royal](#royal) · [Stained Glass](#stained-glass) · [Paper](#paper) · [Ocean](#ocean) · [Forest](#forest) · [Older styles](#older-styles)
 - [Plan](#plan)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
@@ -45,70 +29,136 @@ Player-facing impact:
 - Faction-coloured frames (battle forecast, status screen counters, world map) use the style's palettes.
 - The status screen's chapter title banner and play-time box can follow the style (the generated styles have their own; the other styles keep vanilla's).
 
-**Wood**, **Tech**, **Royal**, **Stained Glass**, **Paper**, **Ocean** and **Forest** are the newest styles, all built by the generator described below.
+---
 
-**Wood** Its windows are grained boards framed by dark, black-outlined wooden planks. The edges are chipped and cracked, and at each corner the top and bottom planks run past the window and end in a broken, splintered tip. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. Four woods replace vanilla's window colours.
+## 🎨 Styles
+
+Wood, Tech, Royal, Stained Glass, Paper, Ocean and Forest are built by the generator described under [Plan](#plan). Each has four window colours, which also tint the four factions. A style is on while its flag is set; see [Choosing a style](#choosing-a-style) for what happens when more than one is.
+
+Each grid shows, left to right and top to bottom: the map HUD, the unit command menu, the item menu and stat window, the options screen, the unit list, the chapter status screen, the guide, the battle screen, and the map menu.
+
+### 🪵 Wood
+
+Windows are grained boards framed by dark, black-outlined wooden planks. The edges are chipped and cracked, and at each corner the top and bottom planks run past the window and end in a broken, splintered tip. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. The status screen banners are wooden signs with a cream chapter name.
+
+Turn it on with `ENUT 0xAB` in an event (or `SetFlag(0xAB)` in C); it is `WoodStyleFlag`, style ID 4.
 
 | Window colour | Vanilla | Wood | Faction it tints |
-|---------------|---------|------|------------------|
+|-----------------|-----------|--------|--------------------|
 | 0 | Blue | Oak | Player |
 | 1 | Red | Mahogany | Enemy |
 | 2 | Green | Moss-stained | Allied (green) |
 | 3 | Sepia | Weathered grey | Other |
 
-**Tech** has a techno-futuristic look. Its windows are dark glass panels with scanlines. Each edge is one bright neon line, the same thickness on all four sides, with a dim glow just outside it and no black outline. Inside the line is a 2-pixel band of panel: invisible on dark panels, an even inset line on light ones. Corners are rounded, the line cutting across them in two white-hot steps. The edges are otherwise plain and symmetrical. Light panels such as title plates and help boxes become pale glass. The chapter name on the status screen is white and cyan.
+<p align="center">
+  <img src="../Images/VeslyUI_Wood_Screens.png" alt="Wood UI style, nine screens" width="720"/>
+</p>
+
+### 💠 Tech
+
+A techno-futuristic look. Windows are dark glass panels with scanlines. Each edge is one bright neon line, the same thickness on all four sides, with a dim glow just outside it and no black outline. Inside the line is a 2-pixel band of panel: invisible on dark panels, an even inset line on light ones. Corners are rounded, the line cutting across them in two white-hot steps. Light panels such as title plates and help boxes are pale glass. The chapter name on the status screen is white and cyan.
+
+Turn it on with `ENUT 0xAD` in an event (or `SetFlag(0xAD)` in C); it is `TechStyleFlag`, style ID 5.
 
 | Window colour | Vanilla | Tech | Faction it tints |
-|---------------|---------|------|------------------|
+|-----------------|-----------|--------|--------------------|
 | 0 | Blue | Cyan | Player |
 | 1 | Red | Magenta | Enemy |
 | 2 | Green | Green | Allied (green) |
 | 3 | Sepia | Violet | Other |
 
-**Royal** is gilded. Its windows are velvet panels woven with a small damask diamond, framed by a gold moulding 4 pixels thick on every side, with a jewel set in a gold diamond on each corner. Light panels such as title plates are ivory. The chapter name on the status screen is gold.
+<p align="center">
+  <img src="../Images/VeslyUI_Tech_Screens.png" alt="Tech UI style, nine screens" width="720"/>
+</p>
+
+### 👑 Royal
+
+A gilded look. Windows are velvet panels woven with a small damask diamond, framed by a gold moulding 4 pixels thick on every side, with a jewel set in a gold diamond on each corner. Light panels such as title plates are ivory. The chapter name on the status screen is gold.
+
+Turn it on with `ENUT 0xAE` in an event (or `SetFlag(0xAE)` in C); it is `RoyalStyleFlag`, style ID 6.
 
 | Window colour | Vanilla | Royal | Jewel | Faction it tints |
-|---------------|---------|-------|-------|------------------|
+|-----------------|-----------|---------|---------|--------------------|
 | 0 | Blue | Royal blue | Ruby | Player |
 | 1 | Red | Crimson | Sapphire | Enemy |
 | 2 | Green | Emerald | Ruby | Allied (green) |
 | 3 | Sepia | Purple | Ruby | Other |
 
-**Stained Glass** frames each window in a border of amber, ruby, emerald and sapphire glass pieces set in lead, 4 pixels thick on every side, with a square emerald or sapphire pane on each corner. The piece colours vary from tile to tile, so they fall irregularly like a real window. Panels are coloured glass with faint diagonal seams and no lead lines, so text stays readable. Light panels are frosted glass. The chapter name on the status screen is white and amber.
+<p align="center">
+  <img src="../Images/VeslyUI_Royal_Screens.png" alt="Royal UI style, nine screens" width="720"/>
+</p>
+
+### 🪟 Stained Glass
+
+Each window is framed by amber, ruby, emerald and sapphire glass pieces set in lead, 4 pixels thick on every side, with a square emerald or sapphire pane on each corner. The piece colours vary from tile to tile, so they fall irregularly like a real window; the right edge, which the game draws from a single tile, is amber throughout. Panels are coloured glass with faint diagonal seams and no lead lines, so text stays readable. Light panels are frosted glass. The chapter name on the status screen is white and amber.
+
+Turn it on with `ENUT 0xAF` in an event (or `SetFlag(0xAF)` in C); it is `GlassStyleFlag`, style ID 7.
 
 | Window colour | Vanilla | Stained Glass | Faction it tints |
-|---------------|---------|---------------|------------------|
+|-----------------|-----------|-----------------|--------------------|
 | 0 | Blue | Blue glass | Player |
 | 1 | Red | Red glass | Enemy |
 | 2 | Green | Green glass | Allied (green) |
 | 3 | Sepia | Purple glass | Other |
 
-**Paper** is a storybook / Paper Mario look. Each window is a paper cutout, like a sticker. It has a thick black outline, a white paper border with a cardstock edge and rounded corners, the same on all four sides. A drop shadow falls down the right and along the bottom, as if the cutout were lifted off the page. Panels are construction paper with a faint fibre speckle; light panels are cream paper. The chapter name on the status screen is white outlined in black.
+<p align="center">
+  <img src="../Images/VeslyUI_Glass_Screens.png" alt="Stained Glass UI style, nine screens" width="720"/>
+</p>
+
+### 📖 Paper
+
+A storybook / Paper Mario look. Each window is a paper cutout, like a sticker: a thick black outline, a white paper border with a cardstock edge, and rounded corners, the same on all four sides. A drop shadow falls down the right and along the bottom, as if the cutout were lifted off the page. Panels are construction paper with a faint fibre speckle; light panels are cream paper. The chapter name on the status screen is white outlined in black.
+
+Turn it on with `ENUT 0xB0` in an event (or `SetFlag(0xB0)` in C); it is `PaperStyleFlag`, style ID 8.
 
 | Window colour | Vanilla | Paper | Faction it tints |
-|---------------|---------|-------|------------------|
+|-----------------|-----------|---------|--------------------|
 | 0 | Blue | Sky blue | Player |
 | 1 | Red | Tomato | Enemy |
 | 2 | Green | Grass | Allied (green) |
 | 3 | Sepia | Plum | Other |
 
-**Ocean** is an Ocean / Coral look. Each window has a twisted rope edge outside a band of wave crests, rows of foam-capped arcs over aqua. The border is 5 pixels thick on every side, with a starfish on each corner. Soft bubbles drift across the panels; light panels are sand. The chapter name on the status screen is white and aqua.
+<p align="center">
+  <img src="../Images/VeslyUI_Paper_Screens.png" alt="Paper UI style, nine screens" width="720"/>
+</p>
+
+### 🌊 Ocean
+
+An Ocean / Coral look. Each window has a twisted rope edge outside a band of wave crests, rows of foam-capped arcs over aqua. The border is 5 pixels thick on every side, with a starfish on each corner. Soft bubbles drift across the panels; light panels are sand. The chapter name on the status screen is white and aqua.
+
+Turn it on with `ENUT 0xB1` in an event (or `SetFlag(0xB1)` in C); it is `OceanStyleFlag`, style ID 9.
 
 | Window colour | Vanilla | Ocean | Faction it tints |
-|---------------|---------|-------|------------------|
+|-----------------|-----------|---------|--------------------|
 | 0 | Blue | Teal | Player |
 | 1 | Red | Coral | Enemy |
 | 2 | Green | Kelp green | Allied (green) |
 | 3 | Sepia | Pearl | Other |
 
-**Forest** is a Forest / Leaf look that pairs well with Wood. Each window is framed by two vines woven over and under each other, 4 pixels thick on every side, with a small leaf on each corner. The panels carry a leaf-vein texture, a midrib and side veins in every tile; light panels are pale parchment. The chapter name on the status screen is white and leaf green.
+<p align="center">
+  <img src="../Images/VeslyUI_Ocean_Screens.png" alt="Ocean UI style, nine screens" width="720"/>
+</p>
+
+### 🌿 Forest
+
+A Forest / Leaf look that pairs well with Wood. Each window is framed by two vines woven over and under each other, 4 pixels thick on every side, with a small leaf and bark stem on each corner. The panels carry a leaf-vein texture, a midrib and side veins in every tile; light panels are pale parchment. The chapter name on the status screen is white and leaf green.
+
+Turn it on with `ENUT 0xB2` in an event (or `SetFlag(0xB2)` in C); it is `ForestStyleFlag`, style ID 10.
 
 | Window colour | Vanilla | Forest | Faction it tints |
-|---------------|---------|--------|------------------|
+|-----------------|-----------|----------|--------------------|
 | 0 | Blue | Pine | Player |
 | 1 | Red | Maple red | Enemy |
 | 2 | Green | Leaf green | Allied (green) |
 | 3 | Sepia | Autumn amber | Other |
+
+<p align="center">
+  <img src="../Images/VeslyUI_Forest_Screens.png" alt="Forest UI style, nine screens" width="720"/>
+</p>
+
+### Older styles
+
+The styles VeslyUI shipped with are picked the same way: Stephano menus with Sokaballa battle frames (`StephanoStyleFlag`, `0xAA`), Gamma (`GammaStyleFlag`, `0xB4`, the guide flag) and Pikmin menus with Fenreir battle frames (`PikminStyleFlag`, `0xAC`). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
 
 ---
 
