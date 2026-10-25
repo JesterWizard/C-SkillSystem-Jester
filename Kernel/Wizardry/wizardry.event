@@ -149,6 +149,7 @@ ALIGN 4
 #include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"
 #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #include "LimitedShopStock/LimitedShopStock_Installer.event"
+#include "Lvupfx/Lvupfx/MapLvup.lyn.event"
 #include "Minigames/Snek/Snek_Installer.event"
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"

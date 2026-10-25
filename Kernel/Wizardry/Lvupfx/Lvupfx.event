@@ -1,4 +1,4 @@
 #include "Lvupfx/LynJump.event"
 
-#include "Lvupfx/MapLvup.lyn.event"
+// Lvupfx/MapLvup.lyn.event lives in FreeSpaceDEMO (WIZARDRY_CUSTOM in wizardry.event) so it does not overflow kernel .text.
 #include "Lvupfx/EfxLvup.lyn.event"
