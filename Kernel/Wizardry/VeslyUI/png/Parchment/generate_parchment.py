@@ -7,8 +7,9 @@ The shared redraw lives in ../style_tools.py; this script sets the look:
   * the palettes: aged paper panels and cream light panels for every window
     colour; the factions are told apart by their ink (blue, red, green,
     sepia), which draws the borders and the seals;
-  * the frame: a hand-drawn ink line whose outer edge wobbles, the stroke
-    swelling and thinning like a pen, on all four sides;
+  * the frame: the sheet's own edge, browning to a scorched rim with torn
+    notches and flecks of char, and a hand-drawn ink line inside it that
+    swells here and there like a pen, on all four sides;
   * a wax seal on each window corner, in the window's ink colour;
   * a faint paper-fibre speckle on the panels.
 
@@ -32,10 +33,11 @@ NAME = "Parchment"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Menu palette entries. White (1) stays white for text. 2-4 (vanilla's gold)
-# hold the window colour's ink, light to dark: it draws the border and the
-# wax seals. 5-9 are cream paper, 10-15 aged paper.
+# hold the window colour's ink, light to dark: it draws the ink line and the
+# wax seals. 5-7 are cream paper, 8 and 9 the scorched rim, 10-15 aged paper.
 INK_LIGHT, INK, INK_DARK = 2, 3, D
-PANEL = 10
+SCORCH, BURNT = 8, 9
+PANEL, BROWNED = 10, 13
 
 INKS = [
     # Blue ink: window colour 0, player faction.
@@ -47,7 +49,8 @@ INKS = [
     # Sepia ink: window colour 3, other (purple) faction.
     ["B08860", "6A4424", "2E1C0E"],
 ]
-CREAM = ["FFF8E4", "F6ECD2", "EEE0BE", "E4D2A8", "D8C498"]                # 5-9
+CREAM = ["FFF8E4", "F6ECD2", "EEE0BE"]                                    # 5-7
+RIM_COLOURS = ["7A5430", "3A2210"]                                        # 8 scorch, 9 burnt
 AGED = ["D8C49C", "CEB890", "C4AC84", "B8A078", "AC946C", "A08860"]       # 10-15
 
 # Prep funds/items OBJ palette (vanilla gUnknown_08A1B638): 2-9 dark -> light ramp.
@@ -55,7 +58,7 @@ PREP_ITEMS = ["7080A0", "2E1C0E", "4A3018", "6A4424", "8A6034", "A87E4C",
               "C49C68", "D8B888", "E8D0A8", "F4E6CC", "1E1208", "FFFFFF",
               "F6ECD2", "6888D0", "2C4CA0", "000000"]
 
-FIBRE_RAMPS = {"ui": [list(range(5, 10)), list(range(10, 16))],
+FIBRE_RAMPS = {"ui": [[5, 6, 7], list(range(10, 16))],
                "prep": [list(range(9, 1, -1))]}
 
 # Paper fibres: a few scattered pixels per 8x8 tile, one shade darker.
@@ -64,7 +67,7 @@ FIBRES = {(1, 1), (6, 2), (3, 4), (0, 6), (5, 6), (7, 4), (2, 7)}
 
 def ui_row(ink, dim=1.0):
     row = ([rgb("7080A0"), rgb("FFFFFF")] + [rgb(c) for c in ink]
-           + [rgb(c) for c in CREAM] + [rgb(c) for c in AGED])
+           + [rgb(c) for c in CREAM + RIM_COLOURS + AGED])
     if dim != 1.0:
         row = [row[0]] + [tuple(int(v * dim) for v in c) for c in row[1:]]
     return row
@@ -94,46 +97,75 @@ def texture(image, kind, skip=frozenset()):
 
 
 # --- Frame ------------------------------------------------------------------------
-# A hand-drawn ink line on every side. Its inner edge runs straight along the
-# panel; its outer edge wobbles, the stroke 1 to 3 pixels thick (2 at each
-# tile's ends, so tiles join up). Each tile wobbles in its own way, and the
-# DrawUiFrame replacement in C_Code.c mixes the interchangeable beam and left
-# edge tiles by position, so the wobble along a window is irregular.
-# Top lines end on row 7, bottom lines start on row 0, left lines end on
-# x 6 and right lines start on x 2.
+# A 4-pixel border on every side, from the panel out: a hand-drawn ink line,
+# then the sheet's own edge, browning to a scorched, deckled rim. The ink line
+# is 1 pixel with a stretch where the pen swells to 2; the rim is nibbled in,
+# torn and charred here and there (whole at each tile's ends, so tiles join
+# up). Each tile has its own, and the DrawUiFrame replacement in
+# C_Code.c mixes the interchangeable beam and left edge tiles by position, so
+# the edge along a window is irregular.
+# Top borders end on row 7, bottom borders start on row 0, left borders end
+# on x 6 and right borders start on x 1.
 OUTLINE = None       # this style lays out its own edges
-H_STROKE = 100       # + distance from the panel (0-2): placeholder on a top/bottom bar
+H_STROKE = 100       # + distance from the panel (0-3): placeholder on a top/bottom bar
 V_STROKE = 110       # the same on a left/right edge
 SIDE = 120           # a 1-pixel vanilla line on a side edge
-BAND = 3             # the most the stroke can swell to
+BAND = 4             # border thickness
+RIM = BAND - 1       # where the sheet ends, unless torn
 
 
-def wobble(t):
-    """Stroke thickness at each pixel along tile t: 2 with one swelling or
-    thinning stretch, placed by noise()."""
-    widths = [2] * 8
-    roll = noise(t)
-    if roll < 200:
+def pen(t):
+    """Ink line thickness at each pixel along tile t: 1, with one stretch
+    where the pen swells to 2, placed by noise()."""
+    widths = [1] * 8
+    roll = noise(t, 1)
+    if roll < 400:
         return widths
     start = 1 + roll % 4
-    length = 2 + (roll // 4) % 2
-    for i in range(start, min(7, start + length)):
-        widths[i] = 3 if (roll // 8) % 2 else 1
+    for i in range(start, min(7, start + 2 + (roll // 4) % 3)):
+        widths[i] = 2
     return widths
 
 
-def stroke(q, width):
-    """Ink q pixels from the panel on a stroke this wide: the outer pixel
-    darkest, nothing beyond it."""
-    if q >= width:
+def torn(t):
+    """The sheet's outermost pixel at each pixel along tile t, as a distance
+    from the panel: RIM, nibbled a pixel in here and there like a deckled
+    edge, and now and then torn a pixel deeper; placed by noise()."""
+    rim = [RIM] * 8
+    for i in range(1, 7):
+        roll = noise(t, 2, i)
+        if roll < 320:
+            rim[i] = RIM - 1
+    roll = noise(t, 4)
+    if roll < 250:
+        i = 2 + roll % 4
+        rim[i] = RIM - 2
+        rim[i - 1] = min(rim[i - 1], RIM - 1)
+    return rim
+
+
+def charred(t, along):
+    """Whether the rim is charred dark at this pixel along tile t."""
+    return noise(t, 3, along) < 220
+
+
+def sheet(q, rim, ink, char=False):
+    """The border q pixels from the panel: ink against the panel, the paper
+    carrying on past it and browning outward to a scorched rim (charred dark
+    in places), nothing past that."""
+    if q < ink:
+        return INK
+    if q > rim:
         return 0
-    return INK_DARK if q == width - 1 else INK
+    if q == rim:
+        return BURNT if char else SCORCH
+    return BROWNED if q == rim - 1 else PANEL
 
 
 def beam(n, i, outer):
-    """A bar n pixels thick. At a window edge: the ink line against the
-    panel. Between two panels: a single ink rule. A 1-pixel line is a side
-    edge, laid out later."""
+    """A bar n pixels thick. At a window edge: the ink line and the sheet's
+    edge outside it. Between two panels: a single ink rule. A 1-pixel line is
+    a side edge, laid out later."""
     if n == 1:
         return SIDE
     if outer == 0:
@@ -160,18 +192,18 @@ SEAL_INDEX = {"D": INK_DARK, "I": INK, "L": INK_LIGHT, "W": W}
 
 
 def corner_tile(outer_x, outer_y, inner_x, inner_y, seal_x, seal_y):
-    """The ink line mitred round the corner, with a seal on top. outer_* is
-    the corner of the stroke band's outer edge, inner_* the direction to the
-    panel."""
+    """The border mitred round the corner, its tip worn away, with a seal on
+    top. outer_* is the corner of the border's outer edge, inner_* the
+    direction to the panel."""
     tile = [[0] * 8 for _ in range(8)]
     for y in range(8):
         for x in range(8):
             dx = (x - outer_x) * inner_x
             dy = (y - outer_y) * inner_y
-            if dx < 0 or dy < 0:
+            if dx < 0 or dy < 0 or dx + dy < 2:
                 continue
             q = BAND - 1 - min(dx, dy)      # distance from the panel
-            tile[y][x] = stroke(q, 2) if q >= 0 else PANEL
+            tile[y][x] = sheet(q, RIM, 1) if q >= 0 else PANEL
     for sy, row in enumerate(SEAL):
         for sx, ch in enumerate(row):
             x, y = seal_x - 3 + sx, seal_y - 3 + sy
@@ -180,16 +212,17 @@ def corner_tile(outer_x, outer_y, inner_x, inner_y, seal_x, seal_y):
     return tile
 
 
-ART_NAMES = {0: ".", INK_LIGHT: "L", INK: "I", INK_DARK: "D", W: "W", PANEL: "P"}
+ART_NAMES = {0: ".", INK_LIGHT: "L", INK: "I", INK_DARK: "D", W: "W", PANEL: "P",
+             BROWNED: "b", SCORCH: "s", BURNT: "B"}
 ART_INDEX = {v: k for k, v in ART_NAMES.items()}
 CORNER_ART = {
     name: ["".join(ART_NAMES[v] for v in row) for row in corner_tile(*args)]
     for name, args in {
-        # stroke band corner, panel direction, seal centre
-        "TL": (4, 5, 1, 1, 3, 4),
-        "TR": (4, 5, -1, 1, 4, 4),
-        "BL": (4, 2, 1, -1, 3, 3),
-        "BR": (4, 2, -1, -1, 4, 3),
+        # border corner, panel direction, seal centre
+        "TL": (3, 4, 1, 1, 3, 4),
+        "TR": (5, 4, -1, 1, 4, 4),
+        "BL": (3, 3, 1, -1, 3, 3),
+        "BR": (5, 3, -1, -1, 4, 3),
     }.items()
 }
 
@@ -197,7 +230,7 @@ CORNER_ART = {
 EXTRA_CORNERS = {0x61: "TL"}
 
 # Window style 1 fills its whole tiles; its edge and corner tiles get the
-# ink line along their outer sides.
+# border along their outer sides.
 FULL_TILE_EDGES = {0x73: "T", 0x75: "L", 0x76: "R", 0x78: "B"}
 
 
@@ -205,8 +238,8 @@ def full_frame(tile, sides, drawn):
     for y in range(8):
         for x in range(8):
             d = min({"T": y, "B": 7 - y, "L": x, "R": 7 - x}[s] for s in sides)
-            if d < 2:
-                tile[y][x] = INK_DARK if d == 0 else INK
+            if d < BAND:
+                tile[y][x] = sheet(BAND - 1 - d, RIM, 1)
                 drawn.add((x, y))
             else:
                 tile[y][x] = PANEL
@@ -222,7 +255,7 @@ def is_panel(v):
 
 def lay_out_sides(tile, drawn):
     """Each panel pixel on a left or right edge becomes the inner edge of the
-    stroke band, which reaches outward from it."""
+    border, which reaches outward from it."""
     edges = [(x, y, dx) for y in range(8) for x in range(8) for dx in (1, -1)
              if is_panel(tile[y][x]) and 0 <= x - dx < 8 and tile[y][x - dx] == 0]
     for x, y, dx in edges:
@@ -237,22 +270,26 @@ def lay_out_sides(tile, drawn):
 
 
 def edge_details(tile, t, drawn):
-    """Lay out the side bands, ink every band with this tile's wobble, and
-    turn the white panels' white into fresh cream paper."""
+    """Lay out the side borders, draw every border with this tile's pen line
+    and torn rim, and fold the panels' two darkest light shades (their entries
+    hold the scorch colours) and their white into cream paper."""
     if t in FULL_TILE_EDGES:
         full_frame(tile, FULL_TILE_EDGES[t], drawn)
         return
     lay_out_sides(tile, drawn)
-    widths = wobble(t)
+    ink, rim = pen(t), torn(t)
     for y in range(8):
         for x in range(8):
             v = tile[y][x]
             if H_STROKE <= v < H_STROKE + BAND:
-                tile[y][x] = stroke(v - H_STROKE, widths[x])
+                tile[y][x] = sheet(v - H_STROKE, rim[x], ink[x], charred(t, x))
             elif V_STROKE <= v < V_STROKE + BAND:
-                tile[y][x] = stroke(v - V_STROKE, widths[y])
+                tile[y][x] = sheet(v - V_STROKE, rim[y], ink[y], charred(t, y))
             elif v == SIDE:
                 tile[y][x] = INK
+            elif (x, y) not in drawn and v in (SCORCH, BURNT):
+                tile[y][x] = 7
+                continue
             elif (x, y) not in drawn and v == W:
                 tile[y][x] = 5
                 continue
@@ -263,18 +300,19 @@ def edge_details(tile, t, drawn):
 
 
 # --- Chapter status banners -------------------------------------------------------
-# The banners use the player palette's blue ink, aged paper and white (the
-# darkest ink is the outline at 1, as the shared code draws letter outlines
-# with 1). They stay off the entries that hold the icons' original colours
-# (style_tools.VANILLA_ICON_SLOTS); cream paper reuses the icons' cream.
-SIGN_PALETTE = ["7080A0", "142450", "6888D0", "2C4CA0", "FFFFFF",
-                None, None, None, None, None, "D8C49C", "CEB890",
+# The banners use the player palette's blue ink, aged paper, the scorched rim
+# and white (the burnt rim is the outline at 1, as the shared code draws
+# letter outlines with 1). They stay off the entries that hold the icons'
+# original colours (style_tools.VANILLA_ICON_SLOTS); cream paper reuses the
+# icons' cream.
+SIGN_PALETTE = ["7080A0", "3A2210", "6888D0", "2C4CA0", "FFFFFF",
+                None, None, None, None, None, "D8C49C", "7A5430",
                 None, None, None, None]
 for slot, colour in style_tools.VANILLA_ICON_SLOTS.items():
     SIGN_PALETTE[slot] = colour
 MENU_TO_SIGN = {0: 0, INK_DARK: 1, INK_LIGHT: 2, INK: 3, W: 4,
-                5: 5, 6: 5, 7: 5, 8: 5, 9: 5,
-                10: 10, 11: 11, 12: 11, 13: 11, 14: 11, 15: 11}
+                5: 5, 6: 5, 7: 5, SCORCH: 11, BURNT: 1,
+                10: 10, 11: 10, 12: 10, 13: 11, 14: 11, 15: 11}
 # Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: blue ink face,
 # light ink shading, white drop shadow.
 LETTERS = {11: 3, 12: 3, 13: 2, 14: 5}
