@@ -27,6 +27,7 @@ A style script defines these names (see Wood/generate_wood.py):
                           (optional; D, the black outline, by default)
   SOLID                   trim index -> colour for big solid trim areas
   CORNER_ART, ART_INDEX   8x8 corner tiles ("TL", "TR", "BL", "BR")
+  EXTRA_CORNERS           more frame tiles to treat as corners (optional)
   full_corner(tile, corner, drawn)  corner of a window with no margin
   edge_details(tile, t, drawn)      details on a tile's outer edges
   texture(image, kind, skip)        fill texture; kind is "ui" or "prep"
@@ -401,7 +402,8 @@ def build_style(style):
     jobs = [
         # vanilla name, palette for the PNG, texture kind, index order or None
         # to leave the art as is, then the frame tiles to replace
-        ("Main", menu[0], "ui", menu_order, CORNERS, PLAIN_COPIES),
+        ("Main", menu[0], "ui", menu_order, {**CORNERS, **getattr(style, "EXTRA_CORNERS", {})},
+         PLAIN_COPIES),
         ("Preps", menu[0], "ui", menu_order),
         ("PrepsUseGfx", menu[0], "ui", menu_order),
         ("PrepPopupWindow", menu[0], "ui", menu_order),

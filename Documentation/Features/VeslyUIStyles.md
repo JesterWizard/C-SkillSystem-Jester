@@ -41,7 +41,7 @@ Player-facing impact:
 | 2 | Green | Moss-stained | Allied (green) |
 | 3 | Sepia | Weathered grey | Other |
 
-**Tech** has a techno-futuristic look. Its windows are dark glass panels with scanlines. Each edge is one bright neon line, the same thickness on all four sides, with a dim glow just outside it and no black outline. Corners are chamfered, the line cutting across them with a white-hot node. Along the edges are dim segments, nodes, notches, raised tabs and tick marks. Light panels such as title plates and help boxes become pale glass. The chapter name on the status screen is white and cyan.
+**Tech** has a techno-futuristic look. Its windows are dark glass panels with scanlines. Each edge is one bright neon line, the same thickness on all four sides, with a dim glow just outside it and no black outline. Inside the line is a 2-pixel band of panel: invisible on dark panels, an even inset line on light ones. Corners are rounded, the line cutting across them in two white-hot steps. The edges are otherwise plain and symmetrical. Light panels such as title plates and help boxes become pale glass. The chapter name on the status screen is white and cyan.
 
 | Window colour | Vanilla | Tech | Faction it tints |
 |---------------|---------|------|------------------|
@@ -91,14 +91,14 @@ Each getter in `C_Code.c` indexes a table by the style ID (one entry per style).
 
 `png/style_tools.py` holds the shared redraw. Each style's script (`png/Wood/generate_wood.py`, `png/Tech/generate_tech.py`) sets the look and calls `build_style`, which builds every file for that style from the vanilla images in `png/Vanilla`. It keeps each image's tile layout and window outline, so the game's tilemaps still line up, and redraws what is inside:
 
-- Gold trim bars are redrawn by the style's `beam`, from each pixel's position across the bar: wooden beams for wood; for tech, the neon edge line with panel behind it (a neon line on a dark rail between two panels).
+- Gold trim bars are redrawn by the style's `beam`, from each pixel's position across the bar: wooden beams for wood; for tech, the neon edge line and its band, with the rest of the bar left transparent (a neon line on a dark rail between two panels).
 - Every edge that meets the transparent backdrop gets the style's `OUTLINE`: black for wood, the neon line for tech (which also adds a glow outside it).
 - Ornament tiles (curls, crests, the battle gem) are replaced with the plain tile of the same role (`PLAIN_COPIES`, `BATTLE_COPIES`).
-- Corner tiles come from the style's `CORNER_ART`: broken plank ends for wood, chamfers with a white-hot node for tech (`CORNERS`, `BATTLE_CORNERS`).
+- Corner tiles come from the style's `CORNER_ART`: broken plank ends for wood, rounded neon corners for tech (`CORNERS`, `BATTLE_CORNERS`).
 - The status screen's chapter title banner and play-time box are rebuilt from the finished frame tiles, so they match the windows. The play-time box keeps vanilla's letters on a small plate (`play_status`). It is 96 pixels wide instead of 80 so the clock fits, so `StatusScreenSpriteDraw_Loop` in `C_Code.c` draws it with a wider sprite for these styles.
-- Beam and edge tiles get the style's details (`edge_details`): chips, cracks and grain streaks for wood (`EDGE_CHIPS`); dim segments, nodes, notches, raised tabs and ticks for tech (`EDGE_DETAILS`). Other tiles get an occasional small one.
+- Beam and edge tiles get the style's details (`edge_details`): chips, cracks and grain streaks for wood (`EDGE_CHIPS`, plus an occasional small dent on other tiles); for tech, the side lines move one pixel out to leave the band, and every lit edge gets its glow.
 
-For these styles, `DrawUiFrame` (replaced in `C_Code.c`) picks each top beam, bottom beam and left edge tile from a set of interchangeable ones by position. So the details along a window don't repeat every 8 pixels. The tile sets in `C_Code.c` (`sFrameTopBeams` and friends) must match `TOP_BEAMS` and friends in `style_tools.py`.
+For these styles, `DrawUiFrame` (replaced in `C_Code.c`) picks each top beam, bottom beam and left edge tile from a set of interchangeable ones by position. So wood's chips along a window don't repeat every 8 pixels. Tech's beam tiles all look the same, so the mixing makes no difference there. The tile sets in `C_Code.c` (`sFrameTopBeams` and friends) must match `TOP_BEAMS` and friends in `style_tools.py`.
 
 Last, it swaps in the style's palettes and adds its fill texture: wood grain, or tech scanlines. Both repeat every 8×8 tile, so repeated tiles join up. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
 

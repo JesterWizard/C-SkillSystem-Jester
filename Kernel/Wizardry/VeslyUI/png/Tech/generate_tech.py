@@ -9,8 +9,7 @@ The shared redraw lives in ../style_tools.py; this script sets the look:
     on all four sides, with a dim glow outside it and no black outline;
     vanilla's thick top and bottom bars become panel behind that line;
   * corners are chamfered, the line cutting across them with a white-hot
-    node; along the edges, dim segments, nodes, notches, raised tabs and tick
-    marks;
+    node; the edges themselves stay plain and even;
   * scanlines on the fill colours, every other pixel row.
 
 Outputs (next to this script):
@@ -26,8 +25,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from style_tools import D, L, M, W, build_style, noise, outer_edges, paint, rgb, step  # noqa: E402
-import style_tools  # noqa: E402
+from style_tools import D, L, M, W, build_style, rgb  # noqa: E402
 
 NAME = "Tech"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -98,69 +96,99 @@ def texture(image, kind, skip=frozenset()):
 # --- Frame ------------------------------------------------------------------------
 # Every window edge is one bright neon line, the same thickness on all four
 # sides, with a dim glow just outside it and no black outline. Vanilla's thick
-# top and bottom bars become panel behind that line.
+# top and bottom bars are shared by dark and light panels, so the line sits
+# just outside a 2-pixel band of panel on all four sides: invisible on dark
+# panels, an even inset line on light ones. The rest of the bar is left
+# transparent. Side lines sit one pixel outside vanilla's window outline and
+# top and bottom lines one pixel inside it, which leaves the corner tile room
+# for a rounded corner.
 OUTLINE = NEON
 PANEL = 10
 
 
 def beam(n, i, outer):
-    """A bar n pixels thick. At a window edge: the neon line on the outer
-    side, panel behind it. Between two panels: a neon line on a dark rail."""
+    """A bar n pixels thick. At a window edge: the neon line and its band
+    next to the panel, nothing outside them. Between two panels: a neon line
+    on a dark rail."""
     if outer == 0:
         return NEON if i == n // 2 else RAIL
+    if n == 1:
+        return NEON
     p = i if outer < 0 else n - 1 - i      # distance from the outer side
-    return NEON if p == 0 else PANEL
+    if p >= n - 2:
+        return PANEL
+    return NEON if p == n - 3 else 0
 
 
 # Big solid trim areas (patterned plates, the battle item boxes) become panel.
 SOLID = {W: 11, L: 12, M: 15, D: 14}
 
-# Chamfered corners: the neon line and its glow cut across the corner, with a
-# white-hot node on the cut. Rows and columns match the window outline: top
-# edges are row 4 (glow row 3), bottom edges row 4 (glow row 5), left edges
-# x 6 (glow x 5), right edges x 2 (glow x 3).
+# Rounded corners: the lines cut across the corner in two white-hot steps,
+# glow around them. Top edges are row 5 (glow row 4, band rows 6-7), bottom
+# edges row 2 (glow row 3, band rows 0-1), left edges x 5 (glow x 4, band
+# x 6-7), right edges x 3 (glow x 4, band x 1-2).
 CORNER_ART = {
     "TL": ["........",
            "........",
            "........",
            "........",
+           "........",
            ".......g",
            "......gW",
-           ".....gWP",
-           ".....gNP"],
+           ".....gWS"],
     "TR": ["........",
+           "........",
            "........",
            "........",
            "g.......",
            "Ng......",
            "PWg.....",
-           "PPWg....",
-           "PPNg...."],
-    "BL": [".....gNP",
-           ".....gWP",
+           "SSWg...."],
+    "BL": [".....gWP",
            "......gW",
            ".......g",
            "........",
            "........",
            "........",
+           "........",
            "........"],
-    "BR": ["PPNg....",
-           "PPWg....",
-           "PWg.....",
-           "Wg......",
+    "BR": ["PPWg....",
+           "SWg.....",
+           "Ng......",
            "g.......",
+           "........",
            "........",
            "........",
            "........"],
 }
-ART_INDEX = {".": 0, "N": NEON, "g": GLOW, "W": W, "P": PANEL}
+# The "Sort" box and similar windows start with this top-left tile.
+EXTRA_CORNERS = {0x61: "TL"}
+# S is panel on an odd row, already in its scanline shade.
+ART_INDEX = {".": 0, "N": NEON, "g": GLOW, "W": W, "P": PANEL, "S": PANEL + 1}
 
 # Pixels cut off a full-tile corner, as (x, y) for the top-left case.
 CORNER_CUT = [(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (0, 2)]
 
 
+# Window style 1 fills its whole tiles, so nothing marks its edges as facing
+# the backdrop. Its edge and corner tiles are drawn as plain panel with the
+# neon line on their outer sides, matching the other windows.
+FULL_TILE_EDGES = {0x73: "T", 0x75: "L", 0x76: "R", 0x78: "B"}
+
+
+def flat_panel(tile, sides, drawn):
+    for y in range(8):
+        for x in range(8):
+            edge = (("T" in sides and y == 0) or ("B" in sides and y == 7)
+                    or ("L" in sides and x == 0) or ("R" in sides and x == 7))
+            tile[y][x] = NEON if edge else PANEL
+            if edge:
+                drawn.add((x, y))
+
+
 def full_corner(tile, corner, drawn):
     """Chamfer the corner of a window that fills its whole tile."""
+    flat_panel(tile, corner, drawn)
     flip_x, flip_y = corner.endswith("R"), corner[0] == "B"
     cut = [(7 - x if flip_x else x, 7 - y if flip_y else y) for x, y in CORNER_CUT]
     for x, y in cut:
@@ -172,20 +200,19 @@ def full_corner(tile, corner, drawn):
                 drawn.add((nx, ny))
 
 
-def clean_rim(tile, drawn):
-    """Vanilla lights the inside of a window's left edge; tech keeps it panel."""
-    for y in range(8):
-        for x in range(8):
-            if tile[y][x] != NEON:
-                continue
-            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                ox, oy, ix, iy, jx, jy = x - dx, y - dy, x + dx, y + dy, x + 2 * dx, y + 2 * dy
-                if not all(0 <= v < 8 for v in (ox, oy, ix, iy)):
-                    continue
-                inner_next = tile[jy][jx] if 0 <= jx < 8 and 0 <= jy < 8 else PANEL
-                if tile[oy][ox] == 0 and tile[iy][ix] == 9 and inner_next >= 10:
-                    tile[iy][ix] = PANEL
-                    drawn.add((ix, iy))
+def push_sides(tile, drawn):
+    """Move each left and right edge line one pixel out, leaving a 2-pixel
+    band of panel inside it (top and bottom bands come from beam()). The band
+    stays out of drawn so the scanlines run through it."""
+    lines = [(x, y, dx) for y in range(8) for x in range(8) for dx in (1, -1)
+             if tile[y][x] == NEON and 0 <= x - dx < 8 and tile[y][x - dx] == 0]
+    for x, y, dx in lines:
+        tile[y][x - dx] = NEON
+        drawn.add((x - dx, y))
+        tile[y][x] = PANEL
+        inner = x + dx
+        if 0 <= inner < 8 and (tile[y][inner] == W or 5 <= tile[y][inner] <= 15):
+            tile[y][inner] = PANEL
 
 
 def add_glow(tile, drawn):
@@ -198,73 +225,15 @@ def add_glow(tile, drawn):
                 drawn.add((nx, ny))
 
 
-# Details on the interchangeable beam and edge tiles (style_tools.TOP_BEAMS
-# and friends). Each: (kind, cell along the edge), cells counting from 0 at
-# pixel 1.
-EDGE_DETAILS = {
-    # top edges
-    0x04: [("notch", 1)],
-    0x11: [("node", 4)],
-    0x12: [("ticks", 1)],
-    0x13: [("dim", 2)],
-    0x32: [("tab", 1)],
-    0x33: [("node", 2), ("dim", 4)],
-    # bottom edges
-    0x1C: [("ticks", 2)],
-    0x1D: [("tab", 2)],
-    0x1E: [("dim", 1)],
-    0x20: [("notch", 2)],
-    # left edges
-    0x07: [("node", 2)],
-    0x14: [("dim", 1)],
-    0x0C: [("node", 3)],
-    0x17: [("tab", 1)],
-}
-
-
-def detail(tile, cells, inward, kind, at, drawn):
-    """One detail on the neon edge line: a dim segment, a white-hot node, a
-    notch stepping the edge in, a raised tab stepping it out, or tick marks
-    inside the panel."""
-    if kind == "dim":
-        for cell in cells[at:at + 2]:
-            paint(tile, cell, GLOW, drawn)
-    elif kind == "node":
-        paint(tile, cells[at], W, drawn)
-    elif kind == "notch":
-        for cell in cells[at:at + 3]:
-            tile[cell[1]][cell[0]] = 0
-            drawn.discard(cell)
-            paint(tile, step(cell, inward, 1), NEON, drawn)
-    elif kind == "tab":
-        for cell in cells[at:at + 3]:
-            x, y = step(cell, inward, -1)
-            if 0 <= x < 8 and 0 <= y < 8:
-                tile[y][x] = NEON
-                drawn.add((x, y))
-            paint(tile, cell, PANEL, drawn)
-    elif kind == "ticks":
-        for cell in cells[at:at + 5:2]:
-            paint(tile, step(cell, inward, 2), GLOW, drawn)
-
-
 def edge_details(tile, t, drawn):
-    """A fixed detail on EDGE_DETAILS tiles and an occasional node or dim
-    segment on other frame tiles, then the glow around every lit edge."""
-    clean_rim(tile, drawn)
-    edges = outer_edges(tile, NEON)
-    if t in EDGE_DETAILS and edges:
-        cells, inward = edges[0]
-        for kind, at in EDGE_DETAILS[t]:
-            detail(tile, cells, inward, kind, at, drawn)
-    elif t not in style_tools.DRAWUIFRAME_PLAIN:
-        for n, (cells, inward) in enumerate(edges):
-            roll = noise(t, n)
-            if roll < 750:
-                continue
-            kind = "node" if roll < 880 else "dim"
-            detail(tile, cells, inward, kind, roll % (len(cells) - 1), drawn)
+    """Plain, even edges: the neon line and its glow, nothing else."""
+    if t in FULL_TILE_EDGES:
+        flat_panel(tile, FULL_TILE_EDGES[t], drawn)
+        return
+    push_sides(tile, drawn)
     add_glow(tile, drawn)
+    # Panel pixels (the bands) take the scanlines like the rest of the panel.
+    drawn -= {(x, y) for y in range(8) for x in range(8) if tile[y][x] == PANEL}
 
 
 # --- Chapter status banners -------------------------------------------------------
