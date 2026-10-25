@@ -272,9 +272,29 @@ void PutStringRightAligned(u16* tilemap, int color, int width, const char* str)
 /* Frames the finished quote stays up before closing (A/B closes it early). */
 #define LVUP_SPEECH_HOLD_FRAMES 90
 
-/* Level-up window offsets when fully scrolled in / fully scrolled out. */
-#define LVUP_WINDOW_SHOWN_OFFSET  (-48)
-#define LVUP_WINDOW_HIDDEN_OFFSET (-144)
+/* Level-up window offset once ManimLevelUp_ScrollIn has finished. */
+#define LVUP_WINDOW_SHOWN_OFFSET (-48)
+
+/*
+ * The talk engine keeps BG0/BG1 at offset 0, so while the quote is up the
+ * window is moved down this many tilemap rows and shown at offset 0 instead.
+ * It lands on the same screen rows and frees rows 0-5 above it for the box.
+ */
+#define LVUP_WINDOW_SHIFT_ROWS (-LVUP_WINDOW_SHOWN_OFFSET / 8)
+
+/*
+ * One-line box drawn in the free rows above the window: box rows 1-4 and the
+ * tail on rows 4-5. The quotes all use [BoxHeight_1].
+ */
+#define LVUP_SPEECH_LINES     1
+#define LVUP_SPEECH_BOX_H     (LVUP_SPEECH_LINES * 2 + 2)
+#define LVUP_SPEECH_TAIL_Y    4
+#define LVUP_SPEECH_BOX_W_MAX 28
+
+/* Normal text box graphics and palette, the same ones InitTalk loads. */
+#define Img_LvupSpeechBox ((const void *)0x089E8238)
+#define Pal_LvupSpeechBox ((const void *)0x089E84D4)
+#define LVUP_SPEECH_BOX_PAL 3
 
 enum {
 	LVUP_LABEL_SCROLL_OUT = 1,
@@ -313,35 +333,128 @@ static void LevelUpSpeech_Init(struct ManimLevelUpProc *proc)
 		Proc_Goto(proc, LVUP_LABEL_SCROLL_OUT);
 }
 
-/*
- * Scroll the level-up window away while the portrait stays where it is. The
- * talk bubble uses BG0/BG1 too, so the window has to clear first.
- */
-static void LevelUpSpeech_ScrollOutWindow(struct ManimLevelUpProc *proc)
+/* Move the level-up window down (rows > 0) or back up (rows < 0) in BG0/BG1. */
+static void LevelUpSpeech_ShiftWindow(int rows)
 {
-	proc->y_scroll_offset -= 8;
+	u16 *tilemaps[] = { gBG0TilemapBuffer, gBG1TilemapBuffer };
+	int i, x, y, src;
 
-	BG_SetPosition(BG_0, 0, proc->y_scroll_offset);
-	BG_SetPosition(BG_1, 0, proc->y_scroll_offset);
+	for (i = 0; i < (int)ARRAY_COUNT(tilemaps); i++) {
+		u16 *tm = tilemaps[i];
 
-	if (proc->y_scroll_offset <= LVUP_WINDOW_HIDDEN_OFFSET)
-		Proc_Break(proc);
+		for (y = 0; y < 32; y++) {
+			/* Walk against the shift so rows are read before they are overwritten. */
+			int row = rows > 0 ? 31 - y : y;
+
+			src = row - rows;
+
+			for (x = 0; x < 32; x++)
+				tm[TILEMAP_INDEX(x, row)] = (src >= 0 && src < 32) ? tm[TILEMAP_INDEX(x, src)] : 0;
+		}
+	}
+
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
-/* Speak the quote through the level-up portrait already on screen. */
+static void LevelUpSpeech_SetWindowOffset(struct ManimLevelUpProc *proc, int offset)
+{
+	proc->y_scroll_offset = offset;
+
+	BG_SetPosition(BG_0, 0, offset);
+	BG_SetPosition(BG_1, 0, offset);
+}
+
+/*
+ * Same layout as vanilla PutTalkBubbleTm plus a right-side tail, but from a
+ * chosen tile so the box graphics do not overwrite the UI frame tiles the
+ * level-up window is drawn with.
+ */
+static void LevelUpSpeech_PutBox(int chr, int x, int y, int width, int height, int xTail, int yTail)
+{
+	u16 *tm = gBG1TilemapBuffer;
+	int tile = TILEREF(chr, LVUP_SPEECH_BOX_PAL);
+	int xMax = x + width - 1;
+	int yMax = y + height - 1;
+	int ix, iy;
+
+	for (ix = x; ix < xMax; ix++) {
+		tm[TILEMAP_INDEX(ix, y)] = tile + 1;
+		tm[TILEMAP_INDEX(ix, yMax)] = tile + 1 + TILE_VFLIP;
+	}
+
+	for (iy = y; iy < yMax; iy++) {
+		tm[TILEMAP_INDEX(x, iy)] = tile + 2;
+		tm[TILEMAP_INDEX(xMax, iy)] = tile + 2 + TILE_HFLIP;
+	}
+
+	for (ix = x + 1; ix < xMax; ix++)
+		for (iy = y + 1; iy < yMax; iy++)
+			tm[TILEMAP_INDEX(ix, iy)] = tile + 3;
+
+	tm[TILEMAP_INDEX(x, y)] = tile;
+	tm[TILEMAP_INDEX(xMax, y)] = tile + TILE_HFLIP;
+	tm[TILEMAP_INDEX(x, yMax)] = tile + TILE_VFLIP;
+	tm[TILEMAP_INDEX(xMax, yMax)] = tile + TILE_HFLIP + TILE_VFLIP;
+
+	tm[TILEMAP_INDEX(xTail, yTail)] = tile + 4;
+	tm[TILEMAP_INDEX(xTail + 1, yTail)] = tile + 4 + TILE_HFLIP;
+	tm[TILEMAP_INDEX(xTail, yTail + 1)] = tile + 5;
+	tm[TILEMAP_INDEX(xTail + 1, yTail + 1)] = tile + 6;
+
+	BG_EnableSyncByMask(BG1_SYNC_BIT);
+}
+
+/*
+ * Speak the quote through the level-up portrait while the level-up window
+ * stays on screen. The talk runs with TALK_FLAG_NOBUBBLE so the engine never
+ * clears or scrolls BG0/BG1; the box is drawn here in the rows above the
+ * window instead.
+ */
 static void LevelUpSpeech_StartTalk(struct ManimLevelUpProc *proc)
 {
-	BG_Fill(gBG0TilemapBuffer, 0);
-	BG_Fill(gBG1TilemapBuffer, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	struct TalkState *state = sTalkState;
+	int fontChr, boxChr;
+	int width, x, xTail;
 
-	InitTalk(0x80, 2, TRUE);
+	LevelUpSpeech_ShiftWindow(LVUP_WINDOW_SHIFT_ROWS);
+	LevelUpSpeech_SetWindowOffset(proc, 0);
+
+	/* Put the talk glyphs after the level-up text instead of over it. */
+	fontChr = 0x80 + gActiveFont->chr_counter * 2;
+	InitTalk(fontChr, LVUP_SPEECH_LINES, FALSE);
+
+	/* gActiveFont is the talk font now; the box tiles go after its glyphs. */
+	boxChr = fontChr + gActiveFont->chr_counter * 2;
+	Decompress(Img_LvupSpeechBox, (void *)(VRAM + GetBackgroundTileDataOffset(BG_1) + boxChr * CHR_SIZE));
+	CopyToPaletteBuffer(Pal_LvupSpeechBox, 0x20 * LVUP_SPEECH_BOX_PAL, 0x20);
 
 	/* InitTalk clears the face refs, so hand the portrait over afterwards. */
-	sTalkState->faces[LVUP_SPEECH_TALK_FACE] = gFaces[0];
+	state->faces[LVUP_SPEECH_TALK_FACE] = gFaces[0];
 
-	StartTalkMsgExt(1, 1, GetLevelUpSpeechMsg(proc), proc);
+	StartTalkMsgExt(0, 0, GetLevelUpSpeechMsg(proc), proc);
 	SetTalkFlag(TALK_FLAG_NOSKIP);
+	SetTalkFlag(TALK_FLAG_NOBUBBLE);
+
+	/* StartTalkMsgExt sized the box for the whole quote; place it like vanilla's right-side bubble. */
+	width = state->activeWidth;
+	if (width > LVUP_SPEECH_BOX_W_MAX)
+		width = LVUP_SPEECH_BOX_W_MAX;
+
+	xTail = gFaces[0]->xPos / 8 - 5;
+
+	if ((width + 1) / 2 + xTail >= 30)
+		x = 29 - width;
+	else
+		x = xTail - width / 2;
+
+	if (x < 0)
+		x = 0;
+
+	LevelUpSpeech_PutBox(boxChr, x, LVUP_SPEECH_TAIL_Y - LVUP_SPEECH_BOX_H + 1,
+		width, LVUP_SPEECH_BOX_H, xTail, LVUP_SPEECH_TAIL_Y);
+
+	state->xText = x + 1;
+	state->yText = LVUP_SPEECH_TAIL_Y - LVUP_SPEECH_BOX_H + 2;
 
 	proc->clock = 0;
 }
@@ -356,16 +469,17 @@ static void LevelUpSpeech_Hold(struct ManimLevelUpProc *proc)
 
 static void LevelUpSpeech_EndTalk(struct ManimLevelUpProc *proc)
 {
-	ClearTalkBubble();
 	ClearTalkFaceRefs();
 
 	SetTextFont(NULL);
 	InitSystemTextFont();
-	LoadUiFrameGraphics();
-	SetDefaultColorEffects();
 
-	/* Let ManimLevelUp_ScrollOut slide the portrait down from where it sits. */
-	proc->y_scroll_offset = LVUP_WINDOW_SHOWN_OFFSET;
+	/*
+	 * Moving the window back up drops the box and text rows above it, and
+	 * puts it back where ManimLevelUp_ScrollOut expects it.
+	 */
+	LevelUpSpeech_ShiftWindow(-LVUP_WINDOW_SHIFT_ROWS);
+	LevelUpSpeech_SetWindowOffset(proc, LVUP_WINDOW_SHOWN_OFFSET);
 }
 
 const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
@@ -389,7 +503,6 @@ const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
 	PROC_CALL(EndManimLevelUpStatGainLabels),
 	PROC_SLEEP(1),
 	PROC_CALL(LevelUpSpeech_Init),
-	PROC_REPEAT(LevelUpSpeech_ScrollOutWindow),
 	PROC_CALL(LevelUpSpeech_StartTalk),
 	PROC_REPEAT(LevelUpSpeech_Hold),
 	PROC_CALL(LevelUpSpeech_EndTalk),
@@ -453,7 +566,12 @@ void ManimLevelUp_InitMainScreen(struct ManimLevelUpProc* proc)
 		gManimSt.actor[proc->actor_id].unit->pCharacterData->portraitId,
 		184,
 		32 - proc->y_scroll_offset,
-		gpKernelDesignerConfig->half_body_portraits ? 0x1044 : 0x1042
+		/*
+		 * No FACE_DISP_BIT_12: that skips the blink/mouth procs, and the
+		 * portrait needs them to talk during the level-up quote. Half-body
+		 * mugs still get none (StartFace leaves them out).
+		 */
+		gpKernelDesignerConfig->half_body_portraits ? 0x0044 : 0x0042
 	);
 
 	gFaces[0]->yPos = 32 - proc->y_scroll_offset;
