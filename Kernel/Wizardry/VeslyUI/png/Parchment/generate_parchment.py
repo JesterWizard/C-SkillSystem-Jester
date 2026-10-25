@@ -6,11 +6,11 @@ Build the Parchment & Ink VeslyUI style from the vanilla UI graphics in
 The shared redraw lives in ../style_tools.py; this script sets the look:
   * the palettes: aged paper panels and cream light panels for every window
     colour; the factions are told apart by their ink (blue, red, green,
-    sepia), which draws the borders and the seals;
+    sepia), which draws the ink line;
   * the frame: the sheet's own edge, browning to a scorched rim with torn
     notches and flecks of char, and a hand-drawn ink line inside it that
     swells here and there like a pen, on all four sides;
-  * a wax seal on each window corner, in the window's ink colour;
+  * worn, rounded corners, scorched darker where the sheet turns;
   * a faint paper-fibre speckle on the panels.
 
 Outputs (next to this script):
@@ -22,6 +22,7 @@ Outputs (next to this script):
 
 Rerun this script after changing a colour, then rebuild.
 """
+import math
 import os
 import sys
 
@@ -33,8 +34,8 @@ NAME = "Parchment"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Menu palette entries. White (1) stays white for text. 2-4 (vanilla's gold)
-# hold the window colour's ink, light to dark: it draws the ink line and the
-# wax seals. 5-7 are cream paper, 8 and 9 the scorched rim, 10-15 aged paper.
+# hold the window colour's ink, light to dark: it draws the ink line. 5-7 are
+# cream paper, 8 and 9 the scorched rim, 10-15 aged paper.
 INK_LIGHT, INK, INK_DARK = 2, 3, D
 SCORCH, BURNT = 8, 9
 PANEL, BROWNED = 10, 13
@@ -177,38 +178,34 @@ def beam(n, i, outer):
 # Big solid trim areas (patterned plates, the battle item boxes) become paper.
 SOLID = {W: 11, L: 12, M: 13, D: 14}
 
-# A wax seal: a blob of the window's ink, darker rim, a lit edge, a pressed
-# ring and a drip.
-SEAL = [
-    "..DDD..",
-    ".DLLID.",
-    "DLIDDID",
-    "DLDWIDD",
-    "DIIDDID",
-    ".DIIDD.",
-    "..DD.D.",
-]
-SEAL_INDEX = {"D": INK_DARK, "I": INK, "L": INK_LIGHT, "W": W}
+# Corners: the sheet's corner worn round, its rim scorched darker where it
+# turns, and the ink line following it round.
+RADIUS = 4
 
 
-def corner_tile(outer_x, outer_y, inner_x, inner_y, seal_x, seal_y):
-    """The border mitred round the corner, its tip worn away, with a seal on
-    top. outer_* is the corner of the border's outer edge, inner_* the
-    direction to the panel."""
+def depth(dx, dy):
+    """How far pixel (dx, dy) lies inside the rounded corner of the sheet,
+    counted from the corner of its outer edge; negative outside."""
+    cx, cy = dx + 0.5, dy + 0.5
+    if cx < RADIUS and cy < RADIUS:
+        return RADIUS - math.hypot(RADIUS - cx, RADIUS - cy)
+    return min(cx, cy)
+
+
+def corner_tile(outer_x, outer_y, inner_x, inner_y):
+    """The border round a worn corner. outer_* is the corner of the
+    border's outer edge, inner_* the direction to the panel."""
     tile = [[0] * 8 for _ in range(8)]
     for y in range(8):
         for x in range(8):
             dx = (x - outer_x) * inner_x
             dy = (y - outer_y) * inner_y
-            if dx < 0 or dy < 0 or dx + dy < 2:
+            d = depth(dx, dy)
+            if d < 0:
                 continue
-            q = BAND - 1 - min(dx, dy)      # distance from the panel
-            tile[y][x] = sheet(q, RIM, 1) if q >= 0 else PANEL
-    for sy, row in enumerate(SEAL):
-        for sx, ch in enumerate(row):
-            x, y = seal_x - 3 + sx, seal_y - 3 + sy
-            if ch != "." and 0 <= x < 8 and 0 <= y < 8:
-                tile[y][x] = SEAL_INDEX[ch]
+            q = BAND - 1 - int(d)            # distance from the panel
+            turning = dx < RADIUS - 1 and dy < RADIUS - 1
+            tile[y][x] = sheet(q, RIM, 1, turning) if q >= 0 else PANEL
     return tile
 
 
@@ -218,11 +215,11 @@ ART_INDEX = {v: k for k, v in ART_NAMES.items()}
 CORNER_ART = {
     name: ["".join(ART_NAMES[v] for v in row) for row in corner_tile(*args)]
     for name, args in {
-        # border corner, panel direction, seal centre
-        "TL": (3, 4, 1, 1, 3, 4),
-        "TR": (5, 4, -1, 1, 4, 4),
-        "BL": (3, 3, 1, -1, 3, 3),
-        "BR": (5, 3, -1, -1, 4, 3),
+        # border corner, panel direction
+        "TL": (3, 4, 1, 1),
+        "TR": (5, 4, -1, 1),
+        "BL": (3, 3, 1, -1),
+        "BR": (5, 3, -1, -1),
     }.items()
 }
 
