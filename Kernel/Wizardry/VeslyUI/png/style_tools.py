@@ -24,7 +24,9 @@ A style script defines these names (see Wood/generate_wood.py):
                           side facing the backdrop: -1 before index 0, +1
                           after index n-1, 0 if unknown
   OUTLINE                 colour where a window edge meets the backdrop
-                          (optional; D, the black outline, by default)
+                          (optional; D, the black outline, by default; None
+                          skips the outline, for styles that lay out their
+                          own edges)
   SOLID                   trim index -> colour for big solid trim areas
   CORNER_ART, ART_INDEX   8x8 corner tiles ("TL", "TR", "BL", "BR")
   EXTRA_CORNERS           more frame tiles to treat as corners (optional)
@@ -258,7 +260,7 @@ def redraw_tile(tile, style):
 
     # Outline every edge that meets the transparent backdrop.
     outline = getattr(style, "OUTLINE", D)
-    for y in range(8):
+    for y in range(8 if outline is not None else 0):
         for x in range(8):
             if not out[y][x]:
                 continue

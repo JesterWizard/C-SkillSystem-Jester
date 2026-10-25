@@ -11,6 +11,7 @@ TechStyleFlag:     WORD 0xAD
 RoyalStyleFlag:    WORD 0xAE
 GlassStyleFlag:    WORD 0xAF
 PaperStyleFlag:    WORD 0xB0
+OceanStyleFlag:    WORD 0xB1
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -357,6 +358,57 @@ Img_PlayStatusSprites_Paper: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Paper:
 #incbin "png/Paper/Paper_PlayStatusPal.pal"
+
+
+// OCEAN (png/Ocean/generate_ocean.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Ocean:
+#incbin "png/Ocean/Ocean_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_PrepItems.png" --lz77
+ALIGN 4
+Ocean_PrepItemsPalette:
+#incbin "png/Ocean/Ocean_PrepItemsPal.pal"
+ALIGN 4
+Ocean_PrepPopupWindow:
+#incext Png2Dmp "png/Ocean/Ocean_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Ocean: // Battle UI Palette
+#incbin "png/Ocean/Ocean_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Ocean: // chapter status banner and playtime box
+#incext Png2Dmp "png/Ocean/Ocean_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Ocean:
+#incbin "png/Ocean/Ocean_PlayStatusPal.pal"
 
 
 // PIKMIN
