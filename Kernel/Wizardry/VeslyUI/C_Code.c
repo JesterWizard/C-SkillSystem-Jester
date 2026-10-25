@@ -1692,8 +1692,8 @@ static const void * sPlayStatusPal[] = {
  * Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the
  * letters, recoloured: cream and brown for wood, white and cyan for tech,
  * gold for royal, white and amber in lead for glass, white in black for paper,
- * white and aqua in deep water for ocean, white and leaf green for forest,
- * white in navy for parchment.
+ * white and aqua in deep water for ocean, white and leaf green for forest.
+ * Parchment keeps vanilla's.
  */
 static const u16 sChapterTitlePalWood[16] = {
     0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
@@ -1730,16 +1730,6 @@ static const u16 sChapterTitlePalForest[16] = {
     0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
 };
 
-/*
- * Parchment letters its chapter title like the game's own text: a flat white
- * face (1-4, 10-12, 14, 15) in a navy outline (5), drop shadow (8) and
- * in-between shades (9, 13), which keep the strokes apart. OutlineChapterTitle
- * edges the few stroke ends the font leaves without an outline.
- */
-static const u16 sChapterTitlePalParchment[16] = {
-    0x520E, 0x7BFF, 0x7BFF, 0x7BFF, 0x7BFF, 0x1862, 0x1862, 0x0000,
-    0x1862, 0x1862, 0x7BFF, 0x7BFF, 0x7BFF, 0x1862, 0x7BFF, 0x7BFF,
-};
 
 static const u16 * const sChapterTitlePal[] = {
 
@@ -1754,7 +1744,7 @@ static const u16 * const sChapterTitlePal[] = {
     sChapterTitlePalPaper, // paper
     sChapterTitlePalOcean, // ocean
     sChapterTitlePalForest, // forest
-    sChapterTitlePalParchment, // parchment
+    NULL, // parchment: vanilla colours
 };
 
 LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);
@@ -1772,60 +1762,6 @@ void ChapterStatus_ShowAllLayers(void)
     SetDispEnable(1, 1, 1, 1, 1);
 }
 
-/*
- * The chapter name sprite: 24 tiles wide and 2 tall from OBJ tile 0x380 (2D
- * mapping, so its second row starts 0x20 tiles on). Its font gives most
- * letters an outline (5) or drop shadow (8), but leaves a few stroke ends
- * edged in the face's shade (4). For parchment's flat white letters, every
- * face pixel that touches the backdrop becomes outline. Turning face into
- * outline never changes which pixels are backdrop, so this works in place.
- * VRAM only takes 16-bit writes, so pixels are reached 4 at a time.
- */
-#define CHAPTER_TITLE_CHR 0x380
-#define CHAPTER_TITLE_W   (24 * 8)
-#define CHAPTER_TITLE_H   16
-#define CHAPTER_TITLE_FACE 0xDC1E /* palette entries 1-4, 10-12, 14, 15 */
-
-static u16 * ChapterTitleUnit(int x, int y)
-{
-    u16 * tile = OBJ_CHR_ADDR(CHAPTER_TITLE_CHR + (y >> 3) * 0x20 + (x >> 3));
-
-    return tile + (y & 7) * 2 + ((x & 7) >> 2);
-}
-
-static int ChapterTitlePixel(int x, int y)
-{
-    if (x < 0 || y < 0 || x >= CHAPTER_TITLE_W || y >= CHAPTER_TITLE_H)
-        return 0;
-
-    return (*ChapterTitleUnit(x, y) >> ((x & 3) * 4)) & 0xF;
-}
-
-static void OutlineChapterTitle(void)
-{
-    int x, y;
-
-    for (y = 0; y < CHAPTER_TITLE_H; y++)
-    {
-        for (x = 0; x < CHAPTER_TITLE_W; x++)
-        {
-            u16 * unit;
-            int shift;
-
-            if (!(CHAPTER_TITLE_FACE & (1 << ChapterTitlePixel(x, y))))
-                continue;
-
-            if (ChapterTitlePixel(x - 1, y) && ChapterTitlePixel(x + 1, y) &&
-                ChapterTitlePixel(x, y - 1) && ChapterTitlePixel(x, y + 1))
-                continue;
-
-            unit = ChapterTitleUnit(x, y);
-            shift = (x & 3) * 4;
-            *unit = (*unit & ~(0xF << shift)) | (5 << shift);
-        }
-    }
-}
-
 /* Loads the chapter name sprite; the generated styles recolour its green letter ramp. */
 LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Init);
 void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
@@ -1841,9 +1777,6 @@ void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
 
     sub_80895B4(0x80, 0x13);
     PutChapterTitleGfx(0xB80, GetChapterTitleWM(&gPlaySt));
-
-    if (GetUI_id() == 11)
-        OutlineChapterTitle();
 
     if (sChapterTitlePal[GetUI_id()] != NULL)
         ApplyPalette(sChapterTitlePal[GetUI_id()], 0x13);
