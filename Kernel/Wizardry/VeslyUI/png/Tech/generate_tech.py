@@ -237,37 +237,49 @@ def edge_details(tile, t, drawn):
 
 
 # --- Chapter status banners -------------------------------------------------------
-# The banners use the player palette, with the outline at 1 and white at 4
-# (the shared code draws letter outlines with 1). The banners never use the
-# light glass entries 5, 7, 8 and 9, so those hold the icons' gold ramp.
+# The banners use the player palette's panel, neon, glow and white, with the
+# outline at 1 and white at 4 (the shared code draws letter outlines with 1).
+# They are kept to entries 0-4, 6, 10 and 11, so the other eight hold the
+# icons' original colours.
 SIGN_PALETTE = [
-    "7080A0", "040810", "40F0FF", "2090B8", "F0FCFF",
-    "5C3810", "C4ECF8", "A87020", "E0B040", "F8E8A0",
-    "1C3450", "182C46", "14263C", "102032", "0C1A2A", "081422",
+    "7080A0",  # 0 transparent
+    "040810",  # 1 outline
+    "40F0FF",  # 2 neon
+    "2090B8",  # 3 glow
+    "F0FCFF",  # 4 white
+    "E8D8C8",  # 5 icon cream (vanilla)
+    "B8D8F8",  # 6 pale blue: letter shading, icon halo (vanilla)
+    "205028",  # 7-9 icon greens (vanilla)
+    "306038",
+    "406840",
+    "1C3450",  # 10 panel
+    "182C46",  # 11 panel scanline
+    "507850",  # 12-14 icon greens (vanilla)
+    "608860",
+    "98B090",
+    "70A8C0",  # 15 icon gem (vanilla)
 ]
-MENU_TO_SIGN = {i: i for i in range(16)}
-MENU_TO_SIGN[D], MENU_TO_SIGN[W] = 1, 4
-for light in (5, 7, 8, 9):                 # glass, should a banner ever use it
-    MENU_TO_SIGN[light] = 6
+# Frame tile colours -> SIGN_PALETTE: the dark panel ramp folds into the two
+# panel shades, light glass into pale blue.
+MENU_TO_SIGN = {0: 0, D: 1, W: 4, NEON: 2, GLOW: 3,
+                5: 6, 6: 6, 7: 6, 8: 6, 9: 6,
+                10: 10, 11: 11, 12: 11, 13: 11, 14: 10, 15: 10}
 # Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: white face,
-# pale cyan shading, dim neon drop shadow.
+# pale blue shading, dim neon drop shadow.
 LETTERS = {11: 4, 12: 4, 13: 6, 14: 3}
-# The rest of the sheet (a spare banner with dragons, and some icons), from
-# vanilla's OBJ palette 8 roles to SIGN_PALETTE, drawn like a hologram: the
-# green ramp (2-9) becomes dark navy panel, the dark artwork and outlines
-# (10) glowing cyan, the cream trim neon, the greys glass and the blue gem
-# white-hot.
+# The rest of the sheet (a spare banner with dragons), from vanilla's OBJ
+# palette 8 roles to SIGN_PALETTE, drawn like a hologram: the green ramp
+# (2-9) becomes dark navy panel, the dark artwork and outlines (10) glowing
+# cyan, the cream trim neon, the greys pale blue and the blue gem white-hot.
 REST_OF_SHEET = {
-    0: 0, 1: 2, 2: 15, 3: 15, 4: 14, 5: 14, 6: 13, 7: 12, 8: 11, 9: 10,
-    10: 3, 11: 8, 12: 6, 13: 4, 14: 1, 15: 5,
+    0: 0, 1: 2, 2: 11, 3: 11, 4: 11, 5: 11, 6: 10, 7: 10, 8: 10, 9: 10,
+    10: 3, 11: 6, 12: 6, 13: 4, 14: 1, 15: 6,
 }
-# The two item icons beside the banner don't follow the colour scheme: a gold
-# ramp for vanilla's greens (2-9), white highlights, pale steel for its blue
-# accents and a dark outline in place of the pale halo, so their details
-# read clearly.
+# The two item icons beside the banner keep vanilla's own colours. Only their
+# near-black detail colour (3 pixels) shares the outline entry.
 ICON_COLOURS = {
-    0: 0, 1: 4, 2: 5, 3: 7, 4: 7, 5: 8, 6: 8, 7: 8, 8: 9, 9: 9,
-    10: 5, 11: 7, 12: 9, 13: 6, 14: 5, 15: 1,
+    0: 0, 1: 5, 2: 7, 3: 8, 4: 9, 5: 12, 6: 13, 7: 13, 8: 14, 9: 14,
+    10: 1, 11: 6, 12: 6, 13: 15, 14: 1, 15: 6,
 }
 
 
@@ -284,7 +296,7 @@ def label_tab(px, left, top, right, bottom):
             edge = (x in (left, right) or y in (top, bottom)
                     or (x, y) in {(left + 1, top + 1), (right - 1, top + 1),
                                   (left + 1, bottom - 1), (right - 1, bottom - 1)})
-            px[x, y] = 2 if edge else 15
+            px[x, y] = 2 if edge else 10
     # Glow on the backdrop around the plate. The plate starts on the box's
     # first pixel row, so there is no glow above it (that row belongs to the
     # chapter banner's sprite).
