@@ -310,11 +310,10 @@ for slot, colour in style_tools.VANILLA_ICON_SLOTS.items():
 MENU_TO_SIGN = {0: 0, INK_DARK: 1, INK_LIGHT: 2, INK: 3, W: 4,
                 5: 5, 6: 5, 7: 5, SCORCH: 11, BURNT: 11,
                 10: 10, 11: 10, 12: 10, 13: 11, 14: 11, 15: 11}
-# Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: written in ink
-# on the slip, without an outline: blue ink face, navy where it pools at the
-# bottom of each stroke, a scorched brown drop shadow.
-LETTERS = {11: 3, 12: 3, 13: 1, 14: 11}
-LABEL_OUTLINE = 5
+# Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: lettered like
+# the game's own text, a flat white face in a navy outline (1), with no
+# shading and no drop shadow.
+LETTERS = {11: 4, 12: 4, 13: 4, 14: 10}
 # The rest of the sheet (a spare banner with dragons): aged paper, inked
 # dragons and trim.
 REST_OF_SHEET = {
@@ -326,11 +325,11 @@ ICON_COLOURS = style_tools.VANILLA_ICON_COLOURS
 
 
 def label_tab(px, left, top, right, bottom):
-    """A cream paper slip with a scorched edge."""
+    """A paper slip with a scorched edge."""
     for y in range(top, bottom + 1):
         for x in range(left, right + 1):
             d = min(x - left, right - x, y - top, bottom - y)
-            px[x, y] = 11 if d == 0 else 5
+            px[x, y] = 11 if d == 0 else 10
     for cx, cy in ((left, top), (right, top), (left, bottom), (right, bottom)):
         px[cx, cy] = 0
 
