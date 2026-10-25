@@ -9,7 +9,7 @@
 ## 📑 Index
 - [Introduction](#introduction)
 - [Styles](#styles)
-  - [Wood](#wood) · [Tech](#tech) · [Royal](#royal) · [Stained Glass](#stained-glass) · [Paper](#paper) · [Ocean](#ocean) · [Forest](#forest) · [Older styles](#older-styles)
+  - [Wood](#wood) · [Tech](#tech) · [Royal](#royal) · [Stained Glass](#stained-glass) · [Paper](#paper) · [Ocean](#ocean) · [Forest](#forest) · [Parchment](#parchment) · [Older styles](#older-styles)
 - [Plan](#plan)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
@@ -33,7 +33,7 @@ Player-facing impact:
 
 ## 🎨 Styles
 
-Wood, Tech, Royal, Stained Glass, Paper, Ocean and Forest are built by the generator described under [Plan](#plan). Each has four window colours, which also tint the four factions. A style is on while its flag is set; see [Choosing a style](#choosing-a-style) for what happens when more than one is.
+Wood, Tech, Royal, Stained Glass, Paper, Ocean, Forest and Parchment are built by the generator described under [Plan](#plan). Each has four window colours, which also tint the four factions. A style is on while its flag is set; see [Choosing a style](#choosing-a-style) for what happens when more than one is.
 
 Each grid shows, left to right and top to bottom: the map HUD, the unit command menu, the item menu and stat window, the options screen, the unit list, the chapter status screen, the guide, the battle screen, and the map menu.
 
@@ -156,6 +156,23 @@ Turn it on with `ENUT 0xB2` in an event (or `SetFlag(0xB2)` in C); it is `Forest
   <img src="../Images/VeslyUI_Forest_Screens.png" alt="Forest UI style, nine screens" width="720"/>
 </p>
 
+### 📜 Parchment
+
+A Parchment & Ink look. Each window is aged paper with a faint fibre speckle, ruled with a hand-drawn ink line that is a little wobbly: 2 pixels thick, with a stretch of 3 or 1 somewhere along each tile, so no two edges match. A wax seal sits on each corner. The faction shows only in the ink colour; light panels are fresh cream paper. The chapter name on the status screen is dark ink edged in cream.
+
+Turn it on with `ENUT 0xB3` in an event (or `SetFlag(0xB3)` in C); it is `ParchmentStyleFlag`, style ID 11.
+
+| Window colour | Vanilla | Parchment | Faction it tints |
+|-----------------|-----------|-------------|--------------------|
+| 0 | Blue | Blue ink | Player |
+| 1 | Red | Red ink | Enemy |
+| 2 | Green | Green ink | Allied (green) |
+| 3 | Sepia | Sepia ink | Other |
+
+<p align="center">
+  <img src="../Images/VeslyUI_Parchment_Screens.png" alt="Parchment UI style, nine screens" width="720"/>
+</p>
+
 ### Older styles
 
 The styles VeslyUI shipped with are picked the same way: Stephano menus with Sokaballa battle frames (`StephanoStyleFlag`, `0xAA`), Gamma (`GammaStyleFlag`, `0xB4`, the guide flag) and Pikmin menus with Fenreir battle frames (`PikminStyleFlag`, `0xAC`). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
@@ -177,18 +194,19 @@ A style is picked by a permanent event flag, checked in this order:
 | 5 | Paper | `PaperStyleFlag` (`0xB0`) | 8 |
 | 6 | Ocean | `OceanStyleFlag` (`0xB1`) | 9 |
 | 7 | Forest | `ForestStyleFlag` (`0xB2`) | 10 |
-| 8 | Stephano menus / Sokaballa battle | `StephanoStyleFlag` (`0xAA`) | 1 |
-| 9 | Gamma | `GammaStyleFlag` (`0xB4`, the guide flag) | 2 |
-| 10 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
+| 8 | Parchment | `ParchmentStyleFlag` (`0xB3`) | 11 |
+| 9 | Stephano menus / Sokaballa battle | `StephanoStyleFlag` (`0xAA`) | 1 |
+| 10 | Gamma | `GammaStyleFlag` (`0xB4`, the guide flag) | 2 |
+| 11 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
 | — | Vanilla | none set | 0 |
 
-Set the flag from an event (for example `ENUT 0xAB` for wood, `ENUT 0xAD` for tech, `ENUT 0xAE` for royal, `ENUT 0xAF` for stained glass, `ENUT 0xB0` for paper, `ENUT 0xB1` for ocean or `ENUT 0xB2` for forest, `ENUF` to turn it off), or from C with `SetFlag`. The change shows the next time a screen loads its UI graphics, such as after opening the stat screen or entering battle. `gpKernelDesignerConfig->vesly_custom_ui` must be on.
+Set the flag from an event (for example `ENUT 0xAB` for wood, `ENUT 0xAD` for tech, `ENUT 0xAE` for royal, `ENUT 0xAF` for stained glass, `ENUT 0xB0` for paper, `ENUT 0xB1` for ocean, `ENUT 0xB2` for forest or `ENUT 0xB3` for parchment, `ENUF` to turn it off), or from C with `SetFlag`. The change shows the next time a screen loads its UI graphics, such as after opening the stat screen or entering battle. `gpKernelDesignerConfig->vesly_custom_ui` must be on.
 
-The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.
+The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest, Parchment) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.
 
 ### What a style supplies
 
-Each getter in `C_Code.c` indexes a table by the style ID (one entry per style). A style that has no art for an entry reuses vanilla's. The other generated styles' files follow the same names with `Tech_`, `Royal_`, `Glass_`, `Paper_`, `Ocean_` and `Forest_` prefixes in their own `png/` folders.
+Each getter in `C_Code.c` indexes a table by the style ID (one entry per style). A style that has no art for an entry reuses vanilla's. The other generated styles' files follow the same names with `Tech_`, `Royal_`, `Glass_`, `Paper_`, `Ocean_`, `Forest_` and `Parchment_` prefixes in their own `png/` folders.
 
 | Area | Wood asset | Vanilla it replaces |
 |------|------------|---------------------|
@@ -204,18 +222,18 @@ Each getter in `C_Code.c` indexes a table by the style ID (one entry per style).
 
 ### Building the generated styles' art
 
-`png/style_tools.py` holds the shared redraw. Each style's script (`png/Wood/generate_wood.py`, `png/Tech/generate_tech.py`, `png/Royal/generate_royal.py`, `png/Glass/generate_glass.py`, `png/Paper/generate_paper.py`, `png/Ocean/generate_ocean.py`, `png/Forest/generate_forest.py`) sets the look and calls `build_style`, which builds every file for that style from the vanilla images in `png/Vanilla`. It keeps each image's tile layout and window outline, so the game's tilemaps still line up, and redraws what is inside:
+`png/style_tools.py` holds the shared redraw. Each style's script (`png/Wood/generate_wood.py`, `png/Tech/generate_tech.py`, `png/Royal/generate_royal.py`, `png/Glass/generate_glass.py`, `png/Paper/generate_paper.py`, `png/Ocean/generate_ocean.py`, `png/Forest/generate_forest.py`, `png/Parchment/generate_parchment.py`) sets the look and calls `build_style`, which builds every file for that style from the vanilla images in `png/Vanilla`. It keeps each image's tile layout and window outline, so the game's tilemaps still line up, and redraws what is inside:
 
-- Gold trim bars are redrawn by the style's `beam`, from each pixel's position across the bar: wooden beams for wood; for tech, the neon edge line and its band, with the rest of the bar left transparent (a neon line on a dark rail between two panels); for royal, the gold moulding; for glass, lead and glass pieces; for paper, the black-and-white cutout border; for ocean, rope and waves; for forest, woven vines.
+- Gold trim bars are redrawn by the style's `beam`, from each pixel's position across the bar: wooden beams for wood; for tech, the neon edge line and its band, with the rest of the bar left transparent (a neon line on a dark rail between two panels); for royal, the gold moulding; for glass, lead and glass pieces; for paper, the black-and-white cutout border; for ocean, rope and waves; for forest, woven vines; for parchment, an ink line.
 - Every edge that meets the transparent backdrop gets the style's `OUTLINE`: black for wood, the neon line for tech (which also adds a glow outside it).
 - Ornament tiles (curls, crests, the battle gem) are replaced with the plain tile of the same role (`PLAIN_COPIES`, `BATTLE_COPIES`).
-- Corner tiles come from the style's `CORNER_ART`: broken plank ends for wood, rounded neon corners for tech, jewels in gold diamonds for royal, square panes for glass, rounded corners with a drop shadow for paper, starfish for ocean, leaves for forest (`CORNERS`, `BATTLE_CORNERS`).
+- Corner tiles come from the style's `CORNER_ART`: broken plank ends for wood, rounded neon corners for tech, jewels in gold diamonds for royal, square panes for glass, rounded corners with a drop shadow for paper, starfish for ocean, leaves for forest, wax seals for parchment (`CORNERS`, `BATTLE_CORNERS`).
 - The status screen's chapter title banner and play-time box are rebuilt from the finished frame tiles, so they match the windows. The play-time box keeps vanilla's letters on a small plate (`play_status`). It is 96 pixels wide instead of 80 so the clock fits, so `StatusScreenSpriteDraw_Loop` in `C_Code.c` draws it with a wider sprite for these styles.
-- Beam and edge tiles get the style's details (`edge_details`): chips, cracks and grain streaks for wood (`EDGE_CHIPS`, plus an occasional small dent on other tiles); for tech, the side lines move one pixel out to leave the band, and every lit edge gets its glow; for royal and glass, the side borders push out to 4 pixels, and glass colours each tile's piece (`PIECES`); paper does the same and adds its drop shadow; ocean and forest lay out their own borders (`OUTLINE = None`).
+- Beam and edge tiles get the style's details (`edge_details`): chips, cracks and grain streaks for wood (`EDGE_CHIPS`, plus an occasional small dent on other tiles); for tech, the side lines move one pixel out to leave the band, and every lit edge gets its glow; for royal and glass, the side borders push out to 4 pixels, and glass colours each tile's piece (`PIECES`); paper does the same and adds its drop shadow; ocean, forest and parchment lay out their own borders (`OUTLINE = None`), and parchment gives each tile its own wobble (`wobble`).
 
 For these styles, `DrawUiFrame` (replaced in `C_Code.c`) picks each top beam, bottom beam and left edge tile from a set of interchangeable ones by position. So wood's chips and glass's piece colours along a window don't repeat every 8 pixels. Tech's beam tiles all look the same, so the mixing makes no difference there. The tile sets in `C_Code.c` (`sFrameTopBeams` and friends) must match `TOP_BEAMS` and friends in `style_tools.py`.
 
-Last, it swaps in the style's palettes and adds its fill texture: wood grain, tech scanlines, royal damask, glass seams, paper fibres, ocean bubbles or forest leaf veins. Both repeat every 8×8 tile, so repeated tiles join up. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
+Last, it swaps in the style's palettes and adds its fill texture: wood grain, tech scanlines, royal damask, glass seams, paper fibres, ocean bubbles, forest leaf veins or parchment fibres. Both repeat every 8×8 tile, so repeated tiles join up. The installer converts the PNGs with `Png2Dmp --lz77` at build time.
 
 To retune the look, edit the colour lists at the top of the script and rerun it. `Png2Dmp` maps pixels by colour, so each PNG palette must keep 16 distinct colours (the script checks this).
 
@@ -242,7 +260,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 | Faction palettes | `GetFactionBattleForecastFramePalette`, `StatusScreenUIPal_Hook`, `sub_80BE5B4` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Forecast, status screen and world map tints |
 | Minimug box | `GetMMBWindowPaletteRow` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/ModularMinimugBox/ModularMinimugBox.c) | Map HUD unit window palette per style |
 | Assets | [`VeslyUI_Installer.event`](../../Kernel/Wizardry/VeslyUI/VeslyUI_Installer.event), [`png/`](../../Kernel/Wizardry/VeslyUI/png/) | Style flags, art and palettes |
-| Style generators | [`png/style_tools.py`](../../Kernel/Wizardry/VeslyUI/png/style_tools.py), [`png/Wood/generate_wood.py`](../../Kernel/Wizardry/VeslyUI/png/Wood/generate_wood.py), [`png/Tech/generate_tech.py`](../../Kernel/Wizardry/VeslyUI/png/Tech/generate_tech.py), [`png/Royal/generate_royal.py`](../../Kernel/Wizardry/VeslyUI/png/Royal/generate_royal.py), [`png/Glass/generate_glass.py`](../../Kernel/Wizardry/VeslyUI/png/Glass/generate_glass.py), [`png/Paper/generate_paper.py`](../../Kernel/Wizardry/VeslyUI/png/Paper/generate_paper.py), [`png/Ocean/generate_ocean.py`](../../Kernel/Wizardry/VeslyUI/png/Ocean/generate_ocean.py), [`png/Forest/generate_forest.py`](../../Kernel/Wizardry/VeslyUI/png/Forest/generate_forest.py) | Build the generated styles' art from `png/Vanilla` |
+| Style generators | [`png/style_tools.py`](../../Kernel/Wizardry/VeslyUI/png/style_tools.py), [`png/Wood/generate_wood.py`](../../Kernel/Wizardry/VeslyUI/png/Wood/generate_wood.py), [`png/Tech/generate_tech.py`](../../Kernel/Wizardry/VeslyUI/png/Tech/generate_tech.py), [`png/Royal/generate_royal.py`](../../Kernel/Wizardry/VeslyUI/png/Royal/generate_royal.py), [`png/Glass/generate_glass.py`](../../Kernel/Wizardry/VeslyUI/png/Glass/generate_glass.py), [`png/Paper/generate_paper.py`](../../Kernel/Wizardry/VeslyUI/png/Paper/generate_paper.py), [`png/Ocean/generate_ocean.py`](../../Kernel/Wizardry/VeslyUI/png/Ocean/generate_ocean.py), [`png/Forest/generate_forest.py`](../../Kernel/Wizardry/VeslyUI/png/Forest/generate_forest.py), [`png/Parchment/generate_parchment.py`](../../Kernel/Wizardry/VeslyUI/png/Parchment/generate_parchment.py) | Build the generated styles' art from `png/Vanilla` |
 | Frame tile mixing | `DrawUiFrame`, `PickFrameTile`, `IsGeneratedStyle` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Mixes interchangeable beam tiles for the generated styles |
 
 ---
@@ -257,7 +275,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 
 ## 🐛 Limitations & Bugs
 
-- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest).
+- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
 - A style change does not redraw windows already on screen; it shows when a screen next loads its UI graphics.
 - The generated styles' prep screen, prep popup and shop gold box art follow vanilla's tile layout but have not been checked in-game yet.
 - Each style adds roughly the size of its compressed art to the ROM.

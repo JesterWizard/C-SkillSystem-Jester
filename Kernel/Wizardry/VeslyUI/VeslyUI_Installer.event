@@ -13,6 +13,7 @@ GlassStyleFlag:    WORD 0xAF
 PaperStyleFlag:    WORD 0xB0
 OceanStyleFlag:    WORD 0xB1
 ForestStyleFlag:   WORD 0xB2
+ParchmentStyleFlag: WORD 0xB3
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -461,6 +462,58 @@ Img_PlayStatusSprites_Forest: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Forest:
 #incbin "png/Forest/Forest_PlayStatusPal.pal"
+
+
+
+// PARCHMENT (png/Parchment/generate_parchment.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Parchment:
+#incbin "png/Parchment/Parchment_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_PrepItems.png" --lz77
+ALIGN 4
+Parchment_PrepItemsPalette:
+#incbin "png/Parchment/Parchment_PrepItemsPal.pal"
+ALIGN 4
+Parchment_PrepPopupWindow:
+#incext Png2Dmp "png/Parchment/Parchment_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Parchment: // Battle UI Palette
+#incbin "png/Parchment/Parchment_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Parchment: // chapter status banner and playtime box
+#incext Png2Dmp "png/Parchment/Parchment_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Parchment:
+#incbin "png/Parchment/Parchment_PlayStatusPal.pal"
 
 
 // PIKMIN

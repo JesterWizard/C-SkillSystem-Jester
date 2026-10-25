@@ -16,6 +16,7 @@ extern const u16 MenuTilesPalette_Glass[];
 extern const u16 MenuTilesPalette_Paper[];
 extern const u16 MenuTilesPalette_Ocean[];
 extern const u16 MenuTilesPalette_Forest[];
+extern const u16 MenuTilesPalette_Parchment[];
 
 int GetUIPalID(void);
 
@@ -84,6 +85,9 @@ static const u16 *GetMMBWindowPaletteRow(int uiPalId, int windowColor) {
 
     case 10:
         return &MenuTilesPalette_Forest[windowColor * 0x10];
+
+    case 11:
+        return &MenuTilesPalette_Parchment[windowColor * 0x10];
 
     default:
         return &gUiFramePaletteA[windowColor * 0x10];

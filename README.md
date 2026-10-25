@@ -243,6 +243,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Images/VeslyUI_Paper.png" alt="Paper UI style preview" width="600" />
 		<img src="./Documentation/Images/VeslyUI_Ocean.png" alt="Ocean UI style preview" width="600" />
 		<img src="./Documentation/Images/VeslyUI_Forest.png" alt="Forest UI style preview" width="600" />
+		<img src="./Documentation/Images/VeslyUI_Parchment.png" alt="Parchment UI style preview" width="600" />
 	</details>
 
 - [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md)
