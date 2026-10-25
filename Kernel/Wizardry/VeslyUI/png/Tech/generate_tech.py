@@ -249,6 +249,15 @@ MENU_TO_SIGN[D], MENU_TO_SIGN[W] = 1, 4
 # Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: white face,
 # pale cyan shading, dim neon drop shadow.
 LETTERS = {11: 4, 12: 4, 13: 6, 14: 3}
+# The rest of the sheet (a spare banner with dragons, and some icons), from
+# vanilla's OBJ palette 8 roles to SIGN_PALETTE, drawn like a hologram: the
+# green ramp (2-9) becomes dark navy panel, the dark artwork and outlines
+# (10) glowing cyan, the cream trim neon, the greys glass and the blue gem
+# white-hot.
+REST_OF_SHEET = {
+    0: 0, 1: 2, 2: 15, 3: 15, 4: 14, 5: 14, 6: 13, 7: 12, 8: 11, 9: 10,
+    10: 3, 11: 8, 12: 6, 13: 4, 14: 1, 15: 5,
+}
 
 
 def label_tab(px, left, top, right, bottom):

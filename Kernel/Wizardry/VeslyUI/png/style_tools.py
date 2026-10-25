@@ -34,6 +34,8 @@ A style script defines these names (see Wood/generate_wood.py):
   SIGN_PALETTE, MENU_TO_SIGN        palette and colour map for the banners
   label_tab(px, left, top, right, bottom)  plate behind PLAY TIME
   LETTERS                 vanilla PLAY TIME colours -> SIGN_PALETTE
+  REST_OF_SHEET           vanilla colours -> SIGN_PALETTE for the rest of the
+                          banner sheet (optional; left as is by default)
 
 Png2Dmp maps pixels by colour, so every PNG palette has 16 distinct colours.
 """
@@ -371,6 +373,13 @@ def play_status(style):
     frame = Image.open(os.path.join(style.HERE, f"{style.NAME}_Main.png"))
     image = vanilla.copy()
     px, vpx, fpx = image.load(), vanilla.load(), frame.load()
+    # The rest of the sheet (a spare banner and some icons) keeps vanilla's
+    # art; a style can map its colours by role so it suits the new palette.
+    rest = getattr(style, "REST_OF_SHEET", None)
+    if rest:
+        for y in range(image.height):
+            for x in range(image.width):
+                px[x, y] = rest[vpx[x, y]]
     for area in (BANNER, PLAYTIME):
         draw_sign(px, fpx, area, style.MENU_TO_SIGN)
     draw_playtime_label(px, vpx, PLAYTIME, style)
