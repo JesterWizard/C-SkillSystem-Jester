@@ -6,7 +6,8 @@ defines the look and calls build_style().
 Every vanilla image keeps its tile layout and window outline, so the game's
 tilemaps still line up. What a style redraws on top of that:
   * trim bars, scored by each pixel's position across the bar (style.beam);
-  * an outline wherever a window edge meets the transparent backdrop;
+  * an outline wherever a window edge meets the transparent backdrop
+    (style.OUTLINE);
   * ornament tiles (curls, crests, the battle gem), replaced with the plain
     tile of the same role;
   * corner tiles, from style.CORNER_ART;
@@ -22,6 +23,8 @@ A style script defines these names (see Wood/generate_wood.py):
   beam(n, i, outer)       colour across a bar n pixels thick; outer is the
                           side facing the backdrop: -1 before index 0, +1
                           after index n-1, 0 if unknown
+  OUTLINE                 colour where a window edge meets the backdrop
+                          (optional; D, the black outline, by default)
   SOLID                   trim index -> colour for big solid trim areas
   CORNER_ART, ART_INDEX   8x8 corner tiles ("TL", "TR", "BL", "BR")
   full_corner(tile, corner, drawn)  corner of a window with no margin
@@ -154,7 +157,7 @@ def noise(*values):
     return h % 1000
 
 
-def outer_edges(tile):
+def outer_edges(tile, outline=D):
     """Straight outline runs that face the backdrop: (cells, inward step)."""
     edges = []
     for y in range(8):
@@ -163,7 +166,7 @@ def outer_edges(tile):
             if not 0 <= outside < 8:
                 continue
             run = [x for x in range(1, 7)
-                   if tile[y][x] == D and tile[outside][x] == 0
+                   if tile[y][x] == outline and tile[outside][x] == 0
                    and 0 <= y + dy < 8 and tile[y + dy][x] not in (0,)]
             if len(run) >= 5:
                 edges.append(([(x, y) for x in run], (0, dy)))
@@ -173,7 +176,7 @@ def outer_edges(tile):
             if not 0 <= outside < 8:
                 continue
             run = [y for y in range(1, 7)
-                   if tile[y][x] == D and tile[y][outside] == 0
+                   if tile[y][x] == outline and tile[y][outside] == 0
                    and 0 <= x + dx < 8 and tile[y][x + dx] not in (0,)]
             if len(run) >= 5:
                 edges.append(([(x, y) for y in run], (dx, 0)))
@@ -246,6 +249,7 @@ def redraw_tile(tile, style):
             drawn.add((x, y))
 
     # Outline every edge that meets the transparent backdrop.
+    outline = getattr(style, "OUTLINE", D)
     for y in range(8):
         for x in range(8):
             if not out[y][x]:
@@ -253,7 +257,7 @@ def redraw_tile(tile, style):
             for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < 8 and 0 <= ny < 8 and tile[ny][nx] == 0:
-                    out[y][x] = D
+                    out[y][x] = outline
                     drawn.add((x, y))
                     break
     tile[:] = out
