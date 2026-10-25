@@ -9,6 +9,7 @@ GammaStyleFlag:    WORD 0xB4 // Lets use the guide flag (0xB4) (0xAB originally)
 WoodStyleFlag:     WORD 0xAB
 TechStyleFlag:     WORD 0xAD
 RoyalStyleFlag:    WORD 0xAE
+GlassStyleFlag:    WORD 0xAF
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -253,6 +254,57 @@ Img_PlayStatusSprites_Royal: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Royal:
 #incbin "png/Royal/Royal_PlayStatusPal.pal"
+
+
+// GLASS (png/Glass/generate_glass.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Glass:
+#incext Png2Dmp "png/Glass/Glass_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Glass:
+#incbin "png/Glass/Glass_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Glass:
+#incext Png2Dmp "png/Glass/Glass_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Glass:
+#incext Png2Dmp "png/Glass/Glass_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Glass:
+#incext Png2Dmp "png/Glass/Glass_PrepItems.png" --lz77
+ALIGN 4
+Glass_PrepItemsPalette:
+#incbin "png/Glass/Glass_PrepItemsPal.pal"
+ALIGN 4
+Glass_PrepPopupWindow:
+#incext Png2Dmp "png/Glass/Glass_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Glass:
+#incext Png2Dmp "png/Glass/Glass_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Glass: // Battle UI Palette
+#incbin "png/Glass/Glass_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Glass: // chapter status banner and playtime box
+#incext Png2Dmp "png/Glass/Glass_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Glass:
+#incbin "png/Glass/Glass_PlayStatusPal.pal"
 
 
 // PIKMIN
