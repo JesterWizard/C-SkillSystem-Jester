@@ -149,6 +149,22 @@ extern u16 Img_EfxLeftItemBox_Glass[];
 extern u16 Img_EfxRightNameBox_Glass[];
 extern u16 Img_EfxRightItemBox_Glass[];
 
+extern const u8 gUiFrameImage_Paper[];
+extern const u8 gPrepExtra1_Paper[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Paper[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Paper[];      // gUnknown_08A1B1FC
+extern const u16 Paper_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Paper_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Paper[];
+extern const u8 Img_PlayStatusSprites_Paper[];
+extern const u16 Pal_PlayStatusSprites_Paper[];
+extern u16 gUnknown_08802558_Paper[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Paper[];
+extern u16 Img_EfxLeftNameBox_Paper[];
+extern u16 Img_EfxLeftItemBox_Paper[];
+extern u16 Img_EfxRightNameBox_Paper[];
+extern u16 Img_EfxRightItemBox_Paper[];
+
 extern int StephanoStyleFlag;
 extern int GammaStyleFlag;
 extern int PikminStyleFlag;
@@ -156,6 +172,7 @@ extern int WoodStyleFlag;
 extern int TechStyleFlag;
 extern int RoyalStyleFlag;
 extern int GlassStyleFlag;
+extern int PaperStyleFlag;
 int GetUI_id(void)
 {
 
@@ -163,7 +180,7 @@ int GetUI_id(void)
         return 0;
 
     /*
-     * The generated styles (Wood, Tech, Royal, Glass) are checked first:
+     * The generated styles (Wood, Tech, Royal, Glass, Paper) are checked first:
      * GammaStyleFlag is the guide flag, which the campaign sets early, so a
      * later check could never select them.
      */
@@ -182,6 +199,10 @@ int GetUI_id(void)
     if (CheckFlag(GlassStyleFlag))
     {
         return 7;
+    }
+    if (CheckFlag(PaperStyleFlag))
+    {
+        return 8;
     }
     if (CheckFlag(StephanoStyleFlag))
     {
@@ -214,6 +235,7 @@ static const void * sUiFrame[] = {
     gUiFrameImage_Tech, // tech
     gUiFrameImage_Royal, // royal
     gUiFrameImage_Glass, // glass
+    gUiFrameImage_Paper, // paper
 };
 
 const u8 * GetUiFrame(void)
@@ -236,6 +258,7 @@ static const void * sPIFontTiles[] = {
     gGfx_PlayerInterfaceFontTiles, // tech
     gGfx_PlayerInterfaceFontTiles, // royal
     gGfx_PlayerInterfaceFontTiles, // glass
+    gGfx_PlayerInterfaceFontTiles, // paper
 };
 
 const u8 * GetPIFontTiles(void)
@@ -258,6 +281,7 @@ static const void * sPINumbers[] = {
     gGfx_PlayerInterfaceNumbers, // tech
     gGfx_PlayerInterfaceNumbers, // royal
     gGfx_PlayerInterfaceNumbers, // glass
+    gGfx_PlayerInterfaceNumbers, // paper
 };
 
 const u8 * GetPINumbers(void)
@@ -293,6 +317,7 @@ static const void * sUnknown_08A1B698[] = {
     gUnknown_08A1B698, // tech
     gUnknown_08A1B698, // royal
     gUnknown_08A1B698, // glass
+    gUnknown_08A1B698, // paper
 };
 
 const u8 * GetUnknown_08A1B698(void)
@@ -331,6 +356,7 @@ static const void * sPrepExtra1[] = {
     gPrepExtra1_Tech, // tech
     gPrepExtra1_Royal, // royal
     gPrepExtra1_Glass, // glass
+    gPrepExtra1_Paper, // paper
 };
 
 const u8 * GetPrepExtra1(void)
@@ -354,6 +380,7 @@ static const void * sUnknown_08A1B7C8[] = {
     gUnknown_08A1B7C8, // tech
     gUnknown_08A1B7C8, // royal
     gUnknown_08A1B7C8, // glass
+    gUnknown_08A1B7C8, // paper
 };
 
 const u8 * GetUnknown_08A1B7C8(void)
@@ -386,6 +413,7 @@ static const void * sPrepUseItem[] = {
     gPrepUseGfx_Tech, // tech
     gPrepUseGfx_Royal, // royal
     gPrepUseGfx_Glass, // glass
+    gPrepUseGfx_Paper, // paper
 };
 
 const u8 * GetPrepUseItem(void)
@@ -413,6 +441,7 @@ static const void * sPrepItem[] = {
     gPrepItemGfx_Tech, // tech
     gPrepItemGfx_Royal, // royal
     gPrepItemGfx_Glass, // glass
+    gPrepItemGfx_Paper, // paper
 };
 
 const u8 * GetPrepItem(void)
@@ -435,6 +464,7 @@ static const void * sPrepItemPal[] = {
     Tech_PrepItemsPalette, // tech
     Royal_PrepItemsPalette, // royal
     Glass_PrepItemsPalette, // glass
+    Paper_PrepItemsPalette, // paper
 };
 
 const u16 * GetPrepItemPal(void)
@@ -461,6 +491,7 @@ static const void * sPrepPopupWindow[] = {
     Tech_PrepPopupWindow, // tech
     Royal_PrepPopupWindow, // royal
     Glass_PrepPopupWindow, // glass
+    Paper_PrepPopupWindow, // paper
 };
 
 const u8 * GetPrepPopupWindow(void)
@@ -497,7 +528,7 @@ void PutImg_PrepPopupWindow(int vram, int pal)
 // Decompress(Img_ShopGoldBox, OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
 // }
 /*
- * Wood, Tech, Royal and Glass are built by png/style_tools.py, which can add
+ * Wood, Tech, Royal, Glass and Paper are built by png/style_tools.py, which can add
  * details along the frame edges (wood's chips, glass's coloured pieces). A window repeats its edge
  * tiles along each side, so for these styles DrawUiFrame picks each beam and
  * left edge tile from a set of interchangeable ones (TOP_BEAMS and friends in
@@ -508,7 +539,7 @@ static int IsGeneratedStyle(void)
 {
     int id = GetUI_id();
 
-    return id >= 4 && id <= 7;
+    return id >= 4 && id <= 8;
 }
 
 extern const u16 * const sUiFrameModelTilemapLookup[];
@@ -661,6 +692,7 @@ static const void * sBUiFrame_880210C[] = {
     gUnknown_0880210C, // tech
     gUnknown_0880210C, // royal
     gUnknown_0880210C, // glass
+    gUnknown_0880210C, // paper
 };
 const u8 * GetBUiFrame_880210C(void)
 {
@@ -681,6 +713,7 @@ static const void * sBUiFrame_88021C0[] = {
     gUnknown_088021C0, // tech
     gUnknown_088021C0, // royal
     gUnknown_088021C0, // glass
+    gUnknown_088021C0, // paper
 };
 const u8 * GetBUiFrame_88021C0(void)
 {
@@ -759,6 +792,7 @@ static const void * sUnknown_08802274[] = {
     gUnknown_08802274, // tech
     gUnknown_08802274, // royal
     gUnknown_08802274, // glass
+    gUnknown_08802274, // paper
 };
 
 const u8 * ekrGaugeMain_GetImg()
@@ -780,6 +814,7 @@ static const void * sUnknown_08802348[] = {
     gUnknown_08802348, // tech
     gUnknown_08802348, // royal
     gUnknown_08802348, // glass
+    gUnknown_08802348, // paper
 };
 
 const u8 * ekrGaugeMain2_GetImg()
@@ -802,6 +837,7 @@ static const void * sUnknown_08802428[] = {
     gUnknown_08802428, // tech
     gUnknown_08802428, // royal
     gUnknown_08802428, // glass
+    gUnknown_08802428, // paper
 };
 
 const u8 * ekrGaugeMain3_GetImg()
@@ -824,6 +860,7 @@ static const void * sUnknown_08802508[] = {
     gUnknown_08802508, // tech
     gUnknown_08802508, // royal
     gUnknown_08802508, // glass
+    gUnknown_08802508, // paper
 };
 
 const u8 * GetUnknown_08802508()
@@ -846,6 +883,7 @@ static const void * sImg_08801C14[] = {
     Img_08801C14_Tech, // tech
     Img_08801C14_Royal, // royal
     Img_08801C14_Glass, // glass
+    Img_08801C14_Paper, // paper
 };
 
 const u8 * GetImg_08801C14()
@@ -868,6 +906,7 @@ static const void * sBPal_8802558[] = {
     gUnknown_08802558_Tech, // tech
     gUnknown_08802558_Royal, // royal
     gUnknown_08802558_Glass, // glass
+    gUnknown_08802558_Paper, // paper
 };
 const u16 * GetBPal_8802558(void)
 {
@@ -914,6 +953,7 @@ static const void * sImg_EfxLeftNameBox[] = {
     Img_EfxLeftNameBox_Tech, // tech
     Img_EfxLeftNameBox_Royal, // royal
     Img_EfxLeftNameBox_Glass, // glass
+    Img_EfxLeftNameBox_Paper, // paper
 };
 
 const u8 * GetImg_EfxLeftNameBox()
@@ -936,6 +976,7 @@ static const void * sImg_EfxLeftItemBox[] = {
     Img_EfxLeftItemBox_Tech, // tech
     Img_EfxLeftItemBox_Royal, // royal
     Img_EfxLeftItemBox_Glass, // glass
+    Img_EfxLeftItemBox_Paper, // paper
 };
 
 const u8 * GetImg_EfxLeftItemBox()
@@ -958,6 +999,7 @@ static const void * sImg_EfxRightNameBox[] = {
     Img_EfxRightNameBox_Tech, // tech
     Img_EfxRightNameBox_Royal, // royal
     Img_EfxRightNameBox_Glass, // glass
+    Img_EfxRightNameBox_Paper, // paper
 };
 
 const u8 * GetImg_EfxRightNameBox()
@@ -980,6 +1022,7 @@ static const void * sImg_EfxRightItemBox[] = {
     Img_EfxRightItemBox_Tech, // tech
     Img_EfxRightItemBox_Royal, // royal
     Img_EfxRightItemBox_Glass, // glass
+    Img_EfxRightItemBox_Paper, // paper
 };
 
 const u8 * GetImg_EfxRightItemBox()
@@ -1072,6 +1115,7 @@ extern const u16 MenuTilesPalette_Wood[];
 extern const u16 MenuTilesPalette_Tech[];
 extern const u16 MenuTilesPalette_Royal[];
 extern const u16 MenuTilesPalette_Glass[];
+extern const u16 MenuTilesPalette_Paper[];
 
 static const u16 * const sUiPalLookupVanilla[] = {
     &gUiFramePaletteA[0x0], // gUiFramePaletteA has all 4 in a row anyway
@@ -1118,6 +1162,13 @@ static const u16 * const sUiPalLookupGlass[] = {
     &MenuTilesPalette_Glass[0x0],  &MenuTilesPalette_Glass[0x10], &MenuTilesPalette_Glass[0x20],
     &MenuTilesPalette_Glass[0x30], &MenuTilesPalette_Glass[0x40], &MenuTilesPalette_Glass[0x50],
     &MenuTilesPalette_Glass[0x60], &MenuTilesPalette_Glass[0x70],
+
+};
+
+static const u16 * const sUiPalLookupPaper[] = {
+    &MenuTilesPalette_Paper[0x0],  &MenuTilesPalette_Paper[0x10], &MenuTilesPalette_Paper[0x20],
+    &MenuTilesPalette_Paper[0x30], &MenuTilesPalette_Paper[0x40], &MenuTilesPalette_Paper[0x50],
+    &MenuTilesPalette_Paper[0x60], &MenuTilesPalette_Paper[0x70],
 
 };
 
@@ -1170,6 +1221,13 @@ static const u16 * const sFactionPalLookupGlass[] = {
     &MenuTilesPalette_Glass[0x30],
 };
 
+static const u16 * const sFactionPalLookupPaper[] = {
+    &MenuTilesPalette_Paper[0x00],
+    &MenuTilesPalette_Paper[0x20],
+    &MenuTilesPalette_Paper[0x10],
+    &MenuTilesPalette_Paper[0x30],
+};
+
 static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupVanilla,
     sUiPalLookupVanilla,
@@ -1179,6 +1237,7 @@ static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupTech, // tech
     sUiPalLookupRoyal, // royal
     sUiPalLookupGlass, // glass
+    sUiPalLookupPaper, // paper
 };
 static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupVanilla,
@@ -1189,6 +1248,7 @@ static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupTech, // tech
     sFactionPalLookupRoyal, // royal
     sFactionPalLookupGlass, // glass
+    sFactionPalLookupPaper, // paper
 };
 
 #define BGPAL_WINDOW_FRAME 1
@@ -1398,6 +1458,7 @@ static const void * sUiGoldBox[] = {
     Img_ShopGoldBox_Tech, // tech
     Img_ShopGoldBox_Royal, // royal
     Img_ShopGoldBox_Glass, // glass
+    Img_ShopGoldBox_Paper, // paper
 };
 
 const u8 * GetUiGoldBox(void)
@@ -1422,6 +1483,7 @@ static const void * sPlayStatusSprites[] = {
     Img_PlayStatusSprites_Tech, // tech
     Img_PlayStatusSprites_Royal, // royal
     Img_PlayStatusSprites_Glass, // glass
+    Img_PlayStatusSprites_Paper, // paper
 };
 
 static const void * sPlayStatusPal[] = {
@@ -1434,12 +1496,13 @@ static const void * sPlayStatusPal[] = {
     Pal_PlayStatusSprites_Tech, // tech
     Pal_PlayStatusSprites_Royal, // royal
     Pal_PlayStatusSprites_Glass, // glass
+    Pal_PlayStatusSprites_Paper, // paper
 };
 
 /*
  * Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the
  * letters, recoloured: cream and brown for wood, white and cyan for tech,
- * gold for royal, white and amber in lead for glass.
+ * gold for royal, white and amber in lead for glass, white in black for paper.
  */
 static const u16 sChapterTitlePalWood[16] = {
     0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
@@ -1461,6 +1524,11 @@ static const u16 sChapterTitlePalGlass[16] = {
     0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
 };
 
+static const u16 sChapterTitlePalPaper[16] = {
+    0x520E, 0x7FFF, 0x7BDE, 0x737B, 0x5210, 0x18A6, 0x0C43, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
 static const u16 * const sChapterTitlePal[] = {
 
     NULL, // vanilla
@@ -1471,6 +1539,7 @@ static const u16 * const sChapterTitlePal[] = {
     sChapterTitlePalTech, // tech
     sChapterTitlePalRoyal, // royal
     sChapterTitlePalGlass, // glass
+    sChapterTitlePalPaper, // paper
 };
 
 LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);

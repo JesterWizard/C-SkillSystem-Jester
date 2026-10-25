@@ -10,6 +10,7 @@ WoodStyleFlag:     WORD 0xAB
 TechStyleFlag:     WORD 0xAD
 RoyalStyleFlag:    WORD 0xAE
 GlassStyleFlag:    WORD 0xAF
+PaperStyleFlag:    WORD 0xB0
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -305,6 +306,57 @@ Img_PlayStatusSprites_Glass: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Glass:
 #incbin "png/Glass/Glass_PlayStatusPal.pal"
+
+
+// PAPER (png/Paper/generate_paper.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Paper:
+#incext Png2Dmp "png/Paper/Paper_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Paper:
+#incbin "png/Paper/Paper_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Paper:
+#incext Png2Dmp "png/Paper/Paper_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Paper:
+#incext Png2Dmp "png/Paper/Paper_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Paper:
+#incext Png2Dmp "png/Paper/Paper_PrepItems.png" --lz77
+ALIGN 4
+Paper_PrepItemsPalette:
+#incbin "png/Paper/Paper_PrepItemsPal.pal"
+ALIGN 4
+Paper_PrepPopupWindow:
+#incext Png2Dmp "png/Paper/Paper_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Paper:
+#incext Png2Dmp "png/Paper/Paper_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Paper: // Battle UI Palette
+#incbin "png/Paper/Paper_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Paper: // chapter status banner and playtime box
+#incext Png2Dmp "png/Paper/Paper_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Paper:
+#incbin "png/Paper/Paper_PlayStatusPal.pal"
 
 
 // PIKMIN
