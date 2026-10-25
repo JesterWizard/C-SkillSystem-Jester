@@ -1,13 +1,14 @@
 #include "global.h"
 #include "EAstdlib.h"
 #include "bmbattle.h"
-#include "event.h"
-#include "eventscript.h"
 #include "face.h"
+#include "fontgrp.h"
+#include "functions.h"
 #include "hardware.h"
 #include "mapanim.h"
 #include "proc.h"
 #include "scene.h"
+#include "uiutils.h"
 #include "variables.h"
 
 struct LevelUpQuoteEntry {
@@ -18,50 +19,32 @@ struct LevelUpQuoteEntry {
 
 extern const struct LevelUpQuoteEntry gLevelUpQuoteTable[];
 
-struct ProcLevelUpEventCaller {
-	PROC_HEADER;
+/* Vanilla talk state pointer (static in the decomp, not exported by FE-CLib). */
+#define sTalkState (*(struct TalkState **)0x0859133C)
 
-	u8 exec_type;
-	const EventScr *eventscr;
+/*
+ * Talk slot the level-up portrait is handed to. MidRight (HPos 24) is the
+ * closest slot to the level-up portrait at x = 184, so the bubble tail lands
+ * on the face.
+ */
+#define LVUP_SPEECH_TALK_FACE 4
+
+/* Frames the finished quote stays up before closing (A/B closes it early). */
+#define LVUP_SPEECH_HOLD_FRAMES 90
+
+/*
+ * A/B is ignored for this many frames so the bubble-open animation (which
+ * keeps writing BG1 tiles for ~12 frames) is done before we restore them.
+ */
+#define LVUP_SPEECH_MIN_HOLD_FRAMES 16
+
+/* Level-up window offsets when fully scrolled in / fully scrolled out. */
+#define LVUP_WINDOW_SHOWN_OFFSET  (-48)
+#define LVUP_WINDOW_HIDDEN_OFFSET (-144)
+
+enum {
+	LVUP_LABEL_SCROLL_OUT = 1,
 };
-
-static void LevelUpEventCaller_Exec(struct ProcLevelUpEventCaller *proc)
-{
-	CallEvent((const void *)proc->eventscr, proc->exec_type);
-}
-
-static const struct ProcCmd ProcScr_LevelUpEventCaller[] = {
-	PROC_YIELD,
-	PROC_CALL(LevelUpEventCaller_Exec),
-	PROC_YIELD,
-	PROC_WHILE(EventEngineExists),
-	PROC_END,
-};
-
-static const EventScr EventScr_LevelUpSpeech[] = {
-	EVBIT_MODIFY(0x4)
-	TEXTSTART
-	TEXTSHOW(0xFFFF)
-	TEXTEND
-	REMA
-	NOFADE
-	ENDA
-};
-
-static ProcPtr CallLevelUpSpeechEvent(const EventScr *eventscr, u8 exec_type, ProcPtr parent)
-{
-	struct ProcLevelUpEventCaller *proc;
-
-	if (!parent) {
-		CallEvent((const void *)eventscr, exec_type);
-		return NULL;
-	}
-
-	proc = Proc_StartBlocking(ProcScr_LevelUpEventCaller, parent);
-	proc->exec_type = exec_type;
-	proc->eventscr = eventscr;
-	return proc;
-}
 
 static int GetLevelUpStatGainCount(struct BattleUnit *bu)
 {
@@ -82,7 +65,7 @@ static u16 GetLevelUpQuoteId(u8 unitId, int tier)
 	return 0;
 }
 
-void DisplayCharacterSpeech(struct ManimLevelUpProc *proc)
+static u16 GetLevelUpSpeechQuoteId(struct ManimLevelUpProc *proc)
 {
 	int message;
 	int statGains;
@@ -90,7 +73,7 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc *proc)
 	u8 unitId;
 
 	if (gEventSlots[EVT_SLOT_8] > 0)
-		return;
+		return 0;
 
 	unitId = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 	statGains = GetLevelUpStatGainCount(gManimSt.actor[proc->actor_id].bu);
@@ -105,15 +88,74 @@ void DisplayCharacterSpeech(struct ManimLevelUpProc *proc)
 		message = 0;
 
 	quoteId = GetLevelUpQuoteId(unitId, message);
-	if (quoteId == 0)
-		return;
+	if (quoteId == 0 || *GetStringFromIndex(quoteId) == '\0')
+		return 0;
 
-	gEventSlots[EVT_SLOT_2] = quoteId;
-	ResetFaces();
-	EndManimLevelUpStatGainLabels();
+	return quoteId;
+}
+
+/* Skip the speech steps when this unit has nothing to say. */
+static void LevelUpSpeech_Init(struct ManimLevelUpProc *proc)
+{
+	if (GetLevelUpSpeechQuoteId(proc) == 0)
+		Proc_Goto(proc, LVUP_LABEL_SCROLL_OUT);
+}
+
+/* Scroll the level-up window away while the portrait stays where it is. */
+static void LevelUpSpeech_ScrollOutWindow(struct ManimLevelUpProc *proc)
+{
+	proc->y_scroll_offset -= 8;
+
+	BG_SetPosition(BG_0, 0, proc->y_scroll_offset);
+	BG_SetPosition(BG_1, 0, proc->y_scroll_offset);
+
+	if (proc->y_scroll_offset <= LVUP_WINDOW_HIDDEN_OFFSET)
+		Proc_Break(proc);
+}
+
+/*
+ * Open the quote in the standard talk bubble, speaking through the portrait
+ * already on screen instead of loading a fresh one.
+ */
+static void LevelUpSpeech_StartTalk(struct ManimLevelUpProc *proc)
+{
+	BG_Fill(gBG0TilemapBuffer, 0);
 	BG_Fill(gBG1TilemapBuffer, 0);
-	BG_EnableSyncByMask(BG1_SYNC_BIT);
-	CallLevelUpSpeechEvent(EventScr_LevelUpSpeech, EV_EXEC_CUTSCENE, proc);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+
+	InitTalk(0x80, 2, TRUE);
+	StartTalkMsgExt(1, 1, GetLevelUpSpeechQuoteId(proc), proc);
+	SetTalkFlag(TALK_FLAG_NOSKIP);
+
+	/* InitTalk clears the face refs, so hand the portrait over afterwards. */
+	sTalkState->faces[LVUP_SPEECH_TALK_FACE] = gFaces[0];
+	SetActiveTalkFace(LVUP_SPEECH_TALK_FACE);
+
+	proc->clock = 0;
+}
+
+static void LevelUpSpeech_Hold(struct ManimLevelUpProc *proc)
+{
+	proc->clock++;
+
+	if (proc->clock >= LVUP_SPEECH_HOLD_FRAMES ||
+		(proc->clock >= LVUP_SPEECH_MIN_HOLD_FRAMES &&
+		 (gKeyStatusPtr->newKeys & (A_BUTTON | B_BUTTON))))
+		Proc_Break(proc);
+}
+
+static void LevelUpSpeech_EndTalk(struct ManimLevelUpProc *proc)
+{
+	ClearTalkBubble();
+	ClearTalkFaceRefs();
+
+	SetTextFont(NULL);
+	InitSystemTextFont();
+	LoadUiFrameGraphics();
+	SetDefaultColorEffects();
+
+	/* Let ManimLevelUp_ScrollOut slide the portrait down from where it sits. */
+	proc->y_scroll_offset = LVUP_WINDOW_SHOWN_OFFSET;
 }
 
 const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
@@ -134,9 +176,14 @@ const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
 	PROC_SLEEP(30),
 	PROC_REPEAT(ManimLevelUp_PutStatGainLabels),
 	PROC_SLEEP(60),
-	PROC_CALL(DisplayCharacterSpeech),
 	PROC_CALL(EndManimLevelUpStatGainLabels),
 	PROC_SLEEP(1),
+	PROC_CALL(LevelUpSpeech_Init),
+	PROC_REPEAT(LevelUpSpeech_ScrollOutWindow),
+	PROC_CALL(LevelUpSpeech_StartTalk),
+	PROC_REPEAT(LevelUpSpeech_Hold),
+	PROC_CALL(LevelUpSpeech_EndTalk),
+PROC_LABEL(LVUP_LABEL_SCROLL_OUT),
 	PROC_REPEAT(ManimLevelUp_ScrollOut),
 	PROC_CALL(ClearManimLevelUpWindow),
 	PROC_CALL(ResetDialogueScreen),
