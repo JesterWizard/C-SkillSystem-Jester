@@ -14,14 +14,16 @@ After the level-up stat gains are shown, the unit speaks a short quote based on 
 
 Quotes are included for the main playable cast plus several bosses (Lyon, Orson, Glen, Valter, and others). Characters without a table entry skip the speech step.
 
-The patch hooks `StartManimLevelUp` to run a custom proc script that inserts `DisplayCharacterSpeech` after the stat-gain animation, matching the integrated C Skill System behavior on vanilla FE8U growth rolls.
+The patch hooks `StartManimLevelUp` to run a custom proc script. Once the stat gains have finished, the level-up window scrolls away while the unit's portrait stays where it is. The quote then opens in the standard talk bubble, spoken through that same portrait, so no second portrait loads. The quote closes on its own after 90 frames, or earlier on A or B. After that the portrait slides off screen as it does in vanilla.
+
+Speech uses the vanilla talk engine on BG0/BG1, the same layers as the level-up window, so the window has to clear before the bubble can open.
 
 ## Configuration
 
 | File | What to edit |
 |------|----------------|
 | `Installer.event` | `LVUP_TEXT_BASE` (default `$1000`) if the default text ID range conflicts with your project |
-| `LevelUpQuotes.event` | Quote strings (IDs are assigned sequentially from `LVUP_TEXT_BASE`) |
+| `LevelUpQuotes.event` | Quote strings (IDs are assigned sequentially from `LVUP_TEXT_BASE`). Plain ASCII, no `[OpenX]` / `[LoadFace]` codes. Split long quotes over two lines with `BYTE $01` (`[NL]`); keep each line to about 30 characters. Leave a quote empty to skip that tier |
 | `LevelUpQuoteTable.event` | Which character IDs map to which quote row |
 
 Default text IDs: `LVUP_TEXT_BASE` through `LVUP_TEXT_BASE + LVUP_QUOTE_COUNT - 1` (135 entries). Change only `LVUP_TEXT_BASE` in `Installer.event` to relocate the block.
@@ -29,6 +31,7 @@ Default text IDs: `LVUP_TEXT_BASE` through `LVUP_TEXT_BASE + LVUP_QUOTE_COUNT - 
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
+- Quote text is stored uncompressed (`pointer | 0x80000000`), so the ROM needs the anti-Huffman patch (most FEBuilder projects already have it). A raw ColorzCore build on clean FE8U will not display the quotes.
 - Hook: vanilla `StartManimLevelUp` at `0x0807F10C` (8-byte `jumpToHack`; Thumb entry `0x0807F10D`)
 - Free space: `$1000000`
 
