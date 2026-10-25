@@ -298,21 +298,23 @@ def edge_details(tile, t, drawn):
 
 # --- Chapter status banners -------------------------------------------------------
 # The banners use the player palette's blue ink, aged paper, the scorched rim
-# and white (the burnt rim is the outline at 1, as the shared code draws
-# letter outlines with 1). They stay off the entries that hold the icons'
+# and white (the darkest ink is the outline at 1, as the shared code draws
+# letter outlines with 1; the rim's char flecks fold into the scorch). They stay off the entries that hold the icons'
 # original colours (style_tools.VANILLA_ICON_SLOTS); cream paper reuses the
 # icons' cream.
-SIGN_PALETTE = ["7080A0", "3A2210", "6888D0", "2C4CA0", "FFFFFF",
+SIGN_PALETTE = ["7080A0", "101830", "6888D0", "2C4CA0", "FFFFFF",
                 None, None, None, None, None, "D8C49C", "7A5430",
                 None, None, None, None]
 for slot, colour in style_tools.VANILLA_ICON_SLOTS.items():
     SIGN_PALETTE[slot] = colour
 MENU_TO_SIGN = {0: 0, INK_DARK: 1, INK_LIGHT: 2, INK: 3, W: 4,
-                5: 5, 6: 5, 7: 5, SCORCH: 11, BURNT: 1,
+                5: 5, 6: 5, 7: 5, SCORCH: 11, BURNT: 11,
                 10: 10, 11: 10, 12: 10, 13: 11, 14: 11, 15: 11}
-# Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: blue ink face,
-# light ink shading, white drop shadow.
-LETTERS = {11: 3, 12: 3, 13: 2, 14: 5}
+# Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: written in ink
+# on the slip, without an outline: blue ink face, navy where it pools at the
+# bottom of each stroke, a scorched brown drop shadow.
+LETTERS = {11: 3, 12: 3, 13: 1, 14: 11}
+LABEL_OUTLINE = 5
 # The rest of the sheet (a spare banner with dragons): aged paper, inked
 # dragons and trim.
 REST_OF_SHEET = {
@@ -324,11 +326,11 @@ ICON_COLOURS = style_tools.VANILLA_ICON_COLOURS
 
 
 def label_tab(px, left, top, right, bottom):
-    """A cream paper slip ruled in ink."""
+    """A cream paper slip with a scorched edge."""
     for y in range(top, bottom + 1):
         for x in range(left, right + 1):
             d = min(x - left, right - x, y - top, bottom - y)
-            px[x, y] = 1 if d == 0 else 5
+            px[x, y] = 11 if d == 0 else 5
     for cx, cy in ((left, top), (right, top), (left, bottom), (right, bottom)):
         px[cx, cy] = 0
 

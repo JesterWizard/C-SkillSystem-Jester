@@ -36,6 +36,8 @@ A style script defines these names (see Wood/generate_wood.py):
   SIGN_PALETTE, MENU_TO_SIGN        palette and colour map for the banners
   label_tab(px, left, top, right, bottom)  plate behind PLAY TIME
   LETTERS                 vanilla PLAY TIME colours -> SIGN_PALETTE
+  LABEL_OUTLINE           SIGN_PALETTE entry outlining those letters
+                          (optional; 1 by default)
   REST_OF_SHEET           vanilla colours -> SIGN_PALETTE for the rest of the
                           banner sheet (optional; left as is by default)
   ICON_COLOURS            the same for the icons in SHEET_ICONS (optional)
@@ -380,8 +382,10 @@ def draw_playtime_label(px, vanilla_px, area, style):
     # Vanilla letters, in OBJ palette 9 order: 11 and 12 are the light face,
     # 13 its shading and 14 a mid-tone drop shadow. Their outline is the
     # plate's dark colour, which palette 9 holds twice (1 and 10); the "Y"
-    # uses 1. style.LETTERS maps the face, shading and shadow; outline is 1.
+    # uses 1. style.LETTERS maps the face, shading and shadow; the outline is
+    # style.LABEL_OUTLINE, 1 by default.
     letter = style.LETTERS
+    outline = getattr(style, "LABEL_OUTLINE", 1)
     for y in range(ly, ly + lh):
         for x in range(lx, lx + lw):
             v = vanilla_px[ax + x, ay + y]
@@ -389,7 +393,7 @@ def draw_playtime_label(px, vanilla_px, area, style):
                 px[ax + x + shift, ay + y] = letter[v]
             elif any(vanilla_px[ax + x + dx, ay + y + dy] in letter
                      for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
-                px[ax + x + shift, ay + y] = 1
+                px[ax + x + shift, ay + y] = outline
 
 
 def play_status(style):

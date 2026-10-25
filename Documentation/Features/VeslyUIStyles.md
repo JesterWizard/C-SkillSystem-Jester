@@ -158,7 +158,7 @@ Turn it on with `ENUT 0xB2` in an event (or `SetFlag(0xB2)` in C); it is `Forest
 
 ### 📜 Parchment
 
-A Parchment & Ink look. Each window is a sheet of aged paper with a faint fibre speckle. Its outer edge is the sheet's own: deckled, nibbled in and torn here and there, browning outward to a scorched rim with flecks of char. Just inside it runs a hand-drawn ink line that swells to 2 pixels here and there like a pen, so no two edges match. The corners are worn round, scorched a little darker where the sheet turns. The faction shows only in the ink colour; light panels are fresh cream paper. The chapter name on the status screen is dark ink edged in cream.
+A Parchment & Ink look. Each window is a sheet of aged paper with a faint fibre speckle. Its outer edge is the sheet's own: deckled, nibbled in and torn here and there, browning outward to a scorched rim with flecks of char. Just inside it runs a hand-drawn ink line that swells to 2 pixels here and there like a pen, so no two edges match. The corners are worn round, scorched a little darker where the sheet turns. The faction shows only in the ink colour; light panels are fresh cream paper. On the status screen the chapter name is lettered in blue ink outlined in navy, and PLAY TIME is written in ink on a cream slip.
 
 Turn it on with `ENUT 0xB3` in an event (or `SetFlag(0xB3)` in C); it is `ParchmentStyleFlag`, style ID 11.
 

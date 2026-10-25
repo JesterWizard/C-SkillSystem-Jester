@@ -1693,7 +1693,7 @@ static const void * sPlayStatusPal[] = {
  * letters, recoloured: cream and brown for wood, white and cyan for tech,
  * gold for royal, white and amber in lead for glass, white in black for paper,
  * white and aqua in deep water for ocean, white and leaf green for forest,
- * dark ink edged in cream for parchment.
+ * blue ink outlined in navy for parchment.
  */
 static const u16 sChapterTitlePalWood[16] = {
     0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
@@ -1730,9 +1730,10 @@ static const u16 sChapterTitlePalForest[16] = {
     0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
 };
 
+/* Parchment recolours the letters' face texture (9-15) and drop shadow (8) too. */
 static const u16 sChapterTitlePalParchment[16] = {
-    0x520E, 0x1CA4, 0x24C5, 0x3107, 0x49EE, 0x5B3B, 0x6BBE, 0x0000,
-    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+    0x520E, 0x5125, 0x5967, 0x44E4, 0x3CC3, 0x1862, 0x1041, 0x0000,
+    0x21B1, 0x5967, 0x5967, 0x5125, 0x44E4, 0x5D88, 0x5D88, 0x61A9,
 };
 
 static const u16 * const sChapterTitlePal[] = {
