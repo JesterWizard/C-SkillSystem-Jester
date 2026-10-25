@@ -26,6 +26,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from style_tools import D, L, M, W, build_style, rgb  # noqa: E402
+import style_tools  # noqa: E402
 
 NAME = "Tech"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -275,12 +276,8 @@ REST_OF_SHEET = {
     0: 0, 1: 2, 2: 11, 3: 11, 4: 11, 5: 11, 6: 10, 7: 10, 8: 10, 9: 10,
     10: 3, 11: 6, 12: 6, 13: 4, 14: 1, 15: 6,
 }
-# The two item icons beside the banner keep vanilla's own colours. Only their
-# near-black detail colour (3 pixels) shares the outline entry.
-ICON_COLOURS = {
-    0: 0, 1: 5, 2: 7, 3: 8, 4: 9, 5: 12, 6: 13, 7: 13, 8: 14, 9: 14,
-    10: 1, 11: 6, 12: 6, 13: 15, 14: 1, 15: 6,
-}
+# The two item icons beside the banner keep vanilla's own colours.
+ICON_COLOURS = style_tools.VANILLA_ICON_COLOURS
 
 
 def label_tab(px, left, top, right, bottom):

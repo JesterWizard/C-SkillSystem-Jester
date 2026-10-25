@@ -11,6 +11,7 @@ extern const u16 MenuTilesPalette_Gamma[];
 extern const u16 MenuTilesPalette_Pikmin[];
 extern const u16 MenuTilesPalette_Wood[];
 extern const u16 MenuTilesPalette_Tech[];
+extern const u16 MenuTilesPalette_Royal[];
 
 int GetUIPalID(void);
 
@@ -64,6 +65,9 @@ static const u16 *GetMMBWindowPaletteRow(int uiPalId, int windowColor) {
 
     case 5:
         return &MenuTilesPalette_Tech[windowColor * 0x10];
+
+    case 6:
+        return &MenuTilesPalette_Royal[windowColor * 0x10];
 
     default:
         return &gUiFramePaletteA[windowColor * 0x10];

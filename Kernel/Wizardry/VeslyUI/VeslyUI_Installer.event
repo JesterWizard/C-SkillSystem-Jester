@@ -8,6 +8,7 @@ PikminStyleFlag:   WORD 0xAC
 GammaStyleFlag:    WORD 0xB4 // Lets use the guide flag (0xB4) (0xAB originally)
 WoodStyleFlag:     WORD 0xAB
 TechStyleFlag:     WORD 0xAD
+RoyalStyleFlag:    WORD 0xAE
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -201,6 +202,57 @@ Img_PlayStatusSprites_Tech: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Tech:
 #incbin "png/Tech/Tech_PlayStatusPal.pal"
+
+
+// ROYAL (png/Royal/generate_royal.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Royal:
+#incext Png2Dmp "png/Royal/Royal_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Royal:
+#incbin "png/Royal/Royal_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Royal:
+#incext Png2Dmp "png/Royal/Royal_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Royal:
+#incext Png2Dmp "png/Royal/Royal_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Royal:
+#incext Png2Dmp "png/Royal/Royal_PrepItems.png" --lz77
+ALIGN 4
+Royal_PrepItemsPalette:
+#incbin "png/Royal/Royal_PrepItemsPal.pal"
+ALIGN 4
+Royal_PrepPopupWindow:
+#incext Png2Dmp "png/Royal/Royal_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Royal:
+#incext Png2Dmp "png/Royal/Royal_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Royal: // Battle UI Palette
+#incbin "png/Royal/Royal_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Royal: // chapter status banner and playtime box
+#incext Png2Dmp "png/Royal/Royal_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Royal:
+#incbin "png/Royal/Royal_PlayStatusPal.pal"
 
 
 // PIKMIN

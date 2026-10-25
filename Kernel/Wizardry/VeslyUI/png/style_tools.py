@@ -320,6 +320,22 @@ PLAYTIME_LABEL = (11, 2, 55, 8)   # "PLAY TIME" letters in vanilla's box, pixels
 PLAYTIME_LABEL_SHIFT = 10         # moves the label to the middle of the wider box
 SHEET_ICONS = (24, 0, 8, 4)       # two item icons beside the banner, in tiles
 
+# The icons keep vanilla's own colours (OBJ palette 8). A style that wants
+# that puts these colours at these SIGN_PALETTE entries, keeps its banners off
+# them, and sets ICON_COLOURS = VANILLA_ICON_COLOURS. Only the icons'
+# near-black detail colour (3 pixels) shares the outline entry, 1.
+VANILLA_ICON_SLOTS = {
+    5: "E8D8C8",                      # cream
+    6: "B8D8F8",                      # pale blue halo
+    7: "205028", 8: "306038", 9: "406840",
+    12: "507850", 13: "608860", 14: "98B090",   # greens
+    15: "70A8C0",                     # gem
+}
+VANILLA_ICON_COLOURS = {
+    0: 0, 1: 5, 2: 7, 3: 8, 4: 9, 5: 12, 6: 13, 7: 13, 8: 14, 9: 14,
+    10: 1, 11: 6, 12: 6, 13: 15, 14: 1, 15: 6,
+}
+
 
 def sign_tiles(cols, rows):
     grid = []

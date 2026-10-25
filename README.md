@@ -238,6 +238,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<summary>Preview</summary>
 		<img src="./Documentation/Images/VeslyUI_Wood.png" alt="Wood UI style preview" width="600" />
 		<img src="./Documentation/Images/VeslyUI_Tech.png" alt="Tech UI style preview" width="600" />
+		<img src="./Documentation/Images/VeslyUI_Royal.png" alt="Royal UI style preview" width="600" />
 	</details>
 
 - [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md)
