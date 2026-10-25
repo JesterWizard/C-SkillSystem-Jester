@@ -88,6 +88,10 @@ PLAIN_COPIES = {
     0x17: 0x0B, 0x18: 0x0E, 0x19: 0x0E,              # title plate curl, light
     0x31: 0x03, 0x32: 0x03, 0x33: 0x03,              # crest
     0x1D: 0x1C, 0x1E: 0x1C,                          # bottom bar curl
+    # End caps of the patterned divider across the status screen's box. Their
+    # outline sits a pixel inside the box's edge, so the divider row jutted
+    # in; the plain edge tiles keep the side straight.
+    0x22: 0x06, 0x27: 0x0A,
 }
 
 # Corner tiles. Windows with a transparent margin get the style's CORNER_ART;
