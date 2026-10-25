@@ -12,6 +12,7 @@ RoyalStyleFlag:    WORD 0xAE
 GlassStyleFlag:    WORD 0xAF
 PaperStyleFlag:    WORD 0xB0
 OceanStyleFlag:    WORD 0xB1
+ForestStyleFlag:   WORD 0xB2
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -409,6 +410,57 @@ Img_PlayStatusSprites_Ocean: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Ocean:
 #incbin "png/Ocean/Ocean_PlayStatusPal.pal"
+
+
+// FOREST (png/Forest/generate_forest.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Forest:
+#incext Png2Dmp "png/Forest/Forest_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Forest:
+#incbin "png/Forest/Forest_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Forest:
+#incext Png2Dmp "png/Forest/Forest_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Forest:
+#incext Png2Dmp "png/Forest/Forest_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Forest:
+#incext Png2Dmp "png/Forest/Forest_PrepItems.png" --lz77
+ALIGN 4
+Forest_PrepItemsPalette:
+#incbin "png/Forest/Forest_PrepItemsPal.pal"
+ALIGN 4
+Forest_PrepPopupWindow:
+#incext Png2Dmp "png/Forest/Forest_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Forest:
+#incext Png2Dmp "png/Forest/Forest_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Forest: // Battle UI Palette
+#incbin "png/Forest/Forest_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Forest: // chapter status banner and playtime box
+#incext Png2Dmp "png/Forest/Forest_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Forest:
+#incbin "png/Forest/Forest_PlayStatusPal.pal"
 
 
 // PIKMIN
