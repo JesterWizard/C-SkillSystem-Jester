@@ -238,14 +238,17 @@ def edge_details(tile, t, drawn):
 
 # --- Chapter status banners -------------------------------------------------------
 # The banners use the player palette, with the outline at 1 and white at 4
-# (the shared code draws letter outlines with 1).
+# (the shared code draws letter outlines with 1). The banners never use the
+# light glass entries 5, 7, 8 and 9, so those hold the icons' gold ramp.
 SIGN_PALETTE = [
     "7080A0", "040810", "40F0FF", "2090B8", "F0FCFF",
-    "D8F4FC", "C4ECF8", "ACE0F0", "94D2E8", "7CC4DC",
+    "5C3810", "C4ECF8", "A87020", "E0B040", "F8E8A0",
     "1C3450", "182C46", "14263C", "102032", "0C1A2A", "081422",
 ]
 MENU_TO_SIGN = {i: i for i in range(16)}
 MENU_TO_SIGN[D], MENU_TO_SIGN[W] = 1, 4
+for light in (5, 7, 8, 9):                 # glass, should a banner ever use it
+    MENU_TO_SIGN[light] = 6
 # Vanilla PLAY TIME colours (OBJ palette 9) -> SIGN_PALETTE: white face,
 # pale cyan shading, dim neon drop shadow.
 LETTERS = {11: 4, 12: 4, 13: 6, 14: 3}
@@ -257,6 +260,14 @@ LETTERS = {11: 4, 12: 4, 13: 6, 14: 3}
 REST_OF_SHEET = {
     0: 0, 1: 2, 2: 15, 3: 15, 4: 14, 5: 14, 6: 13, 7: 12, 8: 11, 9: 10,
     10: 3, 11: 8, 12: 6, 13: 4, 14: 1, 15: 5,
+}
+# The two item icons beside the banner don't follow the colour scheme: a gold
+# ramp for vanilla's greens (2-9), white highlights, pale steel for its blue
+# accents and a dark outline in place of the pale halo, so their details
+# read clearly.
+ICON_COLOURS = {
+    0: 0, 1: 4, 2: 5, 3: 7, 4: 7, 5: 8, 6: 8, 7: 8, 8: 9, 9: 9,
+    10: 5, 11: 7, 12: 9, 13: 6, 14: 5, 15: 1,
 }
 
 
@@ -274,8 +285,10 @@ def label_tab(px, left, top, right, bottom):
                     or (x, y) in {(left + 1, top + 1), (right - 1, top + 1),
                                   (left + 1, bottom - 1), (right - 1, bottom - 1)})
             px[x, y] = 2 if edge else 15
-    # Glow on the backdrop around the plate.
-    for y in range(top - 1, bottom + 2):
+    # Glow on the backdrop around the plate. The plate starts on the box's
+    # first pixel row, so there is no glow above it (that row belongs to the
+    # chapter banner's sprite).
+    for y in range(top, bottom + 2):
         for x in range(left - 1, right + 2):
             if px[x, y] == 0 and any(px[x + dx, y + dy] == 2
                                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
