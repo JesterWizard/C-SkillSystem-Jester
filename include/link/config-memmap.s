@@ -284,6 +284,9 @@ _kernel_malloc2 sPortrait32AlignPad, 2
  */
 _kernel_malloc2 sPortrait32State, 0xA4
 
+/* Boot language selector choice: lang + 1, 0 = not read from SRAM yet */
+_kernel_malloc2 gKernelLanguage, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

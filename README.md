@@ -143,6 +143,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Laguz_Bars.gif" alt="Laguz Bars preview" width="600" />
 	</details>
 
+- [Language Select](./Documentation/Features/LanguageSelect.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Language_Select.gif" alt="Language Select preview" width="600" />
+	</details>
+
 - [Level Up Quotes](./Documentation/Features/LevelUpQuotes.md)
 
 	<details>

@@ -1,0 +1,12 @@
+#include "Source/LanguageSelect.lyn.event"
+
+ALIGN 4
+Img_LanguageSelectFlags:
+    #incbin "Gfx/Img_LanguageSelectFlags.lz77" // grit LZ77 is VRAM-safe
+
+// gProcScr_GameControl: PROC_START_CHILD_BLOCKING(ProcScr_GameEarlyStartUI).
+// The selector starts the logos itself, then shows the flags before the title.
+PUSH
+    ORG 0x591710
+    POIN ProcScr_LanguageSelect
+POP

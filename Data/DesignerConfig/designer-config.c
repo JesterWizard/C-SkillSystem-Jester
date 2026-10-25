@@ -74,6 +74,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.konami_style_bonus_screen = true,
 	.l_button_same_faction_cycling = true,
 	.laguz_bars = false,
+	.language_select = true, // flag-grid language selector before the title screen
 	.last_weapon_hit_crit = true,
 	.leadership = true,
 	.lights_out_game = false,

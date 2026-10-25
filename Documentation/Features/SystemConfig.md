@@ -23,6 +23,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `lvup_stat_points` | Points granted per level-up. After the EXP bar, a spend list replaces the level-up screen and the chosen stats apply immediately. `0` keeps vanilla growths and the level-up screen. Any other value replaces both, hides stat-screen growth rates, and limits spending to one point per stat. See [AllocateStatPoints](./AllocateStatPoints.md). |
 | `lvup_stat_timing` | Timing minigame after the EXP bar. Each stat lights green bars from the left based on its growth (`10%` per bar; `1–10%` still fills one bar). Press A on a green bar to grant `+1`. Growths of `100%` or more grant extra attempts (`160%` = a guaranteed all-green pass, then 6 bars). `0` is off. Any other value enables it. Overrides `lvup_stat_points` when both are set. See [TimingStatLevelUp](./TimingStatLevelUp.md). |
 | `item_stack` | Enables the Stack unit-menu command, which merges duplicate inventory items into one slot if total uses are at most 255. |
+| `language_select` | Shows a flag-grid language selector after the boot logos, before the title screen. The choice is saved in SRAM. See [LanguageSelect](./LanguageSelect.md). |
 | `unit_page_style` | Controls the display style for stat screen page 1. |
 | `skill_page_style` | Controls the display style for stat screen page 3. |
 | `gaiden_magic` | Enables Gaiden-style black and white magic. |

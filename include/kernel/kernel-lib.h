@@ -193,6 +193,7 @@ struct KernelDesigerConfig {
 	u8 lvup_stat_points; /* points per level; 0 = off. >0 skips growths, shows spend menu after EXP bar, applies immediately, hides growth display. 1 point per stat */
 	u8 lvup_stat_timing; /* 0 = off. >0 timing minigame after EXP bar (overrides allocate). green bars come from growths */
 	u8 item_stack; /* unit-menu Stack command: merge duplicate inventory items if uses <= 255 */
+	u8 language_select; /* flag-grid language selector after the boot logos, before the title */
 };
 
 struct KernelBattleDesignerConfig {

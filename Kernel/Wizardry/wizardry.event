@@ -147,6 +147,7 @@ ALIGN 4
 #include "Guide/GuideTable.event"
 #include "HPBarPalettes/HPBarPalettes_Installer.event"
 #include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"
+#include "LanguageSelect/LanguageSelect_Installer.event"
 #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #include "LimitedShopStock/LimitedShopStock_Installer.event"
 #include "Lvupfx/Lvupfx/MapLvup.lyn.event"
