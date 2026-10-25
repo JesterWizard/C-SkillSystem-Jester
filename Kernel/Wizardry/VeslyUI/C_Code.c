@@ -1731,13 +1731,14 @@ static const u16 sChapterTitlePalForest[16] = {
 };
 
 /*
- * Parchment letters its chapter title like the game's own text: a flat white
- * face (its texture entries, 9-15, are white too) in a navy outline (5) and
- * a navy drop shadow (8), so each letter is edged all round.
+ * Parchment letters its chapter title like the game's own text: a white face
+ * that shades through grey-blue (15, 13, 9) to a dark navy edge (4) on its
+ * lower right, inside a navy outline (5) and drop shadow (8), so each letter
+ * is edged all round.
  */
 static const u16 sChapterTitlePalParchment[16] = {
-    0x520E, 0x7BFF, 0x7BFF, 0x7BFF, 0x677C, 0x1862, 0x1862, 0x0000,
-    0x1862, 0x7BFF, 0x7BFF, 0x7BFF, 0x7BFF, 0x7BFF, 0x7BFF, 0x7BFF,
+    0x520E, 0x7BFF, 0x7BFF, 0x6F9D, 0x24A4, 0x1862, 0x1862, 0x0000,
+    0x1862, 0x49AB, 0x560F, 0x6293, 0x6F18, 0x66D5, 0x735A, 0x77BD,
 };
 
 static const u16 * const sChapterTitlePal[] = {
