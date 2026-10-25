@@ -7,6 +7,13 @@ StephanoStyleFlag: WORD 0xAA
 PikminStyleFlag:   WORD 0xAC
 GammaStyleFlag:    WORD 0xB4 // Lets use the guide flag (0xB4) (0xAB originally)
 WoodStyleFlag:     WORD 0xAB
+TechStyleFlag:     WORD 0xAD
+RoyalStyleFlag:    WORD 0xAE
+GlassStyleFlag:    WORD 0xAF
+PaperStyleFlag:    WORD 0xB0
+OceanStyleFlag:    WORD 0xB1
+ForestStyleFlag:   WORD 0xB2
+ParchmentStyleFlag: WORD 0xB3
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -149,6 +156,364 @@ Img_PlayStatusSprites_Wood: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Wood:
 #incbin "png/Wood/Wood_PlayStatusPal.pal"
+
+
+// TECH (png/Tech/generate_tech.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Tech:
+#incext Png2Dmp "png/Tech/Tech_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Tech:
+#incbin "png/Tech/Tech_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Tech:
+#incext Png2Dmp "png/Tech/Tech_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Tech:
+#incext Png2Dmp "png/Tech/Tech_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Tech:
+#incext Png2Dmp "png/Tech/Tech_PrepItems.png" --lz77
+ALIGN 4
+Tech_PrepItemsPalette:
+#incbin "png/Tech/Tech_PrepItemsPal.pal"
+ALIGN 4
+Tech_PrepPopupWindow:
+#incext Png2Dmp "png/Tech/Tech_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Tech:
+#incext Png2Dmp "png/Tech/Tech_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Tech:
+#incext Png2Dmp "png/Tech/Tech_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Tech: // Battle UI Palette
+#incbin "png/Tech/Tech_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Tech: // chapter status banner and playtime box
+#incext Png2Dmp "png/Tech/Tech_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Tech:
+#incbin "png/Tech/Tech_PlayStatusPal.pal"
+
+
+// ROYAL (png/Royal/generate_royal.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Royal:
+#incext Png2Dmp "png/Royal/Royal_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Royal:
+#incbin "png/Royal/Royal_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Royal:
+#incext Png2Dmp "png/Royal/Royal_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Royal:
+#incext Png2Dmp "png/Royal/Royal_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Royal:
+#incext Png2Dmp "png/Royal/Royal_PrepItems.png" --lz77
+ALIGN 4
+Royal_PrepItemsPalette:
+#incbin "png/Royal/Royal_PrepItemsPal.pal"
+ALIGN 4
+Royal_PrepPopupWindow:
+#incext Png2Dmp "png/Royal/Royal_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Royal:
+#incext Png2Dmp "png/Royal/Royal_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Royal:
+#incext Png2Dmp "png/Royal/Royal_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Royal: // Battle UI Palette
+#incbin "png/Royal/Royal_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Royal: // chapter status banner and playtime box
+#incext Png2Dmp "png/Royal/Royal_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Royal:
+#incbin "png/Royal/Royal_PlayStatusPal.pal"
+
+
+// GLASS (png/Glass/generate_glass.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Glass:
+#incext Png2Dmp "png/Glass/Glass_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Glass:
+#incbin "png/Glass/Glass_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Glass:
+#incext Png2Dmp "png/Glass/Glass_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Glass:
+#incext Png2Dmp "png/Glass/Glass_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Glass:
+#incext Png2Dmp "png/Glass/Glass_PrepItems.png" --lz77
+ALIGN 4
+Glass_PrepItemsPalette:
+#incbin "png/Glass/Glass_PrepItemsPal.pal"
+ALIGN 4
+Glass_PrepPopupWindow:
+#incext Png2Dmp "png/Glass/Glass_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Glass:
+#incext Png2Dmp "png/Glass/Glass_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Glass:
+#incext Png2Dmp "png/Glass/Glass_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Glass: // Battle UI Palette
+#incbin "png/Glass/Glass_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Glass: // chapter status banner and playtime box
+#incext Png2Dmp "png/Glass/Glass_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Glass:
+#incbin "png/Glass/Glass_PlayStatusPal.pal"
+
+
+// PAPER (png/Paper/generate_paper.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Paper:
+#incext Png2Dmp "png/Paper/Paper_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Paper:
+#incbin "png/Paper/Paper_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Paper:
+#incext Png2Dmp "png/Paper/Paper_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Paper:
+#incext Png2Dmp "png/Paper/Paper_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Paper:
+#incext Png2Dmp "png/Paper/Paper_PrepItems.png" --lz77
+ALIGN 4
+Paper_PrepItemsPalette:
+#incbin "png/Paper/Paper_PrepItemsPal.pal"
+ALIGN 4
+Paper_PrepPopupWindow:
+#incext Png2Dmp "png/Paper/Paper_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Paper:
+#incext Png2Dmp "png/Paper/Paper_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Paper:
+#incext Png2Dmp "png/Paper/Paper_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Paper: // Battle UI Palette
+#incbin "png/Paper/Paper_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Paper: // chapter status banner and playtime box
+#incext Png2Dmp "png/Paper/Paper_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Paper:
+#incbin "png/Paper/Paper_PlayStatusPal.pal"
+
+
+// OCEAN (png/Ocean/generate_ocean.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Ocean:
+#incbin "png/Ocean/Ocean_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_PrepItems.png" --lz77
+ALIGN 4
+Ocean_PrepItemsPalette:
+#incbin "png/Ocean/Ocean_PrepItemsPal.pal"
+ALIGN 4
+Ocean_PrepPopupWindow:
+#incext Png2Dmp "png/Ocean/Ocean_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Ocean:
+#incext Png2Dmp "png/Ocean/Ocean_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Ocean: // Battle UI Palette
+#incbin "png/Ocean/Ocean_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Ocean: // chapter status banner and playtime box
+#incext Png2Dmp "png/Ocean/Ocean_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Ocean:
+#incbin "png/Ocean/Ocean_PlayStatusPal.pal"
+
+
+// FOREST (png/Forest/generate_forest.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Forest:
+#incext Png2Dmp "png/Forest/Forest_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Forest:
+#incbin "png/Forest/Forest_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Forest:
+#incext Png2Dmp "png/Forest/Forest_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Forest:
+#incext Png2Dmp "png/Forest/Forest_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Forest:
+#incext Png2Dmp "png/Forest/Forest_PrepItems.png" --lz77
+ALIGN 4
+Forest_PrepItemsPalette:
+#incbin "png/Forest/Forest_PrepItemsPal.pal"
+ALIGN 4
+Forest_PrepPopupWindow:
+#incext Png2Dmp "png/Forest/Forest_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Forest:
+#incext Png2Dmp "png/Forest/Forest_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Forest:
+#incext Png2Dmp "png/Forest/Forest_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Forest: // Battle UI Palette
+#incbin "png/Forest/Forest_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Forest: // chapter status banner and playtime box
+#incext Png2Dmp "png/Forest/Forest_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Forest:
+#incbin "png/Forest/Forest_PlayStatusPal.pal"
+
+
+
+// PARCHMENT (png/Parchment/generate_parchment.py builds these from png/Vanilla)
+ALIGN 4
+gUiFrameImage_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Main.png" --lz77
+ALIGN 4
+MenuTilesPalette_Parchment:
+#incbin "png/Parchment/Parchment_MenuPal.pal"
+ALIGN 4
+gPrepExtra1_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Preps.png" --lz77
+ALIGN 4
+gPrepUseGfx_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_PrepsUseGfx.png" --lz77
+ALIGN 4
+gPrepItemGfx_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_PrepItems.png" --lz77
+ALIGN 4
+Parchment_PrepItemsPalette:
+#incbin "png/Parchment/Parchment_PrepItemsPal.pal"
+ALIGN 4
+Parchment_PrepPopupWindow:
+#incext Png2Dmp "png/Parchment/Parchment_PrepPopupWindow.png" --lz77
+ALIGN 4
+Img_ShopGoldBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_ShopGoldDisplay.png" --lz77
+ALIGN 4
+Img_08801C14_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Battle.png" --lz77
+ALIGN 4
+Img_EfxLeftNameBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Left.png" --lz77
+ALIGN 4
+Img_EfxLeftItemBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_LeftItem.png" --lz77
+ALIGN 4
+Img_EfxRightNameBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_Right.png" --lz77
+ALIGN 4
+Img_EfxRightItemBox_Parchment:
+#incext Png2Dmp "png/Parchment/Parchment_RightItem.png" --lz77
+ALIGN 4
+gUnknown_08802558_Parchment: // Battle UI Palette
+#incbin "png/Parchment/Parchment_BattlePal.pal"
+ALIGN 4
+Img_PlayStatusSprites_Parchment: // chapter status banner and playtime box
+#incext Png2Dmp "png/Parchment/Parchment_PlayStatus.png" --lz77
+ALIGN 4
+Pal_PlayStatusSprites_Parchment:
+#incbin "png/Parchment/Parchment_PlayStatusPal.pal"
 
 
 // PIKMIN

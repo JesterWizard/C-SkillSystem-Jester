@@ -101,10 +101,128 @@ extern u16 Img_EfxLeftItemBox_Wood[];
 extern u16 Img_EfxRightNameBox_Wood[];
 extern u16 Img_EfxRightItemBox_Wood[];
 
+extern const u8 gUiFrameImage_Tech[];
+extern const u8 gPrepExtra1_Tech[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Tech[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Tech[];      // gUnknown_08A1B1FC
+extern const u16 Tech_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Tech_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Tech[];
+extern const u8 Img_PlayStatusSprites_Tech[];
+extern const u16 Pal_PlayStatusSprites_Tech[];
+extern u16 gUnknown_08802558_Tech[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Tech[];
+extern u16 Img_EfxLeftNameBox_Tech[];
+extern u16 Img_EfxLeftItemBox_Tech[];
+extern u16 Img_EfxRightNameBox_Tech[];
+extern u16 Img_EfxRightItemBox_Tech[];
+
+extern const u8 gUiFrameImage_Royal[];
+extern const u8 gPrepExtra1_Royal[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Royal[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Royal[];      // gUnknown_08A1B1FC
+extern const u16 Royal_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Royal_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Royal[];
+extern const u8 Img_PlayStatusSprites_Royal[];
+extern const u16 Pal_PlayStatusSprites_Royal[];
+extern u16 gUnknown_08802558_Royal[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Royal[];
+extern u16 Img_EfxLeftNameBox_Royal[];
+extern u16 Img_EfxLeftItemBox_Royal[];
+extern u16 Img_EfxRightNameBox_Royal[];
+extern u16 Img_EfxRightItemBox_Royal[];
+
+extern const u8 gUiFrameImage_Glass[];
+extern const u8 gPrepExtra1_Glass[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Glass[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Glass[];      // gUnknown_08A1B1FC
+extern const u16 Glass_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Glass_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Glass[];
+extern const u8 Img_PlayStatusSprites_Glass[];
+extern const u16 Pal_PlayStatusSprites_Glass[];
+extern u16 gUnknown_08802558_Glass[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Glass[];
+extern u16 Img_EfxLeftNameBox_Glass[];
+extern u16 Img_EfxLeftItemBox_Glass[];
+extern u16 Img_EfxRightNameBox_Glass[];
+extern u16 Img_EfxRightItemBox_Glass[];
+
+extern const u8 gUiFrameImage_Paper[];
+extern const u8 gPrepExtra1_Paper[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Paper[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Paper[];      // gUnknown_08A1B1FC
+extern const u16 Paper_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Paper_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Paper[];
+extern const u8 Img_PlayStatusSprites_Paper[];
+extern const u16 Pal_PlayStatusSprites_Paper[];
+extern u16 gUnknown_08802558_Paper[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Paper[];
+extern u16 Img_EfxLeftNameBox_Paper[];
+extern u16 Img_EfxLeftItemBox_Paper[];
+extern u16 Img_EfxRightNameBox_Paper[];
+extern u16 Img_EfxRightItemBox_Paper[];
+
+extern const u8 gUiFrameImage_Ocean[];
+extern const u8 gPrepExtra1_Ocean[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Ocean[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Ocean[];      // gUnknown_08A1B1FC
+extern const u16 Ocean_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Ocean_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Ocean[];
+extern const u8 Img_PlayStatusSprites_Ocean[];
+extern const u16 Pal_PlayStatusSprites_Ocean[];
+extern u16 gUnknown_08802558_Ocean[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Ocean[];
+extern u16 Img_EfxLeftNameBox_Ocean[];
+extern u16 Img_EfxLeftItemBox_Ocean[];
+extern u16 Img_EfxRightNameBox_Ocean[];
+extern u16 Img_EfxRightItemBox_Ocean[];
+
+extern const u8 gUiFrameImage_Forest[];
+extern const u8 gPrepExtra1_Forest[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Forest[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Forest[];      // gUnknown_08A1B1FC
+extern const u16 Forest_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Forest_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Forest[];
+extern const u8 Img_PlayStatusSprites_Forest[];
+extern const u16 Pal_PlayStatusSprites_Forest[];
+extern u16 gUnknown_08802558_Forest[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Forest[];
+extern u16 Img_EfxLeftNameBox_Forest[];
+extern u16 Img_EfxLeftItemBox_Forest[];
+extern u16 Img_EfxRightNameBox_Forest[];
+extern u16 Img_EfxRightItemBox_Forest[];
+extern const u8 gUiFrameImage_Parchment[];
+extern const u8 gPrepExtra1_Parchment[];       // gUnknown_08A1B730
+extern const u8 gPrepUseGfx_Parchment[];       // Img_PrepItemUseScreen
+extern const u8 gPrepItemGfx_Parchment[];      // gUnknown_08A1B1FC
+extern const u16 Parchment_PrepItemsPalette[]; // gUnknown_08A1B638
+extern const u8 Parchment_PrepPopupWindow[];   // Img_PrepPopupWindow
+extern u16 Img_ShopGoldBox_Parchment[];
+extern const u8 Img_PlayStatusSprites_Parchment[];
+extern const u16 Pal_PlayStatusSprites_Parchment[];
+extern u16 gUnknown_08802558_Parchment[];      // palette in func EfxPrepareScreenFx
+extern u16 Img_08801C14_Parchment[];
+extern u16 Img_EfxLeftNameBox_Parchment[];
+extern u16 Img_EfxLeftItemBox_Parchment[];
+extern u16 Img_EfxRightNameBox_Parchment[];
+extern u16 Img_EfxRightItemBox_Parchment[];
+
 extern int StephanoStyleFlag;
 extern int GammaStyleFlag;
 extern int PikminStyleFlag;
 extern int WoodStyleFlag;
+extern int TechStyleFlag;
+extern int RoyalStyleFlag;
+extern int GlassStyleFlag;
+extern int PaperStyleFlag;
+extern int OceanStyleFlag;
+extern int ForestStyleFlag;
+extern int ParchmentStyleFlag;
 int GetUI_id(void)
 {
 
@@ -112,12 +230,41 @@ int GetUI_id(void)
         return 0;
 
     /*
-     * Wood is checked first: GammaStyleFlag is the guide flag, which the
-     * campaign sets early, so a later check could never select wood.
+     * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
+     * Parchment) are checked first: GammaStyleFlag is the guide flag, which
+     * the campaign sets early, so a later check could never select them.
      */
     if (CheckFlag(WoodStyleFlag))
     {
         return 4;
+    }
+    if (CheckFlag(TechStyleFlag))
+    {
+        return 5;
+    }
+    if (CheckFlag(RoyalStyleFlag))
+    {
+        return 6;
+    }
+    if (CheckFlag(GlassStyleFlag))
+    {
+        return 7;
+    }
+    if (CheckFlag(PaperStyleFlag))
+    {
+        return 8;
+    }
+    if (CheckFlag(OceanStyleFlag))
+    {
+        return 9;
+    }
+    if (CheckFlag(ForestStyleFlag))
+    {
+        return 10;
+    }
+    if (CheckFlag(ParchmentStyleFlag))
+    {
+        return 11;
     }
     if (CheckFlag(StephanoStyleFlag))
     {
@@ -147,6 +294,13 @@ static const void * sUiFrame[] = {
     gUiFrameImage_Gamma,
     gUiFrameImage_Pikmin,
     gUiFrameImage_Wood, // wood
+    gUiFrameImage_Tech, // tech
+    gUiFrameImage_Royal, // royal
+    gUiFrameImage_Glass, // glass
+    gUiFrameImage_Paper, // paper
+    gUiFrameImage_Ocean, // ocean
+    gUiFrameImage_Forest, // forest
+    gUiFrameImage_Parchment, // parchment
 };
 
 const u8 * GetUiFrame(void)
@@ -166,6 +320,13 @@ static const void * sPIFontTiles[] = {
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles_Stephano,
     gGfx_PlayerInterfaceFontTiles, // wood
+    gGfx_PlayerInterfaceFontTiles, // tech
+    gGfx_PlayerInterfaceFontTiles, // royal
+    gGfx_PlayerInterfaceFontTiles, // glass
+    gGfx_PlayerInterfaceFontTiles, // paper
+    gGfx_PlayerInterfaceFontTiles, // ocean
+    gGfx_PlayerInterfaceFontTiles, // forest
+    gGfx_PlayerInterfaceFontTiles, // parchment
 };
 
 const u8 * GetPIFontTiles(void)
@@ -185,6 +346,13 @@ static const void * sPINumbers[] = {
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers_Stephano,
     gGfx_PlayerInterfaceNumbers, // wood
+    gGfx_PlayerInterfaceNumbers, // tech
+    gGfx_PlayerInterfaceNumbers, // royal
+    gGfx_PlayerInterfaceNumbers, // glass
+    gGfx_PlayerInterfaceNumbers, // paper
+    gGfx_PlayerInterfaceNumbers, // ocean
+    gGfx_PlayerInterfaceNumbers, // forest
+    gGfx_PlayerInterfaceNumbers, // parchment
 };
 
 const u8 * GetPINumbers(void)
@@ -217,6 +385,13 @@ static const void * sUnknown_08A1B698[] = {
     gUnknown_08A1B698_Gamma,
     gUnknown_08A1B698,
     gUnknown_08A1B698, // wood
+    gUnknown_08A1B698, // tech
+    gUnknown_08A1B698, // royal
+    gUnknown_08A1B698, // glass
+    gUnknown_08A1B698, // paper
+    gUnknown_08A1B698, // ocean
+    gUnknown_08A1B698, // forest
+    gUnknown_08A1B698, // parchment
 };
 
 const u8 * GetUnknown_08A1B698(void)
@@ -252,6 +427,13 @@ static const void * sPrepExtra1[] = {
     gPrepExtra1_Gamma,
     gPrepExtra1_Pikmin,
     gPrepExtra1_Wood, // wood
+    gPrepExtra1_Tech, // tech
+    gPrepExtra1_Royal, // royal
+    gPrepExtra1_Glass, // glass
+    gPrepExtra1_Paper, // paper
+    gPrepExtra1_Ocean, // ocean
+    gPrepExtra1_Forest, // forest
+    gPrepExtra1_Parchment, // parchment
 };
 
 const u8 * GetPrepExtra1(void)
@@ -272,6 +454,13 @@ static const void * sUnknown_08A1B7C8[] = {
     gUnknown_08A1B7C8_Gamma,
     gUnknown_08A1B7C8,
     gUnknown_08A1B7C8, // wood
+    gUnknown_08A1B7C8, // tech
+    gUnknown_08A1B7C8, // royal
+    gUnknown_08A1B7C8, // glass
+    gUnknown_08A1B7C8, // paper
+    gUnknown_08A1B7C8, // ocean
+    gUnknown_08A1B7C8, // forest
+    gUnknown_08A1B7C8, // parchment
 };
 
 const u8 * GetUnknown_08A1B7C8(void)
@@ -301,6 +490,13 @@ static const void * sPrepUseItem[] = {
     gPrepUseGfx_Gamma,
     gPrepUseGfx_Pikmin,
     gPrepUseGfx_Wood, // wood
+    gPrepUseGfx_Tech, // tech
+    gPrepUseGfx_Royal, // royal
+    gPrepUseGfx_Glass, // glass
+    gPrepUseGfx_Paper, // paper
+    gPrepUseGfx_Ocean, // ocean
+    gPrepUseGfx_Forest, // forest
+    gPrepUseGfx_Parchment, // parchment
 };
 
 const u8 * GetPrepUseItem(void)
@@ -325,6 +521,13 @@ static const void * sPrepItem[] = {
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Gamma,
     gPrepItemGfx_Wood, // wood
+    gPrepItemGfx_Tech, // tech
+    gPrepItemGfx_Royal, // royal
+    gPrepItemGfx_Glass, // glass
+    gPrepItemGfx_Paper, // paper
+    gPrepItemGfx_Ocean, // ocean
+    gPrepItemGfx_Forest, // forest
+    gPrepItemGfx_Parchment, // parchment
 };
 
 const u8 * GetPrepItem(void)
@@ -344,6 +547,13 @@ static const void * sPrepItemPal[] = {
     gUnknown_08A1B638,
     gUnknown_08A1B638,
     Wood_PrepItemsPalette, // wood
+    Tech_PrepItemsPalette, // tech
+    Royal_PrepItemsPalette, // royal
+    Glass_PrepItemsPalette, // glass
+    Paper_PrepItemsPalette, // paper
+    Ocean_PrepItemsPalette, // ocean
+    Forest_PrepItemsPalette, // forest
+    Parchment_PrepItemsPalette, // parchment
 };
 
 const u16 * GetPrepItemPal(void)
@@ -367,6 +577,13 @@ static const void * sPrepPopupWindow[] = {
     Gamma_PrepPopupWindow,
     Gamma_PrepPopupWindow,
     Wood_PrepPopupWindow, // wood
+    Tech_PrepPopupWindow, // tech
+    Royal_PrepPopupWindow, // royal
+    Glass_PrepPopupWindow, // glass
+    Paper_PrepPopupWindow, // paper
+    Ocean_PrepPopupWindow, // ocean
+    Forest_PrepPopupWindow, // forest
+    Parchment_PrepPopupWindow, // parchment
 };
 
 const u8 * GetPrepPopupWindow(void)
@@ -403,19 +620,29 @@ void PutImg_PrepPopupWindow(int vram, int pal)
 // Decompress(Img_ShopGoldBox, OBJ_CHR_ADDR(OBJCHR_SHOP_GOLDBOX));
 // }
 /*
- * Wood frames are chipped, and a window repeats its edge tiles along each
- * side. So in wood mode DrawUiFrame picks each beam and left edge tile from a
- * set of interchangeable ones (see EDGE_CHIPS in png/Wood/generate_wood.py),
- * chosen by position so the chips don't fall in a regular rhythm.
+ * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
+ * Parchment) are built by png/style_tools.py, which can add details along the
+ * frame edges (wood's chips, glass's coloured pieces). A window repeats its
+ * edge tiles along each side, so for these styles DrawUiFrame picks each beam
+ * and left edge tile from a set of interchangeable ones (TOP_BEAMS and friends in
+ * style_tools.py), chosen by position so the details don't fall in a regular
+ * rhythm.
  */
+static int IsGeneratedStyle(void)
+{
+    int id = GetUI_id();
+
+    return id >= 4 && id <= 11;
+}
+
 extern const u16 * const sUiFrameModelTilemapLookup[];
 
-static const u8 sWoodTopBeams[8] = { 0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33 };
-static const u8 sWoodBottomBeams[8] = { 0x1B, 0x1C, 0x1B, 0x1D, 0x1E, 0x1B, 0x20, 0x1C };
-static const u8 sWoodLeftEdges[4] = { 0x06, 0x07, 0x06, 0x14 };
-static const u8 sWoodLeftEdgesWhite[4] = { 0x0B, 0x0C, 0x0B, 0x17 };
+static const u8 sFrameTopBeams[8] = { 0x03, 0x04, 0x11, 0x12, 0x13, 0x31, 0x32, 0x33 };
+static const u8 sFrameBottomBeams[8] = { 0x1B, 0x1C, 0x1B, 0x1D, 0x1E, 0x1B, 0x20, 0x1C };
+static const u8 sFrameLeftEdges[4] = { 0x06, 0x07, 0x06, 0x14 };
+static const u8 sFrameLeftEdgesWhite[4] = { 0x0B, 0x0C, 0x0B, 0x17 };
 
-static u16 WoodFrameTile(u16 ref, int x, int y)
+static u16 PickFrameTile(u16 ref, int x, int y)
 {
     u32 pick = ((x * 73 + y * 151) * 2654435761u) >> 24;
     int tile;
@@ -423,16 +650,16 @@ static u16 WoodFrameTile(u16 ref, int x, int y)
     switch (ref & 0x3FF)
     {
     case 0x03:
-        tile = sWoodTopBeams[pick & 7];
+        tile = sFrameTopBeams[pick & 7];
         break;
     case 0x1B:
-        tile = sWoodBottomBeams[pick & 7];
+        tile = sFrameBottomBeams[pick & 7];
         break;
     case 0x06:
-        tile = sWoodLeftEdges[pick & 3];
+        tile = sFrameLeftEdges[pick & 3];
         break;
     case 0x0B:
-        tile = sWoodLeftEdgesWhite[pick & 3];
+        tile = sFrameLeftEdgesWhite[pick & 3];
         break;
     default:
         return ref;
@@ -444,7 +671,7 @@ LYN_REPLACE_CHECK(DrawUiFrame);
 void DrawUiFrame(u16 * tilemap, int x, int y, int width, int height, int tilebase, int style)
 {
     const u16 * model = sUiFrameModelTilemapLookup[style];
-    int wood = GetUI_id() == 4;
+    int detailed = IsGeneratedStyle();
 
     int xMax = x + width - 1;
     int yMax = y + height - 1;
@@ -463,20 +690,20 @@ void DrawUiFrame(u16 * tilemap, int x, int y, int width, int height, int tilebas
             tilemap[tilemapOffset + TILEMAP_INDEX(1, 1)] = model[10] + tilebase;
         }
 
-        tilemap[TILEMAP_INDEX(x, iy + 0)] = (wood ? WoodFrameTile(model[8], x, iy) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(x, iy + 0)] = (detailed ? PickFrameTile(model[8], x, iy) : model[8]) + tilebase;
         tilemap[TILEMAP_INDEX(xMax, iy + 0)] = model[7] + tilebase;
-        tilemap[TILEMAP_INDEX(x, iy + 1)] = (wood ? WoodFrameTile(model[8], x, iy + 1) : model[8]) + tilebase;
+        tilemap[TILEMAP_INDEX(x, iy + 1)] = (detailed ? PickFrameTile(model[8], x, iy + 1) : model[8]) + tilebase;
         tilemap[TILEMAP_INDEX(xMax, iy + 1)] = model[11] + tilebase;
     }
 
     for (ix = x + 1; ix < xMax; ix += 2)
     {
-        if (wood)
+        if (detailed)
         {
-            tilemap[TILEMAP_INDEX(ix + 0, y)] = WoodFrameTile(model[2], ix, y) + tilebase;
-            tilemap[TILEMAP_INDEX(ix + 1, y)] = WoodFrameTile(model[2], ix + 1, y) + tilebase;
-            tilemap[TILEMAP_INDEX(ix + 0, yMax)] = WoodFrameTile(model[13], ix, yMax) + tilebase;
-            tilemap[TILEMAP_INDEX(ix + 1, yMax)] = WoodFrameTile(model[14], ix + 1, yMax) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 0, y)] = PickFrameTile(model[2], ix, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, y)] = PickFrameTile(model[2], ix + 1, y) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 0, yMax)] = PickFrameTile(model[13], ix, yMax) + tilebase;
+            tilemap[TILEMAP_INDEX(ix + 1, yMax)] = PickFrameTile(model[14], ix + 1, yMax) + tilebase;
             continue;
         }
         tilemap[TILEMAP_INDEX(ix + 0, y)] = model[2] + tilebase;
@@ -555,6 +782,13 @@ static const void * sBUiFrame_880210C[] = {
     gUnknown_0880210C_Sokaballa, gUnknown_0880210C_Gamma,
     gUnknown_0880210C_Fenreir, // top left box for name TSA
     gUnknown_0880210C, // wood
+    gUnknown_0880210C, // tech
+    gUnknown_0880210C, // royal
+    gUnknown_0880210C, // glass
+    gUnknown_0880210C, // paper
+    gUnknown_0880210C, // ocean
+    gUnknown_0880210C, // forest
+    gUnknown_0880210C, // parchment
 };
 const u8 * GetBUiFrame_880210C(void)
 {
@@ -572,6 +806,13 @@ static const void * sBUiFrame_88021C0[] = {
     gUnknown_088021C0_Alt, gUnknown_088021C0_Gamma,
     gUnknown_088021C0_Fenreir, // top right box for name TSA
     gUnknown_088021C0, // wood
+    gUnknown_088021C0, // tech
+    gUnknown_088021C0, // royal
+    gUnknown_088021C0, // glass
+    gUnknown_088021C0, // paper
+    gUnknown_088021C0, // ocean
+    gUnknown_088021C0, // forest
+    gUnknown_088021C0, // parchment
 };
 const u8 * GetBUiFrame_88021C0(void)
 {
@@ -647,6 +888,13 @@ static const void * sUnknown_08802274[] = {
     gUnknown_08802274, gUnknown_08802274_Gamma,
     gUnknown_08802274_Fenreir, // bottom left side TSA
     gUnknown_08802274, // wood
+    gUnknown_08802274, // tech
+    gUnknown_08802274, // royal
+    gUnknown_08802274, // glass
+    gUnknown_08802274, // paper
+    gUnknown_08802274, // ocean
+    gUnknown_08802274, // forest
+    gUnknown_08802274, // parchment
 };
 
 const u8 * ekrGaugeMain_GetImg()
@@ -665,6 +913,13 @@ static const void * sUnknown_08802348[] = {
     gUnknown_08802348, gUnknown_08802348_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA
     gUnknown_08802348, // wood
+    gUnknown_08802348, // tech
+    gUnknown_08802348, // royal
+    gUnknown_08802348, // glass
+    gUnknown_08802348, // paper
+    gUnknown_08802348, // ocean
+    gUnknown_08802348, // forest
+    gUnknown_08802348, // parchment
 };
 
 const u8 * ekrGaugeMain2_GetImg()
@@ -684,6 +939,13 @@ static const void * sUnknown_08802428[] = {
     gUnknown_08802428, gUnknown_08802428_Gamma,
     gUnknown_08802348_Fenreir, // bottom right side TSA alternate
     gUnknown_08802428, // wood
+    gUnknown_08802428, // tech
+    gUnknown_08802428, // royal
+    gUnknown_08802428, // glass
+    gUnknown_08802428, // paper
+    gUnknown_08802428, // ocean
+    gUnknown_08802428, // forest
+    gUnknown_08802428, // parchment
 };
 
 const u8 * ekrGaugeMain3_GetImg()
@@ -703,6 +965,13 @@ static const void * sUnknown_08802508[] = {
     gUnknown_08802508,
     gUnknown_08802508,
     gUnknown_08802508, // wood
+    gUnknown_08802508, // tech
+    gUnknown_08802508, // royal
+    gUnknown_08802508, // glass
+    gUnknown_08802508, // paper
+    gUnknown_08802508, // ocean
+    gUnknown_08802508, // forest
+    gUnknown_08802508, // parchment
 };
 
 const u8 * GetUnknown_08802508()
@@ -722,6 +991,13 @@ static const void * sImg_08801C14[] = {
     Img_08801C14_Gamma,
     Img_08801C14_Fenreir,
     Img_08801C14_Wood, // wood
+    Img_08801C14_Tech, // tech
+    Img_08801C14_Royal, // royal
+    Img_08801C14_Glass, // glass
+    Img_08801C14_Paper, // paper
+    Img_08801C14_Ocean, // ocean
+    Img_08801C14_Forest, // forest
+    Img_08801C14_Parchment, // parchment
 };
 
 const u8 * GetImg_08801C14()
@@ -741,6 +1017,13 @@ static const void * sBPal_8802558[] = {
     gUnknown_08802558_Gamma,
     gUnknown_08802558_Fenreir,
     gUnknown_08802558_Wood, // wood
+    gUnknown_08802558_Tech, // tech
+    gUnknown_08802558_Royal, // royal
+    gUnknown_08802558_Glass, // glass
+    gUnknown_08802558_Paper, // paper
+    gUnknown_08802558_Ocean, // ocean
+    gUnknown_08802558_Forest, // forest
+    gUnknown_08802558_Parchment, // parchment
 };
 const u16 * GetBPal_8802558(void)
 {
@@ -784,6 +1067,13 @@ static const void * sImg_EfxLeftNameBox[] = {
     Img_EfxLeftNameBox_Gamma,
     Img_EfxLeftNameBox_Fenreir,
     Img_EfxLeftNameBox_Wood, // wood
+    Img_EfxLeftNameBox_Tech, // tech
+    Img_EfxLeftNameBox_Royal, // royal
+    Img_EfxLeftNameBox_Glass, // glass
+    Img_EfxLeftNameBox_Paper, // paper
+    Img_EfxLeftNameBox_Ocean, // ocean
+    Img_EfxLeftNameBox_Forest, // forest
+    Img_EfxLeftNameBox_Parchment, // parchment
 };
 
 const u8 * GetImg_EfxLeftNameBox()
@@ -803,6 +1093,13 @@ static const void * sImg_EfxLeftItemBox[] = {
     Img_EfxLeftItemBox_Gamma,
     Img_EfxLeftItemBox_Fenreir,
     Img_EfxLeftItemBox_Wood, // wood
+    Img_EfxLeftItemBox_Tech, // tech
+    Img_EfxLeftItemBox_Royal, // royal
+    Img_EfxLeftItemBox_Glass, // glass
+    Img_EfxLeftItemBox_Paper, // paper
+    Img_EfxLeftItemBox_Ocean, // ocean
+    Img_EfxLeftItemBox_Forest, // forest
+    Img_EfxLeftItemBox_Parchment, // parchment
 };
 
 const u8 * GetImg_EfxLeftItemBox()
@@ -822,6 +1119,13 @@ static const void * sImg_EfxRightNameBox[] = {
     Img_EfxRightNameBox_Gamma,
     Img_EfxRightNameBox_Fenreir,
     Img_EfxRightNameBox_Wood, // wood
+    Img_EfxRightNameBox_Tech, // tech
+    Img_EfxRightNameBox_Royal, // royal
+    Img_EfxRightNameBox_Glass, // glass
+    Img_EfxRightNameBox_Paper, // paper
+    Img_EfxRightNameBox_Ocean, // ocean
+    Img_EfxRightNameBox_Forest, // forest
+    Img_EfxRightNameBox_Parchment, // parchment
 };
 
 const u8 * GetImg_EfxRightNameBox()
@@ -841,6 +1145,13 @@ static const void * sImg_EfxRightItemBox[] = {
     Img_EfxRightItemBox_Gamma,
     Img_EfxRightItemBox_Fenreir,
     Img_EfxRightItemBox_Wood, // wood
+    Img_EfxRightItemBox_Tech, // tech
+    Img_EfxRightItemBox_Royal, // royal
+    Img_EfxRightItemBox_Glass, // glass
+    Img_EfxRightItemBox_Paper, // paper
+    Img_EfxRightItemBox_Ocean, // ocean
+    Img_EfxRightItemBox_Forest, // forest
+    Img_EfxRightItemBox_Parchment, // parchment
 };
 
 const u8 * GetImg_EfxRightItemBox()
@@ -930,6 +1241,13 @@ extern const u16 gUiFramePaletteA[];
 extern const u16 MenuTilesPalette_Gamma[];
 extern const u16 MenuTilesPalette_Pikmin[];
 extern const u16 MenuTilesPalette_Wood[];
+extern const u16 MenuTilesPalette_Tech[];
+extern const u16 MenuTilesPalette_Royal[];
+extern const u16 MenuTilesPalette_Glass[];
+extern const u16 MenuTilesPalette_Paper[];
+extern const u16 MenuTilesPalette_Ocean[];
+extern const u16 MenuTilesPalette_Forest[];
+extern const u16 MenuTilesPalette_Parchment[];
 
 static const u16 * const sUiPalLookupVanilla[] = {
     &gUiFramePaletteA[0x0], // gUiFramePaletteA has all 4 in a row anyway
@@ -955,6 +1273,55 @@ static const u16 * const sUiPalLookupWood[] = {
     &MenuTilesPalette_Wood[0x0],  &MenuTilesPalette_Wood[0x10], &MenuTilesPalette_Wood[0x20],
     &MenuTilesPalette_Wood[0x30], &MenuTilesPalette_Wood[0x40], &MenuTilesPalette_Wood[0x50],
     &MenuTilesPalette_Wood[0x60], &MenuTilesPalette_Wood[0x70],
+
+};
+
+static const u16 * const sUiPalLookupTech[] = {
+    &MenuTilesPalette_Tech[0x0],  &MenuTilesPalette_Tech[0x10], &MenuTilesPalette_Tech[0x20],
+    &MenuTilesPalette_Tech[0x30], &MenuTilesPalette_Tech[0x40], &MenuTilesPalette_Tech[0x50],
+    &MenuTilesPalette_Tech[0x60], &MenuTilesPalette_Tech[0x70],
+
+};
+
+static const u16 * const sUiPalLookupRoyal[] = {
+    &MenuTilesPalette_Royal[0x0],  &MenuTilesPalette_Royal[0x10], &MenuTilesPalette_Royal[0x20],
+    &MenuTilesPalette_Royal[0x30], &MenuTilesPalette_Royal[0x40], &MenuTilesPalette_Royal[0x50],
+    &MenuTilesPalette_Royal[0x60], &MenuTilesPalette_Royal[0x70],
+
+};
+
+static const u16 * const sUiPalLookupGlass[] = {
+    &MenuTilesPalette_Glass[0x0],  &MenuTilesPalette_Glass[0x10], &MenuTilesPalette_Glass[0x20],
+    &MenuTilesPalette_Glass[0x30], &MenuTilesPalette_Glass[0x40], &MenuTilesPalette_Glass[0x50],
+    &MenuTilesPalette_Glass[0x60], &MenuTilesPalette_Glass[0x70],
+
+};
+
+static const u16 * const sUiPalLookupPaper[] = {
+    &MenuTilesPalette_Paper[0x0],  &MenuTilesPalette_Paper[0x10], &MenuTilesPalette_Paper[0x20],
+    &MenuTilesPalette_Paper[0x30], &MenuTilesPalette_Paper[0x40], &MenuTilesPalette_Paper[0x50],
+    &MenuTilesPalette_Paper[0x60], &MenuTilesPalette_Paper[0x70],
+
+};
+
+static const u16 * const sUiPalLookupOcean[] = {
+    &MenuTilesPalette_Ocean[0x0],  &MenuTilesPalette_Ocean[0x10], &MenuTilesPalette_Ocean[0x20],
+    &MenuTilesPalette_Ocean[0x30], &MenuTilesPalette_Ocean[0x40], &MenuTilesPalette_Ocean[0x50],
+    &MenuTilesPalette_Ocean[0x60], &MenuTilesPalette_Ocean[0x70],
+
+};
+
+static const u16 * const sUiPalLookupForest[] = {
+    &MenuTilesPalette_Forest[0x0],  &MenuTilesPalette_Forest[0x10], &MenuTilesPalette_Forest[0x20],
+    &MenuTilesPalette_Forest[0x30], &MenuTilesPalette_Forest[0x40], &MenuTilesPalette_Forest[0x50],
+    &MenuTilesPalette_Forest[0x60], &MenuTilesPalette_Forest[0x70],
+
+};
+
+static const u16 * const sUiPalLookupParchment[] = {
+    &MenuTilesPalette_Parchment[0x0],  &MenuTilesPalette_Parchment[0x10], &MenuTilesPalette_Parchment[0x20],
+    &MenuTilesPalette_Parchment[0x30], &MenuTilesPalette_Parchment[0x40], &MenuTilesPalette_Parchment[0x50],
+    &MenuTilesPalette_Parchment[0x60], &MenuTilesPalette_Parchment[0x70],
 
 };
 
@@ -986,12 +1353,68 @@ static const u16 * const sFactionPalLookupWood[] = {
     &MenuTilesPalette_Wood[0x30],
 };
 
+static const u16 * const sFactionPalLookupTech[] = {
+    &MenuTilesPalette_Tech[0x00],
+    &MenuTilesPalette_Tech[0x20],
+    &MenuTilesPalette_Tech[0x10],
+    &MenuTilesPalette_Tech[0x30],
+};
+
+static const u16 * const sFactionPalLookupRoyal[] = {
+    &MenuTilesPalette_Royal[0x00],
+    &MenuTilesPalette_Royal[0x20],
+    &MenuTilesPalette_Royal[0x10],
+    &MenuTilesPalette_Royal[0x30],
+};
+
+static const u16 * const sFactionPalLookupGlass[] = {
+    &MenuTilesPalette_Glass[0x00],
+    &MenuTilesPalette_Glass[0x20],
+    &MenuTilesPalette_Glass[0x10],
+    &MenuTilesPalette_Glass[0x30],
+};
+
+static const u16 * const sFactionPalLookupPaper[] = {
+    &MenuTilesPalette_Paper[0x00],
+    &MenuTilesPalette_Paper[0x20],
+    &MenuTilesPalette_Paper[0x10],
+    &MenuTilesPalette_Paper[0x30],
+};
+
+static const u16 * const sFactionPalLookupOcean[] = {
+    &MenuTilesPalette_Ocean[0x00],
+    &MenuTilesPalette_Ocean[0x20],
+    &MenuTilesPalette_Ocean[0x10],
+    &MenuTilesPalette_Ocean[0x30],
+};
+
+static const u16 * const sFactionPalLookupForest[] = {
+    &MenuTilesPalette_Forest[0x00],
+    &MenuTilesPalette_Forest[0x20],
+    &MenuTilesPalette_Forest[0x10],
+    &MenuTilesPalette_Forest[0x30],
+};
+
+static const u16 * const sFactionPalLookupParchment[] = {
+    &MenuTilesPalette_Parchment[0x00],
+    &MenuTilesPalette_Parchment[0x20],
+    &MenuTilesPalette_Parchment[0x10],
+    &MenuTilesPalette_Parchment[0x30],
+};
+
 static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupVanilla,
     sUiPalLookupVanilla,
     sUiPalLookupGamma,
     sUiPalLookupPikmin,
     sUiPalLookupWood, // wood
+    sUiPalLookupTech, // tech
+    sUiPalLookupRoyal, // royal
+    sUiPalLookupGlass, // glass
+    sUiPalLookupPaper, // paper
+    sUiPalLookupOcean, // ocean
+    sUiPalLookupForest, // forest
+    sUiPalLookupParchment, // parchment
 };
 static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupVanilla,
@@ -999,6 +1422,13 @@ static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupGamma,
     sFactionPalLookupPikmin,
     sFactionPalLookupWood, // wood
+    sFactionPalLookupTech, // tech
+    sFactionPalLookupRoyal, // royal
+    sFactionPalLookupGlass, // glass
+    sFactionPalLookupPaper, // paper
+    sFactionPalLookupOcean, // ocean
+    sFactionPalLookupForest, // forest
+    sFactionPalLookupParchment, // parchment
 };
 
 #define BGPAL_WINDOW_FRAME 1
@@ -1205,6 +1635,13 @@ static const void * sUiGoldBox[] = {
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Gamma,
     Img_ShopGoldBox_Wood, // wood
+    Img_ShopGoldBox_Tech, // tech
+    Img_ShopGoldBox_Royal, // royal
+    Img_ShopGoldBox_Glass, // glass
+    Img_ShopGoldBox_Paper, // paper
+    Img_ShopGoldBox_Ocean, // ocean
+    Img_ShopGoldBox_Forest, // forest
+    Img_ShopGoldBox_Parchment, // parchment
 };
 
 const u8 * GetUiGoldBox(void)
@@ -1226,6 +1663,13 @@ static const void * sPlayStatusSprites[] = {
     Img_PlayStatusSprites,
     Img_PlayStatusSprites,
     Img_PlayStatusSprites_Wood, // wood
+    Img_PlayStatusSprites_Tech, // tech
+    Img_PlayStatusSprites_Royal, // royal
+    Img_PlayStatusSprites_Glass, // glass
+    Img_PlayStatusSprites_Paper, // paper
+    Img_PlayStatusSprites_Ocean, // ocean
+    Img_PlayStatusSprites_Forest, // forest
+    Img_PlayStatusSprites_Parchment, // parchment
 };
 
 static const void * sPlayStatusPal[] = {
@@ -1235,12 +1679,72 @@ static const void * sPlayStatusPal[] = {
     Pal_PlayStatusSprites,
     Pal_PlayStatusSprites,
     Pal_PlayStatusSprites_Wood, // wood
+    Pal_PlayStatusSprites_Tech, // tech
+    Pal_PlayStatusSprites_Royal, // royal
+    Pal_PlayStatusSprites_Glass, // glass
+    Pal_PlayStatusSprites_Paper, // paper
+    Pal_PlayStatusSprites_Ocean, // ocean
+    Pal_PlayStatusSprites_Forest, // forest
+    Pal_PlayStatusSprites_Parchment, // parchment
 };
 
-/* Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the letters, in cream and brown. */
+/*
+ * Vanilla's chapter title palette (OBJ palette 3) with entries 1-6, the
+ * letters, recoloured: cream and brown for wood, white and cyan for tech,
+ * gold for royal, white and amber in lead for glass, white in black for paper,
+ * white and aqua in deep water for ocean, white and leaf green for forest.
+ * Parchment keeps vanilla's.
+ */
 static const u16 sChapterTitlePalWood[16] = {
     0x520E, 0x7BFF, 0x639E, 0x4B1B, 0x1D91, 0x08A9, 0x0444, 0x0000,
     0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalTech[16] = {
+    0x520E, 0x7FFE, 0x7FD9, 0x7F90, 0x5E44, 0x20A1, 0x0820, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalRoyal[16] = {
+    0x520E, 0x63DF, 0x3F7F, 0x22DC, 0x11D5, 0x08CB, 0x0445, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalGlass[16] = {
+    0x520E, 0x7BFF, 0x53BF, 0x2B1E, 0x1219, 0x0CCC, 0x0C43, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalPaper[16] = {
+    0x520E, 0x7FFF, 0x7BDE, 0x737B, 0x5210, 0x18A6, 0x0C43, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalOcean[16] = {
+    0x520E, 0x7FFF, 0x7FFC, 0x7794, 0x62A8, 0x2D22, 0x18A1, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+static const u16 sChapterTitlePalForest[16] = {
+    0x520E, 0x7BFF, 0x63DC, 0x4376, 0x26AE, 0x0D25, 0x0482, 0x0000,
+    0x0C64, 0x21A8, 0x25CA, 0x2E0C, 0x364D, 0x3E6F, 0x42B1, 0x4AD3,
+};
+
+
+static const u16 * const sChapterTitlePal[] = {
+
+    NULL, // vanilla
+    NULL,
+    NULL,
+    NULL,
+    sChapterTitlePalWood, // wood
+    sChapterTitlePalTech, // tech
+    sChapterTitlePalRoyal, // royal
+    sChapterTitlePalGlass, // glass
+    sChapterTitlePalPaper, // paper
+    sChapterTitlePalOcean, // ocean
+    sChapterTitlePalForest, // forest
+    NULL, // parchment: vanilla colours
 };
 
 LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);
@@ -1258,7 +1762,7 @@ void ChapterStatus_ShowAllLayers(void)
     SetDispEnable(1, 1, 1, 1, 1);
 }
 
-/* Loads the chapter name sprite; wood recolours its green letter ramp. */
+/* Loads the chapter name sprite; the generated styles recolour its green letter ramp. */
 LYN_REPLACE_CHECK(StatusScreenSpriteDraw_Init);
 void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
 {
@@ -1274,13 +1778,14 @@ void StatusScreenSpriteDraw_Init(struct ChapterStatusProc * proc)
     sub_80895B4(0x80, 0x13);
     PutChapterTitleGfx(0xB80, GetChapterTitleWM(&gPlaySt));
 
-    if (GetUI_id() == 4)
-        ApplyPalette(sChapterTitlePalWood, 0x13);
+    if (sChapterTitlePal[GetUI_id()] != NULL)
+        ApplyPalette(sChapterTitlePal[GetUI_id()], 0x13);
 }
 
 /*
- * Wood's play-time box is 96 pixels wide instead of 80, so the clock fits on
- * the board: a 64x32 and a 32x32 object, starting 6 pixels further left.
+ * The generated styles' play-time box is 96 pixels wide instead of 80, so the
+ * clock fits on the board: a 64x32 and a 32x32 object, starting 6 pixels
+ * further left.
  */
 extern u16 CONST_DATA Sprite_ChapterStatus_ChapterBanner[];
 extern u16 CONST_DATA Sprite_ChapterStatus_PlaytimeBanner[];
@@ -1293,7 +1798,7 @@ extern u16 CONST_DATA Sprite_ChapterStatus_FundsLabel[];
 extern u16 CONST_DATA Sprite_ChapterStatus_ObjectiveLabel[];
 extern u16 CONST_DATA Sprite_ChapterStatus_PlayCountLabel[];
 
-static const u16 sSprite_PlaytimeBannerWood[] = {
+static const u16 sSprite_PlaytimeBannerWide[] = {
     2,
     0x4000, 0xC000 + (-6 & 0x1FF), 0x90, // 64x32
     0x0000, 0x8000 + 58, 0x98,           // 32x32
@@ -1301,8 +1806,8 @@ static const u16 sSprite_PlaytimeBannerWood[] = {
 
 static const u16 * GetPlaytimeBannerSprite(void)
 {
-    if (GetUI_id() == 4)
-        return sSprite_PlaytimeBannerWood;
+    if (IsGeneratedStyle())
+        return sSprite_PlaytimeBannerWide;
     return Sprite_ChapterStatus_PlaytimeBanner;
 }
 
