@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "playst-expa.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 #include "skill-system.h"
 #include "map-anims.h"
 #include "constants/skills.h"
@@ -61,6 +62,10 @@ void PlayerPhase_HandleAutoEndRework(ProcPtr proc)
 	if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_DivineReprieve_InForce))
 		Proc_Goto(proc, 3);
 #endif
+
+	/* Real-time battle ends the turn from the idle loop once the AI units are done */
+	if (IsRealtimeBattleActive())
+		return;
 
 	// vanilla
 	PlayerPhase_HandleAutoEnd(proc);

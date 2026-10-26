@@ -23,7 +23,17 @@ PUSH
 	PROC_CALL_ROUTINE_2(EndTurnHook_AiPhase)
 	PROTECT 0x005A7F08 0x005A7F30 // gProcScr_CpPhase
 
+	// map main: real-time battle skips the AI phase banner and cursor reset
+	ORG 0x59A28C
+	POIN ProcScr_RealtimeResetCursorPosition
+	ORG 0x59A294
+	POIN ProcScr_RealtimePhaseIntro
+	ORG 0x59A2CC
+	POIN ProcScr_RealtimeResetCursorPosition
+
 	// ai perform
+	ORG 0x5A8030
+	POIN CpPerform_UpdateMapMusic_Realtime
 	ORG $5A8074
 	PROC_JUMP(ProcScr_PostActionHookCpPerform)
 	PROTECT 0x005A8024 0x005A80A4 // gProcScr_CpPerform

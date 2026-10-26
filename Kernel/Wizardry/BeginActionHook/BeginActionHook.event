@@ -13,7 +13,6 @@
  **/
 gBeginActionHooks:
     POIN InitActionExpa
-    POIN RealtimeBattle_BeginActionHook
-    WORD 0 0
+    WORD 0 0 0 0
 
 #endif /* BEGIN_ACTION_HOOK_INSTALLED */

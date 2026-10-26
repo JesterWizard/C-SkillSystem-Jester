@@ -532,21 +532,14 @@ void BmMain_StartPhase(ProcPtr proc)
 {
     AiPhaseClearPerformedFlags();
 
-    if (IsRealtimeBattleEnabled()) {
-        gRealtimeBattleState.active = true;
-        if (gRealtimeBattleState.scheduleTimer == 0)
-            gRealtimeBattleState.scheduleTimer = RealtimeBattle_GetIntervalFrames();
-        if (gRealtimeBattleState.refreshTimer == 0)
-            gRealtimeBattleState.refreshTimer = RealtimeBattle_GetRefreshFrames();
-        RealtimeBattle_Resume(RT_PAUSE_SUSPEND);
-        gPlaySt.faction = FACTION_BLUE;
-        Proc_StartBlocking(gProcScr_PlayerPhase, proc);
-        RealtimeBattle_StartScheduler(proc);
+    /*
+     * Real-time battle: AI units act on a clock during the player phase, so
+     * their own phases only run the start-of-phase bookkeeping and end.
+     */
+    if (IsRealtimeBattleActive() && gPlaySt.faction != FACTION_BLUE) {
         Proc_Break(proc);
         return;
     }
-
-    RealtimeBattle_Shutdown();
 
     switch (gPlaySt.faction)
     {

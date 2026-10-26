@@ -193,6 +193,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 - [Pair-Up Commands](./Documentation/Features/PairUp.md)
 - [Popup System](./Documentation/Features/PopupR.md)
 - [Quality Of Life](./Documentation/Features/QualityOfLife.md)
+- [Real-Time Battle](./Documentation/Features/RealTimeBattle.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Real_Time_Battle.gif" alt="Real-Time Battle preview" width="600" />
+	</details>
+
 - [Save System](./Documentation/Features/Save.md)
 - [Shield Item](./Documentation/Features/ShieldItem.md)
 - [Skill Icon Palettes](./Documentation/Features/SkillIconPalettes.md)

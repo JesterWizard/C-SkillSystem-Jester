@@ -7,7 +7,10 @@
 
 void Hook_BmMain_SuspendBeforePhase(void)
 {
-	RealtimeBattle_QuiesceForSuspend();
+	/* Real-time battle passes through the AI phases instantly, keep the player phase save */
+	if (IsRealtimeBattleActive() && gPlaySt.faction != FACTION_BLUE)
+		return;
+
 	gActionData.suspendPointType = SUSPEND_POINT_PHASECHANGE;
 	WriteSuspendSave(SAVE_ID_SUSPEND);
 }

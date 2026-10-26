@@ -1,5 +1,4 @@
 #include "common-chax.h"
-#include "kernel/realtime-battle.h"
 #include "vanilla.h"
 
 LYN_REPLACE_CHECK(AiRefreshMap);
@@ -9,12 +8,7 @@ void AiRefreshMap(void)
 	if (!UNIT_IS_VALID(gActiveUnit))
 		return;
 
-	/*
-	 * This is what drags the map cursor onto the acting AI unit. In real-time
-	 * mode the player still owns that cursor, so leave it where they put it.
-	 */
-	if (!IsRealtimeBattleActive())
-		SetCursorMapPosition(gAiDecision.xMove, gAiDecision.yMove);
+	SetCursorMapPosition(gAiDecision.xMove, gAiDecision.yMove);
 
 	RenderBmMapOnBg2();
 	MoveActiveUnit(gAiDecision.xMove, gAiDecision.yMove);
@@ -27,11 +21,6 @@ void AiRefreshMap(void)
 	RefreshUnitSprites();
 }
 
-/*
- * Vanilla hides AI MUs that start/end in fog during the red phase. Real-time
- * mode reuses that red-faction path while the player still owns the map, so
- * the acting enemy must always get a MU and a non-blocking camera snap.
- */
 LYN_REPLACE_CHECK(CpPerform_MoveCameraOntoUnit);
 void CpPerform_MoveCameraOntoUnit(struct CpPerformProc *proc)
 {
@@ -39,11 +28,6 @@ void CpPerform_MoveCameraOntoUnit(struct CpPerformProc *proc)
 
 	if (!UNIT_IS_VALID(gActiveUnit)) {
 		proc->isUnitVisible = 0;
-		return;
-	}
-
-	if (IsRealtimeBattleActive()) {
-		RealtimeBattle_SnapCameraOntoPosition(gActiveUnit->xPos, gActiveUnit->yPos);
 		return;
 	}
 
@@ -181,11 +165,6 @@ void CpPerform_MoveCameraOntoTarget(struct CpPerformProc *proc)
 		y = gAiDecision.yTarget;
 
 		break;
-	}
-
-	if (IsRealtimeBattleActive()) {
-		RealtimeBattle_SnapCameraOntoPosition(x, y);
-		return;
 	}
 
 	EnsureCameraOntoPosition(proc, x, y);

@@ -31,6 +31,9 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `gaiden_magic_requires_wrank` | If enabled, units that can use a spell may ignore its weapon-rank requirement. |
 | `gaiden_magic_ai_use` | Allows enemies to use Gaiden magic during AI phase. |
 | `menu_skill_ai_use` | Allows enemies to use menu skills during AI phase after combat and healing logic finishes. |
+| `real_time_battle` | Replaces the enemy phase with a real-time clock: AI units act one at a time during the player phase and turns last a fixed time. See [RealTimeBattle](./RealTimeBattle.md). |
+| `real_time_enemy_interval_frames` | Default delay between real-time AI actions, in frames. |
+| `real_time_turn_frames` | Length of a real-time turn, in frames (`0` = 30 seconds). |
 | `rescue_drop_ai_use` | Allows enemies to use rescue and drop as a retreat tool when an adjacent ally is below half HP. |
 | `start_map_effects` | Enables the pre-phase Start Map Effects menu and its related hooks. |
 | `prestige` | Enables the Prestige system's unit-menu command, the +10% growth bonus per prestige, and the Prestige stars on the left stat-screen page. |

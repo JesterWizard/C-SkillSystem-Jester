@@ -1,14 +1,39 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/procs.h"
 
 
+bool GoalDisplay_ShowsRealtimeClock(void)
+{
+    /* The chapter timer already owns the goal window */
+    if (gpKernelDesignerConfig->goal_timer == true && GetChapterTimerConfigSeconds() > 0)
+        return false;
+
+    return IsRealtimeBattleActive();
+}
+
+static void GoalDisplay_InitGoal(struct PlayerInterfaceProc *proc);
+
 //! FE8U = 0x0808D288
 LYN_REPLACE_CHECK(GoalDisplay_Init);
 void GoalDisplay_Init(struct PlayerInterfaceProc *proc)
+{
+    GoalDisplay_InitGoal(proc);
+
+    /* Real-time battle: the second line becomes the turn clock */
+    if (GoalDisplay_ShowsRealtimeClock())
+    {
+        ClearText(&proc->texts[1]);
+        RealtimeBattle_DrawGoalClock(&proc->texts[1]);
+        proc->unitClock = 1;
+    }
+}
+
+static void GoalDisplay_InitGoal(struct PlayerInterfaceProc *proc)
 {
     const bool isSkirmish = (GetBattleMapKind() == BATTLEMAP_KIND_SKIRMISH);
     const struct ROMChapterData *chapter = isSkirmish ? NULL : GetROMChapterStruct(gPlaySt.chapterIndex);

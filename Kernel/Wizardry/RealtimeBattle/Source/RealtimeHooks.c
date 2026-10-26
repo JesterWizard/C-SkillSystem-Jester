@@ -1,19 +1,36 @@
 #include "common-chax.h"
 #include "kernel/realtime-battle.h"
 
-void RealtimeBattle_BeginActionHook(struct Unit *unit)
+void CpPerform_UpdateMapMusic(void);
+
+/*
+ * In real-time mode the enemy and green phases only exist for their
+ * start-of-phase bookkeeping, so skip their banner and cursor reset.
+ * These wrap the procs that gProc_BMapMain starts (see CommonProtection.event).
+ */
+static void RealtimePhaseFx_SkipIfAiPhase(ProcPtr proc)
 {
-	RealtimeBattle_OnPlayerActionBegin(unit);
+	if (IsRealtimeBattleActive() && gPlaySt.faction != FACTION_BLUE)
+		Proc_End(proc);
 }
 
-bool RealtimeBattle_PostActionHook(ProcPtr proc)
-{
-	(void)proc;
+const struct ProcCmd ProcScr_RealtimePhaseIntro[] = {
+	PROC_CALL(RealtimePhaseFx_SkipIfAiPhase),
+	PROC_START_CHILD_BLOCKING(ProcScr_PhaseIntro),
+	PROC_END,
+};
 
-	/*
-	 * This hook runs before PlayerPhase_FinishAction has completed. Releasing
-	 * the gate here lets a realtime enemy start during Canto, end events, or
-	 * other post-action work. The terminal player-phase hook releases it.
-	 */
-	return false;
+const struct ProcCmd ProcScr_RealtimeResetCursorPosition[] = {
+	PROC_CALL(RealtimePhaseFx_SkipIfAiPhase),
+	PROC_START_CHILD_BLOCKING(gProcScr_ResetCursorPosition),
+	PROC_END,
+};
+
+/* CpPerform would switch to the enemy phase song for every real-time AI action */
+void CpPerform_UpdateMapMusic_Realtime(void)
+{
+	if (RealtimeBattle_IsAiActing())
+		return;
+
+	CpPerform_UpdateMapMusic();
 }

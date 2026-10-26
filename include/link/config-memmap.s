@@ -168,12 +168,8 @@ SET_DATA gSkillTreeHelp, gSkillTreeCursor + 8
 // u32[7], one bit per unit index, set when a unit actually performs an AI action this phase
 _kernel_malloc sAiPhasePerformedBits, 28
 
-/**
- * Real-time battle scheduler state.
- * Size kept even: active/paused/gateOwner/pad(4) + timers(4)
- * + nextEnemyIndex/pad(2) + enemyCooldown(52) = 62.
- */
-_kernel_malloc gRealtimeBattleState, 62
+/* Real-time battle clock state, see struct RealtimeBattleState */
+_kernel_malloc gRealtimeBattleState, 16
 
 /* MokhaAOE transient target list + EXP/selection state */
 _kernel_malloc sGambitTargetSaveBuf, 0x42

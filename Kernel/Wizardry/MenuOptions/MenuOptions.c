@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "constants/texts.h"
+#include "kernel/realtime-battle.h"
 
 extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
@@ -52,6 +53,10 @@ static bool IsGameOptionUiVisible(u8 optionIdx)
 
     if (optionIdx == GAME_OPTION_SHOW_TRUE_2RN
         && gpKernelDesignerConfig->show_true_2rn != true)
+        return false;
+
+    if ((optionIdx == GAME_OPTION_REAL_TIME_BATTLE || optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+        && !gpKernelDesignerConfig->real_time_battle)
         return false;
 
     return true;
@@ -831,7 +836,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.gameover_quotes = 0;
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
-    gPlaySt.config.real_time_interval = 0; /* display hint; interval frames come from designer config */
+    gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;

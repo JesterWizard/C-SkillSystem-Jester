@@ -4,5 +4,6 @@
 #include "Source/RealtimeCore.lyn.event"
 #include "Source/RealtimeScheduler.lyn.event"
 #include "Source/RealtimeHooks.lyn.event"
+#include "Source/RealtimeHud.lyn.event"
 
 #endif /* REALTIME_BATTLE_INSTALLED */

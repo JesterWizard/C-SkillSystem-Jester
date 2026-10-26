@@ -1,9 +1,12 @@
 #include "common-chax.h"
 #include "constants/texts.h"
 #include "kernel-lib.h"
+#include "kernel/realtime-battle.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/procs.h"
+
+bool GoalDisplay_ShowsRealtimeClock(void);
 
 const TimerAmount chapter_timers[] = {
     {CHAPTER_L_PROLOGUE,    30},
@@ -68,6 +71,12 @@ void GoalDisplay_Loop_Display(struct PlayerInterfaceProc *proc)
     {
         ClearText(&proc->texts[1]);
         DrawTimeHMS(&proc->texts[1], 2, gChapterTimerSeconds);
+        BG_EnableSyncByMask(BG0_SYNC_BIT);
+    }
+    else if (GoalDisplay_ShowsRealtimeClock() && RealtimeBattle_GoalClockChanged())
+    {
+        ClearText(&proc->texts[1]);
+        RealtimeBattle_DrawGoalClock(&proc->texts[1]);
         BG_EnableSyncByMask(BG0_SYNC_BIT);
     }
 

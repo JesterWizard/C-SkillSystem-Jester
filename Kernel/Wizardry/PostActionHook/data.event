@@ -45,8 +45,7 @@ gPostActionFuncs:
 
     //End
     POIN CallExternalPostActionHook
-    POIN RealtimeBattle_PostActionHook
-    POIN PostActionPadFunc PostActionPadFunc PostActionPadFunc
+    POIN PostActionPadFunc PostActionPadFunc PostActionPadFunc PostActionPadFunc
     POIN ClearBattleGlobalFlags
     POIN PostActionEnd
     WORD 0

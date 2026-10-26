@@ -105,10 +105,10 @@ struct KernelDesigerConfig {
 	u8 promotion_on_max_level;
 	u8 quality_of_life_fixes;
 
-	/* Real-time battle: enemies act on a timer during an open player phase */
+	/* Real-time battle: enemies act on a timer during the player phase */
 	u8 real_time_battle; /* 0 = disabled, 1 = enabled */
-	u16 real_time_enemy_interval_frames; /* frames between enemy action attempts (60 ~= 1s) */
-	u16 real_time_refresh_frames; /* frames between soft unit refreshes (0 = use default 30s) */
+	u16 real_time_enemy_interval_frames; /* default delay between AI actions (60 ~= 1s) */
+	u16 real_time_turn_frames; /* length of one turn (0 = default 30s) */
 	u8 remove_move_path;
 	u8 rescue_drop_ai_use;
 	u8 rescue_drop_move_again;

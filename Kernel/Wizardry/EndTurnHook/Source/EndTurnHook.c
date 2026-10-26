@@ -54,8 +54,11 @@ u8 CommandEffectEndPlayerPhase(struct MenuProc *menu, struct MenuItemProc *menuI
 	(void)menu;
 	(void)menuItem;
 
-	if (RealtimeBattle_HandleEndPlayerPhase(proc))
+	/* Real-time battle: let the AI units that have not acted yet go first */
+	if (IsRealtimeBattleActive()) {
+		RealtimeBattle_RequestEndTurn();
 		return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+	}
 
 #if CHAX
 	if (proc)
