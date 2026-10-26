@@ -29,6 +29,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [gameover_quotes](gameover_quotes/) | Random tip quotes on the game-over fog screen |
 | [refuge](refuge/) | Unit menu command: take refuge in an adjacent ally (reverse Rescue) |
 | [expanded_hp](expanded_hp/) | Unsigned HP cap 254 with 3-digit stat screen, minimug, and battle gauge |
+| [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text and listener dimming (uses 0x1A0 bytes EWRAM) |
 
 ## Adding a new patch
 

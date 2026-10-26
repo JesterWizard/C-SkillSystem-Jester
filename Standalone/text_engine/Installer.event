@@ -1,0 +1,98 @@
+// Text Engine for FE8U: the C Skill System's dialogue text engine rework,
+// itself a C port of Tequila's text engine hack (with help from Zahlman).
+// See README.md for the control codes, hooks, RAM and conflicts.
+
+#define FE8U_ClassChgLoadUI                 $CCBF4
+#define FE8U_FaceBlink_PutSprite            $5FE0   // sub_8005FE0
+#define FE8U_FaceBlink_PutEyes              $6134   // sub_8006134
+#define FE8U_InitTalk                       $680C
+#define FE8U_Talk_OnInit                    $6C00
+#define FE8U_Talk_OnIdle                    $6C34
+#define FE8U_TalkPrepNextChar_BoxWidth      $6DC4   // inside TalkPrepNextChar
+#define FE8U_ChangeTextColorID              $6F00   // sub_8006F00
+#define FE8U_TalkInterpret                  $6FD0
+#define FE8U_StartTalkFaceMove              $7A58
+#define FE8U_TalkFaceMove_OnInit            $7AB0
+#define FE8U_Talk_OnEnd                     $7C0C
+#define FE8U_TalkShiftClearAll_OnInit       $7D38
+#define FE8U_TalkShiftClear_OnInit          $7F9C
+#define FE8U_StartOpenTalkBubble_ProcScr    $83F4   // literal: gProcScr_TalkBubbleOpen
+#define FE8U_StartTalkOpen                  $88A8
+#define FE8U_GetTalkFaceHPos                $8934
+#define FE8U_GetStrTalkLen                  $8B44
+#define FE8U_StandaloneFreeSpace            $1000000
+
+PUSH
+ORG FE8U_ClassChgLoadUI
+    jumpToHack(ClassChgLoadUI_C)
+    PROTECT FE8U_ClassChgLoadUI FE8U_ClassChgLoadUI + 0x8 // ClassChgLoadUI
+ORG FE8U_FaceBlink_PutSprite
+    jumpToHack(sub_8005FE0)
+    PROTECT FE8U_FaceBlink_PutSprite FE8U_FaceBlink_PutSprite + 0x8 // sub_8005FE0
+ORG FE8U_FaceBlink_PutEyes
+    jumpToHack(sub_8006134)
+    PROTECT FE8U_FaceBlink_PutEyes FE8U_FaceBlink_PutEyes + 0x8 // sub_8006134
+ORG FE8U_InitTalk
+    jumpToHack(InitTalk_C)
+    PROTECT FE8U_InitTalk FE8U_InitTalk + 0x8 // InitTalk
+ORG FE8U_Talk_OnInit
+    jumpToHack(Talk_OnInit_C)
+    PROTECT FE8U_Talk_OnInit FE8U_Talk_OnInit + 0x8 // Talk_OnInit
+ORG FE8U_Talk_OnIdle
+    jumpToHack(Talk_OnIdle)
+    PROTECT FE8U_Talk_OnIdle FE8U_Talk_OnIdle + 0x8 // Talk_OnIdle
+ORG FE8U_TalkPrepNextChar_BoxWidth
+    callHack_r3(UpdateFontBeforeBoxWidthCalc)
+    SHORT 0x46C0
+    PROTECT FE8U_TalkPrepNextChar_BoxWidth FE8U_TalkPrepNextChar_BoxWidth + 0xE // TalkPrepNextChar box width
+ORG FE8U_ChangeTextColorID
+    jumpToHack(ChangeTextColorID)
+    PROTECT FE8U_ChangeTextColorID FE8U_ChangeTextColorID + 0x8 // sub_8006F00
+ORG FE8U_TalkInterpret
+    jumpToHack(TalkInterpret)
+    PROTECT FE8U_TalkInterpret FE8U_TalkInterpret + 0x8 // TalkInterpret
+ORG FE8U_StartTalkFaceMove
+    jumpToHack(StartTalkFaceMove_C)
+    PROTECT FE8U_StartTalkFaceMove FE8U_StartTalkFaceMove + 0x8 // StartTalkFaceMove
+ORG FE8U_TalkFaceMove_OnInit
+    jumpToHack(TalkFaceMove_OnInitOverride)
+    PROTECT FE8U_TalkFaceMove_OnInit FE8U_TalkFaceMove_OnInit + 0x8 // TalkFaceMove_OnInit
+ORG FE8U_Talk_OnEnd
+    jumpToHack(Talk_OnEnd_C)
+    PROTECT FE8U_Talk_OnEnd FE8U_Talk_OnEnd + 0x8 // Talk_OnEnd
+ORG FE8U_TalkShiftClearAll_OnInit
+    jumpToHack(TalkShiftClearAll_OnInit_C)
+    PROTECT FE8U_TalkShiftClearAll_OnInit FE8U_TalkShiftClearAll_OnInit + 0x8 // TalkShiftClearAll_OnInit
+ORG FE8U_TalkShiftClear_OnInit
+    jumpToHack(TalkShiftClear_OnInit_C)
+    PROTECT FE8U_TalkShiftClear_OnInit FE8U_TalkShiftClear_OnInit + 0x8 // TalkShiftClear_OnInit
+ORG FE8U_StartOpenTalkBubble_ProcScr
+    POIN gProc_DialogueBoxAppearingAnimation
+    PROTECT FE8U_StartOpenTalkBubble_ProcScr FE8U_StartOpenTalkBubble_ProcScr + 0x4 // StartOpenTalkBubble proc
+ORG FE8U_StartTalkOpen
+    jumpToHack(StartTalkOpen_C)
+    PROTECT FE8U_StartTalkOpen FE8U_StartTalkOpen + 0x8 // StartTalkOpen
+ORG FE8U_GetTalkFaceHPos
+    jumpToHack(GetTalkFaceHPos)
+    PROTECT FE8U_GetTalkFaceHPos FE8U_GetTalkFaceHPos + 0x8 // GetTalkFaceHPos
+ORG FE8U_GetStrTalkLen
+    jumpToHack(GetStringTextWidthWithDialogueCodes)
+    PROTECT FE8U_GetStrTalkLen FE8U_GetStrTalkLen + 0x8 // GetStrTalkLen
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+ALIGN 4
+gTextEngineConfig:
+    BYTE 1 // dim_listener_portraits: 1 = dim the portraits of characters who aren't speaking, 0 = off
+
+ALIGN 4
+#include "Source/TextEngine.lyn.event"
+
+ALIGN 4
+#include "Data/Tables.event"
+
+ALIGN 4
+#include "Data/Popups.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TextEngine body and data

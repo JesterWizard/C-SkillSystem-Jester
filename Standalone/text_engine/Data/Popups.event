@@ -1,0 +1,42 @@
+// Text engine popups: "Objection!"-style cut-ins shown with [Popup][XX].
+// XX is the 1-based entry below. Art comes from generate_popups.py; convert
+// each PNG with grit (see README.md) to *.img.bin / *.map.bin / *.pal.bin.
+// Each popup must fit in the dialogue text tiles (240 tiles) and 30x20 tiles.
+
+ALIGN 4
+TextEnginePopupTable:
+// tiles, tilemap, palette, width, height (tiles), sound effect (0 = none)
+POIN Popup_Objection_Img Popup_Objection_Map Popup_Objection_Pal; BYTE 30 16; SHORT 0xD8 // 0x01 [Objection]
+POIN Popup_HoldIt_Img Popup_HoldIt_Map Popup_HoldIt_Pal; BYTE 30 16; SHORT 0xD8          // 0x02 [HoldIt]
+POIN Popup_TakeThat_Img Popup_TakeThat_Map Popup_TakeThat_Pal; BYTE 30 16; SHORT 0xD8    // 0x03 [TakeThat]
+WORD 0 0 0 0
+
+ALIGN 4
+Popup_Objection_Img:
+#incbin "Popups/Objection.img.bin"
+ALIGN 4
+Popup_Objection_Map:
+#incbin "Popups/Objection.map.bin"
+ALIGN 4
+Popup_Objection_Pal:
+#incbin "Popups/Objection.pal.bin"
+
+ALIGN 4
+Popup_HoldIt_Img:
+#incbin "Popups/HoldIt.img.bin"
+ALIGN 4
+Popup_HoldIt_Map:
+#incbin "Popups/HoldIt.map.bin"
+ALIGN 4
+Popup_HoldIt_Pal:
+#incbin "Popups/HoldIt.pal.bin"
+
+ALIGN 4
+Popup_TakeThat_Img:
+#incbin "Popups/TakeThat.img.bin"
+ALIGN 4
+Popup_TakeThat_Map:
+#incbin "Popups/TakeThat.map.bin"
+ALIGN 4
+Popup_TakeThat_Pal:
+#incbin "Popups/TakeThat.pal.bin"

@@ -1,0 +1,55 @@
+#pragma once
+
+/*
+ * Stand-ins for the C Skill System kernel pieces TextEngine.c was written
+ * against, so the same code builds on clean FE8U with FE-CLib alone.
+ */
+
+#include "gbafe.h"
+#include <stdint.h>
+#include <string.h>
+
+extern struct Font *gActiveFont;
+
+/* The kernel's unsigned modulo; small positive values here, so BIOS DivRem does. */
+static inline u32 k_umod(u32 a, u32 b) { return DivRem(a, b); }
+
+/* Shared with the kernel's other sprite code; only the text engine uses them here. */
+s16 TextEngine_GetStaticOffsetAtY(int y);
+s16 TextEngine_GetFxOffsetY(void);
+int TextEngine_ApplyStaticOam1(int xOam1, int screenY);
+int TextEngine_ApplyFxOam0(int yOam0);
+void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
+
+/* Hooks are placed by Installer.event instead of LynJump. */
+#define LYN_REPLACE_CHECK(name)
+
+/* Settings a ROM hacker can change in Installer.event without recompiling. */
+struct TextEngineConfig {
+	/* Dim the portraits of characters who aren't speaking. */
+	u8 dim_listener_portraits;
+};
+
+extern const struct TextEngineConfig gTextEngineConfig;
+
+/* The kernel's half-body and 32-colour portrait hacks aren't part of this patch. */
+#define TEXT_ENGINE_HALF_BODY_PORTRAITS 0
+
+static inline void HalfBody_OnTalkFaceClear(struct FaceProc *proc) { (void)proc; }
+static inline bool HalfBody_UsesTwoPalettes(const struct FaceData *info) { (void)info; return false; }
+static inline s32 Portrait32_GetOverlayOam2(struct FaceProc *proc) { (void)proc; return -1; }
+
+/* Nor is the kernel's conversation log. */
+static inline bool Chatlog_IsVisible(void) { return false; }
+static inline void Chatlog_StartSession(void) {}
+static inline void Chatlog_EndSession(void) {}
+static inline void Chatlog_CommitPage(void) {}
+static inline void Chatlog_AppendSoftBreak(void) {}
+
+/* Vanilla FE8U text is one byte per character. */
+static inline int DecodeUtf8(const char *str, u32 *unicode_out, int *len)
+{
+	*unicode_out = (u8)*str;
+	*len = 1;
+	return 0;
+}

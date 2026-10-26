@@ -46,6 +46,8 @@ Player-facing impact:
 - `[Sweat]` drops a 16×16 sweat bead onto the active portrait's cheek and holds there. `[Anger]` shows a 16×16 anger mark on the forehead and pulses it by growing and shrinking four times before the next text box. Each plays through fully before the following text box continues.
 - Existing vanilla text remains readable and compatible with the new parser.
 
+A standalone version for clean FE8U, installable through FEBuilder's Insert EA, is in [`Standalone/text_engine`](../../Standalone/text_engine/).
+
 This feature is intended for **standard cutscene text**. It has not been validated against every alternate dialogue path the game can use.
 
 ---
