@@ -157,6 +157,7 @@ ALIGN 4
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"
 #include "MokhaAOE/MokhaAOE_Installer.event"
+#include "PopupIconShine/PopupIconShine_Installer.event"
 #include "Portrait32Color/Portrait32Color_Installer.event"
 #include "QuintessanceEffect/QuintessanceEffect_Installer.event"
 #include "Quotes/Quotes.event"

@@ -198,6 +198,7 @@ struct KernelDesigerConfig {
 	u8 class_growths; /* 0 = off, 1 = personal + class growths, 2 = average of personal and class growths. Promotion and reclass menus preview the change */
 	u8 crit_cutin; /* critical hits by units with their own portrait show a portrait cut-in over an electric band first */
 	u8 dim_listener_portraits; /* in dialogue, portraits of characters who aren't speaking are dimmed */
+	u8 popup_item_icon_shine; /* a glint sweeps across item icons in popups (item got, infused...) */
 };
 
 struct KernelBattleDesignerConfig {
