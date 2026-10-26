@@ -17,7 +17,7 @@
 
 ## 🧩 Introduction
 
-Critical hits get a portrait cut-in in the battle animation, in the style of Lex Talionis' FE7 remake. Just before the critical attack, an electric band opens across the middle of the screen with the attacker's portrait held in the centre of it. Then the band closes and the attack plays as normal.
+Critical hits get a portrait cut-in in the battle animation, in the style of Lex Talionis' FE7 remake. Just before the critical attack, an electric band opens across the middle of the screen with the attacker's portrait held still in it, above the attacker's battle animation. Then the band closes and the attack plays as normal.
 
 The cut-in is gated behind `gpKernelDesignerConfig->crit_cutin` (on by default). With it off, critical hits play exactly as vanilla.
 
@@ -27,7 +27,7 @@ The cut-in is gated behind `gpKernelDesignerConfig->crit_cutin` (on by default).
 - It runs at the start of the attack (banim command `C07`), after any HP cost and skill activation boxes, while the attacker's animation is held.
 - The band opens with a white flash line, crackles for 48 frames (about 0.8 seconds), then closes: 58 frames in all.
 - The band is 80px tall, the full height of a portrait, and fills the space between the battle name boxes and the UI panels (y 27-106).
-- The portrait stays still in the centre of the band, standing on its bottom border, while the band is fully open, and is gone before it closes. Attackers on the left are flipped so they face right.
+- The portrait stays still, centred on the attacker's battle animation (kept fully on screen) and standing on the band's bottom border, while the band is fully open, and is gone before it closes. Attackers on the left are flipped so they face right.
 - Both battle sprites are hidden under the band while it plays and come back when it closes.
 - For combo attacks, the combo partner's portrait is used for its round.
 

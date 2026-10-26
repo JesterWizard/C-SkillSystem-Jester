@@ -9,9 +9,10 @@
  * Critical cut-in, in the style of Lex Talionis' FE7 remake.
  *
  * Before a critical hit by a unit with its own portrait, an electric band
- * opens across the middle of the screen with the attacker's portrait held in
- * the centre of it. The battle sprites are hidden under the band while it
- * plays. Started from C07 (attack start), after the HP cost and skill boxes.
+ * opens across the middle of the screen with the attacker's portrait held
+ * still in it, above the attacker's battle animation. The battle sprites are
+ * hidden under the band while it plays. Started from C07 (attack start),
+ * after the HP cost and skill boxes.
  *
  * The band is a spell BG animation on BG1 (Contents/EfxAnim/Source/CritCutin)
  * and the portrait is a face sprite in the battle face slot.
@@ -28,10 +29,12 @@ enum crit_cutin_layout {
 	CUTIN_FACE_HIDE = 54,
 
 	/**
-	 * Face sprites are 96x80, x is their centre and y their top. This puts the
-	 * portrait's bottom edge on the band's bottom border (blue line at y 104).
+	 * Face sprites are 96x80, x is their centre and y their top. The portrait
+	 * is centred on the attacker's battle animation, kept fully on screen, and
+	 * its bottom edge stands on the band's bottom border (blue line at y 104).
 	 */
-	CUTIN_FACE_X = DISPLAY_WIDTH / 2,
+	CUTIN_FACE_X_MIN = 48 + 8,
+	CUTIN_FACE_X_MAX = DISPLAY_WIDTH - 48 - 8,
 	CUTIN_FACE_Y = 24,
 };
 
@@ -93,7 +96,7 @@ static void CritCutin_ShowAnims(struct ProcCritCutin *proc)
 
 static void CritCutin_OnInit(struct ProcCritCutin *proc)
 {
-	int slot, disp;
+	int slot, disp, x;
 
 	proc->timer = 0;
 	proc->frame = 0;
@@ -121,8 +124,14 @@ static void CritCutin_OnInit(struct ProcCritCutin *proc)
 	if (GetAnimPosition(proc->anim) == EKR_POS_L)
 		disp |= FACE_DISP_FLIPPED;
 
+	x = proc->anim->xPosition;
+	if (x < CUTIN_FACE_X_MIN)
+		x = CUTIN_FACE_X_MIN;
+	if (x > CUTIN_FACE_X_MAX)
+		x = CUTIN_FACE_X_MAX;
+
 	SetupFaceGfxDataInBanim();
-	proc->face = StartFace(slot, CritCutinPortrait(proc->anim), CUTIN_FACE_X, CUTIN_FACE_Y, disp);
+	proc->face = StartFace(slot, CritCutinPortrait(proc->anim), x, CUTIN_FACE_Y, disp);
 }
 
 static void CritCutin_Loop(struct ProcCritCutin *proc)
