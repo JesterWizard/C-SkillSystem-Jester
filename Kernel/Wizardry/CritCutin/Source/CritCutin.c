@@ -9,10 +9,9 @@
  * Critical cut-in, in the style of Lex Talionis' FE7 remake.
  *
  * Before a critical hit by a unit with its own portrait, an electric band
- * opens across the middle of the screen and the attacker's portrait slides
- * across it, entering from the attacker's side. The battle sprites are hidden
- * under the band while it plays. Started from C07 (attack start), after the
- * HP cost and skill boxes.
+ * opens across the middle of the screen with the attacker's portrait held in
+ * the centre of it. The battle sprites are hidden under the band while it
+ * plays. Started from C07 (attack start), after the HP cost and skill boxes.
  *
  * The band is a spell BG animation on BG1 (Contents/EfxAnim/Source/CritCutin)
  * and the portrait is a face sprite in the battle face slot.
@@ -20,27 +19,17 @@
 
 extern const struct EfxAnimConf EfxCritCutin;
 
-/* Portrait path, in frames from the start of the band */
-enum crit_cutin_timing {
-	CUTIN_ENTER_START = 6,
-	CUTIN_ENTER_LEN   = 12,
-	CUTIN_DRIFT_LEN   = 26,
-	CUTIN_EXIT_LEN    = 10,
+/**
+ * The portrait shows while the band is fully open: after the 6 frames of its
+ * opening and before the 4 frames of its closing (CritCutin.efx.txt).
+ */
+enum crit_cutin_layout {
+	CUTIN_FACE_SHOW = 6,
+	CUTIN_FACE_HIDE = 54,
 
-	CUTIN_DRIFT_START = CUTIN_ENTER_START + CUTIN_ENTER_LEN,
-	CUTIN_EXIT_START  = CUTIN_DRIFT_START + CUTIN_DRIFT_LEN,
-	CUTIN_EXIT_END    = CUTIN_EXIT_START + CUTIN_EXIT_LEN,
-};
-
-/* Portrait centre x for an attacker on the right; mirrored for the left */
-enum crit_cutin_path {
-	CUTIN_X_OFFSCREEN_NEAR = 296,
-	CUTIN_X_ENTERED        = 150,
-	CUTIN_X_DRIFTED        = 110,
-	CUTIN_X_OFFSCREEN_FAR  = -56,
-
-	/* Face sprites are 80px tall from yPos; this sits them on the band's bottom edge (y 103) */
-	CUTIN_FACE_Y = 24,
+	/* Face sprites are 96x80, x is their centre and y their top; this fills the band (y 27-106) */
+	CUTIN_FACE_X = DISPLAY_WIDTH / 2,
+	CUTIN_FACE_Y = 27,
 };
 
 struct ProcCritCutin {
@@ -74,29 +63,6 @@ static int CritCutinPortrait(struct Anim *anim)
 
 	/* Generic units only have their class card */
 	return unit->pCharacterData->portraitId;
-}
-
-static int CritCutinFaceX(struct ProcCritCutin *proc)
-{
-	int k, x;
-
-	if (proc->clock < CUTIN_DRIFT_START) {
-		/* Ease out from the attacker's edge */
-		k = CUTIN_ENTER_LEN - (proc->clock - CUTIN_ENTER_START);
-		x = CUTIN_X_ENTERED + (CUTIN_X_OFFSCREEN_NEAR - CUTIN_X_ENTERED) * k * k / (CUTIN_ENTER_LEN * CUTIN_ENTER_LEN);
-	} else if (proc->clock < CUTIN_EXIT_START) {
-		k = proc->clock - CUTIN_DRIFT_START;
-		x = CUTIN_X_ENTERED + (CUTIN_X_DRIFTED - CUTIN_X_ENTERED) * k / CUTIN_DRIFT_LEN;
-	} else {
-		/* Ease in towards the far edge */
-		k = proc->clock - CUTIN_EXIT_START;
-		x = CUTIN_X_DRIFTED + (CUTIN_X_OFFSCREEN_FAR - CUTIN_X_DRIFTED) * k * k / (CUTIN_EXIT_LEN * CUTIN_EXIT_LEN);
-	}
-
-	if (GetAnimPosition(proc->anim) == EKR_POS_L)
-		x = DISPLAY_WIDTH - x;
-
-	return x;
 }
 
 static void CritCutin_HideAnims(struct ProcCritCutin *proc)
@@ -153,7 +119,7 @@ static void CritCutin_OnInit(struct ProcCritCutin *proc)
 		disp |= FACE_DISP_FLIPPED;
 
 	SetupFaceGfxDataInBanim();
-	proc->face = StartFace(slot, CritCutinPortrait(proc->anim), CUTIN_X_OFFSCREEN_NEAR, CUTIN_FACE_Y, disp);
+	proc->face = StartFace(slot, CritCutinPortrait(proc->anim), CUTIN_FACE_X, CUTIN_FACE_Y, disp);
 }
 
 static void CritCutin_Loop(struct ProcCritCutin *proc)
@@ -177,11 +143,10 @@ static void CritCutin_Loop(struct ProcCritCutin *proc)
 	if (proc->face) {
 		int disp = GetFaceDisplayBits(proc->face) & ~FACE_DISP_HIDDEN;
 
-		if (proc->clock < CUTIN_ENTER_START || proc->clock >= CUTIN_EXIT_END)
+		if (proc->clock < CUTIN_FACE_SHOW || proc->clock >= CUTIN_FACE_HIDE)
 			disp |= FACE_DISP_HIDDEN;
 
 		SetFaceDisplayBits(proc->face, disp);
-		proc->face->xPos = CritCutinFaceX(proc);
 	}
 
 	proc->clock++;

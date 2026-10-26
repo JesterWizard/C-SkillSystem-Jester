@@ -2,10 +2,15 @@
 """
 Generate the critical cut-in band frames (240x160, 16 colours, colour 0 clear).
 
-The band is 64px tall across the middle of the screen (y 40-103, clear of
-the battle UI panels, which start at y 108): a dark navy strip with
-crackling lightning and speed lines. It stays within the 256 tiles a battle
-spell BG frame can hold (30x8 band tiles + one blank).
+The band is 80px tall, as tall as a portrait, between the battle name boxes
+(which end at y 26) and the UI panels (which start at y 108): y 27-106. It is
+a dark navy strip with crackling lightning and speed lines.
+
+A battle spell BG frame holds at most 256 tiles, and a full 80px band is 300.
+So everything that varies across the screen (bolts, arcs, speed lines, grain)
+stays in tile rows 4-11 (y 32-95, 240 tiles), and the rows above and below
+only hold the border and gradient, which are the same all the way across and
+reduce to one tile per row.
 
     python3 generate_crit_cutin.py
 
@@ -19,8 +24,9 @@ from PIL import Image, ImageDraw
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 W, H = 240, 160
-BAND_Y = 40
-BAND_H = 64
+BAND_TOP, BAND_BOTTOM = 27, 106
+BAND_H = BAND_BOTTOM - BAND_TOP + 1
+DETAIL_TOP, DETAIL_BOTTOM = 32, 95
 
 PALETTE = [
     (0, 0, 0),          # 0 clear
@@ -49,11 +55,16 @@ def new_frame():
 
 
 def band_rect(height):
-    top = BAND_Y + (BAND_H - height) // 2
+    top = BAND_TOP + (BAND_H - height) // 2
     return top, top + height - 1
 
 
-def draw_base(draw, rng, top, bottom):
+def detail_rect(top, bottom):
+    """Where non-uniform detail may go: inside the band, within tile rows 4-11."""
+    return max(top + 3, DETAIL_TOP), min(bottom - 3, DETAIL_BOTTOM)
+
+
+def draw_base(draw, rng, top, bottom, dtop, dbottom):
     """Dark strip, lighter towards the edges, with faint horizontal grain."""
     mid = (top + bottom) / 2
     half = max(1, (bottom - top) / 2)
@@ -63,7 +74,7 @@ def draw_base(draw, rng, top, bottom):
         draw.line([(0, y), (W - 1, y)], fill=colour)
 
     for _ in range(18):
-        y = rng.randint(top + 2, bottom - 2)
+        y = rng.randint(dtop, dbottom)
         x = rng.randint(-40, W)
         length = rng.randint(20, 90)
         draw.line([(x, y), (x + length, y)], fill=rng.choice([NAVY, DEEP]))
@@ -71,22 +82,23 @@ def draw_base(draw, rng, top, bottom):
 
 def draw_speed_lines(draw, rng, top, bottom, count):
     for _ in range(count):
-        y = rng.randint(top + 3, bottom - 3)
+        y = rng.randint(top, bottom)
         x = rng.randint(-60, W)
         length = rng.randint(24, 120)
         draw.line([(x, y), (x + length, y)], fill=rng.choice([DEEP, GLOW, GLOW, LIGHT]))
 
 
 def bolt_points(rng, x0, x1, top, bottom, step=(6, 12), wander=7):
-    """A jagged path from x0 to x1 that stays inside the band."""
+    """A jagged path from x0 to x1 whose 5px glow stays within top-bottom."""
+    top, bottom = top + 2, bottom - 2
     points = []
-    y = rng.randint(top + 6, bottom - 6)
+    y = rng.randint(top + 4, bottom - 4)
     x = x0
     direction = 1 if x1 >= x0 else -1
     while (x - x1) * direction < 0:
         points.append((x, y))
         x += direction * rng.randint(*step)
-        y = max(top + 3, min(bottom - 3, y + rng.randint(-wander, wander)))
+        y = max(top, min(bottom, y + rng.randint(-wander, wander)))
     points.append((x1, y))
     return points
 
@@ -104,7 +116,7 @@ def draw_branches(draw, rng, points, top, bottom, glow, core):
         branch = [(x, y)]
         for _ in range(rng.randint(2, 4)):
             x += rng.randint(-8, 8)
-            y = max(top + 2, min(bottom - 2, y + sign * rng.randint(4, 9)))
+            y = max(top + 1, min(bottom - 1, y + sign * rng.randint(4, 9)))
             branch.append((x, y))
         draw.line(branch, fill=glow, width=3)
         draw.line(branch, fill=core, width=1)
@@ -114,9 +126,9 @@ def draw_arc(draw, rng, top, bottom):
     """A short vertical crackle from one band edge to the other."""
     x = rng.randint(10, W - 10)
     points = []
-    for y in range(top, bottom + 1, rng.randint(5, 8)):
+    for y in range(top + 1, bottom, rng.randint(5, 8)):
         points.append((x + rng.randint(-5, 5), y))
-    points.append((x + rng.randint(-5, 5), bottom))
+    points.append((x + rng.randint(-5, 5), bottom - 1))
     draw.line(points, fill=GLOW, width=3)
     draw.line(points, fill=PALE, width=1)
 
@@ -135,22 +147,23 @@ def lightning_frame(seed, height=BAND_H, bolts=3):
     img = new_frame()
     draw = ImageDraw.Draw(img)
     top, bottom = band_rect(height)
+    dtop, dbottom = detail_rect(top, bottom)
 
-    draw_base(draw, rng, top, bottom)
-    draw_speed_lines(draw, rng, top, bottom, 10)
+    draw_base(draw, rng, top, bottom, dtop, dbottom)
+    draw_speed_lines(draw, rng, dtop, dbottom, 10)
 
     if height >= 32:
         for _ in range(rng.randint(1, 2)):
-            draw_arc(draw, rng, top + 3, bottom - 3)
+            draw_arc(draw, rng, dtop, dbottom)
 
     for i in range(bolts):
         violet = i == bolts - 1 and rng.random() < 0.6
         glow, core = (VIOLET, LILAC) if violet else (GLOW, CYAN)
         x0, x1 = (-8, W + 8) if rng.random() < 0.5 else (W + 8, -8)
-        points = bolt_points(rng, x0, x1, top, bottom)
+        points = bolt_points(rng, x0, x1, dtop, dbottom)
         draw_bolt(draw, points, glow, core, WHITE if i == 0 else PALE)
         if height >= 32:
-            draw_branches(draw, rng, points, top, bottom, glow, core)
+            draw_branches(draw, rng, points, dtop, dbottom, glow, core)
 
     draw_edges(draw, top, bottom)
     return img
@@ -169,9 +182,9 @@ def flash_frame(height):
 def main():
     frames = {
         'CritCutin_open0': flash_frame(8),
-        'CritCutin_open1': lightning_frame(101, height=32, bolts=1),
-        'CritCutin_open2': lightning_frame(102, height=56, bolts=2),
-        'CritCutin_close0': lightning_frame(201, height=32, bolts=1),
+        'CritCutin_open1': lightning_frame(101, height=40, bolts=1),
+        'CritCutin_open2': lightning_frame(102, height=68, bolts=2),
+        'CritCutin_close0': lightning_frame(201, height=40, bolts=1),
         'CritCutin_close1': flash_frame(8),
     }
     for i in range(6):
