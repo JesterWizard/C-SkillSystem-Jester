@@ -1,0 +1,30 @@
+// Portrait table macros for half-body and 32-colour portraits.
+// Include this file, then put each formatted portrait in free space under a
+// label and point its portrait table entry at it:
+//
+//   ALIGN 4
+//   MyHalfbody:
+//   #incbin "MyHalfbody.dmp"                  // from HalfbodyFormatter.py
+//   setMugEntry_Halfbody(0x64, MyHalfbody, 3, 7, 3, 5)
+//
+//   ALIGN 4
+//   My32Color:
+//   #incbin "My32Color.dmp"                   // from PortraitFormatter32.py
+//   setMugEntry_32Color(0x02, My32Color, 2, 6, 3, 4)
+//
+// Arguments: portrait ID, label, mouth X, mouth Y, eyes X, eyes Y (in tiles,
+// as in FEBuilder's portrait editor), and optionally the blink kind (default 1).
+// The patch recognises the formats from these pointers, so always use these
+// macros (or the same pointers in FEBuilder) for these portraits.
+
+#ifndef PortraitTable
+    #define PortraitTable 0x8ACBC4
+#endif
+
+// Half-body (HalfbodyFormatter.py): sheet, mouth frames +0x2004, palette +0x2604, chibi +0x2644, no card.
+#define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2644; POIN mugLocation+0x2604; POIN mugLocation+0x2004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
+#define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2644; POIN mugLocation+0x2604; POIN mugLocation+0x2004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
+
+// 32-colour (PortraitFormatter32.py): chibi +0x2650, palettes +0x1604, mouth frames +0x1004, card = second palette.
+#define setMugEntry_32Color(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2650; POIN mugLocation+0x1604; POIN mugLocation+0x1004; POIN mugLocation+0x1624; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
+#define setMugEntry_32Color(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2650; POIN mugLocation+0x1604; POIN mugLocation+0x1004; POIN mugLocation+0x1624; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"

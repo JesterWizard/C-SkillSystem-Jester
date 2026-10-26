@@ -28,12 +28,21 @@ CHATLOG_OUTPUT  := Source/Chatlog.lyn.event
 STUBS_OBJ       := Source/ChatlogStubs.o
 STUBS_OUTPUT    := Source/ChatlogStubs.lyn.event
 
+# Half-body / 32-colour portraits (TEXT_ENGINE_HALF_BODY_PORTRAITS in Installer.event),
+# compiled from Standalone/portrait_formats, and their no-op stand-in
+PORTRAITS_DIR     := ../portrait_formats/Source
+PORTRAITS_OBJ     := Source/Portraits.o
+PORTRAITS_RAM_OBJ := Source/PortraitsRamAlloc.o
+PORTRAITS_OUTPUT  := Source/Portraits.lyn.event
+PSTUBS_OBJ        := Source/PortraitStubs.o
+PSTUBS_OUTPUT     := Source/PortraitStubs.lyn.event
+
 BOX_PNGS := $(wildcard Data/BoxGfx/*.png)
 BOX_DMPS := $(BOX_PNGS:.png=.dmp)
 
 .PHONY: all clean
 
-all: $(OUTPUT) $(CHATLOG_OUTPUT) $(STUBS_OUTPUT) $(BOX_DMPS)
+all: $(OUTPUT) $(CHATLOG_OUTPUT) $(STUBS_OUTPUT) $(PORTRAITS_OUTPUT) $(PSTUBS_OUTPUT) $(BOX_DMPS)
 
 $(OUTPUT): $(OBJECTS) $(RAM_OBJ) $(FE8_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"
@@ -47,6 +56,24 @@ $(CHATLOG_OUTPUT): $(CHATLOG_OBJ) $(CHATLOG_RAM_OBJ) $(FE8_REF)
 $(STUBS_OUTPUT): $(STUBS_OBJ) $(FE8_REF)
 	@echo "[LYN]	$@"
 	@$(LYN) -longcalls -nohook $(STUBS_OBJ) $(FE8_REF) > $@
+
+$(PORTRAITS_OUTPUT): $(PORTRAITS_OBJ) $(PORTRAITS_RAM_OBJ) $(FE8_REF)
+	@echo "[LYN]	$@"
+	@$(LYN) -longcalls -nohook $(PORTRAITS_OBJ) $(PORTRAITS_RAM_OBJ) $(FE8_REF) > $@
+
+$(PSTUBS_OUTPUT): $(PSTUBS_OBJ) $(FE8_REF)
+	@echo "[LYN]	$@"
+	@$(LYN) -longcalls -nohook $(PSTUBS_OBJ) $(FE8_REF) > $@
+
+# Same source as Standalone/portrait_formats, with face sprites drawn through
+# TextEngine_PutFaceSprite so the screen effects move them.
+$(PORTRAITS_OBJ): $(PORTRAITS_DIR)/Portraits.c $(PORTRAITS_DIR)/Portraits.h
+	@echo "[CC ]	$@"
+	@$(CC) $(CFLAGS) -DPORTRAITS_TEXT_ENGINE -mlong-calls -c $< -o $@
+
+$(PORTRAITS_RAM_OBJ): $(PORTRAITS_DIR)/RamAlloc.s
+	@echo "[AS ]	$@"
+	@$(AS) $(ARCH) -o $@ $<
 
 Source/%.o: Source/%.c Source/TextEngine.h Source/Chatlog.h
 	@echo "[CC ]	$@"
@@ -65,4 +92,4 @@ Data/BoxGfx/%.dmp: Data/BoxGfx/%.png
 	@$(PNG2DMP) $< --lz77 -o $@
 
 clean:
-	rm -f $(OBJECTS) $(RAM_OBJ) $(OUTPUT) $(CHATLOG_OBJ) $(CHATLOG_RAM_OBJ) $(CHATLOG_OUTPUT) $(STUBS_OBJ) $(STUBS_OUTPUT)
+	rm -f $(OBJECTS) $(RAM_OBJ) $(OUTPUT) $(CHATLOG_OBJ) $(CHATLOG_RAM_OBJ) $(CHATLOG_OUTPUT) $(STUBS_OBJ) $(STUBS_OUTPUT) $(PORTRAITS_OBJ) $(PORTRAITS_RAM_OBJ) $(PORTRAITS_OUTPUT) $(PSTUBS_OBJ) $(PSTUBS_OUTPUT)

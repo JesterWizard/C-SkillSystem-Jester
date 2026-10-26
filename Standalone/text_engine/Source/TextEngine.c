@@ -730,10 +730,10 @@ static int TextEngine_GetSceneBoxY(void)
 	return TEXT_ENGINE_SCENE_SCREEN_ROWS - TextEngine_GetSceneBoxHeight();
 }
 
-static int TextEngine_GetTalkFaceY(void)
+static int TextEngine_GetTalkFaceY(bool halfBody)
 {
 	/* Half-body mugs already stand on the bottom edge, behind any box. */
-	if (TEXT_ENGINE_HALF_BODY_PORTRAITS)
+	if (halfBody)
 		return TEXT_ENGINE_HALF_BODY_FACE_Y;
 
 	if (TextEngine_IsSceneLayoutActive())
@@ -4165,7 +4165,8 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 	proc = (struct Proc *)Proc_StartBlocking(gProcScr_TalkOpen, parent);
 
 	proc->unk64 = GetTalkFaceHPos(talkFace);
-	proc->unk66 = TEXT_ENGINE_HALF_BODY_PORTRAITS ? 0x12 : 0x08;
+	/* A half-body speaker's bubble runs along the bottom of the screen. */
+	proc->unk66 = Portraits_IsHalfBodyFace(state->faces[talkFace]) ? 0x12 : 0x08;
 	proc->unk68 = state->activeWidth;
 	proc->unk6A = state->lines * 2 + 2;
 
@@ -4314,7 +4315,8 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 		face = StartFaceAuto(
 			faceId,
 			GetTalkFaceHPos(position) * 8,
-			TextEngine_GetTalkFaceY(),
+			TextEngine_GetTalkFaceY(
+				Portraits_TalkFaceWillBeHalfBody(faceId, faceDisplay)),
 			faceDisplay
 		);
 		state->faces[position] = face;
@@ -5576,7 +5578,7 @@ static void TextEngine_SetSceneLayout(u8 enabled)
 	if (sTextEngineSceneLayoutState.enabled == enabled)
 		return;
 
-	oldFaceY = TextEngine_GetTalkFaceY();
+	oldFaceY = TextEngine_GetTalkFaceY(false);
 
 	/* Close the open box so the next text reopens in the new layout. */
 	TextEngine_ClearSpeakerNameplate();
@@ -5597,10 +5599,13 @@ static void TextEngine_SetSceneLayout(u8 enabled)
 	sTextEngineSceneLayoutState.boxShown = 0;
 	sTextEngineSceneLayoutState.instantOpen = 0;
 
-	/* Portraits already on screen step up behind the box, or back down. */
-	deltaY = TextEngine_GetTalkFaceY() - oldFaceY;
+	/*
+	 * Portraits already on screen step up behind the box, or back down.
+	 * Half-bodies already stand on the bottom edge and stay put.
+	 */
+	deltaY = TextEngine_GetTalkFaceY(false) - oldFaceY;
 	for (i = 0; i < (int)ARRAY_COUNT(state->faces); i++) {
-		if (state->faces[i])
+		if (state->faces[i] && !Portraits_IsHalfBodyFace(state->faces[i]))
 			state->faces[i]->yPos += deltaY;
 	}
 }
@@ -6003,11 +6008,6 @@ static int TextEngine_GetFacePalettes(struct FaceProc *face, u8 *pals, const u16
 
 	pals[count] = 0x10 + ((face->oam2 >> 12) & 0xF);
 	colors[count++] = info->pal;
-
-	if (HalfBody_UsesTwoPalettes(info)) {
-		pals[count] = pals[0] + 1;
-		colors[count++] = info->pal + 0x10;
-	}
 
 	overlayOam2 = Portrait32_GetOverlayOam2(face);
 	if (overlayOam2 >= 0) {

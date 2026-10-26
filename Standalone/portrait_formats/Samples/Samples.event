@@ -1,0 +1,14 @@
+// Sample portraits, installed by Installer.event when PORTRAIT_FORMATS_SAMPLES
+// is defined (or include this file yourself after Tools/PortraitMacros.event).
+//  - Anna (portrait 0x64) as a half-body
+//  - Eirika (portrait 0x02) as a 32-colour portrait (25 colours)
+
+ALIGN 4
+PortraitFormats_SampleAnna:
+#incbin "Anna_halfbody.dmp"
+setMugEntry_Halfbody(0x64, PortraitFormats_SampleAnna, 3, 7, 3, 5)
+
+ALIGN 4
+PortraitFormats_SampleEirika:
+#incbin "Eirika_32color.dmp"
+setMugEntry_32Color(0x02, PortraitFormats_SampleEirika, 2, 6, 3, 4)

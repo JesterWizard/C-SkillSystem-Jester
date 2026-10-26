@@ -1,0 +1,61 @@
+// Byte changes for TEXT_ENGINE_HALF_BODY_PORTRAITS, the same as
+// Standalone/portrait_formats' Installer.event.  Included inside PUSH/POP.
+
+// Map menus that show the unit's face: display kind 2 (96x80) -> 6, which is
+// 96x80 for normal portraits and the 128x80 half-body top for half-bodies.
+#define FE8U_HandleNewItemGetFromDrop_Kind  $1E0BC
+#define FE8U_StartUnitBallistaSelect_Kind   $22BA2
+#define FE8U_StartUnitWeaponSelect_Kind     $22BF8
+#define FE8U_PlayCommandEffect_Kind         $2325E
+#define FE8U_ItemCommandEffect_Kind         $23314
+#define FE8U_sub_8023550_Kind               $23572
+#define FE8U_sub_80235A8_Kind               $2360A
+#define FE8U_StaffCommandEffect_Kind        $23AF6
+#define FE8U_RepairSelectOnSelect_Kind      $2998E
+// Level-up screens (battle and map): face display 0x1042 -> 0x1046.
+#define FE8U_EkrLvup_InitLevelUpBox_Disp    $73E08
+#define FE8U_ManimLevelUp_InitMainScreen_Disp $7F2AC
+// Trade menu name boxes: OBJ tiles 0x4800 -> 0x3800, palette 8 -> 10, clear
+// of a second half-body or 32-colour face at OBJ 0x4000..0x5FFF / palette 8-9.
+#define FE8U_TradeMenu_BrownBoxChr          $2D2EA
+#define FE8U_TradeMenu_BrownBoxPal          $2D2FE
+// Preparations item / trade / use screens: face VRAM 0x5800/0x6800 ->
+// 0x4000/0x6000, room for each face's second 0x1000-byte block.
+#define FE8U_FaceConfig_PrepItemScreen      $205C14
+#define FE8U_FaceConfig_PrepItemTrade       $205C44
+#define FE8U_FaceConfig_PrepItemUse         $205C70
+
+
+ORG FE8U_HandleNewItemGetFromDrop_Kind; BYTE 0x06
+ORG FE8U_StartUnitBallistaSelect_Kind;  BYTE 0x06
+ORG FE8U_StartUnitWeaponSelect_Kind;    BYTE 0x06
+ORG FE8U_PlayCommandEffect_Kind;        BYTE 0x06
+ORG FE8U_ItemCommandEffect_Kind;        BYTE 0x06
+ORG FE8U_sub_8023550_Kind;              BYTE 0x06
+ORG FE8U_sub_80235A8_Kind;              BYTE 0x06
+ORG FE8U_StaffCommandEffect_Kind;       BYTE 0x06
+ORG FE8U_RepairSelectOnSelect_Kind;     BYTE 0x06
+ORG FE8U_EkrLvup_InitLevelUpBox_Disp;   WORD 0x1046
+ORG FE8U_ManimLevelUp_InitMainScreen_Disp; WORD 0x1046
+ORG FE8U_TradeMenu_BrownBoxChr;         BYTE 0x70   // movs r1, #0x70 (lsl 7 = 0x3800)
+ORG FE8U_TradeMenu_BrownBoxPal;         BYTE 0x0A   // movs r2, #10
+ORG FE8U_FaceConfig_PrepItemScreen;     WORD 0x4000; ORG FE8U_FaceConfig_PrepItemScreen + 8; WORD 0x6000
+ORG FE8U_FaceConfig_PrepItemTrade;      WORD 0x4000; ORG FE8U_FaceConfig_PrepItemTrade + 8;  WORD 0x6000
+ORG FE8U_FaceConfig_PrepItemUse;        WORD 0x4000; ORG FE8U_FaceConfig_PrepItemUse + 8;    WORD 0x6000
+
+PROTECT FE8U_HandleNewItemGetFromDrop_Kind FE8U_HandleNewItemGetFromDrop_Kind + 1
+PROTECT FE8U_StartUnitBallistaSelect_Kind FE8U_StartUnitBallistaSelect_Kind + 1
+PROTECT FE8U_StartUnitWeaponSelect_Kind FE8U_StartUnitWeaponSelect_Kind + 1
+PROTECT FE8U_PlayCommandEffect_Kind FE8U_PlayCommandEffect_Kind + 1
+PROTECT FE8U_ItemCommandEffect_Kind FE8U_ItemCommandEffect_Kind + 1
+PROTECT FE8U_sub_8023550_Kind FE8U_sub_8023550_Kind + 1
+PROTECT FE8U_sub_80235A8_Kind FE8U_sub_80235A8_Kind + 1
+PROTECT FE8U_StaffCommandEffect_Kind FE8U_StaffCommandEffect_Kind + 1
+PROTECT FE8U_RepairSelectOnSelect_Kind FE8U_RepairSelectOnSelect_Kind + 1
+PROTECT FE8U_EkrLvup_InitLevelUpBox_Disp FE8U_EkrLvup_InitLevelUpBox_Disp + 4
+PROTECT FE8U_ManimLevelUp_InitMainScreen_Disp FE8U_ManimLevelUp_InitMainScreen_Disp + 4
+PROTECT FE8U_TradeMenu_BrownBoxChr FE8U_TradeMenu_BrownBoxChr + 1
+PROTECT FE8U_TradeMenu_BrownBoxPal FE8U_TradeMenu_BrownBoxPal + 1
+PROTECT FE8U_FaceConfig_PrepItemScreen FE8U_FaceConfig_PrepItemScreen + 0xC
+PROTECT FE8U_FaceConfig_PrepItemTrade FE8U_FaceConfig_PrepItemTrade + 0xC
+PROTECT FE8U_FaceConfig_PrepItemUse FE8U_FaceConfig_PrepItemUse + 0xC

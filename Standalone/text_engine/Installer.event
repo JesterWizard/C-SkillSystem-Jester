@@ -8,6 +8,14 @@
 // dialogue (UP/DOWN scroll, SELECT closes). It adds two hooks and uses EWRAM
 // 0x0203B000 .. 0x0203B5FF (see Source/ChatlogRamAlloc.s).
 // #define TEXT_ENGINE_CHATLOG
+//
+// Half-body and 32-colour portraits (Standalone/portrait_formats, through the
+// text engine): remove the // in front of the next line to install them.
+// Portraits made with that package's tools and macros then show in dialogue
+// and menus; other portraits stay as they are. It adds 12 hooks and a few
+// byte changes (listed in README.md) and uses EWRAM 0x0203B800 .. 0x0203B89F.
+// Don't also install Standalone/portrait_formats.
+// #define TEXT_ENGINE_HALF_BODY_PORTRAITS
 // ---------------------------------------------------------------------------
 
 #define FE8U_ClassChgLoadUI                 $CCBF4
@@ -30,7 +38,24 @@
 #define FE8U_GetStrTalkLen                  $8B44
 #define FE8U_TalkSkipListener_OnIdle        $6B4C   // chatlog only
 #define FE8U_TalkWaitForInput_OnIdle        $7C4C   // chatlog only
+// TEXT_ENGINE_HALF_BODY_PORTRAITS only:
+#define FE8U_Face_OnInit                    $5594
+#define FE8U_Face_OnIdle                    $55BC
+#define FE8U_StartFaceAuto                  $5610
+#define FE8U_StartFace                      $563C
+#define FE8U_EndFace                        $5738
+#define FE8U_FaceRefreshSprite              $57C0
+#define FE8U_PutFace80x72_Core              $5CA4
+#define FE8U_StartFaceFadeIn                $5EF0
+#define FE8U_StartFaceFadeOut               $5F38
+#define FE8U_StartFace2                     $64F4
+#define FE8U_FaceChange_LoadGfx             $6650   // sub_8006650
+#define FE8U_PutTalkBubble                  $82A4
 #define FE8U_StandaloneFreeSpace            $1000000
+
+// A 16-byte hook for functions with four or more arguments, which
+// jumpToHack can't take (it uses r3).  bx pc; nop; ldr r12, [pc]; bx r12.
+#define hookViaR12(target) "BYTE 0x78 0x47 0xC0 0x46; WORD 0xE59FC000 0xE12FFF1C; POIN target"
 
 PUSH
 ORG FE8U_ClassChgLoadUI
@@ -96,6 +121,45 @@ ORG FE8U_TalkWaitForInput_OnIdle
     jumpToHack(TalkWaitForInput_OnIdle_Chatlog)
     PROTECT FE8U_TalkWaitForInput_OnIdle FE8U_TalkWaitForInput_OnIdle + 0x8 // TalkWaitForInput_OnIdle
 #endif
+#ifdef TEXT_ENGINE_HALF_BODY_PORTRAITS
+ORG FE8U_Face_OnInit
+    jumpToHack(Face_OnInit_Portraits)
+    PROTECT FE8U_Face_OnInit FE8U_Face_OnInit + 0x8 // Face_OnInit
+ORG FE8U_Face_OnIdle
+    jumpToHack(Face_OnIdle_Portraits)
+    PROTECT FE8U_Face_OnIdle FE8U_Face_OnIdle + 0x8 // Face_OnIdle
+ORG FE8U_StartFaceAuto
+    hookViaR12(StartFaceAuto_Portraits)
+    PROTECT FE8U_StartFaceAuto FE8U_StartFaceAuto + 0x10 // StartFaceAuto
+ORG FE8U_StartFace
+    hookViaR12(StartFace_Portraits)
+    PROTECT FE8U_StartFace FE8U_StartFace + 0x10 // StartFace
+ORG FE8U_EndFace
+    jumpToHack(EndFace_Portraits)
+    PROTECT FE8U_EndFace FE8U_EndFace + 0x8 // EndFace
+ORG FE8U_FaceRefreshSprite
+    jumpToHack(FaceRefreshSprite_Portraits)
+    PROTECT FE8U_FaceRefreshSprite FE8U_FaceRefreshSprite + 0x8 // FaceRefreshSprite
+ORG FE8U_PutFace80x72_Core
+    hookViaR12(PutFace80x72_Core_Portraits)
+    PROTECT FE8U_PutFace80x72_Core FE8U_PutFace80x72_Core + 0x10 // PutFace80x72_Core
+ORG FE8U_StartFaceFadeIn
+    jumpToHack(StartFaceFadeIn_Portraits)
+    PROTECT FE8U_StartFaceFadeIn FE8U_StartFaceFadeIn + 0x8 // StartFaceFadeIn
+ORG FE8U_StartFaceFadeOut
+    jumpToHack(StartFaceFadeOut_Portraits)
+    PROTECT FE8U_StartFaceFadeOut FE8U_StartFaceFadeOut + 0x8 // StartFaceFadeOut
+ORG FE8U_StartFace2
+    hookViaR12(StartFace2_Portraits)
+    PROTECT FE8U_StartFace2 FE8U_StartFace2 + 0x10 // StartFace2
+ORG FE8U_FaceChange_LoadGfx
+    jumpToHack(FaceChange_LoadGfx_Portraits)
+    PROTECT FE8U_FaceChange_LoadGfx FE8U_FaceChange_LoadGfx + 0x8 // sub_8006650
+ORG FE8U_PutTalkBubble
+    hookViaR12(PutTalkBubble_Portraits)
+    PROTECT FE8U_PutTalkBubble FE8U_PutTalkBubble + 0x10 // PutTalkBubble
+#include "Data/PortraitPatches.event"
+#endif
 POP
 
 ORG FE8U_StandaloneFreeSpace
@@ -118,6 +182,13 @@ ALIGN 4
     #include "Source/Chatlog.lyn.event"
 #else
     #include "Source/ChatlogStubs.lyn.event"
+#endif
+
+ALIGN 4
+#ifdef TEXT_ENGINE_HALF_BODY_PORTRAITS
+    #include "Source/Portraits.lyn.event"
+#else
+    #include "Source/PortraitStubs.lyn.event"
 #endif
 
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TextEngine body and data

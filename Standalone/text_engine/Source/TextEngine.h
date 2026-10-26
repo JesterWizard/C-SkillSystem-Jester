@@ -32,12 +32,16 @@ struct TextEngineConfig {
 
 extern const struct TextEngineConfig gTextEngineConfig;
 
-/* The kernel's half-body and 32-colour portrait hacks aren't part of this patch. */
-#define TEXT_ENGINE_HALF_BODY_PORTRAITS 0
-
-static inline void HalfBody_OnTalkFaceClear(struct FaceProc *proc) { (void)proc; }
-static inline bool HalfBody_UsesTwoPalettes(const struct FaceData *info) { (void)info; return false; }
-static inline s32 Portrait32_GetOverlayOam2(struct FaceProc *proc) { (void)proc; return -1; }
+/*
+ * Half-body and 32-colour portraits: Standalone/portrait_formats'
+ * Source/Portraits.c (built here into Source/Portraits.lyn.event) when
+ * Installer.event defines TEXT_ENGINE_HALF_BODY_PORTRAITS, the no-ops in
+ * Source/PortraitStubs.c otherwise.  Linked through Event Assembler labels.
+ */
+bool Portraits_IsHalfBodyFace(struct FaceProc *face);
+bool Portraits_TalkFaceWillBeHalfBody(int fid, int disp);
+void HalfBody_OnTalkFaceClear(struct FaceProc *face);
+s32 Portrait32_GetOverlayOam2(struct FaceProc *face);
 
 /*
  * The conversation log: Source/Chatlog.c when Installer.event defines
