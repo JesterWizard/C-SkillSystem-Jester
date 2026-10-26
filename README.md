@@ -84,6 +84,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 	</details>
 
 - [Credits Feature](./Documentation/Features/Credits.md)
+- [Critical Cut-in](./Documentation/Features/CritCutin.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Crit_Cutin.gif" alt="Critical Cut-in preview" width="600" />
+	</details>
+
 - [Custom Battle Quotes](./Documentation/Features/CustomBattleQuotes.md)
 - [Custom Defeat Quotes](./Documentation/Features/CustomDefeatQuotes.md)
 

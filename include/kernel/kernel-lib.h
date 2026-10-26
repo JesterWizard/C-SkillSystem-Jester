@@ -196,6 +196,7 @@ struct KernelDesigerConfig {
 	u8 language_select; /* flag-grid language selector after the boot logos, before the title */
 	u8 gaiden_magic_three_houses; /* Three Houses-style gaiden magic: uses per chapter instead of HP/MP cost */
 	u8 class_growths; /* 0 = off, 1 = personal + class growths, 2 = average of personal and class growths. Promotion and reclass menus preview the change */
+	u8 crit_cutin; /* critical hits by units with their own portrait show a portrait cut-in over an electric band first */
 };
 
 struct KernelBattleDesignerConfig {
