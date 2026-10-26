@@ -1,0 +1,7 @@
+ALIGN 4
+BiographyHelpText:
+// Vanilla Huffman for: "Read character" [NL] "biographies."
+// FE8U DecodeString has no anti-Huffman high bit; uncompressed ASCII here crashes R-help.
+BYTE $6E $E4 $8D $94 $7C $37 $B2 $73 $1D $9B $35 $BF $57 $85 $65 $0F
+BYTE $2F
+setText(TEXT_BIOGRAPHY_HELP, BiographyHelpText)

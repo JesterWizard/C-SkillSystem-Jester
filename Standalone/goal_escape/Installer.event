@@ -1,0 +1,34 @@
+#define TextTable $15D48C
+// Vanilla DecodeString has no anti-Huffman bit. Pointers must be Huffman-compressed.
+#define setText(textID, offset) "PUSH; ORG TextTable + (4 * textID); POIN offset; PROTECT TextTable + (4 * textID) TextTable + (4 * textID) + 0x4; POP"
+
+// Escape line text ID (unused vanilla dummy item-name slot). Set to 0 for no line.
+#define GOAL_ESCAPE_QUOTE_TEXT $409
+
+#define FE8U_PlayerPhase_PostActionTrapsPtr $59ABE4 // gProcScr_PlayerPhase: PROC_CALL_2(HandlePostActionTraps)
+#define FE8U_PlayerPhase_FinishActionPtr    $59ABFC // gProcScr_PlayerPhase: PROC_CALL(PlayerPhase_FinishAction)
+#define FE8U_GoalDisplay_InitPtr            $A01A00 // gProcScr_GoalDisplay: PROC_CALL(GoalDisplay_Init)
+#define FE8U_StandaloneFreeSpace            $1000000
+
+PUSH
+ORG FE8U_PlayerPhase_PostActionTrapsPtr
+    POIN PostActionTraps_GoalEscape
+    PROTECT FE8U_PlayerPhase_PostActionTrapsPtr FE8U_PlayerPhase_PostActionTrapsPtr + 0x4 // PlayerPhase HandlePostActionTraps call
+ORG FE8U_PlayerPhase_FinishActionPtr
+    POIN PlayerPhase_FinishAction_GoalEscape
+    PROTECT FE8U_PlayerPhase_FinishActionPtr FE8U_PlayerPhase_FinishActionPtr + 0x4 // PlayerPhase FinishAction call
+ORG FE8U_GoalDisplay_InitPtr
+    POIN GoalDisplay_Init_GoalEscape
+    PROTECT FE8U_GoalDisplay_InitPtr FE8U_GoalDisplay_InitPtr + 0x4 // GoalDisplay Init call
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/GoalEscape.lyn.event"
+
+ALIGN 4
+gGoalEscapeQuoteTextId:
+    SHORT GOAL_ESCAPE_QUOTE_TEXT
+
+#include "EscapeTiles.event"
+#include "Text.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GoalEscape body + tile table + text

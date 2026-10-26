@@ -1,0 +1,33 @@
+// Uncomment to make the chosen language switch the game's text.
+// See README.md ("Translated text") and LanguageText.event first.
+// #define LANGUAGE_SELECT_TEXT_SWITCH
+
+#define FE8U_GameControl_EarlyStartUIPtr $591710 // gProcScr_GameControl: PROC_START_CHILD_BLOCKING(ProcScr_GameEarlyStartUI)
+#define FE8U_GetStringFromIndex          $A240
+#define FE8U_GetStringFromIndexInBuffer  $A280
+#define FE8U_StandaloneFreeSpace         $1000000
+
+PUSH
+ORG FE8U_GameControl_EarlyStartUIPtr
+    POIN ProcScr_LanguageSelect
+    PROTECT FE8U_GameControl_EarlyStartUIPtr FE8U_GameControl_EarlyStartUIPtr + 0x4 // GameControl early start UI
+
+#ifdef LANGUAGE_SELECT_TEXT_SWITCH
+ORG FE8U_GetStringFromIndex
+    jumpToHack(GetStringFromIndex_LanguageSelect)
+    PROTECT FE8U_GetStringFromIndex FE8U_GetStringFromIndex + 0x8 // GetStringFromIndex hook
+ORG FE8U_GetStringFromIndexInBuffer
+    jumpToHack(GetStringFromIndexInBuffer_LanguageSelect)
+    PROTECT FE8U_GetStringFromIndexInBuffer FE8U_GetStringFromIndexInBuffer + 0x8 // GetStringFromIndexInBuffer hook
+#endif
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/LanguageSelect.lyn.event"
+
+ALIGN 4
+Img_LanguageSelectFlags:
+    #incbin "Gfx/Img_LanguageSelectFlags.dmp" // Png2Dmp LZ77 (VRAM-safe)
+
+#include "LanguageText.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LanguageSelect body + flags + text offsets

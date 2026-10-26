@@ -1,0 +1,45 @@
+// Character biography table.
+//
+// BiographyEntry(character ID, subtitle label, song ID,
+//                text1, bg1, text2, bg2, text3, bg3, text4, bg4)
+//
+// - character ID: the list shows this character's name.
+// - subtitle label: a label on a String(...) below (gold text next to the
+//   name), or 0 for none. Keep it to about 13 characters.
+// - song ID: music for the biography (0 = random song, like the integrated
+//   feature).
+// - textN / bgN: up to four pages. Each page is a CG text box over a
+//   conversation background (BACG ID). Text IDs are normal FEBuilder text
+//   entries; end each with [A] so the page waits for the player. Use text 0
+//   to end the biography early.
+//
+// End the table with BiographyTableEnd. The list scrolls past 5 entries.
+//
+// The sample entries use the integrated feature's characters and subtitles,
+// but the integrated text and backgrounds are this repo's custom "Heroes
+// cards" content. Here every page uses the character's vanilla epilogue text
+// over a vanilla background, as a placeholder. Replace them with your own.
+
+#define BiographyEntry(character, subtitle, song, t1, b1, t2, b2, t3, b3, t4, b4) "BYTE (character) (song); SHORT 0; POIN (subtitle); SHORT (t1); BYTE (b1) 0; SHORT (t2); BYTE (b2) 0; SHORT (t3); BYTE (b3) 0; SHORT (t4); BYTE (b4) 0"
+#define BiographyTableEnd "WORD 0 0 0 0 0 0"
+
+ALIGN 4
+gCharacterBiographies:
+    BiographyEntry($01, BioSubtitle_Eirika,  $1C, $7D6, $02, 0, 0, 0, 0, 0, 0) // Eirika
+    BiographyEntry($02, BioSubtitle_Seth,    $1C, $7D8, $0B, 0, 0, 0, 0, 0, 0) // Seth
+    BiographyEntry($04, BioSubtitle_Franz,   $1C, $7DC, $0C, 0, 0, 0, 0, 0, 0) // Franz
+    BiographyEntry($03, BioSubtitle_Gilliam, $1C, $7DA, $07, 0, 0, 0, 0, 0, 0) // Gilliam
+    BiographyEntry($22, BioSubtitle_Tana,    $1C, $816, $10, 0, 0, 0, 0, 0, 0) // Tana
+    BiographyTableEnd
+
+BioSubtitle_Eirika:
+    String("Restoration Lady"); BYTE 0
+BioSubtitle_Seth:
+    String("The Silver Knight"); BYTE 0
+BioSubtitle_Franz:
+    String("The Faithful"); BYTE 0
+BioSubtitle_Gilliam:
+    String("Wall of Silence"); BYTE 0
+BioSubtitle_Tana:
+    String("Winged Princess"); BYTE 0
+ALIGN 4

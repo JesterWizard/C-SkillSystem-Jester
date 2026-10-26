@@ -59,6 +59,9 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [s_rank_weapon_no_weight](s_rank_weapon_no_weight/) | Weapons the unit has S rank in weigh nothing for attack speed |
 | [modular_staff_exp](modular_staff_exp/) | Fixed per-staff EXP from an editable table (unlisted staves keep vanilla EXP) |
 | [limited_shop_items](limited_shop_items/) | Per-chapter limited shop stock with a stock column, kept through suspend without save changes |
+| [goal_escape](goal_escape/) | Escape chapter goal (goal type 6): units that Wait on per-chapter escape tiles leave the map, and the chapter is won when all have escaped |
+| [map_menu_character_biographies](map_menu_character_biographies/) | Biography command in the map menu: a scrolling character list that plays up to four CG text pages per character |
+| [language_select](language_select/) | Flag-grid language selector after the boot logos, saved in the global save header, with an optional text-ID switch for translations (uses 4 bytes EWRAM) |
 
 ## Adding a new patch
 

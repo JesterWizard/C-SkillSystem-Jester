@@ -1,0 +1,22 @@
+#define TextTable $15D48C
+// Vanilla DecodeString has no anti-Huffman bit. Pointers must be Huffman-compressed.
+#define setText(textID, offset) "PUSH; ORG TextTable + (4 * textID); POIN offset; PROTECT TextTable + (4 * textID) TextTable + (4 * textID) + 0x4; POP"
+
+// R-button help for the Biography command (unused vanilla dummy item-name slot).
+#define TEXT_BIOGRAPHY_HELP $40A
+
+#define FE8U_MapMenuItemsPtr     $59D21C // gMapMenuDef.menuItems
+#define FE8U_StandaloneFreeSpace $1000000
+
+PUSH
+ORG FE8U_MapMenuItemsPtr
+    POIN gMapMenuItems_Biography
+    PROTECT FE8U_MapMenuItemsPtr FE8U_MapMenuItemsPtr + 0x4 // gMapMenuDef.menuItems
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CharacterBiographies.lyn.event"
+#include "MapMenu.event"
+#include "Biographies.event"
+#include "Text.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Biography body + map menu + table + text
