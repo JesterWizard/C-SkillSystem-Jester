@@ -38,6 +38,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `rescue_drop_ai_use` | Allows enemies to use rescue and drop as a retreat tool when an adjacent ally is below half HP. |
 | `start_map_effects` | Enables the pre-phase Start Map Effects menu and its related hooks. |
 | `prestige` | Enables the Prestige system's unit-menu command, the +10% growth bonus per prestige, and the Prestige stars on the left stat-screen page. |
+| `class_growths` | Merges each unit's class growths into its personal growths: `0` off, `1` personal + class, `2` average of the two. The promotion screen and Vesly reclass screen preview the growth change for each class (R toggles it). See [ClassGrowths](./ClassGrowths.md). |
 | `gaiden_magic_skill_extensions` | Wizardry option that enables `gGaidenChaxConfigs` checks. |
 | `auto_narrow_font` | Converts ASCII text to narrow font when displaying skill descriptions, skill names, and menu items. |
 | `skill_sub_menu_width` | Sets the width of the action menu's Skills submenu. |

@@ -136,6 +136,7 @@ ALIGN 4
 #include "BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
 #include "ChapterNames/ChapterNames_Installer.event"
 #include "Chatlog/Chatlog_Installer.event"
+#include "ClassGrowths/ClassGrowths_Installer.event"
 #include "CombatArt/HelpBoxFix/Source/HelpBoxHack.lyn.event"
 // #include "Crafting/Crafting_Installer.event"
 #include "EnterTown/EnterTown_Installer.event"
