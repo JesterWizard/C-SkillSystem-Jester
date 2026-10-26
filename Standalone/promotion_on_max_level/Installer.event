@@ -1,13 +1,21 @@
-#define FE8U_ManimLevelUp_ScrollOut $7F354
-#define FE8U_StandaloneFreeSpace    $1000000
+/*
+ * sProcScr_CombatAction ($59DABC) is the vanilla proc that runs every map
+ * combat (player and enemy phase). Its command at $59DB0C is
+ *     PROC_CALL(BATTLE_HandleCombatDeaths)
+ * and $59DB10 holds that routine pointer. This patch points it at a wrapper
+ * that runs the vanilla routine and then starts the promotion.
+ */
+#define FE8U_CombatAction_HandleDeathsPtr $59DB10
+#define FE8U_StandaloneFreeSpace          $1000000
 
 /* Edit without recompiling C. */
-#define PROMOTION_ON_MAX_LEVEL 1
+#define PROMOTION_ON_MAX_LEVEL       1 // Unpromoted units promote at level 20
+#define PROMOTE_TRAINEES_AT_LEVEL_10 0 // Trainees (Ross, Amelia, Ewan) promote at level 10
 
 PUSH
-ORG FE8U_ManimLevelUp_ScrollOut
-    jumpToHack(ManimLevelUp_ScrollOut_Promo)
-    PROTECT FE8U_ManimLevelUp_ScrollOut FE8U_ManimLevelUp_ScrollOut + 0x8 // ManimLevelUp_ScrollOut hook
+ORG FE8U_CombatAction_HandleDeathsPtr
+    POIN BATTLE_HandleCombatDeaths_PromoteMaxLevel
+    PROTECT FE8U_CombatAction_HandleDeathsPtr FE8U_CombatAction_HandleDeathsPtr + 0x4 // sProcScr_CombatAction BATTLE_HandleCombatDeaths pointer
 POP
 
 ORG FE8U_StandaloneFreeSpace
@@ -16,5 +24,7 @@ ORG FE8U_StandaloneFreeSpace
 ALIGN 4
 PromotionOnMaxLevelEnabled:
 BYTE PROMOTION_ON_MAX_LEVEL
+PromotionOnMaxLevelTrainees:
+BYTE PROMOTE_TRAINEES_AT_LEVEL_10
 
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PromotionOnMaxLevel body + config

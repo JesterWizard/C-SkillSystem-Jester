@@ -1,23 +1,26 @@
 # Promotion On Max Level
 
-When the map level-up window finishes scrolling out, an unpromoted unit at level 20 opens the vanilla promotion screen. Level and experience are set to 1 and 0 as that screen starts. The unit does not spend a use of an inventory item.
+Right after a battle in which an unpromoted unit levels up to 20, the vanilla promotion screen opens. The promoted unit starts at level 1 with 0 experience, and does not spend a use of an inventory item. It works with map animations and with battle animations.
 
-This runs for whoever the level-up window belongs to, including enemies. Classes with no entry in the vanilla promotion table leave the screen immediately. Trainee auto-promotion at level 10 is a separate feature and is not included.
+An optional setting also promotes trainees (Ross, Amelia, Ewan, or any unit whose class or character has the "max level 10" attribute) right after the battle in which they reach level 10, which is the same as [promote_trainees_in_chapter](../promote_trainees_in_chapter/). Classes with no entry in the vanilla promotion table leave the screen immediately. Arena and staff level-ups don't trigger a promotion. Integrated `designer-config.c` defaults this flag to `true`.
 
-The check is on the map level-up window (`ManimLevelUp_ScrollOut`). Battle-animation level-ups do not promote. Integrated `designer-config.c` defaults this flag to `true`.
+### Why it runs after the battle
+
+The promotion starts from the `BATTLE_HandleCombatDeaths` step of vanilla `sProcScr_CombatAction`, after the battle results have been applied to the real units. Earlier versions of this patch (and the integrated C Skill System code) started it from the map level-up window (`ManimLevelUp_ScrollOut`). On vanilla that window closes while the battle is still animating, before the results are applied, so the unit lost its level-up gains and the weapon use, and got the promotion bonuses twice.
 
 ## Configuration
 
-Edit `PROMOTION_ON_MAX_LEVEL` at the top of `Installer.event`, then reinstall the patch. No C recompile is needed.
+Edit the settings at the top of `Installer.event`, then reinstall the patch. No C recompile is needed.
 
 | Constant | Default | Meaning |
 |----------|---------|---------|
 | `PROMOTION_ON_MAX_LEVEL` | `1` | Set to `0` to leave level 20 units unpromoted |
+| `PROMOTE_TRAINEES_AT_LEVEL_10` | `0` | Set to `1` to also promote trainees when they reach level 10 |
 
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Hook: vanilla `ManimLevelUp_ScrollOut` at `0x0807F355` (installer ORG `$7F354`, 8 bytes)
+- Hook: the `BATTLE_HandleCombatDeaths` step of vanilla `sProcScr_CombatAction` (routine pointer at `$59DB10`, 4 bytes, repointed with `POIN`)
 - Free space: `$1000000`
 
 ## Build
@@ -62,13 +65,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-promotion-on-max-le
 
 ## Conflicts
 
-- Any patch that replaces vanilla `ManimLevelUp_ScrollOut` (`$7F354` / `0x0807F355`), including the full C Skill System map level-up rewrite.
-- `Standalone/talk_on_level_up/` calls this same function from its own level-up proc, so the promotion still runs if both bodies are installed at different free-space addresses.
+- Any patch that repoints or rewrites `sProcScr_CombatAction` (`$59DABC` .. `$59DB24`), in particular the `BATTLE_HandleCombatDeaths` pointer at `$59DB10`, including the full C Skill System.
+- [promote_trainees_in_chapter](../promote_trainees_in_chapter/) repoints the same pointer, so only one of the two can be installed. Use `PROMOTE_TRAINEES_AT_LEVEL_10` here to get both behaviours.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
 
-The integrated hook leaves `gActionData.itemSlotIndex` alone. Vanilla promotion then calls `UnitUpdateUsedItem` on that slot, which can spend a use of the weapon just used in battle. This patch sets the promotion handler's item slot to `-1` after `StartBmPromotion` so no item is consumed.
+The promotion handler's item slot is set to `-1` after `StartBmPromotion`, so vanilla's `UnitUpdateUsedItem` doesn't spend a use of the slot the battle left in `gActionData`.
 
-`Installer.event` uses `PROTECT` on both the hook site (`$7F354`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both the hook site (`$59DB10`, 4 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

@@ -67,7 +67,7 @@ The new routine, `BATTLE_HandleCombatDeaths_PromoteTrainees`, runs vanilla `BATT
 ## Conflicts
 
 - Any patch that repoints or rewrites `sProcScr_CombatAction` (`$59DABC` .. `$59DB24`), in particular the `BATTLE_HandleCombatDeaths` pointer at `$59DB10`, including the full C Skill System.
-- [promotion_on_max_level](../promotion_on_max_level/) hooks a different function (`ManimLevelUp_ScrollOut`, `$7F354`), so both can be installed (each at its own free-space address). Their conditions don't overlap: trainees stop at level 10 and never reach the level 20 check.
+- [promotion_on_max_level](../promotion_on_max_level/) repoints the same `$59DB10` pointer, so only one of the two can be installed. To get both behaviours, install `promotion_on_max_level` alone with `PROMOTE_TRAINEES_AT_LEVEL_10` set to `1`.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
 
 `Installer.event` uses `PROTECT` on both the hook site (`$59DB10`, 4 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.

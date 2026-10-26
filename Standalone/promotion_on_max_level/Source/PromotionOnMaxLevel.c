@@ -1,50 +1,79 @@
 #include "global.h"
 #include "proc.h"
-#include "mapanim.h"
-#include "face.h"
-#include "hardware.h"
 #include "bmunit.h"
+#include "bmbattle.h"
 #include "bmmind.h"
 #include "classchg.h"
 
 extern const u8 PromotionOnMaxLevelEnabled;
+extern const u8 PromotionOnMaxLevelTrainees;
 extern const struct ProcCmd ProcScr_PromoHandler[];
 
+#define TRAINEE_PROMOTION_LEVEL 10
+
+/* A unit that levelled up in this battle and should now promote. */
+static struct Unit *GetUnitToPromote(const struct BattleUnit *bu)
+{
+	struct Unit *unit;
+
+	if (bu->unit.index == 0 || bu->unit.level == bu->levelPrevious)
+		return NULL;
+
+	unit = GetUnit(bu->unit.index);
+
+	if (!UNIT_IS_VALID(unit) || unit->curHP == 0)
+		return NULL;
+
+	if (unit->state & (US_DEAD | US_NOT_DEPLOYED))
+		return NULL;
+
+	if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+		return NULL;
+
+	if (UNIT_CATTRIBUTES(unit) & CA_MAXLEVEL10) {
+		if (PromotionOnMaxLevelTrainees && unit->level >= TRAINEE_PROMOTION_LEVEL)
+			return unit;
+
+		return NULL;
+	}
+
+	if (PromotionOnMaxLevelEnabled && unit->level == UNIT_LEVEL_MAX)
+		return unit;
+
+	return NULL;
+}
+
 /**
- * Vanilla ManimLevelUp_ScrollOut.
- * When the window finishes scrolling out, an unpromoted unit at the
- * vanilla level cap opens the promotion screen.
- * item_slot is forced to -1 so ExecClassChgReal does not spend a use
- * of whatever inventory slot the battle left in gActionData.
+ * Replaces the BATTLE_HandleCombatDeaths step of vanilla sProcScr_CombatAction.
+ * Runs the vanilla step, then, once the battle results are applied to the
+ * real units and the dead are handled, opens the vanilla promotion flow for
+ * a unit that just reached its level cap.
+ * The promotion is a blocking child of the combat action, which yields on
+ * the next script command and ends once the promotion is over.
  */
-void ManimLevelUp_ScrollOut_Promo(struct ManimLevelUpProc *proc)
+void BATTLE_HandleCombatDeaths_PromoteMaxLevel(struct CombatActionProc *proc)
 {
 	struct Unit *unit;
 	struct ProcPromoHandler *promo;
+	u8 subject;
 
-	proc->y_scroll_offset -= 8;
+	BATTLE_HandleCombatDeaths(proc);
 
-	BG_SetPosition(BG_0, 0, proc->y_scroll_offset);
-	BG_SetPosition(BG_1, 0, proc->y_scroll_offset);
-
-	gFaces[0]->yPos = 32 - proc->y_scroll_offset;
-
-	if (proc->y_scroll_offset > -144)
+	unit = GetUnitToPromote(&gBattleActor);
+	if (unit == NULL)
+		unit = GetUnitToPromote(&gBattleTarget);
+	if (unit == NULL)
 		return;
 
-	if (PromotionOnMaxLevelEnabled) {
-		unit = gManimSt.actor[proc->actor_id].unit;
-		if (unit->level == UNIT_LEVEL_MAX && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED)) {
-			gActionData.subjectIndex = unit->index;
-			StartBmPromotion(proc);
-			promo = Proc_Find(ProcScr_PromoHandler);
-			if (promo)
-				promo->item_slot = -1;
-			GetUnit(gActionData.subjectIndex)->level = 1;
-			GetUnit(gActionData.subjectIndex)->exp = 0;
-			gActionData.subjectIndex = 0;
-		}
-	}
+	subject = gActionData.subjectIndex;
+	gActionData.subjectIndex = unit->index;
 
-	Proc_Break(proc);
+	StartBmPromotion(proc);
+
+	/* Do not spend a use of the inventory slot the battle left in gActionData. */
+	promo = Proc_Find(ProcScr_PromoHandler);
+	if (promo)
+		promo->item_slot = -1;
+
+	gActionData.subjectIndex = subject;
 }

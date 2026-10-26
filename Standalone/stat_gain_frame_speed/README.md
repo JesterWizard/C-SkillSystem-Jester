@@ -60,7 +60,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-stat-gain-speed.gba
 ## Conflicts
 
 - Any patch that replaces or hooks vanilla `ManimLevelUp_PutStatGainLabels` (`$7F39C` .. `$7F477`), including the full C Skill System map level-up rewrite. A replacement makes this byte unused.
-- Works with [talk_on_level_up](../talk_on_level_up/), whose level-up proc calls the vanilla `ManimLevelUp_PutStatGainLabels`, and with patches that hook other parts of the map level-up window such as [promotion_on_max_level](../promotion_on_max_level/) (`ManimLevelUp_ScrollOut`).
+- Works with [talk_on_level_up](../talk_on_level_up/), whose level-up proc calls the vanilla `ManimLevelUp_PutStatGainLabels`, and with patches that hook other parts of the map level-up window.
 
 `Installer.event` uses `PROTECT` on the patched byte (`$7F464`). If another patch writes it, Event Assembler should report the conflicting write location.
 
