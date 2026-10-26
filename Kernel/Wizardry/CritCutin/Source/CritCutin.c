@@ -30,12 +30,14 @@ enum crit_cutin_layout {
 
 	/**
 	 * Face sprites are 96x80, x is their centre and y their top. The portrait
-	 * is centred on the attacker's battle animation, kept fully on screen, and
-	 * its bottom edge stands on the band's bottom border (blue line at y 104).
+	 * sits over the attacker's battle animation, nudged towards the attacker's
+	 * side of the screen and kept fully on screen. Its bottom edge is on the
+	 * band's bottom border.
 	 */
+	CUTIN_FACE_X_TOWARDS_SIDE = 8,
 	CUTIN_FACE_X_MIN = 48 + 8,
 	CUTIN_FACE_X_MAX = DISPLAY_WIDTH - 48 - 8,
-	CUTIN_FACE_Y = 24,
+	CUTIN_FACE_Y = 25,
 };
 
 struct ProcCritCutin {
@@ -121,10 +123,15 @@ static void CritCutin_OnInit(struct ProcCritCutin *proc)
 		return;
 
 	disp = FACE_DISP_KIND(FACE_96x80) | FACE_DISP_HLAYER(FACE_HLAYER_0) | FACE_DISP_HIDDEN | FACE_DISP_BIT_12;
-	if (GetAnimPosition(proc->anim) == EKR_POS_L)
-		disp |= FACE_DISP_FLIPPED;
-
 	x = proc->anim->xPosition;
+
+	if (GetAnimPosition(proc->anim) == EKR_POS_L) {
+		disp |= FACE_DISP_FLIPPED;
+		x -= CUTIN_FACE_X_TOWARDS_SIDE;
+	} else {
+		x += CUTIN_FACE_X_TOWARDS_SIDE;
+	}
+
 	if (x < CUTIN_FACE_X_MIN)
 		x = CUTIN_FACE_X_MIN;
 	if (x > CUTIN_FACE_X_MAX)
