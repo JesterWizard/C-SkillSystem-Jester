@@ -105,6 +105,61 @@ static void PromoSel_DrawClassInfo(struct ProcPromoSel *proc)
 		ChangeClassDescription(proc->msg_desc[proc->main_select]);
 }
 
+/**
+ * Starting a talk makes the text engine load Pal_Text into OBJ palette 0xA
+ * (its float glyph palette) a frame later, and the battle anim uses that
+ * palette too. A cursor move reloads the anim afterwards; R does not, so
+ * this proc puts the anim's colours back once the text engine has written.
+ */
+#define PROMO_SEL_TEXT_OBJ_PAL 0xA
+
+struct ProcAnimPalGuard {
+	PROC_HEADER;
+	int timer;
+	u16 pal[0x10];
+};
+
+static u16 *AnimPalGuardBank(void)
+{
+	return gPaletteBuffer + 0x100 + 0x10 * PROMO_SEL_TEXT_OBJ_PAL;
+}
+
+static void AnimPalGuard_Loop(struct ProcAnimPalGuard *proc)
+{
+	u16 *bank = AnimPalGuardBank();
+	int i;
+
+	for (i = 0; i < 0x10; i++)
+		if (bank[i] != Pal_Text[i])
+			break;
+
+	if (i == 0x10) {
+		CpuCopy16(proc->pal, bank, sizeof(proc->pal));
+		EnablePaletteSync();
+		Proc_Break(proc);
+		return;
+	}
+
+	if (++proc->timer > 30)
+		Proc_Break(proc);
+}
+
+static const struct ProcCmd ProcScr_AnimPalGuard[] = {
+	PROC_NAME("ClassGrowthPalGuard"),
+	PROC_REPEAT(AnimPalGuard_Loop),
+	PROC_END,
+};
+
+static void StartAnimPalGuard(void)
+{
+	struct ProcAnimPalGuard *proc;
+
+	Proc_EndEach(ProcScr_AnimPalGuard);
+	proc = Proc_Start(ProcScr_AnimPalGuard, PROC_TREE_3);
+	proc->timer = 0;
+	CpuCopy16(AnimPalGuardBank(), proc->pal, sizeof(proc->pal));
+}
+
 static u8 ClassChgMenuSel_OnRPress(struct MenuProc *pmenu)
 {
 	struct ProcClassChgMenuSel *parent = pmenu->proc_parent;
@@ -118,6 +173,10 @@ static u8 ClassChgMenuSel_OnRPress(struct MenuProc *pmenu)
 				  : PROMO_SEL_INFO_GROWTHS;
 
 	PromoSel_DrawClassInfo(gparent);
+
+	/* Started after the talk proc so it runs after it within a frame */
+	StartAnimPalGuard();
+
 	SetTalkPrintDelay(-1);
 	PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
 	return 0;
@@ -172,6 +231,9 @@ int ClassChgMenuItem_OnChange(struct MenuProc *pmenu, struct MenuItemProc *pmite
 {
 	struct ProcClassChgMenuSel *parent = pmenu->proc_parent;
 	struct ProcPromoSel *gparent = parent->proc_parent;
+
+	/* The anim reloads for the new class, don't restore the old one's colours */
+	Proc_EndEach(ProcScr_AnimPalGuard);
 
 	gparent->stat = 1;
 	gparent->main_select = pmitem->itemNumber;
