@@ -27,9 +27,12 @@ enum crit_cutin_layout {
 	CUTIN_FACE_SHOW = 6,
 	CUTIN_FACE_HIDE = 54,
 
-	/* Face sprites are 96x80, x is their centre and y their top; this fills the band (y 27-106) */
+	/**
+	 * Face sprites are 96x80, x is their centre and y their top. This puts the
+	 * portrait's bottom edge on the band's bottom border (blue line at y 104).
+	 */
 	CUTIN_FACE_X = DISPLAY_WIDTH / 2,
-	CUTIN_FACE_Y = 27,
+	CUTIN_FACE_Y = 24,
 };
 
 struct ProcCritCutin {

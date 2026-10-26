@@ -27,7 +27,7 @@ The cut-in is gated behind `gpKernelDesignerConfig->crit_cutin` (on by default).
 - It runs at the start of the attack (banim command `C07`), after any HP cost and skill activation boxes, while the attacker's animation is held.
 - The band opens with a white flash line, crackles for 48 frames (about 0.8 seconds), then closes: 58 frames in all.
 - The band is 80px tall, the full height of a portrait, and fills the space between the battle name boxes and the UI panels (y 27-106).
-- The portrait stays still in the centre of the band while it is fully open, and is gone before it closes. Attackers on the left are flipped so they face right.
+- The portrait stays still in the centre of the band, standing on its bottom border, while the band is fully open, and is gone before it closes. Attackers on the left are flipped so they face right.
 - Both battle sprites are hidden under the band while it plays and come back when it closes.
 - For combo attacks, the combo partner's portrait is used for its round.
 
