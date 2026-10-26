@@ -7,8 +7,9 @@
  * Vanilla Talk_OnIdle (0x08006C34) with the text engine's per-letter hooks:
  * letter-print effects, big text and rainbow text draw the letter
  * themselves, shake-on-print reacts to it, and the boop uses the speaker's
- * pitch. From MiscFunctions.c in the C Skill System, without its
- * conversation log and voice acting.
+ * pitch, and the conversation log gets each letter and holds the text
+ * while it is open. From MiscFunctions.c in the C Skill System, without its
+ * voice acting.
  */
 
 #define sTalkState (*(struct TalkState **)0x0859133C)
@@ -23,6 +24,9 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str);
 LYN_REPLACE_CHECK(Talk_OnIdle);
 void Talk_OnIdle(ProcPtr proc)
 {
+	if (Chatlog_IsVisible())
+		return;
+
 	if (IsTalkFaceMoving())
 		return;
 
@@ -75,6 +79,7 @@ void Talk_OnIdle(ProcPtr proc)
 			if (!TextEngine_TryStartGlyphFloat(th, (const char **)&sTalkState->str))
 				sTalkState->str = Text_DrawCharacter(th, sTalkState->str);
 
+			Chatlog_AppendPrinted(printedText);
 			TextEngine_OnCharacterPrinted();
 
 			if (!CheckTalkFlag(TALK_FLAG_SILENT)) {

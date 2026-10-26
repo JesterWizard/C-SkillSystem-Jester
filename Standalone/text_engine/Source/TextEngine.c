@@ -2233,13 +2233,14 @@ static void TextEngineScanlineFx_BuildBuffer(void)
 	s8 glitchOn = Proc_Find(gProcScr_TextEngineScreenGlitch) != NULL;
 	s8 staticOn = Proc_Find(gProcScr_TextEngineScreenStatic) != NULL;
 	u32 clock = GetGameClock();
+	bool chatlogVisible = Chatlog_IsVisible();
 	int line;
 
 	for (line = 0; line < DISPLAY_HEIGHT; line++) {
 		s16 offset = 0;
 		int intensity = 0;
 
-		if (!Chatlog_IsVisible()) {
+		if (!chatlogVisible) {
 			if (wave)
 				offset += (SIN(wave->phase + line * TEXT_ENGINE_WAVE_FREQUENCY)
 					* TEXT_ENGINE_WAVE_AMPLITUDE) >> 8;

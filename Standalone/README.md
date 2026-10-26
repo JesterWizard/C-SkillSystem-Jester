@@ -29,7 +29,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [gameover_quotes](gameover_quotes/) | Random tip quotes on the game-over fog screen |
 | [refuge](refuge/) | Unit menu command: take refuge in an adjacent ally (reverse Rescue) |
 | [expanded_hp](expanded_hp/) | Unsigned HP cap 254 with 3-digit stat screen, minimug, and battle gauge |
-| [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text and listener dimming (uses 0x1A0 bytes EWRAM) |
+| [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text, listener dimming and an optional SELECT conversation log (`TEXT_ENGINE_CHATLOG`) (uses 0x1A0 bytes EWRAM, 0x7A0 with the log) |
 | [talk_conversation_exp_reward](talk_conversation_exp_reward/) | The unit that uses the Support command gains configurable EXP (default 10) after the on-map support conversation |
 | [unlock_all_supports](unlock_all_supports/) | Extras > Support Conversation is always available, with every character and every C/B/A conversation unlocked |
 | [konami_style_bonus_screen](konami_style_bonus_screen/) | Up Up Down Down Left Right Left Right B A on the title screen grants a random stat booster via Transfer Data (uses 2 bytes EWRAM) |
@@ -62,6 +62,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [goal_escape](goal_escape/) | Escape chapter goal (goal type 6): units that Wait on per-chapter escape tiles leave the map, and the chapter is won when all have escaped |
 | [map_menu_character_biographies](map_menu_character_biographies/) | Biography command in the map menu: a scrolling character list that plays up to four CG text pages per character |
 | [language_select](language_select/) | Flag-grid language selector after the boot logos, saved in the global save header, with an optional text-ID switch for translations (uses 4 bytes EWRAM) |
+| [chatlog](chatlog/) | Conversation log for vanilla dialogue: SELECT opens a scrollback log of the chapter's dialogue (with text_engine, use its `TEXT_ENGINE_CHATLOG` instead) (uses 0x600 bytes EWRAM) |
 
 ## Adding a new patch
 

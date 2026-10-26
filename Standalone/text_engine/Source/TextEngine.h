@@ -39,12 +39,12 @@ static inline void HalfBody_OnTalkFaceClear(struct FaceProc *proc) { (void)proc;
 static inline bool HalfBody_UsesTwoPalettes(const struct FaceData *info) { (void)info; return false; }
 static inline s32 Portrait32_GetOverlayOam2(struct FaceProc *proc) { (void)proc; return -1; }
 
-/* Nor is the kernel's conversation log. */
-static inline bool Chatlog_IsVisible(void) { return false; }
-static inline void Chatlog_StartSession(void) {}
-static inline void Chatlog_EndSession(void) {}
-static inline void Chatlog_CommitPage(void) {}
-static inline void Chatlog_AppendSoftBreak(void) {}
+/*
+ * The conversation log: Source/Chatlog.c when Installer.event defines
+ * TEXT_ENGINE_CHATLOG, the no-ops in Source/ChatlogStubs.c otherwise.
+ * Either one is linked to the engine through Event Assembler labels.
+ */
+#include "Chatlog.h"
 
 /* Vanilla FE8U text is one byte per character. */
 static inline int DecodeUtf8(const char *str, u32 *unicode_out, int *len)

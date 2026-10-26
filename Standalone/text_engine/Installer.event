@@ -2,6 +2,14 @@
 // itself a C port of Tequila's text engine hack (with help from Zahlman).
 // See README.md for the control codes, hooks, RAM and conflicts.
 
+// Settings ------------------------------------------------------------------
+// Conversation log: remove the // in front of the next line to install it.
+// SELECT during dialogue then opens a scrollback log of the chapter's
+// dialogue (UP/DOWN scroll, SELECT closes). It adds two hooks and uses EWRAM
+// 0x0203B000 .. 0x0203B5FF (see Source/ChatlogRamAlloc.s).
+// #define TEXT_ENGINE_CHATLOG
+// ---------------------------------------------------------------------------
+
 #define FE8U_ClassChgLoadUI                 $CCBF4
 #define FE8U_FaceBlink_PutSprite            $5FE0   // sub_8005FE0
 #define FE8U_FaceBlink_PutEyes              $6134   // sub_8006134
@@ -20,6 +28,8 @@
 #define FE8U_StartTalkOpen                  $88A8
 #define FE8U_GetTalkFaceHPos                $8934
 #define FE8U_GetStrTalkLen                  $8B44
+#define FE8U_TalkSkipListener_OnIdle        $6B4C   // chatlog only
+#define FE8U_TalkWaitForInput_OnIdle        $7C4C   // chatlog only
 #define FE8U_StandaloneFreeSpace            $1000000
 
 PUSH
@@ -78,6 +88,14 @@ ORG FE8U_GetTalkFaceHPos
 ORG FE8U_GetStrTalkLen
     jumpToHack(GetStringTextWidthWithDialogueCodes)
     PROTECT FE8U_GetStrTalkLen FE8U_GetStrTalkLen + 0x8 // GetStrTalkLen
+#ifdef TEXT_ENGINE_CHATLOG
+ORG FE8U_TalkSkipListener_OnIdle
+    jumpToHack(TalkSkipListener_OnIdle_Chatlog)
+    PROTECT FE8U_TalkSkipListener_OnIdle FE8U_TalkSkipListener_OnIdle + 0x8 // TalkSkipListener_OnIdle
+ORG FE8U_TalkWaitForInput_OnIdle
+    jumpToHack(TalkWaitForInput_OnIdle_Chatlog)
+    PROTECT FE8U_TalkWaitForInput_OnIdle FE8U_TalkWaitForInput_OnIdle + 0x8 // TalkWaitForInput_OnIdle
+#endif
 POP
 
 ORG FE8U_StandaloneFreeSpace
@@ -94,5 +112,12 @@ ALIGN 4
 
 ALIGN 4
 #include "Data/Popups.event"
+
+ALIGN 4
+#ifdef TEXT_ENGINE_CHATLOG
+    #include "Source/Chatlog.lyn.event"
+#else
+    #include "Source/ChatlogStubs.lyn.event"
+#endif
 
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TextEngine body and data

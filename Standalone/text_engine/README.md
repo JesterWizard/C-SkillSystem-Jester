@@ -14,6 +14,7 @@ The C Skill System's dialogue text engine for clean FE8U. It is a C port of Tequ
 - **Popups:** "Objection!"-style cut-ins.
 - **Auto-advance:** boxes that move on by themselves.
 - **Listener dimming:** the portraits of characters who aren't speaking dim slightly (on by default).
+- **Conversation log** (optional, off by default): SELECT during dialogue opens a scrollback log of the chapter's dialogue. See [Conversation log](#conversation-log).
 
 Existing vanilla text keeps working unchanged.
 
@@ -86,10 +87,11 @@ The integrated [Text Engine Rework](../../Documentation/Features/TextEngineRewor
 
 ## Settings
 
-`Installer.event` starts with a settings block that you can change without compiling:
+`Installer.event` has two settings that you can change without compiling:
 
 | Setting | Default | Meaning |
 |---------|---------|---------|
+| `#define TEXT_ENGINE_CHATLOG` (top of the file) | commented out | Remove the `//` in front of it to install the [conversation log](#conversation-log). |
 | `gTextEngineConfig` byte 0 | `1` | Dim the portraits of characters who aren't speaking. `0` turns it off. |
 
 Fonts, text colours, box palettes and shapes, and popups are tables in [`Data/`](Data/):
@@ -97,6 +99,19 @@ Fonts, text colours, box palettes and shapes, and popups are tables in [`Data/`]
 - `Data/Tables.event`: `FontGlyphsPointerTable`, `TextPaletteTable`, `TextBoxBgPaletteTable`, `TextBoxTypePointerTable` and the boop pitch table.
 - `Data/Popups.event`: `TextEnginePopupTable`. Each popup needs `*.img.bin`, `*.map.bin` and `*.pal.bin` from grit (`grit Name.png -gB 4 -gzl -m -mLf -mR4 -mzl -pn 16 -ftb -fh! -o Name.img.bin`). `Data/Popups/generate_popups.py` draws the shipped style.
 - Box shapes are LZ77 `.dmp` files made from the PNGs in `Data/BoxGfx` by `make`.
+
+## Conversation log
+
+The C Skill System's `chatlog_enabled`. It is off by default; to install it, open `Installer.event` and change `// #define TEXT_ENGINE_CHATLOG` near the top to `#define TEXT_ENGINE_CHATLOG` before you insert it. (When assembling from your own event file, `#define TEXT_ENGINE_CHATLOG` before `#include "Installer.event"` works too.)
+
+- Press **SELECT** while a conversation is on screen to open the log. It lists the chapter's dialogue so far, newest at the bottom: each speaker's mini portrait and name, then their lines, rewrapped to the log's width. The line being printed shows as far as it has got.
+- **UP** / **DOWN** scroll (a scroll bar shows when there's more than fits), **SELECT** closes it. The dialogue waits while the log is open (A and B do nothing) and carries on where it was when you close it.
+- The log keeps the last 17 lines of the chapter. It starts again at each chapter start (including restarting a chapter).
+- The log draws on BG2 with tiles and palette slots the scene isn't using, so it shows fewer lines (or doesn't open) when a scene leaves little VRAM free. It doesn't open over world map narration, which prints its text as sprites.
+
+With the setting on, the installer adds two hooks (`TalkSkipListener_OnIdle` and `TalkWaitForInput_OnIdle`, so the dialogue doesn't skip or move on under the log), `Source/Chatlog.lyn.event` (about 5 KB) and uses another 0x600 bytes of EWRAM (see [RAM](#ram)). With it off, `Source/ChatlogStubs.lyn.event` gives the engine empty stand-ins and the engine behaves as it did without the log.
+
+[`Standalone/chatlog`](../chatlog/) is the same log for vanilla dialogue, without this text engine. Don't install both.
 
 ## RAM
 
@@ -113,16 +128,28 @@ This patch uses **0x1A0 bytes** of EWRAM, set in `Source/RamAlloc.s`:
 
 The block sits in FreeRamSpace2 (`0x0203AAA4` .. `0x0203DDE0`), after the slices used by [alpha_blend_movement_sprites](../alpha_blend_movement_sprites/) and [text_box_extension_layout](../text_box_extension_layout/). To move it, change `TextEngineRamBase` in `Source/RamAlloc.s` and run `make`.
 
+With `TEXT_ENGINE_CHATLOG`, the conversation log uses another **0x600 bytes**, set in `Source/ChatlogRamAlloc.s`:
+
+| Symbol | Address range | Size | Use |
+|--------|---------------|------|-----|
+| `sChatLogState` | `0x0203B000` .. `0x0203B443` | `0x444` | The logged lines (17 × 64 bytes) and scroll position |
+| `sChatLogStamp` | `0x0203B444` .. `0x0203B44B` | 8 | Which chapter the log belongs to: a marker and `gPlaySt`'s chapter start time |
+| `sChatlogUiState` | `0x0203B44C` .. `0x0203B5FF` | `0x1AC` used | Drawing state while the log is open |
+
+To move it, change `ChatlogRamBase` in `Source/ChatlogRamAlloc.s` and run `make`. Nothing is added to the save file: the log is cleared when the chapter's start time changes, and it isn't kept in a suspend save.
+
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`. The code and data take about 114 KB (`$1000000` .. `$101C7C8`).
+- Free space: `$1000000`. The code and data take about 114 KB (`$1000000` .. `$101CA24`), or about 120 KB (`$1000000` .. `$101DF6C`) with `TEXT_ENGINE_CHATLOG`.
 
 ## Build
 
 No build step is required to install the patch. `Source/TextEngine.lyn.event` and the box shape `.dmp` files are checked in.
 
-Run `make` if you edit `Source/`, `Source/RamAlloc.s` or the PNGs in `Data/BoxGfx`:
+`Source/Chatlog.lyn.event` and `Source/ChatlogStubs.lyn.event` are checked in too.
+
+Run `make` if you edit `Source/`, `Source/RamAlloc.s`, `Source/ChatlogRamAlloc.s` or the PNGs in `Data/BoxGfx`:
 
 ```bash
 make -C Standalone/text_engine
@@ -164,10 +191,14 @@ EA_DIR=<repo>/Tools/EventAssembler
 | `Source/TextEngine.h` | Stand-ins for the C Skill System kernel pieces the engine was written against |
 | `Source/RamAlloc.s` | EWRAM addresses |
 | `Source/TextEngine.lyn.event` | Checked-in lyn output |
+| `Source/Chatlog.c`, `Source/Chatlog.h` | The conversation log (`TEXT_ENGINE_CHATLOG`) |
+| `Source/ChatlogRamAlloc.s` | The conversation log's EWRAM addresses |
+| `Source/Chatlog.lyn.event` | Checked-in lyn output of the log, installed with `TEXT_ENGINE_CHATLOG` |
+| `Source/ChatlogStubs.c`, `Source/ChatlogStubs.lyn.event` | Empty stand-ins for the log, installed without `TEXT_ENGINE_CHATLOG` |
 | `Data/Tables.event`, `Data/Fonts`, `Data/BoxGfx`, `Data/Text_Boop_Table.event` | Fonts, colours, box shapes and boop pitches |
 | `Data/Popups.event`, `Data/Popups` | Popup table and art |
 | `textdefs.txt` | Control code aliases for text tools |
-| `makefile` | Compiles the C and RAM object to `.lyn.event` and the box PNGs to `.dmp` |
+| `makefile` | Compiles the C and RAM objects to `.lyn.event` and the box PNGs to `.dmp` |
 
 ## Hooks & Free Space
 
@@ -191,13 +222,16 @@ EA_DIR=<repo>/Tools/EventAssembler
 | `GetTalkFaceHPos` | `$8934` | 8 bytes |
 | `GetStrTalkLen` | `$8B44` | 8 bytes |
 | `ClassChgLoadUI` | `$CCBF4` | 8 bytes |
+| `TalkSkipListener_OnIdle` (only with `TEXT_ENGINE_CHATLOG`) | `$6B4C` | 8 bytes |
+| `TalkWaitForInput_OnIdle` (only with `TEXT_ENGINE_CHATLOG`) | `$7C4C` | 8 bytes |
 
 **Free space:** `$1000000`.
 
 ## Conflicts
 
 - Any other dialogue text engine, including Tequila's original assembly text engine and Zeta's AutoNewLine, and any patch that hooks the functions above.
-- **EWRAM** `0x0203AB00` .. `0x0203AC9F` overlaps with other hacks using FreeRamSpace2. Change `Source/RamAlloc.s` if needed.
+- **EWRAM** `0x0203AB00` .. `0x0203AC9F` (and `0x0203B000` .. `0x0203B5FF` with `TEXT_ENGINE_CHATLOG`) overlaps with other hacks using FreeRamSpace2. Change `Source/RamAlloc.s` / `Source/ChatlogRamAlloc.s` if needed.
+- [`Standalone/chatlog`](../chatlog/) hooks `Talk_OnIdle` too; use `TEXT_ENGINE_CHATLOG` instead.
 - Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
 - Do not install it on top of the full C Skill System, which already has this engine.
 
@@ -206,13 +240,15 @@ EA_DIR=<repo>/Tools/EventAssembler
 ## Differences from the C Skill System
 
 - Text is vanilla FE8U's one byte per character. The C Skill System version decodes UTF-8.
-- The C Skill System's conversation log, half-body portraits and 32-colour portraits aren't included, so the engine's hooks into them do nothing here.
+- The C Skill System's half-body portraits and 32-colour portraits aren't included, so the engine's hooks into them do nothing here. Its conversation log is optional (`TEXT_ENGINE_CHATLOG`).
+- Conversation log: it isn't kept in the suspend save, and it is cleared when `gPlaySt`'s chapter start time changes instead of by a chapter-start hook. Map sprites aren't hidden while it is open (they are dimmed with the map behind it). It doesn't open over world map narration, where its text came out garbled. Each redraw copies its tilemap to VRAM straight away, which cuts down the half-drawn frames the integrated log shows while scrolling.
 - The screen tear, static and earthquake move backgrounds and portraits. In the C Skill System, map sprites move with them too; here they don't.
 
 ## Limitations
 
 - Meant for standard cutscene text. World map text, tutorial boxes and other alternate text paths are untested with the new codes.
 - The [Text Engine Rework](../../Documentation/Features/TextEngineRework.md#limitations--bugs) limitations apply too.
+- Conversation log: redrawing it takes most of a frame, so while you scroll quickly the frame being redrawn can show a few letters out of place (as in the C Skill System). START still skips the whole scene while the log is open (the event skip isn't blocked, as in the C Skill System); the log closes cleanly. The speaker of each line is guessed from the active portrait, so generic portraits show as `?` and may take the name of a character who shares the portrait.
 
 ## Credits
 
