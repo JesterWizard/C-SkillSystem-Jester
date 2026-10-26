@@ -199,6 +199,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 
 - [Overview](./Documentation/Features/Abstract.md)
 - [Pair-Up Commands](./Documentation/Features/PairUp.md)
+- [Popup Item Icon Shine](./Documentation/Features/PopupItemIconShine.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Popup_Item_Icon_Shine.gif" alt="Popup Item Icon Shine preview" width="600" />
+	</details>
+
 - [Popup System](./Documentation/Features/PopupR.md)
 - [Quality Of Life](./Documentation/Features/QualityOfLife.md)
 - [Real-Time Battle](./Documentation/Features/RealTimeBattle.md)

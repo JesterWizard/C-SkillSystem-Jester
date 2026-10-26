@@ -104,6 +104,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.no_suspend_in_aiphase = false,
 	.no_wait_after_trading = true,
 	.pair_up_enabled = true,
+	.popup_item_icon_shine = true, // a glint sweeps across item icons in popups
 	.portrait_32_color = false,
 	.prep_menu_augury = true,
 	.prep_menu_base_conversations = false,
