@@ -30,6 +30,23 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [refuge](refuge/) | Unit menu command: take refuge in an adjacent ally (reverse Rescue) |
 | [expanded_hp](expanded_hp/) | Unsigned HP cap 254 with 3-digit stat screen, minimug, and battle gauge |
 | [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text and listener dimming (uses 0x1A0 bytes EWRAM) |
+| [talk_conversation_exp_reward](talk_conversation_exp_reward/) | The unit that uses the Support command gains configurable EXP (default 10) after the on-map support conversation |
+| [unlock_all_supports](unlock_all_supports/) | Extras > Support Conversation is always available, with every character and every C/B/A conversation unlocked |
+| [konami_style_bonus_screen](konami_style_bonus_screen/) | Up Up Down Down Left Right Left Right B A on the title screen grants a random stat booster via Transfer Data (uses 2 bytes EWRAM) |
+| [remove_move_path](remove_move_path/) | Hides the movement path arrow; units walk the shortest route to the chosen tile |
+| [custom_droppable_item_icon](custom_droppable_item_icon/) | Blinking potion icon on map units that carry a droppable item |
+| [stat_screen_allegiance_colors](stat_screen_allegiance_colors/) | Stat screen background tinted blue/red/green/gold by the unit's allegiance |
+| [deny_stat_screen_access](deny_stat_screen_access/) | Configurable class list whose units can't be opened or browsed on the stat screen |
+| [variable_unit_descriptions](variable_unit_descriptions/) | Per-chapter character description overrides on the stat screen via a text-ID table |
+| [l_button_same_faction_cycling](l_button_same_faction_cycling/) | L button cycles through units of the same faction as the unit under the cursor |
+| [max_simultaneous_support_conversations](max_simultaneous_support_conversations/) | Raises the per-unit support-rank cap (default 10), or optionally only the prep-screen counter |
+| [no_wait_after_trading](no_wait_after_trading/) | Cancelling the action menu after trading returns the unit to movement instead of forcing Wait |
+| [rescue_drop_move_again](rescue_drop_move_again/) | A dropped unit that hadn't acted yet can still move and act this turn |
+| [fast_map_animations](fast_map_animations/) | All map sprites walk at top speed (one tile per frame) |
+| [skip_intro](skip_intro/) | Skips the new-game opening monologue, the Prologue world-map narration and all chapter title cards |
+| [levelup_modes](levelup_modes/) | Level-up stat-gain mode per difficulty (vanilla, separate-RNG random, fixed, 100%, 0%), with optional guaranteed level-ups (uses 8 bytes EWRAM) |
+| [promote_trainees_in_chapter](promote_trainees_in_chapter/) | Trainees (Ross, Amelia, Ewan) promote right after the battle where they reach level 10 |
+| [stat_gain_frame_speed](stat_gain_frame_speed/) | Frames the map level-up window waits between stat gains (vanilla 20, default 10) |
 
 ## Adding a new patch
 

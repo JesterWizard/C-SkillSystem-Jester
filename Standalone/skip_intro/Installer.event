@@ -1,0 +1,43 @@
+// Skip Intro for FE8U: skips the new-game opening monologue, the Prologue
+// world-map narration, and every chapter title card.
+// See README.md for hooks, free space and conflicts.
+
+#define FE8U_BmMain_StartIntroFx       $1550C   // chapter title card ("Prologue: The Fall of Renais")
+#define FE8U_StartIntroMonologue       $C541C   // new-game opening subtitle ("In an age long past...")
+#define FE8U_Events_WM_Beginning_1     $8B39F0  // Events_WM_Beginning[1]: Prologue world-map narration
+#define FE8U_StandaloneFreeSpace       $1000000
+
+PUSH
+ORG FE8U_BmMain_StartIntroFx
+    SHORT 0x4770 // bx lr: never start gProcScr_ChapterIntro
+    PROTECT FE8U_BmMain_StartIntroFx FE8U_BmMain_StartIntroFx + 0x2 // BmMain_StartIntroFx
+ORG FE8U_StartIntroMonologue
+    SHORT 0x4770 // bx lr: never start gProcScr_OpSubtitle
+    PROTECT FE8U_StartIntroMonologue FE8U_StartIntroMonologue + 0x2 // StartIntroMonologue
+ORG FE8U_Events_WM_Beginning_1
+    POIN SkipIntro_PrologueWorldMap
+    PROTECT FE8U_Events_WM_Beginning_1 FE8U_Events_WM_Beginning_1 + 0x4 // Events_WM_Beginning[1]
+POP
+
+ORG FE8U_StandaloneFreeSpace
+ALIGN 4
+// Replacement for the vanilla Prologue world-map script (0x08A39768).
+// It keeps the commands that change world-map state (lord spawn, camera,
+// skip/no-fade bits, cleanup) and drops the narration, the same tail the
+// vanilla script runs when the player presses START.
+SkipIntro_PrologueWorldMap:
+    SHORT 0x1020 0x0001                         // EVBIT_MODIFY 1
+    SHORT 0xC220 0x0000                         // WM: no fade
+    SHORT 0xC360 0x0000 0x0000 0x0001 0x0000 0x0000 // WM_SPAWNLORD(WM_MU_0, Eirika, node 0)
+    SHORT 0x8540 0x0000 0x0000 0x0000           // WM_CENTERCAMONLORD(WM_MU_0)
+    SHORT 0xA240 0x0000; WORD 0                 // WM_HIDEUNIT(WM_MU_0): vanilla leaves the lord hidden too
+    SHORT 0xC120 0x0000                         // SKIPWN
+    SHORT 0xBD40 0x0000; WORD 0xFFFFFFFF        // WM_FXCLEAR1(-1)
+    SHORT 0xBE40 0x0000; WORD 0xFFFFFFFF        // WM_FXCLEAR2(-1)
+    SHORT 0xA040 0x0000; WORD 2                 // WM_REMSPRITE(2)
+    SHORT 0xA040 0x0000; WORD 3                 // WM_REMSPRITE(3)
+    SHORT 0xA040 0x0000; WORD 4                 // WM_REMSPRITE(4)
+    SHORT 0xA040 0x0000; WORD 5                 // WM_REMSPRITE(5)
+    SHORT 0xA040 0x0000; WORD 6                 // WM_REMSPRITE(6)
+    SHORT 0x0120 0x0000                         // ENDA
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SkipIntro_PrologueWorldMap

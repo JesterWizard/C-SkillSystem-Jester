@@ -1,0 +1,27 @@
+#define FE8U_CanShowUnitStatScreen $1C928
+#define FE8U_FindNextUnit          $87920
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_CanShowUnitStatScreen
+    jumpToHack(CanShowUnitStatScreen_Deny)
+    PROTECT FE8U_CanShowUnitStatScreen FE8U_CanShowUnitStatScreen + 0x8 // CanShowUnitStatScreen hook
+ORG FE8U_FindNextUnit
+    jumpToHack(FindNextUnit_Deny)
+    PROTECT FE8U_FindNextUnit FE8U_FindNextUnit + 0x8 // FindNextUnit hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/DenyStatScreenAccess.lyn.event"
+
+// Classes whose units cannot be opened on the stat screen (R on the map /
+// prep map) and are skipped when browsing with Up/Down. One class ID per
+// BYTE, terminated by 0. Default = the integrated C Skill System list.
+ALIGN 4
+StatScreenDenyClasses:
+    BYTE 0x62 // CLASS_GORGONEGG
+    BYTE 0x34 // CLASS_GORGONEGG2
+    // BYTE 0x51 // example: CLASS_PHANTOM
+    BYTE 0x00 // end of list
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // DenyStatScreenAccess body + class list

@@ -1,0 +1,27 @@
+#define FE8U_HbPopulate_SSCharacter $88BD4
+#define FE8U_StandaloneFreeSpace    $1000000
+
+PUSH
+ORG FE8U_HbPopulate_SSCharacter
+    jumpToHack(HbPopulate_SSCharacter_Variable)
+    PROTECT FE8U_HbPopulate_SSCharacter FE8U_HbPopulate_SSCharacter + 0x8 // HbPopulate_SSCharacter hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/VariableUnitDescriptions.lyn.event"
+
+// Stat screen character description overrides.
+// One row per (character, chapter):  BYTE <character ID> <chapter ID>; SHORT <text ID>
+// The first matching row wins. Characters/chapters with no row keep their
+// normal description (Character Editor "Description" text).
+// Add your texts in FEBuilder's Text Editor first and use their text IDs here.
+// The table ends with a row whose character ID is 0.
+ALIGN 4
+VariableUnitDescriptionTable:
+    // Examples (integrated C Skill System demo: Eirika in chapters 1, 2 and 3):
+    // BYTE 0x01 0x01; SHORT 0x0000 // Eirika, Chapter 1 -> your text ID
+    // BYTE 0x01 0x02; SHORT 0x0000 // Eirika, Chapter 2 -> your text ID
+    // BYTE 0x01 0x03; SHORT 0x0000 // Eirika, Chapter 3 -> your text ID
+    BYTE 0x00 0x00; SHORT 0x0000 // end of table
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // VariableUnitDescriptions body + table

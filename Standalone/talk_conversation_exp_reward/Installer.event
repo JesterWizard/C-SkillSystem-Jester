@@ -1,0 +1,18 @@
+#define FE8U_CallMapSupportEvent  $D304
+#define FE8U_StandaloneFreeSpace  $1000000
+
+PUSH
+ORG FE8U_CallMapSupportEvent
+    jumpToHack(CallMapSupportEvent_ExpReward)
+    PROTECT FE8U_CallMapSupportEvent FE8U_CallMapSupportEvent + 0x8 // CallMapSupportEvent hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+ALIGN 4
+gSupportTalkExpReward:
+    BYTE 10 // EXP the unit who used the Support command gains after the conversation (0-100, 0 = off)
+
+ALIGN 4
+#include "Source/SupportTalkExpReward.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SupportTalkExpReward body

@@ -1,0 +1,15 @@
+// The vanilla function is left intact. gProcScr_PlayerPhase calls it through
+// PROC_CALL_2(PlayerPhase_PrepareAction) (its only caller); that pointer is
+// redirected to a small wrapper that clears gBmSt.taken_action first.
+#define FE8U_gProcScr_PlayerPhase_PrepareActionPtr $59ABD4 // gProcScr_PlayerPhase + 0xFC (arg of PROC_CALL_2)
+#define FE8U_StandaloneFreeSpace                   $1000000
+
+PUSH
+ORG FE8U_gProcScr_PlayerPhase_PrepareActionPtr
+    POIN PlayerPhase_PrepareAction_NoWait
+    PROTECT FE8U_gProcScr_PlayerPhase_PrepareActionPtr FE8U_gProcScr_PlayerPhase_PrepareActionPtr + 0x4 // PROC_CALL_2(PlayerPhase_PrepareAction)
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/PlayerPhase_PrepareAction_NoWait.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PlayerPhase_PrepareAction_NoWait body

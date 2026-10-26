@@ -1,0 +1,12 @@
+#define FE8U_TrySwitchViewedUnit   $1DB4C
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_TrySwitchViewedUnit
+    jumpToHack(TrySwitchViewedUnit_SameFaction)
+    PROTECT FE8U_TrySwitchViewedUnit FE8U_TrySwitchViewedUnit + 0x8 // TrySwitchViewedUnit hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/TrySwitchViewedUnit_SameFaction.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TrySwitchViewedUnit_SameFaction body
