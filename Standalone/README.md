@@ -51,6 +51,8 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [popup_item_icon_shine](popup_item_icon_shine/) | A white glint sweeps across item icons in "got item" popups |
 | [chapter_names](chapter_names/) | FE7-style chapter titles drawn as text from each chapter's title text, plus the save menu chapter title fix |
 | [res_terrain_window](res_terrain_window/) | The terrain window shows DEF, RES and AVO |
+| [crit_cutin](crit_cutin/) | Critical hits by units with a portrait show a portrait cut-in over an electric band before the attack (battle animations) |
+| [class_growths](class_growths/) | Adds or averages class growths into personal growths on level-up, with a promotion-screen growth preview (uses 128 bytes EWRAM) |
 
 ## Adding a new patch
 
