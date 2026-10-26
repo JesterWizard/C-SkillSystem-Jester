@@ -72,6 +72,9 @@ def text_to_utf8_u16_array(text, control_chars, file_path):
             if control_char in control_chars:
                 for ctrl_ch in control_chars[control_char]:
                     byte_array.append(ctrl_ch)
+            elif re.fullmatch(r'0x[0-9A-Fa-f]{1,2}', control_char):
+                # A raw byte, such as a control code's argument: [TextSpeed][0x04]
+                byte_array.append(int(control_char, 16))
 
             pos = match.end()
         else:

@@ -195,6 +195,31 @@ enum {
 	/* Earliest frame A or B can dismiss the popup, and when it ends by itself. */
 	TEXT_ENGINE_POPUP_MIN_FRAMES = 24,
 	TEXT_ENGINE_POPUP_FRAMES = 60,
+	/*
+	 * Auto-advance: a text box moves on by itself after a number of frames,
+	 * once ([AutoAdvance]) or at every [A] ([ToggleOnAutoAdvance]).
+	 */
+	TEXT_ENGINE_CMD_AUTO_ADVANCE = 0x5E,
+	TEXT_ENGINE_CMD_AUTO_ADVANCE_ON = 0x5F,
+	TEXT_ENGINE_CMD_AUTO_ADVANCE_OFF = 0x60,
+	/*
+	 * Rainbow text: letters take three text colour groups in turn, and the
+	 * groups' colours turn around a hue wheel a third of a turn apart.
+	 */
+	TEXT_ENGINE_CMD_RAINBOW_ON = 0x61,
+	TEXT_ENGINE_CMD_RAINBOW_OFF = 0x62,
+	TEXT_ENGINE_RAINBOW_GROUPS = 3,
+	/* Frames from one hue in sTextEngineRainbowHues to the next. */
+	TEXT_ENGINE_RAINBOW_HUE_FRAMES = 8,
+	/*
+	 * Listener dimming: portraits of characters who aren't speaking darken
+	 * by this many 32nds over this many frames.
+	 */
+	TEXT_ENGINE_DIM_STRENGTH = 10,
+	TEXT_ENGINE_DIM_FRAMES = 8,
+	TEXT_ENGINE_DIM_FACE_SLOTS = 4,
+	/* Its own palette, a halfbody's second one and a 32-colour overlay. */
+	TEXT_ENGINE_DIM_MAX_PALETTES = 3,
 };
 
 struct TextEngineFaceJumpProc {
@@ -344,6 +369,42 @@ struct TextEngineBigTextState {
 	u8 printDelayForced;
 };
 
+struct TextEngineAutoAdvanceState {
+	/* Every [A] moves on by itself after this many frames; 0 is off. */
+	u8 frames;
+};
+
+struct TextEngineAutoAdvanceProc {
+	PROC_HEADER;
+	struct Proc *wait;
+	int timer;
+};
+
+struct TextEngineRainbowProc {
+	PROC_HEADER;
+	/* New letters take the rainbow groups. Off still animates printed ones. */
+	u8 active;
+	u8 letter;
+	u8 savedColor;
+	u8 palid;
+	u16 clock;
+	/* The rainbow groups' colours before, in the text and float palettes. */
+	u16 saved[2][TEXT_ENGINE_RAINBOW_GROUPS * 3];
+};
+
+struct TextEngineDimProc {
+	PROC_HEADER;
+	/* Per gFaces slot: the face last seen there and how dim it is. */
+	struct FaceProc *face[TEXT_ENGINE_DIM_FACE_SLOTS];
+	u8 level[TEXT_ENGINE_DIM_FACE_SLOTS];
+};
+
+/* bmlib's palette fade proc, which fades portraits in and out. */
+struct TextEnginePalFadeProc {
+	PROC_HEADER;
+	struct PalFadeSt *st;
+};
+
 struct TextEngineBigPopProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ const struct Glyph *glyph;
@@ -388,6 +449,7 @@ struct TextEngineBigJoltProc {
 };
 
 extern EWRAM_DATA struct TextEngineBigTextState sTextEngineBigTextState;
+extern EWRAM_DATA struct TextEngineAutoAdvanceState sTextEngineAutoAdvanceState;
 
 struct TextEnginePortraitNameAlias {
 	u8 portraitId;
@@ -481,6 +543,7 @@ extern const struct TextEnginePopup TextEnginePopupTable[];
 
 extern const struct ProcCmd gProcScr_TalkSkipListener[];
 extern const struct ProcCmd gProcScr_TalkPause[];
+extern const struct ProcCmd gProcScr_TalkWaitForInput[];
 extern const struct ProcCmd gProcScr_TalkShiftClearAll[];
 extern const struct ProcCmd gProcScr_TalkFaceMove[];
 extern const struct ChoiceEntryInfo gYesNoTalkChoice[];
@@ -537,6 +600,11 @@ static void TextEngine_StartAshDissolve(struct FaceProc *face);
 static void TextEngine_CleanupAshDissolve(void);
 static void TextEngineEmotion_OnIdle(struct TextEngineEmotionProc *proc);
 static void TextEngine_CleanupEmotion(void);
+static void TextEngine_CleanupRainbow(void);
+static void TextEngine_CleanupAutoAdvance(void);
+static void TextEngine_StartDim(void);
+static void TextEngine_CleanupDim(void);
+static void TextEngine_RainbowColorLetter(struct Text *text, const char *str);
 
 static const s8 sTextEnginePrintShakeOffsets[][2] = {
 	{ +1, -1 },
@@ -2965,17 +3033,21 @@ static void TextEngine_ClearFloatSlotVram(int slot)
 static void TextEngine_BakeFloatedGlyph(struct TextEngineGlyphFloatProc *proc)
 {
 	int savedCursor;
+	int savedColor;
 
 	SetInitTalkTextFont();
 	savedCursor = Text_GetCursor(proc->targetText);
+	savedColor = Text_GetColor(proc->targetText);
 	Text_SetColor(proc->targetText, proc->color);
 	Text_SetCursor(proc->targetText, proc->cursorX);
 	Text_DrawCharacter(proc->targetText, proc->ch);
 	/*
 	 * Text_DrawCharacter advances the cursor.  Later glyphs may already have
 	 * reserved space past this one, so restore the live cursor afterward.
+	 * The line's colour may have changed since this letter started too.
 	 */
 	Text_SetCursor(proc->targetText, savedCursor);
+	Text_SetColor(proc->targetText, savedColor);
 }
 
 static void TextEngineGlyphFloat_OnEnd(struct TextEngineGlyphFloatProc *proc)
@@ -3561,6 +3633,9 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 		TalkHasCorrectBubble())
 		TextEngine_DrawSpeakerNameplate(NULL);
 
+	if (str)
+		TextEngine_RainbowColorLetter(text, *str);
+
 	if (TextEngine_TryDrawBigGlyph(text, str))
 		return 1;
 
@@ -3811,6 +3886,7 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 12;
 	TextEngine_RunCommandCleanup();
 	TextEngine_PrepareFloatPalette();
+	TextEngine_StartDim();
 }
 
 /*
@@ -3833,6 +3909,9 @@ void Talk_OnEnd_C(void)
 	Proc_EndEach(gProcScr_TextEngineEmotion);
 	TextEngine_EndBigPops(0);
 	Proc_EndEach(gProcScr_TextEngineBigJolt);
+	TextEngine_CleanupAutoAdvance();
+	TextEngine_CleanupRainbow();
+	TextEngine_CleanupDim();
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -5617,6 +5696,493 @@ static void TextEngine_CleanupSceneLayout(void)
 	sTextEngineSceneLayoutState.savedNameplate = 0;
 }
 
+static void TextEngineAutoAdvance_OnIdle(struct TextEngineAutoAdvanceProc *proc)
+{
+	/* The player already moved on. */
+	if (Proc_Find(gProcScr_TalkWaitForInput) != proc->wait) {
+		Proc_Break(proc);
+		return;
+	}
+
+	/* Don't move on under the conversation log. */
+	if (Chatlog_IsVisible())
+		return;
+
+	if (--proc->timer > 0)
+		return;
+
+	Proc_End(proc->wait);
+	Proc_Break(proc);
+}
+
+static const struct ProcCmd gProcScr_TextEngineAutoAdvance[] = {
+	PROC_NAME("TextEngineAutoAdvance"),
+	PROC_REPEAT(TextEngineAutoAdvance_OnIdle),
+	PROC_END,
+};
+
+/*
+ * StartTalkWaitForInput, plus a timer that ends the wait after autoFrames
+ * frames if the player hasn't pressed anything by then.  The vanilla wait
+ * proc stays in charge of input, so the skip listener leaves it alone.
+ */
+static void TextEngine_StartWaitForInput(ProcPtr parent, int x, int y, int autoFrames)
+{
+	struct Proc *wait = Proc_StartBlocking(gProcScr_TalkWaitForInput, parent);
+	struct TextEngineAutoAdvanceProc *timer;
+
+	wait->unk64 = x;
+	wait->unk66 = y;
+	wait->unk68 = 0;
+
+	if (autoFrames <= 0)
+		return;
+
+	timer = Proc_Start(gProcScr_TextEngineAutoAdvance, PROC_TREE_3);
+	timer->wait = wait;
+	timer->timer = autoFrames;
+}
+
+static void TextEngine_CleanupAutoAdvance(void)
+{
+	sTextEngineAutoAdvanceState.frames = 0;
+	Proc_EndEach(gProcScr_TextEngineAutoAdvance);
+}
+
+static int TextEngine_CommandAutoAdvance(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+
+	/* Like [A], with the arrow drawn below the screen. */
+	Chatlog_CommitPage();
+	TextEngine_StartWaitForInput(proc, 0, DISPLAY_HEIGHT, arguments[0]);
+	return 3;
+}
+
+static int TextEngine_CommandStartAutoAdvance(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+
+	sTextEngineAutoAdvanceState.frames = arguments[0];
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandStopAutoAdvance(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	(void)command;
+	(void)arguments;
+
+	sTextEngineAutoAdvanceState.frames = 0;
+	return TalkInterpret(proc);
+}
+
+/* Readable on the light text box, in hue order. */
+static const u16 sTextEngineRainbowHues[] = {
+	RGB(28, 4, 4),   /* red */
+	RGB(30, 14, 2),  /* orange */
+	RGB(25, 20, 0),  /* gold */
+	RGB(6, 22, 4),   /* green */
+	RGB(2, 20, 18),  /* teal */
+	RGB(4, 11, 30),  /* blue */
+	RGB(16, 6, 28),  /* violet */
+	RGB(28, 4, 20),  /* magenta */
+};
+
+/*
+ * Text colour ids (Text_SetColor) the letters take in turn: groups 3, 4 and
+ * 1 in script numbering, which normal dialogue leaves unused.
+ */
+static const u8 sTextEngineRainbowGroups[TEXT_ENGINE_RAINBOW_GROUPS] = { 2, 3, 0 };
+
+static u16 *TextEngine_RainbowGroupColors(int palid, int bank, int group)
+{
+	/* Bank 0 is the dialogue font's BG palette, bank 1 the float glyphs' OBJ palette. */
+	int pal = bank ? 0x10 + TEXT_ENGINE_FLOAT_OBJ_PAL : palid;
+
+	return gPaletteBuffer + pal * 0x10 + group * 3 + 1;
+}
+
+/* a and b mixed, with weight eighths of b. */
+static u16 TextEngine_MixColor(int a, int b, int weight)
+{
+	int red = ((a & 0x1F) * (8 - weight) + (b & 0x1F) * weight) >> 3;
+	int green = (((a >> 5) & 0x1F) * (8 - weight) + ((b >> 5) & 0x1F) * weight) >> 3;
+	int blue = (((a >> 10) & 0x1F) * (8 - weight) + ((b >> 10) & 0x1F) * weight) >> 3;
+
+	return RGB(red, green, blue);
+}
+
+static void TextEngine_RainbowApply(struct TextEngineRainbowProc *proc)
+{
+	const int period = ARRAY_COUNT(sTextEngineRainbowHues) * TEXT_ENGINE_RAINBOW_HUE_FRAMES;
+	/* The shading blends towards the default text's, so it suits the box. */
+	const u16 *base = TextEngine_RainbowGroupColors(proc->palid, 0, 1);
+	int i, bank;
+
+	for (i = 0; i < TEXT_ENGINE_RAINBOW_GROUPS; i++) {
+		int phase = (proc->clock + i * (period / TEXT_ENGINE_RAINBOW_GROUPS)) % period;
+		int hue = phase / TEXT_ENGINE_RAINBOW_HUE_FRAMES;
+		u16 colors[3];
+
+		/* Glyph pixels 1 and 2 are the edge and shadow, 3 the letter itself. */
+		colors[2] = TextEngine_MixColor(
+			sTextEngineRainbowHues[hue],
+			sTextEngineRainbowHues[(hue + 1) % ARRAY_COUNT(sTextEngineRainbowHues)],
+			phase % TEXT_ENGINE_RAINBOW_HUE_FRAMES
+		);
+		colors[1] = TextEngine_MixColor(colors[2], base[1], 5);
+		colors[0] = TextEngine_MixColor(colors[2], base[0], 6);
+
+		for (bank = 0; bank < 2; bank++)
+			CpuCopy16(
+				colors,
+				TextEngine_RainbowGroupColors(proc->palid, bank, sTextEngineRainbowGroups[i]),
+				sizeof(colors)
+			);
+	}
+
+	EnablePaletteSync();
+}
+
+static void TextEngineRainbow_OnIdle(struct TextEngineRainbowProc *proc)
+{
+	/* Both swap the dialogue palette out for their own while they show. */
+	if (Chatlog_IsVisible() || Proc_Find(gProcScr_TextEnginePopup))
+		return;
+
+	proc->clock++;
+	TextEngine_RainbowApply(proc);
+}
+
+static void TextEngineRainbow_OnEnd(struct TextEngineRainbowProc *proc)
+{
+	int i, bank;
+
+	for (i = 0; i < TEXT_ENGINE_RAINBOW_GROUPS; i++)
+		for (bank = 0; bank < 2; bank++)
+			CpuCopy16(
+				&proc->saved[bank][i * 3],
+				TextEngine_RainbowGroupColors(proc->palid, bank, sTextEngineRainbowGroups[i]),
+				3 * sizeof(u16)
+			);
+
+	EnablePaletteSync();
+}
+
+static const struct ProcCmd gProcScr_TextEngineRainbow[] = {
+	PROC_NAME("TextEngineRainbow"),
+	PROC_SET_END_CB(TextEngineRainbow_OnEnd),
+	PROC_REPEAT(TextEngineRainbow_OnIdle),
+	PROC_END,
+};
+
+/* Called before each dialogue letter is drawn. */
+static void TextEngine_RainbowColorLetter(struct Text *text, const char *str)
+{
+	struct TextEngineRainbowProc *proc = Proc_Find(gProcScr_TextEngineRainbow);
+	int group;
+
+	if (!proc || !proc->active || !text || !str || !*str)
+		return;
+
+	/* Spaces show no colour, so they don't take a turn. */
+	if (*str == ' ')
+		return;
+
+	/*
+	 * No % here: the game's __aeabi_uidivmod is its __umodsi3, which
+	 * doesn't return the remainder where GCC looks for it.
+	 */
+	group = sTextEngineRainbowGroups[proc->letter];
+	if (++proc->letter >= TEXT_ENGINE_RAINBOW_GROUPS)
+		proc->letter = 0;
+
+	Text_SetColor(text, group);
+	sTextEngineState->printColor = group;
+}
+
+static void TextEngine_CleanupRainbow(void)
+{
+	Proc_EndEach(gProcScr_TextEngineRainbow);
+}
+
+static int TextEngine_CommandStartRainbow(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+	struct TextEngineRainbowProc *rainbow;
+	int i, bank;
+
+	(void)command;
+	(void)arguments;
+
+	/* Sprite talk and world map text draw letters another way. */
+	if (CheckTalkFlag(TALK_FLAG_SPRITE) || CheckTalkFlag(TALK_FLAG_7))
+		return TalkInterpret(proc);
+
+	rainbow = Proc_Find(gProcScr_TextEngineRainbow);
+	if (!rainbow) {
+		/*
+		 * SetInitTalkTextFont reloads the whole text palette, and the
+		 * letter effects call it for every letter.  The VSync tree runs
+		 * just before the palette is uploaded, so the rainbow is always
+		 * the last thing written.
+		 */
+		rainbow = Proc_Start(gProcScr_TextEngineRainbow, PROC_TREE_VSYNC);
+		rainbow->active = 0;
+		rainbow->clock = 0;
+		rainbow->palid = ((struct Font *)0x030000F0)->palid;
+
+		for (i = 0; i < TEXT_ENGINE_RAINBOW_GROUPS; i++)
+			for (bank = 0; bank < 2; bank++)
+				CpuCopy16(
+					TextEngine_RainbowGroupColors(rainbow->palid, bank, sTextEngineRainbowGroups[i]),
+					&rainbow->saved[bank][i * 3],
+					3 * sizeof(u16)
+				);
+
+		TextEngine_RainbowApply(rainbow);
+	}
+
+	if (!rainbow->active) {
+		rainbow->active = 1;
+		rainbow->letter = 0;
+		rainbow->savedColor = state->printColor;
+	}
+
+	return TalkInterpret(proc);
+}
+
+static int TextEngine_CommandStopRainbow(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TextEngineRainbowProc *rainbow = Proc_Find(gProcScr_TextEngineRainbow);
+
+	(void)command;
+	(void)arguments;
+
+	/* Letters already printed keep cycling until the dialogue ends. */
+	if (rainbow && rainbow->active) {
+		rainbow->active = 0;
+		ChangeTextColorID(rainbow->savedColor);
+	}
+
+	return TalkInterpret(proc);
+}
+
+/*
+ * Listener dimming: while someone speaks, the other talk portraits darken a
+ * little, and light up again when they speak.  The dimmed colours are worked
+ * out from the portrait's own palette data, so nothing has to be saved.
+ */
+
+/* The OBJ palettes a face draws with, and the colours each one holds lit. */
+static int TextEngine_GetFacePalettes(struct FaceProc *face, u8 *pals, const u16 **colors)
+{
+	const struct FaceData *info = face->pFaceInfo;
+	s32 overlayOam2;
+	int count = 0;
+
+	if (!info || !info->pal)
+		return 0;
+
+	pals[count] = 0x10 + ((face->oam2 >> 12) & 0xF);
+	colors[count++] = info->pal;
+
+	if (HalfBody_UsesTwoPalettes(info)) {
+		pals[count] = pals[0] + 1;
+		colors[count++] = info->pal + 0x10;
+	}
+
+	overlayOam2 = Portrait32_GetOverlayOam2(face);
+	if (overlayOam2 >= 0) {
+		pals[count] = 0x10 + ((overlayOam2 >> 12) & 0xF);
+		colors[count++] = info->pal + 0x10;
+	}
+
+	return count;
+}
+
+/* Fading in or out: leave those palettes to the fade. */
+static bool TextEngine_IsPalFading(int pal)
+{
+	struct ProcFindIterator it;
+	struct TextEnginePalFadeProc *fade;
+
+	Proc_FindBegin(&it, ProcScr_PalFade);
+	while ((fade = (struct TextEnginePalFadeProc *)Proc_FindNext(&it)) != NULL) {
+		if (fade->st && fade->st->pal == gPaletteBuffer + pal * 0x10)
+			return true;
+	}
+
+	return false;
+}
+
+static bool TextEngine_IsTalkFace(struct FaceProc *face)
+{
+	struct TalkState *state = sTextEngineState;
+	int i;
+
+	for (i = 0; i < (int)ARRAY_COUNT(state->faces); i++)
+		if (state->faces[i] == face)
+			return true;
+
+	return false;
+}
+
+/* Writes the face's palettes at level DIM_FRAMES-ths of the way to dim. */
+static bool TextEngine_PutFaceDim(struct FaceProc *face, int level)
+{
+	u8 pals[TEXT_ENGINE_DIM_MAX_PALETTES];
+	const u16 *colors[TEXT_ENGINE_DIM_MAX_PALETTES];
+	int mul = 32 - TEXT_ENGINE_DIM_STRENGTH * level / TEXT_ENGINE_DIM_FRAMES;
+	int count = TextEngine_GetFacePalettes(face, pals, colors);
+	int i, j;
+
+	for (i = 0; i < count; i++)
+		if (TextEngine_IsPalFading(pals[i]))
+			return false;
+
+	for (i = 0; i < count; i++) {
+		u16 *dst = gPaletteBuffer + pals[i] * 0x10;
+
+		for (j = 0; j < 0x10; j++) {
+			int c = colors[i][j];
+
+			dst[j] = RGB(
+				((c & 0x1F) * mul) >> 5,
+				(((c >> 5) & 0x1F) * mul) >> 5,
+				(((c >> 10) & 0x1F) * mul) >> 5
+			);
+		}
+	}
+
+	return true;
+}
+
+static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *speaker = NULL;
+	bool changed = false;
+	int slot;
+
+	/* The log swaps palettes out for its own while it shows. */
+	if (Chatlog_IsVisible())
+		return;
+
+	if (state->activeFaceSlot < ARRAY_COUNT(state->faces))
+		speaker = state->faces[state->activeFaceSlot];
+
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		struct FaceProc *face = gFaces[slot];
+		int level = proc->level[slot];
+		int target = 0;
+
+		/* A new face in this slot starts lit. */
+		if (face != proc->face[slot]) {
+			proc->face[slot] = face;
+			proc->level[slot] = 0;
+			level = 0;
+		}
+
+		if (!face)
+			continue;
+
+		/* With no one speaking, everyone is lit. */
+		if (speaker && face != speaker && TextEngine_IsTalkFace(face))
+			target = TEXT_ENGINE_DIM_FRAMES;
+
+		/* Lit and staying lit: the palette is the face's own. */
+		if (level == 0 && target == 0)
+			continue;
+
+		if (level < target)
+			level++;
+		else if (level > target)
+			level--;
+
+		/*
+		 * Dimmed faces are rewritten every frame, in case something
+		 * reloaded the palette.  A face mid-fade keeps its level.
+		 */
+		if (TextEngine_PutFaceDim(face, level)) {
+			proc->level[slot] = level;
+			changed = true;
+		}
+	}
+
+	if (changed)
+		EnablePaletteSync();
+}
+
+static void TextEngineDim_OnEnd(struct TextEngineDimProc *proc)
+{
+	bool changed = false;
+	int slot;
+
+	/* Faces still on screen after the dialogue go back to their own colours. */
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		if (proc->level[slot] && gFaces[slot] == proc->face[slot] && gFaces[slot])
+			changed |= TextEngine_PutFaceDim(gFaces[slot], 0);
+	}
+
+	if (changed)
+		EnablePaletteSync();
+}
+
+static const struct ProcCmd gProcScr_TextEngineDim[] = {
+	PROC_NAME("TextEngineDim"),
+	PROC_SET_END_CB(TextEngineDim_OnEnd),
+	PROC_REPEAT(TextEngineDim_OnIdle),
+	PROC_END,
+};
+
+static void TextEngine_StartDim(void)
+{
+	struct TextEngineDimProc *proc;
+	int slot;
+
+	Proc_EndEach(gProcScr_TextEngineDim);
+
+	if (!gpKernelDesignerConfig->dim_listener_portraits || CheckTalkFlag(TALK_FLAG_SPRITE))
+		return;
+
+	/*
+	 * On the VSync tree, after the frame's other palette writes, like the
+	 * rainbow: a face change reloads the lit palette.
+	 */
+	proc = Proc_Start(gProcScr_TextEngineDim, PROC_TREE_VSYNC);
+
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		proc->face[slot] = gFaces[slot];
+		proc->level[slot] = 0;
+	}
+}
+
+static void TextEngine_CleanupDim(void)
+{
+	Proc_EndEach(gProcScr_TextEngineDim);
+}
+
 static int TextEngine_CommandStartScreenGlitch(
 	ProcPtr proc,
 	const struct TextEngineCommandDescriptor *command,
@@ -5873,6 +6439,11 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_BIG_TEXT_ON, 0, TextEngine_CommandStartBigText, NULL, TextEngine_CleanupBigText },
 	{ TEXT_ENGINE_CMD_BIG_TEXT_OFF, 0, TextEngine_CommandStopBigText, NULL, NULL },
 	{ TEXT_ENGINE_CMD_POPUP, 1, TextEngine_CommandPopup, NULL, NULL },
+	{ TEXT_ENGINE_CMD_AUTO_ADVANCE, 1, TextEngine_CommandAutoAdvance, NULL, TextEngine_CleanupAutoAdvance },
+	{ TEXT_ENGINE_CMD_AUTO_ADVANCE_ON, 1, TextEngine_CommandStartAutoAdvance, NULL, TextEngine_CleanupAutoAdvance },
+	{ TEXT_ENGINE_CMD_AUTO_ADVANCE_OFF, 0, TextEngine_CommandStopAutoAdvance, NULL, NULL },
+	{ TEXT_ENGINE_CMD_RAINBOW_ON, 0, TextEngine_CommandStartRainbow, NULL, TextEngine_CleanupRainbow },
+	{ TEXT_ENGINE_CMD_RAINBOW_OFF, 0, TextEngine_CommandStopRainbow, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)
@@ -5997,10 +6568,11 @@ int TalkInterpret(ProcPtr proc)
 			int line = state->lineActive + sTextEngineBigTextState.lineBelow;
 
 			Chatlog_CommitPage();
-			StartTalkWaitForInput(
+			TextEngine_StartWaitForInput(
 				proc,
 				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, line)) + 4,
-				state->yText * 8 + line * 16 + 8
+				state->yText * 8 + line * 16 + 8,
+				sTextEngineAutoAdvanceState.frames
 			);
 			return 3;
 		}

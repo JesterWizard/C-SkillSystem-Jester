@@ -30,7 +30,7 @@ MSG_DATA_CROP := $(TEXT_DIR)build/msg_data_cropped.event
 
 all: $(MSG_HEADER)
 
-$(MSG_HEADER): $(TEXT_SRC) $(TEXT_DEFS)
+$(MSG_HEADER): $(TEXT_SRC) $(TEXT_DEFS) $(mkfile_dir)Scripts/textprocess-chax.py
 	@echo "[GEN]	$@"
 	@install -d $(TEXT_DIR)build
 	@$(TEXT_PROCESS) $(TEXT_MAIN) $(TEXT_DEFS) $(MSG_DATA) $(MSG_HEADER) utf8

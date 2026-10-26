@@ -264,7 +264,7 @@ export TEXT_DEF := $(TEXTS_DIR)/build/msgs.h
 text: $(TEXT_DEF)
 PRE_BUILD += text
 
-$(TEXT_DEF): $(TEXT_SOURCE)
+$(TEXT_DEF): $(TEXT_SOURCE) $(TEXTS_DIR)/Scripts/textprocess-chax.py
 	@$(MAKE) -C $(TEXTS_DIR)
 
 CLEAN_BUILD += $(TEXTS_DIR)
