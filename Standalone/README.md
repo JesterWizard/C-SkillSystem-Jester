@@ -53,6 +53,12 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [res_terrain_window](res_terrain_window/) | The terrain window shows DEF, RES and AVO |
 | [crit_cutin](crit_cutin/) | Critical hits by units with a portrait show a portrait cut-in over an electric band before the attack (battle animations) |
 | [class_growths](class_growths/) | Adds or averages class growths into personal growths on level-up, with a promotion-screen growth preview (uses 128 bytes EWRAM) |
+| [hit_decrease_on_range](hit_decrease_on_range/) | The attacker loses 20 hit per 2 tiles when attacking from 3 or more tiles away (not ballistae) |
+| [anima_weapon_triangle](anima_weapon_triangle/) | Fire > Wind/Ice > Thunder > Fire tome triangle (+3 damage / +15 hit) from an editable table |
+| [battle_max_damage](battle_max_damage/) | Configurable per-hit damage cap (up to 127) for real hits, the Silencer and the battle forecast |
+| [s_rank_weapon_no_weight](s_rank_weapon_no_weight/) | Weapons the unit has S rank in weigh nothing for attack speed |
+| [modular_staff_exp](modular_staff_exp/) | Fixed per-staff EXP from an editable table (unlisted staves keep vanilla EXP) |
+| [limited_shop_items](limited_shop_items/) | Per-chapter limited shop stock with a stock column, kept through suspend without save changes |
 
 ## Adding a new patch
 

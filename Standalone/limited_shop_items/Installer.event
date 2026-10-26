@@ -1,0 +1,135 @@
+#define FE8U_ShopDrawBuyItemLine         $B43BC
+#define FE8U_ShopDrawSellItemLine        $B4418
+#define FE8U_Shop_Loop_BuyKeyHandler     $B44A8
+#define FE8U_DrawShopSoldItems           $B4F90
+#define FE8U_ShopInitTexts_OnSell        $B505C
+#define FE8U_ShopDrawDefaultSellItemLine $B50C8
+#define FE8U_HandleShopBuyAction         $B5440
+
+#define FE8U_SellKeyHandler_HandX        $B4800 // Shop_Loop_SellKeyHandler: movs r0, #56 (DisplayUiHand x)
+#define FE8U_ViewKeyHandler_HandX        $B4AAE // Shop_Loop_UnkKeyHandler:  movs r0, #56 (DisplayUiHand x)
+#define FE8U_ShopInit_FrameX             $B4CAA // Shop_Init: movs r0, #6  (DrawUiFrame2 x)
+#define FE8U_ShopInit_FrameWidth         $B4CAE // Shop_Init: movs r2, #20 (DrawUiFrame2 width)
+#define FE8U_ShopInit_Win0Left           $B4D42 // Shop_Init: mov r5, r8   (SetWin0Box left = 56)
+
+#define FE8U_StandaloneFreeSpace         $1000000
+
+/* ---------------------------------------------------------------------------
+ * Settings (edit without recompiling C)
+ * ------------------------------------------------------------------------ */
+
+/*
+ * The remaining stock is kept as records in the vanilla trap pool (it is in the
+ * suspend save, and vanilla clears it when a chapter map starts). This is the
+ * trap type of those records. Change it only if another patch already uses
+ * custom trap type 0xF5.
+ */
+#define LIMITED_SHOP_TRAP_TYPE 0xF5
+
+/*
+ * 0: use the built-in English "out of stock" lines.
+ * Otherwise: the text ID for the armory line. The vendor line is this ID + 1 and
+ * the secret shop line is this ID + 2 (same layout as vanilla shop texts), so
+ * three consecutive text IDs you edit in FEBuilder.
+ */
+#define LIMITED_SHOP_OUT_OF_STOCK_TEXT 0
+
+/* Set to 1 if you installed Standalone/infinite_durability (hides weapon uses). */
+#define LIMITED_SHOP_HIDE_WEAPON_USES 0
+
+/* ---------------------------------------------------------------------------
+ * Stock lists
+ *
+ * StockEntry(item ID, stock): that item can be bought `stock` times during the
+ * chapter. Items not listed are unlimited. Up to 20 entries per list.
+ * SetChapterShopStock(chapter ID, list label) gives a chapter its list. All
+ * shops of that chapter (armory, vendor, secret shop) share the list.
+ * ------------------------------------------------------------------------ */
+
+#define StockEntry(item, quantity) "BYTE item quantity"
+#define StockListEnd "BYTE 0 0"
+#define SetChapterShopStock(chapter, listAddress) "PUSH; ORG LimitedShopStockTable + (chapter * 4); POIN listAddress; POP"
+
+/* Vanilla FE8U item IDs used by the example below. */
+#define SLIM_SWORD 0x02
+#define IRON_LANCE 0x14
+#define SLIM_LANCE 0x15
+
+/* ---------------------------------------------------------------------------
+ * Hooks
+ * ------------------------------------------------------------------------ */
+
+PUSH
+ORG FE8U_ShopDrawBuyItemLine
+    jumpToHack(ShopDrawBuyItemLine_Limited)
+    PROTECT FE8U_ShopDrawBuyItemLine FE8U_ShopDrawBuyItemLine + 0x8 // ShopDrawBuyItemLine hook
+ORG FE8U_ShopDrawSellItemLine
+    jumpToHack(ShopDrawSellItemLine_Limited)
+    PROTECT FE8U_ShopDrawSellItemLine FE8U_ShopDrawSellItemLine + 0x8 // ShopDrawSellItemLine hook
+ORG FE8U_Shop_Loop_BuyKeyHandler
+    jumpToHack(Shop_Loop_BuyKeyHandler_Limited)
+    PROTECT FE8U_Shop_Loop_BuyKeyHandler FE8U_Shop_Loop_BuyKeyHandler + 0x8 // Shop_Loop_BuyKeyHandler hook
+ORG FE8U_DrawShopSoldItems
+    jumpToHack(DrawShopSoldItems_Limited)
+    PROTECT FE8U_DrawShopSoldItems FE8U_DrawShopSoldItems + 0x8 // DrawShopSoldItems hook
+ORG FE8U_ShopInitTexts_OnSell
+    jumpToHack(ShopInitTexts_OnSell_Limited)
+    PROTECT FE8U_ShopInitTexts_OnSell FE8U_ShopInitTexts_OnSell + 0x8 // ShopInitTexts_OnSell hook
+ORG FE8U_ShopDrawDefaultSellItemLine
+    jumpToHack(ShopDrawDefaultSellItemLine_Limited)
+    PROTECT FE8U_ShopDrawDefaultSellItemLine FE8U_ShopDrawDefaultSellItemLine + 0x8 // ShopDrawDefaultSellItemLine hook
+ORG FE8U_HandleShopBuyAction
+    jumpToHack(HandleShopBuyAction_Limited)
+    PROTECT FE8U_HandleShopBuyAction FE8U_HandleShopBuyAction + 0x8 // HandleShopBuyAction hook
+
+/* Hand cursor 32 px further left in the sell list and the view-only list */
+ORG FE8U_SellKeyHandler_HandX
+    BYTE 24
+    PROTECT FE8U_SellKeyHandler_HandX FE8U_SellKeyHandler_HandX + 0x1 // sell list hand x
+ORG FE8U_ViewKeyHandler_HandX
+    BYTE 24
+    PROTECT FE8U_ViewKeyHandler_HandX FE8U_ViewKeyHandler_HandX + 0x1 // view-only list hand x
+
+/* Item window frame x 6 -> 3, width 20 -> 23; window 0 left edge 56 -> 32 */
+ORG FE8U_ShopInit_FrameX
+    BYTE 3
+    PROTECT FE8U_ShopInit_FrameX FE8U_ShopInit_FrameX + 0x1 // item frame x
+ORG FE8U_ShopInit_FrameWidth
+    BYTE 23
+    PROTECT FE8U_ShopInit_FrameWidth FE8U_ShopInit_FrameWidth + 0x1 // item frame width
+ORG FE8U_ShopInit_Win0Left
+    SHORT 0x2520 // movs r5, #32
+    PROTECT FE8U_ShopInit_Win0Left FE8U_ShopInit_Win0Left + 0x2 // window 0 left edge
+POP
+
+/* ---------------------------------------------------------------------------
+ * Code and data
+ * ------------------------------------------------------------------------ */
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/LimitedShopItems.lyn.event"
+
+ALIGN 4
+LimitedShopOutOfStockText:
+SHORT LIMITED_SHOP_OUT_OF_STOCK_TEXT
+LimitedShopTrapType:
+BYTE LIMITED_SHOP_TRAP_TYPE
+LimitedShopHideWeaponUses:
+BYTE LIMITED_SHOP_HIDE_WEAPON_USES
+
+/* One pointer per chapter ID 0x00..0x7F; 0 = no limited stock */
+ALIGN 4
+LimitedShopStockTable:
+FILL 0x80 * 4
+
+/* Example from the integrated C Skill System: Chapter 2 */
+Ch2ShopStock:
+StockEntry(SLIM_SWORD, 10)
+StockEntry(SLIM_LANCE, 7)
+StockEntry(IRON_LANCE, 1)
+StockListEnd
+
+SetChapterShopStock(2, Ch2ShopStock)
+
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LimitedShopItems body + settings + stock lists
