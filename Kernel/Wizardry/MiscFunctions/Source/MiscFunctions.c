@@ -1236,9 +1236,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         {
             if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
             {
-                int item = gActiveUnit->items[proc->itemPrevious];
-                gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
-                SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
+                ResetForgePreview(gActiveUnit->items[proc->itemPrevious]);
                 // Set the initial count of the latest item
                 gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
             }
@@ -1285,9 +1283,7 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
         {
             if (gActionData.unk08 == 10000) // Arbitrary value we set to indicate the forge menu is active
             {
-                int item = gActiveUnit->items[proc->itemPrevious];
-                gEventSlots[EVT_SLOT_7] = GetItemForgeCost(gActiveUnit->items[proc->itemCurrent]);
-                SetItemForgeCount(item, gEventSlots[EVT_SLOT_8]);
+                ResetForgePreview(gActiveUnit->items[proc->itemPrevious]);
                 // Set the initial count of the latest item
                 gEventSlots[EVT_SLOT_8] = GetItemForgeCount(gActiveUnit->items[proc->itemCurrent]);
             }
@@ -1332,17 +1328,11 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
                     int forgeSlot = ITEM_USES(item);
                     if (forgeSlot >= 0)
                     {
-                        // Calculate cumulative cost increase  
+                        // Drop the cost of the level being un-previewed, gold is only taken on confirm
                         u32 costAmount = (count + 1) * limits.baseCost;
 
                         item = GetItemIndex(item) | (forgeSlot << 8);
-                        // Calculate cumulative cost reduction
-                        u32 refundAmount = 0;
-                        for (int i = count; i > count - 1; i--) // This loop refunds 'count * limits.baseCost'
-                            refundAmount += i * limits.baseCost;
-
                         gActiveUnit->items[proc->itemCurrent] = DecrementForgeCount(item, 1);
-                        gPlaySt.partyGoldAmount += refundAmount;
                         gEventSlots[EVT_SLOT_7] -= costAmount;
 
                         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
@@ -1355,6 +1345,9 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
                             proc->menuItems[proc->itemCurrent]->def->onSwitchIn(proc, proc->menuItems[proc->itemCurrent]);
                     }
                 }
+                // Nothing left to un-preview, so left moves the hand onto the max forge skill line
+                else if (gKeyStatusPtr->newKeys & DPAD_LEFT)
+                    ForgeMenuFocusSkill(proc);
             }
             
             if (gKeyStatusPtr->repeatedKeys & DPAD_RIGHT)
@@ -1368,13 +1361,12 @@ void ProcessMenuDpadInput(struct MenuProc* proc)
 
                     if (forgeSlot >= 0)
                     {
-                        // Calculate cumulative cost increase  
+                        // Add the next level to the running total, gold is only taken on confirm
                         u32 costAmount = (count + 2) * limits.baseCost;
 
-                        if (costAmount <= gPlaySt.partyGoldAmount)
+                        if (gEventSlots[EVT_SLOT_7] + costAmount <= gPlaySt.partyGoldAmount)
                         {
                             item = GetItemIndex(item) | (forgeSlot << 8);
-                            gPlaySt.partyGoldAmount -= costAmount;
                             gActiveUnit->items[proc->itemCurrent] = IncrementForgeCount(item, 1);
                             gEventSlots[EVT_SLOT_7] += costAmount;
 

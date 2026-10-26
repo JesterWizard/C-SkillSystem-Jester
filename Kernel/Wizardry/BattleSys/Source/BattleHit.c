@@ -788,7 +788,10 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
             if (CanItemBeForged(item))
             {
                 u8 id = ITEM_USES(item);
-                gForgedItemRam[id].crit += 1;
+
+                // slot 0 means no forge slot was free; cap at 50 so the 6-bit field can't wrap
+                if (id != 0 && id < NumOfForgables && gForgedItemRam[id].crit < 50)
+                    gForgedItemRam[id].crit += 1;
             }
         }
 

@@ -4,6 +4,7 @@
 #include "shield.h"
 #include "constants/skills.h"
 #include "jester_headers/custom-arrays.h"
+#include "jester_headers/Forging.h"
 #include "action-expa.h"
 #include "unit-expa.h"
 
@@ -313,7 +314,7 @@ void GenerateSkillListExt(struct Unit *unit, struct SkillList *list)
 		} \
 	} while (0)
 
-	int i, weapon;
+	int i, weapon, weapon_item;
 	const struct ShieldInfo *shield;
 	int pid = UNIT_CHAR_ID(unit);
 	int jid = UNIT_CLASS_ID(unit);
@@ -372,16 +373,25 @@ void GenerateSkillListExt(struct Unit *unit, struct SkillList *list)
 	if (unit == &gBattleActor.unit || unit == &gBattleTarget.unit) {
 		struct BattleUnit *bu = (struct BattleUnit *)unit;
 
-		weapon = ITEM_INDEX(bu->weapon);
+		weapon_item = bu->weapon;
 		shield = GetBattleUnitShield(bu);
 	} else {
-		weapon = ITEM_INDEX(GetUnitEquippedWeapon(unit));
+		weapon_item = GetUnitEquippedWeapon(unit);
 		shield = GetUnitShield(unit);
 	}
 
+	weapon = ITEM_INDEX(weapon_item);
+
 	if (weapon != ITEM_NONE) {
-		ADD_LIST(gpConstSkillTable_Weapon[weapon * 2 + 0]);
-		ADD_LIST(gpConstSkillTable_Weapon[weapon * 2 + 1]);
+		/* looped so ADD_LIST is only expanded once, kernel text space is tight */
+		u16 weapon_skills[3] = {
+			gpConstSkillTable_Weapon[weapon * 2 + 0],
+			gpConstSkillTable_Weapon[weapon * 2 + 1],
+			GetForgedItemSkill(weapon_item),
+		};
+
+		for (i = 0; i < 3; i++)
+			ADD_LIST(weapon_skills[i]);
 	}
 
 	if (shield) {
@@ -425,10 +435,17 @@ void GenerateSkillListExt(struct Unit *unit, struct SkillList *list)
 					ADD_LIST(gpConstSkillTable_Item[_iid * 2 + 1]);
 				}
 				/* weapon */
-				int _r_weapon = ITEM_INDEX(GetUnitEquippedWeapon(_rescuee));
+				int _r_weapon_item = GetUnitEquippedWeapon(_rescuee);
+				int _r_weapon = ITEM_INDEX(_r_weapon_item);
 				if (_r_weapon != ITEM_NONE) {
-					ADD_LIST(gpConstSkillTable_Weapon[_r_weapon * 2 + 0]);
-					ADD_LIST(gpConstSkillTable_Weapon[_r_weapon * 2 + 1]);
+					u16 _r_weapon_skills[3] = {
+						gpConstSkillTable_Weapon[_r_weapon * 2 + 0],
+						gpConstSkillTable_Weapon[_r_weapon * 2 + 1],
+						GetForgedItemSkill(_r_weapon_item),
+					};
+
+					for (int _ri = 0; _ri < 3; _ri++)
+						ADD_LIST(_r_weapon_skills[_ri]);
 				}
 				/* shield */
 				const struct ShieldInfo *_r_shield = GetUnitShield(_rescuee);

@@ -37,6 +37,9 @@ int GetItemForgeCount(int item);
 int SetItemForgeCount(int item, int val);
 int GetItemForgeCost(int item);
 bool IsItemForgeable(int item);
+int GetForgedItemSkill(int item);
+void ResetForgePreview(int item);
+void ForgeMenuFocusSkill(struct MenuProc* menu);
 
 // MENUS MENUS MENUS
 void ForgeMenuInit(struct MenuProc* proc);

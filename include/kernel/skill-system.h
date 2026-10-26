@@ -120,6 +120,7 @@ extern u16 const* const gpConstSkillTable_Person;
 extern u16 const* const gpConstSkillTable_Job;
 extern u16 const* const gpConstSkillTable_Item;
 extern u16 const* const gpConstSkillTable_Weapon;
+extern u16 const* const gpConstSkillTable_Forge;
 
 struct SkillInfo {
 	const u8* icon;

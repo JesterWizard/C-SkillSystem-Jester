@@ -13,6 +13,7 @@
 #include "soundwrapper.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/Forging.h"
 
 #define PACKED __attribute__((packed))
 
@@ -462,6 +463,8 @@ void ViewTrapIdle(DebuggerProc* proc);
 void ViewSupplyInit(DebuggerProc* proc);
 void ViewSupplyIdle(DebuggerProc* proc);
 u8 CanViewSupplyMenu(const struct MenuItemDef *def, int number);
+void ForgeInit(DebuggerProc* proc);
+void ForgeIdle(DebuggerProc* proc);
 u8 CanActiveUnitPromote(void);
 
 #define InitProcLabel 0
@@ -493,6 +496,7 @@ u8 CanActiveUnitPromote(void);
 #define ListLabel 26
 #define BackgroundChangeLabel 27
 #define BackgroundExitLabel 28
+#define ForgeLabel 29
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -668,6 +672,12 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_LABEL(SupplyLabel), // Supply
     PROC_CALL(ViewSupplyInit),
     PROC_REPEAT(ViewSupplyIdle),
+    PROC_GOTO(EndLabel),
+
+    PROC_LABEL(ForgeLabel), // Forge
+    PROC_CALL(ForgeInit), // the forge menu blocks this proc until it closes
+    PROC_YIELD,
+    PROC_REPEAT(ForgeIdle),
     PROC_GOTO(EndLabel),
     
     PROC_LABEL(EndLabel), 
@@ -4595,6 +4605,21 @@ u8 CanViewSupplyMenu(const struct MenuItemDef *def, int number)
     return MENU_DISABLED;
 }
 
+u8 ForgeNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, ForgeLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 CanForgeMenu(const struct MenuItemDef *def, int number)
+{
+    if (gpKernelDesignerConfig->forge_mechanic)
+        return MENU_ENABLED;
+
+    return MENU_NOTSHOWN;
+}
+
 u8 AiControlRemainingUnitsNow(struct MenuProc * menu, struct MenuItemProc * menuItem)
 {
     DebuggerProc * proc;
@@ -5118,6 +5143,36 @@ void ViewSupplyIdle(DebuggerProc* proc)
 {
     if (Proc_Find(ProcScr_PrepItemSupplyScreen))
         return;
+
+    Proc_Goto(proc, RestartLabel);
+}
+
+void ForgeInit(DebuggerProc* proc)
+{
+    struct Unit *unit = proc->unit;
+
+    if (!unit) {
+        Proc_Goto(proc, RestartLabel);
+        return;
+    }
+
+    UnitBeginActionInit(unit);
+    proc->tmp[0] = GetGameLock();
+    CallForgeMenuASMC((struct EventEngineProc *)proc);
+}
+
+void ForgeIdle(DebuggerProc* proc)
+{
+    // a confirmed forge plays its animation and popup with the game locked
+    if (GetGameLock() > proc->tmp[0])
+        return;
+
+    // clear the forge menu marker so left/right stop adjusting forge counts in other menus
+    gActionData.unk08 = 0;
+
+    BG_Fill(gBG0TilemapBuffer, 0);
+    BG_Fill(gBG1TilemapBuffer, 0);
+    BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 
     Proc_Goto(proc, RestartLabel);
 }

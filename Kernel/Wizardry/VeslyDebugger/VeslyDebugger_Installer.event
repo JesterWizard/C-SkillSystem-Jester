@@ -108,6 +108,7 @@ MenuCommand1(BackgroundMenuText, BackgroundMenuDesc, NormalText, MenuAlwaysEnabl
 MenuCommand1(PortraitMenuText, PortraitMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewPortraitNow)
 MenuCommand1(TrapMenuText, TrapMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewTrapNow)
 MenuCommand1(SupplyMenuText, SupplyMenuDesc, NormalText, CanViewSupplyMenu, DebuggerMenuItemDraw, ViewSupplyNow)
+MenuCommand1(ForgeMenuText, ForgeMenuDesc, NormalText, CanForgeMenu, DebuggerMenuItemDraw, ForgeNow) // hidden unless forge_mechanic is on
 MenuCommand1(BwlMenuText, BwlMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, EditBwlStatsNow)
 MenuCommand1(PageText, PageDesc, NormalText, MenuAlwaysEnabled, PageMenuItemDraw, PageIncrementNow) // sprite draw assumes always on the bottom 
 #ifdef DEBUG_SKILL_EDIT_INCLUDED 
@@ -262,6 +263,12 @@ SupplyMenuText:
 SupplyMenuDesc:
     String("Open the convoy"); NL
     String("for the current unit."); EndText
+
+ForgeMenuText:
+    String(" Forge"); EndText
+ForgeMenuDesc:
+    String("Forge the current"); NL
+    String("unit's weapons."); EndText
      
 SupportMenuText:
     String(" Supports"); EndText 

@@ -137,6 +137,7 @@ ALIGN 4
 #include "ChapterNames/ChapterNames_Installer.event"
 #include "Chatlog/Chatlog_Installer.event"
 #include "CombatArt/HelpBoxFix/Source/HelpBoxHack.lyn.event"
+#include "ItemSys/ItemInfoRemap/Source/ForgeMenu.lyn.event"
 // #include "Crafting/Crafting_Installer.event"
 #include "EnterTown/EnterTown_Installer.event"
 #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
