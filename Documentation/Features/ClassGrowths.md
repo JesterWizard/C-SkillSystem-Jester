@@ -44,9 +44,11 @@ HP +5%  Str +10%  Mag -5%  Skl +0%
 Spd -5%  Lck +0%  Def +15%  Res -10%
 ```
 
+Gains are drawn green and losses red; unchanged growths stay white.
+
 Press **R** to swap the box between the growth changes and the vanilla class description. The preview opens on the growth changes every time the screen opens.
 
-**Vesly reclass screen** (`vesly_reclass`). The two frames beside the battle animation show stat changes as before. Press **R** to swap them to growth changes, drawn in green like the stat screen's growth bonuses. Growth changes beyond ±99 are shown as ±99 because the frames only fit two digits.
+**Vesly reclass screen** (`vesly_reclass`). The two frames beside the battle animation show stat changes as before. Press **R** to swap them to growth changes: gains in green like the stat screen's growth bonuses, losses in red, unchanged growths in white. Growth changes beyond ±99 are shown as ±99 because the frames only fit two digits.
 
 The numbers are worked out by running the unit through the normal growth getters twice, once as it is and once with its class swapped for the highlighted one, so anything class-dependent (including `gJobGrowthList`) is part of the preview.
 
@@ -62,6 +64,7 @@ The numbers are worked out by running the unit through the normal growth getters
 | Promotion screen preview | [`ClassGrowthPreview.c`](../../Kernel/Wizardry/ClassGrowths/Source/ClassGrowthPreview.c) | Replaces `ClassChgMenuExec`, `ClassChgMenuItem_OnChange` and `sub_80CCF60` (`PromoSel_StartClassDesc`) to draw the preview and handle R. |
 | Reclass screen preview | `ReclassDrawGrowthChanges`, `ReclassMenuSel_OnRPress` in [`C_Code.c`](../../Kernel/Wizardry/VeslyReclass/C_Code.c) | R toggles the stat frames to growth changes. |
 | Stat screen | `ToggleUnitPageGrowth` in [`ToggleUnitPage.c`](../../Kernel/Wizardry/StatScreen/DrawUnitPage/Source/ToggleUnitPage.c) | Folds the class part into the base number. |
+| Gain/loss colours | `SetClassGrowthTextColor` in [`ClassGrowths.c`](../../Kernel/Wizardry/ClassGrowths/Source/ClassGrowths.c) | The text palettes have no green/red pair to spare, so each screen reloads two of its unused text colour groups and puts them back when the screen ends. The promotion box switches colour with the text engine's `[ColorGroup]` code. |
 | Preview text buffer | `sClassGrowthPreviewText` in [`config-memmap.s`](../../include/link/config-memmap.s) | RAM for the description box string, which the talk system reads while it prints. |
 
 The module lives in `FreeSpaceDEMO` (`WIZARDRY_CUSTOM` in `wizardry.event`) so it does not overflow kernel `.text`.

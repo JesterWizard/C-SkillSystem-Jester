@@ -703,24 +703,24 @@ static const char stats[][16] = {
     "HP", "Str", "Skl", "Spd", "Def", "Res", "Con", "Mov", "Mag",
 };
 
-static void DrawDiffText(struct Text * th, int x, int y, int color, const char * label, int num)
+static void DrawDiffText(struct Text * th, int x, int y, int numColor, const char * label, int num)
 {
-    PutDrawText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), color, 0, 3, label);
+    PutDrawText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0, 0, 3, label);
     if (num >= 0)
     {
-        Text_InsertDrawString(th, 18, th->colorId, "+"); // th->x + 8
+        Text_InsertDrawString(th, 18, numColor, "+"); // th->x + 8
     }
     else
     {
-        Text_InsertDrawString(th, 19, th->colorId, "-");
+        Text_InsertDrawString(th, 19, numColor, "-");
         th->x++;
     }
     th->x++;
 
     if (ABS(num) > 9)
-        Text_InsertDrawNumberOrBlank(th, th->x + 8, th->colorId, ABS(num));
+        Text_InsertDrawNumberOrBlank(th, th->x + 8, numColor, ABS(num));
     else
-        Text_InsertDrawNumberOrBlank(th, th->x, th->colorId, ABS(num));
+        Text_InsertDrawNumberOrBlank(th, th->x, numColor, ABS(num));
 }
 
 void DrawStatDiff(int x, int y, int id, struct Unit * unit, const struct ClassData * classData)
@@ -743,13 +743,21 @@ static bool ReclassShowsGrowths(void)
     return ClassGrowthPreviewEnabled() && proc && proc->_u3e == RECLASS_INFO_GROWTHS;
 }
 
-// Growth changes use the same frames, in green like the stat screen's growth bonuses
+// The font palette has no red, so losses borrow its gold group (unused on this screen)
+#define RECLASS_COLOR_DOWN TEXT_COLOR_SYSTEM_GOLD
+
+static const u16 ReclassColorDown[3] = {
+    RGB(20, 9, 8), RGB(31, 15, 13), RGB(11, 3, 3),
+};
+
+// Growth changes use the same frames: gains green like the stat screen's growth bonuses, losses red
 static void ReclassDrawGrowthChanges(struct Unit * unit, const struct ClassData * classData, int y)
 {
     struct Text * th = gStatScreen.text;
     int diffs[CLASS_GROWTH_MAX];
 
     GetClassChangeGrowthDiffs(unit, classData->number, diffs);
+    SetClassGrowthTextColor(Proc_Find(ProcScr_ReclassSelect), gDefaultFont.palid, RECLASS_COLOR_DOWN, ReclassColorDown);
 
     for (int i = 0; i < CLASS_GROWTH_MAX; ++i)
     {
@@ -760,7 +768,13 @@ static void ReclassDrawGrowthChanges(struct Unit * unit, const struct ClassData 
         if (num < -99)
             num = -99;
 
-        DrawDiffText(&th[i], (i & 1) ? 25 : 12, y + (i / 2) * 2, TEXT_COLOR_SYSTEM_GREEN, gClassGrowthStatNames[i], num);
+        int color = TEXT_COLOR_SYSTEM_WHITE;
+        if (num > 0)
+            color = TEXT_COLOR_SYSTEM_GREEN;
+        if (num < 0)
+            color = RECLASS_COLOR_DOWN;
+
+        DrawDiffText(&th[i], (i & 1) ? 25 : 12, y + (i / 2) * 2, color, gClassGrowthStatNames[i], num);
     }
 }
 

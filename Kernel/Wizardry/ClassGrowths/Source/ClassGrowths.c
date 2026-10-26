@@ -73,3 +73,48 @@ void GetClassChangeGrowthDiffs(struct Unit* unit, int jid, int diffs[CLASS_GROWT
 	for (i = 0; i < CLASS_GROWTH_MAX; i++)
 		diffs[i] += GetUnitGrowthByStat(&preview, i);
 }
+
+/**
+ * Growth changes are drawn green when they go up and red when they go down.
+ * The text palettes have no such groups, so a screen borrows one of its
+ * unused groups; this proc lives under the screen and puts the original
+ * colours back when the screen ends.
+ */
+struct ProcTextColorKeeper {
+	PROC_HEADER;
+	u16 offset;
+	u16 saved[3];
+};
+
+static void TextColorKeeper_OnEnd(struct ProcTextColorKeeper *proc)
+{
+	CpuCopy16(proc->saved, gPaletteBuffer + proc->offset, sizeof(proc->saved));
+	EnablePaletteSync();
+}
+
+static const struct ProcCmd ProcScr_TextColorKeeper[] = {
+	PROC_NAME("ClassGrowthTextColor"),
+	PROC_SET_END_CB(TextColorKeeper_OnEnd),
+	PROC_BLOCK,
+};
+
+void SetClassGrowthTextColor(ProcPtr screen, int palid, int colorId, const u16 colors[3])
+{
+	struct ProcTextColorKeeper *proc;
+	struct ProcFindIterator it;
+	int offset = palid * 0x10 + colorId * 3 + 1;
+
+	Proc_FindBegin(&it, ProcScr_TextColorKeeper);
+	while ((proc = Proc_FindNext(&it)) != NULL)
+		if (proc->offset == offset)
+			break;
+
+	if (!proc) {
+		proc = Proc_Start(ProcScr_TextColorKeeper, screen);
+		proc->offset = offset;
+		CpuCopy16(gPaletteBuffer + offset, proc->saved, sizeof(proc->saved));
+	}
+
+	CpuCopy16(colors, gPaletteBuffer + offset, sizeof(proc->saved));
+	EnablePaletteSync();
+}

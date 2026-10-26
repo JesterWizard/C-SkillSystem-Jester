@@ -16,6 +16,25 @@ enum promo_sel_info_mode {
 	PROMO_SEL_INFO_DESC,
 };
 
+/**
+ * Talk colour groups for the growth changes. The talk palette's gold and red
+ * groups go unused here, so they are reloaded with the stat screen's green
+ * and a matching red, in the talk font's outline/shadow/fill order.
+ */
+enum promo_sel_growth_color {
+	PROMO_SEL_COLOR_DEFAULT = 0,
+	PROMO_SEL_COLOR_UP = 3,
+	PROMO_SEL_COLOR_DOWN = 4,
+};
+
+static const u16 PromoSelColorUp[3] = {
+	RGB(3, 11, 3), RGB(14, 20, 9), RGB(18, 30, 14),
+};
+
+static const u16 PromoSelColorDown[3] = {
+	RGB(11, 3, 3), RGB(20, 9, 8), RGB(31, 15, 13),
+};
+
 extern char sClassGrowthPreviewText[];
 extern CONST_DATA struct MenuItemDef gMenuItem_PromoSel[];
 
@@ -27,6 +46,15 @@ static char *AppendText(char *dst, const char *src)
 	while (*src)
 		*dst++ = *src++;
 
+	return dst;
+}
+
+/* [ColorGroup] text engine code, its argument is the colour id + 1 */
+static char *AppendColorGroup(char *dst, int color)
+{
+	*dst++ = 0x80;
+	*dst++ = 0x28;
+	*dst++ = color + 1;
 	return dst;
 }
 
@@ -58,7 +86,7 @@ static char *AppendGrowthDiff(char *dst, int diff)
 	return dst;
 }
 
-/* Two lines of "Str +10%" entries, four stats per line */
+/* Two lines of "Str +10%" entries, four stats per line, gains green and losses red */
 static void BuildClassGrowthPreviewText(struct Unit *unit, int jid)
 {
 	int i, diffs[CLASS_GROWTH_MAX];
@@ -74,18 +102,28 @@ static void BuildClassGrowthPreviewText(struct Unit *unit, int jid)
 
 		str = AppendText(str, gClassGrowthStatNames[i]);
 		*str++ = ' ';
+
+		if (diffs[i] == 0) {
+			str = AppendGrowthDiff(str, diffs[i]);
+			continue;
+		}
+
+		str = AppendColorGroup(str, diffs[i] > 0 ? PROMO_SEL_COLOR_UP : PROMO_SEL_COLOR_DOWN);
 		str = AppendGrowthDiff(str, diffs[i]);
+		str = AppendColorGroup(str, PROMO_SEL_COLOR_DEFAULT);
 	}
 
 	*str = '\0';
 }
 
-static void ChangeClassGrowthPreview(struct Unit *unit, int jid)
+static void ChangeClassGrowthPreview(struct ProcPromoSel *proc, struct Unit *unit, int jid)
 {
 	BuildClassGrowthPreviewText(unit, jid);
 
 	/* Same box setup as ChangeClassDescription */
 	SetInitTalkTextFont();
+	SetClassGrowthTextColor(proc, gActiveFont->palid, PROMO_SEL_COLOR_UP, PromoSelColorUp);
+	SetClassGrowthTextColor(proc, gActiveFont->palid, PROMO_SEL_COLOR_DOWN, PromoSelColorDown);
 	ClearTalkText();
 	StartTalk(2, 0xF, sClassGrowthPreviewText);
 	SetTalkPrintColor(0);
@@ -100,7 +138,7 @@ static void ChangeClassGrowthPreview(struct Unit *unit, int jid)
 static void PromoSel_DrawClassInfo(struct ProcPromoSel *proc)
 {
 	if (ClassGrowthPreviewEnabled() && proc->_u3e == PROMO_SEL_INFO_GROWTHS)
-		ChangeClassGrowthPreview(GetUnitFromCharId(proc->pid), proc->jid[proc->main_select]);
+		ChangeClassGrowthPreview(proc, GetUnitFromCharId(proc->pid), proc->jid[proc->main_select]);
 	else
 		ChangeClassDescription(proc->msg_desc[proc->main_select]);
 }

@@ -69,6 +69,7 @@ int GetUnitBaseResGrowth(struct Unit *unit);
 int GetUnitGrowthByStat(struct Unit *unit, int stat);
 void GetClassChangeGrowthDiffs(struct Unit *unit, int jid, int diffs[CLASS_GROWTH_MAX]);
 extern const char *const gClassGrowthStatNames[CLASS_GROWTH_MAX];
+void SetClassGrowthTextColor(ProcPtr screen, int palid, int colorId, const u16 colors[3]);
 
 /* Job growth */
 struct JobGrowthEnt { s8 st[UNIT_STATUS_MAX - 1]; };

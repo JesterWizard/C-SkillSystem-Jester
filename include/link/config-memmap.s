@@ -203,7 +203,7 @@ _kernel_malloc sTextEngineSceneLayoutState, 4
 /* Text engine big text: enabled, lineBelow, savedPrintDelay, printDelayForced */
 _kernel_malloc sTextEngineBigTextState, 4
 /* Class growth preview text for the promotion screen description box */
-_kernel_malloc sClassGrowthPreviewText, 0x60
+_kernel_malloc sClassGrowthPreviewText, 0xA0
 
 /* CONFIG */
 
