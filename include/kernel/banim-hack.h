@@ -22,6 +22,10 @@ struct ProcEfxAnimNumber {
 	struct Anim *anim_num;
 };
 
+/* Kernel/Wizardry/CritCutin */
+void NewCritCutin(struct Anim *anim);
+bool CritCutinExists(void);
+
 void NewEfxAnimNumber(struct Anim *anim, int number);
 bool EfxAnimNumberExists(void);
 

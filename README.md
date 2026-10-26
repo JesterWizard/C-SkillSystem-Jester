@@ -74,6 +74,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Character_Biography_Menu.gif" alt="Character Biographies preview" width="600" />
 	</details>
 
+- [Class Growths](./Documentation/Features/ClassGrowths.md)
 - [Combat Art](./Documentation/Features/CombatArt.md)
 - [Conversation Viewer](./Documentation/Features/ConversationViewer.txt)
 
@@ -83,6 +84,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 	</details>
 
 - [Credits Feature](./Documentation/Features/Credits.md)
+- [Critical Cut-in](./Documentation/Features/CritCutin.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Crit_Cutin.gif" alt="Critical Cut-in preview" width="600" />
+	</details>
+
 - [Custom Battle Quotes](./Documentation/Features/CustomBattleQuotes.md)
 - [Custom Defeat Quotes](./Documentation/Features/CustomDefeatQuotes.md)
 
@@ -191,6 +199,13 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 
 - [Overview](./Documentation/Features/Abstract.md)
 - [Pair-Up Commands](./Documentation/Features/PairUp.md)
+- [Popup Item Icon Shine](./Documentation/Features/PopupItemIconShine.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Gifs/Popup_Item_Icon_Shine.gif" alt="Popup Item Icon Shine preview" width="600" />
+	</details>
+
 - [Popup System](./Documentation/Features/PopupR.md)
 - [Quality Of Life](./Documentation/Features/QualityOfLife.md)
 - [Real-Time Battle](./Documentation/Features/RealTimeBattle.md)

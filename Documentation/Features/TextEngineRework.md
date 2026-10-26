@@ -13,6 +13,9 @@
   - [Scene layout](#scene-layout)
   - [Big text](#big-text)
   - [Popups](#popups)
+  - [Auto-advance](#auto-advance)
+  - [Rainbow text](#rainbow-text)
+  - [Listener dimming](#listener-dimming)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
 - [Limitations & Bugs](#limitations--bugs)
@@ -32,6 +35,9 @@ Player-facing impact:
 - A scene layout swaps the floating speech bubbles for one full-width box along the bottom of the screen. Portraits stand behind it and the speaker's name sits on a tab across the box's top-left edge, like a classic cutscene. It is off by default and toggled per dialogue.
 - Big text, inspired by Paper Mario, prints letters at twice their usual size across two dialogue lines for shouted or emphasised words. Each letter bursts in, overshoots, springs back into place and jolts the box. It is toggled per dialogue.
 - Popups cut in over the scene like a courtroom "Objection!": the box closes, a white flash hits, a jagged burst with big slanted lettering slams in and shakes, then dialogue resumes in a fresh box. "Objection!", "Hold it!" and "Take that!" ship as examples; more can be added to a table.
+- Text boxes can move on by themselves after a set number of frames, once or at every `[A]` until toggled off, for timed cutscenes and interrupted lines.
+- Rainbow text gives each letter a colour in turn, and the colours keep turning around the colour wheel.
+- Portraits of characters who aren't speaking dim slightly and light up again when they speak (`dim_listener_portraits` in the designer config, on by default).
 - A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - A one-shot white impact flash can fire from dialogue or `ASMC` and decays on its own.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -60,6 +66,9 @@ The rework is a small set of C hooks plus shared tables.
 | Scene layout | Replaces the talk-open proc with a full-width bottom box, raises newly loaded portraits so their lower 16px stand behind it, and pins the nameplate to the box's top-left edge | Off by default; `[ToggleOnSceneLayout]` enables per dialogue, `[ToggleOffSceneLayout]` returns to speech bubbles |
 | Big text | Doubles each glyph into the active line and the line below; each letter lands first as a scaling affine OBJ, then bakes into the text | Off by default; `[ToggleOnBigText]` / `[ToggleOffBigText]` around the words |
 | Popups | Closes the box and shows a full-screen cut-in on BG0 using the dialogue font's tiles and palette, with a flash, sound and shake | `[Objection]`, `[HoldIt]`, `[TakeThat]` or `[Popup][XX]` from `TextEnginePopupTable` |
+| Auto-advance | `[A]` starts the vanilla wait-for-input proc plus a timer proc that ends it after a set number of frames | `[AutoAdvance][XX]` once, or `[ToggleOnAutoAdvance][XX]` for every `[A]` |
+| Rainbow text | Letters take three text colour groups in turn; a VSync proc rewrites those groups' colours every frame | Off by default; `[ToggleOnRainbow]` / `[ToggleOffRainbow]` around the words |
+| Listener dimming | A VSync proc darkens the palettes of talk portraits other than the speaker's, worked out from each portrait's own palette data, and fades them back when they speak | `gpKernelDesignerConfig->dim_listener_portraits` |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `Text_Engine_Tables.event` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
@@ -81,14 +90,14 @@ Updates stick to the face until you change them again, clear the face, or end th
 1. `TextEngineRework_Installer.event` includes `Source/LynJump.event`, generated `Source/TextEngineRework.lyn.event`, `Text_Engine_Tables.event` and `Popups/Popups.event`.
 2. `Source/LynJump.event` installs whole-function trampolines and a few call-sites.
 3. Tables define fonts, text palettes, box palettes, box graphics, boop timing data, and the popup graphics.
-4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, `[MML2]`, `[ToggleOnSceneLayout]`, `[ToggleOnBigText]` and `[Objection]`.
-5. `include/link/config-memmap.s` reserves `sTextEngineNameplateState`, `sTextEngineSceneLayoutState` and `sTextEngineBigTextState`; the last two sit at the end of the kernel RAM pool.
+4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, `[MML2]`, `[ToggleOnSceneLayout]`, `[ToggleOnBigText]`, `[Objection]`, `[AutoAdvance]` and `[ToggleOnRainbow]`.
+5. `include/link/config-memmap.s` reserves `sTextEngineNameplateState`, `sTextEngineSceneLayoutState`, `sTextEngineBigTextState` and `sTextEngineAutoAdvanceState`; the last three sit at the end of the kernel RAM pool.
 
 ---
 
 ## 🎛️ Supported Control Codes
 
-All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero**: `0x00` terminates copied text. Portrait IDs are written as little-endian shorts with `0x100` added (portrait `0x02` → `[0x02][0x01]`).
+All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero**: `0x00` terminates copied text. Portrait IDs are written as little-endian shorts with `0x100` added (portrait `0x02` → `[0x02][0x01]`). Write an argument as a raw byte such as `[0x3C]`: the text compiler turns any `[0x01]`–`[0xFF]` that `textdefs.txt` doesn't define into that byte.
 
 | Code | Alias | Arguments | Summary |
 |------|-------|-----------|---------|
@@ -141,6 +150,11 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x5B` | `[ToggleOnBigText]` | none | Following letters print at twice their size, filling the active line and the line below it. Each one lands explosively, and printing slows to at least 5 frames per letter |
 | `0x5C` | `[ToggleOffBigText]` | none | Returns to normal-size letters and the previous print speed. The rest of that line stays on the big letters' baseline |
 | `0x5D` | `[Popup]` / `[Objection]` / `[HoldIt]` / `[TakeThat]` | `XX` popup index (`0x01`+) | Closes the box and shows popup `XX` from `TextEnginePopupTable` with a flash, sound and shake for 60 frames (A or B skips after 24), then the next text opens a new box |
+| `0x5E` | `[AutoAdvance]` | `XX` frames (`0x01`–`0xFF`) | Used in place of `[A]`: no arrow, and the box moves on by itself after `XX` frames (a button press moves on sooner) |
+| `0x5F` | `[ToggleOnAutoAdvance]` | `XX` frames (`0x01`–`0xFF`) | Every following `[A]` shows its arrow as usual but moves on by itself after `XX` frames |
+| `0x60` | `[ToggleOffAutoAdvance]` | none | `[A]` waits for the player again |
+| `0x61` | `[ToggleOnRainbow]` | none | Following letters take three colour groups in turn, and the groups' colours turn around a colour wheel |
+| `0x62` | `[ToggleOffRainbow]` | none | Back to the colour from before `[ToggleOnRainbow]`. Rainbow letters already printed keep changing colour until the dialogue ends |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 
@@ -164,6 +178,8 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 | 3 | 1, 8–10 | Unused by default (blue, hard to read) |
 | 4 | 1, 11–13 | Unused by default (yellow, hard to read) |
 | 5 | 1, 14–16 | `[ToggleRed]` |
+
+`[ToggleOnRainbow]` borrows groups 1, 3 and 4 (see [Rainbow text](#rainbow-text)).
 
 `[TextPalette]` rewrites one group's three opaque colors. Any on-screen text already using that group updates immediately.
 
@@ -211,6 +227,9 @@ A text palette is 16 colors. Dialogue glyphs are 2bpp (4 colors, first transpare
 [ToggleOnSceneLayout]Emperor Vigarde's forces are within the castle walls.
 [ToggleOffSceneLayout]Back to speech bubbles.
 [ToggleOnBigText]HALT![ToggleOffBigText] Who goes there?
+Wait, I didn't[AutoAdvance][0x1E][N]
+[ToggleOnAutoAdvance][0x78]These lines move on by themselves.[A][ToggleOffAutoAdvance]
+[ToggleOnRainbow]Rainbow text![ToggleOffRainbow] And back to normal.
 [ClearFaceAsh]
 ```
 
@@ -290,6 +309,56 @@ Start big text at the beginning of a line with a free line under it: the first l
 3. Convert it with the makefile's grit rule: `grit Name.png -gB 4 -gzl -m -mLf -mR4 -mzl -pn 16 -ftb -fh! -o Name.img.bin` (this writes `Name.img.bin`, `Name.map.bin`, `Name.pal.bin`).
 4. Add a line to `TextEnginePopupTable` in `Popups/Popups.event` with its width and height in tiles and a sound effect (`0` for none), before the closing `WORD 0 0 0 0`. Its index is its position in the table, starting at `0x01`.
 
+### Auto-advance
+
+`[AutoAdvance][XX]` goes where an `[A]` would. The box holds for `XX` frames with no arrow, then carries on as if the player had pressed A. Use it to cut a line off, or for a cutscene that plays itself:
+
+```text
+[OpenMidRight]Your Majesty, the gate[AutoAdvance][0x1E]
+[OpenMidLeft]I know. Go.[A]
+```
+
+`[ToggleOnAutoAdvance][XX]` makes every following `[A]` move on by itself after `XX` frames, until `[ToggleOffAutoAdvance]` or the end of the dialogue. The arrow still shows.
+
+| Situation | Result |
+|-----------|--------|
+| The player presses A or the D-Pad during the wait | Moves on straight away, as with `[A]`. The first 8 frames ignore input, as vanilla does. B still skips the whole dialogue |
+| The conversation log is open | The timer pauses until it closes |
+| `[A]` with the toggle off | Waits for the player as usual |
+| A new dialogue starts | The toggle is off |
+
+60 frames is one second. Arguments are single bytes, so the longest wait is `[0xFF]` (about 4 seconds); chain two for longer.
+
+### Rainbow text
+
+`[ToggleOnRainbow]` gives each following letter one of three colour groups in turn (spaces don't take a turn). Every frame the three groups' colours move along a red, orange, gold, green, teal, blue, violet, magenta wheel, a third of a turn apart, so the word shimmers through the rainbow.
+
+```text
+[OpenMidLeft]It's the [ToggleOnRainbow]Sacred Stone[ToggleOffRainbow] of Renais![A]
+```
+
+| Situation | Result |
+|-----------|--------|
+| `[ToggleOffRainbow]` | New letters go back to the colour from before `[ToggleOnRainbow]`. Rainbow letters already on screen keep changing colour |
+| The dialogue ends | The three groups get their colours back |
+| Letter-print effects or big text | They work with it; the letters land in rainbow colours |
+| A popup or the conversation log is showing | The colours hold still, since both swap the text palette for their own |
+
+The hues are `sTextEngineRainbowHues` in `TextEngineRework.c`, picked to stay readable on the light box. The edge and shadow pixels blend towards the default text colour's, so a different `[BoxBgPalette]` still suits them.
+
+### Listener dimming
+
+With `dim_listener_portraits` on in the designer config (the default), whenever someone is speaking, every other portrait in the conversation darkens by about a third over 8 frames. When the speaker changes, the new speaker lights up and the old one dims at the same time. Nothing needs adding to scripts.
+
+| Situation | Result |
+|-----------|--------|
+| The active slot has no portrait (narration, an off-screen voice) | Everyone is lit |
+| A portrait fades in or out | Left to the fade. A newly loaded listener fades in, then dims |
+| Half-body and 32-colour portraits | Their second palette dims with the first |
+| The dialogue ends with portraits still on screen | They are lit again |
+
+How dark and how fast are `TEXT_ENGINE_DIM_STRENGTH` (in 32nds) and `TEXT_ENGINE_DIM_FRAMES` in `TextEngineRework.c`.
+
 ### Custom fonts
 
 1. Create a PNG using `Fonts/FE8_Text_Norm.png` as a reference.
@@ -330,7 +399,11 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Installer | [`TextEngineRework_Installer.event`](../../Kernel/Wizardry/TextEngineRework/TextEngineRework_Installer.event) | Pulls LynJump, lyn output, tables and popups into the build |
 | Tables | [`Text_Engine_Tables.event`](../../Kernel/Wizardry/TextEngineRework/Text_Engine_Tables.event), [`Text_Boop_Table.event`](../../Kernel/Wizardry/TextEngineRework/Text_Boop_Table.event), [`Popups/Popups.event`](../../Kernel/Wizardry/TextEngineRework/Popups/Popups.event) | Fonts, palettes, box graphics, boop timing, popup graphics |
 | Font assets / tools | [`Fonts/`](../../Kernel/Wizardry/TextEngineRework/Fonts/), [`Text_Box_Graphics/`](../../Kernel/Wizardry/TextEngineRework/Text_Box_Graphics/), [`Popups/generate_popups.py`](../../Kernel/Wizardry/TextEngineRework/Popups/generate_popups.py) | Editable font/box/popup assets and generation scripts |
-| Text aliases | [`Contents/Texts/textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Font]`, `[LoadFaceFancy]`, move-speed macros, scene layout / big text toggles, popup names, and related helpers |
+| Auto-advance | `TextEngine_StartWaitForInput`, `TextEngine_CommandAutoAdvance`, `TextEngine_CommandStartAutoAdvance`, `gProcScr_TextEngineAutoAdvance` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[A]` and `[AutoAdvance]` start the vanilla `gProcScr_TalkWaitForInput` (so the skip listener still ignores presses), plus a timer proc that ends it. The toggle's frame count lives in `sTextEngineAutoAdvanceState` (`include/link/config-memmap.s`) |
+| Rainbow text | `TextEngine_RainbowColorLetter`, `TextEngine_RainbowApply`, `gProcScr_TextEngineRainbow`, `sTextEngineRainbowHues`, `sTextEngineRainbowGroups` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `TextEngine_TryStartGlyphFloat` (the `Talk_OnIdle` print hook) sets each letter's colour group. A `PROC_TREE_VSYNC` proc writes the groups' colours into the text palette and the float-glyph OBJ palette just before the palette upload, because `SetInitTalkTextFont` reloads the text palette whenever it runs |
+| Listener dimming | `TextEngine_StartDim`, `TextEngineDim_OnIdle`, `TextEngine_GetFacePalettes`, `TextEngine_PutFaceDim`, `gProcScr_TextEngineDim` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); `HalfBody_UsesTwoPalettes` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Started by `Talk_OnInit_C` on `PROC_TREE_VSYNC`, ended by `Talk_OnEnd_C`. Each frame it compares every `gFaces` portrait with `faces[activeFaceSlot]` and writes dimmed or lit colours from the portrait data (main palette, half-body second palette, `Portrait32_GetOverlayOam2` overlay), skipping palettes a `ProcScr_PalFade` fade is working on |
+| Raw bytes in text | `text_to_utf8_u16_array` in [`Contents/Texts/Scripts/textprocess-chax.py`](../../Contents/Texts/Scripts/textprocess-chax.py) | `[0xNN]` that isn't defined in `textdefs.txt` is written as that byte |
+| Text aliases | [`Contents/Texts/textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Font]`, `[LoadFaceFancy]`, move-speed macros, scene layout / big text / auto-advance / rainbow toggles, popup names, and related helpers |
 
 ---
 
@@ -366,6 +439,9 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Big-text landings use OBJ tiles 0x3B-0x3E / 0x5B-0x5E (two slots, 2D mapping), OBJ palette 0xA and affine slots 29-30. A third letter arriving while both slots are busy prints straight into the text. The jolt moves BG0 and BG1, so it fights any other effect moving those layers for its 6 frames.
 - Popups borrow the dialogue font's tiles (240), BG0 and the text palette, and decompress the tilemap through `gGenericBuffer`. A popup that needs more tiles is skipped. They always close the box, so they work between boxes, not mid-line. Sprite talk skips them. The shipped entries play sound `0xD8` (a vanilla hit sound); change it per entry. Portraits stay visible around the burst, and BG0's priority puts the popup above them.
 - Big text is cleared when a dialogue starts. It takes priority over the letter-print effects (bounce, wavy, scramble, drip, ghost) and skips sprite talk. Letters scaled past the end of the line's 30 text tiles are clipped, so keep a big line to roughly 14 average-width letters.
+- Auto-advance and rainbow text are cleared when a dialogue starts. Rainbow text skips sprite talk and world map text, which draw letters another way.
+- Rainbow text borrows text colour groups 1, 3 and 4 for the rest of the dialogue once it is turned on, so text using those groups (`[ColorGroup][0x01]`, `[0x03]` or `[0x04]`) changes colour with it until the dialogue ends.
+- Listener dimming writes portrait palettes from their portrait data, so anything else that recolours a talk portrait mid-dialogue (other than the portrait fades) is overridden while that portrait is dimmed. It is skipped for sprite talk and pauses while the conversation log is open.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

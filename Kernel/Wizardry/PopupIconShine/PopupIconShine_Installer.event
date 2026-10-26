@@ -1,0 +1,11 @@
+#ifndef POPUP_ICON_SHINE_INSTALLED
+#define POPUP_ICON_SHINE_INSTALLED
+
+/**
+ * Item icon shine in popups. Lives in FreeSpaceDEMO (WIZARDRY_CUSTOM in
+ * wizardry.event) and replaces the popup icon proc's loop.
+ */
+#include "Source/LynJump.event"
+#include "Source/PopupIconShine.lyn.event"
+
+#endif /* POPUP_ICON_SHINE_INSTALLED */

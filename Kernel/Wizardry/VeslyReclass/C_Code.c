@@ -4,6 +4,7 @@
 #include "kernel-lib.h"
 #include "weapon-slots.h"
 #include "skill-system.h"
+#include "lvup.h"
 #define PUREFUNC __attribute__((pure))
 int Mod(int a, int b) PUREFUNC;
 
@@ -124,6 +125,14 @@ struct ProcReclassSel
     /* ... more maybe */
 };
 void ReclassMenuExec(struct ProcClassChgMenuSel * proc);
+
+// Kept in ProcReclassSel::_u3e: what the two frames beside the battle anim show
+enum reclass_info_mode
+{
+    RECLASS_INFO_STATS,
+    RECLASS_INFO_GROWTHS,
+};
+extern const struct ProcCmd ProcScr_ReclassSelect[];
 
 const struct ProcCmd ProcScr_ReclassMenuSel[] = {
     PROC_SLEEP(6),
@@ -694,6 +703,26 @@ static const char stats[][16] = {
     "HP", "Str", "Skl", "Spd", "Def", "Res", "Con", "Mov", "Mag",
 };
 
+static void DrawDiffText(struct Text * th, int x, int y, int numColor, const char * label, int num)
+{
+    PutDrawText(th, TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0, 0, 3, label);
+    if (num >= 0)
+    {
+        Text_InsertDrawString(th, 18, numColor, "+"); // th->x + 8
+    }
+    else
+    {
+        Text_InsertDrawString(th, 19, numColor, "-");
+        th->x++;
+    }
+    th->x++;
+
+    if (ABS(num) > 9)
+        Text_InsertDrawNumberOrBlank(th, th->x + 8, numColor, ABS(num));
+    else
+        Text_InsertDrawNumberOrBlank(th, th->x, numColor, ABS(num));
+}
+
 void DrawStatDiff(int x, int y, int id, struct Unit * unit, const struct ClassData * classData)
 {
     struct Text * th = gStatScreen.text;
@@ -704,23 +733,49 @@ void DrawStatDiff(int x, int y, int id, struct Unit * unit, const struct ClassDa
     {
         id += 7;
     }
-    if (num >= 0)
-    {
-        PutDrawText(&th[id], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0, 0, 3, stats[id]); // "+"
-        Text_InsertDrawString(&th[id], 18, th[id].colorId, "+");                            // th[id].x + 8
-    }
-    else
-    {
-        PutDrawText(&th[id], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y), 0, 0, 3, stats[id]); // "-"
-        Text_InsertDrawString(&th[id], 19, th[id].colorId, "-");
-        th[id].x++;
-    }
-    th[id].x++;
+    DrawDiffText(&th[id], x, y, 0, stats[id], num);
+}
 
-    if (ABS(num) > 9)
-        Text_InsertDrawNumberOrBlank(&th[id], th[id].x + 8, th[id].colorId, ABS(num));
-    else
-        Text_InsertDrawNumberOrBlank(&th[id], th[id].x, th[id].colorId, ABS(num));
+static bool ReclassShowsGrowths(void)
+{
+    struct ProcReclassSel * proc = Proc_Find(ProcScr_ReclassSelect);
+
+    return ClassGrowthPreviewEnabled() && proc && proc->_u3e == RECLASS_INFO_GROWTHS;
+}
+
+// The font palette has no red, so losses borrow its gold group (unused on this screen)
+#define RECLASS_COLOR_DOWN TEXT_COLOR_SYSTEM_GOLD
+
+static const u16 ReclassColorDown[3] = {
+    RGB(20, 9, 8), RGB(31, 15, 13), RGB(11, 3, 3),
+};
+
+// Growth changes use the same frames: gains green like the stat screen's growth bonuses, losses red
+static void ReclassDrawGrowthChanges(struct Unit * unit, const struct ClassData * classData, int y)
+{
+    struct Text * th = gStatScreen.text;
+    int diffs[CLASS_GROWTH_MAX];
+
+    GetClassChangeGrowthDiffs(unit, classData->number, diffs);
+    SetClassGrowthTextColor(Proc_Find(ProcScr_ReclassSelect), gDefaultFont.palid, RECLASS_COLOR_DOWN, ReclassColorDown);
+
+    for (int i = 0; i < CLASS_GROWTH_MAX; ++i)
+    {
+        // Two digits is all the frame has room for
+        int num = diffs[i];
+        if (num > 99)
+            num = 99;
+        if (num < -99)
+            num = -99;
+
+        int color = TEXT_COLOR_SYSTEM_WHITE;
+        if (num > 0)
+            color = TEXT_COLOR_SYSTEM_GREEN;
+        if (num < 0)
+            color = RECLASS_COLOR_DOWN;
+
+        DrawDiffText(&th[i], (i & 1) ? 25 : 12, y + (i / 2) * 2, color, gClassGrowthStatNames[i], num);
+    }
 }
 
 struct SpecialCharSt
@@ -769,6 +824,12 @@ void ReclassDrawStatChanges(struct Unit * unit, const struct ClassData * classDa
         24, y - 1, 6, 10, TILEREF(0, 0), 0); // style as 0 ?
     BG_EnableSyncByMask(BG2_SYNC_BIT);
     SetBlendTargetA(0, 0, 1, 0, 0);
+
+    if (ReclassShowsGrowths())
+    {
+        ReclassDrawGrowthChanges(unit, classData, y);
+        return;
+    }
 
     DrawStatDiff(12, y + 0, 0, unit, classData);
     DrawStatDiff(25, y + 0, 1, unit, classData); // Str or Mag
@@ -841,6 +902,24 @@ const struct MenuItemDef gMenuItem_ReclassSel[] = {
     { 0 }
 };
 
+static u8 ReclassMenuSel_OnRPress(struct MenuProc * pmenu)
+{
+    struct ProcClassChgMenuSel * parent = pmenu->proc_parent;
+    struct ProcReclassSel * gparent = parent->proc_parent;
+
+    if (!ClassGrowthPreviewEnabled())
+        return 0;
+
+    gparent->_u3e = (gparent->_u3e == RECLASS_INFO_GROWTHS) ? RECLASS_INFO_STATS : RECLASS_INFO_GROWTHS;
+
+    struct Unit * unit = GetUnitFromCharId(gparent->pid);
+    const struct ClassData * classData =
+        GetClassData(GetReclassOption(gparent->pid, unit->pClassData->number, pmenu->itemCurrent));
+    ReclassDrawStatChanges(unit, classData);
+    PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
+    return 0;
+}
+
 void ReclassMenuSelOnInit(struct MenuProc * proc)
 {
     SyncMenuBgs(proc);
@@ -857,6 +936,7 @@ const struct MenuDef gMenuDef_ReclassSel = {
     .onInit = ReclassMenuSelOnInit,
     .onEnd = ReclassMenuSelOnEnd,
     .onBPress = ReclassMenuSelOnPressB,
+    .onRPress = ReclassMenuSel_OnRPress,
 };
 
 const struct MenuRect ReclassMenuRect = { .x = 1,
@@ -948,6 +1028,7 @@ void Make6C_ReclassMenuSelect(struct ProcReclassSel * proc)
     parent->stat = PROMO_MAIN_STAT_2;
     proc->pid = parent->pid;
     proc->u50 = 9;
+    proc->_u3e = RECLASS_INFO_STATS;
     BG_Fill(gBG0TilemapBuffer, 0);
     BG_Fill(gBG1TilemapBuffer, 0);
     BG_Fill(gBG2TilemapBuffer, 0);

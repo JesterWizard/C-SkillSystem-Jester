@@ -202,6 +202,10 @@ _kernel_malloc sPathfindingGhostObjBuf, 50
 _kernel_malloc sTextEngineSceneLayoutState, 4
 /* Text engine big text: enabled, lineBelow, savedPrintDelay, printDelayForced */
 _kernel_malloc sTextEngineBigTextState, 4
+/* Text engine auto-advance: frames before every [A] moves on by itself */
+_kernel_malloc sTextEngineAutoAdvanceState, 4
+/* Class growth preview text for the promotion screen description box */
+_kernel_malloc sClassGrowthPreviewText, 0xA0
 
 /* CONFIG */
 

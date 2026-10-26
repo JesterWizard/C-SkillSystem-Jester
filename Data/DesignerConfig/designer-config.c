@@ -25,7 +25,9 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.casual_mode = false,
 	.chapter_names = true,
 	.chatlog_enabled = true,
+	.class_growths = 0, // 0=off, 1=personal + class growths, 2=average of personal and class growths
 	.collect_dead_units = true,
+	.crit_cutin = true, // portrait cut-in over an electric band before critical hits by units with a portrait
 	.custom_battle_quotes = true,
 	.custom_character_animations = true,
 	.custom_defeat_quotes = true,
@@ -40,6 +42,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.death_dance = true,
 	.debug_autoload_skills = false,
 	.deny_stat_screen_access = true,
+	.dim_listener_portraits = true, // dim the portraits of characters who aren't speaking
 	.display_status_flash_on_hit = true, // banim status flash from ext-hit, not ANIM_ROUND_POISON
 	.display_terrain_bonuses_in_stat_screen = true,
 	.dynamic_weapon_slots = true, // true = remap rank slots via gClassWeaponSlotConf; false = vanilla
@@ -101,6 +104,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.no_suspend_in_aiphase = false,
 	.no_wait_after_trading = true,
 	.pair_up_enabled = true,
+	.popup_item_icon_shine = true, // a glint sweeps across item icons in popups
 	.portrait_32_color = false,
 	.prep_menu_augury = true,
 	.prep_menu_base_conversations = false,

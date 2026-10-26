@@ -1,0 +1,11 @@
+#ifndef CRIT_CUTIN_INSTALLED
+#define CRIT_CUTIN_INSTALLED
+
+/**
+ * Critical cut-in. Lives in FreeSpaceDEMO (WIZARDRY_CUSTOM in wizardry.event);
+ * BanimHack's C07 handler starts it. The band frames are EfxCritCutin in
+ * Contents/EfxAnim.
+ */
+#include "Source/CritCutin.lyn.event"
+
+#endif /* CRIT_CUTIN_INSTALLED */
