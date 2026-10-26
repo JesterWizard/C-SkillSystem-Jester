@@ -211,6 +211,15 @@ enum {
 	TEXT_ENGINE_RAINBOW_GROUPS = 3,
 	/* Frames from one hue in sTextEngineRainbowHues to the next. */
 	TEXT_ENGINE_RAINBOW_HUE_FRAMES = 8,
+	/*
+	 * Listener dimming: portraits of characters who aren't speaking darken
+	 * by this many 32nds over this many frames.
+	 */
+	TEXT_ENGINE_DIM_STRENGTH = 10,
+	TEXT_ENGINE_DIM_FRAMES = 8,
+	TEXT_ENGINE_DIM_FACE_SLOTS = 4,
+	/* Its own palette, a halfbody's second one and a 32-colour overlay. */
+	TEXT_ENGINE_DIM_MAX_PALETTES = 3,
 };
 
 struct TextEngineFaceJumpProc {
@@ -381,6 +390,19 @@ struct TextEngineRainbowProc {
 	u16 clock;
 	/* The rainbow groups' colours before, in the text and float palettes. */
 	u16 saved[2][TEXT_ENGINE_RAINBOW_GROUPS * 3];
+};
+
+struct TextEngineDimProc {
+	PROC_HEADER;
+	/* Per gFaces slot: the face last seen there and how dim it is. */
+	struct FaceProc *face[TEXT_ENGINE_DIM_FACE_SLOTS];
+	u8 level[TEXT_ENGINE_DIM_FACE_SLOTS];
+};
+
+/* bmlib's palette fade proc, which fades portraits in and out. */
+struct TextEnginePalFadeProc {
+	PROC_HEADER;
+	struct PalFadeSt *st;
 };
 
 struct TextEngineBigPopProc {
@@ -580,6 +602,8 @@ static void TextEngineEmotion_OnIdle(struct TextEngineEmotionProc *proc);
 static void TextEngine_CleanupEmotion(void);
 static void TextEngine_CleanupRainbow(void);
 static void TextEngine_CleanupAutoAdvance(void);
+static void TextEngine_StartDim(void);
+static void TextEngine_CleanupDim(void);
 static void TextEngine_RainbowColorLetter(struct Text *text, const char *str);
 
 static const s8 sTextEnginePrintShakeOffsets[][2] = {
@@ -3862,6 +3886,7 @@ void Talk_OnInit_C(void)
 	current[TEXT_ENGINE_ATTR_BOOP_PITCH] = 12;
 	TextEngine_RunCommandCleanup();
 	TextEngine_PrepareFloatPalette();
+	TextEngine_StartDim();
 }
 
 /*
@@ -3886,6 +3911,7 @@ void Talk_OnEnd_C(void)
 	Proc_EndEach(gProcScr_TextEngineBigJolt);
 	TextEngine_CleanupAutoAdvance();
 	TextEngine_CleanupRainbow();
+	TextEngine_CleanupDim();
 }
 
 LYN_REPLACE_CHECK(InitTalk);
@@ -5960,6 +5986,201 @@ static int TextEngine_CommandStopRainbow(
 	}
 
 	return TalkInterpret(proc);
+}
+
+/*
+ * Listener dimming: while someone speaks, the other talk portraits darken a
+ * little, and light up again when they speak.  The dimmed colours are worked
+ * out from the portrait's own palette data, so nothing has to be saved.
+ */
+
+/* The OBJ palettes a face draws with, and the colours each one holds lit. */
+static int TextEngine_GetFacePalettes(struct FaceProc *face, u8 *pals, const u16 **colors)
+{
+	const struct FaceData *info = face->pFaceInfo;
+	s32 overlayOam2;
+	int count = 0;
+
+	if (!info || !info->pal)
+		return 0;
+
+	pals[count] = 0x10 + ((face->oam2 >> 12) & 0xF);
+	colors[count++] = info->pal;
+
+	if (HalfBody_UsesTwoPalettes(info)) {
+		pals[count] = pals[0] + 1;
+		colors[count++] = info->pal + 0x10;
+	}
+
+	overlayOam2 = Portrait32_GetOverlayOam2(face);
+	if (overlayOam2 >= 0) {
+		pals[count] = 0x10 + ((overlayOam2 >> 12) & 0xF);
+		colors[count++] = info->pal + 0x10;
+	}
+
+	return count;
+}
+
+/* Fading in or out: leave those palettes to the fade. */
+static bool TextEngine_IsPalFading(int pal)
+{
+	struct ProcFindIterator it;
+	struct TextEnginePalFadeProc *fade;
+
+	Proc_FindBegin(&it, ProcScr_PalFade);
+	while ((fade = (struct TextEnginePalFadeProc *)Proc_FindNext(&it)) != NULL) {
+		if (fade->st && fade->st->pal == gPaletteBuffer + pal * 0x10)
+			return true;
+	}
+
+	return false;
+}
+
+static bool TextEngine_IsTalkFace(struct FaceProc *face)
+{
+	struct TalkState *state = sTextEngineState;
+	int i;
+
+	for (i = 0; i < (int)ARRAY_COUNT(state->faces); i++)
+		if (state->faces[i] == face)
+			return true;
+
+	return false;
+}
+
+/* Writes the face's palettes at level DIM_FRAMES-ths of the way to dim. */
+static bool TextEngine_PutFaceDim(struct FaceProc *face, int level)
+{
+	u8 pals[TEXT_ENGINE_DIM_MAX_PALETTES];
+	const u16 *colors[TEXT_ENGINE_DIM_MAX_PALETTES];
+	int mul = 32 - TEXT_ENGINE_DIM_STRENGTH * level / TEXT_ENGINE_DIM_FRAMES;
+	int count = TextEngine_GetFacePalettes(face, pals, colors);
+	int i, j;
+
+	for (i = 0; i < count; i++)
+		if (TextEngine_IsPalFading(pals[i]))
+			return false;
+
+	for (i = 0; i < count; i++) {
+		u16 *dst = gPaletteBuffer + pals[i] * 0x10;
+
+		for (j = 0; j < 0x10; j++) {
+			int c = colors[i][j];
+
+			dst[j] = RGB(
+				((c & 0x1F) * mul) >> 5,
+				(((c >> 5) & 0x1F) * mul) >> 5,
+				(((c >> 10) & 0x1F) * mul) >> 5
+			);
+		}
+	}
+
+	return true;
+}
+
+static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
+{
+	struct TalkState *state = sTextEngineState;
+	struct FaceProc *speaker = NULL;
+	bool changed = false;
+	int slot;
+
+	/* The log swaps palettes out for its own while it shows. */
+	if (Chatlog_IsVisible())
+		return;
+
+	if (state->activeFaceSlot < ARRAY_COUNT(state->faces))
+		speaker = state->faces[state->activeFaceSlot];
+
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		struct FaceProc *face = gFaces[slot];
+		int level = proc->level[slot];
+		int target = 0;
+
+		/* A new face in this slot starts lit. */
+		if (face != proc->face[slot]) {
+			proc->face[slot] = face;
+			proc->level[slot] = 0;
+			level = 0;
+		}
+
+		if (!face)
+			continue;
+
+		/* With no one speaking, everyone is lit. */
+		if (speaker && face != speaker && TextEngine_IsTalkFace(face))
+			target = TEXT_ENGINE_DIM_FRAMES;
+
+		/* Lit and staying lit: the palette is the face's own. */
+		if (level == 0 && target == 0)
+			continue;
+
+		if (level < target)
+			level++;
+		else if (level > target)
+			level--;
+
+		/*
+		 * Dimmed faces are rewritten every frame, in case something
+		 * reloaded the palette.  A face mid-fade keeps its level.
+		 */
+		if (TextEngine_PutFaceDim(face, level)) {
+			proc->level[slot] = level;
+			changed = true;
+		}
+	}
+
+	if (changed)
+		EnablePaletteSync();
+}
+
+static void TextEngineDim_OnEnd(struct TextEngineDimProc *proc)
+{
+	bool changed = false;
+	int slot;
+
+	/* Faces still on screen after the dialogue go back to their own colours. */
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		if (proc->level[slot] && gFaces[slot] == proc->face[slot] && gFaces[slot])
+			changed |= TextEngine_PutFaceDim(gFaces[slot], 0);
+	}
+
+	if (changed)
+		EnablePaletteSync();
+}
+
+static const struct ProcCmd gProcScr_TextEngineDim[] = {
+	PROC_NAME("TextEngineDim"),
+	PROC_SET_END_CB(TextEngineDim_OnEnd),
+	PROC_REPEAT(TextEngineDim_OnIdle),
+	PROC_END,
+};
+
+static void TextEngine_StartDim(void)
+{
+	struct TextEngineDimProc *proc;
+	int slot;
+
+	Proc_EndEach(gProcScr_TextEngineDim);
+
+	if (!gpKernelDesignerConfig->dim_listener_portraits || CheckTalkFlag(TALK_FLAG_SPRITE))
+		return;
+
+	/*
+	 * On the VSync tree, after the frame's other palette writes, like the
+	 * rainbow: a face change reloads the lit palette.
+	 */
+	proc = Proc_Start(gProcScr_TextEngineDim, PROC_TREE_VSYNC);
+
+	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
+		proc->face[slot] = gFaces[slot];
+		proc->level[slot] = 0;
+	}
+}
+
+static void TextEngine_CleanupDim(void)
+{
+	Proc_EndEach(gProcScr_TextEngineDim);
 }
 
 static int TextEngine_CommandStartScreenGlitch(

@@ -15,6 +15,7 @@
   - [Popups](#popups)
   - [Auto-advance](#auto-advance)
   - [Rainbow text](#rainbow-text)
+  - [Listener dimming](#listener-dimming)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
 - [Limitations & Bugs](#limitations--bugs)
@@ -36,6 +37,7 @@ Player-facing impact:
 - Popups cut in over the scene like a courtroom "Objection!": the box closes, a white flash hits, a jagged burst with big slanted lettering slams in and shakes, then dialogue resumes in a fresh box. "Objection!", "Hold it!" and "Take that!" ship as examples; more can be added to a table.
 - Text boxes can move on by themselves after a set number of frames, once or at every `[A]` until toggled off, for timed cutscenes and interrupted lines.
 - Rainbow text gives each letter a colour in turn, and the colours keep turning around the colour wheel.
+- Portraits of characters who aren't speaking dim slightly and light up again when they speak (`dim_listener_portraits` in the designer config, on by default).
 - A rolling screen tear, a separate corruption-static effect, and a whole-screen earthquake rumble can be toggled from dialogue or `ASMC`; all three are off by default.
 - A one-shot white impact flash can fire from dialogue or `ASMC` and decays on its own.
 - Portraits remember per-slot attributes (font, color group, box palette, box type, boop pitch) and reuse them when the speaker changes.
@@ -66,6 +68,7 @@ The rework is a small set of C hooks plus shared tables.
 | Popups | Closes the box and shows a full-screen cut-in on BG0 using the dialogue font's tiles and palette, with a flash, sound and shake | `[Objection]`, `[HoldIt]`, `[TakeThat]` or `[Popup][XX]` from `TextEnginePopupTable` |
 | Auto-advance | `[A]` starts the vanilla wait-for-input proc plus a timer proc that ends it after a set number of frames | `[AutoAdvance][XX]` once, or `[ToggleOnAutoAdvance][XX]` for every `[A]` |
 | Rainbow text | Letters take three text colour groups in turn; a VSync proc rewrites those groups' colours every frame | Off by default; `[ToggleOnRainbow]` / `[ToggleOffRainbow]` around the words |
+| Listener dimming | A VSync proc darkens the palettes of talk portraits other than the speaker's, worked out from each portrait's own palette data, and fades them back when they speak | `gpKernelDesignerConfig->dim_listener_portraits` |
 | Script-facing aliases | Friendly names in `Contents/Texts/textdefs.txt` plus table data in `Text_Engine_Tables.event` | Text writers can use macros instead of raw bytes |
 
 ### Attribute model
@@ -343,6 +346,19 @@ Start big text at the beginning of a line with a free line under it: the first l
 
 The hues are `sTextEngineRainbowHues` in `TextEngineRework.c`, picked to stay readable on the light box. The edge and shadow pixels blend towards the default text colour's, so a different `[BoxBgPalette]` still suits them.
 
+### Listener dimming
+
+With `dim_listener_portraits` on in the designer config (the default), whenever someone is speaking, every other portrait in the conversation darkens by about a third over 8 frames. When the speaker changes, the new speaker lights up and the old one dims at the same time. Nothing needs adding to scripts.
+
+| Situation | Result |
+|-----------|--------|
+| The active slot has no portrait (narration, an off-screen voice) | Everyone is lit |
+| A portrait fades in or out | Left to the fade. A newly loaded listener fades in, then dims |
+| Half-body and 32-colour portraits | Their second palette dims with the first |
+| The dialogue ends with portraits still on screen | They are lit again |
+
+How dark and how fast are `TEXT_ENGINE_DIM_STRENGTH` (in 32nds) and `TEXT_ENGINE_DIM_FRAMES` in `TextEngineRework.c`.
+
 ### Custom fonts
 
 1. Create a PNG using `Fonts/FE8_Text_Norm.png` as a reference.
@@ -385,6 +401,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Font assets / tools | [`Fonts/`](../../Kernel/Wizardry/TextEngineRework/Fonts/), [`Text_Box_Graphics/`](../../Kernel/Wizardry/TextEngineRework/Text_Box_Graphics/), [`Popups/generate_popups.py`](../../Kernel/Wizardry/TextEngineRework/Popups/generate_popups.py) | Editable font/box/popup assets and generation scripts |
 | Auto-advance | `TextEngine_StartWaitForInput`, `TextEngine_CommandAutoAdvance`, `TextEngine_CommandStartAutoAdvance`, `gProcScr_TextEngineAutoAdvance` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[A]` and `[AutoAdvance]` start the vanilla `gProcScr_TalkWaitForInput` (so the skip listener still ignores presses), plus a timer proc that ends it. The toggle's frame count lives in `sTextEngineAutoAdvanceState` (`include/link/config-memmap.s`) |
 | Rainbow text | `TextEngine_RainbowColorLetter`, `TextEngine_RainbowApply`, `gProcScr_TextEngineRainbow`, `sTextEngineRainbowHues`, `sTextEngineRainbowGroups` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `TextEngine_TryStartGlyphFloat` (the `Talk_OnIdle` print hook) sets each letter's colour group. A `PROC_TREE_VSYNC` proc writes the groups' colours into the text palette and the float-glyph OBJ palette just before the palette upload, because `SetInitTalkTextFont` reloads the text palette whenever it runs |
+| Listener dimming | `TextEngine_StartDim`, `TextEngineDim_OnIdle`, `TextEngine_GetFacePalettes`, `TextEngine_PutFaceDim`, `gProcScr_TextEngineDim` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); `HalfBody_UsesTwoPalettes` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Started by `Talk_OnInit_C` on `PROC_TREE_VSYNC`, ended by `Talk_OnEnd_C`. Each frame it compares every `gFaces` portrait with `faces[activeFaceSlot]` and writes dimmed or lit colours from the portrait data (main palette, half-body second palette, `Portrait32_GetOverlayOam2` overlay), skipping palettes a `ProcScr_PalFade` fade is working on |
 | Raw bytes in text | `text_to_utf8_u16_array` in [`Contents/Texts/Scripts/textprocess-chax.py`](../../Contents/Texts/Scripts/textprocess-chax.py) | `[0xNN]` that isn't defined in `textdefs.txt` is written as that byte |
 | Text aliases | [`Contents/Texts/textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Font]`, `[LoadFaceFancy]`, move-speed macros, scene layout / big text / auto-advance / rainbow toggles, popup names, and related helpers |
 
@@ -424,6 +441,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 - Big text is cleared when a dialogue starts. It takes priority over the letter-print effects (bounce, wavy, scramble, drip, ghost) and skips sprite talk. Letters scaled past the end of the line's 30 text tiles are clipped, so keep a big line to roughly 14 average-width letters.
 - Auto-advance and rainbow text are cleared when a dialogue starts. Rainbow text skips sprite talk and world map text, which draw letters another way.
 - Rainbow text borrows text colour groups 1, 3 and 4 for the rest of the dialogue once it is turned on, so text using those groups (`[ColorGroup][0x01]`, `[0x03]` or `[0x04]`) changes colour with it until the dialogue ends.
+- Listener dimming writes portrait palettes from their portrait data, so anything else that recolours a talk portrait mid-dialogue (other than the portrait fades) is overridden while that portrait is dimmed. It is skipped for sprite talk and pauses while the conversation log is open.
 - Some features only apply when dialogue uses the hooked vanilla talk path.
 
 Please report issues in the repository’s **Issues** tab.

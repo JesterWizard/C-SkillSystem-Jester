@@ -197,6 +197,7 @@ struct KernelDesigerConfig {
 	u8 gaiden_magic_three_houses; /* Three Houses-style gaiden magic: uses per chapter instead of HP/MP cost */
 	u8 class_growths; /* 0 = off, 1 = personal + class growths, 2 = average of personal and class growths. Promotion and reclass menus preview the change */
 	u8 crit_cutin; /* critical hits by units with their own portrait show a portrait cut-in over an electric band first */
+	u8 dim_listener_portraits; /* in dialogue, portraits of characters who aren't speaking are dimmed */
 };
 
 struct KernelBattleDesignerConfig {
@@ -247,6 +248,7 @@ void Portrait32_UnbindFace(int faceSlot);
 void Portrait32_OnFadeIn(struct FaceProc *proc);
 void Portrait32_LoadOverlayGfx(struct FaceProc *proc);
 s32 Portrait32_GetOverlayOam2(struct FaceProc *proc);
+bool HalfBody_UsesTwoPalettes(const struct FaceData *info);
 s16 TextEngine_GetStaticOffsetAtY(int y);
 s16 TextEngine_GetFxOffsetY(void);
 int TextEngine_ApplyStaticOam1(int xOam1, int screenY);

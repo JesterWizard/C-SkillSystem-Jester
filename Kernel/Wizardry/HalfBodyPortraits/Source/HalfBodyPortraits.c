@@ -46,6 +46,12 @@ static bool UseHalfBodyGeometry(const struct FaceData *info)
 	return HalfBodyPortraitsEnabled() && IsHalfBodyFaceData(info);
 }
 
+/* A halfbody face uses its palette and the next one (info->pal + 0x10). */
+bool HalfBody_UsesTwoPalettes(const struct FaceData *info)
+{
+	return UseHalfBodyGeometry(info);
+}
+
 /* Halfbody needs two palettes + extra CHR; slot 1 reuses slot 2's banks. */
 static int HalfBodyVramSlot(int slot)
 {

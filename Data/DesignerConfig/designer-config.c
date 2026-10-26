@@ -42,6 +42,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.death_dance = true,
 	.debug_autoload_skills = false,
 	.deny_stat_screen_access = true,
+	.dim_listener_portraits = true, // dim the portraits of characters who aren't speaking
 	.display_status_flash_on_hit = true, // banim status flash from ext-hit, not ANIM_ROUND_POISON
 	.display_terrain_bonuses_in_stat_screen = true,
 	.dynamic_weapon_slots = true, // true = remap rank slots via gClassWeaponSlotConf; false = vanilla
