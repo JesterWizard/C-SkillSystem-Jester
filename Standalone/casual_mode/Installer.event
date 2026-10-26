@@ -1,0 +1,34 @@
+/*
+ * Casual Mode for clean FE8U.
+ *
+ * Vanilla UnitKill ($183FC) marks a dying player unit dead at $18418:
+ *     unit->state |= US_DEAD | US_HIDDEN;  InitUnitsupports(unit);
+ * This patch hooks that branch only (8 bytes at $18418). Phantoms and
+ * non-player units still go through vanilla code.
+ */
+#define FE8U_UnitKill_PlayerBranch $18418
+#define FE8U_StandaloneFreeSpace   $1000000
+
+/* ---- Setting (edit without recompiling) ----
+ * 0      : casual mode is always on (C Skill System casual_mode = true).
+ * 1..    : casual mode is on only while this event flag is set. Use a
+ *          permanent flag (100 / 0x64 or higher) so the choice is kept in
+ *          the save file, e.g. 0xB0, and set it from an event with ENUT.
+ */
+#define CASUAL_MODE_FLAG 0
+
+PUSH
+ORG FE8U_UnitKill_PlayerBranch
+    jumpToHack(UnitKill_CasualMode)
+    PROTECT FE8U_UnitKill_PlayerBranch FE8U_UnitKill_PlayerBranch + 0x8 // UnitKill player-unit death branch
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CasualMode.lyn.event"
+
+ALIGN 4
+gCasualModeFlag:
+    SHORT CASUAL_MODE_FLAG
+
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CasualMode body + setting

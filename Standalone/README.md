@@ -63,6 +63,10 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [map_menu_character_biographies](map_menu_character_biographies/) | Biography command in the map menu: a scrolling character list that plays up to four CG text pages per character |
 | [language_select](language_select/) | Flag-grid language selector after the boot logos, saved in the global save header, with an optional text-ID switch for translations (uses 4 bytes EWRAM) |
 | [chatlog](chatlog/) | Conversation log for vanilla dialogue: SELECT opens a scrollback log of the chapter's dialogue (with text_engine, use its `TEXT_ENGINE_CHATLOG` instead) (uses 0x600 bytes EWRAM) |
+| [fe7_mode_select](fe7_mode_select/) | FE7-style Mode Select carousel (Eirika/Ephraim/Lyon battle animations, Normal/Hard) replaces the New Game difficulty menu |
+| [casual_mode](casual_mode/) | Defeated player units leave the map for the chapter and return next chapter; always on or tied to an event flag |
+| [collect_dead_units](collect_dead_units/) | Defeated enemies and NPCs stay in the unit array (dead and hidden) until chapter end instead of being erased |
+| [send_inventory_on_death](send_inventory_on_death/) | A player unit defeated in battle or the arena sends its items to the convoy |
 
 ## Adding a new patch
 

@@ -1,0 +1,25 @@
+/*
+ * Send Inventory On Death for clean FE8U.
+ *
+ * Replaces vanilla KillUnitOnCombatDeath ($32728) and
+ * KillUnitOnArenaDeathMaybe ($32750). Both still record the defeat and call
+ * vanilla UnitKill; before that, a defeated player unit's items go to the
+ * convoy.
+ */
+#define FE8U_KillUnitOnCombatDeath     $32728
+#define FE8U_KillUnitOnArenaDeathMaybe $32750
+#define FE8U_StandaloneFreeSpace       $1000000
+
+PUSH
+ORG FE8U_KillUnitOnCombatDeath
+    jumpToHack(KillUnitOnCombatDeath_SendInventory)
+    PROTECT FE8U_KillUnitOnCombatDeath FE8U_KillUnitOnCombatDeath + 0x8 // KillUnitOnCombatDeath
+ORG FE8U_KillUnitOnArenaDeathMaybe
+    jumpToHack(KillUnitOnArenaDeath_SendInventory)
+    PROTECT FE8U_KillUnitOnArenaDeathMaybe FE8U_KillUnitOnArenaDeathMaybe + 0x8 // KillUnitOnArenaDeathMaybe
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/SendInventoryOnDeath.lyn.event"
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SendInventoryOnDeath body

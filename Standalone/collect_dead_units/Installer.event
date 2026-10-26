@@ -1,0 +1,30 @@
+/*
+ * Collect Dead Units for clean FE8U.
+ *
+ * Vanilla UnitKill ($183FC) erases a dying non-player unit:
+ *     unit->pCharacterData = NULL;
+ * This patch hooks the start of UnitKill (8 bytes at $183FC). A non-player
+ * unit is marked US_DEAD | US_HIDDEN instead; a player unit continues into
+ * vanilla UnitKill right after the hook ($1840C), so patches that hook the
+ * player branch (casual_mode, $18418) still work.
+ *
+ * GetFreeUnit ($17838) is replaced so that a full enemy/NPC unit array
+ * reuses a dead unit's slot instead of failing.
+ */
+#define FE8U_UnitKill              $183FC
+#define FE8U_GetFreeUnit           $17838
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_UnitKill
+    jumpToHack(UnitKill_CollectDeadUnits)
+    PROTECT FE8U_UnitKill FE8U_UnitKill + 0x8 // UnitKill start
+ORG FE8U_GetFreeUnit
+    jumpToHack(GetFreeUnit_CollectDeadUnits)
+    PROTECT FE8U_GetFreeUnit FE8U_GetFreeUnit + 0x8 // GetFreeUnit
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CollectDeadUnits.lyn.event"
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CollectDeadUnits body
