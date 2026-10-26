@@ -1,0 +1,49 @@
+#define FE8U_PutChapterTitleGfx         $89624
+#define FE8U_SaveMenu_SetLcdChapterIdx  $A8AF0
+#define FE8U_SaveMenuInitSaveSlotData   $ABC14
+#define FE8U_StandaloneFreeSpace        $1000000
+
+/* Save menu chapter title fix (world-map saves show the destination chapter,
+ * and opening the save menu no longer rewrites gPlaySt.chapterIndex).
+ * Delete this line to install only the text chapter titles. */
+#define CHAPTER_NAMES_SAVE_MENU_FIX
+
+PUSH
+ORG FE8U_PutChapterTitleGfx
+    jumpToHack(ChapterNames_PutChapterTitleText)
+    PROTECT FE8U_PutChapterTitleGfx FE8U_PutChapterTitleGfx + 0x8 // PutChapterTitleGfx hook
+
+#ifdef CHAPTER_NAMES_SAVE_MENU_FIX
+ORG FE8U_SaveMenu_SetLcdChapterIdx
+    jumpToHack(SaveMenu_SetLcdChapterIdx_ChapterNames)
+    PROTECT FE8U_SaveMenu_SetLcdChapterIdx FE8U_SaveMenu_SetLcdChapterIdx + 0x8 // SaveMenu_SetLcdChapterIdx hook
+ORG FE8U_SaveMenuInitSaveSlotData
+    jumpToHack(SaveMenuInitSaveSlotData_ChapterNames)
+    PROTECT FE8U_SaveMenuInitSaveSlotData FE8U_SaveMenuInitSaveSlotData + 0x8 // SaveMenuInitSaveSlotData hook
+#endif
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+/* FE7-style chapter title text renderer (Source/ChapterNames.s).
+ * Position-independent; its two pointers follow the binary. */
+ALIGN 4
+ChapterNames_PutChapterTitleText:
+#incbin "Source/ChapterNames.dmp"
+ALIGN 4
+POIN ChapterNames_Font
+POIN ChapterNames_CharTable
+
+ChapterNames_Font:
+#incbin "Data/font.dmp"
+
+ALIGN 4
+ChapterNames_CharTable:
+#incbin "Data/chartable.dmp"
+
+#ifdef CHAPTER_NAMES_SAVE_MENU_FIX
+ALIGN 4
+#include "Source/SaveMenuChapterTitle.lyn.event"
+#endif
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ChapterNames body + font

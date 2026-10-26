@@ -1,0 +1,13 @@
+#define FE8U_PopupIconUpdateProc_Loop $11254
+#define FE8U_StandaloneFreeSpace      $1000000
+
+PUSH
+ORG FE8U_PopupIconUpdateProc_Loop
+    jumpToHack(PopupIconUpdateProc_Loop_Shine)
+    PROTECT FE8U_PopupIconUpdateProc_Loop FE8U_PopupIconUpdateProc_Loop + 0x8 // PopupIconUpdateProc_Loop hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/PopupIconShine.lyn.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PopupIconShine body

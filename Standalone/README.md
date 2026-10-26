@@ -47,6 +47,10 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [levelup_modes](levelup_modes/) | Level-up stat-gain mode per difficulty (vanilla, separate-RNG random, fixed, 100%, 0%), with optional guaranteed level-ups (uses 8 bytes EWRAM) |
 | [promote_trainees_in_chapter](promote_trainees_in_chapter/) | Trainees (Ross, Amelia, Ewan) promote right after the battle where they reach level 10 |
 | [stat_gain_frame_speed](stat_gain_frame_speed/) | Frames the map level-up window waits between stat gains (vanilla 20, default 10) |
+| [custom_defeat_quotes](custom_defeat_quotes/) | Defeat quotes that can depend on who landed the killing blow, from an editable table with vanilla fallback |
+| [popup_item_icon_shine](popup_item_icon_shine/) | A white glint sweeps across item icons in "got item" popups |
+| [chapter_names](chapter_names/) | FE7-style chapter titles drawn as text from each chapter's title text, plus the save menu chapter title fix |
+| [res_terrain_window](res_terrain_window/) | The terrain window shows DEF, RES and AVO |
 
 ## Adding a new patch
 

@@ -1,0 +1,18 @@
+#define FE8U_CheckBattleDefeatTalk   $835A8
+#define FE8U_DisplayDefeatTalkForPid $835DC
+#define FE8U_StandaloneFreeSpace     $1000000
+
+PUSH
+ORG FE8U_CheckBattleDefeatTalk
+    jumpToHack(CheckBattleDefeatTalk_Custom)
+    PROTECT FE8U_CheckBattleDefeatTalk FE8U_CheckBattleDefeatTalk + 0x8 // CheckBattleDefeatTalk hook
+ORG FE8U_DisplayDefeatTalkForPid
+    jumpToHack(DisplayDefeatTalkForPid_Custom)
+    PROTECT FE8U_DisplayDefeatTalkForPid FE8U_DisplayDefeatTalkForPid + 0x8 // DisplayDefeatTalkForPid hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CustomDefeatQuotes.lyn.event"
+#include "DefeatTalkTable.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomDefeatQuotes body + table
