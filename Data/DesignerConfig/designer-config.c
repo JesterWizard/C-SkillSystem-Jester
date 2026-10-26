@@ -27,6 +27,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.chatlog_enabled = true,
 	.class_growths = 0, // 0=off, 1=personal + class growths, 2=average of personal and class growths
 	.collect_dead_units = true,
+	.crit_cutin = true, // portrait cut-in over an electric band before critical hits by units with a portrait
 	.custom_battle_quotes = true,
 	.custom_character_animations = true,
 	.custom_defeat_quotes = true,

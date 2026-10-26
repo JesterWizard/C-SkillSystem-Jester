@@ -6,6 +6,10 @@ ALIGN 4
 EfxSkillCombat:
     #include "Source/Combat/ClassChangAnim.efx.event"
 
+ALIGN 4
+EfxCritCutin:
+    #include "Source/CritCutin/CritCutin.efx.event"
+
 /*
  * ! ununsed
 

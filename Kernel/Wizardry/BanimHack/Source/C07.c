@@ -70,6 +70,11 @@ STATIC_DECLAR void C07Handler_EkrSkill(struct ProcC07Handler *proc)
 	NewEkrSkill(proc->anim);
 }
 
+STATIC_DECLAR void C07Handler_CritCutin(struct ProcC07Handler *proc)
+{
+	NewCritCutin(proc->anim);
+}
+
 STATIC_DECLAR void C07Handler_End(struct ProcC07Handler *proc)
 {
 	UnlockAnimState(proc->anim);
@@ -95,6 +100,12 @@ STATIC_DECLAR const struct ProcCmd ProcScr_BanimC07Handler[] = {
 	PROC_CALL(C07Handler_EkrSkill),
 	PROC_YIELD,
 	PROC_WHILE(EkrSkillExists),
+
+	/**
+	 * Critical cut-in
+	 */
+	PROC_CALL(C07Handler_CritCutin),
+	PROC_WHILE(CritCutinExists),
 
 	PROC_YIELD,
 	PROC_CALL(C07Handler_End),
