@@ -67,6 +67,8 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [casual_mode](casual_mode/) | Defeated player units leave the map for the chapter and return next chapter; always on or tied to an event flag |
 | [collect_dead_units](collect_dead_units/) | Defeated enemies and NPCs stay in the unit array (dead and hidden) until chapter end instead of being erased |
 | [send_inventory_on_death](send_inventory_on_death/) | A player unit defeated in battle or the arena sends its items to the convoy |
+| [arena_options](arena_options/) | Arena options: upgraded or level-based player weapon, per-chapter turn/level limits, and a roster of fixed opponents with gold or item prizes; works alongside arena_show_opponent_in_advance |
+| [lvup_stat_points](lvup_stat_points/) | Player level-ups skip growth rolls and instead let you spend stat points (N per level) or play a timing minigame whose green bars come from growths |
 
 ## Adding a new patch
 
