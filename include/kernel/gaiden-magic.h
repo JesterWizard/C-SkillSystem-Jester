@@ -45,6 +45,9 @@ struct GaidenMagicList {
 
 	u8 wmag_cnt;
 	u8 wmags[GAIDEN_MAGIC_LIST_LEN];
+
+	/* Anima/Light/Dark/Staff WEXP the list was built with (Three Houses mode) */
+	u8 ranks[4];
 };
 
 extern struct GaidenMagicList sGaidenMagicListObj;
@@ -111,6 +114,7 @@ int GetGaidenMagicItem(struct Unit *unit, int slot);
 void TryChangeGaidenMagicAction(void);
 
 void PutGaidenMagicCostNumber(u16 *tm, int color, int number);
+void PutGaidenMagicMenuNumber(u16 *tm, int color, struct Unit *unit, int item);
 void DrawGaidenMagItemMenuLine(struct Text *text, int item, s8 isUsable, u16 *mapOut);
 
 u8 GaidenBMagActionCommandUsability(const struct MenuItemDef *def, int number);
@@ -125,3 +129,74 @@ u8 GaidenWMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *men
 int GaidenWMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem);
 
 extern void TryAddGaidenMagicPConf(struct Unit * unit, int level);
+
+/**
+ * Three Houses-style magic (KernelDesigerConfig::gaiden_magic_three_houses)
+ *
+ * Spells have a limited number of uses per chapter instead of an HP/MP cost.
+ * Uses refill at the start of every chapter. Uses spent are tracked per
+ * (unit index, item index) in a small pool that is saved in suspend data.
+ */
+#define GAIDEN_MAGIC_USES_INFINITE 0xFF
+#define GAIDEN_MAGIC_USES_POOL_LEN 64
+
+enum gaiden_magic_class_uses_bonus {
+	GAIDEN_MAGIC_USES_BMAG_X2 = 1 << 0,
+	GAIDEN_MAGIC_USES_WMAG_X2 = 1 << 1,
+};
+
+/* Base uses per item, 0 = fall back to the item's max uses */
+extern const u8 gGaidenMagicUsesList[0x100];
+
+/* Per-class uses multiplier, see enum gaiden_magic_class_uses_bonus */
+extern const u8 gGaidenMagicClassUsesBonus[0x100];
+
+struct GaidenMagicUsesEnt {
+	u8 uid, iid, spent;
+};
+
+extern struct GaidenMagicUsesEnt sGaidenMagicUsesPool[GAIDEN_MAGIC_USES_POOL_LEN];
+
+static inline bool IsGaidenMagicUsesSystem(void)
+{
+	return gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_three_houses;
+}
+
+int GetGaidenMagicMaxUses(struct Unit *unit, int item);
+int GetGaidenMagicUses(struct Unit *unit, int item);
+bool HasGaidenMagicUses(struct Unit *unit, int item);
+void ConsumeGaidenMagicUse(struct Unit *unit, int item);
+void ResetGaidenMagicUses(void);
+
+/**
+ * In Three Houses mode, tomes and staves are not items: player units learn
+ * them as spells from their weapon ranks, and other units cast the ones in
+ * their inventory as spells.
+ */
+struct GaidenMagicRankEnt {
+	u8 wrank; /* WPN_LEVEL_*, checked against the rank of the spell's own type */
+	u8 iid;
+};
+
+struct GaidenMagicRankConfig {
+	const struct GaidenMagicRankEnt *ent;
+};
+
+/* Personal spell lists, indexed by character */
+extern const struct GaidenMagicRankConfig gGaidenMagicRankPList[0x100];
+
+/* Spell list for player units without a personal list */
+extern const struct GaidenMagicRankEnt gGaidenMagicRankDefaultList[];
+
+bool IsThreeHousesMagicItem(int item);
+const struct GaidenMagicRankEnt *GetGaidenMagicRankList(struct Unit *unit);
+void RemoveThreeHousesMagicItems(struct Unit *unit);
+void TryLearnGaidenMagicFromBattleUnit(struct BattleUnit *bu);
+void ResetGaidenMagicLearnPopups(void);
+bool PopR_SetupLearnGaidenMagic(void);
+extern const struct PopupInstruction PopupScr_GaidenLearn[];
+
+static inline bool IsGaidenMagicAiEnabled(void)
+{
+	return gpKernelDesignerConfig->gaiden_magic && (gpKernelDesignerConfig->gaiden_magic_ai_use || IsGaidenMagicUsesSystem());
+}

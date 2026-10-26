@@ -35,6 +35,51 @@ void ResetGaidenMagicList(struct GaidenMagicList *list)
 {
 	memset(list, 0, sizeof(*list));
 }
+
+static const u8 sGaidenMagicRankTypes[4] = { ITYPE_ANIMA, ITYPE_LIGHT, ITYPE_DARK, ITYPE_STAFF };
+
+/* The Three Houses spell list depends on weapon ranks, which the list header does not track */
+STATIC_DECLAR void GetGaidenMagicListRanks(struct Unit *unit, u8 *ranks)
+{
+	int i;
+
+	for (i = 0; i < 4; i++)
+		ranks[i] = 0;
+
+	if (!IsGaidenMagicUsesSystem() || UNIT_FACTION(unit) != FACTION_BLUE)
+		return;
+
+	for (i = 0; i < 4; i++)
+		ranks[i] = UNIT_WRANK(unit, sGaidenMagicRankTypes[i]);
+}
+
+STATIC_DECLAR void AddThreeHousesGaidenMagic(struct Unit *unit, u8 *tmpbuf)
+{
+	int i;
+	const struct GaidenMagicRankEnt *ent;
+
+	/* Enemies and NPCs cast the tomes and staves they carry */
+	if (UNIT_FACTION(unit) != FACTION_BLUE) {
+		for (i = 0; i < UNIT_ITEM_COUNT; i++) {
+			int item = unit->items[i];
+
+			if (item == ITEM_NONE)
+				break;
+
+			if (IsThreeHousesMagicItem(item))
+				tmpbuf[ITEM_INDEX(item)] = 1;
+		}
+		return;
+	}
+
+	/* Player units learn spells from the rank of each spell's weapon type */
+	for (ent = GetGaidenMagicRankList(unit); ent && ent->iid != ITEM_NONE; ent++) {
+		int wexp = UNIT_WRANK(unit, GetItemType(ent->iid));
+
+		if (GetWeaponLevelFromExp(wexp) >= ent->wrank && wexp > 0)
+			tmpbuf[ent->iid] = 1;
+	}
+}
 void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 {
 	int i;
@@ -86,7 +131,11 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 		}
 	}
 
+	if (IsGaidenMagicUsesSystem())
+		AddThreeHousesGaidenMagic(unit, tmpbuf);
+
 	ResetGaidenMagicList(list);
+	GetGaidenMagicListRanks(unit, list->ranks);
 
 	for (i = 0xFF; i > 0; i--) {
 		if (list->bmag_cnt >= GAIDEN_MAGIC_LIST_LEN)
@@ -110,8 +159,11 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 struct GaidenMagicList *GetGaidenMagicList(struct Unit *unit)
 {
 	struct GaidenMagicList *list = gGaidenMagicList;
+	u8 ranks[4];
 
-	if (!JudgeUnitList(unit, &list->header)) {
+	GetGaidenMagicListRanks(unit, ranks);
+
+	if (!JudgeUnitList(unit, &list->header) || memcmp(ranks, list->ranks, sizeof(ranks)) != 0) {
 		UpdateGaidenMagicList(unit, list);
 		WriteUnitList(unit, &list->header);
 	}
@@ -120,6 +172,10 @@ struct GaidenMagicList *GetGaidenMagicList(struct Unit *unit)
 
 bool CanUnitUseGaidenMagic(struct Unit *unit, int item)
 {
+	/* Three Houses spells are learned from ranks, and tomes can't be wielded as items */
+	if (IsGaidenMagicUsesSystem())
+		return true;
+
 	if (gpKernelDesignerConfig->gaiden_magic_requires_wrank) {
 		if (GetItemAttributes(item) & IA_WEAPON)
 			return CanUnitUseWeapon(unit, item);
@@ -155,6 +211,9 @@ bool CanUnitUseGaidenMagicNow(struct Unit *unit, int item)
 		if (unit->curHP <= GetGaidenWeaponHpCost(unit, item))
 			return false;
 	}
+
+	if (!HasGaidenMagicUses(unit, item))
+		return false;
 
 	return CanUnitUseGaidenMagic(unit, item);
 }
@@ -281,6 +340,17 @@ void PutGaidenMagicCostNumber(u16 *tm, int color, int number)
 	PutSpecialChar(tm, color, TEXT_SPECIAL_DASH);
 }
 
+/* Remaining uses for Three Houses-style magic, otherwise the HP/MP cost */
+void PutGaidenMagicMenuNumber(u16 *tm, int color, struct Unit *unit, int item)
+{
+	if (IsGaidenMagicUsesSystem()) {
+		PutNumberOrBlank(tm, color, GetGaidenMagicUses(unit, item));
+		return;
+	}
+
+	PutGaidenMagicCostNumber(tm, color, GetGaidenWeaponHpCost(unit, item));
+}
+
 void DrawGaidenMagItemMenuLine(struct Text *text, int item, s8 isUsable, u16 *mapOut)
 {
 	Text_SetParams(text, 0, (isUsable ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY));
@@ -290,7 +360,7 @@ void DrawGaidenMagItemMenuLine(struct Text *text, int item, s8 isUsable, u16 *ma
 }
 
 /* Popup script: "Learned" + item name/icon */
-static const struct PopupInstruction PopupScr_GaidenLearn[] = {
+const struct PopupInstruction PopupScr_GaidenLearn[] = {
 	POPUP_SOUND(SONG_SE_UPDATE),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_BLUE),
 	POPUP_UNIT_NAME,

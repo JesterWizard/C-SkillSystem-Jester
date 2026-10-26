@@ -15,6 +15,7 @@ We have put several config options to increase the freedom for developers. You c
 - `REQUIRES_WRANK`: determines whether the character can use magic that exceeds his weapon rank.
 - `AI_EN`: allows AI to use B/W magic.
 - `EXT_CONF_EN`: enables external magic list config table: `gGaidenChaxConfigs`
+- `gaiden_magic_three_houses`: spells use a number of uses per chapter instead of an HP/MP cost. See [Three Houses-style magic](#three-houses-style-magic).
 
 To improve the user experience for non-wizardry developers, the configs above can be directly modified by `gKernelDesigerConfig` via FEB patch free from custom build.
 
@@ -34,6 +35,50 @@ On this basis, we have added a new dynamic table to increase the freedom of conf
 	- unit faction
 	- skill
 	- event flag
+
+# Three Houses-style magic
+
+Set `gaiden_magic_three_houses` in [designer-config.c](../../Data/DesignerConfig/designer-config.c) to make Gaiden magic work like *Fire Emblem: Three Houses*.
+
+## Spells instead of tomes
+
+Tomes (anima, light, dark) and staves stop being items:
+
+- Player units learn spells from their weapon ranks. Each entry in a spell list is `{ rank, spell }`, checked against the rank of the spell's own weapon type (Fire uses Anima rank, Heal uses Staff rank). When a battle or staff use raises a rank, the unit gets an `X learned [spell]` popup after the rank-up popup.
+- `gGaidenMagicRankPList[character]` in [GaidenMagicData.c](../../Data/GaidenMagic/GaidenMagicData.c) holds personal lists, like each student's list in Three Houses. Characters without one use `gGaidenMagicRankDefaultList`. A unit holds up to 7 B.Mag and 7 W.Mag. The stat page shows 5 of each.
+- Casting a B.Mag spell now gives weapon EXP for its type, so ranks rise from casting.
+- Enemies and NPCs cast the tomes and staves in their inventory as spells, with limited uses. Those items are hidden from their item page and never drop. AI spell use is on in this mode, whatever `gaiden_magic_ai_use` says.
+- No unit can wield a tome or staff as an item (`CanUnitUseWeapon()`/`CanUnitUseStaff()` return false).
+- Player units never hold them. They are stripped on unit load, at chapter start and at the start of each phase, which covers recruits and old saves. The convoy is cleaned too, shops don't sell them, and item gifts (`HandleNewItemGetFromDrop()`) and `AddItemToConvoy()` reject them.
+- Monster weapons (Evil Eye, Stone...) are dark-typed but have no rank requirement, so they stay normal weapons.
+
+> Events that give a tome or staff (chests, villages, `GIVEITEMTO`) still show the "Got" popup, but the item is not added. Remove those gifts from chapter events.
+
+The existing level-based list (`gGaidenPinfoConfigList`) and `gGaidenChaxConfigs` still add spells in this mode.
+
+## Uses
+
+- Spells cost no HP or MP. `GetGaidenWeaponHpCost()` returns 0, so `gGaidenWeaponCostList` is ignored.
+- Each spell has a number of uses. All uses come back at the start of every chapter.
+- A combat spends one use, no matter how many times the caster hits. Follow-ups, brave hits and counters with the same spell are free.
+- A W.Mag staff spends one use per cast.
+- A spell with no uses left is grayed out in the B.Mag/W.Mag menus. It can't be auto-equipped for counters, and the AI skips it.
+- The B.Mag/W.Mag menus and the Gaiden Magic stat page show the uses left instead of the cost. `--` means unlimited.
+- `SID_GrandMagician` gives unlimited uses. In the normal mode it removes the cost.
+
+Tables in [GaidenMagicData.c](../../Data/GaidenMagic/GaidenMagicData.c):
+
+- `gGaidenMagicUsesList[item]`: base uses per chapter. `0` uses the item's max uses from item data. Unbreakable items are unlimited.
+- `gGaidenMagicClassUsesBonus[class]`: like the *Black/White Magic Uses x2* class abilities. `GAIDEN_MAGIC_USES_BMAG_X2` doubles B.Mag uses and `GAIDEN_MAGIC_USES_WMAG_X2` doubles W.Mag (staff) uses. By default Sage and Druid double B.Mag, Bishop and Valkyrie double W.Mag, and Necromancer doubles both.
+
+Uses are tracked in [ThreeHouses.c](../../Kernel/Wizardry/GaidenMagic/Source/ThreeHouses.c). A pool of 64 `(unit index, item, uses spent)` entries (`sGaidenMagicUsesPool`, 192 bytes) is saved in suspend data and cleared on chapter start and on game-save load. Spending works like this:
+
+- `BattleGenerateHit()` sets `gaiden_magic_cast` in the battle global flags on the first spell attack of each side.
+- `GaidenMagicUses_OnBattleToUnit()` spends the use when the real battle is applied to the unit, so forecasts and AI simulations never spend uses.
+- `ActionGaidenMagicStaff()` spends the use for staves.
+- Entries are dropped when a unit is cleared or killed. When the pool is full, entries of units that left the map are reused.
+
+> Changing the suspend layout makes older suspend saves load wrong uses. Start a chapter fresh after updating.
 
 # Limitations
 - `B.Mag` can only support weapons.

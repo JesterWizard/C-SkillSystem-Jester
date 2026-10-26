@@ -283,6 +283,15 @@ _kernel_malloc2 sPortrait32State, 0xA4
 /* Boot language selector choice: lang + 1, 0 = not read from SRAM yet */
 _kernel_malloc2 gKernelLanguage, 4
 
+/* Three Houses-style gaiden magic: struct GaidenMagicUsesEnt[64], SUS-persisted */
+_kernel_malloc2 sGaidenMagicUsesPool, 3 * 64
+
+/* Spells learned on rank-up waiting for their popup: count + uid[4] + iid[4], padded to keep the next block word-aligned */
+_kernel_malloc2 sGaidenMagicLearnPopups, 12
+
+/* Magic/Physical Seal source positions, rebuilt at most once per frame (see MiscGetter.c) */
+_kernel_malloc2 sSealSourceCache, 0x48
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

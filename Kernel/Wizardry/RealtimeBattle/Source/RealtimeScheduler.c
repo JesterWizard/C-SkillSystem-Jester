@@ -134,6 +134,10 @@ static bool IsPlayerDoneForTurn(void)
 	if (gPlaySt.config.disableAutoEndTurns)
 		return false;
 
+	/* Counting the able units is slow for every idle frame; a few frames late is fine */
+	if (gRealtimeBattleState.loopCount & 7)
+		return false;
+
 	return GetPhaseAbleUnitCount(FACTION_BLUE) == 0;
 }
 
@@ -209,9 +213,13 @@ static bool StartRealtimeAiAction(ProcPtr playerPhaseProc, int unitId)
 bool RealtimeBattle_OnPlayerPhaseIdle(ProcPtr playerPhaseProc)
 {
 	int unitId;
+	bool clockStalled;
 
 	if (!IsRealtimeBattleActive())
 		return false;
+
+	/* The clock bumps loopCount every frame, so an unchanged count means it is not running */
+	clockStalled = gRealtimeBattleState.loopCount == gRealtimeBattleState.idleLoop;
 
 	/* Coming back to the cursor (after an action, a menu, ...): give the player a beat */
 	if ((u8)(gRealtimeBattleState.loopCount - gRealtimeBattleState.idleLoop) > 1
@@ -223,8 +231,12 @@ bool RealtimeBattle_OnPlayerPhaseIdle(ProcPtr playerPhaseProc)
 	if (!gRealtimeBattleState.valid || gRealtimeBattleState.turn != gPlaySt.chapterTurnNumber)
 		StartRealtimeTurnClock();
 
-	if (!Proc_Find(ProcScr_RealtimeClock))
+	if (clockStalled && !Proc_Find(ProcScr_RealtimeClock))
 		Proc_Start(ProcScr_RealtimeClock, playerPhaseProc);
+
+	/* Most idle frames have nothing due: skip the proc scans below */
+	if (gRealtimeBattleState.enemyTimer != 0 && gRealtimeBattleState.turnTimer != 0 && !IsPlayerDoneForTurn())
+		return false;
 
 	if (DoesBMXFADEExist() || Proc_Find(ProcScr_CamMove))
 		return false;

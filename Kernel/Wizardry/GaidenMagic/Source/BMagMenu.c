@@ -239,10 +239,10 @@ STATIC_DECLAR int GaidenBMagItemSelOnDraw(struct MenuProc *menu, struct MenuItem
 		tm
 	);
 
-	PutGaidenMagicCostNumber(
+	PutGaidenMagicMenuNumber(
 		tm + 11,
 		en ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
-		GetGaidenWeaponHpCost(gActiveUnit, item));
+		gActiveUnit, item);
 
 	return 0;
 }

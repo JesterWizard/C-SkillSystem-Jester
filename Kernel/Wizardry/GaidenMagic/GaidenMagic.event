@@ -9,6 +9,7 @@
 #include "Source/WMagMenu.lyn.event"
 #include "Source/MagAction.lyn.event"
 #include "Source/ActionFix.lyn.event"
+#include "Source/ThreeHouses.lyn.event"
 
 // InjectUnitAction(CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat, ActionGaidenMagicCombat)
 // InjectUnitAction(CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff,  ActionGaidenMagicStaff)

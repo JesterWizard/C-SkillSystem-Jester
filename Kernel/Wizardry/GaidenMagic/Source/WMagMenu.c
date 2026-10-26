@@ -8,6 +8,7 @@
 #include <constants/texts.h>
 
 #include <gaiden-magic.h>
+#include <item-sys.h>
 
 STATIC_DECLAR const struct MenuDef sGaidenWMagItemMenuDef;
 STATIC_DECLAR const struct MenuItemDef sGaidenWMagItemMenuItems[];
@@ -24,6 +25,13 @@ STATIC_DECLAR bool CanUnitUseGaidenWMagItem(struct Unit *unit, int item)
 	/* Replacement of CanUnitUseItem() */
 	int staff_wexp = UNIT_WRANK(unit, ITYPE_STAFF);
 	bool ret;
+
+	/* CanUnitUseStaff() rejects staves in Three Houses mode, so check the item effect directly */
+	if (IsGaidenMagicUsesSystem()) {
+		const struct IERevamp *revamp = GetIERevamp(item);
+
+		return revamp && revamp->usability && revamp->usability(unit, MakeNewItem(item));
+	}
 
 	/**
 	 * Here we must give the unit the highest level
@@ -215,10 +223,10 @@ STATIC_DECLAR int GaidenWMagItemSelOnDraw(struct MenuProc *menu, struct MenuItem
 		tm
 	);
 
-	PutGaidenMagicCostNumber(
+	PutGaidenMagicMenuNumber(
 		tm + 11,
 		en ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
-		GetGaidenWeaponHpCost(gActiveUnit, item));
+		gActiveUnit, item);
 
 	return 0;
 }

@@ -112,6 +112,7 @@ extern struct BattleGlobalFlags {
     u32 skill_activated_resurrection : 1;
 	u32 skill_activated_echo : 1;
 	u32 skill_activated_dance : 1;
+	u32 gaiden_magic_cast : 1;
 	u16 last_damage_taken;
 } gBattleActorGlobalFlag, gBattleTargetGlobalFlag;
 

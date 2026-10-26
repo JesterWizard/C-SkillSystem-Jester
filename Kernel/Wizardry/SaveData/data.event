@@ -63,6 +63,7 @@ gEmsSavChunks:
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
+    EmsChunk($0000, MSA_SaveGaidenMagicUses, MSA_LoadGaidenMagicUses) /* Resets Three Houses magic uses on load */
     EmsChunkEnd
 
 ALIGN 4
@@ -111,6 +112,7 @@ gEmsSusChunks:
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunk($0444, SaveChatLogSuspendState, LoadChatLogSuspendState)
+    EmsChunk($00C0, MSU_SaveGaidenMagicUses, MSU_LoadGaidenMagicUses) /* Three Houses magic uses, 3 * 64 */
     EmsChunkEnd
 
 ALIGN 4

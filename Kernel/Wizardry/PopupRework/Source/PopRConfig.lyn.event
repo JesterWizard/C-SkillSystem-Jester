@@ -92,6 +92,12 @@ WORD $60
 POIN PopR_SetupWRankSkillUpgrade
 POIN PopupScr_WRankSkillUpgrade
 WORD $60
+POIN PopR_SetupLearnGaidenMagic
+POIN PopupScr_GaidenLearn
+WORD $60
+POIN PopR_SetupLearnGaidenMagic
+POIN PopupScr_GaidenLearn
+WORD $60
 POIN PopR_SetupLearnSkill
 POIN PopupScr_LearnSkill
 WORD $60

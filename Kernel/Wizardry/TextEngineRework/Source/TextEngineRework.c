@@ -2589,9 +2589,22 @@ void StartScreenImpactFlash(void)
 	TextEngineImpactFlash_Apply(proc);
 }
 
+/*
+ * Every screen fx proc installs TextEngineWave_OnHBlank, so without it there
+ * is no offset. Map sprites call these per sprite every frame, and the
+ * Proc_Find scans below are too slow to run that often.
+ */
+static bool TextEngine_IsScreenFxActive(void)
+{
+	return sHBlankHandler2 == TextEngineWave_OnHBlank;
+}
+
 s16 TextEngine_GetStaticOffsetAtY(int y)
 {
 	s16 offset = 0;
+
+	if (!TextEngine_IsScreenFxActive())
+		return 0;
 
 	if (Proc_Find(gProcScr_TextEngineScreenEarthquake))
 		offset += sTextEngineEarthquakeOffset.x;
@@ -2610,6 +2623,9 @@ s16 TextEngine_GetStaticOffsetAtY(int y)
 
 s16 TextEngine_GetFxOffsetY(void)
 {
+	if (!TextEngine_IsScreenFxActive())
+		return 0;
+
 	if (!Proc_Find(gProcScr_TextEngineScreenEarthquake))
 		return 0;
 

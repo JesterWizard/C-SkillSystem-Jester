@@ -596,11 +596,14 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
 	if (CheckGaidenMagicAttack(attacker) && IsFirstGaidenMagicAttackInBattle(attacker)) {
 		int hp_cost = GetGaidenWeaponHpCost(&attacker->unit, attacker->weapon);
 
-		if (!TryBattleHpCost(attacker, hp_cost)) {
+		if (!TryBattleHpCost(attacker, hp_cost) || !HasGaidenMagicUses(&attacker->unit, attacker->weapon)) {
 			gBattleHitIterator->info |= BATTLE_HIT_INFO_FINISHES;
 			gBattleHitIterator++;
 			return true;
 		}
+
+		/* Three Houses-style magic spends the use in GaidenMagicUses_OnBattleToUnit() */
+		GetBattleGlobalFlags(attacker)->gaiden_magic_cast = true;
 	}
 #endif
 
@@ -899,6 +902,11 @@ bool BATTLE_HandleItemDrop(struct CombatActionProc* proc) {
     }
 
     if (UNIT_FACTION(unitB) != FACTION_BLUE) {
+        return true;
+    }
+
+    /* Three Houses magic: an enemy's tomes are its spells and don't drop */
+    if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(GetUnitLastItem(unitA))) {
         return true;
     }
 

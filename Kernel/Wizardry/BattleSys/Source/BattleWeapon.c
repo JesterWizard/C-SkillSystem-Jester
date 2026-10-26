@@ -98,6 +98,12 @@ s8 CanUnitUseStaff(struct Unit* unit, int item) {
     if (!(GetItemAttributes(item) & IA_STAFF))
         return FALSE;
 
+#if CHAX
+    /* Three Houses magic: tomes and staves are spells, not items */
+    if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item))
+        return false;
+#endif
+
     if (unit->statusIndex == UNIT_STATUS_SLEEP)
         return FALSE;
 
@@ -484,6 +490,12 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 
 	if (!(GetItemAttributes(item) & IA_WEAPON))
 		return false;
+
+#if CHAX
+	/* Three Houses magic: tomes and staves are spells, not items */
+	if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item))
+		return false;
+#endif
 
 #if (defined(SID_Amische) && (COMMON_SKILL_VALID(SID_Amische)))
     if (SkillTester(unit, SID_Amische))

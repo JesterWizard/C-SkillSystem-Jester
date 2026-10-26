@@ -59,6 +59,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.gaiden_magic_must_be_magic = false, // true = magic weapons only
 	.gaiden_magic_requires_wrank = false, // true = require weapon rank
 	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table
+	.gaiden_magic_three_houses = true, // no tomes/staves as items: spells learned from weapon ranks, uses per chapter instead of HP/MP cost
 	.gameover_quotes = true,
 	.gen_new_scroll = false, // true = replace equipped skill and generate a scroll, false = learn for prep
 	.goal_escape = false,

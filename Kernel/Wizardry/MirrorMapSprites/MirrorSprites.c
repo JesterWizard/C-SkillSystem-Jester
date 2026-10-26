@@ -102,8 +102,26 @@ static int GetSpinTrapSpriteId(const struct Trap *trap)
     }
 }
 
+static bool IsTrapSpritePaletteLoaded(const u16 *pal, int bank)
+{
+    const u16 *loaded = gPaletteBuffer + bank * 0x10;
+    int i;
+
+    for (i = 0; i < 0x10; i++)
+        if (loaded[i] != pal[i])
+            return false;
+
+    return true;
+}
+
 static void ReloadCustomTrapSpritePalettes(void)
 {
+    /* Runs every frame: only re-upload (and resync the whole palette) when something overwrote them */
+    if (IsTrapSpritePaletteLoaded(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL)
+        && IsTrapSpritePaletteLoaded(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL)
+        && IsTrapSpritePaletteLoaded(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL))
+        return;
+
     if (IsTalkActive())
         return;
 
@@ -330,8 +348,13 @@ static void PutRescuedSupportSpritesOam(void)
 {
 	int i;
 
-	for (i = 1; i < 0x100; ++i) {
-		struct Unit *leader = GetUnit(i);
+	/* Only Pair Up draws the carried unit */
+	if (!gpKernelDesignerConfig->pair_up_enabled)
+		return;
+
+	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) {
+		/* Same table GetUnit() reads, without a long call per slot every frame */
+		struct Unit *leader = gUnitLookup[i];
 		struct Unit *support;
 		struct SMSHandle sms;
 		int x;

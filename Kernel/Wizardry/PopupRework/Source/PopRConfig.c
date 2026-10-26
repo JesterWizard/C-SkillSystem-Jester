@@ -2,6 +2,7 @@
 #include <icon-rework.h>
 #include <skill-system.h>
 #include <popup-reowrk.h>
+#include <gaiden-magic.h>
 
 STATIC_DECLAR bool PopR_SetupBattleWeaponBroken(void)
 {
@@ -78,6 +79,12 @@ struct PopupConfig const gBattlePopupConfigs[] = {
 	 */
 	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
 	{ PopR_SetupWRankSkillUpgrade, PopupScr_WRankSkillUpgrade, 0x60 },
+
+	/**
+	 * Three Houses magic: spells learned on rank-up
+	 */
+	{ PopR_SetupLearnGaidenMagic, PopupScr_GaidenLearn, 0x60 },
+	{ PopR_SetupLearnGaidenMagic, PopupScr_GaidenLearn, 0x60 },
 
 	/**
 	 * Learn new skills

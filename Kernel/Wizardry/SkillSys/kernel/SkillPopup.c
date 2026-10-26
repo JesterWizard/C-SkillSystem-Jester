@@ -2,6 +2,7 @@
 #include "skill-system.h"
 #include "icon-rework.h"
 #include "popup-reowrk.h"
+#include "gaiden-magic.h"
 #include "constants/texts.h"
 
 #define SKILL_POPSTACK_DEPTH 8
@@ -56,6 +57,7 @@ void ResetPopupSkillStack(void)
 
 	sPopupSkillStack.cur = 0;
 	memset(&sWRankPopupStack, 0, sizeof(struct WRankPopupStack));
+	ResetGaidenMagicLearnPopups();
 }
 
 void PushSkillListStack(u16 sid)

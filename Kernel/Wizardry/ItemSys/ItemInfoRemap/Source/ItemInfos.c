@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "gaiden-magic.h"
 #include "item-sys.h"
 #include "skill-system.h"
 #include "constants/skills.h"
@@ -988,6 +989,10 @@ void StartShopScreen(struct Unit *unit, const u16 *inventory, u8 shopType, ProcP
 #if CHAX
 	for (i = 0; i < SHOP_ITEMS_MAX_AMT; i++) {
 		u16 _item = *shopItems++;
+
+		/* Three Houses magic: no tomes or staves for sale */
+		while (_item != ITEM_NONE && IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(_item))
+			_item = *shopItems++;
 
 		if (IsDuraItem(_item))
 			proc->shopItems[i] = _item;

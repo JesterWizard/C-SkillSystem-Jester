@@ -65,7 +65,7 @@ The default Gaiden system tried to display magic as items, which becomes problem
 ## 📝 TODO
 
 - Replace MMB with **GORGON-EGG** for MP minimug display  
-- Add option for **Three Houses-style magic**  
+- ~~Add option for **Three Houses-style magic**~~ (done: `gaiden_magic_three_houses`, see [GaidenMagic.md](./GaidenMagic.md#three-houses-style-magic))  
 - Add option for **FFTA-style MP** (alongside current FFTA2 rules)
 
 ---

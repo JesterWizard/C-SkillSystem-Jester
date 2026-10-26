@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "gaiden-magic.h"
 
 enum { CHAX_CONVOY_MAX_VOLUME = 0x300 };
 
@@ -148,6 +149,10 @@ int AddItemToConvoy(int item)
 	u16 *convoy;
 
 	gBmSt.itemUnk2E = 0;
+
+	/* Three Houses magic: tomes and staves can't be stored */
+	if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item))
+		return -1;
 
 #if CHAX
 	convoy = sExpaConvoyItemArray;
@@ -307,7 +312,13 @@ void ConvoyMenuProc_ExecBootlegPopup(ProcPtr proc)
 LYN_REPLACE_CHECK(HandleNewItemGetFromDrop);
 void HandleNewItemGetFromDrop(struct Unit *unit, int item, ProcPtr proc)
 {
-	u8 ret = UnitAddItem(unit, item);
+	u8 ret;
+
+	/* Three Houses magic: player units can't carry tomes or staves */
+	if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item) && UNIT_FACTION(unit) == FACTION_BLUE)
+		return;
+
+	ret = UnitAddItem(unit, item);
 
 	if (ret != false)
 		return;

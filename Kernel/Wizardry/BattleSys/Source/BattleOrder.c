@@ -27,9 +27,13 @@ STATIC_DECLAR bool CheckCanContinueAttack(struct BattleUnit *bu)
 			return false;
 	}
 
-	if (CheckGaidenMagicAttack(bu))
+	if (CheckGaidenMagicAttack(bu)) {
 		if (!TryBattleHpCost(bu, GetGaidenWeaponHpCost(&bu->unit, bu->weapon)))
 			return false;
+
+		if (!HasGaidenMagicUses(&bu->unit, bu->weapon))
+			return false;
+	}
 
     if (gpKernelDesignerConfig->ignore_stop_on_petrify_sleep == true)
     {

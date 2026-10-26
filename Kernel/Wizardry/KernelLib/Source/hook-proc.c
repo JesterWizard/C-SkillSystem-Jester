@@ -91,3 +91,21 @@ void KernelStartBlockingHookProc(HookProcFunc_t const *hook_list, ProcPtr parent
 
 	StartHookListener(proc);
 }
+
+/**
+ * Vanilla EndAllProcChildren() ends every proc slot whose parent field
+ * matches, free slots included. A free slot keeps the parent and sibling
+ * links of the proc that last used it, so ending it again unlinks those
+ * stale links and cuts live procs out of their tree. Hook procs end their
+ * children this way, so a hook proc that reused the slot of an old menu
+ * could drop the map battle proc from tree 3 and freeze the game.
+ */
+LYN_REPLACE_CHECK(EndAllProcChildren);
+void EndAllProcChildren(ProcPtr proc)
+{
+	struct Proc *it = NULL;
+
+	while ((it = Proc_FindAfterWithParent(it, proc)) != NULL)
+		if (it->proc_script != NULL)
+			Proc_End(it);
+}

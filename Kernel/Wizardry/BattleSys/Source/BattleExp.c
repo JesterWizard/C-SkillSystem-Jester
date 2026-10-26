@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "gaiden-magic.h"
 #include "skill-system.h"
 #include "battle-system.h"
 #include "bwl.h"
@@ -407,6 +408,7 @@ void BattleApplyItemExpGains(void)
 
 #if CHAX
     TryAddSkillWRankFromBattleUnit(&gBattleActor, true);
+    TryLearnGaidenMagicFromBattleUnit(&gBattleActor);
 #endif
 }
 
@@ -465,6 +467,8 @@ void BattleApplyExpGains(void)
 #if CHAX
         TryAddSkillWRankFromBattleUnit(&gBattleActor, true);
         TryAddSkillWRankFromBattleUnit(&gBattleTarget, true);
+        TryLearnGaidenMagicFromBattleUnit(&gBattleActor);
+        TryLearnGaidenMagicFromBattleUnit(&gBattleTarget);
 #endif
     }
 }

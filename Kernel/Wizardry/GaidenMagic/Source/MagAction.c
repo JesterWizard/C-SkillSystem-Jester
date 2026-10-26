@@ -120,6 +120,8 @@ bool ActionGaidenMagicStaff(ProcPtr proc)
 		PutKtutHistory(KTUTORIAL_GAIDEN_WMAG);
 	}
 
+	ConsumeGaidenMagicUse(gActiveUnit, item);
+
 	/* Main rountine */
 	ActionStaffDoorChestUseItem(proc);
 

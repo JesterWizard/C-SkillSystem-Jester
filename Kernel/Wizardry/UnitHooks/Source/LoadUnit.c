@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "gaiden-magic.h"
 #include "strmag.h"
 #include "bwl.h"
 #include "lvup.h"
@@ -230,6 +231,9 @@ struct Unit* LoadUnit(const struct UnitDefinition* uDef) {
 
     if (uDef->itemDrop)
         unit->state |= US_DROP_ITEM;
+
+    /* Three Houses magic: player units learn spells instead of carrying tomes */
+    RemoveThreeHousesMagicItems(unit);
 
     UnitCheckStatCaps(unit);
 

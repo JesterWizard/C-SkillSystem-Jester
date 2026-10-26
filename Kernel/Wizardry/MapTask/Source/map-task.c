@@ -30,9 +30,33 @@ void PutUnitSpriteIconsOam(void)
 
 	PutChapterMarkedTileIconOam();
 
+#if defined(SID_MineDetector) && (COMMON_SKILL_VALID(SID_MineDetector))
+	/* Once per frame, not once per unit on screen */
+	if ((gBmSt.gameStateBits & BM_FLAG_1) && SkillTester(gActiveUnit, SID_MineDetector))
+	{
+		struct Trap* trap;
+
+		for (i = 0; i < ARRAY_COUNT_RANGE5x5; i++)
+		{
+			int _x = gActiveUnit->xPos + gVecs_5x5[i].x;
+			int _y = gActiveUnit->yPos + gVecs_5x5[i].y;
+
+			trap = GetTrapAt(_x, _y);
+
+			if (trap->type == TRAP_MINE)
+			{
+				MapTaskVec.x = _x  * 16 - gBmSt.camera.x;
+				MapTaskVec.y = _y  * 16 - gBmSt.camera.y;
+				MapTaskPutOamHi(MTSKCONF_WARNING, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xEE0 / 0x20));
+			}
+		}
+	}
+#endif
+
 	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; i++) {
 		int ix, iy, status;
-		struct Unit *unit = GetUnit(i);
+		/* Same table GetUnit() reads, without a long call per slot every frame */
+		struct Unit *unit = gUnitLookup[i];
 
 		if (!UNIT_IS_VALID(unit) || unit->state & US_HIDDEN)
 			continue;
@@ -49,28 +73,6 @@ void PutUnitSpriteIconsOam(void)
 
 		if (iy < -16 || iy > DISPLAY_HEIGHT)
 			continue;
-
-#if defined(SID_MineDetector) && (COMMON_SKILL_VALID(SID_MineDetector))
-		if (SkillTester(gActiveUnit, SID_MineDetector) && gBmSt.gameStateBits & BM_FLAG_1)
-		{
-			struct Trap* trap;
-
-			for (int i = 0; i < ARRAY_COUNT_RANGE5x5; i++) 
-			{
-				int _x = gActiveUnit->xPos + gVecs_5x5[i].x;
-				int _y = gActiveUnit->yPos + gVecs_5x5[i].y;
-
-				trap = GetTrapAt(_x, _y);
-
-				if (trap->type == TRAP_MINE)
-				{
-					MapTaskVec.x = _x  * 16 - gBmSt.camera.x;
-					MapTaskVec.y = _y  * 16 - gBmSt.camera.y;
-					MapTaskPutOamHi(MTSKCONF_WARNING, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xEE0 / 0x20));	
-				}
-			}
-		}
-#endif
 
 		MapTaskVec.x = ix;
 		MapTaskVec.y = iy;

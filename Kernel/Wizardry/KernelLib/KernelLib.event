@@ -1,6 +1,8 @@
 #ifndef KERNEL_LIB_INSTALLED
 #define KERNEL_LIB_INSTALLED
 
+#include "Source/LynJump.event"
+
 #include "Source/U.lyn.event"
 #include "Source/map.lyn.event"
 #include "Source/math.lyn.event"

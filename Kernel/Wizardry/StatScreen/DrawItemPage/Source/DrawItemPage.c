@@ -30,6 +30,10 @@ STATIC_DECLAR void UpdateItemPageListExt(struct Unit *unit, struct ItemPageList 
 		if (item == ITEM_NONE)
 			break;
 
+		/* Three Houses magic: an enemy's tomes are shown as spells, not items */
+		if (IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item))
+			continue;
+
 		ent = &list->ent[cnt++];
 		if (cnt > CHAX_ITEM_PAGE_AMT)
 			return;
@@ -104,8 +108,8 @@ NOINLINE STATIC_DECLAR void DrawItemLineGaidenMagic(const struct ItemPageEnt *en
 
 	color = (ent->color == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_BLUE;
 
-	if (gpKernelDesignerConfig->mp_system != true)
-		PutGaidenMagicCostNumber(tm + 14, color, GetGaidenWeaponHpCost(gStatScreen.unit, item));
+	if (IsGaidenMagicUsesSystem() || gpKernelDesignerConfig->mp_system != true)
+		PutGaidenMagicMenuNumber(tm + 14, color, gStatScreen.unit, item);
 
 	PutText(text, tm + 2);
 	DrawIcon(tm, GetItemIconId(item), 0x4000);

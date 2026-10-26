@@ -11,6 +11,7 @@ gLoadUnitHooks:
 gExternalBattleToUnitHook: // int (*)(struct BattleUnit *bu, struct Unit *unit);
     POIN BattleToUnit_ResetShieldInfo
     POIN Replicate_OnBattleToUnit
+    POIN GaidenMagicUses_OnBattleToUnit
     // POIN DemoUnitExpa_OnBattleToUnit
     WORD 0 0 0 0
 
@@ -32,11 +33,13 @@ gCopyUnitHooks: // void (*)(struct Unit *from, struct Unit *to)
 gClearUnitHooks: // void (*)(struct Unit *unit)
     POIN StatDeuff_OnClearUnit
     POIN Replicate_OnClearUnit
+    POIN GaidenMagicUses_OnClearUnit
     WORD 0 0 0 0
 
 gKillUnitHooks: // void (*)(struct Unit *unit)
     POIN Replicate_OnUnitKill
     POIN FlushUnitSkillDbgList
+    POIN GaidenMagicUses_OnUnitKill
     WORD 0 0 0 0
 
 gUnitRefrainHooks: // void (*)(struct Unit *unit)

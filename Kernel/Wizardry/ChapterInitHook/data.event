@@ -15,4 +15,6 @@ ChapterInitHooks:
     POIN ChapterInit_ResetChapterTimer
     POIN ChapterInit_SyncAchievementsOption
     POIN ChapterInit_ResetChatlog
+    POIN ResetGaidenMagicUses
+    POIN ChapterInit_RemoveThreeHousesMagicItems
     WORD 0

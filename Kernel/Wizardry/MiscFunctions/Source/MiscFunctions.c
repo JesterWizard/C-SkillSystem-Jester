@@ -5,6 +5,7 @@
 #include "skill-system.h"
 #include "constants/skills.h"
 #include "battle-system.h"
+#include "gaiden-magic.h"
 #include "unit-expa.h"
 #include "eventinfo.h"
 #include "bmmenu.h"
@@ -37,6 +38,7 @@
 extern void DisableDebuggerAiControl(void);
 extern const u8 NewStatScreenPortraitTsa[];
 extern void UpdateMagicSealVisualPalette(void);
+extern void InvalidateSealSourceCache(void);
 
 static bool HalfBodyPortraitsEnabled(void)
 {
@@ -2035,6 +2037,8 @@ void RefreshUnitsOnBmMap(void) {
         }
     }
 
+    /* Units moved, died or appeared: seal sources must be gathered again */
+    InvalidateSealSourceCache();
     UpdateMagicSealVisualPalette();
 }
 
@@ -4824,7 +4828,8 @@ int GetBattleUnitUpdatedWeaponExp(struct BattleUnit* bu) {
         return -1;
 
     if (!(gBattleStats.config & BATTLE_CONFIG_ARENA)) {
-        if (!bu->canCounter)
+        /* Gaiden B.Mag casters have canCounter cleared; Three Houses spells still raise ranks */
+        if (!bu->canCounter && !(IsGaidenMagicUsesSystem() && GetBattleGlobalFlags(bu)->gaiden_magic_cast))
             return -1;
 
         if (!(bu->weaponAttributes & IA_REQUIRES_WEXP))

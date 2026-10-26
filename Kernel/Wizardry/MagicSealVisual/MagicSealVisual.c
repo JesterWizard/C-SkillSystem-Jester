@@ -286,6 +286,14 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 	int magicN;
 
 	/*
+	 * No seal on the map: nothing changes until the units do, and
+	 * RefreshEntityBmMaps() marks the proc dirty when they do. Scanning
+	 * every unit's skills each frame cost a large slice of the frame.
+	 */
+	if (!proc->active && !proc->dirty)
+		return;
+
+	/*
 	 * Move/attack range owns BG2 (same tree). Do not BG_Fill / SetBlendNone
 	 * here — that runs after MoveLimitView_OnInit and erases the blue tiles.
 	 */
@@ -298,6 +306,9 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 	if (EventEngineExists()) {
 		if (proc->active)
 			ClearSealOverlay(proc);
+
+		/* Look again once the event is over */
+		proc->dirty = true;
 		return;
 	}
 
@@ -328,6 +339,8 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 #endif
 		if (proc->active)
 			ClearSealOverlay(proc);
+
+		proc->dirty = false;
 		return;
 	}
 

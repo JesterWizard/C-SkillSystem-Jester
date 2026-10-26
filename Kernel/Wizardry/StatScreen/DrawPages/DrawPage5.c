@@ -31,8 +31,23 @@
 #define WHITE_MAGIC_STARTING_TEXT_FIELD 15 // Needs 6 consecutive entries
 #define BLACK_MAGIC_STARTING_TEXT_FIELD 29 // Needs 6 consecutive entries
 
-static void PutGaidenCost(int number, u16 *tm)
+static void PutGaidenCost(struct Unit * unit, int item, u16 *tm)
 {
+    int number;
+
+    /* Three Houses-style magic: remaining uses this chapter */
+    if (IsGaidenMagicUsesSystem())
+    {
+        number = GetGaidenMagicUses(unit, item);
+
+        if (number != GAIDEN_MAGIC_USES_INFINITE)
+            PutNumberSmall(tm + 2, number ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, number);
+
+        return;
+    }
+
+    number = GetGaidenWeaponHpCost(unit, item);
+
     if (number == 0)
         return;
 
@@ -67,7 +82,7 @@ static void WhiteMagicList(struct Unit * unit)
                 0, 0,
                 Utf8ToNarrowFonts(GetItemName(item)));
 
-            PutGaidenCost(GetGaidenWeaponHpCost(unit, item), gUiTmScratchA + TILEMAP_INDEX(0x5, 0x3 + (i * 2)));
+            PutGaidenCost(unit, item, gUiTmScratchA + TILEMAP_INDEX(0x5, 0x3 + (i * 2)));
 		}
     }
 };
@@ -100,7 +115,7 @@ static void BlackMagicList(struct Unit * unit)
                 0, 0,
                 Utf8ToNarrowFonts(GetItemName(item)));
 
-            PutGaidenCost(GetGaidenWeaponHpCost(unit, item), gUiTmScratchA + TILEMAP_INDEX(0xE, 0x3 + (i * 2)));
+            PutGaidenCost(unit, item, gUiTmScratchA + TILEMAP_INDEX(0xE, 0x3 + (i * 2)));
 		}
     }
 };
@@ -141,7 +156,10 @@ static void DrawPage5MagicList(void)
 
     WhiteMagicList(unit);
     BlackMagicList(unit);
-    DisplayMP(unit);
+
+    /* Three Houses-style spells use uses per chapter, not MP */
+    if (!IsGaidenMagicUsesSystem())
+        DisplayMP(unit);
 };
 
 void DrawPage5Rework(void)

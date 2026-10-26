@@ -7,6 +7,9 @@
 
 int GetGaidenWeaponHpCost(struct Unit *unit, int item)
 {
+	/* Three Houses-style magic spends uses instead of HP/MP */
+	if (IsGaidenMagicUsesSystem())
+		return 0;
 
 #if (defined(SID_GrandMagician) && COMMON_SKILL_VALID(SID_GrandMagician))
 	if (SkillTester(unit, SID_GrandMagician))

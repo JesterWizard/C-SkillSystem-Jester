@@ -419,7 +419,7 @@ void CollectAiSimuSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 	}
 
 	/* Gaiden B.Mag */
-	if (gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_ai_use) {
+	if (IsGaidenMagicAiEnabled()) {
 		struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -428,7 +428,7 @@ void CollectAiSimuSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 			if (item == 0)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && (unit->curHP > GetGaidenWeaponHpCost(unit, item))) {
+			if (CanUnitUseGaidenMagic(unit, item) && (unit->curHP > GetGaidenWeaponHpCost(unit, item)) && HasGaidenMagicUses(unit, item)) {
 				it->slot = CHAX_BUISLOT_GAIDEN_BMAG1 + i;
 				it->item = item;
 				it->action_type = AI_ACTION_COMBAT;
@@ -455,7 +455,8 @@ void CollectAiSimuStaffSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 		if (item == 0)
 			break;
 
-		if (GetItemAttributes(item) & IA_STAFF) {
+		/* Three Houses mode casts inventory staves as spells below */
+		if ((GetItemAttributes(item) & IA_STAFF) && !(IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(item))) {
 			it->slot = i;
 			it->item = item;
 			it++;
@@ -463,7 +464,7 @@ void CollectAiSimuStaffSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 	}
 
 	/* Gaiden w.Mag */
-	if (gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_ai_use) {
+	if (IsGaidenMagicAiEnabled()) {
 		struct GaidenMagicList *gmaglist = GetGaidenMagicList(unit);
 
 		for (i = 0; i < GAIDEN_MAGIC_LIST_LEN; i++) {
@@ -475,7 +476,7 @@ void CollectAiSimuStaffSlots(struct Unit *unit, struct AiSimuSlotEnt *buf)
 			if (!(GetItemAttributes(item) & IA_STAFF))
 				continue;
 
-			if (CanUnitUseGaidenMagic(unit, item) && (unit->curHP > GetGaidenWeaponHpCost(unit, item))) {
+			if (CanUnitUseGaidenMagic(unit, item) && (unit->curHP > GetGaidenWeaponHpCost(unit, item)) && HasGaidenMagicUses(unit, item)) {
 				it->slot = CHAX_BUISLOT_GAIDEN_WMAG1 + i;
 				it->item = item;
 				it++;
