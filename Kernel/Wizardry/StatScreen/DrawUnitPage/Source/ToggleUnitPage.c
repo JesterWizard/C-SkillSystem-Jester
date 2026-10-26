@@ -101,27 +101,26 @@ static void _growth_disp(int x, int y, int growth)
     }
 }
 
+static void _growth_disp_bonus(int y, int base, int growth)
+{
+    _growth_disp(17, y, base);
+    PutNumberBonus(growth - base, gBG0TilemapBuffer + TILEMAP_INDEX(18, y));
+}
+
 STATIC_DECLAR void ToggleUnitPageGrowth(void)
 {
     struct Unit *unit = gStatScreen.unit;
 
     if (gpKernelDesignerConfig->stat_screen_growths == 2) 
     {
-        _growth_disp(17, 3, unit->pCharacterData->growthPow);
-        _growth_disp(17, 5, GetUnitBasicMagGrowth(unit));
-        _growth_disp(17, 7, unit->pCharacterData->growthSkl);
-        _growth_disp(17, 9, unit->pCharacterData->growthSpd);
-        _growth_disp(17, 11, unit->pCharacterData->growthLck);
-        _growth_disp(17, 13, unit->pCharacterData->growthDef);
-        _growth_disp(17, 15, unit->pCharacterData->growthRes);
-
-        PutNumberBonus((GetUnitPowGrowth(unit) - unit->pCharacterData->growthPow), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 3)));
-        PutNumberBonus((GetUnitMagGrowth(unit) - GetUnitBasicMagGrowth(unit)),     (gBG0TilemapBuffer + TILEMAP_INDEX(18, 5)));
-        PutNumberBonus((GetUnitSklGrowth(unit) - unit->pCharacterData->growthSkl), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 7)));
-        PutNumberBonus((GetUnitSpdGrowth(unit) - unit->pCharacterData->growthSpd), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 9)));
-        PutNumberBonus((GetUnitLckGrowth(unit) - unit->pCharacterData->growthLck), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 11)));
-        PutNumberBonus((GetUnitDefGrowth(unit) - unit->pCharacterData->growthDef), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 13)));
-        PutNumberBonus((GetUnitResGrowth(unit) - unit->pCharacterData->growthRes), (gBG0TilemapBuffer + TILEMAP_INDEX(18, 15)));
+        /* Base includes class growths, the green bonus is everything on top */
+        _growth_disp_bonus(3, GetUnitBasePowGrowth(unit), GetUnitPowGrowth(unit));
+        _growth_disp_bonus(5, GetUnitBaseMagGrowth(unit), GetUnitMagGrowth(unit));
+        _growth_disp_bonus(7, GetUnitBaseSklGrowth(unit), GetUnitSklGrowth(unit));
+        _growth_disp_bonus(9, GetUnitBaseSpdGrowth(unit), GetUnitSpdGrowth(unit));
+        _growth_disp_bonus(11, GetUnitBaseLckGrowth(unit), GetUnitLckGrowth(unit));
+        _growth_disp_bonus(13, GetUnitBaseDefGrowth(unit), GetUnitDefGrowth(unit));
+        _growth_disp_bonus(15, GetUnitBaseResGrowth(unit), GetUnitResGrowth(unit));
     }
     else
     {

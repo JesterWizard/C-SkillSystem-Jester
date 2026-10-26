@@ -25,6 +25,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.casual_mode = false,
 	.chapter_names = true,
 	.chatlog_enabled = true,
+	.class_growths = 0, // 0=off, 1=personal + class growths, 2=average of personal and class growths
 	.collect_dead_units = true,
 	.custom_battle_quotes = true,
 	.custom_character_animations = true,

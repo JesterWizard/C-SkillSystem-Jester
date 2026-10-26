@@ -195,6 +195,7 @@ struct KernelDesigerConfig {
 	u8 item_stack; /* unit-menu Stack command: merge duplicate inventory items if uses <= 255 */
 	u8 language_select; /* flag-grid language selector after the boot logos, before the title */
 	u8 gaiden_magic_three_houses; /* Three Houses-style gaiden magic: uses per chapter instead of HP/MP cost */
+	u8 class_growths; /* 0 = off, 1 = personal + class growths, 2 = average of personal and class growths. Promotion and reclass menus preview the change */
 };
 
 struct KernelBattleDesignerConfig {

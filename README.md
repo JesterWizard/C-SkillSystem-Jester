@@ -74,6 +74,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Character_Biography_Menu.gif" alt="Character Biographies preview" width="600" />
 	</details>
 
+- [Class Growths](./Documentation/Features/ClassGrowths.md)
 - [Combat Art](./Documentation/Features/CombatArt.md)
 - [Conversation Viewer](./Documentation/Features/ConversationViewer.txt)
 

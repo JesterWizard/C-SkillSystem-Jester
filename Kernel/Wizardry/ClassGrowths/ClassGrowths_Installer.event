@@ -1,0 +1,12 @@
+#ifndef CLASS_GROWTHS_INSTALLED
+#define CLASS_GROWTHS_INSTALLED
+
+/**
+ * Lives in FreeSpaceDEMO (WIZARDRY_CUSTOM in wizardry.event) so the class
+ * growth getters and promotion screen preview do not overflow kernel .text.
+ */
+#include "Source/LynJump.event"
+#include "Source/ClassGrowths.lyn.event"
+#include "Source/ClassGrowthPreview.lyn.event"
+
+#endif /* CLASS_GROWTHS_INSTALLED */

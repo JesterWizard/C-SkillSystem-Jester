@@ -30,6 +30,47 @@ int GetUnitJobBasedLckGrowth(struct Unit *unit);
 int GetUnitJobBasedDefGrowth(struct Unit *unit);
 int GetUnitJobBasedResGrowth(struct Unit *unit);
 
+/* Class growths: gpKernelDesignerConfig->class_growths */
+enum class_growths_mode {
+	CLASS_GROWTHS_OFF = 0,
+	CLASS_GROWTHS_ADD = 1,     /* personal + class */
+	CLASS_GROWTHS_AVERAGE = 2, /* (personal + class) / 2 */
+};
+
+enum class_growth_stat {
+	CLASS_GROWTH_HP,
+	CLASS_GROWTH_POW,
+	CLASS_GROWTH_MAG,
+	CLASS_GROWTH_SKL,
+	CLASS_GROWTH_SPD,
+	CLASS_GROWTH_LCK,
+	CLASS_GROWTH_DEF,
+	CLASS_GROWTH_RES,
+
+	CLASS_GROWTH_MAX
+};
+
+static inline bool ClassGrowthPreviewEnabled(void)
+{
+	return gpKernelDesignerConfig->class_growths != CLASS_GROWTHS_OFF && !KernelLvupHidesGrowthDisplay();
+}
+
+/* Personal growth merged with the class growth, before skill/status bonuses */
+int GetClassGrowthBase(int personal, int job);
+int GetUnitBaseHpGrowth(struct Unit *unit);
+int GetUnitBasePowGrowth(struct Unit *unit);
+int GetUnitBaseMagGrowth(struct Unit *unit);
+int GetUnitBaseSklGrowth(struct Unit *unit);
+int GetUnitBaseSpdGrowth(struct Unit *unit);
+int GetUnitBaseLckGrowth(struct Unit *unit);
+int GetUnitBaseDefGrowth(struct Unit *unit);
+int GetUnitBaseResGrowth(struct Unit *unit);
+
+int GetUnitGrowthByStat(struct Unit *unit, int stat);
+void GetClassChangeGrowthDiffs(struct Unit *unit, int jid, int diffs[CLASS_GROWTH_MAX]);
+extern const char *const gClassGrowthStatNames[CLASS_GROWTH_MAX];
+void SetClassGrowthTextColor(ProcPtr screen, int palid, int colorId, const u16 colors[3]);
+
 /* Job growth */
 struct JobGrowthEnt { s8 st[UNIT_STATUS_MAX - 1]; };
 // extern struct JobGrowthEnt const gJobGrowthList[0x100];

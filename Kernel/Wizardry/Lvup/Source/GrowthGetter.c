@@ -226,14 +226,14 @@ int GetUnitResGrowthBonus(int status, struct Unit* unit)
 }
 
 /* Person based growth */
-int GetUnitHpGrowth(struct Unit* unit) { return GetUnitHpGrowthBonus(unit->pCharacterData->growthHP, unit); }
-int GetUnitPowGrowth(struct Unit* unit) { return GetUnitPowGrowthBonus(unit->pCharacterData->growthPow, unit); }
-int GetUnitMagGrowth(struct Unit* unit) { return GetUnitMagGrowthBonus(GetUnitBasicMagGrowth(unit), unit); }
-int GetUnitSklGrowth(struct Unit* unit) { return GetUnitSklGrowthBonus(unit->pCharacterData->growthSkl, unit); }
-int GetUnitSpdGrowth(struct Unit* unit) { return GetUnitSpdGrowthBonus(unit->pCharacterData->growthSpd, unit); }
-int GetUnitLckGrowth(struct Unit* unit) { return GetUnitLckGrowthBonus(unit->pCharacterData->growthLck, unit); }
-int GetUnitDefGrowth(struct Unit* unit) { return GetUnitDefGrowthBonus(unit->pCharacterData->growthDef, unit); }
-int GetUnitResGrowth(struct Unit* unit) { return GetUnitResGrowthBonus(unit->pCharacterData->growthRes, unit); }
+int GetUnitHpGrowth(struct Unit* unit) { return GetUnitHpGrowthBonus(GetUnitBaseHpGrowth(unit), unit); }
+int GetUnitPowGrowth(struct Unit* unit) { return GetUnitPowGrowthBonus(GetUnitBasePowGrowth(unit), unit); }
+int GetUnitMagGrowth(struct Unit* unit) { return GetUnitMagGrowthBonus(GetUnitBaseMagGrowth(unit), unit); }
+int GetUnitSklGrowth(struct Unit* unit) { return GetUnitSklGrowthBonus(GetUnitBaseSklGrowth(unit), unit); }
+int GetUnitSpdGrowth(struct Unit* unit) { return GetUnitSpdGrowthBonus(GetUnitBaseSpdGrowth(unit), unit); }
+int GetUnitLckGrowth(struct Unit* unit) { return GetUnitLckGrowthBonus(GetUnitBaseLckGrowth(unit), unit); }
+int GetUnitDefGrowth(struct Unit* unit) { return GetUnitDefGrowthBonus(GetUnitBaseDefGrowth(unit), unit); }
+int GetUnitResGrowth(struct Unit* unit) { return GetUnitResGrowthBonus(GetUnitBaseResGrowth(unit), unit); }
 
 /* Job based growth */
 int GetUnitJobBasedHpGrowth(struct Unit* unit) { return GetUnitHpGrowthBonus(unit->pClassData->growthHP, unit); }

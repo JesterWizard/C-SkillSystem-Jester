@@ -4102,17 +4102,25 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 	state->speakingWidth = state->activeWidth;
 }
 
+/*
+ * Promotion screen description box. InitTalk_C clears three 30-tile lines
+ * and the nameplate from tile 0x100 (0x100-0x1EF), which covers the box's
+ * vanilla tiles at 0x180. Load it just past them instead, as vanilla does
+ * for its two talk lines.
+ */
+#define CLASSCHG_UI_BOX_CHR 0x1F0
+
 LYN_REPLACE_CHECK(ClassChgLoadUI);
 void ClassChgLoadUI_C(void)
 {
 	Decompress(
 		gUnknown_08A30800,
-		(void *)(VRAM + 0x3000 + GetBackgroundTileDataOffset(BG_2))
+		(void *)(VRAM + (CLASSCHG_UI_BOX_CHR << 5) + GetBackgroundTileDataOffset(BG_2))
 	);
 	RegisterTsaWithOffset(
 		gBG2TilemapBuffer,
 		gUnknown_08A30978,
-		0x11C0
+		TILEREF(CLASSCHG_UI_BOX_CHR, 1)
 	);
 }
 
