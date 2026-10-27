@@ -30,6 +30,7 @@ u8 SummonCommandUsability(const struct MenuItemDef * def, int number)
 
 LYN_REPLACE_CHECK(SummonCommandEffect);
 u8 SummonCommandEffect(struct MenuProc* menu, struct MenuItemProc* menuItem) {
+    gActionData.unk08 = SID_Summon;
 
     MakeTargetListForSummon(gActiveUnit);
     NewTargetSelection(&gSelectInfo_Summon);
@@ -45,8 +46,6 @@ u8 SummonSelection_OnSelect(ProcPtr proc, struct SelectTarget* target) {
     gActionData.unitActionType = UNIT_ACTION_SUMMON;
     gActionData.xOther = target->x;
     gActionData.yOther = target->y;
-
-    gActionData.unk08 = SID_Summon;
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
@@ -155,6 +154,10 @@ STATIC_DECLAR u8 GenerateSummons_OnSelected(struct MenuProc * menu, struct MenuI
         gEventSlots[EVT_SLOT_7] = classIndexes[menuIndex];
         gEventSlots[EVT_SLOT_8] = classWeapons[menuIndex];
     }
+
+#if defined(SID_SummonPlus) && (COMMON_SKILL_VALID(SID_SummonPlus))
+    gActionData.unk08 = SID_SummonPlus;
+#endif
 
     MakeTargetListForSummon(gActiveUnit);
     NewTargetSelection(&gSelectInfo_Summon);
