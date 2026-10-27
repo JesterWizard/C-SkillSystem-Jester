@@ -955,3 +955,4 @@
 #define MSG_SKILL_Takeover_CAPACITY 1
 #define MSG_SKILL_GroupCast_CAPACITY 1
 #define MSG_SKILL_DragonsBlood_CAPACITY 1
+#define MSG_SKILL_Undo_CAPACITY 1

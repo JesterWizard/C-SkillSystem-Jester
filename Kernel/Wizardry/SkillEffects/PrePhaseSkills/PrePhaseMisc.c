@@ -46,9 +46,6 @@ bool PrePhase_ClearMiscUES(ProcPtr proc)
 
 		if (UNIT_IS_VALID(unit)) {
 
-#if defined(SID_Teleportation) && (COMMON_SKILL_VALID(SID_Teleportation))
-            ClearBitUES(unit, UES_BIT_TELEPORTATION_SKILL_USED);
-#endif
 #if defined(SID_ShadowFlash) && (COMMON_SKILL_VALID(SID_ShadowFlash))
             ClearBitUES(unit, UES_BIT_SHADOWFLASH_SKILL_USED);
 #endif

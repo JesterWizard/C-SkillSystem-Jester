@@ -45,6 +45,8 @@ gPostActionFuncs:
     POIN PostAction_Guarantee
     POIN PostAction_Insurance
     POIN PostAction_GroupCast
+    POIN PostAction_UndoActor
+    POIN PostAction_UndoTarget
 
     //End
     POIN CallExternalPostActionHook
