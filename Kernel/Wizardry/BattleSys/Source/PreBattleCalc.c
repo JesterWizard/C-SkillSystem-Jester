@@ -90,6 +90,15 @@ void ComputeBattleUnitAttack(struct BattleUnit* attacker, struct BattleUnit* def
 		status = attacker->unit.maxHP - attacker->hpInitial;
 #endif
 
+#if defined(SID_LastResort) && (COMMON_SKILL_VALID(SID_LastResort))
+	if (BattleFastSkillTester(attacker, SID_LastResort)) {
+		int missing = attacker->unit.maxHP - attacker->hpInitial;
+
+		if (missing > 0 && status > 0)
+			status += k_udiv(status * missing * SKILL_EFF0(SID_LastResort), attacker->unit.maxHP * 100);
+	}
+#endif
+
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
 	if (BattleFastSkillTester(attacker, SID_GorillaTactics) && CheckBitUES(GetUnit(attacker->unit.index), UES_BIT_GORILLA_TACTICS_SKILL_USED))
 		status += GetItemMight(attacker->weapon) / 2;
