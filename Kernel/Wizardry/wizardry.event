@@ -167,6 +167,7 @@ ALIGN 4
 #include "SkillEffects/Misc/Forage.lyn.event"
 #include "SkillEffects/MenuSkills/Takeover.lyn.event"
 #include "SkillEffects/MenuSkills/GroupCast.lyn.event"
+#include "SkillEffects/MenuSkills/DragonsBlood.lyn.event"
 #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #include "Supports/Supports_Installer.event"
 #include "TextEngineRework/TextEngineRework_Installer.event"

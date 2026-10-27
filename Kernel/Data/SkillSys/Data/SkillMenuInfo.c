@@ -1498,4 +1498,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
+    [SID_DragonsBlood] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_DragonsBlood_MENU,
+        .helpMsgId = MSG_SKILL_DragonsBlood_MENUHELP,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = DragonsBlood_Usability,
+        .onDraw = NULL,
+        .onSelected = DragonsBlood_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

@@ -378,4 +378,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
     [SID_Takeover] = Action_Takeover,
 #endif
+
+#if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
+    [SID_DragonsBlood] = Action_DragonsBlood,
+#endif
 };

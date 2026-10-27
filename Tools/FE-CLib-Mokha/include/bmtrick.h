@@ -32,6 +32,7 @@ enum
     TRAP_BOULDER_TILE = 21,
     TRAP_SPIN_TILE = 22,
     TRAP_REPEAT_HOUSE = 23,
+    TRAP_DRAGON_VEIN = 24,
 };
 
 enum
@@ -82,6 +83,9 @@ enum
 
     // Repeat house extdata definitions
     TRAP_EXTDATA_REPEAT_HOUSE_VISITED = 0, // first-visit flag (0 = not yet visited, 1 = already visited)
+
+    // Dragon vein extdata definitions (trap->extra holds the DRAGON_VEIN_* effect)
+    TRAP_EXTDATA_DRAGON_VEIN_PARAM = 0, // effect parameter (HP amount, status index or map change id)
 };
 
 enum
@@ -90,6 +94,14 @@ enum
     SPIN_TILE_DIR_RIGHT,
     SPIN_TILE_DIR_UP,
     SPIN_TILE_DIR_DOWN,
+};
+
+enum
+{
+    DRAGON_VEIN_HEAL = 0,  // allies recover param HP (0 = full heal)
+    DRAGON_VEIN_DAMAGE,    // enemies lose param HP (0 = 10), never below 1
+    DRAGON_VEIN_STATUS,    // enemies get status index param
+    DRAGON_VEIN_MAPCHANGE, // trigger the chapter's map change id param
 };
 
 struct Trap
@@ -118,6 +130,7 @@ struct Trap* AddSpinTile(int x, int y, int direction);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
 struct Trap* AddGrassTile(int x, int y, int turnsLeft);
 struct Trap* AddRepeatHouse(int x, int y, int exp);
+struct Trap* AddDragonVein(int x, int y, int effect, int param);
 void AddFireTile(int x, int y, int turnCountdown, int turnInterval);
 void AddGasTrap(int x, int y, int facing, int turnCountdown, int turnInterval);
 void AddArrowTrap(int x, int turnCountdown, int turnInterval);
@@ -175,6 +188,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,
+
+#define DRAGON_VEIN(x, y, effect, param) \
+    TRAP_DRAGON_VEIN, (x), (y), (effect), (param), 0,
 
 struct Trap* AddHealTile(int x, int y, int healAmount, int turnsLeft, int palette);
 struct Trap* AddToggleTorch(int x, int y, int duration, int startsLit, int palette);

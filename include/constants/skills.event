@@ -921,5 +921,6 @@
 #define SID_Insurance 0x394
 #define SID_Takeover 0x395
 #define SID_GroupCast 0x396
+#define SID_DragonsBlood 0x397
 
 #endif /* SKILLS_EVENT */

@@ -376,6 +376,14 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = GetTrapSpriteOam2(GetSpinTrapSpriteId(trap), trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        if (trap->type == TRAP_DRAGON_VEIN)
+        {
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
+
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x69, trap);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)
