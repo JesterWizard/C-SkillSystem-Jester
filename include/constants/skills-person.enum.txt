@@ -941,3 +941,4 @@
 // SID_HalfSP
 // SID_Forage
 // SID_Guarantee
+// SID_Insurance

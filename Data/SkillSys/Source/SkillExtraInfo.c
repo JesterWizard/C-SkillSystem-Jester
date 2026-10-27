@@ -1548,4 +1548,8 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
     [SID_VictorySmite] = {{1, 10}},
 #endif
 
+#if (defined(SID_Insurance) && COMMON_SKILL_VALID(SID_Insurance))
+    [SID_Insurance] = {{ 100 }}, /* gold per point of damage taken */
+#endif
+
 };

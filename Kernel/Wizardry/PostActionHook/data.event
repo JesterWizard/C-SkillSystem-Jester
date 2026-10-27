@@ -43,6 +43,7 @@ gPostActionFuncs:
     POIN PostAction_RepeatHouse
     POIN ResetComboAtkList
     POIN PostAction_Guarantee
+    POIN PostAction_Insurance
 
     //End
     POIN CallExternalPostActionHook

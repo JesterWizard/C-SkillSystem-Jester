@@ -1,0 +1,21 @@
+## MSG_SKILL_Forage_NAME
+Forage[X]
+## MSG_SKILL_Forage_DESC
+Forage:[N]
+Hidden items buried on the map[N]
+shimmer while this unit is deployed.[X]
+
+## MSG_SKILL_Guarantee_NAME
+Guarantee[X]
+## MSG_SKILL_Guarantee_DESC
+Guarantee:[N]
+Once per map, this unit's[N]
+chance-based battle skills[N]
+all activate for one battle.[X]
+
+## MSG_SKILL_Insurance_NAME
+Insurance[X]
+## MSG_SKILL_Insurance_DESC
+Insurance:[N]
+Gain 100G for each point of[N]
+damage taken in battle.[X]

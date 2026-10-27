@@ -47,3 +47,4 @@ W.I.P.[X]
 #include "texts/Menu_Options.txt"
 
 #include "../../../CustomCampaign/Text/Text.txt"
+#include "texts/Skills_Appended.txt"
