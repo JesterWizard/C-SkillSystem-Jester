@@ -10440,5 +10440,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .iconPal = 0,
     },
 #endif
+#if (defined(SID_Guarantee) && COMMON_SKILL_VALID(SID_Guarantee))
+    [SID_Guarantee] = {
+        .name = MSG_SKILL_Guarantee_NAME,
+        .desc = MSG_SKILL_Guarantee_DESC,
+        .capacity = MSG_SKILL_Guarantee_CAPACITY,
+        .price = MSG_SKILL_Guarantee_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
 
 };
