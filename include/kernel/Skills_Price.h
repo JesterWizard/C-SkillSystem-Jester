@@ -956,3 +956,4 @@
 #define MSG_SKILL_GroupCast_PRICE 1000
 #define MSG_SKILL_DragonsBlood_PRICE 1000
 #define MSG_SKILL_Undo_PRICE 1000
+#define MSG_SKILL_MinusStrike_PRICE 1000

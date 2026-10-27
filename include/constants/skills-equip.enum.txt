@@ -988,3 +988,4 @@ SID_Takeover
 SID_GroupCast
 SID_DragonsBlood
 SID_Undo
+SID_MinusStrike

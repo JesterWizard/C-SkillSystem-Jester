@@ -923,5 +923,6 @@
 #define SID_GroupCast 0x396
 #define SID_DragonsBlood 0x397
 #define SID_Undo 0x398
+#define SID_MinusStrike 0x399
 
 #endif /* SKILLS_EVENT */
