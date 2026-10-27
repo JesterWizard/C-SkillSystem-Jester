@@ -1,5 +1,4 @@
 .vscode/
-.claude/
 .cache_dir/
 .release_dir/
 *__pycache__
