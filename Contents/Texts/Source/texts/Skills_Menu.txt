@@ -717,7 +717,7 @@ Spell Blade[X]
 Spell Blade:[N]
 Choose an adjacent unit's class to[N]
 deal effective damage to this turn.[N]
-Sets a status to do so.[X]
+You can't move again this turn.[X]
 
 ## MSG_SKILL_FocusEnergy_NAME
 Focus Energy[X]
