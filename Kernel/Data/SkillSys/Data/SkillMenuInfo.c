@@ -1472,4 +1472,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Takeover_NAME,
+        .helpMsgId = MSG_SKILL_Takeover_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Takeover_Usability,
+        .onDraw = NULL,
+        .onSelected = Takeover_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

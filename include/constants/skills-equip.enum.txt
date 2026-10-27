@@ -984,3 +984,4 @@ SID_VictorySmite
 SID_Forage
 SID_Guarantee
 SID_Insurance
+SID_Takeover

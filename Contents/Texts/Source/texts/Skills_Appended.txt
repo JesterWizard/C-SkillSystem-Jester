@@ -19,3 +19,11 @@ Insurance[X]
 Insurance:[N]
 Gain 100G for each point of[N]
 damage taken in battle.[X]
+
+## MSG_SKILL_Takeover_NAME
+Takeover[X]
+## MSG_SKILL_Takeover_DESC
+Takeover:[N]
+Pay 100G per point of damage[N]
+dealt to an adjacent foe,[N]
+or 1000G against a boss.[X]

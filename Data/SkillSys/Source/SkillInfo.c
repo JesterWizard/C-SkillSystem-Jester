@@ -10461,5 +10461,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .iconPal = 0,
     },
 #endif
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = {
+        .name = MSG_SKILL_Takeover_NAME,
+        .desc = MSG_SKILL_Takeover_DESC,
+        .capacity = MSG_SKILL_Takeover_CAPACITY,
+        .price = MSG_SKILL_Takeover_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
 
 };
