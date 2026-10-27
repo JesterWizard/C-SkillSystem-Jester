@@ -12,6 +12,10 @@ FE8U C-SkillSystem buildfile. C is built with devkitARM, turned into `.lyn.event
 
 Read `Documentation/SkillTypes/README.md`, then `Common.md`, then the type doc. Don't rediscover the process. `Documentation/Features/SkillSys.md` is partly stale.
 
+## Adding a feature
+
+Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc(s) the feature touches.
+
 ## Rules
 
 - Guard all skill code with `#if defined(SID_x) && (COMMON_SKILL_VALID(SID_x))`.
@@ -29,3 +33,4 @@ Read `Documentation/SkillTypes/README.md`, then `Common.md`, then the type doc. 
 - The `SkillTable-{person,job,item,weapon}.c` tables have no SID guards; wrap any row you add.
 - `.lyn.event` files are committed build output, and some have hand edits (e.g. `Kernel/Wizardry/Lvup/Source/Levelup.lyn.event`). Check before regenerating.
 - `.claude/worktrees/` holds stale copies; grep with `--exclude-dir=.claude`. The shell's `grep` may skip gitignored files; use `/bin/grep` for generated headers.
+- `make clean` deletes tracked `.4bpp` files under `Contents/Gfx/Sources/` (its `Contents/Gfx/makefile` clean recipe removes every non-PNG); restore with `git checkout -- Contents/Gfx/Sources`.
