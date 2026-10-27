@@ -10505,4 +10505,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_MinusStrike) && COMMON_SKILL_VALID(SID_MinusStrike))
+    [SID_MinusStrike] = {
+        .name = MSG_SKILL_MinusStrike_NAME,
+        .desc = MSG_SKILL_MinusStrike_DESC,
+        .capacity = MSG_SKILL_MinusStrike_CAPACITY,
+        .price = MSG_SKILL_MinusStrike_PRICE,
+        .icon = GFX_SkillIcon_MinusStrike,
+        .iconPal = 0,
+    },
+#endif
+
 };

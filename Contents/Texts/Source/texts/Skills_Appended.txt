@@ -54,3 +54,10 @@ Undo[X]
 Undo:[N]
 Once per map, recover the HP and[N]
 MP lost in a battle you survive.[X]
+
+## MSG_SKILL_MinusStrike_NAME
+Minus Strike[X]
+## MSG_SKILL_MinusStrike_DESC
+Minus Strike:[N]
+Weapon might is replaced by[N]
+max HP minus current HP.[X]
