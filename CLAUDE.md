@@ -5,6 +5,7 @@ FE8U C-SkillSystem buildfile. C is built with devkitARM, turned into `.lyn.event
 ## Build
 
 - `make` builds `fe8-kernel-dev.gba` from a clean `fe8.gba` at the repo root. It needs `DEVKITPRO`/`DEVKITARM` set (see `Documentation/Setup.md`).
+- Cloud sessions: `.claude/hooks/session-start.sh` sets up a devkitPro stand-in, the `gbarun` emulator runner and `fe8.gba` (from the user's uploads). Build with `Tools/cloud/build.sh`, not plain `make`. See `Tools/cloud/README.md`.
 - Build flags: `configs.mk`. Compile-time switches: `include/configs/configs.h`. Runtime toggles: `Data/DesignerConfig/designer-config.c` (struct name is spelled `KernelDesigerConfig`).
 - To compile one file by hand, use `$DEVKITARM/bin/arm-none-eabi-gcc`, not the system gcc.
 
@@ -33,3 +34,6 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - The `SkillTable-{person,job,item,weapon}.c` tables have no SID guards; wrap any row you add.
 - `.lyn.event` files are committed build output, and some have hand edits (e.g. `Kernel/Wizardry/Lvup/Source/Levelup.lyn.event`). Check before regenerating.
 - `.claude/worktrees/` holds stale copies; grep with `--exclude-dir=.claude`. The shell's `grep` may skip gitignored files; use `/bin/grep` for generated headers.
+- Two `.lyn.event` files need a hand fix after regenerating: `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.lyn.event` line 53 must be `WORD $8049789` (not `POIN sub_8049788`), and `Kernel/Wizardry/ItemSys/Source/StaffHeal.lyn.event` line 85 must be `WORD $8033259` (not `POIN GetPlayerLeaderUnitId`).
+- Don't add code to `MiscFunctions.c`: its regenerated `.lyn.event` gains a `Sprite_PrepInformation` hook that `Tools/scripts/lynjump-detector.sh` rejects. Put new code in its own file.
+- Emulator save states are tied to one ROM build; boot again after rebuilding.
