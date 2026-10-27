@@ -14,6 +14,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/Forging.h"
+#include "kernel/traps.h"
 
 #define PACKED __attribute__((packed))
 
@@ -3268,31 +3269,22 @@ void ViewPortraitIdle(DebuggerProc* proc)
 
 #define TrapViewWidth 10
 
-enum {
-    DEBUGGER_TRAP_PAL_DEFAULT,
-    DEBUGGER_TRAP_PAL_MAP,
-    DEBUGGER_TRAP_PAL_GRASS,
-    DEBUGGER_TRAP_PAL_BOULDER,
-    DEBUGGER_TRAP_PAL_SPIN,
-};
-
 struct DebuggerTrapViewDef {
     u8 type;
     u8 spriteId;
-    u8 paletteKind;
     u8 defaultExtra;
     s8 defaultData0;
     const char *name;
 };
 
 static const struct DebuggerTrapViewDef sDebuggerTrapViewDefs[] = {
-    { TRAP_LIGHT_RUNE, 0x66, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Light Rune" },
-    { TRAP_HEAL_TILE, 0x68, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Heal" },
-    { TRAP_TOGGLE_TORCH, 0x6A, DEBUGGER_TRAP_PAL_MAP, 1, 0, "Torch" },
-    { TRAP_TELEPORT_TILE, 0x6C, DEBUGGER_TRAP_PAL_MAP, 0, 0, "Teleport" },
-    { TRAP_GRASS_TILE, 0x6D, DEBUGGER_TRAP_PAL_GRASS, 0, 0, "Grass" },
-    { TRAP_BOULDER_TILE, 0x6E, DEBUGGER_TRAP_PAL_BOULDER, 0, 0, "Boulder" },
-    { TRAP_SPIN_TILE, 0x6F, DEBUGGER_TRAP_PAL_SPIN, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
+    { TRAP_LIGHT_RUNE, 0x66, 0, 0, "Light Rune" },
+    { TRAP_HEAL_TILE, 0x68, 0, 0, "Heal" },
+    { TRAP_TOGGLE_TORCH, 0x6A, 1, 0, "Torch" },
+    { TRAP_TELEPORT_TILE, 0x6C, 0, 0, "Teleport" },
+    { TRAP_GRASS_TILE, 0x6D, 0, 0, "Grass" },
+    { TRAP_BOULDER_TILE, 0x6E, 0, 0, "Boulder" },
+    { TRAP_SPIN_TILE, 0x6F, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
 };
 
 static int GetDebuggerTrapViewDefCount(void)
@@ -3306,50 +3298,6 @@ static const struct DebuggerTrapViewDef *GetDebuggerTrapViewDef(int index)
         return NULL;
 
     return &sDebuggerTrapViewDefs[index];
-}
-
-static u16 GetDebuggerTrapPreviewPalette(u16 oam2, const struct Trap *trap, const struct DebuggerTrapViewDef *def)
-{
-    if (!def)
-        return oam2;
-
-    switch (def->paletteKind) {
-    case DEBUGGER_TRAP_PAL_MAP:
-        if (!trap)
-            return oam2;
-
-        switch (GetTrapMapSpritePalette(trap)) {
-        case TRAP_MAPSPRITE_PAL_LIGHT_RUNE:
-            return (oam2 & 0x0FFF) | 0xB000;
-
-        case TRAP_MAPSPRITE_PAL_PLAYER:
-            return (oam2 & 0x0FFF) | 0xC000;
-
-        case TRAP_MAPSPRITE_PAL_ENEMY:
-            return (oam2 & 0x0FFF) | 0xD000;
-
-        case TRAP_MAPSPRITE_PAL_NPC:
-            return (oam2 & 0x0FFF) | 0xE000;
-
-        case TRAP_MAPSPRITE_PAL_GREY:
-            return (oam2 & 0x0FFF) | 0xF000;
-
-        default:
-            return oam2;
-        }
-
-    case DEBUGGER_TRAP_PAL_GRASS:
-        return (oam2 & 0x0FFF) | (9 << 12);
-
-    case DEBUGGER_TRAP_PAL_BOULDER:
-        return (oam2 & 0x0FFF) | (10 << 12);
-
-    case DEBUGGER_TRAP_PAL_SPIN:
-        return (oam2 & 0x0FFF) | (8 << 12);
-
-    default:
-        return oam2;
-    }
 }
 
 static int GetDebuggerTrapPreviewSpriteId(const struct Trap *trap, const struct DebuggerTrapViewDef *def)
@@ -3406,8 +3354,11 @@ static void DisplayTrapPreview(DebuggerProc *proc)
         trap = &fallback;
     }
 
-    oam2 = UseUnitSprite(GetDebuggerTrapPreviewSpriteId(trap, def)) - 0x5000 + 0x80;
-    oam2 = GetDebuggerTrapPreviewPalette(oam2, trap, def);
+    /* The previewed trap may not be on the map yet, so its palette may not be loaded */
+    LoadTrapMapSpritePalette(trap->type);
+
+    oam2 = ((UseUnitSprite(GetDebuggerTrapPreviewSpriteId(trap, def)) + 0x80) & 0x0FFF)
+        | (GetTrapMapSpriteObjPal(trap) << 12);
     PutSprite(0, 23 * 8, 10 * 8, gObject_16x16, oam2);
 }
 

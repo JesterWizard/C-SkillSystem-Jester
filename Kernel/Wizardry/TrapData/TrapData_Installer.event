@@ -82,7 +82,6 @@ POP
 #define Gfx_Boulder_Tile_ID 0x6E
 
 Gfx_Boulder_Tile: #incext Png2Dmp "images/Boulder_Tile.png" --lz77
-Pal_Boulder_Tile: #incext Png2Dmp "images/Boulder_Tile.png" --palette-only
 
 PUSH
 	ORG (0x8AF880+0x8*Gfx_Boulder_Tile_ID)

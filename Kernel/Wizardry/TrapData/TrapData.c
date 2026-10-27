@@ -674,8 +674,8 @@ struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette)
 
 void AddTeleportTilePair(int x1, int y1, int x2, int y2)
 {
-    AddTeleportTile(x1, y1, x2, y2, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
-    AddTeleportTile(x2, y2, x1, y1, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+    AddTeleportTile(x1, y1, x2, y2, TRAP_MAPSPRITE_PAL_DEFAULT);
+    AddTeleportTile(x2, y2, x1, y1, TRAP_MAPSPRITE_PAL_DEFAULT);
 }
 
 LYN_REPLACE_CHECK(AddLightRune);

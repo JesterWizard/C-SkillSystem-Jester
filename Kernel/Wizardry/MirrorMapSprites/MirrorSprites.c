@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "common-chax.h"
 #include "kernel/chatlog.h"
+#include "kernel/traps.h"
 
 extern int gSMSSyncFlag;
 extern UnitIconWait unit_icon_wait_table[];
@@ -11,11 +12,9 @@ extern struct SMSHandle* gSMSHandleIt;
 extern u32 gMirrorSpriteOptions;
 extern int GetDangerBonesShakeOffset(int shaking);
 extern u16 Pal_Grass_Tile[];
-extern u16 Pal_Boulder_Tile[];
 extern u16 Pal_Spin_Tile[];
 
 #define GRASS_TRAP_OBJ_PAL 9
-#define BOULDER_TRAP_OBJ_PAL 10
 #define SPIN_TRAP_OBJ_PAL 8
 
 enum {
@@ -43,42 +42,49 @@ const u16 gObject_32x32_HFlipped[] =
     1, OAM0_SHAPE_32x32, OAM1_SIZE_32x32 + OAM1_HFLIP, 0,
 };
 
-static u16 ApplyTrapSpritePalette(u16 oam2Base, const struct Trap *trap)
-{
-    switch (GetTrapMapSpritePalette(trap)) {
-    case TRAP_MAPSPRITE_PAL_LIGHT_RUNE:
-        return (oam2Base & 0x0FFF) | 0xB000;
+/* Map sprite OBJ palette banks: trap art is indexed against the shared unit palette (banks C-F) */
+#define LIGHT_RUNE_OBJ_PAL 0xB
+#define PLAYER_OBJ_PAL 0xC
 
+int GetTrapMapSpriteObjPal(const struct Trap *trap)
+{
+    int nativePal = PLAYER_OBJ_PAL;
+
+    switch (trap->type) {
+    case TRAP_GRASS_TILE:
+        return GRASS_TRAP_OBJ_PAL;
+
+    case TRAP_SPIN_TILE:
+        return SPIN_TRAP_OBJ_PAL;
+
+    case TRAP_LIGHT_RUNE:
+        nativePal = LIGHT_RUNE_OBJ_PAL;
+        break;
+    }
+
+    switch (GetTrapMapSpritePalette(trap)) {
     case TRAP_MAPSPRITE_PAL_PLAYER:
-        return (oam2Base & 0x0FFF) | 0xC000;
+        return PLAYER_OBJ_PAL;
 
     case TRAP_MAPSPRITE_PAL_ENEMY:
-        return (oam2Base & 0x0FFF) | 0xD000;
+        return 0xD;
 
     case TRAP_MAPSPRITE_PAL_NPC:
-        return (oam2Base & 0x0FFF) | 0xE000;
+        return 0xE;
 
     case TRAP_MAPSPRITE_PAL_GREY:
-        return (oam2Base & 0x0FFF) | 0xF000;
+        return 0xF;
 
+    /* Only the light rune's own art is indexed for the light rune bank */
+    case TRAP_MAPSPRITE_PAL_LIGHT_RUNE:
     default:
-        return oam2Base;
+        return nativePal;
     }
 }
 
-static u16 ApplyGrassTrapSpritePalette(u16 oam2Base)
+static u16 GetTrapSpriteOam2(int spriteId, const struct Trap *trap)
 {
-    return (oam2Base & 0x0FFF) | (GRASS_TRAP_OBJ_PAL << 12);
-}
-
-static u16 ApplyBoulderTrapSpritePalette(u16 oam2Base)
-{
-    return (oam2Base & 0x0FFF) | (BOULDER_TRAP_OBJ_PAL << 12);
-}
-
-static u16 ApplySpinTrapSpritePalette(u16 oam2Base)
-{
-    return (oam2Base & 0x0FFF) | (SPIN_TRAP_OBJ_PAL << 12);
+    return ((UseUnitSprite(spriteId) + 0x80) & 0x0FFF) | (GetTrapMapSpriteObjPal(trap) << 12);
 }
 
 static int GetSpinTrapSpriteId(const struct Trap *trap)
@@ -114,20 +120,68 @@ static bool IsTrapSpritePaletteLoaded(const u16 *pal, int bank)
     return true;
 }
 
+static bool MapHasTrapType(int type)
+{
+    struct Trap *trap;
+
+    for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++)
+        if (trap->type == type)
+            return true;
+
+    return false;
+}
+
+static const u16 *GetTrapCustomSpritePalette(int type, int *bank)
+{
+    switch (type) {
+    case TRAP_GRASS_TILE:
+        *bank = GRASS_TRAP_OBJ_PAL;
+        return Pal_Grass_Tile;
+
+    case TRAP_SPIN_TILE:
+        *bank = SPIN_TRAP_OBJ_PAL;
+        return Pal_Spin_Tile;
+
+    default:
+        return NULL;
+    }
+}
+
+/* Uploads the dedicated OBJ palette bank of a trap type that has one, if it isn't already there */
+void LoadTrapMapSpritePalette(int type)
+{
+    int bank;
+    const u16 *pal = GetTrapCustomSpritePalette(type, &bank);
+
+    if (pal && !IsTrapSpritePaletteLoaded(pal, 0x10 + bank))
+        ApplyPalette(pal, 0x10 + bank);
+}
+
+static bool TrapSpritePaletteMissing(int type)
+{
+    int bank;
+    const u16 *pal = GetTrapCustomSpritePalette(type, &bank);
+
+    return !IsTrapSpritePaletteLoaded(pal, 0x10 + bank) && MapHasTrapType(type);
+}
+
 static void ReloadCustomTrapSpritePalettes(void)
 {
-    /* Runs every frame: only re-upload (and resync the whole palette) when something overwrote them */
-    if (IsTrapSpritePaletteLoaded(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL)
-        && IsTrapSpritePaletteLoaded(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL)
-        && IsTrapSpritePaletteLoaded(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL))
+    /**
+     * Runs every frame. Banks 8/9 are shared with faces and map anim MUs,
+     * so only claim one while a trap that draws with it is on the map.
+     */
+    bool grass = TrapSpritePaletteMissing(TRAP_GRASS_TILE);
+    bool spin = TrapSpritePaletteMissing(TRAP_SPIN_TILE);
+
+    if (!(grass || spin) || IsTalkActive())
         return;
 
-    if (IsTalkActive())
-        return;
+    if (grass)
+        LoadTrapMapSpritePalette(TRAP_GRASS_TILE);
 
-    ApplyPalette(Pal_Grass_Tile, 0x10 + GRASS_TRAP_OBJ_PAL);
-    ApplyPalette(Pal_Boulder_Tile, 0x10 + BOULDER_TRAP_OBJ_PAL);
-    ApplyPalette(Pal_Spin_Tile, 0x10 + SPIN_TRAP_OBJ_PAL);
+    if (spin)
+        LoadTrapMapSpritePalette(TRAP_SPIN_TILE);
 }
 
 static struct SMSHandle *AddTrapSprite(int xDisplay, int yDisplay)
@@ -265,22 +319,18 @@ void RefreshUnitSprites(void)
 
         if (trap->type == TRAP_LIGHT_RUNE)
         {
-            oam2 = UseUnitSprite(0x66) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x66, trap);
 
             smsHandle->config = GetInfo(0x66).size;
         }
 
         if (trap->type == TRAP_HEAL_TILE)
         {
-            oam2 = UseUnitSprite(0x68) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x68, trap);
 
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
@@ -289,51 +339,41 @@ void RefreshUnitSprites(void)
         {
             int spriteId = (trap->extra > 0) ? 0x6A : 0x6B;
 
-            oam2 = UseUnitSprite(spriteId) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(spriteId, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_TELEPORT_TILE)
         {
-            oam2 = UseUnitSprite(0x6C) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyTrapSpritePalette(oam2, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x6C, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_GRASS_TILE)
         {
-            oam2 = UseUnitSprite(0x6D) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyGrassTrapSpritePalette(oam2);
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x6D, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_BOULDER_TILE)
         {
-            oam2 = UseUnitSprite(0x6E) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplyBoulderTrapSpritePalette(oam2);
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x6E, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_SPIN_TILE)
         {
-            oam2 = UseUnitSprite(GetSpinTrapSpriteId(trap)) - 0x5000 + 0x80;
-
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = ApplySpinTrapSpritePalette(oam2);
+            smsHandle->oam2Base = GetTrapSpriteOam2(GetSpinTrapSpriteId(trap), trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }

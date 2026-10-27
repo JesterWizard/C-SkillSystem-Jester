@@ -20,10 +20,11 @@ extern const u16 MenuTilesPalette_Parchment[];
 
 int GetUIPalID(void);
 
-/* OBJ palette 15 is reserved by the engine for grayed map sprites.
- * Keep the minimug digits on a free palette bank so acted player units
- * continue using the vanilla gray palette correctly. */
-#define MMB_NUMBER_OBJ_PAL 11
+/* OBJ palette 15 is reserved by the engine for grayed map sprites, and 11
+ * holds the light rune palette. Share bank 3 with the path arrow instead:
+ * the arrow reloads its palette whenever a unit is selected, and the
+ * minimug box is closed while the arrow is shown. */
+#define MMB_NUMBER_OBJ_PAL 3
 #define MMBHeight 6
 #define MMBWidth 16
 

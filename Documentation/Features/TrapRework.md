@@ -86,8 +86,8 @@ Palette handling summary:
 
 - `TRAP_LIGHT_RUNE` stores its palette in `trap->extra`.
 - `TRAP_HEAL_TILE`, `TRAP_TOGGLE_TORCH`, and `TRAP_TELEPORT_TILE` store their palette in trap extdata.
-- `TRAP_GRASS_TILE` uses a dedicated custom OBJ palette path instead of the shared trap palette enum.
-- `TRAP_BOULDER_TILE` also uses a dedicated custom OBJ palette path instead of the shared trap palette enum.
+- `TRAP_GRASS_TILE` and `TRAP_SPIN_TILE` use dedicated custom OBJ palette banks instead of the shared trap palette enum.
+- `TRAP_BOULDER_TILE` has no palette selector; its art is indexed against the shared map sprite palette and always draws in the player bank.
 - `SetTrapMapSpritePalette(...)` sanitizes out-of-range values and falls back to `TRAP_MAPSPRITE_PAL_DEFAULT`.
 
 ### LoadTrapData in TrapData.c
@@ -238,7 +238,7 @@ For event-driven trap placement, call the trap constructor directly inside your 
 | One-way teleport tile | `AddTeleportTile(x, y, destX, destY, palette)` | Create a single teleport tile that sends units from `(x, y)` to `(destX, destY)` with a selected sprite palette |
 | Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite |
 | Grass tile | `AddGrassTile(x, y, turnsLeft)` | Create a grass trap tile that draws with `Pal_Grass_Tile`, behaves like forest terrain, and optionally expires after `turnsLeft` turns (`0` = permanent) |
-| Boulder tile | `AddBoulderTile(x, y)` | Create a movable boulder trap that blocks non-fliers, renders with `Pal_Boulder_Tile`, and can be pushed with the `Interact` command |
+| Boulder tile | `AddBoulderTile(x, y)` | Create a movable boulder trap that blocks non-fliers, renders with the shared map sprite palette, and can be pushed with the `Interact` command |
 | Spin tile | `AddSpinTile(x, y, direction)` | Create a directional shove tile that halts grounded movement on contact and then follows connected spin tiles one step at a time until the chain ends or a landing tile is blocked |
 
 Runtime example from chapter ASMC code:
@@ -273,7 +273,7 @@ This creates:
 - a teleport tile at `(1, 1)` that sends the unit to `(3, 3)`
 - a teleport tile at `(3, 3)` that sends the unit back to `(1, 1)`
 
-`AddTeleportTilePair(...)` currently applies the light rune palette to both tiles internally. Use `AddTeleportTile(...)` directly if you want one-way teleport behavior with an explicit palette choice.
+`AddTeleportTilePair(...)` uses `TRAP_MAPSPRITE_PAL_DEFAULT` for both tiles. Use `AddTeleportTile(...)` directly if you want one-way teleport behavior with an explicit palette choice.
 
 ### Chapter-start usage in TrapData arrays
 
@@ -310,8 +310,8 @@ Available palette constants:
 
 | Palette constant | Visual intent |
 | -------- | ---------- |
-| `TRAP_MAPSPRITE_PAL_DEFAULT` | Use the sprite's original/default palette |
-| `TRAP_MAPSPRITE_PAL_LIGHT_RUNE` | Use the light-rune palette bank |
+| `TRAP_MAPSPRITE_PAL_DEFAULT` | Use the sprite's own palette: the light-rune bank for light runes, the player bank for every other trap |
+| `TRAP_MAPSPRITE_PAL_LIGHT_RUNE` | Use the light-rune palette bank. Only light rune art is indexed for this bank, so other traps treat it as `DEFAULT` |
 | `TRAP_MAPSPRITE_PAL_PLAYER` | Use the player/blue palette bank |
 | `TRAP_MAPSPRITE_PAL_ENEMY` | Use the enemy/red palette bank |
 | `TRAP_MAPSPRITE_PAL_NPC` | Use the NPC/green palette bank |
@@ -321,7 +321,9 @@ Where to set the palette:
 
 - Runtime constructors: pass the palette as the final argument to `AddHealTile`, `AddToggleTorch`, `AddTeleportTile`, and `AddLightRune`.
 - Chapter-start trap tables: use the `HEAL_TILE`, `TOGGLE_TORCH`, and `TELEPORT_TILE` helper macros with the palette constant as their final argument.
-- Paired teleport helper macros: `TELEPORT_TILE_PAIR` still defaults both entries to `TRAP_MAPSPRITE_PAL_DEFAULT`.
+- Paired teleport helpers: `TELEPORT_TILE_PAIR` and `AddTeleportTilePair` both use `TRAP_MAPSPRITE_PAL_DEFAULT`.
+
+The heal, torch, teleport and boulder PNGs must be indexed against the shared map sprite palette (the palette in `Heal_Tile.png`, which matches the player bank). Recoloring works by swapping that palette for the enemy/NPC/grey bank, so a color that is not one of those 16 entries cannot be recolored and will draw wrong.
 
 Examples:
 
@@ -408,7 +410,7 @@ Behavior summary:
 - Runtime API: `AddBoulderTile(x, y)`
 - Chapter-start macro: `BOULDER_TILE(x, y)`
 - Sprite source: `Gfx_Boulder_Tile`
-- Palette source: `Pal_Boulder_Tile`
+- Palette source: the shared map sprite palette (OBJ bank `0xC`); the PNG is indexed against it, so no dedicated bank is needed
 - Movement rule: non-fliers treat the tile as blocked in movement-map generation and generic position checks
 - Interaction rule: the `Interact` command can push an adjacent boulder directly away from the acting unit
 - Push range: `floor(GetUnitPower(unit) / 10)` tiles, capped by the first blocked destination in that direction
@@ -546,8 +548,8 @@ Implementation notes:
 - `UseUnitSprite(id)` must match the ID installed in `TrapData_Installer.event`.
 - The subtraction term (`-0x5000` or `-0x4000`) depends on sprite source conventions already used in this file; match an existing trap pattern for consistency.
 - `smsHandle->config` controls shape/size; use an existing trap's config as your baseline.
-- Palette remapping is applied through `ApplyTrapSpritePalette(...)`, which reads the stored palette via `GetTrapMapSpritePalette(...)`.
-- The grass and boulder traps are the current exceptions: they use dedicated OBJ palette banks loaded from `Pal_Grass_Tile` and `Pal_Boulder_Tile` rather than the shared trap palette remap enum.
+- Build the OAM2 value with `GetTrapSpriteOam2(spriteId, trap)`. It picks the OBJ palette bank through `GetTrapMapSpriteObjPal(...)`, which reads the stored palette via `GetTrapMapSpritePalette(...)`.
+- The grass and spin traps are the current exceptions: they use dedicated OBJ palette banks (9 and 8) loaded from `Pal_Grass_Tile` and `Pal_Spin_Tile`. Those banks are shared with portraits and map battle MUs, so `ReloadCustomTrapSpritePalettes` only loads one while a trap of that type is on the map.
 
 ## Code Locations
 
@@ -576,9 +578,8 @@ Implementation notes:
 | Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
 | Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
 | Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
-| Trap map sprite palette remap | `ApplyTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps stored trap palette choices onto SMS OAM palette bits |
-| Grass trap custom palette draw | `ApplyGrassTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws the grass trap with `Pal_Grass_Tile` in a dedicated OBJ palette bank |
-| Boulder trap custom palette draw | `ApplyBoulderTrapSpritePalette` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws the boulder trap with `Pal_Boulder_Tile` in a dedicated OBJ palette bank |
+| Trap map sprite palette bank | `GetTrapMapSpriteObjPal` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps a trap's type and stored palette choice onto an OBJ palette bank (also used by the debugger's trap preview) |
+| Grass/spin trap custom palettes | `LoadTrapMapSpritePalette` and `ReloadCustomTrapSpritePalettes` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Loads `Pal_Grass_Tile`/`Pal_Spin_Tile` into their dedicated OBJ banks while such a trap is on the map |
 | Trap map sprite draw loop | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Adds trap sprites to SMS/OAM handle list and applies trap palette selection |
 | Light rune menu skill usage | `Kernel/Wizardry/SkillEffects/MenuSkills/LightRune.c` | Example runtime light-rune placement using an explicit palette |
 | Example chapter ASMC usage | `CustomCampaign/Chapters/00/events/asmc.h` | Example runtime placement using `AddGrassTile(3, 3, 3)` |
@@ -594,8 +595,8 @@ Implementation notes:
 
 ## Limitations & Bugs
 
-- `AddTeleportTilePair(...)` does not currently take a palette parameter; it uses the light rune palette internally.
-- `TELEPORT_TILE_PAIR(...)` still defaults to `TRAP_MAPSPRITE_PAL_DEFAULT`, so pair helpers and runtime pair creation do not currently share the same palette default.
+- `AddTeleportTilePair(...)` and `TELEPORT_TILE_PAIR(...)` do not take a palette parameter; both use `TRAP_MAPSPRITE_PAL_DEFAULT`.
+- Grass and spin traps use OBJ banks 9 and 8, which are also used by the third and fourth portrait slots and by special map battle MUs (Manakete). While one of those traps is on the map, a map battle with a special MU can show its palette wrong.
 - `REPEAT_HOUSE(x, y, exp)` stores the EXP reward in the trap's `extra` field, so a value of `0` intentionally means "use the default EXP" rather than "award nothing".
 - Repeat house rewards only trigger from the visit action, so scripts or alternate unit actions that end on the tile will not award EXP unless they also set `UNIT_ACTION_VISIT`.
 - Grass trap lifetime is stored in a signed extdata byte, so keep `turnsLeft` within normal trap-duration ranges.

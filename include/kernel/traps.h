@@ -7,6 +7,8 @@ void GenerateArrowTrapTargets(int x, int y, int damage);
 void GenerateGasTrapTargets(int x, int y, int damage, int facing);
 int GetTrapMapSpritePalette(const struct Trap *trap);
 void SetTrapMapSpritePalette(struct Trap *trap, int palette);
+int GetTrapMapSpriteObjPal(const struct Trap *trap);
+void LoadTrapMapSpritePalette(int type);
 struct Trap* AddTeleportTile(int x, int y, int destX, int destY, int palette);
 struct Trap* AddSpinTile(int x, int y, int direction);
 void AddTeleportTilePair(int x1, int y1, int x2, int y2);
