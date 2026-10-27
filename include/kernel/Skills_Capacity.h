@@ -959,3 +959,4 @@
 #define MSG_SKILL_MinusStrike_CAPACITY 1
 #define MSG_SKILL_LastResort_CAPACITY 1
 #define MSG_SKILL_SpinForGold_CAPACITY 1
+#define MSG_SKILL_SpinForLuck_CAPACITY 1

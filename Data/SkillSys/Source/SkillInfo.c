@@ -10538,4 +10538,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SpinForLuck) && COMMON_SKILL_VALID(SID_SpinForLuck))
+    [SID_SpinForLuck] = {
+        .name = MSG_SKILL_SpinForLuck_NAME,
+        .desc = MSG_SKILL_SpinForLuck_DESC,
+        .capacity = MSG_SKILL_SpinForLuck_CAPACITY,
+        .price = MSG_SKILL_SpinForLuck_PRICE,
+        .icon = GFX_SkillIcon_SpinForLuck,
+        .iconPal = 0,
+    },
+#endif
+
 };
