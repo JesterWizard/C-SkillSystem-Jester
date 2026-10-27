@@ -324,6 +324,7 @@ void GenerateSummonUnitDef(void)
         if (unit) {
             unit->level = gActiveUnit->level;
             unit->exp   = UNIT_EXP_DISABLED;
+            unit->ranks[ITYPE_STAFF] = gActiveUnit->index; /* summoner, for SummonLevelSync */
         }
 
         gActionData.unk08 = 0;
@@ -424,11 +425,11 @@ void GenerateSummonUnitDef(void)
                 SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_B);
             else
                 SetUnitWeaponExp(unit, ITYPE_AXE, WPN_EXP_A);
-        }
 
-        /* This is for gpKernelDesignerConfig->summons_gain_exp */
-        /* Store the summoner index in an unused byte slot for tramsferring EXP */
-        unit->ranks[ITYPE_STAFF] = gActiveUnit->index;
+            /* This is for gpKernelDesignerConfig->summons_gain_exp */
+            /* Store the summoner index in an unused byte slot for tramsferring EXP */
+            unit->ranks[ITYPE_STAFF] = gActiveUnit->index;
+        }
     }
 #endif
 }
