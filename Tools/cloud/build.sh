@@ -1,5 +1,5 @@
 #!/bin/bash
-# Cloud build wrapper: builds fe8-kernel-dev.gba with the Ubuntu arm-none-eabi toolchain and the Python grit stand-in that .claude/hooks/session-start.sh sets up. Committed generated files (tracked .lyn.event files and those in protected-outputs.txt) are marked old (make -o) unless their source changed, so a different compiler doesn't rewrite them. Prints errors, kernel text size, compiled files and BUILD rc=N.
+# Cloud build wrapper: builds fe8-kernel-dev.gba with the Ubuntu arm-none-eabi toolchain and the Python grit stand-in that .claude/hooks/session-start.sh sets up. Committed generated files (tracked .lyn.event files, tracked grit outputs of a tracked .png, and those in protected-outputs.txt) are marked old (make -o) unless their source changed, so a different compiler doesn't rewrite them. Prints errors, kernel text size, compiled files and BUILD rc=N.
 # ea-dep names some targets through "Dir/../" paths, so every spelling it uses is protected too.
 ROOT=$(git rev-parse --show-toplevel)
 HERE="$ROOT/Tools/cloud"
@@ -18,11 +18,25 @@ changed = set(l[3:].strip() for l in subprocess.run(['git', 'status', '--porcela
               capture_output=True, text=True).stdout.splitlines())
 tracked = set(subprocess.run(['git', 'ls-files', '*.lyn.event'], capture_output=True, text=True).stdout.split())
 tracked |= set(l.strip() for l in open(P) if l.strip() and not l.strip().endswith('.lyn.event'))
+# grit outputs of a tracked .png: gritshim.py output can differ from real grit, and a fresh clone's mtimes can make any .png look newer
+pngs = set(subprocess.run(['git', 'ls-files', '*.png'], capture_output=True, text=True).stdout.split())
+GRIT = ('.img.bin', '.map.bin', '.pal.bin', '.4bpp', '.4bpp.lz', '.gbapal', '.lz77')
+def png_of(p):
+    for e in GRIT:
+        if p.endswith(e) and p[:-len(e)] + '.png' in pngs:
+            return p[:-len(e)] + '.png'
+    return None
+tracked |= set(p for p in subprocess.run(['git', 'ls-files'] + ['*' + e for e in GRIT], capture_output=True, text=True).stdout.split()
+               if png_of(p))
+def source(p):
+    if p.endswith('.lyn.event'):
+        b = p[:-len('.lyn.event')]
+        return [b + '.c', b + '.s']
+    return [png_of(p)] if png_of(p) else []
 def protected(p):
     if p not in tracked or p in changed:
         return False
-    base = p[:-len('.lyn.event')] if p.endswith('.lyn.event') else None
-    return not (base and (base + '.c' in changed or base + '.s' in changed))
+    return not any(s in changed for s in source(p))
 deps = subprocess.run(['Tools/EventAssembler/ea-dep', 'main.event', '-I', 'Tools/EventAssembler', '--add-missings'],
                       capture_output=True, text=True).stdout.split()
 out = set(p for p in tracked if protected(p))
