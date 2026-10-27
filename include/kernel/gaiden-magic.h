@@ -4,6 +4,7 @@
 #include <kernel-lib.h>
 #include <list-verify.h>
 #include <battle-system.h>
+#include <constants/skills.h>
 
 struct GaidenPinfoConfigEnt { u8 level, iid; };
 struct GaidenPinfoConfig { const struct GaidenPinfoConfigEnt *ent; };
@@ -120,6 +121,7 @@ void DrawGaidenMagItemMenuLine(struct Text *text, int item, s8 isUsable, u16 *ma
 u8 GaidenBMagActionCommandUsability(const struct MenuItemDef *def, int number);
 int GaidenBMagActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *item);
 u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem);
+u8 StartGaidenBMagSpellMenu(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int GaidenBMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int GaidenBMagActionCommandUnhover(struct MenuProc *menu, struct MenuItemProc *menuItem);
 
@@ -160,6 +162,21 @@ extern struct GaidenMagicUsesEnt sGaidenMagicUsesPool[GAIDEN_MAGIC_USES_POOL_LEN
 static inline bool IsGaidenMagicUsesSystem(void)
 {
 	return gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_three_houses;
+}
+
+/*
+ * Group Cast: the active unit is casting a B.Mag spell at double cost. The
+ * flag lives in gActionData.unk08 from the Group Cast command until the end
+ * of the action. Units are compared by index because battle code passes a
+ * copy of the unit.
+ */
+static inline bool IsGroupCastActive(struct Unit *unit)
+{
+#if defined(SID_GroupCast) && (COMMON_SKILL_VALID(SID_GroupCast))
+	return gActionData.unk08 == SID_GroupCast && unit && gActiveUnit && unit->index == gActiveUnit->index;
+#else
+	return false;
+#endif
 }
 
 int GetGaidenMagicMaxUses(struct Unit *unit, int item);

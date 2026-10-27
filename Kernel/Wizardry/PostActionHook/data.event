@@ -44,6 +44,7 @@ gPostActionFuncs:
     POIN ResetComboAtkList
     POIN PostAction_Guarantee
     POIN PostAction_Insurance
+    POIN PostAction_GroupCast
 
     //End
     POIN CallExternalPostActionHook

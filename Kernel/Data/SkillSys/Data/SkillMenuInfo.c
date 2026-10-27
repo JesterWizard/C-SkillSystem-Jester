@@ -1485,4 +1485,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_GroupCast) && COMMON_SKILL_VALID(SID_GroupCast))
+    [SID_GroupCast] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_GroupCast_NAME,
+        .helpMsgId = MSG_SKILL_GroupCast_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = GroupCast_Usability,
+        .onDraw = NULL,
+        .onSelected = GroupCast_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

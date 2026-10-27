@@ -108,6 +108,10 @@ u8 GaidenWMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *men
 {
 	struct MenuProc *sub_menu;
 
+	/* Staves are never a Group Cast, even after a cancelled one */
+	if (IsGroupCastActive(gActiveUnit))
+		gActionData.unk08 = 0;
+
 	if (menuItem->availability == MENU_DISABLED) {
 		MenuFrozenHelpBox(menu, MSG_0851);
 		return MENU_ACT_SND6B;
