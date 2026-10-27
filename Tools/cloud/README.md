@@ -17,7 +17,9 @@ Tools for Claude Code cloud sessions. Local machines use the normal devkitARM se
 
 The hook does this:
 
-- Installs missing apt packages: `gcc-arm-none-eabi`, `binutils-arm-none-eabi`, `libnewlib-arm-none-eabi`, `libmgba-dev`, `libpng-dev`.
+- Installs missing apt packages: `gcc-arm-none-eabi`, `binutils-arm-none-eabi`, `libnewlib-arm-none-eabi`, `libmgba-dev`, `libpng-dev`, `gawk`, `moreutils`.
+  - `gawk` replaces the default `mawk` as `awk`. `Tools/scripts/lynjump-protector.sh` uses `strtonum`, which only gawk has. Under mawk every regenerated `.lyn.event` gets broken `PROTECT 0x... 0x... + 0x` lines and Event Assembler fails with `Expected identifier or literal, got ERROR: 0x.`.
+  - `moreutils` provides `sponge`, which the makefile uses for the `.sym` step. Without it the build fails with Error 127 after the ROM is built.
 - Installs Pillow if it is missing.
 - Builds a devkitPro stand-in in `~/.cache/c-skillsys/devkitpro`:
   - `devkitARM/bin` holds symlinks to the Ubuntu `arm-none-eabi-*` tools.
@@ -25,6 +27,9 @@ The hook does this:
 - Compiles `Tools/cloud/gbarun.c` to `~/.cache/c-skillsys/gbarun` and puts it on `PATH`.
 - Exports `DEVKITPRO`, `DEVKITARM` and `PATH` for the session.
 - Clones the pinned `Tools/check_patch` and `Tools/FE-PyTools` checkouts. They are gitlinks with no `.gitmodules`, so a fresh clone leaves them empty.
+- Fetches `fireemblem8.ref.o`, `fireemblem8.ref.s` and `fireemblem8.sym` into `Tools/FE-CLib-Mokha/reference/`. The makefile needs them, but `.gitignore` excludes them, so a clone has no `reference/` dir. Without them the build stops with `No rule to make target 'Tools/FE-CLib-Mokha/reference/fireemblem8.sym'`.
+  - They come from upstream [FE-CLib-Mokha](https://github.com/MokhaLeee/FE-CLib-Mokha) at the commit in `CLIB_REF_SHA` in the hook. They are cached in `~/.cache/c-skillsys`.
+  - The pin is `3503999` (2025-04-10). Its headers are closest to the vendored `Tools/FE-CLib-Mokha/include`, and it defines every vanilla symbol the repo's C code uses. Newer upstream commits rename symbols (e.g. `GetPlayerLeaderUnitId`), which breaks regenerating some `.lyn.event` files. Bump the pin only together with the vendored headers.
 - Copies `fe8.gba` from the user's uploads if `fe8.gba` is missing.
 
 ROM note:
@@ -42,7 +47,8 @@ Why:
 
 - The Ubuntu compiler makes different `.lyn.event` output than devkitARM.
 - A plain `make` would rewrite the committed `.lyn.event` files.
-- `build.sh` marks every tracked `.lyn.event` file, and every path in `protected-outputs.txt`, as up to date (`make -o`). A file is not protected if it is modified or if its `.c` or `.s` source is modified. A `.c` you edit still regenerates its own `.lyn.event`.
+- `build.sh` marks every tracked `.lyn.event` file, every path in `protected-outputs.txt`, and every tracked grit output of a tracked `.png` (`.img.bin`, `.map.bin`, `.pal.bin`, `.4bpp`, `.4bpp.lz`, `.gbapal`, `.lz77`) as up to date (`make -o`). A file is not protected if it is modified or if its `.c`, `.s` or `.png` source is modified. A `.c` or `.png` you edit still regenerates its own outputs.
+- The grit outputs need this because `gritshim.py` output can differ from real grit (e.g. the `Spell_b_012`/`Spell_b_039` CSA atlas maps), and a fresh clone's file times can make any `.png` look newer than its outputs.
 - After the build it restores `Kernel/Wizardry/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event`, which the build stamps.
 
 Output:
