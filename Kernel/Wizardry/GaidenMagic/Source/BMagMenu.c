@@ -91,7 +91,8 @@ int GaidenBMagActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *it
 	return 0;
 }
 
-u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem)
+/* Opens the B.Mag spell list. Group Cast sets its flag and calls this directly. */
+u8 StartGaidenBMagSpellMenu(struct MenuProc *menu, struct MenuItemProc *menuItem)
 {
 	struct MenuProc *sub_menu;
 
@@ -110,6 +111,15 @@ u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *men
 
 	ForceMenuItemPanel(sub_menu, gActiveUnit, 0xF, 0xB);
 	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem)
+{
+	/* A plain B.Mag cast is never a Group Cast, even after a cancelled one */
+	if (IsGroupCastActive(gActiveUnit))
+		gActionData.unk08 = 0;
+
+	return StartGaidenBMagSpellMenu(menu, menuItem);
 }
 
 int GaidenBMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem)

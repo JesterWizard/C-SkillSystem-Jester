@@ -27,3 +27,10 @@ Takeover:[N]
 Pay 100G per point of damage[N]
 dealt to an adjacent foe,[N]
 or 1000G against a boss.[X]
+
+## MSG_SKILL_GroupCast_NAME
+Group Cast[X]
+## MSG_SKILL_GroupCast_DESC
+Group Cast:[N]
+Pay double for a spell to also[N]
+hit every foe next to the target.[X]

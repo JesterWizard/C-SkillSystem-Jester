@@ -142,6 +142,10 @@ bool HasGaidenMagicUses(struct Unit *unit, int item)
 	if (!IsGaidenMagicUsesSystem())
 		return true;
 
+	/* Group Cast spends two uses */
+	if (IsGroupCastActive(unit))
+		return GetGaidenMagicUses(unit, item) >= 2;
+
 	return GetGaidenMagicUses(unit, item) != 0;
 }
 

@@ -514,6 +514,8 @@ u8 VictorySmite_Usability(const struct MenuItemDef *def, int number);
 u8 VictorySmite_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 Takeover_Usability(const struct MenuItemDef *def, int number);
 u8 Takeover_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 GroupCast_Usability(const struct MenuItemDef *def, int number);
+u8 GroupCast_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 Refuge_Usability(const struct MenuItemDef* def, int number);
 u8 Refuge_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
 u8 Replicate_Usability(const struct MenuItemDef* def, int number);

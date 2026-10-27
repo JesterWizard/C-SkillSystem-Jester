@@ -953,3 +953,4 @@
 #define MSG_SKILL_Guarantee_PRICE 1000
 #define MSG_SKILL_Insurance_PRICE 1000
 #define MSG_SKILL_Takeover_PRICE 1000
+#define MSG_SKILL_GroupCast_PRICE 1000
