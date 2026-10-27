@@ -58,6 +58,7 @@ STATIC_DECLAR void ProcPrepSkill2_InitScreen(struct ProcPrepSkill2 *proc)
 
 	Decompress(gpGfx_PrepSkillScreen2, (void *)0x06006000);
 	Decompress(gpGfx_PrepPickSkillScreen, (void *)0x06000440);
+	PrepSkill2_BuildHelpBoxTopTiles();
 
 	Decompress(gpTsa_PrepSubPickSkillScreen, gGenericBuffer);
 	CallARM_FillTileRect(gBG1TilemapBuffer, gGenericBuffer, 0x1000);

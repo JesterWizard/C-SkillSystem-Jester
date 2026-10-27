@@ -193,6 +193,32 @@ void PutPrepSkill2PopupBox(int x, int y, int w, int h, int priority)
 	PrepItemDrawPopupBox(x, y, w, h, OAM2_PAL(OBJWINDOW_PAL) + OAM2_LAYER(priority) + OAM2_CHR(OBJWINDOW_VOBJ / 0x20));
 }
 
+/**
+ * The help box's top edge sits at the top of its tile row, so its tiles are
+ * the frame's bottom edge tiles mirrored over the window body.
+ */
+void PrepSkill2_BuildHelpBoxTopTiles(void)
+{
+	static const u8 src[5][2] = {
+		{ 0x1A, 0x06 },
+		{ 0x1B, 0x09 },
+		{ 0x1C, 0x09 },
+		{ 0x20, 0x09 },
+		{ 0x21, 0x0A },
+	};
+	u32 *vram = (u32 *)BG_VRAM;
+	int i, r;
+
+	for (i = 0; i < 5; i++) {
+		u32 *dst = vram + (0x2E + i) * 8;
+		const u32 *edge = vram + src[i][0] * 8;
+		const u32 *body = vram + src[i][1] * 8;
+
+		for (r = 0; r < 8; r++)
+			dst[r] = r < 5 ? edge[4 - r] : body[r];
+	}
+}
+
 void PrepSkill2_DrawLeftSkillIcon(struct ProcPrepSkill2 *proc)
 {
 	int x, y;
@@ -263,7 +289,7 @@ void PrepSkill2_DrawSkillDesc(struct ProcPrepSkill2 *proc)
 	int i;
 	const char *str;
 
-	const int X = 0x5;
+	const int X = 0x4;
 	const int Y = 0xD;
 
 	if (proc->hand_pos == POS_L) {
