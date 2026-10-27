@@ -47,3 +47,10 @@ Dragon Vein[X]
 Activate the Dragon Vein[N]
 under this unit. Each vein[N]
 can be used only once.[X]
+
+## MSG_SKILL_Undo_NAME
+Undo[X]
+## MSG_SKILL_Undo_DESC
+Undo:[N]
+Once per map, recover the HP and[N]
+MP lost in a battle you survive.[X]

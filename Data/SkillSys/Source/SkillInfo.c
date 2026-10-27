@@ -10494,4 +10494,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Undo) && COMMON_SKILL_VALID(SID_Undo))
+    [SID_Undo] = {
+        .name = MSG_SKILL_Undo_NAME,
+        .desc = MSG_SKILL_Undo_DESC,
+        .capacity = MSG_SKILL_Undo_CAPACITY,
+        .price = MSG_SKILL_Undo_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 };

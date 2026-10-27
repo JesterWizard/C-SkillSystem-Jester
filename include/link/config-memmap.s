@@ -296,6 +296,9 @@ _kernel_malloc2 sGaidenMagicLearnPopups, 12
 /* Magic/Physical Seal source positions, rebuilt at most once per frame (see MiscGetter.c) */
 _kernel_malloc2 sSealSourceCache, 0x48
 
+/* Undo skill: MP of both battle units when the real battle starts (struct UndoSnapshot) */
+_kernel_malloc2 gUndoSnapshot, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
