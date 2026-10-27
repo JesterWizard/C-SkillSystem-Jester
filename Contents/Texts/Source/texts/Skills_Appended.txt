@@ -81,3 +81,14 @@ You need 100G to spin.[X]
 Press A to stop![X]
 ## MSG_SKILL_SpinForGold_LOSE
 No luck...[X]
+
+## MSG_SKILL_SpinForLuck_NAME
+Spin For Luck[X]
+## MSG_SKILL_SpinForLuck_DESC
+Spin For Luck:[N]
+Pay 1000G to spin the wheel and[N]
+give its status to adjacent allies.[X]
+## MSG_SKILL_SpinForLuck_FRtext
+You need 1000G to spin.[X]
+## MSG_SKILL_SpinForLuck_PROMPT
+Press A to stop![X]
