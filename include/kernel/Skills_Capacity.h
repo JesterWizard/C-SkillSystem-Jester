@@ -948,3 +948,4 @@
 #define MSG_SKILL_LightProwess3_CAPACITY 1
 #define MSG_SKILL_LightProwess4_CAPACITY 1
 #define MSG_SKILL_LightProwess5_CAPACITY 1
+#define MSG_SKILL_VictorySmite_CAPACITY 1

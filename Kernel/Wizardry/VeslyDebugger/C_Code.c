@@ -1752,6 +1752,9 @@ void EditSupportsInit(DebuggerProc* proc) {
 }
 
 enum {
+    BWL_STAT_BATTLES,
+    BWL_STAT_WINS,
+    BWL_STAT_LOSSES,
     BWL_STAT_CURRENT_MP,
     BWL_STAT_MAX_MP,
     BWL_STAT_LAGUZ_BAR,
@@ -1763,11 +1766,25 @@ enum {
 #define BwlStatsWidth 10
 
 static const char *const sBwlStatNames[BWL_STAT_COUNT] = {
+    "Battles",
+    "Wins",
+    "Losses",
     "Cur. MP",
     "Max MP",
     "Laguz",
     "SP",
     "Prestige",
+};
+
+static const u16 sBwlStatMax[BWL_STAT_COUNT] = {
+    4000,
+    1000,
+    255,
+    255,
+    255,
+    255,
+    255,
+    3,
 };
 
 static void RedrawUnitBwlStatsMenu(DebuggerProc* proc)
@@ -1802,6 +1819,9 @@ void EditBwlStatsInit(DebuggerProc* proc)
     unit = proc->unit;
     bwl = GetNewBwl(UNIT_CHAR_ID(unit));
 
+    proc->tmp[BWL_STAT_BATTLES] = bwl ? bwl->battleAmt : 0;
+    proc->tmp[BWL_STAT_WINS] = bwl ? bwl->winAmt : 0;
+    proc->tmp[BWL_STAT_LOSSES] = bwl ? bwl->lossAmt : 0;
     proc->tmp[BWL_STAT_CURRENT_MP] = bwl ? bwl->currentMP : 0;
     proc->tmp[BWL_STAT_MAX_MP] = bwl ? bwl->maxMP : 0;
     proc->tmp[BWL_STAT_LAGUZ_BAR] = bwl ? bwl->laguzBar : 0;
@@ -1832,6 +1852,9 @@ static void SaveBwlStats(DebuggerProc* proc)
     if (!bwl)
         return;
 
+    bwl->battleAmt = proc->tmp[BWL_STAT_BATTLES];
+    bwl->winAmt = proc->tmp[BWL_STAT_WINS];
+    bwl->lossAmt = proc->tmp[BWL_STAT_LOSSES];
     bwl->currentMP = proc->tmp[BWL_STAT_CURRENT_MP];
     bwl->maxMP = proc->tmp[BWL_STAT_MAX_MP];
     bwl->laguzBar = proc->tmp[BWL_STAT_LAGUZ_BAR];
@@ -1857,7 +1880,7 @@ void EditBwlStatsIdle(DebuggerProc* proc)
     }
 
     if (proc->editing) {
-        int max = (proc->id == BWL_STAT_PRESTIGE) ? 3 : 255;
+        int max = sBwlStatMax[proc->id];
         int min = 0;
         int max_digits = GetMaxDigits(max, 0);
 

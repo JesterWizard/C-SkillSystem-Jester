@@ -10420,4 +10420,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_VictorySmite) && COMMON_SKILL_VALID(SID_VictorySmite))
+    [SID_VictorySmite] = {
+        .name = MSG_SKILL_VictorySmite_NAME,
+        .desc = MSG_SKILL_VictorySmite_DESC,
+        .capacity = MSG_SKILL_VictorySmite_CAPACITY,
+        .price = MSG_SKILL_VictorySmite_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
+
 };

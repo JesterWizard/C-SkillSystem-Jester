@@ -915,5 +915,6 @@
 #define SID_LightProwess3 0x38E
 #define SID_LightProwess4 0x38F
 #define SID_LightProwess5 0x390
+#define SID_VictorySmite 0x391
 
 #endif /* SKILLS_EVENT */

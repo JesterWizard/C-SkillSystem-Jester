@@ -1544,4 +1544,8 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
     [SID_Override] = {{10}},
 #endif
 
+#if (defined(SID_VictorySmite) && COMMON_SKILL_VALID(SID_VictorySmite))
+    [SID_VictorySmite] = {{1, 10}},
+#endif
+
 };

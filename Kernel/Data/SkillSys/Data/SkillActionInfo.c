@@ -370,4 +370,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Assemble) && COMMON_SKILL_VALID(SID_Assemble))
     [SID_Assemble] = Action_Assemble,
 #endif
+
+#if (defined(SID_VictorySmite) && COMMON_SKILL_VALID(SID_VictorySmite))
+    [SID_VictorySmite] = Action_VictorySmite,
+#endif
 };

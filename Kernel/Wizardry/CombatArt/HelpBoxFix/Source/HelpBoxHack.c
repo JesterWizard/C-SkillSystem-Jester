@@ -10,7 +10,7 @@
 #include "scene.h"
 #include "statscreen.h"
 
-extern u8 gUnknown_08A02274[]; /* Img_StatscreenObjs: slash 0x289, digits 0x28A+ */
+extern u8 gUnknown_08A02274[]; /* Img_StatscreenObjs: slash 0x288, digits 0x289+ */
 
 void HelpBoxResetPageState(void)
 {
@@ -185,6 +185,15 @@ void HelpBoxDrawPageIndicator(void)
 	sHelpBoxPageState.indicator_px = 22;
 }
 
+/* Tile offset from 0x289 for digit n (1-9); 7-9 sit 0x20 tiles further on, like PageNumCtrl_UpdatePageNum. */
+static int HelpBoxPageDigitOffset(int n)
+{
+	if (n <= 6)
+		return n - 1;
+
+	return n + 0x18;
+}
+
 void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 {
 	int x;
@@ -195,7 +204,7 @@ void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1)
 		return;
 
-	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + (page + 1) => "1" */
+	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + page => "1" on page 0 */
 	tot = sHelpBoxPageState.page_count;
 
 	/* Right side, same Y as the "Help" badge. */
@@ -205,10 +214,10 @@ void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 
 	oam2 = TILEREF(0x289, HELP_BOX_PAGE_NUM_OBJPAL);
 
-	/* Vanilla sheet: 0x289 = "/", 0x28A = "1", 0x28B = "2", ... */
-	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + cur + 1);
-	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2);
-	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + tot);
+	/* Status-screen sheet: 0x288 = "/", 0x289 = "1", 0x28A = "2", ... */
+	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + HelpBoxPageDigitOffset(cur + 1));
+	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2 - 1);
+	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + HelpBoxPageDigitOffset(tot));
 }
 
 void HelpBoxEnsurePageNumGfx(void)
@@ -218,7 +227,7 @@ void HelpBoxEnsurePageNumGfx(void)
 
 	/*
 	 * Status-screen object sheet (gUnknown_08A02274 / Img_StatscreenObjs):
-	 * slash at 0x289, digits from 0x28A ("1"). StartItemHelpBox never loads this.
+	 * slash at 0x288, digits from 0x289 ("1"). StartItemHelpBox never loads this.
 	 */
 	Decompress(gUnknown_08A02274, (void *)(OBJ_VRAM0 + 0x240 * TILE_SIZE_4BPP));
 }
