@@ -948,3 +948,4 @@
 // SID_Undo
 // SID_MinusStrike
 // SID_LastResort
+// SID_SpinForGold

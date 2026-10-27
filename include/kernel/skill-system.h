@@ -518,6 +518,8 @@ u8 GroupCast_Usability(const struct MenuItemDef *def, int number);
 u8 GroupCast_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 DragonsBlood_Usability(const struct MenuItemDef *def, int number);
 u8 DragonsBlood_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 SpinForGold_Usability(const struct MenuItemDef *def, int number);
+u8 SpinForGold_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 Refuge_Usability(const struct MenuItemDef* def, int number);
 u8 Refuge_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
 u8 Replicate_Usability(const struct MenuItemDef* def, int number);
@@ -776,6 +778,7 @@ bool Action_Assemble(ProcPtr parent);
 bool Action_VictorySmite(ProcPtr parent);
 bool Action_Takeover(ProcPtr parent);
 bool Action_DragonsBlood(ProcPtr parent);
+bool Action_SpinForGold(ProcPtr parent);
 bool PostAction_HellscapeVoidTile(ProcPtr proc);
 bool Action_Hellscape(ProcPtr parent);
 

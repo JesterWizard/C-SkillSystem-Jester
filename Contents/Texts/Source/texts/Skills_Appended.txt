@@ -68,3 +68,16 @@ Last Resort[X]
 Last Resort:[N]
 Weapon might rises by the[N]
 percentage of HP missing.[X]
+
+## MSG_SKILL_SpinForGold_NAME
+Spin For Gold[X]
+## MSG_SKILL_SpinForGold_DESC
+Spin For Gold:[N]
+Pay 100G to spin the wheel and[N]
+win 100G times the result.[X]
+## MSG_SKILL_SpinForGold_FRtext
+You need 100G to spin.[X]
+## MSG_SKILL_SpinForGold_PROMPT
+Press A to stop![X]
+## MSG_SKILL_SpinForGold_LOSE
+No luck...[X]
