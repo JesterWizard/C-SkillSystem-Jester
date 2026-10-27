@@ -53,6 +53,10 @@ void PutUnitSpriteIconsOam(void)
 	}
 #endif
 
+#if defined(SID_Forage) && (COMMON_SKILL_VALID(SID_Forage))
+	PutForageShimmerOam();
+#endif
+
 	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; i++) {
 		int ix, iy, status;
 		/* Same table GetUnit() reads, without a long call per slot every frame */

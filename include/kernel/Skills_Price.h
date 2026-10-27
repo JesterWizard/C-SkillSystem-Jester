@@ -949,3 +949,4 @@
 #define MSG_SKILL_LightProwess4_PRICE 1000
 #define MSG_SKILL_LightProwess5_PRICE 1000
 #define MSG_SKILL_VictorySmite_PRICE 1000
+#define MSG_SKILL_Forage_PRICE 1000

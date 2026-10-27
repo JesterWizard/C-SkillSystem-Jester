@@ -164,6 +164,7 @@ ALIGN 4
 #include "Quotes/Quotes.event"
 #include "ResTerrainWindow/ResTerrainWindow_Installer.event"
 #include "ShowCGsLikeFE7/ShowCGsLikeFE7_Installer.event"
+#include "SkillEffects/Misc/Forage.lyn.event"
 #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #include "Supports/Supports_Installer.event"
 #include "TextEngineRework/TextEngineRework_Installer.event"
