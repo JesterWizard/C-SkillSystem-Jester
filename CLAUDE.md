@@ -33,4 +33,3 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - The `SkillTable-{person,job,item,weapon}.c` tables have no SID guards; wrap any row you add.
 - `.lyn.event` files are committed build output, and some have hand edits (e.g. `Kernel/Wizardry/Lvup/Source/Levelup.lyn.event`). Check before regenerating.
 - `.claude/worktrees/` holds stale copies; grep with `--exclude-dir=.claude`. The shell's `grep` may skip gitignored files; use `/bin/grep` for generated headers.
-- `make clean` deletes tracked `.4bpp` files under `Contents/Gfx/Sources/` (its `Contents/Gfx/makefile` clean recipe removes every non-PNG); restore with `git checkout -- Contents/Gfx/Sources`.

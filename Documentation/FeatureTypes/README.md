@@ -93,7 +93,6 @@ Do not copy from these without checking the paths against the tree. Each item is
 - `Documentation/Features/UnlimitedPrepMenuOptions.md` says the prep menu is unlimited. The prep table is sized for 12 rows, and call order (not table order) decides the display (Menus.md, Gotchas).
 - `Patches/PATCH_DesignerConfig.txt` is out of sync with `KernelDesigerConfig`. Its last field is `B169` with `DATASIZE=170`, and it is hand-kept (Common.md, "Does field order matter?").
 - `Documentation/Features/Halfbodies.md` says `half_body_portraits` defaults to `true`. `Data/DesignerConfig/designer-config.c:71` sets it to `false`. The doc follows the code (Graphics.md).
-- `make clean` deletes committed `.4bpp` files. The clean recipe at `Contents/Gfx/makefile:17-19` removes every non-PNG file under `Sources/`, and the top-level `clean` reaches it through `makefile:550-551`. Restore with `git checkout -- Contents/Gfx/Sources` (Graphics.md; CLAUDE.md).
 - `Documentation/Features/PopupR.md` is a three-line stub about the skill popup stack. Use UI.md (UI.md, Gotchas).
 - RAM alignment is not checked or padded. The macros only move a pointer, and `_kernel_malloc_align4_pad` is commented out at `include/link/config-memmap.s:212`. Pair odd sizes (Memory.md, Gotchas).
 - Save order is layout. Inserting or resizing a row moves every later chunk, so old saves load shifted data (SaveData.md, Gotchas; `Kernel/Wizardry/SaveData/Source/ModularSaveCore.c:204-212`, found by reading the code, not tested on a save).
