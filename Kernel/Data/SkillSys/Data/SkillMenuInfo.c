@@ -1511,4 +1511,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_SpinForGold) && COMMON_SKILL_VALID(SID_SpinForGold))
+    [SID_SpinForGold] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_SpinForGold_NAME,
+        .helpMsgId = MSG_SKILL_SpinForGold_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = SpinForGold_Usability,
+        .onDraw = NULL,
+        .onSelected = SpinForGold_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

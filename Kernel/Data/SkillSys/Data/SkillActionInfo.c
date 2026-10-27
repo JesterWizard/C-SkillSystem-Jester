@@ -382,4 +382,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
     [SID_DragonsBlood] = Action_DragonsBlood,
 #endif
+
+#if (defined(SID_SpinForGold) && COMMON_SKILL_VALID(SID_SpinForGold))
+    [SID_SpinForGold] = Action_SpinForGold,
+#endif
 };
