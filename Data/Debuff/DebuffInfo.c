@@ -233,6 +233,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 1,
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
+		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_ARMOR_EFFECTIVE] = {
 		.name = MSG_DEBUFF_ARMOR_EFFECTIVE_NAME,
@@ -241,6 +242,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 1,
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
+		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_FLIER_EFFECTIVE] = {
 		.name = MSG_DEBUFF_FLIER_EFFECTIVE_NAME,
@@ -249,6 +251,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 1,
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
+		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_INFANTRY_EFFECTIVE] = {
 		.name = MSG_DEBUFF_INFANTRY_EFFECTIVE_NAME,
@@ -257,6 +260,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 1,
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
+		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_SLOW] = {
         .name = MSG_DEBUFF_SLOW_NAME,
