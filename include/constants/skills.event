@@ -924,5 +924,6 @@
 #define SID_DragonsBlood 0x397
 #define SID_Undo 0x398
 #define SID_MinusStrike 0x399
+#define SID_LastResort 0x39A
 
 #endif /* SKILLS_EVENT */

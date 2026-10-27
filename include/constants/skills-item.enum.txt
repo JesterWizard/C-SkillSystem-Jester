@@ -947,3 +947,4 @@
 // SID_DragonsBlood
 // SID_Undo
 // SID_MinusStrike
+// SID_LastResort

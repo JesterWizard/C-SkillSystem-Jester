@@ -10516,4 +10516,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_LastResort) && COMMON_SKILL_VALID(SID_LastResort))
+    [SID_LastResort] = {
+        .name = MSG_SKILL_LastResort_NAME,
+        .desc = MSG_SKILL_LastResort_DESC,
+        .capacity = MSG_SKILL_LastResort_CAPACITY,
+        .price = MSG_SKILL_LastResort_PRICE,
+        .icon = GFX_SkillIcon_LastResort,
+        .iconPal = 0,
+    },
+#endif
+
 };

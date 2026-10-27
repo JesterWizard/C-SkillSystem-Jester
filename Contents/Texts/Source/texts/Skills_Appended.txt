@@ -61,3 +61,10 @@ Minus Strike[X]
 Minus Strike:[N]
 Weapon might is replaced by[N]
 max HP minus current HP.[X]
+
+## MSG_SKILL_LastResort_NAME
+Last Resort[X]
+## MSG_SKILL_LastResort_DESC
+Last Resort:[N]
+Weapon might rises by the[N]
+percentage of HP missing.[X]
