@@ -187,6 +187,7 @@ bool BattleFastSkillTester(struct BattleUnit* bu, const u16 sid);
 bool CheckSkillActivate(struct Unit* unit, int sid, int rate);
 bool CheckActiveUnitSkillActivate(int sid, int rate);
 bool CheckBattleSkillActivate(struct BattleUnit* actor, struct BattleUnit* target, int sid, int rate);
+bool CheckBattleGuarantee(struct BattleUnit *bu);
 
 /**
  * FEB list

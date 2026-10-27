@@ -896,8 +896,8 @@ bool TryTriggerAccostRoundRepeat(struct BattleUnit * attacker, struct BattleUnit
     if (!BattleFastSkillTester(attacker, SID_Accost))
         return false;
 
-    // RN roll based on unit’s skill
-    if (!Roll1RN((attacker->unit.spd - defender->unit.spd) + attacker->unit.curHP/2))
+    // RN roll based on unit’s skill (Guarantee forces it)
+    if (!CheckBattleGuarantee(attacker) && !Roll1RN((attacker->unit.spd - defender->unit.spd) + attacker->unit.curHP/2))
         return false;
 
     // Both sides must be able to continue fighting

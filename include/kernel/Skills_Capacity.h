@@ -950,3 +950,4 @@
 #define MSG_SKILL_LightProwess5_CAPACITY 1
 #define MSG_SKILL_VictorySmite_CAPACITY 1
 #define MSG_SKILL_Forage_CAPACITY 1
+#define MSG_SKILL_Guarantee_CAPACITY 1

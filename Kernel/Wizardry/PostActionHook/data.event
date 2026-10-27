@@ -42,6 +42,7 @@ gPostActionFuncs:
     POIN PostAction_SpinTile
     POIN PostAction_RepeatHouse
     POIN ResetComboAtkList
+    POIN PostAction_Guarantee
 
     //End
     POIN CallExternalPostActionHook

@@ -940,3 +940,4 @@
 // SID_COMBAT_Practice
 // SID_HalfSP
 // SID_Forage
+// SID_Guarantee
