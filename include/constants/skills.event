@@ -919,5 +919,6 @@
 #define SID_Forage 0x392
 #define SID_Guarantee 0x393
 #define SID_Insurance 0x394
+#define SID_Takeover 0x395
 
 #endif /* SKILLS_EVENT */

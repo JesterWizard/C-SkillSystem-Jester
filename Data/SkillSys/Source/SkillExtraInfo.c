@@ -1551,5 +1551,8 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Insurance) && COMMON_SKILL_VALID(SID_Insurance))
     [SID_Insurance] = {{ 100 }}, /* gold per point of damage taken */
 #endif
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = {{ 1, 10 }}, /* cost per point of damage in units of 100G: normal, boss */
+#endif
 
 };

@@ -952,3 +952,4 @@
 #define MSG_SKILL_Forage_CAPACITY 1
 #define MSG_SKILL_Guarantee_CAPACITY 1
 #define MSG_SKILL_Insurance_CAPACITY 1
+#define MSG_SKILL_Takeover_CAPACITY 1
