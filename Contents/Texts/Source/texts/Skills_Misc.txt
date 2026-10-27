@@ -594,10 +594,3 @@ Weatherman[X]
 Weatherman:[N]
 Unaffected by weather based[N]
 movement penalities.[X]
-
-## MSG_SKILL_Forage_NAME
-Forage[X]
-## MSG_SKILL_Forage_DESC
-Forage:[N]
-Hidden items buried on the map[N]
-shimmer while this unit is deployed.[X]

@@ -406,11 +406,3 @@ Crit Thrift[X]
 Crit Thrift:[N]
 Critical attacks do not[N]
 consume weapon uses.[X]
-
-## MSG_SKILL_Guarantee_NAME
-Guarantee[X]
-## MSG_SKILL_Guarantee_DESC
-Guarantee:[N]
-Once per map, this unit's[N]
-chance-based battle skills[N]
-all activate for one battle.[X]
