@@ -544,6 +544,16 @@ void DecayTraps(void)
 
             break;
 
+        case TRAP_HELLSCAPE_VOID:
+            trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT]--;
+            if (trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT] <= 0)
+            {
+                RemoveTrap(trap);
+                trap--;
+            }
+
+            break;
+
         case TRAP_TOGGLE_TORCH:
             if (trap->extra > 0)
                 trap->extra--;

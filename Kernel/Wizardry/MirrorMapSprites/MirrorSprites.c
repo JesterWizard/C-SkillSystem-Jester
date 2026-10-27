@@ -384,6 +384,14 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = GetTrapSpriteOam2(0x69, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        if (trap->type == TRAP_HELLSCAPE_VOID)
+        {
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
+
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x73, trap);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)

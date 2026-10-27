@@ -9,48 +9,33 @@
     #define CONFIG_UNIT_ACTION_EXPA_ExecSkill 20
 #endif
 
-/* Unique tag in trap->extra to identify Hellscape void tiles */
-#define HELLSCAPE_TRAP_TAG   0x48
-/* Number of phases before the void tile expires */
-#define HELLSCAPE_TRAP_TURNS 3
+/* Turns a Hellscape void stays open (counted down once per turn in DecayTraps) */
+#define HELLSCAPE_VOID_TURNS 3
 
-/**
- * PrePhase hook: decrement turn counters on all active Hellscape void tiles and
- * remove any that have expired.  Runs at the start of every phase.
- */
-/**
- * PostAction hook: if the active unit has landed on a Hellscape void tile,
- * instantly kill them (HP->0, UnitKill) and remove the trap so that
- * HandlePostActionTraps finds nothing and exits cleanly.
- */
 static void Hellscape_KillCallback(ProcPtr proc)
 {
-    struct Trap *trap = GetTrapAt(gActiveUnit->xPos, gActiveUnit->yPos);
+    struct Trap *trap = GetTypedTrapAt(gActiveUnit->xPos, gActiveUnit->yPos, TRAP_HELLSCAPE_VOID);
+
     UnitKill(gActiveUnit);
-    if (trap) RemoveTrap(trap);
+
+    if (trap)
+        RemoveTrap(trap);
 }
 
-void PostAction_HellscapeVoidTile(ProcPtr proc)
+/**
+ * PostAction hook: a unit that ends its action on an open Hellscape void is
+ * slain (the hurt anim drains all its HP), and the void closes.
+ */
+bool PostAction_HellscapeVoidTile(ProcPtr proc)
 {
-    struct Trap *trap = GetTrapAt(gActiveUnit->xPos, gActiveUnit->yPos);
-    if (!trap || trap->type != TRAP_MINE || trap->extra != HELLSCAPE_TRAP_TAG)
-        return;
+    if (!UNIT_IS_VALID(gActiveUnit) || gActiveUnit->curHP <= 0)
+        return false;
 
-    // sets HP to 0, plays hit flash, then fires the callback
-    CallMapAnim_HurtExt(proc, gActiveUnit, gActiveUnit->curHP,
-                        NULL, Hellscape_KillCallback);
-}
-bool PrePhase_HellscapeTrapDecay(ProcPtr proc)
-{
-    for (int i = 0; i < TRAP_MAX_COUNT; i++) {
-        struct Trap *trap = GetTrap(i);
-        if (trap->type == TRAP_MINE && trap->extra == HELLSCAPE_TRAP_TAG) {
-            trap->data[TRAP_EXTDATA_TRAP_COUNTER]--;
-            if (trap->data[TRAP_EXTDATA_TRAP_COUNTER] <= 0)
-                RemoveTrap(trap);
-        }
-    }
-    return false;
+    if (!GetTypedTrapAt(gActiveUnit->xPos, gActiveUnit->yPos, TRAP_HELLSCAPE_VOID))
+        return false;
+
+    CallMapAnim_HurtExt(proc, gActiveUnit, gActiveUnit->curHP, NULL, Hellscape_KillCallback);
+    return true;
 }
 
 #if defined(SID_Hellscape) && (COMMON_SKILL_VALID(SID_Hellscape))
@@ -60,8 +45,9 @@ u8 Hellscape_Usability(const struct MenuItemDef *def, int number)
     if (gActiveUnit->state & US_CANTOING)
         return MENU_NOTSHOWN;
 
-    // if (!HasSelectTarget(gActiveUnit, MakeTargetListForMine))
-    //     return MENU_DISABLED;
+    /* No empty adjacent tile to open the void on */
+    if (!HasSelectTarget(gActiveUnit, MakeTargetListForMine))
+        return MENU_NOTSHOWN;
 
     return MENU_ENABLED;
 }
@@ -111,13 +97,15 @@ static void callback_anim(ProcPtr proc)
 
 static void callback_exec(ProcPtr proc)
 {
-    /* Place a mine tagged as a Hellscape void tile */
+    /* Open a visible void; DecayTraps closes it after HELLSCAPE_VOID_TURNS turns */
     struct Trap *trap = AddTrap(
         gActionData.xOther, gActionData.yOther,
-        TRAP_MINE, HELLSCAPE_TRAP_TAG);
+        TRAP_HELLSCAPE_VOID, 0);
 
     if (trap)
-        trap->data[TRAP_EXTDATA_TRAP_COUNTER] = HELLSCAPE_TRAP_TURNS;
+        trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT] = HELLSCAPE_VOID_TURNS;
+
+    RefreshUnitSprites();
 }
 
 bool Action_Hellscape(ProcPtr parent)
