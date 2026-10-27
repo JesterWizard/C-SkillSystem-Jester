@@ -981,3 +981,4 @@ SID_LightProwess3
 SID_LightProwess4
 SID_LightProwess5
 SID_VictorySmite
+SID_Forage

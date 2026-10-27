@@ -10430,5 +10430,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .iconPal = 0,
     },
 #endif
+#if (defined(SID_Forage) && COMMON_SKILL_VALID(SID_Forage))
+    [SID_Forage] = {
+        .name = MSG_SKILL_Forage_NAME,
+        .desc = MSG_SKILL_Forage_DESC,
+        .capacity = MSG_SKILL_Forage_CAPACITY,
+        .price = MSG_SKILL_Forage_PRICE,
+        .icon = GFX_SkillIcon_WIP,
+        .iconPal = 0,
+    },
+#endif
 
 };

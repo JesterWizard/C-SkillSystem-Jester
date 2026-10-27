@@ -916,5 +916,6 @@
 #define SID_LightProwess4 0x38F
 #define SID_LightProwess5 0x390
 #define SID_VictorySmite 0x391
+#define SID_Forage 0x392
 
 #endif /* SKILLS_EVENT */
