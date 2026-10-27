@@ -13,14 +13,15 @@
 7. [Trap Palette Selection](#trap-palette-selection)
 8. [Repeat House Notes](#repeat-house-notes)
 9. [Dragon Vein Notes](#dragon-vein-notes)
-10. [Grass Trap Notes](#grass-trap-notes)
-11. [Boulder Trap Notes](#boulder-trap-notes)
-12. [Spin Tile Notes](#spin-tile-notes)
-13. [Trap Sprite Registration](#trap-sprite-registration)
-14. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-15. [Code Locations](#code-locations)
-16. [TODO](#todo)
-17. [Limitations & Bugs](#limitations--bugs)
+10. [Hellscape Void Notes](#hellscape-void-notes)
+11. [Grass Trap Notes](#grass-trap-notes)
+12. [Boulder Trap Notes](#boulder-trap-notes)
+13. [Spin Tile Notes](#spin-tile-notes)
+14. [Trap Sprite Registration](#trap-sprite-registration)
+15. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+16. [Code Locations](#code-locations)
+17. [TODO](#todo)
+18. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -404,6 +405,24 @@ Implementation note:
 
 - `AddDragonVein(...)` creates the trap with `AddTrap(...)` and stores the parameter in `TRAP_EXTDATA_DRAGON_VEIN_PARAM`.
 - The activation command and one-use removal are the intended behaviour and are not wired in this change; this section describes the design.
+
+## Hellscape Void Notes
+
+The Hellscape void is a runtime trap that the Hellscape skill opens on the map. It blocks enemy movement for a few turns and then closes.
+
+Behavior summary:
+
+- Trap type: `TRAP_HELLSCAPE_VOID` (25)
+- Placed by: the Hellscape skill (`Kernel/Wizardry/SkillEffects/MenuSkills/Hellscape.c`)
+- Lifetime: `trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT]` counts down in `DecayTraps` once per turn; the void is removed when it reaches 0 (Hellscape opens it with 3)
+- Map sprite: drawn with map sprite `0x73` (`images/Hellscape_Void_Tile.png`, a 3-frame vortex on the default trap palette)
+- Movement: non-player units treat an open void as a movement barrier (`PreGenerateMovementMap` in `Kernel/Wizardry/Movement/Source/Movement.c`), fliers included
+- Standing on it: a unit that ends its action on the void is slain
+
+Implementation note:
+
+- The trap type, map sprite, turn decay and AI movement barrier are in place.
+- The Hellscape skill still places its voids as `TRAP_MINE` with the `HELLSCAPE_TRAP_TAG` marker until it is switched over to `TRAP_HELLSCAPE_VOID`; the slain-on-entry behaviour belongs to that skill code and is not changed here. This section describes the target design.
 
 ## Grass Trap Notes
 

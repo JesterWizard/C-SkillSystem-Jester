@@ -776,9 +776,8 @@ bool Action_Assemble(ProcPtr parent);
 bool Action_VictorySmite(ProcPtr parent);
 bool Action_Takeover(ProcPtr parent);
 bool Action_DragonsBlood(ProcPtr parent);
-void PostAction_HellscapeVoidTile(ProcPtr proc);
+bool PostAction_HellscapeVoidTile(ProcPtr proc);
 bool Action_Hellscape(ProcPtr parent);
-bool PrePhase_HellscapeTrapDecay(ProcPtr parent);
 
 u8 Override_Usability(const struct MenuItemDef *def, int number);
 u8 Override_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);

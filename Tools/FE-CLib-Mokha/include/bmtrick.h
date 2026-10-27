@@ -33,6 +33,7 @@ enum
     TRAP_SPIN_TILE = 22,
     TRAP_REPEAT_HOUSE = 23,
     TRAP_DRAGON_VEIN = 24,
+    TRAP_HELLSCAPE_VOID = 25,
 };
 
 enum
@@ -86,6 +87,9 @@ enum
 
     // Dragon vein extdata definitions (trap->extra holds the DRAGON_VEIN_* effect)
     TRAP_EXTDATA_DRAGON_VEIN_PARAM = 0, // effect parameter (HP amount, status index or map change id)
+
+    // Hellscape void extdata definitions
+    TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT = 0, // turns left before the void closes
 };
 
 enum
