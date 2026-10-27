@@ -143,6 +143,7 @@ void BeginMapAnimForSimultaneousDamage(struct BattleUnit *actor, struct BattleUn
 
 extern void BattleApplyMiscActionExpGains_Modular(int exp);
 extern void AddExp_Event(int exp);
+extern u8 gZenkaiPending[4];
 
 extern void TransferStatsandExperience(void);
 

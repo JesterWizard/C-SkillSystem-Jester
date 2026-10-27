@@ -48,6 +48,7 @@ gPostActionFuncs:
     POIN PostAction_UndoActor
     POIN PostAction_UndoTarget
     POIN PostAction_SyncSummonLevels
+    POIN PostAction_Zenkai
 
     //End
     POIN CallExternalPostActionHook

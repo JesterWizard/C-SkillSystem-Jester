@@ -170,6 +170,7 @@ ALIGN 4
 #include "SkillEffects/MenuSkills/DragonsBlood.lyn.event"
 #include "SkillEffects/PostActionSkills/Undo.lyn.event"
 #include "SkillEffects/PostActionSkills/SummonLevelSync.lyn.event"
+#include "SkillEffects/PostActionSkills/Zenkai.lyn.event"
 #include "StatScreenAllegianceColors/StatScreenAllegianceColors_Installer.event"
 #include "Supports/Supports_Installer.event"
 #include "TextEngineRework/TextEngineRework_Installer.event"

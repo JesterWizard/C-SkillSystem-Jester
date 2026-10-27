@@ -299,6 +299,9 @@ _kernel_malloc2 sSealSourceCache, 0x48
 /* Undo skill: MP of both battle units when the real battle starts (struct UndoSnapshot) */
 _kernel_malloc2 gUndoSnapshot, 4
 
+/* Zenkai: EXP waiting to be granted after the staff action ([0] = unit index, [1] = EXP) */
+_kernel_malloc2 gZenkaiPending, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
