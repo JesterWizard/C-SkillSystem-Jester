@@ -479,6 +479,10 @@ void LoadTrapData(const struct TrapData * data)
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
             break;
+
+        case TRAP_DRAGON_VEIN:
+            AddDragonVein(data->xPos, data->yPos, data->subtype, data->turn_counter);
+            break;
         }
 
         data++;
@@ -777,6 +781,22 @@ struct Trap *AddRepeatHouse(int x, int y, int exp)
 
     /* Explicitly clear visited flag; AddTrap may not zero-initialize data[] */
     trap->data[TRAP_EXTDATA_REPEAT_HOUSE_VISITED] = 0;
+    return trap;
+}
+
+struct Trap *AddDragonVein(int x, int y, int effect, int param)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    /* trap->extra stores the DRAGON_VEIN_* effect */
+    trap = AddTrap(x, y, TRAP_DRAGON_VEIN, effect);
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_DRAGON_VEIN_PARAM] = param;
     return trap;
 }
 

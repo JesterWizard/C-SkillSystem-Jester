@@ -34,3 +34,16 @@ Group Cast[X]
 Group Cast:[N]
 Pay double for a spell to also[N]
 hit every foe next to the target.[X]
+
+## MSG_SKILL_DragonsBlood_NAME
+Dragon's Blood[X]
+## MSG_SKILL_DragonsBlood_DESC
+Dragon's Blood:[N]
+Stand on a Dragon Vein to[N]
+unleash its power on the map.[X]
+## MSG_SKILL_DragonsBlood_MENU
+Dragon Vein[X]
+## MSG_SKILL_DragonsBlood_MENUHELP
+Activate the Dragon Vein[N]
+under this unit. Each vein[N]
+can be used only once.[X]

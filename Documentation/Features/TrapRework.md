@@ -12,14 +12,15 @@
 6. [Applying Existing Traps](#applying-existing-traps)
 7. [Trap Palette Selection](#trap-palette-selection)
 8. [Repeat House Notes](#repeat-house-notes)
-9. [Grass Trap Notes](#grass-trap-notes)
-10. [Boulder Trap Notes](#boulder-trap-notes)
-11. [Spin Tile Notes](#spin-tile-notes)
-12. [Trap Sprite Registration](#trap-sprite-registration)
-13. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-14. [Code Locations](#code-locations)
-15. [TODO](#todo)
-16. [Limitations & Bugs](#limitations--bugs)
+9. [Dragon Vein Notes](#dragon-vein-notes)
+10. [Grass Trap Notes](#grass-trap-notes)
+11. [Boulder Trap Notes](#boulder-trap-notes)
+12. [Spin Tile Notes](#spin-tile-notes)
+13. [Trap Sprite Registration](#trap-sprite-registration)
+14. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+15. [Code Locations](#code-locations)
+16. [TODO](#todo)
+17. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -371,6 +372,38 @@ Implementation note:
 - `PostAction_RepeatHouse(...)` checks both the active unit and the visit action before it looks up the trap at the unit's position.
 - The reward is applied through `AddExp_Event(exp)`, so the house behaves like an event-driven EXP grant rather than a combat result.
 - A value of `0` for the `exp` parameter is treated as "use the default" rather than "award no EXP".
+
+## Dragon Vein Notes
+
+The dragon vein is a chapter or runtime trap that a unit with the Dragon's Blood skill activates from the map.
+
+Behavior summary:
+
+- Runtime API: `AddDragonVein(x, y, effect, param)`
+- Chapter-start macro: `DRAGON_VEIN(x, y, effect, param)`
+- Trap type: `TRAP_DRAGON_VEIN`
+- Effect: the `DRAGON_VEIN_*` effect is stored in `trap->extra`
+- Parameter: the effect parameter is stored in `trap->data[TRAP_EXTDATA_DRAGON_VEIN_PARAM]`
+- Map sprite: drawn with map sprite `0x69`
+- Activation: a unit with the Dragon's Blood skill standing on the vein uses the "Dragon Vein" command
+- Lifetime: each vein is removed after one use
+
+Effects:
+
+- `DRAGON_VEIN_HEAL`: allies recover `param` HP (`0` = full heal)
+- `DRAGON_VEIN_DAMAGE`: enemies lose `param` HP (`0` = 10), never below 1
+- `DRAGON_VEIN_STATUS`: enemies get the status index `param`
+- `DRAGON_VEIN_MAPCHANGE`: triggers the chapter's map change id `param`
+
+Chapter-start data:
+
+- The `DRAGON_VEIN(...)` macro writes the effect into the entry's `subtype` field and the parameter into `turn_counter`.
+- `LoadTrapData(...)` passes those two fields to `AddDragonVein(...)`.
+
+Implementation note:
+
+- `AddDragonVein(...)` creates the trap with `AddTrap(...)` and stores the parameter in `TRAP_EXTDATA_DRAGON_VEIN_PARAM`.
+- The activation command and one-use removal are the intended behaviour and are not wired in this change; this section describes the design.
 
 ## Grass Trap Notes
 

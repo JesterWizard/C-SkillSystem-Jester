@@ -3308,6 +3308,7 @@ static const struct DebuggerTrapViewDef sDebuggerTrapViewDefs[] = {
     { TRAP_GRASS_TILE, 0x6D, 0, 0, "Grass" },
     { TRAP_BOULDER_TILE, 0x6E, 0, 0, "Boulder" },
     { TRAP_SPIN_TILE, 0x6F, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
+    { TRAP_DRAGON_VEIN, 0x69, DRAGON_VEIN_HEAL, 0, "Dragon Vein" },
 };
 
 static int GetDebuggerTrapViewDefCount(void)
@@ -3429,6 +3430,9 @@ static struct Trap *CreateDebuggerTrap(const struct DebuggerTrapViewDef *def, in
 
     case TRAP_SPIN_TILE:
         return AddSpinTile(x, y, SPIN_TILE_DIR_RIGHT);
+
+    case TRAP_DRAGON_VEIN:
+        return AddDragonVein(x, y, DRAGON_VEIN_HEAL, 0);
 
     default:
         return AddTrap(x, y, def->type, def->defaultExtra);
