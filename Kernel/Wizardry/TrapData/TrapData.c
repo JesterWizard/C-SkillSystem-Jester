@@ -480,6 +480,10 @@ void LoadTrapData(const struct TrapData * data)
             AddHiddenCaltrops(data->xPos, data->yPos);
             break;
 
+        case TRAP_COLLAPSING_FLOOR:
+            AddCollapsingFloor(data->xPos, data->yPos);
+            break;
+
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
             break;

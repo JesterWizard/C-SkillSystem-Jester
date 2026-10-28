@@ -22,7 +22,8 @@ struct Trap *AddHiddenCaltrops(int x, int y)
 }
 
 /*
- * Cuts gWorkingMovementScript on the first caltrops tile the move enters.
+ * Cuts gWorkingMovementScript on the first caltrops tile or cracked collapsing
+ * floor the move enters.
  * Called right after UnitApplyWorkingMovementScript, which has already cut
  * the script for fog ambushes, mines and spin tiles.
  */
@@ -63,11 +64,12 @@ void CutMovementScriptAtCaltrops(struct Unit *unit)
 			continue;
 
 		trap = GetTypedTrapAt(x, y, TRAP_HIDDEN_CALTROPS);
-		if (!trap)
+		if (trap) {
+			if (!trap->data[TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED])
+				*++it = MOVE_CMD_BUMP;
+		} else if (!CollapsingFloorStopsMoveAt(x, y)) {
 			continue;
-
-		if (!trap->data[TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED])
-			*++it = MOVE_CMD_BUMP;
+		}
 
 		*++it = MOVE_CMD_HALT;
 

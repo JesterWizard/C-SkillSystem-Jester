@@ -35,6 +35,7 @@ enum
     TRAP_DRAGON_VEIN = 24,
     TRAP_HELLSCAPE_VOID = 25,
     TRAP_HIDDEN_CALTROPS = 26,
+    TRAP_COLLAPSING_FLOOR = 27,
 };
 
 enum
@@ -94,6 +95,9 @@ enum
 
     // Hidden caltrops extdata definitions
     TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED = 0, // 0 = hidden, 1 = revealed (drawn on the map)
+
+    // Collapsing floor extdata definitions
+    TRAP_EXTDATA_COLLAPSING_FLOOR_STATE = 0, // COLLAPSING_FLOOR_* state
 };
 
 enum
@@ -102,6 +106,13 @@ enum
     SPIN_TILE_DIR_RIGHT,
     SPIN_TILE_DIR_UP,
     SPIN_TILE_DIR_DOWN,
+};
+
+enum
+{
+    COLLAPSING_FLOOR_INTACT = 0, // the next grounded unit to end its action on it cracks it
+    COLLAPSING_FLOOR_CRACKED,    // a grounded unit that enters it falls through
+    COLLAPSING_FLOOR_HOLE,       // impassable for grounded units
 };
 
 enum
@@ -196,6 +207,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define HIDDEN_CALTROPS(x, y) \
     TRAP_HIDDEN_CALTROPS, (x), (y), 0, 0, 0,
+
+#define COLLAPSING_FLOOR(x, y) \
+    TRAP_COLLAPSING_FLOOR, (x), (y), 0, 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,

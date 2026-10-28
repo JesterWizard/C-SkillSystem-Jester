@@ -401,6 +401,15 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = GetTrapSpriteOam2(0x74, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        /* Collapsing floor: sprites 0x75-0x77 follow COLLAPSING_FLOOR_* */
+        if (trap->type == TRAP_COLLAPSING_FLOOR)
+        {
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
+
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x75 + trap->data[TRAP_EXTDATA_COLLAPSING_FLOOR_STATE], trap);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)
