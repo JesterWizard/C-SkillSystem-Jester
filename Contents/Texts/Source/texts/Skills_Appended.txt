@@ -99,3 +99,10 @@ Fast Hands[X]
 Fast Hands:[N]
 Weapon weight raises speed[N]
 instead of lowering it.[X]
+
+## MSG_SKILL_Obliterate_NAME
+Obliterate[X]
+## MSG_SKILL_Obliterate_DESC
+Obliterate:[N]
+If promoted, instantly kill[N]
+unpromoted foes of lower level.[X]

@@ -928,5 +928,6 @@
 #define SID_SpinForGold 0x39B
 #define SID_SpinForLuck 0x39C
 #define SID_FastHands 0x39D
+#define SID_Obliterate 0x39E
 
 #endif /* SKILLS_EVENT */

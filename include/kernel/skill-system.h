@@ -783,6 +783,7 @@ bool Action_DragonsBlood(ProcPtr parent);
 bool Action_SpinForGold(ProcPtr parent);
 bool Action_SpinForLuck(ProcPtr parent);
 int GetFastHandsSpdBonus(struct Unit *unit);
+bool ObliterateApplies(struct BattleUnit *bu, struct BattleUnit *foe);
 bool PostAction_HellscapeVoidTile(ProcPtr proc);
 bool Action_Hellscape(ProcPtr parent);
 

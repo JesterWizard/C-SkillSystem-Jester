@@ -89,6 +89,13 @@ void BattleUpdateBattleStats(struct BattleUnit* attacker, struct BattleUnit* def
 	}
 #endif
 
+#if defined(SID_Obliterate) && (COMMON_SKILL_VALID(SID_Obliterate))
+	if (ObliterateApplies(attacker, defender)) {
+		RegisterActorEfxSkill(GetBattleHitRound(gBattleHitIterator), SID_Obliterate);
+		hitRate = critRate = silencerRate = 100;
+	}
+#endif
+
 	LIMIT_AREA(attack, 0, 255);
 	LIMIT_AREA(defense, 0, 255);
 	LIMIT_AREA(hitRate, 0, 100);

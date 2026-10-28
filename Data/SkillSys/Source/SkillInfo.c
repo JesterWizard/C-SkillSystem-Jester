@@ -10560,4 +10560,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Obliterate) && COMMON_SKILL_VALID(SID_Obliterate))
+    [SID_Obliterate] = {
+        .name = MSG_SKILL_Obliterate_NAME,
+        .desc = MSG_SKILL_Obliterate_DESC,
+        .capacity = MSG_SKILL_Obliterate_CAPACITY,
+        .price = MSG_SKILL_Obliterate_PRICE,
+        .icon = GFX_SkillIcon_Obliterate,
+        .iconPal = 0,
+    },
+#endif
+
 };
