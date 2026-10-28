@@ -84,7 +84,7 @@ No registration line is needed: both functions are already called by the engine.
 
 - `Aptitude`: `Kernel/Wizardry/Lvup/Source/GrowthGetter.c:20-23`. Adds `SKILL_EFF0` growth points to every stat through the common function.
 - `Blossom`: growth `Kernel/Wizardry/Lvup/Source/GrowthGetter.c:15-18` (`new + status`, doubles growth) and EXP `Kernel/Wizardry/BattleSys/Source/BattleExp.c:112-115` (halves EXP). A two-sided skill; both halves are needed for the text to be true.
-- `DarkHorse`: `Kernel/Wizardry/Lvup/Source/GrowthGetter.c:63-66` (HP growth + half max HP), `:85-88` (POW + POW), `:124-127` (SKL + SKL). Shows a per-stat growth block that reads another stat of the unit.
+- `SID_DarkHorse`: `Kernel/Wizardry/Lvup/Source/GrowthGetter.c:63-66` (HP growth + half max HP), `:85-88` (POW + POW), `:124-127` (SKL + SKL). Shows a per-stat growth block that reads another stat of the unit.
 - `Mentorship`: `Kernel/Wizardry/BattleSys/Source/BattleExp.c:122-150`. Own-EXP branch plus adjacent-ally scan over `gVecs_2x2` (`Kernel/Wizardry/KernelLib/Source/ranges.c:10`, 12 tiles within distance 2). See Gotchas for its problems.
 
 ## Gotchas
@@ -94,7 +94,7 @@ No registration line is needed: both functions are already called by the engine.
 - `Mentorship`'s ally branch uses `status = status * Div(status * SKILL_EFF0(...), 100)` (`:145`). This is quadratic in `status`; the own-EXP branch (`:124`) uses `status + Div(status * SKILL_EFF0(...), 100)`. Likely the ally branch should be the second form. Intent not verified.
 - `Mentorship`'s own-EXP branch (`:124`) also boosts the holder's own EXP, which the text does not mention.
 - `VoidCurse` (`BattleExp.c:212-215`) sets EXP to 0 whenever the skill holder is the battle target. There is no death check. The text says "when defeated".
-- `DarkHorse` on RES growth adds `unit->def`, not `unit->res` (`GrowthGetter.c:212-215`, the `status + unit->def` at `:214`). Likely bug; intent not verified.
+- `SID_DarkHorse` on RES growth adds `unit->def`, not `unit->res` (`GrowthGetter.c:212-215`, the `status + unit->def` at `:214`). Likely bug; intent not verified.
 - Prodigy's cap is in two places: `KernelModifyBattleUnitExp` (`BattleExp.c:172-183`) and `GetBattleUnitStaffExpRework` (`:360-368`). Change both.
 - `KernelModifyBattleUnitExp` runs for staff EXP and misc +10 EXP too (`:332`, `:353`). An EXP skill added there applies to all three.
 - Blocks after the `LIMIT_AREA(status, 1, 100)` clamp (`BattleExp.c:179-182`) can push EXP above 100 (Pulse's floor is also there, `:185-189`). Prodigy's higher cap (254) is set at `:175`.

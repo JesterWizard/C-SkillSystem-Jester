@@ -69,7 +69,7 @@ No other registration is needed: `PowGetterSkills` is already listed in `gPowGet
 
 - `StrBonus`: `Kernel/Wizardry/UnitStatusGetter/source/PowGetter.c:67-70`. Flat `+SKILL_EFF0` bonus; the template source.
 - `DefiantStr`: `Kernel/Wizardry/UnitStatusGetter/source/PowGetter.c:72-76`. Conditional on HP below 25%.
-- `HeavyMetal`: `Kernel/Wizardry/UnitStatusGetter/source/ConGetter.c:24-27`. The only CON skill hook; value in `SkillExtraInfo.c:1531-1532`.
+- `SID_HeavyMetal`: `Kernel/Wizardry/UnitStatusGetter/source/ConGetter.c:24-27`. The only CON skill hook; value in `SkillExtraInfo.c:1531-1532`.
 - `Overdraft`: `Kernel/Wizardry/UnitStatusGetter/source/HpGetter.c:61-64`. Adds the raw `unit->maxHP` to the running HP, which doubles max HP. Uses the base value, not the running `status`.
 
 ## Gotchas
