@@ -9,6 +9,7 @@ bool _ActionPick(ProcPtr proc);
 bool ActionExecSkill(ProcPtr proc);
 bool ActionGaidenMagicCombat(ProcPtr proc);
 bool ActionGaidenMagicStaff(ProcPtr proc);
+bool ActionGaidenMapSpell(ProcPtr proc);
 
 const UnitActionFunc_t gUnitActionTable[CONFIG_UNIT_ACTION_AMT] = {
 	[UNIT_ACTION_WAIT] = _ActionWait,
@@ -34,4 +35,5 @@ const UnitActionFunc_t gUnitActionTable[CONFIG_UNIT_ACTION_AMT] = {
 	[CONFIG_UNIT_ACTION_EXPA_ExecSkill] = ActionExecSkill,
 	[CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat] = ActionGaidenMagicCombat,
 	[CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff] = ActionGaidenMagicStaff,
+	[CONFIG_UNIT_ACTION_EXPA_GaidenMapSpell] = ActionGaidenMapSpell,
 };

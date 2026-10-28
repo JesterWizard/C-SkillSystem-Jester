@@ -130,6 +130,7 @@ enum chax_ierevamp_use_effects {
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	IER_ARMS_SCROLL,
 #endif
+	IER_CHAX_STAFF_UNICORN,
 
 	IER_MAX = 0x60,
 };
@@ -220,6 +221,7 @@ extern struct SpellAssoc *pr_SpellAssocData;
 IER_DECLEARE_Usability(IER_Usability_AdjacentHeal);
 IER_DECLEARE_Usability(IER_Usability_RangedHeal);
 IER_DECLEARE_Usability(IER_Usability_Restore);
+IER_DECLEARE_Usability(IER_Usability_Unicorn);
 IER_DECLEARE_Usability(IER_Usability_Rescue);
 IER_DECLEARE_Usability(IER_Usability_Barrier);
 IER_DECLEARE_Usability(IER_Usability_Silence);
@@ -273,6 +275,7 @@ IER_DECLEARE_Effect(IER_Effect_AdjacentHeal);
 IER_DECLEARE_Effect(IER_Effect_RangedHeal);
 IER_DECLEARE_Effect(IER_Effect_RescueStaff);
 IER_DECLEARE_Effect(IER_Effect_Restore);
+IER_DECLEARE_Effect(IER_Effect_Unicorn);
 IER_DECLEARE_Effect(IER_Effect_Silence);
 IER_DECLEARE_Effect(IER_Effect_Sleep);
 IER_DECLEARE_Effect(IER_Effect_Berserk);
@@ -312,6 +315,7 @@ IER_DECLEARE_Action(IER_Action_StatusStaff);
 IER_DECLEARE_Action(IER_Action_NightMare);
 IER_DECLEARE_Action(IER_Action_Fortify);
 IER_DECLEARE_Action(IER_Action_Restore);
+IER_DECLEARE_Action(IER_Action_Unicorn);
 IER_DECLEARE_Action(IER_Action_RescueStaff);
 IER_DECLEARE_Action(IER_Action_BarrierStaff);
 IER_DECLEARE_Action(IER_Action_WarpStaff);
