@@ -963,3 +963,4 @@
 #define MSG_SKILL_FastHands_CAPACITY 1
 #define MSG_SKILL_Obliterate_CAPACITY 1
 #define MSG_SKILL_Sweapstrike_CAPACITY 1
+#define MSG_SKILL_Prayer_CAPACITY 1

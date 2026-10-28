@@ -115,3 +115,12 @@ Once per map, strike a chosen[N]
 column for 10 damage to all in it.[X]
 ## MSG_SKILL_Sweapstrike_Target
 Select a column.[X]
+
+## MSG_SKILL_Prayer_NAME
+Prayer[X]
+## MSG_SKILL_Prayer_DESC
+Prayer:[N]
+Become Lucky for 3 turns: chance[N]
+skills are 1.5x as likely.[X]
+## MSG_SKILL_Prayer_FRtext
+This unit is already Lucky.[X]
