@@ -178,6 +178,7 @@ ALIGN 4
 #include "TrapData/CollapsingFloor.lyn.event"
 #include "SkillEffects/MenuSkills/Prayer.lyn.event"
 #include "AiHack/AiOptimization/Source/AiTargetScan.lyn.event"
+#include "AiHack/AiOptimization/Source/AiDangerMap.lyn.event"
 #include "SkillEffects/PostActionSkills/Undo.lyn.event"
 #include "SkillEffects/PostActionSkills/SummonLevelSync.lyn.event"
 #include "SkillEffects/PostActionSkills/Zenkai.lyn.event"
