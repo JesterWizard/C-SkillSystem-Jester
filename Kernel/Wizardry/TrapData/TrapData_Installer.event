@@ -40,6 +40,19 @@ PUSH
 		POIN Gfx_Hellscape_Void_Tile
 POP
 
+/* Caltrops Tile (hidden caltrops, once revealed) */
+#define Gfx_Caltrops_Tile_ID 0x74
+
+Gfx_Caltrops_Tile:
+#incext Png2Dmp "images/Caltrops_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Caltrops_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Caltrops_Tile
+POP
+
 /* Lit Torch Tile*/
 #define Gfx_Lit_Torch_ID 0x6A
 

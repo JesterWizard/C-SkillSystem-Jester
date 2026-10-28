@@ -392,6 +392,15 @@ void RefreshUnitSprites(void)
             smsHandle->oam2Base = GetTrapSpriteOam2(0x73, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
+
+        /* Hidden caltrops are only drawn once revealed */
+        if (trap->type == TRAP_HIDDEN_CALTROPS && trap->data[TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED])
+        {
+            smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
+
+            smsHandle->oam2Base = GetTrapSpriteOam2(0x74, trap);
+            smsHandle->config = UNIT_ICON_SIZE_16x16;
+        }
     }
 
     if (gSMSSyncFlag != 0)

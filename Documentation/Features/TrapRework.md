@@ -17,11 +17,12 @@
 11. [Grass Trap Notes](#grass-trap-notes)
 12. [Boulder Trap Notes](#boulder-trap-notes)
 13. [Spin Tile Notes](#spin-tile-notes)
-14. [Trap Sprite Registration](#trap-sprite-registration)
-15. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-16. [Code Locations](#code-locations)
-17. [TODO](#todo)
-18. [Limitations & Bugs](#limitations--bugs)
+14. [Hidden Caltrops Notes](#hidden-caltrops-notes)
+15. [Trap Sprite Registration](#trap-sprite-registration)
+16. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+17. [Code Locations](#code-locations)
+18. [TODO](#todo)
+19. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -515,6 +516,28 @@ Implementation note:
 - `PostAction_SpinTile(...)` handles the actual shove after the unit is standing on the trap.
 - `GetPickTrapType(...)` returns `TRAP_NONE` for spin tiles so vanilla `ExecTrap(...)` is not asked to process a custom trap type.
 
+## Hidden Caltrops Notes
+
+Hidden caltrops are an invisible trap: the first unit to walk over them is ambushed and reveals them, and the revealed trap keeps stopping grounded units.
+
+Behavior summary:
+
+- Trap type: `TRAP_HIDDEN_CALTROPS` (26)
+- Runtime API: `AddHiddenCaltrops(x, y)`
+- Chapter-start macro: `HIDDEN_CALTROPS(x, y)`
+- State: `trap->data[TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED]` is 0 while hidden and 1 once revealed
+- Map sprite: `0x74` (`images/Caltrops_Tile.png`), drawn only once revealed, on the default trap palette
+- Movement rule: a grounded unit whose path crosses the trap stops on its tile and its turn ends (`UNIT_ACTION_TRAPPED`), the same way a fog ambush ends a turn
+- Hidden trap: the fog-ambush "!" (`MOVE_CMD_BUMP`) plays over the unit when it stops
+- Reveal: `PostAction_HiddenCaltrops` reveals the trap when a grounded unit ends its action on it
+- Revealed trap: stays on the map and still stops grounded units, without the "!"
+- Fliers ignore the trap; a unit passing through an ally who stands on it is not stopped
+- AI units are stopped too; their planned action is cancelled, as for a mine or fog ambush
+
+Implementation note:
+
+- `CutMovementScriptAtCaltrops(unit)` (`Kernel/Wizardry/TrapData/HiddenCaltrops.c`) cuts `gWorkingMovementScript` at the first caltrops tile. It runs right after `UnitApplyWorkingMovementScript` in `PlayerPhase_DisplayUnitMovement` (`Kernel/Wizardry/RemoveMovePath/Source/RemoveMovePath.c`) and in `CpPerform_BeginUnitMovement` (replaced in `HiddenCaltrops.c` for AI moves). It does not change `UnitApplyWorkingMovementScript` itself, which lives in `MiscFunctions.c`.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -547,6 +570,8 @@ Current registered trap-like sprite IDs in this file:
 - `0x6D` Grass Tile
 - `0x6E` Boulder Tile
 - `0x6F` Spin Tile
+- `0x73` Hellscape Void Tile
+- `0x74` Caltrops Tile (hidden caltrops)
 
 When adding a new trap sprite:
 
@@ -629,6 +654,8 @@ Implementation notes:
 | Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
 | Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
 | Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
+| Hidden caltrops creation, movement stop and reveal | `AddHiddenCaltrops`, `CutMovementScriptAtCaltrops`, `CpPerform_BeginUnitMovement` and `PostAction_HiddenCaltrops` in `Kernel/Wizardry/TrapData/HiddenCaltrops.c` | Creates the trap, stops player and AI moves on it with the fog-ambush "!", and reveals it after the unit's action |
+| Hidden caltrops sprite | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws sprite `0x74` for revealed caltrops only |
 | Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
 | Trap map sprite palette bank | `GetTrapMapSpriteObjPal` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps a trap's type and stored palette choice onto an OBJ palette bank (also used by the debugger's trap preview) |
 | Grass/spin trap custom palettes | `LoadTrapMapSpritePalette` and `ReloadCustomTrapSpritePalettes` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Loads `Pal_Grass_Tile`/`Pal_Spin_Tile` into their dedicated OBJ banks while such a trap is on the map |
