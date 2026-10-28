@@ -175,6 +175,7 @@ ALIGN 4
 #include "SkillEffects/MenuSkills/SpinForLuck.lyn.event"
 #include "SkillEffects/MenuSkills/Sweapstrike.lyn.event"
 #include "TrapData/HiddenCaltrops.lyn.event"
+#include "SkillEffects/MenuSkills/Prayer.lyn.event"
 #include "SkillEffects/PostActionSkills/Undo.lyn.event"
 #include "SkillEffects/PostActionSkills/SummonLevelSync.lyn.event"
 #include "SkillEffects/PostActionSkills/Zenkai.lyn.event"

@@ -3,6 +3,7 @@
 #include "battle-system.h"
 #include "constants/skills.h"
 #include "playst-expa.h"
+#include "debuff.h"
 
 STATIC_DECLAR bool CheckSkillActivateExt(struct Unit *unit, int sid, int rate, bool (*tester)(struct Unit *unit, const u16 sid))
 {
@@ -55,6 +56,10 @@ STATIC_DECLAR bool CheckSkillActivateExt(struct Unit *unit, int sid, int rate, b
     if (tester(unit, SID_SereneGrace))
         rate *= 2;
 #endif
+
+	/* Lucky (from Prayer): chance-based skills are 1.5x as likely */
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_LUCKY)
+		rate += rate / 2;
 
 
 	LIMIT_AREA(rate, 0, 100);

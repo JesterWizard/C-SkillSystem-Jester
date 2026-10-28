@@ -394,4 +394,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
     [SID_Sweapstrike] = Action_Sweapstrike,
 #endif
+
+#if (defined(SID_Prayer) && COMMON_SKILL_VALID(SID_Prayer))
+    [SID_Prayer] = Action_Prayer,
+#endif
 };
