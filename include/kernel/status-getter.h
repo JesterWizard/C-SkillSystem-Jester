@@ -29,6 +29,10 @@ extern StatusGetterFunc_t const gpExternalMovGetters;
 extern StatusGetterFunc_t const gpExternalConGetters;
 extern StatusGetterFunc_t const gpExternalAidGetters;
 
+/* MiscGetter.c: keep the Magic/Physical Seal sources for one AI decision */
+void HoldSealSourceCache(void);
+void ReleaseSealSourceCache(void);
+
 int HpMaxGetter(struct Unit *unit);
 int PowGetter(struct Unit *unit);
 int MagGetter(struct Unit *unit);

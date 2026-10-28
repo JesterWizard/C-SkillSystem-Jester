@@ -560,7 +560,8 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 		return false;
 
 #if (defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal)))
-	if (IsUnitPhysicalSealed(unit) && !(GetItemAttributes(item) & IA_MAGIC))
+	/* Attribute first: the seal check is far slower */
+	if (!(GetItemAttributes(item) & IA_MAGIC) && IsUnitPhysicalSealed(unit))
 		return false;
 #endif
 
@@ -574,116 +575,103 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 	}
 #endif
 
+/* The gifts: weapon type and rank are cheap to check, the skill tests are not */
 #if (defined(SID_ShadowGiftPlus) && (COMMON_SKILL_VALID(SID_ShadowGiftPlus)))
-    if (SkillTesterPlus(unit, SID_ShadowGiftPlus))
-        if (GetItemType(item) == ITYPE_DARK)
-            if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_DARK && UNIT_WRANK(unit, ITYPE_DARK) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_ShadowGiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_ShadowGift) && (COMMON_SKILL_VALID(SID_ShadowGift)))
-    if (SkillTester(unit, SID_ShadowGift))
-        if (GetItemType(item) == ITYPE_DARK)
-            if (UNIT_WRANK(unit, ITYPE_DARK) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_DARK && UNIT_WRANK(unit, ITYPE_DARK) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_ShadowGift))
+                return true;
 #endif
 
 #if (defined(SID_LightGiftPlus) && (COMMON_SKILL_VALID(SID_LightGiftPlus)))
-    if (SkillTesterPlus(unit, SID_LightGiftPlus))
-        if (GetItemType(item) == ITYPE_LIGHT)
-            if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_LIGHT && UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_LightGiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_LightGift) && (COMMON_SKILL_VALID(SID_LightGift)))
-    if (SkillTester(unit, SID_LightGift))
-        if (GetItemType(item) == ITYPE_LIGHT)
-            if (UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_LIGHT && UNIT_WRANK(unit, ITYPE_LIGHT) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_LightGift))
+                return true;
 #endif
 
 #if (defined(SID_StormgiftPlus) && (COMMON_SKILL_VALID(SID_StormgiftPlus)))
-    if (SkillTesterPlus(unit, SID_StormgiftPlus))
-        if (GetItemType(item) == ITYPE_ANIMA)
-            if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_ANIMA && UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_StormgiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_Stormgift) && (COMMON_SKILL_VALID(SID_Stormgift)))
-    if (SkillTester(unit, SID_Stormgift))
-        if (GetItemType(item) == ITYPE_ANIMA)
-            if (UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_ANIMA && UNIT_WRANK(unit, ITYPE_ANIMA) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_Stormgift))
+                return true;
 #endif
 
 #if (defined(SID_BladegiftPlus) && (COMMON_SKILL_VALID(SID_BladegiftPlus)))
-    if (SkillTesterPlus(unit, SID_BladegiftPlus))
-        if (GetItemType(item) == ITYPE_SWORD)
-            if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_SWORD && UNIT_WRANK(unit, ITYPE_SWORD) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_BladegiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_Bladegift) && (COMMON_SKILL_VALID(SID_Bladegift)))
-    if (SkillTester(unit, SID_Bladegift))
-        if (GetItemType(item) == ITYPE_SWORD)
-            if (UNIT_WRANK(unit, ITYPE_SWORD) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_SWORD && UNIT_WRANK(unit, ITYPE_SWORD) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_Bladegift))
+                return true;
 #endif
 
 #if (defined(SID_PiercegiftPlus) && (COMMON_SKILL_VALID(SID_PiercegiftPlus)))
-    if (SkillTesterPlus(unit, SID_PiercegiftPlus))
-        if (GetItemType(item) == ITYPE_LANCE)
-            if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_LANCE && UNIT_WRANK(unit, ITYPE_LANCE) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_PiercegiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_Piercegift) && (COMMON_SKILL_VALID(SID_Piercegift)))
-    if (SkillTester(unit, SID_Piercegift))
-        if (GetItemType(item) == ITYPE_LANCE)
-            if (UNIT_WRANK(unit, ITYPE_LANCE) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_LANCE && UNIT_WRANK(unit, ITYPE_LANCE) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_Piercegift))
+                return true;
 #endif
 
 #if (defined(SID_HackgiftPlus) && (COMMON_SKILL_VALID(SID_HackgiftPlus)))
-    if (SkillTesterPlus(unit, SID_HackgiftPlus))
-        if (GetItemType(item) == ITYPE_AXE)
-            if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_AXE && UNIT_WRANK(unit, ITYPE_AXE) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_HackgiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_Hackgift) && (COMMON_SKILL_VALID(SID_Hackgift)))
-    if (SkillTester(unit, SID_Hackgift))
-        if (GetItemType(item) == ITYPE_AXE)
-            if (UNIT_WRANK(unit, ITYPE_AXE) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_AXE && UNIT_WRANK(unit, ITYPE_AXE) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_Hackgift))
+                return true;
 #endif
 
 #if (defined(SID_ArcgiftPlus) && (COMMON_SKILL_VALID(SID_ArcgiftPlus)))
-    if (SkillTesterPlus(unit, SID_ArcgiftPlus))
-        if (GetItemType(item) == ITYPE_BOW)
-            if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_BOW && UNIT_WRANK(unit, ITYPE_BOW) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_A) // A rank max
+            if (SkillTesterPlus(unit, SID_ArcgiftPlus))
+                return true;
 #endif
 
 #if (defined(SID_Arcgift) && (COMMON_SKILL_VALID(SID_Arcgift)))
-    if (SkillTester(unit, SID_Arcgift))
-        if (GetItemType(item) == ITYPE_BOW)
-            if (UNIT_WRANK(unit, ITYPE_BOW) == 0)
-                if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
-                    return true;
+    if (GetItemType(item) == ITYPE_BOW && UNIT_WRANK(unit, ITYPE_BOW) == 0)
+        if (GetItemRequiredExp(item) <= WPN_EXP_C) // C rank max
+            if (SkillTester(unit, SID_Arcgift))
+                return true;
 #endif
 
 	return (UNIT_WRANK(unit, GetItemType(item)) >= GetItemRequiredExp(item)) ? true : false;
