@@ -277,6 +277,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 
 - [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md)
 - [Wizardry](./Documentation/Features/Wizardry.md)
+- [World Map Story Chapters](./Documentation/Features/WorldMapStoryChapters.md)
 - [World Map Thoughts](./Documentation/Features/WorldMapThoughts.md)
 
 	<details>

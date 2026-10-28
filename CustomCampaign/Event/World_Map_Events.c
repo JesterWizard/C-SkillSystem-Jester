@@ -1,6 +1,29 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "../Chapters/_shared/worldmap-scripts.h"
+#include "wm-story-chapter.h"
+#include "jester_headers/maps.h"
+
+/*
+ * Where each story chapter starts on the world map. The chapter comes from
+ * the event that ends the previous one (NEXT_CHAPTER_WITH_MAP), so several
+ * chapters can use the same node. Chapters played without the world map
+ * (NEXT_CHAPTER_WITHOUT_MAP, e.g. Chapter 1 and 5x) need no row.
+ */
+const struct WmStoryChapterNode gWmStoryChapterNodes[] = {
+    { 0x00,          WM_NODE_BorderMulan },   /* Prologue */
+    { CASTLE_FRELIA, WM_NODE_CastleFrelia },  /* Intermission */
+    { CHAPTER_02,    WM_NODE_Ide },
+    { CHAPTER_03,    WM_NODE_BorgoRidge },
+    { CHAPTER_04,    WM_NODE_ZahaWoods },
+    { CHAPTER_05,    WM_NODE_Serafew },
+    { CHAPTER_06,    WM_NODE_AdlasPlains },
+    { CHAPTER_07,    WM_NODE_Renvall1 },
+    { CHAPTER_08,    WM_NODE_Renvall2 },
+    { CHAPTER_09,    WM_NODE_PortKiris },
+    { CHAPTER_10,    WM_NODE_TerazPlateau },
+    { WM_STORY_CHAPTER_NONE, 0 },
+};
 
 const u16 * const EventScrWM_SET_NODE[] = {
     NULL,
@@ -52,6 +75,9 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
     else
     {
         int loc = gGMData.units[0].location;
+
+        /* The chapter the last NEXT_CHAPTER_WITH_MAP named decides where the story goes next */
+        WmStoryChapter_Begin(gPlaySt.chapterIndex);
 
         gGMData.current_node = loc;
         node_next = WMLoc_GetNextLocId(loc);
