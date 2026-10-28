@@ -960,3 +960,4 @@
 #define MSG_SKILL_LastResort_PRICE 1000
 #define MSG_SKILL_SpinForGold_PRICE 1000
 #define MSG_SKILL_SpinForLuck_PRICE 1000
+#define MSG_SKILL_FastHands_PRICE 1000

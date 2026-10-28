@@ -92,3 +92,10 @@ give its status to adjacent allies.[X]
 You need 1000G to spin.[X]
 ## MSG_SKILL_SpinForLuck_PROMPT
 Press A to stop![X]
+
+## MSG_SKILL_FastHands_NAME
+Fast Hands[X]
+## MSG_SKILL_FastHands_DESC
+Fast Hands:[N]
+Weapon weight raises speed[N]
+instead of lowering it.[X]

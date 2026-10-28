@@ -158,7 +158,7 @@ static void DrawPage1ValueReal(void)
     DrawStatWithBarRework(3, 0x5, 0x7,
                     gUiTmScratchA, gUiTmScratchC,
                     unit->spd,
-                    GetUnitSpeed(unit),
+                    GetUnitSpeed(unit) + GetFastHandsSpdBonus(unit),
                     UNIT_SPD_MAX(unit) + limitBreaker);
 
     DrawStatWithBarRework(4, 0x5, 0x9,
