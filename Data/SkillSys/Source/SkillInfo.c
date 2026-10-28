@@ -10549,4 +10549,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_FastHands) && COMMON_SKILL_VALID(SID_FastHands))
+    [SID_FastHands] = {
+        .name = MSG_SKILL_FastHands_NAME,
+        .desc = MSG_SKILL_FastHands_DESC,
+        .capacity = MSG_SKILL_FastHands_CAPACITY,
+        .price = MSG_SKILL_FastHands_PRICE,
+        .icon = GFX_SkillIcon_FastHands,
+        .iconPal = 0,
+    },
+#endif
+
 };

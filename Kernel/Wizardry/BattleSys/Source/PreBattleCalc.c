@@ -68,6 +68,12 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 	if (wt < 0)
 		wt = 0;
 
+#if (defined(SID_FastHands) && (COMMON_SKILL_VALID(SID_FastHands)))
+	/* Fast Hands: the weight penalty becomes a bonus. */
+	if (SkillTester(GetUnit(bu->unit.index), SID_FastHands))
+		wt = -wt;
+#endif
+
 	bu->battleSpeed = bu->unit.spd - wt;
 
 	if (bu->battleSpeed < 0)
