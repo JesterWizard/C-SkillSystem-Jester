@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel/no-cash-gba.h"
+#include "wm-story-chapter.h"
 
 extern u8 sWmChapterIdOverride;
 extern u8 sWmMapReloadPending;
@@ -45,10 +46,8 @@ int WMLoc_GetChapterId(int node)
         return chapter;
     }
 
-    if (gPlaySt.chapterModeIndex == CHAPTER_MODE_EPHRAIM)
-        return gWMNodeData[node].chapteridx_ephram;
-
-    return gWMNodeData[node].chapteridx_eirika;
+    /* The story chapter starts from its campaign node; vanilla ids elsewhere */
+    return GetWmLocChapter(node);
 }
 
 // static const u8 WmMonsterGenerateRatesIdx_EirikaMode[11] = {

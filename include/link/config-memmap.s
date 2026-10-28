@@ -303,6 +303,9 @@ _kernel_malloc2 gUndoSnapshot, 4
 /* Zenkai: EXP waiting to be granted after the staff action ([0] = unit index, [1] = EXP) */
 _kernel_malloc2 gZenkaiPending, 4
 
+/* World map story chapter: the last NEXT_CHAPTER_WITH_MAP target (see WmStoryChapter.c), padded to a word */
+_kernel_malloc2 gWmStoryChapter, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
