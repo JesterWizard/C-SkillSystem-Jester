@@ -78,6 +78,8 @@ Script commands, one per line. `#` starts a comment.
 - `w8|w16|w32 ADDR VAL` - write memory.
 - `r8|r16|r32 ADDR` - print memory.
 - `dump ADDR LEN FILE` - dump memory to a file.
+- `prof N ADDR [NAME [WITHIN]]` - run N frames one instruction at a time and time every call to the function at ADDR. Prints the call count, the total and the slowest call in CPU cycles and in frames (280896 cycles per frame). Take ADDR from `fe8-kernel-dev.sym`; for a vanilla function the kernel replaces, use the kernel address, not the vanilla one. Halted CPU time is skipped, so a few thousand frames take seconds. Example: profile `CpDecide_Main` after ending the turn to see how long each AI decision takes. With WITHIN (another function address), only calls made while that function runs count, e.g. `prof 1500 <GetUnitMaxHp> HpGetter <CpDecide_Main>` for the HP getter calls of the AI decisions alone.
+- `minsp N` - run N frames one instruction at a time and print the lowest main stack pointer. The HQ sound mixer (`Contents/External/m4a_hq_mixer`) copies its code to IWRAM 0x03006CB0-0x03007708, right below the stack. An SP below 0x03007708 overwrites it, and the next sound interrupt crashes the game (it resets to the title). Check this after any change to the AI or the battle simulation: on the AI benchmark the enemy phase reaches about 0x03007740.
 - `sram FILE` - load a battery save before reset. Must be the first command.
 
 Boot script:

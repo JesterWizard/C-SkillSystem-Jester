@@ -10,7 +10,12 @@
 //   r8|r16|r32 ADDR        print memory
 //   dump ADDR LEN FILE     dump memory
 //   sram FILE              load battery save file before reset (must come first)
+//   prof N ADDR [NAME]     run N frames one instruction at a time and report
+//                          the calls to the function at ADDR: count, total
+//                          and slowest call in CPU cycles (280896 per frame)
 #include <mgba/core/core.h>
+#include <mgba/core/timing.h>
+#include <mgba/internal/arm/arm.h>
 #include <mgba/core/config.h>
 #include <mgba/core/serialize.h>
 #include <mgba-util/vfs.h>
@@ -50,6 +55,84 @@ static void frames(int keys, int n)
 	core->setKeys(core, keys);
 	for (int i = 0; i < n; i++)
 		core->runFrame(core);
+}
+
+/*
+ * Times every call to the function at addr (Thumb or ARM) over n frames.
+ * A call starts when the CPU executes addr and ends when it executes the
+ * return address held in LR at entry with the stack popped back. With a
+ * nonzero within, only calls made while the function at within runs count.
+ */
+static void prof(int n, uint32_t addr, const char *name, uint32_t within)
+{
+	struct ARMCore *cpu = core->cpu;
+	uint32_t func = addr & ~1u, ret = 0, sp = 0, start = 0;
+	uint32_t outer = within & ~1u, outer_ret = 0, outer_sp = 0;
+	uint64_t total = 0;
+	uint32_t worst = 0, calls = 0;
+	int inside = 0, in_outer = !within;
+
+	core->setKeys(core, 0);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		while (core->frameCounter(core) == frame) {
+			uint32_t pc = cpu->gprs[ARM_PC] - (cpu->executionMode == MODE_THUMB ? 4 : 8);
+
+			if (within && !in_outer && pc == outer) {
+				in_outer = 1;
+				outer_ret = cpu->gprs[ARM_LR] & ~1u;
+				outer_sp = cpu->gprs[ARM_SP];
+			} else if (within && in_outer && !inside && pc == outer_ret &&
+				   (uint32_t)cpu->gprs[ARM_SP] >= outer_sp) {
+				in_outer = 0;
+			}
+
+			if (!inside && in_outer && pc == func) {
+				inside = 1;
+				ret = cpu->gprs[ARM_LR] & ~1u;
+				sp = cpu->gprs[ARM_SP];
+				start = mTimingCurrentTime(core->timing);
+			} else if (inside && pc == ret && (uint32_t)cpu->gprs[ARM_SP] >= sp) {
+				uint32_t t = (uint32_t)mTimingCurrentTime(core->timing) - start;
+
+				inside = 0;
+				calls++;
+				total += t;
+				if (t > worst)
+					worst = t;
+			}
+			core->step(core);
+		}
+	}
+	printf("prof %s: calls=%u total=%llu cycles (%.1f frames) worst=%u cycles (%.2f frames)\n",
+	       name, calls, (unsigned long long)total, total / 280896.0, worst, worst / 280896.0);
+}
+
+/*
+ * Runs n frames one instruction at a time and prints the lowest main stack
+ * pointer (system mode). The HQ sound mixer's code sits in IWRAM right below
+ * the stack, up to 0x03007708: a lower SP overwrites it and the game crashes.
+ */
+static void minsp(int n)
+{
+	struct ARMCore *cpu = core->cpu;
+	uint32_t sp = 0xFFFFFFFF, pc = 0, lr = 0;
+
+	core->setKeys(core, 0);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		while (core->frameCounter(core) == frame) {
+			if (cpu->privilegeMode == MODE_SYSTEM && (uint32_t)cpu->gprs[ARM_SP] < sp) {
+				sp = cpu->gprs[ARM_SP];
+				pc = cpu->gprs[ARM_PC];
+				lr = cpu->gprs[ARM_LR];
+			}
+			core->step(core);
+		}
+	}
+	printf("minsp %08x (pc %08x lr %08x)\n", sp, pc, lr);
 }
 
 static void shot(const char *fn)
@@ -102,7 +185,7 @@ int main(int argc, char **argv)
 	char line[512];
 	int started = 0;
 	while (fgets(line, sizeof(line), sf)) {
-		char cmd[32], a[256], b[256], c[256];
+		char cmd[32], a[256], b[256], c[256], d[256];
 		int n = sscanf(line, "%31s %255s %255s %255s", cmd, a, b, c);
 		if (n <= 0 || cmd[0] == '#')
 			continue;
@@ -161,7 +244,12 @@ int main(int argc, char **argv)
 			for (uint32_t k = 0; k < len; k++)
 				fputc(core->busRead8(core, ad + k), o);
 			fclose(o);
-		} else
+		} else if (!strcmp(cmd, "prof"))
+			prof(atoi(a), strtoul(b, 0, 0), n >= 4 ? c : b,
+			     sscanf(line, "%*s %*s %*s %*s %255s", d) == 1 ? strtoul(d, 0, 0) : 0);
+		else if (!strcmp(cmd, "minsp"))
+			minsp(atoi(a));
+		else
 			fprintf(stderr, "unknown %s\n", cmd);
 	}
 	core->deinit(core);

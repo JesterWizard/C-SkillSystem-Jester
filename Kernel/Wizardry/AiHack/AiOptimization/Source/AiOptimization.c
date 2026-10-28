@@ -9,6 +9,7 @@
 #include "gaiden-magic.h"
 #include "jester_headers/custom-functions.h"
 #include "enemy-fog-vision.h"
+#include "AiTargetScan.h"
 
 extern void CpDecide_Main(ProcPtr proc);
 extern void DecideHealOrEscape(void);
@@ -342,11 +343,16 @@ next_unit:
 
             gAiState.combatWeightTableId = (gActiveUnit->ai_config & AI_UNIT_CONFIG_COMBATWEIGHT_MASK) >> AI_UNIT_CONFIG_COMBATWEIGHT_SHIFT;
 
+            /* Nothing but gActiveUnit moves until the decision is made */
+            HoldSealSourceCache();
+
             gAiState.dangerMapFilled = FALSE;
             AiInitDangerMap();
 
             AiClearDecision();
             AiDecideMainFunc();
+
+            ReleaseSealSourceCache();
 
 #if (defined(SID_Guardian) && COMMON_SKILL_VALID(SID_Guardian))
             if (SkillTester(GetUnit(gAiDecision.targetId), SID_Guardian))
@@ -495,16 +501,7 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 
 	struct AiSimuSlotEnt *it, *final_slot = NULL;
 
-	u8 UNIT_AMOUNT = 0xC0;
-
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-	if (gpKernelDesignerConfig->fourth_allegiance)
-		UNIT_AMOUNT = 0xD0;
-#endif
-
-	int target_count = 0;
-
-	int uid;
+	int target_count, fought, i, mov;
 	bool ret = 0;
 
 	if (gActiveUnit->state & US_IN_BALLISTA) {
@@ -544,8 +541,11 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 
 	CollectAiSimuSlots(gActiveUnit, gpAiSimuSlotBuf);
 
+	/* The stat getters are expensive: read movement once, not per weapon */
+	mov = MovGetter(gActiveUnit);
+
 	for (it = gpAiSimuSlotBuf; it->item != 0; it++) {
-		int move_distance;
+		int move_distance, max_range;
 
 		u16 item = it->item;
 
@@ -553,68 +553,25 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 
 		tmpResult.itemSlot = it->slot;
 
-		move_distance = MovGetter(gActiveUnit) + GetItemMaxRangeRework(item, gActiveUnit);
+		max_range = GetItemMaxRangeRework(item, gActiveUnit);
+		move_distance = mov + max_range;
 
-		for (uid = 1; uid < UNIT_AMOUNT; uid++) {
-			struct Unit *unit = GetUnit(uid);
+		/* Nearest targets first; with calculate_map_range_faster only the first few that can be fought */
+		target_count = AiCollectOffensiveTargets(isEnemy, item, move_distance, sAiTargetList);
+		fought = 0;
 
-			if (!UNIT_IS_VALID(unit))
-				continue;
-
-			if (unit->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_BIT16))
-				continue;
-
-			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
-			{
-				if (move_distance < RECT_DISTANCE(unit->xPos, unit->yPos, gActiveUnit->xPos, gActiveUnit->yPos))
-					continue;
-			}
-			else
-			{
-				if (!AiReachesByBirdsEyeDistance(gActiveUnit, unit, item))
-					continue;
-			}
-
-#if defined(SID_ShadePlus) && (COMMON_SKILL_VALID(SID_ShadePlus))
-			if (SkillTesterPlus(unit, SID_ShadePlus))
-				continue;
-#endif
-
-#if defined(SID_Shade) && (COMMON_SKILL_VALID(SID_Shade))
-			/* Shade skill may make unit avoid to be target */
-			if (SkillTester(unit, SID_Shade))
-				if (Roll1RN(unit->lck))
-					continue;
-#endif
-
-            if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_HIDE)
-                continue;
-
-#if defined(SID_Rampage) && (COMMON_SKILL_VALID(SID_Rampage))
-            if (SkillTester(gActiveUnit, SID_Rampage))
-            {
-                if (AreUnitsAllied(gActiveUnit->index, unit->index))
-                    continue;
-                if (gActiveUnit->index == unit->index)
-                    continue;
-                if (!EnemyFogVisionCanSeeUnit(unit))
-                    continue;
-            }
-            else
-            {
-                if (!isEnemy(unit))
-                    continue;
-            }
-#else
-            if (!isEnemy(unit))
-                continue;
-#endif
+		for (i = 0; i < target_count; i++) {
+			struct Unit *unit = GetUnit(AI_TARGET_UID(sAiTargetList[i]));
 
 			AiFillReversedAttackRangeMap(unit, item);
 
 			tmpResult.targetId = unit->index;
 
-			ret = AiSimulateBestBattleAgainstTarget(&tmpResult);
+			/* As AiSimulateBestBattleAgainstTarget, one frame shallower: see AiTargetScan.h */
+			if (!AiFindBestTileNearTarget(&tmpResult, unit->xPos, unit->yPos, max_range))
+				continue;
+
+			ret = AiSimulateBattleAgainstTargetAtPosition(&tmpResult);
 			if (!ret)
 				continue;
 
@@ -627,10 +584,8 @@ s8 AiAttemptOffensiveAction(s8 (*isEnemy)(struct Unit *unit))
 			}
 
 			if (gpKernelDesignerConfig->calculate_map_range_faster == true)
-			{
-				if (++target_count >= TARGET_COUNT_TRIGLEVEL)
+				if (++fought >= TARGET_COUNT_TRIGLEVEL)
 					break;
-			}
 		}
 	}
 

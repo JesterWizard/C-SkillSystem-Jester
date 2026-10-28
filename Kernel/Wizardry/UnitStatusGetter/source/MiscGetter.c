@@ -53,8 +53,16 @@ int GetUnitCurrentHp(struct Unit *unit)
  * checks run for every weapon of every unit the AI and the range maps look
  * at. Scanning all units' skills (plus an event-engine proc scan) for each of
  * those calls made AI decisions and battles stall for many frames.
+ *
+ * An AI decision runs for several frames, and each new frame used to gather
+ * the sources again, testing every unit's skills (which also evicts the
+ * cached skill list of the units being simulated). HoldSealSourceCache keeps
+ * the sources for the whole decision instead: no unit but the deciding one
+ * moves or changes during it. The deciding unit is moved from tile to tile
+ * as the AI simulates, so it is left out of the lists and checked at its
+ * live position.
  */
-#define SEAL_SOURCE_MAX 16
+#define SEAL_SOURCE_MAX 15
 #define SEAL_SOURCE_OVERFLOW 0xFF
 
 struct SealSourceCache {
@@ -63,15 +71,36 @@ struct SealSourceCache {
     u8 event;
     u8 magic_cnt;
     u8 physical_cnt;
+    u8 hold;
+    u8 active_uid;
+    u8 active_magic;
+    u8 active_physical;
     s8 magic[SEAL_SOURCE_MAX][2];
     s8 physical[SEAL_SOURCE_MAX][2];
 };
+
+/* include/link/config-memmap.s */
+_Static_assert(sizeof(struct SealSourceCache) == 0x48, "resize sSealSourceCache in config-memmap.s");
 
 extern struct SealSourceCache sSealSourceCache;
 
 void InvalidateSealSourceCache(void)
 {
     sSealSourceCache.valid = false;
+}
+
+/* Keep the seal sources until ReleaseSealSourceCache, for gActiveUnit's AI decision */
+void HoldSealSourceCache(void)
+{
+    sSealSourceCache.valid = false;
+    sSealSourceCache.hold = true;
+    sSealSourceCache.active_uid = gActiveUnit->index;
+}
+
+void ReleaseSealSourceCache(void)
+{
+    sSealSourceCache.valid = false;
+    sSealSourceCache.hold = false;
 }
 
 static void AddSealSource(u8 *cnt, s8 (*list)[2], struct Unit *unit)
@@ -95,13 +124,15 @@ static struct SealSourceCache *GetSealSourceCache(void)
     u32 clock = GetGameClock();
     int i;
 
-    if (cache->valid && cache->clock == clock)
+    if (cache->valid && (cache->hold || cache->clock == clock))
         return cache;
 
     cache->valid = true;
     cache->clock = clock;
     cache->magic_cnt = 0;
     cache->physical_cnt = 0;
+    cache->active_magic = false;
+    cache->active_physical = false;
 
     /* Pre/post chapter events (and other map events) must not apply seal. */
     cache->event = EventEngineExists();
@@ -117,6 +148,18 @@ static struct SealSourceCache *GetSealSourceCache(void)
 
         if (!UNIT_IS_VALID(unit))
             continue;
+
+        if (cache->hold && i == cache->active_uid) {
+#if defined(SID_MagicSeal) && (COMMON_SKILL_VALID(SID_MagicSeal))
+            cache->active_magic = (UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL) || SkillTester(unit, SID_MagicSeal);
+#else
+            cache->active_magic = !!(UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL);
+#endif
+#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
+            cache->active_physical = SkillTester(unit, SID_PhysicalSeal);
+#endif
+            continue;
+        }
 
 #if defined(SID_MagicSeal) && (COMMON_SKILL_VALID(SID_MagicSeal))
         if ((UNIT_CATTRIBUTES(unit) & CA_MAGICSEAL) || SkillTester(unit, SID_MagicSeal))
@@ -134,15 +177,21 @@ static struct SealSourceCache *GetSealSourceCache(void)
     return cache;
 }
 
-static bool IsInSealSourceRange(int cnt, s8 (*list)[2], int x, int y)
+/* active: whether the held deciding unit is a source of this seal too */
+static bool IsInSealSourceRange(int cnt, s8 (*list)[2], bool active, int x, int y)
 {
+    struct Unit *unit;
     int i;
 
     for (i = 0; i < cnt; i++)
         if (RECT_DISTANCE(list[i][0], list[i][1], x, y) <= 10)
             return true;
 
-    return false;
+    if (!active)
+        return false;
+
+    unit = GetUnit(sSealSourceCache.active_uid);
+    return RECT_DISTANCE(unit->xPos, unit->yPos, x, y) <= 10;
 }
 
 static s8 IsPositionMagicSealedSlow(int x, int y)
@@ -184,7 +233,7 @@ s8 IsPositionMagicSealed(int x, int y)
     if (cache->magic_cnt == SEAL_SOURCE_OVERFLOW)
         return IsPositionMagicSealedSlow(x, y);
 
-    return IsInSealSourceRange(cache->magic_cnt, cache->magic, x, y);
+    return IsInSealSourceRange(cache->magic_cnt, cache->magic, cache->active_magic, x, y);
 }
 
 LYN_REPLACE_CHECK(IsUnitMagicSealed);
@@ -209,7 +258,7 @@ s8 IsPositionPhysicalSealed(int x, int y)
         return FALSE;
 
     if (cache->physical_cnt != SEAL_SOURCE_OVERFLOW)
-        return IsInSealSourceRange(cache->physical_cnt, cache->physical, x, y);
+        return IsInSealSourceRange(cache->physical_cnt, cache->physical, cache->active_physical, x, y);
 
     for (i = 0x1; i < 0xC0; ++i) {
         struct Unit *unit = GetUnit(i);
