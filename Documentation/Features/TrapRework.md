@@ -18,11 +18,12 @@
 12. [Boulder Trap Notes](#boulder-trap-notes)
 13. [Spin Tile Notes](#spin-tile-notes)
 14. [Hidden Caltrops Notes](#hidden-caltrops-notes)
-15. [Trap Sprite Registration](#trap-sprite-registration)
-16. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-17. [Code Locations](#code-locations)
-18. [TODO](#todo)
-19. [Limitations & Bugs](#limitations--bugs)
+15. [Collapsing Floor Notes](#collapsing-floor-notes)
+16. [Trap Sprite Registration](#trap-sprite-registration)
+17. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+18. [Code Locations](#code-locations)
+19. [TODO](#todo)
+20. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -538,6 +539,29 @@ Implementation note:
 
 - `CutMovementScriptAtCaltrops(unit)` (`Kernel/Wizardry/TrapData/HiddenCaltrops.c`) cuts `gWorkingMovementScript` at the first caltrops tile. It runs right after `UnitApplyWorkingMovementScript` in `PlayerPhase_DisplayUnitMovement` (`Kernel/Wizardry/RemoveMovePath/Source/RemoveMovePath.c`) and in `CpPerform_BeginUnitMovement` (replaced in `HiddenCaltrops.c` for AI moves). It does not change `UnitApplyWorkingMovementScript` itself, which lives in `MiscFunctions.c`.
 
+## Collapsing Floor Notes
+
+A collapsing floor is a weak tile that gives way under the second unit to stand on it.
+
+Behavior summary:
+
+- Trap type: `TRAP_COLLAPSING_FLOOR` (27)
+- Runtime API: `AddCollapsingFloor(x, y)`
+- Chapter-start macro: `COLLAPSING_FLOOR(x, y)`
+- State: `trap->data[TRAP_EXTDATA_COLLAPSING_FLOOR_STATE]` holds `COLLAPSING_FLOOR_INTACT`, `COLLAPSING_FLOOR_CRACKED` or `COLLAPSING_FLOOR_HOLE`
+- Map sprites: `0x75` intact (hairline crack), `0x76` cracked, `0x77` hole (`images/Floor_*_Tile.png`), on the default trap palette; the sprite ID is `0x75` plus the state
+- Intact: the first grounded unit to end its action on it cracks it (sound effect `0xBD`)
+- Cracked: a grounded unit whose move enters it stops there and its turn ends (`UNIT_ACTION_TRAPPED`); after its action it falls through and dies (the hurt animation drains all its HP, then `UnitKill`), and the tile becomes a hole
+- A unit already standing on the floor when it cracked is safe while it acts without moving (the fall needs `gActiveUnitMoveOrigin` to differ from the unit's tile)
+- Hole: grounded units cannot enter it
+- The AI never paths onto a cracked floor; fliers ignore the trap in every state
+
+Implementation note:
+
+- `Kernel/Wizardry/TrapData/CollapsingFloor.c` holds `AddCollapsingFloor`, `CollapsingFloorStopsMoveAt`, `MarkCollapsingFloorBarriers` and `PostAction_CollapsingFloor`.
+- The stop on a cracked floor shares `CutMovementScriptAtCaltrops` (`HiddenCaltrops.c`), which calls `CollapsingFloorStopsMoveAt`.
+- `MarkCollapsingFloorBarriers` is called at the end of `PreGenerateMovementMap` (`Kernel/Wizardry/Movement/Source/Movement.c`) and marks holes (all grounded units) and cracked floors (non-player units) as movement barriers.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -572,6 +596,9 @@ Current registered trap-like sprite IDs in this file:
 - `0x6F` Spin Tile
 - `0x73` Hellscape Void Tile
 - `0x74` Caltrops Tile (hidden caltrops)
+- `0x75` Floor Intact Tile (collapsing floor)
+- `0x76` Floor Cracked Tile (collapsing floor)
+- `0x77` Floor Hole Tile (collapsing floor)
 
 When adding a new trap sprite:
 
@@ -656,6 +683,8 @@ Implementation notes:
 | Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
 | Hidden caltrops creation, movement stop and reveal | `AddHiddenCaltrops`, `CutMovementScriptAtCaltrops`, `CpPerform_BeginUnitMovement` and `PostAction_HiddenCaltrops` in `Kernel/Wizardry/TrapData/HiddenCaltrops.c` | Creates the trap, stops player and AI moves on it with the fog-ambush "!", and reveals it after the unit's action |
 | Hidden caltrops sprite | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws sprite `0x74` for revealed caltrops only |
+| Collapsing floor creation, stop, fall and barriers | `AddCollapsingFloor`, `CollapsingFloorStopsMoveAt`, `MarkCollapsingFloorBarriers` and `PostAction_CollapsingFloor` in `Kernel/Wizardry/TrapData/CollapsingFloor.c` | Creates the floor, stops moves on a cracked floor, cracks it or drops the unit through it after its action, and blocks holes and (for the AI) cracked floors |
+| Collapsing floor sprite | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws sprite `0x75` plus the floor's state |
 | Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
 | Trap map sprite palette bank | `GetTrapMapSpriteObjPal` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps a trap's type and stored palette choice onto an OBJ palette bank (also used by the debugger's trap preview) |
 | Grass/spin trap custom palettes | `LoadTrapMapSpritePalette` and `ReloadCustomTrapSpritePalettes` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Loads `Pal_Grass_Tile`/`Pal_Spin_Tile` into their dedicated OBJ banks while such a trap is on the map |

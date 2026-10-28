@@ -53,6 +53,39 @@ PUSH
 		POIN Gfx_Caltrops_Tile
 POP
 
+/* Collapsing floor tiles: intact, cracked, hole (IDs follow COLLAPSING_FLOOR_* order) */
+#define Gfx_Floor_Intact_Tile_ID 0x75
+#define Gfx_Floor_Cracked_Tile_ID 0x76
+#define Gfx_Floor_Hole_Tile_ID 0x77
+
+Gfx_Floor_Intact_Tile:
+#incext Png2Dmp "images/Floor_Intact_Tile.png" --lz77
+Gfx_Floor_Cracked_Tile:
+#incext Png2Dmp "images/Floor_Cracked_Tile.png" --lz77
+Gfx_Floor_Hole_Tile:
+#incext Png2Dmp "images/Floor_Hole_Tile.png" --lz77
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Floor_Intact_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Floor_Intact_Tile
+POP
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Floor_Cracked_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Floor_Cracked_Tile
+POP
+
+PUSH
+	ORG (0x8AF880+0x8*Gfx_Floor_Hole_Tile_ID)
+		SHORT 0x0002
+		SHORT 0x0000
+		POIN Gfx_Floor_Hole_Tile
+POP
+
 /* Lit Torch Tile*/
 #define Gfx_Lit_Torch_ID 0x6A
 

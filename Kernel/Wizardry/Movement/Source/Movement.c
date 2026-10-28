@@ -262,6 +262,8 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 			KernelMoveMapFlags |= FMOVSTRE_BARRIER;
 		}
 	}
+
+	MarkCollapsingFloorBarriers(unit);
 }
 
 LYN_REPLACE_CHECK(GenerateMovementMap);
