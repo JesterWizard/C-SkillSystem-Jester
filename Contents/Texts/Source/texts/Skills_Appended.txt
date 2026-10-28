@@ -106,3 +106,12 @@ Obliterate[X]
 Obliterate:[N]
 If promoted, instantly kill[N]
 unpromoted foes of lower level.[X]
+
+## MSG_SKILL_Sweapstrike_NAME
+Sweapstrike[X]
+## MSG_SKILL_Sweapstrike_DESC
+Sweapstrike:[N]
+Once per map, strike a chosen[N]
+column for 10 damage to all in it.[X]
+## MSG_SKILL_Sweapstrike_Target
+Select a column.[X]

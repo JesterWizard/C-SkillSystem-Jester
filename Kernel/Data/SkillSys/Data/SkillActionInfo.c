@@ -390,4 +390,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_SpinForLuck) && COMMON_SKILL_VALID(SID_SpinForLuck))
     [SID_SpinForLuck] = Action_SpinForLuck,
 #endif
+
+#if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
+    [SID_Sweapstrike] = Action_Sweapstrike,
+#endif
 };
