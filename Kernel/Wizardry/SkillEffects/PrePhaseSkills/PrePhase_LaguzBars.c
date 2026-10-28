@@ -8,7 +8,7 @@
 #include "constants/texts.h"
 #include "skill-system.h"
 
-void PrePhase_LaguzBars(ProcPtr proc)
+bool PrePhase_LaguzBars(ProcPtr proc)
 {
     if (gpKernelDesignerConfig->laguz_bars == true)
     {
@@ -61,4 +61,5 @@ void PrePhase_LaguzBars(ProcPtr proc)
             }
         }
     }
+    return false;
 }

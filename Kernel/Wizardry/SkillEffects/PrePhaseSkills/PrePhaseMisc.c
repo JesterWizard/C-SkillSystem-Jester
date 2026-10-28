@@ -9,7 +9,7 @@
 
 extern u8 gUnitTonicState[];
 
-void PrePhase_ResetFaction(ProcPtr proc)
+bool PrePhase_ResetFaction(ProcPtr proc)
 {
 	if (gPlaySt.faction == FACTION_BLUE)
 	{
@@ -34,6 +34,7 @@ void PrePhase_ResetFaction(ProcPtr proc)
 			}
 		}
 	}
+	return false;
 }
 
 bool PrePhase_ClearMiscUES(ProcPtr proc)
@@ -69,7 +70,7 @@ bool PrePhase_ClearMiscUES(ProcPtr proc)
 	return false;
 }
 
-void PrePhase_ApplyMpStartingAmount(ProcPtr proc)
+bool PrePhase_ApplyMpStartingAmount(ProcPtr proc)
 {
 	struct Unit* unit;
 	int unit_id;
@@ -114,4 +115,5 @@ void PrePhase_ApplyMpStartingAmount(ProcPtr proc)
 			bwl->currentMP = (bwl->currentMP > maxMP) ? maxMP : bwl->currentMP;
 		}
 	}
+	return false;
 }

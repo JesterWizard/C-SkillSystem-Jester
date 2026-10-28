@@ -19,7 +19,8 @@ bool PostActionEnd(ProcPtr proc)
 	/* Vanilla function at the hack entry */
 	HandlePostActionTraps(proc);
 
-	return true;
+	/* Last entry: the hook proc yields once before it ends anyway */
+	return false;
 }
 
 bool PostActionPadFunc(ProcPtr proc)
@@ -31,7 +32,6 @@ bool PostActionPadFunc(ProcPtr proc)
 const struct ProcCmd ProcScr_PostActionHookPlayPhase[] = {
 	PROC_YIELD,
 	PROC_CALL(PostActionHook),
-	PROC_YIELD,
 	PROC_JUMP((const struct ProcCmd *)0x0859ABE8),
 	PROC_END
 };
@@ -39,7 +39,6 @@ const struct ProcCmd ProcScr_PostActionHookPlayPhase[] = {
 const struct ProcCmd ProcScr_PostActionHookCpPerform[] = {
 	PROC_YIELD,
 	PROC_CALL(PostActionHook),
-	PROC_YIELD,
 	PROC_JUMP((const struct ProcCmd *)0x085A807C),
 	PROC_END
 };

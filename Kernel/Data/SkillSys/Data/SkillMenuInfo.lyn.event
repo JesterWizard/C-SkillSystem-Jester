@@ -123,43 +123,43 @@ POIN CURRENTOFFSET+424
 POIN CURRENTOFFSET+384
 WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
 POIN CURRENTOFFSET-4524
-WORD $1C841C83 $3
+WORD $1C951C94 $3
 POIN Prayer_Usability
 WORD $0
 POIN Prayer_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4560
-WORD $1C811C80 $3
+WORD $1C921C91 $3
 POIN Sweapstrike_Usability
 WORD $0
 POIN Sweapstrike_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4596
-WORD $1C791C78 $3
+WORD $1C8A1C89 $3
 POIN SpinForLuck_Usability
 WORD $0
 POIN SpinForLuck_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4632
-WORD $1C741C73 $3
+WORD $1C851C84 $3
 POIN SpinForGold_Usability
 WORD $0
 POIN SpinForGold_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4668
-WORD $1C6C1C6B $3
+WORD $1C7D1C7C $3
 POIN DragonsBlood_Usability
 WORD $0
 POIN DragonsBlood_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4704
-WORD $1C681C67 $3
+WORD $1C791C78 $3
 POIN GroupCast_Usability
 WORD $0
 POIN GroupCast_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-4740
-WORD $1C661C65 $3
+WORD $1C771C76 $3
 POIN Takeover_Usability
 WORD $0
 POIN Takeover_OnSelected

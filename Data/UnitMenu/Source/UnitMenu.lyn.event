@@ -30,7 +30,7 @@ WORD $0 $8022B31 $0
 POIN pr_AttackActionCommandHoverFix
 POIN pr_AttackActionCommandUnhoverFix
 POIN CURRENTOFFSET-472
-WORD $158A1589 $6C00
+WORD $158C158B $6C00
 POIN pr_CombatArtActionCommandUsability
 POIN pr_CombatArtActionCommandOnDarw
 POIN pr_CombatArtActionCommandEffect
@@ -44,7 +44,7 @@ WORD $6D60691 $5204 $80248C5 $0 $8024921 $0 $0 $0
 POIN CURRENTOFFSET-548
 WORD $6D70692 $5304 $802494D $0 $8024981 $0 $0 $0
 POIN CURRENTOFFSET-568
-WORD $15DC15DB $8000
+WORD $15DE15DD $8000
 POIN pr_GaidenBMagActionCommandUsability
 POIN pr_GaidenBMagActionCommandOnDarw
 POIN pr_GaidenBMagActionCommandEffect
@@ -52,7 +52,7 @@ WORD $0
 POIN pr_GaidenBMagActionCommandHover
 POIN pr_GaidenBMagActionCommandUnhover
 POIN CURRENTOFFSET-588
-WORD $15DE15DD $8000
+WORD $15E015DF $8000
 POIN pr_GaidenWMagActionCommandUsability
 POIN pr_GaidenWMagActionCommandOnDarw
 POIN pr_GaidenWMagActionCommandEffect
@@ -60,19 +60,19 @@ WORD $0
 POIN pr_GaidenWMagActionCommandHover
 WORD $8023B85
 POIN CURRENTOFFSET-608
-WORD $135D135C $8000
+WORD $135F135E $8000
 POIN pr_UpperMenuSkill_Usability
 WORD $0
 POIN pr_UpperMenuSkill_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-632
-WORD $13C613C5 $8003
+WORD $13C813C7 $8003
 POIN Entrepreneur_Usability
 WORD $0
 POIN Entrepreneur_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-652
-WORD $14111410 $7900
+WORD $14131412 $7900
 POIN InteractCommandUsability
 WORD $0
 POIN InteractCommandEffect
@@ -96,43 +96,43 @@ WORD $6D10687 $6100 $8024091 $0 $80240CD $0 $0 $0
 POIN CURRENTOFFSET-876
 WORD $6D20688 $6200 $80240ED $0 $8024145 $0 $0 $0
 POIN CURRENTOFFSET-896
-WORD $14131412 $7A03
+WORD $14151414 $7A03
 POIN PrestigeCommandUsability
 WORD $0
 POIN PrestigeCommandEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-920
-WORD $14181417 $7C00
+WORD $141A1419 $7C00
 POIN StackCommandUsability
 WORD $0
 POIN StackCommandEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-948
-WORD $14091408 $6300
+WORD $140B140A $6300
 POIN PairUp_Usability
 WORD $0
 POIN PairUp_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-984
-WORD $140B140A $6A00
+WORD $140D140C $6A00
 POIN Shelter_Usability
 WORD $0
 POIN Shelter_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1020
-WORD $140D140C $6D00
+WORD $140F140E $6D00
 POIN PairUp_TransferUsability
 WORD $0
 POIN PairUp_TransferEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1056
-WORD $140F140E $6E00
+WORD $14111410 $6E00
 POIN PairUp_SwitchUsability
 WORD $0
 POIN PairUp_SwitchEffect
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1092
-WORD $16451644 $4
+WORD $16471646 $4
 POIN Gambit_UpperMenu_Usability
 WORD $0
 POIN Gambit_UpperMenu_Effect
@@ -140,13 +140,13 @@ WORD $0
 POIN Gambit_UpperMenu_Hover
 POIN Gambit_UpperMenu_Unhover
 POIN CURRENTOFFSET-1124
-WORD $14071406 $6C00
+WORD $14091408 $6C00
 POIN Refuge_Usability
 WORD $0
 POIN Refuge_OnSelected
 WORD $0 $0 $0
 POIN CURRENTOFFSET-1160
-WORD $16281627 $6C03
+WORD $162A1629 $6C03
 POIN Transform_Laguz_Usability
 WORD $0
 POIN Transform_Laguz_Effect

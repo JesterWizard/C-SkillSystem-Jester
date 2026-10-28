@@ -2,7 +2,7 @@
 #include "unit-expa.h"
 #include "bwl.h"
 
-void PrePhase_Truant(ProcPtr proc)
+bool PrePhase_Truant(ProcPtr proc)
 {
 #if defined(SID_Truant) && (COMMON_SKILL_VALID(SID_Truant))
     int uid;
@@ -22,4 +22,5 @@ void PrePhase_Truant(ProcPtr proc)
         }
     }
 #endif
+    return false;
 }

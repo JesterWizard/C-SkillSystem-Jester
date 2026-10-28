@@ -4,15 +4,15 @@
 #include "kernel-lib.h"
 #include "constants/skills.h"
 
-void PostAction_EXPShare(ProcPtr parent)
+bool PostAction_EXPShare(ProcPtr parent)
 {
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
-        return;
+        return false;
 
     struct Unit *actor = gActiveUnit;
 
     if (!UnitAvaliable(actor) || UNIT_STONED(actor))
-        return;
+        return false;
 
 #if defined(SID_EXPShare) && COMMON_SKILL_VALID(SID_EXPShare)
     int x = actor->xPos;
@@ -37,4 +37,6 @@ void PostAction_EXPShare(ProcPtr parent)
             ally->exp += 10;
     }
 #endif
+
+    return false;
 }

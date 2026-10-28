@@ -9,10 +9,10 @@
 #include "constants/skills.h"
 #include "constants/combat-arts.h"
 
-void PostAction_AngerPoint(ProcPtr parent)
+bool PostAction_AngerPoint(ProcPtr parent)
 {
     if (gActionData.unitActionType != UNIT_ACTION_COMBAT)
-        return;
+        return false;
 
 #if defined(SID_AngerPoint) && (COMMON_SKILL_VALID(SID_AngerPoint))
     if (SkillTester(gActiveUnit, SID_AngerPoint) && gBattleActorGlobalFlag.skill_activated_angerpoint)
@@ -20,4 +20,6 @@ void PostAction_AngerPoint(ProcPtr parent)
     else if (SkillTester(GetUnit(gActionData.targetIndex), SID_AngerPoint) && gBattleActorGlobalFlag.skill_activated_angerpoint)
         SetUnitStatDebuff(GetUnit(gActionData.targetIndex), UNIT_STAT_BUFF_ANGERPOINT);
 #endif
+
+    return false;
 }

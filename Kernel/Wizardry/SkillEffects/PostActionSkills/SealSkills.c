@@ -11,7 +11,7 @@
 
 // These seal skills will only currently work on the unit's given phase, but that's fine since they only last a turn anyways
 
-void PostAction_SealSkills(ProcPtr parent)
+bool PostAction_SealSkills(ProcPtr parent)
 {
     struct Unit * subject = GetUnit(gActionData.subjectIndex);
     struct Unit * target  = GetUnit(gActionData.targetIndex);
@@ -19,11 +19,11 @@ void PostAction_SealSkills(ProcPtr parent)
     bool isTarget  = (gActiveUnit == target);
 
     if (!isSubject && !isTarget)
-        return;
+        return false;
 
 #if defined(SID_FullMetalBody) && (COMMON_SKILL_VALID(SID_FullMetalBody))
     if (SkillTester(target, SID_FullMetalBody))
-        return;
+        return false;
 #endif
 
 #if defined(SID_SealDefense) && (COMMON_SKILL_VALID(SID_SealDefense))
@@ -96,4 +96,5 @@ void PostAction_SealSkills(ProcPtr parent)
     }
 #endif
 
+    return false;
 }

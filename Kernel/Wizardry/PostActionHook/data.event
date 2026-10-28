@@ -43,7 +43,7 @@ gPostActionFuncs:
     POIN PostAction_HiddenCaltrops
     POIN PostAction_CollapsingFloor
     POIN PostAction_RepeatHouse
-    POIN ResetComboAtkList
+    POIN PostAction_ResetComboAtkList
     POIN PostAction_Guarantee
     POIN PostAction_Insurance
     POIN PostAction_GroupCast
@@ -55,6 +55,6 @@ gPostActionFuncs:
     //End
     POIN CallExternalPostActionHook
     POIN PostActionPadFunc PostActionPadFunc PostActionPadFunc PostActionPadFunc
-    POIN ClearBattleGlobalFlags
+    POIN PostAction_ClearBattleGlobalFlags
     POIN PostActionEnd
     WORD 0

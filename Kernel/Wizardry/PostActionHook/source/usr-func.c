@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "battle-system.h"
+#include "combo-attack.h"
 #include "post-action.h"
 
 bool PostAction_CommonStart(ProcPtr proc)
@@ -33,5 +34,17 @@ bool CallExternalPostActionHook(ProcPtr proc)
 	if (gpExternalPostActionHook)
 		return gpExternalPostActionHook(proc);
 
+	return false;
+}
+
+bool PostAction_ResetComboAtkList(ProcPtr proc)
+{
+	ResetComboAtkList();
+	return false;
+}
+
+bool PostAction_ClearBattleGlobalFlags(ProcPtr proc)
+{
+	ClearBattleGlobalFlags();
 	return false;
 }
