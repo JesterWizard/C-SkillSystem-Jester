@@ -1,7 +1,11 @@
 #include "common-chax.h"
 #include "debuff.h"
 
+/* Unit index 0 (obstacles, dummy units) never carries stat debuffs */
+static const struct StatDebuffStatus sStatDebuffStatusNone;
+
 struct StatDebuffStatus *const sStatDebuffStatusPool[0x100] = {
+	[0] = (struct StatDebuffStatus *)&sStatDebuffStatusNone,
 	[FACTION_BLUE + 0x01] = sStatDebuffStatusAlly + 0,
 	[FACTION_BLUE + 0x02] = sStatDebuffStatusAlly + 1,
 	[FACTION_BLUE + 0x03] = sStatDebuffStatusAlly + 2,

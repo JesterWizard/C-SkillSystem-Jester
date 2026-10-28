@@ -470,3 +470,44 @@ Knife[.][X]
 
 ## MSG_WTYPE_GUN
 Gun[.][X]
+
+## MSG_ITEM_FREEZEBLINK_NAME
+Freezeblink[X]
+## MSG_ITEM_FREEZEBLINK_DESC
+Ice magic. Deals 10 damage to every[N]enemy. -1% hit per enemy on the map.[X]
+## MSG_ITEM_FREEZEBLINK_USEDESC
+Hits every enemy[N]for 10 damage.[X]
+
+## MSG_ITEM_PROMINENCE_NAME
+Prominence[X]
+## MSG_ITEM_PROMINENCE_DESC
+Fire magic. Deals 10 damage to every[N]enemy. -1% hit per enemy on the map.[X]
+## MSG_ITEM_PROMINENCE_USEDESC
+Hits every enemy[N]for 10 damage.[X]
+
+## MSG_ITEM_TEMPEST_SPELL_NAME
+Tempest[X]
+## MSG_ITEM_TEMPEST_SPELL_DESC
+Wind magic. Deals 10 damage to every[N]enemy. -1% hit per enemy on the map.[X]
+## MSG_ITEM_TEMPEST_SPELL_USEDESC
+Hits every enemy[N]for 10 damage.[X]
+
+## MSG_ITEM_GRAVITY_NAME
+Gravity[X]
+## MSG_ITEM_GRAVITY_DESC
+Halves the MP of every enemy in a[N]3x3 area around the target.[X]
+## MSG_ITEM_GRAVITY_USEDESC
+Halves enemy MP[N]in a 3x3 area.[X]
+
+## MSG_ITEM_UNICORN_NAME
+Unicorn[X]
+## MSG_ITEM_UNICORN_DESC
+Restores MP like Mend restores HP[N]and cures status ailments.[X]
+## MSG_ITEM_UNICORN_USEDESC
+Restores MP and[N]cures status.[X]
+
+## MSG_GaidenMapSpell_TargetAll
+Strike every enemy?[X]
+
+## MSG_GaidenMapSpell_TargetGravity
+Select the center of the area.[X]

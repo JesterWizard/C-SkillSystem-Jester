@@ -64,6 +64,7 @@ gEmsSavChunks:
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunk($0000, MSA_SaveGaidenMagicUses, MSA_LoadGaidenMagicUses) /* Resets Three Houses magic uses on load */
+    EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
     EmsChunkEnd
 
 ALIGN 4
@@ -113,6 +114,7 @@ gEmsSusChunks:
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunk($0444, SaveChatLogSuspendState, LoadChatLogSuspendState)
     EmsChunk($00C0, MSU_SaveGaidenMagicUses, MSU_LoadGaidenMagicUses) /* Three Houses magic uses, 3 * 64 */
+    EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
     EmsChunkEnd
 
 ALIGN 4
@@ -121,4 +123,5 @@ gNewSaveHooks:
     POIN NewGame_InitPlayStExpa
     POIN StatDeuff_OnNewGameInit
     POIN ResetStatDeuffBuf ResetSkillDbgList
+    POIN WmStoryChapter_NewGame
     WORD 0 0 0 0

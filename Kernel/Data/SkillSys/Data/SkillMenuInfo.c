@@ -1472,4 +1472,95 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Takeover_NAME,
+        .helpMsgId = MSG_SKILL_Takeover_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Takeover_Usability,
+        .onDraw = NULL,
+        .onSelected = Takeover_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_GroupCast) && COMMON_SKILL_VALID(SID_GroupCast))
+    [SID_GroupCast] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_GroupCast_NAME,
+        .helpMsgId = MSG_SKILL_GroupCast_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = GroupCast_Usability,
+        .onDraw = NULL,
+        .onSelected = GroupCast_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
+    [SID_DragonsBlood] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_DragonsBlood_MENU,
+        .helpMsgId = MSG_SKILL_DragonsBlood_MENUHELP,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = DragonsBlood_Usability,
+        .onDraw = NULL,
+        .onSelected = DragonsBlood_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_SpinForGold) && COMMON_SKILL_VALID(SID_SpinForGold))
+    [SID_SpinForGold] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_SpinForGold_NAME,
+        .helpMsgId = MSG_SKILL_SpinForGold_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = SpinForGold_Usability,
+        .onDraw = NULL,
+        .onSelected = SpinForGold_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_SpinForLuck) && COMMON_SKILL_VALID(SID_SpinForLuck))
+    [SID_SpinForLuck] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_SpinForLuck_NAME,
+        .helpMsgId = MSG_SKILL_SpinForLuck_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = SpinForLuck_Usability,
+        .onDraw = NULL,
+        .onSelected = SpinForLuck_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
+    [SID_Sweapstrike] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Sweapstrike_NAME,
+        .helpMsgId = MSG_SKILL_Sweapstrike_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Sweapstrike_Usability,
+        .onDraw = NULL,
+        .onSelected = Sweapstrike_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
+#if (defined(SID_Prayer) && COMMON_SKILL_VALID(SID_Prayer))
+    [SID_Prayer] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Prayer_NAME,
+        .helpMsgId = MSG_SKILL_Prayer_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Prayer_Usability,
+        .onDraw = NULL,
+        .onSelected = Prayer_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

@@ -165,3 +165,8 @@ Regain 30% of max HP each turn.[X]
 Invest[X]
 ## MSG_DEBUFF_INVEST_DESC
 Boost all growths by 7%.[X]
+
+## MSG_DEBUFF_LUCKY_NAME
+Lucky[X]
+## MSG_DEBUFF_LUCKY_DESC
+Skill activation rates x1.5.[X]

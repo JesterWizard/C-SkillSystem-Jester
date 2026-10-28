@@ -14,7 +14,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HpBonus_DESC,
         .capacity = MSG_SKILL_HpBonus_CAPACITY,
         .price = MSG_SKILL_HpBonus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HpBonus,
         .iconPal = 0,
     },
 #endif
@@ -190,7 +190,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DefiantCrit_DESC,
         .capacity = MSG_SKILL_DefiantCrit_CAPACITY,
         .price = MSG_SKILL_DefiantCrit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DefiantCrit,
         .iconPal = 0,
     },
 #endif
@@ -201,7 +201,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DefiantAvoid_DESC,
         .capacity = MSG_SKILL_DefiantAvoid_CAPACITY,
         .price = MSG_SKILL_DefiantAvoid_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DefiantAvoid,
         .iconPal = 0,
     },
 #endif
@@ -597,7 +597,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BMagBreaker_DESC,
         .capacity = MSG_SKILL_BMagBreaker_CAPACITY,
         .price = MSG_SKILL_BMagBreaker_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BMagBreaker,
         .iconPal = 0,
     },
 #endif
@@ -663,7 +663,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Adept_DESC,
         .capacity = MSG_SKILL_Adept_CAPACITY,
         .price = MSG_SKILL_Adept_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Adept,
         .iconPal = 0,
     },
 #endif
@@ -685,7 +685,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LoadstarRush_DESC,
         .capacity = MSG_SKILL_LoadstarRush_CAPACITY,
         .price = MSG_SKILL_LoadstarRush_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LoadstarRush,
         .iconPal = 0,
     },
 #endif
@@ -1069,7 +1069,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Bloom_DESC,
         .capacity = MSG_SKILL_Bloom_CAPACITY,
         .price = MSG_SKILL_Bloom_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Bloom,
         .iconPal = 0,
     },
 #endif
@@ -1080,7 +1080,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RunningStart_DESC,
         .capacity = MSG_SKILL_RunningStart_CAPACITY,
         .price = MSG_SKILL_RunningStart_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RunningStart,
         .iconPal = 0,
     },
 #endif
@@ -1234,7 +1234,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RenewalPlus_DESC,
         .capacity = MSG_SKILL_RenewalPlus_CAPACITY,
         .price = MSG_SKILL_RenewalPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RenewalPlus,
         .iconPal = 0,
     },
 #endif
@@ -1498,7 +1498,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HealingFocus_DESC,
         .capacity = MSG_SKILL_HealingFocus_CAPACITY,
         .price = MSG_SKILL_HealingFocus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HealingFocus,
         .iconPal = 0,
     },
 #endif
@@ -1575,7 +1575,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_WonderGuard_DESC,
         .capacity = MSG_SKILL_WonderGuard_CAPACITY,
         .price = MSG_SKILL_WonderGuard_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_WonderGuard,
         .iconPal = 0,
     },
 #endif
@@ -1586,7 +1586,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PoisonPoint_DESC,
         .capacity = MSG_SKILL_PoisonPoint_CAPACITY,
         .price = MSG_SKILL_PoisonPoint_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PoisonPoint,
         .iconPal = 0,
     },
 #endif
@@ -1608,7 +1608,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CriticalPierce_DESC,
         .capacity = MSG_SKILL_CriticalPierce_CAPACITY,
         .price = MSG_SKILL_CriticalPierce_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CriticalPierce,
         .iconPal = 0,
     },
 #endif
@@ -1685,7 +1685,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CatchingUp_DESC,
         .capacity = MSG_SKILL_CatchingUp_CAPACITY,
         .price = MSG_SKILL_CatchingUp_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CatchingUp,
         .iconPal = 0,
     },
 #endif
@@ -2135,7 +2135,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightWeight_DESC,
         .capacity = MSG_SKILL_LightWeight_CAPACITY,
         .price = MSG_SKILL_LightWeight_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightWeight,
         .iconPal = 0,
     },
 #endif
@@ -2366,7 +2366,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_OutdoorFighter_DESC,
         .capacity = MSG_SKILL_OutdoorFighter_CAPACITY,
         .price = MSG_SKILL_OutdoorFighter_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_OutdoorFighter,
         .iconPal = 0,
     },
 #endif
@@ -2707,7 +2707,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DefenseBoost_DESC,
         .capacity = MSG_SKILL_DefenseBoost_CAPACITY,
         .price = MSG_SKILL_DefenseBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DefenseBoost,
         .iconPal = 0,
     },
 #endif
@@ -2718,7 +2718,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LuckBoost_DESC,
         .capacity = MSG_SKILL_LuckBoost_CAPACITY,
         .price = MSG_SKILL_LuckBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LuckBoost,
         .iconPal = 0,
     },
 #endif
@@ -2729,7 +2729,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MagicBoost_DESC,
         .capacity = MSG_SKILL_MagicBoost_CAPACITY,
         .price = MSG_SKILL_MagicBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MagicBoost,
         .iconPal = 0,
     },
 #endif
@@ -2740,7 +2740,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MoveBoost_DESC,
         .capacity = MSG_SKILL_MoveBoost_CAPACITY,
         .price = MSG_SKILL_MoveBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MoveBoost,
         .iconPal = 0,
     },
 #endif
@@ -2751,7 +2751,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ResistanceBoost_DESC,
         .capacity = MSG_SKILL_ResistanceBoost_CAPACITY,
         .price = MSG_SKILL_ResistanceBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ResistanceBoost,
         .iconPal = 0,
     },
 #endif
@@ -2762,7 +2762,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SkillBoost_DESC,
         .capacity = MSG_SKILL_SkillBoost_CAPACITY,
         .price = MSG_SKILL_SkillBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SkillBoost,
         .iconPal = 0,
     },
 #endif
@@ -2773,7 +2773,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpeedBoost_DESC,
         .capacity = MSG_SKILL_SpeedBoost_CAPACITY,
         .price = MSG_SKILL_SpeedBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpeedBoost,
         .iconPal = 0,
     },
 #endif
@@ -2784,7 +2784,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_StrengthBoost_DESC,
         .capacity = MSG_SKILL_StrengthBoost_CAPACITY,
         .price = MSG_SKILL_StrengthBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_StrengthBoost,
         .iconPal = 0,
     },
 #endif
@@ -2795,7 +2795,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpectrumBoost_DESC,
         .capacity = MSG_SKILL_SpectrumBoost_CAPACITY,
         .price = MSG_SKILL_SpectrumBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpectrumBoost,
         .iconPal = 0,
     },
 #endif
@@ -3158,7 +3158,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FortifyArmor_DESC,
         .capacity = MSG_SKILL_FortifyArmor_CAPACITY,
         .price = MSG_SKILL_FortifyArmor_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FortifyArmor,
         .iconPal = 0,
     },
 #endif
@@ -3235,7 +3235,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DancePlus_DESC,
         .capacity = MSG_SKILL_DancePlus_CAPACITY,
         .price = MSG_SKILL_DancePlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DancePlus,
         .iconPal = 0,
     },
 #endif
@@ -3345,7 +3345,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightRune_DESC,
         .capacity = MSG_SKILL_LightRune_CAPACITY,
         .price = MSG_SKILL_LightRune_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightRune,
         .iconPal = 0,
     },
 #endif
@@ -3367,7 +3367,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Miracle_DESC,
         .capacity = MSG_SKILL_Miracle_CAPACITY,
         .price = MSG_SKILL_Miracle_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Miracle,
         .iconPal = 0,
     },
 #endif
@@ -3532,7 +3532,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GentleFlower_DESC,
         .capacity = MSG_SKILL_GentleFlower_CAPACITY,
         .price = MSG_SKILL_GentleFlower_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GentleFlower,
         .iconPal = 0,
     },
 #endif
@@ -3543,7 +3543,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Admiration_DESC,
         .capacity = MSG_SKILL_Admiration_CAPACITY,
         .price = MSG_SKILL_Admiration_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Admiration,
         .iconPal = 0,
     },
 #endif
@@ -3554,7 +3554,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FairyTaleFolk_DESC,
         .capacity = MSG_SKILL_FairyTaleFolk_CAPACITY,
         .price = MSG_SKILL_FairyTaleFolk_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FairyTaleFolk,
         .iconPal = 0,
     },
 #endif
@@ -3686,7 +3686,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Analytic_DESC,
         .capacity = MSG_SKILL_Analytic_CAPACITY,
         .price = MSG_SKILL_Analytic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Analytic,
         .iconPal = 0,
     },
 #endif
@@ -3730,7 +3730,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CounterRoar_DESC,
         .capacity = MSG_SKILL_CounterRoar_CAPACITY,
         .price = MSG_SKILL_CounterRoar_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CounterRoar,
         .iconPal = 0,
     },
 #endif
@@ -3741,7 +3741,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Gambit_DESC,
         .capacity = MSG_SKILL_Gambit_CAPACITY,
         .price = MSG_SKILL_Gambit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Gambit,
         .iconPal = 0,
     },
 #endif
@@ -3752,7 +3752,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MagicGambit_DESC,
         .capacity = MSG_SKILL_MagicGambit_CAPACITY,
         .price = MSG_SKILL_MagicGambit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MagicGambit,
         .iconPal = 0,
     },
 #endif
@@ -3763,7 +3763,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BeastAssault_DESC,
         .capacity = MSG_SKILL_BeastAssault_CAPACITY,
         .price = MSG_SKILL_BeastAssault_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BeastAssault,
         .iconPal = 0,
     },
 #endif
@@ -3774,7 +3774,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightAndDark_DESC,
         .capacity = MSG_SKILL_LightAndDark_CAPACITY,
         .price = MSG_SKILL_LightAndDark_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightAndDark,
         .iconPal = 0,
     },
 #endif
@@ -3840,7 +3840,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DivinePulse_DESC,
         .capacity = MSG_SKILL_DivinePulse_CAPACITY,
         .price = MSG_SKILL_DivinePulse_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DivinePulse,
         .iconPal = 0,
     },
 #endif
@@ -3851,7 +3851,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MysticBoost_DESC,
         .capacity = MSG_SKILL_MysticBoost_CAPACITY,
         .price = MSG_SKILL_MysticBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MysticBoost,
         .iconPal = 0,
     },
 #endif
@@ -3862,7 +3862,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GuardBearing_DESC,
         .capacity = MSG_SKILL_GuardBearing_CAPACITY,
         .price = MSG_SKILL_GuardBearing_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GuardBearing,
         .iconPal = 0,
     },
 #endif
@@ -3873,7 +3873,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Spurn_DESC,
         .capacity = MSG_SKILL_Spurn_CAPACITY,
         .price = MSG_SKILL_Spurn_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Spurn,
         .iconPal = 0,
     },
 #endif
@@ -3884,7 +3884,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Bushido_DESC,
         .capacity = MSG_SKILL_Bushido_CAPACITY,
         .price = MSG_SKILL_Bushido_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Bushido,
         .iconPal = 0,
     },
 #endif
@@ -3895,7 +3895,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DragonWall_DESC,
         .capacity = MSG_SKILL_DragonWall_CAPACITY,
         .price = MSG_SKILL_DragonWall_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DragonWall,
         .iconPal = 0,
     },
 #endif
@@ -3906,7 +3906,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DragonsWrath_DESC,
         .capacity = MSG_SKILL_DragonsWrath_CAPACITY,
         .price = MSG_SKILL_DragonsWrath_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DragonsWrath,
         .iconPal = 0,
     },
 #endif
@@ -3917,7 +3917,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BlueLionRule_DESC,
         .capacity = MSG_SKILL_BlueLionRule_CAPACITY,
         .price = MSG_SKILL_BlueLionRule_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BlueLionRule,
         .iconPal = 0,
     },
 #endif
@@ -3928,7 +3928,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FaerghusAncestry_DESC,
         .capacity = MSG_SKILL_FaerghusAncestry_CAPACITY,
         .price = MSG_SKILL_FaerghusAncestry_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FaerghusAncestry,
         .iconPal = 0,
     },
 #endif
@@ -3939,7 +3939,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CrusaderWard_DESC,
         .capacity = MSG_SKILL_CrusaderWard_CAPACITY,
         .price = MSG_SKILL_CrusaderWard_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CrusaderWard,
         .iconPal = 0,
     },
 #endif
@@ -3961,7 +3961,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Plus_DESC,
         .capacity = MSG_SKILL_Plus_CAPACITY,
         .price = MSG_SKILL_Plus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Plus,
         .iconPal = 0,
     },
 #endif
@@ -3972,7 +3972,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Minus_DESC,
         .capacity = MSG_SKILL_Minus_CAPACITY,
         .price = MSG_SKILL_Minus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Minus,
         .iconPal = 0,
     },
 #endif
@@ -3983,7 +3983,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Chlorophyll_DESC,
         .capacity = MSG_SKILL_Chlorophyll_CAPACITY,
         .price = MSG_SKILL_Chlorophyll_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Chlorophyll,
         .iconPal = 0,
     },
 #endif
@@ -3994,7 +3994,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SlushRush_DESC,
         .capacity = MSG_SKILL_SlushRush_CAPACITY,
         .price = MSG_SKILL_SlushRush_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SlushRush,
         .iconPal = 0,
     },
 #endif
@@ -4005,7 +4005,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SandRush_DESC,
         .capacity = MSG_SKILL_SandRush_CAPACITY,
         .price = MSG_SKILL_SandRush_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SandRush,
         .iconPal = 0,
     },
 #endif
@@ -4016,7 +4016,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SwiftSwim_DESC,
         .capacity = MSG_SKILL_SwiftSwim_CAPACITY,
         .price = MSG_SKILL_SwiftSwim_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SwiftSwim,
         .iconPal = 0,
     },
 #endif
@@ -4027,7 +4027,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RainDish_DESC,
         .capacity = MSG_SKILL_RainDish_CAPACITY,
         .price = MSG_SKILL_RainDish_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RainDish,
         .iconPal = 0,
     },
 #endif
@@ -4038,7 +4038,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Assist_DESC,
         .capacity = MSG_SKILL_Assist_CAPACITY,
         .price = MSG_SKILL_Assist_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Assist,
         .iconPal = 0,
     },
 #endif
@@ -4049,7 +4049,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Synergism_DESC,
         .capacity = MSG_SKILL_Synergism_CAPACITY,
         .price = MSG_SKILL_Synergism_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Synergism,
         .iconPal = 0,
     },
 #endif
@@ -4082,7 +4082,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Guidance_DESC,
         .capacity = MSG_SKILL_Guidance_CAPACITY,
         .price = MSG_SKILL_Guidance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Guidance,
         .iconPal = 0,
     },
 #endif
@@ -4093,7 +4093,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FlierGuidance_DESC,
         .capacity = MSG_SKILL_FlierGuidance_CAPACITY,
         .price = MSG_SKILL_FlierGuidance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FlierGuidance,
         .iconPal = 0,
     },
 #endif
@@ -4104,7 +4104,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SoaringGuidance_DESC,
         .capacity = MSG_SKILL_SoaringGuidance_CAPACITY,
         .price = MSG_SKILL_SoaringGuidance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SoaringGuidance,
         .iconPal = 0,
     },
 #endif
@@ -4115,7 +4115,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Aerobatics_DESC,
         .capacity = MSG_SKILL_Aerobatics_CAPACITY,
         .price = MSG_SKILL_Aerobatics_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Aerobatics,
         .iconPal = 0,
     },
 #endif
@@ -4126,7 +4126,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FlierFormation_DESC,
         .capacity = MSG_SKILL_FlierFormation_CAPACITY,
         .price = MSG_SKILL_FlierFormation_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FlierFormation,
         .iconPal = 0,
     },
 #endif
@@ -4137,7 +4137,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SoaringWings_DESC,
         .capacity = MSG_SKILL_SoaringWings_CAPACITY,
         .price = MSG_SKILL_SoaringWings_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SoaringWings,
         .iconPal = 0,
     },
 #endif
@@ -4148,7 +4148,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DetailedReport_DESC,
         .capacity = MSG_SKILL_DetailedReport_CAPACITY,
         .price = MSG_SKILL_DetailedReport_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DetailedReport,
         .iconPal = 0,
     },
 #endif
@@ -4170,7 +4170,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
          .desc = MSG_SKILL_RapidFighter_DESC,
          .capacity = MSG_SKILL_RapidFighter_CAPACITY,
         .price = MSG_SKILL_RapidFighter_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RapidFighter,
         .iconPal = 0,
     },
 #endif
@@ -4225,7 +4225,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
          .desc = MSG_SKILL_BidingBlow_DESC,
          .capacity = MSG_SKILL_BidingBlow_CAPACITY,
         .price = MSG_SKILL_BidingBlow_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BidingBlow,
         .iconPal = 0,
     },
 #endif
@@ -4258,7 +4258,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Nonconforming_DESC,
         .capacity = MSG_SKILL_Nonconforming_CAPACITY,
         .price = MSG_SKILL_Nonconforming_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Nonconforming,
         .iconPal = 0,
     },
 #endif
@@ -4422,7 +4422,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
          .desc = MSG_SKILL_LastWord_DESC,
          .capacity = MSG_SKILL_LastWord_CAPACITY,
         .price = MSG_SKILL_LastWord_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LastWord,
         .iconPal = 0,
     },
 #endif
@@ -4444,7 +4444,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Multiscale_DESC,
         .capacity = MSG_SKILL_Multiscale_CAPACITY,
         .price = MSG_SKILL_Multiscale_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Multiscale,
         .iconPal = 0,
     },
 #endif
@@ -4510,7 +4510,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Clearance_DESC,
         .capacity = MSG_SKILL_Clearance_CAPACITY,
         .price = MSG_SKILL_Clearance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Clearance,
         .iconPal = 0,
     },
 #endif
@@ -4719,7 +4719,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FaireAnima_DESC,
         .capacity = MSG_SKILL_FaireAnima_CAPACITY,
         .price = MSG_SKILL_FaireAnima_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FaireAnima,
         .iconPal = 0,
     },
 #endif
@@ -4730,7 +4730,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FaireLight_DESC,
         .capacity = MSG_SKILL_FaireLight_CAPACITY,
         .price = MSG_SKILL_FaireLight_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FaireLight,
         .iconPal = 0,
     },
 #endif
@@ -4741,7 +4741,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FaireDark_DESC,
         .capacity = MSG_SKILL_FaireDark_CAPACITY,
         .price = MSG_SKILL_FaireDark_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FaireDark,
         .iconPal = 0,
     },
 #endif
@@ -4939,7 +4939,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Pickup_DESC,
         .capacity = MSG_SKILL_Pickup_CAPACITY,
         .price = MSG_SKILL_Pickup_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Pickup,
         .iconPal = 0,
     },
 #endif
@@ -5082,7 +5082,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LullMovement_DESC,
         .capacity = MSG_SKILL_LullMovement_CAPACITY,
         .price = MSG_SKILL_LullMovement_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LullMovement,
         .iconPal = 0,
     },
 #endif
@@ -5258,7 +5258,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LunarBrace_DESC,
         .capacity = MSG_SKILL_LunarBrace_CAPACITY,
         .price = MSG_SKILL_LunarBrace_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LunarBrace,
         .iconPal = 0,
     },
 #endif
@@ -5291,7 +5291,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Stride_DESC,
         .capacity = MSG_SKILL_Stride_CAPACITY,
         .price = MSG_SKILL_Stride_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Stride,
         .iconPal = 0,
     },
 #endif
@@ -5313,7 +5313,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GoldDigger_DESC,
         .capacity = MSG_SKILL_GoldDigger_CAPACITY,
         .price = MSG_SKILL_GoldDigger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GoldDigger,
         .iconPal = 0,
     },
 #endif
@@ -5324,7 +5324,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EffectSpore_DESC,
         .capacity = MSG_SKILL_EffectSpore_CAPACITY,
         .price = MSG_SKILL_EffectSpore_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EffectSpore,
         .iconPal = 0,
     },
 #endif
@@ -5335,7 +5335,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DominantArm_DESC,
         .capacity = MSG_SKILL_DominantArm_CAPACITY,
         .price = MSG_SKILL_DominantArm_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DominantArm,
         .iconPal = 0,
     },
 #endif
@@ -5346,7 +5346,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GaleWings_DESC,
         .capacity = MSG_SKILL_GaleWings_CAPACITY,
         .price = MSG_SKILL_GaleWings_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GaleWings,
         .iconPal = 0,
     },
 #endif
@@ -5357,7 +5357,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SolidRock_DESC,
         .capacity = MSG_SKILL_SolidRock_CAPACITY,
         .price = MSG_SKILL_SolidRock_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SolidRock,
         .iconPal = 0,
     },
 #endif
@@ -5368,7 +5368,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Sturdy_DESC,
         .capacity = MSG_SKILL_Sturdy_CAPACITY,
         .price = MSG_SKILL_Sturdy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Sturdy,
         .iconPal = 0,
     },
 #endif
@@ -5379,7 +5379,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HoldOut_DESC,
         .capacity = MSG_SKILL_HoldOut_CAPACITY,
         .price = MSG_SKILL_HoldOut_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HoldOut,
         .iconPal = 0,
     },
 #endif
@@ -5390,7 +5390,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FranticSwing_DESC,
         .capacity = MSG_SKILL_FranticSwing_CAPACITY,
         .price = MSG_SKILL_FranticSwing_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FranticSwing,
         .iconPal = 0,
     },
 #endif
@@ -5401,7 +5401,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SocialButterfly_DESC,
         .capacity = MSG_SKILL_SocialButterfly_CAPACITY,
         .price = MSG_SKILL_SocialButterfly_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SocialButterfly,
         .iconPal = 0,
     },
 #endif
@@ -5412,7 +5412,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MeleeManiac_DESC,
         .capacity = MSG_SKILL_MeleeManiac_CAPACITY,
         .price = MSG_SKILL_MeleeManiac_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MeleeManiac,
         .iconPal = 0,
     },
 #endif
@@ -5423,7 +5423,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CriticalOverload_DESC,
         .capacity = MSG_SKILL_CriticalOverload_CAPACITY,
         .price = MSG_SKILL_CriticalOverload_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CriticalOverload,
         .iconPal = 0,
     },
 #endif
@@ -5434,7 +5434,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Swarp_DESC,
         .capacity = MSG_SKILL_Swarp_CAPACITY,
         .price = MSG_SKILL_Swap_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Swarp,
         .iconPal = 0,
     },
 #endif
@@ -5456,7 +5456,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Deal_DESC,
         .capacity = MSG_SKILL_Deal_CAPACITY,
         .price = MSG_SKILL_Deal_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Deal,
         .iconPal = 0,
     },
 #endif
@@ -5489,7 +5489,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_WyvernFlight_DESC,
         .capacity = MSG_SKILL_WyvernFlight_CAPACITY,
         .price = MSG_SKILL_WyvernFlight_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_WyvernFlight,
         .iconPal = 0,
     },
 #endif
@@ -5511,7 +5511,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillPow_DESC,
         .capacity = MSG_SKILL_ChillPow_CAPACITY,
         .price = MSG_SKILL_ChillPow_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillPow,
         .iconPal = 0,
     },
 #endif
@@ -5522,7 +5522,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillMag_DESC,
         .capacity = MSG_SKILL_ChillMag_CAPACITY,
         .price = MSG_SKILL_ChillMag_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillMag,
         .iconPal = 0,
     },
 #endif
@@ -5533,7 +5533,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillSkl_DESC,
         .capacity = MSG_SKILL_ChillSkl_CAPACITY,
         .price = MSG_SKILL_ChillSkl_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillSkl,
         .iconPal = 0,
     },
 #endif
@@ -5544,7 +5544,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillSpd_DESC,
         .capacity = MSG_SKILL_ChillSpd_CAPACITY,
         .price = MSG_SKILL_ChillSpd_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillSpd,
         .iconPal = 0,
     },
 #endif
@@ -5555,7 +5555,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillLck_DESC,
         .capacity = MSG_SKILL_ChillLck_CAPACITY,
         .price = MSG_SKILL_ChillLck_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillLck,
         .iconPal = 0,
     },
 #endif
@@ -5566,7 +5566,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillDef_DESC,
         .capacity = MSG_SKILL_ChillDef_CAPACITY,
         .price = MSG_SKILL_ChillDef_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillDef,
         .iconPal = 0,
     },
 #endif
@@ -5577,7 +5577,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChillRes_DESC,
         .capacity = MSG_SKILL_ChillRes_CAPACITY,
         .price = MSG_SKILL_ChillRes_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChillRes,
         .iconPal = 0,
     },
 #endif
@@ -5588,7 +5588,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DragonWrath_DESC,
         .capacity = MSG_SKILL_DragonWrath_CAPACITY,
         .price = MSG_SKILL_DragonWrath_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DragonWrath,
         .iconPal = 0,
     },
 #endif
@@ -5610,7 +5610,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Scendscale_DESC,
         .capacity = MSG_SKILL_Scendscale_CAPACITY,
         .price = MSG_SKILL_Scendscale_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Scendscale,
         .iconPal = 0,
     },
 #endif
@@ -5621,7 +5621,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LawsOfSacae_DESC,
         .capacity = MSG_SKILL_LawsOfSacae_CAPACITY,
         .price = MSG_SKILL_LawsOfSacae_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LawsOfSacae,
         .iconPal = 0,
     },
 #endif
@@ -5643,7 +5643,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ShieldPulse_DESC,
         .capacity = MSG_SKILL_ShieldPulse_CAPACITY,
         .price = MSG_SKILL_ShieldPulse_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ShieldPulse,
         .iconPal = 0,
     },
 #endif
@@ -5654,7 +5654,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BestDefense_DESC,
         .capacity = MSG_SKILL_BestDefense_CAPACITY,
         .price = MSG_SKILL_BestDefense_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BestDefense,
         .iconPal = 0,
     },
 #endif
@@ -5665,7 +5665,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DoOrDie_DESC,
         .capacity = MSG_SKILL_DoOrDie_CAPACITY,
         .price = MSG_SKILL_DoOrDie_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DoOrDie,
         .iconPal = 0,
     },
 #endif
@@ -5676,7 +5676,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Glorifier_DESC,
         .capacity = MSG_SKILL_Glorifier_CAPACITY,
         .price = MSG_SKILL_Glorifier_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Glorifier,
         .iconPal = 0,
     },
 #endif
@@ -5687,7 +5687,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Leader_DESC,
         .capacity = MSG_SKILL_Leader_CAPACITY,
         .price = MSG_SKILL_Leader_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Leader,
         .iconPal = 0,
     },
 #endif
@@ -5698,7 +5698,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_OverKill_DESC,
         .capacity = MSG_SKILL_OverKill_CAPACITY,
         .price = MSG_SKILL_OverKill_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_OverKill,
         .iconPal = 0,
     },
 #endif
@@ -5709,7 +5709,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Momentum_DESC,
         .capacity = MSG_SKILL_Momentum_CAPACITY,
         .price = MSG_SKILL_Momentum_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Momentum,
         .iconPal = 0,
     },
 #endif
@@ -5720,7 +5720,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FatalTen_DESC,
         .capacity = MSG_SKILL_FatalTen_CAPACITY,
         .price = MSG_SKILL_FatalTen_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FatalTen,
         .iconPal = 0,
     },
 #endif
@@ -5731,7 +5731,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LionFlame_DESC,
         .capacity = MSG_SKILL_LionFlame_CAPACITY,
         .price = MSG_SKILL_LionFlame_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LionFlame,
         .iconPal = 0,
     },
 #endif
@@ -5742,7 +5742,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LimitBreak_DESC,
         .capacity = MSG_SKILL_LimitBreak_CAPACITY,
         .price = MSG_SKILL_LimitBreak_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LimitBreak,
         .iconPal = 0,
     },
 #endif
@@ -5753,7 +5753,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ImmovableObject_DESC,
         .capacity = MSG_SKILL_ImmovableObject_CAPACITY,
         .price = MSG_SKILL_ImmovableObject_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ImmovableObject,
         .iconPal = 0,
     },
 #endif
@@ -5764,7 +5764,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_UnstoppableForce_DESC,
         .capacity = MSG_SKILL_UnstoppableForce_CAPACITY,
         .price = MSG_SKILL_UnstoppableForce_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_UnstoppableForce,
         .iconPal = 0,
     },
 #endif
@@ -5786,7 +5786,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BloodSurge_DESC,
         .capacity = MSG_SKILL_BloodSurge_CAPACITY,
         .price = MSG_SKILL_BloodSurge_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BloodSurge,
         .iconPal = 0,
     },
 #endif
@@ -5797,7 +5797,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BloodReaver_DESC,
         .capacity = MSG_SKILL_BloodReaver_CAPACITY,
         .price = MSG_SKILL_BloodReaver_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BloodReaver,
         .iconPal = 0,
     },
 #endif
@@ -5808,7 +5808,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Latona_DESC,
         .capacity = MSG_SKILL_Latona_CAPACITY,
         .price = MSG_SKILL_Latona_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Latona,
         .iconPal = 0,
     },
 #endif
@@ -5819,7 +5819,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GrandMagician_DESC,
         .capacity = MSG_SKILL_GrandMagician_CAPACITY,
         .price = MSG_SKILL_GrandMagician_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GrandMagician,
         .iconPal = 0,
     },
 #endif
@@ -5830,7 +5830,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Witch_DESC,
         .capacity = MSG_SKILL_Witch_CAPACITY,
         .price = MSG_SKILL_Witch_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Witch,
         .iconPal = 0,
     },
 #endif
@@ -5841,7 +5841,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_COMBAT_BloodTribute_DESC,
         .capacity = MSG_SKILL_COMBAT_BloodTribute_CAPACITY,
         .price = MSG_SKILL_COMBAT_BloodTribute_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_COMBAT_BloodTribute,
         .iconPal = 0,
     },
 #endif
@@ -5852,7 +5852,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_COMBAT_CrimsonStrike_DESC,
         .capacity = MSG_SKILL_COMBAT_CrimsonStrike_CAPACITY,
         .price = MSG_SKILL_COMBAT_CrimsonStrike_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_COMBAT_CrimsonStrike,
         .iconPal = 0,
     },
 #endif
@@ -5863,7 +5863,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_COMBAT_VitalReckoning_DESC,
         .capacity = MSG_SKILL_COMBAT_VitalReckoning_CAPACITY,
         .price = MSG_SKILL_COMBAT_VitalReckoning_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_COMBAT_VitalReckoning,
         .iconPal = 0,
     },
 #endif
@@ -5885,7 +5885,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BeastShield_DESC,
         .capacity = MSG_SKILL_BeastShield_CAPACITY,
         .price = MSG_SKILL_BeastShield_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BeastShield,
         .iconPal = 0,
     },
 #endif
@@ -5896,7 +5896,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DishonorBreaker_DESC,
         .capacity = MSG_SKILL_DishonorBreaker_CAPACITY,
         .price = MSG_SKILL_DishonorBreaker_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DishonorBreaker,
         .iconPal = 0,
     },
 #endif
@@ -5907,7 +5907,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Stubborn_DESC,
         .capacity = MSG_SKILL_Stubborn_CAPACITY,
         .price = MSG_SKILL_Stubborn_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Stubborn,
         .iconPal = 0,
     },
 #endif
@@ -5918,7 +5918,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Shakedown_DESC,
         .capacity = MSG_SKILL_Shakedown_CAPACITY,
         .price = MSG_SKILL_Shakedown_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Shakedown,
         .iconPal = 0,
     },
 #endif
@@ -5929,7 +5929,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FreeSpirit_DESC,
         .capacity = MSG_SKILL_FreeSpirit_CAPACITY,
         .price = MSG_SKILL_FreeSpirit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FreeSpirit,
         .iconPal = 0,
     },
 #endif
@@ -5962,7 +5962,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GridMasterPlus_DESC,
         .capacity = MSG_SKILL_GridMasterPlus_CAPACITY,
         .price = MSG_SKILL_GridMasterPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GridMasterPlus,
         .iconPal = 0,
     },
 #endif
@@ -5995,7 +5995,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MagicSeal_DESC,
         .capacity = MSG_SKILL_MagicSeal_CAPACITY,
         .price = MSG_SKILL_MagicSeal_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MagicSeal,
         .iconPal = 0,
     },
 #endif
@@ -6006,7 +6006,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PhysicalSeal_DESC,
         .capacity = MSG_SKILL_PhysicalSeal_CAPACITY,
         .price = MSG_SKILL_PhysicalSeal_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PhysicalSeal,
         .iconPal = 0,
     },
 #endif
@@ -6017,7 +6017,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Mimic_DESC,
         .capacity = MSG_SKILL_Mimic_CAPACITY,
         .price = MSG_SKILL_Mimic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Mimic,
         .iconPal = 0,
     },
 #endif
@@ -6028,7 +6028,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Insomnia_DESC,
         .capacity = MSG_SKILL_Insomnia_CAPACITY,
         .price = MSG_SKILL_Insomnia_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Insomnia,
         .iconPal = 0,
     },
 #endif
@@ -6050,7 +6050,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MagicBounce_DESC,
         .capacity = MSG_SKILL_MagicBounce_CAPACITY,
         .price = MSG_SKILL_MagicBounce_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MagicBounce,
         .iconPal = 0,
     },
 #endif
@@ -6083,7 +6083,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Rampage_DESC,
         .capacity = MSG_SKILL_Rampage_CAPACITY,
         .price = MSG_SKILL_Rampage_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Rampage,
         .iconPal = 0,
     },
 #endif
@@ -6105,7 +6105,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Mentorship_DESC,
         .capacity = MSG_SKILL_Mentorship_CAPACITY,
         .price = MSG_SKILL_Mentorship_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Mentorship,
         .iconPal = 0,
     },
 #endif
@@ -6116,7 +6116,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HyperCutter_DESC,
         .capacity = MSG_SKILL_HyperCutter_CAPACITY,
         .price = MSG_SKILL_HyperCutter_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HyperCutter,
         .iconPal = 0,
     },
 #endif
@@ -6127,7 +6127,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ClearBody_DESC,
         .capacity = MSG_SKILL_ClearBody_CAPACITY,
         .price = MSG_SKILL_ClearBody_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ClearBody,
         .iconPal = 0,
     },
 #endif
@@ -6138,7 +6138,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LeadByExample_DESC,
         .capacity = MSG_SKILL_LeadByExample_CAPACITY,
         .price = MSG_SKILL_LeadByExample_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LeadByExample,
         .iconPal = 0,
     },
 #endif
@@ -6160,7 +6160,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PsychUp_DESC,
         .capacity = MSG_SKILL_PsychUp_CAPACITY,
         .price = MSG_SKILL_PsychUp_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PsychUp,
         .iconPal = 0,
     },
 #endif
@@ -6171,7 +6171,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Moody_DESC,
         .capacity = MSG_SKILL_Moody_CAPACITY,
         .price = MSG_SKILL_Moody_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Moody,
         .iconPal = 0,
     },
 #endif
@@ -6215,7 +6215,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Acrobat_DESC,
         .capacity = MSG_SKILL_Acrobat_CAPACITY,
         .price = MSG_SKILL_Acrobat_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Acrobat,
         .iconPal = 0,
     },
 #endif
@@ -6226,7 +6226,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Contrary_DESC,
         .capacity = MSG_SKILL_Contrary_CAPACITY,
         .price = MSG_SKILL_Contrary_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Contrary,
         .iconPal = 0,
     },
 #endif
@@ -6237,7 +6237,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Reflex_DESC,
         .capacity = MSG_SKILL_Reflex_CAPACITY,
         .price = MSG_SKILL_Reflex_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Reflex,
         .iconPal = 0,
     },
 #endif
@@ -6270,7 +6270,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DarkBargain_DESC,
         .capacity = MSG_SKILL_DarkBargain_CAPACITY,
         .price = MSG_SKILL_DarkBargain_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DarkBargain,
         .iconPal = 0,
     },
 #endif
@@ -6281,7 +6281,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DrawBack_DESC,
         .capacity = MSG_SKILL_DrawBack_CAPACITY,
         .price = MSG_SKILL_DrawBack_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DrawBack,
         .iconPal = 0,
     },
 #endif
@@ -6292,7 +6292,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Pivot_DESC,
         .capacity = MSG_SKILL_Pivot_CAPACITY,
         .price = MSG_SKILL_Pivot_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Pivot,
         .iconPal = 0,
     },
 #endif
@@ -6303,7 +6303,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Reposition_DESC,
         .capacity = MSG_SKILL_Reposition_CAPACITY,
         .price = MSG_SKILL_Reposition_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Reposition,
         .iconPal = 0,
     },
 #endif
@@ -6314,7 +6314,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Shove_DESC,
         .capacity = MSG_SKILL_Shove_CAPACITY,
         .price = MSG_SKILL_Shove_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Shove,
         .iconPal = 0,
     },
 #endif
@@ -6325,7 +6325,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Smite_DESC,
         .capacity = MSG_SKILL_Smite_CAPACITY,
         .price = MSG_SKILL_Smite_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Smite,
         .iconPal = 0,
     },
 #endif
@@ -6358,7 +6358,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightGift_DESC,
         .capacity = MSG_SKILL_LightGift_CAPACITY,
         .price = MSG_SKILL_LightGift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightGift,
         .iconPal = 0,
     },
 #endif
@@ -6369,7 +6369,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightGiftPlus_DESC,
         .capacity = MSG_SKILL_LightGiftPlus_CAPACITY,
         .price = MSG_SKILL_LightGiftPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightGiftPlus,
         .iconPal = 0,
     },
 #endif
@@ -6402,7 +6402,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Gracegift_DESC,
         .capacity = MSG_SKILL_Gracegift_CAPACITY,
         .price = MSG_SKILL_Gracegift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Gracegift,
         .iconPal = 0,
     },
 #endif
@@ -6413,7 +6413,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GracegiftPlus_DESC,
         .capacity = MSG_SKILL_GracegiftPlus_CAPACITY,
         .price = MSG_SKILL_GracegiftPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GracegiftPlus,
         .iconPal = 0,
     },
 #endif
@@ -6534,7 +6534,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ArdentSacrifice_DESC,
         .capacity = MSG_SKILL_ArdentSacrifice_CAPACITY,
         .price = MSG_SKILL_ArdentSacrifice_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ArdentSacrifice,
         .iconPal = 0,
     },
 #endif
@@ -6545,7 +6545,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Cultured_DESC,
         .capacity = MSG_SKILL_Cultured_CAPACITY,
         .price = MSG_SKILL_Cultured_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Cultured,
         .iconPal = 0,
     },
 #endif
@@ -6567,7 +6567,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Flank_DESC,
         .capacity = MSG_SKILL_Flank_CAPACITY,
         .price = MSG_SKILL_Flank_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Flank,
         .iconPal = 0,
     },
 #endif
@@ -6633,7 +6633,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ReciprocalAid_DESC,
         .capacity = MSG_SKILL_ReciprocalAid_CAPACITY,
         .price = MSG_SKILL_ReciprocalAid_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ReciprocalAid,
         .iconPal = 0,
     },
 #endif
@@ -6655,7 +6655,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Sacrifice_DESC,
         .capacity = MSG_SKILL_Sacrifice_CAPACITY,
         .price = MSG_SKILL_Sacrifice_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Sacrifice,
         .iconPal = 0,
     },
 #endif
@@ -6699,7 +6699,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Swarm_DESC,
         .capacity = MSG_SKILL_Swarm_CAPACITY,
         .price = MSG_SKILL_Swarm_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Swarm,
         .iconPal = 0,
     },
 #endif
@@ -6765,7 +6765,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AdaptiveStance_DESC,
         .capacity = MSG_SKILL_AdaptiveStance_CAPACITY,
         .price = MSG_SKILL_AdaptiveStance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AdaptiveStance,
         .iconPal = 0,
     },
 #endif
@@ -6776,7 +6776,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AdrenalineRush_DESC,
         .capacity = MSG_SKILL_AdrenalineRush_CAPACITY,
         .price = MSG_SKILL_AdrenalineRush_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AdrenalineRush,
         .iconPal = 0,
     },
 #endif
@@ -6798,7 +6798,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DemolitionExpert_DESC,
         .capacity = MSG_SKILL_DemolitionExpert_CAPACITY,
         .price = MSG_SKILL_DemolitionExpert_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DemolitionExpert,
         .iconPal = 0,
     },
 #endif
@@ -6810,7 +6810,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Onimaru_DESC,
         .capacity = MSG_SKILL_Onimaru_CAPACITY,
         .price = MSG_SKILL_Onimaru_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Onimaru,
         .iconPal = 0,
     },
 #endif
@@ -6821,7 +6821,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AdaptiveLunge_DESC,
         .capacity = MSG_SKILL_AdaptiveLunge_CAPACITY,
         .price = MSG_SKILL_AdaptiveLunge_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AdaptiveLunge,
         .iconPal = 0,
     },
 #endif
@@ -6865,7 +6865,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Doppleganger_DESC,
         .capacity = MSG_SKILL_Doppleganger_CAPACITY,
         .price = MSG_SKILL_Doppleganger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Doppleganger,
         .iconPal = 0,
     },
 #endif
@@ -6909,7 +6909,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Dismount_DESC,
         .capacity = MSG_SKILL_Dismount_CAPACITY,
         .price = MSG_SKILL_Dismount_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Dismount,
         .iconPal = 0,
     },
 #endif
@@ -6920,7 +6920,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RiskItAll_DESC,
         .capacity = MSG_SKILL_RiskItAll_CAPACITY,
         .price = MSG_SKILL_RiskItAll_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RiskItAll,
         .iconPal = 0,
     },
 #endif
@@ -6931,7 +6931,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DestinyBond_DESC,
         .capacity = MSG_SKILL_DestinyBond_CAPACITY,
         .price = MSG_SKILL_DestinyBond_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DestinyBond,
         .iconPal = 0,
     },
 #endif
@@ -6986,7 +6986,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PoisonHeal_DESC,
         .capacity = MSG_SKILL_PoisonHeal_CAPACITY,
         .price = MSG_SKILL_PoisonHeal_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PoisonHeal,
         .iconPal = 0,
     },
 #endif
@@ -6997,7 +6997,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BoundlessVitality_DESC,
         .capacity = MSG_SKILL_BoundlessVitality_CAPACITY,
         .price = MSG_SKILL_BoundlessVitality_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BoundlessVitality,
         .iconPal = 0,
     },
 #endif
@@ -7041,7 +7041,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Survivor_DESC,
         .capacity = MSG_SKILL_Survivor_CAPACITY,
         .price = MSG_SKILL_Survivor_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Survivor,
         .iconPal = 0,
     },
 #endif
@@ -7063,7 +7063,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Mercurious_DESC,
         .capacity = MSG_SKILL_Mercurious_CAPACITY,
         .price = MSG_SKILL_Mercurious_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Mercurious,
         .iconPal = 0,
     },
 #endif
@@ -7096,7 +7096,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Velocity_DESC,
         .capacity = MSG_SKILL_Velocity_CAPACITY,
         .price = MSG_SKILL_Velocity_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Velocity,
         .iconPal = 0,
     },
 #endif
@@ -7140,7 +7140,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Debilitator_DESC,
         .capacity = MSG_SKILL_Debilitator_CAPACITY,
         .price = MSG_SKILL_Debilitator_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Debilitator,
         .iconPal = 0,
     },
 #endif
@@ -7151,7 +7151,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Mantle_DESC,
         .capacity = MSG_SKILL_Mantle_CAPACITY,
         .price = MSG_SKILL_Mantle_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Mantle,
         .iconPal = 0,
     },
 #endif
@@ -7162,7 +7162,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_QuickHands_DESC,
         .capacity = MSG_SKILL_QuickHands_CAPACITY,
         .price = MSG_SKILL_QuickHands_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_QuickHands,
         .iconPal = 0,
     },
 #endif
@@ -7184,7 +7184,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_OgreBody_DESC,
         .capacity = MSG_SKILL_OgreBody_CAPACITY,
         .price = MSG_SKILL_OgreBody_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_OgreBody,
         .iconPal = 0,
     },
 #endif
@@ -7195,7 +7195,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BeginnersLuck_DESC,
         .capacity = MSG_SKILL_BeginnersLuck_CAPACITY,
         .price = MSG_SKILL_BeginnersLuck_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BeginnersLuck,
         .iconPal = 0,
     },
 #endif
@@ -7206,7 +7206,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ExpertsExperience_DESC,
         .capacity = MSG_SKILL_ExpertsExperience_CAPACITY,
         .price = MSG_SKILL_ExpertsExperience_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ExpertsExperience,
         .iconPal = 0,
     },
 #endif
@@ -7239,7 +7239,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FortifyingStaff_DESC,
         .capacity = MSG_SKILL_FortifyingStaff_CAPACITY,
         .price = MSG_SKILL_FortifyingStaff_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FortifyingStaff,
         .iconPal = 0,
     },
 #endif
@@ -7250,7 +7250,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_StaffGuard_DESC,
         .capacity = MSG_SKILL_StaffGuard_CAPACITY,
         .price = MSG_SKILL_StaffGuard_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_StaffGuard,
         .iconPal = 0,
     },
 #endif
@@ -7272,7 +7272,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MakeAKilling_DESC,
         .capacity = MSG_SKILL_MakeAKilling_CAPACITY,
         .price = MSG_SKILL_MakeAKilling_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MakeAKilling,
         .iconPal = 0,
     },
 #endif
@@ -7283,7 +7283,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_NecroCopy_DESC,
         .capacity = MSG_SKILL_NecroCopy_CAPACITY,
         .price = MSG_SKILL_NecroCopy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_NecroCopy,
         .iconPal = 0,
     },
 #endif
@@ -7652,7 +7652,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Break_DESC,
         .capacity = MSG_SKILL_Break_CAPACITY,
         .price = MSG_SKILL_Break_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Break,
         .iconPal = 0,
     },
 #endif
@@ -7663,7 +7663,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Resurrection_DESC,
         .capacity = MSG_SKILL_Resurrection_CAPACITY,
         .price = MSG_SKILL_Resurrection_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Resurrection,
         .iconPal = 0,
     },
 #endif
@@ -7685,7 +7685,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Chipper_DESC,
         .capacity = MSG_SKILL_Chipper_CAPACITY,
         .price = MSG_SKILL_Chipper_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Chipper,
         .iconPal = 0,
     },
 #endif
@@ -7707,7 +7707,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CapacityHalf_DESC,
         .capacity = MSG_SKILL_CapacityHalf_CAPACITY,
         .price = MSG_SKILL_CapacityHalf_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CapacityHalf,
         .iconPal = 0,
     },
 #endif
@@ -7718,7 +7718,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CapacityOne_DESC,
         .capacity = MSG_SKILL_CapacityOne_CAPACITY,
         .price = MSG_SKILL_CapacityOne_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CapacityOne,
         .iconPal = 0,
     },
 #endif
@@ -7729,7 +7729,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MercyPlus_DESC,
         .capacity = MSG_SKILL_MercyPlus_CAPACITY,
         .price = MSG_SKILL_MercyPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MercyPlus,
         .iconPal = 0,
     },
 #endif
@@ -7740,7 +7740,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Prodigy_DESC,
         .capacity = MSG_SKILL_Prodigy_CAPACITY,
         .price = MSG_SKILL_Prodigy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Prodigy,
         .iconPal = 0,
     },
 #endif
@@ -7751,7 +7751,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DangerRanger_DESC,
         .capacity = MSG_SKILL_DangerRanger_CAPACITY,
         .price = MSG_SKILL_DangerRanger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DangerRanger,
         .iconPal = 0,
     },
 #endif
@@ -7762,7 +7762,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Savior_DESC,
         .capacity = MSG_SKILL_Savior_CAPACITY,
         .price = MSG_SKILL_Savior_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Savior,
         .iconPal = 0,
     },
 #endif
@@ -7784,7 +7784,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MendArms_DESC,
         .capacity = MSG_SKILL_MendArms_CAPACITY,
         .price = MSG_SKILL_MendArms_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MendArms,
         .iconPal = 0,
     },
 #endif
@@ -7795,7 +7795,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KillStreak_DESC,
         .capacity = MSG_SKILL_KillStreak_CAPACITY,
         .price = MSG_SKILL_KillStreak_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KillStreak,
         .iconPal = 0,
     },
 #endif
@@ -7806,7 +7806,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HyperFocus_DESC,
         .capacity = MSG_SKILL_HyperFocus_CAPACITY,
         .price = MSG_SKILL_HyperFocus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HyperFocus,
         .iconPal = 0,
     },
 #endif
@@ -7817,7 +7817,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerDefense_DESC,
         .capacity = MSG_SKILL_TakerDefense_CAPACITY,
         .price = MSG_SKILL_TakerDefense_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerDefense,
         .iconPal = 0,
     },
 #endif
@@ -7828,7 +7828,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerLuck_DESC,
         .capacity = MSG_SKILL_TakerLuck_CAPACITY,
         .price = MSG_SKILL_TakerLuck_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerLuck,
         .iconPal = 0,
     },
 #endif
@@ -7839,7 +7839,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerMagic_DESC,
         .capacity = MSG_SKILL_TakerMagic_CAPACITY,
         .price = MSG_SKILL_TakerMagic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerMagic,
         .iconPal = 0,
     },
 #endif
@@ -7850,7 +7850,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerMovement_DESC,
         .capacity = MSG_SKILL_TakerMovement_CAPACITY,
         .price = MSG_SKILL_TakerMovement_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerMovement,
         .iconPal = 0,
     },
 #endif
@@ -7861,7 +7861,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerResistance_DESC,
         .capacity = MSG_SKILL_TakerResistance_CAPACITY,
         .price = MSG_SKILL_TakerResistance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerResistance,
         .iconPal = 0,
     },
 #endif
@@ -7872,7 +7872,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerSkill_DESC,
         .capacity = MSG_SKILL_TakerSkill_CAPACITY,
         .price = MSG_SKILL_TakerSkill_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerSkill,
         .iconPal = 0,
     },
 #endif
@@ -7883,7 +7883,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerSpectrum_DESC,
         .capacity = MSG_SKILL_TakerSpectrum_CAPACITY,
         .price = MSG_SKILL_TakerSpectrum_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerSpectrum,
         .iconPal = 0,
     },
 #endif
@@ -7894,7 +7894,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerSpeed_DESC,
         .capacity = MSG_SKILL_TakerSpeed_CAPACITY,
         .price = MSG_SKILL_TakerSpeed_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerSpeed,
         .iconPal = 0,
     },
 #endif
@@ -7905,7 +7905,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TakerStrength_DESC,
         .capacity = MSG_SKILL_TakerStrength_CAPACITY,
         .price = MSG_SKILL_TakerStrength_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TakerStrength,
         .iconPal = 0,
     },
 #endif
@@ -7927,7 +7927,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_IronDome_DESC,
         .capacity = MSG_SKILL_IronDome_CAPACITY,
         .price = MSG_SKILL_IronDome_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_IronDome,
         .iconPal = 0,
     },
 #endif
@@ -7949,7 +7949,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AlacrityPlus_DESC,
         .capacity = MSG_SKILL_AlacrityPlus_CAPACITY,
         .price = MSG_SKILL_AlacrityPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AlacrityPlus,
         .iconPal = 0,
     },
 #endif
@@ -7982,7 +7982,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Canter_DESC,
         .capacity = MSG_SKILL_Canter_CAPACITY,
         .price = MSG_SKILL_Canter_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Canter,
         .iconPal = 0,
     },
 #endif
@@ -8004,7 +8004,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Guardian_DESC,
         .capacity = MSG_SKILL_Guardian_CAPACITY,
         .price = MSG_SKILL_Guardian_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Guardian,
         .iconPal = 0,
     },
 #endif
@@ -8015,7 +8015,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ShadowFlash_DESC,
         .capacity = MSG_SKILL_ShadowFlash_CAPACITY,
         .price = MSG_SKILL_ShadowFlash_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ShadowFlash,
         .iconPal = 0,
     },
 #endif
@@ -8026,7 +8026,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GrazingBlow_DESC,
         .capacity = MSG_SKILL_GrazingBlow_CAPACITY,
         .price = MSG_SKILL_GrazingBlow_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GrazingBlow,
         .iconPal = 0,
     },
 #endif
@@ -8037,7 +8037,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Counterattack_DESC,
         .capacity = MSG_SKILL_Counterattack_CAPACITY,
         .price = MSG_SKILL_Counterattack_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Counterattack,
         .iconPal = 0,
     },
 #endif
@@ -8103,7 +8103,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Offhand_DESC,
         .capacity = MSG_SKILL_Offhand_CAPACITY,
         .price = MSG_SKILL_Offhand_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Offhand,
         .iconPal = 0,
     },
 #endif
@@ -8125,7 +8125,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Flurry_DESC,
         .capacity = MSG_SKILL_Flurry_CAPACITY,
         .price = MSG_SKILL_Flurry_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Flurry,
         .iconPal = 0,
     },
 #endif
@@ -8136,7 +8136,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Antihex_DESC,
         .capacity = MSG_SKILL_Antihex_CAPACITY,
         .price = MSG_SKILL_Antihex_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Antihex,
         .iconPal = 0,
     },
 #endif
@@ -8147,7 +8147,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Equalizer_DESC,
         .capacity = MSG_SKILL_Equalizer_CAPACITY,
         .price = MSG_SKILL_Equalizer_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Equalizer,
         .iconPal = 0,
     },
 #endif
@@ -8169,7 +8169,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MountainMan_DESC,
         .capacity = MSG_SKILL_MountainMan_CAPACITY,
         .price = MSG_SKILL_MountainMan_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MountainMan,
         .iconPal = 0,
     },
 #endif
@@ -8180,7 +8180,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Saint_DESC,
         .capacity = MSG_SKILL_Saint_CAPACITY,
         .price = MSG_SKILL_Saint_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Saint,
         .iconPal = 0,
     },
 #endif
@@ -8213,7 +8213,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GuerillaTactics_DESC,
         .capacity = MSG_SKILL_GuerillaTactics_CAPACITY,
         .price = MSG_SKILL_GuerillaTactics_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GuerillaTactics,
         .iconPal = 0,
     },
 #endif
@@ -8257,7 +8257,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PhaseShift_DESC,
         .capacity = MSG_SKILL_PhaseShift_CAPACITY,
         .price = MSG_SKILL_PhaseShift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PhaseShift,
         .iconPal = 0,
     },
 #endif
@@ -8290,7 +8290,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Camouflage_DESC,
         .capacity = MSG_SKILL_Camouflage_CAPACITY,
         .price = MSG_SKILL_Camouflage_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Camouflage,
         .iconPal = 0,
     },
 #endif
@@ -8301,7 +8301,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Warpath_DESC,
         .capacity = MSG_SKILL_Warpath_CAPACITY,
         .price = MSG_SKILL_Warpath_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Warpath,
         .iconPal = 0,
     },
 #endif
@@ -8312,7 +8312,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SwiftAttack_DESC,
         .capacity = MSG_SKILL_SwiftAttack_CAPACITY,
         .price = MSG_SKILL_SwiftAttack_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SwiftAttack,
         .iconPal = 0,
     },
 #endif
@@ -8345,7 +8345,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Trace_DESC,
         .capacity = MSG_SKILL_Trace_CAPACITY,
         .price = MSG_SKILL_Trace_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Trace,
         .iconPal = 0,
     },
 #endif
@@ -8356,7 +8356,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Scavenger_DESC,
         .capacity = MSG_SKILL_Scavenger_CAPACITY,
         .price = MSG_SKILL_Scavenger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Scavenger,
         .iconPal = 0,
     },
 #endif
@@ -8367,7 +8367,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Upgrade_DESC,
         .capacity = MSG_SKILL_Upgrade_CAPACITY,
         .price = MSG_SKILL_Upgrade_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Upgrade,
         .iconPal = 0,
     },
 #endif
@@ -8378,7 +8378,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Shotput_DESC,
         .capacity = MSG_SKILL_Shotput_CAPACITY,
         .price = MSG_SKILL_Shotput_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Shotput,
         .iconPal = 0,
     },
 #endif
@@ -8389,7 +8389,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ShotputPlus_DESC,
         .capacity = MSG_SKILL_ShotputPlus_CAPACITY,
         .price = MSG_SKILL_ShotputPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ShotputPlus,
         .iconPal = 0,
     },
 #endif
@@ -8400,7 +8400,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Extrovert_DESC,
         .capacity = MSG_SKILL_Extrovert_CAPACITY,
         .price = MSG_SKILL_Extrovert_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Extrovert,
         .iconPal = 0,
     },
 #endif
@@ -8411,7 +8411,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Transpose_DESC,
         .capacity = MSG_SKILL_Transpose_CAPACITY,
         .price = MSG_SKILL_Transpose_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Transpose,
         .iconPal = 0,
     },
 #endif
@@ -8422,7 +8422,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Lifefont_DESC,
         .capacity = MSG_SKILL_Lifefont_CAPACITY,
         .price = MSG_SKILL_Lifefont_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Lifefont,
         .iconPal = 0,
     },
 #endif
@@ -8433,7 +8433,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DivineReprieve_DESC,
         .capacity = MSG_SKILL_DivineReprieve_CAPACITY,
         .price = MSG_SKILL_DivineReprieve_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DivineReprieve,
         .iconPal = 0,
     },
 #endif
@@ -8444,7 +8444,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EternalVanity_DESC,
         .capacity = MSG_SKILL_EternalVanity_CAPACITY,
         .price = MSG_SKILL_EternalVanity_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EternalVanity,
         .iconPal = 0,
     },
 #endif
@@ -8455,7 +8455,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackStrength_DESC,
         .capacity = MSG_SKILL_KnackStrength_CAPACITY,
         .price = MSG_SKILL_KnackStrength_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackStrength,
         .iconPal = 0,
     },
 #endif
@@ -8466,7 +8466,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackMagic_DESC,
         .capacity = MSG_SKILL_KnackMagic_CAPACITY,
         .price = MSG_SKILL_KnackMagic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackMagic,
         .iconPal = 0,
     },
 #endif
@@ -8477,7 +8477,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackSkill_DESC,
         .capacity = MSG_SKILL_KnackSkill_CAPACITY,
         .price = MSG_SKILL_KnackSkill_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackSkill,
         .iconPal = 0,
     },
 #endif
@@ -8488,7 +8488,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackSpeed_DESC,
         .capacity = MSG_SKILL_KnackSpeed_CAPACITY,
         .price = MSG_SKILL_KnackSpeed_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackSpeed,
         .iconPal = 0,
     },
 #endif
@@ -8499,7 +8499,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackLuck_DESC,
         .capacity = MSG_SKILL_KnackLuck_CAPACITY,
         .price = MSG_SKILL_KnackLuck_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackLuck,
         .iconPal = 0,
     },
 #endif
@@ -8510,7 +8510,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackDefense_DESC,
         .capacity = MSG_SKILL_KnackDefense_CAPACITY,
         .price = MSG_SKILL_KnackDefense_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackDefense,
         .iconPal = 0,
     },
 #endif
@@ -8521,7 +8521,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackResistance_DESC,
         .capacity = MSG_SKILL_KnackResistance_CAPACITY,
         .price = MSG_SKILL_KnackResistance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackResistance,
         .iconPal = 0,
     },
 #endif
@@ -8532,7 +8532,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_KnackHealth_DESC,
         .capacity = MSG_SKILL_KnackHealth_CAPACITY,
         .price = MSG_SKILL_KnackHealth_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_KnackHealth,
         .iconPal = 0,
     },
 #endif
@@ -8543,7 +8543,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ScrollSavant_DESC,
         .capacity = MSG_SKILL_ScrollSavant_CAPACITY,
         .price = MSG_SKILL_ScrollSavant_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ScrollSavant,
         .iconPal = 0,
     },
 #endif
@@ -8554,7 +8554,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SwordSaint_DESC,
         .capacity = MSG_SKILL_SwordSaint_CAPACITY,
         .price = MSG_SKILL_SwordSaint_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SwordSaint,
         .iconPal = 0,
     },
 #endif
@@ -8565,7 +8565,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SteadyRider_DESC,
         .capacity = MSG_SKILL_SteadyRider_CAPACITY,
         .price = MSG_SKILL_SteadyRider_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SteadyRider,
         .iconPal = 0,
     },
 #endif
@@ -8576,7 +8576,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SteadyRiderPlus_DESC,
         .capacity = MSG_SKILL_SteadyRiderPlus_CAPACITY,
         .price = MSG_SKILL_SteadyRiderPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SteadyRiderPlus,
         .iconPal = 0,
     },
 #endif
@@ -8587,7 +8587,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_WyvernCrash_DESC,
         .capacity = MSG_SKILL_WyvernCrash_CAPACITY,
         .price = MSG_SKILL_WyvernCrash_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_WyvernCrash,
         .iconPal = 0,
     },
 #endif
@@ -8598,7 +8598,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ExplosiveHeal_DESC,
         .capacity = MSG_SKILL_ExplosiveHeal_CAPACITY,
         .price = MSG_SKILL_ExplosiveHeal_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ExplosiveHeal,
         .iconPal = 0,
     },
 #endif
@@ -8609,7 +8609,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BanditBane_DESC,
         .capacity = MSG_SKILL_BanditBane_CAPACITY,
         .price = MSG_SKILL_BanditBane_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BanditBane,
         .iconPal = 0,
     },
 #endif
@@ -8620,7 +8620,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ExplosiveBuff_DESC,
         .capacity = MSG_SKILL_ExplosiveBuff_CAPACITY,
         .price = MSG_SKILL_ExplosiveBuff_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ExplosiveBuff,
         .iconPal = 0,
     },
 #endif
@@ -8631,7 +8631,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Sellsword_DESC,
         .capacity = MSG_SKILL_Sellsword_CAPACITY,
         .price = MSG_SKILL_Sellsword_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Sellsword,
         .iconPal = 0,
     },
 #endif
@@ -8642,7 +8642,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PeoplesKnight_DESC,
         .capacity = MSG_SKILL_PeoplesKnight_CAPACITY,
         .price = MSG_SKILL_PeoplesKnight_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PeoplesKnight,
         .iconPal = 0,
     },
 #endif
@@ -8653,7 +8653,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Predation_DESC,
         .capacity = MSG_SKILL_Predation_CAPACITY,
         .price = MSG_SKILL_Predation_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Predation,
         .iconPal = 0,
     },
 #endif
@@ -8664,7 +8664,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PredationPlus_DESC,
         .capacity = MSG_SKILL_PredationPlus_CAPACITY,
         .price = MSG_SKILL_PredationPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PredationPlus,
         .iconPal = 0,
     },
 #endif
@@ -8675,7 +8675,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ScrollScribe_DESC,
         .capacity = MSG_SKILL_ScrollScribe_CAPACITY,
         .price = MSG_SKILL_ScrollScribe_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ScrollScribe,
         .iconPal = 0,
     },
 #endif
@@ -8686,7 +8686,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpiritedSteps_DESC,
         .capacity = MSG_SKILL_SpiritedSteps_CAPACITY,
         .price = MSG_SKILL_SpiritedSteps_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpiritedSteps,
         .iconPal = 0,
     },
 #endif
@@ -8697,7 +8697,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Switcher_DESC,
         .capacity = MSG_SKILL_Switcher_CAPACITY,
         .price = MSG_SKILL_Switcher_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Switcher,
         .iconPal = 0,
     },
 #endif
@@ -8708,7 +8708,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DesertTiger_DESC,
         .capacity = MSG_SKILL_DesertTiger_CAPACITY,
         .price = MSG_SKILL_DesertTiger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DesertTiger,
         .iconPal = 0,
     },
 #endif
@@ -8719,7 +8719,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GracefulWielder_DESC,
         .capacity = MSG_SKILL_GracefulWielder_CAPACITY,
         .price = MSG_SKILL_GracefulWielder_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GracefulWielder,
         .iconPal = 0,
     },
 #endif
@@ -8741,7 +8741,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LethalityPlus_DESC,
         .capacity = MSG_SKILL_LethalityPlus_CAPACITY,
         .price = MSG_SKILL_LethalityPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LethalityPlus,
         .iconPal = 0,
     },
 #endif
@@ -8752,7 +8752,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Heroics_DESC,
         .capacity = MSG_SKILL_Heroics_CAPACITY,
         .price = MSG_SKILL_Heroics_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Heroics,
         .iconPal = 0,
     },
 #endif
@@ -8763,7 +8763,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FarWard_DESC,
         .capacity = MSG_SKILL_FarWard_CAPACITY,
         .price = MSG_SKILL_FarWard_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FarWard,
         .iconPal = 0,
     },
 #endif
@@ -8774,7 +8774,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GrimReaper_DESC,
         .capacity = MSG_SKILL_GrimReaper_CAPACITY,
         .price = MSG_SKILL_GrimReaper_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GrimReaper,
         .iconPal = 0,
     },
 #endif
@@ -8785,7 +8785,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Hide_DESC,
         .capacity = MSG_SKILL_Hide_CAPACITY,
         .price = MSG_SKILL_Hide_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Hide,
         .iconPal = 0,
     },
 #endif
@@ -8796,7 +8796,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ShadowStep_DESC,
         .capacity = MSG_SKILL_ShadowStep_CAPACITY,
         .price = MSG_SKILL_ShadowStep_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ShadowStep,
         .iconPal = 0,
     },
 #endif
@@ -8807,7 +8807,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Zen_DESC,
         .capacity = MSG_SKILL_Zen_CAPACITY,
         .price = MSG_SKILL_Zen_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Zen,
         .iconPal = 0,
     },
 #endif
@@ -8818,7 +8818,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HugePower_DESC,
         .capacity = MSG_SKILL_HugePower_CAPACITY,
         .price = MSG_SKILL_HugePower_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HugePower,
         .iconPal = 0,
     },
 #endif
@@ -8829,7 +8829,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HugePowerPlus_DESC,
         .capacity = MSG_SKILL_HugePowerPlus_CAPACITY,
         .price = MSG_SKILL_HugePowerPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HugePowerPlus,
         .iconPal = 0,
     },
 #endif
@@ -8840,7 +8840,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TintedLens_DESC,
         .capacity = MSG_SKILL_TintedLens_CAPACITY,
         .price = MSG_SKILL_TintedLens_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TintedLens,
         .iconPal = 0,
     },
 #endif
@@ -8851,7 +8851,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TintedLensPlus_DESC,
         .capacity = MSG_SKILL_TintedLensPlus_CAPACITY,
         .price = MSG_SKILL_TintedLensPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TintedLensPlus,
         .iconPal = 0,
     },
 #endif
@@ -8862,7 +8862,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TrickRoom_DESC,
         .capacity = MSG_SKILL_TrickRoom_CAPACITY,
         .price = MSG_SKILL_TrickRoom_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TrickRoom,
         .iconPal = 0,
     },
 #endif
@@ -8873,7 +8873,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Emulate_DESC,
         .capacity = MSG_SKILL_Emulate_CAPACITY,
         .price = MSG_SKILL_Emulate_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Emulate,
         .iconPal = 0,
     },
 #endif
@@ -8884,7 +8884,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ItemLore_DESC,
         .capacity = MSG_SKILL_ItemLore_CAPACITY,
         .price = MSG_SKILL_ItemLore_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ItemLore,
         .iconPal = 0,
     },
 #endif
@@ -8895,7 +8895,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DualWield_DESC,
         .capacity = MSG_SKILL_DualWield_CAPACITY,
         .price = MSG_SKILL_DualWield_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DualWield,
         .iconPal = 0,
     },
 #endif
@@ -8906,7 +8906,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DualWieldPlus_DESC,
         .capacity = MSG_SKILL_DualWieldPlus_CAPACITY,
         .price = MSG_SKILL_DualWieldPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DualWieldPlus,
         .iconPal = 0,
     },
 #endif
@@ -8917,7 +8917,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Ruinator_DESC,
         .capacity = MSG_SKILL_Ruinator_CAPACITY,
         .price = MSG_SKILL_Ruinator_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Ruinator,
         .iconPal = 0,
     },
 #endif
@@ -8928,7 +8928,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MarkOfTheBeast_DESC,
         .capacity = MSG_SKILL_MarkOfTheBeast_CAPACITY,
         .price = MSG_SKILL_MarkOfTheBeast_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MarkOfTheBeast,
         .iconPal = 0,
     },
 #endif
@@ -8939,7 +8939,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Rampart_DESC,
         .capacity = MSG_SKILL_Rampart_CAPACITY,
         .price = MSG_SKILL_Rampart_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Rampart,
         .iconPal = 0,
     },
 #endif
@@ -8950,7 +8950,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RampartPlus_DESC,
         .capacity = MSG_SKILL_RampartPlus_CAPACITY,
         .price = MSG_SKILL_RampartPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RampartPlus,
         .iconPal = 0,
     },
 #endif
@@ -8961,7 +8961,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SlowStart_DESC,
         .capacity = MSG_SKILL_SlowStart_CAPACITY,
         .price = MSG_SKILL_SlowStart_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SlowStart,
         .iconPal = 0,
     },
 #endif
@@ -8972,7 +8972,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Truant_DESC,
         .capacity = MSG_SKILL_Truant_CAPACITY,
         .price = MSG_SKILL_Truant_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Truant,
         .iconPal = 0,
     },
 #endif
@@ -8983,7 +8983,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Zenkai_DESC,
         .capacity = MSG_SKILL_Zenkai_CAPACITY,
         .price = MSG_SKILL_Zenkai_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Zenkai,
         .iconPal = 0,
     },
 #endif
@@ -8994,7 +8994,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Salve_DESC,
         .capacity = MSG_SKILL_Salve_CAPACITY,
         .price = MSG_SKILL_Salve_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Salve,
         .iconPal = 0,
     },
 #endif
@@ -9005,7 +9005,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Forcefield_DESC,
         .capacity = MSG_SKILL_Forcefield_CAPACITY,
         .price = MSG_SKILL_Forcefield_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Forcefield,
         .iconPal = 0,
     },
 #endif
@@ -9016,7 +9016,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SkillSwap_DESC,
         .capacity = MSG_SKILL_SkillSwap_CAPACITY,
         .price = MSG_SKILL_SkillSwap_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SkillSwap,
         .iconPal = 0,
     },
 #endif
@@ -9027,7 +9027,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SkillSwapPlus_DESC,
         .capacity = MSG_SKILL_SkillSwapPlus_CAPACITY,
         .price = MSG_SKILL_SkillSwapPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SkillSwapPlus,
         .iconPal = 0,
     },
 #endif
@@ -9038,7 +9038,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Shuffle_DESC,
         .capacity = MSG_SKILL_Shuffle_CAPACITY,
         .price = MSG_SKILL_Shuffle_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Shuffle,
         .iconPal = 0,
     },
 #endif
@@ -9049,7 +9049,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ShufflePlus_DESC,
         .capacity = MSG_SKILL_ShufflePlus_CAPACITY,
         .price = MSG_SKILL_ShufflePlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ShufflePlus,
         .iconPal = 0,
     },
 #endif
@@ -9060,7 +9060,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Persuade_DESC,
         .capacity = MSG_SKILL_Persuade_CAPACITY,
         .price = MSG_SKILL_Persuade_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Persuade,
         .iconPal = 0,
     },
 #endif
@@ -9071,7 +9071,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PersuadePlus_DESC,
         .capacity = MSG_SKILL_PersuadePlus_CAPACITY,
         .price = MSG_SKILL_PersuadePlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PersuadePlus,
         .iconPal = 0,
     },
 #endif
@@ -9082,7 +9082,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Kamikaze_DESC,
         .capacity = MSG_SKILL_Kamikaze_CAPACITY,
         .price = MSG_SKILL_Kamikaze_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Kamikaze,
         .iconPal = 0,
     },
 #endif
@@ -9093,7 +9093,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Freelancer_DESC,
         .capacity = MSG_SKILL_Freelancer_CAPACITY,
         .price = MSG_SKILL_Freelancer_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Freelancer,
         .iconPal = 0,
     },
 #endif
@@ -9104,7 +9104,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Reinforcements_DESC,
         .capacity = MSG_SKILL_Reinforcements_CAPACITY,
         .price = MSG_SKILL_Reinforcements_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Reinforcements,
         .iconPal = 0,
     },
 #endif
@@ -9115,7 +9115,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ResolvedHeart_DESC,
         .capacity = MSG_SKILL_ResolvedHeart_CAPACITY,
         .price = MSG_SKILL_ResolvedHeart_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ResolvedHeart,
         .iconPal = 0,
     },
 #endif
@@ -9126,7 +9126,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Ballistary_DESC,
         .capacity = MSG_SKILL_Ballistary_CAPACITY,
         .price = MSG_SKILL_Ballistary_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Ballistary,
         .iconPal = 0,
     },
 #endif
@@ -9137,7 +9137,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Bide_DESC,
         .capacity = MSG_SKILL_Bide_CAPACITY,
         .price = MSG_SKILL_Bide_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Bide,
         .iconPal = 0,
     },
 #endif
@@ -9148,7 +9148,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CoinFlip_DESC,
         .capacity = MSG_SKILL_CoinFlip_CAPACITY,
         .price = MSG_SKILL_CoinFlip_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CoinFlip,
         .iconPal = 0,
     },
 #endif
@@ -9159,7 +9159,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LastStand_DESC,
         .capacity = MSG_SKILL_LastStand_CAPACITY,
         .price = MSG_SKILL_LastStand_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LastStand,
         .iconPal = 0,
     },
 #endif
@@ -9171,7 +9171,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Flicker_DESC,
         .capacity = MSG_SKILL_Flicker_CAPACITY,
         .price = MSG_SKILL_Flicker_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Flicker,
         .iconPal = 0,
     },
 #endif
@@ -9182,7 +9182,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Rearm_DESC,
         .capacity = MSG_SKILL_Rearm_CAPACITY,
         .price = MSG_SKILL_Rearm_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Rearm,
         .iconPal = 0,
     },
 #endif
@@ -9193,7 +9193,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_LightningRod_DESC,
         .capacity = MSG_SKILL_LightningRod_CAPACITY,
         .price = MSG_SKILL_LightningRod_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_LightningRod,
         .iconPal = 0,
     },
 #endif
@@ -9204,7 +9204,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Geomancy_DESC,
         .capacity = MSG_SKILL_Geomancy_CAPACITY,
         .price = MSG_SKILL_Geomancy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Geomancy,
         .iconPal = 0,
     },
 #endif
@@ -9215,7 +9215,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Pulse_DESC,
         .capacity = MSG_SKILL_Pulse_CAPACITY,
         .price = MSG_SKILL_Pulse_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Pulse,
         .iconPal = 0,
     },
 #endif
@@ -9226,7 +9226,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FormShift_DESC,
         .capacity = MSG_SKILL_FormShift_CAPACITY,
         .price = MSG_SKILL_FormShift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FormShift,
         .iconPal = 0,
     },
 #endif
@@ -9237,7 +9237,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HalfShift_DESC,
         .capacity = MSG_SKILL_HalfShift_CAPACITY,
         .price = MSG_SKILL_HalfShift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HalfShift,
         .iconPal = 0,
     },
 #endif
@@ -9248,7 +9248,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AbsorbAlternation_DESC,
         .capacity = MSG_SKILL_AbsorbAlternation_CAPACITY,
         .price = MSG_SKILL_AbsorbAlternation_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AbsorbAlternation,
         .iconPal = 0,
     },
 #endif
@@ -9259,7 +9259,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GoodListener_DESC,
         .capacity = MSG_SKILL_GoodListener_CAPACITY,
         .price = MSG_SKILL_GoodListener_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GoodListener,
         .iconPal = 0,
     },
 #endif
@@ -9270,7 +9270,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ScrollScribePlus_DESC,
         .capacity = MSG_SKILL_ScrollScribePlus_CAPACITY,
         .price = MSG_SKILL_ScrollScribePlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ScrollScribePlus,
         .iconPal = 0,
     },
 #endif
@@ -9281,7 +9281,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_UnarmedCombat_DESC,
         .capacity = MSG_SKILL_UnarmedCombat_CAPACITY,
         .price = MSG_SKILL_UnarmedCombat_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_UnarmedCombat,
         .iconPal = 0,
     },
 #endif
@@ -9292,7 +9292,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Acidic_DESC,
         .capacity = MSG_SKILL_Acidic_CAPACITY,
         .price = MSG_SKILL_Acidic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Acidic,
         .iconPal = 0,
     },
 #endif
@@ -9303,7 +9303,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AcidicPlus_DESC,
         .capacity = MSG_SKILL_AcidicPlus_CAPACITY,
         .price = MSG_SKILL_AcidicPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AcidicPlus,
         .iconPal = 0,
     },
 #endif
@@ -9314,7 +9314,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SereneGrace_DESC,
         .capacity = MSG_SKILL_SereneGrace_CAPACITY,
         .price = MSG_SKILL_SereneGrace_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SereneGrace,
         .iconPal = 0,
     },
 #endif
@@ -9325,7 +9325,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_StickyHold_DESC,
         .capacity = MSG_SKILL_StickyHold_CAPACITY,
         .price = MSG_SKILL_StickyHold_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_StickyHold,
         .iconPal = 0,
     },
 #endif
@@ -9336,7 +9336,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Levitate_DESC,
         .capacity = MSG_SKILL_Levitate_CAPACITY,
         .price = MSG_SKILL_Levitate_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Levitate,
         .iconPal = 0,
     },
 #endif
@@ -9347,7 +9347,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Protean_DESC,
         .capacity = MSG_SKILL_Protean_CAPACITY,
         .price = MSG_SKILL_Protean_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Protean,
         .iconPal = 0,
     },
 #endif
@@ -9358,7 +9358,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Protect_DESC,
         .capacity = MSG_SKILL_Protect_CAPACITY,
         .price = MSG_SKILL_Protect_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Protect,
         .iconPal = 0,
     },
 #endif
@@ -9369,7 +9369,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GoldenGlory_DESC,
         .capacity = MSG_SKILL_GoldenGlory_CAPACITY,
         .price = MSG_SKILL_GoldenGlory_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GoldenGlory,
         .iconPal = 0,
     },
 #endif
@@ -9380,7 +9380,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Calibration_DESC,
         .capacity = MSG_SKILL_Calibration_CAPACITY,
         .price = MSG_SKILL_Calibration_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Calibration,
         .iconPal = 0,
     },
 #endif
@@ -9391,7 +9391,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Reinforce_DESC,
         .capacity = MSG_SKILL_Reinforce_CAPACITY,
         .price = MSG_SKILL_Reinforce_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Reinforce,
         .iconPal = 0,
     },
 #endif
@@ -9402,7 +9402,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SupremeOverlord_DESC,
         .capacity = MSG_SKILL_SupremeOverlord_CAPACITY,
         .price = MSG_SKILL_SupremeOverlord_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SupremeOverlord,
         .iconPal = 0,
     },
 #endif
@@ -9413,7 +9413,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SealedZone_DESC,
         .capacity = MSG_SKILL_SealedZone_CAPACITY,
         .price = MSG_SKILL_SealedZone_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SealedZone,
         .iconPal = 0,
     },
 #endif
@@ -9424,7 +9424,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Thrust_DESC,
         .capacity = MSG_SKILL_Thrust_CAPACITY,
         .price = MSG_SKILL_Thrust_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Thrust,
         .iconPal = 0,
     },
 #endif
@@ -9435,7 +9435,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChainAttack_DESC,
         .capacity = MSG_SKILL_ChainAttack_CAPACITY,
         .price = MSG_SKILL_ChainAttack_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChainAttack,
         .iconPal = 0,
     },
 #endif
@@ -9446,7 +9446,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_NinthCircle_DESC,
         .capacity = MSG_SKILL_NinthCircle_CAPACITY,
         .price = MSG_SKILL_NinthCircle_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_NinthCircle,
         .iconPal = 0,
     },
 #endif
@@ -9457,7 +9457,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_InevitableEnd_DESC,
         .capacity = MSG_SKILL_InevitableEnd_CAPACITY,
         .price = MSG_SKILL_InevitableEnd_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_InevitableEnd,
         .iconPal = 0,
     },
 #endif
@@ -9468,7 +9468,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MPChanneling_DESC,
         .capacity = MSG_SKILL_MPChanneling_CAPACITY,
         .price = MSG_SKILL_MPChanneling_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MPChanneling,
         .iconPal = 0,
     },
 #endif
@@ -9479,7 +9479,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Eldritch_DESC,
         .capacity = MSG_SKILL_Eldritch_CAPACITY,
         .price = MSG_SKILL_Eldritch_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Eldritch,
         .iconPal = 0,
     },
 #endif
@@ -9490,7 +9490,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Osmose_DESC,
         .capacity = MSG_SKILL_Osmose_CAPACITY,
         .price = MSG_SKILL_Osmose_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Osmose,
         .iconPal = 0,
     },
 #endif
@@ -9501,7 +9501,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BloodMagic_DESC,
         .capacity = MSG_SKILL_BloodMagic_CAPACITY,
         .price = MSG_SKILL_BloodMagic_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BloodMagic,
         .iconPal = 0,
     },
 #endif
@@ -9512,7 +9512,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HalfMP_DESC,
         .capacity = MSG_SKILL_HalfMP_CAPACITY,
         .price = MSG_SKILL_HalfMP_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HalfMP,
         .iconPal = 0,
     },
 #endif
@@ -9523,7 +9523,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HalfSP_DESC,
         .capacity = MSG_SKILL_HalfSP_CAPACITY,
         .price = MSG_SKILL_HalfSP_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HalfSP,
         .iconPal = 0,
     },
 #endif
@@ -9534,7 +9534,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SiegeRepair_DESC,
         .capacity = MSG_SKILL_SiegeRepair_CAPACITY,
         .price = MSG_SKILL_SiegeRepair_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SiegeRepair,
         .iconPal = 0,
     },
 #endif
@@ -9545,7 +9545,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TurboMP_DESC,
         .capacity = MSG_SKILL_TurboMP_CAPACITY,
         .price = MSG_SKILL_TurboMP_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TurboMP,
         .iconPal = 0,
     },
 #endif
@@ -9556,7 +9556,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Carnage_DESC,
         .capacity = MSG_SKILL_Carnage_CAPACITY,
         .price = MSG_SKILL_Carnage_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Carnage,
         .iconPal = 0,
     },
 #endif
@@ -9567,7 +9567,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Crisis_DESC,
         .capacity = MSG_SKILL_Crisis_CAPACITY,
         .price = MSG_SKILL_Crisis_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Crisis,
         .iconPal = 0,
     },
 #endif
@@ -9578,7 +9578,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Samaritan_DESC,
         .capacity = MSG_SKILL_Samaritan_CAPACITY,
         .price = MSG_SKILL_Samaritan_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Samaritan,
         .iconPal = 0,
     },
 #endif
@@ -9589,7 +9589,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Turret_DESC,
         .capacity = MSG_SKILL_Turret_CAPACITY,
         .price = MSG_SKILL_Turret_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Turret,
         .iconPal = 0,
     },
 #endif
@@ -9600,7 +9600,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Overdraft_DESC,
         .capacity = MSG_SKILL_Overdraft_CAPACITY,
         .price = MSG_SKILL_Overdraft_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Overdraft,
         .iconPal = 0,
     },
 #endif
@@ -9611,7 +9611,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Crescendo_DESC,
         .capacity = MSG_SKILL_Crescendo_CAPACITY,
         .price = MSG_SKILL_Crescendo_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Crescendo,
         .iconPal = 0,
     },
 #endif
@@ -9622,7 +9622,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_PenanceStare_DESC,
         .capacity = MSG_SKILL_PenanceStare_CAPACITY,
         .price = MSG_SKILL_PenanceStare_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_PenanceStare,
         .iconPal = 0,
     },
 #endif
@@ -9633,7 +9633,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_QuickSalve_DESC,
         .capacity = MSG_SKILL_QuickSalve_CAPACITY,
         .price = MSG_SKILL_QuickSalve_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_QuickSalve,
         .iconPal = 0,
     },
 #endif
@@ -9644,7 +9644,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DilligentMind_DESC,
         .capacity = MSG_SKILL_DilligentMind_CAPACITY,
         .price = MSG_SKILL_DilligentMind_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DilligentMind,
         .iconPal = 0,
     },
 #endif
@@ -9655,7 +9655,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Domino_DESC,
         .capacity = MSG_SKILL_Domino_CAPACITY,
         .price = MSG_SKILL_Domino_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Domino,
         .iconPal = 0,
     },
 #endif
@@ -9666,7 +9666,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_RadiantEdict_DESC,
         .capacity = MSG_SKILL_RadiantEdict_CAPACITY,
         .price = MSG_SKILL_RadiantEdict_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_RadiantEdict,
         .iconPal = 0,
     },
 #endif
@@ -9677,7 +9677,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EvasionLock_DESC,
         .capacity = MSG_SKILL_EvasionLock_CAPACITY,
         .price = MSG_SKILL_EvasionLock_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EvasionLock,
         .iconPal = 0,
     },
 #endif
@@ -9688,7 +9688,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Pyrotechnics_DESC,
         .capacity = MSG_SKILL_Pyrotechnics_CAPACITY,
         .price = MSG_SKILL_Pyrotechnics_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Pyrotechnics,
         .iconPal = 0,
     },
 #endif
@@ -9699,7 +9699,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Replicate_DESC,
         .capacity = MSG_SKILL_Replicate_CAPACITY,
         .price = MSG_SKILL_Replicate_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Replicate,
         .iconPal = 0,
     },
 #endif
@@ -9710,7 +9710,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MasterForge_DESC,
         .capacity = MSG_SKILL_MasterForge_CAPACITY,
         .price = MSG_SKILL_MasterForge_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MasterForge,
         .iconPal = 0,
     },
 #endif
@@ -9721,7 +9721,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BravelyDefault_DESC,
         .capacity = MSG_SKILL_BravelyDefault_CAPACITY,
         .price = MSG_SKILL_BravelyDefault_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BravelyDefault,
         .iconPal = 0,
     },
 #endif
@@ -9732,7 +9732,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Quagmire_DESC,
         .capacity = MSG_SKILL_Quagmire_CAPACITY,
         .price = MSG_SKILL_Quagmire_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Quagmire,
         .iconPal = 0,
     },
 #endif
@@ -9743,7 +9743,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Fogger_DESC,
         .capacity = MSG_SKILL_Fogger_CAPACITY,
         .price = MSG_SKILL_Fogger_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Fogger,
         .iconPal = 0,
     },
 #endif
@@ -9754,7 +9754,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Duplicate_DESC,
         .capacity = MSG_SKILL_Duplicate_CAPACITY,
         .price = MSG_SKILL_Duplicate_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Duplicate,
         .iconPal = 0,
     },
 #endif
@@ -9765,7 +9765,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Reroll_DESC,
         .capacity = MSG_SKILL_Reroll_CAPACITY,
         .price = MSG_SKILL_Reroll_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Reroll,
         .iconPal = 0,
     },
 #endif
@@ -9776,7 +9776,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpellBlade_DESC,
         .capacity = MSG_SKILL_SpellBlade_CAPACITY,
         .price = MSG_SKILL_SpellBlade_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpellBlade,
         .iconPal = 0,
     },
 #endif
@@ -9787,7 +9787,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Necromancy_DESC,
         .capacity = MSG_SKILL_Necromancy_CAPACITY,
         .price = MSG_SKILL_Necromancy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Necromancy,
         .iconPal = 0,
     },
 #endif
@@ -9798,7 +9798,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Caltrops_DESC,
         .capacity = MSG_SKILL_Caltrops_CAPACITY,
         .price = MSG_SKILL_Caltrops_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Caltrops,
         .iconPal = 0,
     },
 #endif
@@ -9809,7 +9809,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DamageToMP_DESC,
         .capacity = MSG_SKILL_DamageToMP_CAPACITY,
         .price = MSG_SKILL_DamageToMP_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DamageToMP,
         .iconPal = 0,
     },
 #endif
@@ -9820,7 +9820,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Blight_DESC,
         .capacity = MSG_SKILL_Blight_CAPACITY,
         .price = MSG_SKILL_Blight_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Blight,
         .iconPal = 0,
     },
 #endif
@@ -9831,7 +9831,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FaustianBargain_DESC,
         .capacity = MSG_SKILL_FaustianBargain_CAPACITY,
         .price = MSG_SKILL_FaustianBargain_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FaustianBargain,
         .iconPal = 0,
     },
 #endif
@@ -9842,7 +9842,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Seafarer_DESC,
         .capacity = MSG_SKILL_Seafarer_CAPACITY,
         .price = MSG_SKILL_Seafarer_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Seafarer,
         .iconPal = 0,
     },
 #endif
@@ -9853,7 +9853,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Hiker_DESC,
         .capacity = MSG_SKILL_Hiker_CAPACITY,
         .price = MSG_SKILL_Hiker_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Hiker,
         .iconPal = 0,
     },
 #endif
@@ -9864,7 +9864,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_FocusEnergy_DESC,
         .capacity = MSG_SKILL_FocusEnergy_CAPACITY,
         .price = MSG_SKILL_FocusEnergy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_FocusEnergy,
         .iconPal = 0,
     },
 #endif
@@ -9875,7 +9875,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MineDetector_DESC,
         .capacity = MSG_SKILL_MineDetector_CAPACITY,
         .price = MSG_SKILL_MineDetector_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MineDetector,
         .iconPal = 0,
     },
 #endif
@@ -9886,7 +9886,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_TrapBuster_DESC,
         .capacity = MSG_SKILL_TrapBuster_CAPACITY,
         .price = MSG_SKILL_TrapBuster_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_TrapBuster,
         .iconPal = 0,
     },
 #endif
@@ -9897,7 +9897,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EXPShare_DESC,
         .capacity = MSG_SKILL_EXPShare_CAPACITY,
         .price = MSG_SKILL_EXPShare_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EXPShare,
         .iconPal = 0,
     },
 #endif
@@ -9919,7 +9919,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GraceOfFire_DESC,
         .capacity = MSG_SKILL_GraceOfFire_CAPACITY,
         .price = MSG_SKILL_GraceOfFire_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GraceOfFire,
         .iconPal = 0,
     },
 #endif
@@ -9930,7 +9930,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GraceOfWater_DESC,
         .capacity = MSG_SKILL_GraceOfWater_CAPACITY,
         .price = MSG_SKILL_GraceOfWater_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GraceOfWater,
         .iconPal = 0,
     },
 #endif
@@ -9941,7 +9941,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_WitchsBrew_DESC,
         .capacity = MSG_SKILL_WitchsBrew_CAPACITY,
         .price = MSG_SKILL_WitchsBrew_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_WitchsBrew,
         .iconPal = 0,
     },
 #endif
@@ -9952,7 +9952,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Undying_DESC,
         .capacity = MSG_SKILL_Undying_CAPACITY,
         .price = MSG_SKILL_Undying_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Undying,
         .iconPal = 0,
     },
 #endif
@@ -9963,7 +9963,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_DoubleTime_DESC,
         .capacity = MSG_SKILL_DoubleTime_CAPACITY,
         .price = MSG_SKILL_DoubleTime_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_DoubleTime,
         .iconPal = 0,
     },
 #endif
@@ -9974,7 +9974,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_HighGrace_DESC,
         .capacity = MSG_SKILL_HighGrace_CAPACITY,
         .price = MSG_SKILL_HighGrace_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_HighGrace,
         .iconPal = 0,
     },
 #endif
@@ -9985,7 +9985,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Hasty_DESC,
         .capacity = MSG_SKILL_Hasty_CAPACITY,
         .price = MSG_SKILL_Hasty_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Hasty,
         .iconPal = 0,
     },
 #endif
@@ -9996,7 +9996,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Ripple_DESC,
         .capacity = MSG_SKILL_Ripple_CAPACITY,
         .price = MSG_SKILL_Ripple_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Ripple,
         .iconPal = 0,
     },
 #endif
@@ -10007,7 +10007,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Minions_DESC,
         .capacity = MSG_SKILL_Minions_CAPACITY,
         .price = MSG_SKILL_Minions_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Minions,
         .iconPal = 0,
     },
 #endif
@@ -10018,7 +10018,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChargeDefense_DESC,
         .capacity = MSG_SKILL_ChargeDefense_CAPACITY,
         .price = MSG_SKILL_ChargeDefense_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChargeDefense,
         .iconPal = 0,
     },
 #endif
@@ -10029,7 +10029,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChargeSpeed_DESC,
         .capacity = MSG_SKILL_ChargeSpeed_CAPACITY,
         .price = MSG_SKILL_ChargeSpeed_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChargeSpeed,
         .iconPal = 0,
     },
 #endif
@@ -10040,7 +10040,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChargeSkill_DESC,
         .capacity = MSG_SKILL_ChargeSkill_CAPACITY,
         .price = MSG_SKILL_ChargeSkill_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChargeSkill,
         .iconPal = 0,
     },
 #endif
@@ -10051,7 +10051,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ChargeCrit_DESC,
         .capacity = MSG_SKILL_ChargeCrit_CAPACITY,
         .price = MSG_SKILL_ChargeCrit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ChargeCrit,
         .iconPal = 0,
     },
 #endif
@@ -10062,7 +10062,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Bloodthirst_DESC,
         .capacity = MSG_SKILL_Bloodthirst_CAPACITY,
         .price = MSG_SKILL_Bloodthirst_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Bloodthirst,
         .iconPal = 0,
     },
 #endif
@@ -10073,7 +10073,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SliceNDice_DESC,
         .capacity = MSG_SKILL_SliceNDice_CAPACITY,
         .price = MSG_SKILL_SliceNDice_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SliceNDice,
         .iconPal = 0,
     },
 #endif
@@ -10084,7 +10084,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ManaRush_DESC,
         .capacity = MSG_SKILL_ManaRush_CAPACITY,
         .price = MSG_SKILL_ManaRush_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ManaRush,
         .iconPal = 0,
     },
 #endif
@@ -10095,7 +10095,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Symbiosis_DESC,
         .capacity = MSG_SKILL_Symbiosis_CAPACITY,
         .price = MSG_SKILL_Symbiosis_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Symbiosis,
         .iconPal = 0,
     },
 #endif
@@ -10106,7 +10106,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SymbiosisPlus_DESC,
         .capacity = MSG_SKILL_SymbiosisPlus_CAPACITY,
         .price = MSG_SKILL_SymbiosisPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SymbiosisPlus,
         .iconPal = 0,
     },
 #endif
@@ -10117,7 +10117,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Residium_DESC,
         .capacity = MSG_SKILL_Residium_CAPACITY,
         .price = MSG_SKILL_Residium_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Residium,
         .iconPal = 0,
     },
 #endif
@@ -10128,7 +10128,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Malidiction_DESC,
         .capacity = MSG_SKILL_Malidiction_CAPACITY,
         .price = MSG_SKILL_Malidiction_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Malidiction,
         .iconPal = 0,
     },
 #endif
@@ -10139,7 +10139,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AirWalk_DESC,
         .capacity = MSG_SKILL_AirWalk_CAPACITY,
         .price = MSG_SKILL_AirWalk_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AirWalk,
         .iconPal = 0,
     },
 #endif
@@ -10150,7 +10150,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_BloodyAlchemy_DESC,
         .capacity = MSG_SKILL_BloodyAlchemy_CAPACITY,
         .price = MSG_SKILL_BloodyAlchemy_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_BloodyAlchemy,
         .iconPal = 0,
     },
 #endif
@@ -10161,7 +10161,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SPConversion_DESC,
         .capacity = MSG_SKILL_SPConversion_CAPACITY,
         .price = MSG_SKILL_SPConversion_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SPConversion,
         .iconPal = 0,
     },
 #endif
@@ -10172,7 +10172,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Enlightenment_DESC,
         .capacity = MSG_SKILL_Enlightenment_CAPACITY,
         .price = MSG_SKILL_Enlightenment_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Enlightenment,
         .iconPal = 0,
     },
 #endif
@@ -10184,7 +10184,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_GateOfBabylon_DESC,
         .capacity = MSG_SKILL_GateOfBabylon_CAPACITY,
         .price = MSG_SKILL_GateOfBabylon_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_GateOfBabylon,
         .iconPal = 0,
     },
 #endif
@@ -10195,7 +10195,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_CritThrift_DESC,
         .capacity = MSG_SKILL_CritThrift_CAPACITY,
         .price = MSG_SKILL_CritThrift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_CritThrift,
         .iconPal = 0,
     },
 #endif
@@ -10206,7 +10206,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_ManaTransfusion_DESC,
         .capacity = MSG_SKILL_ManaTransfusion_CAPACITY,
         .price = MSG_SKILL_ManaTransfusion_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_ManaTransfusion,
         .iconPal = 0,
     },
 #endif
@@ -10217,7 +10217,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MPBoost_DESC,
         .capacity = MSG_SKILL_MPBoost_CAPACITY,
         .price = MSG_SKILL_MPBoost_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MPBoost,
         .iconPal = 0,
     },
 #endif
@@ -10228,7 +10228,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_MPBoostPlus_DESC,
         .capacity = MSG_SKILL_MPBoostPlus_CAPACITY,
         .price = MSG_SKILL_MPBoostPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_MPBoostPlus,
         .iconPal = 0,
     },
 #endif
@@ -10239,7 +10239,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Perseverance_DESC,
         .capacity = MSG_SKILL_Perseverance_CAPACITY,
         .price = MSG_SKILL_Perseverance_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Perseverance,
         .iconPal = 0,
     },
 #endif
@@ -10250,7 +10250,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EmergencyExit_DESC,
         .capacity = MSG_SKILL_EmergencyExit_CAPACITY,
         .price = MSG_SKILL_EmergencyExit_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EmergencyExit,
         .iconPal = 0,
     },
 #endif
@@ -10261,7 +10261,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_EmergencyExitPlus_DESC,
         .capacity = MSG_SKILL_EmergencyExitPlus_CAPACITY,
         .price = MSG_SKILL_EmergencyExitPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_EmergencyExitPlus,
         .iconPal = 0,
     },
 #endif
@@ -10272,7 +10272,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Songstress_DESC,
         .capacity = MSG_SKILL_Songstress_CAPACITY,
         .price = MSG_SKILL_Songstress_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Songstress,
         .iconPal = 0,
     },
 #endif
@@ -10283,7 +10283,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Equlibrium_DESC,
         .capacity = MSG_SKILL_Equlibrium_CAPACITY,
         .price = MSG_SKILL_Equlibrium_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Equlibrium,
         .iconPal = 0,
     },
 #endif
@@ -10305,7 +10305,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Gungnir_DESC,
         .capacity = MSG_SKILL_Gungnir_CAPACITY,
         .price = MSG_SKILL_Gungnir_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Gungnir,
         .iconPal = 0,
     },
 #endif
@@ -10316,7 +10316,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Transcendence_DESC,
         .capacity = MSG_SKILL_Transcendence_CAPACITY,
         .price = MSG_SKILL_Transcendence_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Transcendence,
         .iconPal = 0,
     },
 #endif
@@ -10327,7 +10327,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Axiom_DESC,
         .capacity = MSG_SKILL_Axiom_CAPACITY,
         .price = MSG_SKILL_Axiom_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Axiom,
         .iconPal = 0,
     },
 #endif
@@ -10338,7 +10338,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AxiomPlus_DESC,
         .capacity = MSG_SKILL_AxiomPlus_CAPACITY,
         .price = MSG_SKILL_AxiomPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AxiomPlus,
         .iconPal = 0,
     },
 #endif
@@ -10349,7 +10349,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpatialShift_DESC,
         .capacity = MSG_SKILL_SpatialShift_CAPACITY,
         .price = MSG_SKILL_SpatialShift_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpatialShift,
         .iconPal = 0,
     },
 #endif
@@ -10360,7 +10360,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_SpatialShiftPlus_DESC,
         .capacity = MSG_SKILL_SpatialShiftPlus_CAPACITY,
         .price = MSG_SKILL_SpatialShiftPlus_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_SpatialShiftPlus,
         .iconPal = 0,
     },
 #endif
@@ -10371,7 +10371,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Hellscape_DESC,
         .capacity = MSG_SKILL_Hellscape_CAPACITY,
         .price = MSG_SKILL_Hellscape_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Hellscape,
         .iconPal = 0,
     },
 #endif
@@ -10382,7 +10382,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Override_DESC,
         .capacity = MSG_SKILL_Override_CAPACITY,
         .price = MSG_SKILL_Override_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Override,
         .iconPal = 0,
     },
 #endif
@@ -10393,7 +10393,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_AssumingCommand_DESC,
         .capacity = MSG_SKILL_AssumingCommand_CAPACITY,
         .price = MSG_SKILL_AssumingCommand_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_AssumingCommand,
         .iconPal = 0,
     },
 #endif
@@ -10404,7 +10404,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Drag_DESC,
         .capacity = MSG_SKILL_Drag_CAPACITY,
         .price = MSG_SKILL_Drag_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Drag,
         .iconPal = 0,
     },
 #endif
@@ -10415,7 +10415,7 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_Assemble_DESC,
         .capacity = MSG_SKILL_Assemble_CAPACITY,
         .price = MSG_SKILL_Assemble_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_Assemble,
         .iconPal = 0,
     },
 #endif
@@ -10426,7 +10426,169 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
         .desc = MSG_SKILL_VictorySmite_DESC,
         .capacity = MSG_SKILL_VictorySmite_CAPACITY,
         .price = MSG_SKILL_VictorySmite_PRICE,
-        .icon = GFX_SkillIcon_WIP,
+        .icon = GFX_SkillIcon_VictorySmite,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_Forage) && COMMON_SKILL_VALID(SID_Forage))
+    [SID_Forage] = {
+        .name = MSG_SKILL_Forage_NAME,
+        .desc = MSG_SKILL_Forage_DESC,
+        .capacity = MSG_SKILL_Forage_CAPACITY,
+        .price = MSG_SKILL_Forage_PRICE,
+        .icon = GFX_SkillIcon_Forage,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_Guarantee) && COMMON_SKILL_VALID(SID_Guarantee))
+    [SID_Guarantee] = {
+        .name = MSG_SKILL_Guarantee_NAME,
+        .desc = MSG_SKILL_Guarantee_DESC,
+        .capacity = MSG_SKILL_Guarantee_CAPACITY,
+        .price = MSG_SKILL_Guarantee_PRICE,
+        .icon = GFX_SkillIcon_Guarantee,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Insurance) && COMMON_SKILL_VALID(SID_Insurance))
+    [SID_Insurance] = {
+        .name = MSG_SKILL_Insurance_NAME,
+        .desc = MSG_SKILL_Insurance_DESC,
+        .capacity = MSG_SKILL_Insurance_CAPACITY,
+        .price = MSG_SKILL_Insurance_PRICE,
+        .icon = GFX_SkillIcon_Insurance,
+        .iconPal = 0,
+    },
+#endif
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = {
+        .name = MSG_SKILL_Takeover_NAME,
+        .desc = MSG_SKILL_Takeover_DESC,
+        .capacity = MSG_SKILL_Takeover_CAPACITY,
+        .price = MSG_SKILL_Takeover_PRICE,
+        .icon = GFX_SkillIcon_Takeover,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_GroupCast) && COMMON_SKILL_VALID(SID_GroupCast))
+    [SID_GroupCast] = {
+        .name = MSG_SKILL_GroupCast_NAME,
+        .desc = MSG_SKILL_GroupCast_DESC,
+        .capacity = MSG_SKILL_GroupCast_CAPACITY,
+        .price = MSG_SKILL_GroupCast_PRICE,
+        .icon = GFX_SkillIcon_GroupCast,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
+    [SID_DragonsBlood] = {
+        .name = MSG_SKILL_DragonsBlood_NAME,
+        .desc = MSG_SKILL_DragonsBlood_DESC,
+        .capacity = MSG_SKILL_DragonsBlood_CAPACITY,
+        .price = MSG_SKILL_DragonsBlood_PRICE,
+        .icon = GFX_SkillIcon_DragonsBlood,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Undo) && COMMON_SKILL_VALID(SID_Undo))
+    [SID_Undo] = {
+        .name = MSG_SKILL_Undo_NAME,
+        .desc = MSG_SKILL_Undo_DESC,
+        .capacity = MSG_SKILL_Undo_CAPACITY,
+        .price = MSG_SKILL_Undo_PRICE,
+        .icon = GFX_SkillIcon_Undo,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_MinusStrike) && COMMON_SKILL_VALID(SID_MinusStrike))
+    [SID_MinusStrike] = {
+        .name = MSG_SKILL_MinusStrike_NAME,
+        .desc = MSG_SKILL_MinusStrike_DESC,
+        .capacity = MSG_SKILL_MinusStrike_CAPACITY,
+        .price = MSG_SKILL_MinusStrike_PRICE,
+        .icon = GFX_SkillIcon_MinusStrike,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_LastResort) && COMMON_SKILL_VALID(SID_LastResort))
+    [SID_LastResort] = {
+        .name = MSG_SKILL_LastResort_NAME,
+        .desc = MSG_SKILL_LastResort_DESC,
+        .capacity = MSG_SKILL_LastResort_CAPACITY,
+        .price = MSG_SKILL_LastResort_PRICE,
+        .icon = GFX_SkillIcon_LastResort,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_SpinForGold) && COMMON_SKILL_VALID(SID_SpinForGold))
+    [SID_SpinForGold] = {
+        .name = MSG_SKILL_SpinForGold_NAME,
+        .desc = MSG_SKILL_SpinForGold_DESC,
+        .capacity = MSG_SKILL_SpinForGold_CAPACITY,
+        .price = MSG_SKILL_SpinForGold_PRICE,
+        .icon = GFX_SkillIcon_SpinForGold,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_SpinForLuck) && COMMON_SKILL_VALID(SID_SpinForLuck))
+    [SID_SpinForLuck] = {
+        .name = MSG_SKILL_SpinForLuck_NAME,
+        .desc = MSG_SKILL_SpinForLuck_DESC,
+        .capacity = MSG_SKILL_SpinForLuck_CAPACITY,
+        .price = MSG_SKILL_SpinForLuck_PRICE,
+        .icon = GFX_SkillIcon_SpinForLuck,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_FastHands) && COMMON_SKILL_VALID(SID_FastHands))
+    [SID_FastHands] = {
+        .name = MSG_SKILL_FastHands_NAME,
+        .desc = MSG_SKILL_FastHands_DESC,
+        .capacity = MSG_SKILL_FastHands_CAPACITY,
+        .price = MSG_SKILL_FastHands_PRICE,
+        .icon = GFX_SkillIcon_FastHands,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Obliterate) && COMMON_SKILL_VALID(SID_Obliterate))
+    [SID_Obliterate] = {
+        .name = MSG_SKILL_Obliterate_NAME,
+        .desc = MSG_SKILL_Obliterate_DESC,
+        .capacity = MSG_SKILL_Obliterate_CAPACITY,
+        .price = MSG_SKILL_Obliterate_PRICE,
+        .icon = GFX_SkillIcon_Obliterate,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
+    [SID_Sweapstrike] = {
+        .name = MSG_SKILL_Sweapstrike_NAME,
+        .desc = MSG_SKILL_Sweapstrike_DESC,
+        .capacity = MSG_SKILL_Sweapstrike_CAPACITY,
+        .price = MSG_SKILL_Sweapstrike_PRICE,
+        .icon = GFX_SkillIcon_Sweapstrike,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Prayer) && COMMON_SKILL_VALID(SID_Prayer))
+    [SID_Prayer] = {
+        .name = MSG_SKILL_Prayer_NAME,
+        .desc = MSG_SKILL_Prayer_DESC,
+        .capacity = MSG_SKILL_Prayer_CAPACITY,
+        .price = MSG_SKILL_Prayer_PRICE,
+        .icon = GFX_SkillIcon_Prayer,
         .iconPal = 0,
     },
 #endif

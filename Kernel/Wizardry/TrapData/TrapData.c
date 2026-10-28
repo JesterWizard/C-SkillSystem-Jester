@@ -476,8 +476,20 @@ void LoadTrapData(const struct TrapData * data)
             AddSpinTile(data->xPos, data->yPos, data->subtype);
             break;
 
+        case TRAP_HIDDEN_CALTROPS:
+            AddHiddenCaltrops(data->xPos, data->yPos);
+            break;
+
+        case TRAP_COLLAPSING_FLOOR:
+            AddCollapsingFloor(data->xPos, data->yPos);
+            break;
+
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
+            break;
+
+        case TRAP_DRAGON_VEIN:
+            AddDragonVein(data->xPos, data->yPos, data->subtype, data->turn_counter);
             break;
         }
 
@@ -533,6 +545,16 @@ void DecayTraps(void)
         case TRAP_HEAL_TILE:
             trap->data[TRAP_EXTDATA_HEALTILE_TURNSLEFT]--;
             if (trap->data[TRAP_EXTDATA_HEALTILE_TURNSLEFT] == 0)
+            {
+                RemoveTrap(trap);
+                trap--;
+            }
+
+            break;
+
+        case TRAP_HELLSCAPE_VOID:
+            trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT]--;
+            if (trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT] <= 0)
             {
                 RemoveTrap(trap);
                 trap--;
@@ -777,6 +799,22 @@ struct Trap *AddRepeatHouse(int x, int y, int exp)
 
     /* Explicitly clear visited flag; AddTrap may not zero-initialize data[] */
     trap->data[TRAP_EXTDATA_REPEAT_HOUSE_VISITED] = 0;
+    return trap;
+}
+
+struct Trap *AddDragonVein(int x, int y, int effect, int param)
+{
+    struct Trap *trap;
+
+    if (!IsPositionValid(x, y))
+        return NULL;
+
+    /* trap->extra stores the DRAGON_VEIN_* effect */
+    trap = AddTrap(x, y, TRAP_DRAGON_VEIN, effect);
+    if (!trap)
+        return NULL;
+
+    trap->data[TRAP_EXTDATA_DRAGON_VEIN_PARAM] = param;
     return trap;
 }
 

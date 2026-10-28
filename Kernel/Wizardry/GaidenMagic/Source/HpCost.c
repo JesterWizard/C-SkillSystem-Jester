@@ -7,6 +7,8 @@
 
 int GetGaidenWeaponHpCost(struct Unit *unit, int item)
 {
+	int cost;
+
 	/* Three Houses-style magic spends uses instead of HP/MP */
 	if (IsGaidenMagicUsesSystem())
 		return 0;
@@ -16,7 +18,13 @@ int GetGaidenWeaponHpCost(struct Unit *unit, int item)
 		return 0;
 #endif
 
-	return GetGaidenWeaponCostList()[ITEM_INDEX(item)];
+	cost = GetGaidenWeaponCostList()[ITEM_INDEX(item)];
+
+	/* Group Cast pays double */
+	if (IsGroupCastActive(unit))
+		cost *= 2;
+
+	return cost;
 }
 
 void BattleGenerateHitHpCostForGaidenMagic(struct BattleUnit *attacker, struct BattleUnit *defender)

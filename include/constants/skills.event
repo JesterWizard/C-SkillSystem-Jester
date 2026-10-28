@@ -916,5 +916,20 @@
 #define SID_LightProwess4 0x38F
 #define SID_LightProwess5 0x390
 #define SID_VictorySmite 0x391
+#define SID_Forage 0x392
+#define SID_Guarantee 0x393
+#define SID_Insurance 0x394
+#define SID_Takeover 0x395
+#define SID_GroupCast 0x396
+#define SID_DragonsBlood 0x397
+#define SID_Undo 0x398
+#define SID_MinusStrike 0x399
+#define SID_LastResort 0x39A
+#define SID_SpinForGold 0x39B
+#define SID_SpinForLuck 0x39C
+#define SID_FastHands 0x39D
+#define SID_Obliterate 0x39E
+#define SID_Sweapstrike 0x39F
+#define SID_Prayer 0x3A0
 
 #endif /* SKILLS_EVENT */

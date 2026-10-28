@@ -55,6 +55,12 @@ u8 GaidenBMagActionCommandUsability(const struct MenuItemDef *def, int number)
 		if (item == ITEM_NONE)
 			continue;
 
+		if (IsGaidenMapSpell(item)) {
+			if (CanUnitCastGaidenMapSpell(unit, item))
+				return MENU_ENABLED;
+			continue;
+		}
+
 		/* B.Mag must be a weapon! */
 		if (!(GetItemAttributes(item) & IA_WEAPON))
 			continue;
@@ -91,7 +97,8 @@ int GaidenBMagActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *it
 	return 0;
 }
 
-u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem)
+/* Opens the B.Mag spell list. Group Cast sets its flag and calls this directly. */
+u8 StartGaidenBMagSpellMenu(struct MenuProc *menu, struct MenuItemProc *menuItem)
 {
 	struct MenuProc *sub_menu;
 
@@ -110,6 +117,15 @@ u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *men
 
 	ForceMenuItemPanel(sub_menu, gActiveUnit, 0xF, 0xB);
 	return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *menuItem)
+{
+	/* A plain B.Mag cast is never a Group Cast, even after a cancelled one */
+	if (IsGroupCastActive(gActiveUnit))
+		gActionData.unk08 = 0;
+
+	return StartGaidenBMagSpellMenu(menu, menuItem);
 }
 
 int GaidenBMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem)
@@ -202,6 +218,9 @@ STATIC_DECLAR u8 GaidenBMagItemSelUsability(const struct MenuItemDef *def, int n
 	if (!list || list->bmag_cnt <= number)
 		return MENU_NOTSHOWN;
 
+	if (IsGaidenMapSpell(item))
+		return CanUnitCastGaidenMapSpell(gActiveUnit, item) ? MENU_ENABLED : MENU_DISABLED;
+
 	if (!(GetItemAttributes(item) & IA_WEAPON))
 		return MENU_NOTSHOWN;
 
@@ -224,13 +243,17 @@ STATIC_DECLAR int GaidenBMagItemSelOnDraw(struct MenuProc *menu, struct MenuItem
 	u16 *tm = gBG0TilemapBuffer + TILEMAP_INDEX(menuItem->xTile, menuItem->yTile);
 	bool en = true;
 
-	if (!CanUnitUseGaidenMagicNow(gActiveUnit, item))
-		en = false;
+	if (IsGaidenMapSpell(item)) {
+		en = CanUnitCastGaidenMapSpell(gActiveUnit, item);
+	} else {
+		if (!CanUnitUseGaidenMagicNow(gActiveUnit, item))
+			en = false;
 
-	RegisterCombatArtStatus(gActiveUnit, GetBestRangeBonusCid(gActiveUnit, item));
-	MakeTargetListForWeapon(gActiveUnit, item);
-	if (GetSelectTargetCount() == 0)
-		en = false;
+		RegisterCombatArtStatus(gActiveUnit, GetBestRangeBonusCid(gActiveUnit, item));
+		MakeTargetListForWeapon(gActiveUnit, item);
+		if (GetSelectTargetCount() == 0)
+			en = false;
+	}
 
 	DrawGaidenMagItemMenuLine(
 		&menuItem->text,
@@ -260,6 +283,9 @@ STATIC_DECLAR u8 GaidenBMagItemSelEffect(struct MenuProc *menu, struct MenuItemP
 	ClearBg0Bg1();
 	gActionData.itemSlotIndex = CHAX_BUISLOT_GAIDEN_BMAG1 + menuItem->itemNumber;
 
+	if (IsGaidenMapSpell(item))
+		return StartGaidenMapSpellSelect(gActiveUnit, item);
+
 	MakeTargetListForWeapon(gActiveUnit, item);
 	NewTargetSelectionRework(&sSelectInfoGaidenBMag);
 
@@ -273,6 +299,12 @@ STATIC_DECLAR int GaidenBMagItemSelHover(struct MenuProc *menu, struct MenuItemP
 	int weapon = list->bmags[slot];
 
 	UpdateMenuItemPanelGaidenBMag(slot);
+
+	if (IsGaidenMapSpell(weapon)) {
+		BmMapFill(gBmMapMovement, -1);
+		DisplayGaidenMapSpellRange(gActiveUnit, weapon);
+		return 0;
+	}
 
 	BmMapFill(gBmMapMovement, -1);
 	BmMapFill(gBmMapRange, 0);
@@ -418,6 +450,15 @@ STATIC_DECLAR void UpdateMenuItemPanelGaidenBMag(int slot)
 			break;
 
 		str = str + 1;
+	}
+
+	/* Map spells have no weapon stats: show their description only, as W.Mag does */
+	if (IsGaidenMapSpell(item)) {
+		PutText(&texts[0], TILEMAP_LOCATED(bg_base, 1, 1));
+		PutText(&texts[1], TILEMAP_LOCATED(bg_base, 1, 3));
+		PutText(&texts[2], TILEMAP_LOCATED(bg_base, 1, 5));
+		BG_EnableSyncByMask(BG0_SYNC_BIT);
+		return;
 	}
 
 	BattleGenerateUiStats(unit, slot + CHAX_BUISLOT_GAIDEN_BMAG1);

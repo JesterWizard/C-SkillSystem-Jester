@@ -31,6 +31,8 @@
 #include "PostActionSkills/Undying.lyn.event"
 #include "PostActionSkills/Minions.lyn.event"
 #include "PostActionSkills/Turncoat.lyn.event"
+#include "PostActionSkills/Guarantee.lyn.event"
+#include "PostActionSkills/Insurance.lyn.event"
 
 #include "MenuSkills/LynJump.event"
 #include "MenuSkills/Dance.lyn.event"

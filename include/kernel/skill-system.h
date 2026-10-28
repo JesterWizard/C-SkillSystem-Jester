@@ -187,6 +187,7 @@ bool BattleFastSkillTester(struct BattleUnit* bu, const u16 sid);
 bool CheckSkillActivate(struct Unit* unit, int sid, int rate);
 bool CheckActiveUnitSkillActivate(int sid, int rate);
 bool CheckBattleSkillActivate(struct BattleUnit* actor, struct BattleUnit* target, int sid, int rate);
+bool CheckBattleGuarantee(struct BattleUnit *bu);
 
 /**
  * FEB list
@@ -511,6 +512,20 @@ int Assemble_Hover(struct MenuProc *menu, struct MenuItemProc *item);
 int Assemble_Unhover(struct MenuProc *menu, struct MenuItemProc *item);
 u8 VictorySmite_Usability(const struct MenuItemDef *def, int number);
 u8 VictorySmite_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 Takeover_Usability(const struct MenuItemDef *def, int number);
+u8 Takeover_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 GroupCast_Usability(const struct MenuItemDef *def, int number);
+u8 GroupCast_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 DragonsBlood_Usability(const struct MenuItemDef *def, int number);
+u8 DragonsBlood_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 SpinForGold_Usability(const struct MenuItemDef *def, int number);
+u8 SpinForGold_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 SpinForLuck_Usability(const struct MenuItemDef *def, int number);
+u8 SpinForLuck_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 Sweapstrike_Usability(const struct MenuItemDef *def, int number);
+u8 Sweapstrike_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 Prayer_Usability(const struct MenuItemDef *def, int number);
+u8 Prayer_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 Refuge_Usability(const struct MenuItemDef* def, int number);
 u8 Refuge_OnSelected(struct MenuProc* menu, struct MenuItemProc* item);
 u8 Replicate_Usability(const struct MenuItemDef* def, int number);
@@ -767,9 +782,16 @@ bool Action_AssumingCommand(ProcPtr parent);
 bool Action_Drag(ProcPtr parent);
 bool Action_Assemble(ProcPtr parent);
 bool Action_VictorySmite(ProcPtr parent);
-void PostAction_HellscapeVoidTile(ProcPtr proc);
+bool Action_Takeover(ProcPtr parent);
+bool Action_DragonsBlood(ProcPtr parent);
+bool Action_SpinForGold(ProcPtr parent);
+bool Action_SpinForLuck(ProcPtr parent);
+bool Action_Sweapstrike(ProcPtr parent);
+bool Action_Prayer(ProcPtr parent);
+int GetFastHandsSpdBonus(struct Unit *unit);
+bool ObliterateApplies(struct BattleUnit *bu, struct BattleUnit *foe);
+bool PostAction_HellscapeVoidTile(ProcPtr proc);
 bool Action_Hellscape(ProcPtr parent);
-bool PrePhase_HellscapeTrapDecay(ProcPtr parent);
 
 u8 Override_Usability(const struct MenuItemDef *def, int number);
 u8 Override_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);

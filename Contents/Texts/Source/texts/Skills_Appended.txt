@@ -1,0 +1,126 @@
+## MSG_SKILL_Forage_NAME
+Forage[X]
+## MSG_SKILL_Forage_DESC
+Forage:[N]
+Hidden items buried on the map[N]
+shimmer while this unit is deployed.[X]
+
+## MSG_SKILL_Guarantee_NAME
+Guarantee[X]
+## MSG_SKILL_Guarantee_DESC
+Guarantee:[N]
+Once per map, this unit's[N]
+chance-based battle skills[N]
+all activate for one battle.[X]
+
+## MSG_SKILL_Insurance_NAME
+Insurance[X]
+## MSG_SKILL_Insurance_DESC
+Insurance:[N]
+Gain 100G for each point of[N]
+damage taken in battle.[X]
+
+## MSG_SKILL_Takeover_NAME
+Takeover[X]
+## MSG_SKILL_Takeover_DESC
+Takeover:[N]
+Pay 100G per point of damage[N]
+dealt to an adjacent foe,[N]
+or 1000G against a boss.[X]
+
+## MSG_SKILL_GroupCast_NAME
+Group Cast[X]
+## MSG_SKILL_GroupCast_DESC
+Group Cast:[N]
+Pay double for a spell to also[N]
+hit every foe next to the target.[X]
+
+## MSG_SKILL_DragonsBlood_NAME
+Dragon's Blood[X]
+## MSG_SKILL_DragonsBlood_DESC
+Dragon's Blood:[N]
+Stand on a Dragon Vein to[N]
+unleash its power on the map.[X]
+## MSG_SKILL_DragonsBlood_MENU
+Dragon Vein[X]
+## MSG_SKILL_DragonsBlood_MENUHELP
+Activate the Dragon Vein[N]
+under this unit. Each vein[N]
+can be used only once.[X]
+
+## MSG_SKILL_Undo_NAME
+Undo[X]
+## MSG_SKILL_Undo_DESC
+Undo:[N]
+Once per map, recover the HP and[N]
+MP lost in a battle you survive.[X]
+
+## MSG_SKILL_MinusStrike_NAME
+Minus Strike[X]
+## MSG_SKILL_MinusStrike_DESC
+Minus Strike:[N]
+Weapon might is replaced by[N]
+max HP minus current HP.[X]
+
+## MSG_SKILL_LastResort_NAME
+Last Resort[X]
+## MSG_SKILL_LastResort_DESC
+Last Resort:[N]
+Weapon might rises by the[N]
+percentage of HP missing.[X]
+
+## MSG_SKILL_SpinForGold_NAME
+Spin For Gold[X]
+## MSG_SKILL_SpinForGold_DESC
+Spin For Gold:[N]
+Pay 100G to spin the wheel and[N]
+win 100G times the result.[X]
+## MSG_SKILL_SpinForGold_FRtext
+You need 100G to spin.[X]
+## MSG_SKILL_SpinForGold_PROMPT
+Press A to stop![X]
+## MSG_SKILL_SpinForGold_LOSE
+No luck...[X]
+
+## MSG_SKILL_SpinForLuck_NAME
+Spin For Luck[X]
+## MSG_SKILL_SpinForLuck_DESC
+Spin For Luck:[N]
+Pay 1000G to spin the wheel and[N]
+give its status to adjacent allies.[X]
+## MSG_SKILL_SpinForLuck_FRtext
+You need 1000G to spin.[X]
+## MSG_SKILL_SpinForLuck_PROMPT
+Press A to stop![X]
+
+## MSG_SKILL_FastHands_NAME
+Fast Hands[X]
+## MSG_SKILL_FastHands_DESC
+Fast Hands:[N]
+Weapon weight raises speed[N]
+instead of lowering it.[X]
+
+## MSG_SKILL_Obliterate_NAME
+Obliterate[X]
+## MSG_SKILL_Obliterate_DESC
+Obliterate:[N]
+If promoted, instantly kill[N]
+unpromoted foes of lower level.[X]
+
+## MSG_SKILL_Sweapstrike_NAME
+Sweapstrike[X]
+## MSG_SKILL_Sweapstrike_DESC
+Sweapstrike:[N]
+Once per map, strike a chosen[N]
+column for 10 damage to all in it.[X]
+## MSG_SKILL_Sweapstrike_Target
+Select a column.[X]
+
+## MSG_SKILL_Prayer_NAME
+Prayer[X]
+## MSG_SKILL_Prayer_DESC
+Prayer:[N]
+Become Lucky for 3 turns: chance[N]
+skills are 1.5x as likely.[X]
+## MSG_SKILL_Prayer_FRtext
+This unit is already Lucky.[X]

@@ -12,14 +12,18 @@
 6. [Applying Existing Traps](#applying-existing-traps)
 7. [Trap Palette Selection](#trap-palette-selection)
 8. [Repeat House Notes](#repeat-house-notes)
-9. [Grass Trap Notes](#grass-trap-notes)
-10. [Boulder Trap Notes](#boulder-trap-notes)
-11. [Spin Tile Notes](#spin-tile-notes)
-12. [Trap Sprite Registration](#trap-sprite-registration)
-13. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
-14. [Code Locations](#code-locations)
-15. [TODO](#todo)
-16. [Limitations & Bugs](#limitations--bugs)
+9. [Dragon Vein Notes](#dragon-vein-notes)
+10. [Hellscape Void Notes](#hellscape-void-notes)
+11. [Grass Trap Notes](#grass-trap-notes)
+12. [Boulder Trap Notes](#boulder-trap-notes)
+13. [Spin Tile Notes](#spin-tile-notes)
+14. [Hidden Caltrops Notes](#hidden-caltrops-notes)
+15. [Collapsing Floor Notes](#collapsing-floor-notes)
+16. [Trap Sprite Registration](#trap-sprite-registration)
+17. [Trap Sprite Display in RefreshUnitSprites](#trap-sprite-display-in-refreshunitsprites)
+18. [Code Locations](#code-locations)
+19. [TODO](#todo)
+20. [Limitations & Bugs](#limitations--bugs)
 
 ## Introduction
 
@@ -372,6 +376,56 @@ Implementation note:
 - The reward is applied through `AddExp_Event(exp)`, so the house behaves like an event-driven EXP grant rather than a combat result.
 - A value of `0` for the `exp` parameter is treated as "use the default" rather than "award no EXP".
 
+## Dragon Vein Notes
+
+The dragon vein is a chapter or runtime trap that a unit with the Dragon's Blood skill activates from the map.
+
+Behavior summary:
+
+- Runtime API: `AddDragonVein(x, y, effect, param)`
+- Chapter-start macro: `DRAGON_VEIN(x, y, effect, param)`
+- Trap type: `TRAP_DRAGON_VEIN`
+- Effect: the `DRAGON_VEIN_*` effect is stored in `trap->extra`
+- Parameter: the effect parameter is stored in `trap->data[TRAP_EXTDATA_DRAGON_VEIN_PARAM]`
+- Map sprite: drawn with map sprite `0x69`
+- Activation: a unit with the Dragon's Blood skill standing on the vein uses the "Dragon Vein" command
+- Lifetime: each vein is removed after one use
+
+Effects:
+
+- `DRAGON_VEIN_HEAL`: allies recover `param` HP (`0` = full heal)
+- `DRAGON_VEIN_DAMAGE`: enemies lose `param` HP (`0` = 10), never below 1
+- `DRAGON_VEIN_STATUS`: enemies get the status index `param`
+- `DRAGON_VEIN_MAPCHANGE`: triggers the chapter's map change id `param`
+
+Chapter-start data:
+
+- The `DRAGON_VEIN(...)` macro writes the effect into the entry's `subtype` field and the parameter into `turn_counter`.
+- `LoadTrapData(...)` passes those two fields to `AddDragonVein(...)`.
+
+Implementation note:
+
+- `AddDragonVein(...)` creates the trap with `AddTrap(...)` and stores the parameter in `TRAP_EXTDATA_DRAGON_VEIN_PARAM`.
+- The activation command and one-use removal are the intended behaviour and are not wired in this change; this section describes the design.
+
+## Hellscape Void Notes
+
+The Hellscape void is a runtime trap that the Hellscape skill opens on the map. It blocks enemy movement for a few turns and then closes.
+
+Behavior summary:
+
+- Trap type: `TRAP_HELLSCAPE_VOID` (25)
+- Placed by: the Hellscape skill (`Kernel/Wizardry/SkillEffects/MenuSkills/Hellscape.c`)
+- Lifetime: `trap->data[TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT]` counts down in `DecayTraps` once per turn; the void is removed when it reaches 0 (Hellscape opens it with 3)
+- Map sprite: drawn with map sprite `0x73` (`images/Hellscape_Void_Tile.png`, a 3-frame vortex on the default trap palette)
+- Movement: non-player units treat an open void as a movement barrier (`PreGenerateMovementMap` in `Kernel/Wizardry/Movement/Source/Movement.c`), fliers included
+- Standing on it: a unit that ends its action on the void is slain
+
+Implementation note:
+
+- The trap type, map sprite, turn decay and AI movement barrier are in place.
+- The Hellscape skill still places its voids as `TRAP_MINE` with the `HELLSCAPE_TRAP_TAG` marker until it is switched over to `TRAP_HELLSCAPE_VOID`; the slain-on-entry behaviour belongs to that skill code and is not changed here. This section describes the target design.
+
 ## Grass Trap Notes
 
 The grass trap is the current example of a trap that does more than draw a sprite.
@@ -463,6 +517,51 @@ Implementation note:
 - `PostAction_SpinTile(...)` handles the actual shove after the unit is standing on the trap.
 - `GetPickTrapType(...)` returns `TRAP_NONE` for spin tiles so vanilla `ExecTrap(...)` is not asked to process a custom trap type.
 
+## Hidden Caltrops Notes
+
+Hidden caltrops are an invisible trap: the first unit to walk over them is ambushed and reveals them, and the revealed trap keeps stopping grounded units.
+
+Behavior summary:
+
+- Trap type: `TRAP_HIDDEN_CALTROPS` (26)
+- Runtime API: `AddHiddenCaltrops(x, y)`
+- Chapter-start macro: `HIDDEN_CALTROPS(x, y)`
+- State: `trap->data[TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED]` is 0 while hidden and 1 once revealed
+- Map sprite: `0x74` (`images/Caltrops_Tile.png`), drawn only once revealed, on the default trap palette
+- Movement rule: a grounded unit whose path crosses the trap stops on its tile and its turn ends (`UNIT_ACTION_TRAPPED`), the same way a fog ambush ends a turn
+- Hidden trap: the fog-ambush "!" (`MOVE_CMD_BUMP`) plays over the unit when it stops
+- Reveal: `PostAction_HiddenCaltrops` reveals the trap when a grounded unit ends its action on it
+- Revealed trap: stays on the map and still stops grounded units, without the "!"
+- Fliers ignore the trap; a unit passing through an ally who stands on it is not stopped
+- AI units are stopped too; their planned action is cancelled, as for a mine or fog ambush
+
+Implementation note:
+
+- `CutMovementScriptAtCaltrops(unit)` (`Kernel/Wizardry/TrapData/HiddenCaltrops.c`) cuts `gWorkingMovementScript` at the first caltrops tile. It runs right after `UnitApplyWorkingMovementScript` in `PlayerPhase_DisplayUnitMovement` (`Kernel/Wizardry/RemoveMovePath/Source/RemoveMovePath.c`) and in `CpPerform_BeginUnitMovement` (replaced in `HiddenCaltrops.c` for AI moves). It does not change `UnitApplyWorkingMovementScript` itself, which lives in `MiscFunctions.c`.
+
+## Collapsing Floor Notes
+
+A collapsing floor is a weak tile that gives way under the second unit to stand on it.
+
+Behavior summary:
+
+- Trap type: `TRAP_COLLAPSING_FLOOR` (27)
+- Runtime API: `AddCollapsingFloor(x, y)`
+- Chapter-start macro: `COLLAPSING_FLOOR(x, y)`
+- State: `trap->data[TRAP_EXTDATA_COLLAPSING_FLOOR_STATE]` holds `COLLAPSING_FLOOR_INTACT`, `COLLAPSING_FLOOR_CRACKED` or `COLLAPSING_FLOOR_HOLE`
+- Map sprites: `0x75` intact (hairline crack), `0x76` cracked, `0x77` hole (`images/Floor_*_Tile.png`), on the default trap palette; the sprite ID is `0x75` plus the state
+- Intact: the first grounded unit to end its action on it cracks it (sound effect `0xBD`)
+- Cracked: a grounded unit whose move enters it stops there and its turn ends (`UNIT_ACTION_TRAPPED`); after its action it falls through and dies (the hurt animation drains all its HP, then `UnitKill`), and the tile becomes a hole
+- A unit already standing on the floor when it cracked is safe while it acts without moving (the fall needs `gActiveUnitMoveOrigin` to differ from the unit's tile)
+- Hole: grounded units cannot enter it
+- The AI never paths onto a cracked floor; fliers ignore the trap in every state
+
+Implementation note:
+
+- `Kernel/Wizardry/TrapData/CollapsingFloor.c` holds `AddCollapsingFloor`, `CollapsingFloorStopsMoveAt`, `MarkCollapsingFloorBarriers` and `PostAction_CollapsingFloor`.
+- The stop on a cracked floor shares `CutMovementScriptAtCaltrops` (`HiddenCaltrops.c`), which calls `CollapsingFloorStopsMoveAt`.
+- `MarkCollapsingFloorBarriers` is called at the end of `PreGenerateMovementMap` (`Kernel/Wizardry/Movement/Source/Movement.c`) and marks holes (all grounded units) and cracked floors (non-player units) as movement barriers.
+
 ## Trap Sprite Registration
 
 ### TrapData_Installer.event
@@ -495,6 +594,11 @@ Current registered trap-like sprite IDs in this file:
 - `0x6D` Grass Tile
 - `0x6E` Boulder Tile
 - `0x6F` Spin Tile
+- `0x73` Hellscape Void Tile
+- `0x74` Caltrops Tile (hidden caltrops)
+- `0x75` Floor Intact Tile (collapsing floor)
+- `0x76` Floor Cracked Tile (collapsing floor)
+- `0x77` Floor Hole Tile (collapsing floor)
 
 When adding a new trap sprite:
 
@@ -577,6 +681,10 @@ Implementation notes:
 | Boulder trap movement blocking | `PreGenerateMovementMap` in `Kernel/Wizardry/Movement/Source/Movement.c` | Marks boulder coordinates as barriers for non-fliers during movement-map generation |
 | Boulder trap placement rejection | `Generic_CanUnitBeOnPos` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Prevents generic reposition and forced-placement helpers from placing non-fliers onto boulders |
 | Spin tile movement stop | `UnitApplyWorkingMovementScript` in `Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c` | Halts grounded movement the moment a path reaches a spin tile while letting fliers pass over it |
+| Hidden caltrops creation, movement stop and reveal | `AddHiddenCaltrops`, `CutMovementScriptAtCaltrops`, `CpPerform_BeginUnitMovement` and `PostAction_HiddenCaltrops` in `Kernel/Wizardry/TrapData/HiddenCaltrops.c` | Creates the trap, stops player and AI moves on it with the fog-ambush "!", and reveals it after the unit's action |
+| Hidden caltrops sprite | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws sprite `0x74` for revealed caltrops only |
+| Collapsing floor creation, stop, fall and barriers | `AddCollapsingFloor`, `CollapsingFloorStopsMoveAt`, `MarkCollapsingFloorBarriers` and `PostAction_CollapsingFloor` in `Kernel/Wizardry/TrapData/CollapsingFloor.c` | Creates the floor, stops moves on a cracked floor, cracks it or drops the unit through it after its action, and blocks holes and (for the AI) cracked floors |
+| Collapsing floor sprite | `RefreshUnitSprites` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Draws sprite `0x75` plus the floor's state |
 | Boulder trap interaction | `InteractCommandUsability` and `InteractCommandEffect` in `Kernel/Wizardry/SkillEffects/MenuSkills/Pick.c` | Detects adjacent boulders, computes push distance from strength, and moves the trap if the path is clear |
 | Trap map sprite palette bank | `GetTrapMapSpriteObjPal` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Maps a trap's type and stored palette choice onto an OBJ palette bank (also used by the debugger's trap preview) |
 | Grass/spin trap custom palettes | `LoadTrapMapSpritePalette` and `ReloadCustomTrapSpritePalettes` in `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c` | Loads `Pal_Grass_Tile`/`Pal_Spin_Tile` into their dedicated OBJ banks while such a trap is on the map |

@@ -68,6 +68,12 @@ void ComputeBattleUnitSpeed(struct BattleUnit* bu)
 	if (wt < 0)
 		wt = 0;
 
+#if (defined(SID_FastHands) && (COMMON_SKILL_VALID(SID_FastHands)))
+	/* Fast Hands: the weight penalty becomes a bonus. */
+	if (SkillTester(GetUnit(bu->unit.index), SID_FastHands))
+		wt = -wt;
+#endif
+
 	bu->battleSpeed = bu->unit.spd - wt;
 
 	if (bu->battleSpeed < 0)
@@ -84,6 +90,20 @@ void ComputeBattleUnitAttack(struct BattleUnit* attacker, struct BattleUnit* def
 	FORCE_DECLARE bool dualWieldPlus = false;
 
 	status = GetItemMight(attacker->weapon);
+
+#if defined(SID_MinusStrike) && (COMMON_SKILL_VALID(SID_MinusStrike))
+	if (BattleFastSkillTester(attacker, SID_MinusStrike))
+		status = attacker->unit.maxHP - attacker->hpInitial;
+#endif
+
+#if defined(SID_LastResort) && (COMMON_SKILL_VALID(SID_LastResort))
+	if (BattleFastSkillTester(attacker, SID_LastResort)) {
+		int missing = attacker->unit.maxHP - attacker->hpInitial;
+
+		if (missing > 0 && status > 0)
+			status += k_udiv(status * missing * SKILL_EFF0(SID_LastResort), attacker->unit.maxHP * 100);
+	}
+#endif
 
 #if defined(SID_GorillaTactics) && (COMMON_SKILL_VALID(SID_GorillaTactics))
 	if (BattleFastSkillTester(attacker, SID_GorillaTactics) && CheckBitUES(GetUnit(attacker->unit.index), UES_BIT_GORILLA_TACTICS_SKILL_USED))

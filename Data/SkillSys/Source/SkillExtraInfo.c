@@ -1548,4 +1548,14 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
     [SID_VictorySmite] = {{1, 10}},
 #endif
 
+#if (defined(SID_Insurance) && COMMON_SKILL_VALID(SID_Insurance))
+    [SID_Insurance] = {{ 100 }}, /* gold per point of damage taken */
+#endif
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = {{ 1, 10 }}, /* cost per point of damage in units of 100G: normal, boss */
+#endif
+#if (defined(SID_LastResort) && COMMON_SKILL_VALID(SID_LastResort))
+    [SID_LastResort] = {{ 100 }}, /* % of weapon might gained at 0 HP */
+#endif
+
 };

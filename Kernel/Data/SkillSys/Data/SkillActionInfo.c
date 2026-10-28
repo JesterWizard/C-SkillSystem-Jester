@@ -374,4 +374,28 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_VictorySmite) && COMMON_SKILL_VALID(SID_VictorySmite))
     [SID_VictorySmite] = Action_VictorySmite,
 #endif
+
+#if (defined(SID_Takeover) && COMMON_SKILL_VALID(SID_Takeover))
+    [SID_Takeover] = Action_Takeover,
+#endif
+
+#if (defined(SID_DragonsBlood) && COMMON_SKILL_VALID(SID_DragonsBlood))
+    [SID_DragonsBlood] = Action_DragonsBlood,
+#endif
+
+#if (defined(SID_SpinForGold) && COMMON_SKILL_VALID(SID_SpinForGold))
+    [SID_SpinForGold] = Action_SpinForGold,
+#endif
+
+#if (defined(SID_SpinForLuck) && COMMON_SKILL_VALID(SID_SpinForLuck))
+    [SID_SpinForLuck] = Action_SpinForLuck,
+#endif
+
+#if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
+    [SID_Sweapstrike] = Action_Sweapstrike,
+#endif
+
+#if (defined(SID_Prayer) && COMMON_SKILL_VALID(SID_Prayer))
+    [SID_Prayer] = Action_Prayer,
+#endif
 };

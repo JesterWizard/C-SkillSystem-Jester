@@ -251,6 +251,19 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 			KernelMoveMapFlags |= FMOVSTRE_BARRIER;
 		}
 	}
+
+	/* The AI never walks into an open Hellscape void, fliers included */
+	if (UNIT_FACTION(unit) != FACTION_BLUE) {
+		for (trap = GetTrap(0); trap->type != TRAP_NONE; ++trap) {
+			if (trap->type != TRAP_HELLSCAPE_VOID || !IsPositionValid(trap->xPos, trap->yPos))
+				continue;
+
+			KernelExtMoveBarrierMap[trap->yPos][trap->xPos] = -1;
+			KernelMoveMapFlags |= FMOVSTRE_BARRIER;
+		}
+	}
+
+	MarkCollapsingFloorBarriers(unit);
 }
 
 LYN_REPLACE_CHECK(GenerateMovementMap);

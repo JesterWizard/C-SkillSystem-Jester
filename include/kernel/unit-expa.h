@@ -11,8 +11,8 @@
 
 enum unit_expa_sus_bitfile_idx {
 
-#if defined(SID_Teleportation) && (COMMON_SKILL_VALID(SID_Teleportation))
-    UES_BIT_TELEPORTATION_SKILL_USED,
+#if defined(SID_Undo) && (COMMON_SKILL_VALID(SID_Undo))
+    UES_BIT_UNDO_SKILL_USED, /* took Teleportation's slot; its bit was never set */
 #endif
 #if defined(SID_Capture) && (COMMON_SKILL_VALID(SID_Capture))
     UES_BIT_CAPTURE_SKILL_USED,
@@ -69,6 +69,7 @@ void ClearBitUES(struct Unit *unit, int bit);
 bool CheckBitUES(struct Unit *unit, int bit);
 
 void ResetUnitsExpaSus(void);
+void Undo_SnapshotBattle(struct Unit *actor, struct Unit *target);
 
 /**
  * Demo unit expa

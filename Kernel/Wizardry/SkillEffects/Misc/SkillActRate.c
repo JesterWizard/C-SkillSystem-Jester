@@ -2,6 +2,8 @@
 #include "skill-system.h"
 #include "battle-system.h"
 #include "constants/skills.h"
+#include "playst-expa.h"
+#include "debuff.h"
 
 STATIC_DECLAR bool CheckSkillActivateExt(struct Unit *unit, int sid, int rate, bool (*tester)(struct Unit *unit, const u16 sid))
 {
@@ -55,6 +57,10 @@ STATIC_DECLAR bool CheckSkillActivateExt(struct Unit *unit, int sid, int rate, b
         rate *= 2;
 #endif
 
+	/* Lucky (from Prayer): chance-based skills are 1.5x as likely */
+	if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_LUCKY)
+		rate += rate / 2;
+
 
 	LIMIT_AREA(rate, 0, 100);
 
@@ -74,6 +80,34 @@ bool CheckActiveUnitSkillActivate(int sid, int rate)
 	return CheckSkillActivateExt(gActiveUnit, sid, rate, SkillListTester);
 }
 
+/**
+ * Guarantee: once per map, every chance-based battle skill of the holder
+ * activates for one battle. The first real roll opens the window, and
+ * PostAction_Guarantee closes it when the action is over.
+ */
+bool CheckBattleGuarantee(struct BattleUnit *bu)
+{
+#if (defined(SID_Guarantee) && (COMMON_SKILL_VALID(SID_Guarantee)))
+	if (gBattleStats.config & BATTLE_CONFIG_SIMULATE)
+		return false;
+
+	if (!BattleFastSkillTester(bu, SID_Guarantee))
+		return false;
+
+	if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Guarantee_InForce))
+		return true;
+
+	if (PlayStExpa_CheckBit(PLAYSTEXPA_BIT_Guarantee_Used))
+		return false;
+
+	PlayStExpa_SetBit(PLAYSTEXPA_BIT_Guarantee_Used);
+	PlayStExpa_SetBit(PLAYSTEXPA_BIT_Guarantee_InForce);
+	return true;
+#else
+	return false;
+#endif
+}
+
 bool CheckBattleSkillActivate(struct BattleUnit *actor, struct BattleUnit *target, int sid, int rate)
 {
 	if (gBattleStats.config & BATTLE_CONFIG_SIMULATE)
@@ -83,6 +117,10 @@ bool CheckBattleSkillActivate(struct BattleUnit *actor, struct BattleUnit *targe
 	if (BattleFastSkillTester(target, SID_Foresight))
 		return false;
 #endif
+
+	/* Only a skill the unit really has may be forced. */
+	if (BattleFastSkillTester(actor, sid) && CheckBattleGuarantee(actor))
+		return true;
 
 	return CheckSkillActivateExt(&actor->unit, sid, rate, (bool (*)(struct Unit *unit, const u16 sid))BattleFastSkillTester);
 }

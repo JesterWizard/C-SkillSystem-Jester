@@ -305,6 +305,14 @@ STATIC_DECLAR void BattleCalcReal_ComputSkills(struct BattleUnit *attacker, stru
 		attacker->battleEffectiveHitRate = 100;
 	}
 #endif
+
+#if (defined(SID_Obliterate) && (COMMON_SKILL_VALID(SID_Obliterate)))
+	if (ObliterateApplies(attacker, defender)) {
+		attacker->battleEffectiveHitRate = 100;
+		attacker->battleEffectiveCritRate = 100;
+		attacker->battleSilencerRate = 100;
+	}
+#endif
 }
 
 LYN_REPLACE_CHECK(ComputeBattleUnitSilencerRate);

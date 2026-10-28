@@ -336,6 +336,10 @@ void UpdateUnitFromBattle(struct Unit* unit, struct BattleUnit* bu)
 
 LYN_REPLACE_CHECK(BattleGenerateRealInternal);
 void BattleGenerateRealInternal(struct Unit* actor, struct Unit* target) {
+#if defined(SID_Undo) && (COMMON_SKILL_VALID(SID_Undo))
+	Undo_SnapshotBattle(actor, target);
+#endif
+
 	InitBattleUnit(&gBattleActor, actor);
 	InitBattleUnit(&gBattleTarget, target);
 

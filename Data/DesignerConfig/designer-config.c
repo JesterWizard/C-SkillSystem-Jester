@@ -21,7 +21,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.battle_surrend_en = false,
 	.biorhythm_mechanic = false,
 	.c03_do_not_flush_efx_status = true, // keep status palette flashes through C03 (attack start); false = vanilla wipe of ids matching 0xC
-	.calculate_map_range_faster = true, // AI only ranges the 3 closest enemies
+	.calculate_map_range_faster = true, // AI only simulates battles against the 5 nearest enemies it can fight, per weapon
 	.casual_mode = false,
 	.chapter_names = true,
 	.chatlog_enabled = true,

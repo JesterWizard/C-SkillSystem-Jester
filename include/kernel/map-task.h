@@ -48,3 +48,4 @@ extern u8 const *const gpHpBarChr;
 extern struct Vec2u MapTaskVec;
 
 void MapTaskPutOamHi(int type, int oam2);
+void PutForageShimmerOam(void);

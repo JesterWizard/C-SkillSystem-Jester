@@ -330,32 +330,15 @@ void ExecStandardHeal(ProcPtr proc)
 #if (defined(SID_Zenkai) && (COMMON_SKILL_VALID(SID_Zenkai)))
     if (SkillTester(unit_tar, SID_Zenkai))
     {
-        // If the unit start at 30% or less HP and then got healed to full, give them bonus EXP
-        if(gBattleTarget.unit.curHP <= (Div(GetUnitMaxHp(unit_tar), 10) * 3) && GetUnitCurrentHp(unit_tar) == GetUnitMaxHp(unit_tar))
+        /*
+         * Started at 30% HP or less and was healed to full: queue the EXP.
+         * PostAction_Zenkai grants it after the staff action, with the normal
+         * EXP bar and level-up window.
+         */
+        if (gBattleTarget.unit.curHP <= (Div(GetUnitMaxHp(unit_tar), 10) * 3) && GetUnitCurrentHp(unit_tar) == GetUnitMaxHp(unit_tar))
         {
-            if (unit_tar->level < UNIT_LEVEL_MAX_RE)
-            {
-                unit_tar->exp += SKILL_EFF0(SID_Zenkai);
-                
-                if (unit_tar->exp >= 100)
-                {
-                    // This is a bit of a hack, but it works for now.
-                    unit_tar->pow += GetStatIncrease_NEW(GetUnitPowGrowth(unit_tar), unit_tar->exp);
-                    UNIT_MAG(unit_tar) += GetStatIncrease_NEW(GetUnitMagGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->skl += GetStatIncrease_NEW(GetUnitSklGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->spd += GetStatIncrease_NEW(GetUnitSpdGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->def += GetStatIncrease_NEW(GetUnitDefGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->res += GetStatIncrease_NEW(GetUnitResGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->lck += GetStatIncrease_NEW(GetUnitLckGrowth(unit_tar), unit_tar->exp);
-                    unit_tar->maxHP += GetStatIncrease_NEW(GetUnitHpGrowth(unit_tar), unit_tar->exp);
-
-                    unit_tar->level++;
-                    if (unit_tar->level > 20)
-                        unit_tar->exp = UNIT_EXP_DISABLED;
-                    else
-                        unit_tar->exp -= 100;
-                }
-            }
+            gZenkaiPending[0] = unit_tar->index;
+            gZenkaiPending[1] = SKILL_EFF0(SID_Zenkai);
         }
     }
 #endif
