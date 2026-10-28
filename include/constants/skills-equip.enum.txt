@@ -994,3 +994,4 @@ SID_SpinForGold
 SID_SpinForLuck
 SID_FastHands
 SID_Obliterate
+SID_Sweapstrike

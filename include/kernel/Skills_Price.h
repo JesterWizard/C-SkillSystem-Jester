@@ -962,3 +962,4 @@
 #define MSG_SKILL_SpinForLuck_PRICE 1000
 #define MSG_SKILL_FastHands_PRICE 1000
 #define MSG_SKILL_Obliterate_PRICE 1000
+#define MSG_SKILL_Sweapstrike_PRICE 1000

@@ -1537,4 +1537,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Sweapstrike) && COMMON_SKILL_VALID(SID_Sweapstrike))
+    [SID_Sweapstrike] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_Sweapstrike_NAME,
+        .helpMsgId = MSG_SKILL_Sweapstrike_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = Sweapstrike_Usability,
+        .onDraw = NULL,
+        .onSelected = Sweapstrike_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };

@@ -39,6 +39,7 @@ enum play_st_expa_bits {
 	PLAYSTEXPA_BIT_AssumingCommand_Used,
 	PLAYSTEXPA_BIT_Guarantee_Used,
 	PLAYSTEXPA_BIT_Guarantee_InForce, // Set while Guarantee forces procs in a battle, cleared after the action
+	PLAYSTEXPA_BIT_Sweapstrike_Used,
 	/* MAX */
 	PLAYSTEXPA_BIT_USED,
 	PLAYSTEXPA_BIT_MAX = 128,
