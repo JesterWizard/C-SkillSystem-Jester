@@ -55,6 +55,12 @@ u8 GaidenBMagActionCommandUsability(const struct MenuItemDef *def, int number)
 		if (item == ITEM_NONE)
 			continue;
 
+		if (IsGaidenMapSpell(item)) {
+			if (CanUnitCastGaidenMapSpell(unit, item))
+				return MENU_ENABLED;
+			continue;
+		}
+
 		/* B.Mag must be a weapon! */
 		if (!(GetItemAttributes(item) & IA_WEAPON))
 			continue;
@@ -212,6 +218,9 @@ STATIC_DECLAR u8 GaidenBMagItemSelUsability(const struct MenuItemDef *def, int n
 	if (!list || list->bmag_cnt <= number)
 		return MENU_NOTSHOWN;
 
+	if (IsGaidenMapSpell(item))
+		return CanUnitCastGaidenMapSpell(gActiveUnit, item) ? MENU_ENABLED : MENU_DISABLED;
+
 	if (!(GetItemAttributes(item) & IA_WEAPON))
 		return MENU_NOTSHOWN;
 
@@ -234,13 +243,17 @@ STATIC_DECLAR int GaidenBMagItemSelOnDraw(struct MenuProc *menu, struct MenuItem
 	u16 *tm = gBG0TilemapBuffer + TILEMAP_INDEX(menuItem->xTile, menuItem->yTile);
 	bool en = true;
 
-	if (!CanUnitUseGaidenMagicNow(gActiveUnit, item))
-		en = false;
+	if (IsGaidenMapSpell(item)) {
+		en = CanUnitCastGaidenMapSpell(gActiveUnit, item);
+	} else {
+		if (!CanUnitUseGaidenMagicNow(gActiveUnit, item))
+			en = false;
 
-	RegisterCombatArtStatus(gActiveUnit, GetBestRangeBonusCid(gActiveUnit, item));
-	MakeTargetListForWeapon(gActiveUnit, item);
-	if (GetSelectTargetCount() == 0)
-		en = false;
+		RegisterCombatArtStatus(gActiveUnit, GetBestRangeBonusCid(gActiveUnit, item));
+		MakeTargetListForWeapon(gActiveUnit, item);
+		if (GetSelectTargetCount() == 0)
+			en = false;
+	}
 
 	DrawGaidenMagItemMenuLine(
 		&menuItem->text,
@@ -270,6 +283,9 @@ STATIC_DECLAR u8 GaidenBMagItemSelEffect(struct MenuProc *menu, struct MenuItemP
 	ClearBg0Bg1();
 	gActionData.itemSlotIndex = CHAX_BUISLOT_GAIDEN_BMAG1 + menuItem->itemNumber;
 
+	if (IsGaidenMapSpell(item))
+		return StartGaidenMapSpellSelect(gActiveUnit, item);
+
 	MakeTargetListForWeapon(gActiveUnit, item);
 	NewTargetSelectionRework(&sSelectInfoGaidenBMag);
 
@@ -283,6 +299,12 @@ STATIC_DECLAR int GaidenBMagItemSelHover(struct MenuProc *menu, struct MenuItemP
 	int weapon = list->bmags[slot];
 
 	UpdateMenuItemPanelGaidenBMag(slot);
+
+	if (IsGaidenMapSpell(weapon)) {
+		BmMapFill(gBmMapMovement, -1);
+		DisplayGaidenMapSpellRange(gActiveUnit, weapon);
+		return 0;
+	}
 
 	BmMapFill(gBmMapMovement, -1);
 	BmMapFill(gBmMapRange, 0);
@@ -428,6 +450,15 @@ STATIC_DECLAR void UpdateMenuItemPanelGaidenBMag(int slot)
 			break;
 
 		str = str + 1;
+	}
+
+	/* Map spells have no weapon stats: show their description only, as W.Mag does */
+	if (IsGaidenMapSpell(item)) {
+		PutText(&texts[0], TILEMAP_LOCATED(bg_base, 1, 1));
+		PutText(&texts[1], TILEMAP_LOCATED(bg_base, 1, 3));
+		PutText(&texts[2], TILEMAP_LOCATED(bg_base, 1, 5));
+		BG_EnableSyncByMask(BG0_SYNC_BIT);
+		return;
 	}
 
 	BattleGenerateUiStats(unit, slot + CHAX_BUISLOT_GAIDEN_BMAG1);

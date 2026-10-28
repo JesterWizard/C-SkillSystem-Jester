@@ -5,13 +5,19 @@
 #include <bwl.h>
 #include <list-verify.h>
 #include <gaiden-magic.h>
+#include "jester_headers/custom-functions.h"
 #include "constants/texts.h"
 
 struct GaidenMagicList *const gGaidenMagicList = &sGaidenMagicListObj;
 
 NOINLINE static bool IsBMag(int iid)
 {
-	u32 attr = GetItemAttributes(iid);
+	u32 attr;
+
+	if (IsGaidenMapSpell(iid))
+		return true;
+
+	attr = GetItemAttributes(iid);
 
 	if (!(attr & IA_WEAPON))
 		return false;
@@ -212,6 +218,10 @@ bool CanUnitUseGaidenMagicNow(struct Unit *unit, int item)
 			return false;
 	}
 
+	/* Spells with an MP cost need it whatever the uses system */
+	if (GetGaidenMagicMpCost(unit, item) > GetUnitCurrentMP(unit))
+		return false;
+
 	if (!HasGaidenMagicUses(unit, item))
 		return false;
 
@@ -343,6 +353,12 @@ void PutGaidenMagicCostNumber(u16 *tm, int color, int number)
 /* Remaining uses for Three Houses-style magic, otherwise the HP/MP cost */
 void PutGaidenMagicMenuNumber(u16 *tm, int color, struct Unit *unit, int item)
 {
+	/* Spells with an MP cost show it instead of their uses */
+	if (GetGaidenMagicMpCost(unit, item) > 0) {
+		PutGaidenMagicCostNumber(tm, color, GetGaidenMagicMpCost(unit, item));
+		return;
+	}
+
 	if (IsGaidenMagicUsesSystem()) {
 		PutNumberOrBlank(tm, color, GetGaidenMagicUses(unit, item));
 		return;

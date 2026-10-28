@@ -17,6 +17,7 @@
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicCombat 0x24
 #define CONFIG_UNIT_ACTION_EXPA_GaidenMagicStaff 0x25
 #define CONFIG_UNIT_ACTION_EXPA_Gambit 0x26
+#define CONFIG_UNIT_ACTION_EXPA_GaidenMapSpell 0x27
 #define CONFIG_UNIT_ACTION_AMT 0x30           // Unit action expansion
 #define CONFIG_VESLY_SHOOT_ARROW     // All ASM, so easier to use build time config
 #define CONFIG_MISC_UNIT_COUNTERS    // Used for Skill - Bravely Default (It also edits the unit struct bits) 

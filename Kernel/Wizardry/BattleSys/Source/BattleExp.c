@@ -45,6 +45,7 @@ int StaffEXP(int weapon)
         break;
     case ITEM_STAFF_UNLOCK:
     case ITEM_STAFF_RESTORE:
+    case ITEM_STAFF_UNICORN:
     case ITEM_STAFF_RECOVER:
         exp = 25;
         break;

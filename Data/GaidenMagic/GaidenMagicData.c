@@ -84,6 +84,15 @@ const u8 gGaidenMagicUsesList[0x100] = {
 	[ITEM_SWORD_AUDHULMA] = 2,
 };
 
+/* MP spent per cast, whatever the uses system (mp_system only) */
+const u8 gGaidenMagicMpCostList[0x100] = {
+	[ITEM_ANIMA_FREEZEBLINK] = 30,
+	[ITEM_ANIMA_PROMINENCE] = 30,
+	[ITEM_ANIMA_TEMPEST] = 30,
+	[ITEM_DARK_GRAVITY] = 30,
+	[ITEM_STAFF_UNICORN] = 30,
+};
+
 /* Like the Black/White Magic Uses x2 class abilities in Three Houses */
 const u8 gGaidenMagicClassUsesBonus[0x100] = {
 	[CLASS_SAGE] = GAIDEN_MAGIC_USES_BMAG_X2,
@@ -207,6 +216,28 @@ struct GaidenPinfoConfig const gGaidenPinfoConfigList[0x100] = {
 	}},
 	[CHARACTER_RIEV] = { .ent = (const struct GaidenPinfoConfigEnt []) {
 		// { 1, ITEM_STAFF_SLEEP },
+		{ 0 }
+	}},
+
+	/* The 30 MP spells, given to randomly picked units that can hold 30 MP */
+	[CHARACTER_EWAN] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1, ITEM_ANIMA_FREEZEBLINK },
+		{ 0 }
+	}},
+	[CHARACTER_TETHYS] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1, ITEM_ANIMA_PROMINENCE },
+		{ 0 }
+	}},
+	[CHARACTER_LARACHEL] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1, ITEM_ANIMA_TEMPEST },
+		{ 0 }
+	}},
+	[CHARACTER_GERIK] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1, ITEM_DARK_GRAVITY },
+		{ 0 }
+	}},
+	[CHARACTER_VANESSA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1, ITEM_STAFF_UNICORN },
 		{ 0 }
 	}},
 };

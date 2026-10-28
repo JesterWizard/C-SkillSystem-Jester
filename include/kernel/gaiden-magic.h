@@ -5,6 +5,7 @@
 #include <list-verify.h>
 #include <battle-system.h>
 #include <constants/skills.h>
+#include <skill-system.h>
 
 struct GaidenPinfoConfigEnt { u8 level, iid; };
 struct GaidenPinfoConfig { const struct GaidenPinfoConfigEnt *ent; };
@@ -24,6 +25,16 @@ static inline const u8 *GetGaidenWeaponCostList()
 {
 	return *pr_gpGaidenWeaponCostList;
 }
+
+extern const u8 gGaidenMagicMpCostList[0x100];
+int GetGaidenMagicMpCost(struct Unit *unit, int item);
+bool IsGaidenMapSpell(int item);
+void SpendGaidenMagicMp(struct Unit *unit, int item);
+void MakeTargetListForGaidenMapSpell(struct Unit *unit, int item);
+bool CanUnitCastGaidenMapSpell(struct Unit *unit, int item);
+void DisplayGaidenMapSpellRange(struct Unit *unit, int item);
+u8 StartGaidenMapSpellSelect(struct Unit *unit, int item);
+bool ActionGaidenMapSpell(ProcPtr proc);
 
 struct GaidenChaxConfigEnt {
 	u8 iid;
@@ -124,6 +135,7 @@ u8 GaidenBMagActionCommandEffect(struct MenuProc *menu, struct MenuItemProc *men
 u8 StartGaidenBMagSpellMenu(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int GaidenBMagActionCommandHover(struct MenuProc *menu, struct MenuItemProc *menuItem);
 int GaidenBMagActionCommandUnhover(struct MenuProc *menu, struct MenuItemProc *menuItem);
+u8 GaidenBMagAttackMapSelect_Cancel(ProcPtr proc, struct SelectTarget *target);
 
 u8 GaidenWMagActionCommandUsability(const struct MenuItemDef *def, int number);
 int GaidenWMagActionCommandOnDarw(struct MenuProc *menu, struct MenuItemProc *item);
