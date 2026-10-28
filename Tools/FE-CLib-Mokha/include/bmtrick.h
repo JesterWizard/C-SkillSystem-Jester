@@ -34,6 +34,7 @@ enum
     TRAP_REPEAT_HOUSE = 23,
     TRAP_DRAGON_VEIN = 24,
     TRAP_HELLSCAPE_VOID = 25,
+    TRAP_HIDDEN_CALTROPS = 26,
 };
 
 enum
@@ -90,6 +91,9 @@ enum
 
     // Hellscape void extdata definitions
     TRAP_EXTDATA_HELLSCAPE_VOID_TURNSLEFT = 0, // turns left before the void closes
+
+    // Hidden caltrops extdata definitions
+    TRAP_EXTDATA_HIDDEN_CALTROPS_REVEALED = 0, // 0 = hidden, 1 = revealed (drawn on the map)
 };
 
 enum
@@ -189,6 +193,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define SPIN_TILE(x, y, direction) \
     TRAP_SPIN_TILE, (x), (y), (direction), 0, 0,
+
+#define HIDDEN_CALTROPS(x, y) \
+    TRAP_HIDDEN_CALTROPS, (x), (y), 0, 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,

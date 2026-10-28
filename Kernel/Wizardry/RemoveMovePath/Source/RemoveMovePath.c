@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "map-movement.h"
+#include "kernel/traps.h"
 
 /**
  * Lex Talionis "Translucent Unit Sprite":
@@ -142,6 +143,7 @@ void PlayerPhase_DisplayUnitMovement(void)
 			gWorkingMovementScript);
 
 	UnitApplyWorkingMovementScript(gActiveUnit, gActiveUnit->xPos, gActiveUnit->yPos);
+	CutMovementScriptAtCaltrops(gActiveUnit);
 	SetAutoMuMoveScript(gWorkingMovementScript);
 }
 

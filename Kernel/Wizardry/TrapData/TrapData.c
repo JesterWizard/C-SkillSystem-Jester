@@ -476,6 +476,10 @@ void LoadTrapData(const struct TrapData * data)
             AddSpinTile(data->xPos, data->yPos, data->subtype);
             break;
 
+        case TRAP_HIDDEN_CALTROPS:
+            AddHiddenCaltrops(data->xPos, data->yPos);
+            break;
+
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
             break;
