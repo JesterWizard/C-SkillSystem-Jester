@@ -1,0 +1,16 @@
+#define FE8U_PlayerPhase_DisplayUnitMovement $1D624
+#define FE8U_DrawUpdatedPathArrow            $33248
+#define FE8U_StandaloneFreeSpace             $1000000
+
+PUSH
+ORG FE8U_PlayerPhase_DisplayUnitMovement
+    jumpToHack(PlayerPhase_DisplayUnitMovement_RemoveMovePath)
+    PROTECT FE8U_PlayerPhase_DisplayUnitMovement FE8U_PlayerPhase_DisplayUnitMovement + 0x8 // PlayerPhase_DisplayUnitMovement hook
+ORG FE8U_DrawUpdatedPathArrow
+    SHORT $4770 // bx lr: never update or draw the path arrow
+    PROTECT FE8U_DrawUpdatedPathArrow FE8U_DrawUpdatedPathArrow + 0x8 // DrawUpdatedPathArrow no-op
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/RemoveMovePath.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // RemoveMovePath body

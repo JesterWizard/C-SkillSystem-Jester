@@ -1,0 +1,20 @@
+#define FE8U_ComputeBattleUnitEffectiveHitRate $2AC60
+#define FE8U_StandaloneFreeSpace               $1000000
+
+/* Edit without recompiling C. */
+#define HIT_DECREASE_ON_RANGE_PENALTY 20 // Hit lost per 2 tiles of distance (3-4 tiles: -20, 5-6: -40, ...)
+
+PUSH
+ORG FE8U_ComputeBattleUnitEffectiveHitRate
+    jumpToHack(ComputeBattleUnitEffectiveHitRate_RangePenalty)
+    PROTECT FE8U_ComputeBattleUnitEffectiveHitRate FE8U_ComputeBattleUnitEffectiveHitRate + 0x8 // ComputeBattleUnitEffectiveHitRate hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/HitDecreaseOnRange.lyn.event"
+
+ALIGN 4
+HitDecreaseOnRangePenalty:
+BYTE HIT_DECREASE_ON_RANGE_PENALTY
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // HitDecreaseOnRange body + config

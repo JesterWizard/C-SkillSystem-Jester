@@ -1,0 +1,31 @@
+// Per-language text offsets, used only when LANGUAGE_SELECT_TEXT_SWITCH is
+// defined in Installer.event.
+//
+// For every text ID below LANGUAGE_TEXT_COUNT, the game reads
+// (text ID + offset of the chosen language) instead. 0 = use the original
+// text. Put each translation in its own block of the (extended) text table,
+// for example with offsets $1000, $2000, ...: French text for ID $0123 goes
+// in $1123, German in $2123, and so on.
+//
+// Every offset is 0 by default, so turning the switch on changes nothing
+// until you add translated text and set the offsets. Never point an offset
+// at text IDs that do not exist yet: the game would read past the text
+// table and crash.
+//
+// The flags are, in order: English, French, German, Spanish, Italian, Japanese.
+// FE8U only ships an English font; Japanese text needs a font patch.
+
+#define LANGUAGE_TEXT_COUNT $1000 // remap text IDs $0000..$0FFF
+
+ALIGN 4
+gLanguageTextCount:
+    WORD LANGUAGE_TEXT_COUNT
+
+gLanguageTextOffsets:
+    SHORT 0 // English (original text)
+    SHORT 0 // French   (e.g. $1000)
+    SHORT 0 // German   (e.g. $2000)
+    SHORT 0 // Spanish  (e.g. $3000)
+    SHORT 0 // Italian  (e.g. $4000)
+    SHORT 0 // Japanese (e.g. $5000)
+ALIGN 4

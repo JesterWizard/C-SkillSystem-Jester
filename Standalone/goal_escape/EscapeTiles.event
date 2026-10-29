@@ -1,0 +1,34 @@
+// Escape tiles: EscapeTile(chapter ID, x, y). A chapter can have any number of
+// tiles. Only chapters whose goal window type is 6 (Escape) use them; set that
+// in FEBuilder's chapter editor (Goal window data type / "objective" = 6).
+// End the table with EscapeTilesEnd.
+//
+// Defaults mirror the integrated C Skill System test table: tile (3, 3) on
+// every chapter from the Prologue to Ephraim Ch18.
+
+#define EscapeTile(chapter, x, y) "BYTE (chapter) (x) (y) 0"
+#define EscapeTilesEnd "BYTE $FF $FF $FF $FF"
+
+ALIGN 4
+gGoalEscapeTiles:
+    EscapeTile($00, 3, 3) // Prologue
+    EscapeTile($01, 3, 3) // Ch1
+    EscapeTile($02, 3, 3) // Ch2
+    EscapeTile($03, 3, 3) // Ch3
+    EscapeTile($04, 3, 3) // Ch4
+    EscapeTile($05, 3, 3) // Ch5x
+    EscapeTile($06, 3, 3) // Ch5
+    EscapeTile($07, 3, 3) // Ch6
+    EscapeTile($08, 3, 3) // Ch7
+    EscapeTile($09, 3, 3) // Ch8
+    EscapeTile($0A, 3, 3) // Ephraim Ch9
+    EscapeTile($0B, 3, 3) // Ephraim Ch10
+    EscapeTile($3D, 3, 3) // Ephraim Ch11
+    EscapeTile($0C, 3, 3) // Ephraim Ch12
+    EscapeTile($0D, 3, 3) // Ephraim Ch13
+    EscapeTile($0E, 3, 3) // Ephraim Ch14
+    EscapeTile($0F, 3, 3) // Ephraim Ch15
+    EscapeTile($10, 3, 3) // Ephraim Ch16
+    EscapeTile($11, 3, 3) // Ephraim Ch17
+    EscapeTile($12, 3, 3) // Ephraim Ch18
+    EscapeTilesEnd

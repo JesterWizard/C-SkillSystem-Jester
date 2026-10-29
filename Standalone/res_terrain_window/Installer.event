@@ -1,0 +1,37 @@
+#define FE8U_DrawTerrainDisplayWindow       $8C964
+#define FE8U_PlayerInterfaceFontTilesPtr    $8D0AC // InitPlayerPhaseInterface literal: gGfx_PlayerInterfaceFontTiles
+#define FE8U_StandaloneFreeSpace            $1000000
+
+PUSH
+ORG FE8U_DrawTerrainDisplayWindow
+    jumpToHack(DrawTerrainDisplayWindow_Res)
+    PROTECT FE8U_DrawTerrainDisplayWindow FE8U_DrawTerrainDisplayWindow + 0x8 // DrawTerrainDisplayWindow hook
+ORG FE8U_PlayerInterfaceFontTilesPtr
+    POIN ResTerrainWindow_FontTiles
+    PROTECT FE8U_PlayerInterfaceFontTilesPtr FE8U_PlayerInterfaceFontTilesPtr + 0x4 // player interface font tiles pointer
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ResTerrainWindow.lyn.event"
+
+/* Terrain window box (7x7 tiles) */
+ALIGN 4
+NewTerrainWindow_TSA:
+#incbin "Gfx/TerrainWindow.dmp"
+
+/* Labels for snags and damaged walls */
+ALIGN 4
+NewBrokenWall_TSA:
+#incbin "Gfx/BrokenWall.dmp"
+
+/* DEF / RES / AVO labels */
+ALIGN 4
+NewTerrainWindowText_TSA:
+#incbin "Gfx/TerrainWindowText.dmp"
+
+/* Vanilla player interface font tiles with a RES label (AVO moved to free tiles) */
+ALIGN 4
+ResTerrainWindow_FontTiles:
+#incbin "Gfx/TerrainWindowFont.dmp"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ResTerrainWindow body + graphics

@@ -1,0 +1,22 @@
+#define FE8U_IsExtraSupportViewerEnabled  $A332C
+#define FE8U_GetGlobalSupportListFromSave $A35EC
+#define FE8U_GGM_IsCharacterKnown         $A37F0
+#define FE8U_StandaloneFreeSpace          $1000000
+
+PUSH
+ORG FE8U_IsExtraSupportViewerEnabled
+    jumpToHack(IsExtraSupportViewerEnabled_Unlocked)
+    PROTECT FE8U_IsExtraSupportViewerEnabled FE8U_IsExtraSupportViewerEnabled + 0x8 // IsExtraSupportViewerEnabled hook
+
+ORG FE8U_GetGlobalSupportListFromSave
+    jumpToHack(GetGlobalSupportListFromSave_Unlocked)
+    PROTECT FE8U_GetGlobalSupportListFromSave FE8U_GetGlobalSupportListFromSave + 0x8 // GetGlobalSupportListFromSave hook
+
+ORG FE8U_GGM_IsCharacterKnown
+    jumpToHack(GGM_IsCharacterKnown_Unlocked)
+    PROTECT FE8U_GGM_IsCharacterKnown FE8U_GGM_IsCharacterKnown + 0x8 // GGM_IsCharacterKnown hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/UnlockAllSupports.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // UnlockAllSupports body

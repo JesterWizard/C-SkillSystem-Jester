@@ -1,0 +1,12 @@
+#define FE8U_ComputeBattleUnitSpeed $2AB74
+#define FE8U_StandaloneFreeSpace    $1000000
+
+PUSH
+ORG FE8U_ComputeBattleUnitSpeed
+    jumpToHack(ComputeBattleUnitSpeed_SRankNoWeight)
+    PROTECT FE8U_ComputeBattleUnitSpeed FE8U_ComputeBattleUnitSpeed + 0x8 // ComputeBattleUnitSpeed hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/SRankWeaponNoWeight.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SRankWeaponNoWeight body

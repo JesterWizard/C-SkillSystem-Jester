@@ -1,0 +1,51 @@
+// Max Simultaneous Support Conversations for FE8U.
+// Changes how many support levels (C/B/A ranks summed over all partners) a
+// unit may hold at once. Vanilla is 5. See README.md.
+
+// ---- Setting -------------------------------------------------------------
+// 1..255. C Skill System default is 10.
+#ifndef MAX_SUPPORTS
+    #define MAX_SUPPORTS 10
+#endif
+
+// Uncomment to reproduce the integrated C Skill System exactly: only the
+// "remaining" number on the preparations Support screen changes, while the
+// real limit (support EXP gain and the map Support command) stays at 5.
+// #define MAX_SUPPORTS_SCREEN_ONLY
+// --------------------------------------------------------------------------
+
+// Each site is the immediate byte of a vanilla Thumb instruction.
+#define FE8U_InitSupportSubScreenRemainingSupports_Imm $A2096 // movs r1, #5   (prep Support screen "remaining")
+#define FE8U_SupportScreenUnitState_Imm                $A0F82 // cmp r0, #5    (sub_80A0F6C: prep Support list "full" state)
+#define FE8U_DisplaySupportList_Imm                    $876B4 // cmp r0, #5    (stat screen: support list green when full)
+#define FE8U_CanUnitSupportNow_Self_Imm                $2833E // cmp r0, #4    (unit at cap: no Support command)
+#define FE8U_CanUnitSupportNow_Partner_Imm             $2834E // cmp r0, #4    (partner at cap: no Support command)
+#define FE8U_ProcessTurnSupportExp_Self_Imm            $28476 // cmp r0, #4    (unit at cap: no support EXP)
+#define FE8U_ProcessTurnSupportExp_Partner_Imm         $28508 // cmp r0, #4    (partner at cap: no support EXP)
+
+PUSH
+ORG FE8U_InitSupportSubScreenRemainingSupports_Imm
+    BYTE MAX_SUPPORTS
+    PROTECT FE8U_InitSupportSubScreenRemainingSupports_Imm FE8U_InitSupportSubScreenRemainingSupports_Imm + 0x1
+
+#ifndef MAX_SUPPORTS_SCREEN_ONLY
+ORG FE8U_SupportScreenUnitState_Imm
+    BYTE MAX_SUPPORTS
+    PROTECT FE8U_SupportScreenUnitState_Imm FE8U_SupportScreenUnitState_Imm + 0x1
+ORG FE8U_DisplaySupportList_Imm
+    BYTE MAX_SUPPORTS
+    PROTECT FE8U_DisplaySupportList_Imm FE8U_DisplaySupportList_Imm + 0x1
+ORG FE8U_CanUnitSupportNow_Self_Imm
+    BYTE (MAX_SUPPORTS - 1)
+    PROTECT FE8U_CanUnitSupportNow_Self_Imm FE8U_CanUnitSupportNow_Self_Imm + 0x1
+ORG FE8U_CanUnitSupportNow_Partner_Imm
+    BYTE (MAX_SUPPORTS - 1)
+    PROTECT FE8U_CanUnitSupportNow_Partner_Imm FE8U_CanUnitSupportNow_Partner_Imm + 0x1
+ORG FE8U_ProcessTurnSupportExp_Self_Imm
+    BYTE (MAX_SUPPORTS - 1)
+    PROTECT FE8U_ProcessTurnSupportExp_Self_Imm FE8U_ProcessTurnSupportExp_Self_Imm + 0x1
+ORG FE8U_ProcessTurnSupportExp_Partner_Imm
+    BYTE (MAX_SUPPORTS - 1)
+    PROTECT FE8U_ProcessTurnSupportExp_Partner_Imm FE8U_ProcessTurnSupportExp_Partner_Imm + 0x1
+#endif
+POP

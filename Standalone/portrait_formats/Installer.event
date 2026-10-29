@@ -1,0 +1,152 @@
+// Half-body and 32-colour portraits for FE8U: the C Skill System's
+// half_body_portraits and portrait_32_color, for vanilla dialogue and menus.
+// See README.md for the formats, hooks, RAM and conflicts.
+//
+// Don't install this together with Standalone/text_engine: use its
+// TEXT_ENGINE_HALF_BODY_PORTRAITS setting instead (same portraits, through
+// the text engine's dialogue).
+
+// Settings ------------------------------------------------------------------
+// Sample portraits: remove the // in front of the next line to replace Anna
+// (0x64) with a half-body and Eirika (0x02) with a 32-colour portrait.
+// #define PORTRAIT_FORMATS_SAMPLES
+// ---------------------------------------------------------------------------
+
+// A 16-byte hook for functions with four or more arguments, which
+// jumpToHack can't take (it uses r3).  bx pc; nop; ldr r12, [pc]; bx r12.
+#define hookViaR12(target) "BYTE 0x78 0x47 0xC0 0x46; WORD 0xE59FC000 0xE12FFF1C; POIN target"
+
+#define FE8U_Face_OnInit                $5594
+#define FE8U_Face_OnIdle                $55BC
+#define FE8U_StartFaceAuto              $5610
+#define FE8U_StartFace                  $563C
+#define FE8U_EndFace                    $5738
+#define FE8U_FaceRefreshSprite          $57C0
+#define FE8U_PutFace80x72_Core          $5CA4
+#define FE8U_StartFaceFadeIn            $5EF0
+#define FE8U_StartFaceFadeOut           $5F38
+#define FE8U_StartFace2                 $64F4
+#define FE8U_FaceChange_LoadGfx         $6650   // sub_8006650
+#define FE8U_TalkLoadFace               $7854
+#define FE8U_PutTalkBubble              $82A4
+#define FE8U_StartTalkOpen              $88A8
+
+// Map menus that show the unit's face: display kind 2 (96x80) -> 6, which is
+// 96x80 for normal portraits and the 128x80 half-body top for half-bodies.
+#define FE8U_HandleNewItemGetFromDrop_Kind  $1E0BC
+#define FE8U_StartUnitBallistaSelect_Kind   $22BA2
+#define FE8U_StartUnitWeaponSelect_Kind     $22BF8
+#define FE8U_PlayCommandEffect_Kind         $2325E
+#define FE8U_ItemCommandEffect_Kind         $23314
+#define FE8U_sub_8023550_Kind               $23572
+#define FE8U_sub_80235A8_Kind               $2360A
+#define FE8U_StaffCommandEffect_Kind        $23AF6
+#define FE8U_RepairSelectOnSelect_Kind      $2998E
+// Level-up screens (battle and map): face display 0x1042 -> 0x1046.
+#define FE8U_EkrLvup_InitLevelUpBox_Disp    $73E08
+#define FE8U_ManimLevelUp_InitMainScreen_Disp $7F2AC
+// Trade menu name boxes: OBJ tiles 0x4800 -> 0x3800, palette 8 -> 10, clear
+// of a second half-body or 32-colour face at OBJ 0x4000..0x5FFF / palette 8-9.
+#define FE8U_TradeMenu_BrownBoxChr          $2D2EA
+#define FE8U_TradeMenu_BrownBoxPal          $2D2FE
+// Preparations item / trade / use screens: face VRAM 0x5800/0x6800 ->
+// 0x4000/0x6000, room for each face's second 0x1000-byte block.
+#define FE8U_FaceConfig_PrepItemScreen      $205C14
+#define FE8U_FaceConfig_PrepItemTrade       $205C44
+#define FE8U_FaceConfig_PrepItemUse         $205C70
+
+#define FE8U_StandaloneFreeSpace        $1000000
+
+PUSH
+ORG FE8U_Face_OnInit
+    jumpToHack(Face_OnInit_Portraits)
+    PROTECT FE8U_Face_OnInit FE8U_Face_OnInit + 0x8 // Face_OnInit
+ORG FE8U_Face_OnIdle
+    jumpToHack(Face_OnIdle_Portraits)
+    PROTECT FE8U_Face_OnIdle FE8U_Face_OnIdle + 0x8 // Face_OnIdle
+ORG FE8U_StartFaceAuto
+    hookViaR12(StartFaceAuto_Portraits)
+    PROTECT FE8U_StartFaceAuto FE8U_StartFaceAuto + 0x10 // StartFaceAuto
+ORG FE8U_StartFace
+    hookViaR12(StartFace_Portraits)
+    PROTECT FE8U_StartFace FE8U_StartFace + 0x10 // StartFace
+ORG FE8U_EndFace
+    jumpToHack(EndFace_Portraits)
+    PROTECT FE8U_EndFace FE8U_EndFace + 0x8 // EndFace
+ORG FE8U_FaceRefreshSprite
+    jumpToHack(FaceRefreshSprite_Portraits)
+    PROTECT FE8U_FaceRefreshSprite FE8U_FaceRefreshSprite + 0x8 // FaceRefreshSprite
+ORG FE8U_PutFace80x72_Core
+    hookViaR12(PutFace80x72_Core_Portraits)
+    PROTECT FE8U_PutFace80x72_Core FE8U_PutFace80x72_Core + 0x10 // PutFace80x72_Core
+ORG FE8U_StartFaceFadeIn
+    jumpToHack(StartFaceFadeIn_Portraits)
+    PROTECT FE8U_StartFaceFadeIn FE8U_StartFaceFadeIn + 0x8 // StartFaceFadeIn
+ORG FE8U_StartFaceFadeOut
+    jumpToHack(StartFaceFadeOut_Portraits)
+    PROTECT FE8U_StartFaceFadeOut FE8U_StartFaceFadeOut + 0x8 // StartFaceFadeOut
+ORG FE8U_StartFace2
+    hookViaR12(StartFace2_Portraits)
+    PROTECT FE8U_StartFace2 FE8U_StartFace2 + 0x10 // StartFace2
+ORG FE8U_FaceChange_LoadGfx
+    jumpToHack(FaceChange_LoadGfx_Portraits)
+    PROTECT FE8U_FaceChange_LoadGfx FE8U_FaceChange_LoadGfx + 0x8 // sub_8006650
+ORG FE8U_TalkLoadFace
+    jumpToHack(TalkLoadFace_Portraits)
+    PROTECT FE8U_TalkLoadFace FE8U_TalkLoadFace + 0x8 // TalkLoadFace
+ORG FE8U_PutTalkBubble
+    hookViaR12(PutTalkBubble_Portraits)
+    PROTECT FE8U_PutTalkBubble FE8U_PutTalkBubble + 0x10 // PutTalkBubble
+ORG FE8U_StartTalkOpen
+    jumpToHack(StartTalkOpen_Portraits)
+    PROTECT FE8U_StartTalkOpen FE8U_StartTalkOpen + 0x8 // StartTalkOpen
+
+ORG FE8U_HandleNewItemGetFromDrop_Kind; BYTE 0x06
+ORG FE8U_StartUnitBallistaSelect_Kind;  BYTE 0x06
+ORG FE8U_StartUnitWeaponSelect_Kind;    BYTE 0x06
+ORG FE8U_PlayCommandEffect_Kind;        BYTE 0x06
+ORG FE8U_ItemCommandEffect_Kind;        BYTE 0x06
+ORG FE8U_sub_8023550_Kind;              BYTE 0x06
+ORG FE8U_sub_80235A8_Kind;              BYTE 0x06
+ORG FE8U_StaffCommandEffect_Kind;       BYTE 0x06
+ORG FE8U_RepairSelectOnSelect_Kind;     BYTE 0x06
+ORG FE8U_EkrLvup_InitLevelUpBox_Disp;   WORD 0x1046
+ORG FE8U_ManimLevelUp_InitMainScreen_Disp; WORD 0x1046
+ORG FE8U_TradeMenu_BrownBoxChr;         BYTE 0x70   // movs r1, #0x70 (lsl 7 = 0x3800)
+ORG FE8U_TradeMenu_BrownBoxPal;         BYTE 0x0A   // movs r2, #10
+ORG FE8U_FaceConfig_PrepItemScreen;     WORD 0x4000; ORG FE8U_FaceConfig_PrepItemScreen + 8; WORD 0x6000
+ORG FE8U_FaceConfig_PrepItemTrade;      WORD 0x4000; ORG FE8U_FaceConfig_PrepItemTrade + 8;  WORD 0x6000
+ORG FE8U_FaceConfig_PrepItemUse;        WORD 0x4000; ORG FE8U_FaceConfig_PrepItemUse + 8;    WORD 0x6000
+
+PROTECT FE8U_HandleNewItemGetFromDrop_Kind FE8U_HandleNewItemGetFromDrop_Kind + 1
+PROTECT FE8U_StartUnitBallistaSelect_Kind FE8U_StartUnitBallistaSelect_Kind + 1
+PROTECT FE8U_StartUnitWeaponSelect_Kind FE8U_StartUnitWeaponSelect_Kind + 1
+PROTECT FE8U_PlayCommandEffect_Kind FE8U_PlayCommandEffect_Kind + 1
+PROTECT FE8U_ItemCommandEffect_Kind FE8U_ItemCommandEffect_Kind + 1
+PROTECT FE8U_sub_8023550_Kind FE8U_sub_8023550_Kind + 1
+PROTECT FE8U_sub_80235A8_Kind FE8U_sub_80235A8_Kind + 1
+PROTECT FE8U_StaffCommandEffect_Kind FE8U_StaffCommandEffect_Kind + 1
+PROTECT FE8U_RepairSelectOnSelect_Kind FE8U_RepairSelectOnSelect_Kind + 1
+PROTECT FE8U_EkrLvup_InitLevelUpBox_Disp FE8U_EkrLvup_InitLevelUpBox_Disp + 4
+PROTECT FE8U_ManimLevelUp_InitMainScreen_Disp FE8U_ManimLevelUp_InitMainScreen_Disp + 4
+PROTECT FE8U_TradeMenu_BrownBoxChr FE8U_TradeMenu_BrownBoxChr + 1
+PROTECT FE8U_TradeMenu_BrownBoxPal FE8U_TradeMenu_BrownBoxPal + 1
+PROTECT FE8U_FaceConfig_PrepItemScreen FE8U_FaceConfig_PrepItemScreen + 0xC
+PROTECT FE8U_FaceConfig_PrepItemTrade FE8U_FaceConfig_PrepItemTrade + 0xC
+PROTECT FE8U_FaceConfig_PrepItemUse FE8U_FaceConfig_PrepItemUse + 0xC
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+ALIGN 4
+#include "Source/Portraits.lyn.event"
+
+ALIGN 4
+#include "Source/VanillaTalk.lyn.event"
+
+#ifdef PORTRAIT_FORMATS_SAMPLES
+    #include "Tools/PortraitMacros.event"
+    #include "Samples/Samples.event"
+#endif
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // portrait_formats body

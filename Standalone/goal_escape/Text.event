@@ -1,0 +1,8 @@
+ALIGN 4
+GoalEscapeQuoteText:
+// Vanilla Huffman for: [OpenMidLeft][LoadFace][0xFF][0xFF][OpenMidLeft]Time to get out of here![A][X]
+// Face $FFFF is the active unit (vanilla TalkLoadFace).
+// FE8U DecodeString has no anti-Huffman high bit; uncompressed ASCII here crashes the text box.
+BYTE $F3 $DE $BA $78 $EE $6C $EC $67 $7A $43 $F2 $4F $A6 $C0 $76 $D2
+BYTE $DC $BC
+setText(GOAL_ESCAPE_QUOTE_TEXT, GoalEscapeQuoteText)

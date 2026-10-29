@@ -1,0 +1,40 @@
+/* Edit these without recompiling C. */
+
+#ifndef USE_VANILLA_FALLBACK
+#define USE_VANILLA_FALLBACK 1
+#endif
+
+ALIGN 4
+CustomDefeatQuotes_UseVanillaFallback:
+BYTE USE_VANILLA_FALLBACK
+
+/* Custom defeat quote entries (16 bytes each).
+ *
+ * Fields per entry:
+ *   pidA    - character ID of the unit that is defeated
+ *   pidB    - character ID that must be the current battle actor or target
+ *             ($FFFF = any opponent)
+ *   route   - not a filter; $01 together with flag $65 plays the Game Over
+ *             song (vanilla lord-death behaviour). Otherwise In Sorrow's
+ *             Shroud plays when pidA is a player unit.
+ *   chapter - chapter index, $FF for any chapter, $FE for triangle attacks
+ *   flag    - flag set after the quote plays; skipped if already set
+ *             ($65 = game over flag)
+ *   msg     - text ID ($0000 = use event instead)
+ *   event   - custom battle event script pointer ($0 = none)
+ *
+ * Earlier entries win, so put specific (pidA + pidB) entries before
+ * wildcard ones for the same character.
+ * Use FEBuilder character/chapter/flag IDs, or FE8U hex values.
+ */
+
+#define CustomDefeatQuoteEntry(pidA, pidB, route, chapter, flag, msg, event) "SHORT pidA pidB; BYTE route chapter; SHORT flag msg 0; POIN event"
+
+/* Example: O'Neill says a different line when Eirika or Seth defeats him on the prologue
+ * CustomDefeatQuoteEntry($68, $01, $FF, $00, $02, $XXXX, 0)
+ * CustomDefeatQuoteEntry($68, $02, $FF, $00, $02, $YYYY, 0)
+ */
+
+ALIGN 4
+gCustomDefeatTalkList:
+CustomDefeatQuoteEntry($FFFF, $0000, $00, $00, $00, $00, 0) // end of table

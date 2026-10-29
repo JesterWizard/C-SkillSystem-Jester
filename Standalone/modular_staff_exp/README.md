@@ -1,0 +1,92 @@
+# Modular Staff EXP
+
+Each staff gives a fixed amount of EXP per use from an editable table, instead of vanilla's `10 + cost per use / 20` (halved for promoted units). Defaults:
+
+| EXP | Staves |
+|-----|--------|
+| 15 | Heal, Torch |
+| 17 | Barrier |
+| 20 | Mend |
+| 25 | Unlock, Restore, Recover |
+| 30 | Berserk, Sleep, Silence, Physic |
+| 50 | Rescue |
+| 60 | Warp |
+| 70 | Hammerne, Fortify |
+| 100 | Latona |
+
+Listed staves give their EXP whether or not the unit is promoted, and also when an offensive staff misses (vanilla gives 1 EXP on a miss). The value is capped at 100. Only player units gain EXP, as in vanilla.
+
+This is the integrated C Skill System `modular_staff_exp` designer-config flag (default `true` there), always on here.
+
+## Configuration
+
+Edit `ModularStaffExpTable` in `Installer.event`, then reinstall the patch. No C recompile is needed. Each row is `StaffExp(item ID, EXP)`; the list ends with `StaffExpEnd`. Custom staves can be added by item ID.
+
+## Target ROM
+
+- **FE8U (USA)** clean ROM
+
+## Build
+
+No build step is required to install the patch. `Source/ModularStaffExp.lyn.event` is checked in, so you can install `Installer.event` as-is.
+
+Run `make` only if you edit `Source/ModularStaffExp.c`:
+
+```bash
+make -C Standalone/modular_staff_exp
+```
+
+That requires [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo's [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) / [Event Assembler](https://github.com/MokhaLeee/EventAssembler/tree/mokha-fix) tools. See [Documentation/Setup.md](../../Documentation/Setup.md) for full setup.
+
+## Installation
+
+This folder is self-contained. It does not include `EAstdlib.event` or `Hack Installation.txt`. FEBuilder’s bundled Event Assembler is enough.
+
+### FEBuilderGBA
+
+1. Copy the `modular_staff_exp` folder (or download this standalone package).
+2. Open a clean FE8U ROM in FEBuilder.
+3. Go to **Advanced Editors → Insert EA**.
+4. Click **Select File**, choose `Installer.event`, then click **Load Script**.
+
+### Event Assembler
+
+From a copy of clean `fe8.gba`, with this folder as the working directory:
+
+```bash
+ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-modular-staff-exp.gba
+```
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `Installer.event` | EA installer: settings, addresses, hooks, free-space placement, EXP table |
+| `Source/ModularStaffExp.c` | C implementation |
+| `Source/ModularStaffExp.lyn.event` | Checked-in lyn output (rebuild with `make` after editing `.c`) |
+| `makefile` | Compiles C to `.lyn.event` |
+
+## Hooks & Free Space
+
+| Function | Hook (`ORG`) | Overwritten |
+|----------|--------------|-------------|
+| `GetBattleUnitStaffExp` (`0x0802C638`) | `$2C638` | 8 bytes (`jumpToHack`) |
+
+- Free space: `$1000000` (about 0xB4 bytes: code + table). No RAM.
+- `Installer.event` uses `PROTECT` on the hook site and on the free-space body.
+
+## Conflicts
+
+- Any patch that replaces `GetBattleUnitStaffExp` (`$2C638`), including the full C Skill System.
+- [class_growths](../class_growths/) replaces `BattleApplyItemExpGains` but still calls `GetBattleUnitStaffExp`, so both work together.
+- The five battle tweaks extracted with this one ([anima_weapon_triangle](../anima_weapon_triangle/), [hit_decrease_on_range](../hit_decrease_on_range/), [battle_max_damage](../battle_max_damage/), [s_rank_weapon_no_weight](../s_rank_weapon_no_weight/), [modular_staff_exp](../modular_staff_exp/)) hook different functions and can all be installed together (give each body its own free space).
+- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `FE8U_StandaloneFreeSpace` to the next free region after any already-installed standalone code.
+
+## Limitations
+
+- Divergence from the integrated code: there, a staff missing from its list gave 0 EXP. Here an unlisted staff (for example a new staff added in FEBuilder) keeps the vanilla formula.
+- The integrated EXP skills (Blossom, Paragon, Mentorship, Prodigy) are Skill System features and are not part of this patch. The integrated list also has entries for this repo's custom staves; on clean FE8U only vanilla staves exist, so only those are listed.
+
+## Credits
+
+Extracted from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester).

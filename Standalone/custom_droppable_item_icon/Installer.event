@@ -1,0 +1,18 @@
+#define FE8U_PutUnitSpriteIconsOam     $275E8
+#define FE8U_MapTask_PutUnitSpritesOam $59D934
+#define FE8U_StandaloneFreeSpace       $1000000
+
+PUSH
+ORG FE8U_PutUnitSpriteIconsOam
+    SHORT $B5F0 $4657 $464E $4645 // vanilla prologue (undo any old jumpToHack here, which would recurse)
+    PROTECT FE8U_PutUnitSpriteIconsOam FE8U_PutUnitSpriteIconsOam + 0x8 // PutUnitSpriteIconsOam vanilla restore
+ORG FE8U_MapTask_PutUnitSpritesOam
+    POIN PutUnitSpritesOam_CustomDroppableItemIcon
+    PROTECT FE8U_MapTask_PutUnitSpritesOam FE8U_MapTask_PutUnitSpritesOam + 0x4 // MapTask PutUnitSpritesOam
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CustomDroppableItemIcon.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PutUnitSpritesOam_CustomDroppableItemIcon body
+
+#include "Gfx.event"

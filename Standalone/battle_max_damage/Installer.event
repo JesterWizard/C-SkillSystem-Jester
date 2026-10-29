@@ -1,0 +1,42 @@
+#define FE8U_BattleGenerate                 $2A398
+#define FE8U_HitAttributes_SilencerDamage   $2B4E4 // movs r0, #127 (silencer hit damage)
+#define FE8U_HitAttributes_CapCompare       $2B532 // cmp r0, #127
+#define FE8U_HitAttributes_CapValue         $2B536 // movs r0, #127
+#define FE8U_StandaloneFreeSpace            $1000000
+
+/*
+ * Edit without recompiling C.
+ * Highest damage one hit can deal, 0..127. Vanilla and the integrated
+ * C Skill System default are both 127. A silencer (lethality) hit deals
+ * exactly this much. Values above 127 can't work: vanilla stores each hit's
+ * HP change in a signed byte.
+ */
+#define BATTLE_MAX_DAMAGE 127
+
+ASSERT BATTLE_MAX_DAMAGE
+ASSERT 127 - BATTLE_MAX_DAMAGE
+
+PUSH
+ORG FE8U_HitAttributes_SilencerDamage
+    BYTE BATTLE_MAX_DAMAGE
+    PROTECT FE8U_HitAttributes_SilencerDamage FE8U_HitAttributes_SilencerDamage + 0x1 // silencer damage immediate
+ORG FE8U_HitAttributes_CapCompare
+    BYTE BATTLE_MAX_DAMAGE
+    PROTECT FE8U_HitAttributes_CapCompare FE8U_HitAttributes_CapCompare + 0x1 // damage cap compare immediate
+ORG FE8U_HitAttributes_CapValue
+    BYTE BATTLE_MAX_DAMAGE
+    PROTECT FE8U_HitAttributes_CapValue FE8U_HitAttributes_CapValue + 0x1 // damage cap value immediate
+ORG FE8U_BattleGenerate
+    jumpToHack(BattleGenerate_MaxDamage)
+    PROTECT FE8U_BattleGenerate FE8U_BattleGenerate + 0x8 // BattleGenerate hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/BattleMaxDamage.lyn.event"
+
+ALIGN 4
+BattleMaxDamageValue:
+BYTE BATTLE_MAX_DAMAGE
+
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // BattleMaxDamage body + config

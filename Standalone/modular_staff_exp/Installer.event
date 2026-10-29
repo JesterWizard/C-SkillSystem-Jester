@@ -1,0 +1,57 @@
+#define FE8U_GetBattleUnitStaffExp $2C638
+#define FE8U_StandaloneFreeSpace   $1000000
+
+/* Vanilla FE8U staff item IDs. */
+#define STAFF_HEAL    0x4B
+#define STAFF_MEND    0x4C
+#define STAFF_RECOVER 0x4D
+#define STAFF_PHYSIC  0x4E
+#define STAFF_FORTIFY 0x4F
+#define STAFF_RESTORE 0x50
+#define STAFF_SILENCE 0x51
+#define STAFF_SLEEP   0x52
+#define STAFF_BERSERK 0x53
+#define STAFF_WARP    0x54
+#define STAFF_RESCUE  0x55
+#define STAFF_TORCH   0x56
+#define STAFF_REPAIR  0x57 // Hammerne
+#define STAFF_UNLOCK  0x58
+#define STAFF_BARRIER 0x59
+#define STAFF_LATONA  0x8C
+
+/* StaffExp(item, exp): EXP for one use of that staff (capped at 100). */
+#define StaffExp(item, exp) "BYTE item exp"
+#define StaffExpEnd "BYTE 0 0"
+
+PUSH
+ORG FE8U_GetBattleUnitStaffExp
+    jumpToHack(GetBattleUnitStaffExp_Modular)
+    PROTECT FE8U_GetBattleUnitStaffExp FE8U_GetBattleUnitStaffExp + 0x8 // GetBattleUnitStaffExp hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ModularStaffExp.lyn.event"
+
+/* Edit without recompiling C. Staves not listed use the vanilla formula. */
+ALIGN 4
+ModularStaffExpTable:
+StaffExp(STAFF_HEAL,    15)
+StaffExp(STAFF_TORCH,   15)
+StaffExp(STAFF_BARRIER, 17)
+StaffExp(STAFF_MEND,    20)
+StaffExp(STAFF_UNLOCK,  25)
+StaffExp(STAFF_RESTORE, 25)
+StaffExp(STAFF_RECOVER, 25)
+StaffExp(STAFF_BERSERK, 30)
+StaffExp(STAFF_SLEEP,   30)
+StaffExp(STAFF_SILENCE, 30)
+StaffExp(STAFF_PHYSIC,  30)
+StaffExp(STAFF_RESCUE,  50)
+StaffExp(STAFF_WARP,    60)
+StaffExp(STAFF_REPAIR,  70)
+StaffExp(STAFF_FORTIFY, 70)
+StaffExp(STAFF_LATONA,  100)
+StaffExpEnd
+
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ModularStaffExp body + table

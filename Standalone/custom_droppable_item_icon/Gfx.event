@@ -1,0 +1,9 @@
+ALIGN 4
+Img_ObjUISheet_DropItem:
+    #incbin "Gfx/ObjUISheet_DropItem.dmp"
+
+PUSH
+    ORG $156AC
+    POIN Img_ObjUISheet_DropItem // LoadObjUIGfx sheet: vanilla + potion tile at OBJ chr 0x64
+    PROTECT $156AC $156B0 // LoadObjUIGfx sheet pointer
+POP

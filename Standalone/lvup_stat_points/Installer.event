@@ -1,0 +1,39 @@
+#define FE8U_NewEkrLevelup         $73988
+#define FE8U_StartManimLevelUp     $7F10C
+#define FE8U_StandaloneFreeSpace   $1000000
+
+/*
+ * Edit without recompiling C.
+ *
+ * LVUP_STAT_MODE
+ *   0 = stat points: player units get LVUP_STAT_POINTS points per level
+ *       and spend them in a menu (at most 1 point per stat per round)
+ *   1 = timing minigame: press A while each stat's cursor is on its green
+ *       bars (10% growth = 1 bar) to gain +1 in that stat
+ *
+ * LVUP_STAT_POINTS
+ *   points per level for mode 0 (1-255; ignored in mode 1)
+ */
+#define LVUP_STAT_MODE   0
+#define LVUP_STAT_POINTS 3
+
+PUSH
+ORG FE8U_NewEkrLevelup
+    jumpToHack(NewEkrLevelup_StatPoints)
+    PROTECT FE8U_NewEkrLevelup FE8U_NewEkrLevelup + 0x8 // NewEkrLevelup hook
+POP
+
+PUSH
+ORG FE8U_StartManimLevelUp
+    jumpToHack(StartManimLevelUp_StatPoints)
+    PROTECT FE8U_StartManimLevelUp FE8U_StartManimLevelUp + 0x8 // StartManimLevelUp hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/LvupStatPoints.lyn.event"
+
+ALIGN 4
+gLvupStatPointsConfig:
+BYTE LVUP_STAT_MODE LVUP_STAT_POINTS
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LvupStatPoints body + config

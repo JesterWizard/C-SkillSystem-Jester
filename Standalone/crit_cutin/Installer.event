@@ -1,0 +1,18 @@
+// Critical cut-in: portrait over an electric band before critical hits (battle animations)
+
+#define FE8U_BanimCmdTable_C07 $58C60 // BattleAIS_ExecCommands case table ($58C44) entry 7: C07, attack start
+#define FE8U_StandaloneFreeSpace $1000000
+
+// Sound played when the band opens (0 = none). 0x3D1 is the vanilla skill activation sound.
+#define CritCutinSfx 0x3D1
+
+PUSH
+ORG FE8U_BanimCmdTable_C07
+    POIN CritCutin_C07Thunk
+    PROTECT FE8U_BanimCmdTable_C07 FE8U_BanimCmdTable_C07 + 0x4 // banim C07 case pointer
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CritCutin.lyn.event"
+#include "Gfx/CritCutin.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CritCutin body and band frames

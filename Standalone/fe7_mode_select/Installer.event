@@ -1,0 +1,116 @@
+/*
+ * FE7-style mode select for clean FE8U.
+ *
+ * ProcScr_SaveMenu ($A200B8) runs the New Game difficulty select with
+ *     PROC_CALL(NewNewGameDifficultySelect)      // command at $A20160
+ * and $A20164 holds that routine pointer. This patch points it at
+ * StartModeSelect, which opens the FE7 mode select screen instead and reports
+ * the choice back to the save menu the same way the vanilla menu does.
+ */
+#define FE8U_SaveMenu_DifficultySelectPtr $A20164
+#define FE8U_StandaloneFreeSpace          $1000000
+
+/* ---- Settings (edit without recompiling) ---- */
+
+/* Which carousel entries and Hard rows are available:
+ *   0x01 Eirika: Hard     0x02 Ephraim     0x04 Ephraim: Hard
+ *   0x08 Lyon             0x10 Lyon: Hard
+ * Eirika is always available. 0x1F = everything (C Skill System default). */
+#define FE7_MODE_SELECT_UNLOCKS 0x1F
+
+/* FE8 difficulty that each row starts the game on: 0 Easy, 1 Normal, 2 Difficult */
+#define FE7_MODE_SELECT_NORMAL_ROW 1
+#define FE7_MODE_SELECT_HARD_ROW   2
+
+PUSH
+ORG FE8U_SaveMenu_DifficultySelectPtr
+    POIN StartModeSelect
+    PROTECT FE8U_SaveMenu_DifficultySelectPtr FE8U_SaveMenu_DifficultySelectPtr + 0x4 // ProcScr_SaveMenu NewNewGameDifficultySelect pointer
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ModeSelect.lyn.event"
+
+ALIGN 4
+gFe7ModeSelectConfig:
+    BYTE FE7_MODE_SELECT_UNLOCKS FE7_MODE_SELECT_NORMAL_ROW FE7_MODE_SELECT_HARD_ROW 0
+
+/* Graphics (extracted from FE7U; names keep the FE7U ROM addresses) */
+ALIGN 4
+Pal_084138F0:
+    #incbin "Data/Pal_084138F0.bin"   // OBJ palettes 1-8
+ALIGN 4
+Pal_0840F9A0:
+    #incbin "Data/Pal_0840F9A0.bin"   // BG palettes 0-2
+ALIGN 4
+Img_08418E44:
+    #incbin "Data/Img_08418E44.bin"   // BG0 backdrop tiles (LZ77)
+ALIGN 4
+Tsa_0840FA00:
+    #incbin "Data/Tsa_0840FA00.bin"   // BG0 backdrop map
+ALIGN 4
+Img_0840FEB4:
+    #incbin "Data/Img_0840FEB4.bin"   // BG2/BG3 spell circle tiles (LZ77)
+ALIGN 4
+Tsa_08411F34:
+    #incbin "Data/Tsa_08411F34.bin"   // BG2/BG3 spell circle map
+ALIGN 4
+Pal_08415AA0:
+    #incbin "Data/Pal_08415AA0.bin"   // BG palette 15 (menu frame)
+ALIGN 4
+Img_08415594:
+    #incbin "Data/Img_08415594.bin"   // BG1 menu frame tiles (LZ77)
+ALIGN 4
+Tsa_084150E0:
+    #incbin "Data/Tsa_084150E0.bin"   // BG0 backdrop map (full screen)
+ALIGN 4
+Tsa_08415AC0:
+    #incbin "Data/Tsa_08415AC0.bin"   // BG1 menu frame map (LZ77)
+ALIGN 4
+Pal_084150C0:
+    #incbin "Data/Pal_084150C0.bin"   // OBJ palette 11 ("Mode Select" sprites)
+ALIGN 4
+Img_08414940:
+    #incbin "Data/Img_08414940.bin"   // "Mode Select", "Press Start", "Change" sprites (LZ77)
+ALIGN 4
+Pal_0841625C:
+    #incbin "Data/Pal_0841625C.bin"   // OBJ palette 10 (chapter banner)
+ALIGN 4
+Img_08415BE8:
+    #incbin "Data/Img_08415BE8.bin"   // chapter banners (LZ77), 4 pieces per carousel entry
+ALIGN 4
+Img_08415CB0:
+    #incbin "Data/Img_08415CB0.bin"
+ALIGN 4
+Img_08415DC4:
+    #incbin "Data/Img_08415DC4.bin"
+ALIGN 4
+Img_08415E04:
+    #incbin "Data/Img_08415E04.bin"
+ALIGN 4
+Img_08415E54:
+    #incbin "Data/Img_08415E54.bin"
+ALIGN 4
+Img_08415F14:
+    #incbin "Data/Img_08415F14.bin"
+ALIGN 4
+Img_08415FF0:
+    #incbin "Data/Img_08415FF0.bin"
+ALIGN 4
+Img_0841601C:
+    #incbin "Data/Img_0841601C.bin"
+ALIGN 4
+Img_08416058:
+    #incbin "Data/Img_08416058.bin"
+ALIGN 4
+Img_08416118:
+    #incbin "Data/Img_08416118.bin"
+ALIGN 4
+Img_084161F4:
+    #incbin "Data/Img_084161F4.bin"
+ALIGN 4
+Img_08416220:
+    #incbin "Data/Img_08416220.bin"
+ALIGN 4
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ModeSelect body + settings + graphics

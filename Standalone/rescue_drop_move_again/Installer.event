@@ -1,0 +1,12 @@
+#define FE8U_UnitDrop              $18370
+#define FE8U_StandaloneFreeSpace   $1000000
+
+PUSH
+ORG FE8U_UnitDrop
+    jumpToHack(UnitDrop_MoveAgain)
+    PROTECT FE8U_UnitDrop FE8U_UnitDrop + 0x8 // UnitDrop hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/UnitDrop_MoveAgain.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // UnitDrop_MoveAgain body

@@ -1,0 +1,46 @@
+#define FE8U_BattleApplyWeaponTriangleEffect $2C7C0
+#define FE8U_StandaloneFreeSpace             $1000000
+
+/* Edit without recompiling C. */
+#define ANIMA_TRIANGLE_ATK_BONUS 3  // Damage gained by the winning tome (and lost by the losing one)
+#define ANIMA_TRIANGLE_HIT_BONUS 15 // Hit gained by the winning tome (and lost by the losing one)
+
+/* Vanilla FE8U item IDs used by the default table. */
+#define ANIMA_FIRE       0x38
+#define ANIMA_THUNDER    0x39
+#define ANIMA_ELFIRE     0x3A
+#define ANIMA_BOLTING    0x3B
+#define ANIMA_FIMBULVETR 0x3C
+#define ANIMA_EXCALIBUR  0x3E
+
+/* AnimaTriangleEntry(tome, beats this, and this). Use 0 for an unused slot. */
+#define AnimaTriangleEntry(item, beats1, beats2) "BYTE item beats1 beats2"
+#define AnimaTriangleEnd "BYTE 0 0 0"
+
+PUSH
+ORG FE8U_BattleApplyWeaponTriangleEffect
+    jumpToHack(BattleApplyWeaponTriangleEffect_Anima)
+    PROTECT FE8U_BattleApplyWeaponTriangleEffect FE8U_BattleApplyWeaponTriangleEffect + 0x8 // BattleApplyWeaponTriangleEffect hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/AnimaWeaponTriangle.lyn.event"
+
+ALIGN 4
+AnimaTriangleAtkBonus:
+BYTE ANIMA_TRIANGLE_ATK_BONUS
+AnimaTriangleHitBonus:
+BYTE ANIMA_TRIANGLE_HIT_BONUS
+
+/* Fire beats wind and ice, wind and ice beat thunder, thunder beats fire. */
+AnimaTriangleTable:
+AnimaTriangleEntry(ANIMA_FIRE,       ANIMA_FIMBULVETR, ANIMA_EXCALIBUR)
+AnimaTriangleEntry(ANIMA_ELFIRE,     ANIMA_FIMBULVETR, ANIMA_EXCALIBUR)
+AnimaTriangleEntry(ANIMA_THUNDER,    ANIMA_FIRE,       ANIMA_ELFIRE)
+AnimaTriangleEntry(ANIMA_BOLTING,    ANIMA_FIRE,       ANIMA_ELFIRE)
+AnimaTriangleEntry(ANIMA_FIMBULVETR, ANIMA_THUNDER,    ANIMA_BOLTING)
+AnimaTriangleEntry(ANIMA_EXCALIBUR,  ANIMA_THUNDER,    ANIMA_BOLTING)
+AnimaTriangleEnd
+
+ALIGN 4
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // AnimaWeaponTriangle body + config + table

@@ -1,0 +1,64 @@
+// Class growths: class growths merged into personal growths on level-up
+
+#define FE8U_UnitAutolevelRealistic        $18160
+#define FE8U_BattleApplyExpGains           $2B92C
+#define FE8U_BattleApplyItemExpGains       $2C5B8
+#define FE8U_BattleApplyMiscActionExpGains $2C6A0
+#define FE8U_AutolevelSecondaryLord        $8659C
+#define FE8U_PromoSel_StartClassDesc       $CCF60 // sub_80CCF60
+#define FE8U_ClassChgMenuItem_OnChange     $CDD00
+#define FE8U_ClassChgMenuExec              $CDD78
+#define FE8U_StandaloneFreeSpace           $1000000
+
+/*
+ * Edit without recompiling C.
+ * CLASS_GROWTHS_MODE:
+ *   0 = off (vanilla personal growths)
+ *   1 = personal + class growths
+ *   2 = average of personal and class growths, (personal + class) / 2
+ * CLASS_GROWTHS_PREVIEW:
+ *   1 = the promotion screen's class description box shows how each class
+ *       changes the unit's growths (R swaps back to the description)
+ *   0 = vanilla class descriptions only
+ *
+ * Class growths are the vanilla class data growth fields
+ * (FEBuilder: Class editor, "Growth" HP/Str/Skl/Spd/Def/Res/Luck).
+ */
+#define CLASS_GROWTHS_MODE    1
+#define CLASS_GROWTHS_PREVIEW 1
+
+PUSH
+ORG FE8U_UnitAutolevelRealistic
+    jumpToHack(UnitAutolevelRealistic_ClassGrowths)
+    PROTECT FE8U_UnitAutolevelRealistic FE8U_UnitAutolevelRealistic + 0x8 // UnitAutolevelRealistic hook
+ORG FE8U_BattleApplyExpGains
+    jumpToHack(BattleApplyExpGains_ClassGrowths)
+    PROTECT FE8U_BattleApplyExpGains FE8U_BattleApplyExpGains + 0x8 // BattleApplyExpGains hook
+ORG FE8U_BattleApplyItemExpGains
+    jumpToHack(BattleApplyItemExpGains_ClassGrowths)
+    PROTECT FE8U_BattleApplyItemExpGains FE8U_BattleApplyItemExpGains + 0x8 // BattleApplyItemExpGains hook
+ORG FE8U_BattleApplyMiscActionExpGains
+    jumpToHack(BattleApplyMiscActionExpGains_ClassGrowths)
+    PROTECT FE8U_BattleApplyMiscActionExpGains FE8U_BattleApplyMiscActionExpGains + 0x8 // BattleApplyMiscActionExpGains hook
+ORG FE8U_AutolevelSecondaryLord
+    jumpToHack(AutolevelSecondaryLord_ClassGrowths)
+    PROTECT FE8U_AutolevelSecondaryLord FE8U_AutolevelSecondaryLord + 0x8 // AutolevelSecondaryLord hook
+ORG FE8U_PromoSel_StartClassDesc
+    jumpToHack(PromoSel_StartClassDesc_ClassGrowths)
+    PROTECT FE8U_PromoSel_StartClassDesc FE8U_PromoSel_StartClassDesc + 0x8 // sub_80CCF60 hook
+ORG FE8U_ClassChgMenuItem_OnChange
+    jumpToHack(ClassChgMenuItem_OnChange_ClassGrowths)
+    PROTECT FE8U_ClassChgMenuItem_OnChange FE8U_ClassChgMenuItem_OnChange + 0x8 // ClassChgMenuItem_OnChange hook
+ORG FE8U_ClassChgMenuExec
+    jumpToHack(ClassChgMenuExec_ClassGrowths)
+    PROTECT FE8U_ClassChgMenuExec FE8U_ClassChgMenuExec + 0x8 // ClassChgMenuExec hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/ClassGrowths.lyn.event"
+
+ALIGN 4
+ClassGrowthsConfig:
+BYTE CLASS_GROWTHS_MODE CLASS_GROWTHS_PREVIEW
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ClassGrowths body + config

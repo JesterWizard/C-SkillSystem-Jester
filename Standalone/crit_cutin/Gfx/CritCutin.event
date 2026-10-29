@@ -1,0 +1,271 @@
+// Critical cut-in band frames (spell BG animation on BG1).
+// Source art: CritCutin_*.png (generate_crit_cutin.py). The *.img.bin / *.map.bin /
+// *.pal.bin files are grit output: grit X.png -gB 4 -gzl -m -mLf -mR4 -mzl -pn 16 -ftb -fh!
+// Frame order and durations follow CritCutin.efx.txt: open (3), four lightning loops (24), close (2).
+
+ALIGN 4
+CritCutinConf:
+POIN CritCutinFrames CritCutinTsas CritCutinImgs CritCutinPals
+SHORT CritCutinSfx 0
+
+// frame index, duration (frames); 0xFFFF ends the list
+ALIGN 4
+CritCutinFrames:
+SHORT 0 2 // CritCutin_open0
+SHORT 1 2 // CritCutin_open1
+SHORT 2 2 // CritCutin_open2
+SHORT 3 2 // CritCutin_loop0
+SHORT 4 2 // CritCutin_loop1
+SHORT 5 2 // CritCutin_loop2
+SHORT 6 2 // CritCutin_loop3
+SHORT 7 2 // CritCutin_loop4
+SHORT 8 2 // CritCutin_loop5
+SHORT 9 2 // CritCutin_loop0
+SHORT 10 2 // CritCutin_loop1
+SHORT 11 2 // CritCutin_loop2
+SHORT 12 2 // CritCutin_loop3
+SHORT 13 2 // CritCutin_loop4
+SHORT 14 2 // CritCutin_loop5
+SHORT 15 2 // CritCutin_loop0
+SHORT 16 2 // CritCutin_loop1
+SHORT 17 2 // CritCutin_loop2
+SHORT 18 2 // CritCutin_loop3
+SHORT 19 2 // CritCutin_loop4
+SHORT 20 2 // CritCutin_loop5
+SHORT 21 2 // CritCutin_loop0
+SHORT 22 2 // CritCutin_loop1
+SHORT 23 2 // CritCutin_loop2
+SHORT 24 2 // CritCutin_loop3
+SHORT 25 2 // CritCutin_loop4
+SHORT 26 2 // CritCutin_loop5
+SHORT 27 2 // CritCutin_close0
+SHORT 28 2 // CritCutin_close1
+SHORT 0xFFFF
+
+ALIGN 4
+CritCutinImgs:
+POIN Img_CritCutin_open0
+POIN Img_CritCutin_open1
+POIN Img_CritCutin_open2
+POIN Img_CritCutin_loop0
+POIN Img_CritCutin_loop1
+POIN Img_CritCutin_loop2
+POIN Img_CritCutin_loop3
+POIN Img_CritCutin_loop4
+POIN Img_CritCutin_loop5
+POIN Img_CritCutin_loop0
+POIN Img_CritCutin_loop1
+POIN Img_CritCutin_loop2
+POIN Img_CritCutin_loop3
+POIN Img_CritCutin_loop4
+POIN Img_CritCutin_loop5
+POIN Img_CritCutin_loop0
+POIN Img_CritCutin_loop1
+POIN Img_CritCutin_loop2
+POIN Img_CritCutin_loop3
+POIN Img_CritCutin_loop4
+POIN Img_CritCutin_loop5
+POIN Img_CritCutin_loop0
+POIN Img_CritCutin_loop1
+POIN Img_CritCutin_loop2
+POIN Img_CritCutin_loop3
+POIN Img_CritCutin_loop4
+POIN Img_CritCutin_loop5
+POIN Img_CritCutin_close0
+POIN Img_CritCutin_close1
+
+ALIGN 4
+CritCutinTsas:
+POIN Tsa_CritCutin_open0
+POIN Tsa_CritCutin_open1
+POIN Tsa_CritCutin_open2
+POIN Tsa_CritCutin_loop0
+POIN Tsa_CritCutin_loop1
+POIN Tsa_CritCutin_loop2
+POIN Tsa_CritCutin_loop3
+POIN Tsa_CritCutin_loop4
+POIN Tsa_CritCutin_loop5
+POIN Tsa_CritCutin_loop0
+POIN Tsa_CritCutin_loop1
+POIN Tsa_CritCutin_loop2
+POIN Tsa_CritCutin_loop3
+POIN Tsa_CritCutin_loop4
+POIN Tsa_CritCutin_loop5
+POIN Tsa_CritCutin_loop0
+POIN Tsa_CritCutin_loop1
+POIN Tsa_CritCutin_loop2
+POIN Tsa_CritCutin_loop3
+POIN Tsa_CritCutin_loop4
+POIN Tsa_CritCutin_loop5
+POIN Tsa_CritCutin_loop0
+POIN Tsa_CritCutin_loop1
+POIN Tsa_CritCutin_loop2
+POIN Tsa_CritCutin_loop3
+POIN Tsa_CritCutin_loop4
+POIN Tsa_CritCutin_loop5
+POIN Tsa_CritCutin_close0
+POIN Tsa_CritCutin_close1
+
+ALIGN 4
+CritCutinPals:
+POIN Pal_CritCutin_open0
+POIN Pal_CritCutin_open1
+POIN Pal_CritCutin_open2
+POIN Pal_CritCutin_loop0
+POIN Pal_CritCutin_loop1
+POIN Pal_CritCutin_loop2
+POIN Pal_CritCutin_loop3
+POIN Pal_CritCutin_loop4
+POIN Pal_CritCutin_loop5
+POIN Pal_CritCutin_loop0
+POIN Pal_CritCutin_loop1
+POIN Pal_CritCutin_loop2
+POIN Pal_CritCutin_loop3
+POIN Pal_CritCutin_loop4
+POIN Pal_CritCutin_loop5
+POIN Pal_CritCutin_loop0
+POIN Pal_CritCutin_loop1
+POIN Pal_CritCutin_loop2
+POIN Pal_CritCutin_loop3
+POIN Pal_CritCutin_loop4
+POIN Pal_CritCutin_loop5
+POIN Pal_CritCutin_loop0
+POIN Pal_CritCutin_loop1
+POIN Pal_CritCutin_loop2
+POIN Pal_CritCutin_loop3
+POIN Pal_CritCutin_loop4
+POIN Pal_CritCutin_loop5
+POIN Pal_CritCutin_close0
+POIN Pal_CritCutin_close1
+
+ALIGN 4
+Img_CritCutin_open0:
+#incbin "CritCutin_open0.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_open0:
+#incbin "CritCutin_open0.map.bin"
+
+ALIGN 4
+Pal_CritCutin_open0:
+#incbin "CritCutin_open0.pal.bin"
+
+ALIGN 4
+Img_CritCutin_open1:
+#incbin "CritCutin_open1.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_open1:
+#incbin "CritCutin_open1.map.bin"
+
+ALIGN 4
+Pal_CritCutin_open1:
+#incbin "CritCutin_open1.pal.bin"
+
+ALIGN 4
+Img_CritCutin_open2:
+#incbin "CritCutin_open2.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_open2:
+#incbin "CritCutin_open2.map.bin"
+
+ALIGN 4
+Pal_CritCutin_open2:
+#incbin "CritCutin_open2.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop0:
+#incbin "CritCutin_loop0.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop0:
+#incbin "CritCutin_loop0.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop0:
+#incbin "CritCutin_loop0.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop1:
+#incbin "CritCutin_loop1.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop1:
+#incbin "CritCutin_loop1.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop1:
+#incbin "CritCutin_loop1.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop2:
+#incbin "CritCutin_loop2.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop2:
+#incbin "CritCutin_loop2.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop2:
+#incbin "CritCutin_loop2.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop3:
+#incbin "CritCutin_loop3.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop3:
+#incbin "CritCutin_loop3.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop3:
+#incbin "CritCutin_loop3.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop4:
+#incbin "CritCutin_loop4.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop4:
+#incbin "CritCutin_loop4.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop4:
+#incbin "CritCutin_loop4.pal.bin"
+
+ALIGN 4
+Img_CritCutin_loop5:
+#incbin "CritCutin_loop5.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_loop5:
+#incbin "CritCutin_loop5.map.bin"
+
+ALIGN 4
+Pal_CritCutin_loop5:
+#incbin "CritCutin_loop5.pal.bin"
+
+ALIGN 4
+Img_CritCutin_close0:
+#incbin "CritCutin_close0.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_close0:
+#incbin "CritCutin_close0.map.bin"
+
+ALIGN 4
+Pal_CritCutin_close0:
+#incbin "CritCutin_close0.pal.bin"
+
+ALIGN 4
+Img_CritCutin_close1:
+#incbin "CritCutin_close1.img.bin"
+
+ALIGN 4
+Tsa_CritCutin_close1:
+#incbin "CritCutin_close1.map.bin"
+
+ALIGN 4
+Pal_CritCutin_close1:
+#incbin "CritCutin_close1.pal.bin"

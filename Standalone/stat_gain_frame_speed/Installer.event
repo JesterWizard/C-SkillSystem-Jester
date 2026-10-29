@@ -1,0 +1,21 @@
+/*
+ * ManimLevelUp_PutStatGainLabels ($7F39C) ends with
+ *     movs r0, #20      @ $7F464: 14 20
+ *     strb r0, [r1]     @ proc->clock
+ * which sets how many frames the map level-up window waits before showing
+ * the next stat gain. This patch rewrites the immediate byte of that movs.
+ */
+#define FE8U_PutStatGainLabels_ClockImm $7F464
+
+/*
+ * Edit without recompiling.
+ * Frames to wait between stat gain labels on the map level-up window.
+ * Vanilla: 20. C Skill System default: 10. Range 0..255 (0 = no wait).
+ */
+#define STAT_GAIN_FRAME_SPEED 10
+
+PUSH
+ORG FE8U_PutStatGainLabels_ClockImm
+    BYTE STAT_GAIN_FRAME_SPEED
+    PROTECT FE8U_PutStatGainLabels_ClockImm FE8U_PutStatGainLabels_ClockImm + 0x1 // PutStatGainLabels clock immediate
+POP

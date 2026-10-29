@@ -1,0 +1,17 @@
+#define FE8U_Title_IDLE               $C6354
+#define FE8U_LoadSavedEid8A           $A5290
+#define FE8U_StandaloneFreeSpace      $1000000
+
+PUSH
+ORG FE8U_Title_IDLE
+    jumpToHack(Title_IDLE_Konami)
+    PROTECT FE8U_Title_IDLE FE8U_Title_IDLE + 0x8 // Title_IDLE hook
+
+ORG FE8U_LoadSavedEid8A
+    jumpToHack(LoadSavedEid8A_Always)
+    PROTECT FE8U_LoadSavedEid8A FE8U_LoadSavedEid8A + 0x8 // LoadSavedEid8A hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/KonamiCode.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // KonamiCode body

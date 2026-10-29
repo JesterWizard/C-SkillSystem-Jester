@@ -1,0 +1,19 @@
+/*
+ * sProcScr_CombatAction ($59DABC) is the vanilla proc that runs every map
+ * combat (player and enemy phase). Its command at $59DB0C is
+ *     PROC_CALL(BATTLE_HandleCombatDeaths)
+ * and $59DB10 holds that routine pointer. This patch points it at a wrapper
+ * that runs the vanilla routine and then starts the trainee promotion.
+ */
+#define FE8U_CombatAction_HandleDeathsPtr $59DB10
+#define FE8U_StandaloneFreeSpace          $1000000
+
+PUSH
+ORG FE8U_CombatAction_HandleDeathsPtr
+    POIN BATTLE_HandleCombatDeaths_PromoteTrainees
+    PROTECT FE8U_CombatAction_HandleDeathsPtr FE8U_CombatAction_HandleDeathsPtr + 0x4 // sProcScr_CombatAction BATTLE_HandleCombatDeaths pointer
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/PromoteTraineesInChapter.lyn.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // BATTLE_HandleCombatDeaths_PromoteTrainees body

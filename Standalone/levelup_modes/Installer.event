@@ -1,0 +1,37 @@
+#define FE8U_CheckBattleUnitLevelUp $2BA28
+#define FE8U_StandaloneFreeSpace    $1000000
+
+/*
+ * Edit without recompiling C.
+ * Level-up mode per difficulty:
+ *   0 = vanilla (random growths, vanilla retry when nothing is gained)
+ *   1 = random, on a separate level-up RNG stream (battle RNG not consumed)
+ *   2 = fixed growths (no randomness)
+ *   3 = 100% (+1 to every stat, caps still apply)
+ *   4 = 0% (no stat gains)
+ */
+#define LVUP_MODE_EASY   0
+#define LVUP_MODE_NORMAL 0
+#define LVUP_MODE_HARD   0
+
+/*
+ * 1 = when a level-up gains nothing, re-roll up to 10 times at +10% growth
+ * (the guaranteed_lvup behaviour). Use this instead of installing
+ * Standalone/guaranteed_lvup, which hooks the same function.
+ */
+#define LVUP_MODES_GUARANTEED 0
+
+PUSH
+ORG FE8U_CheckBattleUnitLevelUp
+    jumpToHack(CheckBattleUnitLevelUp_Modes)
+    PROTECT FE8U_CheckBattleUnitLevelUp FE8U_CheckBattleUnitLevelUp + 0x8 // CheckBattleUnitLevelUp hook
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/CheckBattleUnitLevelUp_Modes.lyn.event"
+
+ALIGN 4
+LvupModesConfig:
+BYTE LVUP_MODE_EASY LVUP_MODE_NORMAL LVUP_MODE_HARD LVUP_MODES_GUARANTEED
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CheckBattleUnitLevelUp_Modes body + config

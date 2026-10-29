@@ -1,0 +1,14 @@
+// Fast Map Animations for FE8U: every map sprite (MU) walks at the maximum
+// speed, one tile per frame, for player, AI and event movement alike.
+// See README.md.
+
+#define FE8U_GetMuQ4MovementSpeed $7947C
+
+PUSH
+ORG FE8U_GetMuQ4MovementSpeed
+    // u16 GetMuQ4MovementSpeed(struct MuProc*) { return 0x200; }
+    SHORT 0x2080 // movs r0, #0x80
+    SHORT 0x0080 // lsls r0, r0, #2
+    SHORT 0x4770 // bx   lr
+    PROTECT FE8U_GetMuQ4MovementSpeed FE8U_GetMuQ4MovementSpeed + 0x6 // GetMuQ4MovementSpeed
+POP

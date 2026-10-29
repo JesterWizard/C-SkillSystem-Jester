@@ -1,0 +1,29 @@
+// Conversation log for FE8U: SELECT during dialogue opens a scrollback log of
+// the chapter's dialogue (UP/DOWN scroll, SELECT closes). The C Skill System's
+// chatlog_enabled, for vanilla dialogue. See README.md for hooks, RAM and
+// conflicts. For Standalone/text_engine, use its TEXT_ENGINE_CHATLOG setting
+// instead of this package.
+
+#define FE8U_TalkSkipListener_OnIdle        $6B4C
+#define FE8U_Talk_OnIdle                    $6C34
+#define FE8U_TalkWaitForInput_OnIdle        $7C4C
+#define FE8U_StandaloneFreeSpace            $1000000
+
+PUSH
+ORG FE8U_TalkSkipListener_OnIdle
+    jumpToHack(TalkSkipListener_OnIdle_Chatlog)
+    PROTECT FE8U_TalkSkipListener_OnIdle FE8U_TalkSkipListener_OnIdle + 0x8 // TalkSkipListener_OnIdle
+ORG FE8U_Talk_OnIdle
+    jumpToHack(Talk_OnIdle_Chatlog)
+    PROTECT FE8U_Talk_OnIdle FE8U_Talk_OnIdle + 0x8 // Talk_OnIdle
+ORG FE8U_TalkWaitForInput_OnIdle
+    jumpToHack(TalkWaitForInput_OnIdle_Chatlog)
+    PROTECT FE8U_TalkWaitForInput_OnIdle FE8U_TalkWaitForInput_OnIdle + 0x8 // TalkWaitForInput_OnIdle
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+ALIGN 4
+#include "Source/Chatlog.lyn.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Chatlog body
