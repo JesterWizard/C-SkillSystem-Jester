@@ -4,6 +4,10 @@
   <img src="./Feature - Text Engine.gif" alt="Text Engine" width="600"/>
 </p>
 
+<p align="center">
+  <img src="./Feature - Text Engine Effects.gif" alt="Text engine features: letter effects, nameplates, rainbow text, portrait motion, emotion marks, screen effects, big text, popups, scene layout and ash dissolve" width="600"/>
+</p>
+
 The C Skill System's dialogue text engine for clean FE8U. It is a C port of Tequila's text engine hack (with help from Zahlman), and adds control codes for:
 
 - **Text style:** fonts, colours, text box shapes and palettes, box height, print speed, boop pitch.

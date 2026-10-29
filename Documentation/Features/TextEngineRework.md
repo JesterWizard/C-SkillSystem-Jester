@@ -4,6 +4,10 @@
   <img src="../Gifs/Text_Engine_Rework.gif" alt="Text Engine Rework" width="600"/>
 </p>
 
+<p align="center">
+  <img src="../Gifs/Text_Engine_Rework_Features.gif" alt="Text engine features: letter effects, nameplates, rainbow text, portrait motion, emotion marks, screen effects, big text, popups, scene layout and ash dissolve" width="600"/>
+</p>
+
 ---
 
 ## 📑 Index
