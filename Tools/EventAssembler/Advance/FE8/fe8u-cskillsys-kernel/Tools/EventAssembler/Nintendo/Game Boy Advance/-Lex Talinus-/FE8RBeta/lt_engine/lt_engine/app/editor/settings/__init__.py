@@ -1,2 +1,0 @@
-from .main_settings_controller import MainSettingsController
-from .component_settings_controller import ComponentSettingsController

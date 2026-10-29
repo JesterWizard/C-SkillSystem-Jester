@@ -1,2 +1,0 @@
-class CustomComponentsException(Exception):
-    pass
