@@ -21,6 +21,9 @@ int TextEngine_ApplyStaticOam1(int xOam1, int screenY);
 int TextEngine_ApplyFxOam0(int yOam0);
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
 
+/* Source/TextAliases.c: "[ToggleOnBigText]" and friends typed as plain text. */
+void TextEngine_ExpandAliases(char *str);
+
 /* Hooks are placed by Installer.event instead of LynJump. */
 #define LYN_REPLACE_CHECK(name)
 

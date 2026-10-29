@@ -4492,7 +4492,13 @@ LYN_REPLACE_CHECK(GetStringTextWidthWithDialogueCodes);
 int GetStringTextWidthWithDialogueCodes(const char *text, int stopAtCurrentBox)
 {
 	struct Glyph **originalGlyphs = gActiveFont->glyphs;
-	int width = TextEngine_WidthInternal((const u8 *)text, stopAtCurrentBox);
+	int width;
+
+	/* StartTalkExt measures a new message here before anything else reads it. */
+	if (!stopAtCurrentBox && text == sTextEngineState->str)
+		TextEngine_ExpandAliases((char *)text);
+
+	width = TextEngine_WidthInternal((const u8 *)text, stopAtCurrentBox);
 
 	gActiveFont->glyphs = originalGlyphs;
 	return width;

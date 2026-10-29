@@ -6,6 +6,10 @@
 // arguments. Arguments must not be 0x00, which ends the message.
 //
 // Codes 0x80 0x00 - 0x80 0x25 and 0x00 - 0x1D are vanilla FE8's own.
+//
+// The text engine also reads these names when a message spells them out as
+// plain text, as FEBuilder's text editor saves them (make builds
+// Source/TextAliasTable.h from this file).
 
 [Font] = 0x80, 0x26
 [TextPalette] = 0x80, 0x27

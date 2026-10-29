@@ -14,7 +14,7 @@ PNG2DMP := $(EA_DIR)/Tools/Png2Dmp
 ARCH   := -mcpu=arm7tdmi -mthumb -mthumb-interwork
 CFLAGS := $(ARCH) -I Source -I $(LIB_DIR)/include -I $(REPO_ROOT)/include -Wall -Wextra -Werror -Wno-unused-parameter -O2 -mtune=arm7tdmi -std=gnu99
 
-SOURCES := Source/TextEngine.c Source/TalkOnIdle.c
+SOURCES := Source/TextEngine.c Source/TalkOnIdle.c Source/TextAliases.c
 OBJECTS := $(SOURCES:.c=.o)
 OUTPUT  := Source/TextEngine.lyn.event
 
@@ -71,6 +71,12 @@ $(PSTUBS_OUTPUT): $(PSTUBS_OBJ) $(FE8_REF)
 $(PORTRAITS_OBJ): $(PORTRAITS_DIR)/Portraits.c $(PORTRAITS_DIR)/Portraits.h
 	@echo "[CC ]	$@"
 	@$(CC) $(CFLAGS) -DPORTRAITS_TEXT_ENGINE -mlong-calls -c $< -o $@
+
+Source/TextAliasTable.h: textdefs.txt Source/MakeAliasTable.py
+	@echo "[GEN]	$@"
+	@python3 Source/MakeAliasTable.py $< $@
+
+Source/TextAliases.o: Source/TextAliasTable.h
 
 Source/%.o: Source/%.c Source/TextEngine.h Source/Chatlog.h
 	@echo "[CC ]	$@"

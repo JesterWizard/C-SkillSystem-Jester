@@ -28,6 +28,7 @@ The C Skill System's dialogue text engine for clean FE8U, a C port of Tequila's 
 1. Open a clean FE8U ROM in FEBuilder.
 2. Optionally, change the [settings](#settings) at the top of `Installer.event` in a text editor.
 3. Go to **Advanced Editors → Insert EA**, click **Select File**, choose `Installer.event`, then click **Load Script**.
+4. Type the codes into FEBuilder's text editor by name. See [In FEBuilder](#in-febuilder).
 
 ### Event Assembler
 
@@ -40,7 +41,7 @@ EA_DIR=<repo>/Tools/EventAssembler
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8.gba
 ```
 
-The code and data go at `$1000000` and take about 115 KB, or about 126 KB with both options on.
+The code and data go at `$1000000` and take about 121 KB, or about 132 KB with both options on.
 
 ## Settings
 
@@ -68,6 +69,14 @@ If you include `Installer.event` from your own event file, you can also `#define
 Every new code is the byte `0x80`, then the code, then its arguments. For example, big text is `0x80 0x5B` ... `0x80 0x5C`, and auto-advance after 60 frames is `0x80 0x5E 0x3C`. **Arguments can't be `0x00`**, because `0x00` ends the message.
 
 [`textdefs.txt`](textdefs.txt) has an alias for every code for ParseFile and similar text tools, for example `[ToggleOnBigText]HALT![ToggleOffBigText]`.
+
+### In FEBuilder
+
+Type the aliases straight into FEBuilder's text editor, for example `[ToggleOnBigText]HALT![ToggleOffBigText]`. FEBuilder saves them as plain text, and the text engine turns them into codes when the message starts. This works for any message shown in a conversation.
+
+To give a code arguments, put them inside the brackets, separated by spaces, in decimal or `0x` hex: `[AutoAdvance 60]`, `[TextSpeed 0x0C]`, `[Popup 1]`. A name the engine doesn't know prints as normal text.
+
+FEBuilder doesn't know these names, so it doesn't highlight them, and its preview and line-length check count them as text.
 
 | Code | Alias | Arguments | Summary |
 |------|-------|-----------|---------|
