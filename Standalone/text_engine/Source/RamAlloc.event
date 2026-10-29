@@ -1,0 +1,34 @@
+// EWRAM layout. The three base addresses are set in Installer.event.
+// The C code leaves these variables undefined and lyn writes each use as
+// WORD <name>, so this file must come before the .lyn.event files.
+
+// Text engine, 0x1A0 bytes from TEXT_ENGINE_RAM
+#define sTextEngineWaveOffsets      "(TEXT_ENGINE_RAM + 0x000)" // per-scanline BG offsets for the wave, tear and static (0xF0)
+#define sTextEngineNameplateState   "(TEXT_ENGINE_RAM + 0x0F0)" // speaker nameplate text and position (0xA0)
+#define sTextEngineEarthquakeOffset "(TEXT_ENGINE_RAM + 0x190)" // earthquake offset (4)
+#define sTextEngineSceneLayoutState "(TEXT_ENGINE_RAM + 0x194)" // scene layout flags (4)
+#define sTextEngineBigTextState     "(TEXT_ENGINE_RAM + 0x198)" // big text flags (4)
+#define sTextEngineAutoAdvanceState "(TEXT_ENGINE_RAM + 0x19C)" // auto-advance frames (4)
+
+// Conversation log, 0x600 bytes from TEXT_ENGINE_CHATLOG_RAM
+#define sChatLogState               "(TEXT_ENGINE_CHATLOG_RAM + 0x000)" // logged lines and scroll position (0x444)
+#define sChatLogStamp               "(TEXT_ENGINE_CHATLOG_RAM + 0x444)" // chapter the log belongs to (8)
+#define sChatlogUiState             "(TEXT_ENGINE_CHATLOG_RAM + 0x44C)" // drawing state while the log is open (0x1B4)
+
+// Half-body / 32-colour portraits, 0xA0 bytes from TEXT_ENGINE_PORTRAIT_RAM
+#define sPortraitSlots              "(TEXT_ENGINE_PORTRAIT_RAM + 0x000)" // one 0x28-byte slot per face (0xA0)
+
+// Each block must be word-aligned and inside EWRAM (0x02000000 .. 0x0203FFFF).
+ASSERT 0 - (TEXT_ENGINE_RAM & 3)
+ASSERT TEXT_ENGINE_RAM - 0x02000000
+ASSERT 0x02040000 - (TEXT_ENGINE_RAM + 0x1A0)
+#ifdef TEXT_ENGINE_CHATLOG
+    ASSERT 0 - (TEXT_ENGINE_CHATLOG_RAM & 3)
+    ASSERT TEXT_ENGINE_CHATLOG_RAM - 0x02000000
+    ASSERT 0x02040000 - (TEXT_ENGINE_CHATLOG_RAM + 0x600)
+#endif
+#ifdef TEXT_ENGINE_HALF_BODY_PORTRAITS
+    ASSERT 0 - (TEXT_ENGINE_PORTRAIT_RAM & 3)
+    ASSERT TEXT_ENGINE_PORTRAIT_RAM - 0x02000000
+    ASSERT 0x02040000 - (TEXT_ENGINE_PORTRAIT_RAM + 0xA0)
+#endif

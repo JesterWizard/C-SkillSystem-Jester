@@ -139,7 +139,7 @@ static const struct ProcCmd ProcScr_Chatlog[] = {
 _Static_assert(sizeof(struct ChatLogEntry) == 64, "ChatLogEntry size");
 _Static_assert(sizeof(struct ChatLogState) == 0x444, "ChatLogState size");
 _Static_assert(sizeof(struct ChatLogStamp) == 8, "ChatLogStamp size");
-/* Source/ChatlogRamAlloc.s gives the UI state 0x1B4 bytes. */
+/* Source/RamAlloc.event gives the UI state 0x1B4 bytes. */
 _Static_assert(sizeof(struct ChatlogUiState) <= 0x1B4, "ChatlogUiState size");
 
 /* Until the first talk of a session stamps it, the RAM may hold anything. */

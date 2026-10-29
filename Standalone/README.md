@@ -29,7 +29,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [gameover_quotes](gameover_quotes/) | Random tip quotes on the game-over fog screen |
 | [refuge](refuge/) | Unit menu command: take refuge in an adjacent ally (reverse Rescue) |
 | [expanded_hp](expanded_hp/) | Unsigned HP cap 254 with 3-digit stat screen, minimug, and battle gauge |
-| [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text, listener dimming an optional SELECT conversation log (`TEXT_ENGINE_CHATLOG`) and optional half-body / 32-colour portraits (`TEXT_ENGINE_HALF_BODY_PORTRAITS`) (uses 0x1A0 bytes EWRAM, 0x7A0 with the log) |
+| [text_engine](text_engine/) | Dialogue text engine: fonts, colours, box shapes, nameplates, letter and screen effects, popups, auto-advance, rainbow text, listener dimming, an optional SELECT conversation log (`TEXT_ENGINE_CHATLOG`) and optional half-body / 32-colour portraits (`TEXT_ENGINE_HALF_BODY_PORTRAITS`) (uses 0x1A0 bytes EWRAM, 0x7A0 with the log, 0x840 with both options; addresses set in `Installer.event`) |
 | [talk_conversation_exp_reward](talk_conversation_exp_reward/) | The unit that uses the Support command gains configurable EXP (default 10) after the on-map support conversation |
 | [unlock_all_supports](unlock_all_supports/) | Extras > Support Conversation is always available, with every character and every C/B/A conversation unlocked |
 | [konami_style_bonus_screen](konami_style_bonus_screen/) | Up Up Down Down Left Right Left Right B A on the title screen grants a random stat booster via Transfer Data (uses 2 bytes EWRAM) |

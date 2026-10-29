@@ -13,7 +13,7 @@
  * Occupies 0x0203B800 .. 0x0203B89F.
  *
  * Change the address below and run make if another hack already uses it.
- * Keep it 4-byte aligned.  Standalone/text_engine's portrait option links
- * this same file: run make in that folder too after changing it.
+ * Keep it 4-byte aligned.  Standalone/text_engine doesn't use this file:
+ * its copy of the portraits takes the address from its Installer.event.
  */
 dat 0x0203B800, sPortraitSlots

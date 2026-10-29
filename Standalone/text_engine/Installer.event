@@ -5,17 +5,28 @@
 // Settings ------------------------------------------------------------------
 // Conversation log: remove the // in front of the next line to install it.
 // SELECT during dialogue then opens a scrollback log of the chapter's
-// dialogue (UP/DOWN scroll, SELECT closes). It adds two hooks and uses EWRAM
-// 0x0203B000 .. 0x0203B5FF (see Source/ChatlogRamAlloc.s).
+// dialogue (UP/DOWN scroll, SELECT closes). It adds two hooks.
 // #define TEXT_ENGINE_CHATLOG
 //
 // Half-body and 32-colour portraits (Standalone/portrait_formats, through the
 // text engine): remove the // in front of the next line to install them.
 // Portraits made with that package's tools and macros then show in dialogue
 // and menus; other portraits stay as they are. It adds 12 hooks and a few
-// byte changes (listed in README.md) and uses EWRAM 0x0203B800 .. 0x0203B89F.
-// Don't also install Standalone/portrait_formats.
+// byte changes (listed in README.md). Don't also install
+// Standalone/portrait_formats.
 // #define TEXT_ENGINE_HALF_BODY_PORTRAITS
+//
+// Free EWRAM the patch keeps its state in. Change an address if another patch
+// in your ROM already uses that range. Each must be a multiple of 4.
+#ifndef TEXT_ENGINE_RAM
+    #define TEXT_ENGINE_RAM          0x0203AB00 // 0x1A0 bytes
+#endif
+#ifndef TEXT_ENGINE_CHATLOG_RAM
+    #define TEXT_ENGINE_CHATLOG_RAM  0x0203B000 // 0x600 bytes, only with TEXT_ENGINE_CHATLOG
+#endif
+#ifndef TEXT_ENGINE_PORTRAIT_RAM
+    #define TEXT_ENGINE_PORTRAIT_RAM 0x0203B800 // 0xA0 bytes, only with TEXT_ENGINE_HALF_BODY_PORTRAITS
+#endif
 // ---------------------------------------------------------------------------
 
 #define FE8U_ClassChgLoadUI                 $CCBF4
@@ -161,6 +172,8 @@ ORG FE8U_PutTalkBubble
 #include "Data/PortraitPatches.event"
 #endif
 POP
+
+#include "Source/RamAlloc.event"
 
 ORG FE8U_StandaloneFreeSpace
 
