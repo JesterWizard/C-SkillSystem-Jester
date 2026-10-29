@@ -11,7 +11,7 @@
 // Half-body and 32-colour portraits (Standalone/portrait_formats, through the
 // text engine): remove the // in front of the next line to install them.
 // Portraits made with that package's tools and macros then show in dialogue
-// and menus; other portraits stay as they are. It adds 12 hooks and a few
+// and menus; other portraits stay as they are. It adds 11 hooks and a few
 // byte changes (listed in README.md). Don't also install
 // Standalone/portrait_formats.
 // #define TEXT_ENGINE_HALF_BODY_PORTRAITS
@@ -49,9 +49,9 @@
 #define FE8U_GetStrTalkLen                  $8B44
 #define FE8U_TalkSkipListener_OnIdle        $6B4C   // chatlog only
 #define FE8U_TalkWaitForInput_OnIdle        $7C4C   // chatlog only
+#define FE8U_Face_OnIdle                    $55BC
 // TEXT_ENGINE_HALF_BODY_PORTRAITS only:
 #define FE8U_Face_OnInit                    $5594
-#define FE8U_Face_OnIdle                    $55BC
 #define FE8U_StartFaceAuto                  $5610
 #define FE8U_StartFace                      $563C
 #define FE8U_EndFace                        $5738
@@ -124,6 +124,9 @@ ORG FE8U_GetTalkFaceHPos
 ORG FE8U_GetStrTalkLen
     jumpToHack(GetStringTextWidthWithDialogueCodes)
     PROTECT FE8U_GetStrTalkLen FE8U_GetStrTalkLen + 0x8 // GetStrTalkLen
+ORG FE8U_Face_OnIdle
+    jumpToHack(Face_OnIdle_Portraits)
+    PROTECT FE8U_Face_OnIdle FE8U_Face_OnIdle + 0x8 // Face_OnIdle
 #ifdef TEXT_ENGINE_CHATLOG
 ORG FE8U_TalkSkipListener_OnIdle
     jumpToHack(TalkSkipListener_OnIdle_Chatlog)
@@ -136,9 +139,6 @@ ORG FE8U_TalkWaitForInput_OnIdle
 ORG FE8U_Face_OnInit
     jumpToHack(Face_OnInit_Portraits)
     PROTECT FE8U_Face_OnInit FE8U_Face_OnInit + 0x8 // Face_OnInit
-ORG FE8U_Face_OnIdle
-    jumpToHack(Face_OnIdle_Portraits)
-    PROTECT FE8U_Face_OnIdle FE8U_Face_OnIdle + 0x8 // Face_OnIdle
 ORG FE8U_StartFaceAuto
     hookViaR12(StartFaceAuto_Portraits)
     PROTECT FE8U_StartFaceAuto FE8U_StartFaceAuto + 0x10 // StartFaceAuto
