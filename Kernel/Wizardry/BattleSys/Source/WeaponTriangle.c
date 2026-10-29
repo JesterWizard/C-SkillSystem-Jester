@@ -222,6 +222,18 @@ void PreBattleGenerate_SetupWtaStatus(void)
 		invert = !invert;
 #endif
 
+	/* Reaver weapons reverse and double the triangle, as in vanilla */
+	if (gBattleActor.weaponAttributes & IA_REVERTTRIANGLE)
+		invert = !invert;
+
+	if (gBattleTarget.weaponAttributes & IA_REVERTTRIANGLE)
+		invert = !invert;
+
+	if ((gBattleActor.weaponAttributes | gBattleTarget.weaponAttributes) & IA_REVERTTRIANGLE) {
+		gWtaStatus_act.amplifier_eff = true;
+		gWtaStatus_tar.amplifier_eff = true;
+	}
+
 	gWtaStatus_act.invert_eff = invert;
 	gWtaStatus_tar.invert_eff = invert;
 

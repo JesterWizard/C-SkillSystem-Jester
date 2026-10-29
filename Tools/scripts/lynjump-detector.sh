@@ -3,7 +3,7 @@
 ret=0
 
 # Round 1: detect c file
-for SOURCE_CFILE in $(find . -type f -name "*.c"); do
+for SOURCE_CFILE in $(find . -type f -name "*.c" -not -path "./Standalone/*" -not -path "./.claude/*"); do
     while read -r _function; do
         LYN_JUMP_FILE=$(dirname $SOURCE_CFILE)/LynJump.event
         if [ ! -e "$LYN_JUMP_FILE" ]; then
@@ -17,7 +17,7 @@ for SOURCE_CFILE in $(find . -type f -name "*.c"); do
 done
 
 # Round 2: detect lyn file
-for GENERATED_LYNFILE in $(find . -type f -name "*.lyn.event"); do
+for GENERATED_LYNFILE in $(find . -type f -name "*.lyn.event" -not -path "./Standalone/*" -not -path "./.claude/*"); do
     SOURCE_CFILE=$(echo $GENERATED_LYNFILE | sed 's/\.lyn\.event/\.c/g')
     while read -r _function; do
         if [ -z "$(grep "LYN_REPLACE_CHECK($_function);" $SOURCE_CFILE)" ]; then

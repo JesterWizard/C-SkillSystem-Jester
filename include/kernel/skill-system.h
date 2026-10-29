@@ -172,6 +172,7 @@ void ForceUpdateUnitSkillList(struct Unit* unit);
 void DisableUnitSkilLList(struct Unit* unit);
 void ResetSkillLists(void);
 void AppendBattleUnitSkillList(struct BattleUnit* bu, u16 skill);
+void ResetBattleUnitSkillList(struct BattleUnit* bu);
 
 static inline bool SkillListOverflow(struct SkillList* list)
 {

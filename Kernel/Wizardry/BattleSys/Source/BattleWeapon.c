@@ -472,6 +472,10 @@ void SetBattleUnitWeapon(struct BattleUnit *bu, int slot)
 	int cid;
 
 	SetBattleUnitWeaponVanilla(bu, slot);
+
+	/* weapon & shield skills depend on the weapon set above */
+	ResetBattleUnitSkillList(bu);
+
 	PostSetBattleUnitWeaponVanillaHook(bu, slot);
 
 	/* Check combat-art */

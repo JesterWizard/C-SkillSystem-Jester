@@ -535,33 +535,53 @@ void ResetSkillLists(void)
 	memset(&sSkillList, 0, sizeof(sSkillList));
 }
 
-STATIC_DECLAR void SetupBattleSkillFastList(void)
+STATIC_DECLAR void SetupBattleUnitFastList(struct Unit *unit, u32 *fast_list)
 {
 	int i;
-	struct SkillList *list;
-	u32 *fast_list;
+	struct SkillList *list = GetUnitSkillList(unit);
 
+	CpuFastFill(0, fast_list, sizeof(sSkillFastList) / 2);
+
+	for (i = 0; i < list->amt; i++)
+		_BIT_SET(fast_list, list->sid[i]);
+}
+
+STATIC_DECLAR void SetupBattleSkillFastList(void)
+{
 	Assert(MAX_SKILL_NUM <= (sizeof(sSkillFastList) * 8 / 2));
 
-	CpuFastFill(0, sSkillFastList, sizeof(sSkillFastList));
+	SetupBattleUnitFastList(&gBattleActor.unit, SkillFastListActor);
+	SetupBattleUnitFastList(&gBattleTarget.unit, SkillFastListTarget);
+}
 
-	/**
-	 * Actor
-	 */
-	list = GetUnitSkillList(&gBattleActor.unit);
-	fast_list = SkillFastListActor;
+STATIC_DECLAR void ApplyBattleNihil(void)
+{
+#if (defined(SID_Nihil) && COMMON_SKILL_VALID(SID_Nihil))
+	bool nihil_on_actor  = SkillListTester(&gBattleTarget.unit,  SID_Nihil);
+	bool nihil_on_target = SkillListTester(&gBattleActor.unit, SID_Nihil);
 
-	for (i = 0; i < list->amt; i++)
-		_BIT_SET(fast_list, list->sid[i]);
+	if (nihil_on_actor)
+		DisableUnitSkilLList(&gBattleActor.unit);
 
-	/**
-	 * Target
-	 */
-	list = GetUnitSkillList(&gBattleTarget.unit);
-	fast_list = SkillFastListTarget;
+	if (nihil_on_target)
+		DisableUnitSkilLList(&gBattleTarget.unit);
+#endif
+}
 
-	for (i = 0; i < list->amt; i++)
-		_BIT_SET(fast_list, list->sid[i]);
+/*
+ * Weapon and shield skills come from bu->weapon and the battle shield info,
+ * which are only set after InitBattleUnit. The target's weapon is set last
+ * in every battle path (the actor's may bypass SetBattleUnitWeapon, as for
+ * ballistae and gaiden B-magic), so rebuild both lists then.
+ */
+void ResetBattleUnitSkillList(struct BattleUnit *bu)
+{
+	if (bu != &gBattleTarget)
+		return;
+
+	SetupBattleSkillList();
+	ApplyBattleNihil();
+	SetupBattleSkillFastList();
 }
 
 #if 0
@@ -623,8 +643,6 @@ void AppendBattleUnitSkillList(struct BattleUnit *bu, u16 skill)
 
 void UnitToBattle_SetupSkillList(struct Unit *unit, struct BattleUnit *bu)
 {
-	FORCE_DECLARE bool nihil_on_actor, nihil_on_target;
-
 	TryAddSkillWRank(unit, false);
 
 	/**
@@ -634,20 +652,5 @@ void UnitToBattle_SetupSkillList(struct Unit *unit, struct BattleUnit *bu)
 	 * 2. Battle target initialization is behind actor.
 	 * 3. No skill activcated before during function: InitBattleUnit()
 	 */
-	if (bu == &gBattleTarget) {
-		SetupBattleSkillList();
-
-#if (defined(SID_Nihil) && COMMON_SKILL_VALID(SID_Nihil))
-		nihil_on_actor  = SkillListTester(&gBattleTarget.unit,  SID_Nihil);
-		nihil_on_target = SkillListTester(&gBattleActor.unit, SID_Nihil);
-
-		if (nihil_on_actor)
-			DisableUnitSkilLList(&gBattleActor.unit);
-
-		if (nihil_on_target)
-			DisableUnitSkilLList(&gBattleTarget.unit);
-#endif
-
-		SetupBattleSkillFastList();
-	}
+	ResetBattleUnitSkillList(bu);
 }
