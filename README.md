@@ -107,6 +107,8 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Enemies_Promote_When_Killing_Unit.gif" alt="Enemies Promote When Killing Unit preview" width="600" />
 	</details>
 
+- [Exceed Portrait Box](./Documentation/Features/ExceedPortraitBox.md)
+
 - [Expanded HP](./Documentation/Features/ExpandedHP.md)
 
 	<details>

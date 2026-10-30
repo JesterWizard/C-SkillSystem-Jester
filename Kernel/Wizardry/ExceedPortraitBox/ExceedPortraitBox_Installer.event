@@ -1,0 +1,12 @@
+#ifndef EXCEED_PORTRAIT_BOX_INSTALLED
+#define EXCEED_PORTRAIT_BOX_INSTALLED
+
+/**
+ * Exceed the portrait hackbox, in C: two extra 16x16 face pieces for
+ * portraits that opt in. Lives in FreeSpaceDEMO (WIZARDRY_CUSTOM in
+ * wizardry.event) and owns the PutFace80x72_Standard/Core rewrites.
+ */
+#include "LynJump.event"
+#include "ExceedPortraitBox.lyn.event"
+
+#endif /* EXCEED_PORTRAIT_BOX_INSTALLED */

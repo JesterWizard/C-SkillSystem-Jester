@@ -1,0 +1,35 @@
+// Exceed the portrait hackbox for FE8U: portraits whose portrait table entry
+// sets byte 0x1A to 1 draw two extra 16x16 pieces outside the portrait box.
+// See README.md for the portrait data, hooks and conflicts.
+//
+// Don't install this together with Standalone/text_engine: use its
+// TEXT_ENGINE_EXCEED_PORTRAITS setting instead (the same pieces, moved by its
+// portrait and screen effects).
+
+#define FE8U_Face_OnIdle                $55BC
+#define FE8U_PutFace80x72_Standard      $5B78
+#define FE8U_PutFace80x72_Core          $5CA4
+#define FE8U_StandaloneFreeSpace        $1000000
+
+// A 16-byte hook for functions with four or more arguments, which
+// jumpToHack can't take (it uses r3).  bx pc; nop; ldr r12, [pc]; bx r12.
+#define hookViaR12(target) "BYTE 0x78 0x47 0xC0 0x46; WORD 0xE59FC000 0xE12FFF1C; POIN target"
+
+PUSH
+ORG FE8U_Face_OnIdle
+    jumpToHack(Face_OnIdle_Exceed)
+    PROTECT FE8U_Face_OnIdle FE8U_Face_OnIdle + 0x8 // Face_OnIdle
+ORG FE8U_PutFace80x72_Standard
+    jumpToHack(PutFace80x72_Standard_Exceed)
+    PROTECT FE8U_PutFace80x72_Standard FE8U_PutFace80x72_Standard + 0x8 // PutFace80x72_Standard
+ORG FE8U_PutFace80x72_Core
+    hookViaR12(PutFace80x72_Core_Exceed)
+    PROTECT FE8U_PutFace80x72_Core FE8U_PutFace80x72_Core + 0x10 // PutFace80x72_Core
+POP
+
+ORG FE8U_StandaloneFreeSpace
+
+ALIGN 4
+#include "Source/ExceedPortraitBox.lyn.event"
+
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // exceed_portrait_box body

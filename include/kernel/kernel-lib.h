@@ -199,6 +199,7 @@ struct KernelDesigerConfig {
 	u8 crit_cutin; /* critical hits by units with their own portrait show a portrait cut-in over an electric band first */
 	u8 dim_listener_portraits; /* in dialogue, portraits of characters who aren't speaking are dimmed */
 	u8 popup_item_icon_shine; /* a glint sweeps across item icons in popups (item got, infused...) */
+	u8 exceed_portrait_box; /* faces with FaceData byte 0x1A == 1 draw two extra 16x16 pieces outside the portrait box */
 };
 
 struct KernelBattleDesignerConfig {
@@ -255,6 +256,19 @@ s16 TextEngine_GetFxOffsetY(void);
 int TextEngine_ApplyStaticOam1(int xOam1, int screenY);
 int TextEngine_ApplyFxOam0(int yOam0);
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
+bool ExceedPortrait_IsExceedFace(const struct FaceData *info);
+void ExceedPortrait_PutFaceSprites(struct FaceProc *proc, int oam0);
+
+#define EXCEED_PORTRAIT_MAX_PIECES 2
+
+struct ExceedPortraitPiece {
+	s16 x; /* left edge, from the face's xPos */
+	s16 y; /* top edge, from the face's yPos */
+	u16 chr; /* first tile, from the face's oam2 */
+	u8 hflip;
+};
+
+int ExceedPortrait_GetFacePieces(struct FaceProc *proc, struct ExceedPortraitPiece *pieces);
 
 bool ArenaRosterMenuEnabled(void);
 bool ArenaRosterStartSelection(ProcPtr proc);

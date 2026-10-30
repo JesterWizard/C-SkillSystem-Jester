@@ -28,10 +28,31 @@
 #define sTalkState (*(struct TalkState **)0x0859133C)
 
 #ifdef PORTRAITS_TEXT_ENGINE
+#include "ExceedPortraitBox.h"
+
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2);
 #define PutFaceSprite TextEngine_PutFaceSprite
+
+/* Exceed portraits, or their no-op stand-ins (see Standalone/text_engine). */
+#define PutExceedFaceSprites ExceedPortrait_PutFaceSprites
+#define ClearFaceSideColumns ExceedPortrait_ClearFaceSideColumns
 #else
 #define PutFaceSprite PutSpriteExt
+
+static void PutExceedFaceSprites(struct FaceProc *proc, int oam0)
+{
+}
+
+/* Vanilla: blank the side columns of the top five rows. */
+static void ClearFaceSideColumns(u16 *tm, int tileref, const struct FaceData *info, bool raised)
+{
+	int i;
+
+	for (i = 0; i < 5; i++) {
+		tm[i * 0x20 + 0] = 0;
+		tm[i * 0x20 + 9] = 0;
+	}
+}
 #endif
 
 extern struct ProcCmd CONST_DATA gProcScr_0859124C[];
@@ -624,6 +645,14 @@ bool Portraits_TalkFaceWillBeHalfBody(int fid, int disp)
 	return mode == PORTRAIT_MODE_HALFBODY;
 }
 
+#ifdef PORTRAITS_TEXT_ENGINE
+/* For the exceed portraits: half-body faces never get exceed pieces. */
+bool Portraits_IsHalfBodyData(const struct FaceData *info)
+{
+	return IsHalfBodyData(info);
+}
+#endif
+
 bool Portraits_IsHalfBodyFace(struct FaceProc *face)
 {
 	if (face == NULL || face->faceSlot >= FACE_SLOT_COUNT || gFaces[face->faceSlot] != face)
@@ -651,6 +680,7 @@ void Face_OnIdle_Portraits(struct FaceProc *proc)
 	oam0 += OAM0_Y(proc->yPos);
 
 	PutFaceSprite(proc->spriteLayer, 0x1FF & proc->xPos, oam0, proc->sprite, proc->oam2);
+	PutExceedFaceSprites(proc, oam0 & ~0xFF);
 
 	st = &sPortraitSlots[proc->faceSlot];
 	if (st->mode != PORTRAIT_MODE_COLOR32 || st->extPal > 15)
@@ -893,7 +923,7 @@ void PutFace80x72_Core_Portraits(u16 *tm, int fid, int chr, int pal)
 {
 	const struct FaceData *info;
 	bool halfbody;
-	int i;
+	bool raised;
 
 	if (fid == 0)
 		return;
@@ -928,15 +958,14 @@ void PutFace80x72_Core_Portraits(u16 *tm, int fid, int chr, int pal)
 		return;
 	}
 
-	if (ShouldFaceBeRaised(fid))
+	raised = ShouldFaceBeRaised(fid);
+
+	if (raised)
 		PutFace80x72_Raised(tm, (pal << 12) + (0x3FF & chr), info);
 	else
 		PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
 
-	for (i = 0; i < 5; i++) {
-		tm[i * 0x20 + 0] = 0;
-		tm[i * 0x20 + 9] = 0;
-	}
+	ClearFaceSideColumns(tm, (pal << 12) + (0x3FF & chr), info, raised);
 }
 
 /* --------------------------------------------------------------------------

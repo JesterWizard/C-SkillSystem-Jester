@@ -166,6 +166,7 @@ All of these leave vanilla portraits looking the same. The C Skill System makes 
 ## Conflicts
 
 - **`Standalone/text_engine`**: both hook `StartTalkOpen`, so Event Assembler stops with a `PROTECT` error if you install both. Use the text engine's `TEXT_ENGINE_HALF_BODY_PORTRAITS` setting instead. It has the same face, menu and stat-screen code, and the text engine handles half-body speakers itself.
+- **`Standalone/exceed_portrait_box`**: both hook `Face_OnIdle` and `PutFace80x72_Core`. Use `Standalone/text_engine` with its `TEXT_ENGINE_HALF_BODY_PORTRAITS` and `TEXT_ENGINE_EXCEED_PORTRAITS` settings instead.
 - No other `Standalone/` package hooks or patches these addresses.
 - Other hacks that change face drawing, face VRAM, dialogue faces or the speech bubble (for example FEBuilder's mouth/eye or portrait-position patches) will clash. Hacks that move or expand the portrait table are fine; define `PortraitTable` for the macros.
 - The body starts at `$1000000`, like every package here. If you install several, change `FE8U_StandaloneFreeSpace` for each one.

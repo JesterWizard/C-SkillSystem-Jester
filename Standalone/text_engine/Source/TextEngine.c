@@ -1805,6 +1805,15 @@ static int TextEngineAsh_CountPieces(const u16 *sprite, int step)
 	return n;
 }
 
+static int TextEngineAsh_CountFaceChips(struct FaceProc *face, int step)
+{
+	struct ExceedPortraitPiece pieces[EXCEED_PORTRAIT_MAX_PIECES];
+
+	/* A 16x16 exceed piece is one chip at step 16 or 32. */
+	return TextEngineAsh_CountPieces(face->sprite, step) +
+		ExceedPortrait_GetFacePieces(face, pieces);
+}
+
 static u32 TextEngineAsh_NextRnd(u32 *seed)
 {
 	*seed = *seed * 1103515245 + 12345;
@@ -1916,19 +1925,109 @@ static void TextEngineAsh_ApplyFx(struct TextEngineAshDissolveProc *proc)
 	gLCDControlBuffer.wincnt.wout_enableBlend = 1;
 }
 
+/* Chips for one w x h OBJ of the face, at (objX, objY) from its origin. */
+static void TextEngineAsh_DrawObjChips(
+	struct TextEngineAshDissolveProc *proc,
+	int objX,
+	int objY,
+	int w,
+	int h,
+	int hflip,
+	int objChr,
+	u32 *seed)
+{
+	struct FaceProc *face = proc->face;
+	int t = proc->timer;
+	int step = proc->step;
+	int mosaic = (gLCDControlBuffer.mosaic >> 8) & 0xF;
+	int tx;
+	int ty;
+
+	for (ty = 0; ty < h; ty += step) {
+		int ph = h - ty;
+
+		if (ph > step)
+			ph = step;
+
+		for (tx = 0; tx < w; tx += step) {
+			int pw = w - tx;
+			int srcTx;
+			int chrOff;
+			int x;
+			int y;
+			int delay;
+			int vx;
+			int vy;
+			int moving;
+			int oam0;
+			int oam1;
+			int oam2;
+			u32 rnd;
+			const u16 *piece;
+
+			if (pw > step)
+				pw = step;
+
+			rnd = TextEngineAsh_NextRnd(seed);
+			delay = (rnd >> 16) & 7;
+			vx = ((int)((rnd >> 8) & 7)) - 3;
+			vy = -1 - ((int)((rnd >> 4) & 3));
+
+			srcTx = hflip ? (w - tx - pw) : tx;
+			chrOff = objChr + (ty / 8) * 32 + (srcTx / 8);
+			x = proc->originX + objX + tx;
+			y = proc->originY + objY + ty;
+			moving = (t > TEXT_ENGINE_ASH_HOLD + delay);
+			if (moving) {
+				int frames = t - TEXT_ENGINE_ASH_HOLD - delay;
+
+				x += vx * frames;
+				y += vy * frames;
+			}
+
+			if (x <= -pw || x >= DISPLAY_WIDTH)
+				continue;
+			if (y <= -ph || y >= DISPLAY_HEIGHT)
+				continue;
+
+			oam0 = OAM0_Y(y);
+			if (moving && mosaic > 0)
+				oam0 |= OAM0_MOSAIC;
+			if (t >= TEXT_ENGINE_ASH_FADE_START)
+				oam0 |= OAM0_BLEND;
+
+			oam1 = OAM1_X(x);
+			if (hflip)
+				oam1 |= OAM1_HFLIP;
+
+			oam2 = (face->oam2 & 0xFC00) | ((face->oam2 + chrOff) & 0x3FF);
+			piece = TextEngineAsh_GetSprite(pw, ph);
+			TextEngine_PutFaceSprite(proc->layer, oam1, oam0, piece, oam2);
+
+			if (proc->overlayEnabled)
+				TextEngine_PutFaceSprite(
+					proc->layer,
+					oam1,
+					oam0,
+					piece,
+					(proc->overlayOam2 & 0xFC00) |
+						((proc->overlayOam2 + chrOff) & 0x3FF)
+				);
+		}
+	}
+}
+
 static void TextEngineAsh_DrawChips(struct TextEngineAshDissolveProc *proc)
 {
 	struct FaceProc *face = proc->face;
+	struct ExceedPortraitPiece pieces[EXCEED_PORTRAIT_MAX_PIECES];
 	const u16 *sprite;
 	const u16 *obj;
 	int count;
 	int i;
-	int t = proc->timer;
-	int step = proc->step;
-	int mosaic = (gLCDControlBuffer.mosaic >> 8) & 0xF;
 	u32 seed;
 
-	if (face == NULL || face->sprite == NULL || step <= 0)
+	if (face == NULL || face->sprite == NULL || proc->step <= 0)
 		return;
 
 	sprite = face->sprite;
@@ -1939,87 +2038,30 @@ static void TextEngineAsh_DrawChips(struct TextEngineAshDissolveProc *proc)
 	for (i = 0; i < count; i++, obj += 3) {
 		int shape = obj[0] >> 14;
 		int size = obj[1] >> 14;
-		int hflip = (obj[1] & OAM1_HFLIP) != 0;
-		int w = sTextEngineAshObjWidth[shape][size];
-		int h = sTextEngineAshObjHeight[shape][size];
-		int objX = TextEngineAsh_OamX(obj[1]);
-		int objY = TextEngineAsh_OamY(obj[0]);
-		int objChr = obj[2] & 0x3FF;
-		int tx;
-		int ty;
 
-		for (ty = 0; ty < h; ty += step) {
-			int ph = h - ty;
+		TextEngineAsh_DrawObjChips(
+			proc,
+			TextEngineAsh_OamX(obj[1]),
+			TextEngineAsh_OamY(obj[0]),
+			sTextEngineAshObjWidth[shape][size],
+			sTextEngineAshObjHeight[shape][size],
+			(obj[1] & OAM1_HFLIP) != 0,
+			obj[2] & 0x3FF,
+			&seed);
+	}
 
-			if (ph > step)
-				ph = step;
-
-			for (tx = 0; tx < w; tx += step) {
-				int pw = w - tx;
-				int srcTx;
-				int chrOff;
-				int x;
-				int y;
-				int delay;
-				int vx;
-				int vy;
-				int moving;
-				int oam0;
-				int oam1;
-				int oam2;
-				u32 rnd;
-				const u16 *piece;
-
-				if (pw > step)
-					pw = step;
-
-				rnd = TextEngineAsh_NextRnd(&seed);
-				delay = (rnd >> 16) & 7;
-				vx = ((int)((rnd >> 8) & 7)) - 3;
-				vy = -1 - ((int)((rnd >> 4) & 3));
-
-				srcTx = hflip ? (w - tx - pw) : tx;
-				chrOff = objChr + (ty / 8) * 32 + (srcTx / 8);
-				x = proc->originX + objX + tx;
-				y = proc->originY + objY + ty;
-				moving = (t > TEXT_ENGINE_ASH_HOLD + delay);
-				if (moving) {
-					int frames = t - TEXT_ENGINE_ASH_HOLD - delay;
-
-					x += vx * frames;
-					y += vy * frames;
-				}
-
-				if (x <= -pw || x >= DISPLAY_WIDTH)
-					continue;
-				if (y <= -ph || y >= DISPLAY_HEIGHT)
-					continue;
-
-				oam0 = OAM0_Y(y);
-				if (moving && mosaic > 0)
-					oam0 |= OAM0_MOSAIC;
-				if (t >= TEXT_ENGINE_ASH_FADE_START)
-					oam0 |= OAM0_BLEND;
-
-				oam1 = OAM1_X(x);
-				if (hflip)
-					oam1 |= OAM1_HFLIP;
-
-				oam2 = (face->oam2 & 0xFC00) | ((face->oam2 + chrOff) & 0x3FF);
-				piece = TextEngineAsh_GetSprite(pw, ph);
-				TextEngine_PutFaceSprite(proc->layer, oam1, oam0, piece, oam2);
-
-				if (proc->overlayEnabled)
-					TextEngine_PutFaceSprite(
-						proc->layer,
-						oam1,
-						oam0,
-						piece,
-						(proc->overlayOam2 & 0xFC00) |
-							((proc->overlayOam2 + chrOff) & 0x3FF)
-					);
-			}
-		}
+	/* Exceed-portrait pieces dissolve with the rest of the face. */
+	count = ExceedPortrait_GetFacePieces(face, pieces);
+	for (i = 0; i < count; i++) {
+		TextEngineAsh_DrawObjChips(
+			proc,
+			pieces[i].x,
+			pieces[i].y,
+			16,
+			16,
+			pieces[i].hflip,
+			pieces[i].chr,
+			&seed);
 	}
 }
 
@@ -2074,11 +2116,11 @@ static void TextEngine_StartAshDissolve(struct FaceProc *face)
 	HalfBody_OnTalkFaceClear(face);
 	TextEngineAsh_HideLiveFace(face);
 
-	count = TextEngineAsh_CountPieces(face->sprite, 16);
+	count = TextEngineAsh_CountFaceChips(face, 16);
 	if (count > TEXT_ENGINE_ASH_OAM_BUDGET)
 		step = 32;
 
-	count = TextEngineAsh_CountPieces(face->sprite, step);
+	count = TextEngineAsh_CountFaceChips(face, step);
 	if (count == 0) {
 		StartFaceFadeOut(face);
 		return;
@@ -2717,8 +2759,14 @@ int TextEngine_ApplyFxOam0(int yOam0)
 
 void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object, int oam2)
 {
+	int screenY = OAM0_Y(yOam0);
+
 	if (object == NULL)
 		return;
+
+	/* The slip row is the Y field only; OAM Y 160-255 is above the screen. */
+	if (screenY >= DISPLAY_HEIGHT)
+		screenY -= 0x100;
 
 	/*
 	 * PutSpriteExt stores this object pointer until OAM flush, so the data
@@ -2727,7 +2775,7 @@ void TextEngine_PutFaceSprite(int layer, int xOam1, int yOam0, const u16 *object
 	 */
 	PutSpriteExt(
 		layer,
-		TextEngine_ApplyStaticOam1(xOam1, yOam0),
+		TextEngine_ApplyStaticOam1(xOam1, screenY),
 		TextEngine_ApplyFxOam0(yOam0),
 		object,
 		oam2

@@ -49,6 +49,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.enemy_can_combo_attack = false,
 	.enemy_fog_vision = true,
 	.engage_combo_attack = true, // requires SID_ChainAttack
+	.exceed_portrait_box = true, // faces with FaceData byte 0x1A = 1 draw two extra 16x16 pieces (see ExceedPortraitBox.md)
 	.expanded_hp = true,
 	.fast_map_animations = false, // broken with free movement
 	.fe7_mode_select = false, // New Game must use vanilla FE8 difficulty select

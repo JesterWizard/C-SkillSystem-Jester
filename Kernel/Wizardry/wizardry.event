@@ -142,6 +142,7 @@ ALIGN 4
 #include "ItemSys/ItemInfoRemap/Source/ForgeMenu.lyn.event"
 // #include "Crafting/Crafting_Installer.event"
 #include "EnterTown/EnterTown_Installer.event"
+#include "ExceedPortraitBox/ExceedPortraitBox_Installer.event"
 #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
 #include "FourthAllegiance/FourthAllegiance_Installer.event"
 #include "FreeMovement/FreeMovement_Installer.event"

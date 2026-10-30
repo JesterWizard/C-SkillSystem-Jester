@@ -257,6 +257,8 @@ void Face_OnIdle(struct FaceProc *proc)
 		proc->oam2
 	);
 
+	ExceedPortrait_PutFaceSprites(proc, oam0);
+
 	Portrait32_EnsureInited();
 
 	if (proc->faceSlot >= FACE_SLOT_MAX)

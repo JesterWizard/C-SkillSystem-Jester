@@ -16,6 +16,14 @@
 // Standalone/portrait_formats.
 // #define TEXT_ENGINE_HALF_BODY_PORTRAITS
 //
+// Exceed portraits (Standalone/exceed_portrait_box, through the text engine):
+// remove the // in front of the next line to install them. Portraits whose
+// portrait table entry sets byte 0x1A to 1 then draw two extra 16x16 pieces
+// outside the portrait box, in dialogue and menus. It adds 2 hooks (1 when
+// TEXT_ENGINE_HALF_BODY_PORTRAITS is also on). Don't also install
+// Standalone/exceed_portrait_box.
+// #define TEXT_ENGINE_EXCEED_PORTRAITS
+//
 // Free EWRAM the patch keeps its state in. Change an address if another patch
 // in your ROM already uses that range. Each must be a multiple of 4.
 #ifndef TEXT_ENGINE_RAM
@@ -62,6 +70,8 @@
 #define FE8U_StartFace2                     $64F4
 #define FE8U_FaceChange_LoadGfx             $6650   // sub_8006650
 #define FE8U_PutTalkBubble                  $82A4
+// TEXT_ENGINE_EXCEED_PORTRAITS only (it also uses FE8U_PutFace80x72_Core):
+#define FE8U_PutFace80x72_Standard          $5B78
 #define FE8U_StandaloneFreeSpace            $1000000
 
 // A 16-byte hook for functions with four or more arguments, which
@@ -171,6 +181,16 @@ ORG FE8U_PutTalkBubble
     PROTECT FE8U_PutTalkBubble FE8U_PutTalkBubble + 0x10 // PutTalkBubble
 #include "Data/PortraitPatches.event"
 #endif
+#ifdef TEXT_ENGINE_EXCEED_PORTRAITS
+ORG FE8U_PutFace80x72_Standard
+    jumpToHack(PutFace80x72_Standard_Exceed)
+    PROTECT FE8U_PutFace80x72_Standard FE8U_PutFace80x72_Standard + 0x8 // PutFace80x72_Standard
+#ifndef TEXT_ENGINE_HALF_BODY_PORTRAITS
+ORG FE8U_PutFace80x72_Core
+    hookViaR12(PutFace80x72_Core_Exceed)
+    PROTECT FE8U_PutFace80x72_Core FE8U_PutFace80x72_Core + 0x10 // PutFace80x72_Core
+#endif
+#endif
 POP
 
 #include "Source/RamAlloc.event"
@@ -202,6 +222,13 @@ ALIGN 4
     #include "Source/Portraits.lyn.event"
 #else
     #include "Source/PortraitStubs.lyn.event"
+#endif
+
+ALIGN 4
+#ifdef TEXT_ENGINE_EXCEED_PORTRAITS
+    #include "Source/ExceedPortraits.lyn.event"
+#else
+    #include "Source/ExceedStubs.lyn.event"
 #endif
 
 PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TextEngine body and data

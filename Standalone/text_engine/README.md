@@ -51,6 +51,7 @@ All settings are at the top of `Installer.event`. You don't need to compile anyt
 |---------|---------|---------|
 | `TEXT_ENGINE_CHATLOG` | off | Remove the `//` in front of it to install the conversation log. |
 | `TEXT_ENGINE_HALF_BODY_PORTRAITS` | off | Remove the `//` in front of it to install half-body and 32-colour portraits. |
+| `TEXT_ENGINE_EXCEED_PORTRAITS` | off | Remove the `//` in front of it to install exceed portraits. |
 | `TEXT_ENGINE_RAM` | `0x0203AB00` | Start of the 0x1A0 bytes of EWRAM the text engine uses. |
 | `TEXT_ENGINE_CHATLOG_RAM` | `0x0203B000` | Start of the 0x600 bytes the conversation log uses. |
 | `TEXT_ENGINE_PORTRAIT_RAM` | `0x0203B800` | Start of the 0xA0 bytes the portraits use. |
@@ -63,6 +64,8 @@ If you include `Installer.event` from your own event file, you can also `#define
 **Conversation log:** SELECT opens it, UP/DOWN scroll and SELECT closes it. It keeps the last 17 lines and clears at each chapter start. It isn't saved. Don't also install [`Standalone/chatlog`](../chatlog/).
 
 **Half-body and 32-colour portraits:** make and install the portraits with [`portrait_formats`](../portrait_formats/)' tools and `Tools/PortraitMacros.event`. Portraits in other formats stay as they are. Don't also install `Standalone/portrait_formats`.
+
+**Exceed portraits:** set bytes `0x10`-`0x13` and `0x1A` of a portrait's table entry as described in [`exceed_portrait_box`](../exceed_portrait_box/#portrait-data) (the same data as FEBuilder's `MugExceed`). The two pieces follow the portrait's moves, jumps, vibration, shimmy, screen tear and earthquake, and dissolve with it in `[ClearFaceAsh]`. Half-body portraits never get pieces. Don't also install `Standalone/exceed_portrait_box`.
 
 ## Using the codes
 
@@ -137,11 +140,12 @@ You only need to build if you change `Source/` or the PNGs in `Data/BoxGfx`. The
 make -C Standalone/text_engine
 ```
 
-This needs [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo's tools (see [Documentation/Setup.md](../../Documentation/Setup.md)). `Source/Portraits.lyn.event` is built from [`../portrait_formats/Source/Portraits.c`](../portrait_formats/Source/Portraits.c), so that folder must be next to this one.
+This needs [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo's tools (see [Documentation/Setup.md](../../Documentation/Setup.md)). `Source/Portraits.lyn.event` is built from [`../portrait_formats/Source/Portraits.c`](../portrait_formats/Source/Portraits.c), so that folder must be next to this one. Likewise, `Source/ExceedPortraits.lyn.event` is built from [`../exceed_portrait_box/Source/ExceedPortraitBox.c`](../exceed_portrait_box/Source/ExceedPortraitBox.c).
 
 ## Conflicts
 
 - Other dialogue text engines (Tequila's original, Zeta's AutoNewLine) and any patch that hooks the same dialogue or face functions. The hooks are listed in `Installer.event`, and each one is `PROTECT`ed, so an overlapping patch fails with an EA error.
+- FEBuilder's `MugExceed` patch with `TEXT_ENGINE_EXCEED_PORTRAITS` on. Remove it first; its portrait data carries over.
 - Other standalone patches that also use `$1000000`. Install only one there, or move this patch's `ORG`.
 - The full C Skill System, which already has this engine.
 

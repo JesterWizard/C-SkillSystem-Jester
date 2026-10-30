@@ -45,6 +45,15 @@ bool Portraits_IsHalfBodyFace(struct FaceProc *face);
 bool Portraits_TalkFaceWillBeHalfBody(int fid, int disp);
 void HalfBody_OnTalkFaceClear(struct FaceProc *face);
 s32 Portrait32_GetOverlayOam2(struct FaceProc *face);
+bool Portraits_IsHalfBodyData(const struct FaceData *info);
+
+/*
+ * Exceed portraits: Standalone/exceed_portrait_box's Source/ExceedPortraitBox.c
+ * (built here into Source/ExceedPortraits.lyn.event) when Installer.event
+ * defines TEXT_ENGINE_EXCEED_PORTRAITS, the no-ops in Source/ExceedStubs.c
+ * otherwise.  Linked through Event Assembler labels.
+ */
+#include "ExceedPortraitBox.h"
 
 /*
  * The conversation log: Source/Chatlog.c when Installer.event defines

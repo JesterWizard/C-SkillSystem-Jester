@@ -36,32 +36,12 @@
 #include "jester_headers/Forging.h"
 
 extern void DisableDebuggerAiControl(void);
-extern const u8 NewStatScreenPortraitTsa[];
 extern void UpdateMagicSealVisualPalette(void);
 extern void InvalidateSealSourceCache(void);
 
 static bool HalfBodyPortraitsEnabled(void)
 {
     return gpKernelDesignerConfig->half_body_portraits != false;
-}
-
-static bool IsHalfBodyFaceData(const struct FaceData *info)
-{
-    const u8 *img;
-    const u8 *chibi;
-
-    if (info == NULL || info->img == NULL)
-        return false;
-
-    img = info->img;
-    chibi = (const u8 *)info->imgChibi;
-
-    return chibi == img + 0x2648 || chibi == img + 0x2644;
-}
-
-static bool UseHalfBodyGeometry(const struct FaceData *info)
-{
-    return HalfBodyPortraitsEnabled() && IsHalfBodyFaceData(info);
 }
 
 typedef struct {
@@ -4256,107 +4236,6 @@ void LoadSuspendUnitList(u8 *src, const u32 size)
 
 	// if (sRandSeedsC[3] != Checksum16(sRandSeedsC, 6))
 	// 	InitRandC();
-}
-
-//! FE8U = 0x08005CA4
-LYN_REPLACE_CHECK(PutFace80x72_Core);
-void PutFace80x72_Core(u16 * tm, int fid, int chr, int pal) {
-    const struct FaceData* info;
-
-    if (fid == 0) {
-        return;
-    }
-
-    info = GetPortraitData(fid);
-
-    /* Original halfbody ORG 0x886A2: statscreen CHR 0x9C -> 0x90 (0x4E0 -> 0x480). */
-    if (UseHalfBodyGeometry(info) && chr == 0x4E0)
-        chr = 0x480;
-
-    ApplyPalette(info->pal, pal);
-
-    if (info->img != 0) {
-        int i;
-
-        Decompress(info->img, (void *)(chr * 0x20 + VRAM));
-        ApplyPalette(info->pal, pal);
-
-#if defined(SID_EmergencyExitPlus) && (COMMON_SKILL_VALID(SID_EmergencyExitPlus))
-        if (gActionData.unk08 == SID_EmergencyExitPlus)
-            PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
-        else
-        {
-            if (ShouldFaceBeRaised(fid) != 0) {
-                PutFace80x72_Raised(tm, (pal << 12) + (0x3FF & chr), info);
-            } else {
-                PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
-            }
-        }
-#else
-        if (ShouldFaceBeRaised(fid) != 0) {
-            PutFace80x72_Raised(tm, (pal << 12) + (0x3FF & chr), info);
-        } else {
-            PutFace80x72_Standard(tm, (pal << 12) + (0x3FF & chr), info);
-        }
-#endif
-
-        /* Original halfbody ORG 0x5D22: skip the side-column clear for taller TSA. */
-        if (!UseHalfBodyGeometry(info)) {
-            for (i = 0; i < 5; i++) {
-                tm[i * 0x20 + 0] = 0;
-                tm[i * 0x20 + 9] = 0;
-            }
-        }
-
-    } else {
-        Decompress(info->imgCard, (void*)(chr * CHR_SIZE + VRAM));
-        PutAppliedBitmap(tm, (pal << 12) + (0x3FF & chr), 10, 9);
-    }
-
-    return;
-}
-
-//! FE8U = 0x08005B78
-LYN_REPLACE_CHECK(PutFace80x72_Standard);
-void PutFace80x72_Standard(u16 * tm, int tileref, const struct FaceData* info) {
-    CallARM_FillTileRect(
-        tm,
-        UseHalfBodyGeometry(info) ? NewStatScreenPortraitTsa : gUnknown_085A0838,
-        (u16)tileref
-    );
-
-#ifdef SID_EmergencyExitPlus
-    if (gActionData.unk08 != SID_EmergencyExitPlus)
-    {
-        int x = info->xMouth - 1;
-        int y = info->yMouth;
-
-        tm[TILEMAP_INDEX(x, y) + 0x00 + 0] = tileref + 0x00 + 0x1C;
-        tm[TILEMAP_INDEX(x, y) + 0x00 + 1] = tileref + 0x00 + 0x1D;
-        tm[TILEMAP_INDEX(x, y) + 0x00 + 2] = tileref + 0x00 + 0x1E;
-        tm[TILEMAP_INDEX(x, y) + 0x00 + 3] = tileref + 0x00 + 0x1F;
-
-        tm[TILEMAP_INDEX(x, y) + 0x20 + 0] = tileref + 0x20 + 0x1C;
-        tm[TILEMAP_INDEX(x, y) + 0x20 + 1] = tileref + 0x20 + 0x1D;
-        tm[TILEMAP_INDEX(x, y) + 0x20 + 2] = tileref + 0x20 + 0x1E;
-        tm[TILEMAP_INDEX(x, y) + 0x20 + 3] = tileref + 0x20 + 0x1F;   
-    }
-
-#else
-    int x = info->xMouth - 1;
-    int y = info->yMouth;
-
-    tm[TILEMAP_INDEX(x, y) + 0x00 + 0] = tileref + 0x00 + 0x1C;
-    tm[TILEMAP_INDEX(x, y) + 0x00 + 1] = tileref + 0x00 + 0x1D;
-    tm[TILEMAP_INDEX(x, y) + 0x00 + 2] = tileref + 0x00 + 0x1E;
-    tm[TILEMAP_INDEX(x, y) + 0x00 + 3] = tileref + 0x00 + 0x1F;
-
-    tm[TILEMAP_INDEX(x, y) + 0x20 + 0] = tileref + 0x20 + 0x1C;
-    tm[TILEMAP_INDEX(x, y) + 0x20 + 1] = tileref + 0x20 + 0x1D;
-    tm[TILEMAP_INDEX(x, y) + 0x20 + 2] = tileref + 0x20 + 0x1E;
-    tm[TILEMAP_INDEX(x, y) + 0x20 + 3] = tileref + 0x20 + 0x1F;
-#endif
-    return;
 }
 
 #define sTalkStateCore (*(struct TalkState*)0x03000048)
