@@ -7,7 +7,13 @@
  */
 #include "Source/HexCards.lyn.event"
 
-/* Prep screen "Hex" row: the entry function and the placeholder full-screen proc. */
+/* Rules engine and AI (Hex_Score, Hex_Place, Hex_AiChoose). */
+#include "Source/HexCore.lyn.event"
+
+/* Card art: UI tiles, palettes and the portrait keep mask (data only, no code). */
+#include "Source/HexArt.lyn.event"
+
+/* Prep screen "Hex" row: the entry function and the board screen. */
 #include "Source/HexPrep.lyn.event"
 #include "Source/HexScreen.lyn.event"
 

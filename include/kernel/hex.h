@@ -29,6 +29,22 @@ bool HexCol_GiveToConvoy(int type);
 bool HexCol_TakeOne(int type);
 void HexCol_GiveStarters(void);
 
+/*
+ * Card art (Kernel/Wizardry/Minigames/Hex/Source/HexArt.c). The UI tiles and palettes are 4bpp, 1D OBJ order, row-major;
+ * gHexPortraitKeep is the 32x32 portrait mask (Tools/hex/gen_hex_art.py).
+ */
+extern const u32 gHexFrameTiles[64][128];
+extern const u32 gHexEmptyTiles[128];
+extern const u32 gHexDigitTiles[11][8];
+extern const u32 gHexDigitGreenTiles[11][8];
+extern const u32 gHexScoreTiles[10][32];
+extern const u32 gHexCursorTiles[2][32];
+extern const u16 gHexFramePalRed[16];
+extern const u16 gHexFramePalBlue[16];
+extern const u32 gHexWoodBgTiles[4][8];
+extern const u16 gHexWoodBgPal[16];
+extern const u32 gHexPortraitKeep[128];
+
 /* Prep screen "Hex" row (AtMenu.c). HexPrep.c starts the proc; HexScreen.c defines it. */
 #define PREP_MAINMENU_HEX 12 /* prep_atmenu_item_index value of the Hex row; no vanilla row uses 12 */
 struct ProcAtMenu;
