@@ -107,6 +107,7 @@ struct KernelDesigerConfig {
 
 	/* Real-time battle: enemies act on a timer during the player phase */
 	u8 real_time_battle; /* 0 = disabled, 1 = enabled */
+	u8 prep_menu_hex; /* in the padding byte before the u16: no other field moves. Hex card minigame prep row */
 	u16 real_time_enemy_interval_frames; /* default delay between AI actions (60 ~= 1s) */
 	u16 real_time_turn_frames; /* length of one turn (0 = default 30s) */
 	u8 remove_move_path;

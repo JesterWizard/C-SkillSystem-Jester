@@ -209,6 +209,11 @@ The switch is in [`include/configs/configs.h`](../../../include/configs/configs.
 
 To remove the minigame, comment out `#define CONFIG_HEX_CARDS`. To turn it back on, restore the line.
 
+The compile-time switch removes the code and the card item. To keep the card item and only hide the menu row, use the runtime
+switch `prep_menu_hex` in [`designer-config.c`](../../../Data/DesignerConfig/designer-config.c). It defaults to `true`. Set it to
+`false` to hide the Hex row in the preparations menu (the other prep rows are switched the same way). It has no effect when
+`CONFIG_HEX_CARDS` is off, because the row is not compiled then.
+
 **Cloud sessions** (`Tools/cloud/build.sh`) do not regenerate tracked `.lyn.event` files whose `.c` file is unchanged in git. After
 you turn the switch on or off, delete the guarded outputs before you build, or the build fails (for example with
 `Undefined identifier: HexCard_NameId` when the switch is off):

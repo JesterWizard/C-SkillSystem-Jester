@@ -111,6 +111,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.prep_menu_base_conversations = false,
 	.prep_menu_bexp = true,
 	.prep_menu_event_replay = false,
+	.prep_menu_hex = true, // Hex card minigame row (needs CONFIG_HEX_CARDS)
 	.prep_menu_infuse = true,
 	.prep_menu_skill_synth = true,
 	.prep_menu_skills = true,

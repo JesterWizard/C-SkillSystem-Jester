@@ -2,6 +2,8 @@
 
 Hex card game port. The switch is `CONFIG_HEX_CARDS` in `include/configs/configs.h`.
 
+The Hex row in the preparations menu can be hidden at runtime with `prep_menu_hex` in `Data/DesignerConfig/designer-config.c` (default `true`).
+
 - `Source/HexCore.c`: rules engine and AI (`include/kernel/hex-core.h`). No game globals, no `/` or `%`.
 - `Source/HexCards.c`: the card item helpers and the collection (`include/kernel/hex.h`). Card table: `Data/Hex/HexCardTypes.c`.
 - `Source/HexArt.c`: card art data. The UI tiles, digits, cursors and frame palettes are copied from the Minish Cap mod
