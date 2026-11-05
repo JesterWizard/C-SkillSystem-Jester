@@ -34,6 +34,7 @@ void HexCol_GiveStarters(void);
  * gHexPortraitKeep is the 32x32 portrait mask (Tools/hex/gen_hex_art.py).
  */
 extern const u32 gHexFrameTiles[64][128];
+extern const u32 gHexCardBackTiles[128];
 extern const u32 gHexEmptyTiles[128];
 extern const u32 gHexDigitTiles[11][8];
 extern const u32 gHexDigitGreenTiles[11][8];

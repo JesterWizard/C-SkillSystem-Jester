@@ -34,6 +34,7 @@
 #define HEX_OBJ_CURSOR 38          /* 8 tiles: gHexCursorTiles, left arrow 38, down arrow 42 (4 tiles each, 16x16) */
 #define HEX_OBJ_CURSOR_DOWN 4      /* offset of the down arrow from HEX_OBJ_CURSOR */
 #define HEX_OBJ_SCORE 512          /* 40 tiles: gHexScoreTiles, digit d = 512 + 4 d (16x16) */
+#define HEX_OBJ_CARD_BACK 552      /* 16 tiles: gHexCardBackTiles, the owner fill behind every portrait (512..551 is taken) */
 #define HEX_OBJ_TYPE_BASE 48       /* per card type 32 tiles: frame at base, portrait at base + 16 */
 #define HEX_OBJ_TYPE_TILES 32
 #define HEX_OBJ_PORTRAIT_OFFSET 16
@@ -362,6 +363,7 @@ static void HexScreen_LoadSprites(void)
 	CpuFastCopy(gHexDigitGreenTiles, HEX_OBJ_TILE(HEX_OBJ_DIGIT_GREEN), 352);
 	CpuFastCopy(gHexCursorTiles, HEX_OBJ_TILE(HEX_OBJ_CURSOR), 256);
 	CpuFastCopy(gHexScoreTiles, HEX_OBJ_TILE(HEX_OBJ_SCORE), 1280);
+	CpuFastCopy(gHexCardBackTiles, HEX_OBJ_TILE(HEX_OBJ_CARD_BACK), 512);
 
 	ApplyPalette(gHexFramePalRed, 0x10 + HEX_BANK_RED);
 	ApplyPalette(gHexFramePalBlue, 0x10 + HEX_BANK_BLUE);
@@ -452,16 +454,18 @@ static void HexScreen_CardDigits(int x, int y, int type, u32 bank, bool32 placed
 }
 
 /*
- * The frame and the portrait of a card (the portrait on top of the frame); the frame palette is the owner's. PutSprite draws
- * a later call in front of an earlier one, so every sprite is pushed back to front.
+ * The body of a card, back to front: the card back (the owner fill, in the frame bank), the portrait (its own bank), then the
+ * frame ring and reach dots (the owner's frame bank). PutSprite draws a later call in front of an earlier one, so every
+ * sprite is pushed back to front. Three 32x32 sprites per card.
  */
 static void HexScreen_CardBody(const struct HexScreenState *h, int x, int y, int type, u32 owner)
 {
 	u32 base = HEX_OBJ_TYPE_BASE + (u32)(h->typeBank[type] - HEX_OBJ_BANK_FIRST) * HEX_OBJ_TYPE_TILES;
 	u32 frameBank = owner == HEX_BLUE ? HEX_BANK_BLUE : HEX_BANK_RED;
 
-	HexScreen_Push(x, y, gObject_32x32, base, frameBank);
+	HexScreen_Push(x, y, gObject_32x32, HEX_OBJ_CARD_BACK, frameBank);
 	HexScreen_Push(x, y, gObject_32x32, base + HEX_OBJ_PORTRAIT_OFFSET, h->typeBank[type]);
+	HexScreen_Push(x, y, gObject_32x32, base, frameBank);
 }
 
 /* The hexagon board: an empty cell is the outline, a placed card its digits, portrait and frame. */
