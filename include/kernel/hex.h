@@ -29,4 +29,10 @@ bool HexCol_GiveToConvoy(int type);
 bool HexCol_TakeOne(int type);
 void HexCol_GiveStarters(void);
 
+/* Prep screen "Hex" row (AtMenu.c). HexPrep.c starts the proc; HexScreen.c defines it. */
+#define PREP_MAINMENU_HEX 12 /* prep_atmenu_item_index value of the Hex row; no vanilla row uses 12 */
+struct ProcAtMenu;
+void StartHexScreen_FromPrep(struct ProcAtMenu *pproc);
+extern const struct ProcCmd ProcScr_HexScreen[];
+
 #endif /* CONFIG_HEX_CARDS */

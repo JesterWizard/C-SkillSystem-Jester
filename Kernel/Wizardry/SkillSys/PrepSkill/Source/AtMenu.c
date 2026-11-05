@@ -17,6 +17,10 @@ extern void StartEventReplayScreen_FromPrep(struct ProcAtMenu *pproc);
 #define PREP_MENU_VISIBLE_COUNT 5
 #define PREP_MENU_MAX_COUNT 8
 
+#ifdef CONFIG_HEX_CARDS
+#include "hex.h"
+#endif
+
 LYN_REPLACE_CHECK(PrepScreenMenu_OnCheckMap);
 void PrepScreenMenu_OnCheckMap(struct ProcAtMenu *proc)
 {
@@ -74,6 +78,15 @@ void PrepScreenMenu_OnSkillSynth(struct ProcAtMenu *proc)
     Proc_Goto(proc, 0xA);
 }
 
+#ifdef CONFIG_HEX_CARDS
+void PrepScreenMenu_OnHex(struct ProcAtMenu *proc)
+{
+    PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+    proc->state = PREP_MAINMENU_HEX + 1;
+    Proc_Goto(proc, 0xA);
+}
+#endif
+
 /* -----------------------------------------------------------------------
  * ROM-backed menu item table.
  * Placed after all callbacks it references so no forward declarations are
@@ -102,6 +115,9 @@ static const struct PrepMenuItem gPrepMenuTable[] = {
     { PREP_MAINMENU_EVENT_REPLAY,        PrepScreenMenu_OnEventReplay,        TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_EVENT_REPLAY,        MSG_PREP_SCREEN_DESC_EVENT_REPLAY,        0 },
     { PREP_MAINMENU_SUPPORT,            PrepScreenMenu_OnSupport,           TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_SUPPORT,            MSG_PREP_SCREEN_DESC_SUPPORT,            0 },
     { PREP_MAINMENU_CHECKMAP,           PrepScreenMenu_OnCheckMap,          TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_SCREEN_TITLE_CHECK_MAP,          MSG_PREP_SCREEN_DESC_CHECK_MAP,          0 },
+#ifdef CONFIG_HEX_CARDS
+    { PREP_MAINMENU_HEX,                PrepScreenMenu_OnHex,               TEXT_COLOR_SYSTEM_WHITE, MSG_PREP_HEX,                             MSG_PREP_HEX_HELP,                       0 },
+#endif
 };
 
 #define PREP_MENU_TABLE_SIZE (int)(sizeof(gPrepMenuTable) / sizeof(gPrepMenuTable[0]))
@@ -143,6 +159,9 @@ void AtMenu_StartSubmenu(struct ProcAtMenu *proc)
         case PREP_MAINMENU_INFUSE + 1:             StartInfuseScreen_FromPrep(proc);        break;
         case PREP_MAINMENU_EVENT_REPLAY + 1:       StartEventReplayScreen_FromPrep(proc);   break;
         case PREP_MAINMENU_SKILL_SYNTH + 1:        StartSkillSynthScreen_FromPrep(proc);    break;
+#ifdef CONFIG_HEX_CARDS
+        case PREP_MAINMENU_HEX + 1:                StartHexScreen_FromPrep(proc);           break;
+#endif
         default: break;
     }
 
@@ -493,6 +512,7 @@ LYN_REPLACE_CHECK(InitPrepScreenMainMenu);
 void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 {
     int i;
+    int restoreIndex;
 
     StartPrepScreenMenu(proc);
 
@@ -531,6 +551,9 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 
         SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT,  NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
+#ifdef CONFIG_HEX_CARDS
+        SetPrepScreenMenuItem(PREP_MAINMENU_HEX, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
+#endif
     } else {
         SetPrepScreenMenuItem(PREP_MAINMENU_UNIT, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_ITEM, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
@@ -547,7 +570,13 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
     else
         SetPrepScreenMenuPosition(1, 6);
 
-    SetPrepScreenMenuSelectedItem(proc->cur_cmd);
+    restoreIndex = proc->cur_cmd;
+#ifdef CONFIG_HEX_CARDS
+    /* The Hex screen sets cur_cmd to its row so the cursor returns there once. */
+    if (restoreIndex == PREP_MAINMENU_HEX)
+        proc->cur_cmd = 0;
+#endif
+    SetPrepScreenMenuSelectedItem(restoreIndex);
 }
 
 /* -----------------------------------------------------------------------
@@ -558,7 +587,26 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
 LYN_REPLACE_CHECK(SetPrepScreenMenuSelectedItem);
 void SetPrepScreenMenuSelectedItem(int index)
 {
+#ifdef CONFIG_HEX_CARDS
+    /* Only the Hex row is restored; other values stay ignored as before. */
+    if (index == PREP_MAINMENU_HEX) {
+        struct ProcPrepMenu *proc = Proc_Find(ProcScr_PrepMenu);
+        int i;
+
+        if (proc) {
+            for (i = 0; i < proc->max_index; i++) {
+                const struct PrepMenuItem *entry = GET_VISIBLE_PREP_MENU_ITEM(proc, i);
+
+                if (entry && entry->index == PREP_MAINMENU_HEX) {
+                    proc->cur_index = i;
+                    break;
+                }
+            }
+        }
+    }
+#else
     (void)index;
+#endif
 }
 
 /* -----------------------------------------------------------------------

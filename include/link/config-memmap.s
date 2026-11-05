@@ -112,7 +112,7 @@ _kernel_malloc gBEXP_MapGain, 2
 _kernel_malloc gBexpFromWorldMap, 2
 _kernel_malloc gInfuseFromWorldMap, 2
 _kernel_malloc gList_Total, 2
-_kernel_malloc gPrepMenuVisibleTableSlots, 12
+_kernel_malloc gPrepMenuVisibleTableSlots, 13
 _kernel_malloc gBaseConversations_Flags, 10
 _kernel_malloc gCharacterBiographyPage, 1
 _kernel_malloc gCharacterBiographyListNumber, 1

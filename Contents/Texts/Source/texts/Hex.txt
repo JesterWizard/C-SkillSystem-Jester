@@ -2,3 +2,7 @@
 Hex Card[X]
 ## MSG_ITEM_HEX_CARD_DESC
 A card for the game of Hex.[X]
+## MSG_PREP_HEX
+Hex[X]
+## MSG_PREP_HEX_HELP
+Play Hex with your army and view your cards.[X]

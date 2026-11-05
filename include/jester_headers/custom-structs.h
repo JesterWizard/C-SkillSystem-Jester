@@ -153,7 +153,7 @@ extern u8 gBEXP_Applied;
 extern u16 gBEXP_MapGain;
 extern u8 gBexpFromWorldMap;
 extern u8 gInfuseFromWorldMap;
-extern u8 gPrepMenuVisibleTableSlots[12];
+extern u8 gPrepMenuVisibleTableSlots[13];
 
 enum {
     BEXP_STATE_LIST = 0,

@@ -9,6 +9,7 @@ Tools for Claude Code cloud sessions. Local machines use the normal devkitARM se
 - `protected-outputs.txt` - generated files that `build.sh` must not rewrite. One path per line.
 - `gbarun.c` - headless mGBA runner. Plays a key script and takes screenshots and save states.
 - `boot-to-prologue.txt` - `gbarun` script that boots a fresh ROM to the prologue map.
+- `boot-to-prep.txt` - `gbarun` script that boots a fresh ROM to the Preparations screen (writes `prep.ss` and `prep.png`).
 - `.claude/hooks/session-start.sh` - session setup hook. Runs `build.sh` prerequisites and the rest of the setup below.
 
 ## Session setup
@@ -88,6 +89,16 @@ Boot script:
 - It writes `boot.png` and the save state `boot.ss`.
 - Run it from a scratch folder: `gbarun /path/to/fe8-kernel-dev.gba /path/to/Tools/cloud/boot-to-prologue.txt` (fe8-kernel-dev.gba is what build.sh produces; fe8.gba is the clean ROM.).
 
+Prep screen route:
+
+- `Tools/cloud/boot-to-prep.txt` runs the prologue boot, then the in-game Vesly debugger (B on an empty tile of the map).
+  It opens "Ch. State" (page 2), and writes chapter index 4 into `gPlaySt.chapterIndex` (`0x0202BCFE`, `gPlaySt` is `0x0202BCF0`).
+  It selects "Save & restart ch." (row 7), which starts chapter 4. Chapter 4's opening shows the Preparations screen.
+  The script confirms the save slot (A, A) and waits. It takes about 3 seconds.
+- Check `gPlaySt` in `fe8-kernel-dev.sym` after a rebuild. Its address moves if the struct moves.
+- Prep menu input: a press shorter than about 4 frames can drop. Hold a direction for 4 frames and wait about 40 frames between presses.
+- The prep menu's Hex row is the last one. Press DOWN 10 times from the top to reach it.
+
 Save state caveat:
 
 - A save state only works with the ROM build it was made from. Text and graphics pointers move between builds.
@@ -109,6 +120,17 @@ Stat screen tip:
 
 - Press R on a unit on the map to open its stat screen.
 - Press RIGHT to page to "Weapon & Skills".
+
+## Toggling CONFIG_HEX_CARDS
+
+`build.sh` leaves a tracked `.lyn.event` alone when its `.c` is unchanged in git, so after turning `CONFIG_HEX_CARDS` on or off the guarded outputs keep the old content. The off build then fails with `DuraItem.lyn.event:33:6 Undefined identifier: HexCard_NameId`.
+
+Delete the guarded outputs and build again (see `Kernel/Wizardry/Minigames/Hex/README.md`):
+
+```
+rm -f Data/ItemSys/Source/Items.lyn.event Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/DuraItem.lyn.event Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ItemInfos.lyn.event Kernel/Wizardry/SkillEffects/MenuSkills/Reinforce.lyn.event Kernel/Wizardry/SkillSys/PrepSkill/Source/AtMenu.lyn.event Data/Hex/HexCardTypes.lyn.event
+Tools/cloud/build.sh
+```
 
 ## Coding style
 

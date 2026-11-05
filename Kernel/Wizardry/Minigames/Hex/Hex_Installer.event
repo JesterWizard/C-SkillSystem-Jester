@@ -7,4 +7,8 @@
  */
 #include "Source/HexCards.lyn.event"
 
+/* Prep screen "Hex" row: the entry function and the placeholder full-screen proc. */
+#include "Source/HexPrep.lyn.event"
+#include "Source/HexScreen.lyn.event"
+
 #endif /* HEX_CARDS_INSTALLED */
