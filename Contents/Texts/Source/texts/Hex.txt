@@ -1,0 +1,4 @@
+## MSG_ITEM_HEX_CARD
+Hex Card[X]
+## MSG_ITEM_HEX_CARD_DESC
+A card for the game of Hex.[X]

@@ -191,6 +191,10 @@ gpFarAttackAnimItems: POIN FarAttackAnimItems
 gpWeaponHpDrainConfig: POIN WeaponHpDrainConfig
 gpWeaponHpCostConfig:  POIN WeaponHpCostConfig
 
+#ifdef CONFIG_HEX_CARDS
+gpHexCardTypes: POIN gHexCardTypes
+#endif
+
 NONE_SRC_RELOC_END:
 ASSERT (FreeSpace_RelocEnd - CURRENTOFFSET)
 

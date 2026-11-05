@@ -2,10 +2,17 @@
 #include "item-sys.h"
 #include "constants/texts.h"
 #include "skill-system.h"
+#ifdef CONFIG_HEX_CARDS
+#include "hex.h"
+#endif
 
 bool IsDuraItem(int item)
 {
     switch (ITEM_INDEX(item)) {
+#ifdef CONFIG_HEX_CARDS
+    case CONFIG_ITEM_INDEX_HEX_CARD:
+	return true;
+#endif
 #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
     case CONFIG_ITEM_INDEX_SKILL_SCROLL_1:
 	return true;
@@ -121,6 +128,11 @@ char *GetDuraItemName(int item)
 	if (IsSkillScrollItem(item))
 		return GetSkillScrollItemName(item);
 
+#ifdef CONFIG_HEX_CARDS
+	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_HEX_CARD)
+		return GetStringFromIndex(HexCard_NameId(item));
+#endif
+
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_ARMS_SCROLL) {
 		char *result = GetStringFromIndex(GetItemData(ITEM_INDEX(item))->nameTextId);
@@ -139,6 +151,11 @@ int GetDuraItemDescId(int item)
 	if (IsSkillScrollItem(item))
 		return GetSkillScrollItemDescId(item);
 
+#ifdef CONFIG_HEX_CARDS
+	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_HEX_CARD)
+		return GetItemData(ITEM_INDEX(item))->descTextId;
+#endif
+
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_ARMS_SCROLL)
 		return GetItemData(ITEM_INDEX(item))->descTextId;
@@ -153,6 +170,11 @@ int GetDuraItemUseDescId(int item)
 	if (IsSkillScrollItem(item))
 		return GetSkillScrollItemUseDescId(item);
 
+#ifdef CONFIG_HEX_CARDS
+	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_HEX_CARD)
+		return 0;
+#endif
+
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_ARMS_SCROLL)
 		return GetItemData(ITEM_INDEX(item))->useDescTextId;
@@ -166,6 +188,11 @@ int GetDuraItemIconId(int item)
 {
 	if (IsSkillScrollItem(item))
 		return GetSkillScrollItemIconId(item);
+
+#ifdef CONFIG_HEX_CARDS
+	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_HEX_CARD)
+		return GetItemData(ITEM_INDEX(item))->iconId;
+#endif
 
 #ifdef CONFIG_ITEM_INDEX_ARMS_SCROLL
 	if (ITEM_INDEX(item) == CONFIG_ITEM_INDEX_ARMS_SCROLL)

@@ -156,6 +156,9 @@ ALIGN 4
 #include "LimitedShopStock/LimitedShopStock_Installer.event"
 #include "Lvupfx/Lvupfx/MapLvup.lyn.event"
 #include "Minigames/Snek/Snek_Installer.event"
+#ifdef CONFIG_HEX_CARDS
+#include "Minigames/Hex/Hex_Installer.event"
+#endif
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"
 #include "MokhaAOE/MokhaAOE_Installer.event"

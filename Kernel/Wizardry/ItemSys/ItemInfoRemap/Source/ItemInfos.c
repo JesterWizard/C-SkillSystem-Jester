@@ -683,7 +683,11 @@ void DrawItemStatScreenLine(struct Text * text, int item, int nameColor, u16 * m
 
             color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_BLUE;
             PutNumberOrBlank(mapOut + 14, color, GetForgedItemDurability(item));
+#ifdef CONFIG_HEX_CARDS
+        } else if (limits.maxCount == 0 && ITEM_INDEX(item) != CONFIG_ITEM_INDEX_HEX_CARD) {
+#else
         } else if (limits.maxCount == 0) {
+#endif
             color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
             PutSpecialChar(mapOut + 12, color, TEXT_SPECIAL_SLASH);
 

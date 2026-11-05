@@ -1,0 +1,10 @@
+#ifndef HEX_CARDS_INSTALLED
+#define HEX_CARDS_INSTALLED
+
+/**
+ * Hex cards: the card item helpers and the collection helpers (WIZARDRY_CUSTOM, so FreeSpaceDEMO).
+ * Only included when CONFIG_HEX_CARDS is defined (wizardry.event).
+ */
+#include "Source/HexCards.lyn.event"
+
+#endif /* HEX_CARDS_INSTALLED */

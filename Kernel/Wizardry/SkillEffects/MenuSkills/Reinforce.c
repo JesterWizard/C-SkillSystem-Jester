@@ -65,12 +65,19 @@ static void callback_exec(ProcPtr proc)
     // Loop through all 5 of a unit's items
     for (int i = 0; i < 5; i++) {
         if (unit->items[i] == 0) continue; // Skip empty slots
+#ifdef CONFIG_HEX_CARDS
+        // Hex cards keep their type in the uses byte: never merge them
+        if (ITEM_INDEX(unit->items[i]) == CONFIG_ITEM_INDEX_HEX_CARD) continue;
+#endif
     
         int totalUses = ITEM_USES(unit->items[i]); // Get uses of current item
     
         // Look for duplicates of this item in remaining slots
         for (int j = i + 1; j < 5; j++) {
             if (unit->items[j] == 0) continue; // Skip empty slots in inner loop too
+#ifdef CONFIG_HEX_CARDS
+            if (ITEM_INDEX(unit->items[j]) == CONFIG_ITEM_INDEX_HEX_CARD) continue;
+#endif
             if (ITEM_INDEX(unit->items[j]) == ITEM_INDEX(unit->items[i])) { // Found duplicate
                 // Add the uses of the duplicate item
                 totalUses += ITEM_USES(unit->items[j]);

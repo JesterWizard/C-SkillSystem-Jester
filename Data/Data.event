@@ -26,6 +26,9 @@
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"
 #include "CustomItems/CustomItems.event"
+#ifdef CONFIG_HEX_CARDS
+#include "Hex/HexCardTypes.lyn.event"
+#endif
 #include "ItemSys/ItemSys.event"
 #include "UnitMenu/UnitMenu.event"
 #include "StatScreen/StatScreen.event"

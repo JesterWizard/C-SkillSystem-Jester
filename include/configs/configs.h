@@ -54,6 +54,13 @@
 #define CONFIG_ITEM_INDEX_SKILL_STEALER 0xBE
 #define CONFIG_ITEM_INDEX_ARMS_SCROLL 0xDA
 
+/* Hex cards: the Hex Card item (one card per type, the type is the uses byte) and the Hex minigame code.
+ * Comment out the next line to remove the Hex minigame and the card item from the build. */
+#define CONFIG_HEX_CARDS
+#ifdef CONFIG_HEX_CARDS
+	#define CONFIG_ITEM_INDEX_HEX_CARD 0xEC
+#endif
+
 #define CONFIG_FORGE_CHECKER 5000
 
 // Unit counts and save layout stay expanded. Gameplay is gated by

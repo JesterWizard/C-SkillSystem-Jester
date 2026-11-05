@@ -3389,6 +3389,19 @@ const struct ItemData gItemData_New[255] = {
 		.useEffectId = IER_ARMS_SCROLL,
 	},
 #endif
+#ifdef CONFIG_HEX_CARDS
+	/* Hex card: the name and icon come from the card type (the uses byte), see Kernel/Wizardry/Minigames/Hex/Source/HexCards.c */
+	[CONFIG_ITEM_INDEX_HEX_CARD] = {
+		.nameTextId = MSG_ITEM_HEX_CARD,
+		.descTextId = MSG_ITEM_HEX_CARD_DESC,
+		.number = CONFIG_ITEM_INDEX_HEX_CARD,
+		.weaponType = ITYPE_ITEM,
+		.maxUses = 1,
+		.costPerUse = 0,
+		.iconId = ITEM_ICON_ARMS_SCROLL,
+		.useEffectId = 0,	/* not usable */
+	},
+#endif
 	[ITEM_STAFF_ARBALEST] = {
 		.nameTextId = MSG_ITEM_ARBALEST_STAFF_NAME,
 		.descTextId = MSG_ITEM_ARBALEST_STAFF_DESC,
