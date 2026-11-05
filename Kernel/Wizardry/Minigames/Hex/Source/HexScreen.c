@@ -14,8 +14,9 @@
  * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer. The blue hand (left) and the red hand
  * (right); the board, both scores and the name bar. README.md lists the keys and the rules.
  *
- * Layers: BG1 wood (priority 3, charblock 2 tiles 0..3, screenblock 20; tile 4 is the solid bar, also behind the list), BG0
- * text (priority 0: the list, the name bar). OBJ 1D mapping. OBJ palette banks 0 (red frame) and 1 (blue frame), 2..15 the
+ * Layers: BG3 the rune mural (RestartMuralBackground, priority 3, the same as the other prep sub-screens), BG1 the UI windows
+ * (DrawUiFrame2, priority 2: the list over the board, the name bar across the bottom), BG0 text (priority 0: the list, the name
+ * bar). OBJ 1D mapping. OBJ palette banks 0 (red frame) and 1 (blue frame), 2..15 the
  * portraits of the cards on screen (HexScreen_BankFor). Every frame draws the sprites again (ClearSprites, then PutSprite): a
  * later PutSprite is drawn in front of an earlier one, so each sprite is pushed back to front. Board layout and card art:
  * docs/custom.md "Hex" (the Minish Cap mod).
@@ -53,27 +54,26 @@
 #define HEX_DIGIT_HP_DX 20
 #define HEX_DIGIT_HP_DY 16
 #define HEX_BOX 32
-#define HEX_BOARD_TOP 10
+#define HEX_BOARD_TOP 0           /* the top row of cells; the board spans y 0..127, above the name bar (y 128) */
 
 /* Hands and scores (blue on the left, red on the right). */
 #define HEX_HAND_BLUE_X 4
 #define HEX_HAND_RED_X 204
 #define HEX_HAND_Y 4
 #define HEX_HAND_STEP 20
-#define HEX_SCORE_Y 128
+#define HEX_SCORE_Y 112
 #define HEX_SCORE_BLUE_X 44
 #define HEX_SCORE_RED_X 168
 #define HEX_CURSOR_GAP 2
 #define HEX_TAKE_CURSOR_X 186      /* the arrow left of the red card the TAKE cursor is on */
 
-/* The hand picker's list (BG0 rows 0..15, on a plate of BG1 bar tiles): the title on row 0, then the owned card types, two rows
- * each (16 px), from HEX_PICK_ROW0. Names at column HEX_PICK_NAME_COL, the copies still available right-aligned to column
+/* The hand picker's list (BG0 text rows 1..13 in the list window rows 0..15, the window is BG1): the title on row 1, then the owned card
+ * types, two rows each (16 px), from HEX_PICK_ROW0 (six rows). Names at column HEX_PICK_NAME_COL, the copies still available right-aligned to column
  * HEX_PICK_COUNT_RIGHT (exclusive). The cursor (left arrow) is at HEX_PICK_CURSOR_X, the preview card at HEX_PREVIEW_X/Y.
  */
-#define HEX_PICK_VISIBLE 7
-#define HEX_PICK_TITLE_ROW 0
-#define HEX_PICK_ROW0 2
-#define HEX_PICK_ROWS 16
+#define HEX_PICK_VISIBLE 6
+#define HEX_PICK_TITLE_ROW 1
+#define HEX_PICK_ROW0 3
 #define HEX_PICK_TOP (HEX_PICK_ROW0 * 8)
 #define HEX_PICK_NAME_COL 7
 #define HEX_PICK_NAME_TILES 10
@@ -82,21 +82,24 @@
 #define HEX_PICK_COUNT_RIGHT 19
 #define HEX_PICK_CURSOR_X 40
 #define HEX_PICK_MAX_COUNT 99
-#define HEX_PLATE_X0 5
-#define HEX_PLATE_X1 24
+#define HEX_SCREEN_COLS 30
 #define HEX_PREVIEW_X 160
 #define HEX_PREVIEW_Y 40
 
-/* BG: wood and the name bar in charblock 2 (0x06008000), screenblock 20 (0x0600A000). */
-#define HEX_BG_CHARBLOCK 2
-#define HEX_BG_SCREENBLOCK 20
-#define HEX_BG_PRIORITY 3
-#define HEX_BG_WOOD_PAL 1
-#define HEX_BG_BAR_TILE 4
-#define HEX_BG_BAR_PAL 2
-#define HEX_BG_BAR_COLOUR 0x10EB   /* dark brown (#5A3A22), palette index 1 of the bar bank */
-#define HEX_NAME_ROW 18            /* name bar rows 18..19 (y 144..159) */
-#define HEX_NAME_COLS 30
+/*
+ * The windows (DrawUiFrame2, style 0, tile units, the frame included): the list over the board area (MENU, OPPONENT, CARDS,
+ * HAND_PICK, PICK_DONE; rows 0..15), and the name bar across the bottom (rows 16..19, text on row 17). The hands sit at the
+ * sides (x 4..36 and 204..236), so the bar is narrower than the screen: its columns are 5..24.
+ */
+#define HEX_LIST_X 5
+#define HEX_LIST_Y 0
+#define HEX_LIST_W 20
+#define HEX_LIST_H 16
+#define HEX_BAR_X 5
+#define HEX_BAR_Y 16
+#define HEX_BAR_W 20
+#define HEX_BAR_H 4
+#define HEX_NAME_ROW 17            /* the name bar's text row (the bar is rows 16..19, the glyphs inside the frame) */
 #define HEX_NAME_TEXT_TILES 24
 
 /* Match states (HexScreenState.state). */
@@ -158,11 +161,7 @@
 #define HEX_SE_ERROR SONG_6C
 
 static const s16 sHexBoxX[HEX_CELLS] = { 90, 118, 76, 104, 132, 62, 90, 118, 146, 76, 104, 132, 90, 118 };
-static const s16 sHexBoxY[HEX_CELLS] = { 10, 10, 34, 34, 34, 58, 58, 58, 58, 82, 82, 82, 106, 106 };
-
-static const u16 sHexBarPal[16] = { 0x0000, HEX_BG_BAR_COLOUR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-static const u32 sHexBarTile[8] = { 0x11111111, 0x11111111, 0x11111111, 0x11111111,
-				    0x11111111, 0x11111111, 0x11111111, 0x11111111 };
+static const s16 sHexBoxY[HEX_CELLS] = { 0, 0, 24, 24, 24, 48, 48, 48, 48, 72, 72, 72, 96, 96 }; /* + HEX_BOARD_TOP */
 
 /*
  * The state lives in gHexScreenState (include/link/config-memmap.s, 0x200 bytes), not in the proc: a proc is only 0x6C bytes
@@ -218,40 +217,20 @@ struct ProcHexScreen {
 	PROC_HEADER;
 	struct Text nameText;
 	struct DispCnt dispBak;
-	struct BgCnt bg1Bak;
 	u8 sel;
 };
 
-/* ---- Art and the BG1 tiles ---- */
+/* ---- The windows ---- */
 
-/* The tile value of the wood (or of the name bar) at (x, y). */
-static u16 HexScreen_WoodValue(int x, int y)
-{
-	if (y >= HEX_NAME_ROW && x >= 1 && x < 1 + 28)
-		return (u16)(HEX_BG_BAR_TILE | (HEX_BG_BAR_PAL << 12));
-	return (u16)(((x & 1) | ((y & 1) << 1)) | (HEX_BG_WOOD_PAL << 12));
-}
-
-/* Sets a BG1 tile in the map buffer and in the screenblock (the BG1 map sync does not reach this screen's screenblock). */
-static void HexScreen_SetWood(int x, int y, u16 value)
-{
-	u16 *map = (u16 *)(0x06000000 + HEX_BG_SCREENBLOCK * 0x800);
-
-	gBG1TilemapBuffer[TILEMAP_INDEX(x, y)] = value;
-	map[TILEMAP_INDEX(x, y)] = value;
-}
-
-/* The plate behind the list: bar tiles over the wood (on), or the wood again (off). */
-static void HexScreen_Plate(bool32 on)
+/* Rows y0..y0+rows-1 of BG0 and BG1 back to empty (the window's cells are drawn again by DrawUiFrame2). */
+static void HexScreen_ClearRows(int y0, int rows)
 {
 	int x, y;
 
-	for (y = 0; y < HEX_PICK_ROWS; y++) {
-		for (x = HEX_PLATE_X0; x <= HEX_PLATE_X1; x++) {
-			if (on)
-				HexScreen_SetWood(x, y, (u16)(HEX_BG_BAR_TILE | (HEX_BG_BAR_PAL << 12)));
-			else
-				HexScreen_SetWood(x, y, HexScreen_WoodValue(x, y));
+	for (y = y0; y < y0 + rows; y++) {
+		for (x = 0; x < HEX_SCREEN_COLS; x++) {
+			gBG0TilemapBuffer[TILEMAP_INDEX(x, y)] = 0;
+			gBG1TilemapBuffer[TILEMAP_INDEX(x, y)] = 0;
 		}
 	}
 }
@@ -369,24 +348,6 @@ static void HexScreen_LoadSprites(void)
 	ApplyPalette(gHexFramePalBlue, 0x10 + HEX_BANK_BLUE);
 }
 
-/* The wood (BG1) and the name-bar tile and palette. */
-static void HexScreen_LoadBackground(void)
-{
-	int x, y;
-
-	CpuFastCopy(gHexWoodBgTiles, (void *)0x06008000, 128);
-	CpuFastCopy(sHexBarTile, (void *)(0x06008000 + HEX_BG_BAR_TILE * 0x20), 32);
-	ApplyPalette(gHexWoodBgPal, HEX_BG_WOOD_PAL);
-	ApplyPalette(sHexBarPal, HEX_BG_BAR_PAL);
-
-	for (y = 0; y < 20; y++) {
-		for (x = 0; x < 30; x++)
-			gBG1TilemapBuffer[TILEMAP_INDEX(x, y)] = HexScreen_WoodValue(x, y);
-	}
-	/* Written to the screenblock directly as well: the BG1 map sync does not reach it on this screen. */
-	CpuFastCopy(gBG1TilemapBuffer, (void *)(0x06000000 + HEX_BG_SCREENBLOCK * 0x800), 0x800);
-}
-
 /* The owned card types (in type order) and their copies, read from the collection once. */
 static void HexScreen_Scan(struct HexScreenState *h)
 {
@@ -476,7 +437,7 @@ static void HexScreen_Cells(const struct HexScreenState *h)
 
 	for (c = 0; c < HEX_CELLS; c++) {
 		int x = sHexBoxX[c];
-		int y = sHexBoxY[c];
+		int y = HEX_BOARD_TOP + sHexBoxY[c];
 		u8 owner = g->cell[c].owner;
 		u32 frameBank;
 
@@ -531,7 +492,7 @@ static void HexScreen_Score(const struct HexGame *g, u8 owner, int x)
  */
 static int HexScreen_CellCursorY(int cell)
 {
-	int y = sHexBoxY[cell] - 16 - HEX_CURSOR_GAP;
+	int y = HEX_BOARD_TOP + sHexBoxY[cell] - 16 - HEX_CURSOR_GAP;
 
 	return y < 0 ? 0 : y;
 }
@@ -601,8 +562,6 @@ static void HexScreen_Draw(struct ProcHexScreen *proc)
 {
 	const struct HexScreenState *h = HEX_ST;
 
-	/* The fade and the prep menu's own code turn BG2 and BG3 back on: keep the screen's layers (BG0 text, BG1 wood, OBJ). */
-	SetDispEnable(1, 1, 0, 0, 1);
 	gLCDControlBuffer.dispcnt.obj1dMap = 1;
 
 	ClearSprites();
@@ -854,13 +813,10 @@ static bool32 HexScreen_IsList(u8 state)
 	       state == HEX_STATE_PICK_DONE;
 }
 
-/* BG0 rows 0..15 (the list) back to empty. */
+/* The list window's rows back to empty. */
 static void HexScreen_ClearList(void)
 {
-	int i;
-
-	for (i = 0; i < HEX_PICK_ROWS * 32; i++)
-		gBG0TilemapBuffer[i] = 0;
+	HexScreen_ClearRows(HEX_LIST_Y, HEX_LIST_H);
 }
 
 /* MENU: the title and the two rows. */
@@ -960,12 +916,11 @@ static void HexScreen_DrawPickList(struct HexScreenState *h)
 	}
 }
 
-/* The list texts of the current state, redrawn when listKey is 0. */
+/* The list texts of the current state (the window is drawn by HexScreen_ListUpdate). */
 static void HexScreen_DrawList(struct HexScreenState *h)
 {
 	int i;
 
-	HexScreen_ClearList();
 	ClearText(&h->title);
 	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
 		ClearText(&h->rows[i]);
@@ -988,47 +943,44 @@ static void HexScreen_DrawList(struct HexScreenState *h)
 	}
 }
 
-/* The list is drawn (with its plate) while a list state lasts, and cleared once they are over. */
+/* The list window and its texts are drawn while a list state lasts (again on every change of list state), and cleared once they are over. */
 static void HexScreen_ListUpdate(struct HexScreenState *h)
 {
 	if (HexScreen_IsList(h->state)) {
 		if (h->listKey == 0) {
+			HexScreen_ClearList();
+			DrawUiFrame2(HEX_LIST_X, HEX_LIST_Y, HEX_LIST_W, HEX_LIST_H, 0);
 			HexScreen_DrawList(h);
-			HexScreen_Plate(TRUE);
 			h->listKey = 1;
-			BG_EnableSyncByMask(BG0_SYNC_BIT);
+			BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 		}
 	} else if (h->listKey != 0) {
 		HexScreen_ClearList();
-		HexScreen_Plate(FALSE);
 		h->listKey = 0;
-		BG_EnableSyncByMask(BG0_SYNC_BIT);
+		BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 	}
 }
 
 /* ---- The name bar ---- */
 
-/* A name bar piece: the text centred on row 18 (BG0 text over the BG1 bar). */
+/* A name bar piece: the text centred on row 17 (BG0 text over the BG1 frame). */
 static void HexScreen_BarText(struct ProcHexScreen *proc, const char *text)
 {
 	int tiles;
 	int col;
-	int x;
 
-	for (x = 0; x < HEX_NAME_COLS; x++) {
-		gBG0TilemapBuffer[TILEMAP_INDEX(x, HEX_NAME_ROW)] = 0;
-		gBG0TilemapBuffer[TILEMAP_INDEX(x, HEX_NAME_ROW + 1)] = 0;
-	}
+	HexScreen_ClearRows(HEX_BAR_Y, HEX_BAR_H);
+	DrawUiFrame2(HEX_BAR_X, HEX_BAR_Y, HEX_BAR_W, HEX_BAR_H, 0);
 	ClearText(&proc->nameText);
 
 	tiles = (GetStringTextLen(text) + 7) / 8;
-	col = (HEX_NAME_COLS - tiles) / 2;
+	col = HEX_BAR_X + (HEX_BAR_W - tiles) / 2;
 
 	Text_SetParams(&proc->nameText, 0, TEXT_COLOR_SYSTEM_WHITE);
 	Text_DrawString(&proc->nameText, text);
 	PutText(&proc->nameText, TILEMAP_LOCATED(gBG0TilemapBuffer, col, HEX_NAME_ROW));
 
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
 /* The name bar with a name between head and tail ("" + name + "'s deck"). */
@@ -1205,27 +1157,32 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 		HexCol_GiveStarters();
 
 	proc->dispBak = gLCDControlBuffer.dispcnt;
-	proc->bg1Bak = *BG_GetControlBuffer(1);
 
+	/* The standard prep sub-screen layout (as PrepItemList_InitGfx_INFUSE): the mural on BG3, the windows on BG1, the text on BG0. */
 	SetupBackgrounds(NULL);
+	SetDispEnable(0, 0, 0, 0, 0);
+	BG_Fill(BG_GetMapBuffer(0), 0);
+	BG_Fill(BG_GetMapBuffer(1), 0);
+	BG_Fill(BG_GetMapBuffer(2), 0);
+	BG_Fill(BG_GetMapBuffer(3), 0);
+	gLCDControlBuffer.bg0cnt.priority = 0;
+	gLCDControlBuffer.bg1cnt.priority = 2;
+	gLCDControlBuffer.bg2cnt.priority = 1;
+	gLCDControlBuffer.bg3cnt.priority = 3;
+
 	ResetText();
 	SetTextFont(0);
 	InitSystemTextFont();
 	LoadUiFrameGraphics();
-
-	BG_Fill(gBG0TilemapBuffer, 0);
-	BG_Fill(gBG1TilemapBuffer, 0);
-
-	/* BG1 (wood and name bar) behind BG0 (text); OBJ 1D mapping, BG0, BG1 and OBJ on. */
-	BG_GetControlBuffer(1)->charBaseBlock = HEX_BG_CHARBLOCK;
-	BG_GetControlBuffer(1)->screenBaseBlock = HEX_BG_SCREENBLOCK;
-	BG_GetControlBuffer(1)->priority = HEX_BG_PRIORITY;
-	BG_GetControlBuffer(1)->colorMode = 0;
-	SetDispEnable(1, 1, 0, 0, 1);
-	gLCDControlBuffer.dispcnt.obj1dMap = 1;
-
-	HexScreen_LoadBackground();
 	HexScreen_LoadSprites();
+
+	RestartMuralBackground();
+	gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
+	EnablePaletteSync();
+
+	/* BG0 text, BG1 windows, BG3 mural, OBJ 1D mapping. */
+	SetDispEnable(1, 1, 0, 1, 1);
+	gLCDControlBuffer.dispcnt.obj1dMap = 1;
 
 	HexScreen_MakeTypes(h);
 	for (i = 0; i < HEX_CARD_TYPES; i++)
@@ -1251,7 +1208,7 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 		InitText(&h->rows[i], HEX_PICK_NAME_TILES);
 		InitText(&h->counts[i], HEX_PICK_COUNT_TILES);
 	}
-	BG_EnableSyncByMask(BG1_SYNC_BIT);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG3_SYNC_BIT);
 	SetDefaultColorEffects();
 }
 
@@ -1844,12 +1801,9 @@ static void HexScreen_OnEnd(struct ProcHexScreen *proc)
 	struct ProcAtMenu *pproc = proc->proc_parent;
 
 	ClearSprites();
+	EndMuralBackground_();
+	ClearBg0Bg1();
 	gLCDControlBuffer.dispcnt = proc->dispBak;
-	*BG_GetControlBuffer(1) = proc->bg1Bak;
-
-	BG_Fill(gBG0TilemapBuffer, 0);
-	BG_Fill(gBG1TilemapBuffer, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 	SetDefaultColorEffects();
 
 	/* Same hand-off as the other prep sub-screens: the prep menu redraws itself. cur_cmd puts the cursor back on the Hex row. */

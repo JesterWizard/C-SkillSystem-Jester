@@ -42,8 +42,6 @@ extern const u32 gHexScoreTiles[10][32];
 extern const u32 gHexCursorTiles[2][32];
 extern const u16 gHexFramePalRed[16];
 extern const u16 gHexFramePalBlue[16];
-extern const u32 gHexWoodBgTiles[4][8];
-extern const u16 gHexWoodBgPal[16];
 extern const u32 gHexPortraitKeep[128];
 
 /* The Hex screen's match state (struct HexScreenState in HexScreen.c), 0x200 bytes, include/link/config-memmap.s. */
