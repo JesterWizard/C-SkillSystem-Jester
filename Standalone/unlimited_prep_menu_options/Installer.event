@@ -1,0 +1,109 @@
+/* Unlimited Prep Menu Options (standalone). Install on a clean FE8U (USA) ROM with
+ * FEBuilder Insert EA. Do not define jumpToHack here; Insert EA provides it. */
+
+/* Vanilla entry points (ROM offset = address - 0x08000000). All are 4-byte aligned. */
+#define FE8U_PrepScreenMenu_OnCheckMap      $952C0
+#define FE8U_PrepMenu_OnInit                $96CCC
+#define FE8U_PrepMenu_CtrlLoop              $96D10
+#define FE8U_AtMenu_Reinitialize            $95C84
+#define FE8U_sub_8095C00                    $95C00
+#define FE8U_SetPrepScreenMenuPosition      $97200
+#define FE8U_SetPrepScreenMenuItem          $97024
+#define FE8U_InitPrepScreenMainMenu         $95524
+#define FE8U_AtMenu_StartSubmenu            $9631C
+#define FE8U_DrawPrepScreenMenuFrameAt      $97154
+#define FE8U_GetActivePrepMenuItemIndex     $9710C
+#define FE8U_SetPrepScreenMenuSelectedItem  $970CC
+
+#define FE8U_StandaloneFreeSpace            $1000000
+
+PUSH
+ORG FE8U_PrepScreenMenu_OnCheckMap
+    jumpToHack(PMX_PrepScreenMenu_OnCheckMap)
+    PROTECT FE8U_PrepScreenMenu_OnCheckMap FE8U_PrepScreenMenu_OnCheckMap + 0x8 // PrepScreenMenu_OnCheckMap hook
+POP
+
+PUSH
+ORG FE8U_PrepMenu_OnInit
+    jumpToHack(PMX_PrepMenu_OnInit)
+    PROTECT FE8U_PrepMenu_OnInit FE8U_PrepMenu_OnInit + 0x8 // PrepMenu_OnInit hook
+POP
+
+PUSH
+ORG FE8U_PrepMenu_CtrlLoop
+    jumpToHack(PMX_PrepMenu_CtrlLoop)
+    PROTECT FE8U_PrepMenu_CtrlLoop FE8U_PrepMenu_CtrlLoop + 0x8 // PrepMenu_CtrlLoop hook
+POP
+
+PUSH
+ORG FE8U_AtMenu_Reinitialize
+    jumpToHack(PMX_AtMenu_Reinitialize)
+    PROTECT FE8U_AtMenu_Reinitialize FE8U_AtMenu_Reinitialize + 0x8 // AtMenu_Reinitialize hook
+POP
+
+PUSH
+ORG FE8U_sub_8095C00
+    jumpToHack(PMX_UpdatePrepMenuDescription)
+    PROTECT FE8U_sub_8095C00 FE8U_sub_8095C00 + 0x8 // sub_8095C00 (description) hook
+POP
+
+PUSH
+ORG FE8U_SetPrepScreenMenuPosition
+    jumpToHack(PMX_SetPrepScreenMenuPosition)
+    PROTECT FE8U_SetPrepScreenMenuPosition FE8U_SetPrepScreenMenuPosition + 0x8 // SetPrepScreenMenuPosition hook
+POP
+
+PUSH
+ORG FE8U_SetPrepScreenMenuItem
+    jumpToHack(PMX_SetPrepScreenMenuItem)
+    PROTECT FE8U_SetPrepScreenMenuItem FE8U_SetPrepScreenMenuItem + 0x8 // SetPrepScreenMenuItem hook
+POP
+
+PUSH
+ORG FE8U_InitPrepScreenMainMenu
+    jumpToHack(PMX_InitPrepScreenMainMenu)
+    PROTECT FE8U_InitPrepScreenMainMenu FE8U_InitPrepScreenMainMenu + 0x8 // InitPrepScreenMainMenu hook
+POP
+
+PUSH
+ORG FE8U_AtMenu_StartSubmenu
+    jumpToHack(PMX_AtMenu_StartSubmenu)
+    PROTECT FE8U_AtMenu_StartSubmenu FE8U_AtMenu_StartSubmenu + 0x8 // AtMenu_StartSubmenu hook
+POP
+
+PUSH
+ORG FE8U_DrawPrepScreenMenuFrameAt
+    jumpToHack(PMX_DrawPrepScreenMenuFrameAt)
+    PROTECT FE8U_DrawPrepScreenMenuFrameAt FE8U_DrawPrepScreenMenuFrameAt + 0x8 // DrawPrepScreenMenuFrameAt hook
+POP
+
+PUSH
+ORG FE8U_GetActivePrepMenuItemIndex
+    jumpToHack(PMX_GetActivePrepMenuItemIndex)
+    PROTECT FE8U_GetActivePrepMenuItemIndex FE8U_GetActivePrepMenuItemIndex + 0x8 // GetActivePrepMenuItemIndex hook
+POP
+
+PUSH
+ORG FE8U_SetPrepScreenMenuSelectedItem
+    jumpToHack(PMX_SetPrepScreenMenuSelectedItem)
+    PROTECT FE8U_SetPrepScreenMenuSelectedItem FE8U_SetPrepScreenMenuSelectedItem + 0x8 // SetPrepScreenMenuSelectedItem hook
+POP
+
+/* Extension header (see Source/PrepMenuExt.h):
+ *   $1000000  "PMX1"                       magic
+ *   $1000004  PrepMenuExtSlots[8]          POIN per slot, 0 = empty */
+ORG FE8U_StandaloneFreeSpace
+PrepMenuExtHeader:
+BYTE 0x50 0x4D 0x58 0x31 // "PMX1"
+ALIGN 4
+PrepMenuExtSlots:
+WORD 0 0 0 0 0 0 0 0
+
+#include "Source/PrepMenuUnlimited.lyn.event"
+
+/* Protect the magic and the body, but not the 8 slot words at $1000004..$1000023:
+ * add-ons write their slot with PUSH / ORG $1000004 / POIN / POP, and a PROTECT
+ * range would stop that in the same EA run ("Trying to write data to area protected").
+ */
+PROTECT FE8U_StandaloneFreeSpace FE8U_StandaloneFreeSpace + 0x4 // magic "PMX1"
+PROTECT FE8U_StandaloneFreeSpace + 0x24 CURRENTOFFSET // body (slots at +0x4..+0x23 stay writable)

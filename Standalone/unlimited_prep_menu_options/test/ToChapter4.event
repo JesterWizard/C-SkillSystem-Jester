@@ -1,0 +1,14 @@
+/* TEST ONLY - do not install.
+ *
+ * Makes a new game start on chapter 4: copies chapter 4's ROM chapter-data entry
+ * over chapter 0's entry. GetROMChapterStruct (0x08034618) returns
+ * gChapterDataTable (ROM 0x088B0890, file offset $8B0890) + id * 0x94, so entry 0
+ * is at file offset $8B0890. Ch4Entry.bin is chapter 4's 0x94 bytes from the clean
+ * fe8.gba (copied by a script, verified byte-equal to entry 4 of the clean ROM).
+ * Apply after Installer.event (or alone). Needs no hack installation include.
+ */
+
+PUSH
+ORG $8B0890
+#incbin "test/Ch4Entry.bin"
+POP
