@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TEST ONLY. Builds the Hex Cards test ROM from your own clean FE8U ROM, in one Event Assembler run:
+# TEST ONLY. Builds the Hex test ROM (cards and the Hex screen) from your own clean FE8U ROM, in one Event Assembler run:
 #   parent test/ToChapter4.event (chapter-4 start) -> parent Installer.event -> hex/Installer.event
 # Run `python3 test/make_ch4_entry.py <clean fe8.gba>` in the parent folder first (see the parent test/README.md).
 #

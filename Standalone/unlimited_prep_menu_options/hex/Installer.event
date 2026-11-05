@@ -1,9 +1,12 @@
-/* Hex Cards (standalone add-on, FE8U clean ROM). INSTALL THE PARENT PATCH FIRST:
+/* Hex (standalone add-on, FE8U clean ROM). INSTALL THE PARENT PATCH FIRST:
  *   ../Installer.event (Unlimited Prep Menu Options), in the same Insert EA run, before this file.
  * Then this file. Do not define jumpToHack here; Insert EA provides it.
  * This add-on writes the card item into vanilla item slot HEX_CARD_ITEM, hooks GetItemName and
- * GetItemDescId, and puts its code at FE8U_HexFreeSpace (not $1000000, which the parent uses).
- * The card collection helpers (Source/Hex.h) are in the body for the Hex screen to call. */
+ * GetItemDescId, puts its body (cards, art, engine, Hex screen) at FE8U_HexFreeSpace (not $1000000,
+ * which the parent uses), and adds the "Hex" row to the Preparations menu in extension slot HEX_PREP_SLOT. */
+
+/* The Preparations menu extension slot (0 to 7) of the Hex row. Must equal HEX_PREP_SLOT in Source/Hex.h. */
+#define HEX_PREP_SLOT                      0
 
 /* Vanilla addresses (ROM offset = address - 0x08000000). All are 4-byte aligned. */
 #define FE8U_gItemData                     $809B10  /* gItemData: 36 bytes per item, 0x00..0xCD (0x080177B0 GetItemData) */
@@ -50,9 +53,17 @@ ORG FE8U_GetItemDescId
     PROTECT FE8U_GetItemDescId FE8U_GetItemDescId + 0x8 // GetItemDescId hook
 POP
 
-/* Body: the hook targets and the collection helpers (Source/Hex.lyn.event, made by `make` in this folder). */
+/* Body: the card helpers, the rules engine, the card art, the Preparations row and the Hex screen
+ * (Source/Hex.lyn.event, made by `make` in this folder). Everything is protected. */
 PUSH
 ORG FE8U_HexFreeSpace
 #include "Source/Hex.lyn.event"
 PROTECT FE8U_HexFreeSpace CURRENTOFFSET // body
+POP
+
+/* The Hex row: the parent's extension slot HEX_PREP_SLOT points at HexPrepRow (a struct PrepMenuExtRow in the body).
+ * The slot words at $1000004..$1000023 are not protected in the parent, so this write is allowed. */
+PUSH
+ORG $1000004 + 4*HEX_PREP_SLOT
+POIN HexPrepRow
 POP

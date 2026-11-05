@@ -1,55 +1,63 @@
-# Hex Cards (standalone add-on)
+# Hex (standalone add-on: the Hex minigame in the Preparations menu)
 
-Hex cards as vanilla items, for FE8U. A card is one item in a dummy vanilla item slot. Its name is the name of the character it is named after, and it has no uses number. This add-on also holds the card collection helpers that the Hex screen will use. The Hex screen itself (the minigame) is not in this add-on; it comes in the next task. Integrated documentation: [Documentation/Features/Minigames/Hex.md](../../../Documentation/Features/Minigames/Hex.md) (see "Cards as Items" and "Card List").
+The Hex card game for FE8U, as an add-on to the [Unlimited Prep Menu Options](../README.md) patch. A clean FE8U ROM with both patches has a **Hex** row in the Preparations menu. It opens the Hex screen: Play (pick one of your living units as the opponent, pick a hand of 7 cards, play a match) or Cards (your collection). Winning a match can give you a card of the opponent's, and losing can cost you one. Cards are ordinary vanilla items in the convoy and the units' inventories.
+
+Integrated documentation: [Documentation/Features/Minigames/Hex.md](../../../Documentation/Features/Minigames/Hex.md) (rules, card list and the kernel's version).
 
 ## Behaviour
 
-- **Card item.** One vanilla item slot, `HEX_CARD_ITEM` = `$C1` (a "Dummy" item, see [Item slot](#item-slot-and-how-to-change-it)). The item word is `(type << 8) | 0xC1`, so the card type (0 to 31, the row of the card table) is the uses byte. A type past 31 is shown as type 0 (Ross).
-- **Name.** The card's name is the name of its character: `GetCharacterData(pid)->nameTextId` (for example "Ross", "L'Arachel").
-- **Help text.** R on a card in a list shows the character's description: `GetCharacterData(pid)->descTextId`. Test: "A young villager. He longs to be a warrior, like his father." for Ross.
-- **Icon.** The vanilla "Member Card" icon (`$84`), a card picture.
-- **Uses.** The item is unbreakable (`IA_UNBREAKABLE`), so vanilla `GetItemUses` returns `0xFF` and no uses number is drawn. The Supply list shows `--`. Max uses is 1, cost is 0, and there is no use effect (a card cannot be used).
-- **Other items.** The two hooks keep the vanilla result for every other item (see [Hooks](#hooks-and-free-space)).
-- **Collection helpers** (`Source/Hex.h`, all non-static): `IsHexCardItem`, `MakeHexCardItem`, `HexCard_Type`, `HexCard_NameId`, `HexCard_DescId`, `HexCol_Count`, `HexCol_Total`, `HexCol_GiveToConvoy`, `HexCol_TakeOne` (convoy first, then a living unit's inventory), `HexCol_GiveStarters` (7 starter cards into the convoy, only when the player owns none). They use the vanilla convoy (100 slots) and `gUnitArrayBlue`.
-- **Card table.** `gHexCardTypes[32]` (attack, max HP, reach, tier, starter count, character `pid`), ported from `Data/Hex/HexCardTypes.c`.
+### The Hex row
 
-Tested in an emulator: a convoy with card items lists them by character name, R shows the help text, and taking them moves them into a unit's inventory (see `test/README.md`).
+- Title `Hex`, help text "Play Hex with your army / and view your cards." (the help is a C string; the line break is a `\n` in `Source/HexPrep.c`). It is always shown and never grey.
+- A on the row plays the window select sound, then the Hex menu opens: Play and Cards, on the rune mural with the blue list window (the prep sub-screen look).
+- B on the Hex menu leaves for the Preparations menu. The cursor is back on the Hex row, with no popup.
+
+### The Hex menu
+
+- **Play** opens "Choose an opponent": the living player units (name and level). The highlighted unit's deck is shown in the red column. A starts the hand picker. B goes back.
+- **Cards** opens the collection: "Cards N/32" and the 32 card types in table order. Owned types show the copies; a type never owned shows `???`. The highlighted owned card is previewed. B goes back.
+- The first time the screen opens with no cards, the player gets the 7 starter cards in the convoy (`HexCol_GiveStarters`: Ross 2, Amelia 2, Ewan 1, Franz 1, Neimi 1).
+
+### The hand picker and the match
+
+- The picker lists your owned types with the copies still available. A adds a copy to the hand (7 cards), B removes the last one. With 7 cards, "Accept this hand?" appears: Accept starts the reveal (the opponent's hand is shown; A skips it) and then the match. Change goes back to the picker.
+- A match is 14 placements on the 14-cell board, blue and red in turns. Blue chooses a card (UP/DOWN, A) and a cell (D-pad, A places, B goes back). The first player is chosen by the game clock. Red's AI level is set by the opponent's level (0, 1 or 2 for levels below 5, below 15, and the rest).
+- At the end, the banner says Victory, Defeat or Draw. A goes to the stakes:
+  - **Win:** if the opponent's starting cards can be taken (you hold fewer than 3 copies of their type), Take shows them. UP/DOWN chooses and A takes one into the convoy. A held type of 3 copies, or a full convoy, is refused with a message. With a full convoy, B skips the take.
+  - **Loss:** if you hold more than 7 cards, your strongest card of the hand is taken. Otherwise "Your cards are safe this time."
+  - **Draw:** nothing changes.
+- The stake banner stays for 120 frames (or until A), then the menu comes back.
+
+### Cards as items
+
+Unchanged from the card add-on: a card is one vanilla item slot `$C1` (a "Dummy" item) whose uses byte is the card type (0 to 31). Its name and description are the character's, it has the vanilla Member Card icon, and it cannot be used. The Supply list shows it with `--` uses. R on a card shows the character's description. See the card section of the test notes in [test/README.md](test/README.md).
 
 ## Target ROM
 
 - **FE8U (USA)**, clean ROM. The header reads `FIREEMBLEM2EBE8E`.
-- Not for the integrated C Skill System kernel. Do not install over `Kernel/Wizardry/Minigames/Hex` or `ItemInfoRemap`.
+- Not for the integrated C Skill System kernel. Do not install over `Kernel/Wizardry/Minigames/Hex` or `Kernel/Wizardry/SkillSys/PrepSkill`.
 
 ## Needs the parent patch
 
-Install [Unlimited Prep Menu Options](../README.md) first, in its own Insert EA run. The Hex row and the Hex screen (next task) live in the prep menu that the parent builds. The two patches do not overlap (see [Hooks](#hooks-and-free-space)). This add-on does not call any code of the parent, and `Installer.event` also assembles on its own, so the order is a design requirement, not an assembler one.
-
-## Build
-
-No build step is needed to install. `Source/Hex.lyn.event` is checked in. To rebuild after editing a C file in `Source/`:
-
-```bash
-make -C Standalone/unlimited_prep_menu_options/hex
-```
-
-This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`Tools/FE-CLib-Mokha`) and the repo's Event Assembler `lyn` (`Tools/EventAssembler/Tools/lyn`, see [Documentation/Setup.md](../../../Documentation/Setup.md)). The makefile uses `include/configs/configs.h`, an empty stand-in in this folder (FE-CLib's `bmunit.h` includes it), so the build reads no kernel header.
+Install [Unlimited Prep Menu Options](../README.md) **first, in the same Insert EA run** (one ColorzCore run with both installers, or FEBuilder's Insert EA on the parent and then on this folder's `Installer.event` on the same ROM). The Hex row is written into the parent's extension slot. Without the parent's `PMX1` header the slot write goes into unformatted ROM and nothing shows in the menu.
 
 ## Install
 
-The folder is self-contained. It does not need `EAstdlib.event` or `Hack Installation.txt` (FEBuilder provides `jumpToHack`).
+The folder is self-contained (it does not need `EAstdlib.event` or `Hack Installation.txt`; FEBuilder provides `jumpToHack`).
 
 ### FEBuilderGBA
 
-1. Open a clean FE8U ROM and install the parent patch: **Advanced Editors → Insert EA** on `../Installer.event`.
-2. On the same ROM, **Advanced Editors → Insert EA** on this folder's `Installer.event`.
+1. Open a clean FE8U ROM.
+2. **Advanced Editors → Insert EA** on `../Installer.event` (the parent).
+3. On the same ROM, **Advanced Editors → Insert EA** on this folder's `Installer.event`.
 
 ### Event Assembler (command line)
 
-From a copy of the clean ROM, run the parent step first, then this step on that output. Run both in their folders (the `Source/` paths are relative):
+Both steps write the same ROM. The parent's step is first, then this one. The parent's README has the same commands for the parent alone.
 
 ```bash
 EA_DIR=<repo>/Tools/EventAssembler
-ROM=<somewhere>/fe8-hex-cards.gba
+ROM=<somewhere>/fe8-hex.gba
 cp <clean fe8.gba> "$ROM"
 cd <repo>/Standalone/unlimited_prep_menu_options
 { echo '#include "Extensions/Hack Installation.txt"'; echo '#include "Installer.event"'; } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:"$ROM"
@@ -57,21 +65,36 @@ cd hex
 { echo '#include "Extensions/Hack Installation.txt"'; echo '#include "Installer.event"'; } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:"$ROM"
 ```
 
-Both steps write the same `$ROM`, so the parent's patch is in it before the hex patch. The parent's own README gives the parent's step, which is the first command pair above.
+The tested path is one run, as the parent's test does (`test/make_test_rom.sh`). Two runs on one ROM should also work, because the parent's protection does not cover `$1100000` or the slot word, but the two-run order was not tested with the Hex row.
+
+## Build
+
+No build step is needed to install. `Source/Hex.lyn.event` is checked in. To rebuild after editing a C file in `Source/` or `Source/RamAlloc.s`:
+
+```bash
+make -C Standalone/unlimited_prep_menu_options/hex
+```
+
+This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`Tools/FE-CLib-Mokha`) and the repo's `lyn` (`Tools/EventAssembler/Tools/lyn`). The build uses `-Wall -Wextra -Werror -O2`. It needs the parent's `Source/PrepMenuExt.h` (included by relative path from `Source/HexPrep.c`). The makefile never runs `make -B` or touches `Tools/FE-CLib-Mokha/reference`.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `ICON_CARD`, the item row, the two hooks, the free-space body |
-| `Source/Hex.h` | `HEX_CARD_ITEM`, `struct HexCardType`, the exported helpers |
+| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `HEX_PREP_SLOT`, the item row, the two item hooks, the body at `$1100000`, the slot write |
+| `Source/Hex.h` | `HEX_CARD_ITEM`, `HEX_PREP_SLOT`, `struct HexCardType`, the card and art declarations, `gHexScreenState` |
 | `Source/HexCards.c` | Card item tests, `MakeHexCardItem`, convoy and inventory collection |
 | `Source/HexCardTypes.c` | The 32 card types (`gHexCardTypes`) |
-| `Source/HexItem.c` | `HexItem_GetItemName` and `HexItem_GetItemDescId`, the two hook functions |
-| `Source/Hex.lyn.event` | Checked-in lyn output of the three `.c` files, included by the installer |
-| `include/configs/configs.h` | Empty stand-in for the kernel config header that FE-CLib includes |
-| `makefile` | Builds `Source/Hex.lyn.event` from the `.c` files with `-Wall -Wextra -Werror` |
-| `test/` | Test-only route and script. Do not install (see `test/README.md`) |
+| `Source/HexItem.c` | `HexItem_GetItemName` and `HexItem_GetItemDescId`, the two item hooks |
+| `Source/HexCore.h`, `Source/HexCore.c` | The rules engine and the AI (`Hex_Init`, `Hex_Place`, `Hex_AiChoose`, ...). Plain C, no game globals |
+| `Source/HexArt.c` | The card art, UI tiles and palettes (data only). Its generated block is from `Tools/hex/gen_hex_art.py` in the repo |
+| `Source/HexScreen.c` | The Hex screen: menu, opponents, hand picker, match, stakes, the Cards viewer, the windows and the sprites |
+| `Source/HexPrep.c` | The Preparations row (`HexPrepRow`, a `struct PrepMenuExtRow`) |
+| `Source/RamAlloc.s` | `gHexScreenState` at `0x0203C100` (0x200 bytes) |
+| `Source/Hex.lyn.event` | Checked-in lyn output of all the C files and `RamAlloc.s`, included by the installer |
+| `include/configs/configs.h` | Empty stand-in for the kernel config header that FE-CLib's `bmunit.h` includes |
+| `makefile` | Builds `Source/Hex.lyn.event` |
+| `test/` | Test-only route, script and ROM builder. Do not install (see `test/README.md`) |
 
 ## Hooks and free space
 
@@ -80,50 +103,59 @@ Both steps write the same `$ROM`, so the parent's patch is in it before the hex 
 | `GetItemName` (0x080174F4) | `$174F4` | 8 bytes | `HexItem_GetItemName` |
 | `GetItemDescId` (0x08017518) | `$17518` | 8 bytes | `HexItem_GetItemDescId` |
 
-Each hook is `jumpToHack` (`00 4B 18 47` = `ldr r3,[pc,#0]; bx r3`, then a pointer). The vanilla function starts at a 4-byte-aligned address, so the literal is aligned.
-
-- `HexItem_GetItemName`: a card returns `GetStringFromIndex(HexCard_NameId(item))`. Any other item does what vanilla does: `GetStringFromIndex(GetItemData(item & 0xFF)->nameTextId)`, then `StrInsertTact()`, and returns that value (vanilla 0x080174F4).
-- `HexItem_GetItemDescId`: a card returns `HexCard_DescId(item)`. Any other item returns `GetItemData(item & 0xFF)->descTextId` (vanilla 0x08017518).
-
-Other data written:
+The Hex row adds no hook. It uses the parent's extension slot.
 
 | What | ROM offset | Size | Note |
 |------|------------|------|------|
-| Item row `gItemData[0xC1]` (`$809B10 + $C1 * 36`) | `$80B634` | 36 bytes | Protected. The card's fields; see the item slot section |
-| Free space (body) | `$1100000` to `$11004A3` | 1188 bytes | Code and `gHexCardTypes`. Protected from `$1100000` to `CURRENTOFFSET` |
+| Item row `gItemData[0xC1]` | `$80B634` | 36 bytes | Protected. The card's fields |
+| Extension slot `HEX_PREP_SLOT` | `$1000004` (slot 0) | 4 bytes | Written with `POIN HexPrepRow`. Not protected (the parent leaves the slots open) |
+| Body (free space) | `$1100000` to `$110CC0B` | **52236 bytes (0xCC0C)** | Protected from `$1100000` to the end of the row. Holds the card code and table, the engine, the art, the screen, the row |
 
-**Free space** starts at `$1100000` (`FE8U_HexFreeSpace`), not at `$1000000`, which the parent uses (`$1000000` to `$1001060`). The standalone checklist says later patches continue after the earlier body with `CURRENTOFFSET`. This add-on uses a fixed `$1100000` by decision, so it stays clear of the parent's body and the parent's extension slots. The ROM file grows to about 17.8 MB, as with the parent's `$1000000`.
+The body is at `FE8U_HexFreeSpace` = `$1100000`, far from the parent's `$1000000` to `$1001060` and its `$1000024` body. The ROM grows to 17878028 bytes (the 16 MiB ROM plus the body).
 
 ## Item slot and how to change it
 
-The card uses vanilla item `0xC1`. Its row was checked as follows (`Contents/Texts/Source/vanilla.txt`, FE-CLib `constants/items.h`, the kernel's `include/configs/configs.h`):
+The card uses vanilla item `0xC1`.
 
-- The vanilla item table `gItemData` is at `$809B10`, 36 bytes per item. In this ROM the item data ends at index `0xCD`: the terrain tables start at `$80B808`, which is `gItemData + 0xCE * 36`, and the bytes there are not item rows. So the kernel's card index `0xEC` is past the end of the vanilla table and cannot be used by this add-on.
-- Entry `0xC1` is named by the text `0x0403`, which is "Dummy" in the vanilla text (`MSG_0403`). Its description is `0x04AB`, "DUMMY". Its weapon type is 9 (`ITYPE_ITEM`), and it has no attributes, no uses, no cost and no icon. FE-CLib's header names it `ITEM_STAFF_ACUITY`, a staff from cut content, but the vanilla entry is a dummy.
-- No kernel config claims `0xC1`. The kernel's `include/configs/configs.h` reserves `0x0A` and `0xBD`, `0xC9`, `0xCA` (skill scrolls), `0xBC` (magic booster), `0xBE` (skill stealer) and `0xDA` (arms scroll). The kernel's item table is at the same address, `$809B10` (`CONFIG_PR_ITEM_TABLE`).
-- **Not proven:** that no vanilla shop, chest, unit or event table uses `0xC1`. The table entry, the text and the constants were checked. A raw search of the ROM for the index is too noisy to prove absence.
+- Entry `0xC1` is named by the text `0x0403` ("Dummy") and described by `0x04AB`. Its weapon type is 9 (`ITYPE_ITEM`).
+- Not proven: that no vanilla shop, chest, unit or event table uses `0xC1`.
 
-To use another slot: pick a dummy index from `0x00` to `0xCD` that is not used by another patch, set `#define HEX_CARD_ITEM` to it in **both** `Installer.event` and `Source/Hex.h`, and rebuild with `make`. Any index past `0xCD` writes into terrain data.
+To use another slot: pick an index from `0x00` to `0xCD` that no other patch uses, set `#define HEX_CARD_ITEM` in **both** `Installer.event` and `Source/Hex.h`, and rebuild with `make`. Any index past `0xCD` writes into terrain data.
+
+## Preparations row and slot
+
+- **Slot:** `HEX_PREP_SLOT` (0 to 7) in `Installer.event` is the extension slot of the Hex row. The row sits after the vanilla rows, in slot order. The key and state are `0x40 + slot` (`0x40` for slot 0).
+- **To change the slot:** set `#define HEX_PREP_SLOT n` in **both** `Installer.event` and `Source/Hex.h`, then rebuild with `make`. The C code uses the same value for the cursor restore (`cur_cmd`) and the state, so the two must match.
+- **Another add-on in the same slot** overwrites this row. Pick a slot that is 0 in the parent's header (`$1000004 + 4*n`) before this install.
+- The row's text is in `Source/HexPrep.c` (`"Hex"` and the help). The help uses `\n` for the second line.
 
 ## RAM
 
-None. This add-on uses no EWRAM or IWRAM. The convoy and the unit list are read through vanilla functions and `gUnitArrayBlue`. The test route writes RAM in the emulator only (`test/README.md`); that is not part of the install.
+| Symbol | Address | Size | Use |
+|--------|---------|------|-----|
+| `gHexScreenState` | `0x0203C100` to `0x0203C2FF` | 0x200 bytes | `struct HexScreenState` (the match, the lists, the text objects). Only used while the Hex screen is open |
+
+Set in `Source/RamAlloc.s`. The parent uses `0x0203C000` to `0x0203C013`. The area is inside the free EWRAM the standalones use (`FreeRamSpace2`, `0x0203AAA4` to `0x0203DDE0`). The compile-time check `HEX_STATE_FITS` in `HexScreen.c` fails if the state outgrows 0x200 bytes. To move it, change the address in `RamAlloc.s` and rebuild. Other add-ons in this range: none in the tree (`portrait_formats` uses `0x0203B000` to `0x0203B89F`, `language_select` uses `0x0203BC00`, `alpha_blend_movement_sprites` uses `0x0203AAA4`).
+
+While it is open the screen uses OBJ tiles 0 to 567 from `0x06010000` and the OBJ palette banks 0 to 15, clears the four BG tilemaps, and draws the BG0 text, the BG1 windows and the BG3 mural (the same layout as the other prep sub-screens).
 
 ## Conflicts
 
-- Any patch that hooks `GetItemName` or `GetItemDescId`, including the kernel's `ItemInfoRemap` (`DuraItem.c`). Do not install both.
-- Any patch that uses vanilla item `0xC1` (a dummy-item or staff patch). Both write the same item row, and the one installed last wins.
-- Free space `$1100000` to `$11004A3`. Another standalone body there would overlap.
-- The parent's hook sites and free space do not overlap this add-on.
-- Keep the parent's prep-menu rows and this add-on separate in the installer: nothing here changes the prep menu. The Hex row arrives with the next task.
+- Any patch that hooks `GetItemName` or `GetItemDescId`, or uses item `0xC1`, the parent's hook sites (see the parent's table), or the Preparations menu's extension slot `HEX_PREP_SLOT`.
+- The kernel's Hex (`Kernel/Wizardry/Minigames/Hex`, `PrepSkill`), which uses the same card item and the same prep menu. Do not install both.
+- Free space `$1100000` to `$110CC0B`: another standalone body there would overlap.
+- EWRAM `0x0203C100` to `0x0203C2FF`: another patch that uses that range.
 
 ## Verification status
 
-- `make` in this folder: passes (`-Wall -Wextra -Werror -O2`). A clean rebuild gives a `Source/Hex.lyn.event` byte-identical to the checked-in file.
-- Event Assembler: the parent and this add-on in one run, with `test/make_test_rom.sh`: `No errors`. The parent then this add-on as two runs on one ROM: `No errors` for both. This add-on alone: `No errors`.
-- Hook sites hold `00 4B 18 47` followed by a pointer into `$1100000` (`0x09100419` for `GetItemName`, `0x09100469` for `GetItemDescId`). The item row at `$80B634` holds `c1`, `09`, `08 00 00 00` (`IA_UNBREAKABLE`), `01` (max uses), icon `84` at `+0x1D`.
-- Emulator, test ROM (see `test/README.md`): the Supply list shows the seven test cards with their character names and `--`; R on Ross shows Ross's description; taking Ross and Amelia moves them into a unit's inventory with their names; the vanilla Iron Sword keeps its name and `46` uses.
+Checked in session S2b with the parent and this folder in one Event Assembler run (`test/make_test_rom.sh`, output `No errors. Please continue being awesome.`):
+
+- `make` in this folder: passes (`-Wall -Wextra -Werror -O2`). `make clean && make` rebuilds it.
+- Undefined symbols: every external name of the eight objects (seven C files and `RamAlloc.s`) is defined either by the FE8 reference object (`Tools/FE-CLib-Mokha/reference/fireemblem8.ref.o`) or by this folder's objects. None is left unresolved.
+- The 12 parent hooks hold `00 4B 18 47` and a pointer into the parent's body (`$1000000` area). The two item hooks hold `00 4B 18 47` and a pointer into `$1100000`. Slot 0 holds `0x0910CBF4`, the address of `HexPrepRow` (`$110CBF4`), whose title is `Hex` and help `Play Hex with your army\nand view your cards.`, with `isVisible` NULL.
+- Emulator (mGBA via gbarun, route in `test/README.md` and `test/hex_screen.gbarun`): the Preparations menu scrolled to the Hex row with its help text; the Hex menu on the mural with blue windows; "Choose an opponent" with the chapter's units and the highlighted unit's deck; the hand picker and the accepted hand; mid-match board; the result banner; the Cards viewer; the convoy's Supply list with the starter cards; B from the Hex menu returns to the Preparations menu with the cursor on Hex and no popup.
+- A win (the Take step and "Gained Ewan!") was checked in an earlier run of the same route; the screenshots kept are of a loss run (the match result is not the same on every run, see `test/README.md`).
 
 ## Credits
 
-The Hex minigame and its card rules come from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester) (`Kernel/Wizardry/Minigames/Hex`). The card table's stats are copied from the Minish Cap mod's `gHexTiles` (`src_custom/hexArt.c`), as the kernel's table says. The card icon is FE8's vanilla "Member Card" icon.
+The Hex minigame, its rules and its AI come from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester) (`Kernel/Wizardry/Minigames/Hex`, `include/kernel/hex-core.h`). The card table's stats are copied from the Minish Cap mod's `gHexTiles` (`src_custom/hexArt.c`), as the kernel's table says. The card art is generated from the Minish Cap mod's art by `Tools/hex/gen_hex_art.py`. The card icon is FE8's vanilla "Member Card". The Preparations row and its extension contract come from [Unlimited Prep Menu Options](../README.md).
