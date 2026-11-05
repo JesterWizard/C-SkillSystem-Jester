@@ -306,6 +306,9 @@ _kernel_malloc2 gZenkaiPending, 4
 /* World map story chapter: the last NEXT_CHAPTER_WITH_MAP target (see WmStoryChapter.c), padded to a word */
 _kernel_malloc2 gWmStoryChapter, 4
 
+/* Hex minigame screen state (struct HexScreenState in HexScreen.c), only used while the Hex screen is open */
+_kernel_malloc2 gHexScreenState, 0x180
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

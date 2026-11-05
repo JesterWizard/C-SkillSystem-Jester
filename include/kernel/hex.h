@@ -45,6 +45,9 @@ extern const u32 gHexWoodBgTiles[4][8];
 extern const u16 gHexWoodBgPal[16];
 extern const u32 gHexPortraitKeep[128];
 
+/* The Hex screen's match state (struct HexScreenState in HexScreen.c), 0x180 bytes, include/link/config-memmap.s. */
+extern u8 gHexScreenState[];
+
 /* Prep screen "Hex" row (AtMenu.c). HexPrep.c starts the proc; HexScreen.c defines it. */
 #define PREP_MAINMENU_HEX 12 /* prep_atmenu_item_index value of the Hex row; no vanilla row uses 12 */
 struct ProcAtMenu;
