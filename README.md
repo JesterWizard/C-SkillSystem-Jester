@@ -135,6 +135,14 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 - [Free Movement](./Documentation/Features/FreeMovement.md)
 - [Gaiden Magic](./Documentation/Features/GaidenMagic.md)
 - [Halfbodies](./Documentation/Features/Halfbodies.md)
+
+- [Hex Card Minigame](./Documentation/Features/Minigames/Hex.md)
+
+	<details>
+		<summary>Preview</summary>
+		<img src="./Documentation/Images/Hex_Preview.png" alt="Hex minigame preview" width="600" />
+	</details>
+
 - [How To Make A Chapter](./Documentation/Features/HowToMakeAChapter.md)
 - [Infuse Menu](./Documentation/Features/InfuseMenu.md)
 

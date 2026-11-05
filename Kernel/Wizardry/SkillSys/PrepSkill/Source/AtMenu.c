@@ -552,7 +552,8 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
         SetPrepScreenMenuItem(PREP_MAINMENU_SUPPORT,  NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
         SetPrepScreenMenuItem(PREP_MAINMENU_CHECKMAP, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 #ifdef CONFIG_HEX_CARDS
-        SetPrepScreenMenuItem(PREP_MAINMENU_HEX, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
+        if (gpKernelDesignerConfig->prep_menu_hex == true)
+            SetPrepScreenMenuItem(PREP_MAINMENU_HEX, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 #endif
     } else {
         SetPrepScreenMenuItem(PREP_MAINMENU_UNIT, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);

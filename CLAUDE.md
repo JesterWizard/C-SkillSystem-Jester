@@ -27,7 +27,7 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 
 ## Pitfalls
 
-- Signed `%` is broken: `__aeabi_idivmod` is aliased to FE8's `__modsi3`, which returns the remainder in the wrong register. Use `DivRem`/`Div` or a loop.
+- Signed and unsigned `%` are broken: `__aeabi_idivmod` is aliased to FE8's `__modsi3`, and `__aeabi_uidivmod` to its `__umodsi3`, which return the remainder in the wrong register. `r - (r / n) * n` on unsigned values becomes `__aeabi_uidivmod` too. Use `DivRem`/`Div` or a loop (e.g. `while (r >= n) r -= n;`).
 - Kernel text is nearly full (`kernel.event:41 Assertion error: -N` means N bytes over). Put large, non-hot code in the `#ifdef WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event`, tables in `Data/`, and use `NOINLINE` on helpers that bloat callers.
 - SIDs are positional: append new ones to the end of `include/constants/skills-equip.enum.txt`. That file is the only skill enum the build reads.
 - Generated files, don't edit: `include/constants/skills.h`, `skills.event`, `Contents/Texts/build/msgs.h`, `Contents/Gfx/GfxDefs.h`, `Patches/combo.skills*.txt`.
