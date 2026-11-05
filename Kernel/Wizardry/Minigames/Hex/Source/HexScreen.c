@@ -8,10 +8,11 @@
 #ifdef CONFIG_HEX_CARDS
 
 /*
- * The Hex screen (Preparations > Hex): the player picks a hand of 7 cards from the collection (HAND_PICK, PICK_DONE), the
+ * The Hex screen (Preparations > Hex): the front menu (MENU: Play or Cards), the opponent (OPPONENT: one of the player's living
+ * units, its deck in the red column), the player picks a hand of 7 cards from the collection (HAND_PICK, PICK_DONE), the
  * opponent's hand is revealed (REVEAL), one match is played (BEGIN, PICK_TILE, PICK_CELL, RESOLVE, AI_TURN, END), then the
- * stakes (TAKE, REWARD). The blue hand (left) and the red hand (right); the board, both scores and the name bar. README.md
- * lists the keys and the rules.
+ * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer. The blue hand (left) and the red hand
+ * (right); the board, both scores and the name bar. README.md lists the keys and the rules.
  *
  * Layers: BG1 wood (priority 3, charblock 2 tiles 0..3, screenblock 20; tile 4 is the solid bar, also behind the list), BG0
  * text (priority 0: the list, the name bar). OBJ 1D mapping. OBJ palette banks 0 (red frame) and 1 (blue frame), 2..15 the
@@ -75,7 +76,8 @@
 #define HEX_PICK_TOP (HEX_PICK_ROW0 * 8)
 #define HEX_PICK_NAME_COL 7
 #define HEX_PICK_NAME_TILES 10
-#define HEX_PICK_COUNT_TILES 2
+#define HEX_PICK_COUNT_TILES 4
+#define HEX_PICK_TITLE_TILES 16
 #define HEX_PICK_COUNT_RIGHT 19
 #define HEX_PICK_CURSOR_X 40
 #define HEX_PICK_MAX_COUNT 99
@@ -103,18 +105,20 @@
 #define HEX_STATE_RESOLVE 3    /* the placement is shown (40 frames), then the next turn or END */
 #define HEX_STATE_AI_TURN 4    /* red: "Red is thinking" for one frame, then the AI places */
 #define HEX_STATE_END 5        /* the result banner; A = the stakes (TAKE or REWARD) */
-#define HEX_STATE_HAND_PICK 6  /* the list of owned cards: UP/DOWN, A adds a copy, B removes the last one (B with none leaves) */
+#define HEX_STATE_HAND_PICK 6  /* the list of owned cards: UP/DOWN, A adds a copy, B removes the last one (B with none goes to OPPONENT) */
 #define HEX_STATE_PICK_DONE 7  /* seven cards: Accept (REVEAL) or Change (HAND_PICK, the last card removed) */
 #define HEX_STATE_REVEAL 8     /* both hands face up: "Your opponent's hand" for 60 frames (A skips), then BEGIN */
 #define HEX_STATE_TAKE 9       /* a win: UP/DOWN the opponent's starting cards, A takes one into the convoy */
-#define HEX_STATE_REWARD 10    /* the stake banner: 120 frames or A leaves */
+#define HEX_STATE_REWARD 10    /* the stake banner: 120 frames, then MENU (or A) */
+#define HEX_STATE_MENU 11      /* the front menu: Play (OPPONENT) or Cards (CARDS); B leaves for the prep menu */
+#define HEX_STATE_OPPONENT 12  /* the player's living units: UP/DOWN, the red column shows the highlighted deck; A = HAND_PICK, B = MENU */
+#define HEX_STATE_CARDS 13     /* the collection: UP/DOWN, the preview of an owned card; B = MENU */
 
 #define HEX_BEGIN_FRAMES 60
 #define HEX_RESOLVE_FRAMES 40
 #define HEX_REVEAL_FRAMES 60
 #define HEX_NOTICE_FRAMES 60
 #define HEX_REWARD_FRAMES 120
-#define HEX_AI_LEVEL 2
 #define HEX_HOLD_MAX 3         /* copies of one card type a player may hold (a take of a 4th copy is refused) */
 
 #define HEX_RESULT_DRAW 0
@@ -139,6 +143,11 @@
 #define HEX_BAR_SAFE 0xEC
 #define HEX_BAR_NO_GAIN 0xED
 #define HEX_BAR_DRAW_NO_CHANGE 0xEE
+#define HEX_BAR_TIER1 0xF0     /* CARDS: "Tier 1" .. "Tier 3" */
+#define HEX_BAR_TIER2 0xF1
+#define HEX_BAR_TIER3 0xF2
+#define HEX_BAR_DECK 0xF3      /* OPPONENT: "<Name>'s deck" */
+#define HEX_BAR_STALE 0xFE     /* not a bar: the next SetBar draws the bar it is given */
 
 /* Sounds (FE8 SE ids, the same ones the prep menu uses: AtMenu.c). */
 #define HEX_SE_SELECT SONG_SE_SYS_WINDOW_SELECT1
@@ -149,9 +158,6 @@
 
 static const s16 sHexBoxX[HEX_CELLS] = { 90, 118, 76, 104, 132, 62, 90, 118, 146, 76, 104, 132, 90, 118 };
 static const s16 sHexBoxY[HEX_CELLS] = { 10, 10, 34, 34, 34, 58, 58, 58, 58, 82, 82, 82, 106, 106 };
-
-/* The opponent's starting hand: Colm, Lute, Garcia, Kyle, Forde, Dozla, Joshua. */
-static const u8 sHexRedHand[HEX_HAND] = { 4, 6, 7, 12, 13, 14, 15 };
 
 static const u16 sHexBarPal[16] = { 0x0000, HEX_BG_BAR_COLOUR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static const u32 sHexBarTile[8] = { 0x11111111, 0x11111111, 0x11111111, 0x11111111,
@@ -166,14 +172,21 @@ static const u32 sHexBarTile[8] = { 0x11111111, 0x11111111, 0x11111111, 0x111111
 
 struct HexScreenState {
 	struct HexGame game;
-	u8 redHand[HEX_HAND];	/* the opponent's starting hand (the demo hand; the next task sets it per opponent) */
-	u8 aiLevel;		/* Hex_AiChoose level for red */
+	u8 redHand[HEX_HAND];	/* the opponent's starting hand: the deck of the unit highlighted in OPPONENT (HexScreen_MakeDeck) */
+	u8 aiLevel;		/* Hex_AiChoose level for red (HexScreen_SetOpponent) */
+	u8 oppPid;		/* CHARACTER_* of the opponent (its unit's pid) */
+	u16 oppNameId;		/* text id of the opponent's name (the name bar and the banners) */
+	u8 menuSel;		/* MENU: 0 = Play, 1 = Cards */
+	u8 oppCursor;		/* OPPONENT: the highlighted row, an index into the living units */
+	u8 oppScroll;		/* OPPONENT: the first row on screen */
+	u8 cardCursor;		/* CARDS: the highlighted card type */
+	u8 cardScroll;		/* CARDS: the first row on screen */
 	u8 pickHand[HEX_HAND];	/* the player's hand: the cards picked (HAND_PICK), then the blue hand of the match */
 	u8 pickCount;
 	u8 pickCursor;		/* HAND_PICK: the highlighted row, an index into owned[] */
 	u8 pickScroll;		/* HAND_PICK: the first row on screen */
 	u8 pickChoice;		/* PICK_DONE: 0 = Accept, 1 = Change */
-	u8 ownedN;		/* the owned card types (copies > 0), counted when the screen opens */
+	u8 ownedN;		/* the owned card types (copies > 0), counted when the screen goes to MENU (HexScreen_ToMenu) */
 	u8 owned[HEX_CARD_TYPES];
 	u8 held[HEX_CARD_TYPES];	/* copies owned per type, capped at HEX_PICK_MAX_COUNT */
 	u8 typeBank[HEX_CARD_TYPES];
@@ -185,7 +198,7 @@ struct HexScreenState {
 	u8 aiCell;
 	u8 placedType;  /* card type of the last placement (its name shows during RESOLVE) */
 	u8 bar;         /* the code drawn in the name bar (HEX_BAR_NONE: nothing yet) */
-	u8 listKey;     /* 1 while the list and its plate are drawn */
+	u8 listKey;     /* 1 while the list and its plate are drawn (0: the list is drawn again) */
 	u8 takeSel;     /* TAKE: the opponent's card under the cursor */
 	u8 takeFull;    /* TAKE: the last take was refused because the convoy is full (B then skips the take) */
 	u8 notice;      /* TAKE: frames left of the refusal message */
@@ -332,7 +345,7 @@ static u8 HexScreen_BankFor(struct HexScreenState *h, int t)
 	return (u8)b;
 }
 
-/* The opponent's hand is loaded when the screen opens (it stays on screen through the match and the stakes). */
+/* The opponent's deck is loaded when it is chosen (HexScreen_SetOpponent): it stays on screen through the picks and the match. */
 static void HexScreen_LoadRedArt(struct HexScreenState *h)
 {
 	int i;
@@ -551,6 +564,35 @@ static void HexScreen_DrawPick(const struct HexScreenState *h)
  * Every frame: the sprites are cleared and drawn again. The picking states draw no board; the match and the stakes draw the
  * board, both scores and both hands (in TAKE the red column is the opponent's starting hand, the cursor on the card to take).
  */
+static int HexScreen_LivingCount(void);
+
+/*
+ * MENU, OPPONENT and CARDS: no board and no blue hand. OPPONENT shows the highlighted unit's deck in the red column; CARDS
+ * previews the highlighted card if it is owned. The arrow is by the highlighted row of the list.
+ */
+static void HexScreen_DrawSide(const struct HexScreenState *h)
+{
+	int row;
+
+	switch (h->state) {
+	case HEX_STATE_OPPONENT:
+		if (HexScreen_LivingCount() == 0)
+			return;
+		HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED);
+		row = h->oppCursor - h->oppScroll;
+		break;
+	case HEX_STATE_CARDS:
+		if (h->held[h->cardCursor] > 0)
+			HexScreen_Preview(h, h->cardCursor);
+		row = h->cardCursor - h->cardScroll;
+		break;
+	default:
+		row = h->menuSel;
+		break;
+	}
+	HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * row, gObject_16x16, HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
+}
+
 static void HexScreen_Draw(struct ProcHexScreen *proc)
 {
 	const struct HexScreenState *h = HEX_ST;
@@ -561,6 +603,10 @@ static void HexScreen_Draw(struct ProcHexScreen *proc)
 
 	ClearSprites();
 
+	if (h->state == HEX_STATE_MENU || h->state == HEX_STATE_OPPONENT || h->state == HEX_STATE_CARDS) {
+		HexScreen_DrawSide(h);
+		return;
+	}
 	if (h->state == HEX_STATE_HAND_PICK || h->state == HEX_STATE_PICK_DONE) {
 		HexScreen_DrawPick(h);
 		return;
@@ -606,6 +652,36 @@ static int HexScreen_Avail(const struct HexScreenState *h, int t)
 	return held > picked ? held - picked : 0;
 }
 
+/* Appends src to dst (at index at, at most size - 1 characters in all). Returns the new length. */
+static int HexScreen_Append(char *dst, int at, const char *src, int size)
+{
+	while (*src != '\0' && at < size - 1)
+		dst[at++] = *src++;
+	dst[at] = '\0';
+	return at;
+}
+
+/* Appends a number of 0..99 (in decimal, at most size - 1 characters in all). Returns the new length. */
+static int HexScreen_AppendNum(char *dst, int at, int n, int size)
+{
+	int tens = 0;
+
+	if (n < 0)
+		n = 0;
+	if (n > 99)
+		n = 99;
+	while (n >= 10) {
+		n -= 10;
+		tens++;
+	}
+	if (tens > 0 && at < size - 1)
+		dst[at++] = (char)('0' + tens);
+	if (at < size - 1)
+		dst[at++] = (char)('0' + n);
+	dst[at] = '\0';
+	return at;
+}
+
 /* One list text: cleared, then str drawn at (col, row) on BG0. */
 static void HexScreen_Put(struct Text *text, const char *str, int col, int row)
 {
@@ -615,10 +691,163 @@ static void HexScreen_Put(struct Text *text, const char *str, int col, int row)
 	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, col, row));
 }
 
+/* One list text right-aligned on the count column: str is cleared, drawn, then moved so its right edge is HEX_PICK_COUNT_RIGHT. */
+static void HexScreen_PutRight(struct Text *text, const char *str, int row)
+{
+	int tiles = (GetStringTextLen(str) + 7) / 8;
+
+	ClearText(text);
+	Text_SetParams(text, 0, TEXT_COLOR_SYSTEM_WHITE);
+	Text_DrawString(text, str);
+	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, HEX_PICK_COUNT_RIGHT - tiles, row));
+}
+
+/* A copy count (a number, right-aligned on the count column). */
+static void HexScreen_PutCount(struct Text *text, int n, int row)
+{
+	Text_SetParams(text, 0, TEXT_COLOR_SYSTEM_WHITE);
+	Text_DrawNumber(text, n);
+	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, n >= 10 ? HEX_PICK_COUNT_RIGHT - 2 : HEX_PICK_COUNT_RIGHT - 1, row));
+}
+
 /* The name of card type t (the character it is named after). */
 static const char *HexScreen_TypeName(int t)
 {
 	return GetStringFromIndex(GetCharacterData(gpHexCardTypes[t].pid)->nameTextId);
+}
+
+/* The k-th living unit of the player (gUnitArrayBlue, the same test as HexCards.c), NULL past the last one. */
+static struct Unit *HexScreen_Living(int k)
+{
+	int i;
+
+	for (i = 0; i < (int)ARRAY_COUNT(gUnitArrayBlue); i++) {
+		struct Unit *unit = &gUnitArrayBlue[i];
+
+		if (!UNIT_IS_VALID(unit) || (unit->state & US_DEAD))
+			continue;
+		if (k == 0)
+			return unit;
+		k--;
+	}
+	return NULL;
+}
+
+static int HexScreen_LivingCount(void)
+{
+	int i;
+	int n = 0;
+
+	for (i = 0; i < (int)ARRAY_COUNT(gUnitArrayBlue); i++) {
+		struct Unit *unit = &gUnitArrayBlue[i];
+
+		if (UNIT_IS_VALID(unit) && !(unit->state & US_DEAD))
+			n++;
+	}
+	return n;
+}
+
+/*
+ * The deck of an opponent: pid is the unit's character, eff its effective level (promoted units count 20 more). The first card
+ * is the card of the character (when there is one, even above the tier cap). The other slots are drawn with a u32 LCG seeded
+ * from pid: among the types of tier <= maxTier with at most 2 copies in the deck. Deterministic: the same unit, the same deck.
+ */
+static void HexScreen_MakeDeck(u8 *deck, u32 pid, int eff)
+{
+	int maxTier = eff < 10 ? 1 : (eff < 20 ? 2 : 3);
+	u8 copies[HEX_CARD_TYPES];
+	u8 elig[HEX_CARD_TYPES];
+	u32 s = pid * 2654435761u + 12345u;
+	u32 r;
+	int filled = 0;
+	int t;
+	int n;
+	int i;
+
+	for (t = 0; t < HEX_CARD_TYPES; t++)
+		copies[t] = 0;
+	for (t = 0; t < HEX_CARD_TYPES; t++) {
+		if (gpHexCardTypes[t].pid == pid) {
+			deck[0] = (u8)t;
+			copies[t] = 1;
+			filled = 1;
+			break;
+		}
+	}
+
+	while (filled < HEX_HAND) {
+		n = 0;
+		for (t = 0; t < HEX_CARD_TYPES; t++) {
+			if (gpHexCardTypes[t].tier <= maxTier && copies[t] < 2)
+				elig[n++] = (u8)t;
+		}
+		if (n == 0)
+			break;	/* not reached: eleven tier 1 types with two copies each */
+		s = s * 1103515245u + 12345u;
+		r = s >> 16;
+		/*
+		 * r mod n by subtraction: GCC turns r - (r / n) * n into __aeabi_uidivmod, which is the game's __umodsi3 here and
+		 * returns the remainder in the wrong register (TextEngineRework.c has the same note).
+		 */
+		while (r >= (u32)n)
+			r -= (u32)n;
+		i = (int)r;
+		t = elig[i];
+		copies[t]++;
+		deck[filled++] = (u8)t;
+	}
+	while (filled < HEX_HAND)
+		deck[filled++] = 0;
+}
+
+/* The opponent is the unit: its deck (redHand), its AI level (0..2) and its name, and the red art is loaded. */
+static void HexScreen_SetOpponent(struct HexScreenState *h, const struct Unit *unit)
+{
+	int eff = unit->level + ((UNIT_CATTRIBUTES(unit) & CA_PROMOTED) ? 20 : 0);
+
+	h->oppPid = unit->pCharacterData->number;
+	h->oppNameId = unit->pCharacterData->nameTextId;
+	h->aiLevel = eff < 5 ? 0 : (eff < 15 ? 1 : 2);
+	HexScreen_MakeDeck(h->redHand, h->oppPid, eff);
+	HexScreen_LoadRedArt(h);
+}
+
+/* The highlighted opponent (OPPONENT's cursor) is set as the opponent; nothing if there is no living unit. */
+static void HexScreen_CursorOpponent(struct HexScreenState *h)
+{
+	struct Unit *unit = HexScreen_Living(h->oppCursor);
+
+	if (unit != NULL)
+		HexScreen_SetOpponent(h, unit);
+}
+
+/* Up / Down (held keys repeat) move a list cursor; the window follows it. count is the number of rows. Returns TRUE if it moved. */
+static bool32 HexScreen_Step(u8 *cursor, u8 *scroll, int count, bool32 down)
+{
+	int cur = *cursor;
+
+	if (down) {
+		if (cur + 1 >= count)
+			return FALSE;
+		cur++;
+	} else {
+		if (cur == 0)
+			return FALSE;
+		cur--;
+	}
+	*cursor = (u8)cur;
+	if (cur < *scroll)
+		*scroll = (u8)cur;
+	if (cur >= *scroll + HEX_PICK_VISIBLE)
+		*scroll = (u8)(cur + 1 - HEX_PICK_VISIBLE);
+	return TRUE;
+}
+
+/* The states with a list on the plate (the front menu, the opponents, the collection, the hand picker). */
+static bool32 HexScreen_IsList(u8 state)
+{
+	return state == HEX_STATE_MENU || state == HEX_STATE_OPPONENT || state == HEX_STATE_CARDS || state == HEX_STATE_HAND_PICK ||
+	       state == HEX_STATE_PICK_DONE;
 }
 
 /* BG0 rows 0..15 (the list) back to empty. */
@@ -630,24 +859,81 @@ static void HexScreen_ClearList(void)
 		gBG0TilemapBuffer[i] = 0;
 }
 
+/* MENU: the title and the two rows. */
+static void HexScreen_DrawMenuList(struct HexScreenState *h)
+{
+	HexScreen_Put(&h->title, "Hex", HEX_PICK_NAME_COL, HEX_PICK_TITLE_ROW);
+	HexScreen_Put(&h->rows[0], "Play", HEX_PICK_NAME_COL, HEX_PICK_ROW0);
+	HexScreen_Put(&h->rows[1], "Cards", HEX_PICK_NAME_COL, HEX_PICK_ROW0 + 2);
+}
+
+/* OPPONENT: the living units from the scroll position, each with its name and "Lv N" (right-aligned). */
+static void HexScreen_DrawOpponentList(struct HexScreenState *h)
+{
+	char text[16];
+	int count = HexScreen_LivingCount();
+	int i;
+	int k;
+	int n;
+	int row;
+
+	HexScreen_Put(&h->title, "Choose an opponent", HEX_PICK_NAME_COL, HEX_PICK_TITLE_ROW);
+	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
+		struct Unit *unit;
+
+		k = h->oppScroll + i;
+		if (k >= count)
+			break;
+		unit = HexScreen_Living(k);
+		row = HEX_PICK_ROW0 + 2 * i;
+		HexScreen_Put(&h->rows[i], GetStringFromIndex(unit->pCharacterData->nameTextId), HEX_PICK_NAME_COL, row);
+
+		n = HexScreen_Append(text, 0, "Lv ", sizeof(text));
+		HexScreen_AppendNum(text, n, unit->level, sizeof(text));
+		HexScreen_PutRight(&h->counts[i], text, row);
+	}
+}
+
+/* CARDS: "Cards  N/32" and every card type in table order: the name and the copies owned, or "???" for a type never owned. */
+static void HexScreen_DrawCardList(struct HexScreenState *h)
+{
+	char text[24];
+	int i;
+	int k;
+	int n;
+	int row;
+
+	n = HexScreen_Append(text, 0, "Cards  ", sizeof(text));
+	n = HexScreen_AppendNum(text, n, h->ownedN, sizeof(text));
+	n = HexScreen_Append(text, n, "/", sizeof(text));
+	HexScreen_AppendNum(text, n, HEX_CARD_TYPES, sizeof(text));
+	HexScreen_Put(&h->title, text, HEX_PICK_NAME_COL, HEX_PICK_TITLE_ROW);
+
+	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
+		k = h->cardScroll + i;
+		if (k >= HEX_CARD_TYPES)
+			break;
+		row = HEX_PICK_ROW0 + 2 * i;
+		if (h->held[k] == 0) {
+			HexScreen_Put(&h->rows[i], "???", HEX_PICK_NAME_COL, row);
+			continue;
+		}
+		HexScreen_Put(&h->rows[i], HexScreen_TypeName(k), HEX_PICK_NAME_COL, row);
+		HexScreen_PutCount(&h->counts[i], h->held[k], row);
+	}
+}
+
 /*
- * The list texts (HAND_PICK): the title, then the owned types from the scroll position, each with its name and its copies
- * still available (right-aligned). PICK_DONE shows Accept and Change on the first two rows. Redrawn when listKey is 0.
+ * HAND_PICK and PICK_DONE: the title, then the owned types from the scroll position, each with its name and its copies still
+ * available (right-aligned). PICK_DONE shows Accept and Change on the first two rows.
  */
-static void HexScreen_DrawList(struct HexScreenState *h)
+static void HexScreen_DrawPickList(struct HexScreenState *h)
 {
 	int i;
 	int k;
 	int t;
 	int n;
 	int row;
-
-	HexScreen_ClearList();
-	ClearText(&h->title);
-	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
-		ClearText(&h->rows[i]);
-		ClearText(&h->counts[i]);
-	}
 
 	if (h->state == HEX_STATE_PICK_DONE) {
 		HexScreen_Put(&h->title, "Your hand", HEX_PICK_NAME_COL, HEX_PICK_TITLE_ROW);
@@ -666,18 +952,42 @@ static void HexScreen_DrawList(struct HexScreenState *h)
 		HexScreen_Put(&h->rows[i], HexScreen_TypeName(t), HEX_PICK_NAME_COL, row);
 
 		n = HexScreen_Avail(h, t);
-		Text_SetParams(&h->counts[i], 0, TEXT_COLOR_SYSTEM_WHITE);
-		Text_DrawNumber(&h->counts[i], n);
-		PutText(&h->counts[i], TILEMAP_LOCATED(gBG0TilemapBuffer, n >= 10 ? HEX_PICK_COUNT_RIGHT - 2 : HEX_PICK_COUNT_RIGHT - 1, row));
+		HexScreen_PutCount(&h->counts[i], n, row);
 	}
 }
 
-/* The list is drawn (with its plate) while the picking states last, and cleared once they are over. */
+/* The list texts of the current state, redrawn when listKey is 0. */
+static void HexScreen_DrawList(struct HexScreenState *h)
+{
+	int i;
+
+	HexScreen_ClearList();
+	ClearText(&h->title);
+	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
+		ClearText(&h->rows[i]);
+		ClearText(&h->counts[i]);
+	}
+
+	switch (h->state) {
+	case HEX_STATE_MENU:
+		HexScreen_DrawMenuList(h);
+		break;
+	case HEX_STATE_OPPONENT:
+		HexScreen_DrawOpponentList(h);
+		break;
+	case HEX_STATE_CARDS:
+		HexScreen_DrawCardList(h);
+		break;
+	default:
+		HexScreen_DrawPickList(h);
+		break;
+	}
+}
+
+/* The list is drawn (with its plate) while a list state lasts, and cleared once they are over. */
 static void HexScreen_ListUpdate(struct HexScreenState *h)
 {
-	bool32 picking = h->state == HEX_STATE_HAND_PICK || h->state == HEX_STATE_PICK_DONE;
-
-	if (picking) {
+	if (HexScreen_IsList(h->state)) {
 		if (h->listKey == 0) {
 			HexScreen_DrawList(h);
 			HexScreen_Plate(TRUE);
@@ -717,25 +1027,22 @@ static void HexScreen_BarText(struct ProcHexScreen *proc, const char *text)
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-/* Appends src to dst (at index at, at most size - 1 characters in all). Returns the new length. */
-static int HexScreen_Append(char *dst, int at, const char *src, int size)
-{
-	while (*src != '\0' && at < size - 1)
-		dst[at++] = *src++;
-	dst[at] = '\0';
-	return at;
-}
-
-/* The name bar with a card's name between head and tail ("Gained " + name + "!"). */
-static void HexScreen_BarCard(struct ProcHexScreen *proc, const char *head, int type, const char *tail)
+/* The name bar with a name between head and tail ("" + name + "'s deck"). */
+static void HexScreen_BarName(struct ProcHexScreen *proc, const char *head, const char *name, const char *tail)
 {
 	char text[48];
 	int n;
 
 	n = HexScreen_Append(text, 0, head, sizeof(text));
-	n = HexScreen_Append(text, n, HexScreen_TypeName(type), sizeof(text));
+	n = HexScreen_Append(text, n, name, sizeof(text));
 	HexScreen_Append(text, n, tail, sizeof(text));
 	HexScreen_BarText(proc, text);
+}
+
+/* The name bar with a card's name between head and tail ("Gained " + name + "!"). */
+static void HexScreen_BarCard(struct ProcHexScreen *proc, const char *head, int type, const char *tail)
+{
+	HexScreen_BarName(proc, head, HexScreen_TypeName(type), tail);
 }
 
 /* Draws a name bar code (HEX_BAR_*, or a card type: the card's name) if it is not the one shown. */
@@ -756,10 +1063,22 @@ static void HexScreen_SetBar(struct ProcHexScreen *proc, u8 code)
 		HexScreen_BarText(proc, "Blue begins");
 		break;
 	case HEX_BAR_RED_BEGINS:
-		HexScreen_BarText(proc, "Red begins");
+		HexScreen_BarName(proc, "", GetStringFromIndex(h->oppNameId), " begins");
 		break;
 	case HEX_BAR_RED_THINKING:
-		HexScreen_BarText(proc, "Red is thinking");
+		HexScreen_BarName(proc, "", GetStringFromIndex(h->oppNameId), " is thinking");
+		break;
+	case HEX_BAR_DECK:
+		HexScreen_BarName(proc, "", GetStringFromIndex(h->oppNameId), "'s deck");
+		break;
+	case HEX_BAR_TIER1:
+		HexScreen_BarText(proc, "Tier 1");
+		break;
+	case HEX_BAR_TIER2:
+		HexScreen_BarText(proc, "Tier 2");
+		break;
+	case HEX_BAR_TIER3:
+		HexScreen_BarText(proc, "Tier 3");
 		break;
 	case HEX_BAR_VICTORY:
 		HexScreen_BarText(proc, "Victory!");
@@ -810,6 +1129,14 @@ static u8 HexScreen_BarFor(const struct ProcHexScreen *proc)
 	u8 w;
 
 	switch (h->state) {
+	case HEX_STATE_MENU:
+		return HEX_BAR_NONE;
+	case HEX_STATE_OPPONENT:
+		return HexScreen_LivingCount() > 0 ? HEX_BAR_DECK : HEX_BAR_NONE;
+	case HEX_STATE_CARDS:
+		if (h->held[h->cardCursor] == 0)
+			return HEX_BAR_NONE;
+		return (u8)(HEX_BAR_TIER1 + gpHexCardTypes[h->cardCursor].tier - 1);
 	case HEX_STATE_BEGIN:
 		return h->game.turn == HEX_BLUE ? HEX_BAR_BLUE_BEGINS : HEX_BAR_RED_BEGINS;
 	case HEX_STATE_HAND_PICK:
@@ -841,6 +1168,27 @@ static u8 HexScreen_BarFor(const struct ProcHexScreen *proc)
 			return HEX_BAR_DRAW;
 		return w == HEX_BLUE ? HEX_BAR_VICTORY : HEX_BAR_DEFEAT;
 	}
+}
+
+/*
+ * MENU (the opening state, and the state after a match's stakes): the collection is read again (the stakes change it), the
+ * match's picks and stakes are cleared, and the name bar is blanked.
+ */
+static void HexScreen_ToMenu(struct HexScreenState *h)
+{
+	HexScreen_Scan(h);
+	h->state = HEX_STATE_MENU;
+	h->timer = 0;
+	h->pickCount = 0;
+	h->pickCursor = 0;
+	h->pickScroll = 0;
+	h->pickChoice = 0;
+	h->bar = HEX_BAR_STALE;
+	h->takeSel = 0;
+	h->takeFull = 0;
+	h->notice = 0;
+	h->gotType = HEX_NO_TYPE;
+	h->lostType = HEX_NO_TYPE;
 }
 
 static void HexScreen_Init(struct ProcHexScreen *proc)
@@ -879,28 +1227,22 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 	for (i = 0; i < HEX_CARD_TYPES; i++)
 		h->typeBank[i] = HEX_NO_BANK;
 
-	/* The opponent: the demo hand, and the AI level it plays at (the next task sets both per opponent). */
+	/* No opponent yet: the red column stays empty until Play picks one (HexScreen_SetOpponent sets the deck and the AI). */
 	for (i = 0; i < HEX_HAND; i++)
-		h->redHand[i] = sHexRedHand[i];
-	h->aiLevel = HEX_AI_LEVEL;
-	HexScreen_LoadRedArt(h);
-
-	HexScreen_Scan(h);
-	h->state = HEX_STATE_HAND_PICK;
-	h->timer = 0;
-	h->pickCount = 0;
-	h->pickCursor = 0;
-	h->pickScroll = 0;
-	h->pickChoice = 0;
+		h->redHand[i] = 0;
+	h->aiLevel = 0;
+	h->oppPid = 0;
+	h->oppNameId = 0;
+	h->menuSel = 0;
+	h->oppCursor = 0;
+	h->oppScroll = 0;
+	h->cardCursor = 0;
+	h->cardScroll = 0;
 	h->listKey = 0;
-	h->bar = HEX_BAR_NONE;
-	h->takeFull = 0;
-	h->notice = 0;
-	h->gotType = HEX_NO_TYPE;
-	h->lostType = HEX_NO_TYPE;
+	HexScreen_ToMenu(h);
 
 	InitText(&proc->nameText, HEX_NAME_TEXT_TILES);
-	InitText(&h->title, HEX_PICK_NAME_TILES);
+	InitText(&h->title, HEX_PICK_TITLE_TILES);
 	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
 		InitText(&h->rows[i], HEX_PICK_NAME_TILES);
 		InitText(&h->counts[i], HEX_PICK_COUNT_TILES);
@@ -910,28 +1252,6 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 }
 
 /* ---- The hand picker (HAND_PICK, PICK_DONE, REVEAL) ---- */
-
-/* Up / Down (repeating) move the list cursor; the window follows it. Returns TRUE if it moved. */
-static bool32 HexScreen_ListStep(struct HexScreenState *h, bool32 down)
-{
-	int cur = h->pickCursor;
-
-	if (down) {
-		if (cur + 1 >= h->ownedN)
-			return FALSE;
-		cur++;
-	} else {
-		if (cur == 0)
-			return FALSE;
-		cur--;
-	}
-	h->pickCursor = (u8)cur;
-	if (cur < h->pickScroll)
-		h->pickScroll = (u8)cur;
-	if (cur >= h->pickScroll + HEX_PICK_VISIBLE)
-		h->pickScroll = (u8)(cur + 1 - HEX_PICK_VISIBLE);
-	return TRUE;
-}
 
 /* Back to HAND_PICK with the last card removed (PICK_DONE's Change, or B). */
 static void HexScreen_Change(struct HexScreenState *h)
@@ -963,10 +1283,9 @@ static void HexScreen_StartReveal(struct HexScreenState *h)
 }
 
 /* HAND_PICK: Up / Down move the list cursor, A adds a copy of the highlighted type (error sound if none is left or the art is
- * out of banks), B removes the last card (with none in hand it leaves the screen). The 7th card goes to PICK_DONE. Returns TRUE
- * to leave.
+ * out of banks), B removes the last card (with none in hand it goes back to OPPONENT). The 7th card goes to PICK_DONE.
  */
-static bool32 HexScreen_UpdatePick(struct HexScreenState *h)
+static void HexScreen_UpdatePick(struct HexScreenState *h)
 {
 	u16 newKeys = gKeyStatusPtr->newKeys;
 	u16 repeated = gKeyStatusPtr->repeatedKeys;
@@ -974,17 +1293,19 @@ static bool32 HexScreen_UpdatePick(struct HexScreenState *h)
 
 	if (newKeys & B_BUTTON) {
 		PlaySoundEffect(HEX_SE_CANCEL);
-		if (h->pickCount == 0)
-			return TRUE;
+		if (h->pickCount == 0) {
+			h->state = HEX_STATE_OPPONENT;
+			return;
+		}
 		h->pickCount--;
 		h->listKey = 0;
-		return FALSE;
+		return;
 	}
 	if (h->ownedN == 0)
-		return FALSE;
+		return;
 
 	if (repeated & (DPAD_UP | DPAD_DOWN)) {
-		if (HexScreen_ListStep(h, (repeated & DPAD_DOWN) != 0)) {
+		if (HexScreen_Step(&h->pickCursor, &h->pickScroll, h->ownedN, (repeated & DPAD_DOWN) != 0)) {
 			h->listKey = 0;
 			PlaySoundEffect(HEX_SE_CURSOR_UD);
 		}
@@ -1006,7 +1327,6 @@ static bool32 HexScreen_UpdatePick(struct HexScreenState *h)
 			PlaySoundEffect(HEX_SE_ERROR);
 		}
 	}
-	return FALSE;
 }
 
 /* PICK_DONE: Up / Down choose Accept (0) or Change (1). A: Accept starts the reveal, Change goes back to HAND_PICK. B is Change. */
@@ -1355,7 +1675,7 @@ static void HexScreen_UpdateTake(struct HexScreenState *h)
 	}
 }
 
-/* REWARD: the stake banner for HEX_REWARD_FRAMES, or until A. Returns TRUE to leave the screen. */
+/* REWARD: the stake banner for HEX_REWARD_FRAMES, or until A. Returns TRUE when the match is over (back to MENU). */
 static bool32 HexScreen_UpdateReward(struct HexScreenState *h)
 {
 	h->timer++;
@@ -1365,14 +1685,111 @@ static bool32 HexScreen_UpdateReward(struct HexScreenState *h)
 	return TRUE;
 }
 
+/* ---- The front menu, the opponents and the collection (MENU, OPPONENT, CARDS) ---- */
+
+/* MENU: UP / DOWN choose Play (0) or Cards (1), A opens it. B leaves the screen (the prep menu). Returns TRUE to leave. */
+static bool32 HexScreen_UpdateMenu(struct HexScreenState *h)
+{
+	u16 newKeys = gKeyStatusPtr->newKeys;
+
+	if (newKeys & B_BUTTON) {
+		PlaySoundEffect(HEX_SE_CANCEL);
+		return TRUE;
+	}
+	if (newKeys & (DPAD_UP | DPAD_DOWN)) {
+		h->menuSel ^= 1;
+		PlaySoundEffect(HEX_SE_CURSOR_UD);
+	}
+	if (newKeys & A_BUTTON) {
+		PlaySoundEffect(HEX_SE_SELECT);
+		if (h->menuSel == 0) {
+			h->state = HEX_STATE_OPPONENT;
+			h->oppCursor = 0;
+			h->oppScroll = 0;
+			h->bar = HEX_BAR_STALE;
+			HexScreen_CursorOpponent(h);
+		} else {
+			h->state = HEX_STATE_CARDS;
+		}
+	}
+	return FALSE;
+}
+
+/* OPPONENT: UP / DOWN choose one of the living units (its deck and AI level are set as the cursor moves). A starts the hand
+ * picker against that deck, B goes back to MENU.
+ */
+static void HexScreen_UpdateOpponent(struct HexScreenState *h)
+{
+	u16 newKeys = gKeyStatusPtr->newKeys;
+	u16 repeated = gKeyStatusPtr->repeatedKeys;
+	int count = HexScreen_LivingCount();
+
+	if (newKeys & B_BUTTON) {
+		PlaySoundEffect(HEX_SE_CANCEL);
+		h->state = HEX_STATE_MENU;
+		return;
+	}
+	if (count == 0)
+		return;
+
+	if ((repeated & (DPAD_UP | DPAD_DOWN)) &&
+	    HexScreen_Step(&h->oppCursor, &h->oppScroll, count, (repeated & DPAD_DOWN) != 0)) {
+		PlaySoundEffect(HEX_SE_CURSOR_UD);
+		h->listKey = 0;
+		h->bar = HEX_BAR_STALE;
+		HexScreen_CursorOpponent(h);
+	}
+
+	if (newKeys & A_BUTTON) {
+		PlaySoundEffect(HEX_SE_SELECT);
+		HexScreen_CursorOpponent(h);
+		h->pickCount = 0;
+		h->pickCursor = 0;
+		h->pickScroll = 0;
+		h->pickChoice = 0;
+		h->state = HEX_STATE_HAND_PICK;
+	}
+}
+
+/* CARDS: UP / DOWN move over every card type; an owned card is previewed (its art is loaded). B goes back to MENU. */
+static void HexScreen_UpdateCards(struct HexScreenState *h)
+{
+	u16 newKeys = gKeyStatusPtr->newKeys;
+	u16 repeated = gKeyStatusPtr->repeatedKeys;
+
+	if (newKeys & B_BUTTON) {
+		PlaySoundEffect(HEX_SE_CANCEL);
+		h->state = HEX_STATE_MENU;
+		return;
+	}
+	if ((repeated & (DPAD_UP | DPAD_DOWN)) &&
+	    HexScreen_Step(&h->cardCursor, &h->cardScroll, HEX_CARD_TYPES, (repeated & DPAD_DOWN) != 0)) {
+		PlaySoundEffect(HEX_SE_CURSOR_UD);
+		h->listKey = 0;
+		h->bar = HEX_BAR_STALE;
+	}
+	if (h->held[h->cardCursor] > 0)
+		HexScreen_BankFor(h, h->cardCursor);
+}
+
 static void HexScreen_Loop(struct ProcHexScreen *proc)
 {
 	struct HexScreenState *h = HEX_ST;
+	u8 before = h->state;
 	bool32 leave = FALSE;
 
 	switch (h->state) {
+	case HEX_STATE_MENU:
+		leave = HexScreen_UpdateMenu(h);
+		break;
+	case HEX_STATE_OPPONENT:
+		HexScreen_UpdateOpponent(h);
+		break;
+	case HEX_STATE_CARDS:
+		HexScreen_UpdateCards(h);
+		break;
 	case HEX_STATE_HAND_PICK:
-		leave = HexScreen_UpdatePick(h);
+		HexScreen_UpdatePick(h);
 		break;
 	case HEX_STATE_PICK_DONE:
 		HexScreen_UpdatePickDone(h);
@@ -1399,7 +1816,8 @@ static void HexScreen_Loop(struct ProcHexScreen *proc)
 		HexScreen_UpdateTake(h);
 		break;
 	case HEX_STATE_REWARD:
-		leave = HexScreen_UpdateReward(h);
+		if (HexScreen_UpdateReward(h))
+			HexScreen_ToMenu(h);
 		break;
 	default:
 		HexScreen_UpdateEnd(h);
@@ -1410,6 +1828,8 @@ static void HexScreen_Loop(struct ProcHexScreen *proc)
 		Proc_Goto(proc, PL_HEX_EXIT);
 		return;
 	}
+	if (h->state != before && HexScreen_IsList(h->state))
+		h->listKey = 0;
 	HexScreen_ListUpdate(h);
 	HexScreen_SetBar(proc, HexScreen_BarFor(proc));
 	HexScreen_Draw(proc);
