@@ -1,0 +1,79 @@
+load wm.ss
+press A
+wait 50
+press START
+wait 50
+press A
+wait 50
+press START
+wait 50
+press A
+wait 50
+press START
+wait 50
+press A
+wait 50
+press START
+wait 50
+press A
+wait 50
+press START
+wait 50
+press A
+wait 50
+press START
+wait 50
+wait 40
+w16 0x0203A81C 0x00C1
+w16 0x0203A81E 0x01C1
+w16 0x0203A820 0x02C1
+w16 0x0203A822 0x03C1
+w16 0x0203A824 0x1CC1
+w16 0x0203A826 0x1EC1
+w16 0x0203A828 0x1FC1
+w16 0x0203A82A 0x2E01
+w8 0x0202BCFE 0x02
+w32 0x0202BE4C 0x08803D64
+press DOWN
+wait 40
+press A
+wait 120
+press A
+wait 120
+press DOWN
+wait 40
+press DOWN
+wait 40
+press A
+wait 200
+press DOWN
+wait 40
+press A
+wait 150
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+press RIGHT
+wait 40
+shot cards_supply.png
+press R
+wait 90
+shot cards_help.png
+press B
+wait 90
+press A
+wait 120
+press A
+wait 120
+shot cards_inventory.png

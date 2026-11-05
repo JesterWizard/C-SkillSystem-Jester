@@ -6,9 +6,17 @@ Everything in this folder is for testing the Unlimited Prep Menu Options patch i
 | File | Status | Purpose |
 |------|--------|---------|
 | `TestRow.c` / `TestRow.event` / `makefile` | Builds and assembles. Works in the emulator. | One extension row in slot 0: title "Test", help "Test row". It follows the add-on contract in `../README.md` ("Writing an extension row"): selecting it sets `proc->state` to `0x40` and goes to label `0xA`. Its `startSubmenu` starts a blocking child proc (`ProcScr_PMXTestRow`) with a red backdrop for 60 frames. The child's end sets `proc->cur_cmd = 0x40` and `proc->state = 1`, so the menu returns through label 9. |
-| `ToChapter4.event` | Assembles. Works in the emulator: a new game starts on chapter 4. | Copies chapter 4's chapter-data entry over chapter 0's entry. `GetROMChapterStruct` (0x08034618) returns `gChapterDataTable` (ROM `0x088B0890`, file offset `$8B0890`) plus `id * 0x94`. The entry is `Ch4Entry.bin`, chapter 4's 0x94 bytes from the clean `fe8.gba`, copied by a script. |
+| `ToChapter4.event` | Assembles. Works in the emulator: a new game starts on chapter 4. | Copies chapter 4's chapter-data entry over chapter 0's entry. `GetROMChapterStruct` (0x08034618) returns `gChapterDataTable` (ROM `0x088B0890`, file offset `$8B0890`) plus `id * 0x94`. The entry is `Ch4Entry.bin`, chapter 4's 0x94 bytes from your clean `fe8.gba`. **Run `make_ch4_entry.py` first** (it writes `Ch4Entry.bin`, which is git-ignored and not checked in). |
 
 ## Assembly order (test ROM)
+
+0. **Run `make_ch4_entry.py` first**, from your own clean FE8U ROM (read only):
+
+   ```bash
+   python3 test/make_ch4_entry.py /path/to/clean/fe8.gba
+   ```
+
+   It writes `test/Ch4Entry.bin` (148 bytes, chapter 4's entry). `ToChapter4.event` includes it with `#incbin`, so it must exist before step 1. It is git-ignored (`test/.gitignore`).
 
 Build the ROMs with ColorzCore from a copy of the clean ROM, in this order. The ROM is the `-output`, and `-input` is the event script (see `../README.md`, "Event Assembler"):
 
