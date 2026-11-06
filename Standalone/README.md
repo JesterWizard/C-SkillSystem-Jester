@@ -71,6 +71,7 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [arena_options](arena_options/) | Arena options: upgraded or level-based player weapon, per-chapter turn/level limits, and a roster of fixed opponents with gold or item prizes; works alongside arena_show_opponent_in_advance |
 | [lvup_stat_points](lvup_stat_points/) | Player level-ups skip growth rolls and instead let you spend stat points (N per level) or play a timing minigame whose green bars come from growths |
 | [portrait_formats](portrait_formats/) | Half-body (FE9/10-style) and 32-colour portraits in vanilla dialogue, map menus, level-ups and the stat screen, recognised per portrait, with formatter tools and samples (uses 0xA0 bytes EWRAM; with text_engine, use its `TEXT_ENGINE_HALF_BODY_PORTRAITS` instead) |
+| [unlimited_prep_menu_options](unlimited_prep_menu_options/) | Preparations menu with unlimited scrolling rows from a ROM table, plus an extension-row interface for add-on prep rows (uses 20 bytes EWRAM) |
 
 ## Adding a new patch
 

@@ -1,0 +1,10 @@
+/* TEST ONLY - do not install.
+ * Adds TestRowDef (test/TestRow.c) and points extension slot 0 at it.
+ * Apply after Installer.event, in the same run. */
+
+#include "test/TestRow.lyn.event"
+
+PUSH
+ORG $1000004
+POIN TestRowDef
+POP
