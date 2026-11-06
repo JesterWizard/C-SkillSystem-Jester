@@ -101,8 +101,10 @@ u8 Hex_Winner(const struct HexGame *g);
 
 /*
  * Chooses a legal move for g->turn. level 0 = random legal move, 1 = greedy (own - other score after the move), 2 = greedy
- * with a one-ply look-ahead (own - other after the opponent's greedy reply). Levels above 2 play as 2. Ties are broken by
- * seed. When the game is over there is no move: both outputs are HEX_USED (0xFF).
+ * with a one-ply look-ahead (own - other after the opponent's greedy reply). Levels above 2 play as 2. Levels 1 and 2 break a tie
+ * on the value by aggression: the HP the opponent's cards lose right after the move (a card that changes owner counts its
+ * maxHp), then the opponent's cards next to the placed cell, then seed. Level 0 is seed-random only, and is kept for the host
+ * tests. When the game is over there is no move: both outputs are HEX_USED (0xFF).
  */
 void Hex_AiChoose(const struct HexGame *g, const struct HexTileType *types, u8 level, u32 seed, u8 *outHandIndex,
 		  u8 *outCell);

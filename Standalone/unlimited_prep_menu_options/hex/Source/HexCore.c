@@ -230,17 +230,126 @@ s32 Hex_PlaceDeltaSlow(const struct HexGame *g, const struct HexTileType *types,
 #endif
 
 /*
- * Level 1 (greedy) for g->turn: maximises HexEval(g) + delta over the legal moves, which is the same as maximising the
- * difference right after the move. Returns the chosen move and its delta. Ties go to the larger HexMoveKey. Returns FALSE
- * if there is no legal move.
+ * The aggression of a legal move of g->turn, the tie-break after the value (HexChooseBest). damage: the HP the opponent's
+ * cards lose right after the move, a card that changes owner counting its maxHp instead (its HP is restored when it flips).
+ * pressure: the opponent's cards next to the placed cell (before the move). The move is simulated on a copy of g.
  */
-static bool32 HexPickGreedy(const struct HexGame *g, const struct HexTileType *types, u32 seed, u8 *outHand, u8 *outCell,
-			    s32 *outDelta)
+static void HexAggression(const struct HexGame *g, const struct HexTileType *types, u8 hand, u8 cell, s32 *outDamage,
+			  s32 *outPressure)
+{
+	struct HexGame sim = *g;
+	u8 other = (u8)(3 - g->turn);
+	s32 damage = 0;
+	s32 pressure = 0;
+	u8 i;
+	u8 d;
+
+	Hex_Place(&sim, types, hand, cell);
+	for (i = 0; i < HEX_CELLS; i++) {
+		if (g->cell[i].owner != other)
+			continue;
+		if (sim.cell[i].owner == other)
+			damage += (s32)g->cell[i].hp - (s32)sim.cell[i].hp;
+		else
+			damage += (s32)types[g->cell[i].type].maxHp;
+	}
+	for (d = 0; d < HEX_DIRS; d++) {
+		s8 n = sHexNeighbor[cell][d];
+
+		if (n >= 0 && g->cell[n].owner == other)
+			pressure++;
+	}
+	*outDamage = damage;
+	*outPressure = pressure;
+}
+
+/*
+ * The move of g->turn with the best value val (val[first slot of its type][cell], the value of each legal move; HexFirstSlot).
+ * Ties on the value go to the larger damage (HexAggression), then the larger pressure, then the larger HexMoveKey. With
+ * tieBreak 0 the first move with the best value is taken (the value is all that a caller needs). The aggression is only
+ * computed for moves that tie the best value. Returns FALSE if there is no legal move; *outVal is the best value.
+ */
+static bool32 HexChooseBest(const struct HexGame *g, const struct HexTileType *types, u32 seed, bool32 tieBreak,
+			    const s16 val[HEX_HAND][HEX_CELLS], u8 *outHand, u8 *outCell, s32 *outVal)
 {
 	u8 mover = g->turn;
 	bool32 found = 0;
 	s32 bestVal = 0;
+	s32 bestDamage = 0;
+	s32 bestPressure = 0;
 	u32 bestKey = 0;
+	u8 hi;
+	u8 c;
+
+	for (hi = 0; hi < HEX_HAND; hi++) {
+		u8 first;
+
+		if (g->hand[mover][hi] == HEX_USED)
+			continue;
+		first = HexFirstSlot(g, mover, hi);
+		for (c = 0; c < HEX_CELLS; c++) {
+			s32 v;
+
+			if (g->cell[c].owner != HEX_EMPTY)
+				continue;
+			v = val[first][c];
+			if (!found || v > bestVal) {
+				found = 1;
+				bestVal = v;
+			}
+		}
+	}
+	if (!found)
+		return 0;
+	*outVal = bestVal;
+
+	found = 0;
+	for (hi = 0; hi < HEX_HAND; hi++) {
+		u8 first;
+
+		if (g->hand[mover][hi] == HEX_USED)
+			continue;
+		first = HexFirstSlot(g, mover, hi);
+		for (c = 0; c < HEX_CELLS; c++) {
+			s32 damage;
+			s32 pressure;
+			u32 key;
+
+			if (g->cell[c].owner != HEX_EMPTY || val[first][c] != bestVal)
+				continue;
+			if (!tieBreak) {
+				if (!found) {
+					found = 1;
+					*outHand = hi;
+					*outCell = c;
+				}
+				continue;
+			}
+			HexAggression(g, types, hi, c, &damage, &pressure);
+			key = HexMoveKey(seed, (u32)hi * HEX_CELLS + c);
+			if (!found || damage > bestDamage || (damage == bestDamage && (pressure > bestPressure ||
+			    (pressure == bestPressure && key > bestKey)))) {
+				found = 1;
+				bestDamage = damage;
+				bestPressure = pressure;
+				bestKey = key;
+				*outHand = hi;
+				*outCell = c;
+			}
+		}
+	}
+	return found;
+}
+
+/*
+ * Level 1 (greedy) for g->turn: the value is the difference right after the move (HexPlaceFast). The move is HexChooseBest's
+ * (with tieBreak, the aggression and then the key; without it, the first move of the best value). Returns FALSE if there is
+ * no legal move.
+ */
+static bool32 HexPickGreedy(const struct HexGame *g, const struct HexTileType *types, u32 seed, bool32 tieBreak, u8 *outHand,
+			    u8 *outCell, s32 *outDelta)
+{
+	u8 mover = g->turn;
 	struct HexBoard bi;
 	s16 val[HEX_HAND][HEX_CELLS];
 	u8 hi;
@@ -255,55 +364,27 @@ static bool32 HexPickGreedy(const struct HexGame *g, const struct HexTileType *t
 				val[hi][c] = (s16)HexPlaceFast(g, types, &bi, g->hand[mover][hi], c, mover);
 		}
 	}
-	for (hi = 0; hi < HEX_HAND; hi++) {
-		u8 first;
-
-		if (g->hand[mover][hi] == HEX_USED)
-			continue;
-		first = HexFirstSlot(g, mover, hi);
-		for (c = 0; c < HEX_CELLS; c++) {
-			s32 v;
-			u32 key;
-
-			if (g->cell[c].owner != HEX_EMPTY)
-				continue;
-			v = val[first][c];
-			if (found && v < bestVal)
-				continue;
-			/* The key is only needed for a value that ties or beats the best one. */
-			key = HexMoveKey(seed, (u32)hi * HEX_CELLS + c);
-			if (!found || v > bestVal || key > bestKey) {
-				found = 1;
-				bestVal = v;
-				bestKey = key;
-				*outHand = hi;
-				*outCell = c;
-				*outDelta = v;
-			}
-		}
-	}
-	return found;
+	return HexChooseBest(g, types, seed, tieBreak, val, outHand, outCell, outDelta);
 }
 
 /*
  * Picks the best move of g->turn: level 1 maximises the difference right after the move; level 2 maximises it after the
- * opponent's greedy (level 1) reply. Ties go to the larger HexMoveKey. Returns FALSE if there is no legal move.
+ * opponent's greedy (level 1, value only) reply. Ties go to the more aggressive move (HexChooseBest). Returns FALSE if there is
+ * no legal move.
  */
 static bool32 HexPickMove(const struct HexGame *g, const struct HexTileType *types, u8 level, u32 seed, u8 *outHand,
 			  u8 *outCell)
 {
 	u8 mover = g->turn;
-	bool32 found = 0;
-	s32 bestVal = 0;
-	u32 bestKey = 0;
 	s16 val[HEX_HAND][HEX_CELLS];
+	s32 bestVal;
 	u8 hi;
 	u8 c;
 
 	if (level < 2) {
 		s32 delta = 0;
 
-		return HexPickGreedy(g, types, seed, outHand, outCell, &delta);
+		return HexPickGreedy(g, types, seed, 1, outHand, outCell, &delta);
 	}
 	/* One copy and one reply search per type and cell (HexFirstSlot). */
 	for (hi = 0; hi < HEX_HAND; hi++) {
@@ -322,39 +403,12 @@ static bool32 HexPickMove(const struct HexGame *g, const struct HexTileType *typ
 			Hex_Place(&sim, types, hi, c);
 			v = HexEval(&sim, mover);
 			/* The opponent's greedy reply changes (mover - other) by -replyDelta (delta is from the replier's view). */
-			if (!Hex_IsOver(&sim) &&
-			    HexPickGreedy(&sim, types, HexHash(HexMoveKey(seed, (u32)hi * HEX_CELLS + c) + 1), &replyHand,
-					  &replyCell, &replyDelta))
+			if (!Hex_IsOver(&sim) && HexPickGreedy(&sim, types, 0, 0, &replyHand, &replyCell, &replyDelta))
 				v -= replyDelta;
 			val[hi][c] = (s16)v;
 		}
 	}
-	for (hi = 0; hi < HEX_HAND; hi++) {
-		u8 first;
-
-		if (g->hand[mover][hi] == HEX_USED)
-			continue;
-		first = HexFirstSlot(g, mover, hi);
-		for (c = 0; c < HEX_CELLS; c++) {
-			s32 v;
-			u32 key;
-
-			if (g->cell[c].owner != HEX_EMPTY)
-				continue;
-			v = val[first][c];
-			if (found && v < bestVal)
-				continue;
-			key = HexMoveKey(seed, (u32)hi * HEX_CELLS + c);
-			if (!found || v > bestVal || key > bestKey) {
-				found = 1;
-				bestVal = v;
-				bestKey = key;
-				*outHand = hi;
-				*outCell = c;
-			}
-		}
-	}
-	return found;
+	return HexChooseBest(g, types, seed, 1, val, outHand, outCell, &bestVal);
 }
 
 void Hex_Init(struct HexGame *g, const u8 *blueHand, const u8 *redHand, u8 first)

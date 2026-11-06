@@ -55,7 +55,8 @@ The deck and the strength come from the unit only (`HexScreen_SetOpponent`, `Hex
 level and promotion always gets the same deck. Let `eff` be the unit's level, plus 20 if the unit is promoted (`CA_PROMOTED` in
 its attributes):
 
-- AI level (`Hex_AiChoose`): 0 if `eff` < 5, 1 if `eff` < 15, otherwise 2.
+- AI level (`Hex_AiChoose`): 1 if `eff` < 10, otherwise 2. Army opponents never play at level 0 (random moves); level 0 stays in
+  the engine for the host tests.
 - Card tier cap: 1 if `eff` < 10, 2 if `eff` < 20, otherwise 3.
 - The first card is the card of the unit's own character (the card type whose pid is the unit's pid), when there is one, even above
   the tier cap.
@@ -106,8 +107,12 @@ The match ends when the board is full. Red's moves come from `Hex_AiChoose`.
 - PICK_CELL: a down arrow on the top edge of the cell (the same place in every cell), the highlighted card stays marked. D-pad moves to a neighbour (UP: UL or UR, DOWN: DL or
   DR, LEFT/RIGHT: L or R; an empty neighbour is preferred), or to the cell before/after in reading order when there is none.
   A places the card (an occupied or illegal cell plays the error sound). B goes back to PICK_TILE.
-- RESOLVE: 40 frames; the name bar shows the card just placed. The redraw shows the flipped cells in their new colour. For the
-  first 16 frames the cards that lost HP, changed owner, or (the placed card) were counterattacked shake sideways (`sHexShake`).
+- RESOLVE: 66 frames (`HEX_RESOLVE_FRAMES` = 30 + 16 + 20); the name bar shows the card just placed. For the first 30 frames
+  (`HEX_ATTACK_DELAY`) the board and both scores are the ones from before the placement (`shownCell`, `shownScore`), with the placed
+  card on its cell at full HP. At frame 30 the attack shows: the flipped cells in their new colour, the lost HP, and a hit sound
+  (`HEX_SE_HIT` = 0xD4, the battle hit sound: the first id of `EfxPlayHittedSFX`) if anything changed. For 16 frames from there
+  (`sHexShake`) the cards that lost HP, changed owner, or (the placed card) were counterattacked shake sideways. Then 20 frames of
+  the settled board. The hands always show the real state (the card has left the hand at once).
 - AI_TURN: "<Name> is thinking" for one frame, then the opponent places.
 - END: "Victory!", "Defeat..." or "Draw" in the name bar. A decides the stakes (below).
 

@@ -74,7 +74,9 @@
 #define HEX_SCORE_BLUE_X 168
 #define HEX_SCORE_RED_X 44
 #define HEX_CURSOR_GAP 2
-#define HEX_SHAKE_FRAMES 16        /* RESOLVE: the first frames in which the changed cells shake (sHexShake) */
+#define HEX_ATTACK_DELAY 30        /* RESOLVE: the frames that show the board from before the placement; then the attack and the shake */
+#define HEX_SHAKE_FRAMES 16        /* RESOLVE: the frames from HEX_ATTACK_DELAY in which the changed cells shake (sHexShake) */
+#define HEX_RESOLVE_CALM_FRAMES 20 /* RESOLVE: the frames after the shake, the settled board */
 
 /* The hand picker's list (BG0 text rows 1..13 in the list window rows 0..15, the window is BG1): the title on row 1, then the owned card
  * types, two rows each (16 px), from HEX_PICK_ROW0 (six rows). Names at column HEX_PICK_NAME_COL, the copies still available right-aligned to column
@@ -115,7 +117,7 @@
 #define HEX_STATE_BEGIN 0      /* "Blue begins" / "Red begins" (60 frames, or A) */
 #define HEX_STATE_PICK_TILE 1  /* blue chooses a hand card: UP/DOWN, A = next, B does nothing (a match is finished) */
 #define HEX_STATE_PICK_CELL 2  /* blue chooses a cell: D-pad, A = place, B = back to PICK_TILE */
-#define HEX_STATE_RESOLVE 3    /* the placement is shown (40 frames), then the next turn or END */
+#define HEX_STATE_RESOLVE 3    /* the placement (HEX_RESOLVE_FRAMES): the board before it, then the attack, the shake, the settled board */
 #define HEX_STATE_AI_TURN 4    /* red: "Red is thinking" for one frame, then the AI places */
 #define HEX_STATE_END 5        /* the result banner; A = the stakes (TAKE or REWARD) */
 #define HEX_STATE_HAND_PICK 6  /* the list of owned cards: UP/DOWN, A adds a copy, B removes the last one (B with none goes to OPPONENT) */
@@ -128,7 +130,7 @@
 #define HEX_STATE_CARDS 13     /* the collection: UP/DOWN, the preview of an owned card; B = MENU */
 
 #define HEX_BEGIN_FRAMES 60
-#define HEX_RESOLVE_FRAMES 40
+#define HEX_RESOLVE_FRAMES (HEX_ATTACK_DELAY + HEX_SHAKE_FRAMES + HEX_RESOLVE_CALM_FRAMES)
 #define HEX_REVEAL_FRAMES 60
 #define HEX_NOTICE_FRAMES 60
 #define HEX_REWARD_FRAMES 120
@@ -168,6 +170,7 @@
 #define HEX_SE_CURSOR_UD SONG_SE_SYS_CURSOR_UD1
 #define HEX_SE_CURSOR_LR SONG_SE_SYS_CURSOR_LR1
 #define HEX_SE_ERROR SONG_6C
+#define HEX_SE_HIT 0xD4            /* the battle hit sound (EfxPlayHittedSFX's first id, base ROM 0x08072450) */
 
 static const s16 sHexBoxX[HEX_CELLS] = { 90, 118, 76, 104, 132, 62, 90, 118, 146, 76, 104, 132, 90, 118 };
 static const s16 sHexBoxY[HEX_CELLS] = { 0, 0, 24, 24, 24, 48, 48, 48, 48, 72, 72, 72, 96, 96 }; /* + HEX_BOARD_TOP */
@@ -212,6 +215,8 @@ struct HexScreenState {
 	u8 aiHand;      /* the AI's last choice (hand slot, cell) */
 	u8 aiCell;
 	u8 placedType;  /* card type of the last placement (its name shows during RESOLVE) */
+	struct HexCell shownCell[HEX_CELLS];	/* RESOLVE, the first HEX_ATTACK_DELAY frames: the board before the placement, the placed card on it at full HP */
+	u8 shownScore[3];	/* the same: each player's score before the placement (indexed by owner) */
 	u8 bar;         /* the code drawn in the name bar (HEX_BAR_NONE: nothing yet) */
 	u8 listKey;     /* 1 while the list and its plate are drawn (0: the list is drawn again) */
 	u8 takeSel;     /* TAKE: the opponent's card under the cursor */
@@ -452,24 +457,31 @@ static int HexScreen_ShakeX(const struct HexScreenState *h, int c)
 {
 	const struct HexGame *g = &h->game;
 	u16 bit = (u16)(1u << c);
+	int k = (int)h->timer - HEX_ATTACK_DELAY;
 
-	if (h->state != HEX_STATE_RESOLVE || h->timer >= HEX_SHAKE_FRAMES)
+	if (h->state != HEX_STATE_RESOLVE || k < 0 || k >= HEX_SHAKE_FRAMES)
 		return 0;
 	if ((g->lastHit & bit) != 0 || (g->lastFlip & bit) != 0 || (g->lastCounter != 0 && c == g->lastCell))
-		return sHexShake[h->timer];
+		return sHexShake[k];
 	return 0;
+}
+
+/* RESOLVE's first HEX_ATTACK_DELAY frames show the board and the scores from before the placement (HexScreen_Place). */
+static bool32 HexScreen_Before(const struct HexScreenState *h)
+{
+	return h->state == HEX_STATE_RESOLVE && h->timer < HEX_ATTACK_DELAY;
 }
 
 /* The hexagon board: an empty cell is the outline, a placed card its digits, portrait and frame. */
 static void HexScreen_Cells(const struct HexScreenState *h)
 {
-	const struct HexGame *g = &h->game;
+	const struct HexCell *cells = HexScreen_Before(h) ? h->shownCell : h->game.cell;
 	int c;
 
 	for (c = 0; c < HEX_CELLS; c++) {
 		int x = sHexBoxX[c];
 		int y = HEX_BOARD_TOP + sHexBoxY[c];
-		u8 owner = g->cell[c].owner;
+		u8 owner = cells[c].owner;
 		u32 frameBank;
 
 		if (owner == HEX_EMPTY) {
@@ -478,8 +490,8 @@ static void HexScreen_Cells(const struct HexScreenState *h)
 		}
 		x += HexScreen_ShakeX(h, c);
 		frameBank = owner == HEX_BLUE ? HEX_BANK_BLUE : HEX_BANK_RED;
-		HexScreen_CardBody(h, x, y, g->cell[c].type, owner);
-		HexScreen_CardDigits(x, y, g->cell[c].type, frameBank, TRUE, g->cell[c].hp);
+		HexScreen_CardBody(h, x, y, cells[c].type, owner);
+		HexScreen_CardDigits(x, y, cells[c].type, frameBank, TRUE, cells[c].hp);
 	}
 }
 
@@ -503,9 +515,8 @@ static void HexScreen_Hand(const struct HexScreenState *h, int x, const u8 *type
 }
 
 /* A player's score: two 16x16 digits (tens, then ones; no tens digit under 10). */
-static void HexScreen_Score(const struct HexGame *g, u8 owner, int x)
+static void HexScreen_Score(int score, u8 owner, int x)
 {
-	int score = (int)Hex_Score(g, owner);
 	int tens = 0;
 	int ones = score;
 	u32 bank = owner == HEX_BLUE ? HEX_BANK_BLUE : HEX_BANK_RED;
@@ -607,8 +618,13 @@ static void HexScreen_Draw(struct ProcHexScreen *proc)
 		return;
 	}
 
-	HexScreen_Score(&h->game, HEX_BLUE, HEX_SCORE_BLUE_X);
-	HexScreen_Score(&h->game, HEX_RED, HEX_SCORE_RED_X);
+	if (HexScreen_Before(h)) {
+		HexScreen_Score(h->shownScore[HEX_BLUE], HEX_BLUE, HEX_SCORE_BLUE_X);
+		HexScreen_Score(h->shownScore[HEX_RED], HEX_RED, HEX_SCORE_RED_X);
+	} else {
+		HexScreen_Score((int)Hex_Score(&h->game, HEX_BLUE), HEX_BLUE, HEX_SCORE_BLUE_X);
+		HexScreen_Score((int)Hex_Score(&h->game, HEX_RED), HEX_RED, HEX_SCORE_RED_X);
+	}
 	HexScreen_Cells(h);
 	HexScreen_Hand(h, HEX_HAND_BLUE_X, h->game.hand[HEX_BLUE], HEX_HAND, HEX_BLUE);
 	if (h->state == HEX_STATE_TAKE)
@@ -802,7 +818,7 @@ static void HexScreen_SetOpponent(struct HexScreenState *h, const struct Unit *u
 
 	h->oppPid = unit->pCharacterData->number;
 	h->oppNameId = unit->pCharacterData->nameTextId;
-	h->aiLevel = eff < 5 ? 0 : (eff < 15 ? 1 : 2);
+	h->aiLevel = eff < 10 ? 1 : 2;
 	HexScreen_MakeDeck(h->redHand, h->oppPid, eff);
 	HexScreen_LoadRedArt(h);
 }
@@ -1438,13 +1454,29 @@ static bool32 HexScreen_MoveCell(u16 keys)
 	return TRUE;
 }
 
-/* Plays hand slot hand of the player whose turn it is on cell, then RESOLVE. */
+/*
+ * Plays hand slot hand of the player whose turn it is on cell, then RESOLVE. Before the placement the display snapshot is taken
+ * (the board, both scores); after it, the placed card is written into the snapshot at its full HP, so RESOLVE's first frames
+ * show the card on the board and nothing else changed yet (HexScreen_Before).
+ */
 static void HexScreen_Place(u8 hand, u8 cell)
 {
 	struct HexScreenState *h = HEX_ST;
+	struct HexGame *g = &h->game;
+	u8 mover = g->turn;
+	int c;
 
-	h->placedType = h->game.hand[h->game.turn][hand];
-	Hex_Place(&h->game, h->types, hand, cell);
+	for (c = 0; c < HEX_CELLS; c++)
+		h->shownCell[c] = g->cell[c];
+	h->shownScore[HEX_BLUE] = (u8)Hex_Score(g, HEX_BLUE);
+	h->shownScore[HEX_RED] = (u8)Hex_Score(g, HEX_RED);
+
+	h->placedType = g->hand[mover][hand];
+	Hex_Place(g, h->types, hand, cell);
+	h->shownCell[g->lastCell].type = h->placedType;
+	h->shownCell[g->lastCell].owner = mover;
+	h->shownCell[g->lastCell].hp = (s8)h->types[h->placedType].maxHp;
+
 	PlaySoundEffect(HEX_SE_SELECT);
 	h->state = HEX_STATE_RESOLVE;
 	h->timer = 0;
@@ -1521,11 +1553,18 @@ static void HexScreen_UpdatePickCell(struct ProcHexScreen *proc)
 	}
 }
 
+/*
+ * RESOLVE: the board from before for HEX_ATTACK_DELAY frames; then the attack (the shake, and a hit sound if anything changed),
+ * then the settled board until HEX_RESOLVE_FRAMES.
+ */
 static void HexScreen_UpdateResolve(struct ProcHexScreen *proc)
 {
 	struct HexScreenState *h = HEX_ST;
+	const struct HexGame *g = &h->game;
 
 	h->timer++;
+	if (h->timer == HEX_ATTACK_DELAY && (g->lastHit != 0 || g->lastFlip != 0 || g->lastCounter != 0))
+		PlaySoundEffect(HEX_SE_HIT);
 	if (h->timer >= HEX_RESOLVE_FRAMES)
 		HexScreen_NextTurn(proc);
 }

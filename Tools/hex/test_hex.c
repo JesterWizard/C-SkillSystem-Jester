@@ -354,11 +354,46 @@ static s32 RefEval(const struct HexGame* g, u8 me)
     return (s32)Hex_Score(g, me) - (s32)Hex_Score(g, (u8)(3 - me));
 }
 
+/* The reference's aggression (the tie-break after the value, as HexAggression in HexCore.c), written again from the rules: the
+ * HP the opponent's cards lose right after the move (a card that changes owner counts its maxHp), and the opponent's cards next
+ * to the placed cell (before the move). */
+static void RefAggression(const struct HexGame* g, const struct HexTileType* types, u8 hi, u8 c, s32* dmg, s32* pr)
+{
+    struct HexGame sim = *g;
+    u8 other = (u8)(3 - g->turn);
+    s32 damage = 0;
+    s32 pressure = 0;
+    int i;
+    int d;
+
+    Hex_Place(&sim, types, hi, c);
+    for (i = 0; i < HEX_CELLS; i++) {
+        if (g->cell[i].owner != other) {
+            continue;
+        }
+        if (sim.cell[i].owner == other) {
+            damage += g->cell[i].hp - sim.cell[i].hp;
+        } else {
+            damage += types[g->cell[i].type].maxHp;
+        }
+    }
+    for (d = 0; d < HEX_DIRS; d++) {
+        int n = ExpectedNeighbor(c, d);
+        if (n >= 0 && g->cell[n].owner == other) {
+            pressure++;
+        }
+    }
+    *dmg = damage;
+    *pr = pressure;
+}
+
 static bool32 RefPickMove(const struct HexGame* g, const struct HexTileType* types, u8 level, u32 seed, u8* outHand, u8* outCell)
 {
     u8 mover = g->turn;
     bool32 found = 0;
     s32 bestVal = 0;
+    s32 bestDmg = 0;
+    s32 bestPr = 0;
     u32 bestKey = 0;
     u8 hi;
     u8 c;
@@ -370,6 +405,8 @@ static bool32 RefPickMove(const struct HexGame* g, const struct HexTileType* typ
         for (c = 0; c < HEX_CELLS; c++) {
             struct HexGame sim;
             s32 val;
+            s32 dmg;
+            s32 pr;
             u32 move;
             u32 key;
             u8 replyHand;
@@ -388,9 +425,13 @@ static bool32 RefPickMove(const struct HexGame* g, const struct HexTileType* typ
                 }
             }
             val = RefEval(&sim, mover);
-            if (!found || val > bestVal || (val == bestVal && key > bestKey)) {
+            RefAggression(g, types, hi, c, &dmg, &pr);
+            if (!found || val > bestVal || (val == bestVal && (dmg > bestDmg || (dmg == bestDmg && (pr > bestPr ||
+                (pr == bestPr && key > bestKey)))))) {
                 found = 1;
                 bestVal = val;
+                bestDmg = dmg;
+                bestPr = pr;
                 bestKey = key;
                 *outHand = hi;
                 *outCell = c;
@@ -635,6 +676,88 @@ static void TestSameAsReference(void)
     printf("  %d of %d games identical to the reference (blue won %d of the new-AI games)\n", sameGames, games, blueWins);
 }
 
+/* ---- Aggression tie-break (level 1 and level 2): on equal value, the move that damages more of the opponent's HP, then the one
+ * next to more opponent cards. ------------------------------------------------------------------------------------------- */
+
+/* Blue holds seven sprites (attack 1, max HP 3, reach right); red holds six tanks and one tank on the board at tankCell (HP 5,
+ * reach left). Nothing flips in one move, so every legal move is worth the same. */
+static void SetupAggression(struct HexGame* g, int tankCell)
+{
+    u8 blue[HEX_HAND];
+    u8 red[HEX_HAND];
+    int i;
+
+    for (i = 0; i < HEX_HAND; i++) {
+        blue[i] = T_SPRITE;
+        red[i] = T_TANK;
+    }
+    Hex_Init(g, blue, red, HEX_BLUE);
+    g->hand[HEX_RED][0] = HEX_USED;
+    g->cell[tankCell].type = T_TANK;
+    g->cell[tankCell].owner = HEX_RED;
+    g->cell[tankCell].hp = 5;
+}
+
+static void TestAggression(void)
+{
+    struct HexGame g;
+    int seed;
+    int equal = 1;
+    int damageHits = 0;
+    int pressureHits = 0;
+    int m;
+    int count;
+    u8 mh[98];
+    u8 mc[98];
+    s32 v0;
+    u8 hi;
+    u8 c;
+
+    printf("10. level 1 breaks a value tie by damage (the cell next to the enemy tank) and by pressure (next to more enemy cards)\n");
+
+    /* Damage: the sprite on cell 3 hits the tank on cell 4 (HP 5 -> 4); every other move hits nothing. */
+    SetupAggression(&g, 4);
+    count = CollectMoves(&g, mh, mc);
+    v0 = RefMoveValue(&g, sTypes, 1, mh[0], mc[0]);
+    for (m = 0; m < count; m++) {
+        if (RefMoveValue(&g, sTypes, 1, mh[m], mc[m]) != v0) {
+            equal = 0;
+        }
+    }
+    CHECK(equal);
+    for (seed = 1; seed <= 40; seed++) {
+        Hex_AiChoose(&g, sTypes, 1, (u32)seed * 7919u, &hi, &c);
+        CHECK(LegalMove(&g, hi, c));
+        if (c == 3) {
+            damageHits++;
+        }
+    }
+    CHECK(damageHits == 40);
+
+    /* Pressure: the tank on cell 0 hits nothing (its reach is left) and the three cells next to it (1, 2, 3) each have one enemy
+     * neighbour. Every other cell has none, so the AI picks one of 1, 2, 3 for every seed. */
+    SetupAggression(&g, 0);
+    count = CollectMoves(&g, mh, mc);
+    v0 = RefMoveValue(&g, sTypes, 1, mh[0], mc[0]);
+    equal = 1;
+    for (m = 0; m < count; m++) {
+        if (RefMoveValue(&g, sTypes, 1, mh[m], mc[m]) != v0) {
+            equal = 0;
+        }
+    }
+    CHECK(equal);
+    for (seed = 1; seed <= 40; seed++) {
+        Hex_AiChoose(&g, sTypes, 1, (u32)seed * 7919u, &hi, &c);
+        CHECK(LegalMove(&g, hi, c));
+        if (c == 1 || c == 2 || c == 3) {
+            pressureHits++;
+        }
+    }
+    CHECK(pressureHits == 40);
+    printf("  damage: the damaging cell chosen %d of 40 seeds; pressure: a cell next to the enemy chosen %d of 40 seeds\n",
+        damageHits, pressureHits);
+}
+
 int main(void)
 {
     TestNeighbourTable();
@@ -646,6 +769,7 @@ int main(void)
     TestPlaceDelta();
     TestAiAgainstReference();
     TestSameAsReference();
+    TestAggression();
 
     printf("%d checks, %d failed\n", sChecks, sFailures);
     if (sFailures != 0) {

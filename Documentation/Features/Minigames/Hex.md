@@ -104,7 +104,8 @@ When your hand has 7 cards, the list shows `Accept` and `Change`:
 | A | Place the card. A full or illegal cell plays the error sound |
 | B | Back to card choice |
 
-The opponent's turn is announced with `<Name> is thinking`.
+The opponent's turn is announced with `<Name> is thinking`. After a placement the board stays as it was for 30 frames, then the
+attack shows with a shake and a hit sound (if anything changed).
 
 ### Match end and stakes
 
@@ -149,12 +150,15 @@ Other rules:
 The opponents are the living units of your army. Each unit gives you one opponent, with a deck and an AI level, based on the
 unit's **effective level**: its level, plus 20 if the unit is promoted.
 
-- **AI level:** 0 if the effective level is below 5, 1 if below 15, otherwise 2.
+- **AI level:** 1 if the effective level is below 10, otherwise 2. An army opponent never plays random moves.
 - **Tier cap:** 1 if the effective level is below 10, 2 if below 20, otherwise 3.
 - **Deck:** the first card is the card of the unit's own character (when there is one, even above the tier cap). The other
   7 slots are drawn from the card types of tier at or below the cap, with at most 2 copies of one type in the deck.
 - The deck is always the same for the same unit at the same level and promotion. A unit that gains a level, or is promoted, may get a
   different deck and AI level the next time you pick it.
+- **Opponent's moves:** the opponent picks the move with the best score difference (level 1: right after the move; level 2: after
+  your best reply). On a tie it prefers the move that does more damage to your cards (the HP your cards lose, a card that changes
+  owner counting its full HP), then the move next to more of your cards, then a seeded pick.
 
 ## 🂠 Card List
 
