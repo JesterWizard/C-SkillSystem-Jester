@@ -14,7 +14,7 @@ Integrated documentation: [Documentation/Features/Minigames/Hex.md](../../../Doc
 
 ### The Hex menu
 
-- **Play** opens "Choose an opponent": the living player units (name and level). The highlighted unit's deck is shown in the red column. A starts the hand picker. B goes back.
+- **Play** opens "Choose an opponent": the living player units (name and level). The highlighted unit's deck is shown in the red column (on the left). A starts the hand picker. B goes back.
 - **Cards** opens the collection: "Cards N/32" and the 32 card types in table order. Owned types show the copies; a type never owned shows `???`. The highlighted owned card is previewed. B goes back.
 - The first time the screen opens with no cards, the player gets the 7 starter cards in the convoy (`HexCol_GiveStarters`: Ross 2, Amelia 2, Ewan 1, Franz 1, Neimi 1).
 
@@ -22,8 +22,10 @@ Integrated documentation: [Documentation/Features/Minigames/Hex.md](../../../Doc
 
 - The picker lists your owned types with the copies still available. A adds a copy to the hand (7 cards), B removes the last one. With 7 cards, "Accept this hand?" appears: Accept starts the reveal (the opponent's hand is shown; A skips it) and then the match. Change goes back to the picker.
 - A match is 14 placements on the 14-cell board, blue and red in turns. Blue chooses a card (UP/DOWN, A) and a cell (D-pad, A places, B goes back). The first player is chosen by the game clock. Red's AI level is set by the opponent's level (0, 1 or 2 for levels below 5, below 15, and the rest).
+- Layout: the player's hand (blue) and score are on the right, the opponent's hand (red) and score on the left. The arrows point at the choice: a right arrow beside the list row or the highlighted blue card, and a down arrow on the top edge of the cell being chosen (the same place in every cell). In TAKE a left arrow sits just right of the opponent's card.
+- RESOLVE shows each placement for 40 frames. For the first 16 frames the cards that lost HP, changed owner, or (the placed card) were counterattacked shake sideways.
 - At the end, the banner says Victory, Defeat or Draw. A goes to the stakes:
-  - **Win:** if the opponent's starting cards can be taken (you hold fewer than 3 copies of their type), Take shows them. UP/DOWN chooses and A takes one into the convoy. A held type of 3 copies, or a full convoy, is refused with a message. With a full convoy, B skips the take.
+  - **Win:** if the opponent's starting cards can be taken (you hold fewer than 3 copies of their type), Take shows them, the opponent's cards on the left, with a left arrow just right of the chosen one. UP/DOWN chooses and A takes one into the convoy. A held type of 3 copies, or a full convoy, is refused with a message. With a full convoy, B skips the take.
   - **Loss:** if you hold more than 7 cards, your strongest card of the hand is taken. Otherwise "Your cards are safe this time."
   - **Draw:** nothing changes.
 - The stake banner stays for 120 frames (or until A), then the menu comes back.
