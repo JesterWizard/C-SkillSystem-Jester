@@ -20,8 +20,8 @@
  * The Hex screen (Preparations > Hex): the front menu (MENU: Play or Cards), the opponent (OPPONENT: one of the player's living
  * units, its deck in the red column), the player picks a hand of 7 cards from the collection (HAND_PICK, PICK_DONE), the
  * opponent's hand is revealed (REVEAL), one match is played (BEGIN, PICK_TILE, PICK_CELL, RESOLVE, AI_TURN, END), then the
- * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer. The blue hand (left) and the red hand
- * (right); the board, both scores and the name bar. README.md lists the keys and the rules.
+ * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer. The blue hand (right) and the red hand
+ * (left); the board, both scores and the name bar. README.md lists the keys and the rules.
  *
  * Layers: BG3 the rune mural (RestartMuralBackground, priority 3, the same as the other prep sub-screens), BG1 the UI windows
  * (DrawUiFrame2, priority 2: the list over the board, the name bar across the bottom), BG0 text (priority 0: the list, the name
@@ -41,7 +41,7 @@
 #define HEX_OBJ_OUTLINE 0          /* 16 tiles: gHexEmptyTiles */
 #define HEX_OBJ_DIGIT_WHITE 16     /* 11 tiles: gHexDigitTiles, digit d = 16 + d, blank = 26 */
 #define HEX_OBJ_DIGIT_GREEN 27     /* 11 tiles: gHexDigitGreenTiles, digit d = 27 + d */
-#define HEX_OBJ_CURSOR 38          /* 8 tiles: gHexCursorTiles, left arrow 38, down arrow 42 (4 tiles each, 16x16) */
+#define HEX_OBJ_CURSOR 38          /* 8 tiles: gHexCursorTiles, left arrow 38, down arrow 42 (4 tiles each, 16x16; the right arrow is the left one flipped) */
 #define HEX_OBJ_CURSOR_DOWN 4      /* offset of the down arrow from HEX_OBJ_CURSOR */
 #define HEX_OBJ_SCORE 512          /* 40 tiles: gHexScoreTiles, digit d = 512 + 4 d (16x16) */
 #define HEX_OBJ_CARD_BACK 552      /* 16 tiles: gHexCardBackTiles, the owner fill behind every portrait (512..551 is taken) */
@@ -65,20 +65,20 @@
 #define HEX_BOX 32
 #define HEX_BOARD_TOP 0           /* the top row of cells; the board spans y 0..127, above the name bar (y 128) */
 
-/* Hands and scores (blue on the left, red on the right). */
-#define HEX_HAND_BLUE_X 4
-#define HEX_HAND_RED_X 204
+/* Hands and scores (blue on the right, red on the left). */
+#define HEX_HAND_BLUE_X 204
+#define HEX_HAND_RED_X 4
 #define HEX_HAND_Y 4
 #define HEX_HAND_STEP 20
 #define HEX_SCORE_Y 112
-#define HEX_SCORE_BLUE_X 44
-#define HEX_SCORE_RED_X 168
+#define HEX_SCORE_BLUE_X 168
+#define HEX_SCORE_RED_X 44
 #define HEX_CURSOR_GAP 2
-#define HEX_TAKE_CURSOR_X 186      /* the arrow left of the red card the TAKE cursor is on */
+#define HEX_SHAKE_FRAMES 16        /* RESOLVE: the first frames in which the changed cells shake (sHexShake) */
 
 /* The hand picker's list (BG0 text rows 1..13 in the list window rows 0..15, the window is BG1): the title on row 1, then the owned card
  * types, two rows each (16 px), from HEX_PICK_ROW0 (six rows). Names at column HEX_PICK_NAME_COL, the copies still available right-aligned to column
- * HEX_PICK_COUNT_RIGHT (exclusive). The cursor (left arrow) is at HEX_PICK_CURSOR_X, the preview card at HEX_PREVIEW_X/Y.
+ * HEX_PICK_COUNT_RIGHT (exclusive). The cursor (right arrow, pointing at the names) is at HEX_PICK_CURSOR_X, the preview card at HEX_PREVIEW_X/Y.
  */
 #define HEX_PICK_VISIBLE 6
 #define HEX_PICK_TITLE_ROW 1
@@ -171,6 +171,12 @@
 
 static const s16 sHexBoxX[HEX_CELLS] = { 90, 118, 76, 104, 132, 62, 90, 118, 146, 76, 104, 132, 90, 118 };
 static const s16 sHexBoxY[HEX_CELLS] = { 0, 0, 24, 24, 24, 48, 48, 48, 48, 72, 72, 72, 96, 96 }; /* + HEX_BOARD_TOP */
+
+/* RESOLVE: the x offset of a card that was hit, flipped or counterattacked, by frame (HEX_SHAKE_FRAMES frames). */
+static const s8 sHexShake[HEX_SHAKE_FRAMES] = { 2, -2, 2, -2, 1, -1, 1, -1, 1, -1, 0, 0, 1, -1, 0, 0 };
+
+/* The arrow of the list and of the hand: gObject_16x16 with the OAM horizontal flip (a right-pointing arrow). */
+static const u16 sHexObject16x16HFlip[] = { 1, OAM0_SHAPE_16x16, OAM1_SIZE_16x16 + OAM1_HFLIP, 0 };
 
 /*
  * The state lives in gHexScreenState (RamAlloc.s, 0x200 bytes), not in the proc: a proc is only 0x6C bytes
@@ -438,6 +444,22 @@ static void HexScreen_CardBody(const struct HexScreenState *h, int x, int y, int
 	HexScreen_Push(x, y, gObject_32x32, base, frameBank);
 }
 
+/*
+ * RESOLVE shakes the cards that were hit (lastHit), that changed owner (lastFlip), and the placed card when it was
+ * counterattacked (lastCounter): an x offset from sHexShake by the frame, for HEX_SHAKE_FRAMES frames. Zero otherwise.
+ */
+static int HexScreen_ShakeX(const struct HexScreenState *h, int c)
+{
+	const struct HexGame *g = &h->game;
+	u16 bit = (u16)(1u << c);
+
+	if (h->state != HEX_STATE_RESOLVE || h->timer >= HEX_SHAKE_FRAMES)
+		return 0;
+	if ((g->lastHit & bit) != 0 || (g->lastFlip & bit) != 0 || (g->lastCounter != 0 && c == g->lastCell))
+		return sHexShake[h->timer];
+	return 0;
+}
+
 /* The hexagon board: an empty cell is the outline, a placed card its digits, portrait and frame. */
 static void HexScreen_Cells(const struct HexScreenState *h)
 {
@@ -454,6 +476,7 @@ static void HexScreen_Cells(const struct HexScreenState *h)
 			HexScreen_Push(x, y, gObject_32x32, HEX_OBJ_OUTLINE, HEX_BANK_RED);
 			continue;
 		}
+		x += HexScreen_ShakeX(h, c);
 		frameBank = owner == HEX_BLUE ? HEX_BANK_BLUE : HEX_BANK_RED;
 		HexScreen_CardBody(h, x, y, g->cell[c].type, owner);
 		HexScreen_CardDigits(x, y, g->cell[c].type, frameBank, TRUE, g->cell[c].hp);
@@ -497,13 +520,12 @@ static void HexScreen_Score(const struct HexGame *g, u8 owner, int x)
 }
 
 /*
- * The down arrow above a cell: 2 px above its box, or, for the top row (no room above it on screen), its top at y 0.
+ * The down arrow at a cell: its top at the cell's top edge (the same place in every cell, as on the top row), x = the cell's
+ * x + 8 (centred on the 32 px box). It is drawn over the cell.
  */
 static int HexScreen_CellCursorY(int cell)
 {
-	int y = HEX_BOARD_TOP + sHexBoxY[cell] - 16 - HEX_CURSOR_GAP;
-
-	return y < 0 ? 0 : y;
+	return HEX_BOARD_TOP + sHexBoxY[cell];
 }
 
 /* The preview of the highlighted card at the right of the list (only if the card has art). */
@@ -524,13 +546,14 @@ static void HexScreen_DrawPick(const struct HexScreenState *h)
 	HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED);
 
 	if (h->state == HEX_STATE_PICK_DONE) {
-		HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * h->pickChoice, gObject_16x16, HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
+		HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * h->pickChoice, sHexObject16x16HFlip, HEX_OBJ_CURSOR + 0,
+			       HEX_BANK_RED);
 		return;
 	}
 	if (h->ownedN == 0)
 		return;
 	HexScreen_Preview(h, h->owned[h->pickCursor]);
-	HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * (h->pickCursor - h->pickScroll), gObject_16x16,
+	HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * (h->pickCursor - h->pickScroll), sHexObject16x16HFlip,
 		       HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
 }
 
@@ -564,7 +587,7 @@ static void HexScreen_DrawSide(const struct HexScreenState *h)
 		row = h->menuSel;
 		break;
 	}
-	HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * row, gObject_16x16, HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
+	HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * row, sHexObject16x16HFlip, HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
 }
 
 static void HexScreen_Draw(struct ProcHexScreen *proc)
@@ -594,17 +617,17 @@ static void HexScreen_Draw(struct ProcHexScreen *proc)
 		HexScreen_Hand(h, HEX_HAND_RED_X, h->game.hand[HEX_RED], HEX_HAND, HEX_RED);
 
 	/*
-	 * The cursors last, in front of the board: a left arrow just right of the blue card (kept while a cell is picked),
-	 * a down arrow above the cell; in TAKE a left arrow beside the red card.
+	 * The cursors last, in front of the board: a right arrow just left of the blue card (kept while a cell is picked),
+	 * a down arrow over the top edge of the cell; in TAKE a left arrow just right of the red card.
 	 */
 	if (h->state == HEX_STATE_PICK_TILE || h->state == HEX_STATE_PICK_CELL)
-		HexScreen_Push(HEX_HAND_BLUE_X + HEX_BOX + HEX_CURSOR_GAP, HEX_HAND_Y + HEX_HAND_STEP * proc->sel + 4, gObject_16x16,
+		HexScreen_Push(HEX_HAND_BLUE_X - 16 - HEX_CURSOR_GAP, HEX_HAND_Y + HEX_HAND_STEP * proc->sel + 4, sHexObject16x16HFlip,
 			       HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
 	if (h->state == HEX_STATE_PICK_CELL)
 		HexScreen_Push(sHexBoxX[h->cell] + 8, HexScreen_CellCursorY(h->cell), gObject_16x16,
 			       HEX_OBJ_CURSOR + HEX_OBJ_CURSOR_DOWN, HEX_BANK_RED);
 	if (h->state == HEX_STATE_TAKE)
-		HexScreen_Push(HEX_TAKE_CURSOR_X, HEX_HAND_Y + HEX_HAND_STEP * h->takeSel + 4, gObject_16x16,
+		HexScreen_Push(HEX_HAND_RED_X + HEX_BOX + HEX_CURSOR_GAP, HEX_HAND_Y + HEX_HAND_STEP * h->takeSel + 4, gObject_16x16,
 			       HEX_OBJ_CURSOR + 0, HEX_BANK_RED);
 }
 

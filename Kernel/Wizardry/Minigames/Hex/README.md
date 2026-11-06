@@ -30,10 +30,10 @@ rune mural on BG3 (`RestartMuralBackground`, ended by `EndMuralBackground_` on e
 (`DrawUiFrame2`, style 0), and the text on BG0 over them. There is no wood and no flat plate.
 
 - The list window (MENU, OPPONENT, CARDS, HAND_PICK, PICK_DONE) is over the board area: tiles x 5..24, y 0..15. The title is on
-  row 1 and the six list rows on rows 3, 5, ..., 13, so the list sits inside the border. Its cursor (the left arrow) and the
-  preview card at the right are drawn on it.
+  row 1 and the six list rows on rows 3, 5, ..., 13, so the list sits inside the border. Its cursor (a right arrow, pointing at the
+  names) and the preview card at the right are drawn on it.
 - The name bar is a window across the bottom, tiles x 5..24, y 16..19, with the text on row 17 (inside the frame), centred. It is narrower than the
-  screen because the hands (x 4..36 and 204..236) sit at the sides: a longer line can be partly covered by a
+  screen because the hands (red x 4..36 on the left, blue x 204..236 on the right) sit at the sides: a longer line can be partly covered by a
   card.
 - Both windows are redrawn when their content changes (the list on every list-state change, the bar whenever its text changes).
   In the match states only the bar window is shown, and the board and hands sit on the mural.
@@ -83,7 +83,7 @@ The screen has three parts: the hand picker, one match, and the stakes. The hand
 HAND_PICK is entered from OPPONENT. The board is not drawn: the middle of the screen holds a list of the card types the player owns
 (copies in the convoy and in living player units' inventories), in type order, with a "Your cards" title. Each row shows the
 name and the copies still available (owned minus the ones already picked), right-aligned; six rows show at a time and the list
-scrolls. The blue column (left) shows the cards picked so far, top down; the red column (right) is the opponent's hand, face up.
+scrolls. The blue column (right) shows the cards picked so far, top down; the red column (left) is the opponent's hand, face up.
 The highlighted card is previewed at the right of the list, and the name bar shows its name.
 
 - UP / DOWN (held keys repeat): move the list cursor.
@@ -101,19 +101,20 @@ Opponents). The first player is chosen from the game clock.
 The match ends when the board is full. Red's moves come from `Hex_AiChoose`.
 
 - BEGIN: "Blue begins" or "<Name> begins" (the opponent's name) in the name bar for 60 frames (A skips it).
-- PICK_TILE: a left arrow beside the highlighted blue card; the name bar shows its name. UP/DOWN step over unused cards.
+- PICK_TILE: a right arrow just left of the highlighted blue card, pointing at it; the name bar shows its name. UP/DOWN step over unused cards.
   A goes to PICK_CELL. B does nothing: a match is played to its end.
-- PICK_CELL: a down arrow above the cell, the highlighted card stays marked. D-pad moves to a neighbour (UP: UL or UR, DOWN: DL or
+- PICK_CELL: a down arrow on the top edge of the cell (the same place in every cell), the highlighted card stays marked. D-pad moves to a neighbour (UP: UL or UR, DOWN: DL or
   DR, LEFT/RIGHT: L or R; an empty neighbour is preferred), or to the cell before/after in reading order when there is none.
   A places the card (an occupied or illegal cell plays the error sound). B goes back to PICK_TILE.
-- RESOLVE: 40 frames; the name bar shows the card just placed. The redraw shows the flipped cells in their new colour.
+- RESOLVE: 40 frames; the name bar shows the card just placed. The redraw shows the flipped cells in their new colour. For the
+  first 16 frames the cards that lost HP, changed owner, or (the placed card) were counterattacked shake sideways (`sHexShake`).
 - AI_TURN: "<Name> is thinking" for one frame, then the opponent places.
 - END: "Victory!", "Defeat..." or "Draw" in the name bar. A decides the stakes (below).
 
 ### Stakes (END, TAKE, REWARD)
 
 - Win (blue): if the player holds fewer than 3 copies of at least one type in the red hand, TAKE; otherwise REWARD with no card
-  gained. TAKE: the cursor is on the red column, UP/DOWN choose one of the opponent's 7 starting cards, and A gives it to the
+  gained. TAKE: the cursor is on the red column (left), a left arrow just right of the card, UP/DOWN choose one of the opponent's 7 starting cards, and A gives it to the
   convoy. A type the player already holds 3 of is refused: error sound and "You can't hold more" for 60 frames. If the convoy is
   full, the take is refused: error sound and "Convoy is full" for 60 frames, and then B skips the take (REWARD, "No card gained.").
 - Loss (red): if the player owns more than 7 cards, the opponent takes the player's best card from the hand just played (highest
