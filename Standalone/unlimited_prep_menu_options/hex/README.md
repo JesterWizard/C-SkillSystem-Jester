@@ -30,7 +30,22 @@ Integrated documentation: [Documentation/Features/Minigames/Hex.md](../../../Doc
 
 ### Cards as items
 
-Unchanged from the card add-on: a card is one vanilla item slot `$C1` (a "Dummy" item) whose uses byte is the card type (0 to 31). Its name and description are the character's, it has the vanilla Member Card icon, and it cannot be used. The Supply list shows it with `--` uses. R on a card shows the character's description. See the card section of the test notes in [test/README.md](test/README.md).
+Unchanged from the card add-on: a card is one vanilla item slot `$C1` (a "Dummy" item) whose uses byte is the card type (0 to 31). Its name and description are the character's, it has the Hex card icon (see "Card icon" below), and it cannot be used. The Supply list shows it with `--` uses. R on a card shows the character's description. See the card section of the test notes in [test/README.md](test/README.md).
+
+### Card icon
+
+The card has its own 16x16 icon: a small hexagonal card (dark outline, gold border, blue face, white hexagon pip). It replaces nothing else; it is written into a vanilla icon slot that the clean ROM does not use.
+
+- **How it is added:** reuse of a free slot (option (a) in the task notes), not a hook. The item icon sheet is the table at `0x085926F4` (`$5926F4` in the file), 0x80 bytes per icon id, 0xE0 ids (`0x00` to `0xDF`). `DrawIcon` (`0x080036BC`) takes the id from `GetItemIconId` (`0x08017700`) and copies `table + id * 0x80` to VRAM through `GetIconTileIndex` (`0x08003650`, the only reader of that table; `LoadIconObjectGraphics` `0x0800372C` has no caller). The installer writes the 128 bytes of `Source/HexCardIcon.bin` into slot `HEX_CARD_ICON` = `$DF` (file `$599674` to `$5996F3`, protected). No code is hooked for the icon.
+- **HEX_CARD_ICON:** `#define HEX_CARD_ICON $DF` in `Installer.event` (no C side: the C code does not use the icon id). The item row's icon byte (`gItemData[0xC1]` +`0x1D`, file `$80B651`) is set to it.
+- **Why slot $DF is free (evidence from the clean ROM):**
+  - No item row's icon byte is `$DF` (the 0xCE rows, scanned with the file offsets from `$809B10`).
+  - The 40 `DrawIcon` call sites take the id from: the item rows (`GetItemIconId` or a direct `ldrb` of +`0x1D`), `GetUnitAidIconId` (`$80`, `$81`, `$82` or `-1`), the affinity icons (`$79` plus the character's affinity byte; the character table's byte at +9 is at most 29 in rows `0..0x1FF`), or the weapon-type icons (`$6F`/`$70` plus a small index). None gives `$DF`.
+  - In the vanilla icon sheet, `$DE` and `$DF` are the red-cross placeholder tiles (checked on the rendered sheet).
+- **Palette:** the item icons use OBJ bank 4 (`DrawIcon` with `0x4000`, from `LoadIconPalettes(4)`), palette 0 of the icon table at `$5996F4` (16 BGR555 colours, index 0 transparent). The colours used are index 4 (outline), 5 (gold), 7 (blue) and 1 (white). The generator prints the mapping.
+- **Regenerate:** `make` in this folder rebuilds `Source/HexCardIcon.bin` when `tools/gen_card_icon.py` changes (`python3 tools/gen_card_icon.py` by hand does the same). It writes `tools/card_icon_preview.png` (8x) as well when Pillow is installed. Edit the shape or the colours in the script (the `PIP_R`, `R` and `WANTED` values), then run it. The 4bpp layout is GBA 1D OBJ: tile 0 top-left, 1 top-right, 2 bottom-left, 3 bottom-right, 32 bytes each, low nibble left.
+- **Conflicts:** another patch that writes icon slot `$DF`, or that reads it as an item icon (any item row with icon `$DF`), gets the card's picture. Any patch that replaces the icon sheet at `$5926F4` conflicts with this one. If `$DF` is taken, pick another free slot in `Installer.event` (`HEX_CARD_ICON`) and check it against the list above.
+- **Not proven:** that no other add-on in the repo writes `$DF`, and that the weapon-type index in the `$6F`/`$70` callers stays below `$10`. The clean ROM checks are static (BL and literal-pool scans); a patch that computes ids differently is not covered.
 
 ## Target ROM
 
@@ -81,7 +96,7 @@ This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`To
 
 | File | Purpose |
 |------|---------|
-| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `HEX_PREP_SLOT`, the item row, the two item hooks, the body at `$1100000`, the slot write |
+| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `HEX_CARD_ICON`, `HEX_PREP_SLOT`, the item row, the card icon (`#incbin`), the two item hooks, the body at `$1100000`, the slot write |
 | `Source/Hex.h` | `HEX_CARD_ITEM`, `HEX_PREP_SLOT`, `struct HexCardType`, the card and art declarations, `gHexScreenState` |
 | `Source/HexCards.c` | Card item tests, `MakeHexCardItem`, convoy and inventory collection |
 | `Source/HexCardTypes.c` | The 32 card types (`gHexCardTypes`) |
@@ -93,7 +108,10 @@ This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`To
 | `Source/RamAlloc.s` | `gHexScreenState` at `0x0203C100` (0x200 bytes) |
 | `Source/Hex.lyn.event` | Checked-in lyn output of all the C files and `RamAlloc.s`, included by the installer |
 | `include/configs/configs.h` | Empty stand-in for the kernel config header that FE-CLib's `bmunit.h` includes |
-| `makefile` | Builds `Source/Hex.lyn.event` |
+| `Source/HexCardIcon.bin` | The card icon: 128 bytes of 4bpp tiles (16x16, OBJ order), incbin'd by `Installer.event`. Made by `tools/gen_card_icon.py` |
+| `tools/gen_card_icon.py` | Draws the card icon, maps its colours to the item icon palette (prints the mapping), writes `Source/HexCardIcon.bin` and the preview |
+| `tools/card_icon_preview.png` | The icon at 8x (made by the script) |
+| `makefile` | Builds `Source/Hex.lyn.event`, and `Source/HexCardIcon.bin` from `tools/gen_card_icon.py` |
 | `test/` | Test-only route, script and ROM builder. Do not install (see `test/README.md`) |
 
 ## Hooks and free space
@@ -103,11 +121,12 @@ This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`To
 | `GetItemName` (0x080174F4) | `$174F4` | 8 bytes | `HexItem_GetItemName` |
 | `GetItemDescId` (0x08017518) | `$17518` | 8 bytes | `HexItem_GetItemDescId` |
 
-The Hex row adds no hook. It uses the parent's extension slot.
+The Hex row adds no hook. It uses the parent's extension slot. The card icon adds no hook either: it writes the 0x80 bytes of vanilla icon slot `$DF` (see "Card icon").
 
 | What | ROM offset | Size | Note |
 |------|------------|------|------|
-| Item row `gItemData[0xC1]` | `$80B634` | 36 bytes | Protected. The card's fields |
+| Item row `gItemData[0xC1]` | `$80B634` | 36 bytes | Protected. The card's fields (icon byte `$DF` at `$80B651`) |
+| Card icon, icon slot `$DF` | `$599674` | 128 bytes | Protected. Overwrites the vanilla icon slot `$DF` (a placeholder) with `Source/HexCardIcon.bin` |
 | Extension slot `HEX_PREP_SLOT` | `$1000004` (slot 0) | 4 bytes | Written with `POIN HexPrepRow`. Not protected (the parent leaves the slots open) |
 | Body (free space) | `$1100000` to `$110CC0B` | **52236 bytes (0xCC0C)** | Protected from `$1100000` to the end of the row. Holds the card code and table, the engine, the art, the screen, the row |
 
@@ -154,8 +173,16 @@ Checked in session S2b with the parent and this folder in one Event Assembler ru
 - Undefined symbols: every external name of the eight objects (seven C files and `RamAlloc.s`) is defined either by the FE8 reference object (`Tools/FE-CLib-Mokha/reference/fireemblem8.ref.o`) or by this folder's objects. None is left unresolved.
 - The 12 parent hooks hold `00 4B 18 47` and a pointer into the parent's body (`$1000000` area). The two item hooks hold `00 4B 18 47` and a pointer into `$1100000`. Slot 0 holds `0x0910CBF4`, the address of `HexPrepRow` (`$110CBF4`), whose title is `Hex` and help `Play Hex with your army\nand view your cards.`, with `isVisible` NULL.
 - Emulator (mGBA via gbarun, route in `test/README.md` and `test/hex_screen.gbarun`): the Preparations menu scrolled to the Hex row with its help text; the Hex menu on the mural with blue windows; "Choose an opponent" with the chapter's units and the highlighted unit's deck; the hand picker and the accepted hand; mid-match board; the result banner; the Cards viewer; the convoy's Supply list with the starter cards; B from the Hex menu returns to the Preparations menu with the cursor on Hex and no popup.
-- A win (the Take step and "Gained Ewan!") was checked in an earlier run of the same route; the screenshots kept are of a loss run (the match result is not the same on every run, see `test/README.md`).
+- A win (the Take step and "Gained Ewan!") was checked in an earlier run of the same route; the screenshots kept are of a loss run (the match result is not the same on every run, see `test/README.md`)
+
+Checked in session S3 (the card icon, `make` and `test/make_test_rom.sh` as above):
+
+- `make` rebuilt nothing in `Source/` (the C is unchanged) and ran the icon rule when `tools/gen_card_icon.py` was touched: the same 128 bytes. `make` passes.
+- The test ROM builds with `No errors. Please continue being awesome.`. Against the previous build (the same route with the Member Card icon), the only changed bytes are the item row's icon byte (`$80B651`: `$84` to `$DF`) and the icon slot `$599674` to `$5996F3`.
+- The 12 parent hooks hold `00 4B 18 47` (the PMX1 header at `$1000000` is the 13th site, not a hook). The two item hooks and slot 0 are as above.
+- Emulator, `test/cards_supply.gbarun`: the card rows show the hex icon next to the names; `Lightning`, `Vulnerary`, the weapon-type tabs at the top of the Supply list and the other icons are pixel-identical to the previous build (pixel diff: only the card icon cells change).
+.
 
 ## Credits
 
-The Hex minigame, its rules and its AI come from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester) (`Kernel/Wizardry/Minigames/Hex`, `include/kernel/hex-core.h`). The card table's stats are copied from the Minish Cap mod's `gHexTiles` (`src_custom/hexArt.c`), as the kernel's table says. The card art is generated from the Minish Cap mod's art by `Tools/hex/gen_hex_art.py`. The card icon is FE8's vanilla "Member Card". The Preparations row and its extension contract come from [Unlimited Prep Menu Options](../README.md).
+The Hex minigame, its rules and its AI come from [C Skill System](https://github.com/JesterWizard/C-SkillSystem-Jester) (`Kernel/Wizardry/Minigames/Hex`, `include/kernel/hex-core.h`). The card table's stats are copied from the Minish Cap mod's `gHexTiles` (`src_custom/hexArt.c`), as the kernel's table says. The card art is generated from the Minish Cap mod's art by `Tools/hex/gen_hex_art.py`. The card icon is drawn by `tools/gen_card_icon.py` and uses the item icon palette of FE8U (the vanilla Member Card icon is no longer used). The Preparations row and its extension contract come from [Unlimited Prep Menu Options](../README.md).

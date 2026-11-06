@@ -19,10 +19,16 @@ RAM_SRC := Source/RamAlloc.s
 RAM_OBJ := Source/RamAlloc.o
 HEADERS := Source/Hex.h Source/HexCore.h ../Source/PrepMenuExt.h
 OUTPUT  := Source/Hex.lyn.event
+ICON_BIN := Source/HexCardIcon.bin
+ICON_GEN := tools/gen_card_icon.py
 
 .PHONY: all clean
 
-all: $(OUTPUT)
+all: $(OUTPUT) $(ICON_BIN)
+
+$(ICON_BIN): $(ICON_GEN)
+	@echo "[ICON]	$@"
+	@python3 $(ICON_GEN)
 
 $(OUTPUT): $(OBJECTS) $(RAM_OBJ) $(FE8_REF) $(FE8_SYM)
 	@echo "[LYN]	$@"

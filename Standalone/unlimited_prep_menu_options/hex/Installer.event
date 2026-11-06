@@ -16,9 +16,13 @@
 /* The vanilla item slot used for cards: "Dummy" (name text 0x0403). Must equal HEX_CARD_ITEM in Source/Hex.h. */
 #define HEX_CARD_ITEM                      $C1
 
-/* Icon byte of the card (vanilla item icon at +0x1D). $84 is the vanilla "Member Card" icon
- * (item $72, a card). Member Card's row has icon $84 at +0x1D and 0 at +0x1E. $85 is "Silver Card". */
-#define ICON_CARD                          $84
+/* The card's icon: vanilla icon slot $DF of the item icon sheet (16x16, 0x80 bytes per slot). Nothing in the
+ * clean ROM uses it: no item icon byte is $DF, and the DrawIcon callers take their ids from the item rows
+ * (GetItemIconId), the aid icons ($80..$82), the affinity icons ($79 + affinity) and the weapon-type icons ($6F..$78).
+ * It is one of the slots the clean ROM leaves as a red-cross placeholder ($DE and $DF). The 0x80 bytes are
+ * written from Source/HexCardIcon.bin (made by tools/gen_card_icon.py). See ../README.md, "Card icon". */
+#define HEX_CARD_ICON                      $DF
+#define FE8U_ItemIconSheet                 $5926F4  /* 0x085926F4: DrawIcon's source table, 0x80 bytes per icon id (0x00..0xDF) */
 
 /* Free space for this add-on's body. The parent uses $1000000..$1001060. */
 #define FE8U_HexFreeSpace                  $1100000
@@ -34,10 +38,18 @@ ORG FE8U_gItemData + HEX_CARD_ITEM * 36
     WORD 0x00000000 0x00000000      // pStatBonuses, pEffectiveness (NULL)
     BYTE 0x01 0x00 0x00 0x00 0x00 0x00 // maxUses 1, might, hit, weight, crit, encodedRange
     SHORT 0x0000                    // costPerUse 0
-    BYTE 0x00 ICON_CARD             // weaponRank (0x1C), icon (0x1D): vanilla GetItemIconId (0x08017700) reads this byte
+    BYTE 0x00 HEX_CARD_ICON         // weaponRank (0x1C), icon (0x1D): vanilla GetItemIconId (0x08017700) reads this byte
     BYTE 0x00 0x00                  // useEffectId (0x1E, 0 = no use: GetItemUseEffect 0x0801773C), weaponEffectId (0x1F)
     BYTE 0x00 0x00 0x00 0x00        // 0x20..0x23: zero (the bytes after the effects in Member Card's row)
     PROTECT FE8U_gItemData + HEX_CARD_ITEM * 36 FE8U_gItemData + HEX_CARD_ITEM * 36 + 36 // item row
+POP
+
+/* The card's icon: the 0x80 bytes of vanilla icon slot HEX_CARD_ICON (tiles in OBJ order: top-left, top-right,
+ * bottom-left, bottom-right; palette 0 of the item icons, OBJ bank 4). Source/HexCardIcon.bin is made by tools/gen_card_icon.py. */
+PUSH
+ORG FE8U_ItemIconSheet + HEX_CARD_ICON * 0x80
+#incbin "Source/HexCardIcon.bin"
+PROTECT FE8U_ItemIconSheet + HEX_CARD_ICON * 0x80 FE8U_ItemIconSheet + HEX_CARD_ICON * 0x80 + 0x80 // card icon
 POP
 
 /* Hooks: jumpToHack at the vanilla function (8 bytes: ldr r3,[pc]; bx r3; pointer). */
