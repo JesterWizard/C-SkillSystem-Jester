@@ -3398,7 +3398,7 @@ const struct ItemData gItemData_New[255] = {
 		.weaponType = ITYPE_ITEM,
 		.maxUses = 1,
 		.costPerUse = 0,
-		.iconId = ITEM_ICON_ARMS_SCROLL,
+		.iconId = ITEM_ICON_HEX_CARD,
 		.useEffectId = 0,	/* not usable */
 	},
 #endif

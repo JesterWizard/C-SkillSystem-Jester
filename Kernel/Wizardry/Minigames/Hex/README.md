@@ -15,6 +15,7 @@ The Hex row in the preparations menu can be hidden at runtime with `prep_menu_he
   picker, the match and the stakes (see below). Both hands, both scores and the name bar. Portraits are the FE8 chibis, clipped to
   the hexagon by the keep mask.
 - `Hex_Installer.event`: included from `Kernel/Wizardry/wizardry.event` under `CONFIG_HEX_CARDS`.
+- Card icon: `Data/CustomItems/HexCard/Installer.event` (under `CONFIG_HEX_CARDS`) writes the 16x16 card picture to item icon slot `ITEM_ICON_HEX_CARD` (`0x8E`); the `0xEC` row in `Data/ItemSys/Source/Items.c` uses it.
 
 The screen state is kept in `gHexScreenState` (`struct HexScreenState`, 0x200 bytes, `include/link/config-memmap.s`), not in the
 proc: a proc is 0x6C bytes, and the proc holds only the name bar text, the saved display registers and the blue selection. The

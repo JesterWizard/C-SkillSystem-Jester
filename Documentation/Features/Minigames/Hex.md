@@ -121,6 +121,7 @@ The opponent's turn is announced with `<Name> is thinking`.
 - The card's **type** (0 to 31, see the [Card List](#card-list)) is stored in the item's uses byte. The item word is
   `(type << 8) | CONFIG_ITEM_INDEX_HEX_CARD`.
 - The item name is the name of the character the card is named after.
+- The icon is the hexagonal card picture in item icon slot `ITEM_ICON_HEX_CARD` (`0x8E`, `Data/CustomItems/HexCard/`), the same for every card type; the row's `iconId` is that slot.
 - Cards are stored in the convoy or in the inventory of a living unit. There is no extra save data: your collection is
   whatever cards you hold.
 - Cards cannot be equipped. A card that is moved into an inventory counts the same as one in the convoy.

@@ -36,3 +36,4 @@
 #include "SoothStaff/Installer.event"
 #include "EnfeebleStaff/Installer.event"
 #include "InvestStaff/Installer.event"
+#include "HexCard/Installer.event"      // Hex Card item icon (CONFIG_HEX_CARDS)

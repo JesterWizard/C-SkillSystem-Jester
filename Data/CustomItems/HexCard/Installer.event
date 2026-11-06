@@ -1,0 +1,11 @@
+/* Hex Card item icon (16x16 hexagonal card: dark outline, gold rim, blue face, white pip).
+ * HexCard.4bpp is a copy of Standalone/unlimited_prep_menu_options/hex/Source/HexCardIcon.bin
+ * (made by Standalone/unlimited_prep_menu_options/hex/tools/gen_card_icon.py from the item icon palette 0,
+ * BGR555 at 0x5996F4, which the kernel uses unchanged). 128 bytes: tiles TL, TR, BL, BR, 32 bytes each.
+ * Written into icon slot ITEM_ICON_HEX_CARD (0x8E) of the item icon sheet. Only used when CONFIG_HEX_CARDS is on. */
+#ifdef CONFIG_HEX_CARDS
+    PUSH
+        ORG CONFIG_PR_ITEM_ICON + ITEM_ICON_HEX_CARD * 0x80
+            #incbin "HexCard.4bpp"
+    POP
+#endif
