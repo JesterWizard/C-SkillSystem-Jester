@@ -1,0 +1,12 @@
+/* Portrait table relocated and enlarged: vanilla ids 0x00..0xAC copied from 0x88ACBC4, room up to 0xFF.
+ * PortraitTable_vanilla.bin = fe8.gba[0x8ACBC4 .. +0xAD*0x1C]. setMugEntry (Tool Helpers.txt) writes into this table.
+ * Included first from CustomPortraits.event, so NewPortraitTable exists before any setMugEntry ORG. */
+ALIGN 4
+NewPortraitTable:
+    #incbin "PortraitTable_vanilla.bin"
+    FILL (PORTRAIT_TABLE_ENTRIES - 0xAD) * 0x1C
+
+PUSH
+    ORG 0x5524      // literal pool of GetPortraitData (0x08005514)
+        POIN NewPortraitTable
+POP

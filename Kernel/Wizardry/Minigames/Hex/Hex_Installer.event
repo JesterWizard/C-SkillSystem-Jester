@@ -7,6 +7,9 @@
  */
 #include "Source/HexCards.lyn.event"
 
+/* Hex save data: the card binder and district claims (save chunk and new-game hook in SaveData/data.event). */
+#include "Source/HexSave.lyn.event"
+
 /* Rules engine and AI (Hex_Score, Hex_Place, Hex_AiChoose). */
 #include "Source/HexCore.lyn.event"
 
@@ -16,5 +19,13 @@
 /* Prep screen "Hex" row: the entry function and the board screen. */
 #include "Source/HexPrep.lyn.event"
 #include "Source/HexScreen.lyn.event"
+
+/* District NPC decks (HexNpc_FindDeck) and the wrapper that starts the Hex screen from a map event. */
+#include "Source/HexDistrict.lyn.event"
+
+/* District dealer's shop: the vanilla shop screen in Hex mode (StartDistrictHexShopASMC), and its jumps into the vanilla shop functions.
+ * LynJump.event comes first: the generated .lyn.event protects the vanilla bodies it replaces, and a later write there is an error. */
+#include "Source/LynJump.event"
+#include "Source/HexShopVanilla.lyn.event"
 
 #endif /* HEX_CARDS_INSTALLED */

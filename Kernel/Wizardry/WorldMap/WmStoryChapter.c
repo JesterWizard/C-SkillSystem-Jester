@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "wm-story-chapter.h"
+#include "district.h"
 
 /*
  * Story chapters started from the world map.
@@ -34,6 +35,11 @@ int GetWmStoryChapterNode(int chapter)
 /* WorldMap_CallBeginningEvent: chapter is the MNCH target (gPlaySt.chapterIndex) */
 void WmStoryChapter_Begin(int chapter)
 {
+	/* The story chapter targeted before this one has just been cleared */
+	if (gWmStoryChapter != WM_STORY_CHAPTER_NONE && gWmStoryChapter != chapter &&
+	    GetWmStoryChapterNode(chapter) >= 0)
+		District_MarkStoryChapterCleared(gWmStoryChapter);
+
 	if (GetWmStoryChapterNode(chapter) >= 0)
 		gWmStoryChapter = chapter;
 	else

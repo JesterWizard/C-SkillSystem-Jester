@@ -39,5 +39,14 @@ PUSH
 
     ORG 0x8B2AAC
     #include "Serafew/events/chapter.lyn.event"
+
+    ORG 0x8B2B40
+    #include "PortKiris/events/chapter.lyn.event"
+
+    ORG 0x8B2CFC
+    #include "CaerPelyn/events/chapter.lyn.event"
+
+    ORG 0x8B2D90
+    #include "Jehanna/events/chapter.lyn.event"
 }
 POP

@@ -1,0 +1,42 @@
+## District_Jehanna_HexA
+[OpenMidLeft][LoadFace_CivilianMan2]
+I am Rashid. In Jehanna, we play Hex[N]
+for honor.[A][N]
+Show me your best hand.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_HexB
+[OpenMidLeft][LoadFace_CivilianWoman1]
+Samira. I've never lost a game in the[N]
+shade of this oasis.[A][N]
+You're welcome to try.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_Gold
+[OpenMidLeft][LoadFace_CivilianManOld]
+The queen's people look after[N]
+travelers. Here, for your journey.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_GoldAfter
+[OpenMidLeft][LoadFace_CivilianManOld]
+Drink plenty of water out there.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_Item
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+This ring holds the strength of a[N]
+desert spirit. I trust you with it.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_ItemAfter
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+Wear that ring with pride.[A][N]
+[ClearFace][X]
+
+## District_Jehanna_Hint
+[OpenMidLeft][LoadFace_CivilianBoy]
+Strong cards come from strong[N]
+players.[A][N]
+Win often, and your deck will grow![A][N]
+[ClearFace][X]

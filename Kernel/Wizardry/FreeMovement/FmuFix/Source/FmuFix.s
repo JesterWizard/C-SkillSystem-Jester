@@ -5,6 +5,12 @@
 THUMB_FUNC_START MU_CALL2_FixForFreeMU_fix
 MU_CALL2_FixForFreeMU_fix:
     @ORG 0x8078D10
+    @ MUs with the camera flag off (district NPCs use DisableMuCamera) never move the camera
+    mov r0, r6
+    add r0, #0x3E
+    ldrb r0, [r0]
+    cmp r0, #0
+    beq .ReturnCall2SkipCamera
     blh ProcFindFMU
     cmp r0, #0
     beq .ReturnCall2Normal

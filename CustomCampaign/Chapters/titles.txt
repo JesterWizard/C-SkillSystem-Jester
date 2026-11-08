@@ -25,3 +25,9 @@ Distant Blade[X]
 
 ## MSG_BASE_TITLE_SERAFEW
 Base: Serafew[X]
+## MSG_BASE_TITLE_PORT_KIRIS
+Base: Port Kiris[X]
+## MSG_BASE_TITLE_CAER_PELYN
+Base: Caer Pelyn[X]
+## MSG_BASE_TITLE_JEHANNA
+Base: Jehanna[X]

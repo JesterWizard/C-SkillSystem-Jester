@@ -15,6 +15,7 @@
 ORG FreeSpace_MsgTable
     #include "Preload/AllocMsgTable.event"
     TextTableEnd:
+    #include "Preload/AllocPortraitTable.event"
 
     /**
     * <!>

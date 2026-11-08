@@ -10,9 +10,10 @@
 - [Introduction](#introduction)
 - [How to Play](#how-to-play)
 - [Controls](#controls)
-- [Cards as Items](#cards-as-items)
+- [Card Binder](#card-binder)
 - [Stakes](#stakes)
 - [Opponents](#opponents)
+- [Hex Shop](#hex-shop)
 - [Card List](#card-list)
 - [Enabling and Disabling](#enabling-and-disabling)
 - [Code Locations](#code-locations)
@@ -23,10 +24,11 @@
 ## 🧩 Introduction
 
 **Hex** is a card game for two players, played on a board of hexagon cells. You play it with your own army: each card is a
-character, and the cards you win and keep are items in your convoy or in your units' inventories.
+character or a monster. The cards you win are kept in a **card binder** that is saved with the game.
 
 Hex is started from the **Hex** row of the preparations menu. The row's help text is "Play Hex with your army and view your
-cards." The game is optional: it is controlled by the compile-time switch `CONFIG_HEX_CARDS` (see [Enabling and Disabling](#enabling-and-disabling)).
+cards." The Hex players of the four districts also play you, each with a fixed deck (see [Districts](../Districts.md)). The game is
+optional: it is controlled by the compile-time switch `CONFIG_HEX_CARDS` (see [Enabling and Disabling](#enabling-and-disabling)).
 
 ## 🎲 How to Play
 
@@ -63,11 +65,11 @@ The Hex screen has several states. The controls for each are below. **A** confir
 | A | Start the hand picker against the highlighted unit |
 | B | Back to the front menu |
 
-### Collection (`Cards  N/32`)
+### Collection (`Cards  N/44`)
 
 | Input | Action |
 |------|--------|
-| UP / DOWN | Scroll the list of the 32 card types |
+| UP / DOWN | Scroll the list of the 44 card types |
 | B | Back to the front menu |
 
 ### Hand picker (`Your cards`, `Your hand`)
@@ -113,21 +115,26 @@ attack shows with a shake and a hit sound (if anything changed).
 |------|--------|
 | A (at the result banner) | Decide the stakes, see [Stakes](#stakes) |
 | UP / DOWN (take screen) | Choose one of the opponent's 7 starting cards |
-| A (take screen) | Take the chosen card into your convoy |
+| A (take screen) | Take the chosen card into your card binder |
 | A (reward banner) | Skip the banner and go back to the front menu |
 
-## 🃏 Cards as Items
+## 🃏 Card Binder
 
-- Every card is one item: the **Hex Card** item, with item index `CONFIG_ITEM_INDEX_HEX_CARD` (`0xEC` in the default config).
-- The card's **type** (0 to 31, see the [Card List](#card-list)) is stored in the item's uses byte. The item word is
-  `(type << 8) | CONFIG_ITEM_INDEX_HEX_CARD`.
-- The item name is the name of the character the card is named after.
-- The icon is the hexagonal card picture in item icon slot `ITEM_ICON_HEX_CARD` (`0x8E`, `Data/CustomItems/HexCard/`), the same for every card type; the row's `iconId` is that slot.
-- Cards are stored in the convoy or in the inventory of a living unit. There is no extra save data: your collection is
-  whatever cards you hold.
-- Cards cannot be equipped. A card that is moved into an inventory counts the same as one in the convoy.
-- **Starter gift:** when the Hex screen opens and you own no cards at all, 7 starter cards are put in the convoy:
-  2 Ross, 2 Amelia, 1 Ewan, 1 Franz and 1 Neimi.
+- Your cards are kept in a **card binder**, part of the save data (`gHexSave`, struct `HexSaveData`, 0x54 bytes). It holds the
+  copies of each card type and the district claim counters. It is saved with the game and with a suspend.
+- A card type is one of the 44 types in the [Card List](#card-list). The binder holds up to 255 copies of each type.
+- The collection (`Cards`) shows the binder.
+- **Hex Card item:** the item `CONFIG_ITEM_INDEX_HEX_CARD` (`0xEC` in the default config) still exists. It is the way a card
+  reaches the binder. Its type is stored in the uses byte, and the item word is `(type << 8) | CONFIG_ITEM_INDEX_HEX_CARD`.
+- The item shows the name of the card. Its icon is the hexagonal card picture in item icon slot `ITEM_ICON_HEX_CARD` (`0x8E`,
+  `Data/CustomItems/HexCard/`), the same for every card type; the row's `iconId` is that slot.
+- A Hex Card item cannot be equipped.
+- **Migration:** when the Hex screen opens, every Hex Card item in the convoy and in the inventory of a living player unit moves
+  into the binder. An item stays where it is only when its type is already at 255 copies.
+- **Starter gift:** when the Hex screen opens and the binder is empty, 7 starter cards go into the binder: 2 Ross, 2 Amelia,
+  1 Ewan, 1 Franz and 1 Neimi.
+- **Old saves:** a save made before the binder existed loads an empty binder. Its Hex Card items still move into the binder
+  when the Hex screen opens.
 
 ## 🏆 Stakes
 
@@ -135,34 +142,61 @@ Stakes are settled when the match ends (you press A at the result banner).
 
 | Result | What happens |
 |------|-----|
-| Win | If you hold fewer than 3 copies of at least one card type in the opponent's starting hand, you take one of those cards (`TAKE`). You choose the card with UP / DOWN and take it into the convoy with A. Otherwise you gain no card (`No card gained.`). |
-| Loss | If you own more than 7 cards, the opponent takes your best card from the hand you just played: the highest tier, then the highest attack + max HP, with the first card in hand order winning a tie. If you own 7 or fewer cards, nothing changes (`Your cards are safe this time.`). |
+| Win | If you hold fewer than 255 copies of at least one card type in the opponent's starting hand, you take one of those cards (`TAKE`). You choose the card with UP / DOWN and take it into the binder with A. Otherwise you gain no card (`No card gained.`). |
+| Loss | If you own more than 7 cards, the opponent takes your best card from the hand you just played: the highest tier, then the highest attack + max HP, with the first card in hand order winning a tie. Against a district NPC, the NPC takes a random card from the hand you played instead. If you own 7 or fewer cards, nothing changes (`Your cards are safe this time.`). |
 | Draw | Nothing changes hands (`Draw. No cards change hands.`). |
 
 Other rules:
 
-- You can hold at most 3 copies of one card type. A take of a type you already hold 3 of is refused (`You can't hold more`).
-- If the convoy is full, the take is refused (`Convoy is full`). B then skips the take and you gain no card.
+- You can hold at most 255 copies of one card type. A take of a type you already hold 255 of is refused (`You can't hold more`).
+  You then choose another card.
 - Gains and losses are shown in the banner: `Gained <card>!` or `Lost <card>...`.
 
 ## 👥 Opponents
 
-The opponents are the living units of your army. Each unit gives you one opponent, with a deck and an AI level, based on the
-unit's **effective level**: its level, plus 20 if the unit is promoted.
+In the preparations menu, the opponents are the living units of your army. Each unit gives you one opponent, with a deck and an AI
+level, based on the unit's **effective level**: its level, plus 20 if the unit is promoted.
 
 - **AI level:** 1 if the effective level is below 10, otherwise 2. An army opponent never plays random moves.
 - **Tier cap:** 1 if the effective level is below 10, 2 if below 20, otherwise 3.
-- **Deck:** the first card is the card of the unit's own character (when there is one, even above the tier cap). The other
-  7 slots are drawn from the card types of tier at or below the cap, with at most 2 copies of one type in the deck.
+- **Deck:** the first card is the card of the unit's own character (when there is one, even above the tier cap). The rest of the
+  7-card deck is drawn from the character card types (0 to 31) of tier at or below the cap, with at most 2 copies of one type in
+  the deck. Monster cards are never drawn for a unit.
 - The deck is always the same for the same unit at the same level and promotion. A unit that gains a level, or is promoted, may get a
   different deck and AI level the next time you pick it.
 - **Opponent's moves:** the opponent picks the move with the best score difference (level 1: right after the move; level 2: after
   your best reply). On a tie it prefers the move that does more damage to your cards (the HP your cards lose, a card that changes
   owner counting its full HP), then the move next to more of your cards, then a seeded pick.
 
+### District opponents
+
+Each of the four districts (Serafew, Port Kiris, Caer Pelyn and Jehanna Hall) has two Hex players. They are NPCs, not units of
+your army. Each one has a fixed 7-card deck and an AI level of 1 or 2. The players and their decks are listed in
+[Districts](../Districts.md#hex-players).
+
+- **Opening a match:** the Hex screen opens at the hand picker against that NPC's deck. The front menu and the opponent list
+  are not shown. B with no card in hand leaves the screen. The screen also closes after the stakes.
+- **Rare cards:** a rare card in an NPC's deck has a claim counter. Each win that takes it adds one. When the counter reaches
+  its cap, the NPC plays a fallback card in its place.
+- **Stakes:** a win takes one of the NPC's 7 cards. A loss takes a random card from the hand you played, if you own more than
+  7 cards. A draw changes nothing.
+- **Monster cards:** types 32 to 43 are only in the decks of Caer Pelyn and Jehanna Hall.
+
+## 🛒 Hex Shop
+
+Each district has a Hex shop, run by a witch. It is the vanilla shop screen in Hex mode. The building, the door and the full
+price list are in [Districts](../Districts.md#hex-shop).
+
+- **Prices:** a ware costs copies of one card type. For example, Serafew's Vulnerary costs 2 Ross. The prices are in
+  [`Data/Hex/HexShops.c`](../../../Data/Hex/HexShops.c).
+- **Greyed wares:** a ware you can't afford is grey. If you press A on it, the witch says you haven't the cards.
+- **Buying:** A on an affordable ware, then Yes. The cards leave the binder and the item goes to Eirika.
+- **No gold:** the shop takes cards only. No gold is spent and no gold box shows.
+- **Leaving:** B leaves, with the witch's goodbye.
+
 ## 🂠 Card List
 
-All 32 card types. The "Starter copies" column is the number of copies in the starter gift (7 cards in total). Reach
+All 44 card types. The "Starter copies" column is the number of copies in the starter gift (7 cards in total). Reach
 directions: UL up-left, UR up-right, R right, DR down-right, DL down-left, L left.
 
 | # | Character | Attack | HP | Reach | Tier | Starter copies |
@@ -199,8 +233,23 @@ directions: UL up-left, UR up-right, R right, DR down-right, DL down-left, L lef
 | 29 | Valter | 2 | 5 | UL DR L | 3 | 0 |
 | 30 | Lyon | 4 | 2 | UL UR DR DL | 3 | 0 |
 | 31 | Eirika | 3 | 5 | UL UR | 3 | 0 |
+| 32 | Revenant | 1 | 3 | R DR | 1 | 0 |
+| 33 | Bonewalker | 2 | 2 | UL L | 1 | 0 |
+| 34 | Mogall | 3 | 1 | UR DL | 1 | 0 |
+| 35 | Bael | 2 | 2 | UL R DR | 1 | 0 |
+| 36 | Gwyllgi | 3 | 1 | UL DR DL | 1 | 0 |
+| 37 | Wight | 3 | 3 | UL L | 2 | 0 |
+| 38 | Tarvos | 3 | 3 | R DR | 2 | 0 |
+| 39 | Arch Mogall | 4 | 2 | UL R DL | 2 | 0 |
+| 40 | Cyclops | 4 | 3 | UL | 2 | 0 |
+| 41 | Gargoyle | 2 | 3 | UR R DL L | 2 | 0 |
+| 42 | Deathgoyle | 3 | 4 | UL R DR L | 3 | 0 |
+| 43 | Draco Zombie | 4 | 5 | UL L | 3 | 0 |
 
-The collection screen (`Cards`) shows the same 32 types. A type you have never owned is shown as `???`.
+Monster cards (32 to 43) are named after their monster class, and their portraits are 32x32 minimugs from `gHexMonsterArt`,
+cropped from the FE8 class cards by the [monster mug script](../../../Tools/hex/gen_monster_mugs.py).
+
+The collection screen (`Cards`) shows the same 44 types. A type you have never owned is shown as `???`.
 
 ## ⚙️ Enabling and Disabling
 
@@ -229,7 +278,10 @@ rm -f Data/ItemSys/Source/Items.lyn.event \
   Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ItemInfos.lyn.event \
   Kernel/Wizardry/SkillEffects/MenuSkills/Reinforce.lyn.event \
   Kernel/Wizardry/SkillSys/PrepSkill/Source/AtMenu.lyn.event \
-  Data/Hex/HexCardTypes.lyn.event
+  Data/Hex/HexCardTypes.lyn.event \
+  Data/Hex/HexNpcDecks.lyn.event \
+  Data/Hex/HexShops.lyn.event \
+  Data/Hex/HexMonsterArt.lyn.event
 Tools/cloud/build.sh
 ```
 
@@ -246,12 +298,21 @@ Tools/cloud/build.sh
 | Screen | [`Kernel/Wizardry/Minigames/Hex/Source/HexScreen.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexScreen.c) | Menus, opponent list, hand picker, match, stakes |
 | Rules and AI | [`Kernel/Wizardry/Minigames/Hex/Source/HexCore.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexCore.c) | Placement, scoring, winner, computer opponent |
 | Rules header | [`include/kernel/hex-core.h`](../../../include/kernel/hex-core.h) | Board layout, directions, tile rules |
-| Cards | [`Kernel/Wizardry/Minigames/Hex/Source/HexCards.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexCards.c) | Card item, collection, starter gift |
-| Card header | [`include/kernel/hex.h`](../../../include/kernel/hex.h) | Card type struct and card helpers |
-| Card table | [`Data/Hex/HexCardTypes.c`](../../../Data/Hex/HexCardTypes.c) | The 32 card types |
+| Cards | [`Kernel/Wizardry/Minigames/Hex/Source/HexCards.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexCards.c) | Card item, binder helpers, item migration, starter gift |
+| Binder save data | [`Kernel/Wizardry/Minigames/Hex/Source/HexSave.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexSave.c) | `gHexSave`: the binder and the claim counters, the save chunk |
+| Card header | [`include/kernel/hex.h`](../../../include/kernel/hex.h) | Card type struct, binder and district structs |
+| Card table | [`Data/Hex/HexCardTypes.c`](../../../Data/Hex/HexCardTypes.c) | The 44 card types |
+| District matches | [`Kernel/Wizardry/Minigames/Hex/Source/HexDistrict.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexDistrict.c) | Talk-event entry points, district NPC decks, the shop's rows and payment |
+| Hex shop | [`Kernel/Wizardry/Minigames/Hex/Source/HexShopVanilla.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexShopVanilla.c) | The shop screen in Hex mode: the witch, the prices, the buy |
+| Shop hooks | [`Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c`](../../../Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c) | Hex branches of the vanilla shop |
+| District decks | [`Data/Hex/HexNpcDecks.c`](../../../Data/Hex/HexNpcDecks.c) | The fixed deck of each district Hex player |
+| Shop rows | [`Data/Hex/HexShops.c`](../../../Data/Hex/HexShops.c) | The wares of each district shop and their card prices |
+| Monster art | [`Data/Hex/HexMonsterArt.c`](../../../Data/Hex/HexMonsterArt.c) | Generated: the 12 monster minimugs. Do not edit by hand |
+| Monster art script | [`Tools/hex/gen_monster_mugs.py`](../../../Tools/hex/gen_monster_mugs.py) | Crops the minimugs from the FE8 class cards (`--check`, `--preview`) |
 | Card art | [`Kernel/Wizardry/Minigames/Hex/Source/HexArt.c`](../../../Kernel/Wizardry/Minigames/Hex/Source/HexArt.c) | Tiles, digits, cursors, frame and palettes |
 | Item name | [`Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/DuraItem.c`](../../../Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/DuraItem.c) | Shows the character's name for a card |
 | Text | [`Contents/Texts/Source/texts/Hex.txt`](../../../Contents/Texts/Source/texts/Hex.txt) | Item name and description, preparations row and help text |
+| Shop text | [`Contents/Texts/Source/texts/Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | The witch's lines (`MSG_HEXSHOP_*`) |
 | Developer notes | [`Kernel/Wizardry/Minigames/Hex/README.md`](../../../Kernel/Wizardry/Minigames/Hex/README.md) | Detailed notes for developers |
 
 ## ⚠️ Limitations
@@ -259,7 +320,8 @@ Tools/cloud/build.sh
 - **Uses number on the card.** The uses byte holds the card type, not a durability. The item code reports a uses value of 1 for
   Hex Cards (`GetItemUses` in `ItemInfos.c`), so a menu that shows an item's uses can show `1` on a card.
 - **Flipped cells.** The developer notes list the flashing of flipped cells as not done.
-- **Starter gift.** It is handed out whenever the screen opens with no cards owned, so a player who loses every card gets the starter set again on the next open.
-- **Convoy full.** If the convoy is full, a take is refused and you gain no card.
-- **Living units only.** Opponents and card counts use living units of your army. A dead unit's cards are not counted.
+- **Starter gift.** It is handed out whenever the screen opens with an empty binder, so a player who loses every card gets the starter set again on the next open.
+- **Living units only.** Opponents use living units of your army. A Hex Card item in a dead unit's inventory is not moved into the binder.
 - **No quitting a match.** Once a match starts, B does nothing until it ends.
+- **Monster art.** The monster minimugs are generated by a script. Some of them (Revenant, Tarvos) are rough. They can be touched up by editing the crop boxes in `Tools/hex/gen_monster_mugs.py`.
+- **Hex shop.** The shop is the vanilla shop screen. Its Hex parts are hooks in `LimitedShopStock.c` and `HexShopVanilla.c`, so a change to the vanilla shop code can change the Hex shop too.

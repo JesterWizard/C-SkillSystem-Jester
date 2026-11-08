@@ -36,6 +36,7 @@ enum
     TRAP_HELLSCAPE_VOID = 25,
     TRAP_HIDDEN_CALTROPS = 26,
     TRAP_COLLAPSING_FLOOR = 27,
+    TRAP_DISTRICT_GATE = 28,
 };
 
 enum
@@ -210,6 +211,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define COLLAPSING_FLOOR(x, y) \
     TRAP_COLLAPSING_FLOOR, (x), (y), 0, 0, 0,
+
+#define DISTRICT_GATE(x, y) \
+    TRAP_DISTRICT_GATE, (x), (y), 0, 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,

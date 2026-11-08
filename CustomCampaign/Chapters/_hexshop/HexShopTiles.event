@@ -1,0 +1,19 @@
+// Hex shop building: per-district tileset copies made by Tools/district/hexshop_building.py (do not edit the .lz/.bin by hand)
+ALIGN 4
+HexShop_Town_Obj:  #incbin "town_obj.lz"
+ALIGN 4
+HexShop_Town_Cfg:  #incbin "town_cfg.lz"
+ALIGN 4
+HexShop_Caer_Obj:  #incbin "caer_obj.lz"
+ALIGN 4
+HexShop_Caer_Cfg:  #incbin "caer_cfg.lz"
+ALIGN 4
+HexShop_Jeh_Obj:   #incbin "jeh_obj.lz"
+ALIGN 4
+HexShop_Jeh_Cfg:   #incbin "jeh_cfg.lz"
+NewEventPointerTable_ObjPal(0xEB, HexShop_Town_Obj)
+NewEventPointerTable_ObjPal(0xEC, HexShop_Caer_Obj)
+NewEventPointerTable_ObjPal(0xED, HexShop_Jeh_Obj)
+NewEventPointerTable_TileConfig(0x8B, HexShop_Town_Cfg)
+NewEventPointerTable_TileConfig(0x8C, HexShop_Caer_Cfg)
+NewEventPointerTable_TileConfig(0x8D, HexShop_Jeh_Cfg)

@@ -484,6 +484,10 @@ void LoadTrapData(const struct TrapData * data)
             AddCollapsingFloor(data->xPos, data->yPos);
             break;
 
+        case TRAP_DISTRICT_GATE:
+            AddTrap(data->xPos, data->yPos, data->type, 0);
+            break;
+
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
             break;

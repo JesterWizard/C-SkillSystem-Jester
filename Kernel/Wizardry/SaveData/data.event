@@ -65,6 +65,9 @@ gEmsSavChunks:
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
     EmsChunk($0000, MSA_SaveGaidenMagicUses, MSA_LoadGaidenMagicUses) /* Resets Three Houses magic uses on load */
     EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
+#ifdef CONFIG_HEX_CARDS
+    EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -115,6 +118,9 @@ gEmsSusChunks:
     EmsChunk($0444, SaveChatLogSuspendState, LoadChatLogSuspendState)
     EmsChunk($00C0, MSU_SaveGaidenMagicUses, MSU_LoadGaidenMagicUses) /* Three Houses magic uses, 3 * 64 */
     EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
+#ifdef CONFIG_HEX_CARDS
+    EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -124,4 +130,7 @@ gNewSaveHooks:
     POIN StatDeuff_OnNewGameInit
     POIN ResetStatDeuffBuf ResetSkillDbgList
     POIN WmStoryChapter_NewGame
+#ifdef CONFIG_HEX_CARDS
+    POIN HexSave_NewGame
+#endif
     WORD 0 0 0 0

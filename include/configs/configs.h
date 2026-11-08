@@ -79,6 +79,9 @@
 #define CONFIG_UNIT_AMT_ENEMY 50
 #define CONFIG_UNIT_AMT_NPC   8
 
+/* Base chapters (districts): skip the chapter intro card when entering a district from the world map */
+#define CONFIG_BASE_CHAPTERS
+
 #define CONFIG_TURN_ON_ALL_SKILLS
 
 #ifdef CONFIG_TURN_ON_ALL_SKILLS

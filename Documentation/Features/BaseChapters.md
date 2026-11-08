@@ -52,11 +52,16 @@ Large portions of these are duplicated between Eirika's and Ephraim's routes. Me
 
 ### How Bases Work
 
-- You define **which world map nodes** receive base chapters:
-  - In the ``EnterTownNodes`` struct, the first item is the world map node you want the base chapter to appear on
-  - The second item is the map you want to load at that node
-- After finishing the chapter associated with that node, the base becomes available  
-- Bases can be **entered and exited freely** afterward  
+- You define **which world map nodes** receive base chapters in the `gDistrictNodes` table (`Kernel/Wizardry/EnterTown/District.c`).
+  Each row has:
+  - the world map node (`NODE_*`) the base appears on,
+  - the base chapter to load at that node,
+  - the story chapter whose move-on unlocks the base, and
+  - the unlock flag.
+- The base unlocks when the story moves on from its story chapter. See [Unlocking](./Districts.md#unlocking).
+- The four districts, and how to add one, are in [Districts](./Districts.md).
+- The intro card is skipped when a base is entered from the node menu (`GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP`).
+- Bases can be **entered and exited freely** afterward. The gate tile (`TRAP_DISTRICT_GATE`) is the escape tile: stepping on it asks to leave.
 - Global flags can be checked to:
   - Spawn new units  
   - Change dialogue  
@@ -70,7 +75,9 @@ This allows bases to evolve narratively over time.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Base chapter node assignment** | `EnterTownNodes` — [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | Controls which world map nodes become base chapters and which map each base uses |
+| **Base chapter node assignment** | `gDistrictNodes` — [`District.c`](../../Kernel/Wizardry/EnterTown/District.c) | Controls which world map nodes become base chapters, which map each base uses and how each unlocks |
+| **Node menu row** | [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | The `Enter District` row of the node menu |
+| **Districts** | [`Districts.md`](./Districts.md) | The four districts, their maps and NPCs, and how to add one |
 
 ---
 
@@ -78,7 +85,6 @@ This allows bases to evolve narratively over time.
 
 - Fix the **black screen flashing** when entering a base map  
 - Improve camera behavior to **smoothly follow the player**, similar to Vesly’s *PokéEmblem*  
-- Add an **escape tile** that triggers an exit event (instead of using the Retreat command)  
 
 ---
 

@@ -2,6 +2,9 @@
 #include "action-expa.h"
 #include "kernel-lib.h"
 #include "jester_headers/LimitedShopStock.h"
+#ifdef CONFIG_HEX_CARDS
+#include "kernel/hex.h"
+#endif
 
 extern struct KeyStatusBuffer sKeyStatusBuffer;
 extern struct ProcCmd CONST_DATA ProcScr_ShopSellInit[];
@@ -188,6 +191,13 @@ void DrawStockedItemLine(struct Text* text, int item, s8 isUsable, u16* mapOut)
 LYN_REPLACE_CHECK(DrawShopItemPriceLine);
 void DrawShopItemPriceLine(struct Text* th, int item, struct Unit* unit, u16* dst)
 {
+#ifdef CONFIG_HEX_CARDS
+    if (HexShop_IsActive()) {
+        HexShop_DrawPriceLine(th, item, dst);
+        return;
+    }
+#endif
+
     s8 usable = (unit == 0) ? true : IsItemDisplayUsable(unit, item);
     int price = GetItemPurchasePrice(unit, item);
 
@@ -351,6 +361,12 @@ void Shop_Loop_BuyKeyHandler(struct ProcShop* proc) {
 
     /* === CONFIRM BUY === */
     if (sKeyStatusBuffer.newKeys & A_BUTTON) {
+#ifdef CONFIG_HEX_CARDS
+        if (HexShop_IsHexProc(proc)) {
+            HexShop_OnBuyPressed(proc);
+            return;
+        }
+#endif
         if (!IsItemInStock(proc->shopItems[proc->head_loc])) {
             StartShopDialogue(OutOfStockTextBase, proc);
             Proc_Goto(proc, 1);
@@ -370,6 +386,12 @@ void Shop_Loop_BuyKeyHandler(struct ProcShop* proc) {
     /* === EXIT SHOP === */
     if (sKeyStatusBuffer.newKeys & B_BUTTON) {
         PlaySFX(0x6B, 0x100, 0, 1);
+#ifdef CONFIG_HEX_CARDS
+        if (HexShop_IsActive()) {
+            Proc_Goto(proc, PL_SHOP_EXIT);
+            return;
+        }
+#endif
         Proc_Goto(proc, 7);
         return;
     }
@@ -465,6 +487,16 @@ void HandleShopBuyAction(struct ProcShop* proc) {
 
     gActionData.unitActionType = UNIT_ACTION_SHOPPED;
 
+#ifdef CONFIG_HEX_CARDS
+    if (HexShop_IsHexProc(proc)) {
+        /* Hex: the cards pay, no gold, no stock, no gold box */
+        HexShop_PayForItem(proc);
+        UpdateShopItemCounts(proc);
+        DrawShopSoldItems(proc);
+        return;
+    }
+#endif
+
     SetPartyGoldAmount(GetPartyGoldAmount() - GetItemPurchasePrice(proc->unit, proc->shopItems[proc->head_loc]));
 
     if (gpKernelDesignerConfig->limited_shop_items == true)
@@ -525,7 +557,16 @@ void Shop_Init(struct ProcShop * proc)
 
     BG_EnableSyncByMask(BG1_SYNC_BIT);
 
-    StartUiGoldBox(proc);
+#ifdef CONFIG_HEX_CARDS
+    if (HexShop_IsHexProc(proc)) {
+        /* Hex: no gold box, but its font reset and gold text init stay, so the item texts get the same tiles as a normal shop */
+        SetTextFont(0);
+        InitSystemTextFont();
+        InitText(&gText_GoldBox, 1);
+    }
+    else
+#endif
+        StartUiGoldBox(proc);
 
     for (i = 0; i < SHOP_ITEM_LINE; i++)
         InitText(&gShopItemTexts[i], 20);

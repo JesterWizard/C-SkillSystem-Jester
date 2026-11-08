@@ -1,0 +1,9 @@
+/* Portrait table relocated and enlarged. Preprocessor only: emits no bytes.
+ * The table itself lives in Data/CustomPortraits/PortraitTable.event, included from CustomPortraits.event.
+ * setMugEntry (Tool Helpers.txt) writes into PortraitTable, so this must be included before Tool Helpers. */
+#ifdef PortraitTable
+#undef PortraitTable
+#endif
+
+#define PortraitTable NewPortraitTable
+#define PORTRAIT_TABLE_ENTRIES 0x100

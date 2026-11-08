@@ -49,3 +49,4 @@ W.I.P.[X]
 #include "../../../CustomCampaign/Text/Text.txt"
 #include "texts/Skills_Appended.txt"
 #include "texts/Hex.txt"
+#include "texts/Districts.txt"

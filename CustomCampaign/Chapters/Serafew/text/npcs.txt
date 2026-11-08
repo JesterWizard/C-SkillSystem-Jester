@@ -1,0 +1,44 @@
+## District_Serafew_HexA
+[OpenMidLeft][LoadFace_CivilianMan2]
+Name's Orrin. Fancy a hand of Hex?[A][N]
+My Kyle and Forde cards are my pride.[N]
+Win one, if you can![A][N]
+[ClearFace][X]
+
+## District_Serafew_HexB
+[OpenMidLeft][LoadFace_CivilianWoman1]
+I'm Della! See the card above my head?[N]
+That means I play Hex.[A][N]
+Beat me and you might win a Tethys![A][N]
+[ClearFace][X]
+
+## District_Serafew_Gold
+[OpenMidLeft][LoadFace_CivilianManOld]
+You're the princess of Renais, aren't you?[A][N]
+Here. It isn't much, but take it.[A][N]
+[ClearFace][X]
+
+## District_Serafew_GoldAfter
+[OpenMidLeft][LoadFace_CivilianManOld]
+Stay safe out there, Your Highness.[A][N]
+[ClearFace][X]
+
+## District_Serafew_Item
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+Mother told me to give this to[N]
+someone who looks tired.[A][N]
+You look tired![A][N]
+[ClearFace][X]
+
+## District_Serafew_ItemAfter
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+Did the elixir help?[A][N]
+[ClearFace][X]
+
+## District_Serafew_Hint
+[OpenMidLeft][LoadFace_CivilianBoy]
+Hex players have a card above[N]
+their heads.[A][N]
+Beat one, and you can claim a card[N]
+from the hand they played![A][N]
+[ClearFace][X]
