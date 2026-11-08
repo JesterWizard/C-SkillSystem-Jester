@@ -82,4 +82,4 @@ setMugEntry(0xAE,Portrait_0xAE,5,7,4,5)
 // Hex shop witch, 48x48 shopkeeper box: made by Tools/hex/witch_shop_from_art.py from the supplied illustration
 Portrait_0xAF:
    #incext PortraitFormatter "Portraits/hex_witch_shop.png"
-setMugEntry(0xAF,Portrait_0xAF,3,4,3,2)
+setMugEntry(0xAF,Portrait_0xAF,4,3,3,2)
