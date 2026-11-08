@@ -387,7 +387,7 @@ Behavior summary:
 - Trap type: `TRAP_DRAGON_VEIN`
 - Effect: the `DRAGON_VEIN_*` effect is stored in `trap->extra`
 - Parameter: the effect parameter is stored in `trap->data[TRAP_EXTDATA_DRAGON_VEIN_PARAM]`
-- Map sprite: drawn with map sprite `0x69`
+- Map sprite: drawn with map sprite `0x79` (`SMS_ID_DRAGON_VEIN`)
 - Activation: a unit with the Dragon's Blood skill standing on the vein uses the "Dragon Vein" command
 - Lifetime: each vein is removed after one use
 
@@ -564,48 +564,44 @@ Implementation note:
 
 ## Trap Sprite Registration
 
+### Standing map sprite table
+
+The vanilla standing map sprite table (`unit_icon_wait_table`, `0x88AF880`) has only 0x6B entries (ids `0x00`-`0x6A`). Vanilla `gSpellAssocData` starts right after it, at what would be id `0x6B`, so entries must not be written past the end of the vanilla table.
+
+The table is repointed to `gUnitIconWaitTable` in `Data/UnitIcon/UnitIconWait.c`. `Data/UnitIcon/UnitIcon.event` installs it and points every vanilla reference at it. Vanilla code masks the sprite id with `0x7F`, so the table has `0x80` entries (`UNIT_ICON_WAIT_AMT`). Ids `0x00`-`0x6A` are the vanilla sprites, unchanged. The custom ids are in `include/kernel/unit-icon.h`:
+
+- `0x66` Light Rune (vanilla sprite, `SMS_ID_LIGHT_RUNE`)
+- `0x6B` Unlit Torch Tile (`SMS_ID_UNLIT_TORCH`)
+- `0x6C` Teleport Tile (`SMS_ID_TELEPORT_TILE`)
+- `0x6D` Grass Tile (`SMS_ID_GRASS_TILE`)
+- `0x6E` Boulder Tile (`SMS_ID_BOULDER_TILE`)
+- `0x6F`-`0x72` Spin Tile right, left, up, down (`SMS_ID_SPIN_TILE_*`)
+- `0x73` Hellscape Void Tile (`SMS_ID_HELLSCAPE_VOID`)
+- `0x74` Caltrops Tile, hidden caltrops (`SMS_ID_CALTROPS`)
+- `0x75`-`0x77` Floor Intact, Cracked, Hole Tile, collapsing floor (`SMS_ID_COLLAPSING_FLOOR` plus the state)
+- `0x78` Heal Tile (`SMS_ID_HEAL_TILE`)
+- `0x79` Dragon Vein Tile (`SMS_ID_DRAGON_VEIN`)
+- `0x7A` Lit Torch Tile (`SMS_ID_LIT_TORCH`)
+
+Ids `0x7B`-`0x7F` are free. Do not reuse `0x68`-`0x6A`: they are the vanilla Tent, Pontifex and Fallen Peer sprites, used by those classes (Pontifex is Mansel's class).
+
 ### TrapData_Installer.event
 
 File: `Kernel/Wizardry/TrapData/TrapData_Installer.event`
 
-This file installs trap map sprite graphics into the map sprite table (`0x8AF880 + 0x8 * spriteID`) using entries like:
+This file holds the trap sprite images, as labels that the table in `Data/UnitIcon/UnitIconWait.c` points to:
 
 ```ea
-#define Gfx_Heal_Tile_ID 0x68
-
 Gfx_Heal_Tile:
 #incext Png2Dmp "images/Heal_Tile.png" --lz77
-
-PUSH
-    ORG (0x8AF880+0x8*Gfx_Heal_Tile_ID)
-        SHORT 0x0002
-        SHORT 0x0000
-        POIN Gfx_Heal_Tile
-POP
 ```
-
-Current registered trap-like sprite IDs in this file:
-
-- `0x68` Heal Tile
-- `0x69` Dragon Vein Tile
-- `0x6A` Lit Torch Tile
-- `0x6B` Unlit Torch Tile
-- `0x6C` Teleport Tile
-- `0x6D` Grass Tile
-- `0x6E` Boulder Tile
-- `0x6F` Spin Tile
-- `0x73` Hellscape Void Tile
-- `0x74` Caltrops Tile (hidden caltrops)
-- `0x75` Floor Intact Tile (collapsing floor)
-- `0x76` Floor Cracked Tile (collapsing floor)
-- `0x77` Floor Hole Tile (collapsing floor)
 
 When adding a new trap sprite:
 
-1. Reserve a new sprite ID.
-2. Add compressed graphic label with `#incext Png2Dmp ... --lz77`.
-3. Write table entry using the same `ORG`/`SHORT`/`POIN` pattern.
-4. Use that sprite ID in rendering (`UseUnitSprite(newId)`).
+1. Add an `SMS_ID_*` define with a free id to `include/kernel/unit-icon.h`.
+2. Add the compressed graphic label with `#incext Png2Dmp ... --lz77` to `TrapData_Installer.event`.
+3. Declare the label (`extern char Gfx_...[];`) and add a `TRAP_SMS(...)` row to `gUnitIconWaitTable` in `Data/UnitIcon/UnitIconWait.c`.
+4. Use the id in rendering (`GetTrapSpriteOam2(SMS_ID_..., trap)` or `UseUnitSprite(SMS_ID_...)`).
 
 ## Trap Sprite Display in RefreshUnitSprites
 
@@ -649,7 +645,7 @@ if (trap->type == TRAP_YOUR_TYPE)
 
 Implementation notes:
 
-- `UseUnitSprite(id)` must match the ID installed in `TrapData_Installer.event`.
+- `UseUnitSprite(id)` must use an id from `include/kernel/unit-icon.h` that has a row in `Data/UnitIcon/UnitIconWait.c`.
 - The subtraction term (`-0x5000` or `-0x4000`) depends on sprite source conventions already used in this file; match an existing trap pattern for consistency.
 - `smsHandle->config` controls shape/size; use an existing trap's config as your baseline.
 - Build the OAM2 value with `GetTrapSpriteOam2(spriteId, trap)`. It picks the OBJ palette bank through `GetTrapMapSpriteObjPal(...)`, which reads the stored palette via `GetTrapMapSpritePalette(...)`.

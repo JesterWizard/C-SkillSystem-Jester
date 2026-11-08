@@ -1,63 +1,28 @@
 #include "LynJump.event"
 #include "TrapData.lyn.event"
 
-/* Heal Tile */
-#define Gfx_Heal_Tile_ID 0x68
+/*
+ * Trap map sprite images. The standing map sprite table entries that use
+ * them are in Data/UnitIcon/UnitIconWait.c (ids in include/kernel/unit-icon.h).
+ */
 
+/* Heal Tile */
 Gfx_Heal_Tile:
 #incext Png2Dmp "images/Heal_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Heal_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Heal_Tile
-POP
-
 /* Dragon Vein Tile */
-#define Gfx_Dragon_Vein_Tile_ID 0x69
-
 Gfx_Dragon_Vein_Tile:
 #incext Png2Dmp "images/Dragon_Vein_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Dragon_Vein_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Dragon_Vein_Tile
-POP
-
 /* Hellscape Void Tile */
-#define Gfx_Hellscape_Void_Tile_ID 0x73
-
 Gfx_Hellscape_Void_Tile:
 #incext Png2Dmp "images/Hellscape_Void_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Hellscape_Void_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Hellscape_Void_Tile
-POP
-
 /* Caltrops Tile (hidden caltrops, once revealed) */
-#define Gfx_Caltrops_Tile_ID 0x74
-
 Gfx_Caltrops_Tile:
 #incext Png2Dmp "images/Caltrops_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Caltrops_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Caltrops_Tile
-POP
-
 /* Collapsing floor tiles: intact, cracked, hole (IDs follow COLLAPSING_FLOOR_* order) */
-#define Gfx_Floor_Intact_Tile_ID 0x75
-#define Gfx_Floor_Cracked_Tile_ID 0x76
-#define Gfx_Floor_Hole_Tile_ID 0x77
-
 Gfx_Floor_Intact_Tile:
 #incext Png2Dmp "images/Floor_Intact_Tile.png" --lz77
 Gfx_Floor_Cracked_Tile:
@@ -65,96 +30,25 @@ Gfx_Floor_Cracked_Tile:
 Gfx_Floor_Hole_Tile:
 #incext Png2Dmp "images/Floor_Hole_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Floor_Intact_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Floor_Intact_Tile
-POP
-
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Floor_Cracked_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Floor_Cracked_Tile
-POP
-
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Floor_Hole_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Floor_Hole_Tile
-POP
-
 /* Lit Torch Tile*/
-#define Gfx_Lit_Torch_ID 0x6A
-
 Gfx_Lit_Torch:
 #incext Png2Dmp "images/Lit_Torch_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Lit_Torch_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Lit_Torch
-POP
-
 /* Unlit Torch Tile */
-#define Gfx_Unlit_Torch_ID 0x6B
-
 Gfx_Unlit_Torch:
 #incext Png2Dmp "images/Unlit_Torch_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Unlit_Torch_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Unlit_Torch
-POP
-
 /* Teleport Tile */
-#define Gfx_Teleport_Tile_ID 0x6C
-
 Gfx_Teleport_Tile: #incext Png2Dmp "images/Teleport_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Teleport_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Teleport_Tile
-POP
-
 /* Grass Tile */
-#define Gfx_Grass_Tile_ID 0x6D
-
 Gfx_Grass_Tile: #incext Png2Dmp "images/Grass_Tile.png" --lz77
 Pal_Grass_Tile: #incext Png2Dmp "images/Grass_Tile.png" --palette-only
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Grass_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Grass_Tile
-POP
-
 /* Boulder Tile */
-#define Gfx_Boulder_Tile_ID 0x6E
-
 Gfx_Boulder_Tile: #incext Png2Dmp "images/Boulder_Tile.png" --lz77
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Boulder_Tile_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Boulder_Tile
-POP
-
 /* Spin Tile */
-#define Gfx_Spin_Tile_RIGHT_ID 0x6F
-#define Gfx_Spin_Tile_LEFT_ID 0x70
-#define Gfx_Spin_Tile_UP_ID 0x71
-#define Gfx_Spin_Tile_DOWN_ID 0x72
-
 Gfx_Spin_Tile_LEFT: #incext Png2Dmp "images/Spin_Tile_LEFT.png" --lz77
 Gfx_Spin_Tile_RIGHT: #incext Png2Dmp "images/Spin_Tile_RIGHT.png" --lz77
 Gfx_Spin_Tile_UP: #incext Png2Dmp "images/Spin_Tile_UP.png" --lz77
@@ -162,30 +56,3 @@ Gfx_Spin_Tile_DOWN: #incext Png2Dmp "images/Spin_Tile_DOWN.png" --lz77
 
 Pal_Spin_Tile: #incext Png2Dmp "images/Spin_Tile_RIGHT.png" --palette-only
 
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Spin_Tile_LEFT_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Spin_Tile_LEFT
-POP
-
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Spin_Tile_RIGHT_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Spin_Tile_RIGHT
-POP
-
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Spin_Tile_UP_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Spin_Tile_UP
-POP
-
-PUSH
-	ORG (0x8AF880+0x8*Gfx_Spin_Tile_DOWN_ID)
-		SHORT 0x0002
-		SHORT 0x0000
-		POIN Gfx_Spin_Tile_DOWN
-POP	

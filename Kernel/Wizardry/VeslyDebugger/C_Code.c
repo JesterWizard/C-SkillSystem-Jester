@@ -9,6 +9,7 @@
 #include "kernel/debuff.h"
 #include "kernel/bwl.h"
 #include "kernel/icon-rework.h"
+#include "kernel/unit-icon.h"
 #include "soundroom.h"
 #include "soundwrapper.h"
 #include "jester_headers/custom-arrays.h"
@@ -3301,14 +3302,14 @@ struct DebuggerTrapViewDef {
 };
 
 static const struct DebuggerTrapViewDef sDebuggerTrapViewDefs[] = {
-    { TRAP_LIGHT_RUNE, 0x66, 0, 0, "Light Rune" },
-    { TRAP_HEAL_TILE, 0x68, 0, 0, "Heal" },
-    { TRAP_TOGGLE_TORCH, 0x6A, 1, 0, "Torch" },
-    { TRAP_TELEPORT_TILE, 0x6C, 0, 0, "Teleport" },
-    { TRAP_GRASS_TILE, 0x6D, 0, 0, "Grass" },
-    { TRAP_BOULDER_TILE, 0x6E, 0, 0, "Boulder" },
-    { TRAP_SPIN_TILE, 0x6F, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
-    { TRAP_DRAGON_VEIN, 0x69, DRAGON_VEIN_HEAL, 0, "Dragon Vein" },
+    { TRAP_LIGHT_RUNE, SMS_ID_LIGHT_RUNE, 0, 0, "Light Rune" },
+    { TRAP_HEAL_TILE, SMS_ID_HEAL_TILE, 0, 0, "Heal" },
+    { TRAP_TOGGLE_TORCH, SMS_ID_LIT_TORCH, 1, 0, "Torch" },
+    { TRAP_TELEPORT_TILE, SMS_ID_TELEPORT_TILE, 0, 0, "Teleport" },
+    { TRAP_GRASS_TILE, SMS_ID_GRASS_TILE, 0, 0, "Grass" },
+    { TRAP_BOULDER_TILE, SMS_ID_BOULDER_TILE, 0, 0, "Boulder" },
+    { TRAP_SPIN_TILE, SMS_ID_SPIN_TILE_RIGHT, 0, SPIN_TILE_DIR_RIGHT, "Spin" },
+    { TRAP_DRAGON_VEIN, SMS_ID_DRAGON_VEIN, DRAGON_VEIN_HEAL, 0, "Dragon Vein" },
 };
 
 static int GetDebuggerTrapViewDefCount(void)
@@ -3329,10 +3330,10 @@ static int GetDebuggerTrapPreviewSpriteId(const struct Trap *trap, const struct 
     int direction;
 
     if (!def)
-        return 0x66;
+        return SMS_ID_LIGHT_RUNE;
 
     if (def->type == TRAP_TOGGLE_TORCH)
-        return (trap && trap->extra <= 0) ? 0x6B : 0x6A;
+        return (trap && trap->extra <= 0) ? SMS_ID_UNLIT_TORCH : SMS_ID_LIT_TORCH;
 
     if (def->type != TRAP_SPIN_TILE)
         return def->spriteId;
@@ -3341,17 +3342,17 @@ static int GetDebuggerTrapPreviewSpriteId(const struct Trap *trap, const struct 
 
     switch (direction) {
     case SPIN_TILE_DIR_LEFT:
-        return 0x70;
+        return SMS_ID_SPIN_TILE_LEFT;
 
     case SPIN_TILE_DIR_UP:
-        return 0x71;
+        return SMS_ID_SPIN_TILE_UP;
 
     case SPIN_TILE_DIR_DOWN:
-        return 0x72;
+        return SMS_ID_SPIN_TILE_DOWN;
 
     case SPIN_TILE_DIR_RIGHT:
     default:
-        return 0x6F;
+        return SMS_ID_SPIN_TILE_RIGHT;
     }
 }
 

@@ -1,0 +1,13 @@
+/*
+ * Repointed standing map sprite table (vanilla unit_icon_wait_table, 0x88AF880).
+ * See Data/UnitIcon/UnitIconWait.c and include/kernel/unit-icon.h.
+ */
+#include "UnitIconWait.lyn.event"
+
+/*
+ * TODO: point every vanilla literal pool that holds 0x088AF880 at
+ * gUnitIconWaitTable (PUSH; ORG $xxxx; POIN gUnitIconWaitTable; POP).
+ * The offsets come from scanning a clean FE8U ROM. Until they are added,
+ * vanilla code still reads the old table, so the build is stopped here.
+ */
+ERROR "UnitIcon: vanilla unit_icon_wait_table pointers not repointed yet"
