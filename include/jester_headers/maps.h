@@ -29,4 +29,10 @@ enum {
     CASTLE_FRELIA             = 0x38,
     OUTSIDE_GRADO_CASTLE      = 0x3F,
     OUTSIDE_RENAIS            = 0x40,
+    // District chapters. These slots must not be used as cutscene maps:
+    // the prologue and chapters 03/09 use 0x3F/0x40 as cutscene maps.
+    DISTRICT_SERAFEW          = 0x3B,
+    DISTRICT_PORT_KIRIS       = 0x3C,
+    DISTRICT_CAER_PELYN       = 0x41,
+    DISTRICT_JEHANNA          = 0x42,
 };

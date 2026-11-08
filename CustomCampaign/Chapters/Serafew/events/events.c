@@ -17,7 +17,7 @@ static const EventScr EventScr_Serafew_Opening[] = {
     STAL(15)
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_Chapter_5_Eirika)
-    MOVE_WAIT(0, CHARACTER_EIRIKA, 11, 16)
+    MOVE_WAIT(0, CHARACTER_EIRIKA, 8, 19)
     LOAD_WAIT(District_Serafew_Npcs)
     ASMC(SetGameOptions_BaseChapter5)
     ASMC(StartDistrictNpcs)
@@ -162,13 +162,13 @@ static const EventListScr EventListScr_Serafew_Character[] = {
 };
 
 static const EventListScr EventListScr_Serafew_Location[] = {
-    ARMORY(EventListScr_CH5_ARMORY, 3, 3)
-    VENDOR(EventListScr_CH5_VENDOR, 8, 3)
-    VILLAGE(EVFLAG_TMP(10), EventListScr_HOUSE_1_TALK, 15, 3)
-    VILLAGE(EVFLAG_TMP(11), EventListScr_HOUSE_2_TALK, 4, 10)
-    VILLAGE(EVFLAG_TMP(12), EventListScr_HOUSE_3_TALK, 8, 15)
-    VILLAGE(EVFLAG_TMP(13), EventListScr_HOUSE_4_TALK, 16, 15)
-    HOUSE(0, EventScr_District_Serafew_HexShop, 19, 10)
+    ARMORY(EventListScr_CH5_ARMORY, 2, 1)
+    VENDOR(EventListScr_CH5_VENDOR, 6, 10)
+    VILLAGE(EVFLAG_TMP(10), EventListScr_HOUSE_1_TALK, 5, 1)
+    VILLAGE(EVFLAG_TMP(11), EventListScr_HOUSE_2_TALK, 5, 6)
+    VILLAGE(EVFLAG_TMP(12), EventListScr_HOUSE_3_TALK, 12, 10)
+    VILLAGE(EVFLAG_TMP(13), EventListScr_HOUSE_4_TALK, 12, 19)
+    HOUSE(0, EventScr_District_Serafew_HexShop, 5, 19)
     END_MAIN
 };
 

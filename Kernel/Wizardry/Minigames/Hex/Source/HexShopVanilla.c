@@ -10,7 +10,7 @@
 /*
  * The district Hex shop: a dealer's talk event opens the vanilla FE8 shop screen (StartShopScreen, gProcScr_Shop) with shopType
  * SHOP_TYPE_HEX. That shop type is the Hex mode:
- *   - the portrait is the Hex witch (FID_HEX_WITCH) and the lines are hers (MSG_HEXSHOP_*);
+ *   - the portrait is the Hex witch in the shopkeeper box (FID_HEX_WITCH_SHOP) and the lines are hers (MSG_HEXSHOP_*);
  *   - the shop goes straight to the buy list (no Buy/Sell question);
  *   - a ware costs cards from the binder: the price line shows the cards, a ware you can't afford is grey, and buying takes the
  *     cards (no gold, no gold box);
@@ -192,7 +192,7 @@ LYN_REPLACE_CHECK(Shop_GetPortraitIndex);
 int Shop_GetPortraitIndex(struct ProcShop * proc)
 {
 	if (HexShop_IsActive())
-		return FID_HEX_WITCH;
+		return FID_HEX_WITCH_SHOP;
 
 	return gShopPortraitLut[proc->shopType];
 }

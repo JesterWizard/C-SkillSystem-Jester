@@ -36,25 +36,31 @@ Each district:
 
 | District | World-map node | Unlocked after | Chapter id | Hex players | Gate tile |
 |---|---|---|---|---|---|
-| Serafew | `NODE_SERAFEW` | Chapter 5 (story id `0x06`). Opens when the next world-map story chapter, Chapter 6, starts. | `0x3B` | Orrin, Della | (11, 17) |
-| Port Kiris | `NODE_PORT_KIRIS` | Chapter 9 (story id `0x0A`). Opens when Chapter 10 starts. | `0x3C` | Bram, Corra | (13, 0) |
-| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 12 (story id `0x0C`). Opens when Chapter 13 starts, once those chapters are in the story table. | `0x3F` | Tamsin, Ewlyn | (10, 17) |
-| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 15 (story id `0x0F`). Opens when Chapter 16 starts, once those chapters are in the story table. | `0x40` | Rashid, Samira | (11, 15) |
+| Serafew | `NODE_SERAFEW` | Chapter 5 (story id `0x06`). Opens when the next world-map story chapter, Chapter 6, starts. | `0x3B` | Orrin, Della | (8, 20) |
+| Port Kiris | `NODE_PORT_KIRIS` | Chapter 9 (story id `0x0A`). Opens when Chapter 10 starts. | `0x3C` | Bram, Corra | (6, 21) |
+| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 12 (story id `0x0C`). Opens when Chapter 13 starts, once those chapters are in the story table. | `0x41` | Tamsin, Ewlyn | (5, 20) |
+| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 15 (story id `0x0F`). Opens when Chapter 16 starts, once those chapters are in the story table. | `0x42` | Rashid, Samira | (11, 14) |
 
-The gate tile is where stepping leaves the district. The table lists it as (x, y) in tiles.
+The gate tile is where stepping leaves the district. The table lists it as (x, y) in tiles. All four gates are on the
+bottom edge.
+
+Chapters `0x3F` and `0x40` are not districts. They are cutscene maps (`OUTSIDE_GRADO_CASTLE` and `OUTSIDE_RENAIS`). The
+prologue and chapters 03 and 09 load them, so a district must not use them. Earlier districts used those slots and made a
+new game hang in the prologue. Caer Pelyn and Jehanna Hall moved to `0x41` and `0x42`.
 
 ### Maps
 
 | District | Map id | Event id | Size (w x h) | Tileset (obj, palette, tileconfig) | Eirika starts at |
 |---|---|---|---|---|---|
-| Serafew | `0xCA` | `0xCB` | 24 x 18 | `0xEB`, `0x0F`, `0x8B` | (11, 16) |
-| Port Kiris | `0xCC` | `0xCD` | 26 x 20 | `0xEB`, `0x0F`, `0x8B` | (13, 1) |
-| Caer Pelyn | `0xD6` | `0xCE` | 22 x 18 | `0xEC`, `0x34`, `0x8C` | (10, 16) |
-| Jehanna Hall | `0xD7` | `0xCF` | 22 x 16 | `0xED`, `0x43`, `0x8D` | (11, 14) |
+| Serafew | `0xCA` | `0xCB` | 15 x 21 | `0xEB`, `0x0F`, `0x8B` | (8, 19) |
+| Port Kiris | `0xCC` | `0xCD` | 26 x 22 | `0xEB`, `0x0F`, `0x8B` | (6, 20) |
+| Caer Pelyn | `0xF0` | `0xCE` | 20 x 21 | `0xEC`, `0x34`, `0x8C` | (5, 19) |
+| Jehanna Hall | `0xF1` | `0xCF` | 24 x 15 | `0xED`, `0x43`, `0x8D` | (11, 13) |
 
-The map id is the `mainLayerId` of the chapter. The event id is its `mapEventDataId`. Each district has its own map, built
-from a layout file (see [Adding a District](#adding-a-district)). The tileset is the district's copy with the Hex shop
-building (see [Hex Shop](#hex-shop)).
+The map id is the `mainLayerId` of the chapter. The event id is its `mapEventDataId`. Each district map is cut from the
+hand-made vanilla map of the same town with `Tools/district/compose.py`, using the spec in `Tools/district/compose/<Name>.json`
+(base map, crop and edited cells). Serafew uses vanilla map `0x1F`, Port Kiris `0x2B`, Caer Pelyn `0x31` and Jehanna Hall
+`0x45`. The tileset is the district's copy with the Hex shop building (see [Hex Shop](#hex-shop)).
 
 ### Unlocking
 
@@ -87,6 +93,13 @@ chapter. It is never cleared.
   - Yes leaves through `StartRetreatProcessing`, the same call as the vanilla Retreat.
   - No keeps you in the district.
 - **Retreat row:** L opens the free-movement menu. Its Retreat row shows the vanilla "Retreat?" prompt, and Yes also leaves the district.
+
+### Exit markers
+
+- Each gate tile shows two small gold chevrons. They point off the nearest map edge and slide toward it.
+- They are OBJ sprites, drawn every frame by `DistrictNpc_DrawGates` (`Kernel/Wizardry/EnterTown/DistrictNpc.c`).
+- They show only while free movement is on and no event runs. They reload after an event, like the Hex Card icon.
+- They are not added to the standing-map-sprite trap table. That table ends at id `0x6A` in vanilla, and ids above it overwrite the data after it.
 
 ---
 
@@ -189,15 +202,22 @@ all 12 monster cards.
 
 ## 🛒 Hex Shop
 
-Each district has a Hex shop. The shop is a building on the map. Its door is a location event: when Eirika steps on the
-door, the shop opens. The shop is the vanilla FE8 shop screen in Hex mode, run by a witch.
+Each district has a Hex shop. The shop is a building on the map. Its door is a location event: Eirika stands on the door and
+presses A, and the shop opens. The shop is the vanilla FE8 shop screen in Hex mode, run by a witch.
 
 ### The building
 
-- `Tools/district/hexshop_building.py` restyles the vanilla house or hut at the door. It gets a slate roof and a small
-  gold-rimmed Hex card sign.
+- `Tools/district/hexshop_building.py` pastes a drawn witch's tower from `Tools/district/hexshop_art/` onto the map. It does
+  not recolour a house.
+  - In the town tileset (Serafew, Port Kiris) the tower is a 3x2-metatile block (`tower_town.txt`, 48x32 pixels), drawn
+    in the same high top-down 3/4 view as the vanilla houses: a blue shingled cone roof seen from above, the whole roof including its brim blue, over a tall round wall in the town's own cream-and-olive stone (like the arena), with an arched door, a
+    small lit window and a cast shadow. There is no sign.
+  - In the Caer Pelyn and Jehanna tilesets the tower is a 1x1 metatile (`tower_small.txt`, 16x16): a grey cone roof seen
+    from above with a gold band over a short cream wall.
+  - Each art character maps to a colour in the tileset's own banks (`SETS` in the script). `.` is yard or ground.
 - Each district has a copy of its tileset with the new building. The copies are in `CustomCampaign/Chapters/_hexshop/`.
-  Serafew and Port Kiris share one copy. The palette stays the vanilla one.
+  Serafew and Port Kiris share one copy. It also has its own palette, `town_pal.bin` (palette 0xEE): the vanilla 0x0F with
+  bank 5 redefined, because the roof brim and the top of the wall share one tile row and one 16-colour bank cannot hold both.
 - The copies are registered in `CustomCampaign/Chapters/_hexshop/HexShopTiles.event`.
 - The door tile has terrain `0x03` (village). No NPC steps on it.
 - The door has a location event, `HOUSE(0, EventScr_District_<Name>_HexShop, x, y)`. It runs
@@ -205,14 +225,20 @@ door, the shop opens. The shop is the vanilla FE8 shop screen in Hex mode, run b
 
 | District | Door (x, y) | Tileset copy (obj, palette, tileconfig) |
 |---|---|---|
-| Serafew | (19, 10) | `0xEB`, `0x0F`, `0x8B` |
-| Port Kiris | (19, 12) | `0xEB`, `0x0F`, `0x8B` |
-| Caer Pelyn | (18, 8) | `0xEC`, `0x34`, `0x8C` |
-| Jehanna Hall | (15, 10) | `0xED`, `0x43`, `0x8D` |
+| Serafew | (5, 19) | `0xEB`, `0xEE`, `0x8B` |
+| Port Kiris | (11, 15) | `0xEB`, `0xEE`, `0x8B` |
+| Caer Pelyn | (13, 8) | `0xEC`, `0x34`, `0x8C` |
+| Jehanna Hall | (17, 6) | `0xED`, `0x43`, `0x8D` |
 
 ### Using the shop
 
-- The witch's portrait is shown. Her lines are the `MSG_HEXSHOP_*` texts in `Contents/Texts/Source/texts/Districts.txt`.
+- Stand on the door and press A to open the shop.
+- The shop screen shows the shopkeeper portrait `0xAF` (`FID_HEX_WITCH_SHOP`, `include/kernel/hex.h`). It is a supplied
+  illustration of a witch (purple hat with a gold buckle, long wavy silver hair, green eyes, purple shawl with gold trim, in
+  front of a warm brown shop wall), converted to the 48x48 box and 15 colours by `Tools/hex/witch_shop_from_art.py`
+  (resampled, eyes, nose and mouth are transcribed cell by cell from the source at the 48x48 grid, keeping the source's shapes, because the source draws them with details half a box pixel wide; mouth frames added). The talk portrait `0xAE` (`FID_HEX_WITCH`) is still the drawn one from
+  `Tools/hex/witch_portrait.py`, and no text uses it yet.
+- Her lines are the `MSG_HEXSHOP_*` texts in `Contents/Texts/Source/texts/Districts.txt`.
 - The shop goes straight to the buy list. There is no Buy or Sell question.
 - A buys the ware under the cursor. B leaves, with her goodbye.
 - There is no gold box, and no gold is spent.
@@ -261,28 +287,25 @@ name used in `HexShops.c`.
 
 1. **Pick the ids.** Choose these before you start:
    - a world-map node (`NODE_*` in `Tools/FE-CLib-Mokha/include/constants/worldmap.h`),
-   - a chapter id. The installer row for a chapter id is at `0x8B0890 + id × 0x94`. The four existing districts use ids
-     `0x3B`, `0x3C`, `0x3F` and `0x40`,
+   - a chapter id. The installer row for a chapter id is at `0x8B0890 + chapter × 0x94`. The four existing districts use ids
+     `0x3B`, `0x3C`, `0x41` and `0x42`. Do not use `0x3F` or `0x40`: they are the cutscene maps `OUTSIDE_GRADO_CASTLE` and
+     `OUTSIDE_RENAIS` (see [Maps](#maps)). The chapter number is a literal in `District.c`, `DistrictNpc.c`,
+     `Data/Hex/HexNpcDecks.c` and `Data/Hex/HexShops.c`, so the new district needs rows in all four (steps 5 to 8),
    - a map id and an event id that are not already used. The four districts use the ids in [Maps](#maps). This page does not check the other ids in use,
    - two gift flags and one unlock flag. Add them to `include/jester_headers/custom-structs.h`. Flags `0x90` to `0x9B`
      are in use. The comment in that file lists the free range.
 
-2. **Make the map.** Use the map generator, not a hand-made layout. The steps are in this order:
-   1. Write a spec, `Tools/district/tilegen/specs/<name>.py`, with a `SPEC` dict. See the
-      [tilegen README](../../Tools/district/tilegen/README.md).
-   2. Run the generator with a few seeds:
-      `python3 Tools/district/tilegen/gen.py Tools/district/tilegen/specs/<name>.py --seeds 8`. Look at the pictures in
-      `Tools/district/tilegen/specs/build/` and pick a seed.
-   3. Count the rejected joins of the chosen result with `Tools/district/tilegen/seams.py`. If the joins are bad, change
-      the spec and go back to step 2.
-   4. Write the layout with the same `gen.py` command, adding `--seed <S> --write-layout
-      CustomCampaign/Chapters/<Name>/map/<Name>_layout.json`. Set `layout` in the spec to that path.
-   5. Add the Hex shop building, once, on this layout. Run `hexshop_building.py`, then compress its `.bin` files to
-      `.lz`. See [Tools/district/README.md](../../Tools/district/README.md). A new district needs its own entry in `SETS`
-      in `hexshop_building.py`, and its ids in `HexShopTiles.event`.
-   6. Set the layout `tileset` to the Hex shop ids, `[obj, palette, tileconfig]`. The palette stays the vanilla one.
-
-   Then build the map. It writes `<Name>_map.tmx`, `<Name>_map_data.dmp` and `<Name>_map.event` into the same folder:
+2. **Make the map.** The map is cut from a hand-made vanilla map of the same town, not generated. The pipeline is:
+   1. Write a spec, `Tools/district/compose/<Name>.json`, with the base map, the crop and any edited cells. The four
+      existing specs are examples. The installed maps come from `Tools/district/compose.py`.
+   2. Run `compose.py <spec> --write` for each district. This writes the district's layout.
+   3. Add the Hex shop building to all the layouts together:
+      `python3 Tools/district/hexshop_building.py --chapters CustomCampaign/Chapters --out-dir CustomCampaign/Chapters/_hexshop --write-layouts`.
+      A new district needs its own entry in `SETS` in `hexshop_building.py`, and its ids in `HexShopTiles.event`.
+      See [Tools/district/README.md](../../Tools/district/README.md).
+   4. Compress the six `_hexshop` `.bin` files with `Tools/EventAssembler/Tools/compress` to `.lz`.
+   5. Set the layout `tileset` to the Hex shop ids, `[obj, palette, tileconfig]`. The palette stays the vanilla one.
+   6. Build the map with `district_map.py`, for each district:
 
    ```
    python3 Tools/district/district_map.py CustomCampaign/Chapters/<Name>/map/<Name>_layout.json \
@@ -290,9 +313,11 @@ name used in `HexShops.c`.
      --chapter 0x.. --map-id 0x.. --label MapData_<Name> --check
    ```
 
-   Do not edit the `.tmx`, `.dmp` or `.event` files by hand. Change the spec or the layout and run the steps again.
-   `gen.py --check-layout` reports `DIFF` for the 1 to 4 Hex shop cells. That is expected. See
+   It writes `<Name>_map.tmx`, `<Name>_map_data.dmp` and `<Name>_map.event` into the same folder. Do not edit those files
+   by hand. Change the spec or the layout and run the steps again. See
    [Tools/district/README.md](../../Tools/district/README.md) for the formats.
+
+   The [tilegen](../../Tools/district/tilegen/README.md) generator is kept as an experiment. It is not part of this pipeline.
 
 3. **Copy a district folder.** Copy `CustomCampaign/Chapters/Serafew/` to `CustomCampaign/Chapters/<Name>/` and rename the
    files. Then update:
@@ -365,9 +390,15 @@ name used in `HexShops.c`.
 | Hex shop rows | [`HexShops.c`](../../Data/Hex/HexShops.c) | The wares of each district shop and their card prices |
 | Hex shop | [`HexShopVanilla.c`](../../Kernel/Wizardry/Minigames/Hex/Source/HexShopVanilla.c) | The shop screen in Hex mode: the witch, the prices, the buy |
 | Shop hooks | [`LimitedShopStock.c`](../../Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c) | Hex branches of the vanilla shop: price line, buy, B, `Shop_Init` |
-| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | The Hex shop building in each tileset copy |
+| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the witch's tower into each tileset copy |
+| Tower art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `tower_town.txt` (town tileset) and `tower_small.txt` (Caer Pelyn, Jehanna) |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
-| Map generator | [`tilegen/`](../../Tools/district/tilegen/) | Layouts from a spec: learned joins, WFC, stamps, seam count |
+| Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
+| Talk portrait | [`witch_portrait.py`](../../Tools/hex/witch_portrait.py) | Makes `hex_witch.png` (portrait `0xAE`, `FID_HEX_WITCH`) |
+| Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
+| Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |
+| Compose specs | [`compose/`](../../Tools/district/compose/) | Base map, crop and edited cells of each district |
+| Map generator (experimental) | [`tilegen/`](../../Tools/district/tilegen/) | Not used for the installed maps. See its README |
 | Hex district code | [`HexDistrict.c`](../../Kernel/Wizardry/Minigames/Hex/Source/HexDistrict.c) | Talk-event entry points, shop rows and payment |
 | Hex save | [`HexSave.c`](../../Kernel/Wizardry/Minigames/Hex/Source/HexSave.c) | Binder and claim counters |
 | Hex save data | [`hex.h`](../../include/kernel/hex.h) | `struct HexSaveData`, `HEX_CLAIM_SLOTS` |
@@ -390,8 +421,8 @@ name used in `HexShops.c`.
 - **Flags.** The districts use flags `0x90` to `0x9B`.
 - **Claim slots.** Two of the 32 claim slots are free (18 and 19). See step 9 of [Adding a District](#adding-a-district) to add more.
 - **Starter cards.** The starter cards are added whenever the Hex screen opens with no cards, including inside a district.
-- **Generated maps.** The map generator does not make small closed ponds. Jehanna Hall learns its joins from one vanilla
-  map (`0x45`). Before the Hex shop step, `seams.py` counts 16 rejected joins on Serafew, 17 on Port Kiris and 16 on Caer
-  Pelyn, and 0 on Jehanna Hall. The Hex shop cells add more. See the [tilegen README](../../Tools/district/tilegen/README.md#limits).
+- **Hand-cut maps.** The installed district maps are cut from vanilla maps with `compose.py`, using the specs in
+  `compose/`. The [tilegen](../../Tools/district/tilegen/README.md) generator is experimental.
+  Its specs and its seam counts no longer match the installed maps.
 - **Hex shop copies.** `hexshop_building.py` only knows the four districts in `SETS`. A new district needs its own entry
   there, and its copy's ids in `HexShopTiles.event`.

@@ -1,0 +1,17 @@
+# 16x16 Hex shop tower (1x1 metatile) for the caer and jeh tilesets, top-down 3/4 view. '.' = ground.
+..........OO....
+.........OgO.O..
+........OwgOO...
+.......OwwgO....
+.....OOwwwggOO..
+...OOwwgwwgggOO.
+..OwwwwwwggggggO
+.OwwgwwwwgggOggO
+.OwwwwwwgggggggO
+..OGGGGGGGGGGOO.
+..OccccccctttO..
+..OccccccctttO..
+..OcycccOOttttO.
+..OccccOnNOtttO.
+...OOccOnNOttO..
+.....OOOOOOOO...
