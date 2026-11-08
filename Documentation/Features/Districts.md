@@ -233,11 +233,11 @@ presses A, and the shop opens. The shop is the vanilla FE8 shop screen in Hex mo
 ### Using the shop
 
 - Stand on the door and press A to open the shop.
-- The shop screen shows the shopkeeper portrait `0xAF` (`FID_HEX_WITCH_SHOP`, `include/kernel/hex.h`). It is a supplied
-  illustration of a witch (purple hat with a gold buckle, long wavy silver hair, green eyes, purple shawl with gold trim, in
-  front of a warm brown shop wall), converted to the 48x48 box and 15 colours by `Tools/hex/witch_shop_from_art.py`
-  (resampled, eyes, nose and mouth are transcribed cell by cell from the source at the 48x48 grid, keeping the source's shapes, because the source draws them with details half a box pixel wide; mouth frames added). The talk portrait `0xAE` (`FID_HEX_WITCH`) is still the drawn one from
-  `Tools/hex/witch_portrait.py`, and no text uses it yet.
+- The shop screen shows the shopkeeper portrait `0xAF` (`FID_HEX_WITCH_SHOP`, `include/kernel/hex.h`), the only Hex witch
+  portrait. `Tools/hex/witch_shop_from_art.py` makes it from the supplied pixel-art illustration
+  `Tools/hex/art/hex_witch_shop_source.webp` (a silver-haired witch in a purple hat with a gold ornament, green eyes and gold
+  hoop earrings): it reads the art's 64x64 pixel grid exactly, crops a 48x48 window into the shopkeeper box, maps it to 15
+  fitted colours, adds three mouth frames, and stores the sheet mirrored because the shop draws the box flipped.
 - Her lines are the `MSG_HEXSHOP_*` texts in `Contents/Texts/Source/texts/Districts.txt`.
 - The shop goes straight to the buy list. There is no Buy or Sell question.
 - A buys the ware under the cursor. B leaves, with her goodbye.
@@ -394,7 +394,6 @@ name used in `HexShops.c`.
 | Tower art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `tower_town.txt` (town tileset) and `tower_small.txt` (Caer Pelyn, Jehanna) |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
-| Talk portrait | [`witch_portrait.py`](../../Tools/hex/witch_portrait.py) | Makes `hex_witch.png` (portrait `0xAE`, `FID_HEX_WITCH`) |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
 | Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |
 | Compose specs | [`compose/`](../../Tools/district/compose/) | Base map, crop and edited cells of each district |

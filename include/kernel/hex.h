@@ -177,7 +177,6 @@ void HexShop_OnBuyPressed(struct ProcShop *proc);	/* A on a ware in Hex mode: ca
 void HexShop_PayForItem(struct ProcShop *proc);	/* the bought ware's cards go to the dealer (HexShop_Pay) */
 void StartDistrictHexShopASMC(ProcPtr parent);	/* a district dealer's talk event: opens the Hex shop */
 
-#define FID_HEX_WITCH 0xAE	/* Hex shop witch portrait (Data/CustomPortraits/Portraits/hex_witch.png) */
 #define FID_HEX_WITCH_SHOP 0xAF	/* Hex witch in the shopkeeper box (Data/CustomPortraits/Portraits/hex_witch_shop.png) */
 
 /*
