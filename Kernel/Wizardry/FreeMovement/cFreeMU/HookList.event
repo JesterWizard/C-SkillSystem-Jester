@@ -43,6 +43,7 @@ HookListFMU_TrapList_OnPressA:
 ALIGN 4
 HookListFMU_TrapList_Auto:
 	FMU_SetTrap(0xE,TrapHurt10HpASMC|1)	//Example
+	FMU_SetTrap(28, DistrictGate_OnStep)	// TRAP_DISTRICT_GATE (bmtrick.h): leave district
 	FMU_SetTrapEnd
 	
 	

@@ -1,0 +1,29 @@
+## MSG_DISTRICT_LEAVE
+Leave the district?[LF]
+[No][X]
+## MSG_HEXNPC_SERAFEW_A
+Orrin[X]
+## MSG_HEXNPC_SERAFEW_B
+Della[X]
+## MSG_HEXNPC_PORT_KIRIS_A
+Bram[X]
+## MSG_HEXNPC_PORT_KIRIS_B
+Corra[X]
+## MSG_HEXNPC_CAER_PELYN_A
+Tamsin[X]
+## MSG_HEXNPC_CAER_PELYN_B
+Ewlyn[X]
+## MSG_HEXNPC_JEHANNA_A
+Rashid[X]
+## MSG_HEXNPC_JEHANNA_B
+Samira[X]
+## MSG_HEXSHOP_BUY
+Heh heh... Cards for wares, dearie.[NL]What catches your eye?[.][X]
+## MSG_HEXSHOP_MORE
+Anything else, dearie?[.][X]
+## MSG_HEXSHOP_POOR
+Heh... You haven't the cards[NL]for that one, dearie.[A][X]
+## MSG_HEXSHOP_CONFIRM
+That'll be [G] of your cards.[NL]A fair trade?[Yes][X]
+## MSG_HEXSHOP_BYE
+Come back when your deck[NL]is fatter... heh heh.[A][X]

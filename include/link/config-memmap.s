@@ -307,7 +307,13 @@ _kernel_malloc2 gZenkaiPending, 4
 _kernel_malloc2 gWmStoryChapter, 4
 
 /* Hex minigame screen state (struct HexScreenState in HexScreen.c), only used while the Hex screen is open */
-_kernel_malloc2 gHexScreenState, 0x200
+_kernel_malloc2 gHexScreenState, 0x280
+
+/* Hex save data (struct HexSaveData in hex.h): the card binder and district claims, saved with the game and suspend saves */
+_kernel_malloc2 gHexSave, 0x54
+
+/* Hex shop (vanilla shop screen in Hex mode): the item list of the open shop (struct HexShopRam in hex.h), not saved */
+_kernel_malloc2 gHexShopRam, 0x20
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

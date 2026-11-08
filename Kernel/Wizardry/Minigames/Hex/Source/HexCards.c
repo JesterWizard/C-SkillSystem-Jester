@@ -9,6 +9,12 @@
 extern const int sExpaConvoyItemAmount;
 #endif
 
+/*
+ * The collection lives in the card binder (gHexSave, Kernel/Wizardry/Minigames/Hex/Source/HexSave.c). A Hex Card item is only a
+ * way to receive a card: HexCol_MigrateItems moves the items in the convoy and in the player units' inventories into the binder,
+ * and the Hex screen runs it when it opens.
+ */
+
 static int ConvoySlotCount(void)
 {
 #if CHAX
@@ -29,33 +35,6 @@ static bool CardMatches(int item, int type)
 static bool TypeInRange(int type)
 {
 	return type >= 0 && type < HEX_CARD_TYPES;
-}
-
-/* Cards in the convoy and in the inventory of every living player unit. type < 0 counts every card. */
-static int CountCards(int type)
-{
-	int count = 0;
-	u16 *convoy = GetConvoyItemArray();
-	int i, j;
-
-	for (i = 0; i < ConvoySlotCount(); i++) {
-		if (CardMatches(convoy[i], type))
-			count++;
-	}
-
-	for (i = 0; i < (int)ARRAY_COUNT(gUnitArrayBlue); i++) {
-		struct Unit *unit = &gUnitArrayBlue[i];
-
-		if (!UNIT_IS_VALID(unit) || (unit->state & US_DEAD))
-			continue;
-
-		for (j = 0; j < UNIT_ITEM_COUNT; j++) {
-			if (CardMatches(unit->items[j], type))
-				count++;
-		}
-	}
-
-	return count;
 }
 
 /* Close the gap a removed item leaves. The slot is never the equipped weapon (cards cannot be equipped). */
@@ -93,50 +72,65 @@ int HexCard_Type(int item)
 	return type;
 }
 
-int HexCard_NameId(int item)
+/* The name text of card type t: the character's name, or the class name for a monster card. */
+int HexCardType_NameId(int type)
 {
-	return GetCharacterData(gpHexCardTypes[HexCard_Type(item)].pid)->nameTextId;
+	const struct HexCardType *info = &gpHexCardTypes[type];
+
+	if (info->pid == 0)
+		return GetClassData(info->jid)->nameTextId;
+
+	return GetCharacterData(info->pid)->nameTextId;
 }
 
+int HexCard_NameId(int item)
+{
+	return HexCardType_NameId(HexCard_Type(item));
+}
+
+/* Copies of a card type in the binder. 0 for a bad type. */
 int HexCol_Count(int type)
 {
 	if (!TypeInRange(type))
 		return 0;
 
-	return CountCards(type);
+	return HexBinder_Get(type);
 }
 
+/* Copies of every card type in the binder. */
 int HexCol_Total(void)
 {
-	return CountCards(-1);
+	return HexBinder_Total();
 }
 
-/* FALSE when the convoy is full. */
-bool HexCol_GiveToConvoy(int type)
+/* Adds a copy to the binder. FALSE at HEX_BINDER_MAX or for a bad type. */
+bool HexCol_Give(int type)
 {
-	int item = MakeHexCardItem(type);
-
-	if (!item)
-		return false;
-
-	return AddItemToConvoy(item) >= 0;
+	return HexBinder_Add(type);
 }
 
-/* Convoy first, then the inventory of a living player unit. FALSE when no card of that type is owned. */
+/* Takes a copy out of the binder (the loss stake). FALSE when none is owned or for a bad type. */
 bool HexCol_TakeOne(int type)
 {
-	u16 *convoy;
+	return HexBinder_Remove(type);
+}
+
+/*
+ * Moves every Hex Card item in the convoy and in the inventory of each living player unit into the binder. An item stays where
+ * it is when its type is already at HEX_BINDER_MAX copies.
+ */
+void HexCol_MigrateItems(void)
+{
+	u16 *convoy = GetConvoyItemArray();
 	int i, j;
 
-	if (!TypeInRange(type))
-		return false;
-
-	convoy = GetConvoyItemArray();
-	for (i = 0; i < ConvoySlotCount(); i++) {
-		if (CardMatches(convoy[i], type)) {
+	i = 0;
+	while (i < ConvoySlotCount()) {
+		/* RemoveItemFromConvoy shifts the later items down, so the same index is checked again. */
+		if (CardMatches(convoy[i], -1) && HexBinder_Add(HexCard_Type(convoy[i])))
 			RemoveItemFromConvoy(i);
-			return true;
-		}
+		else
+			i++;
 	}
 
 	for (i = 0; i < (int)ARRAY_COUNT(gUnitArrayBlue); i++) {
@@ -145,18 +139,18 @@ bool HexCol_TakeOne(int type)
 		if (!UNIT_IS_VALID(unit) || (unit->state & US_DEAD))
 			continue;
 
-		for (j = 0; j < UNIT_ITEM_COUNT; j++) {
-			if (CardMatches(unit->items[j], type)) {
+		j = 0;
+		while (j < UNIT_ITEM_COUNT) {
+			/* RemoveUnitItemSlot shifts the later items down, so the same slot is checked again. */
+			if (CardMatches(unit->items[j], -1) && HexBinder_Add(HexCard_Type(unit->items[j])))
 				RemoveUnitItemSlot(unit, j);
-				return true;
-			}
+			else
+				j++;
 		}
 	}
-
-	return false;
 }
 
-/* Starter copies go to the convoy, and only when the player owns no cards at all. */
+/* Starter copies go to the binder, and only when the player owns no cards at all. */
 void HexCol_GiveStarters(void)
 {
 	int type, n;
@@ -166,7 +160,7 @@ void HexCol_GiveStarters(void)
 
 	for (type = 0; type < HEX_CARD_TYPES; type++) {
 		for (n = 0; n < gpHexCardTypes[type].starter; n++) {
-			if (!HexCol_GiveToConvoy(type))
+			if (!HexCol_Give(type))
 				return;
 		}
 	}

@@ -1826,32 +1826,32 @@ WORD $10631062 $103E8 $0
 POIN GFX_SkillIcon_VictorySmite
 WORD $14541453 $103E8 $0
 POIN GFX_SkillIcon_Forage
-WORD $1C711C70 $103E8 $0
-POIN GFX_SkillIcon_Guarantee
-WORD $1C731C72 $103E8 $0
-POIN GFX_SkillIcon_Insurance
-WORD $1C751C74 $103E8 $0
-POIN GFX_SkillIcon_Takeover
-WORD $1C771C76 $103E8 $0
-POIN GFX_SkillIcon_GroupCast
-WORD $1C791C78 $103E8 $0
-POIN GFX_SkillIcon_DragonsBlood
-WORD $1C7B1C7A $103E8 $0
-POIN GFX_SkillIcon_Undo
-WORD $1C7F1C7E $103E8 $0
-POIN GFX_SkillIcon_MinusStrike
-WORD $1C811C80 $103E8 $0
-POIN GFX_SkillIcon_LastResort
-WORD $1C831C82 $103E8 $0
-POIN GFX_SkillIcon_SpinForGold
-WORD $1C851C84 $103E8 $0
-POIN GFX_SkillIcon_SpinForLuck
-WORD $1C8A1C89 $103E8 $0
-POIN GFX_SkillIcon_FastHands
-WORD $1C8E1C8D $103E8 $0
-POIN GFX_SkillIcon_Obliterate
 WORD $1C901C8F $103E8 $0
-POIN GFX_SkillIcon_Sweapstrike
+POIN GFX_SkillIcon_Guarantee
 WORD $1C921C91 $103E8 $0
+POIN GFX_SkillIcon_Insurance
+WORD $1C941C93 $103E8 $0
+POIN GFX_SkillIcon_Takeover
+WORD $1C961C95 $103E8 $0
+POIN GFX_SkillIcon_GroupCast
+WORD $1C981C97 $103E8 $0
+POIN GFX_SkillIcon_DragonsBlood
+WORD $1C9A1C99 $103E8 $0
+POIN GFX_SkillIcon_Undo
+WORD $1C9E1C9D $103E8 $0
+POIN GFX_SkillIcon_MinusStrike
+WORD $1CA01C9F $103E8 $0
+POIN GFX_SkillIcon_LastResort
+WORD $1CA21CA1 $103E8 $0
+POIN GFX_SkillIcon_SpinForGold
+WORD $1CA41CA3 $103E8 $0
+POIN GFX_SkillIcon_SpinForLuck
+WORD $1CA91CA8 $103E8 $0
+POIN GFX_SkillIcon_FastHands
+WORD $1CAD1CAC $103E8 $0
+POIN GFX_SkillIcon_Obliterate
+WORD $1CAF1CAE $103E8 $0
+POIN GFX_SkillIcon_Sweapstrike
+WORD $1CB11CB0 $103E8 $0
 POIN GFX_SkillIcon_Prayer
-WORD $1C951C94 $103E8 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
+WORD $1CB41CB3 $103E8 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0

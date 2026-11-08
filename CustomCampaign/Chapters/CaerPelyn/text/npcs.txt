@@ -1,0 +1,42 @@
+## District_CaerPelyn_HexA
+[OpenMidLeft][LoadFace_CivilianMan2]
+I'm Tamsin. Up here, Hex is how we[N]
+pass the long winters.[A][N]
+Ready for a real game?[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_HexB
+[OpenMidLeft][LoadFace_CivilianWoman1]
+Ewlyn. The elders taught me every[N]
+trick they know.[A][N]
+Pick your cards carefully.[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_Gold
+[OpenMidLeft][LoadFace_CivilianManOld]
+The village wants you to have this.[N]
+Use it well.[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_GoldAfter
+[OpenMidLeft][LoadFace_CivilianManOld]
+May the mountain winds guide you.[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_Item
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+This charm keeps bad magic away.[N]
+Please, take it.[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_ItemAfter
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+Keep that charm close.[A][N]
+[ClearFace][X]
+
+## District_CaerPelyn_Hint
+[OpenMidLeft][LoadFace_CivilianBoy]
+A card that loses all its HP[N]
+flips to the other side.[A][N]
+The game ends when the board is full.[A][N]
+[ClearFace][X]

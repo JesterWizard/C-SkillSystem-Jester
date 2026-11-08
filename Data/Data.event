@@ -28,6 +28,9 @@
 #include "CustomItems/CustomItems.event"
 #ifdef CONFIG_HEX_CARDS
 #include "Hex/HexCardTypes.lyn.event"
+#include "Hex/HexNpcDecks.lyn.event"
+#include "Hex/HexShops.lyn.event"
+#include "Hex/HexMonsterArt.lyn.event"
 #endif
 #include "ItemSys/ItemSys.event"
 #include "UnitMenu/UnitMenu.event"

@@ -11,7 +11,8 @@
  * The Hex screen (Preparations > Hex): the front menu (MENU: Play or Cards), the opponent (OPPONENT: one of the player's living
  * units, its deck in the red column), the player picks a hand of 7 cards from the collection (HAND_PICK, PICK_DONE), the
  * opponent's hand is revealed (REVEAL), one match is played (BEGIN, PICK_TILE, PICK_CELL, RESOLVE, AI_TURN, END), then the
- * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer. The blue hand (right) and the red hand
+ * stakes (TAKE, REWARD), and the screen returns to MENU. CARDS is the collection viewer.
+ * The blue hand (right) and the red hand
  * (left); the board, both scores and the name bar. README.md lists the keys and the rules.
  *
  * Layers: BG3 the rune mural (RestartMuralBackground, priority 3, the same as the other prep sub-screens), BG1 the UI windows
@@ -114,7 +115,7 @@
 #define HEX_STATE_HAND_PICK 6  /* the list of owned cards: UP/DOWN, A adds a copy, B removes the last one (B with none goes to OPPONENT) */
 #define HEX_STATE_PICK_DONE 7  /* seven cards: Accept (REVEAL) or Change (HAND_PICK, the last card removed) */
 #define HEX_STATE_REVEAL 8     /* both hands face up: "Your opponent's hand" for 60 frames (A skips), then BEGIN */
-#define HEX_STATE_TAKE 9       /* a win: UP/DOWN the opponent's starting cards, A takes one into the convoy */
+#define HEX_STATE_TAKE 9       /* a win: UP/DOWN the opponent's starting cards, A takes one into the binder */
 #define HEX_STATE_REWARD 10    /* the stake banner: 120 frames, then MENU (or A) */
 #define HEX_STATE_MENU 11      /* the front menu: Play (OPPONENT) or Cards (CARDS); B leaves for the prep menu */
 #define HEX_STATE_OPPONENT 12  /* the player's living units: UP/DOWN, the red column shows the highlighted deck; A = HAND_PICK, B = MENU */
@@ -125,7 +126,6 @@
 #define HEX_REVEAL_FRAMES 60
 #define HEX_NOTICE_FRAMES 60
 #define HEX_REWARD_FRAMES 120
-#define HEX_HOLD_MAX 3         /* copies of one card type a player may hold (a take of a 4th copy is refused) */
 
 #define HEX_RESULT_DRAW 0
 #define HEX_RESULT_WIN 1
@@ -143,7 +143,6 @@
 #define HEX_BAR_OPPONENT_HAND 0xE6
 #define HEX_BAR_ACCEPT 0xE7
 #define HEX_BAR_CANT_HOLD 0xE8
-#define HEX_BAR_CONVOY_FULL 0xE9
 #define HEX_BAR_GAINED 0xEA    /* "Gained <card>!" */
 #define HEX_BAR_LOST 0xEB      /* "Lost <card>..." */
 #define HEX_BAR_SAFE 0xEC
@@ -173,10 +172,10 @@ static const s8 sHexShake[HEX_SHAKE_FRAMES] = { 2, -2, 2, -2, 1, -1, 1, -1, 1, -
 static const u16 sHexObject16x16HFlip[] = { 1, OAM0_SHAPE_16x16, OAM1_SIZE_16x16 + OAM1_HFLIP, 0 };
 
 /*
- * The state lives in gHexScreenState (include/link/config-memmap.s, 0x200 bytes), not in the proc: a proc is only 0x6C bytes
+ * The state lives in gHexScreenState (include/link/config-memmap.s, 0x280 bytes), not in the proc: a proc is only 0x6C bytes
  * (struct Proc in FE-CLib proc.h), so the proc keeps the name bar text and the saved display registers.
  */
-#define HEX_STATE_SIZE 0x200
+#define HEX_STATE_SIZE 0x280
 #define HEX_ST ((struct HexScreenState *)gHexScreenState)
 
 struct HexScreenState {
@@ -185,6 +184,7 @@ struct HexScreenState {
 	u8 aiLevel;		/* Hex_AiChoose level for red (HexScreen_SetOpponent) */
 	u8 oppPid;		/* CHARACTER_* of the opponent (its unit's pid) */
 	u16 oppNameId;		/* text id of the opponent's name (the name bar and the banners) */
+	u8 npcDeck;		/* district mode: the gHexNpcDecks row of the NPC (HEX_NO_DECK: the prep menu, the opponent is a unit) */
 	u8 menuSel;		/* MENU: 0 = Play, 1 = Cards */
 	u8 oppCursor;		/* OPPONENT: the highlighted row, an index into the living units */
 	u8 oppScroll;		/* OPPONENT: the first row on screen */
@@ -211,7 +211,6 @@ struct HexScreenState {
 	u8 bar;         /* the code drawn in the name bar (HEX_BAR_NONE: nothing yet) */
 	u8 listKey;     /* 1 while the list and its plate are drawn (0: the list is drawn again) */
 	u8 takeSel;     /* TAKE: the opponent's card under the cursor */
-	u8 takeFull;    /* TAKE: the last take was refused because the convoy is full (B then skips the take) */
 	u8 notice;      /* TAKE: frames left of the refusal message */
 	u8 result;      /* HEX_RESULT_* */
 	u8 gotType;     /* the card taken from the opponent (HEX_NO_TYPE: none) */
@@ -263,19 +262,30 @@ static void HexScreen_LoadType(int type, int bank)
 {
 	const struct HexCardType *info = &gpHexCardTypes[type];
 	u32 base = HEX_OBJ_TYPE_BASE + (u32)(bank - HEX_OBJ_BANK_FIRST) * HEX_OBJ_TYPE_TILES;
-	const struct FaceData *face = GetPortraitData(GetCharacterData(info->pid)->portraitId);
+	const u8 *chibi;
+	const u16 *pal;
 	const u32 *src = (const u32 *)gGenericBuffer;
 	u32 keep[128];
 	int i;
 
 	CpuFastCopy(gHexFrameTiles[info->reach & 0x3F], HEX_OBJ_TILE(base), 512);
 
-	Decompress(face->imgChibi, gGenericBuffer);
+	if (type >= HEX_MONSTER_FIRST) {
+		chibi = gHexMonsterArt[type - HEX_MONSTER_FIRST].chibi;
+		pal = gHexMonsterArt[type - HEX_MONSTER_FIRST].pal;
+	} else {
+		const struct FaceData *face = GetPortraitData(GetCharacterData(info->pid)->portraitId);
+
+		chibi = face->imgChibi;
+		pal = face->pal;
+	}
+
+	Decompress(chibi, gGenericBuffer);
 	for (i = 0; i < 128; i++)
 		keep[i] = src[i] & gHexPortraitKeep[i];
 	CpuFastCopy(keep, HEX_OBJ_TILE(base + HEX_OBJ_PORTRAIT_OFFSET), 512);
 
-	ApplyPalette(face->pal, 0x10 + bank);
+	ApplyPalette(pal, 0x10 + bank);
 }
 
 /* TRUE if type t is in the player's hand (the pick, or the blue hand of the match) or in the opponent's starting hand. */
@@ -715,7 +725,7 @@ static void HexScreen_PutCount(struct Text *text, int n, int row)
 /* The name of card type t (the character it is named after). */
 static const char *HexScreen_TypeName(int t)
 {
-	return GetStringFromIndex(GetCharacterData(gpHexCardTypes[t].pid)->nameTextId);
+	return GetStringFromIndex(HexCardType_NameId(t));
 }
 
 /* The k-th living unit of the player (gUnitArrayBlue, the same test as HexCards.c), NULL past the last one. */
@@ -752,7 +762,8 @@ static int HexScreen_LivingCount(void)
 /*
  * The deck of an opponent: pid is the unit's character, eff its effective level (promoted units count 20 more). The first card
  * is the card of the character (when there is one, even above the tier cap). The other slots are drawn with a u32 LCG seeded
- * from pid: among the types of tier <= maxTier with at most 2 copies in the deck. Deterministic: the same unit, the same deck.
+ * from pid: among the types of tier <= maxTier with at most 2 copies in the deck. Monsters (HEX_MONSTER_FIRST and up) are never
+ * drawn for a unit. Deterministic: the same unit, the same deck.
  */
 static void HexScreen_MakeDeck(u8 *deck, u32 pid, int eff)
 {
@@ -768,7 +779,7 @@ static void HexScreen_MakeDeck(u8 *deck, u32 pid, int eff)
 
 	for (t = 0; t < HEX_CARD_TYPES; t++)
 		copies[t] = 0;
-	for (t = 0; t < HEX_CARD_TYPES; t++) {
+	for (t = 0; t < HEX_MONSTER_FIRST; t++) {
 		if (gpHexCardTypes[t].pid == pid) {
 			deck[0] = (u8)t;
 			copies[t] = 1;
@@ -780,7 +791,7 @@ static void HexScreen_MakeDeck(u8 *deck, u32 pid, int eff)
 	while (filled < HEX_HAND) {
 		n = 0;
 		for (t = 0; t < HEX_CARD_TYPES; t++) {
-			if (gpHexCardTypes[t].tier <= maxTier && copies[t] < 2)
+			if (t < HEX_MONSTER_FIRST && gpHexCardTypes[t].tier <= maxTier && copies[t] < 2)
 				elig[n++] = (u8)t;
 		}
 		if (n == 0)
@@ -812,6 +823,25 @@ static void HexScreen_SetOpponent(struct HexScreenState *h, const struct Unit *u
 	h->aiLevel = eff < 10 ? 1 : 2;
 	HexScreen_MakeDeck(h->redHand, h->oppPid, eff);
 	HexScreen_LoadRedArt(h);
+}
+
+/* A district NPC is the opponent: its deck (HexNpc_CardType, so a rare card the NPC has run out of is its fallback), AI and name. */
+static void HexScreen_SetNpcOpponent(struct HexScreenState *h, const struct HexNpcDeck *deck)
+{
+	int i;
+
+	for (i = 0; i < HEX_HAND; i++)
+		h->redHand[i] = (u8)HexNpc_CardType(&deck->cards[i]);
+	h->aiLevel = deck->aiLevel;
+	h->oppPid = deck->pid;
+	h->oppNameId = deck->nameId;
+	HexScreen_LoadRedArt(h);
+}
+
+/* Called before the Hex proc starts (HexPrep.c: HEX_NO_DECK; HexDistrict.c: the NPC's row). The proc's state is kept across it. */
+void HexScreen_SetDistrictDeck(int deckIndex)
+{
+	HEX_ST->npcDeck = (u8)deckIndex;
 }
 
 /* The highlighted opponent (OPPONENT's cursor) is set as the opponent; nothing if there is no living unit. */
@@ -1093,9 +1123,6 @@ static void HexScreen_SetBar(struct ProcHexScreen *proc, u8 code)
 	case HEX_BAR_CANT_HOLD:
 		HexScreen_BarText(proc, "You can't hold more");
 		break;
-	case HEX_BAR_CONVOY_FULL:
-		HexScreen_BarText(proc, "Convoy is full");
-		break;
 	case HEX_BAR_GAINED:
 		HexScreen_BarCard(proc, "Gained ", h->gotType, "!");
 		break;
@@ -1149,7 +1176,7 @@ static u8 HexScreen_BarFor(const struct ProcHexScreen *proc)
 		return HEX_BAR_RED_THINKING;
 	case HEX_STATE_TAKE:
 		if (h->notice > 0)
-			return h->takeFull ? HEX_BAR_CONVOY_FULL : HEX_BAR_CANT_HOLD;
+			return HEX_BAR_CANT_HOLD;
 		return h->redHand[h->takeSel];
 	case HEX_STATE_REWARD:
 		if (h->result == HEX_RESULT_DRAW)
@@ -1180,7 +1207,6 @@ static void HexScreen_ToMenu(struct HexScreenState *h)
 	h->pickChoice = 0;
 	h->bar = HEX_BAR_STALE;
 	h->takeSel = 0;
-	h->takeFull = 0;
 	h->notice = 0;
 	h->gotType = HEX_NO_TYPE;
 	h->lostType = HEX_NO_TYPE;
@@ -1191,7 +1217,8 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 	struct HexScreenState *h = HEX_ST;
 	int i;
 
-	/* First open with no cards: hand out the starter set. */
+	/* Hex Card items (convoy and units) move into the binder; then the first open with no cards hands out the starter set. */
+	HexCol_MigrateItems();
 	if (HexCol_Total() == 0)
 		HexCol_GiveStarters();
 
@@ -1246,6 +1273,16 @@ static void HexScreen_Init(struct ProcHexScreen *proc)
 	for (i = 0; i < HEX_PICK_VISIBLE; i++) {
 		InitText(&h->rows[i], HEX_PICK_NAME_TILES);
 		InitText(&h->counts[i], HEX_PICK_COUNT_TILES);
+	}
+
+	if (h->npcDeck != HEX_NO_DECK) {
+		/* District mode (HexScreen_SetDistrictDeck): the NPC is the opponent and the hand picker opens at once (the UpdateOpponent A branch). */
+		HexScreen_SetNpcOpponent(h, &gHexNpcDecks[h->npcDeck]);
+		h->pickCount = 0;
+		h->pickCursor = 0;
+		h->pickScroll = 0;
+		h->pickChoice = 0;
+		h->state = HEX_STATE_HAND_PICK;
 	}
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG3_SYNC_BIT);
 	SetDefaultColorEffects();
@@ -1580,13 +1617,13 @@ static void HexScreen_UpdateAi(void)
 	HexScreen_Place(h->aiHand, h->aiCell);
 }
 
-/* The opponent's starting hand has a type the player holds fewer than HEX_HOLD_MAX copies of. */
+/* The opponent's starting hand has a type the player holds fewer than HEX_BINDER_MAX copies of. */
 static bool32 HexScreen_Takeable(const struct HexScreenState *h)
 {
 	int i;
 
 	for (i = 0; i < HEX_HAND; i++) {
-		if (HexCol_Count(h->redHand[i]) < HEX_HOLD_MAX)
+		if (HexCol_Count(h->redHand[i]) < HEX_BINDER_MAX)
 			return TRUE;
 	}
 	return FALSE;
@@ -1616,8 +1653,9 @@ static u8 HexScreen_HighestPick(const struct HexScreenState *h)
 	return best;
 }
 
-/* END: A decides the stakes. A win goes to TAKE (or REWARD when nothing can be taken); a loss takes the player's best card
- * when the player holds more than a hand; a draw changes nothing.
+/* END: A decides the stakes. A win goes to TAKE (or REWARD when nothing can be taken); a loss takes one card when the player
+ * holds more than a hand: a district NPC takes a random card of the played hand, the prep menu takes the best one. A draw
+ * changes nothing.
  */
 static void HexScreen_UpdateEnd(struct HexScreenState *h)
 {
@@ -1631,7 +1669,6 @@ static void HexScreen_UpdateEnd(struct HexScreenState *h)
 	h->gotType = HEX_NO_TYPE;
 	h->lostType = HEX_NO_TYPE;
 	h->takeSel = 0;
-	h->takeFull = 0;
 	h->notice = 0;
 	h->timer = 0;
 	if (w == 0) {
@@ -1643,17 +1680,22 @@ static void HexScreen_UpdateEnd(struct HexScreenState *h)
 	} else {
 		h->result = HEX_RESULT_LOSS;
 		if (HexCol_Total() > HEX_HAND) {
-			u8 best = HexScreen_HighestPick(h);
+			u8 lost;
 
-			if (HexCol_TakeOne(best))
-				h->lostType = best;
+			if (h->npcDeck != HEX_NO_DECK)
+				lost = h->pickHand[NextRN_N(HEX_HAND)];
+			else
+				lost = HexScreen_HighestPick(h);
+
+			if (HexCol_TakeOne(lost))
+				h->lostType = lost;
 		}
 		h->state = HEX_STATE_REWARD;
 	}
 }
 
-/* TAKE: UP / DOWN choose one of the opponent's starting cards; A gives it to the convoy. A held type of HEX_HOLD_MAX copies, or a
- * full convoy, refuses it (error sound and a message for HEX_NOTICE_FRAMES). After a full convoy, B skips the take.
+/* TAKE: UP / DOWN choose one of the opponent's starting cards; A gives it to the binder. A type already at HEX_BINDER_MAX copies
+ * is refused (error sound and a message for HEX_NOTICE_FRAMES).
  */
 static void HexScreen_UpdateTake(struct HexScreenState *h)
 {
@@ -1670,29 +1712,25 @@ static void HexScreen_UpdateTake(struct HexScreenState *h)
 		h->takeSel++;
 		PlaySoundEffect(HEX_SE_CURSOR_UD);
 	}
-	if (newKeys & B_BUTTON) {
-		if (h->takeFull) {
-			PlaySoundEffect(HEX_SE_CANCEL);
-			h->gotType = HEX_NO_TYPE;
-			h->state = HEX_STATE_REWARD;
-			h->timer = 0;
-		}
-		return;
-	}
 	if (newKeys & A_BUTTON) {
 		t = h->redHand[h->takeSel];
-		if (HexCol_Count(t) >= HEX_HOLD_MAX) {
-			PlaySoundEffect(HEX_SE_ERROR);
-			h->takeFull = 0;
-			h->notice = HEX_NOTICE_FRAMES;
-		} else if (HexCol_GiveToConvoy(t)) {
+		if (HexCol_Give(t)) {
+			const struct HexNpcCard *card;
+
+			/* A rare card of a district NPC counts toward its claim cap. Checked before the claim is added, so the win that
+			 * reaches the cap still counts. A fallback (the cap is reached) is not rare-live and counts for nothing.
+			 */
+			if (h->npcDeck != HEX_NO_DECK) {
+				card = &gHexNpcDecks[h->npcDeck].cards[h->takeSel];
+				if (card->claimSlot != HEX_NO_CLAIM && HexNpc_IsRareLive(card))
+					HexClaim_Add(card->claimSlot);
+			}
 			h->gotType = (u8)t;
 			h->state = HEX_STATE_REWARD;
 			h->timer = 0;
 			PlaySoundEffect(HEX_SE_SELECT);
 		} else {
 			PlaySoundEffect(HEX_SE_ERROR);
-			h->takeFull = 1;
 			h->notice = HEX_NOTICE_FRAMES;
 		}
 	}
@@ -1847,6 +1885,10 @@ static void HexScreen_Loop(struct ProcHexScreen *proc)
 		break;
 	}
 
+	/* District mode: the front menu and the opponent list are not part of it. B with no card, or the end of a match, leaves. */
+	if (h->npcDeck != HEX_NO_DECK && (h->state == HEX_STATE_MENU || h->state == HEX_STATE_OPPONENT))
+		leave = TRUE;
+
 	if (leave) {
 		Proc_Goto(proc, PL_HEX_EXIT);
 		return;
@@ -1860,17 +1902,22 @@ static void HexScreen_Loop(struct ProcHexScreen *proc)
 
 static void HexScreen_OnEnd(struct ProcHexScreen *proc)
 {
-	struct ProcAtMenu *pproc = proc->proc_parent;
-
 	ClearSprites();
 	EndMuralBackground_();
 	ClearBg0Bg1();
 	gLCDControlBuffer.dispcnt = proc->dispBak;
 	SetDefaultColorEffects();
 
-	/* Same hand-off as the other prep sub-screens: the prep menu redraws itself. cur_cmd puts the cursor back on the Hex row. */
-	pproc->cur_cmd = PREP_MAINMENU_HEX;
-	pproc->state = 1;
+	/*
+	 * Same hand-off as the other prep sub-screens: the prep menu redraws itself. cur_cmd puts the cursor back on the Hex row.
+	 * In district mode (a match) the parent is the map's HexDistrict proc, not the prep menu.
+	 */
+	if (HEX_ST->npcDeck == HEX_NO_DECK) {
+		struct ProcAtMenu *pproc = proc->proc_parent;
+
+		pproc->cur_cmd = PREP_MAINMENU_HEX;
+		pproc->state = 1;
+	}
 }
 
 const struct ProcCmd ProcScr_HexScreen[] = {

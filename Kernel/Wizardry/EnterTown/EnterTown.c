@@ -14,6 +14,7 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-arrays.h"
+#include "district.h"
 
 extern u8 sWmChapterIdOverride;
 extern u8 sWmMapReloadPending;
@@ -33,19 +34,9 @@ extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItem
 extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
 
 typedef struct {
-    u8 mapNodeId;
-    u8 chapterId;
-} EnterTownNode;
-
-typedef struct {
     u8 chapterId;
     u16 textId;
 } WorldMapThoughtBubbleEntry;
-
-static const EnterTownNode EnterTownNodes[] = {
-    { NODE_SERAFEW,      0x50 },
-    // { NODE_ADLAS_PLAINS, CHAPTER_3C },
-};
 
 u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
 {
@@ -53,27 +44,28 @@ u8 WMMenu_IsDistrictAvailable(const struct MenuItemDef * def, int number)
     if (gpKernelDesignerConfig->base_chapters == false)
         return MENU_NOTSHOWN;
 
-    u8 location = *(volatile u8*)0x03005291;
+    const struct DistrictNode *district = GetDistrictAtNode(gGMData.units[0].location);
 
-    // Loop through array entries
-    for (unsigned i = 0; i < ARRAY_COUNT(EnterTownNodes); i++)
-    {
-        if (EnterTownNodes[i].mapNodeId == location)
-            return MENU_ENABLED;
-    }
+    if (district == NULL || !District_IsUnlocked(district))
+        return MENU_NOTSHOWN;
 
-    return MENU_NOTSHOWN;
+    return MENU_ENABLED;
 }
 
 u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc)
 {
+    const struct DistrictNode *district = GetDistrictAtNode(gGMData.units[0].location);
+
+    if (district == NULL)
+        return MENU_ACT_SND6B;
+
     SetFlag(GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP); // Set this to skip intro chapter GFX
 
     // Tells WorldMap_Destruct to reload into the district map
     sWmMapReloadPending = true;
 
     // Map index we want to load from, consumed by WMLoc_GetChapterId
-    sWmChapterIdOverride = 0x3B;
+    sWmChapterIdOverride = district->chapter;
 
     void * p = Proc_Find(ProcScr_WorldMapMain);
 

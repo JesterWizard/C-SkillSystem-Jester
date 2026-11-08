@@ -1,0 +1,42 @@
+## District_PortKiris_HexA
+[OpenMidLeft][LoadFace_CivilianMan2]
+Bram's the name. The sailors here play[N]
+Hex for their wages.[A][N]
+Let's see what you've got.[A][N]
+[ClearFace][X]
+
+## District_PortKiris_HexB
+[OpenMidLeft][LoadFace_CivilianWoman1]
+Corra. I learned Hex from the merchants[N]
+who dock here.[A][N]
+I don't go easy on anyone.[A][N]
+[ClearFace][X]
+
+## District_PortKiris_Gold
+[OpenMidLeft][LoadFace_CivilianManOld]
+Fair winds brought you here.[N]
+Take this for the road.[A][N]
+[ClearFace][X]
+
+## District_PortKiris_GoldAfter
+[OpenMidLeft][LoadFace_CivilianManOld]
+Mind the docks. They're slippery.[A][N]
+[ClearFace][X]
+
+## District_PortKiris_Item
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+A merchant left these wings with me.[N]
+They'll suit someone quick like you.[A][N]
+[ClearFace][X]
+
+## District_PortKiris_ItemAfter
+[OpenMidLeft][LoadFace_CivilianWomanGirl]
+Fly well, traveler![A][N]
+[ClearFace][X]
+
+## District_PortKiris_Hint
+[OpenMidLeft][LoadFace_CivilianBoy]
+A card attacks only the way its[N]
+arrows point.[A][N]
+Watch the edges of the board![A][N]
+[ClearFace][X]

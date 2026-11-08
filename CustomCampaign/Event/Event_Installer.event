@@ -10,6 +10,9 @@ TowerOfValniObjectType_Reloc:
     #incbin "PListBins/tower-of-valni-object-type.bin"
 NewEventPointerTable_ObjPal(0x88, TowerOfValniObjectType_Reloc)
 
+/* Hex shop building: tileset copies for Serafew/PortKiris, CaerPelyn and Jehanna (obj 0xEB-0xED, tile config 0x8B-0x8D) */
+#include "../Chapters/_hexshop/HexShopTiles.event"
+
 #include "../Chapters/_shared/empty-event-lists.lyn.event"
 #include "../Chapters/_shared/worldmap-helpers.lyn.event"
 
@@ -48,9 +51,18 @@ NewEventPointerTable_Event(0x2A, Chapter08Event)
 NewEventPointerTable_Event(0x2D, Chapter09Event)
 #include "../Chapters/09/events/events.lyn.event"
 #include "../Chapters/09/map/09_map.event"
-// EventPointerTable(0xCD, SerafewEvent)
+NewEventPointerTable_Event(0xCB, SerafewEvent)
 #include "../Chapters/Serafew/events/events.lyn.event"
 #include "../Chapters/Serafew/map/Serafew_map.event"
+NewEventPointerTable_Event(0xCD, PortKirisEvent)
+#include "../Chapters/PortKiris/events/events.lyn.event"
+#include "../Chapters/PortKiris/map/PortKiris_map.event"
+NewEventPointerTable_Event(0xCE, CaerPelynEvent)
+#include "../Chapters/CaerPelyn/events/events.lyn.event"
+#include "../Chapters/CaerPelyn/map/CaerPelyn_map.event"
+NewEventPointerTable_Event(0xCF, JehannaEvent)
+#include "../Chapters/Jehanna/events/events.lyn.event"
+#include "../Chapters/Jehanna/map/Jehanna_map.event"
 
 // EventPointerTable(0x33, Chapter10Event)
 // #include "../Chapters/10/events/events.lyn.event"

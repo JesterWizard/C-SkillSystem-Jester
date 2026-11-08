@@ -51,6 +51,7 @@ This has been heavily modified from the [master buildfile](https://github.com/Mo
 		<img src="./Documentation/Gifs/Base_Chapters.gif" alt="Base Chapters preview" width="600" />
 	</details>
 
+- [Districts](./Documentation/Features/Districts.md)
 - [Base Conversations Menu](./Documentation/Features/BaseConversationsMenu.md)
 
 	<details>

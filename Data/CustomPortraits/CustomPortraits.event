@@ -1,3 +1,5 @@
+#include "PortraitTable.event"
+
 #define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2644; POIN mugLocation+0x2604; POIN mugLocation+0x2004; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD 0x01; POP"
 #define setMugEntry_Halfbody(mugEntry, mugLocation, mouthX, mouthY, eyeX, eyeY, eyeControl) "PUSH; ORG PortraitTable+mugEntry*0x1C; POIN mugLocation; POIN mugLocation+0x2648; POIN mugLocation+0x2608; POIN mugLocation+0x2008; WORD 0x00000000; BYTE mouthX mouthY eyeX eyeY; WORD eyeControl; POP"
 
@@ -71,3 +73,8 @@ setMugEntry(0xAC,Portrait_0xAC,2,5,3,3)
 Portrait_0xAD:
    #incext PortraitFormatter "Portraits/skill_synth.png"
 setMugEntry(0xAD,Portrait_0xAD,2,5,3,3)
+
+// Hex shop witch (drawn over the generic old woman 0x5F; Phase 10 of the Hex districts work)
+Portrait_0xAE:
+   #incext PortraitFormatter "Portraits/hex_witch.png"
+setMugEntry(0xAE,Portrait_0xAE,2,6,3,4)

@@ -77,3 +77,8 @@
 #include "Games/Snek.txt"
 
 #include "HeroesCards/HeroesCards.txt"
+
+#include "../Chapters/Serafew/text/npcs.txt"
+#include "../Chapters/PortKiris/text/npcs.txt"
+#include "../Chapters/CaerPelyn/text/npcs.txt"
+#include "../Chapters/Jehanna/text/npcs.txt"

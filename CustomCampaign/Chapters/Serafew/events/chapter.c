@@ -4,22 +4,22 @@
 
 const struct ROMChapterData BaseChapter05 = {
     .map = {
-       .obj1Id = 0xE,
+       .obj1Id = 0xEB,
        .obj2Id= 0,
        .paletteId = 0xF,
-       .tileConfigId = 0x10,
+       .tileConfigId = 0x8B,
        .mainLayerId = 0xCA, // Map pointer. In blocks of 4 per chapter
        .objAnimId = 0x12,
        .paletteAnimId = 0,
-       .changeLayerId = 0x5,
+       .changeLayerId = 0,
     },
     .initialFogLevel = 0,
     .hasPrepScreen = FALSE,
     .chapTitleId = 0x50, // Chapter 5 - The Empire's Reach
     .chapTitleIdInHectorStory = 0,
     .chapTitleTextId = MSG_BASE_TITLE_SERAFEW,
-    .initialPosX = 14,   // Starting position of the camera
-    .initialPosY = 20,
+    .initialPosX = 11,   // Starting position of the camera
+    .initialPosY = 16,
     .initialWeather = WEATHER_FINE,
     .battleTileSet = 6,
     .easyModeLevelMalus = 0,
