@@ -87,6 +87,8 @@ Boot script:
 
 - `Tools/cloud/boot-to-prologue.txt` boots a fresh ROM with no save to the prologue map. It takes about 1 minute.
 - It writes `boot.png` and the save state `boot.ss`.
+- The START/A presses that skip the opening scenes are counted. It must end on the idle prologue map. A spare A or START after the "Player Phase" banner acts on the map (it selects Eirika and opens her menu), and `boot-to-prep.txt` then misses the debugger menu. If the opening gets longer or shorter, add `shot` after each press to see where the map takes control, and trim or add presses in both scripts. `gPlaySt.chapterIndex` (`0x0202BCFE`) reads 0 on the prologue map.
+- The prologue loads chapter slots 0x10 and 0x40 (`OUTSIDE_RENAIS`) as cutscene maps, and chapters 03/09 use 0x3F. A chapter installed in one of those slots (`CustomCampaign/Chapters/Chapter_Installer.event`) replaces the cutscene map, and the scene then waits forever.
 - Run it from a scratch folder: `gbarun /path/to/fe8-kernel-dev.gba /path/to/Tools/cloud/boot-to-prologue.txt` (fe8-kernel-dev.gba is what build.sh produces; fe8.gba is the clean ROM.).
 
 Prep screen route:
