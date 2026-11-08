@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 """
-witch_shop_from_art.py: builds the Hex shop witch's shopkeeper sheet (portrait 0xAF) from a supplied illustration.
+witch_shop_from_art.py: builds the Hex shop witch's shopkeeper sheet (portrait 0xAF) from a supplied pixel-art illustration.
 
   python3 Tools/hex/witch_shop_from_art.py Tools/hex/art/hex_witch_shop_source.webp \
       Data/CustomPortraits/Portraits/hex_witch_shop.png [--preview PATH]
 
 Steps, as used for the current art:
-  1. Crop the illustration to its non-white area and sample it down to the 48x48 shopkeeper box (the median colour of
-     the middle of each cell; the source is pixel art that is not on an exact grid, so it is resampled, not read).
-  2. Map every pixel to a fixed 15-colour palette picked from the source (the face skin has its own cream, FC) (snapped to the GBA's 5-bit colour grid);
-     index 0 is the transparent green that every portrait sheet uses.
-  3. The eyes, nose and mouth are transcribed cell by cell from the source at the 48x48 grid (FEATURES): the source
-     draws them with details half a box pixel wide, which no resample keeps.
-  4. Mouth frames: the mouth sits on box row 32, so the 32x16 window is box (0,32), i.e. sheet tile (3,4)
-     (setMugEntry(0xAF, ..., 3, 4, 3, 2)). Slots 0/1 talk (half, open), 4/5 smiling talk, 2/3/6 resting.
+  1. The illustration is pixel art on a 64x64 grid (about 19.6 px per art pixel). The cell edges are found from the
+     image's own colour edges, so a slightly uneven grid reads the same way (cuts(): the cut positions, 15..25 px apart, that sit on the
+     strongest edges), and each cell is read as the median colour of its middle, so the art is recovered pixel for
+     pixel, with no resampling.
+  2. A 48x48 window of that grid (CROP) is the shopkeeper box: the hat brim with its gold ornament, the face, the hair
+     and the earrings, like the vanilla shopkeepers' head-and-shoulders framing.
+  3. Every pixel goes to the nearest colour of a fixed 15-colour palette (PAL[1:], on the GBA's 5-bit colour grid),
+     fitted to the art with the face weighted up and the outline, white, gold, both eye greens and the lip red kept.
+     Warm source pixels (lips, skin shadows) never go to the purple or grey shades. Index 0 is the transparent green
+     that every portrait sheet uses.
+  4. Mouth frames: the 32x16 mouth window is box (8,24), i.e. sheet tile (4,3) (setMugEntry(0xAF, ..., 4, 3, 3, 2)).
+     The resting frame is the art's own smile. Talking closes it to the lip line (half) and opens it one row
+     more (open). Slots 0/1 talk (half, open), 4/5 smiling talk, 2/3/6 resting.
+  5. The shop draws the shopkeeper box mirrored, so the box and every mouth frame are stored flipped left to right;
+     in game she then faces the way she does in the art. The mouth window (box x 8..39) is symmetric about the box
+     centre, so mirroring keeps it in place.
 The box goes to sheet (24,0); the sheet is 128x112 (PortraitFormatter layout), like the vanilla shopkeepers.
 """
 import argparse
@@ -21,55 +29,73 @@ import argparse
 import numpy as np
 from PIL import Image
 
-PAL = [(120, 160, 112), (56, 40, 72), (80, 56, 96), (112, 88, 136), (144, 96, 160), (248, 232, 200), (152, 104, 72),
-       (216, 160, 88), (248, 200, 120), (248, 216, 168), (232, 232, 240), (152, 152, 176), (184, 184, 192),
-       (120, 128, 152), (96, 136, 72), (184, 136, 80)]
-O, DP, PM, PL, FC, BR, GO, SK2, SK1, WH, HM, HL, HD, GR, SK3 = range(1, 16)
+CROP = (12, 6)          # top-left art pixel of the 48x48 box
+PAL = [(120, 160, 112),
+       (56, 32, 64), (104, 56, 112), (176, 96, 176),                      # outline, hat and cloak purples
+       (112, 88, 128), (152, 136, 168), (200, 184, 200), (240, 232, 232),  # hair greys, white
+       (248, 224, 200), (248, 184, 128), (192, 120, 80),                  # skin
+       (128, 80, 72), (232, 176, 72),                                     # brown, gold
+       (56, 96, 64), (104, 144, 96), (224, 96, 80)]                       # eye greens, lip red
+COOL = [2, 3, 4, 5, 6]
 SLOTS = [(0, 80), (32, 80), (64, 80), (96, 80), (0, 96), (32, 96), (64, 96)]
-KINDS = ["half", "open", "rest", "rest", "smile_half", "smile_open", "rest"]
+KINDS = ["half", "open", "rest", "rest", "half", "open", "rest"]
+MOUTH_WIN = (8, 24)     # box x, y of the 32x16 mouth window
 
 
-def sample_box(path):
-    im = Image.open(path).convert("RGB")
-    a = np.array(im).astype(int)
-    ys, xs = np.nonzero(a.min(-1) < 235)
-    a = a[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
-    h, w = a.shape[:2]
-    box = np.zeros((48, 48, 3), int)
-    for j in range(48):
-        for i in range(48):
-            x0, x1 = int((i + .3) * w / 48), int((i + .7) * w / 48)
-            y0, y1 = int((j + .3) * h / 48), int((j + .7) * h / 48)
-            box[j, i] = np.median(a[y0:y1, x0:x1].reshape(-1, 3), axis=0)
+def cuts(d, n, lo=15, hi=25):
+    """Cell edges along one axis: 0 = c0 < c1 < ... = n, each gap lo..hi px, on the strongest colour edges."""
+    e = np.zeros(n + 1)
+    e[1:n] = d[:n - 1]
+    best = np.full(n + 1, -np.inf)
+    prev = np.zeros(n + 1, int)
+    best[0] = 0
+    for c in range(1, n + 1):
+        for g in range(lo, hi + 1):
+            p = c - g
+            if p >= 0 and best[p] + e[c] > best[c]:
+                best[c], prev[c] = best[p] + e[c], p
+    out = [n]
+    while out[-1] > 0:
+        out.append(prev[out[-1]])
+    return out[::-1]
+
+
+def read_grid(path):
+    a = np.array(Image.open(path).convert("RGB")).astype(int)
+    ry = cuts(np.abs(np.diff(a, axis=0)).sum(-1).sum(1).astype(float), a.shape[0])
+    rx = cuts(np.abs(np.diff(a, axis=1)).sum(-1).sum(0).astype(float), a.shape[1])
+    g = np.zeros((len(ry) - 1, len(rx) - 1, 3), int)
+    for j in range(len(ry) - 1):
+        for i in range(len(rx) - 1):
+            y0, y1, x0, x1 = ry[j], ry[j + 1], rx[i], rx[i + 1]
+            cell = a[y0 + (y1 - y0) * 3 // 10:y0 + (y1 - y0) * 7 // 10 + 1,
+                     x0 + (x1 - x0) * 3 // 10:x0 + (x1 - x0) * 7 // 10 + 1]
+            g[j, i] = np.median(cell.reshape(-1, 3), axis=0)
+    return g
+
+
+def to_index(box):
+    px = box.reshape(-1, 3)
     p = np.array(PAL[1:])
     weight = np.array([0.3, 0.59, 0.11]) * 3
-    d = (((box[:, :, None, :] - p[None, None, :, :]) ** 2) * weight).sum(-1)
-    return d.argmin(-1) + 1
+    d = (((px[:, None, :] - p[None, :, :]) ** 2) * weight).sum(-1)
+    warm = (px[:, 0] - px[:, 2]) > 60
+    d[np.ix_(warm, [c - 1 for c in COOL])] = 1e12
+    return (d.argmin(-1) + 1).reshape(box.shape[:2])
 
 
-# The eyes, nose and mouth, transcribed cell by cell from the source at the 48x48 grid: the source draws them with
-# details half a box pixel wide, which no resample keeps. 'w' = face skin, 'W' = white of the eye, '.' = keep.
-FEATURES = [
-    (22, 20, ["wwwwwww",
-              "wOOOOOO",
-              "OWWOOWO",
-              "wwWOgWw",
-              "wwwggww",
-              "www22ww"]),      # near eye, cols 22..28, rows 20..25: one lash row, then a 3-row eye
-    (14, 22, ["2www2",
-              "OOOOb",
-              "OWOO2",
-              "wWOgw",
-              "wwggw",
-              "www2w"]),        # far eye, cols 14..18, rows 22..27: lash row 23, then a 3-row eye
-    (18, 28, ["www",
-              "w3w",
-              "2Ow"]),          # nose, cols 18..20, rows 28..30
-    (19, 31, ["wwboobw",
-              "wwO33ww",
-              "www22ww"]),      # mouth, cols 19..25, rows 31..33 (row 31 is the upper lip, outside the mouth window)
-]
-CHARS = {"O": O, "W": WH, "w": FC, "g": GR, "1": SK1, "2": SK2, "3": SK3, "b": BR, "o": GO, "d": DP}
+# Mouth, in box coordinates: columns 14..18, rows 28..30. 'O' outline, 'b' brown lip line, 'r' lip red, 'w' skin,
+# 'm' skin mid (the lower lip). 'rest' is the art's own smile, unchanged.
+CHARS = {"O": 1, "b": 11, "r": 15, "w": 8, "m": 9}
+MOUTHS = {
+    "rest": [],
+    "half": [(14, 28, ["Obbbb",
+                       ".mmw.",
+                       "....."])],
+    "open": [(14, 28, ["Obrrb",
+                       ".rrm.",
+                       ".mm.."])],
+}
 
 
 def paint(idx, patches):
@@ -81,25 +107,7 @@ def paint(idx, patches):
     return idx
 
 
-def paint_features(idx):
-    return paint(idx, FEATURES)
-
-
-# Mouth frames: the lower lip opens under the fixed upper lip. Rows 32..35 are inside the 32x16 window at box (0,32).
-MOUTHS = {
-    "half":       [(19, 32, ["wwObbww",
-                             "www22ww"])],
-    "open":       [(19, 32, ["wwObbOw",
-                             "wwwbbww",
-                             "www22ww"])],
-}
-MOUTHS["smile_half"] = [(19, 31, ["w3"]), (25, 31, ["3"])] + MOUTHS["half"]
-MOUTHS["smile_open"] = [(19, 31, ["w3"]), (25, 31, ["3"])] + MOUTHS["open"]
-
-
 def mouth(base, kind):
-    if kind == "rest":
-        return base.copy()
     return paint(base.copy(), MOUTHS[kind])
 
 
@@ -116,11 +124,14 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--preview", help="also write the 48x48 box at 6x to this PNG")
     args = ap.parse_args()
-    base = paint_features(sample_box(args.source))
+    x0, y0 = CROP
+    base = mouth(to_index(read_grid(args.source)[y0:y0 + 48, x0:x0 + 48]), "rest")
     sheet = np.zeros((112, 128), np.uint8)
-    sheet[0:48, 24:72] = base
+    sheet[0:48, 24:72] = base[:, ::-1]
+    mx, my = MOUTH_WIN
+    assert mx + 32 == 48 - mx, "mouth window must be symmetric for the mirrored box"
     for (sx, sy), kind in zip(SLOTS, KINDS):
-        sheet[sy:sy + 16, sx:sx + 32] = mouth(base, kind)[32:48, 0:32]
+        sheet[sy:sy + 16, sx:sx + 32] = mouth(base, kind)[my:my + 16, mx:mx + 32][:, ::-1]
     to_image(sheet).save(args.out)
     print("wrote", args.out)
     if args.preview:
