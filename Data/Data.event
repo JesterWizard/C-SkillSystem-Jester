@@ -37,6 +37,7 @@
 #include "StatScreen/StatScreen.event"
 #include "Misc/FarAttackAnimItem.lyn.event"
 #include "Misc/IconTable.lyn.event"
+#include "UnitIcon/UnitIcon.event"
 #include "MpSystem/MpSystem.lyn.event"
 #include "SpSystem/SpSystem.lyn.event"
 #include "ClassData/ClassData.lyn.event"

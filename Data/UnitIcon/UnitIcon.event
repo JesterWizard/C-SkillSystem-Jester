@@ -1,0 +1,36 @@
+/*
+ * Repointed standing map sprite table (vanilla unit_icon_wait_table, 0x88AF880).
+ * See Data/UnitIcon/UnitIconWait.c and include/kernel/unit-icon.h.
+ */
+#include "UnitIconWait.lyn.event"
+
+/*
+ * Vanilla literal pools that hold 0x088AF880 (found by scanning a clean
+ * FE8U ROM). RefreshUnitSprites (0x271A0) also has two, at 0x272D0 and
+ * 0x272D8 (table + 0x2DA), but MirrorSprites.c replaces that function,
+ * so they are not patched.
+ */
+PUSH
+	ORG $026730 // StartUiSMS
+	POIN gUnitIconWaitTable
+	ORG $0267B0 // StartWorldMapSMS
+	POIN gUnitIconWaitTable
+	ORG $026838 // UseUnitSprite
+	POIN gUnitIconWaitTable
+	ORG $026C88 // TornOutUnitSprite
+	POIN gUnitIconWaitTable
+	ORG $027BB0 // PutUnitSprite
+	POIN gUnitIconWaitTable
+	ORG $027C9C // PutUnitSpriteForClassId
+	POIN gUnitIconWaitTable
+	ORG $027D48 // sub_8027CFC
+	POIN gUnitIconWaitTable
+	ORG $027E0C // sub_8027DB4
+	POIN gUnitIconWaitTable
+	ORG $027E9C // sub_8027E4C
+	POIN gUnitIconWaitTable
+	ORG $027F74 // SMS_DisplayOne
+	POIN gUnitIconWaitTable
+	ORG $028064 // PutBlendWindowUnitSprite
+	POIN gUnitIconWaitTable
+POP

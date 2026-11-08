@@ -3,9 +3,9 @@
 #include "common-chax.h"
 #include "kernel/chatlog.h"
 #include "kernel/traps.h"
+#include "kernel/unit-icon.h"
 
 extern int gSMSSyncFlag;
-extern UnitIconWait unit_icon_wait_table[];
 extern struct SMSHandle gSMSHandleArray[100];
 extern struct SMSHandle* gSMSHandleIt;
 
@@ -24,7 +24,7 @@ enum {
 	FLIP_FOURTH = 0x8,
 };
 
-#define GetInfo(id) (unit_icon_wait_table[(id) & ((1<<7)-1)])
+#define GetInfo(id) (gUnitIconWaitTable[(id) & (UNIT_ICON_WAIT_AMT - 1)])
 
 const u16 gObject_16x16_HFlipped[] =
 {
@@ -90,21 +90,21 @@ static u16 GetTrapSpriteOam2(int spriteId, const struct Trap *trap)
 static int GetSpinTrapSpriteId(const struct Trap *trap)
 {
     if (!trap)
-        return 0x6F;
+        return SMS_ID_SPIN_TILE_RIGHT;
 
     switch (trap->data[TRAP_EXTDATA_SPIN_TILE_DIRECTION]) {
     case SPIN_TILE_DIR_LEFT:
-        return 0x70;
+        return SMS_ID_SPIN_TILE_LEFT;
 
     case SPIN_TILE_DIR_UP:
-        return 0x71;
+        return SMS_ID_SPIN_TILE_UP;
 
     case SPIN_TILE_DIR_DOWN:
-        return 0x72;
+        return SMS_ID_SPIN_TILE_DOWN;
 
     case SPIN_TILE_DIR_RIGHT:
     default:
-        return 0x6F;
+        return SMS_ID_SPIN_TILE_RIGHT;
     }
 }
 
@@ -321,23 +321,23 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x66, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_LIGHT_RUNE, trap);
 
-            smsHandle->config = GetInfo(0x66).size;
+            smsHandle->config = GetInfo(SMS_ID_LIGHT_RUNE).size;
         }
 
         if (trap->type == TRAP_HEAL_TILE)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x68, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_HEAL_TILE, trap);
 
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
         if (trap->type == TRAP_TOGGLE_TORCH)
         {
-            int spriteId = (trap->extra > 0) ? 0x6A : 0x6B;
+            int spriteId = (trap->extra > 0) ? SMS_ID_LIT_TORCH : SMS_ID_UNLIT_TORCH;
 
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
@@ -349,7 +349,7 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x6C, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_TELEPORT_TILE, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
@@ -357,7 +357,7 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x6D, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_GRASS_TILE, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
@@ -365,7 +365,7 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x6E, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_BOULDER_TILE, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
@@ -381,7 +381,7 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x69, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_DRAGON_VEIN, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
@@ -389,7 +389,7 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x73, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_HELLSCAPE_VOID, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
@@ -398,16 +398,16 @@ void RefreshUnitSprites(void)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x74, trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_CALTROPS, trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
 
-        /* Collapsing floor: sprites 0x75-0x77 follow COLLAPSING_FLOOR_* */
+        /* Collapsing floor: sprites follow COLLAPSING_FLOOR_* */
         if (trap->type == TRAP_COLLAPSING_FLOOR)
         {
             smsHandle = AddTrapSprite(trap->xPos * 16, trap->yPos * 16);
 
-            smsHandle->oam2Base = GetTrapSpriteOam2(0x75 + trap->data[TRAP_EXTDATA_COLLAPSING_FLOOR_STATE], trap);
+            smsHandle->oam2Base = GetTrapSpriteOam2(SMS_ID_COLLAPSING_FLOOR + trap->data[TRAP_EXTDATA_COLLAPSING_FLOOR_STATE], trap);
             smsHandle->config = UNIT_ICON_SIZE_16x16;
         }
     }
