@@ -29,16 +29,12 @@ The Hex row in the preparations menu can be hidden at runtime with `prep_menu_he
     says this gives the item texts the same tiles as a normal shop.
   - `gHexShopRam` (`struct HexShopRam`, 0x20 bytes, `include/link/config-memmap.s`) holds the wares of the open shop: up to 12
     item words and a 0 terminator. It is RAM only, not saved.
-- Witch portrait: `FID_HEX_WITCH` is portrait 0xAE, set by `setMugEntry(0xAE, ...)` in `Data/CustomPortraits/CustomPortraits.event`
-  from `Data/CustomPortraits/Portraits/hex_witch.png`. It is an original portrait made by `Tools/hex/witch_portrait.py`, which shades
-  the head as a lit surface (brows, eye sockets, nose, cheekbones, chin) in the style of the vanilla shopkeepers: an old witch
-  with a tall purple hat with a gold band, long wavy grey hair, green eyes, a gentle smile and a plum shawl with a gold clasp. The vanilla portraits end at 0xAC, so the portrait table is moved.
-- Shop portrait: `FID_HEX_WITCH_SHOP` is portrait 0xAF (`include/kernel/hex.h`), set by `setMugEntry(0xAF, ..., 3, 4, 3, 2)` in
-  `Data/CustomPortraits/CustomPortraits.event` from `Data/CustomPortraits/Portraits/hex_witch_shop.png`. It is a supplied
-  illustration of a witch (purple hat with a gold buckle, long wavy silver hair, green eyes, purple shawl with gold trim, in front
-  of a warm brown shop wall), converted to the 48x48 box and 15 colours by `Tools/hex/witch_shop_from_art.py` (resampled, eyes,
-  nose and mouth are transcribed cell by cell from the source at the 48x48 grid, keeping the source's shapes, because the source draws them with details half a box pixel wide; mouth frames added). It has 7 mouth frames. The talk portrait 0xAE is still the drawn one from
-  `Tools/hex/witch_portrait.py`, and no text uses it yet.
+- Witch portrait: `FID_HEX_WITCH_SHOP` is portrait 0xAF (`include/kernel/hex.h`), the only Hex witch portrait. It is set by
+  `setMugEntry(0xAF, ..., 4, 3, 3, 2)` in `Data/CustomPortraits/CustomPortraits.event` from
+  `Data/CustomPortraits/Portraits/hex_witch_shop.png`, which `Tools/hex/witch_shop_from_art.py` makes from the supplied pixel-art
+  illustration `Tools/hex/art/hex_witch_shop_source.webp`. The script reads the art's 64x64 pixel grid exactly, crops a 48x48
+  window into the shopkeeper box, maps it to 15 fitted colours, adds three mouth frames, and stores the sheet mirrored because
+  the shop draws the box flipped. The vanilla portraits end at 0xAC, so the portrait table is moved.
   `Data/CustomPortraits/PortraitTable.event` copies the vanilla table into `NewPortraitTable` with room for 0x100 entries.
   `Preload/AllocPortraitTable.event` defines `PortraitTable` as `NewPortraitTable` and `PORTRAIT_TABLE_ENTRIES` as 0x100.
 - `Data/Hex/HexMonsterArt.c`: the 12 monster minimugs (`gHexMonsterArt`), used by `HexScreen_LoadType` for the card types
