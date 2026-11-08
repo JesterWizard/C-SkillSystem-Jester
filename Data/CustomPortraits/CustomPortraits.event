@@ -74,7 +74,12 @@ Portrait_0xAD:
    #incext PortraitFormatter "Portraits/skill_synth.png"
 setMugEntry(0xAD,Portrait_0xAD,2,5,3,3)
 
-// Hex shop witch (drawn over the generic old woman 0x5F; Phase 10 of the Hex districts work)
+// Hex shop witch, talk portrait: original witch drawn in code by Tools/hex/witch_portrait.py (Phase 10 of the Hex districts work)
 Portrait_0xAE:
    #incext PortraitFormatter "Portraits/hex_witch.png"
-setMugEntry(0xAE,Portrait_0xAE,2,6,3,4)
+setMugEntry(0xAE,Portrait_0xAE,5,7,4,5)
+
+// Hex shop witch, 48x48 shopkeeper box: made by Tools/hex/witch_shop_from_art.py from the supplied illustration
+Portrait_0xAF:
+   #incext PortraitFormatter "Portraits/hex_witch_shop.png"
+setMugEntry(0xAF,Portrait_0xAF,3,4,3,2)

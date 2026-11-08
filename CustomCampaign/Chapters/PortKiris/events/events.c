@@ -13,7 +13,7 @@ static const EventScr EventScr_PortKiris_Opening[] = {
     STAL(15)
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_PortKiris_Eirika)
-    MOVE_WAIT(0, CHARACTER_EIRIKA, 13, 1)
+    MOVE_WAIT(0, CHARACTER_EIRIKA, 6, 20)
     LOAD_WAIT(District_PortKiris_Npcs)
     ASMC(SetGameOptions_DistrictPortKiris)
     ASMC(StartDistrictNpcs)
@@ -140,9 +140,9 @@ static const EventListScr EventListScr_PortKiris_Character[] = {
 };
 
 static const EventListScr EventListScr_PortKiris_Location[] = {
-    ARMORY(EventListScr_PortKiris_ARMORY, 4, 4)
-    VENDOR(EventListScr_PortKiris_VENDOR, 9, 4)
-    HOUSE(0, EventScr_District_PortKiris_HexShop, 19, 12)
+    ARMORY(EventListScr_PortKiris_ARMORY, 1, 5)
+    VENDOR(EventListScr_PortKiris_VENDOR, 1, 2)
+    HOUSE(0, EventScr_District_PortKiris_HexShop, 11, 15)
     END_MAIN
 };
 

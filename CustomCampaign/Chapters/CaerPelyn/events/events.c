@@ -13,7 +13,7 @@ static const EventScr EventScr_CaerPelyn_Opening[] = {
     STAL(15)
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_CaerPelyn_Eirika)
-    MOVE_WAIT(0, CHARACTER_EIRIKA, 10, 16)
+    MOVE_WAIT(0, CHARACTER_EIRIKA, 5, 19)
     LOAD_WAIT(District_CaerPelyn_Npcs)
     ASMC(SetGameOptions_DistrictCaerPelyn)
     ASMC(StartDistrictNpcs)
@@ -106,7 +106,7 @@ static const EventListScr EventListScr_CaerPelyn_Character[] = {
 };
 
 static const EventListScr EventListScr_CaerPelyn_Location[] = {
-    HOUSE(0, EventScr_District_CaerPelyn_HexShop, 18, 8)
+    HOUSE(0, EventScr_District_CaerPelyn_HexShop, 13, 8)
     END_MAIN
 };
 

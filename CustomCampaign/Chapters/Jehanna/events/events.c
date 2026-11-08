@@ -13,7 +13,7 @@ static const EventScr EventScr_Jehanna_Opening[] = {
     STAL(15)
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_Jehanna_Eirika)
-    MOVE_WAIT(0, CHARACTER_EIRIKA, 11, 14)
+    MOVE_WAIT(0, CHARACTER_EIRIKA, 11, 13)
     LOAD_WAIT(District_Jehanna_Npcs)
     ASMC(SetGameOptions_DistrictJehanna)
     ASMC(StartDistrictNpcs)
@@ -126,7 +126,7 @@ static const EventListScr EventListScr_Jehanna_Character[] = {
 
 static const EventListScr EventListScr_Jehanna_Location[] = {
     VENDOR(EventListScr_Jehanna_VENDOR, 8, 4)
-    HOUSE(0, EventScr_District_Jehanna_HexShop, 15, 10)
+    HOUSE(0, EventScr_District_Jehanna_HexShop, 17, 6)
     END_MAIN
 };
 

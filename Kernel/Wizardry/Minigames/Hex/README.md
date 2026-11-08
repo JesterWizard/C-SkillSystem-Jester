@@ -17,11 +17,11 @@ The Hex row in the preparations menu can be hidden at runtime with `prep_menu_he
 - `Source/HexShopVanilla.c`: the district Hex shop. `StartDistrictHexShopASMC`, called by the door's location event, opens the
   vanilla shop screen (`StartShopScreen`) with `shopType` `SHOP_TYPE_HEX` (4, `include/kernel/hex.h`). `HexShop_IsActive` says
   whether the shop screen is in Hex mode.
-  - In Hex mode the portrait is the witch (`FID_HEX_WITCH`) and the lines are hers (`MSG_HEXSHOP_*`, in
-    `Contents/Texts/Source/texts/Districts.txt`). The shop opens at the buy list.
+  - In Hex mode the shop screen's portrait is the shopkeeper box witch, `FID_HEX_WITCH_SHOP` (0xAF). The lines are hers
+    (`MSG_HEXSHOP_*`, in `Contents/Texts/Source/texts/Districts.txt`). The shop opens at the buy list.
   - Four vanilla functions are replaced (`LYN_REPLACE_CHECK`, redirected by `Source/LynJump.event`): `Shop_GetPortraitIndex`,
     `StartShopDialogue`, `Shop_EntryDialogue` and `Shop_AnythingElseRestartDialogue`. Each runs the Hex code in Hex mode and the
-    vanilla code otherwise.
+    vanilla code otherwise. `Shop_GetPortraitIndex` returns `FID_HEX_WITCH_SHOP` for the Hex shop.
   - The Hex branches in `Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c` (`CONFIG_HEX_CARDS`) are: `DrawShopItemPriceLine`
     (`HexShop_DrawPriceLine`), `Shop_Loop_BuyKeyHandler` (`HexShop_OnBuyPressed`, and B), `HandleShopBuyAction`
     (`HexShop_PayForItem`: cards pay, no gold, no stock) and `Shop_Init` (no gold box).
@@ -30,7 +30,15 @@ The Hex row in the preparations menu can be hidden at runtime with `prep_menu_he
   - `gHexShopRam` (`struct HexShopRam`, 0x20 bytes, `include/link/config-memmap.s`) holds the wares of the open shop: up to 12
     item words and a 0 terminator. It is RAM only, not saved.
 - Witch portrait: `FID_HEX_WITCH` is portrait 0xAE, set by `setMugEntry(0xAE, ...)` in `Data/CustomPortraits/CustomPortraits.event`
-  from `Data/CustomPortraits/Portraits/hex_witch.png`. The vanilla portraits end at 0xAC, so the portrait table is moved.
+  from `Data/CustomPortraits/Portraits/hex_witch.png`. It is an original portrait made by `Tools/hex/witch_portrait.py`, which shades
+  the head as a lit surface (brows, eye sockets, nose, cheekbones, chin) in the style of the vanilla shopkeepers: an old witch
+  with a tall purple hat with a gold band, long wavy grey hair, green eyes, a gentle smile and a plum shawl with a gold clasp. The vanilla portraits end at 0xAC, so the portrait table is moved.
+- Shop portrait: `FID_HEX_WITCH_SHOP` is portrait 0xAF (`include/kernel/hex.h`), set by `setMugEntry(0xAF, ..., 3, 4, 3, 2)` in
+  `Data/CustomPortraits/CustomPortraits.event` from `Data/CustomPortraits/Portraits/hex_witch_shop.png`. It is a supplied
+  illustration of a witch (purple hat with a gold buckle, long wavy silver hair, green eyes, purple shawl with gold trim, in front
+  of a warm brown shop wall), converted to the 48x48 box and 15 colours by `Tools/hex/witch_shop_from_art.py` (resampled, eyes,
+  nose and mouth are transcribed cell by cell from the source at the 48x48 grid, keeping the source's shapes, because the source draws them with details half a box pixel wide; mouth frames added). It has 7 mouth frames. The talk portrait 0xAE is still the drawn one from
+  `Tools/hex/witch_portrait.py`, and no text uses it yet.
   `Data/CustomPortraits/PortraitTable.event` copies the vanilla table into `NewPortraitTable` with room for 0x100 entries.
   `Preload/AllocPortraitTable.event` defines `PortraitTable` as `NewPortraitTable` and `PORTRAIT_TABLE_ENTRIES` as 0x100.
 - `Data/Hex/HexMonsterArt.c`: the 12 monster minimugs (`gHexMonsterArt`), used by `HexScreen_LoadType` for the card types

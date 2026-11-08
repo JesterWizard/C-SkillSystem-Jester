@@ -4,5 +4,5 @@ ALIGN 4
 MapData_Jehanna:
   #incbin "Jehanna_map_data.dmp"
 
-NewEventPointerTable_Maps(0xD7, MapData_Jehanna)
+NewEventPointerTable_Maps(0xF1, MapData_Jehanna)
 }

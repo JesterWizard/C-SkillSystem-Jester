@@ -4,5 +4,5 @@ ALIGN 4
 MapData_CaerPelyn:
   #incbin "CaerPelyn_map_data.dmp"
 
-NewEventPointerTable_Maps(0xD6, MapData_CaerPelyn)
+NewEventPointerTable_Maps(0xF0, MapData_CaerPelyn)
 }

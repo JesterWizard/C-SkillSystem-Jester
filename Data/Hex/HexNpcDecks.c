@@ -54,7 +54,7 @@ const struct HexNpcDeck gHexNpcDecks[] = {
 		HEX_NPC_C(2),			/* Ewan */
 	} },
 	/* Caer Pelyn, Tamsin */
-	{ 0x3F, 0xFA, 2, 0, MSG_HEXNPC_CAER_PELYN_A, 0, {
+	{ 0x41, 0xFA, 2, 0, MSG_HEXNPC_CAER_PELYN_A, 0, {
 		HEX_NPC_R(22, 8, 2, 2),		/* Saleh */
 		HEX_NPC_R(20, 9, 2, 6),		/* Innes */
 		HEX_NPC_R(23, 10, 2, 8),	/* Tana */
@@ -64,7 +64,7 @@ const struct HexNpcDeck gHexNpcDecks[] = {
 		HEX_NPC_C(34),			/* Mogall */
 	} },
 	/* Caer Pelyn, Ewlyn */
-	{ 0x3F, 0xFB, 2, 0, MSG_HEXNPC_CAER_PELYN_B, 0, {
+	{ 0x41, 0xFB, 2, 0, MSG_HEXNPC_CAER_PELYN_B, 0, {
 		HEX_NPC_R(21, 12, 2, 9),	/* Cormag */
 		HEX_NPC_R(26, 13, 1, 7),	/* Duessel */
 		HEX_NPC_R(17, 14, 2, 10),	/* Gerik */
@@ -74,7 +74,7 @@ const struct HexNpcDeck gHexNpcDecks[] = {
 		HEX_NPC_C(36),			/* Gwyllgi */
 	} },
 	/* Jehanna, Rashid */
-	{ 0x40, 0xFA, 2, 0, MSG_HEXNPC_JEHANNA_A, 0, {
+	{ 0x42, 0xFA, 2, 0, MSG_HEXNPC_JEHANNA_A, 0, {
 		HEX_NPC_R(24, 15, 1, 3),	/* Seth */
 		HEX_NPC_R(27, 16, 1, 0),	/* Ephraim */
 		HEX_NPC_R(28, 17, 1, 4),	/* Glen */
@@ -84,7 +84,7 @@ const struct HexNpcDeck gHexNpcDecks[] = {
 		HEX_NPC_C(35),			/* Bael */
 	} },
 	/* Jehanna, Samira */
-	{ 0x40, 0xFB, 2, 0, MSG_HEXNPC_JEHANNA_B, 0, {
+	{ 0x42, 0xFB, 2, 0, MSG_HEXNPC_JEHANNA_B, 0, {
 		HEX_NPC_R(29, 20, 1, 10),	/* Valter */
 		HEX_NPC_R(30, 21, 1, 9),	/* Lyon */
 		HEX_NPC_R(31, 22, 1, 1),	/* Eirika */

@@ -28,19 +28,19 @@ const struct DistrictNpc gDistrictNpcs[] = {
 	{ 0x3C, 0xF9, 2, 0 },
 	{ 0x3C, 0x7F, 3, 0 },
 
-	/* Caer Pelyn (0x3F) */
-	{ 0x3F, 0xFA, 2, DISTRICT_NPC_HEX },
-	{ 0x3F, 0xFB, 2, DISTRICT_NPC_HEX },
-	{ 0x3F, 0xFC, 2, 0 },
-	{ 0x3F, 0xF9, 2, 0 },
-	{ 0x3F, 0x7F, 3, 0 },
+	/* Caer Pelyn (0x41) */
+	{ 0x41, 0xFA, 2, DISTRICT_NPC_HEX },
+	{ 0x41, 0xFB, 2, DISTRICT_NPC_HEX },
+	{ 0x41, 0xFC, 2, 0 },
+	{ 0x41, 0xF9, 2, 0 },
+	{ 0x41, 0x7F, 3, 0 },
 
-	/* Jehanna (0x40) */
-	{ 0x40, 0xFA, 2, DISTRICT_NPC_HEX },
-	{ 0x40, 0xFB, 2, DISTRICT_NPC_HEX },
-	{ 0x40, 0xFC, 2, 0 },
-	{ 0x40, 0xF9, 2, 0 },
-	{ 0x40, 0x7F, 3, 0 },
+	/* Jehanna (0x42) */
+	{ 0x42, 0xFA, 2, DISTRICT_NPC_HEX },
+	{ 0x42, 0xFB, 2, DISTRICT_NPC_HEX },
+	{ 0x42, 0xFC, 2, 0 },
+	{ 0x42, 0xF9, 2, 0 },
+	{ 0x42, 0x7F, 3, 0 },
 
 	{ 0xFF, 0, 0, 0 },
 };
@@ -74,6 +74,7 @@ struct DistrictNpcProc {
 	u8 radius[DISTRICT_NPC_MAX];
 	u8 hex[DISTRICT_NPC_MAX];	/* 1 if the row has DISTRICT_NPC_HEX */
 	u8 iconsLoaded;			/* Hex Card icon graphics are in OBJ VRAM */
+	u8 gatesLoaded;			/* Gate arrow graphics are in OBJ VRAM */
 	u8 walkIdx;			/* NPC index of walkMu (only valid while walkMu is set) */
 	struct MuProc *walkMu;		/* bare MU for the NPC that is walking, NULL when idle */
 	u32 lastClock;			/* GetGameClock() at the last tick, to spot a gap (the map was suspended) */
@@ -94,6 +95,7 @@ static void DistrictNpc_Init(ProcPtr proc)
 	p->playerX = 0;
 	p->playerY = 0;
 	p->iconsLoaded = 0;
+	p->gatesLoaded = 0;
 	p->walkMu = NULL;
 	p->walkIdx = 0;
 	p->lastClock = GetGameClock();
@@ -135,6 +137,90 @@ static bool DistrictNpc_IsDoorTerrain(u8 terrain)
 static bool DistrictNpc_WalkMuLive(struct DistrictNpcProc *p)
 {
 	return p->walkMu && p->walkMu->proc_script == ProcScr_Mu;
+}
+
+/*
+ * Gate exit arrows: two 8x8 4bpp chevrons, gold (palette index 5) with a dark
+ * outline (4). Tile 0 points DOWN, tile 1 points RIGHT (the transpose of tile 0).
+ * Each byte is two pixels, left pixel in the low nibble.
+ *
+ * Tile 0 (DOWN)        Tile 1 (RIGHT)
+ *   454..4f4             44......
+ *   415445f4             514.....
+ *   .4555f4.             4554....
+ *   ..45f4..             .4554...
+ *   ...44...             .45f4...
+ *   ........             45f4....
+ *   ........             ff4.....
+ *   ........             44......
+ */
+static const u8 sGateArrowTiles[64] = {
+	0x54, 0x04, 0x40, 0x4F, 0x14, 0x45, 0x54, 0x4F,
+	0x40, 0x55, 0xF5, 0x04, 0x00, 0x54, 0x4F, 0x00,
+	0x00, 0x40, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x44, 0x00, 0x00, 0x00, 0x15, 0x04, 0x00, 0x00,
+	0x54, 0x45, 0x00, 0x00, 0x40, 0x55, 0x04, 0x00,
+	0x40, 0xF5, 0x04, 0x00, 0x54, 0x4F, 0x00, 0x00,
+	0xFF, 0x04, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00,
+};
+
+#define GATE_CHR_DOWN (MAPANIMFX_CHR_R)
+#define GATE_CHR_RIGHT (MAPANIMFX_CHR_R + 1)
+
+/* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
+static void DistrictNpc_LoadGates(void)
+{
+	CpuCopy16(sGateArrowTiles, OBJ_VRAM0 + GATE_CHR_DOWN * 0x20, sizeof(sGateArrowTiles));
+	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
+}
+
+static void DistrictNpc_DrawGates(void)
+{
+	struct Trap *trap;
+	int slide = (GetGameClock() >> 3) & 3;
+	int x, y, chr, flip, dx, dy, i, off;
+
+	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++) {
+		if (trap->type != TRAP_DISTRICT_GATE)
+			continue;
+
+		x = trap->xPos * 16 - gBmSt.camera.x;
+		y = trap->yPos * 16 - gBmSt.camera.y;
+		if (x <= -16 || x >= 240 || y <= -16 || y >= 160)
+			continue;
+
+		if (trap->yPos == 0) {
+			chr = GATE_CHR_DOWN;
+			flip = OAM1_VFLIP;
+			dx = 0;
+			dy = -1;
+		} else if (trap->xPos == 0) {
+			chr = GATE_CHR_RIGHT;
+			flip = OAM1_HFLIP;
+			dx = -1;
+			dy = 0;
+		} else if (trap->xPos == gBmMapSize.x - 1) {
+			chr = GATE_CHR_RIGHT;
+			flip = 0;
+			dx = 1;
+			dy = 0;
+		} else {
+			chr = GATE_CHR_DOWN;
+			flip = 0;
+			dx = 0;
+			dy = 1;
+		}
+
+		for (i = 0; i < 2; i++) {
+			off = i * 5 + slide - 4;
+			PutSprite(4,
+				  OAM1_X((x + 4 + dx * off) & 0x1FF) | flip,
+				  OAM0_Y((y + 4 + dy * off) & 0xFF),
+				  gObject_8x8,
+				  OAM2_PAL(MAPANIMFX_PAL) + OAM2_LAYER(0b10) + OAM2_CHR(chr));
+		}
+	}
 }
 
 #ifdef CONFIG_HEX_CARDS
@@ -242,8 +328,10 @@ static void DistrictNpc_Loop(ProcPtr proc)
 	 * VRAM and palettes may have been overwritten: reload the icons.
 	 */
 	clock = GetGameClock();
-	if (clock != p->lastClock + 1)
+	if (clock != p->lastClock + 1) {
 		p->iconsLoaded = 0;
+		p->gatesLoaded = 0;
+	}
 	p->lastClock = clock;
 
 	/*
@@ -257,8 +345,15 @@ static void DistrictNpc_Loop(ProcPtr proc)
 	/* Only while free movement is on and no event is running */
 	if (!GetFreeMovementState() || EventEngineExists()) {
 		p->iconsLoaded = 0;
+		p->gatesLoaded = 0;
 		return;
 	}
+
+	if (!p->gatesLoaded) {
+		DistrictNpc_LoadGates();
+		p->gatesLoaded = 1;
+	}
+	DistrictNpc_DrawGates();
 
 #ifdef CONFIG_HEX_CARDS
 	/* Drawn every frame, also on the ticks below that return early */

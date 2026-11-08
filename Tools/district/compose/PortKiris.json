@@ -1,0 +1,8 @@
+{"name": "PortKiris",
+ "base": {"map": "0x2B", "x": 0, "y": 0, "w": 26, "h": 22},
+ "tileset": [235, 238, 139],
+ "preview_tileset": ["0x0E", "0x0F", "0x10"],
+ "tiles": [
+  [10,14,672],[11,14,609],[12,14,674],[10,15,704],[11,15,641],[12,15,706]
+ ],
+ "layout": "CustomCampaign/Chapters/PortKiris/map/PortKiris_layout.json"}

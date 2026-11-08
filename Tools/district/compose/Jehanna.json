@@ -1,0 +1,6 @@
+{"name": "Jehanna",
+ "base": {"map": "0x45", "x": 0, "y": 0, "w": 24, "h": 15},
+ "tileset": [237, 67, 141],
+ "preview_tileset": ["0x42", "0x43", "0x44"],
+ "tiles": [],
+ "layout": "CustomCampaign/Chapters/Jehanna/map/Jehanna_layout.json"}

@@ -35,29 +35,29 @@ const struct HexShopItem gHexShopItems[] = {
 	/* Port Kiris: Booster SKL (Marisa x1) */
 	{ 0x3C, 0, ITEM_BOOSTER_SKL, 18, 1, { 0, 0 } },
 	/* Caer Pelyn: Elixir (Revenant x2) */
-	{ 0x3F, 0, ITEM_ELIXIR, 32, 2, { 0, 0 } },
+	{ 0x41, 0, ITEM_ELIXIR, 32, 2, { 0, 0 } },
 	/* Caer Pelyn: RES Tonic (Bael x3) */
-	{ 0x3F, 1, (7 << 8) | ITEM_TONIC, 35, 3, { 0, 0 } },
+	{ 0x41, 1, (7 << 8) | ITEM_TONIC, 35, 3, { 0, 0 } },
 	/* Caer Pelyn: MAG Tonic (Mogall x3) */
-	{ 0x3F, 1, (2 << 8) | ITEM_TONIC, 34, 3, { 0, 0 } },
+	{ 0x41, 1, (2 << 8) | ITEM_TONIC, 34, 3, { 0, 0 } },
 	/* Caer Pelyn: Booster RES (Tana x1) */
-	{ 0x3F, 0, ITEM_BOOSTER_RES, 23, 1, { 0, 0 } },
+	{ 0x41, 0, ITEM_BOOSTER_RES, 23, 1, { 0, 0 } },
 	/* Caer Pelyn: Booster CON (Gerik x1) */
-	{ 0x3F, 0, ITEM_BOOSTER_CON, 17, 1, { 0, 0 } },
+	{ 0x41, 0, ITEM_BOOSTER_CON, 17, 1, { 0, 0 } },
 	/* Caer Pelyn: Booster POW (Cormag x1) */
-	{ 0x3F, 0, ITEM_BOOSTER_POW, 21, 1, { 0, 0 } },
+	{ 0x41, 0, ITEM_BOOSTER_POW, 21, 1, { 0, 0 } },
 	/* Jehanna: OMNI Tonic (Bael x4) */
-	{ 0x40, 1, (8 << 8) | ITEM_TONIC, 35, 4, { 0, 0 } },
+	{ 0x42, 1, (8 << 8) | ITEM_TONIC, 35, 4, { 0, 0 } },
 	/* Jehanna: Booster POW (Seth x1) */
-	{ 0x40, 0, ITEM_BOOSTER_POW, 24, 1, { 0, 0 } },
+	{ 0x42, 0, ITEM_BOOSTER_POW, 24, 1, { 0, 0 } },
 	/* Jehanna: Booster MOV (Ephraim x1) */
-	{ 0x40, 0, ITEM_BOOSTER_MOV, 27, 1, { 0, 0 } },
+	{ 0x42, 0, ITEM_BOOSTER_MOV, 27, 1, { 0, 0 } },
 	/* Jehanna: Booster LCK (Eirika x1) */
-	{ 0x40, 0, ITEM_BOOSTER_LCK, 31, 1, { 0, 0 } },
+	{ 0x42, 0, ITEM_BOOSTER_LCK, 31, 1, { 0, 0 } },
 	/* Jehanna: Booster SKL (Lyon x1) */
-	{ 0x40, 0, ITEM_BOOSTER_SKL, 30, 1, { 0, 0 } },
+	{ 0x42, 0, ITEM_BOOSTER_SKL, 30, 1, { 0, 0 } },
 	/* Jehanna: Booster HP (Draco Zombie x1) */
-	{ 0x40, 0, ITEM_BOOSTER_HP, 43, 1, { 0, 0 } },
+	{ 0x42, 0, ITEM_BOOSTER_HP, 43, 1, { 0, 0 } },
 	/* End of the table (HexShop_Get stops at this chapter). */
 	{ HEX_SHOP_END, 0, 0, 0, 0, { 0, 0 } },
 };

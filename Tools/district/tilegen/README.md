@@ -1,5 +1,10 @@
 # tilegen
 
+> **Not used for the installed district maps.** The four installed district maps are no longer made by tilegen. They are cut
+> from vanilla maps by `Tools/district/compose.py` (specs in `Tools/district/compose/`). tilegen and its specs are kept as an
+> experimental generator. Its specs no longer match the installed layouts, so the commands below and the `--check-layout`
+> examples do not reproduce the installed maps.
+
 Generates district map layouts (metatile grids) from a short spec, so that the result joins
 the vanilla tiles the way a hand-made map would. Output is layout JSON, which
 `Tools/district/district_map.py` turns into the map data.
