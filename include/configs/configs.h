@@ -69,6 +69,10 @@
  * Comment out the next line to remove it from the build. */
 #define CONFIG_DISTRICT_CROSSING
 
+/* District Tower Stack: Tower Stack spots in the districts and the block-stacking minigame (Kernel/Wizardry/Minigames/Tower).
+ * Comment out the next line to remove it from the build. */
+#define CONFIG_DISTRICT_TOWER
+
 #define CONFIG_FORGE_CHECKER 5000
 
 // Unit counts and save layout stay expanded. Gameplay is gated by
