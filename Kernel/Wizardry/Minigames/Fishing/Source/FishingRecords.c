@@ -93,4 +93,69 @@ void FishingRecords_Load(u8 *src, const u32 size)
 		FishingRecords_Clear();
 }
 
+/* ---- The angler's progress: rank points, legends, bottles and requests ---- */
+
+#define FISHING_PROGRESS_MAGIC 0x5046 /* "FP" */
+#define FISHING_POINTS_MAX 9999
+
+typedef char FishingProgress_SizeCheck[(sizeof(struct FishingProgress) == 0x20) ? 1 : -1];
+
+static const u16 sRankPoints[FISHING_RANKS] = { 0, 25, 75, 175, 350 };
+
+static void FishingProgress_Clear(void)
+{
+	CpuFill16(0, &gFishingProgress, sizeof(gFishingProgress));
+	gFishingProgress.magic = FISHING_PROGRESS_MAGIC;
+}
+
+/* Clears the progress if it was never set up (a save from before it existed, or none loaded) */
+void FishingProgress_Validate(void)
+{
+	if (gFishingProgress.magic != FISHING_PROGRESS_MAGIC)
+		FishingProgress_Clear();
+}
+
+int FishingProgress_RankPoints(int rank)
+{
+	return rank < FISHING_RANKS ? sRankPoints[rank] : 0xFFFF;
+}
+
+int FishingProgress_Rank(void)
+{
+	int rank = FISHING_RANKS - 1;
+
+	FishingProgress_Validate();
+	while (rank > 0 && gFishingProgress.points < sRankPoints[rank])
+		rank--;
+	return rank;
+}
+
+void FishingProgress_AddPoints(int n)
+{
+	int p;
+
+	FishingProgress_Validate();
+	p = gFishingProgress.points + n;
+	gFishingProgress.points = p > FISHING_POINTS_MAX ? FISHING_POINTS_MAX : p;
+}
+
+/* New-game hook (gNewSaveHooks) */
+void FishingProgress_NewGame(void)
+{
+	FishingProgress_Clear();
+}
+
+/* Game and suspend save chunk (0x20 bytes) */
+void FishingProgress_Save(u8 *dst, const u32 size)
+{
+	FishingProgress_Validate();
+	WriteAndVerifySramFast(&gFishingProgress, dst, sizeof(gFishingProgress));
+}
+
+void FishingProgress_Load(u8 *src, const u32 size)
+{
+	ReadSramFast(src, &gFishingProgress, sizeof(gFishingProgress));
+	FishingProgress_Validate();
+}
+
 #endif /* CONFIG_DISTRICT_FISHING */

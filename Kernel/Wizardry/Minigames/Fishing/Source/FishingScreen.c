@@ -5,6 +5,10 @@
 #include "fishing.h"
 #include "fishing-art.h"
 #include "constants/texts.h"
+#include "constants/items.h"
+#include "constants/skills.h"
+#include "skill-system.h"
+#include "wm-story-chapter.h"
 
 #ifdef CONFIG_DISTRICT_FISHING
 
@@ -57,6 +61,14 @@
 #define CHR_STAMP 0x2B0                 /* the catch card's stamp word (64 tiles) */
 #define PAL_CARD 6                      /* the portrait; the journal's icons use 6 to 10, one for each row */
 #define PAL_STAMP 11
+#define PAL_LEGEND 7                    /* the legend's shadow (the journal's icons use it while the journal is open) */
+#define CHR_FRENZY (CHR_BARS + 24)      /* the frenzy meter (8 tiles) */
+#define FRENZY_STREAK 3                 /* catches in a row that start a frenzy */
+#define FRENZY_FRAMES (30 * 60)
+#define LEAP_FRAMES 32                  /* a leap, from the splash to the splash */
+#define LEAP_LO 8                       /* the frames of the leap in which A catches it */
+#define LEAP_HI 24
+#define LEAP_HEIGHT 36
 #define AFF_STAMP 2
 #define CARD_DELAY 30                   /* frames from the catch to its card */
 #define STAMP_AT 14                     /* frames from the card to its stamp */
@@ -112,6 +124,24 @@ enum {
 	FISHM_FLEE,
 };
 
+/* What came up: a fish of the journal, the water's legend, or something else */
+enum {
+	FISHK_FISH,
+	FISHK_LEGEND,
+	FISHK_BOOT,
+	FISHK_CHEST,
+	FISHK_BOTTLE,
+};
+
+/* How a hooked fish fights, besides its runs */
+enum {
+	FISHB_STEADY,
+	FISHB_DARTER,   /* jerks the tension up or down every second or so */
+	FISHB_DIVER,    /* runs twice as long */
+	FISHB_LEAPER,   /* leaps from the water: A as it flies catches it (NICE!), or it slams the line */
+	FISHB_LEGEND,   /* steady, then darts, then leaps, while its green zone sways */
+};
+
 /* The texts in FS->texts */
 enum {
 	TX_LINE1,
@@ -164,6 +194,64 @@ static const struct FishType sFishTypes[FISH_TYPES] = {
 		0xE0, 200, 400, 5,
 		14, 44, 60, 12, 80, 360, 9000, MSG_FISHING_FISH_GOLDEN,
 	},
+};
+
+/*
+ * The legend of each water: a huge shadow in the deepest water once all five of the water's species are in the
+ * journal. It only takes the golden lure, fights in three phases (the green zone sways in the last two) and pays a
+ * fortune. Once caught it is gone for good.
+ */
+static const struct FishType sLegendType = {
+	64, 32, FISHING_CHR_FISH_HUGE, FISHING_CHR_FISH_HUGE_FRAME, PAL_LEGEND, TRUE, gObject_64x32,
+	0x40, FISHING_BED_Y - 48, FISHING_BED_Y - 18, 0,
+	12, 38, 58, 12, 70, 420, 20000, MSG_FISHING_LEGEND_SERAFEW,
+};
+
+static const u16 sLegendNames[FISHING_WATERS] = {
+	MSG_FISHING_LEGEND_SERAFEW, MSG_FISHING_LEGEND_PORT_KIRIS, MSG_FISHING_LEGEND_CAER_PELYN,
+	MSG_FISHING_LEGEND_JEHANNA,
+};
+
+/* How each species fights (FISHB_*), water by water as in sSpeciesNames */
+static const u8 sSpeciesBehaviour[FISHING_SPECIES] = {
+	FISHB_STEADY, FISHB_DARTER, FISHB_DIVER, FISHB_LEAPER, FISHB_LEAPER,       /* Serafew Pond */
+	FISHB_DARTER, FISHB_DARTER, FISHB_DIVER, FISHB_DIVER, FISHB_LEAPER,        /* Port Kiris Harbour */
+	FISHB_STEADY, FISHB_LEAPER, FISHB_DARTER, FISHB_LEAPER, FISHB_LEAPER,      /* Caer Pelyn Pond */
+	FISHB_DARTER, FISHB_STEADY, FISHB_DIVER, FISHB_LEAPER, FISHB_LEAPER,       /* Jehanna Oasis */
+};
+
+static const u16 sShortWaterNames[FISHING_WATERS] = {
+	MSG_FISHING_SHORT_SERAFEW, MSG_FISHING_SHORT_PORT_KIRIS, MSG_FISHING_SHORT_CAER_PELYN, MSG_FISHING_SHORT_JEHANNA,
+};
+
+static const u16 sRankNames[FISHING_RANKS] = {
+	MSG_FISHING_RANK_0, MSG_FISHING_RANK_1, MSG_FISHING_RANK_2, MSG_FISHING_RANK_3, MSG_FISHING_RANK_4,
+};
+
+/* Rank points for a catch of each kind of fish (a legend: 40) */
+static const u8 sKindPoints[FISH_TYPES] = { 1, 2, 4, 8, 12 };
+
+/* What a treasure chest holds, out of 100 */
+static const u8 sChestItems[][2] = {
+	{ ITEM_VULNERARY, 25 }, { ITEM_ELIXIR, 20 }, { ITEM_PUREWATER, 15 }, { ITEM_ANTITOXIN, 10 },
+	{ ITEM_TORCH, 10 }, { ITEM_REDGEM, 12 }, { ITEM_BLUEGEM, 6 }, { ITEM_WHITEGEM, 2 },
+};
+
+/* A request's reward, by the kind of fish wanted (a huge fish: a stat booster) */
+static const u8 sRequestRewards[FISH_HUGE] = { ITEM_ELIXIR, ITEM_REDGEM, ITEM_BLUEGEM };
+static const u8 sBoosters[6] = {
+	ITEM_BOOSTER_POW, ITEM_BOOSTER_SKL, ITEM_BOOSTER_SPD, ITEM_BOOSTER_LCK, ITEM_BOOSTER_DEF, ITEM_BOOSTER_RES,
+};
+
+/* The messages in bottles: three lines each */
+#define BOTTLES 6
+static const u16 sBottleLines[BOTTLES][3] = {
+	{ MSG_FISHING_BOTTLE_0_1, MSG_FISHING_BOTTLE_0_2, MSG_FISHING_BOTTLE_0_3 },
+	{ MSG_FISHING_BOTTLE_1_1, MSG_FISHING_BOTTLE_1_2, MSG_FISHING_BOTTLE_1_3 },
+	{ MSG_FISHING_BOTTLE_2_1, MSG_FISHING_BOTTLE_2_2, MSG_FISHING_BOTTLE_2_3 },
+	{ MSG_FISHING_BOTTLE_3_1, MSG_FISHING_BOTTLE_3_2, MSG_FISHING_BOTTLE_3_3 },
+	{ MSG_FISHING_BOTTLE_4_1, MSG_FISHING_BOTTLE_4_2, MSG_FISHING_BOTTLE_4_3 },
+	{ MSG_FISHING_BOTTLE_5_1, MSG_FISHING_BOTTLE_5_2, MSG_FISHING_BOTTLE_5_3 },
 };
 
 /* The species' names, water by water (FISHING_WATER_*), in the order of the kinds of fish (FISH_*) */
@@ -235,29 +323,98 @@ static int Fishing_Px(const struct FishingFish *f)
 	return f->x >> 8;
 }
 
+static const struct FishType *Fishing_TypeOf(const struct FishingFish *f);
+
 static int Fishing_MouthX(const struct FishingFish *f)
 {
-	const struct FishType *t = &sFishTypes[f->type];
+	const struct FishType *t = Fishing_TypeOf(f);
 
 	return f->vx > 0 ? Fishing_Px(f) + t->w - 1 - (t->w >> 4) : Fishing_Px(f) + (t->w >> 4);
 }
 
 static void Fishing_SetMouthX(struct FishingFish *f, int mx)
 {
-	const struct FishType *t = &sFishTypes[f->type];
+	const struct FishType *t = Fishing_TypeOf(f);
 
 	f->x = (f->vx > 0 ? mx - t->w + 1 + (t->w >> 4) : mx - (t->w >> 4)) << 8;
+}
+
+/* ---- The angler: rank perks, the unit's stats and the Angler skill ---- */
+
+static struct Unit *Fishing_Unit(void)
+{
+	return gActiveUnit ? gActiveUnit : GetUnit(1);
+}
+
+static bool Fishing_HasAngler(void)
+{
+#if defined(SID_Angler) && (COMMON_SKILL_VALID(SID_Angler))
+	return SkillTester(Fishing_Unit(), SID_Angler);
+#else
+	return FALSE;
+#endif
+}
+
+/* Extra frames to hook a bite: Skill / 4, +4 for an Apprentice or better, +6 with Angler */
+static int Fishing_BiteBonus(void)
+{
+	int n = Div(GetUnitSkill(Fishing_Unit()), 4);
+
+	if (FishingProgress_Rank() >= FISHING_RANK_APPRENTICE)
+		n += 4;
+	if (Fishing_HasAngler())
+		n += 6;
+	return n;
+}
+
+/* Percent off the fish's pull: Strength / 2 (up to 15), 20 for an Expert or better, 15 with Angler; at most 45 */
+static int Fishing_PullCut(void)
+{
+	int n = Div(GetUnitPower(Fishing_Unit()), 2);
+
+	if (n > 15)
+		n = 15;
+	if (FishingProgress_Rank() >= FISHING_RANK_EXPERT)
+		n += 20;
+	if (Fishing_HasAngler())
+		n += 15;
+	return n > 45 ? 45 : n;
+}
+
+/* Percent more golden fish (taken from the small ones): Luck / 5, 5 with Angler */
+static int Fishing_RareBonus(void)
+{
+	int n = Div(GetUnitLuck(Fishing_Unit()), 5);
+
+	if (Fishing_HasAngler())
+		n += 5;
+	return n > 15 ? 15 : n;
+}
+
+/* Percent wider green zones on each side: 3 for an Angler rank or better */
+static int Fishing_ZoneBonus(void)
+{
+	return FishingProgress_Rank() >= FISHING_RANK_ANGLER ? 3 : 0;
+}
+
+static const struct FishType *Fishing_TypeOf(const struct FishingFish *f)
+{
+	return (f->pad[0] & FISHF_LEGEND) ? &sLegendType : &sFishTypes[f->type];
 }
 
 static int Fishing_RollType(void)
 {
 	int r = NextRN_N(100);
-	int i;
+	int rare = Fishing_RareBonus();
+	int i, w;
 
 	for (i = 0; i < FISH_TYPES - 1; i++) {
-		if (r < sFishTypes[i].weight)
+		w = sFishTypes[i].weight;
+		if (i == FISH_SMALL)
+			w -= rare;
+		if (r < w)
 			return i;
-		r -= sFishTypes[i].weight;
+		r -= w;
 	}
 	return FISH_TYPES - 1;
 }
@@ -267,8 +424,11 @@ static void Fishing_Spawn(struct FishingFish *f, bool anywhere)
 {
 	const struct FishType *t;
 
-	f->type = Fishing_RollType();
-	t = &sFishTypes[f->type];
+	if (f->pad[0] & FISHF_LEGEND)
+		f->type = FISH_HUGE;
+	else
+		f->type = Fishing_RollType();
+	t = Fishing_TypeOf(f);
 	f->baseY = t->minY + NextRN_N(t->maxY - t->minY + 1);
 	f->y = f->baseY;
 	f->vx = t->speed - 0x10 + NextRN_N(0x21);
@@ -348,6 +508,34 @@ static int Fishing_Depth(void)
 	return d > 0 ? d >> 3 : 0;
 }
 
+static void Fishing_AppendCm(char *buf, int *i, int cm)
+{
+	Fishing_AppendNum(buf, i, cm);
+	Fishing_Append(buf, i, "cm");
+}
+
+static int Fishing_Mod(int n, int d)
+{
+	return n - Div(n, d) * d;
+}
+
+/* The name of what came up */
+static int Fishing_CatchName(void)
+{
+	switch (FS->kind) {
+	case FISHK_LEGEND:
+		return sLegendNames[FS->water];
+	case FISHK_BOOT:
+		return MSG_FISHING_BOOT;
+	case FISHK_CHEST:
+		return MSG_FISHING_CHEST;
+	case FISHK_BOTTLE:
+		return MSG_FISHING_BOTTLE;
+	default:
+		return sSpeciesNames[FS->species];
+	}
+}
+
 static void Fishing_Line1(char *buf)
 {
 	int i = 0;
@@ -355,16 +543,16 @@ static void Fishing_Line1(char *buf)
 	buf[0] = 0;
 	switch (FS->state) {
 	case FS_WALKIN:
-		Fishing_AppendMsg(buf, &i, MSG_FISHING_WELCOME);
+		Fishing_AppendMsg(buf, &i, FS->legendIdx != 0xFF ? MSG_FISHING_LEGEND_STIRS : MSG_FISHING_WELCOME);
 		break;
 	case FS_READY:
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_S_BAIT);
 		Fishing_Append(buf, &i, " ");
 		Fishing_AppendMsg(buf, &i, sBaitTypes[FS->bait].nameMsg);
 		Fishing_Append(buf, &i, " (");
-		if (FS->baited == FS->bait)
+		if (FS->baited == FS->bait) {
 			Fishing_Append(buf, &i, "on");
-		else {
+		} else {
 			Fishing_AppendNum(buf, &i, sBaitTypes[FS->bait].price);
 			Fishing_Append(buf, &i, "G");
 		}
@@ -397,19 +585,39 @@ static void Fishing_Line1(char *buf)
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_LANDING);
 		break;
 	case FS_RESULT:
-		Fishing_AppendMsg(buf, &i, sSpeciesNames[FS->species]);
-		Fishing_Append(buf, &i, "!  +");
-		Fishing_AppendNum(buf, &i, FS->payout);
-		Fishing_Append(buf, &i, "G  (x");
-		Fishing_AppendNum(buf, &i, (4 + FS->hookQ + FS->landQ) >> 2);
-		Fishing_Append(buf, &i, ".");
-		Fishing_AppendNum(buf, &i, ((4 + FS->hookQ + FS->landQ) & 3) * 25);
-		Fishing_Append(buf, &i, ")");
+		if (FS->reqDone) {
+			Fishing_AppendMsg(buf, &i, MSG_FISHING_REQ_FINISHED);
+			Fishing_Append(buf, &i, " ");
+			Fishing_Append(buf, &i, GetItemName(FS->rewardItem));
+			break;
+		}
+		Fishing_AppendMsg(buf, &i, Fishing_CatchName());
+		Fishing_Append(buf, &i, "!");
+		if (FS->kept == 1) {
+			Fishing_Append(buf, &i, "  ");
+			Fishing_AppendMsg(buf, &i, MSG_FISHING_KEPT);
+			Fishing_Append(buf, &i, " ");
+			Fishing_Append(buf, &i, GetItemName(FS->rewardItem));
+		} else if (FS->kind <= FISHK_LEGEND) {
+			Fishing_Append(buf, &i, "  +");
+			Fishing_AppendNum(buf, &i, FS->payout);
+			Fishing_Append(buf, &i, "G  (x");
+			Fishing_AppendNum(buf, &i, (4 + FS->hookQ + FS->landQ) >> 2);
+			Fishing_Append(buf, &i, ".");
+			Fishing_AppendNum(buf, &i, ((4 + FS->hookQ + FS->landQ) & 3) * 25);
+			Fishing_Append(buf, &i, ")");
+		}
 		break;
 	case FS_MESSAGE:
 		Fishing_AppendMsg(buf, &i, FS->msg);
 		break;
 	case FS_PRIZES:
+		if (FS->page == FISHING_WATERS) {
+			Fishing_AppendMsg(buf, &i, MSG_FISHING_ANGLER_PAGE);
+			Fishing_Append(buf, &i, " ");
+			Fishing_Append(buf, &i, GetStringFromIndex(Fishing_Unit()->pCharacterData->nameTextId));
+			break;
+		}
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_PRIZES);
 		Fishing_Append(buf, &i, " ");
 		Fishing_AppendMsg(buf, &i, sWaterNames[FS->page]);
@@ -434,7 +642,7 @@ static u32 Fishing_Line1Sig(void)
 	case FS_RECALL:
 		return sig * 31 + Fishing_Depth();
 	case FS_RESULT:
-		return sig * 31 + FS->payout;
+		return (sig * 31 + FS->payout) * 31 + (FS->kind << 4) + (FS->kept << 2) + FS->reqDone;
 	case FS_PRIZES:
 		return sig * 31 + FS->page;
 	default:
@@ -453,10 +661,12 @@ enum {
 	HINT_START,
 	HINT_UPDOWN,
 	HINT_LEFTRIGHT,
+	HINT_R,
 };
 
 static const u16 sHintChr[] = {
 	FISHING_CHR_BTN_A, FISHING_CHR_BTN_B, FISHING_CHR_BTN_START, FISHING_CHR_BTN_UPDOWN, FISHING_CHR_BTN_LEFTRIGHT,
+	FISHING_CHR_BTN_R,
 };
 
 struct Hint {
@@ -464,7 +674,19 @@ struct Hint {
 	u16 msg;
 };
 
-static int Fishing_Hints(int state, const struct Hint **out)
+/* The catch on the card can be kept as an item instead of sold (R) */
+static bool Fishing_CanKeep(void)
+{
+	return FS->state == FS_RESULT && FS->cardT > 0 && FS->kind <= FISHK_LEGEND && !FS->kept && FS->payout > 0;
+}
+
+/* Which buttons the second line shows: the state, and whether R keeps the catch */
+static int Fishing_HintKey(void)
+{
+	return FS->state | (Fishing_CanKeep() ? 0x40 : 0);
+}
+
+static int Fishing_Hints(int key, const struct Hint **out)
 {
 	static const struct Hint ready[] = {
 		{ HINT_LEFTRIGHT, MSG_FISHING_K_BAIT }, { HINT_A, MSG_FISHING_K_CAST },
@@ -480,10 +702,18 @@ static int Fishing_Hints(int state, const struct Hint **out)
 	static const struct Hint result[] = {
 		{ HINT_A, MSG_FISHING_K_AGAIN }, { HINT_B, MSG_FISHING_K_EXIT }, { HINT_START, MSG_FISHING_K_PRIZES },
 	};
+	static const struct Hint keep[] = {
+		{ HINT_A, MSG_FISHING_K_AGAIN }, { HINT_R, MSG_FISHING_K_KEEP }, { HINT_B, MSG_FISHING_K_EXIT },
+		{ HINT_START, MSG_FISHING_K_PRIZES },
+	};
 	static const struct Hint message[] = { { HINT_A, MSG_FISHING_K_OK }, { HINT_B, MSG_FISHING_K_EXIT } };
 	static const struct Hint prizes[] = { { HINT_LEFTRIGHT, MSG_FISHING_K_WATER }, { HINT_B, MSG_FISHING_K_CLOSE } };
 
-	switch (state) {
+	if (key == (FS_RESULT | 0x40)) {
+		*out = keep;
+		return 4;
+	}
+	switch (key) {
 	case FS_READY:
 		*out = ready;
 		return 4;
@@ -521,7 +751,8 @@ static void Fishing_DrawLine2(void)
 	struct Text *text = &FS->texts[TX_LINE2];
 	const struct Hint *hints;
 	const char *label;
-	int n = Fishing_Hints(FS->state, &hints);
+	int key = Fishing_HintKey();
+	int n = Fishing_Hints(key, &hints);
 	int i, x = 0, w;
 
 	ClearText(text);
@@ -531,11 +762,11 @@ static void Fishing_DrawLine2(void)
 		FS->hintX[i] = 8 + x;
 		label = GetStringFromIndex(hints[i].msg);
 		Text_InsertDrawString(text, x + w + 2, TEXT_COLOR_SYSTEM_WHITE, label);
-		x += w + 2 + GetStringTextLen(GetStringFromIndex(hints[i].msg)) + 8;
+		x += w + 2 + GetStringTextLen(GetStringFromIndex(hints[i].msg)) + (n > 3 ? 5 : 8);
 	}
 	FS->hintCount = i;
 	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, HINT_ROW));
-	FS->line2Key = FS->state;
+	FS->line2Key = key;
 }
 
 static void Fishing_UpdateWindow(void)
@@ -550,7 +781,7 @@ static void Fishing_UpdateWindow(void)
 		FS->line1Sig = sig;
 		sync = TRUE;
 	}
-	if (FS->line2Key != FS->state) {
+	if (FS->line2Key != Fishing_HintKey()) {
 		Fishing_DrawLine2();
 		sync = TRUE;
 	}
@@ -558,15 +789,63 @@ static void Fishing_UpdateWindow(void)
 		BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-/* ---- The fish journal ---- */
+/* ---- Rewards: items to the unit or the convoy, requests ---- */
+
+/* Gives an item to the unit, or else to the convoy. Returns 1 (the unit's items), 2 (the convoy) or 0 (no room). */
+static int Fishing_GiveItem(int item)
+{
+	if (UnitAddItem(Fishing_Unit(), item))
+		return 1;
+	if (AddItemToConvoy(item) >= 0)
+		return 2;
+	return 0;
+}
+
+/* A request's reward: by the kind of fish wanted; a huge fish gives a stat booster (fixed by the request) */
+static int Fishing_RequestReward(const struct FishingRequest *req)
+{
+	int kind = Fishing_Mod(req->species, FISH_TYPES);
+
+	if (kind < FISH_HUGE)
+		return MakeNewItem(sRequestRewards[kind]);
+	return MakeNewItem(sBoosters[Fishing_Mod(req->minCm, 6)]);
+}
+
+/* Each water's request: a new one on the first visit, and after one is done, with the next story chapter */
+static void Fishing_SetupRequests(void)
+{
+	struct FishingRequest *req;
+	int w, r, kind, lo, hi;
+
+	FishingProgress_Validate();
+	for (w = 0; w < FISHING_WATERS; w++) {
+		req = &gFishingProgress.req[w];
+		if (req->state == FISHING_REQ_OPEN)
+			continue;
+		if (req->state == FISHING_REQ_DONE && req->story == gWmStoryChapter)
+			continue;
+		r = NextRN_N(100);
+		kind = r < 30 ? FISH_SMALL : (r < 65 ? FISH_MEDIUM : (r < 90 ? FISH_LARGE : FISH_HUGE));
+		req->species = w * FISH_TYPES + kind;
+		lo = gFishingSpeciesCm[req->species * 2];
+		hi = gFishingSpeciesCm[req->species * 2 + 1];
+		req->minCm = lo + Div((hi - lo) * (55 + NextRN_N(31)), 100);
+		req->story = gWmStoryChapter;
+		req->state = FISHING_REQ_OPEN;
+	}
+}
+
+/* ---- The fish journal: a page for each water (its five species and its legend), then the angler's page ---- */
 
 #define TABLE_TOP 4
 #define TABLE_ROWS 14
 #define COL_NAME 36
 #define COL_PRIZE 112
-#define COL_CAUGHT 152
+#define COL_CAUGHT 156
 #define COL_BEST 188
 #define ICON_X 10
+#define JOURNAL_ROWS 6
+#define JOURNAL_PAGES (FISHING_WATERS + 1)
 
 static void Fishing_ClearRows(int y0, int rows)
 {
@@ -585,85 +864,188 @@ static void Fishing_TableCell(struct Text *text, int x, int color, const char *s
 	Text_InsertDrawString(text, x, color, s);
 }
 
-static void Fishing_AppendCm(char *buf, int *i, int cm)
+static bool Fishing_WaterComplete(int w)
 {
-	Fishing_AppendNum(buf, i, cm);
-	Fishing_Append(buf, i, "cm");
+	int k;
+
+	for (k = 0; k < FISH_TYPES; k++)
+		if (!FishingRecords_Caught(w * FISH_TYPES + k))
+			return FALSE;
+	return TRUE;
 }
 
-/* The page of one water: its five species, each with its icon (a silhouette until it is caught) */
+static bool Fishing_LegendCaught(int w)
+{
+	FishingProgress_Validate();
+	return (gFishingProgress.legends >> w) & 1;
+}
+
+/* One row of a water's page: the icon (a silhouette until caught), the name, the prize, the catches, the best */
+static void Fishing_JournalRow(int row, int pic, int nameMsg, int gold, int caught, int best, int color)
+{
+	struct Text *text = &FS->texts[TX_TABLE + row];
+	char buf[64];
+	int i;
+
+	ClearText(text);
+	Fishing_TableCell(text, COL_NAME, caught ? color : TEXT_COLOR_SYSTEM_GRAY,
+			  caught ? GetStringFromIndex(nameMsg) : "???");
+	i = 0;
+	Fishing_AppendNum(buf, &i, gold);
+	Fishing_Append(buf, &i, "G");
+	Fishing_TableCell(text, COL_PRIZE, color, buf);
+	i = 0;
+	Fishing_Append(buf, &i, "x");
+	Fishing_AppendNum(buf, &i, caught);
+	Fishing_TableCell(text, COL_CAUGHT, color, buf);
+	i = 0;
+	if (caught)
+		Fishing_AppendCm(buf, &i, best);
+	else
+		Fishing_Append(buf, &i, "-");
+	Fishing_TableCell(text, COL_BEST, color, buf);
+	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 1 + row * 2));
+
+	CpuFastCopy(gFishingSpeciesIcons + pic * FISHING_ICON_TILES * 0x20,
+		    (void *)(OBJ_VRAM0 + (CHR_CARD + row * FISHING_ICON_TILES) * 0x20), FISHING_ICON_TILES * 0x20);
+	ApplyPalette(caught ? gFishingSpeciesPals + pic * 16 : gFishingSilhouettePal, 0x10 + PAL_CARD + row);
+}
+
+static void Fishing_PutRow(int row, const char *a, int xb, const char *b, int xc, const char *c, int color)
+{
+	struct Text *text = &FS->texts[TX_TABLE + row];
+
+	ClearText(text);
+	Fishing_TableCell(text, 0, TEXT_COLOR_SYSTEM_BLUE, a);
+	if (b)
+		Fishing_TableCell(text, xb, color, b);
+	if (c)
+		Fishing_TableCell(text, xc, TEXT_COLOR_SYSTEM_GOLD, c);
+	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 1 + row * 2));
+}
+
+static void Fishing_AppendBonus(char *buf, int *i, int msg, const char *sign, int n, const char *unit)
+{
+	Fishing_AppendMsg(buf, i, msg);
+	Fishing_Append(buf, i, sign);
+	Fishing_AppendNum(buf, i, n);
+	Fishing_Append(buf, i, unit);
+	Fishing_Append(buf, i, "  ");
+}
+
+/* The angler's page: the rank, the bonuses (rank, unit and skill together) and each water's request */
+static void Fishing_AnglerPage(void)
+{
+	const struct FishingRequest *req;
+	char buf[64], b2[40];
+	int i, k, rank = FishingProgress_Rank();
+
+	i = 0;
+	Fishing_AppendNum(buf, &i, gFishingProgress.points);
+	Fishing_Append(buf, &i, " ");
+	Fishing_AppendMsg(buf, &i, MSG_FISHING_PTS);
+	Fishing_Append(buf, &i, "   ");
+	if (rank + 1 < FISHING_RANKS) {
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_NEXT);
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendMsg(buf, &i, sRankNames[rank + 1]);
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendNum(buf, &i, FishingProgress_RankPoints(rank + 1));
+	} else {
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_TOP_RANK);
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_GOLD_BONUS);
+		Fishing_Append(buf, &i, " +25%");
+	}
+	Fishing_PutRow(0, GetStringFromIndex(sRankNames[rank]), 64, buf, 0, NULL, TEXT_COLOR_SYSTEM_WHITE);
+
+	i = 0;
+	Fishing_AppendBonus(buf, &i, MSG_FISHING_BITE_BONUS, " +", Fishing_BiteBonus(), "f");
+	Fishing_AppendBonus(buf, &i, MSG_FISHING_ZONE_BONUS, " +", Fishing_ZoneBonus(), "%");
+	Fishing_AppendBonus(buf, &i, MSG_FISHING_PULL_BONUS, " -", Fishing_PullCut(), "%");
+	Fishing_AppendBonus(buf, &i, MSG_FISHING_RARE_BONUS, " +", Fishing_RareBonus(), "%");
+	Fishing_PutRow(1, "", 0, buf, 0, NULL, TEXT_COLOR_SYSTEM_WHITE);
+
+	for (k = 0; k < FISHING_WATERS; k++) {
+		req = &gFishingProgress.req[k];
+		if (req->state == FISHING_REQ_OPEN) {
+			i = 0;
+			Fishing_AppendMsg(buf, &i, sSpeciesNames[req->species]);
+			Fishing_Append(buf, &i, " ");
+			Fishing_AppendCm(buf, &i, req->minCm);
+			Fishing_Append(buf, &i, "+");
+			i = 0;
+			Fishing_Append(b2, &i, GetItemName(Fishing_RequestReward(req)));
+			Fishing_PutRow(2 + k, GetStringFromIndex(sShortWaterNames[k]), 60, buf, 150, b2,
+				       TEXT_COLOR_SYSTEM_WHITE);
+		} else {
+			Fishing_PutRow(2 + k, GetStringFromIndex(sShortWaterNames[k]), 60,
+				       GetStringFromIndex(MSG_FISHING_REQ_DONE), 0, NULL, TEXT_COLOR_SYSTEM_GRAY);
+		}
+	}
+}
+
 static void Fishing_OpenPrizes(void)
 {
-	struct Text *text;
-	char buf[64];
-	int t, i, sp, color, caught;
+	int t, sp, w = FS->page;
 
 	DrawUiFrame2(0, TABLE_TOP, 30, TABLE_ROWS, 0);
-
-	text = &FS->texts[TX_TABLE];
-	ClearText(text);
-	Fishing_TableCell(text, COL_NAME, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_FISH));
-	Fishing_TableCell(text, COL_PRIZE, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_PRIZE));
-	Fishing_TableCell(text, COL_CAUGHT, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_CAUGHT));
-	Fishing_TableCell(text, COL_BEST, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_BEST));
-	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 1));
-
-	for (t = 0; t < FISH_TYPES; t++) {
-		sp = FS->page * FISH_TYPES + t;
-		caught = FishingRecords_Caught(sp);
-		text = &FS->texts[TX_TABLE + 1 + t];
-		color = t == FISH_GOLDEN ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE;
-		ClearText(text);
-		Fishing_TableCell(text, COL_NAME, caught ? color : TEXT_COLOR_SYSTEM_GRAY,
-				  caught ? GetStringFromIndex(sSpeciesNames[sp]) : "???");
-		i = 0;
-		Fishing_AppendNum(buf, &i, sFishTypes[t].gold);
-		Fishing_Append(buf, &i, "G");
-		Fishing_TableCell(text, COL_PRIZE, color, buf);
-		i = 0;
-		Fishing_AppendNum(buf, &i, caught);
-		Fishing_TableCell(text, COL_CAUGHT, color, buf);
-		i = 0;
-		if (caught)
-			Fishing_AppendCm(buf, &i, FishingRecords_Best(sp));
-		else
-			Fishing_Append(buf, &i, "-");
-		Fishing_TableCell(text, COL_BEST, color, buf);
-		PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 3 + t * 2));
-
-		CpuFastCopy(gFishingSpeciesIcons + sp * FISHING_ICON_TILES * 0x20,
-			    (void *)(OBJ_VRAM0 + (CHR_CARD + t * FISHING_ICON_TILES) * 0x20), FISHING_ICON_TILES * 0x20);
-		ApplyPalette(caught ? gFishingSpeciesPals + sp * 16 : gFishingSilhouettePal, 0x10 + PAL_CARD + t);
+	FishingProgress_Validate();
+	if (w == FISHING_WATERS) {
+		Fishing_AnglerPage();
+	} else {
+		for (t = 0; t < FISH_TYPES; t++) {
+			sp = w * FISH_TYPES + t;
+			Fishing_JournalRow(t, sp, sSpeciesNames[sp], sFishTypes[t].gold, FishingRecords_Caught(sp),
+					   FishingRecords_Best(sp),
+					   t == FISH_GOLDEN ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE);
+		}
+		/* The legend: a silhouette until it is caught */
+		Fishing_JournalRow(FISH_TYPES, FISHING_PIC_LEGEND + w, sLegendNames[w], sLegendType.gold,
+				   Fishing_LegendCaught(w), gFishingProgress.legendBest[w], TEXT_COLOR_SYSTEM_GOLD);
 	}
 	EnablePaletteSync();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
+static void Fishing_LoadLegendPal(void);
+
 static void Fishing_ClosePrizes(void)
 {
 	Fishing_ClearRows(TABLE_TOP, TABLE_ROWS);
+	Fishing_LoadLegendPal();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
 static void Fishing_DrawJournalIcons(void)
 {
-	int t;
+	const struct FishingRequest *req;
+	int t, y;
 
-	for (t = 0; t < FISH_TYPES; t++)
-		PutSpriteExt(4, OAM1_X(ICON_X), OAM0_Y((TABLE_TOP + 3 + t * 2) * 8), gObject_32x16,
+	if (FS->page >= FISHING_WATERS)
+		return;
+	for (t = 0; t < JOURNAL_ROWS; t++)
+		PutSpriteExt(4, OAM1_X(ICON_X), OAM0_Y((TABLE_TOP + 1 + t * 2) * 8), gObject_32x16,
 			     OAM2_PAL(PAL_CARD + t) + OAM2_LAYER(0) + OAM2_CHR(CHR_CARD + t * FISHING_ICON_TILES));
+	/* The species a townsperson wants is marked "!" */
+	req = &gFishingProgress.req[FS->page];
+	if (req->state == FISHING_REQ_OPEN && (GetGameClock() & 16)) {
+		y = (TABLE_TOP + 1 + Fishing_Mod(req->species, FISH_TYPES) * 2) * 8;
+		PutSpriteExt(4, OAM1_X(224), OAM0_Y(y), gObject_8x16,
+			     OAM2_PAL(PAL_FX) + OAM2_LAYER(0) + OAM2_CHR(FISHING_CHR_BANG));
+	}
 }
 
 /* ---- The catch card ---- */
 
-#define CARD_X 3
+#define CARD_X 1
 #define CARD_Y 6
-#define CARD_W 24
+#define CARD_W 28
 #define CARD_H 10
-#define CARD_TEXT_COL 13
-#define PIC_X 36
+#define CARD_TEXT_COL 11
+#define PIC_X 20
 #define PIC_Y 72
-#define STAMP_CX 56
+#define STAMP_CX 44
 #define STAMP_CY 108
 
 static void Fishing_CardLine(int row, int color, const char *str)
@@ -675,38 +1057,104 @@ static void Fishing_CardLine(int row, int color, const char *str)
 	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, CARD_TEXT_COL, CARD_Y + 1 + row * 2));
 }
 
-/* The card: the portrait, the name, the size, the best (or "First catch!") and the payout */
+static void Fishing_CardWhere(int row, int given)
+{
+	static const u16 where[3] = { MSG_FISHING_NO_ROOM, MSG_FISHING_TO_ITEMS, MSG_FISHING_TO_CONVOY };
+
+	Fishing_CardLine(row, given ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(where[given]));
+}
+
+/* The card's last line for a fish: the gold and the points, or what became of it when kept */
+static void Fishing_CardPayLine(void)
+{
+	char buf[64];
+	int i = 0;
+
+	if (FS->kept == 1) {
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_KEPT);
+		Fishing_Append(buf, &i, " ");
+		Fishing_Append(buf, &i, GetItemName(FS->rewardItem));
+	} else if (FS->kept == 2) {
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_NO_ROOM);
+	} else {
+		Fishing_Append(buf, &i, "+");
+		Fishing_AppendNum(buf, &i, FS->payout);
+		Fishing_Append(buf, &i, "G   +");
+		Fishing_AppendNum(buf, &i, FS->points);
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_PTS);
+	}
+	Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, buf);
+}
+
+static int Fishing_CardPic(void)
+{
+	switch (FS->kind) {
+	case FISHK_LEGEND:
+		return FISHING_PIC_LEGEND + FS->water;
+	case FISHK_BOOT:
+	case FISHK_CHEST:
+	case FISHK_BOTTLE:
+		return FISHING_PIC_EXTRA + FS->kind - FISHK_BOOT;
+	default:
+		return FS->species;
+	}
+}
+
+/* The card: the picture, the name and what to say about it */
 static void Fishing_OpenCard(void)
 {
 	char buf[64];
-	int i, sp = FS->species;
+	int i, k, pic = Fishing_CardPic();
 
 	DrawUiFrame2(CARD_X, CARD_Y, CARD_W, CARD_H, 0);
-	Fishing_CardLine(0, FS->lastType == FISH_GOLDEN ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE,
-			 GetStringFromIndex(sSpeciesNames[sp]));
-	i = 0;
-	Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_SIZE);
-	Fishing_Append(buf, &i, " ");
-	Fishing_AppendCm(buf, &i, FS->cm);
-	Fishing_CardLine(1, TEXT_COLOR_SYSTEM_WHITE, buf);
-	i = 0;
-	if (FS->prevBest == 0) {
-		Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_FIRST);
-	} else {
-		Fishing_AppendMsg(buf, &i, FS->cm > FS->prevBest ? MSG_FISHING_CARD_OLD : MSG_FISHING_CARD_BEST);
+	Fishing_CardLine(0, (FS->kind == FISHK_LEGEND || (FS->kind == FISHK_FISH && FS->lastType == FISH_GOLDEN)) ?
+			 TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(Fishing_CatchName()));
+	switch (FS->kind) {
+	case FISHK_FISH:
+	case FISHK_LEGEND:
+		i = 0;
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_SIZE);
 		Fishing_Append(buf, &i, " ");
-		Fishing_AppendCm(buf, &i, FS->prevBest);
+		Fishing_AppendCm(buf, &i, FS->cm);
+		Fishing_CardLine(1, TEXT_COLOR_SYSTEM_WHITE, buf);
+		i = 0;
+		if (FS->prevBest == 0) {
+			Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_FIRST);
+		} else {
+			Fishing_AppendMsg(buf, &i, FS->cm > FS->prevBest ? MSG_FISHING_CARD_OLD : MSG_FISHING_CARD_BEST);
+			Fishing_Append(buf, &i, " ");
+			Fishing_AppendCm(buf, &i, FS->prevBest);
+		}
+		Fishing_CardLine(2, TEXT_COLOR_SYSTEM_BLUE, buf);
+		Fishing_CardPayLine();
+		break;
+	case FISHK_BOOT:
+		Fishing_CardLine(1, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_FISHING_NOT_FISH));
+		Fishing_CardLine(2, TEXT_COLOR_SYSTEM_WHITE, "");
+		Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, "+0G");
+		break;
+	case FISHK_CHEST:
+		i = 0;
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_INSIDE);
+		Fishing_Append(buf, &i, " ");
+		Fishing_Append(buf, &i, GetItemName(FS->rewardItem));
+		Fishing_CardLine(1, TEXT_COLOR_SYSTEM_WHITE, buf);
+		Fishing_CardWhere(2, FS->given);
+		i = 0;
+		Fishing_Append(buf, &i, "+");
+		Fishing_AppendNum(buf, &i, FS->points);
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_PTS);
+		Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, buf);
+		break;
+	case FISHK_BOTTLE:
+		for (k = 0; k < 3; k++)
+			Fishing_CardLine(1 + k, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(sBottleLines[FS->bottle][k]));
+		break;
 	}
-	Fishing_CardLine(2, TEXT_COLOR_SYSTEM_BLUE, buf);
-	i = 0;
-	Fishing_Append(buf, &i, "+");
-	Fishing_AppendNum(buf, &i, FS->payout);
-	Fishing_Append(buf, &i, "G");
-	Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, buf);
 
-	CpuFastCopy(gFishingSpeciesPics + sp * FISHING_PIC_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_CARD * 0x20),
+	CpuFastCopy(gFishingSpeciesPics + pic * FISHING_PIC_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_CARD * 0x20),
 		    FISHING_PIC_TILES * 0x20);
-	ApplyPalette(gFishingSpeciesPals + sp * 16, 0x10 + PAL_CARD);
+	ApplyPalette(gFishingSpeciesPals + pic * 16, 0x10 + PAL_CARD);
 	if (FS->stamp != 0xFF) {
 		CpuFastCopy(gFishingPopTiles + FS->stamp * FISHING_POP_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_STAMP * 0x20),
 			    FISHING_POP_TILES * 0x20);
@@ -727,6 +1175,32 @@ static void Fishing_CloseCard(void)
 	Fishing_ClearRows(CARD_Y, CARD_H);
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 	FS->cardT = 0;
+}
+
+/* R on the card: the catch becomes food instead of gold (a golden fish: a tonic); the gold is paid back */
+static void Fishing_KeepCatch(void)
+{
+	int item;
+	u32 gold = GetPartyGoldAmount();
+
+	if (FS->kind == FISHK_FISH && FS->lastType == FISH_GOLDEN)
+		item = ((1 + NextRN_N(7)) << 8) | ITEM_TONIC;
+	else if (FS->kind == FISHK_LEGEND || FS->lastType >= FISH_LARGE)
+		item = MakeNewItem(ITEM_FISH_STEW);
+	else
+		item = MakeNewItem(ITEM_GRILLED_FISH);
+	FS->rewardItem = item;
+	FS->given = Fishing_GiveItem(item);
+	if (FS->given) {
+		SetPartyGoldAmount(gold >= FS->payout ? gold - FS->payout : 0);
+		FS->kept = 1;
+		PlaySoundEffect(SE_PICK);
+	} else {
+		FS->kept = 2;
+		PlaySoundEffect(SE_LOST);
+	}
+	Fishing_CardPayLine();
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
 /*
@@ -815,6 +1289,17 @@ static void Fishing_LoadUnit(struct Unit *unit)
 	FS->smsPal = GetUnitSpritePalette(unit);
 }
 
+/* The legend's shadow: the shadows' palette with the shadow colours turned a deep crimson */
+static void Fishing_LoadLegendPal(void)
+{
+	u16 pal[16];
+
+	CpuCopy16(gFishingObjPalFx, pal, sizeof(pal));
+	pal[1] = 6 | (2 << 5) | (8 << 10);
+	pal[2] = 14 | (3 << 5) | (10 << 10);
+	ApplyPalette(pal, 0x10 + PAL_LEGEND);
+}
+
 static void Fishing_Init(struct ProcFishing *proc)
 {
 	struct Unit *unit = gActiveUnit ? gActiveUnit : GetUnit(1);
@@ -861,6 +1346,28 @@ static void Fishing_Init(struct ProcFishing *proc)
 	SetDispEnable(1, 1, 0, 1, 1);
 	gLCDControlBuffer.dispcnt.obj1dMap = 1;
 
+	/* The water, its legend (once all five of its species are found) and the requests */
+	FS->water = Fishing_WaterOf(gPlaySt.chapterIndex);
+	FishingProgress_Validate();
+	Fishing_SetupRequests();
+	FS->legendIdx = 0xFF;
+	for (i = 0; i < FISHING_FISH_MAX; i++)
+		FS->fish[i].pad[0] = 0;
+	if (!Fishing_LegendCaught(FS->water) && Fishing_WaterComplete(FS->water)) {
+		FS->legendIdx = 0;
+		FS->fish[0].pad[0] = FISHF_LEGEND;
+	}
+	Fishing_LoadLegendPal();
+	EnablePaletteSync();
+	FS->streak = 0;
+	FS->frenzy = 0;
+	FS->leap = 0;
+	FS->kind = FISHK_FISH;
+	FS->kept = 0;
+	FS->reqDone = 0;
+	FS->rankUp = 0;
+	FS->frenzyStart = 0;
+
 	for (i = 0; i < FISHING_FISH_MAX; i++)
 		Fishing_Spawn(&FS->fish[i], TRUE);
 	FS->biter = -1;
@@ -880,7 +1387,6 @@ static void Fishing_Init(struct ProcFishing *proc)
 	for (i = 0; i < 16; i++)
 		FS->parts[i].life = 0;
 	FS->bonusTimer = 0;
-	FS->water = Fishing_WaterOf(gPlaySt.chapterIndex);
 	FS->page = FS->water;
 	FS->cardT = 0;
 	FS->stamp = 0xFF;
@@ -899,7 +1405,7 @@ static void Fishing_Init(struct ProcFishing *proc)
 static void Fishing_UpdateFish(int i)
 {
 	struct FishingFish *f = &FS->fish[i];
-	const struct FishType *t = &sFishTypes[f->type];
+	const struct FishType *t = Fishing_TypeOf(f);
 	int clock = GetGameClock();
 	int mx, dx, dy, step, likes;
 
@@ -924,10 +1430,17 @@ static void Fishing_UpdateFish(int i)
 		/* Notice the hook: only while waiting, one fish at a time, facing it, near its depth, and if it likes the bait. */
 		if (FS->state == FS_WAIT && FS->biter < 0 && FS->baited != BAIT_NONE) {
 			likes = sBaitTypes[FS->baited].likes[f->type];
+			if (f->pad[0] & FISHF_LEGEND)
+				likes = FS->baited == BAIT_LURE ? 100 : 0;
 			mx = Fishing_MouthX(f);
 			dx = f->vx > 0 ? MOUTH_X - mx : mx - MOUTH_X;
 			dy = f->baseY - FS->hookY;
-			if (likes > 0 && dx > 0 && dx < 64 && Fishing_Abs(dy) < 24 && NextRN_N(4000) < likes) {
+			/* In a frenzy the fish come from further, and at once */
+			if (FS->frenzy > 0 && likes > 0 && dx > 0 && dx < 120 && Fishing_Abs(dy) < 48 &&
+			    NextRN_N(4000) < likes * 12) {
+				f->mode = FISHM_APPROACH;
+				FS->biter = i;
+			} else if (likes > 0 && dx > 0 && dx < 64 && Fishing_Abs(dy) < 24 && NextRN_N(4000) < likes) {
 				f->mode = FISHM_APPROACH;
 				FS->biter = i;
 			}
@@ -935,7 +1448,7 @@ static void Fishing_UpdateFish(int i)
 		return;
 
 	case FISHM_APPROACH:
-		if (Fishing_Abs(f->baseY - FS->hookY) > 32 || FS->state != FS_WAIT) {
+		if (Fishing_Abs(f->baseY - FS->hookY) > (FS->frenzy > 0 ? 56 : 32) || FS->state != FS_WAIT) {
 			f->mode = FISHM_SWIM;
 			FS->biter = -1;
 			return;
@@ -959,7 +1472,7 @@ static void Fishing_UpdateFish(int i)
 			Fishing_SetMouthX(f, MOUTH_X);
 			f->baseY = f->y = FS->hookY;
 			f->mode = FISHM_NIBBLE;
-			f->timer = 20 + NextRN_N(40);
+			f->timer = FS->frenzy > 0 ? 6 + NextRN_N(8) : 20 + NextRN_N(40);
 			FS->nibbleY = FS->hookY;
 		}
 		return;
@@ -987,7 +1500,7 @@ static void Fishing_UpdateFish(int i)
 		Fishing_SetMouthX(f, MOUTH_X);
 		f->mode = FISHM_HOOKED;
 		FS->state = FS_BITE;
-		FS->timer = t->window;
+		FS->timer = t->window + Fishing_BiteBonus();
 		FS->biteClock = 0;
 		PlaySoundEffect(SE_BITE);
 		return;
@@ -1201,14 +1714,19 @@ static void Fishing_OnHooked(void)
 /* The fish is landed: coins fly from the bobber, and the golden fish shakes the screen. */
 static void Fishing_OnLanded(void)
 {
-	bool golden = FS->lastType == FISH_GOLDEN;
+	bool big = FS->kind == FISHK_LEGEND || (FS->kind == FISHK_FISH && FS->lastType == FISH_GOLDEN);
 	int y = BOBBER_Y - FS->camY;
+	int word = big ? FISHING_POP_JACKPOT : FISHING_POP_CAUGHT;
 
-	Fishing_Pop(golden ? FISHING_POP_JACKPOT : FISHING_POP_CAUGHT, 96, y - 16);
-	Fishing_Burst(HOOK_X, y, golden ? 16 : 10, 1);
-	Fishing_Burst(HOOK_X, y, golden ? 6 : 0, 0);
-	if (golden)
-		Fishing_Shake(24);
+	if (FS->kind == FISHK_BOOT)
+		word = FISHING_POP_JUNK;
+	else if (FS->kind == FISHK_CHEST)
+		word = FISHING_POP_TREASURE;
+	Fishing_Pop(word, 96, y - 16);
+	Fishing_Burst(HOOK_X, y, FS->kind == FISHK_BOOT ? 0 : (big ? 16 : 10), 1);
+	Fishing_Burst(HOOK_X, y, big ? 6 : 0, 0);
+	if (big)
+		Fishing_Shake(FS->kind == FISHK_LEGEND ? 40 : 24);
 }
 
 /* ---- The states ---- */
@@ -1223,6 +1741,13 @@ static void Fishing_ToMessage(int msg)
 /* The fish is gone with the bait. */
 static void Fishing_LoseFish(int msg)
 {
+	const struct FishType *t = FS->biter >= 0 ? Fishing_TypeOf(&FS->fish[FS->biter]) : NULL;
+
+	/* Lost with the catch nine tenths in: SO CLOSE! */
+	if (FS->state == FS_REEL && t != NULL && FS->progress * 10 >= t->need * 9)
+		Fishing_Pop(FISHING_POP_SO_CLOSE, 96, FS->hookY - FS->camY - 28);
+	FS->streak = 0;
+	FS->leap = 0;
 	if (FS->biter >= 0)
 		Fishing_Flee(FS->biter);
 	FS->baited = BAIT_NONE;
@@ -1250,34 +1775,26 @@ static void Fishing_OpenTable(void)
 	Fishing_OpenPrizes();
 }
 
-static void Fishing_Payout(void)
+/* Rolls a size in a picture's range: two rolls averaged, so the ends are rare. Returns 0..50 for the payout. */
+static int Fishing_RollSize(int pic)
 {
-	const struct FishType *t = &sFishTypes[FS->fish[FS->biter].type];
-	int need = t->need;
-	int lo, span, sizeQ;
-	u32 gold;
+	int lo = gFishingSpeciesCm[pic * 2];
+	int span = gFishingSpeciesCm[pic * 2 + 1] - lo;
 
-	if (FS->reelFrames <= ((need * 5) >> 2))
-		FS->landQ = 2;
-	else if (FS->reelFrames <= ((need * 3) >> 1))
-		FS->landQ = 1;
-	else
-		FS->landQ = 0;
-
-	FS->lastType = FS->fish[FS->biter].type;
-
-	/* The species and its size: two rolls averaged, so the ends of its range are rare */
-	FS->species = FS->water * FISH_TYPES + FS->lastType;
-	lo = gFishingSpeciesCm[FS->species * 2];
-	span = gFishingSpeciesCm[FS->species * 2 + 1] - lo;
 	FS->cm = lo + ((NextRN_N(span + 1) + NextRN_N(span + 1)) >> 1);
-	sizeQ = span > 0 ? Div((FS->cm - lo) * 50, span) : 25;
+	return span > 0 ? Div((FS->cm - lo) * 50, span) : 25;
+}
 
+/* A catch of the journal: its species, size, payout, record and the water's request */
+static void Fishing_PayFish(const struct FishType *t)
+{
+	struct FishingRequest *req = &gFishingProgress.req[FS->water];
+	int sizeQ;
+
+	FS->species = FS->water * FISH_TYPES + FS->lastType;
+	sizeQ = Fishing_RollSize(FS->species);
 	/* The prize, times the bonuses (quarters), times 0.75 to 1.25 for the size */
 	FS->payout = Div(t->gold * (4 + FS->hookQ + FS->landQ) * (75 + sizeQ), 400);
-	gold = GetPartyGoldAmount() + FS->payout;
-	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
-
 	FS->prevBest = FishingRecords_Caught(FS->species) ? FishingRecords_Best(FS->species) : 0;
 	switch (FishingRecords_Add(FS->species, FS->cm)) {
 	case FISHING_JOURNAL_NEW:
@@ -1287,7 +1804,243 @@ static void Fishing_Payout(void)
 		FS->stamp = FISHING_POP_RECORD;
 		break;
 	default:
-		FS->stamp = 0xFF;
+		break;
+	}
+	FS->points = sKindPoints[FS->lastType] + (FS->hookQ == 2 ? 1 : 0) + (FS->stamp != 0xFF ? 2 : 0);
+
+	if (req->state == FISHING_REQ_OPEN && req->species == FS->species && FS->cm >= req->minCm) {
+		FS->rewardItem = Fishing_RequestReward(req);
+		FS->given = Fishing_GiveItem(FS->rewardItem);
+		req->state = FISHING_REQ_DONE;
+		req->story = gWmStoryChapter;
+		FS->reqDone = 1;
+		FS->points += 5;
+	}
+}
+
+static void Fishing_PayLegend(const struct FishType *t)
+{
+	struct FishingFish *f = &FS->fish[FS->biter];
+	int sizeQ = Fishing_RollSize(FISHING_PIC_LEGEND + FS->water);
+
+	FS->payout = Div(t->gold * (4 + FS->hookQ + FS->landQ) * (75 + sizeQ), 400);
+	gFishingProgress.legends |= 1 << FS->water;
+	gFishingProgress.legendBest[FS->water] = FS->cm;
+	FS->stamp = FISHING_POP_LEGEND;
+	FS->points = 40;
+	/* Gone for good: its slot takes ordinary fish from now on */
+	f->pad[0] &= ~FISHF_LEGEND;
+	FS->legendIdx = 0xFF;
+}
+
+/* A treasure chest: an item, to the unit or the convoy */
+static void Fishing_PayChest(void)
+{
+	int i, r = NextRN_N(100);
+
+	for (i = 0; i < (int)ARRAY_COUNT(sChestItems) - 1 && r >= sChestItems[i][1]; i++)
+		r -= sChestItems[i][1];
+	FS->rewardItem = MakeNewItem(sChestItems[i][0]);
+	FS->given = Fishing_GiveItem(FS->rewardItem);
+	FS->points = 2;
+}
+
+/* A message in a bottle: one not read yet, if any */
+static void Fishing_PayBottle(void)
+{
+	int i, start = NextRN_N(BOTTLES);
+
+	FS->bottle = start;
+	for (i = 0; i < BOTTLES; i++) {
+		if (!((gFishingProgress.bottles >> Fishing_Mod(start + i, BOTTLES)) & 1)) {
+			FS->bottle = Fishing_Mod(start + i, BOTTLES);
+			break;
+		}
+	}
+	gFishingProgress.bottles |= 1 << FS->bottle;
+	FS->points = 1;
+}
+
+static void Fishing_Payout(void)
+{
+	struct FishingFish *f = &FS->fish[FS->biter];
+	const struct FishType *t = Fishing_TypeOf(f);
+	int need = t->need;
+	int r;
+	u32 gold;
+
+	if (FS->reelFrames <= ((need * 5) >> 2))
+		FS->landQ = 2;
+	else if (FS->reelFrames <= ((need * 3) >> 1))
+		FS->landQ = 1;
+	else
+		FS->landQ = 0;
+
+	FishingProgress_Validate();
+	FS->lastType = f->type;
+	FS->rankBefore = FishingProgress_Rank();
+	FS->payout = 0;
+	FS->points = 0;
+	FS->cm = 0;
+	FS->prevBest = 0;
+	FS->stamp = 0xFF;
+	FS->rewardItem = 0;
+	FS->given = 0;
+	FS->reqDone = 0;
+	FS->kept = 0;
+	FS->rankUp = 0;
+	FS->frenzyStart = 0;
+
+	/* What came up: the legend, or now and then something that isn't a fish */
+	if (f->pad[0] & FISHF_LEGEND) {
+		FS->kind = FISHK_LEGEND;
+	} else {
+		r = NextRN_N(100);
+		FS->kind = r < 5 ? FISHK_BOOT : (r < 8 ? FISHK_CHEST : (r < 11 ? FISHK_BOTTLE : FISHK_FISH));
+	}
+	switch (FS->kind) {
+	case FISHK_LEGEND:
+		Fishing_PayLegend(t);
+		break;
+	case FISHK_CHEST:
+		Fishing_PayChest();
+		break;
+	case FISHK_BOTTLE:
+		Fishing_PayBottle();
+		break;
+	case FISHK_BOOT:
+		break;
+	default:
+		Fishing_PayFish(t);
+		break;
+	}
+
+	/* A frenzy pays half as much again; a Master angler a quarter more */
+	if (FS->frenzy > 0)
+		FS->payout = (FS->payout * 3) >> 1;
+	if (FS->rankBefore >= FISHING_RANK_MASTER)
+		FS->payout += FS->payout >> 2;
+	gold = GetPartyGoldAmount() + FS->payout;
+	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
+
+	/* Three catches in a row start a frenzy (an old boot doesn't count either way) */
+	if (FS->kind != FISHK_BOOT && ++FS->streak >= FRENZY_STREAK && FS->frenzy == 0) {
+		FS->streak = 0;
+		FS->frenzy = FRENZY_FRAMES;
+		FS->frenzyStart = 1;
+	}
+	FishingProgress_AddPoints(FS->points);
+	FS->rankUp = FishingProgress_Rank() > FS->rankBefore;
+}
+
+/* The card's pop-ups after the stamp: RANK UP!, then FRENZY! */
+static void Fishing_CardPops(void)
+{
+	if (FS->cardT == 44 && (FS->rankUp || FS->frenzyStart)) {
+		Fishing_Pop(FS->rankUp ? FISHING_POP_RANK_UP : FISHING_POP_FRENZY, 140, 56);
+		PlaySoundEffect(SONG_SE_UPDATE);
+	}
+	if (FS->cardT == 116 && FS->rankUp && FS->frenzyStart) {
+		Fishing_Pop(FISHING_POP_FRENZY, 140, 56);
+		PlaySoundEffect(SONG_SE_UPDATE);
+	}
+}
+
+/* ---- The fight: behaviours, leaps, and the legend's phases ---- */
+
+/* The behaviour the hooked fish fights with now (the legend: steady, then darting, then leaping) */
+static int Fishing_Behaviour(const struct FishType *t)
+{
+	if (FS->behaviour != FISHB_LEGEND)
+		return FS->behaviour;
+	if (FS->progress * 3 >= t->need * 2)
+		return FISHB_LEAPER;
+	if (FS->progress * 3 >= t->need)
+		return FISHB_DARTER;
+	return FISHB_STEADY;
+}
+
+/* The green zone, in percent: wider for a good angler; the legend's sways from its second phase */
+static void Fishing_Zone(const struct FishType *t, int *lo, int *hi)
+{
+	int z = Fishing_ZoneBonus(), sway = 0;
+
+	if (FS->behaviour == FISHB_LEGEND && FS->progress * 3 >= t->need)
+		sway = (SIN((FS->reelFrames * 2) & 0xFF) * 14) >> 12;
+	*lo = Fishing_Clamp(t->zoneLo - z + sway, 2, 90);
+	*hi = Fishing_Clamp(t->zoneHi + z + sway, *lo + 6, 98);
+}
+
+/* The hooked fish's picture for its leaps, and when it first leaps or darts */
+static void Fishing_StartFight(void)
+{
+	struct FishingFish *f = &FS->fish[FS->biter];
+	int pic;
+
+	if (f->pad[0] & FISHF_LEGEND) {
+		FS->behaviour = FISHB_LEGEND;
+		pic = FISHING_PIC_LEGEND + FS->water;
+	} else {
+		pic = FS->water * FISH_TYPES + f->type;
+		FS->behaviour = sSpeciesBehaviour[pic];
+	}
+	FS->leap = 0;
+	FS->leapNext = 60 + NextRN_N(60);
+	CpuFastCopy(gFishingSpeciesIcons + pic * FISHING_ICON_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_CARD * 0x20),
+		    FISHING_ICON_TILES * 0x20);
+	ApplyPalette(gFishingSpeciesPals + pic * 16, 0x10 + PAL_CARD);
+	EnablePaletteSync();
+}
+
+/* A leap: A as the fish flies catches it (NICE!, an eighth of the progress); missed, it slams the line */
+static void Fishing_UpdateLeap(const struct FishType *t, u16 newKeys)
+{
+	int sy = FISHING_SURFACE_Y - FS->camY;
+
+	FS->leap++;
+	if (!FS->leapHit && (newKeys & A_BUTTON) && FS->leap >= LEAP_LO && FS->leap <= LEAP_HI) {
+		FS->leapHit = 1;
+		FS->progress += t->need >> 3;
+		Fishing_Pop(FISHING_POP_NICE, 160, sy - 48);
+		Fishing_Burst(HOOK_X - 4, sy - LEAP_HEIGHT, 8, 0);
+		PlaySoundEffect(SE_BITE);
+	}
+	if (FS->leap >= LEAP_FRAMES) {
+		if (!FS->leapHit) {
+			FS->tension += 25 * 16;
+			Fishing_Shake(10);
+			PlaySoundEffect(SE_PULL);
+		}
+		FS->leap = 0;
+		FS->splash = 16;
+		FS->leapNext = 100 + NextRN_N(120);
+	}
+}
+
+/* Darters jerk the line now and then; leapers leap once the hook is near the surface (it must be on screen) */
+static void Fishing_UpdateBehaviour(const struct FishType *t)
+{
+	switch (Fishing_Behaviour(t)) {
+	case FISHB_DARTER:
+		if (FS->leapNext > 0 && --FS->leapNext > 0)
+			break;
+		FS->tension += (NextRN_N(2) ? 1 : -1) * (8 + NextRN_N(7)) * 16;
+		FS->leapNext = 40 + NextRN_N(40);
+		Fishing_Shake(4);
+		break;
+	case FISHB_LEAPER:
+		if (FS->leap > 0 || FS->hookY - FISHING_SURFACE_Y >= 90)
+			break;
+		if (FS->leapNext > 0) {
+			FS->leapNext--;
+			break;
+		}
+		FS->leap = 1;
+		FS->leapHit = 0;
+		FS->splash = 16;
+		PlaySoundEffect(SE_CAST);
+		break;
+	default:
 		break;
 	}
 }
@@ -1297,7 +2050,8 @@ static bool Fishing_UpdateState(void)
 {
 	u16 newKeys = gKeyStatusPtr->newKeys;
 	u16 held = gKeyStatusPtr->heldKeys;
-	const struct FishType *t = FS->biter >= 0 ? &sFishTypes[FS->fish[FS->biter].type] : NULL;
+	const struct FishType *t = FS->biter >= 0 ? Fishing_TypeOf(&FS->fish[FS->biter]) : NULL;
+	int lo, hi, pull;
 	int span;
 
 	/* B leaves from anywhere but the walk-in and the prize table. */
@@ -1395,6 +2149,7 @@ static bool Fishing_UpdateState(void)
 			FS->burst = 0;
 			FS->reelStartY = FS->hookY;
 			PlaySoundEffect(SE_BITE);
+			Fishing_StartFight();
 			Fishing_OnHooked();
 			break;
 		}
@@ -1409,7 +2164,9 @@ static bool Fishing_UpdateState(void)
 		if (FS->bonusTimer > 0)
 			FS->bonusTimer--;
 		FS->reelFrames++;
-		if (newKeys & A_BUTTON) {
+		if (FS->leap > 0) {
+			Fishing_UpdateLeap(t, newKeys);
+		} else if (newKeys & A_BUTTON) {
 			FS->tension += TENSION_PRESS;
 			FS->rodAngle += 4 << 8;
 			PlaySoundEffect(SE_PULL);
@@ -1419,11 +2176,16 @@ static bool Fishing_UpdateState(void)
 		if (FS->burst > 0)
 			FS->burst--;
 		else if (t->run != 0 && NextRN_N(t->run) == 0)
-			FS->burst = RUN_FRAMES;
-		FS->tension -= FS->burst > 0 ? t->pull * 2 : t->pull;
+			FS->burst = Fishing_Behaviour(t) == FISHB_DIVER ? RUN_FRAMES * 2 : RUN_FRAMES;
+		/* A strong, skilled angler tires the fish: its pull is cut */
+		pull = Div(t->pull * (100 - Fishing_PullCut()), 100);
+		if (pull < 1)
+			pull = 1;
+		FS->tension -= FS->burst > 0 ? pull * 2 : pull;
 		/* Big fish jerk the line during a run: up to 6% either way every 8 frames */
 		if (FS->burst > 0 && t->w >= 32 && (GetGameClock() & 7) == 0)
 			FS->tension += (NextRN_N(13) - 6) * 16;
+		Fishing_UpdateBehaviour(t);
 
 		if (FS->tension >= TENSION_MAX) {
 			Fishing_LoseFish(MSG_FISHING_SNAPPED);
@@ -1438,9 +2200,11 @@ static bool Fishing_UpdateState(void)
 		} else {
 			FS->slack = 0;
 		}
-		if (FS->tension >= t->zoneLo * 16 && FS->tension <= t->zoneHi * 16)
+		Fishing_Zone(t, &lo, &hi);
+		if (FS->tension >= lo * 16 && FS->tension <= hi * 16)
 			FS->progress++;
 		if (FS->progress >= t->need) {
+			FS->leap = 0;
 			FS->state = FS_LAND;
 			FS->timer = 30;
 			FS->splash = 30;
@@ -1484,6 +2248,7 @@ static bool Fishing_UpdateState(void)
 		}
 		if (FS->cardT < 255)
 			FS->cardT++;
+		Fishing_CardPops();
 		if (FS->cardT == STAMP_AT + 6 && FS->stamp != 0xFF) {
 			PlaySoundEffect(SONG_SE_UPDATE);
 			Fishing_Shake(8);
@@ -1491,6 +2256,10 @@ static bool Fishing_UpdateState(void)
 		}
 		if (FS->cardT < 8)
 			break;
+		if ((newKeys & R_BUTTON) && Fishing_CanKeep()) {
+			Fishing_KeepCatch();
+			break;
+		}
 		if (newKeys & START_BUTTON) {
 			Fishing_CloseCard();
 			Fishing_ToReady();
@@ -1516,9 +2285,10 @@ static bool Fishing_UpdateState(void)
 			PlaySoundEffect(SE_LEAVE);
 		} else if (newKeys & (DPAD_LEFT | DPAD_RIGHT)) {
 			if (newKeys & DPAD_LEFT)
-				FS->page = FS->page == 0 ? FISHING_WATERS - 1 : FS->page - 1;
+				FS->page = FS->page == 0 ? JOURNAL_PAGES - 1 : FS->page - 1;
 			else
-				FS->page = FS->page == FISHING_WATERS - 1 ? 0 : FS->page + 1;
+				FS->page = FS->page == JOURNAL_PAGES - 1 ? 0 : FS->page + 1;
+			Fishing_ClearRows(TABLE_TOP, TABLE_ROWS);
 			PlaySoundEffect(SE_PICK);
 			Fishing_OpenPrizes();
 		}
@@ -1582,7 +2352,10 @@ static void Fishing_DrawFish(void)
 		f = &FS->fish[i];
 		if (f->mode == FISHM_HIDDEN)
 			continue;
-		t = &sFishTypes[f->type];
+		t = Fishing_TypeOf(f);
+		/* The hooked fish is in the air during a leap */
+		if (i == FS->biter && FS->leap > 0)
+			continue;
 		top = f->y - (t->h >> 1);
 		if (!Fishing_OnScreen(top, t->h))
 			continue;
@@ -1687,14 +2460,15 @@ static void Fishing_PaintMeter(int bar, int fill, int fillColor, int zoneLo, int
 static void Fishing_DrawMeters(void)
 {
 	const struct FishType *t;
-	int i, needle;
+	int i, needle, lo, hi;
 
 	if (FS->state != FS_REEL || FS->biter < 0)
 		return;
-	t = &sFishTypes[FS->fish[FS->biter].type];
+	t = Fishing_TypeOf(&FS->fish[FS->biter]);
 
 	needle = Div(FS->tension * 62, TENSION_MAX);
-	Fishing_PaintMeter(0, 0, 0, Div(t->zoneLo * 64, 100), Div(t->zoneHi * 64, 100), Fishing_Clamp(needle, 1, 61));
+	Fishing_Zone(t, &lo, &hi);
+	Fishing_PaintMeter(0, 0, 0, Div(lo * 64, 100), Div(hi * 64, 100), Fishing_Clamp(needle, 1, 61));
 	Fishing_PaintMeter(1, Div(FS->progress * 64, t->need), 10, -1, -1, -1);
 	i = t->need * 2 + 120 - FS->reelFrames;
 	Fishing_PaintMeter(2, Div((i > 0 ? i : 0) * 64, t->need * 2 + 120), FS->burst > 0 ? 14 : 11, -1, -1, -1);
@@ -1704,6 +2478,31 @@ static void Fishing_DrawMeters(void)
 		UI_SPR(METER_X, METER_Y + i * 10, gObject_32x8, CHR_BARS + i * 8);
 		UI_SPR(METER_X + 32, METER_Y + i * 10, gObject_32x8, CHR_BARS + i * 8 + 4);
 	}
+}
+
+/* The hooked fish in the air: its icon on an arc over the line, with an A cue while A catches it */
+static void Fishing_DrawLeap(void)
+{
+	int t = FS->leap, x, y;
+
+	if (FS->state != FS_REEL || t == 0)
+		return;
+	x = HOOK_X - 24 + (t >> 1);
+	y = FISHING_SURFACE_Y - FS->camY - 12 - Div(LEAP_HEIGHT * 4 * t * (LEAP_FRAMES - t), LEAP_FRAMES * LEAP_FRAMES);
+	if (!FS->leapHit && t >= LEAP_LO && t <= LEAP_HI && (GetGameClock() & 4))
+		UI_SPR(x + 8, y - 18, gObject_16x16, FISHING_CHR_BTN_A);
+	PutSpriteExt(4, OAM1_X(x & 0x1FF), OAM0_Y(y & 0xFF), gObject_32x16,
+		     OAM2_PAL(PAL_CARD) + OAM2_LAYER(1) + OAM2_CHR(CHR_CARD));
+}
+
+/* The frenzy's time left: a gold bar under the top window, blinking in its last three seconds */
+static void Fishing_DrawFrenzy(void)
+{
+	if (FS->frenzy == 0 || (FS->frenzy < 180 && (FS->frenzy & 8)))
+		return;
+	Fishing_PaintMeter(3, Div(FS->frenzy * 64, FRENZY_FRAMES), 14, -1, -1, -1);
+	UI_SPR(168, 36, gObject_32x8, CHR_FRENZY);
+	UI_SPR(200, 36, gObject_32x8, CHR_FRENZY + 4);
 }
 
 static void Fishing_DrawHints(void)
@@ -1731,10 +2530,13 @@ static void Fishing_Draw(void)
 	Fishing_DrawMeters();
 	Fishing_DrawPopup();
 	Fishing_DrawHints();
-	if (FS->state == FS_PRIZES)
+	if (FS->state == FS_PRIZES) {
 		Fishing_DrawJournalIcons();
-	else
+	} else {
+		Fishing_DrawFrenzy();
 		Fishing_DrawCard();
+		Fishing_DrawLeap();
+	}
 }
 
 /* ---- The proc ---- */
@@ -1754,6 +2556,12 @@ static void Fishing_Loop(struct ProcFishing *proc)
 			Fishing_UpdateFish(i);
 		Fishing_UpdateRod();
 		Fishing_UpdateEffects();
+		/* The frenzy runs while fishing, not while the card is up; the water sparkles */
+		if (FS->frenzy > 0 && FS->state != FS_RESULT) {
+			FS->frenzy--;
+			if ((GetGameClock() & 7) == 0)
+				Fishing_Burst(8 + NextRN_N(FISHING_WATER_RIGHT - 16), FISHING_SURFACE_Y - FS->camY, 1, 0);
+		}
 	}
 	Fishing_UpdateCamera();
 	Fishing_UpdateWindow();

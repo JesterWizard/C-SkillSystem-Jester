@@ -448,8 +448,11 @@ BIG = {
     "9": ["01110", "10001", "10001", "01111", "00001", "00010", "01100"],
     "+": ["00000", "00100", "00100", "11111", "00100", "00100", "00000"],
     "x": ["00000", "00000", "10001", "01010", "00100", "01010", "10001"],
+    "Y": ["10001", "10001", "01010", "00100", "00100", "00100", "00100"],
+    "Z": ["11111", "00001", "00010", "00100", "01000", "10000", "11111"],
 }
-POP_WORDS = ["PERFECT!", "GREAT!", "HOOKED!", "CAUGHT!", "JACKPOT!", "NEW!", "RECORD!"]
+POP_WORDS = ["PERFECT!", "GREAT!", "HOOKED!", "CAUGHT!", "JACKPOT!", "NEW!", "RECORD!", "FRENZY!", "SO CLOSE!",
+             "LEGEND!", "NICE!", "RANK UP!", "TREASURE!", "JUNK!"]
 
 
 def pop_word(word):
@@ -502,7 +505,8 @@ POP_PALS = {  # outline, shadow, fill top, mid, bottom, shine
     "BLUE": [(8, 24, 72), (0, 0, 24), (200, 240, 255), (112, 184, 248), (48, 112, 224), (255, 255, 255)],
     "GREEN": [(8, 56, 16), (0, 0, 24), (200, 255, 176), (112, 224, 96), (40, 168, 56), (255, 255, 255)],
 }
-POP_WORD_PAL = ["GOLD", "ORANGE", "BLUE", "GREEN", "GOLD", "GREEN", "GOLD"]
+POP_WORD_PAL = ["GOLD", "ORANGE", "BLUE", "GREEN", "GOLD", "GREEN", "GOLD", "ORANGE", "BLUE", "GOLD", "GREEN", "BLUE",
+                "GOLD", "ORANGE"]
 
 
 # Tiny 3x5 font for the START button.
@@ -520,6 +524,7 @@ def button_round(letter, face):
     shapes = {
         "A": ["0110", "1001", "1001", "1111", "1001", "1001"],
         "B": ["1110", "1001", "1110", "1001", "1001", "1110"],
+        "R": ["1110", "1001", "1110", "1010", "1001", "1001"],
     }[letter]
     for y, row in enumerate(shapes):
         for x, ch in enumerate(row):
@@ -591,6 +596,62 @@ def meter_icon(kind):
     return img
 
 
+# Item icon palette 0 (the item icons' palette, FE8U 0x5996F4): the colours the fish dishes are drawn in
+ICON_WHITE, ICON_BEIGE, ICON_GREY, ICON_DARK, ICON_YELLOW, ICON_RED = 1, 2, 3, 4, 5, 6
+ICON_SLATE, ICON_BROWN, ICON_TAN, ICON_PLUM, ICON_ORANGE = 8, 12, 13, 14, 15
+
+
+def _icon_outline(img):
+    out = [row[:] for row in img]
+    for y in range(16):
+        for x in range(16):
+            if img[y][x] == 0 and any(0 <= x + dx < 16 and 0 <= y + dy < 16 and img[y + dy][x + dx] not in (0, ICON_WHITE)
+                                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                out[y][x] = ICON_DARK
+    return out
+
+
+def icon_grilled_fish():
+    """Grilled Fish: a browned fish on a skewer, with char marks."""
+    img = new(16, 16)
+    for y in range(16):
+        for x in range(16):
+            u, v = x - 8.5, y - 8.0
+            if u * u / 25.0 + v * v / 9.0 <= 1:
+                img[y][x] = ICON_TAN if v > 0.8 else ICON_BROWN
+    for (x, y) in ((3, 7), (3, 8), (3, 9), (2, 6), (2, 7), (2, 9), (2, 10), (1, 5), (1, 6), (1, 10), (1, 11)):
+        put(img, x, y, ICON_BROWN)
+    for x in (6, 8, 10):
+        for y in range(6, 10):
+            if img[y][x] in (ICON_TAN, ICON_BROWN):
+                img[y][x] = ICON_PLUM
+    for x in range(16):
+        if img[11][x] == 0 or x in (0, 1, 14, 15):
+            img[11][x] = ICON_BEIGE
+    put(img, 12, 7, ICON_WHITE)
+    return _icon_outline(img)
+
+
+def icon_fish_stew():
+    """Fish Stew: a steaming bowl with a tail poking out."""
+    img = new(16, 16)
+    for y in range(16):
+        for x in range(16):
+            u, v = x - 7.5, y - 8.0
+            if v >= 0 and u * u / 49.0 + v * v / 36.0 <= 1:
+                img[y][x] = ICON_BROWN if v > 2 else ICON_TAN
+            if -0.5 <= v < 1.2 and abs(u) <= 6.5:
+                img[y][x] = ICON_ORANGE
+    for (x, y) in ((10, 7), (10, 6), (11, 5), (11, 4), (12, 3), (10, 3), (11, 3), (13, 2), (9, 2)):
+        put(img, x, y, ICON_SLATE)
+    for (x, y) in ((4, 4), (5, 3), (4, 2), (7, 3), (8, 2), (7, 1)):
+        put(img, x, y, ICON_WHITE)
+    return _icon_outline(img)
+
+
+ITEM_ICONS = [("GRILLED_FISH", icon_grilled_fish), ("FISH_STEW", icon_fish_stew)]
+
+
 def to_tiles(img):
     h, w = len(img), len(img[0])
     out = []
@@ -639,6 +700,7 @@ SPRITES = [  # name, palette, frames; tiles are packed in this order
     ("BTN_UPDOWN", "UI", [dpad(True)]),
     ("BTN_LEFTRIGHT", "UI", [dpad(False)]),
     ("METER_ICON", "UI", [meter_icon(k) for k in (0, 1, 2)]),
+    ("BTN_R", "UI", [button_round("R", 8)]),
 ]
 PALS = {"FX": PAL_FX, "UI": PAL_UI, "GOLD": PAL_GOLD}
 
@@ -682,11 +744,13 @@ def build():
     for name in POP_PALS:
         pop_pals += pal_words([(0, 0, 0)] + POP_PALS[name] + [(0, 0, 0)] * 9)
     species = fish_species.SPECIES
-    pics = b"".join(b"".join(to_tiles(fish_species.portrait(sp))) for sp in species)
-    icons = b"".join(b"".join(to_tiles(fish_species.icon(sp))) for sp in species)
+    allpics = fish_species.pictures()
+    pics = b"".join(b"".join(to_tiles(p[0])) for p in allpics)
+    icons = b"".join(b"".join(to_tiles(p[1])) for p in allpics)
     sp_pals = []
-    for sp in species:
-        sp_pals += pal_words(sp["pal"])
+    for p in allpics:
+        sp_pals += pal_words(p[2])
+    item_icons = b"".join(b"".join(to_tiles(f())) for _, f in ITEM_ICONS)
 
     h = ["/* Generated by Tools/fishing/gen_fishing_art.py. Do not edit. */", "#pragma once", "",
          "/* Scene geometry in pixels (world rows: the screen scrolls down the scene) */"]
@@ -704,19 +768,26 @@ def build():
           "extern const u16 gFishingObjPalUi[16];", "extern const u16 gFishingObjPalGold[16];",
           "extern const u8 gFishingMapBobberTile[32];", "",
           "/* Pop-up words: two 64x32 halves (64 tiles) each, copied into OBJ VRAM when shown */",
-          "enum { %s, FISHING_POP_WORDS };" % ", ".join("FISHING_POP_" + w.strip("!") for w in POP_WORDS),
+          "enum { %s, FISHING_POP_WORDS };" % ", ".join("FISHING_POP_" + w.strip("!").replace(" ", "_") for w in POP_WORDS),
           "enum { %s };" % ", ".join("FISHING_POP_PAL_%s" % n for n in POP_PALS),
           "#define FISHING_POP_TILES 64",
           "extern const u8 gFishingPopTiles[FISHING_POP_WORDS * FISHING_POP_TILES * 32];",
           "extern const u16 gFishingPopPals[%d * 16];" % len(POP_PALS),
           "extern const u8 gFishingPopWordPal[FISHING_POP_WORDS];", "",
           "/* The journal's species (water * 5 + kind): a 64x32 portrait, a 32x16 icon and a palette each */",
-          "#define FISHING_SPECIES %d" % len(species), "#define FISHING_PIC_TILES 32", "#define FISHING_ICON_TILES 8",
-          "extern const u8 gFishingSpeciesPics[FISHING_SPECIES * FISHING_PIC_TILES * 32];",
-          "extern const u8 gFishingSpeciesIcons[FISHING_SPECIES * FISHING_ICON_TILES * 32];",
-          "extern const u16 gFishingSpeciesPals[FISHING_SPECIES * 16];",
+          "#define FISHING_SPECIES %d" % len(species),
+          "#define FISHING_PIC_LEGEND %d /* + water: the legends */" % len(species),
+          "#define FISHING_PIC_EXTRA %d /* the old boot, the treasure chest, the bottle */"
+          % (len(species) + len(fish_species.LEGENDS)),
+          "#define FISHING_PICS %d" % len(allpics), "#define FISHING_PIC_TILES 32", "#define FISHING_ICON_TILES 8",
+          "extern const u8 gFishingSpeciesPics[FISHING_PICS * FISHING_PIC_TILES * 32];",
+          "extern const u8 gFishingSpeciesIcons[FISHING_PICS * FISHING_ICON_TILES * 32];",
+          "extern const u16 gFishingSpeciesPals[FISHING_PICS * 16];",
           "extern const u16 gFishingSilhouettePal[16];",
-          "extern const u8 gFishingSpeciesCm[FISHING_SPECIES * 2]; /* smallest and biggest, centimetres */", ""]
+          "extern const u8 gFishingSpeciesCm[FISHING_PICS * 2]; /* smallest and biggest, centimetres */", "",
+          "/* The fish dishes' item icons (16x16, item icon palette 0), for the tonic icon sheet */",
+          "extern const u8 gFishingItemIcons[%d * 128]; /* %s */" % (len(ITEM_ICONS), ", ".join(n for n, _ in ITEM_ICONS)),
+          ""]
 
     c = ["/* Generated by Tools/fishing/gen_fishing_art.py. Do not edit: change the script and run it again. */",
          '#include "common-chax.h"', '#include "fishing-art.h"', ""]
@@ -731,13 +802,14 @@ def build():
     c.append(c_bytes("gFishingPopTiles", pops, "Pop-up words %s, two 64x32 halves each" % ", ".join(POP_WORDS)))
     c.append(c_u16("gFishingPopPals", pop_pals, "Pop-up palettes: %s" % ", ".join(POP_PALS)))
     c.append(c_bytes("gFishingPopWordPal", bytes(list(POP_PALS).index(n) for n in POP_WORD_PAL), "Each word's palette"))
-    names = ", ".join(sp["name"] for sp in species)
+    names = ", ".join(sp["name"] for sp in species + fish_species.LEGENDS + fish_species.EXTRAS)
     c.append(c_bytes("gFishingSpeciesPics", pics, "Species portraits, 64x32 (1D order): %s" % names))
     c.append(c_bytes("gFishingSpeciesIcons", icons, "Species icons, 32x16 (1D order)"))
     c.append(c_u16("gFishingSpeciesPals", sp_pals, "Species palettes"))
     c.append(c_u16("gFishingSilhouettePal", pal_words(fish_species.SILHOUETTE), "An uncaught species' silhouette"))
-    c.append(c_bytes("gFishingSpeciesCm", bytes(v for sp in species for v in sp["cm"]),
+    c.append(c_bytes("gFishingSpeciesCm", bytes(v for p in allpics for v in p[3]),
                      "Species sizes: smallest and biggest, centimetres"))
+    c.append(c_bytes("gFishingItemIcons", item_icons, "Item icons: Grilled Fish, Fish Stew (16x16, 4 tiles each)"))
     return "\n".join(c).rstrip() + "\n", "\n".join(h) + "\n", scene
 
 

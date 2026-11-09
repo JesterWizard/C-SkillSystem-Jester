@@ -18,7 +18,7 @@
 
 #define FISHING_SCENE_ROWS 56
 #define FISHING_SCENE_TILES 578
-#define FISHING_OBJ_TILES 272
+#define FISHING_OBJ_TILES 276
 
 /* OBJ tile offsets (1D mapping), tiles per frame, and the palette each sprite uses */
 #define FISHING_CHR_FISH_SMALL 0
@@ -61,6 +61,8 @@
 #define FISHING_CHR_BTN_LEFTRIGHT_FRAME 4
 #define FISHING_CHR_METER_ICON 269
 #define FISHING_CHR_METER_ICON_FRAME 1
+#define FISHING_CHR_BTN_R 272
+#define FISHING_CHR_BTN_R_FRAME 4
 
 extern const u8 gFishingSceneTiles[FISHING_SCENE_TILES * 32];
 extern const u16 gFishingSceneMap[30 * FISHING_SCENE_ROWS];
@@ -72,7 +74,7 @@ extern const u16 gFishingObjPalGold[16];
 extern const u8 gFishingMapBobberTile[32];
 
 /* Pop-up words: two 64x32 halves (64 tiles) each, copied into OBJ VRAM when shown */
-enum { FISHING_POP_PERFECT, FISHING_POP_GREAT, FISHING_POP_HOOKED, FISHING_POP_CAUGHT, FISHING_POP_JACKPOT, FISHING_POP_NEW, FISHING_POP_RECORD, FISHING_POP_WORDS };
+enum { FISHING_POP_PERFECT, FISHING_POP_GREAT, FISHING_POP_HOOKED, FISHING_POP_CAUGHT, FISHING_POP_JACKPOT, FISHING_POP_NEW, FISHING_POP_RECORD, FISHING_POP_FRENZY, FISHING_POP_SO_CLOSE, FISHING_POP_LEGEND, FISHING_POP_NICE, FISHING_POP_RANK_UP, FISHING_POP_TREASURE, FISHING_POP_JUNK, FISHING_POP_WORDS };
 enum { FISHING_POP_PAL_GOLD, FISHING_POP_PAL_ORANGE, FISHING_POP_PAL_BLUE, FISHING_POP_PAL_GREEN };
 #define FISHING_POP_TILES 64
 extern const u8 gFishingPopTiles[FISHING_POP_WORDS * FISHING_POP_TILES * 32];
@@ -81,11 +83,17 @@ extern const u8 gFishingPopWordPal[FISHING_POP_WORDS];
 
 /* The journal's species (water * 5 + kind): a 64x32 portrait, a 32x16 icon and a palette each */
 #define FISHING_SPECIES 20
+#define FISHING_PIC_LEGEND 20 /* + water: the legends */
+#define FISHING_PIC_EXTRA 24 /* the old boot, the treasure chest, the bottle */
+#define FISHING_PICS 27
 #define FISHING_PIC_TILES 32
 #define FISHING_ICON_TILES 8
-extern const u8 gFishingSpeciesPics[FISHING_SPECIES * FISHING_PIC_TILES * 32];
-extern const u8 gFishingSpeciesIcons[FISHING_SPECIES * FISHING_ICON_TILES * 32];
-extern const u16 gFishingSpeciesPals[FISHING_SPECIES * 16];
+extern const u8 gFishingSpeciesPics[FISHING_PICS * FISHING_PIC_TILES * 32];
+extern const u8 gFishingSpeciesIcons[FISHING_PICS * FISHING_ICON_TILES * 32];
+extern const u16 gFishingSpeciesPals[FISHING_PICS * 16];
 extern const u16 gFishingSilhouettePal[16];
-extern const u8 gFishingSpeciesCm[FISHING_SPECIES * 2]; /* smallest and biggest, centimetres */
+extern const u8 gFishingSpeciesCm[FISHING_PICS * 2]; /* smallest and biggest, centimetres */
+
+/* The fish dishes' item icons (16x16, item icon palette 0), for the tonic icon sheet */
+extern const u8 gFishingItemIcons[2 * 128]; /* GRILLED_FISH, FISH_STEW */
 

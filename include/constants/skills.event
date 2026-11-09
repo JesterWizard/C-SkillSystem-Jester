@@ -931,5 +931,6 @@
 #define SID_Obliterate 0x39E
 #define SID_Sweapstrike 0x39F
 #define SID_Prayer 0x3A0
+#define SID_Angler 0x3A1
 
 #endif /* SKILLS_EVENT */

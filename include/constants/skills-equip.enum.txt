@@ -996,3 +996,4 @@ SID_FastHands
 SID_Obliterate
 SID_Sweapstrike
 SID_Prayer
+SID_Angler

@@ -39,3 +39,7 @@
 #define ITEM_ICON_TONIC_MAG 0x9E7
 #define ITEM_ICON_TONIC_OMNI 0x9E8
 #define ITEM_ICON_HEX_CARD 0x8E
+
+/* District fishing dishes: free slots of the tonic sheet (Data/Misc/IconTable.c), drawn by Tools/fishing/gen_fishing_art.py */
+#define ITEM_ICON_GRILLED_FISH 0x9E9
+#define ITEM_ICON_FISH_STEW 0x9EA

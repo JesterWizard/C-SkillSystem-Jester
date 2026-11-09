@@ -70,6 +70,7 @@ gEmsSavChunks:
 #endif
 #ifdef CONFIG_DISTRICT_FISHING
     EmsChunk($002C, FishingRecords_Save, FishingRecords_Load) /* District fish journal */
+    EmsChunk($0020, FishingProgress_Save, FishingProgress_Load) /* District fishing: rank, legends, requests */
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */
@@ -132,6 +133,7 @@ gEmsSusChunks:
 #endif
 #ifdef CONFIG_DISTRICT_FISHING
     EmsChunk($002C, FishingRecords_Save, FishingRecords_Load) /* District fish journal */
+    EmsChunk($0020, FishingProgress_Save, FishingProgress_Load) /* District fishing: rank, legends, requests */
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */
@@ -153,6 +155,7 @@ gNewSaveHooks:
 #endif
 #ifdef CONFIG_DISTRICT_FISHING
     POIN FishingRecords_NewGame
+    POIN FishingProgress_NewGame
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     POIN CrossingRecords_NewGame

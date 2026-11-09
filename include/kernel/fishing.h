@@ -118,9 +118,29 @@ struct FishingState {
 	/* 187 */ u8 prevBest;     /* the species' best size before it (0: a first catch) */
 	/* 188 */ u8 stamp;        /* FISHING_POP_NEW or FISHING_POP_RECORD on the catch card, 0xFF: none */
 	/* 189 */ u8 cardT;        /* frames since the catch card opened, 0: closed */
-	/* 18A */ u8 page;         /* the journal's water */
-	/* 18B */ u8 pad18B[0x15];
+	/* 18A */ u8 page;         /* the journal's page: a water, or FISHING_WATERS for the angler's page */
+	/* 18B */ u8 streak;       /* catches in a row (FISHING_FRENZY_STREAK starts a frenzy) */
+	/* 18C */ u16 frenzy;      /* frames of the feeding frenzy left */
+	/* 18E */ u16 leapNext;    /* frames to the hooked fish's next leap (a leaper) */
+	/* 190 */ u16 rewardItem;  /* an item the catch gave (a chest, a request, kept), 0: none */
+	/* 192 */ u8 leap;         /* frames into the fish's leap, 0: none */
+	/* 193 */ u8 leapHit;      /* A was pressed in time during this leap */
+	/* 194 */ u8 behaviour;    /* the hooked fish's FISHB_* */
+	/* 195 */ u8 kind;         /* the catch: FISHK_* */
+	/* 196 */ u8 kept;         /* the catch was kept as an item */
+	/* 197 */ u8 rankBefore;   /* the rank before the catch's points */
+	/* 198 */ u8 reqDone;      /* the catch fulfilled its water's request */
+	/* 199 */ u8 bottle;       /* the message in the bottle */
+	/* 19A */ u8 points;       /* the catch's rank points */
+	/* 19B */ u8 legendIdx;    /* the fish slot the legend swims in, 0xFF: none */
+	/* 19C */ u8 rankUp;       /* the catch raised the angler's rank: RANK UP! on the card */
+	/* 19D */ u8 frenzyStart;  /* the catch started a frenzy: FRENZY! on the card */
+	/* 19E */ u8 given;        /* where rewardItem went: 1 the unit's items, 2 the convoy, 0 no room */
+	/* 19F */ u8 pad19F;
 };
+
+/* The fish slot flag (FishingFish.pad[0]) of the legend */
+#define FISHF_LEGEND 1
 
 /*
  * Saved records, the fish journal: how many of each species were landed and the biggest (a save chunk in both save
@@ -132,6 +152,54 @@ struct FishingRecords {
 	/* 16 */ u8 best[FISHING_JOURNAL_SPECIES];   /* centimetres */
 	/* 2A */ u16 pad;
 };
+
+/*
+ * The angler's progress (a second save chunk in both save lists, 0x20 bytes): rank points, the legends caught and their
+ * sizes, the messages in bottles read, and each water's request.
+ */
+enum {
+	FISHING_REQ_NONE = 0,   /* none yet: one is made on the next visit */
+	FISHING_REQ_OPEN = 1,
+	FISHING_REQ_DONE = 2,   /* a new one comes with the next story chapter */
+};
+
+struct FishingRequest {
+	u8 species;     /* the species wanted (water * FISH_TYPES + kind) */
+	u8 minCm;       /* at least this big */
+	u8 story;       /* gWmStoryChapter when it was made or done */
+	u8 state;       /* FISHING_REQ_* */
+};
+
+struct FishingProgress {
+	/* 00 */ u16 magic;
+	/* 02 */ u16 points;                     /* rank points, up to 9999 */
+	/* 04 */ u8 legends;                     /* bit per water: its legend is caught */
+	/* 05 */ u8 bottles;                     /* bit per message in a bottle read */
+	/* 06 */ u8 legendBest[FISHING_WATERS];  /* centimetres */
+	/* 0A */ u16 pad;
+	/* 0C */ struct FishingRequest req[FISHING_WATERS];
+	/* 1C */ u8 pad1C[4];
+};
+
+/* Angler ranks (FishingProgress_Rank): the points each needs, and what it gives */
+enum {
+	FISHING_RANK_NOVICE,
+	FISHING_RANK_APPRENTICE,        /* bite window +4 frames */
+	FISHING_RANK_ANGLER,            /* green zones 3% wider each side */
+	FISHING_RANK_EXPERT,            /* fish pull 20% less */
+	FISHING_RANK_MASTER,            /* catches pay 25% more */
+	FISHING_RANKS,
+};
+
+extern struct FishingProgress gFishingProgress;
+
+void FishingProgress_NewGame(void);
+void FishingProgress_Save(u8 *dst, const u32 size);
+void FishingProgress_Load(u8 *src, const u32 size);
+void FishingProgress_Validate(void);
+int FishingProgress_Rank(void);
+int FishingProgress_RankPoints(int rank);
+void FishingProgress_AddPoints(int n);
 
 /* What a catch added to the journal (FishingRecords_Add) */
 enum {

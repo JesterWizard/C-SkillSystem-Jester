@@ -265,6 +265,9 @@ enum {
     ITEM_ANIMA_TEMPEST     = 0xE9,
     ITEM_DARK_GRAVITY      = 0xEA,
     ITEM_STAFF_UNICORN     = 0xEB,
+    /* 0xEC: the Hex card (CONFIG_ITEM_INDEX_HEX_CARD) */
+    ITEM_GRILLED_FISH      = 0xED, /* district fishing: a kept catch */
+    ITEM_FISH_STEW         = 0xEE,
 };
 
 #endif // GUARD_CONSTANTS_ITEMS_H

@@ -154,6 +154,35 @@ SPECIES = [
          pattern=[("scales", 5), ("shine", 0)], whiskers=4, upmouth=1),
 ]
 
+# ---- The legends: one per water, after the 20 species (index 20 + water). Bigger, bolder, with a glowing eye. ----
+LEGENDS = [
+    dict(name="Old Whiskers", cm=(180, 240), legend=True,
+         pal=pal((16, 16, 24), (40, 40, 56), (64, 64, 88), (104, 104, 128), (184, 176, 160), (56, 56, 80),
+                 (24, 24, 40), (32, 32, 48), (232, 200, 64), accent=(232, 200, 64), eye=(255, 224, 96)),
+         len=0.86, depth=0.6, peak=0.7, ped=0.45, nose=2.4, belly=0.44, tail="round", tailw=0.13,
+         dorsal=[(0.6, 0.72, 0.5, "tri")], anal=[(0.05, 0.5, 0.32, "round")],
+         pattern=[("mottle", 0), ("scars", 0)], whiskers=3, flathead=1),
+    dict(name="Stormfin", cm=(200, 255), legend=True,
+         pal=pal((8, 16, 40), (24, 48, 112), (40, 80, 168), (136, 176, 232), (232, 240, 255), (48, 88, 184),
+                 (24, 40, 104), (248, 240, 120), (120, 216, 255), accent=(120, 216, 255), eye=(200, 240, 255)),
+         len=0.7, depth=0.56, peak=0.5, ped=0.16, nose=1.5, belly=0.5, tail="lunate", tailw=0.2,
+         dorsal=[(0.25, 0.8, 0.95, "sail")], anal=[(0.3, 0.4, 0.5, "sail")],
+         pattern=[("bolts", 0)], finlets=2, bill=0.16),
+    dict(name="Frostfin", cm=(150, 210), legend=True,
+         pal=pal((24, 40, 72), (112, 152, 200), (160, 200, 232), (216, 236, 248), (248, 252, 255), (176, 224, 248),
+                 (104, 168, 216), (88, 136, 200), (255, 255, 255), eye=(160, 240, 255)),
+         len=0.8, depth=0.52, peak=0.55, ped=0.38, nose=1.6, belly=0.5, tail="fork", tailw=0.18,
+         dorsal=[(0.42, 0.62, 0.55, "tri")], anal=[(0.22, 0.34, 0.35, "tri")],
+         pattern=[("spots", 45, 9, 0.0, 0.8), ("shine", 0), ("finedge", 0)], jaw=1),
+    dict(name="Sunscale", cm=(200, 250), legend=True,
+         pal=pal((96, 24, 8), (200, 64, 24), (240, 120, 32), (255, 184, 64), (255, 232, 160), (248, 88, 40),
+                 (176, 40, 16), (176, 48, 16), (255, 248, 200), eye=(255, 255, 160)),
+         len=0.86, depth=0.44, peak=0.5, ped=0.5, nose=1.4, belly=0.5, tail="round", tailw=0.13,
+         dorsal=[(0.03, 0.26, 0.45, "round")], anal=[(0.03, 0.36, 0.45, "round")],
+         pattern=[("scales", 5), ("shine", 0)], whiskers=4, upmouth=1),
+]
+
+
 # A species not caught yet: its shape in the journal, dark against the window
 SILHOUETTE = [(0, 0, 0)] + [(32, 40, 64)] + [(56, 64, 96)] * 13 + [(0, 0, 0)]
 
@@ -377,6 +406,21 @@ def paint(sp, w, h):
                         img[y][x] = 8
         elif kind == "finedge":
             pass  # drawn with the outline below
+        elif kind == "scars":
+            for k in range(3):
+                xa = x0 + int((0.35 + k * 0.12) * (x1 - x0))
+                for t in range(6 if not small else 3):
+                    x, y = xa + t, int(cy - D * 0.15) + t // 2 + k
+                    if on_body(x, y) and not small:
+                        img[y][x] = 9
+        elif kind == "bolts":
+            for k in range(3):
+                xa = x0 + int((0.18 + k * 0.2) * (x1 - x0))
+                for t in range(8 if not small else 4):
+                    x = xa + (t % 2 if t < 4 else 1 - t % 2) + t // 3
+                    y = int(cy - D * 0.2) + t
+                    if on_body(x, y, 0.1, 0.85):
+                        img[y][x] = 8
         elif kind == "shine":
             for x in range(x0 + (x1 - x0) // 3, x0 + (x1 - x0) * 3 // 4):
                 y = tops[x] + max(1, (bots[x] - tops[x]) // 4)
@@ -410,6 +454,9 @@ def paint(sp, w, h):
                 if body_px(xe + dx, ye + dy):
                     img[ye + dy][xe + dx] = 9
             img[ye][xe + 1] = 11
+            if sp.get("legend"):
+                for dx, dy in ((0, 0), (1, 1)):
+                    img[ye + dy][xe + dx] = 9
     # The mouth: a dark notch at the snout
     my = int(round(cy + (0 if not sp.get("upmouth") else -D * 0.15)))
     for k in range(1 if small else (3 if not sp.get("jaw") else 4)):
@@ -419,6 +466,14 @@ def paint(sp, w, h):
     if sp.get("jaw") and not small:
         if body_px(x1, my + 1):
             img[my + 1][x1] = 4
+    # A bill (swordfish): a spear from the snout
+    if sp.get("bill"):
+        n = int(w * sp["bill"])
+        for k in range(1, n + 1):
+            x = x1 + k
+            for yy in (my - 1, my) if not small and k < n * 0.6 else (my,):
+                if 0 <= x < w and 0 <= yy < h:
+                    img[yy][x] = 2 if yy < my else 4
     # Whiskers
     wk = sp.get("whiskers", 0)
     if wk:
@@ -456,3 +511,116 @@ def portrait(sp):
 
 def icon(sp):
     return paint(sp, 32, 16)
+
+
+# ---- Not fish: an old boot, a treasure chest and a message in a bottle (index 24, 25, 26 in the art) ----
+def _blank(w, h):
+    return [[0] * w for _ in range(h)]
+
+
+def _outline(img, c=1):
+    h, w = len(img), len(img[0])
+    out = [row[:] for row in img]
+    for y in range(h):
+        for x in range(w):
+            if img[y][x] and any(not (0 <= x + dx < w and 0 <= y + dy < h) or img[y + dy][x + dx] == 0
+                                 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                out[y][x] = c
+    return out
+
+
+def boot(w, h):
+    """An old leather boot, toe to the right, with a worn sole and lace holes."""
+    img = _blank(w, h)
+    s = w / 64.0
+    for y in range(h):
+        for x in range(w):
+            u, v = x / s, y / s
+            leg = 14 <= u <= 34 and 2 <= v <= 24
+            foot = 14 <= u <= 54 and 16 <= v <= 27 and ((u - 44) ** 2 / 110.0 + (v - 23) ** 2 / 20.0 <= 1 or u <= 44)
+            if leg or foot:
+                img[y][x] = 3 if v < 8 else (4 if v < 20 else 2)
+            if (leg or foot) and v >= 25:
+                img[y][x] = 13
+    for k in range(4):
+        x, y = int((30) * s), int((5 + k * 4) * s)
+        if 0 <= y < h and 0 <= x < w:
+            img[y][x] = 11
+    if w >= 48:
+        for x in range(int(14 * s), int(34 * s)):
+            img[int(2 * s)][x] = 5
+    return _outline(img)
+
+
+def chest(w, h):
+    """A treasure chest: a wooden box with a curved lid, gold bands and a lock."""
+    img = _blank(w, h)
+    s = w / 64.0
+    for y in range(h):
+        for x in range(w):
+            u, v = x / s, y / s
+            if 12 <= u <= 52 and 12 <= v <= 29:
+                img[y][x] = 3 if v < 19 else 4
+            if 12 <= u <= 52 and 4 <= v < 12 and ((u - 32) ** 2 / 400.0 + (v - 12) ** 2 / 64.0 <= 1):
+                img[y][x] = 2
+            if (12 <= u <= 52 and (18 <= v <= 20)) or ((15 <= u <= 17 or 47 <= u <= 49) and 4 <= v <= 29):
+                if img[y][x]:
+                    img[y][x] = 8
+            if 29 <= u <= 35 and 16 <= v <= 23:
+                img[y][x] = 12 if not (31 <= u <= 33 and 19 <= v <= 21) else 1
+    img = _outline(img)
+    for (u, v) in ((22, 8), (40, 7), (26, 15)):
+        x, y = int(u * s), int(v * s)
+        if img[y][x]:
+            img[y][x] = 11
+    return img
+
+
+def bottle(w, h):
+    """A green glass bottle on its side with a cork and a rolled note inside."""
+    img = _blank(w, h)
+    s = w / 64.0
+    for y in range(h):
+        for x in range(w):
+            u, v = x / s, y / s
+            body = (u - 28) ** 2 / 300.0 + (v - 17) ** 2 / 64.0 <= 1 or (28 <= u <= 40 and 10 <= v <= 24)
+            neck = 40 <= u <= 52 and 14 <= v <= 20
+            cork = 52 < u <= 57 and 14 <= v <= 20
+            if body or neck:
+                img[y][x] = 4 if v > 19 else (3 if v > 13 else 2)
+            if cork:
+                img[y][x] = 13
+            if 16 <= u <= 36 and 14 <= v <= 19 and body:
+                img[y][x] = 5 if v < 17 else 6
+    img = _outline(img)
+    for u in range(14, 34, 3):
+        x, y = int(u * s), int(11 * s)
+        if 0 <= y < h and img[y][x]:
+            img[y][x] = 11
+    return img
+
+
+EXTRAS = [
+    dict(name="Old Boot", draw=boot,
+         pal=[(0, 0, 0), (32, 20, 12), (88, 56, 32), (120, 80, 48), (104, 68, 40), (232, 216, 184), (0, 0, 0),
+              (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (200, 192, 168), (0, 0, 0), (64, 64, 64), (0, 0, 0),
+              (0, 0, 0)]),
+    dict(name="Treasure Chest", draw=chest,
+         pal=[(0, 0, 0), (40, 24, 8), (168, 96, 40), (144, 80, 32), (112, 64, 24), (0, 0, 0), (0, 0, 0), (0, 0, 0),
+              (240, 192, 48), (0, 0, 0), (0, 0, 0), (255, 248, 200), (200, 200, 216), (0, 0, 0), (0, 0, 0),
+              (0, 0, 0)]),
+    dict(name="Bottle", draw=bottle,
+         pal=[(0, 0, 0), (16, 48, 32), (136, 216, 168), (80, 168, 112), (48, 120, 80), (248, 240, 216),
+              (216, 200, 160), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (232, 255, 240), (0, 0, 0),
+              (176, 128, 80), (0, 0, 0), (0, 0, 0)]),
+]
+
+
+def pictures():
+    """Every card picture in art order: the 20 species, the 4 legends, then the 3 extras."""
+    out = []
+    for sp in SPECIES + LEGENDS:
+        out.append((paint(sp, 64, 32), paint(sp, 32, 16), sp["pal"], sp["cm"]))
+    for ex in EXTRAS:
+        out.append((ex["draw"](64, 32), ex["draw"](32, 16), ex["pal"], (0, 0)))
+    return out
