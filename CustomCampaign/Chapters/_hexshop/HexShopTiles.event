@@ -13,7 +13,13 @@ ALIGN 4
 HexShop_Jeh_Cfg:   #incbin "jeh_cfg.lz"
 ALIGN 4
 HexShop_Town_Pal: #incbin "town_pal.bin"
+ALIGN 4
+HexShop_Caer_Pal: #incbin "caer_pal.bin"
+ALIGN 4
+HexShop_Jeh_Pal:  #incbin "jeh_pal.bin"
 NewEventPointerTable_ObjPal(0xEE, HexShop_Town_Pal)
+NewEventPointerTable_ObjPal(0xEF, HexShop_Caer_Pal)
+NewEventPointerTable_ObjPal(0xF0, HexShop_Jeh_Pal)
 NewEventPointerTable_ObjPal(0xEB, HexShop_Town_Obj)
 NewEventPointerTable_ObjPal(0xEC, HexShop_Caer_Obj)
 NewEventPointerTable_ObjPal(0xED, HexShop_Jeh_Obj)

@@ -56,29 +56,29 @@ new district map, and the limits.
 
 ## Hex shop building (hexshop_building.py)
 
-`hexshop_building.py` replaces the Hex shop building (a vanilla house or hut in the Hex shop slot) with a drawn shop in
-a copy of each district tileset. In the town tileset it is a market stall from a supplied illustration, read pixel for
-pixel (33x25) and made three rows taller (one wall row above the windows, two through the door; 33x28): a blue hipped
-roof, a cream stone wall with two green windows, a red-and-white striped awning and a wooden door. The small Caer Pelyn
-and Jehanna version is a tower in one tile: a grey cone roof from above with a gold band over a short cream wall.
-The art is in `hexshop_art/`: `stall_town.txt` (48x32, the 3x2 town block, on a
-yard copied from the block's own left strip) and `tower_small.txt` (16x16, one metatile, for the caer and jeh tilesets,
-on a two-colour ground). The colours of each set are in `SETS`. The town set also has a palette copy, `town_pal.bin`
-(palette 0xEE, the vanilla 0x0F with bank 5 redefined to the stall's 12 colours and 3 yard colours), because the
-stall's colours are not in the town palette; every 8x8 tile that holds stall pixels uses bank 5. The door metatile gets
-terrain 0x03, so the door's VISIT location event runs when the player stands on it.
+`hexshop_building.py` replaces the Hex shop building in a copy of each district tileset with a market stall from a
+supplied illustration, read pixel for pixel (33x25) and made three rows taller (one wall row above the windows, two
+through the door; 33x28): a blue hipped roof, a cream stone wall with two green windows, a red-and-white striped awning
+and a wooden door. The art is `hexshop_art/stall.txt` (48x32, a 3x2 block), shared by every set; its colours are
+`STALL_COLORS`. `.` in the art is the ground, copied from the block's own left strip: the town yard, the Caer Pelyn
+plaza floor or the Jehanna sand. Each set has a palette copy (`pal_copy`): its vanilla palette with bank 5 redefined to
+the stall's 12 colours and 3 ground colours, because the stall's colours are not in the vanilla palettes; every 8x8 tile
+that holds stall pixels uses bank 5. The door metatile gets terrain 0x03, so the door's VISIT location event runs when
+the player stands on it. In the caer and jeh sets the other block cells get terrain 0x2E (`body_terrain`, building),
+because their blocks replace plain ground; the compose specs of Caer Pelyn and Jehanna set those six cells to plain
+ground first. The cell below each door must be walkable, or the door cannot be reached.
 
 Per tileset copy it writes `<key>_obj.bin` (raw 4bpp tiles) and `<key>_cfg.bin` (raw tile config, 0x2400 bytes).
 With `--write-layouts` it also rewrites the building cells of each district layout JSON to the new metatiles.
 With `--png DIR` it saves each district with the new tiles (`<Name>.png`) and the building block at 8x (`<key>_block.png`).
 
-| Key | Source tileset (obj / pal / cfg) | Districts (block top-left / door cell) | New obj | New cfg |
+| Key | Source tileset (obj / pal / cfg) | Districts (block top-left / door cell) | New obj / palette | New cfg |
 | --- | --- | --- | --- | --- |
-| `town` | 0x0E / 0x0F / 0x10 | Serafew (4,18) / (5,19), PortKiris (10,14) / (11,15) | 0xEB | 0x8B |
-| `caer` | 0x2E / 0x34 / 0x30 | CaerPelyn (13,8) / (13,8) | 0xEC | 0x8C |
-| `jeh`  | 0x42 / 0x43 / 0x44 | Jehanna (17,6) / (17,6) | 0xED | 0x8D |
+| `town` | 0x0E / 0x0F / 0x10 | Serafew (4,18) / (5,19), PortKiris (10,14) / (11,15) | 0xEB / 0xEE | 0x8B |
+| `caer` | 0x2E / 0x34 / 0x30 | CaerPelyn (10,7) / (11,8) | 0xEC / 0xEF | 0x8C |
+| `jeh`  | 0x42 / 0x43 / 0x44 | Jehanna (15,5) / (16,6) | 0xED / 0xF0 | 0x8D |
 
-The palette id stays the vanilla one. The new ids are registered in `CustomCampaign/Chapters/_hexshop/HexShopTiles.event`
+The chapters use the new palette ids (`town_pal.bin`, `caer_pal.bin`, `jeh_pal.bin`). The new ids are registered in `CustomCampaign/Chapters/_hexshop/HexShopTiles.event`
 (`NewEventPointerTable_ObjPal` and `NewEventPointerTable_TileConfig`), which `Event_Installer.event` includes.
 
 Run order for an installed district map:
@@ -86,7 +86,7 @@ Run order for an installed district map:
 1. `compose.py <spec> --write` writes the layout JSON (see above).
 2. `python3 Tools/district/hexshop_building.py --chapters CustomCampaign/Chapters --out-dir CustomCampaign/Chapters/_hexshop --write-layouts`.
    Run it once, on the layout from step 1. A second run stops with `<Name>: cell (x,y) holds N, expected M`, because the
-   tower cells are already in the layout. The script only knows the districts in its `SETS`. A new district needs an entry
+   stall cells are already in the layout. The script only knows the districts in its `SETS`. A new district needs an entry
    there, with its tileset, its building metatiles, its door cell and its art.
 3. Compress each `.bin` to `.lz` with `Tools/EventAssembler/Tools/compress INPUT OUTPUT` (the script does not compress). There
    are six files: `<key>_obj.bin` and `<key>_cfg.bin` for `town`, `caer` and `jeh`. New copies also need their ids in

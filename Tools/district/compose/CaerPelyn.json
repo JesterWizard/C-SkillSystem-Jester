@@ -2,5 +2,5 @@
  "base": {"map": "0x31", "x": 0, "y": 0, "w": 20, "h": 21},
  "tileset": [236, 52, 140],
  "preview_tileset": ["0x2E", "0x34", "0x30"],
- "tiles": [[10,9,730],[11,9,723]],
+ "tiles": [[10,9,730],[11,9,723],[10,7,723],[11,7,723],[12,7,723],[10,8,723],[11,8,723],[12,8,723],[13,8,723]],
  "layout": "CustomCampaign/Chapters/CaerPelyn/map/CaerPelyn_layout.json"}

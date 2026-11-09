@@ -2,22 +2,22 @@
 """
 hexshop_building.py: draw the Hex shop building of each district into a copy of the district's tileset.
 
-The building in each district's Hex shop slot (a vanilla vendor house or hut) is replaced by a drawn shop. In the town
-tileset it is a market stall from a supplied illustration: a blue hipped roof, a cream stone wall with two green
-windows, a red-and-white striped awning and a wooden door. In the caer and jeh tilesets it is a small drawn tower (a grey
-cone roof with a gold band over a short cream wall). The art lives in hexshop_art/ (stall_town.txt, a 48x32 block for
-the town; tower_small.txt, a 16x16 block for the caer and jeh tilesets). The town stall sits on a yard copied from the
-block's own left strip; the small towers sit on a two-colour ground.
+The building in each district's Hex shop slot is replaced by a market stall from a supplied illustration: a blue hipped
+roof, a cream stone wall with two green windows, a red-and-white striped awning and a wooden door. The art is
+hexshop_art/stall.txt, a 48x32 block (3x2 metatiles) used by every tileset copy. '.' in the art is the ground under the
+stall, copied from the block's own left strip: the town yard, the Caer Pelyn plaza floor or the Jehanna sand.
 
 The changed 8x8 tiles go into tile slots no metatile of the tileset uses; the changed metatiles go into metatile slots
 that no vanilla map of the tileset and no district layout uses. The door metatile gets terrain 0x03 (village), so free
 movement runs the door's VISIT location event when the player stands on it.
 
-The town set also has a palette copy (pal_copy). The stall's colours (outline, four roof blues, three wall creams,
-awning red and orange, window green, door brown) are not in the town palette, so the town set gets its own palette:
-the vanilla palette 0x0F with bank 5 redefined (bank 5 is unused by the town tileset) to the stall's 12 colours plus 3
-yard colours, written to <out-dir>/town_pal.bin and loaded as palette 0xEE by the Serafew and Port Kiris chapters.
-Every 8x8 tile that holds stall pixels uses bank 5; its yard pixels go to the nearest bank 5 colour.
+Each set also has a palette copy (pal_copy). The stall's colours (outline, four roof blues, three wall creams, awning
+red and orange, window green, door brown) are not in the vanilla palettes, so each set gets its own palette: its
+vanilla palette (base) with bank 5 redefined (bank 5 is unused by these tilesets) to the stall's 12 colours plus 3
+ground colours. The copies are town_pal.bin (palette 0xEE: Serafew, Port Kiris), caer_pal.bin (0xEF: Caer Pelyn) and
+jeh_pal.bin (0xF0: Jehanna). Every 8x8 tile that holds stall pixels uses bank 5; its ground pixels go to the nearest
+bank 5 colour. Cells of the block other than the door get terrain body_terrain when the set gives one (the caer and jeh
+blocks replace plain ground, so they need a building terrain; the town block keeps the vanilla house's terrain).
 
 Outputs, per tileset copy: <key>_obj.bin (raw 4bpp tiles), <key>_cfg.bin (raw tile config, 0x2400 bytes), and for each
 district the layout JSON with the building cells replaced. A set with a palette copy also writes its raw palette
@@ -38,36 +38,41 @@ from fe8map import ROM, binptr, rom_at, tileset, load_map, render, render_grid  
 
 ART_DIR = os.path.join(HERE, "hexshop_art")
 
+# The stall art's characters and colours, shared by every set. STALL_BANK is bank 5 of each palette copy without its
+# 3 ground colours.
+STALL_COLORS = {"K": (72, 64, 32), "b": (48, 48, 112), "q": (56, 80, 168), "l": (80, 136, 216),
+                "w": (152, 200, 248), "C": (248, 248, 184), "L": (240, 224, 136), "s": (184, 160, 80),
+                "R": (184, 56, 16), "y": (248, 88, 24), "G": (136, 200, 96), "n": (112, 104, 56)}
+STALL_BANK = [(72, 64, 32), (48, 48, 112), (56, 80, 168), (80, 136, 216), (152, 200, 248), (248, 248, 184),
+              (240, 224, 136), (184, 160, 80), (184, 56, 16), (248, 88, 24), (136, 200, 96), (112, 104, 56)]
+
 # One entry per tileset copy. block: metatiles of the building (rows); art: file in hexshop_art/; colors: art char ->
-# RGB ('.' is ground, see paint()); yard: town art, '.' inside the block is the yard; ground: small art, '.' is a
-# two-colour checker (a, b); door: (col, row) of the door cell in the block; districts: name -> (col, row) of the block's
-# top-left cell in that district's layout.
+# RGB; yard: '.' inside the block (x 8..39) is the ground copied from the block's own left strip, '.' outside it keeps
+# the vanilla pixel; door: (col, row) of the door cell in the block; body_terrain: terrain of the other block cells
+# (optional); districts: name -> (col, row) of the block's top-left cell in that district's layout; pal_copy: the
+# set's palette copy (id, output file, bank, base palette, the bank's 15 colours).
 SETS = {
     "town": dict(tsid=(0x0E, 0x0F, 0x10), maps=[0x11, 0x1F, 0x2B, 0x73, 0xD2, 0xEB],
                  districts={"Serafew": (4, 18), "PortKiris": (10, 14)},
                  block=[[672, 609, 674], [704, 641, 706]], door=(1, 1),
-                 art="stall_town.txt", yard=True,
-                 pal_copy=dict(id=0xEE, out="town_pal.bin", bank=5,
-                               colors=[(72, 64, 32), (48, 48, 112), (56, 80, 168), (80, 136, 216), (152, 200, 248),
-                                       (248, 248, 184), (240, 224, 136), (184, 160, 80), (184, 56, 16), (248, 88, 24),
-                                       (136, 200, 96), (112, 104, 56), (104, 144, 192), (120, 192, 128), (96, 160, 96)]),
-                 colors={"K": (72, 64, 32), "b": (48, 48, 112), "q": (56, 80, 168), "l": (80, 136, 216),
-                         "w": (152, 200, 248), "C": (248, 248, 184), "L": (240, 224, 136), "s": (184, 160, 80),
-                         "R": (184, 56, 16), "y": (248, 88, 24), "G": (136, 200, 96), "n": (112, 104, 56)}),
+                 art="stall.txt", yard=True,
+                 pal_copy=dict(id=0xEE, out="town_pal.bin", bank=5, base=0x0F,
+                               colors=STALL_BANK + [(104, 144, 192), (120, 192, 128), (96, 160, 96)]),
+                 colors=STALL_COLORS),
     "caer": dict(tsid=(0x2E, 0x34, 0x30), maps=[0x31, 0x35, 0xD8],
-                 districts={"CaerPelyn": (13, 8)},
-                 block=[[772]], door=(0, 0),
-                 art="tower_small.txt", ground=((248, 248, 192), (216, 216, 112)),
-                 colors={"O": (88, 88, 56), "g": (160, 168, 160), "w": (208, 224, 232), "G": (208, 200, 80),
-                         "c": (248, 248, 192), "t": (184, 160, 72), "y": (248, 88, 8), "n": (120, 88, 48),
-                         "N": (88, 88, 56), "R": (200, 0, 0), "W": (248, 248, 248)}),
+                 districts={"CaerPelyn": (10, 7)},
+                 block=[[723, 723, 723], [723, 723, 723]], door=(1, 1), body_terrain=0x2E,
+                 art="stall.txt", yard=True,
+                 pal_copy=dict(id=0xEF, out="caer_pal.bin", bank=5, base=0x34,
+                               colors=STALL_BANK + [(248, 248, 216), (240, 240, 168), (224, 216, 136)]),
+                 colors=STALL_COLORS),
     "jeh": dict(tsid=(0x42, 0x43, 0x44), maps=[0x45],
-                districts={"Jehanna": (17, 6)},
-                block=[[904]], door=(0, 0),
-                art="tower_small.txt", ground=((240, 240, 168), (224, 216, 104)),
-                colors={"O": (112, 104, 64), "g": (136, 144, 136), "w": (184, 200, 208), "G": (216, 184, 64),
-                        "c": (240, 248, 232), "t": (176, 152, 64), "y": (184, 88, 48), "n": (120, 56, 24),
-                        "N": (112, 104, 64), "R": (184, 88, 48), "W": (240, 248, 232)}),
+                districts={"Jehanna": (15, 5)},
+                block=[[433, 433, 433], [433, 433, 433]], door=(1, 1), body_terrain=0x2E,
+                art="stall.txt", yard=True,
+                pal_copy=dict(id=0xF0, out="jeh_pal.bin", bank=5, base=0x43,
+                              colors=STALL_BANK + [(248, 248, 152), (232, 232, 144), (248, 248, 208)]),
+                colors=STALL_COLORS),
 }
 
 
@@ -146,9 +151,9 @@ def district_pals(st, pals):
 
 
 def pal_copy_bytes(st):
-    """The raw 320-byte palette of the copy: vanilla palette 0x0F, bank 5 indices 1..15 replaced."""
+    """The raw 320-byte palette of the copy: the set's vanilla palette (base), bank indices 1..15 replaced."""
     pc = st["pal_copy"]
-    palp = rom_at(binptr("obj-palette.bin", 0x0F))
+    palp = rom_at(binptr("obj-palette.bin", pc["base"]))
     raw = bytearray(ROM[palp:palp + 320])
     assert len(raw) == 320
     base = pc["bank"] * 32
@@ -185,9 +190,6 @@ def paint(st, img):
                         sx = x % 8 if (x // 8) % 2 == 0 else 7 - (x % 8)
                         new[y, x] = img[y, sx]
                     # outside the yard range the vanilla pixel stays
-                else:
-                    a, b = st["ground"]
-                    new[y, x] = b if (x + 2 * y) % 5 == 0 else a
             else:
                 new[y, x] = st["colors"][ch]
     return new
@@ -244,7 +246,7 @@ def build(st, layouts):
                 gfx[t * 32:t * 32 + 32] = pack_tile(ix)
                 entries.append(t | (bank << 12))
             cfg[8 * m_new:8 * m_new + 8] = struct.pack("<4H", *entries)
-            cfg[0x2000 + m_new] = 0x03 if (i, j) == st["door"] else cfg[0x2000 + m_old]
+            cfg[0x2000 + m_new] = 0x03 if (i, j) == st["door"] else st.get("body_terrain", cfg[0x2000 + m_old])
             mapping[(i, j)] = (m_old, m_new)
     return bytes(gfx), bytes(cfg), mapping
 

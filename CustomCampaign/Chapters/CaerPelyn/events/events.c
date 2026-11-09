@@ -106,7 +106,7 @@ static const EventListScr EventListScr_CaerPelyn_Character[] = {
 };
 
 static const EventListScr EventListScr_CaerPelyn_Location[] = {
-    HOUSE(0, EventScr_District_CaerPelyn_HexShop, 13, 8)
+    HOUSE(0, EventScr_District_CaerPelyn_HexShop, 11, 8)
     END_MAIN
 };
 

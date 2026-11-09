@@ -52,10 +52,10 @@ new game hang in the prologue. Caer Pelyn and Jehanna Hall moved to `0x41` and `
 
 | District | Map id | Event id | Size (w x h) | Tileset (obj, palette, tileconfig) | Eirika starts at |
 |---|---|---|---|---|---|
-| Serafew | `0xCA` | `0xCB` | 15 x 21 | `0xEB`, `0x0F`, `0x8B` | (8, 19) |
-| Port Kiris | `0xCC` | `0xCD` | 26 x 22 | `0xEB`, `0x0F`, `0x8B` | (6, 20) |
-| Caer Pelyn | `0xF0` | `0xCE` | 20 x 21 | `0xEC`, `0x34`, `0x8C` | (5, 19) |
-| Jehanna Hall | `0xF1` | `0xCF` | 24 x 15 | `0xED`, `0x43`, `0x8D` | (11, 13) |
+| Serafew | `0xCA` | `0xCB` | 15 x 21 | `0xEB`, `0xEE`, `0x8B` | (8, 19) |
+| Port Kiris | `0xCC` | `0xCD` | 26 x 22 | `0xEB`, `0xEE`, `0x8B` | (6, 20) |
+| Caer Pelyn | `0xF0` | `0xCE` | 20 x 21 | `0xEC`, `0xEF`, `0x8C` | (5, 19) |
+| Jehanna Hall | `0xF1` | `0xCF` | 24 x 15 | `0xED`, `0xF0`, `0x8D` | (11, 13) |
 
 The map id is the `mainLayerId` of the chapter. The event id is its `mapEventDataId`. Each district map is cut from the
 hand-made vanilla map of the same town with `Tools/district/compose.py`, using the spec in `Tools/district/compose/<Name>.json`
@@ -209,16 +209,19 @@ presses A, and the shop opens. The shop is the vanilla FE8 shop screen in Hex mo
 
 - `Tools/district/hexshop_building.py` pastes a drawn shop building from `Tools/district/hexshop_art/` onto the map. It
   does not recolour a house.
-  - In the town tileset (Serafew, Port Kiris) the building is a market stall, a 3x2-metatile block (`stall_town.txt`,
-    48x32 pixels). It is a supplied illustration read pixel for pixel (33x25), with one wall row added above the windows
-    and two rows added through the door (33x28): a blue hipped roof, a cream stone wall with two green windows, a
-    red-and-white striped awning and a wooden door, on a yard.
-  - In the Caer Pelyn and Jehanna tilesets the building is a small tower, a 1x1 metatile (`tower_small.txt`, 16x16): a
-    grey cone roof seen from above with a gold band over a short cream wall.
-  - Each art character maps to a colour (`SETS` in the script). `.` is yard or ground.
+  - Every district's building is the same market stall, a 3x2-metatile block (`stall.txt`, 48x32 pixels). It is a
+    supplied illustration read pixel for pixel (33x25), with one wall row added above the windows and two rows added
+    through the door (33x28): a blue hipped roof, a cream stone wall with two green windows, a red-and-white striped
+    awning and a wooden door.
+  - The stall stands on the ground under its block: the town yard (Serafew, Port Kiris), the Caer Pelyn plaza floor or
+    the Jehanna sand. In Caer Pelyn and Jehanna the six block cells are first set to plain ground in the compose spec
+    (`Tools/district/compose/<Name>.json`), and the cells other than the door get terrain `0x2E` (building).
+  - Each art character maps to a colour (`STALL_COLORS` in the script). `.` is the ground.
+  - The cell below each door is walkable, so Eirika can step onto the door: the stall's sides and back are building.
 - Each district has a copy of its tileset with the new building. The copies are in `CustomCampaign/Chapters/_hexshop/`.
-  Serafew and Port Kiris share one copy. It also has its own palette, `town_pal.bin` (palette 0xEE): the vanilla 0x0F with
-  bank 5 redefined to the stall's 12 colours and 3 yard colours, because the stall's colours are not in the town palette.
+  Serafew and Port Kiris share one copy. Each copy also has its own palette: its vanilla palette with bank 5 redefined to
+  the stall's 12 colours and 3 ground colours, because the stall's colours are not in the vanilla palettes. They are
+  `town_pal.bin` (palette 0xEE, from 0x0F), `caer_pal.bin` (0xEF, from 0x34) and `jeh_pal.bin` (0xF0, from 0x43).
   Every 8x8 tile that holds stall pixels uses bank 5.
 - The copies are registered in `CustomCampaign/Chapters/_hexshop/HexShopTiles.event`.
 - The door tile has terrain `0x03` (village). No NPC steps on it.
@@ -229,8 +232,8 @@ presses A, and the shop opens. The shop is the vanilla FE8 shop screen in Hex mo
 |---|---|---|
 | Serafew | (5, 19) | `0xEB`, `0xEE`, `0x8B` |
 | Port Kiris | (11, 15) | `0xEB`, `0xEE`, `0x8B` |
-| Caer Pelyn | (13, 8) | `0xEC`, `0x34`, `0x8C` |
-| Jehanna Hall | (17, 6) | `0xED`, `0x43`, `0x8D` |
+| Caer Pelyn | (11, 8) | `0xEC`, `0xEF`, `0x8C` |
+| Jehanna Hall | (16, 6) | `0xED`, `0xF0`, `0x8D` |
 
 ### Using the shop
 
@@ -392,8 +395,8 @@ name used in `HexShops.c`.
 | Hex shop rows | [`HexShops.c`](../../Data/Hex/HexShops.c) | The wares of each district shop and their card prices |
 | Hex shop | [`HexShopVanilla.c`](../../Kernel/Wizardry/Minigames/Hex/Source/HexShopVanilla.c) | The shop screen in Hex mode: the witch, the prices, the buy |
 | Shop hooks | [`LimitedShopStock.c`](../../Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c) | Hex branches of the vanilla shop: price line, buy, B, `Shop_Init` |
-| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the shop building (town stall, small tower) into each tileset copy |
-| Building art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `stall_town.txt` (town tileset) and `tower_small.txt` (Caer Pelyn, Jehanna) |
+| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the market stall into each tileset copy |
+| Building art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `stall.txt`, the market stall used by every tileset copy |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
