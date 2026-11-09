@@ -14,6 +14,7 @@
 
 typedef char TowerRecords_SizeCheck[(sizeof(struct TowerRecords) == 4) ? 1 : -1];
 typedef char TowerState_SizeCheck[(sizeof(struct TowerState) == 0x100) ? 1 : -1];
+typedef char TowerDebris_SizeCheck[(sizeof(gTowerDebris) <= 0x80) ? 1 : -1];
 
 int TowerRecords_Best(void)
 {

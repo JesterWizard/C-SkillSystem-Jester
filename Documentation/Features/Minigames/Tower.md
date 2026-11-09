@@ -12,6 +12,8 @@
 - [Controls](#controls)
 - [Score, Chains and Fever](#score-chains-and-fever)
 - [Game Feel](#game-feel)
+- [The Climb and the Collapse](#the-climb-and-the-collapse)
+- [The Crowd, Close Calls and the Fever](#the-crowd-close-calls-and-the-fever)
 - [Tower Stack Spots](#tower-stack-spots)
 - [The Screen](#the-screen)
 - [Art](#art)
@@ -94,7 +96,8 @@ slide speeds in `Tower_Speed`, and the points in `Tower_Land`.
 
 | Moment | What happens |
 |---|---|
-| Plain landing | The block squashes a little and springs back, with a 1-pixel thump. |
+| Plain landing | The block squashes a little and springs back, with a 1-pixel thump and two puffs of dust. |
+| Close call | A plain landing more than a third off (over 16 pixels): **CLOSE!** in orange, and the top of the tower sways. |
 | Perfect landing | The game freezes for 4 frames (hit-stop), the block squashes deeply and springs back, the background flashes, the screen jolts 2 pixels, and the chain's note plays. |
 | Fever | 8 frames of hit-stop, a 3-pixel shake and a fanfare. |
 | A miss | A 2-pixel shake. |
@@ -111,6 +114,61 @@ slide speeds in `Tower_Speed`, and the points in `Tower_Land`.
 - **The flash** brightens BG3 only (the blend unit's brighten effect), so the pop-ups and the blocks stay as they are.
 - **Milestones** wait for the pop-up on screen to end before they show. NEW BEST! comes before a floors milestone if
   both happen on one landing.
+
+---
+
+## 🌇 The Climb and the Collapse
+
+<p align="center">
+  <img src="../../Gifs/Tower_Stack_Climb.gif" alt="Tower Stack: the climb into sunset and night, and the collapse" width="480"/>
+</p>
+
+| Floors | The sky |
+|---|---|
+| 0 to 9 | Day: blue sky, white clouds. |
+| 10 to 19 | Sunset: purple, pink and orange, with pink clouds. |
+| 20 and up | Night: navy sky, grey clouds, the far town's windows lit, and twinkling stars. |
+
+- The sky blends from one to the next over 64 frames when the tower passes 10 and 20 floors (`Tower_UpdateSky`). The
+  scene's palette (BG 8) and the clouds' (BG 9) are mixed colour by colour between keyframes
+  (`gTowerSkyPals`, `gTowerCloudPals`, drawn by the art script).
+- **The clouds** are a second background (BG2, 256 x 256, wrapping) blended over the sky (alpha 10/8). They scroll half
+  as fast again as the camera, and keep scrolling after the sky stops at its top, so the climb never looks still. They
+  also drift sideways.
+- **The stars** are sprites in the sky, behind the clouds. They show at night once the blend is half done.
+
+**The collapse.** When the last life is lost, the tower comes down: up to 10 blocks from the top tumble off one after
+another, five frames apart, each with a small hop, a sideways drift and a spin (affine slots 3 to 12, one a block). The
+screen shakes and each block cracks as it goes. When they have fallen out of sight (or after 150 frames), GAME OVER
+pops up and the final score **counts up** over about half a second, ticking, before the gold rings in. The top line shows
+the score, the tower's height before the collapse, and the gold.
+
+---
+
+## 🎉 The Crowd, Close Calls and the Fever
+
+<p align="center">
+  <img src="../../Gifs/Tower_Stack_Crowd.gif" alt="Tower Stack: close calls, the crowd hopping, the collapse and the crowd cheering a new best" width="480"/>
+  <img src="../../Gifs/Tower_Stack_Fever.gif" alt="Tower Stack: the banner floor, a fever with a gold sky and sparkles, and a window floor" width="480"/>
+</p>
+
+- **The crowd.** The unit who started the game stands left of the plinth, watching the tower from behind (its walking
+  sheet, facing up). Townsfolk gather on the ground as the tower grows: one at first, one more every 6 floors, up to 5.
+  Everyone hops on a perfect landing, one after another, and three times for a fever (`Tower_Cheer`). The crowd is on the
+  ground, so you see it at the start and again at the end.
+- **The end.** After the collapse the camera comes back down to the ground. If you set a new best (or scored for the
+  first time), the unit turns round and everyone keeps hopping; if not, they all stand still and the unit faces you, glum.
+- **Dust.** Every landing kicks up two puffs from the block's bottom corners.
+- **Close calls.** A plain landing more than a third of a block off (over 16 of its 48 pixels) pops up **CLOSE!** and
+  sets the top 10 blocks swaying, for 40 frames: up to 7 pixels at the top, less further down, first towards the side the
+  block overhangs. The base block stays on its plinth.
+- **Milestone floors.** Every 10th floor is a granite block with a gold band and a red banner. Every 5th floor (that is
+  not a 10th) has an arched window. They keep their look in a fever.
+- **The fever** tints the sky and the clouds gold (blending in and out over 24 frames), sends gold sparkles drifting up
+  the screen, and speeds the music up by a quarter (`m4aMPlayTempoControl` on the music player, `FEVER_TEMPO`). The tempo
+  goes back to normal when the fever ends and when the game closes.
+
+None of this changes the rules or the score.
 
 ---
 
@@ -136,16 +194,20 @@ slide speeds in `Tower_Speed`, and the points in `Tower_Land`.
 
 | Layer | What |
 |---|---|
-| BG3 | The scene, 240 x 256 (BG palette 8, tiles at `0x06008000`): sky, clouds, a far town, the ground and the plinth |
+| BG3 | The scene, 240 x 256 (BG palette 8, tiles at `0x06008000`): sky, clouds, rolling hills with a far village, church and castle, the ground and the plinth |
+| BG2 | The cloud layer, 256 x 256 (BG palette 9, tiles after the scene's in the same char block, map at `0x06007000`), blended over BG3 |
 | BG0 | The status line (top) and the button labels (bottom), with no window behind them |
-| OBJ (1D) | The blocks, sparks, the pop-up word and its digits, the hearts, the fever meter and the buttons |
+| OBJ (1D) | The blocks, sparks and dust, the crowd, the pop-up word and its digits, the hearts, the fever meter and the buttons |
 
-- **OBJ tiles**: the art from 0 (131 tiles), the pop-up word at `0x100` (64 tiles), the fever meter at `0x140`.
-- **Affine slots**: 1 the pop-up word, 2 the squashing block.
-- **Palettes**: OBJ 2 the blocks, 3 the sparks and hearts, 4 the buttons and the meter, 5 the pop-up (the chain's colour,
-  white or red).
+- **OBJ tiles**: the art from 0 (160 tiles), the pop-up word at `0x100` (64 tiles), the fever meter at `0x140`, the
+  unit's walking sheet at `0x150` (up to `0x2200` bytes; a bigger sheet falls back to the Cavalier's), and the three
+  townsfolk's standing sheets at `0x260` (48 tiles each). `0x380` up is left alone: it holds the map's moving units.
+- **Affine slots**: 1 the pop-up word, 2 the squashing block, 3 to 12 the tumbling blocks.
+- **Palettes**: OBJ 2 the blocks, 3 the sparks, dust and hearts, 4 the buttons and the meter, 5 the pop-up (the chain's
+  colour, white or red), the unit's own map palette for the unit, and 14 (green) for the townsfolk.
 - **The tower** keeps the last 16 blocks' positions and looks (`xs`, `styles`): enough to fill the screen.
-- The state is `gTowerState` (`struct TowerState`, 0x100 bytes, RAM only).
+- The state is `gTowerState` (`struct TowerState`, 0x100 bytes, RAM only). The collapse's blocks are `gTowerDebris`
+  (`struct TowerDebris[10]`, 0x80 bytes), allocated after the record so that no address above it moved.
 
 ---
 
@@ -154,10 +216,12 @@ slide speeds in `Tower_Speed`, and the points in `Tower_Land`.
 All the art is drawn by `Tools/tower/gen_tower_art.py`, pixel by pixel. It uses the fishing art's helpers
 (`Tools/fishing/gen_fishing_art.py`): the button icons, the sparks and the pop-up font, which now has digits, "+" and "x".
 
-- **Blocks:** granite, sandstone, brick and mossy granite in turn up the tower, and gold during a fever.
+- **Blocks:** granite, sandstone, brick and mossy granite in turn up the tower, and gold during a fever. The banner block
+  (every 10th floor) and the window block (every 5th).
+- **Dust:** a puff in three frames, growing and thinning.
 - **Chain palettes:** ten, from green (a chain of 1) through orange to gold (10), plus white, red and blue.
 - **Chain meter pips:** unlit, green, orange and gold.
-- **Pop-up words:** PERFECT!, FEVER!, MISS!, GAME OVER, NEW BEST! and FLOORS!.
+- **Pop-up words:** PERFECT!, FEVER!, MISS!, GAME OVER, NEW BEST!, FLOORS! and CLOSE!.
 - It writes `Kernel/Wizardry/Minigames/Tower/Source/TowerArt.c` and `include/kernel/tower-art.h`. Don't edit them: change
   the script and run it again. `--check` exits 1 if they are out of date; `--preview PATH.png` writes a 3x preview.
 
@@ -184,7 +248,7 @@ the A-press trap entry, the map towers and the record chunk. The spots stay in t
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry |
 | Map towers | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | Loads and draws them |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_TOWER_*` |
-| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gTowerState`, `gTowerRecords` |
+| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gTowerState`, `gTowerRecords`, `gTowerDebris` |
 | Switch | [`configs.h`](../../../include/configs/configs.h) | `CONFIG_DISTRICT_TOWER` |
 
 ---

@@ -360,6 +360,8 @@ _kernel_malloc2 gCrossingRecords, 0x0C
 /* District Tower Stack (include/kernel/tower.h): the game state (RAM only) and the saved best score (a save chunk). */
 _kernel_malloc2 gTowerState, 0x100
 _kernel_malloc2 gTowerRecords, 4
+/* Tower Stack's collapse (struct TowerDebris[TOWER_DEBRIS]), after the others so no address above moves. RAM only. */
+_kernel_malloc2 gTowerDebris, 0x80
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
