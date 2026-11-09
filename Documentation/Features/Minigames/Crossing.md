@@ -86,7 +86,7 @@ The gold paid out is the score divided by 10 (rounded down), when the game ends 
 The best score of each district is saved. It is `gCrossingRecords` (`struct CrossingRecords`, 0x0C bytes,
 `include/kernel/crossing.h`): a magic word and four best scores (up to 65535). It is one chunk at the end of both save
 lists (`Kernel/Wizardry/SaveData/data.event`), after the fishing records, and `CrossingRecords_NewGame` clears it on a
-new game. A save made before the chunk existed loads no records. The suspend save has 32 bytes free after it.
+new game. A save made before the chunk existed loads no records. The suspend save had 32 bytes free after it when it was added.
 
 ---
 
