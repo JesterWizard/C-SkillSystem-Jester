@@ -163,86 +163,66 @@ bool CheckUnitStatDebuff(struct Unit *unit, enum UNIT_STAT_DEBUFF_IDX debuff)
 	return _BIT_CHK(GetUnitStatDebuffStatus(unit)->st.bitmask, debuff);
 }
 
+typedef char StatDebuff_SaveBytesCheck[(UNIT_STAT_DEBUFF_MAX_REAL <= STAT_DEBUFF_SAVE_BYTES * 8) ? 1 : -1];
+
+/* The units' statuses in the order of the suspend chunk: allies, enemies, NPCs (and the fourth allegiance) */
+static struct StatDebuffStatus *const sStatDebuffSaveArrays[] = {
+	sStatDebuffStatusAlly, sStatDebuffStatusEnemy, sStatDebuffStatusNpc,
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+	sStatDebuffStatusFourth,
+#endif
+};
+
+static const u8 sStatDebuffSaveCounts[] = {
+	CONFIG_UNIT_AMT_ALLY, CONFIG_UNIT_AMT_ENEMY, CONFIG_UNIT_AMT_NPC,
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+	CONFIG_UNIT_AMT_FOURTH,
+#endif
+};
+
+static u32 StatDebuff_SaveSize(void)
+{
+	u32 i, n = 0;
+
+	for (i = 0; i < ARRAY_COUNT(sStatDebuffSaveCounts); i++)
+		n += sStatDebuffSaveCounts[i];
+	return n * STAT_DEBUFF_SAVE_BYTES;
+}
+
+/* Suspend save: the first STAT_DEBUFF_SAVE_BYTES of each unit's bitmask */
 void MSU_SaveStatDebuff(u8 *dst, const u32 size)
 {
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    if (size < (sizeof(sStatDebuffStatusAlly) + sizeof(sStatDebuffStatusEnemy) + sizeof(sStatDebuffStatusNpc) + sizeof(sStatDebuffStatusFourth)))
-#else
-    if (size < (sizeof(sStatDebuffStatusAlly) + sizeof(sStatDebuffStatusEnemy) + sizeof(sStatDebuffStatusNpc)))
-#endif
-    {
-        Errorf("ENOMEM: %d", size);
-        hang();
-    }
+	u32 i, k;
 
-    WriteAndVerifySramFast(
-        sStatDebuffStatusAlly,
-        dst,
-        sizeof(sStatDebuffStatusAlly));
-
-    dst += sizeof(sStatDebuffStatusAlly);
-
-    WriteAndVerifySramFast(
-        sStatDebuffStatusEnemy,
-        dst,
-        sizeof(sStatDebuffStatusEnemy));
-
-    dst += sizeof(sStatDebuffStatusEnemy);
-
-    WriteAndVerifySramFast(
-        sStatDebuffStatusNpc,
-        dst,
-        sizeof(sStatDebuffStatusNpc));
-
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    dst += sizeof(sStatDebuffStatusNpc);
-    
-    WriteAndVerifySramFast(
-        sStatDebuffStatusFourth,
-        dst,
-        sizeof(sStatDebuffStatusFourth));
-#endif
+	if (size < StatDebuff_SaveSize()) {
+		Errorf("ENOMEM: %d", size);
+		hang();
+	}
+	for (i = 0; i < ARRAY_COUNT(sStatDebuffSaveArrays); i++) {
+		for (k = 0; k < sStatDebuffSaveCounts[i]; k++) {
+			WriteAndVerifySramFast(&sStatDebuffSaveArrays[i][k], dst, STAT_DEBUFF_SAVE_BYTES);
+			dst += STAT_DEBUFF_SAVE_BYTES;
+		}
+	}
 }
 
 void MSU_LoadStatDebuff(u8 *src, const u32 size)
 {
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    if (size < (sizeof(sStatDebuffStatusAlly) + sizeof(sStatDebuffStatusEnemy) + sizeof(sStatDebuffStatusNpc) + sizeof(sStatDebuffStatusFourth)))
-#else
-    if (size < (sizeof(sStatDebuffStatusAlly) + sizeof(sStatDebuffStatusEnemy) + sizeof(sStatDebuffStatusNpc)))
-#endif
-    {
-        Errorf("ENOMEM: %d", size);
-        hang();
-    }
+	u32 i, k;
 
-    WriteAndVerifySramFast(
-        src,
-        sStatDebuffStatusAlly,
-        sizeof(sStatDebuffStatusAlly));
+	if (size < StatDebuff_SaveSize()) {
+		Errorf("ENOMEM: %d", size);
+		hang();
+	}
+	for (i = 0; i < ARRAY_COUNT(sStatDebuffSaveArrays); i++) {
+		for (k = 0; k < sStatDebuffSaveCounts[i]; k++) {
+			struct StatDebuffStatus *st = &sStatDebuffSaveArrays[i][k];
 
-    src += sizeof(sStatDebuffStatusAlly);
-
-    WriteAndVerifySramFast(
-        src,
-        sStatDebuffStatusEnemy,
-        sizeof(sStatDebuffStatusEnemy));
-
-    src += sizeof(sStatDebuffStatusEnemy);
-
-    WriteAndVerifySramFast(
-        src,
-        sStatDebuffStatusNpc,
-        sizeof(sStatDebuffStatusNpc));
-
-#ifdef CONFIG_FOURTH_ALLEGIANCE
-    src += sizeof(sStatDebuffStatusNpc);
-
-    WriteAndVerifySramFast(
-        sStatDebuffStatusFourth,
-        src,
-        sizeof(sStatDebuffStatusFourth));
-#endif
+			CpuFill16(0, st, sizeof(*st));
+			ReadSramFast(src, st, STAT_DEBUFF_SAVE_BYTES);
+			src += STAT_DEBUFF_SAVE_BYTES;
+		}
+	}
 }
 
 void TickUnitStatDebuff(struct Unit *unit, enum STATUS_DEBUFF_TICK_TYPE type)

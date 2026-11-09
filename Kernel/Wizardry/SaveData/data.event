@@ -117,14 +117,14 @@ gEmsSusChunks:
     EmsChunk($0008, SaveRandC, LoadRandC)
     EmsChunk($0008, MSU_SaveSelectionPos, MSU_LoadSelectionPos)
     EmsChunk($0018, EMS_SaveKTutorialFlags, EMS_LoadKTutorialFlags)
-    EmsChunk((CONFIG_UNIT_AMT_ALLY + CONFIG_UNIT_AMT_ENEMY + CONFIG_UNIT_AMT_NPC + CONFIG_UNIT_AMT_FOURTH) * 16, MSU_SaveStatDebuff, MSU_LoadStatDebuff)
+    EmsChunk((CONFIG_UNIT_AMT_ALLY + CONFIG_UNIT_AMT_ENEMY + CONFIG_UNIT_AMT_NPC + CONFIG_UNIT_AMT_FOURTH) * 13, MSU_SaveStatDebuff, MSU_LoadStatDebuff) /* 13: STAT_DEBUFF_SAVE_BYTES (debuff.h) */
     EmsChunk($0004, SaveStartMapEffectsSuspendState, LoadStartMapEffectsSuspendState)
     EmsChunk($0044, SaveSkillStaffSuspendState, LoadSkillStaffSuspendState)
     EmsChunk(32, SaveSuspendUnitList, LoadSuspendUnitList)
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
-    EmsChunk($0444, SaveChatLogSuspendState, LoadChatLogSuspendState)
+    EmsChunk($0000, SaveChatLogSuspendState, LoadChatLogSuspendState) /* Not kept: resuming starts an empty chat log */
     EmsChunk($00C0, MSU_SaveGaidenMagicUses, MSU_LoadGaidenMagicUses) /* Three Houses magic uses, 3 * 64 */
     EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
 #ifdef CONFIG_HEX_CARDS

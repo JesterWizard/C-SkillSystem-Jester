@@ -10,6 +10,22 @@
 ## Buildfile users
  Simply include MasterAsmInstaller.event into your buildfile, and everything should be good to go
  
+# In this buildfile
+
+ - There are **10 purple units** (`CONFIG_UNIT_AMT_FOURTH`, `include/configs/configs.h`): unit indexes 0xC1..0xCA. The
+   installer's `PurpleUnitCount` (the engine's count, `gPhaseUnitCountTable`) is that same number, and the build fails
+   if it is above 10.
+ - 0xC1..0xC5 are vanilla's five purple slots (0x0202E36C). 0xC6..0xCA are new slots at 0x02026E30 (0x48 bytes each,
+   `NewUnitRAMPointerSetter.event`); the lookup entries after them are 0. The kernel's RAM region starts right after
+   them (`FreeRamSpaceTop`, 0x02026FC8, in `include/link/config-memmap.s`), and assembling that file fails if the
+   region would grow into them.
+ - Before this, the count was 16 and the lookup table had 15 new slots: InitUnits (a new game, a load) cleared the last
+   few, which lay in the kernel's RAM (the class growth preview text and text engine state), and units 11 to 16 were
+   never saved.
+ - To raise the count: add pointers in `NewUnitRAMPointerSetter.event`, move `FreeRamSpaceTop` up by 0x48 a unit, and
+   raise the suspend save's purple chunks (`Kernel/Wizardry/SaveData/data.event`) and `STAT_DEBUFF_SLOTS_FOURTH`
+   (`include/kernel/debuff.h`).
+
 # Usage
 
 ## Adding 4th allegiance units
