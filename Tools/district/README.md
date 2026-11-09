@@ -56,17 +56,17 @@ new district map, and the limits.
 
 ## Hex shop building (hexshop_building.py)
 
-`hexshop_building.py` replaces the Hex shop building (a vanilla house or hut in the Hex shop slot) with a drawn witch's
-tower in a copy of each district tileset. The tower is drawn in the same high top-down 3/4 view as the vanilla houses: a
-blue shingled cone roof seen from above, the whole roof including its brim blue, over a tall round wall in the town's own cream-and-olive
-stone (like the arena), with an arched door, a small lit window and a cast shadow. There is no sign. The small Caer
-Pelyn and Jehanna version is the same in one tile: a grey cone roof from above with a gold band over a short cream wall.
-The art is in `hexshop_art/`: `tower_town.txt` (48x32, the 3x2 town block, on a
+`hexshop_building.py` replaces the Hex shop building (a vanilla house or hut in the Hex shop slot) with a drawn shop in
+a copy of each district tileset. In the town tileset it is a market stall from a supplied illustration, read pixel for
+pixel (33x25) and made three rows taller (one wall row above the windows, two through the door; 33x28): a blue hipped
+roof, a cream stone wall with two green windows, a red-and-white striped awning and a wooden door. The small Caer Pelyn
+and Jehanna version is a tower in one tile: a grey cone roof from above with a gold band over a short cream wall.
+The art is in `hexshop_art/`: `stall_town.txt` (48x32, the 3x2 town block, on a
 yard copied from the block's own left strip) and `tower_small.txt` (16x16, one metatile, for the caer and jeh tilesets,
 on a two-colour ground). The colours of each set are in `SETS`. The town set also has a palette copy, `town_pal.bin`
-(palette 0xEE, the vanilla 0x0F with bank 5 redefined), because the roof brim and the top of the wall share one tile row
-and one 16-colour bank cannot hold both. The door metatile gets terrain 0x03, so the door's
-VISIT location event runs when the player stands on it.
+(palette 0xEE, the vanilla 0x0F with bank 5 redefined to the stall's 12 colours and 3 yard colours), because the
+stall's colours are not in the town palette; every 8x8 tile that holds stall pixels uses bank 5. The door metatile gets
+terrain 0x03, so the door's VISIT location event runs when the player stands on it.
 
 Per tileset copy it writes `<key>_obj.bin` (raw 4bpp tiles) and `<key>_cfg.bin` (raw tile config, 0x2400 bytes).
 With `--write-layouts` it also rewrites the building cells of each district layout JSON to the new metatiles.

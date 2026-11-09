@@ -2,20 +2,22 @@
 """
 hexshop_building.py: draw the Hex shop building of each district into a copy of the district's tileset.
 
-The building in each district's Hex shop slot (a vanilla vendor house or hut) is replaced by a drawn witch's tower,
-seen from above like the vanilla houses: a blue shingled cone roof (the whole roof, brim included, is blue), a tall round stone wall, an
-arched door, a small lit window and a cast shadow. There is no sign. The art lives
-in hexshop_art/ (a 48x32 block for the town, a 16x16 block for the caer and jeh tilesets). The town tower sits on a
-yard copied from the block's own left strip; the small towers sit on a two-colour ground.
+The building in each district's Hex shop slot (a vanilla vendor house or hut) is replaced by a drawn shop. In the town
+tileset it is a market stall from a supplied illustration: a blue hipped roof, a cream stone wall with two green
+windows, a red-and-white striped awning and a wooden door. In the caer and jeh tilesets it is a small drawn tower (a grey
+cone roof with a gold band over a short cream wall). The art lives in hexshop_art/ (stall_town.txt, a 48x32 block for
+the town; tower_small.txt, a 16x16 block for the caer and jeh tilesets). The town stall sits on a yard copied from the
+block's own left strip; the small towers sit on a two-colour ground.
 
 The changed 8x8 tiles go into tile slots no metatile of the tileset uses; the changed metatiles go into metatile slots
 that no vanilla map of the tileset and no district layout uses. The door metatile gets terrain 0x03 (village), so free
 movement runs the door's VISIT location event when the player stands on it.
 
-The town set also has a palette copy (pal_copy). Its roof brim and the top of the stone wall share one 8x8 tile row, and
-the 16 colours of one bank cannot hold both the roof blues and the stone. So the town set gets its own palette, the
-vanilla palette 0x0F with bank 5 redefined (bank 5 is unused by the town tileset), written to <out-dir>/town_pal.bin and
-loaded as palette 0xEE by the Serafew and Port Kiris chapters.
+The town set also has a palette copy (pal_copy). The stall's colours (outline, four roof blues, three wall creams,
+awning red and orange, window green, door brown) are not in the town palette, so the town set gets its own palette:
+the vanilla palette 0x0F with bank 5 redefined (bank 5 is unused by the town tileset) to the stall's 12 colours plus 3
+yard colours, written to <out-dir>/town_pal.bin and loaded as palette 0xEE by the Serafew and Port Kiris chapters.
+Every 8x8 tile that holds stall pixels uses bank 5; its yard pixels go to the nearest bank 5 colour.
 
 Outputs, per tileset copy: <key>_obj.bin (raw 4bpp tiles), <key>_cfg.bin (raw tile config, 0x2400 bytes), and for each
 district the layout JSON with the building cells replaced. A set with a palette copy also writes its raw palette
@@ -44,16 +46,14 @@ SETS = {
     "town": dict(tsid=(0x0E, 0x0F, 0x10), maps=[0x11, 0x1F, 0x2B, 0x73, 0xD2, 0xEB],
                  districts={"Serafew": (4, 18), "PortKiris": (10, 14)},
                  block=[[672, 609, 674], [704, 641, 706]], door=(1, 1),
-                 art="tower_town.txt", yard=True,
+                 art="stall_town.txt", yard=True,
                  pal_copy=dict(id=0xEE, out="town_pal.bin", bank=5,
-                               colors=[(56, 64, 128), (56, 120, 176), (104, 144, 192), (96, 88, 64), (248, 248, 192),
-                                       (224, 232, 128), (200, 192, 88), (168, 168, 72), (248, 104, 8), (200, 208, 80),
-                                       (104, 128, 48), (128, 160, 96), (96, 160, 96), (120, 192, 128), (136, 176, 112)]),
-                 colors={"K": (56, 64, 128), "l": (104, 144, 192), "q": (56, 120, 176), "b": (56, 64, 128),
-                         "d": (136, 96, 120), "O": (96, 88, 64), "C": (248, 248, 192), "L": (224, 232, 128),
-                         "m": (200, 192, 88), "s": (168, 168, 72), "n": (120, 96, 56), "N": (96, 88, 64),
-                         "y": (248, 104, 8), "G": (200, 208, 80), "Y": (224, 232, 128), "R": (200, 24, 0),
-                         "W": (248, 248, 248), "h": (104, 128, 48), "w": (208, 224, 232), "p": (160, 168, 160)}),
+                               colors=[(72, 64, 32), (48, 48, 112), (56, 80, 168), (80, 136, 216), (152, 200, 248),
+                                       (248, 248, 184), (240, 224, 136), (184, 160, 80), (184, 56, 16), (248, 88, 24),
+                                       (136, 200, 96), (112, 104, 56), (104, 144, 192), (120, 192, 128), (96, 160, 96)]),
+                 colors={"K": (72, 64, 32), "b": (48, 48, 112), "q": (56, 80, 168), "l": (80, 136, 216),
+                         "w": (152, 200, 248), "C": (248, 248, 184), "L": (240, 224, 136), "s": (184, 160, 80),
+                         "R": (184, 56, 16), "y": (248, 88, 24), "G": (136, 200, 96), "n": (112, 104, 56)}),
     "caer": dict(tsid=(0x2E, 0x34, 0x30), maps=[0x31, 0x35, 0xD8],
                  districts={"CaerPelyn": (13, 8)},
                  block=[[772]], door=(0, 0),
@@ -205,6 +205,7 @@ def build(st, layouts):
         for i in range(bw):
             img[j * 16:j * 16 + 16, i * 16:i * 16 + 16] = meta_rgb(gfx, pals, cfg, block[j][i])
     new = paint(st, img)
+    rows = load_art(st["art"], bw * 16, bh * 16, st["colors"])
 
     referenced = {e & 0x3FF for m in range(1024) for e in meta_entries(cfg, m)}
     free_tiles = [t for t in range(1023, -1, -1) if t not in referenced]
@@ -231,7 +232,12 @@ def build(st, layouts):
                 if (t_old == t_new).all():
                     entries.append(e_old)
                     continue
-                bank, ix = quantize(t_new, t_old, qpals, nbanks)
+                ay, ax = j * 16 + ty, i * 16 + tx
+                if "pal_copy" in st and any(rows[ay + yy][ax + xx] != "." for yy in range(8) for xx in range(8)):
+                    _, ix = quantize(t_new, t_old, [qpals[st["pal_copy"]["bank"]]], 1)
+                    bank = st["pal_copy"]["bank"]
+                else:
+                    bank, ix = quantize(t_new, t_old, qpals, nbanks)
                 t = free_tiles.pop(0)
                 if (t + 1) * 32 > len(gfx):
                     gfx.extend(b"\0" * ((t + 1) * 32 - len(gfx)))

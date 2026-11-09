@@ -207,17 +207,19 @@ presses A, and the shop opens. The shop is the vanilla FE8 shop screen in Hex mo
 
 ### The building
 
-- `Tools/district/hexshop_building.py` pastes a drawn witch's tower from `Tools/district/hexshop_art/` onto the map. It does
-  not recolour a house.
-  - In the town tileset (Serafew, Port Kiris) the tower is a 3x2-metatile block (`tower_town.txt`, 48x32 pixels), drawn
-    in the same high top-down 3/4 view as the vanilla houses: a blue shingled cone roof seen from above, the whole roof including its brim blue, over a tall round wall in the town's own cream-and-olive stone (like the arena), with an arched door, a
-    small lit window and a cast shadow. There is no sign.
-  - In the Caer Pelyn and Jehanna tilesets the tower is a 1x1 metatile (`tower_small.txt`, 16x16): a grey cone roof seen
-    from above with a gold band over a short cream wall.
-  - Each art character maps to a colour in the tileset's own banks (`SETS` in the script). `.` is yard or ground.
+- `Tools/district/hexshop_building.py` pastes a drawn shop building from `Tools/district/hexshop_art/` onto the map. It
+  does not recolour a house.
+  - In the town tileset (Serafew, Port Kiris) the building is a market stall, a 3x2-metatile block (`stall_town.txt`,
+    48x32 pixels). It is a supplied illustration read pixel for pixel (33x25), with one wall row added above the windows
+    and two rows added through the door (33x28): a blue hipped roof, a cream stone wall with two green windows, a
+    red-and-white striped awning and a wooden door, on a yard.
+  - In the Caer Pelyn and Jehanna tilesets the building is a small tower, a 1x1 metatile (`tower_small.txt`, 16x16): a
+    grey cone roof seen from above with a gold band over a short cream wall.
+  - Each art character maps to a colour (`SETS` in the script). `.` is yard or ground.
 - Each district has a copy of its tileset with the new building. The copies are in `CustomCampaign/Chapters/_hexshop/`.
   Serafew and Port Kiris share one copy. It also has its own palette, `town_pal.bin` (palette 0xEE): the vanilla 0x0F with
-  bank 5 redefined, because the roof brim and the top of the wall share one tile row and one 16-colour bank cannot hold both.
+  bank 5 redefined to the stall's 12 colours and 3 yard colours, because the stall's colours are not in the town palette.
+  Every 8x8 tile that holds stall pixels uses bank 5.
 - The copies are registered in `CustomCampaign/Chapters/_hexshop/HexShopTiles.event`.
 - The door tile has terrain `0x03` (village). No NPC steps on it.
 - The door has a location event, `HOUSE(0, EventScr_District_<Name>_HexShop, x, y)`. It runs
@@ -390,8 +392,8 @@ name used in `HexShops.c`.
 | Hex shop rows | [`HexShops.c`](../../Data/Hex/HexShops.c) | The wares of each district shop and their card prices |
 | Hex shop | [`HexShopVanilla.c`](../../Kernel/Wizardry/Minigames/Hex/Source/HexShopVanilla.c) | The shop screen in Hex mode: the witch, the prices, the buy |
 | Shop hooks | [`LimitedShopStock.c`](../../Kernel/Wizardry/LimitedShopStock/src/LimitedShopStock.c) | Hex branches of the vanilla shop: price line, buy, B, `Shop_Init` |
-| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the witch's tower into each tileset copy |
-| Tower art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `tower_town.txt` (town tileset) and `tower_small.txt` (Caer Pelyn, Jehanna) |
+| Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the shop building (town stall, small tower) into each tileset copy |
+| Building art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `stall_town.txt` (town tileset) and `tower_small.txt` (Caer Pelyn, Jehanna) |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
