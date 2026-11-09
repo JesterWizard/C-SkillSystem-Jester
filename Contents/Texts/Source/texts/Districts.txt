@@ -127,3 +127,23 @@ Pause[X]
 Resume[X]
 ## MSG_CROSSING_K_DONE
 Done[X]
+## MSG_TOWER_READY
+Stack the blocks![X]
+## MSG_TOWER_PAUSED
+Paused[X]
+## MSG_TOWER_S_SCORE
+Score[X]
+## MSG_TOWER_S_HEIGHT
+Height[X]
+## MSG_TOWER_S_BEST
+Best[X]
+## MSG_TOWER_K_START
+Start[X]
+## MSG_TOWER_K_EXIT
+Exit[X]
+## MSG_TOWER_K_PAUSE
+Pause[X]
+## MSG_TOWER_K_RESUME
+Resume[X]
+## MSG_TOWER_K_DONE
+Done[X]

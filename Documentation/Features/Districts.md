@@ -12,6 +12,7 @@
 - [Hex Shop](#hex-shop)
 - [Fishing](#fishing)
 - [River Crossing](#river-crossing)
+- [Tower Stack](#tower-stack)
 - [Adding a District](#adding-a-district)
 - [Code Locations](#code-locations)
 - [Limitations](#limitations)
@@ -33,6 +34,7 @@ Each district:
 - Has a gate tile. Stepping on it asks if you want to leave.
 - Has a pool of water with a fishing spot (see [Fishing](#fishing)).
 - Has a River Crossing spot, marked with a flag (see [River Crossing](#river-crossing)).
+- Has a Tower Stack spot, marked with a small tower (see [Tower Stack](#tower-stack)).
 
 ---
 
@@ -329,6 +331,21 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
 
 ---
 
+## 🧱 Tower Stack
+
+Each district has a Tower Stack spot, marked on the map with a small white tower. Stand on it and press A to play a
+block-stacking minigame: drop sliding blocks onto a tower, chain perfect landings into a fever, and turn the score into
+gold. The rules are in [Tower Stack](./Minigames/Tower.md).
+
+| District | Spot (x, y) |
+|---|---|
+| Serafew | (6, 16) |
+| Port Kiris | (16, 15) |
+| Caer Pelyn | (11, 16) |
+| Jehanna Hall | (8, 12) |
+
+---
+
 ## 🛠️ Adding a District
 
 1. **Pick the ids.** Choose these before you start:
@@ -373,7 +390,7 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
    - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`, the fishing spot, as `FISHING_SPOT(x, y, dir)`
      (see [Fishing](./Minigames/Fishing.md#adding-a-fishing-spot)), and the River Crossing spot, as `CROSSING_SPOT(x, y)`.
      A new district also needs a course: add its chapter to `Crossing_LevelOfChapter` and a row to `sCourses`
-     ([River Crossing](./Minigames/Crossing.md#the-courses)).
+     ([River Crossing](./Minigames/Crossing.md#the-courses)). Add the Tower Stack spot as `TOWER_SPOT(x, y)`.
    - `events/units.c`: Eirika's start tile and the five NPCs.
    - `events/events.c`: the opening event, the talk events, the Hex shop event, the gift flags and the event group.
    - `text/npcs.txt`: the `District_<Name>_*` texts. This file is already included by `CustomCampaign/Text/Text.txt` for the
@@ -446,6 +463,7 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
 | Fishing | [`Minigames/Fishing/`](../../Kernel/Wizardry/Minigames/Fishing/) | The fishing screen, the spot's A-press handler, the map bobbers ([doc](./Minigames/Fishing.md)) |
 | Pond tool | [`pond.py`](../../Tools/district/pond.py) | Picks the water metatiles of a small pool |
 | River Crossing | [`Minigames/Crossing/`](../../Kernel/Wizardry/Minigames/Crossing/) | The lane-crossing minigame, its spots' A-press handler, the map flags ([doc](./Minigames/Crossing.md)) |
+| Tower Stack | [`Minigames/Tower/`](../../Kernel/Wizardry/Minigames/Tower/) | The block-stacking minigame, its spots' A-press handler, the map towers ([doc](./Minigames/Tower.md)) |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
 | Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |

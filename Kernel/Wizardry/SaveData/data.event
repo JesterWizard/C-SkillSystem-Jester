@@ -74,6 +74,9 @@ gEmsSavChunks:
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */
 #endif
+#ifdef CONFIG_DISTRICT_TOWER
+    EmsChunk($0004, TowerRecords_Save, TowerRecords_Load) /* District Tower Stack best score */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -133,6 +136,9 @@ gEmsSusChunks:
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */
 #endif
+#ifdef CONFIG_DISTRICT_TOWER
+    EmsChunk($0004, TowerRecords_Save, TowerRecords_Load) /* District Tower Stack best score */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -150,5 +156,8 @@ gNewSaveHooks:
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     POIN CrossingRecords_NewGame
+#endif
+#ifdef CONFIG_DISTRICT_TOWER
+    POIN TowerRecords_NewGame
 #endif
     WORD 0 0 0 0

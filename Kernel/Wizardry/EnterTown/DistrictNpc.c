@@ -4,6 +4,7 @@
 #include "skill-system.h"	/* MAPANIMFX_CHR_L / MAPANIMFX_PAL for the Hex Card icon */
 #include "fishing.h"
 #include "crossing.h"
+#include "tower.h"
 
 /* Free movement (Kernel/Wizardry/FreeMovement/cFreeMU/src/FreeMU.h, not on the include path) */
 extern bool FMU_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y);
@@ -173,6 +174,8 @@ static const u8 sGateArrowTiles[64] = {
 #define FISHING_CHR_MAP_BOBBER (MAPANIMFX_CHR_R + 0x20)
 /* The River Crossing flag: the tile after the bobber */
 #define CROSSING_CHR_MAP_FLAG (MAPANIMFX_CHR_R + 0x21)
+/* The Tower Stack tower: the tile before the Hex Card icon (title-screen leftovers there, unused on the map) */
+#define TOWER_CHR_MAP_TOWER (MAPANIMFX_CHR_L - 1)
 
 /* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
 static void DistrictNpc_LoadGates(void)
@@ -183,6 +186,9 @@ static void DistrictNpc_LoadGates(void)
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
 	Crossing_LoadMapMarker(CROSSING_CHR_MAP_FLAG);
+#endif
+#ifdef CONFIG_DISTRICT_TOWER
+	Tower_LoadMapMarker(TOWER_CHR_MAP_TOWER);
 #endif
 	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
 }
@@ -372,6 +378,9 @@ static void DistrictNpc_Loop(ProcPtr proc)
 #ifdef CONFIG_DISTRICT_CROSSING
 	Crossing_DrawMapMarkers(CROSSING_CHR_MAP_FLAG, MAPANIMFX_PAL);
 #endif
+#ifdef CONFIG_DISTRICT_TOWER
+	Tower_DrawMapMarkers(TOWER_CHR_MAP_TOWER, MAPANIMFX_PAL);
+#endif
 
 #ifdef CONFIG_HEX_CARDS
 	/* Drawn every frame, also on the ticks below that return early */
@@ -484,7 +493,8 @@ const struct ProcCmd ProcScr_DistrictNpc[] = {
 
 /*
  * A walking NPC is a MU, which keeps drawing itself from OBJ VRAM. The NPC proc is not run while an event is, so a
- * minigame screen that takes over OBJ VRAM (fishing, River Crossing) ends the walk first, or a garbled MU shows.
+ * minigame screen that takes over OBJ VRAM (fishing, River Crossing, Tower Stack) ends the walk first, or a garbled MU
+ * shows.
  */
 void DistrictNpc_EndWalk(void)
 {

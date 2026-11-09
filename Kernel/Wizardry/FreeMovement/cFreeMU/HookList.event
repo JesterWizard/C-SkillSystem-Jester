@@ -44,6 +44,9 @@ HookListFMU_TrapList_OnPressA:
 #ifdef CONFIG_DISTRICT_CROSSING
 	FMU_SetTrap(30, Crossing_OnPressA|1)	// TRAP_CROSSING_SPOT (bmtrick.h): open River Crossing
 #endif
+#ifdef CONFIG_DISTRICT_TOWER
+	FMU_SetTrap(31, Tower_OnPressA|1)	// TRAP_TOWER_SPOT (bmtrick.h): open Tower Stack
+#endif
 	FMU_SetTrapEnd
 
 ALIGN 4
