@@ -41,3 +41,6 @@ extern const struct DistrictNpc gDistrictNpcs[];	/* ends with chapter 0xFF */
 const struct DistrictNpc *GetDistrictNpc(int chapter, int pid);
 /* ASMC: no arguments (the event engine calls it bare, like EnableFreeMovementASMC) */
 void StartDistrictNpcs(void);
+
+/* Ends an NPC walk in progress (the NPC proc does not run while an event does). For screens that take over OBJ VRAM. */
+void DistrictNpc_EndWalk(void);

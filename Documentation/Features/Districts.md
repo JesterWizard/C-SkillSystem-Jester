@@ -11,6 +11,7 @@
 - [Hex Players](#hex-players)
 - [Hex Shop](#hex-shop)
 - [Fishing](#fishing)
+- [River Crossing](#river-crossing)
 - [Adding a District](#adding-a-district)
 - [Code Locations](#code-locations)
 - [Limitations](#limitations)
@@ -31,6 +32,7 @@ Each district:
 - Has a Hex shop, a building on the map. Its door opens the shop (see [Hex Shop](#hex-shop)).
 - Has a gate tile. Stepping on it asks if you want to leave.
 - Has a pool of water with a fishing spot (see [Fishing](#fishing)).
+- Has a River Crossing spot, marked with a flag (see [River Crossing](#river-crossing)).
 
 ---
 
@@ -311,6 +313,22 @@ rewards are in [District Fishing](./Minigames/Fishing.md).
 
 ---
 
+## 🐸 River Crossing
+
+Each district has a River Crossing spot, marked on the map with a small red flag. Stand on it and press A to play a
+lane-crossing minigame: hop across a road of enemy riders and a river of drifting rafts to fill five docks. Each district
+has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). The rules are in
+[River Crossing](./Minigames/Crossing.md).
+
+| District | Spot (x, y) | Course |
+|---|---|---|
+| Serafew | (3, 15) | 0 |
+| Port Kiris | (19, 20) | 1 |
+| Caer Pelyn | (15, 13) | 2 |
+| Jehanna Hall | (16, 11) | 3 |
+
+---
+
 ## 🛠️ Adding a District
 
 1. **Pick the ids.** Choose these before you start:
@@ -352,8 +370,10 @@ rewards are in [District Fishing](./Minigames/Fishing.md).
    files. Then update:
    - `events/chapter.c`: the chapter data. Set the tileset, `mainLayerId` (map id), `mapEventDataId` (event id), title and start position.
    - `events/asmc.h`: the `SetGameOptions_*` function. Its name must match the one in `events.c`.
-   - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`, and the fishing spot, as `FISHING_SPOT(x, y, dir)`
-     (see [Fishing](./Minigames/Fishing.md#adding-a-fishing-spot)).
+   - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`, the fishing spot, as `FISHING_SPOT(x, y, dir)`
+     (see [Fishing](./Minigames/Fishing.md#adding-a-fishing-spot)), and the River Crossing spot, as `CROSSING_SPOT(x, y)`.
+     A new district also needs a course: add its chapter to `Crossing_LevelOfChapter` and a row to `sCourses`
+     ([River Crossing](./Minigames/Crossing.md#the-courses)).
    - `events/units.c`: Eirika's start tile and the five NPCs.
    - `events/events.c`: the opening event, the talk events, the Hex shop event, the gift flags and the event group.
    - `text/npcs.txt`: the `District_<Name>_*` texts. This file is already included by `CustomCampaign/Text/Text.txt` for the
@@ -425,6 +445,7 @@ rewards are in [District Fishing](./Minigames/Fishing.md).
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
 | Fishing | [`Minigames/Fishing/`](../../Kernel/Wizardry/Minigames/Fishing/) | The fishing screen, the spot's A-press handler, the map bobbers ([doc](./Minigames/Fishing.md)) |
 | Pond tool | [`pond.py`](../../Tools/district/pond.py) | Picks the water metatiles of a small pool |
+| River Crossing | [`Minigames/Crossing/`](../../Kernel/Wizardry/Minigames/Crossing/) | The lane-crossing minigame, its spots' A-press handler, the map flags ([doc](./Minigames/Crossing.md)) |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
 | Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |

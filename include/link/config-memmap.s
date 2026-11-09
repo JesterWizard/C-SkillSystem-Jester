@@ -353,6 +353,10 @@ _kernel_malloc2 sArenaRosterRuntimeState, 4
 _kernel_malloc2 gFishingState, 0x1A0
 _kernel_malloc2 gFishingRecords, 0x20
 
+/* District River Crossing (include/kernel/crossing.h): the game state (RAM only) and the saved best scores (a save chunk). */
+_kernel_malloc2 gCrossingState, 0x100
+_kernel_malloc2 gCrossingRecords, 0x0C
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

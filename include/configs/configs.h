@@ -65,6 +65,10 @@
  * Comment out the next line to remove it from the build. */
 #define CONFIG_DISTRICT_FISHING
 
+/* District River Crossing: crossing spots in the districts and the lane-crossing minigame (Kernel/Wizardry/Minigames/Crossing).
+ * Comment out the next line to remove it from the build. */
+#define CONFIG_DISTRICT_CROSSING
+
 #define CONFIG_FORGE_CHECKER 5000
 
 // Unit counts and save layout stay expanded. Gameplay is gated by
