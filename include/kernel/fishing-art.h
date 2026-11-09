@@ -72,10 +72,20 @@ extern const u16 gFishingObjPalGold[16];
 extern const u8 gFishingMapBobberTile[32];
 
 /* Pop-up words: two 64x32 halves (64 tiles) each, copied into OBJ VRAM when shown */
-enum { FISHING_POP_PERFECT, FISHING_POP_GREAT, FISHING_POP_HOOKED, FISHING_POP_CAUGHT, FISHING_POP_JACKPOT, FISHING_POP_WORDS };
+enum { FISHING_POP_PERFECT, FISHING_POP_GREAT, FISHING_POP_HOOKED, FISHING_POP_CAUGHT, FISHING_POP_JACKPOT, FISHING_POP_NEW, FISHING_POP_RECORD, FISHING_POP_WORDS };
 enum { FISHING_POP_PAL_GOLD, FISHING_POP_PAL_ORANGE, FISHING_POP_PAL_BLUE, FISHING_POP_PAL_GREEN };
 #define FISHING_POP_TILES 64
 extern const u8 gFishingPopTiles[FISHING_POP_WORDS * FISHING_POP_TILES * 32];
 extern const u16 gFishingPopPals[4 * 16];
 extern const u8 gFishingPopWordPal[FISHING_POP_WORDS];
+
+/* The journal's species (water * 5 + kind): a 64x32 portrait, a 32x16 icon and a palette each */
+#define FISHING_SPECIES 20
+#define FISHING_PIC_TILES 32
+#define FISHING_ICON_TILES 8
+extern const u8 gFishingSpeciesPics[FISHING_SPECIES * FISHING_PIC_TILES * 32];
+extern const u8 gFishingSpeciesIcons[FISHING_SPECIES * FISHING_ICON_TILES * 32];
+extern const u16 gFishingSpeciesPals[FISHING_SPECIES * 16];
+extern const u16 gFishingSilhouettePal[16];
+extern const u8 gFishingSpeciesCm[FISHING_SPECIES * 2]; /* smallest and biggest, centimetres */
 

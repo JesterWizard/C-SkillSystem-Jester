@@ -14,7 +14,7 @@
 - [Bait](#bait)
 - [Reeling and Bonuses](#reeling-and-bonuses)
 - [Effects](#effects)
-- [Prize Table and Records](#prize-table-and-records)
+- [Species, the Catch Card and the Journal](#species-the-catch-card-and-the-journal)
 - [Fishing Spots](#fishing-spots)
 - [The Screen](#the-screen)
 - [Adding a Fishing Spot](#adding-a-fishing-spot)
@@ -35,6 +35,10 @@ The water is deep: the screen scrolls down with the hook, to 40 m. Five kinds of
 the bigger ones deeper down, and a rare golden fish. Buy a bait, cast, wait for a bite, hook the fish and keep the line's
 tension in the green zone until it is landed. A landed fish pays gold. Fast hooks and clean landings pay up to double.
 
+Each district's water has its own five species, from minnows to a golden fish. Every catch gets a size and a catch card,
+stamped **NEW!** for a first catch or **RECORD!** for the biggest yet, and goes into the **fish journal**: 20 species in
+all, each shown as a silhouette until it is caught.
+
 ---
 
 ## 🎣 How to Play
@@ -50,7 +54,9 @@ tension in the green zone until it is landed. A landed fish pays gold. Fast hook
    (+50%), within 14 a **good hook** (+25%). Wait too long and the fish swims away with the bait.
 6. **Reel it in.** Keep the tension needle in the green zone (see [Reeling and Bonuses](#reeling-and-bonuses)). The fish
    and the hook rise as you make progress.
-7. **Land it.** A splash, then the payout: "Large fish!  +700G  (x2.0)". The bait is used up.
+7. **Land it.** A splash, CAUGHT!, then the **catch card**: the species, its size and the payout ("Sea Bass!  +567G
+   (x2.0)" on the top line). The bait is used up. See
+   [Species, the Catch Card and the Journal](#species-the-catch-card-and-the-journal).
 
 A reels the line in while you wait (the bait stays on). A fish that bites and then gets away takes the bait with it.
 A fish you scare off during its nibble leaves the bait on the hook.
@@ -64,13 +70,13 @@ screens). The window at the top keeps one line: what is going on.
 
 | When | Buttons |
 |---|---|
-| Choosing a bait | Left/Right: bait, A: cast, B: exit, START: prize table |
-| Waiting | Up/Down: depth, A: reel in, B: exit, START: prize table |
+| Choosing a bait | Left/Right: bait, A: cast, B: exit, START: journal |
+| Waiting | Up/Down: depth, A: reel in, B: exit, START: journal |
 | A bite | A: hook it, B: exit |
 | Reeling | A: reel, B: exit |
-| After a catch | A: fish again, B: exit, START: prize table |
+| The catch card | A: fish again, B: exit, START: journal |
 | A message | A: OK, B: exit |
-| Prize table | B or START: close |
+| Journal | Left/Right: water, B or START: close |
 
 **B ends the minigame at any time** (a fish on the line is lost). The walk-in is the only moment it is ignored.
 
@@ -94,7 +100,8 @@ at the bank and leave on the left again.
 - Depth is metres below the surface, 8 pixels to the metre.
 - "Reel time" is how long the needle must stay in the green zone. The time limit is twice that plus 2 seconds.
 - The table is `sFishTypes` in `Kernel/Wizardry/Minigames/Fishing/Source/FishingScreen.c`. Change the odds, the prizes
-  and the difficulty there. The prize table on the screen shows the same values.
+  and the difficulty there. The journal shows the same prizes.
+- These are the five **kinds** of fish. Which species a kind is depends on the district's water (see below).
 
 ---
 
@@ -138,7 +145,9 @@ The payout is the fish's prize times the bonuses:
 | Clean landing | landed within 1.25 times its reel time (in the zone almost all the time) | +50% |
 | Quick landing | landed within 1.5 times its reel time | +25% |
 
-So the multiplier is x1.0 to x2.0, shown on the result line. A perfect golden catch pays 18000G.
+So the multiplier is x1.0 to x2.0, shown on the result line. The **size** then scales the payout from x0.75 (the
+smallest of its species) to x1.25 (the biggest): an average catch pays the prize as before. A perfect catch of the
+biggest golden fish pays 22500G.
 
 ---
 
@@ -160,30 +169,59 @@ So the multiplier is x1.0 to x2.0, shown on the result line. A perfect golden ca
   VRAM when a word pops (64 tiles), with its own palette.
 - **The particles** (up to 16 sparks and coins) live in screen space, with gravity. The **shake** moves BG3 and the scene's
   sprites together; the window, the buttons, the meters and the pop-ups stay still.
-- The pop-up and the particles are cleared when the prize table opens.
+- The pop-up and the particles are cleared when the journal opens.
 
 ---
 
-## 🏆 Prize Table and Records
+## 📖 Species, the Catch Card and the Journal
 
-START opens the prize table (while choosing a bait, while waiting, and after a catch). B or START closes it. The game
-pauses while it is open.
+<p align="center">
+  <img src="../../Gifs/Fishing_Journal.gif" alt="A first catch of a Mackerel: its catch card stamped NEW!, then the fish journal" width="480"/>
+</p>
+
+**The waters.** Each district's water has its own species, one for each kind of fish. The water is chosen by the chapter
+(`Fishing_WaterOf`); any other chapter fishes Serafew Pond.
+
+| Water | Small | Medium | Large | Huge | Golden |
+|---|---|---|---|---|---|
+| Serafew Pond | Minnow, 4-9 cm | Perch, 15-35 cm | Carp, 35-80 cm | Pike, 70-130 cm | Gold Koi, 30-70 cm |
+| Port Kiris Harbour | Sardine, 10-20 cm | Mackerel, 25-45 cm | Sea Bass, 40-90 cm | Tuna, 100-250 cm | Gold Bream, 25-55 cm |
+| Caer Pelyn Pond | Loach, 8-15 cm | Trout, 25-50 cm | Char, 35-70 cm | Salmon, 70-120 cm | Golden Trout, 25-55 cm |
+| Jehanna Oasis | Pupfish, 3-7 cm | Tilapia, 15-40 cm | Catfish, 60-140 cm | Arapaima, 150-250 cm | Gold Arowana, 60-100 cm |
+
+- The kind still sets everything about the catch (odds, depth, bait, the fight, the prize). The species adds its name,
+  its look and its size.
+- **The size** is rolled when the fish is landed: two rolls in its range, averaged, so the middle is common and the ends
+  are rare. It scales the payout (x0.75 to x1.25).
+
+**The catch card.** Half a second after CAUGHT! (or at once with A) a card opens over the water: the fish's portrait, its
+name (in gold for a golden species), its size, the best before it ("First catch!", "Best 43cm", or "Old best 28cm" when
+it beats it) and the payout. A first catch is stamped **NEW!** in green, the biggest yet **RECORD!** in gold: the stamp
+slams down tilted, with a fanfare, a jolt and sparks. A fishes again, START opens the journal, B leaves.
+
+**The journal.** START opens it (while choosing a bait, while waiting, and on the catch card). It shows one water a page,
+the district's own first; Left and Right turn the pages. The top line shows the water and how many of the 20 species are
+found.
 
 | Column | What |
 |---|---|
-| Fish | The five fish (the golden fish in gold) |
-| Odds | The fish's share of all fish |
-| Prize | Its base prize |
-| Caught | How many you have landed |
-| Best | Your best payout for it (with bonuses) |
+| (icon) | The species, or its dark silhouette until it is caught |
+| Fish | Its name, or "???" |
+| Prize | Its kind's base prize |
+| Caught | How many you have landed (up to 255) |
+| Best | The biggest you have landed |
 
-The records are kept in the save. They are `gFishingRecords` (`struct FishingRecords`, 0x20 bytes,
-`include/kernel/fishing.h`): a magic word, the catches (up to 9999 each) and the best payouts. It is one chunk at the end
-of both save lists (`Kernel/Wizardry/SaveData/data.event`, `FishingRecords_Save` / `FishingRecords_Load`), and
-`FishingRecords_NewGame` clears it on a new game. A save made before the chunk existed has no magic and loads empty
-records.
+The journal is kept in the save: `gFishingRecords` (`struct FishingRecords`, 0x2C bytes, `include/kernel/fishing.h`), a
+magic word, the catches and the best sizes of the 20 species. It is one chunk in both save lists
+(`Kernel/Wizardry/SaveData/data.event`, `FishingRecords_Save` / `FishingRecords_Load`), and `FishingRecords_NewGame`
+clears it on a new game.
 
-The suspend save had 76 bytes free before this chunk (with `CONFIG_FOURTH_ALLEGIANCE`), so 44 are left.
+- It replaced the prize table's records (catches and best payouts of the five kinds, 0x20 bytes). The magic changed, so
+  a save from before the journal loads an empty journal. The old RAM slot is kept as `gFishingRecordsV1` so that no
+  address after it moved; the journal's is at the end of the region.
+- The suspend save has 16 bytes free after the chunks (0x3140 of 0x3150 used), the game save 0x4BD.
+- The species' looks and sizes are drawn by `Tools/fishing/fish_species.py` (see [Art](#art)); their names are
+  `MSG_FISHING_SP_*`, in `sSpeciesNames` (`FishingScreen.c`).
 
 ---
 
@@ -211,18 +249,20 @@ The suspend save had 76 bytes free before this chunk (with `CONFIG_FOURTH_ALLEGI
 | Layer | What |
 |---|---|
 | BG3 | The scene, 240 x 448 (BG palette 8, tiles at `0x06008000`, a 256x512 map at `0x06007000`), scrolled with the hook |
-| BG1 | The window frames (the one-line window at the top, the prize table) |
+| BG1 | The window frames (the one-line window at the top, the catch card, the journal) |
 | BG0 | Their text |
-| OBJ (1D) | The fish (shadows semi-transparent over BG3, the golden fish solid), the rod (affine), the line, the hook, the bait, the bobber, the splash, the unit, "!", the particles, the meters, the pop-up words (affine) and the button icons |
+| OBJ (1D) | The fish (shadows semi-transparent over BG3, the golden fish solid), the rod (affine), the line, the hook, the bait, the bobber, the splash, the unit, "!", the particles, the meters, the pop-up words (affine), the button icons, the card's portrait and stamp (affine), and the journal's icons |
 | BG0 (bottom) | The button labels, rows 18-19, with no window behind them |
 
 - **The unit** is the active unit (Eirika in the districts). It is drawn from its class's moving map sprite (walking
   sheet), decompressed straight into OBJ VRAM at tile `0x180`: it walks in with the side-walking frames and then stands
   facing the water. A class whose sheet is missing or bigger than 0x2200 bytes falls back to its standing sprite.
 - **OBJ tiles**: the art from tile 0 (272 tiles), the pop-up word at `0x120` (64 tiles), the three meters at `0x160`
-  (repainted every frame), the unit at `0x180`. Tiles from `0x380` up are left alone: the map's moving units keep their
-  graphics there. OBJ palettes 2 to 5 are the art's (FX, UI, GOLD, and the pop-up word's), 12 to 15 the unit sprites'.
-  Affine slots 0 (the rod) and 1 (the pop-up).
+  (repainted every frame), the unit at `0x180`, the card's portrait (32 tiles) or the journal's five icons (8 tiles each)
+  at `0x290`, and the card's stamp word at `0x2B0` (64 tiles). Tiles from `0x380` up are left alone: the map's moving
+  units keep their graphics there. OBJ palettes 2 to 5 are the art's (FX, UI, GOLD, and the pop-up word's), 6 the
+  portrait (6 to 10 the journal's icons), 11 the stamp, 12 to 15 the unit sprites'. Affine slots 0 (the rod), 1 (the
+  pop-up) and 2 (the stamp).
 - **The map** of BG3 is not at `0xF000` and up: the map's tile animations (the Port Kiris water) keep writing there while
   the map is suspended. Rows 0..31 of the scene map go through the BG3 buffer, rows 32..55 straight to VRAM.
 - **Sprites** for the UI (the meters, the pop-up and the buttons) are pushed last, so they come first in OAM: the GBA lets a
@@ -252,11 +292,16 @@ shows in districts. To add water to a map, see `Tools/district/pond.py`.
 All the art is drawn by `Tools/fishing/gen_fishing_art.py`, pixel by pixel in Python. Nothing is read from an image file.
 
 - It writes `Kernel/Wizardry/Minigames/Fishing/Source/FishingArt.c` (the scene's tiles, map and palette, the sprite tiles
-  and three sprite palettes, the map bobber, the pop-up words and their four palettes) and `include/kernel/fishing-art.h`
-  (the scene geometry, the rod's pivot and length, and the sprite tile offsets).
+  and three sprite palettes, the map bobber, the pop-up words and their four palettes, and the species) and
+  `include/kernel/fishing-art.h` (the scene geometry, the rod's pivot and length, and the sprite tile offsets).
+- **The species** are described in `Tools/fishing/fish_species.py`: each one's shape (length, depth, snout, tail),
+  fins, pattern (stripes, bars, spots, scales, patches...), colours and size range. One painter draws each twice, a 64x32
+  portrait for the card and a 32x16 icon for the journal, with its own 16-colour palette. They are in ROM
+  (`gFishingSpeciesPics`, `gFishingSpeciesIcons`, `gFishingSpeciesPals`, `gFishingSpeciesCm`) and copied into OBJ VRAM
+  when shown. Five species a water, in the order of the kinds; the names are texts (`MSG_FISHING_SP_*`).
 - The sprite palettes: FX (the fish shadows, the rod, the line, the bobber, the bait, the sparks), UI (the button icons
-  and the meters) and GOLD (the golden fish, the coins). The pop-up words have four palettes of their own: gold, orange,
-  blue and green.
+  and the meters) and GOLD (the golden fish, the coins). The pop-up words (PERFECT!, GREAT!, HOOKED!, CAUGHT!, JACKPOT!,
+  and the card's stamps NEW! and RECORD!) have four palettes of their own: gold, orange, blue and green.
 - The rod is drawn at 45 degrees in a 64x64 sprite with the hand at the centre, so it can turn about the hand without
   leaving its sprite.
 - Don't edit the two output files. Change the script and run it again.
@@ -278,18 +323,19 @@ trap data, but nothing happens on them. Removing the switch also removes the chu
 | Feature | Location | Description |
 |--------|----------|-------------|
 | Installer | [`Fishing_Installer.event`](../../../Kernel/Wizardry/Minigames/Fishing/Fishing_Installer.event) | Included from `Kernel/Wizardry/wizardry.event` (`WIZARDRY_CUSTOM`) |
-| Screen | [`FishingScreen.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingScreen.c) | `ProcScr_FishingScreen`, the states, the fish, `sFishTypes`, `sBaitTypes`, the prize table |
-| Records | [`FishingRecords.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingRecords.c) | The save chunk, the new-game hook, `FishingRecords_Add` |
+| Screen | [`FishingScreen.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingScreen.c) | `ProcScr_FishingScreen`, the states, the fish, `sFishTypes`, `sBaitTypes`, `sSpeciesNames`, the catch card, the journal |
+| Records | [`FishingRecords.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingRecords.c) | The journal's save chunk, the new-game hook, `FishingRecords_Add` |
+| Species | [`fish_species.py`](../../../Tools/fishing/fish_species.py) | The species' looks and sizes (art) |
 | District glue | [`FishingDistrict.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingDistrict.c) | `Fishing_OnPressA`, `StartDistrictFishingASMC`, the map bobbers |
 | Art | [`FishingArt.c`](../../../Kernel/Wizardry/Minigames/Fishing/Source/FishingArt.c) | Generated by `Tools/fishing/gen_fishing_art.py` |
 | Header | [`fishing.h`](../../../include/kernel/fishing.h) | `struct FishingState`, `struct FishingRecords`, `FISH_*`, `BAIT_*`, `FISHING_DIR_*` |
-| Save lists | [`data.event`](../../../Kernel/Wizardry/SaveData/data.event) | The records chunk in both lists, and the new-game hook |
+| Save lists | [`data.event`](../../../Kernel/Wizardry/SaveData/data.event) | The journal chunk in both lists, and the new-game hook |
 | Trap type | [`bmtrick.h`](../../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_FISHING_SPOT` (29) and `FISHING_SPOT(x, y, dir)` |
 | Trap loader | [`TrapData.c`](../../../Kernel/Wizardry/TrapData/TrapData.c) | Adds the trap with its direction |
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry, and the A-press order |
 | Map bobbers | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | Loads and draws them with the gate arrows |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_FISHING_*` |
-| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gFishingState`, `gFishingRecords` |
+| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gFishingState`, `gFishingRecords` (and the unused `gFishingRecordsV1`) |
 | Switch | [`configs.h`](../../../include/configs/configs.h) | `CONFIG_DISTRICT_FISHING` |
 
 ---
@@ -297,6 +343,7 @@ trap data, but nothing happens on them. Removing the switch also removes the chu
 ## ⚠️ Limitations
 
 - The rewards are gold only. There are no fish items.
+- A species' size changes only its payout and the journal: a big fish fights no harder than a small one of its kind.
 - The bobbers on the map are only drawn in districts (by the district NPC proc).
 - The scene is the same for every pool: a grassy bank and deep open water, also for the Jehanna oasis and the small ponds.
 - Gold is capped at 999999, catches at 9999 per fish.

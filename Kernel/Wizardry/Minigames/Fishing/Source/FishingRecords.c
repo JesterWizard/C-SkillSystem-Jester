@@ -5,15 +5,16 @@
 #ifdef CONFIG_DISTRICT_FISHING
 
 /*
- * Fishing records: how many of each fish were landed and the best payout for each, shown in the prize table (START on
- * the fishing screen). gFishingRecords lives in RAM (include/link/config-memmap.s) and is saved as one 0x20-byte chunk
- * in each save list (Kernel/Wizardry/SaveData/data.event). FishingRecords_NewGame is a new-game hook.
+ * The fish journal: how many of each species were landed and the biggest of each, shown in the journal (START on the
+ * fishing screen) and on the catch card. gFishingRecords lives in RAM (include/link/config-memmap.s) and is saved as
+ * one 0x2C-byte chunk in each save list (Kernel/Wizardry/SaveData/data.event). FishingRecords_NewGame is a new-game
+ * hook. The magic changed with the journal ("FS" was the prize table's records), so older records load empty.
  */
 
-#define FISHING_RECORDS_MAGIC 0x4653 /* "FS" */
-#define FISHING_CAUGHT_MAX 9999
+#define FISHING_RECORDS_MAGIC 0x4A46 /* "FJ" */
+#define FISHING_CAUGHT_MAX 255
 
-typedef char FishingRecords_SizeCheck[(sizeof(struct FishingRecords) == 0x20) ? 1 : -1];
+typedef char FishingRecords_SizeCheck[(sizeof(struct FishingRecords) == 0x2C) ? 1 : -1];
 typedef char FishingState_SizeCheck[(sizeof(struct FishingState) == 0x1A0) ? 1 : -1];
 
 static void FishingRecords_Clear(void)
@@ -22,16 +23,52 @@ static void FishingRecords_Clear(void)
 	gFishingRecords.magic = FISHING_RECORDS_MAGIC;
 }
 
-void FishingRecords_Add(int type, u32 payout)
+/* Records a catch of `cm` centimetres; returns FISHING_JOURNAL_* */
+int FishingRecords_Add(int species, int cm)
 {
-	if (type < 0 || type >= FISH_TYPES)
-		return;
+	int result = FISHING_JOURNAL_SAME;
+
+	if (species < 0 || species >= FISHING_JOURNAL_SPECIES)
+		return result;
 	if (gFishingRecords.magic != FISHING_RECORDS_MAGIC)
 		FishingRecords_Clear();
-	if (gFishingRecords.caught[type] < FISHING_CAUGHT_MAX)
-		gFishingRecords.caught[type]++;
-	if (payout > gFishingRecords.best[type])
-		gFishingRecords.best[type] = payout;
+	if (gFishingRecords.caught[species] == 0)
+		result = FISHING_JOURNAL_NEW;
+	else if (cm > gFishingRecords.best[species])
+		result = FISHING_JOURNAL_RECORD;
+	if (gFishingRecords.caught[species] < FISHING_CAUGHT_MAX)
+		gFishingRecords.caught[species]++;
+	if (cm > gFishingRecords.best[species])
+		gFishingRecords.best[species] = cm > 255 ? 255 : cm;
+	return result;
+}
+
+/* How many of a species were landed (0: not found yet), and the biggest, in centimetres */
+int FishingRecords_Caught(int species)
+{
+	if (gFishingRecords.magic != FISHING_RECORDS_MAGIC || species < 0 || species >= FISHING_JOURNAL_SPECIES)
+		return 0;
+	return gFishingRecords.caught[species];
+}
+
+int FishingRecords_Best(int species)
+{
+	if (gFishingRecords.magic != FISHING_RECORDS_MAGIC || species < 0 || species >= FISHING_JOURNAL_SPECIES)
+		return 0;
+	return gFishingRecords.best[species];
+}
+
+/* How many species have been found */
+int FishingRecords_Found(void)
+{
+	int i, n = 0;
+
+	if (gFishingRecords.magic != FISHING_RECORDS_MAGIC)
+		return 0;
+	for (i = 0; i < FISHING_JOURNAL_SPECIES; i++)
+		if (gFishingRecords.caught[i] > 0)
+			n++;
+	return n;
 }
 
 /* New-game hook (gNewSaveHooks) */
@@ -40,7 +77,7 @@ void FishingRecords_NewGame(void)
 	FishingRecords_Clear();
 }
 
-/* Game and suspend save chunk (0x20 bytes) */
+/* Game and suspend save chunk (0x2C bytes) */
 void FishingRecords_Save(u8 *dst, const u32 size)
 {
 	gFishingRecords.magic = FISHING_RECORDS_MAGIC;

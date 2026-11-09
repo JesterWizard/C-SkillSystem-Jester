@@ -85,7 +85,7 @@ gold bar at the top right is the time left.
 - **Best score:** saved. It is `gTowerRecords` (`struct TowerRecords`, 4 bytes, `include/kernel/tower.h`): a magic word
   and the best score (up to 65535). It is one chunk at the end of both save lists (`Kernel/Wizardry/SaveData/data.event`),
   and `TowerRecords_NewGame` clears it on a new game. A save made before the chunk existed loads no record. The suspend
-  save has 28 bytes free after it.
+  save had 28 bytes free after it (16 since the fish journal grew the fishing chunk).
 
 The numbers are near the top of `Kernel/Wizardry/Minigames/Tower/Source/TowerScreen.c`: `FEVER_FRAMES`, `CHAIN_MAX`, the
 slide speeds in `Tower_Speed`, and the points in `Tower_Land`.

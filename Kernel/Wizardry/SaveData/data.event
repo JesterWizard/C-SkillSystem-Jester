@@ -69,7 +69,7 @@ gEmsSavChunks:
     EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
 #endif
 #ifdef CONFIG_DISTRICT_FISHING
-    EmsChunk($0020, FishingRecords_Save, FishingRecords_Load) /* District fishing records (prize table) */
+    EmsChunk($002C, FishingRecords_Save, FishingRecords_Load) /* District fish journal */
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */
@@ -131,7 +131,7 @@ gEmsSusChunks:
     EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
 #endif
 #ifdef CONFIG_DISTRICT_FISHING
-    EmsChunk($0020, FishingRecords_Save, FishingRecords_Load) /* District fishing records (prize table) */
+    EmsChunk($002C, FishingRecords_Save, FishingRecords_Load) /* District fish journal */
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
     EmsChunk($000C, CrossingRecords_Save, CrossingRecords_Load) /* District River Crossing best scores */

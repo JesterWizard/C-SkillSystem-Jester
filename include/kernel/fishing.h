@@ -27,6 +27,20 @@ enum {
 	FISH_TYPES = 5,
 };
 
+/*
+ * The waters: one for each district (chosen by the chapter). Each has five species, one for each kind of fish above,
+ * so a species is water * FISH_TYPES + kind. The journal records them.
+ */
+enum {
+	FISHING_WATER_SERAFEW = 0,
+	FISHING_WATER_PORT_KIRIS = 1,
+	FISHING_WATER_CAER_PELYN = 2,
+	FISHING_WATER_JEHANNA = 3,
+	FISHING_WATERS = 4,
+};
+
+#define FISHING_JOURNAL_SPECIES (FISHING_WATERS * FISH_TYPES)
+
 enum {
 	BAIT_WORM = 0,
 	BAIT_SHRIMP = 1,
@@ -98,14 +112,32 @@ struct FishingState {
 		u8 life;       /* frames left, 0: free */
 		u8 kind;       /* 0 spark, 1 coin */
 	} parts[16];
-	/* 184 */ u8 pad184[0x1C];
+	/* 184 */ u8 water;        /* FISHING_WATER_* of this district */
+	/* 185 */ u8 species;      /* the last catch */
+	/* 186 */ u8 cm;           /* its size */
+	/* 187 */ u8 prevBest;     /* the species' best size before it (0: a first catch) */
+	/* 188 */ u8 stamp;        /* FISHING_POP_NEW or FISHING_POP_RECORD on the catch card, 0xFF: none */
+	/* 189 */ u8 cardT;        /* frames since the catch card opened, 0: closed */
+	/* 18A */ u8 page;         /* the journal's water */
+	/* 18B */ u8 pad18B[0x15];
 };
 
-/* Saved records: the prize table's catches and best payouts (a save chunk in both save lists, 0x20 bytes). */
+/*
+ * Saved records, the fish journal: how many of each species were landed and the biggest (a save chunk in both save
+ * lists, 0x2C bytes). A species with caught 0 is not found yet.
+ */
 struct FishingRecords {
 	/* 00 */ u16 magic;
-	/* 02 */ u16 caught[FISH_TYPES];
-	/* 0C */ u32 best[FISH_TYPES];
+	/* 02 */ u8 caught[FISHING_JOURNAL_SPECIES]; /* up to 255 */
+	/* 16 */ u8 best[FISHING_JOURNAL_SPECIES];   /* centimetres */
+	/* 2A */ u16 pad;
+};
+
+/* What a catch added to the journal (FishingRecords_Add) */
+enum {
+	FISHING_JOURNAL_SAME = 0,
+	FISHING_JOURNAL_NEW = 1,    /* the first of its species */
+	FISHING_JOURNAL_RECORD = 2, /* bigger than the best so far */
 };
 
 extern struct FishingState gFishingState;
@@ -124,7 +156,10 @@ void Fishing_LoadMapMarker(int chr);
 void Fishing_DrawMapMarkers(int chr, int pal);
 
 /* Records (FishingRecords.c) */
-void FishingRecords_Add(int type, u32 payout);
+int FishingRecords_Add(int species, int cm);
+int FishingRecords_Found(void);
+int FishingRecords_Caught(int species);
+int FishingRecords_Best(int species);
 void FishingRecords_NewGame(void);
 void FishingRecords_Save(u8 *dst, const u32 size);
 void FishingRecords_Load(u8 *src, const u32 size);
