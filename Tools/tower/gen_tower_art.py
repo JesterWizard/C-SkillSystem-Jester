@@ -5,8 +5,8 @@ Draws the art of the district Tower Stack minigame and writes it as C data to
 Kernel/Wizardry/Minigames/Tower/Source/TowerArt.c and include/kernel/tower-art.h. Nothing is read from image files: every
 pixel is drawn here, so change the drawing code and run the script again instead of editing the output.
 
-- The scene: one 240 x 256 background (30 x 32 tiles) in one 16-colour palette: sky (darker high up), clouds, a far town
-  and hills, and the ground with a stone plinth for the tower. The screen shows 160 rows of it and scrolls up as the
+- The scene: one 240 x 256 background (30 x 32 tiles) in one 16-colour palette: sky (darker high up), clouds, rolling
+  hills with a far village, church and castle, and the ground with a stone plinth for the tower. The screen shows 160 rows of it and scrolls up as the
   tower grows; above the sky's top the background stays put.
 - The sprites, laid out for 1D OBJ mapping:
   BLOCK  five block styles (granite, sandstone, brick, mossy, gold), each 48x16 as a 32x16 and a 16x16 sprite.
@@ -21,6 +21,7 @@ pixel is drawn here, so change the drawing code and run the script again instead
 --check: exit 1 if the written files differ from what the script makes now.
 --preview PATH: write a 3x preview of the scene with sprites drawn on it.
 """
+import math
 import os
 import sys
 
@@ -42,7 +43,7 @@ GEO = dict(
     TOWER_GROUND_Y=GROUND_Y,    # the tower's base stands on this row of the scene
     TOWER_BLOCK_W=48,
     TOWER_BLOCK_H=16,
-    TOWER_BLOCK_STYLES=4,       # plus the gold style, used during a fever
+    TOWER_BLOCK_STYLES=4,       # plus gold (4, a fever), a banner floor (5, every 10th) and a window (6, every 5th)
 )
 
 SCENE_PAL = [
@@ -62,6 +63,25 @@ SCENE_PAL = [
     (176, 176, 184),    # 13 stone light
     (120, 120, 136),    # 14 stone dark
     (232, 200, 120),    # 15 window light
+]
+
+# The sky at sunset (floors 10-19) and at night (20 up). The game blends between these and SCENE_PAL (day).
+SCENE_PAL_SUNSET = [
+    (0, 0, 0), (72, 56, 136), (176, 88, 128), (240, 136, 88), (248, 200, 112), (255, 224, 200), (232, 160, 152),
+    (112, 80, 112), (72, 56, 88), (112, 168, 72), (64, 112, 48), (136, 96, 64), (88, 60, 40), (184, 160, 152),
+    (120, 104, 112), (255, 232, 120),
+]
+SCENE_PAL_NIGHT = [
+    (0, 0, 0), (8, 12, 40), (16, 24, 64), (24, 40, 96), (40, 64, 120), (88, 96, 136), (64, 72, 112),
+    (24, 32, 64), (16, 20, 44), (40, 80, 48), (24, 56, 32), (64, 48, 40), (40, 32, 24), (96, 96, 120),
+    (64, 64, 88), (255, 240, 140),
+]
+
+# The cloud layer (BG2, blended over the sky): day, sunset, night
+CLOUD_PALS = [
+    [(0, 0, 0), (248, 248, 248), (200, 216, 244), (228, 236, 252)] + [(0, 0, 0)] * 12,
+    [(0, 0, 0), (255, 216, 192), (232, 152, 152), (248, 184, 168)] + [(0, 0, 0)] * 12,
+    [(0, 0, 0), (104, 112, 152), (64, 72, 112), (84, 92, 132)] + [(0, 0, 0)] * 12,
 ]
 
 PAL_BLOCK = [
@@ -84,7 +104,7 @@ PAL_BLOCK = [
 ]
 
 PAL_FX = [
-    (0, 0, 0), (40, 40, 40), (0, 0, 0), (248, 248, 248), (224, 48, 40), (0, 0, 0), (0, 0, 0), (40, 40, 40),
+    (0, 0, 0), (40, 40, 40), (0, 0, 0), (248, 248, 248), (224, 48, 40), (224, 208, 176), (176, 160, 128), (40, 40, 40),
     (248, 216, 64), (0, 0, 0), (0, 0, 0), (0, 0, 0), (232, 56, 88), (144, 24, 48), (255, 168, 184), (0, 0, 0),
 ]
 
@@ -95,6 +115,70 @@ def new(w, h, c=0):
 
 def put(img, x, y, c):
     fa.put(img, x, y, c)
+
+
+def rect(img, x0, y0, x1, y1, c):
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            img[y][x] = c
+
+
+def gable(img, x0, w, base, h, c):
+    """A pitched roof: a triangle from the eaves (row `base`, 1 pixel over each side) up to its ridge."""
+    for r in range(h):
+        half = (w / 2.0 + 1) * (h - r) / h
+        cx = x0 + w / 2.0
+        for x in range(int(cx - half), int(math.ceil(cx + half))):
+            put(img, x, base - 1 - r, c)
+
+
+def draw_cottage(img, x0, w, wall, roof):
+    """A far cottage: walls, a pitched roof and one lit window (a silhouette in the far town colour)."""
+    rect(img, x0, GROUND_Y - wall, x0 + w, GROUND_Y, 8)
+    gable(img, x0, w, GROUND_Y - wall, roof, 8)
+    rect(img, x0 + w // 2 - 1, GROUND_Y - wall + 2, x0 + w // 2 + 1, GROUND_Y - wall + 4, 15)
+
+
+def draw_church(img, x0, w):
+    """A far church: the nave with its roof, and a square bell tower with a tall spire at the west end."""
+    rect(img, x0, GROUND_Y - 10, x0 + w, GROUND_Y, 8)
+    gable(img, x0, w, GROUND_Y - 10, 6, 8)
+    rect(img, x0 - 2, GROUND_Y - 22, x0 + 6, GROUND_Y, 8)
+    for r in range(14):
+        half = 4.0 * (14 - r) / 14
+        for x in range(int(x0 + 2 - half), int(math.ceil(x0 + 2 + half))):
+            put(img, x, GROUND_Y - 23 - r, 8)
+    rect(img, x0 + 1, GROUND_Y - 19, x0 + 3, GROUND_Y - 16, 15)
+    for k in range(3):
+        put(img, x0 + 8 + k * 4, GROUND_Y - 6, 15)
+        put(img, x0 + 8 + k * 4, GROUND_Y - 5, 15)
+
+
+def draw_castle(img, x0, x1):
+    """A far castle: a crenellated curtain wall between two round towers with conical roofs, and a tall keep."""
+    def crenel(xa, xb, top):
+        for x in range(xa, xb):
+            if (x - xa) % 4 < 2:
+                put(img, x, top - 1, 8)
+                put(img, x, top - 2, 8)
+
+    wall_top = GROUND_Y - 14
+    rect(img, x0, wall_top, x1, GROUND_Y, 8)
+    crenel(x0, x1, wall_top)
+    keep0, keep1 = (x0 + x1) // 2 - 7, (x0 + x1) // 2 + 7
+    rect(img, keep0, GROUND_Y - 30, keep1, GROUND_Y, 8)
+    crenel(keep0, keep1, GROUND_Y - 30)
+    for tx in (x0, x1 - 10):
+        rect(img, tx, GROUND_Y - 24, tx + 10, GROUND_Y, 8)
+        for r in range(10):
+            half = 6.0 * (10 - r) / 10
+            for x in range(int(tx + 5 - half), int(math.ceil(tx + 5 + half))):
+                put(img, x, GROUND_Y - 25 - r, 8)
+        rect(img, tx + 4, GROUND_Y - 19, tx + 6, GROUND_Y - 16, 15)
+    for wx in (keep0 + 3, keep1 - 5):
+        rect(img, wx, GROUND_Y - 25, wx + 2, GROUND_Y - 22, 15)
+    # The gate
+    rect(img, keep0 + 5, GROUND_Y - 6, keep1 - 5, GROUND_Y, 7)
 
 
 def draw_scene():
@@ -114,18 +198,17 @@ def draw_scene():
         for dx, dy, rx, ry in ((0, 0, 16, 6), (-11, 2, 10, 5), (11, 2, 11, 5), (3, -5, 9, 5)):
             fa.ellipse(img, cx + dx * s, cy + dy * s, rx * s, ry * s, 5)
         fa.ellipse(img, cx, cy + 4 * s, 14 * s, 2 * s, 6)
-    # Far hills and a far town
+    # Far rolling hills, with a castle on the eastern one and a village with a church to the west
     for x in range(W):
-        top = 172 + int(6 * ((x * 5 % 41) / 41.0)) - (8 if 150 < x < 220 else 0)
+        top = 176 - int(4 * math.sin(x / 19.0) + 3 * math.sin(x / 7.0 + 1.3))
+        if 150 <= x < 236:
+            top -= int(10 * math.sin((x - 150) / 86.0 * math.pi))
         for y in range(top, GROUND_Y):
             img[y][x] = 7
-    for bx, bw, bh in ((14, 14, 14), (30, 10, 20), (44, 18, 10), (176, 12, 22), (190, 16, 12), (208, 10, 26)):
-        for y in range(GROUND_Y - bh, GROUND_Y):
-            for x in range(bx, bx + bw):
-                img[y][x] = 8
-        for x in range(bx, bx + bw):
-            if (x - bx) % 4 == 1:
-                put(img, x, GROUND_Y - bh + 4, 15)
+    draw_castle(img, 166, 230)
+    for x0, w, wall, roof in ((6, 14, 7, 7), (44, 16, 8, 8), (64, 12, 6, 6)):
+        draw_cottage(img, x0, w, wall, roof)
+    draw_church(img, 22, 20)
     # The ground
     for y in range(GROUND_Y, H):
         for x in range(W):
@@ -146,10 +229,49 @@ def draw_scene():
     return img
 
 
+def draw_clouds():
+    """The cloud layer: 256x256, wrapping in both directions; soft clouds on a transparent background."""
+    img = new(256, 256)
+    for cx, cy, s in ((40, 20, 1.3), (170, 70, 1.0), (90, 130, 1.5), (210, 170, 0.9), (30, 210, 1.1),
+                      (140, 240, 0.8)):
+        for dx, dy, rx, ry in ((0, 0, 20, 7), (-14, 3, 12, 5), (14, 3, 13, 5), (4, -6, 11, 6)):
+            for y in range(int(cy + (dy - ry) * s) - 1, int(cy + (dy + ry) * s) + 2):
+                for x in range(int(cx + (dx - rx) * s) - 1, int(cx + (dx + rx) * s) + 2):
+                    if ((x - cx - dx * s) / (rx * s)) ** 2 + ((y - cy - dy * s) / (ry * s)) ** 2 <= 1.0:
+                        c = 1 if y < cy + 2 * s else (3 if y < cy + 4 * s else 2)
+                        img[y & 255][x & 255] = c
+    return img
+
+
+def dust(frame):
+    """A puff of dust, growing and thinning over three frames (FX palette: 5 light, 6 dark)."""
+    img = new(8, 8)
+    r = (1.6, 2.6, 3.4)[frame]
+    for y in range(8):
+        for x in range(8):
+            d = ((x - 3.5) ** 2 + (y - 4.5) ** 2) ** 0.5
+            if d <= r and (frame < 2 or fa.hash2(x, y) & 1):
+                img[y][x] = 5 if y < 4 else 6
+    return img
+
+
+def star(frame):
+    img = new(8, 8)
+    if frame == 0:
+        put(img, 3, 2, 8)
+        put(img, 3, 4, 8)
+        put(img, 2, 3, 8)
+        put(img, 4, 3, 8)
+        put(img, 3, 3, 3)
+    else:
+        put(img, 3, 3, 3)
+    return img
+
+
 def block(style):
     """A 48x16 block: an outline, a top highlight, and a face per style."""
     img = new(48, 16)
-    face = {0: (3, 2, 4), 1: (6, 5, 15), 2: (7, 9, 8), 3: (3, 2, 4), 4: (12, 11, 13)}[style]
+    face = {0: (3, 2, 4), 1: (6, 5, 15), 2: (7, 9, 8), 3: (3, 2, 4), 4: (12, 11, 13), 5: (3, 2, 4), 6: (3, 2, 4)}[style]
     for y in range(16):
         for x in range(48):
             c = face[0]
@@ -161,7 +283,7 @@ def block(style):
                 course = (y - 1) // 5
                 if (y - 1) % 5 == 4 or ((x + (course % 2) * 8) % 16 == 0 and y > 1):
                     c = 9
-            elif style in (0, 3):  # granite: speckles and a seam
+            elif style in (0, 3, 5, 6):  # granite: speckles and a seam
                 if fa.hash2(x, y + style * 31) < 24:
                     c = face[2]
                 if x in (16, 32) and y > 2:
@@ -175,6 +297,34 @@ def block(style):
             if x == 0 or x == 47 or y == 0 or y == 15:
                 c = 1
             img[y][x] = c
+    if style == 5:  # a milestone floor: a gold band and a red banner with a gold emblem
+        for x in range(1, 47):
+            put(img, x, 3, 12)
+            put(img, x, 4, 13)
+        for y in range(4, 15):
+            for x in range(18, 30):
+                if y < 13 or abs(x - 23.5) > (y - 12) * 2:
+                    put(img, x, y, 7 if x not in (18, 29) else 8)
+        for x, y in ((23, 7), (24, 7), (22, 8), (25, 8), (23, 9), (24, 9), (23, 10), (24, 10)):
+            put(img, x, y, 12)
+    if style == 6:  # an arched window: a pale stone frame, dark glass, a mullion
+        for y in range(3, 14):
+            for x in range(18, 30):
+                ex = (x - 23.5) / 6.0
+                if y < 8 and ex * ex + ((y - 8) / 5.0) ** 2 > 1.0:
+                    continue
+                put(img, x, y, 2)
+        for y in range(4, 13):
+            for x in range(19, 29):
+                ex = (x - 23.5) / 5.0
+                if y < 8 and ex * ex + ((y - 8) / 4.0) ** 2 > 1.0:
+                    continue
+                put(img, x, y, 1)
+        for y in range(5, 13):
+            put(img, 23, y, 4)
+            put(img, 24, y, 4)
+        put(img, 20, 9, 3)
+        put(img, 21, 8, 3)
     if style == 3:  # moss on top
         for x in range(1, 47):
             if fa.hash2(x, 7) < 140:
@@ -264,11 +414,11 @@ def chain_pals():
 
 
 DIGITS = "0123456789+x"
-POP_WORDS = ["PERFECT!", "FEVER!", "MISS!", "GAME OVER", "NEW BEST!", "FLOORS!"]
+POP_WORDS = ["PERFECT!", "FEVER!", "MISS!", "GAME OVER", "NEW BEST!", "FLOORS!", "CLOSE!"]
 POP_WORD_PAL = [-1, 9, 10, 10]   # -1: the chain's palette; 9: gold; 10: white (MISS! and GAME OVER use the red one below)
 
 SPRITES = [  # name, palette, frames (each frame one sprite)
-    ("BLOCK", "BLOCK", [half for s in range(5) for half in halves(block(s))]),
+    ("BLOCK", "BLOCK", [half for s in range(7) for half in halves(block(s))]),
     ("SPARK", "FX", [fa.spark(0), fa.spark(1)]),
     ("HEART", "FX", [fa.heart()] if hasattr(fa, "heart") else []),
     ("BTN_A", "UI", [fa.button_round("A", 6)]),
@@ -276,6 +426,8 @@ SPRITES = [  # name, palette, frames (each frame one sprite)
     ("BTN_START", "UI", [fa.button_start()]),
     ("DIGIT", "POP", [big_glyph(c) for c in DIGITS]),
     ("PIP", "BLOCK", [pip(k) for k in range(4)]),
+    ("STAR", "FX", [star(0), star(1)]),
+    ("DUST", "FX", [dust(f) for f in range(3)]),
 ]
 
 
@@ -306,6 +458,20 @@ def build():
             index[t] = len(tiles)
             tiles.append(t)
         tmap.append(index[t])
+    # The cloud layer's tiles follow the scene's in the same char block
+    clouds = draw_clouds()
+    cloud_first = len(tiles)
+    tiles.append(bytes(32))  # the blank tile: the cloud layer's empty cells
+    cmap = []
+    cindex = {}
+    for t in fa.to_tiles(clouds):
+        if t == bytes(32):
+            cmap.append(cloud_first)
+            continue
+        if t not in cindex:
+            cindex[t] = len(tiles)
+            tiles.append(t)
+        cmap.append(cindex[t])
     obj, offsets = [], {}
     for name, _, frames in SPRITES:
         offsets[name] = len(obj)
@@ -326,7 +492,8 @@ def build():
     h = ["/* Generated by Tools/tower/gen_tower_art.py. Do not edit. */", "#pragma once", ""]
     for k, v in GEO.items():
         h.append("#define %s %d" % (k, v))
-    h += ["", "#define TOWER_SCENE_TILES %d" % len(tiles), "#define TOWER_OBJ_TILES %d" % len(obj), "",
+    h += ["", "#define TOWER_SCENE_TILES %d" % len(tiles), "#define TOWER_CLOUD_FIRST %d /* the blank tile */" % cloud_first,
+          "#define TOWER_SKY_PHASES 3", "#define TOWER_OBJ_TILES %d" % len(obj), "",
           "/* OBJ tile offsets (1D mapping). A block style is 12 tiles: a 32x16 (8 tiles) then a 16x16 (4 tiles). */"]
     for name, _, _ in SPRITES:
         h.append("#define TOWER_CHR_%s %d" % (name, offsets[name]))
@@ -338,6 +505,9 @@ def build():
           "#define TOWER_POP_PALS %d" % len(pals), "",
           "extern const u8 gTowerSceneTiles[TOWER_SCENE_TILES * 32];",
           "extern const u16 gTowerSceneMap[30 * 32];", "extern const u16 gTowerScenePal[16];",
+          "/* The sky palettes (day, sunset, night) and the cloud layer's, and its 32 x 32 map (empty cells: the blank tile) */",
+          "extern const u16 gTowerSkyPals[TOWER_SKY_PHASES * 16];",
+          "extern const u16 gTowerCloudPals[TOWER_SKY_PHASES * 16];", "extern const u16 gTowerCloudMap[32 * 32];",
           "extern const u8 gTowerObjTiles[TOWER_OBJ_TILES * 32];", "extern const u16 gTowerObjPalBlock[16];",
           "extern const u16 gTowerObjPalFx[16];", "extern const u16 gTowerObjPalUi[16];",
           "extern const u8 gTowerMapTile[32];", "",
@@ -352,6 +522,11 @@ def build():
     c.append(fa.c_bytes("gTowerSceneTiles", b"".join(tiles), "Scene tiles (4bpp, %d unique)" % len(tiles)))
     c.append(fa.c_u16("gTowerSceneMap", tmap, "Scene map, 30 x 32 tile indices (no palette bits)", 30))
     c.append(fa.c_u16("gTowerScenePal", fa.pal_words(SCENE_PAL), "Scene palette"))
+    c.append(fa.c_u16("gTowerSkyPals", fa.pal_words(SCENE_PAL) + fa.pal_words(SCENE_PAL_SUNSET) +
+                      fa.pal_words(SCENE_PAL_NIGHT), "Scene palettes: day, sunset, night"))
+    c.append(fa.c_u16("gTowerCloudPals", sum((fa.pal_words(p) for p in CLOUD_PALS), []),
+                      "Cloud layer palettes: day, sunset, night"))
+    c.append(fa.c_u16("gTowerCloudMap", cmap, "Cloud layer map, 32 x 32 tile indices (TOWER_CLOUD_FIRST is the blank tile)", 32))
     c.append(fa.c_bytes("gTowerObjTiles", b"".join(obj), "Sprite tiles (4bpp, 1D order)"))
     c.append(fa.c_u16("gTowerObjPalBlock", fa.pal_words(PAL_BLOCK), "Sprite palette: the blocks"))
     c.append(fa.c_u16("gTowerObjPalFx", fa.pal_words(PAL_FX), "Sprite palette: sparks and hearts"))

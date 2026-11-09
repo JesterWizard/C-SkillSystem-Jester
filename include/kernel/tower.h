@@ -53,7 +53,7 @@ struct TowerState {
 		s16 x, y;      /* screen pixels << 4 */
 		s8 vx, vy;     /* pixels << 4 per frame */
 		u8 life;
-		u8 pad;
+		u8 kind;       /* 0 a spark (it falls), 1 a fever sparkle (it rises), 2 dust */
 	} parts[TOWER_PARTS];
 	/* DC */ u8 numRise;                 /* the digits pop-up rises (a plain landing) */
 	/* DD */ u8 hitStop;                 /* frames the game is frozen after a perfect landing */
@@ -65,8 +65,40 @@ struct TowerState {
 	/* E3 */ u8 pendNum;                 /* its number ("10 FLOORS!"), 0: none */
 	/* E4 */ u8 newBest;                 /* NEW BEST! has been shown this game */
 	/* E5 */ u8 shakeAmp;
-	/* E6 */ u8 pad[0x1A];
+	/* E6 */ u8 skyPhase;                /* 0 day (floors 0-9), 1 sunset (10-19), 2 night (20 up) */
+	/* E7 */ u8 skyFrom;                 /* the phase the sky is blending from */
+	/* E8 */ u8 skyT;                    /* 0..64: how far the blend has gone */
+	/* E9 */ u8 countDone;               /* the final score has finished counting up */
+	/* EA */ u16 shownScore;             /* the final score as it counts up */
+	/* EC */ u16 peak;                   /* the tower's height before it collapsed */
+	/* EE */ u16 collapseTimer;
+	/* F0 */ u8 wobble;                  /* frames of the tower's wobble left (a near-miss) */
+	/* F1 */ s8 wobbleDir;               /* the side it first leans to */
+	/* F2 */ u8 cheer;                   /* frames of the spectators' hop left */
+	/* F3 */ u8 mood;                    /* at the end: 0 watching, 1 cheering, 2 glum */
+	/* F4 */ u8 feverTempo;              /* the music is sped up for a fever */
+	/* F5 */ u8 feverGlow;               /* 0..24: how far the sky is tinted gold */
+	/* F6 */ u8 smsSize[3];              /* the townsfolk's standing sprite sizes */
+	/* F9 */ u8 unitPal;                 /* the unit's OBJ palette */
+	/* FA */ u8 cheerLen;                /* the hop's length when it started */
+	/* FB */ u8 pad[5];
 };
+
+/* The collapse at game over: the tower's blocks tumble off, each one spinning */
+#define TOWER_DEBRIS 10
+
+struct TowerDebris {
+	/* 00 */ s16 x, y;                   /* the block's centre, scene pixels << 4 */
+	/* 04 */ s16 vy;                     /* pixels << 4 per frame */
+	/* 06 */ s8 vx;
+	/* 07 */ s8 spin;                    /* angle per frame, 256 to a turn */
+	/* 08 */ u8 angle;
+	/* 09 */ u8 style;
+	/* 0A */ u8 delay;                   /* frames before it starts to fall */
+	/* 0B */ u8 live;
+};
+
+extern struct TowerDebris gTowerDebris[TOWER_DEBRIS];
 
 /* Saved record: the best score (a save chunk in both save lists, 4 bytes). */
 struct TowerRecords {

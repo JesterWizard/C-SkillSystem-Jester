@@ -7,18 +7,22 @@
 #define TOWER_BLOCK_H 16
 #define TOWER_BLOCK_STYLES 4
 
-#define TOWER_SCENE_TILES 356
-#define TOWER_OBJ_TILES 131
+#define TOWER_SCENE_TILES 471
+#define TOWER_CLOUD_FIRST 364 /* the blank tile */
+#define TOWER_SKY_PHASES 3
+#define TOWER_OBJ_TILES 160
 
 /* OBJ tile offsets (1D mapping). A block style is 12 tiles: a 32x16 (8 tiles) then a 16x16 (4 tiles). */
 #define TOWER_CHR_BLOCK 0
-#define TOWER_CHR_SPARK 60
-#define TOWER_CHR_HEART 62
-#define TOWER_CHR_BTN_A 63
-#define TOWER_CHR_BTN_B 67
-#define TOWER_CHR_BTN_START 71
-#define TOWER_CHR_DIGIT 79
-#define TOWER_CHR_PIP 127
+#define TOWER_CHR_SPARK 84
+#define TOWER_CHR_HEART 86
+#define TOWER_CHR_BTN_A 87
+#define TOWER_CHR_BTN_B 91
+#define TOWER_CHR_BTN_START 95
+#define TOWER_CHR_DIGIT 103
+#define TOWER_CHR_PIP 151
+#define TOWER_CHR_STAR 155
+#define TOWER_CHR_DUST 157
 #define TOWER_CHR_BLOCK_STYLE 12
 #define TOWER_CHR_DIGIT_PLUS (TOWER_CHR_DIGIT + 10 * 4)
 #define TOWER_CHR_DIGIT_X (TOWER_CHR_DIGIT + 11 * 4)
@@ -33,6 +37,10 @@
 extern const u8 gTowerSceneTiles[TOWER_SCENE_TILES * 32];
 extern const u16 gTowerSceneMap[30 * 32];
 extern const u16 gTowerScenePal[16];
+/* The sky palettes (day, sunset, night) and the cloud layer's, and its 32 x 32 map (empty cells: the blank tile) */
+extern const u16 gTowerSkyPals[TOWER_SKY_PHASES * 16];
+extern const u16 gTowerCloudPals[TOWER_SKY_PHASES * 16];
+extern const u16 gTowerCloudMap[32 * 32];
 extern const u8 gTowerObjTiles[TOWER_OBJ_TILES * 32];
 extern const u16 gTowerObjPalBlock[16];
 extern const u16 gTowerObjPalFx[16];
@@ -40,7 +48,7 @@ extern const u16 gTowerObjPalUi[16];
 extern const u8 gTowerMapTile[32];
 
 /* Pop-up words: two 64x32 halves (64 tiles) each, copied into OBJ VRAM when shown */
-enum { TOWER_POP_PERFECT, TOWER_POP_FEVER, TOWER_POP_MISS, TOWER_POP_GAME_OVER, TOWER_POP_NEW_BEST, TOWER_POP_FLOORS, TOWER_POP_WORDS };
+enum { TOWER_POP_PERFECT, TOWER_POP_FEVER, TOWER_POP_MISS, TOWER_POP_GAME_OVER, TOWER_POP_NEW_BEST, TOWER_POP_FLOORS, TOWER_POP_CLOSE, TOWER_POP_WORDS };
 #define TOWER_POP_TILES 64
 extern const u8 gTowerPopTiles[TOWER_POP_WORDS * TOWER_POP_TILES * 32];
 extern const u16 gTowerPopPals[TOWER_POP_PALS * 16];

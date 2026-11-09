@@ -4,6 +4,9 @@
 #include "tower-art.h"
 #include "constants/texts.h"
 #include "m4a.h"
+#include "mu.h"
+#include "kernel/unit-icon.h"
+#include "constants/classes.h"
 
 #ifdef CONFIG_DISTRICT_TOWER
 
@@ -39,10 +42,16 @@
 #define PAL_POP 5
 #define AFF_POP 1
 #define AFF_SQUASH 2
+#define AFF_DEBRIS 3                    /* 3..12: one per tumbling block */
+#define CLOUD_PAL 9
 #define SCENE_CHR_VRAM 0x06008000
 
 #define CHR_POPUP 0x100     /* the pop-up word (64 tiles) */
 #define CHR_TIMER 0x140     /* the fever meter (6 tiles) */
+#define CHR_UNIT 0x150      /* the unit's walking sheet (up to 0x2200 bytes: 0x110 tiles) */
+#define CHR_TOWN 0x260      /* the townsfolk's standing sheets, 48 tiles each; 0x380 up is the map's moving units */
+#define TOWN_PAL 0xE        /* the green (NPC) unit palette */
+#define FEVER_TEMPO 320     /* the music's tempo in a fever (256 is normal) */
 
 #define BW TOWER_BLOCK_W
 #define BH TOWER_BLOCK_H
@@ -64,6 +73,8 @@
 #define HIT_STOP 4                      /* frames frozen on a perfect landing (twice that on a fever) */
 #define SQUASH_FRAMES 10
 #define FLASH_FRAMES 6
+#define WOBBLE_FRAMES 40               /* a near-miss sways the top WOBBLE_BLOCKS blocks for this long */
+#define WOBBLE_BLOCKS 10
 #define PIP_X 8
 #define PIP_Y 17
 
@@ -75,6 +86,7 @@ enum {
 	TS_FALL,
 	TS_PAUSE,
 	TS_OVER,
+	TS_COLLAPSE,
 };
 
 struct ProcTower {
@@ -173,12 +185,20 @@ static void Tower_Line1(char *buf)
 		Tower_AppendNum(buf, &i, TS->best);
 		break;
 	case TS_OVER:
+	case TS_COLLAPSE:
+		/* The score counts up, then the gold shows */
 		Tower_AppendMsg(buf, &i, MSG_TOWER_S_SCORE);
 		Tower_Append(buf, &i, " ");
-		Tower_AppendNum(buf, &i, TS->score);
-		Tower_Append(buf, &i, "   +");
-		Tower_AppendNum(buf, &i, TS->gold);
-		Tower_Append(buf, &i, "G");
+		Tower_AppendNum(buf, &i, TS->state == TS_OVER ? TS->shownScore : 0);
+		Tower_Append(buf, &i, "  ");
+		Tower_AppendMsg(buf, &i, MSG_TOWER_S_HEIGHT);
+		Tower_Append(buf, &i, " ");
+		Tower_AppendNum(buf, &i, TS->peak);
+		if (TS->countDone) {
+			Tower_Append(buf, &i, "  +");
+			Tower_AppendNum(buf, &i, TS->gold);
+			Tower_Append(buf, &i, "G");
+		}
 		break;
 	default:
 		Tower_AppendMsg(buf, &i, MSG_TOWER_S_SCORE);
@@ -198,7 +218,8 @@ static void Tower_Line1(char *buf)
 
 static u32 Tower_Line1Sig(void)
 {
-	return (TS->state << 28) ^ (TS->height << 16) ^ (TS->score << 1) ^ TS->gold;
+	return (TS->state << 28) ^ (TS->height << 16) ^ (TS->score << 1) ^ TS->gold ^ (TS->shownScore << 12) ^
+	       (TS->countDone << 27);
 }
 
 /* ---- The buttons (bottom row, no window, as in the prep screens) ---- */
@@ -299,6 +320,7 @@ static void Tower_PopWord(int word, int pal, int x, int y)
 	Tower_LoadPopPal(pal);
 	TS->popWord = word;
 	TS->popTimer = 0;
+	TS->numTimer = 0;       /* a new word clears the last word's number (PERFECT! and FLOORS! add theirs after) */
 	TS->popX = Tower_Clamp(x, 64, 176);
 	TS->popY = Tower_Clamp(y, 40, 120);
 }
@@ -341,7 +363,158 @@ static void Tower_Burst(int x, int y, int n)
 		p->vx = (COS(a) * speed) >> 12;
 		p->vy = ((SIN(a) * speed) >> 12) - 10;
 		p->life = 20 + NextRN_N(16);
+		p->kind = 0;
 		k++;
+	}
+}
+
+static struct TowerParticle *Tower_FreeParticle(void)
+{
+	int i;
+
+	for (i = 0; i < TOWER_PARTS; i++)
+		if (TS->parts[i].life == 0)
+			return &TS->parts[i];
+	return NULL;
+}
+
+static void Tower_Sparkle(void)
+{
+	struct TowerParticle *p = Tower_FreeParticle();
+
+	if (!p)
+		return;
+	p->x = (8 + NextRN_N(224)) << 4;
+	p->y = 160 << 4;
+	p->vx = NextRN_N(5) - 2;
+	p->vy = -(10 + NextRN_N(12));
+	p->life = 70;
+	p->kind = 1;
+}
+
+/* Two puffs of dust from the bottom corners of a landed block */
+static void Tower_Dust(int x, int sy)
+{
+	struct TowerParticle *p;
+	int side;
+
+	for (side = 0; side < 2; side++) {
+		p = Tower_FreeParticle();
+		if (!p)
+			return;
+		p->x = (x + (side ? BW - 2 : 2)) << 4;
+		p->y = (sy + BH - 2) << 4;
+		p->vx = side ? 10 : -10;
+		p->vy = -2;
+		p->life = 12;
+		p->kind = 2;
+	}
+}
+
+/* ---- The sky: day, sunset and night as the tower climbs; clouds that stream past ---- */
+
+/* The cloud layer (BG2) is blended over the sky (BG3) */
+static void Tower_BaseBlend(void)
+{
+	SetBlendConfig(BLEND_EFFECT_ALPHA, 10, 8, 0);
+	SetBlendTargetA(0, 0, 1, 0, 0);
+	SetBlendTargetB(0, 0, 0, 1, 0);
+}
+
+/* A perfect landing's flash brightens the sky (BG3) and the clouds (BG2) */
+static void Tower_FlashBlend(int y)
+{
+	SetBlendConfig(BLEND_EFFECT_BRIGHTEN, 0, 0, y);
+	SetBlendTargetA(0, 0, 1, 1, 0);
+}
+
+static int Tower_SkyPhaseOf(int height)
+{
+	return height >= 20 ? 2 : (height >= 10 ? 1 : 0);
+}
+
+/* A BGR555 colour from a to b, t of 64 */
+static u16 Tower_LerpColor(u16 a, u16 b, int t)
+{
+	int i, out = 0, ca, cb;
+
+	for (i = 0; i < 15; i += 5) {
+		ca = (a >> i) & 31;
+		cb = (b >> i) & 31;
+		out |= ((ca + (((cb - ca) * t) >> 6)) & 31) << i;
+	}
+	return out;
+}
+
+#define GLOW_GOLD (31 | (25 << 5) | (12 << 10))   /* the fever's tint */
+#define GLOW_MAX 24                                /* of 64 */
+
+static void Tower_WriteSky(void)
+{
+	const u16 *from = gTowerSkyPals + TS->skyFrom * 16, *to = gTowerSkyPals + TS->skyPhase * 16;
+	const u16 *cfrom = gTowerCloudPals + TS->skyFrom * 16, *cto = gTowerCloudPals + TS->skyPhase * 16;
+	u16 c;
+	int i;
+
+	for (i = 0; i < 16; i++) {
+		c = Tower_LerpColor(from[i], to[i], TS->skyT);
+		/* A fever tints the sky and its clouds (colours 1..6) gold */
+		if (TS->feverGlow > 0 && i >= 1 && i <= 6)
+			c = Tower_LerpColor(c, GLOW_GOLD, TS->feverGlow);
+		gPaletteBuffer[TOWER_BG_PAL * 16 + i] = c;
+		c = Tower_LerpColor(cfrom[i], cto[i], TS->skyT);
+		if (TS->feverGlow > 0)
+			c = Tower_LerpColor(c, GLOW_GOLD, TS->feverGlow);
+		gPaletteBuffer[CLOUD_PAL * 16 + i] = c;
+	}
+	EnablePaletteSync();
+}
+
+/* A fever speeds the music up (and turns the sky gold); both go back when it ends, or when the screen closes */
+static void Tower_SetFeverTempo(bool on)
+{
+	if (on == TS->feverTempo)
+		return;
+	TS->feverTempo = on;
+	m4aMPlayTempoControl(gMPlayTable[0].info, on ? FEVER_TEMPO : 256);
+}
+
+/* The sky turns when the tower passes 10 and 20 floors, blending over 64 frames */
+static void Tower_UpdateSky(void)
+{
+	int phase = Tower_SkyPhaseOf(TS->height);
+
+	if (phase != TS->skyPhase && TS->state != TS_COLLAPSE && TS->state != TS_OVER) {
+		TS->skyFrom = TS->skyPhase;
+		TS->skyPhase = phase;
+		TS->skyT = 0;
+	}
+	Tower_SetFeverTempo(TS->fever > 0);
+	if (TS->fever > 0 && TS->feverGlow < GLOW_MAX) {
+		TS->feverGlow++;
+		Tower_WriteSky();
+	} else if (TS->fever == 0 && TS->feverGlow > 0) {
+		TS->feverGlow--;
+		Tower_WriteSky();
+	}
+	if (TS->skyT < 64) {
+		TS->skyT += 2;
+		Tower_WriteSky();
+	}
+}
+
+/* The spectators hop `hops` times, one after another (CHEER_STAGGER frames apart) */
+#define HOP_FRAMES 16
+#define CHEER_STAGGER 2
+#define CHEER_TAIL 12           /* the last spectator starts this many frames after the first */
+
+static void Tower_Cheer(int hops)
+{
+	int len = hops * HOP_FRAMES + CHEER_TAIL;
+
+	if (len > TS->cheer) {
+		TS->cheer = len;
+		TS->cheerLen = len;
 	}
 }
 
@@ -357,9 +530,18 @@ static void Tower_UpdateEffects(void)
 		p->life--;
 		p->x += p->vx;
 		p->y += p->vy;
-		if (p->life & 1)
+		if (p->kind == 0 && (p->life & 1))
 			p->vy++;
 	}
+	/* A fever sends gold sparkles drifting up the screen */
+	if (TS->fever > 0 && (clock & 3) == 0)
+		Tower_Sparkle();
+	if (TS->wobble > 0)
+		TS->wobble--;
+	if (TS->cheer > 0)
+		TS->cheer--;
+	else if (TS->state == TS_OVER && TS->mood == 1)
+		Tower_Cheer(1);
 	if (TS->popWord != 0xFF && ++TS->popTimer >= 64)
 		TS->popWord = 0xFF;
 	/* A milestone waits for the pop-up on screen to end */
@@ -374,9 +556,9 @@ static void Tower_UpdateEffects(void)
 	if (TS->flash > 0) {
 		TS->flash--;
 		if (TS->flash > 0)
-			SetBlendConfig(BLEND_EFFECT_BRIGHTEN, 0, 0, TS->flash * 2);
+			Tower_FlashBlend(TS->flash * 2);
 		else
-			SetBlendConfig(BLEND_EFFECT_NONE, 0x10, 0, 0);
+			Tower_BaseBlend();
 	}
 	if (TS->numTimer > 0) {
 		TS->numTimer--;
@@ -407,9 +589,16 @@ static void Tower_UpdateCamera(void)
 {
 	int d = Tower_CamTarget() - TS->camY;
 
-	TS->camY += Tower_Clamp(d, -3, 3);
-	/* The background stops at the top of the sky; the sprites keep climbing */
+	if (TS->state == TS_OVER) {
+		/* After the collapse the camera comes back down to the ground, the crowd and what is left of the tower */
+		d = (TOWER_GROUND_Y - GROUND_SCREEN) - TS->camY;
+		TS->camY += Tower_Clamp(d, -4, 4);
+	} else if (TS->state != TS_COLLAPSE) {
+		TS->camY += Tower_Clamp(d, -3, 3);
+	}
+	/* The sky stops at its top; the sprites keep climbing, and the clouds stream past half as fast again */
 	BG_SetPosition(3, TS->shakeX, TS->camY > 0 ? TS->camY : 0);
+	BG_SetPosition(2, (GetGameClock() >> 2) + TS->shakeX, (TS->camY * 3) >> 1);
 }
 
 /* ---- Setup ---- */
@@ -417,7 +606,7 @@ static void Tower_UpdateCamera(void)
 static const u16 sTowerBgConfig[12] = {
 	0x0000, 0x6000, 0,  /* BG0: text */
 	0x0000, 0x6800, 0,  /* BG1: unused */
-	0x0000, 0x7000, 0,  /* BG2: unused */
+	0x8000, 0x7000, 0,  /* BG2: the clouds (tiles after the scene's) */
 	0x8000, 0x7800, 0,  /* BG3: the scene */
 };
 
@@ -426,7 +615,7 @@ static void Tower_Spawn(void)
 {
 	int s = Tower_Speed();
 	int top = Tower_TopX();
-	int k;
+	int k, n;
 
 	if (NextRN_N(2)) {
 		k = Div(top + BW + s - 1, s);
@@ -438,8 +627,38 @@ static void Tower_Spawn(void)
 		TS->vx = -(s << 8);
 	}
 	TS->dropY = Tower_TopRow() - HOVER_GAP;
-	TS->style = TS->fever > 0 ? 4 : (TS->height & 3);
+	/* Every 10th floor is a banner floor, every 5th has a window; in a fever the rest are gold */
+	n = TS->height + 1;
+	if (n - Div(n, 10) * 10 == 0)
+		TS->style = 5;
+	else if (n - Div(n, 5) * 5 == 0)
+		TS->style = 6;
+	else
+		TS->style = TS->fever > 0 ? 4 : (TS->height & 3);
 	TS->state = TS_SLIDE;
+}
+
+/* The spectators: the unit (its walking sheet: 32x32 frames, 4-7 down, 8-11 up) and the townsfolk (standing sheets) */
+static const u8 sTownClasses[3] = { CLASS_CIVILIAN_M3, CLASS_CIVILIAN_F2, CLASS_CIVILIAN_M1 };
+
+static void Tower_LoadSpectators(void)
+{
+	struct Unit *unit = gActiveUnit ? gActiveUnit : GetUnit(1);
+	const UnitIconWait *icon;
+	const u8 *img = gMuInfoTable[unit->pClassData->number - 1].img;
+	int i;
+
+	/* The LZ77 header holds the unpacked size in bytes 1..3; CHR_UNIT has room for 0x2200 bytes */
+	if (img == NULL || (img[1] | (img[2] << 8) | (img[3] << 16)) > 0x2200)
+		img = gMuInfoTable[CLASS_CAVALIER - 1].img;
+	Decompress(img, (void *)(OBJ_VRAM0 + CHR_UNIT * 0x20));
+	for (i = 0; i < 3; i++) {
+		icon = &gUnitIconWaitTable[GetClassSMSId(sTownClasses[i]) & 0x7F];
+		Decompress(icon->sheet, (void *)(OBJ_VRAM0 + (CHR_TOWN + i * 48) * 0x20));
+		TS->smsSize[i] = icon->size;
+	}
+	ApplyUnitSpritePalettes();
+	TS->unitPal = GetUnitSpritePalette(unit);
 }
 
 static void Tower_Init(struct ProcTower *proc)
@@ -470,15 +689,22 @@ static void Tower_Init(struct ProcTower *proc)
 		for (x = 0; x < 30; x++)
 			map[y * 32 + x] = gTowerSceneMap[y * 30 + x] | (TOWER_BG_PAL << 12);
 	ApplyPalette(gTowerScenePal, TOWER_BG_PAL);
+	ApplyPalette(gTowerCloudPals, CLOUD_PAL);
+	map = BG_GetMapBuffer(2);
+	for (i = 0; i < 32 * 32; i++)
+		map[i] = gTowerCloudMap[i] | (CLOUD_PAL << 12);
+	gLCDControlBuffer.bg2cnt.priority = 2;
 
 	CpuFastCopy(gTowerObjTiles, (void *)OBJ_VRAM0, TOWER_OBJ_TILES * 0x20);
 	ApplyPalette(gTowerObjPalBlock, 0x10 + PAL_BLOCK);
 	ApplyPalette(gTowerObjPalFx, 0x10 + PAL_FX);
 	ApplyPalette(gTowerObjPalUi, 0x10 + PAL_UI);
+	Tower_LoadSpectators();
 	gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
 	EnablePaletteSync();
 
-	SetDispEnable(1, 0, 0, 1, 1);
+	SetDispEnable(1, 0, 1, 1, 1);
+	Tower_BaseBlend();
 	gLCDControlBuffer.dispcnt.obj1dMap = 1;
 
 	TS->height = 1;
@@ -500,8 +726,17 @@ static void Tower_Init(struct ProcTower *proc)
 	TS->flash = 0;
 	TS->pendWord = 0xFF;
 	TS->newBest = 0;
-	for (i = 0; i < TOWER_PARTS; i++)
+	for (i = 0; i < TOWER_PARTS; i++) {
 		TS->parts[i].life = 0;
+		TS->parts[i].kind = 0;
+	}
+	TS->wobble = 0;
+	TS->wobbleDir = 1;
+	TS->cheer = 0;
+	TS->cheerLen = 0;
+	TS->mood = 0;
+	TS->feverTempo = 0;
+	TS->feverGlow = 0;
 	TS->camY = Tower_CamTarget();
 	BG_SetPosition(3, 0, TS->camY > 0 ? TS->camY : 0);
 	TS->state = TS_READY;
@@ -509,7 +744,15 @@ static void Tower_Init(struct ProcTower *proc)
 	TS->hintKey = 0xFF;
 	Tower_UpdateText();
 
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG3_SYNC_BIT);
+	TS->skyPhase = 0;
+	TS->skyFrom = 0;
+	TS->skyT = 64;
+	TS->countDone = 0;
+	TS->shownScore = 0;
+	TS->peak = 1;
+	for (i = 0; i < TOWER_DEBRIS; i++)
+		gTowerDebris[i].live = 0;
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
 }
 
 /* ---- The game ---- */
@@ -553,7 +796,7 @@ static void Tower_Milestones(void)
 	}
 }
 
-static void Tower_Land(bool perfect)
+static void Tower_Land(bool perfect, bool close)
 {
 	int n = TS->height;
 	int x = TS->x >> 8;
@@ -582,6 +825,7 @@ static void Tower_Land(bool perfect)
 			TS->fever = FEVER_FRAMES;
 			TS->chain = 0;
 			TS->hitStop = HIT_STOP * 2;
+			Tower_Cheer(3);
 			Tower_Shake(16, 3);
 			PlaySoundEffect(SONG_SE_UPDATE);
 			Tower_PopWord(TOWER_POP_FEVER, TOWER_PAL_CHAIN(CHAIN_MAX), 96, sy - 40);
@@ -594,11 +838,21 @@ static void Tower_Land(bool perfect)
 		TS->squashBig = FALSE;
 		Tower_Shake(4, 1);
 		PlaySoundEffect(SE_LAND);
-		Tower_LoadPopPal(TOWER_PAL_WHITE);
-		TS->popWord = 0xFF;
+		if (close) {
+			/* A near-miss: CLOSE!, and the tower wobbles away from the side it nearly fell off */
+			Tower_PopWord(TOWER_POP_CLOSE, TOWER_PAL_CHAIN(5), 120, sy - 40);
+			TS->wobble = WOBBLE_FRAMES;
+			TS->wobbleDir = x > Tower_BlockX(n - 1) ? 1 : -1;
+		} else {
+			Tower_LoadPopPal(TOWER_PAL_WHITE);
+			TS->popWord = 0xFF;
+		}
 		Tower_PopNumber(10, 1, x + BW / 2, sy - 18, TRUE);
 	}
 	TS->perfect = perfect;
+	Tower_Dust(x, sy);
+	if (perfect)
+		Tower_Cheer(1);
 	Tower_Milestones();
 	Tower_Spawn();
 }
@@ -614,7 +868,69 @@ static void Tower_GameOver(void)
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
 	TowerRecords_Add(TS->score);
 	Tower_PopWord(TOWER_POP_GAME_OVER, TOWER_PAL_RED, 120, 72);
-	PlaySoundEffect(TS->gold > 0 ? SE_GOLD : SE_MISS);
+	TS->shownScore = 0;
+	TS->countDone = 0;
+	/* The crowd cheers a new best (or a first score), and is glum otherwise */
+	TS->mood = (TS->newBest || (TS->best == 0 && TS->score > 0)) ? 1 : 2;
+}
+
+/*
+ * The tower comes down: up to TOWER_DEBRIS blocks from the top tumble off one after another (the top first), each with
+ * a little hop, a sideways drift and a spin. The game over follows when they have fallen out of sight.
+ */
+static void Tower_StartCollapse(void)
+{
+	struct TowerDebris *d;
+	int k, n, count = TS->height < TOWER_DEBRIS ? TS->height : TOWER_DEBRIS;
+
+	TS->peak = TS->height;
+	for (k = 0; k < count; k++) {
+		n = TS->height - 1 - k;
+		d = &gTowerDebris[k];
+		d->x = (Tower_BlockX(n) + BW / 2) << 4;
+		d->y = (Tower_BlockTop(n) + BH / 2) << 4;
+		d->vx = NextRN_N(41) - 20;
+		d->vy = -(8 + NextRN_N(20));
+		d->spin = (NextRN_N(2) ? 1 : -1) * (2 + NextRN_N(5));
+		d->angle = 0;
+		d->style = TS->styles[n & (TOWER_RING - 1)];
+		d->delay = 1 + k * 5;
+		d->live = 1;
+	}
+	TS->height -= count;
+	TS->state = TS_COLLAPSE;
+	TS->collapseTimer = 150;
+	TS->popWord = 0xFF;
+	TS->numTimer = 0;
+	Tower_Shake(20, 2);
+	PlaySoundEffect(SONG_AF);
+}
+
+/* Returns TRUE while a block is still falling */
+static bool Tower_UpdateCollapse(void)
+{
+	struct TowerDebris *d;
+	bool any = FALSE;
+	int k;
+
+	for (k = 0; k < TOWER_DEBRIS; k++) {
+		d = &gTowerDebris[k];
+		if (!d->live)
+			continue;
+		any = TRUE;
+		if (d->delay > 0) {
+			if (--d->delay == 0)
+				PlaySoundEffect(SONG_B0);
+			continue;
+		}
+		d->vy += 2;
+		d->x += d->vx;
+		d->y += d->vy;
+		d->angle += d->spin;
+		if ((d->y >> 4) - TS->camY > 200)
+			d->live = 0;
+	}
+	return any;
 }
 
 /* Leaving with B pays out what was scored, as a game over would */
@@ -660,9 +976,10 @@ static void Tower_Drop(void)
 	/* Perfect within the slide speed: the three frames around the exact one, at any speed */
 	if (Tower_Abs(dx) <= (Tower_Abs(TS->vx) >> 8)) {
 		TS->x = Tower_TopX() << 8;
-		Tower_Land(TRUE);
+		Tower_Land(TRUE, FALSE);
 	} else if (Tower_Abs(dx) <= BW / 2) {
-		Tower_Land(FALSE);
+		/* More than a third of it over the edge is a near-miss */
+		Tower_Land(FALSE, Tower_Abs(dx) > BW / 3);
 	} else {
 		/* It tips off the side it overhangs */
 		TS->vx = dx > 0 ? 0x180 : -0x180;
@@ -729,13 +1046,34 @@ static bool Tower_Update(void)
 		if (--TS->timer > 0)
 			break;
 		if (TS->lives == 0) {
-			Tower_GameOver();
+			Tower_StartCollapse();
 			break;
 		}
 		Tower_Spawn();
 		break;
 
+	case TS_COLLAPSE:
+		if (TS->collapseTimer > 0)
+			TS->collapseTimer--;
+		if (!Tower_UpdateCollapse() || TS->collapseTimer == 0)
+			Tower_GameOver();
+		break;
+
 	case TS_OVER:
+		/* The score counts up over about half a second, ticking, then the gold rings in */
+		if (!TS->countDone) {
+			int step = Div(TS->score + 29, 30);
+
+			TS->shownScore += step > 0 ? step : 1;
+			if ((GetGameClock() & 3) == 0)
+				PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
+			if (TS->shownScore >= TS->score) {
+				TS->shownScore = TS->score;
+				TS->countDone = 1;
+				PlaySoundEffect(TS->gold > 0 ? SE_GOLD : SE_MISS);
+			}
+			break;
+		}
 		if (TS->timer > 0) {
 			TS->timer--;
 			break;
@@ -746,6 +1084,7 @@ static bool Tower_Update(void)
 		}
 		break;
 	}
+	Tower_UpdateSky();
 	Tower_UpdateEffects();
 	Tower_UpdateCamera();
 	return FALSE;
@@ -795,18 +1134,150 @@ static void Tower_PutBlockSquashed(int x, int sy, int style)
 		     OAM2_PAL(PAL_BLOCK) + OAM2_LAYER(2) + OAM2_CHR(chr + 8));
 }
 
+/* Stars come out at night, in the sky (behind the clouds) */
+#define TOWER_STARS 14
+
+static const u8 sStars[TOWER_STARS][2] = {
+	{ 14, 12 }, { 52, 30 }, { 88, 8 }, { 120, 44 }, { 160, 18 }, { 198, 36 }, { 226, 10 },
+	{ 30, 70 }, { 70, 96 }, { 108, 78 }, { 146, 104 }, { 186, 84 }, { 218, 120 }, { 40, 130 },
+};
+
+static void Tower_DrawStars(void)
+{
+	int i, y, bgY = TS->camY > 0 ? TS->camY : 0;
+	int clock = GetGameClock();
+
+	if (TS->skyPhase != 2 || TS->skyT < 32)
+		return;
+	for (i = 0; i < TOWER_STARS; i++) {
+		y = sStars[i][1] - bgY;
+		if (y < 24 || y >= 160)
+			continue;
+		PutSpriteExt(4, OAM1_X(sStars[i][0]), OAM0_Y(y), gObject_8x8,
+			     OAM2_PAL(PAL_FX) + OAM2_LAYER(3) + OAM2_CHR(TOWER_CHR_STAR + (((clock >> 4) + i) & 1)));
+	}
+}
+
+/* A tumbling block: its two sprites turn together about the block's centre (one affine slot each block) */
+static void Tower_DrawDebris(void)
+{
+	const struct TowerDebris *d;
+	int k, cx, cy, c, s, chr, slot;
+
+	for (k = 0; k < TOWER_DEBRIS; k++) {
+		d = &gTowerDebris[k];
+		if (!d->live)
+			continue;
+		cx = (d->x >> 4) - TS->shakeX;
+		cy = (d->y >> 4) - TS->camY;
+		if (cy < -32 || cy > 192)
+			continue;
+		chr = TOWER_CHR_BLOCK + d->style * TOWER_CHR_BLOCK_STYLE;
+		c = COS(d->angle);
+		s = SIN(d->angle);
+		slot = AFF_DEBRIS + k;
+		SetObjAffine(slot, c >> 4, s >> 4, -s >> 4, c >> 4);
+		/* The halves' centres (-8, 0) and (16, 0), turned with the block */
+		PutSpriteExt(4, OAM1_X((cx - ((8 * c) >> 12) - 32) & 0x1FF) | OAM1_AFFINE_ID(slot),
+			     OAM0_Y((cy - ((8 * s) >> 12) - 16) & 0xFF) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
+			     gObject_32x16, OAM2_PAL(PAL_BLOCK) + OAM2_LAYER(2) + OAM2_CHR(chr));
+		PutSpriteExt(4, OAM1_X((cx + ((16 * c) >> 12) - 16) & 0x1FF) | OAM1_AFFINE_ID(slot),
+			     OAM0_Y((cy + ((16 * s) >> 12) - 16) & 0xFF) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
+			     gObject_16x16, OAM2_PAL(PAL_BLOCK) + OAM2_LAYER(2) + OAM2_CHR(chr + 8));
+	}
+}
+
+/*
+ * A near-miss sets the top of the tower swaying: a dying sine, strongest at the top block and fading over the ten
+ * below it. The base block stays on its plinth.
+ */
+
+static int Tower_WobbleX(int n)
+{
+	int depth = TS->height - 1 - n;
+	int amp;
+
+	if (TS->wobble == 0 || depth >= WOBBLE_BLOCKS || n == 0)
+		return 0;
+	/* 1/8 pixels: up to 7 pixels at the top, as the near-miss lands */
+	amp = Div(TS->wobble * 3 * (WOBBLE_BLOCKS - depth), WOBBLE_BLOCKS * 2);
+	return (TS->wobbleDir * amp * SIN((WOBBLE_FRAMES - TS->wobble) * 20)) >> 15;
+}
+
+/*
+ * The crowd on the ground: the unit just left of the plinth, and townsfolk who gather as the tower grows. They hop when
+ * a block lands perfectly; at the end they cheer a new best, or stand glum.
+ */
+#define UNIT_X 72               /* the unit's centre */
+#define CROWD_MAX 5
+
+static const u8 sCrowdX[CROWD_MAX] = { 170, 42, 198, 16, 224 };
+static u16 *const sSmsObj[3] = { gObject_16x16, gObject_16x32, gObject_32x32 };
+
+/* Spectator i's height off the ground: a little parabola per hop, 6 pixels high */
+static int Tower_Hop(int i)
+{
+	int e = TS->cheerLen - TS->cheer - i * CHEER_STAGGER;
+
+	if (TS->cheer == 0 || e < 0 || e >= TS->cheerLen - CHEER_TAIL)
+		return 0;
+	e &= HOP_FRAMES - 1;
+	return (e * (HOP_FRAMES - e) * 3) >> 5;
+}
+
+static void Tower_DrawCrowd(void)
+{
+	int feet = TOWER_GROUND_Y + 1 - TS->camY;
+	int i, n, cls, size, frame, x, y;
+	int clock = GetGameClock();
+
+	if (feet < 0 || feet >= 160 + 32)
+		return;
+	n = TS->height > TS->peak ? TS->height : TS->peak;
+	n = 1 + Div(n, 6);
+	if (n > CROWD_MAX)
+		n = CROWD_MAX;
+	for (i = 0; i < n; i++) {
+		cls = i - Div(i, 3) * 3;
+		size = TS->smsSize[cls];
+		x = sCrowdX[i] - (size == 2 ? 16 : 8) - TS->shakeX;
+		y = feet - (size == 0 ? 16 : 32) - (TS->mood == 2 ? 0 : Tower_Hop(i + 1));
+		/* A standing sprite has 3 frames; they idle through them like the map does */
+		frame = (((clock >> 4) + i) & 3);
+		if (frame == 3)
+			frame = 1;
+		if (TS->mood == 2)
+			frame = 0;
+		PutSpriteExt(4, OAM1_X(x & 0x1FF), OAM0_Y(y & 0xFF), sSmsObj[size],
+			     OAM2_PAL(TOWN_PAL) + OAM2_LAYER(2) +
+			     OAM2_CHR(CHR_TOWN + cls * 48 + frame * (size == 0 ? 4 : (size == 1 ? 8 : 16))));
+	}
+
+	/* The unit watches the tower (facing up); at the end, turns round to cheer or to sulk */
+	if (TS->mood == 0)
+		frame = 8 + ((clock >> 4) & 1);
+	else if (TS->mood == 1)
+		frame = 4 + ((clock >> 3) & 3);
+	else
+		frame = 4;
+	y = feet - 32 - (TS->mood == 2 ? 0 : Tower_Hop(0));
+	PutSpriteExt(4, OAM1_X((UNIT_X - 16 - TS->shakeX) & 0x1FF), OAM0_Y(y & 0xFF), gObject_32x32,
+		     OAM2_PAL(TS->unitPal) + OAM2_LAYER(2) + OAM2_CHR(CHR_UNIT + frame * 16));
+}
+
 static void Tower_DrawTower(void)
 {
-	int n, sy;
+	int n, sy, x;
 
 	for (n = TS->height - 1; n >= 0 && n >= TS->height - TOWER_RING; n--) {
 		sy = Tower_BlockTop(n) - TS->camY;
 		if (sy >= 160)
 			break;
+		x = Tower_BlockX(n) + Tower_WobbleX(n);
 		if (n == TS->height - 1 && n > 0 && TS->squash > 0)
-			Tower_PutBlockSquashed(Tower_BlockX(n), sy, TS->styles[n & (TOWER_RING - 1)]);
+			Tower_PutBlockSquashed(x, sy, TS->styles[n & (TOWER_RING - 1)]);
 		else
-			Tower_PutBlock(Tower_BlockX(n), sy, TS->styles[n & (TOWER_RING - 1)]);
+			Tower_PutBlock(x, sy, TS->styles[n & (TOWER_RING - 1)]);
 	}
 	if (TS->state == TS_SLIDE || TS->state == TS_DROP || TS->state == TS_FALL ||
 	    (TS->state == TS_PAUSE && TS->prevState != TS_READY))
@@ -816,14 +1287,18 @@ static void Tower_DrawTower(void)
 static void Tower_DrawFx(void)
 {
 	const struct TowerParticle *p;
-	int i;
+	int i, chr;
 
 	for (i = 0; i < TOWER_PARTS; i++) {
 		p = &TS->parts[i];
 		if (p->life == 0)
 			continue;
+		if (p->kind == 2)
+			chr = TOWER_CHR_DUST + (p->life > 8 ? 0 : (p->life > 4 ? 1 : 2));
+		else
+			chr = TOWER_CHR_SPARK + ((p->life >> 2) & 1);
 		PutSpriteExt(4, OAM1_X(((p->x >> 4) - 4) & 0x1FF), OAM0_Y(((p->y >> 4) - 4) & 0xFF), gObject_8x8,
-			     OAM2_PAL(PAL_FX) + OAM2_LAYER(1) + OAM2_CHR(TOWER_CHR_SPARK + ((p->life >> 2) & 1)));
+			     OAM2_PAL(PAL_FX) + OAM2_LAYER(p->kind == 1 ? 2 : 1) + OAM2_CHR(chr));
 	}
 }
 
@@ -894,7 +1369,7 @@ static void Tower_DrawStatus(void)
 			     OAM2_PAL(PAL_FX) + OAM2_LAYER(0) + OAM2_CHR(TOWER_CHR_HEART));
 
 	/* The chain meter: ten pips that light green, then orange, then gold; all gold and blinking in a fever */
-	if (TS->state != TS_READY && TS->state != TS_OVER) {
+	if (TS->state != TS_READY && TS->state != TS_OVER && TS->state != TS_COLLAPSE) {
 		for (i = 0; i < CHAIN_MAX; i++) {
 			int kind = 0;
 
@@ -927,7 +1402,10 @@ static void Tower_DrawStatus(void)
  */
 static void Tower_Draw(void)
 {
+	Tower_DrawStars();
 	Tower_DrawTower();
+	Tower_DrawCrowd();
+	Tower_DrawDebris();
 	Tower_DrawFx();
 	Tower_DrawPopups();
 	Tower_DrawStatus();
@@ -949,8 +1427,11 @@ static void Tower_Loop(struct ProcTower *proc)
 
 static void Tower_OnEnd(struct ProcTower *proc)
 {
+	if (TS->feverTempo)
+		m4aMPlayTempoControl(gMPlayTable[0].info, 256);
 	ClearSprites();
 	ClearBg0Bg1();
+	BG_SetPosition(2, 0, 0);
 	BG_SetPosition(3, 0, 0);
 	gLCDControlBuffer.dispcnt = proc->dispBak;
 	SetDefaultColorEffects();
