@@ -68,6 +68,9 @@ gEmsSavChunks:
 #ifdef CONFIG_HEX_CARDS
     EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
 #endif
+#ifdef CONFIG_DISTRICT_FISHING
+    EmsChunk($0020, FishingRecords_Save, FishingRecords_Load) /* District fishing records (prize table) */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -121,6 +124,9 @@ gEmsSusChunks:
 #ifdef CONFIG_HEX_CARDS
     EmsChunk($0054, HexSave_Save, HexSave_Load) /* Hex card binder and district claims */
 #endif
+#ifdef CONFIG_DISTRICT_FISHING
+    EmsChunk($0020, FishingRecords_Save, FishingRecords_Load) /* District fishing records (prize table) */
+#endif
     EmsChunkEnd
 
 ALIGN 4
@@ -132,5 +138,8 @@ gNewSaveHooks:
     POIN WmStoryChapter_NewGame
 #ifdef CONFIG_HEX_CARDS
     POIN HexSave_NewGame
+#endif
+#ifdef CONFIG_DISTRICT_FISHING
+    POIN FishingRecords_NewGame
 #endif
     WORD 0 0 0 0

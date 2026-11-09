@@ -61,6 +61,10 @@
 	#define CONFIG_ITEM_INDEX_HEX_CARD 0xEC
 #endif
 
+/* District fishing: fishing spots in the districts and the fishing minigame (Kernel/Wizardry/Minigames/Fishing).
+ * Comment out the next line to remove it from the build. */
+#define CONFIG_DISTRICT_FISHING
+
 #define CONFIG_FORGE_CHECKER 5000
 
 // Unit counts and save layout stay expanded. Gameplay is gated by

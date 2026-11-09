@@ -2,6 +2,7 @@
 #include "constants/terrains.h"
 #include "district.h"
 #include "skill-system.h"	/* MAPANIMFX_CHR_L / MAPANIMFX_PAL for the Hex Card icon */
+#include "fishing.h"
 
 /* Free movement (Kernel/Wizardry/FreeMovement/cFreeMU/src/FreeMU.h, not on the include path) */
 extern bool FMU_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y);
@@ -167,11 +168,16 @@ static const u8 sGateArrowTiles[64] = {
 
 #define GATE_CHR_DOWN (MAPANIMFX_CHR_R)
 #define GATE_CHR_RIGHT (MAPANIMFX_CHR_R + 1)
+/* The fishing-spot bobber: the tile under the gate arrows in the 2D map OBJ layout (free in districts, as above) */
+#define FISHING_CHR_MAP_BOBBER (MAPANIMFX_CHR_R + 0x20)
 
 /* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
 static void DistrictNpc_LoadGates(void)
 {
 	CpuCopy16(sGateArrowTiles, OBJ_VRAM0 + GATE_CHR_DOWN * 0x20, sizeof(sGateArrowTiles));
+#ifdef CONFIG_DISTRICT_FISHING
+	Fishing_LoadMapMarker(FISHING_CHR_MAP_BOBBER);
+#endif
 	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
 }
 
@@ -354,6 +360,9 @@ static void DistrictNpc_Loop(ProcPtr proc)
 		p->gatesLoaded = 1;
 	}
 	DistrictNpc_DrawGates();
+#ifdef CONFIG_DISTRICT_FISHING
+	Fishing_DrawMapMarkers(FISHING_CHR_MAP_BOBBER, MAPANIMFX_PAL);
+#endif
 
 #ifdef CONFIG_HEX_CARDS
 	/* Drawn every frame, also on the ticks below that return early */

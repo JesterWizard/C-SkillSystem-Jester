@@ -92,3 +92,23 @@ Run order for an installed district map:
    are six files: `<key>_obj.bin` and `<key>_cfg.bin` for `town`, `caer` and `jeh`. New copies also need their ids in
    `_hexshop/HexShopTiles.event`.
 4. Run `district_map.py` (same arguments as before). The compose layout already names the new tileset ids. Do not edit the outputs.
+
+## Pools of water (pond.py)
+
+Vanilla maps only have water that runs off a map edge, so `tilegen` can't learn how to close a pond. `pond.py` picks the
+metatiles of a small pool by search instead: for the W x H cells at (X, Y) of a district layout, it tries the
+tileset's water metatiles and keeps the arrangement whose 16-pixel edges join best, with each other and with the ground
+around the pool (`tilegen/pixedge.py`'s `edge_cost`, beam search). It prints the cells as `[x, y, metatile]` edits for
+the `tiles` list of the compose spec.
+
+    python3 Tools/district/pond.py CustomCampaign/Chapters/CaerPelyn/map/CaerPelyn_layout.json \
+        CustomCampaign/Chapters/_hexshop/caer_obj.bin CustomCampaign/Chapters/_hexshop/caer_pal.bin \
+        CustomCampaign/Chapters/_hexshop/caer_cfg.bin 2 11 3 2 --avoid-bank 5 --png pond.png
+
+- Pass the district's own tileset copies from `CustomCampaign/Chapters/_hexshop/`, so the pool is judged in the game's colours.
+- `--avoid-bank 5` skips metatiles that use palette bank 5, which holds the Hex shop stall's colours in the district palettes.
+- `--png` renders the pool with three cells of its surroundings, at 4x. Look at it: a pool against a map edge or a wall
+  needs fewer shore joins and looks more natural (Serafew's pool is in the north-east corner for this reason).
+- Then add the cells to the spec and run the pipeline above (compose, the Hex shop building, `district_map.py`).
+
+The Serafew and Caer Pelyn pools for [fishing](../../Documentation/Features/Minigames/Fishing.md) were made this way.
