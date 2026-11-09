@@ -39,7 +39,8 @@ Tick and lifetime:
 
 - `TickActiveFactionTurn` at `Kernel/Wizardry/DebuffRework/Source/StatusDepletion.c:26` (`LYN_REPLACE_CHECK`). Calls `TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ALLY)` for the active faction (line 87) and `STATUS_DEBUFF_TICK_ON_ENEMY` for the red faction (line 110). `TickUnitStatDebuff` is at `StatDebuff.c:248`.
 - `tick_type` per bit (`Data/Debuff/StatDebuffInfo.c`): `STATUS_DEBUFF_NO_TICK` bits are never cleared by the tick. Chill is `STATUS_DEBUFF_NO_TICK` and cleared by `PostAction_RemoveChillDebuff`.
-- Unit copy / battle snapshot / clear: `StatDebuff_OnUnitToBattle` and `StatDeuff_OnClearUnit` (`Kernel/Wizardry/UnitHooks/data.event:24` and `:34`). Save chunk `MSU_SaveStatDebuff` (`Kernel/Wizardry/SaveData/data.event:107`).
+- Unit copy / battle snapshot / clear: `StatDebuff_OnUnitToBattle` and `StatDeuff_OnClearUnit` (`Kernel/Wizardry/UnitHooks/data.event:24` and `:34`). Suspend chunk `MSU_SaveStatDebuff` (`Kernel/Wizardry/SaveData/data.event`): it keeps only the first `STAT_DEBUFF_SAVE_BYTES` (13) bytes of each unit's 16-byte bitmask, enough for 104 statuses. Adding a status past that fails the build (`StatDebuff.c`); raise `STAT_DEBUFF_SAVE_BYTES` in `debuff.h` and the chunk's `* 13` in `data.event` together.
+- Storage: one 16-byte bitmask per unit, found through `sStatDebuffStatusPool` (`StatDebuffData.c`, by unit index). The arrays' RAM slots are `STAT_DEBUFF_SLOTS_*` in `debuff.h` (allies 51, in the `_kernel_malloc2` region; enemies 51, NPCs 8, fourth allegiance 10, in the `_kernel_malloc` region). Unit indexes past a faction's slots (a 52nd ally, NPCs 9 to 20, fourth-allegiance units 11 to 20) point at an empty entry in ROM, so their statuses do nothing rather than land in another array. Each `CONFIG_UNIT_AMT_*` must fit its slots (a build check in `StatDebuffData.c`).
 
 Magic Seal / Physical Seal (area checks, not hooks):
 

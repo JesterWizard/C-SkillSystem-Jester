@@ -15,11 +15,11 @@
 
 Chapter dialogue in FE8 is ephemeral: once a page advances, earlier lines are gone. Players who miss a name, joke, or plot beat have no in-scene way to re-read without restarting the conversation (or using prep Event Replay after the fact).
 
-This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17** dialogue lines of the current chapter, toggled with **SELECT**, scrolled with **DPAD_UP / DPAD_DOWN**, and kept alive across **suspend** (not normal save files).
+This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17** dialogue lines of the current chapter, toggled with **SELECT** and scrolled with **DPAD_UP / DPAD_DOWN**. It lives in RAM only: it is not kept in suspend or normal saves (see [Limitations](#limitations--bugs)).
 
 ### Runtime configuration
 
-`KernelDesigerConfig::chatlog_enabled` (`true` by default) turns the whole feature on and off in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c). With it disabled, no session proc starts, no glyphs are captured, and SELECT behaves exactly as it does in vanilla; the suspend chunk is still written so save layout does not change between builds.
+`KernelDesigerConfig::chatlog_enabled` (`true` by default) turns the whole feature on and off in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c). With it disabled, no session proc starts, no glyphs are captured, and SELECT behaves exactly as it does in vanilla.
 
 ---
 
@@ -52,12 +52,12 @@ This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17
 
 | Region | Symbol | Size | Purpose |
 |--------|--------|------|---------|
-| FreeRamSpace2 | `sChatLogState` | `0x444` | 17 line entry ring + view cursor (SUS-persisted) |
+| FreeRamSpace2 | `sChatLogState` | `0x444` | 17 line entry ring + view cursor (RAM only) |
 | FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, chibi palette + priority/blend backups, tile allocation, name/draw scratch |
-| SuspendSave EMS | `SaveChatLogSuspendState` | `0x444` | Survive soft reset / resume mid-chapter |
+| SuspendSave EMS | `SaveChatLogSuspendState` / `LoadChatLogSuspendState` | `0` | An empty chunk: loading a suspend resets the log |
 | NormalSave | — | — | Not used |
 
-UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
+The log used to be kept in the suspend save (a `0x444` chunk). That space went to other features: the chunk is now empty, and its loader clears the ring, so a resumed chapter starts with an empty log.
 
 ### Overlay drawing
 
@@ -85,7 +85,7 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 | Glyph capture | `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Pause printing while visible; append each printed character |
 | Page commit hooks | `TalkInterpret` / `Talk_OnInit_C` / `Talk_OnEnd_C` in [`TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[N]` / `[A]` capture, start/end chatlog session |
 | EWRAM reservation | [`config-memmap.s`](../../include/link/config-memmap.s) | `_kernel_malloc2` for `sChatLogState` and `sChatlogUiState` |
-| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | SUS-only `0x444` EMS chunk |
+| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | Empty (size 0) SUS chunk whose loader resets the log |
 | Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/ChapterInitHook/data.event) | Wipe history on chapter start |
 | Public API | [`chatlog.h`](../../include/kernel/chatlog.h) | Caps, structs, and hook entry points |
 | Runtime toggle | `chatlog_enabled` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Gates `Chatlog_StartSession` and glyph capture |
@@ -96,14 +96,13 @@ UI visibility (`CHATLOG_FLAG_VISIBLE`) is cleared on suspend load.
 
 - Optionally filter prep Event Replay / world-map Talk from the chapter ring.
 - Consider a longer message field if English rewrites routinely truncate at 56 bytes per wrapped line.
-- Suspend RAM is at 97% with the log's `0x444` chunk in place; shrink `CHATLOG_CAP` if another feature needs suspend space.
 
 ---
 
 ## Limitations & Bugs
 
 - Chatlog is **Talk-only**; map SELECT is intentionally untouched.
-- History does **not** persist in normal save files—only suspend.
+- History is **not saved**: not in normal saves, and not in the suspend save. **Resuming a suspended chapter starts with an empty log**, as a new chapter does. The `0x444` bytes it used to take in the suspend save were freed for other features. Putting it back means restoring the chunk's size in `data.event` and the old save/load bodies in `Chatlog.c` (in git history), and it needs that much suspend space free.
 - Opening the overlay owns BG2's tilemap; scenes that already draw on BG2, or that leave fewer than `0x3E` spare tiles (world-map narration, for instance), simply do not open the log rather than corrupt their graphics.
 - A scene with room for only some rows shows a shorter log; the scroll range follows the row count actually drawn.
 - Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite. Portraits without a chibi show the engine's `?` mug, exactly as they do on the map.

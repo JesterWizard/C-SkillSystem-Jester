@@ -58,7 +58,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `max_color_backgrounds` | Enables 224/256-color conversation backgrounds (IDs from `0x38`). Off loads BGs through the vanilla 16-color path. |
 | `custom_guide` | Shows the custom Guide command and table. Off hides Guide. |
 | `lights_out_game` | Enables the Lights Out minigame. Off skips start and its event reward. |
-| `fourth_allegiance` | Enables purple-faction gameplay. Off skips the purple phase; unit RAM/save layout stays expanded. |
+| `fourth_allegiance` | Enables purple-faction gameplay. Off skips the purple phase; unit RAM/save layout stays expanded. Up to 10 purple units (`CONFIG_UNIT_AMT_FOURTH`); see `Kernel/Wizardry/FourthAllegiance/README.md`. |
 | `unit_selection_quotes` | Plays a random voiced clip when a unit is selected. Off skips playback; song-table assets stay installed. |
 | `chapter_names` | Draws FE7-style text chapter titles. Off uses vanilla chapter-title graphics. |
 | `fe7_mode_select` | Uses the FE7 difficulty-select screen. Off uses vanilla FE8 `NewNewGameDifficultySelect`. |
