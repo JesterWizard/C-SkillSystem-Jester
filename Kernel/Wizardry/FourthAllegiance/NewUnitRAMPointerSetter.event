@@ -1,18 +1,29 @@
 #define PurpleUnitFreeSpace 0x2026E30 // Offset of the beginning of free space for purple units 
 
+/*
+ * gUnitLookup (0x59A5D0) for the purple units: 0xC1..0xC5 are vanilla's five purple slots (0x0202E36C); 0xC6 up are
+ * new slots at PurpleUnitFreeSpace, 0x48 bytes each. Only the slots up to PurpleUnitCount exist: the entries after them
+ * are 0, so nothing (InitUnits clears every unit in the table on a new game or a load) treats the RAM after the slots
+ * as units. The kernel's RAM region starts after them (FreeRamSpaceTop, include/link/config-memmap.s).
+ *
+ * To raise PurpleUnitCount (CONFIG_UNIT_AMT_FOURTH): add pointers here, move FreeRamSpaceTop up to match, and check the
+ * suspend save and the stat-debuff slots (STAT_DEBUFF_SLOTS_FOURTH, include/kernel/debuff.h).
+ */
+ASSERT (10 - PurpleUnitCount)
+
 ORG 0x59A8E8
 WORD (PurpleUnitFreeSpace+(0x48*0))
 WORD (PurpleUnitFreeSpace+(0x48*1))
 WORD (PurpleUnitFreeSpace+(0x48*2))
 WORD (PurpleUnitFreeSpace+(0x48*3))
 WORD (PurpleUnitFreeSpace+(0x48*4))
-WORD (PurpleUnitFreeSpace+(0x48*5))
-WORD (PurpleUnitFreeSpace+(0x48*6))
-WORD (PurpleUnitFreeSpace+(0x48*7))
-WORD (PurpleUnitFreeSpace+(0x48*8))
-WORD (PurpleUnitFreeSpace+(0x48*9))
-WORD (PurpleUnitFreeSpace+(0x48*10))
-WORD (PurpleUnitFreeSpace+(0x48*11))
-WORD (PurpleUnitFreeSpace+(0x48*12))
-WORD (PurpleUnitFreeSpace+(0x48*13))
-WORD (PurpleUnitFreeSpace+(0x48*14))
+WORD 0 // 0xCB: no slot
+WORD 0 // 0xCC: no slot
+WORD 0 // 0xCD: no slot
+WORD 0 // 0xCE: no slot
+WORD 0 // 0xCF: no slot
+WORD 0 // 0xD0: no slot
+WORD 0 // 0xD1: no slot
+WORD 0 // 0xD2: no slot
+WORD 0 // 0xD3: no slot
+WORD 0 // 0xD4: no slot

@@ -11,7 +11,7 @@
 .endm
 
 
-SET_DATA FreeRamSpaceTop,    0x02026E30
+SET_DATA FreeRamSpaceTop,    0x02026FC8 @ after the five new purple unit slots at 0x02026E30 (FourthAllegiance/NewUnitRAMPointerSetter.event)
 SET_DATA FreeRamSpaceBottom, 0x02028E58
 SET_DATA UsedFreeRamSpaceTop, FreeRamSpaceBottom
 
@@ -74,7 +74,7 @@ _kernel_malloc sKTutorialBits, 0xC
 _kernel_malloc sKTutorialBitsHistory, 0xC
 _kernel_malloc gBattleTargetPositionBackup, 0x4
 _kernel_malloc gActionDataExpa, 0x10
-_kernel_malloc sStatDebuffStatusAlly, 40 * 16 // Was originally 51 but reduced to 40 for 4th allegiance
+_kernel_malloc sStatDebuffStatusAllyOldSlot, 40 * 16 // Unused: too small for 41 allies (the 41st overlapped gActionDataExpa); sStatDebuffStatusAlly is in the kernel_malloc2 region
 _kernel_malloc sStatDebuffStatusEnemy, 51 * 16
 _kernel_malloc sStatDebuffStatusNpc, 8 * 16
 _kernel_malloc sStatDebuffStatusFourth, 10 * 16 // CONFIG_FOURTH_ALLEGIANCE
@@ -261,7 +261,7 @@ _kernel_malloc_overlay0 sAiTargetList, 0x80
 _kernel_malloc2 gBmMapEnemyVisionBuffer, 0x800
 _kernel_malloc2 gBmMapEnemyVision, 4
 
-/* Chapter talk chatlog (ring buffer + UI scratch). SUS-persisted state is sChatLogState only. */
+/* Chapter talk chatlog (ring buffer + UI scratch). RAM only: not kept in any save. */
 _kernel_malloc2 sChatLogState, 0x444
 _kernel_malloc2 sChatlogUiState, 0x600
 
@@ -364,6 +364,9 @@ _kernel_malloc2 gTowerRecords, 4
 _kernel_malloc2 gTowerDebris, 0x80
 /* The fish journal (struct FishingRecords, a save chunk), after the others so no address above moves. */
 _kernel_malloc2 gFishingRecords, 0x2C
+/* The allies' stat buffs and debuffs (struct StatDebuffStatus, include/kernel/debuff.h): 51 slots, enough for
+   CONFIG_UNIT_AMT_ALLY with or without the fourth allegiance. Moved here from the kernel_malloc region (OldSlot). */
+_kernel_malloc2 sStatDebuffStatusAlly, 51 * 16
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
@@ -396,3 +399,11 @@ dat 0x03004838, ARM_UnitList
 dat 0x03004924, ARM_UnitListEnd
 dat 0x03004924, ARM_SkillList
 dat 0x03004960, ARM_SkillListEnd
+
+/* The regions must not run out (the kernel_malloc region would grow into the purple units' slots below it) */
+.if UsedFreeRamSpaceTop < FreeRamSpaceTop
+.error "The kernel_malloc region is full: it would overlap the purple units' slots"
+.endif
+.if UsedFreeRamSpace2Bottom > FreeRamSpace2Bottom
+.error "The kernel_malloc2 region is full"
+.endif

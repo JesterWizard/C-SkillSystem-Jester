@@ -4,6 +4,14 @@
 /* Unit index 0 (obstacles, dummy units) never carries stat debuffs */
 static const struct StatDebuffStatus sStatDebuffStatusNone;
 
+/* Each faction's config amount must fit its array's slots in RAM (debuff.h) */
+typedef char StatDebuff_AllySlotsCheck[(CONFIG_UNIT_AMT_ALLY <= STAT_DEBUFF_SLOTS_ALLY) ? 1 : -1];
+typedef char StatDebuff_EnemySlotsCheck[(CONFIG_UNIT_AMT_ENEMY <= STAT_DEBUFF_SLOTS_ENEMY) ? 1 : -1];
+typedef char StatDebuff_NpcSlotsCheck[(CONFIG_UNIT_AMT_NPC <= STAT_DEBUFF_SLOTS_NPC) ? 1 : -1];
+#ifdef CONFIG_FOURTH_ALLEGIANCE
+typedef char StatDebuff_FourthSlotsCheck[(CONFIG_UNIT_AMT_FOURTH <= STAT_DEBUFF_SLOTS_FOURTH) ? 1 : -1];
+#endif
+
 struct StatDebuffStatus *const sStatDebuffStatusPool[0x100] = {
 	[0] = (struct StatDebuffStatus *)&sStatDebuffStatusNone,
 	[FACTION_BLUE + 0x01] = sStatDebuffStatusAlly + 0,
@@ -57,7 +65,8 @@ struct StatDebuffStatus *const sStatDebuffStatusPool[0x100] = {
 	[FACTION_BLUE + 0x31] = sStatDebuffStatusAlly + 48,
 	[FACTION_BLUE + 0x32] = sStatDebuffStatusAlly + 49,
 	[FACTION_BLUE + 0x33] = sStatDebuffStatusAlly + 50,
-	[FACTION_BLUE + 0x34] = sStatDebuffStatusAlly + 51,
+	/* No 52nd ally: an empty entry */
+	[FACTION_BLUE + 0x34] = (struct StatDebuffStatus *)&sStatDebuffStatusNone,
 
 	[FACTION_RED + 0x01] = sStatDebuffStatusEnemy + 0,
 	[FACTION_RED + 0x02] = sStatDebuffStatusEnemy + 1,
@@ -119,39 +128,21 @@ struct StatDebuffStatus *const sStatDebuffStatusPool[0x100] = {
 	[FACTION_GREEN + 0x06] = sStatDebuffStatusNpc + 5,
 	[FACTION_GREEN + 0x07] = sStatDebuffStatusNpc + 6,
 	[FACTION_GREEN + 0x08] = sStatDebuffStatusNpc + 7,
-	[FACTION_GREEN + 0x09] = sStatDebuffStatusNpc + 8,
-	[FACTION_GREEN + 0x0A] = sStatDebuffStatusNpc + 9,
-	[FACTION_GREEN + 0x0B] = sStatDebuffStatusNpc + 10,
-	[FACTION_GREEN + 0x0C] = sStatDebuffStatusNpc + 11,
-	[FACTION_GREEN + 0x0D] = sStatDebuffStatusNpc + 12,
-	[FACTION_GREEN + 0x0E] = sStatDebuffStatusNpc + 13,
-	[FACTION_GREEN + 0x0F] = sStatDebuffStatusNpc + 14,
-	[FACTION_GREEN + 0x10] = sStatDebuffStatusNpc + 15,
-	[FACTION_GREEN + 0x11] = sStatDebuffStatusNpc + 16,
-	[FACTION_GREEN + 0x12] = sStatDebuffStatusNpc + 17,
-	[FACTION_GREEN + 0x13] = sStatDebuffStatusNpc + 18,
-	[FACTION_GREEN + 0x14] = sStatDebuffStatusNpc + 19,
+	/* Only 8 NPCs (CONFIG_UNIT_AMT_NPC, gPhaseUnitCountTable): the rest get an empty entry */
+	[FACTION_GREEN + 0x09 ... FACTION_GREEN + 0x14] = (struct StatDebuffStatus *)&sStatDebuffStatusNone,
 
 #ifdef CONFIG_FOURTH_ALLEGIANCE
-    [FACTION_PURPLE + 0x01] = sStatDebuffStatusFourth + 0,
-    [FACTION_PURPLE + 0x02] = sStatDebuffStatusFourth + 1,
-    [FACTION_PURPLE + 0x03] = sStatDebuffStatusFourth + 2,
-    [FACTION_PURPLE + 0x04] = sStatDebuffStatusFourth + 3,
-    [FACTION_PURPLE + 0x05] = sStatDebuffStatusFourth + 4,
-    [FACTION_PURPLE + 0x06] = sStatDebuffStatusFourth + 5,
-    [FACTION_PURPLE + 0x07] = sStatDebuffStatusFourth + 6,
-    [FACTION_PURPLE + 0x08] = sStatDebuffStatusFourth + 7,
-    [FACTION_PURPLE + 0x09] = sStatDebuffStatusFourth + 8,
-    [FACTION_PURPLE + 0x0A] = sStatDebuffStatusFourth + 9,
-    [FACTION_PURPLE + 0x0B] = sStatDebuffStatusFourth + 10,
-    [FACTION_PURPLE + 0x0C] = sStatDebuffStatusFourth + 11,
-    [FACTION_PURPLE + 0x0D] = sStatDebuffStatusFourth + 12,
-    [FACTION_PURPLE + 0x0E] = sStatDebuffStatusFourth + 13,
-    [FACTION_PURPLE + 0x0F] = sStatDebuffStatusFourth + 14,
-    [FACTION_PURPLE + 0x10] = sStatDebuffStatusFourth + 15,
-    [FACTION_PURPLE + 0x11] = sStatDebuffStatusFourth + 16,
-    [FACTION_PURPLE + 0x12] = sStatDebuffStatusFourth + 17,
-    [FACTION_PURPLE + 0x13] = sStatDebuffStatusFourth + 18,
-    [FACTION_PURPLE + 0x14] = sStatDebuffStatusFourth + 19,
+	[FACTION_PURPLE + 0x01] = sStatDebuffStatusFourth + 0,
+	[FACTION_PURPLE + 0x02] = sStatDebuffStatusFourth + 1,
+	[FACTION_PURPLE + 0x03] = sStatDebuffStatusFourth + 2,
+	[FACTION_PURPLE + 0x04] = sStatDebuffStatusFourth + 3,
+	[FACTION_PURPLE + 0x05] = sStatDebuffStatusFourth + 4,
+	[FACTION_PURPLE + 0x06] = sStatDebuffStatusFourth + 5,
+	[FACTION_PURPLE + 0x07] = sStatDebuffStatusFourth + 6,
+	[FACTION_PURPLE + 0x08] = sStatDebuffStatusFourth + 7,
+	[FACTION_PURPLE + 0x09] = sStatDebuffStatusFourth + 8,
+	[FACTION_PURPLE + 0x0A] = sStatDebuffStatusFourth + 9,
+	/* Statuses for 10 fourth-allegiance units (CONFIG_UNIT_AMT_FOURTH): the rest get an empty entry */
+	[FACTION_PURPLE + 0x0B ... FACTION_PURPLE + 0x14] = (struct StatDebuffStatus *)&sStatDebuffStatusNone,
 #endif
 };

@@ -219,7 +219,8 @@ clears it on a new game.
 - It replaced the prize table's records (catches and best payouts of the five kinds, 0x20 bytes). The magic changed, so
   a save from before the journal loads an empty journal. The old RAM slot is kept as `gFishingRecordsV1` so that no
   address after it moved; the journal's is at the end of the region.
-- The suspend save has 16 bytes free after the chunks (0x3140 of 0x3150 used), the game save 0x4BD.
+- The suspend save has 1435 bytes free (0x2BB5 of 0x3150 used, since the chat log left it and the stat statuses were
+  packed), the game save 0x4BD.
 - The species' looks and sizes are drawn by `Tools/fishing/fish_species.py` (see [Art](#art)); their names are
   `MSG_FISHING_SP_*`, in `sSpeciesNames` (`FishingScreen.c`).
 

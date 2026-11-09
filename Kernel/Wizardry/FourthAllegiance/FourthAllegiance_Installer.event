@@ -1,6 +1,11 @@
 #include "Extensions/Hack Installation.txt"
 
-#define PurpleUnitCount 16
+/*
+ * Purple units: the engine's count (gPhaseUnitCountTable) must match the kernel's (CONFIG_UNIT_AMT_FOURTH, used by
+ * GetFactionUnitAmount, the suspend save and the stat-debuff slots). It was 16, so units 11 to 16 were never saved.
+ * NewUnitRAMPointerSetter.event gives slots to exactly this many.
+ */
+#define PurpleUnitCount CONFIG_UNIT_AMT_FOURTH
 
 PUSH
 

@@ -243,25 +243,17 @@ static void Chatlog_SanitizeState(void)
 		sChatLogState.viewTop = Chatlog_MaxViewTop();
 }
 
+/*
+ * The log is not kept in the suspend save (its 0x444 bytes went to other features): the suspend chunk is empty, and
+ * resuming starts an empty log, as a new chapter does.
+ */
 void SaveChatLogSuspendState(u8 *dst, const u32 size)
 {
-	struct ChatLogState tmp;
-
-	Assert(size == sizeof(sChatLogState));
-	tmp = sChatLogState;
-	tmp.flags = 0;
-	WriteAndVerifySramFast(&tmp, dst, size);
 }
 
 void LoadChatLogSuspendState(u8 *src, const u32 size)
 {
-	Assert(size == sizeof(sChatLogState));
-	ReadSramFast(src, &sChatLogState, size);
-	sChatLogState.flags = 0;
-	if (sChatLogState.count > CHATLOG_CAP || sChatLogState.head >= CHATLOG_CAP)
-		Chatlog_ResetRing();
-	else
-		Chatlog_SanitizeState();
+	Chatlog_ResetRing();
 }
 
 /* --- capture ------------------------------------------------------------- */

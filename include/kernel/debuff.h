@@ -309,6 +309,13 @@ enum UNIT_STAT_DEBUFF_IDX {
 extern const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX];
 extern struct DebuffInfo const* const gpStatDebuffInfos;
 
+/*
+ * The suspend save keeps only the bytes of each unit's bitmask that hold a status (UNIT_STAT_DEBUFF_MAX_REAL bits,
+ * rounded up), not all 16. Adding statuses past this many bits fails the build (StatDebuff.c): raise it, and the
+ * chunk's size in Kernel/Wizardry/SaveData/data.event, together.
+ */
+#define STAT_DEBUFF_SAVE_BYTES 13
+
 struct StatDebuffStatus {
     union {
         struct {
@@ -332,6 +339,15 @@ struct StatDebuffStatus {
 #ifndef CONFIG_UNIT_AMT_NPC
 #define CONFIG_UNIT_AMT_NPC 8
 #endif
+
+/*
+ * The slots each array has in RAM (include/link/config-memmap.s). A faction's units past its config amount have no
+ * slot: the pool (StatDebuffData.c) points them at an empty entry, so they never write into another array.
+ */
+#define STAT_DEBUFF_SLOTS_ALLY 51
+#define STAT_DEBUFF_SLOTS_ENEMY 51
+#define STAT_DEBUFF_SLOTS_NPC 8
+#define STAT_DEBUFF_SLOTS_FOURTH 10
 
 extern struct StatDebuffStatus sStatDebuffStatusAlly[CONFIG_UNIT_AMT_ALLY];
 extern struct StatDebuffStatus sStatDebuffStatusEnemy[CONFIG_UNIT_AMT_ENEMY];
