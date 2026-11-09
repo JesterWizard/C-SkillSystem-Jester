@@ -15,6 +15,7 @@
 - [Reeling and Bonuses](#reeling-and-bonuses)
 - [Effects](#effects)
 - [Species, the Catch Card and the Journal](#species-the-catch-card-and-the-journal)
+- [The Angler: Legends, Rank, Requests and More](#the-angler-legends-rank-requests-and-more)
 - [Fishing Spots](#fishing-spots)
 - [The Screen](#the-screen)
 - [Adding a Fishing Spot](#adding-a-fishing-spot)
@@ -73,10 +74,10 @@ screens). The window at the top keeps one line: what is going on.
 | Choosing a bait | Left/Right: bait, A: cast, B: exit, START: journal |
 | Waiting | Up/Down: depth, A: reel in, B: exit, START: journal |
 | A bite | A: hook it, B: exit |
-| Reeling | A: reel, B: exit |
-| The catch card | A: fish again, B: exit, START: journal |
+| Reeling | A: reel (during a leap: A catches it), B: exit |
+| The catch card | A: fish again, R: keep the catch as food, B: exit, START: journal |
 | A message | A: OK, B: exit |
-| Journal | Left/Right: water, B or START: close |
+| Journal | Left/Right: the page (each water, then the angler's page), B or START: close |
 
 **B ends the minigame at any time** (a fish on the line is lost). The walk-in is the only moment it is ignored.
 
@@ -219,10 +220,52 @@ clears it on a new game.
 - It replaced the prize table's records (catches and best payouts of the five kinds, 0x20 bytes). The magic changed, so
   a save from before the journal loads an empty journal. The old RAM slot is kept as `gFishingRecordsV1` so that no
   address after it moved; the journal's is at the end of the region.
-- The suspend save has 1435 bytes free (0x2BB5 of 0x3150 used, since the chat log left it and the stat statuses were
-  packed), the game save 0x4BD.
+- The suspend save has 1403 bytes free (with the angler's progress chunk below), the game save 1181.
 - The species' looks and sizes are drawn by `Tools/fishing/fish_species.py` (see [Art](#art)); their names are
   `MSG_FISHING_SP_*`, in `sSpeciesNames` (`FishingScreen.c`).
+
+---
+
+## 🏆 The Angler: Legends, Rank, Requests and More
+
+<p align="center">
+  <img src="../../Gifs/Fishing_Angler.gif" alt="A legend's shadow in the deep and its catch, a leap caught with A, a frenzy, a treasure chest" width="480"/>
+</p>
+
+| Feature | What happens |
+|---|---|
+| **Legends** | Each water has a legend: Old Whiskers (Serafew Pond), Stormfin (Port Kiris Harbour), Frostfin (Caer Pelyn Pond) and Sunscale (Jehanna Oasis). Once all five of a water's species are in the journal, "Something huge stirs in the deep..." greets you there, and a crimson shadow swims near the bottom. It only takes the golden lure. Its fight has three phases: steady, then darting with a swaying green zone, then leaping. It pays 20000G (with the bonuses and its size), +40 points and a LEGEND! stamp, and takes the journal page's sixth row. Once caught it is gone for good. |
+| **Angler rank** | Every catch earns points: 1, 2, 4, 8 or 12 by its kind, +1 for a perfect hook, +2 for NEW! or RECORD!, +5 for a request, 40 for a legend, 2 for a chest, 1 for a bottle. RANK UP! pops on the card. |
+| **Requests** | Each water has a townsperson's request: a species of at least a size. Catch one big enough and its reward goes to the unit's items (or the convoy): an Elixir (small fish), a Red Gem (medium), a Blue Gem (large) or a stat booster (huge). A done request is replaced with the next story chapter. The journal marks the wanted species with "!". |
+| **Food** | R on the catch card keeps the catch instead of selling it: the gold is paid back and the unit gets a Grilled Fish (a small or medium fish; heals 15 HP, one use), a Fish Stew (large, huge or a legend; heals 30 HP, two uses) or, for a golden fish, a stat tonic for the chapter. |
+| **The unit and the Angler skill** | Skill / 4 frames longer to hook a bite; Strength / 2 percent less pull (up to 15); Luck / 5 percent more golden fish. The **Angler** skill (`SID_Angler`) adds 6 frames, 15% less pull and 5% more golden fish. |
+| **Treasure and junk** | 11% of catches aren't fish: an Old Boot (JUNK!, nothing), a Treasure Chest (TREASURE!, an item: Vulnerary, Elixir, Pure Water, Antitoxin, Torch or a gem) or a Message in a Bottle (a tip, unread ones first). |
+| **Behaviours** | Each species fights its own way. Steady fish only run. Darters jerk the tension up or down every second or so. Divers run twice as long. Leapers leap from the water once the hook is near the surface: press A while the A cue shows (NICE!, an eighth of the progress), or the landing slams the tension up 25%. |
+| **Frenzy** | Three catches in a row (an old boot doesn't count) start a 30-second frenzy (FRENZY!): fish come from further and bite at once, and catches pay half as much again. A gold bar under the top window shows the time left; the water sparkles. Losing a fish breaks the streak. |
+| **SO CLOSE!** | A fish lost with nine tenths of the progress made pops up SO CLOSE!. |
+
+**Rank perks:**
+
+| Rank | Points | Perk |
+|---|---|---|
+| Novice | 0 | - |
+| Apprentice | 25 | 4 frames longer to hook a bite |
+| Angler | 75 | Green zones 3% wider on each side |
+| Expert | 175 | Fish pull 20% less |
+| Master | 350 | Catches pay 25% more |
+
+**The angler's page** (the journal's last page) shows the rank and points, the bonuses (rank, unit and skill together)
+and each water's request with its reward.
+
+**Saved:** `gFishingProgress` (`struct FishingProgress`, 0x20 bytes, `include/kernel/fishing.h`): a magic word, the
+rank points, the legends caught and their sizes, the bottles read and the four requests. It is a second chunk in both
+save lists, after the journal's, with its own new-game hook (`FishingProgress_NewGame`). The streak and the frenzy are
+RAM only: they end when you leave the screen.
+
+**Items and skill:** `ITEM_GRILLED_FISH` (0xED) and `ITEM_FISH_STEW` (0xEE) use the Vulnerary's use effect
+(`IER_VULNERARY`, with `healByte`), so the AI heals with them too. Their icons are in free slots of the tonic icon sheet
+(`ITEM_ICON_GRILLED_FISH` 0x9E9, `ITEM_ICON_FISH_STEW` 0x9EA, `Data/Misc/IconTable.c`). `SID_Angler` is at the end of
+`skills-equip.enum.txt`; nobody has it by default.
 
 ---
 
@@ -258,11 +301,13 @@ clears it on a new game.
 - **The unit** is the active unit (Eirika in the districts). It is drawn from its class's moving map sprite (walking
   sheet), decompressed straight into OBJ VRAM at tile `0x180`: it walks in with the side-walking frames and then stands
   facing the water. A class whose sheet is missing or bigger than 0x2200 bytes falls back to its standing sprite.
-- **OBJ tiles**: the art from tile 0 (272 tiles), the pop-up word at `0x120` (64 tiles), the three meters at `0x160`
+- **OBJ tiles**: the art from tile 0 (276 tiles), the pop-up word at `0x120` (64 tiles), the three meters at `0x160`
   (repainted every frame), the unit at `0x180`, the card's portrait (32 tiles) or the journal's five icons (8 tiles each)
-  at `0x290`, and the card's stamp word at `0x2B0` (64 tiles). Tiles from `0x380` up are left alone: the map's moving
+  at `0x290` (also a leaping fish's icon, and the journal's six icons up to `0x2C0`), the card's stamp word at `0x2B0` (64
+  tiles), and the frenzy meter at `0x178`. Tiles from `0x380` up are left alone: the map's moving
   units keep their graphics there. OBJ palettes 2 to 5 are the art's (FX, UI, GOLD, and the pop-up word's), 6 the
-  portrait (6 to 10 the journal's icons), 11 the stamp, 12 to 15 the unit sprites'. Affine slots 0 (the rod), 1 (the
+  portrait or the leaping fish (6 to 11 the journal's icons), 7 the legend's crimson shadow, 11 the stamp, 12 to 15 the
+  unit sprites'. Affine slots 0 (the rod), 1 (the
   pop-up) and 2 (the stamp).
 - **The map** of BG3 is not at `0xF000` and up: the map's tile animations (the Port Kiris water) keep writing there while
   the map is suspended. Rows 0..31 of the scene map go through the BG3 buffer, rows 32..55 straight to VRAM.
@@ -299,7 +344,10 @@ All the art is drawn by `Tools/fishing/gen_fishing_art.py`, pixel by pixel in Py
   fins, pattern (stripes, bars, spots, scales, patches...), colours and size range. One painter draws each twice, a 64x32
   portrait for the card and a 32x16 icon for the journal, with its own 16-colour palette. They are in ROM
   (`gFishingSpeciesPics`, `gFishingSpeciesIcons`, `gFishingSpeciesPals`, `gFishingSpeciesCm`) and copied into OBJ VRAM
-  when shown. Five species a water, in the order of the kinds; the names are texts (`MSG_FISHING_SP_*`).
+  when shown. Five species a water, in the order of the kinds; the names are texts (`MSG_FISHING_SP_*`). After them come
+  the four legends (`LEGENDS`, `FISHING_PIC_LEGEND`) and three pictures that aren't fish: an old boot, a treasure chest
+  and a bottle (`EXTRAS`, `FISHING_PIC_EXTRA`).
+- **Item icons**: the Grilled Fish and the Fish Stew, 16x16 in the item icon palette (`gFishingItemIcons`).
 - The sprite palettes: FX (the fish shadows, the rod, the line, the bobber, the bait, the sparks), UI (the button icons
   and the meters) and GOLD (the golden fish, the coins). The pop-up words (PERFECT!, GREAT!, HOOKED!, CAUGHT!, JACKPOT!,
   and the card's stamps NEW! and RECORD!) have four palettes of their own: gold, orange, blue and green.
@@ -336,14 +384,16 @@ trap data, but nothing happens on them. Removing the switch also removes the chu
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry, and the A-press order |
 | Map bobbers | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | Loads and draws them with the gate arrows |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_FISHING_*` |
-| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gFishingState`, `gFishingRecords` (and the unused `gFishingRecordsV1`) |
+| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gFishingState`, `gFishingRecords`, `gFishingProgress` (and the unused `gFishingRecordsV1`) |
+| Items | [`Items.c`](../../../Data/ItemSys/Source/Items.c), [`IconTable.c`](../../../Data/Misc/IconTable.c) | `ITEM_GRILLED_FISH`, `ITEM_FISH_STEW` and their icons |
+| Skill | [`SkillInfo.c`](../../../Data/SkillSys/Source/SkillInfo.c) | `SID_Angler` (its effect is in `FishingScreen.c`) |
 | Switch | [`configs.h`](../../../include/configs/configs.h) | `CONFIG_DISTRICT_FISHING` |
 
 ---
 
 ## ⚠️ Limitations
 
-- The rewards are gold only. There are no fish items.
+- The streak and the frenzy end when you leave the screen.
 - A species' size changes only its payout and the journal: a big fish fights no harder than a small one of its kind.
 - The bobbers on the map are only drawn in districts (by the district NPC proc).
 - The scene is the same for every pool: a grassy bank and deep open water, also for the Jehanna oasis and the small ponds.
