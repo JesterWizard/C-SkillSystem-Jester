@@ -489,6 +489,7 @@ void LoadTrapData(const struct TrapData * data)
             break;
 
         case TRAP_FISHING_SPOT:
+        case TRAP_CROSSING_SPOT:
             AddTrap(data->xPos, data->yPos, data->type, data->subtype);
             break;
 

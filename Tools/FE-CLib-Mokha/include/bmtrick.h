@@ -38,6 +38,7 @@ enum
     TRAP_COLLAPSING_FLOOR = 27,
     TRAP_DISTRICT_GATE = 28,
     TRAP_FISHING_SPOT = 29,
+    TRAP_CROSSING_SPOT = 30,
 };
 
 enum
@@ -219,6 +220,9 @@ int GetEffectiveTerrainAt(int x, int y);
 /* dir: the side the water is on, FISHING_DIR_* (include/kernel/fishing.h): 0 left, 1 right, 2 up, 3 down */
 #define FISHING_SPOT(x, y, dir) \
     TRAP_FISHING_SPOT, (x), (y), (dir), 0, 0,
+
+#define CROSSING_SPOT(x, y) \
+    TRAP_CROSSING_SPOT, (x), (y), 0, 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,
