@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "icon-rework.h"
 #include "constants/gfx.h"
+#include "fishing-art.h"
 
 u8 const *const gAffinIcons[0x100] = {
 	[UNIT_AFFIN_FIRE] = GFX_AffinIcon_Fire,
@@ -40,6 +41,11 @@ u8 const *const gTonicIcons[0x100] = {
 	[0xE6] = GFX_TonicIcon_LCK_Tonic,
 	[0xE7] = GFX_TonicIcon_MAG_Tonic,
 	[0xE8] = GFX_TonicIcon_OMNI_Tonic,
+#ifdef CONFIG_DISTRICT_FISHING
+	/* Not tonics: the fishing dishes (ITEM_ICON_GRILLED_FISH, ITEM_ICON_FISH_STEW) use the sheet's free slots */
+	[0xE9] = gFishingItemIcons,
+	[0xEA] = gFishingItemIcons + 128,
+#endif
 };
 
 u8 const *const *const gpTonicIcons = gTonicIcons;

@@ -205,3 +205,125 @@ Best[X]
 First catch![X]
 ## MSG_FISHING_CARD_OLD
 Old best[X]
+## MSG_ITEM_GRILLED_FISH_NAME
+Grilled Fish[X]
+## MSG_ITEM_GRILLED_FISH_DESC
+A fresh catch, grilled.[N]Restores 15 HP.[N]Can be used once.[X]
+## MSG_ITEM_GRILLED_FISH_USEDESC
+Restores 15 HP.[X]
+## MSG_ITEM_FISH_STEW_NAME
+Fish Stew[X]
+## MSG_ITEM_FISH_STEW_DESC
+A hearty stew of a big[N]catch. Restores 30 HP.[N]Can be used twice.[X]
+## MSG_ITEM_FISH_STEW_USEDESC
+Restores 30 HP.[X]
+## MSG_SKILL_Angler_NAME
+Angler[X]
+## MSG_SKILL_Angler_DESC
+Angler:[N]A born fisher. Bites last[N]longer, fish pull less and[N]rare fish come more often.[X]
+## MSG_FISHING_K_KEEP
+Keep[X]
+## MSG_FISHING_RANK_0
+Novice[X]
+## MSG_FISHING_RANK_1
+Apprentice[X]
+## MSG_FISHING_RANK_2
+Angler[X]
+## MSG_FISHING_RANK_3
+Expert[X]
+## MSG_FISHING_RANK_4
+Master[X]
+## MSG_FISHING_ANGLER_PAGE
+Angler:[X]
+## MSG_FISHING_PTS
+pts[X]
+## MSG_FISHING_NEXT
+Next:[X]
+## MSG_FISHING_TOP_RANK
+Top rank![X]
+## MSG_FISHING_BITE_BONUS
+Bite[X]
+## MSG_FISHING_ZONE_BONUS
+Zone[X]
+## MSG_FISHING_PULL_BONUS
+Pull[X]
+## MSG_FISHING_RARE_BONUS
+Rare[X]
+## MSG_FISHING_GOLD_BONUS
+Gold[X]
+## MSG_FISHING_SHORT_SERAFEW
+Serafew[X]
+## MSG_FISHING_SHORT_PORT_KIRIS
+Port Kiris[X]
+## MSG_FISHING_SHORT_CAER_PELYN
+Caer Pelyn[X]
+## MSG_FISHING_SHORT_JEHANNA
+Jehanna[X]
+## MSG_FISHING_REQ_DONE
+Done: a new request soon[X]
+## MSG_FISHING_REQ_FINISHED
+Request done! Reward:[X]
+## MSG_FISHING_LEGEND_SERAFEW
+Old Whiskers[X]
+## MSG_FISHING_LEGEND_PORT_KIRIS
+Stormfin[X]
+## MSG_FISHING_LEGEND_CAER_PELYN
+Frostfin[X]
+## MSG_FISHING_LEGEND_JEHANNA
+Sunscale[X]
+## MSG_FISHING_LEGEND_STIRS
+Something huge stirs in the deep...[X]
+## MSG_FISHING_BOOT
+Old Boot[X]
+## MSG_FISHING_CHEST
+Treasure Chest[X]
+## MSG_FISHING_BOTTLE
+Message in a Bottle[X]
+## MSG_FISHING_NOT_FISH
+Not a fish...[X]
+## MSG_FISHING_INSIDE
+Inside:[X]
+## MSG_FISHING_TO_ITEMS
+Added to items[X]
+## MSG_FISHING_TO_CONVOY
+Sent to the convoy[X]
+## MSG_FISHING_NO_ROOM
+No room for it![X]
+## MSG_FISHING_KEPT
+Kept:[X]
+## MSG_FISHING_BOTTLE_0_1
+When all five fish of[X]
+## MSG_FISHING_BOTTLE_0_2
+a water are found, its[X]
+## MSG_FISHING_BOTTLE_0_3
+legend takes the lure.[X]
+## MSG_FISHING_BOTTLE_1_1
+Three catches in a row[X]
+## MSG_FISHING_BOTTLE_1_2
+and the fish go wild.[X]
+## MSG_FISHING_BOTTLE_1_3
+Cast fast, then![X]
+## MSG_FISHING_BOTTLE_2_1
+A leaping fish? Press A[X]
+## MSG_FISHING_BOTTLE_2_2
+as it flies, or it[X]
+## MSG_FISHING_BOTTLE_2_3
+slams the line.[X]
+## MSG_FISHING_BOTTLE_3_1
+Nimble hands bite sooner,[X]
+## MSG_FISHING_BOTTLE_3_2
+strong arms tire less,[X]
+## MSG_FISHING_BOTTLE_3_3
+the lucky land gold.[X]
+## MSG_FISHING_BOTTLE_4_1
+Keep a catch with R:[X]
+## MSG_FISHING_BOTTLE_4_2
+grilled, it heals. Gold[X]
+## MSG_FISHING_BOTTLE_4_3
+fish make tonics.[X]
+## MSG_FISHING_BOTTLE_5_1
+The townsfolk want fish.[X]
+## MSG_FISHING_BOTTLE_5_2
+See their requests in[X]
+## MSG_FISHING_BOTTLE_5_3
+the journal's last page.[X]

@@ -17,7 +17,9 @@ POIN GFX_TonicIcon_RES_Tonic
 POIN GFX_TonicIcon_LCK_Tonic
 POIN GFX_TonicIcon_MAG_Tonic
 POIN GFX_TonicIcon_OMNI_Tonic
-WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
+POIN gFishingItemIcons
+POIN gFishingItemIcons+128
+WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
 POIN GFX_WtypeIcon_Sword
 POIN GFX_WtypeIcon_Lance
 POIN GFX_WtypeIcon_Axe

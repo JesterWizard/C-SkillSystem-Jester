@@ -3389,6 +3389,35 @@ const struct ItemData gItemData_New[255] = {
 		.useEffectId = IER_ARMS_SCROLL,
 	},
 #endif
+#ifdef CONFIG_DISTRICT_FISHING
+	/* District fishing: a catch kept instead of sold (Kernel/Wizardry/Minigames/Fishing). They heal like a Vulnerary. */
+	[ITEM_GRILLED_FISH] = {
+		.nameTextId = MSG_ITEM_GRILLED_FISH_NAME,
+		.descTextId = MSG_ITEM_GRILLED_FISH_DESC,
+		.useDescTextId = MSG_ITEM_GRILLED_FISH_USEDESC,
+		.number = ITEM_GRILLED_FISH,
+		.weaponType = ITYPE_ITEM,
+		.maxUses = 1,
+		.encodedRange = 0x11,
+		.costPerUse = 150,
+		.iconId = ITEM_ICON_GRILLED_FISH,
+		.healByte = 15,
+		.useEffectId = IER_VULNERARY,
+	},
+	[ITEM_FISH_STEW] = {
+		.nameTextId = MSG_ITEM_FISH_STEW_NAME,
+		.descTextId = MSG_ITEM_FISH_STEW_DESC,
+		.useDescTextId = MSG_ITEM_FISH_STEW_USEDESC,
+		.number = ITEM_FISH_STEW,
+		.weaponType = ITYPE_ITEM,
+		.maxUses = 2,
+		.encodedRange = 0x11,
+		.costPerUse = 300,
+		.iconId = ITEM_ICON_FISH_STEW,
+		.healByte = 30,
+		.useEffectId = IER_VULNERARY,
+	},
+#endif
 #ifdef CONFIG_HEX_CARDS
 	/* Hex card: the name and icon come from the card type (the uses byte), see Kernel/Wizardry/Minigames/Hex/Source/HexCards.c */
 	[CONFIG_ITEM_INDEX_HEX_CARD] = {

@@ -367,6 +367,8 @@ _kernel_malloc2 gFishingRecords, 0x2C
 /* The allies' stat buffs and debuffs (struct StatDebuffStatus, include/kernel/debuff.h): 51 slots, enough for
    CONFIG_UNIT_AMT_ALLY with or without the fourth allegiance. Moved here from the kernel_malloc region (OldSlot). */
 _kernel_malloc2 sStatDebuffStatusAlly, 51 * 16
+/* The angler's progress (struct FishingProgress, include/kernel/fishing.h): rank, legends, bottles, requests. Saved. */
+_kernel_malloc2 gFishingProgress, 0x20
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

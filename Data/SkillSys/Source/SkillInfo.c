@@ -6297,6 +6297,18 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Angler) && COMMON_SKILL_VALID(SID_Angler))
+    /* District fishing: its effect is in Kernel/Wizardry/Minigames/Fishing/Source/FishingScreen.c */
+    [SID_Angler] = {
+        .name = MSG_SKILL_Angler_NAME,
+        .desc = MSG_SKILL_Angler_DESC,
+        .capacity = MSG_SKILL_Angler_CAPACITY,
+        .price = MSG_SKILL_Angler_PRICE,
+        .icon = GFX_SkillIcon_Angler,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_Reposition) && COMMON_SKILL_VALID(SID_Reposition))
     [SID_Reposition] = {
         .name = MSG_SKILL_Reposition_NAME,

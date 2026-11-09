@@ -299,7 +299,8 @@ name used in `HexShops.c`.
 Each district has a pool of water with a fishing spot next to it. A red and white bobber floats on the water beside each
 spot. Stand on the spot and press A to open the fishing screen: buy a bait, cast, hook a fish and keep the line's tension
 in the green to land it for gold. Each district's water has its own five species (20 in all, a golden one in each), every
-catch gets a size and a catch card, and the fish journal records them. The rules, the fish, the baits and the rewards are
+catch gets a size and a catch card, and the fish journal records them. Find all five of a water's
+species and its legend appears; catches raise an angler rank, townsfolk post requests, and a catch can be kept as food. The rules, the fish, the baits and the rewards are
 in [District Fishing](./Minigames/Fishing.md).
 
 | District | Spot (x, y) | Pool |
