@@ -10,6 +10,7 @@
 - [Gifts](#gifts)
 - [Hex Players](#hex-players)
 - [Hex Shop](#hex-shop)
+- [Fishing](#fishing)
 - [Adding a District](#adding-a-district)
 - [Code Locations](#code-locations)
 - [Limitations](#limitations)
@@ -29,6 +30,7 @@ Each district:
 - Has five green NPCs. Two play [Hex](./Minigames/Hex.md). The others are a gold giver, an item giver and a hint giver.
 - Has a Hex shop, a building on the map. Its door opens the shop (see [Hex Shop](#hex-shop)).
 - Has a gate tile. Stepping on it asks if you want to leave.
+- Has a pool of water with a fishing spot (see [Fishing](#fishing)).
 
 ---
 
@@ -288,6 +290,27 @@ name used in `HexShops.c`.
 
 ---
 
+## 🎣 Fishing
+
+Each district has a pool of water with a fishing spot next to it. A red and white bobber floats on the water beside each
+spot. Stand on the spot and press A to open the fishing screen: buy a bait, cast, hook a fish and keep the line's tension
+in the green to land it for gold, with a rare golden fish and a saved prize table. The rules, the fish, the baits and the
+rewards are in [District Fishing](./Minigames/Fishing.md).
+
+| District | Spot (x, y) | Pool |
+|---|---|---|
+| Serafew | (12, 2) | A pool added to the north-east corner, cells (11..14, 0..1) |
+| Port Kiris | (4, 16) and (13, 12) | The harbour: the west shore and the pier |
+| Caer Pelyn | (3, 13) | A pond added on the west grass, cells (2..4, 11..12) |
+| Jehanna Hall | (9, 5) | The oasis |
+
+- The spots are free-movement traps (`TRAP_FISHING_SPOT`) in each district's `events/traps.c`.
+- Serafew and Caer Pelyn had no water. Their pools are cells in the compose specs (see [Maps](#maps)).
+- The Caer Pelyn item giver now starts at (9, 13), off the pond.
+- The bobbers are OBJ sprites drawn with the gate arrows by `DistrictNpc.c`.
+
+---
+
 ## 🛠️ Adding a District
 
 1. **Pick the ids.** Choose these before you start:
@@ -302,7 +325,8 @@ name used in `HexShops.c`.
 
 2. **Make the map.** The map is cut from a hand-made vanilla map of the same town, not generated. The pipeline is:
    1. Write a spec, `Tools/district/compose/<Name>.json`, with the base map, the crop and any edited cells. The four
-      existing specs are examples. The installed maps come from `Tools/district/compose.py`.
+      existing specs are examples. To add a pool for fishing, `Tools/district/pond.py` picks the water metatiles
+      (see [Tools/district/README.md](../../Tools/district/README.md)). The installed maps come from `Tools/district/compose.py`.
    2. Run `compose.py <spec> --write` for each district. This writes the district's layout.
    3. Add the Hex shop building to all the layouts together:
       `python3 Tools/district/hexshop_building.py --chapters CustomCampaign/Chapters --out-dir CustomCampaign/Chapters/_hexshop --write-layouts`.
@@ -328,7 +352,8 @@ name used in `HexShops.c`.
    files. Then update:
    - `events/chapter.c`: the chapter data. Set the tileset, `mainLayerId` (map id), `mapEventDataId` (event id), title and start position.
    - `events/asmc.h`: the `SetGameOptions_*` function. Its name must match the one in `events.c`.
-   - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`.
+   - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`, and the fishing spot, as `FISHING_SPOT(x, y, dir)`
+     (see [Fishing](./Minigames/Fishing.md#adding-a-fishing-spot)).
    - `events/units.c`: Eirika's start tile and the five NPCs.
    - `events/events.c`: the opening event, the talk events, the Hex shop event, the gift flags and the event group.
    - `text/npcs.txt`: the `District_<Name>_*` texts. This file is already included by `CustomCampaign/Text/Text.txt` for the
@@ -398,6 +423,8 @@ name used in `HexShops.c`.
 | Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the market stall into each tileset copy |
 | Building art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `stall.txt`, the market stall used by every tileset copy |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
+| Fishing | [`Minigames/Fishing/`](../../Kernel/Wizardry/Minigames/Fishing/) | The fishing screen, the spot's A-press handler, the map bobbers ([doc](./Minigames/Fishing.md)) |
+| Pond tool | [`pond.py`](../../Tools/district/pond.py) | Picks the water metatiles of a small pool |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
 | Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |
