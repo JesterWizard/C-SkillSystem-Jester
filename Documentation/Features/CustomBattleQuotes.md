@@ -1,7 +1,7 @@
 # Custom Battle Quotes
 
 <p align="center">
-  <img src="" />
+  <img src="../Gifs/Battle_Quotes.gif" />
 </p>
 
 ---

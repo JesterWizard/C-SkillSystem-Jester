@@ -1,7 +1,7 @@
 # Limited Shop Stock
 
 <p align="center">
-  <img src="https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif" />
+  <img src="../Gifs/Limited_Shop_Stock.gif" />
 </p>
 
 ---
