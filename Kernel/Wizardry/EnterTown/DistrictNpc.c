@@ -3,6 +3,7 @@
 #include "district.h"
 #include "skill-system.h"	/* MAPANIMFX_CHR_L / MAPANIMFX_PAL for the Hex Card icon */
 #include "fishing.h"
+#include "crossing.h"
 
 /* Free movement (Kernel/Wizardry/FreeMovement/cFreeMU/src/FreeMU.h, not on the include path) */
 extern bool FMU_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y);
@@ -170,6 +171,8 @@ static const u8 sGateArrowTiles[64] = {
 #define GATE_CHR_RIGHT (MAPANIMFX_CHR_R + 1)
 /* The fishing-spot bobber: the tile under the gate arrows in the 2D map OBJ layout (free in districts, as above) */
 #define FISHING_CHR_MAP_BOBBER (MAPANIMFX_CHR_R + 0x20)
+/* The River Crossing flag: the tile after the bobber */
+#define CROSSING_CHR_MAP_FLAG (MAPANIMFX_CHR_R + 0x21)
 
 /* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
 static void DistrictNpc_LoadGates(void)
@@ -177,6 +180,9 @@ static void DistrictNpc_LoadGates(void)
 	CpuCopy16(sGateArrowTiles, OBJ_VRAM0 + GATE_CHR_DOWN * 0x20, sizeof(sGateArrowTiles));
 #ifdef CONFIG_DISTRICT_FISHING
 	Fishing_LoadMapMarker(FISHING_CHR_MAP_BOBBER);
+#endif
+#ifdef CONFIG_DISTRICT_CROSSING
+	Crossing_LoadMapMarker(CROSSING_CHR_MAP_FLAG);
 #endif
 	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
 }
@@ -363,6 +369,9 @@ static void DistrictNpc_Loop(ProcPtr proc)
 #ifdef CONFIG_DISTRICT_FISHING
 	Fishing_DrawMapMarkers(FISHING_CHR_MAP_BOBBER, MAPANIMFX_PAL);
 #endif
+#ifdef CONFIG_DISTRICT_CROSSING
+	Crossing_DrawMapMarkers(CROSSING_CHR_MAP_FLAG, MAPANIMFX_PAL);
+#endif
 
 #ifdef CONFIG_HEX_CARDS
 	/* Drawn every frame, also on the ticks below that return early */
@@ -472,6 +481,18 @@ const struct ProcCmd ProcScr_DistrictNpc[] = {
 	PROC_REPEAT(DistrictNpc_Loop),
 	PROC_END,
 };
+
+/*
+ * A walking NPC is a MU, which keeps drawing itself from OBJ VRAM. The NPC proc is not run while an event is, so a
+ * minigame screen that takes over OBJ VRAM (fishing, River Crossing) ends the walk first, or a garbled MU shows.
+ */
+void DistrictNpc_EndWalk(void)
+{
+	struct DistrictNpcProc *p = Proc_Find(ProcScr_DistrictNpc);
+
+	if (p)
+		DistrictNpc_FinishWalk(p);
+}
 
 /* ASMC from the district opening script. Does nothing if already running. */
 void StartDistrictNpcs(void)

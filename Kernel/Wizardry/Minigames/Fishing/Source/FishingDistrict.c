@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "district.h"
 #include "EAstdlib.h"
 #include "fishing.h"
 #include "fishing-art.h"
@@ -15,6 +16,7 @@
 
 static const struct ProcCmd ProcScr_FishingDistrict[] = {
 	PROC_NAME("FishingDistrict"),
+	PROC_CALL(DistrictNpc_EndWalk),
 	PROC_CALL_ARG(NewFadeOut, 0x10),
 	PROC_WHILE(FadeOutExists),
 	PROC_CALL(BMapDispSuspend),
