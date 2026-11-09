@@ -2,8 +2,8 @@
 ALIGN 4
 FMU_FunctionList_OnPressA:
 	POIN FMUmisc_RunMapEvents|1
+	POIN FMU_RunTrapASMC|1	// before talk: A on a fishing spot fishes even with an NPC next to it
 	POIN FMUmisc_RunTalkEvents|1
-	POIN FMU_RunTrapASMC|1
 	FMU_FunctionList_End
 	
 ALIGN 4
@@ -38,6 +38,9 @@ FMU_FunctionList_OnPressStart:
 ALIGN 4
 HookListFMU_TrapList_OnPressA:
 	FMU_SetTrap(0x6,TrapHurt10HpASMC|1)	//Example
+#ifdef CONFIG_DISTRICT_FISHING
+	FMU_SetTrap(29, Fishing_OnPressA|1)	// TRAP_FISHING_SPOT (bmtrick.h): open the fishing screen
+#endif
 	FMU_SetTrapEnd
 
 ALIGN 4

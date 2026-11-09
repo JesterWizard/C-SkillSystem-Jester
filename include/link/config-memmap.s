@@ -349,6 +349,10 @@ _kernel_malloc2 sSkillStaffSuspendState, 68
 _kernel_malloc2 sSkillStaffMenuState, 16
 _kernel_malloc2 sArenaRosterRuntimeState, 4
 
+/* District fishing (include/kernel/fishing.h): the screen state (RAM only) and the saved records (a save chunk). */
+_kernel_malloc2 gFishingState, 0x1A0
+_kernel_malloc2 gFishingRecords, 0x20
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

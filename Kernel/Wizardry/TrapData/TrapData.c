@@ -488,6 +488,10 @@ void LoadTrapData(const struct TrapData * data)
             AddTrap(data->xPos, data->yPos, data->type, 0);
             break;
 
+        case TRAP_FISHING_SPOT:
+            AddTrap(data->xPos, data->yPos, data->type, data->subtype);
+            break;
+
         case TRAP_REPEAT_HOUSE:
             AddRepeatHouse(data->xPos, data->yPos, data->subtype);
             break;

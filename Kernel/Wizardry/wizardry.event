@@ -159,6 +159,9 @@ ALIGN 4
 #ifdef CONFIG_HEX_CARDS
 #include "Minigames/Hex/Hex_Installer.event"
 #endif
+#ifdef CONFIG_DISTRICT_FISHING
+#include "Minigames/Fishing/Fishing_Installer.event"
+#endif
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"
 #include "MokhaAOE/MokhaAOE_Installer.event"

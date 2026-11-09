@@ -27,3 +27,83 @@ Heh... You haven't the cards[NL]for that one, dearie.[A][X]
 That'll be [G] of your cards.[NL]A fair trade?[Yes][X]
 ## MSG_HEXSHOP_BYE
 Come back when your deck[NL]is fatter... heh heh.[A][X]
+## MSG_FISHING_WELCOME
+Let's do some fishing![X]
+## MSG_FISHING_S_BAIT
+Bait:[X]
+## MSG_FISHING_S_GOLD
+Gold:[X]
+## MSG_FISHING_S_DEPTH
+Depth:[X]
+## MSG_FISHING_BAIT_WORM
+Worm[X]
+## MSG_FISHING_BAIT_SHRIMP
+Shrimp[X]
+## MSG_FISHING_BAIT_LURE
+Golden lure[X]
+## MSG_FISHING_BITE
+A bite! Hook it![X]
+## MSG_FISHING_TENSION
+Keep the tension in the green![X]
+## MSG_FISHING_PERFECT
+Perfect hook! +50%[X]
+## MSG_FISHING_GOOD
+Good hook! +25%[X]
+## MSG_FISHING_LANDING
+Landing it...[X]
+## MSG_FISHING_MISSED
+Too slow... It swam away.[X]
+## MSG_FISHING_SCARED
+You scared it off![X]
+## MSG_FISHING_ESCAPED
+It wore you out and got away![X]
+## MSG_FISHING_SNAPPED
+Too much tension! The line snapped![X]
+## MSG_FISHING_SLACK
+The line went slack. It got away![X]
+## MSG_FISHING_POOR
+You can't afford that bait.[X]
+## MSG_FISHING_FISH_SMALL
+Small fish[X]
+## MSG_FISHING_FISH_MEDIUM
+Medium fish[X]
+## MSG_FISHING_FISH_LARGE
+Large fish[X]
+## MSG_FISHING_FISH_HUGE
+Huge fish[X]
+## MSG_FISHING_FISH_GOLDEN
+Golden fish[X]
+## MSG_FISHING_PRIZES
+Prize table[X]
+## MSG_FISHING_COL_ODDS
+Odds[X]
+## MSG_FISHING_COL_PRIZE
+Prize[X]
+## MSG_FISHING_COL_CAUGHT
+Caught[X]
+## MSG_FISHING_COL_BEST
+Best[X]
+## MSG_FISHING_K_BAIT
+Bait[X]
+## MSG_FISHING_K_CAST
+Cast[X]
+## MSG_FISHING_K_EXIT
+Exit[X]
+## MSG_FISHING_K_PRIZES
+Prizes[X]
+## MSG_FISHING_K_DEPTH
+Depth[X]
+## MSG_FISHING_K_REEL_IN
+Reel in[X]
+## MSG_FISHING_K_HOOK
+Hook it![X]
+## MSG_FISHING_K_REEL
+Reel[X]
+## MSG_FISHING_K_AGAIN
+Fish again[X]
+## MSG_FISHING_K_OK
+OK[X]
+## MSG_FISHING_K_CLOSE
+Close[X]
+## MSG_FISHING_COL_FISH
+Fish[X]
