@@ -29,7 +29,7 @@ the features below.
 - **900+ skills** that units get from their character, class, items, weapons and level-ups.
 - **New gameplay systems:** pair-ups, gambits, gaiden magic, MP, shields, real-time battle, free movement and more.
 - **New menus and screens:** base chapters, skill trees, augury, infuse, skill synthesis, a scrollback chatlog and more.
-- **Towns and minigames:** explorable districts, fishing, the Hex card game and Snek.
+- **Towns and minigames:** explorable districts, fishing, River Crossing, the Hex card game and Snek.
 - **Runtime toggles:** about 180 designer-config switches in
   [`designer-config.c`](./Data/DesignerConfig/designer-config.c) turn features on or off without touching their code.
 - **Readable code:** game logic is written in C and built with devkitARM, `lyn` and Event Assembler.
@@ -258,7 +258,11 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Minigames/Hex.md"><img src="./Documentation/Gifs/Hex_Card_Minigame.gif" alt="Hex Card Minigame preview" width="360" /></a><br/><b><a href="./Documentation/Features/Minigames/Hex.md">Hex Card Minigame</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Minigames/Crossing.md"><img src="./Documentation/Gifs/River_Crossing.gif" alt="River Crossing preview" width="360" /></a><br/><b><a href="./Documentation/Features/Minigames/Crossing.md">River Crossing</a></b></td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Minigames/Snek.md"><img src="./Documentation/Gifs/Minigame_Snek.gif" alt="Snek preview" width="360" /></a><br/><b><a href="./Documentation/Features/Minigames/Snek.md">Snek</a></b></td>
+    <td width="50%"></td>
   </tr>
 </table>
 
