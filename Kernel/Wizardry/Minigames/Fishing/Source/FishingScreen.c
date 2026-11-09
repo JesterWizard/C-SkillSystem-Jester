@@ -23,8 +23,12 @@
  *   REEL    the tension game. A pulls (raises the tension), the fish pulls back, harder during its runs. Progress is
  *           made only while the needle is in the green zone. Full tension snaps the line, no tension for a second lets
  *           the fish go, and too long tires you out. A quick landing is worth up to +50% more.
- *   LAND    a splash, the payout (the fish's prize times the bonuses, up to x2) and the records.
- *   RESULT  A fishes again, B leaves, START opens the prize table.
+ *   LAND    a splash, then the catch: the species of this district's water for the kind of fish, a size, the payout
+ *           (the fish's prize times the bonuses, up to x2, times 0.75 to 1.25 for the size) and the journal.
+ *   RESULT  CAUGHT!, then the catch card: the fish's portrait, its size and best, stamped NEW! (a first catch) or
+ *           RECORD! (the biggest yet). A fishes again, B leaves, START opens the journal.
+ *   PRIZES  the fish journal: one page for each district's water, Left/Right to turn. A species not caught yet shows
+ *           as a silhouette and "???".
  *
  * B leaves the screen from any state but the walk-in and the prize table (where it closes the table).
  *
@@ -49,6 +53,14 @@
 #define CHR_POPUP 0x120                 /* the pop-up word on screen (64 tiles, copied in when it pops) */
 #define CHR_BARS 0x160                  /* three 8-tile meters, painted every frame */
 #define CHR_UNIT 0x180                  /* the unit's walking sheet (up to 0x2200 bytes); 0x380 up holds the map's moving units */
+#define CHR_CARD 0x290                  /* the catch card's portrait (32 tiles), or the journal's five icons (8 tiles each) */
+#define CHR_STAMP 0x2B0                 /* the catch card's stamp word (64 tiles) */
+#define PAL_CARD 6                      /* the portrait; the journal's icons use 6 to 10, one for each row */
+#define PAL_STAMP 11
+#define AFF_STAMP 2
+#define CARD_DELAY 30                   /* frames from the catch to its card */
+#define STAMP_AT 14                     /* frames from the card to its stamp */
+#define STAMP_SCALE 256                 /* the stamp's size once down (256 is full size) */
 
 #define HOOK_X FISHING_ROD_TIP_X
 #define HOOK_MIN (FISHING_SURFACE_Y + 12)
@@ -153,6 +165,38 @@ static const struct FishType sFishTypes[FISH_TYPES] = {
 		14, 44, 60, 12, 80, 360, 9000, MSG_FISHING_FISH_GOLDEN,
 	},
 };
+
+/* The species' names, water by water (FISHING_WATER_*), in the order of the kinds of fish (FISH_*) */
+static const u16 sSpeciesNames[FISHING_SPECIES] = {
+	MSG_FISHING_SP_MINNOW, MSG_FISHING_SP_PERCH, MSG_FISHING_SP_CARP, MSG_FISHING_SP_PIKE, MSG_FISHING_SP_GOLD_KOI,
+	MSG_FISHING_SP_SARDINE, MSG_FISHING_SP_MACKEREL, MSG_FISHING_SP_SEA_BASS, MSG_FISHING_SP_TUNA,
+	MSG_FISHING_SP_GOLD_BREAM,
+	MSG_FISHING_SP_LOACH, MSG_FISHING_SP_TROUT, MSG_FISHING_SP_CHAR, MSG_FISHING_SP_SALMON,
+	MSG_FISHING_SP_GOLDEN_TROUT,
+	MSG_FISHING_SP_PUPFISH, MSG_FISHING_SP_TILAPIA, MSG_FISHING_SP_CATFISH, MSG_FISHING_SP_ARAPAIMA,
+	MSG_FISHING_SP_GOLD_AROWANA,
+};
+
+static const u16 sWaterNames[FISHING_WATERS] = {
+	MSG_FISHING_WATER_SERAFEW, MSG_FISHING_WATER_PORT_KIRIS, MSG_FISHING_WATER_CAER_PELYN, MSG_FISHING_WATER_JEHANNA,
+};
+
+typedef char FishingSpecies_CountCheck[(FISHING_SPECIES == FISHING_JOURNAL_SPECIES) ? 1 : -1];
+
+/* The district's water, by its chapter (District.c's gDistrictNodes) */
+static int Fishing_WaterOf(int chapter)
+{
+	switch (chapter) {
+	case 0x3C:
+		return FISHING_WATER_PORT_KIRIS;
+	case 0x41:
+		return FISHING_WATER_CAER_PELYN;
+	case 0x42:
+		return FISHING_WATER_JEHANNA;
+	default:
+		return FISHING_WATER_SERAFEW;
+	}
+}
 
 struct BaitType {
 	u16 price;
@@ -353,7 +397,7 @@ static void Fishing_Line1(char *buf)
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_LANDING);
 		break;
 	case FS_RESULT:
-		Fishing_AppendMsg(buf, &i, sFishTypes[FS->lastType].nameMsg);
+		Fishing_AppendMsg(buf, &i, sSpeciesNames[FS->species]);
 		Fishing_Append(buf, &i, "!  +");
 		Fishing_AppendNum(buf, &i, FS->payout);
 		Fishing_Append(buf, &i, "G  (x");
@@ -367,6 +411,12 @@ static void Fishing_Line1(char *buf)
 		break;
 	case FS_PRIZES:
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_PRIZES);
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendMsg(buf, &i, sWaterNames[FS->page]);
+		Fishing_Append(buf, &i, "   ");
+		Fishing_AppendNum(buf, &i, FishingRecords_Found());
+		Fishing_Append(buf, &i, "/");
+		Fishing_AppendNum(buf, &i, FISHING_SPECIES);
 		break;
 	}
 }
@@ -385,6 +435,8 @@ static u32 Fishing_Line1Sig(void)
 		return sig * 31 + Fishing_Depth();
 	case FS_RESULT:
 		return sig * 31 + FS->payout;
+	case FS_PRIZES:
+		return sig * 31 + FS->page;
 	default:
 		return sig;
 	}
@@ -429,7 +481,7 @@ static int Fishing_Hints(int state, const struct Hint **out)
 		{ HINT_A, MSG_FISHING_K_AGAIN }, { HINT_B, MSG_FISHING_K_EXIT }, { HINT_START, MSG_FISHING_K_PRIZES },
 	};
 	static const struct Hint message[] = { { HINT_A, MSG_FISHING_K_OK }, { HINT_B, MSG_FISHING_K_EXIT } };
-	static const struct Hint prizes[] = { { HINT_B, MSG_FISHING_K_CLOSE } };
+	static const struct Hint prizes[] = { { HINT_LEFTRIGHT, MSG_FISHING_K_WATER }, { HINT_B, MSG_FISHING_K_CLOSE } };
 
 	switch (state) {
 	case FS_READY:
@@ -456,7 +508,7 @@ static int Fishing_Hints(int state, const struct Hint **out)
 		return 2;
 	case FS_PRIZES:
 		*out = prizes;
-		return 1;
+		return 2;
 	default:
 		*out = NULL;
 		return 0;
@@ -506,14 +558,15 @@ static void Fishing_UpdateWindow(void)
 		BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-/* ---- The prize table ---- */
+/* ---- The fish journal ---- */
 
 #define TABLE_TOP 4
 #define TABLE_ROWS 14
-#define COL_ODDS 64
-#define COL_PRIZE 96
-#define COL_CAUGHT 144
-#define COL_BEST 184
+#define COL_NAME 36
+#define COL_PRIZE 112
+#define COL_CAUGHT 152
+#define COL_BEST 188
+#define ICON_X 10
 
 static void Fishing_ClearRows(int y0, int rows)
 {
@@ -532,49 +585,57 @@ static void Fishing_TableCell(struct Text *text, int x, int color, const char *s
 	Text_InsertDrawString(text, x, color, s);
 }
 
+static void Fishing_AppendCm(char *buf, int *i, int cm)
+{
+	Fishing_AppendNum(buf, i, cm);
+	Fishing_Append(buf, i, "cm");
+}
+
+/* The page of one water: its five species, each with its icon (a silhouette until it is caught) */
 static void Fishing_OpenPrizes(void)
 {
 	struct Text *text;
-	char buf[16];
-	int t, i, color;
+	char buf[64];
+	int t, i, sp, color, caught;
 
 	DrawUiFrame2(0, TABLE_TOP, 30, TABLE_ROWS, 0);
 
 	text = &FS->texts[TX_TABLE];
 	ClearText(text);
-	Fishing_TableCell(text, 0, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_FISH));
-	Fishing_TableCell(text, COL_ODDS, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_ODDS));
+	Fishing_TableCell(text, COL_NAME, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_FISH));
 	Fishing_TableCell(text, COL_PRIZE, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_PRIZE));
 	Fishing_TableCell(text, COL_CAUGHT, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_CAUGHT));
 	Fishing_TableCell(text, COL_BEST, TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_FISHING_COL_BEST));
 	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 1));
 
 	for (t = 0; t < FISH_TYPES; t++) {
+		sp = FS->page * FISH_TYPES + t;
+		caught = FishingRecords_Caught(sp);
 		text = &FS->texts[TX_TABLE + 1 + t];
 		color = t == FISH_GOLDEN ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE;
 		ClearText(text);
-		Fishing_TableCell(text, 0, color, GetStringFromIndex(sFishTypes[t].nameMsg));
-		i = 0;
-		Fishing_AppendNum(buf, &i, sFishTypes[t].weight);
-		Fishing_Append(buf, &i, "%");
-		Fishing_TableCell(text, COL_ODDS, color, buf);
+		Fishing_TableCell(text, COL_NAME, caught ? color : TEXT_COLOR_SYSTEM_GRAY,
+				  caught ? GetStringFromIndex(sSpeciesNames[sp]) : "???");
 		i = 0;
 		Fishing_AppendNum(buf, &i, sFishTypes[t].gold);
 		Fishing_Append(buf, &i, "G");
 		Fishing_TableCell(text, COL_PRIZE, color, buf);
 		i = 0;
-		Fishing_AppendNum(buf, &i, gFishingRecords.caught[t]);
+		Fishing_AppendNum(buf, &i, caught);
 		Fishing_TableCell(text, COL_CAUGHT, color, buf);
 		i = 0;
-		if (gFishingRecords.best[t] > 0) {
-			Fishing_AppendNum(buf, &i, gFishingRecords.best[t]);
-			Fishing_Append(buf, &i, "G");
-		} else {
+		if (caught)
+			Fishing_AppendCm(buf, &i, FishingRecords_Best(sp));
+		else
 			Fishing_Append(buf, &i, "-");
-		}
 		Fishing_TableCell(text, COL_BEST, color, buf);
 		PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, 1, TABLE_TOP + 3 + t * 2));
+
+		CpuFastCopy(gFishingSpeciesIcons + sp * FISHING_ICON_TILES * 0x20,
+			    (void *)(OBJ_VRAM0 + (CHR_CARD + t * FISHING_ICON_TILES) * 0x20), FISHING_ICON_TILES * 0x20);
+		ApplyPalette(caught ? gFishingSpeciesPals + sp * 16 : gFishingSilhouettePal, 0x10 + PAL_CARD + t);
 	}
+	EnablePaletteSync();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
@@ -582,6 +643,130 @@ static void Fishing_ClosePrizes(void)
 {
 	Fishing_ClearRows(TABLE_TOP, TABLE_ROWS);
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static void Fishing_DrawJournalIcons(void)
+{
+	int t;
+
+	for (t = 0; t < FISH_TYPES; t++)
+		PutSpriteExt(4, OAM1_X(ICON_X), OAM0_Y((TABLE_TOP + 3 + t * 2) * 8), gObject_32x16,
+			     OAM2_PAL(PAL_CARD + t) + OAM2_LAYER(0) + OAM2_CHR(CHR_CARD + t * FISHING_ICON_TILES));
+}
+
+/* ---- The catch card ---- */
+
+#define CARD_X 3
+#define CARD_Y 6
+#define CARD_W 24
+#define CARD_H 10
+#define CARD_TEXT_COL 13
+#define PIC_X 36
+#define PIC_Y 72
+#define STAMP_CX 56
+#define STAMP_CY 108
+
+static void Fishing_CardLine(int row, int color, const char *str)
+{
+	struct Text *text = &FS->texts[TX_TABLE + row];
+
+	ClearText(text);
+	Text_InsertDrawString(text, 0, color, str);
+	PutText(text, TILEMAP_LOCATED(gBG0TilemapBuffer, CARD_TEXT_COL, CARD_Y + 1 + row * 2));
+}
+
+/* The card: the portrait, the name, the size, the best (or "First catch!") and the payout */
+static void Fishing_OpenCard(void)
+{
+	char buf[64];
+	int i, sp = FS->species;
+
+	DrawUiFrame2(CARD_X, CARD_Y, CARD_W, CARD_H, 0);
+	Fishing_CardLine(0, FS->lastType == FISH_GOLDEN ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE,
+			 GetStringFromIndex(sSpeciesNames[sp]));
+	i = 0;
+	Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_SIZE);
+	Fishing_Append(buf, &i, " ");
+	Fishing_AppendCm(buf, &i, FS->cm);
+	Fishing_CardLine(1, TEXT_COLOR_SYSTEM_WHITE, buf);
+	i = 0;
+	if (FS->prevBest == 0) {
+		Fishing_AppendMsg(buf, &i, MSG_FISHING_CARD_FIRST);
+	} else {
+		Fishing_AppendMsg(buf, &i, FS->cm > FS->prevBest ? MSG_FISHING_CARD_OLD : MSG_FISHING_CARD_BEST);
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendCm(buf, &i, FS->prevBest);
+	}
+	Fishing_CardLine(2, TEXT_COLOR_SYSTEM_BLUE, buf);
+	i = 0;
+	Fishing_Append(buf, &i, "+");
+	Fishing_AppendNum(buf, &i, FS->payout);
+	Fishing_Append(buf, &i, "G");
+	Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, buf);
+
+	CpuFastCopy(gFishingSpeciesPics + sp * FISHING_PIC_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_CARD * 0x20),
+		    FISHING_PIC_TILES * 0x20);
+	ApplyPalette(gFishingSpeciesPals + sp * 16, 0x10 + PAL_CARD);
+	if (FS->stamp != 0xFF) {
+		CpuFastCopy(gFishingPopTiles + FS->stamp * FISHING_POP_TILES * 0x20, (void *)(OBJ_VRAM0 + CHR_STAMP * 0x20),
+			    FISHING_POP_TILES * 0x20);
+		ApplyPalette(gFishingPopPals + gFishingPopWordPal[FS->stamp] * 16, 0x10 + PAL_STAMP);
+	}
+	EnablePaletteSync();
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	FS->cardT = 1;
+	/* CAUGHT! makes way: it floats off and blinks out */
+	if (FS->popWord != 0xFF && FS->popTimer < 44)
+		FS->popTimer = 44;
+}
+
+static void Fishing_CloseCard(void)
+{
+	if (FS->cardT == 0)
+		return;
+	Fishing_ClearRows(CARD_Y, CARD_H);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	FS->cardT = 0;
+}
+
+/*
+ * The stamp slams down onto the card, tilted: it shrinks from almost twice its size, a little past its size, and
+ * settles. Its two halves turn and scale together about its centre (one affine slot).
+ */
+static void Fishing_DrawStamp(void)
+{
+	int k = FS->cardT - STAMP_AT;
+	int scale, inv, c, s, d;
+	const int angle = 252;          /* about 6 degrees, rising to the right */
+
+	if (FS->stamp == 0xFF || k < 0)
+		return;
+	if (k < 6)
+		scale = 496 - k * 48;           /* down to 0.9 */
+	else if (k < 10)
+		scale = 224 + (k - 6) * 8;      /* and back up */
+	else
+		scale = STAMP_SCALE;
+	c = COS(angle);
+	s = SIN(angle);
+	inv = Div(0x10000, scale);
+	SetObjAffine(AFF_STAMP, (c * inv) >> 12, (s * inv) >> 12, (-s * inv) >> 12, (c * inv) >> 12);
+	d = (32 * scale) >> 8;
+	PutSpriteExt(4, OAM1_X((STAMP_CX - ((d * c) >> 12) - 64) & 0x1FF) | OAM1_AFFINE_ID(AFF_STAMP),
+		     OAM0_Y((STAMP_CY - ((d * s) >> 12) - 32) & 0xFF) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
+		     gObject_64x32, OAM2_PAL(PAL_STAMP) + OAM2_LAYER(0) + OAM2_CHR(CHR_STAMP));
+	PutSpriteExt(4, OAM1_X((STAMP_CX + ((d * c) >> 12) - 64) & 0x1FF) | OAM1_AFFINE_ID(AFF_STAMP),
+		     OAM0_Y((STAMP_CY + ((d * s) >> 12) - 32) & 0xFF) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
+		     gObject_64x32, OAM2_PAL(PAL_STAMP) + OAM2_LAYER(0) + OAM2_CHR(CHR_STAMP + 32));
+}
+
+static void Fishing_DrawCard(void)
+{
+	if (FS->cardT == 0)
+		return;
+	PutSpriteExt(4, OAM1_X(PIC_X), OAM0_Y(PIC_Y), gObject_64x32,
+		     OAM2_PAL(PAL_CARD) + OAM2_LAYER(1) + OAM2_CHR(CHR_CARD));
+	Fishing_DrawStamp();
 }
 
 /* ---- Setup ---- */
@@ -695,6 +880,10 @@ static void Fishing_Init(struct ProcFishing *proc)
 	for (i = 0; i < 16; i++)
 		FS->parts[i].life = 0;
 	FS->bonusTimer = 0;
+	FS->water = Fishing_WaterOf(gPlaySt.chapterIndex);
+	FS->page = FS->water;
+	FS->cardT = 0;
+	FS->stamp = 0xFF;
 	FS->state = FS_WALKIN;
 	FS->timer = 0;
 	FS->line1Sig = 0xFFFFFFFF;
@@ -1057,6 +1246,7 @@ static void Fishing_OpenTable(void)
 		FS->parts[i].life = 0;
 	FS->prevState = FS->state;
 	FS->state = FS_PRIZES;
+	FS->page = FS->water;
 	Fishing_OpenPrizes();
 }
 
@@ -1064,6 +1254,7 @@ static void Fishing_Payout(void)
 {
 	const struct FishType *t = &sFishTypes[FS->fish[FS->biter].type];
 	int need = t->need;
+	int lo, span, sizeQ;
 	u32 gold;
 
 	if (FS->reelFrames <= ((need * 5) >> 2))
@@ -1074,10 +1265,31 @@ static void Fishing_Payout(void)
 		FS->landQ = 0;
 
 	FS->lastType = FS->fish[FS->biter].type;
-	FS->payout = (t->gold * (4 + FS->hookQ + FS->landQ)) >> 2;
+
+	/* The species and its size: two rolls averaged, so the ends of its range are rare */
+	FS->species = FS->water * FISH_TYPES + FS->lastType;
+	lo = gFishingSpeciesCm[FS->species * 2];
+	span = gFishingSpeciesCm[FS->species * 2 + 1] - lo;
+	FS->cm = lo + ((NextRN_N(span + 1) + NextRN_N(span + 1)) >> 1);
+	sizeQ = span > 0 ? Div((FS->cm - lo) * 50, span) : 25;
+
+	/* The prize, times the bonuses (quarters), times 0.75 to 1.25 for the size */
+	FS->payout = Div(t->gold * (4 + FS->hookQ + FS->landQ) * (75 + sizeQ), 400);
 	gold = GetPartyGoldAmount() + FS->payout;
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
-	FishingRecords_Add(FS->lastType, FS->payout);
+
+	FS->prevBest = FishingRecords_Caught(FS->species) ? FishingRecords_Best(FS->species) : 0;
+	switch (FishingRecords_Add(FS->species, FS->cm)) {
+	case FISHING_JOURNAL_NEW:
+		FS->stamp = FISHING_POP_NEW;
+		break;
+	case FISHING_JOURNAL_RECORD:
+		FS->stamp = FISHING_POP_RECORD;
+		break;
+	default:
+		FS->stamp = 0xFF;
+		break;
+	}
 }
 
 /* Returns TRUE to leave the screen. */
@@ -1255,21 +1467,38 @@ static bool Fishing_UpdateState(void)
 		FS->biter = -1;
 		FS->baited = BAIT_NONE;
 		FS->state = FS_RESULT;
-		FS->timer = 20;
+		FS->timer = CARD_DELAY;
 		FS->hookY = HOOK_REST;
 		PlaySoundEffect(SE_GOLD);
 		Fishing_OnLanded();
 		break;
 
 	case FS_RESULT:
-		if (FS->timer > 0) {
-			FS->timer--;
+		/* The card opens after CAUGHT!, or at once with A */
+		if (FS->cardT == 0) {
+			if (FS->timer > 0)
+				FS->timer--;
+			if (FS->timer == 0 || (FS->timer < CARD_DELAY - 10 && (newKeys & A_BUTTON)))
+				Fishing_OpenCard();
 			break;
 		}
-		if (newKeys & START_BUTTON)
-			Fishing_OpenTable();
-		else if (newKeys & A_BUTTON)
+		if (FS->cardT < 255)
+			FS->cardT++;
+		if (FS->cardT == STAMP_AT + 6 && FS->stamp != 0xFF) {
+			PlaySoundEffect(SONG_SE_UPDATE);
+			Fishing_Shake(8);
+			Fishing_Burst(STAMP_CX, STAMP_CY, 10, 0);
+		}
+		if (FS->cardT < 8)
+			break;
+		if (newKeys & START_BUTTON) {
+			Fishing_CloseCard();
 			Fishing_ToReady();
+			Fishing_OpenTable();
+		} else if (newKeys & A_BUTTON) {
+			Fishing_CloseCard();
+			Fishing_ToReady();
+		}
 		break;
 
 	case FS_MESSAGE:
@@ -1285,6 +1514,13 @@ static bool Fishing_UpdateState(void)
 			Fishing_ClosePrizes();
 			FS->state = FS->prevState;
 			PlaySoundEffect(SE_LEAVE);
+		} else if (newKeys & (DPAD_LEFT | DPAD_RIGHT)) {
+			if (newKeys & DPAD_LEFT)
+				FS->page = FS->page == 0 ? FISHING_WATERS - 1 : FS->page - 1;
+			else
+				FS->page = FS->page == FISHING_WATERS - 1 ? 0 : FS->page + 1;
+			PlaySoundEffect(SE_PICK);
+			Fishing_OpenPrizes();
 		}
 		break;
 	}
@@ -1495,6 +1731,10 @@ static void Fishing_Draw(void)
 	Fishing_DrawMeters();
 	Fishing_DrawPopup();
 	Fishing_DrawHints();
+	if (FS->state == FS_PRIZES)
+		Fishing_DrawJournalIcons();
+	else
+		Fishing_DrawCard();
 }
 
 /* ---- The proc ---- */

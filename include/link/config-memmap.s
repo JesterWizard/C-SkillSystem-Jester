@@ -351,7 +351,7 @@ _kernel_malloc2 sArenaRosterRuntimeState, 4
 
 /* District fishing (include/kernel/fishing.h): the screen state (RAM only) and the saved records (a save chunk). */
 _kernel_malloc2 gFishingState, 0x1A0
-_kernel_malloc2 gFishingRecords, 0x20
+_kernel_malloc2 gFishingRecordsV1, 0x20 /* the prize table's records: unused since the journal, kept so nothing moves */
 
 /* District River Crossing (include/kernel/crossing.h): the game state (RAM only) and the saved best scores (a save chunk). */
 _kernel_malloc2 gCrossingState, 0x100
@@ -362,6 +362,8 @@ _kernel_malloc2 gTowerState, 0x100
 _kernel_malloc2 gTowerRecords, 4
 /* Tower Stack's collapse (struct TowerDebris[TOWER_DEBRIS]), after the others so no address above moves. RAM only. */
 _kernel_malloc2 gTowerDebris, 0x80
+/* The fish journal (struct FishingRecords, a save chunk), after the others so no address above moves. */
+_kernel_malloc2 gFishingRecords, 0x2C
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
