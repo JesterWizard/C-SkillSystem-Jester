@@ -126,7 +126,7 @@ static const EventListScr EventListScr_Jehanna_Character[] = {
 
 static const EventListScr EventListScr_Jehanna_Location[] = {
     VENDOR(EventListScr_Jehanna_VENDOR, 8, 4)
-    HOUSE(0, EventScr_District_Jehanna_HexShop, 17, 6)
+    HOUSE(0, EventScr_District_Jehanna_HexShop, 16, 6)
     END_MAIN
 };
 

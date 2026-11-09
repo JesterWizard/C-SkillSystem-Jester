@@ -2,5 +2,5 @@
  "base": {"map": "0x45", "x": 0, "y": 0, "w": 24, "h": 15},
  "tileset": [237, 67, 141],
  "preview_tileset": ["0x42", "0x43", "0x44"],
- "tiles": [],
+ "tiles": [[15,5,433],[16,5,433],[17,5,433],[15,6,433],[16,6,433],[17,6,433]],
  "layout": "CustomCampaign/Chapters/Jehanna/map/Jehanna_layout.json"}
