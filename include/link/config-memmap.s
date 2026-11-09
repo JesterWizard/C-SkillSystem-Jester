@@ -121,39 +121,40 @@ _kernel_malloc gEventReplay_ChapterScrollIndex, 1
 _kernel_malloc gGameOptionsUiOrder_NEW, 32
 _kernel_malloc sWmManageSkillsEmpty, 2
 _kernel_malloc sWmManageSkillsMode, 2
-_kernel_malloc sArenaRosterRuntimeState, 4
+_kernel_malloc sArenaRosterRuntimeStateOldSlot, 4
 _kernel_malloc sArenaRosterSuspendState, 34
-_kernel_malloc sSkillStaffMenuState, 16
-_kernel_malloc sSkillStaffSuspendState, 68
+_kernel_malloc sSkillStaffMenuStateOldSlot, 16
+_kernel_malloc sSkillStaffSuspendStateOldSlot, 68
 _kernel_malloc sTextEngineWaveOffsets, 0xF0
 _kernel_malloc sTextEngineEarthquakeOffset, 2
-_kernel_malloc sTextEngineNameplateState, 0xA0
-_kernel_malloc gTonicChapterState, 2
+_kernel_malloc sTextEngineNameplateStateOldSlot, 0xA0
+_kernel_malloc gTonicChapterStateOldSlot, 2
 _kernel_malloc gUnitTonicState, 50
 _kernel_malloc gStartMapEffectsUnlockMask, 2
-_kernel_malloc sStartMapEffectsTexts, 5 * 8
+/* Old odd-address slot of sStartMapEffectsTexts, kept so the addresses below do not move; the texts are in _kernel_malloc2 */
+_kernel_malloc sStartMapEffectsTextsOldSlot, 5 * 8
 _kernel_malloc sStartMapEffectsSuspendState, 4
 _kernel_malloc sPhoenixMenuActive, 2
 _kernel_malloc sSkillScrollReplaceMenuActive, 2
 _kernel_malloc sDeadUnitCount, 2
-_kernel_malloc gSnekCoinPresent, 2
-_kernel_malloc gSnekCoinCoordinates, 2
+_kernel_malloc gSnekCoinPresentOldSlot, 2
+_kernel_malloc gSnekCoinCoordinatesOldSlot, 2
 _kernel_malloc gSnekSnakeState, 6
-_kernel_malloc gSnekSnakeX, 2
-_kernel_malloc gSnekSnakeY, 2
+_kernel_malloc gSnekSnakeXOldSlot, 2
+_kernel_malloc gSnekSnakeYOldSlot, 2
 _kernel_malloc gSnekSnakeBodyX, 32
 _kernel_malloc gSnekSnakeBodyY, 32
-_kernel_malloc gSnekSnakeBodyLength, 2
-_kernel_malloc gSnekCurrentScore, 2
-_kernel_malloc gSnekHighScore, 2
-_kernel_malloc gSnekHighScoreMagic, 2
-_kernel_malloc gSnekLastTravelDirection, 2
-_kernel_malloc gSnekLastPressedDirection, 2
+_kernel_malloc gSnekSnakeBodyLengthOldSlot, 2
+_kernel_malloc gSnekCurrentScoreOldSlot, 2
+_kernel_malloc gSnekHighScoreOldSlot, 2
+_kernel_malloc gSnekHighScoreMagicOldSlot, 2
+_kernel_malloc gSnekLastTravelDirectionOldSlot, 2
+_kernel_malloc gSnekLastPressedDirectionOldSlot, 2
 _kernel_malloc gSavedWorldMapUnitId, 2
 _kernel_malloc sCameraScrollCounter, 2
 _kernel_malloc gSavedWorldMapXCoordiate, 1
 _kernel_malloc gSavedWorldMapYCoordiate, 1
-_kernel_malloc gAchMenuSaveSt, 4
+_kernel_malloc gAchMenuSaveStOldSlot, 4
 
 /* Skill-tree screen state: seven bytes of flags/cursor data plus HelpBoxInfo. */
 _kernel_malloc gSkillTreeCursor, 0x24
@@ -166,14 +167,14 @@ SET_DATA gSkillTreePageDrawn, gSkillTreeCursor + 6
 SET_DATA gSkillTreeHelp, gSkillTreeCursor + 8
 
 // u32[7], one bit per unit index, set when a unit actually performs an AI action this phase
-_kernel_malloc sAiPhasePerformedBits, 28
+_kernel_malloc sAiPhasePerformedBitsOldSlot, 28
 
 /* Real-time battle clock state, see struct RealtimeBattleState */
-_kernel_malloc gRealtimeBattleState, 16
+_kernel_malloc gRealtimeBattleStateOldSlot, 16
 
 /* MokhaAOE transient target list + EXP/selection state */
 _kernel_malloc sGambitTargetSaveBuf, 0x42
-_kernel_malloc sGambitExpAccum, 2
+_kernel_malloc sGambitExpAccumOldSlot, 2
 _kernel_malloc sGambitSelectedAttack, 2
 
 // JESTER - Warning, do not assign any even numbered amount of bytes if the next address would be odd.
@@ -182,21 +183,21 @@ _kernel_malloc sGambitSelectedAttack, 2
 _kernel_malloc gUndeployedUnitCount, 32
 
 _kernel_malloc gBattleFlagExt, 0x10
-_kernel_malloc BanimSwitcherBuf, 0x40
-_kernel_malloc BanimSwitcherAnimDef, 0x8
+_kernel_malloc BanimSwitcherBufOldSlot, 0x40
+_kernel_malloc BanimSwitcherAnimDefOldSlot, 0x8
 
 // For Eebit's FE7 Mode Select port
 // Keep the two byte-sized blend state values in one even-sized allocation.
 _kernel_malloc gUnk_ModeSelect_02000000, 2
 SET_DATA gUnk_ModeSelect_02000001, gUnk_ModeSelect_02000000 + 1
 // The menu can display three characters at once.
-_kernel_malloc gUnk_0201E8D4, 0x38 * 3 // struct AnimBuffer[3]
-_kernel_malloc gUnk_0201E97C, 0x28 * 3 // struct AnimMagicFxBuffer[3]
-_kernel_malloc gUnk_020000A4, 0x50 // struct Font plus struct Text[7]
-_kernel_malloc gUnk_0201E9F4, 0x5A // u16[3][15]
+_kernel_malloc gUnk_0201E8D4OldSlot, 0x38 * 3 // struct AnimBuffer[3]
+_kernel_malloc gUnk_0201E97COldSlot, 0x28 * 3 // struct AnimMagicFxBuffer[3]
+_kernel_malloc gUnk_020000A4OldSlot, 0x50 // struct Font plus struct Text[7]
+_kernel_malloc gUnk_0201E9F4OldSlot, 0x5A // u16[3][15]
 
 /* Pathfinding ghost: AP obj list copy (count + up to 8 sprites * 3 attrs) */
-_kernel_malloc sPathfindingGhostObjBuf, 50
+_kernel_malloc sPathfindingGhostObjBufOldSlot, 50
 
 /* Text engine scene layout: enabled, boxShown, instantOpen, savedNameplate */
 _kernel_malloc sTextEngineSceneLayoutState, 4
@@ -314,6 +315,39 @@ _kernel_malloc2 gHexSave, 0x54
 
 /* Hex shop (vanilla shop screen in Hex mode): the item list of the open shop (struct HexShopRam in hex.h), not saved */
 _kernel_malloc2 gHexShopRam, 0x20
+
+/* Start map effects prompt: struct Text[5]. Halfword fields, so it must not sit at an odd address like the old _kernel_malloc slot */
+_kernel_malloc2 sStartMapEffectsTexts, 5 * 8
+
+/* Variables moved here from _kernel_malloc because an odd-size allocation above them left them at an
+ * odd or unaligned address (halfword/word fields there corrupt their neighbours). Their old slots are kept
+ * as <name>OldSlot so no other address moves. Sizes are padded to a word. */
+_kernel_malloc2 sPathfindingGhostObjBuf, 52
+_kernel_malloc2 gUnk_0201E9F4, 92
+_kernel_malloc2 gUnk_020000A4, 80
+_kernel_malloc2 gUnk_0201E97C, 120
+_kernel_malloc2 gUnk_0201E8D4, 168
+_kernel_malloc2 BanimSwitcherAnimDef, 8
+_kernel_malloc2 BanimSwitcherBuf, 64
+_kernel_malloc2 sGambitExpAccum, 4
+_kernel_malloc2 gRealtimeBattleState, 16
+_kernel_malloc2 sAiPhasePerformedBits, 28
+_kernel_malloc2 gAchMenuSaveSt, 4
+_kernel_malloc2 gSnekLastPressedDirection, 4
+_kernel_malloc2 gSnekLastTravelDirection, 4
+_kernel_malloc2 gSnekHighScoreMagic, 4
+_kernel_malloc2 gSnekHighScore, 4
+_kernel_malloc2 gSnekCurrentScore, 4
+_kernel_malloc2 gSnekSnakeBodyLength, 4
+_kernel_malloc2 gSnekSnakeY, 4
+_kernel_malloc2 gSnekSnakeX, 4
+_kernel_malloc2 gSnekCoinCoordinates, 4
+_kernel_malloc2 gSnekCoinPresent, 4
+_kernel_malloc2 gTonicChapterState, 4
+_kernel_malloc2 sTextEngineNameplateState, 160
+_kernel_malloc2 sSkillStaffSuspendState, 68
+_kernel_malloc2 sSkillStaffMenuState, 16
+_kernel_malloc2 sArenaRosterRuntimeState, 4
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
