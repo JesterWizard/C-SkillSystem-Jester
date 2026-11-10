@@ -146,6 +146,8 @@ Stakes are settled when the match ends (you press A at the result banner).
 | Loss | If you own more than 7 cards, the opponent takes your best card from the hand you just played: the highest tier, then the highest attack + max HP, with the first card in hand order winning a tie. Against a district NPC, the NPC takes a random card from the hand you played instead. If you own 7 or fewer cards, nothing changes (`Your cards are safe this time.`). |
 | Draw | Nothing changes hands (`Draw. No cards change hands.`). |
 
+A win also pays 5 of the [guild board](../GuildBoard.md)'s tokens, and a draw 1.
+
 Other rules:
 
 - You can hold at most 255 copies of one card type. A take of a type you already hold 255 of is refused (`You can't hold more`).

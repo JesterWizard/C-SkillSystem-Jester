@@ -1,6 +1,9 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "Snek.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "guild.h"
+#endif
 
 static void Snek_ShowUnitSprites(void);
 
@@ -351,6 +354,9 @@ static void Snek_EndProc(struct EventEngineProc * proc)
 	// Set the high score for the next game and reset the current score
 	if (gSnekCurrentScore > gSnekHighScore)
 		gSnekHighScore = gSnekCurrentScore;
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(gSnekCurrentScore >> 3);	/* the guild board's tokens: 1 per 8 points (2 coins) */
+#endif
 
 	gSnekCurrentScore = 0;
 	BG_Fill(gBG2TilemapBuffer, 0);

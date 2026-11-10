@@ -35,7 +35,7 @@ Features that plug into the event script engine instead of a unit, battle or map
 
 ### Chapter content
 
-14. The build gate is `Kernel/Wizardry/wizardry.event:129-131` (`WIZARDRY_CUSTOM`, then `CONFIG_FE8_REWRITE`), which includes `CustomCampaign/Installer.event`. That file includes `Event/Event_Installer.event`, `Chapters/Chapter_Installer.event` and `Music/Music_Installer.event` (lines 3-5).
+14. The build gate is `Kernel/Wizardry/wizardry.event:120` and `:136-137` (`WIZARDRY_CUSTOM`, then `CONFIG_FE8_REWRITE`), which includes `CustomCampaign/Installer.event`. That file includes `Event/Event_Installer.event`, `Chapters/Chapter_Installer.event` and `Music/Music_Installer.event` (lines 3-5).
 15. `CustomCampaign/Event/Event_Installer.event` registers each chapter's event group with `NewEventPointerTable_Event(id, ChapterNNEvent)` (`:19` for `Chapter01Event`; macro at `CustomCampaign/Event/PListSplit.event:37`) and includes the chapter's `events.lyn.event`.
 16. `CustomCampaign/Chapters/01/events/events.c:161` defines `Chapter01Event` as `struct ChapterEventGroup` (declared at `Tools/FE-CLib-Mokha/include/chapterdata.h:118`). The group points at scene scripts such as `.beginningSceneEvents` (`events.c:182`) and `.endingSceneEvents` (`:183`).
 17. `CustomCampaign/Chapters/Chapter_Installer.event` writes each chapter's `ROMChapterData` blob at a fixed ORG (`:6` for chapter 01).
@@ -170,7 +170,7 @@ InjectEventLoCmd(EVENT_CMD_EXAMPLE, EventExampleOperation)
 - `Kernel/Wizardry/SkillSys/kernel/SkillEventCmd.c`: command `0x46`. Eight sub-ops in one switch (`:194-225`). Registered at `Kernel/Wizardry/SkillSys/SkillSys.event:38`. Shows argument reading (`argv`, `EVT_CMD_LEN`) and the `default: hang()` error path.
 - `Kernel/Wizardry/Goals/Escape.c`: two ASMCs (`RemoveActiveUnitASMC` `:153`, `IsEventTileASMC` `:189`) used by `EventScr_PostAction_Escape` (`:11-25`), which branches on the slot result. `CallEscapeEndingEventASMC` (`:145`) calls `KernelCallEvent` with a NULL parent.
 - `Kernel/Wizardry/Minigames/Snek/Snek.c`: `CallSnekMinigameASMC` (`:479-482`) starts a blocking proc with the event proc as parent, so the event waits for the game. Installed by `Kernel/Wizardry/Minigames/Snek/Snek_Installer.event:1`. Narrative in `Documentation/Features/Minigames/Snek.md`.
-- `Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ForgeMenu.c`: `CallForgeMenuASMC` (`:446-457`) resets the screen, sets `gEventSlots[EVT_SLOT_7] = 0` and calls `StartMenu(&gForgeMenuDef, proc)`. It is also called from C at `Kernel/Wizardry/VeslyDebugger/C_Code.c:5135`. Included at `Kernel/Wizardry/wizardry.event:142`.
+- `Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ForgeMenu.c`: `CallForgeMenuASMC` (`:446-457`) resets the screen, sets `gEventSlots[EVT_SLOT_7] = 0` and calls `StartMenu(&gForgeMenuDef, proc)`. It is also called from C at `Kernel/Wizardry/VeslyDebugger/C_Code.c:5135`. Included at `Kernel/Wizardry/wizardry.event:148`.
 
 ## Gotchas
 
@@ -183,5 +183,5 @@ InjectEventLoCmd(EVENT_CMD_EXAMPLE, EventExampleOperation)
 - Flag numbers: `Tools/FE-CLib-Mokha/include/constants/event-flags.h:12` marks flags `7`-`40` as free. Chapter 01 uses flag `11` as a temporary flag: `CustomCampaign/Chapters/01/events/events.c:49` sets it, `:118` clears it, and `:136` uses it as the trigger ID of a turn event (`TURN`).
 - `include/jester_headers/flags.h` is an enum of `GUIDE_*` values that no code uses. A grep for each name finds only this file. Do not assume these IDs mean an event flag. The event-flag names in use are `EVFLAG_*` (see the table).
 - Chapter scripts are C. `CustomCampaign/Chapters/NN/events/*.c` compiles to `events.lyn.event` through the makefile rules at `makefile:198` and `:208`. The `events/` folders contain no `.event` source files. The per-chapter `.event` files are in `map/` and `music/`.
-- The campaign is included only when `WIZARDRY_CUSTOM` and `CONFIG_FE8_REWRITE` are both defined (`Kernel/Wizardry/wizardry.event:129-131`).
+- The campaign is included only when `WIZARDRY_CUSTOM` and `CONFIG_FE8_REWRITE` are both defined (`Kernel/Wizardry/wizardry.event:120` and `:136-137`).
 - Unverified: the exact dispatch code that reads the table pointer at `$0CEE0` and passes the proc to ASMC functions. Both are in the vanilla ROM and are inferred from the table layout and the callee signatures.

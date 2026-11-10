@@ -93,7 +93,8 @@ top right is the time left for this life; it turns red under 10 seconds.
 | Bringing a lost child to a dock: **RESCUED!** | 200 more for that dock |
 | A dock with a star: **BONUS!** | double that dock's points |
 
-The gold paid out is the score divided by 10 (rounded down), when the game ends or when you leave with B.
+The gold paid out is the score divided by 10 (rounded down), when the game ends or when you leave with B. The
+[guild board](../GuildBoard.md)'s tokens are paid then too, 1 per 100 points.
 
 The best score of each district is saved. It is `gCrossingRecords` (`struct CrossingRecords`, 0x0C bytes,
 `include/kernel/crossing.h`): a magic word and four best scores (up to 65535). It is one chunk at the end of both save
@@ -102,8 +103,8 @@ new game. A save made before the chunk existed loads no records. The suspend sav
 
 The district progress is a second chunk right after it, `gCrossingProgress` (`struct CrossingProgress`, 0x10 bytes): a
 magic word, the fastest round 1 of each district (seconds), the milestone bits and the story chapter whose challenge was
-met in each district. `CrossingProgress_NewGame` clears it. With it, the suspend save has 1387 bytes free and the game
-save 1165.
+met in each district. `CrossingProgress_NewGame` clears it. With it, the suspend save had 1387 bytes free and the game
+save 1165 (see [Guild Board](../GuildBoard.md#save-data) for the current figures).
 
 ---
 

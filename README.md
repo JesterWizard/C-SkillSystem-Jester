@@ -268,6 +268,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Minigames/Snek.md"><img src="./Documentation/Gifs/Minigame_Snek.gif" alt="Snek preview" width="360" /></a><br/><b><a href="./Documentation/Features/Minigames/Snek.md">Snek</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Minigames/Tower.md"><img src="./Documentation/Gifs/Tower_Stack.gif" alt="Tower Stack preview" width="360" /></a><br/><b><a href="./Documentation/Features/Minigames/Tower.md">Tower Stack</a></b></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/GuildBoard.md"><img src="./Documentation/Gifs/Guild_Board.gif" alt="Guild Board preview" width="360" /></a><br/><b><a href="./Documentation/Features/GuildBoard.md">Guild Board</a></b></td>
+    <td></td>
+  </tr>
 </table>
 
 

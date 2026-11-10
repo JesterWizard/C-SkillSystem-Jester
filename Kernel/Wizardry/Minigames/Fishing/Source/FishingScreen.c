@@ -3,6 +3,9 @@
 #include "kernel/unit-icon.h"
 #include "mu.h"
 #include "fishing.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "guild.h"
+#endif
 #include "fishing-art.h"
 #include "constants/texts.h"
 #include "constants/items.h"
@@ -1807,6 +1810,10 @@ static void Fishing_PayFish(const struct FishType *t)
 		break;
 	}
 	FS->points = sKindPoints[FS->lastType] + (FS->hookQ == 2 ? 1 : 0) + (FS->stamp != 0xFF ? 2 : 0);
+#ifdef CONFIG_DISTRICT_GUILD
+	/* the guild board's tokens: 1 a catch, 3 for a new species or a record */
+	Guild_AddTokens(FS->stamp != 0xFF ? 3 : 1);
+#endif
 
 	if (req->state == FISHING_REQ_OPEN && req->species == FS->species && FS->cm >= req->minCm) {
 		FS->rewardItem = Fishing_RequestReward(req);
@@ -1826,6 +1833,9 @@ static void Fishing_PayLegend(const struct FishType *t)
 	FS->payout = Div(t->gold * (4 + FS->hookQ + FS->landQ) * (75 + sizeQ), 400);
 	gFishingProgress.legends |= 1 << FS->water;
 	gFishingProgress.legendBest[FS->water] = FS->cm;
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(10);	/* the guild board's tokens for a legend */
+#endif
 	FS->stamp = FISHING_POP_LEGEND;
 	FS->points = 40;
 	/* Gone for good: its slot takes ordinary fish from now on */

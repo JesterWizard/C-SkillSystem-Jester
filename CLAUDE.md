@@ -28,7 +28,7 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 ## Pitfalls
 
 - Signed and unsigned `%` are broken: `__aeabi_idivmod` is aliased to FE8's `__modsi3`, and `__aeabi_uidivmod` to its `__umodsi3`, which return the remainder in the wrong register. `r - (r / n) * n` on unsigned values becomes `__aeabi_uidivmod` too. Use `DivRem`/`Div` or a loop (e.g. `while (r >= n) r -= n;`).
-- Kernel text is nearly full (`kernel.event:41 Assertion error: -N` means N bytes over). Put large, non-hot code in the `#ifdef WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event`, tables in `Data/`, and use `NOINLINE` on helpers that bloat callers.
+- Kernel text has about 92 KB free since the stat screen, misc functions, arena, world map, convoy, UTF-8, popups, debug kit and start-map effects moved out of it (`kernel.event:41 Assertion error: -N` means N bytes over). Still put non-hot code in the `#ifdef WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event`, tables in `Data/`, and use `NOINLINE` on helpers that bloat callers.
 - SIDs are positional: append new ones to the end of `include/constants/skills-equip.enum.txt`. That file is the only skill enum the build reads.
 - Generated files, don't edit: `include/constants/skills.h`, `skills.event`, `Contents/Texts/build/msgs.h`, `Contents/Gfx/GfxDefs.h`, `Patches/combo.skills*.txt`.
 - The `SkillTable-{person,job,item,weapon}.c` tables have no SID guards; wrap any row you add.
@@ -37,3 +37,4 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - Two `.lyn.event` files need a hand fix after regenerating: `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.lyn.event` line 53 must be `WORD $8049789` (not `POIN sub_8049788`), and `Kernel/Wizardry/ItemSys/Source/StaffHeal.lyn.event` line 85 must be `WORD $8033259` (not `POIN GetPlayerLeaderUnitId`).
 - Don't add code to `MiscFunctions.c`: its regenerated `.lyn.event` gains a `Sprite_PrepInformation` hook that `Tools/scripts/lynjump-detector.sh` rejects. Put new code in its own file.
 - Emulator save states are tied to one ROM build; boot again after rebuilding.
+- A district's `events/traps.c` is `#include`d by its `events.c`: after editing it, run `make CustomCampaign/Chapters/<Name>/events/events.lyn.event` before `Tools/cloud/build.sh`, which does not rebuild it.

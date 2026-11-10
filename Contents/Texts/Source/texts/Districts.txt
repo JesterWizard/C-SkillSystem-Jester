@@ -349,3 +349,97 @@ Challenge met! +1000 gold[X]
 First clear! Got an Elixir.[X]
 ## MSG_CROSSING_REWARD_ROUND5
 Round 5! Got a stat booster.[X]
+## MSG_GUILD_TITLE
+Guild Board[X]
+## MSG_GUILD_TOKENS_TITLE
+Tokens[X]
+## MSG_GUILD_TOKENS
+tokens[X]
+## MSG_GUILD_TAB_QUESTS
+Quests[X]
+## MSG_GUILD_TAB_PRIZES
+Prizes[X]
+## MSG_GUILD_TAB_RECORDS
+Records[X]
+## MSG_GUILD_HINT_QUESTS
+A Claim   L/R Page   B Leave[X]
+## MSG_GUILD_HINT_PRIZES
+A Buy   L/R Page   B Leave[X]
+## MSG_GUILD_HINT_RECORDS
+L/R Page   B Leave[X]
+## MSG_GUILD_DONE
+Done![X]
+## MSG_GUILD_NO_QUESTS
+No more requests here for now.[X]
+## MSG_GUILD_SOLD
+Sold out[X]
+## MSG_GUILD_CLAIMED
+Quest complete! Reward received.[X]
+## MSG_GUILD_NOT_YET
+Not done yet.[X]
+## MSG_GUILD_SHORT
+Not enough tokens.[X]
+## MSG_GUILD_CONFIRM
+Press A again to buy.[X]
+## MSG_GUILD_BOUGHT
+Bought! It's yours.[X]
+## MSG_GUILD_REC_QUESTS
+Quests[X]
+## MSG_GUILD_REC_EARNED
+Earned[X]
+## MSG_GUILD_REC_CROSSING
+Crossing[X]
+## MSG_GUILD_REC_TOWER
+Tower[X]
+## MSG_GUILD_REC_SNEK
+Snek[X]
+## MSG_GUILD_REC_FISHING
+Fishing[X]
+## MSG_GUILD_REC_JOURNAL
+Journal[X]
+## MSG_GUILD_REC_LEGENDS
+Legends[X]
+## MSG_GUILD_REC_HEX
+Hex cards[X]
+## MSG_GUILD_REC_WINS
+Battles[X]
+## MSG_GUILD_Q_SERAFEW_CROSSING
+Score 800 in Serafew's crossing.[X]
+## MSG_GUILD_Q_SERAFEW_VULNERARY
+Bring 2 Vulneraries for the clinic.[X]
+## MSG_GUILD_Q_SERAFEW_FISH
+Catch 5 kinds of fish.[X]
+## MSG_GUILD_Q_SERAFEW_WINS
+Win 20 battles.[X]
+## MSG_GUILD_Q_SERAFEW_TOWER
+Score 100 at Tower Stack.[X]
+## MSG_GUILD_Q_KIRIS_MEDAL
+Earn a medal in Port Kiris's crossing.[X]
+## MSG_GUILD_Q_KIRIS_ANGLER
+Reach the Angler rank.[X]
+## MSG_GUILD_Q_KIRIS_HEX
+Hold 10 Hex cards.[X]
+## MSG_GUILD_Q_KIRIS_WATER
+Bring a Pure Water for the sailors.[X]
+## MSG_GUILD_Q_KIRIS_SNEK
+Score 40 at Snek.[X]
+## MSG_GUILD_Q_CAER_CROSSING
+Score 1500 in Caer Pelyn's crossing.[X]
+## MSG_GUILD_Q_CAER_LEGEND
+Land a legendary fish.[X]
+## MSG_GUILD_Q_CAER_WINS
+Win 60 battles.[X]
+## MSG_GUILD_Q_CAER_TOKENS
+Earn 200 tokens in all.[X]
+## MSG_GUILD_Q_JEHANNA_GOLD
+Win gold in Jehanna's crossing.[X]
+## MSG_GUILD_Q_JEHANNA_JOURNAL
+Fill the fish journal.[X]
+## MSG_GUILD_Q_JEHANNA_HEX
+Hold 30 Hex cards.[X]
+## MSG_GUILD_Q_JEHANNA_WINS
+Win 150 battles.[X]
+## MSG_GUILD_Q_ANY_TOWER
+Score 300 at Tower Stack.[X]
+## MSG_GUILD_Q_ANY_SNEK
+Score 100 at Snek.[X]

@@ -13,6 +13,7 @@
 - [Fishing](#fishing)
 - [River Crossing](#river-crossing)
 - [Tower Stack](#tower-stack)
+- [Guild Board](#guild-board)
 - [Adding a District](#adding-a-district)
 - [Code Locations](#code-locations)
 - [Limitations](#limitations)
@@ -35,6 +36,8 @@ Each district:
 - Has a pool of water with a fishing spot (see [Fishing](#fishing)).
 - Has a River Crossing spot, marked with a flag (see [River Crossing](#river-crossing)).
 - Has a Tower Stack spot, marked with a small tower (see [Tower Stack](#tower-stack)).
+- Has a guild board, a small notice board by the Hex shop, with quests, prizes for minigame tokens and every minigame's
+  records (see [Guild Board](#guild-board)).
 
 ---
 
@@ -348,6 +351,21 @@ gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 
 ---
 
+## 📋 Guild Board
+
+Each district has a guild board, a small wooden notice board by the Hex shop. Stand on it and press A: its pages are the
+district's quests, prizes bought with tokens (every minigame pays tokens), and every minigame's records. A red notice
+blinks on the board while a quest there is met and waiting to be claimed. The rules are in [Guild Board](./GuildBoard.md).
+
+| District | Board (x, y) |
+|---|---|
+| Serafew | (7, 18) |
+| Port Kiris | (14, 14) |
+| Caer Pelyn | (10, 9) |
+| Jehanna Hall | (14, 6) |
+
+---
+
 ## 🛠️ Adding a District
 
 1. **Pick the ids.** Choose these before you start:
@@ -392,7 +410,7 @@ gold. The rules are in [Tower Stack](./Minigames/Tower.md).
    - `events/traps.c`: the gate, as `DISTRICT_GATE(x, y)`, the fishing spot, as `FISHING_SPOT(x, y, dir)`
      (see [Fishing](./Minigames/Fishing.md#adding-a-fishing-spot)), and the River Crossing spot, as `CROSSING_SPOT(x, y)`.
      A new district also needs a course: add its chapter to `Crossing_LevelOfChapter` and a row to `sCourses`
-     ([River Crossing](./Minigames/Crossing.md#the-courses)). Add the Tower Stack spot as `TOWER_SPOT(x, y)`.
+     ([River Crossing](./Minigames/Crossing.md#the-courses)). Add the Tower Stack spot as `TOWER_SPOT(x, y)` and the guild board as `GUILD_BOARD(x, y)` (its quests are listed by district chapter in `Data/Guild/Guild.c`).
    - `events/units.c`: Eirika's start tile and the five NPCs.
    - `events/events.c`: the opening event, the talk events, the Hex shop event, the gift flags and the event group.
    - `text/npcs.txt`: the `District_<Name>_*` texts. This file is already included by `CustomCampaign/Text/Text.txt` for the
@@ -466,6 +484,7 @@ gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 | Pond tool | [`pond.py`](../../Tools/district/pond.py) | Picks the water metatiles of a small pool |
 | River Crossing | [`Minigames/Crossing/`](../../Kernel/Wizardry/Minigames/Crossing/) | The lane-crossing minigame, its spots' A-press handler, the map flags ([doc](./Minigames/Crossing.md)) |
 | Tower Stack | [`Minigames/Tower/`](../../Kernel/Wizardry/Minigames/Tower/) | The block-stacking minigame, its spots' A-press handler, the map towers ([doc](./Minigames/Tower.md)) |
+| Guild board | [`Guild/`](../../Kernel/Wizardry/Guild/) | Quests, prizes, records, tokens, the boards' A-press handler and markers ([doc](./GuildBoard.md)) |
 | Shop portrait | [`witch_shop_from_art.py`](../../Tools/hex/witch_shop_from_art.py) | Makes `hex_witch_shop.png` (portrait `0xAF`, `FID_HEX_WITCH_SHOP`) from the supplied illustration |
 | Exit markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `DistrictNpc_DrawGates`, the gold chevrons on each gate |
 | Map composer | [`compose.py`](../../Tools/district/compose.py) | Cuts each district map from a vanilla map, from `compose/<Name>.json` |

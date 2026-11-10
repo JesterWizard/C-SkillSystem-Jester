@@ -82,6 +82,7 @@ gold bar at the top right is the time left.
   shake. While it lasts, missed blocks cost no lives, and the blocks are gold. The chain starts again from 0, and
   another 10 in a row starts another fever.
 - **Gold:** at the end of the game (or when you leave with B) the score is paid out at 10 points to 1 gold, rounded down.
+- **Tokens:** the [guild board](../GuildBoard.md)'s tokens are paid at the same time, 1 per 20 points.
 - **Best score:** saved. It is `gTowerRecords` (`struct TowerRecords`, 4 bytes, `include/kernel/tower.h`): a magic word
   and the best score (up to 65535). It is one chunk at the end of both save lists (`Kernel/Wizardry/SaveData/data.event`),
   and `TowerRecords_NewGame` clears it on a new game. A save made before the chunk existed loads no record. The suspend

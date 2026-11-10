@@ -200,6 +200,9 @@ name (in gold for a golden species), its size, the best before it ("First catch!
 it beats it) and the payout. A first catch is stamped **NEW!** in green, the biggest yet **RECORD!** in gold: the stamp
 slams down tilted, with a fanfare, a jolt and sparks. A fishes again, START opens the journal, B leaves.
 
+Each catch also pays the [guild board](../GuildBoard.md)'s tokens: 1, or 3 for a NEW! or RECORD! catch, and 10 for a
+legend.
+
 **The journal.** START opens it (while choosing a bait, while waiting, and on the catch card). It shows one water a page,
 the district's own first; Left and Right turn the pages. The top line shows the water and how many of the 20 species are
 found.
@@ -220,8 +223,8 @@ clears it on a new game.
 - It replaced the prize table's records (catches and best payouts of the five kinds, 0x20 bytes). The magic changed, so
   a save from before the journal loads an empty journal. The old RAM slot is kept as `gFishingRecordsV1` so that no
   address after it moved; the journal's is at the end of the region.
-- The suspend save has 1387 bytes free (with the angler's progress chunk below and River Crossing's progress chunk), the
-  game save 1165.
+- The suspend save has 1371 bytes free (with the angler's progress chunk below, River Crossing's progress chunk and the
+  guild board's chunk), the game save 1149.
 - The species' looks and sizes are drawn by `Tools/fishing/fish_species.py` (see [Art](#art)); their names are
   `MSG_FISHING_SP_*`, in `sSpeciesNames` (`FishingScreen.c`).
 
