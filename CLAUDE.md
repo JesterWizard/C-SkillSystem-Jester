@@ -9,6 +9,7 @@ FE8U C-SkillSystem buildfile. C is built with devkitARM, turned into `.lyn.event
 - Build flags: `configs.mk`. Compile-time switches: `include/configs/configs.h`. Runtime toggles: `Data/DesignerConfig/designer-config.c` (struct name is spelled `KernelDesigerConfig`).
 - To compile one file by hand, use `$DEVKITARM/bin/arm-none-eabi-gcc`, not the system gcc.
 - After a change, run `python3 Tools/cloud/smoketest.py --quick` (emulator smoke tests of boot, battle, saves and a district, about 20 seconds; see `Tools/cloud/README.md`).
+- After adding a feature, run `python3 Tools/audit/unreachable.py`: it lists entry points, messages and items that nothing in the game reaches (see `Tools/audit/README.md`).
 
 ## Adding a skill
 
