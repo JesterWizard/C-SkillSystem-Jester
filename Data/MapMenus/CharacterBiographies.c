@@ -46,7 +46,15 @@ static const struct CharacterBiography gCharacterBiographies[] =
     {
         CHARACTER_TANA, "Winged Princess", SONG_POWERFUL_FOE,
         {{ MSG_HEROES_CARDS_TANA_01, 0xCB }, { MSG_HEROES_CARDS_TANA_02, 0xCC }, { MSG_HEROES_CARDS_TANA_03, 0xCD }, { MSG_HEROES_CARDS_TANA_04, 0xCE }}
-    }, 
+    },
+    {
+        CHARACTER_ARTUR, "The Devout", SONG_POWERFUL_FOE,
+        {{ MSG_HEROES_CARDS_ARTUR_01, 0x43 }, { MSG_HEROES_CARDS_ARTUR_02, 0x44 }, { MSG_HEROES_CARDS_ARTUR_03, 0x45 }, { MSG_HEROES_CARDS_ARTUR_04, 0x46 }}
+    },
+    {
+        CHARACTER_AMELIA, "The Hopeful", SONG_POWERFUL_FOE,
+        {{ MSG_HEROES_CARDS_AMELIA_01, 0x3F }, { MSG_HEROES_CARDS_AMELIA_02, 0x40 }, { MSG_HEROES_CARDS_AMELIA_03, 0x41 }, { MSG_HEROES_CARDS_AMELIA_04, 0x42 }}
+    },
 };
 
 static int NumberOfCharacterBiographies() {
@@ -78,16 +86,23 @@ static int BiographyPagesOpen(int index)
     return page;
 }
 
+/* The visible rows: the biographies from gTopVisibleListIndex on (the list scrolls past BASE_VISIBLE_COUNT) */
 static void DrawBaseConversations(int x, int y) {
 
-    for (int i = 0; i < BASE_VISIBLE_COUNT; i++) 
+    for (int row = 0; row < BASE_VISIBLE_COUNT; row++) 
     {
-        ClearText(&PrepItemSuppyTexts.th[i+2]);
+        int i = gTopVisibleListIndex + row;
 
-        PutDrawText(&PrepItemSuppyTexts.th[i+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (i * 2)), 
+        ClearText(&PrepItemSuppyTexts.th[row+2]);
+        if (i >= NumberOfCharacterBiographies()) {
+            PutText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)));
+            continue;
+        }
+
+        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)), 
                     TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(GetCharacterData(gCharacterBiographies[i].characterId)->nameTextId));
     
-        PutDrawText(&PrepItemSuppyTexts.th[i+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (i * 2)), 
+        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)), 
                     TEXT_COLOR_SYSTEM_GOLD, 40, 0, Utf8ToNarrowFonts(gCharacterBiographies[i].subtitle));
 
         /* Pages still waiting on a guild quest: show how many are open */
@@ -95,8 +110,8 @@ static void DrawBaseConversations(int x, int y) {
             char count[] = "0/4";
 
             count[0] = '0' + BiographyPagesOpen(i);
-            PutDrawText(&PrepItemSuppyTexts.th[i+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (i * 2)),
-                        TEXT_COLOR_SYSTEM_GRAY, 100, 0, count);
+            PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
+                        TEXT_COLOR_SYSTEM_GRAY, 106, 0, count);
         }
     }
 
@@ -151,7 +166,7 @@ static void Biography_Init(struct ProcPrepUnit * proc)
     PutMenuScrollBarAt(188, 64); 
     InitMenuScrollBarImg(0x7A60, 2); 
 
-    UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, 10, 9);
+    UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, NumberOfCharacterBiographies(), BASE_VISIBLE_COUNT);
     DrawBaseConversations(8, 8);
 }
 
@@ -192,7 +207,7 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
         ShowSysHandCursor(56, 64 + ((proc->list_num_cur - gTopVisibleListIndex) * 16), 15, 0x800);
         PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
         DrawBaseConversations(8, 8);
-        UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, 10, 9);
+        UpdateMenuScrollBarConfig(10, gTopVisibleListIndex * 16, NumberOfCharacterBiographies(), BASE_VISIBLE_COUNT);
     }
 }
 

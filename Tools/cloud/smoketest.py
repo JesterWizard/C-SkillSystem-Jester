@@ -32,6 +32,7 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  biography   the map menu's Biography row opens the list; it scrolls to its last biography; A plays its first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
               (0xEF) set.
   stealer     Eirika holds the Skill Stealer and defeats O'Neill (a boss, 1 HP) with Str Bonus in his first skill
@@ -43,7 +44,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, snek, savelayout, suspend, gamesave, battle, battlequote,
-frames, stealer, debugflag, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -80,6 +81,7 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
+BIOGRAPHIES = 7  # gCharacterBiographies (Data/MapMenus/CharacterBiographies.c); Amelia is the last
 GM_DATA = 0x03005280  # gGMData (the world map's units, nodes and cursor)
 CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
@@ -1000,6 +1002,35 @@ class Smoke:
                    not self.same_screen(shots["none"], shots["debugger_off"]),
                    "change from the debugger %.0f" % self.diff(shots["none"], shots["debugger_off"]))
 
+    def test_biography(self, boot_ss):
+        """The map menu (A on an empty tile) has Biography (its fourth row): the list opens, DOWN scrolls it to its last
+        biography (Amelia), and A on it plays her first page."""
+        d = os.path.join(self.out, "boot")
+        os.makedirs(d, exist_ok=True)
+        need = ("gTopVisibleListIndex", "gCharacterBiographyListNumber", "gCharacterBiographyPage")
+        if not all(n in self.sym for n in need):
+            return self.check("biography: the biography menu", False, "no symbols")
+        top, number, page = (self.sym[n] for n in need)
+        count = BIOGRAPHIES
+        lines = ["load " + boot_ss, "wait 20", "shot bio_map.png", "press RIGHT", "wait 10", "press RIGHT", "wait 10",
+                 "press UP", "wait 10", "press A", "wait 40"] + ["press DOWN", "wait 10"] * 3
+        lines += ["shot bio_menu.png", "press A", "wait 120", "shot bio_list.png"] + ["press DOWN", "wait 10"] * (count - 1)
+        lines += ["wait 10", "shot bio_last.png", "r8 %#x" % top, "press A", "wait 240", "shot bio_page.png",
+                  "r8 %#x" % number, "r8 %#x" % page]
+        vals = self.run(ROM, lines, d)
+        m, lst, last, pg = (os.path.join(d, "bio_%s.png" % n) for n in ("map", "list", "last", "page"))
+        self.shot(lst, "biography list")
+        self.shot(pg, "biography page")
+        if len(vals) != 3:
+            return self.check("biography: the biography menu", False, "values %s" % vals)
+        self.check("biography: the map menu opens the biography list", self.diff(m, lst) > 25,
+                   "change %.0f" % self.diff(m, lst))
+        self.check("biography: DOWN scrolls the list to its last biography",
+                   vals[0] == count - 5 and self.diff(lst, last) > 1, "top row %d" % vals[0])
+        self.check("biography: A plays the last biography's first page",
+                   vals[1] == count - 1 and vals[2] >= 1 and self.diff(last, pg) > 25,
+                   "biography %d, page %d, change %.0f" % (vals[1], vals[2], self.diff(last, pg)))
+
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
         if "gPortraitExpressions" not in self.sym:
@@ -1066,7 +1097,7 @@ def main():
         return want is None or n in want
 
     if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames") or on("stealer") or \
-            on("debugflag"):
+            on("debugflag") or on("biography"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
@@ -1074,6 +1105,8 @@ def main():
             s.test_battle(boot_ss)
         if boot_ss and on("battlequote"):
             s.test_battlequote(boot_ss)
+        if boot_ss and on("biography"):
+            s.test_biography(boot_ss)
         if boot_ss and on("debugflag"):
             s.test_debugflag(boot_ss)
         if boot_ss and on("stealer"):
