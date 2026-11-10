@@ -113,7 +113,6 @@ This matters because the system tracks per-entry clear flags in a compact bitfie
 ## TODO
 
 - Move chapter roster definitions out of `Arena.c` if the table grows beyond a small number of chapters.
-- Replace hard-coded English labels such as `Good match`, `Okay match`, and payout text with text ids.
 - Document the expected workflow for adding new chapter entries, especially valid reward/item combinations.
 - Decide whether cleared item-reward entries should remain visible but disabled, or support repeatable completion in some chapters.
 
@@ -123,7 +122,9 @@ This matters because the system tracks per-entry clear flags in a compact bitfie
 
 - The current roster content is effectively a chapter-specific prototype. Only the chapter data that is explicitly added to `gArenaRosterTable` exists.
 - Most of the implementation, data, UI, and persistence logic lives in one large source file. That keeps the feature easy to trace today, but it also makes future expansion harder to review and maintain.
-- Reward/item text and matchup labels still contain hard-coded strings instead of a fully text-id-driven presentation path.
+- The matchup labels (`Good match`, `Okay match`, `Bad match`) and the payout labels (`Double Payout`, `Triple Payout`)
+  are text ids (`MSG_ARENA_MATCH_*`, `MSG_ARENA_PAYOUT_*` in `Contents/Texts/Source/texts/misc.txt`). The arena's own
+  lines are still vanilla's.
 - The arena rewrite still relies on vanilla arena state and proc timing. That reuse is practical, but it means popup timing and dialogue state must be handled carefully, which is why item rewards are deferred.
 - The comments in the module already note that some older arena adjustment logic now crashes on the arena screen. The roster system avoids that path, but arena-adjacent rewrites should still be tested carefully.
 

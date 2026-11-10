@@ -464,11 +464,11 @@ static void ArenaUi_DrawOpponentDetailsWindow(void)
         return;
 
     if (gArenaState.playerPowerWeight - gArenaState.opponentPowerWeight >= 20)
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, "Good match");
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GREEN, GetStringFromIndex(MSG_ARENA_MATCH_GOOD));
     else if (gArenaState.opponentPowerWeight - gArenaState.playerPowerWeight <= 20)
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, "Okay match");
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_BLUE, GetStringFromIndex(MSG_ARENA_MATCH_OKAY));
     else
-        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, "Bad match");
+        PutString(TILEMAP_LOCATED(gBG0TilemapBuffer, 12, 14), TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_ARENA_MATCH_BAD));
 }
 
 static void ArenaUi_RedrawRosterOpponentDetails(ProcPtr proc)
@@ -1230,7 +1230,6 @@ STATIC_DECLAR void ArenaRosterDrawList(struct ProcArenaRosterSelect *proc)
 
     for (row = 0; row < ARENA_ROSTER_VISIBLE_ROWS; ++row) {
         int index = proc->scrollTop + row;
-        char payoutLabel[14];
         struct Text *nameText = &gBanimText[row];
         struct Text *rewardText = &gBanimText[row + ARENA_ROSTER_VISIBLE_ROWS];
 
@@ -1259,32 +1258,10 @@ STATIC_DECLAR void ArenaRosterDrawList(struct ProcArenaRosterSelect *proc)
 
                 PutDrawText(rewardText, TILEMAP_LOCATED(gBG0TilemapBuffer, ARENA_ROSTER_REWARD_TEXT_X, 9 + row * 2), color, 0, ARENA_ROSTER_TEXT_REWARD_WIDTH, GetItemName(entry->reward));
             } else {
-                if (entry->rewardType == ARENA_ROSTER_REWARD_TRIPLE_PAYOUT) {
-                    payoutLabel[0] = 'T';
-                    payoutLabel[1] = 'r';
-                    payoutLabel[2] = 'i';
-                    payoutLabel[3] = 'p';
-                    payoutLabel[4] = 'l';
-                    payoutLabel[5] = 'e';
-                } else {
-                    payoutLabel[0] = 'D';
-                    payoutLabel[1] = 'o';
-                    payoutLabel[2] = 'u';
-                    payoutLabel[3] = 'b';
-                    payoutLabel[4] = 'l';
-                    payoutLabel[5] = 'e';
-                }
+                int label = entry->rewardType == ARENA_ROSTER_REWARD_TRIPLE_PAYOUT
+                    ? MSG_ARENA_PAYOUT_TRIPLE : MSG_ARENA_PAYOUT_DOUBLE;
 
-                payoutLabel[6] = ' ';
-                payoutLabel[7] = 'P';
-                payoutLabel[8] = 'a';
-                payoutLabel[9] = 'y';
-                payoutLabel[10] = 'o';
-                payoutLabel[11] = 'u';
-                payoutLabel[12] = 't';
-                payoutLabel[13] = 0;
-
-                PutDrawText(rewardText, TILEMAP_LOCATED(gBG0TilemapBuffer, ARENA_ROSTER_REWARD_TEXT_X - 2, 9 + row * 2), color, 0, ARENA_ROSTER_TEXT_BUFFER_WIDTH, payoutLabel);
+                PutDrawText(rewardText, TILEMAP_LOCATED(gBG0TilemapBuffer, ARENA_ROSTER_REWARD_TEXT_X - 2, 9 + row * 2), color, 0, ARENA_ROSTER_TEXT_BUFFER_WIDTH, GetStringFromIndex(label));
             }
         }
     }

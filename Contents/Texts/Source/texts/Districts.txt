@@ -443,3 +443,28 @@ Win 150 battles.[X]
 Score 300 at Tower Stack.[X]
 ## MSG_GUILD_Q_ANY_SNEK
 Score 100 at Snek.[X]
+
+## MSG_ARENA_MATCH_GOOD
+Good match[X]
+## MSG_ARENA_MATCH_OKAY
+Okay match[X]
+## MSG_ARENA_MATCH_BAD
+Bad match[X]
+## MSG_ARENA_PAYOUT_DOUBLE
+Double Payout[X]
+## MSG_ARENA_PAYOUT_TRIPLE
+Triple Payout[X]
+
+## GAME_SNEK_CONVO_YES
+[OpenMidLeft][LoadFace_CivilianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Great! Then let me just get[N]
+everything set up for you.[A][X]
+
+## GAME_SNEK_CONVO_NO
+[OpenMidLeft][LoadFace_CivilianManOld]
+[OpenMidRight][LoadFace_ActiveUnit]
+[OpenMidLeft]
+Oh I see.[A][N][MoveMidLeft]
+Not to worry, another time then![A][X]

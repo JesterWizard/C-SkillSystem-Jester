@@ -349,13 +349,29 @@ static void Snek_Init(struct EventEngineProc * proc)
 	Snek_DrawSprites(proc);
 }
 
+/*
+ * The game's end, by losing or with B. The result conversation's slots are set here, before the score is reset
+ * (Snek_SetOutcomeEventSlots used to compare the already reset score): EVT_SLOT_7 is 0 for a new record, 1 for a tie,
+ * 2 otherwise, and the talk number is the tokens it paid, for [G] in the conversation.
+ */
 static void Snek_EndProc(struct EventEngineProc * proc)
 {
+	int score = gSnekCurrentScore;
+	int tokens = score >> 3;	/* the guild board's tokens: 1 per 8 points (2 coins) */
+
+	if (score > gSnekHighScore)
+		gEventSlots[EVT_SLOT_7] = 0;
+	else if (score == gSnekHighScore)
+		gEventSlots[EVT_SLOT_7] = 1;
+	else
+		gEventSlots[EVT_SLOT_7] = 2;
+	SetTalkNumber(tokens);
+
 	// Set the high score for the next game and reset the current score
-	if (gSnekCurrentScore > gSnekHighScore)
-		gSnekHighScore = gSnekCurrentScore;
+	if (score > gSnekHighScore)
+		gSnekHighScore = score;
 #ifdef CONFIG_DISTRICT_GUILD
-	Guild_AddTokens(gSnekCurrentScore >> 3);	/* the guild board's tokens: 1 per 8 points (2 coins) */
+	Guild_AddTokens(tokens);
 #endif
 
 	gSnekCurrentScore = 0;
@@ -376,7 +392,8 @@ static void Snek_Loop(struct EventEngineProc * proc)
 
 	if (gKeyStatusPtr->newKeys & B_BUTTON)
 	{
-		Proc_Goto(proc, PL_GAME_SNEK_PRESS_B);
+		/* Quitting ends the game like losing: its score still counts */
+		Snek_EndProc(proc);
 		return;
 	}
 
@@ -479,6 +496,10 @@ static const struct ProcCmd ProcScr_SnekMinigame[] = {
 PROC_LABEL(PL_GAME_SNEK_PRESS_B),
     PROC_CALL_ARG(NewFadeOut, 0x10),
     PROC_WHILE(FadeOutExists),
+	/* Back to the map (as the district minigames do), so the result conversation shows over it */
+	PROC_CALL(RefreshBMapGraphics),
+	PROC_CALL_ARG(NewFadeIn, 0x10),
+	PROC_WHILE(FadeInExists),
 	PROC_END,
 };
 
@@ -487,15 +508,9 @@ void CallSnekMinigameASMC(struct EventEngineProc * proc)
 	Proc_StartBlocking(ProcScr_SnekMinigame, proc);
 }
 
+/* After CallSnekMinigameASMC: EVT_SLOT_7 (the result) and the talk number were set as the game ended (Snek_EndProc) */
 void Snek_SetOutcomeEventSlots(void)
 {
-	if (gSnekCurrentScore > gSnekHighScore)
-		gEventSlots[EVT_SLOT_7] = 0;
-	else if (gSnekCurrentScore == gSnekHighScore)
-		gEventSlots[EVT_SLOT_7] = 1;
-	else
-		gEventSlots[EVT_SLOT_7] = 2;
-
 	gEventSlots[EVT_SLOT_8] = 0;
 	gEventSlots[EVT_SLOT_9] = 1;
 }
