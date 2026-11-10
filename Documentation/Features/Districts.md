@@ -47,8 +47,8 @@ Each district:
 |---|---|---|---|---|---|
 | Serafew | `NODE_SERAFEW` | Chapter 5 (story id `0x06`). Opens when the next world-map story chapter, Chapter 6, starts. | `0x3B` | Orrin, Della | (8, 20) |
 | Port Kiris | `NODE_PORT_KIRIS` | Chapter 9 (story id `0x0A`). Opens when Chapter 10 starts. | `0x3C` | Bram, Corra | (6, 21) |
-| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 12 (story id `0x0C`). Opens when Chapter 13 starts, once those chapters are in the story table. | `0x41` | Tamsin, Ewlyn | (5, 20) |
-| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 15 (story id `0x0F`). Opens when Chapter 16 starts, once those chapters are in the story table. | `0x42` | Rashid, Samira | (11, 14) |
+| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 7 for now (story id `0x08`). Opens when Chapter 8 starts. Its place is Chapter 12 (`0x0C`). | `0x41` | Tamsin, Ewlyn | (5, 20) |
+| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 8 for now (story id `0x09`). Opens when Chapter 9 starts. Its place is Chapter 15 (`0x0F`). | `0x42` | Rashid, Samira | (11, 14) |
 
 The gate tile is where stepping leaves the district. The table lists it as (x, y) in tiles. All four gates are on the
 bottom edge.
@@ -506,9 +506,10 @@ blinks on the board while a quest there is met and waiting to be claimed. The ru
 
 ## ⚠️ Limitations
 
-- **Caer Pelyn and Jehanna Hall wait on campaign content.** Their story chapters, 12 and 15, have no row in `gWmStoryChapterNodes`
-  yet, because the table ends at Chapter 10. They open when Chapter 13 (or 16) starts, once Chapter 12 (or 15) and that chapter
-  are in the table. Until then, the flags `0x92` and `0x93` are never set.
+- **Caer Pelyn and Jehanna Hall open early for now.** Their story chapters, 12 and 15, have no row in `gWmStoryChapterNodes`
+  yet, because the table ends at Chapter 10, so a district tied to them would never open. Until those chapters exist they open
+  after Chapter 7 and Chapter 8 (`gDistrictNodes` in `Kernel/Wizardry/EnterTown/District.c`). Move them back to `0x0C` and
+  `0x0F` when Chapters 12 to 16 are in the table. The last story chapter (10) can never open a district: nothing starts after it.
 - **Opening is tied to the next story chapter.** A district opens when the next world-map story chapter starts, not when its
   own chapter is cleared.
 - **Free movement only.** The gate, the NPC walks, and the Hex Card icon work only in free movement.
