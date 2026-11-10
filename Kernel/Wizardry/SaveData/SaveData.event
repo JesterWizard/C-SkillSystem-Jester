@@ -22,6 +22,7 @@
 #include "Source/MsaFunc.lyn.event"
 #include "Source/MsuFunc.lyn.event"
 #include "Source/ExternalLoader.lyn.event"
+#include "Source/SaveLayoutGuard.lyn.event"
 #include "SaveDataExpansion/RelocMiscChunks.event"
 #include "SaveDataExpansion/RemoveLinkArena.event"
 #include "SaveDataExpansion/RemoveXmap.event"

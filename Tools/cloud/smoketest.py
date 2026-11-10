@@ -38,6 +38,8 @@ What it checks:
   savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
   suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
               position and every district save chunk (guild, River Crossing, Tower Stack, fishing, Hex, Snek).
+  saveguard   a game save's block checksum carries the layout signature; set back to a pre-guard checksum, the save
+              is refused (no Restart Chapter).
   gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
               same district chunks.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -57,7 +59,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -115,6 +117,7 @@ WM_NODES = 0x1D  # the world map's nodes (NODE_MAX)
 WM_PATH_DATA = 0x08206674  # gWMPathData: 12 bytes a path, its two nodes at +4
 CHAPTER_07 = 0x08
 PROC_SIZE, PROCS = 0x6C, 64  # sProcArray: 64 procs of 0x6C bytes
+SRAM = 0x0E000000
 CHAPTER_20 = 0x14
 WM_NODE_PORT_KIRIS, WM_NODE_RAUSTEN, WM_NODE_BLACK_TEMPLE = 9, 23, 25
 WM_NODE_VALNI, WM_NODE_LAGDOU, WM_NODE_MELKAEN = 26, 27, 28
@@ -313,12 +316,14 @@ class Smoke:
 
     def walk(self, rom, state, target, layout, cfg, avoid, d, max_runs=40):
         """Walks Eirika to target from a save state. Each run takes up to 4 path steps; a step that does not move her
-        (a wandering NPC, a tile free movement refuses) marks that tile blocked, and the path is planned again. When the
+        twice (a wandering NPC, a tile free movement refuses; once can be input timing) marks that tile blocked, and
+        the path is planned again. When the
         blocked tiles leave no path, it waits two seconds for the wandering NPCs to move on and forgets them (4 times at
         most)."""
         w, h, tiles = layout["w"], layout["h"], layout["tiles"]
         ground = rules.WALK - {0x26, 0x1E}
         blocked = set()
+        missed = {}
 
         def ok(x, y):
             if not (0 <= x < w and 0 <= y < h) or (x, y) in blocked:
@@ -365,6 +370,17 @@ class Smoke:
                 continue
             if not steps:
                 return None
+            # A step that does not register leaves the next ones to run from an earlier tile: stop the run before a
+            # step that, from any tile so far, would land on a tile to avoid (the gate's prompt would take the keys)
+            run_steps, p, seen = [], pos, [pos]
+            for key in steps[:4]:
+                dx, dy = {"RIGHT": (1, 0), "LEFT": (-1, 0), "DOWN": (0, 1), "UP": (0, -1)}[key]
+                if run_steps and any((q[0] + dx, q[1] + dy) in avoid for q in seen):
+                    break
+                run_steps.append(key)
+                p = (p[0] + dx, p[1] + dy)
+                seen.append(p)
+            steps = run_steps
             lines = ["load " + cur]
             for key in steps[:4]:
                 # free movement: the first short press of a direction may only turn the unit, the second steps
@@ -377,7 +393,11 @@ class Smoke:
                 dx, dy = {"RIGHT": (1, 0), "LEFT": (-1, 0), "DOWN": (0, 1), "UP": (0, -1)}[key]
                 got = (vals[2 * k], vals[2 * k + 1])
                 if got == (x, y):
-                    blocked.add((x + dx, y + dy))
+                    # a step can fail to register once (the frame the run starts on): block the tile on the second
+                    tile = (x + dx, y + dy)
+                    missed[tile] = missed.get(tile, 0) + 1
+                    if missed[tile] >= 2:
+                        blocked.add(tile)
                     break
                 x, y = got
             pos = (vals[-2], vals[-1])
@@ -1190,6 +1210,57 @@ class Smoke:
         self.check("gamesave: the district chunks come back (%d)" % len(regions), regions and not bad,
                    "different: " + ", ".join(bad) if bad else ", ".join(r[0] for r in regions))
 
+    def layout_signature(self):
+        """SaveLayoutGuard.c's signature, from the ROM's chunk tables: FNV-1a over each chunk's size and id (sav, then
+        sus, each ending 0xFFFFFFFF), the two block sizes and the save block offsets."""
+        rom = open(ROM, "rb").read()
+
+        def mix(h, v):
+            for i in range(4):
+                h = ((h ^ ((v >> (8 * i)) & 0xFF)) * 16777619) & 0xFFFFFFFF
+            return h
+        h = 2166136261
+        for table in ("gEmsSavChunks", "gEmsSusChunks"):
+            a = self.sym[table] - 0x08000000
+            while struct.unpack_from("<H", rom, a)[0] != 0xFFFF:
+                h = mix(mix(h, struct.unpack_from("<H", rom, a + 2)[0]), struct.unpack_from("<I", rom, a + 12)[0])
+                a += 16
+            h = mix(h, 0xFFFFFFFF)
+        for v in struct.unpack_from("<2H", rom, self.sym["gEmsSizes"] - 0x08000000):
+            h = mix(h, v)
+        for v in struct.unpack_from("<7H", rom, self.sym["gEmsOffsets"] - 0x08000000):
+            h = mix(h, v)
+        return h or 1
+
+    def test_saveguard(self):
+        """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
+        SramChecksum32 (0x2A) xor the layout signature; with that checksum put back to a bare 0x2A (a save from before
+        the guard, or a build whose signature differs), the title's save menu offers no Restart Chapter."""
+        d = os.path.join(self.out, "saveguard")
+        os.makedirs(d, exist_ok=True)
+        need = ("gEmsSavChunks", "gEmsSusChunks", "gEmsSizes", "gEmsOffsets", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("saveguard: the chunk tables", False, "no symbols")
+        procs = self.sym["sProcArray"]
+        info = SRAM + 0x64  # SaveBlockInfo[SAVE_ID_GAME0]: checksum32 at +0x0C (SRAM reads a byte at a time)
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        lines = self.boot_lines() + DEBUG_SAVE + ["r8 %#x" % (info + 0xC + i) for i in range(4)]
+        lines += SOFT_RESET + [dump("valid.bin")] + ["w8 %#x %d" % (info + 0xC + i, (0x2A >> (8 * i)) & 0xFF)
+                                                     for i in range(4)]
+        lines += SOFT_RESET + [dump("old.bin"), "shot old.png"]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "old.png"), "a save from another layout")
+        sig = self.layout_signature()
+        got = sum(v << (8 * i) for i, v in enumerate(vals[:4])) if len(vals) == 4 else None
+        self.check("saveguard: a game save's checksum carries the layout signature", got == 0x2A ^ sig,
+                   "checksum %s, signature %#x" % ("%#x" % got if got is not None else "?", sig))
+        menu = lambda name: [p[0x30] for a, p in self.procs(os.path.join(d, name)) if a == self.sym["ProcScr_SaveMenu"]]
+        valid, old = menu("valid.bin"), menu("old.bin")
+        restart = 1 << 1  # MAIN_MENU_OPTION_RESTART
+        self.check("saveguard: a save from another layout is refused (no Restart Chapter)",
+                   valid and old and valid[0] & restart and not old[0] & restart,
+                   "main menu options %s, then %s" % (["%#x" % v for v in valid], ["%#x" % v for v in old]))
+
     # ---- battle ----
 
     def skill_id(self, name):
@@ -1599,7 +1670,7 @@ def main():
                 r.submit((0, 3), s.test_awards, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
-                                ("gamesave", s.test_gamesave))):
+                                ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

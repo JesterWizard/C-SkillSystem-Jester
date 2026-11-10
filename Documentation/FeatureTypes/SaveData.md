@@ -41,6 +41,15 @@ Persisting a feature's state in SRAM: a chunk in the normal save (SAV, written w
 
 `struct GlobalSaveInfo` (`Tools/FE-CLib-Mokha/include/bmsave.h:48`) is read and written with `ReadGlobalSaveInfo` and `WriteGlobalSaveInfo` (`bmsave.h:444-445`). `LanguageSelect` keeps its choice in `unk10` (`bmsave.h:64`; `Kernel/Wizardry/LanguageSelect/Source/LanguageSelect.c:84-118`). This header is not one of the EMS tables and is not reset at chapter start.
 
+### Layout guard
+
+Adding, removing or resizing a chunk moves every chunk after it, so a save written by another build would load garbage.
+`Kernel/Wizardry/SaveData/Source/SaveLayoutGuard.c` (#711) mixes a layout signature into each save block's checksum
+(`PopulateSaveBlockChecksum` / `VerifySaveBlockChecksum`, replaced). The signature hashes each chunk's size and id in
+both tables, the block sizes and the block offsets; code addresses don't count, so it only changes with the layout.
+A save from another layout fails `ReadSaveBlockInfo`, so the save menu shows NO DATA for it (or no Resume Chapter) and
+nothing is loaded. Saves written before the guard fail it too. `smoketest.py --only saveguard` checks both sides.
+
 ## Where to look
 
 | File | Role |
