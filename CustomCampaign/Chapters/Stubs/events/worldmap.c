@@ -8,10 +8,13 @@
  * node. Chapter 10's are in Chapters/10. EventScrWM_SET_NODE and EventScrWM_TRAVEL_TO_NODE (World_Map_Events.c) list
  * them by the chapters' gmapEventId.
  */
-#define STUB_SET_NODE(name, from, to) \
+#define STUB_SET_NODE(name, from, to) STUB_SET_NODE_WITH(name, from, to, )
+/* With more of the map shown first (extra: world-map events, e.g. WM_SHOW_POSTGAME_DUNGEONS) */
+#define STUB_SET_NODE_WITH(name, from, to, extra) \
     const EventScr EventScrWM_##name##_SET_NODE[] = { \
         WM_OPEN_MAP(CHARACTER_EIRIKA, from) \
         WM_SETUNITONNODE(WM_MU_0, from) \
+        extra \
         WM_REVEAL_DEST(to) \
         WM_CLOSE_SET_NODE() \
     }; \
@@ -33,4 +36,5 @@ STUB_SET_NODE(Ch16, WM_NODE_JehannaHall2, WM_NODE_RenaisCastle)
 STUB_SET_NODE(Ch17, WM_NODE_JehannaHall2, WM_NODE_NarubeRiver)
 STUB_SET_NODE(Ch18, WM_NODE_NarubeRiver,  WM_NODE_NelerasPeak)
 STUB_SET_NODE(Ch19, WM_NODE_NelerasPeak,  WM_NODE_RaustenCourt)
-STUB_SET_NODE(Ch20, WM_NODE_RaustenCourt, WM_NODE_BlackTemple)
+/* Before Chapter 20, as in vanilla, the Lagdou Ruins and Melkaen Coast appear, for the postgame */
+STUB_SET_NODE_WITH(Ch20, WM_NODE_RaustenCourt, WM_NODE_BlackTemple, WM_SHOW_POSTGAME_DUNGEONS)

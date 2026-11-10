@@ -44,6 +44,28 @@ the node menu (and its Enter District row).
 
 A monster on a node *between* the lord and the story node still stops the trip with a skirmish, as in vanilla.
 
+`struct GMapData` had a second layout bug, fixed in #699. `OpenPaths` is `0x21` bytes, and vanilla pads after it, so
+`current_node` is at `+0xC8` and `unk_cd` (the node menu's last row) at `+0xCD`. In C they sat 3 bytes early. The node
+menu then reopened on whatever row vanilla's shops had left, and `current_node` was written where vanilla doesn't read
+it. `worldmap.h` now pads it (`STRUCT_PAD(0xC5, 0xC8)`).
+
+## The postgame
+
+After Chapter 22's ending the game saves a cleared slot ("Epilogue"). **Extras > Map** on that slot starts the
+postgame: the world map with `PLAY_FLAG_POSTGAME`. Restart Chapter on it plays the ending again, as in vanilla.
+
+- The story is over in the postgame. `gWmStoryChapter` keeps the last story chapter, so `WmStoryReached` (district life,
+  unlocks) still counts it. But its node is no longer the next one (`WmStoryNodeNow`), and every node starts its
+  vanilla chapter. Without this, a trip back to Black Temple would replay Chapter 20.
+- The postgame dungeons need their nodes shown during the story. The Tower of Valni comes in Chapter 9's world map.
+  The Lagdou Ruins and Melkaen Coast come in Chapter 20's (`WM_SHOW_POSTGAME_DUNGEONS`, as vanilla's script `0x15`
+  does). A trip to a dungeon starts its first floor.
+- The secret shop row shows in the postgame, on nodes with a secret shop (Rausten Court).
+- Districts can still be entered.
+
+`smoketest.py --only postgame` plays from Chapter 20's world map through the ending into the postgame and checks all of
+this.
+
 ## The story
 
 | Chapter | Id | Node | |
