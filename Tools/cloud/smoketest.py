@@ -773,20 +773,18 @@ class Smoke:
             back = [a for a, _ in self.procs(os.path.join(d, name + "_back.bin"))]
             return kind, items, main in back and base not in back and shop not in back
 
-        def in_order(sub, full):
-            it = iter(full)
-            return all(x in it for x in sub)
         for name, rows, k, kind_want in (("armory", 0, 0xC, 0), ("vendor", 1, 0x10, 1)):
             want = stock(WM_NODE_SERAFEW, k)
             kind, items, back = visit(name, rows)
             self.check("wmshops: Serafew's %s row opens the %s" % (name, name), kind == [kind_want],
                        "base menu kind %s" % kind)
-            # With Three Houses magic on, StartShopScreen drops tomes and staves: the stock is the node's list, in
-            # order, less those, and nothing after its end (it used to read on into the next list in ROM)
+            # The whole list, and nothing after its end (it used to read on into the next list in ROM). With Three
+            # Houses magic on, StartShopScreen drops tomes and staves; the vendors' lists have none (#704,
+            # Data/WorldMap/VendorStock.c), so Serafew's vendor sells all of its 5 items, not just a Vulnerary
             got = items[0] if len(items) == 1 else []
             sold = got[:got.index(0)] if 0 in got else got
-            self.check("wmshops: the %s sells Serafew's stock, in order, and nothing after it" % name,
-                       sold and in_order(sold, want) and not any(got[len(sold):]),
+            self.check("wmshops: the %s sells all of Serafew's stock (%d items), and nothing after it" % (name, len(want)),
+                       len(want) >= 5 and sold == want and not any(got[len(sold):]),
                        "shop %s, node %s" % (got, want))
             self.check("wmshops: B leaves the %s for the world map" % name, back, "")
         # Adlas Plains, cleared, the story on Chapter 7 (Renvall): no shop row comes first
