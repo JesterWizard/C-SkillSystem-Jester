@@ -11,9 +11,21 @@ What it checks:
               the spot's screen and B brings the map back. River Crossing and Tower Stack also check their state in RAM.
   tokens      (Serafew) a River Crossing game over pays the guild board's tokens (1 per 100 points).
   claim       (Serafew) a met quest is claimed on the guild board for its tokens.
+  prizes      (Serafew) the guild board sells the Omni Tonic and a skill scroll: the tokens drop by their costs and
+              both reach Eirika.
+  savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
+  suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
+              position and every district save chunk (guild, River Crossing, Tower Stack, fishing, Hex, Snek).
+  gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
+              same district chunks.
+  battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
+              in a free skill slot, the fight hurts the soldier, and with 99 EXP she levels up. Her level-up quote's
+              portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
+  battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
+              (a test ROM maps her sad portrait to SURPRISED).
 
---quick runs boot, statscreen and Serafew only. --only runs the named tests (boot, statscreen, a district's name,
-tokens, claim). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+--quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
+a district's name, tokens, claim, prizes, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -23,6 +35,7 @@ import argparse
 import json
 import os
 import re
+import struct
 import subprocess
 import sys
 import tempfile
@@ -52,6 +65,36 @@ CHAPTER = PLAYST + 0x0E
 UNIT_X, UNIT_Y = UNIT1 + 0x10, UNIT1 + 0x11
 CHAPTER_TABLE = 0x8B0890
 CHAPTER_ROW = 0x94
+BATTLE_ACTOR = 0x0203A4EC
+BATTLE_TARGET = 0x0203A56C
+GFACES = 0x03004980
+EVENT_SLOTS = 0x030004B8
+EIRIKA_PORTRAIT = 0x02
+EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED = 3, 4, 5  # include/kernel/portrait-expressions.h
+BM_MAP_UNIT = 0x0202E4D8
+ITEM_TONIC = 0xDF
+SKILL_SCROLL_ITEMS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 (include/configs/configs.h)
+GUILD_PRIZE_WORD, GUILD_PRIZE_SKILL = 1, 2  # include/kernel/guild.h
+
+# save chunk save function: the RAM it saves (its size comes from the chunk table; Snek saves a u16 and a magic)
+SAVE_RAM = {
+    "Guild_Save": "gGuildSave", "CrossingRecords_Save": "gCrossingRecords",
+    "CrossingProgress_Save": "gCrossingProgress", "TowerRecords_Save": "gTowerRecords",
+    "FishingRecords_Save": "gFishingRecords", "FishingProgress_Save": "gFishingProgress",
+    "HexSave_Save": "gHexSave", "Snek_SaveHighScore": "gSnekHighScore",
+}
+# values written before saving, so a chunk that is not saved or loaded shows up: (RAM symbol, offset, bits, value)
+SENTINELS = [("gGuildSave", 2, 16, 1234), ("gCrossingRecords", 2, 16, 777), ("gTowerRecords", 2, 16, 345),
+             ("gSnekHighScore", 0, 16, 42)]
+
+# the Vesly debugger (B on an empty tile): page 2, "Save & restart ch." (as in boot-to-prep.txt), then the save slot
+DEBUG_SAVE = ["press B", "wait 60", "press RIGHT", "wait 40", "press DOWN", "wait 10", "press DOWN", "wait 10",
+              "press A", "wait 60"] + ["press DOWN", "wait 10"] * 7 + ["press START", "wait 200", "press A",
+                                                                         "wait 120", "press A", "wait 600"]
+# A+B+START+SELECT, then the language screen and the title
+SOFT_RESET = ["hold A+B+START+SELECT 10", "wait 500", "press A", "wait 200", "press START", "wait 200"]
+# Eirika is under the cursor at the start of the prologue: A selects her, A stays, and the action menu opens
+EIRIKA_MENU = ["wait 30", "press A", "wait 30", "press A", "wait 40"]
 
 
 class Smoke:
@@ -322,6 +365,253 @@ class Smoke:
         self.check("claim: Serafew's first quest pays 15 tokens and is marked claimed", vals == [15, 1],
                    "tokens, claimed bits %s" % vals)
 
+    def prizes(self):
+        """gGuildPrizes from the ROM: (item, cost, kind, once) per row."""
+        rom = open(ROM, "rb").read()
+        a, out = self.sym["gGuildPrizes"] - 0x08000000, []
+        while struct.unpack_from("<H", rom, a)[0]:
+            item, cost, kind, once = struct.unpack_from("<HHBB", rom, a)
+            out.append((item, cost, kind, once))
+            a += 8
+        return out
+
+    def test_prizes(self, states):
+        """Buys the Omni Tonic and the first skill scroll on Serafew's board: the tokens drop by their costs and both
+        items reach Eirika."""
+        d = os.path.join(self.out, "Serafew")
+        if "guild" not in states or "gGuildPrizes" not in self.sym or "gGuildSave" not in self.sym:
+            return self.check("prizes: a tonic and a skill scroll", False, "no guild board or symbols")
+        rows = self.prizes()
+        tonic = next((i for i, r in enumerate(rows) if r[2] == GUILD_PRIZE_WORD and r[0] == (8 << 8) | ITEM_TONIC), None)
+        scroll = next((i for i, r in enumerate(rows) if r[2] == GUILD_PRIZE_SKILL), None)
+        if tonic is None or scroll is None:
+            return self.check("prizes: a tonic and a skill scroll", False, "Omni Tonic %s, scroll %s" % (tonic, scroll))
+        g, items = self.sym["gGuildSave"], UNIT1 + 0x1E
+        # A opens the board, R the Prizes page; the hand starts on the first prize
+        lines = ["load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 500" % (g + 2), "w16 %#x 0" % (g + 6),
+                 "hold A 6", "wait 150", "press R", "wait 40"]
+        lines += ["hold DOWN 4", "wait 12"] * tonic + ["press A", "wait 20", "press A", "wait 40"]
+        lines += ["hold DOWN 4", "wait 12"] * (scroll - tonic) + ["press A", "wait 20", "press A", "wait 40",
+                                                                  "shot prizes.png", "r16 %#x" % (g + 2)]
+        lines += ["r16 %#x" % (items + 2 * k) for k in range(5)]
+        vals = self.run(states["rom"], lines, d)
+        self.shot(os.path.join(d, "prizes.png"), "prizes bought")
+        if len(vals) != 6:
+            return self.check("prizes: a tonic and a skill scroll", False, "values %s" % vals)
+        cost = rows[tonic][1] + rows[scroll][1]
+        self.check("prizes: the Omni Tonic and a skill scroll cost %d tokens" % cost, vals[0] == 500 - cost,
+                   "tokens 500 to %d" % vals[0])
+        got = vals[1:]
+        has_tonic = (8 << 8) | ITEM_TONIC in got
+        has_scroll = any(w & 0xFF in SKILL_SCROLL_ITEMS and w >> 8 for w in got)
+        self.check("prizes: both reach Eirika's items", has_tonic and has_scroll,
+                   "items " + " ".join("%04x" % w for w in got))
+
+    # ---- saves ----
+
+    def boot_lines(self):
+        """The boot script without its screenshot and save state: SRAM is not in a save state, so a test that resets
+        the game boots in the same run."""
+        with open(BOOT) as f:
+            return [ln.rstrip("\n") for ln in f if not ln.startswith(("shot", "save"))]
+
+    def chunks(self, table):
+        """(size, save function address) of each chunk in a ROM chunk table."""
+        rom = open(ROM, "rb").read()
+        a, out = self.sym[table] - 0x08000000, []
+        while struct.unpack_from("<H", rom, a)[0] != 0xFFFF:
+            out.append((struct.unpack_from("<H", rom, a + 2)[0], struct.unpack_from("<I", rom, a + 4)[0]))
+            a += 16
+        return out
+
+    def test_savelayout(self):
+        need = ("gEmsSavChunks", "gEmsSusChunks", "gEmsSizes", "gEmsOffsets")
+        if not all(n in self.sym for n in need):
+            return self.check("savelayout: the chunk tables are in the ROM", False, "no symbols")
+        rom = open(ROM, "rb").read()
+        sav_size, sus_size = struct.unpack_from("<HH", rom, self.sym["gEmsSizes"] - 0x08000000)
+        offs = struct.unpack_from("<5H", rom, self.sym["gEmsOffsets"] - 0x08000000)
+        for name, table, size in (("game save", "gEmsSavChunks", sav_size), ("suspend save", "gEmsSusChunks", sus_size)):
+            used = sum(c[0] for c in self.chunks(table))
+            self.check("savelayout: the %s's chunks fit its block" % name, used <= size,
+                       "%d of %d bytes, %d free" % (used, size, size - used))
+        # the suspend block, then the three game slots, end to end below the magic word and the end of SRAM
+        blocks = [(offs[3], sus_size), (offs[0], sav_size), (offs[1], sav_size), (offs[2], sav_size)]
+        ok = all(a + n <= b for (a, n), (b, _) in zip(blocks, blocks[1:]))
+        end = blocks[-1][0] + sav_size
+        magic = struct.unpack_from("<H", rom, self.sym["gSkillSysMagicOffset"] - 0x08000000)[0] \
+            if "gSkillSysMagicOffset" in self.sym else end
+        self.check("savelayout: the blocks do not overlap", ok and end <= magic <= 0x8000,
+                   "slots end at %#x, magic at %#x" % (end, magic))
+
+    def save_regions(self, table):
+        """(RAM symbol, address, size) of each district chunk in a chunk table."""
+        names = {self.sym[f] & ~1: f for f in SAVE_RAM if f in self.sym}
+        out = []
+        for size, save in self.chunks(table):
+            f = names.get(save & ~1)
+            if f and SAVE_RAM[f] in self.sym:
+                ram = SAVE_RAM[f]
+                out.append((ram, self.sym[ram], 2 if ram == "gSnekHighScore" else size))
+        return out
+
+    def round_trip(self, name, table, save_lines, restore_lines, extra_reads=(), extra_writes=()):
+        """Boots, writes the sentinels, dumps the district chunks, saves, wipes them, resets, restores and dumps them
+        again. Returns (the chunks, those that came back different, the values of extra_reads after the restore)."""
+        d = os.path.join(self.out, name)
+        os.makedirs(d, exist_ok=True)
+        regions = self.save_regions(table)
+        lines = self.boot_lines()
+        for ram, off, bits, val in SENTINELS:
+            if ram in self.sym:
+                lines.append("w%d %#x %d" % (bits, self.sym[ram] + off, val))
+        lines += list(extra_writes)
+        lines += ["dump %#x %d pre_%s.bin" % (a, n, ram) for ram, a, n in regions]
+        lines += save_lines
+        lines += ["w8 %#x 0" % (a + k) for _, a, n in regions for k in range(n)]
+        lines += SOFT_RESET + restore_lines + ["shot restored.png"]
+        lines += ["dump %#x %d post_%s.bin" % (a, n, ram) for ram, a, n in regions]
+        vals = self.run(ROM, lines + list(extra_reads), d)
+        self.shot(os.path.join(d, "restored.png"), name + " restored")
+        bad = []
+        for ram, a, n in regions:
+            pre, post = (os.path.join(d, "%s_%s.bin" % (k, ram)) for k in ("pre", "post"))
+            if not (os.path.exists(pre) and os.path.exists(post)) or open(pre, "rb").read() != open(post, "rb").read():
+                bad.append(ram)
+        return regions, bad, vals
+
+    def test_suspend(self):
+        # Eirika's HP drops to 9 before she waits; the wait writes the suspend save
+        hp = UNIT1 + 0x13
+        regions, bad, vals = self.round_trip(
+            "suspend", "gEmsSusChunks",
+            EIRIKA_MENU + ["press UP", "wait 10", "press A", "wait 90", "w8 %#x 1" % hp],
+            ["press A", "wait 200", "press A", "wait 200"],
+            ["r8 %#x" % hp, "r8 %#x" % UNIT_X, "r8 %#x" % UNIT_Y, "r8 %#x" % CHAPTER], ["w8 %#x 9" % hp])
+        if not self.check("suspend: Resume Chapter reloads the map", len(vals) == 4 and vals[3] == 0,
+                          "chapter %s" % (vals[3:] or "?")):
+            return
+        self.check("suspend: Eirika's HP and position come back", vals[:3] == [9, 4, 5],
+                   "HP %d at (%d, %d)" % tuple(vals[:3]))
+        self.check("suspend: the district chunks come back (%d)" % len(regions), regions and not bad,
+                   "different: " + ", ".join(bad) if bad else ", ".join(r[0] for r in regions))
+
+    def test_gamesave(self):
+        # the chunks are wiped before the reset, so only a loaded save brings them back
+        regions, bad, _ = self.round_trip("gamesave", "gEmsSavChunks", DEBUG_SAVE,
+                                          ["press A", "wait 200", "press A", "wait 300"])
+        self.check("gamesave: the district chunks come back (%d)" % len(regions), regions and not bad,
+                   "different: " + ", ".join(bad) if bad else ", ".join(r[0] for r in regions))
+
+    # ---- battle ----
+
+    def skill_id(self, name):
+        m = re.search(r"#define %s (0x[0-9A-Fa-f]+|\d+)" % name,
+                      open(os.path.join(ROOT, "include", "constants", "skills.h")).read())
+        return int(m.group(1), 0) if m else None
+
+    def test_battle(self, boot_ss):
+        d = os.path.join(self.out, "battle")
+        os.makedirs(d, exist_ok=True)
+        skills = UNIT1 + 0x32
+        # Attack, the first weapon: the forecast of the first target
+        forecast = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "shot forecast.png"]
+        vals = self.run(ROM, ["load " + boot_ss] + ["r8 %#x" % (skills + k) for k in range(5)] + forecast +
+                        ["r16 %#x" % (BATTLE_ACTOR + 0x5A)], d)
+        self.shot(os.path.join(d, "forecast.png"), "battle forecast")
+        if not self.check("battle: the forecast opens", len(vals) == 6 and vals[5] > 0,
+                          "attack %s" % (vals[5:] or "?")):
+            return
+        base = vals[5]
+        # the five skill slots are 10 bits each in unit+0x32..0x36: Str Bonus goes in the first empty one
+        packed = sum(v << (8 * k) for k, v in enumerate(vals[:5]))
+        sid = self.skill_id("SID_StrBonus")
+        slot = next((k for k in range(4) if (packed >> (10 * k)) & 0x3FF == 0), None)
+        writes = []
+        if sid is not None and slot is not None:
+            packed |= sid << (10 * slot)
+            writes = ["w8 %#x %#x" % (skills + k, (packed >> (8 * k)) & 0xFF) for k in range(5)]
+        lvl = UNIT1 + 0x08
+        quote_ss = os.path.join(d, "quote.ss")
+        vals = self.run(ROM, ["load " + boot_ss, "r8 %#x" % lvl, "w8 %#x 99" % (UNIT1 + 0x09)] + writes + forecast +
+                        ["r16 %#x" % (BATTLE_ACTOR + 0x5A), "r32 %#x" % BATTLE_TARGET, "press A", "wait 460",
+                         "shot levelup.png", "wait 150", "shot quote.png", "save " + quote_ss, "r32 %#x" % GFACES,
+                         "r8 %#x" % (EVENT_SLOTS + 9 * 4), "wait 300", "shot after.png",
+                         "r8 %#x" % (BATTLE_TARGET + 0x13), "r8 %#x" % (BATTLE_TARGET + 0x72), "r8 %#x" % lvl], d)
+        self.shot(os.path.join(d, "levelup.png"), "level-up")
+        self.shot(os.path.join(d, "quote.png"), "level-up quote")
+        if len(vals) != 8:
+            return self.check("battle: the fight runs", False, "values %s" % vals)
+        lv0, atk, target, face, gains, hp, hp0, lv1 = vals
+        if writes:
+            self.check("battle: Str Bonus in a skill slot raises the attack", atk > base,
+                       "attack %d without, %d with" % (base, atk))
+        else:
+            self.check("battle: a free skill slot for Str Bonus", False, "SID %s, slot %s" % (sid, slot))
+        self.check("battle: the attack hurts an enemy", target != 0 and hp < hp0, "HP %d to %d" % (hp0, hp))
+        self.check("battle: 99 EXP levels Eirika up", lv1 == lv0 + 1, "level %d to %d" % (lv0, lv1))
+        self.check_quote_face(face, gains, quote_ss, d)
+
+    def test_battlequote(self, boot_ss):
+        """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with
+        [LoadFace_Eirika][Surprised]. Eirika has no surprised portrait, so a test ROM maps her sad row to SURPRISED;
+        the tag on a face that has just loaded must show it."""
+        d = os.path.join(self.out, "battle")
+        os.makedirs(d, exist_ok=True)
+        if "gPortraitExpressions" not in self.sym or not self.expression(EIRIKA_PORTRAIT, EXPRESSION_SAD):
+            return self.check("battlequote: Eirika has a sad portrait for the test", False)
+        data = bytearray(open(ROM, "rb").read())
+        a = self.sym["gPortraitExpressions"] - 0x08000000
+        while data[a]:
+            if data[a] == EIRIKA_PORTRAIT and data[a + 1] == EXPRESSION_SAD:
+                data[a + 1], want = EXPRESSION_SURPRISED, data[a + 2]
+            a += 4
+        rom = os.path.join(d, "quote.gba")
+        open(rom, "wb").write(data)
+        enemy = 0x0202CFBC
+        vals = self.run(rom, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT, "r8 %#x" % (enemy + 0x10),
+                              "r8 %#x" % (enemy + 0x11)], d)
+        rows, ex, ey = vals
+        row = lambda y: self.run(rom, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0]
+        # the tile below Eirika, (4, 6); the unit map row pointers come from gBmMapUnit
+        moves = ["w8 %#x 0" % (row(ey) + ex), "w8 %#x 0x81" % (row(6) + 4), "w8 %#x 4" % (enemy + 0x10),
+                 "w8 %#x 6" % (enemy + 0x11)]
+        # Attack, the first weapon, DOWN to the second target (O'Neill), A; A through his two lines to Eirika's
+        lines = ["load " + boot_ss] + moves + EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press DOWN",
+                                                           "wait 30", "press A", "wait 60"]
+        lines += ["wait 50", "press A", "wait 40"] * 5 + ["shot battlequote.png", "save battlequote.ss",
+                                                          "r32 %#x" % GFACES]
+        face = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "battlequote.png"), "battle quote")
+        got = self.run(rom, ["load " + os.path.join(d, "battlequote.ss"), "r16 %#x" % (face[0] + 0x3E)], d) \
+            if face and face[0] else []
+        self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
+                   "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
+
+    def expression(self, base, expression):
+        """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
+        if "gPortraitExpressions" not in self.sym:
+            return None
+        rom = open(ROM, "rb").read()
+        a = self.sym["gPortraitExpressions"] - 0x08000000
+        while rom[a]:
+            if rom[a] == base and rom[a + 1] == expression:
+                return rom[a + 2]
+            a += 4
+        return None
+
+    def check_quote_face(self, face, gains, quote_ss, d):
+        """The level-up quotes open with [Sad] for a poor level-up (0-2 stat points, or 9+) and [Happy] for a great one
+        (6-8): the level-up portrait shows that expression of Eirika's portrait if the table has one."""
+        if not face:
+            return self.check("battle: the level-up quote's portrait", False, "no face")
+        got = self.run(ROM, ["load " + quote_ss, "r16 %#x" % (face + 0x3E)], d)
+        tier = 1 if 3 <= gains <= 5 else 2 if 6 <= gains <= 8 else 0
+        base = EIRIKA_PORTRAIT
+        want = {0: self.expression(base, EXPRESSION_SAD), 2: self.expression(base, EXPRESSION_HAPPY)}.get(tier) or base
+        self.check("battle: the level-up quote shows its expression", got == [want],
+                   "%d stat points: portrait %s, want %#x" % (gains, ", ".join("%#x" % v for v in got), want))
+
     # ---- report ----
 
     def report(self):
@@ -346,7 +636,7 @@ class Smoke:
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--quick", action="store_true", help="boot, statscreen and Serafew only")
+    ap.add_argument("--quick", action="store_true", help="every test but the districts other than Serafew")
     ap.add_argument("--out", help="folder for screenshots and the report (default: a new temp folder)")
     ap.add_argument("--only", nargs="+", help="run only these tests")
     a = ap.parse_args()
@@ -361,17 +651,29 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen"):
+    if on("boot") or on("statscreen") or on("battle") or on("battlequote"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
+        if boot_ss and on("battle"):
+            s.test_battle(boot_ss)
+        if boot_ss and on("battlequote"):
+            s.test_battlequote(boot_ss)
+    if on("savelayout"):
+        s.test_savelayout()
+    if on("suspend"):
+        s.test_suspend()
+    if on("gamesave"):
+        s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim"))):
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes"))):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
                 s.test_tokens(states)
             if n == "Serafew" and on("claim"):
                 s.test_claim(states)
+            if n == "Serafew" and on("prizes"):
+                s.test_prizes(states)
     sys.exit(s.report())
 
 
