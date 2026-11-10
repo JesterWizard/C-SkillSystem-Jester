@@ -330,7 +330,7 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
 | District | Spot (x, y) | Course |
 |---|---|---|
 | Serafew | (3, 15) | 0 |
-| Port Kiris | (19, 20) | 1 |
+| Port Kiris | (18, 20) | 1 |
 | Caer Pelyn | (15, 13) | 2 |
 | Jehanna Hall | (16, 11) | 3 |
 

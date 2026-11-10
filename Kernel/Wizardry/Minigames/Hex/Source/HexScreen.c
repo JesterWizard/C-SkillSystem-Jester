@@ -1109,13 +1109,21 @@ static void HexScreen_SetBar(struct ProcHexScreen *proc, u8 code)
 		HexScreen_BarText(proc, "Tier 3");
 		break;
 	case HEX_BAR_VICTORY:
+#ifdef CONFIG_DISTRICT_GUILD
+		HexScreen_BarText(proc, "Victory!  +5 tokens");	/* the guild board's tokens (HexScreen_UpdateEnd) */
+#else
 		HexScreen_BarText(proc, "Victory!");
+#endif
 		break;
 	case HEX_BAR_DEFEAT:
 		HexScreen_BarText(proc, "Defeat...");
 		break;
 	case HEX_BAR_DRAW:
+#ifdef CONFIG_DISTRICT_GUILD
+		HexScreen_BarText(proc, "Draw  +1 token");
+#else
 		HexScreen_BarText(proc, "Draw");
+#endif
 		break;
 	case HEX_BAR_OPPONENT_HAND:
 		HexScreen_BarText(proc, "Your opponent's hand");

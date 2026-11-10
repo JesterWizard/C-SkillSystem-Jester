@@ -378,6 +378,15 @@ static void Crossing_Line1(char *buf)
 			Crossing_Append(buf, &i, "   +");
 			Crossing_AppendNum(buf, &i, CS->gold);
 			Crossing_Append(buf, &i, "G");
+#ifdef CONFIG_DISTRICT_GUILD
+			/* the guild board's tokens this game paid */
+			if (Div(CS->score, 100) > 0) {
+				Crossing_Append(buf, &i, "  +");
+				Crossing_AppendNum(buf, &i, Div(CS->score, 100));
+				Crossing_Append(buf, &i, " ");
+				Crossing_AppendMsg(buf, &i, MSG_GUILD_TOKENS);
+			}
+#endif
 		}
 		break;
 	default:
@@ -1754,7 +1763,7 @@ static void Crossing_DrawStatus(void)
 	/* The district's medal, once the final score has counted up */
 	m = CrossingRecords_Medal(CS->level);
 	if (CS->state == CS_OVER && CS->countDone && m > 0)
-		PutSpriteExt(4, OAM1_X(150), OAM0_Y(0), gObject_16x16,
+		PutSpriteExt(4, OAM1_X(168), OAM0_Y(0), gObject_16x16,
 			     OAM2_PAL(PAL_FX2) + OAM2_LAYER(0) + OAM2_CHR(CROSSING_CHR_MEDAL + (m - 1) * CROSSING_CHR_MEDAL_FRAME));
 	Crossing_PaintTimer();
 	PutSpriteExt(4, OAM1_X(TIMER_X), OAM0_Y(4), gObject_32x8, OAM2_PAL(PAL_UI) + OAM2_LAYER(0) + OAM2_CHR(CHR_TIMER));
