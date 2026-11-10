@@ -23,19 +23,13 @@ bool District_IsDistrictChapter(int chapter)
 	return FALSE;
 }
 
-/* The story chapter the world map leads to next; 0 before the first one */
-int District_StoryChapter(void)
-{
-	return gWmStoryChapter == WM_STORY_CHAPTER_NONE ? 0 : gWmStoryChapter;
-}
-
 int District_TimeOfDay(void)
 {
 	const struct DistrictTime *it;
-	int story = District_StoryChapter(), time = DISTRICT_TIME_DAY;
+	int time = DISTRICT_TIME_DAY;
 
 	for (it = gDistrictTimes; it->storyChapter != DISTRICT_LIFE_END; it++)
-		if (it->storyChapter <= story)
+		if (WmStoryReached(it->storyChapter))
 			time = it->time;
 	return time < DISTRICT_TIMES ? time : DISTRICT_TIME_DAY;
 }
@@ -80,7 +74,7 @@ void District_PlaceNpcs(void)
 {
 	const struct DistrictNpcSpot *it, *spot;
 	struct Unit *unit;
-	int id, story = District_StoryChapter(), chapter = gPlaySt.chapterIndex;
+	int id, chapter = gPlaySt.chapterIndex;
 	bool moved = FALSE;
 
 	for (id = 0x41; id <= 0x7F; id++) {
@@ -89,7 +83,8 @@ void District_PlaceNpcs(void)
 			continue;
 		spot = NULL;
 		for (it = gDistrictNpcSpots; it->chapter != DISTRICT_LIFE_END; it++)
-			if (it->chapter == chapter && it->pid == unit->pCharacterData->number && it->storyChapter <= story)
+			if (it->chapter == chapter && it->pid == unit->pCharacterData->number &&
+			    WmStoryReached(it->storyChapter))
 				spot = it;
 		if (!spot || (spot->x == unit->xPos && spot->y == unit->yPos))
 			continue;

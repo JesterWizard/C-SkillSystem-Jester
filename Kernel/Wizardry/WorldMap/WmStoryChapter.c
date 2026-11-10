@@ -38,6 +38,34 @@ int GetWmStoryChapterNode(int chapter)
  */
 #define WM_CHAPTER_SIDE_MAP_RETURN 0x38
 
+int GetWmStoryChapterRank(int chapter)
+{
+	const struct WmStoryChapterNode *it;
+	int rank = 0;
+
+	if (chapter < 0 || chapter >= WM_STORY_CHAPTER_NONE)
+		return -1;
+
+	for (it = gWmStoryChapterNodes; it->chapter != WM_STORY_CHAPTER_NONE; it++, rank++)
+		if (it->chapter == chapter)
+			return rank;
+
+	return -1;
+}
+
+int WmStoryRank(void)
+{
+	int rank = GetWmStoryChapterRank(gWmStoryChapter);
+
+	return rank < 0 ? 0 : rank;
+}
+
+/* A chapter outside the story table counts from the start */
+bool WmStoryReached(int chapter)
+{
+	return GetWmStoryChapterRank(chapter) <= WmStoryRank();
+}
+
 /* WorldMap_CallBeginningEvent: chapter is the MNCH target (gPlaySt.chapterIndex) */
 void WmStoryChapter_Begin(int chapter)
 {

@@ -47,7 +47,7 @@ void DistrictNpc_EndWalk(void);
 
 /*
  * District life (Kernel/Wizardry/EnterTown/DistrictLife.c, tables in Data/District/DistrictLife.c). Both follow the
- * world-map story (gWmStoryChapter; before the first story chapter, 0).
+ * world-map story: a row counts once the story has reached its chapter, in story order (WmStoryReached).
  *
  * Time of day: a district map's palettes are tinted by the time of day, the time of the last gDistrictTimes row whose
  * story chapter has come. The tint is applied whenever the map's palette loads (UnpackChapterMapPalette, replaced).
@@ -91,7 +91,6 @@ extern const struct DistrictTint gDistrictTints[DISTRICT_TIMES];
 extern const struct DistrictNpcSpot gDistrictNpcSpots[];
 
 bool District_IsDistrictChapter(int chapter);
-int District_StoryChapter(void);
 int District_TimeOfDay(void);
 void District_TintMapPalettes(void);
 void District_PlaceNpcs(void);

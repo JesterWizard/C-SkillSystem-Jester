@@ -1,0 +1,27 @@
+/*
+ * Stub story chapters (events/events.c, Documentation/Features/StoryStubs.md): each vanilla chapter's event slot
+ * (its mapEventDataId) points at its stub group. Replacing a stub with a real chapter: point its slot at the new
+ * group instead, and remove the line here and its STUB_CHAPTER.
+ */
+NewEventPointerTable_Event(0x33, StubChapter10Event)   // Chapter 10 (0x0B)
+NewEventPointerTable_Event(0xD1, StubChapter11Event)   // Chapter 11 (0x3D)
+NewEventPointerTable_Event(0x37, StubChapter12Event)   // Chapter 12 (0x0C)
+NewEventPointerTable_Event(0x3B, StubChapter13Event)   // Chapter 13 (0x0D)
+NewEventPointerTable_Event(0x41, StubChapter14Event)   // Chapter 14 (0x0E)
+NewEventPointerTable_Event(0x47, StubChapter15Event)   // Chapter 15 (0x0F)
+NewEventPointerTable_Event(0x4B, StubChapter16Event)   // Chapter 16 (0x10)
+NewEventPointerTable_Event(0x4F, StubChapter17Event)   // Chapter 17 (0x11)
+NewEventPointerTable_Event(0x56, StubChapter18Event)   // Chapter 18 (0x12)
+NewEventPointerTable_Event(0x5A, StubChapter19Event)   // Chapter 19 (0x13)
+NewEventPointerTable_Event(0x5E, StubChapter20Event)   // Chapter 20 (0x14)
+NewEventPointerTable_Event(0x64, StubChapter21Event)   // Chapter 21 (0x15)
+NewEventPointerTable_Event(0x67, StubChapter22Event)   // Chapter 22 (0x16)
+
+#include "events/events.lyn.event"
+#include "events/worldmap.lyn.event"
+
+/* Chapter 11's world-map event id was vanilla 0x39, far past the others: 0x18 is its row in EventScrWM_SET_NODE */
+PUSH
+ORG 0x8B0890 + 0x3D * 0x94 + 0x75
+BYTE 0x18
+POP

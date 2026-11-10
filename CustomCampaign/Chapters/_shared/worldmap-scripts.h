@@ -37,3 +37,25 @@ extern const EventScr EventScrWM_Ch9_SET_NODE[];
 extern const EventScr EventScrWM_Ch9_TRAVEL_TO_NODE[];
 extern const EventScr EventScrWM_Ch10_SET_NODE[];
 extern const EventScr EventScrWM_Ch10_TRAVEL_TO_NODE[];
+
+/* Stub story chapters (Chapters/Stubs/events/worldmap.c) */
+extern const EventScr EventScrWM_Ch11_SET_NODE[];
+extern const EventScr EventScrWM_Ch12_SET_NODE[];
+extern const EventScr EventScrWM_Ch13_SET_NODE[];
+extern const EventScr EventScrWM_Ch14_SET_NODE[];
+extern const EventScr EventScrWM_Ch15_SET_NODE[];
+extern const EventScr EventScrWM_Ch16_SET_NODE[];
+extern const EventScr EventScrWM_Ch17_SET_NODE[];
+extern const EventScr EventScrWM_Ch18_SET_NODE[];
+extern const EventScr EventScrWM_Ch19_SET_NODE[];
+extern const EventScr EventScrWM_Ch20_SET_NODE[];
+extern const EventScr EventScrWM_Ch11_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch12_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch13_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch14_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch15_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch16_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch17_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch18_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch19_TRAVEL_TO_NODE[];
+extern const EventScr EventScrWM_Ch20_TRAVEL_TO_NODE[];

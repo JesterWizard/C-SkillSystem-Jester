@@ -1,12 +1,13 @@
 #include "../../_shared/worldmap-include.h"
 
+/*
+ * WM_REVEAL_DEST, as Chapters 6 and 7: it also sets Teraz Plateau as the destination (WM_SETDESTINATION). With
+ * WM_CREATENEXTDESTINATION and a drawn path, Teraz was shown but never marked as the next story node, so arriving there
+ * did not start the chapter.
+ */
 const EventScr EventScrWM_Ch10_SET_NODE[] = {
     WM_OPEN_MAP(CHARACTER_EIRIKA, WM_NODE_PortKiris)
-    WM_CREATENEXTDESTINATION
-    WM_WAITFORFX
-    STAL(40)
-    WM_DRAWPATH(WM_PATH_0A)
-    STAL(70)
+    WM_REVEAL_DEST(WM_NODE_TerazPlateau)
     WM_CLOSE_SET_NODE()
 };
 
