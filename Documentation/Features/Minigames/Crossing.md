@@ -12,6 +12,9 @@
 - [Controls](#controls)
 - [Score and Gold](#score-and-gold)
 - [Game Feel](#game-feel)
+- [District Twists](#district-twists)
+- [Pickups and Helpers](#pickups-and-helpers)
+- [Replay Goals](#replay-goals)
 - [The Courses](#the-courses)
 - [Crossing Spots](#crossing-spots)
 - [The Screen](#the-screen)
@@ -62,12 +65,16 @@ keep clear of the start cell in the middle.
 
 | When | Buttons |
 |---|---|
-| Before you start | D-pad: hop (starts the game), B: exit, START: pause |
+| Before you start | D-pad: hop (starts the game), B: exit, R: records, START: pause |
 | Playing | D-pad: hop, B: exit, START: pause |
 | Paused | START: resume, B: exit |
 | Game over | A or B: done |
+| Records | A, B or R: close |
 
 **B leaves at any time** and pays out the score so far.
+
+Before you start, the top line shows this story chapter's challenge for the district (see [Replay Goals](#replay-goals)),
+or "Cross the road and the river!" once it is met. START still pauses there, but its label makes room for R.
 
 The top line shows the round, the score and the best score for this district. The hearts are your lives. The bar at the
 top right is the time left for this life; it turns red under 10 seconds.
@@ -82,6 +89,9 @@ top right is the time left for this life; it turns red under 10 seconds.
 | Filling a dock | 50, plus the seconds left |
 | Clearing a round (all five docks) | 250 |
 | Clearing it without losing a life: **PERFECT!** | 500 more |
+| A coin riding a raft | 50 |
+| Bringing a lost child to a dock: **RESCUED!** | 200 more for that dock |
+| A dock with a star: **BONUS!** | double that dock's points |
 
 The gold paid out is the score divided by 10 (rounded down), when the game ends or when you leave with B.
 
@@ -89,6 +99,11 @@ The best score of each district is saved. It is `gCrossingRecords` (`struct Cros
 `include/kernel/crossing.h`): a magic word and four best scores (up to 65535). It is one chunk at the end of both save
 lists (`Kernel/Wizardry/SaveData/data.event`), after the fishing records, and `CrossingRecords_NewGame` clears it on a
 new game. A save made before the chunk existed loads no records. The suspend save had 32 bytes free after it when it was added.
+
+The district progress is a second chunk right after it, `gCrossingProgress` (`struct CrossingProgress`, 0x10 bytes): a
+magic word, the fastest round 1 of each district (seconds), the milestone bits and the story chapter whose challenge was
+met in each district. `CrossingProgress_NewGame` clears it. With it, the suspend save has 1387 bytes free and the game
+save 1165.
 
 ---
 
@@ -116,6 +131,66 @@ new game. A save made before the chunk existed loads no records. The suspend sav
   is drawn as a plain sprite. The score pop-up uses its own small 3x5 digit font (`DIGIT`, 8x8 tiles, 5 pixels apart).
 - The state for all of it is in `struct CrossingState` (`hitStop`, `chain`, `roundDeaths`, `nearCool`, `squash`, `dustT`,
   `rippleT`, `sinkT`, `shownScore`, `numTimer` and the rest), in what was its padding; the struct stays 0x100 bytes.
+
+---
+
+## 🐢 District Twists
+
+<p align="center">
+  <img src="../../Gifs/River_Crossing_Plus.gif" alt="River Crossing: Serafew's diving turtles, a Port Kiris gull, a Caer Pelyn ice slide into the water, a Jehanna sandstorm, a first clear with its rewards, and the records screen" width="480"/>
+</p>
+
+Each district's course has its own twist on top of its lanes.
+
+| District | Twist |
+|---|---|
+| Serafew | The middle river lane is a line of **turtles**. Each group dives in turn: it swims (160 frames), shows only its shell as a warning (40), then is under water (56) and holds nothing up. The groups are a third of a cycle apart. |
+| Port Kiris | A **gull** swoops along a random row (river, median or road). A red "!" blinks at the left edge for 45 frames, then the gull flies right at 3 pixels a frame. Standing in its row within 10 pixels of it costs a life (a hop dodges it). The next gull comes 3 to 7 seconds later. |
+| Caer Pelyn | The rafts are **ice floes** (an icy palette). A sideways hop onto a floe slides one more cell; a hop the player makes cancels a slide, and a slide never slides again. Sliding off the end of a floe drowns you. |
+| Jehanna Hall | **Sandstorms** blow along a random road lane every 6 to 10 seconds for 3 seconds. After a 30-frame build-up its riders can't be seen; they still trample. |
+
+- The twists' clocks (`tick`, the gull, the storm) are in `struct CrossingExtra` (`gCrossingExtra`, 0x80 bytes, RAM only).
+  `Crossing_UpdateTwists` runs them every frame from `Crossing_UpdateLanes`; new gulls and storms only start in play.
+
+---
+
+## 🪙 Pickups and Helpers
+
+| What | How it works |
+|---|---|
+| A coin | Rides a random raft cell for about 8 seconds (it blinks before it goes). Stand on it: 50 points. |
+| A potion | Instead of a coin, one time in four while you have fewer than 5 lives. Stand on it: a life back, **1UP!** |
+| A lost child | A villager rides a raft until you hop onto it; then it rides on your back. Reach a dock with it: 200 more points and **RESCUED!**. Lose a life and the child is lost; another turns up 10 seconds later. |
+| A star dock | Now and then an empty dock shows a star for 6 seconds: fill it for double that dock's points, **BONUS!** |
+| A skull dock | One time in three the dock shows a skull instead: hopping into it is a trap and costs a life. |
+
+- Pickups and children never ride Serafew's turtles.
+- The child is the `CLASS_CIVILIAN_M3` map sprite, in the green NPC palette, its side frames at OBJ tile `0x340`.
+
+---
+
+## 🏅 Replay Goals
+
+| Goal | What you get |
+|---|---|
+| A medal per district | The best score earns bronze (500), silver (1200) or gold (2500). A new medal pops up **MEDAL!** at the end, instead of NEW BEST!, and the game-over line shows it. |
+| The fastest round 1 | The time to clear round 1 is saved for each district, shown as m:ss on the records screen. |
+| A district's first clear | An **Elixir**, to the unit or else the convoy. The top line says "First clear! Got an Elixir." |
+| A district's first round 5 | A random stat **booster** (HP, Strength, Skill, Speed, Luck, Defense or Resistance). |
+| The chapter's challenge | One per district per story chapter (`gWmStoryChapter`), worth **1000 gold** and **DONE!**, once a chapter. |
+
+The challenge for a district is `(gWmStoryChapter + course) & 3`:
+
+| Challenge | Met when |
+|---|---|
+| Fill docks left to right! | Round 1 is cleared with its docks filled left to right. |
+| Clear round 1 in 60 secs! | Round 1 is cleared within 60 seconds. |
+| Rescue a lost child! | A child is brought to a dock, in any round. |
+| Clear round 1, no misses! | Round 1 is cleared without losing a life. |
+
+- The rewards' messages take turns on the top line, 150 frames each.
+- **The records screen**: R before you start. A window lists each district's best score, its medal and its fastest
+  round 1; this district's name is green. A, B or R closes it.
 
 ---
 
@@ -160,16 +235,21 @@ riders or rafts, a direction, a count, a spacing and a speed. Rafts also have a 
 |---|---|
 | BG3 | The field (BG palette 8, tiles at `0x06008000`) |
 | BG0 | The status line (top) and the button labels (bottom), with no window behind them |
-| OBJ (1D) | The rafts, the riders, the unit (affine while it squashes or sinks), the dock flags, the splash, sparks, droplets, dust and ripples, the pop-up word and the score digits, the hearts, the timer and the buttons |
+| BG1 | The records window (the UI frame, priority 1); off otherwise |
+| OBJ (1D) | The rafts, the riders, the unit (affine while it squashes or sinks), the dock flags, the turtles, the gull and its warning, the sand, the coins and potions, the child, the star or skull dock, the medals, the splash, sparks, droplets, dust and ripples, the pop-up word and the score digits, the hearts, the timer and the buttons |
 
-- **OBJ tiles**: the art from 0 (68 tiles), the unit's walking sheet at `0x100` (12 frames), the pop-up word at `0x220`, the timer at
-  `0x260`, the riders' side frames at `0x280` (3 classes x 4 frames). The riders' sheets are decompressed through the
+- **OBJ tiles**: the art from 0 (138 tiles), the unit's walking sheet at `0x100` (12 frames), the pop-up word at `0x220`, the timer at
+  `0x260`, the riders' side frames at `0x280` (3 classes x 4 frames), the lost child's at `0x340`. The riders' sheets are decompressed through the
   unit's slot first and their side frames copied out. Tiles from `0x380` up (the map's moving units) are not touched.
-- **Palettes**: OBJ 2 the art, 3 the buttons and the timer, 5 the pop-up word, 12 to 15 the unit sprites (the unit in its
-  own colour, the riders in red, bank 13).
+- **Palettes**: OBJ 2 the art, 3 the buttons and the timer, 5 the pop-up word, 6 the twists, pickups and medals, 7 Caer
+  Pelyn's ice floes, 12 to 15 the unit sprites (the unit in its own colour, the riders in red, bank 13, the child in green,
+  bank 14).
 - **A walking district NPC** is a MU that draws itself from OBJ VRAM, and the NPC proc does not run during an event. The
   map fade wrapper calls `DistrictNpc_EndWalk` first, so no garbled NPC shows. The fishing wrapper does the same.
-- The state is `gCrossingState` (`struct CrossingState`, 0x100 bytes, RAM only).
+- The state is `gCrossingState` (`struct CrossingState`, 0x100 bytes) and `gCrossingExtra` (`struct CrossingExtra`, 0x80
+  bytes: the twists, pickups, challenge and the records window's texts), both RAM only.
+- The screen resets the colour effects when it opens: the map can leave alpha blending on, which would make the records
+  window see-through.
 
 ---
 
@@ -181,8 +261,11 @@ All the art is drawn by `Tools/crossing/gen_crossing_art.py`, pixel by pixel. It
 - It writes `Kernel/Wizardry/Minigames/Crossing/Source/CrossingArt.c` and `include/kernel/crossing-art.h` (the field's
   rows, the dock columns, the sprite tile offsets). Don't edit them: change the script and run it again.
 - Sprites: the raft pieces, the splash, sparks, the dock flag, the heart, the buttons, and for the game feel the landing
-  dust (3 frames), the raft ripple (16x8, 2 frames), water droplets and a small 3x5 digit font (0-9, "+", "x").
-- Pop-up words: HOME!, CLEAR!, OUCH!, SPLASH!, GAME OVER, CLOSE!, PERFECT! and NEW BEST!.
+  dust (3 frames), the raft ripple (16x8, 2 frames), water droplets and a small 3x5 digit font (0-9, "+", "x"). For the twists, pickups and goals: a turtle (2 swimming frames and a diving one), a gull (2 frames), the "!" warning, sand
+  (2 frames), a coin (2 frames), a potion, a star (2 frames), a skull, the three medals and an R button. They use their own
+  palette (`FX2`); the ice floes are the raft pieces in an icy palette (`ICE`).
+- Pop-up words: HOME!, CLEAR!, OUCH!, SPLASH!, GAME OVER, CLOSE!, PERFECT!, NEW BEST!, 1UP!, BONUS!, RESCUED!, DONE! and
+  MEDAL!.
 - `--check` exits 1 if the files are out of date. `--preview PATH.png` writes a 3x preview.
 
 ---
@@ -190,7 +273,7 @@ All the art is drawn by `Tools/crossing/gen_crossing_art.py`, pixel by pixel. It
 ## ⚙️ Enabling and Disabling
 
 The switch is `CONFIG_DISTRICT_CROSSING` in `include/configs/configs.h` (on by default). Comment it out to remove the
-game, the A-press trap entry, the map flags and the records chunk. The spots stay in the trap data but do nothing.
+game, the A-press trap entry, the map flags and the two save chunks. The spots stay in the trap data but do nothing.
 
 ---
 
@@ -200,15 +283,16 @@ game, the A-press trap entry, the map flags and the records chunk. The spots sta
 |--------|----------|-------------|
 | Installer | [`Crossing_Installer.event`](../../../Kernel/Wizardry/Minigames/Crossing/Crossing_Installer.event) | Included from `Kernel/Wizardry/wizardry.event` (`WIZARDRY_CUSTOM`) |
 | Game | [`CrossingScreen.c`](../../../Kernel/Wizardry/Minigames/Crossing/Source/CrossingScreen.c) | `ProcScr_CrossingScreen`, the states, `sCourses` |
-| Records | [`CrossingRecords.c`](../../../Kernel/Wizardry/Minigames/Crossing/Source/CrossingRecords.c) | The save chunk and the new-game hook |
+| Records | [`CrossingRecords.c`](../../../Kernel/Wizardry/Minigames/Crossing/Source/CrossingRecords.c) | The save chunks (best scores; fastest clears, milestones, challenges), the medals and the new-game hooks |
 | District glue | [`CrossingDistrict.c`](../../../Kernel/Wizardry/Minigames/Crossing/Source/CrossingDistrict.c) | `Crossing_OnPressA`, `StartDistrictCrossingASMC`, the map flags |
 | Art | [`CrossingArt.c`](../../../Kernel/Wizardry/Minigames/Crossing/Source/CrossingArt.c) | Generated by `Tools/crossing/gen_crossing_art.py` |
-| Header | [`crossing.h`](../../../include/kernel/crossing.h) | `struct CrossingState`, `struct CrossingRecords` |
+| Header | [`crossing.h`](../../../include/kernel/crossing.h) | `struct CrossingState`, `struct CrossingRecords`, `struct CrossingExtra`, `struct CrossingProgress` |
 | Trap type | [`bmtrick.h`](../../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_CROSSING_SPOT` (30) and `CROSSING_SPOT(x, y)` |
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry |
 | Map flags, NPC walks | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | The flags, and `DistrictNpc_EndWalk` |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_CROSSING_*` |
-| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gCrossingState`, `gCrossingRecords` |
+| RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gCrossingState`, `gCrossingRecords`, `gCrossingExtra`, `gCrossingProgress` |
+| Save chunks | [`data.event`](../../../Kernel/Wizardry/SaveData/data.event) | `CrossingRecords` and `CrossingProgress` in both save lists, and their new-game hooks |
 | Switch | [`configs.h`](../../../include/configs/configs.h) | `CONFIG_DISTRICT_CROSSING` |
 
 ---
@@ -220,3 +304,7 @@ game, the A-press trap entry, the map flags and the records chunk. The spots sta
 - The unit's walking sheet must unpack to 0x2200 bytes or less (all vanilla classes do). A class with a bigger sheet, or
   none, uses the Cavalier's.
 - The flags on the map are only drawn in districts.
+- Each challenge is checked in the one game it is met in: a round 1 cleared on an earlier visit does not count.
+- The records window covers the lanes; the rafts and riders are not drawn while it is open (they would show through the
+  medals), so the field's left and right edges look empty for that moment.
+- The gull can pick the median or a raft row; standing still in its row is what costs the life, so a hop in time dodges it.

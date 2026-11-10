@@ -88,8 +88,96 @@ struct CrossingRecords {
 	/* 0A */ u16 pad;
 };
 
+/* Medals: the district's best score earns one (CrossingRecords_Medal). */
+#define CROSSING_MEDAL_BRONZE 500
+#define CROSSING_MEDAL_SILVER 1200
+#define CROSSING_MEDAL_GOLD 2500
+
+/* The per-chapter challenge: met in round 1 (RESCUE: in the whole game). */
+#define CROSSING_CHAL_FAST_SECS 60
+
+enum crossing_pick {
+	CROSSING_PICK_NONE,
+	CROSSING_PICK_COIN,   /* +50 */
+	CROSSING_PICK_POTION, /* +1 life */
+};
+
+enum crossing_child {
+	CROSSING_CHILD_NONE,
+	CROSSING_CHILD_RAFT,    /* riding a raft, waiting */
+	CROSSING_CHILD_CARRIED, /* on the unit's back */
+};
+
+enum crossing_chal {
+	CROSSING_CHAL_ORDER,   /* fill the docks left to right */
+	CROSSING_CHAL_FAST,    /* clear round 1 in CROSSING_CHAL_FAST_SECS */
+	CROSSING_CHAL_RESCUE,  /* rescue a lost child */
+	CROSSING_CHAL_NODEATH, /* clear round 1 without a miss */
+	CROSSING_CHAL_COUNT,
+};
+
+enum crossing_reward {
+	CROSSING_REWARD_NONE,
+	CROSSING_REWARD_FIRST,  /* the district's first clear: an Elixir */
+	CROSSING_REWARD_ROUND5, /* the district's first round 5: a stat booster */
+	CROSSING_REWARD_CHAL,   /* the chapter's challenge: 1000 gold */
+};
+
+/* The twists, pickups, challenge and records screen (RAM only, 0x80 bytes). */
+struct CrossingExtra {
+	/* 00 */ u16 tick;          /* play frames since the game opened */
+	/* 02 */ u16 roundFrames;   /* frames into round 1 (the fastest-clear timer) */
+	/* 04 */ s16 gullX;         /* the gull's x on screen */
+	/* 06 */ u8 gullRow;        /* its row, 0xFF: no gull */
+	/* 07 */ u8 gullWarn;       /* frames of the warning left */
+	/* 08 */ u16 gullNext;      /* frames before the next gull */
+	/* 0A */ u16 stormNext;     /* frames before the next sandstorm */
+	/* 0C */ u8 stormLane;      /* the road lane it hides, 0xFF: none */
+	/* 0D */ u8 stormT;         /* frames of storm left */
+	/* 0E */ u8 slide;          /* an ice slide is under way (no second one) */
+	/* 0F */ u8 pickKind;       /* CROSSING_PICK_* */
+	/* 10 */ u8 pickLane;
+	/* 11 */ u8 pickObj;        /* the raft in its lane */
+	/* 12 */ u8 pickCell;       /* the cell of that raft */
+	/* 13 */ u8 pickT;          /* the pickup's sparkle timer */
+	/* 14 */ u16 pickNext;      /* frames before the next pickup */
+	/* 16 */ u8 childState;     /* CROSSING_CHILD_* */
+	/* 17 */ u8 childLane;
+	/* 18 */ u8 childObj;
+	/* 19 */ u8 childCell;
+	/* 1A */ u16 childNext;     /* frames before the next lost child */
+	/* 1C */ u8 bonusDock;      /* the dock with a star or a skull, 0xFF: none */
+	/* 1D */ u8 bonusKind;      /* 0 a star (double points), 1 a skull (a trap) */
+	/* 1E */ u16 bonusT;        /* frames it stays */
+	/* 20 */ u16 bonusNext;     /* frames before the next one */
+	/* 22 */ u8 chalKind;       /* CROSSING_CHAL_* */
+	/* 23 */ u8 chalFailed;
+	/* 24 */ u8 chalDone;       /* met this game */
+	/* 25 */ u8 nextDock;       /* ORDER: the dock to fill next */
+	/* 26 */ u8 rewardMsg;      /* CROSSING_REWARD_*, shown at game over */
+	/* 27 */ u8 medalBefore;    /* the district's medal before this game */
+	/* 28 */ u16 rewardItem;    /* the item given */
+	/* 2A */ u8 rewardT;
+	/* 2B */ u8 recordsDrawn;
+	/* 2C */ u8 rewardQueue;    /* rewards waiting for the status line, a bit per CROSSING_REWARD_* */
+	/* 2D */ u8 pad0[0x0B];
+	/* 38 */ struct Text texts[6]; /* the records screen */
+	/* 68 */ u8 pad[0x18];
+};
+
+/* Saved progress (a save chunk in both save lists, 0x10 bytes). */
+struct CrossingProgress {
+	/* 00 */ u16 magic;
+	/* 02 */ u16 fastest[CROSSING_LEVELS];  /* the fastest round 1 clear, seconds, 0: none */
+	/* 0A */ u8 milestones;                 /* bits 0-3: first clear, bits 4-7: round 5 (bit = level + 4 * which) */
+	/* 0B */ u8 pad;
+	/* 0C */ u8 chalStory[CROSSING_LEVELS]; /* the story chapter whose challenge was met, 0xFF: none */
+};
+
 extern struct CrossingState gCrossingState;
 extern struct CrossingRecords gCrossingRecords;
+extern struct CrossingExtra gCrossingExtra;
+extern struct CrossingProgress gCrossingProgress;
 
 /* Free-movement A-press trap handler (FreeMovement/cFreeMU/HookList.event): starts the game's event. */
 void Crossing_OnPressA(ProcPtr proc);
@@ -109,3 +197,13 @@ void CrossingRecords_Add(int level, u32 score);
 void CrossingRecords_NewGame(void);
 void CrossingRecords_Save(u8 *dst, const u32 size);
 void CrossingRecords_Load(u8 *src, const u32 size);
+int CrossingRecords_Medal(int level);
+int CrossingRecords_Fastest(int level);
+void CrossingRecords_SetFastest(int level, int seconds);
+bool CrossingRecords_Milestone(int level, int which);
+void CrossingRecords_SetMilestone(int level, int which);
+bool CrossingRecords_ChalDone(int level, int chapter);
+void CrossingRecords_SetChalDone(int level, int chapter);
+void CrossingProgress_NewGame(void);
+void CrossingProgress_Save(u8 *dst, const u32 size);
+void CrossingProgress_Load(u8 *src, const u32 size);

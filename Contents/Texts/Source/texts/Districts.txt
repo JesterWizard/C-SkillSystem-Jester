@@ -327,3 +327,25 @@ The townsfolk want fish.[X]
 See their requests in[X]
 ## MSG_FISHING_BOTTLE_5_3
 the journal's last page.[X]
+## MSG_CROSSING_K_RECORDS
+Records[X]
+## MSG_CROSSING_RECORDS_TITLE
+River Crossing Records[X]
+## MSG_CROSSING_COL_BEST
+Best[X]
+## MSG_CROSSING_COL_FASTEST
+Fastest[X]
+## MSG_CROSSING_CHAL_ORDER
+Fill docks left to right![X]
+## MSG_CROSSING_CHAL_FAST
+Clear round 1 in 60 secs![X]
+## MSG_CROSSING_CHAL_RESCUE
+Rescue a lost child![X]
+## MSG_CROSSING_CHAL_NODEATH
+Clear round 1, no misses![X]
+## MSG_CROSSING_CHAL_DONE
+Challenge met! +1000 gold[X]
+## MSG_CROSSING_REWARD_FIRST
+First clear! Got an Elixir.[X]
+## MSG_CROSSING_REWARD_ROUND5
+Round 5! Got a stat booster.[X]
