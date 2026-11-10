@@ -56,9 +56,29 @@ struct CrossingState {
 		s16 x, y;      /* screen pixels << 4 */
 		s8 vx, vy;     /* pixels << 4 per frame */
 		u8 life;
-		u8 pad;
+		u8 kind;       /* 0 a spark, 1 a water droplet */
 	} parts[CROSSING_PARTS];
-	/* A8 */ u8 pad[0x58];
+	/* A8 */ u8 hitStop;                 /* frames the game stands still after a trampling */
+	/* A9 */ u8 chain;                   /* docks filled in a row without losing a life (the note climbs) */
+	/* AA */ u8 roundDeaths;             /* lives lost this round (none: PERFECT!) */
+	/* AB */ u8 nearCool;                /* frames before another near miss counts */
+	/* AC */ u8 squash;                  /* frames of the landing squash left */
+	/* AD */ u8 dustT;                   /* frames of the landing dust left */
+	/* AE */ u8 dustX;
+	/* AF */ u8 dustY;
+	/* B0 */ u8 rippleT;                 /* frames of the raft ripple left */
+	/* B1 */ u8 sinkT;                   /* frames of the sinking left (drowned) */
+	/* B2 */ u16 shownScore;             /* the final score as it counts up */
+	/* B4 */ u8 countDone;
+	/* B5 */ u8 newBest;
+	/* B6 */ u8 numTimer;                /* frames of the score pop-up ("+10") left */
+	/* B7 */ u8 numLen;
+	/* B8 */ u8 num[6];                  /* its glyphs: 0-9, 10 "+", 11 "x" */
+	/* BE */ u8 numX;
+	/* BF */ u8 numY;
+	/* C0 */ u8 shakeAmp;
+	/* C1 */ u8 pendPop;                 /* a pop-up word waiting for the one on screen, 0xFF: none */
+	/* C2 */ u8 pad[0x3E];
 };
 
 /* Saved records: the best score of each district's course (a save chunk in both save lists, 0x0C bytes). */

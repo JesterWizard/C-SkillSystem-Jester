@@ -5,6 +5,7 @@
 #include "crossing-art.h"
 #include "constants/texts.h"
 #include "constants/classes.h"
+#include "m4a.h"
 
 #ifdef CONFIG_DISTRICT_CROSSING
 
@@ -21,8 +22,13 @@
  *   PAUSE   START: the game stops. START again goes on, B leaves.
  *   OVER    the payout (score / 10 gold) and the records. A or B leaves.
  *
- * Score: 10 for each new row reached in a life, 50 and the seconds left for a dock, 250 for a cleared round. B leaves at
- * any time and pays out what was scored. Each district has its own course (sCourses): Serafew is the gentlest,
+ * Score: 10 for each new row reached in a life, 50 and the seconds left for a dock, 250 for a cleared round (750, and
+ * PERFECT!, with no life lost in it). B leaves at any time and pays out what was scored.
+ *
+ * Feel: hops stretch and land with a squash, dust on the ground and a ripple on a raft; a rider passing within a few
+ * pixels is a near miss (CLOSE!); a trampling freezes the game a moment and shakes it; a drowned unit sinks in a spray
+ * of droplets; each dock in a row without losing a life plays the next note of a scale; score pop-ups rise from the
+ * unit; at the end the score counts up, and a district record pops up NEW BEST!. Each district has its own course (sCourses): Serafew is the gentlest,
  * Jehanna the fastest.
  *
  * Layers: BG3 the scene (palette CROSSING_BG_PAL, tiles at 0x06008000), BG0 the status line and the button labels with
@@ -37,6 +43,7 @@
 #define PAL_UI 3
 #define PAL_POP 5
 #define AFF_POP 1
+#define AFF_UNIT 2
 #define SCENE_CHR_VRAM 0x06008000
 
 #define CHR_UNIT 0x100      /* the unit's walking sheet (12 frames of 16 tiles); also the riders' load buffer */
@@ -58,6 +65,14 @@
 #define SE_LOST SONG_6C
 #define SE_GOLD SONG_SE_MONEY
 #define SE_LEAVE SONG_SE_SYS_WINDOW_CANSEL1
+#define SE_NOTE SONG_SE_SYS_WINDOW_SELECT1  /* a dock's note, a scale step higher for each dock in a row */
+#define SE_CLOSE SONG_SE_SYS_CURSOR_UD1
+#define SE_TICK SONG_SE_SYS_CURSOR_LR1
+#define HIT_STOP 10                         /* frames frozen when trampled */
+#define NEAR_MISS 5                         /* a rider passing within this many pixels of trampling */
+#define SQUASH_FRAMES 6
+#define SINK_FRAMES 24
+#define PERFECT_BONUS 500                   /* on top of the round's 250, with no life lost in it */
 
 enum {
 	CS_READY,
@@ -246,10 +261,12 @@ static void Crossing_Line1(char *buf)
 	case CS_OVER:
 		Crossing_AppendMsg(buf, &i, MSG_CROSSING_S_SCORE);
 		Crossing_Append(buf, &i, " ");
-		Crossing_AppendNum(buf, &i, CS->score);
-		Crossing_Append(buf, &i, "   +");
-		Crossing_AppendNum(buf, &i, CS->gold);
-		Crossing_Append(buf, &i, "G");
+		Crossing_AppendNum(buf, &i, CS->shownScore);
+		if (CS->countDone) {
+			Crossing_Append(buf, &i, "   +");
+			Crossing_AppendNum(buf, &i, CS->gold);
+			Crossing_Append(buf, &i, "G");
+		}
 		break;
 	default:
 		Crossing_AppendMsg(buf, &i, MSG_CROSSING_S_ROUND);
@@ -268,7 +285,7 @@ static void Crossing_Line1(char *buf)
 
 static u32 Crossing_Line1Sig(void)
 {
-	return (CS->state << 28) ^ (CS->round << 22) ^ (CS->score << 1) ^ CS->gold;
+	return (CS->state << 28) ^ (CS->round << 22) ^ (CS->score << 1) ^ CS->gold ^ (CS->shownScore << 9) ^ CS->countDone;
 }
 
 /* ---- The buttons (bottom row, no window, as in the prep screens) ---- */
@@ -371,21 +388,64 @@ static void Crossing_Pop(int word, int x, int y)
 	CS->popY = Crossing_Clamp(y, 40, 120);
 }
 
-static void Crossing_Burst(int x, int y)
+/* A burst of sparks (kind 0) or water droplets (kind 1) from a screen point */
+static void Crossing_Burst(int x, int y, int kind)
 {
 	struct CrossingParticle *p;
 	int i, a, speed;
 
 	for (i = 0; i < CROSSING_PARTS; i++) {
 		p = &CS->parts[i];
-		a = ((i << 8) >> 3) + NextRN_N(16);
-		speed = 20 + NextRN_N(20);
+		a = kind ? 64 + 128 * i / CROSSING_PARTS - 64 + NextRN_N(24) : ((i << 8) >> 3) + NextRN_N(16);
+		speed = kind ? 24 + NextRN_N(16) : 20 + NextRN_N(20);
 		p->x = x << 4;
 		p->y = y << 4;
 		p->vx = (COS(a & 0xFF) * speed) >> 12;
-		p->vy = ((SIN(a & 0xFF) * speed) >> 12) - 8;
+		p->vy = kind ? -(16 + NextRN_N(20)) : ((SIN(a & 0xFF) * speed) >> 12) - 8;
 		p->life = 20 + NextRN_N(12);
+		p->kind = kind;
 	}
+}
+
+static void Crossing_Shake(int frames, int amp)
+{
+	if (frames >= CS->shake) {
+		CS->shake = frames;
+		CS->shakeAmp = amp;
+	}
+}
+
+/* A number rising from a point: prefix 10 "+", 11 "x", -1 none */
+static void Crossing_PopNumber(int prefix, int n, int x, int y)
+{
+	int len = 0, d[5], k = 0;
+
+	if (prefix >= 0)
+		CS->num[len++] = prefix;
+	do {
+		int q = Div(n, 10);
+
+		d[k++] = n - q * 10;
+		n = q;
+	} while (n > 0 && k < 5);
+	while (k > 0 && len < 6)
+		CS->num[len++] = d[--k];
+	CS->numLen = len;
+	CS->numTimer = 32;
+	CS->numX = Crossing_Clamp(x - len * 5 / 2, 0, 236 - len * 5);
+	CS->numY = Crossing_Clamp(y, 18, 140);
+}
+
+/* The dock's note: up a major scale, a step for each dock filled in a row without losing a life */
+static const u8 sScale[8] = { 0, 2, 4, 5, 7, 9, 11, 12 };
+
+static void Crossing_Note(int chain)
+{
+	if (gPlaySt.config.disableSoundEffects)
+		return;
+	m4aSongNumStart(SE_NOTE);
+	m4aMPlayPitchControl(gMPlayTable[gSongTable[SE_NOTE].ms].info, 0xFFFF,
+			     sScale[Crossing_Clamp(chain, 1, 8) - 1] << 8);
 }
 
 static void Crossing_UpdateEffects(void)
@@ -400,16 +460,35 @@ static void Crossing_UpdateEffects(void)
 		p->life--;
 		p->x += p->vx;
 		p->y += p->vy;
-		if (p->life & 1)
-			p->vy++;
+		if (p->kind || (p->life & 1))
+			p->vy += p->kind ? 3 : 1;
 	}
 	if (CS->popWord != 0xFF && ++CS->popTimer >= 64)
 		CS->popWord = 0xFF;
+	if (CS->popWord == 0xFF && CS->pendPop != 0xFF) {
+		Crossing_Pop(CS->pendPop, 120, 72);
+		CS->pendPop = 0xFF;
+	}
 	if (CS->splash > 0)
 		CS->splash--;
+	if (CS->squash > 0)
+		CS->squash--;
+	if (CS->dustT > 0)
+		CS->dustT--;
+	if (CS->rippleT > 0)
+		CS->rippleT--;
+	if (CS->sinkT > 0)
+		CS->sinkT--;
+	if (CS->nearCool > 0)
+		CS->nearCool--;
+	if (CS->numTimer > 0) {
+		CS->numTimer--;
+		if (CS->numTimer & 1)
+			CS->numY--;
+	}
 	if (CS->shake > 0) {
 		CS->shake--;
-		CS->shakeX = (clock & 2) ? 2 : -2;
+		CS->shakeX = (clock & 2) ? CS->shakeAmp : -CS->shakeAmp;
 	} else {
 		CS->shakeX = 0;
 	}
@@ -537,6 +616,22 @@ static void Crossing_Init(struct ProcCrossing *proc)
 		CS->parts[i].life = 0;
 	Crossing_ResetLanes();
 	Crossing_Respawn();
+	CS->hitStop = 0;
+	CS->chain = 0;
+	CS->roundDeaths = 0;
+	CS->nearCool = 0;
+	CS->squash = 0;
+	CS->dustT = 0;
+	CS->rippleT = 0;
+	CS->sinkT = 0;
+	CS->numTimer = 0;
+	CS->shakeAmp = 2;
+	CS->pendPop = 0xFF;
+	CS->countDone = 0;
+	CS->newBest = 0;
+	CS->shownScore = 0;
+	for (i = 0; i < CROSSING_PARTS; i++)
+		CS->parts[i].kind = 0;
 	CS->state = CS_READY;
 	CS->line1Sig = 0xFFFFFFFF;
 	CS->hintKey = 0xFF;
@@ -555,16 +650,26 @@ static void Crossing_Lose(int death)
 	CS->state = CS_DYING;
 	CS->stateTimer = 50;
 	CS->hopFrames = 0;
+	CS->squash = 0;
+	CS->chain = 0;
+	CS->roundDeaths++;
 	if (death == CROSSING_DEATH_WATER) {
+		/* It sinks, in a spray of droplets */
 		CS->splash = 30;
 		CS->splashX = Crossing_Clamp(cx - 8, 0, 224);
 		CS->splashY = cy - 8;
-		Crossing_Pop(CROSSING_POP_SPLASH, cx, cy - 24);
+		CS->sinkT = SINK_FRAMES;
+		Crossing_Burst(cx, cy, 1);
+		Crossing_Shake(8, 1);
+		Crossing_Pop(CROSSING_POP_SPLASH, cx, cy < 72 ? cy + 30 : cy - 24);
 		PlaySoundEffect(SE_SPLASH);
 	} else {
-		Crossing_Burst(cx, cy);
-		CS->shake = 10;
-		Crossing_Pop(CROSSING_POP_OUCH, cx, cy - 24);
+		/* A trampling: the game stands still a moment, then shakes */
+		Crossing_Burst(cx, cy, 0);
+		if (death == CROSSING_DEATH_RIDER)
+			CS->hitStop = HIT_STOP;
+		Crossing_Shake(18, 3);
+		Crossing_Pop(CROSSING_POP_OUCH, cx, cy < 72 ? cy + 30 : cy - 24);
 		PlaySoundEffect(death == CROSSING_DEATH_RIDER ? SE_HIT : SE_LOST);
 	}
 }
@@ -578,9 +683,36 @@ static void Crossing_GameOver(void)
 	CS->gold = Div(CS->score, 10);
 	gold = GetPartyGoldAmount() + CS->gold;
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
+	CS->newBest = CS->score > CS->best && CS->score > 0;
 	CrossingRecords_Add(CS->level, CS->score);
 	Crossing_Pop(CROSSING_POP_GAME_OVER, 120, 72);
-	PlaySoundEffect(CS->gold > 0 ? SE_GOLD : SE_LOST);
+	CS->shownScore = 0;
+	CS->countDone = 0;
+}
+
+/* The final score counts up, ticking; then the gold rings in, and a record pops up NEW BEST! */
+static void Crossing_CountUp(void)
+{
+	int step;
+
+	if (CS->countDone)
+		return;
+	step = Div(CS->score + 39, 40);
+	if ((u32)(CS->shownScore + step) >= CS->score) {
+		CS->shownScore = CS->score;
+		CS->countDone = 1;
+		if (CS->newBest) {
+			CS->pendPop = CROSSING_POP_NEW_BEST;
+			Crossing_Burst(120, 72, 0);
+			PlaySoundEffect(SONG_SE_UPDATE);
+		} else {
+			PlaySoundEffect(CS->gold > 0 ? SE_GOLD : SE_LOST);
+		}
+		return;
+	}
+	CS->shownScore += step;
+	if ((GetGameClock() & 3) == 0)
+		PlaySoundEffect(SE_TICK);
 }
 
 /* Leaving with B pays out what was scored, as a game over would. */
@@ -629,7 +761,7 @@ static bool Crossing_StartHop(int dx, int dy)
 
 static void Crossing_Dock(void)
 {
-	int i, cx = Crossing_UnitCX();
+	int i, pts, cx = Crossing_UnitCX();
 
 	for (i = 0; i < CROSSING_DOCKS; i++)
 		if (Crossing_Abs(cx - (sDockCols[i] * CELL + 8)) <= 8)
@@ -637,28 +769,67 @@ static void Crossing_Dock(void)
 	if (i == CROSSING_DOCKS)
 		return;
 	CS->docks |= 1 << i;
-	CS->score += 50 + Div(CS->timer, 60);
-	PlaySoundEffect(SE_DOCK);
+	pts = 50 + Div(CS->timer, 60);
+	CS->score += pts;
+	CS->chain++;
+	Crossing_Note(CS->chain);
+	Crossing_Burst(sDockCols[i] * CELL + 8, CROSSING_ROW_BANK * CELL + 8, 0);
 	if (CS->docks == (1 << CROSSING_DOCKS) - 1) {
+		/* The round is clear; with no life lost in it, PERFECT! and a bonus */
 		CS->score += 250;
+		if (CS->roundDeaths == 0)
+			CS->score += PERFECT_BONUS;
 		CS->state = CS_CLEAR;
 		CS->stateTimer = 70;
-		Crossing_Pop(CROSSING_POP_CLEAR, 120, 64);
-		PlaySoundEffect(SE_GOLD);
+		Crossing_Pop(CS->roundDeaths == 0 ? CROSSING_POP_PERFECT : CROSSING_POP_CLEAR, 120, 64);
+		Crossing_PopNumber(10, pts + 250 + (CS->roundDeaths == 0 ? PERFECT_BONUS : 0), 120, 84);
+		Crossing_Shake(10, 2);
+		PlaySoundEffect(CS->roundDeaths == 0 ? SONG_SE_UPDATE : SE_GOLD);
 	} else {
 		Crossing_Pop(CROSSING_POP_HOME, cx, 52);
+		Crossing_PopNumber(10, pts, cx, 34);
 	}
 	Crossing_Respawn();
+}
+
+static void Crossing_NearMiss(void)
+{
+	CS->nearCool = 45;
+	Crossing_Pop(CROSSING_POP_CLOSE, Crossing_UnitCX(), CS->py - 16);
+	Crossing_Shake(6, 1);
+	PlaySoundEffect(SE_CLOSE);
+}
+
+/* Hopping out of a road lane just ahead of a rider (within 10 pixels of trampling, and closing in): a near miss */
+static void Crossing_NearMissLeaving(void)
+{
+	int lane = Crossing_LaneOfRow(CS->row), k, x, cx = Crossing_UnitCX();
+	const struct CrossingLane *l;
+
+	if (lane < 0 || CS->nearCool > 0)
+		return;
+	l = Crossing_Lane(lane);
+	if (l->kind != 0)
+		return;
+	for (k = 0; k < l->count; k++) {
+		x = Crossing_ObjX(lane, k) + 8;
+		if (Crossing_Abs(cx - x) < sRiderHalf[l->rider] + 10 && (l->dir > 0 ? x < cx : x > cx)) {
+			Crossing_NearMiss();
+			return;
+		}
+	}
 }
 
 /* Where the unit stands after (or during) a hop: is it trampled, drowned or carried? */
 static void Crossing_CheckCell(void)
 {
-	int lane, k, x, cx = Crossing_UnitCX(), row;
+	int lane, k, x, d, cx = Crossing_UnitCX(), row;
 	const struct CrossingLane *l;
 	bool safe;
 
 	/* Mid-hop, the unit counts as on the cell it is hopping to once it is halfway */
+	if (CS->hopFrames == HOP_FRAMES / 2 && CS->hopDY != 0)
+		Crossing_NearMissLeaving();
 	row = CS->row + (CS->hopFrames > 0 && CS->hopFrames <= HOP_FRAMES / 2 ? CS->hopDY : 0);
 	lane = Crossing_LaneOfRow(row);
 	if (lane < 0)
@@ -668,10 +839,15 @@ static void Crossing_CheckCell(void)
 	if (l->kind == 0) {
 		for (k = 0; k < l->count; k++) {
 			x = Crossing_ObjX(lane, k);
-			if (Crossing_Abs(cx - (x + 8)) < sRiderHalf[l->rider]) {
+			d = Crossing_Abs(cx - (x + 8));
+			if (d < sRiderHalf[l->rider]) {
 				Crossing_Lose(CROSSING_DEATH_RIDER);
 				return;
 			}
+			/* A rider that has just gone by within a few pixels: a near miss */
+			if (d < sRiderHalf[l->rider] + NEAR_MISS && CS->nearCool == 0 &&
+			    (l->dir > 0 ? x + 8 > cx : x + 8 < cx))
+				Crossing_NearMiss();
 		}
 		return;
 	}
@@ -718,9 +894,19 @@ static void Crossing_UpdatePlay(u16 newKeys)
 		if (CS->hopFrames == 0) {
 			CS->row += CS->hopDY;
 			CS->py = CS->row * CELL;
+			/* The landing: a squash, and dust on the ground or a ripple on a raft */
+			CS->squash = SQUASH_FRAMES;
+			if (CS->row >= CROSSING_ROW_RIVER_TOP && CS->row <= CROSSING_ROW_RIVER_BOTTOM) {
+				CS->rippleT = 14;
+			} else {
+				CS->dustT = 12;
+				CS->dustX = Crossing_UnitCX();
+				CS->dustY = CS->py + 12;
+			}
 			if (CS->row < CS->maxRow) {
 				CS->maxRow = CS->row;
 				CS->score += 10;
+				Crossing_PopNumber(10, 10, Crossing_UnitCX(), CS->py - 10);
 			}
 			if (CS->row == CROSSING_ROW_BANK) {
 				Crossing_Dock();
@@ -755,6 +941,13 @@ static bool Crossing_Update(void)
 		Crossing_PayOnLeave();
 		PlaySoundEffect(SE_LEAVE);
 		return TRUE;
+	}
+
+	/* A trampling freezes everything but the shake for a moment */
+	if (CS->hitStop > 0 && CS->state != CS_PAUSE) {
+		CS->hitStop--;
+		Crossing_UpdateEffects();
+		return FALSE;
 	}
 
 	switch (CS->state) {
@@ -799,6 +992,7 @@ static bool Crossing_Update(void)
 			break;
 		CS->docks = 0;
 		CS->round++;
+		CS->roundDeaths = 0;
 		CS->state = CS_PLAY;
 		break;
 
@@ -809,6 +1003,7 @@ static bool Crossing_Update(void)
 
 	case CS_OVER:
 		Crossing_UpdateLanes();
+		Crossing_CountUp();
 		if (CS->stateTimer > 0) {
 			CS->stateTimer--;
 			break;
@@ -860,18 +1055,83 @@ static void Crossing_DrawLanes(void)
 	}
 }
 
+/* The landing squash, wider and flatter then back (scale offsets, 1/256) */
+static const s8 sSquash[SQUASH_FRAMES] = { 0, 6, 14, 30, 44, 36 };
+
+/*
+ * The unit: stretched taller while it takes off, squashed as it lands, shrinking down into the water as it sinks. The
+ * scaled sprite is affine (one slot), anchored at its feet; otherwise it is drawn plain.
+ */
 static void Crossing_DrawUnit(void)
 {
 	static const u8 base[4] = { 0, 0, 4, 8 };
 	int frame, x = (CS->px >> 8) - 8, y = CS->py - 16;
+	int sx = 256, sy = 256, c, pa;
+	bool flip = CS->facing == FACE_RIGHT;
 
-	if (CS->state == CS_DYING && (CS->death == CROSSING_DEATH_WATER || (CS->stateTimer & 4)))
-		return;
+	if (CS->state == CS_DYING) {
+		if (CS->death == CROSSING_DEATH_WATER) {
+			if (CS->sinkT == 0)
+				return;
+			sy = Div(256 * CS->sinkT, SINK_FRAMES);
+			sx = 256 + (SINK_FRAMES - CS->sinkT) * 2;
+		} else if (CS->stateTimer & 4) {
+			return;
+		}
+	}
 	frame = base[CS->facing] + (CS->hopFrames > 0 ? ((HOP_FRAMES - CS->hopFrames) >> 1) & 3 : 0);
-	/* a small arc on each hop */
-	if (CS->hopFrames > 0)
+	if (CS->hopFrames > 0) {
+		/* a small arc on each hop, stretched at the take-off */
 		y -= (CS->hopFrames > HOP_FRAMES / 2 ? HOP_FRAMES - CS->hopFrames : CS->hopFrames) >> 1;
-	SPR(x, y, gObject_32x32, CHR_UNIT + frame * 16, CS->smsPal, 2, CS->facing == FACE_RIGHT ? OAM1_HFLIP : 0);
+		if (CS->hopFrames > HOP_FRAMES / 2) {
+			sx = 232;
+			sy = 284;
+		}
+	} else if (CS->squash > 0) {
+		c = sSquash[CS->squash - 1];
+		sx = 256 + c;
+		sy = 256 - c;
+	}
+	if (sx == 256 && sy == 256) {
+		SPR(x, y, gObject_32x32, CHR_UNIT + frame * 16, CS->smsPal, 2, flip ? OAM1_HFLIP : 0);
+		return;
+	}
+	if (sy < 8)
+		sy = 8;
+	pa = Div(0x10000, sx);
+	SetObjAffine(AFF_UNIT, flip ? -pa : pa, 0, 0, Div(0x10000, sy));
+	/* Double size: the 64x64 box is centred on the frame; the feet stay where they were */
+	y += (16 * (256 - sy)) >> 8;
+	PutSpriteExt(4, OAM1_X((x - 16 - CS->shakeX) & 0x1FF) | OAM1_AFFINE_ID(AFF_UNIT),
+		     OAM0_Y((y - 16) & 0xFF) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE, gObject_32x32,
+		     OAM2_PAL(CS->smsPal) + OAM2_LAYER(2) + OAM2_CHR(CHR_UNIT + frame * 16));
+}
+
+/* The landing dust (two puffs going out) and the ripple round a raft landing */
+static void Crossing_DrawLandFx(void)
+{
+	int t, f, cx = Crossing_UnitCX();
+
+	if (CS->dustT > 0) {
+		t = 12 - CS->dustT;
+		f = t < 4 ? 0 : (t < 8 ? 1 : 2);
+		SPR(CS->dustX - 10 - (t >> 1), CS->dustY - (t >> 2), gObject_8x8, CROSSING_CHR_DUST + f, PAL_FX, 2, 0);
+		SPR(CS->dustX + 2 + (t >> 1), CS->dustY - (t >> 2), gObject_8x8, CROSSING_CHR_DUST + f, PAL_FX, 2, 0);
+	}
+	if (CS->rippleT > 0 && CS->state == CS_PLAY)
+		SPR(cx - 8, CS->py + 10, gObject_16x8, CROSSING_CHR_RIPPLE + (CS->rippleT < 7 ? 2 : 0), PAL_FX, 2, 0);
+}
+
+/* The score pop-up: small digits rising and blinking out */
+static void Crossing_DrawNumber(void)
+{
+	int i;
+
+	if (CS->numTimer == 0 || (CS->numTimer < 8 && (CS->numTimer & 2)))
+		return;
+	for (i = 0; i < CS->numLen; i++)
+		PutSpriteExt(4, OAM1_X((CS->numX + i * 5) & 0x1FF), OAM0_Y(CS->numY & 0xFF), gObject_8x8,
+			     OAM2_PAL(PAL_FX) + OAM2_LAYER(0) + OAM2_CHR(CROSSING_CHR_DIGIT + CS->num[i]));
 }
 
 static void Crossing_DrawDocksAndFx(void)
@@ -889,7 +1149,8 @@ static void Crossing_DrawDocksAndFx(void)
 		p = &CS->parts[i];
 		if (p->life == 0)
 			continue;
-		SPR((p->x >> 4) - 4, (p->y >> 4) - 4, gObject_8x8, CROSSING_CHR_SPARK + ((p->life >> 2) & 1), PAL_FX, 1, 0);
+		SPR((p->x >> 4) - 4, (p->y >> 4) - 4, gObject_8x8,
+		    (p->kind ? CROSSING_CHR_DROP : CROSSING_CHR_SPARK) + ((p->life >> 2) & 1), PAL_FX, 1, 0);
 	}
 }
 
@@ -971,8 +1232,10 @@ static void Crossing_DrawStatus(void)
 static void Crossing_Draw(void)
 {
 	Crossing_DrawLanes();
+	Crossing_DrawLandFx();
 	Crossing_DrawUnit();
 	Crossing_DrawDocksAndFx();
+	Crossing_DrawNumber();
 	Crossing_DrawPopup();
 	Crossing_DrawStatus();
 }
