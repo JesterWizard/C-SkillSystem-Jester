@@ -40,7 +40,8 @@ const u8 gBigUnitClasses[0x10] = {
 };
 ```
 
-Each list ends with `0` and has room for 15 entries. Both lists are empty in the build.
+Each list ends with `0` and has room for 15 entries. In the build, the class list has Draco Zombies and the character
+list is empty.
 
 A listed unit loads as usual (from a chapter's unit group, a reinforcement or an event) on the **top-left** tile of its
 block. The other three corners are made right after, on the tiles to its right, below it and diagonal from it. Leave those
@@ -53,7 +54,8 @@ all 8 are in use stays 1x1.
 
 - **Drawn once.** The block shows the map sprite of its first standing corner. A 16x16 or 16x32 sprite is pixel-doubled
   (an OBJ affine matrix), bottom-centred on the block. A 32x32 sprite (a dragon, say) already fills the block and is
-  drawn as it is. Mirrored sprites stay mirrored. The block's walk (its MU) and its map battles are doubled too.
+  drawn as it is (Draco Zombies). Mirrored sprites stay mirrored. The block's walk (its MU) and its map battles follow
+  the same rule: doubled, or as they are for a 32x32 sprite.
 - **Four HP bars.** Each corner shows its HP bar under its own tile, even at full HP, so the four can be told apart.
 - **Attacked one corner at a time.** Each corner is a unit of its own: the attacker picks which one, and the forecast
   shows that corner's HP. A corner can counter.

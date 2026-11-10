@@ -14,5 +14,6 @@ const u8 gBigUnitCharacters[0x10] = {
 };
 
 const u8 gBigUnitClasses[0x10] = {
+	CLASS_DRACO_ZOMBIE,
 	0,
 };

@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "mu.h"
 #include "big-unit.h"
+#include "unit-icon.h"
 
 /*
  * 2x2 units on the map: the block is drawn once, the map sprite of its shown corner (the first one standing) at twice
@@ -98,8 +99,11 @@ void BigUnit_PutBlockSprite(struct SMSHandle *handle)
 static const u8 sObjWidth[3][4] = { { 8, 16, 32, 64 }, { 16, 32, 32, 64 }, { 8, 8, 16, 32 } };
 static const u8 sObjHeight[3][4] = { { 8, 16, 32, 64 }, { 8, 8, 16, 32 }, { 16, 32, 32, 64 } };
 
-/* The objects of an MU frame, twice the size and twice as far from (x, y), the block's bottom centre */
-static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool ghost)
+/*
+ * The objects of an MU frame around (x, y), the block's bottom centre: twice the size and twice as far, or (a unit whose
+ * map sprite is 32x32, already the block's size) as they are.
+ */
+static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool ghost, bool doubled)
 {
 	const u16 *obj = ap->pCurrentObjData;
 	u16 data[4];
@@ -119,8 +123,8 @@ static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool
 		flip = (a1 >> 12) & 1;
 		ox = ((s16)(a1 << 7)) >> 7;
 		oy = (s8)(a0 & 0xFF);
-		ix = x + 2 * ox;
-		iy = y + 2 * oy;
+		ix = x + (doubled ? 2 : 1) * ox;
+		iy = y + (doubled ? 2 : 1) * oy;
 		if (ix + 2 * sObjWidth[shape][size] < 0 || ix > DISPLAY_WIDTH ||
 		    iy + 2 * sObjHeight[shape][size] < 0 || iy > DISPLAY_HEIGHT)
 			continue;
@@ -128,8 +132,13 @@ static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool
 		data[0] = 1;
 		/* A ghost is a semi-transparent OBJ */
 		data[1] = ghost ? ((a0 & 0xF000) | OAM0_BLEND) : (a0 & 0xFC00);
-		data[2] = a1 & 0xC000;
 		data[3] = obj[2];
+		if (!doubled) {
+			data[2] = a1 & 0xF000;
+			CallARM_PushToSecondaryOAM(OAM1_X(ix + 0x200), OAM0_Y(iy + 0x100) | oam0, data, ap->tileBase);
+			continue;
+		}
+		data[2] = a1 & 0xC000;
 		CallARM_PushToSecondaryOAM(OAM1_X(ix + 0x200) | OAM1_AFFINE_ID(BIG_AFFINE + flip),
 					   OAM0_Y(iy + 0x100) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE | oam0, data, ap->tileBase);
 	}
@@ -140,7 +149,7 @@ static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool
  * also drawn faded on the block it walks to. The faded OBJ blends with the map (BG2 and BG3) at 8/8; no BG is a first
  * target, so nothing else on the map changes.
  */
-static void BigUnit_PutMuGhost(struct MuProc *proc, int corner, int x, int y)
+static void BigUnit_PutMuGhost(struct MuProc *proc, int corner, int x, int y, bool doubled)
 {
 	struct Unit *unit = proc->unit;
 	int gx, gy;
@@ -162,17 +171,19 @@ static void BigUnit_PutMuGhost(struct MuProc *proc, int corner, int x, int y)
 	SetBlendTargetB(0, 0, 1, 1, 0);
 	SetBlendBackdropB(1);
 
-	BigUnit_PutMuFrame(proc->sprite_anim, gx, gy, 0, true);
+	BigUnit_PutMuFrame(proc->sprite_anim, gx, gy, 0, true, doubled);
 }
 
 /*
  * A corner's MU (MU_DisplayAsMMS, at x, y: the bottom centre of its tile) drawn as the whole block: the animation runs
  * as usual off screen, and each object of its frame is drawn again, twice the size and twice as far from the block's
- * bottom centre, with an OBJ affine matrix (mirrored for a mirrored object). oam0 carries the death fade's blend bit.
+ * bottom centre, with an OBJ affine matrix (mirrored for a mirrored object), or as it is, around the block's bottom
+ * centre, for a 32x32 map sprite. oam0 carries the death fade's blend bit.
  */
 bool BigUnit_PutMu(struct MuProc *proc, int x, int y, int oam0)
 {
 	struct APHandle *ap = proc->sprite_anim;
+	bool doubled;
 	int corner;
 
 	if (!proc->unit || !ap || !BigUnit_GetGroup(proc->unit, &corner))
@@ -191,7 +202,10 @@ bool BigUnit_PutMu(struct MuProc *proc, int x, int y, int oam0)
 	SetObjAffine(BIG_AFFINE, 0x80, 0, 0, 0x80);
 	SetObjAffine(BIG_AFFINE + 1, -0x80, 0, 0, 0x80);
 
-	BigUnit_PutMuFrame(ap, x, y, oam0, false);
-	BigUnit_PutMuGhost(proc, corner, x, y);
+	/* A 32x32 map sprite fills the block already, standing or walking */
+	doubled = gUnitIconWaitTable[GetUnitSMSId(proc->unit) & (UNIT_ICON_WAIT_AMT - 1)].size != 2;
+
+	BigUnit_PutMuFrame(ap, x, y, oam0, false, doubled);
+	BigUnit_PutMuGhost(proc, corner, x, y, doubled);
 	return true;
 }
