@@ -49,7 +49,8 @@ district games to each other and to the main campaign.
 | A claimed quest | its reward |
 
 - Each game shows what it paid: River Crossing's and Tower Stack's final line (`+13 tokens` after the gold), Fishing's
-  catch card, Hex's Victory and Draw banners. Snek's show only on the board.
+  catch card, Hex's Victory and Draw banners, and the Pied Piper's line after a Snek game ("That's 10 tokens for the
+  guild board.").
 - You can hold up to 9999 tokens. The board also counts the tokens earned in all (up to 65535): a quest can ask for it.
 - The title line shows the tokens you hold.
 
@@ -205,8 +206,6 @@ QUEST(SERAFEW, GUILD_QUEST_CROSSING_SCORE, 0, 800, 15, 0, 0, MSG_GUILD_Q_SERAFEW
   given as-is) or `GUILD_PRIZE_SKILL` (a skill id, turned into its scroll by `MakeSkillScrollItem` when bought).
 - One-time prizes have a bit each (16 at most, 13 used), by their rank among the one-time prizes: add new ones after the
   last one-time prize, never between. Rows that are not one-time can go anywhere.
-- Avoid skill ids `0x1FF` and `0x2FF` for scrolls: `MakeSkillScrollItem` stores `sid - 0xFF` or `sid - 0x1FF` in the
-  item word's top byte, which is `0x100` for those two and does not fit.
 - A new kind of quest: a `GUILD_QUEST_*` in `include/kernel/guild.h` and a case in `Guild_QuestProgress`
   (`GuildCore.c`) that reads the progress from saved data.
 
@@ -257,5 +256,4 @@ data but do nothing.
 - Progress counts what you have done in all, not since a quest was posted. A record set earlier meets a quest at once.
 - A delivery counts every copy the army holds, including ones a unit has equipped; claiming takes them from the convoy
   first, then from the units.
-- Snek's tokens show only on the board: its end is an event with fixed lines.
-- Snek is not a district game, but its tokens and records still count.
+- Snek is played with the Pied Piper in Port Kiris, next to its guild board (see [Snek](./Minigames/Snek.md)).

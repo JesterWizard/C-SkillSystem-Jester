@@ -5,6 +5,7 @@
 ## 📑 Index
 - [Introduction](#introduction)
 - [How To Use](#how-to-use)
+- [Camera](#camera)
 - [Limitations & Bugs](#limitations--bugs)
 
 ---
@@ -32,6 +33,20 @@ ASMC(EnableFreeMovementASMC);
 ```
 
 Once called, the player gains control of free movement for the active unit.
+
+## 🎥 Camera
+
+The camera follows the controlled unit the way an overworld camera does: it glides to keep the unit near the middle
+of the screen, following its walking sprite pixel by pixel, and stops at the map's edges. Vanilla's camera stood still
+until the unit neared an edge and then scrolled a block.
+
+- `FreeMU_Camera.c` (`Kernel/Wizardry/FreeMovement/cFreeMU/src/`): the `FmuCamera` proc, a child of the free movement
+  proc, started from its idle label in `FreeMovementInternal.event` (`pFMU_StartCamera`, which replaced
+  `pFMU_CorrectCameraPosition` there).
+- Each frame the camera covers a quarter of the way to the unit, at most 6 pixels (`FMU_CAMERA_EASE`,
+  `FMU_CAMERA_MAX_STEP`).
+- It does nothing while the free movement proc is blocked (events, menus, minigames) or a vanilla camera move
+  (`ProcScr_CamMove`, e.g. an event's camera command) runs, so scripted cameras still work.
 
 ## 🐛 Limitations & Bugs
 

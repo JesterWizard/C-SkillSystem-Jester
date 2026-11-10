@@ -51,15 +51,16 @@ bool IsTonicCampaignActiveIndex(int tonicIndex)
 	return gUnitTonicState[unit->index] == tonicIndex;
 }
 
+/*
+ * +2 when the unit used tonic kind tonicIndex this chapter. The Omni Tonic is kind 8: OmniTonic (TonicGetter.c) asks
+ * for kind 8 in every stat getter, so it raises them all.
+ */
 int GetTonicStatBonus(struct Unit *unit, int tonicIndex)
 {
 	extern u8 gUnitTonicState[];
 	extern u16 gTonicChapterState;
 	if (gTonicChapterState != gPlaySt.chapterIndex)
 		return 0;
-
-	if (gUnitTonicState[unit->index] == 9 && tonicIndex >= 0 && tonicIndex <= 7)
-		return 2;
 
 	return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
 }

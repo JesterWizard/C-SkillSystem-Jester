@@ -13,19 +13,6 @@ STATIC_DECLAR u8 RemoveSkillMenu_HelpBox(struct MenuProc * menu, struct MenuItem
 STATIC_DECLAR u8 PredationSkillMenu_HelpBox(struct MenuProc * menu, struct MenuItemProc * item);
 STATIC_DECLAR u8 RemoveSkillMenu_OnCancel(struct MenuProc * menu, struct MenuItemProc * item);
 
-#ifdef CONFIG_TURN_ON_ALL_SKILLS
-    // Choose the proper scroll index based on the high byte of the skill id.
-    #define GET_SKILL_SCROLL_INDEX(sid) (((sid) > 0x2FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_4 : \
-                                        (((sid) > 0x1FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_3 : \
-                                        (((sid) > 0x0FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_2 : \
-                                                           CONFIG_ITEM_INDEX_SKILL_SCROLL_1)))
-#else
-    #ifdef CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        #define GET_SKILL_SCROLL_INDEX(sid) CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-    #else
-        #define GET_SKILL_SCROLL_INDEX(sid) 200 // Ignore this, it's just here for filler
-    #endif
-#endif
 
 const struct MenuDef RemoveSkillMenuDef = {
     {1, 1, 14, 0},
@@ -308,8 +295,7 @@ STATIC_DECLAR void PredationSkillRemove(void)
     AddSkill(gActiveUnit, GET_SKILL(targetUnit, 0));
     
     // Build popup item with the full 10-bit skill ID.
-    SetPopupItem((GET_SKILL(gActiveUnit, gActionData.unk08) << 8) | 
-                 GET_SKILL_SCROLL_INDEX(GET_SKILL(gActiveUnit, gActionData.unk08)));
+    SetPopupItem(MakeSkillScrollItem(GET_SKILL(gActiveUnit, gActionData.unk08)));
 }
 #endif
 
@@ -323,8 +309,7 @@ STATIC_DECLAR void PredationPlusSkillRemove(void)
     AddSkill(gActiveUnit, GET_SKILL(targetUnit, 0));
     
     // Build popup item with the full 10-bit skill ID.
-    SetPopupItem((GET_SKILL(gActiveUnit, gActionData.unk08) << 8) | 
-                 GET_SKILL_SCROLL_INDEX(GET_SKILL(gActiveUnit, gActionData.unk08)));
+    SetPopupItem(MakeSkillScrollItem(GET_SKILL(gActiveUnit, gActionData.unk08)));
 }
 #endif
 
@@ -446,7 +431,7 @@ STATIC_DECLAR u8 PredationSkillMenu_OnSelected(struct MenuProc * menu, struct Me
     } 
     else
     {
-        SetPopupItem((GET_SKILL(targetUnit, gActionData.unk0A) << 8) | GET_SKILL_SCROLL_INDEX(GET_SKILL(targetUnit, gActionData.unk0A)));
+        SetPopupItem(MakeSkillScrollItem(GET_SKILL(targetUnit, gActionData.unk0A)));
         EndSubtitleHelp();
 
         StartSubtitleHelp(

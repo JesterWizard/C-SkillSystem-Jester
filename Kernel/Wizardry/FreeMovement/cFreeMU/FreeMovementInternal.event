@@ -7,6 +7,7 @@
 	#include "src/FreeMU_Event.lyn.event"
 	#include "src/FreeMU_ButtonPress.lyn.event"
 	#include "src/FreeMU_SaveData.lyn.event"
+	#include "src/FreeMU_Camera.lyn.event"
 	#include "asm/FreeMU.lyn.event"
 	#include "MU6Cfix/_MU6Cfix.event"
 
@@ -34,7 +35,7 @@ ALIGN 4
 	
 	_6C_LABEL(0)	//Idle
 	_6C_CALL_ROUTINE(pFMU_OnInit|1)
-	_6C_CALL_ROUTINE(pFMU_CorrectCameraPosition|1)
+	_6C_CALL_ROUTINE(pFMU_StartCamera|1) // FreeMU_Camera.c: follows the unit (was pFMU_CorrectCameraPosition)
 	_6C_LABEL(0xD)	
 	_6C_YIELD
 	_6C_CALL_ROUTINE(pFMU_MainLoop|1)

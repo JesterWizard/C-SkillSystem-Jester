@@ -154,13 +154,14 @@ enum {
 // This macro converts a full skill id (0–0x3FF) into the proper scroll item:
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
     // Choose the proper scroll index based on the skill id range.
-    #define GET_SKILL_SCROLL_INDEX(sid) (((sid) > 0x2FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_4 : \
-                                        (((sid) > 0x1FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_3 : \
+    // 0x1FF and 0x2FF go on scrolls 3 and 4 with uses 0 (see MakeSkillScrollItem, SkillScroll.c)
+    #define GET_SKILL_SCROLL_INDEX(sid) (((sid) >= 0x2FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_4 : \
+                                        (((sid) >= 0x1FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_3 : \
                                         (((sid) > 0x0FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_2 : \
                                                            CONFIG_ITEM_INDEX_SKILL_SCROLL_1)))
     // Convert the skill id into the 8-bit payload stored in the scroll item.
-    #define GET_SKILL_SCROLL_VALUE(sid) (((sid) > 0x2FF) ? ((sid) - 0x2FF) : \
-                                        (((sid) > 0x1FF) ? ((sid) - 0x1FF) : \
+    #define GET_SKILL_SCROLL_VALUE(sid) (((sid) >= 0x2FF) ? ((sid) - 0x2FF) : \
+                                        (((sid) >= 0x1FF) ? ((sid) - 0x1FF) : \
                                         (((sid) > 0x0FF) ? ((sid) - 0x0FF) : \
                                                            (sid))))
 #else

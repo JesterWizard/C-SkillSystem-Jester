@@ -114,6 +114,32 @@ static const EventScr EventScr_District_PortKiris_Hint[] = {
     ENDA
 };
 
+/* The Pied Piper by the guild board: Snek, whose scores the board's Snek quests ask for */
+static const EventScr EventScr_District_PortKiris_Snek[] = {
+    TEXT(GAME_SNEK_CONVO_BEGIN)
+    SVAL(EVT_SLOT_1, 1)
+    BEQ(0x1, EVT_SLOT_C, EVT_SLOT_1)
+    TEXT(GAME_SNEK_CONVO_NO)
+    NOFADE
+    ENDA
+LABEL(0x1)
+    TEXT(GAME_SNEK_CONVO_YES)
+    ASMC(CallSnekMinigameASMC)
+    ASMC(Snek_SetOutcomeEventSlots)
+    BEQ(0x2, EVT_SLOT_7, EVT_SLOT_0)
+    BEQ(0x3, EVT_SLOT_7, EVT_SLOT_1)
+    TEXT(GAME_SNEK_CONVO_END_LOSE)
+    GOTO(0x9)
+LABEL(0x2)
+    TEXT(GAME_SNEK_CONVO_END_WIN)
+    GOTO(0x9)
+LABEL(0x3)
+    TEXT(GAME_SNEK_CONVO_END_DRAW)
+LABEL(0x9)
+    NOFADE
+    ENDA
+};
+
 static const EventScr EventScr_District_PortKiris_HexShop[] = {
     ASMC(StartDistrictHexShopASMC)
     NOFADE
@@ -136,6 +162,7 @@ static const EventListScr EventListScr_PortKiris_Character[] = {
     CharacterEventBothWays(0, EventScr_District_PortKiris_HexA, CHARACTER_EIRIKA, CHARACTER_CITIZEN_YOUNG_MAN)
     CharacterEventBothWays(0, EventScr_District_PortKiris_HexB, CHARACTER_EIRIKA, CHARACTER_CITIZEN_TEEN_GIRL)
     CharacterEventBothWays(0, EventScr_District_PortKiris_Hint, CHARACTER_EIRIKA, 0x7F)
+    CharacterEventBothWays(0, EventScr_District_PortKiris_Snek, CHARACTER_EIRIKA, 0x7E)
     END_MAIN
 };
 

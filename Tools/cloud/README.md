@@ -142,8 +142,9 @@ python3 Tools/cloud/smoketest.py --quick
   - in Serafew, Eirika walks to every district spot (fishing, River Crossing, Tower Stack, guild board), A opens each
     screen and B brings the map back; a River Crossing game over pays the guild board's tokens; a met quest is claimed;
     the board sells the Omni Tonic and a skill scroll.
-- No option (about 35 seconds): the same, with all four districts. `--only Jehanna tokens` runs named tests (`boot`,
-  `statscreen`, `battle`, `battlequote`, `savelayout`, `suspend`, `gamesave`, a district's name, `tokens`, `claim`, `prizes`).
+- No option (about 45 seconds): the same, with all four districts, and in Port Kiris the Pied Piper's Snek game (Yes,
+  80 points, B: 10 tokens and the high score). `--only Jehanna tokens` runs named tests (`boot`,
+  `statscreen`, `battle`, `battlequote`, `savelayout`, `suspend`, `gamesave`, a district's name, `tokens`, `claim`, `prizes`, `snek`).
 - It prints PASS or FAIL per check, writes `report.txt` and `sheet.png` (every opened screen, for a look by eye) to
   `--out` (default: a new temp folder), and exits with the number of failed checks.
 - A district test ROM starts a new game in the district (chapter row 0 takes the district's map and events). Eirika

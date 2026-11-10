@@ -77,14 +77,20 @@ This allows bases to evolve narratively over time.
 |--------|----------|-------------|
 | **Base chapter node assignment** | `gDistrictNodes` — [`District.c`](../../Kernel/Wizardry/EnterTown/District.c) | Controls which world map nodes become base chapters, which map each base uses and how each unlocks |
 | **Node menu row** | [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | The `Enter District` row of the node menu |
+| **Entry fade** | [`DistrictEntry.c`](../../Kernel/Wizardry/EnterTown/DistrictEntry.c) | Fades the world map out before the district loads |
 | **Districts** | [`Districts.md`](./Districts.md) | The four districts, their maps and NPCs, and how to add one |
 
 ---
 
 ## 📝 TODO
 
-- Fix the **black screen flashing** when entering a base map  
-- Improve camera behavior to **smoothly follow the player**, similar to Vesly’s *PokéEmblem*  
+- Nothing outstanding. Both earlier items are done:
+  - The **black screen flash** on entering a district: `Enter District` jumped the world map straight to its chapter
+    start, which removed the map in one frame (`WorldMap_HideEverything`). `StartDistrictEntryFade`
+    ([`DistrictEntry.c`](../../Kernel/Wizardry/EnterTown/DistrictEntry.c)) now fades the world map to black over about
+    8 frames first; the district fades in from black as before.
+  - The **camera** glides after the player instead of jumping when they near an edge
+    ([Free Movement: Camera](./FreeMovement.md#camera)).
 
 ---
 

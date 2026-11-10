@@ -9,28 +9,10 @@
 #include "strmag.h"
 #include "jester_headers/custom-functions.h"
 
-#ifdef CONFIG_TURN_ON_ALL_SKILLS
-    #define GET_SKILL_SCROLL_INDEX(sid) (((sid) > 0x2FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_4 : \
-                                        (((sid) > 0x1FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_3 : \
-                                        (((sid) > 0x0FF) ? CONFIG_ITEM_INDEX_SKILL_SCROLL_2 : \
-                                                           CONFIG_ITEM_INDEX_SKILL_SCROLL_1)))
-    #define GET_SKILL_SCROLL_VALUE(sid) (((sid) > 0x2FF) ? ((sid) - 0x2FF) : \
-                                        (((sid) > 0x1FF) ? ((sid) - 0x1FF) : \
-                                        (((sid) > 0x0FF) ? ((sid) - 0x0FF) : \
-                                                           (sid))))
-#else
-    #ifdef  CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        #define GET_SKILL_SCROLL_INDEX(sid) CONFIG_ITEM_INDEX_SKILL_SCROLL_1
-        #define GET_SKILL_SCROLL_VALUE(sid) (sid)
-    #else
-        #define GET_SKILL_SCROLL_INDEX(sid) 200 // Ignore this line, it's just filler
-        #define GET_SKILL_SCROLL_VALUE(sid) (sid)
-    #endif
-#endif
 
 static u16 MakeSkillScrollPopupItem(u16 sid)
 {
-    return ((GET_SKILL_SCROLL_VALUE(sid) & 0xFF) << 8) | GET_SKILL_SCROLL_INDEX(sid);
+    return MakeSkillScrollItem(sid);
 }
 
 #if defined(SID_Predation) && (COMMON_SKILL_VALID(SID_Predation))

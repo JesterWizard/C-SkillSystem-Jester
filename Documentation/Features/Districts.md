@@ -189,6 +189,11 @@ Each district has two Hex players. Each one has a fixed 7-card deck in `Data/Hex
 
 The other cards in each deck are common cards. A common card can be won any number of times.
 
+### The Pied Piper (Port Kiris)
+
+An old man next to Port Kiris's guild board, at (17, 14) (character `0x7E`), offers a game of
+[Snek](./Minigames/Snek.md). Its scores count toward the guild board's Snek quests, and each game pays tokens.
+
 - **Opening a match:** the Hex screen opens at the hand picker. The front menu and the opponent list are not shown.
   B with no card in hand leaves the screen.
 - **Win:** you can take one of the opponent's 7 starting cards. A card type you already hold 255 copies of is refused.
