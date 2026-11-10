@@ -65,7 +65,7 @@ u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * m
     // Tells WorldMap_Destruct to reload into the district map
     sWmMapReloadPending = true;
 
-    // Map index we want to load from, consumed by WMLoc_GetChapterId
+    // Map index we want to load from: WMLoc_GetChapterId returns it for every node until the world map ends
     sWmChapterIdOverride = district->chapter;
 
     void * p = Proc_Find(ProcScr_WorldMapMain);

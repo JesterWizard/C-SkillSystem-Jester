@@ -76,7 +76,6 @@ PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
-SKILL_SCROLLS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 with CONFIG_TURN_ON_ALL_SKILLS
 PALETTE_BUFFER = 0x020228A8
 CHAPTER = PLAYST + 0x0E
 UNIT_X, UNIT_Y = UNIT1 + 0x10, UNIT1 + 0x11
@@ -908,12 +907,12 @@ class Smoke:
     def scroll_item(sid):
         """MakeSkillScrollItem (SkillScroll.c) with CONFIG_TURN_ON_ALL_SKILLS"""
         if sid >= 0x2FF:
-            return ((sid - 0x2FF) << 8) | SKILL_SCROLLS[3]
+            return ((sid - 0x2FF) << 8) | SKILL_SCROLL_ITEMS[3]
         if sid >= 0x1FF:
-            return ((sid - 0x1FF) << 8) | SKILL_SCROLLS[2]
+            return ((sid - 0x1FF) << 8) | SKILL_SCROLL_ITEMS[2]
         if sid > 0xFF:
-            return ((sid - 0xFF) << 8) | SKILL_SCROLLS[1]
-        return (sid << 8) | SKILL_SCROLLS[0]
+            return ((sid - 0xFF) << 8) | SKILL_SCROLL_ITEMS[1]
+        return (sid << 8) | SKILL_SCROLL_ITEMS[0]
 
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
