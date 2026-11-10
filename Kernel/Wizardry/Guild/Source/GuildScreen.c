@@ -262,7 +262,7 @@ static void Guild_DrawPrizes(void)
 		GS->rowIndex[r] = index;
 		GS->rows++;
 		color = (Guild_PrizeSoldOut(index) || p->cost > tokens) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
-		Text_InsertDrawString(t, 0, color, GetItemName(p->item));
+		Text_InsertDrawString(t, 0, color, GetItemName(Guild_PrizeItem(p)));
 		if (Guild_PrizeSoldOut(index)) {
 			Guild_AppendMsg(buf, &i, MSG_GUILD_SOLD);
 		} else {
@@ -272,7 +272,7 @@ static void Guild_DrawPrizes(void)
 		}
 		Text_InsertDrawString(t, 120, color == TEXT_COLOR_SYSTEM_GRAY ? color : TEXT_COLOR_SYSTEM_BLUE, buf);
 		PutText(t, Guild_Tile(4, ROW_LINE0 + r * 2));
-		DrawIcon(icon, GetItemIconId(p->item), 0x4000);
+		DrawIcon(icon, GetItemIconId(Guild_PrizeItem(p)), 0x4000);
 	}
 }
 
