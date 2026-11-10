@@ -49,7 +49,7 @@ Tomes (anima, light, dark) and staves stop being items:
 - Casting a B.Mag spell now gives weapon EXP for its type, so ranks rise from casting.
 - Enemies and NPCs cast the tomes and staves in their inventory as spells, with limited uses. Those items are hidden from their item page and never drop. AI spell use is on in this mode, whatever `gaiden_magic_ai_use` says.
 - No unit can wield a tome or staff as an item (`CanUnitUseWeapon()`/`CanUnitUseStaff()` return false).
-- Player units never hold them. They are stripped on unit load, at chapter start and at the start of each phase, which covers recruits and old saves. The convoy is cleaned too, shops don't sell them, and item gifts (`HandleNewItemGetFromDrop()`) and `AddItemToConvoy()` reject them.
+- Player units never hold them. They are stripped on unit load, at chapter start and at the start of each phase, which covers recruits and old saves. The convoy is cleaned too, shops don't sell them (`StartShopScreen` skips them, so a vendor stocked mostly with tomes and staves sells little: Serafew's world-map vendor sells only a Vulnerary), and item gifts (`HandleNewItemGetFromDrop()`) and `AddItemToConvoy()` reject them.
 - Monster weapons (Evil Eye, Stone...) are dark-typed but have no rank requirement, so they stay normal weapons.
 
 > Events that give a tome or staff (chests, villages, `GIVEITEMTO`) still show the "Got" popup, but the item is not added. Remove those gifts from chapter events.

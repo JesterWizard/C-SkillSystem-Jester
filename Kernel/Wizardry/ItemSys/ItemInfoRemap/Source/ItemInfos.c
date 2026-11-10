@@ -764,6 +764,13 @@ void StartShopScreen(struct Unit *unit, const u16 *inventory, u8 shopType, ProcP
 		while (_item != ITEM_NONE && IsGaidenMagicUsesSystem() && IsThreeHousesMagicItem(_item))
 			_item = *shopItems++;
 
+		/* The list ends here: the rest stays empty (reading on would take the next list in ROM) */
+		if (_item == ITEM_NONE) {
+			for (; i < SHOP_ITEMS_MAX_AMT; i++)
+				proc->shopItems[i] = 0;
+			break;
+		}
+
 		if (IsDuraItem(_item))
 			proc->shopItems[i] = _item;
 		else

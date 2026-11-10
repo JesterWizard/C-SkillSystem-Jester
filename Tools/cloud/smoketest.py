@@ -22,6 +22,8 @@ What it checks:
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
               travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending. A
               monster on Chapter 10's node, not marked next, does not stop it.
+  wmshops     (Serafew) the node menu's shop rows: Serafew's Armory and Shop rows open its armory and vendor with
+              the node's stock, and B leaves them; a node with no shops has none; the road to the story node is open.
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
               the unlocked districts and the nodes' states come back, and Enter District still loads the district.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
@@ -48,7 +50,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmsave, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -101,6 +103,10 @@ WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
 DISTRICT_PORT_KIRIS_FLAG = 0x91  # GLOBAL_FLAG_DISTRICT_PORT_KIRIS
 WM_NODES = 0x1D  # the world map's nodes (NODE_MAX)
+WM_PATH_DATA = 0x08206674  # gWMPathData: 12 bytes a path, its two nodes at +4
+CHAPTER_07 = 0x08
+PROC_SIZE, PROCS = 0x6C, 64  # sProcArray: 64 procs of 0x6C bytes
+SHOP_ITEMS = 20  # gProcScr_Shop's proc: its stock at +0x30, 20 u16 (item | uses << 8)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
 PALETTE_BUFFER = 0x020228A8
@@ -521,6 +527,21 @@ class Smoke:
         self.check("life: %d townsfolk stand on their spots" % len(want), want and not bad,
                    "wrong: %s" % bad if bad else ", ".join("%#x at %s" % (p, xy) for p, xy in want.items()))
 
+    def worldmap_idle(self, rom, d):
+        """Leaves Serafew (its start.ss) for the world map, with the story on Chapter 6 (Adlas Plains), the lord on the
+        Serafew node, nodes 0-5 cleared and Serafew unlocked; saves the idle world map as d/idle.ss. Returns its path and
+        the story chapter read there."""
+        story = self.sym["gWmStoryChapter"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        # gGMData: the lord's node at +0x11, the nodes' states at +0x30 (4 bytes each; 1 shown and cleared)
+        setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
+                 "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
+        idle = os.path.join(d, "idle.ss")
+        vals = self.run(rom, ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT +
+                        ["save " + idle, "shot idle.png", "r8 %#x" % story], d)
+        return idle, vals
+
     def test_worldmap(self, states):
         """The world map, reached by leaving Serafew through its gate (a test ROM's district). Before leaving: the story
         on Chapter 6 (Adlas Plains), the lord on the Serafew node, nodes 0-5 cleared and Serafew unlocked. The district
@@ -532,14 +553,8 @@ class Smoke:
         if "rom" not in states or not all(n in self.sym for n in need):
             return self.check("worldmap: the world map", False, "no district state or symbols")
         rom, story, override = states["rom"], self.sym["gWmStoryChapter"], self.sym["sWmChapterIdOverride"]
-        start = os.path.join(self.out, "Serafew", "start.ss")
         flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
-        # gGMData: the lord's node at +0x11, the nodes' states at +0x30 (4 bytes each; 1 shown and cleared)
-        setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
-                 "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
-        idle = os.path.join(d, "idle.ss")
-        vals = self.run(rom, ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT +
-                        ["save " + idle, "shot idle.png", "r8 %#x" % story], d)
+        idle, vals = self.worldmap_idle(rom, d)
         self.shot(os.path.join(d, "idle.png"), "world map after a district")
         if not self.check("worldmap: leaving a district keeps the story chapter", vals == [CHAPTER_06],
                           "story chapter %s" % vals):
@@ -669,6 +684,91 @@ class Smoke:
                    "shown: %s" % [i for i in range(WM_NODES) if pre[4 + i] & 1])
         self.check("wmsave: Enter District after the load loads the district",
                    enter == [DISTRICTS["Serafew"][0], 0], "chapter, override %s" % enter)
+
+    def procs(self, path):
+        """The live procs in a dump of sProcArray (PROCS bytes): [(script address, the proc's bytes)]."""
+        data = open(path, "rb").read() if os.path.exists(path) else b""
+        return [(struct.unpack_from("<I", data, i)[0], data[i:i + PROC_SIZE]) for i in range(0, len(data), PROC_SIZE)
+                if struct.unpack_from("<I", data, i)[0]]
+
+    def test_wmshops(self, states):
+        """The node menu's shop rows on the world map (test_worldmap's idle state, Serafew locked so its first rows are
+        the shops'). Serafew's node has an armory and a vendor: the Armory row opens the armory's base menu, A opens the
+        shop with the node's stock, B leaves to the world map; the Shop row (one down) opens the vendor with its stock.
+        On Adlas Plains (no shops), the first row is not a shop's. The road to the story node is in the open paths
+        (WM_REVEAL_DEST). Before #694 the rows checked the wrong node's state byte (GMNode was 1 byte in C)."""
+        d = os.path.join(self.out, "WorldMapShops")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "ProcScr_GmapBaseMenu", "gProcScr_Shop", "ProcScr_WorldMapMain", "sProcArray")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("wmshops: the world map", False, "no district state or symbols")
+        rom = states["rom"]
+        idle, vals = self.worldmap_idle(rom, d)
+        if not self.check("wmshops: the world map after a district", vals == [CHAPTER_06], "story %s" % vals):
+            return
+        data = open(rom, "rb").read()
+        node = lambda n, k: WM_NODE_DATA - 0x08000000 + n * 0x20 + k
+
+        def stock(n, k):
+            a, out = struct.unpack_from("<I", data, node(n, k))[0] - 0x08000000, []
+            while struct.unpack_from("<H", data, a)[0]:
+                out.append(struct.unpack_from("<H", data, a)[0] & 0xFF)
+                a += 2
+            return out
+        flag = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3)
+        procs = self.sym["sProcArray"]
+        base, shop, main = (self.sym[n] for n in ("ProcScr_GmapBaseMenu", "gProcScr_Shop", "ProcScr_WorldMapMain"))
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+
+        def visit(name, rows):
+            """The node menu, rows DOWNs, A: the base menu; A: the shop; B out to the world map."""
+            lines = ["load " + idle, "w8 %#x 0" % flag, "wait 10", "press A", "wait 40"]
+            lines += ["press DOWN", "wait 10"] * rows + ["press A", "wait 220", dump(name + "_base.bin"), "press A",
+                                                         "wait 200", "shot %s.png" % name, dump(name + "_shop.bin")]
+            lines += ["press B", "wait 90"] * 6 + ["shot %s_back.png" % name, dump(name + "_back.bin")]
+            self.run(rom, lines, d)
+            self.shot(os.path.join(d, name + ".png"), "world-map " + name)
+            kind = [p[0x29] for a, p in self.procs(os.path.join(d, name + "_base.bin")) if a == base]
+            items = [list(p[0x30:0x30 + 2 * SHOP_ITEMS:2]) for a, p in self.procs(os.path.join(d, name + "_shop.bin"))
+                     if a == shop]
+            back = [a for a, _ in self.procs(os.path.join(d, name + "_back.bin"))]
+            return kind, items, main in back and base not in back and shop not in back
+
+        def in_order(sub, full):
+            it = iter(full)
+            return all(x in it for x in sub)
+        for name, rows, k, kind_want in (("armory", 0, 0xC, 0), ("vendor", 1, 0x10, 1)):
+            want = stock(WM_NODE_SERAFEW, k)
+            kind, items, back = visit(name, rows)
+            self.check("wmshops: Serafew's %s row opens the %s" % (name, name), kind == [kind_want],
+                       "base menu kind %s" % kind)
+            # With Three Houses magic on, StartShopScreen drops tomes and staves: the stock is the node's list, in
+            # order, less those, and nothing after its end (it used to read on into the next list in ROM)
+            got = items[0] if len(items) == 1 else []
+            sold = got[:got.index(0)] if 0 in got else got
+            self.check("wmshops: the %s sells Serafew's stock, in order, and nothing after it" % name,
+                       sold and in_order(sold, want) and not any(got[len(sold):]),
+                       "shop %s, node %s" % (got, want))
+            self.check("wmshops: B leaves the %s for the world map" % name, back, "")
+        # Adlas Plains, cleared, the story on Chapter 7 (Renvall): no shop row comes first
+        x, y = struct.unpack_from("<hh", data, node(WM_NODE_ADLAS_PLAINS, 0x18))
+        lines = ["load " + idle, "w8 %#x %#x" % (self.sym["gWmStoryChapter"], CHAPTER_07),
+                 "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_ADLAS_PLAINS), "w8 %#x 1" % (GM_DATA + 0x30 + 4 * WM_NODE_ADLAS_PLAINS),
+                 "w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A",
+                 "wait 40", "shot plain_menu.png", "press A", "wait 220", dump("plain.bin")]
+        self.run(rom, lines, d)
+        self.shot(os.path.join(d, "plain_menu.png"), "node menu on Adlas Plains")
+        got = [a for a, _ in self.procs(os.path.join(d, "plain.bin"))]
+        self.check("wmshops: a node with no shops has no shop rows (Adlas Plains)", got and base not in got,
+                   "base menu open" if base in got else "")
+        # The road WM_REVEAL_DEST drew from Serafew to Adlas Plains
+        vals = self.run(rom, ["load " + idle, "r8 %#x" % (GM_DATA + 0xC4)] +
+                        ["r8 %#x" % (GM_DATA + 0xA4 + i) for i in range(0x20)], d)
+        paths = [p for p in vals[1:1 + vals[0]]] if vals else []
+        ends = lambda p: tuple(sorted(data[WM_PATH_DATA - 0x08000000 + 12 * p + 4:WM_PATH_DATA - 0x08000000 + 12 * p + 6]))
+        self.check("wmshops: the road to the story node is open (Serafew to Adlas Plains)",
+                   any(ends(p) == (WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS) for p in paths),
+                   "open paths %s" % [(p, ends(p)) for p in paths])
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -1242,7 +1342,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1263,6 +1363,8 @@ def main():
                 s.test_stubs(states)
             if n == "Serafew" and on("wmsave"):
                 s.test_wmsave(states)
+            if n == "Serafew" and on("wmshops"):
+                s.test_wmshops(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())
