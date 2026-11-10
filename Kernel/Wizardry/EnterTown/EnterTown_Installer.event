@@ -9,5 +9,6 @@
 #include "LynJump.event"
 #include "EnterTown.lyn.event"
 #include "District.lyn.event"
+#include "DistrictEntry.lyn.event"
 #include "DistrictNpc.lyn.event"
 #include "WorldMap_SkillShop.lyn.event"

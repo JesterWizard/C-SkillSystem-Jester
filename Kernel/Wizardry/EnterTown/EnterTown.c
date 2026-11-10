@@ -32,6 +32,7 @@ extern void StartSkillSynthScreen_FromWorldMap(void);
 extern void StartInfuseScreen_FromWorldMap(void);
 extern u8 WMMenu_OnSkillShopSelected(struct MenuProc * menuProc, struct MenuItemProc * menuItemProc);
 extern bool WorldMapSkillShop_HasNodeShop(u8 nodeId);
+extern void StartDistrictEntryFade(ProcPtr worldMapMain);
 
 typedef struct {
     u8 chapterId;
@@ -69,8 +70,8 @@ u8 WMMenu_OnDistrictSelected(struct MenuProc * menuProc, struct MenuItemProc * m
 
     void * p = Proc_Find(ProcScr_WorldMapMain);
 
-    // Perform state jump to label 0x0E in that proc
-    Proc_Goto(p, 0x0E);
+    // Fade the world map to black, then jump to label 0x0E in that proc (DistrictEntry.c)
+    StartDistrictEntryFade(p);
 
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
