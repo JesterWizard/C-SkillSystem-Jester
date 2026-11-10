@@ -126,7 +126,6 @@ gEmsSusChunks:
     EmsChunk(20 * 4, EMS_SaveSkillDbgList, EMS_LoadSkillDbgList)
     EmsChunk($0021, SaveArenaRosterProgress, LoadArenaRosterProgress)
     EmsChunk($0032, SaveDeadUnits, LoadDeadUnits)
-    EmsChunk($0000, SaveChatLogSuspendState, LoadChatLogSuspendState) /* Not kept: resuming starts an empty chat log */
     EmsChunk($00C0, MSU_SaveGaidenMagicUses, MSU_LoadGaidenMagicUses) /* Three Houses magic uses, 3 * 64 */
     EmsChunk($0004, WmStoryChapter_Save, WmStoryChapter_Load) /* World map story chapter */
 #ifdef CONFIG_HEX_CARDS

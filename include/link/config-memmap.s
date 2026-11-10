@@ -261,7 +261,7 @@ _kernel_malloc_overlay0 sAiTargetList, 0x80
 _kernel_malloc2 gBmMapEnemyVisionBuffer, 0x800
 _kernel_malloc2 gBmMapEnemyVision, 4
 
-/* Chapter talk chatlog (ring buffer + UI scratch). RAM only: not kept in any save. */
+/* Talk chatlog (ring buffer + UI scratch), cleared at the start of each conversation. RAM only: not kept in any save. */
 _kernel_malloc2 sChatLogState, 0x444
 _kernel_malloc2 sChatlogUiState, 0x600
 
