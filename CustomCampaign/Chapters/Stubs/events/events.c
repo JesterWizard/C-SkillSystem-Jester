@@ -9,8 +9,8 @@
  * path drawn by Stubs/events/worldmap.c), or, for the last chapters, straight on and then to the game's ending. No unit
  * is loaded and no battle is fought.
  *
- * To write one of them: give it its own folder like the other chapters, point its event slot at the new group in
- * CustomCampaign/Event/Event_Installer.event (NewEventPointerTable_Event), and delete its STUB_CHAPTER line here.
+ * To write one of them, run Tools/chapter/new_chapter.py <number>: it gives the chapter its own folder, points its event
+ * slot at the new group in CustomCampaign/Event/Event_Installer.event, and deletes its STUB_CHAPTER line here.
  */
 
 static const struct UnitDefinition StubUnits_None[] = {

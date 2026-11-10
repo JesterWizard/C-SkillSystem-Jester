@@ -64,6 +64,37 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
 
 ## ✍️ Replacing a Stub with a Real Chapter
 
+### With the tool
+
+```bash
+python3 Tools/chapter/new_chapter.py 12
+```
+
+It turns the stub into a chapter folder, `CustomCampaign/Chapters/12/events/`:
+- `events.c`: `Chapter12Event`. It starts as a copy of the stub (the placeholder line, then the same next chapter), so
+  the game plays as before. Its comments list what to change.
+- `units.c`: an empty party list.
+- `worldmap.c`: the stub's `SET_NODE` and `TRAVEL_TO_NODE` scripts, written out under the same names, so the world-map
+  script tables need no change. Chapter 10 already has its own, and keeps them.
+
+It also wires the folder in:
+- The chapter's event slot moves from `Stubs/Stubs.event` to `CustomCampaign/Event/Event_Installer.event`, with the new
+  `.lyn.event` includes.
+- Its `STUB_CHAPTER` and `STUB_SET_NODE` lines go.
+
+`--dry-run` prints the changes first. It stops when the folder already has an `events.c` (Chapter 10 has its old
+vanilla one): move it away, or pass `--force`. Then build (`Tools/cloud/build.sh` or `make` builds the new
+`.lyn.event` files) and run `python3 Tools/cloud/smoketest.py --only stubs`, which should still pass. Move the
+chapter's row out of the table above.
+
+To write the chapter, follow the comments in `events.c`:
+1. Fill in `units.c` and load the units in the opening.
+2. Take the placeholder `TEXT` and the `NEXT_CHAPTER_WITH_MAP` line out of the opening; the ending scene keeps it.
+3. Give the misc events a win condition (`DEFEAT_ALL`, a boss, a seize) that starts the ending.
+4. Add `chapter.c` and a map folder, like Chapter 9, if it changes the chapter row or the map.
+
+### By hand
+
 1. Write the chapter in its own folder under `CustomCampaign/Chapters/`, like Chapter 9:
    - `events/events.c` with its `ChapterEventGroup`;
    - `chapter.c` if it changes the chapter row;
@@ -104,6 +135,7 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
 | Story table, world-map script tables | `CustomCampaign/Event/World_Map_Events.c` |
 | Story order | `GetWmStoryChapterRank`, `WmStoryReached` in `Kernel/Wizardry/WorldMap/WmStoryChapter.c` |
 | The placeholder line | `MSG_STORY_STUB_CHAPTER`, `Contents/Texts/Source/texts/Districts.txt` |
+| Turning a stub into a chapter folder | `Tools/chapter/new_chapter.py` |
 
 ---
 
