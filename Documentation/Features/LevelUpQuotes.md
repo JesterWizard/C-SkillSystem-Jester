@@ -31,6 +31,10 @@ Each unit has 3 quotes to speak based on how many points they gained in a level 
 - **2-5 points** -> Good quote
 - **6+  points** -> Great quote
 
+Poor quotes open with `[Sad]` and great ones with `[Happy]`: the level-up portrait changes to that expression when the
+character has one (see [Portrait Expressions](PortraitExpressions.md#expressions-in-quotes)). In a `[LoadFaceFancy_X]`
+quote the tag goes after `[FlipLeft]`, which is the rest of that command's arguments.
+
 This feature makes use of the text engine rework ``CONFIG_TEXT_ENGINE_REWORK`` to display single line text boxes and thought bubbles, so make sure that remains enabled in ``configs.h``
 
 ---

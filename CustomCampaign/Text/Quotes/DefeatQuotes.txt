@@ -1,34 +1,34 @@
 ## MSG_DEFEAT_QUOTE_EIRIKA_ONEILL
-[OpenMidLeft][LoadFace_ONeill]
+[OpenMidLeft][LoadFace_ONeill][Hurt]
 To... lose to a child...[A][N]
 How humiliating...[A][X]
 
 ## MSG_DEFEAT_QUOTE_SETH_ONEILL
-[OpenMidLeft][LoadFace_ONeill]
+[OpenMidLeft][LoadFace_ONeill][Hurt]
 No... I don't want... to die.[A][N][ToggleSmile]
 But at least, I can say it took[N]
 the Silver Knight... to best me.[A][X]
 
 ## MSG_DEFEAT_QUOTE_BREGUET
-[OpenMidLeft][LoadFace_Breguet]
+[OpenMidLeft][LoadFace_Breguet][Hurt]
 V-very good.[A][N][MoveMidLeft]
 But all for naught.[A][N]
 This war will soon span[N]
 the continent.[A][X]
 
 ## MSG_DEFEAT_QUOTE_BONE
-[OpenMidLeft][LoadFace_Bone]
+[OpenMidLeft][LoadFace_Bone][Hurt]
 Ugh, we wuz gonna live[N][HalfCloseEyes]
 in a castle, he said...[A][X]
 
 ## MSG_DEFEAT_QUOTE_BAZBA
-[OpenMidLeft][LoadFace_Bazba]
+[OpenMidLeft][LoadFace_Bazba][Hurt]
 N-no, no![A][N]
 I'm the mighty Bazba,[N]
 you dogs, ain't gonna...[A][X]
 
 ## MSG_DEFEAT_QUOTE_SAAR
-[OpenMidLeft][LoadFace_Saar][HalfCloseEyes]
+[OpenMidLeft][LoadFace_Saar][Hurt][HalfCloseEyes]
 Agh.[A][N]
 You may have beaten me, but you only[N]
 tighten the noose around your own neck.[A][N]
@@ -36,24 +36,24 @@ Do not think you are safe.[A][N]
 We are everywhere...[A][X]
 
 ## MSG_DEFEAT_QUOTE_ZONTA
-[OpenMidLeft][LoadFace_Zonta]
+[OpenMidLeft][LoadFace_Zonta][Hurt]
 Were we... just pawns?[A][N]
 That's always the lot[N]
 for us mercs...[A][X]
 
 ## MSG_DEFEAT_QUOTE_NOVALA_ARTUR
-[OpenMidLeft][LoadFace_Novala]
+[OpenMidLeft][LoadFace_Novala][Hurt]
 N-no...[A][N]
 I-it's not over.[A][N]
 I can do so much... more...[A][N]
 Ugh...[A][N][ClearFace]
-[OpenMidRight][LoadFace_Artur]
+[OpenMidRight][LoadFace_Artur][Determined]
 Go now, into the hands of the divine.[A][N]
-Your judgement is at hand.[A][N][MoveMidRight]
+Your judgement is at hand.[A][N][MoveMidRight][Surprised]
 Hmm? What's this?[A][X]
 
 ## MSG_DEFEAT_QUOTE_NOVALA
-[OpenMidLeft][LoadFace_Novala]
+[OpenMidLeft][LoadFace_Novala][Hurt]
 N-no...[A][N]
 I was so... close to being...
 useful.[A][N]
@@ -61,12 +61,12 @@ Now I'll n-never[N]
 surpass you, Knoll...[A][X]
 
 ## MSG_DEFEAT_QUOTE_MURRAY
-[OpenMidLeft][LoadFace_Murray][CloseEyes]
+[OpenMidLeft][LoadFace_Murray][Hurt][CloseEyes]
 Dammit, what was it all for...[A][N]
 I should have just run.[A][X]
 
 ## MSG_DEFEAT_QUOTE_TIRADO
-[OpenMidLeft][LoadFace_Tirado]
+[OpenMidLeft][LoadFace_Tirado][Hurt]
 Very... Impressive...[N]
 However...[A][N]
 I expect you'll wish you'd[N]
@@ -75,16 +75,16 @@ Lord Valter is...[N]
 not nearly as merciful as I...[A][X]
 
 ## MSG_DEFEAT_QUOTE_BINKS
-[OpenMidLeft][LoadFace_Binks][MoveMidLeft]
+[OpenMidLeft][LoadFace_Binks][Hurt][MoveMidLeft]
 5,000 gold was way too little.[A][N]
 Pablo, you cheap bas...[A][X]
 
 ## MSG_DEFEAT_QUOTE_EIRIKA
-[OpenMidLeft][LoadFace_Eirika][HalfCloseEyes]
+[OpenMidLeft][LoadFace_Eirika][Hurt][HalfCloseEyes]
 Ephraim, Father...[N]
 I'm so s-sorry...[A][X]
 
 ## MSG_DEFEAT_QUOTE_EPHRAIM
-[OpenMidLeft][LoadFace_Ephraim][HalfCloseEyes]
+[OpenMidLeft][LoadFace_Ephraim][Hurt][HalfCloseEyes]
 E-Eirika, I-I can't...[A][N]
 protect you any...more...[A][X]
