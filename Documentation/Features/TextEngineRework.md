@@ -96,7 +96,7 @@ Updates stick to the face until you change them again, clear the face, or end th
 1. `TextEngineRework_Installer.event` includes `Source/LynJump.event`, generated `Source/TextEngineRework.lyn.event`, `Text_Engine_Tables.event` and `Popups/Popups.event`.
 2. `Source/LynJump.event` installs whole-function trampolines and a few call-sites.
 3. Tables define fonts, text palettes, box palettes, box graphics, boop timing data, and the popup graphics.
-4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, `[MML2]`, `[ToggleOnSceneLayout]`, `[ToggleOnBigText]`, `[Objection]`, `[AutoAdvance]` and `[ToggleOnRainbow]`.
+4. `Contents/Texts/textdefs.txt` exposes author-facing aliases such as `[Font]`, `[LoadFaceFancy]`, `[MML2]`, `[ToggleOnSceneLayout]`, `[ToggleOnBigText]`, `[Objection]`, `[AutoAdvance]`, `[ToggleOnRainbow]` and the expressions (`[Angry]`, `[Neutral]`, ...).
 5. `include/link/config-memmap.s` reserves `sTextEngineNameplateState`, `sTextEngineSceneLayoutState`, `sTextEngineBigTextState` and `sTextEngineAutoAdvanceState`; the last three sit at the end of the kernel RAM pool.
 
 ---
@@ -161,6 +161,7 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 | `0x60` | `[ToggleOffAutoAdvance]` | none | `[A]` waits for the player again |
 | `0x61` | `[ToggleOnRainbow]` | none | Following letters take three colour groups in turn, and the groups' colours turn around a colour wheel |
 | `0x62` | `[ToggleOffRainbow]` | none | Back to the colour from before `[ToggleOnRainbow]`. Rainbow letters already printed keep changing colour until the dialogue ends |
+| `0x63` | `[Expression]` / `[Neutral]` / `[Angry]` / `[Sad]` / `[Happy]` / `[Surprised]` / `[Determined]` / `[Hurt]` | `XX` expression (`0x01` neutral, `0x02`+) | The speaking portrait changes in place to its character's expression portrait (`gPortraitExpressions`); see [Portrait Expressions](PortraitExpressions.md) |
 
 `ASMC(EnableScreenGlitch)` / `ASMC(DisableScreenGlitch)`, `ASMC(EnableScreenStatic)` / `ASMC(DisableScreenStatic)`, and `ASMC(EnableScreenEarthquake)` / `ASMC(DisableScreenEarthquake)` toggle the same effects outside dialogue. All three stay on until turned off; they are not cleared when talk ends. Earthquake also plays vanilla rumble `SONG_26A` on start and fades sound effects on stop. `ASMC(StartScreenImpactFlash)` fires the same one-shot flash as `[ImpactFlash]`; firing it again while a flash is still decaying restarts the hit.
 

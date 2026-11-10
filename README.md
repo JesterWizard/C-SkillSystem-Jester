@@ -247,6 +247,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Halfbodies.md"><img src="./Documentation/Gifs/Halfbodies.gif" alt="Halfbodies preview" width="360" /></a><br/><b><a href="./Documentation/Features/Halfbodies.md">Halfbodies</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MaxColorBackgrounds.md"><img src="./Documentation/Gifs/Max_Color_Backgrounds.gif" alt="Max Color Backgrounds preview" width="360" /></a><br/><b><a href="./Documentation/Features/MaxColorBackgrounds.md">Max Color Backgrounds</a></b></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/PortraitExpressions.md"><img src="./Documentation/Gifs/Portrait_Expressions.gif" alt="Portrait Expressions preview" width="360" /></a><br/><b><a href="./Documentation/Features/PortraitExpressions.md">Portrait Expressions</a></b></td>
+    <td></td>
+  </tr>
 </table>
 
 ### 🏘️ Towns & Minigames
