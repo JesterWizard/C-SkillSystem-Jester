@@ -104,6 +104,9 @@ static void DistrictNpc_Init(ProcPtr proc)
 	p->walkIdx = 0;
 	p->lastClock = GetGameClock();
 
+	/* This story chapter's places (District life); the NPCs then wander around them */
+	District_PlaceNpcs();
+
 	for (id = 0x41; id <= 0x7F && p->count < DISTRICT_NPC_MAX; id++) {
 		unit = GetUnit(id);
 		if (!unit || !unit->pCharacterData)

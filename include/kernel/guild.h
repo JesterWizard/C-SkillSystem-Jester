@@ -96,6 +96,23 @@ struct GuildFeatured {
 	u16 pad;
 };
 
+/*
+ * The rival at the guild board, Marlo (gGuildRival, ends with kind GUILD_QUEST_END): records to beat, set with the
+ * quest kinds (a minigame score), raised as the story goes on. A row counts from its story chapter on (gWmStoryChapter;
+ * before the first story chapter, 0). Beating one pays its tokens once, when the board opens; the Records page shows
+ * the rival's latest record in each game (DOWN).
+ */
+#define GUILD_RIVAL_MAX 16 /* a beaten bit each in struct GuildSave */
+
+struct GuildRivalRecord {
+	u8 kind;          /* GUILD_QUEST_CROSSING_SCORE, _TOWER_SCORE or _SNEK_SCORE */
+	u8 param;         /* the River Crossing course */
+	u8 storyChapter;  /* from this story chapter on */
+	u8 pad;
+	u16 score;
+	u16 rewardTokens;
+};
+
 /* Saved (a save chunk in both save lists, 0x10 bytes). */
 struct GuildSave {
 	/* 00 */ u16 magic;
@@ -103,7 +120,8 @@ struct GuildSave {
 	/* 04 */ u16 earned;      /* tokens earned in all, up to 65535 */
 	/* 06 */ u16 prizes;      /* a bit per one-time prize bought */
 	/* 08 */ u32 claimed;     /* a bit per quest claimed (gGuildQuests order) */
-	/* 0C */ u16 pad[2];
+	/* 0C */ u16 rival;       /* a bit per rival record beaten (gGuildRival order) */
+	/* 0E */ u16 pad;
 };
 
 extern struct GuildSave gGuildSave;
@@ -111,6 +129,7 @@ extern const struct GuildQuest gGuildQuests[];
 extern const struct GuildPrize gGuildPrizes[];
 extern const struct GuildUnlock gGuildUnlocks[];
 extern const struct GuildFeatured gGuildFeatured[];
+extern const struct GuildRivalRecord gGuildRival[];
 
 /* Tokens */
 int Guild_Tokens(void);
@@ -133,6 +152,12 @@ bool Guild_BiographyPageUnlocked(int pid, int page);
 /* Featured: this board's featured quest now (-1: none, or claimed), and a quest's bonus when claimed here now */
 int Guild_FeaturedQuest(int district);
 int Guild_FeaturedBonus(int index);
+
+/* Rival: whether a record counts now, the latest one counting in a game (-1: none), beaten; pay the beaten ones */
+bool Guild_RivalActive(int index);
+int Guild_RivalCurrent(int kind, int param);
+bool Guild_RivalBeaten(int index);
+int Guild_RivalPay(void);            /* the tokens paid for records newly beaten */
 
 /* Prizes */
 bool Guild_PrizeSoldOut(int index);

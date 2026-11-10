@@ -27,6 +27,7 @@
 #ifdef CONFIG_DISTRICT_GUILD
 #include "Guild/Guild.lyn.event"
 #endif
+#include "District/DistrictLife.lyn.event"
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"
 #include "CustomItems/CustomItems.event"

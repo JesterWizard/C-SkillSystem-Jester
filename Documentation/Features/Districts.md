@@ -7,6 +7,7 @@
 - [The Four Districts](#the-four-districts)
 - [Entering and Leaving](#entering-and-leaving)
 - [NPCs](#npcs)
+- [Time of Day](#time-of-day)
 - [Gifts](#gifts)
 - [Hex Players](#hex-players)
 - [Hex Shop](#hex-shop)
@@ -144,10 +145,62 @@ A radius of 0 means the NPC stands still.
   - free movement is off.
 - The code tracks up to eight NPCs per district. It only looks at unit ids `0x41` to `0x7F` (the green units).
 
+### Places by chapter
+
+Townsfolk move about as the story goes on. `gDistrictNpcSpots` (`Data/District/DistrictLife.c`) gives an NPC a tile
+from a story chapter on (`gWmStoryChapter`). When the district opens, the last row for that NPC whose story chapter
+has come puts it there, and it wanders around that tile instead. A row whose tile is taken or that the NPC cannot stand
+on is skipped.
+
+| District | NPC | From | Tile (was) |
+|---|---|---|---|
+| Serafew | Hex player A (`0xFA`) | Chapter 8 | (9, 4) (12, 3) |
+| Serafew | Gold giver (`0xFC`) | Chapter 9 | (10, 13) (12, 15) |
+| Serafew | Hex player B (`0xFB`) | Chapter 10 | (8, 9) (6, 7) |
+| Port Kiris | Hex player A | Chapter 12 | (4, 6) (5, 3) |
+| Port Kiris | Hex player B | Chapter 13 | (16, 6) (18, 4) |
+| Caer Pelyn | Gold giver | Chapter 9 | (11, 10) (13, 8) |
+| Caer Pelyn | Item giver (`0xF9`) | Chapter 10 | (10, 16) (9, 13) |
+| Jehanna Hall | Gold giver | Chapter 10 | (11, 6) (13, 8) |
+| Jehanna Hall | Hex player A | Chapter 12 | (3, 8) (5, 6) |
+
+```c
+SPOT(SERAFEW, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_08, 9, 4),
+/*   district pid                         from        x  y */
+```
+
+`District_PlaceNpcs` (`Kernel/Wizardry/EnterTown/DistrictLife.c`) moves them as the NPCs start (`StartDistrictNpcs`).
+
 ### Hex Card icon
 
 - Each Hex player has a Hex Card icon above the head. It moves 1 pixel up and down every 16 frames.
 - The icon is only compiled when `CONFIG_HEX_CARDS` is on.
+
+---
+
+## 🌅 Time of Day
+
+The districts' time of day follows the story. While the world map leads to a story chapter, every district's map is
+tinted for that time: warm at evening, dark blue at night, soft gold in the morning. Units and screens are not tinted.
+
+| Story chapter | Time |
+|---|---|
+| before Chapter 7 | day |
+| 7 | evening |
+| 8 | night |
+| 9 | morning |
+| 10 | day |
+| 12 | evening |
+| 13 | night |
+| 15 | morning |
+| 17 | day |
+
+- The table is `gDistrictTimes`, and the tints `gDistrictTints` (each colour channel becomes `channel * mul / 16 +
+  add`), in `Data/District/DistrictLife.c`. The rows compare chapter ids, so they stay in id order (`CHAPTER_11` is
+  `0x3D` and is left out).
+- The tint is applied whenever the map's palette loads: `UnpackChapterMapPalette` is replaced in `DistrictLife.c`.
+  Before, `CustomCampaign/Event/PListSplit.event` repointed it at `SplitedChapterData_ObjPal`; the replacement reads
+  that table itself. The district maps have no palette animations, so nothing loads their colours past the tint.
 
 ---
 
@@ -360,7 +413,8 @@ gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 
 Each district has a guild board, a small wooden notice board by the Hex shop. Stand on it and press A: its pages are the
 district's quests, prizes bought with tokens (every minigame pays tokens), and every minigame's records. A red notice
-blinks on the board while a quest there is met and waiting to be claimed. The rules are in [Guild Board](./GuildBoard.md).
+blinks on the board while a quest there is met and waiting to be claimed. On the Records page, DOWN shows the records of
+Marlo, the guild's rival: beating one pays tokens. The rules are in [Guild Board](./GuildBoard.md).
 
 | District | Board (x, y) |
 |---|---|
@@ -464,6 +518,7 @@ blinks on the board while a quest there is met and waiting to be claimed. The ru
 | District table | [`District.c`](../../Kernel/Wizardry/EnterTown/District.c) | `gDistrictNodes`, unlock, leave prompt |
 | District header | [`district.h`](../../include/kernel/district.h) | `struct DistrictNode`, `struct DistrictNpc` |
 | District NPCs | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `gDistrictNpcs`, wandering, Hex Card icon |
+| District life | [`DistrictLife.c`](../../Kernel/Wizardry/EnterTown/DistrictLife.c), [`DistrictLife.c` (tables)](../../Data/District/DistrictLife.c) | The time-of-day tint (`UnpackChapterMapPalette` replaced), the NPCs' places; `gDistrictTimes`, `gDistrictTints`, `gDistrictNpcSpots` |
 | Node menu row | [`EnterTown.c`](../../Kernel/Wizardry/EnterTown/EnterTown.c) | `Enter District` row and its entry |
 | Unlock hook | [`WmStoryChapter.c`](../../Kernel/Wizardry/WorldMap/WmStoryChapter.c) | `WmStoryChapter_Begin` calls `District_MarkStoryChapterCleared` |
 | Story table | [`World_Map_Events.c`](../../CustomCampaign/Event/World_Map_Events.c) | `gWmStoryChapterNodes` |

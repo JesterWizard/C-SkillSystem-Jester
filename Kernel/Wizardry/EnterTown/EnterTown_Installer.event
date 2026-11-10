@@ -11,4 +11,5 @@
 #include "District.lyn.event"
 #include "DistrictEntry.lyn.event"
 #include "DistrictNpc.lyn.event"
+#include "DistrictLife.lyn.event"
 #include "WorldMap_SkillShop.lyn.event"

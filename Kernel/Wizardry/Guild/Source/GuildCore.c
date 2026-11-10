@@ -347,6 +347,54 @@ int Guild_FeaturedBonus(int index)
 	return f->bonusTokens;
 }
 
+/* ---- The rival ---- */
+
+bool Guild_RivalActive(int index)
+{
+	int story = gWmStoryChapter == WM_STORY_CHAPTER_NONE ? 0 : gWmStoryChapter;
+
+	return gGuildRival[index].storyChapter <= story;
+}
+
+int Guild_RivalCurrent(int kind, int param)
+{
+	int i, current = -1;
+
+	for (i = 0; gGuildRival[i].kind != GUILD_QUEST_END && i < GUILD_RIVAL_MAX; i++)
+		if (gGuildRival[i].kind == kind && gGuildRival[i].param == param && Guild_RivalActive(i))
+			current = i;
+	return current;
+}
+
+bool Guild_RivalBeaten(int index)
+{
+	Guild_Check();
+	return (gGuildSave.rival >> index) & 1;
+}
+
+int Guild_RivalPay(void)
+{
+	const struct GuildRivalRecord *r;
+	struct GuildQuest q;
+	int i, paid = 0;
+
+	Guild_Check();
+	for (i = 0; gGuildRival[i].kind != GUILD_QUEST_END && i < GUILD_RIVAL_MAX; i++) {
+		r = &gGuildRival[i];
+		if (Guild_RivalBeaten(i) || !Guild_RivalActive(i))
+			continue;
+		CpuFill16(0, &q, sizeof(q));
+		q.kind = r->kind;
+		q.param = r->param;
+		if (Guild_QuestProgress(&q) < r->score)
+			continue;
+		gGuildSave.rival |= 1 << i;
+		Guild_AddTokens(r->rewardTokens);
+		paid += r->rewardTokens;
+	}
+	return paid;
+}
+
 bool Guild_ClaimQuest(int index)
 {
 	const struct GuildQuest *q = &gGuildQuests[index];

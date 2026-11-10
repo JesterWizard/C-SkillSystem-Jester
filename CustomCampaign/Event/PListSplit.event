@@ -52,10 +52,8 @@ PUSH
     POIN SplitedChapterData_ObjPal
     PROTECT 0x01990C 0x019974
 
-    /* UnpackChapterMapPalette */
-    ORG 0x01999C
-    POIN SplitedChapterData_ObjPal
-    PROTECT 0x019974 0x0199A4
+    /* UnpackChapterMapPalette: replaced in Kernel/Wizardry/EnterTown/DistrictLife.c, which reads
+     * SplitedChapterData_ObjPal itself (and tints district maps) */
 
     /* BMapVSync_InitMapAnimations */
     ORG 0x030134

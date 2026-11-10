@@ -16,6 +16,8 @@ What it checks:
   unlocks     (Serafew) the board's story quests show "+story"/"+support"; the Eirika and Seth one adds 40 support
               points each way.
   featured    (Serafew) with the story on Chapter 8, the Tower Stack quest tops the board and pays 15 + 15 tokens.
+  life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
+              Marlo's first record and pays 10 tokens once; a test ROM puts the townsfolk on their spots.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
   savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
   suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
@@ -31,7 +33,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, snek, savelayout, suspend, gamesave, battle, battlequote,
 awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -68,6 +70,8 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 # FE8U RAM that does not move
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
+UNIT_GREEN = 0x0202DDCC
+PALETTE_BUFFER = 0x020228A8
 CHAPTER = PLAYST + 0x0E
 UNIT_X, UNIT_Y = UNIT1 + 0x10, UNIT1 + 0x11
 CHAPTER_TABLE = 0x8B0890
@@ -379,8 +383,8 @@ class Smoke:
         g, cr = self.sym["gGuildSave"], self.sym["gCrossingRecords"]
         vals = self.run(states["rom"], [
             "load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w32 %#x 0" % (g + 8),
-            "w8 %#x 0" % self.sym["gWmStoryChapter"], "w16 %#x 0x5243" % cr, "w16 %#x 900" % (cr + 2), "hold A 6",
-            "wait 150", "press A", "wait 30",
+            "w8 %#x 0" % self.sym["gWmStoryChapter"], "w16 %#x 0xFFFF" % (g + 0x0C), "w16 %#x 0x5243" % cr,
+            "w16 %#x 900" % (cr + 2), "hold A 6", "wait 150", "press A", "wait 30",
             "shot claim.png", "r16 %#x" % (g + 2), "r32 %#x" % (g + 8)], d)
         self.shot(os.path.join(d, "claim.png"), "quest claimed")
         self.check("claim: Serafew's first quest pays 15 tokens and is marked claimed", vals == [15, 1],
@@ -396,11 +400,85 @@ class Smoke:
         g, tr = self.sym["gGuildSave"], self.sym["gTowerRecords"]
         vals = self.run(states["rom"], [
             "load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w32 %#x 0" % (g + 8),
-            "w8 %#x 0x09" % self.sym["gWmStoryChapter"], "w16 %#x 0x5453" % tr, "w16 %#x 100" % (tr + 2),
+            "w8 %#x 0x09" % self.sym["gWmStoryChapter"], "w16 %#x 0xFFFF" % (g + 0x0C), "w16 %#x 0x5453" % tr,
+            "w16 %#x 100" % (tr + 2),
             "hold A 6", "wait 150", "shot featured.png", "press A", "wait 30", "r16 %#x" % (g + 2)], d)
         self.shot(os.path.join(d, "featured.png"), "featured quest")
         self.check("featured: Chapter 8's Serafew quest tops the board and pays 15 + 15 tokens", vals == [30],
                    "tokens %s" % vals)
+
+    def test_life(self, states):
+        """District life on Serafew's map. Time of day: with the story on Chapter 8 (night), the map's palettes come
+        back from the guild board darker than with the story at its start (day). Rival: with Tower Stack's best at
+        100, opening the board pays Marlo's first Tower Stack record (60) once, 10 tokens, and DOWN on the Records page
+        shows his records. Townsfolk: a test ROM whose spots count from the start, with the NPCs standing still,
+        puts three of them on their spots."""
+        d = os.path.join(self.out, "Serafew")
+        need = ("gGuildSave", "gWmStoryChapter", "gTowerRecords", "gCrossingRecords", "gSnekHighScore")
+        if "guild" not in states or not all(n in self.sym for n in need):
+            return self.check("life: district life", False, "no guild board or symbols")
+        g, story = self.sym["gGuildSave"], self.sym["gWmStoryChapter"]
+        pal = [ "r16 %#x" % (PALETTE_BUFFER + 0x20 * 6 + 2 * k) for k in range(16 * 10)]
+        tint = {}
+        for name, chapter in (("day", 0), ("night", 0x09)):
+            vals = self.run(states["rom"], ["load " + states["guild"][0], "w8 %#x %#x" % (story, chapter), "hold A 6",
+                                            "wait 150", "press B", "wait 150", "shot %s.png" % name] + pal, d)
+            tint[name] = sum((v & 31) + ((v >> 5) & 31) + ((v >> 10) & 31) for v in vals) if len(vals) == 160 else 0
+            self.shot(os.path.join(d, name + ".png"), "Serafew by %s" % name)
+        self.check("life: the map is darker at night", 0 < tint["night"] < tint["day"] * 0.8,
+                   "colour sum day %d, night %d" % (tint["day"], tint["night"]))
+
+        cr, tr = self.sym["gCrossingRecords"], self.sym["gTowerRecords"]
+        lines = ["load " + states["guild"][0], "w8 %#x 0" % story, "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2),
+                 "w16 %#x 0" % (g + 0x0C), "w16 %#x 0x5243" % cr, "w16 %#x 0" % (cr + 2), "w16 %#x 0x5453" % tr,
+                 "w16 %#x 100" % (tr + 2), "w16 %#x 0" % self.sym["gSnekHighScore"], "hold A 6", "wait 150",
+                 "r16 %#x" % (g + 2), "r16 %#x" % (g + 0x0C), "press R", "wait 20", "press R", "wait 20",
+                 "press DOWN", "wait 30", "shot rival.png", "press B", "wait 150", "hold A 6", "wait 150",
+                 "r16 %#x" % (g + 2)]
+        vals = self.run(states["rom"], lines, d)
+        self.shot(os.path.join(d, "rival.png"), "rival records")
+        self.check("life: beating Marlo's Tower Stack record pays 10 tokens once", vals == [10, 2, 10],
+                   "tokens, beaten bits, tokens after reopening %s" % vals)
+        self.test_townsfolk()
+
+    def test_townsfolk(self):
+        name, d = "Serafew", os.path.join(self.out, "Townsfolk")
+        os.makedirs(d, exist_ok=True)
+        if "gDistrictNpcSpots" not in self.sym or "gDistrictNpcs" not in self.sym:
+            return self.check("life: townsfolk's places", False, "no symbols")
+        ch = DISTRICTS[name][0]
+        rom = self.district_rom(name, d)
+        data = bytearray(open(rom, "rb").read())
+        want = {}
+        a = self.sym["gDistrictNpcSpots"] - 0x08000000
+        while data[a] != 0xFF:
+            if data[a] == ch:
+                data[a], data[a + 2] = 0, 0
+                want[data[a + 1]] = (data[a + 3], data[a + 4])
+            a += 6
+        a = self.sym["gDistrictNpcs"] - 0x08000000
+        while data[a] != 0xFF:
+            if data[a] == 0:
+                data[a + 2] = 0
+            a += 4
+        open(rom, "wb").write(data)
+        with open(BOOT) as f:
+            self.run(rom, [ln.rstrip("\n") for ln in f], d)
+        vals = self.run(rom, ["load " + os.path.join(d, "boot.ss"), "wait 60", "shot townsfolk.png"] +
+                        ["r32 %#x" % (UNIT_GREEN + i * 0x48) for i in range(8)] +
+                        ["r8 %#x" % (UNIT_GREEN + i * 0x48 + k) for i in range(8) for k in (0x10, 0x11)], d)
+        self.shot(os.path.join(d, "townsfolk.png"), "townsfolk on their spots")
+        if len(vals) != 24:
+            return self.check("life: townsfolk's places", False, "values %s" % vals)
+        rom_data = open(ROM, "rb").read()
+        got = {}
+        for i in range(8):
+            ptr = vals[i]
+            if ptr >= 0x08000000:
+                got[rom_data[ptr - 0x08000000 + 4]] = (vals[8 + 2 * i], vals[9 + 2 * i])
+        bad = {"%#x" % p: (got.get(p), xy) for p, xy in want.items() if got.get(p) != xy}
+        self.check("life: %d townsfolk stand on their spots" % len(want), want and not bad,
+                   "wrong: %s" % bad if bad else ", ".join("%#x at %s" % (p, xy) for p, xy in want.items()))
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -819,7 +897,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -832,6 +910,8 @@ def main():
                 s.test_unlocks(states)
             if n == "Serafew" and on("featured"):
                 s.test_featured(states)
+            if n == "Serafew" and on("life"):
+                s.test_life(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())
