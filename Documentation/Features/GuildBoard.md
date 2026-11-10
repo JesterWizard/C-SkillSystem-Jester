@@ -48,6 +48,8 @@ district games to each other and to the main campaign.
 | [Snek](./Minigames/Snek.md) | 1 per 8 points (two coins) |
 | A claimed quest | its reward |
 
+- Each game shows what it paid: River Crossing's and Tower Stack's final line (`+13 tokens` after the gold), Fishing's
+  catch card, Hex's Victory and Draw banners. Snek's show only on the board.
 - You can hold up to 9999 tokens. The board also counts the tokens earned in all (up to 65535): a quest can ask for it.
 - The title line shows the tokens you hold.
 
@@ -237,5 +239,5 @@ data but do nothing.
 - Progress counts what you have done in all, not since a quest was posted. A record set earlier meets a quest at once.
 - A delivery counts every copy the army holds, including ones a unit has equipped; claiming takes them from the convoy
   first, then from the units.
-- Tokens from minigames are paid without a pop-up in the games; the board's title line shows the total.
+- Snek's tokens show only on the board: its end is an event with fixed lines.
 - Snek is not a district game, but its tokens and records still count.

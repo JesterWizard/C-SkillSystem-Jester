@@ -219,7 +219,7 @@ riders or rafts, a direction, a count, a spacing and a speed. Rafts also have a 
 | District | Spot (x, y) |
 |---|---|
 | Serafew | (3, 15), the west end of the south street |
-| Port Kiris | (19, 20), the south road east of the gate |
+| Port Kiris | (18, 20), the east end of the south road. (19, 20) is floor terrain that free movement refuses, so a spot there could not be reached |
 | Caer Pelyn | (15, 13), the east end of the plaza |
 | Jehanna Hall | (16, 11), south of the hall |
 

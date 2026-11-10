@@ -201,6 +201,15 @@ static void Tower_Line1(char *buf)
 			Tower_Append(buf, &i, "  +");
 			Tower_AppendNum(buf, &i, TS->gold);
 			Tower_Append(buf, &i, "G");
+#ifdef CONFIG_DISTRICT_GUILD
+			/* the guild board's tokens this game paid */
+			if (Div(TS->score, 20) > 0) {
+				Tower_Append(buf, &i, "  +");
+				Tower_AppendNum(buf, &i, Div(TS->score, 20));
+				Tower_Append(buf, &i, " ");
+				Tower_AppendMsg(buf, &i, MSG_GUILD_TOKENS);
+			}
+#endif
 		}
 		break;
 	default:

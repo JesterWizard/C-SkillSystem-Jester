@@ -1085,6 +1085,13 @@ static void Fishing_CardPayLine(void)
 		Fishing_Append(buf, &i, "G   +");
 		Fishing_AppendNum(buf, &i, FS->points);
 		Fishing_AppendMsg(buf, &i, MSG_FISHING_PTS);
+#ifdef CONFIG_DISTRICT_GUILD
+		/* the guild board's tokens for this catch (Fishing_PayFish, Fishing_PayLegend) */
+		Fishing_Append(buf, &i, "   +");
+		Fishing_AppendNum(buf, &i, FS->kind == FISHK_LEGEND ? 10 : (FS->stamp != 0xFF ? 3 : 1));
+		Fishing_Append(buf, &i, " ");
+		Fishing_AppendMsg(buf, &i, MSG_GUILD_TOKENS);
+#endif
 	}
 	Fishing_CardLine(3, TEXT_COLOR_SYSTEM_GOLD, buf);
 }
