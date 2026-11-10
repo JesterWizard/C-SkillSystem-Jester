@@ -2,6 +2,7 @@
 #include "constants/items.h"
 #include "constants/texts.h"
 #include "constants/characters.h"
+#include "jester_headers/maps.h"
 #include "kernel/guild.h"
 #include "skill-system.h"
 #include "constants/skills.h"
@@ -88,6 +89,28 @@ const struct GuildUnlock gGuildUnlocks[] = {
 	UNLOCK_SUPPORT(MSG_GUILD_Q_SUPPORT_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH, 40),
 	UNLOCK_SUPPORT(MSG_GUILD_Q_SUPPORT_FRANZ_GILLIAM, CHARACTER_FRANZ, CHARACTER_GILLIAM, 40),
 	{ .kind = GUILD_UNLOCK_END },
+};
+
+#define FEATURED(story, board, quest, bonus) \
+	{ .storyChapter = (story), .district = (board), .questMsg = (quest), .bonusTokens = (bonus) }
+
+/*
+ * Each story chapter, a board can feature one quest: it tops that board, shows in gold with "Featured!", and pays the
+ * bonus on top of its reward when claimed there before the story moves on. The chapter is gWmStoryChapter, the one the
+ * world map leads to next; the boards open with Chapter 6 (Serafew), 8 (Caer Pelyn), 9 (Jehanna Hall) and 10 (Port
+ * Kiris).
+ */
+const struct GuildFeatured gGuildFeatured[] = {
+	FEATURED(CHAPTER_06, SERAFEW, MSG_GUILD_Q_SERAFEW_CROSSING, 15),
+	FEATURED(CHAPTER_07, SERAFEW, MSG_GUILD_Q_SERAFEW_FISH, 15),
+	FEATURED(CHAPTER_08, SERAFEW, MSG_GUILD_Q_SERAFEW_TOWER, 15),
+	FEATURED(CHAPTER_08, CAER_PELYN, MSG_GUILD_Q_CAER_CROSSING, 20),
+	FEATURED(CHAPTER_09, CAER_PELYN, MSG_GUILD_Q_CAER_LEGEND, 25),
+	FEATURED(CHAPTER_09, JEHANNA, MSG_GUILD_Q_JEHANNA_HEX, 20),
+	FEATURED(CHAPTER_10, PORT_KIRIS, MSG_GUILD_Q_KIRIS_SNEK, 15),
+	FEATURED(CHAPTER_10, JEHANNA, MSG_GUILD_Q_JEHANNA_GOLD, 30),
+	FEATURED(CHAPTER_10, SERAFEW, MSG_GUILD_Q_ANY_TOWER, 20),
+	{ .storyChapter = GUILD_FEATURED_END },
 };
 
 #define PRIZE(i, c)        { .item = (i), .cost = (c), .kind = GUILD_PRIZE_ITEM }

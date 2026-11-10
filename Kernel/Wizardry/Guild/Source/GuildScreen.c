@@ -123,11 +123,15 @@ static void Guild_PutLine(int line)
 static int Guild_ListQuests(void)
 {
 	int i, n = 0, count = Guild_QuestsCount(), here = gPlaySt.chapterIndex;
+	int featured = Guild_FeaturedQuest(here);
 
+	/* This chapter's featured quest tops the board */
+	if (featured >= 0)
+		GS->rowIndex[n++] = featured;
 	for (i = 0; i < count && n < GUILD_QUEST_ROWS; i++) {
 		if (gGuildQuests[i].district != 0 && gGuildQuests[i].district != here)
 			continue;
-		if (Guild_QuestClaimed(i))
+		if (Guild_QuestClaimed(i) || i == featured)
 			continue;
 		GS->rowIndex[n++] = i;
 	}
@@ -203,7 +207,7 @@ static void Guild_DrawQuestDetail(struct Text *t, int index)
 
 	i = 0;
 	Guild_Append(buf, &i, "+");
-	Guild_AppendNum(buf, &i, q->rewardTokens);
+	Guild_AppendNum(buf, &i, q->rewardTokens + Guild_FeaturedBonus(index));
 	Guild_Append(buf, &i, " ");
 	Guild_AppendMsg(buf, &i, MSG_GUILD_TOKENS);
 	if (q->rewardGold) {
@@ -214,6 +218,10 @@ static void Guild_DrawQuestDetail(struct Text *t, int index)
 	if (q->rewardItem) {
 		Guild_Append(buf, &i, " ");
 		Guild_Append(buf, &i, GetItemName(q->rewardItem));
+	}
+	if (Guild_FeaturedBonus(index)) {
+		Guild_Append(buf, &i, " ");
+		Guild_AppendMsg(buf, &i, MSG_GUILD_FEATURED);
 	}
 	switch (Guild_QuestUnlockKind(index)) {
 	case GUILD_UNLOCK_BIOGRAPHY:
@@ -242,7 +250,9 @@ static void Guild_DrawQuests(void)
 		int index = GS->rowIndex[r];
 		bool met = Guild_QuestMet(index);
 
-		Text_InsertDrawString(&GS->texts[r * 2], 0, met ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE,
+		Text_InsertDrawString(&GS->texts[r * 2], 0,
+				      met ? TEXT_COLOR_SYSTEM_GREEN :
+				      Guild_FeaturedBonus(index) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE,
 				      GetStringFromIndex(gGuildQuests[index].msg));
 		Guild_DrawQuestDetail(&GS->texts[r * 2 + 1], index);
 	}
