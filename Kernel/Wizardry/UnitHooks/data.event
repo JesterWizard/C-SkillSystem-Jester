@@ -12,6 +12,9 @@ gExternalBattleToUnitHook: // int (*)(struct BattleUnit *bu, struct Unit *unit);
     POIN BattleToUnit_ResetShieldInfo
     POIN Replicate_OnBattleToUnit
     POIN GaidenMagicUses_OnBattleToUnit
+#ifdef CONFIG_DISTRICT_GUILD
+    POIN ChapterAwards_OnBattleToUnit
+#endif
     // POIN DemoUnitExpa_OnBattleToUnit
     WORD 0 0 0 0
 

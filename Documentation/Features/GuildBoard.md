@@ -12,6 +12,7 @@
 - [Quests](#quests)
 - [Prizes](#prizes)
 - [Records](#records)
+- [Chapter Awards](#chapter-awards)
 - [Controls](#controls)
 - [The Board on the Map](#the-board-on-the-map)
 - [Adding Quests and Prizes](#adding-quests-and-prizes)
@@ -47,6 +48,7 @@ district games to each other and to the main campaign.
 | [Hex](./Minigames/Hex.md) | 5 for a win, 1 for a draw |
 | [Snek](./Minigames/Snek.md) | 1 per 8 points (two coins) |
 | A claimed quest | its reward |
+| [Chapter awards](#chapter-awards) | 10 for the MVP, 5 for the most foes defeated, 5 for the least damage taken |
 
 - Each game shows what it paid: River Crossing's and Tower Stack's final line (`+13 tokens` after the gold), Fishing's
   catch card, Hex's Victory and Draw banners, and the Pied Piper's line after a Snek game ("That's 10 tokens for the
@@ -194,6 +196,40 @@ every-board ones too.
 
 ---
 
+## 🏆 Chapter Awards
+
+When a story chapter is cleared, a screen before the save menu hands out three awards and pays their tokens:
+
+| Award | Goes to | Tokens |
+|---|---|---|
+| MVP | the most damage dealt, plus 10 per foe defeated | 10 |
+| Most Foes | the most foes defeated | 5 |
+| Unscathed | the least damage taken, among the units that fought (more battles wins a tie) | 5 |
+
+Each award shows the unit's chibi portrait, its name and what won it ("37 damage, 1 defeated"). They appear one at a
+time, then the tokens earned in all. A (or START) shows them all at once, and A again goes on to the save menu.
+
+- Every battle a player unit fights against an enemy counts, from either side: the damage it dealt, the damage it took
+  and whether the foe fell. Staff use and battles with other units do not count.
+- A unit needs a claim to win: some damage for the MVP, a foe for Most Foes, a battle for Unscathed. An award nobody
+  earns reads "No one this time." and pays nothing. Units that died in the chapter win nothing.
+- The tokens are paid when the screen opens, so leaving it early loses nothing. Districts give no awards, and a chapter
+  that ends without being cleared (flag 3) shows none.
+- The counts start over when a chapter starts, and are kept in the suspend save. Up to 12 units are counted.
+
+The awards' names and tokens are `gChapterAwardTypes` in `Data/Guild/Guild.c`:
+
+```c
+const struct ChapterAwardType gChapterAwardTypes[CHAPTER_AWARD_COUNT] = {
+	[CHAPTER_AWARD_MVP] = { MSG_AWARDS_MVP, 10 },
+	...
+```
+
+The screen replaces the vanilla `GameControl_CallPostChapterSaveMenu` (`0x08009DE0`): it starts the awards screen,
+which starts the save menu when it ends. Chapter 0x38 still goes without a save menu, as in vanilla.
+
+---
+
 ## 🎮 Controls
 
 | Button | |
@@ -266,16 +302,20 @@ QUEST(SERAFEW, GUILD_QUEST_CROSSING_SCORE, 0, 800, 15, 0, 0, MSG_GUILD_Q_SERAFEW
 `gGuildSave` (`struct GuildSave`, 0x10 bytes, `include/kernel/guild.h`): a magic word, the tokens, the tokens earned
 in all, the one-time prizes bought and the quests claimed (a bit each). It is a chunk in both save lists
 (`Kernel/Wizardry/SaveData/data.event`), after Tower Stack's, and `Guild_NewGame` clears it on a new game. A save made
-before the chunk existed loads an empty board. With it, the suspend save has 1371 bytes free and the game save 1149.
+before the chunk existed loads an empty board.
 
-The screen's state is `gGuildScreen` (0x80 bytes, RAM only).
+The chapter awards' counts are `gChapterAwards` (`struct ChapterAwardsData`, 0x64 bytes,
+`include/kernel/chapter-awards.h`): a chunk in the suspend save only, after the guild's, cleared when a chapter starts
+(`ChapterInit_ResetChapterAwards`). With both, the suspend save has 1271 bytes free and the game save 1149.
+
+The screens' states are `gGuildScreen` (0x80 bytes) and `gChapterAwardsScreen` (0x60 bytes), RAM only.
 
 ---
 
 ## ⚙️ Enabling and Disabling
 
 The switch is `CONFIG_DISTRICT_GUILD` in `include/configs/configs.h` (on by default). Comment it out to remove the
-board, its trap entry, its map markers, its save chunk and the minigames' token payouts. The boards stay in the trap
+board, its trap entry, its map markers, its save chunk, the minigames' token payouts and the chapter awards. The boards stay in the trap
 data but do nothing.
 
 ---
@@ -288,15 +328,17 @@ data but do nothing.
 | Rules | [`GuildCore.c`](../../Kernel/Wizardry/Guild/Source/GuildCore.c) | Tokens, quest progress and claiming, prizes, items, the save chunk |
 | Screen | [`GuildScreen.c`](../../Kernel/Wizardry/Guild/Source/GuildScreen.c) | `ProcScr_GuildScreen`: the three pages |
 | Map | [`GuildDistrict.c`](../../Kernel/Wizardry/Guild/Source/GuildDistrict.c) | `Guild_OnPressA`, `StartDistrictGuildASMC`, the marker |
-| Tables | [`Guild.c`](../../Data/Guild/Guild.c) | `gGuildQuests`, `gGuildPrizes` |
-| Header | [`guild.h`](../../include/kernel/guild.h) | Quest kinds, structs, the API |
+| Chapter awards | [`ChapterAwards.c`](../../Kernel/Wizardry/Guild/Source/ChapterAwards.c) | The counts, `ProcScr_ChapterAwards`, the `GameControl_CallPostChapterSaveMenu` replacement ([`LynJump.event`](../../Kernel/Wizardry/Guild/Source/LynJump.event)) |
+| Award hooks | [`UnitHooks/data.event`](../../Kernel/Wizardry/UnitHooks/data.event), [`ChapterInitHook/data.event`](../../Kernel/Wizardry/ChapterInitHook/data.event) | `ChapterAwards_OnBattleToUnit`, `ChapterInit_ResetChapterAwards` |
+| Tables | [`Guild.c`](../../Data/Guild/Guild.c) | `gGuildQuests`, `gGuildPrizes`, `gGuildUnlocks`, `gGuildFeatured`, `gChapterAwardTypes` |
+| Header | [`guild.h`](../../include/kernel/guild.h), [`chapter-awards.h`](../../include/kernel/chapter-awards.h) | Quest kinds, structs, the API |
 | Token payouts | `Guild_AddTokens` in `CrossingScreen.c`, `TowerScreen.c`, `FishingScreen.c`, `HexScreen.c`, `Snek.c` | Each game's end |
 | Trap type | [`bmtrick.h`](../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_GUILD_BOARD` (32) and `GUILD_BOARD(x, y)` |
 | A-press hook | [`HookList.event`](../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry |
 | Map markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `GUILD_CHR_MAP_BOARD` |
-| Texts | [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | `MSG_GUILD_*` |
-| RAM | [`config-memmap.s`](../../include/link/config-memmap.s) | `gGuildSave`, `gGuildScreen` |
-| Save chunk | [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | `Guild_Save` / `Guild_Load` in both save lists, `Guild_NewGame` |
+| Texts | [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | `MSG_GUILD_*`, `MSG_AWARDS_*` |
+| RAM | [`config-memmap.s`](../../include/link/config-memmap.s) | `gGuildSave`, `gGuildScreen`, `gChapterAwards`, `gChapterAwardsScreen` |
+| Save chunk | [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | `Guild_Save` / `Guild_Load` in both save lists, `Guild_NewGame`; `ChapterAwards_Save` / `ChapterAwards_Load` in the suspend list |
 | Switch | [`configs.h`](../../include/configs/configs.h) | `CONFIG_DISTRICT_GUILD` |
 
 ---

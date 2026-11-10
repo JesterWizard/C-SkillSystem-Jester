@@ -27,9 +27,12 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
+              chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+a district's name, tokens, claim, prizes, unlocks, featured, snek, savelayout, suspend, gamesave, battle, battlequote,
+awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -691,6 +694,49 @@ class Smoke:
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
 
+    def test_awards(self, boot_ss):
+        """The prologue with only O'Neill left (the other two enemies removed), moved next to Eirika: she attacks him,
+        he falls to her counter in the enemy phase and the chapter ends. The awards screen comes before the save menu, names Eirika for all three
+        awards (the only unit that fought: one foe defeated, no damage taken) and pays 10 + 5 + 5 tokens."""
+        d = os.path.join(self.out, "awards")
+        os.makedirs(d, exist_ok=True)
+        need = ("gGuildSave", "gChapterAwards")
+        if not all(n in self.sym for n in need):
+            return self.check("awards: the chapter awards", False, "no symbols")
+        g, ca, enemy = self.sym["gGuildSave"], self.sym["gChapterAwards"], 0x0202CFBC
+        vals = self.run(ROM, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT] +
+                        ["r8 %#x" % (enemy + i * 0x48 + k) for i in range(3) for k in (0x10, 0x11)], d)
+        if len(vals) != 7:
+            return self.check("awards: the prologue's enemies", False, "values %s" % vals)
+        rows, pos = vals[0], [(vals[1 + 2 * i], vals[2 + 2 * i]) for i in range(3)]
+        tile = lambda x, y: self.run(ROM, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0] + x
+        # O'Neill (the first enemy) to the tile below Eirika, (4, 6), with no Spd, Def or Lck, and Eirika with 30 Str and
+        # Skl; the others go
+        lines = ["load " + boot_ss, "w8 %#x 0" % tile(*pos[0]), "w8 %#x 0x81" % tile(4, 6), "w8 %#x 4" % (enemy + 0x10),
+                 "w8 %#x 6" % (enemy + 0x11), "w8 %#x 0" % (enemy + 0x16), "w8 %#x 0" % (enemy + 0x17),
+                 "w8 %#x 0" % (enemy + 0x19), "w8 %#x 30" % (UNIT1 + 0x14), "w8 %#x 30" % (UNIT1 + 0x15),
+                 "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2)]
+        for i in (1, 2):
+            lines += ["w32 %#x 0" % (enemy + i * 0x48), "w8 %#x 0" % tile(*pos[i])]
+        # Attack, the first weapon, the first target; A through his quote; START and A skip the ending scenes
+        lines += EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 60"]
+        lines += ["wait 50", "press A", "wait 40"] * 5 + ["wait 300"]
+        # he survives her attack and falls to her counter in the enemy phase
+        skip = ["press START", "wait 50", "press A", "wait 50"]
+        lines += skip * 3 + ["r8 %#x" % (ca + 3), "r8 %#x" % (ca + 5), "r8 %#x" % (ca + 6)]
+        lines += skip * 3 + ["wait 200", "shot awards.png", "r16 %#x" % (g + 2), "r16 %#x" % ca]
+        lines += ["press A", "wait 150", "shot savemenu.png"]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "awards.png"), "chapter awards")
+        self.shot(os.path.join(d, "savemenu.png"), "save menu after the awards")
+        if len(vals) != 5:
+            return self.check("awards: the chapter ends", False, "values %s" % vals)
+        count, kills, battles, tokens, magic = vals
+        self.check("awards: Eirika's battles are counted (1 unit, 1 foe defeated)",
+                   count == 1 and kills == 1 and battles >= 1, "units, foes, battles %s" % vals[:3])
+        self.check("awards: the chapter end pays 10 + 5 + 5 tokens", tokens == 20 and magic == 0,
+                   "tokens %d, counts %s" % (tokens, "cleared" if magic == 0 else "left"))
+
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
         if "gPortraitExpressions" not in self.sym:
@@ -756,7 +802,7 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen") or on("battle") or on("battlequote"):
+    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
@@ -764,6 +810,8 @@ def main():
             s.test_battle(boot_ss)
         if boot_ss and on("battlequote"):
             s.test_battlequote(boot_ss)
+        if boot_ss and on("awards"):
+            s.test_awards(boot_ss)
     if on("savelayout"):
         s.test_savelayout()
     if on("suspend"):
