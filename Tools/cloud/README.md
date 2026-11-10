@@ -113,6 +113,11 @@ World map route (`smoketest.py --only worldmap`, `test_worldmap`):
   for the beginning scene. The world map is then idle with the cursor on the lord.
 - A on the lord's node opens the node menu. On a fresh save, vanilla opens the general menu instead while the next
   uncleared node is node 2 (a tutorial guard), so mark the earlier nodes cleared. L moves the cursor to the next node.
+- Saving from the world map (`--only wmsave`, `test_wmsave`): move the cursor off every node (write `ix`/`iy` at
+  `+8`/`+0xC`, `<< 8`), A opens the general menu (Unit, Status, Options, Save, Home), DOWN 3 times, A, then A (the first
+  slot) and A (Save). After a soft reset, A on the title, then A on the first slot (Restart Chapter) loads the world map.
+- SRAM is not in a save state, and a soft reset treats SRAM the game never set up as empty. A test that saves after
+  loading a state must let the game boot first (`wait 600` before `load`), in the same run.
 
 Save state caveat:
 
