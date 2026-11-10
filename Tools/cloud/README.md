@@ -101,6 +101,19 @@ Prep screen route:
 - Prep menu input: a press shorter than about 4 frames can drop. Hold a direction for 4 frames and wait about 40 frames between presses.
 - The prep menu's Hex row is the last one. Press DOWN 10 times from the top to reach it.
 
+World map route (`smoketest.py --only worldmap`, `test_worldmap`):
+
+- Start from a district test state (`test_district` writes `<out>/Serafew/start.ss` and its test ROM `t.gba`).
+- Before leaving, set up the world map in RAM:
+  - `gWmStoryChapter` to a story chapter;
+  - the lord's node, `gGMData` (`0x03005280`) `+0x11`;
+  - node states at `+0x30 + 4*node` (1: shown and cleared; the world map marks the story node itself);
+  - the district's unlock flag: permanent flag `f` is bit `(f - 0x65)` of `gPermanentFlagBits` (`0x03005250`).
+- Leave through the gate (DOWN onto it, A, LEFT for Yes, A), confirm the save menu (A, A), and wait about 15 seconds
+  for the beginning scene. The world map is then idle with the cursor on the lord.
+- A on the lord's node opens the node menu. On a fresh save, vanilla opens the general menu instead while the next
+  uncleared node is node 2 (a tutorial guard), so mark the earlier nodes cleared. L moves the cursor to the next node.
+
 Save state caveat:
 
 - A save state only works with the ROM build it was made from. Text and graphics pointers move between builds.

@@ -20,4 +20,5 @@ ChapterInitHooks:
 #ifdef CONFIG_DISTRICT_GUILD
     POIN ChapterInit_ResetChapterAwards
 #endif
+    POIN ChapterInit_ClearWmChapterOverride
     WORD 0

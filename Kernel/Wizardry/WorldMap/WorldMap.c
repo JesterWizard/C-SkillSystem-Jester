@@ -23,9 +23,6 @@ void WorldMap_Destruct(struct WorldMapMainProc * proc)
     sub_80BF15C();
     EndWorldmapMinimap();
 
-    /* The district's chapter is set by now: the override ends with the world map (WMLoc_GetChapterId) */
-    sWmChapterIdOverride = 0;
-
     /* EnterTown sets this so the district map loads instead of tearing the world map down. */
     if (sWmMapReloadPending != 0)
     {
@@ -43,10 +40,11 @@ int WMLoc_GetChapterId(int node)
 {
     /*
      * EnterTown sets this to launch a district chapter instead of the node's own. It holds for every node until the
-     * world map ends (WorldMap_Destruct). It used to be cleared by the first read, and the world map can read node
-     * chapters on its own between the menu and the chapter start (GetChapterIndexOnWmNode reads the next uncleared
-     * node's, the story chapter's): a read like that took the override, and the chapter start then got the node's own
-     * chapter. On the story chapter's node that started the story chapter, with its world-map scene (#672).
+     * district chapter starts (ChapterInit_ClearWmChapterOverride). It used to be cleared by the first read, and the
+     * world map can read node chapters on its own between the menu and the chapter start (GetChapterIndexOnWmNode
+     * reads the next uncleared node's, the story chapter's): a read like that took the override, and the chapter
+     * start then got the node's own chapter (#672). It must outlive the world map too: the chapter is read after
+     * WorldMap_Destruct.
      */
     if (sWmChapterIdOverride != 0)
         return sWmChapterIdOverride;
@@ -573,4 +571,11 @@ void sub_80BFDA0(struct GmapMuEntryProc * proc, int unused)
     sub_80C1DC8();
 
     return;
+}
+
+/* ChapterInitHooks: the district (or any) chapter has started, so a district override is spent */
+void ChapterInit_ClearWmChapterOverride(ProcPtr proc)
+{
+    (void)proc;
+    sWmChapterIdOverride = 0;
 }

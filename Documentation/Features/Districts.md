@@ -94,11 +94,13 @@ chapter. It is never cleared.
   - The party's world-map unit (`gGMData.units[0]`) is on that node.
   - The district is unlocked.
 - Choosing the row loads the district map. The row sets the intro-skip flag, so the chapter intro card does not show (`CONFIG_BASE_CHAPTERS`).
-- The district wins on the story chapter's node too: the row sets a chapter override (`sWmChapterIdOverride`) that
-  `WMLoc_GetChapterId` (`Kernel/Wizardry/WorldMap/WorldMap.c`) returns for every node until the world map ends
-  (`WorldMap_Destruct` clears it). It used to be cleared by the first read. The world map can read node chapters on its
-  own between the menu and the chapter start (`GetChapterIndexOnWmNode` reads the story chapter's), and a read like that
-  on the story node took the override: the story chapter started, with its world-map scene.
+- The district always wins over the story chapter. The row sets a chapter override (`sWmChapterIdOverride`) that
+  `WMLoc_GetChapterId` (`Kernel/Wizardry/WorldMap/WorldMap.c`) returns for every node until the district chapter
+  starts (`ChapterInit_ClearWmChapterOverride`, a chapter-init hook), and `WorldMap_CallIntroEvent`
+  (`CustomCampaign/Event/World_Map_Events.c`) reads it at the lord's node. Before (#672), the chapter start took its
+  node from `unk_3e`, which only travelling sets: after Enter District it was whatever the last trip left, often out of
+  range, and the story chapter the beginning event had set started instead, with its scenes. Clearing the override on
+  its first read, or when the world map ends (the chapter is read after `WorldMap_Destruct`), loses it too.
 - The row's help text is "Choose to enter this world map node to see different events."
 
 ### Leaving
@@ -108,6 +110,10 @@ chapter. It is never cleared.
   - Yes leaves through `StartRetreatProcessing`, the same call as the vanilla Retreat.
   - No keeps you in the district.
 - **Retreat row:** L opens the free-movement menu. Its Retreat row shows the vanilla "Retreat?" prompt, and Yes also leaves the district.
+- Leaving goes through the save menu back to the world map, which starts with chapter `0x38` (the side-map return).
+  `WmStoryChapter_Begin` keeps the story chapter for it, and for a district chapter. It used to clear it on every
+  district visit, and the world map, district unlocks, featured quests, the time of day and the rival then all behaved
+  as if no story chapter was set.
 
 ### Exit markers
 
