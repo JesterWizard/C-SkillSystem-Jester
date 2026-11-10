@@ -16,6 +16,9 @@ What it checks:
   unlocks     (Serafew) the board's story quests show "+story"/"+support"; the Eirika and Seth one adds 40 support
               points each way.
   featured    (Serafew) with the story on Chapter 8, the Tower Stack quest tops the board and pays 15 + 15 tokens.
+  worldmap    (Serafew) the world map, reached through the district's gate: the visit keeps the story chapter;
+              Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
+              gone; travelling to the story node starts Chapter 6.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
               Marlo's first record and pays 10 tokens once; a test ROM puts the townsfolk on their spots.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
@@ -39,7 +42,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -77,6 +80,10 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
+GM_DATA = 0x03005280  # gGMData (the world map's units, nodes and cursor)
+CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
+WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
+DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
 PALETTE_BUFFER = 0x020228A8
@@ -487,6 +494,59 @@ class Smoke:
         bad = {"%#x" % p: (got.get(p), xy) for p, xy in want.items() if got.get(p) != xy}
         self.check("life: %d townsfolk stand on their spots" % len(want), want and not bad,
                    "wrong: %s" % bad if bad else ", ".join("%#x at %s" % (p, xy) for p, xy in want.items()))
+
+    def test_worldmap(self, states):
+        """The world map, reached by leaving Serafew through its gate (a test ROM's district). Before leaving: the story
+        on Chapter 6 (Adlas Plains), the lord on the Serafew node, nodes 0-5 cleared and Serafew unlocked. The district
+        visit keeps the story chapter; Enter District loads Serafew, from a plain node and from the story chapter's
+        node (#672); with Serafew locked the row is not there; travelling to the story node starts Chapter 6."""
+        d = os.path.join(self.out, "WorldMap")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "sWmChapterIdOverride")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("worldmap: the world map", False, "no district state or symbols")
+        rom, story, override = states["rom"], self.sym["gWmStoryChapter"], self.sym["sWmChapterIdOverride"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        # gGMData: the lord's node at +0x11, the nodes' states at +0x30 (4 bytes each; 1 shown and cleared)
+        setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
+                 "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
+        # the gate is below the start; Yes; the save menu (A, A); the world map's beginning scene for Chapter 6
+        idle = os.path.join(d, "idle.ss")
+        vals = self.run(rom, ["load " + start, "wait 30"] + setup + ["hold DOWN 8", "wait 60", "hold A 8", "wait 60",
+                                                                       "hold LEFT 8", "wait 40", "hold A 8", "wait 400",
+                                                                       "hold A 8", "wait 120", "hold A 8", "wait 900",
+                                                                       "save " + idle, "shot idle.png", "r8 %#x" % story], d)
+        self.shot(os.path.join(d, "idle.png"), "world map after a district")
+        if not self.check("worldmap: leaving a district keeps the story chapter", vals == [CHAPTER_06],
+                          "story chapter %s" % vals):
+            return
+
+        def enter(name, writes):
+            lines = ["load " + idle] + writes + ["wait 10", "press A", "wait 40", "shot %s_menu.png" % name, "press A",
+                                                 "wait 330", "shot %s.png" % name, "r8 %#x" % CHAPTER,
+                                                 "r8 %#x" % override, "r8 %#x" % story]
+            return self.run(rom, lines, d)
+        vals = enter("enter", [])
+        self.shot(os.path.join(d, "enter_menu.png"), "node menu")
+        self.check("worldmap: Enter District loads the district", vals == [DISTRICTS["Serafew"][0], 0, CHAPTER_06],
+                   "chapter, override, story %s" % vals)
+        vals = enter("story", ["w8 %#x %#x" % (story, CHAPTER_05), "w8 %#x 1" % (GM_DATA + 0x30 + 4 * WM_NODE_SERAFEW)])
+        self.shot(os.path.join(d, "story.png"), "Enter District on the story node")
+        self.check("worldmap: Enter District on the story chapter's node loads the district",
+                   vals == [DISTRICTS["Serafew"][0], 0, CHAPTER_05], "chapter, override, story %s" % vals)
+        vals = enter("locked", ["w8 %#x 0" % flag])
+        self.shot(os.path.join(d, "locked_menu.png"), "node menu, Serafew locked")
+        self.check("worldmap: a locked district has no Enter District row (the first row is another)",
+                   vals[:1] == [CHAPTER_06], "chapter %s" % vals)
+        # L takes the cursor to the next node (the story node), A sends the lord; START and A through the scenes
+        lines = ["load " + idle, "wait 10", "press L", "wait 40", "press A", "wait 30"]
+        lines += ["press START", "wait 90", "press A", "wait 60"] * 6 + ["shot travel.png", "r8 %#x" % CHAPTER,
+                                                                          "r8 %#x" % (GM_DATA + 0x11)]
+        vals = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "travel.png"), "the story chapter from its node")
+        self.check("worldmap: travelling to the story node starts the story chapter",
+                   vals == [CHAPTER_06, WM_NODE_ADLAS_PLAINS], "chapter, lord's node %s" % vals)
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -1029,7 +1089,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1044,6 +1104,8 @@ def main():
                 s.test_featured(states)
             if n == "Serafew" and on("life"):
                 s.test_life(states)
+            if n == "Serafew" and on("worldmap"):
+                s.test_worldmap(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

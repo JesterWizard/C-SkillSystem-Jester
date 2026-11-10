@@ -227,6 +227,9 @@ u8 Event3E_PrepScreenCall(struct EventEngineProc* proc)
     return EVC_ADVANCE_YIELD;
 }
 
+/* EnterTown's district chapter (Kernel/Wizardry/WorldMap/WorldMap.c, WMLoc_GetChapterId) */
+extern u8 sWmChapterIdOverride;
+
 //! FE8U = 0x080B9B38
 LYN_REPLACE_CHECK(WorldMap_CallIntroEvent);
 void WorldMap_CallIntroEvent(struct WorldMapMainProc* proc)
@@ -245,6 +248,14 @@ void WorldMap_CallIntroEvent(struct WorldMapMainProc* proc)
     {
         nodeId = gGMData.units[0].location;
     }
+
+    /*
+     * Enter District (EnterTown.c) comes here without picking a node, so unk_3e is whatever the last trip left in it,
+     * often out of range: the early return below then kept the story chapter the beginning event had set, and the
+     * district never loaded (#672). With a district override, the lord's node is the node.
+     */
+    if (sWmChapterIdOverride != 0)
+        nodeId = gGMData.units[0].location;
 
     if (nodeId < 0 || nodeId >= NODE_MAX)
         return;

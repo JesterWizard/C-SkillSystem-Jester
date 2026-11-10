@@ -17,6 +17,7 @@ With this feature, the chapter named by `NEXT_CHAPTER_WITH_MAP` is the story cha
 - `WorldMap_CallBeginningEvent` (`CustomCampaign/Event/World_Map_Events.c`) records `gPlaySt.chapterIndex`, the `NEXT_CHAPTER_WITH_MAP` target, as `gWmStoryChapter` when that chapter is in the table.
 - `WMLoc_GetNextLocId` returns the story chapter's node, wherever the lord is.
 - `WMLoc_GetChapterId` returns the story chapter for its own node, and the vanilla chapter for every other node, so skirmishes are unchanged. The story chapter's id is hidden from other nodes (they report `0xFF`, like vanilla's chapter-less nodes), so `GetBattleMapKind` finds the right node.
+- Back on the world map from a district or a skirmish (chapter `0x38`, or a district chapter), the story chapter is kept.
 - `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour.
 
 ## Adding a chapter

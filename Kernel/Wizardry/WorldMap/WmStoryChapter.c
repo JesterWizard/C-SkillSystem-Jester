@@ -32,9 +32,23 @@ int GetWmStoryChapterNode(int chapter)
 	return -1;
 }
 
+/*
+ * The chapter a side map hands back to the world map with (gPlaySt.chapterIndex after a skirmish or a district is
+ * left: the retreat's next chapter). Vanilla skips the save menu for it (GameControl_CallPostChapterSaveMenu).
+ */
+#define WM_CHAPTER_SIDE_MAP_RETURN 0x38
+
 /* WorldMap_CallBeginningEvent: chapter is the MNCH target (gPlaySt.chapterIndex) */
 void WmStoryChapter_Begin(int chapter)
 {
+	/*
+	 * Back from a district (or a skirmish): no chapter was named, so the story stays where it was. Without this, every
+	 * district visit cleared it, and the world map, district unlocks, featured quests, the time of day and the rival
+	 * all fell back to their no-story state.
+	 */
+	if (chapter == WM_CHAPTER_SIDE_MAP_RETURN || District_IsDistrictChapter(chapter))
+		return;
+
 	/* The story chapter targeted before this one has just been cleared */
 	if (gWmStoryChapter != WM_STORY_CHAPTER_NONE && gWmStoryChapter != chapter &&
 	    GetWmStoryChapterNode(chapter) >= 0)
