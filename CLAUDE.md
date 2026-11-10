@@ -8,6 +8,7 @@ FE8U C-SkillSystem buildfile. C is built with devkitARM, turned into `.lyn.event
 - Cloud sessions: `.claude/hooks/session-start.sh` sets up a devkitPro stand-in, the `gbarun` emulator runner and `fe8.gba` (from the user's uploads). Build with `Tools/cloud/build.sh`, not plain `make`. See `Tools/cloud/README.md`.
 - Build flags: `configs.mk`. Compile-time switches: `include/configs/configs.h`. Runtime toggles: `Data/DesignerConfig/designer-config.c` (struct name is spelled `KernelDesigerConfig`).
 - To compile one file by hand, use `$DEVKITARM/bin/arm-none-eabi-gcc`, not the system gcc.
+- After a change, run `python3 Tools/cloud/smoketest.py --quick` (emulator smoke tests, about 10 seconds; see `Tools/cloud/README.md`).
 
 ## Adding a skill
 
