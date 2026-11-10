@@ -114,6 +114,10 @@ chapter. It is never cleared.
 - The save made on leaving holds the district's chapter, whose row borrows another chapter's title id (Serafew's
   `0x50` reads as "Skirmish Map"). The save menu titles such a slot, and one holding the side-map return `0x38`, with
   the story chapter read from the slot (`WmStoryChapter_ReadFromSave`, `SaveMenuChapterTitle.c`, #705).
+- **Suspend and resume.** A suspended district resumes in free movement. Its opening, which turns free movement on,
+  does not play on a resume, so `District_StartFreeMovement` (`Kernel/Wizardry/EnterTown/District.c`) starts it from
+  the phase start (`BmMain_StartPhase`, `AI.c`) and the mid-phase resume (`BmMain_ResumePlayerPhase`). Before #708,
+  Resume Chapter came back with the cursor and no walking. `smoketest.py --only districtresume` checks it.
 - The world map turns free movement off (`DisableFreeMovementASMC` in `WorldMap_CallBeginningEvent`). Before #700 it
   stayed on, so the next chapter after a district visit started in free movement, with no cursor: the battle could not
   be played. Entering a district turns it on again.
