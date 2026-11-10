@@ -30,6 +30,8 @@ the features below.
 - **New gameplay systems:** pair-ups, gambits, gaiden magic, MP, shields, real-time battle, free movement and more.
 - **New menus and screens:** base chapters, skill trees, augury, infuse, skill synthesis, a scrollback chatlog and more.
 - **Towns and minigames:** explorable districts, fishing, River Crossing, Tower Stack, the Hex card game and Snek.
+- **A campaign you can play to the end:** a world map driven by the story, placeholder battles for the chapters not
+  written yet (Chapters 10–22), the ending and the postgame.
 - **Runtime toggles:** about 180 designer-config switches in
   [`designer-config.c`](./Data/DesignerConfig/designer-config.c) turn features on or off without touching their code.
 - **Readable code:** game logic is written in C and built with devkitARM, `lyn` and Event Assembler.
@@ -232,7 +234,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/WorldMapThoughts.md"><img src="./Documentation/Gifs/World_Map_Thoughts.gif" alt="World Map Thoughts preview" width="360" /></a><br/><b><a href="./Documentation/Features/WorldMapThoughts.md">World Map Thoughts</a></b></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/StoryStubs.md"><img src="./Documentation/Gifs/Story_Stubs.gif" alt="Story Stubs preview" width="360" /></a><br/><b><a href="./Documentation/Features/StoryStubs.md">Story Stubs</a></b><br/><sub>Placeholder battles to the end, the postgame, and <code>new_chapter.py</code></sub></td>
   </tr>
 </table>
 
@@ -270,7 +272,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/GuildBoard.md"><img src="./Documentation/Gifs/Guild_Board.gif" alt="Guild Board preview" width="360" /></a><br/><b><a href="./Documentation/Features/GuildBoard.md">Guild Board</a></b></td>
-    <td></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Districts.md#entering"><img src="./Documentation/Gifs/District_Banners.gif" alt="District Banners preview" width="360" /></a><br/><b><a href="./Documentation/Features/Districts.md#entering">District Banners</a></b><br/><sub>World-map nodes with an open district</sub></td>
   </tr>
 </table>
 
@@ -281,6 +283,8 @@ Every feature links to its documentation. Click a preview to open it.
 |---|---|
 | [Overview](./Documentation/Features/Abstract.md) | A high-level map of the kernel's systems |
 | [How To Make A Chapter](./Documentation/Features/HowToMakeAChapter.md) | Building a chapter in C, step by step |
+| [Story Stubs](./Documentation/Features/StoryStubs.md) | The placeholder chapters, and turning one into a real chapter with `Tools/chapter/new_chapter.py` |
+| [World Map Story Chapters](./Documentation/Features/WorldMapStoryChapters.md) | How the story picks its next chapter and node, and the postgame |
 | [System Config](./Documentation/Features/SystemConfig.md) | Every runtime toggle in the designer config |
 | [Wizardry](./Documentation/Features/Wizardry.md) | How the kernel's code modules are installed |
 | [Skill System](./Documentation/Features/SkillSys.md) | How units, classes and items get skills |
@@ -291,6 +295,8 @@ Every feature links to its documentation. Click a preview to open it.
 | [Misc Skill Effects](./Documentation/Features/MiscSkillEffect.md) | Notes on skill effects outside battle |
 | [Popup System](./Documentation/Features/PopupR.md) | How skill and item popups are queued |
 | [Save System](./Documentation/Features/Save.md) | The save data layout |
+| [Save Data](./Documentation/FeatureTypes/SaveData.md) | Adding a save chunk, and the layout guard that refuses saves from another layout |
+| [Cloud Build & Smoke Tests](./Tools/cloud/README.md) | Building in a cloud session, and the emulator smoke tests (`smoketest.py`, run side by side with `--jobs`) |
 | [Skill Icon Palettes](./Documentation/Features/SkillIconPalettes.md) | Palette banks for skill icons |
 | [Fonts](./Documentation/Features/Fonts.md) | Choosing a font with CONFIG_FONT_* |
 | [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md) | Installing WAV voice lines |
