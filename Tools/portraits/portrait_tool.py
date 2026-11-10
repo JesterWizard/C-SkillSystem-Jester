@@ -26,6 +26,18 @@ Commands:
                                           wherever a frame still shows the base's face there
   format SHEET.png OUT.bin                the data PortraitFormatter writes (mug, frames, palette, minimug)
 
+Frame sets: an expression as eyes and mouths on the base portrait (Documentation/Features/PortraitExpressions.md). A
+frame sheet is 96x48 in the base's colours: eyes open, half shut and shut at (0, 0), (32, 0), (64, 0); the six mouth
+frames below, in the portrait sheet's order, at (0, 16), (32, 16), (64, 16), (0, 32), (32, 32), (64, 32).
+  frames-from BASE.png EXPR.png OUT.png --eyes X,Y [--mouth X,Y]
+                                          a frame sheet from an expression portrait: its eyes (and with --mouth, its
+                                          mouths; without, the base's)
+  check-frames FRAMES.png BASE.png --eyes X,Y
+                                          the size, the colours (the base's only), seams with the face around the eyes
+  apply-frames BASE.png FRAMES.png OUT.png --eyes X,Y
+                                          the base sheet with the frames in, as the game shows it (for animate)
+  frames FRAMES.png BASE.png OUT.bin      the data for gPortraitFrames (eyes, then mouths; 8 tiles each)
+
 Run with `python3 -I` from anywhere; it needs Pillow.
 """
 import argparse
@@ -498,6 +510,153 @@ def cmd_recolor(args):
     return 0
 
 
+# ---- Frame sets ----
+
+FW, FH = 96, 48
+FRAME_EYES = [(0, 0), (32, 0), (64, 0)]
+FRAME_MOUTHS = [(0, 16), (32, 16), (64, 16), (0, 32), (32, 32), (64, 32)]
+
+
+def load_rgb(path, size):
+    im = Image.open(path).convert("RGB")
+    if im.size != size:
+        raise ValueError("%s is %dx%d, not %dx%d" % (path, im.size[0], im.size[1], size[0], size[1]))
+    px = im.load()
+    return [[px[x, y] for x in range(size[0])] for y in range(size[1])]
+
+
+def coords(v):
+    return [int(c) * 8 for c in v.split(",")]
+
+
+def block(rows, x, y, w=32, h=16):
+    return [r[x:x + w] for r in rows[y:y + h]]
+
+
+def put(rows, b, x, y):
+    for j, r in enumerate(b):
+        rows[y + j][x:x + len(r)] = r
+
+
+def save_rgb(rows, path, palette_from=None):
+    im = Image.new("RGB", (len(rows[0]), len(rows)))
+    im.putdata([c for r in rows for c in r])
+    if palette_from and Image.open(palette_from).mode == "P":
+        im = im.quantize(palette=Image.open(palette_from), dither=Image.Dither.NONE)
+    im.save(path)
+
+
+def cmd_frames_from(args):
+    base, _ = load_sheet(args.base)
+    expr, _ = load_sheet(args.expr)
+    ex, ey = coords(args.eyes)
+    out = [[base[0][0]] * FW for _ in range(FH)]
+    put(out, block(expr, ex, ey), *FRAME_EYES[0])
+    for (fx, fy), (dx, dy) in zip(EYE_FRAMES, FRAME_EYES[1:]):
+        put(out, block(expr, fx, fy), dx, dy)
+    src = expr if args.mouth else base
+    for (fx, fy), (dx, dy) in zip(MOUTH_FRAMES, FRAME_MOUTHS):
+        put(out, block(src, fx, fy), dx, dy)
+    save_rgb(out, args.out, args.base)
+    print("%s: eyes from %s, mouths from %s" % (args.out, args.expr, args.expr if args.mouth else args.base))
+    return 0
+
+
+def base_palette(path, rows):
+    """The base portrait's colours in its palette's order: an indexed PNG's own palette (an `export` from a ROM keeps
+    the ROM's order), else PortraitFormatter's order (a custom portrait's sheet)."""
+    im = Image.open(path)
+    if im.mode == "P":
+        pal = im.getpalette()[:48]
+        return [tuple(pal[i:i + 3]) for i in range(0, 48, 3)]
+    return palettize(rows)[1]
+
+
+def frames_check(frames, base, ex, ey, colours):
+    """(errors, warnings) for a frame sheet against its base sheet."""
+    errors, warnings = [], []
+    used = {c for r in frames for c in r}
+    off = sorted(used - set(colours))
+    if off:
+        errors.append("%d colours not in the base's palette: %s" % (len(off), ", ".join("#%02X%02X%02X" % c[:3]
+                                                                                         for c in off[:6])))
+    trans = base[0][0]
+    face_eyes = block(base, ex, ey)
+    open_eyes = block(frames, *FRAME_EYES[0])
+    # the open eyes replace the face's pixels: a transparent one where the face has none is a hole
+    holes = sum(1 for a, b in zip(face_eyes, open_eyes) for x, y in zip(a, b) if y == trans and x != trans)
+    if holes:
+        warnings.append("the open eyes have %d transparent pixels where the face has colour: holes" % holes)
+    changed = sum(1 for a, b in zip(face_eyes, open_eyes) for x, y in zip(a, b) if x != y)
+    if not changed:
+        warnings.append("the open eyes are the base's: the expression shows only in the mouth")
+    # the frame's edge against the face just outside it: a seam if many differ
+    seam = 0
+    for x in range(32):
+        if ey > 0 and open_eyes[0][x] != base[ey - 1][ex + x] and face_eyes[0][x] == base[ey - 1][ex + x]:
+            seam += 1
+        if ey + 16 < 80 and open_eyes[15][x] != base[ey + 16][ex + x] and face_eyes[15][x] == base[ey + 16][ex + x]:
+            seam += 1
+    for y in range(16):
+        if ex > 0 and open_eyes[y][0] != base[ey + y][ex - 1] and face_eyes[y][0] == base[ey + y][ex - 1]:
+            seam += 1
+        if ex + 32 < 96 and open_eyes[y][31] != base[ey + y][ex + 32] and face_eyes[y][31] == base[ey + y][ex + 32]:
+            seam += 1
+    if seam > 8:
+        warnings.append("%d edge pixels of the open eyes break lines the base continues past the frame: a seam" % seam)
+    return errors, warnings, changed
+
+
+def cmd_check_frames(args):
+    frames = load_rgb(args.frames, (FW, FH))
+    base, _ = load_sheet(args.base)
+    ex, ey = coords(args.eyes)
+    errors, warnings, changed = frames_check(frames, base, ex, ey, base_palette(args.base, base))
+    for e in errors:
+        print("error: " + e)
+    for w in warnings:
+        print("warning: " + w)
+    print("%s: %d eye pixels differ from the base, %d errors, %d warnings" % (args.frames, changed, len(errors),
+                                                                               len(warnings)))
+    return 1 if errors else 0
+
+
+def cmd_apply_frames(args):
+    base, _ = load_sheet(args.base)
+    frames = load_rgb(args.frames, (FW, FH))
+    ex, ey = coords(args.eyes)
+    out = [r[:] for r in base]
+    put(out, block(frames, *FRAME_EYES[0]), ex, ey)
+    for (fx, fy), (dx, dy) in zip(FRAME_EYES[1:], EYE_FRAMES):
+        put(out, block(frames, fx, fy), dx, dy)
+    for (fx, fy), (dx, dy) in zip(FRAME_MOUTHS, MOUTH_FRAMES):
+        put(out, block(frames, fx, fy), dx, dy)
+    save_rgb(out, args.out, args.base)
+    print("%s: %s with the frames of %s" % (args.out, args.base, args.frames))
+    return 0
+
+
+def cmd_frames(args):
+    frames = load_rgb(args.frames, (FW, FH))
+    base, _ = load_sheet(args.base)
+    colours = base_palette(args.base, base)
+    index = {}
+    for i, c in enumerate(colours):
+        index.setdefault(c, i)
+    missing = {c for r in frames for c in r if c not in index}
+    if missing:
+        print("error: %d colours not in the base's palette" % len(missing))
+        return 1
+    idx = [[index[c] for c in r] for r in frames]
+    out = bytearray()
+    for fx, fy in FRAME_EYES + FRAME_MOUTHS:
+        for row in range(2):
+            out += pixels_to_tiles([r[fx:fx + 32] for r in idx[fy + row * 8:fy + row * 8 + 8]], 4, 1)
+    open(args.out, "wb").write(out)
+    print("%s: %d bytes (3 eye frames, 6 mouth frames)" % (args.out, len(out)))
+    return 0
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -531,9 +690,30 @@ def main():
     s = sub.add_parser("format")
     s.add_argument("sheet")
     s.add_argument("out")
+    s = sub.add_parser("frames-from")
+    s.add_argument("base")
+    s.add_argument("expr")
+    s.add_argument("out")
+    s.add_argument("--eyes", required=True)
+    s.add_argument("--mouth", help="X,Y: take the expression's mouths too (default: the base's)")
+    s = sub.add_parser("check-frames")
+    s.add_argument("frames")
+    s.add_argument("base")
+    s.add_argument("--eyes", required=True)
+    s = sub.add_parser("apply-frames")
+    s.add_argument("base")
+    s.add_argument("frames")
+    s.add_argument("out")
+    s.add_argument("--eyes", required=True)
+    s = sub.add_parser("frames")
+    s.add_argument("frames")
+    s.add_argument("base")
+    s.add_argument("out")
     args = p.parse_args()
     return {"export": cmd_export, "check": cmd_check, "diff": cmd_diff, "animate": cmd_animate,
-            "recolor": cmd_recolor, "format": cmd_format, "sync-frames": cmd_sync_frames}[args.cmd](args)
+            "recolor": cmd_recolor, "format": cmd_format, "sync-frames": cmd_sync_frames,
+            "frames-from": cmd_frames_from, "check-frames": cmd_check_frames, "apply-frames": cmd_apply_frames,
+            "frames": cmd_frames}[args.cmd](args)
 
 
 if __name__ == "__main__":
