@@ -42,3 +42,4 @@ int GetWmLocChapter(int node);
 void WmStoryChapter_NewGame(void);
 void WmStoryChapter_Save(u8 *dst, const u32 size);
 void WmStoryChapter_Load(u8 *src, const u32 size);
+int WmStoryChapter_ReadFromSave(int slot);

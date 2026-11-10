@@ -28,6 +28,7 @@ What it checks:
   postgame    (Serafew) from Chapter 20's world map through the ending; Extras > Map starts the postgame: the
               dungeons are shown, Black Temple starts nothing, Rausten's secret shop opens, the Lagdou Ruins and the
               Tower of Valni start, Enter District works on Port Kiris.
+  savetitle   (Serafew) the save made on leaving a district is titled with the story chapter, not "Skirmish Map".
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
               the unlocked districts and the nodes' states come back, and Enter District still loads the district.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
@@ -54,7 +55,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -911,6 +912,31 @@ class Smoke:
                                                                                          WM_NODE_PORT_KIRIS],
                    "chapter, lord's node %s" % vals)
 
+    def test_savetitle(self, states):
+        """The save made on leaving a district (chapter 0x38, the side-map return) is titled with the story chapter
+        (#705): the game boots (SRAM set up), Serafew is left with the story on Chapter 6 (the save menu's first slot,
+        Save); after a soft reset, Restart Chapter's slot list holds the slot's title index (ProcScr_SaveMenu's
+        chapter_idx at +0x37), which must be Chapter 6's row's chapTitleId, not a skirmish title (0x46-0x53)."""
+        d = os.path.join(self.out, "SaveTitle")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "ProcScr_SaveMenu", "sProcArray")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("savetitle: the save title", False, "no district state or symbols")
+        rom, story = states["rom"], self.sym["gWmStoryChapter"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
+                 "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
+        procs = self.sym["sProcArray"]
+        lines = ["wait 600", "load " + start, "wait 30"] + setup + LEAVE_DISTRICT + SOFT_RESET + \
+            ["press A", "wait 200", "shot slots.png", "dump %#x %#x slots.bin" % (procs, PROC_SIZE * PROCS)]
+        self.run(rom, lines, d)
+        self.shot(os.path.join(d, "slots.png"), "the save made on leaving Serafew")
+        got = [p[0x37] for a, p in self.procs(os.path.join(d, "slots.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        want = open(rom, "rb").read()[CHAPTER_TABLE + CHAPTER_06 * 0x94 + 0x0E]
+        self.check("savetitle: the save made on leaving a district is titled with the story chapter (Chapter 6)",
+                   got == [want], "title index %s, Chapter 6's %#x" % (["%#x" % g for g in got], want))
+
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
         rom = open(ROM, "rb").read()
@@ -1483,7 +1509,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame") or on("savetitle"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1508,6 +1534,8 @@ def main():
                 s.test_wmshops(states)
             if n == "Serafew" and on("postgame"):
                 s.test_postgame(states)
+            if n == "Serafew" and on("savetitle"):
+                s.test_savetitle(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

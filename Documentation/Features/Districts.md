@@ -111,6 +111,9 @@ chapter. It is never cleared.
   - No keeps you in the district.
 - **Retreat row:** L opens the free-movement menu. Its Retreat row shows the vanilla "Retreat?" prompt, and Yes also leaves the district.
 - Leaving goes through the save menu back to the world map, which starts with chapter `0x38` (the side-map return).
+- The save made on leaving holds the district's chapter, whose row borrows another chapter's title id (Serafew's
+  `0x50` reads as "Skirmish Map"). The save menu titles such a slot, and one holding the side-map return `0x38`, with
+  the story chapter read from the slot (`WmStoryChapter_ReadFromSave`, `SaveMenuChapterTitle.c`, #705).
 - The world map turns free movement off (`DisableFreeMovementASMC` in `WorldMap_CallBeginningEvent`). Before #700 it
   stayed on, so the next chapter after a district visit started in free movement, with no cursor: the battle could not
   be played. Entering a district turns it on again.

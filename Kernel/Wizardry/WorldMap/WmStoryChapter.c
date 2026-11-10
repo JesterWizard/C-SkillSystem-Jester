@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "wm-story-chapter.h"
 #include "district.h"
+#include "save-data.h"
 
 /*
  * Story chapters started from the world map.
@@ -177,6 +178,26 @@ void WmStoryChapter_Save(u8 *dst, const u32 size)
 	buffer[0] = gWmStoryChapter;
 	buffer[1] = WM_STORY_CHAPTER_MAGIC;
 	WriteAndVerifySramFast(buffer, dst, sizeof(buffer));
+}
+
+/*
+ * The story chapter in a game save slot, or WM_STORY_CHAPTER_NONE, without loading the save: its chunk is found by
+ * its loader in gEmsSavChunks, which lays the chunks out in order. The save menu titles slots with it (#705).
+ */
+int WmStoryChapter_ReadFromSave(int slot)
+{
+	const struct EmsChunk *cur;
+	u32 offset = 0;
+	u16 buffer[2];
+
+	for (cur = gEmsSavChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; cur++) {
+		if (cur->load == WmStoryChapter_Load) {
+			ReadSramFast((const u8 *)GetSaveReadAddr(slot) + offset, buffer, sizeof(buffer));
+			return buffer[1] == WM_STORY_CHAPTER_MAGIC ? buffer[0] : WM_STORY_CHAPTER_NONE;
+		}
+		offset += cur->size;
+	}
+	return WM_STORY_CHAPTER_NONE;
 }
 
 /* Saves made before this chunk existed fall back to the vanilla graph */
