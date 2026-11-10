@@ -60,7 +60,10 @@ Large portions of these are duplicated between Eirika's and Ephraim's routes. Me
   - the unlock flag.
 - The base unlocks when the story moves on from its story chapter. See [Unlocking](./Districts.md#unlocking).
 - The four districts, and how to add one, are in [Districts](./Districts.md).
-- The intro card is skipped when a base is entered from the node menu (`GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP`).
+- The intro card is skipped when a base is entered from the node menu (`GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP`, flag
+  `0xEC`). The Vesly debugger's off switch used to be the same flag, so entering a base could turn the debugger off;
+  it is flag `0xEF` now (`GLOBAL_FLAG_DEBUGGER_OFF`). The global flags in use are listed in
+  `include/jester_headers/custom-structs.h`.
 - Bases can be **entered and exited freely** afterward. The gate tile (`TRAP_DISTRICT_GATE`) is the escape tile: stepping on it asks to leave.
 - Global flags can be checked to:
   - Spawn new units  
