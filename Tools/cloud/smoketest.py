@@ -13,6 +13,8 @@ What it checks:
   claim       (Serafew) a met quest is claimed on the guild board for its tokens.
   prizes      (Serafew) the guild board sells the Omni Tonic and a skill scroll: the tokens drop by their costs and
               both reach Eirika.
+  unlocks     (Serafew) the board's story quests show "+story"/"+support"; the Eirika and Seth one adds 40 support
+              points each way.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
   savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
   suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
@@ -26,7 +28,7 @@ What it checks:
               (a test ROM maps her sad portrait to SURPRISED).
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+a district's name, tokens, claim, prizes, unlocks, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -76,6 +78,8 @@ BM_MAP_UNIT = 0x0202E4D8
 ITEM_TONIC = 0xDF
 SKILL_SCROLL_ITEMS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 (include/configs/configs.h)
 GUILD_PRIZE_WORD, GUILD_PRIZE_SKILL = 1, 2  # include/kernel/guild.h
+GUILD_QUEST_WINS, GUILD_QUEST_TOKENS_EARNED = 9, 11  # include/kernel/guild.h
+BWL_SIZE = 15  # struct NewBwl (include/kernel/bwl.h), packed
 SNEK_PIPER_TILE, SNEK_TALK_TILE = (17, 14), (16, 14)  # CustomCampaign/Chapters/PortKiris/events/units.c
 
 # save chunk save function: the RAM it saves (its size comes from the chunk table; Snek saves a u16 and a magic)
@@ -376,6 +380,46 @@ class Smoke:
         self.shot(os.path.join(d, "claim.png"), "quest claimed")
         self.check("claim: Serafew's first quest pays 15 tokens and is marked claimed", vals == [15, 1],
                    "tokens, claimed bits %s" % vals)
+
+    def guild_quests(self):
+        """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
+        rom = open(ROM, "rb").read()
+        a, out = self.sym["gGuildQuests"] - 0x08000000, []
+        while rom[a + 1]:
+            district, kind, param, _item, _target, _tok, _gold, msg = struct.unpack_from("<BBBBHHHH", rom, a)
+            out.append((district, kind, param, msg))
+            a += 12
+        return out
+
+    def test_unlocks(self, states):
+        """Serafew's board: with its earlier quests claimed, the story quests show "+story" and "+support"; claiming the
+        Eirika and Seth support quest (60 tokens earned) adds 40 support points both ways (their battle records)."""
+        d = os.path.join(self.out, "Serafew")
+        need = ("gGuildSave", "gGuildQuests", "gPidStatsData")
+        if "guild" not in states or not all(n in self.sym for n in need):
+            return self.check("unlocks: support and story quests", False, "no guild board or symbols")
+        quests = self.guild_quests()
+        support = next((i for i, q in enumerate(quests) if q[0] == 0x3B and q[1] == GUILD_QUEST_TOKENS_EARNED), None)
+        if support is None:
+            return self.check("unlocks: Serafew's support quest", False, "not in gGuildQuests")
+        # everything on Serafew's board before the story quests is claimed, so they and the support quest show
+        first = next(i for i, q in enumerate(quests) if q[1] == GUILD_QUEST_WINS and q[2] != 0)
+        earlier = [i for i, q in enumerate(quests[:first]) if q[0] in (0, 0x3B)]
+        shown = [i for i, q in enumerate(quests) if q[0] in (0, 0x3B) and i not in earlier][:3]
+        claimed = sum(1 << i for i in earlier)
+        g, bwl = self.sym["gGuildSave"], self.sym["gPidStatsData"]
+        sup = lambda pid: [bwl + (pid - 1) * BWL_SIZE + 4 + k for k in range(7)]
+        reads = ["r8 %#x" % a for a in sup(1) + sup(2)]
+        lines = ["load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w16 %#x 60" % (g + 4),
+                 "w32 %#x %#x" % (g + 8, claimed)] + reads + ["hold A 6", "wait 150", "shot unlocks.png"]
+        lines += ["hold DOWN 4", "wait 12"] * shown.index(support) + ["press A", "wait 30"] + reads
+        vals = self.run(states["rom"], lines, d)
+        self.shot(os.path.join(d, "unlocks.png"), "story quests")
+        if len(vals) != 28:
+            return self.check("unlocks: the support quest", False, "values %s" % vals)
+        gain = [b - a for a, b in zip(vals[:14], vals[14:])]
+        self.check("unlocks: the support quest adds 40 points each way", sorted(gain) == [0] * 12 + [40, 40],
+                   "Eirika %s, Seth %s" % (gain[:7], gain[7:]))
 
     def test_snek(self, states):
         """Port Kiris: Eirika talks to the Pied Piper (0x7E, next to the guild board), says Yes, scores 80 and quits
@@ -708,7 +752,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -717,6 +761,8 @@ def main():
                 s.test_claim(states)
             if n == "Serafew" and on("prizes"):
                 s.test_prizes(states)
+            if n == "Serafew" and on("unlocks"):
+                s.test_unlocks(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

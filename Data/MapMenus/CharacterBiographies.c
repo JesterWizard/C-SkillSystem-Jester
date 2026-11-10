@@ -6,6 +6,9 @@
 #include "jester_headers/macros.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/custom-functions.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "kernel/guild.h"
+#endif
 
 #define BASE_VISIBLE_COUNT 5
 
@@ -54,6 +57,27 @@ static int NumberOfCharacterBiographies() {
     return lengthOfList;
 }
 
+/* A page can wait on a guild board quest (gGuildUnlocks, Data/Guild/Guild.c) */
+static bool BiographyPageOpen(int index, int page)
+{
+#ifdef CONFIG_DISTRICT_GUILD
+    return Guild_BiographyPageUnlocked(gCharacterBiographies[index].characterId, page);
+#else
+    (void)index;
+    (void)page;
+    return true;
+#endif
+}
+
+static int BiographyPagesOpen(int index)
+{
+    int page = 0;
+
+    while (page < 4 && BiographyPageOpen(index, page))
+        page++;
+    return page;
+}
+
 static void DrawBaseConversations(int x, int y) {
 
     for (int i = 0; i < BASE_VISIBLE_COUNT; i++) 
@@ -65,6 +89,15 @@ static void DrawBaseConversations(int x, int y) {
     
         PutDrawText(&PrepItemSuppyTexts.th[i+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (i * 2)), 
                     TEXT_COLOR_SYSTEM_GOLD, 40, 0, Utf8ToNarrowFonts(gCharacterBiographies[i].subtitle));
+
+        /* Pages still waiting on a guild quest: show how many are open */
+        if (BiographyPagesOpen(i) < 4) {
+            char count[] = "0/4";
+
+            count[0] = '0' + BiographyPagesOpen(i);
+            PutDrawText(&PrepItemSuppyTexts.th[i+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (i * 2)),
+                        TEXT_COLOR_SYSTEM_GRAY, 100, 0, count);
+        }
     }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -163,8 +196,10 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
     }
 }
 
+/* EVT_SLOT_4: 1 when this page is still locked (the event stops there) */
 static void SetIndexes(struct ProcPrepUnit * proc) 
 {
+    gEventSlots[EVT_SLOT_4] = !BiographyPageOpen(gCharacterBiographyListNumber, gCharacterBiographyPage);
     gEventSlots[EVT_SLOT_2] = gCharacterBiographies[gCharacterBiographyListNumber].entries[gCharacterBiographyPage].backgroundId;
     gEventSlots[EVT_SLOT_3] = gCharacterBiographies[gCharacterBiographyListNumber].entries[gCharacterBiographyPage].textId;
     gCharacterBiographyPage++;
@@ -176,11 +211,15 @@ static EventScr const EventScr_CharacterBiographies[] = {
     ASMC(SetIndexes)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
+    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
+    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
+    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
+LABEL(0x1)
 	ENDA
 };
 

@@ -215,6 +215,16 @@ static void Guild_DrawQuestDetail(struct Text *t, int index)
 		Guild_Append(buf, &i, " ");
 		Guild_Append(buf, &i, GetItemName(q->rewardItem));
 	}
+	switch (Guild_QuestUnlockKind(index)) {
+	case GUILD_UNLOCK_BIOGRAPHY:
+		Guild_Append(buf, &i, " ");
+		Guild_AppendMsg(buf, &i, MSG_GUILD_UNLOCK_STORY);
+		break;
+	case GUILD_UNLOCK_SUPPORT:
+		Guild_Append(buf, &i, " ");
+		Guild_AppendMsg(buf, &i, MSG_GUILD_UNLOCK_SUPPORT);
+		break;
+	}
 	Text_InsertDrawString(t, 80, TEXT_COLOR_SYSTEM_WHITE, buf);
 }
 
