@@ -9,6 +9,7 @@
 #include "constants/skills.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
+#include "big-unit.h"
 
 typedef int (*LoadUnitFunc_t)(struct Unit* unit, const struct CharacterData* character);
 // extern const LoadUnitFunc_t gLoadUnitHooks[];
@@ -253,6 +254,9 @@ struct Unit* LoadUnit(const struct UnitDefinition* uDef) {
 
     if (UNIT_IS_GORGON_EGG(unit))
         SetUnitHp(unit, 5);
+
+    /* 2x2 units: the three other corners */
+    BigUnit_OnLoadUnit(unit);
 
     return unit;
 }

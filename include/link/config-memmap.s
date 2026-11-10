@@ -381,6 +381,8 @@ _kernel_malloc2 gChapterAwards, 0x64
 _kernel_malloc2 gChapterAwardsScreen, 0x60
 /* Portrait expression frame sets (include/kernel/portrait-expressions.h): the set each face slot shows. RAM only. */
 _kernel_malloc2 gPortraitFrameSlots, 0x14
+/* 2x2 units (include/kernel/big-unit.h): the groups of corners (struct BigUnitGroup[8]). Saved in the suspend save. */
+_kernel_malloc2 gBigUnitGroups, 0x30
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

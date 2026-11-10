@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "big-unit.h"
 #include "battle-system.h"
 #include "skill-system.h"
 #include "status-getter.h"
@@ -208,6 +209,9 @@ void DisplayUnitEffectRange(struct Unit *unit)
 	u32 movelimitv_flag = MOVLIMITV_MMAP_BLUE;
 
 	GenerateUnitMovementMapExt(gActiveUnit, MovGetter(gActiveUnit) - gActionData.moveCount);
+
+	/* 2x2 units: the block's whole reach, and so the four corners' attack range */
+	BigUnit_ExpandMovementMap(gActiveUnit);
 
 	if (!(gActiveUnit->state & US_CANTOING)) {
 		BmMapFill(gBmMapOther, 0);

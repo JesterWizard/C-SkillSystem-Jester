@@ -56,11 +56,15 @@ What it checks:
               stays, the set is on her face's slot and its open eyes are in the face's graphics.
   awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
+  bigunit     2x2 units: a test ROM lists O'Neill, who loads as four corners drawn once at double size; Eirika breaks
+              a corner (no defeat yet). A fighter made a 2x2 block in RAM fights once from the corner that reaches,
+              Seth breaks that corner, and the block stops where O'Neill blocks it; its shown range is every tile
+              the block can cover.
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards, bigunit). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -132,6 +136,7 @@ STUB_ENEMY_READS = 8  # a stub loads at most 7 enemies
 CHAPTER_FLAG_DEFEAT_ALL = 0x60  # gChapterFlagBits: EVFLAG_DEFEAT_ALL (6), whichever of bits 5 and 6 it is
 SHOP_ITEMS = 20  # gProcScr_Shop's proc: its stock at +0x30, 20 u16 (item | uses << 8)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
+CHAPTER_FLAGS = 0x03005270  # gChapterFlagBits: flag f (1 to 0x64) is bit (f - 1)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
 PALETTE_BUFFER = 0x020228A8
 CHAPTER = PLAYST + 0x0E
@@ -157,11 +162,13 @@ SAVE_RAM = {
     "Guild_Save": "gGuildSave", "CrossingRecords_Save": "gCrossingRecords",
     "CrossingProgress_Save": "gCrossingProgress", "TowerRecords_Save": "gTowerRecords",
     "FishingRecords_Save": "gFishingRecords", "FishingProgress_Save": "gFishingProgress",
-    "HexSave_Save": "gHexSave", "Snek_SaveHighScore": "gSnekHighScore",
+    "HexSave_Save": "gHexSave", "Snek_SaveHighScore": "gSnekHighScore", "BigUnit_Save": "gBigUnitGroups",
 }
 # values written before saving, so a chunk that is not saved or loaded shows up: (RAM symbol, offset, bits, value)
 SENTINELS = [("gGuildSave", 2, 16, 1234), ("gCrossingRecords", 2, 16, 777), ("gTowerRecords", 2, 16, 345),
-             ("gSnekHighScore", 0, 16, 42)]
+             ("gSnekHighScore", 0, 16, 42),
+             # the last 2x2 group's top-left tile: its corners are empty, so no unit moves
+             ("gBigUnitGroups", 7 * 6 + 4, 16, 0x0605)]
 
 # the Vesly debugger (B on an empty tile): page 2, "Save & restart ch." (as in boot-to-prep.txt), then the save slot
 DEBUG_SAVE = ["press B", "wait 60", "press RIGHT", "wait 40", "press DOWN", "wait 10", "press DOWN", "wait 10",
@@ -1351,6 +1358,116 @@ class Smoke:
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
 
+    def test_bigunit(self, boot_ss):
+        """2x2 units (Documentation/Features/BigUnits.md). A test ROM lists O'Neill: he loads as four corners on a 2x2
+        block, drawn once at twice the size (an affine double-size OBJ). Seth breaks his top-left corner: it leaves the
+        group, and his defeat (flag 2) waits for the last corner. On the plain ROM, the fighter next to Eirika made a
+        2x2 block in RAM: at (2, 3) only its bottom-right corner reaches Seth, and the block fights once from there
+        (only that corner hurt, all four grayed); at (12, 7) it moves a tile left (O'Neill blocks the next) and its
+        shown range is every tile the block can cover. Seth breaks the fighter's corner: the other three stand."""
+        d = os.path.join(self.out, "bigunit")
+        os.makedirs(d, exist_ok=True)
+        if "gBigUnitCharacters" not in self.sym or "gBigUnitGroups" not in self.sym:
+            return self.check("bigunit: the 2x2 unit tables exist", False)
+        groups = self.sym["gBigUnitGroups"]
+        unit = lambda uid: 0x0202CFBC + 0x48 * (uid - 0x81) if uid & 0x80 else UNIT1 + 0x48 * (uid - 1)
+
+        # A test ROM with O'Neill (0x68) in the character list
+        data = bytearray(open(ROM, "rb").read())
+        data[self.sym["gBigUnitCharacters"] - 0x08000000] = 0x68
+        rom = os.path.join(d, "bigunit.gba")
+        open(rom, "wb").write(data)
+        ss = os.path.join(d, "oneill.ss")
+        vals = self.run(rom, self.boot_lines() + ["save " + ss, "shot oneill.png"] +
+                        ["r8 %#x" % (groups + k) for k in range(6)] +
+                        ["r16 %#x" % (OAM + 8 * i + k) for i in range(128) for k in (0, 2)], d)
+        self.shot(os.path.join(d, "oneill.png"), "2x2 O'Neill")
+        if len(vals) != 6 + 256:
+            return self.check("bigunit: the test ROM boots", False, "values %d" % len(vals))
+        uids, (gx, gy) = vals[:4], vals[4:6]
+        reads = []
+        for uid in uids:
+            reads += ["r32 %#x" % unit(uid), "r8 %#x" % (unit(uid) + 0x10), "r8 %#x" % (unit(uid) + 0x11)]
+        got = self.run(rom, ["load " + ss] + reads, d) if all(uids) else []
+        where = [(got[3 * k + 1], got[3 * k + 2]) for k in range(4)] if len(got) == 12 else []
+        self.check("bigunit: O'Neill loads as four corners on a 2x2 block",
+                   all(uids) and len(set(uids)) == 4 and (gx, gy) == (10, 8) and len(set(got[0::3])) == 1 and
+                   where == [(10, 8), (11, 8), (10, 9), (11, 9)],
+                   "corners %s at %s, block (%d, %d)" % (["%#x" % u for u in uids], where, gx, gy))
+        oam = vals[6:]
+        doubled = [i for i in range(128) if oam[2 * i] & 0x300 == 0x300 and (oam[2 * i + 1] >> 9) & 0x1F in (26, 27)]
+        self.check("bigunit: the block is one double-size affine sprite", len(doubled) == 1,
+                   "OAM entries %s" % doubled)
+
+        # Eirika, moved next to the top-left corner (1 HP), breaks it (A through his quote): the corner leaves the
+        # group, and his defeat (flag 2, which a 1x1 O'Neill's defeat sets) waits for the last corner
+        if not all(uids):
+            return
+        rows = self.run(rom, ["load " + ss, "r32 %#x" % BM_MAP_UNIT], d)[0]
+        row = lambda y: self.run(rom, ["load " + ss, "r32 %#x" % (rows + 4 * y)], d)[0]
+        lines = ["load " + ss, "w8 %#x 0" % (row(5) + 4), "w8 %#x 1" % (row(8) + 9), "w8 %#x 9" % (UNIT1 + 0x10),
+                 "w8 %#x 8" % (UNIT1 + 0x11), "w8 %#x 1" % (unit(uids[0]) + 0x13)]
+        lines += ["press RIGHT", "wait 8"] * 5 + ["press DOWN", "wait 8"] * 3
+        # Eirika: stay, Attack, the first weapon, the only target; A through his quote
+        lines += ["press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40", "press A",
+                  "wait 60"] + ["wait 50", "press A", "wait 40"] * 5 + ["press A", "wait 60"] * 16
+        lines += ["wait 300", "shot break.png", "r8 %#x" % CHAPTER_FLAGS] + ["r8 %#x" % (groups + k) for k in range(4)]
+        got = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "break.png"), "2x2 O'Neill, a corner broken")
+        self.check("bigunit: a broken corner leaves the block; no defeat while three stand",
+                   len(got) == 5 and not got[0] & 2 and got[1] == 0 and all(got[2:]),
+                   "chapter flags %s, corners %s" % (got[:1], got[1:]))
+
+        # The plain ROM: the fighter next to Eirika (0x83) copied to 0x84-0x86, as a block at (x, y)
+        src = self.run(ROM, ["load " + boot_ss] + ["r8 %#x" % (unit(0x83) + k) for k in range(0x48)], d)
+        if len(src) != 0x48:
+            return self.check("bigunit: the fighter's unit reads", False)
+
+        def block(x, y):
+            out = ["load " + boot_ss]
+            for k, uid in enumerate((0x83, 0x84, 0x85, 0x86)):
+                b = list(src)
+                b[0x0B], b[0x10], b[0x11] = uid, x + (k & 1), y + (k >> 1)
+                b[0x3C:0x40] = [0, 0, 0, 0]
+                out += ["w8 %#x %#x" % (unit(uid) + i, v) for i, v in enumerate(b)]
+            return out + ["w8 %#x %#x" % (groups + i, v) for i, v in enumerate((0x83, 0x84, 0x85, 0x86, x, y))]
+
+        # Eirika and Seth wait; the enemy phase
+        end_turn = EIRIKA_MENU + ["press UP", "wait 10", "press A", "wait 60", "press UP", "wait 10", "press A",
+                                  "wait 30", "press A", "wait 40", "press UP", "wait 10", "press A", "wait 1600"]
+        fight_ss = os.path.join(d, "fight.ss")
+        got = self.run(ROM, block(2, 3) + end_turn + ["shot fight.png", "save " + fight_ss] +
+                       ["r8 %#x" % (unit(u) + 0x13) for u in (0x83, 0x84, 0x85, 0x86)] +
+                       ["r8 %#x" % (unit(u) + 0x0C) for u in (0x83, 0x84, 0x85, 0x86)] +
+                       ["r8 %#x" % (groups + 4), "r8 %#x" % (groups + 5)], d)
+        self.shot(os.path.join(d, "fight.png"), "2x2 block after its attack")
+        self.check("bigunit: the AI fights once, from the corner that reaches (bottom-right)",
+                   len(got) == 10 and got[0] == got[1] == got[2] and got[3] < got[0] and
+                   all(st & 2 for st in got[4:8]) and got[8:] == [2, 3],
+                   "HP %s, states %s, block %s" % (got[:4], ["%#x" % v for v in got[4:8]], got[8:]))
+
+        # Seth (above Eirika) breaks the bottom-right corner (1 HP): the other three stand, with their HP
+        got = self.run(ROM, ["load " + fight_ss, "w8 %#x 1" % (unit(0x86) + 0x13), "press UP", "wait 20", "press A",
+                             "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40", "press A",
+                             "wait 700", "shot fighter_break.png"] + ["r8 %#x" % (groups + k) for k in range(4)], d)
+        self.shot(os.path.join(d, "fighter_break.png"), "2x2 fighter, a corner broken")
+        self.check("bigunit: a corner at 0 HP breaks and the other three fight on",
+                   got == [0x83, 0x84, 0x85, 0], "corners %s" % ["%#x" % v for v in got])
+
+        mov = self.run(ROM, ["load " + boot_ss, "r32 0x0202E4E0"], d)[0]
+        lines = block(12, 7) + end_turn + ["r8 %#x" % (groups + 4), "r8 %#x" % (groups + 5)]
+        lines += ["press RIGHT", "wait 8"] * 7 + ["press DOWN", "wait 8"] * 2 + ["press A", "wait 40", "shot range.png"]
+        rows = ["r32 %#x" % (mov + 4 * y) for y in range(10)]
+        got = self.run(ROM, lines + rows, d)
+        self.shot(os.path.join(d, "range.png"), "2x2 block's range")
+        if len(got) != 12:
+            return self.check("bigunit: the block's range shows", False, "values %s" % got)
+        cells = self.run(ROM, lines + ["r8 %#x" % (got[2 + y] + x) for y in range(10) for x in range(15)], d)[2:]
+        reach = sorted((i % 15, i // 15) for i, v in enumerate(cells) if v <= 0x77)
+        want = sorted((x, y) for x in range(11, 15) for y in range(7, 10))
+        self.check("bigunit: blocked by O'Neill, the block stops a tile left; its range is every tile it can cover",
+                   got[:2] == [11, 7] and reach == want, "block %s, range %s" % (got[:2], reach))
+
     def test_awards(self, boot_ss):
         """The prologue with only O'Neill left (the other two enemies removed), moved next to Eirika: she attacks him,
         he falls to her counter in the enemy phase and the chapter ends. The awards screen comes before the save menu, names Eirika for all three
@@ -1658,7 +1775,8 @@ def main():
                 t()
         return run
 
-    boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography")
+    boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
+                  "bigunit")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
@@ -1673,6 +1791,8 @@ def main():
                 ("frames", s.test_frames)) if on(t)]))
             if on("awards"):
                 r.submit((0, 3), s.test_awards, boot_ss)
+            if on("bigunit"):
+                r.submit((0, 4), s.test_bigunit, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):

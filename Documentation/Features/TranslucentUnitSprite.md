@@ -17,6 +17,9 @@ Vanilla FE8 only shows the move arrow while pathfinding. Lex Talionis-style UIs 
 
 This kernel option adds that ghost while the move path is active, then clears it when pathfinding ends (A confirm or B cancel).
 
+A [2x2 unit](./BigUnits.md) (enemy-only) gets the same ghost on the AI's turn: while it walks, a faded double-size copy
+stands on the block it is walking to (`BigUnit_PutMuGhost`, same toggle).
+
 ---
 
 ## 🛠️ Plan

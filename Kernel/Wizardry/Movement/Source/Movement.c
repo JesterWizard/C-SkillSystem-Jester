@@ -7,6 +7,7 @@
 #include "kernel/traps.h"
 #include "map-movement.h"
 #include "constants/skills.h"
+#include "big-unit.h"
 
 STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 {
@@ -264,6 +265,9 @@ STATIC_DECLAR void PreGenerateMovementMap(int default_mov)
 	}
 
 	MarkCollapsingFloorBarriers(unit);
+
+	/* 2x2 units: the block's other corners must fit too */
+	BigUnit_MarkFootprintBarriers(unit);
 }
 
 LYN_REPLACE_CHECK(GenerateMovementMap);

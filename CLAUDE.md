@@ -47,4 +47,5 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - Compare story chapters by story order (`WmStoryReached`, `GetWmStoryChapterRank` in `Kernel/Wizardry/WorldMap/WmStoryChapter.c`), never by id: `CHAPTER_11` is `0x3D`.
 - The district override (`sWmChapterIdOverride`) must live until the district chapter starts. The chapter is read after the world map ends, so clearing it on its first read or in `WorldMap_Destruct` starts the story chapter instead. A chapter-init hook clears it. See `Documentation/Features/Districts.md`, "Entering".
 - Emulator tests that save: SRAM is not in a save state, and after a soft reset the game treats SRAM it never set up as empty. Boot first (`wait 600`), then `load` the state, in the same run (`test_wmsave`).
+- `struct Unit`'s `index` is an `s8`: an enemy's id (0x81 and up) reads negative, so `unit->index == some_u8` is false for it. Compare `(u8)unit->index` (`BigUnit.c`'s `UID()`).
 - A district's `events/traps.c` is `#include`d by its `events.c`: after editing it, run `make CustomCampaign/Chapters/<Name>/events/events.lyn.event` before `Tools/cloud/build.sh`, which does not rebuild it.
