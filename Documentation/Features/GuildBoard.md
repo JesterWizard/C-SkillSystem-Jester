@@ -116,6 +116,8 @@ A record you already hold counts: a quest posted after you reached it is met at 
 | Caer Pelyn | Tana: win 15 battles | 10 tokens, the last page of her biography |
 | Serafew | Earn 60 tokens in all: Eirika and Seth | 5 tokens, 40 support points between them |
 | Port Kiris | Earn 120 tokens in all: Franz and Gilliam | 5 tokens, 40 support points between them |
+| Serafew | Artur: win 15 battles | 10 tokens, the last page of his biography |
+| Jehanna Hall | Amelia: win 15 battles | 10 tokens, the last page of her biography |
 
 ### Story and support quests
 
@@ -296,7 +298,7 @@ QUEST(SERAFEW, GUILD_QUEST_CROSSING_SCORE, 0, 800, 15, 0, 0, MSG_GUILD_Q_SERAFEW
 
 - `district` is the district chapter (`0x3B` Serafew, `0x3C` Port Kiris, `0x41` Caer Pelyn, `0x42` Jehanna Hall), or 0
   for every board. A board shows quests in table order, so put a district's easy ones first.
-- At most 32 quests: each has a claimed bit in the save, by its place in the table. Add new quests at the end, so saved
+- At most 32 quests (29 used): each has a claimed bit in the save, by its place in the table. Add new quests at the end, so saved
   bits keep meaning the same quests.
 - The quest's line is a message in `Contents/Texts/Source/texts/Districts.txt` (add it at the end of the file). Keep it
   under about 34 characters.

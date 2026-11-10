@@ -166,6 +166,28 @@ EventScr_CharacterBiographies
 
 ---
 
+## 📚 The biographies
+
+| Character | Subtitle | Last page unlocked by |
+|---|---|---|
+| Eirika | Restoration Lady | Serafew: Eirika wins 25 battles |
+| Seth | The Silver Knight | Serafew: Seth wins 25 battles |
+| Franz | The Faithful | Port Kiris: Franz wins 20 battles |
+| Gilliam | Wall of Silence | Port Kiris: Gilliam wins 20 battles |
+| Tana | Winged Princess | Caer Pelyn: Tana wins 15 battles |
+| Artur | The Devout | Serafew: Artur wins 15 battles |
+| Amelia | The Hopeful | Jehanna Hall: Amelia wins 15 battles |
+
+Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. The other
+characters' card files are still empty; a biography for one is a table row once its four pages are written.
+
+The list shows five rows and scrolls (UP and DOWN past its ends), with the scroll bar sized to the table.
+
+`python3 Tools/cloud/smoketest.py --only biography` opens the menu, scrolls to the last biography and plays its first
+page.
+
+---
+
 ## 🔒 Locked pages
 
 A page can wait on a [guild board](./GuildBoard.md#story-and-support-quests) quest: `UNLOCK_BIOGRAPHY(quest,
@@ -173,8 +195,8 @@ character, page)` in `gGuildUnlocks` (`Data/Guild/Guild.c`) keeps that page, and
 quest is claimed. The list then shows how many pages are open ("3/4"), and the biography stops before the first locked
 page. Each written biography's last page waits on its character's quest ("Eirika: win 25 battles" and so on).
 
-The map menu's Biography command is off by default: turn on `map_menu_character_biographies` in
-`Data/DesignerConfig/designer-config.c`.
+The map menu's Biography command is on by default (`map_menu_character_biographies` in
+`Data/DesignerConfig/designer-config.c`). It is the row after Guide and Goals.
 
 ---
 

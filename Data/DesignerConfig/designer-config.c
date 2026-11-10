@@ -90,7 +90,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.lvup_mode_normal = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_stat_points = false, // points per level; false = off. true skips growths, shows spend menu after EXP bar, applies immediately, hides growth display. 1 point per stat
 	.lvup_stat_timing = false, // false = off. true: timing minigame after EXP bar (overrides allocate). green bars come from growths
-	.map_menu_character_biographies = false,
+	.map_menu_character_biographies = true,
 	.max_color_backgrounds = true,
 	.max_equipable_skill = UNIT_RAM_SKILLS_LEN,
 	.max_level = UNIT_LEVEL_MAX_RE,

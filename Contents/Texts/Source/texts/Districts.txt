@@ -533,3 +533,7 @@ Beaten![X]
 Marlo trains harder as the war goes on.[X]
 ## MSG_GUILD_RIVAL_PAID
 You beat Marlo's record! Tokens paid.[X]
+## MSG_GUILD_Q_STORY_ARTUR
+Artur: win 15 battles.[X]
+## MSG_GUILD_Q_STORY_AMELIA
+Amelia: win 15 battles.[X]
