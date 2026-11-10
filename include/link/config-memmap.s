@@ -369,6 +369,10 @@ _kernel_malloc2 gFishingRecords, 0x2C
 _kernel_malloc2 sStatDebuffStatusAlly, 51 * 16
 /* The angler's progress (struct FishingProgress, include/kernel/fishing.h): rank, legends, bottles, requests. Saved. */
 _kernel_malloc2 gFishingProgress, 0x20
+/* River Crossing's twists, pickups and records screen (struct CrossingExtra, include/kernel/crossing.h). RAM only. */
+_kernel_malloc2 gCrossingExtra, 0x80
+/* River Crossing's saved progress (struct CrossingProgress): fastest clears, milestones, challenges. Saved. */
+_kernel_malloc2 gCrossingProgress, 0x10
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

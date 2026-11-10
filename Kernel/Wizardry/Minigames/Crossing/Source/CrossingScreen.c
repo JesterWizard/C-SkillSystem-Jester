@@ -6,6 +6,8 @@
 #include "constants/texts.h"
 #include "constants/classes.h"
 #include "m4a.h"
+#include "constants/items.h"
+#include "wm-story-chapter.h"
 
 #ifdef CONFIG_DISTRICT_CROSSING
 
@@ -21,6 +23,7 @@
  *   CLEAR   all five docks are filled: a bonus, the docks empty and the next round is faster.
  *   PAUSE   START: the game stops. START again goes on, B leaves.
  *   OVER    the payout (score / 10 gold) and the records. A or B leaves.
+ *   RECORDS R in READY: each district's best score, medal and fastest round 1. B, A or R closes it.
  *
  * Score: 10 for each new row reached in a life, 50 and the seconds left for a dock, 250 for a cleared round (750, and
  * PERFECT!, with no life lost in it). B leaves at any time and pays out what was scored.
@@ -30,6 +33,19 @@
  * of droplets; each dock in a row without losing a life plays the next note of a scale; score pop-ups rise from the
  * unit; at the end the score counts up, and a district record pops up NEW BEST!. Each district has its own course (sCourses): Serafew is the gentlest,
  * Jehanna the fastest.
+ *
+ * Twists, one per district: Serafew's middle river lane is a line of turtles that dive in turn (under water they hold
+ * nothing up); at Port Kiris a gull swoops along a row after a "!" warning; Caer Pelyn's rafts are ice floes, and a
+ * sideways hop on one slides a cell further; Jehanna's sandstorms hide a road lane's riders for a while.
+ *
+ * Pickups and helpers: a coin (+50) or a potion (a life, up to 5) rides a raft for a while; a lost child rides one
+ * too, and hopping onto it picks it up: a dock brings it home (+200, RESCUED!), a lost life loses it. Now and then a
+ * dock shows a star (double points, BONUS!) or a skull, a trap that costs a life.
+ *
+ * Replay goals: each district's first clear gives an Elixir and its first round 5 a stat booster (to the unit, or the
+ * convoy); the fastest round 1 is saved; each story chapter sets a challenge per district (fill the docks left to
+ * right, clear round 1 in 60 seconds, rescue a child, or clear round 1 with no miss), worth 1000 gold once. The best
+ * score earns a medal: bronze 500, silver 1200, gold 2500.
  *
  * Layers: BG3 the scene (palette CROSSING_BG_PAL, tiles at 0x06008000), BG0 the status line and the button labels with
  * no window behind them, OBJ (1D) the sprites. The riders are the walking map sprites of real classes in the enemy
@@ -42,6 +58,10 @@
 #define PAL_FX 2
 #define PAL_UI 3
 #define PAL_POP 5
+#define PAL_FX2 6           /* the twists' and pickups' sprites */
+#define PAL_ICE 7           /* Caer Pelyn's ice floes */
+#define PAL_NPC 0xE         /* the map sprites' green (NPC) palette */
+#define CX (&gCrossingExtra)
 #define AFF_POP 1
 #define AFF_UNIT 2
 #define SCENE_CHR_VRAM 0x06008000
@@ -50,6 +70,7 @@
 #define CHR_POPUP 0x220     /* the pop-up word (64 tiles) */
 #define CHR_TIMER 0x260     /* the timer meter (6 tiles) */
 #define CHR_RIDER 0x280     /* the riders' side frames (3 classes x 64 tiles); 0x380 up is the map's moving units */
+#define CHR_CHILD 0x340     /* the lost child's side frames (64 tiles) */
 
 #define CELL 16
 #define START_COL 7
@@ -73,6 +94,15 @@
 #define SQUASH_FRAMES 6
 #define SINK_FRAMES 24
 #define PERFECT_BONUS 500                   /* on top of the round's 250, with no life lost in it */
+#define TURTLE_LANE 4                       /* Serafew: the middle river lane is a line of turtles */
+#define GULL_WARN 45                        /* Port Kiris: frames of warning before a gull swoops */
+#define STORM_FRAMES 180                    /* Jehanna: a sandstorm's length; riders vanish after the first 30 */
+#define CHILD_CLASS CLASS_CIVILIAN_M3
+#define COIN_POINTS 50
+#define RESCUE_POINTS 200
+#define MAX_LIVES 5
+#define REWARD_FRAMES 150                   /* a reward's message stays on the status line this long */
+#define CHAL_GOLD 1000
 
 enum {
 	CS_READY,
@@ -81,6 +111,7 @@ enum {
 	CS_CLEAR,
 	CS_PAUSE,
 	CS_OVER,
+	CS_RECORDS,
 };
 
 enum {
@@ -213,6 +244,75 @@ static int Crossing_UnitCX(void)
 	return (CS->px >> 8) + 8;
 }
 
+/* Serafew's turtles dive in turn: 0 swimming, 1 diving (a warning), 2 under water (they hold nothing up) */
+static int Crossing_TurtlePhase(int lane, int k)
+{
+	int t;
+
+	if (CS->level != 0 || lane != TURTLE_LANE)
+		return 0;
+	t = (CX->tick + k * 85) & 0xFF;
+	return t < 160 ? 0 : (t < 200 ? 1 : 2);
+}
+
+/* Port Kiris's gull: does it catch the unit (standing in its row, within 10 pixels)? */
+static bool Crossing_GullHit(void)
+{
+	if (CS->level != 1 || CX->gullRow == 0xFF || CX->gullWarn > 0 || CS->hopFrames > 0)
+		return FALSE;
+	return CS->row == CX->gullRow && Crossing_Abs(CX->gullX + 8 - Crossing_UnitCX()) < 10;
+}
+
+/* The twists' clocks: run every frame from Crossing_UpdateLanes; new gulls and storms only start in play */
+static void Crossing_UpdateTwists(void)
+{
+	int k;
+
+	CX->tick++;
+
+	if (CS->level == 1) {
+		if (CX->gullRow == 0xFF) {
+			if (CS->state == CS_PLAY && CX->gullNext > 0 && --CX->gullNext == 0) {
+				CX->gullRow = CROSSING_ROW_RIVER_TOP + NextRN_N(CROSSING_ROW_ROAD_BOTTOM - CROSSING_ROW_RIVER_TOP + 1);
+				CX->gullWarn = GULL_WARN;
+				CX->gullX = -16;
+				PlaySoundEffect(SE_CLOSE);
+			}
+		} else if (CX->gullWarn > 0) {
+			CX->gullWarn--;
+		} else {
+			CX->gullX += 3;
+			if (CX->gullX > 240) {
+				CX->gullRow = 0xFF;
+				CX->gullNext = 180 + NextRN_N(240);
+			}
+		}
+	}
+
+	if (CS->level == 3 && CS->state == CS_PLAY) {
+		if (CX->stormLane == 0xFF) {
+			if (CX->stormNext > 0 && --CX->stormNext == 0) {
+				CX->stormLane = NextRN_N(3); /* lanes 0..2 are the road */
+				CX->stormT = STORM_FRAMES;
+			}
+		} else if (--CX->stormT == 0) {
+			CX->stormLane = 0xFF;
+			CX->stormNext = 360 + NextRN_N(240);
+		}
+	}
+
+	/* The status line shows each reward's message in turn */
+	if (CX->rewardT > 0) {
+		CX->rewardT--;
+	} else if (CX->rewardQueue) {
+		for (k = 1; k < 8 && !(CX->rewardQueue & (1 << k)); k++)
+			;
+		CX->rewardQueue &= ~(1 << k);
+		CX->rewardMsg = k;
+		CX->rewardT = REWARD_FRAMES;
+	}
+}
+
 /* ---- Text ---- */
 
 static void Crossing_Append(char *buf, int *i, const char *s)
@@ -242,6 +342,14 @@ static void Crossing_AppendNum(char *buf, int *i, int n)
 	buf[*i] = 0;
 }
 
+static const u16 sChalMsgs[CROSSING_CHAL_COUNT] = {
+	MSG_CROSSING_CHAL_ORDER, MSG_CROSSING_CHAL_FAST, MSG_CROSSING_CHAL_RESCUE, MSG_CROSSING_CHAL_NODEATH,
+};
+
+static const u16 sRewardMsgs[] = {
+	0, MSG_CROSSING_REWARD_FIRST, MSG_CROSSING_REWARD_ROUND5, MSG_CROSSING_CHAL_DONE,
+};
+
 static void Crossing_Line1(char *buf)
 {
 	int i = 0;
@@ -249,7 +357,8 @@ static void Crossing_Line1(char *buf)
 	buf[0] = 0;
 	switch (CS->state) {
 	case CS_READY:
-		Crossing_AppendMsg(buf, &i, MSG_CROSSING_READY);
+		/* the chapter's challenge, until it is met */
+		Crossing_AppendMsg(buf, &i, CX->chalDone ? MSG_CROSSING_READY : sChalMsgs[CX->chalKind]);
 		break;
 	case CS_PAUSE:
 		Crossing_AppendMsg(buf, &i, MSG_CROSSING_PAUSED);
@@ -269,6 +378,10 @@ static void Crossing_Line1(char *buf)
 		}
 		break;
 	default:
+		if (CX->rewardT > 0) {
+			Crossing_AppendMsg(buf, &i, sRewardMsgs[CX->rewardMsg]);
+			break;
+		}
 		Crossing_AppendMsg(buf, &i, MSG_CROSSING_S_ROUND);
 		Crossing_AppendNum(buf, &i, CS->round);
 		Crossing_Append(buf, &i, "  ");
@@ -285,16 +398,19 @@ static void Crossing_Line1(char *buf)
 
 static u32 Crossing_Line1Sig(void)
 {
-	return (CS->state << 28) ^ (CS->round << 22) ^ (CS->score << 1) ^ CS->gold ^ (CS->shownScore << 9) ^ CS->countDone;
+	return (CS->state << 28) ^ (CS->round << 22) ^ (CS->score << 1) ^ CS->gold ^ (CS->shownScore << 9) ^ CS->countDone ^
+	       (CX->rewardT > 0 ? (CX->rewardMsg + 1) << 18 : 0);
 }
 
 /* ---- The buttons (bottom row, no window, as in the prep screens) ---- */
 
 #define HINT_ROW 18
 
-enum { HINT_DPAD, HINT_A, HINT_B, HINT_START };
+enum { HINT_DPAD, HINT_A, HINT_B, HINT_START, HINT_R };
 
-static const u16 sHintChr[] = { CROSSING_CHR_BTN_DPAD, CROSSING_CHR_BTN_A, CROSSING_CHR_BTN_B, CROSSING_CHR_BTN_START };
+static const u16 sHintChr[] = {
+	CROSSING_CHR_BTN_DPAD, CROSSING_CHR_BTN_A, CROSSING_CHR_BTN_B, CROSSING_CHR_BTN_START, CROSSING_CHR_BTN_R,
+};
 
 struct Hint {
 	u8 icon;
@@ -304,10 +420,11 @@ struct Hint {
 static int Crossing_Hints(const struct Hint **out)
 {
 	static const struct Hint ready[] = {
-		{ HINT_DPAD, MSG_CROSSING_K_MOVE }, { HINT_B, MSG_CROSSING_K_EXIT }, { HINT_START, MSG_CROSSING_K_PAUSE },
+		{ HINT_DPAD, MSG_CROSSING_K_MOVE }, { HINT_B, MSG_CROSSING_K_EXIT }, { HINT_R, MSG_CROSSING_K_RECORDS },
 	};
 	static const struct Hint pause[] = { { HINT_START, MSG_CROSSING_K_RESUME }, { HINT_B, MSG_CROSSING_K_EXIT } };
 	static const struct Hint over[] = { { HINT_A, MSG_CROSSING_K_DONE } };
+	static const struct Hint records[] = { { HINT_B, MSG_CROSSING_K_DONE } };
 
 	switch (CS->state) {
 	case CS_READY:
@@ -318,6 +435,9 @@ static int Crossing_Hints(const struct Hint **out)
 		return 2;
 	case CS_OVER:
 		*out = over;
+		return 1;
+	case CS_RECORDS:
+		*out = records;
 		return 1;
 	default:
 		*out = NULL;
@@ -372,6 +492,98 @@ static void Crossing_UpdateText(void)
 	}
 	if (sync)
 		BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+/* ---- The records screen (R in READY): each district's best score, medal and fastest round 1 ---- */
+
+#define REC_Y 3                     /* the window's top row */
+#define REC_ROW_Y(n) (REC_Y + 5 + (n) * 2)
+#define REC_COL_BEST 80             /* pixels into a row's text (the text starts at column 2) */
+#define REC_COL_MEDAL 112
+#define REC_COL_TIME 152
+
+static const u16 sDistrictNames[CROSSING_LEVELS] = {
+	MSG_FISHING_SHORT_SERAFEW, MSG_FISHING_SHORT_PORT_KIRIS, MSG_FISHING_SHORT_CAER_PELYN, MSG_FISHING_SHORT_JEHANNA,
+};
+
+static void Crossing_OpenRecords(void)
+{
+	struct Text *t;
+	char buf[64];
+	int n, i, s, m;
+
+	CS->state = CS_RECORDS;
+	PlaySoundEffect(SE_DOCK);
+	DrawUiFrame2(1, REC_Y, 28, 14, 0);
+
+	t = &CX->texts[0];
+	ClearText(t);
+	Text_InsertDrawString(t, 0, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_CROSSING_RECORDS_TITLE));
+	PutText(t, TILEMAP_LOCATED(gBG0TilemapBuffer, 2, REC_Y + 1));
+
+	t = &CX->texts[1];
+	ClearText(t);
+	Text_InsertDrawString(t, REC_COL_BEST, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_CROSSING_COL_BEST));
+	Text_InsertDrawString(t, REC_COL_TIME, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_CROSSING_COL_FASTEST));
+	PutText(t, TILEMAP_LOCATED(gBG0TilemapBuffer, 2, REC_Y + 3));
+
+	for (n = 0; n < CROSSING_LEVELS; n++) {
+		t = &CX->texts[2 + n];
+		ClearText(t);
+		Text_InsertDrawString(t, 0, n == CS->level ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE,
+				      GetStringFromIndex(sDistrictNames[n]));
+		i = 0;
+		Crossing_AppendNum(buf, &i, CrossingRecords_Best(n));
+		Text_InsertDrawString(t, REC_COL_BEST, TEXT_COLOR_SYSTEM_BLUE, buf);
+		/* the fastest round 1 as m:ss, or -- */
+		s = CrossingRecords_Fastest(n);
+		i = 0;
+		if (s == 0) {
+			Crossing_Append(buf, &i, "--");
+		} else {
+			m = Div(s, 60);
+			Crossing_AppendNum(buf, &i, m);
+			Crossing_Append(buf, &i, s - m * 60 < 10 ? ":0" : ":");
+			Crossing_AppendNum(buf, &i, s - m * 60);
+		}
+		Text_InsertDrawString(t, REC_COL_TIME, TEXT_COLOR_SYSTEM_BLUE, buf);
+		PutText(t, TILEMAP_LOCATED(gBG0TilemapBuffer, 2, REC_ROW_Y(n)));
+	}
+
+	SetDispEnable(1, 1, 0, 1, 1);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static void Crossing_CloseRecords(void)
+{
+	int x, y;
+
+	BG_Fill(BG_GetMapBuffer(1), 0);
+	/* the window's text rows go; the status line (rows 0-1) and the buttons (rows 18-19) stay */
+	for (y = REC_Y; y < REC_Y + 14; y++)
+		for (x = 0; x < 30; x++)
+			gBG0TilemapBuffer[y * 32 + x] = 0;
+	CS->state = CS_READY;
+	CS->line1Sig = 0xFFFFFFFF;
+	CS->hintKey = 0xFF;
+	SetDispEnable(1, 0, 0, 1, 1);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+/* The records window's medals */
+static void Crossing_DrawRecords(void)
+{
+	int n, m;
+
+	if (CS->state != CS_RECORDS)
+		return;
+	for (n = 0; n < CROSSING_LEVELS; n++) {
+		m = CrossingRecords_Medal(n);
+		if (m > 0)
+			PutSpriteExt(4, OAM1_X(16 + REC_COL_MEDAL), OAM0_Y(REC_ROW_Y(n) * 8), gObject_16x16,
+				     OAM2_PAL(PAL_FX2) + OAM2_LAYER(0) +
+				     OAM2_CHR(CROSSING_CHR_MEDAL + (m - 1) * CROSSING_CHR_MEDAL_FRAME));
+	}
 }
 
 /* ---- Effects: the pop-up word, sparks, the splash and the shake ---- */
@@ -499,7 +711,7 @@ static void Crossing_UpdateEffects(void)
 
 static const u16 sCrossingBgConfig[12] = {
 	0x0000, 0x6000, 0,  /* BG0: text */
-	0x0000, 0x6800, 0,  /* BG1: unused */
+	0x0000, 0x6800, 0,  /* BG1: the records window */
 	0x0000, 0x7000, 0,  /* BG2: unused */
 	0x8000, 0x7800, 0,  /* BG3: the scene */
 };
@@ -536,6 +748,7 @@ static void Crossing_Respawn(void)
 	CS->facing = FACE_UP;
 	CS->maxRow = CROSSING_ROW_START;
 	CS->timer = LIFE_FRAMES;
+	CX->slide = 0;
 }
 
 static int Crossing_LevelOfChapter(void)
@@ -561,6 +774,7 @@ static void Crossing_Init(struct ProcCrossing *proc)
 	proc->dispBak = gLCDControlBuffer.dispcnt;
 
 	SetupBackgrounds((u16 *)sCrossingBgConfig);
+	SetDefaultColorEffects(); /* no blending left over from the map: the records window is opaque */
 	SetDispEnable(0, 0, 0, 0, 0);
 	BG_Fill(BG_GetMapBuffer(0), 0);
 	BG_Fill(BG_GetMapBuffer(1), 0);
@@ -570,10 +784,13 @@ static void Crossing_Init(struct ProcCrossing *proc)
 	gLCDControlBuffer.bg3cnt.priority = 3;
 	BG_SetPosition(0, 0, 0);
 	BG_SetPosition(3, 0, 0);
+	BG_SetPosition(1, 0, 0);
+	gLCDControlBuffer.bg1cnt.priority = 1;
 
 	ResetText();
 	SetTextFont(0);
 	InitSystemTextFont();
+	LoadUiFrameGraphics();
 	for (i = 0; i < 3; i++)
 		InitText(&CS->texts[i], 28);
 
@@ -586,10 +803,13 @@ static void Crossing_Init(struct ProcCrossing *proc)
 	CpuFastCopy(gCrossingObjTiles, (void *)OBJ_VRAM0, CROSSING_OBJ_TILES * 0x20);
 	ApplyPalette(gCrossingObjPalFx, 0x10 + PAL_FX);
 	ApplyPalette(gCrossingObjPalUi, 0x10 + PAL_UI);
+	ApplyPalette(gCrossingObjPalFx2, 0x10 + PAL_FX2);
+	ApplyPalette(gCrossingObjPalIce, 0x10 + PAL_ICE);
 
 	/* The riders' side frames (0..3) first, through the unit's slot; then the unit's own sheet stays there */
 	for (i = 0; i < RIDERS; i++)
 		Crossing_LoadSheet(sRiderClasses[i], CHR_RIDER + i * 64, 64);
+	Crossing_LoadSheet(CHILD_CLASS, CHR_CHILD, 64);
 	Crossing_LoadSheet(unit->pClassData->number, CHR_UNIT, 0);
 	ApplyUnitSpritePalettes();
 	CS->smsPal = GetUnitSpritePalette(unit);
@@ -614,6 +834,20 @@ static void Crossing_Init(struct ProcCrossing *proc)
 	CS->shakeX = 0;
 	for (i = 0; i < CROSSING_PARTS; i++)
 		CS->parts[i].life = 0;
+	CpuFill16(0, CX, sizeof(*CX));
+	CX->gullRow = 0xFF;
+	CX->gullNext = 240;
+	CX->stormLane = 0xFF;
+	CX->stormNext = 360;
+	CX->bonusDock = 0xFF;
+	CX->pickNext = 300;
+	CX->childNext = 600;
+	CX->bonusNext = 480;
+	CX->chalKind = (gWmStoryChapter + CS->level) & 3;
+	CX->chalDone = CrossingRecords_ChalDone(CS->level, gWmStoryChapter);
+	CX->medalBefore = CrossingRecords_Medal(CS->level);
+	for (i = 0; i < 6; i++)
+		InitText(&CX->texts[i], 26);
 	Crossing_ResetLanes();
 	Crossing_Respawn();
 	CS->hitStop = 0;
@@ -640,6 +874,158 @@ static void Crossing_Init(struct ProcCrossing *proc)
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG3_SYNC_BIT);
 }
 
+/* ---- Pickups and helpers ---- */
+
+static int Crossing_CellX(int lane, int k, int c)
+{
+	return Crossing_ObjX(lane, k) + c * CELL;
+}
+
+/* A random raft cell for a pickup or the child (lanes 3..5 are the river; never Serafew's turtles) */
+static void Crossing_RandomCell(u8 *lane, u8 *obj, u8 *cell)
+{
+	const struct CrossingLane *l;
+	int i = 3 + NextRN_N(3);
+
+	if (CS->level == 0 && i == TURTLE_LANE)
+		i = 5;
+	l = Crossing_Lane(i);
+	*lane = i;
+	*obj = NextRN_N(l->count);
+	*cell = NextRN_N(l->len);
+}
+
+/* Is the unit standing (not hopping) on cell c of raft k in that lane? */
+static bool Crossing_OnCell(int lane, int k, int c)
+{
+	int x, cx = Crossing_UnitCX();
+
+	if (CS->hopFrames > 0 || CS->row != Crossing_Lane(lane)->row)
+		return FALSE;
+	x = Crossing_CellX(lane, k, c);
+	return cx >= x && cx < x + CELL;
+}
+
+/* Spawns, collects and times out the pickups, the lost child and the star or skull dock (in play only) */
+static void Crossing_UpdateHelpers(void)
+{
+	int d, cx = Crossing_UnitCX();
+
+	/* A coin or a potion rides a raft for about 8 seconds */
+	if (CX->pickKind == CROSSING_PICK_NONE) {
+		if (CX->pickNext > 0 && --CX->pickNext == 0) {
+			Crossing_RandomCell(&CX->pickLane, &CX->pickObj, &CX->pickCell);
+			CX->pickKind = CS->lives < MAX_LIVES && NextRN_N(4) == 0 ? CROSSING_PICK_POTION : CROSSING_PICK_COIN;
+			CX->pickT = 0xFF;
+		}
+	} else if (Crossing_OnCell(CX->pickLane, CX->pickObj, CX->pickCell)) {
+		if (CX->pickKind == CROSSING_PICK_COIN) {
+			CS->score += COIN_POINTS;
+			Crossing_PopNumber(10, COIN_POINTS, cx, CS->py - 10);
+			PlaySoundEffect(SE_GOLD);
+		} else {
+			if (CS->lives < MAX_LIVES)
+				CS->lives++;
+			Crossing_Pop(CROSSING_POP_1UP, cx, CS->py - 16);
+			PlaySoundEffect(SONG_SE_UPDATE);
+		}
+		Crossing_Burst(cx, CS->py + 8, 0);
+		CX->pickKind = CROSSING_PICK_NONE;
+		CX->pickNext = 240 + NextRN_N(240);
+	} else if ((CX->tick & 1) && --CX->pickT == 0) {
+		CX->pickKind = CROSSING_PICK_NONE;
+		CX->pickNext = 240 + NextRN_N(240);
+	}
+
+	/* A lost child rides a raft until the unit hops onto it */
+	if (CX->childState == CROSSING_CHILD_NONE) {
+		if (CX->childNext > 0 && --CX->childNext == 0) {
+			Crossing_RandomCell(&CX->childLane, &CX->childObj, &CX->childCell);
+			CX->childState = CROSSING_CHILD_RAFT;
+		}
+	} else if (CX->childState == CROSSING_CHILD_RAFT && Crossing_OnCell(CX->childLane, CX->childObj, CX->childCell)) {
+		CX->childState = CROSSING_CHILD_CARRIED;
+		PlaySoundEffect(SE_DOCK);
+	}
+
+	/* Now and then an empty dock shows a star (double points) or a skull (a trap) */
+	if (CX->bonusDock == 0xFF) {
+		if (CX->bonusNext > 0 && --CX->bonusNext == 0) {
+			d = NextRN_N(CROSSING_DOCKS);
+			if (CS->docks & (1 << d)) {
+				CX->bonusNext = 60;
+			} else {
+				CX->bonusDock = d;
+				CX->bonusKind = NextRN_N(3) == 0;
+				CX->bonusT = 360;
+			}
+		}
+	} else if (--CX->bonusT == 0) {
+		CX->bonusDock = 0xFF;
+		CX->bonusNext = 420 + NextRN_N(300);
+	}
+}
+
+/* ---- Replay goals: rewards and the challenge ---- */
+
+static const u8 sBoosters[] = {
+	ITEM_BOOSTER_HP, ITEM_BOOSTER_POW, ITEM_BOOSTER_SKL, ITEM_BOOSTER_SPD,
+	ITEM_BOOSTER_LCK, ITEM_BOOSTER_DEF, ITEM_BOOSTER_RES,
+};
+
+/* An item to the unit, or else to the convoy */
+static void Crossing_GiveItem(int item)
+{
+	struct Unit *unit = gActiveUnit ? gActiveUnit : GetUnit(1);
+
+	if (!UnitAddItem(unit, MakeNewItem(item)))
+		AddItemToConvoy(MakeNewItem(item));
+}
+
+/* The challenge is met: 1000 gold, once per story chapter */
+static void Crossing_ChalMet(void)
+{
+	u32 gold;
+
+	if (CX->chalDone)
+		return;
+	CX->chalDone = 1;
+	CrossingRecords_SetChalDone(CS->level, gWmStoryChapter);
+	gold = GetPartyGoldAmount() + CHAL_GOLD;
+	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
+	CS->pendPop = CROSSING_POP_DONE;
+	CX->rewardQueue |= 1 << CROSSING_REWARD_CHAL;
+	PlaySoundEffect(SE_GOLD);
+}
+
+/* Round 1 is clear: the fastest time, the district's first-clear Elixir, and the round 1 challenges */
+static void Crossing_RoundOneClear(void)
+{
+	int secs = Div(CX->roundFrames + 59, 60);
+
+	CrossingRecords_SetFastest(CS->level, secs);
+	if (!CrossingRecords_Milestone(CS->level, 0)) {
+		CrossingRecords_SetMilestone(CS->level, 0);
+		Crossing_GiveItem(ITEM_ELIXIR);
+		CX->rewardQueue |= 1 << CROSSING_REWARD_FIRST;
+	}
+	if ((CX->chalKind == CROSSING_CHAL_ORDER && !CX->chalFailed) ||
+	    (CX->chalKind == CROSSING_CHAL_FAST && secs <= CROSSING_CHAL_FAST_SECS) ||
+	    (CX->chalKind == CROSSING_CHAL_NODEATH && CS->roundDeaths == 0))
+		Crossing_ChalMet();
+}
+
+/* Round 5, for the first time in this district: a stat booster */
+static void Crossing_RoundFive(void)
+{
+	if (CrossingRecords_Milestone(CS->level, 1))
+		return;
+	CrossingRecords_SetMilestone(CS->level, 1);
+	Crossing_GiveItem(sBoosters[NextRN_N(sizeof(sBoosters))]);
+	CX->rewardQueue |= 1 << CROSSING_REWARD_ROUND5;
+	PlaySoundEffect(SONG_SE_UPDATE);
+}
+
 /* ---- The game ---- */
 
 static void Crossing_Lose(int death)
@@ -653,6 +1039,11 @@ static void Crossing_Lose(int death)
 	CS->squash = 0;
 	CS->chain = 0;
 	CS->roundDeaths++;
+	if (CX->childState == CROSSING_CHILD_CARRIED) {
+		/* the lost child is lost again; another turns up later */
+		CX->childState = CROSSING_CHILD_NONE;
+		CX->childNext = 600;
+	}
 	if (death == CROSSING_DEATH_WATER) {
 		/* It sinks, in a spray of droplets */
 		CS->splash = 30;
@@ -702,7 +1093,9 @@ static void Crossing_CountUp(void)
 		CS->shownScore = CS->score;
 		CS->countDone = 1;
 		if (CS->newBest) {
-			CS->pendPop = CROSSING_POP_NEW_BEST;
+			/* a new medal, or just a new best */
+			CS->pendPop = CrossingRecords_Medal(CS->level) > CX->medalBefore ? CROSSING_POP_MEDAL :
+				      CROSSING_POP_NEW_BEST;
 			Crossing_Burst(120, 72, 0);
 			PlaySoundEffect(SONG_SE_UPDATE);
 		} else {
@@ -761,15 +1154,41 @@ static bool Crossing_StartHop(int dx, int dy)
 
 static void Crossing_Dock(void)
 {
-	int i, pts, cx = Crossing_UnitCX();
+	int i, pts, word, cx = Crossing_UnitCX();
 
 	for (i = 0; i < CROSSING_DOCKS; i++)
 		if (Crossing_Abs(cx - (sDockCols[i] * CELL + 8)) <= 8)
 			break;
 	if (i == CROSSING_DOCKS)
 		return;
-	CS->docks |= 1 << i;
 	pts = 50 + Div(CS->timer, 60);
+	word = 0xFF;
+	if (i == CX->bonusDock) {
+		CX->bonusDock = 0xFF;
+		CX->bonusNext = 420 + NextRN_N(300);
+		if (CX->bonusKind) {
+			/* The skull dock is a trap */
+			Crossing_Lose(CROSSING_DEATH_RIDER);
+			return;
+		}
+		pts *= 2;
+		word = CROSSING_POP_BONUS;
+	}
+	if (CX->childState == CROSSING_CHILD_CARRIED) {
+		CX->childState = CROSSING_CHILD_NONE;
+		CX->childNext = 900;
+		pts += RESCUE_POINTS;
+		word = CROSSING_POP_RESCUED;
+		if (CX->chalKind == CROSSING_CHAL_RESCUE)
+			Crossing_ChalMet();
+	}
+	/* The ORDER challenge: round 1's docks filled left to right */
+	if (CS->round == 1) {
+		if (i != CX->nextDock)
+			CX->chalFailed = 1;
+		CX->nextDock++;
+	}
+	CS->docks |= 1 << i;
 	CS->score += pts;
 	CS->chain++;
 	Crossing_Note(CS->chain);
@@ -782,11 +1201,15 @@ static void Crossing_Dock(void)
 		CS->state = CS_CLEAR;
 		CS->stateTimer = 70;
 		Crossing_Pop(CS->roundDeaths == 0 ? CROSSING_POP_PERFECT : CROSSING_POP_CLEAR, 120, 64);
+		if (word != 0xFF)
+			CS->pendPop = word;
+		if (CS->round == 1)
+			Crossing_RoundOneClear();
 		Crossing_PopNumber(10, pts + 250 + (CS->roundDeaths == 0 ? PERFECT_BONUS : 0), 120, 84);
 		Crossing_Shake(10, 2);
 		PlaySoundEffect(CS->roundDeaths == 0 ? SONG_SE_UPDATE : SE_GOLD);
 	} else {
-		Crossing_Pop(CROSSING_POP_HOME, cx, 52);
+		Crossing_Pop(word != 0xFF ? word : CROSSING_POP_HOME, cx, 52);
 		Crossing_PopNumber(10, pts, cx, 34);
 	}
 	Crossing_Respawn();
@@ -831,6 +1254,10 @@ static void Crossing_CheckCell(void)
 	if (CS->hopFrames == HOP_FRAMES / 2 && CS->hopDY != 0)
 		Crossing_NearMissLeaving();
 	row = CS->row + (CS->hopFrames > 0 && CS->hopFrames <= HOP_FRAMES / 2 ? CS->hopDY : 0);
+	if (Crossing_GullHit()) {
+		Crossing_Lose(CROSSING_DEATH_RIDER);
+		return;
+	}
 	lane = Crossing_LaneOfRow(row);
 	if (lane < 0)
 		return;
@@ -858,7 +1285,7 @@ static void Crossing_CheckCell(void)
 	safe = FALSE;
 	for (k = 0; k < l->count && !safe; k++) {
 		x = Crossing_ObjX(lane, k);
-		if (cx >= x + 2 && cx < x + l->len * CELL - 2)
+		if (cx >= x + 2 && cx < x + l->len * CELL - 2 && Crossing_TurtlePhase(lane, k) != 2)
 			safe = TRUE;
 	}
 	if (!safe || cx < 2 || cx > 238)
@@ -883,6 +1310,7 @@ static void Crossing_UpdateLanes(void)
 		if (l->kind == 1 && l->row == CS->row && CS->state == CS_PLAY)
 			CS->px += v;
 	}
+	Crossing_UpdateTwists();
 }
 
 static void Crossing_UpdatePlay(u16 newKeys)
@@ -903,6 +1331,13 @@ static void Crossing_UpdatePlay(u16 newKeys)
 				CS->dustX = Crossing_UnitCX();
 				CS->dustY = CS->py + 12;
 			}
+			/* Caer Pelyn's ice: a sideways hop onto a floe slides one cell further */
+			if (CS->level == 2 && CS->hopDX != 0 && !CX->slide && CS->row >= CROSSING_ROW_RIVER_TOP &&
+			    CS->row <= CROSSING_ROW_RIVER_BOTTOM) {
+				CX->slide = 1;
+				CS->squash = 0;
+				Crossing_StartHop(CS->hopDX, 0);
+			}
 			if (CS->row < CS->maxRow) {
 				CS->maxRow = CS->row;
 				CS->score += 10;
@@ -913,22 +1348,27 @@ static void Crossing_UpdatePlay(u16 newKeys)
 				return;
 			}
 		}
-	} else if (newKeys & DPAD_UP) {
-		Crossing_StartHop(0, -1);
-	} else if (newKeys & DPAD_DOWN) {
-		Crossing_StartHop(0, 1);
-	} else if (newKeys & DPAD_LEFT) {
-		Crossing_StartHop(-1, 0);
-	} else if (newKeys & DPAD_RIGHT) {
-		Crossing_StartHop(1, 0);
+	} else if (newKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT)) {
+		CX->slide = 0;
+		if (newKeys & DPAD_UP)
+			Crossing_StartHop(0, -1);
+		else if (newKeys & DPAD_DOWN)
+			Crossing_StartHop(0, 1);
+		else if (newKeys & DPAD_LEFT)
+			Crossing_StartHop(-1, 0);
+		else
+			Crossing_StartHop(1, 0);
 	}
 
+	if (CS->round == 1 && CX->roundFrames < 0xFFFF)
+		CX->roundFrames++;
 	if (CS->timer > 0)
 		CS->timer--;
 	if (CS->timer == 0) {
 		Crossing_Lose(CROSSING_DEATH_TIME);
 		return;
 	}
+	Crossing_UpdateHelpers();
 	Crossing_CheckCell();
 }
 
@@ -937,7 +1377,7 @@ static bool Crossing_Update(void)
 {
 	u16 newKeys = gKeyStatusPtr->newKeys;
 
-	if ((newKeys & B_BUTTON) && CS->state != CS_OVER) {
+	if ((newKeys & B_BUTTON) && CS->state != CS_OVER && CS->state != CS_RECORDS) {
 		Crossing_PayOnLeave();
 		PlaySoundEffect(SE_LEAVE);
 		return TRUE;
@@ -955,6 +1395,10 @@ static bool Crossing_Update(void)
 		if (newKeys & START_BUTTON) {
 			CS->prevState = CS->state;
 			CS->state = CS_PAUSE;
+			break;
+		}
+		if (newKeys & R_BUTTON) {
+			Crossing_OpenRecords();
 			break;
 		}
 		if (newKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT)) {
@@ -992,6 +1436,8 @@ static bool Crossing_Update(void)
 			break;
 		CS->docks = 0;
 		CS->round++;
+		if (CS->round == 5)
+			Crossing_RoundFive();
 		CS->roundDeaths = 0;
 		CS->state = CS_PLAY;
 		break;
@@ -999,6 +1445,13 @@ static bool Crossing_Update(void)
 	case CS_PAUSE:
 		if (newKeys & START_BUTTON)
 			CS->state = CS->prevState;
+		return FALSE;
+
+	case CS_RECORDS:
+		if (newKeys & (A_BUTTON | B_BUTTON | R_BUTTON)) {
+			Crossing_CloseRecords();
+			PlaySoundEffect(SE_LEAVE);
+		}
 		return FALSE;
 
 	case CS_OVER:
@@ -1028,6 +1481,7 @@ static void Crossing_DrawLanes(void)
 {
 	const struct CrossingLane *l;
 	int i, k, x, y, c, frame;
+	int phase;
 	int clock = GetGameClock();
 
 	for (i = 0; i < CROSSING_LANES; i++) {
@@ -1038,20 +1492,94 @@ static void Crossing_DrawLanes(void)
 			if (x + l->len * CELL <= 0 || x >= 240 + 16)
 				continue;
 			if (l->kind == 1) {
+				phase = Crossing_TurtlePhase(i, k);
 				for (c = 0; c < l->len; c++) {
 					if (x + c * CELL <= -16 || x + c * CELL >= 240)
 						continue;
+					if (CS->level == 0 && i == TURTLE_LANE) {
+						/* Turtles face right; under water they are not drawn */
+						if (phase == 2)
+							continue;
+						SPR(x + c * CELL, y, gObject_16x16,
+								CROSSING_CHR_TURTLE + (phase == 1 ? 2 : ((clock >> 4) + c) & 1) * CROSSING_CHR_TURTLE_FRAME,
+								PAL_FX2, 3, l->dir < 0 ? OAM1_HFLIP : 0);
+						continue;
+					}
 					SPR(x + c * CELL, y, gObject_16x16,
-					    CROSSING_CHR_RAFT + (c == 0 ? 0 : (c == l->len - 1 ? 2 : 1)) * CROSSING_CHR_RAFT_FRAME,
-					    PAL_FX, 3, 0);
+								CROSSING_CHR_RAFT + (c == 0 ? 0 : (c == l->len - 1 ? 2 : 1)) * CROSSING_CHR_RAFT_FRAME,
+								CS->level == 2 ? PAL_ICE : PAL_FX, 3, 0);
 				}
 			} else {
+				/* Jehanna's sandstorm hides the lane's riders once it has built up */
+				if (i == CX->stormLane && CX->stormT <= STORM_FRAMES - 30)
+					continue;
 				/* The side-walking frames face left; a rider going right is flipped */
 				frame = (clock >> 3) & 3;
 				SPR(x - 8, y - 16, gObject_32x32, CHR_RIDER + l->rider * 64 + frame * 16, CS->riderPal, 2,
 				    l->dir > 0 ? OAM1_HFLIP : 0);
 			}
 		}
+	}
+}
+
+/* The gull and its warning, and the sandstorm's drifting sand */
+static void Crossing_DrawTwists(void)
+{
+	int c, x, y;
+
+	if (CX->gullRow != 0xFF) {
+		y = CX->gullRow * CELL;
+		if (CX->gullWarn > 0) {
+			if (CX->gullWarn & 4)
+				SPR(4, y, gObject_8x16, CROSSING_CHR_WARN, PAL_FX2, 0, 0);
+		} else {
+			SPR(CX->gullX, y - 2, gObject_16x16,
+				CROSSING_CHR_GULL + ((CX->tick >> 3) & 1) * CROSSING_CHR_GULL_FRAME, PAL_FX2, 0, 0);
+		}
+	}
+	if (CX->stormLane != 0xFF) {
+		y = Crossing_Lane(CX->stormLane)->row * CELL;
+		for (c = 0; c < 16; c++) {
+			/* thin while it builds up and dies down */
+			if ((c & 1) && (CX->stormT > STORM_FRAMES - 30 || CX->stormT < 30))
+				continue;
+			x = c * CELL - ((CX->tick << 1) & 15);
+			SPR(x, y, gObject_16x16, CROSSING_CHR_SAND + ((c + (CX->tick >> 3)) & 1) * CROSSING_CHR_SAND_FRAME,
+				PAL_FX2, 1, 0);
+		}
+	}
+}
+
+/* The coin or potion, the lost child (on its raft, or on the unit's back) and the star or skull dock */
+static void Crossing_DrawHelpers(void)
+{
+	const struct CrossingLane *l;
+	int x, y, chr;
+
+	if (CX->pickKind != CROSSING_PICK_NONE && !(CX->pickT < 40 && (CX->tick & 4))) {
+		x = Crossing_CellX(CX->pickLane, CX->pickObj, CX->pickCell);
+		y = Crossing_Lane(CX->pickLane)->row * CELL - 2 - ((CX->tick >> 4) & 1);
+		chr = CX->pickKind == CROSSING_PICK_COIN ?
+		      CROSSING_CHR_COIN + ((CX->tick >> 3) & 1) * CROSSING_CHR_COIN_FRAME : CROSSING_CHR_POTION;
+		if (x > -16 && x < 240)
+			SPR(x, y, gObject_16x16, chr, PAL_FX2, 2, 0);
+	}
+	if (CX->childState == CROSSING_CHILD_RAFT) {
+		/* side frames face left: flip on a raft going right */
+		l = Crossing_Lane(CX->childLane);
+		x = Crossing_CellX(CX->childLane, CX->childObj, CX->childCell);
+		if (x > -16 && x < 240)
+			SPR(x - 8, l->row * CELL - 16, gObject_32x32, CHR_CHILD + ((CX->tick >> 4) & 1) * 16, PAL_NPC, 2,
+			    l->dir > 0 ? OAM1_HFLIP : 0);
+	} else if (CX->childState == CROSSING_CHILD_CARRIED && CS->state == CS_PLAY) {
+		/* piggyback, a little behind and above the unit */
+		x = (CS->px >> 8) - 8 + (CS->facing == FACE_RIGHT ? -4 : 4);
+		SPR(x, CS->py - 24, gObject_32x32, CHR_CHILD, PAL_NPC, 2, CS->facing == FACE_RIGHT ? OAM1_HFLIP : 0);
+	}
+	if (CX->bonusDock != 0xFF && !(CX->bonusT < 60 && (CX->tick & 4))) {
+		chr = CX->bonusKind ? CROSSING_CHR_SKULL :
+		      CROSSING_CHR_STAR + ((CX->tick >> 3) & 1) * CROSSING_CHR_STAR_FRAME;
+		SPR(sDockCols[CX->bonusDock] * CELL, CROSSING_ROW_BANK * CELL, gObject_16x16, chr, PAL_FX2, 2, 0);
 	}
 }
 
@@ -1209,11 +1737,16 @@ static void Crossing_DrawPopup(void)
 /* The status line's sprites: the lives and the timer */
 static void Crossing_DrawStatus(void)
 {
-	int i, icon;
+	int i, icon, m;
 
 	for (i = 0; i < CS->lives && i < 5; i++)
 		PutSpriteExt(4, OAM1_X(150 + i * 10), OAM0_Y(4), gObject_8x8,
 			     OAM2_PAL(PAL_FX) + OAM2_LAYER(0) + OAM2_CHR(CROSSING_CHR_HEART));
+	/* The district's medal, once the final score has counted up */
+	m = CrossingRecords_Medal(CS->level);
+	if (CS->state == CS_OVER && CS->countDone && m > 0)
+		PutSpriteExt(4, OAM1_X(150), OAM0_Y(0), gObject_16x16,
+			     OAM2_PAL(PAL_FX2) + OAM2_LAYER(0) + OAM2_CHR(CROSSING_CHR_MEDAL + (m - 1) * CROSSING_CHR_MEDAL_FRAME));
 	Crossing_PaintTimer();
 	PutSpriteExt(4, OAM1_X(TIMER_X), OAM0_Y(4), gObject_32x8, OAM2_PAL(PAL_UI) + OAM2_LAYER(0) + OAM2_CHR(CHR_TIMER));
 	PutSpriteExt(4, OAM1_X(TIMER_X + 32), OAM0_Y(4), gObject_16x8,
@@ -1231,9 +1764,15 @@ static void Crossing_DrawStatus(void)
  */
 static void Crossing_Draw(void)
 {
-	Crossing_DrawLanes();
+	Crossing_DrawRecords();
+	/* Under the records window the rafts and riders would show through the medals (OBJ priority is per OAM order) */
+	if (CS->state != CS_RECORDS) {
+		Crossing_DrawLanes();
+		Crossing_DrawHelpers();
+	}
 	Crossing_DrawLandFx();
 	Crossing_DrawUnit();
+	Crossing_DrawTwists();
 	Crossing_DrawDocksAndFx();
 	Crossing_DrawNumber();
 	Crossing_DrawPopup();
