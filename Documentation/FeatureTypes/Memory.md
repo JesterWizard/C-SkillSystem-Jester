@@ -38,13 +38,13 @@ New code and data go into one of the regions below. Addresses are from `include/
 
 | ROM address | Size | Contents | Where it is emitted |
 |---|---|---|---|
-| `0x0E8414` | `0x7C000` | Kernel `.text`, must stay in BL range (`KernelSpace_Text`) | `Kernel/kernel.event:30-41` (`WIZARDRY_TEXT` block of `Kernel/Wizardry/wizardry.event:41-127`) |
+| `0x0E8414` | `0x7C000` | Kernel `.text`, must stay in BL range (`KernelSpace_Text`) | `Kernel/kernel.event:30-41` (`WIZARDRY_TEXT` block of `Kernel/Wizardry/wizardry.event:41-118`) |
 | `0x9875AC` | `0xF000` | Kernel `.data`: magic, reloc, then KData (`KernelSpace_Data`) | `Kernel/kernel.event:21-28` (`WIZARDRY_DATA` block, `wizardry.event:1-39`) |
 | `0xB2A604` | `0xD59FC` | Common, non-secure: magic, reloc, `Data/Data.event`, message table at the end (`FreeSpaceCommon`) | `main.event:15-37` |
 | `0xEFB2E0` | `0xE4D20` | Font (`FreeSpaceFont`) | `main.event:39-43` |
-| `0x1000000` | not set | `Contents/` and the `WIZARDRY_CUSTOM` block of `wizardry.event:129-191` (`FreeSpaceDEMO`) | `main.event:57-61` |
+| `0x1000000` | not set | `Contents/` and the `WIZARDRY_CUSTOM` block of `wizardry.event:120-232` (`FreeSpaceDEMO`) | `main.event:57-61` |
 
-Non-hot features go in the `WIZARDRY_CUSTOM` block. Kernel text is nearly full (`CLAUDE.md`), so check the `ASSERT` in `Kernel/kernel.event:41` after a build.
+Non-hot features go in the `WIZARDRY_CUSTOM` block. Kernel text is the scarcer space (about 92 KB free), so check the `ASSERT` in `Kernel/kernel.event:41` after a build.
 
 ## Where to look
 

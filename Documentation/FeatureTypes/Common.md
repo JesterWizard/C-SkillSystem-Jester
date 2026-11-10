@@ -57,13 +57,13 @@ Replace `Example` with your feature name. Each step lists the file and the line 
 
 2. Start the `.c` with the include set in [Header and includes](#header-and-includes).
 
-3. Include the installer from `Kernel/Wizardry/wizardry.event`. Add this line inside the `#ifdef WIZARDRY_CUSTOM` block (`wizardry.event:129-191`), near the other installers in alphabetical order (the block is mostly, not strictly, alphabetical):
+3. Include the installer from `Kernel/Wizardry/wizardry.event`. Add this line inside the `#ifdef WIZARDRY_CUSTOM` block (`wizardry.event:120-232`), near the other installers in alphabetical order (the block is mostly, not strictly, alphabetical):
 
    ```
    #include "Example/Example_Installer.event"
    ```
 
-   Use the `WIZARDRY_TEXT` block (`wizardry.event:41-127`) only for code that must sit in kernel `.text`. See [Where the code goes](#where-the-code-goes-kernel-vs-wizardry_custom).
+   Use the `WIZARDRY_TEXT` block (`wizardry.event:41-118`) only for code that must sit in kernel `.text`. See [Where the code goes](#where-the-code-goes-kernel-vs-wizardry_custom).
 
 4. Generate the `.lyn.event` and commit it. Run `make` (needs `DEVKITPRO` and `DEVKITARM` set, see `Documentation/Setup.md`). The rule that writes `Source/<Feature>.lyn.event` from the `.c` is `makefile:187`. Commit the generated file together with the `.c`.
 
@@ -104,8 +104,8 @@ Replace `Example` with your feature name. Each step lists the file and the line 
 | Block in `wizardry.event` | Pulled in by | Area | Use it for |
 |---|---|---|---|
 | `#ifdef WIZARDRY_DATA` (lines 1-39) | `Kernel/kernel.event:21-28` (`ORG KernelSpace_KData`) | kernel data | hook lists (`data.event` files) |
-| `#ifdef WIZARDRY_TEXT` (lines 41-127) | `Kernel/kernel.event:30-41` (`ORG KernelSpace_Text`) | kernel `.text`, in BL range, `0x7C000` bytes at `0xE8414` (`include/configs/config-memmap.h:15-16`) | code that must be in kernel `.text`. Nearly full |
-| `#ifdef WIZARDRY_CUSTOM` (lines 129-191) | `main.event:57-62` (`ORG FreeSpaceDEMO`) | `FreeSpaceDEMO` at `0x1000000` (`include/configs/config-memmap.h:27`) | new features that are not hot. Plenty of room |
+| `#ifdef WIZARDRY_TEXT` (lines 41-118) | `Kernel/kernel.event:30-41` (`ORG KernelSpace_Text`) | kernel `.text`, in BL range, `0x7C000` bytes at `0xE8414` (`include/configs/config-memmap.h:15-16`) | code that must be in kernel `.text`. About 92 KB free (of `0x7C000`) |
+| `#ifdef WIZARDRY_CUSTOM` (lines 120-232) | `main.event:57-62` (`ORG FreeSpaceDEMO`) | `FreeSpaceDEMO` at `0x1000000` (`include/configs/config-memmap.h:27`) | new features that are not hot. Plenty of room |
 
 `WIZARDRY_CUSTOM` is defined at `main.event:60`, just before `#include "Kernel/Wizardry/wizardry.event"`, and undefined at `main.event:62`. `Kernel/kernel.event` defines `WIZARDRY_DATA` and `WIZARDRY_TEXT` the same way.
 
@@ -243,7 +243,7 @@ How code reads it: `gpKernelDesignerConfig->example_toggle`. The pointer is decl
 ## Compile-time switch
 
 - Add the switch to `include/configs/configs.h`: `#define CONFIG_<NAME>` turns it on, and `// #define CONFIG_<NAME>` leaves it off. `configs.h:4` explains why some switches are build-time: "These need to remain as build time configs due to predominately using event/asm files". Use a compile-time switch only when a runtime toggle cannot work. Otherwise use the designer config.
-- Gate with `#ifdef CONFIG_<NAME>`, not `#if`. `configs.h` says "Event Assembler only understands #ifdef, so do not use #if/#error here". Examples: `Kernel/Wizardry/wizardry.event:130` (`#ifdef CONFIG_FE8_REWRITE`), `Kernel/Wizardry/Arena/Arena.event:4` (`#ifdef CONFIG_ARENA_LIMITS`), `Kernel/Wizardry/BwlRework/source/BwlSupport.c:298` (C side).
+- Gate with `#ifdef CONFIG_<NAME>`, not `#if`. `configs.h` says "Event Assembler only understands #ifdef, so do not use #if/#error here". Examples: `Kernel/Wizardry/wizardry.event:136` (`#ifdef CONFIG_FE8_REWRITE`), `Kernel/Wizardry/Arena/Arena.event:4` (`#ifdef CONFIG_ARENA_LIMITS`), `Kernel/Wizardry/BwlRework/source/BwlSupport.c:298` (C side).
 - `include/common-chax.h:7` includes `configs/configs.h`, and `main.event:5` includes it too. So both C and `.event` files see the switches.
 - Build flags live in `configs.mk` (for example `export CONFIG_LONG_CALL?=1` at `configs.mk:2`). Those are not feature switches.
 - `include/configs/configs.h:59` says a full `make clean` may be needed when `CONFIG_FOURTH_ALLEGIANCE` is undefined. Whether that applies to other switches is unverified.
@@ -332,7 +332,7 @@ Where a new header goes: `include/kernel/<feature>.h`. Use `#pragma once`, which
 - Kernel `.c` files build with `-Werror` (`makefile:152`), so any warning fails the build.
 - Linux kernel style. Check each file with `./check_codingstyle.sh <file.c>` ([`Documentation/CONTRIBUTING.md`](../CONTRIBUTING.md), Code Style).
 - A vanilla replacement needs `LYN_REPLACE_CHECK` and a `LynJump.event`. See [`CLAUDE.md`](../../CLAUDE.md#rules).
-- Kernel `.text` is nearly full. Put non-hot code in the `WIZARDRY_CUSTOM` block. See [`CLAUDE.md`](../../CLAUDE.md#pitfalls).
+- Kernel `.text` has room again (about 92 KB), but it is the scarcer space. Put non-hot code in the `WIZARDRY_CUSTOM` block. See [`CLAUDE.md`](../../CLAUDE.md#pitfalls).
 - Signed `%` is broken. Use `Div` or `DivRem`. See [`CLAUDE.md`](../../CLAUDE.md#pitfalls).
 - Hot paths (battle calc, stat getters, `SkillTester`, map task, movement generation) need extra care. See [`Documentation/CONTRIBUTING.md`](../CONTRIBUTING.md), Suggestions.
 - Generated files: `*.lyn.event`, `Contents/Texts/build/msgs.h`, `Kernel/fake-nonsec-reloc.event` and the root `*.sym`. Regenerate them with `make` and do not edit them by hand. Check the diff first.

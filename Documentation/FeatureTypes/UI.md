@@ -67,7 +67,7 @@ Screens and windows the player sees that are not selectable menus: stat screen p
 
 1. Do the common steps in [Common.md](Common.md).
 2. Pick the kind: stat page, help box, popup, or proc window. Each kind has its own registration (Template below).
-3. Put new code in the `WIZARDRY_CUSTOM` block (`Kernel/Wizardry/wizardry.event:129-191`), not in kernel text. Kernel text is nearly full (CLAUDE.md). `LanguageSelect` and `ForgeMenu` sit there.
+3. Put new code in the `WIZARDRY_CUSTOM` block (`Kernel/Wizardry/wizardry.event:120-232`), not in kernel text, the scarcer space (CLAUDE.md). `LanguageSelect` and `ForgeMenu` sit there.
 4. Stat page: add a `PAGE_*` id and a draw function, add the function to `gStatScreenDrawPages` at the matching index, and give the page a designer flag, a chapter lock if wanted, and an R-text table. A new id past `PAGE_SKILL_TREE` also needs the bounds in Gotchas.
 5. Help box: write a `struct HelpBoxInfo` table, optional `populate` and `redirect` callbacks, and a menu `onRPress` that calls `LoadHelpBoxGfx(NULL, -1)` and `StartMovingHelpBox`.
 6. Popup: build the `POPUP_*` instruction array and call `NewPopup_Simple`. For a new opcode, add the enum value (`popup-reowrk.h`) and a `gPopupComponents` entry (`PopupR.c`).
@@ -270,4 +270,4 @@ Start it from the menu callback that opens the window: `Proc_StartBlocking(ProcS
 - **Installer hook sites.** `LanguageSelect` replaces the first child of the game-control proc list at `$591710` (`LanguageSelect_Installer.event:10`). Two features that replace the same vanilla address will conflict. Whether the build detects this is unverified.
 - **Blocking children stop input.** `Proc_StartBlocking` stops the parent. `ForgeMenu.c:185` uses it for the skill cursor, and the proc must yield back (`PROC_YIELD`) before the menu acts on the same key (`ForgeMenu.c:163-175`).
 - **Proc struct size.** The `struct Text` inside `ExampleProc` in the template is an unverified choice. Check the proc allocation size before adding large fields.
-- **Put UI code in the custom block.** `PopupRework` (`wizardry.event:63`) and `StatScreen` (`:108`) sit in the kernel section. New features go in the `WIZARDRY_CUSTOM` block (`wizardry.event:129-191`).
+- **Put UI code in the custom block.** `PopupRework` and `StatScreen` moved there from the kernel section (`wizardry.event:121-133`). New features go in the `WIZARDRY_CUSTOM` block (`wizardry.event:120-232`).

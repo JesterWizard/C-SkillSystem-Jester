@@ -57,14 +57,11 @@ ALIGN 4
 #include "FebPatches/FebPatches.event"
 
 #include "AI/AI.event"
-#include "Arena/Arena.event"
 #include "OverflowDetection/OverflowDetection.event"
 #include "AntiHuffman/AntiHuffman.event"
-#include "PopupRework/PopupRework.event"
 #include "EventRework/EventRework.event"
 #include "UnitAction/UnitAction.event"
 #include "GameInitHook/GameInitHook.event"
-#include "DebugKit/DebugKit.event"
 #include "KernelLib/KernelLib.event"
 #include "ArmFunc/ArmFunc.event"
 #include "BanimHack/BanimHack.event"
@@ -79,7 +76,6 @@ ALIGN 4
 #include "UnitMenu/UnitMenu.event"
 #include "EndTurnHook/EndTurnHook.event"
 #include "PostActionHook/PostActionHook.event"
-#include "StartMapEffects/StartMapEffects.event"
 #include "ChapterInitHook/ChapterInitHook.event"
 #include "StrMagSplit/StrMagSplit.event"
 #include "SaveData/SaveData.event"
@@ -92,7 +88,6 @@ ALIGN 4
 #include "BeginActionHook/BeginActionHook.event"
 #include "MapAnimBattleHook/MapAnimBattleHook.event"
 #include "MapAnims/MapAnims.event"
-#include "Utf8/Utf8.event"
 #include "PlayStExpa/PlayStExpa.event"
 #include "FebCompat/FebCompat.event"
 #include "ExtrasMenu/ExtrasMenu_Installer.event"
@@ -105,14 +100,12 @@ ALIGN 4
 #include "UnitStatusGetter/UnitStatusGetter.event"
 #include "BattleSys/BattleSys.event"
 #include "Lvup/Lvup.event"
-#include "StatScreen/StatScreen.event"
 #include "MapTask/MapTask.event"
 #include "CombatArt/CombatArt.event"
 #include "ComboAttack/ComboAttack.event"
 #include "PairUp/PairUp.event"
 #include "Movement/Movement.event"
 #include "AiHack/AiHack.event"
-#include "WorldMap/WorldMap_Installer.event"
 
 #include "SkillEffects/MiscSkillEffects.event"
 #include "GaidenMagic/GaidenMagic.event"
@@ -121,12 +114,25 @@ ALIGN 4
 #include "PortraitHeight/PortraitHeight.event"
 #include "EasterEgg/EasterEgg.event"
 #include "JobGrowth/JobGrowth.lyn.event"
-#include "MiscFunctions/MiscFunctions.event"
-#include "ConvoyExpa/ConvoyExpa.event"
 #include "PhaseSuspend/PhaseSuspend.event"
 #endif /* WIZARDRY_TEXT */
 
 #ifdef WIZARDRY_CUSTOM
+/*
+ * Moved out of kernel .text (WIZARDRY_TEXT) to free it: menus, screens and other cold code, all C built with
+ * long calls (CONFIG_LONG_CALL), so it runs from anywhere in the ROM at the same speed. First in this block, so their
+ * hooks are written before the custom modules' ones, as when they were in kernel .text (WorldMap before WmStoryChapter).
+ */
+#include "StatScreen/StatScreen.event"
+#include "MiscFunctions/MiscFunctions.event"
+#include "Arena/Arena.event"
+#include "WorldMap/WorldMap_Installer.event"
+#include "ConvoyExpa/ConvoyExpa.event"
+#include "Utf8/Utf8.event"
+#include "PopupRework/PopupRework.event"
+#include "DebugKit/DebugKit.event"
+#include "StartMapEffects/StartMapEffects.event"
+
 #ifdef CONFIG_FE8_REWRITE
     #include "../../CustomCampaign/Installer.event"
 #endif
@@ -167,6 +173,9 @@ ALIGN 4
 #endif
 #ifdef CONFIG_DISTRICT_TOWER
 #include "Minigames/Tower/Tower_Installer.event"
+#endif
+#ifdef CONFIG_DISTRICT_GUILD
+#include "Guild/Guild_Installer.event"
 #endif
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"
@@ -221,5 +230,6 @@ ALIGN 4
 #include "VeslyUI/VeslyUI_Installer.event"
 #include "WorldMapSkillMenu/WorldMapSkillMenu.lyn.event"
 #include "WorldMapThoughts/WorldMapThoughts_Installer.event"
+
 
 #endif /* WIZARDRY_CUSTOM */
