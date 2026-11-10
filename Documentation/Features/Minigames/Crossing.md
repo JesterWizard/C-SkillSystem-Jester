@@ -11,6 +11,7 @@
 - [How to Play](#how-to-play)
 - [Controls](#controls)
 - [Score and Gold](#score-and-gold)
+- [Game Feel](#game-feel)
 - [The Courses](#the-courses)
 - [Crossing Spots](#crossing-spots)
 - [The Screen](#the-screen)
@@ -80,6 +81,7 @@ top right is the time left for this life; it turns red under 10 seconds.
 | Each row you reach for the first time in a life | 10 |
 | Filling a dock | 50, plus the seconds left |
 | Clearing a round (all five docks) | 250 |
+| Clearing it without losing a life: **PERFECT!** | 500 more |
 
 The gold paid out is the score divided by 10 (rounded down), when the game ends or when you leave with B.
 
@@ -87,6 +89,33 @@ The best score of each district is saved. It is `gCrossingRecords` (`struct Cros
 `include/kernel/crossing.h`): a magic word and four best scores (up to 65535). It is one chunk at the end of both save
 lists (`Kernel/Wizardry/SaveData/data.event`), after the fishing records, and `CrossingRecords_NewGame` clears it on a
 new game. A save made before the chunk existed loads no records. The suspend save had 32 bytes free after it when it was added.
+
+---
+
+## 💥 Game Feel
+
+<p align="center">
+  <img src="../../Gifs/River_Crossing_Feel.gif" alt="River Crossing: hops with dust, a near miss, docks with rising notes, a trampling and a drowning, NEW BEST!" width="480"/>
+</p>
+
+| Moment | What happens |
+|---|---|
+| A hop | The unit stretches taller as it takes off, then lands with a squash (wider and flatter, then back). |
+| Landing on the ground | Two puffs of dust go out from its feet. |
+| Landing on a raft | A ring of ripples spreads round it. |
+| A new row | "+10" rises from the unit in small digits. |
+| A near miss | Hopping out of a road lane just ahead of a rider, or a rider going by within 5 pixels: **CLOSE!**, a small jolt and a click. |
+| A dock | Sparks fly from the dock, "+NN" (its points) rises, and a note plays: each dock filled in a row without losing a life plays the next note of a major scale. |
+| A cleared round | CLEAR! (or PERFECT! with no life lost in the round, and a fanfare), the round's points rise, and the screen jolts. |
+| Trampled | The game freezes for 10 frames (hit-stop), then shakes hard; OUCH! and sparks. |
+| Drowned | The unit shrinks down into the water (24 frames) in a spray of droplets; SPLASH!. |
+| Game over | The score counts up, ticking, before the gold shows; a district record pops up **NEW BEST!** after GAME OVER. |
+
+- Near the top of the field, OUCH! and SPLASH! pop up under the unit, not over it, so the effect stays visible.
+- The squash, the stretch and the sinking use one affine slot (2) for the unit, anchored at its feet; between them the unit
+  is drawn as a plain sprite. The score pop-up uses its own small 3x5 digit font (`DIGIT`, 8x8 tiles, 5 pixels apart).
+- The state for all of it is in `struct CrossingState` (`hitStop`, `chain`, `roundDeaths`, `nearCool`, `squash`, `dustT`,
+  `rippleT`, `sinkT`, `shownScore`, `numTimer` and the rest), in what was its padding; the struct stays 0x100 bytes.
 
 ---
 
@@ -131,9 +160,9 @@ riders or rafts, a direction, a count, a spacing and a speed. Rafts also have a 
 |---|---|
 | BG3 | The field (BG palette 8, tiles at `0x06008000`) |
 | BG0 | The status line (top) and the button labels (bottom), with no window behind them |
-| OBJ (1D) | The rafts, the riders, the unit, the dock flags, the splash and sparks, the pop-up word, the hearts, the timer and the buttons |
+| OBJ (1D) | The rafts, the riders, the unit (affine while it squashes or sinks), the dock flags, the splash, sparks, droplets, dust and ripples, the pop-up word and the score digits, the hearts, the timer and the buttons |
 
-- **OBJ tiles**: the art from 0, the unit's walking sheet at `0x100` (12 frames), the pop-up word at `0x220`, the timer at
+- **OBJ tiles**: the art from 0 (68 tiles), the unit's walking sheet at `0x100` (12 frames), the pop-up word at `0x220`, the timer at
   `0x260`, the riders' side frames at `0x280` (3 classes x 4 frames). The riders' sheets are decompressed through the
   unit's slot first and their side frames copied out. Tiles from `0x380` up (the map's moving units) are not touched.
 - **Palettes**: OBJ 2 the art, 3 the buttons and the timer, 5 the pop-up word, 12 to 15 the unit sprites (the unit in its
@@ -151,6 +180,9 @@ All the art is drawn by `Tools/crossing/gen_crossing_art.py`, pixel by pixel. It
 
 - It writes `Kernel/Wizardry/Minigames/Crossing/Source/CrossingArt.c` and `include/kernel/crossing-art.h` (the field's
   rows, the dock columns, the sprite tile offsets). Don't edit them: change the script and run it again.
+- Sprites: the raft pieces, the splash, sparks, the dock flag, the heart, the buttons, and for the game feel the landing
+  dust (3 frames), the raft ripple (16x8, 2 frames), water droplets and a small 3x5 digit font (0-9, "+", "x").
+- Pop-up words: HOME!, CLEAR!, OUCH!, SPLASH!, GAME OVER, CLOSE!, PERFECT! and NEW BEST!.
 - `--check` exits 1 if the files are out of date. `--preview PATH.png` writes a 3x preview.
 
 ---
