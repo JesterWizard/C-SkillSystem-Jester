@@ -5,6 +5,7 @@
 #include "constants/skills.h"
 #include "kernel/realtime-battle.h"
 #include "enemy-fog-vision.h"
+#include "district.h"
 
 static u32* const sUnitPriorityArray = (void*) gGenericBuffer;
 
@@ -544,6 +545,10 @@ void BmMain_StartPhase(ProcPtr proc)
     switch (gPlaySt.faction)
     {
     case FACTION_BLUE:
+        /* A district's player phase is free movement, also when the chapter is resumed (#708) */
+        if (District_StartFreeMovement(proc))
+            break;
+
         if (gpKernelDesignerConfig->ai_player_phase == true
                 || ShouldAiControlPlayerPhase())
             Proc_StartBlocking(gProcScr_CpPhase, proc);

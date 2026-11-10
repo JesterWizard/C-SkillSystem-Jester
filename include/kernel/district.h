@@ -91,6 +91,7 @@ extern const struct DistrictTint gDistrictTints[DISTRICT_TIMES];
 extern const struct DistrictNpcSpot gDistrictNpcSpots[];
 
 bool District_IsDistrictChapter(int chapter);
+bool District_StartFreeMovement(ProcPtr proc);
 int District_TimeOfDay(void);
 void District_TintMapPalettes(void);
 void District_PlaceNpcs(void);

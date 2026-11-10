@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "kernel-lib.h"
 #include "constants/texts.h"
 #include "constants/worldmap.h"
 #include "jester_headers/custom-structs.h"
@@ -63,4 +64,32 @@ void DistrictGate_OnStep(ProcPtr proc)
 {
 	CallEvent((const u16 *)EventScr_DistrictLeave, 1);
 	gEventSlots[2] = (s8)gPlaySt.chapterIndex;
+}
+
+/* Free movement (Kernel/Wizardry/FreeMovement/cFreeMU/src/FreeMU.h, not on the include path) */
+extern const struct ProcCmd FreeMovementControlProc[];
+extern void EnableFreeMovementASMC(void);
+
+/*
+ * A district's player phase is free movement. Its opening turns it on (EnableFreeMovementASMC), and the pre-phase hook
+ * then starts its control proc. A resumed chapter plays neither, so Resume Chapter in a district came back with the
+ * cursor and no walking (#708): the phase start (BmMain_StartPhase, AI.c) and the mid-phase resume below start it here.
+ */
+bool District_StartFreeMovement(ProcPtr proc)
+{
+	if (!gpKernelDesignerConfig->free_movement || !District_IsDistrictChapter(gPlaySt.chapterIndex))
+		return false;
+
+	EnableFreeMovementASMC();
+	Proc_StartBlocking(FreeMovementControlProc, proc);
+	return true;
+}
+
+/* Vanilla, but a district resumes in free movement */
+LYN_REPLACE_CHECK(BmMain_ResumePlayerPhase);
+void BmMain_ResumePlayerPhase(ProcPtr proc)
+{
+	if (!District_StartFreeMovement(proc))
+		Proc_Goto(Proc_StartBlocking(gProcScr_PlayerPhase, proc), 7);
+	Proc_Break(proc);
 }

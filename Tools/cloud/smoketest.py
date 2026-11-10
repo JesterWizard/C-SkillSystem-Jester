@@ -28,6 +28,7 @@ What it checks:
   postgame    (Serafew) from Chapter 20's world map through the ending; Extras > Map starts the postgame: the
               dungeons are shown, Black Temple starts nothing, Rausten's secret shop opens, the Lagdou Ruins and the
               Tower of Valni start, Enter District works on Port Kiris.
+  districtresume (Serafew) Resume Chapter in a suspended district comes back in free movement.
   savetitle   (Serafew) the save made on leaving a district is titled with the story chapter, not "Skirmish Map".
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
               the unlocked districts and the nodes' states come back, and Enter District still loads the district.
@@ -55,7 +56,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -937,6 +938,30 @@ class Smoke:
         self.check("savetitle: the save made on leaving a district is titled with the story chapter (Chapter 6)",
                    got == [want], "title index %s, Chapter 6's %#x" % (["%#x" % g for g in got], want))
 
+    def test_districtresume(self, states):
+        """A suspended district resumes in free movement (#708): the game boots (SRAM set up), Serafew starts (its
+        start writes the suspend save), a soft reset and Resume Chapter bring it back, and the free-movement control
+        proc runs (the district's opening, which turns it on, does not play again on a resume)."""
+        d = os.path.join(self.out, "DistrictResume")
+        os.makedirs(d, exist_ok=True)
+        need = ("FreeMovementControlProc", "sProcArray")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("districtresume: the district", False, "no district state or symbols")
+        rom, procs = states["rom"], self.sym["sProcArray"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        lines = ["wait 600", "load " + start, "wait 60", dump("before.bin")] + SOFT_RESET + \
+            ["press A", "wait 200", "press A", "wait 300", "wait 300", "shot resumed.png", dump("after.bin"),
+             "r8 %#x" % CHAPTER]
+        vals = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "resumed.png"), "Serafew resumed")
+        fmu = self.sym["FreeMovementControlProc"]
+        before = fmu in [a for a, _ in self.procs(os.path.join(d, "before.bin"))]
+        after = fmu in [a for a, _ in self.procs(os.path.join(d, "after.bin"))]
+        self.check("districtresume: Resume Chapter in a district comes back in free movement",
+                   before and after and vals == [DISTRICTS["Serafew"][0]],
+                   "free movement before %s, after %s, chapter %s" % (before, after, vals))
+
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
         rom = open(ROM, "rb").read()
@@ -1509,7 +1534,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame") or on("savetitle"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame") or on("savetitle") or on("districtresume"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1536,6 +1561,8 @@ def main():
                 s.test_postgame(states)
             if n == "Serafew" and on("savetitle"):
                 s.test_savetitle(states)
+            if n == "Serafew" and on("districtresume"):
+                s.test_districtresume(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())
