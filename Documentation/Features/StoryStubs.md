@@ -54,11 +54,22 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
   destination, and a road is drawn to it (`WM_REVEAL_DEST`). Chapter 10 uses its own world-map scripts, in `Chapters/10`.
 - **The trip.** The lord is put on the node, with no scene. The written chapters walk the lord there in their own
   travel scenes.
-- **The chapter.** The vanilla title card plays, then the map with no units. A text box reads "This chapter has not been
-  written yet. The story moves on to the next one." Then `NEXT_CHAPTER_WITH_MAP` goes to the next story chapter, through
-  the save menu.
-- **Chapters 20 to 22.** They follow each other without the world map, as in vanilla. Chapter 22 ends with `MNC4`, and
-  the game's ending plays. Extras > Map on the cleared save then starts the postgame
+- **The chapter.** The vanilla title card plays, then the map. A text box reads "This chapter has not been written yet.
+  The story moves on to the next one."
+- **The battle (#700).** The first few enemies of vanilla's own army for the chapter appear on their starting tiles:
+  usually the boss first, at vanilla's levels, 5 to 7 of them (fewer where vanilla's list is shorter: 4 in Chapter 17, 2 in
+  Chapter 19, the final boss alone in Chapter 22). The preparations screen deploys the party on vanilla's starting
+  tiles. The goal is "Defeat all enemies" (`Stubs.event` sets it on the chapter rows). Winning earns EXP, items and the
+  chapter awards like any battle.
+  - Vanilla's unit lists are read in place from the ROM: `STUB_CHAPTER` names vanilla's player list (the event group's
+    `playerUnitsInNormal`) and enemy list (the largest one its opening loads), and how many enemies to load.
+    `StubChapter_LoadEnemies` (an ASMC) loads them with `LoadUnit`, so vanilla's movement after loading (REDAs) is
+    skipped.
+- **The win.** `DEFEAT_ALL` runs the win script: `NEXT_CHAPTER_WITH_MAP` to the next story chapter, through the save
+  menu.
+- **Chapters 20 to 22.** They follow each other without the world map, as in vanilla. Chapter 22's win runs `MNC4`, and
+  the game's ending plays. The ending plays Chapter 22's map again with its opening, so the opening checks for a complete
+  game first (`StubChapter_CheckGameComplete`) and then goes straight on, with no battle. Extras > Map on the cleared save then starts the postgame
   ([World Map Story Chapters](./WorldMapStoryChapters.md#the-postgame)).
 - **The world map before Chapter 20** also shows the Lagdou Ruins and Melkaen Coast with their roads, as vanilla's does
   (`STUB_SET_NODE_WITH(..., WM_SHOW_POSTGAME_DUNGEONS)`). `new_chapter.py` keeps that line's extra events.
@@ -90,11 +101,14 @@ vanilla one): move it away, or pass `--force`. Then build (`Tools/cloud/build.sh
 `.lyn.event` files) and run `python3 Tools/cloud/smoketest.py --only stubs`, which should still pass. Move the
 chapter's row out of the table above.
 
-To write the chapter, follow the comments in `events.c`:
-1. Fill in `units.c` and load the units in the opening.
-2. Take the placeholder `TEXT` and the `NEXT_CHAPTER_WITH_MAP` line out of the opening; the ending scene keeps it.
-3. Give the misc events a win condition (`DEFEAT_ALL`, a boss, a seize) that starts the ending.
-4. Add `chapter.c` and a map folder, like Chapter 9, if it changes the chapter row or the map.
+The new `events.c` keeps the stub's battle (vanilla's tiles and first enemies). To write the chapter, follow its
+comments:
+1. Fill in `units.c`, point `playerUnitsInNormal`/`InHard` at it, and load the enemies in the opening in place of the
+   `SVAL`s and `StubChapter_LoadEnemies`.
+2. Take the placeholder `TEXT` out of the opening and write its scene.
+3. Keep a win condition in the misc events (`DEFEAT_ALL`, a boss, a seize) that runs the win script.
+4. Add `chapter.c` and a map folder, like Chapter 9, if it changes the chapter row or the map. The stub's goal patch
+   in `Stubs.event` stays until then.
 
 ### By hand
 
@@ -121,6 +135,8 @@ To write the chapter, follow the comments in `events.c`:
 `python3 Tools/cloud/smoketest.py --only stubs` (about 20 seconds) runs the whole route on the world map:
 - It leaves a test district with the story at Chapter 10 and the lord on Port Kiris.
 - For each story chapter, it puts the cursor on the chapter's node and presses A, then skips the scenes.
+- In each battle it checks the enemies loaded, then wins: it takes them off the map, sets the defeat-all flag
+  (`EVFLAG_DEFEAT_ALL`, in `gChapterFlagBits`), and Eirika waits.
 - After each chapter, it checks the next story chapter and where the lord starts.
 - After Chapter 20, it checks that Chapters 21 and 22 lead to the ending (`PLAY_FLAG_COMPLETE`).
 - Before Chapter 10, it puts a monster on Teraz Plateau and clears the node's "next" bit: the trip must still start the
@@ -144,7 +160,9 @@ To write the chapter, follow the comments in `events.c`:
 
 ## ⚠️ Limitations
 
-- A stub has no units and no battle. Nothing is earned in it: no EXP, items or chapter awards.
+- A stub's battle is small and generic: vanilla's first enemies, no scenes, no reinforcements, no villages or chests.
+- A vanilla list doesn't always start with its boss, so a stub may load none. Change a chapter's count, or its list,
+  in `STUB_CHAPTER`.
 - The trip to a stub's node is a jump, with no walking scene.
 - Chapter 10 had vanilla's events until now (the old event group was commented out). Its world-map scripts in
   `Chapters/10` stay. Its `SET_NODE` script now uses `WM_REVEAL_DEST`: with `WM_CREATENEXTDESTINATION` alone, arriving on

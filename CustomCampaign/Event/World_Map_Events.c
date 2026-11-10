@@ -3,6 +3,7 @@
 #include "../Chapters/_shared/worldmap-scripts.h"
 #include "wm-story-chapter.h"
 #include "jester_headers/maps.h"
+#include "jester_headers/custom-functions.h"
 
 /*
  * Where each story chapter starts on the world map. The chapter comes from
@@ -102,6 +103,13 @@ void WorldMap_CallBeginningEvent(struct WorldMapMainProc* proc)
     const struct ROMChapterData * chapterData;
 
     Sound_FadeOutBGM(4);
+
+    /*
+     * Back on the world map, free movement is over: a district's opening turns it on (EnableFreeMovementASMC) and
+     * nothing turned it off, so the next chapter after a district visit started in free movement, with no cursor
+     * (found by the stub battles, #700). Entering a district turns it on again.
+     */
+    DisableFreeMovementASMC();
 
     if ((gGMData.state.bits.monster_merged) || (gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME))
     {

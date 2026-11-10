@@ -111,6 +111,9 @@ chapter. It is never cleared.
   - No keeps you in the district.
 - **Retreat row:** L opens the free-movement menu. Its Retreat row shows the vanilla "Retreat?" prompt, and Yes also leaves the district.
 - Leaving goes through the save menu back to the world map, which starts with chapter `0x38` (the side-map return).
+- The world map turns free movement off (`DisableFreeMovementASMC` in `WorldMap_CallBeginningEvent`). Before #700 it
+  stayed on, so the next chapter after a district visit started in free movement, with no cursor: the battle could not
+  be played. Entering a district turns it on again.
   `WmStoryChapter_Begin` keeps the story chapter for it, and for a district chapter. It used to clear it on every
   district visit, and the world map, district unlocks, featured quests, the time of day and the rival then all behaved
   as if no story chapter was set.

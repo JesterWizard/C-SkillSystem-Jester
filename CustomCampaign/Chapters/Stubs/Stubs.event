@@ -25,3 +25,23 @@ PUSH
 ORG 0x8B0890 + 0x3D * 0x94 + 0x75
 BYTE 0x18
 POP
+
+/*
+ * The goal window: a stub's battle is won by defeating every enemy (DEFEAT_ALL), whatever vanilla's chapter asked
+ * (seize, survive, defeat the boss). goalWindowTextId (+0x8A) is vanilla's "Defeat all enemies" text, and
+ * goalWindowDataType (+0x8C) is GOAL_TYPE_DEFEAT_ALL, with no turn limit (+0x8D).
+ */
+#define STUB_GOAL_DEFEAT_ALL(chapter) "PUSH; ORG 0x8B0890 + (chapter) * 0x94 + 0x8A; SHORT 0x19E; BYTE 1 0; POP"
+STUB_GOAL_DEFEAT_ALL(0x0B)
+STUB_GOAL_DEFEAT_ALL(0x3D)
+STUB_GOAL_DEFEAT_ALL(0x0C)
+STUB_GOAL_DEFEAT_ALL(0x0D)
+STUB_GOAL_DEFEAT_ALL(0x0E)
+STUB_GOAL_DEFEAT_ALL(0x0F)
+STUB_GOAL_DEFEAT_ALL(0x10)
+STUB_GOAL_DEFEAT_ALL(0x11)
+STUB_GOAL_DEFEAT_ALL(0x12)
+STUB_GOAL_DEFEAT_ALL(0x13)
+STUB_GOAL_DEFEAT_ALL(0x14)
+STUB_GOAL_DEFEAT_ALL(0x15)
+STUB_GOAL_DEFEAT_ALL(0x16)

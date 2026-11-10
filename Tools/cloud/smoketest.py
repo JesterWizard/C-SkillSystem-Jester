@@ -20,8 +20,9 @@ What it checks:
               Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
               gone; travelling to the story node starts Chapter 6.
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
-              travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending. A
-              monster on Chapter 10's node, not marked next, does not stop it.
+              travels to each story node, each stub's battle loads its enemies and is won (the enemies taken off and the
+              defeat-all flag set, then Eirika waits), and the story moves on, through Chapter 20, then 21, 22 and the
+              ending. A monster on Chapter 10's node, not marked next, does not stop it.
   wmshops     (Serafew) the node menu's shop rows: Serafew's Armory and Shop rows open its armory and vendor with
               the node's stock, and B leaves them; a node with no shops has none; the road to the story node is open.
   postgame    (Serafew) from Chapter 20's world map through the ending; Extras > Map starts the postgame: the
@@ -116,6 +117,9 @@ POSTGAME_NODES = [WM_NODE_BLACK_TEMPLE, WM_NODE_VALNI, WM_NODE_LAGDOU, WM_NODE_M
 CHAPTER_VALNI_1, CHAPTER_LAGDOU_1 = 0x24, 0x2E  # the nodes' chapters (gWMNodeData)
 OPEN_ROADS = 31  # roads 0-30, the map as the story leaves it (road 9 is the Tower of Valni's)
 PLAY_FLAG_POSTGAME = 1 << 2
+UNIT_RED, RED_UNITS = 0x0202CFBC, 50  # the enemy units (0x81 on), 0x48 bytes each
+STUB_ENEMY_READS = 8  # a stub loads at most 7 enemies
+CHAPTER_FLAG_DEFEAT_ALL = 0x60  # gChapterFlagBits: EVFLAG_DEFEAT_ALL (6), whichever of bits 5 and 6 it is
 SHOP_ITEMS = 20  # gProcScr_Shop's proc: its stock at +0x30, 20 u16 (item | uses << 8)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
@@ -596,6 +600,20 @@ class Smoke:
         self.check("worldmap: travelling to the story node starts the story chapter",
                    vals == [CHAPTER_06, WM_NODE_ADLAS_PLAINS], "chapter, lord's node %s" % vals)
 
+    def stub_battle(self, reads=False):
+        """A stub chapter's battle (#700), from the trip on: START and A skip a world-map travel scene (Chapter 10's is
+        long); the title card, then the opening's line, which waits (START skips it); the enemies and the preparations
+        screen, which waits too (START: fight); then (reads: the first enemy slots) every enemy taken off the map and the
+        defeat-all flag set, Eirika (under the cursor) waits, and the misc events play the ending; the save menu (the
+        first slot, Save)."""
+        chapter_flags = self.sym.get("gChapterFlagBits", 0x03005270)
+        win = ["w32 %#x 0" % (UNIT_RED + 0x48 * i) for i in range(RED_UNITS)] + \
+            ["w8 %#x %#x" % (chapter_flags, CHAPTER_FLAG_DEFEAT_ALL)]
+        enemies = ["r32 %#x" % (UNIT_RED + 0x48 * i) for i in range(STUB_ENEMY_READS)] if reads else []
+        return ["press START", "wait 60", "press A", "wait 60", "wait 800", "press START", "wait 300", "press START",
+                "wait 200"] + enemies + win + ["press A", "wait 30", "press A", "wait 40", "press UP", "wait 10",
+                                               "press A", "wait 120", "press A", "wait 60", "press A", "wait 300"]
+
     def test_stubs(self, states):
         """The stub story chapters (CustomCampaign/Chapters/Stubs), on the world map reached as in test_worldmap: from
         Chapter 10 the lord travels to each story chapter's node (the cursor put on it, A), the stub plays and the
@@ -614,7 +632,7 @@ class Smoke:
         nodes = ["w8 %#x %d" % (GM_DATA + 0x30 + 4 * n, 1 if n < 10 else 0) for n in range(0x1D)]
         setup = ["w8 %#x %#x" % (story, STUB_ROUTE[0][0]), "w8 %#x %d" % (GM_DATA + 0x11, STUB_ROUTE[0][2])] + nodes + mons
         lines = ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT + mons + ["wait 10", "r8 %#x" % story]
-        skip = ["press START", "wait 60", "press A", "wait 90"] * 4
+        battle = self.stub_battle(reads=True)
         got = []
         for chapter, node, _ in STUB_ROUTE:
             x, y = node_xy(node)
@@ -624,24 +642,35 @@ class Smoke:
                 lines += ["w32 %#x %#x" % (GM_DATA + 0x20, (CLASS_REVENANT << 16) | (node << 8) | 1),
                           "w8 %#x 1" % (GM_DATA + 0x30 + 4 * node)]
             lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10",
-                      "press A", "wait 90"] + skip
+                      "press A", "wait 90"] + battle
             if chapter == STUB_ROUTE[-1][0]:
                 # Chapters 21 and 22 come straight after, then the ending (MNC4)
-                lines += skip * 2 + ["shot ending.png", "r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x14)]
+                lines += ["wait 200"] + battle + ["wait 200"] + battle + ["wait 900", "shot ending.png",
+                                                                          "r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x14)]
             else:
                 lines += ["wait 900"] + mons + ["wait 10", "r8 %#x" % story, "r8 %#x" % (GM_DATA + 0x11)]
         vals = self.run(rom, lines, d)
         self.shot(os.path.join(d, "ending.png"), "after the last stub")
         if not vals or vals[0] != STUB_ROUTE[0][0]:
             return self.check("stubs: the world map on Chapter 10", False, "story %s" % vals[:1])
-        legs = [tuple(vals[1 + 2 * i:3 + 2 * i]) for i in range(len(STUB_ROUTE) - 1)]
+        # Each battle's enemy slots, then (story, node) after each world-map leg; the last leg has three battles
+        n, legs, loaded, at = STUB_ENEMY_READS, [], [], 1
+        for i in range(len(STUB_ROUTE)):
+            for _ in range(3 if i == len(STUB_ROUTE) - 1 else 1):
+                loaded.append(sum(1 for v in vals[at:at + n] if v))
+                at += n
+            if i < len(STUB_ROUTE) - 1:
+                legs.append(tuple(vals[at:at + 2]))
+                at += 2
+        self.check("stubs: every stub chapter's battle loads its enemies (Chapters 10-22)",
+                   len(loaded) == len(STUB_ROUTE) + 2 and all(loaded), "enemies per chapter %s" % loaded)
         want = [(STUB_ROUTE[i + 1][0], STUB_ROUTE[i + 1][2]) for i in range(len(STUB_ROUTE) - 1)]
         bad = ["%#x" % STUB_ROUTE[i][0] for i, (g, w) in enumerate(zip(legs, want)) if g != w]
         self.check("stubs: a monster on the story node, not marked next, does not stop the chapter (Chapter 10)",
                    legs[:1] == want[:1], "story, lord's node %s" % (legs[:1],))
         self.check("stubs: each stub chapter moves the story and the lord on (Chapters 10-19)", not bad,
                    "wrong after %s: %s" % (bad, legs) if bad else "%d chapters" % len(legs))
-        end = vals[1 + 2 * len(legs):]
+        end = vals[at:]
         self.check("stubs: Chapter 20 leads through 21 and 22 to the ending", len(end) == 2 and
                    end[0] == STUB_FINAL and end[1] & PLAY_FLAG_COMPLETE, "chapter, state bits %s" % end)
 
@@ -808,14 +837,15 @@ class Smoke:
         setup += ["w8 %#x %d" % (GM_DATA + 0xA4 + i, i) for i in range(OPEN_ROADS)] + \
             ["w8 %#x %d" % (GM_DATA + 0xC4, OPEN_ROADS)]
         x, y = xy(WM_NODE_BLACK_TEMPLE)
-        skip = ["press START", "wait 60", "press A", "wait 90"] * 4
         post = os.path.join(d, "post.ss")
         lines = ["wait 600", "load " + start, "wait 30"] + setup + LEAVE_DISTRICT + mons + ["wait 10", "shot ch20.png"]
         lines += ["r8 %#x" % node(n) for n in POSTGAME_NODES]
         lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A",
-                  "wait 90"] + skip * 3
-        # the ending and "Fin", then the title: A, then Extras (four down), Map (two down), the cleared slot
-        lines += ["press A", "wait 300"] * 5 + ["press A", "wait 200"] + ["press DOWN", "wait 20"] * 4
+                  "wait 90"] + self.stub_battle() + ["wait 200"] + self.stub_battle() + ["wait 200"] + \
+            self.stub_battle()
+        # the ending (Chapter 22's card) and "Fin", which waits: A, the title: A, the main menu: Extras (four down), Map
+        # (two down), the cleared slot
+        lines += ["wait 600", "press A", "wait 300", "press A", "wait 200"] + ["press DOWN", "wait 20"] * 4
         lines += ["press A", "wait 200", "press DOWN", "wait 30", "press DOWN", "wait 30", "press A", "wait 200",
                   "shot slot.png", "press A", "wait 900", "shot postgame.png", "save " + post,
                   "r8 %#x" % (PLAYST + 0x14), "r8 %#x" % (GM_DATA + 0x11)] + ["r8 %#x" % node(n) for n in POSTGAME_NODES]
