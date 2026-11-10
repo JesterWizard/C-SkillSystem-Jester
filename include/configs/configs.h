@@ -73,6 +73,10 @@
  * Comment out the next line to remove it from the build. */
 #define CONFIG_DISTRICT_TOWER
 
+/* District guild board: a board in each district with quests, prizes for minigame tokens and every minigame's records
+ * (Kernel/Wizardry/Guild). Comment out the next line to remove it from the build. */
+#define CONFIG_DISTRICT_GUILD
+
 #define CONFIG_FORGE_CHECKER 5000
 
 // Unit counts and save layout stay expanded. Gameplay is gated by

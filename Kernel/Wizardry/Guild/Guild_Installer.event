@@ -1,0 +1,20 @@
+#ifndef DISTRICT_GUILD_INSTALLED
+#define DISTRICT_GUILD_INSTALLED
+
+/**
+ * District guild board (WIZARDRY_CUSTOM, so FreeSpaceDEMO). Only included when CONFIG_DISTRICT_GUILD is defined
+ * (wizardry.event). The A-press trap entry is in FreeMovement/cFreeMU/HookList.event, the trap loader case in
+ * TrapData/TrapData.c, the map boards in EnterTown/DistrictNpc.c, the save chunk in SaveData/data.event, and the quests
+ * and prizes in Data/Guild/Guild.c.
+ */
+
+/* Tokens, quests, prizes and the save chunk. */
+#include "Source/GuildCore.lyn.event"
+
+/* The board's screen (ProcScr_GuildScreen): quests, prizes and records. */
+#include "Source/GuildScreen.lyn.event"
+
+/* The board's A-press handler, its event, the map fade wrapper and the map markers. */
+#include "Source/GuildDistrict.lyn.event"
+
+#endif /* DISTRICT_GUILD_INSTALLED */

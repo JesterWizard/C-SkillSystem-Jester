@@ -3,6 +3,9 @@
 #include "constants/texts.h"
 #include "prepscreen.h"
 #include "hex.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "guild.h"
+#endif
 #include "kernel/hex-core.h"
 
 #ifdef CONFIG_HEX_CARDS
@@ -1671,6 +1674,10 @@ static void HexScreen_UpdateEnd(struct HexScreenState *h)
 	h->takeSel = 0;
 	h->notice = 0;
 	h->timer = 0;
+#ifdef CONFIG_DISTRICT_GUILD
+	/* the guild board's tokens: 5 a win, 1 a draw */
+	Guild_AddTokens(w == HEX_BLUE ? 5 : (w == 0 ? 1 : 0));
+#endif
 	if (w == 0) {
 		h->result = HEX_RESULT_DRAW;
 		h->state = HEX_STATE_REWARD;

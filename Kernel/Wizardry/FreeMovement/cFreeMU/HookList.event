@@ -47,6 +47,9 @@ HookListFMU_TrapList_OnPressA:
 #ifdef CONFIG_DISTRICT_TOWER
 	FMU_SetTrap(31, Tower_OnPressA|1)	// TRAP_TOWER_SPOT (bmtrick.h): open Tower Stack
 #endif
+#ifdef CONFIG_DISTRICT_GUILD
+	FMU_SetTrap(32, Guild_OnPressA|1)	// TRAP_GUILD_BOARD (bmtrick.h): open the guild board
+#endif
 	FMU_SetTrapEnd
 
 ALIGN 4

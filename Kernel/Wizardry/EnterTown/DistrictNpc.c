@@ -5,6 +5,7 @@
 #include "fishing.h"
 #include "crossing.h"
 #include "tower.h"
+#include "guild.h"
 
 /* Free movement (Kernel/Wizardry/FreeMovement/cFreeMU/src/FreeMU.h, not on the include path) */
 extern bool FMU_CanUnitBeOnPos(struct Unit *unit, s8 x, s8 y);
@@ -176,6 +177,8 @@ static const u8 sGateArrowTiles[64] = {
 #define CROSSING_CHR_MAP_FLAG (MAPANIMFX_CHR_R + 0x21)
 /* The Tower Stack tower: the tile before the Hex Card icon (title-screen leftovers there, unused on the map) */
 #define TOWER_CHR_MAP_TOWER (MAPANIMFX_CHR_L - 1)
+/* The guild board's two tiles: after the River Crossing flag */
+#define GUILD_CHR_MAP_BOARD (MAPANIMFX_CHR_R + 0x22)
 
 /* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
 static void DistrictNpc_LoadGates(void)
@@ -189,6 +192,9 @@ static void DistrictNpc_LoadGates(void)
 #endif
 #ifdef CONFIG_DISTRICT_TOWER
 	Tower_LoadMapMarker(TOWER_CHR_MAP_TOWER);
+#endif
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_LoadMapMarker(GUILD_CHR_MAP_BOARD);
 #endif
 	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
 }
@@ -380,6 +386,9 @@ static void DistrictNpc_Loop(ProcPtr proc)
 #endif
 #ifdef CONFIG_DISTRICT_TOWER
 	Tower_DrawMapMarkers(TOWER_CHR_MAP_TOWER, MAPANIMFX_PAL);
+#endif
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_DrawMapMarkers(GUILD_CHR_MAP_BOARD, MAPANIMFX_PAL);
 #endif
 
 #ifdef CONFIG_HEX_CARDS

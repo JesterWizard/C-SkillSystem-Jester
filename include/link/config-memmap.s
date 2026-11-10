@@ -373,6 +373,9 @@ _kernel_malloc2 gFishingProgress, 0x20
 _kernel_malloc2 gCrossingExtra, 0x80
 /* River Crossing's saved progress (struct CrossingProgress): fastest clears, milestones, challenges. Saved. */
 _kernel_malloc2 gCrossingProgress, 0x10
+/* The guild board (include/kernel/guild.h): the saved tokens, quests and prizes (a save chunk), and its screen (RAM only). */
+_kernel_malloc2 gGuildSave, 0x10
+_kernel_malloc2 gGuildScreen, 0x80
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

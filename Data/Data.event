@@ -24,6 +24,9 @@
 #include "WeaponSlots/WeaponSlots.lyn.event"
 #include "PortraitHeight/PortraitHeight.lyn.event"
 #include "CustomPortraits/PortraitExpressions.lyn.event"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "Guild/Guild.lyn.event"
+#endif
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"
 #include "CustomItems/CustomItems.event"

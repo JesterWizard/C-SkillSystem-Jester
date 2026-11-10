@@ -40,6 +40,7 @@ enum
     TRAP_FISHING_SPOT = 29,
     TRAP_CROSSING_SPOT = 30,
     TRAP_TOWER_SPOT = 31,
+    TRAP_GUILD_BOARD = 32,
 };
 
 enum
@@ -227,6 +228,9 @@ int GetEffectiveTerrainAt(int x, int y);
 
 #define TOWER_SPOT(x, y) \
     TRAP_TOWER_SPOT, (x), (y), 0, 0, 0,
+
+#define GUILD_BOARD(x, y) \
+    TRAP_GUILD_BOARD, (x), (y), 0, 0, 0,
 
 #define REPEAT_HOUSE(x, y, exp) \
     TRAP_REPEAT_HOUSE, (x), (y), (exp), 0, 0,

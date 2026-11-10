@@ -491,6 +491,7 @@ void LoadTrapData(const struct TrapData * data)
         case TRAP_FISHING_SPOT:
         case TRAP_CROSSING_SPOT:
         case TRAP_TOWER_SPOT:
+        case TRAP_GUILD_BOARD:
             AddTrap(data->xPos, data->yPos, data->type, data->subtype);
             break;
 

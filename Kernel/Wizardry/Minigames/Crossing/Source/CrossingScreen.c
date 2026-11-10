@@ -6,6 +6,9 @@
 #include "constants/texts.h"
 #include "constants/classes.h"
 #include "m4a.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "guild.h"
+#endif
 #include "constants/items.h"
 #include "wm-story-chapter.h"
 
@@ -1076,6 +1079,9 @@ static void Crossing_GameOver(void)
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
 	CS->newBest = CS->score > CS->best && CS->score > 0;
 	CrossingRecords_Add(CS->level, CS->score);
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(Div(CS->score, 100));	/* the guild board's tokens: 1 per 100 points */
+#endif
 	Crossing_Pop(CROSSING_POP_GAME_OVER, 120, 72);
 	CS->shownScore = 0;
 	CS->countDone = 0;
@@ -1119,6 +1125,9 @@ static void Crossing_PayOnLeave(void)
 	gold = GetPartyGoldAmount() + CS->gold;
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
 	CrossingRecords_Add(CS->level, CS->score);
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(Div(CS->score, 100));
+#endif
 }
 
 /* A hop's target, or FALSE when the way is shut (the edges, and the bank between the docks) */

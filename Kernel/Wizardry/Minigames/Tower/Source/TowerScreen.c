@@ -1,6 +1,9 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "tower.h"
+#ifdef CONFIG_DISTRICT_GUILD
+#include "guild.h"
+#endif
 #include "tower-art.h"
 #include "constants/texts.h"
 #include "m4a.h"
@@ -867,6 +870,9 @@ static void Tower_GameOver(void)
 	gold = GetPartyGoldAmount() + TS->gold;
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
 	TowerRecords_Add(TS->score);
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(Div(TS->score, 20));	/* the guild board's tokens: 1 per 20 points */
+#endif
 	Tower_PopWord(TOWER_POP_GAME_OVER, TOWER_PAL_RED, 120, 72);
 	TS->shownScore = 0;
 	TS->countDone = 0;
@@ -944,6 +950,9 @@ static void Tower_PayOnLeave(void)
 	gold = GetPartyGoldAmount() + TS->gold;
 	SetPartyGoldAmount(gold > 999999 ? 999999 : gold);
 	TowerRecords_Add(TS->score);
+#ifdef CONFIG_DISTRICT_GUILD
+	Guild_AddTokens(Div(TS->score, 20));
+#endif
 }
 
 /* A missed block: it falls away (or has slid off), and costs a life unless a fever is on */
