@@ -22,6 +22,17 @@ const struct WmStoryChapterNode gWmStoryChapterNodes[] = {
     { CHAPTER_08,    WM_NODE_Renvall2 },
     { CHAPTER_09,    WM_NODE_PortKiris },
     { CHAPTER_10,    WM_NODE_TerazPlateau },
+    /* Stub chapters (Chapters/Stubs) from here: the vanilla Eirika route's nodes */
+    { CHAPTER_11,    WM_NODE_CaerPelyn },
+    { CHAPTER_12,    WM_NODE_CaerPelyn },
+    { CHAPTER_13,    WM_NODE_HamillCanyon },
+    { CHAPTER_14,    WM_NODE_JehannaHall },
+    { CHAPTER_15,    WM_NODE_JehannaHall },   /* not vanilla's second Jehanna node: it sits on the first */
+    { CHAPTER_16,    WM_NODE_RenaisCastle },
+    { CHAPTER_17,    WM_NODE_NarubeRiver },
+    { CHAPTER_18,    WM_NODE_NelerasPeak },
+    { CHAPTER_19,    WM_NODE_RaustenCourt },
+    { CHAPTER_20,    WM_NODE_BlackTemple },
     { WM_STORY_CHAPTER_NONE, 0 },
 };
 
@@ -39,6 +50,18 @@ const u16 * const EventScrWM_SET_NODE[] = {
     (const u16 *)EventScrWM_Ch8_SET_NODE,
     (const u16 *)EventScrWM_Ch9_SET_NODE,
     (const u16 *)EventScrWM_Ch10_SET_NODE,
+    (const u16 *)EventScrWM_Ch12_SET_NODE,   /* 0x0D */
+    (const u16 *)EventScrWM_Ch13_SET_NODE,
+    (const u16 *)EventScrWM_Ch14_SET_NODE,
+    (const u16 *)EventScrWM_Ch15_SET_NODE,
+    (const u16 *)EventScrWM_Ch16_SET_NODE,   /* 0x11 */
+    (const u16 *)EventScrWM_Ch17_SET_NODE,
+    (const u16 *)EventScrWM_Ch18_SET_NODE,
+    (const u16 *)EventScrWM_Ch19_SET_NODE,
+    (const u16 *)EventScrWM_Ch20_SET_NODE,   /* 0x15 */
+    NULL,                                    /* 0x16, 0x17: the last two chapters come without the world map */
+    NULL,
+    (const u16 *)EventScrWM_Ch11_SET_NODE,   /* 0x18: Chapter 11's gmapEventId (vanilla 0x39, Stubs/Stubs.event) */
 };
 
 const u16 * const EventScrWM_TRAVEL_TO_NODE[] = {
@@ -55,6 +78,18 @@ const u16 * const EventScrWM_TRAVEL_TO_NODE[] = {
     (const u16 *)EventScrWM_Ch8_TRAVEL_TO_NODE,
     (const u16 *)EventScrWM_Ch9_TRAVEL_TO_NODE,
     (const u16 *)EventScrWM_Ch10_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch12_TRAVEL_TO_NODE,   /* 0x0D */
+    (const u16 *)EventScrWM_Ch13_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch14_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch15_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch16_TRAVEL_TO_NODE,   /* 0x11 */
+    (const u16 *)EventScrWM_Ch17_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch18_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch19_TRAVEL_TO_NODE,
+    (const u16 *)EventScrWM_Ch20_TRAVEL_TO_NODE,   /* 0x15 */
+    NULL,
+    NULL,
+    (const u16 *)EventScrWM_Ch11_TRAVEL_TO_NODE,   /* 0x18 */
 };
 
 //! FE8U = 0x080BA334

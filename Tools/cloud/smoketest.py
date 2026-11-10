@@ -19,6 +19,8 @@ What it checks:
   worldmap    (Serafew) the world map, reached through the district's gate: the visit keeps the story chapter;
               Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
               gone; travelling to the story node starts Chapter 6.
+  stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
+              travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
               Marlo's first record and pays 10 tokens once; a test ROM puts the townsfolk on their spots.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
@@ -43,7 +45,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -82,7 +84,14 @@ PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
 BIOGRAPHIES = 7  # gCharacterBiographies (Data/MapMenus/CharacterBiographies.c); Amelia is the last
-GM_DATA = 0x03005280  # gGMData (the world map's units, nodes and cursor)
+GM_DATA = 0x03005280
+WM_NODE_DATA = 0x082060B0  # gWMNodeData: 0x20 bytes a node, x and y at +0x18
+# The stub story chapters, Chapter 10 to 20: (chapter, its node (gWmStoryChapterNodes), the node the lord starts the
+# world map on before it (Stubs/events/worldmap.c)); the last chapter is 0x16
+STUB_ROUTE = [(0x0B, 10, 9), (0x3D, 11, 10), (0x0C, 11, 11), (0x0D, 12, 11), (0x0E, 13, 12), (0x0F, 13, 13),
+              (0x10, 20, 19), (0x11, 21, 19), (0x12, 22, 21), (0x13, 23, 22), (0x14, 25, 23)]
+STUB_FINAL = 0x16
+PLAY_FLAG_COMPLETE = 1 << 5  # gGMData (the world map's units, nodes and cursor)
 CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
@@ -549,6 +558,50 @@ class Smoke:
         self.shot(os.path.join(d, "travel.png"), "the story chapter from its node")
         self.check("worldmap: travelling to the story node starts the story chapter",
                    vals == [CHAPTER_06, WM_NODE_ADLAS_PLAINS], "chapter, lord's node %s" % vals)
+
+    def test_stubs(self, states):
+        """The stub story chapters (CustomCampaign/Chapters/Stubs), on the world map reached as in test_worldmap: from
+        Chapter 10 the lord travels to each story chapter's node (the cursor put on it, A), the stub plays and the
+        story moves to the next chapter and node, through Chapter 20; then 21 and 22 follow without the world map and
+        the game ends."""
+        d = os.path.join(self.out, "Stubs")
+        os.makedirs(d, exist_ok=True)
+        if "rom" not in states or "gWmStoryChapter" not in self.sym:
+            return self.check("stubs: the stub chapters", False, "no district state or symbols")
+        rom, story = states["rom"], self.sym["gWmStoryChapter"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        data = open(rom, "rb").read()
+        node_xy = lambda n: struct.unpack_from("<hh", data, WM_NODE_DATA - 0x08000000 + n * 0x20 + 0x18)
+        # world-map monsters off (one on a story node turns the trip into a skirmish)
+        mons = ["w32 %#x 0" % (GM_DATA + 0x10 + 4 * i) for i in range(4, 8)]
+        nodes = ["w8 %#x %d" % (GM_DATA + 0x30 + 4 * n, 1 if n < 10 else 0) for n in range(0x1D)]
+        setup = ["w8 %#x %#x" % (story, STUB_ROUTE[0][0]), "w8 %#x %d" % (GM_DATA + 0x11, STUB_ROUTE[0][2])] + nodes + mons
+        lines = ["load " + start, "wait 30"] + setup + ["hold DOWN 8", "wait 60", "hold A 8", "wait 60", "hold LEFT 8",
+                                                     "wait 40", "hold A 8", "wait 400", "hold A 8", "wait 120",
+                                                     "hold A 8", "wait 900"] + mons + ["wait 10", "r8 %#x" % story]
+        skip = ["press START", "wait 60", "press A", "wait 90"] * 4
+        got = []
+        for chapter, node, _ in STUB_ROUTE:
+            x, y = node_xy(node)
+            lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10",
+                      "press A", "wait 90"] + skip
+            if chapter == STUB_ROUTE[-1][0]:
+                # Chapters 21 and 22 come straight after, then the ending (MNC4)
+                lines += skip * 2 + ["shot ending.png", "r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x14)]
+            else:
+                lines += ["wait 900"] + mons + ["wait 10", "r8 %#x" % story, "r8 %#x" % (GM_DATA + 0x11)]
+        vals = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "ending.png"), "after the last stub")
+        if not vals or vals[0] != STUB_ROUTE[0][0]:
+            return self.check("stubs: the world map on Chapter 10", False, "story %s" % vals[:1])
+        legs = [tuple(vals[1 + 2 * i:3 + 2 * i]) for i in range(len(STUB_ROUTE) - 1)]
+        want = [(STUB_ROUTE[i + 1][0], STUB_ROUTE[i + 1][2]) for i in range(len(STUB_ROUTE) - 1)]
+        bad = ["%#x" % STUB_ROUTE[i][0] for i, (g, w) in enumerate(zip(legs, want)) if g != w]
+        self.check("stubs: each stub chapter moves the story and the lord on (Chapters 10-19)", not bad,
+                   "wrong after %s: %s" % (bad, legs) if bad else "%d chapters" % len(legs))
+        end = vals[1 + 2 * len(legs):]
+        self.check("stubs: Chapter 20 leads through 21 and 22 to the ending", len(end) == 2 and
+                   end[0] == STUB_FINAL and end[1] & PLAY_FLAG_COMPLETE, "chapter, state bits %s" % end)
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -1122,7 +1175,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1139,6 +1192,8 @@ def main():
                 s.test_life(states)
             if n == "Serafew" and on("worldmap"):
                 s.test_worldmap(states)
+            if n == "Serafew" and on("stubs"):
+                s.test_stubs(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

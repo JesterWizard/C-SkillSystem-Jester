@@ -48,8 +48,8 @@ Each district:
 |---|---|---|---|---|---|
 | Serafew | `NODE_SERAFEW` | Chapter 5 (story id `0x06`). Opens when the next world-map story chapter, Chapter 6, starts. | `0x3B` | Orrin, Della | (8, 20) |
 | Port Kiris | `NODE_PORT_KIRIS` | Chapter 9 (story id `0x0A`). Opens when Chapter 10 starts. | `0x3C` | Bram, Corra | (6, 21) |
-| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 7 for now (story id `0x08`). Opens when Chapter 8 starts. Its place is Chapter 12 (`0x0C`). | `0x41` | Tamsin, Ewlyn | (5, 20) |
-| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 8 for now (story id `0x09`). Opens when Chapter 9 starts. Its place is Chapter 15 (`0x0F`). | `0x42` | Rashid, Samira | (11, 14) |
+| Caer Pelyn | `NODE_CAER_PELYN` | Chapter 12 (story id `0x0C`, a [stub](./StoryStubs.md) for now). Opens when Chapter 13 starts. | `0x41` | Tamsin, Ewlyn | (5, 20) |
+| Jehanna Hall | `NODE_JEHANNA_HALL_13` | Chapter 15 (story id `0x0F`, a stub for now). Opens when Chapter 16 starts. | `0x42` | Rashid, Samira | (11, 14) |
 
 The gate tile is where stepping leaves the district. The table lists it as (x, y) in tiles. All four gates are on the
 bottom edge.
@@ -170,10 +170,10 @@ on is skipped.
 | Serafew | Hex player B (`0xFB`) | Chapter 10 | (8, 9) (6, 7) |
 | Port Kiris | Hex player A | Chapter 12 | (4, 6) (5, 3) |
 | Port Kiris | Hex player B | Chapter 13 | (16, 6) (18, 4) |
-| Caer Pelyn | Gold giver | Chapter 9 | (11, 10) (13, 8) |
-| Caer Pelyn | Item giver (`0xF9`) | Chapter 10 | (10, 16) (9, 13) |
-| Jehanna Hall | Gold giver | Chapter 10 | (11, 6) (13, 8) |
-| Jehanna Hall | Hex player A | Chapter 12 | (3, 8) (5, 6) |
+| Caer Pelyn | Gold giver | Chapter 14 | (11, 10) (13, 8) |
+| Caer Pelyn | Item giver (`0xF9`) | Chapter 16 | (10, 16) (9, 13) |
+| Jehanna Hall | Gold giver | Chapter 17 | (11, 6) (13, 8) |
+| Jehanna Hall | Hex player A | Chapter 18 | (3, 8) (5, 6) |
 
 ```c
 SPOT(SERAFEW, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_08, 9, 4),
@@ -207,8 +207,8 @@ tinted for that time: warm at evening, dark blue at night, soft gold in the morn
 | 17 | day |
 
 - The table is `gDistrictTimes`, and the tints `gDistrictTints` (each colour channel becomes `channel * mul / 16 +
-  add`), in `Data/District/DistrictLife.c`. The rows compare chapter ids, so they stay in id order (`CHAPTER_11` is
-  `0x3D` and is left out).
+  add`), in `Data/District/DistrictLife.c`. Rows count in story order (`WmStoryReached`, the chapters' places in
+  `gWmStoryChapterNodes`), not by chapter id: `CHAPTER_11` is `0x3D`.
 - The tint is applied whenever the map's palette loads: `UnpackChapterMapPalette` is replaced in `DistrictLife.c`.
   Before, `CustomCampaign/Event/PListSplit.event` repointed it at `SplitedChapterData_ObjPal`; the replacement reads
   that table itself. The district maps have no palette animations, so nothing loads their colours past the tint.
@@ -572,10 +572,8 @@ Marlo, the guild's rival: beating one pays tokens. The rules are in [Guild Board
 
 ## ⚠️ Limitations
 
-- **Caer Pelyn and Jehanna Hall open early for now.** Their story chapters, 12 and 15, have no row in `gWmStoryChapterNodes`
-  yet, because the table ends at Chapter 10, so a district tied to them would never open. Until those chapters exist they open
-  after Chapter 7 and Chapter 8 (`gDistrictNodes` in `Kernel/Wizardry/EnterTown/District.c`). Move them back to `0x0C` and
-  `0x0F` when Chapters 12 to 16 are in the table. The last story chapter (10) can never open a district: nothing starts after it.
+- **Caer Pelyn and Jehanna Hall open after stub chapters.** Chapters 12 and 15 are [stubs](./StoryStubs.md) for now, so
+  the two districts open as the story passes the placeholders.
 - **Opening is tied to the next story chapter.** A district opens when the next world-map story chapter starts, not when its
   own chapter is cleared.
 - **Free movement only.** The gate, the NPC walks, and the Hex Card icon work only in free movement.

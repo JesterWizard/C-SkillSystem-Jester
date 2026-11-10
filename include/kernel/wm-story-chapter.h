@@ -21,6 +21,18 @@ extern const struct WmStoryChapterNode gWmStoryChapterNodes[];
 extern u8 gWmStoryChapter;
 
 int GetWmStoryChapterNode(int chapter);
+
+/*
+ * Where a chapter comes in the story: its row in gWmStoryChapterNodes (0: the prologue), or -1. Story chapters are
+ * compared by this, not by id: CHAPTER_11 is 0x3D, after every other story chapter's id.
+ */
+int GetWmStoryChapterRank(int chapter);
+
+/* How far the story is: the rank of gWmStoryChapter, 0 before the first story chapter */
+int WmStoryRank(void);
+
+/* A row that counts from story chapter `chapter` on: true once the story has reached it */
+bool WmStoryReached(int chapter);
 void WmStoryChapter_Begin(int chapter);
 int GetWmLocChapter(int node);
 

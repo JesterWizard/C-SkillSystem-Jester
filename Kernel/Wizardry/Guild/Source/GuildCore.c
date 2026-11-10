@@ -351,9 +351,7 @@ int Guild_FeaturedBonus(int index)
 
 bool Guild_RivalActive(int index)
 {
-	int story = gWmStoryChapter == WM_STORY_CHAPTER_NONE ? 0 : gWmStoryChapter;
-
-	return gGuildRival[index].storyChapter <= story;
+	return WmStoryReached(gGuildRival[index].storyChapter);
 }
 
 int Guild_RivalCurrent(int kind, int param)

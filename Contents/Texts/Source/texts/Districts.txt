@@ -537,3 +537,6 @@ You beat Marlo's record! Tokens paid.[X]
 Artur: win 15 battles.[X]
 ## MSG_GUILD_Q_STORY_AMELIA
 Amelia: win 15 battles.[X]
+## MSG_STORY_STUB_CHAPTER
+This chapter has not been written yet.[NL]
+The story moves on to the next one.[A][X]

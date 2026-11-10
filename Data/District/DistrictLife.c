@@ -8,10 +8,7 @@
  * chapter, its tints, and the townsfolk's places.
  */
 
-/*
- * The time of day in every district, from each story chapter on. The rows compare chapter ids, so keep them in id order:
- * CHAPTER_11 is 0x3D (jester_headers/maps.h), so it is left out here and in the spots.
- */
+/* The time of day in every district, from each story chapter on (in story order; the last row reached wins) */
 const struct DistrictTime gDistrictTimes[] = {
 	{ 0x00, DISTRICT_TIME_DAY },
 	{ CHAPTER_07, DISTRICT_TIME_EVENING },
@@ -49,11 +46,11 @@ const struct DistrictNpcSpot gDistrictNpcSpots[] = {
 	SPOT(PORT_KIRIS, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_12, 4, 6),
 	SPOT(PORT_KIRIS, CHARACTER_CITIZEN_TEEN_GIRL, CHAPTER_13, 16, 6),
 
-	SPOT(CAER_PELYN, CHARACTER_CITIZEN, CHAPTER_09, 11, 10),
-	SPOT(CAER_PELYN, CHARACTER_CITIZEN_YOUNG_GIRL, CHAPTER_10, 10, 16),
+	SPOT(CAER_PELYN, CHARACTER_CITIZEN, CHAPTER_14, 11, 10),
+	SPOT(CAER_PELYN, CHARACTER_CITIZEN_YOUNG_GIRL, CHAPTER_16, 10, 16),
 
-	SPOT(JEHANNA, CHARACTER_CITIZEN, CHAPTER_10, 11, 6),
-	SPOT(JEHANNA, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_12, 3, 8),
+	SPOT(JEHANNA, CHARACTER_CITIZEN, CHAPTER_17, 11, 6),
+	SPOT(JEHANNA, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_18, 3, 8),
 
 	{ .chapter = DISTRICT_LIFE_END },
 };

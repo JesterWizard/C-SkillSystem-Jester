@@ -18,7 +18,26 @@ With this feature, the chapter named by `NEXT_CHAPTER_WITH_MAP` is the story cha
 - `WMLoc_GetNextLocId` returns the story chapter's node, wherever the lord is.
 - `WMLoc_GetChapterId` returns the story chapter for its own node, and the vanilla chapter for every other node, so skirmishes are unchanged. The story chapter's id is hidden from other nodes (they report `0xFF`, like vanilla's chapter-less nodes), so `GetBattleMapKind` finds the right node.
 - Back on the world map from a district or a skirmish (chapter `0x38`, or a district chapter), the story chapter is kept.
+- Story chapters are compared by their place in the table (`GetWmStoryChapterRank`, `WmStoryReached`), not by id:
+  `CHAPTER_11` is `0x3D`. District life, the guild rival and anything else that counts "from story chapter N on" use it.
 - `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour.
+
+## The story
+
+| Chapter | Id | Node | |
+|---|---|---|---|
+| Prologue | `0x00` | Border Mulan | |
+| Intermission | `0x38` | Castle Frelia | |
+| 2 - 9 | `0x02` - `0x0A` | Ide, Borgo Ridge, Za'ha Woods, Serafew, Adlas Plains, Renvall (twice), Port Kiris | |
+| 10 | `0x0B` | Teraz Plateau | [stub](./StoryStubs.md) |
+| 11, 12 | `0x3D`, `0x0C` | Caer Pelyn | stubs |
+| 13 | `0x0D` | Hamill Canyon | stub |
+| 14, 15 | `0x0E`, `0x0F` | Jehanna Hall | stubs |
+| 16 | `0x10` | Renais Castle | stub |
+| 17 | `0x11` | Narube River | stub |
+| 18 | `0x12` | Neleras Peak | stub |
+| 19 | `0x13` | Rausten Court | stub |
+| 20 | `0x14` | Black Temple | stub; 21 and 22 follow without the world map |
 
 ## Adding a chapter
 
@@ -28,7 +47,7 @@ Add a row to `gWmStoryChapterNodes` in `CustomCampaign/Event/World_Map_Events.c`
 { CHAPTER_11, WM_NODE_Serafew },
 ```
 
-- The chapter's own world map script (`EventScrWM_SET_NODE[gmapEventId]`) should still reveal that node as the destination (`WM_REVEAL_DEST` / `WM_SETDESTINATION`). The player can only travel there along an open path from the lord's node.
+- The chapter's own world map script (`EventScrWM_SET_NODE[gmapEventId]`) must reveal that node as the destination (`WM_REVEAL_DEST` / `WM_SETDESTINATION`): without it the node is not the "next" one, and arriving there opens the node menu instead of the chapter (Chapter 10's script, with only `WM_CREATENEXTDESTINATION`, had this). The player can only travel there along an open path from the lord's node, and `WM_REVEAL_DEST` only draws a vanilla path, between neighbouring nodes.
 - Chapters reached with `NEXT_CHAPTER_WITHOUT_MAP` (e.g. Chapter 1 and 5x) need no row.
 - Flag 136 no longer decides where the story goes. The events can keep using it, or stop.
 

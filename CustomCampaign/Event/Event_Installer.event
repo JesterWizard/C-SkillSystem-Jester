@@ -64,8 +64,8 @@ NewEventPointerTable_Event(0xCF, JehannaEvent)
 #include "../Chapters/Jehanna/events/events.lyn.event"
 #include "../Chapters/Jehanna/map/Jehanna_map.event"
 
-// EventPointerTable(0x33, Chapter10Event)
-// #include "../Chapters/10/events/events.lyn.event"
+/* Chapter 10 and the chapters after it are stubs for now (their world map scripts for Chapter 10 are in Chapters/10) */
+#include "../Chapters/Stubs/Stubs.event"
 
 #include "Maps/16/16_map.event"
 

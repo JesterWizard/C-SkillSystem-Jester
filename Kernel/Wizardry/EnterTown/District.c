@@ -5,16 +5,14 @@
 #include "district.h"
 
 /*
- * A district opens when the world-map story moves on from its story chapter (the next story chapter starts). The
- * campaign's story table (gWmStoryChapterNodes) ends at Chapter 10, so Caer Pelyn and Jehanna Hall open earlier than
- * their places in the story for now: after Chapter 7 and Chapter 8. Move them back to Chapter 12 (0x0C) and Chapter 15
- * (0x0F) once those chapters and the next ones are in the story table.
+ * A district opens when the world-map story moves on from its story chapter (the next story chapter starts). Caer
+ * Pelyn opens after Chapter 12 and Jehanna Hall after Chapter 15, stub chapters for now (CustomCampaign/Chapters/Stubs).
  */
 const struct DistrictNode gDistrictNodes[] = {
 	{ NODE_SERAFEW,         0x3B, 0x06, 0, GLOBAL_FLAG_DISTRICT_SERAFEW },    /* Ch5 */
 	{ NODE_PORT_KIRIS,      0x3C, 0x0A, 0, GLOBAL_FLAG_DISTRICT_PORT_KIRIS }, /* Ch9 Eirika */
-	{ NODE_CAER_PELYN,      0x41, 0x08, 0, GLOBAL_FLAG_DISTRICT_CAER_PELYN }, /* Ch7 for now; Ch12 Eirika (0x0C) */
-	{ NODE_JEHANNA_HALL_13, 0x42, 0x09, 0, GLOBAL_FLAG_DISTRICT_JEHANNA },    /* Ch8 for now; Ch15 (0x0F) */
+	{ NODE_CAER_PELYN,      0x41, 0x0C, 0, GLOBAL_FLAG_DISTRICT_CAER_PELYN }, /* Ch12 (stub) */
+	{ NODE_JEHANNA_HALL_13, 0x42, 0x0F, 0, GLOBAL_FLAG_DISTRICT_JEHANNA },    /* Ch15 (stub) */
 	{ DISTRICT_NODE_END, 0, 0, 0, 0 },
 };
 
