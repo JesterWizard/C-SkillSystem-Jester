@@ -1,4 +1,9 @@
 #include "common-chax.h"
+#include "district.h"
+#include "wm-story-chapter.h"
+
+/* The chapter a side map hands back to the world map with (WmStoryChapter.c) */
+#define WM_CHAPTER_SIDE_MAP_RETURN 0x38
 
 extern u8 gPlayStChapterBits[4];
 extern u8 gPlayStChapterMode[4];
@@ -108,6 +113,21 @@ void SaveMenuInitSaveSlotData(u8 slot, struct SaveMenuProc * proc)
 
                 if (latestChapter >= 0)
                     ch_idx = latestChapter;
+
+                /*
+                 * A save made on leaving a district or a skirmish holds the side-map return chapter (0x38), and one
+                 * made in a district holds the district's chapter: title them with the story chapter the save is on
+                 * (#705). The district rows' title ids are other chapters' (Serafew's, 0x50, read as "Skirmish Map").
+                 * A save after a story chapter holds the next chapter already, before the world map moves the story
+                 * on, so it keeps it.
+                 */
+                if (playSt.chapterIndex == WM_CHAPTER_SIDE_MAP_RETURN ||
+                    District_IsDistrictChapter(playSt.chapterIndex)) {
+                    int story = WmStoryChapter_ReadFromSave(slot);
+
+                    if (GetWmStoryChapterNode(story) >= 0)
+                        ch_idx = story;
+                }
             }
 
             chIndex = playSt.chapterIndex;
