@@ -1,0 +1,15 @@
+/*
+ * World-map vendors: gWMNodeData[node].vendor (+0x10 of each 0x20-byte node, vanilla's table at 0x82060B0) points at
+ * the lists in VendorStock.c (#704).
+ */
+#include "VendorStock.lyn.event"
+
+#define WM_VENDOR(node, stock) "PUSH; ORG 0x2060B0 + (node) * 0x20 + 0x10; POIN stock; POP"
+WM_VENDOR(5, gWmVendorStock_Serafew)
+WM_VENDOR(9, gWmVendorStock_PortKiris)
+WM_VENDOR(15, gWmVendorStock_PortKiris)
+WM_VENDOR(11, gWmVendorStock_CaerPelyn)
+WM_VENDOR(16, gWmVendorStock_CaerPelyn)
+WM_VENDOR(19, gWmVendorStock_Late)
+WM_VENDOR(21, gWmVendorStock_Late)
+WM_VENDOR(23, gWmVendorStock_Late)
