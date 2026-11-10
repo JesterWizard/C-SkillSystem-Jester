@@ -9,6 +9,7 @@
 ## 📑 Index
 - [Introduction](#introduction)
 - [Using an Expression in Dialogue](#using-an-expression-in-dialogue)
+- [The Expressions](#the-expressions)
 - [Adding an Expression](#adding-an-expression)
 - [The Portrait Tool](#the-portrait-tool)
 - [Making It Look Hand-Made](#making-it-look-hand-made)
@@ -58,6 +59,26 @@ An expression is a normal portrait (`setMugEntry`) plus one row in a table. The 
 
 `[LoadFace]` on a slot that already has a face also swaps in place (the vanilla face-change proc). Without a fade.
 `[Expression]` is the same swap, found by character and expression instead of by portrait id.
+
+---
+
+## 🎭 The Expressions
+
+| Portrait | Character | Expression | Changes from the base | Used in |
+|---|---|---|---|---|
+| `0xB0` | Eirika (`0x02`) | Angry | Brows down toward the nose, lids over the iris, a flat frown | Not yet in a scene |
+| `0xB1` | Eirika (`0x02`) | Sad | Inner brow up, outer end down, lid lower, a small downturned mouth | Prologue: "...Yes... Father is strong" to the end of the scene |
+| `0xB2` | Ephraim (`0x14`) | Angry | Brows down toward the nose, the upper lid over the eye's highlight, a flat frowning mouth | Chapter 9: "And who are you supposed to be ugly?" |
+| `0xB3` | Seth (`0x04`) | Hurt | Inner brow up (pain), the eye narrowed, a wider grimace | Prologue: "Argh...! N-No!" when Valter strikes him; "Your Highness, I can't allow an injury..." until "King Fado will not be taken down" |
+| `0xB4` | Lyon (`0x46`) | Sad | Inner brow up, a heavier lid, a downturned mouth | Not yet: Lyon's present-day portrait is not in the campaign so far |
+
+Each was exported from its vanilla portrait and changes only the eyes, brows and mouth (25 to 40 face pixels); its blink
+and talking frames carry the same changes, and its smile frames are copies of its talking frames, so none of them
+smiles. They are in `Data/CustomPortraits/Portraits/` (`eirika_angry.png`, `eirika_sad.png`, `ephraim_angry.png`,
+`seth_hurt.png`, `lyon_sad.png`).
+
+The scenes' lines are in `CustomCampaign/Chapters/00/text/opening.txt` and `CustomCampaign/Chapters/09/text/opening.txt`.
+Each tag follows the `[OpenX]` of the face's slot at that point.
 
 ---
 
