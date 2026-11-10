@@ -29,12 +29,14 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  frames      the battlequote scene with Eirika's frame set pointed at [Surprised] (a test ROM): her base portrait
+              stays, the set is on her face's slot and its open eyes are in the face's graphics.
   awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, snek, savelayout, suspend, gamesave, battle, battlequote,
-awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -81,7 +83,7 @@ BATTLE_TARGET = 0x0203A56C
 GFACES = 0x03004980
 EVENT_SLOTS = 0x030004B8
 EIRIKA_PORTRAIT = 0x02
-EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED = 3, 4, 5  # include/kernel/portrait-expressions.h
+EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED, EXPRESSION_DETERMINED = 3, 4, 5, 6  # include/kernel/portrait-expressions.h
 BM_MAP_UNIT = 0x0202E4D8
 ITEM_TONIC = 0xDF
 SKILL_SCROLL_ITEMS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 (include/configs/configs.h)
@@ -815,6 +817,54 @@ class Smoke:
         self.check("awards: the chapter end pays 10 + 5 + 5 tokens", tokens == 20 and magic == 0,
                    "tokens %d, counts %s" % (tokens, "cleared" if magic == 0 else "left"))
 
+    def test_frames(self, boot_ss):
+        """The battlequote scene with Eirika's [Surprised] drawn by a frame set: a test ROM points her Determined
+        frame set (gPortraitFrames) at SURPRISED (she has no surprised portrait). The face keeps her base portrait,
+        the set is on its slot, and the face's graphics have the set's open eyes where the face image shows them."""
+        d = os.path.join(self.out, "battle")
+        os.makedirs(d, exist_ok=True)
+        need = ("gPortraitFrames", "gPortraitFrameSlots")
+        if not all(n in self.sym for n in need):
+            return self.check("frames: a frame set", False, "no symbols")
+        data = bytearray(open(ROM, "rb").read())
+        a = self.sym["gPortraitFrames"] - 0x08000000
+        while data[a] and not (data[a] == EIRIKA_PORTRAIT and data[a + 1] == EXPRESSION_DETERMINED):
+            a += 8
+        if not data[a]:
+            return self.check("frames: Eirika has a frame set", False)
+        data[a + 1] = EXPRESSION_SURPRISED
+        frames = struct.unpack_from("<I", data, a + 4)[0] - 0x08000000
+        rom = os.path.join(d, "frames.gba")
+        open(rom, "wb").write(data)
+        enemy = 0x0202CFBC
+        rows, ex, ey = self.run(rom, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT, "r8 %#x" % (enemy + 0x10),
+                                      "r8 %#x" % (enemy + 0x11)], d)
+        tile_row = lambda y: self.run(rom, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0]
+        moves = ["w8 %#x 0" % (tile_row(ey) + ex), "w8 %#x 0x81" % (tile_row(6) + 4), "w8 %#x 4" % (enemy + 0x10),
+                 "w8 %#x 6" % (enemy + 0x11)]
+        lines = ["load " + boot_ss] + moves + EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press DOWN",
+                                                           "wait 30", "press A", "wait 60"]
+        lines += ["wait 50", "press A", "wait 40"] * 5 + ["shot frames.png", "save frames.ss", "r32 %#x" % GFACES]
+        face = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "frames.png"), "Eirika's frame set")
+        if not face or not face[0]:
+            return self.check("frames: Eirika's face is up", False)
+        slots = self.sym["gPortraitFrameSlots"]
+        vals = self.run(rom, ["load " + os.path.join(d, "frames.ss"), "r16 %#x" % (face[0] + 0x3E),
+                              "r16 %#x" % (face[0] + 0x3C), "r32 %#x" % slots, "r8 %#x" % (slots + 0x10)], d)
+        if len(vals) != 4:
+            return self.check("frames: the face's state", False, "values %s" % vals)
+        fid, oam2, set_ptr, applied = vals
+        self.check("frames: [Surprised] keeps the base portrait and puts the set on the slot",
+                   fid == EIRIKA_PORTRAIT and set_ptr == a + 0x08000000 and applied == 1,
+                   "portrait %#x, set %#x (want %#x), applied %d" % (fid, set_ptr, a + 0x08000000, applied))
+        # Eirika's eyes are at tile (3, 4): sheet tile (3, 4) is face image tile 9 (row 0, column 8 + 1)
+        vram = ((oam2 + 9) & 0x3FF) * 0x20 + 0x06010000
+        got = self.run(rom, ["load " + os.path.join(d, "frames.ss")] + ["r32 %#x" % (vram + 4 * k) for k in range(8)], d)
+        want = list(struct.unpack_from("<8I", data, frames))
+        self.check("frames: the face's graphics show the set's open eyes", got == want,
+                   "first eye tile %s" % ("matches" if got == want else "differs"))
+
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
         if "gPortraitExpressions" not in self.sym:
@@ -880,7 +930,7 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards"):
+    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
@@ -888,6 +938,8 @@ def main():
             s.test_battle(boot_ss)
         if boot_ss and on("battlequote"):
             s.test_battlequote(boot_ss)
+        if boot_ss and on("frames"):
+            s.test_frames(boot_ss)
         if boot_ss and on("awards"):
             s.test_awards(boot_ss)
     if on("savelayout"):

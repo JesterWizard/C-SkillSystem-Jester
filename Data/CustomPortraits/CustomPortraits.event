@@ -102,3 +102,13 @@ setMugEntry(0xB3,Portrait_0xB3,2,5,3,3)
 Portrait_0xB4:
    #incext PortraitFormatter "Portraits/lyon_sad.png"
 setMugEntry(0xB4,Portrait_0xB4,2,5,3,3)
+
+// Expression frame sets (gPortraitFrames, Data/CustomPortraits/PortraitExpressions.c): an expression's eyes and mouths
+// on its base portrait. Frames/<name>.png is the frame sheet; the .bin is made from it with
+// `portrait_tool.py frames Frames/<name>.png <base export>.png Frames/<name>.bin` (PortraitExpressions.md).
+ALIGN 4
+PortraitFrames_EirikaDetermined:
+   #incbin "Frames/eirika_determined.bin"
+ALIGN 4
+PortraitFrames_EphraimDetermined:
+   #incbin "Frames/ephraim_determined.bin"

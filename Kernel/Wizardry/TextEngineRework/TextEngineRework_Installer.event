@@ -4,6 +4,8 @@
 #include "EAstdlib.event"
 #include "Source/LynJump.event"
 #include "Source/TextEngineRework.lyn.event"
+/* Expression frame sets: the eyes and mouth of an expression on its base portrait (include/kernel/portrait-expressions.h) */
+#include "Source/PortraitFrames.lyn.event"
 #include "Text_Engine_Tables.event"
 #include "Popups/Popups.event"
 

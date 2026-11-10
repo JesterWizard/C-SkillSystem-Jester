@@ -12,6 +12,7 @@
 - [The Expressions](#the-expressions)
 - [Expressions in Quotes](#expressions-in-quotes)
 - [Adding an Expression](#adding-an-expression)
+- [Frame Sets](#frame-sets)
 - [The Portrait Tool](#the-portrait-tool)
 - [Making It Look Hand-Made](#making-it-look-hand-made)
 - [Code Locations](#code-locations)
@@ -152,6 +153,80 @@ alias to `textdefs.txt`. Numbers start at 1: a 0 byte would end the dialogue.
 
 ---
 
+## 🎞️ Frame Sets
+
+Many expressions change only the eyes and the mouth. A **frame set** draws such an expression on the base portrait,
+with no portrait of its own: three eye frames (open, half shut, shut) and the six mouth frames, 2304 bytes instead of a
+whole portrait and a portrait id.
+
+| Base portrait | Character | Expression | Frames | Made from |
+|---|---|---|---|---|
+| `0x02` | Eirika | Determined | `Frames/eirika_determined.png` | Her angry portrait's brows (`0xB0`), her own mouths |
+| `0x14` | Ephraim | Determined | `Frames/ephraim_determined.png` | His angry portrait's brows (`0xB2`), his own mouths |
+
+So `[Determined]` now shows on Eirika and Ephraim. No line of theirs uses it yet; the battle quotes use it for Seth,
+Ross, Natasha and Artur, who have no set.
+
+**How it shows.** `[Expression]` looks for a portrait first (`gPortraitExpressions`), then a frame set
+(`gPortraitFrames`). With a set, the face goes back to the base portrait if it was showing another expression, the
+open eyes are written over the face's graphics (OBJ VRAM) and the blink frames over its two blink frames, and the
+mouth draws its talking and smiling from the set. `[Neutral]`, another expression or a new face puts the base's eyes
+back. A face changed in place (`[LoadFace]` of the same portrait) keeps its set.
+
+**The frame sheet** is 96x48, in the base portrait's colours:
+
+| Frame | Where |
+|---|---|
+| Eyes open, half shut, shut | (0, 0), (32, 0), (64, 0) |
+| Mouths, as the sheet's (talking row, then smiling row) | (0, 16), (32, 16), (64, 16), (0, 32), (32, 32), (64, 32) |
+
+The open eyes replace the face at its eye coordinates, so they must line up with the face around them; `check-frames`
+counts edge pixels that break a line the base continues (a seam), and transparent pixels where the face has colour.
+
+**Adding one:**
+
+1. Export the base portrait, which also gives its palette order:
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py export fe8.gba 0x02 eirika_base.png
+   ```
+2. Draw the frame sheet, or take it from an expression portrait you already have (its eyes, and with `--mouth` its
+   mouths too):
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py frames-from eirika_base.png Data/CustomPortraits/Portraits/eirika_angry.png Data/CustomPortraits/Frames/eirika_determined.png --eyes 3,4
+   ```
+3. Check it, and preview it as the game shows it:
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py check-frames Data/CustomPortraits/Frames/eirika_determined.png eirika_base.png --eyes 3,4
+   ```
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py apply-frames eirika_base.png Data/CustomPortraits/Frames/eirika_determined.png preview.png --eyes 3,4
+   ```
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py animate preview.png preview.gif --mouth 2,6 --eyes 3,4
+   ```
+4. Make the data (the colours must be the base's; it fails otherwise):
+   ```bash
+   python3 -I Tools/portraits/portrait_tool.py frames Data/CustomPortraits/Frames/eirika_determined.png eirika_base.png Data/CustomPortraits/Frames/eirika_determined.bin
+   ```
+5. Include it in `Data/CustomPortraits/CustomPortraits.event` under a label, and add a row to `gPortraitFrames` in
+   `Data/CustomPortraits/PortraitExpressions.c`:
+   ```
+   ALIGN 4
+   PortraitFrames_EirikaDetermined:
+      #incbin "Frames/eirika_determined.bin"
+   ```
+   ```c
+   { .basePortrait = 0x02, .expression = EXPRESSION_DETERMINED, .frames = PortraitFrames_EirikaDetermined },
+   ```
+
+The `.bin` is committed and not rebuilt from the sheet: run step 4 again after editing a sheet.
+
+`python3 Tools/cloud/smoketest.py --only frames` checks it in the emulator: a test ROM points Eirika's set at
+`[Surprised]`, and in O'Neill's battle quote her face keeps the base portrait, the set is on its slot, and the face's
+graphics have the set's open eyes.
+
+---
+
 ## 🛠️ The Portrait Tool
 
 `Tools/portraits/portrait_tool.py` (Python 3 and Pillow) works on the 128x112 sheets `PortraitFormatter` reads.
@@ -165,6 +240,10 @@ alias to `textdefs.txt`. Numbers start at 1: a 0 byte would end the dialogue.
 | `diff BASE EDIT OUT.png` | Base, edit and the changed pixels, side by side at 4x |
 | `recolor SHEET OUT OLD=NEW ...` | Palette swaps (hex colours), for outfit or hair variants |
 | `format SHEET OUT.bin` | The bytes `PortraitFormatter` writes, for checking |
+| `frames-from BASE EXPR OUT --eyes X,Y [--mouth X,Y]` | A frame sheet from an expression portrait: its eyes, and its mouths with `--mouth` (else the base's) |
+| `check-frames FRAMES BASE --eyes X,Y` | A frame sheet: its size, colours outside the base's palette (an error), seams and holes around the open eyes |
+| `apply-frames BASE FRAMES OUT --eyes X,Y` | The base sheet with the frames in, as the game shows it; `animate` previews it |
+| `frames FRAMES BASE OUT.bin` | The frame set's data for `gPortraitFrames`, in the base's palette order |
 
 **The sheet.** Pixels, from the top-left:
 
@@ -216,8 +295,10 @@ down. `sync-frames` carried those into 64 frame pixels, and the smile frames bec
 | Header | [`portrait-expressions.h`](../../include/kernel/portrait-expressions.h) | `enum portrait_expression`, `struct PortraitExpression` |
 | Portraits | [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | `Portrait_0xB0`, angry Eirika |
 | Aliases | [`textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Expression]`, `[Neutral]`, `[Angry]`, `[Sad]`, `[Happy]`, `[Surprised]`, `[Determined]`, `[Hurt]` |
-| Face-change loader | `sub_8006650` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Reloads graphics and palettes, halfbody and 32-colour included |
-| Tool | [`portrait_tool.py`](../../Tools/portraits/portrait_tool.py) | Export, check, sync-frames, animate, diff, recolor, format |
+| Face-change loader | `sub_8006650` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Reloads graphics and palettes, halfbody and 32-colour included; shows a face's frame set again (`PortraitFrames_OnFaceLoaded`). `Face_OnInit` clears it for a new face |
+| Frame sets | [`PortraitFrames.c`](../../Kernel/Wizardry/TextEngineRework/Source/PortraitFrames.c) | `PortraitFrames_Set` writes the eyes into the face's graphics; `PortraitFrames_Mouth` gives the mouth proc (`sub_8005FE0`) its frames; the slots are `gPortraitFrameSlots` (RAM) |
+| Frame data | [`PortraitExpressions.c`](../../Data/CustomPortraits/PortraitExpressions.c), [`Frames/`](../../Data/CustomPortraits/Frames/) | `gPortraitFrames`; the frame sheets and their `.bin` |
+| Tool | [`portrait_tool.py`](../../Tools/portraits/portrait_tool.py) | Export, check, sync-frames, animate, diff, recolor, format; frames-from, check-frames, apply-frames, frames |
 
 ---
 
@@ -231,3 +312,8 @@ down. `sync-frames` carried those into 64 frame pixels, and the smile frames bec
   letters print.
 - Only the speaker changes. To change a listener, `[OpenX]` them first.
 - `[Neutral]` after a quote's `[LoadFace_X]` is never needed: `[LoadFace]` loads the base portrait.
+- Frame sets are for normal portraits: a halfbody has no separate eye and mouth frames (its procs are off). A set's
+  eyes are written into the face's graphics, so a screen that reloads the face's graphics by other means (none in
+  dialogue) shows the base's eyes until the next expression.
+- A frame set changes 32x16 of eyes and 32x16 of mouth. An expression that moves the brows above that box, the cheeks
+  or the head needs a portrait.

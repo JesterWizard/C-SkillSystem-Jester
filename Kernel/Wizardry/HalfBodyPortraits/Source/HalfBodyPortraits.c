@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "face.h"
+#include "portrait-expressions.h"
 #include "bmlib.h"
 #include "scene.h"
 #include "bmmenu.h"
@@ -261,6 +262,7 @@ void Face_OnInit(struct FaceProc *proc)
 		(void *)(sFaceConfig[vramSlot].tileOffset + 0x06010000)
 	);
 	Portrait32_LoadOverlayGfx(proc);
+	PortraitFrames_OnNewFace(proc);
 }
 
 LYN_REPLACE_CHECK(FaceRefreshSprite);
@@ -475,6 +477,7 @@ void sub_8006650(struct UnkFaceProc *proc)
 		sFaceConfig[vramSlot].paletteId + 0x10
 	);
 	Portrait32_LoadOverlayGfx(faceProc);
+	PortraitFrames_OnFaceLoaded(faceProc);
 }
 
 LYN_REPLACE_CHECK(TalkLoadFace);

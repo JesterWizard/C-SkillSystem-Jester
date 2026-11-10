@@ -379,6 +379,8 @@ _kernel_malloc2 gGuildScreen, 0x80
 /* Chapter awards (include/kernel/chapter-awards.h): this chapter's counts (a suspend-save chunk) and the screen (RAM only). */
 _kernel_malloc2 gChapterAwards, 0x64
 _kernel_malloc2 gChapterAwardsScreen, 0x60
+/* Portrait expression frame sets (include/kernel/portrait-expressions.h): the set each face slot shows. RAM only. */
+_kernel_malloc2 gPortraitFrameSlots, 0x14
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

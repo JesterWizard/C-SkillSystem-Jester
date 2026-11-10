@@ -81,8 +81,9 @@ vanilla portrait behavior by default. The hooks remain installed in either mode.
 
 ## 📝 TODO
 
-- This is more general, but allow more mouth frames to show additional
-emotions without requiring seperate portraits.
+- Done for normal portraits: an expression can be a frame set, its eyes and mouths on the base portrait (see
+  [Frame Sets](./PortraitExpressions.md#frame-sets)). Halfbodies bake their eye and mouth frames into the sheet, so
+  they still need a portrait per expression.
 
 ---
 

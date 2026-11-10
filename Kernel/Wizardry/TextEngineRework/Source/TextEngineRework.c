@@ -2874,7 +2874,7 @@ void sub_8005FE0(struct FaceBlinkProc *proc)
 
 		offsetA += 16;
 		Register2dChrMove(
-			face->pFaceInfo->imgMouth + offsetA * 0x20,
+			PortraitFrames_Mouth(face) + offsetA * 0x20,
 			(void *)(((face->oam2 + 28) & 0x3FF) * 0x20 + 0x06010000),
 			4,
 			2
@@ -2904,7 +2904,7 @@ void sub_8005FE0(struct FaceBlinkProc *proc)
 			}
 
 			Register2dChrMove(
-				face->pFaceInfo->imgMouth + offsetB * 0x20,
+				PortraitFrames_Mouth(face) + offsetB * 0x20,
 				(void *)(((face->oam2 + 28) & 0x3FF) * 0x20 + 0x06010000),
 				4,
 				2
@@ -6473,8 +6473,9 @@ static int TextEngine_CommandClearFaceAsh(
  * [Expression][N]: the speaking portrait changes to its character's
  * expression N, in place: the same slot, flip, nameplate and voice, and the
  * vanilla face-change proc reloads the graphics and palettes without a fade.
- * With no such expression nothing changes; EXPRESSION_NEUTRAL goes back to
- * the base portrait.
+ * With no such portrait, a frame set (gPortraitFrames) shows the expression
+ * on the base portrait: its eyes and mouth only. With neither nothing
+ * changes; EXPRESSION_NEUTRAL goes back to the base portrait.
  */
 static int TextEngine_CommandExpression(
 	ProcPtr proc,
@@ -6493,6 +6494,8 @@ static int TextEngine_CommandExpression(
 		face = state->faces[state->activeFaceSlot];
 
 	if (face) {
+		const struct PortraitFrames *frames = NULL;
+
 		base = TextEngine_ExpressionBase(TextEngine_FaceTargetId(face));
 		target = arguments[0] == EXPRESSION_NEUTRAL ? base : -1;
 
@@ -6500,8 +6503,17 @@ static int TextEngine_CommandExpression(
 			if (entry->basePortrait == base && entry->expression == arguments[0])
 				target = entry->portrait;
 
-		if (target >= 0)
+		/* No whole portrait for it: the base portrait with the expression's eye and mouth frames */
+		if (target < 0) {
+			frames = PortraitFrames_Find(base, arguments[0]);
+			if (frames)
+				target = base;
+		}
+
+		if (target >= 0) {
+			PortraitFrames_Set(face, frames);
 			TextEngine_ChangeFace(face, target);
+		}
 	}
 
 	return TalkInterpret(proc);

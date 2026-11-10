@@ -1,5 +1,10 @@
 ALIGN 4
 PUSH
-ORG CURRENTOFFSET+$0;gPortraitExpressions:
+ORG CURRENTOFFSET+$0;gPortraitFrames:
+ORG CURRENTOFFSET+$18;gPortraitExpressions:
 POP
-WORD $B00202 $B10302 $B20214 $B30704 $B40346 $0
+WORD $602
+POIN PortraitFrames_EirikaDetermined
+WORD $614
+POIN PortraitFrames_EphraimDetermined
+WORD $0 $0 $B00202 $B10302 $B20214 $B30704 $B40346 $0
