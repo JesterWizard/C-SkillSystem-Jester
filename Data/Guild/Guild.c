@@ -4,6 +4,7 @@
 #include "constants/characters.h"
 #include "jester_headers/maps.h"
 #include "kernel/guild.h"
+#include "kernel/chapter-awards.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 
@@ -171,6 +172,13 @@ const struct GuildPrize gGuildPrizes[] = {
 	SCROLL(SID_Galeforce, 250),
 #endif
 	{ .item = 0 },
+};
+
+/* Chapter awards (include/kernel/chapter-awards.h): each award's name and its tokens, in CHAPTER_AWARD_* order. */
+const struct ChapterAwardType gChapterAwardTypes[CHAPTER_AWARD_COUNT] = {
+	[CHAPTER_AWARD_MVP] = { MSG_AWARDS_MVP, 10 },
+	[CHAPTER_AWARD_KILLS] = { MSG_AWARDS_KILLS, 5 },
+	[CHAPTER_AWARD_UNSCATHED] = { MSG_AWARDS_UNSCATHED, 5 },
 };
 
 #endif /* CONFIG_DISTRICT_GUILD */

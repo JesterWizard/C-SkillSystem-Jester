@@ -17,4 +17,9 @@
 /* The board's A-press handler, its event, the map fade wrapper and the map markers. */
 #include "Source/GuildDistrict.lyn.event"
 
+/* Chapter awards: the counts, the screen before the post-chapter save menu, and its replacement of
+ * GameControl_CallPostChapterSaveMenu (Source/LynJump.event). Hooks in UnitHooks/data.event and ChapterInitHook/data.event. */
+#include "Source/LynJump.event"
+#include "Source/ChapterAwards.lyn.event"
+
 #endif /* DISTRICT_GUILD_INSTALLED */

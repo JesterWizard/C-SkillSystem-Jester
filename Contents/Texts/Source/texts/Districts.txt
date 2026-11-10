@@ -489,3 +489,29 @@ Earn 60 tokens: Eirika and Seth.[X]
 Earn 120 tokens: Franz and Gilliam.[X]
 ## MSG_GUILD_FEATURED
 Featured![X]
+## MSG_AWARDS_TITLE
+Chapter Awards[X]
+## MSG_AWARDS_MVP
+MVP[X]
+## MSG_AWARDS_KILLS
+Most Foes[X]
+## MSG_AWARDS_UNSCATHED
+Unscathed[X]
+## MSG_AWARDS_NOBODY
+No one this time.[X]
+## MSG_AWARDS_DAMAGE
+damage[X]
+## MSG_AWARDS_DEFEATED
+defeated[X]
+## MSG_AWARDS_TAKEN
+damage taken[X]
+## MSG_AWARDS_BATTLE
+battle[X]
+## MSG_AWARDS_BATTLES
+battles[X]
+## MSG_AWARDS_TOKENS
+tokens[X]
+## MSG_AWARDS_EARNED
+Tokens earned:[X]
+## MSG_AWARDS_HINT
+A Continue[X]
