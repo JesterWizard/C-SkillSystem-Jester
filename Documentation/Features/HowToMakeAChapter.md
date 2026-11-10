@@ -23,7 +23,9 @@ If those pieces do not agree, the chapter usually fails in one of a few predicta
 
 ## 🛠️ Plan
 
-Start from an existing folder under `Chapters/NN/` and keep that shape:
+For a story chapter that is still a [stub](./StoryStubs.md) (Chapters 10 to 22), `python3 Tools/chapter/new_chapter.py <number>` makes the folder and wires it in; it plays as the stub until you write it.
+
+Otherwise, start from an existing folder under `Chapters/NN/` and keep that shape:
 
 | File | What it owns |
 |------|----------------|
