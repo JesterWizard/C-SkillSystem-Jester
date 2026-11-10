@@ -170,9 +170,13 @@ python3 Tools/cloud/smoketest.py --quick
   - in Serafew, Eirika walks to every district spot (fishing, River Crossing, Tower Stack, guild board), A opens each
     screen and B brings the map back; a River Crossing game over pays the guild board's tokens; a met quest is claimed;
     the board sells the Omni Tonic and a skill scroll.
-- No option (about 45 seconds): the same, with all four districts, and in Port Kiris the Pied Piper's Snek game (Yes,
-  80 points, B: 10 tokens and the high score). `--only Jehanna tokens` runs named tests (`boot`,
-  `statscreen`, `battle`, `battlequote`, `savelayout`, `suspend`, `gamesave`, a district's name, `tokens`, `claim`, `prizes`, `snek`).
+- No option: the same, with all four districts, and in Port Kiris the Pied Piper's Snek game (Yes, 80 points, B: 10
+  tokens and the high score). `--only Jehanna tokens` runs named tests; `smoketest.py --help` lists them all (the world
+  map, the stub chapters' battles, the postgame, saves and resumes among them).
+- `--jobs N` runs N tests side by side, each in its own `gbarun` process (default: the CPU count). The full run took
+  about 30 seconds with 4 jobs and 90 with `--jobs 1`. Tests that share a folder (`boot/`, `battle/`, `Serafew/`) run
+  one after another in one job, and a test runs after the state it starts from (the boot, a district). The report and
+  the contact sheet keep the same order whatever N is; the live PASS/FAIL lines print as tests finish.
 - It prints PASS or FAIL per check, writes `report.txt` and `sheet.png` (every opened screen, for a look by eye) to
   `--out` (default: a new temp folder), and exits with the number of failed checks.
 - A district test ROM starts a new game in the district (chapter row 0 takes the district's map and events). Eirika
