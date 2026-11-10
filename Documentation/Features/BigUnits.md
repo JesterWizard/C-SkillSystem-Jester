@@ -62,6 +62,9 @@ all 8 are in use stays 1x1.
 - **One action per phase.** The block acts once. The AI asks each corner in turn: the first one that can fight (or use a
   staff or an item) acts. If none can, the first corner's move stands. Once a corner has acted, the whole block is
   grayed.
+- **A ghost of where it goes.** With the [translucent unit sprite](./TranslucentUnitSprite.md) on
+  (`alpha_blend_movement_sprites`), a faded double-size copy of the block shows on the tiles it is walking to, from the
+  start of its walk until it gets there.
 - **Moving as one.** The block needs its four tiles free: every tile it moves through or stops on must leave room for
   the other corners, passable for its class and with no other unit on them. The corner that moved takes the others along.
 - **Its range.** Selecting a corner shows every tile the block can cover, and the attack range of all four corners. The
@@ -87,7 +90,7 @@ extern struct BigUnitGroup gBigUnitGroups[BIG_UNIT_GROUPS];
 | Sprites refresh | Each corner's sprite handle is tagged (`SMSHandle._u0A` bit 1, and bit 2 on the first standing corner, group index in bits 4-7) | `BigUnit_SmsTag`, `RefreshUnitSprites` |
 | Sprites draw | Tagged handles are skipped; the shown corner's draws the block. The block hides while a corner's sprite does (a walk, an event). | `BigUnit_PutBlockSprite`, `PutUnitSpritesOam` |
 | HP bars draw | Corners always get theirs, while the block shows | `PutUnitSpriteIconsOam` (`map-task.c`) |
-| A corner walks | The MU's frame is drawn again at twice the size, around the block's bottom centre | `BigUnit_PutMu`, `MU_DisplayAsMMS` |
+| A corner walks | The MU's frame is drawn again at twice the size, around the block's bottom centre. On the AI's walk, a faded copy (semi-transparent OBJ, alpha 8/8 over BG2 and BG3) goes on the destination (`gAiDecision`). | `BigUnit_PutMu`, `BigUnit_PutMuGhost`, `MU_DisplayAsMMS` |
 | A movement map | A tile is a barrier unless the other corners' tiles (the same offset away) are on the map, passable and free of other units | `BigUnit_MarkFootprintBarriers`, end of `PreGenerateMovementMap` |
 | The AI decides | Each corner is asked in turn, the others off the unit map so the block can move onto their tiles | `BigUnit_AiDecide`, `CpDecide_Main` |
 | The player selects a corner | The movement map is widened to every tile the block covers | `BigUnit_ExpandMovementMap`, `DisplayUnitEffectRange` |

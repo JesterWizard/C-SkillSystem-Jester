@@ -98,37 +98,15 @@ void BigUnit_PutBlockSprite(struct SMSHandle *handle)
 static const u8 sObjWidth[3][4] = { { 8, 16, 32, 64 }, { 16, 32, 32, 64 }, { 8, 8, 16, 32 } };
 static const u8 sObjHeight[3][4] = { { 8, 16, 32, 64 }, { 8, 8, 16, 32 }, { 16, 32, 32, 64 } };
 
-/*
- * A corner's MU (MU_DisplayAsMMS, at x, y: the bottom centre of its tile) drawn as the whole block: the animation runs
- * as usual off screen, and each object of its frame is drawn again, twice the size and twice as far from the block's
- * bottom centre, with an OBJ affine matrix (mirrored for a mirrored object). oam0 carries the death fade's blend bit.
- */
-bool BigUnit_PutMu(struct MuProc *proc, int x, int y, int oam0)
+/* The objects of an MU frame, twice the size and twice as far from (x, y), the block's bottom centre */
+static void BigUnit_PutMuFrame(struct APHandle *ap, int x, int y, int oam0, bool ghost)
 {
-	struct APHandle *ap = proc->sprite_anim;
-	const u16 *obj;
+	const u16 *obj = ap->pCurrentObjData;
 	u16 data[4];
-	int corner, n, a0, a1, shape, size, flip, ox, oy, ix, iy;
+	int n, a0, a1, shape, size, flip, ox, oy, ix, iy;
 
-	if (!proc->unit || !ap || !BigUnit_GetGroup(proc->unit, &corner))
-		return false;
-
-	/* A breaking corner just goes: the block stays drawn by its other corners */
-	if (proc->state == MU_STATE_DEATHFADE)
-		return true;
-
-	/* Runs the animation (and loads its frame's tiles), drawn below the screen */
-	AP_Update(ap, OAM1_X(0), OAM0_Y(0xD0));
-
-	x += 8 - 16 * gBigUnitCornerOffsets[corner][0];
-	y += 16 - 16 * gBigUnitCornerOffsets[corner][1];
-
-	SetObjAffine(BIG_AFFINE, 0x80, 0, 0, 0x80);
-	SetObjAffine(BIG_AFFINE + 1, -0x80, 0, 0, 0x80);
-
-	obj = ap->pCurrentObjData;
 	if (!obj)
-		return true;
+		return;
 
 	for (n = *obj++; n > 0; n--, obj += 3) {
 		a0 = obj[0];
@@ -148,11 +126,72 @@ bool BigUnit_PutMu(struct MuProc *proc, int x, int y, int oam0)
 			continue;
 
 		data[0] = 1;
-		data[1] = a0 & 0xFC00;
+		/* A ghost is a semi-transparent OBJ */
+		data[1] = ghost ? ((a0 & 0xF000) | OAM0_BLEND) : (a0 & 0xFC00);
 		data[2] = a1 & 0xC000;
 		data[3] = obj[2];
 		CallARM_PushToSecondaryOAM(OAM1_X(ix + 0x200) | OAM1_AFFINE_ID(BIG_AFFINE + flip),
 					   OAM0_Y(iy + 0x100) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE | oam0, data, ap->tileBase);
 	}
+}
+
+/*
+ * The translucent unit sprite (alpha_blend_movement_sprites) for a 2x2 enemy: while the AI walks it, its frame is
+ * also drawn faded on the block it walks to. The faded OBJ blends with the map (BG2 and BG3) at 8/8; no BG is a first
+ * target, so nothing else on the map changes.
+ */
+static void BigUnit_PutMuGhost(struct MuProc *proc, int corner, int x, int y)
+{
+	struct Unit *unit = proc->unit;
+	int gx, gy;
+
+	if (!gpKernelDesignerConfig->alpha_blend_movement_sprites || proc->state != MU_STATE_MOVEMENT)
+		return;
+	if (gPlaySt.faction == FACTION_BLUE || unit != gActiveUnit || gAiDecision.unitId != (u8)unit->index)
+		return;
+
+	gx = gAiDecision.xMove * 16 - gBmSt.camera.x + 16 - 16 * gBigUnitCornerOffsets[corner][0];
+	gy = gAiDecision.yMove * 16 - gBmSt.camera.y + 32 - 16 * gBigUnitCornerOffsets[corner][1];
+
+	/* There already */
+	if (gx == x && gy == y)
+		return;
+
+	SetBlendConfig(BLEND_EFFECT_ALPHA, 8, 8, 0);
+	SetBlendTargetA(0, 0, 0, 0, 0);
+	SetBlendTargetB(0, 0, 1, 1, 0);
+	SetBlendBackdropB(1);
+
+	BigUnit_PutMuFrame(proc->sprite_anim, gx, gy, 0, true);
+}
+
+/*
+ * A corner's MU (MU_DisplayAsMMS, at x, y: the bottom centre of its tile) drawn as the whole block: the animation runs
+ * as usual off screen, and each object of its frame is drawn again, twice the size and twice as far from the block's
+ * bottom centre, with an OBJ affine matrix (mirrored for a mirrored object). oam0 carries the death fade's blend bit.
+ */
+bool BigUnit_PutMu(struct MuProc *proc, int x, int y, int oam0)
+{
+	struct APHandle *ap = proc->sprite_anim;
+	int corner;
+
+	if (!proc->unit || !ap || !BigUnit_GetGroup(proc->unit, &corner))
+		return false;
+
+	/* A breaking corner just goes: the block stays drawn by its other corners */
+	if (proc->state == MU_STATE_DEATHFADE)
+		return true;
+
+	/* Runs the animation (and loads its frame's tiles), drawn below the screen */
+	AP_Update(ap, OAM1_X(0), OAM0_Y(0xD0));
+
+	x += 8 - 16 * gBigUnitCornerOffsets[corner][0];
+	y += 16 - 16 * gBigUnitCornerOffsets[corner][1];
+
+	SetObjAffine(BIG_AFFINE, 0x80, 0, 0, 0x80);
+	SetObjAffine(BIG_AFFINE + 1, -0x80, 0, 0, 0x80);
+
+	BigUnit_PutMuFrame(ap, x, y, oam0, false);
+	BigUnit_PutMuGhost(proc, corner, x, y);
 	return true;
 }
