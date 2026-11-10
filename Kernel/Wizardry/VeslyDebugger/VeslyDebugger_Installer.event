@@ -8,7 +8,8 @@
 
 ALIGN 4 
 DebuggerTurnedOff_Flag:
-WORD 0xEC // if this flag is on, the debugger is off 
+WORD 0xEF // if this flag is on, the debugger is off (GLOBAL_FLAG_DEBUGGER_OFF, include/jester_headers/custom-structs.h).
+          // It was 0xEC, which entering a district also sets (GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP).
 
 #ifndef A_BUTTON
 #define A_BUTTON        0x0001

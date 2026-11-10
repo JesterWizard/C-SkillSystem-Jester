@@ -32,7 +32,8 @@ extern const UnitPromotions unit_promotions[];
 // 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts)
 // 176-178 (0xB0-0xB2) : free
 // 180-235 (0xB4-0xEB) : Used by Guide (see [FE8] "Help" Command & Permanent Event IDs)
-// 236-239 (0xEC-0xEF) : free
+// 236-239 (0xEC-0xEF) : 0xEC base-chapter intro skip, 0xED chapter timer ran out, 0xEE map animation numbers
+//                       (BATTLE_MAPANIMATION_NUMBERS_FLAG, VeslyAOE / VeslyDrawAnimations), 0xEF debugger off
 // 240-295 (0xF0-0x127) : Used to mark guide entries as read
 
 /* Global flags use */
@@ -58,6 +59,8 @@ enum {
 
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
     GLOBAL_FLAG_TIME_RAN_OUT = 0xED,
+    /* 0xEE: BATTLE_MAPANIMATION_NUMBERS_FLAG (Kernel/Wizardry/VeslyAOE, VeslyDrawAnimations) */
+    GLOBAL_FLAG_DEBUGGER_OFF = 0xEF, /* DebuggerTurnedOff_Flag, Kernel/Wizardry/VeslyDebugger/VeslyDebugger_Installer.event */
 };
 
 extern const EventListScr EventScr_MapSupportConversation_NEW[];

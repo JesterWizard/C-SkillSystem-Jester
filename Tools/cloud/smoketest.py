@@ -29,6 +29,8 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
+              (0xEF) set.
   stealer     Eirika holds the Skill Stealer and defeats O'Neill (a boss, 1 HP) with Str Bonus in his first skill
               slot: she gets Str Bonus's scroll.
   frames      the battlequote scene with Eirika's frame set pointed at [Surprised] (a test ROM): her base portrait
@@ -38,7 +40,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, snek, savelayout, suspend, gamesave, battle, battlequote,
-frames, stealer, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -75,6 +77,7 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
+PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
 PALETTE_BUFFER = 0x020228A8
 CHAPTER = PLAYST + 0x0E
@@ -914,6 +917,29 @@ class Smoke:
             return ((sid - 0xFF) << 8) | SKILL_SCROLL_ITEMS[1]
         return (sid << 8) | SKILL_SCROLL_ITEMS[0]
 
+    def test_debugflag(self, boot_ss):
+        """The debugger's off switch is flag 0xEF, apart from the base-chapter intro skip (0xEC, set by Enter District):
+        with 0xEC set the debugger still opens; with 0xEF set it does not."""
+        d = os.path.join(self.out, "boot")
+        os.makedirs(d, exist_ok=True)
+
+        def flag(f):
+            return PERMANENT_FLAGS + ((f - 0x65) >> 3), 1 << ((f - 0x65) & 7)
+        opens = DEBUG_SAVE[:DEBUG_SAVE.index("press A") + 2]
+        shots = {}
+        for name, f in (("none", None), ("intro_skip", 0xEC), ("debugger_off", 0xEF)):
+            writes = ["w8 %#x %#x" % flag(f)] if f else []
+            self.run(ROM, ["load " + boot_ss, "wait 10", "shot map.png"] + writes + opens + ["shot dbg_%s.png" % name], d)
+            shots[name] = os.path.join(d, "dbg_%s.png" % name)
+        self.shot(shots["intro_skip"], "debugger with the intro skip flag")
+        m = os.path.join(d, "map.png")
+        self.check("debugflag: the debugger opens with the intro skip flag (0xEC) set",
+                   self.diff(m, shots["intro_skip"]) > 25 and self.same_screen(shots["none"], shots["intro_skip"]),
+                   "change %.0f" % self.diff(m, shots["intro_skip"]))
+        self.check("debugflag: flag 0xEF turns the debugger off",
+                   not self.same_screen(shots["none"], shots["debugger_off"]),
+                   "change from the debugger %.0f" % self.diff(shots["none"], shots["debugger_off"]))
+
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
         if "gPortraitExpressions" not in self.sym:
@@ -979,7 +1005,8 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames") or on("stealer"):
+    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames") or on("stealer") or \
+            on("debugflag"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
@@ -987,6 +1014,8 @@ def main():
             s.test_battle(boot_ss)
         if boot_ss and on("battlequote"):
             s.test_battlequote(boot_ss)
+        if boot_ss and on("debugflag"):
+            s.test_debugflag(boot_ss)
         if boot_ss and on("stealer"):
             s.test_stealer(boot_ss)
         if boot_ss and on("frames"):
