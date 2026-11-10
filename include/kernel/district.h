@@ -44,3 +44,54 @@ void StartDistrictNpcs(void);
 
 /* Ends an NPC walk in progress (the NPC proc does not run while an event does). For screens that take over OBJ VRAM. */
 void DistrictNpc_EndWalk(void);
+
+/*
+ * District life (Kernel/Wizardry/EnterTown/DistrictLife.c, tables in Data/District/DistrictLife.c). Both follow the
+ * world-map story (gWmStoryChapter; before the first story chapter, 0).
+ *
+ * Time of day: a district map's palettes are tinted by the time of day, the time of the last gDistrictTimes row whose
+ * story chapter has come. The tint is applied whenever the map's palette loads (UnpackChapterMapPalette, replaced).
+ */
+enum district_time {
+	DISTRICT_TIME_DAY,
+	DISTRICT_TIME_EVENING,
+	DISTRICT_TIME_NIGHT,
+	DISTRICT_TIME_MORNING,
+	DISTRICT_TIMES,
+};
+
+#define DISTRICT_LIFE_END 0xFF
+
+struct DistrictTime {
+	u8 storyChapter;  /* from this story chapter on (gDistrictTimes, in story order, ends with DISTRICT_LIFE_END) */
+	u8 time;          /* DISTRICT_TIME_* */
+};
+
+/* A tint: each colour channel (0-31) becomes channel * mul / 16 + add, at most 31 */
+struct DistrictTint {
+	u8 mul[3];        /* red, green, blue */
+	u8 add[3];
+};
+
+/*
+ * Townsfolk's places: the last gDistrictNpcSpots row for a district and an NPC whose story chapter has come puts that
+ * NPC there when the district opens, if the tile is free (it then wanders around it). Without one, the NPC stands
+ * where the district's events load it.
+ */
+struct DistrictNpcSpot {
+	u8 chapter;       /* the district chapter (gDistrictNpcSpots ends with DISTRICT_LIFE_END) */
+	u8 pid;
+	u8 storyChapter;  /* from this story chapter on */
+	s8 x, y;
+	u8 pad;
+};
+
+extern const struct DistrictTime gDistrictTimes[];
+extern const struct DistrictTint gDistrictTints[DISTRICT_TIMES];
+extern const struct DistrictNpcSpot gDistrictNpcSpots[];
+
+bool District_IsDistrictChapter(int chapter);
+int District_StoryChapter(void);
+int District_TimeOfDay(void);
+void District_TintMapPalettes(void);
+void District_PlaceNpcs(void);

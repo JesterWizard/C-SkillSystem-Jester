@@ -16,7 +16,7 @@
  *   Quests   the first three quests of this board not yet claimed, two lines each: the request, then its progress (or
  *            "Done!") and its reward. A on a met quest claims it.
  *   Prizes   six prizes at a time, scrolling: icon, name and cost. A, then A again, buys one.
- *   Records  every minigame's bests.
+ *   Records  every minigame's bests; DOWN shows the rival's records, UP brings the bests back.
  *
  * L and R (or LEFT and RIGHT) turn the page, UP and DOWN move the hand, B leaves. Layers: BG1 the window frames, BG0 the
  * text and the item icons, OBJ the hand. Avoid `%` and unsigned `/` (CLAUDE.md).
@@ -182,9 +182,11 @@ static void Guild_DrawHint(void)
 	static const u16 hints[GUILD_PAGES] = { MSG_GUILD_HINT_QUESTS, MSG_GUILD_HINT_PRIZES, MSG_GUILD_HINT_RECORDS };
 	struct Text *t = &GS->texts[TEXT_HINT];
 
+	int hint = GS->page == PAGE_RECORDS && GS->top ? MSG_GUILD_HINT_RIVAL : hints[GS->page];
+
 	ClearText(t);
 	Text_InsertDrawString(t, 0, GS->notice ? TEXT_COLOR_SYSTEM_GREEN : TEXT_COLOR_SYSTEM_WHITE,
-			      GetStringFromIndex(GS->notice ? GS->notice : hints[GS->page]));
+			      GetStringFromIndex(GS->notice ? GS->notice : hint));
 	PutText(t, Guild_Tile(1, ROW_HINT));
 }
 
@@ -322,6 +324,8 @@ static int Guild_Progress(int kind)
  *   Legends n/4          Hex cards n
  *   Battles won n
  */
+static void Guild_DrawRival(void);
+
 static void Guild_DrawRecords(void)
 {
 	char buf[64];
@@ -329,6 +333,10 @@ static void Guild_DrawRecords(void)
 
 	for (line = 0; line < GUILD_LINES; line++)
 		ClearText(&GS->texts[line]);
+	if (GS->top) {
+		Guild_DrawRival();
+		return;
+	}
 
 	i = 0;
 	Guild_AppendNum(buf, &i, Guild_QuestsClaimedCount());
@@ -384,6 +392,57 @@ static void Guild_DrawRecords(void)
 	Guild_RecordLine(4, 112, MSG_GUILD_REC_HEX, HexBinder_Total(), 168);
 #endif
 	Guild_RecordLine(5, 0, MSG_GUILD_REC_WINS, Guild_Progress(GUILD_QUEST_WINS), 64);
+
+	GS->rows = 0;
+	for (line = 0; line < GUILD_LINES; line++)
+		Guild_PutLine(line);
+}
+
+/*
+ * The records page's second view (DOWN), the rival's records:
+ *   Marlo's records      Beat them for tokens.
+ *   Crossing S  You n  Marlo m  +t (or Beaten!)
+ *   Tower Stack ...
+ *   Snek ...
+ *
+ *   Marlo trains harder as the war goes on.
+ */
+static void Guild_DrawRival(void)
+{
+	static const u8 kinds[3] = { GUILD_QUEST_CROSSING_SCORE, GUILD_QUEST_TOWER_SCORE, GUILD_QUEST_SNEK_SCORE };
+	static const u16 names[3] = { MSG_GUILD_RIVAL_CROSSING, MSG_GUILD_REC_TOWER, MSG_GUILD_REC_SNEK };
+	struct Text *t;
+	char buf[64];
+	int k, i, r, line;
+
+	Text_InsertDrawString(&GS->texts[0], 0, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_GUILD_RIVAL_TITLE));
+	Text_InsertDrawString(&GS->texts[0], 96, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_GUILD_RIVAL_INTRO));
+	for (k = 0; k < 3; k++) {
+		t = &GS->texts[1 + k];
+		r = Guild_RivalCurrent(kinds[k], 0);
+		Text_InsertDrawString(t, 0, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(names[k]));
+		i = 0;
+		Guild_AppendMsg(buf, &i, MSG_GUILD_RIVAL_YOU);
+		Guild_Append(buf, &i, " ");
+		Guild_AppendNum(buf, &i, Guild_Progress(kinds[k]));
+		Text_InsertDrawString(t, 64, TEXT_COLOR_SYSTEM_BLUE, buf);
+		if (r < 0)
+			continue;
+		i = 0;
+		Guild_AppendMsg(buf, &i, MSG_GUILD_RIVAL_NAME);
+		Guild_Append(buf, &i, " ");
+		Guild_AppendNum(buf, &i, gGuildRival[r].score);
+		Text_InsertDrawString(t, 104, TEXT_COLOR_SYSTEM_WHITE, buf);
+		if (Guild_RivalBeaten(r)) {
+			Text_InsertDrawString(t, 160, TEXT_COLOR_SYSTEM_GREEN, GetStringFromIndex(MSG_GUILD_RIVAL_BEATEN));
+		} else {
+			i = 0;
+			Guild_Append(buf, &i, "+");
+			Guild_AppendNum(buf, &i, gGuildRival[r].rewardTokens);
+			Text_InsertDrawString(t, 160, TEXT_COLOR_SYSTEM_GRAY, buf);
+		}
+	}
+	Text_InsertDrawString(&GS->texts[5], 0, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_GUILD_RIVAL_MORE));
 
 	GS->rows = 0;
 	for (line = 0; line < GUILD_LINES; line++)
@@ -468,6 +527,12 @@ static void Guild_Init(struct ProcGuild *proc)
 	gPaletteBuffer[PAL_BACKDROP_OFFSET] = RGB(2, 3, 7);
 	EnablePaletteSync();
 
+	/* Rival records beaten since the board last opened pay now */
+	if (Guild_RivalPay() > 0) {
+		PlaySoundEffect(SE_REWARD);
+		Guild_Notice(MSG_GUILD_RIVAL_PAID);
+	}
+
 	SetDispEnable(1, 1, 0, 0, 1);
 	Guild_Redraw();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
@@ -541,7 +606,7 @@ static bool Guild_Update(void)
 		if (GS->cursor > 0) {
 			GS->cursor--;
 			PlaySoundEffect(SE_MOVE);
-		} else if (GS->page == PAGE_PRIZES && GS->top > 0) {
+		} else if (GS->top > 0 && (GS->page == PAGE_PRIZES || GS->page == PAGE_RECORDS)) {
 			GS->top--;
 			PlaySoundEffect(SE_MOVE);
 			GS->redraw = 1;
@@ -556,6 +621,11 @@ static bool Guild_Update(void)
 			PlaySoundEffect(SE_MOVE);
 		} else if (GS->page == PAGE_PRIZES && GS->top + GUILD_LINES < n) {
 			GS->top++;
+			PlaySoundEffect(SE_MOVE);
+			GS->redraw = 1;
+		} else if (GS->page == PAGE_RECORDS && GS->top == 0) {
+			/* the rival's records */
+			GS->top = 1;
 			PlaySoundEffect(SE_MOVE);
 			GS->redraw = 1;
 		}

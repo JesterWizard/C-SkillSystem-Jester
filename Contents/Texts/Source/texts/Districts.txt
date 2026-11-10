@@ -366,7 +366,7 @@ A Claim   L/R Page   B Leave[X]
 ## MSG_GUILD_HINT_PRIZES
 A Buy   L/R Page   B Leave[X]
 ## MSG_GUILD_HINT_RECORDS
-L/R Page   B Leave[X]
+DOWN Rival   L/R Page   B Leave[X]
 ## MSG_GUILD_DONE
 Done![X]
 ## MSG_GUILD_NO_QUESTS
@@ -515,3 +515,21 @@ tokens[X]
 Tokens earned:[X]
 ## MSG_AWARDS_HINT
 A Continue[X]
+## MSG_GUILD_HINT_RIVAL
+UP Records   L/R Page   B Leave[X]
+## MSG_GUILD_RIVAL_TITLE
+Marlo's records[X]
+## MSG_GUILD_RIVAL_INTRO
+Beat them for tokens.[X]
+## MSG_GUILD_RIVAL_CROSSING
+Crossing S[X]
+## MSG_GUILD_RIVAL_YOU
+You[X]
+## MSG_GUILD_RIVAL_NAME
+Marlo[X]
+## MSG_GUILD_RIVAL_BEATEN
+Beaten![X]
+## MSG_GUILD_RIVAL_MORE
+Marlo trains harder as the war goes on.[X]
+## MSG_GUILD_RIVAL_PAID
+You beat Marlo's record! Tokens paid.[X]

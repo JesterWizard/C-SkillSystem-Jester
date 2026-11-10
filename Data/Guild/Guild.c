@@ -174,6 +174,27 @@ const struct GuildPrize gGuildPrizes[] = {
 	{ .item = 0 },
 };
 
+/*
+ * The rival, Marlo (include/kernel/guild.h): records to beat, one game at a time, raised as the story goes on. A row
+ * counts from its story chapter on; each pays its tokens once. At most GUILD_RIVAL_MAX rows (a beaten bit each, by place
+ * here): add new rows at the end.
+ */
+#define RIVAL(story, k, p, s, tokens) \
+	{ .kind = (k), .param = (p), .storyChapter = (story), .score = (s), .rewardTokens = (tokens) }
+
+const struct GuildRivalRecord gGuildRival[] = {
+	RIVAL(0x00, GUILD_QUEST_CROSSING_SCORE, 0, 600, 10),
+	RIVAL(0x00, GUILD_QUEST_TOWER_SCORE, 0, 60, 10),
+	RIVAL(0x00, GUILD_QUEST_SNEK_SCORE, 0, 30, 10),
+	RIVAL(CHAPTER_08, GUILD_QUEST_CROSSING_SCORE, 0, 1200, 20),
+	RIVAL(CHAPTER_08, GUILD_QUEST_TOWER_SCORE, 0, 150, 20),
+	RIVAL(CHAPTER_08, GUILD_QUEST_SNEK_SCORE, 0, 60, 20),
+	RIVAL(CHAPTER_10, GUILD_QUEST_CROSSING_SCORE, 0, 2000, 30),
+	RIVAL(CHAPTER_10, GUILD_QUEST_TOWER_SCORE, 0, 250, 30),
+	RIVAL(CHAPTER_10, GUILD_QUEST_SNEK_SCORE, 0, 90, 30),
+	{ .kind = GUILD_QUEST_END },
+};
+
 /* Chapter awards (include/kernel/chapter-awards.h): each award's name and its tokens, in CHAPTER_AWARD_* order. */
 const struct ChapterAwardType gChapterAwardTypes[CHAPTER_AWARD_COUNT] = {
 	[CHAPTER_AWARD_MVP] = { MSG_AWARDS_MVP, 10 },

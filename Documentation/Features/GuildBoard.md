@@ -12,6 +12,7 @@
 - [Quests](#quests)
 - [Prizes](#prizes)
 - [Records](#records)
+- [The Rival](#the-rival)
 - [Chapter Awards](#chapter-awards)
 - [Controls](#controls)
 - [The Board on the Map](#the-board-on-the-map)
@@ -31,7 +32,7 @@ Stand on it and press A: the board opens with three pages.
 - **Quests**: the district's requests. Score so much in a minigame, catch so many kinds of fish, win battles, bring an
   item. A met quest is claimed here for tokens, and sometimes gold and an item.
 - **Prizes**: items bought with tokens, among them tonics for the next battle and skill scrolls.
-- **Records**: every minigame's bests on one page.
+- **Records**: every minigame's bests on one page, and (DOWN) the records of Marlo, the guild's rival.
 
 **Tokens** are the minigames' shared currency: every minigame pays some at its end, and so do quests. They tie the
 district games to each other and to the main campaign.
@@ -196,6 +197,26 @@ every-board ones too.
 
 ---
 
+## 🥇 The Rival
+
+Marlo, the guild's rival, holds records in three minigames. On the Records page, DOWN shows them (UP goes back):
+your best, his record, and its tokens, or "Beaten!".
+
+| From story chapter | River Crossing (Serafew) | Tower Stack | Snek | Tokens each |
+|---|---|---|---|---|
+| the start | 600 | 60 | 30 | 10 |
+| 8 | 1200 | 150 | 60 | 20 |
+| 10 | 2000 | 250 | 90 | 30 |
+
+- He raises his records as the story goes on: the page shows his latest record in each game.
+- Beating a record pays its tokens once, the next time a board opens ("You beat Marlo's record! Tokens paid."). Every
+  record that counts is paid, an earlier one too.
+- The rows are `gGuildRival` in `Data/Guild/Guild.c`: the game as a quest kind (`GUILD_QUEST_CROSSING_SCORE` with its
+  course, `GUILD_QUEST_TOWER_SCORE`, `GUILD_QUEST_SNEK_SCORE`), the story chapter it counts from, the score and the
+  tokens. Each has a beaten bit in the save (16 at most), by its place: add new rows at the end.
+
+---
+
 ## 🏆 Chapter Awards
 
 When a story chapter is cleared, a screen before the save menu hands out three awards and pays their tokens:
@@ -235,7 +256,7 @@ which starts the save menu when it ends. Chapter 0x38 still goes without a save 
 | Button | |
 |---|---|
 | L / R, LEFT / RIGHT | Turn the page |
-| UP / DOWN | Move the hand |
+| UP / DOWN | Move the hand. Records: DOWN shows the rival's records, UP the bests again |
 | A | Quests: claim a met quest. Prizes: ask, then A again to buy |
 | B | Leave |
 
@@ -300,7 +321,7 @@ QUEST(SERAFEW, GUILD_QUEST_CROSSING_SCORE, 0, 800, 15, 0, 0, MSG_GUILD_Q_SERAFEW
 ## 💾 Save Data
 
 `gGuildSave` (`struct GuildSave`, 0x10 bytes, `include/kernel/guild.h`): a magic word, the tokens, the tokens earned
-in all, the one-time prizes bought and the quests claimed (a bit each). It is a chunk in both save lists
+in all, the one-time prizes bought, the quests claimed and the rival's records beaten (a bit each). It is a chunk in both save lists
 (`Kernel/Wizardry/SaveData/data.event`), after Tower Stack's, and `Guild_NewGame` clears it on a new game. A save made
 before the chunk existed loads an empty board.
 
@@ -330,7 +351,7 @@ data but do nothing.
 | Map | [`GuildDistrict.c`](../../Kernel/Wizardry/Guild/Source/GuildDistrict.c) | `Guild_OnPressA`, `StartDistrictGuildASMC`, the marker |
 | Chapter awards | [`ChapterAwards.c`](../../Kernel/Wizardry/Guild/Source/ChapterAwards.c) | The counts, `ProcScr_ChapterAwards`, the `GameControl_CallPostChapterSaveMenu` replacement ([`LynJump.event`](../../Kernel/Wizardry/Guild/Source/LynJump.event)) |
 | Award hooks | [`UnitHooks/data.event`](../../Kernel/Wizardry/UnitHooks/data.event), [`ChapterInitHook/data.event`](../../Kernel/Wizardry/ChapterInitHook/data.event) | `ChapterAwards_OnBattleToUnit`, `ChapterInit_ResetChapterAwards` |
-| Tables | [`Guild.c`](../../Data/Guild/Guild.c) | `gGuildQuests`, `gGuildPrizes`, `gGuildUnlocks`, `gGuildFeatured`, `gChapterAwardTypes` |
+| Tables | [`Guild.c`](../../Data/Guild/Guild.c) | `gGuildQuests`, `gGuildPrizes`, `gGuildUnlocks`, `gGuildFeatured`, `gGuildRival`, `gChapterAwardTypes` |
 | Header | [`guild.h`](../../include/kernel/guild.h), [`chapter-awards.h`](../../include/kernel/chapter-awards.h) | Quest kinds, structs, the API |
 | Token payouts | `Guild_AddTokens` in `CrossingScreen.c`, `TowerScreen.c`, `FishingScreen.c`, `HexScreen.c`, `Snek.c` | Each game's end |
 | Trap type | [`bmtrick.h`](../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_GUILD_BOARD` (32) and `GUILD_BOARD(x, y)` |
