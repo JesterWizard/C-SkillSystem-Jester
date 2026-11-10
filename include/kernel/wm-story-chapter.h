@@ -22,6 +22,9 @@ extern u8 gWmStoryChapter;
 
 int GetWmStoryChapterNode(int chapter);
 
+/* Idle world map: the story chapter's node, once shown, stays the "next" node (WorldMap_LoopExt) */
+void WmStoryChapter_KeepDestination(void);
+
 /*
  * Where a chapter comes in the story: its row in gWmStoryChapterNodes (0: the prologue), or -1. Story chapters are
  * compared by this, not by id: CHAPTER_11 is 0x3D, after every other story chapter's id.

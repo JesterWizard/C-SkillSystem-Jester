@@ -20,7 +20,8 @@ What it checks:
               Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
               gone; travelling to the story node starts Chapter 6.
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
-              travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending.
+              travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending. A
+              monster on Chapter 10's node, not marked next, does not stop it.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
               Marlo's first record and pays 10 tokens once; a test ROM puts the townsfolk on their spots.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
@@ -91,7 +92,8 @@ WM_NODE_DATA = 0x082060B0  # gWMNodeData: 0x20 bytes a node, x and y at +0x18
 STUB_ROUTE = [(0x0B, 10, 9), (0x3D, 11, 10), (0x0C, 11, 11), (0x0D, 12, 11), (0x0E, 13, 12), (0x0F, 13, 13),
               (0x10, 20, 19), (0x11, 21, 19), (0x12, 22, 21), (0x13, 23, 22), (0x14, 25, 23)]
 STUB_FINAL = 0x16
-PLAY_FLAG_COMPLETE = 1 << 5  # gGMData (the world map's units, nodes and cursor)
+PLAY_FLAG_COMPLETE = 1 << 5
+CLASS_REVENANT = 0x52  # gGMData (the world map's units, nodes and cursor)
 CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
@@ -583,6 +585,11 @@ class Smoke:
         got = []
         for chapter, node, _ in STUB_ROUTE:
             x, y = node_xy(node)
+            if chapter == STUB_ROUTE[0][0]:
+                # Chapter 10's node with a monster on it and not marked "next" (as a SET_NODE script without
+                # WM_SETDESTINATION leaves it): the trip must still start the chapter, not a skirmish (#690)
+                lines += ["w32 %#x %#x" % (GM_DATA + 0x20, (CLASS_REVENANT << 16) | (node << 8) | 1),
+                          "w8 %#x 1" % (GM_DATA + 0x30 + 4 * node)]
             lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10",
                       "press A", "wait 90"] + skip
             if chapter == STUB_ROUTE[-1][0]:
@@ -597,6 +604,8 @@ class Smoke:
         legs = [tuple(vals[1 + 2 * i:3 + 2 * i]) for i in range(len(STUB_ROUTE) - 1)]
         want = [(STUB_ROUTE[i + 1][0], STUB_ROUTE[i + 1][2]) for i in range(len(STUB_ROUTE) - 1)]
         bad = ["%#x" % STUB_ROUTE[i][0] for i, (g, w) in enumerate(zip(legs, want)) if g != w]
+        self.check("stubs: a monster on the story node, not marked next, does not stop the chapter (Chapter 10)",
+                   legs[:1] == want[:1], "story, lord's node %s" % (legs[:1],))
         self.check("stubs: each stub chapter moves the story and the lord on (Chapters 10-19)", not bad,
                    "wrong after %s: %s" % (bad, legs) if bad else "%d chapters" % len(legs))
         end = vals[1 + 2 * len(legs):]

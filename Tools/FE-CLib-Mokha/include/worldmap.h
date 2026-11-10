@@ -409,6 +409,7 @@ struct GMUnit {
 
 struct GMNode {
     /* 00 */ u8 state;
+    /* 01 */ STRUCT_PAD(0x01, 0x04); /* 4 bytes a node, as the game reads them (gGMData.nodes at 0x30, unk_a0 at 0xA0) */
 };
 
 /* GMNode::state */

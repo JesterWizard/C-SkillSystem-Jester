@@ -75,8 +75,9 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
 4. For its world map, either keep the stub's `SET_NODE` and `TRAVEL_TO_NODE` scripts (`Stubs/events/worldmap.c`) or
    replace them in `EventScrWM_SET_NODE` and `EventScrWM_TRAVEL_TO_NODE` (`CustomCampaign/Event/World_Map_Events.c`,
    indexed by the chapter's `gmapEventId`).
-   - The `SET_NODE` script must set the destination (`WM_REVEAL_DEST` or `WM_SETDESTINATION`). Otherwise arriving
-     opens the node menu instead of the chapter.
+   - The `SET_NODE` script must reveal the node as the destination (`WM_REVEAL_DEST` or `WM_SETDESTINATION`). A node
+     it never shows can't be travelled to. `WmStoryChapter_KeepDestination` keeps a shown story node "next", so
+     arriving starts the chapter even with a monster on it.
 5. End the chapter with `NEXT_CHAPTER_WITH_MAP` to the next story chapter. That chapter can be a stub.
 
 ---
@@ -88,6 +89,8 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
 - For each story chapter, it puts the cursor on the chapter's node and presses A, then skips the scenes.
 - After each chapter, it checks the next story chapter and where the lord starts.
 - After Chapter 20, it checks that Chapters 21 and 22 lead to the ending (`PLAY_FLAG_COMPLETE`).
+- Before Chapter 10, it puts a monster on Teraz Plateau and clears the node's "next" bit: the trip must still start the
+  chapter (#690, [World Map Story Chapters](./WorldMapStoryChapters.md#monsters-and-the-story-node)).
 
 ---
 
