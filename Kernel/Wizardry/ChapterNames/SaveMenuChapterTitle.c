@@ -5,9 +5,9 @@ extern u8 gPlayStChapterMode[4];
 extern struct PlaySt_OptionBits gPlayStOptionBits[4];
 
 /*
- * Vanilla GMapData occupies 0xD0 bytes (its GMNode entries are 4 bytes),
- * while the C declaration in worldmap.h is compact. Every vanilla routine
- * used here reads and writes the vanilla layout, so keep the raw buffer.
+ * Vanilla GMapData occupies 0xD0 bytes (its GMNode entries are 4 bytes).
+ * worldmap.h declares the same layout now (GMNode is padded to 4 bytes);
+ * this file keeps its raw buffer and offsets, which match it.
  */
 #define WM_SAVE_DATA_SIZE 0xD0
 

@@ -66,6 +66,23 @@ bool WmStoryReached(int chapter)
 	return GetWmStoryChapterRank(chapter) <= WmStoryRank();
 }
 
+/*
+ * The idle world map (WorldMap_LoopExt): the story chapter's node, once shown, is the "next" node (state bit 2), so a
+ * trip there starts the chapter (vanilla's travel loop checks the bit, and only then ignores a monster on the node). A
+ * chapter's SET_NODE script sets it with WM_SETDESTINATION; without that (Chapter 10's script had only
+ * WM_CREATENEXTDESTINATION), the trip ended on the node, a monster there started a skirmish, and A opened the node menu.
+ * Only for a trip: with the lord already on the node, the bit would make A start the chapter instead of the node menu.
+ */
+void WmStoryChapter_KeepDestination(void)
+{
+	int node = GetWmStoryChapterNode(gWmStoryChapter);
+
+	if (node < 0 || node >= NODE_MAX || gGMData.units[0].location == node)
+		return;
+	if ((gGMData.nodes[node].state & 1) && !(gGMData.nodes[node].state & 2))
+		gGMData.nodes[node].state |= 2;
+}
+
 /* WorldMap_CallBeginningEvent: chapter is the MNCH target (gPlaySt.chapterIndex) */
 void WmStoryChapter_Begin(int chapter)
 {

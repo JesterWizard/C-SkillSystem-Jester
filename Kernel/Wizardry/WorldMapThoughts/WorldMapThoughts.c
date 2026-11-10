@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "wm-story-chapter.h"
 #include "worldmap.h"
 #include "kernel-lib.h"
 #include "prep-skill.h"
@@ -353,6 +354,9 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
 
     int x = gGMData.ix;
     int y = gGMData.iy;
+
+    /* A trip to the story chapter's node always starts the chapter (WmStoryChapter.c) */
+    WmStoryChapter_KeepDestination();
 
     if (gpKernelDesignerConfig->world_map_thought_bubbles == true)
     {

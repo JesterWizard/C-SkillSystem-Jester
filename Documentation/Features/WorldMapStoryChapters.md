@@ -22,6 +22,28 @@ With this feature, the chapter named by `NEXT_CHAPTER_WITH_MAP` is the story cha
   `CHAPTER_11` is `0x3D`. District life, the guild rival and anything else that counts "from story chapter N on" use it.
 - `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour.
 
+## Monsters and the story node
+
+World-map monsters (`gGMData.units[4..7]`) spawn on and walk between nodes along open paths, and nothing stops one from
+standing on the story chapter's node. The vanilla travel loop checks the trip's last node:
+- If the node is the "next" one (node state bit 2), the chapter starts, whatever stands there.
+- If not, and a monster is there, the trip becomes a skirmish (#690: travelling to Teraz Plateau gave "Skirmish!", a
+  Preparations screen and an empty map, and Chapter 10 never started).
+
+So the story node must keep bit 2. Two things lost it:
+- Chapter 10's `SET_NODE` script had only `WM_CREATENEXTDESTINATION`, which does not set it (fixed in #686).
+- FE-CLib's `struct GMNode` was 1 byte, but the game reads `gGMData.nodes` 4 bytes a node (`nodes` at `+0x30`,
+  `openPaths` at `+0xA4`). Every C access to `nodes[n]`, `openPaths`, `current_node` and `unk_cd` hit the wrong byte:
+  `Event97_WmInitNextStoryNode`'s writes, the shop rows' "is this node cleared" checks, the skill shop and
+  `WmDynamicPath`. `Tools/FE-CLib-Mokha/include/worldmap.h` now pads the struct to 4 bytes.
+
+`WmStoryChapter_KeepDestination` (`Kernel/Wizardry/WorldMap/WmStoryChapter.c`, called by `WorldMap_LoopExt` every
+frame of the idle world map) sets bit 2 on the story node once it is shown, so a trip there always starts the chapter.
+It leaves the node alone while the lord stands on it: there, bit 2 would make A start the chapter instead of opening
+the node menu (and its Enter District row).
+
+A monster on a node *between* the lord and the story node still stops the trip with a skirmish, as in vanilla.
+
 ## The story
 
 | Chapter | Id | Node | |
@@ -47,7 +69,7 @@ Add a row to `gWmStoryChapterNodes` in `CustomCampaign/Event/World_Map_Events.c`
 { CHAPTER_11, WM_NODE_Serafew },
 ```
 
-- The chapter's own world map script (`EventScrWM_SET_NODE[gmapEventId]`) must reveal that node as the destination (`WM_REVEAL_DEST` / `WM_SETDESTINATION`): without it the node is not the "next" one, and arriving there opens the node menu instead of the chapter (Chapter 10's script, with only `WM_CREATENEXTDESTINATION`, had this). The player can only travel there along an open path from the lord's node, and `WM_REVEAL_DEST` only draws a vanilla path, between neighbouring nodes.
+- The chapter's own world map script (`EventScrWM_SET_NODE[gmapEventId]`) should reveal that node as the destination (`WM_REVEAL_DEST` / `WM_SETDESTINATION`). `WmStoryChapter_KeepDestination` now sets the "next" bit on the shown story node too, but a node the script never shows stays hidden (see [Monsters and the story node](#monsters-and-the-story-node)). The player can only travel there along an open path from the lord's node, and `WM_REVEAL_DEST` only draws a vanilla path, between neighbouring nodes.
 - Chapters reached with `NEXT_CHAPTER_WITHOUT_MAP` (e.g. Chapter 1 and 5x) need no row.
 - Flag 136 no longer decides where the story goes. The events can keep using it, or stop.
 
