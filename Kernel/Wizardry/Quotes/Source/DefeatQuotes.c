@@ -5,6 +5,7 @@
 #include "kernel-lib.h"
 #include "jester_headers/maps.h"
 #include "jester_headers/custom-structs.h"
+#include "big-unit.h"
 
 /* Rewritten to be like the battle quotes, so multiple can be used */
 const struct DefeatTalkEntNew gNewDefeatTalkList[] = {
@@ -190,6 +191,10 @@ static s8 CheckBattleDefeatTalk_NEW(u8 pid) {
 LYN_REPLACE_CHECK(CheckBattleDefeatTalk);
 s8 CheckBattleDefeatTalk(u8 pid)
 {
+    /* 2x2 units: a corner breaking is no defeat while another of its corners stands */
+    if (BigUnit_PidStillStanding(pid))
+        return 0;
+
     if (gpKernelDesignerConfig->custom_defeat_quotes == true)
         return CheckBattleDefeatTalk_NEW(pid);
     
@@ -250,6 +255,9 @@ static void DisplayDefeatTalkForPid_OLD(u8 pid) {
 LYN_REPLACE_CHECK(DisplayDefeatTalkForPid);
 void DisplayDefeatTalkForPid(u8 pid)
 {
+    if (BigUnit_PidStillStanding(pid))
+        return;
+
     if (gpKernelDesignerConfig->custom_defeat_quotes == true)
     {
         DisplayDefeatTalkForPid_NEW(pid);

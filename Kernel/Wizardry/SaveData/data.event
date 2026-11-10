@@ -149,6 +149,7 @@ gEmsSusChunks:
     EmsChunk($0010, Guild_Save, Guild_Load) /* District guild board: tokens, quests claimed, prizes bought */
     EmsChunk($0064, ChapterAwards_Save, ChapterAwards_Load) /* Chapter awards: this chapter's kills and damage */
 #endif
+    EmsChunk($0030, BigUnit_Save, BigUnit_Load) /* 2x2 units: the groups of corners */
     EmsChunkEnd
 
 ALIGN 4

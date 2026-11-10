@@ -29,6 +29,7 @@
 #endif
 #include "District/DistrictLife.lyn.event"
 #include "WorldMap/VendorStock.event"
+#include "BigUnits/BigUnits.lyn.event"
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"
 #include "CustomItems/CustomItems.event"

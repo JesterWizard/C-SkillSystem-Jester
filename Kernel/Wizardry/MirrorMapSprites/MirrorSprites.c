@@ -4,6 +4,7 @@
 #include "kernel/chatlog.h"
 #include "kernel/traps.h"
 #include "kernel/unit-icon.h"
+#include "kernel/big-unit.h"
 
 extern int gSMSSyncFlag;
 extern struct SMSHandle gSMSHandleArray[100];
@@ -279,6 +280,9 @@ void RefreshUnitSprites(void)
 				break;
 		}
 
+        /* 2x2 units: each corner's sprite is skipped, and the block drawn at its shown corner */
+        smsHandle->_u0A |= BigUnit_SmsTag(unit);
+
         smsHandle->config = GetInfo(GetUnitSMSId(unit)).size;
 
         if (unit->state & 0x100) {
@@ -537,6 +541,9 @@ void PutUnitSpritesOam(void)
 
     ReloadCustomTrapSpritePalettes();
 
+    /* 2x2 units: a corner that moved takes the others along */
+    BigUnit_SyncAll();
+
     PutUnitSpriteIconsOam();
     PutRescuedSupportSpritesOam();
 
@@ -546,6 +553,12 @@ void PutUnitSpritesOam(void)
     for (; it != NULL; it = it->pNext)
     {
         int r3 = 0;
+
+        if (it->_u0A & BIG_SMS_CORNER) {
+            if (it->_u0A & BIG_SMS_SHOWN)
+                BigUnit_PutBlockSprite(it);
+            continue;
+        }
 
         int x = it->xDisplay - gBmSt.camera.x;
         int y = it->yDisplay - gBmSt.camera.y;
@@ -727,6 +740,11 @@ void MU_DisplayAsMMS(struct MuProc *proc)
 
 	pos.x += TextEngine_GetStaticOffsetAtY(pos.y);
 	pos.y += TextEngine_GetFxOffsetY();
+
+	/* 2x2 units: a corner's walk is the whole block's */
+	if (BigUnit_PutMu(proc, pos.x, pos.y, proc->state == MU_STATE_DEATHFADE ? OAM0_BLEND : 0))
+		return;
+
 	pos.x = OAM1_X(pos.x);
 	pos.y = OAM0_Y(pos.y);
 

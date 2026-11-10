@@ -10,6 +10,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-structs.h"
 #include "jester_headers/class-pairs.h"
+#include "big-unit.h"
 
 typedef int (*UnitRefrainFunc_t)(struct Unit *unit);
 // extern const UnitRefrainFunc_t gUnitRefrainHooks[];
@@ -51,6 +52,9 @@ void ChapterChangeUnitCleanup(void)
 #if defined(SID_HedgeFund) && (COMMON_SKILL_VALID(SID_HedgeFund))
     bool hedgeFundActivated = false;
 #endif
+
+    /* 2x2 units: the groups end with the chapter */
+    BigUnit_ChapterEnd();
 
     if (gpKernelDesignerConfig->collect_dead_units == true)
     {

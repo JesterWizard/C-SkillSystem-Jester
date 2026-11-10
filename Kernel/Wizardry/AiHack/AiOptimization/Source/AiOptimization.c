@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "big-unit.h"
 #include "skill-system.h"
 #include "battle-system.h"
 #include "kernel-lib.h"
@@ -319,6 +320,9 @@ void CpDecide_Main(ProcPtr proc)
 next_unit:
     gAiState.decideState = 0;
 
+    /* 2x2 units: a block that has acted is grayed before its next corner's turn */
+    BigUnit_SyncAll();
+
     if (*gAiState.unitIt)
     {
         gAiState.unk7C = 0;
@@ -350,7 +354,9 @@ next_unit:
             AiInitDangerMap();
 
             AiClearDecision();
-            AiDecideMainFunc();
+
+            /* 2x2 units: the block acts from its best placed corner */
+            BigUnit_AiDecide();
 
             ReleaseSealSourceCache();
 

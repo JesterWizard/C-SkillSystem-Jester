@@ -5,6 +5,7 @@
 #include "stat-screen.h"
 #include "skill-system.h"
 #include "constants/skills.h"
+#include "big-unit.h"
 
 LYN_REPLACE_CHECK(PutUnitSpriteIconsOam);
 void PutUnitSpriteIconsOam(void)
@@ -69,6 +70,10 @@ void PutUnitSpriteIconsOam(void)
 		if (!unit->pMapSpriteHandle || (unit->pMapSpriteHandle->config & 0x80))
 			continue;
 
+		/* 2x2 units: each corner's icons, while the block shows */
+		if ((unit->pMapSpriteHandle->_u0A & BIG_SMS_CORNER) && !BigUnit_HandleShown(unit->pMapSpriteHandle))
+			continue;
+
 		ix = unit->xPos * 16 - gBmSt.camera.x;
 		iy = unit->yPos * 16 - gBmSt.camera.y;
 
@@ -92,7 +97,7 @@ void PutUnitSpriteIconsOam(void)
 		/**
 		 * 1. HpBar
 		 */
-		if (unit->curHP != unit->maxHP) {
+		if (unit->curHP != unit->maxHP || (unit->pMapSpriteHandle->_u0A & BIG_SMS_CORNER)) {
 			int _cur = unit->curHP;
 			int _max = unit->maxHP;
 

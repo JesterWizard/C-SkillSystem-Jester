@@ -274,6 +274,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/GuildBoard.md"><img src="./Documentation/Gifs/Guild_Board.gif" alt="Guild Board preview" width="360" /></a><br/><b><a href="./Documentation/Features/GuildBoard.md">Guild Board</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Districts.md#entering"><img src="./Documentation/Gifs/District_Flags.gif" alt="District Flags preview" width="360" /></a><br/><b><a href="./Documentation/Features/Districts.md#entering">District Flags</a></b><br/><sub>Green flags on the world map and minimap mark open districts</sub></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/BigUnits.md"><img src="./Documentation/Gifs/Big_Units.gif" alt="2x2 Units preview" width="360" /></a><br/><b><a href="./Documentation/Features/BigUnits.md">2x2 Units</a></b><br/><sub>Bosses and monsters on four tiles, drawn at double size, with an HP bar per corner</sub></td>
+    <td></td>
+  </tr>
 </table>
 
 

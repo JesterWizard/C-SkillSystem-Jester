@@ -36,11 +36,13 @@ gCopyUnitHooks: // void (*)(struct Unit *from, struct Unit *to)
 gClearUnitHooks: // void (*)(struct Unit *unit)
     POIN StatDeuff_OnClearUnit
     POIN Replicate_OnClearUnit
+    POIN BigUnit_OnClearUnit
     POIN GaidenMagicUses_OnClearUnit
     WORD 0 0 0 0
 
 gKillUnitHooks: // void (*)(struct Unit *unit)
     POIN Replicate_OnUnitKill
+    POIN BigUnit_OnUnitKill
     POIN FlushUnitSkillDbgList
     POIN GaidenMagicUses_OnUnitKill
     WORD 0 0 0 0
