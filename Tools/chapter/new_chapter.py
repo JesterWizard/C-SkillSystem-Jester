@@ -4,10 +4,10 @@
     python3 Tools/chapter/new_chapter.py 12 [--dry-run] [--force]
 
 It writes CustomCampaign/Chapters/<NN>/events/:
-  events.c    the chapter's event group, Chapter<NN>Event. It starts as a copy of the stub: the opening shows the
-              placeholder line and moves the story on to the same next chapter, so the game plays as before. Its
-              comments say what to change to write the chapter.
-  units.c     an empty party list for the chapter's units.
+  events.c    the chapter's event group, Chapter<NN>Event. It starts as a copy of the stub: the placeholder line, the
+              same battle (vanilla's tiles and first enemies) and, once it is won, the same next chapter, so the game
+              plays as before. Its comments say what to change to write the chapter.
+  units.c     an empty unit list for the chapter's party.
   worldmap.c  the stub's world-map scripts (EventScrWM_Ch<N>_SET_NODE and _TRAVEL_TO_NODE), written out, unless the
               folder already has a worldmap.c (Chapter 10's).
 
@@ -46,29 +46,49 @@ EVENTS_C = """#include "../../_shared/headers.h"
 /*
  * Chapter {n}: {title} (made from its stub by Tools/chapter/new_chapter.py, Documentation/Features/StoryStubs.md).
  *
- * It still plays as the stub did: the opening shows the placeholder line and moves the story on. To write it:
- * - Put the party and the enemies in units.c, and load them in the opening (LOAD_WAIT) after the scene.
- * - Take TEXT(MSG_STORY_STUB_CHAPTER) and the {next_name} line out of the opening. The ending scene keeps it: the
- *   misc events' win condition (DEFEAT_ALL, a boss's death, a seize) starts the ending.
- * - The map, tileset and title card are the vanilla chapter's (its row in the chapter table). Add chapter.c and a map
- *   folder, as Chapter 9 has, to change them.
+ * It still plays as the stub did: the opening shows the placeholder line, loads the first {count} enemies of vanilla's
+ * army for the chapter ({enemies}) and opens the preparations screen, which deploys the party on vanilla's starting
+ * tiles ({players}). Defeating every enemy runs the win script: {next_name}. To write it:
+ * - Put the party's starting tiles and the enemies in units.c. Point playerUnitsInNormal/InHard at Ch{n}_PlayerUnits,
+ *   and load the enemies in the opening (LOAD_WAIT_PERSIST) in place of the two SVALs and the ASMC.
+ * - Take TEXT(MSG_STORY_STUB_CHAPTER) out of the opening, and write its scene.
+ * - Keep a win condition in the misc events (DEFEAT_ALL, a boss's death, a seize) that runs EventScr_Ch{n}_Win.
+ * - The game-complete branch is only needed by the last chapter: the game's ending plays its map again.
+ * - The map, tileset, title card and goal are the vanilla chapter's (its row in the chapter table; Stubs.event sets
+ *   the goal to "Defeat all enemies"). Add chapter.c and a map folder, as Chapter 9 has, to change them.
  * - The world map before the chapter is in worldmap.c.
  */
 
+/* Stubs/events/events.c */
+extern void StubChapter_LoadEnemies(void);
+extern void StubChapter_CheckGameComplete(void);
+
 static const EventScr EventScr_Ch{n}_Opening[] = {{
     STAL(30)
+    ASMC(StubChapter_CheckGameComplete)
+    BNE(1, EVT_SLOT_C, EVT_SLOT_0)
     TEXT(MSG_STORY_STUB_CHAPTER)
+    SVAL(EVT_SLOT_1, {enemies})
+    SVAL(EVT_SLOT_2, {count})
+    ASMC(StubChapter_LoadEnemies)
+    PREP_ALT
+    ENDA
+    LABEL(1)
+    {next}
+    ENDA
+}};
+
+static const EventScr EventScr_Ch{n}_Win[] = {{
     {next}
     ENDA
 }};
 
 static const EventScr EventScr_Ch{n}_Ending[] = {{
-    {next}
     ENDA
 }};
 
 static const EventListScr EventListScr_Ch{n}_Misc[] = {{
-    /* DEFEAT_ALL(EventScr_Ch{n}_Ending) */
+    DEFEAT_ALL(EventScr_Ch{n}_Win)
     CAUSE_GAME_OVER_IF_LORD_DIES
     END_MAIN
 }};
@@ -86,8 +106,9 @@ const struct ChapterEventGroup Chapter{n}Event = {{
     .traps            = TrapData_None,
     .extraTrapsInHard = TrapData_None,
 
-    .playerUnitsInNormal = Ch{n}_PlayerUnits,
-    .playerUnitsInHard   = Ch{n}_PlayerUnits,
+    /* vanilla's player list (starting tiles); Ch{n}_PlayerUnits once units.c has the chapter's */
+    .playerUnitsInNormal = (const struct UnitDefinition *){players},
+    .playerUnitsInHard   = (const struct UnitDefinition *){players},
 
     .playerUnitsChoice1InEncounter = NULL,
     .playerUnitsChoice2InEncounter = NULL,
@@ -104,10 +125,10 @@ const struct ChapterEventGroup Chapter{n}Event = {{
 
 UNITS_C = """/*
  * Chapter {n}'s units. A row: UNIT_ENTRY(character, class, faction, drop, autolevel, level, x, y, ai, REDAs,
- * ..., items), as in Chapters/09/events/units.c. The list ends with {{}}.
+ * ..., items), as in Chapters/09/events/units.c. The list ends with {{}}. Not used until events.c points at it.
  */
 
-static const struct UnitDefinition Ch{n}_PlayerUnits[] = {{
+const struct UnitDefinition Ch{n}_PlayerUnits[] = {{
     {{}},
 }};
 """
@@ -171,11 +192,11 @@ def main():
     if not m:
         fail("Chapter %s is not a stub: no %sEvent line in %s" % (n, stub, os.path.relpath(STUBS_EVENT, ROOT)))
     slot = m.group(1)
-    line_re = re.compile(r"^STUB_CHAPTER\(%s, (.+)\)[ \t]*\n" % stub, re.M)
+    line_re = re.compile(r"^STUB_CHAPTER\(%s, (.+), (0x[0-9A-Fa-f]+), (0x[0-9A-Fa-f]+), (\d+)\)[ \t]*\n" % stub, re.M)
     m = line_re.search(stubs_c)
     if not m:
         fail("no STUB_CHAPTER(%s, ...) line in %s" % (stub, os.path.relpath(STUBS_EVENTS_C, ROOT)))
-    nxt = m.group(1)
+    nxt, players, enemies, count = m.groups()
     wm_re = re.compile(r"^STUB_SET_NODE(?:_WITH)?\(Ch%d, *(\w+), *(\w+)(?:, *(\w+))?\)[ \t]*\n" % int(n), re.M)
     wm = wm_re.search(stubs_wm)
 
@@ -187,7 +208,8 @@ def main():
             fail("%s exists (an older version of the chapter?): move it away, or pass --force to overwrite it" %
                  os.path.relpath(path, ROOT))
         writes.append((path, text.format(n=n, title=stub_title(n) or "(untitled)", next=nxt,
-                                         next_name=nxt.split("(")[0])))
+                                         next_name=nxt.split("(")[0], players=players, enemies=enemies,
+                                         count=count)))
     wm_path = os.path.join(folder, "worldmap.c")
     if wm and not os.path.exists(wm_path):
         extra = "    %s\n" % wm.group(3) if wm.group(3) else ""
