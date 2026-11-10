@@ -20,7 +20,9 @@
 
 **Snek** is a house minigame that runs as an ASMC-driven event sequence. The player is shown the opening conversation, can accept or decline the game, and then plays the snake minigame inside the event engine.
 
-The goal is to make the house interaction feel like a complete side activity rather than a one-off cutscene. The event flow now supports three outcomes after the game ends: win, draw, or lose.
+The goal is to make the house interaction feel like a complete side activity rather than a one-off cutscene. Each game
+also pays the [guild board](../GuildBoard.md)'s tokens, 1 per 8 points, and the board's Records page shows the high
+score. The event flow now supports three outcomes after the game ends: win, draw, or lose.
 
 ## 🛠️ Plan
 
