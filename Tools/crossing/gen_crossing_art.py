@@ -232,6 +232,235 @@ def heart():
     return img
 
 
+def dust(frame):
+    """A puff of dust from a landing, growing and thinning (3 frames)."""
+    img = new(8, 8)
+    r = (1.6, 2.6, 3.4)[frame]
+    for y in range(8):
+        for x in range(8):
+            d = ((x - 3.5) ** 2 + (y - 4.5) ** 2) ** 0.5
+            if d <= r and (frame < 2 or fa.hash2(x, y) & 1):
+                img[y][x] = 4 if y < 4 else 3
+    return img
+
+
+def ripple(frame):
+    """A ring on the water round a raft landing (16x8, 2 frames)."""
+    img = new(16, 8)
+    rx, ry = (4.5, 1.6) if frame == 0 else (7.0, 2.6)
+    for y in range(8):
+        for x in range(16):
+            d = ((x - 7.5) / rx) ** 2 + ((y - 4.0) / ry) ** 2
+            if 0.55 <= d <= 1.15:
+                img[y][x] = 6 if y < 4 else 7
+    return img
+
+
+def drop(frame):
+    """A water droplet (8x8, 2 frames)."""
+    img = new(8, 8)
+    if frame == 0:
+        for (x, y, c) in ((3, 2, 6), (3, 3, 7), (4, 3, 6), (2, 4, 7), (3, 4, 7), (4, 4, 7), (3, 5, 7)):
+            put(img, x, y, c)
+    else:
+        for (x, y, c) in ((3, 3, 6), (4, 3, 7), (3, 4, 7), (4, 4, 7)):
+            put(img, x, y, c)
+    return img
+
+
+# A small digit font for the score pop-ups: 3x5 glyphs, white with a dark outline, in 8x8 cells (5 pixels apart)
+SMALL = {
+    "0": ["111", "101", "101", "101", "111"], "1": ["010", "110", "010", "010", "111"],
+    "2": ["111", "001", "111", "100", "111"], "3": ["111", "001", "111", "001", "111"],
+    "4": ["101", "101", "111", "001", "001"], "5": ["111", "100", "111", "001", "111"],
+    "6": ["111", "100", "111", "101", "111"], "7": ["111", "001", "010", "010", "010"],
+    "8": ["111", "101", "111", "101", "111"], "9": ["111", "101", "111", "001", "111"],
+    "+": ["000", "010", "111", "010", "000"], "x": ["000", "101", "010", "101", "000"],
+}
+SMALL_ORDER = "0123456789+x"
+
+
+def small_digit(ch):
+    img = new(8, 8)
+    for y, row in enumerate(SMALL[ch]):
+        for x, b in enumerate(row):
+            if b == "1":
+                img[1 + y][1 + x] = 5
+    out = [r[:] for r in img]
+    for y in range(8):
+        for x in range(8):
+            if img[y][x] == 0 and any(0 <= x + dx < 8 and 0 <= y + dy < 8 and img[y + dy][x + dx] == 5
+                                      for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                out[y][x] = 9
+    return out
+
+
+# A second sprite palette for the district twists, the pickups and the medals (OBJ palette 6 in the game)
+PAL_FX2 = [
+    (0, 0, 0),          # 0 transparent
+    (24, 32, 24),       # 1 outline
+    (40, 104, 48),      # 2 shell dark
+    (72, 152, 64),      # 3 shell
+    (152, 200, 96),     # 4 skin
+    (248, 248, 248),    # 5 white
+    (168, 176, 192),    # 6 grey
+    (232, 208, 152),    # 7 sand light
+    (192, 152, 96),     # 8 sand dark
+    (248, 200, 48),     # 9 gold
+    (184, 128, 24),     # 10 gold dark
+    (200, 208, 224),    # 11 silver
+    (192, 112, 56),     # 12 bronze
+    (216, 48, 48),      # 13 red
+    (72, 120, 232),     # 14 blue
+    (224, 216, 192),    # 15 bone
+]
+
+# Caer Pelyn's rafts are ice floes: the raft palette with the wood turned to ice (OBJ palette 7 there)
+PAL_ICE = list(PAL_FX)
+PAL_ICE[1] = (56, 88, 136)
+PAL_ICE[2] = (120, 168, 216)
+PAL_ICE[3] = (184, 216, 240)
+PAL_ICE[4] = (232, 244, 252)
+
+
+def _outline(img, c=1):
+    h, w = len(img), len(img[0])
+    out = [row[:] for row in img]
+    for y in range(h):
+        for x in range(w):
+            if img[y][x] == 0 and any(0 <= x + dx < w and 0 <= y + dy < h and img[y + dy][x + dx] not in (0, c)
+                                      for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                out[y][x] = c
+    return out
+
+
+def turtle(frame):
+    """A swimming turtle seen from above (frames 0, 1), or diving with only its shell's top showing (frame 2)."""
+    img = new(16, 16)
+    if frame < 2:
+        for (x, y) in ((3, 4), (12, 4), (3, 11), (12, 11)) if frame == 0 else ((2, 5), (13, 5), (2, 10), (13, 10)):
+            fa.ellipse(img, x, y, 1.6, 1.2, 4)
+        fa.ellipse(img, 13.5, 7.5, 1.6, 1.4, 4)
+        fa.ellipse(img, 7.5, 7.5, 5.0, 4.5, 3)
+        for (x, y) in ((6, 6), (9, 6), (6, 9), (9, 9), (7, 7), (8, 8)):
+            put(img, x, y, 2)
+        return _outline(img)
+    fa.ellipse(img, 7.5, 9.0, 4.0, 2.2, 2)
+    fa.ellipse(img, 7.5, 9.0, 7.0, 3.0, 0)
+    for y in range(16):
+        for x in range(16):
+            d = ((x - 7.5) / 7.0) ** 2 + ((y - 9.0) / 3.0) ** 2
+            if 0.7 <= d <= 1.1:
+                img[y][x] = 5
+    fa.ellipse(img, 7.5, 9.0, 3.5, 1.8, 2)
+    return img
+
+
+def gull(frame):
+    """A gull seen from above, flying right: wings up (0) or down (1)."""
+    img = new(16, 16)
+    fa.ellipse(img, 8, 8, 4.5, 1.6, 5)
+    put(img, 13, 8, 9)
+    put(img, 14, 8, 9)
+    for k in range(6):
+        dy = (k // 2 + 1) if frame == 0 else -(k // 2 + 1)
+        put(img, 7 - k // 3, 8 - dy, 6)
+        put(img, 7 - k // 3, 8 + dy, 6)
+        put(img, 8 - k // 3, 8 - dy, 5)
+        put(img, 8 - k // 3, 8 + dy, 5)
+    put(img, 2, 7, 6)
+    put(img, 2, 9, 6)
+    return _outline(img)
+
+
+def warn():
+    """A red "!" (8x16): where a gull will come from."""
+    img = new(8, 16)
+    for y in range(2, 10):
+        for x in (3, 4):
+            put(img, x, y, 13)
+    for y in (12, 13):
+        for x in (3, 4):
+            put(img, x, y, 13)
+    return _outline(img)
+
+
+def sand(frame):
+    """A cloud of blowing sand, dithered (2 frames)."""
+    img = new(16, 16)
+    for y in range(16):
+        for x in range(16):
+            v = fa.hash2(x + frame * 5, y + frame * 3)
+            if v > 40:
+                img[y][x] = 7 if v > 120 else 8
+    return img
+
+
+def coin(frame):
+    """A gold coin, spinning: face on (0), edge on (1)."""
+    img = new(16, 16)
+    rx = 5.5 if frame == 0 else 2.5
+    fa.ellipse(img, 7.5, 7.5, rx, 5.5, 10)
+    fa.ellipse(img, 7.5, 7.5, rx - 1.2, 4.3, 9)
+    put(img, 6, 5, 5)
+    put(img, 6, 6, 5)
+    return _outline(img)
+
+
+def potion():
+    """A vulnerary: a blue bottle with a cork."""
+    img = new(16, 16)
+    fa.ellipse(img, 7.5, 10.0, 4.0, 4.0, 14)
+    for y in range(3, 7):
+        put(img, 7, y, 11)
+        put(img, 8, y, 11)
+    put(img, 7, 2, 8)
+    put(img, 8, 2, 8)
+    put(img, 6, 9, 5)
+    return _outline(img)
+
+
+def star(frame):
+    """A sparkle in a bonus dock (2 sizes)."""
+    img = new(16, 16)
+    r = 6 if frame == 0 else 4
+    for k in range(-r, r + 1):
+        put(img, 7 + k, 7, 9)
+        put(img, 7, 7 + k, 9)
+    for k in range(-(r // 2), r // 2 + 1):
+        put(img, 7 + k, 7 + k, 10)
+        put(img, 7 + k, 7 - k, 10)
+    put(img, 7, 7, 5)
+    return img
+
+
+def skull():
+    """A skull with red eyes, lurking in a dock."""
+    img = new(16, 16)
+    fa.ellipse(img, 7.5, 6.5, 5.0, 4.5, 15)
+    for y in range(10, 14):
+        for x in range(5, 11):
+            put(img, x, y, 15)
+    for (x, y) in ((5, 6), (6, 6), (9, 6), (10, 6)):
+        put(img, x, y, 13)
+    for x in (6, 8, 10):
+        put(img, x, 13, 1)
+    return _outline(img)
+
+
+def medal(kind):
+    """A medal on a red ribbon: bronze (0), silver (1), gold (2)."""
+    img = new(16, 16)
+    face, rim = ((12, 10), (11, 6), (9, 10))[kind]
+    for y in range(0, 6):
+        put(img, 5 + y // 2, y, 13)
+        put(img, 10 - y // 2, y, 13)
+    fa.ellipse(img, 7.5, 10.0, 4.5, 4.5, rim)
+    fa.ellipse(img, 7.5, 10.0, 3.3, 3.3, face)
+    put(img, 6, 8, 5)
+    return _outline(img)
+
+
 def dpad_all():
     img = fa.dpad(True)
     side = fa.dpad(False)
@@ -264,11 +493,25 @@ SPRITES = [
     ("BTN_A", "UI", [fa.button_round("A", 6)]),
     ("BTN_B", "UI", [fa.button_round("B", 7)]),
     ("BTN_START", "UI", [fa.button_start()]),
+    ("DUST", "FX", [dust(f) for f in (0, 1, 2)]),
+    ("RIPPLE", "FX", [ripple(f) for f in (0, 1)]),
+    ("DROP", "FX", [drop(f) for f in (0, 1)]),
+    ("DIGIT", "FX", [small_digit(c) for c in SMALL_ORDER]),
+    ("TURTLE", "FX2", [turtle(f) for f in (0, 1, 2)]),
+    ("GULL", "FX2", [gull(f) for f in (0, 1)]),
+    ("WARN", "FX2", [warn()]),
+    ("SAND", "FX2", [sand(f) for f in (0, 1)]),
+    ("COIN", "FX2", [coin(f) for f in (0, 1)]),
+    ("POTION", "FX2", [potion()]),
+    ("STAR", "FX2", [star(f) for f in (0, 1)]),
+    ("SKULL", "FX2", [skull()]),
+    ("MEDAL", "FX2", [medal(k) for k in (0, 1, 2)]),
+    ("BTN_R", "UI", [fa.button_round("R", 8)]),
 ]
-POP_WORDS = ["HOME!", "CLEAR!", "OUCH!", "SPLASH!", "GAME OVER"]
+POP_WORDS = ["HOME!", "CLEAR!", "OUCH!", "SPLASH!", "GAME OVER", "CLOSE!", "PERFECT!", "NEW BEST!", "1UP!", "BONUS!", "RESCUED!", "DONE!", "MEDAL!"]
 POP_PALS = dict(fa.POP_PALS)
 POP_PALS["RED"] = [(64, 8, 8), (0, 0, 24), (255, 176, 160), (240, 88, 72), (192, 32, 32), (255, 255, 255)]
-POP_WORD_PAL = ["GREEN", "GOLD", "ORANGE", "BLUE", "RED"]
+POP_WORD_PAL = ["GREEN", "GOLD", "ORANGE", "BLUE", "RED", "ORANGE", "GOLD", "GOLD", "GREEN", "GOLD", "BLUE", "GREEN", "GOLD"]
 
 
 def build():
@@ -307,7 +550,8 @@ def build():
     h += ["", "extern const u8 gCrossingSceneTiles[CROSSING_SCENE_TILES * 32];",
           "extern const u16 gCrossingSceneMap[30 * 20];", "extern const u16 gCrossingScenePal[16];",
           "extern const u8 gCrossingObjTiles[CROSSING_OBJ_TILES * 32];", "extern const u16 gCrossingObjPalFx[16];",
-          "extern const u16 gCrossingObjPalUi[16];", "extern const u8 gCrossingMapFlagTile[32];", "",
+          "extern const u16 gCrossingObjPalUi[16];", "extern const u16 gCrossingObjPalFx2[16];", "extern const u16 gCrossingObjPalIce[16];",
+          "extern const u8 gCrossingMapFlagTile[32];", "",
           "/* Pop-up words: two 64x32 halves (64 tiles) each, copied into OBJ VRAM when shown */",
           "enum { %s, CROSSING_POP_WORDS };" % ", ".join("CROSSING_POP_" + w.strip("!").replace(" ", "_")
                                                          for w in POP_WORDS),
@@ -324,6 +568,8 @@ def build():
     c.append(fa.c_bytes("gCrossingObjTiles", b"".join(obj), "Sprite tiles (4bpp, 1D order)"))
     c.append(fa.c_u16("gCrossingObjPalFx", fa.pal_words(PAL_FX), "Sprite palette: rafts, splash, spark, flag, heart"))
     c.append(fa.c_u16("gCrossingObjPalUi", fa.pal_words(fa.PAL_UI), "Sprite palette: buttons and the timer meter"))
+    c.append(fa.c_u16("gCrossingObjPalFx2", fa.pal_words(PAL_FX2), "Sprite palette: turtles, gulls, sand, pickups, medals"))
+    c.append(fa.c_u16("gCrossingObjPalIce", fa.pal_words(PAL_ICE), "Sprite palette: the rafts as ice floes (Caer Pelyn)"))
     c.append(fa.c_bytes("gCrossingMapFlagTile", mf, "District map flag (item icon palette 0)"))
     c.append(fa.c_bytes("gCrossingPopTiles", pops, "Pop-up words %s, two 64x32 halves each" % ", ".join(POP_WORDS)))
     c.append(fa.c_u16("gCrossingPopPals", pop_pals, "Pop-up palettes: %s" % ", ".join(pal_names)))
