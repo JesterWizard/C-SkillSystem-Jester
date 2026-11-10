@@ -29,6 +29,8 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  stealer     Eirika holds the Skill Stealer and defeats O'Neill (a boss, 1 HP) with Str Bonus in his first skill
+              slot: she gets Str Bonus's scroll.
   frames      the battlequote scene with Eirika's frame set pointed at [Surprised] (a test ROM): her base portrait
               stays, the set is on her face's slot and its open eyes are in the face's graphics.
   awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
@@ -36,7 +38,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, snek, savelayout, suspend, gamesave, battle, battlequote,
-frames, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -73,6 +75,8 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
+ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
+SKILL_SCROLLS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 with CONFIG_TURN_ON_ALL_SKILLS
 PALETTE_BUFFER = 0x020228A8
 CHAPTER = PLAYST + 0x0E
 UNIT_X, UNIT_Y = UNIT1 + 0x10, UNIT1 + 0x11
@@ -865,6 +869,52 @@ class Smoke:
         self.check("frames: the face's graphics show the set's open eyes", got == want,
                    "first eye tile %s" % ("matches" if got == want else "differs"))
 
+    def test_stealer(self, boot_ss):
+        """Eirika holds the Skill Stealer; O'Neill (a boss) has Str Bonus in his first skill slot and 1 HP, and she
+        defeats him: she gets Str Bonus's scroll, not the next skill's."""
+        d = os.path.join(self.out, "battle")
+        os.makedirs(d, exist_ok=True)
+        sid = self.skill_id("SID_StrBonus")
+        if sid is None:
+            return self.check("stealer: Str Bonus exists", False)
+        enemy, skills = 0x0202CFBC, 0x0202CFBC + 0x32
+        vals = self.run(ROM, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT, "r8 %#x" % (enemy + 0x10),
+                              "r8 %#x" % (enemy + 0x11)] + ["r8 %#x" % (skills + k) for k in range(5)] +
+                        ["r16 %#x" % (UNIT1 + 0x1E + 2 * k) for k in range(5)], d)
+        rows, ex, ey = vals[:3]
+        packed = sum(v << (8 * k) for k, v in enumerate(vals[3:8]))
+        packed = (packed & ~0x3FF) | sid
+        free = next((k for k in range(5) if vals[8 + k] == 0), None)
+        if free is None:
+            return self.check("stealer: Eirika has a free item slot", False)
+        tile_row = lambda y: self.run(ROM, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0]
+        lines = ["load " + boot_ss, "w8 %#x 0" % (tile_row(ey) + ex), "w8 %#x 0x81" % (tile_row(6) + 4),
+                 "w8 %#x 4" % (enemy + 0x10), "w8 %#x 6" % (enemy + 0x11), "w8 %#x 1" % (enemy + 0x13),
+                 "w8 %#x 0" % (enemy + 0x16), "w8 %#x 0" % (enemy + 0x19), "w8 %#x 30" % (UNIT1 + 0x15),
+                 "w16 %#x %#x" % (UNIT1 + 0x1E + 2 * free, ITEM_SKILL_STEALER)]
+        lines += ["w8 %#x %#x" % (skills + k, (packed >> (8 * k)) & 0xFF) for k in range(5)]
+        # Attack, the first weapon, O'Neill (the second target); A through his quote and the scroll's popup
+        lines += EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press DOWN", "wait 30", "press A",
+                                "wait 60"]
+        lines += ["wait 50", "press A", "wait 40"] * 5 + ["press A", "wait 60"] * 16 + ["wait 60", "shot stealer.png"]
+        lines += ["press A", "wait 60"] * 4 + ["r16 %#x" % (UNIT1 + 0x1E + 2 * k) for k in range(5)]
+        got = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "stealer.png"), "Skill Stealer")
+        want = self.scroll_item(sid)
+        self.check("stealer: defeating a boss gives his first skill's scroll", want in got,
+                   "items %s, want %#x (Str Bonus %#x)" % (", ".join("%#x" % v for v in got), want, sid))
+
+    @staticmethod
+    def scroll_item(sid):
+        """MakeSkillScrollItem (SkillScroll.c) with CONFIG_TURN_ON_ALL_SKILLS"""
+        if sid >= 0x2FF:
+            return ((sid - 0x2FF) << 8) | SKILL_SCROLLS[3]
+        if sid >= 0x1FF:
+            return ((sid - 0x1FF) << 8) | SKILL_SCROLLS[2]
+        if sid > 0xFF:
+            return ((sid - 0xFF) << 8) | SKILL_SCROLLS[1]
+        return (sid << 8) | SKILL_SCROLLS[0]
+
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""
         if "gPortraitExpressions" not in self.sym:
@@ -930,7 +980,7 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames"):
+    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames") or on("stealer"):
         boot_ss = s.test_boot()
         if boot_ss and on("statscreen"):
             s.test_statscreen(boot_ss)
@@ -938,6 +988,8 @@ def main():
             s.test_battle(boot_ss)
         if boot_ss and on("battlequote"):
             s.test_battlequote(boot_ss)
+        if boot_ss and on("stealer"):
+            s.test_stealer(boot_ss)
         if boot_ss and on("frames"):
             s.test_frames(boot_ss)
         if boot_ss and on("awards"):
