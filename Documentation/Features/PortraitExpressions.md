@@ -50,6 +50,7 @@ An expression is a normal portrait (`setMugEntry`) plus one row in a table. The 
 | `[Surprised]` | `0x80 0x63 0x05` | |
 | `[Determined]` | `0x80 0x63 0x06` | |
 | `[Hurt]` | `0x80 0x63 0x07` | |
+| `[Confused]` | `0x80 0x63 0x08` | |
 
 - It acts on the speaker: the face slot the last `[OpenX]` chose. After a move (`[MoveRight]` and the like) the
   face is in its new slot, so open that one: `[OpenRight][Angry]`. On an empty slot nothing changes.
@@ -68,16 +69,35 @@ An expression is a normal portrait (`setMugEntry`) plus one row in a table. The 
 
 | Portrait | Character | Expression | Changes from the base | Used in |
 |---|---|---|---|---|
-| `0xB0` | Eirika (`0x02`) | Angry | Brows down toward the nose, lids over the iris, a flat frown | Battle quote against Saar: "No matter who I am, you presume much to command me" |
-| `0xB1` | Eirika (`0x02`) | Sad | Inner brow up, outer end down, lid lower, a small downturned mouth | Prologue: "...Yes... Father is strong" to the end of the scene; poor level-ups; battle quote against Novala |
+| `0xB0` | Eirika (`0x02`) | Angry | From her emotion sheet (below) | Battle quote against Saar: "No matter who I am, you presume much to command me"; Seth's talk in Serafew |
+| `0xB1` | Eirika (`0x02`) | Sad | From her emotion sheet | Prologue: "...Yes... Father is strong" to the end of the scene; poor level-ups; battle quote against Novala; Seth's talk |
 | `0xB2` | Ephraim (`0x14`) | Angry | Brows down toward the nose, the upper lid over the eye's highlight, a flat frowning mouth | Chapter 9: "And who are you supposed to be ugly?" |
 | `0xB3` | Seth (`0x04`) | Hurt | Inner brow up (pain), the eye narrowed, a wider grimace | Prologue: "Argh...! N-No!" when Valter strikes him; "Your Highness, I can't allow an injury..." until "King Fado will not be taken down"; battle quote against Tirado: "..." |
 | `0xB4` | Lyon (`0x46`) | Sad | Inner brow up, a heavier lid, a downturned mouth | Not yet: Lyon's present-day portrait is not in the campaign so far |
+| `0xB5` | Eirika (`0x02`) | Surprised (shocked) | From her emotion sheet | Battle quotes with O'Neill and others that ask for `[Surprised]`; Seth's talk |
+| `0xB6` | Eirika (`0x02`) | Happy | From her emotion sheet | Great level-ups; Seth's talk |
+| `0xB7` | Eirika (`0x02`) | Confused | From her emotion sheet | Seth's talk |
 
-Each was exported from its vanilla portrait and changes only the eyes, brows and mouth (25 to 40 face pixels); its blink
+### Eirika's emotion sheet
+
+<p align="center">
+  <img src="../Gifs/Eirika_Expressions.gif" alt="In Serafew, Seth's news takes Eirika through angry, sad, shocked, happy and confused" width="480"/>
+</p>
+
+Eirika's five expressions (`eirika_angry.png`, `eirika_sad.png`, `eirika_shocked.png`, `eirika_happy.png`,
+`eirika_confused.png`) come from a hand-drawn sheet: each face was fitted to her portrait's frame (about 5x), scaled
+down by area averaging and mapped to her 16 colours. The art is a redraw, not her vanilla portrait, so the whole face is
+the art's, hair included, and her neutral portrait stays vanilla. Each sheet's blink frames are its own eyes with the lid
+drawn half and fully shut, and its talking frames open its own mouth in two steps (the smile row repeats them). The
+minimug is the vanilla one.
+
+**Seth's talk in Serafew** shows them all: Seth stands on the square (8, 15), and talking to him plays
+`District_Serafew_SethMoods` (end of `Contents/Texts/Source/texts/Districts.txt`): angry, sad, surprised, happy,
+confused, then neutral. It repeats.
+
+The others (`0xB2` to `0xB4`) were each exported from a vanilla portrait and change only the eyes, brows and mouth (25 to 40 face pixels); each one's blink
 and talking frames carry the same changes, and its smile frames are copies of its talking frames, so none of them
-smiles. They are in `Data/CustomPortraits/Portraits/` (`eirika_angry.png`, `eirika_sad.png`, `ephraim_angry.png`,
-`seth_hurt.png`, `lyon_sad.png`).
+smiles. They are in `Data/CustomPortraits/Portraits/` (`ephraim_angry.png`, `seth_hurt.png`, `lyon_sad.png`).
 
 The scenes' lines are in `CustomCampaign/Chapters/00/text/opening.txt` and `CustomCampaign/Chapters/09/text/opening.txt`.
 Each tag follows the `[OpenX]` of the face's slot at that point.
@@ -293,7 +313,7 @@ down. `sync-frames` carried those into 64 frame pixels, and the smile frames bec
 | Names | `TextEngine_ExpressionBase` in the same file | A variant names its base character (nameplate, chat log) |
 | Table | [`PortraitExpressions.c`](../../Data/CustomPortraits/PortraitExpressions.c) | `gPortraitExpressions`: base portrait, expression, variant |
 | Header | [`portrait-expressions.h`](../../include/kernel/portrait-expressions.h) | `enum portrait_expression`, `struct PortraitExpression` |
-| Portraits | [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | `Portrait_0xB0`, angry Eirika |
+| Portraits | [`CustomPortraits.event`](../../Data/CustomPortraits/CustomPortraits.event) | `Portrait_0xB0` to `Portrait_0xB7` |
 | Aliases | [`textdefs.txt`](../../Contents/Texts/textdefs.txt) | `[Expression]`, `[Neutral]`, `[Angry]`, `[Sad]`, `[Happy]`, `[Surprised]`, `[Determined]`, `[Hurt]` |
 | Face-change loader | `sub_8006650` in [`HalfBodyPortraits.c`](../../Kernel/Wizardry/HalfBodyPortraits/Source/HalfBodyPortraits.c) | Reloads graphics and palettes, halfbody and 32-colour included; shows a face's frame set again (`PortraitFrames_OnFaceLoaded`). `Face_OnInit` clears it for a new face |
 | Frame sets | [`PortraitFrames.c`](../../Kernel/Wizardry/TextEngineRework/Source/PortraitFrames.c) | `PortraitFrames_Set` writes the eyes into the face's graphics; `PortraitFrames_Mouth` gives the mouth proc (`sub_8005FE0`) its frames; the slots are `gPortraitFrameSlots` (RAM) |

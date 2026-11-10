@@ -17,6 +17,7 @@ enum portrait_expression {
 	EXPRESSION_SURPRISED = 5,
 	EXPRESSION_DETERMINED = 6,
 	EXPRESSION_HURT = 7,
+	EXPRESSION_CONFUSED = 8,
 };
 
 struct PortraitExpression {

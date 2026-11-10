@@ -1513,7 +1513,7 @@ class Smoke:
 
     def test_frames(self, boot_ss):
         """The battlequote scene with Eirika's [Surprised] drawn by a frame set: a test ROM points her Determined
-        frame set (gPortraitFrames) at SURPRISED (she has no surprised portrait). The face keeps her base portrait,
+        frame set (gPortraitFrames) at SURPRISED, and her surprised portrait's row at no expression. The face keeps her base portrait,
         the set is on its slot, and the face's graphics have the set's open eyes where the face image shows them."""
         d = os.path.join(self.out, "battle")
         os.makedirs(d, exist_ok=True)
@@ -1528,6 +1528,12 @@ class Smoke:
             return self.check("frames: Eirika has a frame set", False)
         data[a + 1] = EXPRESSION_SURPRISED
         frames = struct.unpack_from("<I", data, a + 4)[0] - 0x08000000
+        # her surprised portrait (a portrait wins over a set) is taken out of the table: an unused expression
+        p = self.sym.get("gPortraitExpressions", 0x08000000) - 0x08000000
+        while p and data[p]:
+            if data[p] == EIRIKA_PORTRAIT and data[p + 1] == EXPRESSION_SURPRISED:
+                data[p + 1] = 0x7F
+            p += 4
         rom = os.path.join(d, "frames.gba")
         open(rom, "wb").write(data)
         enemy = 0x0202CFBC

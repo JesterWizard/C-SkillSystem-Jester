@@ -154,6 +154,7 @@ Each district has five green NPCs. They are listed in `District_<Name>_Npcs` in 
 | Gold giver | `CHARACTER_CITIZEN` (`0xFC`) | 2 | Gives gold once. |
 | Item giver | `CHARACTER_CITIZEN_YOUNG_GIRL` (`0xF9`) | 2 | Gives an item once. |
 | Hint giver | generic `0x7F` | 3 | Gives a hint. The hint repeats. |
+| Seth (Serafew only) | `CHARACTER_SETH` | 0 | Stands at (8, 15). His talk shows Eirika's expressions ([Portrait Expressions](./PortraitExpressions.md#eirikas-emotion-sheet)). It repeats. |
 
 A radius of 0 means the NPC stands still.
 

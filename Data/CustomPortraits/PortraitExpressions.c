@@ -12,6 +12,9 @@ const struct PortraitExpression gPortraitExpressions[] = {
 	{ .basePortrait = 0x14, .expression = EXPRESSION_ANGRY, .portrait = 0xB2 }, /* Ephraim: Portraits/ephraim_angry.png */
 	{ .basePortrait = 0x04, .expression = EXPRESSION_HURT, .portrait = 0xB3 },  /* Seth: Portraits/seth_hurt.png */
 	{ .basePortrait = 0x46, .expression = EXPRESSION_SAD, .portrait = 0xB4 },   /* Lyon: Portraits/lyon_sad.png */
+	{ .basePortrait = 0x02, .expression = EXPRESSION_SURPRISED, .portrait = 0xB5 }, /* Eirika: Portraits/eirika_shocked.png */
+	{ .basePortrait = 0x02, .expression = EXPRESSION_HAPPY, .portrait = 0xB6 },     /* Eirika: Portraits/eirika_happy.png */
+	{ .basePortrait = 0x02, .expression = EXPRESSION_CONFUSED, .portrait = 0xB7 },  /* Eirika: Portraits/eirika_confused.png */
 	{ .basePortrait = 0 },
 };
 

@@ -79,8 +79,9 @@ Portrait_0xAF:
    #incext PortraitFormatter "Portraits/hex_witch_shop.png"
 setMugEntry(0xAF,Portrait_0xAF,4,3,3,2)
 
-// Eirika, angry: brows lowered toward the nose, eyes narrowed, a flat frowning mouth. Exported from vanilla portrait
-// 0x02 and edited with Tools/portraits/portrait_tool.py; its blink and mouth frames carry the same brows and mouth.
+// Eirika's emotion sheet: angry (0xB0), sad (0xB1), shocked (0xB5), happy (0xB6), confused (0xB7), scaled down from
+// hand-drawn art to her portrait's size and palette, with blink and talking frames drawn for each face. Its minimug is
+// the vanilla one's.
 Portrait_0xB0:
    #incext PortraitFormatter "Portraits/eirika_angry.png"
 setMugEntry(0xB0,Portrait_0xB0,2,6,3,4)
@@ -102,6 +103,18 @@ setMugEntry(0xB3,Portrait_0xB3,2,5,3,3)
 Portrait_0xB4:
    #incext PortraitFormatter "Portraits/lyon_sad.png"
 setMugEntry(0xB4,Portrait_0xB4,2,5,3,3)
+
+Portrait_0xB5:
+   #incext PortraitFormatter "Portraits/eirika_shocked.png"
+setMugEntry(0xB5,Portrait_0xB5,2,6,3,4)
+
+Portrait_0xB6:
+   #incext PortraitFormatter "Portraits/eirika_happy.png"
+setMugEntry(0xB6,Portrait_0xB6,2,6,3,4)
+
+Portrait_0xB7:
+   #incext PortraitFormatter "Portraits/eirika_confused.png"
+setMugEntry(0xB7,Portrait_0xB7,2,6,3,4)
 
 // Expression frame sets (gPortraitFrames, Data/CustomPortraits/PortraitExpressions.c): an expression's eyes and mouths
 // on its base portrait. Frames/<name>.png is the frame sheet; the .bin is made from it with

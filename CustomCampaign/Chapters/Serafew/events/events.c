@@ -136,6 +136,13 @@ static const EventScr EventScr_District_Serafew_Hint[] = {
     ENDA
 };
 
+/* Seth's news: Eirika's five expressions (angry, sad, surprised, happy, confused) in one talk */
+static const EventScr EventScr_District_Serafew_Seth[] = {
+    TEXT(District_Serafew_SethMoods)
+    NOFADE
+    ENDA
+};
+
 static const EventScr EventScr_District_Serafew_HexShop[] = {
     ASMC(StartDistrictHexShopASMC)
     NOFADE
@@ -158,6 +165,7 @@ static const EventListScr EventListScr_Serafew_Character[] = {
     CharacterEventBothWays(0, EventScr_District_Serafew_HexA, CHARACTER_EIRIKA, CHARACTER_CITIZEN_YOUNG_MAN)
     CharacterEventBothWays(0, EventScr_District_Serafew_HexB, CHARACTER_EIRIKA, CHARACTER_CITIZEN_TEEN_GIRL)
     CharacterEventBothWays(0, EventScr_District_Serafew_Hint, CHARACTER_EIRIKA, 0x7F)
+    CharacterEventBothWays(0, EventScr_District_Serafew_Seth, CHARACTER_EIRIKA, CHARACTER_SETH)
     END_MAIN
 };
 
