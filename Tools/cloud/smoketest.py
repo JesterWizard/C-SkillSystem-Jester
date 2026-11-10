@@ -15,6 +15,7 @@ What it checks:
               both reach Eirika.
   unlocks     (Serafew) the board's story quests show "+story"/"+support"; the Eirika and Seth one adds 40 support
               points each way.
+  featured    (Serafew) with the story on Chapter 8, the Tower Stack quest tops the board and pays 15 + 15 tokens.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
   savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
   suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
@@ -28,7 +29,7 @@ What it checks:
               (a test ROM maps her sad portrait to SURPRISED).
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+a district's name, tokens, claim, prizes, unlocks, featured, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -375,11 +376,28 @@ class Smoke:
         g, cr = self.sym["gGuildSave"], self.sym["gCrossingRecords"]
         vals = self.run(states["rom"], [
             "load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w32 %#x 0" % (g + 8),
-            "w16 %#x 0x5243" % cr, "w16 %#x 900" % (cr + 2), "hold A 6", "wait 150", "press A", "wait 30",
+            "w8 %#x 0" % self.sym["gWmStoryChapter"], "w16 %#x 0x5243" % cr, "w16 %#x 900" % (cr + 2), "hold A 6",
+            "wait 150", "press A", "wait 30",
             "shot claim.png", "r16 %#x" % (g + 2), "r32 %#x" % (g + 8)], d)
         self.shot(os.path.join(d, "claim.png"), "quest claimed")
         self.check("claim: Serafew's first quest pays 15 tokens and is marked claimed", vals == [15, 1],
                    "tokens, claimed bits %s" % vals)
+
+    def test_featured(self, states):
+        """Serafew's board while the story is on Chapter 8: the Tower Stack quest (met, best 100) tops the board in gold
+        with "Featured!", and claiming it pays its 15 tokens and the 15-token bonus."""
+        d = os.path.join(self.out, "Serafew")
+        need = ("gGuildSave", "gTowerRecords", "gWmStoryChapter")
+        if "guild" not in states or not all(n in self.sym for n in need):
+            return self.check("featured: the featured quest", False, "no guild board or symbols")
+        g, tr = self.sym["gGuildSave"], self.sym["gTowerRecords"]
+        vals = self.run(states["rom"], [
+            "load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w32 %#x 0" % (g + 8),
+            "w8 %#x 0x09" % self.sym["gWmStoryChapter"], "w16 %#x 0x5453" % tr, "w16 %#x 100" % (tr + 2),
+            "hold A 6", "wait 150", "shot featured.png", "press A", "wait 30", "r16 %#x" % (g + 2)], d)
+        self.shot(os.path.join(d, "featured.png"), "featured quest")
+        self.check("featured: Chapter 8's Serafew quest tops the board and pays 15 + 15 tokens", vals == [30],
+                   "tokens %s" % vals)
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -411,7 +429,8 @@ class Smoke:
         sup = lambda pid: [bwl + (pid - 1) * BWL_SIZE + 4 + k for k in range(7)]
         reads = ["r8 %#x" % a for a in sup(1) + sup(2)]
         lines = ["load " + states["guild"][0], "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w16 %#x 60" % (g + 4),
-                 "w32 %#x %#x" % (g + 8, claimed)] + reads + ["hold A 6", "wait 150", "shot unlocks.png"]
+                 "w32 %#x %#x" % (g + 8, claimed), "w8 %#x 0" % self.sym["gWmStoryChapter"]] + reads
+        lines += ["hold A 6", "wait 150", "shot unlocks.png"]
         lines += ["hold DOWN 4", "wait 12"] * shown.index(support) + ["press A", "wait 30"] + reads
         vals = self.run(states["rom"], lines, d)
         self.shot(os.path.join(d, "unlocks.png"), "story quests")
@@ -752,7 +771,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -763,6 +782,8 @@ def main():
                 s.test_prizes(states)
             if n == "Serafew" and on("unlocks"):
                 s.test_unlocks(states)
+            if n == "Serafew" and on("featured"):
+                s.test_featured(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

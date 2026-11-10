@@ -128,6 +128,34 @@ quest by its message, so the quest table's order does not matter:
 
 The board shows "+story" or "+support" after such a quest's reward.
 
+### Featured quests
+
+Each stretch of the story features one quest on some boards. While the world map leads to that story chapter
+(`gWmStoryChapter`), the quest tops the board, its line is gold until it is met, its reward shows the bonus and
+"Featured!", and claiming it on that board pays the bonus tokens on top of its reward. Claimed, it is no longer featured.
+
+| Story chapter | Board | Quest | Bonus |
+|---|---|---|---|
+| 6 | Serafew | Score 800 in Serafew's crossing | 15 |
+| 7 | Serafew | Catch 5 kinds of fish | 15 |
+| 8 | Serafew | Score 100 at Tower Stack | 15 |
+| 8 | Caer Pelyn | Score 1500 in Caer Pelyn's crossing | 20 |
+| 9 | Caer Pelyn | Land a legendary fish | 25 |
+| 9 | Jehanna Hall | Hold 30 Hex cards | 20 |
+| 10 | Port Kiris | Score 40 at Snek | 15 |
+| 10 | Jehanna Hall | Gold in Jehanna Hall's crossing | 30 |
+| 10 | Serafew | Score 300 at Tower Stack | 20 |
+
+The rows are `gGuildFeatured` in `Data/Guild/Guild.c`:
+
+```c
+FEATURED(CHAPTER_08, SERAFEW, MSG_GUILD_Q_SERAFEW_TOWER, 15),
+/*       story       board    the quest's msg             bonus */
+```
+
+A board with no row for the current story chapter features nothing. Any quest the board shows can be featured, the
+every-board ones too.
+
 ---
 
 ## 🎁 Prizes

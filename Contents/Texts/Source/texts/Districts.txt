@@ -487,3 +487,5 @@ Tana: win 15 battles.[X]
 Earn 60 tokens: Eirika and Seth.[X]
 ## MSG_GUILD_Q_SUPPORT_FRANZ_GILLIAM
 Earn 120 tokens: Franz and Gilliam.[X]
+## MSG_GUILD_FEATURED
+Featured![X]

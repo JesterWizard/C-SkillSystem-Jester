@@ -9,6 +9,7 @@
 #include "hex.h"
 #include "skill-system.h"
 #include "vanilla.h"
+#include "wm-story-chapter.h"
 
 #ifdef CONFIG_DISTRICT_GUILD
 
@@ -312,6 +313,40 @@ static void Guild_ApplyUnlocks(int index)
 	}
 }
 
+/* ---- Featured quests ---- */
+
+static const struct GuildFeatured *Guild_FeaturedRow(int district)
+{
+	const struct GuildFeatured *f;
+
+	for (f = gGuildFeatured; f->storyChapter != GUILD_FEATURED_END; f++)
+		if (f->storyChapter == gWmStoryChapter && f->district == district)
+			return f;
+	return NULL;
+}
+
+int Guild_FeaturedQuest(int district)
+{
+	const struct GuildFeatured *f = Guild_FeaturedRow(district);
+	int index;
+
+	if (!f)
+		return -1;
+	index = Guild_QuestIndexByMsg(f->questMsg);
+	if (index < 0 || Guild_QuestClaimed(index))
+		return -1;
+	return index;
+}
+
+int Guild_FeaturedBonus(int index)
+{
+	const struct GuildFeatured *f = Guild_FeaturedRow(gPlaySt.chapterIndex);
+
+	if (!f || f->questMsg != gGuildQuests[index].msg)
+		return 0;
+	return f->bonusTokens;
+}
+
 bool Guild_ClaimQuest(int index)
 {
 	const struct GuildQuest *q = &gGuildQuests[index];
@@ -321,9 +356,9 @@ bool Guild_ClaimQuest(int index)
 		return FALSE;
 	if (q->kind == GUILD_QUEST_DELIVER)
 		Guild_TakeItems(q->param, q->target);
+	Guild_AddTokens(q->rewardTokens + Guild_FeaturedBonus(index));
 	gGuildSave.claimed |= 1 << index;
 	Guild_ApplyUnlocks(index);
-	Guild_AddTokens(q->rewardTokens);
 	if (q->rewardGold) {
 		gold = GetPartyGoldAmount() + q->rewardGold;
 		SetPartyGoldAmount(gold > 999999 ? 999999 : gold);

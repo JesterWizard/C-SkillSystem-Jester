@@ -81,6 +81,21 @@ struct GuildUnlock {
 	u8 pad[2];
 };
 
+/*
+ * Featured quests (gGuildFeatured, ends with storyChapter GUILD_FEATURED_END): while the world-map story is on
+ * storyChapter (gWmStoryChapter), the quest named by questMsg tops the board of district, and claiming it there pays
+ * bonusTokens on top of its reward.
+ */
+#define GUILD_FEATURED_END 0xFF
+
+struct GuildFeatured {
+	u8 storyChapter;  /* gWmStoryChapter: the story chapter the world map leads to next */
+	u8 district;      /* the board (district chapter) it tops */
+	u16 questMsg;     /* the quest's msg */
+	u16 bonusTokens;
+	u16 pad;
+};
+
 /* Saved (a save chunk in both save lists, 0x10 bytes). */
 struct GuildSave {
 	/* 00 */ u16 magic;
@@ -95,6 +110,7 @@ extern struct GuildSave gGuildSave;
 extern const struct GuildQuest gGuildQuests[];
 extern const struct GuildPrize gGuildPrizes[];
 extern const struct GuildUnlock gGuildUnlocks[];
+extern const struct GuildFeatured gGuildFeatured[];
 
 /* Tokens */
 int Guild_Tokens(void);
@@ -113,6 +129,10 @@ bool Guild_AnyClaimable(int district);
 /* Unlocks: the first kind a quest unlocks (0: none), and whether a biography page is open */
 int Guild_QuestUnlockKind(int index);
 bool Guild_BiographyPageUnlocked(int pid, int page);
+
+/* Featured: this board's featured quest now (-1: none, or claimed), and a quest's bonus when claimed here now */
+int Guild_FeaturedQuest(int district);
+int Guild_FeaturedBonus(int index);
 
 /* Prizes */
 bool Guild_PrizeSoldOut(int index);
