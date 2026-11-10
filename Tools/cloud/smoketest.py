@@ -18,7 +18,7 @@ What it checks:
   featured    (Serafew) with the story on Chapter 8, the Tower Stack quest tops the board and pays 15 + 15 tokens.
   worldmap    (Serafew) the world map, reached through the district's gate: the visit keeps the story chapter;
               Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
-              gone; travelling to the story node starts Chapter 6.
+              gone; an unlocked district's node has its banner; travelling to the story node starts Chapter 6.
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
               travels to each story node, each stub's battle loads its enemies and is won (the enemies taken off and the
               defeat-all flag set, then Eirika waits), and the story moves on, through Chapter 20, then 21, 22 and the
@@ -122,6 +122,8 @@ POSTGAME_NODES = [WM_NODE_BLACK_TEMPLE, WM_NODE_VALNI, WM_NODE_LAGDOU, WM_NODE_M
 CHAPTER_VALNI_1, CHAPTER_LAGDOU_1 = 0x24, 0x2E  # the nodes' chapters (gWMNodeData)
 OPEN_ROADS = 31  # roads 0-30, the map as the story leaves it (road 9 is the Tower of Valni's)
 PLAY_FLAG_POSTGAME = 1 << 2
+OAM = 0x07000000
+DISTRICT_MARKER_CHR = 0x3D0  # Kernel/Wizardry/EnterTown/DistrictMarker.c
 UNIT_RED, RED_UNITS = 0x0202CFBC, 50  # the enemy units (0x81 on), 0x48 bytes each
 STUB_ENEMY_READS = 8  # a stub loads at most 7 enemies
 CHAPTER_FLAG_DEFEAT_ALL = 0x60  # gChapterFlagBits: EVFLAG_DEFEAT_ALL (6), whichever of bits 5 and 6 it is
@@ -603,6 +605,15 @@ class Smoke:
         self.shot(os.path.join(d, "locked_menu.png"), "node menu, Serafew locked")
         self.check("worldmap: a locked district has no Enter District row (the first row is another)",
                    vals[:1] == [CHAPTER_06], "chapter %s" % vals)
+        # The district banner (#710, DistrictMarker.c): its 16x16 sprite (OBJ chr DISTRICT_MARKER_CHR) is in OAM over
+        # Serafew's node while Serafew is unlocked, and not once it is locked
+        def banner(writes):
+            vals = self.run(rom, ["load " + idle] + writes + ["wait 20"] +
+                            ["r16 %#x" % (OAM + 8 * i + 4) for i in range(128)], d)
+            return sum(1 for v in vals if v & 0x3FF == DISTRICT_MARKER_CHR)
+        shown, locked = banner([]), banner(["w8 %#x 0" % flag])
+        self.check("worldmap: an unlocked district's node has its banner, a locked one has none",
+                   shown == 1 and locked == 0, "banners %d unlocked, %d locked" % (shown, locked))
         # L takes the cursor to the next node (the story node), A sends the lord; START and A through the scenes
         lines = ["load " + idle, "wait 10", "press L", "wait 40", "press A", "wait 30"]
         lines += ["press START", "wait 90", "press A", "wait 60"] * 6 + ["shot travel.png", "r8 %#x" % CHAPTER,

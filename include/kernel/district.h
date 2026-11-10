@@ -92,6 +92,9 @@ extern const struct DistrictNpcSpot gDistrictNpcSpots[];
 
 bool District_IsDistrictChapter(int chapter);
 bool District_StartFreeMovement(ProcPtr proc);
+
+/* World map, while idle: a pennant over each shown node with an unlocked district (DistrictMarker.c) */
+void District_DrawWorldMapMarkers(void);
 int District_TimeOfDay(void);
 void District_TintMapPalettes(void);
 void District_PlaceNpcs(void);

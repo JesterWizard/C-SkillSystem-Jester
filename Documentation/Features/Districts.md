@@ -88,6 +88,10 @@ chapter. It is never cleared.
 
 ### Entering
 
+- On the world map, a small gold banner beside a node marks an unlocked district (`Kernel/Wizardry/EnterTown/DistrictMarker.c`,
+  #710). It shows on shown nodes only, while the world map is idle, and bobs slowly. It uses OBJ tiles `0x3D0`,
+  `0x3D1`, `0x3F0`, `0x3F1` (a 16x16 sprite in the world map's 2D mapping) and OBJ palette 8, which the idle world map
+  leaves empty; they are written each frame.
 - On the world map, open the menu of a node that has a district. The first row is **Enter District**.
 - The row shows only when all of these are true:
   - `base_chapters` is on in the designer config (`Data/DesignerConfig/designer-config.c`, on by default).

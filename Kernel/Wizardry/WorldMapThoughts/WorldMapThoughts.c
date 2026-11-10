@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "wm-story-chapter.h"
+#include "district.h"
 #include "worldmap.h"
 #include "kernel-lib.h"
 #include "prep-skill.h"
@@ -357,6 +358,9 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
 
     /* A trip to the story chapter's node always starts the chapter (WmStoryChapter.c) */
     WmStoryChapter_KeepDestination();
+
+    /* Pennants over the nodes with an open district (DistrictMarker.c) */
+    District_DrawWorldMapMarkers();
 
     if (gpKernelDesignerConfig->world_map_thought_bubbles == true)
     {
