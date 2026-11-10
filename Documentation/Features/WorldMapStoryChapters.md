@@ -20,7 +20,7 @@ With this feature, the chapter named by `NEXT_CHAPTER_WITH_MAP` is the story cha
 - Back on the world map from a district or a skirmish (chapter `0x38`, or a district chapter), the story chapter is kept.
 - Story chapters are compared by their place in the table (`GetWmStoryChapterRank`, `WmStoryReached`), not by id:
   `CHAPTER_11` is `0x3D`. District life, the guild rival and anything else that counts "from story chapter N on" use it.
-- `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour.
+- `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour. `smoketest.py --only wmsave` saves from the world map, resets and loads: the story chapter, the lord's node, the unlocked districts and the nodes' states come back, and Enter District still works.
 
 ## Monsters and the story node
 

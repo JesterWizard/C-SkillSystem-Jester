@@ -22,6 +22,8 @@ What it checks:
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
               travels to each story node and the story moves on, through Chapter 20, then 21, 22 and the ending. A
               monster on Chapter 10's node, not marked next, does not stop it.
+  wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
+              the unlocked districts and the nodes' states come back, and Enter District still loads the district.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
               Marlo's first record and pays 10 tokens once; a test ROM puts the townsfolk on their spots.
   snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
@@ -46,7 +48,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmsave, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -97,6 +99,8 @@ CLASS_REVENANT = 0x52  # gGMData (the world map's units, nodes and cursor)
 CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
+DISTRICT_PORT_KIRIS_FLAG = 0x91  # GLOBAL_FLAG_DISTRICT_PORT_KIRIS
+WM_NODES = 0x1D  # the world map's nodes (NODE_MAX)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
 PALETTE_BUFFER = 0x020228A8
@@ -133,6 +137,15 @@ SENTINELS = [("gGuildSave", 2, 16, 1234), ("gCrossingRecords", 2, 16, 777), ("gT
 DEBUG_SAVE = ["press B", "wait 60", "press RIGHT", "wait 40", "press DOWN", "wait 10", "press DOWN", "wait 10",
               "press A", "wait 60"] + ["press DOWN", "wait 10"] * 7 + ["press START", "wait 200", "press A",
                                                                          "wait 120", "press A", "wait 600"]
+# From a district's start (Serafew's start.ss): the gate is below; Yes; the save menu (A, A); the world map's
+# beginning scene
+LEAVE_DISTRICT = ["hold DOWN 8", "wait 60", "hold A 8", "wait 60", "hold LEFT 8", "wait 40", "hold A 8", "wait 400",
+                  "hold A 8", "wait 120", "hold A 8", "wait 900"]
+# The idle world map: the cursor off every node, A opens the general menu (Unit, Status, Options, Save, Home); Save, the
+# first slot, Save
+WM_SAVE = ["w32 %#x %#x" % (0x03005280 + 8, 40 << 8), "w32 %#x %#x" % (0x03005280 + 0xC, 40 << 8), "wait 10",
+           "press A", "wait 40"] + ["press DOWN", "wait 10"] * 3 + ["press A", "wait 120", "press A", "wait 60",
+                                                                    "press A", "wait 300"]
 # A+B+START+SELECT, then the language screen and the title
 SOFT_RESET = ["hold A+B+START+SELECT 10", "wait 500", "press A", "wait 200", "press START", "wait 200"]
 # Eirika is under the cursor at the start of the prologue: A selects her, A stays, and the action menu opens
@@ -524,12 +537,9 @@ class Smoke:
         # gGMData: the lord's node at +0x11, the nodes' states at +0x30 (4 bytes each; 1 shown and cleared)
         setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
                  "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
-        # the gate is below the start; Yes; the save menu (A, A); the world map's beginning scene for Chapter 6
         idle = os.path.join(d, "idle.ss")
-        vals = self.run(rom, ["load " + start, "wait 30"] + setup + ["hold DOWN 8", "wait 60", "hold A 8", "wait 60",
-                                                                       "hold LEFT 8", "wait 40", "hold A 8", "wait 400",
-                                                                       "hold A 8", "wait 120", "hold A 8", "wait 900",
-                                                                       "save " + idle, "shot idle.png", "r8 %#x" % story], d)
+        vals = self.run(rom, ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT +
+                        ["save " + idle, "shot idle.png", "r8 %#x" % story], d)
         self.shot(os.path.join(d, "idle.png"), "world map after a district")
         if not self.check("worldmap: leaving a district keeps the story chapter", vals == [CHAPTER_06],
                           "story chapter %s" % vals):
@@ -578,9 +588,7 @@ class Smoke:
         mons = ["w32 %#x 0" % (GM_DATA + 0x10 + 4 * i) for i in range(4, 8)]
         nodes = ["w8 %#x %d" % (GM_DATA + 0x30 + 4 * n, 1 if n < 10 else 0) for n in range(0x1D)]
         setup = ["w8 %#x %#x" % (story, STUB_ROUTE[0][0]), "w8 %#x %d" % (GM_DATA + 0x11, STUB_ROUTE[0][2])] + nodes + mons
-        lines = ["load " + start, "wait 30"] + setup + ["hold DOWN 8", "wait 60", "hold A 8", "wait 60", "hold LEFT 8",
-                                                     "wait 40", "hold A 8", "wait 400", "hold A 8", "wait 120",
-                                                     "hold A 8", "wait 900"] + mons + ["wait 10", "r8 %#x" % story]
+        lines = ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT + mons + ["wait 10", "r8 %#x" % story]
         skip = ["press START", "wait 60", "press A", "wait 90"] * 4
         got = []
         for chapter, node, _ in STUB_ROUTE:
@@ -611,6 +619,56 @@ class Smoke:
         end = vals[1 + 2 * len(legs):]
         self.check("stubs: Chapter 20 leads through 21 and 22 to the ending", len(end) == 2 and
                    end[0] == STUB_FINAL and end[1] & PLAY_FLAG_COMPLETE, "chapter, state bits %s" % end)
+
+    def test_wmsave(self, states):
+        """A game save made from the world map (test_worldmap's state, with Port Kiris unlocked too): the general
+        menu's Save, a soft reset and Restart Chapter bring back the story chapter, the lord's node, the unlocked
+        districts and the nodes' states; Enter District then loads Serafew. The game boots first, so that SRAM is set up
+        (a save state does not hold it, and a reset finds an unset SRAM empty)."""
+        d = os.path.join(self.out, "WorldMapSave")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "sWmChapterIdOverride")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("wmsave: the world map", False, "no district state or symbols")
+        rom, story, override = states["rom"], self.sym["gWmStoryChapter"], self.sym["sWmChapterIdOverride"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        flags = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3)
+        bits = (1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)) | (1 << ((DISTRICT_PORT_KIRIS_FLAG - 0x65) & 7))
+        assert (DISTRICT_PORT_KIRIS_FLAG - 0x65) >> 3 == flags - PERMANENT_FLAGS
+        node = lambda n: GM_DATA + 0x30 + 4 * n
+        setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
+                 "w8 %#x %#x" % (flags, bits)] + ["w8 %#x 1" % node(n) for n in range(6)]
+        reads = ["r8 %#x" % CHAPTER, "r8 %#x" % story, "r8 %#x" % (GM_DATA + 0x11), "r8 %#x" % flags] + \
+            ["r8 %#x" % node(n) for n in range(WM_NODES)]
+        wipe = ["w8 %#x 0" % a for a in (story, GM_DATA + 0x11, flags)] + ["w8 %#x 0" % node(n) for n in range(WM_NODES)]
+        x, y = struct.unpack_from("<hh", open(rom, "rb").read(), WM_NODE_DATA - 0x08000000 + WM_NODE_SERAFEW * 0x20 + 0x18)
+        # Restart Chapter, the first slot; then the cursor on Serafew, A (the node menu), A (Enter District)
+        lines = ["wait 600", "load " + start, "wait 30"] + setup + LEAVE_DISTRICT + reads + WM_SAVE + ["shot saved.png"]
+        lines += wipe + SOFT_RESET + ["press A", "wait 200", "shot slots.png", "press A", "wait 600", "shot loaded.png"]
+        lines += reads + ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10",
+                          "press A", "wait 40", "press A", "wait 330", "shot enter.png", "r8 %#x" % CHAPTER,
+                          "r8 %#x" % override]
+        vals = self.run(rom, lines, d)
+        for name, label in (("slots", "save slots after a world-map save"), ("loaded", "world map loaded"),
+                            ("enter", "Enter District after the load")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        n = len(reads)
+        if len(vals) != 2 * n + 2:
+            return self.check("wmsave: the world map saves and loads", False, "values %s" % vals)
+        pre, post, enter = vals[:n], vals[n:2 * n], vals[2 * n:]
+        if not self.check("wmsave: Restart Chapter loads the world map's save", post[0] == pre[0] == CHAPTER_06,
+                          "chapter %#x, saved %#x" % (post[0], pre[0])):
+            return
+        self.check("wmsave: the story chapter comes back", post[1] == pre[1] == CHAPTER_06, "story %#x" % post[1])
+        self.check("wmsave: the lord's node comes back", post[2] == pre[2] == WM_NODE_SERAFEW, "node %d" % post[2])
+        self.check("wmsave: the unlocked districts come back (Serafew, Port Kiris)", post[3] & bits == bits,
+                   "flags %#x" % post[3])
+        bad = [i for i in range(WM_NODES) if post[4 + i] != pre[4 + i]]
+        self.check("wmsave: the nodes' states come back (%d nodes)" % WM_NODES, not bad,
+                   "different: %s" % [(i, pre[4 + i], post[4 + i]) for i in bad] if bad else
+                   "shown: %s" % [i for i in range(WM_NODES) if pre[4 + i] & 1])
+        self.check("wmsave: Enter District after the load loads the district",
+                   enter == [DISTRICTS["Serafew"][0], 0], "chapter, override %s" % enter)
 
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
@@ -1184,7 +1242,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1203,6 +1261,8 @@ def main():
                 s.test_worldmap(states)
             if n == "Serafew" and on("stubs"):
                 s.test_stubs(states)
+            if n == "Serafew" and on("wmsave"):
+                s.test_wmsave(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())
