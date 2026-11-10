@@ -131,12 +131,18 @@ static int GetSkillIdFromScroll(int item)
 	return 0;
 }
 
+/*
+ * A scroll's uses byte holds the skill id minus its scroll's offset (TryGetSkillScrollSid): scroll 1 from 0, 2 from
+ * 0xFF, 3 from 0x1FF, 4 from 0x2FF. 0x1FF and 0x2FF go on scrolls 3 and 4 with uses 0: on scrolls 2 and 3 they would
+ * need uses 0x100, which overflowed into the next skill's scroll (a Move Boost scroll read as Expert's Experience).
+ * 0x3FF has no scroll (there is no skill there).
+ */
 u16 MakeSkillScrollItem(u16 sid)
 {
 #ifdef CONFIG_TURN_ON_ALL_SKILLS
-	if (sid > 0x2FF)
+	if (sid >= 0x2FF)
 		return ((sid - 0x2FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_4;
-	if (sid > 0x1FF)
+	if (sid >= 0x1FF)
 		return ((sid - 0x1FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_3;
 	if (sid > 0x0FF)
 		return ((sid - 0x0FF) << 8) | CONFIG_ITEM_INDEX_SKILL_SCROLL_2;

@@ -32,7 +32,7 @@ bool PostAction_GetItem(ProcPtr parent)
                     struct SkillList *list;
                     list = GetUnitSkillList(&gBattleTarget.unit);
 
-					NewPopup_ItemGot(parent, unit, (((list->sid[0] +1) << 8) | GET_SKILL_SCROLL_INDEX(list->sid[0] + 1)));
+					NewPopup_ItemGot(parent, unit, MakeSkillScrollItem(list->sid[0] + 1));
 					break;
                 }
 			}
