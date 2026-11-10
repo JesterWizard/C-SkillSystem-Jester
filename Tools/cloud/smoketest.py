@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Emulator smoke tests for the built ROM (fe8-kernel-dev.gba), run with gbarun (Tools/cloud/README.md).
 
-    python3 Tools/cloud/smoketest.py [--quick] [--out DIR] [--only NAME ...]
+    python3 Tools/cloud/smoketest.py [--quick] [--jobs N] [--out DIR] [--only NAME ...]
 
 What it checks:
   boot        a new game reaches the prologue map: chapter 0, Eirika on the map, the screen drawn.
@@ -55,7 +55,8 @@ What it checks:
   awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
---quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
+--quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
+in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
@@ -70,6 +71,8 @@ import re
 import struct
 import subprocess
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, wait
 import tempfile
 from collections import deque
 
@@ -179,6 +182,7 @@ class Smoke:
         self.out = out
         self.results = []
         self.shots = []
+        self._tls = threading.local()
         self.sym = self._symbols()
 
     # ---- symbols ----
@@ -217,14 +221,20 @@ class Smoke:
                 vals.append(int(m.group(1), 16))
         return vals
 
+    def _results(self):
+        """The running task's result list (Runner), or the whole run's."""
+        buf = getattr(self._tls, "results", None)
+        return self.results if buf is None else buf
+
     def check(self, name, ok, detail=""):
-        self.results.append((name, bool(ok), detail))
+        self._results().append((name, bool(ok), detail))
         print("%-4s %s%s" % ("PASS" if ok else "FAIL", name, "  (" + detail + ")" if detail else ""), flush=True)
         return ok
 
     def shot(self, path, label):
         if os.path.exists(path):
-            self.shots.append((path, label))
+            buf = getattr(self._tls, "shots", None)
+            (self.shots if buf is None else buf).append((path, label))
 
     # ---- images ----
 
@@ -1489,17 +1499,63 @@ class Smoke:
         return len(failed)
 
 
+class Runner:
+    """Runs tests in parallel (--jobs): each in a worker thread (gbarun runs in a subprocess), with its checks and
+    screenshots kept apart and merged by key, so the report and the contact sheet keep the sequential order. A task may
+    submit the tests that depend on it; tests that share a folder (_smoke.txt, state files) run in one task, in turn."""
+
+    def __init__(self, smoke, jobs):
+        self.s = smoke
+        self.pool = ThreadPoolExecutor(max_workers=max(1, jobs))
+        self.lock = threading.Lock()
+        self.futures = []
+        self.done = []
+
+    def submit(self, key, fn, *args):
+        f = self.pool.submit(self._run, key, fn, args)
+        with self.lock:
+            self.futures.append(f)
+        return f
+
+    def _run(self, key, fn, args):
+        self.s._tls.results, self.s._tls.shots = [], []
+        ret = None
+        try:
+            ret = fn(*args)
+        except Exception as e:  # a crashed test fails, the others go on
+            self.s.check("%s: ran" % getattr(fn, "__name__", "test"), False, repr(e))
+        with self.lock:
+            self.done.append((key, self.s._tls.results, self.s._tls.shots))
+        self.s._tls.results = self.s._tls.shots = None
+        return ret
+
+    def finish(self):
+        while True:
+            with self.lock:
+                pending = [f for f in self.futures if not f.done()]
+            if not pending:
+                break
+            wait(pending)
+        self.pool.shutdown()
+        for _, results, shots in sorted(self.done, key=lambda d: d[0]):
+            self.s.results += results
+            self.s.shots += shots
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--quick", action="store_true", help="every test but the districts other than Serafew")
     ap.add_argument("--out", help="folder for screenshots and the report (default: a new temp folder)")
     ap.add_argument("--only", nargs="+", help="run only these tests")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 1,
+                    help="tests run side by side (default: the CPU count; 1 runs them one after another)")
     a = ap.parse_args()
     if not os.path.exists(ROM):
         sys.exit("%s is missing: build first (Tools/cloud/build.sh)" % ROM)
     out = os.path.abspath(a.out) if a.out else tempfile.mkdtemp(prefix="smoke-")
     os.makedirs(out, exist_ok=True)
     s = Smoke(out)
+    r = Runner(s, a.jobs)
     names = ["Serafew"] if a.quick else list(DISTRICTS)
     want = set(a.only) if a.only else None
     if want and "snek" in want and "PortKiris" not in names:
@@ -1508,63 +1564,53 @@ def main():
     def on(n):
         return want is None or n in want
 
-    if on("boot") or on("statscreen") or on("battle") or on("battlequote") or on("awards") or on("frames") or on("stealer") or \
-            on("debugflag") or on("biography"):
-        boot_ss = s.test_boot()
-        if boot_ss and on("statscreen"):
-            s.test_statscreen(boot_ss)
-        if boot_ss and on("battle"):
-            s.test_battle(boot_ss)
-        if boot_ss and on("battlequote"):
-            s.test_battlequote(boot_ss)
-        if boot_ss and on("biography"):
-            s.test_biography(boot_ss)
-        if boot_ss and on("debugflag"):
-            s.test_debugflag(boot_ss)
-        if boot_ss and on("stealer"):
-            s.test_stealer(boot_ss)
-        if boot_ss and on("frames"):
-            s.test_frames(boot_ss)
-        if boot_ss and on("awards"):
-            s.test_awards(boot_ss)
-    if on("savelayout"):
-        s.test_savelayout()
-    if on("suspend"):
-        s.test_suspend()
-    if on("gamesave"):
-        s.test_gamesave()
-    for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame") or on("savetitle") or on("districtresume"))) or \
-                (n == "PortKiris" and on("snek")):
+    def seq(*tests):
+        """Tests that share a folder, in turn, in one task."""
+        def run():
+            for t in tests:
+                t()
+        return run
+
+    boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography")
+    if on("boot") or any(on(t) for t in boot_tests):
+        def boot_chain():
+            boot_ss = s.test_boot()
+            if not boot_ss:
+                return
+            # boot/ and battle/ are shared folders
+            r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
+                ("statscreen", s.test_statscreen), ("biography", s.test_biography), ("debugflag", s.test_debugflag))
+                if on(t)]))
+            r.submit((0, 2), seq(*[lambda f=f: f(boot_ss) for t, f in (
+                ("battle", s.test_battle), ("battlequote", s.test_battlequote), ("stealer", s.test_stealer),
+                ("frames", s.test_frames)) if on(t)]))
+            if on("awards"):
+                r.submit((0, 3), s.test_awards, boot_ss)
+        r.submit((0, 0), boot_chain)
+    for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
+                                ("gamesave", s.test_gamesave))):
+        if on(t):
+            r.submit((1, i), f)
+    serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")
+    serafew_own = ("worldmap", "stubs", "wmsave", "wmshops", "postgame", "savetitle", "districtresume")
+    for k, n in enumerate(names):
+        if not (on(n) or (n == "Serafew" and any(on(t) for t in serafew_dir + serafew_own)) or
+                (n == "PortKiris" and on("snek"))):
+            continue
+
+        def district_chain(n=n, k=k):
             states = s.test_district(n)
-            if n == "Serafew" and on("tokens"):
-                s.test_tokens(states)
-            if n == "Serafew" and on("claim"):
-                s.test_claim(states)
-            if n == "Serafew" and on("prizes"):
-                s.test_prizes(states)
-            if n == "Serafew" and on("unlocks"):
-                s.test_unlocks(states)
-            if n == "Serafew" and on("featured"):
-                s.test_featured(states)
-            if n == "Serafew" and on("life"):
-                s.test_life(states)
-            if n == "Serafew" and on("worldmap"):
-                s.test_worldmap(states)
-            if n == "Serafew" and on("stubs"):
-                s.test_stubs(states)
-            if n == "Serafew" and on("wmsave"):
-                s.test_wmsave(states)
-            if n == "Serafew" and on("wmshops"):
-                s.test_wmshops(states)
-            if n == "Serafew" and on("postgame"):
-                s.test_postgame(states)
-            if n == "Serafew" and on("savetitle"):
-                s.test_savetitle(states)
-            if n == "Serafew" and on("districtresume"):
-                s.test_districtresume(states)
+            if n == "Serafew":
+                # Serafew/ is a shared folder; the others have their own
+                r.submit((2 + k, 1), seq(*[lambda t=t: getattr(s, "test_" + t)(states)
+                                           for t in serafew_dir if on(t)]))
+                for j, t in enumerate(serafew_own):
+                    if on(t):
+                        r.submit((2 + k, 2 + j), getattr(s, "test_" + t), states)
             if n == "PortKiris" and on("snek"):
-                s.test_snek(states)
+                r.submit((2 + k, 1), s.test_snek, states)
+        r.submit((2 + k, 0), district_chain)
+    r.finish()
     sys.exit(s.report())
 
 
