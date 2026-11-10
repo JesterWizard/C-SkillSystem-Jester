@@ -78,6 +78,7 @@ const struct GuildPrize gGuildPrizes[] = {
 	PRIZE(ITEM_PUREWATER, 15),
 	PRIZE(ITEM_ELIXIR, 25),
 	PRIZE(ITEM_MASTERSEAL, 60),
+	PRIZE(ITEM_RARE_CANDY, 100), /* +100 EXP: nothing else in the campaign gives it */
 
 	/* Tonics: +2 to a stat (Omni: to every stat) until the chapter ends (Documentation/Features/Tonics.md) */
 	TONIC(0, 8),  /* HP */

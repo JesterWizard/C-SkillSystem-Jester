@@ -118,6 +118,7 @@ A record you already hold counts: a quest posted after you reached it is met at 
 | Pure Water | 15 | |
 | Elixir | 25 | |
 | Master Seal | 60 | |
+| Rare Candy | 100 | +100 EXP; nothing else in the campaign gives it |
 | HP, Str, Mag, Skl, Spd, Lck, Def, Res Tonic | 8 | +2 to the stat until the chapter ends ([Tonics](./Tonics.md)) |
 | Omni Tonic | 30 | +2 to every stat until the chapter ends |
 | Each stat booster (Angelic Robe, Energy Ring, Secret Book, Speedwing, Goddess Icon, Dragonshield, Talisman) | 80 | once each |

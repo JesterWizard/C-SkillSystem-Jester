@@ -40,16 +40,16 @@ bool IsDuraItem(int item)
     }
 }
 
-static const char *const sTonicNames[] = {
-	"HP Tonic",
-	"STR Tonic",
-	"MAG Tonic",
-	"SKL Tonic",
-	"SPD Tonic",
-	"LCK Tonic",
-	"DEF Tonic",
-	"RES Tonic",
-	"OMNI Tonic",
+static const int sTonicNameIds[] = {
+	MSG_ITEM_TONIC_HP_NAME,
+	MSG_ITEM_TONIC_STR_NAME,
+	MSG_ITEM_TONIC_MAG_NAME,
+	MSG_ITEM_TONIC_SKL_NAME,
+	MSG_ITEM_TONIC_SPD_NAME,
+	MSG_ITEM_TONIC_LCK_NAME,
+	MSG_ITEM_TONIC_DEF_NAME,
+	MSG_ITEM_TONIC_RES_NAME,
+	MSG_ITEM_TONIC_OMNI_NAME,
 };
 
 static const int sTonicIconIds[] = {
@@ -105,7 +105,7 @@ static int TonicIndex(int item)
 
 char *GetTonicItemName(int item)
 {
-	return (char *)sTonicNames[TonicIndex(item)];
+	return GetStringFromIndex(sTonicNameIds[TonicIndex(item)]);
 }
 
 int GetTonicItemDescId(int item)
