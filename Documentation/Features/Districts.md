@@ -88,10 +88,14 @@ chapter. It is never cleared.
 
 ### Entering
 
-- On the world map, a small gold banner beside a node marks an unlocked district (`Kernel/Wizardry/EnterTown/DistrictMarker.c`,
-  #710). It shows on shown nodes only, while the world map is idle, and bobs slowly. It uses OBJ tiles `0x3D0`,
-  `0x3D1`, `0x3F0`, `0x3F1` (a 16x16 sprite in the world map's 2D mapping) and OBJ palette 8, which the idle world map
-  leaves empty; they are written each frame.
+- On the world map, the next chapter's flag, in green, marks each shown node with an unlocked district, on the map and
+  on its minimap (`Kernel/Wizardry/EnterTown/DistrictMarker.c`, #710). The next chapter's own node keeps its red flag.
+  - The world map's flag is vanilla's animation (`Sprite_08A97AEC`, animation 1, the tiles the node icon display
+    loads), at the node icon's flag origin, run by a proc under the world map while the node icons are drawn.
+  - The minimap's is vanilla's flag object (`0x08590F44`, OBJ chr `0xF7`): `WmMinimap_PutStoryNodeIcon` is replaced
+    with vanilla's, which also puts it on the district nodes.
+  - Green: both flags use OBJ palette 4 (the world map's through its animation, whose frames add 1 to the base
+    palette). Its copy with red and green swapped goes to OBJ palette 8, which the world map leaves empty, every frame.
 - On the world map, open the menu of a node that has a district. The first row is **Enter District**.
 - The row shows only when all of these are true:
   - `base_chapters` is on in the designer config (`Data/DesignerConfig/designer-config.c`, on by default).

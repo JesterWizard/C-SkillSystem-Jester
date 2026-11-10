@@ -359,8 +359,8 @@ void WorldMap_LoopExt(struct WorldMapMainProc * proc)
     /* A trip to the story chapter's node always starts the chapter (WmStoryChapter.c) */
     WmStoryChapter_KeepDestination();
 
-    /* Pennants over the nodes with an open district (DistrictMarker.c) */
-    District_DrawWorldMapMarkers();
+    /* Green flags over the nodes with an open district (DistrictMarker.c) */
+    District_StartWorldMapFlags(proc);
 
     if (gpKernelDesignerConfig->world_map_thought_bubbles == true)
     {
