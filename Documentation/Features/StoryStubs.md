@@ -58,7 +58,10 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
   written yet. The story moves on to the next one." Then `NEXT_CHAPTER_WITH_MAP` goes to the next story chapter, through
   the save menu.
 - **Chapters 20 to 22.** They follow each other without the world map, as in vanilla. Chapter 22 ends with `MNC4`, and
-  the game's ending plays.
+  the game's ending plays. Extras > Map on the cleared save then starts the postgame
+  ([World Map Story Chapters](./WorldMapStoryChapters.md#the-postgame)).
+- **The world map before Chapter 20** also shows the Lagdou Ruins and Melkaen Coast with their roads, as vanilla's does
+  (`STUB_SET_NODE_WITH(..., WM_SHOW_POSTGAME_DUNGEONS)`). `new_chapter.py` keeps that line's extra events.
 
 ---
 

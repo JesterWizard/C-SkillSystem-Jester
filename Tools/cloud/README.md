@@ -118,6 +118,11 @@ World map route (`smoketest.py --only worldmap`, `test_worldmap`):
   kind, 0 armory, 1 vendor), A again opens the shop (`gProcScr_Shop`; its stock at `+0x30`, 20 `u16`), and B six times
   (90 frames apart) is back on the idle world map. `gbarun` can't press keys during `prof`, so the test dumps
   `sProcArray` (64 procs of `0x6C` bytes) and reads the procs instead.
+- The postgame (`--only postgame`, `test_postgame`): set the story on Chapter 20 with the lord on Rausten Court, nodes
+  0-24 and 26 shown and roads 0-30 open (`+0xA4` list, `+0xC4` count), as the story would leave them. Travel to Black
+  Temple, skip Chapters 20-22 (START, A), press A through the ending, then at the title: A, DOWN 4 times (Extras), A,
+  DOWN twice (Map), A, A on the cleared slot. Boot first: the cleared save goes to SRAM. A trip in the postgame: the
+  cursor on the node, A, then about 10 x 120 frames, with the monsters (`gGMData.units[4..7]`) cleared each time.
 - Saving from the world map (`--only wmsave`, `test_wmsave`): move the cursor off every node (write `ix`/`iy` at
   `+8`/`+0xC`, `<< 8`), A opens the general menu (Unit, Status, Options, Save, Home), DOWN 3 times, A, then A (the first
   slot) and A (Save). After a soft reset, A on the title, then A on the first slot (Restart Chapter) loads the world map.

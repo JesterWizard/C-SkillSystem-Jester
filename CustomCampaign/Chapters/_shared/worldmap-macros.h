@@ -51,6 +51,21 @@
     ASMC(WmDrawPathFromCurrentToDest) \
     STAL(70)
 
+/*
+ * The postgame dungeons' nodes: the Lagdou Ruins and Melkaen Coast, and their roads (Rausten Court to each, Port Kiris
+ * to Melkaen Coast), as vanilla's world map before Chapter 20 shows them. The Tower of Valni comes in Chapter 9's.
+ */
+#define WM_SHOW_POSTGAME_DUNGEONS \
+    WM_LOADLOCATION3(WM_NODE_LagdouRuins) \
+    WM_WAITFORFX \
+    WM_DRAWPATH(WM_PATH_1C) \
+    STAL(40) \
+    WM_LOADLOCATION3(WM_NODE_MelkaenCoast) \
+    WM_WAITFORFX \
+    WM_DRAWPATH(WM_PATH_1D) \
+    WM_DRAWPATH(WM_PATH_1E) \
+    STAL(40)
+
 /* Shared SET_NODE epilogue: show lord and hand control back to the player */
 #define WM_CLOSE_SET_NODE() \
     WM_MAKELORDVISIBLE(WM_MU_0) \

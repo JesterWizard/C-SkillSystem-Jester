@@ -67,6 +67,18 @@ bool WmStoryReached(int chapter)
 }
 
 /*
+ * The story chapter's node on the world map, or -1. In the postgame (after the ending, from Extras > Map) the story is
+ * over: the last story chapter stays in gWmStoryChapter for WmStoryReached (district life, unlocks), but its node is no
+ * longer the next one, and every node starts its vanilla chapter, as in vanilla's postgame.
+ */
+static int WmStoryNodeNow(void)
+{
+	if (gPlaySt.chapterStateBits & PLAY_FLAG_POSTGAME)
+		return -1;
+	return GetWmStoryChapterNode(gWmStoryChapter);
+}
+
+/*
  * The idle world map (WorldMap_LoopExt): the story chapter's node, once shown, is the "next" node (state bit 2), so a
  * trip there starts the chapter (vanilla's travel loop checks the bit, and only then ignores a monster on the node). A
  * chapter's SET_NODE script sets it with WM_SETDESTINATION; without that (Chapter 10's script had only
@@ -75,7 +87,7 @@ bool WmStoryReached(int chapter)
  */
 void WmStoryChapter_KeepDestination(void)
 {
-	int node = GetWmStoryChapterNode(gWmStoryChapter);
+	int node = WmStoryNodeNow();
 
 	if (node < 0 || node >= NODE_MAX || gGMData.units[0].location == node)
 		return;
@@ -111,7 +123,7 @@ void WmStoryChapter_Begin(int chapter)
  */
 int GetWmLocChapter(int node)
 {
-	int story = GetWmStoryChapterNode(gWmStoryChapter);
+	int story = WmStoryNodeNow();
 	int chapter;
 
 	if (gPlaySt.chapterModeIndex == CHAPTER_MODE_EPHRAIM)
@@ -136,7 +148,7 @@ LYN_REPLACE_CHECK(WMLoc_GetNextLocId);
 int WMLoc_GetNextLocId(int node)
 {
 	const s8 *next = gWMNodeData[node].unk_08;
-	int story = GetWmStoryChapterNode(gWmStoryChapter);
+	int story = WmStoryNodeNow();
 
 	/* The story chapter's node comes next, wherever the lord is */
 	if (story >= 0)

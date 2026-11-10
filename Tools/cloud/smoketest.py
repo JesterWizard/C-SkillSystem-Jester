@@ -24,6 +24,9 @@ What it checks:
               monster on Chapter 10's node, not marked next, does not stop it.
   wmshops     (Serafew) the node menu's shop rows: Serafew's Armory and Shop rows open its armory and vendor with
               the node's stock, and B leaves them; a node with no shops has none; the road to the story node is open.
+  postgame    (Serafew) from Chapter 20's world map through the ending; Extras > Map starts the postgame: the
+              dungeons are shown, Black Temple starts nothing, Rausten's secret shop opens, the Lagdou Ruins and the
+              Tower of Valni start, Enter District works on Port Kiris.
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
               the unlocked districts and the nodes' states come back, and Enter District still loads the district.
   life        (Serafew) district life: the map is darker at night (story Chapter 8); a Tower Stack best of 100 beats
@@ -50,7 +53,7 @@ What it checks:
               chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, snek, savelayout, suspend, gamesave, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, snek, savelayout, suspend, gamesave, battle, battlequote,
 frames, stealer, debugflag, biography, awards). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -106,6 +109,13 @@ WM_NODES = 0x1D  # the world map's nodes (NODE_MAX)
 WM_PATH_DATA = 0x08206674  # gWMPathData: 12 bytes a path, its two nodes at +4
 CHAPTER_07 = 0x08
 PROC_SIZE, PROCS = 0x6C, 64  # sProcArray: 64 procs of 0x6C bytes
+CHAPTER_20 = 0x14
+WM_NODE_PORT_KIRIS, WM_NODE_RAUSTEN, WM_NODE_BLACK_TEMPLE = 9, 23, 25
+WM_NODE_VALNI, WM_NODE_LAGDOU, WM_NODE_MELKAEN = 26, 27, 28
+POSTGAME_NODES = [WM_NODE_BLACK_TEMPLE, WM_NODE_VALNI, WM_NODE_LAGDOU, WM_NODE_MELKAEN]
+CHAPTER_VALNI_1, CHAPTER_LAGDOU_1 = 0x24, 0x2E  # the nodes' chapters (gWMNodeData)
+OPEN_ROADS = 31  # roads 0-30, the map as the story leaves it (road 9 is the Tower of Valni's)
+PLAY_FLAG_POSTGAME = 1 << 2
 SHOP_ITEMS = 20  # gProcScr_Shop's proc: its stock at +0x30, 20 u16 (item | uses << 8)
 PERMANENT_FLAGS = 0x03005250  # gPermanentFlagBits: flag f (0x65 and up) is bit (f - 0x65)
 ITEM_SKILL_STEALER = 0xBE  # CONFIG_ITEM_INDEX_SKILL_STEALER (include/configs/configs.h)
@@ -770,6 +780,109 @@ class Smoke:
                    any(ends(p) == (WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS) for p in paths),
                    "open paths %s" % [(p, ends(p)) for p in paths])
 
+    def test_postgame(self, states):
+        """The postgame. From Serafew (start.ss) the world map opens on Chapter 20's (the story on Chapter 20, the lord on
+        Rausten Court, the map as the story leaves it: nodes 0-24 and the Tower of Valni shown, roads 0-30 open, Serafew
+        and Port Kiris unlocked). The trip to Black Temple plays Chapters 20, 21 and 22 and the ending; at the title,
+        Extras > Map and the cleared slot start the postgame world map. Then: the postgame dungeons are shown, Black
+        Temple no longer starts Chapter 20, Rausten Court's node menu has the secret shop, and trips start the Lagdou
+        Ruins and the Tower of Valni, and reach Port Kiris, whose Enter District loads it. The game boots first, so the
+        cleared save is written to set-up SRAM."""
+        d = os.path.join(self.out, "Postgame")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "ProcScr_GmapBaseMenu", "sProcArray")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("postgame: the postgame", False, "no district state or symbols")
+        rom, story = states["rom"], self.sym["gWmStoryChapter"]
+        start = os.path.join(self.out, "Serafew", "start.ss")
+        data = open(rom, "rb").read()
+        xy = lambda n: struct.unpack_from("<hh", data, WM_NODE_DATA - 0x08000000 + n * 0x20 + 0x18)
+        node = lambda n: GM_DATA + 0x30 + 4 * n
+        mons = ["w32 %#x 0" % (GM_DATA + 0x10 + 4 * i) for i in range(4, 8)]
+        flags = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3)
+        bits = (1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)) | (1 << ((DISTRICT_PORT_KIRIS_FLAG - 0x65) & 7))
+        setup = ["w8 %#x %#x" % (story, CHAPTER_20), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_RAUSTEN),
+                 "w8 %#x %#x" % (flags, bits)] + mons
+        setup += ["w8 %#x %d" % (node(n), 1 if n < WM_NODE_BLACK_TEMPLE or n == WM_NODE_VALNI else 0)
+                  for n in range(WM_NODES)]
+        setup += ["w8 %#x %d" % (GM_DATA + 0xA4 + i, i) for i in range(OPEN_ROADS)] + \
+            ["w8 %#x %d" % (GM_DATA + 0xC4, OPEN_ROADS)]
+        x, y = xy(WM_NODE_BLACK_TEMPLE)
+        skip = ["press START", "wait 60", "press A", "wait 90"] * 4
+        post = os.path.join(d, "post.ss")
+        lines = ["wait 600", "load " + start, "wait 30"] + setup + LEAVE_DISTRICT + mons + ["wait 10", "shot ch20.png"]
+        lines += ["r8 %#x" % node(n) for n in POSTGAME_NODES]
+        lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A",
+                  "wait 90"] + skip * 3
+        # the ending and "Fin", then the title: A, then Extras (four down), Map (two down), the cleared slot
+        lines += ["press A", "wait 300"] * 5 + ["press A", "wait 200"] + ["press DOWN", "wait 20"] * 4
+        lines += ["press A", "wait 200", "press DOWN", "wait 30", "press DOWN", "wait 30", "press A", "wait 200",
+                  "shot slot.png", "press A", "wait 900", "shot postgame.png", "save " + post,
+                  "r8 %#x" % (PLAYST + 0x14), "r8 %#x" % (GM_DATA + 0x11)] + ["r8 %#x" % node(n) for n in POSTGAME_NODES]
+        vals = self.run(rom, lines, d)
+        for name, label in (("ch20", "world map before Chapter 20"), ("slot", "Extras > Map: the cleared save"),
+                            ("postgame", "the postgame world map")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        n = len(POSTGAME_NODES)
+        if len(vals) != 2 * n + 2:
+            return self.check("postgame: the ending leads to the postgame", False, "values %s" % vals)
+        pre, state, lord, after = vals[:n], vals[n], vals[n + 1], vals[n + 2:]
+        self.check("postgame: Chapter 20's world map shows the Lagdou Ruins and Melkaen Coast",
+                   all(pre[POSTGAME_NODES.index(k)] & 1 for k in (WM_NODE_LAGDOU, WM_NODE_MELKAEN)),
+                   "states %s" % dict(zip(POSTGAME_NODES, pre)))
+        if not self.check("postgame: Extras > Map on the cleared save starts the postgame",
+                          state & PLAY_FLAG_POSTGAME and state & PLAY_FLAG_COMPLETE and lord == WM_NODE_BLACK_TEMPLE,
+                          "state bits %#x, lord on %d" % (state, lord)):
+            return
+        self.check("postgame: the Tower of Valni, the Lagdou Ruins and Melkaen Coast are shown, Black Temple is not next",
+                   all(a & 1 for a in after) and not after[POSTGAME_NODES.index(WM_NODE_BLACK_TEMPLE)] & 2,
+                   "states %s" % dict(zip(POSTGAME_NODES, after)))
+
+        def trip(name, to, then=()):
+            """From the postgame state, the cursor on node to, A, and the lord walks there (monsters kept off)."""
+            x, y = xy(to)
+            lines = ["load " + post] + mons + ["w32 %#x %#x" % (GM_DATA + 8, x << 8),
+                                               "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A", "wait 30"]
+            lines += (mons + ["wait 120"]) * 10 + ["shot %s_there.png" % name] + list(then)
+            return self.run(rom, lines + ["r8 %#x" % CHAPTER, "r8 %#x" % (GM_DATA + 0x11)], d)
+        # Black Temple and back: the story's last node starts nothing now
+        vals = trip("temple", WM_NODE_RAUSTEN)
+        x, y = xy(WM_NODE_BLACK_TEMPLE)
+        lines = ["load " + post] + mons + ["w32 %#x %#x" % (GM_DATA + 8, xy(WM_NODE_RAUSTEN)[0] << 8),
+                                           "w32 %#x %#x" % (GM_DATA + 0xC, xy(WM_NODE_RAUSTEN)[1] << 8), "wait 10",
+                                           "press A", "wait 30"] + (mons + ["wait 120"]) * 6
+        lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A",
+                  "wait 30"] + (mons + ["wait 120"]) * 6 + ["shot temple.png", "r8 %#x" % CHAPTER,
+                                                            "r8 %#x" % (GM_DATA + 0x11)]
+        vals = self.run(rom, lines, d)
+        self.shot(os.path.join(d, "temple.png"), "postgame: back on Black Temple")
+        self.check("postgame: a trip back to Black Temple does not start Chapter 20",
+                   vals == [STUB_FINAL, WM_NODE_BLACK_TEMPLE], "chapter, lord's node %s" % vals)
+        # Rausten Court's node menu: Armory, Shop, then the secret shop (the menu reopens on its row unk_cd: 0)
+        procs, base = self.sym["sProcArray"], self.sym["ProcScr_GmapBaseMenu"]
+        vals = trip("secret", WM_NODE_RAUSTEN, ["w8 %#x 0" % (GM_DATA + 0xCD), "press A", "wait 40",
+                                               "shot secret_menu.png", "press DOWN", "wait 10", "press DOWN", "wait 10",
+                                               "press A", "wait 220", "shot secret.png",
+                                               "dump %#x %#x secret.bin" % (procs, PROC_SIZE * PROCS)])
+        self.shot(os.path.join(d, "secret_menu.png"), "postgame: Rausten Court's node menu")
+        kind = [p[0x29] for a, p in self.procs(os.path.join(d, "secret.bin")) if a == base]
+        self.check("postgame: Rausten Court's third row opens the secret shop", kind == [2],
+                   "base menu kind %s, lord on %s" % (kind, vals[1:]))
+        # The dungeons: arriving starts their first floor
+        for name, to, chapter in (("lagdou", WM_NODE_LAGDOU, CHAPTER_LAGDOU_1), ("valni", WM_NODE_VALNI, CHAPTER_VALNI_1)):
+            vals = trip(name, to, ["press A", "wait 60", "press A", "wait 600", "shot %s.png" % name])
+            self.shot(os.path.join(d, name + ".png"), "postgame: " + name)
+            self.check("postgame: a trip to the %s starts its first floor" % ("Lagdou Ruins" if name == "lagdou" else
+                                                                               "Tower of Valni"),
+                       vals[:1] == [chapter], "chapter, lord's node %s" % vals)
+        # Port Kiris, through Melkaen Coast: Enter District
+        vals = trip("kiris", WM_NODE_PORT_KIRIS, ["w8 %#x 0" % (GM_DATA + 0xCD), "press A", "wait 40",
+                                                  "shot kiris_menu.png", "press A", "wait 400", "shot kiris.png"])
+        self.shot(os.path.join(d, "kiris.png"), "postgame: Enter District on Port Kiris")
+        self.check("postgame: Enter District on Port Kiris loads the district", vals == [DISTRICTS["PortKiris"][0],
+                                                                                         WM_NODE_PORT_KIRIS],
+                   "chapter, lord's node %s" % vals)
+
     def guild_quests(self):
         """gGuildQuests from the ROM: (district, kind, param, msg) per row."""
         rom = open(ROM, "rb").read()
@@ -1342,7 +1455,7 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops"))) or \
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes") or on("unlocks") or on("featured") or on("life") or on("worldmap") or on("stubs") or on("wmsave") or on("wmshops") or on("postgame"))) or \
                 (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
@@ -1365,6 +1478,8 @@ def main():
                 s.test_wmsave(states)
             if n == "Serafew" and on("wmshops"):
                 s.test_wmshops(states)
+            if n == "Serafew" and on("postgame"):
+                s.test_postgame(states)
             if n == "PortKiris" and on("snek"):
                 s.test_snek(states)
     sys.exit(s.report())

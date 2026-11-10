@@ -457,6 +457,7 @@ struct GMapData
     /* 30 */ struct GMNode nodes[0x1C];
     /* A0 */ int unk_a0; // pad?
     /* A4 */ struct OpenPaths openPaths;
+    /* C5 */ STRUCT_PAD(0xC5, 0xC8); /* OpenPaths is 0x21 bytes: without this, the fields below sat 3 bytes early (#699) */
     /* C8 */ u8 current_node; // entry node id?
     /* C9 */ u8 unk_c9[3]; // List of active world map skirmishes
     /* CC */ u8 unk_cc; // used to determine which skirmish enemy block to load

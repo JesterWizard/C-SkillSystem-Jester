@@ -124,7 +124,7 @@ WORLDMAP_C = """#include "../../_shared/worldmap-include.h"
 const EventScr EventScrWM_Ch{n}_SET_NODE[] = {{
     WM_OPEN_MAP(CHARACTER_EIRIKA, {src})
     WM_SETUNITONNODE(WM_MU_0, {src})
-    WM_REVEAL_DEST({dst})
+{extra}    WM_REVEAL_DEST({dst})
     WM_CLOSE_SET_NODE()
 }};
 
@@ -176,7 +176,7 @@ def main():
     if not m:
         fail("no STUB_CHAPTER(%s, ...) line in %s" % (stub, os.path.relpath(STUBS_EVENTS_C, ROOT)))
     nxt = m.group(1)
-    wm_re = re.compile(r"^STUB_SET_NODE\(Ch%d, *(\w+), *(\w+)\)[ \t]*\n" % int(n), re.M)
+    wm_re = re.compile(r"^STUB_SET_NODE(?:_WITH)?\(Ch%d, *(\w+), *(\w+)(?:, *(\w+))?\)[ \t]*\n" % int(n), re.M)
     wm = wm_re.search(stubs_wm)
 
     folder = os.path.join(CHAPTERS, n, "events")
@@ -190,7 +190,8 @@ def main():
                                          next_name=nxt.split("(")[0])))
     wm_path = os.path.join(folder, "worldmap.c")
     if wm and not os.path.exists(wm_path):
-        writes.append((wm_path, WORLDMAP_C.format(n=int(n), src=wm.group(1), dst=wm.group(2))))
+        extra = "    %s\n" % wm.group(3) if wm.group(3) else ""
+        writes.append((wm_path, WORLDMAP_C.format(n=int(n), src=wm.group(1), dst=wm.group(2), extra=extra)))
     elif wm:
         fail("%s exists and Stubs/events/worldmap.c still has Ch%d's scripts: keep one of them" %
              (os.path.relpath(wm_path, ROOT), int(n)))
@@ -219,7 +220,7 @@ def main():
     for path, text in edits:
         print("edit  %s" % os.path.relpath(path, ROOT))
     print("Chapter %s: event slot %s, then %s%s" % (n, slot, nxt,
-                                                   ", world map %s -> %s" % wm.groups() if wm else ""))
+                                                   ", world map %s -> %s" % wm.groups()[:2] if wm else ""))
     if a.dry_run:
         return
     os.makedirs(folder, exist_ok=True)
