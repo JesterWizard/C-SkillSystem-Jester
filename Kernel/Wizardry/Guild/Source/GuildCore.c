@@ -8,6 +8,7 @@
 #include "fishing.h"
 #include "hex.h"
 #include "skill-system.h"
+#include "vanilla.h"
 
 #ifdef CONFIG_DISTRICT_GUILD
 
@@ -237,6 +238,80 @@ bool Guild_QuestMet(int index)
 	return !Guild_QuestClaimed(index) && Guild_QuestProgress(q) >= q->target;
 }
 
+/* ---- Unlocks ---- */
+
+static int Guild_QuestIndexByMsg(int msg)
+{
+	int i, n = Guild_QuestsCount();
+
+	for (i = 0; i < n; i++)
+		if (gGuildQuests[i].msg == msg)
+			return i;
+	return -1;
+}
+
+int Guild_QuestUnlockKind(int index)
+{
+	const struct GuildUnlock *u;
+
+	for (u = gGuildUnlocks; u->kind != GUILD_UNLOCK_END; u++)
+		if (u->questMsg == gGuildQuests[index].msg)
+			return u->kind;
+	return GUILD_UNLOCK_END;
+}
+
+bool Guild_BiographyPageUnlocked(int pid, int page)
+{
+	const struct GuildUnlock *u;
+	int index;
+
+	for (u = gGuildUnlocks; u->kind != GUILD_UNLOCK_END; u++) {
+		if (u->kind != GUILD_UNLOCK_BIOGRAPHY || u->a != pid || u->b > page)
+			continue;
+		index = Guild_QuestIndexByMsg(u->questMsg);
+		if (index < 0 || !Guild_QuestClaimed(index))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+/*
+ * Support points from pid to partner, up to the next rank (its conversation then shows as usual). The partner's slot
+ * comes from the character data, so it works whether or not either unit is on the map (in a district only Eirika is).
+ */
+static void Guild_AddSupportOneWay(int pid, int partner, int amount)
+{
+	const struct CharacterData *data = GetCharacterData(pid);
+	const struct SupportData *support = data ? data->pSupportData : NULL;
+	struct NewBwl *bwl = GetNewBwl(pid);
+	int num, exp, level, max;
+
+	if (!support || !bwl)
+		return;
+	for (num = 0; num < support->supportCount && num < UNIT_SUPPORT_MAX_COUNT; num++)
+		if (support->characters[num] == partner)
+			break;
+	if (num >= support->supportCount || num >= UNIT_SUPPORT_MAX_COUNT)
+		return;
+	exp = bwl->supports[num];
+	level = exp > 240 ? SUPPORT_LEVEL_A : exp > 160 ? SUPPORT_LEVEL_B : exp > 80 ? SUPPORT_LEVEL_C : SUPPORT_LEVEL_NONE;
+	max = sSupportMaxExpLookup[level];
+	exp += amount;
+	bwl->supports[num] = exp > max ? max : exp;
+}
+
+static void Guild_ApplyUnlocks(int index)
+{
+	const struct GuildUnlock *u;
+
+	for (u = gGuildUnlocks; u->kind != GUILD_UNLOCK_END; u++) {
+		if (u->questMsg != gGuildQuests[index].msg || u->kind != GUILD_UNLOCK_SUPPORT)
+			continue;
+		Guild_AddSupportOneWay(u->a, u->b, u->amount);
+		Guild_AddSupportOneWay(u->b, u->a, u->amount);
+	}
+}
+
 bool Guild_ClaimQuest(int index)
 {
 	const struct GuildQuest *q = &gGuildQuests[index];
@@ -247,6 +322,7 @@ bool Guild_ClaimQuest(int index)
 	if (q->kind == GUILD_QUEST_DELIVER)
 		Guild_TakeItems(q->param, q->target);
 	gGuildSave.claimed |= 1 << index;
+	Guild_ApplyUnlocks(index);
 	Guild_AddTokens(q->rewardTokens);
 	if (q->rewardGold) {
 		gold = GetPartyGoldAmount() + q->rewardGold;

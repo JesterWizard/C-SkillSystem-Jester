@@ -62,6 +62,25 @@ struct GuildPrize {
 	u8 pad[2];
 };
 
+/*
+ * What claiming a quest unlocks besides its reward (gGuildUnlocks, ends with kind GUILD_UNLOCK_END). A row names its
+ * quest by the quest's msg, so reordering the quests cannot point it at another one.
+ */
+enum guild_unlock_kind {
+	GUILD_UNLOCK_END,
+	GUILD_UNLOCK_BIOGRAPHY, /* a, b: a character and a biography page (0-3); the page and the ones after it stay
+				 * locked until the quest is claimed */
+	GUILD_UNLOCK_SUPPORT,   /* a, b: two characters; amount: support points each way, up to the next rank */
+};
+
+struct GuildUnlock {
+	u16 questMsg;    /* the quest's msg */
+	u8 kind;         /* GUILD_UNLOCK_* */
+	u8 a, b;
+	u8 amount;
+	u8 pad[2];
+};
+
 /* Saved (a save chunk in both save lists, 0x10 bytes). */
 struct GuildSave {
 	/* 00 */ u16 magic;
@@ -75,6 +94,7 @@ struct GuildSave {
 extern struct GuildSave gGuildSave;
 extern const struct GuildQuest gGuildQuests[];
 extern const struct GuildPrize gGuildPrizes[];
+extern const struct GuildUnlock gGuildUnlocks[];
 
 /* Tokens */
 int Guild_Tokens(void);
@@ -89,6 +109,10 @@ bool Guild_ClaimQuest(int index);    /* the reward, and the quest is done; FALSE
 int Guild_QuestsClaimedCount(void);
 int Guild_QuestsCount(void);
 bool Guild_AnyClaimable(int district);
+
+/* Unlocks: the first kind a quest unlocks (0: none), and whether a biography page is open */
+int Guild_QuestUnlockKind(int index);
+bool Guild_BiographyPageUnlocked(int pid, int page);
 
 /* Prizes */
 bool Guild_PrizeSoldOut(int index);

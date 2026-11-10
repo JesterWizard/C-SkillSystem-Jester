@@ -468,3 +468,22 @@ everything set up for you.[A][X]
 [OpenMidLeft]
 Oh I see.[A][N][MoveMidLeft]
 Not to worry, another time then![A][X]
+
+## MSG_GUILD_UNLOCK_STORY
++story[X]
+## MSG_GUILD_UNLOCK_SUPPORT
++support[X]
+## MSG_GUILD_Q_STORY_EIRIKA
+Eirika: win 25 battles.[X]
+## MSG_GUILD_Q_STORY_SETH
+Seth: win 25 battles.[X]
+## MSG_GUILD_Q_STORY_FRANZ
+Franz: win 20 battles.[X]
+## MSG_GUILD_Q_STORY_GILLIAM
+Gilliam: win 20 battles.[X]
+## MSG_GUILD_Q_STORY_TANA
+Tana: win 15 battles.[X]
+## MSG_GUILD_Q_SUPPORT_EIRIKA_SETH
+Earn 60 tokens: Eirika and Seth.[X]
+## MSG_GUILD_Q_SUPPORT_FRANZ_GILLIAM
+Earn 120 tokens: Franz and Gilliam.[X]

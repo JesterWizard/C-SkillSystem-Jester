@@ -166,12 +166,21 @@ EventScr_CharacterBiographies
 
 ---
 
+## 🔒 Locked pages
+
+A page can wait on a [guild board](./GuildBoard.md#story-and-support-quests) quest: `UNLOCK_BIOGRAPHY(quest,
+character, page)` in `gGuildUnlocks` (`Data/Guild/Guild.c`) keeps that page, and the ones after it, locked until the
+quest is claimed. The list then shows how many pages are open ("3/4"), and the biography stops before the first locked
+page. Each written biography's last page waits on its character's quest ("Eirika: win 25 battles" and so on).
+
+The map menu's Biography command is off by default: turn on `map_menu_character_biographies` in
+`Data/DesignerConfig/designer-config.c`.
+
+---
+
 ## 📝 TODO
 
-- Support conditional biography unlocks
 - Add portrait preview on selection
-- Add support for locked biographies
-- Add page indicators (e.g. 1/4, 2/4)
 
 ---
 
