@@ -2,6 +2,8 @@
 #include "constants/items.h"
 #include "constants/texts.h"
 #include "kernel/guild.h"
+#include "skill-system.h"
+#include "constants/skills.h"
 
 #ifdef CONFIG_DISTRICT_GUILD
 
@@ -13,7 +15,7 @@
  * a claimed bit in the save, by its place here, so add new quests at the end.
  *
  * Prizes: the order is the list's. One-time prizes have a bit each, by their rank among the one-time prizes: add new ones
- * at the end too.
+ * after the last one-time prize.
  */
 
 #define SERAFEW 0x3B
@@ -59,21 +61,62 @@ const struct GuildQuest gGuildQuests[] = {
 	{ .kind = GUILD_QUEST_END },
 };
 
+#define PRIZE(i, c)        { .item = (i), .cost = (c), .kind = GUILD_PRIZE_ITEM }
+#define PRIZE_ONCE(i, c)   { .item = (i), .cost = (c), .kind = GUILD_PRIZE_ITEM, .once = 1 }
+#define TONIC(k, c)        { .item = ((k) << 8) | ITEM_TONIC, .cost = (c), .kind = GUILD_PRIZE_WORD }
+#define SCROLL(sid, c)     { .item = (sid), .cost = (c), .kind = GUILD_PRIZE_SKILL, .once = 1 }
+
+/*
+ * One-time prizes keep their bought bit by their order among the one-time prizes (struct GuildSave): add new ones after
+ * the last one-time prize, never between. Rows that are not one-time can go anywhere.
+ */
 const struct GuildPrize gGuildPrizes[] = {
-	{ .item = ITEM_VULNERARY, .cost = 5 },
-	{ .item = ITEM_ANTITOXIN, .cost = 5 },
-	{ .item = ITEM_TORCH, .cost = 5 },
-	{ .item = ITEM_DOORKEY, .cost = 10 },
-	{ .item = ITEM_PUREWATER, .cost = 15 },
-	{ .item = ITEM_ELIXIR, .cost = 25 },
-	{ .item = ITEM_MASTERSEAL, .cost = 60 },
-	{ .item = ITEM_BOOSTER_HP, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_POW, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_SKL, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_SPD, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_LCK, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_DEF, .cost = 80, .once = 1 },
-	{ .item = ITEM_BOOSTER_RES, .cost = 80, .once = 1 },
+	PRIZE(ITEM_VULNERARY, 5),
+	PRIZE(ITEM_ANTITOXIN, 5),
+	PRIZE(ITEM_TORCH, 5),
+	PRIZE(ITEM_DOORKEY, 10),
+	PRIZE(ITEM_PUREWATER, 15),
+	PRIZE(ITEM_ELIXIR, 25),
+	PRIZE(ITEM_MASTERSEAL, 60),
+
+	/* Tonics: +2 to a stat (Omni: to every stat) until the chapter ends (Documentation/Features/Tonics.md) */
+	TONIC(0, 8),  /* HP */
+	TONIC(1, 8),  /* Str */
+	TONIC(2, 8),  /* Mag */
+	TONIC(3, 8),  /* Skl */
+	TONIC(4, 8),  /* Spd */
+	TONIC(5, 8),  /* Lck */
+	TONIC(6, 8),  /* Def */
+	TONIC(7, 8),  /* Res */
+	TONIC(8, 30), /* Omni */
+
+	PRIZE_ONCE(ITEM_BOOSTER_HP, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_POW, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_SKL, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_SPD, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_LCK, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_DEF, 80),
+	PRIZE_ONCE(ITEM_BOOSTER_RES, 80),
+
+	/* Skill scrolls, once each */
+#if defined(SID_Vantage) && (COMMON_SKILL_VALID(SID_Vantage))
+	SCROLL(SID_Vantage, 120),
+#endif
+#if defined(SID_Renewal) && (COMMON_SKILL_VALID(SID_Renewal))
+	SCROLL(SID_Renewal, 120),
+#endif
+#if defined(SID_Adept) && (COMMON_SKILL_VALID(SID_Adept))
+	SCROLL(SID_Adept, 150),
+#endif
+#if defined(SID_Pavise) && (COMMON_SKILL_VALID(SID_Pavise))
+	SCROLL(SID_Pavise, 150),
+#endif
+#if defined(SID_Luna) && (COMMON_SKILL_VALID(SID_Luna))
+	SCROLL(SID_Luna, 150),
+#endif
+#if defined(SID_Galeforce) && (COMMON_SKILL_VALID(SID_Galeforce))
+	SCROLL(SID_Galeforce, 250),
+#endif
 	{ .item = 0 },
 };
 

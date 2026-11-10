@@ -754,6 +754,61 @@ static int TextEngine_GetTalkFaceY(void)
 	return TEXT_ENGINE_TALK_FACE_Y;
 }
 
+/*
+ * The vanilla in-place face change, sub_80066E0: a child of the face running
+ * gProcScr_08591304, which locks the face's blink and mouth, loads the new
+ * portrait in its CALL at script[3] (two frames later) and unlocks them.
+ */
+struct TextEngineFaceChangeProc {
+	PROC_HEADER;
+
+	/* 2C */ struct FaceProc *face;
+	/* 30 */ const struct FaceData *faceData;
+	/* 34 */ int faceId;
+};
+
+#define TEXT_ENGINE_FACE_CHANGE_LOAD_CMD 3
+
+/* This face's change that has not loaded its portrait yet. */
+static struct TextEngineFaceChangeProc *TextEngine_PendingFaceChange(struct FaceProc *face)
+{
+	struct TextEngineFaceChangeProc *change = Proc_Find(gProcScr_08591304);
+
+	while (change) {
+		if (change->face == face &&
+		    change->proc_scrCur <= gProcScr_08591304 + TEXT_ENGINE_FACE_CHANGE_LOAD_CMD)
+			return change;
+
+		change = Proc_FindAfter(gProcScr_08591304, (struct Proc *)change);
+	}
+
+	return NULL;
+}
+
+/* The portrait a face shows once its pending change, if any, has loaded. */
+static int TextEngine_FaceTargetId(struct FaceProc *face)
+{
+	struct TextEngineFaceChangeProc *change = TextEngine_PendingFaceChange(face);
+
+	return change ? change->faceId : face->faceId;
+}
+
+/*
+ * Change a face's portrait in place. Two changes started in the same frame
+ * both load, and the older one loads last, so [LoadFace] on an occupied slot
+ * followed at once by [Expression] would end on the [LoadFace] portrait: a
+ * change that has not loaded yet is given the new portrait instead.
+ */
+static void TextEngine_ChangeFace(struct FaceProc *face, int faceId)
+{
+	struct TextEngineFaceChangeProc *change = TextEngine_PendingFaceChange(face);
+
+	if (change)
+		change->faceId = faceId;
+	else if (face->faceId != faceId)
+		sub_80066E0(face, faceId);
+}
+
 /* The base portrait of an expression variant (gPortraitExpressions), or the portrait itself. */
 static int TextEngine_ExpressionBase(int portraitId)
 {
@@ -4382,7 +4437,7 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 	face = TextEngine_GetFaceProcByPosition(position);
 
 	if (face) {
-		sub_80066E0(face, faceId);
+		TextEngine_ChangeFace(face, faceId);
 	} else {
 		face = StartFaceAuto(
 			faceId,
@@ -6438,15 +6493,15 @@ static int TextEngine_CommandExpression(
 		face = state->faces[state->activeFaceSlot];
 
 	if (face) {
-		base = TextEngine_ExpressionBase(face->faceId);
+		base = TextEngine_ExpressionBase(TextEngine_FaceTargetId(face));
 		target = arguments[0] == EXPRESSION_NEUTRAL ? base : -1;
 
 		for (entry = gPortraitExpressions; target < 0 && entry->basePortrait; entry++)
 			if (entry->basePortrait == base && entry->expression == arguments[0])
 				target = entry->portrait;
 
-		if (target >= 0 && target != face->faceId)
-			sub_80066E0(face, target);
+		if (target >= 0)
+			TextEngine_ChangeFace(face, target);
 	}
 
 	return TalkInterpret(proc);

@@ -10,7 +10,7 @@ Tools for Claude Code cloud sessions. Local machines use the normal devkitARM se
 - `gbarun.c` - headless mGBA runner. Plays a key script and takes screenshots and save states.
 - `boot-to-prologue.txt` - `gbarun` script that boots a fresh ROM to the prologue map.
 - `boot-to-prep.txt` - `gbarun` script that boots a fresh ROM to the Preparations screen (writes `prep.ss` and `prep.png`).
-- `smoketest.py` - emulator smoke tests of the built ROM: boot, the stat screen, every district spot, tokens and quests.
+- `smoketest.py` - emulator smoke tests of the built ROM: boot, the stat screen, a battle and level-up, save and suspend round trips, every district spot, tokens and quests.
   See [Smoke tests](#smoke-tests).
 - `.claude/hooks/session-start.sh` - session setup hook. Runs `build.sh` prerequisites and the rest of the setup below.
 
@@ -131,10 +131,19 @@ Stat screen tip:
 python3 Tools/cloud/smoketest.py --quick
 ```
 
-- `--quick` (about 10 seconds): a new game reaches the prologue map; the stat screen opens and closes; in Serafew, Eirika
-  walks to every district spot (fishing, River Crossing, Tower Stack, guild board), A opens each screen and B brings the
-  map back; a River Crossing game over pays the guild board's tokens; a met quest is claimed.
-- No option (about 30 seconds): the same in all four districts. `--only Jehanna tokens` runs named tests.
+- `--quick` (about 20 seconds):
+  - a new game reaches the prologue map; the stat screen opens and closes;
+  - battle: Eirika attacks the soldier next to her. Str Bonus in a free skill slot raises the forecast's attack, the
+    fight hurts the soldier, and with 99 EXP she levels up; her level-up quote shows the expression its tier asks for.
+    Moved next to her, O'Neill's battle quote shows her `[Surprised]` (a test ROM maps her sad portrait to it);
+  - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game
+    writes its suspend save), a soft reset and Resume Chapter bring back her HP, her position and every district save
+    chunk. The debugger's "Save & restart ch." and Restart Chapter do the same for the game save;
+  - in Serafew, Eirika walks to every district spot (fishing, River Crossing, Tower Stack, guild board), A opens each
+    screen and B brings the map back; a River Crossing game over pays the guild board's tokens; a met quest is claimed;
+    the board sells the Omni Tonic and a skill scroll.
+- No option (about 35 seconds): the same, with all four districts. `--only Jehanna tokens` runs named tests (`boot`,
+  `statscreen`, `battle`, `battlequote`, `savelayout`, `suspend`, `gamesave`, a district's name, `tokens`, `claim`, `prizes`).
 - It prints PASS or FAIL per check, writes `report.txt` and `sheet.png` (every opened screen, for a look by eye) to
   `--out` (default: a new temp folder), and exits with the number of failed checks.
 - A district test ROM starts a new game in the district (chapter row 0 takes the district's map and events). Eirika
@@ -142,6 +151,11 @@ python3 Tools/cloud/smoketest.py --quick
   tile free movement refuses) marks that tile blocked and the path is planned again. A spot no path reaches fails as
   unreachable, which is how the Port Kiris crossing spot on floor terrain was found.
 - RAM addresses come from `fe8-kernel-dev.sym` and `include/link/config-memmap.o`, so they follow the build.
+- The save tests boot in the same `gbarun` run as the reset: a save state does not hold SRAM, so a test that loads one
+  and resets finds a blank save. Before saving they write sentinel values (guild tokens, River Crossing and Tower Stack
+  bests, Snek's high score) and dump every district chunk (the `SAVE_RAM` list in the script). After saving they wipe
+  those chunks in RAM, so only a load brings them back. A chunk whose save or load is wrong fails by name. When you add
+  a save chunk, add its save function and RAM symbol to `SAVE_RAM`.
 - An A press as a wandering NPC starts its step (30 frames after the player stops) is ignored, in game too; the test
   tries again after another wait. The map can come back scrolled after a screen closes, so "back to the map" compares
   the screens' colours as well as their pixels.

@@ -167,12 +167,12 @@ All extended commands use the `[0x80][XX]...` form. **Arguments must be non-zero
 
 ### Fancy LoadFace options
 
-`[LoadFaceFancy]` expects options with bit `0x80` always set (avoids an accidental terminator), then font / color group / bg palette / box type / pitch, then the portrait id:
+`[LoadFaceFancy]` takes eight bytes: the portrait id + 0x100 (two bytes, low first), then options with bit `0x80` always set (avoids an accidental terminator), then font / color group / bg palette / box type / pitch, each + 1:
 
 - bit `0x01`: flip the portrait to face right; if unset, the portrait always faces left
 - bit `0x02`: load with eyes closed
 
-Helpers like `[FlipRight]` / `[FlipLeft]` and portrait-specific `[LoadFaceFancy_*]` aliases live in `textdefs.txt`.
+Helpers like `[FlipRight]` / `[FlipLeft]` and portrait-specific `[LoadFaceFancy_*]` aliases live in `textdefs.txt`. A `[LoadFaceFancy_*]` alias holds only the portrait id; the `[FlipLeft]` or `[FlipRight]` after it supplies the other six bytes, so nothing can go between them.
 
 ### Color groups
 

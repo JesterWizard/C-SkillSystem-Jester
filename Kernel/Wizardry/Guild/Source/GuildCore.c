@@ -7,6 +7,7 @@
 #include "tower.h"
 #include "fishing.h"
 #include "hex.h"
+#include "skill-system.h"
 
 #ifdef CONFIG_DISTRICT_GUILD
 
@@ -80,13 +81,18 @@ static struct Unit *Guild_Receiver(void)
 	return NULL;
 }
 
-void Guild_GiveItem(int item)
+void Guild_GiveItemWord(int item)
 {
 	struct Unit *unit = Guild_Receiver();
 
-	if (unit && UnitAddItem(unit, MakeNewItem(item)))
+	if (unit && UnitAddItem(unit, item))
 		return;
-	AddItemToConvoy(MakeNewItem(item));
+	AddItemToConvoy(item);
+}
+
+void Guild_GiveItem(int item)
+{
+	Guild_GiveItemWord(MakeNewItem(item));
 }
 
 int Guild_CountItem(int item)
@@ -292,6 +298,18 @@ bool Guild_PrizeSoldOut(int index)
 	return bit < GUILD_PRIZES_ONCE_MAX && ((gGuildSave.prizes >> bit) & 1);
 }
 
+int Guild_PrizeItem(const struct GuildPrize *p)
+{
+	switch (p->kind) {
+	case GUILD_PRIZE_WORD:
+		return p->item;
+	case GUILD_PRIZE_SKILL:
+		return MakeSkillScrollItem(p->item);
+	default:
+		return MakeNewItem(p->item);
+	}
+}
+
 bool Guild_BuyPrize(int index)
 {
 	const struct GuildPrize *p = &gGuildPrizes[index];
@@ -304,7 +322,7 @@ bool Guild_BuyPrize(int index)
 		if (bit < GUILD_PRIZES_ONCE_MAX)
 			gGuildSave.prizes |= 1 << bit;
 	}
-	Guild_GiveItem(p->item);
+	Guild_GiveItemWord(Guild_PrizeItem(p));
 	return TRUE;
 }
 

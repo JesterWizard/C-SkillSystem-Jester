@@ -10,6 +10,7 @@
 - [Introduction](#introduction)
 - [Using an Expression in Dialogue](#using-an-expression-in-dialogue)
 - [The Expressions](#the-expressions)
+- [Expressions in Quotes](#expressions-in-quotes)
 - [Adding an Expression](#adding-an-expression)
 - [The Portrait Tool](#the-portrait-tool)
 - [Making It Look Hand-Made](#making-it-look-hand-made)
@@ -66,10 +67,10 @@ An expression is a normal portrait (`setMugEntry`) plus one row in a table. The 
 
 | Portrait | Character | Expression | Changes from the base | Used in |
 |---|---|---|---|---|
-| `0xB0` | Eirika (`0x02`) | Angry | Brows down toward the nose, lids over the iris, a flat frown | Not yet in a scene |
-| `0xB1` | Eirika (`0x02`) | Sad | Inner brow up, outer end down, lid lower, a small downturned mouth | Prologue: "...Yes... Father is strong" to the end of the scene |
+| `0xB0` | Eirika (`0x02`) | Angry | Brows down toward the nose, lids over the iris, a flat frown | Battle quote against Saar: "No matter who I am, you presume much to command me" |
+| `0xB1` | Eirika (`0x02`) | Sad | Inner brow up, outer end down, lid lower, a small downturned mouth | Prologue: "...Yes... Father is strong" to the end of the scene; poor level-ups; battle quote against Novala |
 | `0xB2` | Ephraim (`0x14`) | Angry | Brows down toward the nose, the upper lid over the eye's highlight, a flat frowning mouth | Chapter 9: "And who are you supposed to be ugly?" |
-| `0xB3` | Seth (`0x04`) | Hurt | Inner brow up (pain), the eye narrowed, a wider grimace | Prologue: "Argh...! N-No!" when Valter strikes him; "Your Highness, I can't allow an injury..." until "King Fado will not be taken down" |
+| `0xB3` | Seth (`0x04`) | Hurt | Inner brow up (pain), the eye narrowed, a wider grimace | Prologue: "Argh...! N-No!" when Valter strikes him; "Your Highness, I can't allow an injury..." until "King Fado will not be taken down"; battle quote against Tirado: "..." |
 | `0xB4` | Lyon (`0x46`) | Sad | Inner brow up, a heavier lid, a downturned mouth | Not yet: Lyon's present-day portrait is not in the campaign so far |
 
 Each was exported from its vanilla portrait and changes only the eyes, brows and mouth (25 to 40 face pixels); its blink
@@ -79,6 +80,35 @@ smiles. They are in `Data/CustomPortraits/Portraits/` (`eirika_angry.png`, `eiri
 
 The scenes' lines are in `CustomCampaign/Chapters/00/text/opening.txt` and `CustomCampaign/Chapters/09/text/opening.txt`.
 Each tag follows the `[OpenX]` of the face's slot at that point.
+
+---
+
+## 🗨️ Expressions in Quotes
+
+The level-up, battle and defeat quotes already carry tags. A character with no portrait for a tag keeps their base
+portrait, so a new expression shows up in every quote that asks for it as soon as its table row exists.
+
+| Quotes | File | Tags |
+|---|---|---|
+| Level-up | `CustomCampaign/Text/LevelUpQuotes/LevelUpQuotes.txt` | Every `_Poor_Level_Up` opens with `[Sad]`, every `_Great_Level_Up` with `[Happy]`. `_Good_` has none |
+| Battle | `CustomCampaign/Text/Quotes/BattleQuotes.txt` | Per line, by what is said: `[Angry]`, `[Sad]`, `[Surprised]`, `[Determined]`, `[Hurt]` |
+| Defeat | `CustomCampaign/Text/Quotes/DefeatQuotes.txt` | Every dying unit opens with `[Hurt]` |
+
+With the portraits so far, these show: sad Eirika on a poor level-up and in her battle quote with Novala, angry Eirika
+against Saar ("No matter who I am..."), and hurt Seth against Tirado ("...").
+
+- The level-up quote speaks through the level-up portrait. Its `[OpenMidRight][LoadFace_X]` reuses that face, and the
+  tag changes it in place.
+- `[LoadFaceFancy_X]` takes eight bytes of arguments, but its alias holds only the first two; the `[FlipLeft]` or
+  `[FlipRight]` that always follows it is the rest (options, font, colour, box, pitch). Put a tag after the pair:
+  `[LoadFaceFancy_Eirika][FlipLeft][Sad]`. A tag between them is read as arguments.
+- `[LoadFace]` on a slot that already has a face starts the vanilla face change too. A tag right after it in the same
+  frame retargets that change instead of starting a second one, which would load after it and win
+  (`TextEngine_ChangeFace`).
+
+`python3 Tools/cloud/smoketest.py --only battle battlequote` checks both cases in the emulator: Eirika's level-up quote
+shows the expression its tier asks for, and O'Neill's battle quote shows her `[Surprised]` (a test ROM maps her sad
+portrait to it).
 
 ---
 
@@ -179,7 +209,8 @@ down. `sync-frames` carried those into 64 frame pixels, and the smile frames bec
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Command | `TextEngine_CommandExpression` in [`TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `0x80 0x63 NN`: finds the expression and calls the vanilla face change (`sub_80066E0`) |
+| Command | `TextEngine_CommandExpression` in [`TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `0x80 0x63 NN`: finds the expression and changes the face |
+| Face change | `TextEngine_ChangeFace` in the same file | Starts the vanilla face change (`sub_80066E0`), or retargets one that has not loaded yet; `[LoadFace]` on an occupied slot uses it too |
 | Names | `TextEngine_ExpressionBase` in the same file | A variant names its base character (nameplate, chat log) |
 | Table | [`PortraitExpressions.c`](../../Data/CustomPortraits/PortraitExpressions.c) | `gPortraitExpressions`: base portrait, expression, variant |
 | Header | [`portrait-expressions.h`](../../include/kernel/portrait-expressions.h) | `enum portrait_expression`, `struct PortraitExpression` |
@@ -199,3 +230,4 @@ down. `sync-frames` carried those into 64 frame pixels, and the smile frames bec
 - The swap takes the face-change proc's three frames. The talk goes on meanwhile, so the new face shows as the next
   letters print.
 - Only the speaker changes. To change a listener, `[OpenX]` them first.
+- `[Neutral]` after a quote's `[LoadFace_X]` is never needed: `[LoadFace]` loads the base portrait.

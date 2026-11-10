@@ -73,6 +73,7 @@ Persisting a feature's state in SRAM: a chunk in the normal save (SAV, written w
 6. Installer. Add `#include "Source/X.lyn.event"` to the feature's installer, and add the installer's include to the `WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event` (`:129`).
 7. If the value starts fresh on a new game, add its reset function to `gNewSaveHooks` (`data.event:119`). If it resets each chapter, add it to `ChapterInitHooks` before `WORD 0` (`ChapterInitHook/data.event`).
 8. Run `make savecheck` and `make ramcheck`. At writing, SUS had only 164 bytes free (Gotchas).
+9. Add the save function and its RAM symbol to `SAVE_RAM` in `Tools/cloud/smoketest.py`, then run `python3 Tools/cloud/smoketest.py --only savelayout suspend gamesave`. It prints each block's free bytes, and saves, wipes, resets and reloads the chunk through the real suspend and game-save paths. A chunk that does not come back fails by name.
 
 ## Template
 

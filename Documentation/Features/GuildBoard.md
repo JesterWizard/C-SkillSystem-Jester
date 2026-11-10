@@ -29,7 +29,7 @@ Stand on it and press A: the board opens with three pages.
 
 - **Quests**: the district's requests. Score so much in a minigame, catch so many kinds of fish, win battles, bring an
   item. A met quest is claimed here for tokens, and sometimes gold and an item.
-- **Prizes**: items bought with tokens.
+- **Prizes**: items bought with tokens, among them tonics for the next battle and skill scrolls.
 - **Records**: every minigame's bests on one page.
 
 **Tokens** are the minigames' shared currency: every minigame pays some at its end, and so do quests. They tie the
@@ -117,7 +117,12 @@ A record you already hold counts: a quest posted after you reached it is met at 
 | Pure Water | 15 | |
 | Elixir | 25 | |
 | Master Seal | 60 | |
+| HP, Str, Mag, Skl, Spd, Lck, Def, Res Tonic | 8 | +2 to the stat until the chapter ends ([Tonics](./Tonics.md)) |
+| Omni Tonic | 30 | +2 to every stat until the chapter ends |
 | Each stat booster (Angelic Robe, Energy Ring, Secret Book, Speedwing, Goddess Icon, Dragonshield, Talisman) | 80 | once each |
+| Vantage, Renewal scroll | 120 | once each; a skill scroll teaches its skill |
+| Adept, Pavise, Luna scroll | 150 | once each |
+| Galeforce scroll | 250 | once |
 
 - A prize you can't afford is grey. A one-time prize you bought shows **Sold out**.
 - A, then A again, buys. The item goes to the unit, or to the convoy when its items are full.
@@ -187,8 +192,21 @@ QUEST(SERAFEW, GUILD_QUEST_CROSSING_SCORE, 0, 800, 15, 0, 0, MSG_GUILD_Q_SERAFEW
   bits keep meaning the same quests.
 - The quest's line is a message in `Contents/Texts/Source/texts/Districts.txt` (add it at the end of the file). Keep it
   under about 34 characters.
-- Prizes: `{ .item = ITEM_X, .cost = N }`, and `.once = 1` for a one-time prize. One-time prizes have a bit each (16 at
-  most), by their rank among the one-time prizes: add new ones at the end too.
+- Prizes: one macro per row.
+
+  | Macro | Gives |
+  |---|---|
+  | `PRIZE(ITEM_X, cost)` | the item, with full uses |
+  | `PRIZE_ONCE(ITEM_X, cost)` | the same, once |
+  | `TONIC(kind, cost)` | the tonic of that kind (0 HP, 1 Str, 2 Mag, 3 Skl, 4 Spd, 5 Lck, 6 Def, 7 Res, 8 Omni) |
+  | `SCROLL(SID_X, cost)` | the skill's scroll, once. Wrap the row in `#if defined(SID_X) && (COMMON_SKILL_VALID(SID_X))` |
+
+  Under them is `struct GuildPrize`: `.kind` is `GUILD_PRIZE_ITEM` (an item index), `GUILD_PRIZE_WORD` (an item word
+  given as-is) or `GUILD_PRIZE_SKILL` (a skill id, turned into its scroll by `MakeSkillScrollItem` when bought).
+- One-time prizes have a bit each (16 at most, 13 used), by their rank among the one-time prizes: add new ones after the
+  last one-time prize, never between. Rows that are not one-time can go anywhere.
+- Avoid skill ids `0x1FF` and `0x2FF` for scrolls: `MakeSkillScrollItem` stores `sid - 0xFF` or `sid - 0x1FF` in the
+  item word's top byte, which is `0x100` for those two and does not fit.
 - A new kind of quest: a `GUILD_QUEST_*` in `include/kernel/guild.h` and a case in `Guild_QuestProgress`
   (`GuildCore.c`) that reads the progress from saved data.
 

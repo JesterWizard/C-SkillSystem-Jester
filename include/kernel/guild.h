@@ -47,11 +47,19 @@ struct GuildQuest {
 	u16 msg;         /* its line on the board */
 };
 
+enum guild_prize_kind {
+	GUILD_PRIZE_ITEM,  /* item: an item index, given with full uses */
+	GUILD_PRIZE_WORD,  /* item: an item word, given as-is (tonics: (kind << 8) | ITEM_TONIC) */
+	GUILD_PRIZE_SKILL, /* item: a skill id, given as its skill scroll (MakeSkillScrollItem) */
+};
+
 /* A prize (gGuildPrizes, ends with item 0). */
 struct GuildPrize {
-	u8 item;
-	u8 once;         /* 1: it can be bought once (a bit in struct GuildSave, in table order) */
+	u16 item;        /* GUILD_PRIZE_*: an item index, an item word or a skill id */
 	u16 cost;        /* tokens */
+	u8 kind;         /* GUILD_PRIZE_* */
+	u8 once;         /* 1: it can be bought once (a bit in struct GuildSave, in the order of the one-time prizes) */
+	u8 pad[2];
 };
 
 /* Saved (a save chunk in both save lists, 0x10 bytes). */
@@ -85,9 +93,11 @@ bool Guild_AnyClaimable(int district);
 /* Prizes */
 bool Guild_PrizeSoldOut(int index);
 bool Guild_BuyPrize(int index);      /* FALSE when short of tokens or sold out */
+int Guild_PrizeItem(const struct GuildPrize *p); /* the item word it gives */
 
 /* Items to the unit, or else the convoy */
 void Guild_GiveItem(int item);
+void Guild_GiveItemWord(int item);
 int Guild_CountItem(int item);       /* held by the army's units and in the convoy */
 
 /* Save chunk and new-game hook (Kernel/Wizardry/SaveData/data.event) */
