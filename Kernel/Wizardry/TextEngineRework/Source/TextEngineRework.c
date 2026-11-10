@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "utf8.h"
 #include "kernel/chatlog.h"
+#include "kernel/portrait-expressions.h"
 
 #include "bmlib.h"
 #include "ctc.h"
@@ -208,6 +209,11 @@ enum {
 	 */
 	TEXT_ENGINE_CMD_RAINBOW_ON = 0x61,
 	TEXT_ENGINE_CMD_RAINBOW_OFF = 0x62,
+	/*
+	 * Expressions: the speaker's portrait changes in place to one of its
+	 * character's variants (gPortraitExpressions, Data/CustomPortraits).
+	 */
+	TEXT_ENGINE_CMD_EXPRESSION = 0x63,
 	TEXT_ENGINE_RAINBOW_GROUPS = 3,
 	/* Frames from one hue in sTextEngineRainbowHues to the next. */
 	TEXT_ENGINE_RAINBOW_HUE_FRAMES = 8,
@@ -748,6 +754,18 @@ static int TextEngine_GetTalkFaceY(void)
 	return TEXT_ENGINE_TALK_FACE_Y;
 }
 
+/* The base portrait of an expression variant (gPortraitExpressions), or the portrait itself. */
+static int TextEngine_ExpressionBase(int portraitId)
+{
+	const struct PortraitExpression *entry;
+
+	for (entry = gPortraitExpressions; entry->basePortrait; entry++)
+		if (entry->portrait == portraitId)
+			return entry->basePortrait;
+
+	return portraitId;
+}
+
 static const struct CharacterData *TextEngine_FindCharacterByPortrait(int portraitId)
 {
 	const struct CharacterData *character;
@@ -780,6 +798,10 @@ static const struct CharacterData *TextEngine_FindCharacterByPortrait(int portra
 			break;
 		}
 	}
+
+	/* An expression variant names the character of its base portrait. */
+	if (canonicalPortraitId == portraitId)
+		canonicalPortraitId = TextEngine_ExpressionBase(portraitId);
 
 	if (canonicalPortraitId == portraitId)
 		return NULL;
@@ -6392,6 +6414,44 @@ static int TextEngine_CommandClearFaceAsh(
  * Keep every extended command's argument shape and behavior in one table.
  * argumentCount is the number of bytes after [0x80][code].
  */
+/*
+ * [Expression][N]: the speaking portrait changes to its character's
+ * expression N, in place: the same slot, flip, nameplate and voice, and the
+ * vanilla face-change proc reloads the graphics and palettes without a fade.
+ * With no such expression nothing changes; EXPRESSION_NEUTRAL goes back to
+ * the base portrait.
+ */
+static int TextEngine_CommandExpression(
+	ProcPtr proc,
+	const struct TextEngineCommandDescriptor *command,
+	const u8 *arguments
+)
+{
+	struct TalkState *state = sTextEngineState;
+	const struct PortraitExpression *entry;
+	struct FaceProc *face = NULL;
+	int base, target;
+
+	(void)command;
+
+	if (state->activeFaceSlot < ARRAY_COUNT(state->faces))
+		face = state->faces[state->activeFaceSlot];
+
+	if (face) {
+		base = TextEngine_ExpressionBase(face->faceId);
+		target = arguments[0] == EXPRESSION_NEUTRAL ? base : -1;
+
+		for (entry = gPortraitExpressions; target < 0 && entry->basePortrait; entry++)
+			if (entry->basePortrait == base && entry->expression == arguments[0])
+				target = entry->portrait;
+
+		if (target >= 0 && target != face->faceId)
+			sub_80066E0(face, target);
+	}
+
+	return TalkInterpret(proc);
+}
+
 static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ 0x00, 0, TextEngine_CommandVanillaColor, NULL, NULL },
 	{ 0x01, 0, TextEngine_CommandVanillaColor, NULL, NULL },
@@ -6492,6 +6552,7 @@ static const struct TextEngineCommandDescriptor sTextEngineCommandTable[] = {
 	{ TEXT_ENGINE_CMD_AUTO_ADVANCE_OFF, 0, TextEngine_CommandStopAutoAdvance, NULL, NULL },
 	{ TEXT_ENGINE_CMD_RAINBOW_ON, 0, TextEngine_CommandStartRainbow, NULL, TextEngine_CleanupRainbow },
 	{ TEXT_ENGINE_CMD_RAINBOW_OFF, 0, TextEngine_CommandStopRainbow, NULL, NULL },
+	{ TEXT_ENGINE_CMD_EXPRESSION, 1, TextEngine_CommandExpression, NULL, NULL },
 };
 
 static const struct TextEngineCommandDescriptor *TextEngine_FindCommand(u8 code)

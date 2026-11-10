@@ -23,6 +23,7 @@
 #include "ClassTypes/ClassTypes.lyn.event"
 #include "WeaponSlots/WeaponSlots.lyn.event"
 #include "PortraitHeight/PortraitHeight.lyn.event"
+#include "CustomPortraits/PortraitExpressions.lyn.event"
 #include "Anims/Anims.event"
 #include "MapTask/MapTask.event"
 #include "CustomItems/CustomItems.event"
