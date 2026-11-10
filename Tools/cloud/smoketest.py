@@ -13,6 +13,7 @@ What it checks:
   claim       (Serafew) a met quest is claimed on the guild board for its tokens.
   prizes      (Serafew) the guild board sells the Omni Tonic and a skill scroll: the tokens drop by their costs and
               both reach Eirika.
+  snek        (Port Kiris, not in --quick) the Pied Piper's Snek: Yes, 80 points, B: 10 tokens and the high score.
   savelayout  the game save's and the suspend save's chunks fit their SRAM blocks (read from the ROM's chunk tables).
   suspend     Eirika waits (the game writes its suspend save), a soft reset and Resume Chapter bring back her HP and
               position and every district save chunk (guild, River Crossing, Tower Stack, fishing, Hex, Snek).
@@ -25,7 +26,7 @@ What it checks:
               (a test ROM maps her sad portrait to SURPRISED).
 
 --quick runs every test but the other three districts. --only runs the named tests (boot, statscreen,
-a district's name, tokens, claim, prizes, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+a district's name, tokens, claim, prizes, snek, savelayout, suspend, gamesave, battle, battlequote). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -75,6 +76,7 @@ BM_MAP_UNIT = 0x0202E4D8
 ITEM_TONIC = 0xDF
 SKILL_SCROLL_ITEMS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 (include/configs/configs.h)
 GUILD_PRIZE_WORD, GUILD_PRIZE_SKILL = 1, 2  # include/kernel/guild.h
+SNEK_PIPER_TILE, SNEK_TALK_TILE = (17, 14), (16, 14)  # CustomCampaign/Chapters/PortKiris/events/units.c
 
 # save chunk save function: the RAM it saves (its size comes from the chunk table; Snek saves a u16 and a magic)
 SAVE_RAM = {
@@ -224,7 +226,9 @@ class Smoke:
 
     def walk(self, rom, state, target, layout, cfg, avoid, d, max_runs=40):
         """Walks Eirika to target from a save state. Each run takes up to 4 path steps; a step that does not move her
-        (a wandering NPC, a tile free movement refuses) marks that tile blocked, and the path is planned again."""
+        (a wandering NPC, a tile free movement refuses) marks that tile blocked, and the path is planned again. When the
+        blocked tiles leave no path, it waits two seconds for the wandering NPCs to move on and forgets them (4 times at
+        most)."""
         w, h, tiles = layout["w"], layout["h"], layout["tiles"]
         ground = rules.WALK - {0x26, 0x1E}
         blocked = set()
@@ -260,10 +264,18 @@ class Smoke:
         cur = state
         out = os.path.join(d, "walk.ss")
         pos = tuple(self.run(rom, ["load " + cur, "r8 %#x" % UNIT_X, "r8 %#x" % UNIT_Y], d))
+        waits = 0
         for _ in range(max_runs):
             if pos == target:
                 return cur
             steps = path(pos)
+            if not steps and blocked and waits < 4:
+                # wandering NPCs can close a narrow road for a while: let them move on and plan again
+                waits += 1
+                blocked.clear()
+                self.run(rom, ["load " + cur, "wait 120", "save " + out], d)
+                cur = out
+                continue
             if not steps:
                 return None
             lines = ["load " + cur]
@@ -364,6 +376,34 @@ class Smoke:
         self.shot(os.path.join(d, "claim.png"), "quest claimed")
         self.check("claim: Serafew's first quest pays 15 tokens and is marked claimed", vals == [15, 1],
                    "tokens, claimed bits %s" % vals)
+
+    def test_snek(self, states):
+        """Port Kiris: Eirika talks to the Pied Piper (0x7E, next to the guild board), says Yes, scores 80 and quits
+        with B: the game pays 10 tokens, sets the high score and plays the new-record conversation."""
+        d = os.path.join(self.out, "PortKiris")
+        need = ("gGuildSave", "gSnekCurrentScore", "gSnekHighScore")
+        if "rom" not in states or not all(n in self.sym for n in need):
+            return self.check("snek: the Pied Piper's game", False, "no Port Kiris map or symbols")
+        layout = json.load(open(os.path.join(ROOT, "CustomCampaign", "Chapters", "PortKiris", "map",
+                                             "PortKiris_layout.json")))
+        cfg = open(os.path.join(ROOT, "CustomCampaign", "Chapters", "_hexshop", "town_cfg.bin"), "rb").read()
+        traps = open(os.path.join(ROOT, "CustomCampaign", "Chapters", "PortKiris", "events", "traps.c")).read()
+        avoid = {(int(m.group(2)), int(m.group(3))) for m in re.finditer(r"(\w+)\((\d+),\s*(\d+)", traps)}
+        at = self.walk(states["rom"], os.path.join(d, "start.ss"), SNEK_TALK_TILE, layout, cfg,
+                       avoid | {SNEK_PIPER_TILE}, d)
+        if not self.check("snek: Eirika reaches the Pied Piper", at):
+            return
+        g, sc, hi = self.sym["gGuildSave"], self.sym["gSnekCurrentScore"], self.sym["gSnekHighScore"]
+        # RIGHT faces him, A talks; A through his lines and Yes; in the game the score is set to 80, then B quits
+        lines = ["load " + at, "wait 40", "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w16 %#x 0" % hi,
+                 "hold RIGHT 4", "wait 20", "hold A 6", "wait 90"]
+        lines += ["hold A 6", "wait 60"] * 4 + ["hold A 6", "wait 90", "hold A 6", "wait 200", "wait 100",
+                                                "w16 %#x 80" % sc, "wait 30", "hold B 6", "wait 240"]
+        lines += ["hold A 6", "wait 100"] * 2 + ["shot snek.png", "r16 %#x" % (g + 2), "r16 %#x" % hi]
+        vals = self.run(states["rom"], lines, d)
+        self.shot(os.path.join(d, "snek.png"), "snek result")
+        self.check("snek: 80 points pay 10 tokens and set the high score", vals == [10, 80],
+                   "tokens, high score %s" % vals)
 
     def prizes(self):
         """gGuildPrizes from the ROM: (item, cost, kind, once) per row."""
@@ -647,6 +687,8 @@ def main():
     s = Smoke(out)
     names = ["Serafew"] if a.quick else list(DISTRICTS)
     want = set(a.only) if a.only else None
+    if want and "snek" in want and "PortKiris" not in names:
+        names.append("PortKiris")
 
     def on(n):
         return want is None or n in want
@@ -666,7 +708,8 @@ def main():
     if on("gamesave"):
         s.test_gamesave()
     for n in names:
-        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes"))):
+        if on(n) or (n == "Serafew" and (on("tokens") or on("claim") or on("prizes"))) or \
+                (n == "PortKiris" and on("snek")):
             states = s.test_district(n)
             if n == "Serafew" and on("tokens"):
                 s.test_tokens(states)
@@ -674,6 +717,8 @@ def main():
                 s.test_claim(states)
             if n == "Serafew" and on("prizes"):
                 s.test_prizes(states)
+            if n == "PortKiris" and on("snek"):
+                s.test_snek(states)
     sys.exit(s.report())
 
 
