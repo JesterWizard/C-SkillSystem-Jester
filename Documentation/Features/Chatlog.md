@@ -15,7 +15,7 @@
 
 Chapter dialogue in FE8 is ephemeral: once a page advances, earlier lines are gone. Players who miss a name, joke, or plot beat have no in-scene way to re-read without restarting the conversation (or using prep Event Replay after the fact).
 
-This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17** dialogue lines of the current chapter, toggled with **SELECT** and scrolled with **DPAD_UP / DPAD_DOWN**. It lives in RAM only: it is not kept in suspend or normal saves (see [Limitations](#limitations--bugs)).
+This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17** dialogue lines of the conversation on screen, toggled with **SELECT** and scrolled with **DPAD_UP / DPAD_DOWN**. Each conversation starts with an empty log, so it lives in RAM only and needs no room in the suspend or normal saves (see [Limitations](#limitations--bugs)).
 
 ### Runtime configuration
 
@@ -45,8 +45,8 @@ This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17
 | `[2NL]` | Commit the entry: speaker id, name text id, portrait, text → ring buffer |
 | `[A]` | Commit the current entry, then wait for player input |
 | Speaker change mid-page | Commit the current entry first |
+| Talk start | Clear the ring buffer: the log holds only this conversation |
 | Talk end | Commit any leftover line, tear down UI proc |
-| Chapter init | Clear the ring buffer |
 
 ### Storage
 
@@ -54,10 +54,9 @@ This feature adds a **Talk-scene chatlog**: an overlay that stores the last **17
 |--------|--------|------|---------|
 | FreeRamSpace2 | `sChatLogState` | `0x444` | 17 line entry ring + view cursor (RAM only) |
 | FreeRamSpace2 | `sChatlogUiState` | `0x600` | Font/texts, chibi palette + priority/blend backups, tile allocation, name/draw scratch |
-| SuspendSave EMS | `SaveChatLogSuspendState` / `LoadChatLogSuspendState` | `0` | An empty chunk: loading a suspend resets the log |
 | NormalSave | — | — | Not used |
 
-The log used to be kept in the suspend save (a `0x444` chunk). That space went to other features: the chunk is now empty, and its loader clears the ring, so a resumed chapter starts with an empty log.
+The log used to be kept in the suspend save (a `0x444` chunk), and then for a whole chapter. It now covers one conversation: `Chatlog_StartSession` clears the ring when a Talk starts, so there is nothing to keep across a suspend or a chapter change, and the suspend chunk and chapter-start hook are gone.
 
 ### Overlay drawing
 
@@ -80,13 +79,11 @@ The log used to be kept in the suspend save (a `0x444` chunk). That space went t
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Ring buffer + overlay UI | `Chatlog_*` in [`Chatlog.c`](../../Kernel/Wizardry/Chatlog/Source/Chatlog.c) | Capture API, SELECT toggle, blend/draw, DPAD scroll, SUS save/load |
+| Ring buffer + overlay UI | `Chatlog_*` in [`Chatlog.c`](../../Kernel/Wizardry/Chatlog/Source/Chatlog.c) | Capture API, SELECT toggle, blend/draw, DPAD scroll; `Chatlog_StartSession` clears the ring for each conversation |
 | Talk input gates | `TalkWaitForInput_OnIdle`, `TalkSkipListener_OnIdle` in [`Chatlog.c`](../../Kernel/Wizardry/Chatlog/Source/Chatlog.c) | Block A/B/DPAD Talk advance while the log is open |
 | Glyph capture | `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Pause printing while visible; append each printed character |
 | Page commit hooks | `TalkInterpret` / `Talk_OnInit_C` / `Talk_OnEnd_C` in [`TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | `[N]` / `[A]` capture, start/end chatlog session |
 | EWRAM reservation | [`config-memmap.s`](../../include/link/config-memmap.s) | `_kernel_malloc2` for `sChatLogState` and `sChatlogUiState` |
-| Suspend chunk | `gEmsSusChunks` in [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | Empty (size 0) SUS chunk whose loader resets the log |
-| Chapter clear | `ChapterInit_ResetChatlog` via [`ChapterInitHook/data.event`](../../Kernel/Wizardry/ChapterInitHook/data.event) | Wipe history on chapter start |
 | Public API | [`chatlog.h`](../../include/kernel/chatlog.h) | Caps, structs, and hook entry points |
 | Runtime toggle | `chatlog_enabled` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h) and [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Gates `Chatlog_StartSession` and glyph capture |
 
@@ -94,7 +91,6 @@ The log used to be kept in the suspend save (a `0x444` chunk). That space went t
 
 ## TODO
 
-- Optionally filter prep Event Replay / world-map Talk from the chapter ring.
 - Consider a longer message field if English rewrites routinely truncate at 56 bytes per wrapped line.
 
 ---
@@ -102,7 +98,8 @@ The log used to be kept in the suspend save (a `0x444` chunk). That space went t
 ## Limitations & Bugs
 
 - Chatlog is **Talk-only**; map SELECT is intentionally untouched.
-- History is **not saved**: not in normal saves, and not in the suspend save. **Resuming a suspended chapter starts with an empty log**, as a new chapter does. The `0x444` bytes it used to take in the suspend save were freed for other features. Putting it back means restoring the chunk's size in `data.event` and the old save/load bodies in `Chatlog.c` (in git history), and it needs that much suspend space free.
+- The log covers **one conversation**: a new Talk starts it empty, so earlier conversations in the chapter can't be re-read. An event that splits one scene into several Talks (text, then a scene change, then more text) shows only the lines since the last one started.
+- History is **not saved**, and doesn't need to be: no conversation spans a save or suspend. The `0x444` bytes it once took in the suspend save went to other features.
 - Opening the overlay owns BG2's tilemap; scenes that already draw on BG2, or that leave fewer than `0x3E` spare tiles (world-map narration, for instance), simply do not open the log rather than corrupt their graphics.
 - A scene with room for only some rows shows a shorter log; the scroll range follows the row count actually drawn.
 - Minimugs are the portrait chibi (16 colors), not the 32-color half-body sprite. Portraits without a chibi show the engine's `?` mug, exactly as they do on the map.

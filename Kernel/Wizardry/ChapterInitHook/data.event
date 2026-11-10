@@ -14,7 +14,6 @@ ChapterInitHooks:
     POIN RealtimeBattle_InitChapter
     POIN ChapterInit_ResetChapterTimer
     POIN ChapterInit_SyncAchievementsOption
-    POIN ChapterInit_ResetChatlog
     POIN ResetGaidenMagicUses
     POIN ChapterInit_RemoveThreeHousesMagicItems
     POIN ChapterInit_ResetZenkaiPending

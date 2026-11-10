@@ -228,11 +228,6 @@ static void Chatlog_ResetRing(void)
 	CpuFill16(0, &sChatLogState, sizeof(sChatLogState));
 }
 
-void ChapterInit_ResetChatlog(void)
-{
-	Chatlog_ResetRing();
-}
-
 static void Chatlog_SanitizeState(void)
 {
 	if (sChatLogState.head >= CHATLOG_CAP)
@@ -241,19 +236,6 @@ static void Chatlog_SanitizeState(void)
 		sChatLogState.count = CHATLOG_CAP;
 	if (sChatLogState.viewTop > Chatlog_MaxViewTop())
 		sChatLogState.viewTop = Chatlog_MaxViewTop();
-}
-
-/*
- * The log is not kept in the suspend save (its 0x444 bytes went to other features): the suspend chunk is empty, and
- * resuming starts an empty log, as a new chapter does.
- */
-void SaveChatLogSuspendState(u8 *dst, const u32 size)
-{
-}
-
-void LoadChatLogSuspendState(u8 *src, const u32 size)
-{
-	Chatlog_ResetRing();
 }
 
 /* --- capture ------------------------------------------------------------- */
@@ -540,12 +522,16 @@ void Chatlog_CommitPage(void)
 		Chatlog_Draw();
 }
 
+/*
+ * Each conversation starts an empty log: it holds only the lines of the conversation on screen, so nothing needs to be
+ * kept across chapters or in the suspend save.
+ */
 void Chatlog_StartSession(void)
 {
+	Chatlog_ResetRing();
 	if (!Chatlog_IsEnabled())
 		return;
 
-	Chatlog_SanitizeState();
 	sChatLogState.flags &= ~(CHATLOG_FLAG_VISIBLE | CHATLOG_FLAG_LINEOPEN);
 	Proc_EndEach(ProcScr_Chatlog);
 	Proc_Start(ProcScr_Chatlog, PROC_TREE_3);
