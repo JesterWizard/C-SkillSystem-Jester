@@ -50,6 +50,8 @@ OPTS=()
 while read -r f; do OPTS+=(-o "$f"); done < "$OLDLIST"
 { make -j"$(nproc)" "${OPTS[@]}" pre_build && make -j"$(nproc)" "${OPTS[@]}" chax && make "${OPTS[@]}" post_chax; } > "$LOG" 2>&1
 rc=$?
+# smoketest.py reads RAM addresses from config-memmap.o, which make deletes as an intermediate of the .lyn.event chain
+[ $rc -eq 0 ] && { make "${OPTS[@]}" include/link/config-memmap.o >> "$LOG" 2>&1; rc=$?; }
 grep -E "error|Error|Assertion|warning" "$LOG" | head -40
 grep "Kernel______Text" "$LOG"
 grep "^\[CC \]" "$LOG"
