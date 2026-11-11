@@ -542,3 +542,14 @@ This chapter has not been written yet.[NL]
 The story moves on to the next one.[A][X]
 ## MSG_MENU_OPTION_EXP_BAR_TITLE
 EXP Bar[X]
+## MSG_SKILL_DeepRoots_NAME
+Deep Roots[X]
+## MSG_SKILL_DeepRoots_DESC
+Deep Roots:[N]
+From a forest, move to any empty[N]
+forest within Mov tiles. Free: the[N]
+unit can still move and act.[X]
+## MSG_SKILL_DeepRoots_FRtext
+No empty forest within reach.[X]
+## MSG_SKILL_DeepRoots_Target
+Choose a forest to move to.[X]

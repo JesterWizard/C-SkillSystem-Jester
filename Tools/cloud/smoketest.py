@@ -60,6 +60,9 @@ What it checks:
               a corner (no defeat yet). A fighter made a 2x2 block in RAM fights once from the corner that reaches,
               Seth breaks that corner, and the block stops where O'Neill blocks it; its shown range is every tile
               the block can cover.
+  deeproots   Deep Roots (a menu skill): Eirika, given it in RAM, walks into the prologue's forest at (9, 6) and hops
+              to another forest; she lands there unmoved, hops again, and Wait then ends her turn. A screenshot shows
+              her menu on plains, with no Skills row.
   expbar      EXP bar styles (Kernel/Wizardry/ExpBarStyles): with the Options value set to the second and the last
               style, the map EXP bar and the battle-animation one load that style's palette and window tiles; the
               first value (Vanilla) keeps vanilla's palette in battle.
@@ -67,7 +70,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards, bigunit, expbar). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -1361,6 +1364,59 @@ class Smoke:
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
 
+    def test_deeproots(self, boot_ss):
+        """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
+        (13, 7), (14, 8) and (2, 0); Eirika starts on plains at (4, 5) with Mov 5. Given the skill in RAM and put on
+        plains at (8, 5), she walks into the forest at (9, 6): her menu is Skills, Item, Wait. Skills, Deep Roots and the
+        first target hop her to another forest within 5 tiles, and she is unmoved there (state 0). Without moving she
+        hops again (Skills is the second row: O'Neill is next to (10, 7)), then Wait ends her turn (state 0x42)."""
+        d = os.path.join(self.out, "deeproots")
+        os.makedirs(d, exist_ok=True)
+        sid = self.skill_id("SID_DeepRoots")
+        if sid is None:
+            return self.check("deeproots: SID_DeepRoots exists", False)
+        forests = {(9, 6), (10, 7), (13, 7), (14, 8)}
+        skills = UNIT1 + 0x32
+        vals = self.run(ROM, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT] + ["r8 %#x" % (skills + k) for k in range(5)], d)
+        rows, packed = vals[0], sum(v << (8 * k) for k, v in enumerate(vals[1:]))
+        slot = next((k for k in range(4) if (packed >> (10 * k)) & 0x3FF == 0), None)
+        if slot is None:
+            return self.check("deeproots: Eirika has a free skill slot", False)
+        packed |= sid << (10 * slot)
+        row5 = self.run(ROM, ["load " + boot_ss, "r32 %#x" % (rows + 4 * 5)], d)[0]
+        give = ["w8 %#x %#x" % (skills + k, (packed >> (8 * k)) & 0xFF) for k in range(5)]
+        pos = ["r8 %#x" % (UNIT1 + 0x10), "r8 %#x" % (UNIT1 + 0x11), "r32 %#x" % (UNIT1 + 0x0C)]
+
+        # On plains: no Skills row (the menu starts Attack, Pair Up, ...; a Skills row would come first)
+        self.run(ROM, ["load " + boot_ss] + give + ["press A", "wait 30", "press A", "wait 30", "shot plains.png"], d)
+        self.shot(os.path.join(d, "plains.png"), "Deep Roots: on plains, no Skills row")
+
+        lines = ["load " + boot_ss] + give + ["w8 %#x 8" % (UNIT1 + 0x10), "w8 %#x 5" % (UNIT1 + 0x11),
+                                              "w8 %#x 0" % (row5 + 4), "w8 %#x 1" % (row5 + 8)]
+        lines += ["press RIGHT", "wait 8"] * 4 + ["wait 20", "press A", "wait 30", "press RIGHT", "wait 8", "press DOWN",
+                                                  "wait 28", "press A", "wait 40", "shot menu.png"]
+        lines += ["press A", "wait 30", "press A", "wait 40", "shot target.png", "press A", "wait 260",
+                  "shot hop1.png"] + pos
+        lines += ["press A", "wait 30", "press A", "wait 30", "press DOWN", "wait 10", "press A", "wait 30", "press A",
+                  "wait 40", "press DOWN", "wait 20", "press A", "wait 260", "shot hop2.png"] + pos
+        lines += ["press A", "wait 30", "press A", "wait 30", "press UP", "wait 10", "press A", "wait 60",
+                  "shot wait.png", "r32 %#x" % (UNIT1 + 0x0C)]
+        got = self.run(ROM, lines, d)
+        for f, label in (("menu.png", "her menu in the forest"), ("target.png", "choosing a forest"),
+                         ("hop1.png", "after the first hop"), ("hop2.png", "after the second hop"),
+                         ("wait.png", "after Wait")):
+            self.shot(os.path.join(d, f), "Deep Roots: " + label)
+        if len(got) != 7:
+            return self.check("deeproots: the hops run", False, "values %s" % got)
+        x1, y1, st1, x2, y2, st2, st3 = got
+        self.check("deeproots: the first hop lands on another forest within Mov, unmoved",
+                   (x1, y1) in forests and (x1, y1) != (9, 6) and abs(x1 - 9) + abs(y1 - 6) <= 5 and not st1 & 0x42,
+                   "at (%d, %d), state %#x" % (x1, y1, st1))
+        self.check("deeproots: a second hop from there, still unmoved",
+                   (x2, y2) in forests and (x2, y2) != (x1, y1) and not st2 & 0x42,
+                   "at (%d, %d), state %#x" % (x2, y2, st2))
+        self.check("deeproots: Wait then ends her turn", st3 & 0x42 == 0x42, "state %#x" % st3)
+
     def test_expbar(self, boot_ss):
         """EXP bar styles: the Options value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the second option
         word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations. The map bar
@@ -1825,7 +1881,7 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar")
+                  "bigunit", "expbar", "deeproots")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
@@ -1844,6 +1900,8 @@ def main():
                 r.submit((0, 4), s.test_bigunit, boot_ss)
             if on("expbar"):
                 r.submit((0, 5), s.test_expbar, boot_ss)
+            if on("deeproots"):
+                r.submit((0, 6), s.test_deeproots, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):

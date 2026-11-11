@@ -932,5 +932,6 @@
 #define SID_Sweapstrike 0x39F
 #define SID_Prayer 0x3A0
 #define SID_Angler 0x3A1
+#define SID_DeepRoots 0x3A2
 
 #endif /* SKILLS_EVENT */

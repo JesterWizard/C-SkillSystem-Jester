@@ -1563,4 +1563,17 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_DeepRoots) && COMMON_SKILL_VALID(SID_DeepRoots))
+    [SID_DeepRoots] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_DeepRoots_NAME,
+        .helpMsgId = MSG_SKILL_DeepRoots_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = DeepRoots_Usability,
+        .onDraw = NULL,
+        .onSelected = DeepRoots_OnSelected,
+        .onIdle = NULL,
+    },
+#endif
+
 };
