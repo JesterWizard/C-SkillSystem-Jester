@@ -150,6 +150,7 @@ ALIGN 4
 #include "EnterTown/EnterTown_Installer.event"
 #include "BigUnits/BigUnits.event"
 #include "ExceedPortraitBox/ExceedPortraitBox_Installer.event"
+#include "ExpBarStyles/ExpBarStyles_Installer.event"
 #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
 #include "FourthAllegiance/FourthAllegiance_Installer.event"
 #include "FreeMovement/FreeMovement_Installer.event"

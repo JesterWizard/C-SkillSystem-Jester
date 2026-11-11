@@ -164,6 +164,8 @@ python3 Tools/cloud/smoketest.py --quick
   - battle: Eirika attacks the soldier next to her. Str Bonus in a free skill slot raises the forecast's attack, the
     fight hurts the soldier, and with 99 EXP she levels up; her level-up quote shows the expression its tier asks for.
     Moved next to her, O'Neill's battle quote shows her `[Surprised]` (a test ROM maps her sad portrait to it);
+  - EXP bar styles: with the Options value set to a style, the map EXP bar and the battle-animation one load that
+    style's palette and window tiles (`--only expbar`);
   - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game
     writes its suspend save), a soft reset and Resume Chapter bring back her HP, her position and every district save
     chunk. The debugger's "Save & restart ch." and Restart Chapter do the same for the game save;

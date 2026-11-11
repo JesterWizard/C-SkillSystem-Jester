@@ -2,12 +2,13 @@
 #include "kernel-lib.h"
 #include "constants/texts.h"
 #include "kernel/realtime-battle.h"
+#include "exp-bar-styles.h"
 
 extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[33] = {
+const u8 gGameOptionsUiOrder_NEW[34] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -21,6 +22,7 @@ const u8 gGameOptionsUiOrder_NEW[33] = {
     GAME_OPTION_MUSIC, 
     GAME_OPTION_SOUND_EFFECTS,
     GAME_OPTION_WINDOW_COLOR, 
+    GAME_OPTION_EXP_BAR,
 
     // CUSTOM
     GAME_OPTION_SKILL_CAPACITY,
@@ -102,6 +104,9 @@ static int GetGameOptionRowCount(int optionIdx)
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
         return 4;
 
+    if (optionIdx == GAME_OPTION_EXP_BAR)
+        return ExpBarStyle_Count();
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 2;
 
@@ -123,6 +128,9 @@ static const char *GetGameOptionRowTitle(int optionIdx)
 
 static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 {
+    if (optionIdx == GAME_OPTION_EXP_BAR)
+        return ExpBarStyle_Desc(value);
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
 
@@ -131,6 +139,9 @@ static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 
 static const char *GetGameOptionRowValueText(int optionIdx, int value)
 {
+    if (optionIdx == GAME_OPTION_EXP_BAR)
+        return ExpBarStyle_Name(value);
+
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
 
@@ -669,6 +680,21 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x14, /* reuse Combat icon */
         .func = GenericOptionChangeHandler,
     },
+
+    /* One value shown at a time (the style's name): left and right go through ExpBarStyle_Count() styles */
+    [GAME_OPTION_EXP_BAR] =
+    {
+        .msgId = MSG_MENU_OPTION_EXP_BAR_TITLE,
+        .selectors =
+        {
+            { MSG_000, MSG_000, 112, 2 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 189, 0 },
+        },
+        .icon = 0x10, /* reuse Window Color icon */
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -714,6 +740,7 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           gPlaySt.config.support_after_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
+        case GAME_OPTION_EXP_BAR:                        gPlaySt.config.exp_bar_style = newValue; break;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true) {
                 gPlaySt.config.show_true_2rn = 1; /* OFF */
@@ -777,6 +804,8 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_SUPPORT_AFTER_BATTLE:           return gPlaySt.config.support_after_battle;
         case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
+        case GAME_OPTION_EXP_BAR:
+            return gPlaySt.config.exp_bar_style < ExpBarStyle_Count() ? gPlaySt.config.exp_bar_style : 0;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true)
                 return 1; /* OFF */
@@ -838,6 +867,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
+    gPlaySt.config.exp_bar_style = 0; /* vanilla */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
     SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);
@@ -967,6 +997,13 @@ void DrawOptionValueTexts(int selectedIdx, int textIdx, int y)
 
     ClearText(&gConfigUiState->valueTexts[textIdx]);
 
+    if (optionIdx == GAME_OPTION_EXP_BAR) {
+        Text_InsertDrawString(&gConfigUiState->valueTexts[textIdx], 0, TEXT_COLOR_SYSTEM_BLUE,
+                              GetGameOptionRowValueText(optionIdx, GetGameOption(optionIdx)));
+        PutTextYWrapped(&gConfigUiState->valueTexts[textIdx], gBG1TilemapBuffer, x, y);
+        return;
+    }
+
     for (i = 0; i < GetGameOptionRowCount(optionIdx); i++)
     {
         Text_InsertDrawString(
@@ -996,7 +1033,10 @@ void DrawConfigUiSprites(void)
 
     DisplayFrozenUiHand(16, y);
 
-    DisplayUiHand(gGameOptions_NEW[optionIdx].selectors[GetGameOption(optionIdx)].xPos - 2, y);
+    if (optionIdx == GAME_OPTION_EXP_BAR)
+        DisplayUiHand(gGameOptions_NEW[optionIdx].selectors[0].xPos - 2, y);
+    else
+        DisplayUiHand(gGameOptions_NEW[optionIdx].selectors[GetGameOption(optionIdx)].xPos - 2, y);
 
     if (!(gConfigUiState->source & CONFIG_UI_SOURCE_FROMPREP) || (PrepGetDeployedUnitAmt() != 0))
     {

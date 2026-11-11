@@ -191,11 +191,8 @@ struct PlaySt_OptionBits {
     u32 real_time_interval: 2; /* 0=1s, 1=2s, 2=3s, 3=5s */
     u32 achievements: 1;       /* 0 = ON, 1 = OFF */
     u32 show_true_2rn: 1;      /* 0 = ON, 1 = OFF; show true 2RN hit rates */
-    u32 custom_option_23: 1;
-    u32 custom_option_24: 1;
+    u32 exp_bar_style: 4;      /* Kernel/Wizardry/ExpBarStyles: 0 = vanilla */
 
-    u32 custom_option_25: 1;
-    u32 custom_option_26: 1;
     u32 custom_option_27: 1;
     u32 custom_option_28: 1;
     u32 custom_option_29: 1;
