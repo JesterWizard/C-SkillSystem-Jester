@@ -398,4 +398,8 @@ const SkillActionFunc_t gSkillActionFuncTable[MAX_SKILL_NUM + 1] = {
 #if (defined(SID_Prayer) && COMMON_SKILL_VALID(SID_Prayer))
     [SID_Prayer] = Action_Prayer,
 #endif
+
+#if (defined(SID_DeepRoots) && COMMON_SKILL_VALID(SID_DeepRoots))
+    [SID_DeepRoots] = Action_DeepRoots,
+#endif
 };

@@ -997,3 +997,4 @@ SID_Obliterate
 SID_Sweapstrike
 SID_Prayer
 SID_Angler
+SID_DeepRoots

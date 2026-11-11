@@ -10605,4 +10605,15 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_DeepRoots) && COMMON_SKILL_VALID(SID_DeepRoots))
+    [SID_DeepRoots] = {
+        .name = MSG_SKILL_DeepRoots_NAME,
+        .desc = MSG_SKILL_DeepRoots_DESC,
+        .capacity = MSG_SKILL_DeepRoots_CAPACITY,
+        .price = MSG_SKILL_DeepRoots_PRICE,
+        .icon = GFX_SkillIcon_DeepRoots,
+        .iconPal = 0,
+    },
+#endif
+
 };
