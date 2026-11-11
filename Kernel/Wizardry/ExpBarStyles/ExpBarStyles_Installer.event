@@ -1,0 +1,80 @@
+#ifndef EXP_BAR_STYLES_INSTALLED
+#define EXP_BAR_STYLES_INSTALLED
+
+/*
+ * EXP bar styles (Documentation/Features/ExpBarStyles.md). The Options screen's "EXP Bar" row picks one. The map EXP
+ * bar's draw step is rewritten (LynJump); the battle-animation one keeps vanilla's code and redraws after it.
+ */
+#include "Source/LynJump.event"
+#include "Source/ExpBarStyles.lyn.event"
+
+PUSH
+    ORG 0x506B4 // ekrBattle_WaitForPostBattleAct: the battle proc's next step, vanilla ekrBattleExecExpGain
+    POIN ExpBarStyle_ExecExpGain
+    ORG 0x509A4 // ekrBattle_8050940: the battle proc's next step, vanilla ekrBattleWaitExpBarIdle
+    POIN ExpBarStyle_WaitExpBarIdle
+POP
+
+// One sheet per style, drawn by Tools/expbar/expbar.py: window tiles, fill steps (+0x380), digits (+0x680)
+ALIGN 4
+Img_ExpBarStyle_Blade:
+    #incbin "Gfx/Blade.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Blade:
+    #incbin "Gfx/Blade.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Gems:
+    #incbin "Gfx/Gems.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Gems:
+    #incbin "Gfx/Gems.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Pearls:
+    #incbin "Gfx/Pearls.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Pearls:
+    #incbin "Gfx/Pearls.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Tech:
+    #incbin "Gfx/Tech.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Tech:
+    #incbin "Gfx/Tech.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Scroll:
+    #incbin "Gfx/Scroll.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Scroll:
+    #incbin "Gfx/Scroll.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Vial:
+    #incbin "Gfx/Vial.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Vial:
+    #incbin "Gfx/Vial.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Chain:
+    #incbin "Gfx/Chain.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Chain:
+    #incbin "Gfx/Chain.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Stars:
+    #incbin "Gfx/Stars.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Stars:
+    #incbin "Gfx/Stars.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Arrow:
+    #incbin "Gfx/Arrow.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Arrow:
+    #incbin "Gfx/Arrow.gbapal"
+ALIGN 4
+Img_ExpBarStyle_Minimal:
+    #incbin "Gfx/Minimal.4bpp"
+ALIGN 4
+Pal_ExpBarStyle_Minimal:
+    #incbin "Gfx/Minimal.gbapal"
+
+#endif /* EXP_BAR_STYLES_INSTALLED */

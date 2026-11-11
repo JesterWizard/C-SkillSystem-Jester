@@ -540,3 +540,5 @@ Amelia: win 15 battles.[X]
 ## MSG_STORY_STUB_CHAPTER
 This chapter has not been written yet.[NL]
 The story moves on to the next one.[A][X]
+## MSG_MENU_OPTION_EXP_BAR_TITLE
+EXP Bar[X]

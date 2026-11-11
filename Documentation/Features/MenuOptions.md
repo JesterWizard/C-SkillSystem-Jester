@@ -57,6 +57,11 @@ To remove an option, reverse the process:
 4. Remove the initialization from `InitPlayConfig` if the field is no longer needed.
 5. Check for any remaining references in rendering or gameplay code so the menu does not point at dead data.
 
+A row with more values than fit on one line (up to four selectors do) can show one value at a time, as the EXP Bar
+row does (`GAME_OPTION_EXP_BAR`, [EXP Bar Styles](./ExpBarStyles.md)): `GetGameOptionRowCount` returns the number of
+values, `GetGameOptionRowValueText` and `GetGameOptionRowHelpText` return the current one's name and help, and
+`DrawOptionValueTexts` and `DrawConfigUiSprites` draw only that name, at the first selector's x.
+
 The important rule is that the visible menu entry and the config-backed behavior must stay in sync. If a row exists in the UI without a valid config field, it will be cosmetic only. If a config field exists without a menu entry, it becomes effectively hidden.
 
 ## Code Locations

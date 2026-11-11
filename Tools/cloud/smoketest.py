@@ -60,11 +60,14 @@ What it checks:
               a corner (no defeat yet). A fighter made a 2x2 block in RAM fights once from the corner that reaches,
               Seth breaks that corner, and the block stops where O'Neill blocks it; its shown range is every tile
               the block can cover.
+  expbar      EXP bar styles (Kernel/Wizardry/ExpBarStyles): with the Options value set to the second and the last
+              style, the map EXP bar and the battle-animation one load that style's palette and window tiles; the
+              first value (Vanilla) keeps vanilla's palette in battle.
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards, bigunit). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards, bigunit, expbar). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -1358,6 +1361,52 @@ class Smoke:
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
 
+    def test_expbar(self, boot_ss):
+        """EXP bar styles: the Options value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the second option
+        word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations. The map bar
+        loads the style's palette into bank 5, the battle one into bank 1 with its window tiles at VRAM 0x6002000.
+        Vanilla (0) keeps vanilla's palette in battle."""
+        d = os.path.join(self.out, "expbar")
+        os.makedirs(d, exist_ok=True)
+        gfx = os.path.join(ROOT, "Kernel", "Wizardry", "ExpBarStyles", "Gfx")
+        order = []
+        src = open(os.path.join(ROOT, "Kernel", "Wizardry", "ExpBarStyles", "Source", "ExpBarStyles.c")).read()
+        for m in re.finditer(r"^\tEXP_BAR_STYLE\((\w+),", src, re.M):
+            order.append(m.group(1))
+        if not order:
+            return self.check("expbar: the style table", False, "no EXP_BAR_STYLE rows")
+        b36, b37 = self.run(ROM, ["load " + boot_ss, "r8 %#x" % (PLAYST + 0x46), "r8 %#x" % (PLAYST + 0x47)], d)
+        attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A"]
+        vanilla_pal = list(struct.unpack_from("<16H", open(os.path.join(ROOT, "fe8.gba"), "rb").read(), 0x803590))
+
+        def style(v):
+            return ["w8 %#x %#x" % (PLAYST + 0x46, (b36 & 0x3F) | ((v & 3) << 6)),
+                    "w8 %#x %#x" % (PLAYST + 0x47, (b37 & 0xFC) | (v >> 2))]
+
+        for v in (1, len(order), 0):
+            name = order[v - 1] if v else "Vanilla"
+            pal = vanilla_pal if not v else list(struct.unpack("<16H", open(os.path.join(gfx, name + ".gbapal"), "rb").read()))
+            # map: 99 EXP, so the bar shows; battle: animations on (option byte 0x42, animationType 0)
+            got = self.run(ROM, ["load " + boot_ss, "w8 %#x 99" % (UNIT1 + 0x09)] + style(v) + attack +
+                           ["wait 228", "shot map_%s.png" % name] +
+                           ["r16 %#x" % (PALETTE_BUFFER + 0x20 * 5 + 2 * k) for k in range(16)], d)
+            self.shot(os.path.join(d, "map_%s.png" % name), "EXP bar: %s (map)" % name)
+            if v:
+                self.check("expbar: the map EXP bar has %s's palette" % name, got[1:] == pal[1:],
+                           "bank 5 %s" % " ".join("%04x" % c for c in got[1:4]))
+            dump = os.path.join(d, "chr_%s.bin" % name)
+            got = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w8 %#x 60" % (UNIT1 + 0x09)] +
+                           style(v) + attack + ["wait 510", "shot battle_%s.png" % name, "dump 0x6002000 416 " + dump] +
+                           ["r16 %#x" % (PALETTE_BUFFER + 0x20 + 2 * k) for k in range(16)], d)
+            self.shot(os.path.join(d, "battle_%s.png" % name), "EXP bar: %s (battle)" % name)
+            self.check("expbar: the battle EXP bar has %s's palette" % name, got[1:] == pal[1:],
+                       "bank 1 %s" % " ".join("%04x" % c for c in got[1:4]))
+            if v:
+                want = open(os.path.join(gfx, name + ".4bpp"), "rb").read()[:416]
+                have = open(dump, "rb").read() if os.path.exists(dump) else b""
+                self.check("expbar: the battle EXP bar has %s's window tiles" % name, have == want,
+                           "%d of 13 tiles" % sum(have[i:i + 32] == want[i:i + 32] for i in range(0, 416, 32)))
+
     def test_bigunit(self, boot_ss):
         """2x2 units (Documentation/Features/BigUnits.md). A test ROM lists O'Neill: he loads as four corners on a 2x2
         block, drawn once at twice the size (an affine double-size OBJ). Seth breaks his top-left corner: it leaves the
@@ -1776,7 +1825,7 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit")
+                  "bigunit", "expbar")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
@@ -1793,6 +1842,8 @@ def main():
                 r.submit((0, 3), s.test_awards, boot_ss)
             if on("bigunit"):
                 r.submit((0, 4), s.test_bigunit, boot_ss)
+            if on("expbar"):
+                r.submit((0, 5), s.test_expbar, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):

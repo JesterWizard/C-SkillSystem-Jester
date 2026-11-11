@@ -205,7 +205,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/VeslyUIStyles.md"><img src="./Documentation/Gifs/VeslyUI_Styles.gif" alt="VeslyUI Styles preview" width="360" /></a><br/><b><a href="./Documentation/Features/VeslyUIStyles.md">VeslyUI Styles</a></b></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ExpBarStyles.md"><img src="./Documentation/Images/ExpBarStyles.png" alt="EXP Bar Styles preview" width="360" /></a><br/><b><a href="./Documentation/Features/ExpBarStyles.md">EXP Bar Styles</a></b></td>
   </tr>
 </table>
 
