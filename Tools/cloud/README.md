@@ -183,7 +183,9 @@ python3 Tools/cloud/smoketest.py --quick
   walks there step by step from the spots in its `events/traps.c`: a step that does not move her (a wandering NPC, a
   tile free movement refuses) marks that tile blocked and the path is planned again. A spot no path reaches fails as
   unreachable, which is how the Port Kiris crossing spot on floor terrain was found.
-- RAM addresses come from `fe8-kernel-dev.sym` and `include/link/config-memmap.o`, so they follow the build.
+- RAM addresses come from `fe8-kernel-dev.sym` and `include/link/config-memmap.o`, so they follow the build. `make`
+  deletes `config-memmap.o` as an intermediate, so `build.sh` builds it again at the end. Without it, the checks that
+  need RAM symbols fail with "no symbols" (after a plain `make`, run `make include/link/config-memmap.o`).
 - The save tests boot in the same `gbarun` run as the reset: a save state does not hold SRAM, so a test that loads one
   and resets finds a blank save. Before saving they write sentinel values (guild tokens, River Crossing and Tower Stack
   bests, Snek's high score) and dump every district chunk (the `SAVE_RAM` list in the script). After saving they wipe
