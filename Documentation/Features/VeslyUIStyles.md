@@ -9,7 +9,7 @@
 ## 📑 Index
 - [Introduction](#introduction)
 - [Styles](#styles)
-  - [Wood](#wood) · [Tech](#tech) · [Royal](#royal) · [Stained Glass](#stained-glass) · [Paper](#paper) · [Ocean](#ocean) · [Forest](#forest) · [Parchment](#parchment) · [Older styles](#older-styles)
+  - [Wood](#wood) · [Tech](#tech) · [Royal](#royal) · [Stained Glass](#stained-glass) · [Paper](#paper) · [Ocean](#ocean) · [Forest](#forest) · [Parchment](#parchment) · [Liquid Glass](#liquid-glass) · [Older styles](#older-styles)
 - [Plan](#plan)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
@@ -173,6 +173,36 @@ Turn it on with `ENUT 0xB3` in an event (or `SetFlag(0xB3)` in C); it is `Parchm
   <img src="../Images/VeslyUI_Parchment_Screens.png" alt="Parchment UI style, nine screens" width="720"/>
 </p>
 
+### 🫧 Liquid Glass
+
+Windows are tinted glass the map shows through. The see-through part is the GBA's alpha blending: the game draws
+windows on BG1 and their text on BG0, and already marks BG1 as a blend layer over the map without turning the effect
+on. With this style, `FlushLCDControl` (rewritten in [`LiquidGlass.c`](../../Kernel/Wizardry/VeslyUI/LiquidGlass.c)),
+which copies the game's display settings to the hardware each frame, turns that blend on: 11/16 window over 7/16 of
+what is behind it. The text, on BG0, stays solid. The game's own settings are not changed, so a screen that sets up a
+blend of its own keeps it. Each window edge is one thin rim, bright on the top and left (a specular highlight) and
+dimmer on the bottom and right, with rounded corners and no outline or glow; the glass is smooth, with no texture.
+Light panels such as title plates are frosted. On the status screen the chapter name uses Tech's white and cyan.
+
+A real "liquid glass" also blurs and bends what is behind it. The GBA can't blur part of a layer, so this is the
+tinted, see-through half of the look.
+
+Turn it on with `ENUT 0xA9` in an event (or `SetFlag(0xA9)` in C); it is `LiquidGlassStyleFlag`, style ID 12. Flag
+`0xA9` is not used anywhere else in this repo; whether vanilla's chapter events ever set it was not checked.
+
+| Window colour | Vanilla | Liquid Glass | Faction it tints |
+|-----------------|-----------|----------------|--------------------|
+| 0 | Blue | Blue glass | Player |
+| 1 | Red | Rose glass | Enemy |
+| 2 | Green | Green glass | Allied (green) |
+| 3 | Sepia | Violet glass | Other |
+
+<p align="center">
+  <img src="../Images/VeslyUI_LiquidGlass_Screens.png" alt="Liquid Glass UI style: vanilla's map menu first, then the style on the map menu, map HUD, unit menu, item menu and options" width="720"/>
+</p>
+
+The first screen is vanilla's map menu, for comparison.
+
 ### Older styles
 
 The styles VeslyUI shipped with are picked the same way: Stephano menus with Sokaballa battle frames (`StephanoStyleFlag`, `0xAA`), Gamma (`GammaStyleFlag`, `0xB4`, the guide flag) and Pikmin menus with Fenreir battle frames (`PikminStyleFlag`, `0xAC`). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
@@ -195,14 +225,15 @@ A style is picked by a permanent event flag, checked in this order:
 | 6 | Ocean | `OceanStyleFlag` (`0xB1`) | 9 |
 | 7 | Forest | `ForestStyleFlag` (`0xB2`) | 10 |
 | 8 | Parchment | `ParchmentStyleFlag` (`0xB3`) | 11 |
-| 9 | Stephano menus / Sokaballa battle | `StephanoStyleFlag` (`0xAA`) | 1 |
-| 10 | Gamma | `GammaStyleFlag` (`0xB4`, the guide flag) | 2 |
-| 11 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
+| 9 | Liquid Glass | `LiquidGlassStyleFlag` (`0xA9`) | 12 |
+| 10 | Stephano menus / Sokaballa battle | `StephanoStyleFlag` (`0xAA`) | 1 |
+| 11 | Gamma | `GammaStyleFlag` (`0xB4`, the guide flag) | 2 |
+| 12 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
 | — | Vanilla | none set | 0 |
 
 Set the flag from an event (for example `ENUT 0xAB` for wood, `ENUT 0xAD` for tech, `ENUT 0xAE` for royal, `ENUT 0xAF` for stained glass, `ENUT 0xB0` for paper, `ENUT 0xB1` for ocean, `ENUT 0xB2` for forest or `ENUT 0xB3` for parchment, `ENUF` to turn it off), or from C with `SetFlag`. The change shows the next time a screen loads its UI graphics, such as after opening the stat screen or entering battle. `gpKernelDesignerConfig->vesly_custom_ui` must be on.
 
-The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest, Parchment) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.
+The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest, Parchment, Liquid Glass) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.
 
 ### What a style supplies
 
@@ -260,7 +291,8 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 | Faction palettes | `GetFactionBattleForecastFramePalette`, `StatusScreenUIPal_Hook`, `sub_80BE5B4` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Forecast, status screen and world map tints |
 | Minimug box | `GetMMBWindowPaletteRow` in [`ModularMinimugBox.c`](../../Kernel/Wizardry/ModularMinimugBox/ModularMinimugBox.c) | Map HUD unit window palette per style |
 | Assets | [`VeslyUI_Installer.event`](../../Kernel/Wizardry/VeslyUI/VeslyUI_Installer.event), [`png/`](../../Kernel/Wizardry/VeslyUI/png/) | Style flags, art and palettes |
-| Style generators | [`png/style_tools.py`](../../Kernel/Wizardry/VeslyUI/png/style_tools.py), [`png/Wood/generate_wood.py`](../../Kernel/Wizardry/VeslyUI/png/Wood/generate_wood.py), [`png/Tech/generate_tech.py`](../../Kernel/Wizardry/VeslyUI/png/Tech/generate_tech.py), [`png/Royal/generate_royal.py`](../../Kernel/Wizardry/VeslyUI/png/Royal/generate_royal.py), [`png/Glass/generate_glass.py`](../../Kernel/Wizardry/VeslyUI/png/Glass/generate_glass.py), [`png/Paper/generate_paper.py`](../../Kernel/Wizardry/VeslyUI/png/Paper/generate_paper.py), [`png/Ocean/generate_ocean.py`](../../Kernel/Wizardry/VeslyUI/png/Ocean/generate_ocean.py), [`png/Forest/generate_forest.py`](../../Kernel/Wizardry/VeslyUI/png/Forest/generate_forest.py), [`png/Parchment/generate_parchment.py`](../../Kernel/Wizardry/VeslyUI/png/Parchment/generate_parchment.py) | Build the generated styles' art from `png/Vanilla` |
+| Style generators | [`png/style_tools.py`](../../Kernel/Wizardry/VeslyUI/png/style_tools.py), [`png/Wood/generate_wood.py`](../../Kernel/Wizardry/VeslyUI/png/Wood/generate_wood.py), [`png/Tech/generate_tech.py`](../../Kernel/Wizardry/VeslyUI/png/Tech/generate_tech.py), [`png/Royal/generate_royal.py`](../../Kernel/Wizardry/VeslyUI/png/Royal/generate_royal.py), [`png/Glass/generate_glass.py`](../../Kernel/Wizardry/VeslyUI/png/Glass/generate_glass.py), [`png/Paper/generate_paper.py`](../../Kernel/Wizardry/VeslyUI/png/Paper/generate_paper.py), [`png/Ocean/generate_ocean.py`](../../Kernel/Wizardry/VeslyUI/png/Ocean/generate_ocean.py), [`png/Forest/generate_forest.py`](../../Kernel/Wizardry/VeslyUI/png/Forest/generate_forest.py), [`png/Parchment/generate_parchment.py`](../../Kernel/Wizardry/VeslyUI/png/Parchment/generate_parchment.py), [`png/LiquidGlass/generate_liquidglass.py`](../../Kernel/Wizardry/VeslyUI/png/LiquidGlass/generate_liquidglass.py) | Build the generated styles' art from `png/Vanilla` |
+| See-through windows | `FlushLCDControl` in [`LiquidGlass.c`](../../Kernel/Wizardry/VeslyUI/LiquidGlass.c) | Turns on BG1's alpha blend for the Liquid Glass style |
 | Frame tile mixing | `DrawUiFrame`, `PickFrameTile`, `IsGeneratedStyle` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Mixes interchangeable beam tiles for the generated styles |
 
 ---
@@ -275,7 +307,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 
 ## 🐛 Limitations & Bugs
 
-- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
+- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment, liquid glass).
 - A style change does not redraw windows already on screen; it shows when a screen next loads its UI graphics.
 - The generated styles' prep screen, prep popup and shop gold box art follow vanilla's tile layout but have not been checked in-game yet.
 - Each style adds roughly the size of its compressed art to the ROM.
