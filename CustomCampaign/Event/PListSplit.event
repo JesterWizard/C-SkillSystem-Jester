@@ -47,10 +47,8 @@ PUSH
     POIN SplitedChapterData_TileConfig
     PROTECT 0x0198AC 0x01990C
 
-    /* UnpackChapterMapGraphics */
-    ORG 0x019968
-    POIN SplitedChapterData_ObjPal
-    PROTECT 0x01990C 0x019974
+    /* UnpackChapterMapGraphics: replaced in Kernel/Wizardry/EnterTown/DistrictLife.c, which reads
+     * SplitedChapterData_ObjPal itself (map colours, district tint) */
 
     /* UnpackChapterMapPalette: replaced in Kernel/Wizardry/EnterTown/DistrictLife.c, which reads
      * SplitedChapterData_ObjPal itself (and tints district maps) */

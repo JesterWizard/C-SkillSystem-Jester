@@ -1,0 +1,10 @@
+#ifndef MAP_COLORS_INSTALLED
+#define MAP_COLORS_INSTALLED
+
+/*
+ * Map colours (Documentation/Features/MapColors.md): richer colours for the map tiles, picked on the Options screen.
+ */
+#include "Source/LynJump.event"
+#include "Source/MapColors.lyn.event"
+
+#endif /* MAP_COLORS_INSTALLED */

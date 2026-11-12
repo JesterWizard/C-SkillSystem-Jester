@@ -61,6 +61,9 @@ A row with more values than fit on one line (up to four selectors do) can show o
 row does (`GAME_OPTION_EXP_BAR`, [EXP Bar Styles](./ExpBarStyles.md)): `GetGameOptionRowCount` returns the number of
 values, `GetGameOptionRowValueText` and `GetGameOptionRowHelpText` return the current one's name and help, and
 `DrawOptionValueTexts` and `DrawConfigUiSprites` draw only that name, at the first selector's x.
+The Map Colors row (`GAME_OPTION_MAP_COLORS`, [Map Colors](./MapColors.md)) has three values and, like
+`GAME_OPTION_REAL_TIME_INTERVAL`, is special-cased in `GetGameOptionRowCount`, `GetGameOptionRowValueText` and
+`GetGameOptionRowX` so it shows its own value names instead of ON/OFF.
 
 The important rule is that the visible menu entry and the config-backed behavior must stay in sync. If a row exists in the UI without a valid config field, it will be cosmetic only. If a config field exists without a menu entry, it becomes effectively hidden.
 

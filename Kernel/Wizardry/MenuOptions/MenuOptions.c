@@ -8,7 +8,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[34] = {
+const u8 gGameOptionsUiOrder_NEW[35] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -23,6 +23,7 @@ const u8 gGameOptionsUiOrder_NEW[34] = {
     GAME_OPTION_SOUND_EFFECTS,
     GAME_OPTION_WINDOW_COLOR, 
     GAME_OPTION_EXP_BAR,
+    GAME_OPTION_MAP_COLORS,
 
     // CUSTOM
     GAME_OPTION_SKILL_CAPACITY,
@@ -104,6 +105,9 @@ static int GetGameOptionRowCount(int optionIdx)
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
         return 4;
 
+    if (optionIdx == GAME_OPTION_MAP_COLORS)
+        return 3;
+
     if (optionIdx == GAME_OPTION_EXP_BAR)
         return ExpBarStyle_Count();
 
@@ -142,7 +146,7 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
     if (optionIdx == GAME_OPTION_EXP_BAR)
         return ExpBarStyle_Name(value);
 
-    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL || optionIdx == GAME_OPTION_MAP_COLORS)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
 
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
@@ -153,7 +157,7 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
 
 static int GetGameOptionRowX(int optionIdx)
 {
-    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL)
+    if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL || optionIdx == GAME_OPTION_MAP_COLORS)
         return gGameOptions_NEW[optionIdx].selectors[0].xPos;
 
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
@@ -695,6 +699,21 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x10, /* reuse Window Color icon */
         .func = GenericOptionChangeHandler,
     },
+
+    /* Three values: 0 = Vanilla, 1 = Vivid, 2 = Deep (gPlaySt.config.map_colors) */
+    [GAME_OPTION_MAP_COLORS] =
+    {
+        .msgId = MSG_MENU_OPTION_MAP_COLORS_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_MAP_COLORS_DESC_VANILLA, MSG_MENU_OPTION_MAP_COLORS_VANILLA, 112, 2 },
+            { MSG_MENU_OPTION_MAP_COLORS_DESC_VIVID,   MSG_MENU_OPTION_MAP_COLORS_VIVID,   162, 2 },
+            { MSG_MENU_OPTION_MAP_COLORS_DESC_DEEP,    MSG_MENU_OPTION_MAP_COLORS_DEEP,    200, 2 },
+            { MSG_000, MSG_000, 189, 0 },
+        },
+        .icon = 0x02, /* reuse Terrain icon */
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -741,6 +760,7 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_REAL_TIME_BATTLE:               gPlaySt.config.real_time_battle = newValue; break;
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
         case GAME_OPTION_EXP_BAR:                        gPlaySt.config.exp_bar_style = newValue; break;
+        case GAME_OPTION_MAP_COLORS:                     gPlaySt.config.map_colors = newValue; break;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true) {
                 gPlaySt.config.show_true_2rn = 1; /* OFF */
@@ -806,6 +826,8 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
         case GAME_OPTION_EXP_BAR:
             return gPlaySt.config.exp_bar_style < ExpBarStyle_Count() ? gPlaySt.config.exp_bar_style : 0;
+        case GAME_OPTION_MAP_COLORS:
+            return gPlaySt.config.map_colors < 3 ? gPlaySt.config.map_colors : 0;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true)
                 return 1; /* OFF */
@@ -868,6 +890,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
     gPlaySt.config.exp_bar_style = 0; /* vanilla */
+    gPlaySt.config.map_colors = 0; /* vanilla */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
     SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);
