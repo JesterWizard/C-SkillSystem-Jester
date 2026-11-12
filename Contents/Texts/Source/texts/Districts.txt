@@ -607,3 +607,5 @@ Seaside Town[X]
 Back[X]
 ## MSG_GALLERY_UNLOCKED
 Unlocked[X]
+## MSG_SOUNDROOM_LORD_OF_THE_DANCE
+Lord of the Dance[X]

@@ -76,6 +76,8 @@ Script commands, one per line. `#` starts a comment.
 - `press KEYS [N]` - hold KEYS for N frames (default 2), then release for 6 frames. KEYS are `A B L R START SELECT UP DOWN LEFT RIGHT`, joined with `+`.
 - `hold KEYS N` - hold KEYS for N frames with no release gap.
 - `shot FILE.png` - take a screenshot.
+- `wav FILE` - record the sound of the frames that follow (`wait`, `press`, `hold`) to a 32768 Hz stereo WAV. Used to
+  listen to a song: see `Tools/audio2m4a/README.md`.
 - `save FILE` - write a save state.
 - `load FILE` - load a save state.
 - `w8|w16|w32 ADDR VAL` - write memory.

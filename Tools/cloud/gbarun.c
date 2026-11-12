@@ -10,10 +10,13 @@
 //   r8|r16|r32 ADDR        print memory
 //   dump ADDR LEN FILE     dump memory
 //   sram FILE              load battery save file before reset (must come first)
+//   wav FILE               record the sound of the frames that follow to a
+//                          32768 Hz stereo WAV (wait/press/hold only)
 //   prof N ADDR [NAME]     run N frames one instruction at a time and report
 //                          the calls to the function at ADDR: count, total
 //                          and slowest call in CPU cycles (280896 per frame)
 #include <mgba/core/core.h>
+#include <mgba/core/blip_buf.h>
 #include <mgba/core/timing.h>
 #include <mgba/internal/arm/arm.h>
 #include <mgba/core/config.h>
@@ -50,11 +53,75 @@ static int keymask(const char *s)
 	return m;
 }
 
+#define WAV_RATE 32768
+static FILE *wavf;
+static uint32_t wavn;
+
+static void wav_header(void)
+{
+	uint32_t bytes = wavn * 4, v;
+	uint16_t h;
+
+	fseek(wavf, 0, SEEK_SET);
+	fwrite("RIFF", 1, 4, wavf);
+	v = 36 + bytes; fwrite(&v, 4, 1, wavf);
+	fwrite("WAVEfmt ", 1, 8, wavf);
+	v = 16; fwrite(&v, 4, 1, wavf);
+	h = 1; fwrite(&h, 2, 1, wavf);
+	h = 2; fwrite(&h, 2, 1, wavf);
+	v = WAV_RATE; fwrite(&v, 4, 1, wavf);
+	v = WAV_RATE * 4; fwrite(&v, 4, 1, wavf);
+	h = 4; fwrite(&h, 2, 1, wavf);
+	h = 16; fwrite(&h, 2, 1, wavf);
+	fwrite("data", 1, 4, wavf);
+	fwrite(&bytes, 4, 1, wavf);
+	fseek(wavf, 0, SEEK_END);
+}
+
+static void wav_start(const char *fn)
+{
+	if (wavf) {
+		wav_header();
+		fclose(wavf);
+	}
+	wavf = fopen(fn, "wb");
+	wavn = 0;
+	if (!wavf)
+		return;
+	wav_header();
+	blip_set_rates(core->getAudioChannel(core, 0), core->frequency(core), WAV_RATE);
+	blip_set_rates(core->getAudioChannel(core, 1), core->frequency(core), WAV_RATE);
+	blip_clear(core->getAudioChannel(core, 0));
+	blip_clear(core->getAudioChannel(core, 1));
+}
+
+static void wav_drain(void)
+{
+	static int16_t buf[4096 * 2];
+	struct blip_t *l = core->getAudioChannel(core, 0);
+	struct blip_t *r = core->getAudioChannel(core, 1);
+	int n;
+
+	while ((n = blip_samples_avail(l)) > 0) {
+		if (n > 4096)
+			n = 4096;
+		blip_read_samples(l, buf, n, 1);
+		blip_read_samples(r, buf + 1, n, 1);
+		if (wavf) {
+			fwrite(buf, 4, n, wavf);
+			wavn += n;
+		}
+	}
+}
+
 static void frames(int keys, int n)
 {
 	core->setKeys(core, keys);
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < n; i++) {
 		core->runFrame(core);
+		if (wavf)
+			wav_drain();
+	}
 }
 
 /*
@@ -207,6 +274,8 @@ int main(int argc, char **argv)
 			frames(keymask(a), atoi(b));
 		else if (!strcmp(cmd, "shot"))
 			shot(a);
+		else if (!strcmp(cmd, "wav"))
+			wav_start(a);
 		else if (!strcmp(cmd, "save")) {
 			size_t sz = core->stateSize(core);
 			void *buf = malloc(sz);
@@ -251,6 +320,10 @@ int main(int argc, char **argv)
 			minsp(atoi(a));
 		else
 			fprintf(stderr, "unknown %s\n", cmd);
+	}
+	if (wavf) {
+		wav_header();
+		fclose(wavf);
 	}
 	core->deinit(core);
 	return 0;

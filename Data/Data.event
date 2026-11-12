@@ -29,6 +29,7 @@
 #endif
 #include "District/DistrictLife.lyn.event"
 #include "Gallery/Gallery.event"
+#include "SoundRoom/SoundRoom.event"
 #include "WorldMap/VendorStock.event"
 #include "BigUnits/BigUnits.lyn.event"
 #include "Anims/Anims.event"

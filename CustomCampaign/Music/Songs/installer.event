@@ -1,0 +1,6 @@
+// Sequenced songs: note data only, played on instrument samples that are already in the vanilla ROM.
+// Made from audio by Tools/audio2m4a (see its README). The ids are also in
+// include/jester_headers/custom-songs.h, for the Sound Room list (Data/SoundRoom/SoundRoomTable.c).
+
+SongTable(0x58, LordOfTheDance, 0)
+#include "LordOfTheDance.event"

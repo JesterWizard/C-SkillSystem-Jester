@@ -2,6 +2,7 @@
 #define SongTable(index,SongPointer,Group) "PUSH; ORG SongTableOffset+(8*index); POIN SongPointer; SHORT Group Group; POP"
 #include "MPlayDef.event"
 #include "voice-songs.event"
+#include "Songs/installer.event"
 
 #include "../Chapters/00/music/installer.event"
 #include "../Chapters/01/music/installer.event"

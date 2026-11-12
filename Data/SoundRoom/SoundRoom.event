@@ -1,0 +1,28 @@
+// The Sound Room's song list (SoundRoomTable.c): vanilla's songs and the custom ones.
+#include "SoundRoomTable.lyn.event"
+
+// Every vanilla pointer to gSoundRoomTable (0x08A20E74): the Sound Room and vanilla's debug BGM menu
+PUSH
+ORG 0x1BC14
+POIN gSoundRoomTable_NEW
+ORG 0x1BCC4
+POIN gSoundRoomTable_NEW
+ORG 0xAECA8
+POIN gSoundRoomTable_NEW
+ORG 0xAECD0
+POIN gSoundRoomTable_NEW
+ORG 0xAED2C
+POIN gSoundRoomTable_NEW
+ORG 0xAEEBC
+POIN gSoundRoomTable_NEW
+ORG 0xAF438
+POIN gSoundRoomTable_NEW
+ORG 0xAF830
+POIN gSoundRoomTable_NEW
+ORG 0xAFE30
+POIN gSoundRoomTable_NEW
+ORG 0xB0080
+POIN gSoundRoomTable_NEW
+ORG 0xB042C
+POIN gSoundRoomTable_NEW
+POP
