@@ -605,3 +605,5 @@ Castle Hall[X]
 Seaside Town[X]
 ## MSG_GALLERY_HINT_BACK
 Back[X]
+## MSG_GALLERY_UNLOCKED
+Unlocked[X]

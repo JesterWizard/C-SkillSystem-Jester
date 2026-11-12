@@ -43,6 +43,7 @@
 #define PANEL_H        16
 #define KEY_A_Y        (PANEL_Y + PANEL_H - 7)
 #define KEY_B_Y        (PANEL_Y + PANEL_H - 4)
+#define GAUGE_Y        (PANEL_Y + 3)
 
 /* The window round the grid (tiles), and its inside (pixels): window 0 */
 #define BOX_X          8
@@ -70,7 +71,13 @@
 
 #define BANNER_TILE    0x220 /* BG VRAM 0x06004400, after the text's tiles */
 #define ICON_A_TILE    (BANNER_TILE + BANNER_W * BANNER_H)
-#define ICON_B_TILE    (ICON_A_TILE + 4)
+#define ICON_TILES     6 /* 3x2: a 16x16 icon ICON_DX pixels in */
+#define ICON_B_TILE    (ICON_A_TILE + ICON_TILES)
+#define ICON_DX        3
+#define HINT_DX        5 /* the labels' text, from tile 3 */
+#define GAUGE_TILE     (ICON_B_TILE + ICON_TILES)
+#define GAUGE_TILES    6
+#define PAL_GAUGE      9
 #define PAL_ICON       10
 #define PAL_BANNER     11
 #define PAL_MURAL      14 /* and 15 */
@@ -100,7 +107,9 @@ struct GalleryScreen {
 	/* 18 */ struct Text title;
 	/* 20 */ struct Text hintA;
 	/* 28 */ struct Text hintB;
-	/* 30 */ struct Text position;
+	/* 30 */ struct Text position;	/* the unlocked count */
+	/* 38 */ struct Text heading;
+	/* 40 */ struct Text percent;
 };
 
 extern struct GalleryScreen gGalleryScreen;
@@ -139,6 +148,12 @@ static const u16 sGalleryBgConfig[12] = {
 };
 
 static const u16 sFrameObjPal[16] = { 0, RGB(3, 4, 8), RGB(13, 15, 21) };
+
+enum { GAUGE_OUTLINE = 1, GAUGE_TRACK, GAUGE_GOLD, GAUGE_LIT, GAUGE_SHADE };
+
+static const u16 sGaugePal[16] = {
+	0, RGB(2, 2, 6), RGB(5, 6, 12), RGB(28, 21, 6), RGB(31, 29, 16), RGB(19, 12, 3),
+};
 
 /* A 48x32 thumbnail: a 32x32 and a 16x32 sprite */
 static const u16 sObjThumb[] = {
@@ -201,57 +216,139 @@ static void Gallery_DrawTitle(void)
 	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
 }
 
-static void Gallery_DrawPosition(void)
+/* A number into buf (no % here: it is broken in this build, CLAUDE.md, Pitfalls); returns the end */
+static char *Gallery_PutNumber(char *buf, int n)
 {
-	struct Text *t = &GS->position;
-	char buf[12];
-	int i = 0, n = GS->cursor + 1, w;
-
+	if (n >= 100)
+		*buf++ = '0' + Div(n, 100);
 	if (n >= 10)
-		buf[i++] = '0' + Div(n, 10);
-	buf[i++] = '0' + DivRem(n, 10);
-	buf[i++] = '/';
-	if (GS->count >= 10)
-		buf[i++] = '0' + Div(GS->count, 10);
-	buf[i++] = '0' + DivRem(GS->count, 10);
-	buf[i] = '\0';
+		*buf++ = '0' + DivRem(Div(n, 10), 10);
+	*buf++ = '0' + DivRem(n, 10);
+	*buf = '\0';
+	return buf;
+}
 
-	/* Centred in the panel's inside (6 tiles) */
-	w = GetStringTextLen(buf);
+/* A string centred in the panel's inside (6 tiles) at tile row y */
+static void Gallery_PanelText(struct Text *t, int y, int color, const char *str)
+{
+	int w = GetStringTextLen(str);
+
 	ClearText(t);
-	Text_InsertDrawString(t, w < 48 ? (48 - w) / 2 : 0, TEXT_COLOR_SYSTEM_WHITE, buf);
-	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 1, PANEL_Y + 2));
+	Text_InsertDrawString(t, w < 48 ? (48 - w) / 2 : 0, color, str);
+	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 1, y));
 }
 
-/*
- * A pixel of a 16x16 icon's 4 tiles (4bpp, top left, top right, bottom left, bottom right), in RAM: VRAM takes no byte
- * writes (a byte written there lands in both bytes of its halfword).
- */
-static u8 *Gallery_IconByte(u8 *tiles, int x, int y)
+static int Gallery_UnlockedCount(void)
 {
-	return tiles + ((y >> 3) * 2 + (x >> 3)) * 0x20 + (y & 7) * 4 + ((x & 7) >> 1);
+	int i, n = 0;
+
+	for (i = 0; i < GS->count; i++)
+		if (Gallery_Unlocked(i))
+			n++;
+	return n;
 }
 
-static int Gallery_IconPixel(u8 *tiles, int x, int y)
+/* A pixel of the gauge's tiles in RAM (GAUGE_TILES in a row) */
+static void Gallery_GaugePixel(u8 *tiles, int x, int y, int color)
 {
-	return (*Gallery_IconByte(tiles, x, y) >> ((x & 1) * 4)) & 0xF;
-}
-
-static void Gallery_SetIconPixel(u8 *tiles, int x, int y, int color)
-{
-	u8 *b = Gallery_IconByte(tiles, x, y);
+	u8 *b = tiles + (x >> 3) * 0x20 + y * 4 + ((x & 7) >> 1);
 
 	*b = (x & 1) ? ((*b & 0x0F) | (color << 4)) : ((*b & 0xF0) | color);
 }
 
-/* A 16x16 icon (its 4 BG tiles) as a 2x2 block on BG2 */
-static void Gallery_PutIcon(int bgTile, int x, int y)
+/*
+ * The completion gauge: GAUGE_TILES tiles of BG2, one tile high. A dark outline round a track (rows 1-6, 2 pixels in
+ * from each side); the unlocked share of it is gold, lit on top and shaded below.
+ */
+static void Gallery_DrawGauge(int unlocked)
 {
-	int r, c;
+	u32 tiles[GAUGE_TILES * 0x20 / 4];
+	int x, y, w = GAUGE_TILES * 8 - 4, fill = 0, c;
+
+	if (GS->count != 0)
+		fill = Div((w - 2) * unlocked, GS->count);
+	if (unlocked != 0 && fill == 0)
+		fill = 1;
+
+	CpuFastFill(0, tiles, sizeof(tiles));
+	for (y = 1; y <= 6; y++) {
+		for (x = 2; x < 2 + w; x++) {
+			if (y == 1 || y == 6 || x == 2 || x == 1 + w)
+				c = GAUGE_OUTLINE;
+			else if (x - 3 >= fill)
+				c = GAUGE_TRACK;
+			else
+				c = y == 2 ? GAUGE_LIT : y == 5 ? GAUGE_SHADE : GAUGE_GOLD;
+			Gallery_GaugePixel((u8 *)tiles, x, y, c);
+		}
+	}
+	CpuFastCopy(tiles, (u8 *)VRAM + GAUGE_TILE * 0x20, sizeof(tiles));
+	ApplyPalette(sGaugePal, PAL_GAUGE);
+
+	for (x = 0; x < GAUGE_TILES; x++)
+		gBG2TilemapBuffer[TILEMAP_INDEX(PANEL_X + 1 + x, GAUGE_Y)] = (PAL_GAUGE << 12) | (GAUGE_TILE + x);
+}
+
+/* The panel's top: "Unlocked", the gauge, the percentage, how many of how many */
+static void Gallery_DrawCompletion(void)
+{
+	char buf[16], *p;
+	int unlocked = Gallery_UnlockedCount();
+
+	Gallery_PanelText(&GS->heading, PANEL_Y + 1, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_GALLERY_UNLOCKED));
+
+	p = Gallery_PutNumber(buf, unlocked);
+	*p++ = '/';
+	Gallery_PutNumber(p, GS->count);
+	Gallery_PanelText(&GS->position, GAUGE_Y + 3, TEXT_COLOR_SYSTEM_WHITE, buf);
+
+	Gallery_DrawGauge(unlocked);
+
+	p = Gallery_PutNumber(buf, GS->count != 0 ? Div(unlocked * 100, GS->count) : 0);
+	p[0] = '%';
+	p[1] = '\0';
+	Gallery_PanelText(&GS->percent, GAUGE_Y + 1, TEXT_COLOR_SYSTEM_WHITE, buf);
+}
+
+/*
+ * A pixel of an icon's tiles in RAM, `cols` tiles a row (4bpp): VRAM takes no byte writes (a byte written there lands in
+ * both bytes of its halfword).
+ */
+static u8 *Gallery_IconByte(u8 *tiles, int cols, int x, int y)
+{
+	return tiles + ((y >> 3) * cols + (x >> 3)) * 0x20 + (y & 7) * 4 + ((x & 7) >> 1);
+}
+
+static int Gallery_IconPixel(u8 *tiles, int cols, int x, int y)
+{
+	return (*Gallery_IconByte(tiles, cols, x, y) >> ((x & 1) * 4)) & 0xF;
+}
+
+static void Gallery_SetIconPixel(u8 *tiles, int cols, int x, int y, int color)
+{
+	u8 *b = Gallery_IconByte(tiles, cols, x, y);
+
+	*b = (x & 1) ? ((*b & 0x0F) | (color << 4)) : ((*b & 0xF0) | color);
+}
+
+/*
+ * A 16x16 icon (2x2 tiles in RAM) put ICON_DX pixels right of tile x, in a 3x2 block of BG tiles from bgTile, on BG2:
+ * flush with the panel's inside edge it looked stuck to the window's border.
+ */
+static void Gallery_PutIcon(u8 *icon, int bgTile, int x, int y)
+{
+	u32 out[ICON_TILES * 0x20 / 4];
+	int r, c, px, py;
+
+	CpuFastFill(0, out, sizeof(out));
+	for (py = 0; py < 16; py++)
+		for (px = 0; px < 16; px++)
+			Gallery_SetIconPixel((u8 *)out, 3, px + ICON_DX, py, Gallery_IconPixel(icon, 2, px, py));
+	CpuFastCopy(out, (u8 *)VRAM + bgTile * 0x20, sizeof(out));
 
 	for (r = 0; r < 2; r++)
-		for (c = 0; c < 2; c++)
-			gBG2TilemapBuffer[TILEMAP_INDEX(x + c, y + r)] = (PAL_ICON << 12) | (bgTile + r * 2 + c);
+		for (c = 0; c < 3; c++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(x + c, y + r)] = (PAL_ICON << 12) | (bgTile + r * 3 + c);
 }
 
 /*
@@ -277,30 +374,29 @@ static void Gallery_DrawPanel(void)
 	/* The Sound Room's A (its sheet's tiles 0x50-0x51, 0x70-0x71; its third palette) */
 	Decompress(Img_SoundRoomUiElements, OBJ_TEMP);
 	for (r = 0; r < 2; r++)
-		CpuFastCopy(OBJ_TEMP + (0x50 + r * 32) * 0x20, (u8 *)VRAM + (ICON_A_TILE + r * 2) * 0x20, 2 * 0x20);
+		CpuFastCopy(OBJ_TEMP + (0x50 + r * 32) * 0x20, (u8 *)icon + r * 2 * 0x20, 2 * 0x20);
 	ApplyPalette(Pal_SoundRoomUiElements + 0x20, PAL_ICON);
+	Gallery_PutIcon((u8 *)icon, ICON_A_TILE, PANEL_X + 1, KEY_A_Y);
 
 	/* The B: the A's tiles, the letter redrawn in the A's ink on its gold */
-	CpuFastCopy((u8 *)VRAM + ICON_A_TILE * 0x20, icon, sizeof(icon));
-	ink = Gallery_IconPixel((u8 *)icon, 6, 6);
-	soft = Gallery_IconPixel((u8 *)icon, 5, 5);
-	gold = Gallery_IconPixel((u8 *)icon, 6, 7);
+	ink = Gallery_IconPixel((u8 *)icon, 2, 6, 6);
+	soft = Gallery_IconPixel((u8 *)icon, 2, 5, 5);
+	gold = Gallery_IconPixel((u8 *)icon, 2, 6, 7);
 	for (y = 0; y < 7; y++)
 		for (x = 0; x < 6; x++)
-			Gallery_SetIconPixel((u8 *)icon, 4 + x, 5 + y,
+			Gallery_SetIconPixel((u8 *)icon, 2, 4 + x, 5 + y,
 					     sLetterB[y][x] == '#' ? ink : sLetterB[y][x] == '+' ? soft : gold);
-	CpuFastCopy(icon, (u8 *)VRAM + ICON_B_TILE * 0x20, sizeof(icon));
+	Gallery_PutIcon((u8 *)icon, ICON_B_TILE, PANEL_X + 1, KEY_B_Y);
 
-	/* At the panel's foot, a key: the buttons, and what they do */
-	Gallery_PutIcon(ICON_A_TILE, PANEL_X + 1, KEY_A_Y);
-	Gallery_PutIcon(ICON_B_TILE, PANEL_X + 1, KEY_B_Y);
+	Gallery_DrawCompletion();
 
+	/* What they do, right of them */
 	ClearText(&GS->hintA);
-	Text_InsertDrawString(&GS->hintA, 2, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT));
+	Text_InsertDrawString(&GS->hintA, HINT_DX, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT));
 	PutText(&GS->hintA, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 3, KEY_A_Y));
 
 	ClearText(&GS->hintB);
-	Text_InsertDrawString(&GS->hintB, 2, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT_BACK));
+	Text_InsertDrawString(&GS->hintB, HINT_DX, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT_BACK));
 	PutText(&GS->hintB, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 3, KEY_B_Y));
 }
 
@@ -361,7 +457,6 @@ static void Gallery_DrawRows(int first, int n, int px)
 	GS->scrollPx = px;
 
 	Gallery_DrawTitle();
-	Gallery_DrawPosition();
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 	EnablePaletteSync();
 }
@@ -436,6 +531,8 @@ static void Gallery_SetupGrid(struct ProcGallery *proc)
 	InitText(&GS->hintA, 4);
 	InitText(&GS->hintB, 4);
 	InitText(&GS->position, 6);
+	InitText(&GS->heading, 6);
+	InitText(&GS->percent, 6);
 
 	CpuFastCopy(Img_GalleryLock, (u8 *)0x06010000 + LOCK_TILE * 0x20, 4 * 0x20);
 	ApplyPalette(Pal_GalleryLock, 0x10 + PAL_OBJ_LOCK);

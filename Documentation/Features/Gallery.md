@@ -23,9 +23,10 @@
 
 - **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
   not seen yet.
-- **The panel** on the left, in a window: which CG of how many at the top, and at its foot the buttons, "View" and
-  "Back".
-- **The grid** on the right, in a window (the player's window colour), over the scrolling mural: three CGs a row,
+- **The panel** on the left, in a window: "Unlocked", a gold gauge that fills as CGs unlock, the percentage, and how
+  many are unlocked (2/13); at its foot the buttons, "View" and "Back".
+- **The grid** on the right, in a window (the start menu's Gamma style, see
+  [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)), over the scrolling mural: three CGs a row,
   three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
   cursor is gold and glows. A CG not seen yet is dimmed, with a padlock.
 - **Moving.** The D-pad moves the cursor; moving off the rows on screen scrolls the grid a row (no fade). L and R
@@ -92,14 +93,17 @@ clears them.
   800 bytes a row, `gGalleryThumbs` (`Data/Gallery/Gallery.event`). Made from the ROM at build time, so the repo holds
   none of vanilla's art.
 - **The screen.** BG0 the text (the banner's name, centred on it; the panel); BG1 the windows round the panel and
-  the grid (`DrawUiFrame`, the player's window style, BG palette 1); BG2 the banner and the buttons; BG3 the mural
+  the grid (`DrawUiFrame`, BG palette 1: the start menu's Gamma style); BG2 the banner and the buttons; BG3 the mural
   (`StartMuralBackground`, palettes 14 and 15). Vanilla's sprite sheets are unpacked into spare OBJ VRAM
   (`0x06014000`) and the tiles wanted copied to BG VRAM: the banner from `Img_PlayStatusSprites` (the Sound Room's song
   banner, 24x4 tiles, palette 11), the A button from `Img_SoundRoomUiElements` (the Sound Room's round A, palette 10).
   Vanilla has no round B: the B is a copy of the A with its letter redrawn (`sLetterB`, in the A's ink, its soft shade
-  and its gold), edited in RAM and copied over (VRAM takes no byte writes). Sprites: the thumbnails (a 32x32 and a
+  and its gold), edited in RAM and copied over (VRAM takes no byte writes). Each button is drawn 3 pixels in from its
+  tile (`ICON_DX`, a 3x2 block of tiles), off the window's edge. Sprites: the thumbnails (a 32x32 and a
   16x32 each, 1D mapping), their frames (`Gfx/Img_GalleryCursor.png`, a 64x64 sprite each: grey, OBJ palette 13, or
   the cursor's gold, OBJ palette 12, which glows) and the padlocks (`Gfx/Img_GalleryLock.png`, OBJ palette 15).
+- **The completion gauge** (`Gallery_DrawGauge`) is 6 BG2 tiles drawn in RAM: an outline round a track, the
+  unlocked share gold (BG palette 9, `sGaugePal`). The counts come from the unlock bits when the panel is drawn.
 - **The grid** fills the window's inside (x 72-231, y 40-151): a CG and its frame is 52x36, 2 pixels apart. Each
   place on the grid has a slot: its thumbnail's tiles in OBJ VRAM and its palette in OBJ palettes 0-11 (dimmed when
   locked), loaded again whenever the rows are drawn.
