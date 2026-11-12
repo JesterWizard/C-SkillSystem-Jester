@@ -56,7 +56,8 @@ Vanilla's Extras list has a row it never shows: bit 3, "Battle History". New Gam
 
 - `InitSaveMenuChoice` (`ExtrasMenu/Source/SupportMenu.c`) adds it when `NewGamePlus_IsExtraEnabled()`.
 - The row's label is drawn in vanilla's label sheet: `Gfx/Img_NgpMenuObjs.png` is `Img_GameMainMenuObjs` with
-  "New Game +" (the main menu's "New Game" letters and a plus) in place of "Battle History". The installer points
+  "New Game +" (the main menu's "New Game" letters and a plus) in place of "Battle History" (and the Gallery's
+  "Gallery" in place of "Map", see [Gallery](./Gallery.md)). The installer points
   vanilla's three loads of the sheet at it and `SpriteArray_08A2099C[3]` at a 112-pixel sprite like the other labels'.
 - The Extras list (`sub_80A9B90`), the save picker after it (`sub_80A9E1C`) and the picker's header label
   (`sub_80ABF74`) are vanilla's, rewritten with a case for the row.

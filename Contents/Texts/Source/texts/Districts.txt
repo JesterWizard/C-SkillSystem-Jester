@@ -573,3 +573,35 @@ the Creature Campaign.[X]
 ## MSG_NewGamePlus_NoEmptyFile
 There is no empty file.[N]
 Erase one to start a new game.[X]
+## MSG_GALLERY_LOCKED
+???[X]
+## MSG_GALLERY_PAGE
+Page[X]
+## MSG_GALLERY_HINT
+A: View  B: Back[X]
+## MSG_GALLERY_CG_MYRRH_MORVA
+Myrrh & Morva[X]
+## MSG_GALLERY_CG_ISMAIRE
+Ismaire[X]
+## MSG_GALLERY_CG_SETH_ATTACKED
+Seth Attacked[X]
+## MSG_GALLERY_CG_MOUNTAIN_FOREST
+Mountain Forest[X]
+## MSG_GALLERY_CG_FOREST_MEADOW
+Forest Meadow[X]
+## MSG_GALLERY_CG_RUINED_HALL
+Ruined Hall[X]
+## MSG_GALLERY_CG_RUINED_FORT
+Ruined Fort[X]
+## MSG_GALLERY_CG_CASTLE_ARCADE
+Castle Arcade[X]
+## MSG_GALLERY_CG_VILLAGE
+Village[X]
+## MSG_GALLERY_CG_CASTLE_GATE
+Castle Gate[X]
+## MSG_GALLERY_CG_WOODLAND_POND
+Woodland Pond[X]
+## MSG_GALLERY_CG_CASTLE_HALL
+Castle Hall[X]
+## MSG_GALLERY_CG_SEASIDE_TOWN
+Seaside Town[X]

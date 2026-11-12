@@ -3,6 +3,7 @@
 #include "kernel-lib.h"
 #include "jester_headers/custom-arrays.h"
 #include "new-game-plus.h"
+#include "gallery.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -110,7 +111,12 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
     if (NewGamePlus_IsExtraEnabled())
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_NEW_GAME_PLUS);
 
-    /* No Map row: the end-of-game save is the Creature Campaign's (Kernel/Wizardry/CreatureCampaign) */
+    /*
+     * No Map row: the end-of-game save is the Creature Campaign's (Kernel/Wizardry/CreatureCampaign). Its place
+     * (bit 4) is the Gallery's (Kernel/Wizardry/Gallery), always there.
+     */
+    if (Gallery_Count() != 0)
+        AddExtraMenuOption(proc, EXTRA_MENU_OPTION_GALLERY);
 
     if (IsExtraBonusClaimEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_BONUS_CLAIM);

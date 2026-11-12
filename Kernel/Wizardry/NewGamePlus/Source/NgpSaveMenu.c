@@ -4,6 +4,7 @@
 #include "bmsave.h"
 #include "soundwrapper.h"
 #include "new-game-plus.h"
+#include "gallery.h"
 #include "constants/songs.h"
 #include "constants/texts.h"
 
@@ -96,7 +97,6 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 
 		switch (proc->extra_sel_bitfile) {
 		case EXTRA_MENU_OPTION_6:
-		case EXTRA_MENU_OPTION_MAP:
 		case EXTRA_MENU_OPTION_BONUS_CLAIM:
 			proc->sus_slot = SaveMenuModifySaveSlot(ReadLastGameSaveId(), 1, 1);
 			sub_80A9D20(proc, 0);
@@ -109,6 +109,11 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 			sub_80A9D20(proc, 0);
 			PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
 			Proc_Goto(proc, PL_SAVEMENU_12);
+			break;
+
+		case EXTRA_MENU_OPTION_GALLERY:
+			/* The Gallery (Kernel/Wizardry/Gallery), in the Map row's place */
+			Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
 			break;
 
 		case EXTRA_MENU_OPTION_SOUND_ROOM:

@@ -188,8 +188,10 @@ Adapted from `InitSaveMenuChoice` (`Kernel/Wizardry/ExtrasMenu/Source/SupportMen
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SOUND_ROOM);
 ```
 
-The Map row (`EXTRA_MENU_OPTION_MAP`) is not offered: the end-of-game save goes into the postgame itself
-(`Kernel/Wizardry/CreatureCampaign/`, `Documentation/Features/WorldMapStoryChapters.md`).
+The Map row is not offered: the end-of-game save goes into the postgame itself (`Kernel/Wizardry/CreatureCampaign/`,
+`Documentation/Features/WorldMapStoryChapters.md`). Its bit (4) is the Gallery's (`EXTRA_MENU_OPTION_GALLERY`,
+`Documentation/Features/Gallery.md`), a row with a screen of its own, as the Sound Room is: `SaveMenuStartExtraMiscScreen`
+starts it and `SaveMenuPostExtraMiscScreen` comes back to the Extras list.
 
 Adding a new `EXTRA_MENU_*` value also needs its dispatch. New Game+ (`Kernel/Wizardry/NewGamePlus/`) is the worked example: it uses the unused bit 3, rewrites the Extras list (`sub_80A9B90`), the save picker after it (`sub_80A9E1C`) and its header label (`sub_80ABF74`), and draws its label into a copy of `Img_GameMainMenuObjs` (see `Documentation/Features/NewGamePlus.md`).
 

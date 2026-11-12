@@ -1,0 +1,25 @@
+#ifndef GALLERY_INSTALLED
+#define GALLERY_INSTALLED
+
+/**
+ * The Gallery (Documentation/Features/Gallery.md): Extras > Gallery, its screen, and the CG unlocks.
+ * WIZARDRY_CUSTOM, so FreeSpaceDEMO. The CG list is gGalleryEntries (Data/Gallery/Gallery.c).
+ */
+#include "Source/LynJump.event"
+#include "Source/Gallery.lyn.event"
+#include "Source/GalleryScreen.lyn.event"
+
+ALIGN 4
+Img_GalleryFrame:
+    #incbin "Gfx/Img_GalleryFrame.4bpp"
+ALIGN 4
+Img_GalleryLock:
+    #incbin "Gfx/Img_GalleryLock.4bpp"
+ALIGN 4
+Pal_GalleryLock:
+    #incbin "Gfx/Img_GalleryLock.gbapal"
+
+// Event command 0x21 (TEXT_BG, BACG, the background fades): unlock the CG, then vanilla's Event21_TextBg
+InjectEventLoCmd(0x21, Gallery_Event21)
+
+#endif /* GALLERY_INSTALLED */

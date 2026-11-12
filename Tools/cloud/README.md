@@ -171,6 +171,8 @@ python3 Tools/cloud/smoketest.py --quick
   - Map Colors: the Options row set to Vivid and then Deep redraws the map in those colours, every map colour matching
     a model of the transform; a map palette animation (Chapter 18's, on the prologue in a test ROM) runs after a normal
     boot and is recoloured too (`--only mapcolors`);
+  - Gallery: the prologue's opening unlocks two CGs; Extras > Gallery builds a page of thumbnails, A shows an unlocked CG
+    full size, right goes to the next, B back to the grid and to Extras (`--only gallery`);
   - New Game+: Extras has the row only once a save has been to the postgame; New Game+ from that save starts a new
     game in which Eirika has the skills she had equipped there and its skill list (`--only newgameplus`);
   - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game
