@@ -200,6 +200,9 @@ A style is picked by a permanent event flag, checked in this order:
 | 11 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
 | — | Vanilla | none set | 0 |
 
+The start menu (`ProcScr_SaveMenu`) and its Extras screens, such as the [Gallery](./Gallery.md), always use Gamma
+(HyperGammaSpaces): no game is loaded there, so the flags in RAM are whatever the last game left.
+
 Set the flag from an event (for example `ENUT 0xAB` for wood, `ENUT 0xAD` for tech, `ENUT 0xAE` for royal, `ENUT 0xAF` for stained glass, `ENUT 0xB0` for paper, `ENUT 0xB1` for ocean, `ENUT 0xB2` for forest or `ENUT 0xB3` for parchment, `ENUF` to turn it off), or from C with `SetFlag`. The change shows the next time a screen loads its UI graphics, such as after opening the stat screen or entering battle. `gpKernelDesignerConfig->vesly_custom_ui` must be on.
 
 The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest, Parchment) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.

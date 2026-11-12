@@ -223,11 +223,23 @@ extern int PaperStyleFlag;
 extern int OceanStyleFlag;
 extern int ForestStyleFlag;
 extern int ParchmentStyleFlag;
+extern struct ProcCmd CONST_DATA ProcScr_SaveMenu[];
+
+/* The start menu's style: Gamma (HyperGammaSpaces) */
+#define UI_ID_START_MENU 2
+
 int GetUI_id(void)
 {
 
     if (gpKernelDesignerConfig->vesly_custom_ui != true)
         return 0;
+
+    /*
+     * The start menu and its Extras screens (the Gallery, ...): no game is loaded, so the event flags are not the
+     * player's (they are whatever the last game left in RAM). Its windows are HyperGammaSpaces' Gamma style.
+     */
+    if (Proc_Find(ProcScr_SaveMenu))
+        return UI_ID_START_MENU;
 
     /*
      * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
