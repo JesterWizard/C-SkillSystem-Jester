@@ -29,6 +29,7 @@ gPrePhaseFuncs:
     POIN PrePhase_BlacksmithPlus
     POIN PrePhase_HurtAmount
     POIN PrePhase_Truant
+    POIN NewGamePlus_PrePhase
 
     // End
     POIN CallExternalPrePhaseHook

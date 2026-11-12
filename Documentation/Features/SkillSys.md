@@ -33,6 +33,14 @@ Other skills are categorized as **generic skills**.
 7. For character based levelup table, the reference level is based on ([total count of level-up history] + [[hidden level](../Patches/PATCH_HiddenLevel.txt)]) regardless from promotion. For class based levelup table, the reference level is directly determined by the current level.
 8. Skills can also be learned from weapon ranks. See [WeaponRankSkills](./WeaponRankSkills.md). Prowess skills use this path: Lv1 at rank D through Lv5 at rank S, with each new level replacing the previous one.
 9. Developers can assign or remove skills directly via events. Refer to: [Skill OPS patch](../Patches/PATCH_EVENTSCRIPT_SkillOps.txt).
+10. The "learned" skills (what the prep screen can equip) are one sorted list for the whole army, `gLearnedSkills`
+    (`struct LearnedSkills` in `include/kernel/skill-system.h`): entries `(pid << 10) | sid`, for characters 1-40 and
+    every skill id, up to 980 in all (`LEARNED_SKILLS_MAX`; `LearnSkill` does nothing past that). In the save it is
+    packed into the chunk the old per-character bitmaps used (`CONFIG_UNIT_AMT_ALLY * 0x20` bytes), so the layout did
+    not change: a pid, a count and 10 bits per skill (`Kernel/Wizardry/SkillSys/kernel/LearnSkill.c`). The bitmaps
+    held 256 skills each, and a skill from 0x100 up (the weapon-rank skills among them) set a bit in a later
+    character's list. A save written before keeps the low skills of the characters in its army; its skills from 0x100
+    up are dropped, and the weapon-rank ones come back at the next check.
 
 # 4. Setting Skills (Fitting to FEB Old List)
 

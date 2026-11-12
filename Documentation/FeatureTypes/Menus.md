@@ -188,7 +188,7 @@ Adapted from `InitSaveMenuChoice` (`Kernel/Wizardry/ExtrasMenu/Source/SupportMen
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_MAP);
 ```
 
-Adding a new `EXTRA_MENU_*` value also needs a vanilla dispatch for it. That dispatch is not traced (unverified).
+Adding a new `EXTRA_MENU_*` value also needs its dispatch. New Game+ (`Kernel/Wizardry/NewGamePlus/`) is the worked example: it uses the unused bit 3, rewrites the Extras list (`sub_80A9B90`), the save picker after it (`sub_80A9E1C`) and its header label (`sub_80ABF74`), and draws its label into a copy of `Img_GameMainMenuObjs` (see `Documentation/Features/NewGamePlus.md`).
 
 ### Options row
 
@@ -315,7 +315,7 @@ The item text uses `MenuItemProc::text`, which is per row and survives across fr
 - **Options array size is fixed.** `gGameOptionsUiOrder_NEW` is declared `[33]` and lists 33 entries (`MenuOptions.c:10-46`). Adding a row without bumping the size is a silent error, and the order array is what the screen walks.
 - **`SetGameOption` has no default branch.** An option with no `case` is silently not stored (`MenuOptions.c:674-737`). Add the `case` in both `SetGameOption` and `GetGameOption`.
 - **Options bits are the save layout.** `gPlaySt.config` is a bitfield (`types.h:140`) with spare bits named `custom_option_*`. Whether it is written to the save file is unverified; check `Documentation/Memory.md` before adding bits that must persist.
-- **Extras enum is fixed.** `EXTRA_MENU_*` runs 0-6 (`savemenu.h:56-61`), and `EXTRA_MENU_6` is declared but not used by any row in this repo. A new value needs a vanilla dispatch (unverified).
+- **Extras enum is fixed.** `EXTRA_MENU_*` runs 0-6 (`savemenu.h:56-61`). Bit 3 (vanilla's unshown "Battle History") is New Game+'s; bit 6 is handled by vanilla as a trial map in several switches. Each row's label is a sprite from `Img_GameMainMenuObjs`, not text: a new row needs art (`Documentation/Features/NewGamePlus.md`).
 - **Standalone menus need the setup calls.** `CallForgeMenuASMC` sets display, fonts, UI frame graphics and icon graphics before `StartMenu` (`ForgeMenu.c:446-456`). Skipping them leaves the menu without its graphics. The sample `Example.c` above copies the same calls.
 - **Crafting menu is not installed.** `Kernel/Wizardry/Crafting/Crafting_Installer.event` is included only by a commented-out line (`Kernel/Wizardry/wizardry.event:143`). Its `CallSynthesisMenuASMC` (`Crafting.c:32`) is reachable only if that line is enabled.
 - **`PopupRework` names are not `Menus`.** Popups are in `Documentation/FeatureTypes/UI.md`, not here.

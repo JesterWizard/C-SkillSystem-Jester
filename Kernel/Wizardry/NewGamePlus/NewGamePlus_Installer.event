@@ -1,0 +1,36 @@
+#ifndef NEW_GAME_PLUS_INSTALLED
+#define NEW_GAME_PLUS_INSTALLED
+
+/**
+ * New Game+ (Documentation/Features/NewGamePlus.md): the Extras row, the save picker, and the skills that carry over.
+ * WIZARDRY_CUSTOM, so FreeSpaceDEMO. Its hooks are in gNewSaveHooks, gLoadUnitHooks, gPrePhaseFuncs,
+ * gPostActionFuncs and gpMsa_Saver / gpMsu_Saver (Preload/Reloc.event).
+ */
+#include "Source/LynJump.event"
+#include "Source/NewGamePlus.lyn.event"
+#include "Source/NgpSaveMenu.lyn.event"
+
+ALIGN 4
+Img_NgpMenuObjs:
+    #incbin "Gfx/Img_NgpMenuObjs.lz77" // vanilla's Img_GameMainMenuObjs with "New Game +" in place of "Battle History"
+
+PUSH
+    // The Extras labels: SaveMenu_LoadExtraMenuGraphics, SaveMenuScrollBackToMain, SaveMenu_ReloadScreenFormDifficulty
+    // (sub_80A9E1C, the fourth, is rewritten)
+    ORG $A8F34
+    POIN Img_NgpMenuObjs
+    ORG $A9A60
+    POIN Img_NgpMenuObjs
+    ORG $AA450
+    POIN Img_NgpMenuObjs
+
+    // SpriteArray_08A2099C[EXTRA_MENU_NEW_GAME_PLUS]: the row's label
+    ORG $A2099C + 4 * 3
+    POIN Sprite_NgpExtrasLabel
+
+    // ProcScr_SaveMenu, PL_SAVEMENU_MAIN_LOOP: PROC_REPEAT(SameMenu_CtrlLoop)
+    ORG $A20128 + 4
+    POIN NewGamePlus_SaveMenuMainLoop
+POP
+
+#endif /* NEW_GAME_PLUS_INSTALLED */

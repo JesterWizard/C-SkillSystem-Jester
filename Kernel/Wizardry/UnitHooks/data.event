@@ -5,6 +5,7 @@ gLoadUnitHooks:
     POIN UnitHiddenLevelPreLoad /* this should be ahead of auto-load skill */
     POIN UnitAutoLoadSkills
     POIN StatDeuff_OnLoadUnit
+    POIN NewGamePlus_OnLoadUnit /* after UnitAutoLoadSkills */
     // POIN DemoUnitExpa_OnLoadUnit
     WORD 0 0 0 0
 
@@ -38,6 +39,7 @@ gClearUnitHooks: // void (*)(struct Unit *unit)
     POIN Replicate_OnClearUnit
     POIN BigUnit_OnClearUnit
     POIN GaidenMagicUses_OnClearUnit
+    POIN NewGamePlus_OnClearUnit
     WORD 0 0 0 0
 
 gKillUnitHooks: // void (*)(struct Unit *unit)

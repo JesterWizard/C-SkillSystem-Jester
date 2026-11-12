@@ -42,6 +42,8 @@ What it checks:
               is refused (no Restart Chapter).
   gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
               same district chunks.
+  newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
+              has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
               in a free skill slot, the fight hurts the soldier, and with 99 EXP she levels up. Her level-up quote's
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
@@ -173,6 +175,7 @@ SAVE_RAM = {
     "CrossingProgress_Save": "gCrossingProgress", "TowerRecords_Save": "gTowerRecords",
     "FishingRecords_Save": "gFishingRecords", "FishingProgress_Save": "gFishingProgress",
     "HexSave_Save": "gHexSave", "Snek_SaveHighScore": "gSnekHighScore", "BigUnit_Save": "gBigUnitGroups",
+    "SaveUnitLearnedSkillLists": "gLearnedSkills",
 }
 # values written before saving, so a chunk that is not saved or loaded shows up: (RAM symbol, offset, bits, value)
 SENTINELS = [("gGuildSave", 2, 16, 1234), ("gCrossingRecords", 2, 16, 777), ("gTowerRecords", 2, 16, 345),
@@ -457,9 +460,10 @@ class Smoke:
                 reads = ["r8 %#x" % (self.sym["gTowerState"] + 0x4A)]
             p0, p1, p2 = (os.path.join(d, "%s_%d.png" % (tag, i)) for i in range(3))
             # An A press as a wandering NPC starts a step is ignored (they move 30 frames after the player stops), as
-            # a player would find; so a press that opens nothing is tried again after another wait.
+            # a player would find; so a press that opens nothing is tried again after another wait. The spot's state is
+            # saved after the wait, so the tests that load it and press A at once press when it works.
             for wait in (10, 60, 0):
-                vals = self.run(rom, ["load " + at, "save " + spot_ss, "wait %d" % wait, "shot %s_0.png" % tag,
+                vals = self.run(rom, ["load " + at, "wait %d" % wait, "save " + spot_ss, "shot %s_0.png" % tag,
                                       "hold A 6", "wait 150", "shot %s_1.png" % tag, "save " + open_ss] + reads +
                                 ["press B", "wait 150", "shot %s_2.png" % tag], d)
                 if self.diff(p0, p1) > 25:
@@ -1254,6 +1258,66 @@ class Smoke:
             h = mix(h, v)
         return h or 1
 
+    def test_newgameplus(self):
+        """New Game+ (Documentation/Features/NewGamePlus.md). A cleared save (the debugger's "Save & restart ch." with
+        the cleared bit) has no New Game+ row in Extras; with the postgame bit it does. Then Extras > New Game+, the
+        save, Normal and the empty file start a new game: in its prologue Eirika has the skills she had equipped in
+        that save (Str Bonus and Vantage, written before saving) and its skill list (Deep Roots, a skill id above 0xFF,
+        written as her only learned skill). The game boots first, so the saves go to set-up SRAM."""
+        d = os.path.join(self.out, "newgameplus")
+        os.makedirs(d, exist_ok=True)
+        need = ("gNewGamePlus", "gLearnedSkills", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("newgameplus: the New Game+ symbols", False, "no symbols")
+        carry, lists, procs = self.sym["gNewGamePlus"], self.sym["gLearnedSkills"], self.sym["sProcArray"]
+        str_bonus, vantage = self.skill_id("SID_StrBonus"), self.skill_id("SID_Vantage")
+        packed = str_bonus | (vantage << 10)
+        skills = [(packed >> (8 * k)) & 0xFF for k in range(7)]
+        # the learned skills (struct LearnedSkills): only Eirika's Deep Roots, (pid 1 << 10) | sid
+        deep_roots = (1 << 10) | self.skill_id("SID_DeepRoots")
+        learned = ["w16 %#x 1" % lists, "w16 %#x %#x" % (lists + 2, deep_roots)] + \
+            ["w32 %#x 0" % (lists + 4 + 4 * k) for k in range(64)]
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        extras = ["press DOWN", "wait 20"] * 4 + ["press A", "wait 200"]
+        # a cleared save only
+        self.run(ROM, self.boot_lines() + ["w8 %#x %#x" % (PLAYST + 0x14, PLAY_FLAG_COMPLETE)] + DEBUG_SAVE +
+                 SOFT_RESET + extras + [dump("cleared.bin")], d)
+        lines = self.boot_lines() + ["w8 %#x %#x" % (PLAYST + 0x14, PLAY_FLAG_COMPLETE | PLAY_FLAG_POSTGAME)]
+        lines += ["w8 %#x %#x" % (UNIT1 + 0x32 + k, v) for k, v in enumerate(skills)] + learned
+        lines += DEBUG_SAVE + SOFT_RESET + extras + [dump("postgame.bin"), "shot extras.png"]
+        # New Game+ is the third row (Sound Room, Support Conversation, New Game+, Map); the first slot; Normal; the
+        # empty file; then the opening, skipped
+        lines += ["press DOWN", "wait 20", "press DOWN", "wait 20", "press A", "wait 200", "shot source.png", "press A",
+                  "wait 230", "press DOWN", "wait 20", "press A", "wait 200", "shot file.png", "press A", "wait 60"]
+        lines += ["press START", "wait 90", "press A", "wait 90"] * 12 + ["shot prologue.png"]
+        lines += ["r8 %#x" % CHAPTER, "r32 %#x" % carry, "r32 %#x" % (carry + 8)]
+        lines += ["r8 %#x" % (UNIT1 + 0x32 + k) for k in range(7)] + ["dump %#x 0x7AC learned.bin" % lists]
+        vals = self.run(ROM, lines, d)
+        for name, label in (("extras", "Extras with New Game+"), ("source", "New Game+: the save"),
+                            ("file", "New Game+: the empty file"), ("prologue", "New Game+: the prologue")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        menu = lambda name: [p[0x32] for a, p in self.procs(os.path.join(d, name)) if a == self.sym["ProcScr_SaveMenu"]]
+        row = 1 << 3  # EXTRA_MENU_OPTION_NEW_GAME_PLUS
+        cleared, postgame = menu("cleared.bin"), menu("postgame.bin")
+        self.check("newgameplus: Extras has New Game+ only once a save has been to the postgame",
+                   cleared and postgame and not cleared[0] & row and postgame[0] & row,
+                   "Extras rows %s, then %s" % (["%#x" % v for v in cleared], ["%#x" % v for v in postgame]))
+        if not self.check("newgameplus: New Game+ starts a new game", len(vals) == 10 and vals[0] == 0 and
+                          vals[1] == 0x2B50474E, "values %s" % vals):
+            return
+        self.check("newgameplus: Eirika and Seth are carried", vals[2] & 0x6 == 0x6, "carried %#x" % vals[2])
+        self.check("newgameplus: Eirika has the skills she had equipped (Str Bonus, Vantage)", vals[3:10] == skills,
+                   "skill bytes %s, saved %s" % (["%#x" % v for v in vals[3:10]], ["%#x" % v for v in skills]))
+        path = os.path.join(d, "learned.bin")
+        data = open(path, "rb").read() if os.path.exists(path) else b"\0\0"
+        count = struct.unpack_from("<H", data)[0]
+        entries = struct.unpack_from("<%dH" % count, data, 2) if 2 + 2 * count <= len(data) else ()
+        self.check("newgameplus: Eirika's skill list comes along (Deep Roots, id above 0xFF)", deep_roots in entries,
+                   "%d learned skills: %s" % (count, ["%#x" % e for e in entries[:12]]))
+        self.check("newgameplus: the learned skills stay sorted and each character's own",
+                   list(entries) == sorted(set(entries)) and all(e >> 10 for e in entries),
+                   "%d learned skills" % count)
+
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
         SramChecksum32 (0x2A) xor the layout signature; with that checksum put back to a bare 0x2A (a save from before
@@ -1996,7 +2060,8 @@ def main():
                 r.submit((0, 7), s.test_mapcolors, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
-                                ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):
+                                ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
+                                ("newgameplus", s.test_newgameplus))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

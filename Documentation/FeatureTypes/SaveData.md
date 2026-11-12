@@ -63,7 +63,7 @@ nothing is loaded. Saves written before the guard fail it too. `smoketest.py --o
 | `Kernel/Wizardry/SaveData/SaveData.event` | Include list and the SRAM layout comment |
 | `Kernel/Wizardry/SaveData/SaveDataExpansion/RelocMiscChunks.event` | Moves the vanilla SRAM tail (from `0x7DEC`) |
 | `include/kernel/save-data.h` | `struct EmsChunk`, the two unit packs, `SIZE_OF_*`, external hook pointers |
-| `Preload/Reloc.event:40-43` | `gpMsa_Saver` and related external hooks (default `WORD 0`) |
+| `Preload/Reloc.event:40-44` | `gpMsa_Saver` and related external hooks (New Game+'s) |
 | `Kernel/Preload/KernelReloc.event:16` | `gpNewSaveHooks` pointer |
 | `include/configs/configs.h` | `CONFIG_UNIT_AMT_*`, `CONFIG_INSTALL_CONVOYEXPA_AMT`, `CONFIG_VERIFY_SKILLSYS_SRAM` |
 | `Tools/FE-PyTools/save-memory-usage.py` | SRAM budget report (the tool `make savecheck` runs) |
@@ -162,4 +162,4 @@ Include line, in the `WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event`
 - **PlayStExpa is per chapter.** It is cleared at every chapter start (`ChapterInitHook/data.event:10`), so a flag meant to last a whole playthrough does not belong there.
 - **Stay out of the vanilla tail.** `RelocMiscChunks.event` moves the vanilla bonus, rank and link-arena data to the top of SRAM (from `0x7DEC`), and the skill magic is at `0x7DE4`. A new chunk does not go there.
 - **Chunk sizes can be odd.** Rows `$0001` and `$0019` exist (`data.event:41`, `:53` in the SAV table). The even-address rule in [Memory.md](Memory.md) applies to RAM only.
-- **`gpMsa_Saver` and related hooks** (`Preload/Reloc.event:40-43`) default to `WORD 0`. `MSA_ExternalSaver` and `MSU_ExternalSaver` call them for the bytes after the table (`Kernel/Wizardry/SaveData/Source/ExternalLoader.c:4-23`). A feature that uses them takes the tail of the slot.
+- **`gpMsa_Saver` and related hooks** (`Preload/Reloc.event:40-44`) are New Game+'s (`NewGamePlus_SaveSav` and friends). `MSA_ExternalSaver` and `MSU_ExternalSaver` call them for the bytes after the table (`Kernel/Wizardry/SaveData/Source/ExternalLoader.c:4-23`). Those bytes are not in the layout signature, so using them keeps old saves loadable; they need a magic word, since an old save has leftovers there. Another feature that wants them has to share New Game+'s functions.

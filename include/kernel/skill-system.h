@@ -393,12 +393,22 @@ extern struct SkillExtraInfo const* const gpSkillExtraInfo;
 #define SKILL_EFF8(sid) (gpSkillExtraInfo[sid].priv[8])
 #define SKILL_EFF9(sid) (gpSkillExtraInfo[sid].priv[9])
 
+/* The learned skills of the whole army, sorted (pid << 10 | sid): Kernel/Wizardry/SkillSys/kernel/LearnSkill.c */
+#define LEARNED_SKILLS_PID_MAX CONFIG_UNIT_AMT_ALLY
+#define LEARNED_SKILLS_MAX 980
+
+struct LearnedSkills {
+	u16 count;
+	u16 entries[LEARNED_SKILLS_MAX];
+};
+
 bool IsSkillLearned(struct Unit* unit, const u16 sid);
 void LearnSkill(struct Unit* unit, const u16 sid);
 void ForgetSkill(struct Unit* unit, const u16 sid);
 void ResetUnitLearnedSkillLists(void);					 /* GameInitHook */
 void SaveUnitLearnedSkillLists(u8* dst, const u32 size);   /* SaveData */
 void LoadUnitLearnedSkillLists(u8* src, const u32 size);   /* LoadData */
+void LoadLearnedSkillsFor(u8* src, const u32 size, const u32* army); /* the same, for a save's chunk read on its own */
 
 void UnitAutoLoadSkills(struct Unit* unit);
 int GetSkillSlot(struct Unit* unit, int sid);

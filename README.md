@@ -209,7 +209,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MapColors.md"><img src="./Documentation/Images/MapColors.png" alt="Map Colors preview" width="360" /></a><br/><b><a href="./Documentation/Features/MapColors.md">Map Colors</a></b></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/NewGamePlus.md"><img src="./Documentation/Images/NewGamePlus.png" alt="New Game+ preview" width="360" /></a><br/><b><a href="./Documentation/Features/NewGamePlus.md">New Game+</a></b><br/><sub>Extras > New Game+: a new game where each character keeps their equipped skills and skill list</sub></td>
   </tr>
 </table>
 
