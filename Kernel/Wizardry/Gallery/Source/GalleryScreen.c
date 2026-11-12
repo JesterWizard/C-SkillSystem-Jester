@@ -9,28 +9,74 @@
 /*
  * The Gallery screen (Documentation/Features/Gallery.md), started from Extras > Gallery.
  *
- * The grid: 9 CGs to a page, 3x3. Each is a 48x32 thumbnail (a fifth of the CG) with a frame, its name above; the
- * frame of the one under the cursor is gold and glows. A locked CG is dimmed, with a padlock, and "???" above.
- * A on an unlocked CG shows it full size; left and right go through the other unlocked ones; B goes back.
+ *  - The banner on top (the Sound Room's song banner, BG2): the name of the CG under the cursor, or "???" (BG0),
+ *    centred on it.
+ *  - On the left, in a window (BG1, BG2, BG0): which CG of how many, centred at the top; at the foot, the Sound Room's
+ *    round A button with "View", and a B made from it (vanilla has no round B) with "Back".
+ *  - The grid on the right, in a window (DrawUiFrame, the player's window colour, BG1), over the scrolling mural (BG3):
+ *    three CGs a row, three rows on screen. Each is a 48x32 thumbnail (a sprite) in a frame (a sprite); the frame of
+ *    the CG under the cursor is gold and glows. A locked CG is dimmed, with a padlock.
+ *  - Moving off the rows on screen scrolls the grid a row (5 frames); window 0 is the window's inside, so the sprites
+ *    never show outside it.
+ *  - A shows an unlocked CG full size (BG3, the mural stopped); left and right go through the other unlocked ones;
+ *    B goes back.
  *
- * The thumbnails are made by drawing each CG with the game's own loader (EventShowTextBgDirect, which also takes the
- * 224- and 256-colour CGs), with the screen dark, then reading its pixels back from VRAM and the palette, four to a
- * thumbnail pixel. They are 256-colour sprites: the OBJ palette holds a 6x6x6 colour cube (colours 16-231), and each
- * pixel is put on the cube with a 2x2 ordered dither. The loader only writes the BG side, so the sprites outlive the
- * full view; only a new page makes new thumbnails.
+ * The thumbnails are build output (Tools/gallery/thumbs.py, gGalleryThumbs): 4bpp, 16 colours each. The rows drawn
+ * (three, four while scrolling) have their thumbnails in OBJ VRAM and their palettes in OBJ palettes 0-11, a slot for
+ * each place on the grid, loaded again whenever the rows are drawn.
  */
 
-#define GALLERY_COLS     3
-#define GALLERY_PER_PAGE 9
-#define THUMB_W          48
-#define THUMB_H          32
-#define THUMB_UNITS      48 /* OBJ VRAM 32-byte units a thumbnail takes: 6x4 tiles of 64 bytes */
-#define LOCK_TILE        (GALLERY_PER_PAGE * THUMB_UNITS)
-#define FRAME_TILE       0x200 /* BG VRAM 0x06004000, after the text's tiles */
-#define PAL_FRAME        13
-#define PAL_FRAME_HI     14
-#define PAL_OBJ_LOCK     15
-#define CUBE_BASE        16
+#define GALLERY_COLS   3
+#define VISIBLE_ROWS   3
+#define DRAWN_ROWS     4 /* one more while scrolling */
+#define SLOTS          (GALLERY_COLS * DRAWN_ROWS)
+#define FRAME_W        52 /* a thumbnail and its 2-pixel frame */
+#define FRAME_H        36
+#define COL_PX         (FRAME_W + 2)
+#define ROW_PX         (FRAME_H + 2)
+#define SCROLL_STEP    8
+
+/* The panel's window (tiles) */
+#define PANEL_X        0
+#define PANEL_Y        4
+#define PANEL_W        8
+#define PANEL_H        16
+#define KEY_A_Y        (PANEL_Y + PANEL_H - 7)
+#define KEY_B_Y        (PANEL_Y + PANEL_H - 4)
+
+/* The window round the grid (tiles), and its inside (pixels): window 0 */
+#define BOX_X          8
+#define BOX_Y          4
+#define BOX_W          22
+#define BOX_H          16
+#define IN_LEFT        (BOX_X * 8 + 8)
+#define IN_TOP         (BOX_Y * 8 + 8)
+#define IN_RIGHT       (240 - 8)
+#define IN_BOTTOM      (160 - 8)
+#define GRID_LEFT      (IN_LEFT + (IN_RIGHT - IN_LEFT - (GALLERY_COLS * COL_PX - 2)) / 2)
+#define GRID_TOP       IN_TOP
+
+/* The banner (tiles) */
+#define BANNER_X       3
+#define BANNER_W       24
+#define BANNER_H       4
+
+#define THUMB_BYTES    768 /* 6x4 4bpp tiles */
+#define THUMB_SIZE     (THUMB_BYTES + 0x20) /* and the palette */
+#define THUMB_UNITS    (THUMB_BYTES / 0x20)
+#define LOCK_TILE      (SLOTS * THUMB_UNITS)
+#define FRAME_OBJ_TILE (LOCK_TILE + 4)
+#define OBJ_TEMP       ((u8 *)0x06014000) /* OBJ VRAM nothing uses here: vanilla sheets are unpacked here */
+
+#define BANNER_TILE    0x220 /* BG VRAM 0x06004400, after the text's tiles */
+#define ICON_A_TILE    (BANNER_TILE + BANNER_W * BANNER_H)
+#define ICON_B_TILE    (ICON_A_TILE + 4)
+#define PAL_ICON       10
+#define PAL_BANNER     11
+#define PAL_MURAL      14 /* and 15 */
+#define PAL_OBJ_CURSOR 12
+#define PAL_OBJ_FRAME  13
+#define PAL_OBJ_LOCK   15
 
 #define SE_MOVE  SONG_SE_SYS_CURSOR_UD1
 #define SE_PAGE  SONG_SE_SYS_CURSOR_LR1
@@ -41,24 +87,36 @@
 struct GalleryScreen {
 	/* 00 */ u8 count;
 	/* 01 */ u8 cursor;
-	/* 02 */ u8 page;	/* the page whose thumbnails are in OBJ VRAM */
+	/* 02 */ u8 top;	/* the first row on screen */
 	/* 03 */ u8 view;	/* the CG the full view shows */
-	/* 04 */ u8 built;	/* thumbnails made so far for this page */
-	/* 05 */ u8 sprites;	/* the grid's thumbnails are on screen (they stay through its fades) */
-	/* 06 */ u16 timer;
-	/* 08 */ u8 bits[GALLERY_MAX / 8];
-	/* 14 */ struct Text names[GALLERY_PER_PAGE];
-	/* 5C */ struct Text footer;
+	/* 04 */ u8 drawTop;	/* the row drawn at the grid's top */
+	/* 05 */ u8 drawRows;
+	/* 06 */ u8 scrollPx;	/* the grid's offset */
+	/* 07 */ s8 scrollDir;	/* 1: scrolling down, -1: up, 0: still */
+	/* 08 */ u8 sprites;	/* the grid's thumbnails are on screen (they stay through its fades) */
+	/* 09 */ u8 pad;
+	/* 0A */ u16 timer;
+	/* 0C */ u8 bits[GALLERY_MAX / 8];
+	/* 18 */ struct Text title;
+	/* 20 */ struct Text hintA;
+	/* 28 */ struct Text hintB;
+	/* 30 */ struct Text position;
 };
 
 extern struct GalleryScreen gGalleryScreen;
 #define GS (&gGalleryScreen)
 
-_Static_assert(sizeof(struct GalleryScreen) <= 0x80, "gGalleryScreen is 0x80 bytes (config-memmap.s)");
+_Static_assert(sizeof(struct GalleryScreen) <= 0xA0, "gGalleryScreen is 0xA0 bytes (config-memmap.s)");
 
-extern const u8 Img_GalleryFrame[];
+extern const u8 gGalleryThumbs[];
 extern const u8 Img_GalleryLock[];
 extern const u16 Pal_GalleryLock[];
+extern const u8 Img_GalleryCursor[];
+extern const u16 Pal_GalleryCursor[];
+
+/* The Sound Room's sprite sheet (its A button) */
+extern const u8 Img_SoundRoomUiElements[];
+extern const u16 Pal_SoundRoomUiElements[];
 
 struct ProcGallery {
 	PROC_HEADER;
@@ -66,15 +124,13 @@ struct ProcGallery {
 };
 
 enum {
-	L_GALLERY_PAGE = 1,
-	L_GALLERY_GRID,
-	L_GALLERY_TURN,
+	L_GALLERY_GRID = 1,
 	L_GALLERY_VIEW,
 	L_GALLERY_BACK,
 	L_GALLERY_EXIT,
 };
 
-/* BG3 takes the CGs; BG0 text, BG1 the frames */
+/* BG0 text, BG1 the window, BG2 the banner and the buttons, BG3 the mural (or the CG) */
 static const u16 sGalleryBgConfig[12] = {
 	0x0000, 0x6000, 0,
 	0x0000, 0x6800, 0,
@@ -82,42 +138,42 @@ static const u16 sGalleryBgConfig[12] = {
 	0x8000, 0x7800, 0,
 };
 
-static const u16 sFramePal[16] = { 0, RGB(3, 4, 8), RGB(13, 15, 21) };
-static const u8 sCubeLevel[6] = { 0, 6, 12, 19, 25, 31 };
+static const u16 sFrameObjPal[16] = { 0, RGB(3, 4, 8), RGB(13, 15, 21) };
 
-/* A 48x32 thumbnail: a 32x32 and a 16x32 sprite, 256 colours */
+/* A 48x32 thumbnail: a 32x32 and a 16x32 sprite */
 static const u16 sObjThumb[] = {
 	2,
-	0x2000, 0x8000, 0x0800,
-	0xA000, 0x8000 + 32, 0x0800 + 32,
+	0x0000, 0x8000, 0x0400,
+	0x8000, 0x8000 + 32, 0x0400 + 16,
 };
 
 static const u16 sObjLock[] = {
 	1,
-	0x0000, 0x4000, 0x0400 | (PAL_OBJ_LOCK << 12) | LOCK_TILE,
+	0x0000, 0x4000, 0x0000 | (PAL_OBJ_LOCK << 12) | LOCK_TILE,
 };
 
-/* A slot's column and row on the page (no %: it is broken in this build, see CLAUDE.md) */
-static int Gallery_Col(int slot)
+/* A frame: 64x64, the thumbnail at (8, 8); grey, or gold for the cursor's (the palette is added) */
+static const u16 sObjFrame[] = {
+	1,
+	0x0000, 0xC000, 0x0400 | FRAME_OBJ_TILE,
+};
+
+/* No % here: it is broken in this build (CLAUDE.md, Pitfalls) */
+static int Gallery_Row(int index)
 {
-	return DivRem(slot, GALLERY_COLS);
+	return Div(index, GALLERY_COLS);
 }
 
-static int Gallery_Row(int slot)
+static int Gallery_RowCount(void)
 {
-	return Div(slot, GALLERY_COLS);
+	return Div(GS->count + GALLERY_COLS - 1, GALLERY_COLS);
 }
 
-static int Gallery_PageCount(void)
+static int Gallery_MaxTop(void)
 {
-	return GS->count == 0 ? 1 : (GS->count + GALLERY_PER_PAGE - 1) / GALLERY_PER_PAGE;
-}
+	int top = Gallery_RowCount() - VISIBLE_ROWS;
 
-static int Gallery_OnPage(int page)
-{
-	int n = GS->count - page * GALLERY_PER_PAGE;
-
-	return n > GALLERY_PER_PAGE ? GALLERY_PER_PAGE : (n < 0 ? 0 : n);
+	return top < 0 ? 0 : top;
 }
 
 static bool Gallery_Unlocked(int index)
@@ -125,186 +181,238 @@ static bool Gallery_Unlocked(int index)
 	return Gallery_IsUnlocked(GS->bits, index);
 }
 
-/* ---- Thumbnails ---- */
+/* ---- The banner and the panel ---- */
 
-/* A pixel of the CG the loader just drew on BG3: its tile map (RAM), tiles (VRAM) and palette */
-static u16 Gallery_CgPixel(int x, int y, const u8 *chr, bool c256)
+static void Gallery_DrawTitle(void)
 {
-	u16 entry = gBG3TilemapBuffer[(y >> 3) * 32 + (x >> 3)];
-	int tile = entry & 0x3FF;
-	int px = x & 7, py = y & 7, ci;
+	struct Text *t = &GS->title;
+	const char *str;
+	int w;
 
-	if (entry & 0x400)
-		px = 7 - px;
-	if (entry & 0x800)
-		py = 7 - py;
+	if (GS->count == 0)
+		return;
 
-	if (c256)
-		return gPaletteBuffer[chr[tile * 64 + py * 8 + px]];
+	str = GetStringFromIndex(Gallery_Unlocked(GS->cursor) ? gGalleryEntries[GS->cursor].name : MSG_GALLERY_LOCKED);
+	w = GetStringTextLen(str);
 
-	ci = (chr[tile * 32 + py * 4 + (px >> 1)] >> ((px & 1) * 4)) & 0xF;
-	return ci ? gPaletteBuffer[(entry >> 12) * 16 + ci] : gPaletteBuffer[0];
+	/* 20 tiles from tile 5: centred on the banner (and the screen) */
+	ClearText(t);
+	Text_InsertDrawString(t, w < 160 ? (160 - w) / 2 : 0, TEXT_COLOR_SYSTEM_WHITE, str);
+	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
 }
 
-/* A channel (0-31, x4 for four samples) on the cube's 6 levels, with a 2x2 ordered dither: (c * 5 + d) / 31 */
-static int Gallery_Level(int sum4, int dither)
+static void Gallery_DrawPosition(void)
 {
-	return ((sum4 * 5 + dither * 31) * 529) >> 16;
+	struct Text *t = &GS->position;
+	char buf[12];
+	int i = 0, n = GS->cursor + 1, w;
+
+	if (n >= 10)
+		buf[i++] = '0' + Div(n, 10);
+	buf[i++] = '0' + DivRem(n, 10);
+	buf[i++] = '/';
+	if (GS->count >= 10)
+		buf[i++] = '0' + Div(GS->count, 10);
+	buf[i++] = '0' + DivRem(GS->count, 10);
+	buf[i] = '\0';
+
+	/* Centred in the panel's inside (6 tiles) */
+	w = GetStringTextLen(buf);
+	ClearText(t);
+	Text_InsertDrawString(t, w < 48 ? (48 - w) / 2 : 0, TEXT_COLOR_SYSTEM_WHITE, buf);
+	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 1, PANEL_Y + 2));
 }
 
-static u8 *Gallery_ThumbPixelAddr(int slot, int x, int y)
+/*
+ * A pixel of a 16x16 icon's 4 tiles (4bpp, top left, top right, bottom left, bottom right), in RAM: VRAM takes no byte
+ * writes (a byte written there lands in both bytes of its halfword).
+ */
+static u8 *Gallery_IconByte(u8 *tiles, int x, int y)
 {
-	u8 *base = (u8 *)0x06010000 + slot * THUMB_UNITS * 32;
-
-	if (x < 32)
-		return base + ((y >> 3) * 4 + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7);
-
-	x -= 32;
-	return base + 1024 + ((y >> 3) * 2 + (x >> 3)) * 64 + (y & 7) * 8 + (x & 7);
+	return tiles + ((y >> 3) * 2 + (x >> 3)) * 0x20 + (y & 7) * 4 + ((x & 7) >> 1);
 }
 
-NOINLINE static void Gallery_MakeThumb(int slot, int index)
+static int Gallery_IconPixel(u8 *tiles, int x, int y)
 {
-	static const u8 dither[2][2] = { { 0, 2 }, { 3, 1 } };
-	const u8 *chr;
-	bool c256, dim = !Gallery_Unlocked(index);
-	int x, y, k;
+	return (*Gallery_IconByte(tiles, x, y) >> ((x & 1) * 4)) & 0xF;
+}
 
-	SetupBackgrounds((u16 *)sGalleryBgConfig);
-	gLCDControlBuffer.bg3cnt.colorMode = 0;
-	SetDispEnable(0, 0, 0, 0, 0);
+static void Gallery_SetIconPixel(u8 *tiles, int x, int y, int color)
+{
+	u8 *b = Gallery_IconByte(tiles, x, y);
 
-	EventShowTextBgDirect(EVSUBCMD_REMOVEPORTRAITS, gGalleryEntries[index].bg);
+	*b = (x & 1) ? ((*b & 0x0F) | (color << 4)) : ((*b & 0xF0) | color);
+}
 
-	c256 = gLCDControlBuffer.bg3cnt.colorMode;
-	chr = (const u8 *)VRAM + GetBackgroundTileDataOffset(3);
+/* A 16x16 icon (its 4 BG tiles) as a 2x2 block on BG2 */
+static void Gallery_PutIcon(int bgTile, int x, int y)
+{
+	int r, c;
 
-	for (y = 0; y < THUMB_H; y++) {
-		for (x = 0; x < THUMB_W; x += 2) {
-			u8 out[2];
+	for (r = 0; r < 2; r++)
+		for (c = 0; c < 2; c++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(x + c, y + r)] = (PAL_ICON << 12) | (bgTile + r * 2 + c);
+}
 
-			for (k = 0; k < 2; k++) {
-				int sx = (x + k) * 5 + 1, sy = y * 5 + 1;
-				int r = 0, g = 0, b = 0, i;
+/*
+ * The B button: vanilla has the round A only (the Sound Room's), so the B is that button with its letter redrawn, the
+ * same strokes as the A's (2 pixels of ink on the gold, a softer shade on the round corners) over the A's letter
+ * (x 4-9, y 5-11). '#' ink, '+' the soft shade, '.' gold.
+ */
+static const char sLetterB[7][7] = {
+	"####+.",
+	"##..##",
+	"##..##",
+	"####+.",
+	"##..##",
+	"##..##",
+	"####+.",
+};
 
-				for (i = 0; i < 4; i++) {
-					u16 c = Gallery_CgPixel(sx + (i & 1) * 2, sy + (i >> 1) * 2, chr, c256);
+static void Gallery_DrawPanel(void)
+{
+	u32 icon[4 * 0x20 / 4];
+	int r, ink, soft, gold, x, y;
 
-					r += c & 0x1F;
-					g += (c >> 5) & 0x1F;
-					b += (c >> 10) & 0x1F;
-				}
+	/* The Sound Room's A (its sheet's tiles 0x50-0x51, 0x70-0x71; its third palette) */
+	Decompress(Img_SoundRoomUiElements, OBJ_TEMP);
+	for (r = 0; r < 2; r++)
+		CpuFastCopy(OBJ_TEMP + (0x50 + r * 32) * 0x20, (u8 *)VRAM + (ICON_A_TILE + r * 2) * 0x20, 2 * 0x20);
+	ApplyPalette(Pal_SoundRoomUiElements + 0x20, PAL_ICON);
 
-				if (dim) {
-					r = (r * 5) >> 4;
-					g = (g * 5) >> 4;
-					b = (b * 5) >> 4;
-				}
+	/* The B: the A's tiles, the letter redrawn in the A's ink on its gold */
+	CpuFastCopy((u8 *)VRAM + ICON_A_TILE * 0x20, icon, sizeof(icon));
+	ink = Gallery_IconPixel((u8 *)icon, 6, 6);
+	soft = Gallery_IconPixel((u8 *)icon, 5, 5);
+	gold = Gallery_IconPixel((u8 *)icon, 6, 7);
+	for (y = 0; y < 7; y++)
+		for (x = 0; x < 6; x++)
+			Gallery_SetIconPixel((u8 *)icon, 4 + x, 5 + y,
+					     sLetterB[y][x] == '#' ? ink : sLetterB[y][x] == '+' ? soft : gold);
+	CpuFastCopy(icon, (u8 *)VRAM + ICON_B_TILE * 0x20, sizeof(icon));
 
-				i = dither[y & 1][(x + k) & 1];
-				out[k] = CUBE_BASE + Gallery_Level(r, i) * 36 + Gallery_Level(g, i) * 6 + Gallery_Level(b, i);
-			}
+	/* At the panel's foot, a key: the buttons, and what they do */
+	Gallery_PutIcon(ICON_A_TILE, PANEL_X + 1, KEY_A_Y);
+	Gallery_PutIcon(ICON_B_TILE, PANEL_X + 1, KEY_B_Y);
 
-			/* VRAM takes halfwords */
-			*(u16 *)Gallery_ThumbPixelAddr(slot, x, y) = out[0] | (out[1] << 8);
+	ClearText(&GS->hintA);
+	Text_InsertDrawString(&GS->hintA, 2, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT));
+	PutText(&GS->hintA, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 3, KEY_A_Y));
+
+	ClearText(&GS->hintB);
+	Text_InsertDrawString(&GS->hintB, 2, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_GALLERY_HINT_BACK));
+	PutText(&GS->hintB, gBG0TilemapBuffer + TILEMAP_INDEX(PANEL_X + 3, KEY_B_Y));
+}
+
+/* The Sound Room's song banner: its sheet into spare OBJ VRAM, the 24x4 tiles of the banner on to BG VRAM */
+static void Gallery_LoadBanner(void)
+{
+	int x, y;
+
+	Decompress(Img_PlayStatusSprites, OBJ_TEMP);
+
+	for (y = 0; y < BANNER_H; y++)
+		CpuFastCopy(OBJ_TEMP + y * 32 * 0x20, (u8 *)VRAM + (BANNER_TILE + y * BANNER_W) * 0x20, BANNER_W * 0x20);
+
+	ApplyPalette(Pal_PlayStatusSprites, PAL_BANNER);
+
+	for (y = 0; y < BANNER_H; y++)
+		for (x = 0; x < BANNER_W; x++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(BANNER_X + x, y)] = (PAL_BANNER << 12) | (BANNER_TILE + y * BANNER_W + x);
+}
+
+/* ---- The grid's rows ---- */
+
+/* A grid place's thumbnail and palette (dimmed when locked) */
+static void Gallery_LoadThumb(int slot, int index)
+{
+	const u8 *src = gGalleryThumbs + index * THUMB_SIZE;
+	const u16 *pal = (const u16 *)(src + THUMB_BYTES);
+	u16 *dst = gPaletteBuffer + 0x100 + slot * 16;
+	int i;
+
+	CpuFastCopy(src, (u8 *)0x06010000 + slot * THUMB_BYTES, THUMB_BYTES);
+
+	for (i = 0; i < 16; i++) {
+		u16 c = pal[i];
+
+		if (!Gallery_Unlocked(index))
+			c = RGB(((c & 0x1F) * 5) >> 4, (((c >> 5) & 0x1F) * 5) >> 4, (((c >> 10) & 0x1F) * 5) >> 4);
+		dst[i] = c;
+	}
+}
+
+/* Rows first..first+n-1 from the grid's top, their thumbnails in the slots; scrolled by px */
+static void Gallery_DrawRows(int first, int n, int px)
+{
+	int r, c;
+
+	for (r = 0; r < n; r++) {
+		for (c = 0; c < GALLERY_COLS; c++) {
+			int index = (first + r) * GALLERY_COLS + c;
+
+			if (index < GS->count)
+				Gallery_LoadThumb(r * GALLERY_COLS + c, index);
 		}
 	}
 
-	/* The CG is on BG, which stays off; the backdrop shows */
-	gPaletteBuffer[0] = 0;
+	GS->drawTop = first;
+	GS->drawRows = n;
+	GS->scrollPx = px;
+
+	Gallery_DrawTitle();
+	Gallery_DrawPosition();
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
 	EnablePaletteSync();
 }
 
-/* ---- The grid ---- */
-
-static void Gallery_DrawFrame(int slot, bool selected)
+static void Gallery_PutSprites(void)
 {
-	u16 *map = gBG1TilemapBuffer;
-	int x0 = 2 + Gallery_Col(slot) * 10, y0 = 2 + Gallery_Row(slot) * 6;
-	int pal = (selected ? PAL_FRAME_HI : PAL_FRAME) << 12;
+	int r, c;
+
+	if (!GS->sprites)
+		return;
+
+	for (r = 0; r < GS->drawRows; r++) {
+		int y = GRID_TOP + r * ROW_PX - GS->scrollPx;
+
+		if (y <= GRID_TOP - FRAME_H || y >= IN_BOTTOM)
+			continue;
+
+		for (c = 0; c < GALLERY_COLS; c++) {
+			int index = (GS->drawTop + r) * GALLERY_COLS + c, slot = r * GALLERY_COLS + c;
+			int x = GRID_LEFT + c * COL_PX;
+
+			if (index >= GS->count)
+				continue;
+
+			/* The frame's sprite has the thumbnail at (8, 8); the frame line is 2 pixels outside it */
+			PutSpriteExt(4, (x - 6) & 0x1FF, (y - 6) & 0xFF, sObjFrame,
+				     (index == GS->cursor ? PAL_OBJ_CURSOR : PAL_OBJ_FRAME) << 12);
+			PutSpriteExt(4, x + 2, (y + 2) & 0xFF, sObjThumb, slot * THUMB_UNITS + (slot << 12));
+
+			if (!Gallery_Unlocked(index))
+				PutSpriteExt(4, x + 18, (y + 10) & 0xFF, sObjLock, 0);
+		}
+	}
+}
+
+/* The cursor's frame glows: gold to near white and back */
+static void Gallery_Glow(void)
+{
+	int t = GS->timer & 0x3F, k = t < 0x20 ? t : 0x3F - t;
+	u16 *pal = gPaletteBuffer + 0x100 + PAL_OBJ_CURSOR * 16;
+
+	GS->timer++;
+	pal[1] = RGB(14 + (k >> 2), 9 + (k >> 2), 2);
+	pal[2] = RGB(31, 24 + (k >> 2), 6 + (k >> 1) + (k >> 2));
+	EnablePaletteSync();
+}
+
+/* The grid's screen: BGs, text, the banner, the buttons, the window, the mural, window 0; the rows from top */
+static void Gallery_SetupGrid(struct ProcGallery *proc)
+{
 	int i;
-
-	map[TILEMAP_INDEX(x0 - 1, y0 - 1)] = pal | (FRAME_TILE + 0);
-	map[TILEMAP_INDEX(x0 + 6, y0 - 1)] = pal | (FRAME_TILE + 2);
-	map[TILEMAP_INDEX(x0 - 1, y0 + 4)] = pal | (FRAME_TILE + 5);
-	map[TILEMAP_INDEX(x0 + 6, y0 + 4)] = pal | (FRAME_TILE + 7);
-
-	for (i = 0; i < 6; i++) {
-		map[TILEMAP_INDEX(x0 + i, y0 - 1)] = pal | (FRAME_TILE + 1);
-		map[TILEMAP_INDEX(x0 + i, y0 + 4)] = pal | (FRAME_TILE + 6);
-	}
-
-	for (i = 0; i < 4; i++) {
-		map[TILEMAP_INDEX(x0 - 1, y0 + i)] = pal | (FRAME_TILE + 3);
-		map[TILEMAP_INDEX(x0 + 6, y0 + i)] = pal | (FRAME_TILE + 4);
-	}
-}
-
-static void Gallery_DrawName(int slot, int index, bool selected)
-{
-	struct Text *t = &GS->names[slot];
-	const char *str;
-	int color, w;
-
-	if (Gallery_Unlocked(index)) {
-		str = GetStringFromIndex(gGalleryEntries[index].name);
-		color = selected ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE;
-	} else {
-		str = GetStringFromIndex(MSG_GALLERY_LOCKED);
-		color = selected ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY;
-	}
-
-	w = GetStringTextLen(str);
-	ClearText(t);
-	Text_InsertDrawString(t, w < 80 ? (80 - w) / 2 : 0, color, str);
-	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(Gallery_Col(slot) * 10, Gallery_Row(slot) * 6));
-}
-
-static void Gallery_DrawFooter(void)
-{
-	struct Text *t = &GS->footer;
-	char buf[24];
-	const char *str = GetStringFromIndex(MSG_GALLERY_PAGE);
-	int i = 0, w, pages = Gallery_PageCount(), page = GS->cursor / GALLERY_PER_PAGE + 1;
-
-	while (*str && i < 12)
-		buf[i++] = *str++;
-	buf[i++] = ' ';
-	if (page >= 10)
-		buf[i++] = '0' + Div(page, 10);
-	buf[i++] = '0' + DivRem(page, 10);
-	buf[i++] = '/';
-	if (pages >= 10)
-		buf[i++] = '0' + Div(pages, 10);
-	buf[i++] = '0' + DivRem(pages, 10);
-	buf[i] = '\0';
-
-	ClearText(t);
-	Text_InsertDrawString(t, 8, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_GALLERY_HINT));
-	w = GetStringTextLen(buf);
-	Text_InsertDrawString(t, 232 - w, TEXT_COLOR_SYSTEM_WHITE, buf);
-	PutText(t, gBG0TilemapBuffer + TILEMAP_INDEX(0, 18));
-}
-
-static void Gallery_DrawGrid(void)
-{
-	int slot, n = Gallery_OnPage(GS->page);
-
-	for (slot = 0; slot < n; slot++) {
-		int index = GS->page * GALLERY_PER_PAGE + slot;
-
-		Gallery_DrawFrame(slot, index == GS->cursor);
-		Gallery_DrawName(slot, index, index == GS->cursor);
-	}
-
-	Gallery_DrawFooter();
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
-}
-
-/* The grid's BGs, text, frames and palettes; the thumbnails are already in OBJ VRAM */
-static void Gallery_SetupGrid(void)
-{
-	int i, r, g, b;
 
 	SetupBackgrounds((u16 *)sGalleryBgConfig);
 	gLCDControlBuffer.bg3cnt.colorMode = 0;
@@ -313,7 +421,9 @@ static void Gallery_SetupGrid(void)
 	BG_Fill(gBG2TilemapBuffer, 0);
 	BG_Fill(gBG3TilemapBuffer, 0);
 	gLCDControlBuffer.bg0cnt.priority = 0;
-	gLCDControlBuffer.bg1cnt.priority = 1;
+	gLCDControlBuffer.bg1cnt.priority = 2;
+	gLCDControlBuffer.bg2cnt.priority = 1;
+	gLCDControlBuffer.bg3cnt.priority = 3;
 	for (i = 0; i < 4; i++)
 		BG_SetPosition(i, 0, 0);
 
@@ -322,63 +432,63 @@ static void Gallery_SetupGrid(void)
 	InitSystemTextFont();
 	LoadUiFrameGraphics();
 
-	for (i = 0; i < GALLERY_PER_PAGE; i++)
-		InitText(&GS->names[i], 10);
-	InitText(&GS->footer, 30);
+	InitText(&GS->title, 20);
+	InitText(&GS->hintA, 4);
+	InitText(&GS->hintB, 4);
+	InitText(&GS->position, 6);
 
-	CpuFastCopy(Img_GalleryFrame, (u8 *)VRAM + FRAME_TILE * 0x20, 8 * 0x20);
-	ApplyPalette(sFramePal, PAL_FRAME);
-	ApplyPalette(sFramePal, PAL_FRAME_HI);
-
-	/* The OBJ palette: the colour cube, and the padlock's */
-	for (r = 0; r < 6; r++)
-		for (g = 0; g < 6; g++)
-			for (b = 0; b < 6; b++)
-				gPaletteBuffer[0x100 + CUBE_BASE + r * 36 + g * 6 + b] = RGB(sCubeLevel[r], sCubeLevel[g], sCubeLevel[b]);
 	CpuFastCopy(Img_GalleryLock, (u8 *)0x06010000 + LOCK_TILE * 0x20, 4 * 0x20);
 	ApplyPalette(Pal_GalleryLock, 0x10 + PAL_OBJ_LOCK);
+	CpuFastCopy(Img_GalleryCursor, (u8 *)0x06010000 + FRAME_OBJ_TILE * 0x20, 64 * 0x20);
+	ApplyPalette(Pal_GalleryCursor, 0x10 + PAL_OBJ_CURSOR);
+	ApplyPalette(sFrameObjPal, 0x10 + PAL_OBJ_FRAME);
 
-	gPaletteBuffer[0] = RGB(2, 3, 7);
+	Gallery_LoadBanner();
+	Gallery_DrawPanel();
+	DrawUiFrame(gBG1TilemapBuffer, PANEL_X, PANEL_Y, PANEL_W, PANEL_H, 0, 0);
+	DrawUiFrame(gBG1TilemapBuffer, BOX_X, BOX_Y, BOX_W, BOX_H, 0, 0);
+
+	StartMuralBackground(proc, NULL, PAL_MURAL);
 
 	gLCDControlBuffer.dispcnt.obj1dMap = 1;
-	SetDispEnable(1, 1, 0, 0, 1);
+	SetDispEnable(1, 1, 1, 1, 1);
+
+	/* Window 0 is the window's inside: the grid's sprites show only there */
+	gLCDControlBuffer.dispcnt.win0_on = 1;
+	gLCDControlBuffer.win0_left = IN_LEFT;
+	gLCDControlBuffer.win0_right = IN_RIGHT;
+	gLCDControlBuffer.win0_top = IN_TOP;
+	gLCDControlBuffer.win0_bottom = IN_BOTTOM;
+	gLCDControlBuffer.wincnt.win0_enableBg0 = 1;
+	gLCDControlBuffer.wincnt.win0_enableBg1 = 1;
+	gLCDControlBuffer.wincnt.win0_enableBg2 = 1;
+	gLCDControlBuffer.wincnt.win0_enableBg3 = 1;
+	gLCDControlBuffer.wincnt.win0_enableObj = 1;
+	gLCDControlBuffer.wincnt.win0_enableBlend = 1;
+	gLCDControlBuffer.wincnt.wout_enableBg0 = 1;
+	gLCDControlBuffer.wincnt.wout_enableBg1 = 1;
+	gLCDControlBuffer.wincnt.wout_enableBg2 = 1;
+	gLCDControlBuffer.wincnt.wout_enableBg3 = 1;
+	gLCDControlBuffer.wincnt.wout_enableObj = 0;
+	gLCDControlBuffer.wincnt.wout_enableBlend = 1;
+
 	SetDefaultColorEffects();
 
-	Gallery_DrawGrid();
+	/* The cursor's row on screen */
+	if (Gallery_Row(GS->cursor) < GS->top)
+		GS->top = Gallery_Row(GS->cursor);
+	if (Gallery_Row(GS->cursor) > GS->top + VISIBLE_ROWS - 1)
+		GS->top = Gallery_Row(GS->cursor) - (VISIBLE_ROWS - 1);
+	if (GS->top > Gallery_MaxTop())
+		GS->top = Gallery_MaxTop();
+
+	GS->scrollDir = 0;
+	Gallery_DrawRows(GS->top, VISIBLE_ROWS, 0);
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
-	EnablePaletteSync();
 	GS->sprites = true;
 }
 
-static void Gallery_PutSprites(void)
-{
-	int slot, n = Gallery_OnPage(GS->page);
-
-	if (!GS->sprites)
-		return;
-
-	for (slot = 0; slot < n; slot++) {
-		int x = 16 + Gallery_Col(slot) * 80, y = 16 + Gallery_Row(slot) * 48;
-
-		PutSpriteExt(4, x, y, sObjThumb, slot * THUMB_UNITS);
-
-		if (!Gallery_Unlocked(GS->page * GALLERY_PER_PAGE + slot))
-			PutSpriteExt(4, x + 16, y + 8, sObjLock, 0);
-	}
-}
-
-/* The cursor's frame glows: gold to near white and back */
-static void Gallery_Glow(void)
-{
-	int t = GS->timer & 0x3F, k = t < 0x20 ? t : 0x3F - t;
-
-	GS->timer++;
-	gPaletteBuffer[PAL_FRAME_HI * 16 + 1] = RGB(14 + (k >> 2), 9 + (k >> 2), 2);
-	gPaletteBuffer[PAL_FRAME_HI * 16 + 2] = RGB(31, 24 + (k >> 2), 6 + (k >> 1) + (k >> 2));
-	EnablePaletteSync();
-}
-
-/* ---- The proc ---- */
+/* ---- The grid ---- */
 
 static void Gallery_Init(struct ProcGallery *proc)
 {
@@ -387,56 +497,65 @@ static void Gallery_Init(struct ProcGallery *proc)
 	CpuFill16(0, GS, sizeof(*GS));
 	GS->count = Gallery_Count();
 	Gallery_ReadUnlocks(GS->bits);
+
+	Gallery_SetupGrid(proc);
+	Gallery_PutSprites();
 }
 
-static void Gallery_StartPage(struct ProcGallery *proc)
+/* Scroll a row toward the cursor's, if it is off screen */
+static bool Gallery_StartScroll(void)
 {
-	GS->page = GS->cursor / GALLERY_PER_PAGE;
-	GS->built = 0;
-	GS->sprites = false;
+	int row = Gallery_Row(GS->cursor);
 
-	SetDispEnable(0, 0, 0, 0, 0);
-	gLCDControlBuffer.dispcnt.obj1dMap = 1;
-	gPaletteBuffer[0] = 0;
-	EnablePaletteSync();
+	if (row > GS->top + VISIBLE_ROWS - 1) {
+		Gallery_DrawRows(GS->top, DRAWN_ROWS, 0);
+		GS->scrollDir = 1;
+		return true;
+	}
+
+	if (row < GS->top) {
+		GS->top--;
+		Gallery_DrawRows(GS->top, DRAWN_ROWS, ROW_PX);
+		GS->scrollDir = -1;
+		return true;
+	}
+
+	return false;
 }
 
-/* One thumbnail a frame, then the grid */
-static void Gallery_BuildLoop(struct ProcGallery *proc)
+static void Gallery_StepScroll(void)
 {
-	if (GS->built < Gallery_OnPage(GS->page)) {
-		Gallery_MakeThumb(GS->built, GS->page * GALLERY_PER_PAGE + GS->built);
-		GS->built++;
+	int px = GS->scrollPx + GS->scrollDir * SCROLL_STEP;
+
+	if (px > 0 && px < ROW_PX) {
+		GS->scrollPx = px;
 		return;
 	}
 
-	Gallery_SetupGrid();
-	Gallery_PutSprites();
-	Proc_Break(proc);
-}
-
-/* A fade, with the grid's thumbnails kept on screen */
-static void Gallery_FadeWait(struct ProcGallery *proc)
-{
-	Gallery_PutSprites();
-
-	if (!FadeInExists() && !FadeOutExists())
-		Proc_Break(proc);
+	/* A row further: the three rows on screen, still; then on toward the cursor */
+	if (GS->scrollDir > 0)
+		GS->top++;
+	GS->scrollDir = 0;
+	Gallery_DrawRows(GS->top, VISIBLE_ROWS, 0);
+	Gallery_StartScroll();
 }
 
 static void Gallery_Move(int to)
 {
-	int old = GS->cursor;
-
+	if (GS->count == 0)
+		return;
 	if (to < 0)
 		to = 0;
 	if (to >= GS->count)
 		to = GS->count - 1;
-	if (to == old)
+	if (to == GS->cursor)
 		return;
 
 	GS->cursor = to;
 	PlaySoundEffect(SE_MOVE);
+
+	if (!Gallery_StartScroll())
+		Gallery_DrawRows(GS->top, VISIBLE_ROWS, 0);
 }
 
 static void Gallery_GridLoop(struct ProcGallery *proc)
@@ -444,8 +563,15 @@ static void Gallery_GridLoop(struct ProcGallery *proc)
 	u16 press = gKeyStatusPtr->newKeys, repeat = gKeyStatusPtr->repeatedKeys;
 	int old = GS->cursor;
 
-	Gallery_PutSprites();
 	Gallery_Glow();
+
+	if (GS->scrollDir != 0) {
+		Gallery_StepScroll();
+		Gallery_PutSprites();
+		return;
+	}
+
+	Gallery_PutSprites();
 
 	if (press & B_BUTTON) {
 		PlaySoundEffect(SE_LEAVE);
@@ -464,9 +590,6 @@ static void Gallery_GridLoop(struct ProcGallery *proc)
 		return;
 	}
 
-	if (GS->count == 0)
-		return;
-
 	if (repeat & DPAD_RIGHT)
 		Gallery_Move(old + 1);
 	else if (repeat & DPAD_LEFT)
@@ -475,20 +598,19 @@ static void Gallery_GridLoop(struct ProcGallery *proc)
 		Gallery_Move(old + GALLERY_COLS);
 	else if (repeat & DPAD_UP)
 		Gallery_Move(old - GALLERY_COLS);
-	else if (press & R_BUTTON)
-		Gallery_Move(old + GALLERY_PER_PAGE);
-	else if (press & L_BUTTON)
-		Gallery_Move(old - GALLERY_PER_PAGE);
+	else if (repeat & R_BUTTON)
+		Gallery_Move(old + GALLERY_COLS * VISIBLE_ROWS);
+	else if (repeat & L_BUTTON)
+		Gallery_Move(old - GALLERY_COLS * VISIBLE_ROWS);
+}
 
-	if (GS->cursor == old)
-		return;
+/* A fade, with the grid's thumbnails kept on screen */
+static void Gallery_FadeWait(struct ProcGallery *proc)
+{
+	Gallery_PutSprites();
 
-	if (GS->cursor / GALLERY_PER_PAGE != GS->page) {
-		Proc_Goto(proc, L_GALLERY_TURN);
-		return;
-	}
-
-	Gallery_DrawGrid();
+	if (!FadeInExists() && !FadeOutExists())
+		Proc_Break(proc);
 }
 
 /* ---- The full view ---- */
@@ -496,8 +618,11 @@ static void Gallery_GridLoop(struct ProcGallery *proc)
 static void Gallery_ShowFull(struct ProcGallery *proc)
 {
 	GS->sprites = false;
+	EndMuralBackground();
+
 	SetupBackgrounds((u16 *)sGalleryBgConfig);
 	gLCDControlBuffer.bg3cnt.colorMode = 0;
+	gLCDControlBuffer.dispcnt.win0_on = 0;
 	BG_Fill(gBG0TilemapBuffer, 0);
 	BG_Fill(gBG1TilemapBuffer, 0);
 	BG_Fill(gBG2TilemapBuffer, 0);
@@ -553,20 +678,9 @@ static void Gallery_ViewLoop(struct ProcGallery *proc)
 	Proc_Goto(proc, L_GALLERY_VIEW);
 }
 
-/* Back from the full view: the thumbnails are still there unless the CG is on another page */
-static void Gallery_Back(struct ProcGallery *proc)
-{
-	if (GS->cursor / GALLERY_PER_PAGE != GS->page) {
-		Proc_Goto(proc, L_GALLERY_PAGE);
-		return;
-	}
-
-	Gallery_SetupGrid();
-	Gallery_PutSprites();
-}
-
 static void Gallery_OnEnd(struct ProcGallery *proc)
 {
+	EndMuralBackground();
 	gLCDControlBuffer.bg3cnt.colorMode = 0;
 	gLCDControlBuffer.dispcnt = proc->dispBak;
 	SetDefaultColorEffects();
@@ -577,20 +691,11 @@ static const struct ProcCmd ProcScr_Gallery[] = {
 	PROC_SET_END_CB(Gallery_OnEnd),
 	PROC_YIELD,
 	PROC_CALL(Gallery_Init),
-
-	PROC_LABEL(L_GALLERY_PAGE),
-	PROC_CALL(Gallery_StartPage),
-	PROC_REPEAT(Gallery_BuildLoop),
 	PROC_CALL_ARG(NewFadeIn, 8),
 	PROC_REPEAT(Gallery_FadeWait),
 
 	PROC_LABEL(L_GALLERY_GRID),
 	PROC_REPEAT(Gallery_GridLoop),
-
-	PROC_LABEL(L_GALLERY_TURN),
-	PROC_CALL_ARG(NewFadeOut, 8),
-	PROC_REPEAT(Gallery_FadeWait),
-	PROC_GOTO(L_GALLERY_PAGE),
 
 	PROC_LABEL(L_GALLERY_VIEW),
 	PROC_CALL_ARG(NewFadeOut, 8),
@@ -603,7 +708,7 @@ static const struct ProcCmd ProcScr_Gallery[] = {
 	PROC_LABEL(L_GALLERY_BACK),
 	PROC_CALL_ARG(NewFadeOut, 8),
 	PROC_REPEAT(Gallery_FadeWait),
-	PROC_CALL(Gallery_Back),
+	PROC_CALL(Gallery_SetupGrid),
 	PROC_CALL_ARG(NewFadeIn, 8),
 	PROC_REPEAT(Gallery_FadeWait),
 	PROC_GOTO(L_GALLERY_GRID),

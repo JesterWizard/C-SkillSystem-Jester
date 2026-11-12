@@ -1,0 +1,6 @@
+#include "Gallery.lyn.event"
+
+// The thumbnails (Tools/gallery/thumbs.py, made by the build from the ROM): 800 bytes per gGalleryEntries row
+ALIGN 4
+gGalleryThumbs:
+    #incbin "GalleryThumbs.bin"

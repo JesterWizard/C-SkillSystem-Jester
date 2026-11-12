@@ -269,6 +269,20 @@ $(TEXT_DEF): $(TEXT_SOURCE) $(TEXTS_DIR)/Scripts/textprocess-chax.py
 
 CLEAN_BUILD += $(TEXTS_DIR)
 
+# ===========
+# = Gallery =
+# ===========
+# The Gallery's thumbnails (Documentation/Features/Gallery.md), made from the clean ROM and the CG .dmp files.
+# Build output: EA_DEP lists the .bin (Data/Gallery/Gallery.event), so the ROM depends on it.
+GALLERY_THUMBS := $(GAMEDATA_DIR)/Gallery/GalleryThumbs.bin
+GALLERY_BG_DIR := $(WIZARDRY_DIR)/Wizardry/Backgrounds_224_256_Colors/gfx/BG
+
+$(GALLERY_THUMBS): $(GAMEDATA_DIR)/Gallery/Gallery.c $(GALLERY_BG_DIR)/BG.event $(TOOL_DIR)/gallery/thumbs.py $(FE8_GBA) $(shell find $(GALLERY_BG_DIR) -name '*.dmp')
+	@echo "[GEN]	$@"
+	@python3 $(TOOL_DIR)/gallery/thumbs.py $(FE8_GBA) $(GAMEDATA_DIR)/Gallery/Gallery.c $(GALLERY_BG_DIR)/BG.event $@
+
+CLEAN_FILES += $(GALLERY_THUMBS)
+
 # ============
 # = Spritans =
 # ============

@@ -82,13 +82,16 @@ Script commands, one per line. `#` starts a comment.
 - `r8|r16|r32 ADDR` - print memory.
 - `dump ADDR LEN FILE` - dump memory to a file.
 - `prof N ADDR [NAME [WITHIN]]` - run N frames one instruction at a time and time every call to the function at ADDR. Prints the call count, the total and the slowest call in CPU cycles and in frames (280896 cycles per frame). Take ADDR from `fe8-kernel-dev.sym`; for a vanilla function the kernel replaces, use the kernel address, not the vanilla one. Halted CPU time is skipped, so a few thousand frames take seconds. Example: profile `CpDecide_Main` after ending the turn to see how long each AI decision takes. With WITHIN (another function address), only calls made while that function runs count, e.g. `prof 1500 <GetUnitMaxHp> HpGetter <CpDecide_Main>` for the HP getter calls of the AI decisions alone.
-- `minsp N` - run N frames one instruction at a time and print the lowest main stack pointer. The HQ sound mixer (`Contents/External/m4a_hq_mixer`) copies its code to IWRAM 0x03006CB0-0x03007708, right below the stack. An SP below 0x03007708 overwrites it, and the next sound interrupt crashes the game (it resets to the title). Check this after any change to the AI or the battle simulation: on the AI benchmark the enemy phase reaches about 0x03007740.
+- `minsp N` - run N frames one instruction at a time and print the lowest main stack pointer. The HQ sound mixer (`Contents/External/m4a_hq_mixer`) copies its code to IWRAM 0x03006CB0-0x03007708, right below the stack. An SP below 0x03007708 overwrites it, and the next sound interrupt crashes the game (it resets to the title). Check this after any change to the AI or the battle simulation: on the AI benchmark the enemy phase reaches about 0x03007740, and the prologue's enemy phase about 0x030078F8. A log call (`NoCashGBAPrintf`, `Warn`, `Errorf`, ...) formats with `vsprintf`, which needs about 0x250 bytes of stack: one on the battle simulation's path (the skill list's "Generic buffer used" warning) took the prologue's enemy phase to 0x030076D4, and the game froze at the next sound.
 - `sram FILE` - load a battery save before reset. Must be the first command.
 
 Boot script:
 
 - `Tools/cloud/boot-to-prologue.txt` boots a fresh ROM with no save to the prologue map. It takes about 1 minute.
-- It writes `boot.png` and the save state `boot.ss`.
+- It writes `boot.png` and the save state `boot.ss`: turn 1, the cursor on Eirika, nobody moved. With real-time battle
+  off (`real_time_battle`, the default), no key is pressed once the opening is over: on the map a press would select
+  Eirika. The tests that fight start from turn 2 instead (`turn2_state` in `smoketest.py`: End, and the enemy phase
+  brings two soldiers next to her).
 - Run it from a scratch folder: `gbarun /path/to/fe8-kernel-dev.gba /path/to/Tools/cloud/boot-to-prologue.txt` (fe8-kernel-dev.gba is what build.sh produces; fe8.gba is the clean ROM.).
 
 Prep screen route:
@@ -171,8 +174,10 @@ python3 Tools/cloud/smoketest.py --quick
   - Map Colors: the Options row set to Vivid and then Deep redraws the map in those colours, every map colour matching
     a model of the transform; a map palette animation (Chapter 18's, on the prologue in a test ROM) runs after a normal
     boot and is recoloured too (`--only mapcolors`);
-  - Gallery: the prologue's opening unlocks two CGs; Extras > Gallery builds a page of thumbnails, A shows an unlocked CG
-    full size, right goes to the next, B back to the grid and to Extras (`--only gallery`);
+  - Gallery: the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, A shows an unlocked CG full size,
+    right goes to the next, B back to the grid, down scrolls a row on screen, B back to Extras (`--only gallery`);
+  - Chapter 1's end: the debugger starts Chapter 1 and Eirika seizes the gate; the Intermission (0x38) becomes the
+    story chapter and Chapter 2 follows, not the prologue (`--only ch1end`);
   - New Game+: Extras has the row only once a save has been to the postgame; New Game+ from that save starts a new
     game in which Eirika has the skills she had equipped there and its skill list (`--only newgameplus`);
   - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game

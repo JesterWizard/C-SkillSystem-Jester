@@ -575,10 +575,8 @@ There is no empty file.[N]
 Erase one to start a new game.[X]
 ## MSG_GALLERY_LOCKED
 ???[X]
-## MSG_GALLERY_PAGE
-Page[X]
 ## MSG_GALLERY_HINT
-A: View  B: Back[X]
+View[X]
 ## MSG_GALLERY_CG_MYRRH_MORVA
 Myrrh & Morva[X]
 ## MSG_GALLERY_CG_ISMAIRE
@@ -605,3 +603,5 @@ Woodland Pond[X]
 Castle Hall[X]
 ## MSG_GALLERY_CG_SEASIDE_TOWN
 Seaside Town[X]
+## MSG_GALLERY_HINT_BACK
+Back[X]

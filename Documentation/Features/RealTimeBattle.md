@@ -33,7 +33,7 @@ In [designer-config.c](../../Data/DesignerConfig/designer-config.c):
 
 | Field | Description |
 | :---- | :---------- |
-| `real_time_battle` | Master switch. When `false`, the game uses vanilla phases and the options menu hides the real-time entries. |
+| `real_time_battle` | Master switch, off (`false`) by default. When `false`, the game uses vanilla phases and the options menu hides the real-time entries. |
 | `real_time_enemy_interval_frames` | Default delay between AI actions, in frames (60 = 1 second). New games set **RT Enemy Delay** to the closest of 1s, 2s, 3s or 5s. |
 | `real_time_turn_frames` | Length of one turn, in frames. `0` means 30 seconds. |
 

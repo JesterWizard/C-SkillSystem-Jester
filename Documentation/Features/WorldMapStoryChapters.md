@@ -18,6 +18,12 @@ With this feature, the chapter named by `NEXT_CHAPTER_WITH_MAP` is the story cha
 - `WMLoc_GetNextLocId` returns the story chapter's node, wherever the lord is.
 - `WMLoc_GetChapterId` returns the story chapter for its own node, and the vanilla chapter for every other node, so skirmishes are unchanged. The story chapter's id is hidden from other nodes (they report `0xFF`, like vanilla's chapter-less nodes), so `GetBattleMapKind` finds the right node.
 - Back on the world map from a district or a skirmish (chapter `0x38`, or a district chapter), the story chapter is kept.
+  `0x38` is also the Intermission at Castle Frelia, which Chapter 1 ends with (`NEXT_CHAPTER_WITH_MAP(0x38)`, as vanilla's
+  Chapter 1 does). A side map leaves with `MNCH -1` (vanilla's retreat event) and never names it, so event command
+  `0x2A` (`WmStoryChapter_Event2A`) keeps the chapter an MNCH names in `gWmChapterNamed`, and a named `0x38` is the
+  story chapter. Taking every `0x38` for a side map's return left the story on the prologue after Chapter 1, and the
+  world map started the prologue again. `smoketest.py --only ch1end` seizes Chapter 1's gate and follows the story
+  through the Intermission to Chapter 2.
 - Story chapters are compared by their place in the table (`GetWmStoryChapterRank`, `WmStoryReached`), not by id:
   `CHAPTER_11` is `0x3D`. District life, the guild rival and anything else that counts "from story chapter N on" use it.
 - `gWmStoryChapter` is saved in both the normal and the suspend save. Saves made before this feature, and chapters missing from the table, keep the vanilla behaviour. `smoketest.py --only wmsave` saves from the world map, resets and loads: the story chapter, the lord's node, the unlocked districts and the nodes' states come back, and Enter District still works.
