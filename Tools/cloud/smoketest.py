@@ -28,7 +28,7 @@ What it checks:
   postgame    (Serafew) from Chapter 20's world map through the ending, which goes on into the postgame: the
               dungeons are shown, Black Temple starts nothing, Rausten's secret shop opens, the Lagdou Ruins and the
               Tower of Valni start, Enter District works on Port Kiris. The end save is titled Creature Campaign,
-              Extras has no Map row, and Restart Chapter on the save opens the postgame.
+              and Restart Chapter on the save opens the postgame.
   districtresume (Serafew) Resume Chapter in a suspended district comes back in free movement.
   savetitle   (Serafew) the save made on leaving a district is titled with the story chapter, not "Skirmish Map".
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
@@ -43,6 +43,8 @@ What it checks:
               is refused (no Restart Chapter).
   gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
               same district chunks.
+  gallery     the prologue's opening unlocks two CGs; Extras > Gallery builds a page of thumbnails, opens an unlocked
+              CG full size, goes on to the next with right, and back to the grid and to Extras with B.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -884,8 +886,8 @@ class Smoke:
         after "Fin" the game goes on to the postgame world map. Then: the postgame dungeons are shown, Black Temple no
         longer starts Chapter 20, Rausten Court's node menu has the secret shop, and trips start the Lagdou Ruins and the
         Tower of Valni, and reach Port Kiris, whose Enter District loads it. After a reset the end save is titled
-        "Creature Campaign", Extras has no Map row, and Restart Chapter on it opens the postgame world map. The game boots
-        first, so the end save is written to set-up SRAM."""
+        "Creature Campaign", and Restart Chapter on it opens the postgame world map. The game boots first, so the end save
+        is written to set-up SRAM."""
         d = os.path.join(self.out, "Postgame")
         os.makedirs(d, exist_ok=True)
         need = ("gWmStoryChapter", "ProcScr_GmapBaseMenu", "sProcArray")
@@ -928,8 +930,9 @@ class Smoke:
         n = len(POSTGAME_NODES)
         menu = [p for a, p in self.procs(os.path.join(d, "menu.bin")) if a == menu_scr]
         extras, titles = (menu[0][0x32], list(menu[0][0x37:0x3A])) if menu else (None, [])
-        self.check("postgame: the end save is titled Creature Campaign, and Extras has no Map row",
-                   extras is not None and 0x57 in titles and not extras & (1 << 4),
+        # (Extras' bit 4, vanilla's Map row, is the Gallery's now: test_gallery)
+        self.check("postgame: the end save is titled Creature Campaign",
+                   extras is not None and 0x57 in titles,
                    "Extras rows %s, slot titles %s" % ("%#x" % extras if extras is not None else "?",
                                                        ["%#x" % t for t in titles]))
         restart = vals[2 * n + 2:]
@@ -1333,6 +1336,61 @@ class Smoke:
         self.check("newgameplus: the learned skills stay sorted and each character's own",
                    list(entries) == sorted(set(entries)) and all(e >> 10 for e in entries),
                    "%d learned skills" % count)
+
+    def test_gallery(self):
+        """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Mountain Forest (background
+        0x1D) and Seth Attacked (0x3A): both unlock, in the SRAM entry of the trial map's save block (magic "GLRY").
+        After a reset, Extras has the Gallery row; it builds its first page (9 thumbnails). A on a locked CG does nothing;
+        on Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked one (Seth Attacked, around
+        the end); B goes back to the grid on it, and B again back to Extras."""
+        d = os.path.join(self.out, "gallery")
+        os.makedirs(d, exist_ok=True)
+        need = ("gGalleryScreen", "gLCDControlBuffer", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("gallery: the Gallery symbols", False, "no symbols")
+        gs, lcd, procs = self.sym["gGalleryScreen"], self.sym["gLCDControlBuffer"], self.sym["sProcArray"]
+        unlocks = SRAM + 0x64 + 6 * 0x10  # gSram->saveBlockInfo[SAVE_ID_XMAP]
+        state = ["r8 %#x" % (gs + k) for k in range(6)] + ["r8 %#x" % (gs + 8)]  # count, cursor, page, view, built,
+        # sprites; the first unlock byte
+        lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(5)]
+        # the main menu: Extras is the last row, Gallery the last of Extras (UP from the top goes around to it)
+        lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
+                               "dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS)]
+        lines += ["press UP", "wait 20", "press A", "wait 150", "shot grid.png"] + state
+        # the cursor on the first CG (Myrrh & Morva, locked): A; then Mountain Forest (one down): A, the full view
+        lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
+                                                    "r16 %#x" % lcd] + state
+        lines += ["press RIGHT", "wait 60", "shot next.png"] + state + ["press B", "wait 60", "shot back.png"] + state
+        lines += ["press B", "wait 150", "shot extras.png", "dump %#x %#x after.bin" % (procs, PROC_SIZE * PROCS)]
+        vals = self.run(ROM, lines, d)
+        for name, label in (("grid", "the Gallery's first page"), ("full", "the full view: Mountain Forest"),
+                            ("next", "right: the next unlocked CG"), ("back", "B: back on the grid"),
+                            ("extras", "B: back to Extras")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        if len(vals) != 5 + 7 * 5 + 1:
+            return self.check("gallery: the Gallery runs", False, "values %s" % vals)
+        sram, grid, locked, full, dispcnt, nxt, back = (vals[:5], vals[5:12], vals[12:19], vals[20:27], vals[19],
+                                                         vals[27:34], vals[34:41])
+        magic = sram[0] | sram[1] << 8 | sram[2] << 16 | sram[3] << 24
+        self.check("gallery: the prologue's opening unlocks Mountain Forest and Seth Attacked",
+                   magic == 0x59524C47 and sram[4] & 0x0C == 0x0C, "magic %#x, bits %#x" % (magic, sram[4]))
+        menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
+                   "Extras rows %s" % ["%#x" % m for m in menu])
+        self.check("gallery: the first page builds its 9 thumbnails", grid[0] == 13 and grid[4] == 9 and grid[5] == 1,
+                   "count, cursor, page, view, built, sprites %s" % grid[:6])
+        self.check("gallery: A on a locked CG does nothing", locked[5] == 1 and locked[1] == 0,
+                   "cursor %d, grid shown %d" % (locked[1], locked[5]))
+        # the other BGs' maps are cleared and no sprite is put (the fade turns every layer on)
+        self.check("gallery: A on Mountain Forest shows it full size (BG3, no thumbnails)",
+                   full[3] == 3 and full[5] == 0 and dispcnt & 0x0800,
+                   "view %d, DISPCNT %#x" % (full[3], dispcnt))
+        self.check("gallery: right goes to the next unlocked CG (Seth Attacked, around the end)", nxt[3] == 2,
+                   "view %d" % nxt[3])
+        self.check("gallery: B goes back to the grid on that CG", back[1] == 2 and back[5] == 1,
+                   "cursor %d, grid shown %d" % (back[1], back[5]))
+        after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("gallery: B again goes back to the save menu", bool(after))
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -2077,7 +2135,7 @@ def main():
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
-                                ("newgameplus", s.test_newgameplus))):
+                                ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

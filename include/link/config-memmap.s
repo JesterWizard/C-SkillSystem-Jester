@@ -396,6 +396,9 @@ _kernel_malloc2 gLearnedSkills, 0x7AC
 _kernel_malloc2 gNewGamePlus, 0x1D8
 _kernel_malloc2 gNewGamePlusArmed, 4
 
+/* The Gallery screen (struct GalleryScreen, Kernel/Wizardry/Gallery/Source/GalleryScreen.c). RAM only. */
+_kernel_malloc2 gGalleryScreen, 0x80
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

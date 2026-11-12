@@ -37,6 +37,12 @@ Persisting a feature's state in SRAM: a chunk in the normal save (SAV, written w
 - Reset: `NewGame_InitPlayStExpa` (on a new game, `data.event:121`) and `ChapterInit_ResetPlayStExpa` (every chapter start, `ChapterInitHook/data.event:10`). Both `memset` the field to 0 (`Kernel/Wizardry/PlayStExpa/Source/PlayStExpa.c:5-13`). The bits are per chapter, not per playthrough, despite the "used" wording.
 - Playthrough. `gPlaySt` is the chapter data struct (`Tools/FE-CLib-Mokha/include/types.h:208`). It is saved in chunk 1 (`MSA_SavePlaySt`). Its `playthroughIdentifier` is at `0x18` (`types.h:228`) and is set in `WriteNewGameSave` (`ModularSaveCore.c:180`).
 
+### Global data outside the save files
+
+The Gallery's unlocks (`Documentation/Features/Gallery.md`) are kept in the 16-byte SRAM entry vanilla keeps for the
+e-Reader trial map's save block (`gSram->saveBlockInfo[SAVE_ID_XMAP]`), behind a magic word. Nothing else in this hack
+uses that entry; it is not part of the layout signature; only vanilla's full SRAM wipe clears it.
+
 ### Global save header (not a chunk)
 
 `struct GlobalSaveInfo` (`Tools/FE-CLib-Mokha/include/bmsave.h:48`) is read and written with `ReadGlobalSaveInfo` and `WriteGlobalSaveInfo` (`bmsave.h:444-445`). `LanguageSelect` keeps its choice in `unk10` (`bmsave.h:64`; `Kernel/Wizardry/LanguageSelect/Source/LanguageSelect.c:84-118`). This header is not one of the EMS tables and is not reset at chapter start.

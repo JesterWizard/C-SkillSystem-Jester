@@ -211,6 +211,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MapColors.md"><img src="./Documentation/Images/MapColors.png" alt="Map Colors preview" width="360" /></a><br/><b><a href="./Documentation/Features/MapColors.md">Map Colors</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/NewGamePlus.md"><img src="./Documentation/Images/NewGamePlus.png" alt="New Game+ preview" width="360" /></a><br/><b><a href="./Documentation/Features/NewGamePlus.md">New Game+</a></b><br/><sub>Extras > New Game+: a new game where each character keeps their equipped skills and skill list</sub></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Gallery.md"><img src="./Documentation/Images/Gallery.png" alt="Gallery preview" width="360" /></a><br/><b><a href="./Documentation/Features/Gallery.md">Gallery</a></b><br/><sub>Extras > Gallery: the CGs seen in game, 3x3 to a page, and full size</sub></td>
+    <td width="50%"></td>
+  </tr>
 </table>
 
 ### 💬 Story, Text & World Map

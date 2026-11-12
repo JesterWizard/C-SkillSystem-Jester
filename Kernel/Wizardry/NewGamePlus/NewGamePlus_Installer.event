@@ -12,7 +12,7 @@
 
 ALIGN 4
 Img_NgpMenuObjs:
-    #incbin "Gfx/Img_NgpMenuObjs.lz77" // vanilla's Img_GameMainMenuObjs with "New Game +" in place of "Battle History"
+    #incbin "Gfx/Img_NgpMenuObjs.lz77" // vanilla's Img_GameMainMenuObjs: "New Game +" for "Battle History", "Gallery" for "Map"
 
 PUSH
     // The Extras labels: SaveMenu_LoadExtraMenuGraphics, SaveMenuScrollBackToMain, SaveMenu_ReloadScreenFormDifficulty
