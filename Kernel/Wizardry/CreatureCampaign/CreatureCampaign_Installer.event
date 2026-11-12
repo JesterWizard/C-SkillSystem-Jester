@@ -1,0 +1,17 @@
+#ifndef CREATURE_CAMPAIGN_INSTALLED
+#define CREATURE_CAMPAIGN_INSTALLED
+
+/**
+ * The end-of-game save is the Creature Campaign's, and the game goes on into it (no Extras > Map).
+ * WIZARDRY_CUSTOM, so FreeSpaceDEMO.
+ */
+#include "Source/LynJump.event"
+#include "Source/CreatureCampaign.lyn.event"
+
+PUSH
+    // gProcScr_GameControl, LGAMECTRL_EXEC_ENDING_SCENE: PROC_CALL(_SetGameEndFlag), after StartFinScreen
+    ORG $591A30
+    POIN CreatureCampaign_PostEnding
+POP
+
+#endif /* CREATURE_CAMPAIGN_INSTALLED */

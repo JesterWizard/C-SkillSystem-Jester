@@ -51,8 +51,16 @@ it. `worldmap.h` now pads it (`STRUCT_PAD(0xC5, 0xC8)`).
 
 ## The postgame
 
-After Chapter 22's ending the game saves a cleared slot ("Epilogue"). **Extras > Map** on that slot starts the
-postgame: the world map with `PLAY_FLAG_POSTGAME`. Restart Chapter on it plays the ending again, as in vanilla.
+After Chapter 22 the save menu writes the **Creature Campaign** save: the game is marked complete and in the postgame
+(`PLAY_FLAG_COMPLETE | PLAY_FLAG_POSTGAME`), so the file is titled "Creature Campaign". The ending plays, and after
+"Fin" (A) the game loads that save and goes on to the postgame's world map, the lord on Black Temple. Restart Chapter
+on the file does the same. There is no Extras > Map row.
+
+- `Kernel/Wizardry/CreatureCampaign/`: `GameCtrl_DeclareCompletedChapter` sets both flags before the save menu;
+  `GameCtrl_CheckGameCompleteAndBranch` lets a complete game go on to the world map instead of playing the ending
+  again (so a cleared save made before this, "Epilogue", is the Creature Campaign too once loaded); and
+  `CreatureCampaign_PostEnding` takes `_SetGameEndFlag`'s place after "Fin" in `gProcScr_GameControl` and goes on in
+  the save this game just wrote. Skip the save menu at the end, and "Fin" goes back to the title, as in vanilla.
 
 - The story is over in the postgame. `gWmStoryChapter` keeps the last story chapter, so `WmStoryReached` (district life,
   unlocks) still counts it. But its node is no longer the next one (`WmStoryNodeNow`), and every node starts its

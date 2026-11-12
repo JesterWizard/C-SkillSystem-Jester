@@ -110,8 +110,7 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
     if (NewGamePlus_IsExtraEnabled())
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_NEW_GAME_PLUS);
 
-    if (IsExtraFreeMapEnabled() != 0)
-        AddExtraMenuOption(proc, EXTRA_MENU_OPTION_MAP);
+    /* No Map row: the end-of-game save is the Creature Campaign's (Kernel/Wizardry/CreatureCampaign) */
 
     if (IsExtraBonusClaimEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_BONUS_CLAIM);

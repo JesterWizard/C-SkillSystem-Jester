@@ -19,9 +19,9 @@
 ## 🧩 Introduction
 
 **Extras > New Game+** starts a new game from a save that has been to the Creature Campaign (the postgame). The row
-shows once any of the three save files has: a game saved in the postgame (the world map reached with Extras > Map on a
-cleared save, then saved) has the postgame bit in its play state (`PLAY_FLAG_POSTGAME`). A cleared save that was never
-taken into the postgame does not count.
+shows once any of the three save files has: the save made at the end of the game ("Creature Campaign") and any save
+made in the postgame have the postgame bit in their play state (`PLAY_FLAG_POSTGAME`). A cleared save from before the
+Creature Campaign save ("Epilogue") counts once it has been loaded and saved again.
 
 1. Extras > New Game+, then the save to start from. A save that has not been to the postgame says "Select data that has
    been to the Creature Campaign."
