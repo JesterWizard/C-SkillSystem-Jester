@@ -1,7 +1,7 @@
 # Gallery
 
 <p align="center">
-  <img src="../Images/Gallery.png" alt="The Gallery: a page with two CGs unlocked, the same page all unlocked, and a CG full size" width="720"/>
+  <img src="../Images/Gallery.png" alt="The Gallery: the banner with the selected CG, the grid scrolling a row, and a CG full size" width="720"/>
 </p>
 
 ---
@@ -21,10 +21,15 @@
 
 **Extras > Gallery**, next to the Sound Room, shows the game's CGs:
 
-- **The grid.** Nine CGs a page, 3x3, each a small version (48x32, a fifth of the CG) in a frame, its name above. The
-  frame under the cursor is gold and glows. A CG not seen yet is dimmed, with a padlock, and "???" above it.
-- **Moving.** The D-pad moves the cursor (it goes on to the next or previous page at the edges); L and R turn a page.
-  The footer shows the page.
+- **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
+  not seen yet.
+- **The panel** on the left, in a window: which CG of how many at the top, and at its foot the buttons, "View" and
+  "Back".
+- **The grid** on the right, in a window (the player's window colour), over the scrolling mural: three CGs a row,
+  three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
+  cursor is gold and glows. A CG not seen yet is dimmed, with a padlock.
+- **Moving.** The D-pad moves the cursor; moving off the rows on screen scrolls the grid a row (no fade). L and R
+  move three rows.
 - **Full size.** A on an unlocked CG shows it full screen. Left and right go to the previous and next unlocked CG, around
   the ends; B goes back to the grid, on that CG.
 - B on the grid goes back to Extras.
@@ -44,10 +49,14 @@ const struct GalleryEntry gGalleryEntries[] = {
 ```
 
 1. Put the image in the background table first (`Kernel/Wizardry/Backgrounds_224_256_Colors/gfx/BG/BG.event`; see
-   [Max Color Backgrounds](./MaxColorBackgrounds.md)). 16-, 224- and 256-colour backgrounds all work.
+   [Max Color Backgrounds](./MaxColorBackgrounds.md)). 16-, 224- and 256-colour backgrounds all work: a vanilla one is
+   read from the clean ROM, a new one from the `.dmp` its `BG.event` label `#incbin`s.
 2. Add a row: its background index and a name message. Add the message at the end of
    `Contents/Texts/Source/texts/Districts.txt` (`## MSG_GALLERY_CG_...`, then the name and `[X]`).
 3. Show it in an event (`TEXT_BG`, `TEXT_BG_HIDE_MAP`, `BACG` and the background fades), and it unlocks there.
+
+The build makes the thumbnails (see [How it works](#how-it-works)) again whenever the list, `BG.event` or a `.dmp`
+changes.
 
 At most 96 rows (`GALLERY_MAX`). The list starts with the three custom CGs (0x38-0x3A) and the ten vanilla backgrounds
 the story shows so far. Its order is the unlock bits' order: insert a row in the middle and the unlocks already made
@@ -76,26 +85,38 @@ clears them.
   no longer needs. Its label is drawn in the Extras label sheet (`Kernel/Wizardry/NewGamePlus/Gfx/Img_NgpMenuObjs.png`)
   where "Map" was. `InitSaveMenuChoice` adds it; the Extras list (`sub_80A9B90`) opens it like the Sound Room;
   `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` are rewritten with a case for it.
-- **The thumbnails.** Each CG is drawn with the game's own loader (`EventShowTextBgDirect`, which Max Color Backgrounds
-  hooks for 224- and 256-colour CGs) while the screen is dark, then read back: its tile map (`gBG3TilemapBuffer`), its
-  tiles (VRAM) and the palette, four samples to a thumbnail pixel. The thumbnails are 256-colour sprites (a 32x32 and
-  a 16x32 each): the OBJ palette holds a 6x6x6 colour cube (colours 16-231), and each pixel goes on the cube with a
-  2x2 ordered dither. One thumbnail a frame; a page takes about 9 frames, behind a fade.
-- **Why sprites.** The loader writes only the BG side (tiles, maps, the BG palette), so the thumbnails survive the full
-  view: going back to the grid only redraws its text and frames. A new page makes new thumbnails.
-- **The grid.** BG0 the names and the footer (`Text`), BG1 the frames (`Gfx/Img_GalleryFrame.png`, palettes 13 and
-  14; 14 glows), sprites the thumbnails and the padlocks (`Gfx/Img_GalleryLock.png`, OBJ palette 15). Sprites use
-  1D mapping while the Gallery is open.
-- **The full view.** The loader again, on BG3 alone.
+- **The thumbnails** are build output. `Tools/gallery/thumbs.py` (a makefile rule, `Data/Gallery/GalleryThumbs.bin`,
+  gitignored) decodes each listed background: a vanilla one from `fe8.gba` (LZ77 4bpp tiles, its TSA, 8 palettes), a
+  224- or 256-colour one from its `.dmp` files. It shrinks the picture to 48x32 (the average of each 5x5 block), picks
+  15 colours for it (median cut) and writes 768 bytes of 4bpp tiles in the sprites' order and a 16-colour palette:
+  800 bytes a row, `gGalleryThumbs` (`Data/Gallery/Gallery.event`). Made from the ROM at build time, so the repo holds
+  none of vanilla's art.
+- **The screen.** BG0 the text (the banner's name, centred on it; the panel); BG1 the windows round the panel and
+  the grid (`DrawUiFrame`, the player's window style, BG palette 1); BG2 the banner and the buttons; BG3 the mural
+  (`StartMuralBackground`, palettes 14 and 15). Vanilla's sprite sheets are unpacked into spare OBJ VRAM
+  (`0x06014000`) and the tiles wanted copied to BG VRAM: the banner from `Img_PlayStatusSprites` (the Sound Room's song
+  banner, 24x4 tiles, palette 11), the A button from `Img_SoundRoomUiElements` (the Sound Room's round A, palette 10).
+  Vanilla has no round B: the B is a copy of the A with its letter redrawn (`sLetterB`, in the A's ink, its soft shade
+  and its gold), edited in RAM and copied over (VRAM takes no byte writes). Sprites: the thumbnails (a 32x32 and a
+  16x32 each, 1D mapping), their frames (`Gfx/Img_GalleryCursor.png`, a 64x64 sprite each: grey, OBJ palette 13, or
+  the cursor's gold, OBJ palette 12, which glows) and the padlocks (`Gfx/Img_GalleryLock.png`, OBJ palette 15).
+- **The grid** fills the window's inside (x 72-231, y 40-151): a CG and its frame is 52x36, 2 pixels apart. Each
+  place on the grid has a slot: its thumbnail's tiles in OBJ VRAM and its palette in OBJ palettes 0-11 (dimmed when
+  locked), loaded again whenever the rows are drawn.
+- **Scrolling.** Moving the cursor off the three rows on screen draws four rows (the next one below, or above) and
+  slides the sprites 38 pixels, 8 a frame; then the three rows on screen are drawn again, still. Window 0 is the
+  window's inside: outside it, over the window's edge, the banner and the panel, the sprites do not show.
+- **The full view.** The game's own loader (`EventShowTextBgDirect`, which Max Color Backgrounds hooks for 224- and
+  256-colour CGs) on BG3 alone, the mural stopped; it starts again on the way back to the grid.
 
 ---
 
 ## 🧪 Testing
 
 `python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Mountain Forest (0x1D) and Seth
-Attacked (0x3A) in SRAM; after a reset Extras has the Gallery row; its first page builds 9 thumbnails; A on a locked
-CG does nothing; A on Mountain Forest shows it full size; right goes to Seth Attacked (around the end); B goes back to
-the grid on it, and B again to Extras.
+Attacked (0x3A) in SRAM; after a reset Extras has the Gallery row; the grid opens on its first rows; A on a locked CG
+does nothing; A on Mountain Forest shows it full size; right goes to Seth Attacked (around the end); B goes back to the
+grid on it; down three rows scrolls the grid a row, on screen; B again goes back to Extras.
 
 ---
 
@@ -107,7 +128,8 @@ the grid on it, and B again to Extras.
 | Unlocks, the event hook, the Extras screens | `Kernel/Wizardry/Gallery/Source/Gallery.c` |
 | The screen | `Kernel/Wizardry/Gallery/Source/GalleryScreen.c` |
 | LynJump, art, the event-table patch | `Kernel/Wizardry/Gallery/Source/LynJump.event`, `Gallery_Installer.event` |
-| Frame and padlock art | `Kernel/Wizardry/Gallery/Gfx/` |
+| Frame and padlock art | `Kernel/Wizardry/Gallery/Gfx/` (the buttons and the banner are vanilla's) |
+| The thumbnails | `Tools/gallery/thumbs.py`, the `GALLERY_THUMBS` rule in `makefile`, `Data/Gallery/Gallery.event` |
 | The Extras row | `InitSaveMenuChoice` (`Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c`); `sub_80A9B90` (`Kernel/Wizardry/NewGamePlus/Source/NgpSaveMenu.c`) |
 | Struct, constants | `include/kernel/gallery.h` |
 | RAM | `gGalleryScreen` in `include/link/config-memmap.s` |
@@ -118,7 +140,8 @@ the grid on it, and B again to Extras.
 
 ## 🐛 Limitations & Bugs
 
-- Thumbnails have 216 colours between them, dithered: fine detail and smooth gradients are rough at that size.
+- A thumbnail has 15 colours: fine detail and smooth gradients are rough at that size.
+- The build needs Python 3 for the thumbnails (no other packages).
 - Only backgrounds shown through event command `0x21` unlock. A CG drawn some other way (an ASMC, vanilla's CG
   table) needs a `0x21` command in its event too, or `Gallery_UnlockBackground(bg)`.
 - The unlocks live outside the saves: copying a save to another cartridge does not carry them.

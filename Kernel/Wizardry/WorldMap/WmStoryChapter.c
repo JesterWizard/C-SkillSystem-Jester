@@ -2,6 +2,8 @@
 #include "wm-story-chapter.h"
 #include "district.h"
 #include "save-data.h"
+#include "event.h"
+#include "eventscript.h"
 
 /*
  * Story chapters started from the world map.
@@ -36,8 +38,32 @@ int GetWmStoryChapterNode(int chapter)
 /*
  * The chapter a side map hands back to the world map with (gPlaySt.chapterIndex after a skirmish or a district is
  * left: the retreat's next chapter). Vanilla skips the save menu for it (GameControl_CallPostChapterSaveMenu).
+ *
+ * It is also a story chapter: the Intermission at Castle Frelia (CASTLE_FRELIA), as in vanilla, where Chapter 1 ends
+ * with MNCH 0x38 too. A side map leaves with MNCH -1 (vanilla's retreat event) and never names it, so a named 0x38 is
+ * the story chapter: see WmStoryChapter_Event2A.
  */
 #define WM_CHAPTER_SIDE_MAP_RETURN 0x38
+
+/* The chapter the last NEXT_CHAPTER_WITH_MAP named, or WM_STORY_CHAPTER_NONE (include/link/config-memmap.s) */
+extern u8 gWmChapterNamed;
+
+/*
+ * Event command 0x2A (gEventLoCmdTableRe, WorldMap_Installer.event): remember the chapter an MNCH names, then vanilla's
+ * Event2A_MoveToChapter. Chapter 1's ending names 0x38 (the Intermission) and the world map took it for a side map's
+ * return: the story stayed on the prologue, and the trip from the world map started the prologue again.
+ */
+u8 WmStoryChapter_Event2A(struct EventEngineProc *proc)
+{
+	int chapter = EVT_CMD_ARGV(proc->pEventCurrent)[0];
+
+	if (EVT_SUB_CMD(proc->pEventCurrent) == EVSUBCMD_MNCH && chapter >= 0 && chapter < WM_STORY_CHAPTER_NONE)
+		gWmChapterNamed = chapter;
+	else
+		gWmChapterNamed = WM_STORY_CHAPTER_NONE;
+
+	return Event2A_MoveToChapter(proc);
+}
 
 int GetWmStoryChapterRank(int chapter)
 {
@@ -99,12 +125,16 @@ void WmStoryChapter_KeepDestination(void)
 /* WorldMap_CallBeginningEvent: chapter is the MNCH target (gPlaySt.chapterIndex) */
 void WmStoryChapter_Begin(int chapter)
 {
+	bool named = gWmChapterNamed == chapter;
+
+	gWmChapterNamed = WM_STORY_CHAPTER_NONE;
+
 	/*
 	 * Back from a district (or a skirmish): no chapter was named, so the story stays where it was. Without this, every
 	 * district visit cleared it, and the world map, district unlocks, featured quests, the time of day and the rival
 	 * all fell back to their no-story state.
 	 */
-	if (chapter == WM_CHAPTER_SIDE_MAP_RETURN || District_IsDistrictChapter(chapter))
+	if ((chapter == WM_CHAPTER_SIDE_MAP_RETURN && !named) || District_IsDistrictChapter(chapter))
 		return;
 
 	/* The story chapter targeted before this one has just been cleared */
@@ -167,6 +197,7 @@ int WMLoc_GetNextLocId(int node)
 void WmStoryChapter_NewGame(void)
 {
 	gWmStoryChapter = WM_STORY_CHAPTER_NONE;
+	gWmChapterNamed = WM_STORY_CHAPTER_NONE;
 }
 
 #define WM_STORY_CHAPTER_MAGIC 0x5753

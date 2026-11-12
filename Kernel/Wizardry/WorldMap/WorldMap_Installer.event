@@ -1,3 +1,6 @@
 #include "LynJump.event"
 #include "WorldMap.lyn.event"
 #include "WmDynamicPath.lyn.event"
+
+// Event command 0x2A (MNCH and the others): remember the chapter an MNCH names (WmStoryChapter.c)
+InjectEventLoCmd(0x2A, WmStoryChapter_Event2A)

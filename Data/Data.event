@@ -28,7 +28,7 @@
 #include "Guild/Guild.lyn.event"
 #endif
 #include "District/DistrictLife.lyn.event"
-#include "Gallery/Gallery.lyn.event"
+#include "Gallery/Gallery.event"
 #include "WorldMap/VendorStock.event"
 #include "BigUnits/BigUnits.lyn.event"
 #include "Anims/Anims.event"

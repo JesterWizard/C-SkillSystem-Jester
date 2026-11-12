@@ -43,8 +43,9 @@ What it checks:
               is refused (no Restart Chapter).
   gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
               same district chunks.
-  gallery     the prologue's opening unlocks two CGs; Extras > Gallery builds a page of thumbnails, opens an unlocked
-              CG full size, goes on to the next with right, and back to the grid and to Extras with B.
+  gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
+              size, goes on to the next with right, back to the grid with B, scrolls a row on screen, and back to
+              Extras with B.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -74,11 +75,14 @@ What it checks:
   mapcolors   Map Colors (Kernel/Wizardry/MapColors): Options set to Vivid, then Deep; leaving Options redraws the map,
               and all 160 map palette colours match the transform's model of vanilla's palette. A test ROM gives the
               prologue Chapter 18's palette animation: it runs after a normal boot, and Deep recolours its frames.
+  ch1end      Chapter 1's end: the debugger starts Chapter 1, Eirika seizes the gate (the boss taken off it); the
+              world map takes the ending's 0x38 as the Intermission (the story chapter), not a side map's return, and
+              Chapter 2 follows, not the prologue.
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -127,7 +131,7 @@ STUB_ROUTE = [(0x0B, 10, 9), (0x3D, 11, 10), (0x0C, 11, 11), (0x0D, 12, 11), (0x
 STUB_FINAL = 0x16
 PLAY_FLAG_COMPLETE = 1 << 5
 CLASS_REVENANT = 0x52  # gGMData (the world map's units, nodes and cursor)
-CHAPTER_05, CHAPTER_06 = 0x06, 0x07  # include/jester_headers/maps.h
+CHAPTER_02, CHAPTER_05, CHAPTER_06 = 0x02, 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
 DISTRICT_PORT_KIRIS_FLAG = 0x91  # GLOBAL_FLAG_DISTRICT_PORT_KIRIS
@@ -308,6 +312,17 @@ class Smoke:
         self.check("boot: Eirika is on the map", vals[1] != 0, "unit 1 character %#x" % vals[1])
         self.check("boot: the screen is drawn", self.brightness(png) > 20, "brightness %.0f" % self.brightness(png))
         return os.path.join(d, "boot.ss")
+
+    def turn2_state(self, boot_ss):
+        """The prologue's turn 2, for the tests that fight: boot.ss ends turn 1 (the map menu from the empty tile left of
+        Eirika, its last row, End), and the enemy phase brings two soldiers next to her, at (5, 5) and (6, 5). Turn 2
+        starts with the cursor on her. (With real-time battle on, the soldiers came during turn 1.)"""
+        d = os.path.join(self.out, "boot")
+        out = os.path.join(d, "turn2.ss")
+        self.run(ROM, ["load " + boot_ss, "press LEFT", "wait 10", "press A", "wait 40", "press UP", "wait 10",
+                       "press A", "wait 1200", "shot turn2.png", "save " + out], d)
+        self.check("boot: turn 2, with soldiers next to Eirika", os.path.exists(out))
+        return out if os.path.exists(out) else None
 
     def test_statscreen(self, boot_ss):
         d = os.path.join(self.out, "boot")
@@ -1036,7 +1051,8 @@ class Smoke:
         rom, procs = states["rom"], self.sym["sProcArray"]
         start = os.path.join(self.out, "Serafew", "start.ss")
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
-        lines = ["wait 600", "load " + start, "wait 60", dump("before.bin")] + SOFT_RESET + \
+        # 600 frames: the suspend save is written when the player phase starts, after its banner
+        lines = ["wait 600", "load " + start, "wait 600", dump("before.bin")] + SOFT_RESET + \
             ["press A", "wait 200", "press A", "wait 300", "wait 300", "shot resumed.png", dump("after.bin"),
              "r8 %#x" % CHAPTER]
         vals = self.run(rom, lines, d)
@@ -1340,9 +1356,10 @@ class Smoke:
     def test_gallery(self):
         """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Mountain Forest (background
         0x1D) and Seth Attacked (0x3A): both unlock, in the SRAM entry of the trial map's save block (magic "GLRY").
-        After a reset, Extras has the Gallery row; it builds its first page (9 thumbnails). A on a locked CG does nothing;
-        on Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked one (Seth Attacked, around
-        the end); B goes back to the grid on it, and B again back to Extras."""
+        After a reset, Extras has the Gallery row; it shows its first three rows. A on a locked CG does nothing; on
+        Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked one (Seth Attacked, around the
+        end); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B goes back
+        to Extras."""
         d = os.path.join(self.out, "gallery")
         os.makedirs(d, exist_ok=True)
         need = ("gGalleryScreen", "gLCDControlBuffer", "ProcScr_SaveMenu", "sProcArray")
@@ -1350,8 +1367,8 @@ class Smoke:
             return self.check("gallery: the Gallery symbols", False, "no symbols")
         gs, lcd, procs = self.sym["gGalleryScreen"], self.sym["gLCDControlBuffer"], self.sym["sProcArray"]
         unlocks = SRAM + 0x64 + 6 * 0x10  # gSram->saveBlockInfo[SAVE_ID_XMAP]
-        state = ["r8 %#x" % (gs + k) for k in range(6)] + ["r8 %#x" % (gs + 8)]  # count, cursor, page, view, built,
-        # sprites; the first unlock byte
+        # struct GalleryScreen: count, cursor, top, view; sprites (+8); the first unlock byte (+0xC)
+        state = ["r8 %#x" % (gs + k) for k in (0, 1, 2, 3, 8, 0xC)]
         lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(5)]
         # the main menu: Extras is the last row, Gallery the last of Extras (UP from the top goes around to it)
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
@@ -1361,34 +1378,42 @@ class Smoke:
         lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
                                                     "r16 %#x" % lcd] + state
         lines += ["press RIGHT", "wait 60", "shot next.png"] + state + ["press B", "wait 60", "shot back.png"] + state
+        # Seth Attacked (row 0): down three rows, past the third on screen; the grid scrolls a row
+        lines += ["press DOWN", "wait 20", "press DOWN", "wait 20", "press DOWN", "wait 3", "shot scrolling.png",
+                  "wait 30", "shot scrolled.png"] + state
         lines += ["press B", "wait 150", "shot extras.png", "dump %#x %#x after.bin" % (procs, PROC_SIZE * PROCS)]
         vals = self.run(ROM, lines, d)
-        for name, label in (("grid", "the Gallery's first page"), ("full", "the full view: Mountain Forest"),
+        for name, label in (("grid", "the Gallery's first rows"), ("full", "the full view: Mountain Forest"),
                             ("next", "right: the next unlocked CG"), ("back", "B: back on the grid"),
+                            ("scrolling", "down past the third row: scrolling"), ("scrolled", "a row down"),
                             ("extras", "B: back to Extras")):
             self.shot(os.path.join(d, name + ".png"), label)
-        if len(vals) != 5 + 7 * 5 + 1:
+        if len(vals) != 5 + 6 * 6 + 1:
             return self.check("gallery: the Gallery runs", False, "values %s" % vals)
-        sram, grid, locked, full, dispcnt, nxt, back = (vals[:5], vals[5:12], vals[12:19], vals[20:27], vals[19],
-                                                         vals[27:34], vals[34:41])
+        sram, dispcnt = vals[:5], vals[17]
+        grid, locked, full, nxt, back, scrolled = (vals[5:11], vals[11:17], vals[18:24], vals[24:30], vals[30:36],
+                                                   vals[36:42])
         magic = sram[0] | sram[1] << 8 | sram[2] << 16 | sram[3] << 24
         self.check("gallery: the prologue's opening unlocks Mountain Forest and Seth Attacked",
                    magic == 0x59524C47 and sram[4] & 0x0C == 0x0C, "magic %#x, bits %#x" % (magic, sram[4]))
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
                    "Extras rows %s" % ["%#x" % m for m in menu])
-        self.check("gallery: the first page builds its 9 thumbnails", grid[0] == 13 and grid[4] == 9 and grid[5] == 1,
-                   "count, cursor, page, view, built, sprites %s" % grid[:6])
-        self.check("gallery: A on a locked CG does nothing", locked[5] == 1 and locked[1] == 0,
-                   "cursor %d, grid shown %d" % (locked[1], locked[5]))
+        self.check("gallery: the grid opens on its first rows", grid[0] == 13 and grid[2] == 0 and grid[4] == 1 and
+                   grid[5] & 0x0C == 0x0C, "count, cursor, top, view, sprites, bits %s" % grid)
+        self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 0,
+                   "cursor %d, grid shown %d" % (locked[1], locked[4]))
         # the other BGs' maps are cleared and no sprite is put (the fade turns every layer on)
         self.check("gallery: A on Mountain Forest shows it full size (BG3, no thumbnails)",
-                   full[3] == 3 and full[5] == 0 and dispcnt & 0x0800,
-                   "view %d, DISPCNT %#x" % (full[3], dispcnt))
+                   full[3] == 3 and full[4] == 0 and dispcnt & 0x0800, "view %d, DISPCNT %#x" % (full[3], dispcnt))
         self.check("gallery: right goes to the next unlocked CG (Seth Attacked, around the end)", nxt[3] == 2,
                    "view %d" % nxt[3])
-        self.check("gallery: B goes back to the grid on that CG", back[1] == 2 and back[5] == 1,
-                   "cursor %d, grid shown %d" % (back[1], back[5]))
+        self.check("gallery: B goes back to the grid on that CG", back[1] == 2 and back[4] == 1,
+                   "cursor %d, grid shown %d" % (back[1], back[4]))
+        self.check("gallery: down past the third row scrolls the grid a row, on screen",
+                   scrolled[1] == 11 and scrolled[2] == 1 and scrolled[4] == 1 and
+                   self.diff(os.path.join(d, "back.png"), os.path.join(d, "scrolling.png")) > 0,
+                   "cursor %d, top %d, grid shown %d" % (scrolled[1], scrolled[2], scrolled[4]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: B again goes back to the save menu", bool(after))
 
@@ -1559,6 +1584,45 @@ class Smoke:
                    "at (%d, %d), state %#x" % (x2, y2, st2))
         self.check("deeproots: Wait then ends her turn", st3 & 0x42 == 0x42, "state %#x" % st3)
 
+    def test_ch1end(self, boot_ss):
+        """Chapter 1's end: the debugger restarts at Chapter 1 (as boot-to-prep.txt does Chapter 4) and skips its
+        opening; the boss off the gate, Eirika on it seizes. The ending names 0x38 (the Intermission at Castle Frelia,
+        NEXT_CHAPTER_WITH_MAP), which is also the side-map return: the world map must take it as the story chapter, so
+        the Intermission plays and the story goes on to Chapter 2, not back to the prologue."""
+        d = os.path.join(self.out, "ch1end")
+        os.makedirs(d, exist_ok=True)
+        story = self.sym.get("gWmStoryChapter")
+        if story is None:
+            return self.check("ch1end: gWmStoryChapter's address", False)
+        debug = ["w8 %#x 1" % CHAPTER, "press B", "wait 60", "press RIGHT", "wait 40"] + ["press DOWN", "wait 10"] * 2 + \
+            ["press A", "wait 60"] + ["press DOWN", "wait 10"] * 7 + ["press START", "wait 200", "press A", "wait 120",
+                                                                      "press A", "wait 1000"]
+        lines = ["load " + boot_ss] + debug + ["press START", "wait 200"] * 8 + ["wait 300", "shot ch1.png",
+                                                                                 "r32 %#x" % BM_MAP_UNIT, "save ch1.ss"]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "ch1.png"), "Chapter 1's first turn")
+        if not vals:
+            return self.check("ch1end: Chapter 1 starts", False)
+        rows = self.run(ROM, ["load " + os.path.join(d, "ch1.ss")] + ["r32 %#x" % (vals[0] + 4 * y) for y in (2, 9)], d)
+        if len(rows) != 2:
+            return self.check("ch1end: Chapter 1 starts", False)
+        # The boss (0x81) stands on the gate (2, 2); Eirika starts at (12, 9) under the cursor
+        lines = ["load " + os.path.join(d, "ch1.ss"), "w32 %#x 0" % UNIT_RED, "w8 %#x 1" % (rows[0] + 2),
+                 "w8 %#x 0" % (rows[1] + 12), "w8 %#x 2" % UNIT_X, "w8 %#x 2" % UNIT_Y]
+        lines += ["press LEFT", "wait 8"] * 10 + ["press UP", "wait 8"] * 7 + ["wait 20", "press A", "wait 30", "press A",
+                                                                              "wait 40", "shot seize.png", "press A",
+                                                                              "wait 60"]
+        for i in range(24):
+            lines += ["r8 %#x" % CHAPTER, "r8 %#x" % story, "press START", "wait 50", "press A", "wait 50"]
+        lines += ["shot after.png"]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "seize.png"), "Chapter 1: Eirika on the gate")
+        self.shot(os.path.join(d, "after.png"), "after Chapter 1")
+        seen = list(zip(vals[0::2], vals[1::2]))
+        self.check("ch1end: the Intermission (0x38) becomes the story chapter, then Chapter 2 starts",
+                   (0x38, 0x38) in seen and seen[-1:] == [(CHAPTER_02, CHAPTER_02)] and all(c != 0 for c, _ in seen),
+                   "(chapter, story) %s" % sorted(set(seen), key=seen.index))
+
     def test_mapcolors(self, boot_ss):
         """Map Colors (Kernel/Wizardry/MapColors/Source/MapColors.c): the Options row sets gPlaySt.config.map_colors
         (bits 2-3 of PLAYST + 0x47; 0 Vanilla, 1 Vivid, 2 Deep). Leaving Options redraws the map and recolours the map
@@ -1696,7 +1760,7 @@ class Smoke:
         block, drawn once at twice the size (an affine double-size OBJ). Seth breaks his top-left corner: it leaves the
         group, and his defeat (flag 2) waits for the last corner. On the plain ROM, the fighter next to Eirika made a
         2x2 block in RAM: at (2, 3) only its bottom-right corner reaches Seth, and the block fights once from there
-        (only that corner hurt, all four grayed); at (12, 7) it moves a tile left (O'Neill blocks the next) and its
+        (only that corner hurt); at (12, 7) it moves a tile left (O'Neill blocks the next) and its
         shown range is every tile the block can cover. Seth breaks the fighter's corner: the other three stand."""
         d = os.path.join(self.out, "bigunit")
         os.makedirs(d, exist_ok=True)
@@ -1774,13 +1838,16 @@ class Smoke:
                        ["r8 %#x" % (unit(u) + 0x0C) for u in (0x83, 0x84, 0x85, 0x86)] +
                        ["r8 %#x" % (groups + 4), "r8 %#x" % (groups + 5)], d)
         self.shot(os.path.join(d, "fight.png"), "2x2 block after its attack")
+        # (The corners' grayed state is not checked: the next player phase has cleared it by now.)
         self.check("bigunit: the AI fights once, from the corner that reaches (bottom-right)",
-                   len(got) == 10 and got[0] == got[1] == got[2] and got[3] < got[0] and
-                   all(st & 2 for st in got[4:8]) and got[8:] == [2, 3],
+                   len(got) == 10 and got[0] == got[1] == got[2] and got[3] < got[0] and got[8:] == [2, 3],
                    "HP %s, states %s, block %s" % (got[:4], ["%#x" % v for v in got[4:8]], got[8:]))
 
-        # Seth (above Eirika) breaks the bottom-right corner (1 HP): the other three stand, with their HP
-        got = self.run(ROM, ["load " + fight_ss, "w8 %#x 1" % (unit(0x86) + 0x13), "press UP", "wait 20", "press A",
+        # Seth (above Eirika) breaks the bottom-right corner (1 HP; his Skill and Luck raised so he cannot miss): the
+        # other three stand, with their HP
+        seth = UNIT1 + 0x48
+        got = self.run(ROM, ["load " + fight_ss, "w8 %#x 1" % (unit(0x86) + 0x13), "w8 %#x 40" % (seth + 0x15),
+                             "w8 %#x 40" % (seth + 0x19), "press UP", "wait 20", "press A",
                              "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40", "press A",
                              "wait 700", "shot fighter_break.png"] + ["r8 %#x" % (groups + k) for k in range(4)], d)
         self.shot(os.path.join(d, "fighter_break.png"), "2x2 fighter, a corner broken")
@@ -2109,29 +2176,33 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar", "deeproots", "mapcolors")
+                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
+            fights = ("battle", "bigunit", "expbar", "deeproots")
+            turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
                 ("statscreen", s.test_statscreen), ("biography", s.test_biography), ("debugflag", s.test_debugflag))
                 if on(t)]))
-            r.submit((0, 2), seq(*[lambda f=f: f(boot_ss) for t, f in (
-                ("battle", s.test_battle), ("battlequote", s.test_battlequote), ("stealer", s.test_stealer),
-                ("frames", s.test_frames)) if on(t)]))
+            r.submit((0, 2), seq(*[lambda f=f, ss=ss: f(ss) for t, f, ss in (
+                ("battle", s.test_battle, turn2_ss), ("battlequote", s.test_battlequote, boot_ss),
+                ("stealer", s.test_stealer, boot_ss), ("frames", s.test_frames, boot_ss)) if on(t) and ss]))
             if on("awards"):
                 r.submit((0, 3), s.test_awards, boot_ss)
-            if on("bigunit"):
-                r.submit((0, 4), s.test_bigunit, boot_ss)
-            if on("expbar"):
-                r.submit((0, 5), s.test_expbar, boot_ss)
-            if on("deeproots"):
-                r.submit((0, 6), s.test_deeproots, boot_ss)
+            if on("bigunit") and turn2_ss:
+                r.submit((0, 4), s.test_bigunit, turn2_ss)
+            if on("expbar") and turn2_ss:
+                r.submit((0, 5), s.test_expbar, turn2_ss)
+            if on("deeproots") and turn2_ss:
+                r.submit((0, 6), s.test_deeproots, turn2_ss)
             if on("mapcolors"):
                 r.submit((0, 7), s.test_mapcolors, boot_ss)
+            if on("ch1end"):
+                r.submit((0, 8), s.test_ch1end, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
