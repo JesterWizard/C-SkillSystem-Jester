@@ -8,40 +8,52 @@ megabytes.
 | --- | --- |
 | The mp3 | 4,562,546 bytes |
 | As a sampled song (13379 Hz, 8 bit, how the voice lines are stored) | about 3,850,000 bytes |
-| Sequenced by this tool | 19,648 bytes |
+| Sequenced by this tool | 21,088 bytes |
 
 ## What comes out
 
 The tool transcribes the recording, it does not copy it. The result is a new arrangement of the same tune on FE8's
 instruments: it follows the original's melody, bass, chords, tempo and loudness, and it does not sound like the
 recording. Automatic transcription of a full mix makes mistakes (wrong or missing notes, most of all in busy parts), and
-the drums are a guess from the recording's kick, snare and cymbal bands. For a song that matters, open the `.mid` it
+the drums are
+the hits found in the recording's drum part, played on the nearest piece of vanilla's kit. For a song that matters, open the `.mid` it
 writes, fix it by ear, and convert that MIDI with a MIDI tool (mid2agb, Sappy) instead.
 
-Size follows the number of notes, not the length: about 3.5 bytes a note. A 2 minute piece with a plain melody comes
-out near 5 KB; a dense one near 20 KB.
+Size follows the number of notes, not the length: about 3.5 bytes a note (Lord of the Dance has about 5,900).
 
 ## Steps
 
-1. Split the audio into harmonic and percussive parts (librosa HPSS).
-2. Transcribe the harmonic part with [basic-pitch](https://github.com/spotify/basic-pitch) (its ONNX model).
+1. Split the recording into drums, bass and the rest with [Demucs](https://github.com/facebookresearch/demucs)
+   (`htdemucs`). Without Demucs (or with `--no-stems`) it falls back to a harmonic / percussive split, which is much
+   rougher: the first version of Lord of the Dance was made that way and had four times the drum hits, most of them
+   noise.
+2. Transcribe the bass and the rest with [basic-pitch](https://github.com/spotify/basic-pitch) (its ONNX model).
 3. Track the beat and put every note on a grid of a sixth of a beat. The song's tempo follows the recording beat by beat.
-4. Make five tracks:
+4. Make six tracks:
    - lead: one line tracked through the notes from E4 up (flute);
-   - bass: one line tracked from D1 to D3 (bass);
+   - fiddle: the lead again on strings where the recording is loud;
    - strings: the other notes that last a beat or more;
-   - harp: the other notes that are shorter;
-   - drums: kick, snare and closed hi-hat from the percussive part, only where the recording has percussion.
+   - harp: the other notes that are shorter, at most four at a time;
+   - bass: one line tracked through the bass part;
+   - drums: each hit of the drum part, as kick, tom, rim or hi-hat by where its energy is.
 5. Write the song with its own small voice bank (`VOICES` in the script: sample addresses in the vanilla ROM, and
    vanilla's drum kit at `0x082228F0`).
 
-The instruments are fixed in `VOICES` and the `tracks` list. Change them there for a song that wants other ones;
-`Tools/audio2m4a` has no table of every vanilla sample.
+The instruments are fixed in `VOICES` and the `tracks` list. Change them there for a song that wants other ones.
+
+## Noise
+
+- The GBA's sound output is 8 bit, and its noise is the same whatever plays. A quiet song hisses more. So the tool
+  mixes louder than vanilla's BGM (`--gain`, default 1.5; 1.0 is vanilla's level) and flattens the recording's
+  dynamics. Check a new song's recording for clipping before raising the gain.
+- A sample played far below its own pitch is noisy. Vanilla's bass sample (`0x08227988`) sounds an octave below its
+  key, so the bass track is shifted up an octave (`keysh=12`); vanilla's songs play it on keys 41 to 57.
+- Cymbals and snares are the hissiest part of a kit. A hit is only a hi-hat if most of its energy is above 3 kHz.
 
 ## Use
 
 ```bash
-pip install numpy scipy librosa soundfile pretty_midi mir_eval resampy onnxruntime
+pip install numpy scipy librosa soundfile pretty_midi mir_eval resampy onnxruntime torch torchaudio demucs
 ```
 
 ```bash
@@ -52,8 +64,10 @@ pip install --no-deps basic-pitch
 python3 Tools/audio2m4a/audio2m4a.py song.mp3 /tmp/song --name MySong
 ```
 
-It needs `ffmpeg`. It writes `/tmp/song/MySong.event` and `/tmp/song/MySong.mid`, and prints the size and the length in
-frames. The transcription is kept in `/tmp/song/work`; a second run only arranges.
+It needs `ffmpeg`. Demucs downloads its model from `dl.fbaipublicfiles.com` on the first run (a cloud session's
+environment must allow that host). It writes `/tmp/song/MySong.event` and `/tmp/song/MySong.mid`, and prints the size and the length in
+frames. The stems and the transcription are kept in `/tmp/song/work`; a second run only arranges. `--only lead,bass`
+keeps some tracks, to listen to them alone.
 
 ## Adding the song to the game
 

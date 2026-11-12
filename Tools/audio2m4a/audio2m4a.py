@@ -12,7 +12,7 @@ With --bin-base ADDR it also writes song.bin linked at ADDR and song.hdr (the
 header's address), to patch a built ROM for a quick listen.
 
 Needs ffmpeg and: pip install numpy scipy librosa soundfile pretty_midi mir_eval
-resampy onnxruntime; pip install --no-deps basic-pitch
+resampy onnxruntime torch torchaudio demucs; pip install --no-deps basic-pitch
 """
 import sys, os, pickle, struct, argparse, subprocess
 import numpy as np
@@ -24,9 +24,12 @@ ap.add_argument('audio'); ap.add_argument('out')
 ap.add_argument('--name', required=True, help='label of the song in the .event file')
 ap.add_argument('--work', help='folder for the intermediate files (default OUTDIR/work)')
 ap.add_argument('--bin-base', help='also write song.bin linked at this address, e.g. 0x09700000')
+ap.add_argument('--only', help='keep only these tracks (comma separated names), to listen to them alone')
+ap.add_argument('--gain', type=float, default=1.5,
+                help='scale every track volume: 1.0 is about as loud as vanilla BGM; the default is louder, to hide the GBA output noise')
+ap.add_argument('--no-stems', action='store_true', help='do not use demucs stem separation')
 ap.add_argument('--no-loop', action='store_true', help='end the song instead of looping it')
 A = ap.parse_args()
-A.src = 'harm'
 wd = A.work or os.path.join(A.out, 'work')
 os.makedirs(wd, exist_ok=True); os.makedirs(A.out, exist_ok=True)
 TPB = 48            # ticks per beat (the tempo byte is then about the bpm itself)
@@ -37,23 +40,40 @@ FPS = 59.7275       # GBA frames a second
 if not os.path.exists(wd + '/song.wav'):
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', A.audio, '-vn', '-ac', '2', '-ar', '44100',
                     wd + '/song.wav'], check=True)
-if not os.path.exists(wd + '/perc.wav'):
-    y0, sr0 = librosa.load(wd + '/song.wav', sr=22050, mono=True)
-    H, P = librosa.decompose.hpss(librosa.stft(y0, n_fft=2048, hop_length=512), margin=(2.0, 2.0))
-    sf.write(wd + '/harm.wav', librosa.istft(H, hop_length=512, length=len(y0)), sr0)
-    sf.write(wd + '/perc.wav', librosa.istft(P, hop_length=512, length=len(y0)), sr0)
-if not os.path.exists(wd + '/bp_harm.pkl'):
+def run_demucs():
+    """Split the mix into drums, bass, vocals and other (needs the demucs package and its model)."""
+    try:
+        subprocess.run([sys.executable, '-m', 'demucs', '-n', 'htdemucs', '-d', 'cpu', '-o', wd + '/stems', wd + '/song.wav'],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        print('no stem separation (%s): using the harmonic / percussive split' % type(e).__name__)
+SD = wd + '/stems/htdemucs/song/'
+if not A.no_stems and not os.path.exists(SD + 'other.wav'): run_demucs()
+STEMS = not A.no_stems and os.path.exists(SD + 'other.wav')
+if not os.path.exists(wd + '/mel.wav'):
+    if STEMS:
+        ld = lambda k: librosa.load(SD + k + '.wav', sr=22050, mono=True)[0]
+        sf.write(wd + '/mel.wav', ld('other') + ld('vocals'), 22050)
+        sf.write(wd + '/bass.wav', ld('bass'), 22050)
+        sf.write(wd + '/drum.wav', ld('drums'), 22050)
+    else:
+        y0, sr0 = librosa.load(wd + '/song.wav', sr=22050, mono=True)
+        H, P = librosa.decompose.hpss(librosa.stft(y0, n_fft=2048, hop_length=512), margin=(2.0, 2.0))
+        sf.write(wd + '/mel.wav', librosa.istft(H, hop_length=512, length=len(y0)), sr0)
+        sf.write(wd + '/drum.wav', librosa.istft(P, hop_length=512, length=len(y0)), sr0)
+for part in (('mel', 'bass') if STEMS else ('mel',)):
+    if os.path.exists(wd + '/bp_%s.pkl' % part): continue
     from basic_pitch.inference import predict, Model
     from basic_pitch import ICASSP_2022_MODEL_PATH
     model = Model(os.path.join(os.path.dirname(str(ICASSP_2022_MODEL_PATH)), 'nmp.onnx'))
-    out, _, bp_notes = predict(wd + '/harm.wav', model, onset_threshold=0.5, frame_threshold=0.3,
+    out, _, bp_notes = predict(wd + '/%s.wav' % part, model, onset_threshold=0.5, frame_threshold=0.3,
                                minimum_note_length=80, melodia_trick=True, multiple_pitch_bends=False)
-    pickle.dump({'out': out, 'notes': [(n[0], n[1], n[2], n[3]) for n in bp_notes]}, open(wd + '/bp_harm.pkl', 'wb'))
+    pickle.dump({'out': out, 'notes': [(n[0], n[1], n[2], n[3]) for n in bp_notes]}, open(wd + '/bp_%s.pkl' % part, 'wb'))
 
 # ---------------------------------------------------------------- inputs
 y, sr = librosa.load(wd + '/song.wav', sr=22050, mono=True)
 dur = len(y) / sr
-notes = sorted(pickle.load(open(wd + '/bp_%s.pkl' % A.src, 'rb'))['notes'])
+notes = sorted(pickle.load(open(wd + '/bp_mel.pkl', 'rb'))['notes'])
 hop = 512
 oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
 _, beats = librosa.beat.beat_track(onset_envelope=oenv, sr=sr, hop_length=hop, start_bpm=104,
@@ -94,7 +114,8 @@ def loud(t, w=1.2):
     return float(rms[m].mean()) if m.any() else 0.0
 LMAX = np.percentile(rms, 97)
 def dyn(t):
-    return float(np.clip((loud(t) / LMAX) ** 0.6, 0.35, 1.0))
+    # flatter than the recording: the GBA's output noise is fixed, so quiet parts would hiss
+    return float(np.clip((loud(t) / LMAX) ** 0.4, 0.55, 1.0))
 
 # ---------------------------------------------------------------- pitched voices
 # drop overtone ghosts: a weaker note an octave / twelfth / two octaves above a stronger one
@@ -113,7 +134,7 @@ n0 = len(notes)
 notes = ghosts(notes)
 print('notes %d -> %d after overtone filter' % (n0, len(notes)))
 
-BASS_TOP = 50
+BASS_TOP = 44 if STEMS else 50     # with stems the bass is not in these notes
 qn = []
 for st, en, p, a in notes:
     s = q(st); e = max(s + GRID, q(en, 4))
@@ -122,12 +143,15 @@ for st, en, p, a in notes:
 hi_c = [n for n in qn if n[2] > BASS_TOP]
 
 # melody and bass: one line each, tracked through the note posteriorgram (Viterbi), then cut into notes
-PG = pickle.load(open(wd + '/bp_%s.pkl' % A.src, 'rb'))['out']
-POST, ONS = PG['note'], PG['onset']
-PFPS = POST.shape[0] / dur
-def track_line(lo, hi, prior, unv, jump, sw, on_thr, min_fr, legato=0.3, gap=GRID):
-    S = POST[:, lo - 21:hi - 21 + 1].astype(np.float64)
-    O = ONS[:, lo - 21:hi - 21 + 1]
+def load_pg(part):
+    pg = pickle.load(open(wd + '/bp_%s.pkl' % part, 'rb'))['out']
+    return pg['note'], pg['onset']
+PG_MEL = load_pg('mel')
+PG_BASS = load_pg('bass') if STEMS else PG_MEL
+PFPS = PG_MEL[0].shape[0] / dur
+def track_line(pg, lo, hi, prior, unv, jump, sw, on_thr, min_fr, legato=0.3, gap=GRID):
+    S = pg[0][:, lo - 21:hi - 21 + 1].astype(np.float64)
+    O = pg[1][:, lo - 21:hi - 21 + 1]
     T, P = S.shape
     em = np.log(S + 0.02) + prior(np.arange(lo, hi + 1))[None, :]
     em = np.concatenate([em, np.full((T, 1), np.log(unv))], axis=1)
@@ -169,27 +193,40 @@ def track_line(lo, hi, prior, unv, jump, sw, on_thr, min_fr, legato=0.3, gap=GRI
         else: merged.append(n)
     return merged
 
-melody = track_line(64, 96, lambda p: 0.25 * np.clip((p - 64) / 8.0, 0, 1), unv=0.20, jump=0.22, sw=1.6, on_thr=0.45, min_fr=4)
+melody = track_line(PG_MEL, 64, 96, lambda p: 0.25 * np.clip((p - 64) / 8.0, 0, 1), unv=0.30 if STEMS else 0.20, jump=0.22, sw=1.6, on_thr=0.45, min_fr=4)
 melset_iv = [(n[0], n[1], n[2]) for n in melody]
 def in_melody(n):
     for s0, e0, p in melset_iv:
         if p == n[2] and s0 - GRID <= n[0] < e0: return True
     return False
-bass = track_line(26, 50, lambda p: -0.02 * (p - 26), unv=0.17, jump=0.10, sw=1.2, on_thr=0.55, min_fr=6, legato=0.35, gap=TPB // 2)
+bass = track_line(PG_BASS, 26, 52, lambda p: -0.02 * (p - 26), unv=0.17, jump=0.30 if STEMS else 0.10, sw=1.2, on_thr=0.55,
+                  min_fr=8 if STEMS else 6, legato=0.35, gap=TPB // 2)
+if STEMS:
+    # only where the bass stem really sounds
+    yb, _ = librosa.load(wd + '/bass.wav', sr=22050, mono=True)
+    brms = librosa.feature.rms(y=yb, frame_length=2048, hop_length=hop)[0]
+    bref = np.percentile(brms, 90)
+    def bass_on(n):
+        t0 = n[4]; t1 = t0 + 0.25
+        m = (rt >= t0) & (rt < t1)
+        return m.any() and brms[:len(rt)][m[:len(brms)]].mean() >= 0.12 * bref
+    bass = [n for n in bass if bass_on(n)]
 for n in bass:
     while n[2] < 28: n[2] += 12
 
 # accompaniment: what is left, at most 3 voices
-acc = [n for n in hi_c if not in_melody(n) and n[3] >= 0.33 and n[2] <= 84]
+acc = [n for n in hi_c if not in_melody(n) and n[3] >= (0.28 if STEMS else 0.33) and n[2] <= 84]
 acc.sort(key=lambda n: (n[0], -n[3]))
+ACC_POLY = 4 if STEMS else 3
 active = []; acc2 = []
 for n in acc:
     active = [m for m in active if m[1] > n[0]]
     if any(m[2] == n[2] for m in active): continue
-    if len(active) >= 3: continue
+    if len(active) >= ACC_POLY: continue
     # not above the melody sounding now
     top = [m[2] for m in melody if m[0] <= n[0] < m[1]]
-    if top and n[2] >= top[0]: continue
+    # (a clean stem's notes above the lead are real; a full mix's are mostly overtones)
+    if top and n[2] >= top[0] and not STEMS: continue
     active.append(n); acc2.append(n)
 pad = [n for n in acc2 if n[1] - n[0] >= TPB]
 pluck = [n for n in acc2 if n[1] - n[0] < TPB]
@@ -199,28 +236,46 @@ def vel(n, lo=48, hi=127):
     return int(np.clip((lo + (hi - lo) * a) * dyn(n[4]), 20, 127))
 
 # ---------------------------------------------------------------- drums
-yp, _ = librosa.load(wd + '/perc.wav', sr=22050, mono=True)
-Sp = np.abs(librosa.stft(yp, n_fft=1024, hop_length=256))
+yp, _ = librosa.load(wd + '/drum.wav', sr=22050, mono=True)
 fr = librosa.fft_frequencies(sr=sr, n_fft=1024)
-def band_onsets(lo, hi, delta, wait):
-    b = np.log1p(30 * Sp[(fr >= lo) & (fr < hi)].sum(axis=0))
-    d = np.maximum(0, np.diff(b, prepend=b[0]))
-    d = d / (np.percentile(d, 99.5) + 1e-9)
-    pk = librosa.util.peak_pick(d, pre_max=3, post_max=3, pre_avg=10, post_avg=10, delta=delta, wait=wait)
-    return [(librosa.frames_to_time(i, sr=sr, hop_length=256), float(min(d[i], 1.0))) for i in pk]
 drums = {}
-prms = librosa.feature.rms(y=yp, frame_length=2048, hop_length=hop)[0]
-def perc_share(t, w=2.0):
-    m = (rt >= t - w) & (rt < t + w)
-    return float(prms[:len(rt)][m[:len(prms)]].mean() / (rms[m].mean() + 1e-9)) if m.any() else 0.0
-for key, lo, hi, delta, wait in ((36, 30, 140, 0.30, 8), (38, 180, 2500, 0.35, 8), (42, 6000, 11000, 0.30, 4)):
-    for t, s in band_onsets(lo, hi, delta, wait):
-        sh = perc_share(t)
-        if sh < 0.09: continue
+if STEMS:
+    # a clean drum stem: every clear hit, named by where its energy is
+    denv = librosa.onset.onset_strength(y=yp, sr=sr, hop_length=256)
+    denv = denv / (np.percentile(denv, 99.5) + 1e-9)
+    Sd = np.abs(librosa.stft(yp, n_fft=2048, hop_length=256)) ** 2
+    fd = librosa.fft_frequencies(sr=sr, n_fft=2048)
+    BANDS = ((0, 90, 36), (90, 200, 41), (200, 600, 45), (600, 3000, 37), (3000, 11025, 42))   # kick, toms, rim, hat
+    hits = []
+    for i in librosa.util.peak_pick(denv, pre_max=3, post_max=3, pre_avg=12, post_avg=12, delta=0.08, wait=6):
+        w = Sd[:, i:i + 6].sum(1)
+        e = [w[(fd >= lo) & (fd < hi)].sum() for lo, hi, _ in BANDS]
+        hits.append((i * 256 / sr, np.sqrt(sum(e)), BANDS[int(np.argmax(e))][2]))
+    ref = np.percentile([h[1] for h in hits], 95) if hits else 1.0
+    for t, e, key in hits:
+        if e < 0.15 * ref: continue
         k = (q(t), key)
-        drums[k] = max(drums.get(k, 0), s * dyn(t) * (0.7 if key == 42 else 1.0))
+        drums[k] = max(drums.get(k, 0), float(np.clip((e / ref) ** 0.5, 0, 1)))
+else:
+    Sp = np.abs(librosa.stft(yp, n_fft=1024, hop_length=256))
+    def band_onsets(lo, hi, delta, wait):
+        b = np.log1p(30 * Sp[(fr >= lo) & (fr < hi)].sum(axis=0))
+        d = np.maximum(0, np.diff(b, prepend=b[0]))
+        d = d / (np.percentile(d, 99.5) + 1e-9)
+        pk = librosa.util.peak_pick(d, pre_max=3, post_max=3, pre_avg=10, post_avg=10, delta=delta, wait=wait)
+        return [(librosa.frames_to_time(i, sr=sr, hop_length=256), float(min(d[i], 1.0))) for i in pk]
+    prms = librosa.feature.rms(y=yp, frame_length=2048, hop_length=hop)[0]
+    def perc_share(t, w=2.0):
+        m = (rt >= t - w) & (rt < t + w)
+        return float(prms[:len(rt)][m[:len(prms)]].mean() / (rms[m].mean() + 1e-9)) if m.any() else 0.0
+    # no hi-hat here: in a harmonic / percussive split that band is mostly noise
+    for key, lo, hi, delta, wait in ((36, 30, 140, 0.30, 8), (38, 180, 2500, 0.40, 8)):
+        for t, s_ in band_onsets(lo, hi, delta, wait):
+            if perc_share(t) < 0.09: continue
+            k = (q(t), key)
+            drums[k] = max(drums.get(k, 0), s_ * dyn(t))
 drum_notes = [[s, s + 4, key, v, 0] for (s, key), v in sorted(drums.items())]
-print('melody %d  pad %d  pluck %d  bass %d  drums %d' % (len(melody), len(pad), len(pluck), len(bass), len(drum_notes)))
+print('stems %s  melody %d  pad %d  pluck %d  bass %d  drums %d' % (STEMS, len(melody), len(pad), len(pluck), len(bass), len(drum_notes)))
 
 # ---------------------------------------------------------------- tempo map
 end_tick = int(np.ceil((t2tick(dur) - tick0) / TPB)) * TPB
@@ -293,13 +348,22 @@ class Track:
         return out
 
 mel_v = lambda n: vel(n, 70, 127)
+# the lead again on strings where the recording is loud: the flute alone is too pure for a fiddle
+lead2 = [n for n in melody if dyn(n[4]) >= 0.72 and n[2] <= 88]
+# track volumes are near vanilla's (its BGM tracks sit around 35 to 50)
 tracks = [
-    Track('lead', 0, 100, 0x40, melody, mel_v, tempo=tempo_ev),
-    Track('strings', 1, 72, 0x40 - 14, pad, lambda n: vel(n, 50, 105)),
-    Track('harp', 2, 92, 0x40 + 16, pluck, lambda n: vel(n, 55, 115)),
-    Track('bass', 3, 84, 0x40, bass, lambda n: vel(n, 75, 127)),
-    Track('drums', 4, 96, 0x40, drum_notes, lambda n: int(np.clip(50 + 77 * n[3], 30, 127))),
+    Track('lead', 0, 48, 0x40, melody, mel_v, tempo=tempo_ev),
+    Track('fiddle', 1, 36, 0x40 + 8, lead2, lambda n: vel(n, 60, 115)),
+    Track('strings', 1, 46, 0x40 - 14, pad, lambda n: vel(n, 50, 105)),
+    Track('harp', 2, 58, 0x40 + 16, pluck, lambda n: vel(n, 55, 115)),
+    # the bass sample sounds an octave below its key
+    Track('bass', 3, 56, 0x40, bass, lambda n: vel(n, 75, 127), keysh=12),
+    Track('drums', 4, 66, 0x40, drum_notes, lambda n: int(np.clip(40 + 87 * n[3], 30, 127))),
 ]
+for tr in tracks: tr.vol = int(np.clip(round(tr.vol * A.gain), 1, 127))
+if A.only:
+    tracks[0].notes = tracks[0].notes if 'lead' in A.only.split(',') else []
+    tracks = [tracks[0]] + [t for t in tracks[1:] if t.name in A.only.split(',')]
 # voicegroup built from samples that are already in the vanilla ROM
 def ds(smp, adsr): return struct.pack('<BBBBI', 0, 60, 0, 0, 0x08000000 + smp) + bytes.fromhex(adsr)
 VOICES = [
@@ -365,7 +429,9 @@ open(A.out + '/%s.event' % nm, 'w').write('\n'.join(x for x in L if x is not Non
 import pretty_midi
 pm = pretty_midi.PrettyMIDI(initial_tempo=104)
 tick2t = lambda k: float(np.interp((k + tick0) / TPB, np.arange(len(beats)), beats))
-for tr, prog in zip(tracks, (73, 48, 46, 33, 0)):
+GM = {'lead': 73, 'fiddle': 40, 'strings': 48, 'harp': 46, 'bass': 33, 'drums': 0}
+for tr in tracks:
+    prog = GM[tr.name]
     ins = pretty_midi.Instrument(program=prog, is_drum=(tr.name == 'drums'), name=tr.name)
     for nn in tr.notes:
         ins.notes.append(pretty_midi.Note(velocity=int(tr.velf(nn)), pitch=int(nn[2]), start=max(0, tick2t(nn[0])), end=max(0.01, tick2t(nn[1]))))
