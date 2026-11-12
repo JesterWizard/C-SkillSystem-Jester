@@ -41,9 +41,11 @@
 #define PANEL_Y        4
 #define PANEL_W        8
 #define PANEL_H        16
-#define KEY_A_Y        (PANEL_Y + PANEL_H - 7)
-#define KEY_B_Y        (PANEL_Y + PANEL_H - 4)
+/* The panel's rows (tiles): 16-pixel rows, "Unlocked", the gauge, the percentage, the count; a divider; the buttons */
 #define GAUGE_Y        (PANEL_Y + 3)
+#define DIVIDER_Y      (PANEL_Y + 9)
+#define KEY_A_Y        (PANEL_Y + 10)
+#define KEY_B_Y        (PANEL_Y + 12)
 
 /* The window round the grid (tiles), and its inside (pixels): window 0 */
 #define BOX_X          8
@@ -77,6 +79,8 @@
 #define HINT_DX        5 /* the labels' text, from tile 3 */
 #define GAUGE_TILE     (ICON_B_TILE + ICON_TILES)
 #define GAUGE_TILES    6
+#define GAUGE_IN       4 /* the gauge and the divider, pixels in from the panel's inside */
+#define DIVIDER_TILE   (GAUGE_TILE + 2 * GAUGE_TILES)
 #define PAL_GAUGE      9
 #define PAL_ICON       10
 #define PAL_BANNER     11
@@ -149,10 +153,10 @@ static const u16 sGalleryBgConfig[12] = {
 
 static const u16 sFrameObjPal[16] = { 0, RGB(3, 4, 8), RGB(13, 15, 21) };
 
-enum { GAUGE_OUTLINE = 1, GAUGE_TRACK, GAUGE_GOLD, GAUGE_LIT, GAUGE_SHADE };
+enum { GAUGE_OUTLINE = 1, GAUGE_TRACK, GAUGE_GOLD, GAUGE_LIT, GAUGE_SHADE, GAUGE_RULE };
 
 static const u16 sGaugePal[16] = {
-	0, RGB(2, 2, 6), RGB(5, 6, 12), RGB(28, 21, 6), RGB(31, 29, 16), RGB(19, 12, 3),
+	0, RGB(2, 2, 6), RGB(5, 6, 12), RGB(28, 21, 6), RGB(31, 29, 16), RGB(19, 12, 3), RGB(14, 16, 24),
 };
 
 /* A 48x32 thumbnail: a 32x32 and a 16x32 sprite */
@@ -248,45 +252,68 @@ static int Gallery_UnlockedCount(void)
 	return n;
 }
 
-/* A pixel of the gauge's tiles in RAM (GAUGE_TILES in a row) */
-static void Gallery_GaugePixel(u8 *tiles, int x, int y, int color)
+/* A pixel of a strip of tiles in RAM (GAUGE_TILES a row) */
+static void Gallery_StripPixel(u8 *tiles, int x, int y, int color)
 {
-	u8 *b = tiles + (x >> 3) * 0x20 + y * 4 + ((x & 7) >> 1);
+	u8 *b = tiles + ((y >> 3) * GAUGE_TILES + (x >> 3)) * 0x20 + (y & 7) * 4 + ((x & 7) >> 1);
 
 	*b = (x & 1) ? ((*b & 0x0F) | (color << 4)) : ((*b & 0xF0) | color);
 }
 
+/* rows x GAUGE_TILES tiles of BG2 from tile `tile` at tile row y, in the gauge's palette */
+static void Gallery_PutStrip(const u32 *tiles, int tile, int rows, int y)
+{
+	int r, x;
+
+	CpuFastCopy(tiles, (u8 *)VRAM + tile * 0x20, rows * GAUGE_TILES * 0x20);
+	for (r = 0; r < rows; r++)
+		for (x = 0; x < GAUGE_TILES; x++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(PANEL_X + 1 + x, y + r)] =
+				(PAL_GAUGE << 12) | (tile + r * GAUGE_TILES + x);
+}
+
 /*
- * The completion gauge: GAUGE_TILES tiles of BG2, one tile high. A dark outline round a track (rows 1-6, 2 pixels in
- * from each side); the unlocked share of it is gold, lit on top and shaded below.
+ * The completion gauge, a 16-pixel row like the text's: a dark outline round a track, GAUGE_IN pixels in from the
+ * panel's inside on each side, its middle 6 pixels high; the unlocked share of it is gold, lit on top, shaded below.
  */
 static void Gallery_DrawGauge(int unlocked)
 {
-	u32 tiles[GAUGE_TILES * 0x20 / 4];
-	int x, y, w = GAUGE_TILES * 8 - 4, fill = 0, c;
+	u32 tiles[2 * GAUGE_TILES * 0x20 / 4];
+	int x, y, x0 = GAUGE_IN, x1 = GAUGE_TILES * 8 - 1 - GAUGE_IN, fill = 0, c;
 
 	if (GS->count != 0)
-		fill = Div((w - 2) * unlocked, GS->count);
+		fill = Div((x1 - x0 - 1) * unlocked, GS->count);
 	if (unlocked != 0 && fill == 0)
 		fill = 1;
 
 	CpuFastFill(0, tiles, sizeof(tiles));
-	for (y = 1; y <= 6; y++) {
-		for (x = 2; x < 2 + w; x++) {
-			if (y == 1 || y == 6 || x == 2 || x == 1 + w)
+	for (y = 5; y <= 10; y++) {
+		for (x = x0; x <= x1; x++) {
+			if (y == 5 || y == 10 || x == x0 || x == x1)
 				c = GAUGE_OUTLINE;
-			else if (x - 3 >= fill)
+			else if (x - x0 - 1 >= fill)
 				c = GAUGE_TRACK;
 			else
-				c = y == 2 ? GAUGE_LIT : y == 5 ? GAUGE_SHADE : GAUGE_GOLD;
-			Gallery_GaugePixel((u8 *)tiles, x, y, c);
+				c = y == 6 ? GAUGE_LIT : y == 9 ? GAUGE_SHADE : GAUGE_GOLD;
+			Gallery_StripPixel((u8 *)tiles, x, y, c);
 		}
 	}
-	CpuFastCopy(tiles, (u8 *)VRAM + GAUGE_TILE * 0x20, sizeof(tiles));
 	ApplyPalette(sGaugePal, PAL_GAUGE);
+	Gallery_PutStrip(tiles, GAUGE_TILE, 2, GAUGE_Y);
+}
 
-	for (x = 0; x < GAUGE_TILES; x++)
-		gBG2TilemapBuffer[TILEMAP_INDEX(PANEL_X + 1 + x, GAUGE_Y)] = (PAL_GAUGE << 12) | (GAUGE_TILE + x);
+/* A divider between the completion and the buttons: an engraved line, dark over light */
+static void Gallery_DrawDivider(void)
+{
+	u32 tiles[GAUGE_TILES * 0x20 / 4];
+	int x;
+
+	CpuFastFill(0, tiles, sizeof(tiles));
+	for (x = GAUGE_IN; x < GAUGE_TILES * 8 - GAUGE_IN; x++) {
+		Gallery_StripPixel((u8 *)tiles, x, 3, GAUGE_OUTLINE);
+		Gallery_StripPixel((u8 *)tiles, x, 4, GAUGE_RULE);
+	}
+	Gallery_PutStrip(tiles, DIVIDER_TILE, 1, DIVIDER_Y);
 }
 
 /* The panel's top: "Unlocked", the gauge, the percentage, how many of how many */
@@ -300,14 +327,15 @@ static void Gallery_DrawCompletion(void)
 	p = Gallery_PutNumber(buf, unlocked);
 	*p++ = '/';
 	Gallery_PutNumber(p, GS->count);
-	Gallery_PanelText(&GS->position, GAUGE_Y + 3, TEXT_COLOR_SYSTEM_WHITE, buf);
+	Gallery_PanelText(&GS->position, GAUGE_Y + 4, TEXT_COLOR_SYSTEM_WHITE, buf);
 
 	Gallery_DrawGauge(unlocked);
+	Gallery_DrawDivider();
 
 	p = Gallery_PutNumber(buf, GS->count != 0 ? Div(unlocked * 100, GS->count) : 0);
 	p[0] = '%';
 	p[1] = '\0';
-	Gallery_PanelText(&GS->percent, GAUGE_Y + 1, TEXT_COLOR_SYSTEM_WHITE, buf);
+	Gallery_PanelText(&GS->percent, GAUGE_Y + 2, TEXT_COLOR_SYSTEM_WHITE, buf);
 }
 
 /*
