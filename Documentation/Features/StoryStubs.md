@@ -69,7 +69,7 @@ Caer Pelyn's district opens after Chapter 12 and Jehanna Hall's after Chapter 15
   menu.
 - **Chapters 20 to 22.** They follow each other without the world map, as in vanilla. Chapter 22's win runs `MNC4`, and
   the game's ending plays. The ending plays Chapter 22's map again with its opening, so the opening checks for a complete
-  game first (`StubChapter_CheckGameComplete`) and then goes straight on, with no battle. Extras > Map on the cleared save then starts the postgame
+  game first (`StubChapter_CheckGameComplete`) and then goes straight on, with no battle. The save menu before it writes the Creature Campaign save, and after "Fin" the game goes on into the postgame
   ([World Map Story Chapters](./WorldMapStoryChapters.md#the-postgame)).
 - **The world map before Chapter 20** also shows the Lagdou Ruins and Melkaen Coast with their roads, as vanilla's does
   (`STUB_SET_NODE_WITH(..., WM_SHOW_POSTGAME_DUNGEONS)`). `new_chapter.py` keeps that line's extra events.

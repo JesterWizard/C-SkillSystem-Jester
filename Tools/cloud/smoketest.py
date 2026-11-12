@@ -25,9 +25,10 @@ What it checks:
               ending. A monster on Chapter 10's node, not marked next, does not stop it.
   wmshops     (Serafew) the node menu's shop rows: Serafew's Armory and Shop rows open its armory and vendor with
               the node's stock, and B leaves them; a node with no shops has none; the road to the story node is open.
-  postgame    (Serafew) from Chapter 20's world map through the ending; Extras > Map starts the postgame: the
+  postgame    (Serafew) from Chapter 20's world map through the ending, which goes on into the postgame: the
               dungeons are shown, Black Temple starts nothing, Rausten's secret shop opens, the Lagdou Ruins and the
-              Tower of Valni start, Enter District works on Port Kiris.
+              Tower of Valni start, Enter District works on Port Kiris. The end save is titled Creature Campaign,
+              Extras has no Map row, and Restart Chapter on the save opens the postgame.
   districtresume (Serafew) Resume Chapter in a suspended district comes back in free movement.
   savetitle   (Serafew) the save made on leaving a district is titled with the story chapter, not "Skirmish Map".
   wmsave      (Serafew) the world map's Save, a soft reset and Restart Chapter: the story chapter, the lord's node,
@@ -879,11 +880,12 @@ class Smoke:
     def test_postgame(self, states):
         """The postgame. From Serafew (start.ss) the world map opens on Chapter 20's (the story on Chapter 20, the lord on
         Rausten Court, the map as the story leaves it: nodes 0-24 and the Tower of Valni shown, roads 0-30 open, Serafew
-        and Port Kiris unlocked). The trip to Black Temple plays Chapters 20, 21 and 22 and the ending; at the title,
-        Extras > Map and the cleared slot start the postgame world map. Then: the postgame dungeons are shown, Black
-        Temple no longer starts Chapter 20, Rausten Court's node menu has the secret shop, and trips start the Lagdou
-        Ruins and the Tower of Valni, and reach Port Kiris, whose Enter District loads it. The game boots first, so the
-        cleared save is written to set-up SRAM."""
+        and Port Kiris unlocked). The trip to Black Temple plays Chapters 20, 21 and 22, the save menu and the ending;
+        after "Fin" the game goes on to the postgame world map. Then: the postgame dungeons are shown, Black Temple no
+        longer starts Chapter 20, Rausten Court's node menu has the secret shop, and trips start the Lagdou Ruins and the
+        Tower of Valni, and reach Port Kiris, whose Enter District loads it. After a reset the end save is titled
+        "Creature Campaign", Extras has no Map row, and Restart Chapter on it opens the postgame world map. The game boots
+        first, so the end save is written to set-up SRAM."""
         d = os.path.join(self.out, "Postgame")
         os.makedirs(d, exist_ok=True)
         need = ("gWmStoryChapter", "ProcScr_GmapBaseMenu", "sProcArray")
@@ -910,24 +912,38 @@ class Smoke:
         lines += ["w32 %#x %#x" % (GM_DATA + 8, x << 8), "w32 %#x %#x" % (GM_DATA + 0xC, y << 8), "wait 10", "press A",
                   "wait 90"] + self.stub_battle() + ["wait 200"] + self.stub_battle() + ["wait 200"] + \
             self.stub_battle()
-        # the ending (Chapter 22's card) and "Fin", which waits: A, the title: A, the main menu: Extras (four down), Map
-        # (two down), the cleared slot
-        lines += ["wait 600", "press A", "wait 300", "press A", "wait 200"] + ["press DOWN", "wait 20"] * 4
-        lines += ["press A", "wait 200", "press DOWN", "wait 30", "press DOWN", "wait 30", "press A", "wait 200",
-                  "shot slot.png", "press A", "wait 900", "shot postgame.png", "save " + post,
+        # the ending and "Fin", which waits: A, and the game goes on in the end save, on the world map
+        lines += ["wait 600", "shot fin.png", "press A", "wait 900", "shot postgame.png", "save " + post,
                   "r8 %#x" % (PLAYST + 0x14), "r8 %#x" % (GM_DATA + 0x11)] + ["r8 %#x" % node(n) for n in POSTGAME_NODES]
+        # a reset: the main menu (its proc: the Extras rows, the slots' titles); Restart Chapter, the end save
+        procs, menu_scr = self.sym["sProcArray"], self.sym.get("ProcScr_SaveMenu", 0)
+        lines += SOFT_RESET + ["dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS), "press A", "wait 200",
+                               "shot slot.png", "press A", "wait 900", "shot restart.png", "r8 %#x" % (PLAYST + 0x14),
+                               "r8 %#x" % (GM_DATA + 0x11)]
         vals = self.run(rom, lines, d)
-        for name, label in (("ch20", "world map before Chapter 20"), ("slot", "Extras > Map: the cleared save"),
-                            ("postgame", "the postgame world map")):
+        for name, label in (("ch20", "world map before Chapter 20"), ("fin", "the ending's Fin"),
+                            ("postgame", "after the ending: the postgame"),
+                            ("slot", "the end save: Creature Campaign"), ("restart", "Restart Chapter on it")):
             self.shot(os.path.join(d, name + ".png"), label)
         n = len(POSTGAME_NODES)
+        menu = [p for a, p in self.procs(os.path.join(d, "menu.bin")) if a == menu_scr]
+        extras, titles = (menu[0][0x32], list(menu[0][0x37:0x3A])) if menu else (None, [])
+        self.check("postgame: the end save is titled Creature Campaign, and Extras has no Map row",
+                   extras is not None and 0x57 in titles and not extras & (1 << 4),
+                   "Extras rows %s, slot titles %s" % ("%#x" % extras if extras is not None else "?",
+                                                       ["%#x" % t for t in titles]))
+        restart = vals[2 * n + 2:]
+        self.check("postgame: Restart Chapter on the end save opens the postgame world map",
+                   len(restart) == 2 and restart[0] & PLAY_FLAG_POSTGAME and restart[1] == WM_NODE_BLACK_TEMPLE,
+                   "state bits, lord's node %s" % restart)
+        vals = vals[:2 * n + 2]
         if len(vals) != 2 * n + 2:
             return self.check("postgame: the ending leads to the postgame", False, "values %s" % vals)
         pre, state, lord, after = vals[:n], vals[n], vals[n + 1], vals[n + 2:]
         self.check("postgame: Chapter 20's world map shows the Lagdou Ruins and Melkaen Coast",
                    all(pre[POSTGAME_NODES.index(k)] & 1 for k in (WM_NODE_LAGDOU, WM_NODE_MELKAEN)),
                    "states %s" % dict(zip(POSTGAME_NODES, pre)))
-        if not self.check("postgame: Extras > Map on the cleared save starts the postgame",
+        if not self.check("postgame: after the ending the game goes on in the postgame",
                           state & PLAY_FLAG_POSTGAME and state & PLAY_FLAG_COMPLETE and lord == WM_NODE_BLACK_TEMPLE,
                           "state bits %#x, lord on %d" % (state, lord)):
             return

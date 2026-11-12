@@ -120,8 +120,10 @@ World map route (`smoketest.py --only worldmap`, `test_worldmap`):
   `sProcArray` (64 procs of `0x6C` bytes) and reads the procs instead.
 - The postgame (`--only postgame`, `test_postgame`): set the story on Chapter 20 with the lord on Rausten Court, nodes
   0-24 and 26 shown and roads 0-30 open (`+0xA4` list, `+0xC4` count), as the story would leave them. Travel to Black
-  Temple, skip Chapters 20-22 (START, A), press A through the ending, then at the title: A, DOWN 4 times (Extras), A,
-  DOWN twice (Map), A, A on the cleared slot. Boot first: the cleared save goes to SRAM. A trip in the postgame: the
+  Temple, skip Chapters 20-22 (START, A; the save menu after Chapter 22 writes the Creature Campaign save), and A on
+  "Fin" goes on to the postgame world map. After a soft reset the test reads the save menu's proc (the slots' titles,
+  `0x57` "Creature Campaign"; the Extras rows) and Restart Chapter loads the postgame again. Boot first: the end save
+  goes to SRAM. A trip in the postgame: the
   cursor on the node, A, then about 10 x 120 frames, with the monsters (`gGMData.units[4..7]`) cleared each time.
 - Saving from the world map (`--only wmsave`, `test_wmsave`): move the cursor off every node (write `ix`/`iy` at
   `+8`/`+0xC`, `<< 8`), A opens the general menu (Unit, Status, Options, Save, Home), DOWN 3 times, A, then A (the first

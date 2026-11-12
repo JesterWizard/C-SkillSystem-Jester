@@ -184,9 +184,12 @@ The table is already 12 rows, the size of `gPrepMenuVisibleTableSlots`. A 13th r
 Adapted from `InitSaveMenuChoice` (`Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c:63`). Only gating an existing row is verified:
 
 ```c
-    if (IsExtraFreeMapEnabled() != 0)
-        AddExtraMenuOption(proc, EXTRA_MENU_OPTION_MAP);
+    if (IsExtraSoundRoomEnabled() != 0)
+        AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SOUND_ROOM);
 ```
+
+The Map row (`EXTRA_MENU_OPTION_MAP`) is not offered: the end-of-game save goes into the postgame itself
+(`Kernel/Wizardry/CreatureCampaign/`, `Documentation/Features/WorldMapStoryChapters.md`).
 
 Adding a new `EXTRA_MENU_*` value also needs its dispatch. New Game+ (`Kernel/Wizardry/NewGamePlus/`) is the worked example: it uses the unused bit 3, rewrites the Extras list (`sub_80A9B90`), the save picker after it (`sub_80A9E1C`) and its header label (`sub_80ABF74`), and draws its label into a copy of `Img_GameMainMenuObjs` (see `Documentation/Features/NewGamePlus.md`).
 
