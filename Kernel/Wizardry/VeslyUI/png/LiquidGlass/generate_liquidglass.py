@@ -12,7 +12,7 @@ see-through part is alpha blending, set in C_Code.c, not in these images):
     with no black outline and no glow; vanilla's thick top and bottom bars
     become panel inside that rim;
   * rounded corners;
-  * no texture: the glass is smooth.
+  * a frost grain on the glass, so the map behind it looks broken up.
 
 Outputs (next to this script):
   LiquidGlass_*.png             indexed images, read by Png2Dmp from the installer
@@ -79,8 +79,49 @@ def menu_palette():
     return rows
 
 
+# Frost: the glass is grained, so the map behind it looks broken up. Each pixel of
+# glass takes a shade from one fixed 8x8 pattern (every tile the same, so the
+# grain is even across a window): mostly the glass colour, some pixels a shade or
+# two darker, a few light frost specks. Light panels get a finer +-1 grain.
+FROST_DARK = 320       # per mille: one shade darker
+FROST_DARKER = 110      # per mille: two shades darker
+FROST_SPECK = 25       # per mille: a light frost speck
+SPECK = 9              # frosted-glass colour used for the specks
+FROST_RAMPS = {"ui": (list(range(10, 16)), list(range(5, 10))),
+               "prep": (list(range(9, 1, -1)), [])}
+
+
+def frost(x, y):
+    """-1 a speck, 0 the glass colour, 1 or 2 shades darker."""
+    n = style_tools.noise(x & 7, y & 7, 0x6C)
+    if n < FROST_SPECK:
+        return -1
+    n -= FROST_SPECK
+    if n < FROST_DARKER:
+        return 2
+    n -= FROST_DARKER
+    return 1 if n < FROST_DARK else 0
+
+
 def texture(image, kind, skip=frozenset()):
-    """No texture: the glass is smooth."""
+    """The frost grain on the glass and, finer, on the light panels."""
+    glass, light = FROST_RAMPS[kind]
+    px = image.load()
+    for y in range(image.height):
+        for x in range(image.width):
+            index = px[x, y]
+            if (x, y) in skip:
+                continue
+            f = frost(x, y)
+            if index in glass:
+                i = glass.index(index)
+                if f < 0:
+                    px[x, y] = SPECK if kind == "ui" else glass[max(i - 1, 0)]
+                elif f:
+                    px[x, y] = glass[min(i + f, len(glass) - 1)]
+            elif index in light and f:
+                i = light.index(index)
+                px[x, y] = light[max(i - 1, 0)] if f < 0 else light[min(i + 1, len(light) - 1)]
 
 
 # --- Frame ------------------------------------------------------------------------
