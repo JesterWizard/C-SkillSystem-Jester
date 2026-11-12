@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "district.h"
 #include "wm-story-chapter.h"
+#include "map-colors.h"
 
 /*
  * District life (include/kernel/district.h): the time-of-day tint on a district map's palettes, and the townsfolk's
@@ -61,11 +62,30 @@ void District_TintMapPalettes(void)
 	EnablePaletteSync();
 }
 
-/* Vanilla, but for the palette table PListSplit.event moved, and the tint */
+/* Vanilla, but for the palette table PListSplit.event moved, the map colours and the tint */
 LYN_REPLACE_CHECK(UnpackChapterMapPalette);
 void UnpackChapterMapPalette(void)
 {
 	ApplyPalettes(SplitedChapterData_ObjPal[GetROMChapterStruct(gPlaySt.chapterIndex)->map.paletteId], 6, 10);
+	MapColors_ApplyRange(gPaletteBuffer + 0x10 * 6, 0x10 * 10);
+	District_TintMapPalettes();
+}
+
+/*
+ * Vanilla, but for the table PListSplit.event moved, the map colours and the tint: the map is redrawn this way after
+ * the Options and stat screens and battles
+ */
+LYN_REPLACE_CHECK(UnpackChapterMapGraphics);
+void UnpackChapterMapGraphics(int chapterId)
+{
+	const struct ROMChapterData *ch = GetROMChapterStruct(chapterId);
+
+	Decompress(SplitedChapterData_ObjPal[ch->map.obj1Id], (void *)0x06008000);
+	if (SplitedChapterData_ObjPal[ch->map.obj2Id])
+		Decompress(SplitedChapterData_ObjPal[ch->map.obj2Id], (void *)0x0600C000);
+
+	ApplyPalettes(SplitedChapterData_ObjPal[ch->map.paletteId], 6, 10);
+	MapColors_ApplyRange(gPaletteBuffer + 0x10 * 6, 0x10 * 10);
 	District_TintMapPalettes();
 }
 

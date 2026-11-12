@@ -162,6 +162,7 @@ ALIGN 4
 #include "LanguageSelect/LanguageSelect_Installer.event"
 #include "LightsOutPuzzle/LightsOutPuzzle_Installer.event"
 #include "LimitedShopStock/LimitedShopStock_Installer.event"
+#include "MapColors/MapColors_Installer.event"
 #include "Lvupfx/Lvupfx/MapLvup.lyn.event"
 #include "Minigames/Snek/Snek_Installer.event"
 #ifdef CONFIG_HEX_CARDS

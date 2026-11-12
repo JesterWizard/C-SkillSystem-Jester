@@ -66,11 +66,14 @@ What it checks:
   expbar      EXP bar styles (Kernel/Wizardry/ExpBarStyles): with the Options value set to the second and the last
               style, the map EXP bar and the battle-animation one load that style's palette and window tiles; the
               first value (Vanilla) keeps vanilla's palette in battle.
+  mapcolors   Map Colors (Kernel/Wizardry/MapColors): Options set to Vivid, then Deep; leaving Options redraws the map,
+              and all 160 map palette colours match the transform's model of vanilla's palette. A test ROM gives the
+              prologue Chapter 18's palette animation: it runs after a normal boot, and Deep recolours its frames.
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -156,6 +159,7 @@ EVENT_SLOTS = 0x030004B8
 EIRIKA_PORTRAIT = 0x02
 EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED, EXPRESSION_DETERMINED = 3, 4, 5, 6  # include/kernel/portrait-expressions.h
 BM_MAP_UNIT = 0x0202E4D8
+CH18_PAL_ANIM = 84  # Chapter 18's map palette animation id (gChapterDataTable, +10)
 ITEM_TONIC = 0xDF
 SKILL_SCROLL_ITEMS = (0x0A, 0xBD, 0xC9, 0xCA)  # CONFIG_ITEM_INDEX_SKILL_SCROLL_1..4 (include/configs/configs.h)
 GUILD_PRIZE_WORD, GUILD_PRIZE_SKILL = 1, 2  # include/kernel/guild.h
@@ -1417,6 +1421,92 @@ class Smoke:
                    "at (%d, %d), state %#x" % (x2, y2, st2))
         self.check("deeproots: Wait then ends her turn", st3 & 0x42 == 0x42, "state %#x" % st3)
 
+    def test_mapcolors(self, boot_ss):
+        """Map Colors (Kernel/Wizardry/MapColors/Source/MapColors.c): the Options row sets gPlaySt.config.map_colors
+        (bits 2-3 of PLAYST + 0x47; 0 Vanilla, 1 Vivid, 2 Deep). Leaving Options redraws the map and recolours the map
+        palettes (BG banks 6-15, 160 colours) by the transform in the source: Vivid is saturation 22 and contrast 17,
+        Deep is saturation 26, contrast 19 and a curve. Each colour is checked against that model of vanilla's palette.
+        Then a test ROM with Chapter 18's palette animation on the prologue: the animated colours cycle through the
+        frames in its ROM data, and with Deep set they are those frames recoloured."""
+        d = os.path.join(self.out, "mapcolors")
+        os.makedirs(d, exist_ok=True)
+        base = PALETTE_BUFFER + 0xC0
+        vanilla = self.run(ROM, ["load " + boot_ss] + ["r16 %#x" % (base + 2 * k) for k in range(160)], d)
+        if len(vanilla) != 160:
+            return self.check("mapcolors: the map palette", False, "read %d colours" % len(vanilla))
+        curve = [0, 0, 1, 2, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26,
+                 27, 29, 30, 31]
+
+        def model(c, mode):
+            r, g, b = c & 31, (c >> 5) & 31, (c >> 10) & 31
+            luma = (r * 77 + g * 150 + b * 29) >> 8
+            sat, con = (22, 17) if mode == 1 else (26, 19)
+            out = []
+            for ch in (r, g, b):
+                ch = luma + (((ch - luma) * sat) >> 4)
+                ch = 16 + (((ch - 16) * con) >> 4)
+                ch = min(31, max(0, ch))
+                if mode == 2:
+                    ch = curve[ch]
+                out.append(ch)
+            return out[0] | (out[1] << 5) | (out[2] << 10)
+
+        route = ["press RIGHT", "wait 10", "press RIGHT", "wait 10", "press UP", "wait 10", "press A", "wait 30"]
+        route += ["press DOWN", "wait 8"] * 4 + ["press A", "wait 90"]
+        for mode in (1, 2):
+            name = "Vivid" if mode == 1 else "Deep"
+            lines = ["load " + boot_ss] + route + ["press DOWN", "wait 10"] * 14
+            lines += ["press RIGHT", "wait 20"] * mode
+            lines += ["shot row%d.png" % mode, "press B", "wait 120", "shot map%d.png" % mode,
+                      "r8 %#x" % (PLAYST + 0x47)] + ["r16 %#x" % (base + 2 * k) for k in range(160)]
+            vals = self.run(ROM, lines, d)
+            self.shot(os.path.join(d, "row%d.png" % mode), "Map Colors: %s (Options row)" % name)
+            self.shot(os.path.join(d, "map%d.png" % mode), "Map Colors: %s (map)" % name)
+            if len(vals) != 161:
+                self.check("mapcolors: the Options row sets %s" % name, False, "read %d values" % len(vals))
+                continue
+            value = (vals[0] >> 2) & 3
+            self.check("mapcolors: the Options row sets %s" % name, value == mode, "map_colors %d" % value)
+            pal = vals[1:]
+            bad = sum(1 for k in range(160) if pal[k] != model(vanilla[k], mode))
+            changed = sum(1 for k in range(160) if pal[k] != vanilla[k])
+            self.check("mapcolors: the map is redrawn in %s after Options" % name,
+                       len(pal) == 160 and bad == 0 and changed > 0,
+                       "%d colours changed, %d off the model" % (changed, bad))
+
+        # Palette animations (BMapVSync_UpdateMapPalAnimations, rewritten in MapColors.c): a test ROM gives the prologue
+        # Chapter 18's (gChapterDataTable 0x088B0890, 0x94 bytes a chapter, palette animation id at +10), which cycles
+        # palette entries 0x9C-0x9F through frames in its ROM data. A normal boot starts it; Vanilla shows the frames,
+        # Deep (set in RAM: the next frame of the animation applies it) their recoloured versions.
+        data = bytearray(open(ROM, "rb").read())
+        data[0x8B0890 + 10] = CH18_PAL_ANIM
+        rom = os.path.join(d, "mapanim.gba")
+        open(rom, "wb").write(data)
+        frames = set()
+        if "SplitedChapterData_TileAnim" not in self.sym:
+            return self.check("mapcolors: the map animation table", False, "no symbols")
+        table = self.sym["SplitedChapterData_TileAnim"] - 0x08000000  # CustomCampaign/Event/PListSplit.event
+        anim = struct.unpack_from("<I", data, table + 4 * CH18_PAL_ANIM)[0] - 0x08000000
+        while data[anim + 4]:
+            src, count, index = struct.unpack_from("<I", data, anim)[0] - 0x08000000, data[anim + 5], data[anim + 6]
+            frames |= {(index + k, struct.unpack_from("<H", data, src + 2 * k)[0]) for k in range(count)}
+            anim += 8
+        entries = sorted({e for e, _ in frames})
+        reads = [("r16 %#x" % (base + 2 * e)) for e in entries]
+        ss = os.path.join(d, "mapanim.ss")
+        got = self.run(rom, self.boot_lines() + ["save " + ss] + (["wait 7"] + reads) * 12, d)
+        seen = {(entries[i % len(entries)], v) for i, v in enumerate(got)}
+        moving = len({v for _, v in seen}) > len(entries)
+        self.check("mapcolors: a map palette animation runs (Vanilla)", len(got) == 12 * len(entries) and moving and
+                   seen <= frames, "%d samples, %d values" % (len(got), len({v for _, v in seen})))
+        lines = ["load " + ss, "w8 %#x 8" % (PLAYST + 0x47), "wait 30"] + (["wait 7"] + reads) * 12
+        got = self.run(rom, lines, d)
+        deep = {(e, model(c, 2)) for e, c in frames}
+        seen = {(entries[i % len(entries)], v) for i, v in enumerate(got)}
+        self.check("mapcolors: the animated colours are recoloured (Deep)", len(got) == 12 * len(entries) and
+                   seen <= deep and len({v for _, v in seen}) > 1, "%d of %d samples off the model" %
+                   (len(seen - deep), len(seen)))
+
     def test_expbar(self, boot_ss):
         """EXP bar styles: the Options value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the second option
         word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations. The map bar
@@ -1881,7 +1971,7 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar", "deeproots")
+                  "bigunit", "expbar", "deeproots", "mapcolors")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
@@ -1902,6 +1992,8 @@ def main():
                 r.submit((0, 5), s.test_expbar, boot_ss)
             if on("deeproots"):
                 r.submit((0, 6), s.test_deeproots, boot_ss)
+            if on("mapcolors"):
+                r.submit((0, 7), s.test_mapcolors, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard))):

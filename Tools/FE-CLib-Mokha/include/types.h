@@ -193,8 +193,7 @@ struct PlaySt_OptionBits {
     u32 show_true_2rn: 1;      /* 0 = ON, 1 = OFF; show true 2RN hit rates */
     u32 exp_bar_style: 4;      /* Kernel/Wizardry/ExpBarStyles: 0 = vanilla */
 
-    u32 custom_option_27: 1;
-    u32 custom_option_28: 1;
+    u32 map_colors: 2;         /* Kernel/Wizardry/MapColors: 0 vanilla, 1 vivid, 2 deep */
     u32 custom_option_29: 1;
     u32 custom_option_30: 1;
     u32 custom_option_31: 1;

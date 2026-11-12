@@ -553,3 +553,17 @@ unit can still move and act.[X]
 No empty forest within reach.[X]
 ## MSG_SKILL_DeepRoots_Target
 Choose a forest to move to.[X]
+## MSG_MENU_OPTION_MAP_COLORS_TITLE
+Map Colors[X]
+## MSG_MENU_OPTION_MAP_COLORS_VANILLA
+Vanilla[X]
+## MSG_MENU_OPTION_MAP_COLORS_VIVID
+Vivid[X]
+## MSG_MENU_OPTION_MAP_COLORS_DEEP
+Deep[X]
+## MSG_MENU_OPTION_MAP_COLORS_DESC_VANILLA
+The map's original colors.[X]
+## MSG_MENU_OPTION_MAP_COLORS_DESC_VIVID
+Richer, more saturated map colors.[X]
+## MSG_MENU_OPTION_MAP_COLORS_DESC_DEEP
+Deep, saturated map colors with darker shades.[X]

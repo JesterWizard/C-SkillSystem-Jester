@@ -166,6 +166,9 @@ python3 Tools/cloud/smoketest.py --quick
     Moved next to her, O'Neill's battle quote shows her `[Surprised]` (a test ROM maps her sad portrait to it);
   - EXP bar styles: with the Options value set to a style, the map EXP bar and the battle-animation one load that
     style's palette and window tiles (`--only expbar`);
+  - Map Colors: the Options row set to Vivid and then Deep redraws the map in those colours, every map colour matching
+    a model of the transform; a map palette animation (Chapter 18's, on the prologue in a test ROM) runs after a normal
+    boot and is recoloured too (`--only mapcolors`);
   - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game
     writes its suspend save), a soft reset and Resume Chapter bring back her HP, her position and every district save
     chunk. The debugger's "Save & restart ch." and Restart Chapter do the same for the game save;
