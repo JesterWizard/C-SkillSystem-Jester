@@ -1,6 +1,5 @@
 #include "LynJump.event"
 #include "C_Code.lyn.event" 
-#include "LiquidGlass.lyn.event"
 #include "Hooks.lyn.event" 
 
 ALIGN 4 
@@ -15,7 +14,6 @@ PaperStyleFlag:    WORD 0xB0
 OceanStyleFlag:    WORD 0xB1
 ForestStyleFlag:   WORD 0xB2
 ParchmentStyleFlag: WORD 0xB3
-LiquidGlassStyleFlag: WORD 0xA9 // not referenced anywhere else in the repo
 
 ALIGN 4 
 gUiFrameImage_Stephano:
@@ -721,54 +719,3 @@ ORG $51384
 jumpToHack(ekrGaugeMain_Hook3)
 
 POP 
-
-
-// LIQUID GLASS (png/LiquidGlass/generate_liquidglass.py builds these from png/Vanilla; C_Code.c makes the windows see-through)
-ALIGN 4
-gUiFrameImage_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_Main.png" --lz77
-ALIGN 4
-MenuTilesPalette_LiquidGlass:
-#incbin "png/LiquidGlass/LiquidGlass_MenuPal.pal"
-ALIGN 4
-gPrepExtra1_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_Preps.png" --lz77
-ALIGN 4
-gPrepUseGfx_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_PrepsUseGfx.png" --lz77
-ALIGN 4
-gPrepItemGfx_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_PrepItems.png" --lz77
-ALIGN 4
-LiquidGlass_PrepItemsPalette:
-#incbin "png/LiquidGlass/LiquidGlass_PrepItemsPal.pal"
-ALIGN 4
-LiquidGlass_PrepPopupWindow:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_PrepPopupWindow.png" --lz77
-ALIGN 4
-Img_ShopGoldBox_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_ShopGoldDisplay.png" --lz77
-ALIGN 4
-Img_08801C14_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_Battle.png" --lz77
-ALIGN 4
-Img_EfxLeftNameBox_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_Left.png" --lz77
-ALIGN 4
-Img_EfxLeftItemBox_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_LeftItem.png" --lz77
-ALIGN 4
-Img_EfxRightNameBox_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_Right.png" --lz77
-ALIGN 4
-Img_EfxRightItemBox_LiquidGlass:
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_RightItem.png" --lz77
-ALIGN 4
-gUnknown_08802558_LiquidGlass: // Battle UI Palette
-#incbin "png/LiquidGlass/LiquidGlass_BattlePal.pal"
-ALIGN 4
-Img_PlayStatusSprites_LiquidGlass: // chapter status banner and playtime box
-#incext Png2Dmp "png/LiquidGlass/LiquidGlass_PlayStatus.png" --lz77
-ALIGN 4
-Pal_PlayStatusSprites_LiquidGlass:
-#incbin "png/LiquidGlass/LiquidGlass_PlayStatusPal.pal"

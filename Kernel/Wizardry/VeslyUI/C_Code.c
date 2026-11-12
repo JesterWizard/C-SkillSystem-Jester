@@ -211,21 +211,6 @@ extern u16 Img_EfxLeftNameBox_Parchment[];
 extern u16 Img_EfxLeftItemBox_Parchment[];
 extern u16 Img_EfxRightNameBox_Parchment[];
 extern u16 Img_EfxRightItemBox_Parchment[];
-extern const u8 gUiFrameImage_LiquidGlass[];
-extern const u8 gPrepExtra1_LiquidGlass[];       // gUnknown_08A1B730
-extern const u8 gPrepUseGfx_LiquidGlass[];       // Img_PrepItemUseScreen
-extern const u8 gPrepItemGfx_LiquidGlass[];      // gUnknown_08A1B1FC
-extern const u16 LiquidGlass_PrepItemsPalette[]; // gUnknown_08A1B638
-extern const u8 LiquidGlass_PrepPopupWindow[];   // Img_PrepPopupWindow
-extern u16 Img_ShopGoldBox_LiquidGlass[];
-extern const u8 Img_PlayStatusSprites_LiquidGlass[];
-extern const u16 Pal_PlayStatusSprites_LiquidGlass[];
-extern u16 gUnknown_08802558_LiquidGlass[];      // palette in func EfxPrepareScreenFx
-extern u16 Img_08801C14_LiquidGlass[];
-extern u16 Img_EfxLeftNameBox_LiquidGlass[];
-extern u16 Img_EfxLeftItemBox_LiquidGlass[];
-extern u16 Img_EfxRightNameBox_LiquidGlass[];
-extern u16 Img_EfxRightItemBox_LiquidGlass[];
 
 extern int StephanoStyleFlag;
 extern int GammaStyleFlag;
@@ -238,7 +223,6 @@ extern int PaperStyleFlag;
 extern int OceanStyleFlag;
 extern int ForestStyleFlag;
 extern int ParchmentStyleFlag;
-extern int LiquidGlassStyleFlag;
 int GetUI_id(void)
 {
 
@@ -247,7 +231,7 @@ int GetUI_id(void)
 
     /*
      * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
-     * Parchment, Liquid Glass) are checked first: GammaStyleFlag is the guide flag, which
+     * Parchment) are checked first: GammaStyleFlag is the guide flag, which
      * the campaign sets early, so a later check could never select them.
      */
     if (CheckFlag(WoodStyleFlag))
@@ -281,10 +265,6 @@ int GetUI_id(void)
     if (CheckFlag(ParchmentStyleFlag))
     {
         return 11;
-    }
-    if (CheckFlag(LiquidGlassStyleFlag))
-    {
-        return 12;
     }
     if (CheckFlag(StephanoStyleFlag))
     {
@@ -321,7 +301,6 @@ static const void * sUiFrame[] = {
     gUiFrameImage_Ocean, // ocean
     gUiFrameImage_Forest, // forest
     gUiFrameImage_Parchment, // parchment
-    gUiFrameImage_LiquidGlass, // liquid glass
 };
 
 const u8 * GetUiFrame(void)
@@ -348,7 +327,6 @@ static const void * sPIFontTiles[] = {
     gGfx_PlayerInterfaceFontTiles, // ocean
     gGfx_PlayerInterfaceFontTiles, // forest
     gGfx_PlayerInterfaceFontTiles, // parchment
-    gGfx_PlayerInterfaceFontTiles, // liquid glass
 };
 
 const u8 * GetPIFontTiles(void)
@@ -375,7 +353,6 @@ static const void * sPINumbers[] = {
     gGfx_PlayerInterfaceNumbers, // ocean
     gGfx_PlayerInterfaceNumbers, // forest
     gGfx_PlayerInterfaceNumbers, // parchment
-    gGfx_PlayerInterfaceNumbers, // liquid glass
 };
 
 const u8 * GetPINumbers(void)
@@ -415,7 +392,6 @@ static const void * sUnknown_08A1B698[] = {
     gUnknown_08A1B698, // ocean
     gUnknown_08A1B698, // forest
     gUnknown_08A1B698, // parchment
-    gUnknown_08A1B698, // liquid glass
 };
 
 const u8 * GetUnknown_08A1B698(void)
@@ -458,7 +434,6 @@ static const void * sPrepExtra1[] = {
     gPrepExtra1_Ocean, // ocean
     gPrepExtra1_Forest, // forest
     gPrepExtra1_Parchment, // parchment
-    gPrepExtra1_LiquidGlass, // liquid glass
 };
 
 const u8 * GetPrepExtra1(void)
@@ -486,7 +461,6 @@ static const void * sUnknown_08A1B7C8[] = {
     gUnknown_08A1B7C8, // ocean
     gUnknown_08A1B7C8, // forest
     gUnknown_08A1B7C8, // parchment
-    gUnknown_08A1B7C8, // liquid glass
 };
 
 const u8 * GetUnknown_08A1B7C8(void)
@@ -523,7 +497,6 @@ static const void * sPrepUseItem[] = {
     gPrepUseGfx_Ocean, // ocean
     gPrepUseGfx_Forest, // forest
     gPrepUseGfx_Parchment, // parchment
-    gPrepUseGfx_LiquidGlass, // liquid glass
 };
 
 const u8 * GetPrepUseItem(void)
@@ -555,7 +528,6 @@ static const void * sPrepItem[] = {
     gPrepItemGfx_Ocean, // ocean
     gPrepItemGfx_Forest, // forest
     gPrepItemGfx_Parchment, // parchment
-    gPrepItemGfx_LiquidGlass, // liquid glass
 };
 
 const u8 * GetPrepItem(void)
@@ -582,7 +554,6 @@ static const void * sPrepItemPal[] = {
     Ocean_PrepItemsPalette, // ocean
     Forest_PrepItemsPalette, // forest
     Parchment_PrepItemsPalette, // parchment
-    LiquidGlass_PrepItemsPalette, // liquid glass
 };
 
 const u16 * GetPrepItemPal(void)
@@ -613,7 +584,6 @@ static const void * sPrepPopupWindow[] = {
     Ocean_PrepPopupWindow, // ocean
     Forest_PrepPopupWindow, // forest
     Parchment_PrepPopupWindow, // parchment
-    LiquidGlass_PrepPopupWindow, // liquid glass
 };
 
 const u8 * GetPrepPopupWindow(void)
@@ -651,7 +621,7 @@ void PutImg_PrepPopupWindow(int vram, int pal)
 // }
 /*
  * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
- * Parchment, Liquid Glass) are built by png/style_tools.py, which can add details along the
+ * Parchment) are built by png/style_tools.py, which can add details along the
  * frame edges (wood's chips, glass's coloured pieces). A window repeats its
  * edge tiles along each side, so for these styles DrawUiFrame picks each beam
  * and left edge tile from a set of interchangeable ones (TOP_BEAMS and friends in
@@ -662,7 +632,7 @@ static int IsGeneratedStyle(void)
 {
     int id = GetUI_id();
 
-    return id >= 4 && id <= 12;
+    return id >= 4 && id <= 11;
 }
 
 extern const u16 * const sUiFrameModelTilemapLookup[];
@@ -819,7 +789,6 @@ static const void * sBUiFrame_880210C[] = {
     gUnknown_0880210C, // ocean
     gUnknown_0880210C, // forest
     gUnknown_0880210C, // parchment
-    gUnknown_0880210C, // liquid glass
 };
 const u8 * GetBUiFrame_880210C(void)
 {
@@ -844,7 +813,6 @@ static const void * sBUiFrame_88021C0[] = {
     gUnknown_088021C0, // ocean
     gUnknown_088021C0, // forest
     gUnknown_088021C0, // parchment
-    gUnknown_088021C0, // liquid glass
 };
 const u8 * GetBUiFrame_88021C0(void)
 {
@@ -927,7 +895,6 @@ static const void * sUnknown_08802274[] = {
     gUnknown_08802274, // ocean
     gUnknown_08802274, // forest
     gUnknown_08802274, // parchment
-    gUnknown_08802274, // liquid glass
 };
 
 const u8 * ekrGaugeMain_GetImg()
@@ -953,7 +920,6 @@ static const void * sUnknown_08802348[] = {
     gUnknown_08802348, // ocean
     gUnknown_08802348, // forest
     gUnknown_08802348, // parchment
-    gUnknown_08802348, // liquid glass
 };
 
 const u8 * ekrGaugeMain2_GetImg()
@@ -980,7 +946,6 @@ static const void * sUnknown_08802428[] = {
     gUnknown_08802428, // ocean
     gUnknown_08802428, // forest
     gUnknown_08802428, // parchment
-    gUnknown_08802428, // liquid glass
 };
 
 const u8 * ekrGaugeMain3_GetImg()
@@ -1007,7 +972,6 @@ static const void * sUnknown_08802508[] = {
     gUnknown_08802508, // ocean
     gUnknown_08802508, // forest
     gUnknown_08802508, // parchment
-    gUnknown_08802508, // liquid glass
 };
 
 const u8 * GetUnknown_08802508()
@@ -1034,7 +998,6 @@ static const void * sImg_08801C14[] = {
     Img_08801C14_Ocean, // ocean
     Img_08801C14_Forest, // forest
     Img_08801C14_Parchment, // parchment
-    Img_08801C14_LiquidGlass, // liquid glass
 };
 
 const u8 * GetImg_08801C14()
@@ -1061,7 +1024,6 @@ static const void * sBPal_8802558[] = {
     gUnknown_08802558_Ocean, // ocean
     gUnknown_08802558_Forest, // forest
     gUnknown_08802558_Parchment, // parchment
-    gUnknown_08802558_LiquidGlass, // liquid glass
 };
 const u16 * GetBPal_8802558(void)
 {
@@ -1112,7 +1074,6 @@ static const void * sImg_EfxLeftNameBox[] = {
     Img_EfxLeftNameBox_Ocean, // ocean
     Img_EfxLeftNameBox_Forest, // forest
     Img_EfxLeftNameBox_Parchment, // parchment
-    Img_EfxLeftNameBox_LiquidGlass, // liquid glass
 };
 
 const u8 * GetImg_EfxLeftNameBox()
@@ -1139,7 +1100,6 @@ static const void * sImg_EfxLeftItemBox[] = {
     Img_EfxLeftItemBox_Ocean, // ocean
     Img_EfxLeftItemBox_Forest, // forest
     Img_EfxLeftItemBox_Parchment, // parchment
-    Img_EfxLeftItemBox_LiquidGlass, // liquid glass
 };
 
 const u8 * GetImg_EfxLeftItemBox()
@@ -1166,7 +1126,6 @@ static const void * sImg_EfxRightNameBox[] = {
     Img_EfxRightNameBox_Ocean, // ocean
     Img_EfxRightNameBox_Forest, // forest
     Img_EfxRightNameBox_Parchment, // parchment
-    Img_EfxRightNameBox_LiquidGlass, // liquid glass
 };
 
 const u8 * GetImg_EfxRightNameBox()
@@ -1193,7 +1152,6 @@ static const void * sImg_EfxRightItemBox[] = {
     Img_EfxRightItemBox_Ocean, // ocean
     Img_EfxRightItemBox_Forest, // forest
     Img_EfxRightItemBox_Parchment, // parchment
-    Img_EfxRightItemBox_LiquidGlass, // liquid glass
 };
 
 const u8 * GetImg_EfxRightItemBox()
@@ -1290,7 +1248,6 @@ extern const u16 MenuTilesPalette_Paper[];
 extern const u16 MenuTilesPalette_Ocean[];
 extern const u16 MenuTilesPalette_Forest[];
 extern const u16 MenuTilesPalette_Parchment[];
-extern const u16 MenuTilesPalette_LiquidGlass[];
 
 static const u16 * const sUiPalLookupVanilla[] = {
     &gUiFramePaletteA[0x0], // gUiFramePaletteA has all 4 in a row anyway
@@ -1365,13 +1322,6 @@ static const u16 * const sUiPalLookupParchment[] = {
     &MenuTilesPalette_Parchment[0x0],  &MenuTilesPalette_Parchment[0x10], &MenuTilesPalette_Parchment[0x20],
     &MenuTilesPalette_Parchment[0x30], &MenuTilesPalette_Parchment[0x40], &MenuTilesPalette_Parchment[0x50],
     &MenuTilesPalette_Parchment[0x60], &MenuTilesPalette_Parchment[0x70],
-
-};
-
-static const u16 * const sUiPalLookupLiquidGlass[] = {
-    &MenuTilesPalette_LiquidGlass[0x0],  &MenuTilesPalette_LiquidGlass[0x10], &MenuTilesPalette_LiquidGlass[0x20],
-    &MenuTilesPalette_LiquidGlass[0x30], &MenuTilesPalette_LiquidGlass[0x40], &MenuTilesPalette_LiquidGlass[0x50],
-    &MenuTilesPalette_LiquidGlass[0x60], &MenuTilesPalette_LiquidGlass[0x70],
 
 };
 
@@ -1452,13 +1402,6 @@ static const u16 * const sFactionPalLookupParchment[] = {
     &MenuTilesPalette_Parchment[0x30],
 };
 
-static const u16 * const sFactionPalLookupLiquidGlass[] = {
-    &MenuTilesPalette_LiquidGlass[0x00],
-    &MenuTilesPalette_LiquidGlass[0x20],
-    &MenuTilesPalette_LiquidGlass[0x10],
-    &MenuTilesPalette_LiquidGlass[0x30],
-};
-
 static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupVanilla,
     sUiPalLookupVanilla,
@@ -1472,7 +1415,6 @@ static const u16 * const * const sUiPalLookup[] = {
     sUiPalLookupOcean, // ocean
     sUiPalLookupForest, // forest
     sUiPalLookupParchment, // parchment
-    sUiPalLookupLiquidGlass, // liquid glass
 };
 static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupVanilla,
@@ -1487,7 +1429,6 @@ static const u16 * const * const sFactionPalLookup[] = {
     sFactionPalLookupOcean, // ocean
     sFactionPalLookupForest, // forest
     sFactionPalLookupParchment, // parchment
-    sFactionPalLookupLiquidGlass, // liquid glass
 };
 
 #define BGPAL_WINDOW_FRAME 1
@@ -1701,7 +1642,6 @@ static const void * sUiGoldBox[] = {
     Img_ShopGoldBox_Ocean, // ocean
     Img_ShopGoldBox_Forest, // forest
     Img_ShopGoldBox_Parchment, // parchment
-    Img_ShopGoldBox_LiquidGlass, // liquid glass
 };
 
 const u8 * GetUiGoldBox(void)
@@ -1730,7 +1670,6 @@ static const void * sPlayStatusSprites[] = {
     Img_PlayStatusSprites_Ocean, // ocean
     Img_PlayStatusSprites_Forest, // forest
     Img_PlayStatusSprites_Parchment, // parchment
-    Img_PlayStatusSprites_LiquidGlass, // liquid glass
 };
 
 static const void * sPlayStatusPal[] = {
@@ -1747,7 +1686,6 @@ static const void * sPlayStatusPal[] = {
     Pal_PlayStatusSprites_Ocean, // ocean
     Pal_PlayStatusSprites_Forest, // forest
     Pal_PlayStatusSprites_Parchment, // parchment
-    Pal_PlayStatusSprites_LiquidGlass, // liquid glass
 };
 
 /*
@@ -1807,7 +1745,6 @@ static const u16 * const sChapterTitlePal[] = {
     sChapterTitlePalOcean, // ocean
     sChapterTitlePalForest, // forest
     NULL, // parchment: vanilla colours
-    sChapterTitlePalTech, // liquid glass: white and pale cyan, as tech
 };
 
 LYN_REPLACE_CHECK(ChapterStatus_ShowAllLayers);
