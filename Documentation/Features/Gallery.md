@@ -102,8 +102,10 @@ clears them.
   tile (`ICON_DX`, a 3x2 block of tiles), off the window's edge. Sprites: the thumbnails (a 32x32 and a
   16x32 each, 1D mapping), their frames (`Gfx/Img_GalleryCursor.png`, a 64x64 sprite each: grey, OBJ palette 13, or
   the cursor's gold, OBJ palette 12, which glows) and the padlocks (`Gfx/Img_GalleryLock.png`, OBJ palette 15).
-- **The completion gauge** (`Gallery_DrawGauge`) is 6 BG2 tiles drawn in RAM: an outline round a track, the
-  unlocked share gold (BG palette 9, `sGaugePal`). The counts come from the unlock bits when the panel is drawn.
+- **The panel** is laid out in 16-pixel rows: "Unlocked", the gauge, the percentage, the count; an engraved divider
+  (`Gallery_DrawDivider`); the two buttons. The gauge (`Gallery_DrawGauge`) is a 6x2 strip of BG2 tiles drawn in RAM,
+  4 pixels in from the panel's inside: an outline round a track, the unlocked share gold (BG palette 9, `sGaugePal`).
+  The counts come from the unlock bits when the panel is drawn.
 - **The grid** fills the window's inside (x 72-231, y 40-151): a CG and its frame is 52x36, 2 pixels apart. Each
   place on the grid has a slot: its thumbnail's tiles in OBJ VRAM and its palette in OBJ palettes 0-11 (dimmed when
   locked), loaded again whenever the rows are drawn.
