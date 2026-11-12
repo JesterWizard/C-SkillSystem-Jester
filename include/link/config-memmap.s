@@ -61,7 +61,12 @@ _kernel_malloc mgba_print_level, 4
 _kernel_malloc __stdio_FILEs, 0x10
 _kernel_malloc sSkillList, 0x50 * 3
 _kernel_malloc sSkillFastList, 0x100
-_kernel_malloc sLearnedSkillPLists, 51 * 0x20
+/*
+ * The learned skills were here (51 * 0x20 bytes; now gLearnedSkills, below). Kept reserved: FreeMovement's iFRAM
+ * (0x2028924, cFreeMU/src/_include/MokhaRAMSpace.s) is inside it, and freeing it moves every allocation after it
+ * onto addresses that LimitedShopStock (0x202774C) and FreeMovement hardcode.
+ */
+_kernel_malloc sReservedOldLearnedSkills, 51 * 0x20
 _kernel_malloc sEfxSkillRoundData, 8 * 0x21
 _kernel_malloc sEfxCombatArtRoundData,  0x30
 _kernel_malloc gBattleActorGlobalFlag, 0x10
@@ -383,6 +388,13 @@ _kernel_malloc2 gChapterAwardsScreen, 0x60
 _kernel_malloc2 gPortraitFrameSlots, 0x14
 /* 2x2 units (include/kernel/big-unit.h): the groups of corners (struct BigUnitGroup[8]). Saved in the suspend save. */
 _kernel_malloc2 gBigUnitGroups, 0x30
+
+/* Learned skills (struct LearnedSkills, include/kernel/skill-system.h): the whole army's, sorted */
+_kernel_malloc2 gLearnedSkills, 0x7AC
+
+/* New Game+: the carried skills (struct NewGamePlusCarry) and the save picked on the title */
+_kernel_malloc2 gNewGamePlus, 0x1D8
+_kernel_malloc2 gNewGamePlusArmed, 4
 
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 

@@ -169,6 +169,8 @@ python3 Tools/cloud/smoketest.py --quick
   - Map Colors: the Options row set to Vivid and then Deep redraws the map in those colours, every map colour matching
     a model of the transform; a map palette animation (Chapter 18's, on the prologue in a test ROM) runs after a normal
     boot and is recoloured too (`--only mapcolors`);
+  - New Game+: Extras has the row only once a save has been to the postgame; New Game+ from that save starts a new
+    game in which Eirika has the skills she had equipped there and its skill list (`--only newgameplus`);
   - saves: the game save's and suspend save's chunks fit their SRAM blocks, which do not overlap. Eirika waits (the game
     writes its suspend save), a soft reset and Resume Chapter bring back her HP, her position and every district save
     chunk. The debugger's "Save & restart ch." and Restart Chapter do the same for the game save;

@@ -176,4 +176,5 @@ gNewSaveHooks:
 #ifdef CONFIG_DISTRICT_GUILD
     POIN Guild_NewGame
 #endif
+    POIN NewGamePlus_OnNewGame /* after ResetUnitLearnedSkillLists */
     WORD 0 0 0 0

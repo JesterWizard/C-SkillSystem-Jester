@@ -2,6 +2,7 @@
 #include "bmmenu.h"
 #include "kernel-lib.h"
 #include "jester_headers/custom-arrays.h"
+#include "new-game-plus.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -104,6 +105,10 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
         if (IsExtraSupportViewerEnabled() != 0)
             AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SUPPORT);
     }
+
+    /* New Game+: once a save has been to the Creature Campaign (Kernel/Wizardry/NewGamePlus) */
+    if (NewGamePlus_IsExtraEnabled())
+        AddExtraMenuOption(proc, EXTRA_MENU_OPTION_NEW_GAME_PLUS);
 
     if (IsExtraFreeMapEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_MAP);

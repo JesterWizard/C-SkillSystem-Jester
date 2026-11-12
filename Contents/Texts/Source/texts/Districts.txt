@@ -567,3 +567,9 @@ The map's original colors.[X]
 Richer, more saturated map colors.[X]
 ## MSG_MENU_OPTION_MAP_COLORS_DESC_DEEP
 Deep, saturated map colors with darker shades.[X]
+## MSG_NewGamePlus_NeedPostgame
+Select data that has been to[N]
+the Creature Campaign.[X]
+## MSG_NewGamePlus_NoEmptyFile
+There is no empty file.[N]
+Erase one to start a new game.[X]

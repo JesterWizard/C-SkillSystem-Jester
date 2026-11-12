@@ -51,6 +51,7 @@ gPostActionFuncs:
     POIN PostAction_UndoTarget
     POIN PostAction_SyncSummonLevels
     POIN PostAction_Zenkai
+    POIN NewGamePlus_PostAction
 
     //End
     POIN CallExternalPostActionHook
