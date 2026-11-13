@@ -7,13 +7,13 @@ The Extras list's labels are sprites in a hand-drawn font, in Kernel/Wizardry/Ne
 Vanilla has no label for the rows this hack adds, so their words are built from the letters of vanilla's own labels
 (Img_GameMainMenuObjs, Img_SaveScreenSprits, Img_DifficultyMenuObjs, read from the clean ROM):
 
-- A letter is its core: the palette 1-4 pixels (2-pixel strokes) between two columns of a vanilla word. Pieces of a
-  neighbour cut off with it (under 3 pixels) are dropped.
-- A word is its letters' cores a column apart, rendered in the font's style: a core pixel is white (1), tan (3) where
-  it continues a stroke from the left and from above; the drop shadow (5) is right of and below the core; the outline
-  (6) is round the lot.
-- Two letters are drawn by hand in the same strokes: the i (vanilla's is a stem with a notch, which reads as an l)
-  and the x (Extras' runs into its t).
+- A letter is vanilla's own pixels for it: its core (the palette 1-4 pixels: its strokes, serifs, highlights and
+  shading) between two columns of a vanilla word, less pieces of a neighbour cut off with it (under 3 pixels), and the
+  shadow colours vanilla gives round that core.
+- A word is its letters a shadow column apart, as in vanilla's words, with the outline (6) drawn round the lot:
+  where a letter was cut from its neighbour, vanilla's outline is gone, so it is drawn again.
+
+Every letter is vanilla's shape; none is drawn by hand.
 
 Each word is centred in the sheet's free tiles given below (label row, first tile column, tiles); the sprites that
 show them are gExtrasLabelSprites (Kernel/Wizardry/NewGamePlus/Source/NgpSaveMenu.c). Run it again after changing a
@@ -40,11 +40,7 @@ CUTS = {
     "e": ("Battle History", 164, 169), "s": ("Easy", 40, 44), "y": ("Easy", 44, 50),
     "k": ("Link Arena", 165, 173), "r": ("Restart Chapter", 44, 48), "S": ("Sound Room", 23, 29),
     "l": ("Gallery", 49, 52), "C": ("Copy Data", 101, 108), "o": ("Copy Data", 109, 114),
-    "d": ("Select Mode", 192, 198),
-}
-DRAWN = {
-    "i": (2, [".##", ".##", "...", "###", ".##", ".##", ".##", ".##", ".##", "###"]),
-    "x": (5, ["##...##", ".##.##.", "..###..", "..###..", ".##.##.", "##...##", "##...##"]),
+    "d": ("Select Mode", 192, 198), "i": ("Link Arena", 155, 158), "x": ("Extras", 183, 188),
 }
 SPACE = 3
 # The words and where they go: (label row, first tile column, tiles), in the order the canvas is cut
@@ -84,6 +80,9 @@ def tiles(data):
 
 
 def letter(pixel, y0, x0, x1):
+    """A letter as vanilla draws it: {(x, y): palette index} of its core (palette 1-4, the strokes with their own
+    highlights and shading) between columns x0 and x1, less pieces of fewer than 3 pixels (a neighbour's corner);
+    and the colours vanilla gives the shadow pixels round it, right of and below the core"""
     pts = {(x, y) for y in range(16) for x in range(x1 - x0) if 1 <= pixel(x0 + x, y0 + y) <= 4}
     out, seen = set(), set()
     for p in sorted(pts):
@@ -101,26 +100,38 @@ def letter(pixel, y0, x0, x1):
         if len(comp) >= 3:
             out |= comp
     left = min(x for x, _ in out)
-    return [(x - left, y) for x, y in out]
+    core = {(x - left, y): pixel(x0 + x, y0 + y) for x, y in out}
+    shade = {}
+    for x, y in out:
+        for q in ((x + 1, y), (x, y + 1), (x + 1, y + 1)):
+            if q not in out and 0 <= q[1] < 16 and pixel(x0 + q[0], y0 + q[1]) in (4, 5):
+                shade[(q[0] - left, q[1])] = pixel(x0 + q[0], y0 + q[1])
+    return core, shade
 
 
 def render(glyphs):
-    core, cur = set(), 1
+    """The letters side by side, a shadow column apart: vanilla's pixels for the cores and the shadows, the outline
+    drawn round the lot (where letters were cut from their neighbours, vanilla's outline is gone)"""
+    core, colour, cur = {}, {}, 1
     for g in glyphs:
         if isinstance(g, int):
             cur += g
             continue
-        core |= {(cur + x, y) for x, y in g}
-        cur += max(x for x, _ in g) + 2
+        pts, shade = g
+        for (x, y), c in pts.items():
+            core[(cur + x, y)] = c
+        for (x, y), c in shade.items():
+            colour[(cur + x, y)] = c
+        cur += max(x for x, _ in pts) + 2
     w = cur + 1
     rows = [[0] * w for _ in range(16)]
-    for x, y in core:
-        rows[y][x] = 3 if (x - 1, y) in core and (x, y - 1) in core else 1
+    for (x, y), c in core.items():
+        rows[y][x] = c
     shadow = {(x, y) for y in range(16) for x in range(w) if (x, y) not in core and
               ((x - 1, y) in core or (x, y - 1) in core or (x - 1, y - 1) in core)}
     for x, y in shadow:
-        rows[y][x] = 5
-    body = core | shadow
+        rows[y][x] = colour.get((x, y), 5)
+    body = set(core) | shadow
     for y in range(16):
         for x in range(w):
             if (x, y) not in body and any((x + dx, y + dy) in body for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
@@ -138,8 +149,6 @@ def main():
     pixels["sheet"] = lambda x, y: px[x, y]
 
     glyphs = {c: letter(pixels[BANDS[w][0]], BANDS[w][1], x0, x1) for c, (w, x0, x1) in CUTS.items()}
-    glyphs.update({c: [(x, top + y) for y, r in enumerate(rows) for x, ch in enumerate(r) if ch == "#"]
-                   for c, (top, rows) in DRAWN.items()})
 
     for text, places in LABELS:
         rows, w = render([SPACE if c == " " else glyphs[c] for c in text])
