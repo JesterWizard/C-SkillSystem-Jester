@@ -51,6 +51,7 @@ LABEL(0x1)
     WM_REMOVETEXT
     STAL(2)
     STAL(20)
+    FADI(16) // to black, as the other chapters end: without it the world map cut to Castle Frelia
     SKIPWN
 
 LABEL(0x2)

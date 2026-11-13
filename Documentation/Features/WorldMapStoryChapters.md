@@ -108,6 +108,10 @@ Add a row to `gWmStoryChapterNodes` in `CustomCampaign/Event/World_Map_Events.c`
 - The chapter's own world map script (`EventScrWM_SET_NODE[gmapEventId]`) should reveal that node as the destination (`WM_REVEAL_DEST` / `WM_SETDESTINATION`). `WmStoryChapter_KeepDestination` now sets the "next" bit on the shown story node too, but a node the script never shows stays hidden (see [Monsters and the story node](#monsters-and-the-story-node)). The player can only travel there along an open path from the lord's node, and `WM_REVEAL_DEST` only draws a vanilla path, between neighbouring nodes.
 - Chapters reached with `NEXT_CHAPTER_WITHOUT_MAP` (e.g. Chapter 1 and 5x) need no row.
 - Flag 136 no longer decides where the story goes. The events can keep using it, or stop.
+- A world map script that leads into a chapter ends by fading to black, `FADI(16)` before `ENDA` (or before `SKIPWN`),
+  as Chapters 2-6 and the Intermission's scripts do: the chapter then fades in from black. Without it the world map cuts
+  to the chapter (Chapter 1's ending into Castle Frelia did, with the empty text bar still up). In this codebase `FADI`
+  fades to black; `FADE_TO_BLACK` in `include/jester_headers/macros.h` is `FADU`, which fades from black.
 
 ## Code locations
 

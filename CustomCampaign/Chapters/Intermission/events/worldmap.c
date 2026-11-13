@@ -15,6 +15,7 @@ const EventScr EventScrWM_Intermission_Renvall_To_Serafew[] = {
     WM_MOVESPRITETO(WM_MU_0, 0x0004, WM_NODE_AdlasPlains, WM_NODE_Serafew, -2, 0)
     WM_WAITFORSPRITES(WM_MU_0)
     WM_SETUNITONNODE(WM_MU_0, WM_NODE_Serafew)
+    FADI(16) // to black before the chapter, which fades in
     SKIPWN
     ENDA
 };
@@ -40,6 +41,7 @@ const EventScr EventScrWM_Intermission_Serafew_To_Frelia[] = {
     WM_WAITFORSPRITES(WM_MU_0)
     WM_WAITFORCAM
     WM_SETUNITONNODE(WM_MU_0, WM_NODE_CastleFrelia)
+    FADI(16) // to black before the chapter, which fades in
     SKIPWN
     ENDA
 };
