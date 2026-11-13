@@ -312,7 +312,8 @@ struct TextEngineLineSpacingRam {
 	s16 bg1Cut;             /* BG1 (box): one step, bg1Above above this scanline, bg1Below from it on */
 	s8 bg1Above, bg1Below;
 	u8 active;
-	u8 pad[3];
+	u8 pad;
+	s16 base0, base1;       /* BG0's and BG1's offsets the tables were built for */
 };
 
 #define TEXT_ENGINE_LINE_BG1(sp, y) ((y) < (sp)->bg1Cut ? (sp)->bg1Above : (sp)->bg1Below)
@@ -2535,9 +2536,9 @@ static void TextEngineWave_OnHBlank(void)
 	if (line >= DISPLAY_HEIGHT) {
 		/* The last blank line's HBlank sets scanline 0's line spacing */
 		if (line == 227 && sTextEngineLineSpacing.active) {
-			REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y +
+			REG_BG0VOFS = sTextEngineLineSpacing.base0 + sTextEngineEarthquakeOffset.y +
 				sTextEngineLineSpacing.bg0[0];
-			REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y +
+			REG_BG1VOFS = sTextEngineLineSpacing.base1 + sTextEngineEarthquakeOffset.y +
 				TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, 0);
 		}
 		return;
@@ -2551,10 +2552,15 @@ static void TextEngineWave_OnHBlank(void)
 	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
 	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
 	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
-	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y +
-		(sTextEngineLineSpacing.active ? sTextEngineLineSpacing.bg0[next] : 0);
-	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y +
-		(sTextEngineLineSpacing.active ? TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next) : 0);
+	if (sTextEngineLineSpacing.active) {
+		REG_BG0VOFS = sTextEngineLineSpacing.base0 + sTextEngineEarthquakeOffset.y +
+			sTextEngineLineSpacing.bg0[next];
+		REG_BG1VOFS = sTextEngineLineSpacing.base1 + sTextEngineEarthquakeOffset.y +
+			TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next);
+	} else {
+		REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y;
+		REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y;
+	}
 	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y + sTextEngineEarthquakeOffset.y;
 	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y + sTextEngineEarthquakeOffset.y;
 
@@ -2685,6 +2691,13 @@ static void TextEngineLineSpacing_Build(void)
 			inside + state->lines * TEXT_ENGINE_LINE_HEIGHT;
 	}
 
+	/*
+	 * The frame shows the tables with the offsets they were built for. The main loop moves BG0 while the screen is
+	 * drawn (a page scroll's last step puts it back to 0 as the lines are laid out again), and new offsets with old
+	 * tables made the text jump for a frame.
+	 */
+	sp->base0 = s0;
+	sp->base1 = s1;
 	sp->active = 1;
 }
 
@@ -2728,8 +2741,8 @@ static void TextEngineLineSpacing_OnHBlank(void)
 	if (!sTextEngineLineSpacing.active)
 		return;
 
-	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineLineSpacing.bg0[next];
-	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next);
+	REG_BG0VOFS = sTextEngineLineSpacing.base0 + sTextEngineLineSpacing.bg0[next];
+	REG_BG1VOFS = sTextEngineLineSpacing.base1 + TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next);
 }
 
 /* From a talk box's opening (StartTalkOpen_C) until the box is gone */
@@ -2744,7 +2757,8 @@ static void TextEngine_StartLineSpacing(void)
 	    IsBattleDeamonActive())
 		return;
 
-	proc = Proc_Start(gProcScr_TextEngineLineSpacing, PROC_TREE_3);
+	/* In the VBlank tree: the tables are built once the frame's offsets are final */
+	proc = Proc_Start(gProcScr_TextEngineLineSpacing, PROC_TREE_VSYNC);
 	if (!proc)
 		return;
 
