@@ -3,6 +3,7 @@
 #include "strmag.h"
 #include "bestiary.h"
 #include "extras-ui.h"
+#include "utf8.h"
 #include "constants/texts.h"
 #include "constants/songs.h"
 
@@ -23,7 +24,7 @@
 /* The list's window and its rows (tiles) */
 #define LIST_X         0
 #define LIST_Y         4
-#define LIST_W         12
+#define LIST_W         11
 #define LIST_H         16
 #define TAB_Y          (LIST_Y + 1)
 #define ROW_Y          (LIST_Y + 3)
@@ -31,9 +32,9 @@
 #define COUNT_Y        (LIST_Y + 13)
 
 /* The info window (tiles) */
-#define INFO_X         12
+#define INFO_X         11
 #define INFO_Y         4
-#define INFO_W         18
+#define INFO_W         19
 #define INFO_H         16
 #define IMAGE_X        (INFO_X + 1)
 #define IMAGE_Y        (INFO_Y + 1)
@@ -42,7 +43,9 @@
 #define STATS_Y        (INFO_Y + 5)
 #define DESC_Y         (INFO_Y + 9)
 #define DESC_LINES     3
-#define INFO_IN_W      16 /* tiles inside the window */
+#define INFO_IN_W      17 /* tiles inside the window */
+#define NAME_PX        ((LIST_W - 4) * 8) /* a name's room in the list, right of the hand */
+#define STATS_PX       (INFO_IN_W * 8)
 #define DESC_PX        (INFO_IN_W * 8)
 
 #define CHIBI_TILE     EXTRAS_UI_FREE_TILE
@@ -205,6 +208,17 @@ static void Bestiary_DrawTitle(void)
 	ExtrasUi_PutCentred(&BS->title, 160, TEXT_COLOR_SYSTEM_WHITE, str, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
 }
 
+/* A name for the list: in the narrow font when the normal one is wider than its room */
+static const char *Bestiary_ListName(int msg)
+{
+	char *str = GetStringFromIndex(msg);
+
+	if (GetStringTextLen(str) <= NAME_PX)
+		return str;
+
+	return Utf8ToNarrowFonts(str);
+}
+
 static void Bestiary_DrawList(void)
 {
 	char buf[16], *p;
@@ -226,7 +240,7 @@ static void Bestiary_DrawList(void)
 
 		if (Bestiary_Open(row))
 			ExtrasUi_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_WHITE,
-					 GetStringFromIndex(Bestiary_NameOf(BS->tab, BS->rows[row])), tm);
+					 Bestiary_ListName(Bestiary_NameOf(BS->tab, BS->rows[row])), tm);
 		else
 			ExtrasUi_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_LOCKED), tm);
 	}
@@ -249,24 +263,38 @@ static void Bestiary_ClearImage(void)
 			gBG2TilemapBuffer[TILEMAP_INDEX(IMAGE_X + x, IMAGE_Y + y)] = 0;
 }
 
-/* A table of 16-pixel columns: the stats' names in gold, their values under them in blue, each centred */
+/*
+ * A table across the window: the stats' names in gold, spaced by their own widths with the same gap between each
+ * two (the names differ: "Mag" is half as wide again as "HP", and equal columns put it against "Skl"); each value
+ * under its name in blue, centred on it.
+ */
 static void Bestiary_DrawStats(const int *vals)
 {
-	int c;
+	int c, w[8], sum = 0, gap, x;
 
 	ClearText(&BS->stats[0]);
 	ClearText(&BS->stats[1]);
 
 	for (c = 0; c < 8; c++) {
-		const char *name = GetStringFromIndex(sStatMsgs[c]);
-		char buf[8];
-		int w = GetStringTextLen(name);
+		/* GetStringFromIndex's buffer is shared: each name is read again to draw it */
+		w[c] = GetStringTextLen(GetStringFromIndex(sStatMsgs[c]));
+		sum += w[c];
+	}
 
-		Text_InsertDrawString(&BS->stats[0], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_GOLD, name);
+	gap = sum < STATS_PX ? Div(STATS_PX - sum, 8) : 0;
+	x = gap / 2;
+
+	for (c = 0; c < 8; c++) {
+		char buf[8];
+		int vw;
+
+		Text_InsertDrawString(&BS->stats[0], x, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(sStatMsgs[c]));
 
 		ExtrasUi_PutNumber(buf, vals[c]);
-		w = GetStringTextLen(buf);
-		Text_InsertDrawString(&BS->stats[1], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_BLUE, buf);
+		vw = GetStringTextLen(buf);
+		Text_InsertDrawString(&BS->stats[1], x + (w[c] - vw) / 2, TEXT_COLOR_SYSTEM_BLUE, buf);
+
+		x += w[c] + gap;
 	}
 
 	PutText(&BS->stats[0], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, STATS_Y));
