@@ -402,6 +402,11 @@ _kernel_malloc2 gGalleryScreen, 0xA0
 /* The chapter the last NEXT_CHAPTER_WITH_MAP named (Kernel/Wizardry/WorldMap/WmStoryChapter.c). RAM only. */
 _kernel_malloc2 gWmChapterNamed, 4
 
+/* The Bestiary: the characters and classes this game has met (struct BestiaryBits). Kept in the saves' tails. */
+_kernel_malloc2 gBestiarySeen, 0x44
+/* The Bestiary screen (struct BestiaryScreen, Kernel/Wizardry/Bestiary/Source/BestiaryScreen.c). RAM only. */
+_kernel_malloc2 gBestiaryScreen, 0x160
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

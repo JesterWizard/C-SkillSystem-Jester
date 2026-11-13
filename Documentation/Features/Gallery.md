@@ -84,7 +84,8 @@ clears them.
 
 - **The Extras row.** Vanilla's Map row (bit 4), which the [Creature Campaign](./WorldMapStoryChapters.md#the-postgame)
   no longer needs. Its label is drawn in the Extras label sheet (`Kernel/Wizardry/NewGamePlus/Gfx/Img_NgpMenuObjs.png`)
-  where "Map" was. `InitSaveMenuChoice` adds it; the Extras list (`sub_80A9B90`) opens it like the Sound Room;
+  where "Map" was; its sprite (`gExtrasLabelSprites`) covers only its letters, and the [Bestiary](./Bestiary.md)'s label
+  is in the tiles round them. `InitSaveMenuChoice` adds it; the Extras list (`sub_80A9B90`) opens it like the Sound Room;
   `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` are rewritten with a case for it.
 - **The thumbnails** are build output. `Tools/gallery/thumbs.py` (a makefile rule, `Data/Gallery/GalleryThumbs.bin`,
   gitignored) decodes each listed background: a vanilla one from `fe8.gba` (LZ77 4bpp tiles, its TSA, 8 palettes), a

@@ -213,7 +213,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Gallery.md"><img src="./Documentation/Images/Gallery.png" alt="Gallery preview" width="360" /></a><br/><b><a href="./Documentation/Features/Gallery.md">Gallery</a></b><br/><sub>Extras > Gallery: the CGs seen in game, 3x3 to a page, and full size</sub></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Bestiary.md"><img src="./Documentation/Images/Bestiary.png" alt="Bestiary preview" width="360" /></a><br/><b><a href="./Documentation/Features/Bestiary.md">Bestiary</a></b><br/><sub>Extras > Bestiary: every character and class met, with their bases, growths and descriptions</sub></td>
   </tr>
 </table>
 

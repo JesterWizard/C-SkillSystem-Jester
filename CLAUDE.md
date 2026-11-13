@@ -51,3 +51,4 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - Emulator tests that save: SRAM is not in a save state, and after a soft reset the game treats SRAM it never set up as empty. Boot first (`wait 600`), then `load` the state, in the same run (`test_wmsave`).
 - `struct Unit`'s `index` is an `s8`: an enemy's id (0x81 and up) reads negative, so `unit->index == some_u8` is false for it. Compare `(u8)unit->index` (`BigUnit.c`'s `UID()`).
 - A district's `events/traps.c` is `#include`d by its `events.c`: after editing it, run `make CustomCampaign/Chapters/<Name>/events/events.lyn.event` before `Tools/cloud/build.sh`, which does not rebuild it.
+- No SRAM byte is free: `0x7DEC-0x7FFF` holds relocated vanilla records (`RelocMiscChunks.event`), not spare space. Global data goes in a spare `SaveBlockInfo` entry or the bytes after the save tables (`Kernel/Wizardry/SaveData/Source/SaveTail.c`, `Documentation/FeatureTypes/SaveData.md`).

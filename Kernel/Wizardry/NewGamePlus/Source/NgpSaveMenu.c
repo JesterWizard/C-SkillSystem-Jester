@@ -5,6 +5,7 @@
 #include "soundwrapper.h"
 #include "new-game-plus.h"
 #include "gallery.h"
+#include "bestiary.h"
 #include "constants/songs.h"
 #include "constants/texts.h"
 
@@ -12,7 +13,8 @@
  * New Game+ on the title's save menu (Documentation/Features/NewGamePlus.md). Extras > New Game+ picks a save that
  * has been to the Creature Campaign, then goes on as New Game does: the difficulty, then an empty file.
  *
- * The row is vanilla's unused Extras bit 3 ("Battle History"), whose label Img_NgpMenuObjs redraws. The extras list
+ * The row is vanilla's unused Extras bit 3 ("Battle History"), whose label Img_NgpMenuObjs redraws. That sheet also
+ * holds the Gallery's and the Bestiary's labels; gExtrasLabelSprites (below) is the Extras list's sprite for each row. The extras list
  * (sub_80A9B90), the save picker after it (sub_80A9E1C) and the header label (sub_80ABF74) are vanilla's, with a case
  * for it.
  */
@@ -96,7 +98,6 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 		proc->scroll_cnt = 0;
 
 		switch (proc->extra_sel_bitfile) {
-		case EXTRA_MENU_OPTION_6:
 		case EXTRA_MENU_OPTION_BONUS_CLAIM:
 			proc->sus_slot = SaveMenuModifySaveSlot(ReadLastGameSaveId(), 1, 1);
 			sub_80A9D20(proc, 0);
@@ -112,7 +113,8 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 			break;
 
 		case EXTRA_MENU_OPTION_GALLERY:
-			/* The Gallery (Kernel/Wizardry/Gallery), in the Map row's place */
+		case EXTRA_MENU_OPTION_BESTIARY:
+			/* The Gallery (Kernel/Wizardry/Gallery), in the Map row's place; the Bestiary, in the trial map's */
 			Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
 			break;
 
@@ -183,22 +185,6 @@ void sub_80A9E1C(struct SaveMenuProc *proc)
 
 	if (gKeyStatusPtr->newKeys & A_BUTTON) {
 		switch (proc->extra_sel_bitfile) {
-		case EXTRA_MENU_OPTION_6:
-			if (proc->unk_3a[proc->sus_slot] & 1) {
-				if (proc->sus_slot_cur != (u8)-1) {
-					ExecSaveMenuMiscOption(proc);
-					return;
-				}
-
-				ReadGameSave(proc->sus_slot);
-				Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
-				PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
-				return;
-			}
-
-			sub_80A9DFC(0x40, 0x30, 0x892, proc); /* "This data can't be used on a trial map." */
-			return;
-
 		case EXTRA_MENU_OPTION_BONUS_CLAIM:
 			if (proc->unk_3a[proc->sus_slot] & 2) {
 				if (proc->sus_slot_cur != (u8)-1) {
@@ -262,7 +248,7 @@ void sub_80ABF74(u8 bitfile)
 	u8 *dst = (u8 *)0x060121C0;
 	int i;
 
-	if (bitfile & (EXTRA_MENU_OPTION_BONUS_CLAIM | EXTRA_MENU_OPTION_6))
+	if (bitfile & EXTRA_MENU_OPTION_BONUS_CLAIM)
 		src = (const u8 *)0x06014000;
 	else if (bitfile & EXTRA_MENU_OPTION_MAP)
 		src = (const u8 *)0x06014800;
@@ -283,4 +269,32 @@ const u16 Sprite_NgpExtrasLabel[] = {
 	0x4000, 0x8028, 0x0A12,
 	0x4000, 0x8048, 0x0A16,
 	0x0000, 0x4068, 0x0A1A,
+};
+
+/*
+ * The Extras list's label sprites, one per row bit (vanilla's SpriteArray_08A2099C, which sub_80AAC40 reads; the
+ * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's is cut to
+ * its letters (cols 4-9 of its sheet row), so that the free tiles round it can hold the Bestiary's (cols 0-3, 10-11).
+ */
+static const u16 Sprite_GalleryExtrasLabel[] = {
+	2,
+	0x4000, 0x8000 + 32, 0x0A44,
+	0x0000, 0x4000 + 64, 0x0A48,
+};
+
+static const u16 Sprite_BestiaryExtrasLabel[] = {
+	2,
+	0x4000, 0x8000 + 32, 0x0A40,
+	0x0000, 0x4000 + 64, 0x0A4A,
+};
+
+const u16 *const gExtrasLabelSprites[8] = {
+	[EXTRA_MENU_LINK_ARENA]    = (const u16 *)0x08A2084A,
+	[EXTRA_MENU_SOUND_ROOM]    = (const u16 *)0x08A20864,
+	[EXTRA_MENU_SUPPORT]       = (const u16 *)0x08A2087E,
+	[EXTRA_MENU_NEW_GAME_PLUS] = Sprite_NgpExtrasLabel,
+	[EXTRA_MENU_GALLERY]       = Sprite_GalleryExtrasLabel,
+	[EXTRA_MENU_BONUS_CLAIM]   = (const u16 *)0x08A208CC,
+	[EXTRA_MENU_BESTIARY]      = Sprite_BestiaryExtrasLabel,
+	[7]                        = Sprite_BestiaryExtrasLabel, /* no row */
 };

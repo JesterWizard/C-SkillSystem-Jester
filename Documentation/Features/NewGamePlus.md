@@ -138,5 +138,6 @@ save that has not been to the postgame; a plain New Game after backing out of Ne
 - New Game+ needs an empty file, as New Game does; it never writes over the save it starts from.
 - A recruit who joins in the middle of an action gets the skills when the action ends, and one turned blue by an event
   at the next phase.
-- `gpMsa_Saver` and the other three slots are New Game+'s now; another feature that wants the bytes after the save
-  tables has to share them.
+- The bytes after the save tables are shared: `SaveTail.c` (`Kernel/Wizardry/SaveData/Source/`) gives New Game+ the
+  first `sizeof(struct NewGamePlusCarry)` (the suspend save: `sizeof(struct NewGamePlusSusCarry)`), and the
+  [Bestiary](./Bestiary.md) the bytes after them. Growing New Game+'s structs moves the Bestiary's share.

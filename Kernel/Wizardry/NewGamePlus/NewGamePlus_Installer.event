@@ -12,7 +12,7 @@
 
 ALIGN 4
 Img_NgpMenuObjs:
-    #incbin "Gfx/Img_NgpMenuObjs.lz77" // vanilla's Img_GameMainMenuObjs: "New Game +" for "Battle History", "Gallery" for "Map"
+    #incbin "Gfx/Img_NgpMenuObjs.lz77" // vanilla's Img_GameMainMenuObjs: "New Game +" for "Battle History", "Gallery" for "Map", "Bestiary" beside it
 
 PUSH
     // The Extras labels: SaveMenu_LoadExtraMenuGraphics, SaveMenuScrollBackToMain, SaveMenu_ReloadScreenFormDifficulty
@@ -27,6 +27,10 @@ PUSH
     // SpriteArray_08A2099C[EXTRA_MENU_NEW_GAME_PLUS]: the row's label
     ORG $A2099C + 4 * 3
     POIN Sprite_NgpExtrasLabel
+
+    // sub_80AAC40 (the Extras list's labels) reads gExtrasLabelSprites, with the Gallery's and the Bestiary's labels
+    ORG $AACB8
+    POIN gExtrasLabelSprites
 
     // ProcScr_SaveMenu, PL_SAVEMENU_MAIN_LOOP: PROC_REPEAT(SameMenu_CtrlLoop)
     ORG $A20128 + 4
