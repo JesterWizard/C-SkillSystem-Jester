@@ -410,6 +410,9 @@ _kernel_malloc2 gSkillCodexSeen, 0x84
    (struct SkillCodexScreen, SkillCodex/Source/SkillCodexScreen.c): the Extras screens never run together. RAM only. */
 _kernel_malloc2 gBestiaryScreen, 0x160
 
+/* A popup is being drawn in a battle animation (Kernel/Wizardry/PopupRework/Source/EfxPopup.c). RAM only. */
+_kernel_malloc2 gPopupInEfx, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
