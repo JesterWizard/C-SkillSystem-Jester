@@ -177,4 +177,5 @@ gNewSaveHooks:
     POIN Guild_NewGame
 #endif
     POIN NewGamePlus_OnNewGame /* after ResetUnitLearnedSkillLists */
+    POIN Bestiary_OnNewGame
     WORD 0 0 0 0

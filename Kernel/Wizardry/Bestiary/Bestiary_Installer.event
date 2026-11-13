@@ -1,0 +1,13 @@
+#ifndef BESTIARY_INSTALLED
+#define BESTIARY_INSTALLED
+
+/**
+ * The Bestiary (Documentation/Features/Bestiary.md): Extras > Bestiary, its screen, and the characters and classes met.
+ * WIZARDRY_CUSTOM, so FreeSpaceDEMO. The lists are gBestiaryCharacters and gBestiaryClasses (Data/Bestiary/Bestiary.c);
+ * the phase-start sweep is in gPrePhaseFuncs. The row's label is drawn in the Extras label sheet
+ * (NewGamePlus/Gfx/Img_NgpMenuObjs.png), its sprite in gExtrasLabelSprites (NewGamePlus/Source/NgpSaveMenu.c).
+ */
+#include "Source/Bestiary.lyn.event"
+#include "Source/BestiaryScreen.lyn.event"
+
+#endif /* BESTIARY_INSTALLED */

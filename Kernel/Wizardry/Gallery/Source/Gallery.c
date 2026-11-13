@@ -8,6 +8,7 @@
 #include "bonusclaim.h"
 #include "uisupport.h"
 #include "gallery.h"
+#include "bestiary.h"
 
 /*
  * The Gallery's unlocks and its Extras row (Documentation/Features/Gallery.md).
@@ -105,9 +106,7 @@ u8 Gallery_Event21(struct EventEngineProc *proc)
 	return Event21_TextBg(proc);
 }
 
-extern void CallExtraMap(ProcPtr parent);
-
-//! FE8U = 0x080AA158: the Extras rows with a screen of their own; the Gallery's is new
+//! FE8U = 0x080AA158: the Extras rows with a screen of their own; the Gallery's and the Bestiary's are new
 LYN_REPLACE_CHECK(SaveMenuStartExtraMiscScreen);
 void SaveMenuStartExtraMiscScreen(struct SaveMenuProc *proc)
 {
@@ -121,8 +120,8 @@ void SaveMenuStartExtraMiscScreen(struct SaveMenuProc *proc)
 		APProc_Delete(proc->approc);
 
 	switch (proc->extra_sel_bitfile) {
-	case EXTRA_MENU_OPTION_6:
-		CallExtraMap(proc);
+	case EXTRA_MENU_OPTION_BESTIARY:
+		StartBestiaryScreen(proc);
 		return;
 
 	case EXTRA_MENU_OPTION_BONUS_CLAIM:
@@ -158,6 +157,7 @@ void SaveMenuPostExtraMiscScreen(struct SaveMenuProc *proc)
 	case EXTRA_MENU_OPTION_SUPPORT:
 	case EXTRA_MENU_OPTION_SOUND_ROOM:
 	case EXTRA_MENU_OPTION_GALLERY:
+	case EXTRA_MENU_OPTION_BESTIARY:
 		Proc_Goto(proc, PL_SAVEMENU_10);
 		return;
 	}

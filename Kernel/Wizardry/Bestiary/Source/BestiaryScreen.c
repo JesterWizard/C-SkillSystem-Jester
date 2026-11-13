@@ -1,0 +1,726 @@
+#include "common-chax.h"
+#include "kernel-lib.h"
+#include "strmag.h"
+#include "bestiary.h"
+#include "constants/texts.h"
+#include "constants/songs.h"
+
+/*
+ * The Bestiary screen (Documentation/Features/Bestiary.md), started from Extras > Bestiary.
+ *
+ *  - The banner on top (the Sound Room's song banner, BG2): the name under the cursor, or "???".
+ *  - On the left, in a window: the tab ("Characters" or "Classes"), five names, how many of the tab are met; the hand
+ *    on the name under the cursor. Up and down move it, L and R change the tab.
+ *  - On the right, in a window: the character's mini portrait (BG2) or the class's map sprite (OBJ, the map's sprite
+ *    sheet); the class (or the class's movement); bases or growths (A switches); the description, wrapped.
+ *  - B goes back to Extras.
+ */
+
+#define VISIBLE_ROWS   5
+#define MAX_ROWS       128
+
+/* The list's window and its rows (tiles) */
+#define LIST_X         0
+#define LIST_Y         4
+#define LIST_W         12
+#define LIST_H         16
+#define TAB_Y          (LIST_Y + 1)
+#define ROW_Y          (LIST_Y + 3)
+#define NAME_X         (LIST_X + 3)
+#define COUNT_Y        (LIST_Y + 13)
+
+/* The info window (tiles) */
+#define INFO_X         12
+#define INFO_Y         4
+#define INFO_W         18
+#define INFO_H         16
+#define IMAGE_X        (INFO_X + 1)
+#define IMAGE_Y        (INFO_Y + 1)
+#define SUB_X          (INFO_X + 5)
+#define STATS_X        (INFO_X + 1)
+#define STATS_Y        (INFO_Y + 5)
+#define DESC_Y         (INFO_Y + 9)
+#define DESC_LINES     3
+#define INFO_IN_W      16 /* tiles inside the window */
+#define DESC_PX        (INFO_IN_W * 8)
+
+/* The banner (tiles) */
+#define BANNER_X       3
+#define BANNER_W       24
+#define BANNER_H       4
+
+#define BANNER_TILE    0x220 /* BG VRAM 0x06004400, after the text's tiles */
+#define CHIBI_TILE     (BANNER_TILE + BANNER_W * BANNER_H)
+#define PAL_CHIBI      4
+#define PAL_BANNER     11
+#define PAL_MURAL      14 /* and 15 */
+#define OBJ_TEMP       ((u8 *)0x06014000) /* OBJ VRAM nothing uses on this screen: the banner's sheet is unpacked here */
+
+/* The class's map sprite: in the image's place, the red army's palette, over the window */
+#define SMS_X          ((IMAGE_X * 8) + 8)
+#define SMS_Y          ((IMAGE_Y * 8) + 12)
+#define SMS_OAM2       (0xD000 | 0x0400)
+
+#define SE_MOVE  SONG_SE_SYS_CURSOR_UD1
+#define SE_PAGE  SONG_SE_SYS_CURSOR_LR1
+#define SE_LEAVE SONG_SE_SYS_WINDOW_CANSEL1
+
+struct BestiaryScreen {
+	u8 tab;
+	u8 cursor;
+	u8 top;	/* the first row on screen */
+	u8 page;
+	u8 count;	/* the tab's rows */
+	u8 met;	/* of them, met */
+	u8 smsClass;	/* the class whose map sprite shows, 0 for none */
+	u8 smsSync;	/* the sprite sheet is to be sent to VRAM */
+	struct BestiaryBits sram;	/* every save's, together */
+	u8 rows[MAX_ROWS];
+	u8 open[MAX_ROWS / 8];
+	struct Text title;
+	struct Text tabName;
+	struct Text countText;
+	struct Text names[VISIBLE_ROWS];
+	struct Text sub;
+	struct Text pageText;
+	struct Text stats[2];
+	struct Text desc[DESC_LINES];
+};
+
+enum {
+	TAB_CHARACTERS,
+	TAB_CLASSES,
+};
+
+enum {
+	PAGE_BASES,
+	PAGE_GROWTHS,
+};
+
+extern struct BestiaryScreen gBestiaryScreen;
+#define BS (&gBestiaryScreen)
+
+_Static_assert(sizeof(struct BestiaryScreen) <= 0x160, "gBestiaryScreen is 0x160 bytes (config-memmap.s)");
+
+struct ProcBestiary {
+	PROC_HEADER;
+	struct DispCnt dispBak;
+};
+
+enum {
+	L_BESTIARY_MAIN = 1,
+	L_BESTIARY_EXIT,
+};
+
+/* BG0 text, BG1 the windows, BG2 the banner and the portrait, BG3 the mural */
+static const u16 sBestiaryBgConfig[12] = {
+	0x0000, 0x6000, 0,
+	0x0000, 0x6800, 0,
+	0x0000, 0x7000, 0,
+	0x8000, 0x7800, 0,
+};
+
+static const u16 sStatMsgs[8] = {
+	MSG_BESTIARY_STAT_HP, MSG_BESTIARY_STAT_STR, MSG_BESTIARY_STAT_MAG, MSG_BESTIARY_STAT_SKL,
+	MSG_BESTIARY_STAT_SPD, MSG_BESTIARY_STAT_LCK, MSG_BESTIARY_STAT_DEF, MSG_BESTIARY_STAT_RES,
+};
+
+/* ---- The rows ---- */
+
+static const u8 *Bestiary_TabList(int tab)
+{
+	return tab == TAB_CHARACTERS ? gBestiaryCharacters : gBestiaryClasses;
+}
+
+static int Bestiary_NameOf(int tab, int id)
+{
+	return tab == TAB_CHARACTERS ? GetCharacterData(id)->nameTextId : GetClassData(id)->nameTextId;
+}
+
+/* A row is shown if it has a name (and, for a character, a portrait) no earlier row has */
+static bool Bestiary_RowShown(int tab, const u8 *list, int i)
+{
+	int j, name = Bestiary_NameOf(tab, list[i]);
+
+	if (name == 0)
+		return false;
+
+	if (tab == TAB_CHARACTERS && GetCharacterData(list[i])->portraitId == 0)
+		return false;
+
+	for (j = 0; j < i; j++)
+		if (Bestiary_NameOf(tab, list[j]) == name)
+			return false;
+
+	return true;
+}
+
+/* Met: any character (or class) of that name has been seen */
+static bool Bestiary_RowMet(int tab, int id)
+{
+	const u8 *bits = tab == TAB_CHARACTERS ? BS->sram.chars : BS->sram.classes;
+	int b, name = Bestiary_NameOf(tab, id);
+
+	for (b = 1; b < 0x100; b++)
+		if (Bestiary_BitSet(bits, b) && Bestiary_NameOf(tab, b) == name)
+			return true;
+
+	return false;
+}
+
+static bool Bestiary_Open(int row)
+{
+	return (BS->open[row >> 3] >> (row & 7)) & 1;
+}
+
+static void Bestiary_BuildRows(void)
+{
+	const u8 *list = Bestiary_TabList(BS->tab);
+	int i;
+
+	BS->count = 0;
+	BS->met = 0;
+	CpuFill16(0, BS->open, sizeof(BS->open));
+
+	for (i = 0; list[i] != 0 && BS->count < MAX_ROWS; i++) {
+		if (!Bestiary_RowShown(BS->tab, list, i))
+			continue;
+
+		if (Bestiary_RowMet(BS->tab, list[i])) {
+			BS->open[BS->count >> 3] |= 1 << (BS->count & 7);
+			BS->met++;
+		}
+		BS->rows[BS->count++] = list[i];
+	}
+}
+
+/* ---- Text helpers ---- */
+
+/* A number into buf (no % here: it is broken in this build, CLAUDE.md, Pitfalls); returns the end */
+static char *Bestiary_PutNumber(char *buf, int n)
+{
+	if (n < 0) {
+		*buf++ = '-';
+		n = -n;
+	}
+	if (n >= 100)
+		*buf++ = '0' + Div(n, 100);
+	if (n >= 10)
+		*buf++ = '0' + DivRem(Div(n, 10), 10);
+	*buf++ = '0' + DivRem(n, 10);
+	*buf = '\0';
+	return buf;
+}
+
+static char *Bestiary_Append(char *dst, const char *src)
+{
+	while (*src)
+		*dst++ = *src++;
+	*dst = '\0';
+	return dst;
+}
+
+static void Bestiary_PutCentred(struct Text *t, int px, int color, const char *str, u16 *tm)
+{
+	int w = GetStringTextLen(str);
+
+	ClearText(t);
+	Text_InsertDrawString(t, w < px ? (px - w) / 2 : 0, color, str);
+	PutText(t, tm);
+}
+
+static void Bestiary_PutLeft(struct Text *t, int color, const char *str, u16 *tm)
+{
+	ClearText(t);
+	Text_InsertDrawString(t, 0, color, str);
+	PutText(t, tm);
+}
+
+/* ---- The banner, the list ---- */
+
+/* The Sound Room's song banner: its sheet into spare OBJ VRAM, the 24x4 tiles of the banner on to BG VRAM */
+static void Bestiary_LoadBanner(void)
+{
+	int x, y;
+
+	Decompress(Img_PlayStatusSprites, OBJ_TEMP);
+
+	for (y = 0; y < BANNER_H; y++)
+		CpuFastCopy(OBJ_TEMP + y * 32 * 0x20, (u8 *)VRAM + (BANNER_TILE + y * BANNER_W) * 0x20, BANNER_W * 0x20);
+
+	ApplyPalette(Pal_PlayStatusSprites, PAL_BANNER);
+
+	for (y = 0; y < BANNER_H; y++)
+		for (x = 0; x < BANNER_W; x++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(BANNER_X + x, y)] = (PAL_BANNER << 12) | (BANNER_TILE + y * BANNER_W + x);
+}
+
+static int Bestiary_CursorName(void)
+{
+	return Bestiary_NameOf(BS->tab, BS->rows[BS->cursor]);
+}
+
+static void Bestiary_DrawTitle(void)
+{
+	const char *str = GetStringFromIndex(MSG_BESTIARY_LOCKED);
+
+	if (BS->count != 0 && Bestiary_Open(BS->cursor))
+		str = GetStringFromIndex(Bestiary_CursorName());
+
+	/* 20 tiles from tile 5: centred on the banner (and the screen) */
+	Bestiary_PutCentred(&BS->title, 160, TEXT_COLOR_SYSTEM_WHITE, str, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
+}
+
+static void Bestiary_DrawList(void)
+{
+	char buf[16], *p;
+	int r;
+
+	Bestiary_PutCentred(&BS->tabName, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_GOLD,
+			    GetStringFromIndex(BS->tab == TAB_CHARACTERS ? MSG_BESTIARY_CHARACTERS : MSG_BESTIARY_CLASSES),
+			    gBG0TilemapBuffer + TILEMAP_INDEX(LIST_X + 1, TAB_Y));
+
+	for (r = 0; r < VISIBLE_ROWS; r++) {
+		int row = BS->top + r;
+		u16 *tm = gBG0TilemapBuffer + TILEMAP_INDEX(NAME_X, ROW_Y + r * 2);
+
+		if (row >= BS->count) {
+			ClearText(&BS->names[r]);
+			PutText(&BS->names[r], tm);
+			continue;
+		}
+
+		if (Bestiary_Open(row))
+			Bestiary_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_WHITE,
+					 GetStringFromIndex(Bestiary_NameOf(BS->tab, BS->rows[row])), tm);
+		else
+			Bestiary_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_LOCKED), tm);
+	}
+
+	p = Bestiary_PutNumber(buf, BS->met);
+	*p++ = '/';
+	Bestiary_PutNumber(p, BS->count);
+	Bestiary_PutCentred(&BS->countText, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_WHITE, buf,
+			    gBG0TilemapBuffer + TILEMAP_INDEX(LIST_X + 1, COUNT_Y));
+}
+
+/* ---- The info window ---- */
+
+static void Bestiary_ClearImage(void)
+{
+	int x, y;
+
+	for (y = 0; y < 4; y++)
+		for (x = 0; x < 4; x++)
+			gBG2TilemapBuffer[TILEMAP_INDEX(IMAGE_X + x, IMAGE_Y + y)] = 0;
+}
+
+/* A table of 16-pixel columns: the stats' names in gold, their values under them in blue, each centred */
+static void Bestiary_DrawStats(const int *vals)
+{
+	int c;
+
+	ClearText(&BS->stats[0]);
+	ClearText(&BS->stats[1]);
+
+	for (c = 0; c < 8; c++) {
+		const char *name = GetStringFromIndex(sStatMsgs[c]);
+		char buf[8];
+		int w = GetStringTextLen(name);
+
+		Text_InsertDrawString(&BS->stats[0], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_GOLD, name);
+
+		Bestiary_PutNumber(buf, vals[c]);
+		w = GetStringTextLen(buf);
+		Text_InsertDrawString(&BS->stats[1], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_BLUE, buf);
+	}
+
+	PutText(&BS->stats[0], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, STATS_Y));
+	PutText(&BS->stats[1], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, STATS_Y + 2));
+}
+
+static void Bestiary_ClearStats(void)
+{
+	int r;
+
+	for (r = 0; r < 2; r++) {
+		ClearText(&BS->stats[r]);
+		PutText(&BS->stats[r], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, STATS_Y + r * 2));
+	}
+}
+
+/*
+ * The description, wrapped to the window: line breaks become spaces, and words go on a line while it fits. Up to
+ * DESC_LINES lines; the rest is left out.
+ */
+static void Bestiary_DrawDesc(int msg)
+{
+	char text[0x140], line[0x60];
+	const char *src;
+	int i, n = 0, len = 0, word;
+
+	for (i = 0; i < DESC_LINES; i++)
+		ClearText(&BS->desc[i]);
+
+	if (msg != 0) {
+		src = GetStringFromIndex(msg);
+		for (i = 0; src[i] != '\0' && i < (int)sizeof(text) - 1; i++)
+			text[i] = (u8)src[i] < 0x20 ? ' ' : src[i];
+		text[i] = '\0';
+
+		src = text;
+		line[0] = '\0';
+
+		while (*src != '\0' && n < DESC_LINES) {
+			while (*src == ' ')
+				src++;
+			if (*src == '\0')
+				break;
+
+			for (word = 0; src[word] != '\0' && src[word] != ' '; word++)
+				;
+
+			if (len + 1 + word >= (int)sizeof(line))
+				word = sizeof(line) - 2 - len;
+
+			/* The line with the word: does it fit? */
+			if (len != 0)
+				line[len] = ' ';
+			memcpy(line + len + (len != 0), src, word);
+			line[len + (len != 0) + word] = '\0';
+
+			if (len != 0 && GetStringTextLen(line) > DESC_PX) {
+				/* No: the line goes out as it was, the word starts the next */
+				line[len] = '\0';
+				Text_InsertDrawString(&BS->desc[n++], 0, TEXT_COLOR_SYSTEM_WHITE, line);
+				len = 0;
+				continue;
+			}
+
+			len += (len != 0) + word;
+			src += word;
+		}
+
+		if (len != 0 && n < DESC_LINES)
+			Text_InsertDrawString(&BS->desc[n], 0, TEXT_COLOR_SYSTEM_WHITE, line);
+	}
+
+	for (i = 0; i < DESC_LINES; i++)
+		PutText(&BS->desc[i], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y + i * 2));
+}
+
+static void Bestiary_DrawCharacter(int pid)
+{
+	const struct CharacterData *cd = GetCharacterData(pid);
+	const struct ClassData *jd = GetClassData(cd->defaultClass);
+	char buf[24], *p;
+	int vals[8];
+	int fid = cd->miniPortrait ? 0x7F00 + cd->miniPortrait : cd->portraitId;
+
+	PutFaceChibi(fid, gBG2TilemapBuffer + TILEMAP_INDEX(IMAGE_X, IMAGE_Y), CHIBI_TILE, PAL_CHIBI, 0);
+
+	Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(jd->nameTextId),
+			 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
+
+	if (BS->page == PAGE_BASES) {
+		vals[0] = cd->baseHP + jd->baseHP;
+		vals[1] = cd->basePow + jd->basePow;
+		vals[2] = gpMagicPInfos[pid].base + gpMagicJInfos[jd->number].base;
+		vals[3] = cd->baseSkl + jd->baseSkl;
+		vals[4] = cd->baseSpd + jd->baseSpd;
+		vals[5] = cd->baseLck;
+		vals[6] = cd->baseDef + jd->baseDef;
+		vals[7] = cd->baseRes + jd->baseRes;
+	} else {
+		vals[0] = cd->growthHP;
+		vals[1] = cd->growthPow;
+		vals[2] = gpMagicPInfos[pid].growth;
+		vals[3] = cd->growthSkl;
+		vals[4] = cd->growthSpd;
+		vals[5] = cd->growthLck;
+		vals[6] = cd->growthDef;
+		vals[7] = cd->growthRes;
+	}
+
+	/* "Bases  Lv 4" or "Growths" */
+	p = Bestiary_Append(buf, GetStringFromIndex(BS->page == PAGE_BASES ? MSG_BESTIARY_BASES : MSG_BESTIARY_GROWTHS));
+	ClearText(&BS->pageText);
+	Text_InsertDrawString(&BS->pageText, 0, TEXT_COLOR_SYSTEM_GOLD, buf);
+	if (BS->page == PAGE_BASES) {
+		p = Bestiary_Append(buf, GetStringFromIndex(MSG_BESTIARY_LEVEL));
+		*p++ = ' ';
+		Bestiary_PutNumber(p, cd->baseLevel);
+		Text_InsertDrawString(&BS->pageText, 56, TEXT_COLOR_SYSTEM_WHITE, buf);
+	}
+	PutText(&BS->pageText, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
+
+	Bestiary_DrawStats(vals);
+	Bestiary_DrawDesc(cd->descTextId);
+}
+
+static void Bestiary_DrawClass(int jid)
+{
+	const struct ClassData *jd = GetClassData(jid);
+	char buf[24], *p;
+	int vals[8];
+
+	p = Bestiary_Append(buf, GetStringFromIndex(MSG_BESTIARY_MOVE));
+	*p++ = ' ';
+	Bestiary_PutNumber(p, jd->baseMov);
+	Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, buf, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
+
+	if (BS->page == PAGE_BASES) {
+		vals[0] = jd->baseHP;
+		vals[1] = jd->basePow;
+		vals[2] = gpMagicJInfos[jid].base;
+		vals[3] = jd->baseSkl;
+		vals[4] = jd->baseSpd;
+		vals[5] = 0;
+		vals[6] = jd->baseDef;
+		vals[7] = jd->baseRes;
+	} else {
+		vals[0] = jd->growthHP;
+		vals[1] = jd->growthPow;
+		vals[2] = gpMagicJInfos[jid].growth;
+		vals[3] = jd->growthSkl;
+		vals[4] = jd->growthSpd;
+		vals[5] = jd->growthLck;
+		vals[6] = jd->growthDef;
+		vals[7] = jd->growthRes;
+	}
+
+	Bestiary_PutLeft(&BS->pageText, TEXT_COLOR_SYSTEM_GOLD,
+			 GetStringFromIndex(BS->page == PAGE_BASES ? MSG_BESTIARY_BASES : MSG_BESTIARY_GROWTHS),
+			 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
+
+	Bestiary_DrawStats(vals);
+	Bestiary_DrawDesc(jd->descTextId);
+
+	/* The map sprite: a new class's sheet goes to VRAM on the next frame */
+	if (BS->smsClass != jid) {
+		ResetUnitSprites();
+		BS->smsClass = jid;
+		BS->smsSync = true;
+	}
+}
+
+static void Bestiary_DrawInfo(void)
+{
+	Bestiary_ClearImage();
+	BS->smsClass = 0;
+
+	if (BS->count == 0 || !Bestiary_Open(BS->cursor)) {
+		Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_NOT_MET),
+				 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
+		ClearText(&BS->pageText);
+		PutText(&BS->pageText, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
+		Bestiary_ClearStats();
+		Bestiary_DrawDesc(0);
+	} else if (BS->tab == TAB_CHARACTERS) {
+		Bestiary_DrawCharacter(BS->rows[BS->cursor]);
+	} else {
+		Bestiary_DrawClass(BS->rows[BS->cursor]);
+	}
+
+	Bestiary_DrawTitle();
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG2_SYNC_BIT);
+	EnablePaletteSync();
+}
+
+static void Bestiary_Redraw(void)
+{
+	Bestiary_DrawList();
+	Bestiary_DrawInfo();
+}
+
+/* The hand on the cursor's row, the class's map sprite */
+static void Bestiary_PutSprites(void)
+{
+	if (BS->count != 0)
+		DisplayUiHand(LIST_X * 8 + 16, (ROW_Y + (BS->cursor - BS->top) * 2) * 8);
+
+	if (BS->smsClass == 0)
+		return;
+
+	PutUnitSpriteForClassId(0, SMS_X, SMS_Y, SMS_OAM2, BS->smsClass);
+
+	if (BS->smsSync) {
+		ForceSyncUnitSpriteSheet();
+		BS->smsSync = false;
+	} else {
+		SyncUnitSpriteSheet();
+	}
+}
+
+/* ---- The screen ---- */
+
+static void Bestiary_Setup(struct ProcBestiary *proc)
+{
+	int i;
+
+	SetupBackgrounds((u16 *)sBestiaryBgConfig);
+	gLCDControlBuffer.bg3cnt.colorMode = 0;
+	BG_Fill(gBG0TilemapBuffer, 0);
+	BG_Fill(gBG1TilemapBuffer, 0);
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_Fill(gBG3TilemapBuffer, 0);
+	gLCDControlBuffer.bg0cnt.priority = 0;
+	gLCDControlBuffer.bg1cnt.priority = 2;
+	gLCDControlBuffer.bg2cnt.priority = 1;
+	gLCDControlBuffer.bg3cnt.priority = 3;
+	for (i = 0; i < 4; i++)
+		BG_SetPosition(i, 0, 0);
+
+	ResetText();
+	SetTextFont(0);
+	InitSystemTextFont();
+	LoadUiFrameGraphics();
+	LoadObjUIGfx();
+
+	ResetUnitSprites();
+	ApplyUnitSpritePalettes();
+
+	InitText(&BS->title, 20);
+	InitText(&BS->tabName, LIST_W - 2);
+	InitText(&BS->countText, LIST_W - 2);
+	for (i = 0; i < VISIBLE_ROWS; i++)
+		InitText(&BS->names[i], LIST_W - 4);
+	InitText(&BS->sub, INFO_IN_W - 4);
+	InitText(&BS->pageText, INFO_IN_W - 4);
+	for (i = 0; i < 2; i++)
+		InitText(&BS->stats[i], INFO_IN_W);
+	for (i = 0; i < DESC_LINES; i++)
+		InitText(&BS->desc[i], INFO_IN_W);
+
+	Bestiary_LoadBanner();
+	DrawUiFrame(gBG1TilemapBuffer, LIST_X, LIST_Y, LIST_W, LIST_H, 0, 0);
+	DrawUiFrame(gBG1TilemapBuffer, INFO_X, INFO_Y, INFO_W, INFO_H, 0, 0);
+
+	StartMuralBackground(proc, NULL, PAL_MURAL);
+
+	gLCDControlBuffer.dispcnt.obj1dMap = 0;
+	SetDispEnable(1, 1, 1, 1, 1);
+	SetDefaultColorEffects();
+
+	Bestiary_Redraw();
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
+}
+
+static void Bestiary_Init(struct ProcBestiary *proc)
+{
+	proc->dispBak = gLCDControlBuffer.dispcnt;
+
+	CpuFill16(0, BS, sizeof(*BS));
+	Bestiary_ReadCart(&BS->sram);
+	BS->tab = TAB_CHARACTERS;
+	Bestiary_BuildRows();
+
+	Bestiary_Setup(proc);
+}
+
+static void Bestiary_Move(int to)
+{
+	if (BS->count == 0)
+		return;
+	if (to < 0)
+		to = 0;
+	if (to >= BS->count)
+		to = BS->count - 1;
+	if (to == BS->cursor)
+		return;
+
+	BS->cursor = to;
+	PlaySoundEffect(SE_MOVE);
+
+	if (BS->cursor < BS->top)
+		BS->top = BS->cursor;
+	if (BS->cursor > BS->top + VISIBLE_ROWS - 1)
+		BS->top = BS->cursor - (VISIBLE_ROWS - 1);
+
+	Bestiary_Redraw();
+}
+
+static void Bestiary_SetTab(int tab)
+{
+	PlaySoundEffect(SE_PAGE);
+	BS->tab = tab;
+	BS->cursor = 0;
+	BS->top = 0;
+	Bestiary_BuildRows();
+	Bestiary_Redraw();
+}
+
+static void Bestiary_Loop(struct ProcBestiary *proc)
+{
+	u16 press = gKeyStatusPtr->newKeys, repeat = gKeyStatusPtr->repeatedKeys;
+
+	Bestiary_PutSprites();
+
+	if (press & B_BUTTON) {
+		PlaySoundEffect(SE_LEAVE);
+		Proc_Goto(proc, L_BESTIARY_EXIT);
+		return;
+	}
+
+	if (press & A_BUTTON) {
+		if (BS->count != 0 && Bestiary_Open(BS->cursor)) {
+			PlaySoundEffect(SE_PAGE);
+			BS->page ^= 1;
+			Bestiary_DrawInfo();
+		}
+		return;
+	}
+
+	if (press & (L_BUTTON | R_BUTTON)) {
+		Bestiary_SetTab(BS->tab ^ 1);
+		return;
+	}
+
+	if (repeat & DPAD_DOWN)
+		Bestiary_Move(BS->cursor + 1);
+	else if (repeat & DPAD_UP)
+		Bestiary_Move(BS->cursor - 1);
+	else if (repeat & DPAD_RIGHT)
+		Bestiary_Move(BS->cursor + VISIBLE_ROWS);
+	else if (repeat & DPAD_LEFT)
+		Bestiary_Move(BS->cursor - VISIBLE_ROWS);
+}
+
+/* A fade, with the sprites kept on screen */
+static void Bestiary_FadeWait(struct ProcBestiary *proc)
+{
+	Bestiary_PutSprites();
+
+	if (!FadeInExists() && !FadeOutExists())
+		Proc_Break(proc);
+}
+
+static void Bestiary_OnEnd(struct ProcBestiary *proc)
+{
+	EndMuralBackground();
+	gLCDControlBuffer.bg3cnt.colorMode = 0;
+	gLCDControlBuffer.dispcnt = proc->dispBak;
+	SetDefaultColorEffects();
+}
+
+static const struct ProcCmd ProcScr_Bestiary[] = {
+	PROC_NAME("Bestiary"),
+	PROC_SET_END_CB(Bestiary_OnEnd),
+	PROC_YIELD,
+	PROC_CALL(Bestiary_Init),
+	PROC_CALL_ARG(NewFadeIn, 8),
+	PROC_REPEAT(Bestiary_FadeWait),
+
+	PROC_LABEL(L_BESTIARY_MAIN),
+	PROC_REPEAT(Bestiary_Loop),
+
+	PROC_LABEL(L_BESTIARY_EXIT),
+	PROC_CALL_ARG(NewFadeOut, 8),
+	PROC_REPEAT(Bestiary_FadeWait),
+	PROC_END,
+};
+
+ProcPtr StartBestiaryScreen(ProcPtr parent)
+{
+	return Proc_StartBlocking(ProcScr_Bestiary, parent);
+}

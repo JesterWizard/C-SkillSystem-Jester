@@ -4,6 +4,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "new-game-plus.h"
 #include "gallery.h"
+#include "bestiary.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -120,6 +121,9 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
 
     if (IsExtraBonusClaimEnabled() != 0)
         AddExtraMenuOption(proc, EXTRA_MENU_OPTION_BONUS_CLAIM);
+
+    /* The Bestiary (Kernel/Wizardry/Bestiary), in vanilla's trial-map row (bit 6), always there */
+    AddExtraMenuOption(proc, EXTRA_MENU_OPTION_BESTIARY);
 
     if (proc->extra_options != 0)
     {

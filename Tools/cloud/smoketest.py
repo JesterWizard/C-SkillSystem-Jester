@@ -46,6 +46,9 @@ What it checks:
   gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
               size, goes on to the next with right, back to the grid with B, scrolls a row on screen, and back to
               Extras with B.
+  bestiary    the prologue's first phase marks Eirika, Seth and O'Neill and their classes; a game save keeps them;
+              after a reset Extras > Bestiary lists them as met (the others locked), A shows growths, R the classes,
+              and B goes back to Extras.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -1370,10 +1373,11 @@ class Smoke:
         # struct GalleryScreen: count, cursor, top, view; sprites (+8); the first unlock byte (+0xC)
         state = ["r8 %#x" % (gs + k) for k in (0, 1, 2, 3, 8, 0xC)]
         lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(5)]
-        # the main menu: Extras is the last row, Gallery the last of Extras (UP from the top goes around to it)
+        # the main menu: Extras is the last row; in Extras the Gallery is above the last row (the Bestiary): UP from
+        # the top goes around to the Bestiary, UP again to the Gallery
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
                                "dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS)]
-        lines += ["press UP", "wait 20", "press A", "wait 150", "shot grid.png"] + state
+        lines += ["press UP", "wait 20", "press UP", "wait 20", "press A", "wait 150", "shot grid.png"] + state
         # the cursor on the first CG (Myrrh & Morva, locked): A; then Mountain Forest (one down): A, the full view
         lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
                                                     "r16 %#x" % lcd] + state
@@ -1416,6 +1420,61 @@ class Smoke:
                    "cursor %d, top %d, grid shown %d" % (scrolled[1], scrolled[2], scrolled[4]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: B again goes back to the save menu", bool(after))
+
+    def test_bestiary(self):
+        """The Bestiary (Documentation/Features/Bestiary.md). The prologue's first phase marks every unit on the map in
+        gBestiarySeen: Eirika (1), Seth (2) and O'Neill (0x68); the Lord (2), Paladin (7) and Fighter (0x3F) classes.
+        The debugger's "Save & restart ch." writes them to the game save's tail. After a reset, Extras > Bestiary (the
+        last row, UP from the top) opens on Characters with those three met; Ephraim (the second row) is locked; A on
+        Eirika shows her growths; R changes to Classes (Lord, Paladin, Fighter met); B goes back to Extras."""
+        d = os.path.join(self.out, "bestiary")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBestiarySeen", "gBestiaryScreen", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("bestiary: the Bestiary symbols", False, "no symbols")
+        seen, bs, procs = self.sym["gBestiarySeen"], self.sym["gBestiaryScreen"], self.sym["sProcArray"]
+        # struct BestiaryScreen: tab, cursor, top, page, count, met (+0..5); the rows (+0x4C) and which are met (+0xCC)
+        state = lambda name: "dump %#x 0xE0 %s" % (bs, name)
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        lines = self.boot_lines() + ["dump %#x 0x44 seen.bin" % seen] + DEBUG_SAVE + SOFT_RESET
+        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
+                  "wait 150", "shot chars.png", state("chars.bin")]
+        lines += ["hold DOWN 4", "wait 20", "shot locked.png", state("locked.bin"), "hold UP 4", "wait 20", "press A",
+                  "wait 20", "shot growths.png", state("growths.bin"), "press R", "wait 30", "shot classes.png",
+                  state("classes.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
+        self.run(ROM, lines, d)
+        for name, label in (("chars", "Bestiary: Characters"), ("locked", "a character not met"),
+                            ("growths", "A: Eirika's growths"), ("classes", "R: Classes"), ("extras", "B: Extras")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        try:
+            ram = open(os.path.join(d, "seen.bin"), "rb").read()
+            st = {n: open(os.path.join(d, n + ".bin"), "rb").read() for n in ("chars", "locked", "growths", "classes")}
+        except OSError as e:
+            return self.check("bestiary: the Bestiary runs", False, str(e))
+        bit = lambda bits, i: (bits[i >> 3] >> (i & 7)) & 1
+        chars, classes = ram[4:36], ram[36:68]
+        self.check("bestiary: the first phase marks Eirika, Seth and O'Neill, and the Lord, Paladin and Fighter",
+                   ram[:4] == b"BSTY" and all(bit(chars, p) for p in (1, 2, 0x68)) and
+                   all(bit(classes, j) for j in (2, 7, 0x3F)), "magic %r, chars %s, classes %s" %
+                   (ram[:4], chars.hex(), classes.hex()))
+        menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("bestiary: Extras has the Bestiary row", menu and menu[0] & (1 << 6),
+                   "Extras rows %s" % ["%#x" % m for m in menu])
+        c = st["chars"]
+        met = lambda b, row: (b[0xCC + (row >> 3)] >> (row & 7)) & 1
+        self.check("bestiary: after a reset the save's three characters are met, Eirika first",
+                   c[0] == 0 and c[5] == 3 and c[0x4C] == 1 and met(c, 0), "tab %d, met %d, first row %#x" %
+                   (c[0], c[5], c[0x4C]))
+        self.check("bestiary: the second row (Ephraim) is not met", st["locked"][1] == 1 and
+                   st["locked"][0x4D] == 0x0F and not met(st["locked"], 1), "cursor %d, row %#x" %
+                   (st["locked"][1], st["locked"][0x4D]))
+        self.check("bestiary: A shows growths", st["growths"][1] == 0 and st["growths"][3] == 1,
+                   "cursor %d, page %d" % (st["growths"][1], st["growths"][3]))
+        k = st["classes"]
+        self.check("bestiary: R shows the classes, three met", k[0] == 1 and k[5] == 3,
+                   "tab %d, met %d" % (k[0], k[5]))
+        after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("bestiary: B goes back to the save menu", bool(after))
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -2206,7 +2265,8 @@ def main():
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
-                                ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery))):
+                                ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
+                                ("bestiary", s.test_bestiary))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

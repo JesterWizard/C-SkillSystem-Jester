@@ -37,11 +37,11 @@ gpStatDebuffInfos: POIN gStatDebuffInfos
 gpMagicPInfos:  POIN gMagicPInfos
 gpMagicJInfos:  POIN gMagicJInfos
 
-/* New Game+: the bytes after the save tables (Kernel/Wizardry/NewGamePlus) */
-gpMsa_Saver:    POIN NewGamePlus_SaveSav
-gpMsa_Loader:   POIN NewGamePlus_LoadSav
-gpMsu_Saver:    POIN NewGamePlus_SaveSus
-gpMsu_Loader:   POIN NewGamePlus_LoadSus
+/* The bytes after the save tables: New Game+'s, then the Bestiary's (Kernel/Wizardry/SaveData/Source/SaveTail.c) */
+gpMsa_Saver:    POIN SaveTail_SaveSav
+gpMsa_Loader:   POIN SaveTail_LoadSav
+gpMsu_Saver:    POIN SaveTail_SaveSus
+gpMsu_Loader:   POIN SaveTail_LoadSus
 
 gpKernelDesignerConfig: POIN gKernelDesigerConfig
 
