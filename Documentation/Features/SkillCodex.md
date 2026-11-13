@@ -63,9 +63,9 @@ title's screen shows what the three game saves and the suspend save hold togethe
   (the list walks all 8 bits). `InitSaveMenuChoice` (`ExtrasMenu/Source/SupportMenu.c`) always adds it; the Extras list
   (`sub_80A9B90`), `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` have a case for it. With Link Arena
   removed (`RemoveLinkArena.event`) the list has at most 7 rows, which vanilla's layout fits.
-- **The row's label.** "Skill Codex" is drawn in vanilla's label font from vanilla's own letters (the "S" of Sound
-  Room, the "k" of Link Arena, the "l" of Gallery, the "Co" of Copy Data, the "d" of Select Mode, the "e" of Battle
-  History; the dotted "i" and the "x" drawn in the same strokes) by `Tools/extras-labels/labels.py` (see the
+- **The row's label.** "Skill Codex" is made of vanilla's own letters, pixel for pixel (the "S" of Sound Room, the
+  "k" and "i" of Link Arena, the "l" of Gallery, the "Co" of Copy Data, the "d" of Select Mode, the "e" of Battle
+  History, the "x" of Extras) by `Tools/extras-labels/labels.py` (see the
   [Bestiary](./Bestiary.md#how-it-works)), in the Extras label sheet (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`), in
   three pieces in the free tiles of Link Arena's sheet row (tiles 14-17, 28-31 and 26-27), centred 64 pixels from
   its sprite's origin. Link Arena's sprite in `gExtrasLabelSprites` is cut to its
