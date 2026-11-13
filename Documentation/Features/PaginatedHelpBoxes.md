@@ -52,7 +52,12 @@ Page count is computed from the real description string (newline walk), not only
 
 ### Gold page indicator
 
-Digits reuse the status-screen page-number OBJ sheet (`0x289`, same tiles as the `3/4` tab indicator). They are drawn with a **dedicated OBJ palette** (slot 10) so the white tab `3/4` is unchanged. The fill color matches Capacity gold (`0x47DF`).
+The digits are 8x8 sprites in a **dedicated OBJ palette** (slot 10, gold `0x47DF`, as Capacity), from the status screen's sheet (`Img_StatscreenObjs`), which has `/` and `1`-`5` only: past five pages no number shows.
+
+- **Everywhere but the status screen** (the map's item and unit menus, prep menus): `HelpBoxLoadPageDigits`, called by `LoadHelpBoxGfx`, copies `/` and `1`-`5` into six tiles of the help box's own block that nothing else uses. Its three text lines take two 32-tile rows each, but text and clears use only columns 0-26; the frame pieces fill columns 27-31 of rows 0-4 but the last column of row 4. So `/` goes in row 4's last column (tile 159) and `1`-`5` in columns 27-31 of row 5 (tiles 187-191). Every screen gives the help box its block, so the numbers are right wherever it opens (before, they read tiles only the status screen loads, and showed garbage on the map).
+- **On the status screen** that row holds the skill capacity circle (`0x06013760`), and the screen loads the sheet itself at OBJ tile 0x240: the numbers use its tiles (`/` at 0x288, `1` at 0x289).
+
+**A** turns the page in every help box: the status screen's (`HbMoveCtrl_OnIdle`), and a help box opened with R from a menu, whose loops are vanilla's (`Menu_AutoHelpBox_OnLoop`, `Menu_FrozenHelpBox_OnLoop`, replaced in `HelpBoxHack.c`). Moving the menu cursor to another item, or closing the box, starts the next one on page 1.
 
 On the status screen, help-box sprite text uses `0x06012000` so the skill-capacity circle at `0x06013760` does not stomp help tiles.
 
