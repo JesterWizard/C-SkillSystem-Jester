@@ -221,7 +221,8 @@ your best, his record, and its tokens, or "Beaten!".
 
 ## 🏆 Chapter Awards
 
-When a story chapter is cleared, a screen before the save menu hands out three awards and pays their tokens:
+**Off by default**: turn on `chapter_awards` in `Data/DesignerConfig/designer-config.c`. When it is on and a story
+chapter is cleared, a screen before the save menu hands out three awards and pays their tokens:
 
 | Award | Goes to | Tokens |
 |---|---|---|
@@ -230,7 +231,9 @@ When a story chapter is cleared, a screen before the save menu hands out three a
 | Unscathed | the least damage taken, among the units that fought (more battles wins a tie) | 5 |
 
 Each award shows the unit's chibi portrait, its name and what won it ("37 damage, 1 defeated"). They appear one at a
-time, then the tokens earned in all. A (or START) shows them all at once, and A again goes on to the save menu.
+time, then the tokens earned in all. A (or START) shows them all at once, and A again goes on to the save menu. The
+screen looks like the Extras screens: the title centred on the Bestiary's banner (`ExtrasUi_LoadBanner`) over the
+scrolling mural.
 
 - Every battle a player unit fights against an enemy counts, from either side: the damage it dealt, the damage it took
   and whether the foe fell. Staff use and battles with other units do not count.

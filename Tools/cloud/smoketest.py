@@ -70,8 +70,9 @@ What it checks:
               slot: she gets Str Bonus's scroll.
   frames      the battlequote scene with Eirika's frame set pointed at [Surprised] (a test ROM): her base portrait
               stays, the set is on her face's slot and its open eyes are in the face's graphics.
-  awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: the
-              chapter awards screen (all three for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
+  awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: off
+              by default, no awards are paid; with chapter_awards on (a test ROM), the chapter awards screen (all three
+              for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
   bigunit     2x2 units: a test ROM lists O'Neill, who loads as four corners drawn once at double size; Eirika breaks
               a corner (no defeat yet). A fighter made a 2x2 block in RAM fights once from the corner that reaches,
               Seth breaks that corner, and the block stops where O'Neill blocks it; its shown range is every tile
@@ -2045,12 +2046,43 @@ class Smoke:
         self.check("bigunit: blocked by O'Neill, the block stops a tile left; its range is every tile it can cover",
                    got[:2] == [11, 7] and reach == want, "block %s, range %s" % (got[:2], reach))
 
+    def designer_offset(self, field):
+        """A field's offset in struct KernelDesigerConfig (include/kernel/kernel-lib.h): its u8 and u16 fields, aligned."""
+        src = open(os.path.join(ROOT, "include", "kernel", "kernel-lib.h")).read()
+        body = src[src.index("struct KernelDesigerConfig {"):]
+        body = body[:body.index("\n};")]
+        off = 0
+        for m in re.finditer(r"^\s*(u8|u16|s8|s16|u32|s32)\s+(\w+)\s*;", body, re.M):
+            size = {"u8": 1, "s8": 1, "u16": 2, "s16": 2, "u32": 4, "s32": 4}[m.group(1)]
+            off = (off + size - 1) // size * size
+            if m.group(2) == field:
+                return off
+            off += size
+        return None
+
+    def designer_rom(self, d, name, field, value):
+        """A test ROM with a designer config byte set (gpKernelDesignerConfig points at the struct)"""
+        off = self.designer_offset(field)
+        if off is None or "gpKernelDesignerConfig" not in self.sym:
+            return None
+        data = bytearray(open(ROM, "rb").read())
+        cfg = struct.unpack_from("<I", data, self.sym["gpKernelDesignerConfig"] - 0x08000000)[0] - 0x08000000
+        data[cfg + off] = value
+        rom = os.path.join(d, name)
+        open(rom, "wb").write(data)
+        return rom
+
     def test_awards(self, boot_ss):
         """The prologue with only O'Neill left (the other two enemies removed), moved next to Eirika: she attacks him,
-        he falls to her counter in the enemy phase and the chapter ends. The awards screen comes before the save menu, names Eirika for all three
-        awards (the only unit that fought: one foe defeated, no damage taken) and pays 10 + 5 + 5 tokens."""
+        he falls to her counter in the enemy phase and the chapter ends. The awards are off by default (chapter_awards in
+        designer-config.c): the chapter ends with no awards paid. A test ROM turns them on: the awards screen comes
+        before the save menu, names Eirika for all three awards (the only unit that fought: one foe defeated, no damage
+        taken) and pays 10 + 5 + 5 tokens."""
         d = os.path.join(self.out, "awards")
         os.makedirs(d, exist_ok=True)
+        rom_on = self.designer_rom(d, "awards.gba", "chapter_awards", 1)
+        if not rom_on:
+            return self.check("awards: a test ROM with chapter_awards on", False)
         need = ("gGuildSave", "gChapterAwards")
         if not all(n in self.sym for n in need):
             return self.check("awards: the chapter awards", False, "no symbols")
@@ -2077,7 +2109,10 @@ class Smoke:
         lines += skip * 3 + ["r8 %#x" % (ca + 3), "r8 %#x" % (ca + 5), "r8 %#x" % (ca + 6)]
         lines += skip * 3 + ["wait 200", "shot awards.png", "r16 %#x" % (g + 2), "r16 %#x" % ca]
         lines += ["press A", "wait 150", "shot savemenu.png"]
-        vals = self.run(ROM, lines, d)
+        off = self.run(ROM, [ln for ln in lines if not ln.startswith("shot")], d)
+        self.check("awards: off by default, the chapter ends with no awards paid",
+                   len(off) == 5 and off[3] == 0, "tokens %s" % (off[3:4] or "?"))
+        vals = self.run(rom_on, lines, d)
         self.shot(os.path.join(d, "awards.png"), "chapter awards")
         self.shot(os.path.join(d, "savemenu.png"), "save menu after the awards")
         if len(vals) != 5:

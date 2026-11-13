@@ -17,6 +17,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `remove_move_path` | Disables move-path calculation and display. This is useful because vanilla move-path display only supports up to 20 steps and can overflow with high-move units. |
 | `alpha_blend_movement_sprites` | While pathfinding (and `remove_move_path` is off), shows a Lex Talionis-style faded MU ghost at the cursor tip. See [TranslucentUnitSprite](./TranslucentUnitSprite.md). |
 | `text_box_extension_layout` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
+| `chapter_awards` | Off by default. After a cleared story chapter, an awards screen (MVP, most foes, unscathed) pays guild tokens before the save menu ([Guild Board](./GuildBoard.md#chapter-awards)). |
 | `hit_decrease_on_range` | Enables Three Houses style hit loss for long-range attacks. |
 | `infinite_durability` | On by default. Weapons never lose uses in battle (`GetWeaponCost` is 0 for them), and their uses are hidden in every item list, forgeable weapons included. Staves and other items keep their uses. |
 | `debug_autoload_skills` | Debug option that fills a unit's learned skill list so skills can be freely equipped in the prep screen. |

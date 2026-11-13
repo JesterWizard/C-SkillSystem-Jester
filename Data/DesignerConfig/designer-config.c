@@ -25,6 +25,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.casual_mode = false,
 	.chapter_names = true,
 	.chatlog_enabled = true,
+	.chapter_awards = false, // awards screen after a cleared story chapter (Kernel/Wizardry/Guild/Source/ChapterAwards.c)
 	.class_growths = 0, // 0=off, 1=personal + class growths, 2=average of personal and class growths
 	.collect_dead_units = true,
 	.crit_cutin = true, // portrait cut-in over an electric band before critical hits by units with a portrait
