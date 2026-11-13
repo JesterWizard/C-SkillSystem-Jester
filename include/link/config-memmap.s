@@ -414,7 +414,7 @@ _kernel_malloc2 gBestiaryScreen, 0x160
 _kernel_malloc2 gPopupInEfx, 4
 
 /* The talk box's per-scanline line spacing (TextEngineRework.c, TEXT_ENGINE_LINE_HEIGHT). RAM only. */
-_kernel_malloc2 sTextEngineLineSpacing, 0xA8
+_kernel_malloc2 sTextEngineLineSpacing, 0xAC
 
 /* What the level-up quote on the battle-animation level-up borrows, to put back (Lvupfx/MapLvup.c). RAM only. */
 _kernel_malloc2 gEkrLvupQuoteSave, 0xF0

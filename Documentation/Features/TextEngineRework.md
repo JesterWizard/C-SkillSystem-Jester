@@ -383,6 +383,9 @@ A font with shorter glyphs shows its lines closer, and the box is shorter to mat
   `TEXT_ENGINE_LINE_HEIGHT` of its rows, from `TEXT_ENGINE_LINE_TOP`, one after another.
 - A floating box keeps its top edge: its bottom edge and tail move up. The [scene layout](#scene-layout) box, pinned to
   the bottom of the screen, keeps its bottom edge: its top edge, name tab and portraits move down.
+- The tables are built in the VBlank proc tree, once the frame's BG offsets are final, and the HBlank handlers use the
+  offsets they were built for, not the live ones: the main loop changes BG0's offset while the screen is drawn (a page
+  scroll's last step puts it back to 0), and a table built for the old offset made the text jump for a frame.
 - Page scrolls move the lines `TEXT_ENGINE_LINE_HEIGHT` a line; the window that shows the text in the box is fitted
   to the shorter inside. The wait arrow and the big-text and floating letters are placed on the lines as they are
   shown (`TextEngine_LineScreenY`).
