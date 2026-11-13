@@ -57,7 +57,7 @@ const EventScr EventScr_Ch01_Ending[] = {
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x26, Chapter_01_Scene_10_Convo_01)
     REMA
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     NEXT_CHAPTER_WITH_MAP(0x38)
     ENDA
 };

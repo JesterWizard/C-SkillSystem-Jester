@@ -5,7 +5,7 @@
 
 static const EventScr EventScr_Ch07_Opening[] = {
     LOAD_WAIT_PERSIST(CH7_ENEMY_UNITS)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     LOAD_WAIT(CH7_PLAYER_UNITS)
     STAL(15)
     MOVE_CAMERA_TO_POSITION_CENTER(9, 4)
@@ -30,10 +30,10 @@ static const EventScr EventScr_Ch07_Opening[] = {
 
 const EventScr EventScr_Ch07_Ending[] = {
     ASMC(GrantBEXP)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     LOMA(0x44)
     CLEAR_ALL_UNITS
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     MUSC(SONG_SE_RIVER)
     LOAD_WAIT(CH7_EIRIKA_SETH)
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
@@ -68,7 +68,7 @@ const EventScr EventScr_Ch07_Ending[] = {
     SENQUEUE1
     MOVE_DEFINED(CHARACTER_SETH)
     STAL(8)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     ENUN
     NEXT_CHAPTER_WITH_MAP(CHAPTER_08)
     ENDA

@@ -7,7 +7,7 @@ static const EventScr EventScr_Ch00_Opening[] = {
     LOAD_MAP_XY(17, 13, CHAPTER_16)
     STAL(16)
     LOAD_WAIT(Renais_Castle_Allies)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     MUSC(SONG_RAID)
     BROWNBOXTEXT(BB_Renais_Castle, 2, 2)
     LOAD_WAIT(Panicked_Soldier_Allies)
@@ -38,14 +38,14 @@ static const EventScr EventScr_Ch00_Opening[] = {
     LOAD_WAIT(Renais_Castle_Enemy3)
     HIGHLIGHT_CHARACTER(CHARACTER_FADO, 60)
     TEXT(Chapter_00_Scene_01_Convo_04)
-    FADE_FROM_BLACK(2)
+    FADE_TO_BLACK(2)
     REMA
     SKIP_POINT
     CLEAR_ALL_UNITS
 
     /* Escape Castle Renais */
     LOAD_MAP_XY(0, 0, OUTSIDE_RENAIS)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     LOAD_WAIT(Renais_Runaways_Allies)
     HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
     TEXT_BG(0x1D, Chapter_00_Scene_02_Convo_01)
@@ -77,14 +77,14 @@ static const EventScr EventScr_Ch00_Opening[] = {
     ERASE(CHARACTER_SETH)
     HIGHLIGHT_CHARACTER(CHARACTER_VALTER_PROLOGUE, 60)
     TEXT(Chapter_00_Scene_02_Convo_05)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     REMA
     SKIP_POINT
     CLEAR_ALL_UNITS
 
     /* Highway map with O'Neil and company */
     LOAD_MAP_XY(0, 0, PROLOGUE)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     LOAD_WAIT_PERSIST(Eirika_Seth_Allies)
     SET_UNIT_HP(CHARACTER_SETH, 10)
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
@@ -113,7 +113,7 @@ const EventScr EventScr_Ch00_Ending[] = {
     TUTORIAL_CHECK(EventScr_Tutorial_BONUS_EXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_00_Scene_03_Convo_06)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     NEXT_CHAPTER_WITHOUT_MAP(CHAPTER_01)
     REMA
     ENDA
@@ -214,7 +214,7 @@ static const EventListScr EventScr_Talk_EIRIKA_SETH[] = {
 
 // PLAY_LIGHTS_OUT_GAME(DIMENSIONS_3x3, ICON_COUNT_2, CAN_SKIP, ITEM_SWORD_AUDHULMA, FLAG_10)
 
-// FADE_TO_BLACK(16) // slow fade to black (optional)
+// FADE_FROM_BLACK(16) // slow fade to black (optional)
 // ASMC(StartCreditsProc_ASMC)
     ASMC(CallSnekMinigameASMC)
 

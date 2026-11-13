@@ -232,7 +232,7 @@ static void SetIndexes(struct ProcPrepUnit * proc)
 
 static EventScr const EventScr_CharacterBiographies[] = {
 	EVBIT_MODIFY(0x4) // No skipping
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     ASMC(SetIndexes)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
@@ -245,7 +245,7 @@ static EventScr const EventScr_CharacterBiographies[] = {
     BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
 LABEL(0x1)
-    FADI(16) /* to black (macros.h's FADE_TO_BLACK is FADU, which fades from black) */
+    FADE_TO_BLACK(16)
 	ENDA
 };
 

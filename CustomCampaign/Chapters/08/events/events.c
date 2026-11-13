@@ -59,7 +59,7 @@ static const EventScr EventScr_Ch08_Opening[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Pre_Scene_03_Convo_01)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     PREP_ALT
     NOFADE
     ENUT(0xC) // Temporary flag for special reinforcements
@@ -71,15 +71,15 @@ const EventScr EventScr_Ch08_Ending[] = {
     MUSC(SONG_NONE)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Post_Scene_01_Convo_01)
-    FADE_FROM_BLACK(12)
+    FADE_TO_BLACK(12)
     MUSC(SONG_LYON)
     SET_BACKGROUND(0x35)
-    FADE_TO_BLACK(3)
+    FADE_FROM_BLACK(3)
     TEXT(Chapter_08_Post_Scene_01_Convo_02)
-    FADE_FROM_BLACK(4)
+    FADE_TO_BLACK(4)
     SET_BACKGROUND(0x10)
     TEXT(Chapter_08_Post_Scene_01_Convo_03)
-    FADE_FROM_BLACK(1)
+    FADE_TO_BLACK(1)
     MUSC(SONG_NONE)
     SET_FLAG(0x88) // Flag for New Departure
     NEXT_CHAPTER_WITH_MAP(CHAPTER_05)

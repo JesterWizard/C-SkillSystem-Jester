@@ -110,8 +110,8 @@ Add a row to `gWmStoryChapterNodes` in `CustomCampaign/Event/World_Map_Events.c`
 - Flag 136 no longer decides where the story goes. The events can keep using it, or stop.
 - A world map script that leads into a chapter ends by fading to black, `FADI(16)` before `ENDA` (or before `SKIPWN`),
   as Chapters 2-6 and the Intermission's scripts do: the chapter then fades in from black. Without it the world map cuts
-  to the chapter (Chapter 1's ending into Castle Frelia did, with the empty text bar still up). In this codebase `FADI`
-  fades to black; `FADE_TO_BLACK` in `include/jester_headers/macros.h` is `FADU`, which fades from black.
+  to the chapter (Chapter 1's ending into Castle Frelia did, with the empty text bar still up). `FADI` fades to black
+  (`FADE_TO_BLACK` in `include/jester_headers/macros.h`); `FADU` fades from black (`FADE_FROM_BLACK`).
 
 ## Code locations
 

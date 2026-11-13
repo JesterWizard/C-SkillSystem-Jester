@@ -162,7 +162,7 @@ EventScr_CharacterBiographies
 - Fades from black
 - Calls `SetIndexes` before each page
 - Displays 4 CG biography entries
-- Fades to black at its end (`FADI`: in this codebase `FADE_TO_BLACK` is `FADU`, which fades *from* black)
+- Fades to black at its end (`FADE_TO_BLACK`)
 - Returns to biography menu
 
 ### 🎞️ Transitions

@@ -48,9 +48,9 @@ const EventScr EventScr_Ch02_Ending[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_02_Scene_07_Convo_01)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     TEXT_BG_HIDE_MAP(0x4, Chapter_02_Scene_08_Convo_01)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     MUSCSLOW(SONG_NONE)
     SET_BACKGROUND(0x20)
     TEXT(Chapter_02_Scene_09_Convo_01)
@@ -61,9 +61,9 @@ const EventScr EventScr_Ch02_Ending[] = {
     TEXT(Chapter_02_Scene_10_Convo_01)
     FADE_TO_WHITE(4)
     TEXT_BG_HIDE_MAP(0x20, Chapter_02_Scene_11_Convo_01)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     TEXT_BG_HIDE_MAP(0x20, Chapter_02_Scene_12_Convo_01)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     NEXT_CHAPTER_WITH_MAP(CHAPTER_03)
     ENDA
 };

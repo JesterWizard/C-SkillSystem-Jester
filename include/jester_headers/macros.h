@@ -139,10 +139,9 @@ enum {
     LOAD3(0x1, loaded_units) \
     ENUN
 
-// So apparently Nintendlord mixed these two up back in the day
-// and nobody ever made macros to fix it???
-#define FADE_TO_BLACK(number) FADU(number)
-#define FADE_FROM_BLACK(number) FADI(number)
+// EA's names read backwards: FADI fades to black, FADU fades from black
+#define FADE_TO_BLACK(number) FADI(number)
+#define FADE_FROM_BLACK(number) FADU(number)
 
 #define FADE_TO_WHITE(number) FAWI(number)
 #define FADE_FROM_WHITE(number) FAWU(number)
