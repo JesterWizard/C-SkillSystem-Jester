@@ -10,10 +10,21 @@
 extern bool gPopupInEfx;
 
 /*
- * Gold text on the banner (BG palette 1, entries 4-6; PopupR.c, PoprDisp_Color): the shade between body and
- * outline, the body, and the banner's own dark outline (its entry 3), as the normal text has them in entries 1-3.
+ * The banner in the map popup's colours (BG palette 1, over vanilla's Pal_EkrPopup): a dark blue fill and a gold and
+ * brown frame, white text, and gold text (entries 4-6; PopupR.c, PoprDisp_Color) as the map's light gold with its olive
+ * outline. Vanilla's light banner washed the colours out and did not match the map popups. DrawBattlePopup
+ * (IconDisplay/Source/hooks.c) uses it too.
  */
-static const u16 sEfxPopupHighlight[3] = { RGB(21, 15, 4), RGB(31, 26, 8), RGB(7, 6, 5) };
+const u16 gEfxPopupColors[16] = {
+	RGB(14, 16, 20),                                 /* 0: backdrop (vanilla) */
+	RGB(16, 16, 15), RGB(31, 31, 31), RGB(7, 6, 5),  /* 1-3: normal text: shade, body, outline (vanilla) */
+	RGB(21, 21, 9), RGB(31, 30, 17), RGB(9, 8, 1),   /* 4-6: gold text: shade, body, outline */
+	RGB(21, 21, 9),                                  /* 7: frame studs */
+	RGB(5, 4, 3), RGB(13, 9, 7), RGB(23, 20, 8),     /* 8-10: frame, dark to light */
+	RGB(30, 29, 19),                                 /* 11: frame edge */
+	RGB(10, 10, 22), RGB(8, 8, 18), RGB(7, 7, 16),   /* 12-14: fill, its highlight to the body */
+	RGB(5, 5, 12),                                   /* 15: fill shadow */
+};
 
 STATIC_DECLAR void EfxPopR_Start(struct PopupProc *proc)
 {
@@ -83,8 +94,7 @@ STATIC_DECLAR void EfxPopR_Start(struct PopupProc *proc)
 	if (proc->soundId != 0)
 		EfxPlaySE(proc->soundId, 0x80);
 
-	ApplyPalette(Pal_EkrPopup, 1);
-	CpuCopy16(sEfxPopupHighlight, PAL_BG(1) + 4, sizeof(sEfxPopupHighlight));
+	ApplyPalette(gEfxPopupColors, 1);
 	EnablePaletteSync();
 	SetDefaultColorEffects();
 	SetWinEnable(0, 0, 0);

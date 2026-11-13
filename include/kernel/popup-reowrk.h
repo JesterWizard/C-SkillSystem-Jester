@@ -57,3 +57,6 @@ extern IWRAM_DATA struct PopupInstruction gPopupInst[4];
 extern IWRAM_DATA struct Unit *gpPopupUnit;
 extern IWRAM_DATA u16 gPopupItem;
 extern IWRAM_DATA u32 gPopupNumber;
+
+/* The battle-animation popup banner in the map popup's colours (PopupRework/Source/EfxPopup.c) */
+extern const u16 gEfxPopupColors[16];

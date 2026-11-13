@@ -45,7 +45,7 @@ The same pass runs on unit load, autolevel WEXP, promotion, reclass, and Arms Sc
 
 The pass runs again on units that already hold their skills (the prep and battle syncs walk every rank from E). A rank's skill is skipped when the unit holds (equipped or learned) a skill that replaces it at a higher rank, following the chain (Lv1 is not given back to a unit with Lv2 or Lv3). A unit that still holds both, from a save written before this check, loses the lower level at its next pass.
 
-The popups: on the map, the upgrade shows `[old icon] [old name] upgraded to Lv [new]`, the name and level in gold. In a battle animation the popup is vanilla's light banner, whose palette has only the normal text's colours; there the gold text is drawn with the grey text's palette entries, which the banner does not use, loaded with gold (`PoprDisp_Color` in `Kernel/Wizardry/PopupRework/Source/PopupR.c`, `EfxPopup.c`). The unit's name, blue on the map, is normal text there.
+The popups: on the map, the upgrade shows `[old icon] [old name] upgraded to Lv [new]`, the name and level in gold. In a battle animation the popup is vanilla's banner shape in the map popup's colours (`gEfxPopupColors` in `Kernel/Wizardry/PopupRework/Source/EfxPopup.c`, also used by `DrawBattlePopup`): a dark blue fill, a gold frame, white text, and the gold text drawn with the grey text's palette entries, loaded with the map's gold (`PoprDisp_Color` in `PopupR.c`). The unit's name, blue on the map, is normal text there.
 
 Prowess bonuses apply only while that weapon type is equipped.
 
