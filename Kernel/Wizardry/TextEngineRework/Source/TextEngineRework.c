@@ -4265,7 +4265,13 @@ void Talk_OnInit_C(void)
 	sTextEngineNameplateState.enabled = 0;
 
 	if (!CheckTalkFlag(TALK_FLAG_SPRITE)) {
-		LoadObjUIGfx();
+		/*
+		 * Not under the battle level-up screen (ProcScr_EkrLevelup): its portrait, which the level-up quote
+		 * speaks through (EkrLvup_Quote), is in the OBJ tiles the UI sheet goes to. The quotes do not wait for
+		 * input, so they need no arrow from the sheet.
+		 */
+		if (!Proc_Find((const struct ProcCmd *)0x0875932C))
+			LoadObjUIGfx();
 		BG_SetPosition(BG_0, 0, 0);
 		BG_SetPosition(BG_1, 0, 0);
 	}
@@ -4706,15 +4712,6 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 
 	position = state->activeFaceSlot;
 
-	/*
-	 * Always draw the full 96x80 mug. Vanilla battle quotes omit
-	 * FACE_96x80 (64x80 crop) and park the sprite at tile 4/26, which
-	 * clips shoulders on the screen edge. Keep the banim VRAM config
-	 * but use dialogue-sized faces.
-	 */
-	if (IsBattleDeamonActive())
-		SetupFaceGfxDataInBanim();
-
 	faceDisplay |= FACE_DISP_KIND(FACE_96x80);
 
 	if (options == 0xFF) {
@@ -4742,6 +4739,20 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 	if (face) {
 		TextEngine_ChangeFace(face, faceId);
 	} else {
+		/*
+		 * Always draw the full 96x80 mug. Vanilla battle quotes omit
+		 * FACE_96x80 (64x80 crop) and park the sprite at tile 4/26, which
+		 * clips shoulders on the screen edge. Keep the banim VRAM config
+		 * but use dialogue-sized faces.
+		 *
+		 * Only for a face started here: the config is global, and a face
+		 * already on screen (the battle level-up's portrait, which a
+		 * level-up quote speaks through) recomputes its tiles and palette
+		 * from it when its display bits change, and vanished.
+		 */
+		if (IsBattleDeamonActive())
+			SetupFaceGfxDataInBanim();
+
 		face = StartFaceAuto(
 			faceId,
 			GetTalkFaceHPos(position) * 8,
