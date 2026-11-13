@@ -58,6 +58,9 @@ What it checks:
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED).
+  lvupanim    with battle animations on, Eirika levels up: after the stats, her quote is printed in a box above the
+              level-up window, the portrait shows its tier's expression, and the window slides off and the battle
+              ends on the map with her new level.
   biography   the map menu's Biography row opens the list; it scrolls to its last biography; A plays its first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
               (0xEF) set.
@@ -87,7 +90,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -1607,6 +1610,41 @@ class Smoke:
         self.check("battle: 99 EXP levels Eirika up", lv1 == lv0 + 1, "level %d to %d" % (lv0, lv1))
         self.check_quote_face(face, gains, quote_ss, d)
 
+    def test_lvupanim(self, boot_ss):
+        """The level-up quote with battle animations on (EkrLvup_Quote, Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c): Eirika
+        attacks with 99 EXP and animations on (option byte 0x42). After the stats, the talk prints her quote into BG0
+        rows below the screen and it is copied to BG2's rows 2-3 (the box's text row); the box is on BG1 rows 1-5.
+        Then the window slides off and the battle ends on the map (before, the quote's jump overwrote the next step
+        and the game froze there)."""
+        d = os.path.join(self.out, "lvupanim")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBG1TilemapBuffer", "gBG2TilemapBuffer", "InBattleMainRoutine")
+        if not all(n in self.sym for n in need):
+            return self.check("lvupanim: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        lvl = UNIT1 + 0x08
+        attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A"]
+        bg1, bg2 = os.path.join(d, "bg1.bin"), os.path.join(d, "bg2.bin")
+        vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w8 %#x 99" % (UNIT1 + 0x09),
+                              "r8 %#x" % lvl] + attack +
+                        ["wait 1080", "shot quote.png", "dump %#x 0x180 %s" % (self.sym["gBG1TilemapBuffer"], bg1),
+                         "dump %#x 0x100 %s" % (self.sym["gBG2TilemapBuffer"], bg2), "r32 %#x" % GFACES,
+                         "r8 %#x" % (EVENT_SLOTS + 9 * 4), "save quote.ss", "wait 600", "shot after.png",
+                         "r32 0x02024CB8", "r8 %#x" % lvl], d)
+        self.shot(os.path.join(d, "quote.png"), "level-up quote (animations)")
+        self.shot(os.path.join(d, "after.png"), "after the animated level-up")
+        if len(vals) != 5:
+            return self.check("lvupanim: the fight runs", False, "values %s" % vals)
+        lv0, face, gains, main, lv1 = vals
+        tm = lambda f, y: struct.unpack_from("<32H", open(f, "rb").read(), 64 * y) if os.path.exists(f) else ()
+        text = sum(1 for y in (2, 3) for e in tm(bg2, y) if e)
+        box = sum(1 for y in range(1, 6) for e in tm(bg1, y) if e)
+        self.check("lvupanim: the quote is printed in a box above the window", text >= 8 and box >= 20,
+                   "%d text cells, %d box cells" % (text, box))
+        self.check_quote_face(face, gains, os.path.join(d, "quote.ss"), d, "lvupanim")
+        self.check("lvupanim: the window goes and the battle ends on the map",
+                   main != self.sym["InBattleMainRoutine"] + 1 and lv1 == lv0 + 1,
+                   "main loop %#x, level %d to %d" % (main, lv0, lv1))
+
     def test_battlequote(self, boot_ss):
         """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with
         [LoadFace_Eirika][Surprised]. Eirika has no surprised portrait, so a test ROM maps her sad row to SURPRISED;
@@ -2190,16 +2228,16 @@ class Smoke:
             a += 4
         return None
 
-    def check_quote_face(self, face, gains, quote_ss, d):
+    def check_quote_face(self, face, gains, quote_ss, d, test="battle"):
         """The level-up quotes open with [Sad] for a poor level-up (0-2 stat points, or 9+) and [Happy] for a great one
         (6-8): the level-up portrait shows that expression of Eirika's portrait if the table has one."""
         if not face:
-            return self.check("battle: the level-up quote's portrait", False, "no face")
+            return self.check("%s: the level-up quote's portrait" % test, False, "no face")
         got = self.run(ROM, ["load " + quote_ss, "r16 %#x" % (face + 0x3E)], d)
         tier = 1 if 3 <= gains <= 5 else 2 if 6 <= gains <= 8 else 0
         base = EIRIKA_PORTRAIT
         want = {0: self.expression(base, EXPRESSION_SAD), 2: self.expression(base, EXPRESSION_HAPPY)}.get(tier) or base
-        self.check("battle: the level-up quote shows its expression", got == [want],
+        self.check("%s: the level-up quote shows its expression" % test, got == [want],
                    "%d stat points: portrait %s, want %#x" % (gains, ", ".join("%#x" % v for v in got), want))
 
     # ---- report ----
@@ -2297,13 +2335,13 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end")
+                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -2318,6 +2356,8 @@ def main():
                 r.submit((0, 4), s.test_bigunit, turn2_ss)
             if on("expbar") and turn2_ss:
                 r.submit((0, 5), s.test_expbar, turn2_ss)
+            if on("lvupanim") and turn2_ss:
+                r.submit((0, 9), s.test_lvupanim, turn2_ss)
             if on("deeproots") and turn2_ss:
                 r.submit((0, 6), s.test_deeproots, turn2_ss)
             if on("mapcolors"):

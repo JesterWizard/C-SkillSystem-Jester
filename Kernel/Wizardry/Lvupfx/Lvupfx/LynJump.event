@@ -69,3 +69,9 @@ ALIGN 4
 WORD $46C04778 $E59FC000 $E12FFF1C
 POIN ManimLevelUp_PutStatGainLabels
 POP
+
+// ProcScr_EkrLevelup's PROC_REPEAT(EkrLvup_DoNothing): the level-up quote (MapLvup.c)
+PUSH
+ORG $7593B8
+POIN EkrLvup_Quote
+POP
