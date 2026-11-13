@@ -300,10 +300,10 @@ enum {
 	LVUP_LABEL_SCROLL_OUT = 1,
 };
 
-static int GetLevelUpSpeechMsg(struct ManimLevelUpProc *proc)
+/* The quote a character says for the stat gains counted in EVT_SLOT_9, or 0 */
+static int GetLevelUpSpeechMsgFor(int unitID)
 {
 	int i, tier;
-	int unitID = gManimSt.actor[proc->actor_id].unit->pCharacterData->number;
 
 	/* JESTER - I'm doing this as a little patch for end of map BEXP. The procs intefere with each other and softlock the game so if we've beaten the map we return early */
 	if (gEventSlots[EVT_SLOT_8] > 0)
@@ -324,6 +324,11 @@ static int GetLevelUpSpeechMsg(struct ManimLevelUpProc *proc)
 	}
 
 	return 0;
+}
+
+static int GetLevelUpSpeechMsg(struct ManimLevelUpProc *proc)
+{
+	return GetLevelUpSpeechMsgFor(gManimSt.actor[proc->actor_id].unit->pCharacterData->number);
 }
 
 /* Skip the speech steps when this unit has nothing to say. */
@@ -480,6 +485,219 @@ static void LevelUpSpeech_EndTalk(struct ManimLevelUpProc *proc)
 	 */
 	LevelUpSpeech_ShiftWindow(-LVUP_WINDOW_SHIFT_ROWS);
 	LevelUpSpeech_SetWindowOffset(proc, LVUP_WINDOW_SHOWN_OFFSET);
+}
+
+/*
+ * The quote on the battle-animation level-up (ekrLevelup), in vanilla's
+ * EkrLvup_DoNothing step: after the stats are shown, before the window
+ * slides off. The battle screen differs from the map's:
+ * - BG0 holds the battle HUD and is drawn under BG1 and BG2, so the talk
+ *   engine prints into two rows of BG0 below the screen, and those cells are
+ *   copied to BG2 (the window's text layer, in front) each frame. The box is
+ *   on BG1, like the window's frame.
+ * - BG1 and BG2 are scrolled 8 pixels: they are put at 0 while the quote is
+ *   up, so the window starts at row 6 and rows 0-5 are free for the box.
+ * - Glyphs and box tiles go after the window's text, in tiles the battle
+ *   screen leaves free below 0x200. The talk's three lines all use the first
+ *   line's tiles (a quote is one line), and its nameplate is not drawn
+ *   (TALK_FLAG_NOBUBBLE).
+ * - The talk loads its text palette into bank 2, the HUD's: the text is
+ *   shown in bank 5 and bank 2 is put back; the box is in bank 4. No battle
+ *   tilemap uses banks 4 and 5.
+ * - The talk blocks its parent: a holder proc is its parent, so the
+ *   level-up proc keeps running to copy the text.
+ * BG0's two rows, the three banks, the font and the scroll are put back after.
+ */
+#define EFX_SPEECH_TEXT_ROW 26 /* BG0 rows 26-27, below the screen */
+#define EFX_SPEECH_TEXT_X   1
+#define EFX_SPEECH_PAL_TALK 2  /* where the talk puts its text palette */
+#define EFX_SPEECH_PAL_BOX  4
+#define EFX_SPEECH_PAL_TEXT 5
+#define EFX_SPEECH_CHR_END  0x200
+#define Pal_TalkText ((const u16 *)0x0859EF20)
+
+struct EkrLvupQuoteSave {
+	u16 bg0[2 * 32];
+	u16 pal[3][16]; /* banks 2, 4, 5 */
+	struct Font *font;
+	struct BgCoords bg1, bg2;
+	u8 x, width;
+};
+
+extern struct EkrLvupQuoteSave gEkrLvupQuoteSave;
+
+static const u8 sEkrLvupQuoteBanks[3] = { EFX_SPEECH_PAL_TALK, EFX_SPEECH_PAL_BOX, EFX_SPEECH_PAL_TEXT };
+
+static const struct ProcCmd ProcScr_EkrLvupQuoteHolder[] = {
+	PROC_NAME("EkrLvupQuote"),
+	PROC_YIELD,
+	PROC_END,
+};
+
+static void EkrLvupQuote_SavePals(bool restore)
+{
+	int i;
+
+	for (i = 0; i < 3; i++) {
+		u16 *bank = gPaletteBuffer + 0x10 * sEkrLvupQuoteBanks[i];
+
+		if (restore)
+			CpuCopy16(gEkrLvupQuoteSave.pal[i], bank, 0x20);
+		else
+			CpuCopy16(bank, gEkrLvupQuoteSave.pal[i], 0x20);
+	}
+
+	EnablePaletteSync();
+}
+
+/* The text the talk printed in BG0's hidden rows, into the box on BG2, in the text's bank */
+static void EkrLvupQuote_Mirror(void)
+{
+	struct EkrLvupQuoteSave *save = &gEkrLvupQuoteSave;
+	int row, i;
+
+	for (row = 0; row < 2; row++) {
+		const u16 *src = gBG0TilemapBuffer + TILEMAP_INDEX(EFX_SPEECH_TEXT_X, EFX_SPEECH_TEXT_ROW + row);
+		u16 *dst = gBG2TilemapBuffer + TILEMAP_INDEX(save->x + 1, LVUP_SPEECH_TAIL_Y - LVUP_SPEECH_BOX_H + 2 + row);
+
+		for (i = 0; i < save->width - 2; i++)
+			dst[i] = src[i] ? (src[i] & 0x0FFF) | (EFX_SPEECH_PAL_TEXT << 12) : 0;
+	}
+
+	/* The talk may load its palette again (a new box type): keep the HUD's */
+	for (i = 0; i < 16; i++) {
+		if (gPaletteBuffer[0x10 * EFX_SPEECH_PAL_TALK + i] != save->pal[0][i]) {
+			CpuCopy16(save->pal[0], gPaletteBuffer + 0x10 * EFX_SPEECH_PAL_TALK, 0x20);
+			EnablePaletteSync();
+			break;
+		}
+	}
+
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
+}
+
+static bool EkrLvupQuote_Start(struct ProcEkrLevelup *proc)
+{
+	struct EkrLvupQuoteSave *save = &gEkrLvupQuoteSave;
+	struct TalkState *state = sTalkState;
+	struct Text *lines = (struct Text *)0x030000D0;
+	ProcPtr holder;
+	int msg, fontChr, boxChr, width, x, xTail, i;
+
+	if (gpKernelDesignerConfig->talk_on_level_up != true || proc->is_promotion || gpEkrLvupUnit == NULL)
+		return false;
+
+	msg = GetLevelUpSpeechMsgFor(gpEkrLvupUnit->pCharacterData->number);
+	if (msg == 0 || gFaces[0] == NULL)
+		return false;
+
+	/* After the window's text (EkrLvup_InitStatusText's font): one line of glyphs, then the box's 7 tiles */
+	fontChr = (gBanimFont.tileref & 0x3FF) + gBanimFont.chr_counter * 2;
+	boxChr = fontChr + 30 * 2;
+	if (boxChr + 7 > EFX_SPEECH_CHR_END)
+		return false;
+
+	save->font = gActiveFont;
+	save->bg1 = gLCDControlBuffer.bgoffset[1];
+	save->bg2 = gLCDControlBuffer.bgoffset[2];
+	CpuCopy16(gBG0TilemapBuffer + TILEMAP_INDEX(0, EFX_SPEECH_TEXT_ROW), save->bg0, sizeof(save->bg0));
+	CpuFill16(0, gBG0TilemapBuffer + TILEMAP_INDEX(0, EFX_SPEECH_TEXT_ROW), sizeof(save->bg0));
+	EkrLvupQuote_SavePals(false);
+
+	InitTalk(fontChr, LVUP_SPEECH_LINES, FALSE);
+	for (i = 1; i < 3; i++)
+		lines[i].chr_position = lines[0].chr_position;
+
+	Decompress(Img_LvupSpeechBox, (void *)(VRAM + GetBackgroundTileDataOffset(BG_1) + boxChr * CHR_SIZE));
+	CopyToPaletteBuffer(Pal_LvupSpeechBox, 0x20 * EFX_SPEECH_PAL_BOX, 0x20);
+	CopyToPaletteBuffer(Pal_TalkText, 0x20 * EFX_SPEECH_PAL_TEXT, 0x20);
+
+	state->faces[LVUP_SPEECH_TALK_FACE] = gFaces[0];
+
+	holder = Proc_Start(ProcScr_EkrLvupQuoteHolder, PROC_TREE_3);
+	StartTalkMsgExt(0, 0, msg, holder);
+	SetTalkFlag(TALK_FLAG_NOSKIP);
+	SetTalkFlag(TALK_FLAG_NOBUBBLE);
+
+	width = state->activeWidth;
+	if (width > LVUP_SPEECH_BOX_W_MAX)
+		width = LVUP_SPEECH_BOX_W_MAX;
+
+	xTail = gFaces[0]->xPos / 8 - 5;
+
+	if ((width + 1) / 2 + xTail >= 30)
+		x = 29 - width;
+	else
+		x = xTail - width / 2;
+
+	if (x < 0)
+		x = 0;
+
+	save->x = x;
+	save->width = width;
+
+	BG_SetPosition(BG_1, 0, 0);
+	BG_SetPosition(BG_2, 0, 0);
+
+	LevelUpSpeech_PutBox(boxChr, x, LVUP_SPEECH_TAIL_Y - LVUP_SPEECH_BOX_H + 1,
+		width, LVUP_SPEECH_BOX_H, xTail, LVUP_SPEECH_TAIL_Y);
+
+	/* PutBox draws in the map's bank 3 */
+	for (i = 0; i < TILEMAP_INDEX(0, LVUP_SPEECH_TAIL_Y + 2); i++)
+		if (gBG1TilemapBuffer[i])
+			gBG1TilemapBuffer[i] = (gBG1TilemapBuffer[i] & 0x0FFF) | (EFX_SPEECH_PAL_BOX << 12);
+
+	state->xText = EFX_SPEECH_TEXT_X;
+	state->yText = EFX_SPEECH_TEXT_ROW;
+	return true;
+}
+
+static void EkrLvupQuote_End(void)
+{
+	struct EkrLvupQuoteSave *save = &gEkrLvupQuoteSave;
+
+	ClearTalkFaceRefs();
+	SetTextFont(save->font);
+
+	TileMap_FillRect(gBG1TilemapBuffer, 31, LVUP_SPEECH_TAIL_Y + 1, 0);
+	TileMap_FillRect(gBG2TilemapBuffer, 31, LVUP_SPEECH_TAIL_Y + 1, 0);
+	CpuCopy16(save->bg0, gBG0TilemapBuffer + TILEMAP_INDEX(0, EFX_SPEECH_TEXT_ROW), sizeof(save->bg0));
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT);
+
+	EkrLvupQuote_SavePals(true);
+
+	gLCDControlBuffer.bgoffset[1] = save->bg1;
+	gLCDControlBuffer.bgoffset[2] = save->bg2;
+}
+
+/*
+ * ProcScr_EkrLevelup's EkrLvup_DoNothing step runs this instead (its
+ * PROC_REPEAT points here, Lvupfx/LynJump.event: the 12-byte vanilla function
+ * has no room for a jump). proc->timer is 0 on entry (EkrLvup_SetHBlank) and
+ * must be 0 again for EkrLvup_PutWindowOffScreen. While the talk prints,
+ * timer is 1; then it counts the frames the quote stays up (A or B closes it
+ * early).
+ */
+void EkrLvup_Quote(struct ProcEkrLevelup *proc)
+{
+	if (proc->timer == 0) {
+		if (!EkrLvupQuote_Start(proc)) {
+			Proc_Break(proc);
+			return;
+		}
+		proc->timer = 1;
+	}
+
+	EkrLvupQuote_Mirror();
+
+	if (Proc_Find(ProcScr_EkrLvupQuoteHolder))
+		return;
+
+	if (++proc->timer >= LVUP_SPEECH_HOLD_FRAMES || (gKeyStatusPtr->newKeys & (A_BUTTON | B_BUTTON))) {
+		EkrLvupQuote_End();
+		proc->timer = 0;
+		Proc_Break(proc);
+	}
 }
 
 const struct ProcCmd ProcScr_ManimLevelUp_UnitComment[] = {
