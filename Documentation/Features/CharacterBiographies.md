@@ -124,6 +124,7 @@ This allows:
 - **A Button**
   - Triggers biography event
   - Plays selected song (or random if 0)
+  - On a character who has not joined the army (grey in the list), plays the "can't" sound and does nothing
 
 - **B Button**
   - Exits menu
@@ -161,8 +162,21 @@ EventScr_CharacterBiographies
 - Fades from black
 - Calls `SetIndexes` before each page
 - Displays 4 CG biography entries
-- Ends cleanly
+- Fades to black at its end (`FADI`: in this codebase `FADE_TO_BLACK` is `FADU`, which fades *from* black)
 - Returns to biography menu
+
+### 🎞️ Transitions
+
+Every switch between the list and a biography goes through black:
+
+- A: the list fades out as it is, then it is cleared (`DisablePrepScreenDisplay`; BG3's tile 0, a map grass tile, is
+  blanked so the cleared screen is black). Two frames later, once the list's sprites are gone (the event's CG mode
+  keeps the last sprites), the event starts and fades its first page in.
+- The proc yields after `CallBiographyEvent`: `KernelCallEvent` blocks it only from the next frame, and without the
+  yield the proc went on to draw the list again before the event began (the list under the first page, and garbage
+  over the last page on the way back).
+- The event fades to black; `Biography_Init` draws the list with the screen held dark (`SetBlendDarken`), and
+  `NewFadeIn` brings it up.
 
 ---
 
@@ -183,8 +197,13 @@ characters' card files are still empty; a biography for one is a table row once 
 
 The list shows five rows and scrolls (UP and DOWN past its ends), with the scroll bar sized to the table.
 
-`python3 Tools/cloud/smoketest.py --only biography` opens the menu, scrolls to the last biography and plays its first
-page.
+## 👥 Who is listed
+
+Every biography in the table is in the list. One whose character has not joined the army yet (no blue unit of that
+character, alive or not: `BiographyUnlocked`) is drawn in grey, name and subtitle, and A on it does nothing.
+
+`python3 Tools/cloud/smoketest.py --only biography` opens the menu, scrolls to the last biography (Amelia, not in the
+prologue's army: A does nothing), then back to Eirika, and plays her first page.
 
 ---
 
@@ -192,8 +211,7 @@ page.
 
 A page can wait on a [guild board](./GuildBoard.md#story-and-support-quests) quest: `UNLOCK_BIOGRAPHY(quest,
 character, page)` in `gGuildUnlocks` (`Data/Guild/Guild.c`) keeps that page, and the ones after it, locked until the
-quest is claimed. The list then shows how many pages are open ("3/4"), and the biography stops before the first locked
-page. Each written biography's last page waits on its character's quest ("Eirika: win 25 battles" and so on).
+quest is claimed. The biography stops before the first locked page. Each written biography's last page waits on its character's quest ("Eirika: win 25 battles" and so on).
 
 The map menu's Biography command is on by default (`map_menu_character_biographies` in
 `Data/DesignerConfig/designer-config.c`). It is the row after Guide and Goals.
