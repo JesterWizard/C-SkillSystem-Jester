@@ -373,7 +373,11 @@ Implementation note:
 
 - `AddRepeatHouse(...)` creates the trap and clears the visited flag because `AddTrap(...)` may leave `trap->data[]` uninitialized.
 - `PostAction_RepeatHouse(...)` checks both the active unit and the visit action before it looks up the trap at the unit's position.
-- The reward is applied through `AddExp_Event(exp)`, so the house behaves like an event-driven EXP grant rather than a combat result.
+- The reward is applied with the map EXP bar (`RepeatHouseExp_Start`), not `AddExp_Event`: once the visit event ends,
+  the map's side windows (terrain, unit and goal windows, and their maker) and BG0/BG1 are cleared, so only the bar
+  shows. Afterwards the EXP (and a level-up, if any) is written back, the unit ends its turn greyed out as after any
+  action (unless a skill or effect gave it another action and cleared `US_UNSELECTABLE`), its map sprite is refreshed,
+  and the side windows come back.
 - A value of `0` for the `exp` parameter is treated as "use the default" rather than "award no EXP".
 
 ## Dragon Vein Notes

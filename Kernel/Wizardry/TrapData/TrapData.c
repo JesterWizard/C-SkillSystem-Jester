@@ -829,6 +829,95 @@ struct Trap *AddDragonVein(int x, int y, int effect, int param)
     return trap;
 }
 
+/*
+ * The house's EXP (Documentation/Features/TrapRework.md, "Repeat house"): the map EXP bar, as AddExp_Event shows it,
+ * but
+ *  - blocking the post-action walk, so the hooks after this one (Canto and the like) see the unit as the bar left it
+ *    and decide whether it may still act;
+ *  - with the map's side windows (the unit's box, the terrain, the goal) and the info window's leftovers off the
+ *    screen while it plays;
+ *  - keeping the unit's state from before (the action greyed it; a skill may have let it act again) instead of
+ *    forcing it, and redrawing the map sprites at once, so the unit shows grey right away.
+ */
+/*
+ * StartPlayerPhaseSideWindows loads the side windows' maker from this literal (VeslyAchievements repoints it); the
+ * maker spawns the windows again, so it ends first (as RealtimeScheduler.c does).
+ */
+#define pr_SideWindowMakerScript (*(const struct ProcCmd *const *)0x0808D14C)
+
+static void RepeatHouseExp_EndSideWindows(void)
+{
+    Proc_EndEach(pr_SideWindowMakerScript);
+    EndPlayerPhaseSideWindows();
+}
+
+static void RepeatHouseExp_HideUi(void)
+{
+    RepeatHouseExp_EndSideWindows();
+    EndMapAnimInfoWindow();
+    ClearBg0Bg1();
+}
+
+/*
+ * The EXP is the unit's; its state stays as the action left it. The unit was drawn by its moving sprite (MU), which
+ * the player phase would end only at the next cursor move: it ends now, so the map sprite (grey once the unit has
+ * acted) shows at once. The side windows come back.
+ */
+static void RepeatHouseExp_Apply(void)
+{
+    UpdateUnitFromBattle(gActiveUnit, &gBattleActor);
+    gActiveUnit->state = gBattleActor.unit.state & ~US_HIDDEN;
+
+    EndAllMus();
+    RefreshUnitSprites();
+
+    if (!Proc_Find(pr_SideWindowMakerScript))
+        StartPlayerPhaseSideWindows();
+}
+
+static const struct ProcCmd ProcScr_RepeatHouseExp[] = {
+    PROC_NAME("RepeatHouseExp"),
+    PROC_CALL(LockGame),
+    PROC_WHILE(BattleEventEngineExists),
+    PROC_CALL(RepeatHouseExp_HideUi),
+    PROC_SLEEP(1),
+    PROC_CALL(MapAnim_DisplayExpBar),
+    PROC_YIELD,
+    PROC_CALL(UnlockGame),
+    PROC_CALL(MapAnim_Cleanup),
+    PROC_CALL(RepeatHouseExp_Apply),
+    PROC_END,
+};
+
+static bool RepeatHouseExp_Running(void)
+{
+    return Proc_Find(ProcScr_RepeatHouseExp) != NULL;
+}
+
+/*
+ * The visit's event is still running when the post-action hooks are: the EXP proc runs on its own (PROC_TREE_3, as
+ * AddExp_Event's does) and waits for the event; this child of the hook walk holds the walk until it is done.
+ */
+static const struct ProcCmd ProcScr_RepeatHouseExpWait[] = {
+    PROC_NAME("RepeatHouseExpWait"),
+    PROC_YIELD,
+    PROC_WHILE(RepeatHouseExp_Running),
+    PROC_END,
+};
+
+static void RepeatHouseExp_Start(int exp, ProcPtr parent)
+{
+    gManimSt.actorCount = 1;
+    gManimSt.hp_changing = 0;
+    gManimSt.subjectActorId = 0;
+    gManimSt.targetActorId = 0;
+    InitBattleUnit(&gBattleActor, gActiveUnit);
+    BattleApplyMiscActionExpGains_Modular(exp);
+    SetupMapBattleAnim(&gBattleActor, &gBattleTarget, gBattleHitArray);
+    Proc_Start(ProcScr_RepeatHouseExp, PROC_TREE_3);
+    Proc_StartBlocking(ProcScr_RepeatHouseExpWait, parent);
+}
+
 bool PostAction_RepeatHouse(ProcPtr parent)
 {
     struct Trap *trap;
@@ -851,7 +940,8 @@ bool PostAction_RepeatHouse(ProcPtr parent)
 
     /* trap->extra holds the EXP amount set when the trap was created; fall back to default */
     exp = trap->extra ? trap->extra : CONFIG_REPEAT_HOUSE_DEFAULT_EXP;
-    AddExp_Event(exp);
+    RepeatHouseExp_Start(exp, parent);
 
-    return false;
+    /* The walk goes on with the next hook once the EXP bar is done */
+    return true;
 }
