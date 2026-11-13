@@ -92,12 +92,14 @@ see (the player's own units always). A row is met when any character (or class) 
   (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`). The sheet has no free 112-pixel slot, so the label is in two pieces: tiles
   0-3 and 10-11 of the Gallery's sheet row, round the Gallery's letters (tiles 4-9). The Extras list reads its label
   sprites from `gExtrasLabelSprites` (`NgpSaveMenu.c`; the installer points vanilla's `sub_80AAC40` at it): vanilla's
-  sprites for the rows still where vanilla drew them, New Game+'s, the Gallery's cut to its letters, and the
-  Bestiary's.
+  sprites for the rows still where vanilla drew them, New Game+'s, the Gallery's and Link Arena's cut to their
+  letters, the Bestiary's and the Skill Codex's.
 - **The screen** (`BestiaryScreen.c`): BG0 the text; BG1 the two windows (`DrawUiFrame`); BG2 the banner (the Sound
   Room's, from `Img_PlayStatusSprites`) and the mini portrait (`PutFaceChibi`, BG palette 4); BG3 the mural
   (`StartMuralBackground`). Sprites: the hand (`LoadObjUIGfx`, `DisplayUiHand`) and a class's map sprite
-  (`PutUnitSpriteForClassId`, the red army's palette, the map's sprite sheet synced each frame).
+  (`PutUnitSpriteForClassId`, the red army's palette, the map's sprite sheet synced each frame). The banner, the
+  text helpers and the wrapping are in `ExtrasUi.c` (`include/kernel/extras-ui.h`), shared with the
+  [Skill Codex](./SkillCodex.md), whose screen also uses `gBestiaryScreen`'s RAM.
 - **The rows** are built when a tab opens (`Bestiary_BuildRows`): the shown ids, and which are met.
 
 ---

@@ -5,6 +5,7 @@
 #include "new-game-plus.h"
 #include "gallery.h"
 #include "bestiary.h"
+#include "skill-codex.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -124,6 +125,9 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
 
     /* The Bestiary (Kernel/Wizardry/Bestiary), in vanilla's trial-map row (bit 6), always there */
     AddExtraMenuOption(proc, EXTRA_MENU_OPTION_BESTIARY);
+
+    /* The Skill Codex (Kernel/Wizardry/SkillCodex), bit 7, which vanilla never used; always there */
+    AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SKILL_CODEX);
 
     if (proc->extra_options != 0)
     {
