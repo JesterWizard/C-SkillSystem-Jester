@@ -2,6 +2,7 @@
 #include "unitlistscreen.h"
 #include "icon-rework.h"
 #include "kernel-lib.h"
+#include "popup-reowrk.h"
 
 LYN_REPLACE_CHECK(GetUnitAidIconId);
 int GetUnitAidIconId(u32 attributes)
@@ -153,7 +154,7 @@ void DrawBattlePopup(struct ProcEkrPopup *proc, int type, u32 priv)
 	LZ77UnCompWram(Tsa_EkrPopup, (void *)gEkrTsaBuffer);
 	InitTextFont(&gBanimFont, (void *)BG_VRAM + 0x2100, 0x108, 1);
 	SetTextDrawNoClear();
-	CpuFastCopy(Pal_EkrPopup, PAL_BG(0x1), 0x20);
+	CpuFastCopy(gEfxPopupColors, PAL_BG(0x1), 0x20); /* as the reworked popups (EfxPopup.c) */
 
 	if (type == 0) {
 		/*  [.] */
