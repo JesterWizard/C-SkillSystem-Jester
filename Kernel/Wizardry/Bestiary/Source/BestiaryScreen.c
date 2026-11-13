@@ -47,6 +47,7 @@
 #define NAME_PX        ((LIST_W - 4) * 8) /* a name's room in the list, right of the hand */
 #define STATS_PX       (INFO_IN_W * 8)
 #define DESC_PX        (INFO_IN_W * 8)
+#define DESC_MARGIN    4 /* pixels free left and right of the description */
 
 #define CHIBI_TILE     EXTRAS_UI_FREE_TILE
 #define PAL_CHIBI      4
@@ -224,9 +225,10 @@ static void Bestiary_DrawList(void)
 	char buf[16], *p;
 	int r;
 
-	ExtrasUi_PutCentred(&BS->tabName, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_GOLD,
-			    GetStringFromIndex(BS->tab == TAB_CHARACTERS ? MSG_BESTIARY_CHARACTERS : MSG_BESTIARY_CLASSES),
-			    gBG0TilemapBuffer + TILEMAP_INDEX(LIST_X + 1, TAB_Y));
+	/* The tab's name over the names, flush with them */
+	ExtrasUi_PutLeft(&BS->tabName, TEXT_COLOR_SYSTEM_GOLD,
+			 GetStringFromIndex(BS->tab == TAB_CHARACTERS ? MSG_BESTIARY_CHARACTERS : MSG_BESTIARY_CLASSES),
+			 gBG0TilemapBuffer + TILEMAP_INDEX(NAME_X, TAB_Y));
 
 	for (r = 0; r < VISIBLE_ROWS; r++) {
 		int row = BS->top + r;
@@ -313,7 +315,7 @@ static void Bestiary_ClearStats(void)
 
 static void Bestiary_DrawDesc(int msg)
 {
-	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, 0, msg != 0 ? GetStringFromIndex(msg) : NULL,
+	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, DESC_MARGIN, msg != 0 ? GetStringFromIndex(msg) : NULL,
 			     gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y));
 }
 
@@ -489,7 +491,7 @@ static void Bestiary_Setup(struct ProcBestiary *proc)
 	ApplyUnitSpritePalettes();
 
 	InitText(&BS->title, 20);
-	InitText(&BS->tabName, LIST_W - 2);
+	InitText(&BS->tabName, LIST_W - 4);
 	InitText(&BS->countText, LIST_W - 2);
 	for (i = 0; i < VISIBLE_ROWS; i++)
 		InitText(&BS->names[i], LIST_W - 4);

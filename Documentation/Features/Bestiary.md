@@ -22,7 +22,7 @@
 **Extras > Bestiary**, the last Extras row, shows every character and class the player has met:
 
 - **The banner** on top (the Sound Room's song banner) shows the name under the cursor, or "???" for one not met yet.
-- **The list** on the left, in a window: the tab ("Characters" or "Classes"), five names, and how many of the tab are
+- **The list** on the left, in a window: the tab ("Characters" or "Classes", in gold, flush with the names), five names, and how many of the tab are
   met (3/59). A name not met yet shows as "???", in grey; a name wider than the list shows in the narrow font
   (Swordmaster, Necromancer). Up and down move the hand; left and right move five rows; L or R changes the tab.
 - **The info** on the right, in a window:
@@ -31,7 +31,8 @@
   - the stats (HP, Str, Mag, Skl, Spd, Lck, Def, Res), the names across the window with the same gap between each
     two and each value centred under its name: a character's bases are its own plus its class's (as when it
     joins), magic from the magic tables (`gMagicPInfos`, `gMagicJInfos`); a class has no base luck (0);
-  - the description (the character's or the class's help text), wrapped to the window, up to three lines.
+  - the description (the character's or the class's help text), wrapped to the window with 4 pixels free on each
+    side, up to three lines.
 - B goes back to Extras.
 
 ---
