@@ -564,9 +564,13 @@ void DrawItemMenuLine(struct Text * text, int item, s8 isUsable, u16 * mapOut)
     // Check if forge is active AND the item is forgeable
     if (gpKernelDesignerConfig->forge_mechanic == true && CanItemBeForged(item))
     {
-        PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, (GetForgedItemDurability(item) == 0 ? GetItemMaxUses(item) : GetForgedItemDurability(item)));
-        PutSpecialChar(mapOut + 8, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-        PutNumberOrBlank(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+        if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+            PutNumberOrBlank(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, (GetForgedItemDurability(item) == 0 ? GetItemMaxUses(item) : GetForgedItemDurability(item)));
+        /* Only a forged item has a gold +N */
+        if (GetItemForgeCount(item) > 0) {
+            PutSpecialChar(mapOut + 8, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+            PutNumberOrBlank(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+        }
     }
     else // Default behavior: display standard durability
     {
@@ -604,10 +608,14 @@ void DrawItemMenuLineLong(struct Text * text, int item, s8 isUsable, u16 * mapOu
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
-            PutNumberOrBlank(mapOut + 13, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
-            PutSpecialChar(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(mapOut + 10, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-        } else if (limits.maxCount == 0) {
+            if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                PutNumberOrBlank(mapOut + 13, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
+            /* Only a forged item has a gold +N */
+            if (GetItemForgeCount(item) > 0) {
+                PutSpecialChar(mapOut + 9, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(mapOut + 10, isUsable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+            }
+        } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
             PutNumberOrBlank(mapOut + 10, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
             PutNumberOrBlank(mapOut + 13, isUsable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemMaxUses(item));
             PutSpecialChar(mapOut + 11, isUsable ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_SLASH);
@@ -637,10 +645,14 @@ void DrawItemMenuLineNoColor(struct Text * text, int item, u16 * mapOut)
     {
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
-            PutSpecialChar(mapOut + 8, Text_GetColor(text), TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(mapOut + 9, Text_GetColor(text), GetItemForgeCount(item));
-            PutNumberOrBlank(mapOut + 11, Text_GetColor(text), GetForgedItemDurability(item));
-        } else if (limits.maxCount == 0) {
+            /* Only a forged item has a gold +N */
+            if (GetItemForgeCount(item) > 0) {
+                PutSpecialChar(mapOut + 8, Text_GetColor(text), TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(mapOut + 9, Text_GetColor(text), GetItemForgeCount(item));
+            }
+            if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                PutNumberOrBlank(mapOut + 11, Text_GetColor(text), GetForgedItemDurability(item));
+        } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
             PutNumberOrBlank(mapOut + 11, Text_GetColor(text), GetItemUses(item));
         }
     }
@@ -678,15 +690,19 @@ void DrawItemStatScreenLine(struct Text * text, int item, int nameColor, u16 * m
         struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
         if (CanItemBeForged(item)) {
             color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_GOLD;
-            PutSpecialChar(mapOut + 10, color, TEXT_SPECIAL_PLUS);
-            PutNumberOrBlank(mapOut + 11, color, GetItemForgeCount(item));
+            /* Only a forged item has a gold +N */
+            if (GetItemForgeCount(item) > 0) {
+                PutSpecialChar(mapOut + 10, color, TEXT_SPECIAL_PLUS);
+                PutNumberOrBlank(mapOut + 11, color, GetItemForgeCount(item));
+            }
 
             color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_BLUE;
-            PutNumberOrBlank(mapOut + 14, color, GetForgedItemDurability(item));
+            if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                PutNumberOrBlank(mapOut + 14, color, GetForgedItemDurability(item));
 #ifdef CONFIG_HEX_CARDS
-        } else if (limits.maxCount == 0 && ITEM_INDEX(item) != CONFIG_ITEM_INDEX_HEX_CARD) {
+        } else if (limits.maxCount == 0 && ITEM_INDEX(item) != CONFIG_ITEM_INDEX_HEX_CARD && ShouldDisplayItemDurability(item)) {
 #else
-        } else if (limits.maxCount == 0) {
+        } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
 #endif
             color = (nameColor == TEXT_COLOR_SYSTEM_GRAY) ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
             PutSpecialChar(mapOut + 12, color, TEXT_SPECIAL_SLASH);
@@ -824,10 +840,14 @@ void RefreshUnitInventoryInfoWindow(struct Unit* unit) {
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
-                PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_PLUS);
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), TEXT_COLOR_SYSTEM_GOLD, GetItemForgeCount(item));
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), TEXT_COLOR_SYSTEM_BLUE, GetForgedItemDurability(item));
-            } else if (limits.maxCount == 0) {
+                /* Only a forged item has a gold +N */
+                if (GetItemForgeCount(item) > 0) {
+                    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), TEXT_COLOR_SYSTEM_GOLD, TEXT_SPECIAL_PLUS);
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), TEXT_COLOR_SYSTEM_GOLD, GetItemForgeCount(item));
+                }
+                if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), TEXT_COLOR_SYSTEM_BLUE, GetForgedItemDurability(item));
+            } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
             }
         }
@@ -868,10 +888,14 @@ void RefreshHammerneUnitInfoWindow(struct Unit* unit) {
         {     
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
-                PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), IsItemHammernable(item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 12, yPos), IsItemHammernable(item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 14, yPos), color, GetForgedItemDurability(item));
-            } else if (limits.maxCount == 0) {
+                /* Only a forged item has a gold +N */
+                if (GetItemForgeCount(item) > 0) {
+                    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), IsItemHammernable(item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 12, yPos), IsItemHammernable(item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+                }
+                if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 14, yPos), color, GetForgedItemDurability(item));
+            } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 12, yPos), color, TEXT_SPECIAL_SLASH);
             }
         }
@@ -963,10 +987,14 @@ void PrepUnit_DrawUnitItems(struct Unit *unit)
         {
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
             if (CanItemBeForged(item)) {
-                PutSpecialChar(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-                PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, 9, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-                PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, 11, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
-            } else if (limits.maxCount == 0) {
+                /* Only a forged item has a gold +N */
+                if (GetItemForgeCount(item) > 0) {
+                    PutSpecialChar(TILEMAP_LOCATED(gBG0TilemapBuffer, 8, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+                    PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, 9, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+                }
+                if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                    PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, 11, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
+            } else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(TILEMAP_LOCATED(gBG0TilemapBuffer, 11, 5 + 2 * i), IsItemDisplayUsable(unit, item) ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
             }
         // //#else

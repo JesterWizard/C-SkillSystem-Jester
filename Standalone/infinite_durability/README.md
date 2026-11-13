@@ -10,7 +10,7 @@ Weapons, including magic tomes, do not lose uses in combat or from the item menu
 
 Staves and other non-weapon items still show uses and still spend them. A weapon that is already damaged keeps the uses it had when the patch was installed; it just stops losing more. Broken weapons are not repaired.
 
-The integrated `infinite_durability` flag only hides those numbers. This patch also stops weapon use loss.
+The integrated `infinite_durability` flag (`Data/DesignerConfig/designer-config.c`) does both in the full buildfile: it hides those numbers and stops weapon use loss.
 
 ## Configuration
 
