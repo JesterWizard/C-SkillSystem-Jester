@@ -198,6 +198,24 @@ def raster_text(sheet, x0, y0, x1, y1, baseline):
     return img, min(16, max(2, max_x + 1))
 
 
+# The digits are drawn a pixel bolder than the sheet's 1px strokes: they read thin in stats and menus.
+BOLD = set('0123456789')
+
+
+def bolden(text_img):
+    """Each ink pixel also inks the one to its right. Returns the glyph and its advance (one more)."""
+    src = text_img.load()
+    out = text_img.copy()
+    dst = out.load()
+    max_x = 0
+    for y in range(16):
+        for x in range(15):
+            if src[x, y] == 3:
+                dst[x + 1, y] = 3
+                max_x = max(max_x, x + 1)
+    return out, min(16, max(2, max_x + 1))
+
+
 def to_item(text_img):
     """White fill with a 4-connected dark outline, matching vanilla FontItem."""
     item = Image.new('P', (16, 16), 0)
@@ -250,6 +268,8 @@ def main():
         if ch in seen:
             raise SystemExit('duplicate glyph {}'.format(repr(ch)))
         text_img, width = raster_text(im, x0, y0, x1, y1, baseline)
+        if ch in BOLD:
+            text_img, width = bolden(text_img)
         hid = hex_id_for(ch)
         save_glyph(text_img, to_item(text_img), hid)
         entries.append((ch, width, hid))
