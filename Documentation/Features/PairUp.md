@@ -58,7 +58,7 @@ The support unit contributes 30% of its effective stat, rounded down, for:
 
 `POW`, `MAG`, `SKL`, `SPD`, `LCK`, `DEF`, `RES`, and `MOV`.
 
-The target-selection preview shows all eight values, including `+0`. Aid and CON are not part of the preview or pairing eligibility. The preview is updated whenever the target cursor moves.
+The target-selection preview shows all eight values, including `+0`. Aid and CON are not part of the preview or pairing eligibility. The preview is updated whenever the target cursor moves. The unit windows and the preview sit on the right of the screen, or on the left when the target is on the right half, so the map cursor on the target never covers them (`PairUp_WindowX`).
 
 ---
 

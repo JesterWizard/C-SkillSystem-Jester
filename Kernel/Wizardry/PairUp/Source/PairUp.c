@@ -684,24 +684,35 @@ static int PairUp_GetPreviewStat(int index)
 	}
 }
 
+/*
+ * The windows' left column: on the right of the screen, or on the left when the target is on the right half (the
+ * map cursor on it would sit on top of them), as vanilla's unit info windows do.
+ */
+static int PairUp_WindowX(const struct Unit *target)
+{
+	if (target && target->xPos * 16 - gBmSt.camera.x >= DISPLAY_WIDTH / 2)
+		return 0;
+
+	return PAIR_UP_PREVIEW_X;
+}
+
+/* Both sides: the windows may have moved since they were drawn */
 static void PairUp_ClearStatPreview(void)
 {
-	TileMap_FillRect(
-		TILEMAP_LOCATED(
-			gBG0TilemapBuffer,
-			PAIR_UP_PREVIEW_X,
-			PAIR_UP_PREVIEW_Y),
-		PAIR_UP_PREVIEW_WIDTH,
-		PAIR_UP_PREVIEW_HEIGHT,
-		0);
-	TileMap_FillRect(
-		TILEMAP_LOCATED(
-			gBG1TilemapBuffer,
-			PAIR_UP_PREVIEW_X,
-			PAIR_UP_PREVIEW_Y),
-		PAIR_UP_PREVIEW_WIDTH,
-		PAIR_UP_PREVIEW_HEIGHT,
-		0);
+	int x;
+
+	for (x = 0; x <= PAIR_UP_PREVIEW_X; x += PAIR_UP_PREVIEW_X) {
+		TileMap_FillRect(
+			TILEMAP_LOCATED(gBG0TilemapBuffer, x, PAIR_UP_PREVIEW_Y),
+			PAIR_UP_PREVIEW_WIDTH,
+			PAIR_UP_PREVIEW_HEIGHT,
+			0);
+		TileMap_FillRect(
+			TILEMAP_LOCATED(gBG1TilemapBuffer, x, PAIR_UP_PREVIEW_Y),
+			PAIR_UP_PREVIEW_WIDTH,
+			PAIR_UP_PREVIEW_HEIGHT,
+			0);
+	}
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
@@ -709,6 +720,7 @@ static void PairUp_DrawStatPreview(const struct Unit *target)
 {
 	const struct Unit *partner = target;
 	struct Text texts[PAIR_UP_PREVIEW_STAT_COUNT];
+	int x = PairUp_WindowX(target);
 	int i;
 
 	if (PairUp_GetMode() == PAIR_UP_MODE_SHELTER)
@@ -718,7 +730,7 @@ static void PairUp_DrawStatPreview(const struct Unit *target)
 		return;
 
 	DrawUiFrame2(
-		PAIR_UP_PREVIEW_X,
+		x,
 		PAIR_UP_PREVIEW_Y,
 		PAIR_UP_PREVIEW_WIDTH,
 		PAIR_UP_PREVIEW_HEIGHT,
@@ -729,8 +741,8 @@ static void PairUp_DrawStatPreview(const struct Unit *target)
 		int row = i % 4;
 		int stat = PairUp_GetPreviewStat(i);
 		int bonus = PairUp_GetStatBonus(partner, stat);
-		int labelX = PAIR_UP_PREVIEW_X + (column == 0 ? 1 : 7);
-		int bonusX = PAIR_UP_PREVIEW_X + (column == 0 ? 4 : 10);
+		int labelX = x + (column == 0 ? 1 : 7);
+		int bonusX = x + (column == 0 ? 4 : 10);
 		u16 *tilemap;
 		struct Text *text = &texts[i];
 
@@ -773,7 +785,7 @@ void PairUp_SelectionOnConstruction(ProcPtr proc)
 		0,
 		gObject_16x16_VFlipped,
 		6);
-	StartSubtitleHelp(proc, GetStringFromIndex(0x868));
+	/* PairUp_OnSelectedCore starts the subtitle: a second one here scrolled over it */
 }
 
 static struct UnitInfoWindowProc *PairUp_GetUnitInfoWindow(
@@ -808,7 +820,7 @@ static void PairUp_DrawUnitInfoWindows(
 	if (!activeWindow || !targetWindow)
 		return;
 
-	x = PAIR_UP_PREVIEW_X;
+	x = PairUp_WindowX(target);
 	ClearBg0Bg1();
 	UnitInfoWindow_DrawBase(
 		activeWindow,
