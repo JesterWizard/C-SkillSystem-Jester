@@ -53,7 +53,7 @@ If unit dies, revive them next chapter[X]
 Casual[X]
 
 ## Arrow_ID
-->[X]
+→[X]
 
 ## ArmoryOutOfStockText
 Sorry, we don't have that.[A][X]

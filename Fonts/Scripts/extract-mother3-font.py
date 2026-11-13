@@ -123,10 +123,10 @@ GLYPHS = [
     ('-', 166, 56, 168, 56, 59),
     ('$', 194, 52, 198, 60, 59),
     ('%', 208, 53, 216, 59, 59),
-    # Row 5: Z < > [ ], z ! ? , : ; &
+    # Row 5: Z ( ) [ ], z ! ? , : ; & (the sheet has no < or >: vanilla fe8u fills them)
     ('Z', 0, 65, 3, 72, 72),
-    ('<', 15, 64, 17, 74, 72),
-    ('>', 29, 64, 31, 74, 72),
+    ('(', 15, 64, 17, 74, 72),
+    (')', 29, 64, 31, 74, 72),
     ('[', 43, 64, 44, 74, 72),
     (']', 57, 64, 58, 74, 72),
     ('z', 76, 67, 79, 72, 72),
@@ -137,6 +137,38 @@ GLYPHS = [
     (';', 180, 68, 181, 74, 72),
     ('&', 194, 65, 200, 72, 72),
 ]
+
+
+# Glyphs the sheet does not have, drawn in its ink ('#', the text glyph's dark pixels) from the destination's top row.
+# The item glyph gets the outline to_item gives every glyph. The arrow sits on the minus sign's row (8).
+DRAWN = {
+    '\u2192': [  # the right arrow, for "HP 10 -> 30" and the like
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '....#...........',
+        '....##..........',
+        '.######.........',
+        '....##..........',
+        '....#...........',
+    ],
+}
+
+
+def drawn_text(rows):
+    img = Image.new('P', (16, 16), 0)
+    img.putpalette(PALETTE_TEXT)
+    dst = img.load()
+    max_x = 0
+    for y, row in enumerate(rows):
+        for x, c in enumerate(row):
+            if c == '#':
+                dst[x, y] = 3
+                max_x = max(max_x, x)
+    return img, min(16, max(2, max_x + 1))
 
 
 def is_ink(pixel):
@@ -193,7 +225,10 @@ def save_glyph(text_img, item_img, hex_id):
 
 
 def hex_id_for(ch):
-    return '{:02X}'.format(ord(ch))
+    """ASCII by its code; others by their UTF-8 bytes, as fe8u names them (C3A9 for e acute)"""
+    if ord(ch) < 0x80:
+        return '{:02X}'.format(ord(ch))
+    return ch.encode('utf-8').hex().upper()
 
 
 def main():
@@ -215,6 +250,15 @@ def main():
         if ch in seen:
             raise SystemExit('duplicate glyph {}'.format(repr(ch)))
         text_img, width = raster_text(im, x0, y0, x1, y1, baseline)
+        hid = hex_id_for(ch)
+        save_glyph(text_img, to_item(text_img), hid)
+        entries.append((ch, width, hid))
+        seen.add(ch)
+
+    for ch, rows in DRAWN.items():
+        if ch in seen:
+            raise SystemExit('duplicate glyph {}'.format(repr(ch)))
+        text_img, width = drawn_text(rows)
         hid = hex_id_for(ch)
         save_glyph(text_img, to_item(text_img), hid)
         entries.append((ch, width, hid))

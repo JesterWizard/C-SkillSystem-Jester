@@ -152,6 +152,7 @@ z	item	5	FontItem_7A.png
 ú	item	5	FontItem_C3BA.png
 û	item	5	FontItem_C3BB.png
 ü	item	5	FontItem_C3BC.png
+→	item	8	FontItem_E28692.png
  	text	4	FontText_20.png
 !	text	3	FontText_21.png
 "	text	5	FontText_22.png
@@ -304,3 +305,4 @@ z	text	5	FontText_7A.png
 ú	text	5	FontText_C3BA.png
 û	text	5	FontText_C3BB.png
 ü	text	5	FontText_C3BC.png
+→	text	9	FontText_E28692.png
