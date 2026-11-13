@@ -31,8 +31,9 @@
   - the stats (HP, Str, Mag, Skl, Spd, Lck, Def, Res), the names across the window with the same gap between each
     two and each value centred under its name: a character's bases are its own plus its class's (as when it
     joins), magic from the magic tables (`gMagicPInfos`, `gMagicJInfos`); a class has no base luck (0);
-  - the description (the character's or the class's help text), wrapped to the window with 4 pixels free on each
-    side, up to three lines.
+  - the description (the character's or the class's help text), wrapped to the window with 8 pixels free on each
+    side, as in the Skill Codex, up to three lines; one too long for that (Marisa's, the Summoner's) is drawn in the
+    narrow font.
 - B goes back to Extras.
 
 ---
@@ -140,6 +141,6 @@ second row) is not met; A shows Eirika's growths; R shows the classes, three met
 - Character and class ids above 0xFF are not kept.
 - A unit met after the last save is lost if the game is reset without saving (or suspending).
 - Only the units on the map at a phase start are marked: a unit that appears and leaves within one phase is not.
-- A description longer than three lines is cut short.
+- A description longer than three lines even in the narrow font is cut short (none is, now).
 - A character's stats are its data's (its base class's bases added); a unit's own load data (levels, autolevelling) is
   not shown.
