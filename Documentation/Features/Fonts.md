@@ -32,7 +32,7 @@ This file is the viability list. `configs.h` should only offer fonts marked viab
 | Pokémon FireRed | `CONFIG_FONT_POKE_FIRERED` | 6 | Native 8px Latin sheet. Caps, `M`, and `W` all advance 6. Extract: `Fonts/Scripts/extract-poke-firered-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
 | Advance Wars 2 | `CONFIG_FONT_ADVANCE_WARS_2` | 6 | Slightly wider than vanilla; fits current UI. Extract: `Fonts/Scripts/extract-aw2-font.py`. |
 | Super Star Saga | `CONFIG_FONT_SUPER_STAR_SAGA` | 8 | Outlined Mario & Luigi battle font. Lowercase is 6; caps match Fusion's 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-superstar-saga-font.py`. Sheet omits `q` (mirrored from `p`) and digits other than `1` (vanilla fills those). |
-| Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. Missing punctuation falls back to vanilla `fe8u`. |
+| Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. The sheet's brackets row is `( ) [ ]` (it has no `<` or `>`); the script also draws `→`. Missing punctuation falls back to vanilla `fe8u`. |
 | Riviera: The Promised Land | `CONFIG_FONT_RIVIERA` | 5 | Native 8px Latin sheet. Same cap advance as vanilla; `M`/`W`/`a` are 6. Extract: `Fonts/Scripts/extract-riviera-font.py`. `"` and `,` fall back to vanilla `fe8u`. |
 | The Minish Cap | `CONFIG_FONT_MINISH_CAP` | 6 | Native 16px-cell Zelda sheet. Caps and `M`/`W` advance 6. Extract: `Fonts/Scripts/extract-minish-cap-font.py`. Sheet has `,` `.` and Latin-1 letters; other punctuation falls back to vanilla `fe8u`. |
 | Pokémon Mystery Dungeon: Red Rescue Team | `CONFIG_FONT_RED_RESCUE_TEAM` | 6 | Native 8px Latin sheet. Caps advance 6; `M` is 8 and `W` is 10 and may clip in tight menus. Extract: `Fonts/Scripts/extract-red-rescue-team-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
@@ -47,6 +47,12 @@ make -j8
 ```
 
 If the font has an extract script, run that first so `font.fontall.txt` and the PNGs match.
+
+---
+
+### The arrow
+
+`→` (U+2192) is a glyph of its own: `"->"` in a font whose `>` is not an arrow reads badly. `fe8u` has a vanilla-style one (`FontItem_E28692.png`, `FontText_E28692.png`), so every font has it; Mother 3 draws its own (`DRAWN` in its extract script). The arrow messages (`Arrow_ID`, the staff target's "HP 10 → 30"; `MSG_SUPPORT_INCREASE_ARROW`) use it. A font with its own arrow lists it in its `font.fontall.txt` as `→` with the file named by the UTF-8 bytes (`E28692`).
 
 ---
 

@@ -6,6 +6,8 @@ $	item	6	FontItem_24.png
 %	item	10	FontItem_25.png
 &	item	8	FontItem_26.png
 '	item	3	FontItem_27.png
+(	item	4	FontItem_28.png
+)	item	4	FontItem_29.png
 *	item	4	FontItem_2A.png
 +	item	6	FontItem_2B.png
 ,	item	3	FontItem_2C.png
@@ -24,9 +26,7 @@ $	item	6	FontItem_24.png
 9	item	5	FontItem_39.png
 :	item	2	FontItem_3A.png
 ;	item	3	FontItem_3B.png
-<	item	4	FontItem_3C.png
 =	item	6	FontItem_3D.png
->	item	4	FontItem_3E.png
 ?	item	5	FontItem_3F.png
 A	item	7	FontItem_41.png
 B	item	6	FontItem_42.png
@@ -83,6 +83,7 @@ x	item	5	FontItem_78.png
 y	item	5	FontItem_79.png
 z	item	5	FontItem_7A.png
 ~	item	7	FontItem_7E.png
+→	item	7	FontItem_E28692.png
  	text	3	FontText_20.png
 !	text	2	FontText_21.png
 "	text	4	FontText_22.png
@@ -90,6 +91,8 @@ $	text	6	FontText_24.png
 %	text	10	FontText_25.png
 &	text	8	FontText_26.png
 '	text	3	FontText_27.png
+(	text	4	FontText_28.png
+)	text	4	FontText_29.png
 *	text	4	FontText_2A.png
 +	text	6	FontText_2B.png
 ,	text	3	FontText_2C.png
@@ -108,9 +111,7 @@ $	text	6	FontText_24.png
 9	text	5	FontText_39.png
 :	text	2	FontText_3A.png
 ;	text	3	FontText_3B.png
-<	text	4	FontText_3C.png
 =	text	6	FontText_3D.png
->	text	4	FontText_3E.png
 ?	text	5	FontText_3F.png
 A	text	7	FontText_41.png
 B	text	6	FontText_42.png
@@ -167,3 +168,4 @@ x	text	5	FontText_78.png
 y	text	5	FontText_79.png
 z	text	5	FontText_7A.png
 ~	text	7	FontText_7E.png
+→	text	7	FontText_E28692.png
