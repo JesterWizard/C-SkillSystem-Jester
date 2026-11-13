@@ -57,7 +57,8 @@ What it checks:
               in a free skill slot, the fight hurts the soldier, and with 99 EXP she levels up. Her level-up quote's
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
-              (a test ROM maps her sad portrait to SURPRISED).
+              (a test ROM maps her sad portrait to SURPRISED). With the Mother 3 font, her box has 12-pixel lines
+              and is shorter (the font's line height preset).
   lvupanim    with battle animations on, Eirika levels up: after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
@@ -1681,6 +1682,22 @@ class Smoke:
             if face and face[0] else []
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
+        # The line height preset of the font in configs.h (TEXT_ENGINE_LINE_HEIGHT in TextEngineRework.c): Mother 3's
+        # lines are 12 pixels apart, so the box is 4 rows a line shorter (BG1 stepped by that below the box's inside)
+        if "sTextEngineLineSpacing" in self.sym:
+            configs = open(os.path.join(ROOT, "include", "configs", "configs.h")).read()
+            height = 12 if re.search(r"^#define CONFIG_FONT_MOTHER_3\b", configs, re.M) else 16
+            sp = self.sym["sTextEngineLineSpacing"]
+            vals = self.run(rom, ["load " + os.path.join(d, "battlequote.ss"), "r32 0x0859133C"], d)
+            vals = self.run(rom, ["load " + os.path.join(d, "battlequote.ss"), "r8 %#x" % (vals[0] + 0x0A),
+                                  "r8 %#x" % (sp + 0xA4), "r8 %#x" % (sp + 0xA3)], d) if vals else []
+            if height == 16:
+                self.check("battlequote: 16-pixel lines (the font's preset): no line spacing",
+                           len(vals) == 3 and vals[1] == 0, "values %s" % vals)
+            else:
+                self.check("battlequote: %d-pixel lines (the font's preset): the box is shorter" % height,
+                           len(vals) == 3 and vals[1] == 1 and vals[2] == vals[0] * (16 - height),
+                           "lines %s, active %s, box %s rows shorter" % tuple(vals + ["?"] * (3 - len(vals))))
 
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
