@@ -289,6 +289,34 @@ struct TextEngineScanlineFxRam {
 	u8 blend[DISPLAY_HEIGHT / 2];
 };
 
+/*
+ * Line height presets, one per font (CONFIG_FONT_* in include/configs/configs.h). The talk engine lays a line out on
+ * two tile rows (16 pixels), and the box is two rows a line. A font whose glyphs are shorter shows its lines
+ * TEXT_ENGINE_LINE_HEIGHT pixels apart instead, from glyph row TEXT_ENGINE_LINE_TOP of each line, and the box is
+ * shorter by the rows saved. The tiles stay where the engine puts them: the talk's BG0 (text) and BG1 (box) rows are
+ * remapped per scanline (TextEngineLineSpacing_*, TextEngineWave_OnHBlank).
+ */
+#if defined(CONFIG_FONT_MOTHER_3)
+#define TEXT_ENGINE_LINE_HEIGHT 12 /* its glyphs are in rows 3-14 */
+#define TEXT_ENGINE_LINE_TOP    3
+#else
+#define TEXT_ENGINE_LINE_HEIGHT 16
+#define TEXT_ENGINE_LINE_TOP    0
+#endif
+
+#define TEXT_ENGINE_LINE_SPACED (TEXT_ENGINE_LINE_HEIGHT != 16)
+#define TEXT_ENGINE_LINE_ROWS_SAVED(lines) ((lines) * (16 - TEXT_ENGINE_LINE_HEIGHT))
+
+struct TextEngineLineSpacingRam {
+	s8 bg0[DISPLAY_HEIGHT]; /* BG0 (text) VOFS offset for each scanline */
+	s16 bg1Cut;             /* BG1 (box): one step, bg1Above above this scanline, bg1Below from it on */
+	s8 bg1Above, bg1Below;
+	u8 active;
+	u8 pad[3];
+};
+
+#define TEXT_ENGINE_LINE_BG1(sp, y) ((y) < (sp)->bg1Cut ? (sp)->bg1Above : (sp)->bg1Below)
+
 struct TextEngineGlyphFloatProc {
 	/* 00 */ PROC_HEADER;
 	/* 2C */ struct Text *targetText;
@@ -636,6 +664,24 @@ static const s8 sTextEngineEarthquakeOffsets[][2] = {
 
 extern EWRAM_DATA struct TextEngineScanlineFxRam sTextEngineWaveOffsets;
 extern EWRAM_DATA struct TextEngineEarthquakeOffset sTextEngineEarthquakeOffset;
+extern EWRAM_DATA struct TextEngineLineSpacingRam sTextEngineLineSpacing;
+
+static void TextEngineLineSpacing_OnIdle(ProcPtr proc);
+static void TextEngineLineSpacing_OnEnd(ProcPtr proc);
+static void TextEngineLineSpacing_OnHBlank(void);
+
+struct TextEngineLineSpacingProc {
+	PROC_HEADER;
+
+	/* 2C */ void (*previousHBlankHandler)(void);
+};
+
+static const struct ProcCmd gProcScr_TextEngineLineSpacing[] = {
+	PROC_NAME("TextEngineLineSpacing"),
+	PROC_SET_END_CB(TextEngineLineSpacing_OnEnd),
+	PROC_REPEAT(TextEngineLineSpacing_OnIdle),
+	PROC_END,
+};
 
 static const struct ProcCmd gProcScr_TextEngineFaceJump[] = {
 	PROC_NAME("TextEngineFaceJump"),
@@ -747,7 +793,9 @@ static int TextEngine_GetTalkFaceY(void)
 		return TEXT_ENGINE_HALF_BODY_FACE_Y;
 
 	if (TextEngine_IsSceneLayoutActive())
+		/* The box's top edge is lower when its lines are closer (TEXT_ENGINE_LINE_HEIGHT) */
 		return TextEngine_GetSceneBoxY() * 8
+			+ TEXT_ENGINE_LINE_ROWS_SAVED(sTextEngineState->lines)
 			+ TEXT_ENGINE_SCENE_FACE_OVERLAP
 			- TEXT_ENGINE_TALK_FACE_HEIGHT;
 
@@ -2400,6 +2448,10 @@ static ProcPtr TextEngineScanlineFx_FindOwner(ProcPtr exclude)
 	if (proc && proc != exclude)
 		return proc;
 
+	proc = Proc_Find(gProcScr_TextEngineLineSpacing);
+	if (proc && proc != exclude)
+		return proc;
+
 	return NULL;
 }
 
@@ -2414,6 +2466,8 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 			(struct TextEngineScreenStaticProc *)Proc_Find(gProcScr_TextEngineScreenStatic);
 		struct TextEngineScreenEarthquakeProc *quake =
 			(struct TextEngineScreenEarthquakeProc *)Proc_Find(gProcScr_TextEngineScreenEarthquake);
+		struct TextEngineLineSpacingProc *spacing =
+			(struct TextEngineLineSpacingProc *)Proc_Find(gProcScr_TextEngineLineSpacing);
 
 		if (wave)
 			*outPrev = wave->previousHBlankHandler;
@@ -2423,6 +2477,8 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 			*outPrev = statik->previousHBlankHandler;
 		else if (quake)
 			*outPrev = quake->previousHBlankHandler;
+		else if (spacing)
+			*outPrev = spacing->previousHBlankHandler;
 		else
 			*outPrev = NULL;
 		return;
@@ -2433,15 +2489,27 @@ static void TextEngineScanlineFx_AcquireHBlank(void (**outPrev)(void))
 		sTextEngineEarthquakeOffset.y = 0;
 	}
 
-	*outPrev = sHBlankHandler2;
+	/* The line spacing's light handler is ours too: what came before it is what to restore */
+	if (sHBlankHandler2 == TextEngineLineSpacing_OnHBlank && Proc_Find(gProcScr_TextEngineLineSpacing))
+		*outPrev = ((struct TextEngineLineSpacingProc *)Proc_Find(gProcScr_TextEngineLineSpacing))->previousHBlankHandler;
+	else
+		*outPrev = sHBlankHandler2;
 	TextEngineScanlineFx_BuildBuffer();
 	SetSecondaryHBlankHandler(TextEngineWave_OnHBlank);
 }
 
 static void TextEngineScanlineFx_ReleaseHBlank(void (*prev)(void), ProcPtr self)
 {
-	if (TextEngineScanlineFx_FindOwner(self))
+	ProcPtr owner = TextEngineScanlineFx_FindOwner(self);
+
+	if (owner) {
+		/* Only the line spacing is left: its own handler is far lighter than the screen effects' */
+		if (owner == Proc_Find(gProcScr_TextEngineLineSpacing)) {
+			TextEngineWave_ApplyBaseOffsets();
+			SetSecondaryHBlankHandler(TextEngineLineSpacing_OnHBlank);
+		}
 		return;
+	}
 
 	SetSecondaryHBlankHandler(prev);
 	TextEngineWave_ApplyBaseOffsets();
@@ -2462,17 +2530,31 @@ static void TextEngineWave_OnHBlank(void)
 	s16 offset;
 	int blend;
 	u8 cell;
+	int next;
 
-	if (line >= DISPLAY_HEIGHT)
+	if (line >= DISPLAY_HEIGHT) {
+		/* The last blank line's HBlank sets scanline 0's line spacing */
+		if (line == 227 && sTextEngineLineSpacing.active) {
+			REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y +
+				sTextEngineLineSpacing.bg0[0];
+			REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y +
+				TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, 0);
+		}
 		return;
+	}
+
+	/* VOFS written now applies from the next scanline: the line spacing is a step, so it uses that line's entry */
+	next = line + 1 < DISPLAY_HEIGHT ? line + 1 : DISPLAY_HEIGHT - 1;
 
 	offset = sTextEngineWaveOffsets.x[line] + sTextEngineEarthquakeOffset.x;
 	REG_BG0HOFS = gLCDControlBuffer.bgoffset[BG_0].x + offset;
 	REG_BG1HOFS = gLCDControlBuffer.bgoffset[BG_1].x + offset;
 	REG_BG2HOFS = gLCDControlBuffer.bgoffset[BG_2].x + offset;
 	REG_BG3HOFS = gLCDControlBuffer.bgoffset[BG_3].x + offset;
-	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y;
-	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y;
+	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineEarthquakeOffset.y +
+		(sTextEngineLineSpacing.active ? sTextEngineLineSpacing.bg0[next] : 0);
+	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + sTextEngineEarthquakeOffset.y +
+		(sTextEngineLineSpacing.active ? TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next) : 0);
 	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y + sTextEngineEarthquakeOffset.y;
 	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y + sTextEngineEarthquakeOffset.y;
 
@@ -2500,6 +2582,182 @@ static void TextEngineWave_ApplyBaseOffsets(void)
 	REG_BG2VOFS = gLCDControlBuffer.bgoffset[BG_2].y;
 	REG_BG3VOFS = gLCDControlBuffer.bgoffset[BG_3].y;
 	TextEngine_RestoreBlend();
+}
+
+#define gProcScr_TalkMain ((const struct ProcCmd *)0x08591358)
+
+/* A talk box the line spacing applies to is open, or opening */
+static bool TextEngine_LineSpacingApplies(void)
+{
+	struct TalkState *state = sTextEngineState;
+
+	if (!TEXT_ENGINE_LINE_SPACED || !state || !state->lines)
+		return false;
+
+	/* Sprite talk, bubble-less talk, battle quotes and the world map keep their own layouts */
+	if (CheckTalkFlag(TALK_FLAG_SPRITE) || CheckTalkFlag(TALK_FLAG_NOBUBBLE) || CheckTalkFlag(TALK_FLAG_7) ||
+	    IsBattleDeamonActive())
+		return false;
+
+	/* The box stays up between two texts of a scene, with no talk running */
+	return Proc_Find(gProcScr_TalkMain) || Proc_Find(gProcScr_TalkOpen) ||
+		gBG1TilemapBuffer[TILEMAP_INDEX(state->xText, state->yText)] != 0;
+}
+
+/* Screen y of the first line's first shown row: the scene layout's box keeps its bottom edge, so it starts lower */
+static int TextEngine_LineTextTop(const struct TalkState *state)
+{
+	int top = state->yText * 8;
+
+	if (TextEngine_IsSceneLayoutActive())
+		top += TEXT_ENGINE_LINE_ROWS_SAVED(state->lines);
+	return top;
+}
+
+/* Screen y of row y16 (0-15) of a line of the box, as it is shown */
+static int TextEngine_LineScreenY(const struct TalkState *state, int line, int y16)
+{
+	if (!TEXT_ENGINE_LINE_SPACED || !Proc_Find(gProcScr_TextEngineLineSpacing))
+		return state->yText * 8 + line * 16 + y16;
+
+	return TextEngine_LineTextTop(state) + line * TEXT_ENGINE_LINE_HEIGHT + y16 - TEXT_ENGINE_LINE_TOP;
+}
+
+/*
+ * The scanline tables. BG1: a floating box loses the bottom of its inside (its bottom border and tail move up); the
+ * scene layout's box, pinned to the bottom of the screen, loses the top instead (its top border and name tab move
+ * down). BG0: from the text's top, each line shows TEXT_ENGINE_LINE_HEIGHT of its rows from TEXT_ENGINE_LINE_TOP; a
+ * page scroll (BG0's offset, 16 a line) moves them TEXT_ENGINE_LINE_HEIGHT a line. The window that shows BG0 inside
+ * the box is fitted to the shorter inside.
+ */
+static void TextEngineLineSpacing_Build(void)
+{
+	struct TalkState *state = sTextEngineState;
+	struct TextEngineLineSpacingRam *sp = &sTextEngineLineSpacing;
+	bool bottom = TextEngine_IsSceneLayoutActive();
+	int saved = TEXT_ENGINE_LINE_ROWS_SAVED(state->lines);
+	int inside = state->yText * 8;
+	int top = TextEngine_LineTextTop(state);
+	int s0 = gLCDControlBuffer.bgoffset[BG_0].y;
+	int s1 = gLCDControlBuffer.bgoffset[BG_1].y;
+	int y, line, inner, delta = 0;
+
+	if (Chatlog_IsVisible()) {
+		sp->active = 0;
+		return;
+	}
+
+	if (bottom) {
+		sp->bg1Cut = inside + saved - s1;
+		sp->bg1Above = -saved;
+		sp->bg1Below = 0;
+	} else {
+		sp->bg1Cut = inside + state->lines * TEXT_ENGINE_LINE_HEIGHT - s1;
+		sp->bg1Above = 0;
+		sp->bg1Below = saved;
+	}
+
+	inner = Div(s0 * TEXT_ENGINE_LINE_HEIGHT, 16);
+	line = Div(inner, TEXT_ENGINE_LINE_HEIGHT);
+	inner -= line * TEXT_ENGINE_LINE_HEIGHT;
+
+	for (y = 0; y < DISPLAY_HEIGHT; y++) {
+		if (y < top) {
+			sp->bg0[y] = bottom ? -saved : 0;
+			continue;
+		}
+
+		/* Below the lines and the one a scroll brings in, nothing more to fit: keep the last offset */
+		if (line <= state->lines)
+			delta = inside + line * 16 + TEXT_ENGINE_LINE_TOP + inner - y - s0;
+		sp->bg0[y] = delta;
+
+		if (++inner >= TEXT_ENGINE_LINE_HEIGHT) {
+			inner = 0;
+			line++;
+		}
+	}
+
+	if (gLCDControlBuffer.dispcnt.win0_on && gLCDControlBuffer.win0_bottom > gLCDControlBuffer.win0_top &&
+	    (gLCDControlBuffer.win0_top == inside || gLCDControlBuffer.win0_top == inside + saved)) {
+		gLCDControlBuffer.win0_top = bottom ? inside + saved : inside;
+		gLCDControlBuffer.win0_bottom = bottom ? inside + state->lines * 16 :
+			inside + state->lines * TEXT_ENGINE_LINE_HEIGHT;
+	}
+
+	sp->active = 1;
+}
+
+static void TextEngineLineSpacing_OnIdle(ProcPtr proc)
+{
+	if (!TextEngine_LineSpacingApplies()) {
+		Proc_End(proc);
+		return;
+	}
+
+	/* Keep the wave's tables current: this proc may hold the HBlank handler after the wave ends */
+	TextEngineScanlineFx_BuildBuffer();
+	TextEngineLineSpacing_Build();
+}
+
+static void TextEngineLineSpacing_OnEnd(ProcPtr proc)
+{
+	struct TextEngineLineSpacingProc *spacing = proc;
+
+	sTextEngineLineSpacing.active = 0;
+	TextEngineScanlineFx_ReleaseHBlank(spacing->previousHBlankHandler, proc);
+}
+
+/*
+ * The line spacing's own HBlank handler, while no screen effect runs (they use TextEngineWave_OnHBlank, which applies
+ * the line spacing too): it runs on every scanline of every talk, so it only sets the two offsets. VOFS written in a
+ * scanline's HBlank applies from the next one; the last blank line's sets scanline 0.
+ */
+static void TextEngineLineSpacing_OnHBlank(void)
+{
+	u16 line = REG_VCOUNT;
+	int next;
+
+	if (line < DISPLAY_HEIGHT - 1)
+		next = line + 1;
+	else if (line == 227)
+		next = 0;
+	else
+		return;
+
+	if (!sTextEngineLineSpacing.active)
+		return;
+
+	REG_BG0VOFS = gLCDControlBuffer.bgoffset[BG_0].y + sTextEngineLineSpacing.bg0[next];
+	REG_BG1VOFS = gLCDControlBuffer.bgoffset[BG_1].y + TEXT_ENGINE_LINE_BG1(&sTextEngineLineSpacing, next);
+}
+
+/* From a talk box's opening (StartTalkOpen_C) until the box is gone */
+static void TextEngine_StartLineSpacing(void)
+{
+	struct TextEngineLineSpacingProc *proc;
+
+	if (!TEXT_ENGINE_LINE_SPACED || Proc_Find(gProcScr_TextEngineLineSpacing))
+		return;
+
+	if (CheckTalkFlag(TALK_FLAG_SPRITE) || CheckTalkFlag(TALK_FLAG_NOBUBBLE) || CheckTalkFlag(TALK_FLAG_7) ||
+	    IsBattleDeamonActive())
+		return;
+
+	proc = Proc_Start(gProcScr_TextEngineLineSpacing, PROC_TREE_3);
+	if (!proc)
+		return;
+
+	sTextEngineLineSpacing.active = 0;
+
+	/* A screen effect's handler applies the line spacing too; otherwise this one's own */
+	if (sHBlankHandler2 == TextEngineWave_OnHBlank) {
+		TextEngineScanlineFx_AcquireHBlank(&proc->previousHBlankHandler);
+		return;
+	}
+
+	proc->previousHBlankHandler = sHBlankHandler2;
+	SetSecondaryHBlankHandler(TextEngineLineSpacing_OnHBlank);
 }
 
 static void TextEngineWave_OnEnd(struct TextEngineWaveProc *proc)
@@ -3648,7 +3906,7 @@ static s8 TextEngine_StartBigPop(
 	proc->bottom = bottom;
 	proc->cursorX = cursorX;
 	proc->x = state->xText * 8 + cursorX;
-	proc->y = state->yText * 8 + state->lineActive * 16;
+	proc->y = TextEngine_LineScreenY(state, state->lineActive, 0);
 	proc->timer = 0;
 	proc->slot = slot;
 	proc->color = state->printColor;
@@ -3812,7 +4070,7 @@ s8 TextEngine_TryStartGlyphFloat(struct Text *text, const char **str)
 	floatProc->cursorX = cursorX;
 	floatProc->screenX = state->xText * 8 + cursorX;
 	/* Match vanilla talk OBJ anchors (see wait-bubble placement). */
-	floatProc->destY = state->yText * 8 + state->lineActive * 16 + 4;
+	floatProc->destY = TextEngine_LineScreenY(state, state->lineActive, 4);
 	floatProc->timer = 0;
 	floatProc->slot = slot;
 	floatProc->color = state->printColor;
@@ -4273,6 +4531,7 @@ void StartTalkOpen_C(int talkFace, ProcPtr parent)
 	/* A new box starts with empty lines; drop letters from the old one. */
 	TextEngine_EndBigPops(0);
 	sTextEngineBigTextState.lineBelow = 0;
+	TextEngine_StartLineSpacing();
 
 	if (TextEngine_IsSceneLayoutActive()) {
 		state->activeWidth = TEXT_ENGINE_SCENE_BOX_WIDTH;
@@ -6747,7 +7006,7 @@ int TalkInterpret(ProcPtr proc)
 			TextEngine_StartWaitForInput(
 				proc,
 				state->xText * 8 + Text_GetCursor(TextEngine_GetLineText(state, line)) + 4,
-				state->yText * 8 + line * 16 + 8,
+				TextEngine_LineScreenY(state, line, 8),
 				sTextEngineAutoAdvanceState.frames
 			);
 			return 3;

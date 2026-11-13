@@ -50,6 +50,12 @@ If the font has an extract script, run that first so `font.fontall.txt` and the 
 
 ---
 
+### Line height
+
+Each font has a dialogue line height preset: Mother 3's lines are 12 pixels apart (its glyphs are in rows 3-14 of their
+16-pixel cells) and its talk boxes are shorter to match; every other font keeps vanilla's 16. See
+[Text Engine Rework, Line height](./TextEngineRework.md#line-height) for the presets and adding one.
+
 ### The arrow
 
 `→` (U+2192) is a glyph of its own: `"->"` in a font whose `>` is not an arrow reads badly. `fe8u` has a vanilla-style one (`FontItem_E28692.png`, `FontText_E28692.png`), so every font has it; Mother 3 draws its own (`DRAWN` in its extract script). The arrow messages (`Arrow_ID`, the staff target's "HP 10 → 30"; `MSG_SUPPORT_INCREASE_ARROW`) use it. A font with its own arrow lists it in its `font.fontall.txt` as `→` with the file named by the UTF-8 bytes (`E28692`).

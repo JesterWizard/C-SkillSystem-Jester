@@ -20,6 +20,7 @@
   - [Auto-advance](#auto-advance)
   - [Rainbow text](#rainbow-text)
   - [Listener dimming](#listener-dimming)
+  - [Line height](#line-height)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
 - [Limitations & Bugs](#limitations--bugs)
@@ -366,6 +367,31 @@ With `dim_listener_portraits` on in the designer config (the default), whenever 
 
 How dark and how fast are `TEXT_ENGINE_DIM_STRENGTH` (in 32nds) and `TEXT_ENGINE_DIM_FRAMES` in `TextEngineRework.c`.
 
+### Line height
+
+Each font has a line height preset (`TEXT_ENGINE_LINE_HEIGHT` and `TEXT_ENGINE_LINE_TOP` in `TextEngineRework.c`,
+chosen by its `CONFIG_FONT_*`). The engine lays a line out on two tile rows, 16 pixels, and the box is two rows a line.
+A font with shorter glyphs shows its lines closer, and the box is shorter to match:
+
+| Font | Line height | First glyph row shown | 2-line box |
+|------|-------------|-----------------------|------------|
+| Mother 3 | 12 | 3 (its glyphs are in rows 3-14) | 8 pixels shorter |
+| Every other font | 16 | 0 | as vanilla |
+
+- The tiles stay where the engine puts them. While a talk box is up (`gProcScr_TextEngineLineSpacing`, from
+  `StartTalkOpen_C` until the box is gone), BG0 (the text) and BG1 (the box) are moved per scanline: each line shows
+  `TEXT_ENGINE_LINE_HEIGHT` of its rows, from `TEXT_ENGINE_LINE_TOP`, one after another.
+- A floating box keeps its top edge: its bottom edge and tail move up. The [scene layout](#scene-layout) box, pinned to
+  the bottom of the screen, keeps its bottom edge: its top edge, name tab and portraits move down.
+- Page scrolls move the lines `TEXT_ENGINE_LINE_HEIGHT` a line; the window that shows the text in the box is fitted
+  to the shorter inside. The wait arrow and the big-text and floating letters are placed on the lines as they are
+  shown (`TextEngine_LineScreenY`).
+- The offsets are written in the secondary HBlank slot. On its own the line spacing uses a handler that only sets the
+  two offsets (`TextEngineLineSpacing_OnHBlank`): the screen effects' handler costs too much to run in every talk. A
+  wave, glitch, static or earthquake takes over with `TextEngineWave_OnHBlank`, which applies the line spacing too.
+- A new preset is a `#elif defined(CONFIG_FONT_...)` with the font's line height (at most 16) and the first row its
+  glyphs use: measure the rows its `Fonts/Glyph/<Font>/FontText_*.png` cells use.
+
 ### Custom fonts
 
 1. Create a PNG using `Fonts/FE8_Text_Norm.png` as a reference.
@@ -390,6 +416,7 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 | Continuous face motion | `TextEngine_StartFaceJump`, `TextEngine_StartFaceVibrate`, `TextEngine_StartFaceShimmy`, `TextEngine_StopFaceJump`, `TextEngine_StopFaceVibrate`, `TextEngine_StopFaceShimmy`, `gProcScr_TextEngineFaceJump` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Child proc that jumps, vibrates, or shimmies the active portrait until toggled off |
 | Shake / letter-print FX | `TextEngine_OnCharacterPrinted`, `TextEngine_TryStartGlyphFloat`, `gProcScr_TextEnginePrintFx`, `gProcScr_TextEngineGlyphFloat` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); hooked from `Talk_OnIdle` in [`MiscFunctions.c`](../../Kernel/Wizardry/MiscFunctions/Source/MiscFunctions.c) | Shake = BG0 micro-jitter; bounce / wavy / scramble / drip / ghost = per-letter OBJ that bakes into dialogue text |
 | Horizontal dialogue wave | `TextEngineWave_OnHBlank`, `TextEngineWave_BuildBuffer`, `gProcScr_TextEngineWave` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Uses the secondary HBlank slot to offset BG0–BG3 per scanline while preserving and restoring the previous secondary handler |
+| Line height | `TEXT_ENGINE_LINE_HEIGHT`, `TEXT_ENGINE_LINE_TOP`, `gProcScr_TextEngineLineSpacing`, `TextEngineLineSpacing_Build`, `TextEngineLineSpacing_OnHBlank`, `TextEngine_LineScreenY` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c); `sTextEngineLineSpacing` in `include/link/config-memmap.s` | The font's line height: per-scanline BG0/BG1 offsets that bring a talk box's lines closer and shorten the box ([Line height](#line-height)) |
 | Speaker nameplates | `TextEngine_DrawSpeakerNameplate`, `TextEngine_ClearSpeakerNameplate`, `TextEngine_BuildSceneTabCornerTile`, `TextEngine_FindClassNameByPortrait`, `sTextEngineGenericPortraitClasses`, `TextEngine_CommandStartNameplate`, `TextEngine_CommandStopNameplate` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | BG0 name text + BG1 talk-bubble frame above the box; default-off with `0x45`/`0x46` toggles. In the scene layout it becomes a tab on the box's top-left edge with merged corners, and unnamed generic speakers are named after a class. Redrawn on the next letter after a page scroll |
 | Whole-screen glitch | `EnableScreenGlitch`, `DisableScreenGlitch`, `gProcScr_TextEngineScreenGlitch` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | Horizontal screen tear: a rolling split shifts BG0–BG3 (and matching OBJ) on the X axis; `ASMC(EnableScreenGlitch)` and `[ToggleOnGlitch]`/`[ToggleOffGlitch]` |
 | Whole-screen static | `EnableScreenStatic`, `DisableScreenStatic`, `gProcScr_TextEngineScreenStatic` in [`Source/TextEngineRework.c`](../../Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c) | White scanline streaks drawn as OBJ over the picture (backgrounds do not wobble); `ASMC(EnableScreenStatic)` and `[ToggleOnStatic]`/`[ToggleOffStatic]` |
@@ -428,6 +455,9 @@ Glyph width lives in the 6th header byte of each glyph entry; adjust kerning the
 
 ## 🐛 Limitations & Bugs
 
+- The line height preset covers talk boxes only. CG text (the biographies' pages, `gProcScr_CgTextInterpreter`), world
+  map text, bubble-less talk (the level-up quotes) and battle quotes keep 16-pixel lines. Big text keeps the preset's
+  rows of each of its two lines, so with a line height under 16 the middle of a big letter is cut.
 - Meant for **standard cutscene text** only. World map text, tutorial boxes, scroll/parchment boxes, brown location boxes, and other alternate interpreters are untested and may no-op or crash.
 - **Not compatible** with Zeta's AutoNewLine hack.
 - All script arguments must be **non-zero**; `0x00` terminates text copies.
