@@ -18,6 +18,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `alpha_blend_movement_sprites` | While pathfinding (and `remove_move_path` is off), shows a Lex Talionis-style faded MU ghost at the cursor tip. See [TranslucentUnitSprite](./TranslucentUnitSprite.md). |
 | `text_box_extension_layout` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
 | `hit_decrease_on_range` | Enables Three Houses style hit loss for long-range attacks. |
+| `infinite_durability` | On by default. Weapons never lose uses in battle (`GetWeaponCost` is 0 for them), and their uses are hidden in every item list, forgeable weapons included. Staves and other items keep their uses. |
 | `debug_autoload_skills` | Debug option that fills a unit's learned skill list so skills can be freely equipped in the prep screen. |
 | `guaranteed_lvup` | If a level-up would grant no stat gains, the kernel retries up to 10 times with a 10% growth bonus. |
 | `lvup_stat_points` | Points granted per level-up. After the EXP bar, a spend list replaces the level-up screen and the chosen stats apply immediately. `0` keeps vanilla growths and the level-up screen. Any other value replaces both, hides stat-screen growth rates, and limits spending to one point per stat. See [AllocateStatPoints](./AllocateStatPoints.md). |

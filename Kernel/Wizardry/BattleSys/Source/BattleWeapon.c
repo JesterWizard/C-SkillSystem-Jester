@@ -688,6 +688,10 @@ int GetWeaponCost(struct BattleUnit *bu, u16 item)
 	if (GetItemAttributes(item) & IA_UNBREAKABLE)
 		return 0;
 
+	/* infinite_durability: weapons never lose uses (their uses are hidden too, ShouldDisplayItemDurability) */
+	if (gpKernelDesignerConfig->infinite_durability && (GetItemAttributes(item) & IA_WEAPON))
+		return 0;
+
 	cost = 1;
 
 	if (bu == &gBattleActor) {

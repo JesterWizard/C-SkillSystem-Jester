@@ -921,11 +921,15 @@ void RefreshUnitStealInventoryInfoWindow(struct Unit* unit)
             struct ForgeLimits limits = gForgeLimits[GetItemIndex(item)];
 
             if (CanItemBeForged(item)) {
-                PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
-                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
+                /* Only a forged item has a gold +N */
+                if (GetItemForgeCount(item) > 0) {
+                    PutSpecialChar(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 8, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, TEXT_SPECIAL_PLUS);
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 9, yPos), stealable ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, GetItemForgeCount(item));
+                }
+                if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+                    PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetForgedItemDurability(item));
             }
-            else if (limits.maxCount == 0) {
+            else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), stealable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
             }
         }
@@ -989,7 +993,7 @@ void sub_809D300(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
                 PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
                     GetForgedItemDurability(item));
             }
-            else if (limits.maxCount == 0) {
+            else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(tm + TILEMAP_INDEX(12, i * 2 & 0x1f), !unusable ? 2 : 1,
                     GetItemUses(item));
             }
@@ -1041,7 +1045,7 @@ void sub_809D47C(struct Text* textBase, u16* tm, int yLines, struct Unit* unit)
                 PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY,
                     GetForgedItemDurability(item));
             }
-            else if (limits.maxCount == 0) {
+            else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(tm + offset + 12, !unusable ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY, GetItemUses(item));
             }
         }
@@ -1101,7 +1105,7 @@ void sub_8099F7C(struct Text* th, u16* tm, struct Unit* unit, u16 flags) {
                     : TEXT_COLOR_SYSTEM_GRAY,
                     GetForgedItemDurability(item));
             }
-            else if (limits.maxCount == 0) {
+            else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(tm + 11 + i * 0x40,
                     !isUnusable ? TEXT_COLOR_SYSTEM_BLUE
                     : TEXT_COLOR_SYSTEM_GRAY,
@@ -1169,7 +1173,7 @@ void DrawPrepScreenItems(u16* tm, struct Text* th, struct Unit* unit, u8 checkPr
                     : TEXT_COLOR_SYSTEM_GRAY,
                     GetForgedItemDurability(item));
             }
-            else if (limits.maxCount == 0) {
+            else if (limits.maxCount == 0 && ShouldDisplayItemDurability(item)) {
                 PutNumberOrBlank(tm + i * 0x40 + 0xB,
                     isUsable ? TEXT_COLOR_SYSTEM_BLUE
                     : TEXT_COLOR_SYSTEM_GRAY,
