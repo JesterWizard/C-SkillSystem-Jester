@@ -47,7 +47,7 @@
 #define NAME_PX        ((LIST_W - 4) * 8) /* a name's room in the list, right of the hand */
 #define STATS_PX       (INFO_IN_W * 8)
 #define DESC_PX        (INFO_IN_W * 8)
-#define DESC_MARGIN    4 /* pixels free left and right of the description */
+#define DESC_MARGIN    8 /* pixels free left and right of the description, as in the Skill Codex */
 
 #define CHIBI_TILE     EXTRAS_UI_FREE_TILE
 #define PAL_CHIBI      4
@@ -313,10 +313,19 @@ static void Bestiary_ClearStats(void)
 	}
 }
 
+/* The description in its lines; one too long for them (Marisa's, the Summoner's) again in the narrow font */
 static void Bestiary_DrawDesc(int msg)
 {
-	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, DESC_MARGIN, msg != 0 ? GetStringFromIndex(msg) : NULL,
-			     gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y));
+	u16 *tm = gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y);
+
+	if (msg == 0) {
+		ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, DESC_MARGIN, NULL, tm);
+		return;
+	}
+
+	if (!ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, DESC_MARGIN, GetStringFromIndex(msg), tm))
+		ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, DESC_MARGIN,
+				     Utf8ToNarrowFonts(GetStringFromIndex(msg)), tm);
 }
 
 static void Bestiary_DrawCharacter(int pid)

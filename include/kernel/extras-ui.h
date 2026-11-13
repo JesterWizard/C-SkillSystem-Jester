@@ -16,4 +16,4 @@ char *ExtrasUi_Append(char *dst, const char *src);
 void ExtrasUi_PutCentred(struct Text *t, int px, int color, const char *str, u16 *tm);
 void ExtrasUi_PutLeft(struct Text *t, int color, const char *str, u16 *tm);
 void ExtrasUi_LoadBanner(void);
-void ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, int margin, const char *src, u16 *tm);
+bool ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, int margin, const char *src, u16 *tm);
