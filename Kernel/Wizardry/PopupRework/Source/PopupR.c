@@ -85,9 +85,22 @@ STATIC_DECLAR int PoprGetLen_Color(struct PopupProc *proc, const struct PopupIns
 	return 0;
 }
 
+/*
+ * In a battle animation the popup is vanilla's light banner (EfxPopup.c), whose palette has only the normal text's
+ * colours: the others share entries with the banner and wash out on it. There, gold text (skill and item names,
+ * numbers) is drawn with the grey text's entries (4-6, which the banner does not use), which EfxPopup.c loads with
+ * gold; any other colour (the unit's name in blue) is drawn as the normal text.
+ */
+extern bool gPopupInEfx;
+
 STATIC_DECLAR void PoprDisp_Color(struct Text *text, const struct PopupInstruction *inst)
 {
-	Text_SetColor(text, inst->data);
+	int color = inst->data;
+
+	if (gPopupInEfx)
+		color = color == TEXT_COLOR_SYSTEM_GOLD ? TEXT_COLOR_SYSTEM_GRAY : TEXT_COLOR_SYSTEM_WHITE;
+
+	Text_SetColor(text, color);
 }
 
 STATIC_DECLAR int PoprGetLen_ItemIcon(struct PopupProc *proc, const struct PopupInstruction *inst)

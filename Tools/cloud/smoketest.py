@@ -1715,9 +1715,18 @@ class Smoke:
         self.shot(os.path.join(d, "ch1.png"), "Chapter 1's first turn")
         if not vals:
             return self.check("ch1end: Chapter 1 starts", False)
-        rows = self.run(ROM, ["load " + os.path.join(d, "ch1.ss")] + ["r32 %#x" % (vals[0] + 4 * y) for y in (2, 9)], d)
-        if len(rows) != 2:
+        rows = self.run(ROM, ["load " + os.path.join(d, "ch1.ss")] + ["r32 %#x" % (vals[0] + 4 * y) for y in (2, 9)] +
+                        ["r8 %#x" % (UNIT_RED + 0x32 + k) for k in range(7)], d)
+        if len(rows) != 9:
             return self.check("ch1end: Chapter 1 starts", False)
+        # The boss, Breguet (lance rank C), holds Lance Prowess Lv2 only: the rank skills walked again from E (the
+        # load, then the battle and prep syncs) must not give Lv1 back next to it (WRankSkill.c)
+        packed = sum(v << (8 * k) for k, v in enumerate(rows[2:]))
+        held = [(packed >> (10 * k)) & 0x3FF for k in range(5)]
+        lv1, lv2 = self.skill_id("SID_LanceProwess1"), self.skill_id("SID_LanceProwess2")
+        self.check("ch1end: the boss has Lance Prowess Lv2 and not Lv1 beside it",
+                   lv1 is not None and lv2 in held and lv1 not in held, "skills %s" % ["%#x" % h for h in held])
+        rows = rows[:2]
         # The boss (0x81) stands on the gate (2, 2); Eirika starts at (12, 9) under the cursor
         lines = ["load " + os.path.join(d, "ch1.ss"), "w32 %#x 0" % UNIT_RED, "w8 %#x 1" % (rows[0] + 2),
                  "w8 %#x 0" % (rows[1] + 12), "w8 %#x 2" % UNIT_X, "w8 %#x 2" % UNIT_Y]

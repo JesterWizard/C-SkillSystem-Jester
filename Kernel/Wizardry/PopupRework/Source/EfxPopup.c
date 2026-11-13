@@ -7,6 +7,14 @@
  * Efx popup
  */
 
+extern bool gPopupInEfx;
+
+/*
+ * Gold text on the banner (BG palette 1, entries 4-6; PopupR.c, PoprDisp_Color): the shade between body and
+ * outline, the body, and the banner's own dark outline (its entry 3), as the normal text has them in entries 1-3.
+ */
+static const u16 sEfxPopupHighlight[3] = { RGB(21, 15, 4), RGB(31, 26, 8), RGB(7, 6, 5) };
+
 STATIC_DECLAR void EfxPopR_Start(struct PopupProc *proc)
 {
 	int width, width_popupbox, x_bg1;
@@ -47,7 +55,9 @@ STATIC_DECLAR void EfxPopR_Start(struct PopupProc *proc)
 	Text_SetColor(text, proc->textColorId);
 	Text_SetCursor(text, 2);
 	LZ77UnCompVram(gUnknown_08803BD0, (void *)BG_VRAM + 0x2100);
+	gPopupInEfx = true;
 	GeneratePopupText(proc->pDefinition, *text);
+	gPopupInEfx = false;
 
 	/**
 	 * Draw BG1
@@ -74,6 +84,7 @@ STATIC_DECLAR void EfxPopR_Start(struct PopupProc *proc)
 		EfxPlaySE(proc->soundId, 0x80);
 
 	ApplyPalette(Pal_EkrPopup, 1);
+	CpuCopy16(sEfxPopupHighlight, PAL_BG(1) + 4, sizeof(sEfxPopupHighlight));
 	EnablePaletteSync();
 	SetDefaultColorEffects();
 	SetWinEnable(0, 0, 0);

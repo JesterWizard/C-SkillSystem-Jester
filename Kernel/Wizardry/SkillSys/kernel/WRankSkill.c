@@ -25,6 +25,51 @@ static void EquipWRankSkill(struct Unit *unit, u16 sid, u16 replaces)
 	AddSkill(unit, sid);
 }
 
+static bool WRankSkillHeld(struct Unit *unit, u16 sid)
+{
+	return GetSkillSlot(unit, sid) != -1 || IsSkillLearned(unit, sid);
+}
+
+/*
+ * Whether the unit holds a skill that replaces sid at a higher rank of wtype, following the chain (Prowess Lv1 is
+ * replaced by Lv2 at C, Lv2 by Lv3 at B...). Walking the ranks from E again on a unit that holds Lv2 must not give
+ * Lv1 back.
+ */
+static bool WRankSkillSuperseded(struct Unit *unit, int wtype, int rank, u16 sid)
+{
+	int r, slot;
+	u16 cur = sid;
+
+	for (r = rank + 1; r <= WPN_LEVEL_S; r++) {
+		for (slot = 0; slot < SKILL_WRANK_SLOTS; slot++) {
+			const struct SkillWRankEntry *ent = &gpSkillWRankTable->skills[wtype][r][slot];
+
+			if (!EQUIP_SKILL_VALID(ent->sid) || ent->replaces != cur)
+				continue;
+
+			cur = ent->sid;
+			if (WRankSkillHeld(unit, cur))
+				return true;
+		}
+	}
+	return false;
+}
+
+/* A lower level a unit still holds next to a higher one (saves from before the check): unequipped and forgotten */
+static void DropWRankSkill(struct Unit *unit, u16 sid)
+{
+	int slot = GetSkillSlot(unit, sid);
+
+	if (slot != -1)
+		SET_SKILL(unit, slot, 0);
+
+	if (IsSkillLearned(unit, sid))
+		ForgetSkill(unit, sid);
+
+	if (slot != -1)
+		ResetSkillLists();
+}
+
 void TryAddSkillWRankRange(struct Unit *unit, int wtype, int fromLevel, int toLevel, bool popup)
 {
 	int rank, slot;
@@ -55,6 +100,12 @@ void TryAddSkillWRankRange(struct Unit *unit, int wtype, int fromLevel, int toLe
 
 			if (!EQUIP_SKILL_VALID(sid))
 				continue;
+
+			if (WRankSkillSuperseded(unit, wtype, rank, sid)) {
+				if (WRankSkillHeld(unit, sid))
+					DropWRankSkill(unit, sid);
+				continue;
+			}
 
 			if (GetSkillSlot(unit, sid) != -1)
 				continue;
