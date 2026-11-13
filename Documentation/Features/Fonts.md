@@ -57,6 +57,15 @@ Each font has a dialogue line height preset: Mother 3's lines are 12 pixels apar
 16-pixel cells) and its talk boxes are shorter to match; every other font keeps vanilla's 16. See
 [Text Engine Rework, Line height](./TextEngineRework.md#line-height) for the presets and adding one.
 
+### Narrow glyphs
+
+The narrow glyphs (`Glyph/NarrowFonts`, the small capitals and superscript letters `Utf8ToNarrowFonts` swaps in for long
+names) are drawn on vanilla's baseline: their letters end on row 13. A font that sits higher gets its own copy moved up
+onto its baseline, listed in `Fonts/FontList.txt` under its `CONFIG_FONT_*` (the first list with a character wins):
+`Fonts/Scripts/narrow-fonts-baseline.py OUT_DIR TEXT_SHIFT ITEM_SHIFT`. Mother 3's is `Glyph/NarrowFontsMother3`, made
+with `2 1`: its letters end on row 11 (dialogue glyphs) and 12 (menu glyphs, with their outline), and g, p, q and y drop
+below that as Mother 3's do. Run the script again after changing `Glyph/NarrowFonts`.
+
 ### The arrow
 
 `→` (U+2192) is a glyph of its own: `"->"` in a font whose `>` is not an arrow reads badly. `fe8u` has a vanilla-style one (`FontItem_E28692.png`, `FontText_E28692.png`), so every font has it; Mother 3 draws its own (`DRAWN` in its extract script). The arrow messages (`Arrow_ID`, the staff target's "HP 10 → 30"; `MSG_SUPPORT_INCREASE_ARROW`) use it. A font with its own arrow lists it in its `font.fontall.txt` as `→` with the file named by the UTF-8 bytes (`E28692`).
