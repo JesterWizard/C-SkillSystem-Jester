@@ -1,0 +1,14 @@
+#ifndef SKILL_CODEX_INSTALLED
+#define SKILL_CODEX_INSTALLED
+
+/**
+ * The Skill Codex (Documentation/Features/SkillCodex.md): Extras > Skill Codex, its screen, and the skills met.
+ * WIZARDRY_CUSTOM, so FreeSpaceDEMO. The phase-start sweep is in gPrePhaseFuncs; the bits are kept in the saves'
+ * tails (SaveData/Source/SaveTail.c). The row's label is in the Extras label sheet (NewGamePlus/Gfx/Img_NgpMenuObjs.png),
+ * its sprite in gExtrasLabelSprites (NewGamePlus/Source/NgpSaveMenu.c). The screen shares the Extras UI helpers
+ * (Bestiary/Source/ExtrasUi.c) and the Bestiary screen's RAM.
+ */
+#include "Source/SkillCodex.lyn.event"
+#include "Source/SkillCodexScreen.lyn.event"
+
+#endif /* SKILL_CODEX_INSTALLED */

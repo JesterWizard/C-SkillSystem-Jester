@@ -152,6 +152,7 @@ ALIGN 4
 #include "Gallery/Gallery_Installer.event"
 #include "BigUnits/BigUnits.event"
 #include "Bestiary/Bestiary_Installer.event"
+#include "SkillCodex/SkillCodex_Installer.event"
 #include "ExceedPortraitBox/ExceedPortraitBox_Installer.event"
 #include "ExpBarStyles/ExpBarStyles_Installer.event"
 #include "FE7ModeSelect/FE7ModeSelect_Installer.event"

@@ -140,4 +140,5 @@ save that has not been to the postgame; a plain New Game after backing out of Ne
   at the next phase.
 - The bytes after the save tables are shared: `SaveTail.c` (`Kernel/Wizardry/SaveData/Source/`) gives New Game+ the
   first `sizeof(struct NewGamePlusCarry)` (the suspend save: `sizeof(struct NewGamePlusSusCarry)`), and the
-  [Bestiary](./Bestiary.md) the bytes after them. Growing New Game+'s structs moves the Bestiary's share.
+  [Bestiary](./Bestiary.md) and the [Skill Codex](./SkillCodex.md) the bytes after them. Growing New Game+'s structs
+  moves their shares.

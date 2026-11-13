@@ -6,6 +6,7 @@
 #include "new-game-plus.h"
 #include "gallery.h"
 #include "bestiary.h"
+#include "skill-codex.h"
 #include "constants/songs.h"
 #include "constants/texts.h"
 
@@ -114,7 +115,11 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 
 		case EXTRA_MENU_OPTION_GALLERY:
 		case EXTRA_MENU_OPTION_BESTIARY:
-			/* The Gallery (Kernel/Wizardry/Gallery), in the Map row's place; the Bestiary, in the trial map's */
+		case EXTRA_MENU_OPTION_SKILL_CODEX:
+			/*
+			 * The Gallery (Kernel/Wizardry/Gallery), in the Map row's place; the Bestiary, in the trial map's; the
+			 * Skill Codex, in bit 7
+			 */
 			Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
 			break;
 
@@ -273,8 +278,9 @@ const u16 Sprite_NgpExtrasLabel[] = {
 
 /*
  * The Extras list's label sprites, one per row bit (vanilla's SpriteArray_08A2099C, which sub_80AAC40 reads; the
- * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's is cut to
- * its letters (cols 4-9 of its sheet row), so that the free tiles round it can hold the Bestiary's (cols 0-3, 10-11).
+ * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's and Link
+ * Arena's are cut to their letters, so that the free tiles round them can hold the Bestiary's label (the Gallery's
+ * sheet row, tiles 0-3 and 10-11) and the Skill Codex's (Link Arena's row, tiles 14-17, 28-31 and 26-27).
  */
 static const u16 Sprite_GalleryExtrasLabel[] = {
 	2,
@@ -288,13 +294,26 @@ static const u16 Sprite_BestiaryExtrasLabel[] = {
 	0x0000, 0x4000 + 64, 0x0A4A,
 };
 
+static const u16 Sprite_LinkArenaExtrasLabel[] = {
+	2,
+	0x4000, 0x8000 + 32, 0x0A92,
+	0x4000, 0x8000 + 64, 0x0A96,
+};
+
+static const u16 Sprite_SkillCodexExtrasLabel[] = {
+	3,
+	0x4000, 0x8000 + 16, 0x0A8E,
+	0x4000, 0x8000 + 48, 0x0A9C,
+	0x0000, 0x4000 + 80, 0x0A9A,
+};
+
 const u16 *const gExtrasLabelSprites[8] = {
-	[EXTRA_MENU_LINK_ARENA]    = (const u16 *)0x08A2084A,
+	[EXTRA_MENU_LINK_ARENA]    = Sprite_LinkArenaExtrasLabel,
 	[EXTRA_MENU_SOUND_ROOM]    = (const u16 *)0x08A20864,
 	[EXTRA_MENU_SUPPORT]       = (const u16 *)0x08A2087E,
 	[EXTRA_MENU_NEW_GAME_PLUS] = Sprite_NgpExtrasLabel,
 	[EXTRA_MENU_GALLERY]       = Sprite_GalleryExtrasLabel,
 	[EXTRA_MENU_BONUS_CLAIM]   = (const u16 *)0x08A208CC,
 	[EXTRA_MENU_BESTIARY]      = Sprite_BestiaryExtrasLabel,
-	[7]                        = Sprite_BestiaryExtrasLabel, /* no row */
+	[EXTRA_MENU_SKILL_CODEX]   = Sprite_SkillCodexExtrasLabel,
 };

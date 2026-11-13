@@ -9,5 +9,6 @@
  */
 #include "Source/Bestiary.lyn.event"
 #include "Source/BestiaryScreen.lyn.event"
+#include "Source/ExtrasUi.lyn.event"
 
 #endif /* BESTIARY_INSTALLED */

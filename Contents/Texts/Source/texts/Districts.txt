@@ -639,3 +639,9 @@ Lck[X]
 Def[X]
 ## MSG_BESTIARY_STAT_RES
 Res[X]
+## MSG_CODEX_SKILLS
+Skills[X]
+## MSG_CODEX_LOCKED
+???[X]
+## MSG_CODEX_NOT_MET
+Not met yet[X]

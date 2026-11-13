@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "strmag.h"
 #include "bestiary.h"
+#include "extras-ui.h"
 #include "constants/texts.h"
 #include "constants/songs.h"
 
@@ -44,17 +45,9 @@
 #define INFO_IN_W      16 /* tiles inside the window */
 #define DESC_PX        (INFO_IN_W * 8)
 
-/* The banner (tiles) */
-#define BANNER_X       3
-#define BANNER_W       24
-#define BANNER_H       4
-
-#define BANNER_TILE    0x220 /* BG VRAM 0x06004400, after the text's tiles */
-#define CHIBI_TILE     (BANNER_TILE + BANNER_W * BANNER_H)
+#define CHIBI_TILE     EXTRAS_UI_FREE_TILE
 #define PAL_CHIBI      4
-#define PAL_BANNER     11
 #define PAL_MURAL      14 /* and 15 */
-#define OBJ_TEMP       ((u8 *)0x06014000) /* OBJ VRAM nothing uses on this screen: the banner's sheet is unpacked here */
 
 /* The class's map sprite: in the image's place, the red army's palette, over the window */
 #define SMS_X          ((IMAGE_X * 8) + 8)
@@ -194,66 +187,7 @@ static void Bestiary_BuildRows(void)
 	}
 }
 
-/* ---- Text helpers ---- */
-
-/* A number into buf (no % here: it is broken in this build, CLAUDE.md, Pitfalls); returns the end */
-static char *Bestiary_PutNumber(char *buf, int n)
-{
-	if (n < 0) {
-		*buf++ = '-';
-		n = -n;
-	}
-	if (n >= 100)
-		*buf++ = '0' + Div(n, 100);
-	if (n >= 10)
-		*buf++ = '0' + DivRem(Div(n, 10), 10);
-	*buf++ = '0' + DivRem(n, 10);
-	*buf = '\0';
-	return buf;
-}
-
-static char *Bestiary_Append(char *dst, const char *src)
-{
-	while (*src)
-		*dst++ = *src++;
-	*dst = '\0';
-	return dst;
-}
-
-static void Bestiary_PutCentred(struct Text *t, int px, int color, const char *str, u16 *tm)
-{
-	int w = GetStringTextLen(str);
-
-	ClearText(t);
-	Text_InsertDrawString(t, w < px ? (px - w) / 2 : 0, color, str);
-	PutText(t, tm);
-}
-
-static void Bestiary_PutLeft(struct Text *t, int color, const char *str, u16 *tm)
-{
-	ClearText(t);
-	Text_InsertDrawString(t, 0, color, str);
-	PutText(t, tm);
-}
-
 /* ---- The banner, the list ---- */
-
-/* The Sound Room's song banner: its sheet into spare OBJ VRAM, the 24x4 tiles of the banner on to BG VRAM */
-static void Bestiary_LoadBanner(void)
-{
-	int x, y;
-
-	Decompress(Img_PlayStatusSprites, OBJ_TEMP);
-
-	for (y = 0; y < BANNER_H; y++)
-		CpuFastCopy(OBJ_TEMP + y * 32 * 0x20, (u8 *)VRAM + (BANNER_TILE + y * BANNER_W) * 0x20, BANNER_W * 0x20);
-
-	ApplyPalette(Pal_PlayStatusSprites, PAL_BANNER);
-
-	for (y = 0; y < BANNER_H; y++)
-		for (x = 0; x < BANNER_W; x++)
-			gBG2TilemapBuffer[TILEMAP_INDEX(BANNER_X + x, y)] = (PAL_BANNER << 12) | (BANNER_TILE + y * BANNER_W + x);
-}
 
 static int Bestiary_CursorName(void)
 {
@@ -268,7 +202,7 @@ static void Bestiary_DrawTitle(void)
 		str = GetStringFromIndex(Bestiary_CursorName());
 
 	/* 20 tiles from tile 5: centred on the banner (and the screen) */
-	Bestiary_PutCentred(&BS->title, 160, TEXT_COLOR_SYSTEM_WHITE, str, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
+	ExtrasUi_PutCentred(&BS->title, 160, TEXT_COLOR_SYSTEM_WHITE, str, gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
 }
 
 static void Bestiary_DrawList(void)
@@ -276,7 +210,7 @@ static void Bestiary_DrawList(void)
 	char buf[16], *p;
 	int r;
 
-	Bestiary_PutCentred(&BS->tabName, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_GOLD,
+	ExtrasUi_PutCentred(&BS->tabName, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_GOLD,
 			    GetStringFromIndex(BS->tab == TAB_CHARACTERS ? MSG_BESTIARY_CHARACTERS : MSG_BESTIARY_CLASSES),
 			    gBG0TilemapBuffer + TILEMAP_INDEX(LIST_X + 1, TAB_Y));
 
@@ -291,16 +225,16 @@ static void Bestiary_DrawList(void)
 		}
 
 		if (Bestiary_Open(row))
-			Bestiary_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_WHITE,
+			ExtrasUi_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_WHITE,
 					 GetStringFromIndex(Bestiary_NameOf(BS->tab, BS->rows[row])), tm);
 		else
-			Bestiary_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_LOCKED), tm);
+			ExtrasUi_PutLeft(&BS->names[r], TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_LOCKED), tm);
 	}
 
-	p = Bestiary_PutNumber(buf, BS->met);
+	p = ExtrasUi_PutNumber(buf, BS->met);
 	*p++ = '/';
-	Bestiary_PutNumber(p, BS->count);
-	Bestiary_PutCentred(&BS->countText, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_WHITE, buf,
+	ExtrasUi_PutNumber(p, BS->count);
+	ExtrasUi_PutCentred(&BS->countText, (LIST_W - 2) * 8, TEXT_COLOR_SYSTEM_WHITE, buf,
 			    gBG0TilemapBuffer + TILEMAP_INDEX(LIST_X + 1, COUNT_Y));
 }
 
@@ -330,7 +264,7 @@ static void Bestiary_DrawStats(const int *vals)
 
 		Text_InsertDrawString(&BS->stats[0], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_GOLD, name);
 
-		Bestiary_PutNumber(buf, vals[c]);
+		ExtrasUi_PutNumber(buf, vals[c]);
 		w = GetStringTextLen(buf);
 		Text_InsertDrawString(&BS->stats[1], c * 16 + (16 - w) / 2, TEXT_COLOR_SYSTEM_BLUE, buf);
 	}
@@ -349,64 +283,10 @@ static void Bestiary_ClearStats(void)
 	}
 }
 
-/*
- * The description, wrapped to the window: line breaks become spaces, and words go on a line while it fits. Up to
- * DESC_LINES lines; the rest is left out.
- */
 static void Bestiary_DrawDesc(int msg)
 {
-	char text[0x140], line[0x60];
-	const char *src;
-	int i, n = 0, len = 0, word;
-
-	for (i = 0; i < DESC_LINES; i++)
-		ClearText(&BS->desc[i]);
-
-	if (msg != 0) {
-		src = GetStringFromIndex(msg);
-		for (i = 0; src[i] != '\0' && i < (int)sizeof(text) - 1; i++)
-			text[i] = (u8)src[i] < 0x20 ? ' ' : src[i];
-		text[i] = '\0';
-
-		src = text;
-		line[0] = '\0';
-
-		while (*src != '\0' && n < DESC_LINES) {
-			while (*src == ' ')
-				src++;
-			if (*src == '\0')
-				break;
-
-			for (word = 0; src[word] != '\0' && src[word] != ' '; word++)
-				;
-
-			if (len + 1 + word >= (int)sizeof(line))
-				word = sizeof(line) - 2 - len;
-
-			/* The line with the word: does it fit? */
-			if (len != 0)
-				line[len] = ' ';
-			memcpy(line + len + (len != 0), src, word);
-			line[len + (len != 0) + word] = '\0';
-
-			if (len != 0 && GetStringTextLen(line) > DESC_PX) {
-				/* No: the line goes out as it was, the word starts the next */
-				line[len] = '\0';
-				Text_InsertDrawString(&BS->desc[n++], 0, TEXT_COLOR_SYSTEM_WHITE, line);
-				len = 0;
-				continue;
-			}
-
-			len += (len != 0) + word;
-			src += word;
-		}
-
-		if (len != 0 && n < DESC_LINES)
-			Text_InsertDrawString(&BS->desc[n], 0, TEXT_COLOR_SYSTEM_WHITE, line);
-	}
-
-	for (i = 0; i < DESC_LINES; i++)
-		PutText(&BS->desc[i], gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y + i * 2));
+	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, msg != 0 ? GetStringFromIndex(msg) : NULL,
+			     gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y));
 }
 
 static void Bestiary_DrawCharacter(int pid)
@@ -419,7 +299,7 @@ static void Bestiary_DrawCharacter(int pid)
 
 	PutFaceChibi(fid, gBG2TilemapBuffer + TILEMAP_INDEX(IMAGE_X, IMAGE_Y), CHIBI_TILE, PAL_CHIBI, 0);
 
-	Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(jd->nameTextId),
+	ExtrasUi_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(jd->nameTextId),
 			 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
 
 	if (BS->page == PAGE_BASES) {
@@ -443,13 +323,13 @@ static void Bestiary_DrawCharacter(int pid)
 	}
 
 	/* "Bases  Lv 4" or "Growths" */
-	p = Bestiary_Append(buf, GetStringFromIndex(BS->page == PAGE_BASES ? MSG_BESTIARY_BASES : MSG_BESTIARY_GROWTHS));
+	p = ExtrasUi_Append(buf, GetStringFromIndex(BS->page == PAGE_BASES ? MSG_BESTIARY_BASES : MSG_BESTIARY_GROWTHS));
 	ClearText(&BS->pageText);
 	Text_InsertDrawString(&BS->pageText, 0, TEXT_COLOR_SYSTEM_GOLD, buf);
 	if (BS->page == PAGE_BASES) {
-		p = Bestiary_Append(buf, GetStringFromIndex(MSG_BESTIARY_LEVEL));
+		p = ExtrasUi_Append(buf, GetStringFromIndex(MSG_BESTIARY_LEVEL));
 		*p++ = ' ';
-		Bestiary_PutNumber(p, cd->baseLevel);
+		ExtrasUi_PutNumber(p, cd->baseLevel);
 		Text_InsertDrawString(&BS->pageText, 56, TEXT_COLOR_SYSTEM_WHITE, buf);
 	}
 	PutText(&BS->pageText, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
@@ -464,10 +344,10 @@ static void Bestiary_DrawClass(int jid)
 	char buf[24], *p;
 	int vals[8];
 
-	p = Bestiary_Append(buf, GetStringFromIndex(MSG_BESTIARY_MOVE));
+	p = ExtrasUi_Append(buf, GetStringFromIndex(MSG_BESTIARY_MOVE));
 	*p++ = ' ';
-	Bestiary_PutNumber(p, jd->baseMov);
-	Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, buf, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
+	ExtrasUi_PutNumber(p, jd->baseMov);
+	ExtrasUi_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_WHITE, buf, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
 
 	if (BS->page == PAGE_BASES) {
 		vals[0] = jd->baseHP;
@@ -489,7 +369,7 @@ static void Bestiary_DrawClass(int jid)
 		vals[7] = jd->growthRes;
 	}
 
-	Bestiary_PutLeft(&BS->pageText, TEXT_COLOR_SYSTEM_GOLD,
+	ExtrasUi_PutLeft(&BS->pageText, TEXT_COLOR_SYSTEM_GOLD,
 			 GetStringFromIndex(BS->page == PAGE_BASES ? MSG_BESTIARY_BASES : MSG_BESTIARY_GROWTHS),
 			 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
 
@@ -510,7 +390,7 @@ static void Bestiary_DrawInfo(void)
 	BS->smsClass = 0;
 
 	if (BS->count == 0 || !Bestiary_Open(BS->cursor)) {
-		Bestiary_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_NOT_MET),
+		ExtrasUi_PutLeft(&BS->sub, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_BESTIARY_NOT_MET),
 				 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y));
 		ClearText(&BS->pageText);
 		PutText(&BS->pageText, gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, IMAGE_Y + 2));
@@ -592,7 +472,7 @@ static void Bestiary_Setup(struct ProcBestiary *proc)
 	for (i = 0; i < DESC_LINES; i++)
 		InitText(&BS->desc[i], INFO_IN_W);
 
-	Bestiary_LoadBanner();
+	ExtrasUi_LoadBanner();
 	DrawUiFrame(gBG1TilemapBuffer, LIST_X, LIST_Y, LIST_W, LIST_H, 0, 0);
 	DrawUiFrame(gBG1TilemapBuffer, INFO_X, INFO_Y, INFO_W, INFO_H, 0, 0);
 

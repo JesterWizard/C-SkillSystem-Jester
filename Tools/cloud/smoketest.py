@@ -49,6 +49,8 @@ What it checks:
   bestiary    the prologue's first phase marks Eirika, Seth and O'Neill and their classes; a game save keeps them;
               after a reset Extras > Bestiary lists them as met (the others locked), A shows growths, R the classes,
               and B goes back to Extras.
+  skillcodex  the prologue's first phase marks the skills of the units on the map; a game save keeps them; after a
+              reset Extras > Skill Codex lists every skill, those met; R goes to the next met, B back to Extras.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -1373,11 +1375,11 @@ class Smoke:
         # struct GalleryScreen: count, cursor, top, view; sprites (+8); the first unlock byte (+0xC)
         state = ["r8 %#x" % (gs + k) for k in (0, 1, 2, 3, 8, 0xC)]
         lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(5)]
-        # the main menu: Extras is the last row; in Extras the Gallery is above the last row (the Bestiary): UP from
-        # the top goes around to the Bestiary, UP again to the Gallery
+        # the main menu: Extras is the last row; in Extras the Gallery is third from the end (then the Bestiary and
+        # the Skill Codex): UP from the top goes around to the Skill Codex, UP twice more to the Gallery
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
                                "dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS)]
-        lines += ["press UP", "wait 20", "press UP", "wait 20", "press A", "wait 150", "shot grid.png"] + state
+        lines += ["press UP", "wait 20"] * 3 + ["press A", "wait 150", "shot grid.png"] + state
         # the cursor on the first CG (Myrrh & Morva, locked): A; then Mountain Forest (one down): A, the full view
         lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
                                                     "r16 %#x" % lcd] + state
@@ -1424,8 +1426,8 @@ class Smoke:
     def test_bestiary(self):
         """The Bestiary (Documentation/Features/Bestiary.md). The prologue's first phase marks every unit on the map in
         gBestiarySeen: Eirika (1), Seth (2) and O'Neill (0x68); the Lord (2), Paladin (7) and Fighter (0x3F) classes.
-        The debugger's "Save & restart ch." writes them to the game save's tail. After a reset, Extras > Bestiary (the
-        last row, UP from the top) opens on Characters with those three met; Ephraim (the second row) is locked; A on
+        The debugger's "Save & restart ch." writes them to the game save's tail. After a reset, Extras > Bestiary (above
+        the last row, the Skill Codex) opens on Characters with those three met; Ephraim (the second row) is locked; A on
         Eirika shows her growths; R changes to Classes (Lord, Paladin, Fighter met); B goes back to Extras."""
         d = os.path.join(self.out, "bestiary")
         os.makedirs(d, exist_ok=True)
@@ -1437,8 +1439,9 @@ class Smoke:
         state = lambda name: "dump %#x 0xE0 %s" % (bs, name)
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
         lines = self.boot_lines() + ["dump %#x 0x44 seen.bin" % seen] + DEBUG_SAVE + SOFT_RESET
-        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
-                  "wait 150", "shot chars.png", state("chars.bin")]
+        # Extras: the Bestiary is above the last row (the Skill Codex)
+        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press UP",
+                  "wait 20", "press A", "wait 150", "shot chars.png", state("chars.bin")]
         lines += ["hold DOWN 4", "wait 20", "shot locked.png", state("locked.bin"), "hold UP 4", "wait 20", "press A",
                   "wait 20", "shot growths.png", state("growths.bin"), "press R", "wait 30", "shot classes.png",
                   state("classes.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
@@ -1475,6 +1478,56 @@ class Smoke:
                    "tab %d, met %d" % (k[0], k[5]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("bestiary: B goes back to the save menu", bool(after))
+
+    def test_skillcodex(self):
+        """The Skill Codex (Documentation/Features/SkillCodex.md). The prologue's first phase marks the skills of every
+        unit on the map in gSkillCodexSeen (Eirika's, Seth's, O'Neill's and the soldiers'). The debugger's "Save &
+        restart ch." writes them to the game save's tail. After a reset, Extras > Skill Codex (the last row) lists every
+        skill with a description, as many met as were marked; the cursor starts on the first; R goes to the first skill
+        met, then the next; DOWN moves a row; B goes back to the save menu."""
+        d = os.path.join(self.out, "skillcodex")
+        os.makedirs(d, exist_ok=True)
+        need = ("gSkillCodexSeen", "gBestiaryScreen", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("skillcodex: the Skill Codex symbols", False, "no symbols")
+        seen, cs, procs = self.sym["gSkillCodexSeen"], self.sym["gBestiaryScreen"], self.sym["sProcArray"]
+        # struct SkillCodexScreen (in gBestiaryScreen): cursor, top, count, met (u16 each)
+        state = lambda name: "dump %#x 8 %s" % (cs, name)
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        lines = self.boot_lines() + ["dump %#x 0x84 seen.bin" % seen] + DEBUG_SAVE + SOFT_RESET
+        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
+                  "wait 150", "shot codex.png", state("open.bin")]
+        lines += ["press R", "wait 30", "shot met.png", state("met.bin"), "press R", "wait 30", state("next.bin"),
+                  "hold DOWN 4", "wait 20", "shot down.png", state("down.bin"), "press B", "wait 150",
+                  "shot extras.png", dump("after.bin")]
+        self.run(ROM, lines, d)
+        for name, label in (("codex", "Skill Codex: the first rows"), ("met", "R: the first skill met"),
+                            ("down", "DOWN: a row on"), ("extras", "B: Extras")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        try:
+            ram = open(os.path.join(d, "seen.bin"), "rb").read()
+            st = {n: struct.unpack("<4H", open(os.path.join(d, n + ".bin"), "rb").read()[:8])
+                  for n in ("open", "met", "next", "down")}
+        except (OSError, struct.error) as e:
+            return self.check("skillcodex: the Skill Codex runs", False, str(e))
+        marked = [i for i in range(1, 0x3FF) if (ram[4 + (i >> 3)] >> (i & 7)) & 1]
+        self.check("skillcodex: the first phase marks the units' skills", ram[:4] == b"SCDX" and len(marked) > 0,
+                   "magic %r, %d skills: %s" % (ram[:4], len(marked), ["%#x" % m for m in marked[:12]]))
+        menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("skillcodex: Extras has the Skill Codex row", menu and menu[0] & (1 << 7),
+                   "Extras rows %s" % ["%#x" % m for m in menu])
+        cur, top, count, met = st["open"]
+        self.check("skillcodex: after a reset it lists the skills, the marked ones met, the cursor on the first",
+                   count > 100 and 0 < met <= len(marked) and cur == top, "cursor %#x, top %#x, %d of %d met" %
+                   (cur, top, met, count))
+        listed = [m for m in marked if m >= cur]
+        self.check("skillcodex: R goes to the first skill met, then the next", len(listed) >= 2 and
+                   st["met"][0] == listed[0] and st["next"][0] == listed[1],
+                   "R %#x, R %#x, marked %s" % (st["met"][0], st["next"][0], ["%#x" % m for m in listed[:3]]))
+        self.check("skillcodex: DOWN moves a row on", st["down"][0] > st["next"][0],
+                   "cursor %#x after %#x" % (st["down"][0], st["next"][0]))
+        after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("skillcodex: B goes back to the save menu", bool(after))
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -2266,7 +2319,7 @@ def main():
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
-                                ("bestiary", s.test_bestiary))):
+                                ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

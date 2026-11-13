@@ -9,6 +9,7 @@
 #include "uisupport.h"
 #include "gallery.h"
 #include "bestiary.h"
+#include "skill-codex.h"
 
 /*
  * The Gallery's unlocks and its Extras row (Documentation/Features/Gallery.md).
@@ -106,7 +107,7 @@ u8 Gallery_Event21(struct EventEngineProc *proc)
 	return Event21_TextBg(proc);
 }
 
-//! FE8U = 0x080AA158: the Extras rows with a screen of their own; the Gallery's and the Bestiary's are new
+//! FE8U = 0x080AA158: the Extras rows with a screen of their own; the Gallery's, the Bestiary's and the Skill Codex's are new
 LYN_REPLACE_CHECK(SaveMenuStartExtraMiscScreen);
 void SaveMenuStartExtraMiscScreen(struct SaveMenuProc *proc)
 {
@@ -122,6 +123,10 @@ void SaveMenuStartExtraMiscScreen(struct SaveMenuProc *proc)
 	switch (proc->extra_sel_bitfile) {
 	case EXTRA_MENU_OPTION_BESTIARY:
 		StartBestiaryScreen(proc);
+		return;
+
+	case EXTRA_MENU_OPTION_SKILL_CODEX:
+		StartSkillCodexScreen(proc);
 		return;
 
 	case EXTRA_MENU_OPTION_BONUS_CLAIM:
@@ -158,6 +163,7 @@ void SaveMenuPostExtraMiscScreen(struct SaveMenuProc *proc)
 	case EXTRA_MENU_OPTION_SOUND_ROOM:
 	case EXTRA_MENU_OPTION_GALLERY:
 	case EXTRA_MENU_OPTION_BESTIARY:
+	case EXTRA_MENU_OPTION_SKILL_CODEX:
 		Proc_Goto(proc, PL_SAVEMENU_10);
 		return;
 	}
