@@ -7,10 +7,10 @@ static const EventScr EventScr_Ch06_Opening[] = {
     SET_BACKGROUND(0x1A)
     TEXT(Chapter_06_Pre_Scene_01_Convo_01)
     MUSC(SONG_NONE)
-    FADE_FROM_BLACK(16)
+    FADE_TO_BLACK(16)
     CLEAN
     MAKE_CAMERA_FOLLOW_MOVING_UNITS
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     LOAD_WAIT(CH6_EIRIKA_SETH)
     STOP_CAMERA_FOLLOW_MOVING_UNITS
     MOVE_CAMERA_TO_POSITION(7, 7)
@@ -25,9 +25,9 @@ static const EventScr EventScr_Ch06_Opening[] = {
     TEXT_CHANGE_BGM(Chapter_06_Pre_Scene_02_Convo_01, SONG_RAID)
     SET_BACKGROUND(0x1A)
     TEXT(Chapter_06_Pre_Scene_02_Convo_02)
-    FADE_FROM_BLACK(16)
-    CLEAN
     FADE_TO_BLACK(16)
+    CLEAN
+    FADE_FROM_BLACK(16)
     MOVE(0, 0xFB, 20, 5)
     WARP_CHARACTER_OUT(CHARACTER_NOVALA)
     WARP_CHARACTER_OUT(0xF9)
@@ -67,32 +67,32 @@ const EventScr EventScr_Ch06_Ending[] = {
     CALL(EventScr_RemoveBGIfNeeded)
     SVAL(EVT_SLOT_3, ITEM_BOOSTER_POW)
     GIVEITEMTO(CHARACTER_EIRIKA)
-    FADE_FROM_BLACK(3)
+    FADE_TO_BLACK(3)
 
 LABEL(0x0)
     REMA
     SET_BACKGROUND(0x20)
     MUSC(SONG_SORROW)
-    FADE_TO_BLACK(3)
-    TEXT_NO_REMA(Chapter_06_Post_Scene_02_Convo_01)
     FADE_FROM_BLACK(3)
+    TEXT_NO_REMA(Chapter_06_Post_Scene_02_Convo_01)
+    FADE_TO_BLACK(3)
     REMA
-    FADE_TO_BLACK(4)
+    FADE_FROM_BLACK(4)
     TEXT_NO_REMA(Chapter_06_Post_Scene_03_Convo_01)
-    FADE_FROM_BLACK(4)
-    REMA
     FADE_TO_BLACK(4)
+    REMA
+    FADE_FROM_BLACK(4)
     TEXT_NO_REMA(Chapter_06_Post_Scene_04_Convo_01)
-    FADE_FROM_BLACK(4)
-    REMA
     FADE_TO_BLACK(4)
+    REMA
+    FADE_FROM_BLACK(4)
     TEXT_NO_REMA(Chapter_06_Post_Scene_05_Convo_01)
     MUSC(SONG_NONE)
-    FADE_FROM_BLACK(4)
-    REMA
     FADE_TO_BLACK(4)
+    REMA
+    FADE_FROM_BLACK(4)
     TEXT_NO_REMA(Chapter_06_Post_Scene_06_Convo_01)
-    FADE_FROM_BLACK(2)
+    FADE_TO_BLACK(2)
     REMA
     STAL(60)
     TEXTCONT
