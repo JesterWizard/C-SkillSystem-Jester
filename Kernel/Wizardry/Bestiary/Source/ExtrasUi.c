@@ -72,8 +72,9 @@ void ExtrasUi_LoadBanner(void)
 /*
  * A text wrapped to px pixels in n lines, each a Text, put two tile rows apart from tm: line breaks (and other control
  * bytes) become spaces, and words go on a line while it fits. The rest is left out. NULL clears the lines.
+ * margin pixels are left free on each side: the text starts margin pixels in and wraps margin pixels before px.
  */
-void ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, const char *src, u16 *tm)
+void ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, int margin, const char *src, u16 *tm)
 {
 	char text[0x200], line[0x60];
 	int i, row = 0, len = 0, word;
@@ -107,10 +108,10 @@ void ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, const char *src, u1
 			memcpy(line + len + (len != 0), src, word);
 			line[len + (len != 0) + word] = '\0';
 
-			if (len != 0 && GetStringTextLen(line) > px) {
+			if (len != 0 && GetStringTextLen(line) > px - 2 * margin) {
 				/* No: the line goes out as it was, the word starts the next */
 				line[len] = '\0';
-				Text_InsertDrawString(&lines[row++], 0, TEXT_COLOR_SYSTEM_WHITE, line);
+				Text_InsertDrawString(&lines[row++], margin, TEXT_COLOR_SYSTEM_WHITE, line);
 				len = 0;
 				continue;
 			}
@@ -120,7 +121,7 @@ void ExtrasUi_DrawWrapped(struct Text *lines, int n, int px, const char *src, u1
 		}
 
 		if (len != 0 && row < n)
-			Text_InsertDrawString(&lines[row], 0, TEXT_COLOR_SYSTEM_WHITE, line);
+			Text_InsertDrawString(&lines[row], margin, TEXT_COLOR_SYSTEM_WHITE, line);
 	}
 
 	for (i = 0; i < n; i++)

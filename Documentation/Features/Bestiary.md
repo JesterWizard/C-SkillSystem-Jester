@@ -87,10 +87,12 @@ see (the player's own units always). A row is met when any character (or class) 
   `NewGamePlus/Source/NgpSaveMenu.c`) opens it as the Sound Room is opened; `SaveMenuStartExtraMiscScreen` and
   `SaveMenuPostExtraMiscScreen` (`Gallery/Source/Gallery.c`) start it and come back to the Extras list. The trial
   map's cases in the save picker (`sub_80A9E1C`) and its header label (`sub_80ABF74`) are gone.
-- **The row's label.** "Bestiary" is put together from the letters of vanilla's own labels (the "B" of Battle History,
-  "est" and "ar" of Restart, the "i" of Link Arena, the "y" of History), in the Extras label sheet
-  (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`). The sheet has no free 112-pixel slot, so the label is in two pieces: tiles
-  0-3 and 10-11 of the Gallery's sheet row, round the Gallery's letters (tiles 4-9). The Extras list reads its label
+- **The row's label.** "Bestiary" is drawn in vanilla's label font from vanilla's own letters (the "B", "a", "t" and
+  "e" of Battle History, the "s" and "y" of Easy, the "r" of Restart; the dotted "i" drawn in the same strokes) by
+  `Tools/extras-labels/labels.py`, which re-renders each letter's core with the font's shading, drop shadow and
+  outline. It is in the Extras label sheet (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`); the sheet has no free 112-pixel
+  slot, so the label is in two pieces: tiles 0-3 and 10-11 of the Gallery's sheet row, round the Gallery's letters
+  (tiles 4-9). Like every Extras label, it is centred 64 pixels from its sprite's origin. The Extras list reads its label
   sprites from `gExtrasLabelSprites` (`NgpSaveMenu.c`; the installer points vanilla's `sub_80AAC40` at it): vanilla's
   sprites for the rows still where vanilla drew them, New Game+'s, the Gallery's and Link Arena's cut to their
   letters, the Bestiary's and the Skill Codex's.

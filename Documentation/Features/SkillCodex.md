@@ -26,8 +26,8 @@
 - **The list** on the left, in a window: "Skills", five names (a skill not met yet shows as "???", in grey), and how
   many are met (10/928). Up and down move the hand; left and right move five rows; **L and R go to the previous or
   next skill met**, so the met ones are quick to find among the hundreds.
-- **The info** on the right, in a window: the skill's icon and name, and its description, wrapped to the window, up to
-  six lines. The name at the start of a description ("Axe Prowess Lv1: ...") is left out, as the line above says it.
+- **The info** on the right, in a window: the skill's icon and name, and its description, wrapped to the window with
+  8 pixels free on each side (the icon is in line with it), up to six lines. The name at the start of a description ("Axe Prowess Lv1: ...") is left out, as the line above says it.
 - B goes back to Extras.
 
 ---
@@ -63,10 +63,12 @@ title's screen shows what the three game saves and the suspend save hold togethe
   (the list walks all 8 bits). `InitSaveMenuChoice` (`ExtrasMenu/Source/SupportMenu.c`) always adds it; the Extras list
   (`sub_80A9B90`), `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` have a case for it. With Link Arena
   removed (`RemoveLinkArena.event`) the list has at most 7 rows, which vanilla's layout fits.
-- **The row's label.** "Skill Codex" is put together from the letters of vanilla's own labels (the "S" of Sound Room,
-  the "k" and "i" of Link Arena, the "ll" of Gallery, the "Co" of Copy Data, the "de" of Select Mode, the "x" of
-  Extras), in the Extras label sheet (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`), in three pieces in the free tiles of
-  Link Arena's sheet row (tiles 14-17, 28-31 and 26-27). Link Arena's sprite in `gExtrasLabelSprites` is cut to its
+- **The row's label.** "Skill Codex" is drawn in vanilla's label font from vanilla's own letters (the "S" of Sound
+  Room, the "k" of Link Arena, the "l" of Gallery, the "Co" of Copy Data, the "d" of Select Mode, the "e" of Battle
+  History; the dotted "i" and the "x" drawn in the same strokes) by `Tools/extras-labels/labels.py` (see the
+  [Bestiary](./Bestiary.md#how-it-works)), in the Extras label sheet (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`), in
+  three pieces in the free tiles of Link Arena's sheet row (tiles 14-17, 28-31 and 26-27), centred 64 pixels from
+  its sprite's origin. Link Arena's sprite in `gExtrasLabelSprites` is cut to its
   letters (tiles 18-25) to leave them free.
 - **The list** is not kept as a table: the cursor and the top row are skill ids, and moving walks the ids
   (`SkillCodex_Step`). The screen's state lives in the Bestiary screen's RAM (`gBestiaryScreen`): the Extras screens

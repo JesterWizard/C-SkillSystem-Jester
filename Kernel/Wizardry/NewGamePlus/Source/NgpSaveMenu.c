@@ -281,17 +281,21 @@ const u16 Sprite_NgpExtrasLabel[] = {
  * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's and Link
  * Arena's are cut to their letters, so that the free tiles round them can hold the Bestiary's label (the Gallery's
  * sheet row, tiles 0-3 and 10-11) and the Skill Codex's (Link Arena's row, tiles 14-17, 28-31 and 26-27).
+ *
+ * Every label is centred on x 64 from the sprite's origin, as vanilla's are: the left column of the sheet is drawn
+ * from x 8 (its words sit 8 pixels left in their 112-pixel slot), the right column from x 0. The Bestiary's and the
+ * Skill Codex's words are centred in their pieces, which start at 64 less half their width.
  */
 static const u16 Sprite_GalleryExtrasLabel[] = {
 	2,
-	0x4000, 0x8000 + 32, 0x0A44,
-	0x0000, 0x4000 + 64, 0x0A48,
+	0x4000, 0x8000 + 40, 0x0A44,
+	0x0000, 0x4000 + 72, 0x0A48,
 };
 
 static const u16 Sprite_BestiaryExtrasLabel[] = {
 	2,
-	0x4000, 0x8000 + 32, 0x0A40,
-	0x0000, 0x4000 + 64, 0x0A4A,
+	0x4000, 0x8000 + 40, 0x0A40,
+	0x0000, 0x4000 + 72, 0x0A4A,
 };
 
 static const u16 Sprite_LinkArenaExtrasLabel[] = {
@@ -302,9 +306,9 @@ static const u16 Sprite_LinkArenaExtrasLabel[] = {
 
 static const u16 Sprite_SkillCodexExtrasLabel[] = {
 	3,
-	0x4000, 0x8000 + 16, 0x0A8E,
-	0x4000, 0x8000 + 48, 0x0A9C,
-	0x0000, 0x4000 + 80, 0x0A9A,
+	0x4000, 0x8000 + 24, 0x0A8E,
+	0x4000, 0x8000 + 56, 0x0A9C,
+	0x0000, 0x4000 + 88, 0x0A9A,
 };
 
 const u16 *const gExtrasLabelSprites[8] = {

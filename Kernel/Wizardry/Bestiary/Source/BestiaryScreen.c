@@ -285,7 +285,7 @@ static void Bestiary_ClearStats(void)
 
 static void Bestiary_DrawDesc(int msg)
 {
-	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, msg != 0 ? GetStringFromIndex(msg) : NULL,
+	ExtrasUi_DrawWrapped(BS->desc, DESC_LINES, DESC_PX, 0, msg != 0 ? GetStringFromIndex(msg) : NULL,
 			     gBG0TilemapBuffer + TILEMAP_INDEX(STATS_X, DESC_Y));
 }
 

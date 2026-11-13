@@ -38,13 +38,14 @@
 #define INFO_Y         4
 #define INFO_W         18
 #define INFO_H         16
-#define ICON_X         (INFO_X + 1)
+#define ICON_X         (INFO_X + 2) /* a tile in: in line with the description */
 #define ICON_Y         (INFO_Y + 1)
-#define SUB_X          (INFO_X + 4)
+#define SUB_X          (INFO_X + 5)
 #define DESC_X         (INFO_X + 1)
 #define DESC_Y         (INFO_Y + 3)
 #define DESC_LINES     6
 #define INFO_IN_W      16 /* tiles inside the window */
+#define DESC_MARGIN    8 /* pixels free left and right of the description */
 
 #define PAL_ICONS      4 /* and 5: the skill icons' banks */
 #define PAL_MURAL      14 /* and 15 */
@@ -202,14 +203,14 @@ static void SkillCodex_DrawInfo(void)
 	if (CS->count == 0 || !SkillCodex_Met(sid)) {
 		ExtrasUi_PutLeft(&CS->name, TEXT_COLOR_SYSTEM_GRAY, GetStringFromIndex(MSG_CODEX_NOT_MET),
 				 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, ICON_Y));
-		ExtrasUi_DrawWrapped(CS->desc, DESC_LINES, INFO_IN_W * 8, NULL,
+		ExtrasUi_DrawWrapped(CS->desc, DESC_LINES, INFO_IN_W * 8, DESC_MARGIN, NULL,
 				     gBG0TilemapBuffer + TILEMAP_INDEX(DESC_X, DESC_Y));
 	} else {
 		DrawIcon(gBG2TilemapBuffer + TILEMAP_INDEX(ICON_X, ICON_Y), SKILL_ICON(sid),
 			 TILEREF(0, PAL_ICONS + GetSkillIconPal(sid)));
 		ExtrasUi_PutLeft(&CS->name, TEXT_COLOR_SYSTEM_GOLD, GetSkillNameStr(sid),
 				 gBG0TilemapBuffer + TILEMAP_INDEX(SUB_X, ICON_Y));
-		ExtrasUi_DrawWrapped(CS->desc, DESC_LINES, INFO_IN_W * 8, SkillCodex_DescText(sid),
+		ExtrasUi_DrawWrapped(CS->desc, DESC_LINES, INFO_IN_W * 8, DESC_MARGIN, SkillCodex_DescText(sid),
 				     gBG0TilemapBuffer + TILEMAP_INDEX(DESC_X, DESC_Y));
 	}
 
@@ -261,7 +262,7 @@ static void SkillCodex_Setup(struct ProcSkillCodex *proc)
 	InitText(&CS->countText, LIST_W - 2);
 	for (i = 0; i < VISIBLE_ROWS; i++)
 		InitText(&CS->names[i], LIST_W - 4);
-	InitText(&CS->name, INFO_IN_W - 3);
+	InitText(&CS->name, INFO_IN_W - 4);
 	for (i = 0; i < DESC_LINES; i++)
 		InitText(&CS->desc[i], INFO_IN_W);
 
