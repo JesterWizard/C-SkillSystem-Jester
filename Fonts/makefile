@@ -18,6 +18,8 @@ GLYPH_INSTALLER := $(mkfile_dir)GlyphInstaller.event
 
 GLYPH_DEPS := $(mkfile_dir)FontList.txt
 GLYPH_DEPS += $(mkfile_dir)../include/configs/configs.h
+# The glyphs themselves: a changed PNG or width list (a font's extract script) rebuilds the installer and its img.bin
+GLYPH_DEPS += $(wildcard $(mkfile_dir)Glyph/*/*.png $(mkfile_dir)Glyph/*/*.txt)
 
 $(GLYPH_INSTALLER): $(GLYPH_DEPS)
 	@echo "[GEN]	$@"
