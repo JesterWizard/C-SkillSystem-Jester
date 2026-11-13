@@ -46,7 +46,8 @@ make -C Fonts
 make -j8
 ```
 
-If the font has an extract script, run that first so `font.fontall.txt` and the PNGs match.
+If the font has an extract script, run that first so `font.fontall.txt` and the PNGs match. A changed glyph PNG or
+`font.fontall.txt` also rebuilds the font on the next `make`.
 
 ---
 

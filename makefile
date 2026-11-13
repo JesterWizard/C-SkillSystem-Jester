@@ -383,6 +383,7 @@ FONT_DIR := Fonts
 GLYPH_INSTALLER := $(FONT_DIR)/GlyphInstaller.event
 GLYPH_DEPS := $(FONT_DIR)/FontList.txt
 GLYPH_DEPS += include/configs/configs.h
+GLYPH_DEPS += $(wildcard $(FONT_DIR)/Glyph/*/*.png $(FONT_DIR)/Glyph/*/*.txt)
 
 font: $(GLYPH_INSTALLER)
 
