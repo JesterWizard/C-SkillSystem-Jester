@@ -185,6 +185,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
     Decompress(gGfx_HelpTextBox3, vram + 0xb60);
     Decompress(gGfx_HelpTextBox4, vram + 0xf60);
     Decompress(gGfx_HelpTextBox5, vram + 0x1360);
+    HelpBoxLoadPageDigits(vram);
 
     InitSpriteTextFont(&gHelpBoxSt.font, vram, palId);
 
@@ -238,7 +239,7 @@ void LoadHelpBoxGfx(void * vram, int palId)
     }
     else if (HelpBoxModePaged())
     {
-        /* Page indicator uses status-screen digit OBJ tiles (0x289) + gold OBJ pal 10. */
+        /* The page numbers: tiles in the box's own block (HelpBoxLoadPageDigits, above) + gold OBJ pal 10. */
     }
 
     SetTextFont(0);
@@ -373,6 +374,7 @@ void sub_80898C4(void* vram, int palId) {
     Decompress(gGfx_HelpTextBox3, vram + 0xb60);
     Decompress(gGfx_HelpTextBox4, vram + 0xf60);
     Decompress(gGfx_HelpTextBox5, vram + 0x1360);
+    HelpBoxLoadPageDigits(vram);
 
     InitSpriteTextFont(&gHelpBoxSt.font, vram, palId);
 

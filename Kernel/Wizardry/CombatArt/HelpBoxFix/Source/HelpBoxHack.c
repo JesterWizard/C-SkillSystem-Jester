@@ -10,7 +10,7 @@
 #include "scene.h"
 #include "statscreen.h"
 
-extern u8 gUnknown_08A02274[]; /* Img_StatscreenObjs: slash 0x288, digits 0x289+ */
+extern u8 gUnknown_08A02274[]; /* Img_StatscreenObjs: "/" at its tile 0x49, "1"-"5" after it */
 
 void HelpBoxResetPageState(void)
 {
@@ -180,56 +180,70 @@ void HelpBoxDrawPageIndicator(void)
 		return;
 	}
 
-	/* Install gold remapping for the shared 0x289 digit sheet (does not touch pal 4). */
+	/* Gold for the page numbers' tiles (HelpBoxLoadPageDigits; does not touch pal 4). */
 	ApplyPalette(sHelpBoxPageNumPal, HELP_BOX_PAGE_NUM_OBJPAL + 0x10);
 	sHelpBoxPageState.indicator_px = 22;
 }
 
-/* Tile offset from 0x289 for digit n (1-9); 7-9 sit 0x20 tiles further on, like PageNumCtrl_UpdatePageNum. */
-static int HelpBoxPageDigitOffset(int n)
-{
-	if (n <= 6)
-		return n - 1;
+/*
+ * The page numbers' tiles live in the help box's own block, which every screen gives it (LoadHelpBoxGfx): its three
+ * text lines are two 32-tile rows each, of which text and clears use columns 0-26 only, and the frame pieces fill
+ * columns 27-31 of rows 0-4 but the last column of row 4. That leaves six tiles no help box ever touches: "/" goes in
+ * row 4's last column, "1"-"5" in columns 27-31 of row 5. They come from the status screen's sheet
+ * (Img_StatscreenObjs: "/" at its tile 0x49, "1"-"5" after it), which has no other digits: past five pages, no number.
+ *
+ * The status screen is the exception: its help box block (0x06012000) has the skill capacity circle in those tiles
+ * (0x06013760), and it loads that sheet itself (at OBJ tile 0x240), so there the numbers use the sheet's own tiles.
+ */
+#define HB_PAGE_SLASH_TILE 159
+#define HB_PAGE_DIGIT_TILE 186 /* + n for the digit n (1-5) */
+#define HB_PAGE_MAX        5
+#define HB_STAT_SLASH_TILE 0x288 /* the status screen's own copy of the sheet: "/" at OBJ tile 0x288 */
+#define HB_STAT_DIGIT_TILE 0x288 /* + n for the digit n (1-5) */
 
-	return n + 0x18;
+static bool HelpBoxOnStatScreen(void)
+{
+	return Proc_Find(gProcScr_StatScreen) != NULL;
+}
+
+void HelpBoxLoadPageDigits(void *vram)
+{
+	if (!HelpBoxModePaged() || HelpBoxOnStatScreen())
+		return;
+
+	Decompress(gUnknown_08A02274, gGenericBuffer);
+	CpuFastCopy(gGenericBuffer + 0x49 * TILE_SIZE_4BPP, vram + HB_PAGE_SLASH_TILE * TILE_SIZE_4BPP, TILE_SIZE_4BPP);
+	CpuFastCopy(gGenericBuffer + 0x4A * TILE_SIZE_4BPP, vram + (HB_PAGE_DIGIT_TILE + 1) * TILE_SIZE_4BPP,
+		    HB_PAGE_MAX * TILE_SIZE_4BPP);
 }
 
 void HelpBoxPutPageIndicatorSprites(int boxX, int boxY, int boxW)
 {
-	int x;
-	int oam2;
-	int cur;
-	int tot;
+	int x, base, oam2, slash, digits;
 
-	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1)
+	if (!HelpBoxModePaged() || sHelpBoxPageState.page_count <= 1 ||
+	    sHelpBoxPageState.page_count > HB_PAGE_MAX)
 		return;
-
-	cur = sHelpBoxPageState.page; /* 0-based; tile 0x289 + page => "1" on page 0 */
-	tot = sHelpBoxPageState.page_count;
 
 	/* Right side, same Y as the "Help" badge. */
 	x = boxX + boxW - 24;
 	if (x < boxX + 48)
 		x = boxX + 48;
 
-	oam2 = TILEREF(0x289, HELP_BOX_PAGE_NUM_OBJPAL);
+	oam2 = TILEREF(0, HELP_BOX_PAGE_NUM_OBJPAL);
 
-	/* Status-screen sheet: 0x288 = "/", 0x289 = "1", 0x28A = "2", ... */
-	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + HelpBoxPageDigitOffset(cur + 1));
-	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2 - 1);
-	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + HelpBoxPageDigitOffset(tot));
-}
+	if (HelpBoxOnStatScreen()) {
+		slash = HB_STAT_SLASH_TILE;
+		digits = HB_STAT_DIGIT_TILE;
+	} else {
+		base = gHelpBoxSt.oam2_base & 0x3FF;
+		slash = base + HB_PAGE_SLASH_TILE;
+		digits = base + HB_PAGE_DIGIT_TILE;
+	}
 
-void HelpBoxEnsurePageNumGfx(void)
-{
-	if (!HelpBoxModePaged())
-		return;
-
-	/*
-	 * Status-screen object sheet (gUnknown_08A02274 / Img_StatscreenObjs):
-	 * slash at 0x288, digits from 0x289 ("1"). StartItemHelpBox never loads this.
-	 */
-	Decompress(gUnknown_08A02274, (void *)(OBJ_VRAM0 + 0x240 * TILE_SIZE_4BPP));
+	PutSprite(0, x, boxY - 0xB, gObject_8x8, oam2 + digits + sHelpBoxPageState.page + 1);
+	PutSprite(0, x + 7, boxY - 0xB, gObject_8x8, oam2 + slash);
+	PutSprite(0, x + 14, boxY - 0xB, gObject_8x8, oam2 + digits + sHelpBoxPageState.page_count);
 }
 
 bool HelpBoxTryAdvancePage(void)
@@ -260,6 +274,62 @@ bool HelpBoxTryAdvancePage(void)
 	ClearHelpBoxText();
 	StartHelpBoxTextInit(item, mid);
 	return true;
+}
+
+/*
+ * A help box opened with R from a menu (the map's item and unit menus, prep menus) runs in the menu's own loops, not
+ * HbMoveCtrl: they are vanilla's, with A turning the page. FE8U = 0x0804F4A0 and 0x0804F530.
+ */
+extern const struct ProcCmd sProc_MenuMain[];
+void Menu_AutoHelpBox_OnLoop(struct MenuProc *proc);
+void Menu_FrozenHelpBox_OnLoop(struct MenuProc *proc);
+
+LYN_REPLACE_CHECK(Menu_AutoHelpBox_OnLoop);
+void Menu_AutoHelpBox_OnLoop(struct MenuProc *proc)
+{
+	int x, y;
+
+	ProcessMenuDpadInput(proc);
+
+	GetMenuCursorPosition(proc, &x, &y);
+	ApplyMenuCursorVScroll(proc, &x, &y);
+
+	DisplayUiHand(x, y);
+
+	if (gKeyStatusPtr->newKeys & (B_BUTTON | R_BUTTON)) {
+		HelpBoxResetPageState();
+		CloseHelpBox();
+		Proc_GotoScript(proc, sProc_MenuMain);
+		return;
+	}
+
+	if (HasMenuChangedItem(proc)) {
+		HelpBoxResetPageState();
+		proc->def->onHelpBox(proc, proc->menuItems[proc->itemCurrent]);
+		return;
+	}
+
+	HelpBoxTryAdvancePage();
+}
+
+LYN_REPLACE_CHECK(Menu_FrozenHelpBox_OnLoop);
+void Menu_FrozenHelpBox_OnLoop(struct MenuProc *proc)
+{
+	int x, y;
+
+	GetMenuCursorPosition(proc, &x, &y);
+	ApplyMenuCursorVScroll(proc, &x, &y);
+
+	DisplayFrozenUiHand(x, y);
+
+	if (gKeyStatusPtr->newKeys & (B_BUTTON | R_BUTTON)) {
+		HelpBoxResetPageState();
+		CloseHelpBox();
+		Proc_GotoScript(proc, sProc_MenuMain);
+		return;
+	}
+
+	HelpBoxTryAdvancePage();
 }
 
 LYN_REPLACE_CHECK(HbMoveCtrl_OnIdle);

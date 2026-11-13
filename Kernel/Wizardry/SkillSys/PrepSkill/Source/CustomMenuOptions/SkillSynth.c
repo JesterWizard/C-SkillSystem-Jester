@@ -688,7 +688,6 @@ static void SkillSynth_InitGfx(struct SkillSynthListProc *proc)
     ClearSprites();
 
     LoadHelpBoxGfx((void *)0x06012000, -1);
-    HelpBoxEnsurePageNumGfx();
     LoadIconPalettes(4);
     RestartMuralBackground();
     gPaletteBuffer[PAL_BACKDROP_OFFSET] = 0;
