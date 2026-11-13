@@ -115,3 +115,12 @@ ALIGN 4
 WORD $46C04778 $E59FC000 $E12FFF1C
 POIN sub_8006134
 POP
+
+// The page scrolls' PROC_REPEATs (gProcScr_TalkShiftClearAll, gProcScr_TalkShiftClear): a line takes the font's line
+// height in frames (TextEngine_ScrollStep)
+PUSH
+ORG $591484
+POIN TalkShiftClearAll_OnIdle_C
+ORG $5914DC
+POIN TalkShiftClear_OnIdle_C
+POP

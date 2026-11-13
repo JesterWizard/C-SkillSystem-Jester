@@ -2663,7 +2663,8 @@ static void TextEngineLineSpacing_Build(void)
 		sp->bg1Below = saved;
 	}
 
-	inner = Div(s0 * TEXT_ENGINE_LINE_HEIGHT, 16);
+	/* Rounded up: a scroll's BG0 positions are its frame counts scaled down (TextEngine_ScrollStep) */
+	inner = Div(s0 * TEXT_ENGINE_LINE_HEIGHT + 15, 16);
 	line = Div(inner, TEXT_ENGINE_LINE_HEIGHT);
 	inner -= line * TEXT_ENGINE_LINE_HEIGHT;
 
@@ -4390,6 +4391,7 @@ void TalkShiftClearAll_OnInit_C(struct Proc *proc)
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(state);
 	proc->unk64 = 0;
+	proc->unk68 = 0;
 
 	if (!state->lineActive) {
 		proc->unk66 = 16;
@@ -4411,6 +4413,34 @@ void TalkShiftClear_OnInit_C(struct Proc *proc)
 	TextEngine_ClearSpeakerNameplate();
 	TextEngine_ClearTalkTilemap(sTextEngineState);
 	proc->unk64 = 0;
+	proc->unk68 = 0;
+}
+
+/*
+ * The page scrolls' steps (their PROC_REPEATs point here, LynJump.event). Vanilla moves BG0 a pixel a frame, 16 frames
+ * a line. With closer lines (TEXT_ENGINE_LINE_HEIGHT) a line is TEXT_ENGINE_LINE_HEIGHT frames: unk68 counts the
+ * frames, and unk64 is set so that vanilla's step, which adds 1 and puts BG0 there, lands on the frame's position (16
+ * a line, the scale the line spacing's tables read back) and ends on the same frame count.
+ */
+static void TextEngine_ScrollStep(struct Proc *proc)
+{
+	if (!TEXT_ENGINE_LINE_SPACED || !Proc_Find(gProcScr_TextEngineLineSpacing))
+		return;
+
+	proc->unk68++;
+	proc->unk64 = Div(proc->unk68 * 16, TEXT_ENGINE_LINE_HEIGHT) - 1;
+}
+
+void TalkShiftClearAll_OnIdle_C(struct Proc *proc)
+{
+	TextEngine_ScrollStep(proc);
+	((void (*)(struct Proc *))0x08007DA5)(proc); /* TalkShiftClearAll_OnIdle */
+}
+
+void TalkShiftClear_OnIdle_C(struct Proc *proc)
+{
+	TextEngine_ScrollStep(proc);
+	((void (*)(struct Proc *))0x08007FDD)(proc); /* TalkShiftClear_OnIdle */
 }
 
 LYN_REPLACE_CHECK(GetTalkFaceHPos);
