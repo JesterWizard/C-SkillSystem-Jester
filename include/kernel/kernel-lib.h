@@ -201,6 +201,7 @@ struct KernelDesigerConfig {
 	u8 dim_listener_portraits; /* in dialogue, portraits of characters who aren't speaking are dimmed */
 	u8 popup_item_icon_shine; /* a glint sweeps across item icons in popups (item got, infused...) */
 	u8 exceed_portrait_box; /* faces with FaceData byte 0x1A == 1 draw two extra 16x16 pieces outside the portrait box */
+	u8 chapter_awards; /* after a cleared story chapter, an awards screen (MVP, most foes, unscathed) pays guild tokens */
 };
 
 struct KernelBattleDesignerConfig {

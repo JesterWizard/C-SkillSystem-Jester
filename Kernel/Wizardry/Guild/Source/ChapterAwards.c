@@ -4,6 +4,7 @@
 #include "chapter-awards.h"
 #include "district.h"
 #include "constants/texts.h"
+#include "extras-ui.h"
 
 #ifdef CONFIG_DISTRICT_GUILD
 
@@ -11,10 +12,11 @@
  * Chapter awards (include/kernel/chapter-awards.h): the counts kept through a story chapter, and the screen shown when
  * it is cleared, before the save menu (GameControl_CallPostChapterSaveMenu, replaced here).
  *
- * The screen: a title, then a window with the three awards, each a chibi portrait and two lines (the award, the unit
- * and its tokens, then what won it), shown one at a time; then the tokens in all and "A Continue". A (or START)
- * shows them all at once, then leaves. Layers: BG1 the window frame, BG0 the text and the portraits. Avoid `%` and
- * unsigned `/` (CLAUDE.md).
+ * The screen: the title on the Bestiary's banner (the Sound Room's song banner), then a window with the three awards,
+ * each a chibi portrait and two lines (the award, the unit and its tokens, then what won it), shown one at a time; then
+ * the tokens in all and "A Continue". A (or START) shows them all at once, then leaves. Layers: BG0 the text and the
+ * portraits, BG2 the banner, BG1 the window frame, BG3 the scrolling mural. Shown only with chapter_awards on
+ * (Data/DesignerConfig/designer-config.c). Avoid `%` and unsigned `/` (CLAUDE.md).
  */
 
 #define CA (&gChapterAwardsScreen)
@@ -23,13 +25,14 @@
 enum { TEXT_TITLE = CHAPTER_AWARD_COUNT * 2, TEXT_HINT };
 
 #define ROW_TITLE 1
-#define ROW_FRAME 3
-#define ROW_AWARD0 4
+#define ROW_FRAME 4
+#define ROW_AWARD0 5
 #define ROW_AWARD_STEP 4
 #define ROW_HINT 18
 
 #define CHIBI_CHR 0x280      /* 16 tiles per portrait, under the BG0 tilemap at 0x6000 */
 #define CHIBI_PAL 4
+#define PAL_MURAL 14 /* and 15 */
 #define REVEAL_FRAMES 40
 
 #define SE_REVEAL SONG_SE_MONEY
@@ -225,9 +228,8 @@ static void CA_DrawTitle(void)
 {
 	struct Text *t = &CA->texts[TEXT_TITLE];
 
-	ClearText(t);
-	Text_InsertDrawString(t, 0, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_AWARDS_TITLE));
-	PutText(t, CA_Tile(9, ROW_TITLE));
+	/* 20 tiles from tile 5: centred on the banner (and the screen), as the Bestiary's title */
+	ExtrasUi_PutCentred(t, 160, TEXT_COLOR_SYSTEM_WHITE, GetStringFromIndex(MSG_AWARDS_TITLE), CA_Tile(5, ROW_TITLE));
 }
 
 static void CA_DrawAward(int kind)
@@ -322,9 +324,11 @@ static void CA_Init(ProcPtr proc)
 	BG_Fill(BG_GetMapBuffer(2), 0);
 	BG_Fill(BG_GetMapBuffer(3), 0);
 	gLCDControlBuffer.bg0cnt.priority = 0;
-	gLCDControlBuffer.bg1cnt.priority = 1;
-	BG_SetPosition(0, 0, 0);
-	BG_SetPosition(1, 0, 0);
+	gLCDControlBuffer.bg1cnt.priority = 2;
+	gLCDControlBuffer.bg2cnt.priority = 1;
+	gLCDControlBuffer.bg3cnt.priority = 3;
+	for (k = 0; k < 4; k++)
+		BG_SetPosition(k, 0, 0);
 
 	ResetText();
 	SetTextFont(0);
@@ -334,7 +338,7 @@ static void CA_Init(ProcPtr proc)
 	CpuFill16(0, CA, sizeof(*CA));
 	for (k = 0; k < CHAPTER_AWARD_COUNT * 2; k++)
 		InitText(&CA->texts[k], 22);
-	InitText(&CA->texts[TEXT_TITLE], 12);
+	InitText(&CA->texts[TEXT_TITLE], 20);
 	InitText(&CA->texts[TEXT_HINT], 28);
 
 	/* The awards are paid now, so leaving the screen early cannot lose them */
@@ -348,14 +352,14 @@ static void CA_Init(ProcPtr proc)
 	}
 	gChapterAwards.magic = 0;
 
+	ExtrasUi_LoadBanner();
 	DrawUiFrame2(0, ROW_FRAME, 30, 14, 0);
-	gPaletteBuffer[PAL_BACKDROP_OFFSET] = RGB(2, 3, 7);
-	EnablePaletteSync();
+	StartMuralBackground(proc, NULL, PAL_MURAL);
 	CA_DrawTitle();
 	CA->timer = REVEAL_FRAMES;
 
-	SetDispEnable(1, 1, 0, 0, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	SetDispEnable(1, 1, 1, 1, 0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
 }
 
 enum { PL_CA_EXIT = 1 };
@@ -380,6 +384,9 @@ static void CA_Loop(ProcPtr proc)
 
 static void CA_OnEnd(ProcPtr proc)
 {
+	EndMuralBackground();
+	BG_Fill(gBG2TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG2_SYNC_BIT);
 	ClearBg0Bg1();
 	SetDefaultColorEffects();
 }
@@ -413,7 +420,7 @@ void GameControl_CallPostChapterSaveMenu(struct GameCtrlProc *proc)
 {
 	if (gPlaySt.chapterIndex == 0x38)
 		return;
-	if (ChapterAwards_Due())
+	if (gpKernelDesignerConfig->chapter_awards && ChapterAwards_Due())
 		Proc_StartBlocking(ProcScr_ChapterAwards, proc);
 	else
 		Make6C_SaveMenuPostChapter(proc);
