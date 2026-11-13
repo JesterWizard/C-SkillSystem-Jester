@@ -61,7 +61,8 @@ What it checks:
   lvupanim    with battle animations on, Eirika levels up: after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
-  biography   the map menu's Biography row opens the list; it scrolls to its last biography; A plays its first page.
+  biography   the map menu's Biography row opens the list; it scrolls to its last biography, which A does not open (her
+              character has not joined); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
               (0xEF) set.
   stealer     Eirika holds the Skill Stealer and defeats O'Neill (a boss, 1 HP) with Str Bonus in his first skill
@@ -2189,7 +2190,8 @@ class Smoke:
 
     def test_biography(self, boot_ss):
         """The map menu (A on an empty tile) has Biography (its fourth row): the list opens, DOWN scrolls it to its last
-        biography (Amelia), and A on it plays her first page."""
+        biography (Amelia). She has not joined the army in the prologue, so A on her does nothing; UP back to Eirika
+        and A plays her first page."""
         d = os.path.join(self.out, "boot")
         os.makedirs(d, exist_ok=True)
         need = ("gTopVisibleListIndex", "gCharacterBiographyListNumber", "gCharacterBiographyPage")
@@ -2200,21 +2202,28 @@ class Smoke:
         lines = ["load " + boot_ss, "wait 20", "shot bio_map.png", "press RIGHT", "wait 10", "press RIGHT", "wait 10",
                  "press UP", "wait 10", "press A", "wait 40"] + ["press DOWN", "wait 10"] * 3
         lines += ["shot bio_menu.png", "press A", "wait 120", "shot bio_list.png"] + ["press DOWN", "wait 10"] * (count - 1)
-        lines += ["wait 10", "shot bio_last.png", "r8 %#x" % top, "press A", "wait 240", "shot bio_page.png",
-                  "r8 %#x" % number, "r8 %#x" % page]
+        lines += ["wait 10", "shot bio_last.png", "r8 %#x" % top, "press A", "wait 60", "shot bio_locked.png",
+                  "r8 %#x" % number]
+        lines += ["press UP", "wait 10"] * (count - 1)
+        lines += ["wait 10", "press A", "wait 240", "shot bio_page.png", "r8 %#x" % number, "r8 %#x" % page]
         vals = self.run(ROM, lines, d)
-        m, lst, last, pg = (os.path.join(d, "bio_%s.png" % n) for n in ("map", "list", "last", "page"))
+        m, lst, last, locked, pg = (os.path.join(d, "bio_%s.png" % n) for n in ("map", "list", "last", "locked", "page"))
         self.shot(lst, "biography list")
         self.shot(pg, "biography page")
-        if len(vals) != 3:
+        if len(vals) != 4:
             return self.check("biography: the biography menu", False, "values %s" % vals)
+        locked_number = vals.pop(1)
         self.check("biography: the map menu opens the biography list", self.diff(m, lst) > 25,
                    "change %.0f" % self.diff(m, lst))
         self.check("biography: DOWN scrolls the list to its last biography",
                    vals[0] == count - 5 and self.diff(lst, last) > 1, "top row %d" % vals[0])
-        self.check("biography: A plays the last biography's first page",
-                   vals[1] == count - 1 and vals[2] >= 1 and self.diff(last, pg) > 25,
-                   "biography %d, page %d, change %.0f" % (vals[1], vals[2], self.diff(last, pg)))
+        # the mural behind the list moves: a fade to the biography would be a far bigger change
+        self.check("biography: A on a character not in the army does nothing",
+                   locked_number != count - 1 and self.diff(last, locked) < 25,
+                   "biography %d, change %.1f" % (locked_number, self.diff(last, locked)))
+        self.check("biography: A on Eirika plays her first page",
+                   vals[1] == 0 and vals[2] >= 1 and self.diff(lst, pg) > 25,
+                   "biography %d, page %d, change %.0f" % (vals[1], vals[2], self.diff(lst, pg)))
 
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""

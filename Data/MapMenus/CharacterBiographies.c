@@ -77,21 +77,27 @@ static bool BiographyPageOpen(int index, int page)
 #endif
 }
 
-static int BiographyPagesOpen(int index)
+/* A biography opens once its character has joined the army (a blue unit, alive or not) */
+static bool BiographyUnlocked(int index)
 {
-    int page = 0;
+    int i;
 
-    while (page < 4 && BiographyPageOpen(index, page))
-        page++;
-    return page;
+    for (i = FACTION_BLUE + 1; i < FACTION_BLUE + 0x40; i++) {
+        struct Unit *unit = GetUnit(i);
+
+        if (UNIT_IS_VALID(unit) && UNIT_CHAR_ID(unit) == gCharacterBiographies[index].characterId)
+            return true;
+    }
+    return false;
 }
 
-/* The visible rows: the biographies from gTopVisibleListIndex on (the list scrolls past BASE_VISIBLE_COUNT) */
+/* The visible rows: the biographies from gTopVisibleListIndex on (the list scrolls past BASE_VISIBLE_COUNT); one not unlocked is grey */
 static void DrawBaseConversations(int x, int y) {
 
     for (int row = 0; row < BASE_VISIBLE_COUNT; row++) 
     {
         int i = gTopVisibleListIndex + row;
+        bool unlocked;
 
         ClearText(&PrepItemSuppyTexts.th[row+2]);
         if (i >= NumberOfCharacterBiographies()) {
@@ -99,20 +105,15 @@ static void DrawBaseConversations(int x, int y) {
             continue;
         }
 
-        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)), 
-                    TEXT_COLOR_SYSTEM_WHITE, 0, 0, GetStringFromIndex(GetCharacterData(gCharacterBiographies[i].characterId)->nameTextId));
-    
-        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)), 
-                    TEXT_COLOR_SYSTEM_GOLD, 40, 0, Utf8ToNarrowFonts(gCharacterBiographies[i].subtitle));
+        unlocked = BiographyUnlocked(i);
 
-        /* Pages still waiting on a guild quest: show how many are open */
-        if (BiographyPagesOpen(i) < 4) {
-            char count[] = "0/4";
+        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
+                    unlocked ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, 0, 0,
+                    GetStringFromIndex(GetCharacterData(gCharacterBiographies[i].characterId)->nameTextId));
 
-            count[0] = '0' + BiographyPagesOpen(i);
-            PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
-                        TEXT_COLOR_SYSTEM_GRAY, 106, 0, count);
-        }
+        PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
+                    unlocked ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, 40, 0,
+                    Utf8ToNarrowFonts(gCharacterBiographies[i].subtitle));
     }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -126,6 +127,10 @@ static void Biography_Init(struct ProcPrepUnit * proc)
 
     ClearBg0Bg1();
     SetupBackgrounds(NULL);
+
+    /* SetupBackgrounds lifts the fade: stay black while the list is drawn, NewFadeIn brings it up */
+    SetBlendTargetA(1, 1, 1, 1, 1);
+    SetBlendDarken(0x10);
     BG_Fill(BG_GetMapBuffer(0), 0);
     BG_Fill(BG_GetMapBuffer(1), 0);
     BG_Fill(BG_GetMapBuffer(2), 0);
@@ -176,6 +181,11 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
     u16 keys = gKeyStatusPtr->newKeys;
 
     if (keys & A_BUTTON) {
+        if (!BiographyUnlocked(proc->list_num_cur)) {
+            PlaySoundEffect(SONG_6C);
+            return;
+        }
+        PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
         Proc_Goto(proc, PL_MAP_MENU_BIOGRAPHY_EVENT);
         return;
     }
@@ -235,6 +245,7 @@ static EventScr const EventScr_CharacterBiographies[] = {
     BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
 LABEL(0x1)
+    FADI(16) /* to black (macros.h's FADE_TO_BLACK is FADU, which fades from black) */
 	ENDA
 };
 
@@ -263,6 +274,12 @@ static void DisablePrepScreenDisplay(struct ProcPrepUnit * proc) {
     EndSysBrownBox();
     EndMuralBackground_();
     HideSysHandCursor();
+
+    /*
+     * BG3's tile 0 is a map tile (grass): the cleared BG3 showed it when the event's first fade began. Blank it; the
+     * event's pictures replace BG3's tiles, and leaving reloads the map's.
+     */
+    CpuFastFill(0, (void *)(VRAM + GetBackgroundTileDataOffset(BG_3)), CHR_SIZE);
 }
 
 static void Biography_RestoreMapGraphics(struct ProcPrepUnit * proc) {
@@ -314,15 +331,15 @@ PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_IDLE),
     PROC_REPEAT(MainKeyHandler_Biography),
 
 PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_EVENT),
+    /* The list fades out as it is, then is cleared; the event fades its first page in and fades out at its end */
+    PROC_CALL_ARG(NewFadeOut, 16),
+    PROC_WHILE(FadeOutExists),
     PROC_CALL(DisablePrepScreenDisplay),
-    PROC_CALL_ARG(NewFadeOut, 16),
-    PROC_WHILE(FadeOutExists),
-    PROC_CALL_ARG(NewFadeIn, 16),
-    PROC_WHILE(FadeInExists),
+    PROC_YIELD, /* the list's sprites and tiles go before the event's CG mode, which keeps the last sprites */
+    PROC_YIELD,
     PROC_CALL(CallBiographyEvent),
-    PROC_WHILE(EventEngineExists), 
-    PROC_CALL_ARG(NewFadeOut, 16),
-    PROC_WHILE(FadeOutExists),
+    PROC_YIELD, /* the event caller blocks this proc from the next frame: without it the list was drawn again at once */
+    PROC_WHILE(EventEngineExists),
     PROC_GOTO(PL_MAP_MENU_BIOGRAPHY_INIT),
 
 PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_PRESS_B),

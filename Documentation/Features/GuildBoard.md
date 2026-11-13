@@ -126,7 +126,7 @@ quest by its message, so the quest table's order does not matter:
 
 - `UNLOCK_BIOGRAPHY(quest, character, page)`: that page of the character's
   [biography](./CharacterBiographies.md) (0 to 3), and the pages after it, stay locked until the quest is claimed. The
-  biography list shows how many pages are open ("3/4"), and the biography stops before the first locked page.
+  biography stops before the first locked page.
 - `UNLOCK_SUPPORT(quest, a, b, points)`: claiming the quest gives the two characters `points` support points each way, up
   to the next rank, so its support conversation can then happen as usual. The points go into the battle records, so the
   units do not need to be on the map.
