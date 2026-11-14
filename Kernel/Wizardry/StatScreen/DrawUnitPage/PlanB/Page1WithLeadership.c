@@ -226,6 +226,7 @@ static void DrawPage1ValueCommon(void)
 	}
 }
 
+#ifdef CONFIG_STAT_SCREEN_TOTAL
 static void DrawPage1BattleAmt(void)
 {
     int amt = GetUnitBattleAmt(gStatScreen.unit);
@@ -257,6 +258,7 @@ else
         gUiTmScratchC,
         amt, amt, max, max);
 }
+#endif
 
 static void DrawPage1SightBar(void)
 {
@@ -394,7 +396,9 @@ void DisplayPage_WithLeadership(void)
 	DrawPage1TextCommon();
 	DrawPage1ValueReal();
 	DrawPage1ValueCommon();
+#ifdef CONFIG_STAT_SCREEN_TOTAL
 	DrawPage1BattleAmt();
+#endif
 
 	if (gpKernelDesignerConfig->custom_fog_sight == true)
 		DrawPage1SightBar();

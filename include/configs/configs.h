@@ -6,6 +6,7 @@
 #define CONFIG_CROP_VANILLA_MSG 			   // Remove vanilla conversations and save 470KB of data, FEB will report errors but can be ignored
 #define CONFIG_COMMON_PROTECTION_ENABLED 	   // I'm not even sure what this does, so I ain't touching it
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		   // This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
+// #define CONFIG_STAT_SCREEN_TOTAL 		   // The stat screen's "Total" row (the sum of the unit's stats) on its first page
 // #define CONFIG_INSTALL_STATSCREENFX 		   // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200      // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 #define CONFIG_AI_ACTION_EXPA_Teleportation 14 // Needs to remain for now as it's injected in Kernel/Wizardry/SkillEffects/AiSkills/Teleportation.event

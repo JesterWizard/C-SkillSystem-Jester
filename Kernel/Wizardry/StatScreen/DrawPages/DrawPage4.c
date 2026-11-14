@@ -47,7 +47,7 @@ STATIC_DECLAR void DrawPage4SupportBonus(void)
 		gUiTmScratchA + TILEMAP_INDEX(0x1, 0x9),
 		TEXT_COLOR_SYSTEM_GOLD,
 		0, 0,
-		GetStringFromIndex(0x4F5)); // Avo
+		"Avo"); /* not 0x4F5 "Avoid": wider than its 4-tile text with some fonts, it spilt into Crit's */
 
 	PutDrawText(
 		&gStatScreen.text[7],

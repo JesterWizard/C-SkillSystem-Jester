@@ -1788,8 +1788,14 @@ class Smoke:
         packed = sum(v << (8 * k) for k, v in enumerate(rows[2:]))
         held = [(packed >> (10 * k)) & 0x3FF for k in range(5)]
         lv1, lv2 = self.skill_id("SID_LanceProwess1"), self.skill_id("SID_LanceProwess2")
-        self.check("ch1end: the boss has Lance Prowess Lv2 and not Lv1 beside it",
-                   lv1 is not None and lv2 in held and lv1 not in held, "skills %s" % ["%#x" % h for h in held])
+        cfg = open(os.path.join(ROOT, "Data", "DesignerConfig", "designer-config.c")).read()
+        if re.search(r"\.weapon_rank_skills = false", cfg):
+            # weapon-rank skills off (designer-config.c): no Prowess at all
+            self.check("ch1end: the boss has no Lance Prowess (weapon-rank skills off)",
+                       lv1 not in held and lv2 not in held, "skills %s" % ["%#x" % h for h in held])
+        else:
+            self.check("ch1end: the boss has Lance Prowess Lv2 and not Lv1 beside it",
+                       lv1 is not None and lv2 in held and lv1 not in held, "skills %s" % ["%#x" % h for h in held])
         rows = rows[:2]
         # The boss (0x81) stands on the gate (2, 2); Eirika starts at (12, 9) under the cursor
         lines = ["load " + os.path.join(d, "ch1.ss"), "w32 %#x 0" % UNIT_RED, "w8 %#x 1" % (rows[0] + 2),

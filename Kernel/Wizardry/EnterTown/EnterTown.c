@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "wm-story-chapter.h"
 #include "constants/texts.h"
 #include "worldmap.h"
 #include "gamecontrol.h"
@@ -214,7 +215,7 @@ u8 WMMenu_IsManageBEXPAvailable(const struct MenuItemDef * def, int number)
 
 u8 WMMenu_IsSkillSynthAvailable(const struct MenuItemDef * def, int number)
 {
-    if (gpKernelDesignerConfig->prep_menu_skill_synth == false)
+    if (!PrepMenu_SkillSynthUnlocked())
         return MENU_NOTSHOWN;
 
     return MENU_ENABLED;
@@ -222,7 +223,7 @@ u8 WMMenu_IsSkillSynthAvailable(const struct MenuItemDef * def, int number)
 
 u8 WMMenu_IsInfuseAvailable(const struct MenuItemDef * def, int number)
 {
-    if (gpKernelDesignerConfig->prep_menu_infuse == false)
+    if (!PrepMenu_InfuseUnlocked())
         return MENU_NOTSHOWN;
 
     return MENU_ENABLED;

@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel/no-cash-gba.h"
 #include "wm-story-chapter.h"
+#include "worldmap.h"
 
 extern u8 sWmChapterIdOverride;
 extern u8 sWmMapReloadPending;
@@ -578,4 +579,27 @@ void ChapterInit_ClearWmChapterOverride(ProcPtr proc)
 {
     (void)proc;
     sWmChapterIdOverride = 0;
+}
+
+/*
+ * A node appearing on the world map (WM_LOADLOCATION3: vanilla's gProcScr_GmapBaseEntry) fades in by the blend
+ * coefficients, and its sparkle (gProcScr_GmapEffectPal, started by it) sets them too, to 15 - t and 16, every few
+ * frames: the frames where the sparkle wrote last were a full white flash, so the icon flickered. While a node fades
+ * in, its fade keeps the blend; the sparkle's palette still animates. Elsewhere this is vanilla's SetBlendConfig.
+ */
+extern u8 GmapEffectPal_Loop[];
+#define GMAP_EFFECT_PAL_LOOP_END ((uintptr_t)GmapEffectPal_Loop + 0xE4)
+
+LYN_REPLACE_CHECK(SetBlendConfig);
+void SetBlendConfig(u16 effect, u8 coeffA, u8 coeffB, u8 blendY)
+{
+	uintptr_t caller = (uintptr_t)__builtin_return_address(0);
+
+	if (caller >= (uintptr_t)GmapEffectPal_Loop && caller < GMAP_EFFECT_PAL_LOOP_END && GmBaseEntryExists())
+		return;
+
+	gLCDControlBuffer.bldcnt.effect = effect;
+	gLCDControlBuffer.blendCoeffA = coeffA;
+	gLCDControlBuffer.blendCoeffB = coeffB;
+	gLCDControlBuffer.blendY = blendY;
 }

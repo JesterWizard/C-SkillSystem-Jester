@@ -13,6 +13,7 @@
 #include "m4a.h"
 #include "rng.h"
 #include "scene.h"
+#include "cgtext.h"
 #include "soundwrapper.h"
 #include "constants/classes.h"
 #include "constants/songs.h"
@@ -7174,4 +7175,50 @@ int TalkInterpret(ProcPtr proc)
 			return 1;
 		}
 	}
+}
+
+/*
+ * The CG text box's wait arrow ([A] in TEXT_CG and friends; vanilla's CgTextInterpreter_Loop_Main starts it). Vanilla
+ * puts it at the box's text width (CgTextMainProc.textWidth), which is still the width from before the line went on
+ * when a second [A] comes on the same line: the arrow stayed where the first one was. It goes just after the line's
+ * last letter instead, as in talk boxes. Other callers (the box dialogue) keep vanilla's position.
+ */
+extern const struct ProcCmd gProcScr_CgTextMain[];
+
+#define CG_TEXT_INTERPRETER_END ((uintptr_t)&CgTextInterpreter_Loop_Main + 0x5F0)
+
+static NOINLINE int CgText_WaitArrowX(int x, uintptr_t caller)
+{
+	struct CgTextMainProc *cg;
+	struct Text *text;
+
+	if (caller < (uintptr_t)&CgTextInterpreter_Loop_Main || caller >= CG_TEXT_INTERPRETER_END)
+		return x;
+
+	cg = Proc_Find(gProcScr_CgTextMain);
+	if (!cg || cg->thIndex < 0 || cg->thIndex >= 6 || !cg->pTexts[cg->thIndex])
+		return x;
+
+	text = cg->pTexts[cg->thIndex];
+	return cg->x * 8 + Text_GetCursor(text) + 4;
+}
+
+LYN_REPLACE_CHECK(StartTalkWaitForInput);
+void StartTalkWaitForInput(ProcPtr parent, int x, int y)
+{
+	struct Proc *proc = Proc_StartBlocking(gProcScr_TalkWaitForInput, parent);
+
+	*(s16 *)((u8 *)proc + 0x64) = CgText_WaitArrowX(x, (uintptr_t)__builtin_return_address(0));
+	*(s16 *)((u8 *)proc + 0x66) = y;
+	*(s16 *)((u8 *)proc + 0x68) = 0;
+}
+
+LYN_REPLACE_CHECK(StartTalkWaitForInputUnk);
+void StartTalkWaitForInputUnk(ProcPtr parent, int x, int y, int unk)
+{
+	struct Proc *proc = Proc_StartBlocking(gProcScr_TalkWaitForInput, parent);
+
+	*(s16 *)((u8 *)proc + 0x64) = CgText_WaitArrowX(x, (uintptr_t)__builtin_return_address(0));
+	*(s16 *)((u8 *)proc + 0x66) = y;
+	*(s16 *)((u8 *)proc + 0x68) = unk;
 }

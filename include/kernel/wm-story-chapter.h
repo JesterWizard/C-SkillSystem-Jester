@@ -36,6 +36,13 @@ int WmStoryRank(void);
 
 /* A row that counts from story chapter `chapter` on: true once the story has reached it */
 bool WmStoryReached(int chapter);
+
+/* Synthesize and Infuse unlock at a story chapter (Data/DesignerConfig/designer-config.c); 0xFF: not yet */
+#define PREP_MENU_LOCKED 0xFF
+extern const u8 gSkillSynthUnlockChapter;
+extern const u8 gInfuseUnlockChapter;
+bool PrepMenu_SkillSynthUnlocked(void);
+bool PrepMenu_InfuseUnlocked(void);
 void WmStoryChapter_Begin(int chapter);
 int GetWmLocChapter(int node);
 

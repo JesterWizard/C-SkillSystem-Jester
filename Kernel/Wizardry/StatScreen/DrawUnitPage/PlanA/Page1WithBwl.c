@@ -235,6 +235,7 @@ STATIC_DECLAR void DrawPage1ValueCommon(void)
 	}
 }
 
+#ifdef CONFIG_STAT_SCREEN_TOTAL
 STATIC_DECLAR void DrawPage1BattleAmt(void)
 {
 	int amt = GetUnitBattleAmt(gStatScreen.unit);
@@ -257,6 +258,7 @@ STATIC_DECLAR void DrawPage1BattleAmt(void)
 		gUiTmScratchC,
 		amt, amt, max, max);
 }
+#endif
 
 static u8 GetUnitLaguzBarValue(struct Unit * unit)
 {
@@ -471,7 +473,9 @@ void DisplayPage_WithBWL(void)
 	DrawPage1TextCommon();
 	DrawPage1ValueReal();
 	DrawPage1ValueCommon();
+#ifdef CONFIG_STAT_SCREEN_TOTAL
 	DrawPage1BattleAmt();
+#endif
 	
     if (gpKernelDesignerConfig->laguz_bars == true)
     	DrawPage1LaguzBar();
