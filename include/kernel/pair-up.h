@@ -13,6 +13,7 @@ enum PairUpStat {
 	PAIR_UP_STAT_MOV,
 };
 
+bool PairUp_IsUnlocked(void);
 bool PairUp_IsPaired(const struct Unit *unit);
 bool PairUp_IsLeader(const struct Unit *unit);
 bool PairUp_IsSupport(const struct Unit *unit);

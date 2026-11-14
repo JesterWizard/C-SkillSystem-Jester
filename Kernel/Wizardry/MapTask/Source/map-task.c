@@ -12,17 +12,12 @@ void PutUnitSpriteIconsOam(void)
 {
 	int i;
 	bool icon_blinking;
-	FORCE_DECLARE int cached_talkee_id = 0;
-	FORCE_DECLARE bool have_cached_talkee = false;
+	/* The selected unit's talk and support partners, found once a frame (GetTalkees reads the event list) */
+	u8 talkees[8];
+	int talkee_count = 0;
 
-	/* Cache talkee id once to avoid repeated expensive GetTalkee() calls inside the loop */
-	if (gpKernelDesignerConfig->custom_talk_icon == true) 
-	{
-		if (gBmSt.gameStateBits & BM_FLAG_1) {
-			cached_talkee_id = GetTalkee(gActiveUnit);
-			have_cached_talkee = true;
-		}
-	}
+	if (gpKernelDesignerConfig->custom_talk_icon == true && (gBmSt.gameStateBits & BM_FLAG_1))
+		talkee_count = GetTalkees(gActiveUnit, talkees, ARRAY_COUNT(talkees));
 
 	if (CheckFlag(0x84) != 0)
 		return;
@@ -86,11 +81,15 @@ void PutUnitSpriteIconsOam(void)
 		MapTaskVec.x = ix;
 		MapTaskVec.y = iy;
 
-		if (gpKernelDesignerConfig->custom_talk_icon == true) 
-		{
-			if (have_cached_talkee && cached_talkee_id == UNIT_CHAR_ID(unit)) {
-				MapTaskPutOamHi(MTSKCONF_TALK_1, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xB00 / 0x20));
-				MapTaskPutOamHi(MTSKCONF_TALK_2, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xF00 / 0x20));
+		if (talkee_count) {
+			int k;
+
+			for (k = 0; k < talkee_count; k++) {
+				if (talkees[k] == UNIT_CHAR_ID(unit)) {
+					MapTaskPutOamHi(MTSKCONF_TALK_1, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xB00 / 0x20));
+					MapTaskPutOamHi(MTSKCONF_TALK_2, OAM2_PAL(0) + OAM2_LAYER(2) + OAM2_CHR(0xF00 / 0x20));
+					break;
+				}
 			}
 		}
 

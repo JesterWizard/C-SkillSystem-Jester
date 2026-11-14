@@ -45,8 +45,8 @@ static const EventScr EventScr_Ch06_Opening[] = {
     HIGHLIGHT_CHARACTER(0xF9, 60)
     TEXT_BG(0x1E, Chapter_06_Pre_Scene_03_Convo_02)
     TEXT_CG_CONSECUTIVE(0xE3, Chapter_06_Pre_Scene_03_Convo_03) /* CG: the citizens see the Bael */
-    TEXT_CG_CONSECUTIVE(0xE3, Chapter_06_Pre_Scene_03_Convo_04)
-    TEXT_CG(0xE3, Chapter_06_Pre_Scene_03_Convo_05)
+    TEXT_CG_NEXT(Chapter_06_Pre_Scene_03_Convo_04)
+    TEXT_CG_LAST(Chapter_06_Pre_Scene_03_Convo_05)
     PREP_ALT
     NOFADE
     ENDA

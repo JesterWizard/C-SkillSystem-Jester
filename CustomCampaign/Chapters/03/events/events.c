@@ -30,7 +30,7 @@ const EventScr EventScr_Ch03_Ending[] = {
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x28, Chapter_03_Scene_04_Convo_01)
     TEXT_CG_CONSECUTIVE(0xDF, Chapter_03_Scene_04_Convo_02) /* CG: Neimi runs into Colm's arms */
-    TEXT_CG_CONSECUTIVE(0xDF, Chapter_03_Scene_04_Convo_03)
+    TEXT_CG_NEXT(Chapter_03_Scene_04_Convo_03)
     END_CG_TO_BLACK
     TEXT_BG_HIDE_MAP(0x28, Chapter_03_Scene_04_Convo_04)
 /* If Colm wasn't recruited, then have him join */
@@ -103,12 +103,26 @@ LABEL(0x1)
     ENDA
 };
 
+/*
+ * Ross rejoins (Chapters/02/events/events.c, Ch02_RossLeavesArmy): if he joined in Chapter 2, he is still in the unit
+ * table, out of the army; back in it, LOAD_WAIT_PERSIST(CH3_ROSS) moves him onto the map as he is (level, stats and
+ * items). If he never joined, it loads him new.
+ */
+static void Ch03_RossRejoinsArmy(void)
+{
+    struct Unit *ross = GetUnitFromCharId(CHARACTER_ROSS);
+
+    if (ross && UNIT_FACTION(ross) == FACTION_BLUE && !(ross->state & US_DEAD))
+        ross->state &= ~(US_BIT16 | US_NOT_DEPLOYED | US_HIDDEN);
+}
+
 static const EventListScr EventScr_ROSS_APPEARS[] = {
     CHECK_TURNS //Store current turn count in slot C
     SVAL(EVT_SLOT_7, 3)
     BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
     STAL(15)
     MOVE_CAMERA_TO_POSITION_CENTER(3, 11)
+    ASMC(Ch03_RossRejoinsArmy)
     LOAD_WAIT_PERSIST(CH3_ROSS)
     MUSC(SONG_BINDING_VOW)
     HIGHLIGHT_CHARACTER(CHARACTER_ROSS, 30)

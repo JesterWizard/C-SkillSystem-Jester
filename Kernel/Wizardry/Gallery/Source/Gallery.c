@@ -21,7 +21,11 @@
  * wiping all of SRAM (vanilla's first-boot init) clears it.
  */
 
-#define GALLERY_SRAM_MAGIC 0x59524C47 /* "GLRY" */
+/*
+ * The unlocks' magic word. Change it whenever gGalleryEntries loses or reorders rows: the bits follow the rows, so the
+ * old unlocks would land on other CGs. A new word clears them once. "GLRY" until the first 13 rows were removed.
+ */
+#define GALLERY_SRAM_MAGIC 0x32524C47 /* "GLR2" */
 
 struct GallerySram {
 	u32 magic;

@@ -69,6 +69,7 @@ extern struct {
 int GetUnitBattleAmt(struct Unit *unit);
 u8 SortMax(const u8 *buf, int size);
 u8 GetTalkee(struct Unit *unit);
+int GetTalkees(struct Unit *unit, u8 *out, int max);
 void InstallExpandedTextPal(void);
 void ResetActiveFontPal(void);
 int GetTextColorFromGrowth(int growth);

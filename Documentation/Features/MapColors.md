@@ -19,7 +19,7 @@
 
 ## 🧩 Introduction
 
-The map's colours can be changed from the Options screen. The **Map Colors** row sits right under **EXP Bar**, and has
+The map's colours can be changed from the Options screen. The **Map Colors** row sits right under **UI Style**, and has
 three values: Vanilla, Vivid and Deep. Left and right go through them.
 
 A new game starts on Vanilla. The choice is kept in the save with the other options.

@@ -33,7 +33,7 @@ Player-facing impact:
 
 ## 🎨 Styles
 
-Wood, Tech, Royal, Stained Glass, Paper, Ocean, Forest and Parchment are built by the generator described under [Plan](#plan). Each has four window colours, which also tint the four factions. A style is on while its flag is set; see [Choosing a style](#choosing-a-style) for what happens when more than one is.
+Wood, Tech, Royal, Stained Glass, Paper, Ocean, Forest and Parchment are built by the generator described under [Plan](#plan). Each has four window colours, which also tint the four factions. The player picks one on the Options screen; see [Choosing a style](#choosing-a-style).
 
 Each grid shows, left to right and top to bottom: the map HUD, the unit command menu, the item menu and stat window, the options screen, the unit list, the chapter status screen, the guide, the battle screen, and the map menu.
 
@@ -41,7 +41,7 @@ Each grid shows, left to right and top to bottom: the map HUD, the unit command 
 
 Windows are grained boards framed by dark, black-outlined wooden planks. The edges are chipped and cracked, and at each corner the top and bottom planks run past the window and end in a broken, splintered tip. Vanilla's gold bars, scroll curls and gem crests are gone, including the crest on the battle name plates and the scrollwork on the HP panel. The status screen banners are wooden signs with a cream chapter name.
 
-Turn it on with `ENUT 0xAB` in an event (or `SetFlag(0xAB)` in C); it is `WoodStyleFlag`, style ID 4.
+Pick it on the Options screen's **UI Style** row ("Wood"); its EXP bar is Vial. It is style ID 4.
 
 | Window colour | Vanilla | Wood | Faction it tints |
 |-----------------|-----------|--------|--------------------|
@@ -58,7 +58,7 @@ Turn it on with `ENUT 0xAB` in an event (or `SetFlag(0xAB)` in C); it is `WoodSt
 
 A techno-futuristic look. Windows are dark glass panels with scanlines. Each edge is one bright neon line, the same thickness on all four sides, with a dim glow just outside it and no black outline. Inside the line is a 2-pixel band of panel: invisible on dark panels, an even inset line on light ones. Corners are rounded, the line cutting across them in two white-hot steps. Light panels such as title plates and help boxes are pale glass. The chapter name on the status screen is white and cyan.
 
-Turn it on with `ENUT 0xAD` in an event (or `SetFlag(0xAD)` in C); it is `TechStyleFlag`, style ID 5.
+Pick it on the Options screen's **UI Style** row ("Tech"); its EXP bar is Tech. It is style ID 5.
 
 | Window colour | Vanilla | Tech | Faction it tints |
 |-----------------|-----------|--------|--------------------|
@@ -75,7 +75,7 @@ Turn it on with `ENUT 0xAD` in an event (or `SetFlag(0xAD)` in C); it is `TechSt
 
 A gilded look. Windows are velvet panels woven with a small damask diamond, framed by a gold moulding 4 pixels thick on every side, with a jewel set in a gold diamond on each corner. Light panels such as title plates are ivory. The chapter name on the status screen is gold.
 
-Turn it on with `ENUT 0xAE` in an event (or `SetFlag(0xAE)` in C); it is `RoyalStyleFlag`, style ID 6.
+Pick it on the Options screen's **UI Style** row ("Royal"); its EXP bar is Gems. It is style ID 6.
 
 | Window colour | Vanilla | Royal | Jewel | Faction it tints |
 |-----------------|-----------|---------|---------|--------------------|
@@ -92,7 +92,7 @@ Turn it on with `ENUT 0xAE` in an event (or `SetFlag(0xAE)` in C); it is `RoyalS
 
 Each window is framed by amber, ruby, emerald and sapphire glass pieces set in lead, 4 pixels thick on every side, with a square emerald or sapphire pane on each corner. The piece colours vary from tile to tile, so they fall irregularly like a real window; the right edge, which the game draws from a single tile, is amber throughout. Panels are coloured glass with faint diagonal seams and no lead lines, so text stays readable. Light panels are frosted glass. The chapter name on the status screen is white and amber.
 
-Turn it on with `ENUT 0xAF` in an event (or `SetFlag(0xAF)` in C); it is `GlassStyleFlag`, style ID 7.
+Pick it on the Options screen's **UI Style** row ("Stained Glass"); its EXP bar is Stars. It is style ID 7.
 
 | Window colour | Vanilla | Stained Glass | Faction it tints |
 |-----------------|-----------|-----------------|--------------------|
@@ -109,7 +109,7 @@ Turn it on with `ENUT 0xAF` in an event (or `SetFlag(0xAF)` in C); it is `GlassS
 
 A storybook / Paper Mario look. Each window is a paper cutout, like a sticker: a thick black outline, a white paper border with a cardstock edge, and rounded corners, the same on all four sides. A drop shadow falls down the right and along the bottom, as if the cutout were lifted off the page. Panels are construction paper with a faint fibre speckle; light panels are cream paper. The chapter name on the status screen is white outlined in black.
 
-Turn it on with `ENUT 0xB0` in an event (or `SetFlag(0xB0)` in C); it is `PaperStyleFlag`, style ID 8.
+Pick it on the Options screen's **UI Style** row ("Paper"); its EXP bar is Minimal. It is style ID 8.
 
 | Window colour | Vanilla | Paper | Faction it tints |
 |-----------------|-----------|---------|--------------------|
@@ -126,7 +126,7 @@ Turn it on with `ENUT 0xB0` in an event (or `SetFlag(0xB0)` in C); it is `PaperS
 
 An Ocean / Coral look. Each window has a twisted rope edge outside a band of wave crests, rows of foam-capped arcs over aqua. The border is 5 pixels thick on every side, with a starfish on each corner. Soft bubbles drift across the panels; light panels are sand. The chapter name on the status screen is white and aqua.
 
-Turn it on with `ENUT 0xB1` in an event (or `SetFlag(0xB1)` in C); it is `OceanStyleFlag`, style ID 9.
+Pick it on the Options screen's **UI Style** row ("Ocean"); its EXP bar is Pearls. It is style ID 9.
 
 | Window colour | Vanilla | Ocean | Faction it tints |
 |-----------------|-----------|---------|--------------------|
@@ -143,7 +143,7 @@ Turn it on with `ENUT 0xB1` in an event (or `SetFlag(0xB1)` in C); it is `OceanS
 
 A Forest / Leaf look that pairs well with Wood. Each window is framed by two vines woven over and under each other, 4 pixels thick on every side, with a small leaf and bark stem on each corner. The panels carry a leaf-vein texture, a midrib and side veins in every tile; light panels are pale parchment. The chapter name on the status screen is white and leaf green.
 
-Turn it on with `ENUT 0xB2` in an event (or `SetFlag(0xB2)` in C); it is `ForestStyleFlag`, style ID 10.
+Pick it on the Options screen's **UI Style** row ("Forest"); its EXP bar is Arrow. It is style ID 10.
 
 | Window colour | Vanilla | Forest | Faction it tints |
 |-----------------|-----------|----------|--------------------|
@@ -160,7 +160,7 @@ Turn it on with `ENUT 0xB2` in an event (or `SetFlag(0xB2)` in C); it is `Forest
 
 A Parchment & Ink look. Each window is a sheet of aged paper with a faint fibre speckle. Its outer edge is the sheet's own: deckled, nibbled in and torn here and there, browning outward to a scorched rim with flecks of char. Just inside it runs a hand-drawn ink line that swells to 2 pixels here and there like a pen, so no two edges match. The corners are worn round, scorched a little darker where the sheet turns. The faction shows only in the ink colour; light panels are fresh cream paper. On the status screen the chapter name keeps vanilla's colours, and PLAY TIME is lettered like the game's own text, white in a navy outline.
 
-Turn it on with `ENUT 0xB3` in an event (or `SetFlag(0xB3)` in C); it is `ParchmentStyleFlag`, style ID 11.
+Pick it on the Options screen's **UI Style** row ("Parchment"); its EXP bar is Scroll. It is style ID 11.
 
 | Window colour | Vanilla | Parchment | Faction it tints |
 |-----------------|-----------|-------------|--------------------|
@@ -175,7 +175,7 @@ Turn it on with `ENUT 0xB3` in an event (or `SetFlag(0xB3)` in C); it is `Parchm
 
 ### Older styles
 
-The styles VeslyUI shipped with are picked the same way: Stephano menus with Sokaballa battle frames (`StephanoStyleFlag`, `0xAA`), Gamma (`GammaStyleFlag`, `0xB4`, the guide flag) and Pikmin menus with Fenreir battle frames (`PikminStyleFlag`, `0xAC`). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
+The styles VeslyUI shipped with are on the same row: Stephano menus with Sokaballa battle frames (style ID 1, EXP bar Blade), Gamma (ID 2, Chain) and Pikmin menus with Fenreir battle frames (ID 3, Stars). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
 
 ---
 
@@ -183,29 +183,38 @@ The styles VeslyUI shipped with are picked the same way: Stephano menus with Sok
 
 ### Choosing a style
 
-A style is picked by a permanent event flag, checked in this order:
+The player picks the style on the Options screen (the map menu's Options, or the prep screen's), in the **UI Style**
+row under Window Color. Left and right go through the styles; the help line names each and its EXP bar, and the
+Options screen's own windows change at once (the row uses vanilla's Window Color handler, which reloads the frames).
+Each UI style brings the [EXP bar style](./ExpBarStyles.md) closest to its look:
 
-| Order | Style | Flag | ID |
-|-------|-------|------|----|
-| 1 | Wood | `WoodStyleFlag` (`0xAB`) | 4 |
-| 2 | Tech | `TechStyleFlag` (`0xAD`) | 5 |
-| 3 | Royal | `RoyalStyleFlag` (`0xAE`) | 6 |
-| 4 | Stained Glass | `GlassStyleFlag` (`0xAF`) | 7 |
-| 5 | Paper | `PaperStyleFlag` (`0xB0`) | 8 |
-| 6 | Ocean | `OceanStyleFlag` (`0xB1`) | 9 |
-| 7 | Forest | `ForestStyleFlag` (`0xB2`) | 10 |
-| 8 | Parchment | `ParchmentStyleFlag` (`0xB3`) | 11 |
-| 9 | Stephano menus / Sokaballa battle | `StephanoStyleFlag` (`0xAA`) | 1 |
-| 10 | Gamma | `GammaStyleFlag` (`0xB4`, the guide flag) | 2 |
-| 11 | Pikmin menus / Fenreir battle | `PikminStyleFlag` (`0xAC`) | 3 |
-| — | Vanilla | none set | 0 |
+| Row | Style | ID | EXP bar |
+|-----|-------|----|---------|
+| 0 | Vanilla | 0 | Vanilla |
+| 1 | Wood | 4 | Vial (a wooden plank) |
+| 2 | Tech | 5 | Tech |
+| 3 | Royal | 6 | Gems (gold on velvet) |
+| 4 | Stained Glass | 7 | Stars |
+| 5 | Paper | 8 | Minimal |
+| 6 | Ocean | 9 | Pearls |
+| 7 | Forest | 10 | Arrow (green leather) |
+| 8 | Parchment | 11 | Scroll |
+| 9 | Stephano menus / Sokaballa battle | 1 | Blade |
+| 10 | Gamma | 2 | Chain |
+| 11 | Pikmin menus / Fenreir battle | 3 | Stars |
 
-The start menu (`ProcScr_SaveMenu`) and its Extras screens, such as the [Gallery](./Gallery.md), always use Gamma
-(HyperGammaSpaces): no game is loaded there, so the flags in RAM are whatever the last game left.
+The row is `GAME_OPTION_EXP_BAR`, and its value is kept in `gPlaySt.config.exp_bar_style` (4 bits, saved with the other
+options; a new game starts on Vanilla). The table is `sUiStyles` in
+[`ExpBarStyles.c`](../../Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c); `GetUI_id` returns its `ui_id`
+(`UiStyle_GetUiId`). `gpKernelDesignerConfig->vesly_custom_ui` must be on (off, every style is vanilla's).
 
-Set the flag from an event (for example `ENUT 0xAB` for wood, `ENUT 0xAD` for tech, `ENUT 0xAE` for royal, `ENUT 0xAF` for stained glass, `ENUT 0xB0` for paper, `ENUT 0xB1` for ocean, `ENUT 0xB2` for forest or `ENUT 0xB3` for parchment, `ENUF` to turn it off), or from C with `SetFlag`. The change shows the next time a screen loads its UI graphics, such as after opening the stat screen or entering battle. `gpKernelDesignerConfig->vesly_custom_ui` must be on.
+The style flags (`WoodStyleFlag` `0xAB` and the others, still defined in `VeslyUI_Installer.event`) are no longer
+read: `GammaStyleFlag` is the guide flag (`0xB4`), which the campaign sets early, so the flags used to pick Gamma for
+every player. The start menu (`ProcScr_SaveMenu`) and its Extras screens, such as the [Gallery](./Gallery.md), always
+use Gamma (HyperGammaSpaces): no game is loaded there, so the options in RAM are whatever the last game left.
 
-The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest, Parchment) are checked first because the campaign sets the guide flag early, which would otherwise always select Gamma.
+A change shows on the Options screen at once, and elsewhere the next time a screen loads its UI graphics (leaving the
+Options screen redraws the map's windows).
 
 ### What a style supplies
 
@@ -243,8 +252,8 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 ### Adding another style
 
 1. Add art matching the vanilla tile counts, plus palettes. The quickest way is a new `png/<Name>/generate_<name>.py` modelled on the tech or wood script; `style_tools.py` lists the names a style script defines.
-2. Add labels for it in `VeslyUI_Installer.event` and a flag.
-3. Add an entry to every table in `C_Code.c` and a flag check in `GetUI_id`.
+2. Add labels for it in `VeslyUI_Installer.event`.
+3. Add an entry to every table in `C_Code.c`, and a row to `sUiStyles` in `ExpBarStyles.c` (its ID and EXP bar style; at most 16 rows).
 4. Add a case to `GetMMBWindowPaletteRow` in `ModularMinimugBox.c`.
 5. For a generated style, add its ID to `IsGeneratedStyle` in `C_Code.c` (frame tile mixing and the wide play-time box) and an entry to `sChapterTitlePal`.
 
@@ -254,7 +263,7 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| Style selection | `GetUI_id`, `GetUIPalID` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Reads the style flags in priority order |
+| Style selection | `GetUI_id`, `GetUIPalID` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c); `sUiStyles`, `UiStyle_GetUiId` in [`ExpBarStyles.c`](../../Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c) | The Options screen's UI Style row |
 | Window frames | `GetUiFrame`, `UnpackUiFrameImage`, `UnpackUiFrameBuffered`, `UnpackUiFramePalette` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Frame tiles and the window-colour palette |
 | Prep screens | `PrepInitGfxHook`, `Decompress_Img_PrepItemUseScreen`, `DrawFundsSprite_Init`, `PutImg_PrepPopupWindow`, `PrepUiPalHook_2`, `PrepUiPalHook_3` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Prep art, funds/items sprite and palettes |
 | Shop | `StartUiGoldBox`, `StartUiGoldBox_New` in [`C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | Gold box sprite and palette |
@@ -271,14 +280,13 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 ## 📝 TODO
 
 - Bring the screens below under the style system so every style covers them.
-- A player-facing way to pick a style (an Options entry) instead of event flags.
 - More styles built the same way.
 
 ---
 
 ## 🐛 Limitations & Bugs
 
-- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows and EXP bar (shown when battle animations are off), and the phase banners. The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
+- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows (shown when battle animations are off) and the phase banners. The EXP bar follows the style through its own matching [EXP bar style](./ExpBarStyles.md). The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
 - A style change does not redraw windows already on screen; it shows when a screen next loads its UI graphics.
 - The generated styles' prep screen, prep popup and shop gold box art follow vanilla's tile layout but have not been checked in-game yet.
 - Each style adds roughly the size of its compressed art to the ROM.

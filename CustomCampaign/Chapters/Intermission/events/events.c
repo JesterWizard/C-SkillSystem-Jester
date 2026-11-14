@@ -201,12 +201,17 @@ LABEL(0x1)
     TEXTSHOW(Chapter_01_Scene_11_Convo_02)
     TEXTEND
     TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_2) /* CG: Seth asks King Hayden to let Tana join */
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_3)
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_4)
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_5)
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_6)
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_7)
-    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_8) /* no fade back: there is no map here */
+    TEXT_CG_NEXT(Chapter_01_Scene_11_Convo_02_3)
+    TEXT_CG_NEXT(Chapter_01_Scene_11_Convo_02_4)
+    TEXT_CG_NEXT(Chapter_01_Scene_11_Convo_02_5)
+    END_CG_TO_BLACK /* after Seth's vow: back to the throne room, Hayden and Seth's portraits */
+    SET_BACKGROUND(0xE)
+    TEXTSTART
+    TEXTSHOW(Chapter_01_Scene_11_Convo_02_6)
+    TEXTEND
+    TEXT_CONSECUTIVE(Chapter_01_Scene_11_Convo_02_7)
+    TEXT_CONSECUTIVE(Chapter_01_Scene_11_Convo_02_8)
+    REMA
     SET_BACKGROUND(0x35)
     MUSIC_FADEOUT(SONG_NONE)
     FADE_TO_BLACK(8)

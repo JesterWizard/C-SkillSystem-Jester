@@ -36,15 +36,16 @@ static const EventScr EventScr_Ch04_Opening[] = {
     MOVE_POSITION_WAIT(24, 11, 6, 9, 3)
     HIGHLIGHT_CHARACTER(CHARACTER_ARTUR, 60)
     TEXT_CG_CONSECUTIVE(0xE0, Chapter_04_Scene_04_Convo_02_1) /* CG: the Mogall before Artur */
-    TEXT_CG_CONSECUTIVE(0xE0, Chapter_04_Scene_04_Convo_02_2)
-    TEXT_CG(0xE0, Chapter_04_Scene_04_Convo_02)
+    TEXT_CG_NEXT(Chapter_04_Scene_04_Convo_02_2)
+    TEXT_CG_LAST(Chapter_04_Scene_04_Convo_02)
     // Make enemy the active unit again
     // MOVE_WAIT(0, CHARACTER_MONSTER_B8, 9, 3)
 
     // Battle scene
     START_BATTLE
-    NORMAL_DAMAGE(1, 7) // Artur attacks
-    CRITICAL_HIT(1, 20) // Artur criticals for 20 damage
+    NORMAL_DAMAGE(0, 7) // Artur (0: the attacker, FIGHT's first unit) hits for 7
+    NORMAL_DAMAGE(1, 3) // the Mogall (1: the defender) hits back for 3
+    CRITICAL_HIT(0, 20) // Artur's second attack: a critical for 20
     END_ATTACK
     FIGHT(CHARACTER_ARTUR, CHARACTER_MONSTER_B8, 0, 0)
     KILL(CHARACTER_MONSTER_B8)

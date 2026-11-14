@@ -24,7 +24,7 @@
 - **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
   not seen yet.
 - **The panel** on the left, in a window: "Unlocked", a gold gauge that fills as CGs unlock, the percentage, and how
-  many are unlocked (3/24); at its foot the buttons, "View" and "Back".
+  many are unlocked (1/11); at its foot the buttons, "View" and "Back".
 - **The grid** on the right, in a window (the start menu's Gamma style, see
   [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)), over the scrolling mural: three CGs a row,
   three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
@@ -43,7 +43,7 @@ The Gallery shows the backgrounds listed in `gGalleryEntries` (`Data/Gallery/Gal
 
 ```c
 const struct GalleryEntry gGalleryEntries[] = {
-	{ 0x38, MSG_GALLERY_CG_MYRRH_MORVA },
+	{ 0xDB, MSG_GALLERY_CG_FLIGHT_FROM_RENAIS },
 	...
 	{ GALLERY_END, 0 },
 };
@@ -58,7 +58,9 @@ const struct GalleryEntry gGalleryEntries[] = {
    `Contents/Texts/Source/texts/Districts.txt` (`## MSG_GALLERY_CG_...`, then the name and `[X]`).
 3. Show it in an event (`TEXT_BG`, `TEXT_BG_HIDE_MAP`, `TEXT_CG`, `BACG` and the background fades), and it unlocks
    there. In the CG text box a name (`[SetName]Name[N]`) only takes at the start of a message: give each speaker their
-   own message, `TEXT_CG_CONSECUTIVE` for all but the last. The name must have an even number of characters (pad it
+   own message. The first speaker's message shows the CG with `TEXT_CG_CONSECUTIVE(bg, msg)`; each later one uses
+   `TEXT_CG_NEXT(msg)`, which only changes the text box (setting the background again would fade the CG out and in),
+   and the last `TEXT_CG_LAST(msg)` to fade back to the map (`CustomCampaign/Chapters/_shared/headers.h`). The name must have an even number of characters (pad it
    with a space: `[SetName]Artur [N]`): vanilla copies it two bytes at a time and only looks for its end at even
    offsets, so an odd name runs on through the message and over the stack, and the game crashes. Keep a CG line to
    about 30 characters: the CG box is narrower than the talk box and clips the end of a longer line. `TEXT_CG` ends by fading back to the map (fade to black,
@@ -69,14 +71,15 @@ const struct GalleryEntry gGalleryEntries[] = {
 The build makes the thumbnails (see [How it works](#how-it-works)) again whenever the list, `BG.event` or a `.dmp`
 changes.
 
-At most 96 rows (`GALLERY_MAX`). The list starts with the three custom CGs (0x38-0x3A) and the ten vanilla backgrounds
-the story shows so far, then the story CGs 0xDB-0xDE: Flight from Renais (prologue, Seth carries Eirika out), Reunited
-(Chapter 1's end), Seth's Plea (the Intermission at Castle Frelia) and Ide Burns (Chapter 2's opening); then 0xDF-0xE3:
-Neimi's Mirror (Chapter 3's end), The Mogall (Chapter 4's opening, before Artur's battle), Joshua Intervenes
-(Chapter 5's opening), Renvall Ambush (Chapter 5x's end) and Bael Attack (Chapter 6's opening); then War Council
-(0xE4, the council at Castle Frelia between Chapters 8 and 9) and Myrrh's Wings (0xE5: in the list, but no scene
-shows it yet, so it stays locked). Its order is the unlock bits' order: insert a row in the middle and the unlocks already made
-move to the rows after it, so add new CGs at the end.
+At most 96 rows (`GALLERY_MAX`). The list is the story's CGs in story order: Flight from Renais (0xDB, the prologue,
+Seth carries Eirika out), Reunited (0xDC, Chapter 1's end), Seth's Plea (0xDD, the Intermission at Castle Frelia),
+Ide Burns (0xDE, Chapter 2's opening), Neimi's Mirror (0xDF, Chapter 3's end), The Mogall (0xE0, Chapter 4's opening,
+before Artur's battle), Joshua Intervenes (0xE1, Chapter 5's opening), Renvall Ambush (0xE2, Chapter 5x's end), Bael
+Attack (0xE3, Chapter 6's opening), War Council (0xE4, the council at Castle Frelia between Chapters 8 and 9) and
+Myrrh's Wings (0xE5: in the list, but no scene shows it yet, so it stays locked). The older CGs (0x38-0x3A, among
+them the prologue's Seth Attacked, which the story still shows) and the vanilla backgrounds are no longer listed.
+Its order is the unlock bits' order: add new CGs at the end. Removing or reordering rows moves the unlocks already
+made to other CGs, so change the magic word (`GALLERY_SRAM_MAGIC`, see [Unlocking](#unlocking)) with it.
 
 ---
 
@@ -87,7 +90,8 @@ the Sound Room's songs do. Event command `0x21` (`gEventLoCmdTableRe`) is `Galle
 the background transition and the fade in, it unlocks the background, then runs vanilla's `Event21_TextBg`. A skipped
 scene counts. The fade's "fade out" form passes background 0, so it unlocks nothing.
 
-The unlocks are 96 bits behind a magic word ("GLRY") in the SRAM entry vanilla keeps for the e-Reader trial map's save
+The unlocks are 96 bits behind a magic word ("GLR2"; "GLRY" before the first 13 rows were removed, so those
+unlocks were cleared once) in the SRAM entry vanilla keeps for the e-Reader trial map's save
 block (`gSram->saveBlockInfo[SAVE_ID_XMAP]`, 16 bytes at `0x0E0000C4`). This hack has no trial maps, and that entry
 is only read by the trial-map check, which sees no trial map. It is outside the game and suspend saves, so the save
 layout and its signature do not change, and erasing a file keeps them. Only wiping all of SRAM (vanilla's first boot)
@@ -135,11 +139,10 @@ clears them.
 
 ## 🧪 Testing
 
-`python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Mountain Forest (0x1D), Flight from
-Renais (0xDB) and Seth Attacked (0x3A) in SRAM; after a reset Extras has the Gallery row; the grid opens on its first
-rows; A on a locked CG does nothing; A on Mountain Forest shows it full size; right goes to Flight from Renais, right
-again to Seth Attacked (around the end); B goes back to the grid on it; down three rows scrolls the grid a row, on
-screen; B again goes back to Extras.
+`python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Flight from Renais (0xDB, the first
+row), and nothing else, in SRAM; after a reset Extras has the Gallery row; the grid opens on its first rows; A on a
+locked CG (Reunited) does nothing; A on Flight from Renais shows it full size; right stays on it (no other CG is
+unlocked); B goes back to the grid on it; down three rows scrolls the grid a row, on screen; B again goes back to Extras.
 
 ---
 

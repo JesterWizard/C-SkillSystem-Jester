@@ -109,7 +109,7 @@ static int GetGameOptionRowCount(int optionIdx)
         return 3;
 
     if (optionIdx == GAME_OPTION_EXP_BAR)
-        return ExpBarStyle_Count();
+        return UiStyle_Count();
 
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 2;
@@ -133,7 +133,7 @@ static const char *GetGameOptionRowTitle(int optionIdx)
 static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 {
     if (optionIdx == GAME_OPTION_EXP_BAR)
-        return ExpBarStyle_Desc(value);
+        return UiStyle_Desc(value);
 
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
@@ -144,7 +144,7 @@ static const char *GetGameOptionRowHelpText(int optionIdx, int value)
 static const char *GetGameOptionRowValueText(int optionIdx, int value)
 {
     if (optionIdx == GAME_OPTION_EXP_BAR)
-        return ExpBarStyle_Name(value);
+        return UiStyle_Name(value);
 
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL || optionIdx == GAME_OPTION_MAP_COLORS)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
@@ -685,7 +685,8 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
-    /* One value shown at a time (the style's name): left and right go through ExpBarStyle_Count() styles */
+    /* The UI Style row (exp_bar_style holds it): one value shown at a time, the style's name; left and right go
+     * through UiStyle_Count() styles. Each brings its EXP bar style (ExpBarStyles.c). */
     [GAME_OPTION_EXP_BAR] =
     {
         .msgId = MSG_MENU_OPTION_EXP_BAR_TITLE,
@@ -697,7 +698,7 @@ const struct GameOption gGameOptions_NEW[] =
             { MSG_000, MSG_000, 189, 0 },
         },
         .icon = 0x10, /* reuse Window Color icon */
-        .func = GenericOptionChangeHandler,
+        .func = WindowColorOptionChangeHandler, /* as Window Color: reloads the window frames in the new style */
     },
 
     /* Three values: 0 = Vanilla, 1 = Vivid, 2 = Deep (gPlaySt.config.map_colors) */
@@ -825,7 +826,7 @@ u8 GetGameOption(u8 index) {
         case GAME_OPTION_REAL_TIME_BATTLE:               return gPlaySt.config.real_time_battle;
         case GAME_OPTION_REAL_TIME_INTERVAL:             return gPlaySt.config.real_time_interval;
         case GAME_OPTION_EXP_BAR:
-            return gPlaySt.config.exp_bar_style < ExpBarStyle_Count() ? gPlaySt.config.exp_bar_style : 0;
+            return gPlaySt.config.exp_bar_style < UiStyle_Count() ? gPlaySt.config.exp_bar_style : 0;
         case GAME_OPTION_MAP_COLORS:
             return gPlaySt.config.map_colors < 3 ? gPlaySt.config.map_colors : 0;
         case GAME_OPTION_SHOW_TRUE_2RN:

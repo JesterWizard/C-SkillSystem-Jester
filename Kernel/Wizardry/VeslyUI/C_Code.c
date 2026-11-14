@@ -1,3 +1,4 @@
+#include "exp-bar-styles.h"
 #include "gbafe.h" 
 #include "bmshop.h"
 #include "kernel-lib.h"
@@ -235,63 +236,18 @@ int GetUI_id(void)
         return 0;
 
     /*
-     * The start menu and its Extras screens (the Gallery, ...): no game is loaded, so the event flags are not the
-     * player's (they are whatever the last game left in RAM). Its windows are HyperGammaSpaces' Gamma style.
+     * The start menu and its Extras screens (the Gallery, ...): no game is loaded, so the options in RAM are not the
+     * player's (they are whatever the last game left). Its windows are HyperGammaSpaces' Gamma style.
      */
     if (Proc_Find(ProcScr_SaveMenu))
         return UI_ID_START_MENU;
 
     /*
-     * The generated styles (Wood, Tech, Royal, Glass, Paper, Ocean, Forest,
-     * Parchment) are checked first: GammaStyleFlag is the guide flag, which
-     * the campaign sets early, so a later check could never select them.
+     * The Options screen's UI Style row picks the style (UiStyle_GetUiId, ExpBarStyles.c). The style flags
+     * (WoodStyleFlag, ...) are no longer read: GammaStyleFlag is the guide flag, which the campaign sets early, and
+     * the player's choice wins.
      */
-    if (CheckFlag(WoodStyleFlag))
-    {
-        return 4;
-    }
-    if (CheckFlag(TechStyleFlag))
-    {
-        return 5;
-    }
-    if (CheckFlag(RoyalStyleFlag))
-    {
-        return 6;
-    }
-    if (CheckFlag(GlassStyleFlag))
-    {
-        return 7;
-    }
-    if (CheckFlag(PaperStyleFlag))
-    {
-        return 8;
-    }
-    if (CheckFlag(OceanStyleFlag))
-    {
-        return 9;
-    }
-    if (CheckFlag(ForestStyleFlag))
-    {
-        return 10;
-    }
-    if (CheckFlag(ParchmentStyleFlag))
-    {
-        return 11;
-    }
-    if (CheckFlag(StephanoStyleFlag))
-    {
-        return 1;
-    }
-    if (CheckFlag(GammaStyleFlag))
-    {
-        return 2;
-    }
-    if (CheckFlag(PikminStyleFlag))
-    {
-        return 3;
-    }
-
-    return 0;
+    return UiStyle_GetUiId();
 }
 int GetUIPalID(void)
 {

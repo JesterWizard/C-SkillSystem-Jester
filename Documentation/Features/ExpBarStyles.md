@@ -20,9 +20,25 @@
 
 ## 🧩 Introduction
 
-The EXP bar that fills after a battle can take one of eleven looks. The player picks one on the Options screen, in the
-**EXP Bar** row under Window Color: left and right go through the styles, and the help line describes each. Both EXP
-bars follow it: the one on the map (battle animations off) and the one in a battle animation.
+The EXP bar that fills after a battle can take one of eleven looks. Each [UI style](./VeslyUIStyles.md) has the one
+closest to its look, and the player picks the UI style on the Options screen, in the **UI Style** row under Window
+Color (this row picked the EXP bar alone before). Both EXP bars follow it: the one on the map (battle animations off)
+and the one in a battle animation.
+
+| UI style | EXP bar |
+|---|---|
+| Vanilla | Vanilla |
+| Wood | Vial |
+| Tech | Tech |
+| Royal | Gems |
+| Stained Glass | Stars |
+| Paper | Minimal |
+| Ocean | Pearls |
+| Forest | Arrow |
+| Parchment | Scroll |
+| Stephano | Blade |
+| Gamma | Chain |
+| Pikmin | Stars |
 
 <p align="center">
   <img src="../Images/ExpBarStyles_Options.png" alt="The EXP Bar row on the Options screen" width="480"/>
@@ -63,8 +79,9 @@ tiles), `Img_EkrExpBarChange` (24 tiles: every fill step of the bar's left cap, 
   the battle proc's step at `ExpBarStyle_ExecExpGain` and `ExpBarStyle_WaitExpBarIdle`, which call vanilla first and
   then draw the same frame again from the style (the 13 bar tiles and 2 digits go to vanilla's buffer at
   `gEkrBarfxBuf + 0x100`, which is copied to VRAM at the next VBlank). With Vanilla they do nothing more.
-- **The option.** `gPlaySt.config.exp_bar_style` (4 bits, from what were `custom_option_23`-`26`). The row shows one
-  value, the style's name, instead of a list of selectors; `GetGameOptionRowCount` gives the number of styles.
+- **The option.** `gPlaySt.config.exp_bar_style` (4 bits, from what were `custom_option_23`-`26`) holds the UI Style
+  row's value, an index into `sUiStyles` (`ExpBarStyles.c`), whose `exp_bar` names the EXP bar style. The row shows
+  one value, the style's name, instead of a list of selectors; `GetGameOptionRowCount` gives the number of UI styles.
 
 ### The art
 
@@ -90,11 +107,12 @@ the script draws every tile:
 1. Add a dict to `STYLES` in `Tools/expbar/styles.py` (copy the nearest one; the file's docstring lists every key).
 2. Run `python3 Tools/expbar/expbar.py --only <Name> --preview /tmp/expbar.png` and look at the preview.
 3. In `Kernel/Wizardry/ExpBarStyles/ExpBarStyles_Installer.event`, add its `Img_ExpBarStyle_<Name>` and
-   `Pal_ExpBarStyle_<Name>` labels; in `Source/ExpBarStyles.c`, add `EXP_BAR_STYLE_IMG(<Name>);` and an
-   `EXP_BAR_STYLE(<Name>, "description")` row. The order of the rows is the order on the Options screen.
+   `Pal_ExpBarStyle_<Name>` labels; in `Source/ExpBarStyles.c`, add `EXP_BAR_STYLE_IMG(<Name>);`, an
+   `EXP_BAR_STYLE(<Name>, "description")` row and its `EXP_BAR_<NAME>` value, and give it to a UI style in
+   `sUiStyles`.
 4. Build (`Tools/cloud/build.sh`), which makes the `.4bpp` and `.gbapal`, and commit the PNG with them.
 
-The option has 4 bits: 16 values, so up to 15 styles besides Vanilla.
+The option has 4 bits: 16 UI styles at most. EXP bar styles have no limit of their own.
 
 The PNGs can also be edited by hand in an editor that keeps the indexed palette. `expbar.py` overwrites them, so a hand-
 edited style should be taken out of `styles.py`.
@@ -122,8 +140,8 @@ can rearrange its 13 window tiles (with flips) without code. A different layout 
 
 ## 🧪 Testing
 
-`python3 Tools/cloud/smoketest.py --only expbar` sets the option in RAM and fights once on the map and once with battle
-animations, for the second and the last style and for Vanilla. It checks that the map bar loads the style's palette
+`python3 Tools/cloud/smoketest.py --only expbar` sets the UI Style option in RAM and fights once on the map and once with
+battle animations, for the first UI style after Vanilla (Wood, so Vial), the last (Pikmin, so Stars) and Vanilla. It checks that the map bar loads the style's palette
 (bank 5), that the battle bar loads its palette (bank 1) and its 13 window tiles (VRAM `0x6002000`), and that Vanilla
 keeps vanilla's palette in battle.
 
@@ -137,7 +155,8 @@ keeps vanilla's palette in battle.
 | LynJump (`ProcMAExpBar_OnDraw`), battle step pointers, art labels | `Kernel/Wizardry/ExpBarStyles/Source/LynJump.event`, `ExpBarStyles_Installer.event` |
 | Style art (PNG, and the `.4bpp` / `.gbapal` the build makes) | `Kernel/Wizardry/ExpBarStyles/Gfx/` |
 | Style definitions and the drawing script | `Tools/expbar/styles.py`, `Tools/expbar/expbar.py` |
-| Option row | `GAME_OPTION_EXP_BAR` in `Kernel/Wizardry/MenuOptions/MenuOptions.c`; `Tools/FE-CLib-Mokha/include/uiconfig.h` |
+| UI styles and their EXP bars | `sUiStyles` in `Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c` |
+| Option row (UI Style) | `GAME_OPTION_EXP_BAR` in `Kernel/Wizardry/MenuOptions/MenuOptions.c`; `Tools/FE-CLib-Mokha/include/uiconfig.h` |
 | Option value | `exp_bar_style` in `struct PlaySt_OptionBits` (`Tools/FE-CLib-Mokha/include/types.h`) |
 | Row title | `MSG_MENU_OPTION_EXP_BAR_TITLE` at the end of `Contents/Texts/Source/texts/Districts.txt` |
 | Smoke test | `test_expbar` in `Tools/cloud/smoketest.py` |
@@ -146,6 +165,7 @@ keeps vanilla's palette in battle.
 
 ## 🐛 Limitations & Bugs
 
+- The EXP bar can no longer be picked apart from the UI style.
 - Style names and descriptions are C strings in the style table, not text messages, so they are not translated (the
   custom options' ON/OFF are the same).
 - Every style keeps vanilla's layout (see [Layouts](#layouts)).

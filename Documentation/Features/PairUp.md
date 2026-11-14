@@ -14,7 +14,7 @@
 
 ## 🧩 Introduction
 
-The Pair-Up system replaces the unit-menu Rescue flow with explicit commands for joining units, changing companions, and changing the active unit.
+The Pair-Up system is an upgrade of Rescue that the story gives later: explicit commands for joining units, changing companions, and changing the active unit. Until it is unlocked, the unit menu has vanilla's **Rescue** (with Drop, Take and Give), and a rescue works as in vanilla.
 
 Pairing uses the existing FE8 rescue state fields internally:
 
@@ -64,13 +64,14 @@ The target-selection preview shows all eight values, including `+0`. Aid and CON
 
 ## ⚙️ Runtime Configuration
 
-Set `pair_up_enabled` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c):
+Pair Up is on only when both hold (`PairUp_IsUnlocked` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c)):
 
-```c
-.pair_up_enabled = true,
-```
+- `pair_up_enabled` is set in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) (`.pair_up_enabled = true`, the default), and
+- the permanent flag `GLOBAL_FLAG_PAIR_UP_UNLOCKED` (`0x9C`, [`custom-structs.h`](../../include/jester_headers/custom-structs.h)) is set. Nothing sets it yet: the event that gives the upgrade sets it with `ENUT 0x9C` (or `SetFlag(GLOBAL_FLAG_PAIR_UP_UNLOCKED)` in C).
 
-When false, Pair Up, Shelter, Transfer, and Switch are unavailable and their effects reject activation. The default configuration keeps the feature enabled.
+Before that, the unit menu has vanilla's Rescue (`RescueUsability`, rewritten in `PairUp.c` with vanilla's checks, and vanilla's `RescueEffect`); `ActionRescue` runs vanilla's rescue; the rescuer's Skl and Spd are halved as in vanilla (`PairUp_RescueStatScale`), with no pair bonus; a rescued ally is not drawn beside its rescuer (`PutRescuedSupportSpritesOam`, `MirrorSprites.c`); and Pair Up, Shelter, Transfer and Switch are not shown. Rescue needs the rescuer's Aid to cover the unit's Con, as in vanilla (`TryAddUnitToRescueTargetList`, `UnitTarget.c`); Pair Up has no such limit.
+
+After it, Rescue is not shown, Pair Up and the other three commands are, and every rescue state between allies is a pair: a rescue made before the upgrade becomes a pair.
 
 ---
 
@@ -78,7 +79,9 @@ When false, Pair Up, Shelter, Transfer, and Switch are unavailable and their eff
 
 | Feature | Location | Description |
 |---------|----------|-------------|
-| Runtime flag | `pair_up_enabled` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) / [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Enables the four pair-up commands |
+| Runtime flag | `pair_up_enabled` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) / [`kernel-lib.h`](../../include/kernel/kernel-lib.h) | Allows the four pair-up commands |
+| Unlock | `PairUp_IsUnlocked`, `GLOBAL_FLAG_PAIR_UP_UNLOCKED` (`0x9C`) | The story's upgrade from Rescue |
+| Rescue (before the upgrade) | `RescueUsability`, `ActionRescue` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c); the Rescue row in [`UnitMenu.c`](../../Data/UnitMenu/Source/UnitMenu.c) | Vanilla's Rescue |
 | Pair state | `PairUp_Attach`, `PairUp_Separate`, `PairUp_GetLeader`, and `PairUp_GetSupport` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Reads and updates the rescue-backed leader/support relationship |
 | Pair and Shelter actions | `ActionRescue` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Applies Pair Up or Shelter mode and updates the active unit |
 | Transfer | `PairUp_Transfer` and `PairUp_TransferOnSelect` in [`PairUp.c`](../../Kernel/Wizardry/PairUp/Source/PairUp.c) | Moves companions between adjacent leaders |
@@ -95,6 +98,7 @@ When false, Pair Up, Shelter, Transfer, and Switch are unavailable and their eff
 
 ## 📝 TODO
 
+- Set `GLOBAL_FLAG_PAIR_UP_UNLOCKED` in the story event that gives the upgrade (not decided yet).
 - Add dedicated gameplay tests for each command and active-unit transition.
 - Decide whether disabling the flag mid-chapter should automatically separate existing pairs.
 - Replace the rescue marker byte with a dedicated pair-up mode field if the system gains additional action modes.
