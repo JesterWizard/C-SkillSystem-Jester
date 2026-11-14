@@ -77,7 +77,16 @@
 #define STAMP_AT 14                     /* frames from the card to its stamp */
 #define STAMP_SCALE 256                 /* the stamp's size once down (256 is full size) */
 
-#define HOOK_X FISHING_ROD_TIP_X
+/*
+ * The hook's column: under the rod tip at rest, out where the cast lands it (FS->hookX). The aim (Up/Down while choosing
+ * a bait) raises the rod, and each step casts AIM_STEP pixels further out over the water.
+ */
+#define HOOK_X ((int)FS->hookX)
+#define FISHING_AIM_MAX 12
+#define AIM_STEP 10
+#define AIM_START 3
+#define CAST_X(aim) (FISHING_ROD_TIP_X - 8 - (aim) * AIM_STEP)
+#define CAST_FLIGHT 20                  /* frames from the rod tip to the splash */
 #define HOOK_MIN (FISHING_SURFACE_Y + 12)
 #define HOOK_MAX (FISHING_BED_Y - 8)
 #define HOOK_START (FISHING_SURFACE_Y + 40)
@@ -327,6 +336,7 @@ static int Fishing_Px(const struct FishingFish *f)
 }
 
 static const struct FishType *Fishing_TypeOf(const struct FishingFish *f);
+static void Fishing_SetHook(int q);
 
 static int Fishing_MouthX(const struct FishingFish *f)
 {
@@ -692,8 +702,8 @@ static int Fishing_HintKey(void)
 static int Fishing_Hints(int key, const struct Hint **out)
 {
 	static const struct Hint ready[] = {
-		{ HINT_LEFTRIGHT, MSG_FISHING_K_BAIT }, { HINT_A, MSG_FISHING_K_CAST },
-		{ HINT_B, MSG_FISHING_K_EXIT }, { HINT_START, MSG_FISHING_K_PRIZES },
+		{ HINT_LEFTRIGHT, MSG_FISHING_K_BAIT }, { HINT_UPDOWN, MSG_FISHING_K_AIM },
+		{ HINT_A, MSG_FISHING_K_CAST }, { HINT_B, MSG_FISHING_K_EXIT },
 	};
 	static const struct Hint wait[] = {
 		{ HINT_UPDOWN, MSG_FISHING_K_DEPTH }, { HINT_A, MSG_FISHING_K_REEL_IN },
@@ -1383,6 +1393,8 @@ static void Fishing_Init(struct ProcFishing *proc)
 	FS->biter = -1;
 	FS->targetY = HOOK_START;
 	FS->hookY = HOOK_REST;
+	FS->hookX = FISHING_ROD_TIP_X;
+	FS->aim = AIM_START;
 	FS->camY = 0;
 	FS->splash = 0;
 	FS->bait = BAIT_WORM;
@@ -1493,8 +1505,15 @@ static void Fishing_UpdateFish(int i)
 			FS->biter = -1;
 			return;
 		}
-		/* Moving the hook, or pressing A too soon, scares it off. */
-		if (FS->hookY != FS->nibbleY || (gKeyStatusPtr->newKeys & A_BUTTON)) {
+		/* A during the nibble sets the hook (no bonus: that is for waiting for the bite) */
+		if (gKeyStatusPtr->newKeys & A_BUTTON) {
+			Fishing_SetMouthX(f, MOUTH_X);
+			f->mode = FISHM_HOOKED;
+			Fishing_SetHook(0);
+			return;
+		}
+		/* Moving the hook scares it off. */
+		if (FS->hookY != FS->nibbleY) {
 			Fishing_Flee(i);
 			PlaySoundEffect(SE_LOST);
 			FS->msg = MSG_FISHING_SCARED;
@@ -1550,6 +1569,10 @@ static void Fishing_UpdateRod(void)
 	int target = ROD_BASE + (SIN((clock << 1) & 0xFF) >> 11);
 
 	switch (FS->state) {
+	case FS_READY:
+		/* The aim: the rod goes up with it */
+		target = ROD_BASE + FS->aim * 3 + (SIN((clock << 1) & 0xFF) >> 11);
+		break;
 	case FS_WAIT:
 		if (FS->biter >= 0 && FS->fish[FS->biter].mode == FISHM_NIBBLE)
 			target = ROD_BASE - ((clock & 8) ? 3 : 1);
@@ -1769,6 +1792,26 @@ static void Fishing_ToReady(void)
 {
 	FS->state = FS_READY;
 	FS->hookY = HOOK_REST;
+	FS->hookX = FISHING_ROD_TIP_X;
+}
+
+/* The line comes in: the hook rises by dy and swings back under the rod tip. TRUE once it is home. */
+static bool Fishing_ReelBack(int dy)
+{
+	FS->hookY = FS->hookY - dy > HOOK_REST ? FS->hookY - dy : HOOK_REST;
+	FS->hookX = FS->hookX + 6 < FISHING_ROD_TIP_X ? FS->hookX + 6 : FISHING_ROD_TIP_X;
+	return FS->hookY == HOOK_REST && FS->hookX == FISHING_ROD_TIP_X;
+}
+
+/* Where the cast's arc is t frames into its CAST_FLIGHT, from the rod tip out to the water at the aim */
+static void Fishing_CastArc(int t, int *x, int *y)
+{
+	int tx = CAST_X(FS->aim);
+	int h = 16 + FS->aim * 2;
+
+	*x = FISHING_ROD_TIP_X + Div((tx - FISHING_ROD_TIP_X) * t, CAST_FLIGHT);
+	*y = HOOK_REST + Div((FISHING_SURFACE_Y - HOOK_REST) * t, CAST_FLIGHT) -
+	     Div(h * 4 * t * (CAST_FLIGHT - t), CAST_FLIGHT * CAST_FLIGHT);
 }
 
 static void Fishing_OpenTable(void)
@@ -2063,6 +2106,23 @@ static void Fishing_UpdateBehaviour(const struct FishType *t)
 }
 
 /* Returns TRUE to leave the screen. */
+/* The fish is on: the tension game starts. q is the hook bonus in quarters (0: none). */
+static void Fishing_SetHook(int q)
+{
+	FS->hookQ = q;
+	FS->bonusTimer = q > 0 ? 90 : 0;
+	FS->state = FS_REEL;
+	FS->tension = TENSION_START;
+	FS->progress = 0;
+	FS->reelFrames = 0;
+	FS->slack = 0;
+	FS->burst = 0;
+	FS->reelStartY = FS->hookY;
+	PlaySoundEffect(SE_BITE);
+	Fishing_StartFight();
+	Fishing_OnHooked();
+}
+
 static bool Fishing_UpdateState(void)
 {
 	u16 newKeys = gKeyStatusPtr->newKeys;
@@ -2101,6 +2161,15 @@ static bool Fishing_UpdateState(void)
 			FS->bait = FS->bait == BAIT_TYPES - 1 ? 0 : FS->bait + 1;
 			PlaySoundEffect(SE_PICK);
 		}
+		/* Up raises the rod for a longer cast, Down lowers it */
+		if ((newKeys & DPAD_UP) && FS->aim < FISHING_AIM_MAX) {
+			FS->aim++;
+			PlaySoundEffect(SE_PICK);
+		}
+		if ((newKeys & DPAD_DOWN) && FS->aim > 0) {
+			FS->aim--;
+			PlaySoundEffect(SE_PICK);
+		}
 		if (newKeys & A_BUTTON) {
 			if (FS->baited != FS->bait) {
 				if (GetPartyGoldAmount() < sBaitTypes[FS->bait].price) {
@@ -2112,16 +2181,28 @@ static bool Fishing_UpdateState(void)
 				FS->baited = FS->bait;
 			}
 			FS->state = FS_CAST;
+			FS->timer = 0;
 			FS->hookY = HOOK_REST;
-			FS->rodAngle = 46 << 8;
+			FS->hookX = FISHING_ROD_TIP_X;
+			FS->rodAngle = (46 + FS->aim * 2) << 8;
 			PlaySoundEffect(SE_CAST);
 		}
 		break;
 
 	case FS_CAST:
+		/* The hook flies out on its arc to the aim, splashes down, then sinks to the depth of the last cast */
+		if (FS->timer < CAST_FLIGHT) {
+			int x, y;
+
+			FS->timer++;
+			Fishing_CastArc(FS->timer, &x, &y);
+			FS->hookX = (u8)x;
+			FS->hookY = y;
+			if (FS->timer == CAST_FLIGHT)
+				FS->splash = 16;
+			break;
+		}
 		FS->hookY += 4;
-		if (FS->hookY >= FISHING_SURFACE_Y && FS->hookY < FISHING_SURFACE_Y + 4)
-			FS->splash = 16;
 		if (FS->hookY >= FS->targetY) {
 			FS->hookY = FS->targetY;
 			FS->state = FS_WAIT;
@@ -2148,26 +2229,14 @@ static bool Fishing_UpdateState(void)
 		break;
 
 	case FS_RECALL:
-		FS->hookY -= 8;
-		if (FS->hookY <= HOOK_REST)
+		if (Fishing_ReelBack(8))
 			Fishing_ToReady();
 		break;
 
 	case FS_BITE:
 		FS->biteClock++;
 		if (newKeys & A_BUTTON) {
-			FS->hookQ = FS->biteClock <= 8 ? 2 : (FS->biteClock <= 14 ? 1 : 0);
-			FS->bonusTimer = FS->hookQ > 0 ? 90 : 0;
-			FS->state = FS_REEL;
-			FS->tension = TENSION_START;
-			FS->progress = 0;
-			FS->reelFrames = 0;
-			FS->slack = 0;
-			FS->burst = 0;
-			FS->reelStartY = FS->hookY;
-			PlaySoundEffect(SE_BITE);
-			Fishing_StartFight();
-			Fishing_OnHooked();
+			Fishing_SetHook(FS->biteClock <= 8 ? 2 : (FS->biteClock <= 14 ? 1 : 0));
 			break;
 		}
 		if (FS->timer > 0) {
@@ -2250,6 +2319,7 @@ static bool Fishing_UpdateState(void)
 		FS->state = FS_RESULT;
 		FS->timer = CARD_DELAY;
 		FS->hookY = HOOK_REST;
+		FS->hookX = FISHING_ROD_TIP_X;
 		PlaySoundEffect(SE_GOLD);
 		Fishing_OnLanded();
 		break;
@@ -2288,7 +2358,7 @@ static bool Fishing_UpdateState(void)
 		break;
 
 	case FS_MESSAGE:
-		FS->hookY = FS->hookY - 8 > HOOK_REST ? FS->hookY - 8 : HOOK_REST;
+		Fishing_ReelBack(8);
 		if (FS->timer > 0)
 			FS->timer--;
 		if (FS->timer == 0 || (FS->timer < 100 && (newKeys & A_BUTTON)))
@@ -2384,23 +2454,42 @@ static void Fishing_DrawFish(void)
 
 static void Fishing_DrawLine(void)
 {
-	int bobY, x, y, dip = 0, bottom, top, tipX, tipY, span;
+	int bobY, x, y, dip = 0, bottom, top, tipX, tipY, span, end, k;
 	int clock = GetGameClock();
 
 	if (FS->state == FS_WALKIN || FS->state == FS_PRIZES)
 		return;
 
-	/* From the rod tip to the bobber the line slants (the tip moves with the rod), then hangs straight down. */
+	/* Choosing a bait: the cast's arc, dashes running out to a bobber that blinks where the hook will land */
+	if (FS->state == FS_READY) {
+		for (k = 2 + ((clock >> 2) & 1); k < CAST_FLIGHT; k += 2) {
+			Fishing_CastArc(k, &x, &y);
+			if (Fishing_OnScreen(y, 8))
+				SPR(x, y - FS->camY, gObject_8x8, FISHING_CHR_LINE, PAL_FX, 0, 0);
+		}
+		if ((clock & 16) && Fishing_OnScreen(BOBBER_Y, 8))
+			SPR(CAST_X(FS->aim) - 3, BOBBER_Y - FS->camY, gObject_8x8, FISHING_CHR_BOBBER, PAL_FX, 0, 0);
+	}
+
+	/*
+	 * From the rod tip to the bobber the line slants (the tip moves with the rod, the bobber is out where the cast
+	 * landed), then hangs straight down. The slant gets a dot every 4 pixels along its longer side.
+	 */
 	Fishing_RodTip(&tipX, &tipY);
 	bottom = FS->hookY - 3;
-	span = BOBBER_Y + 4 - tipY;
-	top = FS->camY + FISHING_WINDOW_H > tipY ? FS->camY + FISHING_WINDOW_H : tipY;
-	for (y = top; y + 4 < bottom; y += 4) {
-		x = HOOK_X;
-		if (y < BOBBER_Y + 4 && span > 0)
-			x = tipX + Div((HOOK_X - tipX) * (y - tipY), span);
-		if (Fishing_OnScreen(y, 8))
+	top = FS->camY + FISHING_WINDOW_H;
+	end = bottom < BOBBER_Y + 4 ? bottom : BOBBER_Y + 4;
+	span = Fishing_Abs(HOOK_X - tipX) > end - tipY ? Fishing_Abs(HOOK_X - tipX) : end - tipY;
+	span >>= 2;
+	for (k = 1; k < span; k++) {
+		x = tipX + Div((HOOK_X - tipX) * k, span);
+		y = tipY + Div((end - tipY) * k, span);
+		if (y >= top && Fishing_OnScreen(y, 8))
 			SPR(x, y - FS->camY, gObject_8x8, FISHING_CHR_LINE, PAL_FX, 0, 0);
+	}
+	for (y = end > top ? end : top; y + 4 < bottom; y += 4) {
+		if (Fishing_OnScreen(y, 8))
+			SPR(HOOK_X, y - FS->camY, gObject_8x8, FISHING_CHR_LINE, PAL_FX, 0, 0);
 	}
 	if (bottom - 8 >= BOBBER_Y && Fishing_OnScreen(bottom - 8, 8))
 		SPR(HOOK_X, bottom - 8 - FS->camY, gObject_8x8, FISHING_CHR_LINE, PAL_FX, 0, 0);

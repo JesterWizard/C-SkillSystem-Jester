@@ -27,6 +27,14 @@ void WorldMap_Destruct(struct WorldMapMainProc * proc)
     /* EnterTown sets this so the district map loads instead of tearing the world map down. */
     if (sWmMapReloadPending != 0)
     {
+        /*
+         * The district opening fades in from black (its FADE_FROM_BLACK). sub_80BF15C and EndWorldmapMinimap reset
+         * the blend above, so the screen showed garbage tiles while the district loaded: black again, everything.
+         */
+        SetBlendConfig(BLEND_EFFECT_DARKEN, 0, 0, 0x10);
+        SetBlendTargetA(1, 1, 1, 1, 1);
+        SetBlendBackdropA(1);
+
         sWmMapReloadPending = 0;
         gGMData.state.raw = 0x36;
         return;

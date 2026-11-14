@@ -61,26 +61,27 @@ const struct DistrictNpc *GetDistrictNpc(int chapter, int pid)
 }
 
 /*
- * Proc state. PROC_HEADER is 0x29 bytes; the whole struct is 0x64 bytes with
- * padding (budget 0x6C).
+ * Each NPC takes a step about once a second on its own timer, whatever the player does: the player's free movement
+ * only waits for its own MU (FreeMU_Core.c), and an NPC never steps next to the player. A walk is a bare MU, and
+ * vanilla has 4 MU slots, so at most DISTRICT_NPC_WALKS walk at once and the player always has one.
  */
+#define DISTRICT_NPC_WALKS 2
+#define DISTRICT_NPC_STEP_FRAMES 60
+
+/* Proc state. PROC_HEADER is 0x29 bytes; the whole struct must fit in 0x6C. */
 struct DistrictNpcProc {
 	PROC_HEADER;
 	u8 count;
-	u8 next;		/* index of the NPC that moves on the next tick */
-	u16 timer;		/* frames until the next NPC move */
-	u8 cooldown;		/* frames to wait after the player stops moving */
-	s8 playerX;		/* last seen position of gActiveUnit */
-	s8 playerY;
 	u8 unitId[DISTRICT_NPC_MAX];
 	s8 homeX[DISTRICT_NPC_MAX];
 	s8 homeY[DISTRICT_NPC_MAX];
 	u8 radius[DISTRICT_NPC_MAX];
-	u8 hex[DISTRICT_NPC_MAX];	/* 1 if the row has DISTRICT_NPC_HEX */
+	u8 timer[DISTRICT_NPC_MAX];	/* frames until this NPC's next step */
+	u8 hexMask;			/* bit i: row i has DISTRICT_NPC_HEX */
 	u8 iconsLoaded;			/* Hex Card icon graphics are in OBJ VRAM */
 	u8 gatesLoaded;			/* Gate arrow graphics are in OBJ VRAM */
-	u8 walkIdx;			/* NPC index of walkMu (only valid while walkMu is set) */
-	struct MuProc *walkMu;		/* bare MU for the NPC that is walking, NULL when idle */
+	u8 walkIdx[DISTRICT_NPC_WALKS];	/* NPC index of each walk (only valid while its walkMu is set) */
+	struct MuProc *walkMu[DISTRICT_NPC_WALKS];	/* bare MU of each walking NPC, NULL when free */
 	u32 lastClock;			/* GetGameClock() at the last tick, to spot a gap (the map was suspended) */
 };
 
@@ -93,15 +94,13 @@ static void DistrictNpc_Init(ProcPtr proc)
 	int id;
 
 	p->count = 0;
-	p->next = 0;
-	p->timer = 60;
-	p->cooldown = 0;
-	p->playerX = 0;
-	p->playerY = 0;
+	p->hexMask = 0;
 	p->iconsLoaded = 0;
 	p->gatesLoaded = 0;
-	p->walkMu = NULL;
-	p->walkIdx = 0;
+	for (id = 0; id < DISTRICT_NPC_WALKS; id++) {
+		p->walkMu[id] = NULL;
+		p->walkIdx[id] = 0;
+	}
 	p->lastClock = GetGameClock();
 
 	/* This story chapter's places (District life); the NPCs then wander around them */
@@ -120,13 +119,11 @@ static void DistrictNpc_Init(ProcPtr proc)
 		p->homeX[p->count] = unit->xPos;
 		p->homeY[p->count] = unit->yPos;
 		p->radius[p->count] = row->radius;
-		p->hex[p->count] = (row->flags & DISTRICT_NPC_HEX) ? 1 : 0;
+		/* Spread out: each starts its one-a-second steps at its own moment */
+		p->timer[p->count] = 20 + NextRN_N(DISTRICT_NPC_STEP_FRAMES);
+		if (row->flags & DISTRICT_NPC_HEX)
+			p->hexMask |= 1 << p->count;
 		p->count++;
-	}
-
-	if (gActiveUnit) {
-		p->playerX = gActiveUnit->xPos;
-		p->playerY = gActiveUnit->yPos;
 	}
 }
 
@@ -138,12 +135,25 @@ static bool DistrictNpc_IsDoorTerrain(u8 terrain)
 }
 
 /*
- * True while walkMu is a live MU proc. A MU that ends by itself frees its proc
- * slot, and DeleteProcessRecursive clears proc_script on that slot.
+ * True while walk w's MU is a live MU proc of its NPC. A MU that ends by itself frees its proc slot, and
+ * DeleteProcessRecursive clears proc_script on that slot; a new MU (the player's) can take the slot, hence the unit.
  */
-static bool DistrictNpc_WalkMuLive(struct DistrictNpcProc *p)
+static bool DistrictNpc_WalkMuLive(struct DistrictNpcProc *p, int w)
 {
-	return p->walkMu && p->walkMu->proc_script == ProcScr_Mu;
+	struct MuProc *mu = p->walkMu[w];
+
+	return mu && mu->proc_script == ProcScr_Mu && mu->unit == GetUnit(p->unitId[p->walkIdx[w]]);
+}
+
+/* The walk NPC i is on, or -1 */
+static int DistrictNpc_WalkOf(struct DistrictNpcProc *p, int i)
+{
+	int w;
+
+	for (w = 0; w < DISTRICT_NPC_WALKS; w++)
+		if (p->walkMu[w] && p->walkIdx[w] == i)
+			return w;
+	return -1;
 }
 
 /*
@@ -260,7 +270,7 @@ static void DistrictNpc_DrawGates(void)
 static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 {
 	struct Unit *unit;
-	int i, bob, px, py, sx, sy, walking;
+	int i, w, bob, px, py, sx, sy, walking;
 
 	if (!p->iconsLoaded) {
 		/* Item icon palette 0, as in AchievementsMenu.c */
@@ -273,7 +283,7 @@ static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 	bob = (GetGameClock() >> 4) & 1;
 
 	for (i = 0; i < p->count; i++) {
-		if (!p->hex[i])
+		if (!(p->hexMask & (1 << i)))
 			continue;
 
 		unit = GetUnit(p->unitId[i]);
@@ -281,7 +291,8 @@ static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 			continue;
 
 		/* While this NPC walks, its standing sprite is hidden: allow that */
-		walking = DistrictNpc_WalkMuLive(p) && p->walkIdx == i;
+		w = DistrictNpc_WalkOf(p, i);
+		walking = w >= 0 && DistrictNpc_WalkMuLive(p, w);
 		if (unit->state & (US_DEAD | US_NOT_DEPLOYED))
 			continue;
 		if (!walking && (unit->state & US_HIDDEN))
@@ -289,8 +300,8 @@ static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 
 		/* While this NPC walks, its standing sprite is replaced by a MU: follow that */
 		if (walking) {
-			px = p->walkMu->x_q4 >> 4;
-			py = p->walkMu->y_q4 >> 4;
+			px = p->walkMu[w]->x_q4 >> 4;
+			py = p->walkMu[w]->y_q4 >> 4;
 		} else {
 			px = unit->xPos * 16;
 			py = unit->yPos * 16;
@@ -322,32 +333,108 @@ static const u8 sNpcWalkDown[MOVE_CMD_MAX_COUNT] = { MOVE_CMD_MOVE_DOWN, MOVE_CM
  * Ends the walk and puts the NPC's standing sprite back at its tile. A MU that
  * already ended on its own has a freed slot, so it is not passed to EndMu.
  */
-static void DistrictNpc_FinishWalk(struct DistrictNpcProc *p)
+static void DistrictNpc_FinishWalk(struct DistrictNpcProc *p, int w)
 {
 	struct Unit *unit;
 
-	if (!p->walkMu)
+	if (!p->walkMu[w])
 		return;
 
-	if (DistrictNpc_WalkMuLive(p))
-		EndMu(p->walkMu);
-	p->walkMu = NULL;
+	if (DistrictNpc_WalkMuLive(p, w))
+		EndMu(p->walkMu[w]);
+	p->walkMu[w] = NULL;
 
-	unit = GetUnit(p->unitId[p->walkIdx]);
+	unit = GetUnit(p->unitId[p->walkIdx[w]]);
 	if (unit && unit->pCharacterData) {
 		ShowUnitSprite(unit);
 		RefreshEntityBmMaps();
+		/* The standing sprite list keeps each sprite's tile: without this it came back on the tile it left */
+		RefreshUnitSprites();
 	}
+}
+
+/* NPC idx takes one step in a random free direction, as walk w. False if every way is shut. */
+static bool DistrictNpc_Step(struct DistrictNpcProc *p, int idx, int w)
+{
+	struct Unit *unit = GetUnit(p->unitId[idx]);
+	struct Trap *trap;
+	struct MuProc *mu;
+	const u8 *script;
+	int dir, tries, nx, ny, dx, dy;
+
+	if (!unit || !unit->pCharacterData)
+		return false;
+	if (unit->state & (US_DEAD | US_NOT_DEPLOYED | US_HIDDEN))
+		return false;
+
+	dir = NextRN_N(4);
+	for (tries = 0; tries < 4; tries++, dir = (dir + 1) & 3) {
+		nx = unit->xPos;
+		ny = unit->yPos;
+		if (dir == 0) {
+			nx--;
+			script = sNpcWalkLeft;
+		} else if (dir == 1) {
+			nx++;
+			script = sNpcWalkRight;
+		} else if (dir == 2) {
+			ny--;
+			script = sNpcWalkUp;
+		} else {
+			ny++;
+			script = sNpcWalkDown;
+		}
+
+		/* Stay inside the wander box (compares only, no abs or %) */
+		if (nx < p->homeX[idx] - p->radius[idx] || nx > p->homeX[idx] + p->radius[idx])
+			continue;
+		if (ny < p->homeY[idx] - p->radius[idx] || ny > p->homeY[idx] + p->radius[idx])
+			continue;
+
+		/*
+		 * Never next to the player: their next step goes to a tile next to them, and an NPC there would stop it
+		 * (or walk into them while their position is still the tile they left)
+		 */
+		if (gActiveUnit) {
+			dx = nx - gActiveUnit->xPos;
+			dy = ny - gActiveUnit->yPos;
+			if (dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1)
+				continue;
+		}
+
+		if (!FMU_CanUnitBeOnPos(unit, nx, ny))
+			continue;
+
+		/* Keep off traps (the district gate) and the door tiles */
+		trap = GetTrapAt(nx, ny);
+		if (trap && trap->type != TRAP_NONE)
+			continue;
+		if (DistrictNpc_IsDoorTerrain(gBmMapTerrain[ny][nx]))
+			continue;
+
+		/* Bare MU, no camera: start it on the old tile, then move the logical position */
+		mu = StartMu(unit);
+		if (!mu)
+			return false;
+		DisableMuCamera(mu);
+		SetMuMoveScript(mu, script);
+
+		unit->xPos = nx;
+		unit->yPos = ny;
+		HideUnitSprite(unit);
+		RefreshEntityBmMaps();
+
+		p->walkMu[w] = mu;
+		p->walkIdx[w] = idx;
+		return true;
+	}
+	return false;
 }
 
 static void DistrictNpc_Loop(ProcPtr proc)
 {
 	struct DistrictNpcProc *p = proc;
-	struct Unit *unit;
-	struct Trap *trap;
-	struct MuProc *mu;
-	const u8 *script;
-	int idx, dir, nx, ny, homeX, homeY, radius;
+	int i, w;
 	u32 clock;
 
 	/*
@@ -362,12 +449,13 @@ static void DistrictNpc_Loop(ProcPtr proc)
 	p->lastClock = clock;
 
 	/*
-	 * The walk ends when its MU proc is gone or stops moving, or when an event
+	 * A walk ends when its MU proc is gone or stops moving, or when an event
 	 * starts. The proc check comes first, so a freed slot is never read for state.
 	 */
-	if (p->walkMu && (EventEngineExists() || !DistrictNpc_WalkMuLive(p) ||
-			  p->walkMu->state != MU_STATE_MOVEMENT))
-		DistrictNpc_FinishWalk(p);
+	for (w = 0; w < DISTRICT_NPC_WALKS; w++)
+		if (p->walkMu[w] && (EventEngineExists() || !DistrictNpc_WalkMuLive(p, w) ||
+				     p->walkMu[w]->state != MU_STATE_MOVEMENT))
+			DistrictNpc_FinishWalk(p, w);
 
 	/* Only while free movement is on and no event is running */
 	if (!GetFreeMovementState() || EventEngineExists()) {
@@ -395,105 +483,26 @@ static void DistrictNpc_Loop(ProcPtr proc)
 #endif
 
 #ifdef CONFIG_HEX_CARDS
-	/* Drawn every frame, also on the ticks below that return early */
 	DistrictNpc_DrawIcons(p);
 #endif
 
-	/* One walk at a time */
-	if (p->walkMu)
-		return;
+	/* Each NPC on its own clock; one whose step is due waits for a free walk */
+	for (i = 0; i < p->count; i++) {
+		/* The clock runs during the step too, so a step starts about once a second */
+		if (p->timer[i] > 0)
+			p->timer[i]--;
+		if (p->timer[i] > 0 || p->radius[i] == 0 || DistrictNpc_WalkOf(p, i) >= 0)
+			continue;
 
-	/* The player is moving: wait for them to stop */
-	if (gActiveUnit && (gActiveUnit->xPos != p->playerX || gActiveUnit->yPos != p->playerY)) {
-		p->playerX = gActiveUnit->xPos;
-		p->playerY = gActiveUnit->yPos;
-		p->cooldown = 30;
-		return;
+		for (w = 0; w < DISTRICT_NPC_WALKS; w++)
+			if (!p->walkMu[w])
+				break;
+		if (w == DISTRICT_NPC_WALKS)
+			continue;
+
+		/* Boxed in this time: try again a bit later */
+		p->timer[i] = DistrictNpc_Step(p, i, w) ? DISTRICT_NPC_STEP_FRAMES - 10 + NextRN_N(9) : 15;
 	}
-	if (p->cooldown > 0) {
-		p->cooldown--;
-		return;
-	}
-
-	if (gKeyStatusPtr->heldKeys & DPAD_ANY)
-		return;
-	if (MuExists())
-		return;
-
-	if (p->timer > 0) {
-		p->timer--;
-		return;
-	}
-	p->timer = 20 + NextRN_N(30);
-
-	if (p->count == 0)
-		return;
-
-	idx = p->next;
-	p->next++;
-	if (p->next >= p->count)
-		p->next = 0;
-
-	/* Stands still, or idles this turn */
-	if (p->radius[idx] == 0 || NextRN_N(3) == 0)
-		return;
-
-	unit = GetUnit(p->unitId[idx]);
-	if (!unit || !unit->pCharacterData)
-		return;
-	if (unit->state & (US_DEAD | US_NOT_DEPLOYED | US_HIDDEN))
-		return;
-
-	dir = NextRN_N(4);
-	nx = unit->xPos;
-	ny = unit->yPos;
-	if (dir == 0) {
-		nx--;
-		script = sNpcWalkLeft;
-	} else if (dir == 1) {
-		nx++;
-		script = sNpcWalkRight;
-	} else if (dir == 2) {
-		ny--;
-		script = sNpcWalkUp;
-	} else {
-		ny++;
-		script = sNpcWalkDown;
-	}
-
-	/* Stay inside the wander box (compares only, no abs or %) */
-	homeX = p->homeX[idx];
-	homeY = p->homeY[idx];
-	radius = p->radius[idx];
-	if (nx < homeX - radius || nx > homeX + radius)
-		return;
-	if (ny < homeY - radius || ny > homeY + radius)
-		return;
-
-	if (!FMU_CanUnitBeOnPos(unit, nx, ny))
-		return;
-
-	/* Keep off traps (the district gate) and the door tiles */
-	trap = GetTrapAt(nx, ny);
-	if (trap && trap->type != TRAP_NONE)
-		return;
-	if (DistrictNpc_IsDoorTerrain(gBmMapTerrain[ny][nx]))
-		return;
-
-	/* Bare MU, no camera: start it on the old tile, then move the logical position */
-	mu = StartMu(unit);
-	if (!mu)
-		return;
-	DisableMuCamera(mu);
-	SetMuMoveScript(mu, script);
-
-	unit->xPos = nx;
-	unit->yPos = ny;
-	HideUnitSprite(unit);
-	RefreshEntityBmMaps();
-
-	p->walkMu = mu;
-	p->walkIdx = idx;
 }
 
 const struct ProcCmd ProcScr_DistrictNpc[] = {
@@ -511,9 +520,11 @@ const struct ProcCmd ProcScr_DistrictNpc[] = {
 void DistrictNpc_EndWalk(void)
 {
 	struct DistrictNpcProc *p = Proc_Find(ProcScr_DistrictNpc);
+	int w;
 
 	if (p)
-		DistrictNpc_FinishWalk(p);
+		for (w = 0; w < DISTRICT_NPC_WALKS; w++)
+			DistrictNpc_FinishWalk(p, w);
 }
 
 /* ASMC from the district opening script. Does nothing if already running. */

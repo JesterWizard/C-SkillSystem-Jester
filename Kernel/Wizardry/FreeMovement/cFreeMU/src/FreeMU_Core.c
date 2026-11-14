@@ -29,9 +29,32 @@ static inline bool IsCharInvaild(struct Unit* unit){
  *
 */
 
+/* Vanilla's proc pool: 64 procs of 0x6C bytes */
+extern u8 sProcArray[];
+
+/*
+ * The player's step is still going. Other MUs (a district's wandering NPCs, DistrictNpc.c) walk at the same time, so
+ * MuExists() alone held the player still whenever an NPC took a step. (A file-scope flag for Proc_ForEach would be
+ * .bss, which lyn does not place.)
+ */
+static bool FMU_PlayerMoving(void)
+{
+	struct MuProc *mu;
+	int i;
+
+	if (MuCtrExists())
+		return true;
+
+	for (i = 0; i < 0x40; i++) {
+		mu = (struct MuProc *)(sProcArray + i * 0x6C);
+		if (mu->proc_script == ProcScr_Mu && mu->unit == gActiveUnit)
+			return true;
+	}
+	return false;
+}
+
 void pFMU_MainLoop(struct FMUProc* proc){
-	LogPrintf("[FreeMU] pFMU_MainLoop: MuExists=%d active=%p", MuExists(), gActiveUnit);
-	if(MuExists()){
+	if(FMU_PlayerMoving()){
 		/* u8 iKeyDirec = FMU_CheckDirectionButtonPress();
 		if(0!=iKeyDirec)
 			*(gUnitMoveBuffer+0x4) = iKeyDirec; */

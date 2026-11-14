@@ -1101,7 +1101,13 @@ void InitBoxDialogue(void * vram_dst, int pad_idx) {
     pad_idx = (pad_idx & 0xf) + 0x10;
 
     if (GetDialogueBoxConfig() & 0x10) {
-        vram_dst = (void *)0x06016800;
+        /*
+         * The yellow box (event prompts: "Leave the district?") takes 10 tile rows (five texts of two rows, 0x2800
+         * bytes). On a map, OBJ tile rows 12-15 hold the moving units (MUs, OBCHR_MU_180) and rows 28-31 the standing
+         * ones: at 0x06016800 it ran past the end of OBJ VRAM and wrapped round over the hand cursor (an orange
+         * block), and at 0x06015800 it overwrote the standing sprites (a grey square for a 32x32 one). Rows 16-25.
+         */
+        vram_dst = (void *)0x06014000;
         Decompress(gGfx_YellowTextBox, vram_dst + 0x360);
         Decompress(gGfx_YellowTextBox2, vram_dst + 0x760);
         Decompress(gGfx_YellowTextBox3, vram_dst + 0xb60);

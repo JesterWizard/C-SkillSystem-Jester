@@ -98,6 +98,10 @@ When your hand has 7 cards, the list shows `Accept` and `Change`:
 | A | Choose the highlighted card and go to cell choice |
 | B | Nothing: a match is played to its end |
 
+The highlighted card is drawn in front of the rest of your hand, so all its reach dots show (in hand, each card covers the
+bottom of the one above it). The opponent's card in the same slot comes to the front too. Both go back into place when the
+cursor moves on (`HexScreen_Hand`'s `top`, `HexScreen.c`). In the stakes (`TAKE`) the card being chosen comes to the front.
+
 ### Match: choosing a cell
 
 | Input | Action |

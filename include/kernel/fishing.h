@@ -105,7 +105,7 @@ struct FishingState {
 	/* 100 */ u8 popTimer;
 	/* 101 */ u8 popX;       /* the pop-up's centre on screen */
 	/* 102 */ u8 popY;
-	/* 103 */ u8 pad103;
+	/* 103 */ u8 aim;        /* how far out the next cast goes, 0..FISHING_AIM_MAX (Up/Down while choosing a bait) */
 	/* 104 */ struct FishingParticle {
 		s16 x, y;      /* screen pixels << 4 */
 		s8 vx, vy;     /* pixels << 4 per frame */
@@ -136,7 +136,7 @@ struct FishingState {
 	/* 19C */ u8 rankUp;       /* the catch raised the angler's rank: RANK UP! on the card */
 	/* 19D */ u8 frenzyStart;  /* the catch started a frenzy: FRENZY! on the card */
 	/* 19E */ u8 given;        /* where rewardItem went: 1 the unit's items, 2 the convoy, 0 no room */
-	/* 19F */ u8 pad19F;
+	/* 19F */ u8 hookX;      /* scene column of the hook (the cast lands it out at the aim) */
 };
 
 /* The fish slot flag (FishingFish.pad[0]) of the legend */

@@ -924,3 +924,5 @@ son.[A] I won't be beaten so easily.[A][N]
 Don't risk yourself so foolishly, boy![A][N]
 We need to get you some help.[A][N]
 Please![A] Someone help my son![A][X]
+## MSG_FISHING_K_AIM
+Aim[X]

@@ -30,25 +30,24 @@ static const struct REDA REDAs_ORSON_2[] = {
     { .x = 12, .y = 10, .b = -1, .delayFrames = 0, },
 };
 
+/* Leaving Renvall at the end: all four come out of the gate (9, 4) one after another, a column down the bridge */
 static const struct REDA REDAs_EPHRAIM_3[] = {
-    { .x = 9, .y = 5, .b = -1, .delayFrames = 0, },
-    { .x = 9, .y = 6, .b = -1, .delayFrames = 0, },
     { .x = 9, .y = 13, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_FORDE_2[] = {
-    { .x = 9, .y = 12, .b = -1, .delayFrames = 0, },
+    { .x = 9, .y = 12, .b = -1, .delayFrames = 28, },
     { .x = 11, .y = 12, .b = -1, .delayFrames = 0, },
     { .x = 11, .y = 14, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_KYLE_2[] = {
-    { .x = 9, .y = 12, .b = -1, .delayFrames = 0, },
+    { .x = 9, .y = 12, .b = -1, .delayFrames = 56, },
     { .x = 11, .y = 12, .b = -1, .delayFrames = 0, },
 };
 
 static const struct REDA REDAs_ORSON_3[] = {
-    { .x = 9, .y = 12, .b = -1, .delayFrames = 0, },
+    { .x = 9, .y = 12, .b = -1, .delayFrames = 84, },
 };
 
 /**

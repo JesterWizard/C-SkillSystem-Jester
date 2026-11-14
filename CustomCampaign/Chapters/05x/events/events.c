@@ -86,9 +86,13 @@ const EventScr EventScr_Ch05x_Ending[] = {
     MOVE_CAMERA_TO_POSITION_CENTER(10, 4)
     LOAD_WAIT(CH5X_VALTER_SOLDIERS)
     FADE_FROM_BLACK(16)
-    MAKE_CAMERA_FOLLOW_MOVING_UNITS
-    LOAD_WAIT(CH5X_EPHRAIM_SOLDIERS_4)
-    STOP_CAMERA_FOLLOW_MOVING_UNITS
+    STAL(20)
+    /* Out of the gate together (a staggered column, REDAs_*_3), with one camera pan down the bridge after them: with
+     * MAKE_CAMERA_FOLLOW_MOVING_UNITS, LOAD moves them one at a time and the camera ran down and back up for each */
+    LOAD2(0x1, CH5X_EPHRAIM_SOLDIERS_4)
+    STAL(24)
+    MOVE_CAMERA_TO_POSITION_CENTER(10, 10)
+    ENUN
     MUSC(SONG_RAID)
     LOAD_WAIT(CH5X_VALTER_WYVERNS)
     LOAD_WAIT(CH5X_VALTER_2)

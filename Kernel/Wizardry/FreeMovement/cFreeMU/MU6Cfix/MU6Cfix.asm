@@ -10,7 +10,11 @@ SET_FUNC_INLINE 	MU_GetSpeed_FixForFreeMU
 
 
 MU_ExecCmd_FixForFreeMU:
+	@ r4: the MU running its move script (RunMuMoveScript)
 	push	{r4-r7, lr}
+	mov		r1, r8
+	push	{r1}
+	mov		r8, r4
 	asr		r4, r0, #0x18
 	
 	ldr		r0, =FreeMovementControlProc
@@ -19,11 +23,14 @@ MU_ExecCmd_FixForFreeMU:
 	cmp		r0, #0
 	beq		.EndMain
 	
-	ldr		r0, =gProc_MoveUnit
-	blh		ProcFind
-	mov		r6, r0					
-	cmp		r0, #0
-	beq		.EndMain
+	@ Only the player's MU: a district's NPCs walk with MUs of their own (DistrictNpc.c), and the first MU
+	@ found (ProcFind) could be one of theirs, which then took the player's keys
+	mov		r6, r8
+	ldr		r0, [r6, #0x2C]
+	ldr		r1, =gActiveUnit
+	ldr		r1, [r1]
+	cmp		r0, r1
+	bne		.EndMain
 	
 	ldr		r0,[r6, #0x34]			
 	ldrb	r0,[r0, #4]
@@ -54,8 +61,7 @@ MU_ExecCmd_FixForFreeMU:
 	beq		.EndMain
 	
 	@ <!> --------------- Set Here! ---------------------
-	ldr		r0, =gProc_MoveUnit
-	blh		ProcFind
+	mov		r0, r8
 	ldr		r3,[r0, #0x34]			
 	mov		r0, #1
 	strb	r0,[r3, #4]
@@ -73,6 +79,8 @@ MU_ExecCmd_FixForFreeMU:
 	lsl		r4, r7, #0x18	@ Vanilla 0x0788AE
 	asr		r4, #0x18
 .EndMain:
+	pop		{r1}
+	mov		r8, r1
 	mov		r0, r4			@ Vanilla 0x0788B0
 	lsl		r0, #0x10
 	lsr		r3, r0, #0x10
@@ -91,44 +99,21 @@ MU_ExecCmd_FixForFreeMU:
 .ltorg	
 .align	
 MU_CALL2_FixForFreeMU:
-	@ORG 0x8078D10    
+	@ORG 0x8078D10, r6: the MU
+	@ As built before (the source had drifted from the committed .lyn.event): in free movement, vanilla's camera
+	@ follow (0x8078D22); otherwise no camera. Only the player's MU follows now: a district NPC's walk moved the
+	@ camera whenever it neared the edge of the screen.
 	ldr		r0, =FreeMovementControlProc
 	blh		ProcFind
 	cmp		r0, #0
-	beq 	.ReturnCall2Normal
-    bl      IsFMUPaused
-    cmp r0, #0 
-    bne .ReturnCall2Normal
-	
-	ldrh r0, [r4] 
-	lsl r0, #0x10 
-	asr r0, #0x14 
-	bl NewGetCameraCenteredX
-	ldr r4, =0x202BCB0 
-	strh r0, [r4, #0x0C] @ Camera real X position 
-	ldrh r0, [r5] 
-	lsl r0, #0x10 
-	asr r0, #0x14 
-	bl NewGetCameraCenteredY
-	strh r0, [r4, #0x0E] @ camera real Y 
-	
-	
-	
-	b .ReturnCall2Normal
-	.ReturnCall2Camera: 
+	beq 	.ReturnCall2SkipCamera
+	ldr		r0, [r6, #0x2C]
+	ldr		r1, =gActiveUnit
+	ldr		r1, [r1]
+	cmp		r0, r1
+	bne		.ReturnCall2SkipCamera
 	ldr		r0, =0x8078D23 // camera 
 	bx		r0
-		
-	.ReturnCall2Normal:
-    mov		r0, r6
-	add		r0, #0x3E
-	ldrb	r0, [r0]
-	cmp		r0, #0
-	beq		.ReturnCall2SkipCamera
-	ldr		r0, =gProc_CameraMovement
-	blh		ProcFind
-	cmp		r0, #0
-	beq		.ReturnCall2Camera
 	.ReturnCall2SkipCamera:
 	ldr		r1, =0x8078D3D
 	bx		r1

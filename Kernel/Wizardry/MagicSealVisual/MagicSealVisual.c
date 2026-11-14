@@ -134,7 +134,12 @@ static void ClearSealOverlay(struct MagicSealOverlayProc *proc)
 {
 	BG_Fill(gBG2TilemapBuffer, 0);
 	BG_EnableSyncByMask(BG2_SYNC_BIT);
-	SetBlendNone();
+	/*
+	 * Only undo the overlay's own blend (alpha). A fade (darken or brighten) belongs to someone else: this ran at a
+	 * chapter start and lifted the black screen the world map left, so a district showed half loaded.
+	 */
+	if (gLCDControlBuffer.bldcnt.effect == BLEND_EFFECT_ALPHA)
+		SetBlendNone();
 	proc->active = false;
 	proc->dirty = false;
 }
