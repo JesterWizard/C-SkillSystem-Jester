@@ -24,7 +24,7 @@
 - **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
   not seen yet.
 - **The panel** on the left, in a window: "Unlocked", a gold gauge that fills as CGs unlock, the percentage, and how
-  many are unlocked (2/13); at its foot the buttons, "View" and "Back".
+  many are unlocked (3/24); at its foot the buttons, "View" and "Back".
 - **The grid** on the right, in a window (the start menu's Gamma style, see
   [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)), over the scrolling mural: three CGs a row,
   three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
@@ -50,17 +50,32 @@ const struct GalleryEntry gGalleryEntries[] = {
 ```
 
 1. Put the image in the background table first (`Kernel/Wizardry/Backgrounds_224_256_Colors/gfx/BG/BG.event`; see
-   [Max Color Backgrounds](./MaxColorBackgrounds.md)). 16-, 224- and 256-colour backgrounds all work: a vanilla one is
+   [Max Color Backgrounds](./MaxColorBackgrounds.md)). A 240x160 PNG of up to 224 colours (in 15 bits) becomes the
+   two `.dmp` files with `python3 Tools/gallery/png2cg.py 224 224_CG_Name.png 224_CG_Name_IMG.dmp 224_CG_Name_PAL.dmp`
+   (a stand-in for Sommie; keep the PNG next to them). 16-, 224- and 256-colour backgrounds all work: a vanilla one is
    read from the clean ROM, a new one from the `.dmp` its `BG.event` label `#incbin`s.
 2. Add a row: its background index and a name message. Add the message at the end of
    `Contents/Texts/Source/texts/Districts.txt` (`## MSG_GALLERY_CG_...`, then the name and `[X]`).
-3. Show it in an event (`TEXT_BG`, `TEXT_BG_HIDE_MAP`, `BACG` and the background fades), and it unlocks there.
+3. Show it in an event (`TEXT_BG`, `TEXT_BG_HIDE_MAP`, `TEXT_CG`, `BACG` and the background fades), and it unlocks
+   there. In the CG text box a name (`[SetName]Name[N]`) only takes at the start of a message: give each speaker their
+   own message, `TEXT_CG_CONSECUTIVE` for all but the last. The name must have an even number of characters (pad it
+   with a space: `[SetName]Artur [N]`): vanilla copies it two bytes at a time and only looks for its end at even
+   offsets, so an odd name runs on through the message and over the stack, and the game crashes. Keep a CG line to
+   about 30 characters: the CG box is narrower than the talk box and clips the end of a longer line. `TEXT_CG` ends by fading back to the map (fade to black,
+   `TEXTSTART`, `CLEAN`, fade in); to go on to another background instead (a conversation background, the
+   Intermission's), end on `TEXT_CG_CONSECUTIVE` and then `END_CG_TO_BLACK` (`CustomCampaign/Chapters/_shared/headers.h`). Without that step the next background is drawn
+   wrong and has no portraits.
 
 The build makes the thumbnails (see [How it works](#how-it-works)) again whenever the list, `BG.event` or a `.dmp`
 changes.
 
 At most 96 rows (`GALLERY_MAX`). The list starts with the three custom CGs (0x38-0x3A) and the ten vanilla backgrounds
-the story shows so far. Its order is the unlock bits' order: insert a row in the middle and the unlocks already made
+the story shows so far, then the story CGs 0xDB-0xDE: Flight from Renais (prologue, Seth carries Eirika out), Reunited
+(Chapter 1's end), Seth's Plea (the Intermission at Castle Frelia) and Ide Burns (Chapter 2's opening); then 0xDF-0xE3:
+Neimi's Mirror (Chapter 3's end), The Mogall (Chapter 4's opening, before Artur's battle), Joshua Intervenes
+(Chapter 5's opening), Renvall Ambush (Chapter 5x's end) and Bael Attack (Chapter 6's opening); then War Council
+(0xE4, the council at Castle Frelia between Chapters 8 and 9) and Myrrh's Wings (0xE5: in the list, but no scene
+shows it yet, so it stays locked). Its order is the unlock bits' order: insert a row in the middle and the unlocks already made
 move to the rows after it, so add new CGs at the end.
 
 ---
@@ -120,10 +135,11 @@ clears them.
 
 ## 🧪 Testing
 
-`python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Mountain Forest (0x1D) and Seth
-Attacked (0x3A) in SRAM; after a reset Extras has the Gallery row; the grid opens on its first rows; A on a locked CG
-does nothing; A on Mountain Forest shows it full size; right goes to Seth Attacked (around the end); B goes back to the
-grid on it; down three rows scrolls the grid a row, on screen; B again goes back to Extras.
+`python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Mountain Forest (0x1D), Flight from
+Renais (0xDB) and Seth Attacked (0x3A) in SRAM; after a reset Extras has the Gallery row; the grid opens on its first
+rows; A on a locked CG does nothing; A on Mountain Forest shows it full size; right goes to Flight from Renais, right
+again to Seth Attacked (around the end); B goes back to the grid on it; down three rows scrolls the grid a row, on
+screen; B again goes back to Extras.
 
 ---
 
@@ -136,6 +152,7 @@ grid on it; down three rows scrolls the grid a row, on screen; B again goes back
 | The screen | `Kernel/Wizardry/Gallery/Source/GalleryScreen.c` |
 | LynJump, art, the event-table patch | `Kernel/Wizardry/Gallery/Source/LynJump.event`, `Gallery_Installer.event` |
 | Frame and padlock art | `Kernel/Wizardry/Gallery/Gfx/` (the buttons and the banner are vanilla's) |
+| New CG art | `Tools/gallery/png2cg.py` (PNG to `.dmp`); the PNGs beside the `.dmp` files in `gfx/BG/` |
 | The thumbnails | `Tools/gallery/thumbs.py`, the `GALLERY_THUMBS` rule in `makefile`, `Data/Gallery/Gallery.event` |
 | The Extras row | `InitSaveMenuChoice` (`Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c`); `sub_80A9B90` (`Kernel/Wizardry/NewGamePlus/Source/NgpSaveMenu.c`) |
 | Struct, constants | `include/kernel/gallery.h` |

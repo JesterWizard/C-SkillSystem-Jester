@@ -1366,10 +1366,10 @@ class Smoke:
 
     def test_gallery(self):
         """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Mountain Forest (background
-        0x1D) and Seth Attacked (0x3A): both unlock, in the SRAM entry of the trial map's save block (magic "GLRY").
-        After a reset, Extras has the Gallery row; it shows its first three rows. A on a locked CG does nothing; on
-        Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked one (Seth Attacked, around the
-        end); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B goes back
+        0x1D), Flight from Renais (0xDB) and Seth Attacked (0x3A): all three unlock, in the SRAM entry of the trial
+        map's save block (magic "GLRY"). After a reset, Extras has the Gallery row; it shows its first three rows. A on
+        a locked CG does nothing; on Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked
+        one (Flight from Renais, row 13), right again to Seth Attacked (around the end); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B goes back
         to Extras."""
         d = os.path.join(self.out, "gallery")
         os.makedirs(d, exist_ok=True)
@@ -1380,7 +1380,7 @@ class Smoke:
         unlocks = SRAM + 0x64 + 6 * 0x10  # gSram->saveBlockInfo[SAVE_ID_XMAP]
         # struct GalleryScreen: count, cursor, top, view; sprites (+8); the first unlock byte (+0xC)
         state = ["r8 %#x" % (gs + k) for k in (0, 1, 2, 3, 8, 0xC)]
-        lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(5)]
+        lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(6)]
         # the main menu: Extras is the last row; in Extras the Gallery is third from the end (then the Bestiary and
         # the Skill Codex): UP from the top goes around to the Skill Codex, UP twice more to the Gallery
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
@@ -1389,7 +1389,8 @@ class Smoke:
         # the cursor on the first CG (Myrrh & Morva, locked): A; then Mountain Forest (one down): A, the full view
         lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
                                                     "r16 %#x" % lcd] + state
-        lines += ["press RIGHT", "wait 60", "shot next.png"] + state + ["press B", "wait 60", "shot back.png"] + state
+        lines += ["press RIGHT", "wait 60", "shot next.png"] + state + ["press RIGHT", "wait 60"] + state
+        lines += ["press B", "wait 60", "shot back.png"] + state
         # Seth Attacked (row 0): down three rows, past the third on screen; the grid scrolls a row
         lines += ["press DOWN", "wait 20", "press DOWN", "wait 20", "press DOWN", "wait 3", "shot scrolling.png",
                   "wait 30", "shot scrolled.png"] + state
@@ -1400,26 +1401,27 @@ class Smoke:
                             ("scrolling", "down past the third row: scrolling"), ("scrolled", "a row down"),
                             ("extras", "B: back to Extras")):
             self.shot(os.path.join(d, name + ".png"), label)
-        if len(vals) != 5 + 6 * 6 + 1:
+        if len(vals) != 6 + 7 * 6 + 1:
             return self.check("gallery: the Gallery runs", False, "values %s" % vals)
-        sram, dispcnt = vals[:5], vals[17]
-        grid, locked, full, nxt, back, scrolled = (vals[5:11], vals[11:17], vals[18:24], vals[24:30], vals[30:36],
-                                                   vals[36:42])
+        sram, dispcnt = vals[:6], vals[18]
+        grid, locked, full, nxt, around, back, scrolled = (vals[6:12], vals[12:18], vals[19:25], vals[25:31],
+                                                           vals[31:37], vals[37:43], vals[43:49])
         magic = sram[0] | sram[1] << 8 | sram[2] << 16 | sram[3] << 24
-        self.check("gallery: the prologue's opening unlocks Mountain Forest and Seth Attacked",
-                   magic == 0x59524C47 and sram[4] & 0x0C == 0x0C, "magic %#x, bits %#x" % (magic, sram[4]))
+        self.check("gallery: the prologue's opening unlocks Mountain Forest, Seth Attacked and Flight from Renais",
+                   magic == 0x59524C47 and sram[4] & 0x0C == 0x0C and sram[5] & 0x20,
+                   "magic %#x, bits %#x %#x" % (magic, sram[4], sram[5]))
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
                    "Extras rows %s" % ["%#x" % m for m in menu])
-        self.check("gallery: the grid opens on its first rows", grid[0] == 13 and grid[2] == 0 and grid[4] == 1 and
+        self.check("gallery: the grid opens on its first rows", grid[0] == 24 and grid[2] == 0 and grid[4] == 1 and
                    grid[5] & 0x0C == 0x0C, "count, cursor, top, view, sprites, bits %s" % grid)
         self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 0,
                    "cursor %d, grid shown %d" % (locked[1], locked[4]))
         # the other BGs' maps are cleared and no sprite is put (the fade turns every layer on)
         self.check("gallery: A on Mountain Forest shows it full size (BG3, no thumbnails)",
                    full[3] == 3 and full[4] == 0 and dispcnt & 0x0800, "view %d, DISPCNT %#x" % (full[3], dispcnt))
-        self.check("gallery: right goes to the next unlocked CG (Seth Attacked, around the end)", nxt[3] == 2,
-                   "view %d" % nxt[3])
+        self.check("gallery: right goes to the next unlocked CG (Flight from Renais), right again around the end "
+                   "(Seth Attacked)", nxt[3] == 13 and around[3] == 2, "views %d, %d" % (nxt[3], around[3]))
         self.check("gallery: B goes back to the grid on that CG", back[1] == 2 and back[4] == 1,
                    "cursor %d, grid shown %d" % (back[1], back[4]))
         self.check("gallery: down past the third row scrolls the grid a row, on screen",

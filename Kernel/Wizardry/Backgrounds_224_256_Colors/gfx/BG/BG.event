@@ -236,6 +236,17 @@ POIN BG_Heroes_Vigarde_01_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_01_PAL // 0xD
 POIN BG_Heroes_Vigarde_02_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_02_PAL // 0xD8
 POIN BG_Heroes_Vigarde_03_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_03_PAL // 0xD9
 POIN BG_Heroes_Vigarde_04_IMG;    WORD 0x1; POIN BG_Heroes_Vigarde_04_PAL // 0xDA
+POIN CG_Eirika_Carried_Away_IMG;   WORD 0x1; POIN CG_Eirika_Carried_Away_PAL   // 0xDB
+POIN CG_Eirika_Tana_Reunion_IMG;   WORD 0x1; POIN CG_Eirika_Tana_Reunion_PAL   // 0xDC
+POIN CG_Seth_Petitions_Hayden_IMG; WORD 0x1; POIN CG_Seth_Petitions_Hayden_PAL // 0xDD
+POIN CG_Garcia_Ross_Escape_IMG;    WORD 0x1; POIN CG_Garcia_Ross_Escape_PAL    // 0xDE
+POIN CG_Colm_Neimi_Reunion_IMG;     WORD 0x1; POIN CG_Colm_Neimi_Reunion_PAL     // 0xDF
+POIN CG_Artur_Mogall_IMG;           WORD 0x1; POIN CG_Artur_Mogall_PAL           // 0xE0
+POIN CG_Joshua_Saves_Natasha_IMG;   WORD 0x1; POIN CG_Joshua_Saves_Natasha_PAL   // 0xE1
+POIN CG_Renvall_Ambush_IMG;         WORD 0x1; POIN CG_Renvall_Ambush_PAL         // 0xE2
+POIN CG_Bael_Attack_IMG;            WORD 0x1; POIN CG_Bael_Attack_PAL            // 0xE3
+POIN CG_War_Council_IMG;            WORD 0x1; POIN CG_War_Council_PAL            // 0xE4
+POIN CG_Myrrh_Wings_IMG;            WORD 0x1; POIN CG_Myrrh_Wings_PAL            // 0xE5
 
 
 // TSA == 0 indicates 256-colour BGs.
@@ -248,6 +259,28 @@ CG_Ismaire_IMG: #incbin "224_CG_Ismaire_IMG.dmp"
 CG_Ismaire_PAL: #incbin "224_CG_Ismaire_PAL.dmp"
 CG_Seth_Attacked_IMG: #incbin "224_CG_Seth_Attacked_IMG.dmp"
 CG_Seth_Attacked_PAL: #incbin "224_CG_Seth_Attacked_PAL.dmp"
+CG_Eirika_Carried_Away_IMG: #incbin "224_CG_Eirika_Carried_Away_IMG.dmp"
+CG_Eirika_Carried_Away_PAL: #incbin "224_CG_Eirika_Carried_Away_PAL.dmp"
+CG_Eirika_Tana_Reunion_IMG: #incbin "224_CG_Eirika_Tana_Reunion_IMG.dmp"
+CG_Eirika_Tana_Reunion_PAL: #incbin "224_CG_Eirika_Tana_Reunion_PAL.dmp"
+CG_Seth_Petitions_Hayden_IMG: #incbin "224_CG_Seth_Petitions_Hayden_IMG.dmp"
+CG_Seth_Petitions_Hayden_PAL: #incbin "224_CG_Seth_Petitions_Hayden_PAL.dmp"
+CG_Garcia_Ross_Escape_IMG: #incbin "224_CG_Garcia_Ross_Escape_IMG.dmp"
+CG_Garcia_Ross_Escape_PAL: #incbin "224_CG_Garcia_Ross_Escape_PAL.dmp"
+CG_Colm_Neimi_Reunion_IMG: #incbin "224_CG_Colm_Neimi_Reunion_IMG.dmp"
+CG_Colm_Neimi_Reunion_PAL: #incbin "224_CG_Colm_Neimi_Reunion_PAL.dmp"
+CG_Artur_Mogall_IMG: #incbin "224_CG_Artur_Mogall_IMG.dmp"
+CG_Artur_Mogall_PAL: #incbin "224_CG_Artur_Mogall_PAL.dmp"
+CG_Joshua_Saves_Natasha_IMG: #incbin "224_CG_Joshua_Saves_Natasha_IMG.dmp"
+CG_Joshua_Saves_Natasha_PAL: #incbin "224_CG_Joshua_Saves_Natasha_PAL.dmp"
+CG_Renvall_Ambush_IMG: #incbin "224_CG_Renvall_Ambush_IMG.dmp"
+CG_Renvall_Ambush_PAL: #incbin "224_CG_Renvall_Ambush_PAL.dmp"
+CG_Bael_Attack_IMG: #incbin "224_CG_Bael_Attack_IMG.dmp"
+CG_Bael_Attack_PAL: #incbin "224_CG_Bael_Attack_PAL.dmp"
+CG_War_Council_IMG: #incbin "224_CG_War_Council_IMG.dmp"
+CG_War_Council_PAL: #incbin "224_CG_War_Council_PAL.dmp"
+CG_Myrrh_Wings_IMG: #incbin "224_CG_Myrrh_Wings_IMG.dmp"
+CG_Myrrh_Wings_PAL: #incbin "224_CG_Myrrh_Wings_PAL.dmp"
 
 BG_Heroes_Eirika_01_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_IMG.dmp"
 BG_Heroes_Eirika_01_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_PAL.dmp"

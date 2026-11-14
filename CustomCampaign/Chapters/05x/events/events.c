@@ -93,6 +93,9 @@ const EventScr EventScr_Ch05x_Ending[] = {
     LOAD_WAIT(CH5X_VALTER_WYVERNS)
     LOAD_WAIT(CH5X_VALTER_2)
     HIGHLIGHT_CHARACTER(CHARACTER_VALTER, 60)
+    TEXT_CG_CONSECUTIVE(0xE2, Chapter_05x_Post_Scene_02_Convo_00) /* CG: Valter meets Ephraim outside Renvall */
+    TEXT_CG_CONSECUTIVE(0xE2, Chapter_05x_Post_Scene_02_Convo_00_2)
+    END_CG_TO_BLACK
     SET_BACKGROUND(0x21)
     TEXT(Chapter_05x_Post_Scene_02_Convo_01)
     FADE_TO_BLACK(16)

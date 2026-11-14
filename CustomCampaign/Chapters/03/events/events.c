@@ -29,6 +29,10 @@ const EventScr EventScr_Ch03_Ending[] = {
     ASMC(GrantBEXP)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x28, Chapter_03_Scene_04_Convo_01)
+    TEXT_CG_CONSECUTIVE(0xDF, Chapter_03_Scene_04_Convo_02) /* CG: Neimi runs into Colm's arms */
+    TEXT_CG_CONSECUTIVE(0xDF, Chapter_03_Scene_04_Convo_03)
+    END_CG_TO_BLACK
+    TEXT_BG_HIDE_MAP(0x28, Chapter_03_Scene_04_Convo_04)
 /* If Colm wasn't recruited, then have him join */
     CHECK_ALLEGIANCE(CHARACTER_COLM)
 	SVAL(EVT_SLOT_1, 0x1)

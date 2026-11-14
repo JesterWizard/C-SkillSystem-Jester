@@ -139,6 +139,10 @@ static const EventScr EventScr_NEW_JOURNEY_CASTLE_FRELIA[] = {
     TEXT(Intermission_In_Scene_Frelia_Castle_02)
     SET_BACKGROUND(0xE)
     TEXT(Intermission_In_Scene_Frelia_Castle_03)
+    TEXT_CG_CONSECUTIVE(0xE4, Intermission_In_Scene_Frelia_Castle_03_2) /* CG: the council opens on Innes' report */
+    END_CG_TO_BLACK
+    SET_BACKGROUND(0xE)
+    TEXT(Intermission_In_Scene_Frelia_Castle_03_3)
     MUSC(SONG_NONE)
     STAL(30)
     MUSC(SONG_SOLVE_THE_RIDDLE)
@@ -196,6 +200,13 @@ LABEL(0x1)
     TEXTSTART
     TEXTSHOW(Chapter_01_Scene_11_Convo_02)
     TEXTEND
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_2) /* CG: Seth asks King Hayden to let Tana join */
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_3)
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_4)
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_5)
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_6)
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_7)
+    TEXT_CG_CONSECUTIVE(0xDD, Chapter_01_Scene_11_Convo_02_8) /* no fade back: there is no map here */
     SET_BACKGROUND(0x35)
     MUSIC_FADEOUT(SONG_NONE)
     FADE_TO_BLACK(8)

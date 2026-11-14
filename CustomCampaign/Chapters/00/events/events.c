@@ -23,6 +23,7 @@ static const EventScr EventScr_Ch00_Opening[] = {
     ERASE(CHARACTER_EIRIKA)
     HIGHLIGHT_CHARACTER(CHARACTER_SETH, 60)
     TEXT(Chapter_00_Scene_01_Convo_03)
+    TEXT_CG(0xDB, Chapter_00_Scene_01_Convo_03_2) /* CG: Seth carries Eirika out */
     MOVE(0, CHARACTER_SETH, 13, 11)
     MOVE_TWICE_WAIT(0, CHARACTER_FRANZ, 12, 4, 12, 11)
     ERASE(CHARACTER_SETH)

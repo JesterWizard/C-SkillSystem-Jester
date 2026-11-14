@@ -26,6 +26,13 @@ beq   LoadMultiPalBG
   beq   LoadMultiPalBG
 
 VanillaBG:
+    @ A 16-colour BG: turn BG3's 256-colour mode off again, in case the last BG was a 224/256-colour one
+    @ (CGC_LoadMultiPalBG sets it; without this, a BG shown right after such a CG is drawn as garbage).
+    ldr   r1, =0x3003080        @ gLCDControlBuffer
+    ldrb  r2, [r1, #0x18]       @ bg3cnt, low byte; bit 7 is the colour mode.
+    mov   r3, #0x80
+    bic   r2, r3
+    strb  r2, [r1, #0x18]
     ldr   r1, =0x800E84D        @ Neither 256 nor 224 colour BG, run vanilla.
     bx    r1
 
