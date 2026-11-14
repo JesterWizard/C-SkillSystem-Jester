@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "kernel/realtime-battle.h"
+#include "district.h"
 
 void CpPerform_UpdateMapMusic(void);
 
@@ -14,14 +15,23 @@ static void RealtimePhaseFx_SkipIfAiPhase(ProcPtr proc)
 		Proc_End(proc);
 }
 
+/* A district is free movement in one long player phase: no banner, and no cursor reset (the camera is on Eirika) */
+static void PhaseFx_SkipIfAiPhaseOrDistrict(ProcPtr proc)
+{
+	if (District_IsDistrictChapter(gPlaySt.chapterIndex))
+		Proc_End(proc);
+	else
+		RealtimePhaseFx_SkipIfAiPhase(proc);
+}
+
 const struct ProcCmd ProcScr_RealtimePhaseIntro[] = {
-	PROC_CALL(RealtimePhaseFx_SkipIfAiPhase),
+	PROC_CALL(PhaseFx_SkipIfAiPhaseOrDistrict),
 	PROC_START_CHILD_BLOCKING(ProcScr_PhaseIntro),
 	PROC_END,
 };
 
 const struct ProcCmd ProcScr_RealtimeResetCursorPosition[] = {
-	PROC_CALL(RealtimePhaseFx_SkipIfAiPhase),
+	PROC_CALL(PhaseFx_SkipIfAiPhaseOrDistrict),
 	PROC_START_CHILD_BLOCKING(gProcScr_ResetCursorPosition),
 	PROC_END,
 };

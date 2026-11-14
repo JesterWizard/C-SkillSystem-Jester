@@ -46,16 +46,18 @@ all, each shown as a silhouette until it is caught.
 
 1. **Pick a bait** with Left and Right. Each bait costs gold, paid when you cast. A bait you didn't lose stays on the hook,
    and casting it again is free.
-2. **Cast** with A. The hook drops to the depth of your last cast.
-3. **Set the depth** with Up and Down. The screen follows the hook. Small fish swim near the surface, huge ones near the
+2. **Aim** with Up and Down: Up raises the rod for a longer cast (13 steps, 10 pixels further out each). A dashed arc runs
+   out to a blinking bobber where the hook will land. The aim is kept between casts.
+3. **Cast** with A. The hook flies out on that arc (20 frames), splashes down, and sinks to the depth of your last cast.
+4. **Set the depth** with Up and Down. The screen follows the hook. Small fish swim near the surface, huge ones near the
    bottom.
-4. **Wait.** A fish that likes the bait and swims near the hook may turn to it and **nibble**: the bobber twitches. Don't
-   press A and don't move the hook now, or it swims off ("You scared it off!").
-5. **Hook it.** "!" shows over the unit and the bobber dips. Press A at once: within 8 frames is a **perfect hook**
+5. **Wait.** A fish that likes the bait and swims near the hook may turn to it and **nibble**: the bobber twitches.
+   Pressing A now hooks it, with no hook bonus. Moving the hook scares it off ("You scared it off!").
+6. **Hook it.** "!" shows over the unit and the bobber dips. Press A at once: within 8 frames is a **perfect hook**
    (+50%), within 14 a **good hook** (+25%). Wait too long and the fish swims away with the bait.
-6. **Reel it in.** Keep the tension needle in the green zone (see [Reeling and Bonuses](#reeling-and-bonuses)). The fish
+7. **Reel it in.** Keep the tension needle in the green zone (see [Reeling and Bonuses](#reeling-and-bonuses)). The fish
    and the hook rise as you make progress.
-7. **Land it.** A splash, CAUGHT!, then the **catch card**: the species, its size and the payout ("Sea Bass!  +567G
+8. **Land it.** A splash, CAUGHT!, then the **catch card**: the species, its size and the payout ("Sea Bass!  +567G
    (x2.0)" on the top line). The bait is used up. See
    [Species, the Catch Card and the Journal](#species-the-catch-card-and-the-journal).
 
@@ -71,8 +73,8 @@ screens). The window at the top keeps one line: what is going on.
 
 | When | Buttons |
 |---|---|
-| Choosing a bait | Left/Right: bait, A: cast, B: exit, START: journal |
-| Waiting | Up/Down: depth, A: reel in, B: exit, START: journal |
+| Choosing a bait | Left/Right: bait, Up/Down: aim, A: cast, B: exit, START: journal (not shown: the row has 4 buttons) |
+| Waiting | Up/Down: depth, A: reel in (during a nibble: hook it), B: exit, START: journal |
 | A bite | A: hook it, B: exit |
 | Reeling | A: reel (during a leap: A catches it), B: exit |
 | The catch card | A: fish again, R: keep the catch as food, B: exit, START: journal |

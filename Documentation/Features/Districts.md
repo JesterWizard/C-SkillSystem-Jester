@@ -110,11 +110,23 @@ chapter. It is never cleared.
   range, and the story chapter the beginning event had set started instead, with its scenes. Clearing the override on
   its first read, or when the world map ends (the chapter is read after `WorldMap_Destruct`), loses it too.
 - The row's help text is "Choose to enter this world map node to see different events."
+- **The fade.** The world map fades to black and the screen stays black until the district's opening has loaded Eirika
+  and the NPCs and put the camera on her; its `FADE_FROM_BLACK` is the only fade in. Three things used to show:
+  - garbage tiles while the map loaded: `WorldMap_Destruct` blacks the screen out again after the calls that reset the
+    blend (`Kernel/Wizardry/WorldMap/WorldMap.c`), and the Magic Seal overlay no longer lifts a fade (it only undoes its
+    own alpha blend, `MagicSealVisual.c`);
+  - a fade out and in after the opening: a district has no enemies, so the "defeat all" check runs the chapter's
+    ending at once, and a bare `ENDA` fades. Each district's ending is `NOFADE ENDA`;
+  - the Player Phase banner and the camera scrolling to Eirika: districts skip both
+    (`PhaseFx_SkipIfAiPhaseOrDistrict`, `RealtimeHooks.c`).
 
 ### Leaving
 
 - **Gate:** step on the gate tile. The gate is an automatic free-movement trap (`TRAP_DISTRICT_GATE`, 28).
   It asks **Leave the district?** with Yes and No.
+  - The yellow prompt box's text goes in OBJ tile rows 16-25 (`0x06014000`, `InitBoxDialogue`, `HelpBoxHack.c`). On a
+    map, rows 12-15 hold the walking units' frames and rows 28-31 the standing sprites: higher up it wrapped past the end
+    of OBJ VRAM over the hand cursor (an orange block), or wrote over a standing NPC (a grey square).
   - Yes leaves through `StartRetreatProcessing`, the same call as the vanilla Retreat.
   - No keeps you in the district.
 - **Retreat row:** L opens the free-movement menu. Its Retreat row shows the vanilla "Retreat?" prompt, and Yes also leaves the district.
@@ -159,19 +171,24 @@ A radius of 0 means the NPC stands still.
 
 ### Wandering
 
-- NPCs take turns. Each turn one NPC may take one step in a random direction (up, down, left or right).
-- Between turns the wait is 20 to 49 frames. About one turn in three is an idle turn with no step.
+- Each NPC walks on its own clock: about once a second (52 to 60 frames apart) it takes one step in a random direction
+  (up, down, left or right). If that way is shut it tries the others, and with all four shut it tries again a quarter
+  second later. Each starts its clock at its own moment, so they do not step together.
+- The player's walking never stops them, and they never stop the player. Free movement waits only for the player's own
+  step (`FMU_PlayerMoving`, `FreeMU_Core.c`); it used to wait for any moving unit (`MuExists`), so every NPC step held the
+  player still. The MU hooks in `MU6Cfix.asm` (key buffering and the camera) also act only on the player's MU now: a
+  walking NPC near the edge of the screen pulled the camera.
+- A step is a bare MU (no camera). Vanilla has 4 MU slots, so at most two NPCs walk at once (`DISTRICT_NPC_WALKS`) and the
+  player always has one. A step that is due while both are busy waits for one.
+- After a step the standing sprite comes back on its new tile (`RefreshUnitSprites`); without it, it came back on the
+  tile it left, away from its Hex Card icon.
 - An NPC stays inside a box around its start tile. The box is its start tile plus or minus its radius.
 - An NPC does not step onto:
+  - a tile next to the player (diagonals too): the player's next step goes there,
   - a trap tile, including the gate,
   - a door tile (village, house, armory, vendor or arena terrain), or
   - a tile where free movement does not allow the unit.
-- NPCs do not move while:
-  - a D-pad key is held,
-  - the player's unit is moving (and for 30 frames after it stops),
-  - another unit is moving,
-  - an event is running, or
-  - free movement is off.
+- NPCs do not move while an event is running or free movement is off.
 - The code tracks up to eight NPCs per district. It only looks at unit ids `0x41` to `0x7F` (the green units).
 
 ### Places by chapter

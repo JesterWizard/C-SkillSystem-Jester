@@ -44,9 +44,6 @@ static const EventScr EventScr_Ch06_Opening[] = {
     WARP_CHARACTER_TO_COORDINATES(0xFB, 25, 12)
     HIGHLIGHT_CHARACTER(0xF9, 60)
     TEXT_BG(0x1E, Chapter_06_Pre_Scene_03_Convo_02)
-    TEXT_CG_CONSECUTIVE(0xE3, Chapter_06_Pre_Scene_03_Convo_03) /* CG: the citizens see the Bael */
-    TEXT_CG_NEXT(Chapter_06_Pre_Scene_03_Convo_04)
-    TEXT_CG_LAST(Chapter_06_Pre_Scene_03_Convo_05)
     PREP_ALT
     NOFADE
     ENDA
@@ -127,6 +124,29 @@ LABEL(0x1)
     ENDA
 };
 
+/* Turn 3, player phase: the spider comes down from the rocks, and the citizens see it (CG) */
+static const EventListScr EventScr_CH6_BAEL_APPEARS[] = {
+    CHECK_TURNS
+    SVAL(EVT_SLOT_7, 3)
+    BNE(0x0, EVT_SLOT_C, EVT_SLOT_7)
+    MOVE_CAMERA_TO_POSITION(27, 4)
+    LOAD_WAIT_PERSIST(CH6_BAEL)
+    HIGHLIGHT_CHARACTER(CHARACTER_MONSTER_B0, 60)
+    TEXT_CG_CONSECUTIVE(0xE3, Chapter_06_Pre_Scene_03_Convo_03) /* CG: the citizens see the Bael */
+    TEXT_CG_NEXT(Chapter_06_Pre_Scene_03_Convo_04)
+    TEXT_CG_LAST(Chapter_06_Pre_Scene_03_Convo_05)
+    GOTO(0x1)
+
+LABEL(0x0)
+    CHECK_EVENTID_
+    SADD(EVT_SLOT_2, EVT_SLOT_C, EVT_SLOT_0)
+    ENUF_SLOT2
+
+LABEL(0x1)
+    NOFADE
+    ENDA
+};
+
 static const EventListScr EventListScr_HOUSE_1_TALK[] = {
     HOUSE_EVENT_NO_END(0x0, Chapter_06_In_Scene_House_1)
     CALL(EventScr_RemoveBGIfNeeded) // This is vital, the game crashes without it for this event
@@ -196,6 +216,7 @@ LABEL(0x63)
 
 static const EventListScr EventListScr_Ch06_Turn[] = {
     TURN(EVFLAG_TMP(7), EventScr_CH6_TURN_4_REINFORCEMENTS, 1, 255, FACTION_BLUE)
+    TURN(EVFLAG_TMP(9), EventScr_CH6_BAEL_APPEARS, 1, 255, FACTION_BLUE)
     END_MAIN
 };
 

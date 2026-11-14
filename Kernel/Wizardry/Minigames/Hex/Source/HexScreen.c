@@ -501,20 +501,27 @@ static void HexScreen_Cells(const struct HexScreenState *h)
 
 /*
  * A hand strip (types: n slots, HEX_USED slots are gone): the bodies, the lowest slot in front (each card overlaps the one
- * above it), then the digits of every slot on top of every frame.
+ * above it), then the digits of every slot on top of every frame. Slot top (-1 for none), the one the cursor is on, goes
+ * in front of them all, so its reach dots show on every side; the next one drawn puts it back in its place.
  */
-static void HexScreen_Hand(const struct HexScreenState *h, int x, const u8 *types, int n, u8 owner)
+static void HexScreen_Hand(const struct HexScreenState *h, int x, const u8 *types, int n, u8 owner, int top)
 {
 	u32 frameBank = owner == HEX_BLUE ? HEX_BANK_BLUE : HEX_BANK_RED;
 	int i;
 
+	if (top >= n || (top >= 0 && types[top] == HEX_USED))
+		top = -1;
 	for (i = 0; i < n; i++) {
-		if (types[i] != HEX_USED)
+		if (types[i] != HEX_USED && i != top)
 			HexScreen_CardBody(h, x, HEX_HAND_Y + HEX_HAND_STEP * i, types[i], owner);
 	}
 	for (i = 0; i < n; i++) {
-		if (types[i] != HEX_USED)
+		if (types[i] != HEX_USED && i != top)
 			HexScreen_CardDigits(x, HEX_HAND_Y + HEX_HAND_STEP * i, types[i], frameBank, FALSE, 0);
+	}
+	if (top >= 0) {
+		HexScreen_CardBody(h, x, HEX_HAND_Y + HEX_HAND_STEP * top, types[top], owner);
+		HexScreen_CardDigits(x, HEX_HAND_Y + HEX_HAND_STEP * top, types[top], frameBank, FALSE, 0);
 	}
 }
 
@@ -557,8 +564,8 @@ static void HexScreen_Preview(const struct HexScreenState *h, int type)
  */
 static void HexScreen_DrawPick(const struct HexScreenState *h)
 {
-	HexScreen_Hand(h, HEX_HAND_BLUE_X, h->pickHand, h->pickCount, HEX_BLUE);
-	HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED);
+	HexScreen_Hand(h, HEX_HAND_BLUE_X, h->pickHand, h->pickCount, HEX_BLUE, -1);
+	HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED, -1);
 
 	if (h->state == HEX_STATE_PICK_DONE) {
 		HexScreen_Push(HEX_PICK_CURSOR_X, HEX_PICK_TOP + 16 * h->pickChoice, sHexObject16x16HFlip, HEX_OBJ_CURSOR + 0,
@@ -590,7 +597,7 @@ static void HexScreen_DrawSide(const struct HexScreenState *h)
 	case HEX_STATE_OPPONENT:
 		if (HexScreen_LivingCount() == 0)
 			return;
-		HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED);
+		HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED, -1);
 		row = h->oppCursor - h->oppScroll;
 		break;
 	case HEX_STATE_CARDS:
@@ -608,6 +615,7 @@ static void HexScreen_DrawSide(const struct HexScreenState *h)
 static void HexScreen_Draw(struct ProcHexScreen *proc)
 {
 	const struct HexScreenState *h = HEX_ST;
+	int top;
 
 	gLCDControlBuffer.dispcnt.obj1dMap = 1;
 
@@ -630,11 +638,13 @@ static void HexScreen_Draw(struct ProcHexScreen *proc)
 		HexScreen_Score((int)Hex_Score(&h->game, HEX_RED), HEX_RED, HEX_SCORE_RED_X);
 	}
 	HexScreen_Cells(h);
-	HexScreen_Hand(h, HEX_HAND_BLUE_X, h->game.hand[HEX_BLUE], HEX_HAND, HEX_BLUE);
+	/* The hovered hand card, and the opponent's card in the same slot, in front of their hands */
+	top = (h->state == HEX_STATE_PICK_TILE || h->state == HEX_STATE_PICK_CELL) ? proc->sel : -1;
+	HexScreen_Hand(h, HEX_HAND_BLUE_X, h->game.hand[HEX_BLUE], HEX_HAND, HEX_BLUE, top);
 	if (h->state == HEX_STATE_TAKE)
-		HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED);
+		HexScreen_Hand(h, HEX_HAND_RED_X, h->redHand, HEX_HAND, HEX_RED, h->takeSel);
 	else
-		HexScreen_Hand(h, HEX_HAND_RED_X, h->game.hand[HEX_RED], HEX_HAND, HEX_RED);
+		HexScreen_Hand(h, HEX_HAND_RED_X, h->game.hand[HEX_RED], HEX_HAND, HEX_RED, top);
 
 	/*
 	 * The cursors last, in front of the board: a right arrow just left of the blue card (kept while a cell is picked),

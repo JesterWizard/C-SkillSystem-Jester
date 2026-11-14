@@ -10,18 +10,27 @@
  * Main events
  */
 static const EventScr EventScr_CaerPelyn_Opening[] = {
-    STAL(15)
+    /*
+     * The screen is still black from the world map (WorldMap_Destruct): set the district up unseen, then one fade in.
+     * Before, the map showed half loaded, faded out and in, and the camera then scrolled to Eirika.
+     */
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_CaerPelyn_Eirika)
-    MOVE_WAIT(0, CHARACTER_EIRIKA, 5, 19)
     LOAD_WAIT(District_CaerPelyn_Npcs)
+    MOVE_CAMERA_TO_UNIT(CHARACTER_EIRIKA)
     ASMC(SetGameOptions_DistrictCaerPelyn)
     ASMC(StartDistrictNpcs)
+    FADE_FROM_BLACK(16)
     NOFADE
     ENDA
 };
 
+/*
+ * Runs right after the opening: a district has no enemies, so the "defeat all" check calls the ending at once
+ * (RunWaitEvents). A bare ENDA fades the screen out and back in, hence NOFADE.
+ */
 static const EventScr EventScr_CaerPelyn_Ending[] = {
+    NOFADE
     ENDA
 };
 
