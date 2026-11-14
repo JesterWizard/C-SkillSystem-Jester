@@ -114,6 +114,30 @@ static int GetMMBUnitWindowColor(struct Unit *unit) {
     }
 }
 
+#define MMB_UI_TECH 5 /* the Tech UI style's id (GetUI_id) */
+
+/* Tech's dark panel ramp (colours 10-15, light to dark) in red, for enemies */
+static const u16 sMMBTechEnemyPanel[6] = {
+    RGB(15, 3, 5), RGB(13, 2, 4), RGB(11, 2, 3), RGB(9, 1, 3), RGB(7, 1, 2), RGB(5, 0, 2),
+};
+
+/*
+ * The box's right edge is tile 0x0F, vanilla's light-panel edge: Tech's has its light panel's inset line in colour 1,
+ * a white line next to the box's dark inside. Tech's dark-panel edge (0x0A) ends clean.
+ */
+static void MMB_FixTechRightEdge(void)
+{
+    int i;
+
+    if (GetUIPalID() != MMB_UI_TECH)
+        return;
+
+    for (i = 0; i < 0x20 * MMBHeight; ++i) {
+        if ((gUiTmScratchB[i] & 0x3FF) == 0x0F)
+            gUiTmScratchB[i] = (gUiTmScratchB[i] & ~0x3FF) | 0x0A;
+    }
+}
+
 static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
     if (alt) {
         if (gpKernelDesignerConfig->vesly_custom_ui) {
@@ -127,6 +151,12 @@ static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
              * retint the interior shades for the unit's allegiance. */
             for (int i = 5; i < 0x10; ++i)
                 blendedPalette[i] = fillPalette[i];
+
+            /* Tech's enemy panel is a dark magenta that reads as brown on the map: a clear red instead */
+            if (GetUIPalID() == MMB_UI_TECH && UNIT_FACTION(unit) == FACTION_RED) {
+                for (int i = 0; i < 6; ++i)
+                    blendedPalette[10 + i] = sMMBTechEnemyPanel[i];
+            }
 
             ApplyPalette(blendedPalette, 3);
             return;
@@ -282,6 +312,7 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
         proc->statusTm = gUiTmScratchA + TILEMAP_INDEX(5, 3);
         proc->unitClock = 0;
         CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
+        MMB_FixTechRightEdge();
         ApplyMMBFramePalette(unit, alt);
         return;
     }
@@ -313,6 +344,7 @@ void DrawUnitMapUi(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     //     DrawLongHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1), 3);
     DrawLongHpBar(gUiTmScratchA + TILEMAP_INDEX(5, 4), unit, TILEREF(0x140, 1), 3);
     CallARM_FillTileRect(gUiTmScratchB, alt ? ModularMinimugBox_TileMap : gTSA_MinimugBox, TILEREF(0x0, 3));
+    MMB_FixTechRightEdge();
     ApplyMMBFramePalette(unit, alt);
 }
 

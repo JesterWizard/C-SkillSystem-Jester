@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "wm-story-chapter.h"
 #include "prep-skill.h"
 #include "kernel-lib.h"
 #include "uichapterstatus.h"
@@ -528,7 +529,7 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
         else
             SetPrepScreenMenuItem(PREP_MAINMENU_SAVE, NULL, TEXT_COLOR_SYSTEM_GRAY,  0, 0);
 
-        if (gpKernelDesignerConfig->prep_menu_infuse == true)
+        if (PrepMenu_InfuseUnlocked())
             SetPrepScreenMenuItem(PREP_MAINMENU_INFUSE, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 
         if (gpKernelDesignerConfig->prep_menu_augury == true)
@@ -540,7 +541,7 @@ void InitPrepScreenMainMenu(struct ProcAtMenu *proc)
         if (gpKernelDesignerConfig->prep_menu_skills == true)
             SetPrepScreenMenuItem(PREP_MAINMENU_SKILLS, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 
-        if (gpKernelDesignerConfig->prep_menu_skill_synth == true)
+        if (PrepMenu_SkillSynthUnlocked())
             SetPrepScreenMenuItem(PREP_MAINMENU_SKILL_SYNTH, NULL, TEXT_COLOR_SYSTEM_WHITE, 0, 0);
 
         if (gpKernelDesignerConfig->prep_menu_base_conversations == true)

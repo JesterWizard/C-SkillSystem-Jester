@@ -15,7 +15,7 @@ Casual Mode[X]
 Units revive at the end of the map[X]
 
 ## MSG_MENU_OPTION_TALK_ON_LEVEL_UP_TITLE
-Talk On Level Up[X]
+Level-Up Talk[X]
 ## MSG_MENU_OPTION_TALK_ON_LEVEL_UP_DESC
 Units comments on their level ups[X]
 
@@ -45,7 +45,7 @@ Expanded HP[X]
 Expanded max HP to 254 for all units[X]
 
 ## MSG_MENU_OPTION_FLIPPED_ENEMY_SPRITES_TITLE
-Flip Red Sprites[X]
+Flip Enemies[X]
 ## MSG_MENU_OPTION_FLIPPED_ENEMY_SPRITES_DESC
 Reverse enemy sprites on the map[X]
 
@@ -55,22 +55,22 @@ Summons EXP[X]
 Summons transfer gained EXP to caster[X]
 
 ## MSG_MENU_OPTION_PROMOTE_ON_MAX_LEVEL_TITLE
-Promote At Max[X]
+Auto Promote[X]
 ## MSG_MENU_OPTION_PROMOTE_ON_MAX_LEVEL_DESC
 Unit automatically promotes at lv 20[X]
 
 ## MSG_MENU_OPTION_SHOW_ARENA_OPPONENT_TITLE
-Show Arena Opp[X]
+Arena Preview[X]
 ## MSG_MENU_OPTION_SHOW_ARENA_OPPONENT_DESC
 Show the arena opponent in advance[X]
 
 ## MSG_MENU_OPTION_SEND_INVENTORY_ON_DEATH_TITLE
-Deposit on death[X]
+Death Deposit[X]
 ## MSG_MENU_OPTION_SEND_INVENTORY_ON_DEATH_DESC
 If unit dies, put items in suppy[X]
 
 ## MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_TITLE
-Fast Map Anims[X]
+Instant Moves[X]
 ## MSG_MENU_OPTION_FAST_MAP_ANIMATIONS_DESC
 Make map unit movements instant[X]
 
@@ -85,17 +85,17 @@ Supports Gains[X]
 Gain support points after actions[X]
 
 ## MSG_MENU_OPTION_GAMEOVER_QUOTES_TITLE
-Gameover Quote[X]
+Defeat Quotes[X]
 ## MSG_MENU_OPTION_GAMEOVER_QUOTES_DESC
 Display helpful tips on defeat[X]
 
 ## MSG_MENU_OPTION_REAL_TIME_BATTLE_TITLE
-Real-Time Mode[X]
+Real-Time[X]
 ## MSG_MENU_OPTION_REAL_TIME_BATTLE_DESC
 Enemies act on a timer during your turn[X]
 
 ## MSG_MENU_OPTION_REAL_TIME_INTERVAL_TITLE
-RT Enemy Delay[X]
+Enemy Delay[X]
 ## MSG_MENU_OPTION_REAL_TIME_INTERVAL_DESC
 Seconds between enemy actions[X]
 ## MSG_MENU_OPTION_REAL_TIME_1S

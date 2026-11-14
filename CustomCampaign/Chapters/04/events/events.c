@@ -6,11 +6,14 @@ static const EventScr EventScr_Ch04_Opening[] = {
     LOAD_WAIT(CH4_START_CHAPTER)
     SOUN(SONG_SE_BIRDS_CHIRPING)
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
-    TEXT_BG(0x23, Chapter_04_Scene_01_Convo_01)
-    FADE_FROM_BLACK(16)
+    SET_BACKGROUND(0x23)
+    TEXT(Chapter_04_Scene_01_Convo_01)
+    /* Straight from the forest to black, where the enemies load out of sight (on screen their sprites flashed in
+     * as black squares): the map does not show in between */
+    FADE_TO_BLACK(16)
     CLEAN
     LOAD_WAIT_PERSIST(CH4_ENEMY_UNITS)
-    FADE_TO_BLACK(16)
+    FADE_FROM_BLACK(16)
     SOUN(SONG_NONE)
     MUSC(SONG_TENSION)
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)

@@ -1,5 +1,6 @@
 #include "common-chax.h"
 #include "wm-story-chapter.h"
+#include "kernel-lib.h"
 #include "district.h"
 #include "save-data.h"
 #include "event.h"
@@ -242,4 +243,16 @@ void WmStoryChapter_Load(u8 *src, const u32 size)
 		gWmStoryChapter = buffer[0];
 	else
 		gWmStoryChapter = WM_STORY_CHAPTER_NONE;
+}
+
+bool PrepMenu_SkillSynthUnlocked(void)
+{
+	return gpKernelDesignerConfig->prep_menu_skill_synth && gSkillSynthUnlockChapter != PREP_MENU_LOCKED &&
+	       WmStoryReached(gSkillSynthUnlockChapter);
+}
+
+bool PrepMenu_InfuseUnlocked(void)
+{
+	return gpKernelDesignerConfig->prep_menu_infuse && gInfuseUnlockChapter != PREP_MENU_LOCKED &&
+	       WmStoryReached(gInfuseUnlockChapter);
 }

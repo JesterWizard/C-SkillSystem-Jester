@@ -42,12 +42,11 @@ static const EventScr EventScr_Ch02_Opening[] = {
     TILECHANGE_COORDINATES(12, 2)
     SOUN(SONG_SE_WEAPON_BROKE)
     NOTIFY(NOTIFY_village_was_destroyed, SONG_NONE)
-    TEXT_CG_CONSECUTIVE(0xDE, Chapter_02_Scene_05_Convo_01) /* CG: Garcia carries Ross out of the burning village */
-    TEXT_CG_NEXT(Chapter_02_Scene_05_Convo_02)
-    TEXT_CG_NEXT(Chapter_02_Scene_05_Convo_03)
-    TEXT_CG_LAST(Chapter_02_Scene_05_Convo_04)
+    TEXT_CG(0xDE, Chapter_02_Scene_05_Convo_01) /* CG: Garcia carries Ross out of the burning village, as Ross is hit */
     LOAD_WAIT_PERSIST(CH2_ROSS_GARCIA)
     SET_UNIT_HP(CHARACTER_ROSS, 5)
+    HIGHLIGHT_CHARACTER(CHARACTER_ROSS, 60)
+    TEXT(Chapter_02_Scene_05_Convo_05) /* out of the village: Garcia berates him */
     LOAD_WAIT_PERSIST(CH2_PLAYER_UNITS)
     HIGHLIGHT_CHARACTER(CHARACTER_TANA, 60)
     TEXT(Chapter_02_Scene_06_Convo_01)

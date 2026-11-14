@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "wm-story-chapter.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
 
@@ -112,7 +113,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.prep_menu_base_conversations = false,
 	.prep_menu_bexp = true,
 	.prep_menu_event_replay = false,
-	.prep_menu_hex = true, // Hex card minigame row (needs CONFIG_HEX_CARDS)
+	.prep_menu_hex = false, // Hex card minigame row (needs CONFIG_HEX_CARDS)
 	.prep_menu_infuse = true,
 	.prep_menu_skill_synth = true,
 	.prep_menu_skills = true,
@@ -181,7 +182,15 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_kill_rate = 10,
 	.vesly_support_after_battle_staff_rate = 10,
 	.voice_acted_dialogue = true,
-	.weapon_rank_skills = true,
+	.weapon_rank_skills = false, /* off: no Prowess skills from weapon ranks */
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
 };
+
+/*
+ * The story chapter from which Synthesize and Infuse show, on the world map's node menu and the prep screen (with
+ * prep_menu_skill_synth / prep_menu_infuse on): a chapter id such as CHAPTER_05 (include/jester_headers/maps.h),
+ * compared in story order (WmStoryReached). PREP_MENU_LOCKED keeps the row hidden.
+ */
+const u8 gSkillSynthUnlockChapter = PREP_MENU_LOCKED;
+const u8 gInfuseUnlockChapter = PREP_MENU_LOCKED;

@@ -30,7 +30,9 @@ Huh?[A][N]
 I got you your mother's mirror back.[A][N]
 I knew those thugs had taken it.[A][N]
 See what happens when you give[N]
-me a job?[A] Guaranteed results![A][X]
+me a job?[A] Guaranteed results![A][N]
+[OpenLeft][CloseEyes]
+[MoveMidRight][X]
 
 ## Chapter_03_Scene_05_Convo_01
 [OpenMidLeft][LoadFace_Eirika]
