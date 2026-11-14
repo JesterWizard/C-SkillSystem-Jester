@@ -158,6 +158,54 @@ DRAWN = {
 }
 
 
+# Glyphs the sheet has but drawn here instead. The full stop is one pixel, the size of the dot under '!'.
+OVERRIDE = {
+    '.': [
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '.#..............',
+    ],
+}
+
+# Dialogue shows rows FIT_TOP to FIT_BOTTOM of each text glyph (10 rows: TEXT_ENGINE_LINE_TOP and
+# TEXT_ENGINE_LINE_HEIGHT in Kernel/Wizardry/TextEngineRework/Source/TextEngineRework.c). The few glyphs that reach a
+# row outside are redrawn to fit: a descender into row FIT_BOTTOM + 1 (g, j, p, q, y) loses the row under the
+# baseline (FIT_BOTTOM - 1), and a top in row FIT_TOP - 1 (the brackets) loses the row under it. Menu glyphs (the
+# item ones) keep the sheet's shapes: menus space their lines 16 pixels apart.
+FIT_TOP = 4
+FIT_BOTTOM = 13
+
+
+def fit_rows(text_img):
+    src = text_img.load()
+
+    def row(y):
+        return [src[x, y] for x in range(16)]
+
+    rows = [row(y) for y in range(16)]
+    if any(rows[FIT_BOTTOM + 1]):
+        del rows[FIT_BOTTOM - 1]
+        rows.append([0] * 16)
+    if any(rows[FIT_TOP - 1]):
+        del rows[FIT_TOP]
+        rows.insert(0, [0] * 16)
+    out = text_img.copy()
+    dst = out.load()
+    for y in range(16):
+        for x in range(16):
+            dst[x, y] = rows[y][x]
+    return out
+
+
 def drawn_text(rows):
     img = Image.new('P', (16, 16), 0)
     img.putpalette(PALETTE_TEXT)
@@ -267,11 +315,14 @@ def main():
     for ch, x0, y0, x1, y1, baseline in GLYPHS:
         if ch in seen:
             raise SystemExit('duplicate glyph {}'.format(repr(ch)))
-        text_img, width = raster_text(im, x0, y0, x1, y1, baseline)
+        if ch in OVERRIDE:
+            text_img, width = drawn_text(OVERRIDE[ch])
+        else:
+            text_img, width = raster_text(im, x0, y0, x1, y1, baseline)
         if ch in BOLD:
             text_img, width = bolden(text_img)
         hid = hex_id_for(ch)
-        save_glyph(text_img, to_item(text_img), hid)
+        save_glyph(fit_rows(text_img), to_item(text_img), hid)
         entries.append((ch, width, hid))
         seen.add(ch)
 
@@ -280,7 +331,7 @@ def main():
             raise SystemExit('duplicate glyph {}'.format(repr(ch)))
         text_img, width = drawn_text(rows)
         hid = hex_id_for(ch)
-        save_glyph(text_img, to_item(text_img), hid)
+        save_glyph(fit_rows(text_img), to_item(text_img), hid)
         entries.append((ch, width, hid))
         seen.add(ch)
 

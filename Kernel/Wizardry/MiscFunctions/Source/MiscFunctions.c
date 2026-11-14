@@ -709,9 +709,10 @@ void NewPopup_ItemGot_unused(struct Unit* unit, u16 item, ProcPtr parent)
     const bool isBlue = (FACTION_BLUE == UNIT_FACTION(unit));
     const bool qol = gpKernelDesignerConfig->quality_of_life_fixes;
 
+    /* The quality-of-life popups name the unit ("Eirika got ..."), as NewPopup_GoldGot's do; vanilla's do not */
     const void* popup = qol
-            ? (isBlue ? PopupScr_GotItem        : PopupScr_ItemWasPilfered)
-            : (isBlue ? NewItemDropPopup        : NewItemPilferedPopup);
+            ? (isBlue ? NewItemDropPopup        : NewItemPilferedPopup)
+            : (isBlue ? PopupScr_GotItem        : PopupScr_ItemWasPilfered);
 
     NewPopup_Simple(popup, 0x60, 0x0, parent);
 }

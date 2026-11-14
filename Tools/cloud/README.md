@@ -169,12 +169,12 @@ python3 Tools/cloud/smoketest.py --quick
   - battle: Eirika attacks the soldier next to her. Str Bonus in a free skill slot raises the forecast's attack, the
     fight hurts the soldier, and with 99 EXP she levels up; her level-up quote shows the expression its tier asks for.
     Moved next to her, O'Neill's battle quote shows her `[Surprised]` (a test ROM maps her sad portrait to it);
-  - EXP bar styles: with the Options value set to a style, the map EXP bar and the battle-animation one load that
-    style's palette and window tiles (`--only expbar`);
+  - EXP bar styles: with the Options screen's UI Style set to a style, the map EXP bar and the battle-animation one
+    load its matching EXP bar style's palette and window tiles (`--only expbar`);
   - Map Colors: the Options row set to Vivid and then Deep redraws the map in those colours, every map colour matching
     a model of the transform; a map palette animation (Chapter 18's, on the prologue in a test ROM) runs after a normal
     boot and is recoloured too (`--only mapcolors`);
-  - Gallery: the prologue's opening unlocks three CGs; Extras > Gallery shows its rows, A shows an unlocked CG full size,
+  - Gallery: the prologue's opening unlocks its CG; Extras > Gallery shows its rows, A shows an unlocked CG full size,
     right goes to the next, B back to the grid, down scrolls a row on screen, B back to Extras (`--only gallery`);
   - Chapter 1's end: the debugger starts Chapter 1 and Eirika seizes the gate; the Intermission (0x38) becomes the
     story chapter and Chapter 2 follows, not the prologue (`--only ch1end`);

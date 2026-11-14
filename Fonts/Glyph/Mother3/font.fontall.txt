@@ -12,7 +12,7 @@ $	item	6	FontItem_24.png
 +	item	6	FontItem_2B.png
 ,	item	3	FontItem_2C.png
 -	item	4	FontItem_2D.png
-.	item	3	FontItem_2E.png
+.	item	2	FontItem_2E.png
 /	item	5	FontItem_2F.png
 0	item	6	FontItem_30.png
 1	item	4	FontItem_31.png
@@ -97,7 +97,7 @@ $	text	6	FontText_24.png
 +	text	6	FontText_2B.png
 ,	text	3	FontText_2C.png
 -	text	4	FontText_2D.png
-.	text	3	FontText_2E.png
+.	text	2	FontText_2E.png
 /	text	5	FontText_2F.png
 0	text	6	FontText_30.png
 1	text	4	FontText_31.png

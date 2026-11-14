@@ -375,7 +375,7 @@ A font with shorter glyphs shows its lines closer, and the box is shorter to mat
 
 | Font | Line height | First glyph row shown | 2-line box |
 |------|-------------|-----------------------|------------|
-| Mother 3 | 12 | 3 (its glyphs are in rows 3-14) | 8 pixels shorter |
+| Mother 3 | 10 | 4 (its dialogue glyphs are fitted to rows 4-13) | 12 pixels shorter |
 | Every other font | 16 | 0 | as vanilla |
 
 - The tiles stay where the engine puts them. While a talk box is up (`gProcScr_TextEngineLineSpacing`, from

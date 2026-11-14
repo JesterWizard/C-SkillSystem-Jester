@@ -5,6 +5,7 @@
 #include "kernel/traps.h"
 #include "kernel/unit-icon.h"
 #include "kernel/big-unit.h"
+#include "pair-up.h"
 
 extern int gSMSSyncFlag;
 extern struct SMSHandle gSMSHandleArray[100];
@@ -426,8 +427,8 @@ static void PutRescuedSupportSpritesOam(void)
 {
 	int i;
 
-	/* Only Pair Up draws the carried unit */
-	if (!gpKernelDesignerConfig->pair_up_enabled)
+	/* Only Pair Up draws the carried unit (a vanilla rescue shows vanilla's marker) */
+	if (!PairUp_IsUnlocked())
 		return;
 
 	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) {

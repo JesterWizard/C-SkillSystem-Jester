@@ -2,6 +2,19 @@
 #include "../../_shared/empty-event-lists.h"
 #include "units.c"
 
+/*
+ * Ross joins for good in Chapter 3 (EventScr_ROSS_APPEARS, Chapters/03/events/events.c). If Eirika recruited him
+ * here, he leaves the army at the end of the chapter (US_BIT16, vanilla's "not in this army": not deployed, not on the
+ * prep screen), keeping his level, stats and items until Chapter 3 brings him back.
+ */
+static void Ch02_RossLeavesArmy(void)
+{
+    struct Unit *ross = GetUnitFromCharId(CHARACTER_ROSS);
+
+    if (ross && UNIT_FACTION(ross) == FACTION_BLUE && !(ross->state & US_DEAD))
+        ross->state |= US_BIT16;
+}
+
 // --- Opening Cinematics ---
 static const EventScr EventScr_Ch02_Opening[] = {
     MUSC(SONG_ADVANCE)
@@ -30,9 +43,9 @@ static const EventScr EventScr_Ch02_Opening[] = {
     SOUN(SONG_SE_WEAPON_BROKE)
     NOTIFY(NOTIFY_village_was_destroyed, SONG_NONE)
     TEXT_CG_CONSECUTIVE(0xDE, Chapter_02_Scene_05_Convo_01) /* CG: Garcia carries Ross out of the burning village */
-    TEXT_CG_CONSECUTIVE(0xDE, Chapter_02_Scene_05_Convo_02)
-    TEXT_CG_CONSECUTIVE(0xDE, Chapter_02_Scene_05_Convo_03)
-    TEXT_CG(0xDE, Chapter_02_Scene_05_Convo_04)
+    TEXT_CG_NEXT(Chapter_02_Scene_05_Convo_02)
+    TEXT_CG_NEXT(Chapter_02_Scene_05_Convo_03)
+    TEXT_CG_LAST(Chapter_02_Scene_05_Convo_04)
     LOAD_WAIT_PERSIST(CH2_ROSS_GARCIA)
     SET_UNIT_HP(CHARACTER_ROSS, 5)
     LOAD_WAIT_PERSIST(CH2_PLAYER_UNITS)
@@ -50,6 +63,7 @@ static const EventScr EventScr_Ch02_Opening[] = {
 
 const EventScr EventScr_Ch02_Ending[] = {
     ASMC(GrantBEXP)
+    ASMC(Ch02_RossLeavesArmy)
     MUSC(SONG_VICTORY)
     TEXT_BG_HIDE_MAP(0x1D, Chapter_02_Scene_07_Convo_01)
     FADE_TO_BLACK(16)

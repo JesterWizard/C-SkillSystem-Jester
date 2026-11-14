@@ -281,6 +281,7 @@ const struct MenuItemDef gUnitActionMenuItemsRework[] = {
 	{"　闘技場", 0x688, 0x6D2, 0, 0x62, ArenaCommandUsability, 0, ArenaCommandEffect, 0, 0, 0}, // Arena
 	{" Prestige", MSG_MenuCommand_Prestige_NAME, MSG_MenuCommand_Prestige_DESC, TEXT_COLOR_SYSTEM_GOLD, 0x7A, PrestigeCommandUsability, 0, PrestigeCommandEffect, 0, 0, 0},
 	{" Stack", MSG_MenuCommand_Stack_NAME, MSG_MenuCommand_Stack_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x7C, StackCommandUsability, 0, StackCommandEffect, 0, 0, 0},
+	{"　救出", 0x689, 0x6C5, 0, 0x63, RescueUsability, 0, RescueEffect, 0, 0, 0}, // Rescue > (until Pair Up replaces it)
 	{"", MSG_MenuCommand_PairUp_NAME, MSG_MenuCommand_PairUp_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x63, PairUp_Usability, 0, PairUp_OnSelected, 0, 0, 0}, // Pair Up >
 	{"", MSG_MenuCommand_Shelter_NAME, MSG_MenuCommand_Shelter_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6A, Shelter_Usability, 0, Shelter_OnSelected, 0, 0, 0}, // Shelter >
 	{"", MSG_MenuCommand_Transfer_NAME, MSG_MenuCommand_Transfer_DESC, TEXT_COLOR_SYSTEM_WHITE, 0x6D, PairUp_TransferUsability, 0, PairUp_TransferEffect, 0, 0, 0}, // Transfer >

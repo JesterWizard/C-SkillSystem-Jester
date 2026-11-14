@@ -57,7 +57,7 @@ What it checks:
               in a free skill slot, the fight hurts the soldier, and with 99 EXP she levels up. Her level-up quote's
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
-              (a test ROM maps her sad portrait to SURPRISED). With the Mother 3 font, her box has 12-pixel lines
+              (a test ROM maps her sad portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
   lvupanim    with battle animations on, Eirika levels up: after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
@@ -1365,12 +1365,12 @@ class Smoke:
                    "%d learned skills" % count)
 
     def test_gallery(self):
-        """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Mountain Forest (background
-        0x1D), Flight from Renais (0xDB) and Seth Attacked (0x3A): all three unlock, in the SRAM entry of the trial
-        map's save block (magic "GLRY"). After a reset, Extras has the Gallery row; it shows its first three rows. A on
-        a locked CG does nothing; on Mountain Forest it shows the CG full size on BG3; right goes to the next unlocked
-        one (Flight from Renais, row 13), right again to Seth Attacked (around the end); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B goes back
-        to Extras."""
+        """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Flight from Renais (background
+        0xDB, the first row): it unlocks, in the SRAM entry of the trial map's save block (magic "GLR2"), and nothing
+        else does. After a reset, Extras has the Gallery row; it shows its first three rows. A on a locked CG (Reunited)
+        does nothing; on Flight from Renais it shows the CG full size on BG3; right stays on it (no other CG is
+        unlocked); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B
+        goes back to Extras."""
         d = os.path.join(self.out, "gallery")
         os.makedirs(d, exist_ok=True)
         need = ("gGalleryScreen", "gLCDControlBuffer", "ProcScr_SaveMenu", "sProcArray")
@@ -1386,46 +1386,48 @@ class Smoke:
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
                                "dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS)]
         lines += ["press UP", "wait 20"] * 3 + ["press A", "wait 150", "shot grid.png"] + state
-        # the cursor on the first CG (Myrrh & Morva, locked): A; then Mountain Forest (one down): A, the full view
-        lines += ["press A", "wait 60"] + state + ["press DOWN", "wait 20", "press A", "wait 60", "shot full.png",
-                                                    "r16 %#x" % lcd] + state
-        lines += ["press RIGHT", "wait 60", "shot next.png"] + state + ["press RIGHT", "wait 60"] + state
+        # Reunited (the second CG, locked): A does nothing; then Flight from Renais (the first): A, the full view
+        lines += ["press RIGHT", "wait 20", "press A", "wait 60"] + state
+        lines += ["press LEFT", "wait 20", "press A", "wait 60", "shot full.png", "r16 %#x" % lcd] + state
+        # right: no other CG is unlocked, so it stays
+        lines += ["press RIGHT", "wait 60", "shot next.png"] + state
         lines += ["press B", "wait 60", "shot back.png"] + state
-        # Seth Attacked (row 0): down three rows, past the third on screen; the grid scrolls a row
+        # Flight from Renais (row 0): down three rows, past the third on screen; the grid scrolls a row
         lines += ["press DOWN", "wait 20", "press DOWN", "wait 20", "press DOWN", "wait 3", "shot scrolling.png",
                   "wait 30", "shot scrolled.png"] + state
         lines += ["press B", "wait 150", "shot extras.png", "dump %#x %#x after.bin" % (procs, PROC_SIZE * PROCS)]
         vals = self.run(ROM, lines, d)
-        for name, label in (("grid", "the Gallery's first rows"), ("full", "the full view: Mountain Forest"),
-                            ("next", "right: the next unlocked CG"), ("back", "B: back on the grid"),
+        for name, label in (("grid", "the Gallery's first rows"), ("full", "the full view: Flight from Renais"),
+                            ("next", "right: the only unlocked CG stays"), ("back", "B: back on the grid"),
                             ("scrolling", "down past the third row: scrolling"), ("scrolled", "a row down"),
                             ("extras", "B: back to Extras")):
             self.shot(os.path.join(d, name + ".png"), label)
-        if len(vals) != 6 + 7 * 6 + 1:
+        if len(vals) != 6 + 6 * 6 + 1:
             return self.check("gallery: the Gallery runs", False, "values %s" % vals)
         sram, dispcnt = vals[:6], vals[18]
-        grid, locked, full, nxt, around, back, scrolled = (vals[6:12], vals[12:18], vals[19:25], vals[25:31],
-                                                           vals[31:37], vals[37:43], vals[43:49])
+        grid, locked, full, nxt, back, scrolled = (vals[6:12], vals[12:18], vals[19:25], vals[25:31], vals[31:37],
+                                                   vals[37:43])
         magic = sram[0] | sram[1] << 8 | sram[2] << 16 | sram[3] << 24
-        self.check("gallery: the prologue's opening unlocks Mountain Forest, Seth Attacked and Flight from Renais",
-                   magic == 0x59524C47 and sram[4] & 0x0C == 0x0C and sram[5] & 0x20,
+        self.check("gallery: the prologue's opening unlocks Flight from Renais (and only it)",
+                   magic == 0x32524C47 and sram[4] == 0x01 and sram[5] == 0,
                    "magic %#x, bits %#x %#x" % (magic, sram[4], sram[5]))
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
                    "Extras rows %s" % ["%#x" % m for m in menu])
-        self.check("gallery: the grid opens on its first rows", grid[0] == 24 and grid[2] == 0 and grid[4] == 1 and
-                   grid[5] & 0x0C == 0x0C, "count, cursor, top, view, sprites, bits %s" % grid)
-        self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 0,
+        self.check("gallery: the grid opens on its first rows", grid[0] == 11 and grid[1] == 0 and grid[2] == 0 and
+                   grid[4] == 1 and grid[5] == 0x01, "count, cursor, top, view, sprites, bits %s" % grid)
+        self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 1,
                    "cursor %d, grid shown %d" % (locked[1], locked[4]))
         # the other BGs' maps are cleared and no sprite is put (the fade turns every layer on)
-        self.check("gallery: A on Mountain Forest shows it full size (BG3, no thumbnails)",
-                   full[3] == 3 and full[4] == 0 and dispcnt & 0x0800, "view %d, DISPCNT %#x" % (full[3], dispcnt))
-        self.check("gallery: right goes to the next unlocked CG (Flight from Renais), right again around the end "
-                   "(Seth Attacked)", nxt[3] == 13 and around[3] == 2, "views %d, %d" % (nxt[3], around[3]))
-        self.check("gallery: B goes back to the grid on that CG", back[1] == 2 and back[4] == 1,
+        self.check("gallery: A on Flight from Renais shows it full size (BG3, no thumbnails)",
+                   full[1] == 0 and full[3] == 0 and full[4] == 0 and dispcnt & 0x0800,
+                   "cursor %d, view %d, DISPCNT %#x" % (full[1], full[3], dispcnt))
+        self.check("gallery: right with no other CG unlocked stays on it", nxt[3] == 0 and nxt[4] == 0,
+                   "view %d, grid shown %d" % (nxt[3], nxt[4]))
+        self.check("gallery: B goes back to the grid on that CG", back[1] == 0 and back[4] == 1,
                    "cursor %d, grid shown %d" % (back[1], back[4]))
         self.check("gallery: down past the third row scrolls the grid a row, on screen",
-                   scrolled[1] == 11 and scrolled[2] == 1 and scrolled[4] == 1 and
+                   scrolled[1] == 9 and scrolled[2] == 1 and scrolled[4] == 1 and
                    self.diff(os.path.join(d, "back.png"), os.path.join(d, "scrolling.png")) > 0,
                    "cursor %d, top %d, grid shown %d" % (scrolled[1], scrolled[2], scrolled[4]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
@@ -1685,11 +1687,14 @@ class Smoke:
             if face and face[0] else []
         self.check("battlequote: [Surprised] after Eirika's face loads shows it", got == [want],
                    "portrait %s, want %#x" % (", ".join("%#x" % v for v in got) or "none", want))
-        # The line height preset of the font in configs.h (TEXT_ENGINE_LINE_HEIGHT in TextEngineRework.c): Mother 3's
-        # lines are 12 pixels apart, so the box is 4 rows a line shorter (BG1 stepped by that below the box's inside)
+        # The line height preset of the font in configs.h (TEXT_ENGINE_LINE_HEIGHT in TextEngineRework.c, read from
+        # there): with Mother 3's 10-pixel lines the box is 6 rows a line shorter (BG1 stepped by that below the inside)
         if "sTextEngineLineSpacing" in self.sym:
             configs = open(os.path.join(ROOT, "include", "configs", "configs.h")).read()
-            height = 12 if re.search(r"^#define CONFIG_FONT_MOTHER_3\b", configs, re.M) else 16
+            engine = open(os.path.join(ROOT, "Kernel", "Wizardry", "TextEngineRework", "Source",
+                                       "TextEngineRework.c")).read()
+            m3 = re.search(r"CONFIG_FONT_MOTHER_3\)\s*\n#define TEXT_ENGINE_LINE_HEIGHT (\d+)", engine)
+            height = int(m3.group(1)) if m3 and re.search(r"^#define CONFIG_FONT_MOTHER_3\b", configs, re.M) else 16
             sp = self.sym["sTextEngineLineSpacing"]
             vals = self.run(rom, ["load " + os.path.join(d, "battlequote.ss"), "r32 0x0859133C"], d)
             vals = self.run(rom, ["load " + os.path.join(d, "battlequote.ss"), "r8 %#x" % (vals[0] + 0x0A),
@@ -1890,19 +1895,20 @@ class Smoke:
                    (len(seen - deep), len(seen)))
 
     def test_expbar(self, boot_ss):
-        """EXP bar styles: the Options value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the second option
-        word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations. The map bar
-        loads the style's palette into bank 5, the battle one into bank 1 with its window tiles at VRAM 0x6002000.
-        Vanilla (0) keeps vanilla's palette in battle."""
+        """EXP bar styles: the Options screen's UI Style value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the
+        second option word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations.
+        Each UI style has an EXP bar style (sUiStyles in ExpBarStyles.c): the first (Wood) and the last (Pikmin) are
+        tried, and Vanilla. The map bar loads that EXP bar style's palette into bank 5, the battle one into bank 1 with
+        its window tiles at VRAM 0x6002000. Vanilla (0) keeps vanilla's palette in battle."""
         d = os.path.join(self.out, "expbar")
         os.makedirs(d, exist_ok=True)
         gfx = os.path.join(ROOT, "Kernel", "Wizardry", "ExpBarStyles", "Gfx")
-        order = []
         src = open(os.path.join(ROOT, "Kernel", "Wizardry", "ExpBarStyles", "Source", "ExpBarStyles.c")).read()
-        for m in re.finditer(r"^\tEXP_BAR_STYLE\((\w+),", src, re.M):
-            order.append(m.group(1))
-        if not order:
-            return self.check("expbar: the style table", False, "no EXP_BAR_STYLE rows")
+        # the UI styles' rows: name and EXP bar style (EXP_BAR_VIAL is the Vial PNG)
+        ui = [(m.group(1), m.group(2).capitalize())
+              for m in re.finditer(r'^\t\{ "([^"]+)",\s*"[^"]*",\s*\d+,\s*EXP_BAR_(\w+) \},', src, re.M)]
+        if len(ui) < 2 or ui[0][1] != "Vanilla":
+            return self.check("expbar: the UI style table", False, "rows %s" % ui)
         b36, b37 = self.run(ROM, ["load " + boot_ss, "r8 %#x" % (PLAYST + 0x46), "r8 %#x" % (PLAYST + 0x47)], d)
         attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A"]
         vanilla_pal = list(struct.unpack_from("<16H", open(os.path.join(ROOT, "fe8.gba"), "rb").read(), 0x803590))
@@ -1911,8 +1917,8 @@ class Smoke:
             return ["w8 %#x %#x" % (PLAYST + 0x46, (b36 & 0x3F) | ((v & 3) << 6)),
                     "w8 %#x %#x" % (PLAYST + 0x47, (b37 & 0xFC) | (v >> 2))]
 
-        for v in (1, len(order), 0):
-            name = order[v - 1] if v else "Vanilla"
+        for v in (1, len(ui) - 1, 0):
+            name = ui[v][1]
             pal = vanilla_pal if not v else list(struct.unpack("<16H", open(os.path.join(gfx, name + ".gbapal"), "rb").read()))
             # map: 99 EXP, so the bar shows; battle: animations on (option byte 0x42, animationType 0)
             got = self.run(ROM, ["load " + boot_ss, "w8 %#x 99" % (UNIT1 + 0x09)] + style(v) + attack +
@@ -1920,19 +1926,19 @@ class Smoke:
                            ["r16 %#x" % (PALETTE_BUFFER + 0x20 * 5 + 2 * k) for k in range(16)], d)
             self.shot(os.path.join(d, "map_%s.png" % name), "EXP bar: %s (map)" % name)
             if v:
-                self.check("expbar: the map EXP bar has %s's palette" % name, got[1:] == pal[1:],
+                self.check("expbar: UI style %s: the map EXP bar has %s's palette" % (ui[v][0], name), got[1:] == pal[1:],
                            "bank 5 %s" % " ".join("%04x" % c for c in got[1:4]))
             dump = os.path.join(d, "chr_%s.bin" % name)
             got = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w8 %#x 60" % (UNIT1 + 0x09)] +
                            style(v) + attack + ["wait 510", "shot battle_%s.png" % name, "dump 0x6002000 416 " + dump] +
                            ["r16 %#x" % (PALETTE_BUFFER + 0x20 + 2 * k) for k in range(16)], d)
             self.shot(os.path.join(d, "battle_%s.png" % name), "EXP bar: %s (battle)" % name)
-            self.check("expbar: the battle EXP bar has %s's palette" % name, got[1:] == pal[1:],
+            self.check("expbar: UI style %s: the battle EXP bar has %s's palette" % (ui[v][0], name), got[1:] == pal[1:],
                        "bank 1 %s" % " ".join("%04x" % c for c in got[1:4]))
             if v:
                 want = open(os.path.join(gfx, name + ".4bpp"), "rb").read()[:416]
                 have = open(dump, "rb").read() if os.path.exists(dump) else b""
-                self.check("expbar: the battle EXP bar has %s's window tiles" % name, have == want,
+                self.check("expbar: UI style %s: the battle EXP bar has %s's window tiles" % (ui[v][0], name), have == want,
                            "%d of 13 tiles" % sum(have[i:i + 32] == want[i:i + 32] for i in range(0, 416, 32)))
 
     def test_bigunit(self, boot_ss):

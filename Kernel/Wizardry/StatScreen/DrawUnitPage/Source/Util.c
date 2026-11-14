@@ -63,9 +63,27 @@ u8 SortMax(const u8 *buf, int size)
 	return max;
 }
 
-u8 GetTalkee(struct Unit *unit)
+static int AddTalkee(u8 *out, int count, int max, u8 pid)
 {
 	int i;
+
+	for (i = 0; i < count; i++)
+		if (out[i] == pid)
+			return count;
+
+	if (count < max)
+		out[count++] = pid;
+
+	return count;
+}
+
+/*
+ * Everyone the unit can talk to now (the chapter's talk events, whatever the partner's allegiance) and then everyone
+ * it can support now, each once, on the map: at most max character ids into out. Returns the count.
+ */
+int GetTalkees(struct Unit *unit, u8 *out, int max)
+{
+	int i, count = 0;
 	const struct EventListCmdInfo *cmd_info = &gEventListCmdInfoTable[EVT_LIST_CMD_CHAR];
 	const EventListScr *list = GetChapterEventDataPointer(gPlaySt.chapterIndex)->characterBasedEvents;
 
@@ -76,10 +94,7 @@ u8 GetTalkee(struct Unit *unit)
 		if (cmd == EVT_LIST_CMD_END)
 			break;
 
-		if (cmd != EVT_LIST_CMD_CHAR)
-			continue;
-
-		if (!CheckFlag(EVT_CMD_HI(list[0]))) {
+		if (cmd == EVT_LIST_CMD_CHAR && !CheckFlag(EVT_CMD_HI(list[0]))) {
 			const struct EvCheck03 *_chunk = (const void *)list;
 			struct EventInfo info = {
 				.listScript = list,
@@ -89,11 +104,14 @@ u8 GetTalkee(struct Unit *unit)
 
 			if (cmd_info->func(&info) == true) {
 				struct Unit *talkee = GetUnitFromCharId(_chunk->pidB);
+
 				if (UnitOnMapAvaliable(talkee))
-					return _chunk->pidB;
+					count = AddTalkee(out, count, max, _chunk->pidB);
 			}
 		}
-		list += cmd_info->length;
+
+		/* every entry moves on by its own length (another kind would loop forever otherwise) */
+		list += gEventListCmdInfoTable[cmd].length;
 	}
 
 	/* Support */
@@ -101,9 +119,18 @@ u8 GetTalkee(struct Unit *unit)
 		struct Unit *talkee = GetUnitSupporterUnit(unit, i);
 
 		if (UnitOnMapAvaliable(talkee) && CanUnitSupportNow(unit, i))
-			return UNIT_CHAR_ID(talkee);
+			count = AddTalkee(out, count, max, UNIT_CHAR_ID(talkee));
 	}
-	return 0;
+
+	return count;
+}
+
+/* The first of GetTalkees (the stat screen shows one) */
+u8 GetTalkee(struct Unit *unit)
+{
+	u8 pid;
+
+	return GetTalkees(unit, &pid, 1) ? pid : 0;
 }
 
 void InstallExpandedTextPal(void)

@@ -132,6 +132,11 @@ void TryAddUnitToRescueTargetList(struct Unit* unit) {
         return;
     }
 
+    /* vanilla: the rescuer's Aid must cover the unit's Con (Pair Up has its own target list, with no such limit) */
+    if (!CanUnitRescue(gSubjectUnit, unit)) {
+        return;
+    }
+
     AddTarget(unit->xPos, unit->yPos, unit->index, 0);
 
     return;

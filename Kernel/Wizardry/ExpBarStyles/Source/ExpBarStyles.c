@@ -6,9 +6,10 @@
 #include "exp-bar-styles.h"
 
 /*
- * EXP bar styles (Documentation/Features/ExpBarStyles.md): the Options screen's "EXP Bar" row picks one, stored in
- * gPlaySt.config.exp_bar_style. Both EXP bars use the style's graphics: the map one (battle animations off) and the
- * battle-animation one. A style has the same tiles in the same order as vanilla's:
+ * EXP bar styles (Documentation/Features/ExpBarStyles.md). The Options screen's "UI Style" row picks a UI style
+ * (gPlaySt.config.exp_bar_style holds the row's value, sUiStyles below); each UI style has a matching EXP bar style.
+ * Both EXP bars use it: the map one (battle animations off) and the battle-animation one. A style has the same tiles in
+ * the same order as vanilla's:
  *   img     the window: Img_EkrExpBar tiles 0-12 (frame and label)
  *   steps   the 24 fill steps of the bar (Img_EkrExpBarChange)
  *   digits  0-9 and a blank (Img_BarNumfx)
@@ -57,26 +58,70 @@ static const struct ExpBarStyle sExpBarStyles[] = {
 	EXP_BAR_STYLE(Minimal, "A slim bar in a dark window."),
 };
 
-int ExpBarStyle_Count(void)
+/* sExpBarStyles' rows, for the UI styles' table */
+enum {
+	EXP_BAR_VANILLA, EXP_BAR_BLADE, EXP_BAR_GEMS, EXP_BAR_PEARLS, EXP_BAR_TECH, EXP_BAR_SCROLL, EXP_BAR_VIAL,
+	EXP_BAR_CHAIN, EXP_BAR_STARS, EXP_BAR_ARROW, EXP_BAR_MINIMAL,
+};
+
+/*
+ * The UI styles the Options screen's "UI Style" row offers, in its order (Documentation/Features/VeslyUIStyles.md).
+ * Each is a VeslyUI style ID (GetUI_id, Kernel/Wizardry/VeslyUI/C_Code.c) and the EXP bar style closest to its look.
+ * The row's value is a save option of 4 bits: at most 16 rows.
+ */
+struct UiStyleOption {
+	const char *name;
+	const char *desc;
+	u8 ui_id;
+	u8 exp_bar;
+};
+
+static const struct UiStyleOption sUiStyles[] = {
+	{ "Vanilla",       "The original windows and EXP bar.",   0,  EXP_BAR_VANILLA },
+	{ "Wood",          "Wooden planks. EXP: a potion vial.",  4,  EXP_BAR_VIAL },
+	{ "Tech",          "Neon glass panels. EXP: LED bars.",   5,  EXP_BAR_TECH },
+	{ "Royal",         "Velvet and gold. EXP: rubies.",       6,  EXP_BAR_GEMS },
+	{ "Stained Glass", "Leaded glass. EXP: a starry sky.",    7,  EXP_BAR_STARS },
+	{ "Paper",         "Paper cutouts. EXP: a slim bar.",     8,  EXP_BAR_MINIMAL },
+	{ "Ocean",         "Rope and waves. EXP: pearls.",        9,  EXP_BAR_PEARLS },
+	{ "Forest",        "Woven vines. EXP: a glowing arrow.",  10, EXP_BAR_ARROW },
+	{ "Parchment",     "Inked parchment. EXP: a scroll.",     11, EXP_BAR_SCROLL },
+	{ "Stephano",      "Stephano's menus. EXP: a sword.",     1,  EXP_BAR_BLADE },
+	{ "Gamma",         "Gamma's menus. EXP: a chain.",        2,  EXP_BAR_CHAIN },
+	{ "Pikmin",        "Pikmin's menus. EXP: a starry sky.",  3,  EXP_BAR_STARS },
+};
+
+_Static_assert(ARRAY_COUNT(sUiStyles) <= 16, "the option has 4 bits");
+
+static const struct UiStyleOption *GetUiStyleOption(int id)
 {
-	return ARRAY_COUNT(sExpBarStyles);
+	return &sUiStyles[(unsigned int)id < ARRAY_COUNT(sUiStyles) ? id : 0];
 }
 
-const char *ExpBarStyle_Name(int id)
+int UiStyle_Count(void)
 {
-	return sExpBarStyles[(unsigned int)id < ARRAY_COUNT(sExpBarStyles) ? id : 0].name;
+	return ARRAY_COUNT(sUiStyles);
 }
 
-const char *ExpBarStyle_Desc(int id)
+const char *UiStyle_Name(int id)
 {
-	return sExpBarStyles[(unsigned int)id < ARRAY_COUNT(sExpBarStyles) ? id : 0].desc;
+	return GetUiStyleOption(id)->name;
+}
+
+const char *UiStyle_Desc(int id)
+{
+	return GetUiStyleOption(id)->desc;
+}
+
+/* The VeslyUI style ID the player picked */
+int UiStyle_GetUiId(void)
+{
+	return GetUiStyleOption(gPlaySt.config.exp_bar_style)->ui_id;
 }
 
 static const struct ExpBarStyle *GetExpBarStyle(void)
 {
-	unsigned int id = gPlaySt.config.exp_bar_style;
-
-	return &sExpBarStyles[id < ARRAY_COUNT(sExpBarStyles) ? id : 0];
+	return &sExpBarStyles[GetUiStyleOption(gPlaySt.config.exp_bar_style)->exp_bar];
 }
 
 /* The map EXP bar (battle animations off): vanilla's, with the style's tiles, palette and window */

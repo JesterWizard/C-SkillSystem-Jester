@@ -29,7 +29,7 @@ typedef struct
 extern const UnitPromotions unit_promotions[];
 /* END - Page 7 - Unit promotions list */
 
-// 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts)
+// 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts, 0x9C: Pair Up unlocked)
 // 176-178 (0xB0-0xB2) : free
 // 180-235 (0xB4-0xEB) : Used by Guide (see [FE8] "Help" Command & Permanent Event IDs)
 // 236-239 (0xEC-0xEF) : 0xEC base-chapter intro skip, 0xED chapter timer ran out, 0xEE map animation numbers
@@ -56,6 +56,10 @@ enum {
     GLOBAL_FLAG_DISTRICT_CAER_PELYN_ITEM = 0x99,
     GLOBAL_FLAG_DISTRICT_JEHANNA_GOLD = 0x9A,
     GLOBAL_FLAG_DISTRICT_JEHANNA_ITEM = 0x9B,
+
+    /* Pair Up replaces Rescue (Kernel/Wizardry/PairUp, Documentation/Features/PairUp.md): set it in the event that
+     * gives the upgrade (ENUT 0x9C) */
+    GLOBAL_FLAG_PAIR_UP_UNLOCKED = 0x9C,
 
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
     GLOBAL_FLAG_TIME_RAN_OUT = 0xED,

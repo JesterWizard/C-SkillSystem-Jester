@@ -32,7 +32,7 @@ This file is the viability list. `configs.h` should only offer fonts marked viab
 | Pokémon FireRed | `CONFIG_FONT_POKE_FIRERED` | 6 | Native 8px Latin sheet. Caps, `M`, and `W` all advance 6. Extract: `Fonts/Scripts/extract-poke-firered-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
 | Advance Wars 2 | `CONFIG_FONT_ADVANCE_WARS_2` | 6 | Slightly wider than vanilla; fits current UI. Extract: `Fonts/Scripts/extract-aw2-font.py`. |
 | Super Star Saga | `CONFIG_FONT_SUPER_STAR_SAGA` | 8 | Outlined Mario & Luigi battle font. Lowercase is 6; caps match Fusion's 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-superstar-saga-font.py`. Sheet omits `q` (mirrored from `p`) and digits other than `1` (vanilla fills those). |
-| Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. The sheet's brackets row is `( ) [ ]` (it has no `<` or `>`); the script also draws `→`. Its digits are drawn a pixel bolder than the sheet's (`BOLD` in the script: each stroke is 2px wide, the advance 1 more). Missing punctuation falls back to vanilla `fe8u`. |
+| Mother 3 | `CONFIG_FONT_MOTHER_3` | 7 | Native 8px EarthBound-style sheet. Lowercase is 5–6; `M`/`W` advance 8 and may clip in tight menus. Extract: `Fonts/Scripts/extract-mother3-font.py`. The sheet's brackets row is `( ) [ ]` (it has no `<` or `>`); the script also draws `→`, and a one-pixel full stop (the size of the dot under `!`; the sheet's is 2x2). Its dialogue glyphs are fitted to rows 4-13 for the 10-pixel lines (`fit_rows`: g, j, p, q, y lose the row above their tail, the brackets a row near their top); its menu glyphs keep the sheet's shapes. Its digits are drawn a pixel bolder than the sheet's (`BOLD` in the script: each stroke is 2px wide, the advance 1 more). Missing punctuation falls back to vanilla `fe8u`. |
 | Riviera: The Promised Land | `CONFIG_FONT_RIVIERA` | 5 | Native 8px Latin sheet. Same cap advance as vanilla; `M`/`W`/`a` are 6. Extract: `Fonts/Scripts/extract-riviera-font.py`. `"` and `,` fall back to vanilla `fe8u`. |
 | The Minish Cap | `CONFIG_FONT_MINISH_CAP` | 6 | Native 16px-cell Zelda sheet. Caps and `M`/`W` advance 6. Extract: `Fonts/Scripts/extract-minish-cap-font.py`. Sheet has `,` `.` and Latin-1 letters; other punctuation falls back to vanilla `fe8u`. |
 | Pokémon Mystery Dungeon: Red Rescue Team | `CONFIG_FONT_RED_RESCUE_TEAM` | 6 | Native 8px Latin sheet. Caps advance 6; `M` is 8 and `W` is 10 and may clip in tight menus. Extract: `Fonts/Scripts/extract-red-rescue-team-font.py`. Sheet has digits, quotes, `…`, `♂`/`♀`; other punctuation falls back to vanilla `fe8u`. |
@@ -53,8 +53,8 @@ If the font has an extract script, run that first so `font.fontall.txt` and the 
 
 ### Line height
 
-Each font has a dialogue line height preset: Mother 3's lines are 12 pixels apart (its glyphs are in rows 3-14 of their
-16-pixel cells) and its talk boxes are shorter to match; every other font keeps vanilla's 16. See
+Each font has a dialogue line height preset: Mother 3's lines are 10 pixels apart (its dialogue glyphs fit rows 4-13 of
+their 16-pixel cells) and its talk boxes are shorter to match; every other font keeps vanilla's 16. See
 [Text Engine Rework, Line height](./TextEngineRework.md#line-height) for the presets and adding one.
 
 ### Narrow glyphs

@@ -541,7 +541,7 @@ Amelia: win 15 battles.[X]
 This chapter has not been written yet.[NL]
 The story moves on to the next one.[A][X]
 ## MSG_MENU_OPTION_EXP_BAR_TITLE
-EXP Bar[X]
+UI Style[X]
 ## MSG_SKILL_DeepRoots_NAME
 Deep Roots[X]
 ## MSG_SKILL_DeepRoots_DESC
@@ -691,14 +691,16 @@ will come to her.[A][N]
 All I can do right now, is to[N]
 vow the same of your daughter.[A][X]
 ## Chapter_01_Scene_11_Convo_02_6
-[SetName]Hayden[N]
+[OpenMidLeft][LoadFace_Hayden]
+[OpenFarRight][LoadFace_Seth]
+[OpenMidLeft]
 ...[A][N]
 ...Dotard, eh?[A] Maybe...[A][X]
 ## Chapter_01_Scene_11_Convo_02_7
-[SetName]Seth[N]
+[OpenFarRight]
 ...?[A][X]
 ## Chapter_01_Scene_11_Convo_02_8
-[SetName]Hayden[N]
+[OpenMidLeft]
 Perhaps it is time to let the[N]
 young rise up.[A][N]
 What do you think...[N]

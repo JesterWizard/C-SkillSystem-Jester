@@ -11,6 +11,8 @@
 #include "status-getter.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
+#include "jester_headers/custom-structs.h"
+#include "bmarch.h"
 
 #pragma GCC optimize("Os", "no-jump-tables")
 
@@ -42,11 +44,22 @@ static bool PairUp_IsValidUnit(const struct Unit *unit)
 	return unit && UNIT_IS_VALID(unit) && (u8) unit->index != 0;
 }
 
+/*
+ * Pair Up is an upgrade of Rescue that the story gives later: until GLOBAL_FLAG_PAIR_UP_UNLOCKED is set (and while
+ * pair_up_enabled is on), the unit menu has vanilla's Rescue, and a rescue is vanilla's (the rescuer's Skl and Spd are
+ * halved, no stat bonus). Once it is set, Pair Up, Shelter, Transfer and Switch replace Rescue, and every rescue state
+ * between allies is a pair.
+ */
+bool PairUp_IsUnlocked(void)
+{
+	return gpKernelDesignerConfig->pair_up_enabled && CheckFlag(GLOBAL_FLAG_PAIR_UP_UNLOCKED);
+}
+
 static bool PairUp_IsRescuer(const struct Unit *unit)
 {
 	struct Unit *partner;
 
-	if (!PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUING))
+	if (!PairUp_IsUnlocked() || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUING))
 		return false;
 
 	partner = PairUp_GetRescuePartner(unit);
@@ -57,7 +70,7 @@ static bool PairUp_IsRescued(const struct Unit *unit)
 {
 	struct Unit *partner;
 
-	if (!PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUED))
+	if (!PairUp_IsUnlocked() || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUED))
 		return false;
 
 	partner = PairUp_GetRescuePartner(unit);
@@ -232,7 +245,7 @@ static u8 PairUp_RescueUsabilityCore(
 	(void) def;
 	(void) number;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled)
+	if (!PairUp_IsUnlocked())
 		return MENU_NOTSHOWN;
 
 	if (!PairUp_IsValidTarget(gActiveUnit)
@@ -246,10 +259,25 @@ static u8 PairUp_RescueUsabilityCore(
 	return GetSelectTargetCount() ? MENU_ENABLED : MENU_NOTSHOWN;
 }
 
+/* The unit menu's Rescue row: vanilla's, until Pair Up replaces it */
 LYN_REPLACE_CHECK(RescueUsability);
 u8 RescueUsability(const struct MenuItemDef *def, int number)
 {
-	return PairUp_RescueUsabilityCore(def, number, false, false);
+	(void) def;
+	(void) number;
+
+	if (PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
+
+	/* vanilla: not after Canto (0x40), nor while rescuing or in a ballista (0x810) */
+	if (gActiveUnit->state & 0x40)
+		return MENU_NOTSHOWN;
+
+	if (gActiveUnit->state & 0x810)
+		return MENU_NOTSHOWN;
+
+	MakeRescueTargetList(gActiveUnit);
+	return GetSelectTargetCount() ? MENU_ENABLED : MENU_NOTSHOWN;
 }
 
 u8 PairUpCheck(const struct MenuItemDef *def, int number)
@@ -284,10 +312,21 @@ s8 ActionRescue(ProcPtr proc)
 	struct Unit *target;
 	bool shelter;
 
-	(void) proc;
+	if (!PairUp_IsUnlocked()) {
+		/* vanilla's Rescue */
+		actor = GetUnit(gActionData.subjectIndex);
+		target = GetUnit(gActionData.targetIndex);
 
-	if (!gpKernelDesignerConfig->pair_up_enabled)
-		return true;
+		TryRemoveUnitFromBallista(actor);
+		Make6CKOIDO(
+			target,
+			GetSomeFacingDirection(actor->xPos, actor->yPos, target->xPos, target->yPos),
+			0,
+			proc);
+		UnitRescue(actor, target);
+		HideUnitSprite(target);
+		return 0;
+	}
 
 	actor = GetUnit(gActionData.subjectIndex);
 	target = GetUnit(gActionData.targetIndex);
@@ -611,6 +650,14 @@ int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat)
 {
 	struct Unit *support;
 
+	/* Before Pair Up: vanilla's rescue, the rescuer's Skl and Spd halved */
+	if (!PairUp_IsUnlocked()) {
+		if ((unit->state & US_RESCUING) && (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD))
+			return status / 2;
+
+		return status;
+	}
+
 	support = PairUp_GetRegularRescuePartner(unit);
 	if (support) {
 		if (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD)
@@ -889,7 +936,7 @@ static u8 PairUp_OnSelectedCore(
 {
 	(void) menu;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled
+	if (!PairUp_IsUnlocked()
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
@@ -945,7 +992,7 @@ u8 PairUp_TransferUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled
+	if (!PairUp_IsUnlocked()
 		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit))
@@ -961,7 +1008,7 @@ u8 PairUp_TransferEffect(
 {
 	(void) menu;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled
+	if (!PairUp_IsUnlocked()
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
@@ -984,7 +1031,7 @@ u8 PairUp_SwitchUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled
+	if (!PairUp_IsUnlocked()
 		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit)
@@ -1000,7 +1047,7 @@ u8 PairUp_SwitchEffect(
 {
 	(void) menu;
 
-	if (!gpKernelDesignerConfig->pair_up_enabled
+	if (!PairUp_IsUnlocked()
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 

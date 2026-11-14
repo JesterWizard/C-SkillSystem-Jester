@@ -57,8 +57,8 @@ To remove an option, reverse the process:
 4. Remove the initialization from `InitPlayConfig` if the field is no longer needed.
 5. Check for any remaining references in rendering or gameplay code so the menu does not point at dead data.
 
-A row with more values than fit on one line (up to four selectors do) can show one value at a time, as the EXP Bar
-row does (`GAME_OPTION_EXP_BAR`, [EXP Bar Styles](./ExpBarStyles.md)): `GetGameOptionRowCount` returns the number of
+A row with more values than fit on one line (up to four selectors do) can show one value at a time, as the UI Style
+row does (`GAME_OPTION_EXP_BAR`, [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)): `GetGameOptionRowCount` returns the number of
 values, `GetGameOptionRowValueText` and `GetGameOptionRowHelpText` return the current one's name and help, and
 `DrawOptionValueTexts` and `DrawConfigUiSprites` draw only that name, at the first selector's x.
 The Map Colors row (`GAME_OPTION_MAP_COLORS`, [Map Colors](./MapColors.md)) has three values and, like
