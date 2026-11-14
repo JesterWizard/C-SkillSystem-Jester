@@ -35,7 +35,9 @@ static const EventScr EventScr_Ch04_Opening[] = {
     TEXT(Chapter_04_Scene_04_Convo_01)
     MOVE_POSITION_WAIT(24, 11, 6, 9, 3)
     HIGHLIGHT_CHARACTER(CHARACTER_ARTUR, 60)
-    TEXT(Chapter_04_Scene_04_Convo_02)
+    TEXT_CG_CONSECUTIVE(0xE0, Chapter_04_Scene_04_Convo_02_1) /* CG: the Mogall before Artur */
+    TEXT_CG_CONSECUTIVE(0xE0, Chapter_04_Scene_04_Convo_02_2)
+    TEXT_CG(0xE0, Chapter_04_Scene_04_Convo_02)
     // Make enemy the active unit again
     // MOVE_WAIT(0, CHARACTER_MONSTER_B8, 9, 3)
 

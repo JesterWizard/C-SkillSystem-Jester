@@ -15,5 +15,14 @@
 #include "jester_headers/voice-songs.h"
 #include "EAstdlib.h"
 
+/*
+ * Leave a CG (TEXT_CG_CONSECUTIVE) through black: TEXT_CG's own ending less its fade back in. The next background
+ * (SET_BACKGROUND, TEXT_BG...) then draws correctly, with its portraits, and no map shows in between.
+ */
+#define END_CG_TO_BLACK \
+    FADE_TO_BLACK(16) \
+    TEXTSTART \
+    CLEAN
+
 #define NO_REDA 0
 #define NO_ITEMS 0

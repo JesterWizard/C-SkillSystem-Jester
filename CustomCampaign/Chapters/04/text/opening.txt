@@ -105,7 +105,9 @@ But... why are they here?[A] How?[A][N]
 !! Your Highness![A][X]
 
 ## Chapter_04_Scene_04_Convo_02
-[OpenMidLeft][LoadFace_Artur]
+[SetName]Artur [N]
+Please, stay back![A][N]
+Light, guide my hand...[A][N]
 Allow me![A][X]
 
 ## Chapter_04_Scene_04_Convo_03

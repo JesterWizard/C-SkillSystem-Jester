@@ -77,9 +77,7 @@ Please forgive me, Princess.[A][N]
 My king...[A][N]
 I swear to upload this duty,[A][N]
 no matter what.[A][N]
-Franz! With me![A][N]
-[OpenMidRight]
-No... NO!!!![A][X]
+Franz! With me![A][X]
 
 ## Chapter_00_Scene_01_Convo_04
 [OpenMidLeft][LoadFace_Fado]
