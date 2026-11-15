@@ -264,20 +264,13 @@ void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
         gObject_8x8, TILEREF(chr, STATSCREEN_OBJPAL_4) + OAM2_LAYER(3) + pageNumShift);
 }
 
+bool GetStatScreenPromotions(struct Unit *unit, UnitPromotions *out); /* DrawPage7.c */
+
 void GetPromotedUnitDescId(struct HelpBoxProc* proc)
 {
     struct Unit *unit = gStatScreen.unit;
-    int charId = UNIT_CHAR_ID(unit);
-    const UnitPromotions *promo_data = NULL;
-
-    for (int i = 0; unit_promotions[i].key != 0; i++)
-    {
-        if (unit_promotions[i].key == charId)
-        {
-            promo_data = &unit_promotions[i];
-            break;
-        }
-    }
+    UnitPromotions promos;
+    const UnitPromotions *promo_data = GetStatScreenPromotions(unit, &promos) ? &promos : NULL;
 
     if (promo_data != NULL)
     {
@@ -305,17 +298,8 @@ void GetPromotedUnitDescId(struct HelpBoxProc* proc)
 void GetPromotedUnitSkillId(struct HelpBoxProc* proc)
 {
     struct Unit *unit = gStatScreen.unit;
-    int charId = UNIT_CHAR_ID(unit);
-    const UnitPromotions *promo_data = NULL;
-
-    for (int i = 0; unit_promotions[i].key != 0; i++)
-    {
-        if (unit_promotions[i].key == charId)
-        {
-            promo_data = &unit_promotions[i];
-            break;
-        }
-    }
+    UnitPromotions promos;
+    const UnitPromotions *promo_data = GetStatScreenPromotions(unit, &promos) ? &promos : NULL;
 
     if (promo_data != NULL)
     {

@@ -1475,6 +1475,10 @@ void DrawUnitInfoBg_Init(void) // in prep - [id][0] was causing palette problems
     return;
 }
 
+/* Tech's enemy panel on the map's minimug box (ModularMinimugBox.c): the status screen's ENEMY box uses it too */
+extern const u16 gMMBTechEnemyPanel[6];
+#define VESLY_UI_TECH 5
+
 void StatusScreenUIPal_Hook(void)
 {
     ClearBg0Bg1();
@@ -1484,6 +1488,17 @@ void StatusScreenUIPal_Hook(void)
     ApplyPalette(sFactionPalLookup[id][0], 2);
     ApplyPalette(sFactionPalLookup[id][2], 3);
     ApplyPalette(sFactionPalLookup[id][1], 4);
+
+    /* The ENEMY box in the same clear red as an enemy's minimug box, not Tech's dark magenta */
+    if (id == VESLY_UI_TECH) {
+        u16 pal[0x10];
+        int i;
+
+        CpuCopy16(sFactionPalLookup[id][2], pal, sizeof(pal));
+        for (i = 0; i < 6; i++)
+            pal[10 + i] = gMMBTechEnemyPanel[i];
+        ApplyPalette(pal, 3);
+    }
 
     // const u16 * pal = sFactionPalLookup[id][0];
     // ApplyPalettes(pal, 2, 3);
@@ -1726,6 +1741,25 @@ void ChapterStatus_ShowAllLayers(void)
         Decompress(Img_ChapterStatusSelectorSprite, OBJ_CHR_ADDR(0x198));
     }
     ApplyPalettes(sPlayStatusPal[id], 0x18, 2);
+
+    /*
+     * The PLAYER and ENEMY boxes (BG2 rows 1-2) end in the window's own border tiles, drawn in the faction's palette:
+     * vanilla's borders look alike in every palette, but the generated styles' neon or carved edges then showed in the
+     * faction's colour, as if the box ran over its window. Those border tiles go back to the window's palette (1).
+     */
+    if (id >= 4) {
+        int x, y;
+        u16 *tm;
+
+        for (y = 1; y <= 2; y++) {
+            for (x = 0; x < 16; x++) {
+                tm = &gBG2TilemapBuffer[TILEMAP_INDEX(x, y)];
+                if ((*tm & 0x3FF) == 0x06 || (*tm & 0x3FF) == 0x35 || (*tm & 0x3FF) == 0x37)
+                    *tm = (*tm & 0x0FFF) | 0x1000;
+            }
+        }
+        BG_EnableSyncByMask(BG2_SYNC_BIT);
+    }
 
     SetDispEnable(1, 1, 1, 1, 1);
 }

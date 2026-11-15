@@ -117,7 +117,7 @@ static int GetMMBUnitWindowColor(struct Unit *unit) {
 #define MMB_UI_TECH 5 /* the Tech UI style's id (GetUI_id) */
 
 /* Tech's dark panel ramp (colours 10-15, light to dark) in red, for enemies */
-static const u16 sMMBTechEnemyPanel[6] = {
+const u16 gMMBTechEnemyPanel[6] = {
     RGB(15, 3, 5), RGB(13, 2, 4), RGB(11, 2, 3), RGB(9, 1, 3), RGB(7, 1, 2), RGB(5, 0, 2),
 };
 
@@ -155,7 +155,7 @@ static void ApplyMMBFramePalette(struct Unit *unit, bool alt) {
             /* Tech's enemy panel is a dark magenta that reads as brown on the map: a clear red instead */
             if (GetUIPalID() == MMB_UI_TECH && UNIT_FACTION(unit) == FACTION_RED) {
                 for (int i = 0; i < 6; ++i)
-                    blendedPalette[10 + i] = sMMBTechEnemyPanel[i];
+                    blendedPalette[10 + i] = gMMBTechEnemyPanel[i];
             }
 
             ApplyPalette(blendedPalette, 3);

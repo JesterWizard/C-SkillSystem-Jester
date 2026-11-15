@@ -41,6 +41,8 @@ bool WmStoryReached(int chapter);
 #define PREP_MENU_LOCKED 0xFF
 extern const u8 gSkillSynthUnlockChapter;
 extern const u8 gInfuseUnlockChapter;
+extern const u8 gValniFloorUnlockChapter[8];
+int ValniFloors_NodeChapter(int chapter);
 bool PrepMenu_SkillSynthUnlocked(void);
 bool PrepMenu_InfuseUnlocked(void);
 void WmStoryChapter_Begin(int chapter);

@@ -427,9 +427,7 @@ static void PutRescuedSupportSpritesOam(void)
 {
 	int i;
 
-	/* Only Pair Up draws the carried unit (a vanilla rescue shows vanilla's marker) */
-	if (!PairUp_IsUnlocked())
-		return;
+	/* Only Pair Up draws the carried unit (a vanilla rescue shows vanilla's marker): per pair, see below */
 
 	for (i = 1; i <= 0xC0 + CONFIG_UNIT_AMT_FOURTH; ++i) {
 		/* Same table GetUnit() reads, without a long call per slot every frame */
@@ -457,6 +455,10 @@ static void PutRescuedSupportSpritesOam(void)
 			continue;
 
 		if (leader->state & (US_HIDDEN | US_BIT9))
+			continue;
+
+		/* Before the story unlocks Pair Up, only a Pair Up skill holder's pair (PairUp_IsUnlockedFor) */
+		if (!PairUp_IsUnlockedFor(leader))
 			continue;
 
 		x = leader->xPos * 16 - gBmSt.camera.x - 6;

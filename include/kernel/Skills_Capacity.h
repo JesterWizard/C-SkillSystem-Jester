@@ -966,3 +966,4 @@
 #define MSG_SKILL_Prayer_CAPACITY 1
 #define MSG_SKILL_Angler_CAPACITY 1
 #define MSG_SKILL_DeepRoots_CAPACITY 1
+#define MSG_SKILL_PairUp_CAPACITY 1

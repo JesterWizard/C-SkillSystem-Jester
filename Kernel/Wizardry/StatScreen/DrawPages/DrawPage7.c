@@ -23,31 +23,55 @@ const UnitPromotions unit_promotions[] =
     {0},
 };
 
+/*
+ * The promotions the page shows for a unit: its own row in unit_promotions above, if it has one; otherwise its class's
+ * promotion options (vanilla's gPromoJidLut, as the promotion itself uses), each with the skills that class gives
+ * (SkillTable-job.c). False if there are none (a promoted or unpromotable class).
+ */
+bool GetStatScreenPromotions(struct Unit *unit, UnitPromotions *out)
+{
+    int charId = UNIT_CHAR_ID(unit);
+    int jid = UNIT_CLASS_ID(unit);
+    int i, j, n = 0;
+
+    for (i = 0; unit_promotions[i].key != 0; i++) {
+        if (unit_promotions[i].key == charId) {
+            *out = unit_promotions[i];
+            return true;
+        }
+    }
+
+    memset(out, 0, sizeof(*out));
+    out->key = charId;
+    for (i = 0; i < 2; i++) {
+        int promo = gPromoJidLut[jid][i];
+
+        if (promo == 0)
+            continue;
+        out->promotions[n].classId = promo;
+        for (j = 0; j < 2; j++)
+            out->promotions[n].skills[j] = gpConstSkillTable_Job[promo * 2 + j];
+        n++;
+    }
+    return n > 0;
+}
+
 // ---------------------------------------------------------------------------
 // Page draw
 // ---------------------------------------------------------------------------
 void DrawPage7Rework(void)
 {
     struct Unit *unit = gStatScreen.unit;
-    int charId = UNIT_CHAR_ID(unit);
+    UnitPromotions promos;
     
     for (int i = 14; i < 21; i++)
         ClearText(&gStatScreen.text[i]);
     for (int i = 29; i < 35; i++)
         ClearText(&gStatScreen.text[i]);
     
-    // Find the unit's promotion data
-    const UnitPromotions *promo_data = NULL;
-    for (int i = 0; unit_promotions[i].key != 0; i++)
-    {
-        if (unit_promotions[i].key == charId)
-        {
-            promo_data = &unit_promotions[i];
-            break;
-        }
-    }
+    // The unit's promotions: its own row, or its class's (GetStatScreenPromotions)
+    const UnitPromotions *promo_data = GetStatScreenPromotions(unit, &promos) ? &promos : NULL;
     
-    // If we found promotion data for this character, use it
     if (promo_data != NULL)
     {
         // Reset event slot 8 for units who have promotion options so their R Text can be viewed

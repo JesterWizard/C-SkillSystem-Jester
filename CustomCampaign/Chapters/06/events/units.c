@@ -54,7 +54,7 @@ static const struct UnitDefinition CH6_ENEMY_UNITS[] = {
 
 /* The spider: it appears on turn 3 (EventScr_CH6_BAEL_APPEARS), with its CG */
 static const struct UnitDefinition CH6_BAEL[] = {
-    UNIT_ENTRY(CHARACTER_MONSTER_B0, CLASS_BAEL, FACTION_ID_RED, NO_ITEM_DROP, AUTOLEVEL, 1, 27, 4, 0, REDAs_NULL, 0, 0, 20, 0, ITEM_MONSTER_POISON_CLAW),
+    UNIT_ENTRY(CHARACTER_MONSTER_B0, CLASS_BAEL, FACTION_ID_RED, NO_ITEM_DROP, AUTOLEVEL, 1, 27, 8, 0, REDAs_NULL, 0, 0, 20, 0, ITEM_MONSTER_POISON_CLAW),
     {}
 };
 

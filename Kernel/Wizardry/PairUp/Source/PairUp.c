@@ -13,6 +13,8 @@
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
 #include "bmarch.h"
+#include "skill-system.h"
+#include "constants/skills.h"
 
 #pragma GCC optimize("Os", "no-jump-tables")
 
@@ -55,11 +57,44 @@ bool PairUp_IsUnlocked(void)
 	return gpKernelDesignerConfig->pair_up_enabled && CheckFlag(GLOBAL_FLAG_PAIR_UP_UNLOCKED);
 }
 
+#if defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp))
+static bool PairUp_HasSkill(const struct Unit *unit)
+{
+	return unit && UNIT_IS_VALID(unit) && SkillTester((struct Unit *)unit, SID_PairUp);
+}
+#endif
+
+/*
+ * Pair Up works for everyone once the story unlocks it (PairUp_IsUnlocked). Before that, for a unit with the Pair Up
+ * skill (a menu skill, PairUp_SkillUsability) and for the unit it carries or is carried by: their rescue is a pairing.
+ */
+bool PairUp_IsUnlockedFor(const struct Unit *unit)
+{
+#if defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp))
+	struct Unit *partner;
+#endif
+
+	if (PairUp_IsUnlocked())
+		return true;
+	if (!gpKernelDesignerConfig->pair_up_enabled)
+		return false;
+#if defined(SID_PairUp) && (COMMON_SKILL_VALID(SID_PairUp))
+	if (!PairUp_IsValidUnit(unit))
+		return false;
+	if (PairUp_HasSkill(unit))
+		return true;
+	partner = unit->rescue ? GetUnit(unit->rescue) : NULL;
+	return partner && partner->rescue == (u8)unit->index && PairUp_HasSkill(partner);
+#else
+	return false;
+#endif
+}
+
 static bool PairUp_IsRescuer(const struct Unit *unit)
 {
 	struct Unit *partner;
 
-	if (!PairUp_IsUnlocked() || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUING))
+	if (!PairUp_IsUnlockedFor(unit) || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUING))
 		return false;
 
 	partner = PairUp_GetRescuePartner(unit);
@@ -70,7 +105,7 @@ static bool PairUp_IsRescued(const struct Unit *unit)
 {
 	struct Unit *partner;
 
-	if (!PairUp_IsUnlocked() || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUED))
+	if (!PairUp_IsUnlockedFor(unit) || !PairUp_IsValidUnit(unit) || !(unit->state & US_RESCUED))
 		return false;
 
 	partner = PairUp_GetRescuePartner(unit);
@@ -245,7 +280,7 @@ static u8 PairUp_RescueUsabilityCore(
 	(void) def;
 	(void) number;
 
-	if (!PairUp_IsUnlocked())
+	if (!PairUp_IsUnlockedFor(gActiveUnit))
 		return MENU_NOTSHOWN;
 
 	if (!PairUp_IsValidTarget(gActiveUnit)
@@ -276,27 +311,51 @@ u8 RescueUsability(const struct MenuItemDef *def, int number)
 	if (gActiveUnit->state & 0x810)
 		return MENU_NOTSHOWN;
 
+	/* A Pair Up skill holder's plain Rescue is a pairing (ActionRescue), never a stale Shelter */
+	PairUp_SetMode(PAIR_UP_MODE_PAIR_UP);
 	MakeRescueTargetList(gActiveUnit);
 	return GetSelectTargetCount() ? MENU_ENABLED : MENU_NOTSHOWN;
 }
 
 u8 PairUpCheck(const struct MenuItemDef *def, int number)
 {
+	if (!PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
 	return PairUp_RescueUsabilityCore(def, number, true, false);
 }
 
 u8 RescueCheck(const struct MenuItemDef *def, int number)
 {
+	if (!PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
 	return PairUp_RescueUsabilityCore(def, number, false, true);
 }
 
 u8 PairUp_Usability(const struct MenuItemDef *def, int number)
 {
+	/* The unit menu's row is the army's, once the story unlocks it; the skill has its own (PairUp_SkillUsability) */
+	if (!PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
 	return PairUp_RescueUsabilityCore(def, number, false, false);
+}
+
+/* The Pair Up skill's row in the Skills submenu: only until the story gives everyone the unit menu's own */
+u8 PairUp_SkillUsability(const struct MenuItemDef *def, int number)
+{
+	if (PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
+	return PairUp_RescueUsabilityCore(def, number, false, false);
+}
+
+u8 PairUp_SkillOnSelected(struct MenuProc *menu, struct MenuItemProc *item)
+{
+	return PairUp_OnSelected(menu, item);
 }
 
 u8 Shelter_Usability(const struct MenuItemDef *def, int number)
 {
+	if (!PairUp_IsUnlocked())
+		return MENU_NOTSHOWN;
 	return PairUp_RescueUsabilityCore(def, number, true, false);
 }
 
@@ -312,7 +371,8 @@ s8 ActionRescue(ProcPtr proc)
 	struct Unit *target;
 	bool shelter;
 
-	if (!PairUp_IsUnlocked()) {
+	if (!PairUp_IsUnlockedFor(GetUnit(gActionData.subjectIndex))
+		&& !PairUp_IsUnlockedFor(GetUnit(gActionData.targetIndex))) {
 		/* vanilla's Rescue */
 		actor = GetUnit(gActionData.subjectIndex);
 		target = GetUnit(gActionData.targetIndex);
@@ -651,7 +711,7 @@ int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat)
 	struct Unit *support;
 
 	/* Before Pair Up: vanilla's rescue, the rescuer's Skl and Spd halved */
-	if (!PairUp_IsUnlocked()) {
+	if (!PairUp_IsUnlockedFor(unit)) {
 		if ((unit->state & US_RESCUING) && (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD))
 			return status / 2;
 
@@ -936,7 +996,7 @@ static u8 PairUp_OnSelectedCore(
 {
 	(void) menu;
 
-	if (!PairUp_IsUnlocked()
+	if (!PairUp_IsUnlockedFor(gActiveUnit)
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
@@ -992,7 +1052,7 @@ u8 PairUp_TransferUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!PairUp_IsUnlocked()
+	if (!PairUp_IsUnlockedFor(gActiveUnit)
 		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit))
@@ -1008,7 +1068,7 @@ u8 PairUp_TransferEffect(
 {
 	(void) menu;
 
-	if (!PairUp_IsUnlocked()
+	if (!PairUp_IsUnlockedFor(gActiveUnit)
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 
@@ -1031,7 +1091,7 @@ u8 PairUp_SwitchUsability(const struct MenuItemDef *def, int number)
 	(void) def;
 	(void) number;
 
-	if (!PairUp_IsUnlocked()
+	if (!PairUp_IsUnlockedFor(gActiveUnit)
 		|| !gActiveUnit
 		|| (gActiveUnit->state & US_HAS_MOVED)
 		|| !PairUp_IsLeader(gActiveUnit)
@@ -1047,7 +1107,7 @@ u8 PairUp_SwitchEffect(
 {
 	(void) menu;
 
-	if (!PairUp_IsUnlocked()
+	if (!PairUp_IsUnlockedFor(gActiveUnit)
 		|| item->availability == MENU_DISABLED)
 		return MENU_ACT_SND6B;
 

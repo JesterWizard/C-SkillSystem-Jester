@@ -199,9 +199,9 @@ static u16 ArenaGetBaseWeaponForType(int weaponType)
 
 static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
 
-    u8 *iter;
+    const u8 *iter;
 
-    u8 arenaWeaponUpgrades[] = {
+    static const u8 arenaWeaponUpgrades[] = {
         ITEM_SWORD_IRON, ITEM_SWORD_STEEL, ITEM_SWORD_SILVER, 0,
         ITEM_LANCE_IRON, ITEM_LANCE_STEEL, ITEM_LANCE_SILVER, 0,
         ITEM_AXE_IRON, ITEM_AXE_STEEL, ITEM_AXE_SILVER, 0,
@@ -213,22 +213,32 @@ static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
         -1
     };
 
+    /* No weapon (a class with no arena weapon type) has no upgrade; a 0 would match a row's end */
+    if (GetItemIndex(item) == ITEM_NONE)
+        return item;
+
     if (gpKernelDesignerConfig->arena_calculate_weapon_based_on_level == true)
     {
-        u8 effectiveLevel = unit->level;
+        int effectiveLevel = unit->level;
+        int desiredStage, stage;
 
         if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
             effectiveLevel += 20;
 
-        u8 desiredStage =
-            (effectiveLevel <= 10) ? 0 :
-            (effectiveLevel <= 20) ? 1 :
-                                    2;
-                
-        for (int i = 0; i < (int)ARRAY_COUNT(arenaWeaponUpgrades); i += 4)
-        {
-            if (GetItemIndex(item) == arenaWeaponUpgrades[i * 4])
-                return MakeNewItem(arenaWeaponUpgrades[(i * 4) + desiredStage]);
+        desiredStage = (effectiveLevel <= 10) ? 0 : (effectiveLevel <= 20) ? 1 : 2;
+
+        /*
+         * The table's rows (an iron-tier weapon, then its upgrades, then 0) are not all 4 long: find the item's row by
+         * walking it, then take the highest tier up to desiredStage the row has.
+         */
+        for (iter = arenaWeaponUpgrades; *iter != (u8) -1; iter++) {
+            if (GetItemIndex(item) != *iter)
+                continue;
+
+            for (stage = 0; stage < desiredStage && iter[1] != 0; stage++)
+                iter++;
+
+            return MakeNewItem(*iter);
         }
     }
 

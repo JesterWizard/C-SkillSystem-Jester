@@ -100,20 +100,14 @@ MU_ExecCmd_FixForFreeMU:
 .align	
 MU_CALL2_FixForFreeMU:
 	@ORG 0x8078D10, r6: the MU
-	@ As built before (the source had drifted from the committed .lyn.event): in free movement, vanilla's camera
-	@ follow (0x8078D22); otherwise no camera. Only the player's MU follows now: a district NPC's walk moved the
-	@ camera whenever it neared the edge of the screen.
-	ldr		r0, =FreeMovementControlProc
-	blh		ProcFind
-	cmp		r0, #0
-	beq 	.ReturnCall2SkipCamera
-	ldr		r0, [r6, #0x2C]
-	ldr		r1, =gActiveUnit
-	ldr		r1, [r1]
-	cmp		r0, r1
-	bne		.ReturnCall2SkipCamera
-	ldr		r0, =0x8078D23 // camera 
-	bx		r0
+	@ No MU moves the camera in free movement: the free movement camera (FreeMU_Camera.c) glides after the player
+	@ itself. Vanilla's camera follow here jumped it on top of that, and a jump past a tile row skipped drawing the
+	@ map row coming into view (UpdateBmMapDisplay draws one when the camera crosses a row): a blank row in a district
+	@ until the map was redrawn. Outside free movement no camera either, as the build had it before.
+	b		.ReturnCall2SkipCamera
+	
+	
+	
 	.ReturnCall2SkipCamera:
 	ldr		r1, =0x8078D3D
 	bx		r1

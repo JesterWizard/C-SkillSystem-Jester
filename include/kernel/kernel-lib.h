@@ -202,6 +202,7 @@ struct KernelDesigerConfig {
 	u8 popup_item_icon_shine; /* a glint sweeps across item icons in popups (item got, infused...) */
 	u8 exceed_portrait_box; /* faces with FaceData byte 0x1A == 1 draw two extra 16x16 pieces outside the portrait box */
 	u8 chapter_awards; /* after a cleared story chapter, an awards screen (MVP, most foes, unscathed) pays guild tokens */
+	u8 valni_floors_once; /* each Tower of Valni floor once, in order, as the story unlocks them (WorldMap/ValniFloors.c); the postgame replays them */
 };
 
 struct KernelBattleDesignerConfig {

@@ -719,7 +719,7 @@ static void StartSkippedEkrLevelup(struct Anim *ais)
 	proc->ais_core = GetAnimAnotherSide(ais);
 	proc->timer = 0;
 	proc->finished = true;
-	proc->is_promotion = false;
+	proc->is_promotion = gEkrDistanceType == EKR_DISTANCE_PROMOTION;
 }
 
 static bool BattleUnitCanOpenLvupMenu(struct BattleUnit *bu, struct Unit *unit)
@@ -747,7 +747,8 @@ void NewEkrLevelup(struct Anim *ais)
 		proc->ais_core = GetAnimAnotherSide(ais);
 		proc->timer = 0;
 		proc->finished = false;
-		proc->is_promotion = false;
+		/* As vanilla's: the promotion screen shows the new class, Lv 1 and the promotion's gains, with no quote */
+		proc->is_promotion = gEkrDistanceType == EKR_DISTANCE_PROMOTION;
 		return;
 	}
 

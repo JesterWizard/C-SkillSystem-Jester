@@ -574,6 +574,22 @@ struct MenuItemDef const* const gSkillMenuInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_PairUp) && COMMON_SKILL_VALID(SID_PairUp))
+    /* Pair Up before the story unlocks it for everyone (PairUp.c); its action is Pair Up's own, not ExecSkill */
+    [SID_PairUp] = &(const struct MenuItemDef) {
+        .name = "　",
+        .nameMsgId = MSG_SKILL_PairUp_NAME,
+        .helpMsgId = MSG_SKILL_PairUp_DESC,
+        .color = TEXT_COLOR_SYSTEM_GOLD,
+        .isAvailable = PairUp_SkillUsability,
+        .onDraw = NULL,
+        .onSelected = PairUp_SkillOnSelected,
+        .onIdle = NULL,
+        .onSwitchIn = NULL,
+        .onSwitchOut = NULL,
+    },
+#endif
+
 #if (defined(SID_Pivot) && COMMON_SKILL_VALID(SID_Pivot))
     [SID_Pivot] = &(const struct MenuItemDef) {
         .name = "　",

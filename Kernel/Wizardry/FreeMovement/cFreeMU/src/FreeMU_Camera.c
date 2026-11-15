@@ -87,6 +87,24 @@ static const struct ProcCmd ProcScr_FmuCamera[] = {
 	PROC_END,
 };
 
+extern void RenderBmMapLine(int line);
+extern void RenderBmMapColumn(int column);
+
+/*
+ * Free movement proc, start label: the whole map is drawn again (was vanilla RenderBmMap alone). Vanilla's draws the
+ * 15 x 10 tiles from the camera's tile, which is all the screen shows when the camera is on a tile boundary, as
+ * vanilla's always is. This camera stops anywhere (FmuCamera_Loop): 8 pixels down, the screen shows an 11th row, which
+ * stayed undrawn (a blank row across a district) until the camera crossed a row and UpdateBmMapDisplay drew one.
+ */
+void pFMU_RenderBmMap(struct FMUProc *proc)
+{
+	RenderBmMap();
+	if ((gBmSt.camera.y & 15) != 0 && (gBmSt.camera.y >> 4) + 10 < gBmMapSize.y)
+		RenderBmMapLine(10);
+	if ((gBmSt.camera.x & 15) != 0 && (gBmSt.camera.x >> 4) + 15 < gBmMapSize.x)
+		RenderBmMapColumn(15);
+}
+
 /* Free movement proc, idle label: start the camera once (it ends with the free movement proc) */
 void pFMU_StartCamera(struct FMUProc *proc)
 {

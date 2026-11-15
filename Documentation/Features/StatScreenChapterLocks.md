@@ -16,13 +16,14 @@
 The expanded stat screen supports several optional pages, but not all of them are meant to appear from chapter 1 onward.
 This system uses a small chapter-lock table so later pages unlock gradually as the campaign progresses.
 
-At the moment, the lock logic applies to the three optional late pages:
+At the moment, the lock logic applies to one optional page. Gaiden Magic and Promotions are there from the first chapter
+(they were locked until Chapters 6 and 10):
 
 | Page | Page Constant | Unlock Chapter |
 |------|---------------|----------------|
-| Gaiden Magic | `PAGE_GAIDEN_MAGIC` | `CHAPTER_06` |
+| Gaiden Magic | `PAGE_GAIDEN_MAGIC` | none |
 | Personal Data | `PAGE_PERSONAL_DATA` | `CHAPTER_08` |
-| Promotions | `PAGE_PROMOTIONS` | `CHAPTER_10` |
+| Promotions | `PAGE_PROMOTIONS` | none |
 
 The first four stat screen pages are always available unless some separate feature-specific code changes their behavior.
 
@@ -44,9 +45,7 @@ The same availability check affects page count, page-number display, draw dispat
 
 ```c
 static const struct StatScreenPageChapterLock sStatScreenPageChapterLocks[] = {
-    { PAGE_GAIDEN_MAGIC, CHAPTER_06 },
     { PAGE_PERSONAL_DATA, CHAPTER_08 },
-    { PAGE_PROMOTIONS, CHAPTER_10 },
 };
 ```
 
