@@ -1305,28 +1305,48 @@ class Smoke:
     def test_recap(self):
         """"Previously on your quest..." (Kernel/Wizardry/Recap, Documentation/Features/Recap.md). The prologue's
         recap holds its opening (its CG, 0xDB, shown before the skip point: a CG wins over its other backgrounds); a
-        death and a recruit are written in before the debugger's "Save & restart ch.";
-        Restart Chapter shows the recap (the opening, then Seth and Gilliam, in greyscale), A steps through it, START
-        skips the rest and the chapter goes on."""
+        death and a recruit are written in before the debugger's "Save & restart ch.". An earlier chapter (chapter 1,
+        an ending 0x28 and an opening 0x1D, no units) is written into gRecapHistory, so the recap fills up to four
+        scenes, oldest first: that chapter's ending, the opening, Seth fell, Gilliam joined (over the grassland 0x18).
+        Restart Chapter shows the recap, A steps through the four scenes, START skips the rest and the chapter goes
+        on. The history comes back from the game save (magic "RCH1", chapter 1); without gRecapHistory the history
+        writes, reads and check are skipped."""
         if "gRecap" not in self.sym:
             return self.check("recap: the recap", False, "no gRecap symbol")
         g = self.sym["gRecap"]
         # Seth fell (kind 2, character 2) and Gilliam joined (kind 3, character 3), both behind the opening's background
         writes = ["w8 %#x 2" % (g + 7), "w8 %#x 2" % (g + 8), "w8 %#x 3" % (g + 9), "w8 %#x 2" % (g + 0xA),
                   "w8 %#x 3" % (g + 0xB), "w8 %#x 0x1D" % (g + 0xC), "w8 %#x 0x1D" % (g + 0xD)]
+        history = "gRecapHistory" in self.sym
+        h = self.sym["gRecapHistory"] if history else 0
+        if history:
+            # chapter 1's record, the one before the prologue's: an ending (0x28) and an opening (0x1D), no units
+            writes += ["w32 %#x 0x31484352" % h, "w32 %#x 0x32504352" % (h + 4), "w8 %#x 1" % (h + 8),
+                       "w8 %#x 0x1D" % (h + 9), "w8 %#x 0x28" % (h + 0xA), "w8 %#x 0" % (h + 0xB)]
         reads = ["r8 %#x" % (g + 0x20), "r8 %#x" % (g + 5), "r8 %#x" % (g + 7),
-                 "press A", "wait 100", "shot recap_seth.png", "press START", "wait 250", "shot recap_after.png",
+                 "shot recap_1.png", "press A", "wait 100", "shot recap_2.png", "press A", "wait 100",
+                 "shot recap_3.png", "press A", "wait 100", "shot recap_4.png",
+                 "press START", "wait 250", "shot recap_after.png",
                  "r8 %#x" % (g + 0x20), "r8 %#x" % CHAPTER]
+        if history:
+            reads += ["r32 %#x" % h, "r8 %#x" % (h + 8)]
         _, _, vals = self.round_trip("recap", "gEmsSavChunks", DEBUG_SAVE,
                                      ["press A", "wait 200", "press A", "wait 300"], reads, writes)
         d = os.path.join(self.out, "recap")
-        self.shot(os.path.join(d, "recap_seth.png"), "recap: a death")
+        self.shot(os.path.join(d, "recap_1.png"), "recap 1/4: an earlier chapter's ending")
+        self.shot(os.path.join(d, "recap_2.png"), "recap 2/4: the opening")
+        self.shot(os.path.join(d, "recap_3.png"), "recap 3/4: a death")
+        self.shot(os.path.join(d, "recap_4.png"), "recap 4/4: a recruit, over the grassland")
         self.shot(os.path.join(d, "recap_after.png"), "recap: skipped")
+        want = 7 if history else 5
         if not self.check("recap: loading a game save shows the recap (the opening and two characters)",
-                          len(vals) == 5 and vals[:3] == [1, 0xDB, 2], "pending, opening, characters %s" % vals[:3]):
+                          len(vals) == want and vals[:3] == [1, 0xDB, 2], "pending, opening, characters %s" % vals[:3]):
             return
-        self.check("recap: START skips it and the chapter goes on", vals[3:] == [0, 0],
-                   "pending, chapter %s" % vals[3:])
+        self.check("recap: START skips it and the chapter goes on", vals[3:5] == [0, 0],
+                   "pending, chapter %s" % vals[3:5])
+        if history:
+            self.check("recap: the earlier chapters come back from the game save", vals[5:] == [0x31484352, 1],
+                       "history magic, chapter %s" % vals[5:])
 
     def test_introband(self):
         """Chapter intro styles (Kernel/Wizardry/ChapterIntroStyles, Documentation/Features/ChapterIntroStyles.md):
