@@ -1,0 +1,7 @@
+// Recap.c's vanilla replacements
+PUSH
+ORG $153D4
+ALIGN 4
+WORD $46C04778 $E59FC000 $E12FFF1C
+POIN CallBeginningEvents
+POP

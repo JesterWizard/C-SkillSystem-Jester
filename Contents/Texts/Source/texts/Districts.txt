@@ -976,3 +976,59 @@ All-Magic Zenith[X]
 All-Magic Zenith:[N]
 Multiplies black and white[N]
 magic uses by 3.[X]
+## MSG_RECAP_HEADER
+Previously on your quest...[X]
+## MSG_RECAP_FELL
+fell in battle.[X]
+## MSG_RECAP_JOINED
+joined the army.[X]
+## MSG_RECAP_OPENING
+A new chapter began.[X]
+## MSG_RECAP_ENDING
+The chapter came to an end.[X]
+## MSG_RECAP_CH00_OPEN
+Grado stormed Renais, and Eirika fled with Seth to Frelia.[X]
+## MSG_RECAP_CH00_END
+Shaken by her first battle, Eirika pressed on to Frelia.[X]
+## MSG_RECAP_CH01_OPEN
+Grado's Breguet seized Princess Tana at her fort.[X]
+## MSG_RECAP_CH01_END
+Hayden sent Tana with Eirika, with gold and supplies.[X]
+## MSG_RECAP_INTERMISSION_OPEN
+King Hayden welcomed Eirika and spoke of her father.[X]
+## MSG_RECAP_CH02_OPEN
+Seth mapped a route through Serafew, and Tana scouted ahead.[X]
+## MSG_RECAP_CH02_END
+A thief stole Eirika's bracelet, and they gave chase.[X]
+## MSG_RECAP_CH03_OPEN
+Villagers warned of Bazba's bandits lurking nearby.[X]
+## MSG_RECAP_CH03_END
+Valter and Glen were sent to capture Ephraim.[X]
+## MSG_RECAP_CH04_OPEN
+Undead revenants rose near Serafew on the road to Grado.[X]
+## MSG_RECAP_CH04_END
+The undead fell, and Lute chose to join Artur.[X]
+## MSG_RECAP_CH05_OPEN
+Captain Saar was ordered to seize Princess Eirika.[X]
+## MSG_RECAP_CH05_END
+Refugees thanked them for driving off Saar's men.[X]
+## MSG_RECAP_CH05X_OPEN
+Ephraim's band still fought on north of Renvall.[X]
+## MSG_RECAP_CH05X_END
+Ephraim was trapped, and Valter pressed Orson for the Stone.[X]
+## MSG_RECAP_CH06_OPEN
+Novala reported the undead test near Za'ha to the Bishop.[X]
+## MSG_RECAP_CH06_END
+Villagers thanked them; Garcia spoke of one he had lost.[X]
+## MSG_RECAP_CH07_OPEN
+Eirika and Seth planned to storm Castle Renvall.[X]
+## MSG_RECAP_CH07_END
+Orson escaped his cell, but Ephraim was still inside.[X]
+## MSG_RECAP_CH08_OPEN
+Orson led Eirika through Renvall, weakened by his wound.[X]
+## MSG_RECAP_CH08_END
+Eirika learned her father had died, and Ephraim comforted her.[X]
+## MSG_RECAP_CH09_OPEN
+Grado took Frelia's Stone and hunted for Eirika.[X]
+## MSG_RECAP_CH09_END
+Eirika refused Ephraim's plea to return to Frelia.[X]

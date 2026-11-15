@@ -47,6 +47,7 @@ gKillUnitHooks: // void (*)(struct Unit *unit)
     POIN BigUnit_OnUnitKill
     POIN FlushUnitSkillDbgList
     POIN GaidenMagicUses_OnUnitKill
+    POIN Recap_OnUnitKill
     WORD 0 0 0 0
 
 gUnitRefrainHooks: // void (*)(struct Unit *unit)

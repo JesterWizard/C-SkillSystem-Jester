@@ -419,6 +419,9 @@ _kernel_malloc2 sTextEngineLineSpacing, 0xAC
 /* What the level-up quote on the battle-animation level-up borrows, to put back (Lvupfx/MapLvup.c). RAM only. */
 _kernel_malloc2 gEkrLvupQuoteSave, 0xF0
 
+/* "Previously on your quest...": the last story chapter's recap and the army at its start (struct RecapState, recap.h) */
+_kernel_malloc2 gRecap, 0x24
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

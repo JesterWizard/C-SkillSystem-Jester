@@ -10,6 +10,7 @@
 #include "gallery.h"
 #include "bestiary.h"
 #include "skill-codex.h"
+#include "recap.h"
 
 /*
  * The Gallery's unlocks and its Extras row (Documentation/Features/Gallery.md).
@@ -105,8 +106,10 @@ u8 Gallery_Event21(struct EventEngineProc *proc)
 	if (bg < 0)
 		bg = gEventSlots[2];
 
-	if (subcode == EVSUBCMD_BACG || subcode == EVSUBCMD_0x2141 || (subcode == EVSUBCMD_2142 && bg != 0))
+	if (subcode == EVSUBCMD_BACG || subcode == EVSUBCMD_0x2141 || (subcode == EVSUBCMD_2142 && bg != 0)) {
 		Gallery_UnlockBackground(bg);
+		Recap_NoteBackground(bg); /* the recap's scenes (Kernel/Wizardry/Recap) */
+	}
 
 	return Event21_TextBg(proc);
 }

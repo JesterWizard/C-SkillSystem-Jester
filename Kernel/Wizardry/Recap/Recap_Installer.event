@@ -1,0 +1,10 @@
+// "Previously on your quest..." (Source/Recap.c, Documentation/Features/Recap.md)
+#include "Source/LynJump.event"
+#include "Source/Recap.lyn.event"
+
+PUSH
+    // ProcScr_SaveMenu (0x08A200B8), its last step: PROC_CALL(PostSaveMenuHandler) at 0x08A20390 -> the recap's wrapper,
+    // which runs PostSaveMenuHandler (the load) and then shows the recap
+    ORG $A20390 + 4
+    POIN Recap_PostSaveMenu|1
+POP

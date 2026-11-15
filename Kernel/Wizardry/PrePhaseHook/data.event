@@ -32,6 +32,7 @@ gPrePhaseFuncs:
     POIN NewGamePlus_PrePhase
     POIN Bestiary_PrePhase
     POIN SkillCodex_PrePhase
+    POIN Recap_PrePhase
 
     // End
     POIN CallExternalPrePhaseHook
