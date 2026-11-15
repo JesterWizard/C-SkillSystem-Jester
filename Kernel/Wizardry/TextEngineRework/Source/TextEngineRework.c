@@ -298,9 +298,12 @@ struct TextEngineScanlineFxRam {
  * shorter by the rows saved. The tiles stay where the engine puts them: the talk's BG0 (text) and BG1 (box) rows are
  * remapped per scanline (TextEngineLineSpacing_*, TextEngineWave_OnHBlank).
  */
+/* Mother 3: its dialogue glyphs fit rows 4-13 (FIT_TOP, FIT_BOTTOM in extract-mother3-font.py); each line shows
+ * rows 3-14, a blank row above and below them, so 2 px between lines and equal space above and below the text.
+ */
 #if defined(CONFIG_FONT_MOTHER_3)
-#define TEXT_ENGINE_LINE_HEIGHT 12 /* its dialogue glyphs fit rows 4-13 (FIT_TOP, FIT_BOTTOM in extract-mother3-font.py), plus a 2 px gap */
-#define TEXT_ENGINE_LINE_TOP    4
+#define TEXT_ENGINE_LINE_HEIGHT 12 /* rows 3-14 of each line: 2 px between lines */
+#define TEXT_ENGINE_LINE_TOP    3
 #else
 #define TEXT_ENGINE_LINE_HEIGHT 16
 #define TEXT_ENGINE_LINE_TOP    0
