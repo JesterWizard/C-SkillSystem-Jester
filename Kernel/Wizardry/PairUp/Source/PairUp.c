@@ -9,6 +9,7 @@
 #include "unitinfowindow.h"
 #include "action-expa.h"
 #include "status-getter.h"
+#include "rescue-penalty.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
@@ -710,10 +711,10 @@ int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat)
 {
 	struct Unit *support;
 
-	/* Before Pair Up: vanilla's rescue, the rescuer's Skl and Spd halved */
+	/* Before Pair Up: vanilla's rescue, the rescuer's Skl and Spd halved, or reduced relative to Con (RescuePenalty) */
 	if (!PairUp_IsUnlockedFor(unit)) {
 		if ((unit->state & US_RESCUING) && (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD))
-			return status / 2;
+			return RescuePenalty_Scale(status, unit);
 
 		return status;
 	}
@@ -721,7 +722,7 @@ int PairUp_RescueStatScale(int status, const struct Unit *unit, int stat)
 	support = PairUp_GetRegularRescuePartner(unit);
 	if (support) {
 		if (stat == PAIR_UP_STAT_SKL || stat == PAIR_UP_STAT_SPD)
-			return status / 2;
+			return RescuePenalty_Scale(status, unit);
 
 		return status;
 	}

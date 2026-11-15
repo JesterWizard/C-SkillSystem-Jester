@@ -1,0 +1,2 @@
+// Rescue penalty relative to Con (Source/RescuePenalty.c)
+#include "Source/RescuePenalty.lyn.event"
