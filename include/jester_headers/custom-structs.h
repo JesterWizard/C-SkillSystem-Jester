@@ -29,7 +29,8 @@ typedef struct
 extern const UnitPromotions unit_promotions[];
 /* END - Page 7 - Unit promotions list */
 
-// 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts, 0x9C: Pair Up unlocked)
+// 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts, 0x9C: Pair Up unlocked,
+//                       0x9D-0xA4: Tower of Valni floors cleared)
 // 176-178 (0xB0-0xB2) : free
 // 180-235 (0xB4-0xEB) : Used by Guide (see [FE8] "Help" Command & Permanent Event IDs)
 // 236-239 (0xEC-0xEF) : 0xEC base-chapter intro skip, 0xED chapter timer ran out, 0xEE map animation numbers
@@ -60,6 +61,9 @@ enum {
     /* Pair Up replaces Rescue (Kernel/Wizardry/PairUp, Documentation/Features/PairUp.md): set it in the event that
      * gives the upgrade (ENUT 0x9C) */
     GLOBAL_FLAG_PAIR_UP_UNLOCKED = 0x9C,
+
+    /* Tower of Valni floors 1-8 cleared, one at a time (Kernel/Wizardry/WorldMap/ValniFloors.c): 0x9D-0xA4 */
+    GLOBAL_FLAG_VALNI_FLOOR_1 = 0x9D,
 
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
     GLOBAL_FLAG_TIME_RAN_OUT = 0xED,

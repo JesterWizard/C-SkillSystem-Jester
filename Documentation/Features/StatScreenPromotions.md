@@ -30,6 +30,11 @@ This feature solves that problem by providing a **dedicated stat screen page** t
 
 ---
 
+Every unit has a promotions page. A unit with its own row in `unit_promotions` shows that row. Any other unit shows its
+class's promotion options, the ones promoting actually offers (`gPromoJidLut`), each with the two skills that class gives
+(`SkillTable-job.c`). A promoted or unpromotable class shows "No promotions" (`GetStatScreenPromotions`, `DrawPage7.c`).
+The page is there from the first chapter, as Gaiden Magic is ([StatScreenChapterLocks.md](./StatScreenChapterLocks.md)).
+
 ## 🛠️ Plan
 
 The system aims to give players full visibility into promotion choices before they commit.

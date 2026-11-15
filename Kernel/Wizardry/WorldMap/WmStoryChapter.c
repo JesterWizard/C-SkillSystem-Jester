@@ -163,6 +163,9 @@ int GetWmLocChapter(int node)
 	else
 		chapter = gWMNodeData[node].chapteridx_eirika;
 
+	/* The Tower of Valni starts its next floor (ValniFloors.c) */
+	chapter = ValniFloors_NodeChapter(chapter);
+
 	if (story < 0)
 		return chapter;
 

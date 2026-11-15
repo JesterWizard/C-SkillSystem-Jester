@@ -1,0 +1,14 @@
+/* The Tower of Valni, one floor at a time: ValniFloors.c */
+#include "ValniFloors.lyn.event"
+
+PUSH
+/* Vanilla's next-floor script, called by floors 1-7's endings: now ours (its vanilla words are kept in it) */
+ORG $9EE920
+WORD $00000A40
+POIN EventScr_ValniFloorEnd
+WORD $00000120
+/* The tower-cleared script, floor 8's: its first command (DisplayCongratulationsMapAnim) also marks the floor */
+ORG $9EE97C
+WORD $00000D40
+POIN ValniFloors_TowerCleared
+POP

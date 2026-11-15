@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "district.h"
 #include "wm-story-chapter.h"
+#include "save-data.h"
 
 /* The chapter a side map hands back to the world map with (WmStoryChapter.c) */
 #define WM_CHAPTER_SIDE_MAP_RETURN 0x38
@@ -53,6 +54,31 @@ static int GetLatestChapterFromSavedWorldMap(
     gPlaySt.chapterModeIndex = chapterMode;
 
     return chapter;
+}
+
+
+/*
+ * After Broken Vows the story goes to Castle Frelia through Chapter 5's row (chapter 0x06, flag 0x88, "New Departure":
+ * BmMain_StartIntroFx skips its intro then). A save there would read "The Empire's Reach": it is the Intermission.
+ */
+#define CHAPTER_NEW_DEPARTURE 0x06
+#define FLAG_NEW_DEPARTURE 0x88
+#define CHAPTER_INTERMISSION 0x38
+
+static bool SaveHasPermanentFlag(int slot, int flag)
+{
+	const struct EmsChunk *cur;
+	u32 offset = 0;
+	u8 flags[0x20];
+
+	for (cur = gEmsSavChunks; cur->_identifier_ != EMS_CHUNK_INVALID_OFFSET; cur++) {
+		if (cur->chunk_idx == EMS_CHUNK_EIDS_PERMANENT && cur->size <= sizeof(flags)) {
+			ReadSramFast((const u8 *)GetSaveReadAddr(slot) + offset, flags, cur->size);
+			return CheckPermanentFlagFrom(flag, flags);
+		}
+		offset += cur->size;
+	}
+	return false;
 }
 
 LYN_REPLACE_CHECK(SaveMenu_SetLcdChapterIdx);
@@ -129,6 +155,9 @@ void SaveMenuInitSaveSlotData(u8 slot, struct SaveMenuProc * proc)
                         ch_idx = story;
                 }
             }
+
+            if (ch_idx == CHAPTER_NEW_DEPARTURE && SaveHasPermanentFlag(slot, FLAG_NEW_DEPARTURE))
+                ch_idx = CHAPTER_INTERMISSION;
 
             chIndex = playSt.chapterIndex;
             playSt.chapterIndex = ch_idx;

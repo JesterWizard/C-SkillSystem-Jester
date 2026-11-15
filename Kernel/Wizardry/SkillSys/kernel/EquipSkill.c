@@ -6,7 +6,12 @@
 
 void ResetPrepEquipSkillList(void)
 {
-	CpuFastFill16(0, sPrepEquipSkillListExt, 0x100);
+	/*
+	 * One byte per skill id, and ids go up to MAX_EQUIP_SKILL_NUM (0x3FF): clearing only 0x100 bytes left whatever
+	 * gGenericBuffer last held in the rest, and those bytes showed as learned skills (every unit's Manage Skills list
+	 * filled up).
+	 */
+	CpuFastFill16(0, sPrepEquipSkillListExt, 0x400);
 	CpuFastFill16(0, &sPrepEquipSkillList,   sizeof(sPrepEquipSkillList));
 }
 
@@ -19,7 +24,7 @@ STATIC_DECLAR void SetupPrepEquipReal(void)
 {
 	int i;
 
-	for (i = 1; i < MAX_EQUIP_SKILL_NUM; i++)
+	for (i = 1; i < MAX_EQUIP_SKILL_NUM && sPrepEquipSkillList.amt < 0xFF; i++)
 		if (sPrepEquipSkillListExt[i] & 1)
 			sPrepEquipSkillList.sid[sPrepEquipSkillList.amt++] = i;
 }

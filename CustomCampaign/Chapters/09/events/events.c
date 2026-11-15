@@ -149,7 +149,12 @@ const EventScr EventScr_Ch09_Ending[] = {
     HIGHLIGHT_CHARACTER(CHARACTER_BANDIT_CH5, 60)
     TEXT_BG(0x7, Chapter_09_Post_Scene_01_Convo_02)
     MUSC(SONG_NONE)
-    MOVE_TWICE_WAIT(0, CHARACTER_BANDIT_CH5, 22, 6, 20, -1)
+    /*
+     * The camera goes down first (rows 7 and below), so he runs out of view at the top before he is removed. His
+     * second move used to aim off the map (20, -1), and he vanished where he stood.
+     */
+    MOVE_CAMERA_TO_POSITION_CENTER(21, 12)
+    MOVE_WAIT(0, CHARACTER_BANDIT_CH5, 22, 6)
     DISA(CHARACTER_BANDIT_CH5)
     HIGHLIGHT_CHARACTER(CHARACTER_EIRIKA, 60)
     MUSC(SONG_INDIGNATION)

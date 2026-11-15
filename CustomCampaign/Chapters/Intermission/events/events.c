@@ -122,6 +122,11 @@ static const EventScr EventScr_NEW_JOURNEY_TOWER_OF_VALNI_1[] = {
     LOMA(TOWER_OF_VALNI_08)
     MOVE_CAMERA_TO_POSITION(12, 20)
     LOAD_WAIT(INTERMISSION_FRELIAN_FORCES)
+    /*
+     * The castle scenes before (backgrounds, the council CG) leave the map sprites' palettes overwritten: the units
+     * came in wrongly coloured until a text box reloaded them. Load them before the map fades in.
+     */
+    ASMC(ApplyUnitSpritePalettes)
     FADE_FROM_BLACK(16)
     BROWNBOXTEXT(0x66A, 2, 2)
     CALL(EventScr_NEW_JOURNEY_TOWER_OF_VALNI_2)
@@ -155,8 +160,8 @@ static const EventScr EventScr_NEW_JOURNEY_CASTLE_FRELIA[] = {
     REMA
     CALL(EventScr_NEW_JOURNEY_TOWER_OF_VALNI_1)
     REMOVEPORTRAITS
+    /* SET_BACKGROUND fades the war room in from black itself: a FADE_FROM_BLACK after it faded in a second time */
     SET_BACKGROUND(0xE)
-    FADE_FROM_BLACK(4)
     TEXT(Intermission_In_Scene_Frelia_Castle_06)
     SET_BACKGROUND(0xE)
     TEXT(Intermission_In_Scene_Frelia_Castle_07)

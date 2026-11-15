@@ -11,10 +11,9 @@
 #include "jester_headers/maps.h"
 #include "jester_headers/custom-arrays.h"
 
+/* Gaiden Magic and Promotions are there from the first chapter */
 static const struct StatScreenPageChapterLock sStatScreenPageChapterLocks[] = {
-    { PAGE_GAIDEN_MAGIC, CHAPTER_06 },
     { PAGE_PERSONAL_DATA, CHAPTER_08 },
-    { PAGE_PROMOTIONS, CHAPTER_10 },
 };
 
 static bool IsStatScreenPageEnabledByConfig(int page)

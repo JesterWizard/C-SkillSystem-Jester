@@ -305,8 +305,12 @@ static int GetLevelUpSpeechMsgFor(int unitID)
 {
 	int i, tier;
 
-	/* JESTER - I'm doing this as a little patch for end of map BEXP. The procs intefere with each other and softlock the game so if we've beaten the map we return early */
-	if (gEventSlots[EVT_SLOT_8] > 0)
+	/*
+	 * JESTER - a patch for end of map BEXP: the procs interfere with each other and softlock the game, so once the map
+	 * is beaten there is no quote. It used to test event slot 8, which many things leave non-zero (the promotions stat
+	 * page, Scavenger, forging...): quotes then stopped at random, the debug menu's level up among them.
+	 */
+	if (CheckFlag(EVFLAG_WIN))
 		return 0;
 
 	if (gEventSlots[EVT_SLOT_9] <= 2)

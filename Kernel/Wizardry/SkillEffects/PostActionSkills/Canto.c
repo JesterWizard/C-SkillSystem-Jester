@@ -12,8 +12,23 @@
 STATIC_DECLAR bool CheckCanto(void)
 {
     bool canto, cantop, canter;
+    u32 done = US_DEAD | US_HAS_MOVED | US_BIT16;
 
-    if (gActiveUnit->state & (US_DEAD | US_HAS_MOVED | US_BIT16))
+    /*
+     * US_HAS_MOVED is "has already used Canto", but ApplyUnitAction sets it on every action, before this runs. Rescue,
+     * Drop, Take and Give are never offered to a unit that is using Canto (their menus check that bit), so after them
+     * it can only be ApplyUnitAction's: Canto's units may then go on with the movement they have left.
+     */
+    switch (gActionData.unitActionType) {
+    case UNIT_ACTION_RESCUE:
+    case UNIT_ACTION_DROP:
+    case UNIT_ACTION_TAKE:
+    case UNIT_ACTION_GIVE:
+        done &= ~US_HAS_MOVED;
+        break;
+    }
+
+    if (gActiveUnit->state & done)
         return false;
 
 #if defined(SID_CantoPlus) && (COMMON_SKILL_VALID(SID_CantoPlus))

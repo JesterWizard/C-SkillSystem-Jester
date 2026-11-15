@@ -2,6 +2,7 @@
 #include "wm-story-chapter.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
+#include "jester_headers/maps.h"
 
 const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.ai_dance_use = true, // false = AI never dances
@@ -167,6 +168,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.unlock_all_supports = true,
 	.use_chinese_character = false,
 	.variable_unit_descriptions = false,
+	.valni_floors_once = true, // Tower of Valni: each floor once, unlocked by gValniFloorUnlockChapter; the Creature Campaign replays them
 	.vesly_achievements = false,
 	.vesly_credits_cgs = true,
 	.vesly_custom_ui = true, // ~200KB per style (~600KB so far)
@@ -194,3 +196,14 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
  */
 const u8 gSkillSynthUnlockChapter = PREP_MENU_LOCKED;
 const u8 gInfuseUnlockChapter = PREP_MENU_LOCKED;
+
+/*
+ * The story chapter each Tower of Valni floor (1-8) unlocks at, with valni_floors_once on (Kernel/Wizardry/WorldMap/
+ * ValniFloors.c), compared in story order (WmStoryReached). PREP_MENU_LOCKED keeps a floor locked.
+ */
+const u8 gValniFloorUnlockChapter[8] = {
+	CHAPTER_09, CHAPTER_09,
+	CHAPTER_12, CHAPTER_12,
+	CHAPTER_15, CHAPTER_15,
+	CHAPTER_18, CHAPTER_18,
+};

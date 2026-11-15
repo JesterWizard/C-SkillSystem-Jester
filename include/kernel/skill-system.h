@@ -537,6 +537,8 @@ u8 Sweapstrike_Usability(const struct MenuItemDef *def, int number);
 u8 Sweapstrike_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 Prayer_Usability(const struct MenuItemDef *def, int number);
 u8 Prayer_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
+u8 PairUp_SkillUsability(const struct MenuItemDef *def, int number);
+u8 PairUp_SkillOnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 u8 DeepRoots_Usability(const struct MenuItemDef *def, int number);
 u8 DeepRoots_OnSelected(struct MenuProc *menu, struct MenuItemProc *item);
 void MakeTargetListForDeepRoots(struct Unit *unit);

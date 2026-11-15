@@ -80,6 +80,23 @@ on the file does the same. There is no Extras > Map row.
 `smoketest.py --only postgame` plays from Chapter 20's world map through the ending into the postgame and checks all of
 this.
 
+### The Tower of Valni, one floor at a time
+
+With `valni_floors_once` on (the default, `designer-config.c`), each Tower of Valni floor is played once, in order
+(`Kernel/Wizardry/WorldMap/ValniFloors.c`):
+
+- Clearing a floor goes straight on to the next floor not cleared yet, with no "Continue?" prompt, if the story has
+  unlocked it; otherwise back to the world map. Floors 1-7's endings call vanilla's next-floor script (`0x089EE920`) and
+  floor 8's its tower-cleared one (`0x089EE97C`): `ValniFloors.event` points them at `EventScr_ValniFloorEnd` and
+  `ValniFloors_TowerCleared`.
+- The tower's node starts the first floor not cleared yet, once it is unlocked (`ValniFloors_NodeChapter`, called by
+  `GetWmLocChapter`). With every unlocked floor cleared, it starts nothing. Clear floors 1-5, and the next visit starts
+  at floor 6, once the story reaches its chapter.
+- Floor n unlocks at story chapter `gValniFloorUnlockChapter[n]` (`designer-config.c`, compared with `WmStoryReached`):
+  floors 1-2 at Chapter 9, 3-4 at 12, 5-6 at 15, 7-8 at 18. `PREP_MENU_LOCKED` keeps a floor locked.
+- A cleared floor is permanent flag `0x9D` + its number (`GLOBAL_FLAG_VALNI_FLOOR_1`), saved with the game.
+- In the Creature Campaign (`PLAY_FLAG_POSTGAME`), and with the setting off, the floors are vanilla's: any floor, again.
+
 ## The story
 
 | Chapter | Id | Node | |
