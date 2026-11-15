@@ -194,10 +194,7 @@ struct PlaySt_OptionBits {
     u32 exp_bar_style: 4;      /* Kernel/Wizardry/ExpBarStyles: 0 = vanilla */
 
     u32 map_colors: 2;         /* Kernel/Wizardry/MapColors: 0 vanilla, 1 vivid, 2 deep */
-    u32 custom_option_29: 1;
-    u32 custom_option_30: 1;
-    u32 custom_option_31: 1;
-    u32 custom_option_32: 1;
+    u32 chapter_intro: 4;      /* Kernel/Wizardry/ChapterIntroStyles: style + 5 * background */
 
 } BITPACKED;
 

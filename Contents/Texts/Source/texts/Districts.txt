@@ -1032,3 +1032,7 @@ Eirika learned her father had died, and Ephraim comforted her.[X]
 Grado took Frelia's Stone and hunted for Eirika.[X]
 ## MSG_RECAP_CH09_END
 Eirika refused Ephraim's plea to return to Frelia.[X]
+## MSG_MENU_OPTION_CHAPTER_INTRO_TITLE
+Chapter Intro[X]
+## MSG_MENU_OPTION_CHAPTER_INTRO_BG_TITLE
+Intro Backdrop[X]

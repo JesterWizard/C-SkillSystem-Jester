@@ -1,0 +1,9 @@
+// Alternative chapter intro animations (Source/ChapterIntroStyles.c)
+#include "Source/ChapterIntroStyles.lyn.event"
+
+PUSH
+    // gProcScr_ChapterIntro (0x0859B1B0), its first step PROC_CALL(BMapDispSuspend) -> ChapterIntroStyles_Gate, which
+    // runs BMapDispSuspend and, with a style set, starts the chosen style's proc in place of the vanilla one
+    ORG $59B1B0 + 4
+    POIN ChapterIntroStyles_Gate|1
+POP
