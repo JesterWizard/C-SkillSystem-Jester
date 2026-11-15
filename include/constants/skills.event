@@ -934,5 +934,6 @@
 #define SID_Angler 0x3A1
 #define SID_DeepRoots 0x3A2
 #define SID_PairUp 0x3A3
+#define SID_DragonSkinPlus 0x3A4
 
 #endif /* SKILLS_EVENT */

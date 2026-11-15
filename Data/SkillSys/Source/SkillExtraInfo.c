@@ -299,6 +299,10 @@ const struct SkillExtraInfo gSkillExtraInfo[MAX_SKILL_NUM + 1] = {
 	[SID_DragonSkin] = {{ 50 }},
 #endif
 
+#if (defined(SID_DragonSkinPlus) && COMMON_SKILL_VALID(SID_DragonSkinPlus))
+	[SID_DragonSkinPlus] = {{ 50 }},
+#endif
+
 #if (defined(SID_WaterBoost) && COMMON_SKILL_VALID(SID_WaterBoost))
 	[SID_WaterBoost] = {{ 6, 3 }},
 #endif

@@ -30,7 +30,7 @@ extern const UnitPromotions unit_promotions[];
 /* END - Page 7 - Unit promotions list */
 
 // 139-175 (0x8B-0xAF) : probably free (0x90-0x93: district unlocks, 0x94-0x9B: district gifts, 0x9C: Pair Up unlocked,
-//                       0x9D-0xA4: Tower of Valni floors cleared)
+//                       0x9D-0xA4: Tower of Valni floors cleared, 0xA5: districts notice shown)
 // 176-178 (0xB0-0xB2) : free
 // 180-235 (0xB4-0xEB) : Used by Guide (see [FE8] "Help" Command & Permanent Event IDs)
 // 236-239 (0xEC-0xEF) : 0xEC base-chapter intro skip, 0xED chapter timer ran out, 0xEE map animation numbers
@@ -64,6 +64,9 @@ enum {
 
     /* Tower of Valni floors 1-8 cleared, one at a time (Kernel/Wizardry/WorldMap/ValniFloors.c): 0x9D-0xA4 */
     GLOBAL_FLAG_VALNI_FLOOR_1 = 0x9D,
+
+    /* The world map's "districts are open" notice has been shown (EventScr_Tutorial_DISTRICTS, TutorialsEvents.c) */
+    GLOBAL_FLAG_DISTRICT_TUTORIAL = 0xA5,
 
     GLOBAL_FLAG_BASE_CHAPTER_INTRO_SKIP = 0xEC,
     GLOBAL_FLAG_TIME_RAN_OUT = 0xED,

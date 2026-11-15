@@ -34,6 +34,9 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_NoGuard) && defined(SID_NoGuardPlus)
         [SID_NoGuardPlus] = SID_NoGuard,
     #endif
+    #if defined(SID_DragonSkin) && defined(SID_DragonSkinPlus)
+        [SID_DragonSkinPlus] = SID_DragonSkin,
+    #endif
     #if defined(SID_Canto) && defined(SID_CantoPlus)
         [SID_CantoPlus] = SID_Canto,
     #endif
@@ -162,6 +165,9 @@ const u16 gSkillUpgradePlusLookup[MAX_SKILL_NUM + 1] = {
 const u16 gSkillUpgradeBaseLookup[MAX_SKILL_NUM + 1] = {
     #if defined(SID_NoGuard) && defined(SID_NoGuardPlus)
         [SID_NoGuard] = SID_NoGuardPlus,
+    #endif
+    #if defined(SID_DragonSkin) && defined(SID_DragonSkinPlus)
+        [SID_DragonSkin] = SID_DragonSkinPlus,
     #endif
     #if defined(SID_Canto) && defined(SID_CantoPlus)
         [SID_Canto] = SID_CantoPlus,
