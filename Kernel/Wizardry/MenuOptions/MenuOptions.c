@@ -3,12 +3,13 @@
 #include "constants/texts.h"
 #include "kernel/realtime-battle.h"
 #include "exp-bar-styles.h"
+#include "chapter-intro-styles.h"
 
 extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[35] = {
+const u8 gGameOptionsUiOrder_NEW[37] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -24,6 +25,8 @@ const u8 gGameOptionsUiOrder_NEW[35] = {
     GAME_OPTION_WINDOW_COLOR, 
     GAME_OPTION_EXP_BAR,
     GAME_OPTION_MAP_COLORS,
+    GAME_OPTION_CHAPTER_INTRO,
+    GAME_OPTION_CHAPTER_INTRO_BG,
 
     // CUSTOM
     GAME_OPTION_SKILL_CAPACITY,
@@ -111,6 +114,12 @@ static int GetGameOptionRowCount(int optionIdx)
     if (optionIdx == GAME_OPTION_EXP_BAR)
         return UiStyle_Count();
 
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO)
+        return ChapterIntro_StyleCount();
+
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO_BG)
+        return ChapterIntro_BgCount();
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return 2;
 
@@ -135,6 +144,12 @@ static const char *GetGameOptionRowHelpText(int optionIdx, int value)
     if (optionIdx == GAME_OPTION_EXP_BAR)
         return UiStyle_Desc(value);
 
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO)
+        return ChapterIntro_StyleDesc(value);
+
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO_BG)
+        return ChapterIntro_BgDesc(value);
+
     if (optionIdx >= GAME_OPTION_SKILL_CAPACITY)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].helpTextId);
 
@@ -145,6 +160,12 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
 {
     if (optionIdx == GAME_OPTION_EXP_BAR)
         return UiStyle_Name(value);
+
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO)
+        return ChapterIntro_StyleName(value);
+
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO_BG)
+        return ChapterIntro_BgName(value);
 
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL || optionIdx == GAME_OPTION_MAP_COLORS)
         return GetStringFromIndex(gGameOptions_NEW[optionIdx].selectors[value].optionTextId);
@@ -157,6 +178,9 @@ static const char *GetGameOptionRowValueText(int optionIdx, int value)
 
 static int GetGameOptionRowX(int optionIdx)
 {
+    if (optionIdx == GAME_OPTION_CHAPTER_INTRO || optionIdx == GAME_OPTION_CHAPTER_INTRO_BG)
+        return 112;
+
     if (optionIdx == GAME_OPTION_REAL_TIME_INTERVAL || optionIdx == GAME_OPTION_MAP_COLORS)
         return gGameOptions_NEW[optionIdx].selectors[0].xPos;
 
@@ -715,6 +739,36 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x02, /* reuse Terrain icon */
         .func = GenericOptionChangeHandler,
     },
+
+    /* The Chapter Intro row: one value shown at a time, the style's name (Kernel/Wizardry/ChapterIntroStyles) */
+    [GAME_OPTION_CHAPTER_INTRO] =
+    {
+        .msgId = MSG_MENU_OPTION_CHAPTER_INTRO_TITLE,
+        .selectors =
+        {
+            { MSG_000, MSG_000, 112, 2 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 189, 0 },
+        },
+        .icon = 0x10, /* reuse Window Color icon */
+        .func = GenericOptionChangeHandler,
+    },
+
+    /* The Intro Backdrop row: what is behind the title of the Chapter Intro styles other than Vanilla */
+    [GAME_OPTION_CHAPTER_INTRO_BG] =
+    {
+        .msgId = MSG_MENU_OPTION_CHAPTER_INTRO_BG_TITLE,
+        .selectors =
+        {
+            { MSG_000, MSG_000, 112, 2 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 190, 0 },
+            { MSG_000, MSG_000, 189, 0 },
+        },
+        .icon = 0x10, /* reuse Window Color icon */
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -762,6 +816,8 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_REAL_TIME_INTERVAL:             gPlaySt.config.real_time_interval = newValue; break;
         case GAME_OPTION_EXP_BAR:                        gPlaySt.config.exp_bar_style = newValue; break;
         case GAME_OPTION_MAP_COLORS:                     gPlaySt.config.map_colors = newValue; break;
+        case GAME_OPTION_CHAPTER_INTRO:                  ChapterIntro_SetStyle(newValue); break;
+        case GAME_OPTION_CHAPTER_INTRO_BG:               ChapterIntro_SetBg(newValue); break;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true) {
                 gPlaySt.config.show_true_2rn = 1; /* OFF */
@@ -829,6 +885,8 @@ u8 GetGameOption(u8 index) {
             return gPlaySt.config.exp_bar_style < UiStyle_Count() ? gPlaySt.config.exp_bar_style : 0;
         case GAME_OPTION_MAP_COLORS:
             return gPlaySt.config.map_colors < 3 ? gPlaySt.config.map_colors : 0;
+        case GAME_OPTION_CHAPTER_INTRO:    return ChapterIntro_GetStyle();
+        case GAME_OPTION_CHAPTER_INTRO_BG: return ChapterIntro_GetBg();
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true)
                 return 1; /* OFF */
@@ -892,6 +950,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
     gPlaySt.config.exp_bar_style = 0; /* vanilla */
     gPlaySt.config.map_colors = 0; /* vanilla */
+    gPlaySt.config.chapter_intro = ChapterIntro_DefaultOption(); /* the designer config's style and background */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
     SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);
@@ -1021,7 +1080,7 @@ void DrawOptionValueTexts(int selectedIdx, int textIdx, int y)
 
     ClearText(&gConfigUiState->valueTexts[textIdx]);
 
-    if (optionIdx == GAME_OPTION_EXP_BAR) {
+    if (optionIdx == GAME_OPTION_EXP_BAR || optionIdx == GAME_OPTION_CHAPTER_INTRO || optionIdx == GAME_OPTION_CHAPTER_INTRO_BG) {
         Text_InsertDrawString(&gConfigUiState->valueTexts[textIdx], 0, TEXT_COLOR_SYSTEM_BLUE,
                               GetGameOptionRowValueText(optionIdx, GetGameOption(optionIdx)));
         PutTextYWrapped(&gConfigUiState->valueTexts[textIdx], gBG1TilemapBuffer, x, y);
@@ -1057,7 +1116,7 @@ void DrawConfigUiSprites(void)
 
     DisplayFrozenUiHand(16, y);
 
-    if (optionIdx == GAME_OPTION_EXP_BAR)
+    if (optionIdx == GAME_OPTION_EXP_BAR || optionIdx == GAME_OPTION_CHAPTER_INTRO || optionIdx == GAME_OPTION_CHAPTER_INTRO_BG)
         DisplayUiHand(gGameOptions_NEW[optionIdx].selectors[0].xPos - 2, y);
     else
         DisplayUiHand(gGameOptions_NEW[optionIdx].selectors[GetGameOption(optionIdx)].xPos - 2, y);
