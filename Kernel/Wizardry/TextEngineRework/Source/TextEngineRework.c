@@ -299,7 +299,7 @@ struct TextEngineScanlineFxRam {
  * remapped per scanline (TextEngineLineSpacing_*, TextEngineWave_OnHBlank).
  */
 #if defined(CONFIG_FONT_MOTHER_3)
-#define TEXT_ENGINE_LINE_HEIGHT 10 /* its dialogue glyphs fit rows 4-13 (FIT_TOP, FIT_BOTTOM in extract-mother3-font.py) */
+#define TEXT_ENGINE_LINE_HEIGHT 12 /* its dialogue glyphs fit rows 4-13 (FIT_TOP, FIT_BOTTOM in extract-mother3-font.py), plus a 2 px gap */
 #define TEXT_ENGINE_LINE_TOP    4
 #else
 #define TEXT_ENGINE_LINE_HEIGHT 16
