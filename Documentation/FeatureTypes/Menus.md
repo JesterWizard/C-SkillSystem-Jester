@@ -36,7 +36,7 @@ Per kind:
 | `include/jester_headers/custom-structs.h` (`:156`), `include/link/config-memmap.s` (`:115`) | `gPrepMenuVisibleTableSlots[12]`, the 12-slot array |
 | `Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c` | `InitSaveMenuChoice` (`:63`), the extras gating |
 | `Tools/FE-CLib-Mokha/include/savemenu.h` | `EXTRA_MENU_*` (`:56-61`), `EXTRA_MENU_OPTION_*` (`:64-69`), `AddExtraMenuOption` (`:349`) |
-| `Kernel/Wizardry/MenuOptions/MenuOptions.c` | Option rows, order `[33]` (`:10`), visibility (`:48`), get/set (`:674`, `:738`), defaults in `InitPlayConfig` (`:793`) |
+| `Kernel/Wizardry/MenuOptions/MenuOptions.c` | Option rows, order `[36]` (`:12`), visibility (`:48`), get/set (`:674`, `:738`), defaults in `InitPlayConfig` (`:793`) |
 | `Tools/FE-CLib-Mokha/include/uiconfig.h` | `GAME_OPTION_*` enum, `struct GameOption` (`:13`) |
 | `Tools/FE-CLib-Mokha/include/types.h` | `struct PlaySt_OptionBits` (`:140`), no spare bits left (`chapter_intro` took `custom_option_29`..`_32`) |
 | `Contents/Texts/Source/texts/Menu_Options.txt` | Option title, description, On/Off strings (`## MSG_...` then the text) |
@@ -201,7 +201,7 @@ Adapted from the `GAME_OPTION_ACHIEVEMENTS` and `GAME_OPTION_SHOW_TRUE_2RN` rows
 
 1. `Tools/FE-CLib-Mokha/include/uiconfig.h`: add `GAME_OPTION_EXAMPLE = 37,` after `GAME_OPTION_SHOW_TRUE_2RN = 36`.
 2. `Tools/FE-CLib-Mokha/include/types.h`: `struct PlaySt_OptionBits` has no spare bits left (the last four became `chapter_intro`); a new row needs its value stored elsewhere (e.g. a save-tail share, `Documentation/FeatureTypes/SaveData.md`) or an existing field's encoding widened.
-3. `Kernel/Wizardry/MenuOptions/MenuOptions.c`: append `GAME_OPTION_EXAMPLE,` to `gGameOptionsUiOrder_NEW` (`:10`) and change its size from `[33]` to `[34]`.
+3. `Kernel/Wizardry/MenuOptions/MenuOptions.c`: append `GAME_OPTION_EXAMPLE,` to `gGameOptionsUiOrder_NEW` (`:12`) and add one to its size (`[36]` to `[37]`).
 4. Same file, in `gGameOptions_NEW`:
 
 ```c
@@ -215,10 +215,12 @@ Adapted from the `GAME_OPTION_ACHIEVEMENTS` and `GAME_OPTION_SHOW_TRUE_2RN` rows
             { MSG_000, MSG_000, 190, 0 },
             { MSG_000, MSG_000, 189, 0 },
         },
-        .icon = 0x44, /* index into the icon sheet used by DrawGameOptionIcon */
+        .icon = 0x50, /* its own icon: a free slot of FE8_All_System_Icons.png (0x50-0x5E free at writing) */
         .func = GenericOptionChangeHandler,
     },
 ```
+
+Every row has its own icon, and no two rows share one. To draw a new one, copy the blank button into a free slot of `Kernel/Wizardry/MenuOptions/FE8_All_System_Icons.png` (256x48, 16x16 icons, 16 per row; icon N is at x = (N & 0x1F) / 2 * 16, y = (N >> 5) * 16) and draw inside it with palette indices only.
 
 5. Same file: `case GAME_OPTION_EXAMPLE: gPlaySt.config.example = newValue; break;` in `SetGameOption` (`:674`), and `case GAME_OPTION_EXAMPLE: return gPlaySt.config.example;` in `GetGameOption` (`:738`).
 6. Same file: `gPlaySt.config.example = 0;` in `InitPlayConfig` (`:793`; compare the `show_true_2rn` default at `:840`).
@@ -317,7 +319,7 @@ The item text uses `MenuItemProc::text`, which is per row and survives across fr
 - **Callbacks need a forward declaration in `UnitMenu.c`.** The table lists functions before they are defined, so each one needs a prototype (`UnitMenu.c:24-45`). Map menu callbacks can be defined above the table in `Usability.c`.
 - **CHAX branch only.** `Data/UnitMenu/Source/UnitMenu.c:162` is `#if CHAX`, and `CHAX` is 1 (`include/common-chax.h:12`). The `#else` vanilla rows (`:263-270`) are not built. Edit the CHAX branch.
 - **`Usability.lyn.event` is build output.** Edit `Data/MapMenus/Usability.c`; the build regenerates `Usability.lyn.event` (`makefile:211`). CLAUDE.md warns that some `.lyn.event` files have hand edits, so check before regenerating any of them.
-- **Options array size is fixed.** `gGameOptionsUiOrder_NEW` is declared `[33]` and lists 33 entries (`MenuOptions.c:10-46`). Adding a row without bumping the size is a silent error, and the order array is what the screen walks.
+- **Options array size is fixed.** `gGameOptionsUiOrder_NEW` is declared `[36]` and lists 36 entries (`MenuOptions.c:12-51`). Adding a row without bumping the size is a silent error, and the order array is what the screen walks. Removing a row means shrinking the size too: a leftover slot shows as an extra Animation row (option 0).
 - **`SetGameOption` has no default branch.** An option with no `case` is silently not stored (`MenuOptions.c:674-737`). Add the `case` in both `SetGameOption` and `GetGameOption`.
 - **Options bits are the save layout.** `gPlaySt.config` is a bitfield (`types.h:140`) whose spare bits (`custom_option_*`) are all used now. Whether it is written to the save file is unverified; check `Documentation/Memory.md` before adding bits that must persist.
 - **Extras enum is fixed.** `EXTRA_MENU_*` runs 0-6 (`savemenu.h:56-61`); `extra_options` is a `u8`, and bit 7 is the Skill Codex's (`Documentation/Features/SkillCodex.md`): no bit is left. Bit 3 (vanilla's unshown "Battle History") is New Game+'s, bit 4 (Map) the Gallery's, bit 6 (the trial map) the Bestiary's (`Documentation/Features/Bestiary.md`). Bit 0 (Link Arena) never shows (`RemoveLinkArena.event`); a new row could take it, with its `IsExtraLinkArenaEnabled` check replaced. Each row's label is a sprite, not text: `gExtrasLabelSprites` (`NewGamePlus/Source/NgpSaveMenu.c`) over the label sheet `NewGamePlus/Gfx/Img_NgpMenuObjs.png`, which has no free 112-pixel slot left; the Bestiary's and the Skill Codex's labels are in pieces round the Gallery's and Link Arena's letters. A new row needs art: add its word to `Tools/extras-labels/labels.py` (it builds words from vanilla's own letters, pixel for pixel, into the sheet's free tiles) and a sprite in `gExtrasLabelSprites` centred 64 pixels from its origin (the sheet's left column is drawn from x 8, the right from x 0). With Link Arena gone the list has at most 7 rows; an 8th would be off screen in vanilla's layout (`sub_80AAF6C`).

@@ -42,7 +42,7 @@ To add a new menu option, add it in both places that define the visible menu and
 2. Add a `struct GameOption` entry in `gGameOptions_NEW` with:
    - `.msgId` for the title.
    - `.selectors` for the value labels, help text, and x positions.
-   - `.icon` for the menu icon.
+   - `.icon` for the menu icon. The row needs its own icon: a free slot of `Kernel/Wizardry/MenuOptions/FE8_All_System_Icons.png` (0x50-0x5E free at writing). No two rows share an icon.
    - `.func` for the input handler that applies the change.
 3. Add the storage field to `gPlaySt.config` if the option needs to persist.
 4. Update `SetGameOption` and `GetGameOption` so the UI and gameplay logic read and write the same value.
@@ -51,7 +51,7 @@ To add a new menu option, add it in both places that define the visible menu and
 
 To remove an option, reverse the process:
 
-1. Remove the option index from `gGameOptionsUiOrder_NEW`.
+1. Remove the option index from `gGameOptionsUiOrder_NEW`. Shrink `gGameOptionsUiOrder_NEW`'s size to the rows left: a leftover slot shows as an extra Animation row (option 0).
 2. Remove or disable the matching `gGameOptions_NEW` entry.
 3. Remove the `gPlaySt.config` field usage from `SetGameOption`, `GetGameOption`, and any gameplay hooks.
 4. Remove the initialization from `InitPlayConfig` if the field is no longer needed.

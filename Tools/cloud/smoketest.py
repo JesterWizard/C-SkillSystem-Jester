@@ -46,7 +46,7 @@ What it checks:
               same district chunks.
   recap       a game save keeps the last chapter's recap (the prologue's opening, a death and a recruit); Restart
               Chapter shows it in greyscale, A steps through it, START skips it and the chapter goes on.
-  introband   the chapter intro's Title Band option survives a game save (its save-tail share): off after a save and
+  introband   the chapter intro's save-tail share (gChapterIntroExtra) survives a game save: off after a save and
               a reset, with the share's magic; a new game starts it on.
   gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
               size, goes on to the next with right, back to the grid with B, scrolls a row on screen, and back to
@@ -1350,10 +1350,10 @@ class Smoke:
 
     def test_introband(self):
         """Chapter intro styles (Kernel/Wizardry/ChapterIntroStyles, Documentation/Features/ChapterIntroStyles.md):
-        the Title Band option (gChapterIntroExtra.band, a save-tail share) is written off before the debugger's game
+        the chapter intro's save-tail share (gChapterIntroExtra) is written off before the debugger's game
         save; after a reset and the reload it is still off, with the share's magic ("CI"). A new game starts it on."""
         if "gChapterIntroExtra" not in self.sym:
-            return self.check("introband: the Title Band option", False, "no gChapterIntroExtra symbol")
+            return self.check("introband: the title band share", False, "no gChapterIntroExtra symbol")
         g = self.sym["gChapterIntroExtra"]
         writes = ["r8 %#x" % (g + 2), "w8 %#x 0" % (g + 2)]
         reads = ["r16 %#x" % g, "r8 %#x" % (g + 2)]
@@ -1362,7 +1362,7 @@ class Smoke:
         if not self.check("introband: a new game starts with the Title Band on", len(vals) == 3 and vals[0] == 1,
                           "values %s" % vals):
             return
-        self.check("introband: the Title Band setting comes back from a game save", vals[1:] == [0x4943, 0],
+        self.check("introband: the title band share comes back from a game save", vals[1:] == [0x4943, 0],
                    "magic, band %s" % vals[1:])
 
     def layout_signature(self):

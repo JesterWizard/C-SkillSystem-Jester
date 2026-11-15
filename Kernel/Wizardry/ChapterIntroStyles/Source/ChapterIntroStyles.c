@@ -10,10 +10,10 @@
  * 0 = vanilla). The designer config's chapter_intro_style is the default for a new game.
  * The gate replaces the first step of vanilla's gProcScr_ChapterIntro (ChapterIntroStyles_Installer.event). Each style
  * shows the chapter title on a black screen (it ends black), then reveals the map. A, B or START skips the title.
- * The "Intro Backdrop" row picks what is behind the title: black, vanilla's scrolling runes, or the previous chapter's
- * closing background (the recap's record; vanilla's runes until there is one). The designer config's chapter_intro_bg
- * is the default for a new game. With the title band on, a see-through black bar sits behind the title on the Black and
- * Last Scene backgrounds (semi-transparent sprites; see CIS_LoadBar).
+ * The designer config's chapter_intro_bg picks what is behind the title: black, vanilla's scrolling runes, or the previous
+ * chapter's closing background (the recap's record; vanilla's runes until there is one). The designer config's
+ * chapter_intro_band turns on a see-through black bar behind the title on the Black and Last Scene backgrounds
+ * (semi-transparent sprites; see CIS_LoadBar). The Options menu has no row for either.
  */
 
 enum chapter_intro_style {
@@ -45,20 +45,9 @@ static const struct ChapterIntroChoice sStyleChoices[CHAPTER_INTRO_STYLE_COUNT] 
 	[CHAPTER_INTRO_LETTERBOX] = { "Letterbox", "The title is wiped in and out." },
 };
 
-static const struct ChapterIntroChoice sBgChoices[CHAPTER_INTRO_BG_COUNT] = {
-	[CHAPTER_INTRO_BG_BLACK]   = { "Black",      "A black screen behind the title." },
-	[CHAPTER_INTRO_BG_VANILLA] = { "Vanilla",    "The original scrolling runes." },
-	[CHAPTER_INTRO_BG_SCENE]   = { "Last Scene", "Where the last chapter ended." },
-};
-
 int ChapterIntro_StyleCount(void)
 {
 	return CHAPTER_INTRO_STYLE_COUNT;
-}
-
-int ChapterIntro_BgCount(void)
-{
-	return CHAPTER_INTRO_BG_COUNT;
 }
 
 const char *ChapterIntro_StyleName(int style)
@@ -69,16 +58,6 @@ const char *ChapterIntro_StyleName(int style)
 const char *ChapterIntro_StyleDesc(int style)
 {
 	return sStyleChoices[style].desc;
-}
-
-const char *ChapterIntro_BgName(int bg)
-{
-	return sBgChoices[bg].name;
-}
-
-const char *ChapterIntro_BgDesc(int bg)
-{
-	return sBgChoices[bg].desc;
 }
 
 /* style + 5 * background in gPlaySt.config.chapter_intro; anything out of range reads as the vanilla intro */
@@ -92,16 +71,18 @@ int ChapterIntro_GetStyle(void)
 	return value;
 }
 
+/* The backdrop is the designer config's (chapter_intro_bg): the Options menu has no row for it */
 int ChapterIntro_GetBg(void)
 {
-	int bg = gPlaySt.config.chapter_intro / CHAPTER_INTRO_STYLE_COUNT;
+	int bg = gpKernelDesignerConfig->chapter_intro_bg;
 
 	return bg < CHAPTER_INTRO_BG_COUNT ? bg : CHAPTER_INTRO_BG_BLACK;
 }
 
+/* The title band is the designer config's (chapter_intro_band, on): the Options menu has no row for it. gChapterIntroExtra still keeps its save-tail share, so later shares do not move */
 bool ChapterIntro_GetBand(void)
 {
-	return gChapterIntroExtra.band;
+	return gpKernelDesignerConfig->chapter_intro_band;
 }
 
 void ChapterIntro_SetBand(bool on)
@@ -155,11 +136,6 @@ static void ChapterIntro_Set(int style, int bg)
 void ChapterIntro_SetStyle(int style)
 {
 	ChapterIntro_Set(style, ChapterIntro_GetBg());
-}
-
-void ChapterIntro_SetBg(int bg)
-{
-	ChapterIntro_Set(ChapterIntro_GetStyle(), bg);
 }
 
 int ChapterIntro_DefaultOption(void)
