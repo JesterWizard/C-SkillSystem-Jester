@@ -18,6 +18,7 @@
 #include "GaidenMagic/GaidenMagicData.event"
 #include "GaidenMagic/GaidenMagicData.lyn.event"
 #include "MaxStatus/MaxStatus.lyn.event"
+#include "MaxStatus/ClassLuckCap.lyn.event"
 #include "JobGrowth/JobGrowth.lyn.event"
 #include "Shield/ShieldConfig.lyn.event"
 #include "ClassTypes/ClassTypes.lyn.event"
@@ -50,6 +51,7 @@
 #include "MpSystem/MpSystem.lyn.event"
 #include "SpSystem/SpSystem.lyn.event"
 #include "ClassData/ClassData.lyn.event"
+#include "ClassData/ThirdTierClasses.lyn.event"
 #include "CharacterData/CharacterData.lyn.event"
 #include "CustomPortraits/CustomPortraits.event"
 

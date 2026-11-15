@@ -552,4 +552,5 @@ bool IsPointerOrNULL(uintptr_t a);
 #define read16(addr) *((volatile u16 *)&(addr))
 #define write16(addr, val) (*((volatile u16 *)&(ptr)) = (val))
 
-#define UNIT_MHP_MAX(aUnit) gpKernelDesignerConfig->expanded_hp ? 254 : (UNIT_FACTION(aUnit) == FACTION_RED ? 120 : 60)
+/* The class's HP cap (its maxHP, 60 if 0); enemies 120; Expanded HP 254 */
+#define UNIT_MHP_MAX(aUnit) (gpKernelDesignerConfig->expanded_hp ? 254 : (UNIT_FACTION(aUnit) == FACTION_RED ? 120 : ((aUnit)->pClassData->maxHP ? (aUnit)->pClassData->maxHP : 60)))

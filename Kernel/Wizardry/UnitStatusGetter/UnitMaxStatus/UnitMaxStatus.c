@@ -40,7 +40,7 @@ int GetUnitMaxStatusSkl(struct Unit *unit)
 	int status = UNIT_SKL_MAX(unit);
 	u8 pid = UNIT_CHAR_ID(unit);
 
-	status += gpUnitMaxStatusConfigTable[pid].mag;
+	status += gpUnitMaxStatusConfigTable[pid].skl;
 	LIMIT_AREA(status, 0, UNIT_STATUS_MAX);
 	return status;
 }
