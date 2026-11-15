@@ -967,3 +967,4 @@
 #define MSG_SKILL_Angler_PRICE 2000
 #define MSG_SKILL_DeepRoots_PRICE 1000
 #define MSG_SKILL_PairUp_PRICE 1000
+#define MSG_SKILL_DragonSkinPlus_PRICE 1000

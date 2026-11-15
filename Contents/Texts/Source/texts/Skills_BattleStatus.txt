@@ -336,7 +336,8 @@ When under attack, attack speed +2.[X]
 Dragon Skin[X]
 ## MSG_SKILL_DragonSkin_DESC
 Dragon Skin:[N]
-Halve damage taken.[X]
+Halve damage taken, but[N]
+foes never miss.[X]
 
 ## MSG_SKILL_Hawkeye_NAME
 Hawk Eye[X]

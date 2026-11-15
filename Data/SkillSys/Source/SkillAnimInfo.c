@@ -16,6 +16,10 @@ const u8 EfxSkillAnimPriority[MAX_SKILL_NUM + 1] = {
 	[SID_DragonSkin] = EFX_PRIORITY_NORMAL,
 #endif
 
+#if (defined(SID_DragonSkinPlus) && COMMON_SKILL_VALID(SID_DragonSkinPlus))
+	[SID_DragonSkinPlus] = EFX_PRIORITY_NORMAL,
+#endif
+
 #if (defined(SID_KeenFighter) && COMMON_SKILL_VALID(SID_KeenFighter))
 	[SID_KeenFighter] = EFX_PRIORITY_NORMAL,
 #endif
@@ -360,6 +364,10 @@ struct EfxAnimConf const *const EfxSkillAnims[MAX_SKILL_NUM + 1] = {
 
 #if (defined(SID_DragonSkin) && COMMON_SKILL_VALID(SID_DragonSkin))
 	[SID_DragonSkin] = &EfxSkillVanilla,
+#endif
+
+#if (defined(SID_DragonSkinPlus) && COMMON_SKILL_VALID(SID_DragonSkinPlus))
+	[SID_DragonSkinPlus] = &EfxSkillVanilla,
 #endif
 
 #if (defined(SID_KeenFighter) && COMMON_SKILL_VALID(SID_KeenFighter))

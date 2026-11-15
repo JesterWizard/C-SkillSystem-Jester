@@ -2030,6 +2030,17 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_DragonSkinPlus) && COMMON_SKILL_VALID(SID_DragonSkinPlus))
+    [SID_DragonSkinPlus] = {
+        .name = MSG_SKILL_DragonSkinPlus_NAME,
+        .desc = MSG_SKILL_DragonSkinPlus_DESC,
+        .capacity = MSG_SKILL_DragonSkinPlus_CAPACITY,
+        .price = MSG_SKILL_DragonSkinPlus_PRICE,
+        .icon = GFX_SkillIcon_DragonSkin,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_Hawkeye) && COMMON_SKILL_VALID(SID_Hawkeye))
     [SID_Hawkeye] = {
         .name = MSG_SKILL_Hawkeye_NAME,

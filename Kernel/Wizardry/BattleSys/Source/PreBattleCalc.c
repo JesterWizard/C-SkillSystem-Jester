@@ -476,6 +476,12 @@ void PreBattleCalcDefenderSkills(struct BattleUnit* attacker, struct BattleUnit*
 			break;
 #endif
 
+#if (defined(SID_DragonSkinPlus) && (COMMON_SKILL_VALID(SID_DragonSkinPlus)))
+		case SID_DragonSkinPlus:
+			GetBaseDmg(attacker)->decrease += DAMAGE_DECREASE(SKILL_EFF0(SID_DragonSkinPlus));
+			break;
+#endif
+
 #if (defined(SID_BeastAssault) && (COMMON_SKILL_VALID(SID_BeastAssault)))
 		case SID_BeastAssault:
 			GetBaseDmg(attacker)->decrease += DAMAGE_DECREASE(SKILL_EFF0(SID_BeastAssault));

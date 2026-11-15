@@ -179,6 +179,12 @@ STATIC_DECLAR void BattleCalcReal_ComputSkills(struct BattleUnit *attacker, stru
         attacker->battleEffectiveHitRate = 100;
 #endif
 
+#if (defined(SID_DragonSkin) && (COMMON_SKILL_VALID(SID_DragonSkin)))
+    /* Dragon Skin's price for halving the damage its holder takes: every hit on the holder lands (not Dragon Skin+) */
+    if (BattleFastSkillTester(defender, SID_DragonSkin))
+        attacker->battleEffectiveHitRate = 100;
+#endif
+
 #if (defined(SID_Seer) && (COMMON_SKILL_VALID(SID_Seer)))
     if (BattleFastSkillTester(attacker, SID_Seer))
     {

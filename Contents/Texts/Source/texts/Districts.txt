@@ -932,3 +932,17 @@ Pair Up[X]
 Pair Up:[N]
 Join an adjacent ally, before the[N]
 story teaches the whole army.[X]
+## MSG_TUTORIAL_DISTRICTS
+Serafew's district is now open![A][N]
+Select its node on the world map[N]
+and choose Enter District.[A][N]
+In a district you can play games,[N]
+take on the guild's quests and[N]
+meet the townsfolk.[A][N]
+More districts open as the story[N]
+goes on.[A][X]
+## MSG_SKILL_DragonSkinPlus_NAME
+Dragon Skin+[X]
+## MSG_SKILL_DragonSkinPlus_DESC
+Dragon Skin+:[N]
+Halve damage taken.[X]

@@ -17,6 +17,7 @@ What it checks:
               points each way.
   featured    (Serafew) with the story on Chapter 8, the Tower Stack quest tops the board and pays 15 + 15 tokens.
   worldmap    (Serafew) the world map, reached through the district's gate: the visit keeps the story chapter;
+              the first visit shows the districts notice (once: its flag is set);
               Enter District loads Serafew from a plain node and from the story chapter's node; locked, the row is
               gone; an unlocked district's node has the green flag (map and minimap); travelling to the story node starts Chapter 6.
   stubs       (Serafew) the stub story chapters: from Chapter 10 the lord
@@ -145,6 +146,7 @@ CLASS_REVENANT = 0x52  # gGMData (the world map's units, nodes and cursor)
 CHAPTER_02, CHAPTER_05, CHAPTER_06 = 0x02, 0x06, 0x07  # include/jester_headers/maps.h
 WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS = 5, 6  # FE-CLib constants/worldmap.h
 DISTRICT_SERAFEW_FLAG = 0x90  # GLOBAL_FLAG_DISTRICT_SERAFEW (include/jester_headers/custom-structs.h)
+DISTRICT_NOTICE_FLAG = 0xA5  # GLOBAL_FLAG_DISTRICT_TUTORIAL: the world map's "districts are open" notice was shown
 DISTRICT_PORT_KIRIS_FLAG = 0x91  # GLOBAL_FLAG_DISTRICT_PORT_KIRIS
 WM_NODES = 0x1D  # the world map's nodes (NODE_MAX)
 WM_PATH_DATA = 0x08206674  # gWMPathData: 12 bytes a path, its two nodes at +4
@@ -625,19 +627,23 @@ class Smoke:
         self.check("life: %d townsfolk stand on their spots" % len(want), want and not bad,
                    "wrong: %s" % bad if bad else ", ".join("%#x at %s" % (p, xy) for p, xy in want.items()))
 
-    def worldmap_idle(self, rom, d):
+    def worldmap_idle(self, rom, d, notice_seen=True, tag="idle"):
         """Leaves Serafew (its start.ss) for the world map, with the story on Chapter 6 (Adlas Plains), the lord on the
-        Serafew node, nodes 0-5 cleared and Serafew unlocked; saves the idle world map as d/idle.ss. Returns its path and
-        the story chapter read there."""
+        Serafew node, nodes 0-5 cleared and Serafew unlocked; saves the idle world map as d/<tag>.ss. Returns its path and
+        the story chapter read there. With notice_seen, the districts notice (EventScr_Tutorial_DISTRICTS) counts as
+        shown, so the world map is idle; without it, the notice's flag byte is read after the story chapter."""
         story = self.sym["gWmStoryChapter"]
         start = os.path.join(self.out, "Serafew", "start.ss")
         flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        nflag, nbit = PERMANENT_FLAGS + ((DISTRICT_NOTICE_FLAG - 0x65) >> 3), 1 << ((DISTRICT_NOTICE_FLAG - 0x65) & 7)
         # gGMData: the lord's node at +0x11, the nodes' states at +0x30 (4 bytes each; 1 shown and cleared)
         setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
                  "w8 %#x %#x" % (flag, bit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
-        idle = os.path.join(d, "idle.ss")
+        setup += ["w8 %#x %#x" % (nflag, nbit if notice_seen else 0)]
+        idle = os.path.join(d, tag + ".ss")
+        reads = ["r8 %#x" % story] + ([] if notice_seen else ["r8 %#x" % nflag])
         vals = self.run(rom, ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT +
-                        ["save " + idle, "shot idle.png", "r8 %#x" % story], d)
+                        ["save " + idle, "shot %s.png" % tag] + reads, d)
         return idle, vals
 
     def test_worldmap(self, states):
@@ -652,6 +658,12 @@ class Smoke:
             return self.check("worldmap: the world map", False, "no district state or symbols")
         rom, story, override = states["rom"], self.sym["gWmStoryChapter"], self.sym["sWmChapterIdOverride"]
         flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        # The districts notice: the first world map with Serafew open shows it and sets its flag
+        nbit = 1 << ((DISTRICT_NOTICE_FLAG - 0x65) & 7)
+        _, vals = self.worldmap_idle(rom, d, notice_seen=False, tag="notice")
+        self.shot(os.path.join(d, "notice.png"), "world map: the districts notice")
+        self.check("worldmap: the first world map with Serafew open shows the districts notice",
+                   len(vals) == 2 and vals[1] & nbit != 0, "story, notice flag byte %s" % vals)
         idle, vals = self.worldmap_idle(rom, d)
         self.shot(os.path.join(d, "idle.png"), "world map after a district")
         if not self.check("worldmap: leaving a district keeps the story chapter", vals == [CHAPTER_06],
@@ -775,7 +787,7 @@ class Smoke:
     def test_wmsave(self, states):
         """A game save made from the world map (test_worldmap's state, with Port Kiris unlocked too): the general
         menu's Save, a soft reset and Restart Chapter bring back the story chapter, the lord's node, the unlocked
-        districts and the nodes' states; Enter District then loads Serafew. The game boots first, so that SRAM is set up
+        districts, the nodes' states and the districts notice's flag; Enter District then loads Serafew. The game boots first, so that SRAM is set up
         (a save state does not hold it, and a reset finds an unset SRAM empty)."""
         d = os.path.join(self.out, "WorldMapSave")
         os.makedirs(d, exist_ok=True)
@@ -787,12 +799,14 @@ class Smoke:
         flags = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3)
         bits = (1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)) | (1 << ((DISTRICT_PORT_KIRIS_FLAG - 0x65) & 7))
         assert (DISTRICT_PORT_KIRIS_FLAG - 0x65) >> 3 == flags - PERMANENT_FLAGS
+        nflag, nbit = PERMANENT_FLAGS + ((DISTRICT_NOTICE_FLAG - 0x65) >> 3), 1 << ((DISTRICT_NOTICE_FLAG - 0x65) & 7)
         node = lambda n: GM_DATA + 0x30 + 4 * n
         setup = ["w8 %#x %#x" % (story, CHAPTER_06), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW),
                  "w8 %#x %#x" % (flags, bits)] + ["w8 %#x 1" % node(n) for n in range(6)]
+        setup += ["w8 %#x %#x" % (nflag, nbit)]  # the districts notice already seen: the world map stays idle
         reads = ["r8 %#x" % CHAPTER, "r8 %#x" % story, "r8 %#x" % (GM_DATA + 0x11), "r8 %#x" % flags] + \
-            ["r8 %#x" % node(n) for n in range(WM_NODES)]
-        wipe = ["w8 %#x 0" % a for a in (story, GM_DATA + 0x11, flags)] + ["w8 %#x 0" % node(n) for n in range(WM_NODES)]
+            ["r8 %#x" % node(n) for n in range(WM_NODES)] + ["r8 %#x" % nflag]
+        wipe = ["w8 %#x 0" % a for a in (story, GM_DATA + 0x11, flags, nflag)] + ["w8 %#x 0" % node(n) for n in range(WM_NODES)]
         x, y = struct.unpack_from("<hh", open(rom, "rb").read(), WM_NODE_DATA - 0x08000000 + WM_NODE_SERAFEW * 0x20 + 0x18)
         # Restart Chapter, the first slot; then the cursor on Serafew, A (the node menu), A (Enter District)
         lines = ["wait 600", "load " + start, "wait 30"] + setup + LEAVE_DISTRICT + reads + WM_SAVE + ["shot saved.png"]
@@ -819,6 +833,8 @@ class Smoke:
         self.check("wmsave: the nodes' states come back (%d nodes)" % WM_NODES, not bad,
                    "different: %s" % [(i, pre[4 + i], post[4 + i]) for i in bad] if bad else
                    "shown: %s" % [i for i in range(WM_NODES) if pre[4 + i] & 1])
+        self.check("wmsave: the districts notice stays seen (its flag comes back)", post[-1] & nbit != 0,
+                   "notice flag byte %#x" % post[-1])
         self.check("wmsave: Enter District after the load loads the district",
                    enter == [DISTRICTS["Serafew"][0], 0], "chapter, override %s" % enter)
 
