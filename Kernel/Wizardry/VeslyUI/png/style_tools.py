@@ -130,6 +130,72 @@ BATTLE_SCROLLWORK = (
     + [battle_tile(c, 3) for c in [0, 1] + list(range(3, 16))]
 )
 
+# The map battle box (Img_MapBattleInfoBox, 16 tiles wide), shown when battle animations are off. Its palette is in
+# the menu palette's order. Its frame is inset 7 pixels, so the corner tiles hold the frame's outermost pixels.
+MAPBOX_CORNERS = {0x01: "TL", 0x05: "TR", 0x09: "BL", 0x0D: "BR"}
+MAPBOX_COPIES = {0x06: 0x03, 0x07: 0x03, 0x08: 0x03}    # crest on the top bar -> plain top bar
+# Its insides are drawn flat: the shaded band behind the names (light fill 6 and 7 in tiles 0x13-0x15) and the
+# highlight down the left of each HP strip (9 in tiles 0x1A and 0x1E) become the plain fill, and the texture stays off
+# the name panels' and HP strips' fill colours (5 and 10).
+MAPBOX_FLATTEN = {0x13: {6: 5, 7: 5}, 0x14: {6: 5, 7: 5}, 0x15: {6: 5, 7: 5}, 0x1A: {9: 10}, 0x1E: {9: 10}}
+MAPBOX_PLAIN_TILES = [0x0F, 0x12, 0x13, 0x14, 0x15, 0x17, 0x18, 0x1A, 0x1B, 0x1E]
+MAPBOX_PLAIN_FILL = (5, 10)
+# Where the divider between the two halves crosses the line under the names, the redraw leaves a stub: the divider's
+# pixels there and the HP strip's first row take the row next to them, so the divider runs straight.
+# (tile, row) -> (source row, first column, end column).
+MAPBOX_ROW_COPIES = {(0x18, 7): (6, 0, 2), (0x1E, 0): (1, 0, 8)}
+# The divider between the two halves is one pixel wide all the way down, in the colour the redraw gives it beside the
+# HP strip: tiles 0x17 (below the top line) and 0x18 beside the names, 0x1E beside the HP strip.
+MAPBOX_DIVIDER = {0x17: range(1, 8), 0x18: range(0, 8), 0x1E: range(0, 8)}
+
+
+def flatten_tiles(image, changes):
+    """Recolours pixels of whole tiles: changes maps tile -> {old index: new index}."""
+    px = image.load()
+    wide = image.width // 8
+    for t, remap in changes.items():
+        tx, ty = (t % wide) * 8, (t // wide) * 8
+        for y in range(8):
+            for x in range(8):
+                px[tx + x, ty + y] = remap.get(px[tx + x, ty + y], px[tx + x, ty + y])
+
+
+def copy_tile_rows(image, copies):
+    """Copies part of a tile's row over another row: copies maps (tile, row) -> (source row, first column, end column)."""
+    px = image.load()
+    wide = image.width // 8
+    for (t, row), (src, first, end) in copies.items():
+        tx, ty = (t % wide) * 8, (t // wide) * 8
+        for x in range(first, end):
+            px[tx + x, ty + row] = px[tx + x, ty + src]
+
+
+def thin_divider(image):
+    """Draws the divider as a one-pixel line in column 0 of MAPBOX_DIVIDER's tiles; column 1 takes column 2's colour.
+    Above the line, the top edge (tile 0x17's first row) runs on without the old divider's cap."""
+    px = image.load()
+    wide = image.width // 8
+    colour = px[(0x1E % wide) * 8, (0x1E // wide) * 8 + 1]
+    tx, ty = (0x17 % wide) * 8, (0x17 // wide) * 8
+    px[tx, ty] = px[tx + 1, ty] = px[tx + 2, ty]
+    for t, rows in MAPBOX_DIVIDER.items():
+        tx, ty = (t % wide) * 8, (t // wide) * 8
+        for y in rows:
+            px[tx, ty + y] = colour
+            px[tx + 1, ty + y] = px[tx + 2, ty + y]
+
+
+def tile_pixels(image, tiles, values):
+    """The pixels of the given tiles whose index is in values."""
+    px = image.load()
+    wide = image.width // 8
+    found = set()
+    for t in tiles:
+        tx, ty = (t % wide) * 8, (t // wide) * 8
+        found |= {(tx + x, ty + y) for y in range(8) for x in range(8) if px[tx + x, ty + y] in values}
+    return found
+
+
 # Interchangeable beam and edge tiles. For styles with edge details, the
 # DrawUiFrame replacement in C_Code.c picks among these by position, so the
 # details along a long frame don't fall in a regular rhythm. The lists must
@@ -458,6 +524,7 @@ def build_style(style):
         ("LeftItem", battle[0], "ui", BATTLE_ORDER),
         ("Right", battle[0], "ui", BATTLE_ORDER),
         ("RightItem", battle[0], "ui", BATTLE_ORDER),
+        ("MapBattleBox", menu[0], "ui", menu_order, MAPBOX_CORNERS, MAPBOX_COPIES),
     ]
     for name, palette, kind, order, *tiles in jobs:
         image = Image.open(os.path.join(VANILLA, f"Vanilla_{name}.png")).copy()
@@ -465,7 +532,13 @@ def build_style(style):
         if order is not None:
             # Redraw in menu palette order, then map back to the image's own.
             image.putdata([order[i] for i in image.tobytes()])
+            if name == "MapBattleBox":
+                flatten_tiles(image, MAPBOX_FLATTEN)
             keep = redraw_frame(image, style, *tiles)
+            if name == "MapBattleBox":
+                copy_tile_rows(image, MAPBOX_ROW_COPIES)
+                thin_divider(image)
+                keep |= tile_pixels(image, MAPBOX_PLAIN_TILES, MAPBOX_PLAIN_FILL)
             image.putdata([order.index(i) for i in image.tobytes()])
         style.texture(image, kind, keep)
         save(image, palette, out(f"{name}.png"))

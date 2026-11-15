@@ -10,3 +10,6 @@ int UiStyle_Count(void);
 const char *UiStyle_Name(int id);
 const char *UiStyle_Desc(int id);
 int UiStyle_GetUiId(void);	/* the VeslyUI style ID (GetUI_id) */
+
+/* VeslyUI: the map battle box (animations off) in the UI style's colours, over palette palId (Kernel/Wizardry/VeslyUI) */
+void ApplyMapBattleInfoStylePalette(struct Unit *unit, int palId);

@@ -156,6 +156,9 @@ Img_PlayStatusSprites_Wood: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Wood:
 #incbin "png/Wood/Wood_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Wood: // map battle box, battle animations off
+#incext Png2Dmp "png/Wood/Wood_MapBattleBox.png" --lz77
 
 
 // TECH (png/Tech/generate_tech.py builds these from png/Vanilla)
@@ -207,6 +210,9 @@ Img_PlayStatusSprites_Tech: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Tech:
 #incbin "png/Tech/Tech_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Tech: // map battle box, battle animations off
+#incext Png2Dmp "png/Tech/Tech_MapBattleBox.png" --lz77
 
 
 // ROYAL (png/Royal/generate_royal.py builds these from png/Vanilla)
@@ -258,6 +264,9 @@ Img_PlayStatusSprites_Royal: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Royal:
 #incbin "png/Royal/Royal_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Royal: // map battle box, battle animations off
+#incext Png2Dmp "png/Royal/Royal_MapBattleBox.png" --lz77
 
 
 // GLASS (png/Glass/generate_glass.py builds these from png/Vanilla)
@@ -309,6 +318,9 @@ Img_PlayStatusSprites_Glass: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Glass:
 #incbin "png/Glass/Glass_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Glass: // map battle box, battle animations off
+#incext Png2Dmp "png/Glass/Glass_MapBattleBox.png" --lz77
 
 
 // PAPER (png/Paper/generate_paper.py builds these from png/Vanilla)
@@ -360,6 +372,9 @@ Img_PlayStatusSprites_Paper: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Paper:
 #incbin "png/Paper/Paper_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Paper: // map battle box, battle animations off
+#incext Png2Dmp "png/Paper/Paper_MapBattleBox.png" --lz77
 
 
 // OCEAN (png/Ocean/generate_ocean.py builds these from png/Vanilla)
@@ -411,6 +426,9 @@ Img_PlayStatusSprites_Ocean: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Ocean:
 #incbin "png/Ocean/Ocean_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Ocean: // map battle box, battle animations off
+#incext Png2Dmp "png/Ocean/Ocean_MapBattleBox.png" --lz77
 
 
 // FOREST (png/Forest/generate_forest.py builds these from png/Vanilla)
@@ -462,6 +480,9 @@ Img_PlayStatusSprites_Forest: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Forest:
 #incbin "png/Forest/Forest_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Forest: // map battle box, battle animations off
+#incext Png2Dmp "png/Forest/Forest_MapBattleBox.png" --lz77
 
 
 
@@ -514,6 +535,9 @@ Img_PlayStatusSprites_Parchment: // chapter status banner and playtime box
 ALIGN 4
 Pal_PlayStatusSprites_Parchment:
 #incbin "png/Parchment/Parchment_PlayStatusPal.pal"
+ALIGN 4
+Img_MapBattleBox_Parchment: // map battle box, battle animations off
+#incext Png2Dmp "png/Parchment/Parchment_MapBattleBox.png" --lz77
 
 
 // PIKMIN
