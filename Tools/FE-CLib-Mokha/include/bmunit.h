@@ -491,7 +491,8 @@ void UnitRemoveItem(struct Unit* unit, int slot);
 #define UNIT_SPD_MAX(aUnit) ((aUnit)->pClassData->maxSpd)
 #define UNIT_DEF_MAX(aUnit) ((aUnit)->pClassData->maxDef)
 #define UNIT_RES_MAX(aUnit) ((aUnit)->pClassData->maxRes)
-#define UNIT_LCK_MAX(aUnit) (30)
+extern const u8 gClassLuckCap[0x100];
+#define UNIT_LCK_MAX(aUnit) (gClassLuckCap[(aUnit)->pClassData->number] ? gClassLuckCap[(aUnit)->pClassData->number] : 30) /* per class: Data/MaxStatus/ClassLuckCap.c */
 #define UNIT_CON_MAX(aUnit) ((aUnit)->pClassData->maxCon)
 #define UNIT_MOV_MAX(aUnit) (15)
 

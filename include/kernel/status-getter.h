@@ -65,6 +65,7 @@ struct UnitMaxStatusConfig {
 };
 
 extern const struct UnitMaxStatusConfig gUnitMaxStatusConfigTable[0x100];
+extern const u8 gClassLuckCap[0x100]; /* each class's Luck cap, 0 = 30 (Data/MaxStatus/ClassLuckCap.c) */
 extern struct UnitMaxStatusConfig const * const gpUnitMaxStatusConfigTable;
 
 int GetUnitMaxStatusHp(struct Unit *unit);
