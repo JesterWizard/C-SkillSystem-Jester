@@ -946,3 +946,33 @@ Dragon Skin+[X]
 ## MSG_SKILL_DragonSkinPlus_DESC
 Dragon Skin+:[N]
 Halve damage taken.[X]
+## MSG_SKILL_BlackMagicSeeker_NAME
+Black-Magic Seeker[X]
+## MSG_SKILL_BlackMagicSeeker_DESC
+Black-Magic Seeker:[N]
+Multiplies black magic[N]
+uses by 2.[X]
+## MSG_SKILL_WhiteMagicSeeker_NAME
+White-Magic Seeker[X]
+## MSG_SKILL_WhiteMagicSeeker_DESC
+White-Magic Seeker:[N]
+Multiplies white magic[N]
+uses by 2.[X]
+## MSG_SKILL_WhiteMagicZenith_NAME
+White-Magic Zenith[X]
+## MSG_SKILL_WhiteMagicZenith_DESC
+White-Magic Zenith:[N]
+Multiplies white magic[N]
+uses by 3.[X]
+## MSG_SKILL_AllMagicSeeker_NAME
+Seeker of All Magic[X]
+## MSG_SKILL_AllMagicSeeker_DESC
+Seeker of All Magic:[N]
+Multiplies black and white[N]
+magic uses by 2.[X]
+## MSG_SKILL_AllMagicZenith_NAME
+All-Magic Zenith[X]
+## MSG_SKILL_AllMagicZenith_DESC
+All-Magic Zenith:[N]
+Multiplies black and white[N]
+magic uses by 3.[X]

@@ -87,6 +87,46 @@ STATIC_DECLAR void RemoveGaidenMagicUsesOfUnit(struct Unit *unit)
 	}
 }
 
+/*
+ * How many times a spell's uses are multiplied: the class bonus (x2) or the unit's Seeker (x2) and Zenith (x3)
+ * skills, whichever is highest; they do not stack. White magic is staves, black magic every other spell.
+ */
+STATIC_DECLAR int GetGaidenMagicUsesMultiplier(struct Unit *unit, bool white, int bonus)
+{
+	int mult = 1;
+
+	if (bonus & (white ? GAIDEN_MAGIC_USES_WMAG_X2 : GAIDEN_MAGIC_USES_BMAG_X2))
+		mult = 2;
+
+#if defined(SID_AllMagicZenith) && (COMMON_SKILL_VALID(SID_AllMagicZenith))
+	if (SkillTester(unit, SID_AllMagicZenith))
+		return 3;
+#endif
+
+	if (white) {
+#if defined(SID_WhiteMagicZenith) && (COMMON_SKILL_VALID(SID_WhiteMagicZenith))
+		if (SkillTester(unit, SID_WhiteMagicZenith))
+			return 3;
+#endif
+#if defined(SID_WhiteMagicSeeker) && (COMMON_SKILL_VALID(SID_WhiteMagicSeeker))
+		if (SkillTester(unit, SID_WhiteMagicSeeker))
+			mult = 2;
+#endif
+	} else {
+#if defined(SID_BlackMagicSeeker) && (COMMON_SKILL_VALID(SID_BlackMagicSeeker))
+		if (SkillTester(unit, SID_BlackMagicSeeker))
+			mult = 2;
+#endif
+	}
+
+#if defined(SID_AllMagicSeeker) && (COMMON_SKILL_VALID(SID_AllMagicSeeker))
+	if (SkillTester(unit, SID_AllMagicSeeker))
+		mult = 2;
+#endif
+
+	return mult;
+}
+
 int GetGaidenMagicMaxUses(struct Unit *unit, int item)
 {
 	int uses = gGaidenMagicUsesList[ITEM_INDEX(item)];
@@ -104,14 +144,7 @@ int GetGaidenMagicMaxUses(struct Unit *unit, int item)
 		return GAIDEN_MAGIC_USES_INFINITE;
 
 	bonus = gGaidenMagicClassUsesBonus[UNIT_CLASS_ID(unit)];
-
-	if (GetItemType(item) == ITYPE_STAFF) {
-		if (bonus & GAIDEN_MAGIC_USES_WMAG_X2)
-			uses *= 2;
-	} else {
-		if (bonus & GAIDEN_MAGIC_USES_BMAG_X2)
-			uses *= 2;
-	}
+	uses *= GetGaidenMagicUsesMultiplier(unit, GetItemType(item) == ITYPE_STAFF, bonus);
 
 	if (uses >= GAIDEN_MAGIC_USES_INFINITE)
 		uses = GAIDEN_MAGIC_USES_INFINITE - 1;

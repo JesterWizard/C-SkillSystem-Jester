@@ -935,5 +935,10 @@
 #define SID_DeepRoots 0x3A2
 #define SID_PairUp 0x3A3
 #define SID_DragonSkinPlus 0x3A4
+#define SID_BlackMagicSeeker 0x3A5
+#define SID_WhiteMagicSeeker 0x3A6
+#define SID_WhiteMagicZenith 0x3A7
+#define SID_AllMagicSeeker 0x3A8
+#define SID_AllMagicZenith 0x3A9
 
 #endif /* SKILLS_EVENT */

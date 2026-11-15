@@ -968,3 +968,8 @@
 #define MSG_SKILL_DeepRoots_PRICE 1000
 #define MSG_SKILL_PairUp_PRICE 1000
 #define MSG_SKILL_DragonSkinPlus_PRICE 1000
+#define MSG_SKILL_BlackMagicSeeker_PRICE 1000
+#define MSG_SKILL_WhiteMagicSeeker_PRICE 1000
+#define MSG_SKILL_WhiteMagicZenith_PRICE 1000
+#define MSG_SKILL_AllMagicSeeker_PRICE 1000
+#define MSG_SKILL_AllMagicZenith_PRICE 1000

@@ -968,3 +968,8 @@
 #define MSG_SKILL_DeepRoots_CAPACITY 1
 #define MSG_SKILL_PairUp_CAPACITY 1
 #define MSG_SKILL_DragonSkinPlus_CAPACITY 1
+#define MSG_SKILL_BlackMagicSeeker_CAPACITY 1
+#define MSG_SKILL_WhiteMagicSeeker_CAPACITY 1
+#define MSG_SKILL_WhiteMagicZenith_CAPACITY 1
+#define MSG_SKILL_AllMagicSeeker_CAPACITY 1
+#define MSG_SKILL_AllMagicZenith_CAPACITY 1
