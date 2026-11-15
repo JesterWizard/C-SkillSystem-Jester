@@ -86,7 +86,7 @@ static void Recap_SnapshotArmy(void)
 	}
 }
 
-/* gRecap's record becomes the newest of the earlier chapters; the oldest one drops out */
+/* gRecap's record becomes the earlier chapter's, replacing the one kept before */
 static void Recap_PushHistory(void)
 {
 	int i;
@@ -307,7 +307,7 @@ static void Recap_AddScene(struct ProcRecap *proc, int kind, int pid, int bg, in
 	proc->total++;
 }
 
-/* Record n: 0 is the chapter recorded last (gRecap), 1-3 the ones before it (gRecapHistory), or NULL */
+/* Record n: 0 is the chapter recorded last (gRecap), 1 the one before it (gRecapHistory), or NULL */
 static const struct RecapData *Recap_Record(int n)
 {
 	if (n == 0)

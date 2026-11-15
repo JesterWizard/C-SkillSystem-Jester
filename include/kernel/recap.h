@@ -49,11 +49,11 @@ struct RecapState {
 
 extern struct RecapState gRecap;
 
-#define RECAP_HISTORY       3          /* earlier story chapters kept to fill the recap */
+#define RECAP_HISTORY       1          /* earlier story chapters kept to fill the recap: the one before */
 #define RECAP_HISTORY_MAGIC 0x31484352 /* "RCH1" */
 
-/* The records of the story chapters before gRecap's, newest first (chapter[0] is the one just before). In RAM and in the
- * tail of every game save and of the suspend save (SaveTail.c), after the chapter intro's share: 0x4C bytes */
+/* The record of the story chapter before gRecap's (chapter[0]). In RAM and in the tail of every game save and of the
+ * suspend save (SaveTail.c), after the chapter intro's share: 0x1C bytes */
 struct RecapHistory {
 	/* 00 */ u32 magic;
 	/* 04 */ struct RecapData chapter[RECAP_HISTORY]; /* magic 0: none */

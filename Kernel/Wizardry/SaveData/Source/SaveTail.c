@@ -9,7 +9,7 @@
 /*
  * The bytes after the save tables (gpMsa_Saver, gpMsa_Loader, gpMsu_Saver, gpMsu_Loader in Preload/Reloc.event): New
  * Game+'s, then the Bestiary's, then the Skill Codex's, then the recap's, then the chapter intro's, then the recap's
- * earlier chapters, in the game save and in the suspend save. These bytes are not a chunk, so using them changes
+ * earlier chapter, in the game save and in the suspend save. These bytes are not a chunk, so using them changes
  * neither the save layout nor its signature; a save written before a feature took its share has no magic there, and
  * the feature reads nothing from it.
  *

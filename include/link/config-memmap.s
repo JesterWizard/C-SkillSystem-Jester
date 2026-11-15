@@ -428,8 +428,8 @@ _kernel_malloc2 gChapterIntroExtra, 4
 /* The battle HUD's "x2"/"x4" badge: each side's strikes per exchange (struct DoubleBadge, double-badge.h). RAM only. */
 _kernel_malloc2 gDoubleBadge, 4
 
-/* The recap's earlier chapters (struct RecapHistory, include/kernel/recap.h); also a save-tail share */
-_kernel_malloc2 gRecapHistory, 0x4C
+/* The recap's earlier chapter (struct RecapHistory, include/kernel/recap.h); also a save-tail share */
+_kernel_malloc2 gRecapHistory, 0x1C
 
 /*
  * The VC2 voice stream (Kernel/Wizardry/VoiceStream): the ring the m4a mixer plays and the decoder's state. In the

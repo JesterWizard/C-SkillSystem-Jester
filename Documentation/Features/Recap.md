@@ -7,8 +7,8 @@ or B skips the rest.
 ## What it shows
 
 Up to four scenes, all shown oldest first. They come from the last story chapter recorded. When that chapter has fewer
-than four, the latest scenes of the story chapters before it fill the rest (up to three earlier chapters are kept, see
-Recording). A new game has no earlier chapters, so it shows only its own. A chapter's scenes, in the order they
+than four, the latest scenes of the story chapter before it fill the rest (only that one is kept, see Recording). A new
+game has no earlier chapter, so it shows only its own. A chapter's scenes, in the order they
 happened:
 
 | Scene | Picture | Summary |
@@ -41,8 +41,8 @@ A chapter with no background in its opening or ending shows fewer scenes; a save
 - Joins: the army (blue characters 1-0x3F, alive) at each background, against the army when the recap started. Not in
   the prologue, where the lords arrive.
 - A district visit is not a story chapter: it neither starts nor adds to the recap.
-- Earlier chapters: when a story chapter starts, the record of the chapter before it moves into `gRecapHistory`
-  (`chapter[0]`, newest first; 3 kept, the oldest drops out). A new game (the prologue starting) clears it. Restarting
+- The earlier chapter: when a story chapter starts, the record of the chapter before it moves into `gRecapHistory`
+  (`chapter[0]`, replacing the one kept before). A new game (the prologue starting) clears it. Restarting
   the same chapter does not add it twice.
 
 ## Showing
@@ -63,8 +63,8 @@ with the army snapshot and the pending flag) and in the tail of every game save 
 (`Kernel/Wizardry/SaveData/Source/SaveTail.c`, after the Skill Codex's share). The tail is not a save chunk, so the save
 layout and its signature do not change; an older save has no recap until it is saved again.
 
-`struct RecapHistory` (0x4C bytes, magic `RCH1` = `0x31484352`, `include/kernel/recap.h`) holds the records of the
-earlier story chapters, newest first, in RAM (`gRecapHistory`, `include/link/config-memmap.s`, a `_kernel_malloc2`
+`struct RecapHistory` (0x1C bytes, magic `RCH1` = `0x31484352`, `include/kernel/recap.h`) holds the record of the
+story chapter before the last one, in RAM (`gRecapHistory`, `include/link/config-memmap.s`, a `_kernel_malloc2`
 line). It is a save-tail share after the chapter intro's share, in the game save and in the suspend save
 (`Recap_SaveHistoryTail` and `Recap_LoadHistoryTail`, `SaveTail.c`). It is not a save chunk either. An older save has no
 history (its magic is missing), so the recap then shows the last chapter's scenes only.
