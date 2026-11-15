@@ -86,11 +86,34 @@ static void Recap_SnapshotArmy(void)
 	}
 }
 
+/* gRecap's record becomes the earlier chapter's, replacing the one kept before */
+static void Recap_PushHistory(void)
+{
+	int i;
+
+	if (gRecapHistory.magic != RECAP_HISTORY_MAGIC) {
+		CpuFill16(0, &gRecapHistory, sizeof(gRecapHistory));
+		gRecapHistory.magic = RECAP_HISTORY_MAGIC;
+	}
+
+	for (i = RECAP_HISTORY - 1; i > 0; i--)
+		gRecapHistory.chapter[i] = gRecapHistory.chapter[i - 1];
+	gRecapHistory.chapter[0] = gRecap.data;
+}
+
 /* The chapter's opening starts (CallBeginningEvents): a new recap, but for a district */
 static void Recap_Start(void)
 {
 	if (District_IsDistrictChapter(gPlaySt.chapterIndex))
 		return;
+
+	/* A new game starts with no history; otherwise the record ending now becomes the newest earlier chapter */
+	if (gPlaySt.chapterIndex == 0) {
+		CpuFill16(0, &gRecapHistory, sizeof(gRecapHistory));
+	} else if (gRecap.data.magic == RECAP_MAGIC && gRecap.data.chapter != gPlaySt.chapterIndex &&
+		 !(gRecapHistory.magic == RECAP_HISTORY_MAGIC && gRecapHistory.chapter[0].magic == RECAP_MAGIC &&
+		   gRecapHistory.chapter[0].chapter == gRecap.data.chapter))
+		Recap_PushHistory();
 
 	CpuFill16(0, &gRecap, sizeof(gRecap));
 	gRecap.data.magic = RECAP_MAGIC;
@@ -238,6 +261,25 @@ void Recap_LoadTail(u8 *src, const u32 size)
 	Recap_SnapshotArmy();
 }
 
+void Recap_SaveHistoryTail(u8 *dst, const u32 size)
+{
+	if (size < sizeof(struct RecapHistory))
+		return;
+
+	WriteAndVerifySramFast(&gRecapHistory, dst, sizeof(struct RecapHistory));
+}
+
+void Recap_LoadHistoryTail(u8 *src, const u32 size)
+{
+	CpuFill16(0, &gRecapHistory, sizeof(gRecapHistory));
+	if (src == NULL || size < sizeof(struct RecapHistory))
+		return;
+
+	ReadSramFast(src, &gRecapHistory, sizeof(struct RecapHistory));
+	if (gRecapHistory.magic != RECAP_HISTORY_MAGIC)
+		CpuFill16(0, &gRecapHistory, sizeof(gRecapHistory));
+}
+
 /* ---- The screen ---- */
 
 struct ProcRecap {
@@ -247,12 +289,13 @@ struct ProcRecap {
 	/* 2B */ u8 kind[RECAP_SCENES];
 	/* 2F */ u8 pid[RECAP_SCENES];
 	/* 33 */ u8 bg[RECAP_SCENES];
-	/* 37 */ u8 faces;	/* portraits on screen (slots 0 and 1) */
-	/* 38 */ struct Text header;
-	/* 40 */ struct Text lines[RECAP_LINES];
+	/* 37 */ u8 src[RECAP_SCENES];	/* the scene's record: 0 gRecap.data, n gRecapHistory.chapter[n - 1] */
+	/* 3B */ u8 faces;	/* portraits on screen (slots 0 and 1) */
+	/* 3C */ struct Text header;
+	/* 44 */ struct Text lines[RECAP_LINES];
 };
 
-static void Recap_AddScene(struct ProcRecap *proc, int kind, int pid, int bg)
+static void Recap_AddScene(struct ProcRecap *proc, int kind, int pid, int bg, int src)
 {
 	if (proc->total >= RECAP_SCENES)
 		return;
@@ -260,26 +303,81 @@ static void Recap_AddScene(struct ProcRecap *proc, int kind, int pid, int bg)
 	proc->kind[proc->total] = kind;
 	proc->pid[proc->total] = pid;
 	proc->bg[proc->total] = bg;
+	proc->src[proc->total] = src;
 	proc->total++;
 }
 
-/* The scenes, in order: the opening, who died or joined, the ending */
-static void Recap_BuildScenes(struct ProcRecap *proc)
+/* Record n: 0 is the chapter recorded last (gRecap), 1 the one before it (gRecapHistory), or NULL */
+static const struct RecapData *Recap_Record(int n)
 {
-	const struct RecapData *d = &gRecap.data;
-	int i, bg;
+	if (n == 0)
+		return &gRecap.data;
+	if (n > RECAP_HISTORY || gRecapHistory.magic != RECAP_HISTORY_MAGIC ||
+	    gRecapHistory.chapter[n - 1].magic != RECAP_MAGIC)
+		return NULL;
+	return &gRecapHistory.chapter[n - 1];
+}
 
-	proc->total = 0;
-	if (d->openBg != RECAP_NONE)
-		Recap_AddScene(proc, RECAP_OPENING, 0, d->openBg);
+/* A record's scenes, in the order they happened: the opening, who died or joined, the ending. Returns how many */
+static int Recap_ChapterScenes(const struct RecapData *d, u8 *kind, u8 *pid, u8 *bg)
+{
+	int i, n = 0;
 
-	for (i = 0; i < d->unitCount && i < RECAP_UNITS; i++) {
-		bg = d->unitBg[i] != RECAP_NONE ? d->unitBg[i] : d->openBg;
-		Recap_AddScene(proc, d->unitKind[i], d->unitPid[i], bg);
+	if (d->openBg != RECAP_NONE) {
+		kind[n] = RECAP_OPENING;
+		pid[n] = 0;
+		bg[n++] = d->openBg;
 	}
 
-	if (d->endBg != RECAP_NONE)
-		Recap_AddScene(proc, RECAP_ENDING, 0, d->endBg);
+	for (i = 0; i < d->unitCount && i < RECAP_UNITS; i++) {
+		kind[n] = d->unitKind[i];
+		pid[n] = d->unitPid[i];
+		if (d->unitKind[i] == RECAP_JOINED)
+			bg[n++] = RECAP_JOIN_BG;
+		else
+			bg[n++] = d->unitBg[i] != RECAP_NONE ? d->unitBg[i] : d->openBg;
+	}
+
+	if (d->endBg != RECAP_NONE) {
+		kind[n] = RECAP_ENDING;
+		pid[n] = 0;
+		bg[n++] = d->endBg;
+	}
+	return n;
+}
+
+/*
+ * The last RECAP_SCENES scenes, oldest first: the chapter recorded last's, and when it has fewer, the latest ones of
+ * the chapters before it (none before the first chapter recorded).
+ */
+static void Recap_BuildScenes(struct ProcRecap *proc)
+{
+	u8 kind[RECAP_SCENES], pid[RECAP_SCENES], bg[RECAP_SCENES];
+	int take[RECAP_HISTORY + 1];
+	int n, i, need = RECAP_SCENES, last = 0;
+	const struct RecapData *d;
+
+	for (n = 0; n <= RECAP_HISTORY; n++)
+		take[n] = 0;
+
+	for (n = 0; n <= RECAP_HISTORY && need > 0; n++) {
+		d = Recap_Record(n);
+		if (!d)
+			break;
+		take[n] = Recap_ChapterScenes(d, kind, pid, bg);
+		if (take[n] > need)
+			take[n] = need;
+		need -= take[n];
+		last = n;
+	}
+
+	proc->total = 0;
+	for (n = last; n >= 0; n--) {
+		int count = Recap_ChapterScenes(Recap_Record(n), kind, pid, bg);
+
+		for (i = count - take[n]; i < count; i++)
+			Recap_AddScene(proc, kind[i], pid[i], bg[i], n);
+	}
 }
 
 /* dst gets src appended, within max bytes (with the end); returns dst's new length */
@@ -310,7 +408,7 @@ static void Recap_Summary(struct ProcRecap *proc, char *buf, int max)
 	switch (proc->kind[i]) {
 	case RECAP_OPENING:
 	case RECAP_ENDING:
-		msg = Recap_ChapterMsg(gRecap.data.chapter, proc->kind[i] == RECAP_ENDING);
+		msg = Recap_ChapterMsg(Recap_Record(proc->src[i])->chapter, proc->kind[i] == RECAP_ENDING);
 		if (msg == 0)
 			msg = proc->kind[i] == RECAP_ENDING ? MSG_RECAP_ENDING : MSG_RECAP_OPENING;
 		Recap_Append(buf, 0, GetStringFromIndex(msg), max);
@@ -522,12 +620,12 @@ static void Recap_DrawScene(struct ProcRecap *proc)
 	switch (proc->kind[i]) {
 	case RECAP_OPENING:
 		if (!Recap_IsMultiPalBg(proc->bg[i]))
-			Recap_PutSpeakers(proc, gRecap.data.openFace);
+			Recap_PutSpeakers(proc, Recap_Record(proc->src[i])->openFace);
 		break;
 
 	case RECAP_ENDING:
 		if (!Recap_IsMultiPalBg(proc->bg[i]))
-			Recap_PutSpeakers(proc, gRecap.data.endFace);
+			Recap_PutSpeakers(proc, Recap_Record(proc->src[i])->endFace);
 		break;
 
 	case RECAP_DIED:
@@ -638,9 +736,13 @@ int CallBeginningEvents(void)
 
 static int Recap_SceneCount(void)
 {
-	const struct RecapData *d = &gRecap.data;
+	u8 kind[RECAP_SCENES], pid[RECAP_SCENES], bg[RECAP_SCENES];
+	const struct RecapData *d;
+	int n, total = 0;
 
-	return (d->openBg != RECAP_NONE) + d->unitCount + (d->endBg != RECAP_NONE);
+	for (n = 0; n <= RECAP_HISTORY && (d = Recap_Record(n)); n++)
+		total += Recap_ChapterScenes(d, kind, pid, bg);
+	return total;
 }
 
 /*

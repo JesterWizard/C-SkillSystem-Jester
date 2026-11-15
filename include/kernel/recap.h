@@ -3,12 +3,13 @@
 #include "common-chax.h"
 
 /*
- * "Previously on your quest..." (Kernel/Wizardry/Recap): the key scenes of the last story chapter, shown in greyscale
- * when a game save or a suspend is loaded. See Documentation/Features/Recap.md.
+ * "Previously on your quest..." (Kernel/Wizardry/Recap): the last story chapters' key scenes, up to four, shown in
+ * greyscale when a game save or a suspend is loaded. See Documentation/Features/Recap.md.
  */
 
 #define RECAP_MAGIC  0x32504352 /* "RCP2" (0x18 bytes; "RCAP" was the 0x10-byte first form) */
 #define RECAP_NONE   0xFF       /* no background */
+#define RECAP_JOIN_BG 0x18 /* behind a recruit: the grassland Chapter 3 opens with (not the CG of the moment) */
 #define RECAP_UNITS  2          /* characters who died or joined */
 #define RECAP_SCENES (2 + RECAP_UNITS)
 #define RECAP_FACES  2          /* portraits shown with the opening and with the ending */
@@ -48,6 +49,18 @@ struct RecapState {
 
 extern struct RecapState gRecap;
 
+#define RECAP_HISTORY       1          /* earlier story chapters kept to fill the recap: the one before */
+#define RECAP_HISTORY_MAGIC 0x31484352 /* "RCH1" */
+
+/* The record of the story chapter before gRecap's (chapter[0]). In RAM and in the tail of every game save and of the
+ * suspend save (SaveTail.c), after the chapter intro's share: 0x1C bytes */
+struct RecapHistory {
+	/* 00 */ u32 magic;
+	/* 04 */ struct RecapData chapter[RECAP_HISTORY]; /* magic 0: none */
+};
+
+extern struct RecapHistory gRecapHistory;
+
 /* The story summaries: { chapter, opening message, ending message }, ends with chapter 0xFF (Kernel/Wizardry/Recap) */
 struct RecapChapterText {
 	u8 chapter;
@@ -63,4 +76,6 @@ void Recap_NoteFace(int fid);
 bool Recap_PrePhase(ProcPtr proc);
 void Recap_SaveTail(u8 *dst, const u32 size);
 void Recap_LoadTail(u8 *src, const u32 size);
+void Recap_SaveHistoryTail(u8 *dst, const u32 size);
+void Recap_LoadHistoryTail(u8 *src, const u32 size);
 void Recap_PostSaveMenu(ProcPtr proc);
