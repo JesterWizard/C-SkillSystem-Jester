@@ -425,6 +425,9 @@ _kernel_malloc2 gRecap, 0x24
 /* The chapter intro's extra options (struct ChapterIntroExtra, include/kernel/chapter-intro-styles.h). Kept in the saves' tails. */
 _kernel_malloc2 gChapterIntroExtra, 4
 
+/* The battle HUD's "x2"/"x4" badge: each side's strikes per exchange (struct DoubleBadge, double-badge.h). RAM only. */
+_kernel_malloc2 gDoubleBadge, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**

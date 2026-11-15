@@ -1,6 +1,7 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
 #include "battle-system.h"
+#include "double-badge.h"
 #include "jester_headers/custom-arrays.h"
 
 /* Helper function to determine HP bar palette based on current HP */
@@ -258,6 +259,8 @@ void NewEkrGauge(void)
     LoadIconObjectGraphics(GetItemIconId(gpEkrBattleUnitLeft->weaponBefore), 0x1DC);
     LoadIconObjectGraphics(GetItemIconId(gpEkrBattleUnitRight->weaponBefore), 0x1DE);
     ApplyPalette(gPal_MiscUiGraphics, 0x10);
+
+    StartDoubleBadge(gpProcEkrGauge);
 }
 
 //Original
