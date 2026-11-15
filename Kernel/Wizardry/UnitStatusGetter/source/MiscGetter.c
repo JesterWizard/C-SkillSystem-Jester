@@ -7,6 +7,7 @@
 #include "unit-expa.h"
 #include "bmidoten.h"
 #include "event.h"
+#include "exp-bar-styles.h"
 
 int StatusGetterCheckCpas(int status, struct Unit *unit)
 {
@@ -381,6 +382,8 @@ void DisplayBattleInfoBox(struct MAInfoFrameProc* proc, int index, int arg2)
     ApplyPalette(
         GetBattleInfoPalByFaction(gManimSt.actor[index].unit),
         BM_BGPAL_BANIM_IFBACK + index);
+
+    ApplyMapBattleInfoStylePalette(gManimSt.actor[index].unit, BM_BGPAL_BANIM_IFBACK + index);
 
     Decompress(
         TsaSet_MapBattleBoxGfx[gManimSt.actorCount][index], gGenericBuffer);

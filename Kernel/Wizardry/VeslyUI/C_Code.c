@@ -1003,6 +1003,65 @@ const u16 * GetBPal_8802558(void)
     return sBPal_8802558[id];
 }
 
+extern const u8 Img_MapBattleBox_Wood[], Img_MapBattleBox_Tech[], Img_MapBattleBox_Royal[], Img_MapBattleBox_Glass[];
+extern const u8 Img_MapBattleBox_Paper[], Img_MapBattleBox_Ocean[], Img_MapBattleBox_Forest[], Img_MapBattleBox_Parchment[];
+
+/* The map battle box's tiles by style (png/style_tools.py builds them); NULL keeps vanilla's */
+static const u8 *const sMapBattleBoxImg[] = {
+	NULL, NULL, NULL, NULL,
+	Img_MapBattleBox_Wood,
+	Img_MapBattleBox_Tech,
+	Img_MapBattleBox_Royal,
+	Img_MapBattleBox_Glass,
+	Img_MapBattleBox_Paper,
+	Img_MapBattleBox_Ocean,
+	Img_MapBattleBox_Forest,
+	Img_MapBattleBox_Parchment,
+};
+
+/*
+ * The map battle box (battle animations off; DisplayBattleInfoBox, Kernel/Wizardry/UnitStatusGetter/source/MiscGetter.c)
+ * in the UI style: the style's tiles (sMapBattleBoxImg, over vanilla's, which ProcMapInfoBox_OnDraw loaded) and its
+ * colours. The palette is the battle gauge's for the unit's faction with colours 1-4 reordered, so it is built from the
+ * style's gauge palette. Vanilla's style keeps vanilla's palette, as does id 3 (Fenreir), whose gauge palette has a
+ * single faction.
+ */
+void ApplyMapBattleInfoStylePalette(struct Unit *unit, int palId)
+{
+	static const u8 order[5] = { 0, 2, 4, 1, 3 };
+	u16 *dst = gPaletteBuffer + 0x10 * palId;
+	const u16 *src;
+	int id = GetUI_id();
+	int faction, i;
+
+	if (id > 0 && id < (int)ARRAY_COUNT(sMapBattleBoxImg) && sMapBattleBoxImg[id])
+		Decompress(sMapBattleBoxImg[id], (void *)(0x06000020 + GetBackgroundTileDataOffset(1)));
+
+	if (id == 0 || id == 3 || !unit)
+		return;
+
+	switch (UNIT_FACTION(unit)) {
+	case FACTION_RED:
+		faction = 1;
+		break;
+	case FACTION_GREEN:
+		faction = 2;
+		break;
+	case FACTION_PURPLE:
+		faction = 3;
+		break;
+	default:
+		faction = 0;
+		break;
+	}
+
+	src = GetBPal_8802558() + 0x10 * faction;
+	for (i = 0; i < 0x10; i++)
+		dst[i] = src[i < 5 ? order[i] : i];
+
+	EnablePaletteSync();
+}
+
 // extern const u16 gUnknown_08802598[];
 // static const void * sBPal_8802598[] = {
 
