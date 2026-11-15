@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "recap.h"
 #include "kernel-lib.h"
 #include "utf8.h"
 #include "kernel/chatlog.h"
@@ -4734,6 +4735,10 @@ static void TextEngine_LoadFace(ProcPtr parent, int options)
 		if (character)
 			nameTextId = character->nameTextId;
 	}
+
+	/* The recap's speakers (Kernel/Wizardry/Recap): an event's, not a battle quote's */
+	if (!IsBattleDeamonActive())
+		Recap_NoteFace(faceId);
 
 	face = TextEngine_GetFaceProcByPosition(position);
 

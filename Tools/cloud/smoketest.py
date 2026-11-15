@@ -44,6 +44,8 @@ What it checks:
               is refused (no Restart Chapter).
   gamesave    the debugger's "Save & restart ch." writes a game save; a soft reset and Restart Chapter bring back the
               same district chunks.
+  recap       a game save keeps the last chapter's recap (the prologue's opening, a death and a recruit); Restart
+              Chapter shows it in greyscale, A steps through it, START skips it and the chapter goes on.
   gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
               size, goes on to the next with right, back to the grid with B, scrolls a row on screen, and back to
               Extras with B.
@@ -1298,6 +1300,32 @@ class Smoke:
         self.check("gamesave: the district chunks come back (%d)" % len(regions), regions and not bad,
                    "different: " + ", ".join(bad) if bad else ", ".join(r[0] for r in regions))
 
+    def test_recap(self):
+        """"Previously on your quest..." (Kernel/Wizardry/Recap, Documentation/Features/Recap.md). The prologue's
+        recap holds its opening (its CG, 0xDB, shown before the skip point: a CG wins over its other backgrounds); a
+        death and a recruit are written in before the debugger's "Save & restart ch.";
+        Restart Chapter shows the recap (the opening, then Seth and Gilliam, in greyscale), A steps through it, START
+        skips the rest and the chapter goes on."""
+        if "gRecap" not in self.sym:
+            return self.check("recap: the recap", False, "no gRecap symbol")
+        g = self.sym["gRecap"]
+        # Seth fell (kind 2, character 2) and Gilliam joined (kind 3, character 3), both behind the opening's background
+        writes = ["w8 %#x 2" % (g + 7), "w8 %#x 2" % (g + 8), "w8 %#x 3" % (g + 9), "w8 %#x 2" % (g + 0xA),
+                  "w8 %#x 3" % (g + 0xB), "w8 %#x 0x1D" % (g + 0xC), "w8 %#x 0x1D" % (g + 0xD)]
+        reads = ["r8 %#x" % (g + 0x20), "r8 %#x" % (g + 5), "r8 %#x" % (g + 7),
+                 "press A", "wait 100", "shot recap_seth.png", "press START", "wait 250", "shot recap_after.png",
+                 "r8 %#x" % (g + 0x20), "r8 %#x" % CHAPTER]
+        _, _, vals = self.round_trip("recap", "gEmsSavChunks", DEBUG_SAVE,
+                                     ["press A", "wait 200", "press A", "wait 300"], reads, writes)
+        d = os.path.join(self.out, "recap")
+        self.shot(os.path.join(d, "recap_seth.png"), "recap: a death")
+        self.shot(os.path.join(d, "recap_after.png"), "recap: skipped")
+        if not self.check("recap: loading a game save shows the recap (the opening and two characters)",
+                          len(vals) == 5 and vals[:3] == [1, 0xDB, 2], "pending, opening, characters %s" % vals[:3]):
+            return
+        self.check("recap: START skips it and the chapter goes on", vals[3:] == [0, 0],
+                   "pending, chapter %s" % vals[3:])
+
     def layout_signature(self):
         """SaveLayoutGuard.c's signature, from the ROM's chunk tables: FNV-1a over each chunk's size and id (sav, then
         sus, each ending 0xFFFFFFFF), the two block sizes and the save block offsets."""
@@ -2457,7 +2485,7 @@ def main():
                 r.submit((0, 8), s.test_ch1end, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
-                                ("gamesave", s.test_gamesave), ("saveguard", s.test_saveguard),
+                                ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
                                 ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex))):
         if on(t):
