@@ -25,7 +25,7 @@ When you select a unit, the BGM will momentarily dip out and a voice clip will p
 
 The original implementation only allowed for a single voice clip per unit and was a bit messy to edit manually.
 This rewrite allows for multiple quotes to be player per unit on a random basis whilst also extending support for additional criteria such as HP.
-Furthermore, the creation of the installer is now entirely automated via Python, only requiring that you supply the necessary ``.s`` files in the ``./dmp`` folder
+Furthermore, the creation of the installer is now entirely automated via Python, only requiring that you supply the WAVs in the ``./wav`` folder
 
 ---
 
@@ -36,11 +36,23 @@ The system is designed as follows:
 - Select a unit
 - A random number between 0-2 is rolled in ``UnitBeginAction``
 - The music ID corresponding to that number for the active unit is checked in the ``character_voice_ids`` array
-- The corresponding quote is played (if it exists)
+- The corresponding quote is played (if it exists). Quotes are VC2 stream songs, decoded while they play ([VoiceStream.md](VoiceStream.md))
 
-With DCPM compressed enabled, I'm averaging about 7KB per ``.dmp`` at a quality of ``13379Mhz``. I have about 100 dmps which altogether use 700KB.
+The 111 quotes take 336 KB: about 3 KB a quote, half what they took as DPCM and a 26th of their source WAVs. Every quote's sizes are in [VoiceStreamSizes.md](VoiceStreamSizes.md).
 
-To update the installation script, simply run ``make generate_unit_sfx`` from the root of the repo
+### Adding a quote
+
+1. Put the quote's WAV in ``Kernel/Wizardry/UnitSelectionSFX/wav/<Character>/``, e.g. ``wav/Eirika/Eirika_Lets_Go.wav``.
+   - Any sample rate and bit depth works: ``vc2.py`` resamples to 13379 Hz, trims the silence and normalises.
+   - Names ending in ``_Compressed`` are skipped: those are leftovers of the old SoX step.
+2. From the root of the repo, run ``make rebuild_unit_sfx`` (or ``python3 Tools/voice/vc2.py gen-unit --keep``):
+   - Quotes already installed keep their song IDs. A new WAV gets the next free ID in ``0x26D-0x2BB, 0x385-0x3AB, 0x3D7-0x3E4``.
+   - It encodes the new WAVs to ``vc2/<Character>/<name>.vc2`` and rewrites ``UnitSelectionSFX_Installer.event``.
+   - It prints the ``character_voice_ids`` rows with each character's first three IDs.
+3. Copy the new character's row into ``character_voice_ids`` in [BeginActionHook.c](../../Kernel/Wizardry/BeginActionHook/Source/BeginActionHook.c). A character may need a different constant name than the folder's (``CHARACTER_GLEN_CC``, ``CHARACTER_CAELLACH_CC``).
+4. Build. Run ``python3 Tools/voice/vc2.py report`` to update the size table.
+
+To change a quote, replace its WAV, delete its ``.vc2`` and run step 2 again. To redo them all (for example at another ``--ratio``), delete the ``vc2`` folder and run ``vc2.py gen-unit``.
 
 ---
 
@@ -48,10 +60,12 @@ To update the installation script, simply run ``make generate_unit_sfx`` from th
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **dmp folder** | All folders in [`./dmp`](../../Kernel/Wizardry/UnitSelectionSFX/dmp/) | Folder containing all the various .s files and their associated dmps for installation |
-| **Python script** | [`generate_sfx_event.py`](../../Kernel/Wizardry/UnitSelectionSFX/generate_sfx_event.py) | This automates the installation process using music ids in the range ``0x26D-0x2BB, 0x385-0x3AB, 0x3D7-0x3E4``  |
-| **Installer event file** | [`UnitSelectionSFX_Installer.event`](../../Kernel/Wizardry//Misc//UnitSelectionSFX/UnitSelectionSFX_Installer.event) | The output of the python file which adds the unit selection dmps to the song table |
+| **wav folder** | [`./wav`](../../Kernel/Wizardry/UnitSelectionSFX/wav/), one folder per character | The quotes' source WAVs |
+| **vc2 folder** | [`./vc2`](../../Kernel/Wizardry/UnitSelectionSFX/vc2/) | The encoded quotes the ROM holds (generated) |
+| **Encoder** | [`vc2.py`](../../Tools/voice/vc2.py) ``gen-unit`` | Encodes the WAVs and writes the installer, keeping each quote's song ID |
+| **Installer event file** | [`UnitSelectionSFX_Installer.event`](../../Kernel/Wizardry/UnitSelectionSFX/UnitSelectionSFX_Installer.event) | Generated: each quote's stream song and song table entry |
 | **UnitBeginAction loop** | ``unit_selection_quotes`` inside ``UnitBeginAction`` in [`BeginActionHook.c`](../../Kernel/Wizardry/BeginActionHook/Source/BeginActionHook.c) | Handles the selection of the voiced quote and the control of the BGM volume |
+| **Player** | [`VoiceStream.c`](../../Kernel/Wizardry/VoiceStream/Source/VoiceStream.c) | Decodes the quote while it plays |
 
 ---
 
@@ -67,6 +81,7 @@ To update the installation script, simply run ``make generate_unit_sfx`` from th
 Please report issues in the repository’s **Issues** tab.
 
 - I've currently removed the ability to disable the voices after playing them once as I didn't like the implementation
+- A quote starts about 40 ms after the unit is selected, and selecting a unit costs about one extra lag frame while its decoding gets ahead ([VoiceStream.md](VoiceStream.md#cost)).
 - The BGM volume being lowered currently has a fixed delay, ideally I'd want it to vary based on the length of the track but it's tricky to implement. 45 frames seems to cover most tracks well enough.
 
 ---

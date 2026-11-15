@@ -10,6 +10,12 @@
 //   r8|r16|r32 ADDR        print memory
 //   dump ADDR LEN FILE     dump memory
 //   sram FILE              load battery save file before reset (must come first)
+//   trace KEYS N K         run N frames a step at a time with KEYS held (NONE for none), print the last K PCs
+//   runto KEYS ADDR N      step with KEYS held until the PC is ADDR (at most N frames)
+//   cyc LO HI [LO2 HI2] N  run N frames; cycles spent with the PC (as mGBA reports it) in [LO,HI) or [LO2,HI2)
+//   regs                   print the CPU registers
+//   audio FILE.wav         record the sound of the frames that follow (wait/press/hold), stereo 32768 Hz
+//   audio end              stop recording and write the file
 //   prof N ADDR [NAME]     run N frames one instruction at a time and report
 //                          the calls to the function at ADDR: count, total
 //                          and slowest call in CPU cycles (280896 per frame)
@@ -20,6 +26,7 @@
 #include <mgba/core/serialize.h>
 #include <mgba-util/vfs.h>
 #include <mgba/core/log.h>
+#include <mgba/core/blip_buf.h>
 #include <png.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -50,11 +57,72 @@ static int keymask(const char *s)
 	return m;
 }
 
+#define AUDIO_RATE 32768
+static FILE *audio_out;
+static char audio_path[256];
+static uint32_t audio_samples;
+
+static void audio_drain(void)
+{
+	struct blip_t *l = core->getAudioChannel(core, 0), *r = core->getAudioChannel(core, 1);
+	short buf[2 * 1024];
+	int n;
+
+	while ((n = blip_samples_avail(l)) > 0) {
+		if (n > 1024)
+			n = 1024;
+		blip_read_samples(l, buf, n, 1);
+		blip_read_samples(r, buf + 1, n, 1);
+		if (audio_out) {
+			fwrite(buf, 4, n, audio_out);
+			audio_samples += n;
+		}
+	}
+}
+
+static void audio_header(FILE *f, uint32_t n)
+{
+	uint32_t v;
+	uint16_t h;
+
+	fwrite("RIFF", 1, 4, f); v = 36 + n * 4; fwrite(&v, 4, 1, f);
+	fwrite("WAVEfmt ", 1, 8, f); v = 16; fwrite(&v, 4, 1, f);
+	h = 1; fwrite(&h, 2, 1, f); h = 2; fwrite(&h, 2, 1, f);
+	v = AUDIO_RATE; fwrite(&v, 4, 1, f); v = AUDIO_RATE * 4; fwrite(&v, 4, 1, f);
+	h = 4; fwrite(&h, 2, 1, f); h = 16; fwrite(&h, 2, 1, f);
+	fwrite("data", 1, 4, f); v = n * 4; fwrite(&v, 4, 1, f);
+}
+
+static void audio_cmd(const char *a)
+{
+	if (!strcmp(a, "end")) {
+		if (audio_out) {
+			audio_drain();
+			fseek(audio_out, 0, SEEK_SET);
+			audio_header(audio_out, audio_samples);
+			fclose(audio_out);
+			audio_out = NULL;
+			printf("audio %s: %u samples\n", audio_path, audio_samples);
+		}
+		return;
+	}
+	core->setAudioBufferSize(core, 4096);
+	blip_set_rates(core->getAudioChannel(core, 0), core->frequency(core), AUDIO_RATE);
+	blip_set_rates(core->getAudioChannel(core, 1), core->frequency(core), AUDIO_RATE);
+	audio_drain();
+	audio_out = fopen(a, "wb");
+	strncpy(audio_path, a, sizeof(audio_path) - 1);
+	audio_samples = 0;
+	audio_header(audio_out, 0);
+}
+
 static void frames(int keys, int n)
 {
 	core->setKeys(core, keys);
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < n; i++) {
 		core->runFrame(core);
+		audio_drain();
+	}
 }
 
 /*
@@ -133,6 +201,86 @@ static void minsp(int n)
 		}
 	}
 	printf("minsp %08x (pc %08x lr %08x)\n", sp, pc, lr);
+}
+
+/* Run n frames one instruction at a time with KEYS held; print the last `keep` distinct PCs (pc, sp, mode) */
+static void trace(int keys, int n, int keep)
+{
+	struct ARMCore *cpu = core->cpu;
+	static uint32_t pcs[65536][3];
+	unsigned w = 0, k;
+
+	if (keep > 65536)
+		keep = 65536;
+	core->setKeys(core, keys);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		while (core->frameCounter(core) == frame) {
+			uint32_t pc = cpu->gprs[ARM_PC];
+
+			if (pcs[(w - 1) & 65535][0] != pc) {
+				pcs[w & 65535][0] = pc;
+				pcs[w & 65535][1] = cpu->gprs[ARM_SP];
+				pcs[w & 65535][2] = cpu->privilegeMode;
+				w++;
+			}
+			core->step(core);
+		}
+	}
+	for (k = w > (unsigned)keep ? w - keep : 0; k < w; k++)
+		printf("%08x sp %08x m %02x\n", pcs[k & 65535][0], pcs[k & 65535][1], pcs[k & 65535][2]);
+}
+
+/* Step with KEYS held until the CPU's PC (as mGBA reports it) is ADDR, for at most n frames */
+static void runto(int keys, uint32_t addr, int n)
+{
+	struct ARMCore *cpu = core->cpu;
+
+	core->setKeys(core, keys);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		while (core->frameCounter(core) == frame) {
+			if ((uint32_t)cpu->gprs[ARM_PC] == addr) {
+				printf("runto %08x: reached\n", addr);
+				return;
+			}
+			core->step(core);
+		}
+	}
+	printf("runto %08x: not reached\n", addr);
+}
+
+/* Run n frames a step at a time; count the cycles spent with the PC in [lo, hi) and in [lo2, hi2) */
+static void cyc(uint32_t lo, uint32_t hi, uint32_t lo2, uint32_t hi2, int n)
+{
+	struct ARMCore *cpu = core->cpu;
+	uint64_t in = 0, all = 0;
+	uint32_t worst = 0, cur = 0;
+
+	core->setKeys(core, 0);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		cur = 0;
+		while (core->frameCounter(core) == frame) {
+			uint32_t pc = cpu->gprs[ARM_PC], t0 = (uint32_t)mTimingCurrentTime(core->timing), t;
+			int hit = (pc >= lo && pc < hi) || (pc >= lo2 && pc < hi2);
+
+			core->step(core);
+			t = (uint32_t)mTimingCurrentTime(core->timing) - t0;
+			all += t;
+			if (hit) {
+				in += t;
+				cur += t;
+			}
+		}
+		if (cur > worst)
+			worst = cur;
+	}
+	printf("cyc: %llu cycles in range over %d frames (%.1f%% of %llu), worst frame %u (%.1f%%)\n", (unsigned long long)in, n,
+	       100.0 * in / (all ? all : 1), (unsigned long long)all, worst, 100.0 * worst / 280896);
 }
 
 static void shot(const char *fn)
@@ -249,9 +397,27 @@ int main(int argc, char **argv)
 			     sscanf(line, "%*s %*s %*s %*s %255s", d) == 1 ? strtoul(d, 0, 0) : 0);
 		else if (!strcmp(cmd, "minsp"))
 			minsp(atoi(a));
+		else if (!strcmp(cmd, "runto"))
+			runto(keymask(a), strtoul(b, 0, 0), atoi(c));
+		else if (!strcmp(cmd, "cyc")) {
+			char e2[64] = "0", e3[64] = "0", e4[64] = "1";
+			sscanf(line, "%*s %*s %*s %63s %63s %63s", e2, e3, e4);
+			if (sscanf(line, "%*s %*s %*s %*s %*s %63s", e4) != 1)
+				strcpy(e4, e2), strcpy(e2, "0"), strcpy(e3, "0");
+			cyc(strtoul(a, 0, 0), strtoul(b, 0, 0), strtoul(e2, 0, 0), strtoul(e3, 0, 0), atoi(e4));
+		} else if (!strcmp(cmd, "trace"))
+			trace(keymask(a), atoi(b), atoi(c));
+		else if (!strcmp(cmd, "regs")) {
+			struct ARMCore *cpu = core->cpu;
+			for (int k = 0; k < 16; k++)
+				printf("r%d=%08X%s", k, cpu->gprs[k], k % 4 == 3 ? "\n" : " ");
+			printf("cpsr=%08X\n", cpu->cpsr.packed);
+		} else if (!strcmp(cmd, "audio"))
+			audio_cmd(a);
 		else
 			fprintf(stderr, "unknown %s\n", cmd);
 	}
+	audio_cmd("end");
 	core->deinit(core);
 	return 0;
 }

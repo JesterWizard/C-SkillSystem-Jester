@@ -1,0 +1,4 @@
+// VC2 voice lines, decoded while they play (Source/VoiceStream.c, Documentation/Features/VoiceStream.md)
+#include "Source/LynJump.event"
+#include "Source/VoiceStream.lyn.event"
+#include "Source/VoiceSynthArm.lyn.event"

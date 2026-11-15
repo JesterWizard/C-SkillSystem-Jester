@@ -226,6 +226,7 @@ ALIGN 4
 #include "TextEngineRework/TextEngineRework_Installer.event"
 #include "ThiefFE7Teleport/ThiefFE7Teleport.event"
 #include "UnitSelectionSFX/UnitSelectionSFX_Installer.event"
+#include "VoiceStream/VoiceStream_Installer.event"
 
 /* I will eventually remove this, once I can integrate the animations into the C Mokha version of AOE */
 // #include "VeslyAOE/AOE_Installer.event"

@@ -90,15 +90,16 @@ Export TMX, convert with TMX2EA, keep output in `Chapters/NN/map/`. Confirm:
 
 Vanilla `gSongTable` is 1000 slots (`0x000`–`0x3E7`). Unused IDs are scattered. Do not scan FEBuilder.
 
-1. Copy `Music/Audio_Insert_Event.event` into `Chapters/NN/music/`.
-2. Keep `SongTable(AUTO, YourLabel, 0)`.
+1. Put the line's WAV in `Chapters/NN/music/wav/<Name>.wav` (any rate).
+2. Copy `Music/Audio_Insert_Event.event` into `Chapters/NN/music/<Name>.event` and replace `[AUDIO_FILENAME]` with `<Name>`. Keep `SongTable(AUTO, ...)`.
 3. `#include` the file from `music/installer.event`. New chapters also need an include in `Music/Music_Installer.event`.
 4. Run `make assign_voice_songs` (needs `fe8.gba` at repo root).
-5. Play with the generated name from `include/jester_headers/voice-songs.h`, e.g. `SOUN(SONG_VOICE_CH01_LINE_0001)`.
+5. Run `python3 Tools/voice/vc2.py gen-wm --keep`: it encodes the WAV to `music/vc2/<Name>.vc2` (VC2, about half the size of DPCM) and makes the event its stream song.
+6. Play with the generated name from `include/jester_headers/voice-songs.h`, e.g. `WM_VOICE_LINE(SONG_VOICE_CH01_LINE_0001)`.
 
 `python3 Music/assign_voice_song_ids.py --next` / `--list-free` inspect the pool. Existing numeric IDs are kept; `AUTO` takes the next unused vanilla hole that is not claimed by other hacks (unit-select quotes, dragon vein SFX, …).
 
-Convert mp3 → `.s` with `Music/compress_mp3_to_s.bat`. `make` builds `.dmp` from `.s`. The `.event` is the song-table header; the `.dmp` is the audio bytes.
+Convert an mp3 to WAV with ffmpeg or SoX first. The whole process is in `Documentation/Features/VoiceActedIntros.md`; the codec in `Documentation/Features/VoiceStream.md`.
 
 ### 6. Rebuild
 

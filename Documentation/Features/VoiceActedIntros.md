@@ -1,7 +1,7 @@
 # Voice Acted Intros - How to Install WAVs into Your Game
 
 > [!Important]  
-> This guide will assume you're using Windows or WSL, as some key EXEs are required for this process. I'm unsure if equivalent Linux versions exist.
+> Everything here runs on Windows (WSL), Linux or macOS. You need Python 3 with numpy. No EXEs are required.
 
 ---
 
@@ -10,6 +10,7 @@
 - [Plan](#plan)
 - [Tools](#tools)
 - [How to Modify](#how-to-modify)
+- [Changing or Re-encoding Lines](#changing-or-re-encoding-lines)
 - [Limitations and Bugs](#limitations-and-bugs)
 
 ---
@@ -20,11 +21,17 @@
 
 A lot of guides for music/sound on FEUniverse focus on **MIDI installation**. That makes sense: MIDI files are tiny compared to WAVs, which are relatively large.
 
-The GBA isn’t widely known for advanced audio, but it **can** play voiced audio (see old GBA Video cartridges). For voiced dialogue and short high-quality clips, **WAVs** are a good choice.
+The GBA isn't widely known for advanced audio, but it **can** play voiced audio (see old GBA Video cartridges). This guide is about voiced dialogue on the world map.
 
-This guide focuses specifically on preparing and installing WAVs into a buildfile-based ROM project. Campaign-local steps (including auto song IDs) are also in [CustomCampaign/README.md](../../CustomCampaign/README.md).
+The voice lines are stored as **VC2**, a transform codec made for this buildfile ([VoiceStream.md](VoiceStream.md)). The game decodes a line while it plays. Sizes, at the GBA's standard 13379 Hz:
 
-As an example, following the standard audio output of the GBA (13379Hz) audio will eat up around ~430KB/minute. Less if you reduce the quality between 8000Hz and 11000Hz.
+| Format | Per minute | Against VC2 |
+|---|---|---|
+| 8-bit PCM (an uncompressed GBA sample) | about 784 KB | about 4x the size |
+| DPCM (what the lines used before) | about 405 KB | about 2x the size |
+| **VC2** | **about 205 KB** | |
+
+Every line's sizes are in [VoiceStreamSizes.md](VoiceStreamSizes.md).
 
 ---
 
@@ -32,10 +39,10 @@ As an example, following the standard audio output of the GBA (13379Hz) audio wi
 
 This guide explains how to:
 
-- Convert mp3 files to WAV
-- Compress them with SoX
-- Convert them to insertable .s files
-- Insert them into an installer event file as DMPs which will be generated during compilation
+- Turn an mp3 (or anything else) into a WAV
+- Put the WAV in the chapter's `music/wav/` folder
+- Add the line's event from the template and give it a song ID
+- Encode it to VC2 with `Tools/voice/vc2.py`
 - Call the audio in game
 
 ---
@@ -44,50 +51,72 @@ This guide explains how to:
 
 You will need:
 
-- **SoX** - For mp3 conversion and compression
-- **WAV2AGB** — converts a `.WAV` file into an insertable `.s` file and applies DPCM compression (vital)
-- A copy of the [compress_mp3_to_s](../../CustomCampaign/Music/compress_mp3_to_s.bat) ``.bat`` file
-  - The filepaths of the EXEs may need to be adjusted depending on where you have them installed.
-  - Also be sure to move thebat file to your C drive to be able to run it if you're using WSL
-- A good ear for judging audio quality
+- **Python 3 with numpy** (`pip install numpy`): runs [`Tools/voice/vc2.py`](../../Tools/voice/vc2.py), which does the resampling, trimming, normalising and encoding.
+- **Something that writes WAV files**, if your audio is in another format: SoX, ffmpeg or Audacity.
+- A good ear for judging audio quality.
+
+`vc2.py` takes a WAV at any sample rate (8-, 16-, 24- or 32-bit, mono or stereo). It converts it to 13379 Hz mono, trims leading and trailing silence, and normalises the volume, as the old SoX step did. There is no need to prepare the WAV.
 
 Links:
 
-- Sox (Source) - https://github.com/chirlu/sox
-- Sox (EXE) - https://sourceforge.net/projects/sox/files/sox/14.4.2/sox-14.4.2-win32.exe/download
-- WAV2AGB (EXE) - https://github.com/ipatix/wav2agb/releases/tag/v1.0.0 (Download wav2agb-windows-clang64.zip)
+- SoX - https://sourceforge.net/projects/sox/files/sox/14.4.2/
+- ffmpeg - https://ffmpeg.org/download.html
 
 ---
 
 ## How to Modify
 
-1. **Grab your MP3** from whatever source you like.
+1. **Get the line as a WAV.** From an mp3, for example:
 
-2. Drop it into a folder with a copy of the ``compress_mp3_to_s.bat`` file
+   ```bash
+   ffmpeg -i Line.mp3 Chapter_01_Line_0006.wav
+   ```
 
-3. Double click the bat file to run it.
-  - It will create a WAV file, compress it, produce a .s file and then delete the WAV file
-  - Inside the bat file you will be able to see the settings used. I only recommend changing the audio quality, various presets are in the comments
+   or `sox Line.mp3 Chapter_01_Line_0006.wav`. Any rate and bit depth works.
 
-4) Take the ``.s`` file and grab a template copy of the [Audio_Insert_Event.event](../../CustomCampaign/Music/Audio_Insert_Event.event)
-file and change every instance of ``[AUDIO_FILENAME]`` to the file name of your ``.s`` file
+2. **Put the WAV in the chapter's `music/wav/` folder**, e.g. `CustomCampaign/Chapters/01/music/wav/Chapter_01_Line_0006.wav`. Create the folder if the chapter has none. The file name (without `.wav`) is the line's name from here on.
 
-5) Leave ``SongTable(AUTO, ...)`` in the insert event. Do not pick a raw ID in FEBuilder.
+3. **Make the line's event.** Copy the template [`Audio_Insert_Event.event`](../../CustomCampaign/Music/Audio_Insert_Event.event) into the chapter's `music/` folder as `<name>.event` (e.g. `music/Chapter_01_Line_0006.event`). Change every ``[AUDIO_FILENAME]`` to the line's name. Leave ``SongTable(AUTO, ...)`` alone: do not pick a raw ID in FEBuilder.
 
-6) Rename ``Audio_Insert_Event.event`` to whatever you like, put it in that chapter's ``music/`` folder, and add it to [music/installer.event](../../CustomCampaign/Chapters/00/music/installer.event)
-like so ``#include "Line_0001_Compressed.event"``. [Music_Installer.event](../../CustomCampaign/Music/Music_Installer.event) already includes each chapter's music installer.
+4. **Include the event** from the chapter's [music/installer.event](../../CustomCampaign/Chapters/00/music/installer.event), like so: ``#include "Chapter_01_Line_0006.event"``. [Music_Installer.event](../../CustomCampaign/Music/Music_Installer.event) already includes each chapter's music installer. A new chapter needs a line there too.
 
-7) Run ``make assign_voice_songs`` (or ``python3 CustomCampaign/Music/assign_voice_song_ids.py``). That dumps unused vanilla table slots from ``fe8.gba``, skips IDs already used by other hacks, writes a named ID into the event, and updates [voice-songs.h](../../include/jester_headers/voice-songs.h). Use ``--next`` / ``--list-free`` to inspect the pool without rewriting files.
+5. **Give it a song ID.** Run ``make assign_voice_songs`` (or ``python3 CustomCampaign/Music/assign_voice_song_ids.py``). It needs `fe8.gba` at the repo root.
+   - It dumps unused vanilla table slots from ``fe8.gba``, skips IDs already used by other hacks, writes a named ID into the event, and updates [voice-songs.h](../../include/jester_headers/voice-songs.h).
+   - The name comes from the event's file name, e.g. ``SONG_VOICE_CH01_CHAPTER_01_LINE_0006``.
+   - Use ``--next`` / ``--list-free`` to inspect the pool without rewriting files.
 
-8) Call the audio with the generated name, e.g. ``SOUN(SONG_VOICE_CH01_LINE_0001)`` or ``MUSC(SONG_VOICE_CH01_LINE_0001)``.
+6. **Encode it:**
 
-9) Run ``make -j`` to compile your ``.s`` file to a ``.dmp`` and see it inserted into the game.
+   ```bash
+   python3 Tools/voice/vc2.py gen-wm --keep
+   ```
+
+   It encodes every line that has no `music/vc2/<name>.vc2` yet, and turns each line's event into the stream song that plays it. `--keep` leaves the lines that are already encoded alone. It prints each line's size and its share of the old DPCM size (about 50%).
+
+7. **Call the audio** with the generated name. In world map text, use ``WM_VOICE_LINE(SONG_VOICE_CH01_CHAPTER_01_LINE_0006)``. That plays it and waits for the text (`CustomCampaign/Chapters/_shared/worldmap-macros.h`). Elsewhere, use ``SOUN(...)``.
+
+8. **Build** (``make``, or ``Tools/cloud/build.sh`` in a cloud session) and listen in game.
+
+To hear a line as the game will play it without building, decode it:
+
+```bash
+python3 Tools/voice/vc2.py decode CustomCampaign/Chapters/01/music/vc2/Chapter_01_Line_0006.vc2 check.wav
+```
+
+---
+
+## Changing or Re-encoding Lines
+
+- **New take of a line:** replace its WAV in `music/wav/`, delete its `music/vc2/<name>.vc2`, and run `vc2.py gen-wm --keep` again.
+- **Smaller or better:** `--ratio` sets the size as a share of DPCM. The default is 0.5; lower is smaller and rougher. To redo every line, run `vc2.py gen-wm --ratio 0.45` without `--keep`.
+- **Lines from before VC2** (chapters 00-09) only exist as DPCM files in `music/audio/<name>.dmp`. Each event's `// Source:` line names its source, and `gen-wm` encodes from that. A WAV with the line's name in `music/wav/` replaces the DPCM source the next time it encodes.
+- **Size table:** after changing lines, run `python3 Tools/voice/vc2.py report` to update [VoiceStreamSizes.md](VoiceStreamSizes.md).
 
 ---
 
 ## Limitations and Bugs
 
-- The GBA cannot decode MP3s or modern compressed formats in real time, so WAV (with DPCM compression) is the practical option.  
-- WAVs are large even after compression; storage is limited.  
-- Better compression solutions (e.g., **8ad**) require replacing the sound engine, which is outside the scope of this guide and significantly more complex.
+- Decoding takes about a third of the CPU while a line plays. Scenes that already lag may lag a little more while a voice plays (the sound keeps going: it gets decoding time first). See [VoiceStream.md](VoiceStream.md#cost).
+- A line starts about 40 ms after it is called, so that the decoder can get ahead of the mixer.
+- One voice line plays at a time. Starting another stops the first, as before.
 - Vanilla `gSongTable` is 1000 entries (`0x000`-`0x3E7`), not a clean `0x400` block. Unused slots are scattered; `assign_voice_song_ids.py` walks that list and skips IDs already taken by other hacks (unit-select quotes, dragon vein SFX, etc.). Expanding past `0x3E7` would overwrite sample data unless the table is relocated.

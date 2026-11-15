@@ -573,7 +573,7 @@ clean:
 # = UnitSelectionSFX Installer =
 # ==============================
 UNIT_SFX_DIR := ./Kernel/Wizardry/UnitSelectionSFX
-UNIT_SFX_SCRIPT := $(UNIT_SFX_DIR)/generate_sfx_event.py
+UNIT_SFX_SCRIPT := ./Tools/voice/vc2.py
 UNIT_SFX_EVENT := $(UNIT_SFX_DIR)/UnitSelectionSFX_Installer.event
 
 # =================================
@@ -587,10 +587,8 @@ assign_voice_songs:
 
 .PHONY: rebuild_unit_sfx clean_unit_sfx
 rebuild_unit_sfx:
-	@echo "Deleting old installer if it exists..."
-	@rm -f $(UNIT_SFX_EVENT)
-	@echo "Generating UnitSelectionSFX installer..."
-	@python3 $(UNIT_SFX_SCRIPT)
+	@echo "Encoding new quotes and regenerating the UnitSelectionSFX installer..."
+	@python3 $(UNIT_SFX_SCRIPT) gen-unit --keep
 	@echo "Installer generated: $(UNIT_SFX_EVENT)"
 
 .PHONY: rebuild_msg_indexes
