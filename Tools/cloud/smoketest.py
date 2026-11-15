@@ -1140,7 +1140,7 @@ class Smoke:
         """Port Kiris: Eirika talks to the Pied Piper (0x7E, next to the guild board), says Yes, scores 80 and quits
         with B: the game pays 10 tokens, sets the high score and plays the new-record conversation."""
         d = os.path.join(self.out, "PortKiris")
-        need = ("gGuildSave", "gSnekCurrentScore", "gSnekHighScore")
+        need = ("gGuildSave", "gSnekCurrentScore", "gSnekHighScore", "gSnekCoinCoordinates", "gSnekCoinPresent")
         if "rom" not in states or not all(n in self.sym for n in need):
             return self.check("snek: the Pied Piper's game", False, "no Port Kiris map or symbols")
         layout = json.load(open(os.path.join(ROOT, "CustomCampaign", "Chapters", "PortKiris", "map",
@@ -1153,11 +1153,16 @@ class Smoke:
         if not self.check("snek: Eirika reaches the Pied Piper", at):
             return
         g, sc, hi = self.sym["gGuildSave"], self.sym["gSnekCurrentScore"], self.sym["gSnekHighScore"]
-        # RIGHT faces him, A talks; A through his lines and Yes; in the game the score is set to 80, then B quits
+        coin, present = self.sym["gSnekCoinCoordinates"], self.sym["gSnekCoinPresent"]
+        # RIGHT faces him, A talks; A through his lines and Yes, then B past his last line starts the game. Once it
+        # runs (the snake starts at (120, 72), heading left), the score is set to 80 and the coin moved off the snake's
+        # row, to cell (2, 15) (x << 8 | y): where the game put it is random, and a coin on that row is eaten (+4).
+        # Then B quits.
         lines = ["load " + at, "wait 40", "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w16 %#x 0" % hi,
                  "hold RIGHT 4", "wait 20", "hold A 6", "wait 90"]
         lines += ["hold A 6", "wait 60"] * 4 + ["hold A 6", "wait 90", "hold A 6", "wait 200", "wait 100",
-                                                "w16 %#x 80" % sc, "wait 30", "hold B 6", "wait 240"]
+                                                "hold B 6", "wait 40", "w16 %#x 0x020F" % coin, "w16 %#x 1" % present,
+                                                "w16 %#x 80" % sc, "hold B 6", "wait 240"]
         lines += ["hold A 6", "wait 100"] * 2 + ["shot snek.png", "r16 %#x" % (g + 2), "r16 %#x" % hi]
         vals = self.run(states["rom"], lines, d)
         self.shot(os.path.join(d, "snek.png"), "snek result")
