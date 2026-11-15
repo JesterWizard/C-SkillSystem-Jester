@@ -1000,3 +1000,8 @@ SID_Angler
 SID_DeepRoots
 SID_PairUp
 SID_DragonSkinPlus
+SID_BlackMagicSeeker
+SID_WhiteMagicSeeker
+SID_WhiteMagicZenith
+SID_AllMagicSeeker
+SID_AllMagicZenith

@@ -5835,6 +5835,61 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_BlackMagicSeeker) && COMMON_SKILL_VALID(SID_BlackMagicSeeker))
+    [SID_BlackMagicSeeker] = {
+        .name = MSG_SKILL_BlackMagicSeeker_NAME,
+        .desc = MSG_SKILL_BlackMagicSeeker_DESC,
+        .capacity = MSG_SKILL_BlackMagicSeeker_CAPACITY,
+        .price = MSG_SKILL_BlackMagicSeeker_PRICE,
+        .icon = GFX_SkillIcon_GrandMagician,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_WhiteMagicSeeker) && COMMON_SKILL_VALID(SID_WhiteMagicSeeker))
+    [SID_WhiteMagicSeeker] = {
+        .name = MSG_SKILL_WhiteMagicSeeker_NAME,
+        .desc = MSG_SKILL_WhiteMagicSeeker_DESC,
+        .capacity = MSG_SKILL_WhiteMagicSeeker_CAPACITY,
+        .price = MSG_SKILL_WhiteMagicSeeker_PRICE,
+        .icon = GFX_SkillIcon_GrandMagician,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_WhiteMagicZenith) && COMMON_SKILL_VALID(SID_WhiteMagicZenith))
+    [SID_WhiteMagicZenith] = {
+        .name = MSG_SKILL_WhiteMagicZenith_NAME,
+        .desc = MSG_SKILL_WhiteMagicZenith_DESC,
+        .capacity = MSG_SKILL_WhiteMagicZenith_CAPACITY,
+        .price = MSG_SKILL_WhiteMagicZenith_PRICE,
+        .icon = GFX_SkillIcon_GrandMagician,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_AllMagicSeeker) && COMMON_SKILL_VALID(SID_AllMagicSeeker))
+    [SID_AllMagicSeeker] = {
+        .name = MSG_SKILL_AllMagicSeeker_NAME,
+        .desc = MSG_SKILL_AllMagicSeeker_DESC,
+        .capacity = MSG_SKILL_AllMagicSeeker_CAPACITY,
+        .price = MSG_SKILL_AllMagicSeeker_PRICE,
+        .icon = GFX_SkillIcon_GrandMagician,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_AllMagicZenith) && COMMON_SKILL_VALID(SID_AllMagicZenith))
+    [SID_AllMagicZenith] = {
+        .name = MSG_SKILL_AllMagicZenith_NAME,
+        .desc = MSG_SKILL_AllMagicZenith_DESC,
+        .capacity = MSG_SKILL_AllMagicZenith_CAPACITY,
+        .price = MSG_SKILL_AllMagicZenith_PRICE,
+        .icon = GFX_SkillIcon_GrandMagician,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_Witch) && COMMON_SKILL_VALID(SID_Witch))
     [SID_Witch] = {
         .name = MSG_SKILL_Witch_NAME,
