@@ -206,6 +206,10 @@ struct KernelDesigerConfig {
 	u8 chapter_intro_style; /* 0 = vanilla chapter intro; 1 slide, 2 curtain, 3 mosaic, 4 letterbox (Kernel/Wizardry/ChapterIntroStyles) (the new-game default of the Options row) */
 	u8 chapter_intro_bg; /* behind the title of chapter_intro_style 1-4: 0 black, 1 vanilla runes, 2 the previous chapter's closing background (the new-game default of the Options row) */
 	u8 chapter_intro_band; /* a see-through black bar behind the title on the Black and Last Scene backgrounds (the new-game default of the Options row) */
+	u8 rescue_penalty_by_con; /* rescuing costs Skl/Spd relative to the two units' Con instead of halving them (Kernel/Wizardry/RescuePenalty) */
+	u8 rescue_penalty_pct;    /* the penalty in percent when both have the same Con; it scales with carried Con / rescuer Con */
+	u8 rescue_penalty_min_pct;
+	u8 rescue_penalty_max_pct;
 };
 
 struct KernelBattleDesignerConfig {

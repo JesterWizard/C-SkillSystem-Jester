@@ -156,6 +156,7 @@ ALIGN 4
 #include "Recap/Recap_Installer.event"
 #include "ChapterIntroStyles/ChapterIntroStyles_Installer.event"
 #include "DoubleBadge/DoubleBadge_Installer.event"
+#include "RescuePenalty/RescuePenalty_Installer.event"
 #include "ExceedPortraitBox/ExceedPortraitBox_Installer.event"
 #include "ExpBarStyles/ExpBarStyles_Installer.event"
 #include "FE7ModeSelect/FE7ModeSelect_Installer.event"
