@@ -428,6 +428,13 @@ _kernel_malloc2 gChapterIntroExtra, 4
 /* The battle HUD's "x2"/"x4" badge: each side's strikes per exchange (struct DoubleBadge, double-badge.h). RAM only. */
 _kernel_malloc2 gDoubleBadge, 4
 
+/*
+ * The VC2 voice stream (Kernel/Wizardry/VoiceStream): the ring the m4a mixer plays and the decoder's state. In the
+ * demo pool, which nothing else writes (checked: no code points into 0x0203F150-0x02040000, newlib's heap is never
+ * used, and a playthrough with a marker pattern there left it untouched). Its size is checked in VoiceStream.c.
+ */
+_kernel_malloc_demo gVoiceStream, 0xE60
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
@@ -463,6 +470,9 @@ dat 0x03004960, ARM_SkillListEnd
 /* The regions must not run out (the kernel_malloc region would grow into the purple units' slots below it) */
 .if UsedFreeRamSpaceTop < FreeRamSpaceTop
 .error "The kernel_malloc region is full: it would overlap the purple units' slots"
+.endif
+.if UsedFreeDemoRamSpaceTop < FreeDemoRamSpaceTop
+.error "The demo pool is full"
 .endif
 .if UsedFreeRamSpace2Bottom > FreeRamSpace2Bottom
 .error "The kernel_malloc2 region is full"

@@ -1,49 +1,15 @@
-SongTable(SONG_VOICE_CH04_LINE_0002,Chapter_04_Line_0002_Compressed,0)
+// Voice line, a VC2 stream song (Documentation/Features/VoiceActedIntros.md). Written by
+// Tools/voice/vc2.py gen-wm from the source below; run it again after changing the source.
+// Source: audio/Chapter_04_Line_0002_Compressed.dmp
 
-    #define    loop_sfx_grp_Chapter_04_Line_0002_Compressed  Chapter_04_Line_0002_Compressed_map
-    #define    loop_sfx_pri_Chapter_04_Line_0002_Compressed  0
-    #define    loop_sfx_rev_Chapter_04_Line_0002_Compressed  0
-    #define    loop_sfx_mvl_Chapter_04_Line_0002_Compressed  127
-    #define    loop_sfx_key_Chapter_04_Line_0002_Compressed  0
-    #define    loop_sfx_tbs_Chapter_04_Line_0002_Compressed  1
-    #define    loop_sfx_exg_Chapter_04_Line_0002_Compressed  0
-    #define    loop_sfx_cmp_Chapter_04_Line_0002_Compressed  1
-
-    ALIGN 4
-
-loop_sfx_Chapter_04_Line_0002:
-    BYTE        VOL     127*loop_sfx_mvl_Chapter_04_Line_0002_Compressed/mxv
-    BYTE    KEYSH   loop_sfx_key_Chapter_04_Line_0002_Compressed+0
-    BYTE        VOICE   0
-    BYTE        TIE     Cn3   v064
-    BYTE    W96
-loop_sfx_Chapter_04_Line_0002_B1:
-    BYTE    W96
-    BYTE    W96
-    BYTE    GoTo
-     POIN2    loop_sfx_Chapter_04_Line_0002_B1
-loop_sfx_Chapter_04_Line_0002_B2:
-    BYTE    W06
-    BYTE        EOT     Cn3 
-    BYTE    FINE
-
-    ALIGN 4
-
+ALIGN 4
+Chapter_04_Line_0002_Compressed_vc2:
+    #incbin "vc2/Chapter_04_Line_0002_Compressed.vc2"
+ALIGN 4
 Chapter_04_Line_0002_Compressed:
-    BYTE    1    // NumTrks
-    BYTE    0    // NumBlks
-    BYTE    loop_sfx_pri_Chapter_04_Line_0002_Compressed    // Priority
-    BYTE    loop_sfx_rev_Chapter_04_Line_0002_Compressed    // Reverb.
-
-    POIN2    loop_sfx_grp_Chapter_04_Line_0002_Compressed
-
-    POIN2    loop_sfx_Chapter_04_Line_0002
-
-    
-Chapter_04_Line_0002_Compressed_map:
-WORD $3c00
-POIN Chapter_04_Line_0002_Compressed_wav
-WORD $FF00FF
-
-Chapter_04_Line_0002_Compressed_wav:
-#incbin "audio/Chapter_04_Line_0002_Compressed.dmp"
+    BYTE 1 0 0 0
+    POIN VoiceStream_Tone
+    POIN VoiceStream_Track
+    WORD $32435356 // "VSC2"
+    POIN Chapter_04_Line_0002_Compressed_vc2
+SongTable(SONG_VOICE_CH04_LINE_0002, Chapter_04_Line_0002_Compressed, 0)
