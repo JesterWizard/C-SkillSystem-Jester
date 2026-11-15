@@ -9,7 +9,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[37] = {
+const u8 gGameOptionsUiOrder_NEW[38] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -27,6 +27,7 @@ const u8 gGameOptionsUiOrder_NEW[37] = {
     GAME_OPTION_MAP_COLORS,
     GAME_OPTION_CHAPTER_INTRO,
     GAME_OPTION_CHAPTER_INTRO_BG,
+    GAME_OPTION_CHAPTER_INTRO_BAND,
 
     // CUSTOM
     GAME_OPTION_SKILL_CAPACITY,
@@ -769,6 +770,21 @@ const struct GameOption gGameOptions_NEW[] =
         .icon = 0x10, /* reuse Window Color icon */
         .func = GenericOptionChangeHandler,
     },
+
+    /* Title Band: vanilla's dark band behind the title of the Chapter Intro styles on the Black and Last Scene backdrops (0 = ON) */
+    [GAME_OPTION_CHAPTER_INTRO_BAND] =
+    {
+        .msgId = MSG_MENU_OPTION_CHAPTER_INTRO_BAND_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_CHAPTER_INTRO_BAND_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_CHAPTER_INTRO_BAND_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x10, /* reuse Window Color icon */
+        .func = GenericOptionChangeHandler,
+    },
 };
 
 LYN_REPLACE_CHECK(SetGameOption);
@@ -818,6 +834,7 @@ void SetGameOption(u8 index, u8 newValue) {
         case GAME_OPTION_MAP_COLORS:                     gPlaySt.config.map_colors = newValue; break;
         case GAME_OPTION_CHAPTER_INTRO:                  ChapterIntro_SetStyle(newValue); break;
         case GAME_OPTION_CHAPTER_INTRO_BG:               ChapterIntro_SetBg(newValue); break;
+        case GAME_OPTION_CHAPTER_INTRO_BAND:             ChapterIntro_SetBand(newValue == 0); break;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true) {
                 gPlaySt.config.show_true_2rn = 1; /* OFF */
@@ -887,6 +904,7 @@ u8 GetGameOption(u8 index) {
             return gPlaySt.config.map_colors < 3 ? gPlaySt.config.map_colors : 0;
         case GAME_OPTION_CHAPTER_INTRO:    return ChapterIntro_GetStyle();
         case GAME_OPTION_CHAPTER_INTRO_BG: return ChapterIntro_GetBg();
+        case GAME_OPTION_CHAPTER_INTRO_BAND: return ChapterIntro_GetBand() ? 0 : 1;
         case GAME_OPTION_SHOW_TRUE_2RN:
             if (gpKernelDesignerConfig->show_true_2rn != true)
                 return 1; /* OFF */
@@ -951,6 +969,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.exp_bar_style = 0; /* vanilla */
     gPlaySt.config.map_colors = 0; /* vanilla */
     gPlaySt.config.chapter_intro = ChapterIntro_DefaultOption(); /* the designer config's style and background */
+    ChapterIntro_ResetExtra(); /* the Title Band default */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.achievements = gpKernelDesignerConfig->vesly_achievements ? 0 : 1;
     SetAchievementsTo(gpKernelDesignerConfig->vesly_achievements ? 1 : 0);

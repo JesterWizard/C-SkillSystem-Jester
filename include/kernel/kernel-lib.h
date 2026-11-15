@@ -205,6 +205,7 @@ struct KernelDesigerConfig {
 	u8 valni_floors_once; /* each Tower of Valni floor once, in order, as the story unlocks them (WorldMap/ValniFloors.c); the postgame replays them */
 	u8 chapter_intro_style; /* 0 = vanilla chapter intro; 1 slide, 2 curtain, 3 mosaic, 4 letterbox (Kernel/Wizardry/ChapterIntroStyles) (the new-game default of the Options row) */
 	u8 chapter_intro_bg; /* behind the title of chapter_intro_style 1-4: 0 black, 1 vanilla runes, 2 the previous chapter's closing background (the new-game default of the Options row) */
+	u8 chapter_intro_band; /* a see-through black bar behind the title on the Black and Last Scene backgrounds (the new-game default of the Options row) */
 };
 
 struct KernelBattleDesignerConfig {

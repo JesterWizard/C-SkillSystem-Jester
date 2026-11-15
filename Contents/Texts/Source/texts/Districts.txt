@@ -1036,3 +1036,7 @@ Eirika refused Ephraim's plea to return to Frelia.[X]
 Chapter Intro[X]
 ## MSG_MENU_OPTION_CHAPTER_INTRO_BG_TITLE
 Intro Backdrop[X]
+## MSG_MENU_OPTION_CHAPTER_INTRO_BAND_TITLE
+Title Band[X]
+## MSG_MENU_OPTION_CHAPTER_INTRO_BAND_DESC
+A see-through black bar behind the title.[X]

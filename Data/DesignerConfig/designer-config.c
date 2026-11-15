@@ -30,6 +30,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.chapter_awards = false, // awards screen after a cleared story chapter (Kernel/Wizardry/Guild/Source/ChapterAwards.c)
 	.chapter_intro_style = 0, // 0 = vanilla chapter intro; 1 slide, 2 curtain, 3 mosaic, 4 letterbox (the new-game default of the Options row)
 	.chapter_intro_bg = 1, // behind the title of chapter_intro_style 1-4: 0 black, 1 vanilla runes, 2 the previous chapter's closing background (the new-game default of the Options row)
+	.chapter_intro_band = true, // a see-through black bar behind the title on the Black and Last Scene backgrounds (the new-game default of the Options row)
 	.class_growths = 0, // 0=off, 1=personal + class growths, 2=average of personal and class growths
 	.collect_dead_units = true,
 	.crit_cutin = true, // portrait cut-in over an electric band before critical hits by units with a portrait
