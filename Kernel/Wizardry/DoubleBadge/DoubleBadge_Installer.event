@@ -1,0 +1,2 @@
+// The battle HUD's "x2"/"x4" badge (Source/DoubleBadge.c)
+#include "Source/DoubleBadge.lyn.event"

@@ -12,6 +12,7 @@
 #include "constants/skills.h"
 #include "combat-art.h"
 #include "debuff.h"
+#include "double-badge.h"
 
 #pragma GCC optimize("Os", "no-jump-tables")
 
@@ -639,6 +640,30 @@ static inline AttackType GetAttackTypeForStep(u8 cfg)
     return ATTACK_NONE;
 }
 
+/* For the battle HUD's "x2"/"x4" badge (Kernel/Wizardry/DoubleBadge): each side's strikes per exchange */
+static void RecordDoubleBadge(const u8 *config)
+{
+	int i, actor = 0, target = 0;
+
+	for (i = 0; i < 4; i++) {
+		AttackType t = GetAttackTypeForStep(config[i]);
+
+		if (t == ATTACK_NONE)
+			break;
+		if (t == ATTACK_ACTOR)
+			actor++;
+		else
+			target++;
+	}
+
+	if (!gBattleActor.weapon)
+		actor = 0;
+	if (!gBattleTarget.weapon || !gBattleTarget.canCounter)
+		target = 0;
+
+	DoubleBadge_Set(actor * GetBattleUnitHitCount(&gBattleActor), target * GetBattleUnitHitCount(&gBattleTarget));
+}
+
 static inline void ApplyReturnAttackFlagIfNeeded(AttackType t)
 {
     if (t == ATTACK_TARGET)
@@ -936,6 +961,8 @@ void BattleUnwind(void)
         return;
     }
 
+    DoubleBadge_Set(0, 0);
+
     RegenerateBattleOrderFlagsAfterCalc();
 
     //---------------------------------------------------------
@@ -947,6 +974,8 @@ void BattleUnwind(void)
         MarkBattleEnd();
         return;
     }
+
+    RecordDoubleBadge(BattleUnwindConfig[gBattleFlagExt.round_mask]);
 
 repeat_full_round:;   // <--- label for Accost repeat
 
