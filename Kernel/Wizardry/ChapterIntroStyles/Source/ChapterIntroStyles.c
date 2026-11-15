@@ -12,7 +12,8 @@
  * shows the chapter title on a black screen (it ends black), then reveals the map. A, B or START skips the title.
  * The "Intro Backdrop" row picks what is behind the title: black, vanilla's scrolling runes, or the previous chapter's
  * closing background (the recap's record; vanilla's runes until there is one). The designer config's chapter_intro_bg
- * is the default for a new game.
+ * is the default for a new game. With the title band on, a see-through black bar sits behind the title on the Black and
+ * Last Scene backgrounds (semi-transparent sprites; see CIS_LoadBar).
  */
 
 enum chapter_intro_style {
@@ -98,6 +99,48 @@ int ChapterIntro_GetBg(void)
 	return bg < CHAPTER_INTRO_BG_COUNT ? bg : CHAPTER_INTRO_BG_BLACK;
 }
 
+bool ChapterIntro_GetBand(void)
+{
+	return gChapterIntroExtra.band;
+}
+
+void ChapterIntro_SetBand(bool on)
+{
+	gChapterIntroExtra.magic = CHAPTER_INTRO_EXTRA_MAGIC;
+	gChapterIntroExtra.band = on ? 1 : 0;
+}
+
+void ChapterIntro_ResetExtra(void)
+{
+	ChapterIntro_SetBand(gpKernelDesignerConfig->chapter_intro_band);
+}
+
+/* Written and read as Recap_SaveTail / Recap_LoadTail do: the tail is SRAM */
+void ChapterIntro_SaveTail(u8 *dst, const u32 size)
+{
+	if (size < sizeof(gChapterIntroExtra))
+		return;
+
+	gChapterIntroExtra.magic = CHAPTER_INTRO_EXTRA_MAGIC;
+	WriteAndVerifySramFast(&gChapterIntroExtra, dst, sizeof(gChapterIntroExtra));
+}
+
+/* A save from before this share (or with no room for it) gets the designer config's defaults */
+void ChapterIntro_LoadTail(u8 *src, const u32 size)
+{
+	struct ChapterIntroExtra buf;
+
+	if (src && size >= sizeof(buf)) {
+		ReadSramFast(src, &buf, sizeof(buf));
+		if (buf.magic == CHAPTER_INTRO_EXTRA_MAGIC) {
+			ChapterIntro_SetBand(buf.band);
+			return;
+		}
+	}
+
+	ChapterIntro_ResetExtra();
+}
+
 static void ChapterIntro_Set(int style, int bg)
 {
 	if (style < 0 || style >= CHAPTER_INTRO_STYLE_COUNT)
@@ -145,8 +188,41 @@ struct ChapterIntroStyleProc {
 	/* 38 */ int bg;
 	/* 3C */ int titlePal;
 	/* 40 */ int titleChr;
-	/* 44 */ u8 _pad[0x6C - 0x44]; /* ChapterIntro_Init_PlaySound316 writes 0x4C-0x68 */
+	/* 44 */ int bar;
+	/* 48 */ u8 _pad[0x6C - 0x48]; /* ChapterIntro_Init_PlaySound316 writes 0x4C-0x68 */
 };
+
+#define CIS_BAR_CHR 0x380 /* OBJ tiles 0x380-0x3FF (0x06017000), all colour 1 */
+#define CIS_BAR_PAL 15    /* OBJ palette 15, colour 1 black */
+
+/* The see-through black bar behind the title: four 64x32 semi-transparent sprites */
+static const u16 sObj_ChapterIntroBar[] = {
+	4,
+	OAM0_SHAPE_64x32 | OAM0_BLEND, OAM1_SIZE_64x32 + 0,   0,
+	OAM0_SHAPE_64x32 | OAM0_BLEND, OAM1_SIZE_64x32 + 64,  0,
+	OAM0_SHAPE_64x32 | OAM0_BLEND, OAM1_SIZE_64x32 + 128, 0,
+	OAM0_SHAPE_64x32 | OAM0_BLEND, OAM1_SIZE_64x32 + 192, 0,
+};
+
+static void CIS_LoadBar(void)
+{
+	u32 *dst = (u32 *)(0x06010000 + CIS_BAR_CHR * 0x20);
+	int i;
+
+	for (i = 0; i < 0x1000 / 4; i++)
+		dst[i] = 0x11111111;
+
+	gPaletteBuffer[0x100 + CIS_BAR_PAL * 16 + 1] = 0;
+	EnablePaletteSync();
+}
+
+/* PutSprite masks x to 9 bits, so -8 is 0x1F8 (the pieces then cover -8 to 247) */
+static void CIS_PutBar(struct ChapterIntroStyleProc *proc)
+{
+	if (proc->bar)
+		PutSprite(0, -8, 64, sObj_ChapterIntroBar,
+			  OAM2_CHR(CIS_BAR_CHR) | OAM2_PAL(CIS_BAR_PAL) | OAM2_LAYER(1));
+}
 
 typedef bool (*ChapterIntroFrameFunc)(struct ChapterIntroStyleProc *proc, int t);
 
@@ -173,9 +249,15 @@ static int CIS_EaseIn(int from, int to, int t, int len)
 /* Darkens every layer and the backdrop by y (0 = none, 16 = black) */
 static void CIS_Darken(int y)
 {
-	SetBlendConfig(BLEND_EFFECT_DARKEN, 0, 0, y);
+	SetBlendConfig(BLEND_EFFECT_DARKEN, 16, 8, y);
 	SetBlendTargetA(1, 1, 1, 1, 1);
 	SetBlendBackdropA(1);
+	/*
+	 * the bar's semi-transparent sprites blend with what is under them at EVA 16 / EVB 8 (half as bright),
+	 * whatever the darken level
+	 */
+	SetBlendTargetB(0, 1, 1, 1, 0);
+	SetBlendBackdropB(1);
 }
 
 /* The chapter title banner on BG0, as vanilla's intro draws it (0x08020778), with its 64 tiles from chr on */
@@ -211,7 +293,7 @@ static int CIS_LastSceneBg(void)
 /* The background behind the title: the previous chapter's closing background on BG3, or vanilla's runes on BG1 */
 static void CIS_DrawBackground(struct ChapterIntroStyleProc *proc)
 {
-	int scene;
+	int scene = RECAP_NONE;
 
 	proc->titlePal = 5;
 	proc->titleChr = 0x280;
@@ -224,24 +306,25 @@ static void CIS_DrawBackground(struct ChapterIntroStyleProc *proc)
 
 	if (proc->bg == CHAPTER_INTRO_BG_SCENE) {
 		scene = CIS_LastSceneBg();
-		if (scene != RECAP_NONE) {
-			/*
-			 * a 224-colour CG leaves BG palettes 2 and 3 free: the title takes 2. The CG's tiles cover
-			 * vanilla's title tiles at 0x280, so the title's tiles move below them (0x80-0xBF)
-			 */
-			gLCDControlBuffer.bg3cnt.colorMode = 0;
-			EventShowTextBgDirect(EVSUBCMD_REMOVEPORTRAITS, scene);
-			proc->titlePal = 2;
-			proc->titleChr = 0x80; /* a CG's tiles cover 0x280 (0x06005000) */
-			return;
-		}
-
-		proc->bg = CHAPTER_INTRO_BG_VANILLA; /* no record yet (the prologue, an old save): vanilla's */
+		if (scene == RECAP_NONE)
+			proc->bg = CHAPTER_INTRO_BG_VANILLA; /* no record yet (the prologue, an old save): vanilla's */
 	}
 
 	if (proc->bg == CHAPTER_INTRO_BG_VANILLA) {
 		ChapterIntro_DrawRunes(proc, NULL, 14);
 		BG_EnableSyncByMask(2);
+		return;
+	}
+
+	if (proc->bg == CHAPTER_INTRO_BG_SCENE) {
+		/*
+		 * a 224-colour CG leaves BG palettes 2 and 3 free: the title takes 2. The CG's tiles cover
+		 * vanilla's title tiles at 0x280, so the title's tiles move below them (0x80-0xBF)
+		 */
+		gLCDControlBuffer.bg3cnt.colorMode = 0;
+		EventShowTextBgDirect(EVSUBCMD_REMOVEPORTRAITS, scene);
+		proc->titlePal = 2;
+		proc->titleChr = 0x80; /* a CG's tiles cover 0x280 (0x06005000) */
 	}
 }
 
@@ -392,9 +475,12 @@ static bool Mosaic_Map(struct ChapterIntroStyleProc *proc, int t)
 static bool Letterbox_Title(struct ChapterIntroStyleProc *proc, int t)
 {
 	if (t == 0) {
-		/* inside window 0: the title and its background; outside: nothing (the black backdrop) */
-		SetWin0Layers(1, 1, 1, 1, 0);
-		gLCDControlBuffer.wincnt.win0_enableBlend = 0;
+		/*
+		 * inside window 0: the title, its background and the bar (OBJ, blended); outside: nothing (the black backdrop).
+		 * Effects are on inside the window so the bar blends; darken is 0 during this title, so nothing else changes
+		 */
+		SetWin0Layers(1, 1, 1, 1, 1);
+		gLCDControlBuffer.wincnt.win0_enableBlend = 1;
 		SetWOutLayers(0, 0, 0, 0, 0);
 		gLCDControlBuffer.wincnt.wout_enableBlend = 0;
 		CIS_Darken(0);
@@ -485,7 +571,11 @@ static void CIS_Init(struct ChapterIntroStyleProc *proc)
 	SetupBackgrounds(NULL);
 	CIS_ResetFx();
 	CIS_DrawBackground(proc);
-	SetDispEnable(1, 1, 0, 1, 0);
+	/* after the background: it may fall back to vanilla's runes, which have their own band */
+	proc->bar = ChapterIntro_GetBand() && proc->bg != CHAPTER_INTRO_BG_VANILLA;
+	if (proc->bar)
+		CIS_LoadBar();
+	SetDispEnable(1, 1, 0, 1, proc->bar ? 1 : 0);
 	gPaletteBuffer[0] = 0;
 	EnablePaletteSync();
 	CIS_Darken(16);
@@ -495,6 +585,8 @@ static void CIS_Init(struct ChapterIntroStyleProc *proc)
 
 static void CIS_TitleLoop(struct ChapterIntroStyleProc *proc)
 {
+	CIS_PutBar(proc);
+
 	if (gKeyStatusPtr->newKeys & (A_BUTTON | B_BUTTON | START_BUTTON)) {
 		CIS_Darken(16);
 		Proc_Break(proc);

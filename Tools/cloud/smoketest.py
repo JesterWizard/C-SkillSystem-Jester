@@ -46,6 +46,8 @@ What it checks:
               same district chunks.
   recap       a game save keeps the last chapter's recap (the prologue's opening, a death and a recruit); Restart
               Chapter shows it in greyscale, A steps through it, START skips it and the chapter goes on.
+  introband   the chapter intro's Title Band option survives a game save (its save-tail share): off after a save and
+              a reset, with the share's magic; a new game starts it on.
   gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
               size, goes on to the next with right, back to the grid with B, scrolls a row on screen, and back to
               Extras with B.
@@ -1326,6 +1328,23 @@ class Smoke:
         self.check("recap: START skips it and the chapter goes on", vals[3:] == [0, 0],
                    "pending, chapter %s" % vals[3:])
 
+    def test_introband(self):
+        """Chapter intro styles (Kernel/Wizardry/ChapterIntroStyles, Documentation/Features/ChapterIntroStyles.md):
+        the Title Band option (gChapterIntroExtra.band, a save-tail share) is written off before the debugger's game
+        save; after a reset and the reload it is still off, with the share's magic ("CI"). A new game starts it on."""
+        if "gChapterIntroExtra" not in self.sym:
+            return self.check("introband: the Title Band option", False, "no gChapterIntroExtra symbol")
+        g = self.sym["gChapterIntroExtra"]
+        writes = ["r8 %#x" % (g + 2), "w8 %#x 0" % (g + 2)]
+        reads = ["r16 %#x" % g, "r8 %#x" % (g + 2)]
+        _, _, vals = self.round_trip("introband", "gEmsSavChunks", DEBUG_SAVE,
+                                     ["press A", "wait 200", "press A", "wait 300"], reads, writes)
+        if not self.check("introband: a new game starts with the Title Band on", len(vals) == 3 and vals[0] == 1,
+                          "values %s" % vals):
+            return
+        self.check("introband: the Title Band setting comes back from a game save", vals[1:] == [0x4943, 0],
+                   "magic, band %s" % vals[1:])
+
     def layout_signature(self):
         """SaveLayoutGuard.c's signature, from the ROM's chunk tables: FNV-1a over each chunk's size and id (sav, then
         sus, each ending 0xFFFFFFFF), the two block sizes and the save block offsets."""
@@ -2485,7 +2504,8 @@ def main():
                 r.submit((0, 8), s.test_ch1end, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
-                                ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("saveguard", s.test_saveguard),
+                                ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("introband", s.test_introband),
+                                ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
                                 ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex))):
         if on(t):

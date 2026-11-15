@@ -25,6 +25,23 @@ Each title holds for 100 frames. A, B or START skips the title.
 With a CG, the title uses palette 2 (a 224-colour CG leaves palettes 2 and 3 free) and tiles 0x80-0xBF. The CG's
 8bpp tiles start at `0x06004000` and cover vanilla's title tiles at 0x280.
 
+### Title bar
+
+With the Title Band option on (the default; see below), the Black and Last Scene backdrops also get a see-through
+black bar behind the title. It is four 64x32 semi-transparent sprites (`sObj_ChapterIntroBar`) at x -8, 56, 120, 184
+and y 64, so it covers rows 64-95 (the title is at 72-87). They use OBJ tiles 0x380-0x3FF (VRAM `0x06017000`), filled
+with colour 1 (`0x11111111`), and OBJ palette 15 colour 1, which is black (`CIS_LoadBar`). They are drawn every frame
+by `CIS_TitleLoop` (`CIS_PutBar`) at sprite priority 1, so they sit behind the title (BG0, priority 0) and in front of
+BG2 and BG3.
+
+The bar is blended at EVA 16 / EVB 8 with target B set to BG1, BG2, BG3 and the backdrop, so what is under it shows at
+half brightness. The blend unit's effect stays darken for the title fades: a semi-transparent OBJ pixel always uses
+the alpha coefficients whatever the effect is, so the fades still work. Letterbox's window 0 includes OBJ and the
+blend, so the bar shows inside it.
+
+With Vanilla as the backdrop the bar is not drawn: the runes already have vanilla's own band. On the Black backdrop
+nothing is under the bar, so it shows as black on black; it is visible only over the Last Scene background.
+
 ## The map
 
 Vanilla shows the map at the end of its intro only when the chapter's `fadeToBlack` (ROM chapter data `+0x87`) is 0
@@ -37,18 +54,29 @@ weather 5.
 
 ## Options and defaults
 
-Two Options rows, "Chapter Intro" and "Intro Backdrop" (`GAME_OPTION_CHAPTER_INTRO` = 39,
-`GAME_OPTION_CHAPTER_INTRO_BG` = 40, after Map Colors). Like UI Style, one value is shown at a time.
+Three Options rows, "Chapter Intro", "Intro Backdrop" and "Title Band" (`GAME_OPTION_CHAPTER_INTRO` = 39,
+`GAME_OPTION_CHAPTER_INTRO_BG` = 40, `GAME_OPTION_CHAPTER_INTRO_BAND` = 41, after Map Colors). Like UI Style, one value
+is shown at a time for the first two.
 
-Both live in `gPlaySt.config.chapter_intro` (4 bits, the former `custom_option_29`..`_32`) as
+The first two live in `gPlaySt.config.chapter_intro` (4 bits, the former `custom_option_29`..`_32`) as
 `style + 5 * background`.
 
-A new game takes the designer config's `chapter_intro_style` and `chapter_intro_bg`
-(`Data/DesignerConfig/designer-config.c`; defaults 0 for vanilla and 1 for vanilla runes). A save made before this
-feature has 0 there, which is the vanilla intro. No save layout changes.
+Title Band is an ON/OFF row (value 0 = ON, 1 = OFF, the two selectors `MSG_MENU_OPTION_ON` and `MSG_MENU_OPTION_OFF`).
+It is not in `gPlaySt.config`,
+which has no bits left, but in `gChapterIntroExtra` (`struct ChapterIntroExtra`, `include/kernel/chapter-intro-styles.h`):
+4 bytes, a `u16` magic `"CI"` (`0x4943`), the band byte and a pad byte. It is a save-tail share after the recap's, in
+the game save and in the suspend save (`SaveTail.c`, `SAV_INTRO_AT` and `SUS_INTRO_AT`). Load reads it only when the
+magic is there and the block has room for it.
 
-The row titles are `MSG_MENU_OPTION_CHAPTER_INTRO_TITLE` and `MSG_MENU_OPTION_CHAPTER_INTRO_BG_TITLE` (end of
-`Districts.txt`). The values and help lines are C strings in `ChapterIntroStyles.c`.
+A new game takes the designer config's `chapter_intro_style`, `chapter_intro_bg` and `chapter_intro_band`
+(`Data/DesignerConfig/designer-config.c`; defaults 0 for vanilla, 1 for vanilla runes and on for the band). A save made
+before this feature has no magic in its tail, so it also takes the designer config's `chapter_intro_band`, and a save
+with no room for the share does too. A save from before this feature has 0 in `gPlaySt.config.chapter_intro`, which is
+the vanilla intro. No save layout changes: the share is in the tail, not in a chunk.
+
+The row titles are `MSG_MENU_OPTION_CHAPTER_INTRO_TITLE`, `MSG_MENU_OPTION_CHAPTER_INTRO_BG_TITLE` and
+`MSG_MENU_OPTION_CHAPTER_INTRO_BAND_TITLE` (end of `Districts.txt`). The values and help lines are C strings in
+`ChapterIntroStyles.c`, except the band's help line, which is `MSG_MENU_OPTION_CHAPTER_INTRO_BAND_DESC`.
 
 ## How it hooks in
 
@@ -78,7 +106,8 @@ plays.
 
 The 4-bit option holds `style + 5 * background`, so 5 styles x 3 backgrounds fill it (15 of 16 values). Another
 style or background needs the encoding changed (and the factor 5 in `ChapterIntro_Get`/`Set`). No spare option bits
-remain.
+remain in `gPlaySt.config`. A new ON/OFF-style setting can go in `struct ChapterIntroExtra`'s pad byte (`+0x03`), which
+is in the share already, or the share can be made bigger: it is 4 bytes in the tail, which has room for more.
 
 ## Testing
 

@@ -422,6 +422,9 @@ _kernel_malloc2 gEkrLvupQuoteSave, 0xF0
 /* "Previously on your quest...": the last story chapter's recap and the army at its start (struct RecapState, recap.h) */
 _kernel_malloc2 gRecap, 0x24
 
+/* The chapter intro's extra options (struct ChapterIntroExtra, include/kernel/chapter-intro-styles.h). Kept in the saves' tails. */
+_kernel_malloc2 gChapterIntroExtra, 4
+
 // _kernel_malloc_overlay0 _kernel_malloc_overlay0_align4_pad, 3
 
 /**
