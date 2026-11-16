@@ -106,39 +106,42 @@ the sprite's colours are the ones the dump gave.
 
 ## Compression
 
-An animation from the converter takes about 43 KB, against 62 KB for the same data the way FEditor stores it
-(Gerik's sword: 12 sheets, 359 frames). Where it goes:
+The converter writes an animation in about 53 KB, against 62 KB for the same data the way FEditor stores it
+(Gerik's sword: 12 sheets, 359 frames):
 
 | Part | Gerik's sword | How |
 |------|---------------|-----|
-| 12 sheets | 35.0 KB | Huffman-coded, below |
-| Shared trees and lookup tables | 1.9 KB | once per animation |
+| 12 sheets | 46.6 KB | LZ77 (the BIOS's), optimal parse |
 | Right OAM | 4.7 KB | LZ77, optimal parse |
 | Left OAM | 0 | none: AutoGenLeftOAM makes it |
 | Script | 1.8 KB | LZ77, optimal parse, sheet pointers filled in by EA |
 | Palettes, modes | 0.2 KB | |
 
-- **The sheets** (`Kernel/Wizardry/BanimCodec`) use deflate's symbols (literals and length/distance pairs) with one
-  pair of canonical Huffman trees for all the animation's sheets, stored once in ROM with lookup tables
-  (`struct BanimHuffTrees`, `include/kernel/banim-codec.h`). A sheet starts with `(size << 8) | 0xD1` and a pointer to
-  the trees. The battle animation code's 20 `LZ77UnCompWram` calls go to `BanimUnComp`, which decodes that tag and
-  passes all other data (every vanilla animation) to the BIOS.
-- **Speed.** The decoding loop is ARM code (`Source/BanimHuffArm.s`, generated from `Tools/banim/huffdec.c` by
-  `Tools/banim/gen_huffdec_asm.sh`) copied into IWRAM for each sheet, into `gMovMapFillStPool2` (0x03004C50, 0x200
-  bytes: the movement flood fill's scratch, which VoiceStream also borrows, see
-  [VoiceStream.md](VoiceStream.md#the-iwram-overlay)). `BanimCodec.event` checks that it fits. A sheet takes up to 1.3
-  frames, against about a third of a frame for the BIOS's LZ77, so a sheet change can drop a frame: Gerik's battle in
-  the smoke test runs 776 frames, against 764 with LZ77 sheets. With Thumb code in ROM a sheet took up to 7.6
-  frames, and one decoded across VBlanks showed for a frame as garbage.
-- **No RAM.** The decoder builds no tables, so it needs none.
 - **The left OAM.** AutoGenLeftOAM (`Contents/External/AutoGenLeftOAM`, 7743) mirrors the right OAM when both
   pointers are the same. The converter checks that the mirror gives the dump's left OAM exactly; if not, it stores the
   left OAM.
 - **The script** holds the sheets' ROM addresses, which only EA knows. The converter compresses it with each pointer
   byte as a symbol of its own (a match only copies a pointer byte from the same byte of the same sheet's pointer) and
   writes those bytes as `BANIM_PTR_BYTE(label, k)` expressions.
-- **`--lz77`** (`feditor_dump.py --lz77 ...`) writes the sheets in LZ77 instead: decoded by the BIOS, no dropped
-  frame, about 53 KB for Gerik's sword.
+
+### `--huff`: smaller sheets, but they show late
+
+`feditor_dump.py --huff ...` writes the sheets Huffman-coded instead: about 44 KB for Gerik's sword (sheets 35.0 KB
+plus 1.9 KB of shared trees). Gerik used it at first and went back to LZ77, because a sheet takes too long to decode:
+
+- **The format** (`Kernel/Wizardry/BanimCodec`): deflate's symbols (literals and length/distance pairs) with one pair of
+  canonical Huffman trees for all the animation's sheets, stored once in ROM with lookup tables
+  (`struct BanimHuffTrees`, `include/kernel/banim-codec.h`). A sheet starts with `(size << 8) | 0xD1` and a pointer to
+  the trees. The battle animation code's 20 `LZ77UnCompWram` calls go to `BanimUnComp`, which decodes that tag and
+  passes all other data (every vanilla animation, and every LZ77 one) to the BIOS. No RAM.
+- **Speed.** The decoding loop is ARM code (`Source/BanimHuffArm.s`, generated from `Tools/banim/huffdec.c` by
+  `Tools/banim/gen_huffdec_asm.sh`) copied into IWRAM for each sheet, into `gMovMapFillStPool2` (0x03004C50, 0x200
+  bytes: the movement flood fill's scratch, which VoiceStream also borrows, see
+  [VoiceStream.md](VoiceStream.md#the-iwram-overlay)). Even so a sheet takes up to 1.3 frames, against about a third
+  of a frame for the BIOS's LZ77 (Thumb code from ROM took 7.6).
+- **What shows.** The animation draws its sprites while the sheet is still decoding, so for those frames they use
+  whatever tiles were in VRAM: about five frames of garbage as the battle opens, and a flicker at some sheet changes
+  (the end of an attack). A battle also runs a little longer: 776 frames for the test battle against 764.
 - **Measured but not used:** compressing the sheets together (LZMA, 26.6 KB) needs every sheet in RAM at once (96
   KB); repacking frames into fewer sheets frees at most one (the sheets are 89% full and only 551 of 2,749 tiles
   repeat, mostly on other sheets); a bit-packed LZ without Huffman coding gives 40.5 KB.
@@ -166,7 +169,7 @@ It saves `gerik.png` (the battle) in the test's folder.
 | Entry point and lists | `Contents/BattleAnims/BattleAnims.event` |
 | Gerik's sword (source and converted) | `Contents/BattleAnims/Gerik/` |
 | Converter | `Tools/banim/feditor_dump.py`, `Tools/banim/banimpack.py` (the compressors) |
-| Sheet decoder | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
+| Sheet decoder for `--huff` | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
 | `CustomAnimeTable` rows | `Contents/External/Individual_animation_ea_2/data.event` |
 | Lookup | `Kernel/Wizardry/FebCompat/IndividualAnim/Source/IndividualAnim.c` (`GetUnitBattleAnimDef`) |
 | Battle setup | `Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c` (`PrepareBattleGraphicsMaybe`) |

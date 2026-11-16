@@ -10,12 +10,14 @@ Input dump folder (DUMP_DIR):
   <Name> Sheet N.png     264x64 mode-P sheets, N from 1. x 0..255 is the sheet, x 256..263 a swatch.
 
 Usage:
-  python3 Tools/banim/feditor_dump.py [--lz77] DUMP_DIR OUT_DIR PREFIX ABBR
+  python3 Tools/banim/feditor_dump.py [--huff] DUMP_DIR OUT_DIR PREFIX ABBR
 
---lz77 writes the sheets in the BIOS's LZ77 (PREFIX_sheet_<i>.lz): bigger, but decoded at BIOS speed.
+The sheets are LZ77 (PREFIX_sheet_<i>.lz), decoded by the BIOS. --huff writes them Huffman-coded instead (about a
+fifth smaller), but a sheet then takes up to 1.3 frames to decode: the first frames of a battle and some sheet changes
+show the sprite with stale tiles (Documentation/Features/CustomBattleAnimations.md, "Compression").
 
-Writes PREFIX_trees.bin and PREFIX_sheet_<i>.huff (the sheets, Huffman-coded with one shared pair of trees for
-Kernel/Wizardry/BanimCodec), PREFIX_modes.bin, PREFIX_oam_r.lz, PREFIX_pal.lz (LZ77, optimal parse), PREFIX_oam_l.lz
+Writes PREFIX_sheet_<i>.lz (the sheets; with --huff, PREFIX_trees.bin and PREFIX_sheet_<i>.huff instead,
+Huffman-coded with one shared pair of trees for Kernel/Wizardry/BanimCodec), PREFIX_modes.bin, PREFIX_oam_r.lz, PREFIX_pal.lz (LZ77, optimal parse), PREFIX_oam_l.lz
 only when the left OAM isn't the right one mirrored (else AutoGenLeftOAM makes it), and PREFIX.event (the labels, the
 LZ77 script with the sheet pointers' bytes filled in by EA, and the PREFIX_BANIM_ENTRY table macro).
 """
@@ -225,10 +227,10 @@ def script_tokens(words, sheet_pos):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if a != '--lz77']
-    lz77_sheets = len(args) != len(sys.argv) - 1
+    args = [a for a in sys.argv[1:] if a != '--huff']
+    lz77_sheets = len(args) == len(sys.argv) - 1
     if len(args) != 4:
-        sys.exit('usage: feditor_dump.py [--lz77] DUMP_DIR OUT_DIR PREFIX ABBR')
+        sys.exit('usage: feditor_dump.py [--huff] DUMP_DIR OUT_DIR PREFIX ABBR')
     dump_dir, out_dir, prefix, abbr = args
     name, modes, oam_r, oam_l, pal, words, sheet_paths = read_dump(dump_dir)
     nsheets = len(sheet_paths)

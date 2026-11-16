@@ -6,56 +6,41 @@
 #define GerikSword_BANIM_ENTRY "BYTE 0x67 0x65 0x72 0x69 0x6B 0x5F 0x73 0x77 0x31 0x00 0x00 0x00; POIN GerikSword_Modes GerikSword_Script GerikSword_OamR GerikSword_OamL GerikSword_Pal"
 
 ALIGN 4
-GerikSword_Trees: // struct BanimHuffTrees (include/kernel/banim-codec.h)
-#incbin "GerikSword_trees.bin"
-ALIGN 4
 GerikSword_Sheet1:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_1.huff"
+#incbin "GerikSword_sheet_1.lz"
 ALIGN 4
 GerikSword_Sheet2:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_2.huff"
+#incbin "GerikSword_sheet_2.lz"
 ALIGN 4
 GerikSword_Sheet3:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_3.huff"
+#incbin "GerikSword_sheet_3.lz"
 ALIGN 4
 GerikSword_Sheet4:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_4.huff"
+#incbin "GerikSword_sheet_4.lz"
 ALIGN 4
 GerikSword_Sheet5:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_5.huff"
+#incbin "GerikSword_sheet_5.lz"
 ALIGN 4
 GerikSword_Sheet6:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_6.huff"
+#incbin "GerikSword_sheet_6.lz"
 ALIGN 4
 GerikSword_Sheet7:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_7.huff"
+#incbin "GerikSword_sheet_7.lz"
 ALIGN 4
 GerikSword_Sheet8:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_8.huff"
+#incbin "GerikSword_sheet_8.lz"
 ALIGN 4
 GerikSword_Sheet9:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_9.huff"
+#incbin "GerikSword_sheet_9.lz"
 ALIGN 4
 GerikSword_Sheet10:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_10.huff"
+#incbin "GerikSword_sheet_10.lz"
 ALIGN 4
 GerikSword_Sheet11:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_11.huff"
+#incbin "GerikSword_sheet_11.lz"
 ALIGN 4
 GerikSword_Sheet12:
-WORD 0x002000D1; POIN GerikSword_Trees
-#incbin "GerikSword_sheet_12.huff"
+#incbin "GerikSword_sheet_12.lz"
 ALIGN 4
 GerikSword_Modes:
 #incbin "GerikSword_modes.bin"
