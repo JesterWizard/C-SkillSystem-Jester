@@ -13,6 +13,9 @@ struct IndividualAnimConf {
 
 const struct IndividualAnimConf *GetPrIndividualAnimConf(void);
 
+/* The unit's battle animations: its row in CustomAnimeTable (character and class), else its class's */
+const struct BattleAnimDef *GetUnitBattleAnimDef(struct Unit *unit);
+
 /**
  * Bow2Decrease
  */

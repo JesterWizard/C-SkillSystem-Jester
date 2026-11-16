@@ -84,6 +84,7 @@ ALIGN 4
 #include "UnitExpa/UnitExpa.event"
 #include "PrePhaseHook/PrePhaseHook.event"
 #include "BanimSync/BanimSync.event"
+#include "BanimCodec/BanimCodec.event"
 #include "KernelTutorial/KernelTutorial.event"
 #include "BeginActionHook/BeginActionHook.event"
 #include "MapAnimBattleHook/MapAnimBattleHook.event"

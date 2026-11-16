@@ -38,27 +38,7 @@ struct BanimSyncHandler * GetBanimSyncHandler_ComboAtk(struct Anim *anim)
 	gBanimSyncHandler.jid = UNIT_CLASS_ID(unit);
 	gBanimSyncHandler.weapon = ITEM_INDEX(gComboAtkList[round].weapon);
 
-	gBanimSyncHandler.animdef = NULL;
-
-	if (gpKernelDesignerConfig->custom_character_animations == true)
-	{
-		/* Port for Individual_animation_ea_2 */
-		int i;
-		const struct IndividualAnimConf *aconf = GetPrIndividualAnimConf();
-
-		for (i = 0; aconf[i].pid != 0 || aconf[i].jid != 0; i++) {
-			u8 pid = aconf[i].pid;
-			u8 jid = aconf[i].jid;
-
-			if (pid == UNIT_CHAR_ID(unit) && jid == UNIT_CLASS_ID(unit)) {
-				gBanimSyncHandler.animdef = aconf[i].anim_conf;
-				break;
-			}
-		}
-	}
-
-	if (gBanimSyncHandler.animdef == NULL)
-		gBanimSyncHandler.animdef = unit->pClassData->pBattleAnimDef;
+	gBanimSyncHandler.animdef = GetUnitBattleAnimDef(unit);
 
 	return &gBanimSyncHandler;
 }

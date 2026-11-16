@@ -73,12 +73,14 @@ STATIC_DECLAR int TrySwitchBanimInfo(int pos, u8 pid, u8 jid, const struct Battl
 	if (gBanimIdx[pos] == -1) /* We did not find a proper anim */
 		return 0;
 
-	/* Find unique palette */
+	/* Find unique palette: a character palette is laid out for its class's animations, so a custom animation keeps its own */
 	gBanimUniquePal[pos] = -1;
-	for (i = 0; i < 7; i++) {
-		if (p_gAnimCharaPalConfig[(pid - 1) * 7 + i] == jid) {
-			gBanimUniquePal[pos] = p_gAnimCharaPalIt[(pid - 1) * 7 + i] - 1;
-			break;
+	if (animdef == GetClassData(jid)->pBattleAnimDef) {
+		for (i = 0; i < 7; i++) {
+			if (p_gAnimCharaPalConfig[(pid - 1) * 7 + i] == jid) {
+				gBanimUniquePal[pos] = p_gAnimCharaPalIt[(pid - 1) * 7 + i] - 1;
+				break;
+			}
 		}
 	}
 

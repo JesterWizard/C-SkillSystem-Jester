@@ -1,0 +1,28 @@
+// Custom battle animations (Documentation/Features/CustomBattleAnimations.md), behind CONFIG_CUSTOM_BATTLE_ANIMS.
+// Each animation is made from an FEditor Advance dump by Tools/banim/feditor_dump.py and gets an ID after vanilla's
+// 201 (0x01-0xC9): its entry goes in the zero bytes that follow banim_data (0xC00008), room for IDs 0xCA-0xFF.
+#ifdef CONFIG_CUSTOM_BATTLE_ANIMS
+#ifndef CUSTOM_BATTLE_ANIMS_INSTALLED
+#define CUSTOM_BATTLE_ANIMS_INSTALLED
+
+#define BanimEntry(id) "ORG 0xC00008 + 0x20 * ((id) - 1)"
+
+#define BANIM_GERIK_SWORD 0xCA
+
+// Gerik (Mercenary), sword: "[Mercenary-Variant] SALVAGED Gerik [M]" by UltraFenix
+#include "Gerik/GerikSword.event"
+PUSH
+BanimEntry(BANIM_GERIK_SWORD)
+GerikSword_BANIM_ENTRY
+POP
+
+// Gerik's Mercenary animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event):
+// swords use his animation, unarmed keeps vanilla Mercenary's (0x0C)
+ALIGN 4
+gBanimDef_GerikMercenary:
+BYTE 0x00 0x01; SHORT BANIM_GERIK_SWORD
+BYTE 0x09 0x01; SHORT 0x0C
+WORD 0
+
+#endif // CUSTOM_BATTLE_ANIMS_INSTALLED
+#endif // CONFIG_CUSTOM_BATTLE_ANIMS
