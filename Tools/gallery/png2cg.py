@@ -5,7 +5,8 @@
 
 A stand-in for Huichelaar's Sommie, with the same output:
     IMG.dmp: the picture as 8bpp tiles, 32x20 tiles in order (the last 2 tile columns, x 240-255, are not shown),
-             LZ77 compressed (VRAM safe).
+             LZ77 compressed (VRAM safe). When it is smaller, the solid-tile format instead (see pack_solid): tiles
+             of one colour are stored as one byte each and only the others are LZ77 compressed.
     PAL.dmp: its colours, RGB555. For 224 colours, pixel values 32-63 are skipped (banks 2-3 hold the text's
              palettes): palette entries 0-31 are pixel values 0-31 and entries 32-223 are pixel values 64-255.
 COLOURS is 224 (portraits and speech bubbles can be drawn over it: TSA word 1 in BG.event) or 256 (TSA word 0).
@@ -18,6 +19,8 @@ import sys
 from PIL import Image
 
 W, H, FULL_W = 240, 160, 256
+TILES = (FULL_W // 8) * (H // 8)  # 640
+SOLID_MAGIC = b"CGSS"
 
 
 def lz77_compress(data):
@@ -67,6 +70,79 @@ def lz77_compress(data):
     return bytes(out)
 
 
+def lz77_decompress(data, off=0):
+    size = struct.unpack_from("<I", data, off)[0] >> 8
+    off += 4
+    out = bytearray()
+    while len(out) < size:
+        flags = data[off]
+        off += 1
+        for bit in range(8):
+            if len(out) >= size:
+                break
+            if flags & (0x80 >> bit):
+                x = data[off] << 8 | data[off + 1]
+                off += 2
+                n, d = (x >> 12) + 3, (x & 0xFFF) + 1
+                for _ in range(n):
+                    out.append(out[-d])
+            else:
+                out.append(data[off])
+                off += 1
+    return bytes(out)
+
+
+def pack_solid(tiles):
+    """The solid-tile format, read by CGC_LoadMultiPalBG (Backgrounds_224_256_Colors/src/C/main.c):
+        "CGSS"
+        80 bytes: bit (k & 7) of byte k >> 3 is set if tile k is one colour
+        1 byte per such tile, in tile order: its colour
+        zeros up to a multiple of 4
+        the other tiles, in order, LZ77 compressed (absent if there are none)"""
+    assert len(tiles) == TILES * 64
+    bitmap, colours, body = bytearray(TILES // 8), bytearray(), bytearray()
+    for k in range(TILES):
+        t = tiles[k * 64:(k + 1) * 64]
+        if t.count(t[0]) == 64:
+            bitmap[k >> 3] |= 1 << (k & 7)
+            colours.append(t[0])
+        else:
+            body += t
+    out = bytearray(SOLID_MAGIC + bitmap + colours)
+    while len(out) % 4:
+        out.append(0)
+    if body:
+        out += lz77_compress(bytes(body))
+    return bytes(out)
+
+
+def unpack_img(data):
+    """An IMG.dmp (either format) back to its 8bpp tiles."""
+    if data[:4] != SOLID_MAGIC:
+        return lz77_decompress(data)
+    bitmap = data[4:4 + TILES // 8]
+    solid = [bool(bitmap[k >> 3] & (1 << (k & 7))) for k in range(TILES)]
+    n = sum(solid)
+    colours = data[4 + TILES // 8:4 + TILES // 8 + n]
+    off = (4 + TILES // 8 + n + 3) & ~3
+    body = lz77_decompress(data, off) if n < TILES else b""
+    out, c, b = bytearray(), 0, 0
+    for k in range(TILES):
+        if solid[k]:
+            out += bytes([colours[c]]) * 64
+            c += 1
+        else:
+            out += body[b * 64:(b + 1) * 64]
+            b += 1
+    return bytes(out)
+
+
+def pack_img(tiles):
+    """The smaller of plain LZ77 and the solid-tile format."""
+    plain, solid = lz77_compress(tiles), pack_solid(tiles)
+    return solid if len(solid) < len(plain) else plain
+
+
 def main():
     colours, png, img_out, pal_out = int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
     if colours not in (224, 256):
@@ -94,7 +170,7 @@ def main():
                     tiles.append(value(index[px[sy * iw + sx]]) if sx < iw else 0)
     words = [r | g << 5 | b << 10 for r, g, b in pal] + [0] * (colours - len(pal))
     with open(img_out, "wb") as f:
-        f.write(lz77_compress(bytes(tiles)))
+        f.write(pack_img(bytes(tiles)))
     with open(pal_out, "wb") as f:
         f.write(struct.pack("<%dH" % colours, *words))
 

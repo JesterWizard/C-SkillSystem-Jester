@@ -84,4 +84,18 @@ Yep, you'll want to ensure that your image is saved using ``indexed color mode``
 What I tend to do then is export the image with adaptive color filtering, which generally results in the image being reduced to 1/3 or less in size with no visible
 loss in quality.
 
+The PNG's size doesn't reach the ROM, though: only the `.dmp` files do. To make those smaller:
+- Convert with ``python3 Tools/gallery/png2cg.py 224 <png> <IMG.dmp> <PAL.dmp>`` (or 256), not Sommie. It writes the
+  *solid-tile format* when that is smaller: every 8x8 tile of a single colour (plain backdrops, such as the Heroes card
+  art) is stored as one byte, and only the other tiles are LZ77 compressed. Plain LZ77 can't do better than about 8 bytes
+  for a blank tile.
+- Shrink `.dmp` files made by Sommie or an older converter with ``python3 Tools/gallery/repack_cg.py <IMG.dmp>...``. It is
+  lossless: it checks that each file decodes to the same tiles, and leaves a file alone when it wouldn't get smaller.
+- Keep the backdrop one exact colour, and fill the 16 hidden columns on the right (x 240-255) with it as well: a
+  backdrop with stray near-white pixels won't count as solid.
+
+The format starts with `CGSS` (plain LZ77 files start with byte `0x10`), so `CGC_LoadMultiPalBG`
+(`src/C/main.c`) tells the two apart by themselves: the TSA word in `BG.event` stays 0 or 1. `Tools/gallery/thumbs.py`
+reads both.
+
 ---
