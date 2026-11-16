@@ -11,6 +11,7 @@
 - [Palettes](#palettes)
 - [How It Works](#how-it-works)
 - [Compression](#compression)
+- [Viewing in Game](#viewing-in-game)
 - [Testing](#testing)
 - [Code Locations](#code-locations)
 
@@ -216,6 +217,23 @@ usual way (every part in the BIOS's LZ77, both OAMs):
 - **Measured but not used:** compressing the sheets together (LZMA, 26.6 KB for Gerik's) needs every sheet in RAM at
   once (96 KB); repacking frames into fewer sheets frees at most one (Gerik's sheets are 89% full and only 551 of
   2,749 tiles repeat, mostly on other sheets); a bit-packed LZ without Huffman coding gives 40.5 KB.
+
+---
+
+## Viewing in Game
+
+The debugger (B on the map) has **Battle anim** on its page 3. It plays the selected unit's battle animation, with its
+equipped weapon (or its first black magic: tomes are spells here), against a stand-in Soldier, over and over:
+
+- **A** switches the next fight between a normal hit and a critical (a sound tells which: the menu's confirm sound for
+  critical, its cancel sound for normal);
+- **B** leaves after the fight that is playing, back to the debugger's menu.
+
+Each fight is one scripted hit for 1 damage, and the battle is not a real one (`BATTLE_CONFIG_REAL` off), so the unit,
+its weapon, its EXP and the battle records don't change. It plays even with animations off in the options (it turns
+them on while it runs). A unit with no weapon and no black magic gets a buzz. The code is
+`Kernel/Wizardry/VeslyDebugger/BanimViewer.c`; the hits go in the kernel's hit list (`gBattleHitArrayRe`), not
+vanilla's, and a small proc in `PROC_TREE_3` reads the keys while the fight runs (the fight locks the viewer's own).
 
 ---
 

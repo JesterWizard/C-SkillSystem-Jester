@@ -461,6 +461,7 @@ void ViewBackgroundExit(DebuggerProc* proc);
 void ViewPortraitInit(DebuggerProc* proc);
 void ViewPortraitIdle(DebuggerProc* proc);
 void ViewTrapInit(DebuggerProc* proc);
+void StartDebugBanimViewer(ProcPtr parent);
 void ViewTrapIdle(DebuggerProc* proc);
 void ViewSupplyInit(DebuggerProc* proc);
 void ViewSupplyIdle(DebuggerProc* proc);
@@ -499,6 +500,7 @@ u8 CanActiveUnitPromote(void);
 #define BackgroundChangeLabel 27
 #define BackgroundExitLabel 28
 #define ForgeLabel 29
+#define BanimViewLabel 30
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -682,6 +684,11 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_REPEAT(ForgeIdle),
     PROC_GOTO(EndLabel),
     
+    PROC_LABEL(BanimViewLabel), // Battle animation viewer (BanimViewer.c)
+    PROC_CALL(StartDebugBanimViewer), // blocks this proc until the viewer ends
+    PROC_YIELD,
+    PROC_GOTO(RestartLabel),
+
     PROC_LABEL(EndLabel), 
     PROC_CALL(ClearActiveUnitStuff),
     PROC_CALL(SaveProcVarsToIdler),
@@ -4559,6 +4566,13 @@ u8 ViewPortraitNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 	DebuggerProc* proc;
 	proc = Proc_Find(DebuggerProcCmd);
     Proc_Goto(proc, PortraitLabel);
+    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+}
+
+u8 ViewBanimNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
+	DebuggerProc* proc;
+	proc = Proc_Find(DebuggerProcCmd);
+    Proc_Goto(proc, BanimViewLabel);
     return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
 }
 
