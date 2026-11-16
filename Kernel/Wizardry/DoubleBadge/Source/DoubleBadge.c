@@ -1,7 +1,6 @@
 #include "common-chax.h"
 #include "ekrbattle.h"
 #include "double-badge.h"
-#include "efx-skill.h"
 #include "banim-hack.h"
 
 /*
@@ -12,9 +11,20 @@
 extern const u8 Gfx_BKSEL[12][0x80]; /* the battle forecast's "xN" sprites, 16x16 (BattleSys/data.event) */
 extern const u16 Pal_BKSEL[];
 
-#define BADGE_CHR_L 988  /* 2D OBJ tiles 988, 989, 1020, 1021 */
-#define BADGE_CHR_R 990  /* 2D OBJ tiles 990, 991, 1022, 1023 */
-#define BADGE_PAL   15   /* shared with the skill and anim number popups and the level-up face: hidden while they show */
+/*
+ * 2D OBJ tiles 320, 321, 352, 353 (left) and 322, 323, 354, 355 (right): free in battle. Spells load their sprites at
+ * tiles 64-319 (vanilla's largest is 0x2000 bytes from 0x06010800), the HP bars use 461-495 and 384-447, and the
+ * animations' sheets 512-1023. The badge was at 988-991 and 1020-1023, the last tiles of the right side's sheet:
+ * custom animations that use them lost tiles to it (a missing shoe) and drew over it (a garbled "x2").
+ */
+#define BADGE_CHR_L 320
+#define BADGE_CHR_R 322
+/*
+ * OBJ palette 10: no sprite uses it in a battle (rows 6, 8 and 10 never show, checked every frame of a physical, a
+ * critical and a magic battle). It was 15, which the damage numbers, the skill popups and the level-up face also use,
+ * so the badge had to hide while they showed: it blinked out at every hit.
+ */
+#define BADGE_PAL   10
 #define BADGE_Y     92   /* the 16x16 badge's top; the boxes' Hit rows are at y 112 */
 
 static const u16 sObj_Badge16x16[] = { 1, OAM0_SHAPE_16x16, OAM1_SIZE_16x16, 0 };
@@ -68,14 +78,8 @@ static void DoubleBadge_Loop(ProcPtr proc)
 	if (!gauge || gauge->valid == 1) /* hidden: vanilla's ekrGaugeMain skips drawing then */
 		return;
 
-	/*
-	 * These share OBJ palette 15 and their sprites use it: draw nothing while any shows. So does the level-up box's
-	 * portrait (EkrLvup_InitLevelUpBox's gUnknown_087592CC): resetting the palette under it drew the face in the
-	 * badge's colours.
-	 */
-	if (EfxSkillExists() || EfxSkillBoxExists() || EkrSkillExists() || EfxAnimNumberExists() || CritCutinExists())
-		return;
-	if (Proc_Find(ProcScr_EkrLevelup))
+	/* Not over the critical cut-in or the level-up box, which cover the HUD */
+	if (CritCutinExists() || Proc_Find(ProcScr_EkrLevelup))
 		return;
 
 	for (i = 0; i < 16; i++) {

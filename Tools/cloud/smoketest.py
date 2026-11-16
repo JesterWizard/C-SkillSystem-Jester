@@ -68,9 +68,9 @@ What it checks:
               badge shares OBJ palette 15); after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
-  banim       with battle animations on, Gerik as a Mercenary (RAM writes make Eirika's unit him) attacks with an Iron
-              Sword: the battle loads his custom sword animation (ID 0xCA, Contents/BattleAnims) and it keeps its own
-              palette (no character palette).
+  banim       with battle animations on, Gerik as a Mercenary and Tana as a Pegasus Knight (RAM writes make Eirika's
+              unit them) attack: each battle loads their custom animation (Contents/BattleAnims: 0xCA, 0xCB), with its
+              own palette (no character palette).
   biography   the map menu's Biography row opens the list; it scrolls to its last biography, which A does not open (her
               character has not joined); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
@@ -1761,33 +1761,40 @@ class Smoke:
                    "main loop %#x, level %d to %d" % (main, lv0, lv1))
 
     def test_banim(self, boot_ss):
-        """Gerik as a Mercenary (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event) attacks with
-        an Iron Sword, animations on (option byte 0x42): the battle loads his custom sword animation, ID 0xCA. gBanimIdx
-        holds the ID minus 1, so 0xC9 on his side (the player is on the right), and that side's unique palette is -1:
-        an animation of its own, with no character palette (gAnimCharaPalConfig). Needs CONFIG_CUSTOM_BATTLE_ANIMS."""
+        """The custom battle animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event), one
+        fight each with animations on (option byte 0x42), Eirika's unit made the character in RAM: Gerik as a Mercenary
+        with an Iron Sword (his sword, ID 0xCA) and Tana as a Pegasus Knight with an Iron Lance (her lance, ID 0xCB).
+        gBanimIdx holds the ID minus 1 (the player is on the right), and that side's unique palette is -1: an animation
+        of its own, with no character palette (gAnimCharaPalConfig). Needs CONFIG_CUSTOM_BATTLE_ANIMS."""
         d = os.path.join(self.out, "banim")
         os.makedirs(d, exist_ok=True)
         need = ("gBanimIdx", "gBanimUniquePal", "gCharacterData", "gClassData")
         if not all(n in self.sym for n in need):
             return self.check("banim: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
-        char = self.sym["gCharacterData"] + 0x34 * (0x14 - 1)  # Gerik's character data
-        cls = self.sym["gClassData"] + 0x54 * (0x0F - 1)  # Mercenary's class data
         idx, pal = self.sym["gBanimIdx"], self.sym["gBanimUniquePal"]
         attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 100"]
-        vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w32 %#x %#x" % (UNIT1, char),
-                              "w32 %#x %#x" % (UNIT1 + 4, cls), "w16 %#x 0x2E01" % (UNIT1 + 0x1E)] + attack +
-                        ["r16 %#x" % idx, "r16 %#x" % (idx + 2), "r16 %#x" % pal, "r16 %#x" % (pal + 2),
-                         "shot gerik.png"], d)
-        self.shot(os.path.join(d, "gerik.png"), "Gerik's sword animation")
-        if len(vals) != 4:
-            return self.check("banim: the fight runs", False, "values %s" % vals)
-        idx_vals, pal_vals = vals[:2], vals[2:]
-        side = next((k for k in (1, 0) if idx_vals[k] == 0xC9), None)
-        self.check("banim: Gerik as a Mercenary loads his custom sword animation (0xCA)", side is not None,
-                   "gBanimIdx %s" % ["%#x" % v for v in idx_vals])
-        self.check("banim: it keeps its own palette (no character palette)",
-                   side is not None and pal_vals[side] == 0xFFFF,
-                   "gBanimUniquePal %s" % ["%#x" % v for v in pal_vals])
+        # name, character, class, item (id | uses << 8), the weapon rank to give (byte in ranks[]), animation ID
+        cases = (("Gerik as a Mercenary", "gerik", 0x14, 0x0F, 0x2E01, 0, 0xCA, "sword"),
+                 ("Tana as a Pegasus Knight", "tana", 0x22, 0x48, 0x2E14, 1, 0xCB, "lance"))
+        for label, name, pid, jid, item, rank, anim, weapon in cases:
+            char = self.sym["gCharacterData"] + 0x34 * (pid - 1)
+            cls = self.sym["gClassData"] + 0x54 * (jid - 1)
+            vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w32 %#x %#x" % (UNIT1, char),
+                                  "w32 %#x %#x" % (UNIT1 + 4, cls), "w16 %#x %#x" % (UNIT1 + 0x1E, item),
+                                  "w8 %#x 31" % (UNIT1 + 0x28 + rank)] + attack +
+                            ["r16 %#x" % idx, "r16 %#x" % (idx + 2), "r16 %#x" % pal, "r16 %#x" % (pal + 2),
+                             "shot %s.png" % name], d)
+            self.shot(os.path.join(d, name + ".png"), "%s's %s animation" % (label.split()[0], weapon))
+            if len(vals) != 4:
+                self.check("banim: %s: the fight runs" % label, False, "values %s" % vals)
+                continue
+            idx_vals, pal_vals = vals[:2], vals[2:]
+            side = next((k for k in (1, 0) if idx_vals[k] == anim - 1), None)
+            self.check("banim: %s loads the custom %s animation (%#x)" % (label, weapon, anim), side is not None,
+                       "gBanimIdx %s" % ["%#x" % v for v in idx_vals])
+            self.check("banim: %s: it keeps its own palette (no character palette)" % label,
+                       side is not None and pal_vals[side] == 0xFFFF,
+                       "gBanimUniquePal %s" % ["%#x" % v for v in pal_vals])
 
     def test_battlequote(self, boot_ss):
         """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with

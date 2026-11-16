@@ -17,10 +17,15 @@
 
 ## Introduction
 
-Battle animations can be added to the game from FEditor Advance dumps. The first one is Gerik's sword as a
-Mercenary: "[Mercenary-Variant] SALVAGED Gerik [M]" (1. Sword) by UltraFenix. When Gerik, as a Mercenary, attacks
-with a sword, his battle uses this animation instead of the vanilla Mercenary one (ID 0xCA, see
-[Credits](./Credits.md#battle-animations)).
+Battle animations can be added to the game from FEditor Advance dumps. A character uses one in place of their class's
+animation (see [Credits](../Credits.md#battle-animations) for the authors):
+
+| ID | Character, class | Weapon | Animation | Author |
+|----|------------------|--------|-----------|--------|
+| 0xCA | Gerik, Mercenary | swords | "[Mercenary-Variant] SALVAGED Gerik [M]" (1. Sword) | UltraFenix |
+| 0xCB | Tana, Pegasus Knight | lances | "Peg T1 Reskin F Tana" (2. Lance) | RedBean |
+
+Their other weapon types (unarmed) keep the class's vanilla animation.
 
 The custom animations are in `Contents/BattleAnims/`. Vanilla's animation table is not changed: a new animation
 gets an ID after vanilla's, and a character or a class is pointed at it through `CustomAnimeTable`.
@@ -66,7 +71,7 @@ Both are needed for Gerik's sword to show.
    `gBanimDef_GerikMercenary` in `BattleAnims.event`. Its rows are `BYTE <weapon type> 0x01; SHORT <ID>` (kind 1 is
    a weapon type; kind 0 would be an item id), and the list ends with `WORD 0`. Gerik's two rows: swords (weapon type
    0x00) use ID 0xCA, unarmed (0x09) keeps vanilla Mercenary's 0x0C.
-6. Add a row to the Credits (`Documentation/Features/Credits.md`, "Battle Animations"), with the author and a link
+6. Add a row to the Credits (`Documentation/Credits.md`, "Battle Animations"), with the author and a link
    to the source.
 7. Rebuild with `Tools/cloud/build.sh`, then run `python3 Tools/cloud/smoketest.py --only banim`.
 
@@ -81,7 +86,8 @@ Vanilla's `banim_data` (ROM `0xC00008`, 0x20 bytes an entry) has 201 animations,
 it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An entry goes at
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
-Take the next free ID after the highest one in use in `BattleAnims.event`. Gerik's sword is 0xCA, the first.
+Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
+0xCB, so the next is 0xCC.
 
 ---
 
@@ -106,57 +112,58 @@ the sprite's colours are the ones the dump gave.
 
 ## Compression
 
-The converter writes an animation in about 53 KB, against 62 KB for the same data the way FEditor stores it
-(Gerik's sword: 12 sheets, 359 frames):
+The converter writes Gerik's sword in 43.9 KB and Tana's lance in 39.2 KB, against 58.6 KB and 53.1 KB inserted the
+usual way (every part in the BIOS's LZ77, both OAMs):
 
-| Part | Gerik's sword | How |
-|------|---------------|-----|
-| 12 sheets | 46.6 KB | LZ77 (the BIOS's), optimal parse |
-| Right OAM | 4.7 KB | LZ77, optimal parse |
-| Left OAM | 0 | none: AutoGenLeftOAM makes it |
-| Script | 1.8 KB | LZ77, optimal parse, sheet pointers filled in by EA |
-| Palettes, modes | 0.2 KB | |
+| Part | Gerik's sword | Tana's lance | How |
+|------|---------------|--------------|-----|
+| Sheets | 37.1 KB (12) | 34.5 KB (11) | Huffman-coded, one pair of trees per animation (below) |
+| Right OAM | 4.8 KB | 3.6 KB | LZ77, optimal parse |
+| Left OAM | 0 | 0 | none: AutoGenLeftOAM makes it |
+| Script | 1.8 KB | 1.0 KB | LZ77, optimal parse, sheet pointers filled in by EA |
+| Palettes, modes | 0.2 KB | 0.2 KB | |
 
+- **The sheets** (`Kernel/Wizardry/BanimCodec`): deflate's symbols (literals and length/distance pairs) with one pair
+  of canonical Huffman trees for all the animation's sheets, stored once in ROM with lookup tables
+  (`struct BanimHuffTrees`, `include/kernel/banim-codec.h`). A sheet starts with `(size << 8) | 0xD1` and a pointer to
+  the trees. No RAM.
+- **Where it's decoded.** Every vanilla call that can decompress an animation's sheet, script or OAM goes to
+  `BanimUnComp` (`BanimCodec.event`), which decodes that tag and passes everything else (every vanilla animation) to
+  the BIOS: the sheet loader (`RegisterAISSheetGraphics`), `UpdateBanimFrame`, the mini animations
+  (`InitMainMiniAnim`, `sub_805A7B4`, `sub_805AA68`), and the unit zooming in from the map and back out
+  (`UnitKakudaiPrepareAnimScript`). A call left out decodes a Huffman sheet as LZ77 into garbage: the zoom was, and the
+  battle opened and closed on a garbled sprite.
+- **Speed.** The decoding loop is ARM code (`Source/BanimHuffArm.s`, generated from `Tools/banim/huffdec.c` by
+  `Tools/banim/gen_huffdec_asm.sh`) copied into IWRAM for each sheet, into `gMovMapFillStPool2` (0x03004C50, 0x200
+  bytes: the movement flood fill's scratch, which VoiceStream also borrows, see
+  [VoiceStream.md](VoiceStream.md#the-iwram-overlay)). `BanimCodec.event` checks that it fits. A sheet takes up to 1.3
+  frames, against about a third of a frame for the BIOS's LZ77 (Thumb code from ROM took 7.6), so a sheet change can
+  drop a frame: the test battle runs 776 frames against 764 with LZ77 sheets. The sheet is still copied to VRAM at the
+  VBlank after its frame's sprites are set, as vanilla does, so the two stay in step.
 - **The left OAM.** AutoGenLeftOAM (`Contents/External/AutoGenLeftOAM`, 7743) mirrors the right OAM when both
   pointers are the same. The converter checks that the mirror gives the dump's left OAM exactly; if not, it stores the
   left OAM.
 - **The script** holds the sheets' ROM addresses, which only EA knows. The converter compresses it with each pointer
   byte as a symbol of its own (a match only copies a pointer byte from the same byte of the same sheet's pointer) and
   writes those bytes as `BANIM_PTR_BYTE(label, k)` expressions.
-
-### `--huff`: smaller sheets, but they show late
-
-`feditor_dump.py --huff ...` writes the sheets Huffman-coded instead: about 44 KB for Gerik's sword (sheets 35.0 KB
-plus 1.9 KB of shared trees). Gerik used it at first and went back to LZ77, because a sheet takes too long to decode:
-
-- **The format** (`Kernel/Wizardry/BanimCodec`): deflate's symbols (literals and length/distance pairs) with one pair of
-  canonical Huffman trees for all the animation's sheets, stored once in ROM with lookup tables
-  (`struct BanimHuffTrees`, `include/kernel/banim-codec.h`). A sheet starts with `(size << 8) | 0xD1` and a pointer to
-  the trees. The battle animation code's 20 `LZ77UnCompWram` calls go to `BanimUnComp`, which decodes that tag and
-  passes all other data (every vanilla animation, and every LZ77 one) to the BIOS. No RAM.
-- **Speed.** The decoding loop is ARM code (`Source/BanimHuffArm.s`, generated from `Tools/banim/huffdec.c` by
-  `Tools/banim/gen_huffdec_asm.sh`) copied into IWRAM for each sheet, into `gMovMapFillStPool2` (0x03004C50, 0x200
-  bytes: the movement flood fill's scratch, which VoiceStream also borrows, see
-  [VoiceStream.md](VoiceStream.md#the-iwram-overlay)). Even so a sheet takes up to 1.3 frames, against about a third
-  of a frame for the BIOS's LZ77 (Thumb code from ROM took 7.6).
-- **What shows.** The animation draws its sprites while the sheet is still decoding, so for those frames they use
-  whatever tiles were in VRAM: about five frames of garbage as the battle opens, and a flicker at some sheet changes
-  (the end of an attack). A battle also runs a little longer: 776 frames for the test battle against 764.
-- **Measured but not used:** compressing the sheets together (LZMA, 26.6 KB) needs every sheet in RAM at once (96
-  KB); repacking frames into fewer sheets frees at most one (the sheets are 89% full and only 551 of 2,749 tiles
-  repeat, mostly on other sheets); a bit-packed LZ without Huffman coding gives 40.5 KB.
+- **`--lz77`** (`feditor_dump.py --lz77 ...`) writes the sheets in LZ77 instead: decoded by the BIOS, no dropped
+  frame, about a fifth bigger (Gerik's sword 53.4 KB).
+- **Measured but not used:** compressing the sheets together (LZMA, 26.6 KB for Gerik's) needs every sheet in RAM at
+  once (96 KB); repacking frames into fewer sheets frees at most one (Gerik's sheets are 89% full and only 551 of
+  2,749 tiles repeat, mostly on other sheets); a bit-packed LZ without Huffman coding gives 40.5 KB.
 
 ---
 
 ## Testing
 
 `python3 Tools/cloud/smoketest.py --only banim` (the test is `test_banim`, `Tools/cloud/smoketest.py`). It starts
-from the prologue's turn 2, makes Eirika's unit Gerik as a Mercenary with an Iron Sword, and attacks. It checks:
+from the prologue's turn 2 and fights twice: Eirika's unit made Gerik as a Mercenary with an Iron Sword, then Tana as
+a Pegasus Knight with an Iron Lance (the unit gets the weapon rank). Each time it checks:
 
-- the loaded animation is Gerik's sword (`gBanimIdx` 0xC9, ID 0xCA);
+- the loaded animation is the custom one (`gBanimIdx` the ID minus 1: 0xC9 for Gerik's 0xCA, 0xCA for Tana's 0xCB);
 - that side has no character palette (`gBanimUniquePal` -1).
 
-It saves `gerik.png` (the battle) in the test's folder.
+It saves `gerik.png` and `tana.png` (the battles) in the test's folder.
 
 ---
 
@@ -167,9 +174,9 @@ It saves `gerik.png` (the battle) in the test's folder.
 | Compile-time switch | `include/configs/configs.h` (`CONFIG_CUSTOM_BATTLE_ANIMS`) |
 | Runtime toggle | `Data/DesignerConfig/designer-config.c` (`custom_character_animations`) |
 | Entry point and lists | `Contents/BattleAnims/BattleAnims.event` |
-| Gerik's sword (source and converted) | `Contents/BattleAnims/Gerik/` |
+| The animations (source and converted) | `Contents/BattleAnims/Gerik/`, `Contents/BattleAnims/Tana/` |
 | Converter | `Tools/banim/feditor_dump.py`, `Tools/banim/banimpack.py` (the compressors) |
-| Sheet decoder for `--huff` | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
+| Sheet decoder | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
 | `CustomAnimeTable` rows | `Contents/External/Individual_animation_ea_2/data.event` |
 | Lookup | `Kernel/Wizardry/FebCompat/IndividualAnim/Source/IndividualAnim.c` (`GetUnitBattleAnimDef`) |
 | Battle setup | `Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c` (`PrepareBattleGraphicsMaybe`) |

@@ -2,7 +2,7 @@
 
 Hand-drawn icons for 348 skills that used to be on the WIP icon, plus the 24
 "...Plus" icons built from them (or from an existing base icon). Art by
-Claude; see `Documentation/Features/Credits.md`.
+Claude; see `Documentation/Credits.md`.
 
 Files:
 

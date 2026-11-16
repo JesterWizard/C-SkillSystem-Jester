@@ -32,7 +32,7 @@ The drawing code is in `Kernel/Wizardry/DoubleBadge/Source/DoubleBadge.c`.
 
 `NewEkrGauge` (`Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c`) starts `ProcScr_DoubleBadge` as a child of the battle HUD's proc (`gpProcEkrGauge`). So the badge ends with the HUD.
 
-The badge is the battle forecast's own "xN" sprite. It is `Gfx_BKSEL[n]`, a 16x16 sprite made of four tiles (TL, TR, BL, BR), with n = 2 to 9. Tile 10 is "xN" for more than 9. The first 16 colours of `Pal_BKSEL` are used. Both are in `Kernel/Wizardry/BattleSys/data.event`. The badge is drawn on OBJ palette 15.
+The badge is the battle forecast's own "xN" sprite. It is `Gfx_BKSEL[n]`, a 16x16 sprite made of four tiles (TL, TR, BL, BR), with n = 2 to 9. Tile 10 is "xN" for more than 9. The first 16 colours of `Pal_BKSEL` are used. Both are in `Kernel/Wizardry/BattleSys/data.event`. The badge is drawn on OBJ palette 10.
 
 Each frame, the badge draws unless the HUD is hidden (its byte `+0x2A` is 1).
 
@@ -43,11 +43,22 @@ Each frame, the badge draws unless the HUD is hidden (its byte `+0x2A` is 1).
 
 ### Tiles
 
-The battle screen uses 2D OBJ mapping. The left badge uses tiles 988, 989, 1020 and 1021. The right badge uses tiles 990, 991, 1022 and 1023. They are rewritten every frame the badge shows (`RegisterDataMove`), because spell effects may use that VRAM.
+The battle screen uses 2D OBJ mapping. The left badge uses tiles 320, 321, 352 and 353; the right badge 322, 323, 354
+and 355. Nothing else in a battle uses them: spells load their sprites at tiles 64-319 (vanilla's largest is 0x2000
+bytes from 0x06010800), the HP bars use 384-447 and 461-495, and the two sides' animation sheets 512-1023. They are
+rewritten every frame the badge shows (`RegisterDataMove`).
+
+The badge was at 988-991 and 1020-1023 before: the last tiles of the right side's sheet. Vanilla's animations leave
+them empty, custom ones need not (Gerik's and Tana's use them): the badge overwrote part of the sprite (Gerik's shoe
+went missing as his sword landed) and the sheet overwrote the badge (a garbled "x2").
 
 ### Palette and hiding
 
-OBJ palette 15 is shared with the kernel's skill-name and anim-number popups (`OBPAL_CHAX_ANIMNUM`). So the badge hides while any of these is true: `EfxSkillExists()`, `EfxSkillBoxExists()`, `EkrSkillExists()`, `EfxAnimNumberExists()` or `CritCutinExists()`. For example, it hides for about a second while a damage number pops up. When it shows again, it reloads its palette, but only if palette 15 differs.
+The badge has OBJ palette 10 to itself: no sprite uses rows 6, 8 or 10 in a battle (checked every frame of a physical, a critical and a magic battle, and the map before and after). Each frame it shows, it reloads its palette if row 10 differs (the screen's fades rewrite it).
+
+It was on palette 15 before, which the skill-name and anim-number popups (`OBPAL_CHAX_ANIMNUM`) and the level-up box's portrait also use. So it had to hide while any of them showed: it blinked out for about a second at every hit, and resetting palette 15 drew the level-up portrait in its colours.
+
+It still hides during the critical cut-in (`CritCutinExists()`) and the level-up box (`ProcScr_EkrLevelup`), which cover the HUD.
 
 ## Limits
 
@@ -56,7 +67,7 @@ OBJ palette 15 is shared with the kernel's skill-name and anim-number popups (`O
 
 ## Testing
 
-Checked by hand in the emulator on the prologue. Eirika doubles a soldier, so ×2 shows over her box and none shows over his. The bob and the hide during the damage popup were also checked in the emulator.
+Checked by hand in the emulator on the prologue. Eirika doubles a soldier, so ×2 shows over her box and none shows over his. The bob was also checked in the emulator, and that the badge stays up while a damage number shows (Tana's battle, `smoketest.py`'s `banim` setup).
 
 `Tools/cloud/smoketest.py` has no test for this yet.
 

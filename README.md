@@ -316,11 +316,11 @@ Every feature links to its documentation. Click a preview to open it.
 | [Skill Icon Palettes](./Documentation/Features/SkillIconPalettes.md) | Palette banks for skill icons |
 | [Fonts](./Documentation/Features/Fonts.md) | Choosing a font with CONFIG_FONT_* |
 | [Voice Acted Intros](./Documentation/Features/VoiceActedIntros.md) | Installing WAV voice lines |
-| [Credits](./Documentation/Features/Credits.md) | Who made what |
+| [Credits](./Documentation/Credits.md) | Who made what |
 
 ## 🤝 Community & contributing
 
 - Read [How to contribute](./Documentation/CONTRIBUTING.md) before opening a pull request.
 - Join the discussion on the [FEUniverse thread](https://feuniverse.us/t/fe8-modern-c-skillsystem-release/24614).
-- See [Credits](./Documentation/Features/Credits.md) for everyone whose work is in this buildfile.
+- See [Credits](./Documentation/Credits.md) for everyone whose work is in this buildfile.
 <!-- markdownlint-enable MD033 MD041 -->
