@@ -24,7 +24,7 @@
 - **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
   not seen yet.
 - **The panel** on the left, in a window: "Unlocked", a gold gauge that fills as CGs unlock, the percentage, and how
-  many are unlocked (6/16); at its foot the buttons, "View" and "Back".
+  many are unlocked (11/21); at its foot the buttons, "View" and "Back".
 - **The grid** on the right, in a window (the start menu's Gamma style, see
   [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)), over the scrolling mural: three CGs a row,
   three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
@@ -77,9 +77,10 @@ Seth carries Eirika out), Reunited (0xDC, Chapter 1's end), Seth's Plea (0xDD, t
 Ide Burns (0xDE, Chapter 2's opening), Neimi's Mirror (0xDF, Chapter 3's end), The Mogall (0xE0, Chapter 4's opening,
 before Artur's battle), Joshua Intervenes (0xE1, Chapter 5's opening), Renvall Ambush (0xE2, Chapter 5x's end), Bael
 Attack (0xE3, Chapter 6's opening), War Council (0xE4, the council at Castle Frelia between Chapters 8 and 9) and
-Myrrh's Wings (0xE5: in the list, but no scene shows it yet, so it stays locked). After it come five CGs no scene
+Myrrh's Wings (0xE5: in the list, but no scene shows it yet, so it stays locked). After it come ten CGs no scene
 shows yet, unlocked from the start: Training Grounds (0xE6), The Black Sun (0xE7), Mercenaries at Rest (0xE8),
-Into the Fray (0xE9) and By Lamplight (0xEA). The older CGs (0x38-0x3A, among
+Into the Fray (0xE9), By Lamplight (0xEA), Wyvern Raid (0xEB), The Dark Rite (0xEC), A Quiet Afternoon (0xED),
+Weary Travellers (0xEE) and Garden Meeting (0xEF). The older CGs (0x38-0x3A, among
 them the prologue's Seth Attacked, which the story still shows) and the vanilla backgrounds are no longer listed.
 Its order is the unlock bits' order: add new CGs at the end. Removing or reordering rows moves the unlocks already
 made to other CGs, so change the magic word (`GALLERY_SRAM_MAGIC`, see [Unlocking](#unlocking)) with it.
@@ -103,8 +104,8 @@ clears them.
 A row can also be unlocked from the start: give it `GALLERY_UNLOCKED` as its third field
 (`{ 0xE6, MSG_GALLERY_CG_TRAINING_GROUNDS, GALLERY_UNLOCKED }`). It shows unlocked in every save without an event,
 and no SRAM bit is written for it. Use it for CGs no scene shows yet; once a scene shows one, set the field to 0 and
-it unlocks there like the others. Training Grounds, The Black Sun, Mercenaries at Rest, Into the Fray and By
-Lamplight (0xE6-0xEA) are listed this way.
+it unlocks there like the others. The ten CGs at 0xE6-0xEF (Training Grounds to Garden Meeting) are listed this
+way.
 
 ---
 

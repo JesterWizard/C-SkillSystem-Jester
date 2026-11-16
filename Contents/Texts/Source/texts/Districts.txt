@@ -1050,3 +1050,13 @@ Mercenaries at Rest[X]
 Into the Fray[X]
 ## MSG_GALLERY_CG_BY_LAMPLIGHT
 By Lamplight[X]
+## MSG_GALLERY_CG_WYVERN_RAID
+Wyvern Raid[X]
+## MSG_GALLERY_CG_THE_DARK_RITE
+The Dark Rite[X]
+## MSG_GALLERY_CG_A_QUIET_AFTERNOON
+A Quiet Afternoon[X]
+## MSG_GALLERY_CG_WEARY_TRAVELLERS
+Weary Travellers[X]
+## MSG_GALLERY_CG_GARDEN_MEETING
+Garden Meeting[X]

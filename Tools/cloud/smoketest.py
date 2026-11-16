@@ -1504,7 +1504,7 @@ class Smoke:
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
                    "Extras rows %s" % ["%#x" % m for m in menu])
-        self.check("gallery: the grid opens on its first rows", grid[0] == 16 and grid[1] == 0 and grid[2] == 0 and
+        self.check("gallery: the grid opens on its first rows", grid[0] == 21 and grid[1] == 0 and grid[2] == 0 and
                    grid[4] == 1 and grid[5] == 0x01, "count, cursor, top, view, sprites, bits %s" % grid)
         self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 1,
                    "cursor %d, grid shown %d" % (locked[1], locked[4]))
