@@ -20,7 +20,7 @@ Kernel/Wizardry/TitleScreenGfx/src/title_logo.png (RGBA), and writes:
 Part 2 (OBJ logo, intro zoom) adds:
 
     Kernel/Wizardry/TitleScreenGfx/dmp/
-        obj_tiles.lz                  OBJ tiles, 4bpp, 320 tiles in rows of 32 (LZ77)
+        obj_tiles.lz                  OBJ tiles, 4bpp, 352 tiles (11 rows of 32) (LZ77)
         obj_pal.bin                   OBJ palette, 16 x RGB555 (banks 0-1 from the ROM, 2 and 3 new)
         zoom_tiles.lz                 zoom tiles, 8bpp, 8x8, tile 0 blank (LZ77)
         zoom_map.lz                   zoom tilemap, 32x32 bytes (LZ77)
@@ -50,32 +50,53 @@ MAP_BYTES = MAP_W * TILES_H * 2
 BG_MAX_TILES = 640
 BG_SPLIT = 384
 EMBLEM_MAX_TILES = 192
-EMBLEM_X, EMBLEM_Y = 46, 1
-EMBLEM_W = 148
+# The emblem is centred on x=120 (11 + 218/2): the tile boundary the mirror axis sits on.
+EMBLEM_X, EMBLEM_Y = 11, 8
+EMBLEM_W = 218
 EMBLEM_H = round(464 * EMBLEM_W / 1128)
 FLIPS = ((0, 0), (1, 0), (0, 1), (1, 1))  # (hflip, vflip), in the order they are tried
 MAGENTA = (255, 0, 255)
 
 # Part 2: OBJ logo sprites and the intro zoom image. Crop boxes are (x0, y0, x1, y1) in the source.
-LOGO_BOX, LOGO_W, LOGO_XY = (280, 537, 1257, 688), 156, (42, 63)
-BANNER_BOX, BANNER_W, BANNER_XY = (326, 697, 1211, 832), 144, (48, 88)
-EXCEED_BOX, EXCEED_W, EXCEED_XY = (372, 894, 1163, 987), 118, (61, 112)
+LOGO_BOX, LOGO_W, LOGO_XY = (280, 537, 1257, 688), 232, (4, 46)  # 232x36
+BANNER_BOX, BANNER_W, BANNER_XY = (326, 697, 1211, 832), 208, (16, 85)  # 208x32
+EXCEED_BOX, EXCEED_W, EXCEED_XY = (372, 894, 1163, 987), 118, (61, 112)  # 118x14
 SOURCE_ROM = REPO / "fe8.gba"  # vanilla FE8U ROM
 ROM_OBJ_PAL_OFF = 0xAADB68  # OBJ banks 0-1 ("Press START" and copyright palettes)
 ROM_OBJ_PAL_BYTES = 64
 ZOOM_BACKDROP = 0x4290  # vanilla zoom palette entry 0 (sets the backdrop)
-OBJ_TILE_ROWS, OBJ_TILE_COLS = 10, 32  # 256 px wide sheet, 80 px high
-OBJ_SHEET_W, OBJ_SHEET_H = 256, 80
-OBJ_TILES_BYTES = 0x2800
-OBJ_BANNER_ROW = 32  # sheet pixel rows: logo at 0, banner at 32, exceed at 64
-OBJ_EXCEED_ROW = 64
+OBJ_TILE_ROWS, OBJ_TILE_COLS = 11, 32  # 256 px wide sheet, 88 px high
+OBJ_SHEET_W, OBJ_SHEET_H = 256, 88
+OBJ_TILES_BYTES = 0x2C00  # 352 tiles; the game allows 0x3000 before its OBJ tiles at 0x06013000
+OBJ_LOGO_ROW = 0  # sheet pixel rows: logo at 0 (rows 0-4), banner at 40 (rows 5-8), exceed at 72 (rows 9-10)
+OBJ_BANNER_ROW = 40
+OBJ_EXCEED_ROW = 72
+OBJ_PAL_LOGO = 2  # OBJ palette bank of the logo and exceed text
+OBJ_PAL_BANNER = 3
+
+
+def tile_base(sheet_row):
+    """The first OBJ tile of a sheet row (32 tiles per row, the 2D mapping of the sheet)."""
+    assert sheet_row % 8 == 0, sheet_row
+    return sheet_row // 8 * OBJ_TILE_COLS
+
+
+LOGO_TILE_BASE = tile_base(OBJ_LOGO_ROW)  # 0x000
+BANNER_TILE_BASE = tile_base(OBJ_BANNER_ROW)  # 0x0A0
+EXCEED_TILE_BASE = tile_base(OBJ_EXCEED_ROW)  # 0x120
+# attr2 base (palette << 12 | tile base) the installer gives the banner and exceed calls
+TITLE_BANNER_ATTR2 = OBJ_PAL_BANNER << 12 | BANNER_TILE_BASE  # 0x30A0
+TITLE_EXCEED_ATTR2 = OBJ_PAL_LOGO << 12 | EXCEED_TILE_BASE  # 0x2120
 ZOOM_SIZE = 256
-ZOOM_TILES_MAX = 160
-SPRITE_SHAPES = {(64, 32): (1, 3), (32, 16): (1, 2)}  # (shape, size) for attr0/attr1
+# Zoom tiles are 8bpp and sit at char base 0x06008000; the map is at 0x0600B000, so 192 tiles.
+ZOOM_TILES_MAX = 192
+SPRITE_SHAPES = {(64, 32): (1, 3), (32, 16): (1, 2), (32, 8): (1, 1), (32, 32): (0, 2)}
 EVENT_PATH = GFX_DIR / "TitleScreenGfx_Data.event"
 # (width, height, x, y, tile offset) for each sprite of an element
-LOGO_SPRITES = [(64, 32, 0, 0, 0), (64, 32, 64, 0, 8), (64, 32, 128, 0, 16)]
-BANNER_SPRITES = [(64, 32, 0, 0, 0), (64, 32, 64, 0, 8), (64, 32, 128, 0, 16)]
+LOGO_SPRITES = ([(64, 32, 0, 0, 0), (64, 32, 64, 0, 8), (64, 32, 128, 0, 16), (64, 32, 192, 0, 24)]
+                # row 4 of the sheet is 4 tile rows (128 tiles) below the base
+                + [(32, 8, 32 * k, 32, 128 + 4 * k) for k in range(8)])
+BANNER_SPRITES = [(64, 32, 0, 0, 0), (64, 32, 64, 0, 8), (64, 32, 128, 0, 16), (32, 32, 192, 0, 24)]
 EXCEED_SPRITES = [(32, 16, 0, 0, 0), (32, 16, 32, 0, 4), (32, 16, 64, 0, 8), (32, 16, 96, 0, 12)]
 
 
@@ -278,11 +299,17 @@ def write_background(indices, palette, unique, entries):
 
 
 def emblem_source(src_path):
-    """Part B step 1: the emblem as a 148-wide index block (0 = transparent) and palette."""
+    """Part B step 1: the emblem as an EMBLEM_W-wide index block (0 = transparent) and palette."""
     img = Image.open(src_path).convert("RGBA")
     img = img.crop((204, 14, 1332, 478))
     img = img.resize((EMBLEM_W, EMBLEM_H), Image.LANCZOS)
     arr = np.array(img)
+    # Make the emblem left-right symmetric: the right half is the mirror of the left half.
+    # Unmirrored the emblem needs 249 tiles, but only about 127 mirrored, because the tile
+    # dedupe matches flipped tiles. The limit is EMBLEM_MAX_TILES (192).
+    assert EMBLEM_W % 2 == 0, EMBLEM_W
+    half = EMBLEM_W // 2
+    arr[:, half:] = arr[:, :half][:, ::-1].copy()
     opaque = arr[:, :, 3] >= 128
     rgb = arr[:, :, :3][opaque]
     palette = quantize_opaque(rgb, 15)
@@ -404,7 +431,7 @@ def build_obj(src_path):
           f"bank 2 {len(pal2)} colours, bank 3 {len(pal3)} colours")
 
     sheet = np.zeros((OBJ_SHEET_H, OBJ_SHEET_W), dtype=np.uint8)
-    paste(sheet, logo_idx, 0, 0)
+    paste(sheet, logo_idx, 0, OBJ_LOGO_ROW)
     paste(sheet, ban_idx, 0, OBJ_BANNER_ROW)
     paste(sheet, exc_idx, 0, OBJ_EXCEED_ROW)
     tiles = [tile4(sheet, c, r) for r in range(OBJ_TILE_ROWS) for c in range(OBJ_TILE_COLS)]
@@ -443,6 +470,7 @@ def build_zoom(obj):
                 unique.append(data)
             entries.append(lookup[data])
     print(f"zoom: {len(unique)} unique 8bpp tiles incl. blank (max {ZOOM_TILES_MAX})")
+    # char base 0x06008000, map at 0x0600B000: 192 tiles of 64 bytes fill that gap
     assert len(unique) <= ZOOM_TILES_MAX, len(unique)
     map_data = np.array(entries, dtype=np.uint8).reshape(32, 32).tobytes()
     assert len(map_data) == 1024
@@ -511,6 +539,8 @@ def write_event(obj):
         f"#define TITLE_BANNER_Y {BANNER_XY[1]}",
         f"#define TITLE_EXCEED_X {EXCEED_XY[0]}",
         f"#define TITLE_EXCEED_Y {EXCEED_XY[1]}",
+        f"#define TITLE_BANNER_ATTR2 0x{TITLE_BANNER_ATTR2:X}",
+        f"#define TITLE_EXCEED_ATTR2 0x{TITLE_EXCEED_ATTR2:X}",
     ]
     binaries = [
         ("TitleBg_TilesA", "bg_tiles_a.lz"),

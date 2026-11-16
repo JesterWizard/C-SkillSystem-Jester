@@ -29,18 +29,18 @@ ORG $C5838 ; POIN TitleObj_Pal
 ORG $C5450 ; BYTE TITLE_LOGO_X
 ORG $C5452 ; BYTE TITLE_LOGO_Y
 ORG $C54F4 ; POIN TitleLogo_Layout
-// call 2 (was the TM): EXCEED, palette 2, tile 0x100
+// call 2 (was the TM): EXCEED, attr2 base TITLE_EXCEED_ATTR2 (palette and base tile)
 ORG $C5462 ; BYTE TITLE_EXCEED_X
 ORG $C5464 ; BYTE TITLE_EXCEED_Y
 ORG $C54F8 ; POIN TitleExceed_Layout
-ORG $C54FC ; WORD 0x2100
+ORG $C54FC ; WORD TITLE_EXCEED_ATTR2
 // call 3 (the vanilla logo's translucent shine): moved off screen (y 160)
 ORG $C5500 ; WORD 0xA0
-// call 4: banner, palette 3, tile 0x80
+// call 4: banner, attr2 base TITLE_BANNER_ATTR2 (palette and base tile)
 ORG $C5484 ; BYTE TITLE_BANNER_X
 ORG $C5486 ; BYTE TITLE_BANNER_Y
 ORG $C5504 ; POIN TitleBanner_Layout
-ORG $C5508 ; WORD 0x3080
+ORG $C5508 ; WORD TITLE_BANNER_ATTR2
 // call 5: Press START, 5 px lower (was y 124)
 ORG $C5498 ; BYTE 129
 
@@ -48,7 +48,7 @@ ORG $C5498 ; BYTE 129
 ORG $C6290 ; BYTE TITLE_BANNER_X
 ORG $C6292 ; BYTE TITLE_BANNER_Y
 ORG $C62C4 ; POIN TitleBanner_Layout
-ORG $C62C8 ; WORD 0x3080
+ORG $C62C8 ; WORD TITLE_BANNER_ATTR2
 
 // Title_PrepareMainLogoZoom (0x080C5FE8): the intro zoom (BG2, 8bpp affine)
 ORG $C6070 ; POIN TitleZoom_Tiles
