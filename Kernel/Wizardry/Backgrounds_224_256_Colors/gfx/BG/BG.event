@@ -247,6 +247,11 @@ POIN CG_Renvall_Ambush_IMG;         WORD 0x1; POIN CG_Renvall_Ambush_PAL        
 POIN CG_Bael_Attack_IMG;            WORD 0x1; POIN CG_Bael_Attack_PAL            // 0xE3
 POIN CG_War_Council_IMG;            WORD 0x1; POIN CG_War_Council_PAL            // 0xE4
 POIN CG_Myrrh_Wings_IMG;            WORD 0x1; POIN CG_Myrrh_Wings_PAL            // 0xE5
+POIN CG_Training_Grounds_IMG;  WORD 0x1; POIN CG_Training_Grounds_PAL  // 0xE6
+POIN CG_The_Black_Sun_IMG;     WORD 0x1; POIN CG_The_Black_Sun_PAL     // 0xE7
+POIN CG_Mercenaries_at_Rest_IMG; WORD 0x1; POIN CG_Mercenaries_at_Rest_PAL // 0xE8
+POIN CG_Into_the_Fray_IMG;     WORD 0x1; POIN CG_Into_the_Fray_PAL     // 0xE9
+POIN CG_By_Lamplight_IMG;      WORD 0x1; POIN CG_By_Lamplight_PAL      // 0xEA
 
 
 // TSA == 0 indicates 256-colour BGs.
@@ -281,6 +286,16 @@ CG_War_Council_IMG: #incbin "224_CG_War_Council_IMG.dmp"
 CG_War_Council_PAL: #incbin "224_CG_War_Council_PAL.dmp"
 CG_Myrrh_Wings_IMG: #incbin "224_CG_Myrrh_Wings_IMG.dmp"
 CG_Myrrh_Wings_PAL: #incbin "224_CG_Myrrh_Wings_PAL.dmp"
+CG_Training_Grounds_IMG: #incbin "224_CG_Training_Grounds_IMG.dmp"
+CG_Training_Grounds_PAL: #incbin "224_CG_Training_Grounds_PAL.dmp"
+CG_The_Black_Sun_IMG: #incbin "224_CG_The_Black_Sun_IMG.dmp"
+CG_The_Black_Sun_PAL: #incbin "224_CG_The_Black_Sun_PAL.dmp"
+CG_Mercenaries_at_Rest_IMG: #incbin "224_CG_Mercenaries_at_Rest_IMG.dmp"
+CG_Mercenaries_at_Rest_PAL: #incbin "224_CG_Mercenaries_at_Rest_PAL.dmp"
+CG_Into_the_Fray_IMG: #incbin "224_CG_Into_the_Fray_IMG.dmp"
+CG_Into_the_Fray_PAL: #incbin "224_CG_Into_the_Fray_PAL.dmp"
+CG_By_Lamplight_IMG: #incbin "224_CG_By_Lamplight_IMG.dmp"
+CG_By_Lamplight_PAL: #incbin "224_CG_By_Lamplight_PAL.dmp"
 
 BG_Heroes_Eirika_01_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_IMG.dmp"
 BG_Heroes_Eirika_01_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_PAL.dmp"

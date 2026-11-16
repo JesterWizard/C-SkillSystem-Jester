@@ -1040,3 +1040,13 @@ Intro Backdrop[X]
 Title Band[X]
 ## MSG_MENU_OPTION_CHAPTER_INTRO_BAND_DESC
 A see-through black bar behind the title.[X]
+## MSG_GALLERY_CG_TRAINING_GROUNDS
+Training Grounds[X]
+## MSG_GALLERY_CG_THE_BLACK_SUN
+The Black Sun[X]
+## MSG_GALLERY_CG_MERCENARIES_AT_REST
+Mercenaries at Rest[X]
+## MSG_GALLERY_CG_INTO_THE_FRAY
+Into the Fray[X]
+## MSG_GALLERY_CG_BY_LAMPLIGHT
+By Lamplight[X]
