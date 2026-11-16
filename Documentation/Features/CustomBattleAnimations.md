@@ -6,6 +6,7 @@
 - [Introduction](#introduction)
 - [Switches](#switches)
 - [Adding an Animation](#adding-an-animation)
+- [Reskinning a Vanilla Animation](#reskinning-a-vanilla-animation)
 - [IDs and Free Room](#ids-and-free-room)
 - [Palettes](#palettes)
 - [How It Works](#how-it-works)
@@ -37,12 +38,13 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 | 0xD6 | L'Arachel, Mage Knight (F) | anima, light, dark, unarmed | "[MK-Variant] L'Arachel [F]" (6. Magic) | RedBean |
 | 0xD7 | L'Arachel, Valkyrie | anima, light, dark, unarmed | "[Valkyrie-Variant] L'Arachel [F]" (6. Magic) | RedBean |
 | 0xD8 | L'Arachel, Troubadour | staves | "[Troubadour-Reskin] L'Arachel [F]" (7. Staff) | RedBean |
-| 0xD9 | Morva, Manakete (`CLASS_MANAKETE_2`) | everything (Wretched Air, unarmed) | "[Manakete-Base] [U] Vanilla FE8 Undead Morva" (8. Dragonstone) | unknown |
-| 0xDA | Joshua, Myrmidon | swords | "[Myrmidon-Reskin] Joshua Hat Repal [M]" (1. Sword) | unknown |
+| 0xD9 | Morva, Manakete (`CLASS_MANAKETE_2`) | everything (Wretched Air, unarmed) | "[Manakete-Base] [U] Vanilla FE8 Undead Morva" (8. Dragonstone) | Unknown |
+| 0xDA | Joshua, Myrmidon | swords | "[Myrmidon-Reskin] Joshua Hat Repal [M]" (1. Sword) | Unknown |
 | 0xDB | Joshua, Swordmaster | swords | "[Swordmaster-Variant] Joshua [M]" (1. Sword, Alt 2) | Aruka |
 | 0xDC | Marisa, Swordmaster (F) | swords | "[Swordmaster-Variant] Marisa Repal [F]" (1. Sword, Alt Crit) | RedBean |
 | 0xDD | every Phantom (class-wide) | axes | "[Monster-Custom] [U] Phantom" (3. Axe) | TBA |
 | 0xDE | every Gorgon Egg (class-wide, both egg classes) | everything | "[Gorgon-Custom] [U] Gorgon Eggs" (8. Unarmed, Large) | Ryn |
+| 0xE4, 0xE5 | Gilliam, Armor Knight | lances; unarmed | vanilla's Armor Knight (0x40, 0x41) with the helmet off | vanilla, head drawn for this repo |
 
 Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
 class's vanilla list with the custom ID in place of the animated weapon types' entries.
@@ -57,7 +59,7 @@ installs them, with IDs, only when `CONFIG_THIRD_TIER_CLASSES` is on, and no cla
 
 | ID | Third-tier class (from) | Weapon | Animation | Author |
 |----|-------------------------|--------|-----------|--------|
-| 0xDF | Trueblade (Swordmaster; Joshua's) | swords | "[Swordmaster-Variant] Trueblade [M]- Joshua" (1. Sword, Default) | unknown |
+| 0xDF | Trueblade (Swordmaster; Joshua's) | swords | "[Swordmaster-Variant] Trueblade [M]- Joshua" (1. Sword, Default) | Unknown |
 | 0xE0 | Archsage (Sage) | magic | "[Sage-Variant] Archsage [M]" (6. Magic) | Dinar87 |
 | 0xE1 | Archsage (Sage) | magic, with a staff and an intro | "[T3 Custom] Archsage + Intro [M]" (6. Magic) | Nuramon |
 | 0xE2 | Marshall (General) | lances | "[Marshall] Zelgius v3 [M]" (2. Lance) | Nuramon |
@@ -122,6 +124,27 @@ dump changes.
 
 ---
 
+## Reskinning a Vanilla Animation
+
+`feditor_dump.py --rom ROM ID SRC_DIR OUT_DIR PREFIX ABBR` makes an animation from vanilla animation ID of a clean
+`fe8.gba`: its modes, OAMs and script, with the sheets and palettes from `SRC_DIR` ("Sheet N.png", 264x64 mode-P, in the
+order the script first uses them; "Palette.bin", 4 x 16 RGB555). Edit only the sheets' pixels: the OAM still cuts the
+same tiles, so a new detail must stay inside the tiles the frame already shows.
+
+Gilliam's Armor Knight is made this way: vanilla's 0x40 (lance, three sheets) and 0x41 (unarmed, the lance's third
+sheet), with his head (spiky grey-olive hair, sideburns, goatee, from his portrait's minimug) in place of the helmet in
+every pose. The head's hair uses palette slots 7 and 8, which the Armor Knight's sheets don't use, and the skin
+highlight (slot 10) is his portrait's cream. Frame 17 (the turn into the critical swing) is left as it was: the swoosh
+covers the helmet. To change the head, edit `Contents/BattleAnims/Gilliam/ArmorKnight/Source/Sheet N.png` (and copy
+sheet 3 to `Unarmed/Source/Sheet 1.png`), then run:
+
+```
+python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x40 Contents/BattleAnims/Gilliam/ArmorKnight/Source Contents/BattleAnims/Gilliam/ArmorKnight GilliamArmorKnightLance gill_akn
+python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x41 Contents/BattleAnims/Gilliam/ArmorKnight/Unarmed/Source Contents/BattleAnims/Gilliam/ArmorKnight/Unarmed GilliamArmorKnightUnarmed gill_aku
+```
+
+---
+
 ## IDs and Free Room
 
 Vanilla's `banim_data` (ROM `0xC00008`, 0x20 bytes an entry) has 201 animations, IDs 0x01-0xC9. The zero bytes after
@@ -129,7 +152,7 @@ it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An ent
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
 Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
-0xCB, and so on up to the third tier's 0xE3, so the next is 0xE4 (0xE4-0xFF: 28 left).
+0xCB, and so on up to Gilliam's 0xE5, so the next is 0xE6 (0xE6-0xFF: 26 left).
 
 ---
 

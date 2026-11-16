@@ -11,6 +11,11 @@ Input dump folder (DUMP_DIR):
 
 Usage:
   python3 Tools/banim/feditor_dump.py [--lz77] DUMP_DIR OUT_DIR PREFIX ABBR
+  python3 Tools/banim/feditor_dump.py [--lz77] --rom ROM ID SRC_DIR OUT_DIR PREFIX ABBR
+
+--rom reskins a vanilla animation: the modes, the OAMs and the script come from animation ID of ROM (a clean fe8.gba),
+the sheets and the palettes from SRC_DIR: "Sheet N.png" (264x64 mode-P, as above; one per sheet the script uses, in
+the order it first uses them) and "Palette.bin" (4 x 16 RGB555, 128 bytes).
 
 The sheets are Huffman-coded for Kernel/Wizardry/BanimCodec (about a fifth smaller than LZ77; a sheet takes up to 1.3
 frames to decode, so a sheet change can drop a frame). --lz77 writes them in the BIOS's LZ77 instead
@@ -227,13 +232,50 @@ def script_tokens(words, sheet_pos):
     return toks
 
 
+def read_rom(rom_path, anim_id, src_dir):
+    """A vanilla animation's modes, OAMs and script (its sheet pointers made indices) with SRC_DIR's sheets and
+    palettes, as read_dump returns them."""
+    with open(rom_path, 'rb') as f:
+        rom = f.read()
+    ent = 0xC00008 + 0x20 * (anim_id - 1)
+    modes_p, script_p, oam_r_p, oam_l_p, _pal_p = struct.unpack_from('<5I', rom, ent + 12)
+    modes = rom[modes_p - 0x08000000:][:48]
+    raw = lz77_decompress(rom, script_p - 0x08000000)
+    words = list(struct.unpack('<%dI' % (len(raw) // 4), raw))
+    oam_r = lz77_decompress(rom, oam_r_p - 0x08000000)
+    oam_l = lz77_decompress(rom, oam_l_p - 0x08000000)
+    ptrs, i = [], 0
+    while i < len(words):
+        if words[i] >> 24 == 0x86:
+            if words[i + 1] not in ptrs:
+                ptrs.append(words[i + 1])
+            words[i + 1] = ptrs.index(words[i + 1])
+            i += 3
+        else:
+            i += 1
+    paths = [os.path.join(src_dir, 'Sheet %d.png' % (n + 1)) for n in range(len(ptrs))]
+    for p in paths:
+        if not os.path.exists(p):
+            fail('%s: missing (the script uses %d sheets)' % (p, len(ptrs)))
+    with open(os.path.join(src_dir, 'Palette.bin'), 'rb') as f:
+        pal = f.read()
+    if len(pal) != 128:
+        fail('Palette.bin is %d bytes, expected 128' % len(pal))
+    return 'banim %#x of %s' % (anim_id, os.path.basename(rom_path)), modes, oam_r, oam_l, pal, words, paths
+
+
 def main():
     args = [a for a in sys.argv[1:] if a != '--lz77']
     lz77_sheets = len(args) != len(sys.argv) - 1
-    if len(args) != 4:
-        sys.exit('usage: feditor_dump.py [--lz77] DUMP_DIR OUT_DIR PREFIX ABBR')
-    dump_dir, out_dir, prefix, abbr = args
-    name, modes, oam_r, oam_l, pal, words, sheet_paths = read_dump(dump_dir)
+    if args and args[0] == '--rom' and len(args) == 7:
+        rom_path, anim_id, src_dir, out_dir, prefix, abbr = args[1:]
+        name, modes, oam_r, oam_l, pal, words, sheet_paths = read_rom(rom_path, int(anim_id, 0), src_dir)
+    elif len(args) == 4:
+        dump_dir, out_dir, prefix, abbr = args
+        name, modes, oam_r, oam_l, pal, words, sheet_paths = read_dump(dump_dir)
+    else:
+        sys.exit('usage: feditor_dump.py [--lz77] DUMP_DIR OUT_DIR PREFIX ABBR\n'
+                 '       feditor_dump.py [--lz77] --rom ROM ID SRC_DIR OUT_DIR PREFIX ABBR')
     nsheets = len(sheet_paths)
     sheet_pos, frames = walk_script(words, nsheets)
     rows_by_sheet = [load_sheet(p) for p in sheet_paths]

@@ -312,6 +312,24 @@ BYTE 0x07 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 BYTE 0x0B 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 WORD 0
 
+// Gilliam (Armor Knight), lance and unarmed: vanilla's Armor Knight (0x40, 0x41) with the helmet off and his head
+// drawn in every pose, made from the ROM by `feditor_dump.py --rom` (Contents/BattleAnims/Gilliam/ArmorKnight/Source)
+#define BANIM_GILLIAM_ARMOR_KNIGHT_LANCE 0xE4
+#define BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED 0xE5
+#include "Gilliam/ArmorKnight/GilliamArmorKnightLance.event"
+#include "Gilliam/ArmorKnight/Unarmed/GilliamArmorKnightUnarmed.event"
+PUSH
+BanimEntry(BANIM_GILLIAM_ARMOR_KNIGHT_LANCE)
+GilliamArmorKnightLance_BANIM_ENTRY
+BanimEntry(BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED)
+GilliamArmorKnightUnarmed_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_GilliamArmorKnight:
+BYTE 0x01 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_LANCE
+BYTE 0x09 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED
+WORD 0
+
 // Third-tier classes' animations (Data/ClassData/ThirdTierClasses.c): installed with their IDs, not used by any class
 // until the third tier has its classes (CONFIG_THIRD_TIER_CLASSES)
 #ifdef CONFIG_THIRD_TIER_CLASSES
