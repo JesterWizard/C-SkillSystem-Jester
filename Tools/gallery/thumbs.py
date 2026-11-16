@@ -5,7 +5,7 @@
 
 For each row of gGalleryEntries (GALLERY_C, up to the GALLERY_END row) it decodes that background from the background
 table (BG_EVENT): a vanilla one from the clean ROM (an LZ77 4bpp image, a TSA, 8 palettes), a 224- or 256-colour one
-from its .dmp files (an LZ77 8bpp image of 32x20 tiles in order, a palette). It shrinks the 240x160 picture to 48x32
+from its .dmp files (an 8bpp image of 32x20 tiles in order, LZ77 or solid-tile format, a palette). It shrinks the 240x160 picture to 48x32
 (the average of each 5x5 block), picks 15 colours for it (median cut) and writes, per row:
     768 bytes: 4bpp tiles in the sprites' order (1D): the 32x32 part (4x4 tiles), then the 16x32 part (2x4 tiles)
      32 bytes: its 16-colour palette (colour 0 unused: transparent)
@@ -15,6 +15,8 @@ import os
 import re
 import struct
 import sys
+
+from png2cg import unpack_img
 
 W, H, TW, TH = 240, 160, 48, 32
 
@@ -89,7 +91,7 @@ def render(entry, rom, labels):
         return black
     if isinstance(img, str):
         # 224 (TSA 1) or 256 (TSA 0) colours: 8bpp tiles in order, 32 to a row
-        gfx = lz77(open(labels[img], "rb").read(), 0)
+        gfx = unpack_img(open(labels[img], "rb").read())
         raw = open(labels[pal], "rb").read()
         colors = [struct.unpack_from("<H", raw, 2 * i)[0] for i in range(len(raw) // 2)]
         if tsa == 1:  # banks 2-3 are left for text: colours 0-31, then 64-255
