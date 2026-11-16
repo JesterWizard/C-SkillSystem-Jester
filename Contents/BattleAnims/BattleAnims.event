@@ -9,6 +9,9 @@
 
 #define BANIM_GERIK_SWORD 0xCA
 #define BANIM_TANA_LANCE  0xCB
+#define BANIM_AMELIA_LANCE 0xCC
+#define BANIM_AMELIA_LANCE_T1 0xCD
+#define BANIM_AMELIA_HALBERDIER 0xCE
 
 // Gerik (Mercenary), sword: "[Mercenary-Variant] SALVAGED Gerik [M]" by UltraFenix
 #include "Gerik/GerikSword.event"
@@ -38,6 +41,321 @@ gBanimDef_TanaPegasusKnight:
 BYTE 0x01 0x01; SHORT BANIM_TANA_LANCE
 BYTE 0x09 0x01; SHORT 0x67
 WORD 0
+
+// Amelia (Recruit, Tier 0), lance: by Spud
+#include "Amelia/AmeliaLance.event"
+PUSH
+BanimEntry(BANIM_AMELIA_LANCE)
+AmeliaLance_BANIM_ENTRY
+POP
+
+// Amelia's Recruit animations: lances use her animation, unarmed keeps vanilla Recruit's (0x97)
+ALIGN 4
+gBanimDef_AmeliaRecruit:
+BYTE 0x01 0x01; SHORT BANIM_AMELIA_LANCE
+BYTE 0x09 0x01; SHORT 0x97
+WORD 0
+
+// Amelia (Recruit, pre-promote: CLASS_RECRUIT_T1), lance: by Spud
+#include "Amelia/PrePromote/AmeliaLanceT1.event"
+PUSH
+BanimEntry(BANIM_AMELIA_LANCE_T1)
+AmeliaLanceT1_BANIM_ENTRY
+POP
+
+// Amelia's pre-promote Recruit animations: lances use her animation, unarmed keeps vanilla Recruit's (0x97)
+ALIGN 4
+gBanimDef_AmeliaRecruitT1:
+BYTE 0x01 0x01; SHORT BANIM_AMELIA_LANCE_T1
+BYTE 0x09 0x01; SHORT 0x97
+WORD 0
+
+// Amelia (Halberdier: CLASS_HALBERDIER, a promotion of the pre-promote Recruit), lance: by Spud
+#include "Amelia/Halberdier/AmeliaHalberdier.event"
+PUSH
+BanimEntry(BANIM_AMELIA_HALBERDIER)
+AmeliaHalberdier_BANIM_ENTRY
+POP
+
+// Amelia's Halberdier animations: lances use her animation, unarmed keeps vanilla Recruit's (0x97)
+ALIGN 4
+gBanimDef_AmeliaHalberdier:
+BYTE 0x01 0x01; SHORT BANIM_AMELIA_HALBERDIER
+BYTE 0x09 0x01; SHORT 0x97
+WORD 0
+
+// Joshua (Assassin), knife: "[Assassin-Reskin] Joshua [M]" by Seliost1
+#define BANIM_JOSHUA_ASSASSIN_KNIFE 0xCF
+#include "Joshua/Assassin/JoshuaAssassinKnife.event"
+PUSH
+BanimEntry(BANIM_JOSHUA_ASSASSIN_KNIFE)
+JoshuaAssassinKnife_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_JoshuaAssassin:
+BYTE 0x0B 0x01; SHORT BANIM_JOSHUA_ASSASSIN_KNIFE
+BYTE 0x00 0x01; SHORT 0x8B
+BYTE 0x09 0x01; SHORT 0x8C
+WORD 0
+
+// Marisa (Assassin), sword with a ranged knife throw: "[Assassin-Reskin] Marisa [F]" by Redbean
+#define BANIM_MARISA_ASSASSIN_SWORD 0xD0
+#include "Marisa/Assassin/MarisaAssassinSword.event"
+PUSH
+BanimEntry(BANIM_MARISA_ASSASSIN_SWORD)
+MarisaAssassinSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_MarisaAssassin:
+BYTE 0x00 0x01; SHORT BANIM_MARISA_ASSASSIN_SWORD
+BYTE 0x09 0x01; SHORT 0x8E
+WORD 0
+
+// Colm (Assassin), sword: "[Assassin-Variant] [M] Colm" by Aruka
+#define BANIM_COLM_ASSASSIN_SWORD 0xD1
+#include "Colm/Assassin/ColmAssassinSword.event"
+PUSH
+BanimEntry(BANIM_COLM_ASSASSIN_SWORD)
+ColmAssassinSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_ColmAssassin:
+BYTE 0x00 0x01; SHORT BANIM_COLM_ASSASSIN_SWORD
+BYTE 0x09 0x01; SHORT 0x8C
+WORD 0
+
+// Eirika (Master Lord, unmounted), sword: "[FE8 Eirika-Reskin] T2 Eirika Unmounted [F]" by Redbean
+#define BANIM_EIRIKA_MASTER_LORD_SWORD 0xD2
+#include "Eirika/MasterLord/EirikaMasterLordSword.event"
+PUSH
+BanimEntry(BANIM_EIRIKA_MASTER_LORD_SWORD)
+EirikaMasterLordSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_EirikaMasterLord:
+BYTE 0x00 0x01; SHORT BANIM_EIRIKA_MASTER_LORD_SWORD
+BYTE 0x09 0x01; SHORT 0x0A
+WORD 0
+
+// Ephraim (Master Lord), lance (Siegmund): "[FE8 Ephraim-Custom] T2 Heavy Infantry [M]" by Nuramon
+#define BANIM_EPHRAIM_MASTER_LORD_LANCE 0xD3
+#include "Ephraim/MasterLord/EphraimMasterLordLance.event"
+PUSH
+BanimEntry(BANIM_EPHRAIM_MASTER_LORD_LANCE)
+EphraimMasterLordLance_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_EphraimMasterLord:
+BYTE 0x01 0x01; SHORT BANIM_EPHRAIM_MASTER_LORD_LANCE
+BYTE 0x09 0x01; SHORT 0x07
+WORD 0
+
+// Amelia (General), sword: "[General-Reskin] Amelia [F]" by Redbean
+#define BANIM_AMELIA_GENERAL_SWORD 0xD4
+#include "Amelia/General/AmeliaGeneralSword.event"
+PUSH
+BanimEntry(BANIM_AMELIA_GENERAL_SWORD)
+AmeliaGeneralSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_AmeliaGeneral:
+BYTE 0x01 0x01; SHORT 0x4A
+BYTE 0x02 0x01; SHORT 0x4B
+BYTE 0x28 0x00; SHORT 0x4C
+BYTE 0x29 0x00; SHORT 0x4C
+BYTE 0x09 0x01; SHORT 0x4D
+BYTE 0x00 0x01; SHORT BANIM_AMELIA_GENERAL_SWORD
+BYTE 0x2C 0x00; SHORT 0x4C
+WORD 0
+
+// Amelia (Armor Knight), lance: "[Knight-Variant] Amelia [F]" by RedBean
+#define BANIM_AMELIA_KNIGHT_LANCE 0xD5
+#include "Amelia/Knight/AmeliaKnightLance.event"
+PUSH
+BanimEntry(BANIM_AMELIA_KNIGHT_LANCE)
+AmeliaKnightLance_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_AmeliaKnight:
+BYTE 0x01 0x01; SHORT BANIM_AMELIA_KNIGHT_LANCE
+BYTE 0x09 0x01; SHORT 0x43
+WORD 0
+
+// L'Arachel (Mage Knight), magic: "[MK-Variant] L'Arachel [F]" by RedBean
+#define BANIM_LARACHEL_MAGE_KNIGHT_MAGIC 0xD6
+#include "LArachel/MageKnight/LArachelMageKnightMagic.event"
+PUSH
+BanimEntry(BANIM_LARACHEL_MAGE_KNIGHT_MAGIC)
+LArachelMageKnightMagic_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_LArachelMageKnight:
+BYTE 0x04 0x01; SHORT 0x74
+BYTE 0x05 0x01; SHORT BANIM_LARACHEL_MAGE_KNIGHT_MAGIC
+BYTE 0x06 0x01; SHORT BANIM_LARACHEL_MAGE_KNIGHT_MAGIC
+BYTE 0x07 0x01; SHORT BANIM_LARACHEL_MAGE_KNIGHT_MAGIC
+BYTE 0x09 0x01; SHORT BANIM_LARACHEL_MAGE_KNIGHT_MAGIC
+WORD 0
+
+// L'Arachel (Valkyrie), magic: "[Valkyrie-Variant] L'Arachel [F]" by RedBean
+#define BANIM_LARACHEL_VALKYRIE_MAGIC 0xD7
+#include "LArachel/Valkyrie/LArachelValkyrieMagic.event"
+PUSH
+BanimEntry(BANIM_LARACHEL_VALKYRIE_MAGIC)
+LArachelValkyrieMagic_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_LArachelValkyrie:
+BYTE 0x04 0x01; SHORT 0x88
+BYTE 0x05 0x01; SHORT BANIM_LARACHEL_VALKYRIE_MAGIC
+BYTE 0x06 0x01; SHORT BANIM_LARACHEL_VALKYRIE_MAGIC
+BYTE 0x07 0x01; SHORT BANIM_LARACHEL_VALKYRIE_MAGIC
+BYTE 0x09 0x01; SHORT BANIM_LARACHEL_VALKYRIE_MAGIC
+WORD 0
+
+// L'Arachel (Troubadour), staff: "[Troubadour-Reskin] L'Arachel [F]" by RedBean
+#define BANIM_LARACHEL_TROUBADOUR_STAFF 0xD8
+#include "LArachel/Troubadour/LArachelTroubadourStaff.event"
+PUSH
+BanimEntry(BANIM_LARACHEL_TROUBADOUR_STAFF)
+LArachelTroubadourStaff_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_LArachelTroubadour:
+BYTE 0x04 0x01; SHORT BANIM_LARACHEL_TROUBADOUR_STAFF
+BYTE 0x09 0x01; SHORT 0x85
+WORD 0
+
+// Morva (undead), dragonstone: "[Manakete-Base] [U] Vanilla FE8 Undead Morva"
+#define BANIM_MORVA_DRAGONSTONE 0xD9
+#include "Morva/MorvaDragonstone.event"
+PUSH
+BanimEntry(BANIM_MORVA_DRAGONSTONE)
+MorvaDragonstone_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_Morva:
+BYTE 0x09 0x01; SHORT BANIM_MORVA_DRAGONSTONE
+BYTE 0x90 0x00; SHORT BANIM_MORVA_DRAGONSTONE
+WORD 0
+
+// Joshua (Myrmidon), sword: "[Myrmidon-Reskin] Joshua Hat Repal [M]"
+#define BANIM_JOSHUA_MYRMIDON_SWORD 0xDA
+#include "Joshua/Myrmidon/JoshuaMyrmidonSword.event"
+PUSH
+BanimEntry(BANIM_JOSHUA_MYRMIDON_SWORD)
+JoshuaMyrmidonSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_JoshuaMyrmidon:
+BYTE 0x00 0x01; SHORT BANIM_JOSHUA_MYRMIDON_SWORD
+BYTE 0x09 0x01; SHORT 0x12
+WORD 0
+
+// Joshua (Swordmaster), sword: "[Swordmaster-Variant] Joshua [M]" (Alt 2) by Aruka
+#define BANIM_JOSHUA_SWORDMASTER_SWORD 0xDB
+#include "Joshua/Swordmaster/JoshuaSwordmasterSword.event"
+PUSH
+BanimEntry(BANIM_JOSHUA_SWORDMASTER_SWORD)
+JoshuaSwordmasterSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_JoshuaSwordmaster:
+BYTE 0x00 0x01; SHORT BANIM_JOSHUA_SWORDMASTER_SWORD
+BYTE 0x09 0x01; SHORT 0x16
+WORD 0
+
+// Marisa (Swordmaster), sword: "[Swordmaster-Variant] Marisa Repal [F]" (Alt Crit) by RedBean
+#define BANIM_MARISA_SWORDMASTER_SWORD 0xDC
+#include "Marisa/Swordmaster/MarisaSwordmasterSword.event"
+PUSH
+BanimEntry(BANIM_MARISA_SWORDMASTER_SWORD)
+MarisaSwordmasterSword_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_MarisaSwordmaster:
+BYTE 0x00 0x01; SHORT BANIM_MARISA_SWORDMASTER_SWORD
+BYTE 0x09 0x01; SHORT 0x18
+WORD 0
+
+// Every Phantom (CLASS_PHANTOM, Data/ClassData/ClassData.c), axe: "[Monster-Custom] [U] Phantom" by TBA
+#define BANIM_PHANTOM_AXE 0xDD
+#include "Classes/Phantom/PhantomAxe.event"
+PUSH
+BanimEntry(BANIM_PHANTOM_AXE)
+PhantomAxe_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_Phantom:
+BYTE 0x02 0x01; SHORT BANIM_PHANTOM_AXE
+WORD 0
+
+// Every Gorgon Egg (CLASS_GORGONEGG and CLASS_GORGONEGG2, Data/ClassData/ClassData.c), unarmed: "[Gorgon-Custom] [U] Gorgon Eggs" by Ryn
+#define BANIM_GORGON_EGG_UNARMED 0xDE
+#include "Classes/GorgonEgg/GorgonEggUnarmed.event"
+PUSH
+BanimEntry(BANIM_GORGON_EGG_UNARMED)
+GorgonEggUnarmed_BANIM_ENTRY
+POP
+ALIGN 4
+gBanimDef_GorgonEgg:
+// any weapon an egg holds (it never attacks) keeps the egg animation, so the fight isn't dropped to the map
+BYTE 0x09 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x00 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x01 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x02 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x03 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x04 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x05 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x06 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x07 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+BYTE 0x0B 0x01; SHORT BANIM_GORGON_EGG_UNARMED
+WORD 0
+
+// Third-tier classes' animations (Data/ClassData/ThirdTierClasses.c): installed with their IDs, not used by any class
+// until the third tier has its classes (CONFIG_THIRD_TIER_CLASSES)
+#ifdef CONFIG_THIRD_TIER_CLASSES
+
+// Trueblade (Swordmaster's third tier; Joshua), sword: "[Swordmaster-Variant] Trueblade [M]- Joshua"
+#define BANIM_T3_TRUEBLADE_SWORD 0xDF
+#include "ThirdTier/Trueblade/TruebladeSword.event"
+PUSH
+BanimEntry(BANIM_T3_TRUEBLADE_SWORD)
+TruebladeSword_BANIM_ENTRY
+POP
+
+// Archsage (Sage's third tier), magic: "[Sage-Variant] Archsage [M]" by Dinar87
+#define BANIM_T3_ARCHSAGE_DINAR87_MAGIC 0xE0
+#include "ThirdTier/ArchsageDinar87/ArchsageDinarMagic.event"
+PUSH
+BanimEntry(BANIM_T3_ARCHSAGE_DINAR87_MAGIC)
+ArchsageDinarMagic_BANIM_ENTRY
+POP
+
+// Archsage (Sage's third tier), magic with a staff and an intro: "[T3 Custom] Archsage + Intro [M]" by Nuramon
+#define BANIM_T3_ARCHSAGE_NURAMON_MAGIC 0xE1
+#include "ThirdTier/ArchsageNuramon/ArchsageNuramonMagic.event"
+PUSH
+BanimEntry(BANIM_T3_ARCHSAGE_NURAMON_MAGIC)
+ArchsageNuramonMagic_BANIM_ENTRY
+POP
+
+// Marshall (General's third tier), lance: "[Marshall] Zelgius v3 [M]" by Nuramon
+#define BANIM_T3_MARSHALL_LANCE 0xE2
+#include "ThirdTier/Marshall/MarshallLance.event"
+PUSH
+BanimEntry(BANIM_T3_MARSHALL_LANCE)
+MarshallLance_BANIM_ENTRY
+POP
+
+// Trickster (Rogue's third tier), knife: "[Rogue-Reskin] Trickster [M]" by Leo_Link
+#define BANIM_T3_TRICKSTER_KNIFE 0xE3
+#include "ThirdTier/Trickster/TricksterKnife.event"
+PUSH
+BanimEntry(BANIM_T3_TRICKSTER_KNIFE)
+TricksterKnife_BANIM_ENTRY
+POP
+#endif // CONFIG_THIRD_TIER_CLASSES
 
 #endif // CUSTOM_BATTLE_ANIMS_INSTALLED
 #endif // CONFIG_CUSTOM_BATTLE_ANIMS
