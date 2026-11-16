@@ -72,6 +72,8 @@ What it checks:
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
               character palette).
+  dbgbanim    the debugger's "Battle anim" viewer on Eirika: her animation plays (with animations off in the options), A
+              switches the next fight to a critical, B leaves after it with the option put back.
   biography   the map menu's Biography row opens the list; it scrolls to its last biography, which A does not open (her
               character has not joined); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
@@ -1797,6 +1799,7 @@ class Smoke:
                  ("Joshua as a Swordmaster", "joshua_swm", 0x20, 0x15, 0x2E01, 0, 0xDB, "sword"),
                  ("Marisa as a Swordmaster", "marisa_swm", 0x16, 0x16, 0x2E01, 0, 0xDC, "sword"),
                  ("Phantom", "phantom", 0x01, 0x51, 0x2E1F, 2, 0xDD, "axe"),
+                 ("Gilliam as an Armor Knight", "gilliam_akn", 0x03, 0x09, 0x2E14, 1, 0xE4, "lance"),
                  ("L'Arachel as a Troubadour", "larachel_trb", 0x19, 0x4B, 0, 4, 0xD8, "staff"),
                  ("A Gorgon Egg", "gorgon_egg", 0x01, 0x62, 0, 0, 0xDE, "egg"))
         # The pre-promote Recruit's promotion choices (gPromoJidLut, Data/ClassData/Promotions.event)
@@ -1851,6 +1854,35 @@ class Smoke:
             self.check("banim: %s: it keeps its own palette (no character palette)" % label,
                        side is not None and pal_vals[side] == 0xFFFF,
                        "gBanimUniquePal %s" % ["%#x" % v for v in pal_vals])
+
+    def test_dbgbanim(self, boot_ss):
+        """The debugger's "Battle anim" (page 3, Kernel/Wizardry/VeslyDebugger/BanimViewer.c) on Eirika: her animation
+        plays against a stand-in Soldier, one normal hit; A during it makes the next fight a critical; B during that one
+        leaves after it, back to the menu, with the animation option as it was."""
+        d = os.path.join(self.out, "dbgbanim")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBanimIdx", "gBattleHitArrayRe")
+        if not all(n in self.sym for n in need):
+            return self.check("dbgbanim: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        idx, hits = self.sym["gBanimIdx"], self.sym["gBattleHitArrayRe"]
+        deamon = 0x0203E0F4  # gBattleDeamonActive
+        lines = ["load " + boot_ss, "w8 %#x 2" % (PLAYST + 0x42), "r8 %#x" % (PLAYST + 0x42), "wait 10", "press B",
+                 "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"] + ["press DOWN", "wait 10"] * 4
+        lines += ["press A", "wait 60", "r16 %#x" % (idx + 2), "r32 %#x" % hits, "r32 %#x" % deamon,
+                  "shot normal.png", "wait 60", "press A", "wait 360", "r32 %#x" % hits, "r32 %#x" % deamon,
+                  "press B", "wait 600", "r32 %#x" % deamon, "wait 200", "r32 %#x" % deamon, "r8 %#x" % (PLAYST + 0x42),
+                  "shot menu.png"]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "normal.png"), "the debugger's battle animation viewer")
+        if len(vals) != 9:
+            return self.check("dbgbanim: the viewer runs", False, "values %s" % vals)
+        conf0, banim, hit1, d1, hit2, d2, d3, d4, conf1 = vals
+        self.check("dbgbanim: Eirika's animation plays (with animations off in the options)",
+                   banim != 0xFFFF and d1, "gBanimIdx[1] %#x, deamon %d" % (banim, d1))
+        self.check("dbgbanim: the first fight is one normal hit", hit1 & 0x7FFFF == 0, "hit %#x" % hit1)
+        self.check("dbgbanim: after A the next fight is a critical", d2 and hit2 & 1, "hit %#x, deamon %d" % (hit2, d2))
+        self.check("dbgbanim: B leaves after that fight, the option put back", not d3 and not d4 and conf1 == conf0,
+                   "deamon %d, %d; option byte %#x then %#x" % (d3, d4, conf0, conf1))
 
     def test_battlequote(self, boot_ss):
         """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with
@@ -2610,13 +2642,13 @@ def main():
         return run
 
     boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "banim")
+                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "banim", "dbgbanim")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "banim")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "banim", "dbgbanim")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -2635,6 +2667,8 @@ def main():
                 r.submit((0, 9), s.test_lvupanim, turn2_ss)
             if on("banim") and turn2_ss:
                 r.submit((0, 10), s.test_banim, turn2_ss)
+            if on("dbgbanim") and turn2_ss:
+                r.submit((0, 11), s.test_dbgbanim, turn2_ss)
             if on("deeproots") and turn2_ss:
                 r.submit((0, 6), s.test_deeproots, turn2_ss)
             if on("mapcolors"):

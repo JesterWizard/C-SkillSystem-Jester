@@ -5,6 +5,7 @@
 #include "LynJump.event"
 #include "Hooks.lyn.event" 
 #include "C_Code.lyn.event" 
+#include "BanimViewer.lyn.event"
 
 ALIGN 4 
 DebuggerTurnedOff_Flag:
@@ -108,6 +109,7 @@ MenuCommand1(BgmMenuText, BgmMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMe
 MenuCommand1(BackgroundMenuText, BackgroundMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewBackgroundNow)
 MenuCommand1(PortraitMenuText, PortraitMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewPortraitNow)
 MenuCommand1(TrapMenuText, TrapMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewTrapNow)
+MenuCommand1(BanimMenuText, BanimMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, ViewBanimNow)
 MenuCommand1(SupplyMenuText, SupplyMenuDesc, NormalText, CanViewSupplyMenu, DebuggerMenuItemDraw, ViewSupplyNow)
 MenuCommand1(ForgeMenuText, ForgeMenuDesc, NormalText, CanForgeMenu, DebuggerMenuItemDraw, ForgeNow) // hidden unless forge_mechanic is on
 MenuCommand1(BwlMenuText, BwlMenuDesc, NormalText, MenuAlwaysEnabled, DebuggerMenuItemDraw, EditBwlStatsNow)
@@ -252,6 +254,13 @@ PortraitMenuText:
 PortraitMenuDesc:
     String("Preview portrait IDs"); NL
     String("directly."); EndText
+
+BanimMenuText:
+    String(" Battle anim"); EndText
+BanimMenuDesc:
+    String("Play the unit's battle"); NL
+    String("animation. A: critical"); NL
+    String("or normal. B: back."); EndText
 
 TrapMenuText:
     String(" Trap view"); EndText
