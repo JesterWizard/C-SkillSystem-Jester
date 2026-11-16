@@ -24,7 +24,7 @@
 - **The banner** on top (the Sound Room's song banner) shows the name of the CG under the cursor, or "???" for one
   not seen yet.
 - **The panel** on the left, in a window: "Unlocked", a gold gauge that fills as CGs unlock, the percentage, and how
-  many are unlocked (1/11); at its foot the buttons, "View" and "Back".
+  many are unlocked (6/16); at its foot the buttons, "View" and "Back".
 - **The grid** on the right, in a window (the start menu's Gamma style, see
   [VeslyUI Styles](./VeslyUIStyles.md#choosing-a-style)), over the scrolling mural: three CGs a row,
   three rows on screen. Each is a small version (48x32, a fifth of the CG) in a frame; the frame of the one under the
@@ -43,9 +43,9 @@ The Gallery shows the backgrounds listed in `gGalleryEntries` (`Data/Gallery/Gal
 
 ```c
 const struct GalleryEntry gGalleryEntries[] = {
-	{ 0xDB, MSG_GALLERY_CG_FLIGHT_FROM_RENAIS },
+	{ 0xDB, MSG_GALLERY_CG_FLIGHT_FROM_RENAIS, 0 },
 	...
-	{ GALLERY_END, 0 },
+	{ GALLERY_END, 0, 0 },
 };
 ```
 
@@ -54,7 +54,8 @@ const struct GalleryEntry gGalleryEntries[] = {
    two `.dmp` files with `python3 Tools/gallery/png2cg.py 224 224_CG_Name.png 224_CG_Name_IMG.dmp 224_CG_Name_PAL.dmp`
    (a stand-in for Sommie; keep the PNG next to them). 16-, 224- and 256-colour backgrounds all work: a vanilla one is
    read from the clean ROM, a new one from the `.dmp` its `BG.event` label `#incbin`s.
-2. Add a row: its background index and a name message. Add the message at the end of
+2. Add a row: its background index, a name message and 0 (or `GALLERY_UNLOCKED`, see [Unlocking](#unlocking)).
+   Add the message at the end of
    `Contents/Texts/Source/texts/Districts.txt` (`## MSG_GALLERY_CG_...`, then the name and `[X]`).
 3. Show it in an event (`TEXT_BG`, `TEXT_BG_HIDE_MAP`, `TEXT_CG`, `BACG` and the background fades), and it unlocks
    there. In the CG text box a name (`[SetName]Name[N]`) only takes at the start of a message: give each speaker their
@@ -76,7 +77,9 @@ Seth carries Eirika out), Reunited (0xDC, Chapter 1's end), Seth's Plea (0xDD, t
 Ide Burns (0xDE, Chapter 2's opening), Neimi's Mirror (0xDF, Chapter 3's end), The Mogall (0xE0, Chapter 4's opening,
 before Artur's battle), Joshua Intervenes (0xE1, Chapter 5's opening), Renvall Ambush (0xE2, Chapter 5x's end), Bael
 Attack (0xE3, Chapter 6's opening), War Council (0xE4, the council at Castle Frelia between Chapters 8 and 9) and
-Myrrh's Wings (0xE5: in the list, but no scene shows it yet, so it stays locked). The older CGs (0x38-0x3A, among
+Myrrh's Wings (0xE5: in the list, but no scene shows it yet, so it stays locked). After it come five CGs no scene
+shows yet, unlocked from the start: Training Grounds (0xE6), The Black Sun (0xE7), Mercenaries at Rest (0xE8),
+Into the Fray (0xE9) and By Lamplight (0xEA). The older CGs (0x38-0x3A, among
 them the prologue's Seth Attacked, which the story still shows) and the vanilla backgrounds are no longer listed.
 Its order is the unlock bits' order: add new CGs at the end. Removing or reordering rows moves the unlocks already
 made to other CGs, so change the magic word (`GALLERY_SRAM_MAGIC`, see [Unlocking](#unlocking)) with it.
@@ -96,6 +99,12 @@ block (`gSram->saveBlockInfo[SAVE_ID_XMAP]`, 16 bytes at `0x0E0000C4`). This hac
 is only read by the trial-map check, which sees no trial map. It is outside the game and suspend saves, so the save
 layout and its signature do not change, and erasing a file keeps them. Only wiping all of SRAM (vanilla's first boot)
 clears them.
+
+A row can also be unlocked from the start: give it `GALLERY_UNLOCKED` as its third field
+(`{ 0xE6, MSG_GALLERY_CG_TRAINING_GROUNDS, GALLERY_UNLOCKED }`). It shows unlocked in every save without an event,
+and no SRAM bit is written for it. Use it for CGs no scene shows yet; once a scene shows one, set the field to 0 and
+it unlocks there like the others. Training Grounds, The Black Sun, Mercenaries at Rest, Into the Fray and By
+Lamplight (0xE6-0xEA) are listed this way.
 
 ---
 
@@ -141,8 +150,9 @@ clears them.
 
 `python3 Tools/cloud/smoketest.py --only gallery`: the prologue's opening unlocks Flight from Renais (0xDB, the first
 row), and nothing else, in SRAM; after a reset Extras has the Gallery row; the grid opens on its first rows; A on a
-locked CG (Reunited) does nothing; A on Flight from Renais shows it full size; right stays on it (no other CG is
-unlocked); B goes back to the grid on it; down three rows scrolls the grid a row, on screen; B again goes back to Extras.
+locked CG (Reunited) does nothing; A on Flight from Renais shows it full size; right goes to Training Grounds (row 11,
+unlocked from the start) and left back; B goes back to the grid on it; down three rows scrolls the grid a row, on
+screen; B again goes back to Extras.
 
 ---
 

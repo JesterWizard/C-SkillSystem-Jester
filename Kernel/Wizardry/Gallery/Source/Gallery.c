@@ -66,7 +66,10 @@ void Gallery_ReadUnlocks(u8 *bits)
 
 bool Gallery_IsUnlocked(const u8 *bits, int index)
 {
-	return (unsigned int)index < GALLERY_MAX && (bits[index >> 3] & (1 << (index & 7)));
+	if ((unsigned int)index >= GALLERY_MAX)
+		return false;
+
+	return gGalleryEntries[index].unlocked == GALLERY_UNLOCKED || (bits[index >> 3] & (1 << (index & 7)));
 }
 
 /* An event showed a background: every row that lists it unlocks */

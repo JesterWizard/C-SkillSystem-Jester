@@ -1456,9 +1456,9 @@ class Smoke:
         """The Gallery (Documentation/Features/Gallery.md). The prologue's opening shows Flight from Renais (background
         0xDB, the first row): it unlocks, in the SRAM entry of the trial map's save block (magic "GLR2"), and nothing
         else does. After a reset, Extras has the Gallery row; it shows its first three rows. A on a locked CG (Reunited)
-        does nothing; on Flight from Renais it shows the CG full size on BG3; right stays on it (no other CG is
-        unlocked); B goes back to the grid on it. Down three rows scrolls the grid a row, on screen (no fade), and B
-        goes back to Extras."""
+        does nothing; on Flight from Renais it shows the CG full size on BG3; right goes to row 11 (the first of the
+        CGs unlocked from the start) and left back; B goes back to the grid on it. Down three rows scrolls the grid a
+        row, on screen (no fade), and B goes back to Extras."""
         d = os.path.join(self.out, "gallery")
         os.makedirs(d, exist_ok=True)
         need = ("gGalleryScreen", "gLCDControlBuffer", "ProcScr_SaveMenu", "sProcArray")
@@ -1477,8 +1477,9 @@ class Smoke:
         # Reunited (the second CG, locked): A does nothing; then Flight from Renais (the first): A, the full view
         lines += ["press RIGHT", "wait 20", "press A", "wait 60"] + state
         lines += ["press LEFT", "wait 20", "press A", "wait 60", "shot full.png", "r16 %#x" % lcd] + state
-        # right: no other CG is unlocked, so it stays
+        # right: the next unlocked CG is row 11 (the first unlocked from the start); left goes back to row 0
         lines += ["press RIGHT", "wait 60", "shot next.png"] + state
+        lines += ["press LEFT", "wait 60"] + state
         lines += ["press B", "wait 60", "shot back.png"] + state
         # Flight from Renais (row 0): down three rows, past the third on screen; the grid scrolls a row
         lines += ["press DOWN", "wait 20", "press DOWN", "wait 20", "press DOWN", "wait 3", "shot scrolling.png",
@@ -1486,15 +1487,16 @@ class Smoke:
         lines += ["press B", "wait 150", "shot extras.png", "dump %#x %#x after.bin" % (procs, PROC_SIZE * PROCS)]
         vals = self.run(ROM, lines, d)
         for name, label in (("grid", "the Gallery's first rows"), ("full", "the full view: Flight from Renais"),
-                            ("next", "right: the only unlocked CG stays"), ("back", "B: back on the grid"),
+                            ("next", "right: the next unlocked CG (row 11, unlocked from the start)"),
+                            ("back", "B: back on the grid"),
                             ("scrolling", "down past the third row: scrolling"), ("scrolled", "a row down"),
                             ("extras", "B: back to Extras")):
             self.shot(os.path.join(d, name + ".png"), label)
-        if len(vals) != 6 + 6 * 6 + 1:
+        if len(vals) != 6 + 6 * 7 + 1:
             return self.check("gallery: the Gallery runs", False, "values %s" % vals)
         sram, dispcnt = vals[:6], vals[18]
-        grid, locked, full, nxt, back, scrolled = (vals[6:12], vals[12:18], vals[19:25], vals[25:31], vals[31:37],
-                                                   vals[37:43])
+        grid, locked, full, nxt, prev, back, scrolled = (vals[6:12], vals[12:18], vals[19:25], vals[25:31],
+                                                         vals[31:37], vals[37:43], vals[43:49])
         magic = sram[0] | sram[1] << 8 | sram[2] << 16 | sram[3] << 24
         self.check("gallery: the prologue's opening unlocks Flight from Renais (and only it)",
                    magic == 0x32524C47 and sram[4] == 0x01 and sram[5] == 0,
@@ -1502,7 +1504,7 @@ class Smoke:
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("gallery: Extras has the Gallery row", menu and menu[0] & (1 << 4),
                    "Extras rows %s" % ["%#x" % m for m in menu])
-        self.check("gallery: the grid opens on its first rows", grid[0] == 11 and grid[1] == 0 and grid[2] == 0 and
+        self.check("gallery: the grid opens on its first rows", grid[0] == 16 and grid[1] == 0 and grid[2] == 0 and
                    grid[4] == 1 and grid[5] == 0x01, "count, cursor, top, view, sprites, bits %s" % grid)
         self.check("gallery: A on a locked CG does nothing", locked[4] == 1 and locked[1] == 1,
                    "cursor %d, grid shown %d" % (locked[1], locked[4]))
@@ -1510,8 +1512,10 @@ class Smoke:
         self.check("gallery: A on Flight from Renais shows it full size (BG3, no thumbnails)",
                    full[1] == 0 and full[3] == 0 and full[4] == 0 and dispcnt & 0x0800,
                    "cursor %d, view %d, DISPCNT %#x" % (full[1], full[3], dispcnt))
-        self.check("gallery: right with no other CG unlocked stays on it", nxt[3] == 0 and nxt[4] == 0,
-                   "view %d, grid shown %d" % (nxt[3], nxt[4]))
+        self.check("gallery: right goes to the first CG unlocked from the start (row 11)",
+                   nxt[3] == 11 and nxt[4] == 0, "view %d, grid shown %d" % (nxt[3], nxt[4]))
+        self.check("gallery: left goes back to Flight from Renais", prev[3] == 0 and prev[4] == 0,
+                   "view %d, grid shown %d" % (prev[3], prev[4]))
         self.check("gallery: B goes back to the grid on that CG", back[1] == 0 and back[4] == 1,
                    "cursor %d, grid shown %d" % (back[1], back[4]))
         self.check("gallery: down past the third row scrolls the grid a row, on screen",
