@@ -38,7 +38,7 @@ The system is designed as follows:
 - The music ID corresponding to that number for the active unit is checked in the ``character_voice_ids`` array
 - The corresponding quote is played (if it exists). Quotes are VC2 stream songs, decoded while they play ([VoiceStream.md](VoiceStream.md))
 
-The 111 quotes take 336 KB: about 3 KB a quote, half what they took as DPCM and a 26th of their source WAVs. Every quote's sizes are in [VoiceStreamSizes.md](VoiceStreamSizes.md).
+The 114 quotes take 342 KB: about 3 KB a quote, half what they took as DPCM and a 26th of their source WAVs. Every quote's sizes are in [VoiceStreamSizes.md](VoiceStreamSizes.md).
 
 ### Adding a quote
 

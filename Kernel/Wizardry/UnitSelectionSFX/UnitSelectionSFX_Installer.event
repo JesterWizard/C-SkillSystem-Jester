@@ -1447,3 +1447,42 @@ Marisa_3_Sound:
     WORD $32435356 // "VSC2"
     POIN Marisa_3_vc2
 SongTable(0x3A4, Marisa_3_Sound, 7)
+
+// Franz_Are_You_Sure.wav
+ALIGN 4
+Franz_1_vc2:
+    #incbin "vc2/Franz/Franz_Are_You_Sure.vc2"
+ALIGN 4
+Franz_1_Sound:
+    BYTE 1 0 0 0
+    POIN VoiceStream_Tone
+    POIN VoiceStream_Track
+    WORD $32435356 // "VSC2"
+    POIN Franz_1_vc2
+SongTable(0x3A5, Franz_1_Sound, 7)
+
+// Franz_Ill_Fight_On.wav
+ALIGN 4
+Franz_2_vc2:
+    #incbin "vc2/Franz/Franz_Ill_Fight_On.vc2"
+ALIGN 4
+Franz_2_Sound:
+    BYTE 1 0 0 0
+    POIN VoiceStream_Tone
+    POIN VoiceStream_Track
+    WORD $32435356 // "VSC2"
+    POIN Franz_2_vc2
+SongTable(0x3A6, Franz_2_Sound, 7)
+
+// Franz_Yes.wav
+ALIGN 4
+Franz_3_vc2:
+    #incbin "vc2/Franz/Franz_Yes.vc2"
+ALIGN 4
+Franz_3_Sound:
+    BYTE 1 0 0 0
+    POIN VoiceStream_Tone
+    POIN VoiceStream_Track
+    WORD $32435356 // "VSC2"
+    POIN Franz_3_vc2
+SongTable(0x3A7, Franz_3_Sound, 7)

@@ -87,7 +87,7 @@ POIN BG_Heroes_Amelia_04_IMG;     WORD 0x1; POIN BG_Heroes_Amelia_04_PAL // 0x42
 POIN BG_Heroes_Artur_01_IMG;      WORD 0x1; POIN BG_Heroes_Artur_01_PAL // 0x43
 POIN BG_Heroes_Artur_02_IMG;      WORD 0x1; POIN BG_Heroes_Artur_02_PAL // 0x44
 POIN BG_Heroes_Artur_03_IMG;      WORD 0x1; POIN BG_Heroes_Artur_03_PAL // 0x45
-POIN BG_Heroes_Artur_04_IMG;      WORD 0x1; POIN BG_Heroes_Artur_04_PAL // 0x46
+POIN BG_Heroes_Artur_03_IMG;      WORD 0x1; POIN BG_Heroes_Artur_03_PAL // 0x46 (no 4th card: same as 0x45)
 POIN BG_Heroes_Caellach_01_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_01_PAL // 0x47
 POIN BG_Heroes_Caellach_02_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_02_PAL // 0x48
 POIN BG_Heroes_Caellach_03_IMG;   WORD 0x1; POIN BG_Heroes_Caellach_03_PAL // 0x49
@@ -102,8 +102,8 @@ POIN BG_Heroes_Cormag_03_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_03_PAL // 0x51
 POIN BG_Heroes_Cormag_04_IMG;     WORD 0x1; POIN BG_Heroes_Cormag_04_PAL // 0x52
 POIN BG_Heroes_Dozla_01_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_01_PAL // 0x53
 POIN BG_Heroes_Dozla_02_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_02_PAL // 0x54
-POIN BG_Heroes_Dozla_03_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_03_PAL // 0x55
-POIN BG_Heroes_Dozla_04_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_04_PAL // 0x56
+POIN BG_Heroes_Dozla_02_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_02_PAL // 0x55 (no 3rd card: same as 0x54)
+POIN BG_Heroes_Dozla_02_IMG;      WORD 0x1; POIN BG_Heroes_Dozla_02_PAL // 0x56 (no 4th card: same as 0x54)
 POIN BG_Heroes_Duessel_01_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_01_PAL // 0x57
 POIN BG_Heroes_Duessel_02_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_02_PAL // 0x58
 POIN BG_Heroes_Duessel_03_IMG;    WORD 0x1; POIN BG_Heroes_Duessel_03_PAL // 0x59
@@ -306,8 +306,6 @@ BG_Heroes_Artur_02_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_02_IMG
 BG_Heroes_Artur_02_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_02_PAL.dmp"
 BG_Heroes_Artur_03_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_IMG.dmp"
 BG_Heroes_Artur_03_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_PAL.dmp"
-BG_Heroes_Artur_04_IMG: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_IMG.dmp"
-BG_Heroes_Artur_04_PAL: #incbin "FireEmblemHeroesCards/Artur/224_BG_Artur_03_PAL.dmp"
 
 BG_Heroes_Caellach_01_IMG: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_01_IMG.dmp"
 BG_Heroes_Caellach_01_PAL: #incbin "FireEmblemHeroesCards/Caellach/224_BG_Caellach_01_PAL.dmp"
@@ -340,10 +338,6 @@ BG_Heroes_Dozla_01_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_01_IMG
 BG_Heroes_Dozla_01_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_01_PAL.dmp"
 BG_Heroes_Dozla_02_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
 BG_Heroes_Dozla_02_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
-BG_Heroes_Dozla_03_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
-BG_Heroes_Dozla_03_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
-BG_Heroes_Dozla_04_IMG: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_IMG.dmp"
-BG_Heroes_Dozla_04_PAL: #incbin "FireEmblemHeroesCards/Dozla/224_BG_Dozla_02_PAL.dmp"
 
 BG_Heroes_Duessel_01_IMG: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_01_IMG.dmp"
 BG_Heroes_Duessel_01_PAL: #incbin "FireEmblemHeroesCards/Duessel/224_BG_Duessel_01_PAL.dmp"
