@@ -12,6 +12,11 @@ BYTE 0x0F  //Class: Mercenary
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 POIN gBanimDef_GerikMercenary //Contents/BattleAnims/BattleAnims.event
+BYTE 0x22  //Unit: Tana
+BYTE 0x48  //Class: Pegasus Knight
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_TanaPegasusKnight //Contents/BattleAnims/BattleAnims.event
 #endif
 
 BYTE 0x00  //Unit: term data

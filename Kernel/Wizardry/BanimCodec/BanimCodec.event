@@ -2,7 +2,7 @@
 #define BANIM_CODEC_INSTALLED
 
 // Huffman-coded battle animation data (Source/BanimCodec.c, Documentation/Features/CustomBattleAnimations.md).
-// The battle animation code's LZ77UnCompWram calls (sheets, scripts, OAM) go to BanimUnComp, which decodes data tagged
+// The battle animation code's LZ77UnCompWram calls (sheets, scripts, OAM; the battle's opening zoom too) go to BanimUnComp, which decodes data tagged
 // BANIM_HUFF_TAG and passes everything else to the BIOS. 0x59AD2 (UpdateBanimFrame's left OAM) is not here:
 // AutoGenLeftOAM's hook at 0x59ACC jumps over it.
 
@@ -15,6 +15,15 @@ ALIGN 4
 ASSERT 0x200 - (_ARM_BanimHuff_CopyEnd - _ARM_BanimHuff_CopyStart)
 
 PUSH
+	ORG $56A2E // UnitKakudaiPrepareAnimScript: the unit zooming in from the map as the battle opens
+	BL(BanimUnComp)
+	ORG $56A54
+	BL(BanimUnComp)
+	ORG $56A62
+	BL(BanimUnComp)
+	ORG $56A6E
+	BL(BanimUnComp)
+
 	ORG $59950 // RegisterAISSheetGraphics: the sheets
 	BL(BanimUnComp)
 

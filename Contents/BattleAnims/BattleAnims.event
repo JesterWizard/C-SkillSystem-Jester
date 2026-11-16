@@ -8,6 +8,7 @@
 #define BanimEntry(id) "ORG 0xC00008 + 0x20 * ((id) - 1)"
 
 #define BANIM_GERIK_SWORD 0xCA
+#define BANIM_TANA_LANCE  0xCB
 
 // Gerik (Mercenary), sword: "[Mercenary-Variant] SALVAGED Gerik [M]" by UltraFenix
 #include "Gerik/GerikSword.event"
@@ -22,6 +23,20 @@ ALIGN 4
 gBanimDef_GerikMercenary:
 BYTE 0x00 0x01; SHORT BANIM_GERIK_SWORD
 BYTE 0x09 0x01; SHORT 0x0C
+WORD 0
+
+// Tana (Pegasus Knight), lance: "Peg T1 Reskin F Tana" by RedBean
+#include "Tana/TanaLance.event"
+PUSH
+BanimEntry(BANIM_TANA_LANCE)
+TanaLance_BANIM_ENTRY
+POP
+
+// Tana's Pegasus Knight animations: lances use her animation, unarmed keeps vanilla Pegasus Knight's (0x67)
+ALIGN 4
+gBanimDef_TanaPegasusKnight:
+BYTE 0x01 0x01; SHORT BANIM_TANA_LANCE
+BYTE 0x09 0x01; SHORT 0x67
 WORD 0
 
 #endif // CUSTOM_BATTLE_ANIMS_INSTALLED

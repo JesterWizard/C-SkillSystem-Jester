@@ -127,4 +127,4 @@ Custom campaign world-map intros are written as C EventScr with shared macros fo
 
 ## Credits
 
-[Credits documentation](./Credits.md)
+[Credits documentation](../Credits.md)
