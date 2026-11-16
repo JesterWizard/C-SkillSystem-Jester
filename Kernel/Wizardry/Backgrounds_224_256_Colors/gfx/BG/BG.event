@@ -252,6 +252,11 @@ POIN CG_The_Black_Sun_IMG;     WORD 0x1; POIN CG_The_Black_Sun_PAL     // 0xE7
 POIN CG_Mercenaries_at_Rest_IMG; WORD 0x1; POIN CG_Mercenaries_at_Rest_PAL // 0xE8
 POIN CG_Into_the_Fray_IMG;     WORD 0x1; POIN CG_Into_the_Fray_PAL     // 0xE9
 POIN CG_By_Lamplight_IMG;      WORD 0x1; POIN CG_By_Lamplight_PAL      // 0xEA
+POIN CG_Wyvern_Raid_IMG; WORD 0x1; POIN CG_Wyvern_Raid_PAL // 0xEB
+POIN CG_The_Dark_Rite_IMG; WORD 0x1; POIN CG_The_Dark_Rite_PAL // 0xEC
+POIN CG_A_Quiet_Afternoon_IMG; WORD 0x1; POIN CG_A_Quiet_Afternoon_PAL // 0xED
+POIN CG_Weary_Travellers_IMG; WORD 0x1; POIN CG_Weary_Travellers_PAL // 0xEE
+POIN CG_Garden_Meeting_IMG; WORD 0x1; POIN CG_Garden_Meeting_PAL // 0xEF
 
 
 // TSA == 0 indicates 256-colour BGs.
@@ -296,6 +301,16 @@ CG_Into_the_Fray_IMG: #incbin "224_CG_Into_the_Fray_IMG.dmp"
 CG_Into_the_Fray_PAL: #incbin "224_CG_Into_the_Fray_PAL.dmp"
 CG_By_Lamplight_IMG: #incbin "224_CG_By_Lamplight_IMG.dmp"
 CG_By_Lamplight_PAL: #incbin "224_CG_By_Lamplight_PAL.dmp"
+CG_Wyvern_Raid_IMG: #incbin "224_CG_Wyvern_Raid_IMG.dmp"
+CG_Wyvern_Raid_PAL: #incbin "224_CG_Wyvern_Raid_PAL.dmp"
+CG_The_Dark_Rite_IMG: #incbin "224_CG_The_Dark_Rite_IMG.dmp"
+CG_The_Dark_Rite_PAL: #incbin "224_CG_The_Dark_Rite_PAL.dmp"
+CG_A_Quiet_Afternoon_IMG: #incbin "224_CG_A_Quiet_Afternoon_IMG.dmp"
+CG_A_Quiet_Afternoon_PAL: #incbin "224_CG_A_Quiet_Afternoon_PAL.dmp"
+CG_Weary_Travellers_IMG: #incbin "224_CG_Weary_Travellers_IMG.dmp"
+CG_Weary_Travellers_PAL: #incbin "224_CG_Weary_Travellers_PAL.dmp"
+CG_Garden_Meeting_IMG: #incbin "224_CG_Garden_Meeting_IMG.dmp"
+CG_Garden_Meeting_PAL: #incbin "224_CG_Garden_Meeting_PAL.dmp"
 
 BG_Heroes_Eirika_01_IMG: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_IMG.dmp"
 BG_Heroes_Eirika_01_PAL: #incbin "FireEmblemHeroesCards/Eirika/224_BG_Eirika_01_PAL.dmp"
