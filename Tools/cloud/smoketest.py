@@ -64,7 +64,8 @@ What it checks:
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her sad portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
-  lvupanim    with battle animations on, Eirika levels up: after the stats, her quote is printed in a box above the
+  lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
+              badge shares OBJ palette 15); after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
   banim       with battle animations on, Gerik as a Mercenary (RAM writes make Eirika's unit him) attacks with an Iron
@@ -1726,12 +1727,15 @@ class Smoke:
         lvl = UNIT1 + 0x08
         attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A"]
         bg1, bg2 = os.path.join(d, "bg1.bin"), os.path.join(d, "bg2.bin")
+        pal15 = os.path.join(d, "pal15.bin")
         vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "w8 %#x 99" % (UNIT1 + 0x09),
                               "r8 %#x" % lvl] + attack +
-                        ["wait 1080", "shot quote.png", "dump %#x 0x180 %s" % (self.sym["gBG1TilemapBuffer"], bg1),
+                        ["wait 850", "shot stats.png", "dump 0x050003E0 0x20 %s" % pal15, "wait 230",
+                         "shot quote.png", "dump %#x 0x180 %s" % (self.sym["gBG1TilemapBuffer"], bg1),
                          "dump %#x 0x100 %s" % (self.sym["gBG2TilemapBuffer"], bg2), "r32 %#x" % GFACES,
                          "r8 %#x" % (EVENT_SLOTS + 9 * 4), "save quote.ss", "wait 600", "shot after.png",
                          "r32 0x02024CB8", "r8 %#x" % lvl], d)
+        self.shot(os.path.join(d, "stats.png"), "level-up stats (animations)")
         self.shot(os.path.join(d, "quote.png"), "level-up quote (animations)")
         self.shot(os.path.join(d, "after.png"), "after the animated level-up")
         if len(vals) != 5:
@@ -1743,6 +1747,15 @@ class Smoke:
         self.check("lvupanim: the quote is printed in a box above the window", text >= 8 and box >= 20,
                    "%d text cells, %d box cells" % (text, box))
         self.check_quote_face(face, gains, os.path.join(d, "quote.ss"), d, "lvupanim")
+        # The level-up box's portrait uses OBJ palette 15 (EkrLvup_InitLevelUpBox), which the battle HUD's "xN" badge
+        # (Kernel/Wizardry/DoubleBadge) also uses: the badge reset it every frame and the face showed in its colours
+        if os.path.exists(pal15):
+            rom = open(ROM, "rb").read()
+            # Pal_BKSEL (Kernel/Wizardry/BattleSys/data.event), an EA label: found through vanilla's pointer at 0x36E14
+            badge = rom[struct.unpack_from("<I", rom, 0x36E14)[0] - 0x08000000:][:0x20]
+            got = open(pal15, "rb").read()
+            self.check("lvupanim: the portrait keeps its palette during the stats (not the xN badge's)",
+                       got != badge and any(got), "OBJ palette 15 %s" % got.hex())
         self.check("lvupanim: the window goes and the battle ends on the map",
                    main != self.sym["InBattleMainRoutine"] + 1 and lv1 == lv0 + 1,
                    "main loop %#x, level %d to %d" % (main, lv0, lv1))
