@@ -52,12 +52,21 @@ static void DoubleBadge_Put(int x, int y, int chr)
 	CallARM_PushToSecondaryOAM(OAM1_X(0x200 + x), OAM0_Y(0x100 + y), sObj_Badge16x16, OAM2_CHR(chr) | OAM2_PAL(BADGE_PAL) | OAM2_LAYER(0));
 }
 
-static void DoubleBadge_Side(struct ProcEkrGauge *gauge, struct BattleUnit *bu, int x, int chr)
+static void DoubleBadge_Side(struct ProcEkrGauge *gauge, struct BattleUnit *bu, int pos, int x, int chr)
 {
-	int n = DoubleBadge_Strikes(bu);
+	int n;
 	int dx = gauge->unk32, dy = gauge->unk3A;
 	int bob = sBadgeBob[(GetGameClock() >> 3) & 3];
 
+	/*
+	 * Only a side on screen that fights with a weapon. A staff, a dance or a refresh has no strikes, and its battle
+	 * doesn't go through BattleUnwind, which sets them: the last fight's counts would show (an "x2" on the empty side
+	 * of a heal).
+	 */
+	if (!gBanimValid[pos] || !(GetItemAttributes(bu->weaponBefore) & IA_WEAPON))
+		return;
+
+	n = DoubleBadge_Strikes(bu);
 	if (n < 2)
 		return;
 	if (n > 9)
@@ -91,8 +100,8 @@ static void DoubleBadge_Loop(ProcPtr proc)
 		EnablePaletteSync();
 	}
 
-	DoubleBadge_Side(gauge, gpEkrBattleUnitLeft, 24, BADGE_CHR_L);
-	DoubleBadge_Side(gauge, gpEkrBattleUnitRight, 222, BADGE_CHR_R);
+	DoubleBadge_Side(gauge, gpEkrBattleUnitLeft, EKR_POS_L, 24, BADGE_CHR_L);
+	DoubleBadge_Side(gauge, gpEkrBattleUnitRight, EKR_POS_R, 222, BADGE_CHR_R);
 }
 
 static const struct ProcCmd ProcScr_DoubleBadge[] = {

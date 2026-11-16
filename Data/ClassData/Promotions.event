@@ -1,0 +1,6 @@
+// Promotion choices: vanilla's gPromoJidLut (0x95DFA4), two class ids per class id.
+#define PromoChoices(jid, first, second) "PUSH; ORG 0x95DFA4 + 2 * (jid); BYTE first second; POP"
+
+// Pre-promote Recruit (CLASS_RECRUIT_T1, 0x37): Recruit T2 (0x3A) or Halberdier (CLASS_HALBERDIER, 0x77),
+// in place of vanilla's Paladin F (0x08)
+PromoChoices(0x37, 0x3A, 0x77)

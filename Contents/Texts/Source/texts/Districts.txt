@@ -1060,3 +1060,8 @@ A Quiet Afternoon[X]
 Weary Travellers[X]
 ## MSG_GALLERY_CG_GARDEN_MEETING
 Garden Meeting[X]
+## MSG_CLASS_HALBERDIER_NAME
+Halberdier[X]
+## MSG_CLASS_HALBERDIER_DESC
+A sturdy foot soldier wielding[N]
+a halberd. Uses lances.[X]

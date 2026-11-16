@@ -24,8 +24,49 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 |----|------------------|--------|-----------|--------|
 | 0xCA | Gerik, Mercenary | swords | "[Mercenary-Variant] SALVAGED Gerik [M]" (1. Sword) | UltraFenix |
 | 0xCB | Tana, Pegasus Knight | lances | "Peg T1 Reskin F Tana" (2. Lance) | RedBean |
+| 0xCC | Amelia, Recruit (Tier 0) | lances | Amelia, Tier 0 (Lance) | Spud |
+| 0xCD | Amelia, Recruit pre-promote (`CLASS_RECRUIT_T1`) | lances | Amelia, PrePromote (Lance) | Spud |
+| 0xCE | Amelia, Halberdier (`CLASS_HALBERDIER`) | lances | Amelia, Halberdier (Lance) | Spud |
+| 0xCF | Joshua, Assassin | knives | "[Assassin-Reskin] Joshua [M]" (1. Knife) | Seliost1 |
+| 0xD0 | Marisa, Assassin (F) | swords | "[Assassin-Reskin] Marisa [F]" (1. Sword, Knife Ranged) | RedBean |
+| 0xD1 | Colm, Assassin | swords | "[Assassin-Variant] [M] Colm" (1. Sword, Fixed) | Aruka |
+| 0xD2 | Eirika, Master Lord | swords | "[FE8 Eirika-Reskin] T2 Eirika Unmounted [F]" (1. Sword) | RedBean |
+| 0xD3 | Ephraim, Master Lord | lances | "[FE8 Ephraim-Custom] T2 Heavy Infantry [M]" (2. Lance, Siegmund) | Nuramon |
+| 0xD4 | Amelia, General (F) | swords | "[General-Reskin] Amelia [F]" (1. Sword) | RedBean |
+| 0xD5 | Amelia, Armor Knight (F) | lances | "[Knight-Variant] Amelia [F]" (2. Lance) | RedBean |
+| 0xD6 | L'Arachel, Mage Knight (F) | anima, light, dark, unarmed | "[MK-Variant] L'Arachel [F]" (6. Magic) | RedBean |
+| 0xD7 | L'Arachel, Valkyrie | anima, light, dark, unarmed | "[Valkyrie-Variant] L'Arachel [F]" (6. Magic) | RedBean |
+| 0xD8 | L'Arachel, Troubadour | staves | "[Troubadour-Reskin] L'Arachel [F]" (7. Staff) | RedBean |
+| 0xD9 | Morva, Manakete (`CLASS_MANAKETE_2`) | everything (Wretched Air, unarmed) | "[Manakete-Base] [U] Vanilla FE8 Undead Morva" (8. Dragonstone) | unknown |
+| 0xDA | Joshua, Myrmidon | swords | "[Myrmidon-Reskin] Joshua Hat Repal [M]" (1. Sword) | unknown |
+| 0xDB | Joshua, Swordmaster | swords | "[Swordmaster-Variant] Joshua [M]" (1. Sword, Alt 2) | Aruka |
+| 0xDC | Marisa, Swordmaster (F) | swords | "[Swordmaster-Variant] Marisa Repal [F]" (1. Sword, Alt Crit) | RedBean |
+| 0xDD | every Phantom (class-wide) | axes | "[Monster-Custom] [U] Phantom" (3. Axe) | TBA |
+| 0xDE | every Gorgon Egg (class-wide, both egg classes) | everything | "[Gorgon-Custom] [U] Gorgon Eggs" (8. Unarmed, Large) | Ryn |
 
-Their other weapon types (unarmed) keep the class's vanilla animation.
+Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
+class's vanilla list with the custom ID in place of the animated weapon types' entries.
+
+The Phantom and the Gorgon Eggs had no battle animation (their fights were map animations): their animations are
+class-wide, set as the class's `pBattleAnimDef` in `Data/ClassData/ClassData.c` (`BANIM_DEF_PHANTOM`,
+`BANIM_DEF_GORGON_EGG`), so `custom_character_animations` does not turn them off. An egg's list covers every weapon
+type, so an egg holding a weapon still gets its animation.
+
+Five more animations are for the planned third tier (`Data/ClassData/ThirdTierClasses.c`). `BattleAnims.event`
+installs them, with IDs, only when `CONFIG_THIRD_TIER_CLASSES` is on, and no class uses them until those classes exist:
+
+| ID | Third-tier class (from) | Weapon | Animation | Author |
+|----|-------------------------|--------|-----------|--------|
+| 0xDF | Trueblade (Swordmaster; Joshua's) | swords | "[Swordmaster-Variant] Trueblade [M]- Joshua" (1. Sword, Default) | unknown |
+| 0xE0 | Archsage (Sage) | magic | "[Sage-Variant] Archsage [M]" (6. Magic) | Dinar87 |
+| 0xE1 | Archsage (Sage) | magic, with a staff and an intro | "[T3 Custom] Archsage + Intro [M]" (6. Magic) | Nuramon |
+| 0xE2 | Marshall (General) | lances | "[Marshall] Zelgius v3 [M]" (2. Lance) | Nuramon |
+| 0xE3 | Trickster (Rogue) | knives | "[Rogue-Reskin] Trickster [M]" (1. Knife) | Leo_Link |
+
+The Halberdier (`CLASS_HALBERDIER`, 0x77, vanilla's unused class slot) is a promotion of the pre-promote Recruit
+(`CLASS_RECRUIT_T1`), beside Recruit T2: `Data/ClassData/Promotions.event` writes both into vanilla's `gPromoJidLut`
+in place of Paladin (F). Its class data is in `Data/ClassData/ClassData.c` (FE10 Halberdier caps, Recruit's map
+sprite, Recruit T2's vanilla animations for anyone but Amelia), its texts at the end of `Districts.txt`.
 
 The custom animations are in `Contents/BattleAnims/`. Vanilla's animation table is not changed: a new animation
 gets an ID after vanilla's, and a character or a class is pointed at it through `CustomAnimeTable`.
@@ -39,7 +80,8 @@ gets an ID after vanilla's, and a character or a class is pointed at it through 
 - `KernelDesigerConfig.custom_character_animations` (`Data/DesignerConfig/designer-config.c`) is the runtime
   toggle (struct spelled as in the code). Off, a character keeps its class's animations.
 
-Both are needed for Gerik's sword to show.
+Both are needed for a character's animation to show; the class-wide ones (Phantom, Gorgon Eggs) need only the
+first.
 
 ---
 
@@ -87,7 +129,7 @@ it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An ent
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
 Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
-0xCB, so the next is 0xCC.
+0xCB, and so on up to the third tier's 0xE3, so the next is 0xE4 (0xE4-0xFF: 28 left).
 
 ---
 
@@ -157,13 +199,21 @@ usual way (every part in the BIOS's LZ77, both OAMs):
 ## Testing
 
 `python3 Tools/cloud/smoketest.py --only banim` (the test is `test_banim`, `Tools/cloud/smoketest.py`). It starts
-from the prologue's turn 2 and fights twice: Eirika's unit made Gerik as a Mercenary with an Iron Sword, then Tana as
-a Pegasus Knight with an Iron Lance (the unit gets the weapon rank). Each time it checks:
+from the prologue's turn 2 and fights once per animation, Eirika's unit made the character and class with a weapon of
+the type (the unit gets the weapon rank). Each time it checks:
 
-- the loaded animation is the custom one (`gBanimIdx` the ID minus 1: 0xC9 for Gerik's 0xCA, 0xCA for Tana's 0xCB);
+- the loaded animation is the custom one (`gBanimIdx` the ID minus 1: 0xC9 for Gerik's 0xCA, and so on);
 - that side has no character palette (`gBanimUniquePal` -1).
 
-It saves `gerik.png` and `tana.png` (the battles) in the test's folder.
+Some fights take another route:
+
+- Magic (L'Arachel as a Mage Knight or Valkyrie): tomes are spells here (`IsThreeHousesMagicItem`), so she casts Divine
+  from B.Mag; high anima, light and dark ranks unlock it.
+- Staff (L'Arachel as a Troubadour): W.Mag heals Seth, hurt for the test.
+- Gorgon Egg: the enemies are made eggs with empty inventories, and Eirika attacks one; the egg is on the left.
+
+It also checks the pre-promote Recruit's promotion choices (Recruit T2 and Halberdier), and saves each battle as
+`<name>.png` in the test's folder. The third-tier animations aren't in the test (they are off).
 
 ---
 
@@ -174,7 +224,8 @@ It saves `gerik.png` and `tana.png` (the battles) in the test's folder.
 | Compile-time switch | `include/configs/configs.h` (`CONFIG_CUSTOM_BATTLE_ANIMS`) |
 | Runtime toggle | `Data/DesignerConfig/designer-config.c` (`custom_character_animations`) |
 | Entry point and lists | `Contents/BattleAnims/BattleAnims.event` |
-| The animations (source and converted) | `Contents/BattleAnims/Gerik/`, `Contents/BattleAnims/Tana/` |
+| The animations (source and converted) | `Contents/BattleAnims/<Character>/<Class>/`, `Classes/` (class-wide), `ThirdTier/` |
+| Class-wide animations | `Data/ClassData/ClassData.c` (`BANIM_DEF_PHANTOM`, `BANIM_DEF_GORGON_EGG`) |
 | Converter | `Tools/banim/feditor_dump.py`, `Tools/banim/banimpack.py` (the compressors) |
 | Sheet decoder | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
 | `CustomAnimeTable` rows | `Contents/External/Individual_animation_ea_2/data.event` |

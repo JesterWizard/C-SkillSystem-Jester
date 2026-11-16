@@ -52,6 +52,7 @@
 #include "SpSystem/SpSystem.lyn.event"
 #include "ClassData/ClassData.lyn.event"
 #include "ClassData/ThirdTierClasses.lyn.event"
+#include "ClassData/Promotions.event"
 #include "CharacterData/CharacterData.lyn.event"
 #include "CustomPortraits/CustomPortraits.event"
 

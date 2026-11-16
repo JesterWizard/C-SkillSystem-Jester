@@ -340,6 +340,12 @@ const struct UnitMagicInfo gMagicJInfos[0x100] = {
 		.cap = 15,
 		.bonus = 0,
 	},
+	[CLASS_HALBERDIER] = {
+		.base = 1,
+		.growth = 15,
+		.cap = 15,
+		.bonus = 0,
+	},
 	[CLASS_MANAKETE_2] = {
 		.base = 0,
 		.growth = 25,

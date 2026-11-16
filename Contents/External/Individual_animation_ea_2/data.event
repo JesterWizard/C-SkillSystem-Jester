@@ -17,6 +17,91 @@ BYTE 0x48  //Class: Pegasus Knight
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 POIN gBanimDef_TanaPegasusKnight //Contents/BattleAnims/BattleAnims.event
+BYTE 0x12  //Unit: Amelia
+BYTE 0x47  //Class: Recruit (Tier 0)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_AmeliaRecruit //Contents/BattleAnims/BattleAnims.event
+BYTE 0x12  //Unit: Amelia
+BYTE 0x37  //Class: Recruit, pre-promote (CLASS_RECRUIT_T1)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_AmeliaRecruitT1 //Contents/BattleAnims/BattleAnims.event
+BYTE 0x12  //Unit: Amelia
+BYTE 0x77  //Class: Halberdier (CLASS_HALBERDIER)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_AmeliaHalberdier //Contents/BattleAnims/BattleAnims.event
+BYTE 0x20  //Unit: Joshua
+BYTE 0x17  //Class: Assassin
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_JoshuaAssassin //Contents/BattleAnims/BattleAnims.event
+BYTE 0x16  //Unit: Marisa
+BYTE 0x18  //Class: Assassin (F)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_MarisaAssassin //Contents/BattleAnims/BattleAnims.event
+BYTE 0x09  //Unit: Colm
+BYTE 0x17  //Class: Assassin
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_ColmAssassin //Contents/BattleAnims/BattleAnims.event
+BYTE 0x01  //Unit: Eirika
+BYTE 0x04  //Class: Master Lord (Eirika)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_EirikaMasterLord //Contents/BattleAnims/BattleAnims.event
+BYTE 0x0F  //Unit: Ephraim
+BYTE 0x03  //Class: Master Lord (Ephraim)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_EphraimMasterLord //Contents/BattleAnims/BattleAnims.event
+BYTE 0x12  //Unit: Amelia
+BYTE 0x0C  //Class: General (F)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_AmeliaGeneral //Contents/BattleAnims/BattleAnims.event
+BYTE 0x12  //Unit: Amelia
+BYTE 0x0A  //Class: Armor Knight (F)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_AmeliaKnight //Contents/BattleAnims/BattleAnims.event
+BYTE 0x19  //Unit: L'Arachel
+BYTE 0x2A  //Class: Mage Knight (F)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_LArachelMageKnight //Contents/BattleAnims/BattleAnims.event
+BYTE 0x19  //Unit: L'Arachel
+BYTE 0x4C  //Class: Valkyrie
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_LArachelValkyrie //Contents/BattleAnims/BattleAnims.event
+BYTE 0x19  //Unit: L'Arachel
+BYTE 0x4B  //Class: Troubadour
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_LArachelTroubadour //Contents/BattleAnims/BattleAnims.event
+BYTE 0x41  //Unit: Morva
+BYTE 0x3B  //Class: Manakete (CLASS_MANAKETE_2)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_Morva //Contents/BattleAnims/BattleAnims.event
+BYTE 0x20  //Unit: Joshua
+BYTE 0x13  //Class: Myrmidon
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_JoshuaMyrmidon //Contents/BattleAnims/BattleAnims.event
+BYTE 0x20  //Unit: Joshua
+BYTE 0x15  //Class: Swordmaster
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_JoshuaSwordmaster //Contents/BattleAnims/BattleAnims.event
+BYTE 0x16  //Unit: Marisa
+BYTE 0x16  //Class: Swordmaster (F)
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_MarisaSwordmaster //Contents/BattleAnims/BattleAnims.event
 #endif
 
 BYTE 0x00  //Unit: term data

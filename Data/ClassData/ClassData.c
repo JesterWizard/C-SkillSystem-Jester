@@ -1,7 +1,19 @@
 #include "common-chax.h"
 #include "bmunit.h"
 #include "bmitem.h"
+#include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
+
+#ifdef CONFIG_CUSTOM_BATTLE_ANIMS
+/* Class-wide custom battle animations (Contents/BattleAnims/BattleAnims.event) */
+extern const struct BattleAnimDef gBanimDef_Phantom[];
+extern const struct BattleAnimDef gBanimDef_GorgonEgg[];
+#define BANIM_DEF_PHANTOM gBanimDef_Phantom
+#define BANIM_DEF_GORGON_EGG gBanimDef_GorgonEgg
+#else
+#define BANIM_DEF_PHANTOM NULL
+#define BANIM_DEF_GORGON_EGG NULL
+#endif
 
 const struct ClassData gClassData_NEW[] = {
     [CLASS_EPHRAIM_LORD - 1] = {
@@ -3020,6 +3032,7 @@ const struct ClassData gClassData_NEW[] = {
         .promotionSpd = 0,
         .promotionDef = 0,
         .promotionRes = 0,
+        .pBattleAnimDef = BANIM_DEF_GORGON_EGG,
         .pMovCostTable = {
             (void *)0x00000000,
             (void *)0x00000000,
@@ -4668,6 +4681,7 @@ const struct ClassData gClassData_NEW[] = {
         .baseRanks = {
             [ITYPE_AXE]   = WPN_EXP_C,
         },
+        .pBattleAnimDef = BANIM_DEF_PHANTOM,
         .pMovCostTable = {
             TerrainTable_MovCost_FlyNormal,
             TerrainTable_MovCost_FlyRain,
@@ -5606,6 +5620,7 @@ const struct ClassData gClassData_NEW[] = {
         .promotionSpd = 0,
         .promotionDef = 0,
         .promotionRes = 0,
+        .pBattleAnimDef = BANIM_DEF_GORGON_EGG,
         .pMovCostTable = {
             (void *)0x00000000,
             (void *)0x00000000,
@@ -6595,45 +6610,60 @@ const struct ClassData gClassData_NEW[] = {
         .pTerrainDefenseLookup = TerrainTable_Def_Common,
         .pTerrainResistanceLookup = TerrainTable_Res_Common,
     },
-    [CLASS_UNK77 - 1] = {
-        .number = CLASS_UNK77,
-        .SMSId = 0x66,
+    /* Promotion for the pre-promote Recruit (CLASS_RECRUIT_T1), beside Recruit T2: a sturdier lance infantry class */
+    [CLASS_HALBERDIER - 1] = {
+        .nameTextId = MSG_CLASS_HALBERDIER_NAME,
+        .descTextId = MSG_CLASS_HALBERDIER_DESC,
+        .number = CLASS_HALBERDIER,
+        .promotion = CLASS_RECRUIT_T1,
+        .SMSId = 0x2c,
+        .defaultPortraitId = 0x8a,
+        .sort_order = 0x28,
 
-        .baseHP  = 0,
-        .basePow = 0,
-        .baseSkl = 0,
-        .baseSpd = 0,
-        .baseDef = 0,
-        .baseRes = 0,
-        .baseCon = 0,
-        .baseMov = 0,
+        .baseHP  = 24,
+        .basePow = 7,
+        .baseSkl = 6,
+        .baseSpd = 9,
+        .baseDef = 9,
+        .baseRes = 4,
+        .baseCon = 8,
+        .baseMov = 6,
 
-        .maxHP  = 0,
-        .maxPow = 0,
-        .maxSkl = 0,
-        .maxSpd = 0,
-        .maxDef = 0,
-        .maxRes = 0,
-        .maxCon = 0,
+        .maxHP  = 45,
+        .maxPow = 26,
+        .maxSkl = 26,
+        .maxSpd = 26,
+        .maxDef = 25,
+        .maxRes = 17,
+        .maxCon = 20,
+        .classRelativePower = 3,
 
-        .growthHP  = 0,
-        .growthPow = 0,
-        .growthSkl = 0,
-        .growthSpd = 0,
-        .growthDef = 0,
-        .growthRes = 0,
-        .growthLck = 0,
 
-        .promotionHp  = 0,
-        .promotionPow = 0,
-        .promotionSkl = 0,
+        .growthHP  = 80,
+        .growthPow = 45,
+        .growthSkl = 40,
+        .growthSpd = 30,
+        .growthDef = 35,
+        .growthRes = 25,
+        .growthLck = 40,
+
+        .promotionHp  = 3,
+        .promotionPow = 2,
+        .promotionSkl = 1,
         .promotionSpd = 0,
-        .promotionDef = 0,
-        .promotionRes = 0,
+        .promotionDef = 3,
+        .promotionRes = 1,
+
+        .attributes = CA_CRITBONUS | CA_PROMOTED,
+
+        .baseRanks = {
+            [ITYPE_LANCE] = WPN_EXP_C,
+        },
+        .pBattleAnimDef = AnimConf_088AF3E4,
         .pMovCostTable = {
-            (void *)0x00000000,
-            (void *)0x00000000,
-            (void *)0x00000000,
+            TerrainTable_MovCost_CommonT1Normal,
+            TerrainTable_MovCost_CommonT1Rain,
+            TerrainTable_MovCost_CommonT1Snow,
         },
         .pTerrainAvoidLookup = TerrainTable_Avo_Common,
         .pTerrainDefenseLookup = TerrainTable_Def_Common,

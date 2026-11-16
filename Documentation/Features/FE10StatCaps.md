@@ -102,6 +102,7 @@ The per-character modifiers in `Data/MaxStatus/MaxStatus.c` (`gUnitMaxStatusConf
 | GREAT_KNIGHT | Axe Paladin (M) | 45 | 26 | 15 | 25 | 23 | 30 | 24 | 16 |
 | GREAT_KNIGHT_F | Axe Paladin (F) | 45 | 26 | 15 | 25 | 25 | 30 | 22 | 16 |
 | RECRUIT_T2 | Lance Paladin (M) | 45 | 25 | 15 | 24 | 24 | 30 | 25 | 16 |
+| HALBERDIER (0x77) | Halberdier (M) | 45 | 26 | 15 | 26 | 26 | 30 | 25 | 17 |
 | JOURNEYMAN_T2 | Warrior | 53 | 30 | 5 | 26 | 27 | 30 | 23 | 13 |
 | PUPIL_T2 | Fire Sage (M) | 40 | 15 | 25 | 23 | 25 | 30 | 17 | 23 |
 | WARRIOR | Warrior | 53 | 30 | 5 | 26 | 27 | 30 | 23 | 13 |

@@ -60,6 +60,8 @@ It was on palette 15 before, which the skill-name and anim-number popups (`OBPAL
 
 It still hides during the critical cut-in (`CritCutinExists()`) and the level-up box (`ProcScr_EkrLevelup`), which cover the HUD.
 
+A side shows it only while that side's animation is on screen (`gBanimValid`) and fights with a weapon (`IA_WEAPON`). A staff, a dance or a refresh has no strikes, and its battle doesn't go through `BattleUnwind`, which records them, so the last fight's counts were left: a heal showed an "x2" on its empty side.
+
 ## Limits
 
 - The count follows the battle's order and brave weapons. Other effects that add strikes, such as combo attacks and skills that add hits mid-battle, are not counted.
@@ -69,6 +71,4 @@ It still hides during the critical cut-in (`CritCutinExists()`) and the level-up
 
 Checked by hand in the emulator on the prologue. Eirika doubles a soldier, so ×2 shows over her box and none shows over his. The bob was also checked in the emulator, and that the badge stays up while a damage number shows (Tana's battle, `smoketest.py`'s `banim` setup).
 
-`Tools/cloud/smoketest.py` has no test for this yet.
-
-`Tools/cloud/smoketest.py` has no test for this yet.
+`python3 Tools/cloud/smoketest.py --only banim` checks that a heal draws no badge: L'Arachel as a Troubadour heals Seth with stale strike counts written into `gDoubleBadge`, and none of the 128 OAM entries uses the badge's tiles (320, 322). The rest is still checked by hand.
