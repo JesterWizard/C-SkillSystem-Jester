@@ -140,6 +140,7 @@ ALIGN 4
 #include "Backgrounds_224_256_Colors/Backgrounds_224_256_Colors_Installer.event"
 #include "Biorhythm/Biorhythm_Installer.event"
 #include "BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event"
+#include "TitleScreenGfx/TitleScreenGfx_Installer.event"
 #include "ChapterNames/ChapterNames_Installer.event"
 #include "Chatlog/Chatlog_Installer.event"
 #include "ClassGrowths/ClassGrowths_Installer.event"
