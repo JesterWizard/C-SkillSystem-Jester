@@ -14,7 +14,7 @@ extern const u16 Pal_BKSEL[];
 
 #define BADGE_CHR_L 988  /* 2D OBJ tiles 988, 989, 1020, 1021 */
 #define BADGE_CHR_R 990  /* 2D OBJ tiles 990, 991, 1022, 1023 */
-#define BADGE_PAL   15   /* shared with the skill name and anim number popups: hidden while they show */
+#define BADGE_PAL   15   /* shared with the skill and anim number popups and the level-up face: hidden while they show */
 #define BADGE_Y     92   /* the 16x16 badge's top; the boxes' Hit rows are at y 112 */
 
 static const u16 sObj_Badge16x16[] = { 1, OAM0_SHAPE_16x16, OAM1_SIZE_16x16, 0 };
@@ -68,8 +68,14 @@ static void DoubleBadge_Loop(ProcPtr proc)
 	if (!gauge || gauge->valid == 1) /* hidden: vanilla's ekrGaugeMain skips drawing then */
 		return;
 
-	/* these share OBJ palette 15 and their sprites use it: draw nothing while any shows */
+	/*
+	 * These share OBJ palette 15 and their sprites use it: draw nothing while any shows. So does the level-up box's
+	 * portrait (EkrLvup_InitLevelUpBox's gUnknown_087592CC): resetting the palette under it drew the face in the
+	 * badge's colours.
+	 */
 	if (EfxSkillExists() || EfxSkillBoxExists() || EkrSkillExists() || EfxAnimNumberExists() || CritCutinExists())
+		return;
+	if (Proc_Find(ProcScr_EkrLevelup))
 		return;
 
 	for (i = 0; i < 16; i++) {
