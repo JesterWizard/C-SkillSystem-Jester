@@ -105,6 +105,10 @@ So each decode burst borrows `0x030049B0`-`0x03004E50` (1184 bytes):
 
 Tested: after a line, the two variables match a DPCM run byte for byte, and the movement range is drawn right.
 
+The battle animation sheet decoder (`Kernel/Wizardry/BanimCodec`, [CustomBattleAnimations.md](CustomBattleAnimations.md#compression))
+borrows `gMovMapFillStPool2` (0x03004C50-0x03004E50) the same way. Each copies its code in before it runs, so
+neither depends on the other's copy.
+
 `VoiceSynthArm.s` is generated. Edit `Tools/voice/vsynth.c` and run `Tools/voice/gen_synth_asm.sh`. The script checks
 that the code calls nothing outside itself.
 

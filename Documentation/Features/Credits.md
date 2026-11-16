@@ -57,3 +57,9 @@ AcidicPlus, AlacrityPlus, AxiomPlus, DancePlus, DualWieldPlus, EmergencyExitPlus
 | Armory (FE8 palette) | HyperGammaSpaces | |
 | Shop (FE8 palette) | HyperGammaSpaces | |
 | Secret Shop (FE8 palette) | HyperGammaSpaces | |
+
+## Battle Animations
+
+| Animation | Author | Notes |
+|-----------|--------|-------|
+| [Mercenary-Variant] SALVAGED Gerik [M] (1. Sword) | UltraFenix | Gerik's Mercenary sword animation, ID 0xCA; source in [`Contents/BattleAnims/Gerik/Source`](../../Contents/BattleAnims/Gerik/Source) |

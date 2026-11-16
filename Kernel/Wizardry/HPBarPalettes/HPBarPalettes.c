@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "battle-system.h"
 #include "double-badge.h"
+#include "feb-compat.h"
 #include "jester_headers/custom-arrays.h"
 
 /* Helper function to determine HP bar palette based on current HP */
@@ -918,10 +919,10 @@ bool PrepareBattleGraphicsMaybe(void)
     valid_r = gBanimValid[POS_R];
 
     if (valid_l)
-        animdef1 = unit_bu1->pClassData->pBattleAnimDef;
+        animdef1 = GetUnitBattleAnimDef(unit_bu1);
 
     if (valid_r)
-        animdef2 = unit_bu2->pClassData->pBattleAnimDef;
+        animdef2 = GetUnitBattleAnimDef(unit_bu2);
 
     if (valid_l)
     {
@@ -989,12 +990,16 @@ bool PrepareBattleGraphicsMaybe(void)
     if (valid_l)
         gBanimUniquePal[POS_L] = -1;
 
-    for (i = 0; i < 7; i++)
+    /* A character palette is laid out for its class's animations: a custom animation (CustomAnimeTable) keeps its own */
+    if (animdef1 == unit_bu1->pClassData->pBattleAnimDef)
     {
-        if (gAnimCharaPalConfig[pid][i] == jid && valid_l)
+        for (i = 0; i < 7; i++)
         {
-            gBanimUniquePal[POS_L] = gAnimCharaPalIt[pid][i] - 1;
-            break;
+            if (gAnimCharaPalConfig[pid][i] == jid && valid_l)
+            {
+                gBanimUniquePal[POS_L] = gAnimCharaPalIt[pid][i] - 1;
+                break;
+            }
         }
     }
 
@@ -1004,12 +1009,15 @@ bool PrepareBattleGraphicsMaybe(void)
     if (valid_r)
         gBanimUniquePal[POS_R] = -1;
 
-    for (i = 0; i < 7; i++)
+    if (animdef2 == unit_bu2->pClassData->pBattleAnimDef)
     {
-        if (gAnimCharaPalConfig[pid][i] == jid && valid_r)
+        for (i = 0; i < 7; i++)
         {
-            gBanimUniquePal[POS_R] = gAnimCharaPalIt[pid][i] - 1;
-            break;
+            if (gAnimCharaPalConfig[pid][i] == jid && valid_r)
+            {
+                gBanimUniquePal[POS_R] = gAnimCharaPalIt[pid][i] - 1;
+                break;
+            }
         }
     }
 

@@ -1,25 +1,29 @@
 #include "common-chax.h"
 #include "kernel-lib.h"
+#include "feb-compat.h"
 
-// Individual_animation_ea_2
-extern const u8 pr_IndividualAnimation7743_Hook[];
+/* Contents/External/Individual_animation_ea_2/data.event */
+extern const struct IndividualAnimConf CustomAnimeTable[];
 
 const struct IndividualAnimConf *GetPrIndividualAnimConf(void)
 {
-	/**
-	 * Auto get pointer to gpCustomAnimeTable1
-	 */
-	if (gpKernelDesignerConfig->custom_character_animations == true)
-	{
-		u32 pr_IndividualAnimation7743  = (u32)(pr_IndividualAnimation7743_Hook + 4);
-		u32 loc_IndividualAnimation7743 = *((u32 *)pr_IndividualAnimation7743);
-		u32 pr_CustomAnimeTable  = loc_IndividualAnimation7743 - 1 + 0x54;
-		u32 loc_CustomAnimeTable = *((u32 *)pr_CustomAnimeTable);
-
-		return ((const struct IndividualAnimConf *)loc_CustomAnimeTable);
-	}
-	else
-	{
+	if (gpKernelDesignerConfig->custom_character_animations != true)
 		return NULL;
+
+	return CustomAnimeTable;
+}
+
+/* The unit's battle animations: its row in CustomAnimeTable (character and class), else its class's */
+const struct BattleAnimDef *GetUnitBattleAnimDef(struct Unit *unit)
+{
+	const struct IndividualAnimConf *aconf = GetPrIndividualAnimConf();
+	int i;
+
+	if (aconf != NULL) {
+		for (i = 0; aconf[i].pid != 0 || aconf[i].jid != 0; i++) {
+			if (aconf[i].pid == UNIT_CHAR_ID(unit) && aconf[i].jid == UNIT_CLASS_ID(unit))
+				return aconf[i].anim_conf;
+		}
 	}
+	return unit->pClassData->pBattleAnimDef;
 }

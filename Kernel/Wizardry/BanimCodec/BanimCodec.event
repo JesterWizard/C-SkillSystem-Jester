@@ -1,0 +1,64 @@
+#ifndef BANIM_CODEC_INSTALLED
+#define BANIM_CODEC_INSTALLED
+
+// Huffman-coded battle animation data (Source/BanimCodec.c, Documentation/Features/CustomBattleAnimations.md).
+// The battle animation code's LZ77UnCompWram calls (sheets, scripts, OAM) go to BanimUnComp, which decodes data tagged
+// BANIM_HUFF_TAG and passes everything else to the BIOS. 0x59AD2 (UpdateBanimFrame's left OAM) is not here:
+// AutoGenLeftOAM's hook at 0x59ACC jumps over it.
+
+ALIGN 4
+#include "Source/BanimCodec.lyn.event"
+ALIGN 4
+#include "Source/BanimHuffArm.lyn.event"
+
+// The ARM decoding loop runs from a copy in gMovMapFillStPool2 (0x200 bytes, BanimCodec.c)
+ASSERT 0x200 - (_ARM_BanimHuff_CopyEnd - _ARM_BanimHuff_CopyStart)
+
+PUSH
+	ORG $59950 // RegisterAISSheetGraphics: the sheets
+	BL(BanimUnComp)
+
+	ORG $59A26 // UpdateBanimFrame: scripts, the right OAM, the sheets
+	BL(BanimUnComp)
+	ORG $59A42
+	BL(BanimUnComp)
+	ORG $59A58
+	BL(BanimUnComp)
+	ORG $59B08
+	BL(BanimUnComp)
+	ORG $59B24
+	BL(BanimUnComp)
+	ORG $59B3A
+	BL(BanimUnComp)
+	ORG $59B72
+	BL(BanimUnComp)
+
+	ORG $5A64A // InitMainMiniAnim (the promotion and class previews)
+	BL(BanimUnComp)
+	ORG $5A688
+	BL(BanimUnComp)
+	ORG $5A6AA
+	BL(BanimUnComp)
+	ORG $5A75E
+	BL(BanimUnComp)
+	ORG $5A77A
+	BL(BanimUnComp)
+
+	ORG $5A7E0 // sub_805A7B4
+	BL(BanimUnComp)
+	ORG $5A822
+	BL(BanimUnComp)
+	ORG $5A842
+	BL(BanimUnComp)
+	ORG $5A8DA
+	BL(BanimUnComp)
+	ORG $5A8F6
+	BL(BanimUnComp)
+
+	ORG $5AAA2 // sub_805AA68
+	BL(BanimUnComp)
+	ORG $5AAB8
+	BL(BanimUnComp)
+POP
+
+#endif // BANIM_CODEC_INSTALLED

@@ -6,6 +6,14 @@ BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 WORD 0x088AEFFC //Eirika Master Load Battle Animation.
 
+#ifdef CONFIG_CUSTOM_BATTLE_ANIMS
+BYTE 0x14  //Unit: Gerik
+BYTE 0x0F  //Class: Mercenary
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_GerikMercenary //Contents/BattleAnims/BattleAnims.event
+#endif
+
 BYTE 0x00  //Unit: term data
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
