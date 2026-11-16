@@ -1,6 +1,8 @@
 # Title screen graphics
 
 The title screen uses a new background, a dragon emblem and a logo (Fire Emblem™, The Sacred Stones banner, EXCEED).
+The emblem, logo and banner take the places of the vanilla dragons (11,8)-(229,113), logo with ™ (4,50)-(236,82) and
+subtitle (16,85)-(224,117). EXCEED sits under the banner.
 The vanilla title screen code is kept. `TitleScreenGfx_Installer.event` only repoints its graphics, sprite layouts and
 positions; there is no C code.
 
@@ -12,8 +14,8 @@ The build date (top left, `BuildVersionTitleScreen`), Press START and the copyri
 |---|---|---|---|
 | BG1 background | 240x160 picture | 16-colour palette in bank 14, 4bpp tiles at 0x06000000, loaded as two LZ77 blobs (first 384 tiles, then the rest) | 640 tiles (now 597) |
 | BG0 emblem | dragon emblem | palette bank 15, tiles at 0x06005000. The game adds 0xF280 to every map entry (palette 15, tile +0x280) | 192 tiles (now 127) |
-| OBJ sprites | logo (palette 2, tile 0x000), banner (palette 3, tile 0x080), EXCEED (palette 2, tile 0x100) | 2D mapping, 256-px-wide sheet, 10 tile rows | tiles 0x000-0x13F |
-| Intro zoom | BG2 image shown during the logo zoom | 8bpp affine, 256x256 texture. At the end of the zoom it is shown 1:1, so the logo and EXCEED sit at their final screen positions in it. Palette entry 0 is 0x4290 (it sets the backdrop) | 160 tiles (now 93) |
+| OBJ sprites | logo (palette 2, base tile 0x000, rows 0-4), banner (palette 3, base tile 0x0A0, rows 5-8), EXCEED (palette 2, base tile 0x120, rows 9-10) | 2D mapping, 256-px-wide sheet, 11 tile rows (0x2C00 bytes) | tiles 0x000-0x15F |
+| Intro zoom | BG2 image shown during the logo zoom | 8bpp affine, 256x256 texture. At the end of the zoom it is shown 1:1, so the logo and EXCEED sit at their final screen positions in it. Palette entry 0 is 0x4290 (it sets the backdrop) | 192 tiles (now 160) |
 
 OBJ palettes 0 and 1 (Press START, copyright) are copied from the vanilla ROM (`ROM_OBJ_PAL_OFF`, 0xAADB68). The OBJ
 tiles at 0x06013000 (copyright, Press START) are vanilla.
@@ -22,14 +24,17 @@ tiles at 0x06013000 (copyright, Press START) are vanilla.
 
 | Element | Size | Position (x, y) |
 |---|---|---|
-| Emblem (BG0) | 148x61 | (46, 1) |
-| Logo | 156x24 | (42, 63) |
-| Banner | 144x22 | (48, 88) |
+| Emblem (BG0) | 218x90 | (11, 8) |
+| Logo | 232x36 | (4, 46) |
+| Banner | 208x32 | (16, 85) |
 | EXCEED | 118x14 | (61, 112) |
-| Press START | vanilla sprite | y 129 (vanilla 124) |
+| Press START | vanilla sprite | y 129 (vanilla 124; at 124 it would overlap EXCEED) |
 
 Sprite slots are reused. The vanilla TM sprite call now draws EXCEED, because the TM is part of the new logo image.
 The vanilla logo's translucent shine call is moved off screen (y 160).
+The sprites' attr2 values (palette and base tile) for the banner and EXCEED come from the `TITLE_BANNER_ATTR2` and
+`TITLE_EXCEED_ATTR2` defines the tool writes to `TitleScreenGfx_Data.event` (0x30A0 and 0x2120). The logo keeps the
+vanilla attr2 0x2000.
 
 ## How the images are made
 
@@ -40,7 +45,9 @@ Tool: `Tools/titlescreen/title_gfx.py`. Source images are in `Kernel/Wizardry/Ti
 - Background: resized to 240x160 and reduced to 16 colours with Floyd-Steinberg dithering. The least used colour gives
   its pixels to the nearest remaining colour and becomes index 0 (transparent, so nothing shows through). The other 15
   are sorted dark to light.
-- Emblem: 15 colours, index 0 transparent.
+- Emblem: 15 colours, index 0 transparent. The left half is mirrored onto the right half (the axis is x=120, a tile
+  boundary). Unmirrored, the emblem needs 249 tiles and the limit is 192; mirrored, the flipped-tile dedupe brings it to
+  127. The only visible effect is that the moss is symmetric.
 - Logo and EXCEED share one 15-colour palette (bank 2, also used by the zoom). The banner has its own (bank 3).
 - Tiles are deduplicated. Text BGs may use flipped tiles; the zoom uses exact matches only.
 
@@ -76,7 +83,7 @@ All in `TitleScreenGfx_Installer.event`.
 
 ## Testing
 
-- Checked in the emulator on the idle title screen: date, emblem, logo, banner, EXCEED, the Press START blink and the
-  copyright line all shown.
-- The quick smoke test passed (`python3 Tools/cloud/smoketest.py --quick`).
+- Checked in the emulator on the idle title screen with the new layout: date, emblem, logo, banner, EXCEED, the Press
+  START blink and the copyright line all shown.
+- Quick smoke test (`python3 Tools/cloud/smoketest.py --quick`): 158 checks, 0 failed.
 - The animated intro (logo zoom) only plays after the opening sequence. It was checked from `gfx/zoom.png`, not in game.

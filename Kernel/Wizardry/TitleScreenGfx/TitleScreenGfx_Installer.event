@@ -20,7 +20,7 @@ ORG $C57E4 ; POIN TitleEmblem_Tiles
 ORG $C57EC ; POIN TitleEmblem_Map
 ORG $C57F4 ; POIN TitleEmblem_Pal
 ORG $C62C0 ; POIN TitleEmblem_Pal
-// OBJ tiles 0x000-0x13F and OBJ palettes 0-3 (0x06013000 tiles: copyright and Press START, kept vanilla)
+// OBJ tiles 0x000-0x15F and OBJ palettes 0-3 (0x06013000 tiles: copyright and Press START, kept vanilla)
 ORG $C5808 ; POIN TitleObj_Tiles
 ORG $C5838 ; POIN TitleObj_Pal
 
