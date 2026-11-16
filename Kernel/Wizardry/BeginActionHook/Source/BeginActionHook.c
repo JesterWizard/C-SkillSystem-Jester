@@ -80,6 +80,7 @@ FORCE_DECLARE static const VoiceIds character_voice_ids[] =
     { CHARACTER_TETHYS,    {0x39C, 0x39D, 0x39E} },
     { CHARACTER_ARTUR,    {0x39F, 0x3A0, 0x3A1} },
     { CHARACTER_MARISA,    {0x3A2, 0x3A3, 0x3A4} },
+    { CHARACTER_FRANZ,    {0x3A5, 0x3A6, 0x3A7} },
 };
 
 struct BgmVolumeDelayProc {
