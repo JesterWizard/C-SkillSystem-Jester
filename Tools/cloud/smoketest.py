@@ -377,7 +377,8 @@ class Smoke:
         os.makedirs(d, exist_ok=True)
         with open(BOOT) as f:
             lines = [ln.rstrip("\n") for ln in f]
-        vals = self.run(ROM, lines + ["r8 %#x" % CHAPTER, "r32 %#x" % UNIT1, "r8 %#x" % UNIT_X], d)
+        vals = self.run(ROM, lines + ["r8 %#x" % CHAPTER, "r32 %#x" % UNIT1, "r8 %#x" % UNIT_X,
+                                     "r32 %#x" % (UNIT1 + 4), "r32 %#x" % (UNIT_RED + 4)], d)
         png = os.path.join(d, "boot.png")
         self.shot(png, "boot")
         ok = os.path.exists(os.path.join(d, "boot.ss"))
@@ -387,6 +388,12 @@ class Smoke:
         self.check("boot: chapter 0 (prologue)", vals[0] == 0, "chapter %#x" % vals[0])
         self.check("boot: Eirika is on the map", vals[1] != 0, "unit 1 character %#x" % vals[1])
         self.check("boot: the screen is drawn", self.brightness(png) > 20, "brightness %.0f" % self.brightness(png))
+        # Units loaded from chapter data point at the kernel's class table (Data/ClassData/Promotions.event, the
+        # UnitInitFromDefinition literal), not vanilla's gClassData at 0x8807164
+        base = self.sym.get("gClassData_NEW", 0)
+        inside = [base <= v < base + 0x54 * 0x7F and (v - base) % 0x54 == 0 for v in vals[3:5]] if len(vals) >= 5 else []
+        self.check("boot: loaded units use gClassData_NEW (Eirika and the first enemy)", inside == [True, True],
+                   "class pointers %s, gClassData_NEW %#x" % ([hex(v) for v in vals[3:5]], base))
         return os.path.join(d, "boot.ss")
 
     def turn2_state(self, boot_ss):

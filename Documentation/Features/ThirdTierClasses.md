@@ -141,14 +141,16 @@ Names and descriptions are at the end of `Contents/Texts/Source/texts/Districts.
 
 ---
 
+## Units loaded from chapter data
+
+Vanilla `UnitInitFromDefinition` (0x8017D3C) sets a loaded unit's class from vanilla's class table inline. Its literal
+(0x8017DBC) points at `gClassData_NEW` (`Data/ClassData/Promotions.event`), so these classes, the Halberdier and every
+other class can be placed in chapter unit data: a loaded unit has this repo's class data (bases, caps, growths, map
+sprite) from the start, as it already had after a save or a suspend was reloaded (`GetClassData`). The boot smoke test
+checks it (`boot: loaded units use gClassData_NEW`).
+
 ## Limitations
 
-- **A unit loaded from unit data in one of these classes** (an enemy placed as a Trickster, say) would get vanilla's
-  ballista class data: vanilla `UnitInitFromDefinition` (0x8017D3C) reads vanilla's class table inline, so loaded units
-  point into it until a save or a suspend reloads them through `GetClassData`. Promoted units are fine (the promotion
-  uses `GetClassData`). The Halberdier (0x77) has the same problem. Until that literal pool (0x8017DBC) points at
-  `gClassData_NEW` too, do not place these classes in chapter unit data. That change moves every loaded unit to this
-  repo's class data (bases, caps), so it is left for its own change.
 - The Master Seal's description is still vanilla's ("who has yet to change class").
 - The Marshall's and the Trueblade's battle animations have their own colours on every team.
 
