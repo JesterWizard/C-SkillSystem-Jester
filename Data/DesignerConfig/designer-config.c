@@ -169,6 +169,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.tellius_skill_capacity_promoted = 25,
 	.tellius_skill_capacity_system = true,
 	.text_box_extension_layout = 2, // 0=vanilla, 1=extended 5-line, 2=paginated
+	.threat_arrows = true, // while picking a move, flashing arrows from the enemies that could attack the cursor's tile (Options row too)
 	.two_random_number_growths = false,
 	.unit_page_style = 1, // 1=with BWL, 2=with Leadership
 	.unit_selection_quotes = true,

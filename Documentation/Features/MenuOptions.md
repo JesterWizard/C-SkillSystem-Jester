@@ -67,7 +67,11 @@ The Map Colors row (`GAME_OPTION_MAP_COLORS`, [Map Colors](./MapColors.md)) has 
 
 The Recap row (`GAME_OPTION_RECAP`, [Previously on Your Quest](./Recap.md#turning-it-off)) is a plain ON/OFF row
 (ON 112, OFF 135, icon 0x4E) backed by `gPlaySt.config.recap_off` (0 = ON). It is always visible and has no designer
-gate. `InitPlayConfig` sets it to 0 for new games.
+gate. `InitPlayConfig` sets it to 0 for new games: the arrows are off by default.
+
+The Threat Arrows row (`GAME_OPTION_THREAT_ARROWS`, [Threat Arrows](./ThreatArrows.md#toggle)) is a plain ON/OFF row
+(ON 112, OFF 135, icon 0x50) backed by `gPlaySt.config.threat_arrows_on` (1 = ON, 0 = OFF, bit 6 of `PLAYST + 0x43`). It is
+hidden when the designer config's `threat_arrows` is off. `InitPlayConfig` sets it to 0 for new games.
 
 The important rule is that the visible menu entry and the config-backed behavior must stay in sync. If a row exists in the UI without a valid config field, it will be cosmetic only. If a config field exists without a menu entry, it becomes effectively hidden.
 

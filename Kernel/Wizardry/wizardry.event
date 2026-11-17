@@ -227,6 +227,7 @@ ALIGN 4
 #include "Supports/Supports_Installer.event"
 #include "TextEngineRework/TextEngineRework_Installer.event"
 #include "ThiefFE7Teleport/ThiefFE7Teleport.event"
+#include "ThreatArrows/ThreatArrows_Installer.event"
 #include "UnitSelectionSFX/UnitSelectionSFX_Installer.event"
 #include "VoiceStream/VoiceStream_Installer.event"
 

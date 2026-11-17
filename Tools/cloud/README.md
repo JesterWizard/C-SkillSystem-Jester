@@ -181,6 +181,8 @@ python3 Tools/cloud/smoketest.py --quick
     boot and is recoloured too (`--only mapcolors`);
   - Gallery: the prologue's opening unlocks its CG; Extras > Gallery shows its rows, A shows an unlocked CG full size,
     right goes to the next, B back to the grid, down scrolls a row on screen, B back to Extras (`--only gallery`);
+  - Threat arrows: with Eirika selected, her tile (both fighters reach it) shows two arrows in OAM (tiles 0x70/0x71/
+    0x7A/0x7B, OBJ palette 6), (4, 3) none, and none after B or with the Options row at its default, off (`--only threat`);
   - Chapter 1's end: the debugger starts Chapter 1 and Eirika seizes the gate; the Intermission (0x38) becomes the
     story chapter and Chapter 2 follows, not the prologue (`--only ch1end`);
   - New Game+: Extras has the row only once a save has been to the postgame; New Game+ from that save starts a new

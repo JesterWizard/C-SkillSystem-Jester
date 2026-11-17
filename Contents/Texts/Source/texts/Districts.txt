@@ -1069,3 +1069,7 @@ a halberd. Uses lances.[X]
 Recap[X]
 ## MSG_MENU_OPTION_RECAP_DESC
 Show the story so far when loading a save[X]
+## MSG_MENU_OPTION_THREAT_ARROWS_TITLE
+Threat Arrows[X]
+## MSG_MENU_OPTION_THREAT_ARROWS_DESC
+Arrows from foes that can reach the tile[X]

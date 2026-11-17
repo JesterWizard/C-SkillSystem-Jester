@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "map-movement.h"
 #include "kernel/traps.h"
+#include "threat-arrows.h"
 
 /**
  * Lex Talionis "Translucent Unit Sprite":
@@ -155,4 +156,7 @@ void DrawUpdatedPathArrow(void)
 		DrawPathArrow();
 		DrawPathfindingUnitGhost();
 	}
+
+	/* Called each frame of a move selection (PlayerPhase_RangeDisplayIdle, controllable units only) */
+	ThreatArrows_OnMoveSelect();
 }

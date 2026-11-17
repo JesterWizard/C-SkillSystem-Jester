@@ -71,6 +71,10 @@ What it checks:
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her angry portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
+  threat      threat arrows (Kernel/Wizardry/ThreatArrows): with Eirika selected, the cursor on her tile (both fighters
+              reach it) shows two arrows (OAM entries with the arrow tiles 0x70/0x71/0x7A/0x7B in OBJ palette 6); on
+              (4, 3), which no enemy reaches, none; after B none, and the tiles are blank again. The Options row is off
+              by default (bit 6 of PLAYST + 0x43 is 0 in a new game): with it left off, none.
   mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
               digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
@@ -117,7 +121,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-lvupanim, autopromo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, autopromo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -2204,6 +2208,54 @@ class Smoke:
         self.check("dbgbanim: B closes the viewer and puts the map back", after == before,
                    "BG1 corner before %#x, after %#x" % (before, after))
 
+    def test_threat(self, boot_ss):
+        """Threat arrows (Documentation/Features/ThreatArrows.md). In the prologue, the two fighters at (8, 6) and (9, 6)
+        can reach Eirika's tile (4, 5) but not (4, 3) (checked against the game's own enemy ranges when the feature was
+        made). Select Eirika: once the one-time work is done, the cursor on her tile shows two arrows, each one head
+        (tiles 0x71, 0x7A, 0x7B) and its dots (0x70), in OBJ palette 6; on (4, 3) none; after B none, and the four tiles
+        are blank again. The Options row is off by default (gPlaySt.config.threat_arrows_on, bit 6 of PLAYST + 0x43, is 0 in
+        a new game): the runs set it, and with it left at 0 there are none."""
+        d = os.path.join(self.out, "threat")
+        os.makedirs(d, exist_ok=True)
+        heads, dot = (0x71, 0x7A, 0x7B), 0x70
+
+        def arrows(words):
+            """(heads, dots) among the shown OAM entries, from (attr0, attr2) pairs"""
+            h = n = 0
+            for a0, a2 in zip(words[0::2], words[1::2]):
+                if (a0 >> 8) & 3 == 2 or 160 <= (a0 & 0xFF) < 248 or a2 >> 12 != 6:
+                    continue
+                h += (a2 & 0x3FF) in heads
+                n += (a2 & 0x3FF) == dot
+            return h, n
+
+        oam = ["r16 %#x" % (OAM + 8 * i + k) for i in range(128) for k in (0, 4)]
+        tiles = ["r32 %#x" % (0x06010000 + chr_ * 0x20 + 4 * k) for chr_ in (dot,) + heads for k in range(8)]
+        select = ["load " + boot_ss, "w8 %#x 0x40" % (PLAYST + 0x43), "wait 10", "press A", "wait 90"]
+        lines = select + ["shot threat_on.png"] + oam
+        lines += ["press UP", "wait 8", "press UP", "wait 30", "shot threat_safe.png"] + oam
+        lines += ["press B", "wait 60", "shot threat_b.png"] + oam + tiles
+        vals = self.run(ROM, lines, d)
+        for name, label in (("threat_on", "threat arrows: Eirika's tile, 2 fighters"),
+                            ("threat_safe", "threat arrows: (4, 3), safe"), ("threat_b", "threat arrows: after B")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        if len(vals) != 3 * 256 + 32:
+            return self.check("threat: the arrows show (2 on Eirika's tile)", False, "%d reads" % len(vals))
+        on, safe, after = arrows(vals[0:256]), arrows(vals[256:512]), arrows(vals[512:768])
+        self.check("threat: the cursor on a tile 2 enemies reach shows 2 arrows (heads and dots, OBJ palette 6)",
+                   on[0] == 2 and on[1] >= 2, "heads %d, dots %d" % on)
+        self.check("threat: a tile no enemy reaches shows none", safe == (0, 0), "heads %d, dots %d" % safe)
+        self.check("threat: after B no arrows, and the arrow tiles are blank again",
+                   after == (0, 0) and not any(vals[768:]), "heads %d, dots %d; tile words %s" %
+                   (after + (sum(1 for v in vals[768:] if v),)))
+        vals = self.run(ROM, ["load " + boot_ss, "r8 %#x" % (PLAYST + 0x43), "wait 10", "press A", "wait 90",
+                              "shot threat_off.png"] + oam, d)
+        self.shot(os.path.join(d, "threat_off.png"), "threat arrows: off by default")
+        off = arrows(vals[1:]) if len(vals) == 257 else None
+        self.check("threat: off by default (a new game's bit is 0), no arrows",
+                   off == (0, 0) and not (vals[0] & 0x40), "PLAYST + 0x43 = %s, heads/dots %s" %
+                   (hex(vals[0]) if vals else "?", off))
+
     def test_mapbox(self, boot_ss):
         """Battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box (the HP
         window) draws its digits in the UI style Tech. The style's tiles end on BG tile 0x20, the digits' first tile
@@ -3030,7 +3082,7 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "banim", "dbgbanim", "mapbox", "gaidenexp", "formation")
+                  "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
@@ -3073,6 +3125,8 @@ def main():
                 r.submit((0, 8), s.test_ch1end, boot_ss)
             if on("formation"):
                 r.submit((0, 15), s.test_formation, boot_ss)
+            if on("threat"):
+                r.submit((0, 16), s.test_threat, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),
