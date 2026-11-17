@@ -89,6 +89,13 @@ const struct BattleTalkExtEnt gNewBattleTalkList[] = {
         .msg     = MSG_BATTLE_QUOTE_SETH_TIRADO,
     },
     {
+        .pidA    = CHARACTER_CARLYLE,
+        .pidB    = CHARACTER_SETH,
+        .chapter = 0xff,
+        .flag    = EVFLAG_BATTLE_QUOTES,
+        .msg     = MSG_BATTLE_QUOTE_SETH_CARLYLE,
+    },
+    {
         .pidA    = 0xffff,
         .chapter = 0x00,
         .msg     = 0x0000,
