@@ -55,16 +55,27 @@ class-wide, set as the class's `pBattleAnimDef` in `Data/ClassData/ClassData.c` 
 `BANIM_DEF_GORGON_EGG`), so `custom_character_animations` does not turn them off. An egg's list covers every weapon
 type, so an egg holding a weapon still gets its animation.
 
-Five more animations are for the planned third tier (`Data/ClassData/ThirdTierClasses.c`). `BattleAnims.event`
-installs them, with IDs, only when `CONFIG_THIRD_TIER_CLASSES` is on, and no class uses them until those classes exist:
+Five more animations are for the third-tier classes ([ThirdTierClasses.md](ThirdTierClasses.md)). `BattleAnims.event`
+installs them, with IDs, when `CONFIG_THIRD_TIER_CLASSES` is on (it is). Four are class-wide, like the Phantom's: each
+third-tier class's `pBattleAnimDef` (`Data/ClassData/ClassData.c`) is a list in `BattleAnims.event`
+(`gBanimDef_T3Trickster`, `gBanimDef_T3Marshall`, `gBanimDef_T3Trueblade`, `gBanimDef_T3Archsage`): its promoted
+class's vanilla list with the third-tier animation in place of the main weapon's entries. With the switch off, the
+classes use their promoted class's vanilla list.
 
 | ID | Third-tier class (from) | Weapon | Animation | Author |
 |----|-------------------------|--------|-----------|--------|
-| 0xDF | Trueblade (Swordmaster; Joshua's) | swords | "[Swordmaster-Variant] Trueblade [M]- Joshua" (1. Sword, Default) | Unknown |
-| 0xE0 | Archsage (Sage) | magic | "[Sage-Variant] Archsage [M]" (6. Magic) | Dinar87 |
-| 0xE1 | Archsage (Sage) | magic, with a staff and an intro | "[T3 Custom] Archsage + Intro [M]" (6. Magic) | Nuramon |
-| 0xE2 | Marshall (General) | lances | "[Marshall] Zelgius v3 [M]" (2. Lance) | Nuramon |
-| 0xE3 | Trickster (Rogue) | knives | "[Rogue-Reskin] Trickster [M]" (1. Knife) | Leo_Link |
+| 0xDF | Trueblade, `CLASS_TRUEBLADE` (Swordmaster) | swords (unarmed: Swordmaster's 0x16) | "[Swordmaster-Variant] Trueblade [M]- Joshua" (1. Sword, Default) | Unknown |
+| 0xE0 | none (installed, unused) | magic | "[Sage-Variant] Archsage [M]" (6. Magic) | Dinar87 |
+| 0xE1 | Archsage, `CLASS_ARCHSAGE` (Sage) | anima, light, dark, unarmed (staves: Sage's 0x6E) | "[T3 Custom] Archsage + Intro [M]" (6. Magic, with a staff and an intro) | Nuramon |
+| 0xE2 | Marshall, `CLASS_MARSHALL` (General) | lances (axes, swords, javelins, unarmed: General's) | "[Marshall] Zelgius v3 [M]" (2. Lance) | Nuramon |
+| 0xE3 | Trickster, `CLASS_TRICKSTER` (Rogue) | knives (`ITYPE_KNIFE`, 0x0B) and swords (unarmed: Rogue's 0x90) | "[Rogue-Reskin] Trickster [M]" (1. Knife) | Leo_Link |
+
+The Archsage uses Nuramon's animation: it is the one made for the third tier, holds a staff as the Archsage map sprite
+does, and has an intro. Dinar87's is a Sage variant (a recolour of the vanilla Sage, closer to the map sprite's blue and
+white). To use it instead, change the four `BANIM_T3_ARCHSAGE_NURAMON_MAGIC` entries of `gBanimDef_T3Archsage` to
+`BANIM_T3_ARCHSAGE_DINAR87_MAGIC`. The Trickster's animation is the Rogue's sword animation reskinned (the Rogue's
+"sword" is a dagger), so it plays for both of the class's weapon types. The Marshall's and the Trueblade's palettes are
+their animations' own (Zelgius's red armour, Joshua's dark one), on every team.
 
 The Halberdier (`CLASS_HALBERDIER`, 0x77, vanilla's unused class slot) is a promotion of the pre-promote Recruit
 (`CLASS_RECRUIT_T1`), beside Recruit T2: `Data/ClassData/Promotions.event` writes both into vanilla's `gPromoJidLut`

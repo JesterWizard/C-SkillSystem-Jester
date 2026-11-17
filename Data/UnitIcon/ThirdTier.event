@@ -1,0 +1,47 @@
+/*
+ * Third-tier class map sprites (Documentation/Features/ThirdTierClasses.md; authors in Documentation/Credits.md).
+ * The PNGs in ThirdTier/ are indexed in vanilla's map sprite palette order (gPal_MapSprite, 0x859EE20), index 0
+ * transparent, so the team palettes colour them.
+ *
+ * Standing sprites: 3 frames of 16x16 (16x48 sheet) or 32x32 (32x96 sheet), in gUnitIconWaitTable
+ * (Data/UnitIcon/UnitIconWait.c) at SMS_ID_TRICKSTER..SMS_ID_ARCHSAGE (include/kernel/unit-icon.h).
+ *
+ * Moving sprites: 15 frames of 32x32 (32x480 sheet: left x4, down x4, up x4, selected x3), in vanilla's
+ * unit_icon_move_table (0x9A2E00, 8 bytes an entry: sheet, AP), which is indexed by class id - 1 and already has an
+ * entry for every class (0x01-0x7F): the third-tier classes' entries (vanilla's unused ballista classes) are
+ * overwritten in place. Each uses vanilla Rogue's AP (0x81DF548, one 32x32 object a frame, the standard 15-frame
+ * layout), as the Rogue's own entry does.
+ */
+#define MMS_ENTRY(jid, sheet) "PUSH; ORG 0x9A2E00 + 8 * ((jid) - 1); POIN sheet; WORD 0x081DF548; POP"
+
+ALIGN 4
+Gfx_SMS_Trickster:
+#incext Png2Dmp "ThirdTier/Trickster_stand.png" --lz77
+ALIGN 4
+Gfx_SMS_Marshall:
+#incext Png2Dmp "ThirdTier/Marshall_stand.png" --lz77
+ALIGN 4
+Gfx_SMS_Trueblade:
+#incext Png2Dmp "ThirdTier/Trueblade_stand.png" --lz77
+ALIGN 4
+Gfx_SMS_Archsage:
+#incext Png2Dmp "ThirdTier/Archsage_stand.png" --lz77
+
+ALIGN 4
+Gfx_MMS_Trickster:
+#incext Png2Dmp "ThirdTier/Trickster_walk.png" --lz77
+ALIGN 4
+Gfx_MMS_Marshall:
+#incext Png2Dmp "ThirdTier/Marshall_walk.png" --lz77
+ALIGN 4
+Gfx_MMS_Trueblade:
+#incext Png2Dmp "ThirdTier/Trueblade_walk.png" --lz77
+ALIGN 4
+Gfx_MMS_Archsage:
+#incext Png2Dmp "ThirdTier/Archsage_walk.png" --lz77
+
+// CLASS_TRICKSTER 0x67, CLASS_MARSHALL 0x68, CLASS_TRUEBLADE 0x69, CLASS_ARCHSAGE 0x6A (FE-CLib constants/classes.h)
+MMS_ENTRY(0x67, Gfx_MMS_Trickster)
+MMS_ENTRY(0x68, Gfx_MMS_Marshall)
+MMS_ENTRY(0x69, Gfx_MMS_Trueblade)
+MMS_ENTRY(0x6A, Gfx_MMS_Archsage)

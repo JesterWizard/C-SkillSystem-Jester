@@ -5,7 +5,7 @@ Class stat caps follow Fire Emblem: Radiant Dawn (FE10). Unpromoted classes take
 ## Rule
 
 - An unpromoted FE8 class takes the caps of an FE10 1st-tier class.
-- A promoted FE8 class takes the caps of an FE10 2nd-tier class. FE10's 3rd tier is kept for planned third-tier classes (see Third tier below).
+- A promoted FE8 class takes the caps of an FE10 2nd-tier class. FE10's 3rd tier is for the third-tier classes (see Third tier below; four are real classes, [ThirdTierClasses.md](ThirdTierClasses.md)).
 - Classes with no FE10 counterpart keep their old caps. These are manaketes, monsters, Bard, Dancer, Fleet, civilians, bosses (Demon King, Draco Zombie), ballistae, Tent, Phantom and Gorgon eggs.
 
 ## Where the caps live
@@ -110,9 +110,20 @@ The per-character modifiers in `Data/MaxStatus/MaxStatus.c` (`gUnitMaxStatusConf
 | FALCON_KNIGHT | Falcon Knight | 40 | 24 | 15 | 24 | 27 | 35 | 22 | 25 |
 | VALKYRIE | Cleric | 40 | 17 | 24 | 25 | 24 | 40 | 18 | 28 |
 
-## Third tier (planned, off)
+## Third tier
 
-The third-tier rows are in `Data/ClassData/ThirdTierClasses.c` (`gThirdTierClassPlans`, struct `ThirdTierClassPlan` in `include/kernel/third-tier-classes.h`: the promoted class it follows, a name, the eight caps). That file is compiled only with `CONFIG_THIRD_TIER_CLASSES` in `include/configs/configs.h`, which is commented out, so the ROM has none of it (the generated `.lyn.event` is empty). Nothing reads the table yet.
+The third-tier rows are in `Data/ClassData/ThirdTierClasses.c` (`gThirdTierClassPlans`, struct `ThirdTierClassPlan` in `include/kernel/third-tier-classes.h`: the promoted class it follows, the third-tier class id once it exists, a name, the eight caps). That file is compiled with `CONFIG_THIRD_TIER_CLASSES` in `include/configs/configs.h`, which is on.
+
+Four rows are real classes ([ThirdTierClasses.md](ThirdTierClasses.md)), with these caps in their `ClassData_NEW` entries, `JobMagicInfo` `.cap` and `gClassLuckCap`:
+
+| Third-tier class | Id | From | Caps from the row of |
+|---|---|---|---|
+| Trickster (FE10's Whisper) | `CLASS_TRICKSTER` 0x67 | Rogue | ROGUE |
+| Marshall | `CLASS_MARSHALL` 0x68 | General, General F | GENERAL (General F's own row is not used: one class for both) |
+| Trueblade | `CLASS_TRUEBLADE` 0x69 | Swordmaster | SWORDMASTER |
+| Archsage | `CLASS_ARCHSAGE` 0x6A | Sage | SAGE |
+
+`CanUnitPromoteToThirdTier` (`Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c`) reads the table: a promoted class promotes to a third tier when its `gPromoJidLut` choice is its row's class id. The other rows are planned (class id 0).
 
 | FE8 promoted class | Third-tier class | HP | Str | Mag | Skl | Spd | Lck | Def | Res |
 |---|---|---|---|---|---|---|---|---|---|
@@ -128,7 +139,7 @@ The third-tier rows are in `Data/ClassData/ThirdTierClasses.c` (`gThirdTierClass
 | SWORDMASTER_F | Trueblade (F) | 50 | 31 | 20 | 40 | 40 | 35 | 25 | 26 |
 | ASSASSIN | Assassin | 55 | 32 | 15 | 40 | 40 | 25 | 30 | 25 |
 | ASSASSIN_F | Assassin | 55 | 32 | 15 | 40 | 40 | 25 | 30 | 25 |
-| ROGUE | Whisper (M) | 50 | 28 | 20 | 38 | 40 | 35 | 26 | 25 |
+| ROGUE | Whisper (M), the Trickster | 50 | 28 | 20 | 38 | 40 | 35 | 26 | 25 |
 | SNIPER | Marksman | 60 | 36 | 15 | 40 | 34 | 30 | 32 | 25 |
 | SNIPER_F | Marksman | 60 | 36 | 15 | 40 | 34 | 30 | 32 | 25 |
 | RANGER | Silver Knight (Bow, F) | 50 | 33 | 20 | 36 | 35 | 35 | 27 | 30 |
@@ -157,15 +168,7 @@ The third-tier rows are in `Data/ClassData/ThirdTierClasses.c` (`gThirdTierClass
 | FALCON_KNIGHT | Seraph Knight | 50 | 32 | 20 | 36 | 36 | 35 | 28 | 34 |
 | VALKYRIE | Valkyrie | 50 | 25 | 35 | 35 | 34 | 35 | 24 | 36 |
 
-To enable a third-tier class:
-
-1. Give it a class id (append to the class enum).
-2. Add a `ClassData_NEW` entry with these caps (`max*` fields).
-3. Add its `JobMagicInfo` `.cap` and `gClassLuckCap` entries.
-4. Add a map sprite, battle animations, and name and description texts (new messages at the end of `Contents/Texts/Source/texts/Districts.txt`).
-5. Set its promotion from the FE8 promoted class.
-
-Then turn the switch on if anything should read `gThirdTierClassPlans`.
+To enable another third-tier class, follow "Adding a third-tier class" in [ThirdTierClasses.md](ThirdTierClasses.md): a free class id, a `ClassData_NEW` entry with these caps (`max*` fields), its `JobMagicInfo` `.cap` and `gClassLuckCap` entries, map sprites, battle animations, texts, the promotion, and the class id in its row here.
 
 ## Notes
 

@@ -330,8 +330,9 @@ BYTE 0x01 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_LANCE
 BYTE 0x09 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED
 WORD 0
 
-// Third-tier classes' animations (Data/ClassData/ThirdTierClasses.c): installed with their IDs, not used by any class
-// until the third tier has its classes (CONFIG_THIRD_TIER_CLASSES)
+// Third-tier classes' animations (Documentation/Features/ThirdTierClasses.md), installed with CONFIG_THIRD_TIER_CLASSES.
+// The Trickster, Marshall, Trueblade and Archsage classes use them class-wide (gBanimDef_T3*, below, their
+// pBattleAnimDef in Data/ClassData/ClassData.c); the Dinar87 Archsage (0xE0) is installed but unused.
 #ifdef CONFIG_THIRD_TIER_CLASSES
 
 // Trueblade (Swordmaster's third tier; Joshua), sword: "[Swordmaster-Variant] Trueblade [M]- Joshua"
@@ -373,6 +374,48 @@ PUSH
 BanimEntry(BANIM_T3_TRICKSTER_KNIFE)
 TricksterKnife_BANIM_ENTRY
 POP
+
+// The third-tier classes' lists: each is its promoted class's vanilla list with the T3 animation in place of the
+// animated weapon types' entries ("BYTE type 0x01" is a weapon type, "BYTE item 0x00" one item).
+// Trickster (from Rogue: swords 0x8F, unarmed 0x90): the Rogue reskin draws a dagger, so it plays for knives (this
+// repo's ITYPE_KNIFE, 0x0B, the Rogue line's second weapon slot) and swords
+ALIGN 4
+gBanimDef_T3Trickster:
+BYTE 0x0B 0x01; SHORT BANIM_T3_TRICKSTER_KNIFE
+BYTE 0x00 0x01; SHORT BANIM_T3_TRICKSTER_KNIFE
+BYTE 0x09 0x01; SHORT 0x90
+WORD 0
+
+// Marshall (from General: lances 0x45, axes 0x46, the javelin-type items 0x28, 0x29, 0x2C 0x47, unarmed 0x48,
+// swords 0x44): lances
+ALIGN 4
+gBanimDef_T3Marshall:
+BYTE 0x01 0x01; SHORT BANIM_T3_MARSHALL_LANCE
+BYTE 0x02 0x01; SHORT 0x46
+BYTE 0x28 0x00; SHORT 0x47
+BYTE 0x29 0x00; SHORT 0x47
+BYTE 0x09 0x01; SHORT 0x48
+BYTE 0x00 0x01; SHORT 0x44
+BYTE 0x2C 0x00; SHORT 0x47
+WORD 0
+
+// Trueblade (from Swordmaster: swords 0x15, unarmed 0x16): swords
+ALIGN 4
+gBanimDef_T3Trueblade:
+BYTE 0x00 0x01; SHORT BANIM_T3_TRUEBLADE_SWORD
+BYTE 0x09 0x01; SHORT 0x16
+WORD 0
+
+// Archsage (from Sage: anima, light, dark and unarmed 0x6D, staves 0x6E): Nuramon's, a magic animation (with a
+// staff in hand and an intro), for anima, light, dark and unarmed; staves keep the Sage's staff animation
+ALIGN 4
+gBanimDef_T3Archsage:
+BYTE 0x05 0x01; SHORT BANIM_T3_ARCHSAGE_NURAMON_MAGIC
+BYTE 0x06 0x01; SHORT BANIM_T3_ARCHSAGE_NURAMON_MAGIC
+BYTE 0x07 0x01; SHORT BANIM_T3_ARCHSAGE_NURAMON_MAGIC
+BYTE 0x09 0x01; SHORT BANIM_T3_ARCHSAGE_NURAMON_MAGIC
+BYTE 0x04 0x01; SHORT 0x6E
+WORD 0
 #endif // CONFIG_THIRD_TIER_CLASSES
 
 #endif // CUSTOM_BATTLE_ANIMS_INSTALLED

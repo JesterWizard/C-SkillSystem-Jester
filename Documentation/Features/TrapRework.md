@@ -587,7 +587,7 @@ The table is repointed to `gUnitIconWaitTable` in `Data/UnitIcon/UnitIconWait.c`
 - `0x79` Dragon Vein Tile (`SMS_ID_DRAGON_VEIN`)
 - `0x7A` Lit Torch Tile (`SMS_ID_LIT_TORCH`)
 
-Ids `0x7B`-`0x7F` are free. Do not reuse `0x68`-`0x6A`: they are the vanilla Tent, Pontifex and Fallen Peer sprites, used by those classes (Pontifex is Mansel's class).
+Ids `0x7B`-`0x7E` are the third-tier classes' standing sprites (`SMS_ID_TRICKSTER`, `SMS_ID_MARSHALL`, `SMS_ID_TRUEBLADE`, `SMS_ID_ARCHSAGE`; [ThirdTierClasses.md](ThirdTierClasses.md)). Id `0x7F` is the last free one. Do not reuse `0x68`-`0x6A`: they are the vanilla Tent, Pontifex and Fallen Peer sprites, used by those classes (Pontifex is Mansel's class).
 
 ### TrapData_Installer.event
 

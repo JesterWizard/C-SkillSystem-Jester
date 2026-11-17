@@ -1,6 +1,27 @@
+// Vanilla GetClassSMSId (0x8018D90; PutUnitSpriteForClassId draws with it: the stat screen's Promotions page, the
+// Bestiary, the arena roster) reads vanilla's class table inline. Its literal pool points at gClassData_NEW instead
+// (entry 0 is class 1), so it gives the SMS id of Data/ClassData/ClassData.c: they differ only for the classes in
+// vanilla's unused slots (Halberdier, the third-tier classes), which vanilla's table draws as ballistae and a blank.
+PUSH
+ORG $018DAC
+POIN gClassData_NEW-84
+POP
+
 // Promotion choices: vanilla's gPromoJidLut (0x95DFA4), two class ids per class id.
 #define PromoChoices(jid, first, second) "PUSH; ORG 0x95DFA4 + 2 * (jid); BYTE first second; POP"
 
 // Pre-promote Recruit (CLASS_RECRUIT_T1, 0x37): Recruit T2 (0x3A) or Halberdier (CLASS_HALBERDIER, 0x77),
 // in place of vanilla's Paladin F (0x08)
 PromoChoices(0x37, 0x3A, 0x77)
+
+// Third-tier classes (Documentation/Features/ThirdTierClasses.md), in vanilla's unused ballista class slots: a promoted
+// unit of the class at level 10 or more promotes with a Master Seal, or automatically at level 20
+// (CanUnitPromoteToThirdTier, Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c). Swordmaster F and Sage F have none: the
+// Trueblade and Archsage sprites are male.
+#ifdef CONFIG_THIRD_TIER_CLASSES
+PromoChoices(0x33, 0x67, 0) // Rogue (CLASS_ROGUE): Trickster (CLASS_TRICKSTER)
+PromoChoices(0x0B, 0x68, 0) // General (CLASS_GENERAL): Marshall (CLASS_MARSHALL)
+PromoChoices(0x0C, 0x68, 0) // General F (CLASS_GENERAL_F): Marshall (unisex sprite)
+PromoChoices(0x15, 0x69, 0) // Swordmaster (CLASS_SWORDMASTER): Trueblade (CLASS_TRUEBLADE)
+PromoChoices(0x27, 0x6A, 0) // Sage (CLASS_SAGE): Archsage (CLASS_ARCHSAGE)
+#endif
