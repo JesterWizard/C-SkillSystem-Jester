@@ -86,6 +86,9 @@ What it checks:
   autopromo  battle animations off: Eirika one EXP short of 20 (or a Journeyman, one short of 10) levels up on the map,
               and the automatic promotion leaves her at level 1 with EXP 0 in the new class; the hidden level keeps
               the level she reached (20, 10). A Master Seal promotion of a Cavalier at 20 gives the same.
+  t3promo     a Master Seal on Eirika made a level-10 Swordmaster promotes her to the Trueblade (a third-tier class) at
+              level 1 with EXP 0; the class's SMS id is SMS_ID_TRUEBLADE, and her standing sprite draws on the map.
+              Reaching level 20 promotes a Swordmaster the same way, not a Swordmaster F (no third tier).
   banim       with battle animations on, Gerik as a Mercenary, Tana as a Pegasus Knight and Amelia as a Recruit
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
@@ -123,7 +126,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle,
-lvupanim, autopromo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, autopromo, t3promo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -252,6 +255,28 @@ WM_SAVE = ["w32 %#x %#x" % (0x03005280 + 8, 40 << 8), "w32 %#x %#x" % (0x0300528
 SOFT_RESET = ["hold A+B+START+SELECT 10", "wait 500", "press A", "wait 200", "press START", "wait 200"]
 # Eirika is under the cursor at the start of the prologue: A selects her, A stays, and the action menu opens
 EIRIKA_MENU = ["wait 30", "press A", "wait 30", "press A", "wait 40"]
+
+
+def lz77(rom, o):
+    """The GBA BIOS LZ77 (type 0x10) data at ROM offset o, decompressed."""
+    size = int.from_bytes(rom[o + 1:o + 4], "little")
+    o += 4
+    out = bytearray()
+    while len(out) < size:
+        flags = rom[o]
+        o += 1
+        for b in range(8):
+            if len(out) >= size:
+                break
+            if flags & (0x80 >> b):
+                v = rom[o] << 8 | rom[o + 1]
+                o += 2
+                for _ in range((v >> 12) + 3):
+                    out.append(out[-((v & 0xFFF) + 1)])
+            else:
+                out.append(rom[o])
+                o += 1
+    return bytes(out)
 
 
 class Smoke:
@@ -2036,6 +2061,89 @@ class Smoke:
             self.check("autopromo: a Master Seal promotion records the hidden level 20",
                        r["gain"][1] - r["gain"][0] == 20, "hidden level %d to %d" % r["gain"])
 
+    def test_t3promo(self, turn2_ss):
+        """The third-tier classes (Documentation/Features/ThirdTierClasses.md): Eirika made a level-10 Swordmaster in RAM
+        (her class pointer into gClassData_NEW, 50 EXP) with a Master Seal as her only item (so Item is the first row)
+        uses it: CanUnitUsePromotionItem lets a promoted class with a third tier promote, and the only choice
+        (gPromoJidLut: Trueblade, 0) promotes her to the Trueblade (CLASS_TRUEBLADE) at level 1 with EXP 0. The class's
+        SMS id is SMS_ID_TRUEBLADE (ROM, gClassData_NEW), and back on the map her standing sprite draws: an OAM entry
+        with her map sprite handle's tile (unit +0x3C, SMSHandle +8). Reaching level 20 promotes a Swordmaster too
+        (promotion_on_max_level), and not a Swordmaster F."""
+        d = os.path.join(self.out, "t3promo")
+        os.makedirs(d, exist_ok=True)
+        if "gClassData_NEW" not in self.sym:
+            return self.check("t3promo: symbols", False, "no gClassData_NEW")
+        swordmaster, trueblade, sms_trueblade = 0x15, 0x69, 0x7D  # FE-CLib classes.h, include/kernel/unit-icon.h
+        table = self.sym["gClassData_NEW"]
+        rom = open(ROM, "rb").read()
+        promo = rom[0x95DFA4 + 2 * swordmaster:][:2]
+        self.check("t3promo: the Swordmaster promotes to the Trueblade only (gPromoJidLut 0x69, 0)",
+                   promo == bytes((trueblade, 0)), promo.hex())
+        cls_ptr, lvl, exp = UNIT1 + 0x04, UNIT1 + 0x08, UNIT1 + 0x09
+        seal = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                "shot seal.png", "press A", "wait 900", "shot promo.png", "press A", "wait 200", "press A", "wait 200",
+                "wait 300", "shot map.png"]
+        state = os.path.join(d, "t3.ss")
+        vals = self.run(ROM, ["load " + turn2_ss, "w32 %#x %#x" % (cls_ptr, table + 0x54 * (swordmaster - 1)),
+                              "w8 %#x 10" % lvl, "w8 %#x 50" % exp, "w16 %#x 0x0188" % (UNIT1 + 0x1E),
+                              "w16 %#x 0" % (UNIT1 + 0x20)] + seal +
+                        ["save " + state, "r8 %#x" % lvl, "r8 %#x" % exp, "r32 %#x" % cls_ptr, "r32 %#x" % (UNIT1 + 0x3C)], d)
+        for name, label in (("seal", "Master Seal on a Swordmaster"), ("promo", "the Trueblade promotion"),
+                            ("map", "the Trueblade on the map")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        if len(vals) != 4:
+            return self.check("t3promo: the Master Seal promotion runs", False, "values %s" % vals)
+        level, xp, ptr, handle = vals
+        self.check("t3promo: a Master Seal makes the level-10 Swordmaster a Trueblade at level 1 with EXP 0",
+                   ptr == table + 0x54 * (trueblade - 1) and level == 1 and xp == 0,
+                   "class %#x (Trueblade %#x), level %d, EXP %d" % (ptr, table + 0x54 * (trueblade - 1), level, xp))
+        number, sms = rom[ptr - 0x08000000 + 4], rom[ptr - 0x08000000 + 6] if 0x08000000 <= ptr < 0x09000000 else 0
+        self.check("t3promo: the Trueblade's SMS id is SMS_ID_TRUEBLADE (0x7d)", number == trueblade and sms == sms_trueblade,
+                   "class number %#x, SMS id %#x" % (number, sms))
+        if not 0x02000000 <= handle < 0x02040000:
+            return self.check("t3promo: her map sprite has a handle", False, "handle %#x" % handle)
+        vals = self.run(ROM, ["load " + state, "wait 2", "r16 %#x" % (handle + 8)] +
+                        ["r16 %#x" % (OAM + 8 * i + 4) for i in range(128)], d)
+        if len(vals) != 129:
+            return self.check("t3promo: OAM read", False, "values %d" % len(vals))
+        tile = vals[0] & 0x3FF
+        hits = [i for i, a2 in enumerate(vals[1:]) if a2 & 0x3FF == tile]
+        self.check("t3promo: her standing sprite draws (an OAM entry with her sprite's tile %#x)" % tile, bool(hits),
+                   "OAM entries %s" % hits)
+        # The automatic promotion (promotion_on_max_level, AutoPromotionDue): at 19 with 99 EXP and an Iron Sword, the
+        # attack takes her to 20 on the map (animations off) and the Swordmaster becomes a Trueblade at level 1; a
+        # Swordmaster F (no third tier) stays at 20
+        fight = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                 "press A", "wait 34", "wait 1500"]
+        for jid, want, label in ((swordmaster, trueblade, "a Swordmaster"), (swordmaster + 1, None, "a Swordmaster F")):
+            vals = self.run(ROM, ["load " + turn2_ss, "w8 %#x 2" % (PLAYST + 0x42),
+                                  "w32 %#x %#x" % (cls_ptr, table + 0x54 * (jid - 1)), "w8 %#x 19" % lvl,
+                                  "w8 %#x 99" % exp, "w16 %#x 0x2E01" % (UNIT1 + 0x1E), "w8 %#x 31" % (UNIT1 + 0x28)] +
+                            fight + ["r8 %#x" % lvl, "r32 %#x" % cls_ptr], d)
+            if len(vals) != 2:
+                self.check("t3promo: %s's level-20 fight runs" % label, False, "values %s" % vals)
+            elif want:
+                self.check("t3promo: %s reaching level 20 is promoted to the Trueblade at level 1" % label,
+                           vals[1] == table + 0x54 * (want - 1) and vals[0] == 1,
+                           "level %d, class %#x" % (vals[0], vals[1]))
+            else:
+                self.check("t3promo: %s reaching level 20 is not promoted" % label,
+                           vals[1] == table + 0x54 * (jid - 1) and vals[0] == 20,
+                           "level %d, class %#x" % (vals[0], vals[1]))
+
+        # the tiles there are one of the Trueblade's three 32x32 standing frames (gUnitIconWaitTable[0x7d]'s sheet, 4
+        # tiles a row; OBJ VRAM is 2D, 32 tiles a row)
+        if "gUnitIconWaitTable" not in self.sym:
+            return
+        sheet = struct.unpack_from("<I", rom, self.sym["gUnitIconWaitTable"] - 0x08000000 + 8 * sms_trueblade + 4)[0]
+        frames = lz77(rom, sheet - 0x08000000)
+        self.run(ROM, ["load " + state, "wait 2", "dump 0x06010000 0x8000 vram.bin"], d)
+        vram = open(os.path.join(d, "vram.bin"), "rb").read() if os.path.exists(os.path.join(d, "vram.bin")) else b""
+        shown = [vram[(tile + 32 * (k // 4) + k % 4) * 32:][:32] for k in range(16)]
+        match = [f for f in range(3) if all(frames[(16 * f + k) * 32:][:32] == shown[k] for k in range(16))]
+        self.check("t3promo: the sprite is the Trueblade's (VRAM at the tile holds one of its standing frames)",
+                   len(frames) == 3 * 16 * 32 and bool(match), "frames %s, sheet %d bytes" % (match, len(frames)))
+
     def test_banim(self, boot_ss):
         """The custom battle animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event), one
         fight each with animations on (option byte 0x42), Eirika's unit made the character in RAM: Gerik as a Mercenary
@@ -3129,14 +3237,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
+                  "t3promo", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "banim", "dbgbanim",
-                      "mapbox", "gaidenexp")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "banim",
+                      "dbgbanim", "mapbox", "gaidenexp")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3159,6 +3267,8 @@ def main():
                 r.submit((0, 14), s.test_autopromo, turn2_ss)
             if on("banim") and turn2_ss:
                 r.submit((0, 10), s.test_banim, turn2_ss)
+            if on("t3promo") and turn2_ss:
+                r.submit((0, 17), s.test_t3promo, turn2_ss)
             if on("dbgbanim") and turn2_ss:
                 r.submit((0, 11), s.test_dbgbanim, turn2_ss)
             if on("mapbox") and turn2_ss:

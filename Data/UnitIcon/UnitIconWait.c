@@ -6,7 +6,8 @@
  * (0x088AF880). The vanilla table has only 0x6B entries: gSpellAssocData
  * follows it, so new sprites cannot be written past its end.
  *
- * The custom images are installed by Kernel/Wizardry/TrapData/TrapData_Installer.event.
+ * The custom images are installed by Kernel/Wizardry/TrapData/TrapData_Installer.event (traps) and
+ * Data/UnitIcon/ThirdTier.event (the third-tier classes).
  */
 
 extern char Gfx_Unlit_Torch[];
@@ -25,6 +26,11 @@ extern char Gfx_Floor_Hole_Tile[];
 extern char Gfx_Heal_Tile[];
 extern char Gfx_Dragon_Vein_Tile[];
 extern char Gfx_Lit_Torch[];
+
+extern char Gfx_SMS_Trickster[];
+extern char Gfx_SMS_Marshall[];
+extern char Gfx_SMS_Trueblade[];
+extern char Gfx_SMS_Archsage[];
 
 #define TRAP_SMS(_sheet) { 2, UNIT_ICON_SIZE_16x16, (_sheet) }
 
@@ -155,4 +161,10 @@ const UnitIconWait gUnitIconWaitTable[UNIT_ICON_WAIT_AMT] = {
 	[SMS_ID_HEAL_TILE] = TRAP_SMS(Gfx_Heal_Tile),
 	[SMS_ID_DRAGON_VEIN] = TRAP_SMS(Gfx_Dragon_Vein_Tile),
 	[SMS_ID_LIT_TORCH] = TRAP_SMS(Gfx_Lit_Torch),
+
+	/* Third-tier class sprites: 16x16 (16x48 sheets) and 32x32 (32x96 sheets) */
+	[SMS_ID_TRICKSTER] = { 2, UNIT_ICON_SIZE_16x16, Gfx_SMS_Trickster },
+	[SMS_ID_MARSHALL] = { 2, UNIT_ICON_SIZE_32x32, Gfx_SMS_Marshall },
+	[SMS_ID_TRUEBLADE] = { 2, UNIT_ICON_SIZE_32x32, Gfx_SMS_Trueblade },
+	[SMS_ID_ARCHSAGE] = { 2, UNIT_ICON_SIZE_16x16, Gfx_SMS_Archsage },
 };

@@ -1138,3 +1138,19 @@ You spend a lifetime denying it[N]until it has all but worn you away.[A][CloseSp
 But I digress.[N]Draw your blade, so that I might[A][CloseSpeechSlow]
 [OpenMidLeft]
 cut you down with mine.[A][X]
+## MSG_CLASS_TRICKSTER_NAME
+Trickster[X]
+## MSG_CLASS_TRICKSTER_DESC
+A master of deceit who strikes[N]unseen. Uses swords and knives.[X]
+## MSG_CLASS_MARSHALL_NAME
+Marshall[X]
+## MSG_CLASS_MARSHALL_DESC
+A commander in heavy armor. Uses[N]lances, swords and axes.[X]
+## MSG_CLASS_TRUEBLADE_NAME
+Trueblade[X]
+## MSG_CLASS_TRUEBLADE_DESC
+A swordsman whose blade is[N]without equal. Uses swords.[X]
+## MSG_CLASS_ARCHSAGE_NAME
+Archsage[X]
+## MSG_CLASS_ARCHSAGE_DESC
+A sage at the summit of magic.[N]Uses anima, light and staves.[X]

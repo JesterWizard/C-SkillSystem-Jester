@@ -8,7 +8,7 @@
 #define CONFIG_VERIFY_SKILLSYS_SRAM 		   // This is a clever piece of protection that prevents the loading of saves created from this buildfile on incompatible copies of FE8
 #define CONFIG_CUSTOM_BATTLE_ANIMS 		   // Custom battle animations (Contents/BattleAnims), e.g. Gerik's Mercenary sword; per character, turned off at runtime by custom_character_animations
 // #define CONFIG_STAT_SCREEN_TOTAL 		   // The stat screen's "Total" row (the sum of the unit's stats) on its first page
-// #define CONFIG_THIRD_TIER_CLASSES 		   // Third-tier classes' FE10 caps (Data/ClassData/ThirdTierClasses.c); off until they have class ids, sprites, animations and texts
+#define CONFIG_THIRD_TIER_CLASSES 		   // Third-tier classes (Documentation/Features/ThirdTierClasses.md): their promotions, animations and FE10 caps table (Data/ClassData/ThirdTierClasses.c)
 // #define CONFIG_INSTALL_STATSCREENFX 		   // FE7 stat screen. It causes graphical glitches with the additional pages past 4 and the extended desc textbox
 #define CONFIG_INSTALL_CONVOYEXPA_AMT 200      // You'll need to adjust the EMSChunks for SaveExpaConvoy/LoadExpaConvoy in data.event to expand 
 #define CONFIG_AI_ACTION_EXPA_Teleportation 14 // Needs to remain for now as it's injected in Kernel/Wizardry/SkillEffects/AiSkills/Teleportation.event

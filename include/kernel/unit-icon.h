@@ -7,7 +7,7 @@
  *
  * Vanilla code masks the id with 0x7F, so the table has 0x80 entries.
  * Ids 0x00-0x6A are the vanilla sprites; the custom sprites start at 0x6B.
- * The table is in Data/UnitIcon/UnitIconWait.c.
+ * The table is in Data/UnitIcon/UnitIconWait.c. 0x7F is the last free id.
  */
 #define UNIT_ICON_WAIT_AMT 0x80
 
@@ -32,3 +32,9 @@ extern const UnitIconWait gUnitIconWaitTable[UNIT_ICON_WAIT_AMT];
 #define SMS_ID_HEAL_TILE 0x78
 #define SMS_ID_DRAGON_VEIN 0x79
 #define SMS_ID_LIT_TORCH 0x7A
+
+/* Third-tier class sprites (Data/UnitIcon/ThirdTier, Documentation/Features/ThirdTierClasses.md) */
+#define SMS_ID_TRICKSTER 0x7B
+#define SMS_ID_MARSHALL 0x7C
+#define SMS_ID_TRUEBLADE 0x7D
+#define SMS_ID_ARCHSAGE 0x7E

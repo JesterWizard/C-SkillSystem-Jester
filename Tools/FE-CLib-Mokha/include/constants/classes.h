@@ -106,10 +106,10 @@ enum {
     CLASS_DEATHGOYLE          = 0x64,
     CLASS_DRACO_ZOMBIE        = 0x65,
     CLASS_DEMON_KING          = 0x66,
-    CLASS_BLST_REGULAR_USED   = 0x67,
-    CLASS_BLST_LONG_USED      = 0x68,
-    CLASS_BLST_KILLER_USED    = 0x69,
-    CLASS_BLST_REGULAR_EMPTY  = 0x6A,
+    CLASS_TRICKSTER           = 0x67, // vanilla unused (CLASS_BLST_REGULAR_USED), now Trickster, Rogue's third tier (Data/ClassData/ClassData.c)
+    CLASS_MARSHALL            = 0x68, // vanilla unused (CLASS_BLST_LONG_USED), now Marshall, General's third tier
+    CLASS_TRUEBLADE           = 0x69, // vanilla unused (CLASS_BLST_KILLER_USED), now Trueblade, Swordmaster's third tier
+    CLASS_ARCHSAGE            = 0x6A, // vanilla unused (CLASS_BLST_REGULAR_EMPTY), now Archsage, Sage's third tier
     CLASS_BLST_LONG_EMPTY     = 0x6B,
     CLASS_BLST_KILLER_EMPTY   = 0x6C,
     CLASS_CIVILIAN_M1         = 0x6D,

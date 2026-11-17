@@ -76,6 +76,23 @@ const struct ClassWeaponSlotConf gClassWeaponSlotConf[] = {
 			[1] = WPN_EXP_E, /* slot 1: knife */
 		},
 	},
+	{
+		/* Rogue's third tier: the Rogue's slots */
+		.jid = CLASS_TRICKSTER,
+		.wtypes = {
+			[0] = ITYPE_SWORD,
+			[1] = ITYPE_KNIFE,
+			[2] = WEAPON_SLOT_NONE,
+			[3] = WEAPON_SLOT_NONE,
+			[4] = WEAPON_SLOT_NONE,
+			[5] = WEAPON_SLOT_NONE,
+			[6] = WEAPON_SLOT_NONE,
+			[7] = WEAPON_SLOT_NONE,
+		},
+		.baseRanks = {
+			[1] = WPN_EXP_E, /* slot 1: knife */
+		},
+	},
 	/* Sentinel */
 	{ .jid = 0 },
 };

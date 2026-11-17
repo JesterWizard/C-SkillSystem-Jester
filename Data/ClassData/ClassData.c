@@ -3,6 +3,7 @@
 #include "bmitem.h"
 #include "constants/texts.h"
 #include "jester_headers/custom-arrays.h"
+#include "kernel/unit-icon.h"
 
 #ifdef CONFIG_CUSTOM_BATTLE_ANIMS
 /* Class-wide custom battle animations (Contents/BattleAnims/BattleAnims.event) */
@@ -13,6 +14,24 @@ extern const struct BattleAnimDef gBanimDef_GorgonEgg[];
 #else
 #define BANIM_DEF_PHANTOM NULL
 #define BANIM_DEF_GORGON_EGG NULL
+#endif
+
+#if defined(CONFIG_CUSTOM_BATTLE_ANIMS) && defined(CONFIG_THIRD_TIER_CLASSES)
+/* The third-tier classes' animations: the promoted class's vanilla list with the T3 animation (BattleAnims.event) */
+extern const struct BattleAnimDef gBanimDef_T3Trickster[];
+extern const struct BattleAnimDef gBanimDef_T3Marshall[];
+extern const struct BattleAnimDef gBanimDef_T3Trueblade[];
+extern const struct BattleAnimDef gBanimDef_T3Archsage[];
+#define BANIM_DEF_TRICKSTER gBanimDef_T3Trickster
+#define BANIM_DEF_MARSHALL gBanimDef_T3Marshall
+#define BANIM_DEF_TRUEBLADE gBanimDef_T3Trueblade
+#define BANIM_DEF_ARCHSAGE gBanimDef_T3Archsage
+#else
+/* Without them, the promoted class's vanilla animations (Rogue, General, Swordmaster, Sage) */
+#define BANIM_DEF_TRICKSTER AnimConf_088AF360
+#define BANIM_DEF_MARSHALL AnimConf_088AF060
+#define BANIM_DEF_TRUEBLADE AnimConf_088AF120
+#define BANIM_DEF_ARCHSAGE AnimConf_088AF248
 #endif
 
 const struct ClassData gClassData_NEW[] = {
@@ -5848,179 +5867,243 @@ const struct ClassData gClassData_NEW[] = {
         .pTerrainDefenseLookup = TerrainTable_Def_Common,
         .pTerrainResistanceLookup = TerrainTable_Res_Common,
     },
-    [CLASS_BLST_REGULAR_USED - 1] = {
-        .number = CLASS_BLST_REGULAR_USED,
-        .SMSId = 0x58,
+    /*
+     * Third-tier classes, in vanilla's unused ballista class slots (Documentation/Features/ThirdTierClasses.md).
+     * Each is its promoted class's bases and growths raised, FE10's 3rd-tier caps (gThirdTierClassPlans), and the
+     * promoted class's movement, terrain and ranks. Promoted from that class (gPromoJidLut, Promotions.event).
+     */
+    [CLASS_TRICKSTER - 1] = {
+        .nameTextId = MSG_CLASS_TRICKSTER_NAME,
+        .descTextId = MSG_CLASS_TRICKSTER_DESC,
+        .number = CLASS_TRICKSTER,
+        .promotion = CLASS_ROGUE,
+        .SMSId = SMS_ID_TRICKSTER,
+        .defaultPortraitId = 0x94,
+        .sort_order = 0x9,
 
-        .baseHP  = 0,
-        .basePow = 0,
-        .baseSkl = 0,
-        .baseSpd = 0,
-        .baseDef = 0,
-        .baseRes = 0,
-        .baseCon = 0,
-        .baseMov = 0,
+        .baseHP  = 18,
+        .basePow = 4,
+        .baseSkl = 3,
+        .baseSpd = 11,
+        .baseDef = 3,
+        .baseRes = 1,
+        .baseCon = 8,
+        .baseMov = 7,
 
-        .maxHP  = 0,
-        .maxPow = 0,
-        .maxSkl = 0,
-        .maxSpd = 0,
-        .maxDef = 0,
-        .maxRes = 0,
-        .maxCon = 0,
+        .maxHP  = 50,
+        .maxPow = 28,
+        .maxSkl = 38,
+        .maxSpd = 40,
+        .maxDef = 26,
+        .maxRes = 25,
+        .maxCon = 20,
         .classRelativePower = 3,
 
 
-        .growthHP  = 0,
-        .growthPow = 0,
-        .growthSkl = 0,
-        .growthSpd = 0,
-        .growthDef = 0,
-        .growthRes = 10,
-        .growthLck = 0,
+        .growthHP  = 50,
+        .growthPow = 10,
+        .growthSkl = 50,
+        .growthSpd = 40,
+        .growthDef = 5,
+        .growthRes = 20,
+        .growthLck = 45,
 
-        .promotionHp  = 0,
-        .promotionPow = 0,
-        .promotionSkl = 0,
-        .promotionSpd = 0,
-        .promotionDef = 0,
-        .promotionRes = 0,
+        .promotionHp  = 3,
+        .promotionPow = 1,
+        .promotionSkl = 2,
+        .promotionSpd = 2,
+        .promotionDef = 1,
+        .promotionRes = 1,
+
+        .attributes = CA_STEAL | CA_THIEF | CA_PROMOTED,
+
+        .baseRanks = {
+            [ITYPE_SWORD] = WPN_EXP_E,
+        },
+        .pBattleAnimDef = BANIM_DEF_TRICKSTER,
         .pMovCostTable = {
-            (void *)0x00000000,
-            (void *)0x00000000,
-            (void *)0x00000000,
+            TerrainTable_MovCost_ThiefNormal,
+            TerrainTable_MovCost_ThiefRain,
+            TerrainTable_MovCost_ThiefSnow,
         },
         .pTerrainAvoidLookup = TerrainTable_Avo_Common,
         .pTerrainDefenseLookup = TerrainTable_Def_Common,
         .pTerrainResistanceLookup = TerrainTable_Res_Common,
     },
-    [CLASS_BLST_LONG_USED - 1] = {
-        .number = CLASS_BLST_LONG_USED,
-        .SMSId = 0x59,
+    [CLASS_MARSHALL - 1] = {
+        .nameTextId = MSG_CLASS_MARSHALL_NAME,
+        .descTextId = MSG_CLASS_MARSHALL_DESC,
+        .number = CLASS_MARSHALL,
+        .promotion = CLASS_GENERAL,
+        .SMSId = SMS_ID_MARSHALL,
+        .slowWalking = UNIT_WALKSPEED_SLOW,
+        .defaultPortraitId = 0x77,
+        .sort_order = 0xd,
 
-        .baseHP  = 0,
-        .basePow = 0,
-        .baseSkl = 0,
-        .baseSpd = 0,
-        .baseDef = 0,
-        .baseRes = 0,
-        .baseCon = 0,
-        .baseMov = 0,
+        .baseHP  = 23,
+        .basePow = 10,
+        .baseSkl = 5,
+        .baseSpd = 4,
+        .baseDef = 15,
+        .baseRes = 4,
+        .baseCon = 16,
+        .baseMov = 5,
 
-        .maxHP  = 0,
-        .maxPow = 0,
-        .maxSkl = 0,
-        .maxSpd = 0,
-        .maxDef = 0,
-        .maxRes = 0,
-        .maxCon = 0,
+        .maxHP  = 60,
+        .maxPow = 36,
+        .maxSkl = 34,
+        .maxSpd = 31,
+        .maxDef = 37,
+        .maxRes = 30,
+        .maxCon = 25,
+        .classRelativePower = 3,
 
-        .growthHP  = 0,
-        .growthPow = 0,
-        .growthSkl = 0,
-        .growthSpd = 0,
-        .growthDef = 0,
-        .growthRes = 0,
-        .growthLck = 0,
 
-        .promotionHp  = 0,
-        .promotionPow = 0,
-        .promotionSkl = 0,
-        .promotionSpd = 0,
-        .promotionDef = 0,
-        .promotionRes = 0,
+        .growthHP  = 80,
+        .growthPow = 35,
+        .growthSkl = 20,
+        .growthSpd = 10,
+        .growthDef = 28,
+        .growthRes = 25,
+        .growthLck = 20,
+
+        .promotionHp  = 3,
+        .promotionPow = 2,
+        .promotionSkl = 1,
+        .promotionSpd = 1,
+        .promotionDef = 2,
+        .promotionRes = 1,
+
+        .attributes = CA_PROMOTED,
+
+        .baseRanks = {
+            [ITYPE_SWORD] = WPN_EXP_E,
+            [ITYPE_LANCE] = WPN_EXP_C,
+            [ITYPE_AXE  ] = WPN_EXP_E,
+        },
+        .pBattleAnimDef = BANIM_DEF_MARSHALL,
         .pMovCostTable = {
-            (void *)0x00000000,
-            (void *)0x00000000,
-            (void *)0x00000000,
+            TerrainTable_MovCost_ArmorNormal,
+            TerrainTable_MovCost_ArmorRain,
+            TerrainTable_MovCost_ArmorSnow,
         },
         .pTerrainAvoidLookup = TerrainTable_Avo_Common,
         .pTerrainDefenseLookup = TerrainTable_Def_Common,
         .pTerrainResistanceLookup = TerrainTable_Res_Common,
     },
-    [CLASS_BLST_KILLER_USED - 1] = {
-        .number = CLASS_BLST_KILLER_USED,
-        .SMSId = 0x5a,
+    [CLASS_TRUEBLADE - 1] = {
+        .nameTextId = MSG_CLASS_TRUEBLADE_NAME,
+        .descTextId = MSG_CLASS_TRUEBLADE_DESC,
+        .number = CLASS_TRUEBLADE,
+        .promotion = CLASS_SWORDMASTER,
+        .SMSId = SMS_ID_TRUEBLADE,
+        .defaultPortraitId = 0x73,
+        .sort_order = 0x6,
 
-        .baseHP  = 0,
-        .basePow = 0,
-        .baseSkl = 0,
-        .baseSpd = 0,
-        .baseDef = 0,
-        .baseRes = 0,
-        .baseCon = 0,
-        .baseMov = 0,
+        .baseHP  = 23,
+        .basePow = 7,
+        .baseSkl = 13,
+        .baseSpd = 12,
+        .baseDef = 6,
+        .baseRes = 3,
+        .baseCon = 10,
+        .baseMov = 7,
 
-        .maxHP  = 0,
-        .maxPow = 0,
-        .maxSkl = 0,
-        .maxSpd = 0,
-        .maxDef = 0,
-        .maxRes = 0,
-        .maxCon = 0,
+        .maxHP  = 55,
+        .maxPow = 32,
+        .maxSkl = 40,
+        .maxSpd = 40,
+        .maxDef = 26,
+        .maxRes = 24,
+        .maxCon = 20,
+        .classRelativePower = 3,
 
-        .growthHP  = 0,
-        .growthPow = 0,
-        .growthSkl = 0,
-        .growthSpd = 0,
-        .growthDef = 0,
-        .growthRes = 0,
-        .growthLck = 0,
 
-        .promotionHp  = 0,
-        .promotionPow = 0,
-        .promotionSkl = 0,
-        .promotionSpd = 0,
-        .promotionDef = 0,
-        .promotionRes = 0,
+        .growthHP  = 65,
+        .growthPow = 30,
+        .growthSkl = 35,
+        .growthSpd = 35,
+        .growthDef = 15,
+        .growthRes = 22,
+        .growthLck = 25,
+
+        .promotionHp  = 3,
+        .promotionPow = 2,
+        .promotionSkl = 2,
+        .promotionSpd = 2,
+        .promotionDef = 1,
+        .promotionRes = 1,
+
+        .attributes = CA_CRITBONUS | CA_PROMOTED | CA_LOCK_2,
+
+        .baseRanks = {
+            [ITYPE_SWORD] = WPN_EXP_C,
+        },
+        .pBattleAnimDef = BANIM_DEF_TRUEBLADE,
         .pMovCostTable = {
-            (void *)0x00000000,
-            (void *)0x00000000,
-            (void *)0x00000000,
+            TerrainTable_MovCost_CommonT2Normal,
+            TerrainTable_MovCost_CommonT2Rain,
+            TerrainTable_MovCost_CommonT2Snow,
         },
         .pTerrainAvoidLookup = TerrainTable_Avo_Common,
         .pTerrainDefenseLookup = TerrainTable_Def_Common,
         .pTerrainResistanceLookup = TerrainTable_Res_Common,
     },
-    [CLASS_BLST_REGULAR_EMPTY - 1] = {
-        .number = CLASS_BLST_REGULAR_EMPTY,
-        .SMSId = 0x5b,
+    [CLASS_ARCHSAGE - 1] = {
+        .nameTextId = MSG_CLASS_ARCHSAGE_NAME,
+        .descTextId = MSG_CLASS_ARCHSAGE_DESC,
+        .number = CLASS_ARCHSAGE,
+        .promotion = CLASS_SAGE,
+        .SMSId = SMS_ID_ARCHSAGE,
+        .defaultPortraitId = 0x7d,
+        .sort_order = 0x13,
 
-        .baseHP  = 0,
-        .basePow = 0,
-        .baseSkl = 0,
-        .baseSpd = 0,
-        .baseDef = 0,
-        .baseRes = 0,
-        .baseCon = 0,
-        .baseMov = 0,
+        .baseHP  = 22,
+        .basePow = 6,
+        .baseSkl = 6,
+        .baseSpd = 5,
+        .baseDef = 6,
+        .baseRes = 7,
+        .baseCon = 8,
+        .baseMov = 6,
 
-        .maxHP  = 0,
-        .maxPow = 0,
-        .maxSkl = 0,
-        .maxSpd = 0,
-        .maxDef = 0,
-        .maxRes = 0,
-        .maxCon = 0,
+        .maxHP  = 50,
+        .maxPow = 24,
+        .maxSkl = 34,
+        .maxSpd = 32,
+        .maxDef = 25,
+        .maxRes = 36,
+        .maxCon = 20,
+        .classRelativePower = 3,
 
-        .growthHP  = 0,
-        .growthPow = 0,
-        .growthSkl = 0,
-        .growthSpd = 0,
-        .growthDef = 0,
-        .growthRes = 0,
-        .growthLck = 0,
 
-        .promotionHp  = 0,
+        .growthHP  = 45,
+        .growthPow = 45,
+        .growthSkl = 35,
+        .growthSpd = 25,
+        .growthDef = 10,
+        .growthRes = 45,
+        .growthLck = 15,
+
+        .promotionHp  = 3,
         .promotionPow = 0,
-        .promotionSkl = 0,
-        .promotionSpd = 0,
-        .promotionDef = 0,
-        .promotionRes = 0,
+        .promotionSkl = 2,
+        .promotionSpd = 1,
+        .promotionDef = 1,
+        .promotionRes = 2,
+
+        .attributes = CA_PROMOTED,
+
+        .baseRanks = {
+            [ITYPE_STAFF] = WPN_EXP_D,
+            [ITYPE_ANIMA] = WPN_EXP_C,
+            [ITYPE_LIGHT] = WPN_EXP_D,
+        },
+        .pBattleAnimDef = BANIM_DEF_ARCHSAGE,
         .pMovCostTable = {
-            (void *)0x00000000,
-            (void *)0x00000000,
-            (void *)0x00000000,
+            TerrainTable_MovCost_MagicNormal,
+            TerrainTable_MovCost_MagicRain,
+            TerrainTable_MovCost_MagicSnow,
         },
         .pTerrainAvoidLookup = TerrainTable_Avo_Common,
         .pTerrainDefenseLookup = TerrainTable_Def_Common,

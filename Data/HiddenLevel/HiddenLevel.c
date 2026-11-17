@@ -36,6 +36,11 @@ const s8 gClassPreLoadHiddenLevel[0x100] = {
 	[CLASS_PUPIL_T2] = 15,
 	[CLASS_RECRUIT_T2] = 15,
 	[CLASS_HALBERDIER] = 15,
+	/* Third tier: a promoted class's 15 and 15 levels in it */
+	[CLASS_TRICKSTER] = 30,
+	[CLASS_MARSHALL] = 30,
+	[CLASS_TRUEBLADE] = 30,
+	[CLASS_ARCHSAGE] = 30,
 	[CLASS_WARRIOR] = 15,
 	[CLASS_BERSERKER] = 15,
 	[CLASS_FALCON_KNIGHT] = 15,

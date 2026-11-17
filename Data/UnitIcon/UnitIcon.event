@@ -3,6 +3,7 @@
  * See Data/UnitIcon/UnitIconWait.c and include/kernel/unit-icon.h.
  */
 #include "UnitIconWait.lyn.event"
+#include "ThirdTier.event"
 
 /*
  * Vanilla literal pools that hold 0x088AF880 (found by scanning a clean

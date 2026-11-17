@@ -34,4 +34,12 @@ WORD $2
 POIN Gfx_Dragon_Vein_Tile
 WORD $2
 POIN Gfx_Lit_Torch
-WORD $0 $0 $0 $0 $0 $0 $0 $0 $0 $0
+WORD $2
+POIN Gfx_SMS_Trickster
+WORD $20002
+POIN Gfx_SMS_Marshall
+WORD $20002
+POIN Gfx_SMS_Trueblade
+WORD $2
+POIN Gfx_SMS_Archsage
+WORD $0 $0

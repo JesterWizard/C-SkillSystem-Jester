@@ -10,6 +10,7 @@
 #include "popup-reowrk.h"
 #include "playerphase.h"
 #include "jester_headers/custom-functions.h"
+#include "third-tier-classes.h"
 
 extern u8 gUnitTonicState[];
 extern u16 gTonicChapterState;
@@ -91,6 +92,10 @@ bool CanUnitUsePromotionItem(struct Unit *unit, int item)
 {
 	int iid = ITEM_INDEX(item);
 	const struct IER_PromoConfig *it = *pr_gpIER_PromotionItemTable;
+
+	/* A Master Seal also promotes a promoted class to its third tier (ThirdTierClasses.md), at level 10 */
+	if (iid == ITEM_MASTERSEAL && unit->level >= 10 && CanUnitPromoteToThirdTier(unit))
+		return true;
 
 	for (;; it++) {
 		if (it->item == ITEM_NONE || it->item == 0xFFFF)

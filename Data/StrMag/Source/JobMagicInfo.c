@@ -340,6 +340,31 @@ const struct UnitMagicInfo gMagicJInfos[0x100] = {
 		.cap = 15,
 		.bonus = 0,
 	},
+	/* Third-tier classes: the promoted class's magic +1 (+2 and +5 growth for the Archsage), FE10's 3rd-tier cap */
+	[CLASS_TRICKSTER] = {
+		.base = 2,
+		.growth = 25,
+		.cap = 20,
+		.bonus = 0,
+	},
+	[CLASS_MARSHALL] = {
+		.base = 1,
+		.growth = 0,
+		.cap = 20,
+		.bonus = 0,
+	},
+	[CLASS_TRUEBLADE] = {
+		.base = 2,
+		.growth = 20,
+		.cap = 20,
+		.bonus = 0,
+	},
+	[CLASS_ARCHSAGE] = {
+		.base = 7,
+		.growth = 50,
+		.cap = 38,
+		.bonus = 2,
+	},
 	[CLASS_HALBERDIER] = {
 		.base = 1,
 		.growth = 15,

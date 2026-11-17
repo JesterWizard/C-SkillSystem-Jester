@@ -4,6 +4,7 @@
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/class-pairs.h"
 #include "constants/texts.h"
+#include "third-tier-classes.h"
 
 LYN_REPLACE_CHECK(GetManimLevelUpStatGain);
 int GetManimLevelUpStatGain(int actor_id, int stat_num)
@@ -150,13 +151,37 @@ void PutManimLevelUpStat(int actor_id, int x, int y, int stat_num, bool after_ga
 }
 
 /*
+ * A promoted unit whose class promotes to a third-tier class: its gPromoJidLut choice is a row's class in
+ * gThirdTierClassPlans (Data/ClassData/ThirdTierClasses.c). Other promoted classes with a gPromoJidLut entry (this
+ * repo's Brigand and Pirate, some monsters) are left out. The level (10 for a Master Seal, 20 for the automatic
+ * promotion) is the caller's.
+ */
+bool CanUnitPromoteToThirdTier(const struct Unit *unit)
+{
+#ifdef CONFIG_THIRD_TIER_CLASSES
+	const struct ThirdTierClassPlan *plan;
+	int jid = UNIT_CLASS_ID(unit);
+	int promo = gPromoJidLut[jid][0];
+
+	if (!(UNIT_CATTRIBUTES(unit) & CA_PROMOTED) || promo == 0)
+		return false;
+
+	for (plan = gThirdTierClassPlans; plan->from != 0; plan++)
+		if (plan->from == jid && plan->jid == promo)
+			return true;
+#endif
+	return false;
+}
+
+/*
  * The automatic promotion a unit is due after a level-up, by promotion_on_max_level (an unpromoted unit at the level
- * cap) or promote_trainees_in_chapter (a trainee at 10 or more). Shared by the map level-up box and the animated battle.
+ * cap, or a promoted one whose class has a third tier) or promote_trainees_in_chapter (a trainee at 10 or more).
+ * Shared by the map level-up box and the animated battle.
  */
 bool AutoPromotionDue(const struct Unit *unit)
 {
-	if (gpKernelDesignerConfig->promotion_on_max_level == true &&
-		unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED))
+	if (gpKernelDesignerConfig->promotion_on_max_level == true && unit->level == UNIT_LEVEL_MAX_RE &&
+		(!(UNIT_CATTRIBUTES(unit) & CA_PROMOTED) || CanUnitPromoteToThirdTier(unit)))
 		return true;
 
 	if (gpKernelDesignerConfig->promote_trainees_in_chapter == true &&
