@@ -111,7 +111,7 @@ All runtime behavior is gated behind `gpKernelDesignerConfig->lvup_stat_timing` 
 - Each listed stat uses its growth once per level-up screen, even if the unit gained more than one level from the EXP bar. Extra attempts come only from growths of `100%` or more.
 - The EXP bar still plays. The timing list replaces the stat-gain window.
 - Level-up quotes (`talk_on_level_up`) never run, because they are started from `StartManimLevelUp`.
-- In-chapter promotion and trainee promotion that fire from `ManimLevelUp_ScrollOut` do not run while this feature is on. See [Trainee In-Chapter Promotion](TraineeInChapterPromotion.md).
+- In-chapter promotion and trainee promotion start from the post-action entry (`PostAction_AutoPromotion`), not from `ManimLevelUp_ScrollOut`, so they are no longer skipped while this feature is on; that combination has not been tested. See [Trainee In-Chapter Promotion](TraineeInChapterPromotion.md).
 - Non-blue units do not play the minigame. They also receive no growths if they level up while the config is on, because `UnitLvupCore` is skipped for every faction.
 - If both `lvup_stat_timing` and `lvup_stat_points` are set, timing is used and allocate is ignored.
 - Remaining growth is stored in a `u8`, so values above `255%` are clamped.

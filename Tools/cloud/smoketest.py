@@ -84,11 +84,17 @@ What it checks:
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
   autopromo  battle animations off: Eirika one EXP short of 20 (or a Journeyman, one short of 10) levels up on the map,
-              and the automatic promotion leaves her at level 1 with EXP 0 in the new class; the hidden level keeps
-              the level she reached (20, 10). A Master Seal promotion of a Cavalier at 20 gives the same.
+              and the automatic promotion leaves her at level 1 with EXP 0 in the new class, still so 1500 frames
+              later (the battle's result written to her); the hidden level keeps the level she reached (20, 10). A
+              Master Seal promotion of a Cavalier at 20 gives the same.
   t3promo     a Master Seal on Eirika made a level-10 Swordmaster promotes her to the Trueblade (a third-tier class) at
               level 1 with EXP 0; the class's SMS id is SMS_ID_TRUEBLADE, and her standing sprite draws on the map.
               Reaching level 20 promotes a Swordmaster the same way, not a Swordmaster F (no third tier).
+  t3promoall  after an animated enemy phase, a Master Seal promotes each third-tier path (Gilliam as a General, a
+              General F, a Rogue, a Swordmaster, a Sage): each is back on the map 2000 frames later, alive, at level 1
+              with EXP 0 in the third tier, with no skill popup left. Gilliam reaching 20 in an animated battle too.
+  lvupfont    the level-up window with battle animations off draws its numbers with the text font, as the promotion's
+              stat box does: the Mag value's tiles are the same in both, in the Tech and Vanilla UI styles.
   banim       with battle animations on, Gerik as a Mercenary, Tana as a Pegasus Knight and Amelia as a Recruit
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
@@ -126,7 +132,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle,
-lvupanim, autopromo, t3promo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -2001,12 +2007,17 @@ class Smoke:
                           "w16 %#x %#x" % (UNIT1 + 0x1E, item), "w8 %#x 31" % (UNIT1 + 0x28 + 2)]
             before = ["r32 %#x" % bwl, "r8 %#x" % (bwl + 4), "r32 %#x" % cls_ptr]
             after = ["r8 %#x" % lvl, "r8 %#x" % exp, "r32 %#x" % cls_ptr, "r32 %#x" % bwl, "r8 %#x" % (bwl + 4)]
-            vals = self.run(ROM, setup + before + keys + ["wait %d" % wait, "shot %s.png" % label] + after, d)
+            # 1500 frames later the battle's result is written to the unit (BattleApplyUnitUpdates): the level and EXP
+            # must still be the promotion's (the map path once promoted before that write, which put back 20 and 99)
+            late = ["wait 1500", "r8 %#x" % lvl, "r8 %#x" % exp]
+            vals = self.run(ROM, setup + before + keys + ["wait %d" % wait, "shot %s.png" % label] + after + late, d)
             self.shot(os.path.join(d, label + ".png"), label)
-            if len(vals) != 8:
+            if len(vals) != 10:
                 return None
+            # the level and EXP that count: the later ones, if the write changed them
+            level, xp = vals[8:10] if vals[8:10] != vals[3:5] else vals[3:5]
             return {"gain": (gain(vals[0], vals[1]), gain(vals[6], vals[7])), "cls": (vals[2], vals[5]),
-                    "level": vals[3], "exp": vals[4]}
+                    "level": level, "exp": xp}
 
         # 1. Eirika (Lord) at 19 with 99 EXP: the attack's EXP takes her to 20 on the map, then the promotion
         fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 34"]
@@ -2150,6 +2161,135 @@ class Smoke:
         match = [f for f in range(3) if all(frames[(16 * f + k) * 32:][:32] == shown[k] for k in range(16))]
         self.check("t3promo: the sprite is the Trueblade's (VRAM at the tile holds one of its standing frames)",
                    len(frames) == 3 * 16 * 32 and bool(match), "frames %s, sheet %d bytes" % (match, len(frames)))
+
+    def test_t3promoall(self, boot_ss, turn2_ss):
+        """Every third-tier promotion path, after an animated battle (Documentation/Features/ThirdTierClasses.md). Turn 1
+        ends with battle animations on, so the enemy phase's animated battles end their popups (gEkrPopupEnded set).
+        Then a Master Seal promotes Gilliam made a General, Eirika made a General F, a Rogue, a Swordmaster and a Sage
+        (RAM writes; unit 2 becomes Eirika so the map has its leader). Each must be back on the map 2000 frames later,
+        alive, at level 1 with EXP 0 in the third tier, with no skill popup pending. Before the fix, NewEkrPopup left
+        gEkrPopupEnded set, the promotion animation ended its popups at once, and ClassChgPostConfirmWaitBanimEnd showed
+        a class skill's popup with no popup unit: PoprGetLen_UnitName's assertion reset the game. Last, Gilliam as a
+        General at 19 with 99 EXP attacks with animations on and the automatic promotion makes him a Marshall."""
+        d = os.path.join(self.out, "t3promoall")
+        os.makedirs(d, exist_ok=True)
+        need = ("gClassData_NEW", "gCharacterData", "gEkrPopupEnded", "OnMain", "sPopupSkillStack")
+        if not all(n in self.sym for n in need):
+            return self.check("t3promoall: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        table, chars = self.sym["gClassData_NEW"], self.sym["gCharacterData"]
+        on_map, pending = self.sym["OnMain"] + 1, self.sym["sPopupSkillStack"]
+        eirika, gilliam = 0x01, 0x03  # FE-CLib characters.h
+        # an animated enemy phase (option byte 0x42: 0 is battle animations on): turn 1 ends, the soldiers attack
+        anim_ss = os.path.join(d, "turn2anim.ss")
+        vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0" % (PLAYST + 0x42), "press LEFT", "wait 10", "press A",
+                              "wait 40", "press UP", "wait 10", "press A", "wait 3000", "shot turn2anim.png",
+                              "save " + anim_ss, "r32 %#x" % self.sym["gEkrPopupEnded"]], d)
+        self.shot(os.path.join(d, "turn2anim.png"), "turn 2 after an animated enemy phase")
+        if not self.check("t3promoall: an animated enemy phase ends its popups (gEkrPopupEnded set)",
+                          os.path.exists(anim_ss) and vals == [1], "values %s" % vals):
+            return
+
+        def unit_setup(state, pid, jid, level, exp, items, rank=None):
+            lines = ["load " + state, "w8 %#x 0" % (PLAYST + 0x42),
+                     "w32 %#x %#x" % (UNIT1, chars + 0x34 * (pid - 1)),
+                     "w32 %#x %#x" % (UNIT1 + 4, table + 0x54 * (jid - 1)),
+                     "w8 %#x %d" % (UNIT1 + 8, level), "w8 %#x %d" % (UNIT1 + 9, exp)]
+            lines += ["w16 %#x %#x" % (UNIT1 + 0x1E + 2 * i, items[i] if i < len(items) else 0) for i in range(5)]
+            if rank is not None:
+                lines.append("w8 %#x 31" % (UNIT1 + 0x28 + rank))
+            # unit 2 (Seth): Eirika, so the map keeps its leader, and too heavy (Con) to be rescued
+            if pid != eirika:
+                lines.append("w32 %#x %#x" % (UNIT1 + 0x48, chars))
+            return lines + ["w8 %#x 40" % (UNIT1 + 0x48 + 0x1A)]
+
+        reads = ["r8 %#x" % (UNIT1 + 8), "r8 %#x" % (UNIT1 + 9), "r32 %#x" % (UNIT1 + 4), "r8 %#x" % (UNIT1 + 0x13),
+                 "r32 %#x" % (UNIT1 + 0x0C), "r32 0x02024CB8", "r32 %#x" % pending]
+
+        def verdict(label, vals, want):
+            if len(vals) != len(reads):
+                return self.check("t3promoall: %s runs" % label, False, "values %s" % vals)
+            level, exp, ptr, hp, state, main, left = vals
+            self.check("t3promoall: %s: back on the map, alive, a level-1 %#x with EXP 0, no skill popup pending" %
+                       (label, want),
+                       main == on_map and hp > 0 and not state & 4 and ptr == table + 0x54 * (want - 1) and
+                       level == 1 and exp == 0 and left == 0,
+                       "main loop %#x, HP %d, state %#x, class %#x (want %#x), level %d, EXP %d, pending %d" %
+                       (main, hp, state, (ptr - table) // 0x54 + 1, want, level, exp, left))
+
+        # select, stay, Item (the Master Seal is the only item), the seal, Use; the promotion has one choice
+        seal = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                "press A", "wait 900"]
+        cases = (("Gilliam General", gilliam, 0x0B, 0x68), ("General F", eirika, 0x0C, 0x68),
+                 ("Rogue", eirika, 0x33, 0x67), ("Swordmaster", eirika, 0x15, 0x69), ("Sage", eirika, 0x27, 0x6A))
+        for label, pid, jid, want in cases:
+            name = label.replace(" ", "_").lower()
+            vals = self.run(ROM, unit_setup(anim_ss, pid, jid, 10, 50, [0x0188]) + seal +
+                            ["shot %s_promo.png" % name, "press A", "wait 200", "press A", "wait 2000",
+                             "shot %s_map.png" % name] + reads, d)
+            self.shot(os.path.join(d, name + "_promo.png"), "Master Seal: %s promoted" % label)
+            self.shot(os.path.join(d, name + "_map.png"), "Master Seal: %s back on the map" % label)
+            verdict("Master Seal on a level-10 " + label, vals, want)
+
+        # the automatic promotion after an animated battle: Gilliam (General, Iron Lance) at 19 with 99 EXP attacks
+        fight = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                 "press A", "wait 34", "wait 2400", "shot auto_promo.png", "wait 2000", "shot auto_map.png"]
+        vals = self.run(ROM, unit_setup(turn2_ss, gilliam, 0x0B, 19, 99, [0x2E14], rank=1) + fight + reads, d)
+        self.shot(os.path.join(d, "auto_promo.png"), "automatic promotion (animations): Gilliam")
+        self.shot(os.path.join(d, "auto_map.png"), "automatic promotion (animations): back on the map")
+        verdict("Gilliam (General) reaching 20 in an animated battle", vals, 0x68)
+
+    def test_lvupfont(self, turn2_ss):
+        """The level-up window's numbers (PutManimLevelUpStat, Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c) in the text
+        font, as the promotion's (EkrLvup_InitStatusTextVanilla, EfxLvup.c). Eirika (Mag 3) levels up on the map with
+        battle animations off, and a Master Seal makes her, a level-10 Swordmaster, a Trueblade (Mag still 3). The Mag
+        value's 2x2 tiles must hold the same pixels in both: in the map box at BG0 (5, 9) (the box at (1, 1), the ones
+        column at x + 5), in the promotion's at BG2 sEfxLvupPartsPos[2] + 3. Before, the map box drew vanilla's UI digit
+        (PutNumberOrBlank) in one column. Tried in the default UI style (Tech) and in Vanilla."""
+        d = os.path.join(self.out, "lvupfont")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBG0TilemapBuffer", "gBG2TilemapBuffer", "sEfxLvupPartsPos", "gClassData_NEW")
+        if not all(n in self.sym for n in need):
+            return self.check("lvupfont: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        rom = open(ROM, "rb").read()
+        mag_pos = struct.unpack_from("<H", rom, self.sym["sEfxLvupPartsPos"] - 0x08000000 + 2 * 2)[0] + 3
+        swordmaster = self.sym["gClassData_NEW"] + 0x54 * (0x15 - 1)
+        b36, b37 = self.run(ROM, ["load " + turn2_ss, "r8 %#x" % (PLAYST + 0x46), "r8 %#x" % (PLAYST + 0x47)], d)
+
+        def style(v):
+            return ["w8 %#x %#x" % (PLAYST + 0x46, (b36 & 0x3F) | ((v & 3) << 6)),
+                    "w8 %#x %#x" % (PLAYST + 0x47, (b37 & 0xFC) | (v >> 2))]
+
+        def glyph(tag, cnt_reg, cells):
+            """The 4bpp data of a 2x2 block of a BG's tilemap buffer, from the BG's character base."""
+            tm, vram = os.path.join(d, tag + "_tm.bin"), os.path.join(d, tag + "_vram.bin")
+            if not (os.path.exists(tm) and os.path.exists(vram) and cnt_reg):
+                return b""
+            t, v = open(tm, "rb").read(), open(vram, "rb").read()
+            base = ((cnt_reg[0] >> 2) & 3) * 0x4000
+            return b"".join(v[base + (struct.unpack_from("<H", t, 2 * c)[0] & 0x3FF) * 32:][:32] for c in cells)
+
+        # select, stay, Attack (the first weapon), the soldier, and the fight; or Item, the seal, Use
+        acts = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                "press A"]
+        for name, v in (("Tech", 0), ("Vanilla", 2)):
+            tag = name.lower()
+            cnt0 = self.run(ROM, ["load " + turn2_ss, "w8 %#x 2" % (PLAYST + 0x42), "w8 %#x 99" % (UNIT1 + 9)] +
+                            style(v) + acts + ["wait 460", "shot %s_lvup.png" % tag,
+                                               "dump %#x 0x800 %s_lvup_tm.bin" % (self.sym["gBG0TilemapBuffer"], tag),
+                                               "dump 0x06000000 0x10000 %s_lvup_vram.bin" % tag, "r16 0x04000008"], d)
+            cnt2 = self.run(ROM, ["load " + turn2_ss, "w8 %#x 2" % (PLAYST + 0x42), "w32 %#x %#x" % (UNIT1 + 4, swordmaster),
+                                  "w8 %#x 10" % (UNIT1 + 8), "w8 %#x 50" % (UNIT1 + 9),
+                                  "w16 %#x 0x0188" % (UNIT1 + 0x1E), "w16 %#x 0" % (UNIT1 + 0x20)] +
+                            style(v) + acts + ["wait 920", "shot %s_promo.png" % tag,
+                                               "dump %#x 0x800 %s_promo_tm.bin" % (self.sym["gBG2TilemapBuffer"], tag),
+                                               "dump 0x06000000 0x10000 %s_promo_vram.bin" % tag, "r16 0x0400000C"], d)
+            self.shot(os.path.join(d, tag + "_lvup.png"), "level-up numbers (%s, map)" % name)
+            self.shot(os.path.join(d, tag + "_promo.png"), "promotion numbers (%s)" % name)
+            lvup = glyph(tag + "_lvup", cnt0, (9 * 32 + 5, 9 * 32 + 6, 10 * 32 + 5, 10 * 32 + 6))
+            promo = glyph(tag + "_promo", cnt2, (mag_pos, mag_pos + 1, mag_pos + 32, mag_pos + 33))
+            self.check("lvupfont: %s: the level-up window's Mag 3 is the promotion's glyph (the font's digit)" % name,
+                       len(lvup) == 128 and lvup == promo and any(promo),
+                       "%d of 4 tiles the same" % sum(lvup[i:i + 32] == promo[i:i + 32] for i in range(0, 128, 32)))
 
     def test_banim(self, boot_ss):
         """The custom battle animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event), one
@@ -3244,14 +3384,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
+                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "banim",
-                      "dbgbanim", "mapbox", "gaidenexp")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
+                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3276,6 +3416,10 @@ def main():
                 r.submit((0, 10), s.test_banim, turn2_ss)
             if on("t3promo") and turn2_ss:
                 r.submit((0, 17), s.test_t3promo, turn2_ss)
+            if on("t3promoall") and turn2_ss:
+                r.submit((0, 18), s.test_t3promoall, boot_ss, turn2_ss)
+            if on("lvupfont") and turn2_ss:
+                r.submit((0, 19), s.test_lvupfont, turn2_ss)
             if on("dbgbanim") and turn2_ss:
                 r.submit((0, 11), s.test_dbgbanim, turn2_ss)
             if on("mapbox") and turn2_ss:

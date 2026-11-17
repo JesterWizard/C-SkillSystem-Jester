@@ -4,3 +4,4 @@
 
 #include "Source/BmPopup.lyn.event"
 #include "Source/EfxPopup.lyn.event"
+#include "Source/ClassChgPopup.lyn.event"

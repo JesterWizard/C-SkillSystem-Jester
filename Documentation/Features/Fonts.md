@@ -8,6 +8,7 @@ Pick **one** `CONFIG_FONT_*` in [`include/configs/configs.h`](../../include/conf
 
 - [Introduction](#introduction)
 - [Viable](#viable)
+- [Numbers](#numbers)
 - [Rejected](#rejected)
 - [Code Locations](#code-locations)
 - [TODO](#todo)
@@ -70,6 +71,18 @@ below that as Mother 3's do. Run the script again after changing `Glyph/NarrowFo
 
 `→` (U+2192) is a glyph of its own: `"->"` in a font whose `>` is not an arrow reads badly. `fe8u` has a vanilla-style one (`FontItem_E28692.png`, `FontText_E28692.png`), so every font has it; Mother 3 draws its own (`DRAWN` in its extract script). The arrow messages (`Arrow_ID`, the staff target's "HP 10 → 30"; `MSG_SUPPORT_INCREASE_ARROW`) use it. A font with its own arrow lists it in its `font.fontall.txt` as `→` with the file named by the UTF-8 bytes (`E28692`).
 
+### Numbers
+
+Numbers drawn with `Text_DrawNumber` use the font's digits (laid out per font in `decoding.c`, see Code Locations).
+Numbers drawn with vanilla's `PutNumber`/`PutNumberOrBlank` use vanilla's UI digits (special characters), whatever the
+font. The level-up window without battle animations (`PutManimLevelUpStat`,
+[`MapLvup.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c)) used `PutNumberOrBlank`, so its level and stats kept
+vanilla's digits while the battle animation's level-up box and the promotion's stat box (`EkrLvup_InitStatusTextVanilla`,
+[`EfxLvup.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/EfxLvup.c)) showed the font's (Mother 3's bold digits). It now draws
+them as those do: a 2-tile text with the cursor at 8 and `Text_DrawNumber`, in blue. The stat-gain digits ("+1" to
+"+3") are sprites, the same in both boxes. `smoketest.py --only lvupfont` compares the Mag value's tiles of the two
+boxes in the Tech and Vanilla UI styles (the UI style does not change the digits).
+
 ---
 
 ## Rejected
@@ -98,6 +111,7 @@ Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap
 | FireRed extract | `Fonts/Scripts/extract-poke-firered-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Duel Academy extract | `Fonts/Scripts/extract-duel-academy-font.py` | Native-size sheet → 16x16 `FontText_*` / `FontItem_*`. |
 | Number layout | `Text_DrawNumber` in `Kernel/Wizardry/Utf8/Source/decoding.c` | Per-`CONFIG_FONT_*` digit pitch and alignment. |
+| Level-up window numbers | `PutManimLevelUpStat` in `Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c` | The map level-up window's level and stats, in the font's digits ([Numbers](#numbers)). |
 | Fusion extract | `Fonts/Scripts/extract-metroid-fusion-font.py` | Same pipeline; kept for the rejected sheet only. |
 | Boktai 2 extract | `Fonts/Scripts/extract-boktai-font.py` | Same pipeline; kept for the rejected sheet only. |
 
@@ -114,3 +128,4 @@ Do not add a rejected define to `configs.h`. `Fonts/FontList.txt` may still wrap
 - One font per ROM. There is no runtime toggle.
 - Width is cursor advance in `font.fontall.txt`, not the 16x16 PNG size.
 - Missing punctuation on a custom sheet is filled by vanilla `fe8u`.
+- Screens that draw numbers with vanilla's `PutNumber` (special characters) keep vanilla's digits in every font.

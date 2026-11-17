@@ -248,6 +248,12 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 	if (!UNIT_IS_VALID(unit))
 		return;
 
+	/*
+	 * The skills' popups (gPromotPopupConfigs, ClassChgPostConfirmWaitBanimEnd) name the promoted unit, also for the
+	 * class's const skills below and in the enemy phase
+	 */
+	SetPopupUnit(unit);
+
 	if (gpKernelDesignerConfig->load_skills_through_feb_formatted_list == true)
 		FebList_PromotionAddSkill(unit);
 
@@ -258,29 +264,6 @@ void TryAddSkillPromotion(struct Unit *unit, int jid)
 			AddSkill(unit, sid);
 			PushSkillListStack(sid);
 			SetPopupItem(sid);
-
-			switch (gPlaySt.faction) {
-				case FACTION_BLUE:
-					SetPopupUnit(gActiveUnit);
-					break;
-				case FACTION_RED:
-					SetPopupUnit(GetUnit(gActionData.targetIndex));
-					break;
-				case FACTION_GREEN:
-					SetPopupUnit(GetUnit(gActionData.targetIndex));
-					break;
-				/* This causes problems in the prep screen, plus I don't think we need to concern ourselves with other phases gaining level up skills anyway */
-				// case FACTION_PURPLE:
-				// 	SetPopupUnit(GetUnit(gActionData.targetIndex));
-				// 	break;		
-				default:
-					SetPopupUnit(gActiveUnit);
-					break;
-			};	
-			
-			/* Keeping this here for posterity, but the popup display has been moved to ClassChgPostConfirmWaitBanimEnd */
-			// ProcPtr * phaseToBlock = Proc_Find(ProcScr_ClassChgReal);
-    		// NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, phaseToBlock);
 		}
 	}
 

@@ -141,13 +141,31 @@ void PutManimLevelUpFrame(int actor_id, int x, int y)
 	BG_EnableSyncByMask(BG0_SYNC_BIT + BG1_SYNC_BIT);
 }
 
+/*
+ * The level and the stats are drawn as the battle animation's level-up box and the promotion's draw them
+ * (EkrLvup_InitStatusTextVanilla, EfxLvup.c): with the text font's digits (Text_DrawNumber), in a 2-tile text whose
+ * second tile is the ones column. PutNumberOrBlank drew vanilla's UI digits (special characters), which no
+ * CONFIG_FONT_* changes, so this box kept vanilla's digits while the promotion's showed the font's.
+ * ManimLevelUp_InitMainScreen resets the text font first, so the few texts drawn here fit.
+ */
 LYN_REPLACE_CHECK(PutManimLevelUpStat);
 void PutManimLevelUpStat(int actor_id, int x, int y, int stat_num, bool after_gain)
 {
-	PutNumberOrBlank(
-		TILEMAP_LOCATED(gBG0TilemapBuffer, x + NewMapLvupInfos[stat_num].x + 4, y + NewMapLvupInfos[stat_num].y),
-		TEXT_COLOR_SYSTEM_BLUE,
-		GetManimLevelUpBaseStat(actor_id, stat_num) + (after_gain ? GetManimLevelUpStatGain(actor_id, stat_num) : 0));
+	struct Text text;
+	u16 *tm = TILEMAP_LOCATED(gBG0TilemapBuffer, x + NewMapLvupInfos[stat_num].x + 4, y + NewMapLvupInfos[stat_num].y);
+	int value = GetManimLevelUpBaseStat(actor_id, stat_num) +
+		(after_gain ? GetManimLevelUpStatGain(actor_id, stat_num) : 0);
+
+	if (value < 0 || value >= 100) {
+		PutNumberOrBlank(tm, TEXT_COLOR_SYSTEM_BLUE, value);
+		return;
+	}
+
+	InitText(&text, 2);
+	Text_SetCursor(&text, 8);
+	Text_SetColor(&text, TEXT_COLOR_SYSTEM_BLUE);
+	Text_DrawNumber(&text, value);
+	PutText(&text, tm - 1);
 }
 
 /*
@@ -176,7 +194,7 @@ bool CanUnitPromoteToThirdTier(const struct Unit *unit)
 /*
  * The automatic promotion a unit is due after a level-up, by promotion_on_max_level (an unpromoted unit at the level
  * cap, or a promoted one whose class has a third tier) or promote_trainees_in_chapter (a trainee at 10 or more).
- * Shared by the map level-up box and the animated battle.
+ * Read by PostAction_AutoPromotion, after a battle with or without animations.
  */
 bool AutoPromotionDue(const struct Unit *unit)
 {
@@ -203,17 +221,11 @@ static void StartAutoPromotion(ProcPtr parent, struct Unit *unit)
 }
 
 /*
- * The map level-up writes the new level to the real unit only after the box (TransferStatsandExperience), so it is
- * copied here before the promotion starts.
+ * The map level-up box no longer starts the automatic promotion (PostAction_AutoPromotion does, in both animation
+ * modes): the battle's result is written to the real unit after the box (BattleApplyUnitUpdates, or
+ * TransferStatsandExperience for a misc action's EXP), and that write put back the level, EXP and stats the promotion
+ * had just reset (a Swordmaster promoted to a level-1 Trueblade was a level-20 Trueblade on the map).
  */
-static void StartMapAutoPromotion(struct ManimLevelUpProc *proc)
-{
-	struct Unit *unit = gManimSt.actor[proc->actor_id].unit;
-
-	GetUnit(unit->index)->level = unit->level;
-	StartAutoPromotion(proc, GetUnit(unit->index));
-}
-
 LYN_REPLACE_CHECK(ManimLevelUp_ScrollOut);
 void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 {
@@ -226,18 +238,12 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 	gFaces[0]->yPos = 32 - proc->y_scroll_offset;
 
 	if (proc->y_scroll_offset <= -144)
-	{
-		if (AutoPromotionDue(gManimSt.actor[proc->actor_id].unit))
-			StartMapAutoPromotion(proc);
-
 		Proc_Break(proc);
-	}
 }
 
 /*
  * The player's unit of a battle that levelled it up and whose level is now applied to the real unit, and that is due
- * an automatic promotion. The map path (ManimLevelUp_ScrollOut) already promoted it when the level-up box ran, so its
- * real level is 1 by now and it is not found here.
+ * an automatic promotion.
  */
 static struct Unit *GetBattlePromotee(const struct BattleUnit *bu)
 {
@@ -260,8 +266,9 @@ static struct Unit *GetBattlePromotee(const struct BattleUnit *bu)
 }
 
 /*
- * Post-action entry (gPostActionFuncs): after an animated battle, the player's unit that levelled up (the attacker, or
- * the defender in the enemy phase) starts its automatic promotion. The promotion is a blocking child of the hook proc.
+ * Post-action entry (gPostActionFuncs): after a battle (animated or on the map) or a misc action's EXP, the player's
+ * unit that levelled up (the attacker, or the defender in the enemy phase) starts its automatic promotion. The
+ * promotion is a blocking child of the hook proc.
  */
 bool PostAction_AutoPromotion(ProcPtr parent)
 {
