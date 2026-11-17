@@ -48,7 +48,8 @@ not: Fallen Peer (0x7B) is Lyon's class in two vanilla scenes, Queen 2 (0x76) ha
   `Kernel/Wizardry/ItemSys/IERevamp/Source/IER-extra.c`). Vanilla's promotion screen goes straight to the promotion when
   there is one choice. The other promotion items keep their class lists.
 - **automatically on reaching level 20**, with `promotion_on_max_level` on (`AutoPromotionDue`, the same file), as an
-  unpromoted unit does: after the map level-up box, or after the animated battle.
+  unpromoted unit does: after the battle (with or without battle animations), from the post-action entry
+  `PostAction_AutoPromotion`.
 
 `CanUnitPromoteToThirdTier` is true for a promoted class (`CA_PROMOTED`) whose `gPromoJidLut` choice is the class id
 in its row of `gThirdTierClassPlans` (`Data/ClassData/ThirdTierClasses.c`). It is not "any promoted class with a
@@ -58,6 +59,34 @@ so are a few monsters (Bonewalker Bow, Tarvos, Gargoyle, the Gorgon eggs); they 
 `ApplyUnitPromotion` (`Kernel/Wizardry/Lvup/Source/Promotion.c`) does the rest, as for any promotion: level 1, EXP 0,
 the hidden level adds the level reached, the promotion bonuses, ranks carried over by weapon type, and the class's
 skills.
+
+### The promotion crash (fixed)
+
+Promoting to a third tier reset the game (the title screen came back) once the unit was back on the map, on every
+path: Gilliam made a Marshall with a Master Seal, any General, General F, Rogue, Swordmaster or Sage with a Master
+Seal, and the automatic promotion with battle animations on. It needed an animated battle earlier (any battle, the
+enemy phase's too); the automatic promotion with animations on always had one just before.
+
+- `NewEkrPopup` (`Kernel/Wizardry/PopupRework/Source/EfxPopup.c`) did not clear `gEkrPopupEnded`, as vanilla's does.
+  The animated battle's popups left it set, and the promotion's battle animation (`ekrBattle_WaitForPopup`) ended its
+  own popups at once: the class's skills (`gpConstSkillTable_Job`, two for each third tier) were never shown and stayed
+  on the popup stack.
+- `ClassChgPostConfirmWaitBanimEnd` then started one learned-skill popup for them without its setup: no skill and no
+  popup unit (`gpPopupUnit` NULL). `PoprGetLen_UnitName`'s `Assert(IS_EWRAM_PTR(gpPopupUnit))` failed, and the abort
+  jumps to address 0 (seen with `gbarun`: `NoCashGBAPrintf("[FATAL] ... Assertion failed: IS_EWRAM_PTR(gpPopupUnit)")`
+  from `PoprGetLen_UnitName`, then the BIOS reset vector).
+- Two-choice promotions through the class menu (Armor Knight to General) did not crash in the same tests, and had no
+  skill left pending afterwards, though `gEkrPopupEnded` stayed set; why that path differs was not worked out.
+
+The fix: `NewEkrPopup` clears `gEkrPopupEnded`; `ClassChgPostConfirmWaitBanimEnd`
+(`Kernel/Wizardry/PopupRework/Source/ClassChgPopup.c`, moved out of `MiscFunctions.c`) shows any skill still pending
+through `PopR_SetupLearnSkill`, one popup per skill; `TryAddSkillPromotion` (`Kernel/Wizardry/SkillSys/kernel/LoadSkill.c`)
+sets the popup unit to the promoted unit.
+
+The automatic promotion without battle animations used to start from the map level-up box (`ManimLevelUp_ScrollOut`).
+The battle's result is written to the unit after the box (`BattleApplyUnitUpdates`), which put back the level 20, the
+EXP and the stats the promotion had reset: a level-20 Trueblade (or Great Lord, or General) with 99 EXP. Every
+automatic promotion now starts from `PostAction_AutoPromotion`, after that write.
 
 ---
 
@@ -137,7 +166,8 @@ Names and descriptions are at the end of `Contents/Texts/Source/texts/Districts.
 6. Its class skills in `Data/SkillSys/Source/SkillTable-job.c`, each row in a SID guard.
 7. The promotion: `PromoChoices(from, id, 0)` in `Promotions.event` and the class id in its row of
    `gThirdTierClassPlans` (both, or `CanUnitPromoteToThirdTier` refuses it).
-8. `Tools/cloud/build.sh`, then `python3 Tools/cloud/smoketest.py --only t3promo`.
+8. `Tools/cloud/build.sh`, then `python3 Tools/cloud/smoketest.py --only t3promo t3promoall` (add the class to
+   `test_t3promoall`'s cases).
 
 ---
 
@@ -161,3 +191,11 @@ checks it (`boot: loaded units use gClassData_NEW`).
 `python3 Tools/cloud/smoketest.py --only t3promo` (`test_t3promo`): a Master Seal on a level-10 Swordmaster gives the
 Trueblade at level 1 with EXP 0, the class's SMS id is 0x7D, her standing sprite draws (an OAM entry with her sprite's
 tile, and the Trueblade's frame in VRAM there); a Swordmaster reaching level 20 is promoted, a Swordmaster F is not.
+
+`--only t3promoall` (`test_t3promoall`): turn 1 ends with battle animations on, so the enemy phase's animated battles
+leave `gEkrPopupEnded` set. A Master Seal then promotes Gilliam made a General, a General F, a Rogue, a Swordmaster and
+a Sage; each is back on the map 2000 frames later, alive, a level-1 third tier with EXP 0 and no skill popup pending.
+Last, Gilliam as a General at 19 with 99 EXP attacks with animations on and is promoted to the Marshall the same way.
+Before the fix every case reset the game (the main loop read 0, two skills pending).
+
+`--only autopromo` reads the level again 1500 frames after the automatic promotions: the map path showed 20 and 99.

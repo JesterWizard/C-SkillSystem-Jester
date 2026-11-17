@@ -81,7 +81,7 @@ All runtime behavior is gated behind `gpKernelDesignerConfig->lvup_stat_points` 
 - Each stat can receive only one point until every listed stat has been raised once or the pool is empty. A new round then starts.
 - The EXP bar still plays. The spend list replaces the stat-gain window.
 - Level-up quotes (`talk_on_level_up`) never run, because they are started from `StartManimLevelUp`.
-- In-chapter promotion and trainee promotion that fire from `ManimLevelUp_ScrollOut` do not run while this feature is on. See [Trainee In-Chapter Promotion](TraineeInChapterPromotion.md).
+- In-chapter promotion and trainee promotion start from the post-action entry (`PostAction_AutoPromotion`), not from `ManimLevelUp_ScrollOut`, so they are no longer skipped while this feature is on; that combination has not been tested. See [Trainee In-Chapter Promotion](TraineeInChapterPromotion.md).
 - Non-blue units do not receive points. They also receive no growths if they level up while the config is on, because `UnitLvupCore` is skipped for every faction.
 - Unspendable leftover points (every listed stat already capped) are discarded when the menu closes.
 - Existing saves created while the old per-pid EMS chunk existed will load with a shifted save layout. Use a new save when testing.

@@ -174,11 +174,18 @@ PROC_LABEL(99),
 	PROC_END
 };
 
+/*
+ * As vanilla's, this clears gEkrPopupEnded: ekrBattle_WaitForPopup ends the popups as soon as it is set. Left set by
+ * the battle's own popups, the promotion that follows an animated battle (PostAction_AutoPromotion) ended its popups
+ * before the first one: its weapon ranks and class skills were never shown, and ClassChgPostConfirmWaitBanimEnd
+ * found the skills still pending.
+ */
 LYN_REPLACE_CHECK(NewEkrPopup);
 void NewEkrPopup(void)
 {
 	struct ProcPopupHanlder *proc = Proc_Start(ProcScr_EkrPopupRework, PROC_TREE_3);
 
+	gEkrPopupEnded = false;
 	gpProcEkrPopup = (ProcPtr)proc;
 
 	if (gEkrDistanceType == EKR_DISTANCE_PROMOTION)

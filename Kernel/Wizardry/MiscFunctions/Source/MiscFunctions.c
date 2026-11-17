@@ -4292,22 +4292,6 @@ void PutGMapPIFace(struct GMapPIProc * proc)
     return;
 }
 
-LYN_REPLACE_CHECK(ClassChgPostConfirmWaitBanimEnd);
-void ClassChgPostConfirmWaitBanimEnd(struct ProcClassChgPostConfirm *proc)
-{
-    int game_lock = proc->game_lock;
-
-    if (game_lock == GetGameLock() && SkillPopupHasPendingSkills())
-    {
-        NewPopup_Simple(PopupScr_LearnSkill, SONG_SE_UPDATE, 0x00, proc);
-        Proc_Break(proc);
-    }
-    else if (game_lock == GetGameLock())
-    {
-        Proc_Break(proc);
-    }
-}
-
 //! FE8U = 0x080A0424
 LYN_REPLACE_CHECK(WmSell_OnLoop_MainKeyHandler);
 void WmSell_OnLoop_MainKeyHandler(struct WmSellProc* proc) {
