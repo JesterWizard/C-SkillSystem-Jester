@@ -500,7 +500,6 @@ u8 CanActiveUnitPromote(void);
 #define BackgroundChangeLabel 27
 #define BackgroundExitLabel 28
 #define ForgeLabel 29
-#define BanimViewLabel 30
 #define EndLabel 99 
 
 #define ActionID_Promo 1 
@@ -684,11 +683,6 @@ const struct ProcCmd DebuggerProcCmd[] =
     PROC_REPEAT(ForgeIdle),
     PROC_GOTO(EndLabel),
     
-    PROC_LABEL(BanimViewLabel), // Battle animation viewer (BanimViewer.c)
-    PROC_CALL(StartDebugBanimViewer), // blocks this proc until the viewer ends
-    PROC_YIELD,
-    PROC_GOTO(RestartLabel),
-
     PROC_LABEL(EndLabel), 
     PROC_CALL(ClearActiveUnitStuff),
     PROC_CALL(SaveProcVarsToIdler),
@@ -4570,10 +4564,9 @@ u8 ViewPortraitNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
 }
 
 u8 ViewBanimNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
-	DebuggerProc* proc;
-	proc = Proc_Find(DebuggerProcCmd);
-    Proc_Goto(proc, BanimViewLabel);
-    return MENU_ACT_SKIPCURSOR | MENU_ACT_END | MENU_ACT_SND6A | MENU_ACT_CLEAR;
+    /* the viewer opens beside the menu, which stays drawn and is blocked while it runs */
+    StartDebugBanimViewer(menu);
+    return MENU_ACT_SND6A;
 }
 
 u8 ViewTrapNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {

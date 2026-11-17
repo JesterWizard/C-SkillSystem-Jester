@@ -5,25 +5,37 @@
 #include "bmlib.h"
 #include "feb-compat.h"
 #include "bmudisp.h"
+#include "mu.h"
 
 /*
- * Debugger, "Battle anim" (VeslyDebugger_Installer.event, page 3): a screen of its own with one platform on the left
- * and a battle animation on it, its ID and the character's name above. Up and down step through the characters (each
- * in their default class, then every character-and-class row of CustomAnimeTable), L and R by ten; A switches between
- * the normal attack and the critical; B goes back to the map.
+ * Debugger, "Battle anim" (VeslyDebugger_Installer.event, page 3): a panel on the left of the map, beside the debugger's
+ * menu (which stays open on the right, blocked while the viewer runs), with one platform in it and a battle animation
+ * on the platform, facing left as the player's does in battle, and its ID and the character's name above. Up and down
+ * step through the characters (each in their default class, then every character-and-class row of CustomAnimeTable), L
+ * and R by ten; A switches between the normal attack and the critical; B goes back to the menu.
  *
  * The animation runs on the game's mini battle-animation engine, the one the class reel on the title screen uses
  * (ClassInfoDisplay_Init, FE8U 0x080B37FC): the same AnimBuffer, buffers and platform, at the same addresses. They are
- * battle-animation work RAM, free outside a battle. No spell effects: the class reel's spell buffers reach map RAM.
+ * battle-animation work RAM, free outside a battle. The viewer's own data is in gBanimScrLeft (0x0200F1C8..0x02011BC8),
+ * the battle-script buffer, also free on the map: the list at 0x0200F200, the label text at 0x0200F500, and BG0 and BG1's
+ * tilemaps backed up at 0x0200F600 and 0x0200FE00.
+ *
+ * A mage or staff user casts, but no spell is run: the class reel's spell buffer (sViewMagicFx) has magicFuncIdx 0 (the
+ * class reel's Dummy spell, which does nothing), so the cast animation plays without a spell and the attack goes on.
  */
 
 /* The class reel's (gOpInfoData and its buffers, gUnk_Opinfo_0201DB00) */
 #define sViewAnim     ((struct AnimBuffer *)0x02000000)
 #define sViewMagicFx  ((struct AnimMagicFxBuffer *)0x0200A2D8)
 #define sViewPlatform ((struct BanimUnkStructComm *)0x0201DB00)
-/* The list, after the class reel's buffers (battle-animation work RAM too) */
-#define sViewEntries  ((struct ViewEntry *)0x0200CB00)
-#define sViewText     ((struct Text *)(0x0200CB00 + 2 * VIEW_MAX_ENTRIES))
+/*
+ * The viewer's own work RAM, in the battle-script buffer gBanimScrLeft (0x0200F1C8..0x02011BC8): free on the map.
+ * The list, the label text, and the BG0 and BG1 tilemaps the viewer's panel covers (put back on the way out).
+ */
+#define sViewEntries  ((struct ViewEntry *)0x0200F200)
+#define sViewText     ((struct Text *)0x0200F500)
+#define sViewBg0Backup ((u16 *)0x0200F600)
+#define sViewBg1Backup ((u16 *)0x0200FE00)
 
 /* The mini engine and the class reel's platform: FE-CLib's names, what they do */
 #define MiniAnimRestart    sub_805A7B4 /* starts the mode in roundType again */
@@ -42,12 +54,20 @@ void PutNumberHex(u16 *tm, int color, int number); /* C_Code.c */
 #define ROUND_CRIT   1
 #define ROUND_STAND  6
 
-#define VIEW_X 128 /* the animation's position, in the engine's space (the class reel's is x 260, on the right) */
+#define VIEW_X 104 /* the animation's position, in the engine's space (the class reel's is x 260, on the right) */
 #define VIEW_Y 88
-#define PLATFORM_X 104
+#define PLATFORM_X 80 /* with VIEW_X: the platform's box is x 41..129 on screen, centred on the window (x 84) */
 #define PLATFORM_Y 104
 
+/*
+ * While the viewer is up, BG1 (the panel and the menu's window) and the map's BG2 are both at this priority, so the
+ * panel is over the map (BG1 is the lower layer number). The animation (priority 2) and the platform (3) are over both:
+ * a sprite is drawn over a BG of the same priority.
+ */
+#define VIEW_BG_PRIO 3
 #define VIEW_MAX_ENTRIES 0x180
+/* frames before the viewer reads keys: the A that opened it is still in the key state for a few frames (counted in timer) */
+#define VIEW_SETTLE 12
 
 struct ViewEntry {
 	u8 pid, jid;
@@ -60,8 +80,9 @@ struct ProcBanimViewer {
 	u16 index;
 	u8 crit;
 	u8 timer;
-	u16 backdrop;
-	s16 camera_x, camera_y; /* the map's, put back on the way out */
+	u16 chr_counter; /* the font's tile allocator, put back on the way out */
+	u8 hidden_mus; /* the bits of the MU slots hidden while the viewer is up (the selected unit's MU too) */
+	u8 bg1_priority, bg2_priority; /* the panel's and the map's BG priorities, put back on the way out */
 };
 
 static const struct BattleAnimDef *ViewAnimDef(int pid, int jid, bool *custom)
@@ -160,6 +181,23 @@ static void ViewBuildList(struct ProcBanimViewer *proc)
 	}
 }
 
+/* Sets a w x h rect of a tilemap, from (x, y), to 0 (FE-CLib has no helper for it) */
+static void ViewFillRect(u16 *tm, int x, int y, int w, int h)
+{
+	int i, j;
+
+	for (j = 0; j < h; j++) {
+		for (i = 0; i < w; i++)
+			tm[TILEMAP_INDEX(x + i, y + j)] = 0;
+	}
+}
+
+/* The panel's interior on BG0 (its frame is on BG1): the labels are drawn over it */
+static void ViewClearPanel(u16 *tm)
+{
+	ViewFillRect(tm, 1, 1, 19, 18);
+}
+
 static void ViewDrawLabel(struct ProcBanimViewer *proc)
 {
 	const struct ViewEntry *ent = &sViewEntries[proc->index];
@@ -168,7 +206,7 @@ static void ViewDrawLabel(struct ProcBanimViewer *proc)
 	bool custom;
 	int anim = ViewAnimId(ViewAnimDef(ent->pid, ent->jid, &custom));
 
-	BG_Fill(gBG0TilemapBuffer, 0);
+	ViewClearPanel(gBG0TilemapBuffer);
 	ClearText(&th[0]);
 	ClearText(&th[1]);
 	ClearText(&th[2]);
@@ -190,43 +228,12 @@ static void ViewDrawLabel(struct ProcBanimViewer *proc)
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
-/*
- * A custom animation stores one OAM for both sides (Tools/banim/feditor_dump.py) and leaves the left one to
- * AutoGenLeftOAM, which only hooks the full battle's UpdateBanimFrame. The mini engine has just decompressed that OAM
- * for the left side: mirror it the way AutoGenLeftOAM does (every entry but the end codes and the special ones gets
- * the h-flip bit and x = -x - width).
- */
-static const u8 sObjWidth[3][4] = {
-	{ 8, 16, 32, 64 },  /* square */
-	{ 16, 32, 32, 64 }, /* wide */
-	{ 8, 8, 16, 32 },   /* tall */
-};
-
-static void ViewMirrorOam(int anim)
+/* The panel on the left: the map's BG1 is put back, and the frame drawn on it */
+static void ViewDrawPanel(void)
 {
-	const struct BattleAnim *banim = &banim_data[anim];
-	u8 *oam = sViewAnim->unk_24;
-	int size, k;
-
-	if (banim->oam_l != banim->oam_r)
-		return;
-
-	size = *(const u32 *)banim->oam_r >> 8;
-	for (k = 0; k + 12 <= size; k += 12) {
-		u16 a0 = oam[k] | (oam[k + 1] << 8);
-		u16 a1 = oam[k + 2] | (oam[k + 3] << 8);
-		s16 x = oam[k + 6] | (oam[k + 7] << 8);
-		int shape = a0 >> 14, sz = a1 >> 14;
-
-		if (oam[k] == 1 || a1 == 0xFFFF || shape > 2)
-			continue;
-		a1 |= 0x1000;
-		x = -x - sObjWidth[shape][sz];
-		oam[k + 2] = a1;
-		oam[k + 3] = a1 >> 8;
-		oam[k + 6] = x;
-		oam[k + 7] = x >> 8;
-	}
+	CpuCopy16(sViewBg1Backup, gBG1TilemapBuffer, 0x800);
+	DrawUiFrame(gBG1TilemapBuffer, 0, 0, 21, 20, TILEREF(0, 0), 0);
+	BG_EnableSyncByMask(BG1_SYNC_BIT);
 }
 
 /* (Re)starts the current entry's animation, attacking */
@@ -240,7 +247,6 @@ static void ViewLoadAnim(struct ProcBanimViewer *proc)
 	sViewAnim->charPalId = ViewCharaPal(ent->pid, ent->jid, custom);
 	sViewAnim->roundType = proc->crit ? ROUND_CRIT : ROUND_ATTACK;
 	MiniAnimRestart(sViewAnim);
-	ViewMirrorOam(sViewAnim->animId);
 	proc->timer = 0;
 }
 
@@ -253,38 +259,42 @@ static void BanimViewer_Init(struct ProcBanimViewer *proc)
 
 static void BanimViewer_Setup(struct ProcBanimViewer *proc)
 {
-	struct AnimMagicFxBuffer *fx = sViewMagicFx;
 	struct BanimUnkStructComm *pf = sViewPlatform;
+	struct AnimMagicFxBuffer *fx = sViewMagicFx;
+	int i;
 
-	BMapDispSuspend();
 	/*
-	 * The map still draws its units' sprites (whose tiles the animation and the platform now use): move the camera
-	 * far off the map, and they are all off the screen.
+	 * The map stays on screen, the debugger's menu beside the panel. BG0 and BG1 are backed up for BanimViewer_End.
+	 * The map's unit sprites are hidden by PutUnitSpritesOam while this proc runs (DebugBanimViewer_IsOpen).
 	 */
-	proc->camera_x = gBmSt.camera.x;
-	proc->camera_y = gBmSt.camera.y;
-	gBmSt.camera.x = 0x4000;
-	gBmSt.camera.y = 0x4000;
-	BG_Fill(gBG0TilemapBuffer, 0);
-	BG_Fill(gBG1TilemapBuffer, 0);
-	BG_Fill(gBG2TilemapBuffer, 0);
-	BG_Fill(gBG3TilemapBuffer, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT | BG2_SYNC_BIT | BG3_SYNC_BIT);
-	BG_SetPosition(BG_0, 0, 0);
+	CpuCopy16(gBG0TilemapBuffer, sViewBg0Backup, 0x800);
+	CpuCopy16(gBG1TilemapBuffer, sViewBg1Backup, 0x800);
 
-	proc->backdrop = gPaletteBuffer[0];
-	gPaletteBuffer[0] = 0;
-	EnablePaletteSync();
-	SetDispEnable(TRUE, FALSE, FALSE, FALSE, TRUE);
+	/* the moving-unit sprites (the selected unit's, too) are hidden; End shows the ones it hid */
+	proc->hidden_mus = 0;
+	for (i = 0; i < MU_MAX_COUNT; i++) {
+		struct MuProc *mu = GetMu(i);
 
-	/* the text from scratch, as the debugger's other screens do (SomeMenuInit) */
-	ResetTextFont();
-	SetTextFontGlyphs(0);
-	SetTextFont(0);
-	ResetText();
+		if (mu) {
+			HideMu(mu);
+			proc->hidden_mus |= 1 << i;
+		}
+	}
+
+	/* the font's tiles are the panel's text now: its allocator goes back on the way out */
+	proc->chr_counter = gActiveFont->chr_counter;
 	InitText(&sViewText[0], 8);
 	InitText(&sViewText[1], 8);
 	InitText(&sViewText[2], 5);
+
+	/* the panel on the left: the frame on BG1, its interior cleared on BG0 for the labels */
+	ViewFillRect(gBG0TilemapBuffer, 0, 0, 21, 20);
+	ViewDrawPanel();
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	proc->bg1_priority = BG_GetControlBuffer(BG_1)->priority;
+	proc->bg2_priority = BG_GetControlBuffer(BG_2)->priority;
+	BG_SetPriority(BG_1, VIEW_BG_PRIO);
+	BG_SetPriority(BG_2, VIEW_BG_PRIO);
 
 	NewEfxAnimeDrvProc();
 
@@ -302,6 +312,7 @@ static void BanimViewer_Setup(struct ProcBanimViewer *proc)
 	NewPlatform(pf);
 	PlatformSetPos(pf, PLATFORM_X, PLATFORM_Y, 400, PLATFORM_Y);
 
+	/* no spell: magicFuncIdx 0 is the class reel's Dummy, so the cast plays and the attack goes on */
 	fx->magicFuncIdx = 0;
 	fx->xOffsetBg = fx->yOffsetBg = 0;
 	fx->xOffsetObj = fx->yOffsetObj = 0;
@@ -334,6 +345,11 @@ static void BanimViewer_Loop(struct ProcBanimViewer *proc)
 {
 	u16 keys = gKeyStatusPtr->repeatedKeys;
 	int step = 0;
+
+	if (proc->timer < VIEW_SETTLE) {
+		proc->timer++;
+		return;
+	}
 
 	if (gKeyStatusPtr->newKeys & (B_BUTTON | START_BUTTON)) {
 		m4aSongNumStart(0x6B);
@@ -375,47 +391,47 @@ static void BanimViewer_Loop(struct ProcBanimViewer *proc)
 
 static void BanimViewer_End(struct ProcBanimViewer *proc)
 {
+	int i;
+
 	MiniAnimEnd(sViewAnim);
 	EndPlatform(sViewPlatform);
 	EndEfxAnimeDrvProc();
 
-	BG_Fill(gBG0TilemapBuffer, 0);
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
-	gPaletteBuffer[0] = proc->backdrop;
-	EnablePaletteSync();
+	CpuCopy16(sViewBg0Backup, gBG0TilemapBuffer, 0x800);
+	CpuCopy16(sViewBg1Backup, gBG1TilemapBuffer, 0x800);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+	gActiveFont->chr_counter = proc->chr_counter;
+	BG_SetPriority(BG_1, proc->bg1_priority);
+	BG_SetPriority(BG_2, proc->bg2_priority);
+	for (i = 0; i < MU_MAX_COUNT; i++) {
+		struct MuProc *mu = GetMu(i);
 
-	gBmSt.camera.x = proc->camera_x;
-	gBmSt.camera.y = proc->camera_y;
-	BMapDispResume();
-	RefreshBMapGraphics();
-	SetDispEnable(TRUE, TRUE, TRUE, TRUE, TRUE);
+		if (mu && (proc->hidden_mus & (1 << i)))
+			ShowMu(mu);
+	}
 	LoadObjUIGfx();
 	ApplyUnitSpritePalettes();
-	ForceSyncUnitSpriteSheet();
-	RefreshEntityBmMaps();
-	RenderBmMap();
 	RefreshUnitSprites();
+	ForceSyncUnitSpriteSheet();
 }
 
 static const struct ProcCmd ProcScr_BanimViewer[] = {
 	PROC_NAME("DebugBanimViewer"),
 	PROC_CALL(BanimViewer_Init),
-	PROC_CALL(StartMidLockingFadeToBlack),
-	PROC_YIELD,
 	PROC_CALL(BanimViewer_Setup),
-	PROC_CALL(StartMidLockingFadeFromBlack),
-	PROC_YIELD,
 	PROC_REPEAT(BanimViewer_Loop),
-	PROC_CALL(StartMidLockingFadeToBlack),
-	PROC_YIELD,
 	PROC_CALL(BanimViewer_End),
-	PROC_CALL(StartMidLockingFadeFromBlack),
-	PROC_YIELD,
 	PROC_END,
 };
 
-/* The debugger proc waits for it (C_Code.c, BanimViewLabel) */
+/* The debugger's menu starts it (C_Code.c, ViewBanimNow) */
 void StartDebugBanimViewer(ProcPtr parent)
 {
 	Proc_StartBlocking(ProcScr_BanimViewer, parent);
+}
+
+/* The viewer is on screen: the map's unit sprites are not drawn (MirrorSprites.c, PutUnitSpritesOam) */
+bool DebugBanimViewer_IsOpen(void)
+{
+	return Proc_Find(ProcScr_BanimViewer) != NULL;
 }

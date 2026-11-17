@@ -222,24 +222,31 @@ usual way (every part in the BIOS's LZ77, both OAMs):
 
 ## Viewing in Game
 
-The debugger (B on the map) has **Battle anim** on its page 3: a black screen with one platform on the left and a
-battle animation attacking on it, with the animation's ID, the character's name and the class above, and Normal or
-Critical below. It opens on the selected unit, in its class if the list has it.
+The debugger (B on the map) has **Battle anim** on its page 3. It opens beside the debugger's menu, which stays on the
+right and is blocked while the viewer runs: the map shows around both, and a window panel on the left holds one platform
+with a battle animation attacking on it, the animation's ID, the character's name and the class above, and Normal or
+Critical below. Every animation faces left, as the player's does in battle (its right-side OAM, the one the mini engine
+plays with `state2` set). It opens on the selected unit, in its class if the list has it.
 
 - **Up/Down** step through the list: every character in their default class, each followed by their
   `CustomAnimeTable` rows in other classes (so every custom animation is on it). **L/R** go ten at a time.
 - **A** switches between the normal attack and the critical.
-- **B** goes back to the map and the debugger's menu.
+- **B** closes the viewer and goes back to the debugger's menu, as it was.
 
 The animation shown is the first weapon type in the entry's list that isn't unarmed, with the character palette when
-the animation is the class's own. No spell effects (a mage casts without the spell).
+the animation is the class's own. Mages and staff users cast with no spell shown: the class reel's spell for their weapon type is not run
+(`magicFuncIdx` 0, the class reel's Dummy), so the cast animation plays and the attack goes on. BG1 and the map's BG2
+are at priority 3 while the viewer is up, so the panel and the menu window are over the map and the animation and the
+platform (priority 2 and 3) are over both. On leaving, the BG priorities and the BG0/BG1 tilemaps are put back.
 
 It runs on the game's mini battle-animation engine, the one the class reel on the title screen uses
 (`ClassInfoDisplay_Init`), with that screen's `AnimBuffer`, buffers and platform at the same addresses (battle-animation
-work RAM, free outside a battle). Two things the full battle does are done here by hand: the left OAM of a custom
-animation is mirrored from the right one after each load (AutoGenLeftOAM only hooks the full battle), and the map
-camera is moved off the map while the screen is up, so the map's unit sprites, whose tiles the animation uses, aren't
-drawn. The code is `Kernel/Wizardry/VeslyDebugger/BanimViewer.c`.
+work RAM, free outside a battle). The viewer's own data sits in the battle-script buffer (`gBanimScrLeft`, also free on
+the map). While the viewer is up the map's unit sprites are hidden: `PutUnitSpritesOam` skips them, as it does while the chatlog
+is up (`DebugBanimViewer_IsOpen`, `Kernel/Wizardry/MirrorMapSprites/MirrorSprites.c`), and the moving-unit sprites (the
+selected unit's too) are hidden with `HideMu` and shown again with `ShowMu` on the way out. BG0 and BG1 are backed up when it opens and put back when it closes; the font's tile allocator is put back too. BG1 and the
+map's BG2 are set to priority 3 while it is up (the panel over the map), and both are restored on the way out.
+The code is `Kernel/Wizardry/VeslyDebugger/BanimViewer.c`.
 
 ---
 

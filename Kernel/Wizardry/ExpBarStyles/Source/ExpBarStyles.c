@@ -76,10 +76,11 @@ struct UiStyleOption {
 	u8 exp_bar;
 };
 
+/* Row 0 is the default (a zeroed config): Tech */
 static const struct UiStyleOption sUiStyles[] = {
-	{ "Vanilla",       "The original windows and EXP bar.",   0,  EXP_BAR_VANILLA },
-	{ "Wood",          "Wooden planks. EXP: a potion vial.",  4,  EXP_BAR_VIAL },
 	{ "Tech",          "Neon glass panels. EXP: LED bars.",   5,  EXP_BAR_TECH },
+	{ "Wood",          "Wooden planks. EXP: a potion vial.",  4,  EXP_BAR_VIAL },
+	{ "Vanilla",       "The original windows and EXP bar.",   0,  EXP_BAR_VANILLA },
 	{ "Royal",         "Velvet and gold. EXP: rubies.",       6,  EXP_BAR_GEMS },
 	{ "Stained Glass", "Leaded glass. EXP: a starry sky.",    7,  EXP_BAR_STARS },
 	{ "Paper",         "Paper cutouts. EXP: a slim bar.",     8,  EXP_BAR_MINIMAL },

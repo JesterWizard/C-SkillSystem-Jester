@@ -80,6 +80,12 @@ Uses are tracked in [ThreeHouses.c](../../Kernel/Wizardry/GaidenMagic/Source/Thr
 
 > Changing the suspend layout makes older suspend saves load wrong uses. Start a chapter fresh after updating.
 
+## EXP
+
+- B.Mag (attack spells) gives normal combat EXP, the same as a weapon attack with the same units: `BattleApplyExpGains()`, called from `ActionGaidenMagicCombat()` in [MagAction.c](../../Kernel/Wizardry/GaidenMagic/Source/MagAction.c). Test `test_gaidenexp` in [smoketest.py](../../Tools/cloud/smoketest.py): Fimbulvetr gives +10 on a hit and +32 on a kill, as a normal Attack does.
+- W.Mag (staff spells) gives staff EXP: `BattleApplyItemExpGains()` (from `BattleApplyItemEffect()`) calls `GetBattleUnitStaffExpRework()`, which reads `StaffEXP()` of the spell in [BattleExp.c](../../Kernel/Wizardry/BattleSys/Source/BattleExp.c) when `modular_staff_exp` is set. Heal gives 15 and Mend 20 (the table's values).
+- No W.Mag spell deals damage. The staves in `gGaidenMagicUsesList` are heals, status, warp, unlock or utility staves; Latona's effect (`ExecLatona`) targets allies (`MakeTargetListForLatona`). A W.Mag cast is never combat, so it always takes the staff path above.
+
 # Limitations
 - `B.Mag` can only support weapons.
 - `B.Mag` supoorts non-magic weapons under the configuration of `CONFIG_GAIDEN_MAGIC_MUST_BE_MAGIC`.

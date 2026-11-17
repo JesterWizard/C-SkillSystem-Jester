@@ -1034,8 +1034,11 @@ void ApplyMapBattleInfoStylePalette(struct Unit *unit, int palId)
 	int id = GetUI_id();
 	int faction, i;
 
-	if (id > 0 && id < (int)ARRAY_COUNT(sMapBattleBoxImg) && sMapBattleBoxImg[id])
+	if (id > 0 && id < (int)ARRAY_COUNT(sMapBattleBoxImg) && sMapBattleBoxImg[id]) {
 		Decompress(sMapBattleBoxImg[id], (void *)(0x06000020 + GetBackgroundTileDataOffset(1)));
+		/* the style's 32 tiles end on tile 0x20, the digits' first tile ("0"): load the digits again */
+		UncompMapBattleBoxNumGfx(0x20);
+	}
 
 	if (id == 0 || id == 3 || !unit)
 		return;

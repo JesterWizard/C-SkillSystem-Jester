@@ -164,7 +164,8 @@ struct PlaySt_OptionBits {
     u32 debugControlGreen:2; // 2
 
     u32 debugControlPurple: 2;
-    u32 unk43_4:3; // I'm not sure if reducing this from 5 -> 3 has negative implications
+    u32 recap_off:1; /* Kernel/Wizardry/Recap: 0 = ON (shown), 1 = OFF */
+    u32 unk43_5:2; // I'm not sure if reducing this from 5 -> 3 has negative implications
 
     // u8  unk44[0x48 - 0x44];
 
@@ -191,7 +192,7 @@ struct PlaySt_OptionBits {
     u32 real_time_interval: 2; /* 0=1s, 1=2s, 2=3s, 3=5s */
     u32 achievements: 1;       /* 0 = ON, 1 = OFF */
     u32 show_true_2rn: 1;      /* 0 = ON, 1 = OFF; show true 2RN hit rates */
-    u32 exp_bar_style: 4;      /* Kernel/Wizardry/ExpBarStyles: 0 = vanilla */
+    u32 exp_bar_style: 4;      /* Kernel/Wizardry/ExpBarStyles: a row of sUiStyles; 0 = Tech, 2 = Vanilla */
 
     u32 map_colors: 2;         /* Kernel/Wizardry/MapColors: 0 vanilla, 1 vivid, 2 deep */
     u32 chapter_intro: 4;      /* Kernel/Wizardry/ChapterIntroStyles: style + 5 * background */

@@ -6,6 +6,8 @@
 What it checks:
   boot        a new game reaches the prologue map: chapter 0, Eirika on the map, the screen drawn.
   statscreen  R on Eirika opens the stat screen; B closes it and the map comes back.
+  promosms    the stat screen's Promotions page for Seth (no unit_promotions row) put in the Cavalier's class: a platform
+              and a map sprite for each of the class's two promotion options, beside their names (OAM at x 99 and 108).
   <district>  for Serafew, Port Kiris, Caer Pelyn and Jehanna Hall: a test ROM starts a new game in the district; Eirika
               walks to every spot in its events/traps.c (fishing, River Crossing, Tower Stack, guild board); A opens
               the spot's screen and B brings the map back. River Crossing and Tower Stack also check their state in RAM.
@@ -46,6 +48,8 @@ What it checks:
               same district chunks.
   recap       a game save keeps the last chapter's recap (the prologue's opening, a death and a recruit); Restart
               Chapter shows it in greyscale, A steps through it, START skips it and the chapter goes on.
+  recapoff    the Options screen's Recap row off (gPlaySt.config.recap_off, bit 5 of PLAYST + 0x43): a game save with the
+              same recap pending loads with no recap; the chapter goes on at once.
   introband   the chapter intro's save-tail share (gChapterIntroExtra) survives a game save: off after a save and
               a reset, with the share's magic; a new game starts it on.
   gallery     the prologue's opening unlocks two CGs; Extras > Gallery shows its rows, opens an unlocked CG full
@@ -62,8 +66,10 @@ What it checks:
               in a free skill slot, the fight hurts the soldier, and with 99 EXP she levels up. Her level-up quote's
               portrait is the expression its tier asks for ([Sad] poor, [Happy] great) when the table has one.
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
-              (a test ROM maps her sad portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
+              (a test ROM maps her angry portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
+  mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
+              digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
               badge shares OBJ palette 15); after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
@@ -103,9 +109,9 @@ What it checks:
               Chapter 2 follows, not the prologue.
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
-in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen,
+in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-lvupanim, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -190,6 +196,7 @@ BATTLE_TARGET = 0x0203A56C
 GFACES = 0x03004980
 EVENT_SLOTS = 0x030004B8
 EIRIKA_PORTRAIT = 0x02
+EXPRESSION_ANGRY = 2  # include/kernel/portrait-expressions.h
 EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED, EXPRESSION_DETERMINED = 3, 4, 5, 6  # include/kernel/portrait-expressions.h
 BM_MAP_UNIT = 0x0202E4D8
 CH18_PAL_ANIM = 84  # Chapter 18's map palette animation id (gChapterDataTable, +10)
@@ -356,6 +363,42 @@ class Smoke:
         self.shot(b, "stat screen")
         self.check("statscreen: R opens it", self.diff(a, b) > 25, "change %.0f" % self.diff(a, b))
         self.check("statscreen: B returns to the map", self.same_screen(a, c), "change %.0f" % self.diff(a, c))
+
+    def test_promosms(self, boot_ss):
+        """The Promotions page's map sprites for a unit with no unit_promotions row. Seth (no row) is put in RAM in the
+        Cavalier's class (a test-only write: his class pointer), so his options come from the class (gPromoJidLut:
+        Paladin and Great Knight). The page draws a platform (OAM x 99, y 41 and 82: the page's 35 and 76 plus the
+        platform's offset) and a unit sprite (OAM x 108, y 19 and 60: the page's y 35 and 76, less the sprite's 16) for
+        each option, and none for the third. Eirika's row is not used here."""
+        d = os.path.join(self.out, "promosms")
+        os.makedirs(d, exist_ok=True)
+        if "gClassData" not in self.sym or "gStatScreen" not in self.sym:
+            return self.check("promosms: the class table and the stat screen exist", False)
+        # gClassData entries are 0x54 bytes, from class 1; the Cavalier is class 5. Its number byte is at +4.
+        cavalier = self.sym["gClassData"] + 0x54 * (5 - 1)
+        with open(ROM, "rb") as f:
+            rom = f.read()
+        if rom[cavalier - 0x08000000 + 4] != 5:
+            return self.check("promosms: the Cavalier's class data", False, "number %d" % rom[cavalier - 0x08000000 + 4])
+        seth = UNIT1 + 0x48
+        lines = ["load " + boot_ss, "wait 30", "press UP", "wait 30", "w32 %#x %#x" % (seth + 4, cavalier),
+                 "press R", "wait 60"]
+        lines += ["press RIGHT", "wait 60"] * 5
+        lines += ["r8 %#x" % self.sym["gStatScreen"], "shot promosms.png"]
+        lines += ["r16 %#x" % (OAM + 8 * i + k) for i in range(128) for k in (0, 2)]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "promosms.png"), "Promotions, Seth as a Cavalier")
+        if len(vals) != 1 + 256:
+            return self.check("promosms: the stat screen opens", False, "values %d" % len(vals))
+        page, oam = vals[0], vals[1:]
+        self.check("promosms: the Promotions page is up", page == 5, "page %d" % page)
+        entries = [(oam[2 * i] & 0xFF, oam[2 * i + 1] & 0x1FF) for i in range(128)]
+        units = sorted(y for y, x in entries if x == 108 and y in (19, 60, 100))
+        plats = sorted(y for y, x in entries if x == 99 and y in (41, 82, 122))
+        self.check("promosms: a map sprite for each of the two options, at OAM y 19 and 60", units == [19, 60],
+                   "unit sprites at y %s, platforms at y %s" % (units, plats))
+        self.check("promosms: a platform beside each option (y 41 and 82), none for a third", plats == [41, 82],
+                   "platforms at y %s" % plats)
 
     def district_rom(self, name, d):
         """A test ROM whose new game starts in the district (its map, tileset and events in chapter row 0), with its
@@ -1360,6 +1403,27 @@ class Smoke:
             self.check("recap: the earlier chapters come back from the game save", vals[5:] == [0x31484352, 1],
                        "history magic, chapter %s" % vals[5:])
 
+    def test_recapoff(self):
+        """Recap OFF (Kernel/Wizardry/Recap, Options > Recap: gPlaySt.config.recap_off). The config is at PLAYST + 0x40
+        and recap_off is bit 5 of PLAYST + 0x43 (the first bit of the old unk43_4; the byte is 0 after a new game, see
+        test_recap). The same recap as test_recap is pending in the save, but Recap_PostSaveMenu checks the option: after
+        the reload no recap shows, gRecap.pending is 0 and the chapter goes on. The option bit comes back from the save."""
+        if "gRecap" not in self.sym:
+            return self.check("recapoff: no recap", False, "no gRecap symbol")
+        g = self.sym["gRecap"]
+        writes = ["w8 %#x 2" % (g + 7), "w8 %#x 2" % (g + 8), "w8 %#x 3" % (g + 9), "w8 %#x 2" % (g + 0xA),
+                  "w8 %#x 3" % (g + 0xB), "w8 %#x 0x1D" % (g + 0xC), "w8 %#x 0x1D" % (g + 0xD),
+                  "w8 %#x 0x20" % (PLAYST + 0x43)]
+        restore = ["press A", "wait 200", "press A", "wait 300",
+                   "r8 %#x" % (g + 0x20), "r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x43)]
+        _, _, vals = self.round_trip("recapoff", "gEmsSavChunks", DEBUG_SAVE, restore, [], writes)
+        if not self.check("recapoff: with Recap OFF, loading a game save shows no recap",
+                          len(vals) == 3 and vals[0] == 0 and vals[1] == 0,
+                          "pending %s, chapter %s" % (vals[0:1], vals[1:2])):
+            return
+        self.check("recapoff: the option bit comes back from the game save", vals[2] & 0x20 == 0x20,
+                   "PLAYST + 0x43 = %s" % (hex(vals[2]) if len(vals) > 2 else "?"))
+
     def test_introband(self):
         """Chapter intro styles (Kernel/Wizardry/ChapterIntroStyles, Documentation/Features/ChapterIntroStyles.md):
         the chapter intro's save-tail share (gChapterIntroExtra) is written off before the debugger's game
@@ -1855,42 +1919,127 @@ class Smoke:
                        side is not None and pal_vals[side] == 0xFFFF,
                        "gBanimUniquePal %s" % ["%#x" % v for v in pal_vals])
 
+    def test_gaidenexp(self, turn2_ss):
+        """Gaiden magic EXP (Documentation/Features/GaidenMagic.md, "EXP"). Eirika (level 1, no skills) on turn 2 next to
+        two soldiers, each run from the same state: a normal Attack with her Rapier gives the reference combat EXP
+        (a hit: +10, a kill: +32). B.Mag Fimbulvetr (Anima rank in RAM) must give the same combat EXP, hit or kill. W.Mag
+        Heal (Seth at 5 HP) gives StaffEXP(Heal) = 15 and Mend 20. Each run's EXP is read before and after the action."""
+        d = os.path.join(self.out, "gaidenexp")
+        os.makedirs(d, exist_ok=True)
+        enemy = lambda hp: sum((["w8 %#x %d" % (UNIT_RED + 0x48 * k + 0x12, 50),
+                                 "w8 %#x %d" % (UNIT_RED + 0x48 * k + 0x13, hp)] for k in range(2)), [])
+        menu = ["wait 30", "press A", "wait 30", "press A", "wait 40"]  # Eirika's menu, the cursor on Attack
+        attack = ["press A", "wait 40", "press A", "wait 40", "press A", "wait 60"]
+        bmag = ["press DOWN", "wait 10", "press A", "wait 40", "press A", "wait 40", "press A", "wait 60"]
+
+        def wmag(n):  # the W.Mag list's row n (Rescue, Fortify, Physic, Recover, Mend, Heal from the top)
+            return ["press DOWN", "wait 10", "press A", "wait 40"] + sum((["press DOWN", "wait 12"] for _ in range(n)),
+                                                                        []) + ["press A", "wait 40", "press A", "wait 60"]
+
+        def run(hp, ranks, action, staff_hurt=False):
+            lines = ["load " + turn2_ss] + enemy(hp) + ["w8 %#x %d" % (UNIT1 + 0x28 + k, v) for k, v in ranks]
+            if staff_hurt:
+                lines.append("w8 %#x 5" % (UNIT1 + 0x48 + 0x13))  # Seth, the heal's target
+            lines += ["wait 30", "r8 %#x" % (UNIT1 + 0x09)] + menu + action + ["wait 900",
+                      "r8 %#x" % (UNIT1 + 0x09), "r8 %#x" % (UNIT1 + 0x08), "r8 %#x" % (UNIT_RED + 0x13),
+                      "r8 %#x" % (UNIT_RED + 0x48 + 0x13), "r8 %#x" % (UNIT1 + 0x48 + 0x13)]
+            return self.run(ROM, lines, d)
+
+        anima, staff = (5, 181), (4, 181)
+        hit = run(50, [anima], attack)
+        kill = run(1, [anima], attack)
+        bhit = run(50, [anima], bmag)
+        bkill = run(1, [anima], bmag)
+        heal = run(50, [staff], wmag(5), staff_hurt=True)
+        mend = run(50, [staff], wmag(4), staff_hurt=True)
+        if any(len(v) != 6 for v in (hit, kill, bhit, bkill, heal, mend)):
+            return self.check("gaidenexp: the runs finish", False, "values %s" % [hit, kill, bhit, bkill, heal, mend])
+
+        def gain(v):
+            return v[1] - v[0]
+
+        ref_hit, ref_kill = gain(hit), gain(kill)
+        self.check("gaidenexp: Eirika is below level 20", hit[2] < 20,
+                   "level %d, EXP %d before a fight" % (hit[2], hit[0]))
+        self.check("gaidenexp: a normal Attack hit gives 10 EXP (the reference)", ref_hit == 10, "+%d" % ref_hit)
+        self.check("gaidenexp: a normal Attack kill gives 32 EXP (the reference)", ref_kill == 32, "+%d" % ref_kill)
+        hurt = bhit[3] < 50 or bhit[4] < 50
+        self.check("gaidenexp: B.Mag Fimbulvetr hits and does not kill: combat EXP (+10)",
+                   hurt and bhit[3] > 0 and bhit[4] > 0 and gain(bhit) == ref_hit,
+                   "+%d, soldiers at %d and %d" % (gain(bhit), bhit[3], bhit[4]))
+        self.check("gaidenexp: B.Mag Fimbulvetr kill: combat EXP (+32)",
+                   (bkill[3] == 0 or bkill[4] == 0) and gain(bkill) == ref_kill,
+                   "+%d, soldiers at %d and %d" % (gain(bkill), bkill[3], bkill[4]))
+        self.check("gaidenexp: W.Mag Heal gives StaffEXP(Heal) = 15, not combat EXP",
+                   heal[5] > 5 and gain(heal) == 15, "+%d, Seth %d to %d" % (gain(heal), 5, heal[5]))
+        self.check("gaidenexp: W.Mag Mend gives StaffEXP(Mend) = 20",
+                   mend[5] > 5 and gain(mend) == 20, "+%d, Seth 5 to %d" % (gain(mend), mend[5]))
+
     def test_dbgbanim(self, boot_ss):
         """The debugger's "Battle anim" screen (page 3, Kernel/Wizardry/VeslyDebugger/BanimViewer.c) on Eirika: her
         animation (index 2) attacks on its platform (the class reel's AnimBuffer at 0x02000000: animId +6, roundType
         +0xA); down goes to the next entry, another animation; A switches to the critical (round type 1); B goes back to
-        the map, its background layers on again."""
+        the menu, the viewer's panel on BG1 over the map and the menu beside it; B closes it, and BG1's tile (1,1) (the
+        panel's corner, backed up by the viewer) reads as it did before the viewer opened."""
         d = os.path.join(self.out, "dbgbanim")
         os.makedirs(d, exist_ok=True)
         anim = 0x02000000
+        bg1_corner = 0x020234A8 + 2 * (32 * 1 + 1)  # gBG1TilemapBuffer, entry (1, 1)
         lines = ["load " + boot_ss, "wait 10", "press B", "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"]
         lines += ["press DOWN", "wait 10"] * 4
-        lines += ["press A", "wait 90", "r16 %#x" % (anim + 6), "r16 %#x" % (anim + 0xA), "shot viewer.png",
+        lines += ["r16 %#x" % bg1_corner, "press A", "wait 90", "r16 %#x" % (anim + 6), "r16 %#x" % (anim + 0xA),
+                  "shot viewer.png",
                   "press DOWN", "wait 60", "r16 %#x" % (anim + 6), "press A", "wait 30", "r16 %#x" % (anim + 0xA),
-                  "shot crit.png", "press B", "wait 150", "r16 0x04000000", "shot menu.png"]
+                  "shot crit.png", "press B", "wait 150", "r16 %#x" % bg1_corner, "shot menu.png"]
         vals = self.run(ROM, lines, d)
         self.shot(os.path.join(d, "viewer.png"), "the debugger's battle animation viewer")
-        if len(vals) != 5:
+        if len(vals) != 6:
             return self.check("dbgbanim: the viewer runs", False, "values %s" % vals)
-        a0, r0, a1, r1, dispcnt = vals
+        before, a0, r0, a1, r1, after = vals
         self.check("dbgbanim: Eirika's animation attacks on the platform", a0 == 2 and r0 == 0,
                    "animId %#x, roundType %d" % (a0, r0))
         self.check("dbgbanim: down shows another animation", a1 not in (a0, 0xFFFF), "animId %#x" % a1)
         self.check("dbgbanim: A switches to the critical", r1 == 1, "roundType %d" % r1)
-        self.check("dbgbanim: B goes back to the map", dispcnt & 0x0E00 == 0x0E00, "DISPCNT %#x" % dispcnt)
+        self.check("dbgbanim: B closes the viewer and puts the map back", after == before,
+                   "BG1 corner before %#x, after %#x" % (before, after))
+
+    def test_mapbox(self, boot_ss):
+        """Battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box (the HP
+        window) draws its digits in the UI style Tech. The style's tiles end on BG tile 0x20, the digits' first tile
+        ("0"), so ApplyMapBattleInfoStylePalette loads the digits again after them; without that, the "0" is blank
+        (HP 20 reads "2", HP 10 "1", HP 0 nothing). The box is up after the attack's third A; the first run reads BG0CNT
+        for the character block, the second reads the "0" tile's eight words there."""
+        d = os.path.join(self.out, "mapbox")
+        os.makedirs(d, exist_ok=True)
+        setup = ["load " + boot_ss, "w8 %#x 2" % (PLAYST + 0x42)]
+        for k in range(10):
+            setup += ["w8 %#x 20" % (0x0202CFBC + 0x48 * k + 0x12), "w8 %#x 20" % (0x0202CFBC + 0x48 * k + 0x13)]
+        fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 34"]
+        cnt = self.run(ROM, setup + fight + ["r16 0x04000008"], d)
+        if len(cnt) != 1:
+            return self.check("mapbox: the map battle box's 0 digit is drawn (UI style Tech)", False,
+                              "BG0CNT %s" % cnt)
+        base = 0x06000000 + ((cnt[0] >> 2) & 3) * 0x4000 + 0x20 * 32
+        vals = self.run(ROM, setup + fight + ["shot mapbox.png"] + ["r32 %#x" % (base + 4 * i) for i in range(8)], d)
+        self.shot(os.path.join(d, "mapbox.png"), "map battle box, UI style Tech, animations off")
+        if len(vals) != 8:
+            return self.check("mapbox: the map battle box's 0 digit is drawn (UI style Tech)", False,
+                              "values %s" % vals)
+        self.check("mapbox: the map battle box's 0 digit is drawn (UI style Tech)", any(vals),
+                   "tile words %s" % " ".join("%#010x" % v for v in vals))
 
     def test_battlequote(self, boot_ss):
         """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with
-        [LoadFace_Eirika][Surprised]. Eirika has no surprised portrait, so a test ROM maps her sad row to SURPRISED;
+        [LoadFace_Eirika][Surprised]. Eirika has no surprised portrait, so a test ROM maps her angry row to SURPRISED;
         the tag on a face that has just loaded must show it."""
         d = os.path.join(self.out, "battle")
         os.makedirs(d, exist_ok=True)
-        if "gPortraitExpressions" not in self.sym or not self.expression(EIRIKA_PORTRAIT, EXPRESSION_SAD):
-            return self.check("battlequote: Eirika has a sad portrait for the test", False)
+        if "gPortraitExpressions" not in self.sym or not self.expression(EIRIKA_PORTRAIT, EXPRESSION_ANGRY):
+            return self.check("battlequote: Eirika has an angry portrait for the test", False)
         data = bytearray(open(ROM, "rb").read())
         a = self.sym["gPortraitExpressions"] - 0x08000000
         while data[a]:
-            if data[a] == EIRIKA_PORTRAIT and data[a + 1] == EXPRESSION_SAD:
+            if data[a] == EIRIKA_PORTRAIT and data[a + 1] == EXPRESSION_ANGRY:
                 data[a + 1], want = EXPRESSION_SURPRISED, data[a + 2]
             a += 4
         rom = os.path.join(d, "quote.gba")
@@ -2130,9 +2279,9 @@ class Smoke:
     def test_expbar(self, boot_ss):
         """EXP bar styles: the Options screen's UI Style value (gPlaySt.config.exp_bar_style, 4 bits from bit 22 of the
         second option word) set in RAM, then a battle that ends in the EXP bar, on the map and with battle animations.
-        Each UI style has an EXP bar style (sUiStyles in ExpBarStyles.c): the first (Wood) and the last (Pikmin) are
-        tried, and Vanilla. The map bar loads that EXP bar style's palette into bank 5, the battle one into bank 1 with
-        its window tiles at VRAM 0x6002000. Vanilla (0) keeps vanilla's palette in battle."""
+        Each UI style has an EXP bar style (sUiStyles in ExpBarStyles.c): the second row (Wood), the last (Pikmin) and
+        Vanilla's row (found by name, row 2) are tried. The map bar loads that EXP bar style's palette into bank 5, the
+        battle one into bank 1 with its window tiles at VRAM 0x6002000. Vanilla keeps vanilla's palette in battle."""
         d = os.path.join(self.out, "expbar")
         os.makedirs(d, exist_ok=True)
         gfx = os.path.join(ROOT, "Kernel", "Wizardry", "ExpBarStyles", "Gfx")
@@ -2140,7 +2289,8 @@ class Smoke:
         # the UI styles' rows: name and EXP bar style (EXP_BAR_VIAL is the Vial PNG)
         ui = [(m.group(1), m.group(2).capitalize())
               for m in re.finditer(r'^\t\{ "([^"]+)",\s*"[^"]*",\s*\d+,\s*EXP_BAR_(\w+) \},', src, re.M)]
-        if len(ui) < 2 or ui[0][1] != "Vanilla":
+        vanilla = next((i for i, u in enumerate(ui) if u[1] == "Vanilla"), None)
+        if len(ui) < 2 or vanilla is None or ui[1][1] == "Vanilla" or ui[-1][1] == "Vanilla":
             return self.check("expbar: the UI style table", False, "rows %s" % ui)
         b36, b37 = self.run(ROM, ["load " + boot_ss, "r8 %#x" % (PLAYST + 0x46), "r8 %#x" % (PLAYST + 0x47)], d)
         attack = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A"]
@@ -2150,15 +2300,15 @@ class Smoke:
             return ["w8 %#x %#x" % (PLAYST + 0x46, (b36 & 0x3F) | ((v & 3) << 6)),
                     "w8 %#x %#x" % (PLAYST + 0x47, (b37 & 0xFC) | (v >> 2))]
 
-        for v in (1, len(ui) - 1, 0):
+        for v in (1, len(ui) - 1, vanilla):
             name = ui[v][1]
-            pal = vanilla_pal if not v else list(struct.unpack("<16H", open(os.path.join(gfx, name + ".gbapal"), "rb").read()))
+            pal = vanilla_pal if v == vanilla else list(struct.unpack("<16H", open(os.path.join(gfx, name + ".gbapal"), "rb").read()))
             # map: 99 EXP, so the bar shows; battle: animations on (option byte 0x42, animationType 0)
             got = self.run(ROM, ["load " + boot_ss, "w8 %#x 99" % (UNIT1 + 0x09)] + style(v) + attack +
                            ["wait 228", "shot map_%s.png" % name] +
                            ["r16 %#x" % (PALETTE_BUFFER + 0x20 * 5 + 2 * k) for k in range(16)], d)
             self.shot(os.path.join(d, "map_%s.png" % name), "EXP bar: %s (map)" % name)
-            if v:
+            if v != vanilla:
                 self.check("expbar: UI style %s: the map EXP bar has %s's palette" % (ui[v][0], name), got[1:] == pal[1:],
                            "bank 5 %s" % " ".join("%04x" % c for c in got[1:4]))
             dump = os.path.join(d, "chr_%s.bin" % name)
@@ -2168,7 +2318,7 @@ class Smoke:
             self.shot(os.path.join(d, "battle_%s.png" % name), "EXP bar: %s (battle)" % name)
             self.check("expbar: UI style %s: the battle EXP bar has %s's palette" % (ui[v][0], name), got[1:] == pal[1:],
                        "bank 1 %s" % " ".join("%04x" % c for c in got[1:4]))
-            if v:
+            if v != vanilla:
                 want = open(os.path.join(gfx, name + ".4bpp"), "rb").read()[:416]
                 have = open(dump, "rb").read() if os.path.exists(dump) else b""
                 self.check("expbar: UI style %s: the battle EXP bar has %s's window tiles" % (ui[v][0], name), have == want,
@@ -2636,18 +2786,20 @@ def main():
                 t()
         return run
 
-    boot_tests = ("statscreen", "battle", "battlequote", "awards", "frames", "stealer", "debugflag", "biography",
-                  "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "banim", "dbgbanim")
+    boot_tests = ("statscreen", "promosms", "battle", "battlequote", "awards", "frames", "stealer", "debugflag",
+                  "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "banim",
+                  "dbgbanim", "mapbox", "gaidenexp")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "banim", "dbgbanim")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "banim", "dbgbanim", "mapbox", "gaidenexp")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
-                ("statscreen", s.test_statscreen), ("biography", s.test_biography), ("debugflag", s.test_debugflag))
+                ("statscreen", s.test_statscreen), ("promosms", s.test_promosms), ("biography", s.test_biography),
+                ("debugflag", s.test_debugflag))
                 if on(t)]))
             r.submit((0, 2), seq(*[lambda f=f, ss=ss: f(ss) for t, f, ss in (
                 ("battle", s.test_battle, turn2_ss), ("battlequote", s.test_battlequote, boot_ss),
@@ -2664,6 +2816,10 @@ def main():
                 r.submit((0, 10), s.test_banim, turn2_ss)
             if on("dbgbanim") and turn2_ss:
                 r.submit((0, 11), s.test_dbgbanim, turn2_ss)
+            if on("mapbox") and turn2_ss:
+                r.submit((0, 12), s.test_mapbox, turn2_ss)
+            if on("gaidenexp") and turn2_ss:
+                r.submit((0, 13), s.test_gaidenexp, turn2_ss)
             if on("deeproots") and turn2_ss:
                 r.submit((0, 6), s.test_deeproots, turn2_ss)
             if on("mapcolors"):
@@ -2672,7 +2828,8 @@ def main():
                 r.submit((0, 8), s.test_ch1end, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
-                                ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("introband", s.test_introband),
+                                ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),
+                                ("introband", s.test_introband),
                                 ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
                                 ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex))):
