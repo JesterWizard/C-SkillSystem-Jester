@@ -386,19 +386,10 @@ void PageNumCtrl_DisplayMuPlatform(struct StatScreenPageNameProc *proc)
     if (TranslateStatPageId(gStatScreen.page) == PAGE_PROMOTIONS)
     {
         struct Unit *unit = gStatScreen.unit;
-        int charId = UNIT_CHAR_ID(unit);
-        // Find the unit's promotion data
-        const UnitPromotions *promo_data = NULL;
-        for (int i = 0; unit_promotions[i].key != 0; i++)
-        {
-            if (unit_promotions[i].key == charId)
-            {
-                promo_data = &unit_promotions[i];
-                break;
-            }
-        }
-        
-        // If we found promotion data for this character, use it
+        // The unit's promotions: its own row, or its class's (GetStatScreenPromotions), as the text shows them
+        UnitPromotions promos;
+        const UnitPromotions *promo_data = GetStatScreenPromotions(unit, &promos) ? &promos : NULL;
+
         if (promo_data != NULL)
         {
             int platform_y_positions[] = {41, 82, 122};

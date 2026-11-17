@@ -190,9 +190,9 @@ Each UI style brings the [EXP bar style](./ExpBarStyles.md) closest to its look:
 
 | Row | Style | ID | EXP bar |
 |-----|-------|----|---------|
-| 0 | Vanilla | 0 | Vanilla |
+| 0 | Tech | 5 | Tech |
 | 1 | Wood | 4 | Vial (a wooden plank) |
-| 2 | Tech | 5 | Tech |
+| 2 | Vanilla | 0 | Vanilla |
 | 3 | Royal | 6 | Gems (gold on velvet) |
 | 4 | Stained Glass | 7 | Stars |
 | 5 | Paper | 8 | Minimal |
@@ -204,7 +204,7 @@ Each UI style brings the [EXP bar style](./ExpBarStyles.md) closest to its look:
 | 11 | Pikmin menus / Fenreir battle | 3 | Stars |
 
 The row is `GAME_OPTION_EXP_BAR`, and its value is kept in `gPlaySt.config.exp_bar_style` (4 bits, saved with the other
-options; a new game starts on Tech). The table is `sUiStyles` in
+options). The value 0 (a new game, or a save made before this change that was on Vanilla) shows Tech, and Vanilla is row 2. The table is `sUiStyles` in
 [`ExpBarStyles.c`](../../Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c); `GetUI_id` returns its `ui_id`
 (`UiStyle_GetUiId`). `gpKernelDesignerConfig->vesly_custom_ui` must be on (off, every style is vanilla's).
 
@@ -286,7 +286,8 @@ To retune the look, edit the colour lists at the top of the script and rerun it.
 
 ## 🐛 Limitations & Bugs
 
-- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen, the map battle HP windows (shown when battle animations are off) and the phase banners. The EXP bar follows the style through its own matching [EXP bar style](./ExpBarStyles.md). The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
+- Styles only reach the screens listed above. Still vanilla in every style: the unit stat screen and the phase banners. The EXP bar follows the style through its own matching [EXP bar style](./ExpBarStyles.md). The status screen's chapter title banner and play-time box only change for the generated styles (wood, tech, royal, glass, paper, ocean, forest, parchment).
+- The map battle box (battle animations off) uses the style's box tiles, which end on BG tile 0x20, where vanilla's digit graphics start, so ApplyMapBattleInfoStylePalette loads the digits again after them (UncompMapBattleBoxNumGfx).
 - A style change does not redraw windows already on screen; it shows when a screen next loads its UI graphics.
 - The generated styles' prep screen, prep popup and shop gold box art follow vanilla's tile layout but have not been checked in-game yet.
 - Each style adds roughly the size of its compressed art to the ROM.

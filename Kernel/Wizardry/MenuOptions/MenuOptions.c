@@ -9,7 +9,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[36] = {
+const u8 gGameOptionsUiOrder_NEW[37] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -48,6 +48,7 @@ const u8 gGameOptionsUiOrder_NEW[36] = {
     GAME_OPTION_REAL_TIME_INTERVAL,
     GAME_OPTION_SHOW_TRUE_2RN,
     GAME_OPTION_ACHIEVEMENTS,
+    GAME_OPTION_RECAP,
 };
 
 static bool IsGameOptionUiVisible(u8 optionIdx)
@@ -685,6 +686,20 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
+    [GAME_OPTION_RECAP] =
+    {
+        .msgId = MSG_MENU_OPTION_RECAP_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_RECAP_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_RECAP_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x4E, /* clapperboard (chapter intro) */
+        .func = GenericOptionChangeHandler,
+    },
+
     [GAME_OPTION_SHOW_TRUE_2RN] =
     {
         .msgId = MSG_MENU_OPTION_SHOW_TRUE_2RN_TITLE,
@@ -799,6 +814,7 @@ void SetGameOption(u8 index, u8 newValue) {
             }
             gPlaySt.config.show_true_2rn = newValue;
             break;
+        case GAME_OPTION_RECAP:                          gPlaySt.config.recap_off = newValue; break;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true) {
                 gPlaySt.config.achievements = 1; /* OFF */
@@ -864,6 +880,7 @@ u8 GetGameOption(u8 index) {
             if (gpKernelDesignerConfig->show_true_2rn != true)
                 return 1; /* OFF */
             return gPlaySt.config.show_true_2rn;
+        case GAME_OPTION_RECAP:                          return gPlaySt.config.recap_off;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true)
                 return 1; /* OFF */
@@ -917,11 +934,12 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.show_tutorial = 0;
     gPlaySt.config.support_after_battle = 0;
     gPlaySt.config.gameover_quotes = 0;
+    gPlaySt.config.recap_off = 0; /* recap ON */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
-    gPlaySt.config.exp_bar_style = 2; /* Tech (sUiStyles row 2, ExpBarStyles.c) */
+    gPlaySt.config.exp_bar_style = 0; /* Tech (sUiStyles row 0, ExpBarStyles.c) */
     gPlaySt.config.map_colors = 0; /* vanilla */
     gPlaySt.config.chapter_intro = ChapterIntro_DefaultOption(); /* the designer config's style and background */
     ChapterIntro_ResetExtra(); /* the Title Band default */

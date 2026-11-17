@@ -1065,3 +1065,7 @@ Halberdier[X]
 ## MSG_CLASS_HALBERDIER_DESC
 A sturdy foot soldier wielding[N]
 a halberd. Uses lances.[X]
+## MSG_MENU_OPTION_RECAP_TITLE
+Recap[X]
+## MSG_MENU_OPTION_RECAP_DESC
+Show the story so far when loading a save[X]

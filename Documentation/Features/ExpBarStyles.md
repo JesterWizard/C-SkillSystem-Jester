@@ -44,7 +44,7 @@ and the one in a battle animation.
   <img src="../Images/ExpBarStyles_Options.png" alt="The EXP Bar row on the Options screen" width="480"/>
 </p>
 
-A new game starts on Vanilla. The choice is kept in the save with the other options.
+A new game starts on Tech (the UI Style option's row 0, `sUiStyles` in `ExpBarStyles.c`); Vanilla is row 2. The choice is kept in the save with the other options.
 
 ---
 

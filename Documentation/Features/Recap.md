@@ -56,6 +56,13 @@ after it.
   work. A 224-colour CG leaves BG palettes 2 and 3, so the text and the frames move there (`Recap_MoveUiPalettes`).
 - Every palette is turned grey after a scene is drawn (`Recap_Greyscale`).
 
+## Turning it off
+
+The Options screen's Recap row (`GAME_OPTION_RECAP`, ON/OFF, always shown) sets `gPlaySt.config.recap_off`: bit 5 of
+`PLAYST + 0x43` (the config starts at `PLAYST + 0x40`; `recap_off` is the first bit of the old `unk43_4`), 0 = ON. New
+games and old saves keep the recap. `Recap_PostSaveMenu` checks it after the save is loaded, so the save's own setting
+decides: with it set, `gRecap.pending` ends up 0 and the game starts without the recap, as when there is no recap to show.
+
 ## Data and save
 
 `struct RecapData` (0x18 bytes, magic `RCP2`, `include/kernel/recap.h`) is kept in RAM (`gRecap`, `include/link/config-memmap.s`,

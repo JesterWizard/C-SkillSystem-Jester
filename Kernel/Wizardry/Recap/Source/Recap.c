@@ -754,7 +754,8 @@ void Recap_PostSaveMenu(ProcPtr proc)
 	gRecap.pending = false;
 	PostSaveMenuHandler((struct SaveMenuProc *)proc);
 
-	if (gRecap.pending && gRecap.data.magic == RECAP_MAGIC && Recap_SceneCount() > 0)
+	if (gRecap.pending && gRecap.data.magic == RECAP_MAGIC && !gPlaySt.config.recap_off
+	    && Recap_SceneCount() > 0)
 		Proc_StartBlocking(ProcScr_Recap, proc);
 	else
 		gRecap.pending = false;

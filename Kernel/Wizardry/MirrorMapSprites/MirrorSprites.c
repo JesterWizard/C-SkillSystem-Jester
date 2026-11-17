@@ -12,6 +12,7 @@ extern struct SMSHandle gSMSHandleArray[100];
 extern struct SMSHandle* gSMSHandleIt;
 
 extern u32 gMirrorSpriteOptions;
+bool DebugBanimViewer_IsOpen(void); /* Kernel/Wizardry/VeslyDebugger/BanimViewer.c */
 extern int GetDangerBonesShakeOffset(int shaking);
 extern u16 Pal_Grass_Tile[];
 extern u16 Pal_Spin_Tile[];
@@ -536,8 +537,11 @@ static void PutRescuedSupportSpritesOam(void)
 LYN_REPLACE_CHECK(PutUnitSpritesOam);
 void PutUnitSpritesOam(void)
 {
-	/* Map sprites sit above BG2; hide them while the chatlog owns the screen. */
-	if (Chatlog_IsVisible())
+	/*
+	 * Map sprites sit above BG2; hide them while the chatlog or the debugger's battle-animation viewer owns the
+	 * screen.
+	 */
+	if (Chatlog_IsVisible() || DebugBanimViewer_IsOpen())
 		return;
 
     struct SMSHandle * it = gSMSHandleArray->pNext;

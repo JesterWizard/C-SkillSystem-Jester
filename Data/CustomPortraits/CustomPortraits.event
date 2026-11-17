@@ -86,18 +86,11 @@ Portrait_0xB0:
 setMugEntry(0xB0,Portrait_0xB0,2,6,3,4)
 
 // Main cast expressions (Data/CustomPortraits/PortraitExpressions.c): each exported from its vanilla portrait and edited
-// with Tools/portraits/portrait_tool.py; the blink and talking frames carry the same brows and mouth.
-Portrait_0xB1:
-   #incext PortraitFormatter "Portraits/eirika_sad.png"
-setMugEntry(0xB1,Portrait_0xB1,2,6,3,4)
-
+// with Tools/portraits/portrait_tool.py; the blink and talking frames carry the same brows and mouth. 0xB1 and 0xB3
+// (Eirika sad, Seth hurt) were removed: those tags show the base portrait.
 Portrait_0xB2:
    #incext PortraitFormatter "Portraits/ephraim_angry.png"
 setMugEntry(0xB2,Portrait_0xB2,2,5,3,3)
-
-Portrait_0xB3:
-   #incext PortraitFormatter "Portraits/seth_hurt.png"
-setMugEntry(0xB3,Portrait_0xB3,2,5,3,3)
 
 Portrait_0xB4:
    #incext PortraitFormatter "Portraits/lyon_sad.png"
