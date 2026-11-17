@@ -210,6 +210,7 @@ struct KernelDesigerConfig {
 	u8 rescue_penalty_pct;    /* the penalty in percent when both have the same Con; it scales with carried Con / rescuer Con */
 	u8 rescue_penalty_min_pct;
 	u8 rescue_penalty_max_pct;
+	u8 threat_arrows; /* while picking a move, flashing arrows from the enemies that could attack the cursor's tile (Kernel/Wizardry/ThreatArrows) */
 };
 
 struct KernelBattleDesignerConfig {

@@ -135,7 +135,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/TrapRework.md"><img src="./Documentation/Gifs/Trap_Rework.gif" alt="Trap Rework preview" width="360" /></a><br/><b><a href="./Documentation/Features/TrapRework.md">Trap Rework</a></b></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ThreatArrows.md"><img src="./Documentation/Images/ThreatArrows.png" alt="Threat Arrows preview" width="360" /></a><br/><b><a href="./Documentation/Features/ThreatArrows.md">Threat Arrows</a></b><br/><sub>While picking a move: a flashing arrow from each enemy that could attack the cursor's tile</sub></td>
   </tr>
 </table>
 

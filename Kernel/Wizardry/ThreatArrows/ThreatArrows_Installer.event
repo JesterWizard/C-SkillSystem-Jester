@@ -1,0 +1,11 @@
+#ifndef THREAT_ARROWS_INSTALLED
+#define THREAT_ARROWS_INSTALLED
+
+/**
+ * Threat arrows: flashing arrows from the enemies that could attack the cursor's tile while the player picks a move
+ * (Documentation/Features/ThreatArrows.md). Started each frame of a move selection by DrawUpdatedPathArrow
+ * (Kernel/Wizardry/RemoveMovePath). WIZARDRY_CUSTOM, so FreeSpaceDEMO.
+ */
+#include "Source/ThreatArrows.lyn.event"
+
+#endif /* THREAT_ARROWS_INSTALLED */

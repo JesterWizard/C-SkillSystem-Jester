@@ -261,6 +261,8 @@ _kernel_malloc_overlay0 gActorBaseDmg,  0x0C
 _kernel_malloc_overlay0 gTargetBaseDmg, 0x0C
 _kernel_malloc_overlay0 sOverrideState, 0x48
 _kernel_malloc_overlay0 sAiTargetList, 0x80
+/* Threat arrows (struct ThreatArrowsData, include/kernel/threat-arrows.h): live only during a move selection. RAM only. */
+_kernel_malloc_overlay0 gThreatArrows, 0x780
 
 /* Dedicated map storage for enemy fog-of-war AI. */
 _kernel_malloc2 gBmMapEnemyVisionBuffer, 0x800
