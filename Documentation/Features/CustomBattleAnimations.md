@@ -222,18 +222,24 @@ usual way (every part in the BIOS's LZ77, both OAMs):
 
 ## Viewing in Game
 
-The debugger (B on the map) has **Battle anim** on its page 3. It plays the selected unit's battle animation, with its
-equipped weapon (or its first black magic: tomes are spells here), against a stand-in Soldier, over and over:
+The debugger (B on the map) has **Battle anim** on its page 3: a black screen with one platform on the left and a
+battle animation attacking on it, with the animation's ID, the character's name and the class above, and Normal or
+Critical below. It opens on the selected unit, in its class if the list has it.
 
-- **A** switches the next fight between a normal hit and a critical (a sound tells which: the menu's confirm sound for
-  critical, its cancel sound for normal);
-- **B** leaves after the fight that is playing, back to the debugger's menu.
+- **Up/Down** step through the list: every character in their default class, each followed by their
+  `CustomAnimeTable` rows in other classes (so every custom animation is on it). **L/R** go ten at a time.
+- **A** switches between the normal attack and the critical.
+- **B** goes back to the map and the debugger's menu.
 
-Each fight is one scripted hit for 1 damage, and the battle is not a real one (`BATTLE_CONFIG_REAL` off), so the unit,
-its weapon, its EXP and the battle records don't change. It plays even with animations off in the options (it turns
-them on while it runs). A unit with no weapon and no black magic gets a buzz. The code is
-`Kernel/Wizardry/VeslyDebugger/BanimViewer.c`; the hits go in the kernel's hit list (`gBattleHitArrayRe`), not
-vanilla's, and a small proc in `PROC_TREE_3` reads the keys while the fight runs (the fight locks the viewer's own).
+The animation shown is the first weapon type in the entry's list that isn't unarmed, with the character palette when
+the animation is the class's own. No spell effects (a mage casts without the spell).
+
+It runs on the game's mini battle-animation engine, the one the class reel on the title screen uses
+(`ClassInfoDisplay_Init`), with that screen's `AnimBuffer`, buffers and platform at the same addresses (battle-animation
+work RAM, free outside a battle). Two things the full battle does are done here by hand: the left OAM of a custom
+animation is mirrored from the right one after each load (AutoGenLeftOAM only hooks the full battle), and the map
+camera is moved off the map while the screen is up, so the map's unit sprites, whose tiles the animation uses, aren't
+drawn. The code is `Kernel/Wizardry/VeslyDebugger/BanimViewer.c`.
 
 ---
 

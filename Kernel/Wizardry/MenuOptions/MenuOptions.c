@@ -921,7 +921,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);
     gPlaySt.config.show_true_2rn = 1; /* player default OFF; menu hidden if designer gate is off */
-    gPlaySt.config.exp_bar_style = 0; /* vanilla */
+    gPlaySt.config.exp_bar_style = 2; /* Tech (sUiStyles row 2, ExpBarStyles.c) */
     gPlaySt.config.map_colors = 0; /* vanilla */
     gPlaySt.config.chapter_intro = ChapterIntro_DefaultOption(); /* the designer config's style and background */
     ChapterIntro_ResetExtra(); /* the Title Band default */
