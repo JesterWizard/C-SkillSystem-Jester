@@ -149,6 +149,46 @@ void PutManimLevelUpStat(int actor_id, int x, int y, int stat_num, bool after_ga
 		GetManimLevelUpBaseStat(actor_id, stat_num) + (after_gain ? GetManimLevelUpStatGain(actor_id, stat_num) : 0));
 }
 
+/*
+ * The automatic promotion a unit is due after a level-up, by promotion_on_max_level (an unpromoted unit at the level
+ * cap) or promote_trainees_in_chapter (a trainee at 10 or more). Shared by the map level-up box and the animated battle.
+ */
+bool AutoPromotionDue(const struct Unit *unit)
+{
+	if (gpKernelDesignerConfig->promotion_on_max_level == true &&
+		unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED))
+		return true;
+
+	if (gpKernelDesignerConfig->promote_trainees_in_chapter == true &&
+		(UNIT_CATTRIBUTES(unit) & CA_MAXLEVEL10) && unit->level >= 10)
+		return true;
+
+	return false;
+}
+
+/*
+ * Starts the automatic promotion of a unit whose level is already up in the real unit. Its level and EXP are reset by
+ * ApplyUnitPromotion, after it records the hidden level from the real unit.
+ */
+static void StartAutoPromotion(ProcPtr parent, struct Unit *unit)
+{
+	gActionData.subjectIndex = unit->index;
+	StartBmPromotion(parent);
+	gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
+}
+
+/*
+ * The map level-up writes the new level to the real unit only after the box (TransferStatsandExperience), so it is
+ * copied here before the promotion starts.
+ */
+static void StartMapAutoPromotion(struct ManimLevelUpProc *proc)
+{
+	struct Unit *unit = gManimSt.actor[proc->actor_id].unit;
+
+	GetUnit(unit->index)->level = unit->level;
+	StartAutoPromotion(proc, GetUnit(unit->index));
+}
+
 LYN_REPLACE_CHECK(ManimLevelUp_ScrollOut);
 void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 {
@@ -162,27 +202,53 @@ void ManimLevelUp_ScrollOut(struct ManimLevelUpProc* proc)
 
 	if (proc->y_scroll_offset <= -144)
 	{
-		if (gpKernelDesignerConfig->promotion_on_max_level == true) {
-			if (gManimSt.actor[proc->actor_id].unit->level == UNIT_LEVEL_MAX_RE && !(UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_PROMOTED))
-			{
-				gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
-				StartBmPromotion(proc);
-				GetUnit(gActionData.subjectIndex)->level = 1;
-				GetUnit(gActionData.subjectIndex)->exp = 0;
-				gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
-			}
-		}
-		if (gpKernelDesignerConfig->promote_trainees_in_chapter == true) {
-			if ((UNIT_CATTRIBUTES(gManimSt.actor[proc->actor_id].unit) & CA_MAXLEVEL10) &&
-				gManimSt.actor[proc->actor_id].unit->level >= 10)
-			{
-				gActionData.subjectIndex = gManimSt.actor[proc->actor_id].unit->index;
-				StartBmPromotion(proc);
-				gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
-			}
-		}
+		if (AutoPromotionDue(gManimSt.actor[proc->actor_id].unit))
+			StartMapAutoPromotion(proc);
+
 		Proc_Break(proc);
 	}
+}
+
+/*
+ * The player's unit of a battle that levelled it up and whose level is now applied to the real unit, and that is due
+ * an automatic promotion. The map path (ManimLevelUp_ScrollOut) already promoted it when the level-up box ran, so its
+ * real level is 1 by now and it is not found here.
+ */
+static struct Unit *GetBattlePromotee(const struct BattleUnit *bu)
+{
+	struct Unit *unit;
+
+	if (bu->unit.index == 0 || bu->unit.level == bu->levelPrevious)
+		return NULL;
+
+	if (UNIT_FACTION(&bu->unit) != FACTION_BLUE)
+		return NULL;
+
+	unit = GetUnit((u8)bu->unit.index);
+	if (!UNIT_IS_VALID(unit) || unit->curHP == 0 || (unit->state & (US_DEAD | US_NOT_DEPLOYED)))
+		return NULL;
+
+	if (unit->level != bu->unit.level)
+		return NULL;
+
+	return AutoPromotionDue(unit) ? unit : NULL;
+}
+
+/*
+ * Post-action entry (gPostActionFuncs): after an animated battle, the player's unit that levelled up (the attacker, or
+ * the defender in the enemy phase) starts its automatic promotion. The promotion is a blocking child of the hook proc.
+ */
+bool PostAction_AutoPromotion(ProcPtr parent)
+{
+	struct Unit *unit = GetBattlePromotee(&gBattleActor);
+
+	if (unit == NULL)
+		unit = GetBattlePromotee(&gBattleTarget);
+	if (unit == NULL)
+		return false;
+
+	StartAutoPromotion(parent, unit);
+	return true;
 }
 
 typedef struct

@@ -6,6 +6,7 @@
 #include "worldmap.h"
 #include "jester_headers/custom-functions.h"
 #include "jester_headers/custom-structs.h"
+#include "jester_headers/Forging.h"
 
 #define INFUSE_BOX_X 0
 #define INFUSE_BOX_W 14
@@ -219,7 +220,8 @@ static void Infuse_DrawPreview(struct PrepItemListProc *proc)
         itemId != CONFIG_ITEM_INDEX_SKILL_SCROLL_1 &&
         itemId != CONFIG_ITEM_INDEX_SKILL_SCROLL_2 &&
         itemId != CONFIG_ITEM_INDEX_SKILL_SCROLL_3 &&
-        itemId != CONFIG_ITEM_INDEX_SKILL_SCROLL_4)
+        itemId != CONFIG_ITEM_INDEX_SKILL_SCROLL_4 &&
+        ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
         PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, INFUSE_SLOT_NUM_X, INFUSE_SLOT0_Y), TEXT_COLOR_SYSTEM_BLUE, ITEM_USES(item));
 
     Infuse_FillBg0(INFUSE_EGG_TILE_X, INFUSE_EGG_TILE_Y, 3, 2);
@@ -228,7 +230,8 @@ static void Infuse_DrawPreview(struct PrepItemListProc *proc)
     if (HasValidTarget(target)) {
         resultItem = target | (GetItemMaxUses(target) << 8);
         Infuse_DrawPreviewSlot(&PrepItemSuppyTexts.th[3], INFUSE_SLOT2_Y, resultItem, TEXT_COLOR_SYSTEM_GREEN, "Nothing");
-        PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, INFUSE_SLOT_NUM_X, INFUSE_SLOT2_Y), TEXT_COLOR_SYSTEM_BLUE, GetItemMaxUses(target));
+        if (ShouldDisplayItemDurability(target)) /* infinite_durability hides weapon uses */
+            PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, INFUSE_SLOT_NUM_X, INFUSE_SLOT2_Y), TEXT_COLOR_SYSTEM_BLUE, GetItemMaxUses(target));
     } else {
         Infuse_DrawPreviewSlot(&PrepItemSuppyTexts.th[3], INFUSE_SLOT2_Y, 0, TEXT_COLOR_SYSTEM_GRAY, "No fusable target");
     }
@@ -282,7 +285,8 @@ void drawItems_INFUSE(struct Text * textBase, u16 * tm, int yLines, struct Unit 
         Text_InsertDrawString(th, 0, TEXT_COLOR_SYSTEM_WHITE, GetItemName(item));
         DrawIcon(tm + TILEMAP_INDEX(1, i*2 & 0x1f), GetItemIconId(item), 0x4000);
         PutText(th, tm + TILEMAP_INDEX(3, i*2 & 0x1f));
-        PutNumberOrBlank(tm + TILEMAP_INDEX(12, i*2 & 0x1f), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
+        if (ShouldDisplayItemDurability(item)) /* infinite_durability hides weapon uses */
+            PutNumberOrBlank(tm + TILEMAP_INDEX(12, i*2 & 0x1f), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
     }
 }
 

@@ -108,7 +108,7 @@ int CanItemBeForged(int item) { // for item line drawing
     return true;
 }
 
-static bool ShouldDisplayItemDurability(int item)
+bool ShouldDisplayItemDurability(int item)
 {
     if (!gpKernelDesignerConfig->infinite_durability)
         return true;
@@ -905,8 +905,10 @@ void RefreshHammerneUnitInfoWindow(struct Unit* unit) {
 
             color = IsItemHammernable(item) ? 2 : 1;
 
-            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), color, GetItemUses(item));
-            PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 14, yPos), color, GetItemMaxUses(item));	
+            if (ShouldDisplayItemDurability(item)) { /* infinite_durability hides weapon uses */
+                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 11, yPos), color, GetItemUses(item));
+                PutNumberOrBlank(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 14, yPos), color, GetItemMaxUses(item));
+            }
         }
 
 		DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(xPos + 1, yPos), GetItemIconId(item), 0x4000);

@@ -7,6 +7,7 @@ extern struct BonusClaimItemEnt gBonusClaimItemList[0x80];
 extern struct BonusClaimConfig gBonusClaimConfig[0x40];
 extern int gBonusClaimItemCounts[0x40];
 extern struct Text gBonusClaimText[0x121]; // maybe lower
+extern bool ShouldDisplayItemDurability(int item); // infinite_durability hides weapon uses (ItemInfos.c)
 
 // struct BonusClaimEnt * const gpBonusClaimData = gBonusClaimData;
 // struct BonusClaimEnt * const gpBonusClaimDataUpdated = gBonusClaimDataUpdated;
@@ -390,9 +391,10 @@ void DrawBonusClaimItemText(int idx)
         case BONUSKIND_ITEM1:
             PutDrawText(th, gBG2TilemapBuffer + (unk1 * 0x20) + 2, color, 0, 0, GetItemName(itemId));
 
-            PutNumberOrBlank(
-                gBG2TilemapBuffer + (unk1 * 0x20) + 0xA, color == 0 ? TEXT_COLOR_SYSTEM_BLUE : color,
-                GetItemMaxUses(itemId));
+            if (ShouldDisplayItemDurability(itemId)) /* infinite_durability hides weapon uses */
+                PutNumberOrBlank(
+                    gBG2TilemapBuffer + (unk1 * 0x20) + 0xA, color == 0 ? TEXT_COLOR_SYSTEM_BLUE : color,
+                    GetItemMaxUses(itemId));
 
             DrawIcon(gBG2TilemapBuffer + (unk1 * 0x20), GetItemIconId(itemId), 0x4000);
 

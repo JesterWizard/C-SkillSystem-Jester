@@ -190,6 +190,16 @@ void PrepMenu_OnInit(struct ProcPrepMenu *proc)
     InitMenuScrollBarImg(0xE00, 2);
 }
 
+/* The Check Map submenu leaves a stale block of BG0 tiles (the arrow at
+ * tiles (20..21, 3..4)) in the BG0 map. View Map and Formation turn BG0
+ * on, so clear it before they start.
+ */
+static void PrepCheckMap_ClearBg0(void)
+{
+	BG_Fill(gBG0TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
 LYN_REPLACE_CHECK(PrepMenu_CtrlLoop);
 void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
 {
@@ -233,8 +243,14 @@ void PrepMenu_CtrlLoop(struct ProcPrepMenu *proc)
                 {
                     switch (proc->cur_index)
                     {
-                        case 0: PrepMapMenu_OnViewMap(Proc_Find(gProcScr_SALLYCURSOR)); return;
-                        case 1: PrepMapMenu_OnFormation(Proc_Find(gProcScr_SALLYCURSOR)); return;
+                        case 0:
+							PrepCheckMap_ClearBg0();
+							PrepMapMenu_OnViewMap(Proc_Find(gProcScr_SALLYCURSOR));
+							return;
+                        case 1:
+							PrepCheckMap_ClearBg0();
+							PrepMapMenu_OnFormation(Proc_Find(gProcScr_SALLYCURSOR));
+							return;
                         case 2: PrepMapMenu_OnOptions(Proc_Find(gProcScr_SALLYCURSOR)); return;
                         case 3: PrepMapMenu_OnSave(Proc_Find(gProcScr_SALLYCURSOR)); return;
                         default: return;
