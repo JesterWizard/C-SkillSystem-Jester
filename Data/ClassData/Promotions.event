@@ -7,6 +7,16 @@ ORG $018DAC
 POIN gClassData_NEW-84
 POP
 
+// Vanilla UnitInitFromDefinition (0x8017D3C: every unit loaded from chapter unit data, players and enemies) sets
+// pClassData from vanilla's class table inline (classId * 0x54 + its literal). Its literal points at gClassData_NEW
+// too, so a loaded unit has the class of Data/ClassData/ClassData.c (its caps, bases, growths and SMS) from the start,
+// as it already had after a save was reloaded (GetClassData). The other inline literals (0x17AB8 CanClassWieldWeaponType,
+// 0x19458 GetClassData) are in functions the kernel replaces.
+PUSH
+ORG $017DBC
+POIN gClassData_NEW-84
+POP
+
 // Promotion choices: vanilla's gPromoJidLut (0x95DFA4), two class ids per class id.
 #define PromoChoices(jid, first, second) "PUSH; ORG 0x95DFA4 + 2 * (jid); BYTE first second; POP"
 
