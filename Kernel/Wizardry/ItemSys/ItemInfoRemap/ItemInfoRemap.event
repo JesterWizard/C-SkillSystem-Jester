@@ -3,6 +3,8 @@
 #include "Source/ItemInfos.lyn.event"
 #include "Source/ItemInfos_hook.lyn.event"
 #include "Source/DuraItem.lyn.event"
+#include "Source/ConvoyItemLines.lyn.event"
+#include "Source/StealWindowLines.lyn.event"
 
 // JESTER - Hook conflict with MakeNewItem
 // PUSH

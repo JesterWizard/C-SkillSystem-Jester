@@ -26,6 +26,9 @@ What it checks:
               travels to each story node, each stub's battle loads its enemies and is won (the enemies taken off and the
               defeat-all flag set, then Eirika waits), and the story moves on, through Chapter 20, then 21, 22 and the
               ending. A monster on Chapter 10's node, not marked next, does not stop it.
+  wmuses      (Serafew) the world map's item screens do not draw a weapon's uses with infinite_durability: Infuse (unlocked
+              in this test ROM) and Manage Items from the node menu draw the same picture for Iron Sword and Rapier with
+              9 and 46 (40) uses; a Vulnerary's uses still change the Manage Items picture.
   wmshops     (Serafew) the node menu's shop rows: Serafew's Armory and Shop rows open its armory and vendor with
               the node's stock, and B leaves them; a node with no shops has none; the road to the story node is open.
   postgame    (Serafew) from Chapter 20's world map through the ending, which goes on into the postgame: the
@@ -74,6 +77,9 @@ What it checks:
               badge shares OBJ palette 15); after the stats, her quote is printed in a box above the
               level-up window, the portrait shows its tier's expression, and the window slides off and the battle
               ends on the map with her new level.
+  autopromo  battle animations off: Eirika one EXP short of 20 (or a Journeyman, one short of 10) levels up on the map,
+              and the automatic promotion leaves her at level 1 with EXP 0 in the new class; the hidden level keeps
+              the level she reached (20, 10). A Master Seal promotion of a Cavalier at 20 gives the same.
   banim       with battle animations on, Gerik as a Mercenary, Tana as a Pegasus Knight and Amelia as a Recruit
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
@@ -110,8 +116,8 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
-lvupanim, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
+lvupanim, autopromo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -306,6 +312,12 @@ class Smoke:
         """Mean difference of two screenshots, 0..255."""
         ia, ib = Image.open(a).convert("RGB"), Image.open(b).convert("RGB")
         return sum(ImageStat.Stat(ImageChops.difference(ia, ib)).mean) / 3
+
+    @staticmethod
+    def changed_pixels(a, b):
+        """How many pixels differ at all (0 for the same picture)."""
+        d = ImageChops.difference(Image.open(a).convert("RGB"), Image.open(b).convert("RGB")).convert("L")
+        return d.point(lambda v: 255 if v else 0).histogram()[255]
 
     @staticmethod
     def hist_dist(a, b):
@@ -974,6 +986,98 @@ class Smoke:
         self.check("wmshops: the road to the story node is open (Serafew to Adlas Plains)",
                    any(ends(p) == (WM_NODE_SERAFEW, WM_NODE_ADLAS_PLAINS) for p in paths),
                    "open paths %s" % [(p, ends(p)) for p in paths])
+
+    def test_wmuses(self, states):
+        """Weapon uses on the world map's item screens. With infinite_durability a weapon's uses are not drawn
+        (ShouldDisplayItemDurability, Forging.h). The Infuse screen (the designer config locks it, so this test ROM
+        unlocks it: gInfuseUnlockChapter) and Manage Items, from the node menu: a weapon's uses change nothing on the
+        picture (the same screen with 46 and 9 uses, and Rapier 40 and 9), a Vulnerary's do (3 and 9). The convoy
+        (Supply) does the same."""
+        d = os.path.join(self.out, "WorldMapUses")
+        os.makedirs(d, exist_ok=True)
+        need = ("gWmStoryChapter", "gInfuseUnlockChapter", "sProcArray", "ProcScr_PrepItemListScreen_INFUSE")
+        if not all(n in self.sym for n in need):
+            return self.check("wmuses: the symbols", False, "missing")
+        rom = self.district_rom("Serafew", d)
+        data = bytearray(open(rom, "rb").read())
+        data[self.sym["gInfuseUnlockChapter"] - 0x08000000] = 0  # chapter 0 (the prologue): Infuse is on the node menu
+        rom = os.path.join(d, "unlock.gba")
+        open(rom, "wb").write(data)
+        with open(BOOT) as f:
+            self.run(rom, [ln.rstrip("\n") for ln in f], d)
+        start = os.path.join(d, "start.ss")
+        self.run(rom, ["load " + os.path.join(d, "boot.ss"), "w8 %#x %#x" % (CHAPTER, DISTRICTS["Serafew"][0]),
+                       "wait 30", "save " + start], d)
+        if not os.path.exists(start):
+            return self.check("wmuses: the district map loads", False)
+        # The idle world map, as worldmap_idle leaves it: the story on Chapter 6, the lord on Serafew, nodes 0-5 cleared
+        flag, bit = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3), 1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)
+        nflag, nbit = PERMANENT_FLAGS + ((DISTRICT_NOTICE_FLAG - 0x65) >> 3), 1 << ((DISTRICT_NOTICE_FLAG - 0x65) & 7)
+        setup = ["w8 %#x %#x" % (self.sym["gWmStoryChapter"], CHAPTER_06),
+                 "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_SERAFEW), "w8 %#x %#x" % (flag, bit),
+                 "w8 %#x %#x" % (nflag, nbit)] + ["w8 %#x 1" % (GM_DATA + 0x30 + 4 * n) for n in range(6)]
+        idle = os.path.join(d, "idle.ss")
+        self.run(rom, ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT + ["save " + idle], d)
+        if not os.path.exists(idle):
+            return self.check("wmuses: the world map", False)
+        # Eirika's items: Rapier (slot 0, 40 uses), Vulnerary (slot 1, 3 uses); Iron Sword (slot 2) for Infuse
+        slot = lambda i: UNIT1 + 0x1E + 2 * i
+        lock = "w8 %#x 0" % flag  # Serafew locked: the node menu's rows are Armory, Shop, Manage Skills, BEXP, Infuse, Items
+        procs = self.sym["sProcArray"]
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        infuse_proc = self.sym["ProcScr_PrepItemListScreen_INFUSE"]
+
+        def run(name, writes, rows, keys):
+            """The node menu, rows DOWNs, A (the screen), the screen after 220 frames; then the keys (a list of lines)."""
+            lines = ["load " + idle, lock] + writes + ["wait 10", "press A", "wait 40"]
+            lines += ["press DOWN", "wait 10"] * rows + ["press A", "wait 220"] + keys
+            lines += ["shot %s.png" % name, dump(name + ".bin")]
+            self.run(rom, lines, d)
+            self.shot(os.path.join(d, name + ".png"), "world map " + name)
+            return os.path.join(d, name + ".png"), self.procs(os.path.join(d, name + ".bin"))
+
+        inf = lambda uses: ["w16 %#x %#x" % (slot(0), 0x09 | (40 << 8)), "w16 %#x %#x" % (slot(1), 0x6C | (3 << 8)),
+                            "w16 %#x %#x" % (slot(2), 0x01 | (uses << 8))]
+        # Infuse: the cursor starts on Iron Sword (the list's first line), so its preview shows too (Steel is its target)
+        ia, ipro = run("infuse_46", inf(46), 4, [])
+        ib, _ = run("infuse_9", inf(9), 4, [])
+        self.check("wmuses: the Infuse screen opens from the node menu",
+                   any(a == infuse_proc for a, _ in ipro), "procs %d" % len(ipro))
+        ndiff = self.changed_pixels(ia, ib)
+        self.check("wmuses: Infuse does not draw a weapon's uses (Iron Sword 46 and 9 draw the same screen)",
+                   ndiff == 0, "%d pixels differ" % ndiff)
+        # Manage Items (the fifth row): Rapier's uses, then the Vulnerary's
+        mi = lambda rapier, vuln: ["w16 %#x %#x" % (slot(0), 0x09 | (rapier << 8)),
+                                   "w16 %#x %#x" % (slot(1), 0x6C | (vuln << 8))]
+        ra, _ = run("items_rapier40", mi(40, 3), 5, [])
+        rb, _ = run("items_rapier9", mi(9, 3), 5, [])
+        ndiff = self.changed_pixels(ra, rb)
+        self.check("wmuses: Manage Items does not draw a weapon's uses (Rapier 40 and 9 draw the same screen)",
+                   ndiff == 0, "%d pixels differ" % ndiff)
+        va, _ = run("items_vulnerary3", mi(40, 3), 5, [])
+        vb, _ = run("items_vulnerary9", mi(40, 9), 5, [])
+        ndiff = self.changed_pixels(va, vb)
+        self.check("wmuses: Manage Items still draws a Vulnerary's uses (3 and 9 differ)", ndiff > 0,
+                   "%d pixels differ" % ndiff)
+        # The convoy (Supply, from Manage Items' item menu: the third row). Its list is drawn from the convoy's item
+        # array (0x02027A2C, the literal in __GetConvoyItemArray), which holds an Iron Sword. Its list's tilemap is
+        # gBG2TilemapBuffer + 0xF: the name is at 3, the forge's +0 at 8 and 9, and the uses at 11 and 12 (BG2 cells 26
+        # and 27 of rows 0 and 1, the two digits and the second line's tiles).
+        supply = ["press A", "wait 200", "press DOWN", "wait 15", "press DOWN", "wait 15", "press A", "wait 200"]
+        conv = lambda uses: ["w16 0x02027A2C %#x" % (0x01 | (uses << 8)), "w16 0x02027A2E %#x" % (0x6C | (3 << 8))]
+        cells = [self.sym["gBG2TilemapBuffer"] + 2 * (r * 32 + c) for r in (0, 1) for c in (26, 27)]
+        lines = ["load " + idle, lock] + conv(46) + ["wait 10", "press A", "wait 40"] + ["press DOWN", "wait 10"] * 5
+        lines += ["press A", "wait 220"] + supply + ["r16 %#x" % a for a in cells] + ["shot convoy_46.png"]
+        self.shot(os.path.join(d, "convoy_46.png"), "world map convoy")
+        vals = self.run(rom, lines, d)
+        self.check("wmuses: the convoy does not draw a weapon's uses (Iron Sword's uses cells are blank)",
+                   len(vals) == len(cells) and not any(vals), "uses cells %s" % vals)
+        # The Supply list only lists weapons; the Vulnerary is Eirika's (the left panel's line 3, slot 1)
+        cva, _ = run("convoy_vulnerary3", conv(46), 5, supply)
+        cvb, _ = run("convoy_vulnerary9", conv(46) + ["w16 %#x %#x" % (slot(1), 0x6C | (9 << 8))], 5, supply)
+        ndiff = self.changed_pixels(cva, cvb)
+        self.check("wmuses: the convoy screen still draws Eirika's Vulnerary uses (3 and 9 differ)", ndiff > 0,
+                   "%d pixels differ" % ndiff)
 
     def test_postgame(self, states):
         """The postgame. From Serafew (start.ss) the world map opens on Chapter 20's (the story on Chapter 20, the lord on
@@ -1827,6 +1931,103 @@ class Smoke:
                    main != self.sym["InBattleMainRoutine"] + 1 and lv1 == lv0 + 1,
                    "main loop %#x, level %d to %d" % (main, lv0, lv1))
 
+    def test_autopromo(self, turn2_ss):
+        """The automatic promotions (StartAutoPromotion, Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c) with battle animations
+        off: Eirika at level 19 with 99 EXP levels up on the map and is promoted to level 1 with EXP 0; a trainee (a
+        Journeyman, with an axe given to her) at 9 with 99 EXP levels up to 10 and is promoted the same way. The hidden
+        level (gPidStatsData's NewBwl levelGain: 6 bits from bit 31; ApplyUnitPromotion adds the unit's level to it)
+        keeps the level she reached, 20 and 10. Without the fix, the level was reset before the promotion recorded it:
+        1 and 9 were recorded. A Master Seal promotion (the item path, a Cavalier at 20) gives 1, EXP 0 and 20."""
+        d = os.path.join(self.out, "autopromo")
+        os.makedirs(d, exist_ok=True)
+        if "gPidStatsData" not in self.sym:
+            return self.check("autopromo: symbols", False, "no gPidStatsData")
+        lvl, exp, cls_ptr = UNIT1 + 0x08, UNIT1 + 0x09, UNIT1 + 0x04
+        bwl = self.sym["gPidStatsData"]  # Eirika's NewBwl: the first entry (pid 1)
+        class_table = self.sym.get("gClassData_NEW", self.sym["gClassData"])
+        journeyman, cavalier = 0x3D, 0x05  # the trainee class (CA_MAXLEVEL10) and a Master Seal's class
+
+        def gain(v32, v8):
+            return ((v32 | (v8 << 32)) >> 31) & 0x3F  # NewBwl.levelGain
+
+        def case(label, cls, item, lv0, ex0, keys, wait, anim=False):
+            """Runs one promotion. Returns the hidden level (before, after), the class pointer (before, after), and the
+            level and EXP after it; None if the run printed too few values."""
+            # option byte 0x42: 2 is battle animations off (the map's level-up box), 0 on (the animated battle's)
+            setup = ["load " + turn2_ss, "w8 %#x %d" % (PLAYST + 0x42, 0 if anim else 2), "w8 %#x %d" % (lvl, lv0),
+                     "w8 %#x %d" % (exp, ex0)]
+            if cls is not None:
+                setup += ["w32 %#x %#x" % (cls_ptr, class_table + 0x54 * (cls - 1)),
+                          "w16 %#x %#x" % (UNIT1 + 0x1E, item), "w8 %#x 31" % (UNIT1 + 0x28 + 2)]
+            before = ["r32 %#x" % bwl, "r8 %#x" % (bwl + 4), "r32 %#x" % cls_ptr]
+            after = ["r8 %#x" % lvl, "r8 %#x" % exp, "r32 %#x" % cls_ptr, "r32 %#x" % bwl, "r8 %#x" % (bwl + 4)]
+            vals = self.run(ROM, setup + before + keys + ["wait %d" % wait, "shot %s.png" % label] + after, d)
+            self.shot(os.path.join(d, label + ".png"), label)
+            if len(vals) != 8:
+                return None
+            return {"gain": (gain(vals[0], vals[1]), gain(vals[6], vals[7])), "cls": (vals[2], vals[5]),
+                    "level": vals[3], "exp": vals[4]}
+
+        # 1. Eirika (Lord) at 19 with 99 EXP: the attack's EXP takes her to 20 on the map, then the promotion
+        fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 34"]
+        r = case("max", None, 0, 19, 99, fight, 1500)
+        if r is None:
+            self.check("autopromo: the max-level fight runs", False)
+        else:
+            self.check("autopromo: a max-level promotion ends at level 1 with EXP 0, in a new class",
+                       r["level"] == 1 and r["exp"] == 0 and r["cls"][0] != r["cls"][1],
+                       "level %d, EXP %d, class %#x to %#x" % (r["level"], r["exp"], r["cls"][0], r["cls"][1]))
+            self.check("autopromo: the hidden level keeps the 20 she reached", r["gain"][1] - r["gain"][0] == 20,
+                       "hidden level %d to %d" % r["gain"])
+
+        # 1b. the same with battle animations on: the promotion starts after the animated battle (PostAction_AutoPromotion)
+        r = case("max_anim", None, 0, 19, 99, fight, 2400, anim=True)
+        if r is None:
+            self.check("autopromo: the animated max-level fight runs", False)
+        else:
+            self.check("autopromo: an animated max-level promotion ends at level 1 with EXP 0, in a new class",
+                       r["level"] == 1 and r["exp"] == 0 and r["cls"][0] != r["cls"][1],
+                       "level %d, EXP %d, class %#x to %#x" % (r["level"], r["exp"], r["cls"][0], r["cls"][1]))
+            self.check("autopromo: an animated promotion keeps the hidden level 20 (once)",
+                       r["gain"][1] - r["gain"][0] == 20, "hidden level %d to %d" % r["gain"])
+
+        # 2. a trainee (Journeyman, axe in slot 0) at 9 with 99 EXP: 10 on the map, then the class choice (A)
+        prompts = ["wait 900", "press A", "wait 300", "press A", "wait 300", "press A", "wait 300"]
+        r = case("trainee", journeyman, 0x2E1F, 9, 99, fight + prompts, 10)
+        if r is None:
+            self.check("autopromo: the trainee fight runs", False)
+        else:
+            self.check("autopromo: a trainee's promotion ends at level 1 with EXP 0, in a new class",
+                       r["level"] == 1 and r["exp"] == 0 and r["cls"][0] != r["cls"][1],
+                       "level %d, EXP %d, class %#x to %#x" % (r["level"], r["exp"], r["cls"][0], r["cls"][1]))
+            self.check("autopromo: the hidden level keeps the 10 she reached", r["gain"][1] - r["gain"][0] == 10,
+                       "hidden level %d to %d" % r["gain"])
+
+        # 2b. the trainee with battle animations on: the same promotion after the animated battle
+        prompts = ["wait 2400", "press A", "wait 300", "press A", "wait 300", "press A", "wait 300"]
+        r = case("trainee_anim", journeyman, 0x2E1F, 9, 99, fight + prompts, 10, anim=True)
+        if r is None:
+            self.check("autopromo: the animated trainee fight runs", False)
+        else:
+            self.check("autopromo: an animated trainee's promotion ends at level 1 with EXP 0, in a new class",
+                       r["level"] == 1 and r["exp"] == 0 and r["cls"][0] != r["cls"][1],
+                       "level %d, EXP %d, class %#x to %#x" % (r["level"], r["exp"], r["cls"][0], r["cls"][1]))
+            self.check("autopromo: an animated trainee keeps the hidden level 10 (once)",
+                       r["gain"][1] - r["gain"][0] == 10, "hidden level %d to %d" % r["gain"])
+
+        # 3. the item path: Master Seal (the Item row, then Use) on a Cavalier at 20; the class choice (A)
+        seal = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press DOWN", "wait 10", "press DOWN", "wait 10",
+                "press A", "wait 40", "press A", "wait 60", "press A", "wait 120", "press A", "wait 200", "press A"]
+        r = case("seal", cavalier, 0x0188, 20, 0, seal, 600)
+        if r is None:
+            self.check("autopromo: the Master Seal promotion runs", False)
+        else:
+            self.check("autopromo: a Master Seal promotion ends at level 1 with EXP 0, in a new class",
+                       r["level"] == 1 and r["exp"] == 0 and r["cls"][0] != r["cls"][1],
+                       "level %d, EXP %d, class %#x to %#x" % (r["level"], r["exp"], r["cls"][0], r["cls"][1]))
+            self.check("autopromo: a Master Seal promotion records the hidden level 20",
+                       r["gain"][1] - r["gain"][0] == 20, "hidden level %d to %d" % r["gain"])
+
     def test_banim(self, boot_ss):
         """The custom battle animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event), one
         fight each with animations on (option byte 0x42), Eirika's unit made the character in RAM: Gerik as a Mercenary
@@ -2135,6 +2336,47 @@ class Smoke:
                    (x2, y2) in forests and (x2, y2) != (x1, y1) and not st2 & 0x42,
                    "at (%d, %d), state %#x" % (x2, y2, st2))
         self.check("deeproots: Wait then ends her turn", st3 & 0x42 == 0x42, "state %#x" % st3)
+
+    def test_formation(self, boot_ss):
+        """Check Map > Formation and Check Map > View Map on the Preparations screen (chapter 4, as boot-to-prep.txt).
+        The Check Map submenu leaves a block of BG0 tiles (the arrow, tiles 0x15C-0x15F at (20, 3)) in the BG0 map, and
+        View Map and Formation turn BG0 on: the arrow showed on those screens and nowhere else. Every frame of each
+        screen's start (and the settled screen) must have no BG0 entry 0x15C at (20, 3); the submenu's own window (BG0
+        entry 0x14C at (12, 3)) shows the submenu did open."""
+        d = os.path.join(self.out, "formation")
+        os.makedirs(d, exist_ok=True)
+        # the BG0 map is screenbase 12 (0x06006000, BG0CNT 0x0C00); (20, 3) is entry 3 * 32 + 20 (2 bytes each)
+        entry = 0x06006000 + 2 * (3 * 32 + 20)
+        window = 0x06006000 + 2 * (3 * 32 + 12)
+        ARROW, WINDOW = 0x15C, 0x14C
+        cursor = ["press DOWN 4", "wait 40"] * 7  # Check Map is the eighth row of the Preparations menu
+        lines = ["load " + boot_ss, "w8 %#x 4" % CHAPTER, "press B", "wait 60", "press RIGHT", "wait 40",
+                 "press DOWN", "wait 10", "press DOWN", "wait 10", "press A", "wait 60"] + ["press DOWN", "wait 10"] * 7
+        lines += ["press START", "wait 200", "press A", "wait 120", "press A", "wait 600", "wait 200"]
+        lines += cursor + ["press A", "wait 90", "r16 %#x" % window]
+        lines += ["press DOWN 4", "wait 60", "press A", "wait 1"]
+        for _ in range(30):
+            lines += ["r16 %#x" % entry, "wait 1"]
+        lines += ["wait 90", "shot %s" % os.path.join(d, "formation.png"), "r16 %#x" % entry]
+        lines += ["press B", "wait 90", "press UP 4", "wait 60", "press A", "wait 1"]
+        for _ in range(30):
+            lines += ["r16 %#x" % entry, "wait 1"]
+        lines += ["wait 90", "shot %s" % os.path.join(d, "viewmap.png"), "r16 %#x" % entry]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "formation.png"), "Check Map > Formation")
+        self.shot(os.path.join(d, "viewmap.png"), "Check Map > View Map")
+        if len(vals) != 1 + 31 + 31:
+            return self.check("formation: the Preparations screen opens", False, "%d reads" % len(vals))
+        # per screen: 30 reads from the A press on, then the settled screen
+        submenu, formation, viewmap = vals[0], vals[1:32], vals[32:63]
+        self.check("formation: the Check Map submenu opened (its window tile is on BG0)", submenu == WINDOW,
+                   "window entry %#x" % submenu)
+        # BG0's map reaches VRAM at the next VBlank, so the read on the press's first frame can still hold the old map
+        # (nothing shows: the screenshots of those frames have no arrow); every later frame and the settled screen must
+        bad = [i for i, v in enumerate(formation[1:] + viewmap[1:]) if v == ARROW]
+        self.check("formation: no arrow tile on BG0 at (20, 3) once Formation or View Map starts",
+                   not bad and vals[31] != ARROW and vals[62] != ARROW,
+                   "frames with the arrow %s; settled %#x and %#x" % (bad, vals[31], vals[62]))
 
     def test_ch1end(self, boot_ss):
         """Chapter 1's end: the debugger restarts at Chapter 1 (as boot-to-prep.txt does Chapter 4) and skips its
@@ -2787,14 +3029,15 @@ def main():
         return run
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "awards", "frames", "stealer", "debugflag",
-                  "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "banim",
-                  "dbgbanim", "mapbox", "gaidenexp")
+                  "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
+                  "banim", "dbgbanim", "mapbox", "gaidenexp", "formation")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
-            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "banim", "dbgbanim", "mapbox", "gaidenexp")
+            fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "banim", "dbgbanim",
+                      "mapbox", "gaidenexp")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -2812,6 +3055,8 @@ def main():
                 r.submit((0, 5), s.test_expbar, turn2_ss)
             if on("lvupanim") and turn2_ss:
                 r.submit((0, 9), s.test_lvupanim, turn2_ss)
+            if on("autopromo") and turn2_ss:
+                r.submit((0, 14), s.test_autopromo, turn2_ss)
             if on("banim") and turn2_ss:
                 r.submit((0, 10), s.test_banim, turn2_ss)
             if on("dbgbanim") and turn2_ss:
@@ -2826,6 +3071,8 @@ def main():
                 r.submit((0, 7), s.test_mapcolors, boot_ss)
             if on("ch1end"):
                 r.submit((0, 8), s.test_ch1end, boot_ss)
+            if on("formation"):
+                r.submit((0, 15), s.test_formation, boot_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),
@@ -2836,7 +3083,7 @@ def main():
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")
-    serafew_own = ("worldmap", "stubs", "wmsave", "wmshops", "postgame", "savetitle", "districtresume")
+    serafew_own = ("worldmap", "stubs", "wmsave", "wmshops", "postgame", "savetitle", "districtresume", "wmuses")
     for k, n in enumerate(names):
         if not (on(n) or (n == "Serafew" and any(on(t) for t in serafew_dir + serafew_own)) or
                 (n == "PortKiris" and on("snek"))):

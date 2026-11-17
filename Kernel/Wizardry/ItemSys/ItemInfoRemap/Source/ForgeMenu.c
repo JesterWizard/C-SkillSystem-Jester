@@ -391,13 +391,16 @@ void DrawItemForgeMenuLine(struct Text* text, int item, u16* mapOut) {
     Text_DrawString(text, GetItemName(item));
     PutText(text, mapOut + 2);
 
+    /* infinite_durability hides a weapon's uses (the slash and the numbers after the forge count are uses) */
+    bool showUses = ShouldDisplayItemDurability(item);
+
     if (isForgeable) {
         PutNumberOrBlank(mapOut + 11, TEXT_COLOR_SYSTEM_GOLD, GetItemForgeCount(item));
-        PutSpecialChar(mapOut + 12, TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
-        PutNumberOrBlank(mapOut + 14, TEXT_COLOR_SYSTEM_BLUE, GetForgedItemDurability(item));         
-    }
-    else
-    {
+        if (showUses) {
+            PutSpecialChar(mapOut + 12, TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
+            PutNumberOrBlank(mapOut + 14, TEXT_COLOR_SYSTEM_BLUE, GetForgedItemDurability(item));
+        }
+    } else if (showUses) {
         PutNumberOrBlank(mapOut + 11, TEXT_COLOR_SYSTEM_BLUE, GetItemUses(item));
         PutSpecialChar(mapOut + 12, TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
         PutNumberOrBlank(mapOut + 14, TEXT_COLOR_SYSTEM_BLUE, GetItemMaxUses(item));

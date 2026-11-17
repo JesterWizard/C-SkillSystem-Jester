@@ -6,6 +6,7 @@
 #include "action-expa.h"
 #include "constants/skills.h"
 #include "constants/texts.h"
+#include "jester_headers/Forging.h"
 
 extern u16 gUnknown_085A0D4C[];
 
@@ -100,7 +101,8 @@ static int MasterForge_OnDraw(struct MenuProc * menu, struct MenuItemProc * item
 
     DrawIcon(gBG0TilemapBuffer + TILEMAP_INDEX(item->xTile, item->yTile), GetItemIconId(itemInSlot), 0x4000);
     PutText(&item->text, TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 2, item->yTile));
-	PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 11, item->yTile), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(itemInSlot));
+	if (ShouldDisplayItemDurability(itemInSlot)) /* infinite_durability hides weapon uses */
+		PutNumber(TILEMAP_LOCATED(gBG0TilemapBuffer, item->xTile + 11, item->yTile), TEXT_COLOR_SYSTEM_BLUE, GetItemUses(itemInSlot));
 
     PutFace80x72_Core(gBG0TilemapBuffer + 0x63 + 0x40, gActiveUnit->pCharacterData->portraitId, 0x200, 5);
 

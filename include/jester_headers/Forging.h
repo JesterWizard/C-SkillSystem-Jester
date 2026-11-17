@@ -6,6 +6,9 @@ int IncrementForgeCount(int item, int amount);
 int DecrementForgeCount(int item, int amount); 
 int CanItemBeForged(int item); 
 
+// infinite_durability: a weapon's uses are not drawn anywhere (ItemInfos.c); everything else shows them
+bool ShouldDisplayItemDurability(int item);
+
 extern struct UnitInfoWindowProc* UnitInfoWindow_DrawBase(struct UnitInfoWindowProc* proc, struct Unit* unit, int x, int y, int width, int lines);
 extern int GetUnitInfoWindowX(struct Unit* unit, int width);
 
