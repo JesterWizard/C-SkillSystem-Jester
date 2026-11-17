@@ -71,6 +71,8 @@ What it checks:
   battlequote O'Neill moved next to Eirika: his battle quote's [LoadFace_Eirika][Surprised] shows her expression
               (a test ROM maps her angry portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
+  sethcarlyle Seth attacks Carlyle (an enemy moved beside him with Carlyle's character data): the conversation's first box
+              shows Carlyle's portrait (0x3C), so the chapter-0xff row of gNewBattleTalkList and its message are picked.
   threat      threat arrows (Kernel/Wizardry/ThreatArrows): with Eirika selected, the cursor on her tile (both fighters
               reach it) shows two arrows (OAM entries with the arrow tiles 0x70/0x71/0x7A/0x7B in OBJ palette 6); on
               (4, 3), which no enemy reaches, none; after B none, and the tiles are blank again. The Options row is off
@@ -120,7 +122,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle,
 lvupanim, autopromo, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -206,6 +208,8 @@ BATTLE_TARGET = 0x0203A56C
 GFACES = 0x03004980
 EVENT_SLOTS = 0x030004B8
 EIRIKA_PORTRAIT = 0x02
+CARLYLE_PORTRAIT = 0x3C   # [LoadFace_Carlyle] (Contents/Texts/textdefs.txt)
+CHARACTER_CARLYLE = 0x52  # include/constants/characters.h (FE-CLib)
 EXPRESSION_ANGRY = 2  # include/kernel/portrait-expressions.h
 EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED, EXPRESSION_DETERMINED = 3, 4, 5, 6  # include/kernel/portrait-expressions.h
 BM_MAP_UNIT = 0x0202E4D8
@@ -2336,6 +2340,49 @@ class Smoke:
                            len(vals) == 3 and vals[1] == 1 and vals[2] == vals[0] * (16 - height),
                            "lines %s, active %s, box %s rows shorter" % tuple(vals + ["?"] * (3 - len(vals))))
 
+    def test_sethcarlyle(self, boot_ss):
+        """Seth's battle quote with Carlyle (MSG_BATTLE_QUOTE_SETH_CARLYLE, a row of gNewBattleTalkList with chapter 0xff,
+        so any chapter). Carlyle takes the first enemy's slot (index 0, O'Neill's place), with Carlyle's CharacterData
+        (gCharacterData, entry CHARACTER_CARLYLE - 1) and 1 HP, on the tile left of Seth. The cursor starts on Eirika;
+        it moves to Seth, then A (select), A (menu), A (Attack), A and A (forecast and confirm) start the conversation.
+        Its first box shows Carlyle's portrait (0x3C) on the first face loaded."""
+        d = os.path.join(self.out, "battle")
+        os.makedirs(d, exist_ok=True)
+        seth, enemy = UNIT1 + 0x48, 0x0202CFBC
+        carlyle = self.sym["gCharacterData"] + 0x34 * (CHARACTER_CARLYLE - 1)
+        vals = self.run(ROM, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT, "r8 %#x" % (enemy + 0x10),
+                              "r8 %#x" % (enemy + 0x11), "r8 %#x" % (seth + 0x10), "r8 %#x" % (seth + 0x11),
+                              "r8 %#x" % (UNIT1 + 0x10), "r8 %#x" % (UNIT1 + 0x11)], d)
+        if len(vals) != 7:
+            return self.check("sethcarlyle: the boot state has the units", False, "values %s" % vals)
+        rows, ox, oy, sx, sy, ex, ey = vals
+        row = lambda y: self.run(ROM, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0]
+        left = row(sy) + sx - 1
+        free = self.run(ROM, ["load " + boot_ss, "r8 %#x" % left], d)
+        self.check("sethcarlyle: the tile left of Seth is free for Carlyle", free == [0], "value %s" % free)
+        if free != [0]:
+            return
+        # the cursor starts on Eirika: move it to Seth, horizontally then vertically
+        moves = []
+        for _ in range(abs(sx - ex)):
+            moves += ["press %s 5" % ("RIGHT" if sx > ex else "LEFT"), "wait 20"]
+        for _ in range(abs(sy - ey)):
+            moves += ["press %s 5" % ("DOWN" if sy > ey else "UP"), "wait 20"]
+        lines = ["load " + boot_ss, "w8 %#x 0" % (row(oy) + ox),          # O'Neill's old tile
+                 "w8 %#x 0x81" % left,                                    # Carlyle's new tile
+                 "w8 %#x %d" % (enemy + 0x10, sx - 1), "w8 %#x %d" % (enemy + 0x11, sy),
+                 "w32 %#x %#x" % (enemy, carlyle), "w8 %#x 1" % (enemy + 0x13)] + moves
+        # select Seth, the menu, Attack, the forecast, then the conversation's first A
+        lines += ["press A 5", "wait 30", "press A 5", "wait 40", "press A 5", "wait 40", "press A 5", "wait 40",
+                  "press A 5", "wait 60", "press A 5", "wait 150"]
+        lines += ["shot sethcarlyle.png", "save sethcarlyle.ss", "r32 %#x" % GFACES]
+        face = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "sethcarlyle.png"), "Seth and Carlyle's battle quote")
+        got = self.run(ROM, ["load " + os.path.join(d, "sethcarlyle.ss"), "r16 %#x" % (face[0] + 0x3E)], d) \
+            if face and face[0] else []
+        self.check("sethcarlyle: the first box shows Carlyle's portrait (0x3C)", got == [CARLYLE_PORTRAIT],
+                   "portrait %s" % (", ".join("%#x" % v for v in got) or "none"))
+
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
         (13, 7), (14, 8) and (2, 0); Eirika starts on plains at (4, 5) with Mov 5. Given the skill in RAM and put on
@@ -3080,7 +3127,7 @@ def main():
                 t()
         return run
 
-    boot_tests = ("statscreen", "promosms", "battle", "battlequote", "awards", "frames", "stealer", "debugflag",
+    boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
                   "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
     if on("boot") or any(on(t) for t in boot_tests):
@@ -3098,6 +3145,7 @@ def main():
                 if on(t)]))
             r.submit((0, 2), seq(*[lambda f=f, ss=ss: f(ss) for t, f, ss in (
                 ("battle", s.test_battle, turn2_ss), ("battlequote", s.test_battlequote, boot_ss),
+                ("sethcarlyle", s.test_sethcarlyle, boot_ss),
                 ("stealer", s.test_stealer, boot_ss), ("frames", s.test_frames, boot_ss)) if on(t) and ss]))
             if on("awards"):
                 r.submit((0, 3), s.test_awards, boot_ss)
