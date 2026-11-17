@@ -72,8 +72,8 @@ What it checks:
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
               character palette).
-  dbgbanim    the debugger's "Battle anim" viewer on Eirika: her animation plays (with animations off in the options), A
-              switches the next fight to a critical, B leaves after it with the option put back.
+  dbgbanim    the debugger's "Battle anim" screen on Eirika: her animation attacks on the platform, down shows another,
+              A switches to the critical, B goes back to the map.
   biography   the map menu's Biography row opens the list; it scrolls to its last biography, which A does not open (her
               character has not joined); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
@@ -1856,33 +1856,28 @@ class Smoke:
                        "gBanimUniquePal %s" % ["%#x" % v for v in pal_vals])
 
     def test_dbgbanim(self, boot_ss):
-        """The debugger's "Battle anim" (page 3, Kernel/Wizardry/VeslyDebugger/BanimViewer.c) on Eirika: her animation
-        plays against a stand-in Soldier, one normal hit; A during it makes the next fight a critical; B during that one
-        leaves after it, back to the menu, with the animation option as it was."""
+        """The debugger's "Battle anim" screen (page 3, Kernel/Wizardry/VeslyDebugger/BanimViewer.c) on Eirika: her
+        animation (index 2) attacks on its platform (the class reel's AnimBuffer at 0x02000000: animId +6, roundType
+        +0xA); down goes to the next entry, another animation; A switches to the critical (round type 1); B goes back to
+        the map, its background layers on again."""
         d = os.path.join(self.out, "dbgbanim")
         os.makedirs(d, exist_ok=True)
-        need = ("gBanimIdx", "gBattleHitArrayRe")
-        if not all(n in self.sym for n in need):
-            return self.check("dbgbanim: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
-        idx, hits = self.sym["gBanimIdx"], self.sym["gBattleHitArrayRe"]
-        deamon = 0x0203E0F4  # gBattleDeamonActive
-        lines = ["load " + boot_ss, "w8 %#x 2" % (PLAYST + 0x42), "r8 %#x" % (PLAYST + 0x42), "wait 10", "press B",
-                 "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"] + ["press DOWN", "wait 10"] * 4
-        lines += ["press A", "wait 60", "r16 %#x" % (idx + 2), "r32 %#x" % hits, "r32 %#x" % deamon,
-                  "shot normal.png", "wait 60", "press A", "wait 360", "r32 %#x" % hits, "r32 %#x" % deamon,
-                  "press B", "wait 600", "r32 %#x" % deamon, "wait 200", "r32 %#x" % deamon, "r8 %#x" % (PLAYST + 0x42),
-                  "shot menu.png"]
+        anim = 0x02000000
+        lines = ["load " + boot_ss, "wait 10", "press B", "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"]
+        lines += ["press DOWN", "wait 10"] * 4
+        lines += ["press A", "wait 90", "r16 %#x" % (anim + 6), "r16 %#x" % (anim + 0xA), "shot viewer.png",
+                  "press DOWN", "wait 60", "r16 %#x" % (anim + 6), "press A", "wait 30", "r16 %#x" % (anim + 0xA),
+                  "shot crit.png", "press B", "wait 150", "r16 0x04000000", "shot menu.png"]
         vals = self.run(ROM, lines, d)
-        self.shot(os.path.join(d, "normal.png"), "the debugger's battle animation viewer")
-        if len(vals) != 9:
+        self.shot(os.path.join(d, "viewer.png"), "the debugger's battle animation viewer")
+        if len(vals) != 5:
             return self.check("dbgbanim: the viewer runs", False, "values %s" % vals)
-        conf0, banim, hit1, d1, hit2, d2, d3, d4, conf1 = vals
-        self.check("dbgbanim: Eirika's animation plays (with animations off in the options)",
-                   banim != 0xFFFF and d1, "gBanimIdx[1] %#x, deamon %d" % (banim, d1))
-        self.check("dbgbanim: the first fight is one normal hit", hit1 & 0x7FFFF == 0, "hit %#x" % hit1)
-        self.check("dbgbanim: after A the next fight is a critical", d2 and hit2 & 1, "hit %#x, deamon %d" % (hit2, d2))
-        self.check("dbgbanim: B leaves after that fight, the option put back", not d3 and not d4 and conf1 == conf0,
-                   "deamon %d, %d; option byte %#x then %#x" % (d3, d4, conf0, conf1))
+        a0, r0, a1, r1, dispcnt = vals
+        self.check("dbgbanim: Eirika's animation attacks on the platform", a0 == 2 and r0 == 0,
+                   "animId %#x, roundType %d" % (a0, r0))
+        self.check("dbgbanim: down shows another animation", a1 not in (a0, 0xFFFF), "animId %#x" % a1)
+        self.check("dbgbanim: A switches to the critical", r1 == 1, "roundType %d" % r1)
+        self.check("dbgbanim: B goes back to the map", dispcnt & 0x0E00 == 0x0E00, "DISPCNT %#x" % dispcnt)
 
     def test_battlequote(self, boot_ss):
         """Moves O'Neill (the first enemy) next to Eirika and attacks him: his battle quote has Eirika answer with

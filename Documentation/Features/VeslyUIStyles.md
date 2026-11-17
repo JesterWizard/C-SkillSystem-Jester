@@ -204,7 +204,7 @@ Each UI style brings the [EXP bar style](./ExpBarStyles.md) closest to its look:
 | 11 | Pikmin menus / Fenreir battle | 3 | Stars |
 
 The row is `GAME_OPTION_EXP_BAR`, and its value is kept in `gPlaySt.config.exp_bar_style` (4 bits, saved with the other
-options; a new game starts on Vanilla). The table is `sUiStyles` in
+options; a new game starts on Tech). The table is `sUiStyles` in
 [`ExpBarStyles.c`](../../Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c); `GetUI_id` returns its `ui_id`
 (`UiStyle_GetUiId`). `gpKernelDesignerConfig->vesly_custom_ui` must be on (off, every style is vanilla's).
 
