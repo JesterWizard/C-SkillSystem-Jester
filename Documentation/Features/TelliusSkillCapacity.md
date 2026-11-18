@@ -36,7 +36,15 @@ This forces players to consider meaningful tradeoffs instead of stacking many po
 The system works as follows:
 
 ### ✔️ Skill Rules
-- Every **skill** receives a **capacity cost**
+- Every **skill** receives a **capacity cost** from its **tier**, E (weakest) to S (strongest) by usefulness:
+
+  | Tier | E | D | C | B | A | S |
+  |---|---|---|---|---|---|---|
+  | Cost | 3 | 5 | 8 | 10 | 15 | 20 |
+
+  Both are editable in [`Skills_Capacity.h`](../../include/kernel/Skills_Capacity.h): the `SKILL_TIER_*` costs at the top,
+  and each skill's tier on its line (`#define MSG_SKILL_Astra_CAPACITY SKILL_TIER_S`). After an edit, rebuild
+  `Data/SkillSys/Source/SkillInfo.lyn.event` (`make -B`), which the header does not trigger.
 
 ### ✔️ Unit Rules
 - Every **unit** starts with **50 capacity**

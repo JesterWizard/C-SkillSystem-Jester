@@ -76,8 +76,9 @@ struct UiStyleOption {
 	u8 exp_bar;
 };
 
-/* Row 0 is the default (a zeroed config): Tech */
+/* Row 0 is the default (a zeroed config): Gamma (HyperGammaSpaces), with vanilla's EXP bar for now */
 static const struct UiStyleOption sUiStyles[] = {
+	{ "Gamma",         "Gamma's menus. EXP: the original bar.", 2, EXP_BAR_VANILLA },
 	{ "Tech",          "Neon glass panels. EXP: LED bars.",   5,  EXP_BAR_TECH },
 	{ "Wood",          "Wooden planks. EXP: a potion vial.",  4,  EXP_BAR_VIAL },
 	{ "Vanilla",       "The original windows and EXP bar.",   0,  EXP_BAR_VANILLA },
@@ -88,7 +89,6 @@ static const struct UiStyleOption sUiStyles[] = {
 	{ "Forest",        "Woven vines. EXP: a glowing arrow.",  10, EXP_BAR_ARROW },
 	{ "Parchment",     "Inked parchment. EXP: a scroll.",     11, EXP_BAR_SCROLL },
 	{ "Stephano",      "Stephano's menus. EXP: a sword.",     1,  EXP_BAR_BLADE },
-	{ "Gamma",         "Gamma's menus. EXP: a chain.",        2,  EXP_BAR_CHAIN },
 	{ "Pikmin",        "Pikmin's menus. EXP: a starry sky.",  3,  EXP_BAR_STARS },
 };
 

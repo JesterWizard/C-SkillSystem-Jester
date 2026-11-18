@@ -57,14 +57,6 @@ static const struct CharacterBiography gCharacterBiographies[] =
     },
 };
 
-static int NumberOfCharacterBiographies() {
-    int lengthOfList = 0;
-    for (int i = 0; i < (int)ARRAY_COUNT(gCharacterBiographies); i++)
-        lengthOfList += 1;
-
-    return lengthOfList;
-}
-
 /* A page can wait on a guild board quest (gGuildUnlocks, Data/Guild/Guild.c) */
 static bool BiographyPageOpen(int index, int page)
 {
@@ -91,28 +83,49 @@ static bool BiographyUnlocked(int index)
     return false;
 }
 
-/* The visible rows: the biographies from gTopVisibleListIndex on (the list scrolls past BASE_VISIBLE_COUNT); one not unlocked is grey */
+/* The list holds the biographies whose character has joined: list row -> gCharacterBiographies index, or -1 */
+static int BiographyAtRow(int row)
+{
+    int i;
+
+    for (i = 0; i < (int)ARRAY_COUNT(gCharacterBiographies); i++) {
+        if (!BiographyUnlocked(i))
+            continue;
+        if (row-- == 0)
+            return i;
+    }
+    return -1;
+}
+
+static int NumberOfCharacterBiographies(void)
+{
+    int i, count = 0;
+
+    for (i = 0; i < (int)ARRAY_COUNT(gCharacterBiographies); i++)
+        if (BiographyUnlocked(i))
+            count++;
+    return count;
+}
+
+/* The visible rows: the unlocked biographies from gTopVisibleListIndex on (the list scrolls past BASE_VISIBLE_COUNT) */
 static void DrawBaseConversations(int x, int y) {
 
     for (int row = 0; row < BASE_VISIBLE_COUNT; row++) 
     {
-        int i = gTopVisibleListIndex + row;
-        bool unlocked;
+        int i = BiographyAtRow(gTopVisibleListIndex + row);
 
         ClearText(&PrepItemSuppyTexts.th[row+2]);
-        if (i >= NumberOfCharacterBiographies()) {
+        if (i < 0) {
             PutText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)));
             continue;
         }
 
-        unlocked = BiographyUnlocked(i);
-
         PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
-                    unlocked ? TEXT_COLOR_SYSTEM_WHITE : TEXT_COLOR_SYSTEM_GRAY, 0, 0,
+                    TEXT_COLOR_SYSTEM_WHITE, 0, 0,
                     GetStringFromIndex(GetCharacterData(gCharacterBiographies[i].characterId)->nameTextId));
 
         PutDrawText(&PrepItemSuppyTexts.th[row+2], TILEMAP_LOCATED(gBG0TilemapBuffer, x, y + (row * 2)),
-                    unlocked ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY, 40, 0,
+                    TEXT_COLOR_SYSTEM_GOLD, 40, 0,
                     Utf8ToNarrowFonts(gCharacterBiographies[i].subtitle));
     }
 
@@ -181,7 +194,7 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
     u16 keys = gKeyStatusPtr->newKeys;
 
     if (keys & A_BUTTON) {
-        if (!BiographyUnlocked(proc->list_num_cur)) {
+        if (BiographyAtRow(proc->list_num_cur) < 0) {
             PlaySoundEffect(SONG_6C);
             return;
         }
@@ -251,11 +264,11 @@ LABEL(0x1)
 
 void CallBiographyEvent(struct ProcPrepUnit * proc) {
     /* Set the song based on the selection */
-    gCharacterBiographyListNumber = proc->list_num_cur;
-    if (gCharacterBiographies[proc->list_num_cur].songId == 0)
+    gCharacterBiographyListNumber = BiographyAtRow(proc->list_num_cur);
+    if (gCharacterBiographies[gCharacterBiographyListNumber].songId == 0)
         StartBgm(NextRN_N(0x46), 0);
     else
-        StartBgm(gCharacterBiographies[proc->list_num_cur].songId, 0);
+        StartBgm(gCharacterBiographies[gCharacterBiographyListNumber].songId, 0);
 
     KernelCallEvent(EventScr_CharacterBiographies, EV_EXEC_QUIET, proc);
 }

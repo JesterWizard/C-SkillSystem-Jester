@@ -24,7 +24,7 @@ This feature adds a **Character Biographies** command to the map menu.
 
 The aim is to ensure:
 
-- A scrollable list of playable character biographies
+- A scrollable list of the biographies of the characters who have joined the army (the others are not listed)
 - Per-character music selection
 - Multi-page CG-style biography presentation (4 entries per character)
 

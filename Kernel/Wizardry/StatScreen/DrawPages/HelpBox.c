@@ -160,7 +160,14 @@ void LoadHelpBoxGfx(void * vram, int palId)
     if (HelpBoxNeedsSafeVram())
     {
         if (vram == NULL) {
-            if (Proc_Find(gProcScr_StatScreen) || Proc_Find(gProcScr_Shop))
+            /*
+             * The stat screen's skill page draws its capacity circle at 0x6013760, so its help goes to 0x6012000. That
+             * is map sprite VRAM (tiles 0x80-0x17F): elsewhere in the stat screen (the Promotions page draws its
+             * options' map sprites there) it overwrote the first option's sprite with the box's tiles, a brown block
+             * that stayed after the box closed. The other pages use vanilla's 0x6013000.
+             */
+            if (Proc_Find(gProcScr_Shop) ||
+                (Proc_Find(gProcScr_StatScreen) && TranslateStatPageId(gStatScreen.page) == STATSCREEN_PAGE_2))
                 vram = (void *)0x06012000;
             else
                 vram = (void *)0x06013000;

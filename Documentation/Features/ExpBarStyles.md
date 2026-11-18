@@ -37,14 +37,14 @@ and the one in a battle animation.
 | Forest | Arrow |
 | Parchment | Scroll |
 | Stephano | Blade |
-| Gamma | Chain |
+| Gamma | Vanilla (its Chain bar is unused for now) |
 | Pikmin | Stars |
 
 <p align="center">
   <img src="../Images/ExpBarStyles_Options.png" alt="The EXP Bar row on the Options screen" width="480"/>
 </p>
 
-A new game starts on Tech (the UI Style option's row 0, `sUiStyles` in `ExpBarStyles.c`); Vanilla is row 2. The choice is kept in the save with the other options.
+A new game starts on Gamma (HyperGammaSpaces, the UI Style option's row 0, `sUiStyles` in `ExpBarStyles.c`) with vanilla's EXP bar for now; Tech is row 1 and Vanilla row 3. The choice is kept in the save with the other options.
 
 ---
 

@@ -437,6 +437,8 @@ struct TextEngineDimProc {
 	/* Per gFaces slot: the face last seen there and how dim it is. */
 	struct FaceProc *face[TEXT_ENGINE_DIM_FACE_SLOTS];
 	u8 level[TEXT_ENGINE_DIM_FACE_SLOTS];
+	/* The face whose speech box opened last (speakingFaceSlot): the one that is lit. */
+	struct FaceProc *speaker;
 };
 
 /* bmlib's palette fade proc, which fades portraits in and out. */
@@ -6496,24 +6498,32 @@ static bool TextEngine_IsTalkFace(struct FaceProc *face)
 	return false;
 }
 
-/* Writes the face's palettes at level DIM_FRAMES-ths of the way to dim. */
-static bool TextEngine_PutFaceDim(struct FaceProc *face, int level)
+/*
+ * Writes the face's palettes at level DIM_FRAMES-ths of the way to dim. While a palette fades (a face fading in), the
+ * fade rewrites it every frame: with in_fade, the colours it wrote this frame are darkened in place, so a face that
+ * fades in dim stays dim instead of lighting up and darkening after; without, the palette is left to the fade.
+ */
+static bool TextEngine_PutFaceDim(struct FaceProc *face, int level, bool in_fade)
 {
 	u8 pals[TEXT_ENGINE_DIM_MAX_PALETTES];
 	const u16 *colors[TEXT_ENGINE_DIM_MAX_PALETTES];
 	int mul = 32 - TEXT_ENGINE_DIM_STRENGTH * level / TEXT_ENGINE_DIM_FRAMES;
 	int count = TextEngine_GetFacePalettes(face, pals, colors);
+	bool fading = false;
 	int i, j;
 
 	for (i = 0; i < count; i++)
 		if (TextEngine_IsPalFading(pals[i]))
-			return false;
+			fading = true;
+
+	if (fading && !in_fade)
+		return false;
 
 	for (i = 0; i < count; i++) {
 		u16 *dst = gPaletteBuffer + pals[i] * 0x10;
 
 		for (j = 0; j < 0x10; j++) {
-			int c = colors[i][j];
+			int c = fading ? dst[j] : colors[i][j];
 
 			dst[j] = RGB(
 				((c & 0x1F) * mul) >> 5,
@@ -6537,27 +6547,39 @@ static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
 	if (Chatlog_IsVisible())
 		return;
 
-	if (state->activeFaceSlot < ARRAY_COUNT(state->faces))
-		speaker = state->faces[state->activeFaceSlot];
+	/*
+	 * The speaker is the face whose speech box opened last ([OpenX] then text): a face loaded but not yet speaking
+	 * (LoadFace makes its slot the active one) stays dim until its box opens.
+	 */
+	if ((s8)state->speakingFaceSlot >= 0 && (int)state->speakingFaceSlot < (int)ARRAY_COUNT(state->faces) &&
+		state->faces[(int)state->speakingFaceSlot])
+		proc->speaker = state->faces[(int)state->speakingFaceSlot];
+	speaker = proc->speaker;
 
 	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
 		struct FaceProc *face = gFaces[slot];
 		int level = proc->level[slot];
 		int target = 0;
+		bool is_new = face != proc->face[slot];
 
-		/* A new face in this slot starts lit. */
-		if (face != proc->face[slot]) {
-			proc->face[slot] = face;
+		if (!face) {
+			proc->face[slot] = NULL;
 			proc->level[slot] = 0;
-			level = 0;
+			continue;
 		}
 
-		if (!face)
-			continue;
-
-		/* With no one speaking, everyone is lit. */
-		if (speaker && face != speaker && TextEngine_IsTalkFace(face))
+		/* Every face but the speaker's is dim; before anyone speaks, every face is */
+		if (face != speaker && TextEngine_IsTalkFace(face))
 			target = TEXT_ENGINE_DIM_FRAMES;
+
+		/* A new face in this slot starts at its target: it is shown dim, rather than lit and then darkening */
+		if (is_new) {
+			proc->face[slot] = face;
+			proc->level[slot] = target;
+			if (target && TextEngine_PutFaceDim(face, target, true))
+				changed = true;
+			continue;
+		}
 
 		/* Lit and staying lit: the palette is the face's own. */
 		if (level == 0 && target == 0)
@@ -6572,7 +6594,7 @@ static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
 		 * Dimmed faces are rewritten every frame, in case something
 		 * reloaded the palette.  A face mid-fade keeps its level.
 		 */
-		if (TextEngine_PutFaceDim(face, level)) {
+		if (TextEngine_PutFaceDim(face, level, level == TEXT_ENGINE_DIM_FRAMES && level == target)) {
 			proc->level[slot] = level;
 			changed = true;
 		}
@@ -6590,7 +6612,7 @@ static void TextEngineDim_OnEnd(struct TextEngineDimProc *proc)
 	/* Faces still on screen after the dialogue go back to their own colours. */
 	for (slot = 0; slot < TEXT_ENGINE_DIM_FACE_SLOTS; slot++) {
 		if (proc->level[slot] && gFaces[slot] == proc->face[slot] && gFaces[slot])
-			changed |= TextEngine_PutFaceDim(gFaces[slot], 0);
+			changed |= TextEngine_PutFaceDim(gFaces[slot], 0, false);
 	}
 
 	if (changed)
@@ -6624,6 +6646,7 @@ static void TextEngine_StartDim(void)
 		proc->face[slot] = gFaces[slot];
 		proc->level[slot] = 0;
 	}
+	proc->speaker = NULL;
 }
 
 static void TextEngine_CleanupDim(void)
