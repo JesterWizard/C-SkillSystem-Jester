@@ -49,6 +49,8 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 | 0xE4, 0xE5 | Gilliam, Armor Knight | lances; unarmed | vanilla's Armor Knight (0x40, 0x41) with the helmet off | vanilla, head drawn for this repo |
 | 0xE6 | Dozla, Berserker | axes | Dozla, Berserker (axe swing, a thrown axe at range), from frames (see [From Frames](#from-frames)) | sprite by Judgement, animated via ChatGPT |
 | 0xE7 | Dozla, Berserker | Hand Axe, Tomahawk, Hatchet | Dozla, Berserker (thrown axe, at any range), from frames | sprite by Judgement, animated via ChatGPT |
+| 0xE8 | Garcia, Fighter | axes | Garcia, Fighter (axe swing), from frames | TBA |
+| 0xE9 | Garcia, Fighter | Hand Axe, Tomahawk, Hatchet | Garcia, Fighter (thrown axe, at any range), from frames | TBA |
 
 Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
 class's vanilla list with the custom ID in place of the animated weapon types' entries.
@@ -189,7 +191,22 @@ The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_E
   about 37 KB, his throw (35 frames) 7 sheets and about 16 KB, 1-5 OBJs a frame.
 - **Modes 2 and 4** (the layer behind the unit) are modes 1 and 3 with every frame empty, as FEditor makes them when
   nothing is drawn behind the unit.
+- **The palette strip.** FEBuilder puts the palette in the last 8 columns of each frame (x 240-247, rows 0 and 1:
+  entries 7..0, then 15..8). It is not part of the picture, and the converter leaves it out.
+- **Back layer.** A 488x160 frame has a second picture at x 240-479, with the same origin: the part drawn behind
+  the opponent (modes 2 and 4), such as Garcia's axe blade where it bites into them. Its OBJs go on the same sheet as
+  the frame's front, because both layers draw from the side's one sheet in VRAM. A 248-wide frame's back layer is
+  empty.
 - **Missing modes.** Modes 1, 3 and 5-12 must all be in the script.
+- **Garcia's Fighter animations** (`Contents/BattleAnims/Garcia/Fighter/Source`, `GarciaAxe.txt` and
+  `GarciaHandAxe.txt`): his swing (0xE8, 45 frames, 8 sheets, about 22.7 KB; its hits are 488-wide frames) and his
+  throw (0xE9, 37 frames, 5 sheets, about 15.7 KB). `gBanimDef_GarciaFighter` is vanilla Fighter's list with them in
+  place: axes use the swing (its ranged modes 5 and 6 only stand), the Hand Axe, Tomahawk and Hatchet the throw, at
+  any range, as vanilla's 0x1A, and unarmed keeps vanilla Fighter's 0x1B. Convert them with:
+  ```
+  python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Garcia/Fighter/Source/GarciaAxe.txt Contents/BattleAnims/Garcia/Fighter GarciaFighterAxe garcia_fax
+  python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Garcia/Fighter/Source/GarciaHandAxe.txt Contents/BattleAnims/Garcia/Fighter GarciaFighterThrow garcia_fth
+  ```
 - **Dozla's list** (`gBanimDef_DozlaBerserker`) is vanilla Berserker's with his two in place: axes use the swing
   (0xE6, whose ranged modes 5 and 6 throw the axe), the Hand Axe, Tomahawk and Hatchet use the throw (0xE7, at
   any range, as vanilla's 0x24), and unarmed keeps vanilla Berserker's 0x25.
@@ -203,7 +220,7 @@ it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An ent
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
 Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
-0xCB, and so on up to Dozla's 0xE7, so the next is 0xE8 (0xE8-0xFF: 24 left).
+0xCB, and so on up to Garcia's 0xE9, so the next is 0xEA (0xEA-0xFF: 22 left).
 
 ---
 

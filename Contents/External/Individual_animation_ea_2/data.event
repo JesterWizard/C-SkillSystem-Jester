@@ -112,6 +112,11 @@ BYTE 0x43  //Class: Berserker
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 POIN gBanimDef_DozlaBerserker //Contents/BattleAnims/BattleAnims.event
+BYTE 0x0A  //Unit: Garcia
+BYTE 0x3F  //Class: Fighter
+BYTE 0x00  //dummy
+BYTE 0x00  //dummy
+POIN gBanimDef_GarciaFighter //Contents/BattleAnims/BattleAnims.event
 #endif
 
 BYTE 0x00  //Unit: term data
