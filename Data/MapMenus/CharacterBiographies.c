@@ -57,18 +57,6 @@ static const struct CharacterBiography gCharacterBiographies[] =
     },
 };
 
-/* A page can wait on a guild board quest (gGuildUnlocks, Data/Guild/Guild.c) */
-static bool BiographyPageOpen(int index, int page)
-{
-#ifdef CONFIG_DISTRICT_GUILD
-    return Guild_BiographyPageUnlocked(gCharacterBiographies[index].characterId, page);
-#else
-    (void)index;
-    (void)page;
-    return true;
-#endif
-}
-
 /* A biography opens once its character has joined the army (a blue unit, alive or not) */
 static bool BiographyUnlocked(int index)
 {
@@ -234,30 +222,25 @@ static void MainKeyHandler_Biography(struct ProcPrepUnit * proc)
     }
 }
 
-/* EVT_SLOT_4: 1 when this page is still locked (the event stops there) */
 static void SetIndexes(struct ProcPrepUnit * proc) 
 {
-    gEventSlots[EVT_SLOT_4] = !BiographyPageOpen(gCharacterBiographyListNumber, gCharacterBiographyPage);
     gEventSlots[EVT_SLOT_2] = gCharacterBiographies[gCharacterBiographyListNumber].entries[gCharacterBiographyPage].backgroundId;
     gEventSlots[EVT_SLOT_3] = gCharacterBiographies[gCharacterBiographyListNumber].entries[gCharacterBiographyPage].textId;
     gCharacterBiographyPage++;
 }
 
+/* The four pages, one after another (none is locked any more) */
 static EventScr const EventScr_CharacterBiographies[] = {
 	EVBIT_MODIFY(0x4) // No skipping
     FADE_TO_BLACK(16)
     ASMC(SetIndexes)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
-    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
-    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
     ASMC(SetIndexes)
-    BNE(0x1, EVT_SLOT_4, EVT_SLOT_0)
 	TEXT_CG_BIOGRAPHY
-LABEL(0x1)
     FADE_TO_BLACK(16)
 	ENDA
 };

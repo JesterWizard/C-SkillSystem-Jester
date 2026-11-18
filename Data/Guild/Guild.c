@@ -61,7 +61,7 @@ const struct GuildQuest gGuildQuests[] = {
 	QUEST(0, GUILD_QUEST_TOWER_SCORE, 0, 300, 30, 0, 0, MSG_GUILD_Q_ANY_TOWER),
 	QUEST(0, GUILD_QUEST_SNEK_SCORE, 0, 100, 30, 0, 0, MSG_GUILD_Q_ANY_SNEK),
 
-	/* Story quests: each unlocks a biography's last page or support points (gGuildUnlocks below) */
+	/* Character quests (tokens), and support quests that add support points (gGuildUnlocks below) */
 	QUEST(SERAFEW, GUILD_QUEST_WINS, CHARACTER_EIRIKA, 25, 10, 0, 0, MSG_GUILD_Q_STORY_EIRIKA),
 	QUEST(SERAFEW, GUILD_QUEST_WINS, CHARACTER_SETH, 25, 10, 0, 0, MSG_GUILD_Q_STORY_SETH),
 	QUEST(PORT_KIRIS, GUILD_QUEST_WINS, CHARACTER_FRANZ, 20, 10, 0, 0, MSG_GUILD_Q_STORY_FRANZ),
@@ -75,22 +75,14 @@ const struct GuildQuest gGuildQuests[] = {
 	{ .kind = GUILD_QUEST_END },
 };
 
-#define UNLOCK_BIOGRAPHY(quest, pid, page) { .questMsg = (quest), .kind = GUILD_UNLOCK_BIOGRAPHY, .a = (pid), .b = (page) }
 #define UNLOCK_SUPPORT(quest, pid, partner, points) \
 	{ .questMsg = (quest), .kind = GUILD_UNLOCK_SUPPORT, .a = (pid), .b = (partner), .amount = (points) }
 
 /*
- * Biography pages (Data/MapMenus/CharacterBiographies.c) behind a quest stay locked, with the pages after them, until
- * it is claimed. Support points go both ways, up to the next rank: its conversation then shows as usual.
+ * Support points go both ways, up to the next rank: its conversation then shows as usual. (The character quests above
+ * no longer unlock a biography page: every biography shows its four pages.)
  */
 const struct GuildUnlock gGuildUnlocks[] = {
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_EIRIKA, CHARACTER_EIRIKA, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_SETH, CHARACTER_SETH, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_FRANZ, CHARACTER_FRANZ, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_GILLIAM, CHARACTER_GILLIAM, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_TANA, CHARACTER_TANA, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_ARTUR, CHARACTER_ARTUR, 3),
-	UNLOCK_BIOGRAPHY(MSG_GUILD_Q_STORY_AMELIA, CHARACTER_AMELIA, 3),
 	UNLOCK_SUPPORT(MSG_GUILD_Q_SUPPORT_EIRIKA_SETH, CHARACTER_EIRIKA, CHARACTER_SETH, 40),
 	UNLOCK_SUPPORT(MSG_GUILD_Q_SUPPORT_FRANZ_GILLIAM, CHARACTER_FRANZ, CHARACTER_GILLIAM, 40),
 	{ .kind = GUILD_UNLOCK_END },

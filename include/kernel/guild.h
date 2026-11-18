@@ -68,8 +68,7 @@ struct GuildPrize {
  */
 enum guild_unlock_kind {
 	GUILD_UNLOCK_END,
-	GUILD_UNLOCK_BIOGRAPHY, /* a, b: a character and a biography page (0-3); the page and the ones after it stay
-				 * locked until the quest is claimed */
+	GUILD_UNLOCK_UNUSED,    /* was GUILD_UNLOCK_BIOGRAPHY: biography pages are no longer locked */
 	GUILD_UNLOCK_SUPPORT,   /* a, b: two characters; amount: support points each way, up to the next rank */
 };
 
@@ -147,7 +146,6 @@ bool Guild_AnyClaimable(int district);
 
 /* Unlocks: the first kind a quest unlocks (0: none), and whether a biography page is open */
 int Guild_QuestUnlockKind(int index);
-bool Guild_BiographyPageUnlocked(int pid, int page);
 
 /* Featured: this board's featured quest now (-1: none, or claimed), and a quest's bonus when claimed here now */
 int Guild_FeaturedQuest(int district);

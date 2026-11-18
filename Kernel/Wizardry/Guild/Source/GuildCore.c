@@ -261,21 +261,6 @@ int Guild_QuestUnlockKind(int index)
 	return GUILD_UNLOCK_END;
 }
 
-bool Guild_BiographyPageUnlocked(int pid, int page)
-{
-	const struct GuildUnlock *u;
-	int index;
-
-	for (u = gGuildUnlocks; u->kind != GUILD_UNLOCK_END; u++) {
-		if (u->kind != GUILD_UNLOCK_BIOGRAPHY || u->a != pid || u->b > page)
-			continue;
-		index = Guild_QuestIndexByMsg(u->questMsg);
-		if (index < 0 || !Guild_QuestClaimed(index))
-			return FALSE;
-	}
-	return TRUE;
-}
-
 /*
  * Support points from pid to partner, up to the next rank (its conversation then shows as usual). The partner's slot
  * comes from the character data, so it works whether or not either unit is on the map (in a district only Eirika is).

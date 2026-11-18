@@ -69,7 +69,7 @@ The visible list count is controlled by:
 
 All functions can be found in [`CharacterBiographies.c`](../../Data/MapMenus/CharacterBiographies.c)
 
-| Feature | Location | Description |
+| Feature | Location |
 |----------|----------|-------------|
 | **Biography Table** | `gCharacterBiographies` | Stores all character data, subtitles, music, and entry pages |
 | **List Count Function** | `NumberOfCharacterBiographies` | Returns total biography entries |
@@ -182,15 +182,15 @@ Every switch between the list and a biography goes through black:
 
 ## 📚 The biographies
 
-| Character | Subtitle | Last page unlocked by |
-|---|---|---|
-| Eirika | Restoration Lady | Serafew: Eirika wins 25 battles |
-| Seth | The Silver Knight | Serafew: Seth wins 25 battles |
-| Franz | The Faithful | Port Kiris: Franz wins 20 battles |
-| Gilliam | Wall of Silence | Port Kiris: Gilliam wins 20 battles |
-| Tana | Winged Princess | Caer Pelyn: Tana wins 15 battles |
-| Artur | The Devout | Serafew: Artur wins 15 battles |
-| Amelia | The Hopeful | Jehanna Hall: Amelia wins 15 battles |
+| Character | Subtitle |
+|---|---|
+| Eirika | Restoration Lady |
+| Seth | The Silver Knight |
+| Franz | The Faithful |
+| Gilliam | Wall of Silence |
+| Tana | Winged Princess |
+| Artur | The Devout |
+| Amelia | The Hopeful |
 
 Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. The other
 characters' card files are still empty; a biography for one is a table row once its four pages are written.
@@ -199,19 +199,18 @@ The list shows five rows and scrolls (UP and DOWN past its ends), with the scrol
 
 ## 👥 Who is listed
 
-Every biography in the table is in the list. One whose character has not joined the army yet (no blue unit of that
-character, alive or not: `BiographyUnlocked`) is drawn in grey, name and subtitle, and A on it does nothing.
+Only the biographies whose character has joined the army are listed (a blue unit of that character, alive or not:
+`BiographyUnlocked`); the others are left out until then.
 
-`python3 Tools/cloud/smoketest.py --only biography` opens the menu, scrolls to the last biography (Amelia, not in the
-prologue's army: A does nothing), then back to Eirika, and plays her first page.
+`python3 Tools/cloud/smoketest.py --only biography` opens the menu: in the prologue it lists Eirika and Seth only (DOWN
+stops on Seth), and A on Eirika plays her first page.
 
 ---
 
-## 🔒 Locked pages
+## 📖 Pages
 
-A page can wait on a [guild board](./GuildBoard.md#story-and-support-quests) quest: `UNLOCK_BIOGRAPHY(quest,
-character, page)` in `gGuildUnlocks` (`Data/Guild/Guild.c`) keeps that page, and the ones after it, locked until the
-quest is claimed. The biography stops before the first locked page. Each written biography's last page waits on its character's quest ("Eirika: win 25 battles" and so on).
+Every biography plays its four pages. (The last page once waited on its character's guild board quest; that lock
+is gone, and the quests now give tokens only.)
 
 The map menu's Biography command is on by default (`map_menu_character_biographies` in
 `Data/DesignerConfig/designer-config.c`). It is the row after Guide and Goals.
