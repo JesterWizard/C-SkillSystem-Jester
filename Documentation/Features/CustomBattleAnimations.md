@@ -7,6 +7,7 @@
 - [Switches](#switches)
 - [Adding an Animation](#adding-an-animation)
 - [Reskinning a Vanilla Animation](#reskinning-a-vanilla-animation)
+- [From Frames](#from-frames)
 - [IDs and Free Room](#ids-and-free-room)
 - [Palettes](#palettes)
 - [How It Works](#how-it-works)
@@ -46,6 +47,7 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 | 0xDD | every Phantom (class-wide) | axes | "[Monster-Custom] [U] Phantom" (3. Axe) | TBA |
 | 0xDE | every Gorgon Egg (class-wide, both egg classes) | everything | "[Gorgon-Custom] [U] Gorgon Eggs" (8. Unarmed, Large) | Ryn |
 | 0xE4, 0xE5 | Gilliam, Armor Knight | lances; unarmed | vanilla's Armor Knight (0x40, 0x41) with the helmet off | vanilla, head drawn for this repo |
+| 0xE6 | Dozla, Berserker | axes | Dozla, Berserker (axe), from frames (see [From Frames](#from-frames)) | sprite by Judgement, animated via ChatGPT |
 
 Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
 class's vanilla list with the custom ID in place of the animated weapon types' entries.
@@ -157,6 +159,35 @@ python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x41 Contents/BattleAnims/Gill
 
 ---
 
+## From Frames
+
+Some animations come as a FEBuilder-style script with one 248x160 PNG per frame instead of an FEditor dump: a `.txt`
+with `/// - Mode N` headers, `Cxx` commands (0x850000xx), `D p- file.png` lines (show the frame for D ticks) and `~~~`
+at each mode's end. Dozla's Berserker axe is one (`Contents/BattleAnims/Dozla/Berserker/Source`). Convert it with:
+
+```
+python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Dozla/Berserker/Source Contents/BattleAnims/Dozla/Berserker DozlaBerserkerAxe dozla_brs
+```
+
+The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_ENTRY`), so steps 4-7 of
+[Adding an Animation](#adding-an-animation) are the same. What the converter does:
+
+- **Frames.** Every frame is a mode-P image with at most 16 colours, index 0 transparent and the same palette in
+  every frame. The animation's origin is pixel (148, 88), as in FEditor's and FEBuilder's frames: the unit's feet
+  are at about y 102, on the platform. The four palettes (player, enemy, NPC, other) are all the frames' palette.
+- **OBJs and sheets.** Each frame is cut into OBJs over its non-empty 8x8 tiles (a greedy cover that trades empty
+  tiles against the number of OBJs), and the OBJs are packed into 256x64 sheets in the order the script first shows
+  the frames, so the sheet changes follow the script. An OBJ whose pixels are already on its sheet reuses them.
+  `--sheets DIR` also saves the packed sheets as PNGs, to look at. Dozla's 45 frames take 10 sheets, 1-5 OBJs a
+  frame, about 20 KB.
+- **Modes 2 and 4** (the layer behind the unit) are modes 1 and 3 with every frame empty, as FEditor makes them when
+  nothing is drawn behind the unit.
+- **Missing modes.** Modes 1, 3 and 5-12 must all be in the script. Dozla's has no throw: his ranged modes (5, 6)
+  stand still, so his list keeps vanilla Berserker's throwing animation (0x24) for the Hand Axe, Tomahawk and
+  Hatchet, and its unarmed one (0x25).
+
+---
+
 ## IDs and Free Room
 
 Vanilla's `banim_data` (ROM `0xC00008`, 0x20 bytes an entry) has 201 animations, IDs 0x01-0xC9. The zero bytes after
@@ -164,7 +195,7 @@ it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An ent
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
 Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
-0xCB, and so on up to Gilliam's 0xE5, so the next is 0xE6 (0xE6-0xFF: 26 left).
+0xCB, and so on up to Dozla's 0xE6, so the next is 0xE7 (0xE7-0xFF: 25 left).
 
 ---
 
@@ -225,6 +256,10 @@ usual way (every part in the BIOS's LZ77, both OAMs):
   writes those bytes as `BANIM_PTR_BYTE(label, k)` expressions.
 - **`--lz77`** (`feditor_dump.py --lz77 ...`) writes the sheets in LZ77 instead: decoded by the BIOS, no dropped
   frame, about a fifth bigger (Gerik's sword 53.4 KB).
+- **Every animation's size** (uncompressed, inserted the usual way, and now) is in
+  [CustomBattleAnimationSizes.md](CustomBattleAnimationSizes.md), written by `python3 Tools/banim/sizes.py`: the 29
+  animations take 700.3 KB, against 923.7 KB the usual way (24.2% less) and 2390.4 KB uncompressed. Run it again
+  after adding or converting an animation.
 - **Measured but not used:** compressing the sheets together (LZMA, 26.6 KB for Gerik's) needs every sheet in RAM at
   once (96 KB); repacking frames into fewer sheets frees at most one (Gerik's sheets are 89% full and only 551 of
   2,749 tiles repeat, mostly on other sheets); a bit-packed LZ without Huffman coding gives 40.5 KB.
@@ -291,7 +326,7 @@ It also checks the pre-promote Recruit's promotion choices (Recruit T2 and Halbe
 | Entry point and lists | `Contents/BattleAnims/BattleAnims.event` |
 | The animations (source and converted) | `Contents/BattleAnims/<Character>/<Class>/`, `Classes/` (class-wide), `ThirdTier/` |
 | Class-wide animations | `Data/ClassData/ClassData.c` (`BANIM_DEF_PHANTOM`, `BANIM_DEF_GORGON_EGG`) |
-| Converter | `Tools/banim/feditor_dump.py`, `Tools/banim/banimpack.py` (the compressors) |
+| Converter | `Tools/banim/feditor_dump.py`, `Tools/banim/febuilder_txt.py` (frames), `Tools/banim/banimpack.py` (the compressors) |
 | Sheet decoder | `Kernel/Wizardry/BanimCodec/` (`BanimUnComp`); the ARM loop from `Tools/banim/huffdec.c` |
 | `CustomAnimeTable` rows | `Contents/External/Individual_animation_ea_2/data.event` |
 | Lookup | `Kernel/Wizardry/FebCompat/IndividualAnim/Source/IndividualAnim.c` (`GetUnitBattleAnimDef`) |

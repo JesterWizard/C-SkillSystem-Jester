@@ -1,0 +1,193 @@
+/// - Mode 1 #Melee attack
+C03
+C07
+1 p- 00_idle.png
+3 p- 01_grip.png
+C41
+4 p- 02_load.png
+5 p- 03_crouch.png
+2 p- 04_push.png
+2 p- 05_liftoff.png
+2 p- 06_rise.png
+2 p- 07_tuck.png
+3 p- 08_apex.png
+2 p- 09_tip.png
+C42
+2 p- 10_fall.png
+2 p- 11_swing.png
+2 p- 12_low_swing.png
+C04
+C1A
+C1F
+3 p- 13_land.png
+5 p- 14_followthrough.png
+C01
+4 p- 15_reset.png
+2 p- 16_back_push.png
+2 p- 17_back_rise.png
+2 p- 18_back_apex.png
+2 p- 19_back_fall.png
+2 p- 20_back_reach.png
+C34
+3 p- 21_back_land.png
+3 p- 22_settle.png
+3 p- 00_idle.png
+C06
+C0D
+~~~
+
+/// - Mode 3 #Melee critical
+C03
+C07
+1 p- 00_idle.png
+4 p- crit_breath.png
+6 p- crit_laugh.png
+4 p- crit_laugh_bob.png
+5 p- crit_laugh.png
+4 p- 01_grip.png
+C41
+3 p- crit_raise.png
+3 p- crit_spin_00.png
+2 p- crit_spin_01.png
+2 p- crit_spin_02.png
+2 p- crit_spin_03.png
+2 p- crit_spin_04.png
+2 p- crit_spin_05.png
+2 p- crit_spin_06.png
+2 p- crit_spin_07.png
+2 p- crit_spin_08.png
+2 p- crit_spin_09.png
+2 p- crit_spin_10.png
+3 p- crit_spin_11.png
+3 p- crit_spin_00.png
+4 p- 03_crouch.png
+2 p- 04_push.png
+2 p- 05_liftoff.png
+2 p- 06_rise.png
+2 p- 07_tuck.png
+3 p- crit_apex.png
+2 p- crit_tip.png
+C42
+2 p- 10_fall.png
+2 p- 11_swing.png
+2 p- 12_low_swing.png
+C04
+C09
+C14
+C46
+3 p- crit_strike.png
+5 p- crit_slam.png
+3 p- 14_followthrough.png
+C01
+4 p- 15_reset.png
+2 p- 16_back_push.png
+2 p- 17_back_rise.png
+2 p- 18_back_apex.png
+2 p- 19_back_fall.png
+2 p- 20_back_reach.png
+C34
+3 p- 21_back_land.png
+3 p- 22_settle.png
+3 p- 00_idle.png
+C06
+C0D
+~~~
+
+/// - Mode 5 #Ranged fallback
+C03
+C07
+1 p- 00_idle.png
+C05
+8 p- 00_idle.png
+C01
+C06
+C0D
+~~~
+
+/// - Mode 6 #Ranged critical fallback
+C03
+C07
+1 p- 00_idle.png
+C05
+8 p- 00_idle.png
+C01
+C06
+C0D
+~~~
+
+/// - Mode 7 #Melee dodge
+C02
+1 p- 00_idle.png
+C0E
+3 p- dodge_shift.png
+2 p- dodge_lean.png
+C01
+3 p- dodge_shift.png
+1 p- 00_idle.png
+C0D
+~~~
+
+/// - Mode 8 #Ranged dodge
+C02
+1 p- 00_idle.png
+C0E
+3 p- dodge_shift.png
+2 p- dodge_lean.png
+C01
+3 p- dodge_shift.png
+1 p- 00_idle.png
+C0D
+~~~
+
+/// - Mode 9 #Melee stance
+1 p- 00_idle.png
+C01
+~~~
+
+/// - Mode 10 #Idle
+1 p- 00_idle.png
+C01
+~~~
+
+/// - Mode 11 #Ranged stance
+1 p- 00_idle.png
+C01
+~~~
+
+/// - Mode 12 #Miss
+C03
+C07
+1 p- 00_idle.png
+3 p- 01_grip.png
+C41
+4 p- 02_load.png
+5 p- 03_crouch.png
+2 p- 04_push.png
+2 p- 05_liftoff.png
+2 p- 06_rise.png
+2 p- 07_tuck.png
+3 p- 08_apex.png
+2 p- 09_tip.png
+C42
+2 p- 10_fall.png
+2 p- 11_swing.png
+2 p- 12_low_swing.png
+C04
+3 p- 13_land.png
+5 p- 14_followthrough.png
+C01
+4 p- 15_reset.png
+2 p- 16_back_push.png
+2 p- 17_back_rise.png
+2 p- 18_back_apex.png
+2 p- 19_back_fall.png
+2 p- 20_back_reach.png
+C34
+3 p- 21_back_land.png
+3 p- 22_settle.png
+3 p- 00_idle.png
+C06
+C0D
+~~~
+
+/// - End of animation
