@@ -9,6 +9,8 @@ Input folder (SRC_DIR):
                  ~~~                ends the mode
   *.png        The frames: 248x160 mode-P images, at most 16 colours, index 0 transparent, every frame with the
                same palette. The animation's origin is pixel (148, 88), as in FEditor's and FEBuilder's frames.
+               x 240-247 is FEBuilder's palette strip, left out. A 488x160 frame adds the layer behind the
+               opponent (modes 2 and 4) at x 240-479, with the same origin, and the strip at 480-487.
 
 Usage:
   python3 Tools/banim/febuilder_txt.py [--lz77] [--sheets DIR] SRC_DIR OUT_DIR PREFIX ABBR
@@ -20,7 +22,8 @@ SCRIPT.txt picks one script when the folder holds several (the frames are read f
 
 Each frame is cut into OBJs (8x8 tiles; empty tiles are left out), the OBJs are packed into 256x64 sheets in the
 order the script first shows the frames, and an OBJ whose pixels are already on its sheet reuses them. Modes 2 and 4
-(the layer behind the unit) are modes 1 and 3 with every frame empty, as FEditor makes them. The four palettes are
+(the layer behind the opponent) are modes 1 and 3 with each frame's back layer: empty for a 248-wide frame, as FEditor
+makes them, and a 488-wide frame's right part, on the same sheet as its front. The four palettes are
 the frames' palette. The output is what Tools/banim/feditor_dump.py writes (see its docstring and
 Documentation/Features/CustomBattleAnimations.md).
 """
@@ -37,6 +40,7 @@ from PIL import Image  # noqa: E402
 import feditor_dump as fd  # noqa: E402
 
 FRAME_W, FRAME_H = 248, 160
+PICTURE_W = 240  # the rest of a frame's width is FEBuilder's palette strip
 ORIGIN_X, ORIGIN_Y = 148, 88
 SHEET_TW, SHEET_TH = 32, 8
 # (width, height) in tiles -> (shape, size) of attr0/attr1
@@ -88,14 +92,27 @@ def parse_script(path):
 
 
 def load_frame(path):
+    """Return (front, back, palette). A frame is 240 pixels of picture and FEBuilder's 8-pixel palette strip
+    (x 240-247): 248x160. A 488x160 frame also has the layer behind the opponent (modes 2 and 4) at x 240-479, the
+    strip at 480-487. Each layer comes back as a 248-wide raw image with the strip's columns empty; back is None for
+    a 248-wide frame."""
     im = Image.open(path)
-    if im.mode != 'P' or im.size != (FRAME_W, FRAME_H):
-        fail('%s: need a %dx%d mode-P image, got %s %s' % (path, FRAME_W, FRAME_H, im.mode, im.size))
-    raw = im.tobytes()
-    if max(raw) > 15:
+    if im.mode != 'P' or im.size not in ((FRAME_W, FRAME_H), (FRAME_W + PICTURE_W, FRAME_H)):
+        fail('%s: need a %dx%d or %dx%d mode-P image, got %s %s' % (path, FRAME_W, FRAME_H, FRAME_W + PICTURE_W,
+                                                                     FRAME_H, im.mode, im.size))
+    full = im.tobytes()
+    if max(full) > 15:
         fail('%s: uses palette entries past 15' % path)
     pal = im.getpalette()[:48]
-    return raw, pal
+    w = im.size[0]
+
+    def layer(x0):
+        out = bytearray(FRAME_W * FRAME_H)
+        for y in range(FRAME_H):
+            out[y * FRAME_W:y * FRAME_W + PICTURE_W] = full[y * w + x0:y * w + x0 + PICTURE_W]
+        return bytes(out)
+
+    return layer(0), layer(PICTURE_W) if w > FRAME_W else None, pal
 
 
 def tile_at(raw, x0, y0):
@@ -266,31 +283,39 @@ def main():
         fail('%d frames; at most 256' % len(order))
     frames, pal = {}, None
     for i, fn in enumerate(order):
-        raw, p = load_frame(os.path.join(src_dir, fn))
+        raw, back, p = load_frame(os.path.join(src_dir, fn))
         if pal is None:
             pal = p
         elif p != pal:
             fail('%s: its palette differs from %s\'s' % (fn, order[0]))
         objs, shift = cut_frame(raw)
         frames[fn] = {'num': i, 'objs': objs, 'shift': shift}
+        if back is not None:
+            frames[fn]['back'] = cut_frame(back)
 
+    # A frame's back layer goes on the same sheet as its front: both layers draw from the side's one sheet in VRAM.
     sheets = [Sheet()]
     oam = bytearray()
     for fn in order:
         f = frames[fn]
-        nums = sheets[-1].place_frame(f['objs'])
+        back_objs, back_shift = f.get('back', ([], (0, 0)))
+        objs = f['objs'] + back_objs
+        nums = sheets[-1].place_frame(objs)
         if nums is None:
             sheets.append(Sheet())
-            nums = sheets[-1].place_frame(f['objs'])
+            nums = sheets[-1].place_frame(objs)
             if nums is None:
                 fail('%s does not fit on one sheet' % fn)
         f['sheet'] = len(sheets) - 1
         f['oam'] = len(oam)
-        oam += frame_oam(f['objs'], f['shift'], nums)
+        oam += frame_oam(f['objs'], f['shift'], nums[:len(f['objs'])])
+        if 'back' in f:
+            f['oam_back'] = len(oam)
+            oam += frame_oam(back_objs, back_shift, nums[len(f['objs']):])
     empty_oam = len(oam)
     oam += TERM
 
-    def mode_words(ops, empty):
+    def mode_words(ops, back):
         w = []
         for op in ops:
             if op[0] == 'C':
@@ -299,7 +324,8 @@ def main():
                 f = frames[op[1]]
                 if not 1 <= op[2] <= 0xFFFF:
                     fail('%s: duration %d' % (op[1], op[2]))
-                w += [0x86000000 | f['num'] << 16 | op[2], f['sheet'], empty_oam if empty else f['oam']]
+                w += [0x86000000 | f['num'] << 16 | op[2], f['sheet'], f.get('oam_back', empty_oam) if back
+                      else f['oam']]
         return w + [0x80000000]
 
     words, offsets = [], []
