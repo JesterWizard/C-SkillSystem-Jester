@@ -109,29 +109,27 @@ A record you already hold counts: a quest posted after you reached it is met at 
 | Jehanna Hall | Win 150 battles | 50 tokens, an Energy Ring |
 | Every board | Score 300 at Tower Stack | 30 tokens |
 | Every board | Score 100 at Snek | 30 tokens |
-| Serafew | Eirika: win 25 battles | 10 tokens, the last page of her biography |
-| Serafew | Seth: win 25 battles | 10 tokens, the last page of his biography |
-| Port Kiris | Franz: win 20 battles | 10 tokens, the last page of his biography |
-| Port Kiris | Gilliam: win 20 battles | 10 tokens, the last page of his biography |
-| Caer Pelyn | Tana: win 15 battles | 10 tokens, the last page of her biography |
+| Serafew | Eirika: win 25 battles | 10 tokens |
+| Serafew | Seth: win 25 battles | 10 tokens |
+| Port Kiris | Franz: win 20 battles | 10 tokens |
+| Port Kiris | Gilliam: win 20 battles | 10 tokens |
+| Caer Pelyn | Tana: win 15 battles | 10 tokens |
 | Serafew | Earn 60 tokens in all: Eirika and Seth | 5 tokens, 40 support points between them |
 | Port Kiris | Earn 120 tokens in all: Franz and Gilliam | 5 tokens, 40 support points between them |
-| Serafew | Artur: win 15 battles | 10 tokens, the last page of his biography |
-| Jehanna Hall | Amelia: win 15 battles | 10 tokens, the last page of her biography |
+| Serafew | Artur: win 15 battles | 10 tokens |
+| Jehanna Hall | Amelia: win 15 battles | 10 tokens |
 
-### Story and support quests
+### Support quests
 
 A quest can unlock more than its reward. `gGuildUnlocks` (`Data/Guild/Guild.c`) lists each quest's unlocks, naming the
 quest by its message, so the quest table's order does not matter:
 
-- `UNLOCK_BIOGRAPHY(quest, character, page)`: that page of the character's
-  [biography](./CharacterBiographies.md) (0 to 3), and the pages after it, stay locked until the quest is claimed. The
-  biography stops before the first locked page.
 - `UNLOCK_SUPPORT(quest, a, b, points)`: claiming the quest gives the two characters `points` support points each way, up
   to the next rank, so its support conversation can then happen as usual. The points go into the battle records, so the
   units do not need to be on the map.
 
-The board shows "+story" or "+support" after such a quest's reward.
+The board shows "+support" after such a quest's reward. (The character quests once also unlocked the last page of
+their character's [biography](./CharacterBiographies.md); every biography now shows all four pages.)
 
 ### Featured quests
 
