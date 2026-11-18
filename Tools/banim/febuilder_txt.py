@@ -12,6 +12,9 @@ Input folder (SRC_DIR):
 
 Usage:
   python3 Tools/banim/febuilder_txt.py [--lz77] [--sheets DIR] SRC_DIR OUT_DIR PREFIX ABBR
+  python3 Tools/banim/febuilder_txt.py [--lz77] [--sheets DIR] SCRIPT.txt OUT_DIR PREFIX ABBR
+
+SCRIPT.txt picks one script when the folder holds several (the frames are read from its folder).
 
 --sheets DIR also saves the packed sheets there as PNGs, to look at.
 
@@ -242,9 +245,13 @@ def main():
         sheet_dir = args[k + 1]
         del args[k:k + 2]
     if len(args) != 4:
-        sys.exit('usage: febuilder_txt.py [--lz77] [--sheets DIR] SRC_DIR OUT_DIR PREFIX ABBR')
+        sys.exit('usage: febuilder_txt.py [--lz77] [--sheets DIR] SRC_DIR|SCRIPT.txt OUT_DIR PREFIX ABBR')
     src_dir, out_dir, prefix, abbr = args
-    txts = glob.glob(os.path.join(glob.escape(src_dir), '*.txt'))
+    if src_dir.endswith('.txt'):
+        txts = [src_dir]
+        src_dir = os.path.dirname(src_dir) or '.'
+    else:
+        txts = glob.glob(os.path.join(glob.escape(src_dir), '*.txt'))
     if len(txts) != 1:
         fail('expected exactly one *.txt in %s, found %d' % (src_dir, len(txts)))
     script = parse_script(txts[0])
