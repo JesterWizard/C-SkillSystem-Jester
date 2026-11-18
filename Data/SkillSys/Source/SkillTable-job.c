@@ -65,10 +65,17 @@ const u16 gConstSkillTable_Job[0x100][2] = {
 	[CLASS_MYRMIDON_F] = {
 	},
 
+	/* Their class crit (+15 class bonus, +15 CA_CRITBONUS) became this skill: Crit rate +15 */
 	[CLASS_SWORDMASTER] = {
+#if defined(SID_Crit) && (COMMON_SKILL_VALID(SID_Crit))
+		[0] = SID_Crit,
+#endif
 	},
 
 	[CLASS_SWORDMASTER_F] = {
+#if defined(SID_Crit) && (COMMON_SKILL_VALID(SID_Crit))
+		[0] = SID_Crit,
+#endif
 	},
 
 	[CLASS_ASSASSIN] = {

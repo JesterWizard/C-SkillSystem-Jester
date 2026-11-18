@@ -190,21 +190,21 @@ Each UI style brings the [EXP bar style](./ExpBarStyles.md) closest to its look:
 
 | Row | Style | ID | EXP bar |
 |-----|-------|----|---------|
-| 0 | Tech | 5 | Tech |
-| 1 | Wood | 4 | Vial (a wooden plank) |
-| 2 | Vanilla | 0 | Vanilla |
-| 3 | Royal | 6 | Gems (gold on velvet) |
-| 4 | Stained Glass | 7 | Stars |
-| 5 | Paper | 8 | Minimal |
-| 6 | Ocean | 9 | Pearls |
-| 7 | Forest | 10 | Arrow (green leather) |
-| 8 | Parchment | 11 | Scroll |
-| 9 | Stephano menus / Sokaballa battle | 1 | Blade |
-| 10 | Gamma | 2 | Chain |
+| 0 | Gamma (HyperGammaSpaces) | 2 | Vanilla (for now) |
+| 1 | Tech | 5 | Tech |
+| 2 | Wood | 4 | Vial (a wooden plank) |
+| 3 | Vanilla | 0 | Vanilla |
+| 4 | Royal | 6 | Gems (gold on velvet) |
+| 5 | Stained Glass | 7 | Stars |
+| 6 | Paper | 8 | Minimal |
+| 7 | Ocean | 9 | Pearls |
+| 8 | Forest | 10 | Arrow (green leather) |
+| 9 | Parchment | 11 | Scroll |
+| 10 | Stephano menus / Sokaballa battle | 1 | Blade |
 | 11 | Pikmin menus / Fenreir battle | 3 | Stars |
 
 The row is `GAME_OPTION_EXP_BAR`, and its value is kept in `gPlaySt.config.exp_bar_style` (4 bits, saved with the other
-options). The value 0 (a new game, or a save made before this change that was on Vanilla) shows Tech, and Vanilla is row 2. The table is `sUiStyles` in
+options). The value 0 (a new game, or a reset config) shows Gamma (HyperGammaSpaces), with vanilla's EXP bar for now (its Chain bar is unused); Tech is row 1 and Vanilla row 3. Saves keep the row number, so a save made before this change shows the style one row down. The table is `sUiStyles` in
 [`ExpBarStyles.c`](../../Kernel/Wizardry/ExpBarStyles/Source/ExpBarStyles.c); `GetUI_id` returns its `ui_id`
 (`UiStyle_GetUiId`). `gpKernelDesignerConfig->vesly_custom_ui` must be on (off, every style is vanilla's).
 

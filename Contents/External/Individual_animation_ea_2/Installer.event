@@ -23,8 +23,14 @@ POIN CustomAnimeTable
 PUSH
 ORG $CD0E0  //FE8U
 jumpToHack(IndividualAnimation7743_CC)
+ORG $CD104 // after GetBattleAnimationId: a custom animation keeps its own palettes (BranchScreenPalette.s)
+jumpToHack(BranchScreenPalette)
 PROTECT 0x000CD014 0x000CD1D4 // LoadBattleSpritesForBranchScreen
 POP
+
+ALIGN 4
+BranchScreenPalette:
+#incbin "BranchScreenPalette.dmp.bin"
 
 IndividualAnimation7743_CC:
 #incbin "IndividualAnimation7743_CC.dmp.bin"

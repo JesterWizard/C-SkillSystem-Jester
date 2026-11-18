@@ -2490,7 +2490,11 @@ void LomaChapter(int id) {
 }
  
 extern void WfxInit(void); 
-void SaveChState(DebuggerProc* proc) { 
+/*
+ * confirm: the player pressed A or Start. "Jump to ch." and "Loma to ch." act only then: before, editing their number
+ * with Up/Down saved at once and jumped (or reloaded the map) at every step.
+ */
+static void SaveChStateEx(DebuggerProc* proc, bool confirm) { 
     
     gPlaySt.partyGoldAmount = proc->gold; 
     gPlaySt.chapterTurnNumber = proc->tmp[5]; 
@@ -2511,13 +2515,13 @@ void SaveChState(DebuggerProc* proc) {
         RefreshUnitSprites();
         RenderBmMap();
     }
-    if (proc->id == 3) { // mnc 2
+    if (proc->id == 3 && confirm) { // mnc 2
         GotoChapter(proc->tmp[3]); 
         Proc_End(proc); 
         return; 
 
     } 
-    if (proc->id == 4) { 
+    if (proc->id == 4 && confirm) { 
         LomaChapter(proc->tmp[4]); // loma 
     } 
     
@@ -2532,6 +2536,10 @@ void SaveChState(DebuggerProc* proc) {
     procIdler->lastFlag = proc->lastFlag; 
     
 }  
+
+void SaveChState(DebuggerProc* proc) { 
+    SaveChStateEx(proc, false); 
+} 
 
 static const char chStates[][24] = { 
 "Gold",
@@ -2681,8 +2689,18 @@ void ChStateIdle(DebuggerProc* proc) {
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B); 
     };
+    if ((keys & A_BUTTON) && (proc->id == 3 || proc->id == 4)) { //press A to jump / loma to the chapter shown 
+        SaveChStateEx(proc, true);
+        if (proc->id == 3) 
+            return; // the debugger has ended: the chapter starts 
+        Proc_Goto(proc, RestartLabel);
+        m4aSongNumStart(0x6B);
+        return; 
+    };
     if (keys & START_BUTTON) { //press Start to update ch state and continue 
-        SaveChState(proc);
+        SaveChStateEx(proc, true);
+        if (proc->id == 3 || proc->id == 7) 
+            return; // the debugger has ended: the chapter starts 
         if (proc->id != 6) { 
         Proc_Goto(proc, RestartLabel);
         m4aSongNumStart(0x6B);

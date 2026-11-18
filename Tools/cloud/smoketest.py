@@ -72,7 +72,8 @@ What it checks:
               (a test ROM maps her angry portrait to SURPRISED). With the Mother 3 font, her box has 10-pixel lines
               and is shorter (the font's line height preset).
   sethcarlyle Seth attacks Carlyle (an enemy moved beside him with Carlyle's character data): the conversation's first box
-              shows Carlyle's portrait (0x3C), so the chapter-0xff row of gNewBattleTalkList and its message are picked.
+              shows Carlyle's portrait (0x3C), so the chapter-0xff row of gNewBattleTalkList and its message are picked;
+              Seth's reply shows his portrait alone.
   threat      threat arrows (Kernel/Wizardry/ThreatArrows): with Eirika selected, the cursor on her tile (both fighters
               reach it) shows two arrows (OAM entries with the arrow tiles 0x70/0x71/0x7A/0x7B in OBJ palette 6); on
               (4, 3), which no enemy reaches, none; after B none, and the tiles are blank again. The Options row is off
@@ -101,8 +102,8 @@ What it checks:
               character palette).
   dbgbanim    the debugger's "Battle anim" screen on Eirika: her animation attacks on the platform, down shows another,
               A switches to the critical, B goes back to the map.
-  biography   the map menu's Biography row opens the list; it scrolls to its last biography, which A does not open (her
-              character has not joined); A on Eirika plays her first page.
+  biography   the map menu's Biography row opens the list of the characters in the army (in the prologue Eirika and
+              Seth: DOWN stops on Seth, A plays his page); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
               (0xEF) set.
   stealer     Eirika holds the Skill Stealer and defeats O'Neill (a boss, 1 HP) with Str Bonus in his first skill
@@ -218,6 +219,7 @@ GFACES = 0x03004980
 EVENT_SLOTS = 0x030004B8
 EIRIKA_PORTRAIT = 0x02
 CARLYLE_PORTRAIT = 0x3C   # [LoadFace_Carlyle] (Contents/Texts/textdefs.txt)
+SETH_PORTRAIT = 0x04      # [LoadFace_Seth]
 CHARACTER_CARLYLE = 0x52  # include/constants/characters.h (FE-CLib)
 EXPRESSION_ANGRY = 2  # include/kernel/portrait-expressions.h
 EXPRESSION_SAD, EXPRESSION_HAPPY, EXPRESSION_SURPRISED, EXPRESSION_DETERMINED = 3, 4, 5, 6  # include/kernel/portrait-expressions.h
@@ -2244,7 +2246,7 @@ class Smoke:
         battle animations off, and a Master Seal makes her, a level-10 Swordmaster, a Trueblade (Mag still 3). The Mag
         value's 2x2 tiles must hold the same pixels in both: in the map box at BG0 (5, 9) (the box at (1, 1), the ones
         column at x + 5), in the promotion's at BG2 sEfxLvupPartsPos[2] + 3. Before, the map box drew vanilla's UI digit
-        (PutNumberOrBlank) in one column. Tried in the default UI style (Tech) and in Vanilla."""
+        (PutNumberOrBlank) in one column. Tried in the UI styles Tech and Vanilla."""
         d = os.path.join(self.out, "lvupfont")
         os.makedirs(d, exist_ok=True)
         need = ("gBG0TilemapBuffer", "gBG2TilemapBuffer", "sEfxLvupPartsPos", "gClassData_NEW")
@@ -2271,7 +2273,7 @@ class Smoke:
         # select, stay, Attack (the first weapon), the soldier, and the fight; or Item, the seal, Use
         acts = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
                 "press A"]
-        for name, v in (("Tech", 0), ("Vanilla", 2)):
+        for name, v in (("Tech", 1), ("Vanilla", 3)):  # sUiStyles rows (row 0, the default, is Gamma)
             tag = name.lower()
             cnt0 = self.run(ROM, ["load " + turn2_ss, "w8 %#x 2" % (PLAYST + 0x42), "w8 %#x 99" % (UNIT1 + 9)] +
                             style(v) + acts + ["wait 460", "shot %s_lvup.png" % tag,
@@ -2536,7 +2538,11 @@ class Smoke:
         for the character block, the second reads the "0" tile's eight words there."""
         d = os.path.join(self.out, "mapbox")
         os.makedirs(d, exist_ok=True)
-        setup = ["load " + boot_ss, "w8 %#x 2" % (PLAYST + 0x42)]
+        b36, b37 = self.run(ROM, ["load " + boot_ss, "r8 %#x" % (PLAYST + 0x46), "r8 %#x" % (PLAYST + 0x47)], d)
+        tech = 1  # sUiStyles row (row 0, the default, is Gamma)
+        setup = ["load " + boot_ss, "w8 %#x 2" % (PLAYST + 0x42),
+                 "w8 %#x %#x" % (PLAYST + 0x46, (b36 & 0x3F) | ((tech & 3) << 6)),
+                 "w8 %#x %#x" % (PLAYST + 0x47, (b37 & 0xFC) | (tech >> 2))]
         for k in range(10):
             setup += ["w8 %#x 20" % (0x0202CFBC + 0x48 * k + 0x12), "w8 %#x 20" % (0x0202CFBC + 0x48 * k + 0x13)]
         fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 34"]
@@ -2650,6 +2656,18 @@ class Smoke:
             if face and face[0] else []
         self.check("sethcarlyle: the first box shows Carlyle's portrait (0x3C)", got == [CARLYLE_PORTRAIT],
                    "portrait %s" % (", ".join("%#x" % v for v in got) or "none"))
+        # One portrait at a time: Seth's reply clears Carlyle's face first ([ClearFace] at each change of speaker)
+        state = os.path.join(d, "sethcarlyle.ss")
+        if not os.path.exists(state):
+            return
+        faces = self.run(ROM, ["load " + state, "press A 5", "wait 120", "shot sethcarlyle2.png"] +
+                         ["r32 %#x" % (GFACES + 4 * k) for k in range(4)], d)
+        ptrs = [v for v in faces if v]
+        shown = self.run(ROM, ["load " + state, "press A 5", "wait 120"] + ["r16 %#x" % (v + 0x3E) for v in ptrs], d) \
+            if ptrs else []
+        self.shot(os.path.join(d, "sethcarlyle2.png"), "Seth's reply: his portrait alone")
+        self.check("sethcarlyle: Seth's reply shows his portrait alone (Carlyle's is cleared)", shown == [SETH_PORTRAIT],
+                   "portraits %s" % (", ".join("%#x" % v for v in shown) or "none"))
 
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
@@ -3241,9 +3259,10 @@ class Smoke:
                    "change from the debugger %.0f" % self.diff(shots["none"], shots["debugger_off"]))
 
     def test_biography(self, boot_ss):
-        """The map menu (A on an empty tile) has Biography (its fourth row): the list opens, DOWN scrolls it to its last
-        biography (Amelia). She has not joined the army in the prologue, so A on her does nothing; UP back to Eirika
-        and A plays her first page."""
+        """The map menu (A on an empty tile) has Biography (its fourth row): the list opens with only the characters who
+        have joined the army. In the prologue that is Eirika and Seth: DOWN as many times as there are biographies stops
+        on Seth (the list does not scroll, the others are not on it), and A plays his first page (his table row, 1).
+        UP back to Eirika and A plays hers."""
         d = os.path.join(self.out, "boot")
         os.makedirs(d, exist_ok=True)
         need = ("gTopVisibleListIndex", "gCharacterBiographyListNumber", "gCharacterBiographyPage")
@@ -3251,31 +3270,25 @@ class Smoke:
             return self.check("biography: the biography menu", False, "no symbols")
         top, number, page = (self.sym[n] for n in need)
         count = BIOGRAPHIES
-        lines = ["load " + boot_ss, "wait 20", "shot bio_map.png", "press RIGHT", "wait 10", "press RIGHT", "wait 10",
-                 "press UP", "wait 10", "press A", "wait 40"] + ["press DOWN", "wait 10"] * 3
-        lines += ["shot bio_menu.png", "press A", "wait 120", "shot bio_list.png"] + ["press DOWN", "wait 10"] * (count - 1)
-        lines += ["wait 10", "shot bio_last.png", "r8 %#x" % top, "press A", "wait 60", "shot bio_locked.png",
-                  "r8 %#x" % number]
-        lines += ["press UP", "wait 10"] * (count - 1)
-        lines += ["wait 10", "press A", "wait 240", "shot bio_page.png", "r8 %#x" % number, "r8 %#x" % page]
-        vals = self.run(ROM, lines, d)
-        m, lst, last, locked, pg = (os.path.join(d, "bio_%s.png" % n) for n in ("map", "list", "last", "locked", "page"))
+        menu = ["load " + boot_ss, "wait 20", "shot bio_map.png", "press RIGHT", "wait 10", "press RIGHT", "wait 10",
+                "press UP", "wait 10", "press A", "wait 40"] + ["press DOWN", "wait 10"] * 3
+        menu += ["shot bio_menu.png", "press A", "wait 120", "shot bio_list.png"]
+        seth = menu + ["press DOWN", "wait 10"] * (count - 1) + ["wait 10", "shot bio_last.png", "r8 %#x" % top,
+                                                               "press A", "wait 240", "r8 %#x" % number]
+        eirika = menu + ["press A", "wait 240", "shot bio_page.png", "r8 %#x" % number, "r8 %#x" % page]
+        vals = self.run(ROM, seth, d) + self.run(ROM, eirika, d)
+        m, lst, pg = (os.path.join(d, "bio_%s.png" % n) for n in ("map", "list", "page"))
         self.shot(lst, "biography list")
         self.shot(pg, "biography page")
         if len(vals) != 4:
             return self.check("biography: the biography menu", False, "values %s" % vals)
-        locked_number = vals.pop(1)
         self.check("biography: the map menu opens the biography list", self.diff(m, lst) > 25,
                    "change %.0f" % self.diff(m, lst))
-        self.check("biography: DOWN scrolls the list to its last biography",
-                   vals[0] == count - 5 and self.diff(lst, last) > 1, "top row %d" % vals[0])
-        # the mural behind the list moves: a fade to the biography would be a far bigger change
-        self.check("biography: A on a character not in the army does nothing",
-                   locked_number != count - 1 and self.diff(last, locked) < 25,
-                   "biography %d, change %.1f" % (locked_number, self.diff(last, locked)))
+        self.check("biography: the list holds only the characters in the army (DOWN stops on Seth, no scrolling)",
+                   vals[0] == 0 and vals[1] == 1, "top row %d, biography %d" % (vals[0], vals[1]))
         self.check("biography: A on Eirika plays her first page",
-                   vals[1] == 0 and vals[2] >= 1 and self.diff(lst, pg) > 25,
-                   "biography %d, page %d, change %.0f" % (vals[1], vals[2], self.diff(lst, pg)))
+                   vals[2] == 0 and vals[3] >= 1 and self.diff(lst, pg) > 25,
+                   "biography %d, page %d, change %.0f" % (vals[2], vals[3], self.diff(lst, pg)))
 
     def expression(self, base, expression):
         """The portrait gPortraitExpressions gives a base portrait for an expression, or None."""

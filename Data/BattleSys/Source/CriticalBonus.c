@@ -1,9 +1,8 @@
 #include "common-chax.h"
 #include "battle-system.h"
 
+/* Swordmasters have no innate crit: the Crit skill is their class skill (SkillTable-job.c) */
 const s8 gCriticalBonus[0x100] = {
-	[CLASS_SWORDMASTER] = 15,
-	[CLASS_SWORDMASTER_F] = 15,
 	[CLASS_BERSERKER] = 10,
 };
 

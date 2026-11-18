@@ -198,7 +198,12 @@ bool CanUnitPromoteToThirdTier(const struct Unit *unit)
  */
 bool AutoPromotionDue(const struct Unit *unit)
 {
-	if (gpKernelDesignerConfig->promotion_on_max_level == true && unit->level == UNIT_LEVEL_MAX_RE &&
+	/*
+	 * The Options screen's "Promote on max level" row (gPlaySt.config.promote_unit_on_max_level: 0 is On, the default)
+	 * turns the designer's switch off for this game. It was not read before: the row did nothing.
+	 */
+	if (gpKernelDesignerConfig->promotion_on_max_level == true && gPlaySt.config.promote_unit_on_max_level == 0 &&
+		unit->level == UNIT_LEVEL_MAX_RE &&
 		(!(UNIT_CATTRIBUTES(unit) & CA_PROMOTED) || CanUnitPromoteToThirdTier(unit)))
 		return true;
 

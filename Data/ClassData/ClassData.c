@@ -1240,7 +1240,7 @@ const struct ClassData gClassData_NEW[] = {
         .promotionDef = 2,
         .promotionRes = 1,
 
-        .attributes = CA_CRITBONUS | CA_PROMOTED | CA_LOCK_2,
+        .attributes = CA_PROMOTED | CA_LOCK_2,
 
         .baseRanks = {
             [ITYPE_SWORD] = WPN_EXP_C,
@@ -1298,7 +1298,7 @@ const struct ClassData gClassData_NEW[] = {
         .promotionDef = 2,
         .promotionRes = 1,
 
-        .attributes = CA_CRITBONUS | CA_PROMOTED | CA_LOCK_2,
+        .attributes = CA_PROMOTED | CA_LOCK_2,
 
         .baseRanks = {
             [ITYPE_SWORD] = WPN_EXP_C,
