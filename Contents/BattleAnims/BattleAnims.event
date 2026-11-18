@@ -330,6 +330,26 @@ BYTE 0x01 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_LANCE
 BYTE 0x09 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED
 WORD 0
 
+// Dozla (Berserker), axe: sprite by Judgement, animated via ChatGPT. A FEBuilder-style script with 248x160 frames,
+// converted by Tools/banim/febuilder_txt.py (Contents/BattleAnims/Dozla/Berserker/Source)
+#define BANIM_DOZLA_BERSERKER_AXE 0xE6
+#include "Dozla/Berserker/DozlaBerserkerAxe.event"
+PUSH
+BanimEntry(BANIM_DOZLA_BERSERKER_AXE)
+DozlaBerserkerAxe_BANIM_ENTRY
+POP
+
+// Dozla's Berserker animations: axes use his animation; the throwing axes (Hand Axe 0x28, Tomahawk 0x29,
+// Hatchet 0x2C: his animation has no throw) and unarmed keep vanilla Berserker's (0x24, 0x25)
+ALIGN 4
+gBanimDef_DozlaBerserker:
+BYTE 0x02 0x01; SHORT BANIM_DOZLA_BERSERKER_AXE
+BYTE 0x09 0x01; SHORT 0x25
+BYTE 0x28 0x00; SHORT 0x24
+BYTE 0x29 0x00; SHORT 0x24
+BYTE 0x2C 0x00; SHORT 0x24
+WORD 0
+
 // Third-tier classes' animations (Documentation/Features/ThirdTierClasses.md), installed with CONFIG_THIRD_TIER_CLASSES.
 // The Trickster, Marshall, Trueblade and Archsage classes use them class-wide (gBanimDef_T3*, below, their
 // pBattleAnimDef in Data/ClassData/ClassData.c); the Dinar87 Archsage (0xE0) is installed but unused.

@@ -2328,6 +2328,7 @@ class Smoke:
                  ("Marisa as a Swordmaster", "marisa_swm", 0x16, 0x16, 0x2E01, 0, 0xDC, "sword"),
                  ("Phantom", "phantom", 0x01, 0x51, 0x2E1F, 2, 0xDD, "axe"),
                  ("Gilliam as an Armor Knight", "gilliam_akn", 0x03, 0x09, 0x2E14, 1, 0xE4, "lance"),
+                 ("Dozla as a Berserker", "dozla_brs", 0x1A, 0x43, 0x2E1F, 2, 0xE6, "axe"),
                  ("L'Arachel as a Troubadour", "larachel_trb", 0x19, 0x4B, 0, 4, 0xD8, "staff"),
                  ("A Gorgon Egg", "gorgon_egg", 0x01, 0x62, 0, 0, 0xDE, "egg"))
         # The pre-promote Recruit's promotion choices (gPromoJidLut, Data/ClassData/Promotions.event)
