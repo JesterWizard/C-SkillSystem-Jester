@@ -113,32 +113,45 @@ void Text_DrawString(struct Text *text, const char *str)
 #define TEXT_NUMBER_EQUAL_SPACING 1
 #elif defined(CONFIG_FONT_ADVANCE_WARS_2) || defined(CONFIG_FONT_SUPER_STAR_SAGA)
 #define TEXT_NUMBER_PITCH 8
+#define TEXT_NUMBER_GAP 0
 #define TEXT_NUMBER_RIGHT_ALIGN 1
 #define TEXT_NUMBER_EQUAL_SPACING 0
 #else
 #define TEXT_NUMBER_PITCH 8
+#define TEXT_NUMBER_GAP 0
 #define TEXT_NUMBER_RIGHT_ALIGN 0
 #define TEXT_NUMBER_EQUAL_SPACING 0
 #endif
 
-STATIC_DECLAR void DrawNumberDigit(struct Text *text, int digit)
+STATIC_DECLAR int NumberDigitWidth(int digit)
 {
 	char buf[2];
 	u32 width;
-	int start = text->x;
 
 	buf[0] = '0' + digit;
 	buf[1] = '\0';
 	GetCharTextLen(buf, &width);
+	return width;
+}
+
+STATIC_DECLAR void DrawNumberDigit(struct Text *text, int digit, int gap)
+{
+	char buf[2];
+	int width = NumberDigitWidth(digit);
+	int start = text->x;
+
+	buf[0] = '0' + digit;
+	buf[1] = '\0';
 
 #if TEXT_NUMBER_EQUAL_SPACING
 	/* x is this digit's right edge. Next digit's right edge is left of us minus the gap. */
-	text->x = start - (int)width;
+	text->x = start - width;
 	Text_DrawCharacter(text, buf);
-	text->x = start - (int)width - TEXT_NUMBER_GAP;
+	text->x = start - width - gap;
 #else
+	(void)gap;
 	if (TEXT_NUMBER_RIGHT_ALIGN) {
-		int pad = TEXT_NUMBER_PITCH - (int)width;
+		int pad = TEXT_NUMBER_PITCH - width;
 
 		if (pad < 0)
 			pad = 0;
@@ -153,19 +166,36 @@ STATIC_DECLAR void DrawNumberDigit(struct Text *text, int digit)
 LYN_REPLACE_CHECK(Text_DrawNumber);
 void Text_DrawNumber(struct Text *text, int n)
 {
+	u8 digits[10];
+	int count = 0, gap = TEXT_NUMBER_GAP, i;
+
+	do {
+		digits[count++] = k_umod(n, 10);
+		n = k_udiv(n, 10);
+	} while (n != 0 && count < (int)ARRAY_COUNT(digits));
+
 #if TEXT_NUMBER_EQUAL_SPACING
 	text->x += TEXT_NUMBER_PITCH;
+	{
+		int width = 0;
+
+		for (i = 0; i < count; i++)
+			width += NumberDigitWidth(digits[i]);
+
+		/*
+		 * The number's left edge must not pass the text's: with MOTHER 3's font a 4 is 7 px and the other digits
+		 * 6 or less, so 44 with its gap (15 px) ran 1 px past the 14 a two-digit number has, and its tens digit, at
+		 * x -1, was not drawn. Drop the gaps first (a 4 has a blank column on its left), then move it right.
+		 */
+		if (width + gap * (count - 1) > text->x)
+			gap = 0;
+		if (width > text->x)
+			text->x = width;
+	}
 #endif
 
-	if (n == 0) {
-		DrawNumberDigit(text, 0);
-		return;
-	}
-
-	while (n != 0) {
-		DrawNumberDigit(text, k_umod(n, 10));
-		n = k_udiv(n, 10);
-	}
+	for (i = 0; i < count; i++)
+		DrawNumberDigit(text, digits[i], gap);
 }
 
 LYN_REPLACE_CHECK(InsertPrefix);

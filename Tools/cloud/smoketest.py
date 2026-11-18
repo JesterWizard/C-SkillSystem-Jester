@@ -2332,6 +2332,17 @@ class Smoke:
                  ("Dozla as a Berserker with a Hand Axe", "dozla_brt", 0x1A, 0x43, 0x2E28, 2, 0xE7, "hand axe"),
                  ("L'Arachel as a Troubadour", "larachel_trb", 0x19, 0x4B, 0, 4, 0xD8, "staff"),
                  ("A Gorgon Egg", "gorgon_egg", 0x01, 0x62, 0, 0, 0xDE, "egg"))
+        # The vanilla skill animation (Astra, Adept and every skill without its own): the CSA spell engine was at a
+        # fixed ORG that the free space reached, overwrote it, and the skill animation never ended (the battle froze)
+        if "EfxSkillVanilla" in self.sym:
+            romdata = open(ROM, "rb").read()
+            conf = self.sym["EfxSkillVanilla"] - 0x08000000
+            frames = struct.unpack_from("<I", romdata, conf + 0x150)[0]
+            self.check("banim: the vanilla skill animation's frame table is in its own data (not overwritten)",
+                       conf < frames - 0x08000000 < conf + 0x1000 and
+                       self.sym.get("CSAEngine", 0) not in range(self.sym["EfxSkillVanilla"], frames),
+                       "EfxSkillVanilla %#x, frame table %#x, CSAEngine %#x" % (
+                           self.sym["EfxSkillVanilla"], frames, self.sym.get("CSAEngine", 0)))
         # The pre-promote Recruit's promotion choices (gPromoJidLut, Data/ClassData/Promotions.event)
         promo = open(ROM, "rb").read()[0x95DFA4 + 2 * 0x37:][:2]
         self.check("banim: the pre-promote Recruit promotes to Recruit T2 or Halberdier (0x3a, 0x77)",
