@@ -110,6 +110,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.multiple_fog_stages = true,
 	.no_suspend_in_aiphase = false,
 	.no_wait_after_trading = true,
+	.pair_up_banim = true, // a pair-up leader's support stands behind it in battle animations
 	.pair_up_enabled = true,
 	.popup_item_icon_shine = true, // a glint sweeps across item icons in popups
 	.portrait_32_color = false,

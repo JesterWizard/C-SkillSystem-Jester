@@ -211,6 +211,7 @@ struct KernelDesigerConfig {
 	u8 rescue_penalty_min_pct;
 	u8 rescue_penalty_max_pct;
 	u8 threat_arrows; /* while picking a move, flashing arrows from the enemies that could attack the cursor's tile (Kernel/Wizardry/ThreatArrows) */
+	u8 pair_up_banim; /* in battle animations, a pair-up leader's support stands behind it in its standing pose (Kernel/Wizardry/PairUpBanim) */
 };
 
 struct KernelBattleDesignerConfig {

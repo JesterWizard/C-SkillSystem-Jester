@@ -16,6 +16,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `max_equipable_skill` | Maximum number of dynamically equipable skills per unit, from `0` to `7`. |
 | `remove_move_path` | Disables move-path calculation and display. This is useful because vanilla move-path display only supports up to 20 steps and can overflow with high-move units. |
 | `threat_arrows` | On (the feature is available). While a unit's move is picked, a flashing red arrow from each enemy that could attack the cursor's tile. The Options screen's Threat Arrows row is OFF in a new game; the player turns it on per save. See [ThreatArrows](./ThreatArrows.md). |
+| `pair_up_banim` | On. In battle animations, a pair-up leader's support stands behind the leader in its standing pose. See [PairUpBanim](./PairUpBanim.md). |
 | `alpha_blend_movement_sprites` | While pathfinding (and `remove_move_path` is off), shows a Lex Talionis-style faded MU ghost at the cursor tip. See [TranslucentUnitSprite](./TranslucentUnitSprite.md). |
 | `text_box_extension_layout` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
 | `chapter_awards` | Off by default. After a cleared story chapter, an awards screen (MVP, most foes, unscathed) pays guild tokens before the save menu ([Guild Board](./GuildBoard.md#chapter-awards)). |

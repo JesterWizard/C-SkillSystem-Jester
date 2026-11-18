@@ -1,0 +1,25 @@
+#ifndef PAIR_UP_BANIM_INSTALLED
+#define PAIR_UP_BANIM_INSTALLED
+
+/**
+ * A pair-up leader's support stands behind it in battle animations (Source/PairUpBanim.c,
+ * Documentation/Features/PairUpBanim.md).
+ */
+
+ALIGN 4
+#include "Source/PairUpBanim.lyn.event"
+
+PUSH
+	ORG $5B938C // gProc_ekrBattle: PROC_REPEAT(ekrBattle_Init)
+	POIN PairUpBanim_ekrBattle_Init
+
+	ORG $5B9CF0 // ProcScr_ekrUnitKakudai: PROC_REPEAT(UnitKakudaiPrepareAnimScript)
+	POIN PairUpBanim_KakudaiPrepare
+	ORG $5B9CF8 // PROC_REPEAT(UnitKakudaiMain)
+	POIN PairUpBanim_KakudaiLoop
+
+	ORG $5B9B40 // ProcScr_ekrBattleEnding: PROC_REPEAT(ekrBattleEnding_8056228), the zoom back to the map
+	POIN PairUpBanim_ekrBattleEnding
+POP
+
+#endif // PAIR_UP_BANIM_INSTALLED

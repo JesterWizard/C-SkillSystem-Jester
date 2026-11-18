@@ -78,6 +78,8 @@ submenu (`PairUp_SkillUsability` / `PairUp_SkillOnSelected`, `SkillMenuInfo.c`),
 unit it carries or is carried by (`PairUp_IsUnlockedFor`): their rescue is a pairing, with the bonuses and the carried
 unit drawn. Its plain Rescue row pairs as well. Once the story unlocks Pair Up the row hides: the unit menu has its own.
 
+**In battle animations.** A leader's support stands behind it in its standing pose ([PairUpBanim.md](PairUpBanim.md), `pair_up_banim`).
+
 **Canto.** A unit with Canto keeps its remaining movement after Rescue, Drop, Take or Give (and so after Pair Up)
 (`CheckCanto`, `Canto.c`). `ApplyUnitAction` sets `US_HAS_MOVED` on every action, the bit that also means "has used
 Canto", and those four actions are never offered while Canto is in use, so for them it is ignored.
