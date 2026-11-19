@@ -45,8 +45,8 @@ struct PairUpBanimSide {
 };
 
 struct PairUpBanimState {
-	u32 magic; /* PUB_MAGIC once prepared for the battle in ids[] (PairUpBanim_IsCurrent) */
-	u8 ids[4]; /* the left leader and support, the right leader and support (unit index, 0 for none) */
+	u32 magic; /* PUB_MAGIC once prepared for the battle of ids[0-1] (PairUpBanim_IsCurrent) */
+	u8 ids[4]; /* the left and right leaders, then their supports (unit index, 0 for none) */
 	struct PairUpBanimSide side[2];
 	u8 used_objs;
 	u8 next_col;
@@ -168,25 +168,29 @@ static u8 *PairUpBanim_ColumnTile(int col)
 	return (u8 *)OBJ_VRAM0 + PairUpBanim_ColumnChr(col) * 0x20;
 }
 
-static int PairUpBanim_GetPixel(const u8 *tiles, int tile, int x, int y)
+/* The 8 pixels of a 4bpp tile row in the other order */
+static u32 PairUpBanim_FlipRow(u32 row)
 {
-	u8 b;
-
-	if (tile >= 0x100) /* past the 256x64 sheet */
-		return 0;
-
-	b = tiles[tile * 0x20 + y * 4 + (x >> 1)];
-	return (x & 1) ? b >> 4 : b & 0xF;
+	row = ((row >> 4) & 0x0F0F0F0F) | ((row & 0x0F0F0F0F) << 4);
+	return (row >> 24) | ((row >> 8) & 0xFF00) | ((row << 8) & 0xFF0000) | (row << 24);
 }
 
-static void PairUpBanim_PutPixel(int x, int y, int color)
+/* Draws a tile row of 8 pixels at canvas pixel (x, y); its colour-0 pixels leave the canvas as it is */
+static void PairUpBanim_PutRow(int x, int y, u32 row)
 {
-	u8 *b = PUB_CANVAS + ((y >> 3) * PUB_CANVAS_TW + (x >> 3)) * 0x20 + (y & 7) * 4 + ((x & 7) >> 1);
+	u32 *dst = (u32 *)(PUB_CANVAS + ((y >> 3) * PUB_CANVAS_TW + (x >> 3)) * 0x20) + (y & 7);
+	u32 mask = row | (row >> 1) | (row >> 2) | (row >> 3);
+	int shift = (x & 7) * 4;
 
-	if (x & 1)
-		*b = (*b & 0x0F) | (color << 4);
-	else
-		*b = (*b & 0xF0) | color;
+	mask = (mask & 0x11111111) * 0xF;
+
+	*dst = (*dst & ~(mask << shift)) | (row << shift);
+
+	/* The rest goes in the next tile on the right */
+	if (shift && (x >> 3) + 1 < PUB_CANVAS_TW) {
+		dst += 8;
+		*dst = (*dst & ~(mask >> (32 - shift))) | (row >> (32 - shift));
+	}
 }
 
 /* The standing frame's sheet and OAM, from the support's script */
@@ -228,26 +232,33 @@ static void PairUpBanim_DrawObj(const u32 *ent, int pos, int x0, int y0)
 {
 	int shape = (ent[0] >> 14) & 3, size = ent[0] >> 30;
 	int x = (s16)(ent[1] >> 16), y = (s16)ent[2];
-	int w = sObjSize[shape][size][0] * 8, h = sObjSize[shape][size][1] * 8;
+	int tw = sObjSize[shape][size][0], th = sObjSize[shape][size][1];
 	int hflip = (ent[0] >> 28) & 1, vflip = (ent[0] >> 29) & 1;
 	int chr = ent[1] & 0x3FF;
-	int px, py;
+	const u32 *sheet = (const u32 *)PUB_SHEET;
+	int py, c;
 
-	for (py = 0; py < h; py++) {
-		for (px = 0; px < w; px++) {
-			int sx = hflip ? w - 1 - px : px;
-			int sy = vflip ? h - 1 - py : py;
-			int color = PairUpBanim_GetPixel(PUB_SHEET, chr + (sy >> 3) * 32 + (sx >> 3), sx & 7, sy & 7);
-			int cx = x + px;
+	/* The left side faces the other way: the OAM's x mirrors around the anim's position */
+	if (pos == EKR_POS_L) {
+		x = -x - tw * 8;
+		hflip = !hflip;
+	}
 
-			if (!color)
+	for (py = 0; py < th * 8; py++) {
+		int sy = vflip ? th * 8 - 1 - py : py;
+
+		for (c = 0; c < tw; c++) {
+			int tile = chr + (sy >> 3) * 32 + (hflip ? tw - 1 - c : c);
+			u32 row;
+
+			if (tile >= 0x100) /* past the 256x64 sheet */
 				continue;
 
-			/* The left side faces the other way: the OAM's x mirrors around the anim's position */
-			if (pos == EKR_POS_L)
-				cx = -cx - 1;
+			row = sheet[tile * 8 + (sy & 7)];
+			if (!row)
+				continue;
 
-			PairUpBanim_PutPixel(cx - x0, y + py - y0, color);
+			PairUpBanim_PutRow(x + c * 8 - x0, y + py - y0, hflip ? PairUpBanim_FlipRow(row) : row);
 		}
 	}
 }
@@ -453,17 +464,21 @@ static struct Unit *PairUpBanim_GetLeader(int pos)
 	return GetUnit(bu->unit.index);
 }
 
-/* Who stands on the battle's two sides: the leaders and their supports (unit index, 0 for none) */
+/*
+ * Who stands on the battle's two sides: the leaders, from the battle's own copies (a unit that dies in the battle is
+ * cleared from the unit array), then their supports (unit index, 0 for none)
+ */
 static void PairUpBanim_GetIds(u8 *ids)
 {
 	int pos;
 
 	for (pos = 0; pos < 2; pos++) {
+		struct BattleUnit *bu = pos == EKR_POS_L ? gpEkrBattleUnitLeft : gpEkrBattleUnitRight;
 		struct Unit *leader = PairUpBanim_GetLeader(pos);
 		struct Unit *support = leader ? PairUp_GetSupport(leader) : NULL;
 
-		ids[pos * 2] = leader ? leader->index : 0;
-		ids[pos * 2 + 1] = support ? support->index : 0;
+		ids[pos] = bu ? (u8)bu->unit.index : 0; /* even once its unit died (gBanimValid is 0 then) */
+		ids[2 + pos] = support ? support->index : 0;
 	}
 }
 
@@ -490,8 +505,9 @@ static bool PairUpBanim_IsCurrent(void)
 	if (!PairUpBanim_Enabled() || gPairUpBanim.magic != PUB_MAGIC)
 		return false;
 
+	/* The leaders only: a support's pairing ends if its leader dies, and the zoom out still shows the other side's */
 	PairUpBanim_GetIds(ids);
-	return *(u32 *)ids == *(u32 *)gPairUpBanim.ids;
+	return ids[0] == gPairUpBanim.ids[0] && ids[1] == gPairUpBanim.ids[1];
 }
 
 static void PairUpBanim_PrepareSide(int pos)
@@ -559,8 +575,11 @@ static void PairUpBanim_SyncPalette(struct PairUpBanimSide *side)
 	}
 }
 
-/* Returns whether either side has a pose */
-static bool PairUpBanim_Prepare(void)
+/*
+ * Returns whether either side has a pose. restore: the leaders' animations are already unpacked, and are unpacked again
+ * (UpdateBanimFrame, about 1.7 frames) where the supports' were. Before vanilla unpacks them, it isn't needed.
+ */
+static bool PairUpBanim_Prepare(bool restore)
 {
 	struct PairUpBanimState *st = &gPairUpBanim;
 	int pos;
@@ -573,17 +592,20 @@ static bool PairUpBanim_Prepare(void)
 	st->magic = PUB_MAGIC;
 	st->low_row = 8; /* free while the units zoom in */
 
-	if (!st->ids[1] && !st->ids[3])
+	if (!st->ids[2] && !st->ids[3])
 		return false;
 
-	PairUpBanim_PrepareSide(EKR_POS_L);
-	PairUpBanim_PrepareSide(EKR_POS_R);
+	/* Two large poses may not both fit in the free tiles: the player's side goes first */
+	pos = gBanimPositionIsEnemy[EKR_POS_L] ? EKR_POS_R : EKR_POS_L;
+	PairUpBanim_PrepareSide(pos);
+	PairUpBanim_PrepareSide(1 - pos);
 
 	if (!st->side[EKR_POS_L].valid && !st->side[EKR_POS_R].valid)
 		return false;
 
 	/* Put the leaders' scripts and OAM back where the support's were unpacked (it writes OBJ palette 8 too) */
-	UpdateBanimFrame();
+	if (restore)
+		UpdateBanimFrame();
 
 	for (pos = 0; pos < 2; pos++)
 		if (st->side[pos].valid)
@@ -713,7 +735,7 @@ void PairUpBanim_ekrBattle_Init(struct ProcEkrBattle *proc)
 {
 	/* The poses are made as the units zoom in; if that step did not run, make them now */
 	bool any = PairUpBanim_IsCurrent() ? (gPairUpBanim.side[0].valid || gPairUpBanim.side[1].valid)
-					    : PairUpBanim_Prepare();
+					    : PairUpBanim_Prepare(true);
 
 	ekrBattle_Init(proc);
 
@@ -721,18 +743,20 @@ void PairUpBanim_ekrBattle_Init(struct ProcEkrBattle *proc)
 		PairUpBanim_Start();
 }
 
-/* ProcScr_ekrUnitKakudai's first step: vanilla's (it unpacks the leaders' animations), then the poses */
+/*
+ * ProcScr_ekrUnitKakudai's first step: the poses, then vanilla's, which unpacks the leaders' animations into the buffers
+ * the poses were made in
+ */
 void PairUpBanim_KakudaiPrepare(struct ProcUnitKakudai *proc)
 {
-	UnitKakudaiPrepareAnimScript(proc);
-
-	if (KAKUDAI_S32(proc, KAKUDAI_OUT) || !PairUpBanim_Enabled())
-		return;
-
 	/* A new battle; while a map unit still moves, the poses are made later in the zoom (PairUpBanim_KakudaiLoop) */
-	gPairUpBanim.magic = 0;
-	if (!MuExists())
-		PairUpBanim_Prepare();
+	if (!KAKUDAI_S32(proc, KAKUDAI_OUT) && PairUpBanim_Enabled()) {
+		gPairUpBanim.magic = 0;
+		if (!MuExists())
+			PairUpBanim_Prepare(false);
+	}
+
+	UnitKakudaiPrepareAnimScript(proc);
 }
 
 /* Each side's pose, scaled and placed as vanilla does the leader's in this frame of the zoom */
@@ -780,16 +804,23 @@ void PairUpBanim_KakudaiLoop(struct ProcUnitKakudai *proc)
 
 	/* The leaders' OAM, which the zoom reads, is unpacked again before this returns */
 	if (!KAKUDAI_S32(proc, KAKUDAI_OUT) && !PairUpBanim_IsCurrent() && !MuExists())
-		PairUpBanim_Prepare();
+		PairUpBanim_Prepare(true);
 
 	if (!PairUpBanim_IsCurrent() || gPairUpBanim.stop)
 		return;
 
 	if (t >= KAKUDAI_S16(proc, KAKUDAI_END)) {
 		/* The zoom is over; after the one back to the map, the battle is */
-		if (KAKUDAI_S32(proc, KAKUDAI_OUT))
+		if (KAKUDAI_S32(proc, KAKUDAI_OUT)) {
 			gPairUpBanim.magic = 0;
-		return;
+			return;
+		}
+
+		/*
+		 * This frame's OAM was made before the poses' anims were shown (PairUpBanim_Loop): draw them once more, in
+		 * their places, or they blink out for a frame
+		 */
+		t = KAKUDAI_S16(proc, KAKUDAI_END) - 1;
 	}
 
 	for (pos = 0; pos < 2; pos++)
