@@ -140,7 +140,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/WeaponTraits.md"><img src="./Documentation/Images/WeaponTraits.png" alt="Weapon Traits preview" width="360" /></a><br/><b><a href="./Documentation/Features/WeaponTraits.md">Weapon Traits</a></b><br/><sub>Replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum damage, magic vs armour</sub></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MinimumDamage.md"><img src="./Documentation/Images/MinimumDamage.png" alt="Minimum Damage preview" width="360" /></a><br/><b><a href="./Documentation/Features/MinimumDamage.md">Minimum Damage</a></b><br/><sub>Every hit that lands deals at least 1 damage</sub></td>
   </tr>
 </table>
 

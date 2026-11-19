@@ -213,6 +213,7 @@ struct KernelDesigerConfig {
 	u8 threat_arrows; /* while picking a move, flashing arrows from the enemies that could attack the cursor's tile (Kernel/Wizardry/ThreatArrows) */
 	u8 pair_up_banim; /* in battle animations, a pair-up leader's support stands behind it in its standing pose (Kernel/Wizardry/PairUpBanim) */
 	u8 weapon_traits; /* weapon traits replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum, magic vs armour (WeaponTraits.md) */
+	u8 min_damage_on_hit; /* every hit that lands deals at least 1 damage (MinimumDamage.md) */
 };
 
 struct KernelBattleDesignerConfig {
