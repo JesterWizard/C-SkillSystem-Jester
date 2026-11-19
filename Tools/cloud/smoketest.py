@@ -82,6 +82,7 @@ What it checks:
               from turn 2 with Eirika given one weapon and every enemy one class: on, a sword against a lance has no
               triangle bonus; an Iron Lance against a Cavalier and Fire against an Armor Knight are effective (a
               plain soldier is not); an axe hit against 30 Def deals 5; a sword follow-up deals 1.2x the first hit.
+  mindamage   minimum damage (min_damage_on_hit off and on, a test ROM): Eirika's hit against 30 Def deals 0 off and 1 on.
   mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
               digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
@@ -136,7 +137,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -2764,6 +2765,37 @@ class Smoke:
                    ok and dmg(off[2]) == dmg(off[0]) and dmg(on[0]) > 0 and dmg(on[2]) == dmg(on[0]) * 120 // 100,
                    "hits off %s, on %s" % ([dmg(v) for v in off], [dmg(v) for v in on]))
 
+    def test_mindamage(self, turn2_ss):
+        """Minimum damage (Documentation/Features/MinimumDamage.md), off by default (min_damage_on_hit in the designer
+        config) and on in a test ROM. From turn 2 of the prologue, Eirika holds only an Iron Sword with Skl and Lck 30
+        (every hit lands), and every enemy has 30 Def, 40 HP and Spd and Lck 0: her first hit (the top byte of
+        gBattleHitArrayRe's first entry) deals 0 off and 1 on."""
+        d = os.path.join(self.out, "mindamage")
+        os.makedirs(d, exist_ok=True)
+        rom_on = self.designer_rom(d, "mindmg.gba", "min_damage_on_hit", 1)
+        hits = self.sym.get("gBattleHitArrayRe")
+        if not rom_on or not hits:
+            return self.check("mindamage: test ROM and symbols", False)
+        lines = ["load " + turn2_ss, "w16 %#x %#x" % (UNIT1 + 0x1E, 0x01 | (40 << 8)), "w8 %#x 30" % (UNIT1 + 0x15),
+                 "w8 %#x 30" % (UNIT1 + 0x19)]
+        lines += ["w16 %#x 0" % (UNIT1 + 0x1E + 2 * k) for k in range(1, 5)]
+        for i in range(8):
+            u = UNIT_RED + 0x48 * i
+            lines += ["w8 %#x 40" % (u + 0x12), "w8 %#x 40" % (u + 0x13), "w8 %#x 30" % (u + 0x17),
+                      "w8 %#x 0" % (u + 0x16), "w8 %#x 0" % (u + 0x19)]
+        lines += EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 75", "shot hit.png",
+                                "wait 825", "r32 %#x" % hits]
+        off = self.run(ROM, lines, d)
+        on = self.run(rom_on, lines, d)
+        self.shot(os.path.join(d, "hit.png"), "minimum damage on: Eirika's hit against 30 Def deals 1")
+
+        def dmg(v):
+            v >>= 24
+            return v - 256 if v > 127 else v
+        self.check("mindamage: a hit against 30 Def deals 0 off and 1 on", len(off) == 1 and len(on) == 1 and
+                   dmg(off[0]) == 0 and dmg(on[0]) == 1, "first hit off %s, on %s" % (
+                       off and dmg(off[0]), on and dmg(on[0])))
+
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
         (13, 7), (14, 8) and (2, 0); Eirika starts on plains at (4, 5) with Mov 5. Given the skill in RAM and put on
@@ -3505,14 +3537,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits")
+                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
             fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
-                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits")
+                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3559,6 +3591,8 @@ def main():
                 r.submit((0, 16), s.test_threat, boot_ss)
             if on("weapontraits") and turn2_ss:
                 r.submit((0, 20), s.test_weapontraits, turn2_ss)
+            if on("mindamage") and turn2_ss:
+                r.submit((0, 21), s.test_mindamage, turn2_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),

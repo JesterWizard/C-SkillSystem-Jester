@@ -104,6 +104,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.max_simultaneous_support_conversations = 10,
 	.menu_option_refuge = false,
 	.menu_skill_ai_use = false,
+	.min_damage_on_hit = false, /* on: every hit that lands deals at least 1 damage (MinimumDamage.md) */
 	.modular_staff_exp = true,
 	.mokha_aoe_enabled = false, // Gambit (Three Houses-style AOE attacks) off for now; true shows the unit menu's Gambit row
 	.mp_system = true,
