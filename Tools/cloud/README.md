@@ -29,7 +29,6 @@ The hook does this:
   - `tools/bin/grit` and `tools/bin/gbalzss` point to `Tools/cloud/gritshim.py`.
 - Compiles `Tools/cloud/gbarun.c` to `~/.cache/c-skillsys/gbarun` and puts it on `PATH`.
 - Exports `DEVKITPRO`, `DEVKITARM` and `PATH` for the session.
-- Clones the pinned `Tools/check_patch` and `Tools/FE-PyTools` checkouts. They are gitlinks with no `.gitmodules`, so a fresh clone leaves them empty.
 - `Tools/FE-CLib-Mokha/reference/` (`fireemblem8.ref.o`, `.ref.s`, `.sym`) is committed, taken from FE-CLib-Mokha commit `3503999`, whose names match the vendored `Tools/FE-CLib-Mokha/include`. Newer upstream versions rename symbols and break the build; do not replace them.
 - Copies `fe8.gba` from the user's uploads if `fe8.gba` is missing.
 
@@ -229,5 +228,5 @@ Tools/cloud/build.sh
 
 ## Coding style
 
-- `./check_codingstyle.sh <file.c>` works once the hook has fetched `Tools/check_patch`.
+- `./check_codingstyle.sh <file.c>` works out of the box (`Tools/check_patch` is committed).
 - Run it from the repo root.
