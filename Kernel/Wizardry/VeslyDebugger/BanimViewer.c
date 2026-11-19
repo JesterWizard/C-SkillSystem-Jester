@@ -10,9 +10,14 @@
 /*
  * Debugger, "Battle anim" (VeslyDebugger_Installer.event, page 3): a panel on the left of the map, beside the debugger's
  * menu (which stays open on the right, blocked while the viewer runs), with one platform in it and a battle animation
- * on the platform, facing left as the player's does in battle, and its ID and the character's name above. Up and down
- * step through the characters (each in their default class, then every character-and-class row of CustomAnimeTable), L
- * and R by ten; A switches between the normal attack and the critical; B goes back to the menu.
+ * on the platform, facing left as the player's does in battle, and the class, its ID and the variant above. The list
+ * is by class: each class's own animation ("Generic"), then every character with a custom animation (CustomAnimeTable)
+ * or a character palette in that class. Left and right go to the previous or next class, L and R ten classes at a
+ * time; up and down step through the class's variants. A switches between the normal attack and the critical; B goes
+ * back to the menu.
+ *
+ * The attack plays to its end: at each wait (C01, C02, C18: in battle, the HP bar draining) the engine stops and the
+ * viewer resumes it a moment later, as the promotion screen does; once the mode has ended, it attacks again.
  *
  * The animation runs on the game's mini battle-animation engine, the one the class reel on the title screen uses
  * (ClassInfoDisplay_Init, FE8U 0x080B37FC): the same AnimBuffer, buffers and platform, at the same addresses. They are
@@ -39,7 +44,9 @@
 
 /* The mini engine and the class reel's platform: FE-CLib's names, what they do */
 #define MiniAnimRestart    sub_805A7B4 /* starts the mode in roundType again */
-#define MiniAnimRoundDone  sub_805A96C /* the mode in roundType has played to its end */
+#define MiniAnimWaiting    sub_805A96C /* stopped at a wait (C01, C02, C18): either layer's nextRoundId is 0xFFFE */
+#define MiniAnimResume     sub_805A990 /* goes on past the wait (state3 bit 3 on both layers) */
+#define MiniAnimModeEnded  sub_805A9A4 /* the mode has ended: the front layer's nextRoundId is 0xFFFF */
 #define MiniAnimEnd        sub_805AA28
 #define NewPlatform        sub_805AA68
 #define PlatformSetPos     sub_805AE40
@@ -65,10 +72,18 @@ void PutNumberHex(u16 *tm, int color, int number); /* C_Code.c */
  * a sprite is drawn over a BG of the same priority.
  */
 #define VIEW_BG_PRIO 3
-#define VIEW_MAX_ENTRIES 0x180
-/* frames before the viewer reads keys: the A that opened it is still in the key state for a few frames (counted in timer) */
+#define VIEW_MAX_ENTRIES 0x180 /* sViewEntries has room for 0x180 (0x0200F200..0x0200F500) */
+#define VIEW_LAST_CLASS 0x7F   /* CLASS_PUPIL_T1, the last row of gClassData_NEW (Data/ClassData/ClassData.c) */
+/* frames before the viewer reads keys after it opens: the A that opened it is still in the key state for a few frames */
 #define VIEW_SETTLE 12
+/* frames after the last step before the new animation loads: holding a direction scrolls the list without reloading */
+#define VIEW_RELOAD_DELAY 6
+/* frames the attack stays at a wait (in battle, the HP bar draining) before it goes on */
+#define VIEW_WAIT_HOLD 24
+/* frames between the end of the attack and the next one */
+#define VIEW_REPLAY_DELAY 40
 
+/* pid 0: the class's own animation, with its own palette ("Generic") */
 struct ViewEntry {
 	u8 pid, jid;
 };
@@ -79,10 +94,12 @@ struct ProcBanimViewer {
 	u16 count;
 	u16 index;
 	u8 crit;
-	u8 timer;
+	u8 settle;  /* frames since the viewer opened, up to VIEW_SETTLE */
 	u16 chr_counter; /* the font's tile allocator, put back on the way out */
 	u8 hidden_mus; /* the bits of the MU slots hidden while the viewer is up (the selected unit's MU too) */
 	u8 bg1_priority, bg2_priority; /* the panel's and the map's BG priorities, put back on the way out */
+	u8 reload;  /* frames left before the selected entry's animation loads (0: loaded) */
+	u8 timer;   /* frames at the current wait, or since the attack ended */
 };
 
 static const struct BattleAnimDef *ViewAnimDef(int pid, int jid, bool *custom)
@@ -92,7 +109,7 @@ static const struct BattleAnimDef *ViewAnimDef(int pid, int jid, bool *custom)
 	int i;
 
 	*custom = false;
-	if (conf) {
+	if (conf && pid) {
 		for (i = 0; conf[i].pid != 0 || conf[i].jid != 0; i++) {
 			if (conf[i].pid == pid && conf[i].jid == jid) {
 				*custom = true;
@@ -123,7 +140,7 @@ static int ViewCharaPal(int pid, int jid, bool custom)
 	int i;
 
 	/* A character palette is laid out for its class's own animations (HPBarPalettes.c) */
-	if (custom)
+	if (custom || !pid)
 		return -1;
 	for (i = 0; i < 7; i++) {
 		if (gAnimCharaPalConfig[pid - 1][i] == jid)
@@ -134,51 +151,149 @@ static int ViewCharaPal(int pid, int jid, bool custom)
 
 static bool ViewEntryValid(int pid, int jid)
 {
-	const struct CharacterData *pinfo = GetCharacterData(pid);
 	bool custom;
 
-	if (!pinfo || !pinfo->nameTextId || jid < 1)
-		return false;
 	return ViewAnimId(ViewAnimDef(pid, jid, &custom)) >= 0;
+}
+
+static void ViewAddEntry(struct ProcBanimViewer *proc, int pid, int jid)
+{
+	if (proc->count >= VIEW_MAX_ENTRIES)
+		return;
+	sViewEntries[proc->count].pid = pid;
+	sViewEntries[proc->count].jid = jid;
+	proc->count++;
 }
 
 static void ViewBuildList(struct ProcBanimViewer *proc)
 {
 	const struct IndividualAnimConf *conf = GetPrIndividualAnimConf();
-	int pid, i, n = 0;
+	u32 custom[8]; /* a bit per character with a CustomAnimeTable row for the class */
+	int pid, jid, i;
 
-	for (pid = 1; pid < 0x100 && n < VIEW_MAX_ENTRIES; pid++) {
-		const struct CharacterData *pinfo = GetCharacterData(pid);
+	proc->count = 0;
+	for (jid = 1; jid <= VIEW_LAST_CLASS; jid++) {
+		const struct ClassData *jinfo = GetClassData(jid);
+		bool generic;
 
-		if (!pinfo || !ViewEntryValid(pid, pinfo->defaultClass))
+		if (!jinfo || !jinfo->nameTextId)
 			continue;
-		sViewEntries[n].pid = pid;
-		sViewEntries[n].jid = pinfo->defaultClass;
-		n++;
+		generic = ViewEntryValid(0, jid);
+		if (generic)
+			ViewAddEntry(proc, 0, jid);
 
-		/* the character's custom animations in other classes, next to them */
-		for (i = 0; conf && (conf[i].pid != 0 || conf[i].jid != 0) && n < VIEW_MAX_ENTRIES; i++) {
-			if (conf[i].pid == pid && conf[i].jid != pinfo->defaultClass && ViewEntryValid(pid, conf[i].jid)) {
-				sViewEntries[n].pid = pid;
-				sViewEntries[n].jid = conf[i].jid;
-				n++;
-			}
+		CpuFill32(0, custom, sizeof(custom));
+		for (i = 0; conf && (conf[i].pid != 0 || conf[i].jid != 0); i++) {
+			if (conf[i].jid == jid && conf[i].pid)
+				custom[conf[i].pid >> 5] |= 1 << (conf[i].pid & 31);
+		}
+
+		/* every named character with a custom animation, or a palette for the class's own, in the class */
+		for (pid = 1; pid < 0x100; pid++) {
+			const struct CharacterData *pinfo = GetCharacterData(pid);
+			bool own;
+
+			if (!pinfo || !pinfo->nameTextId)
+				continue;
+			if (custom[pid >> 5] & (1 << (pid & 31)))
+				own = ViewEntryValid(pid, jid);
+			else
+				own = generic && ViewCharaPal(pid, jid, false) >= 0;
+			if (own)
+				ViewAddEntry(proc, pid, jid);
 		}
 	}
-	proc->count = n;
 
-	/* start on the selected unit: its character, in its class if the list has it */
+	/* start on the selected unit: its character in its class, else its class's own animation */
 	proc->index = 0;
-	for (i = 0; gActiveUnit && i < n; i++) {
-		if (sViewEntries[i].pid != UNIT_CHAR_ID(gActiveUnit))
+	for (i = 0; gActiveUnit && i < proc->count; i++) {
+		if (sViewEntries[i].jid != UNIT_CLASS_ID(gActiveUnit))
 			continue;
-		if (sViewEntries[proc->index].pid != sViewEntries[i].pid)
+		if (sViewEntries[proc->index].jid != sViewEntries[i].jid)
 			proc->index = i;
-		if (sViewEntries[i].jid == UNIT_CLASS_ID(gActiveUnit)) {
+		if (sViewEntries[i].pid == UNIT_CHAR_ID(gActiveUnit)) {
 			proc->index = i;
 			break;
 		}
 	}
+}
+
+/* The first and one-past-last entries of the class that entry `index` is in */
+static void ViewClassRange(struct ProcBanimViewer *proc, int index, int *first, int *last)
+{
+	int jid = sViewEntries[index].jid;
+
+	*first = index;
+	while (*first > 0 && sViewEntries[*first - 1].jid == jid)
+		(*first)--;
+	*last = index + 1;
+	while (*last < proc->count && sViewEntries[*last].jid == jid)
+		(*last)++;
+}
+
+/* The class number (from 1) of entry `index`, and the number of classes */
+static int ViewClassOrdinal(struct ProcBanimViewer *proc, int index, int *total)
+{
+	int i, n = 0, at = 0;
+
+	for (i = 0; i < proc->count; i++) {
+		if (i == 0 || sViewEntries[i].jid != sViewEntries[i - 1].jid)
+			n++;
+		if (i == index)
+			at = n;
+	}
+	*total = n;
+	return at;
+}
+
+/* Moves to the first entry of the class `step` classes away (wrapping) */
+static void ViewStepClass(struct ProcBanimViewer *proc, int step)
+{
+	int first, last, n;
+
+	for (n = 0; n < (step < 0 ? -step : step); n++) {
+		ViewClassRange(proc, proc->index, &first, &last);
+		if (step > 0)
+			proc->index = last < proc->count ? last : 0;
+		else
+			proc->index = first > 0 ? first - 1 : proc->count - 1;
+	}
+	ViewClassRange(proc, proc->index, &first, &last);
+	proc->index = first;
+}
+
+/* Moves to the next (+1) or previous (-1) variant of the class (wrapping within it) */
+static void ViewStepVariant(struct ProcBanimViewer *proc, int step)
+{
+	int first, last;
+
+	ViewClassRange(proc, proc->index, &first, &last);
+	if (step > 0)
+		proc->index = proc->index + 1 < last ? proc->index + 1 : first;
+	else
+		proc->index = proc->index > first ? proc->index - 1 : last - 1;
+}
+
+/* "n/total" */
+static void ViewFormatCount(char *buf, int n, int total)
+{
+	char tmp[8];
+	int len, i;
+
+	for (i = 0; i < 2; i++) {
+		int v = i ? total : n;
+
+		len = 0;
+		do {
+			tmp[len++] = '0' + DivRem(v, 10);
+			v = Div(v, 10);
+		} while (v);
+		while (len)
+			*buf++ = tmp[--len];
+		if (!i)
+			*buf++ = '/';
+	}
+	*buf = 0;
 }
 
 /* Sets a w x h rect of a tilemap, from (x, y), to 0 (FE-CLib has no helper for it) */
@@ -205,25 +320,45 @@ static void ViewDrawLabel(struct ProcBanimViewer *proc)
 	struct Text *th = sViewText;
 	bool custom;
 	int anim = ViewAnimId(ViewAnimDef(ent->pid, ent->jid, &custom));
+	int first, last, classes, i;
+	char count[12];
 
 	ViewClearPanel(gBG0TilemapBuffer);
-	ClearText(&th[0]);
-	ClearText(&th[1]);
-	ClearText(&th[2]);
+	for (i = 0; i < 4; i++)
+		ClearText(&th[i]);
 
-	/* the animation's ID (as BattleAnims.event writes it), the character and the class above; the mode below */
-	PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(4, 3), TEXT_COLOR_SYSTEM_GOLD, anim + 1);
+	/* the class, its number of the classes; the animation's ID (as BattleAnims.event writes it) */
+	PutNumberHex(gBG0TilemapBuffer + TILEMAP_INDEX(3, 1), TEXT_COLOR_SYSTEM_GOLD, anim + 1);
 	Text_SetColor(&th[0], TEXT_COLOR_SYSTEM_WHITE);
-	Text_DrawString(&th[0], GetStringFromIndex(GetCharacterData(ent->pid)->nameTextId));
-	PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(6, 3));
+	Text_DrawString(&th[0], jinfo ? GetStringFromIndex(jinfo->nameTextId) : "");
+	ViewFormatCount(count, ViewClassOrdinal(proc, proc->index, &classes), classes);
+	Text_SetCursor(&th[0], 80);
+	Text_SetColor(&th[0], TEXT_COLOR_SYSTEM_GRAY);
+	Text_DrawString(&th[0], count);
+	PutText(&th[0], gBG0TilemapBuffer + TILEMAP_INDEX(5, 1));
 
+	/* the variant: the class's own animation or a character's, its number of the class's variants */
+	ViewClassRange(proc, proc->index, &first, &last);
+	Text_SetColor(&th[1], ent->pid ? TEXT_COLOR_SYSTEM_BLUE : TEXT_COLOR_SYSTEM_GRAY);
+	Text_DrawString(&th[1], ent->pid ? GetStringFromIndex(GetCharacterData(ent->pid)->nameTextId) : "Generic");
+	ViewFormatCount(count, proc->index - first + 1, last - first);
+	Text_SetCursor(&th[1], 80);
 	Text_SetColor(&th[1], TEXT_COLOR_SYSTEM_GRAY);
-	Text_DrawString(&th[1], jinfo ? GetStringFromIndex(jinfo->nameTextId) : "");
-	PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(6, 5));
+	Text_DrawString(&th[1], count);
+	PutText(&th[1], gBG0TilemapBuffer + TILEMAP_INDEX(5, 3));
 
-	Text_SetColor(&th[2], proc->crit ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_GRAY);
+	/* the mode, and the keys */
+	Text_SetColor(&th[2], proc->crit ? TEXT_COLOR_SYSTEM_GOLD : TEXT_COLOR_SYSTEM_WHITE);
 	Text_DrawString(&th[2], proc->crit ? "Critical" : "Normal");
-	PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(6, 16));
+	Text_SetCursor(&th[2], 56);
+	Text_SetColor(&th[2], TEXT_COLOR_SYSTEM_GRAY);
+	Text_DrawString(&th[2], "A: Normal/Critical");
+	PutText(&th[2], gBG0TilemapBuffer + TILEMAP_INDEX(2, 15));
+
+	/* the font has <, > and ^ (Fonts/Glyph/fe8u): </> is left and right, ^/v up and down */
+	Text_SetColor(&th[3], TEXT_COLOR_SYSTEM_GRAY);
+	Text_DrawString(&th[3], "</> Class    ^/v Variant");
+	PutText(&th[3], gBG0TilemapBuffer + TILEMAP_INDEX(2, 17));
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
@@ -248,12 +383,15 @@ static void ViewLoadAnim(struct ProcBanimViewer *proc)
 	sViewAnim->roundType = proc->crit ? ROUND_CRIT : ROUND_ATTACK;
 	MiniAnimRestart(sViewAnim);
 	proc->timer = 0;
+	proc->reload = 0;
 }
 
 static void BanimViewer_Init(struct ProcBanimViewer *proc)
 {
 	ViewBuildList(proc);
 	proc->crit = false;
+	proc->settle = 0;
+	proc->reload = 0;
 	proc->timer = 0;
 }
 
@@ -283,9 +421,10 @@ static void BanimViewer_Setup(struct ProcBanimViewer *proc)
 
 	/* the font's tiles are the panel's text now: its allocator goes back on the way out */
 	proc->chr_counter = gActiveFont->chr_counter;
-	InitText(&sViewText[0], 8);
-	InitText(&sViewText[1], 8);
-	InitText(&sViewText[2], 5);
+	InitText(&sViewText[0], 14);
+	InitText(&sViewText[1], 14);
+	InitText(&sViewText[2], 17);
+	InitText(&sViewText[3], 17);
 
 	/* the panel on the left: the frame on BG1, its interior cleared on BG0 for the labels */
 	ViewFillRect(gBG0TilemapBuffer, 0, 0, 21, 20);
@@ -341,13 +480,34 @@ static void BanimViewer_Setup(struct ProcBanimViewer *proc)
 	ViewDrawLabel(proc);
 }
 
+/* The attack plays through its waits to its end, then again after a moment */
+static void ViewUpdateAnim(struct ProcBanimViewer *proc)
+{
+	if (MiniAnimModeEnded(sViewAnim)) {
+		if (++proc->timer > VIEW_REPLAY_DELAY)
+			ViewLoadAnim(proc);
+		return;
+	}
+
+	if (MiniAnimWaiting(sViewAnim)) {
+		if (++proc->timer > VIEW_WAIT_HOLD) {
+			MiniAnimResume(sViewAnim);
+			proc->timer = 0;
+		}
+		return;
+	}
+
+	proc->timer = 0;
+}
+
 static void BanimViewer_Loop(struct ProcBanimViewer *proc)
 {
 	u16 keys = gKeyStatusPtr->repeatedKeys;
-	int step = 0;
+	int old = proc->index;
 
-	if (proc->timer < VIEW_SETTLE) {
-		proc->timer++;
+	if (proc->settle < VIEW_SETTLE) {
+		proc->settle++;
+		ViewUpdateAnim(proc);
 		return;
 	}
 
@@ -357,22 +517,26 @@ static void BanimViewer_Loop(struct ProcBanimViewer *proc)
 		return;
 	}
 
-	if (keys & DPAD_DOWN)
-		step = 1;
-	else if (keys & DPAD_UP)
-		step = proc->count - 1;
-	else if (keys & R_BUTTON)
-		step = 10;
-	else if (keys & L_BUTTON)
-		step = proc->count - 10 % proc->count;
+	if (proc->count > 1) {
+		if (keys & DPAD_RIGHT)
+			ViewStepClass(proc, 1);
+		else if (keys & DPAD_LEFT)
+			ViewStepClass(proc, -1);
+		else if (keys & R_BUTTON)
+			ViewStepClass(proc, 10);
+		else if (keys & L_BUTTON)
+			ViewStepClass(proc, -10);
+		else if (keys & DPAD_DOWN)
+			ViewStepVariant(proc, 1);
+		else if (keys & DPAD_UP)
+			ViewStepVariant(proc, -1);
+	}
 
-	if (step && proc->count > 1) {
-		proc->index += step;
-		while (proc->index >= proc->count)
-			proc->index -= proc->count;
+	if (proc->index != old) {
+		/* the labels follow at once; the animation loads once the selection has stayed for a few frames */
 		m4aSongNumStart(0x66);
-		ViewLoadAnim(proc);
 		ViewDrawLabel(proc);
+		proc->reload = VIEW_RELOAD_DELAY;
 		return;
 	}
 
@@ -384,9 +548,13 @@ static void BanimViewer_Loop(struct ProcBanimViewer *proc)
 		return;
 	}
 
-	/* attack again a moment after the last attack ends */
-	if (MiniAnimRoundDone(sViewAnim) && ++proc->timer > 40)
-		ViewLoadAnim(proc);
+	if (proc->reload) {
+		if (--proc->reload == 0)
+			ViewLoadAnim(proc);
+		return;
+	}
+
+	ViewUpdateAnim(proc);
 }
 
 static void BanimViewer_End(struct ProcBanimViewer *proc)

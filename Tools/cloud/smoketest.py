@@ -105,8 +105,9 @@ What it checks:
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
               character palette).
-  dbgbanim    the debugger's "Battle anim" screen on Eirika: her animation attacks on the platform, down shows another,
-              A switches to the critical, B goes back to the map.
+  dbgbanim    the debugger's "Battle anim" screen on Eirika: her class's animation attacks on the platform and plays
+              through its waits to its end; right shows the next class, holding it scrolls, down a class's next variant
+              (a character palette); A switches to the critical, B goes back to the map.
   biography   the map menu's Biography row opens the list of the characters in the army (in the prologue Eirika and
               Seth: DOWN stops on Seth, A plays his page); A on Eirika plays her first page.
   debugflag   the debugger opens with the base-chapter intro skip flag (0xEC) set, and not with its own off flag
@@ -962,6 +963,18 @@ class Smoke:
         data = open(path, "rb").read() if os.path.exists(path) else b""
         return [(struct.unpack_from("<I", data, i)[0], data[i:i + PROC_SIZE]) for i in range(0, len(data), PROC_SIZE)
                 if struct.unpack_from("<I", data, i)[0]]
+
+    def proc_address(self, name, state, d):
+        """The RAM address of the live proc named name (PROC_NAME, its name pointer at +0x10) in a save state; 0 if none."""
+        dump = os.path.join(d, "_procs.bin")
+        self.run(ROM, ["load " + state, "wait 1", "dump %#x %#x %s" % (self.sym["sProcArray"], PROC_SIZE * PROCS, dump)], d)
+        rom = open(ROM, "rb").read()
+        data = open(dump, "rb").read() if os.path.exists(dump) else b""
+        for i in range(0, len(data), PROC_SIZE):
+            ptr = struct.unpack_from("<I", data, i + 0x10)[0] - 0x08000000
+            if 0 <= ptr < len(rom) and rom[ptr:ptr + len(name) + 1] == name.encode() + b"\0":
+                return self.sym["sProcArray"] + i
+        return 0
 
     def test_wmshops(self, states):
         """The node menu's shop rows on the world map (test_worldmap's idle state, Serafew locked so its first rows are
@@ -2463,31 +2476,52 @@ class Smoke:
 
     def test_dbgbanim(self, boot_ss):
         """The debugger's "Battle anim" screen (page 3, Kernel/Wizardry/VeslyDebugger/BanimViewer.c) on Eirika: her
-        animation (index 2) attacks on its platform (the class reel's AnimBuffer at 0x02000000: animId +6, roundType
-        +0xA); down goes to the next entry, another animation; A switches to the critical (round type 1); B goes back to
-        the menu, the viewer's panel on BG1 over the map and the menu beside it; B closes it, and BG1's tile (1,1) (the
-        panel's corner, backed up by the viewer) reads as it did before the viewer opened."""
+        class's animation (the Lord, index 2) attacks on its platform (the class reel's AnimBuffer at 0x02000000: animId
+        +6, roundType +0xA). The attack plays through its waits to its end: the front layer (AnimBuffer +0x14) stops at a
+        wait (nextRoundId +0xE 0xFFFE), goes on, and reaches the mode's end (0xFFFF). Right goes to the next class,
+        another animation; holding right scrolls several classes (the list's index, the proc's +0x2C, moves more than 4);
+        down goes to the class's next variant (four classes on, the Cavalier: Generic, then Amelia's palette); A switches
+        to the critical (round
+        type 1); B goes back to the menu, the viewer's panel on BG1 over the map and the menu beside it; B closes it, and
+        BG1's tile (1,1) (the panel's corner, backed up by the viewer) reads as it did before the viewer opened."""
         d = os.path.join(self.out, "dbgbanim")
         os.makedirs(d, exist_ok=True)
         anim = 0x02000000
         bg1_corner = 0x020234A8 + 2 * (32 * 1 + 1)  # gBG1TilemapBuffer, entry (1, 1)
-        lines = ["load " + boot_ss, "wait 10", "press B", "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"]
-        lines += ["press DOWN", "wait 10"] * 4
-        lines += ["r16 %#x" % bg1_corner, "press A", "wait 90", "r16 %#x" % (anim + 6), "r16 %#x" % (anim + 0xA),
-                  "shot viewer.png",
-                  "press DOWN", "wait 60", "r16 %#x" % (anim + 6), "press A", "wait 30", "r16 %#x" % (anim + 0xA),
-                  "shot crit.png", "press B", "wait 150", "r16 %#x" % bg1_corner, "shot menu.png"]
+        opened = ["load " + boot_ss, "wait 10", "press B", "wait 60", "press RIGHT", "wait 40", "press RIGHT", "wait 40"]
+        opened += ["press DOWN", "wait 10"] * 4
+        state = os.path.join(d, "viewer.ss")
+        lines = opened + ["r16 %#x" % bg1_corner, "press A", "wait 90", "save " + state, "r16 %#x" % (anim + 6),
+                          "r16 %#x" % (anim + 0xA), "r32 %#x" % (anim + 0x14), "shot viewer.png",
+                          "press RIGHT", "wait 60", "r16 %#x" % (anim + 6), "press A", "wait 30", "r16 %#x" % (anim + 0xA),
+                          "shot crit.png", "press B", "wait 150", "r16 %#x" % bg1_corner, "shot menu.png"]
         vals = self.run(ROM, lines, d)
         self.shot(os.path.join(d, "viewer.png"), "the debugger's battle animation viewer")
-        if len(vals) != 6:
+        if len(vals) != 7:
             return self.check("dbgbanim: the viewer runs", False, "values %s" % vals)
-        before, a0, r0, a1, r1, after = vals
+        before, a0, r0, front, a1, r1, after = vals
         self.check("dbgbanim: Eirika's animation attacks on the platform", a0 == 2 and r0 == 0,
                    "animId %#x, roundType %d" % (a0, r0))
-        self.check("dbgbanim: down shows another animation", a1 not in (a0, 0xFFFF), "animId %#x" % a1)
+        self.check("dbgbanim: right shows the next class's animation", a1 not in (a0, 0xFFFF), "animId %#x" % a1)
         self.check("dbgbanim: A switches to the critical", r1 == 1, "roundType %d" % r1)
         self.check("dbgbanim: B closes the viewer and puts the map back", after == before,
                    "BG1 corner before %#x, after %#x" % (before, after))
+        # the attack: nextRoundId each frame for 6 seconds
+        seen = self.run(ROM, ["load " + state] + ["wait 1\nr16 %#x" % (front + 0xE)] * 360, d)
+        self.check("dbgbanim: the attack stops at a wait, goes on and plays to its end",
+                   0xFFFE in seen and 0xFFFF in seen and seen.index(0xFFFE) < seen.index(0xFFFF),
+                   "first wait at %s, end at %s" % (seen.index(0xFFFE) if 0xFFFE in seen else None,
+                                                    seen.index(0xFFFF) if 0xFFFF in seen else None))
+        # navigation: holding right scrolls; down steps through the Paladin's variants
+        proc_index = "r16 %#x" % (self.proc_address("DebugBanimViewer", state, d) + 0x2C)
+        moved = self.run(ROM, ["load " + state, "wait 20", proc_index, "hold RIGHT 60", proc_index], d)
+        self.check("dbgbanim: holding right scrolls through several classes", len(moved) == 2 and moved[1] - moved[0] > 4,
+                   "index %s" % moved)
+        paladin = self.run(ROM, ["load " + state] + ["press RIGHT 4", "wait 12"] * 4 + ["wait 30", "shot paladin.png",
+                           "press DOWN 4", "wait 60", "shot variant.png", "r16 %#x" % (anim + 6), "r16 %#x" % (anim + 8)], d)
+        self.shot(os.path.join(d, "variant.png"), "the Cavalier's second variant (a character palette)")
+        self.check("dbgbanim: down shows the class's next variant, a character palette", len(paladin) == 2 and
+                   paladin[1] != 0xFFFF, "animId %#x, charPalId %#x" % tuple(paladin) if len(paladin) == 2 else paladin)
 
     def test_threat(self, boot_ss):
         """Threat arrows (Documentation/Features/ThreatArrows.md). In the prologue, the two fighters at (8, 6) and (9, 6)
