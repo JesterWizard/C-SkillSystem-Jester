@@ -138,6 +138,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/TrapRework.md"><img src="./Documentation/Gifs/Trap_Rework.gif" alt="Trap Rework preview" width="360" /></a><br/><b><a href="./Documentation/Features/TrapRework.md">Trap Rework</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ThreatArrows.md"><img src="./Documentation/Images/ThreatArrows.png" alt="Threat Arrows preview" width="360" /></a><br/><b><a href="./Documentation/Features/ThreatArrows.md">Threat Arrows</a></b><br/><sub>While picking a move: a flashing arrow from each enemy that could attack the cursor's tile</sub></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/WeaponTraits.md"><img src="./Documentation/Images/WeaponTraits.png" alt="Weapon Traits preview" width="360" /></a><br/><b><a href="./Documentation/Features/WeaponTraits.md">Weapon Traits</a></b><br/><sub>Replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum damage, magic vs armour</sub></td>
+    <td width="50%"></td>
+  </tr>
 </table>
 
 ### 📈 Growth & Progression

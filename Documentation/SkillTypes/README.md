@@ -90,7 +90,7 @@ Two things the SID grep does not find:
 
 Definitions are cited from source. `path:line` is where the thing is defined or declared.
 
-- **SID** — skill ID, written `SID_Example`. A `u16` in `0x001`-`0x3FF`. The value is the active line's position in `include/constants/skills-equip.enum.txt:2` (`SID_Dismount` = `0x001`). Generated into `include/constants/skills.h` by `Tools/scripts/enum2h.py` (`makefile:404`). IDs are positional, so new skills are appended at the end (Common.md).
+- **SID** — skill ID, written `SID_Example`. A `u16` in `0x001`-`0x3FF`. The value is the active line's position in `include/constants/skills-equip.enum.txt:2` (`SID_Dismount` = `0x001`). Generated into `include/constants/skills.h` by `Tools/scripts/enum2h.py` (`makefile:419`). IDs are positional, so new skills are appended at the end (Common.md).
 - **`COMMON_SKILL_VALID(sid)`** — `0x000 < sid < 0x400`. The guard every skill-specific block uses: `include/kernel/skill-system.h:90`.
 - **`EQUIP_SKILL_VALID(sid)`** — equippable-skill range check. `0x000 < sid < 0x400` when `CONFIG_TURN_ON_ALL_SKILLS` is defined (`include/kernel/skill-system.h:85`), `< 0x0FF` otherwise (`:87`).
 - **`SKILL_EFF0`** … **`SKILL_EFF9`** — per-SID numeric parameters, `gpSkillExtraInfo[sid].priv[n]` (`include/kernel/skill-system.h:383-392`). Values come from rows of `gSkillExtraInfo` (`Data/SkillSys/Source/SkillExtraInfo.c:7`, e.g. `[SID_HpBonus] = {{ 5 }}`). Example use: `SKILL_EFF0(SID_Aptitude)` at `Kernel/Wizardry/Lvup/Source/GrowthGetter.c:22`. `SKILL_EFF1` is used at `Kernel/Wizardry/Lvup/Source/Levelup.c:248`.

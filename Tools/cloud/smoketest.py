@@ -78,6 +78,10 @@ What it checks:
               reach it) shows two arrows (OAM entries with the arrow tiles 0x70/0x71/0x7A/0x7B in OBJ palette 6); on
               (4, 3), which no enemy reaches, none; after B none, and the tiles are blank again. The Options row is off
               by default (bit 6 of PLAYST + 0x43 is 0 in a new game): with it left off, none.
+  weapontraits weapon traits (Documentation/Features/WeaponTraits.md), with weapon_traits off and on (a test ROM),
+              from turn 2 with Eirika given one weapon and every enemy one class: on, a sword against a lance has no
+              triangle bonus; an Iron Lance against a Cavalier and Fire against an Armor Knight are effective (a
+              plain soldier is not); an axe hit against 30 Def deals 5; a sword follow-up deals 1.2x the first hit.
   mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
               digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
@@ -132,7 +136,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -2671,6 +2675,95 @@ class Smoke:
         self.check("sethcarlyle: Seth's reply shows his portrait alone (Carlyle's is cleared)", shown == [SETH_PORTRAIT],
                    "portraits %s" % (", ".join("%#x" % v for v in shown) or "none"))
 
+    def test_weapontraits(self, turn2_ss):
+        """Weapon traits (Documentation/Features/WeaponTraits.md), off by default (weapon_traits in the designer config)
+        and on in a test ROM. From turn 2 of the prologue (soldiers next to Eirika), RAM writes give Eirika one weapon
+        and an S rank in it, and turn every enemy into a class with stats that isolate one rule. The forecast's
+        gBattleActor (BATTLE_ACTOR) gives the triangle bonus (+0x53) and the attack (+0x5A); a fight gives each hit's
+        damage (gBattleHitArrayRe, the top byte of each 4-byte hit). With the toggle off nothing changes:
+        - triangle: Iron Sword against a lance soldier is at a disadvantage (bonus below 0) off, none (0) on;
+        - spears: Iron Lance against a Cavalier, and magic: Fire against an Armor Knight. Off, the attack is the same
+          as against a plain soldier; on, it is higher by twice the weapon's might (effective: might x3), an even
+          number (Fire's might in battle is not its item table's 5, so the test does not fix the number);
+        - axes: Iron Axe against a soldier with 30 Def (no damage off) hits for 5 on;
+        - swords: Iron Sword doubles a soldier with 80 HP: on, the follow-up (the third hit) deals 1.2x the first."""
+        d = os.path.join(self.out, "weapontraits")
+        os.makedirs(d, exist_ok=True)
+        rom_on = self.designer_rom(d, "traits.gba", "weapon_traits", 1)
+        hits = self.sym.get("gBattleHitArrayRe")
+        table = self.sym.get("gClassData_NEW", self.sym.get("gClassData"))
+        if not rom_on or not hits or not table:
+            return self.check("weapontraits: test ROM and symbols", False)
+        sword, lance, axe, fire = 0x01, 0x14, 0x1F, 0x38  # FE-CLib constants/items.h
+        soldier, cavalier, knight = 0x2B, 0x05, 0x09      # FE-CLib constants/classes.h
+        rank = {sword: 0, lance: 1, axe: 2, fire: 5}
+
+        def setup(item, cls, hp=20, defense=0, stats=None):
+            """Eirika holds only item (S rank); every enemy is class cls with an Iron Lance, the given HP and Def,
+            Spd and Lck 0."""
+            lines = ["load " + turn2_ss, "w16 %#x %#x" % (UNIT1 + 0x1E, item | (40 << 8))]
+            lines += ["w16 %#x 0" % (UNIT1 + 0x1E + 2 * k) for k in range(1, 5)]
+            lines += ["w8 %#x 251" % (UNIT1 + 0x28 + rank[item])]
+            for k, v in (stats or {}).items():
+                lines.append("w8 %#x %d" % (UNIT1 + k, v))
+            for i in range(8):
+                u = UNIT_RED + 0x48 * i
+                lines += ["w32 %#x %#x" % (u + 4, table + 0x54 * (cls - 1)), "w8 %#x %d" % (u + 0x12, hp),
+                          "w8 %#x %d" % (u + 0x13, hp), "w8 %#x %d" % (u + 0x17, defense),
+                          "w8 %#x 0" % (u + 0x16), "w8 %#x 0" % (u + 0x19),
+                          "w16 %#x %#x" % (u + 0x1E, lance | (40 << 8)), "w8 %#x 251" % (u + 0x29)]
+                lines += ["w16 %#x 0" % (u + 0x1E + 2 * k) for k in range(1, 5)]
+            return lines + EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40"]
+
+        forecast = ["r8 %#x" % (BATTLE_ACTOR + 0x53), "r16 %#x" % (BATTLE_ACTOR + 0x5A)]
+        fight = ["press A", "wait 900"] + ["r32 %#x" % (hits + 4 * k) for k in range(4)]
+
+        def run(rom, lines, shot=None):
+            return self.run(rom, lines + (["shot %s" % shot] if shot else []), d)
+
+        def s8(v):
+            return v - 256 if v > 127 else v
+
+        def dmg(v):
+            return s8(v >> 24)
+
+        # the triangle
+        off = run(ROM, setup(sword, soldier) + forecast, "tri_off.png")
+        on = run(rom_on, setup(sword, soldier) + forecast, "tri_on.png")
+        self.shot(os.path.join(d, "tri_on.png"), "weapon traits on: Iron Sword against a lance, no triangle arrows")
+        self.check("weapontraits: the triangle applies off and is gone on (sword against lance)",
+                   len(off) == 2 and len(on) == 2 and s8(off[0]) < 0 and on[0] == 0,
+                   "bonus off %s, on %s" % (off[:1], on[:1]))
+        # spears against cavalry, magic against armour
+        for label, item, cls in (("spears: Iron Lance against a Cavalier", lance, cavalier),
+                                 ("magic: Fire against an Armor Knight", fire, knight)):
+            att = {}
+            for rom, tag in ((ROM, "off"), (rom_on, "on")):
+                for c in (soldier, cls):
+                    v = run(rom, setup(item, c) + forecast, "eff_%d_%s.png" % (item, tag) if c == cls else None)
+                    att[tag, c] = v[1] if len(v) == 2 else None
+            self.shot(os.path.join(d, "eff_%d_on.png" % item), "weapon traits on: %s (effective)" % label.split(": ")[1])
+            gain = (att["on", cls] or 0) - (att["on", soldier] or 0)
+            self.check("weapontraits: %s is effective on only" % label,
+                       None not in att.values() and att["off", cls] == att["off", soldier] and gain > 0 and gain % 2 == 0,
+                       "attack against a soldier / the target: off %s / %s, on %s / %s" % (
+                           att["off", soldier], att["off", cls], att["on", soldier], att["on", cls]))
+        # axes: at least 5 damage; Eirika's Skl and Lck 30 so every hit lands
+        sure = {0x15: 30, 0x19: 30}
+        off = run(ROM, setup(axe, soldier, defense=30, stats=sure) + fight)
+        on = run(rom_on, setup(axe, soldier, defense=30, stats=sure) + fight)
+        self.check("weapontraits: axes: a hit against 30 Def deals 0 off and 5 on",
+                   len(off) == 4 and len(on) == 4 and dmg(off[0]) == 0 and dmg(on[0]) == 5,
+                   "first hit off %s, on %s" % (off and dmg(off[0]), on and dmg(on[0])))
+        # swords: the follow-up deals 1.2x (Eirika attacks, the soldier counters, Eirika again)
+        strong = {0x14: 25, 0x15: 0, 0x16: 20, 0x19: 30}
+        off = run(ROM, setup(sword, soldier, hp=80, stats=strong) + fight)
+        on = run(rom_on, setup(sword, soldier, hp=80, stats=strong) + fight)
+        ok = len(off) == 4 and len(on) == 4 and dmg(off[0]) > 0
+        self.check("weapontraits: swords: the follow-up deals the first hit's damage off and 1.2x on",
+                   ok and dmg(off[2]) == dmg(off[0]) and dmg(on[0]) > 0 and dmg(on[2]) == dmg(on[0]) * 120 // 100,
+                   "hits off %s, on %s" % ([dmg(v) for v in off], [dmg(v) for v in on]))
+
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
         (13, 7), (14, 8) and (2, 0); Eirika starts on plains at (4, 5) with Mov 5. Given the skill in RAM and put on
@@ -3412,14 +3505,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat")
+                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
             fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
-                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp")
+                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3464,6 +3557,8 @@ def main():
                 r.submit((0, 15), s.test_formation, boot_ss)
             if on("threat"):
                 r.submit((0, 16), s.test_threat, boot_ss)
+            if on("weapontraits") and turn2_ss:
+                r.submit((0, 20), s.test_weapontraits, turn2_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),

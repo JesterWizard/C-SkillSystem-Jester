@@ -212,6 +212,7 @@ struct KernelDesigerConfig {
 	u8 rescue_penalty_max_pct;
 	u8 threat_arrows; /* while picking a move, flashing arrows from the enemies that could attack the cursor's tile (Kernel/Wizardry/ThreatArrows) */
 	u8 pair_up_banim; /* in battle animations, a pair-up leader's support stands behind it in its standing pose (Kernel/Wizardry/PairUpBanim) */
+	u8 weapon_traits; /* weapon traits replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum, magic vs armour (WeaponTraits.md) */
 };
 
 struct KernelBattleDesignerConfig {
@@ -240,6 +241,10 @@ struct KernelBattleDesignerConfig {
 	u8 combo_additional_damage_perc;
 
 	u8 battle_followup_speed_threshold;
+
+	// Weapon traits (KernelDesigerConfig::weapon_traits): sword follow-up damage in percent, axe minimum damage on a hit
+	u8 weapon_trait_sword_followup_perc;
+	u8 weapon_trait_axe_min_damage;
 };
 
 extern const struct KernelDesigerConfig *const gpKernelDesignerConfig;

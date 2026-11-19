@@ -194,6 +194,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_staff_rate = 10,
 	.voice_acted_dialogue = true,
 	.weapon_rank_skills = false, /* off: no Prowess skills from weapon ranks */
+	.weapon_traits = false, /* on: weapon traits replace the weapon triangle (WeaponTraits.md) */
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
 };

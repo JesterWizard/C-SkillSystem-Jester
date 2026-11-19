@@ -6,6 +6,7 @@
 #include "Source/WeaponHpCost.lyn.event"
 #include "Source/WeaponHpDrain.lyn.event"
 #include "Source/WeaponEffectiveness.lyn.event"
+#include "Source/WeaponTraits.lyn.event"
 
 #include "WeaponLockEx/WeaponLockEx.event"
 #include "LeaderShip/LeaderShip.event"

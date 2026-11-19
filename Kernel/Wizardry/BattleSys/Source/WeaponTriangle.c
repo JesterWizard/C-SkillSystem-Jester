@@ -202,6 +202,10 @@ void PreBattleGenerate_SetupWtaStatus(void)
 	memset(&gWtaStatus_act, 0, sizeof(gWtaStatus_act));
 	memset(&gWtaStatus_tar, 0, sizeof(gWtaStatus_tar));
 
+	/* Weapon traits replace the weapon triangle: no bonus, no penalty, no arrows */
+	if (WeaponTraitsEnabled())
+		return;
+
 #if (defined(SID_Poise) && (COMMON_SKILL_VALID(SID_Poise)))
 	if (BattleFastSkillTester(&gBattleActor, SID_Poise)) {
 		gWtaStatus_act.minus.poise_eff = true;
