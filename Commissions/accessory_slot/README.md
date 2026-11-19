@@ -1,5 +1,14 @@
 # Accessory Slot
 
+<p align="center">
+  <img src="accessory_slot.gif" alt="Accessory slot demo" width="480"/>
+</p>
+
+*Demo, with the Guiding Ring and Fili Shield (Delphi Shield) set as accessories. Slot 5 holds the accessory; slots
+1-4 hold everything else. Eirika has four weapons: an Iron Sword drop doesn't fit (slot 5 takes accessories only), so
+it is thrown away. A Guiding Ring drop goes straight into slot 5. A second accessory, the Fili Shield, can only replace
+the Guiding Ring: her weapons are grayed out.*
+
 Reserves the last inventory slot for accessories, chosen by item ID.
 
 - A unit carries at most **four** other items and at most **one** accessory.
