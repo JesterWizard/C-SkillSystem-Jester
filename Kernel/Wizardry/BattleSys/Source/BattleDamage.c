@@ -186,6 +186,10 @@ int BattleHit_CalcDamage(struct BattleUnit* attacker, struct BattleUnit* defende
 	for (it = gpBattleDamageCalcFuncs; *it; it++)
 		(*it)(attacker, defender);
 
+	/* Weapon traits: a sword's follow-up attack deals more damage */
+	if (WeaponTraitsEnabled() && attacker->weaponType == ITYPE_SWORD && act_flags->attack_phases > 1)
+		gDmg.increase = k_udiv(gDmg.increase * gpKernelBattleDesignerConfig->weapon_trait_sword_followup_perc, 100);
+
 	/**
 	 * Calculate result
 	 */
@@ -352,6 +356,11 @@ bool rampartPlus_activated = false;
 			result = 6;
     }
 #endif
+
+	/* Weapon traits: an axe that hits deals at least a set damage */
+	if (WeaponTraitsEnabled() && attacker->weaponType == ITYPE_AXE &&
+	    result < gpKernelBattleDesignerConfig->weapon_trait_axe_min_damage)
+		result = gpKernelBattleDesignerConfig->weapon_trait_axe_min_damage;
 
 #if (defined(SID_Decadon) && (COMMON_SKILL_VALID(SID_Decadon)))
     if (BattleFastSkillTester(attacker, SID_Decadon))

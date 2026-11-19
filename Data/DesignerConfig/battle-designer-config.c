@@ -14,4 +14,7 @@ const struct KernelBattleDesignerConfig gKernelBattleDesignerConfig = {
 	.combo_additional_damage_perc = 30,
 
 	.battle_followup_speed_threshold = BATTLE_FOLLOWUP_SPEED_THRESHOLD,
+
+	.weapon_trait_sword_followup_perc = 120,
+	.weapon_trait_axe_min_damage = 5,
 };

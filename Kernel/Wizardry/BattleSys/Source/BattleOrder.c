@@ -1120,6 +1120,9 @@ bool BattleGenerateRoundHits(struct BattleUnit *attacker, struct BattleUnit *def
     if (!CanInitiateCombat(attacker))
         return BATTLE_ROUND_ABORT;
 
+    // Weapon traits: a sword's later attack phases are follow-ups (BattleHit_CalcDamage)
+    GetBattleGlobalFlags(attacker)->attack_phases++;
+
     // ------------------------------------------------------------
     // 2. Prepare per-round state
     // ------------------------------------------------------------

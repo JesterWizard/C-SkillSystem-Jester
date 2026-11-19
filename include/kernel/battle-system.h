@@ -114,6 +114,7 @@ extern struct BattleGlobalFlags {
 	u32 skill_activated_dance : 1;
 	u32 gaiden_magic_cast : 1;
 	u16 last_damage_taken;
+	u8 attack_phases; /* attack phases begun this battle (BattleGenerateRoundHits); 2+ is a follow-up */
 } gBattleActorGlobalFlag, gBattleTargetGlobalFlag;
 
 static inline struct BattleGlobalFlags *GetBattleGlobalFlags(struct BattleUnit *bu)
@@ -276,6 +277,25 @@ extern u8 const *const gpLeaderShipJConf;
 
 int GetUnitLeaderShip(struct Unit *unit);
 void PreBattleCalcLeadershipBonus(struct BattleUnit *actor, struct BattleUnit *target);
+
+/**
+ * Weapon traits (Documentation/Features/WeaponTraits.md): with the designer toggle
+ * weapon_traits on, they replace the weapon triangle. gpWeaponTraitJConf holds a
+ * WEAPON_TRAIT_CLASS_* mask per class (Data/BattleSys/Source/WeaponTraits.c).
+ */
+enum {
+	WEAPON_TRAIT_CLASS_CAVALRY = 1 << 0, /* spears are effective */
+	WEAPON_TRAIT_CLASS_ARMOR   = 1 << 1, /* magic is effective */
+};
+
+extern u8 const *const gpWeaponTraitJConf;
+
+static inline bool WeaponTraitsEnabled(void)
+{
+	return gpKernelDesignerConfig->weapon_traits;
+}
+
+bool IsWeaponTraitEffective(int item, int jid);
 
 /**
  * Negate def rate
