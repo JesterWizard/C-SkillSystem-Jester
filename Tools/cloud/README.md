@@ -30,9 +30,7 @@ The hook does this:
 - Compiles `Tools/cloud/gbarun.c` to `~/.cache/c-skillsys/gbarun` and puts it on `PATH`.
 - Exports `DEVKITPRO`, `DEVKITARM` and `PATH` for the session.
 - Clones the pinned `Tools/check_patch` and `Tools/FE-PyTools` checkouts. They are gitlinks with no `.gitmodules`, so a fresh clone leaves them empty.
-- Fetches `fireemblem8.ref.o`, `fireemblem8.ref.s` and `fireemblem8.sym` into `Tools/FE-CLib-Mokha/reference/`. The makefile needs them, but `.gitignore` excludes them, so a clone has no `reference/` dir. Without them the build stops with `No rule to make target 'Tools/FE-CLib-Mokha/reference/fireemblem8.sym'`.
-  - They come from upstream [FE-CLib-Mokha](https://github.com/MokhaLeee/FE-CLib-Mokha) at the commit in `CLIB_REF_SHA` in the hook. They are cached in `~/.cache/c-skillsys`.
-  - The pin is `3503999` (2025-04-10). Its headers are closest to the vendored `Tools/FE-CLib-Mokha/include`, and it defines every vanilla symbol the repo's C code uses. Newer upstream commits rename symbols (e.g. `GetPlayerLeaderUnitId`), which breaks regenerating some `.lyn.event` files. Bump the pin only together with the vendored headers.
+- `Tools/FE-CLib-Mokha/reference/` (`fireemblem8.ref.o`, `.ref.s`, `.sym`) is committed, taken from FE-CLib-Mokha commit `3503999`, whose names match the vendored `Tools/FE-CLib-Mokha/include`. Newer upstream versions rename symbols and break the build; do not replace them.
 - Copies `fe8.gba` from the user's uploads if `fe8.gba` is missing.
 
 ROM note:

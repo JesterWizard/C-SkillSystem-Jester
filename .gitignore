@@ -47,3 +47,8 @@ wine-mono-9.4.0-x86.msi
 
 # The Gallery thumbnails (build output, made from the ROM)
 Data/Gallery/GalleryThumbs.bin
+
+# FE8U symbol files the build links against (pinned; do not replace with upstream FE-CLib-Mokha)
+!Tools/FE-CLib-Mokha/reference/fireemblem8.ref.o
+!Tools/FE-CLib-Mokha/reference/fireemblem8.ref.s
+!Tools/FE-CLib-Mokha/reference/fireemblem8.sym

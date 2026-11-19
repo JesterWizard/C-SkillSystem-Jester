@@ -9,35 +9,15 @@
 
 Follow these steps to build the project from source.
 
-1. Install the required submodules and external tools.
-
-```bash
-cd Tools
-git clone https://github.com/MokhaLeee/FE-CLib-Mokha.git
-git clone https://github.com/MokhaLeee/EventAssembler.git -b mokha-fix
-git clone https://github.com/StanHash/FE-PyTools.git --recursive
-git clone https://github.com/MokhaLeee/check_patch.git
-```
-
 1. Install system and Python dependencies.
 
 ```bash
-sudo apt-get -y install binutils-arm-none-eabi ctags \
-	gcc-arm-none-eabi build-essential cmake re2c ghc \
-	cabal-install libghc-vector-dev libghc-juicypixels-dev \
-	python3-pip pkg-config libpng* moreutils perl
+sudo apt-get -y install git make build-essential python3 python3-pip moreutils perl
 
-pip install pyelftools PyInstaller tmx six Pillow
-
-cabal update
-
-# install wine
-sudo apt-get -y wine
-wget https://mirrors.tuna.tsinghua.edu.cn/winehq/wine/wine-mono/9.4.0/wine-mono-9.4.0-x86.msi
-wine msiexec /i wine-mono-9.4.0-x86.msi
+pip install Pillow six numpy
 ```
 
-2. Install DevkitPro.
+2. Install DevkitPro (it provides the ARM compiler and `grit`).
 
 ```bash
 wget https://apt.devkitpro.org/install-devkitpro-pacman
@@ -48,26 +28,40 @@ sudo dkp-pacman -S gba-dev
 # Export vars
 echo "export DEVKITPRO=/opt/devkitpro" >> ~/.bashrc
 echo "export DEVKITARM=\${DEVKITPRO}/devkitARM" >> ~/.bashrc
-echo "export DEVKITPPC=\${DEVKITPRO}/devkitPPC" >> ~/.bashrc
 echo "export PATH=\${DEVKITPRO}/tools/bin:\$PATH" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-3. Build Event Assembler tools.
+3. Clone the repository and place a clean Fire Emblem: The Sacred Stones (U) ROM in its root as `fe8.gba`
+   (SHA-1 `c25b145e37456171ada4b0d440bf88a19f4d509f`).
 
 ```bash
-cp Tools/scripts/build_ea_wo_core.sh Tools/EventAssembler/
-cd Tools/EventAssembler
-./build_ea_wo_core.sh
+git clone https://github.com/JesterWizard/C-SkillSystem-Jester.git
+cd C-SkillSystem-Jester
 ```
 
-4. Install the repository hook.
+4. Run the setup script.
+
+```bash
+./Tools/setup.sh
+```
+
+It fetches `Tools/FE-PyTools` and `Tools/check_patch` at the versions this repository records, marks the
+committed `.lyn.event` files as up to date, and checks your devkitARM, ROM and Python packages. It is safe to run
+again.
+
+> [!IMPORTANT]
+> FE-CLib-Mokha (with its FE8U symbol files in `Tools/FE-CLib-Mokha/reference`) and EventAssembler are committed
+> to this repository. Do not clone or update them from upstream: newer upstream versions rename symbols and fail
+> the build with errors such as `Undefined identifier: ItemEffectiveness_088ADEC2` and `Trying to write data to area
+> protected in file HPBarPalettes.lyn.event`. If you see those errors, restore the committed files
+> (`git checkout -- Tools/FE-CLib-Mokha '*.lyn.event'`) and run `./Tools/setup.sh` again.
+
+5. (Optional) Install the repository hook.
 
 ```bash
 cp Tools/scripts/pre-commit .git/hooks/
 ```
-
-5. Place a clean Fire Emblem: The Sacred Stones ROM in the repository root as `fe8.gba`.
 
 6. Build the project.
 
@@ -75,8 +69,13 @@ cp Tools/scripts/pre-commit .git/hooks/
 make
 ```
 
-> [!NOTE]
-> If GCC reports an error, update C-Lib and retry. See [discussion #115](https://github.com/MokhaLeee/fe8u-cskillsys-kernel/discussions/115).
+### Optional tools
+
+- **Rebuilding Event Assembler tools.** Only needed if you change their sources in `Tools/EventAssembler/.Sources`.
+  It needs `cmake`, `ghc` and `cabal-install`. Run `Tools/scripts/build_ea_wo_core.sh` after copying it into
+  `Tools/EventAssembler/`.
+- **Windows Event Assembler** (`CONFIG_EA_WIN=1` in `configs.mk`). This needs `wine` and `wine-mono`. The default
+  build uses the Linux `ColorzCore` and does not need them.
 
 ## Build Outputs
 

@@ -3,8 +3,7 @@
 # Installs the toolchain (arm-none-eabi, libmgba, libpng, gawk, moreutils, Pillow), sets
 # up a devkitPro stand-in under ~/.cache/c-skillsys (grit/gbalzss -> Tools/cloud/gritshim.py,
 # arm-none-eabi-* symlinks), builds the gbarun headless emulator runner, fetches the
-# pinned Tools/check_patch and Tools/FE-PyTools checkouts and the gitignored
-# Tools/FE-CLib-Mokha/reference files, and locates the FE8U ROM from user uploads.
+# pinned Tools/check_patch and Tools/FE-PyTools checkouts, and locates the FE8U ROM from user uploads.
 # Idempotent. See Tools/cloud/README.md.
 set -euo pipefail
 
@@ -76,26 +75,10 @@ fetch_pinned() {
 fetch_pinned Tools/check_patch https://github.com/MokhaLeee/check_patch.git
 fetch_pinned Tools/FE-PyTools https://github.com/StanHash/FE-PyTools.git
 
-# 6b. Tools/FE-CLib-Mokha/reference is gitignored (*.sym, *.ref.s, *.o), so fetch it from upstream
-# Pinned to the commit whose headers match the vendored include/; newer ones rename symbols the C code uses.
-CLIB_REF_SHA=350399991a5bb8c1f8eb540edbb2f182f1f45db9
+# 6b. Tools/FE-CLib-Mokha/reference is committed (pinned symbol files); nothing to fetch.
 CLIB_REF="$ROOT/Tools/FE-CLib-Mokha/reference"
 CLIB_FILES="fireemblem8.ref.o fireemblem8.ref.s fireemblem8.sym"
 clib_ok() { for f in $CLIB_FILES; do [ -s "$1/$f" ] || return 1; done; }
-if ! clib_ok "$CLIB_REF"; then
-  src="$CACHE/FE-CLib-Mokha-$CLIB_REF_SHA"
-  if ! clib_ok "$src/reference"; then
-    log "fetching FE-CLib-Mokha reference @ $CLIB_REF_SHA"
-    rm -rf "$src"
-    { git init -q "$src" \
-      && git -C "$src" fetch -q --depth 1 https://github.com/MokhaLeee/FE-CLib-Mokha.git "$CLIB_REF_SHA" \
-      && git -C "$src" checkout -q FETCH_HEAD -- reference; } || log "WARNING: could not fetch FE-CLib-Mokha reference"
-  fi
-  if clib_ok "$src/reference"; then
-    mkdir -p "$CLIB_REF"
-    for f in $CLIB_FILES; do cp "$src/reference/$f" "$CLIB_REF/$f"; done
-  fi
-fi
 
 # 7. FE8U ROM from user uploads
 FE8_SHA1=c25b145e37456171ada4b0d440bf88a19f4d509f
