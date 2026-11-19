@@ -1,0 +1,67 @@
+/*
+ * Accessory slot (README.md): accessories (AccessoryItems.event) always occupy the last inventory slot, one at a
+ * time, and every other item fits in the first four.
+ */
+
+#define FE8U_UnitAddItem                     $17948
+#define FE8U_UnitRemoveInvalidItems          $17984
+#define FE8U_StealItemMenuCommand_Usability  $24304
+#define FE8U_StealItemMenuCommand_Draw       $24348
+#define FE8U_StealItemMenuCommand_Effect     $2439C
+#define FE8U_TradeMenu_ApplyItemSwap         $2D72C
+#define FE8U_AiStartStealAction              $3A134
+#define FE8U_PrepItemTrade_ApplyItemSwap     $9B538
+#define FE8U_SupplyTake_CountCheck           $9E2D0 // in sub_809E2C8 (Supply, Take)
+#define FE8U_ListTake_CountCheck             $9F4A0 // in sub_809F498 (List, take into an empty row)
+#define FE8U_ListSwap                        $9FB70 // sub_809FB70 (List, swap)
+#define FE8U_TryClaimBonusItem               $B11E4
+#define FE8U_Shop_TryAddItemToInventory      $B464C
+#define FE8U_gConvoyMenuItems                $59C350 // "Your inventory is full" menus (0x24 bytes a row)
+#define FE8U_gSendToConvoyMenuItems          $59C44C
+#define FE8U_StandaloneFreeSpace             $1000000
+
+#define AccessorySlotHook(addr, func) "PUSH; ORG addr; jumpToHack(func); PROTECT addr addr + 0x8; POP"
+
+/*
+ * jumpToHack jumps through r3, the fourth argument. For a function that takes four, this goes through r12:
+ * push {r4}; ldr r4, [pc, #8]; mov r12, r4; pop {r4}; bx r12; nop; POIN func (16 bytes, addr 4-aligned)
+ */
+#define AccessorySlotHookKeepR3(addr, func) "PUSH; ORG addr; SHORT 0xB410 0x4C02 0x46A4 0xBC10 0x4760 0x46C0; POIN func; PROTECT addr addr + 0x10; POP"
+
+AccessorySlotHook(FE8U_UnitAddItem, AccessorySlot_UnitAddItem)
+AccessorySlotHook(FE8U_UnitRemoveInvalidItems, AccessorySlot_UnitRemoveInvalidItems)
+AccessorySlotHook(FE8U_StealItemMenuCommand_Usability, AccessorySlot_StealItemUsability)
+AccessorySlotHook(FE8U_StealItemMenuCommand_Draw, AccessorySlot_StealItemDraw)
+AccessorySlotHook(FE8U_StealItemMenuCommand_Effect, AccessorySlot_StealItemEffect)
+AccessorySlotHook(FE8U_TradeMenu_ApplyItemSwap, AccessorySlot_TradeMenu_ApplyItemSwap)
+AccessorySlotHook(FE8U_AiStartStealAction, AccessorySlot_AiStartStealAction)
+AccessorySlotHookKeepR3(FE8U_PrepItemTrade_ApplyItemSwap, AccessorySlot_PrepItemTrade_ApplyItemSwap)
+AccessorySlotHook(FE8U_SupplyTake_CountCheck, AccessorySlot_SupplyTakeHook)
+AccessorySlotHook(FE8U_ListTake_CountCheck, AccessorySlot_ListTakeHook)
+AccessorySlotHook(FE8U_ListSwap, AccessorySlot_ListSwapHook)
+AccessorySlotHook(FE8U_TryClaimBonusItem, AccessorySlot_TryClaimBonusItem)
+AccessorySlotHook(FE8U_Shop_TryAddItemToInventory, AccessorySlot_Shop_TryAddItemToInventory)
+
+// The "inventory full" menus' item rows 0-4: usability (+0xC), draw (+0x10) and select (+0x14)
+#define AccessorySlotConvoyRow(table, row, selected) "PUSH; ORG table + 0x24 * row + 0xC; POIN AccessorySlot_ConvoyRowUsability; POIN AccessorySlot_ConvoyRowDraw; POIN selected; POP"
+
+AccessorySlotConvoyRow(FE8U_gConvoyMenuItems, 0, AccessorySlot_ConvoyRowSelected)
+AccessorySlotConvoyRow(FE8U_gConvoyMenuItems, 1, AccessorySlot_ConvoyRowSelected)
+AccessorySlotConvoyRow(FE8U_gConvoyMenuItems, 2, AccessorySlot_ConvoyRowSelected)
+AccessorySlotConvoyRow(FE8U_gConvoyMenuItems, 3, AccessorySlot_ConvoyRowSelected)
+AccessorySlotConvoyRow(FE8U_gConvoyMenuItems, 4, AccessorySlot_ConvoyRowSelected)
+AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 0, AccessorySlot_ConvoyRowSend)
+AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 1, AccessorySlot_ConvoyRowSend)
+AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 2, AccessorySlot_ConvoyRowSend)
+AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 3, AccessorySlot_ConvoyRowSend)
+AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 4, AccessorySlot_ConvoyRowSend)
+
+PUSH
+PROTECT FE8U_gConvoyMenuItems FE8U_gConvoyMenuItems + 0x24 * 5
+PROTECT FE8U_gSendToConvoyMenuItems FE8U_gSendToConvoyMenuItems + 0x24 * 5
+POP
+
+ORG FE8U_StandaloneFreeSpace
+#include "Source/AccessorySlot.lyn.event"
+#include "AccessoryItems.event"
+PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // body + item list
