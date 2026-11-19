@@ -26,6 +26,10 @@ it stays put while the leader attacks, dodges or casts. Both sides can show a su
 A support shows only when the leader really is paired (`PairUp_GetSupport`): before Pair Up is unlocked, a rescued
 unit is not drawn, as in vanilla. Promotions, arena and link-arena battles show none.
 
+**Name tags.** The battle's top bar names both: the leader's tag stays on top and the support's tag is stacked under
+it, on either side, in every UI style. The tags show whenever the leader is paired, even with `pair_up_banim` off (the
+tag doesn't need the pose).
+
 ---
 
 ## 🛠️ How it works
@@ -81,6 +85,17 @@ stops well short of it. Every OAM the feature or the battle unpacks there is che
 animation whose OAM would reach it means no pose for that battle, or no pose from then on if one is switched in
 mid-battle.
 
+**Name tags.** `EfxPrepareScreenFx` (VeslyUI) draws each side's name box into BG0's tiles 0xC4 (left) and 0xE2 (right)
+and the name over it. For a side with a support, it draws a second name box the same way into tiles 0x40-0x4D (left)
+or 0x4E-0x5B (right), with the support's name, and a seam row into 0x60-0x6E (left) or 0x6F-0x7D (right). Battles leave
+tiles 0x40-0x7F alone: a marker written there once the battle was up survived fights with a crit cut-in, a level-up, a
+staff, Elfire and Fenrir, and only the map, after the battle, drew over it. `ekrDispUPMain` draws a side's top bar from
+its 15x6 tile map, with the tag in rows 0-3 (its top edge, two rows of text, its bottom edge). With a support, it draws
+7 rows instead: the leader's rows 0-2, the seam, then the support tag's rows 1-3 with the text tiles pointed at the
+support's box. The edges are thin strips at their tiles' top and bottom, so the seam (each column's support top edge
+drawn over the leader's bottom edge, with the map entries' flips applied) keeps both, and the tags sit a row closer
+than two whole tags would. The bar slides in and out as vanilla's does (hidden at the same point). `PairUpBanim_GetTagSupport` picks the support, as the poses do.
+
 ---
 
 ## 🗂️ Code Locations
@@ -92,6 +107,7 @@ mid-battle.
 | Pose setup | `PairUpBanim_Prepare`, `PairUpBanim_PrepareSide` in [`PairUpBanim.c`](../../Kernel/Wizardry/PairUpBanim/Source/PairUpBanim.c) | Finds the standing frame, draws and places it |
 | Pose display | `PairUpBanim_Start`, `PairUpBanim_Loop` | The frozen anim and the proc that moves and hides it |
 | Zooms | `PairUpBanim_KakudaiPrepare`, `PairUpBanim_KakudaiLoop`, `PairUpBanim_KakudaiDraw`, `PairUpBanim_MoveLow` | The pose scaling with its leader, and its tiles kept clear of the turning platform's |
+| Name tags | `PairUpBanim_GetTagSupport` in [`PairUpBanim.c`](../../Kernel/Wizardry/PairUpBanim/Source/PairUpBanim.c); `DrawPairTagName`, `DrawTopBarSide`, `EfxPrepareScreenFx`, `ekrDispUPMain` in [`VeslyUI/C_Code.c`](../../Kernel/Wizardry/VeslyUI/C_Code.c) | The support's name box and its tag under the leader's |
 
 ---
 
@@ -106,5 +122,7 @@ mid-battle.
 - The support doesn't flash, darken or fade with its leader's palette effects. When the leader dies, its animation
   hides and the support goes with it.
 - A future animation whose OAM is larger than 0x549C bytes turns the pose off in its battles (see RAM above).
+- When the leader dies, the support's name tag goes with it, as the pose does; the leader's tag stays.
+- `Tools/cloud/smoketest.py --only pairtags` checks the tags (both sides paired, and none).
 
 Please report issues in the repository's **Issues** tab.

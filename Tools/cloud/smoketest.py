@@ -83,6 +83,8 @@ What it checks:
               triangle bonus; an Iron Lance against a Cavalier and Fire against an Armor Knight are effective (a
               plain soldier is not); an axe hit against 30 Def deals 5; a sword follow-up deals 1.2x the first hit.
   mindamage   minimum damage (min_damage_on_hit off and on, a test ROM): Eirika's hit against 30 Def deals 0 off and 1 on.
+  pairtags    battle animations on, Eirika paired with Seth attacks a soldier paired with the other: each side's top bar has
+              the leader's name tag on top and the support's right under it (BG0 rows 3-5); without pair-ups, one.
   mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
               digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
@@ -138,7 +140,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -2830,6 +2832,51 @@ class Smoke:
                    dmg(off[0]) == 0 and dmg(on[0]) == 1, "first hit off %s, on %s" % (
                        off and dmg(off[0]), on and dmg(on[0])))
 
+    def test_pairtags(self, turn2_ss):
+        """Pair-up name tags in battle animations (Documentation/Features/PairUpBanim.md): from turn 2, Eirika paired with
+        Seth (Eirika rescuing, Seth rescued) and the soldier she attacks with the other soldier, Pair Up unlocked
+        (permanent flag 0x9C: bit 7 of gPermanentFlagBits + 6), animations on. In the battle, BG0's top bar
+        (gBG0TilemapBuffer rows 0-6) has each support's tag under its leader's: rows 1-2 use the leaders' name boxes
+        (0xC4-0xD1, 0xE2-0xEF), row 3 the seam (the support tag's top edge over the leader's bottom edge: tiles 0x60-0x6E
+        on the left, 0x6F-0x7D on the right) and rows 4-5 the support name boxes (0x40-0x4D, 0x4E-0x5B). Without
+        pair-ups, rows 3-7 hold no name or seam tiles."""
+        d = os.path.join(self.out, "pairtags")
+        os.makedirs(d, exist_ok=True)
+        bg0 = self.sym.get("gBG0TilemapBuffer")
+        if not bg0:
+            return self.check("pairtags: symbols", False)
+        seth, e1, e2 = UNIT1 + 0x48, UNIT_RED + 0x48, UNIT_RED + 0x90
+        states = self.run(ROM, ["load " + turn2_ss] + ["r32 %#x" % (u + 0xC) for u in (UNIT1, seth, e1, e2)], d)
+        if len(states) != 4:
+            return self.check("pairtags: the units' states", False, "values %s" % states)
+        pairs = ["w8 %#x 0x80" % (PERMANENT_FLAGS + 6)]
+        for u, st, partner, bits in ((UNIT1, states[0], 2, 0x10), (seth, states[1], 1, 0x21),
+                                     (e1, states[2], 0x83, 0x10), (e2, states[3], 0x82, 0x21)):
+            pairs += ["w32 %#x %#x" % (u + 0xC, st | bits), "w8 %#x %#x" % (u + 0x1B, partner)]
+        fight = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                 "press A", "wait 100"]
+        rows = ["r16 %#x" % (bg0 + 2 * (32 * y + x)) for y in range(8) for x in range(30)]
+
+        def names(vals, y, lo, hi):
+            return sum(1 for x in range(30) if lo <= vals[30 * y + x] & 0x3FF < hi)
+        on = self.run(ROM, ["load " + turn2_ss, "w8 %#x 0" % (PLAYST + 0x42)] + pairs + fight + ["shot pairtags.png"] + rows, d)
+        off = self.run(ROM, ["load " + turn2_ss, "w8 %#x 0" % (PLAYST + 0x42)] + fight + ["shot single.png"] + rows, d)
+        self.shot(os.path.join(d, "pairtags.png"), "pair-up name tags: the leaders on top, the supports under them")
+        if len(on) != 240 or len(off) != 240:
+            return self.check("pairtags: the battles run", False, "%d, %d reads" % (len(on), len(off)))
+        self.check("pairtags: each leader's tag is on top (rows 1-2), the seam under it (row 3), its support's (rows 4-5)",
+                   all(names(on, y, 0xC4, 0xD2) == 7 and names(on, y, 0xE2, 0xF0) == 7 for y in (1, 2)) and
+                   names(on, 3, 0x60, 0x6F) == 15 and names(on, 3, 0x6F, 0x7E) == 15 and
+                   all(names(on, y, 0x40, 0x4E) == 7 and names(on, y, 0x4E, 0x5C) == 7 for y in (4, 5)),
+                   "leader tiles %s, seam tiles %d, support tiles %s" % (
+                       [names(on, y, 0xC4, 0xF0) for y in (1, 2)], names(on, 3, 0x60, 0x7E),
+                       [names(on, y, 0x40, 0x5C) for y in (4, 5)]))
+        self.check("pairtags: without pair-ups, one tag a side (no name or seam tiles in rows 3-7)",
+                   all(names(off, y, 0xC4, 0xF0) == 14 for y in (1, 2)) and
+                   not any(names(off, y, 0x40, 0x7E) or names(off, y, 0xC4, 0xF0) for y in (3, 4, 5, 6, 7)),
+                   "rows 3-7 name/seam tiles %s" % [names(off, y, 0x40, 0x7E) + names(off, y, 0xC4, 0xF0)
+                                                    for y in (3, 4, 5, 6, 7)])
+
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
         (13, 7), (14, 8) and (2, 0); Eirika starts on plains at (4, 5) with Mov 5. Given the skill in RAM and put on
@@ -3571,14 +3618,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage")
+                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
             fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
-                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage")
+                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage", "pairtags")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3627,6 +3674,8 @@ def main():
                 r.submit((0, 20), s.test_weapontraits, turn2_ss)
             if on("mindamage") and turn2_ss:
                 r.submit((0, 21), s.test_mindamage, turn2_ss)
+            if on("pairtags") and turn2_ss:
+                r.submit((0, 22), s.test_pairtags, turn2_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),
