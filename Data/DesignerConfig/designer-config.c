@@ -66,6 +66,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.free_movement = true,
 	.gaiden_magic = true,
 	.gaiden_magic_ai_use = false, // false = AI can't use gaiden magic
+	.gaiden_magic_learn_by_level = true, // player units learn spells from their level lists (gGaidenPinfoConfigList), not ranks
 	.gaiden_magic_must_be_magic = false, // true = magic weapons only
 	.gaiden_magic_requires_wrank = false, // true = require weapon rank
 	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table

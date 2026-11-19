@@ -219,6 +219,7 @@ ALIGN 4
 #include "AiHack/AiOptimization/Source/AiDangerMap.lyn.event"
 #include "GaidenMagic/Source/MapSpells.lyn.event"
 #include "GaidenMagic/Source/Unicorn.lyn.event"
+#include "GaidenMagic/Source/LearnWindow.lyn.event"
 #include "WorldMap/WmStoryChapter.lyn.event"
 #include "WorldMap/ValniFloors.event"
 #include "SkillEffects/PostActionSkills/Undo.lyn.event"

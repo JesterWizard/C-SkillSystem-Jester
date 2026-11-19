@@ -37,6 +37,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `gaiden_magic_requires_wrank` | If enabled, units that can use a spell may ignore its weapon-rank requirement. |
 | `gaiden_magic_ai_use` | Allows enemies to use Gaiden magic during AI phase. |
 | `gaiden_magic_three_houses` | Three Houses-style magic: tomes and staves stop being items, player units learn spells from weapon ranks, enemies cast the tomes they carry, and each spell has uses per chapter instead of an HP/MP cost. See [GaidenMagic](./GaidenMagic.md#three-houses-style-magic). |
+| `gaiden_magic_learn_by_level` | On. Player units learn spells from their own level lists (`gGaidenPinfoConfigList`) instead of weapon ranks, and each spell a battle teaches shows the New Spell window once the action is over. See [GaidenMagic](./GaidenMagic.md#learning-spells-by-level). |
 | `menu_skill_ai_use` | Allows enemies to use menu skills during AI phase after combat and healing logic finishes. |
 | `real_time_battle` | Replaces the enemy phase with a real-time clock: AI units act one at a time during the player phase and turns last a fixed time. See [RealTimeBattle](./RealTimeBattle.md). |
 | `real_time_enemy_interval_frames` | Default delay between real-time AI actions, in frames. |

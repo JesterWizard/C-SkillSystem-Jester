@@ -78,7 +78,10 @@ STATIC_DECLAR void AddThreeHousesGaidenMagic(struct Unit *unit, u8 *tmpbuf)
 		return;
 	}
 
-	/* Player units learn spells from the rank of each spell's weapon type */
+	/* Player units learn spells from the rank of each spell's weapon type (unless they learn them by level) */
+	if (IsGaidenMagicLearnByLevel())
+		return;
+
 	for (ent = GetGaidenMagicRankList(unit); ent && ent->iid != ITEM_NONE; ent++) {
 		int wexp = UNIT_WRANK(unit, GetItemType(ent->iid));
 
@@ -86,6 +89,24 @@ STATIC_DECLAR void AddThreeHousesGaidenMagic(struct Unit *unit, u8 *tmpbuf)
 			tmpbuf[ent->iid] = 1;
 	}
 }
+/*
+ * The level the level lists (gGaidenPinfoConfigList) are read at: the unit's level plus 20 once promoted. Learning by
+ * level counts the levels before a promotion instead when there are more (the BWL's hidden level): a trainee that
+ * promotes to a tier-1 class at level 10 goes on from 11, not from 1.
+ */
+int GetGaidenMagicLevel(struct Unit *unit)
+{
+	int before = (UNIT_CATTRIBUTES(unit) & CA_PROMOTED) ? 20 : 0;
+
+	if (IsGaidenMagicLearnByLevel() && UNIT_FACTION(unit) == FACTION_BLUE) {
+		int hidden = GetUnitHiddenLevel(unit);
+
+		if (hidden > before)
+			before = hidden;
+	}
+	return unit->level + before;
+}
+
 void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 {
 	int i;
@@ -93,13 +114,9 @@ void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list)
 	const struct GaidenChaxConfigEnt  *conf2 = gpGaidenChaxConfigs;
 
 	u8 tmpbuf[0x100];
-	int effectiveLevel = unit->level;
+	int effectiveLevel = GetGaidenMagicLevel(unit);
 
 	CpuFastFill16(0, tmpbuf, 0x100);
-
-	/* +20 levels for promoted units */
-	if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
-		effectiveLevel += 20;
 
 	if (conf1) {
 		for (; conf1->iid != ITEM_NONE; conf1++) {
@@ -395,6 +412,32 @@ void TryAddGaidenMagicPConf(struct Unit * unit, int level)
 {
 	const struct GaidenPinfoConfigEnt *conf = GetGaidenPinfoConfigList()[UNIT_CHAR_ID(unit)].ent;
 	ProcPtr * phaseToBlock = Proc_Find(gProcScr_PlayerPhase);
+
+	/*
+	 * Learning by level: every spell whose level the battle crossed goes to the New Spell windows, shown once the
+	 * action is over (PostAction_GaidenMagicLearnWindow). The unit (the map's, not the battle's) still has its level
+	 * from before the battle, and the battle may have given several levels at once.
+	 */
+	if (IsGaidenMagicLearnByLevel()) {
+		int before, after;
+
+		if (!UNIT_IS_VALID(unit) || level <= unit->level)
+			return;
+
+		before = GetGaidenMagicLevel(unit);
+		after = before + level - unit->level;
+
+		for (; conf && conf->iid != ITEM_NONE; conf++) {
+			int lv = conf->level & 0x7F;
+
+			if ((conf->level & 0x80) && !(UNIT_CATTRIBUTES(unit) & CA_PROMOTED))
+				continue;
+
+			if (lv > before && lv <= after)
+				QueueGaidenMagicLearnWindow(unit, conf->iid);
+		}
+		return;
+	}
 
 	for (; conf && conf->iid != 0; conf++)
 	{

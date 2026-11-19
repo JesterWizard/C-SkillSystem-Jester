@@ -223,6 +223,22 @@ void RemoveThreeHousesMagicItems(struct Unit *unit);
 void TryLearnGaidenMagicFromBattleUnit(struct BattleUnit *bu);
 void ResetGaidenMagicLearnPopups(void);
 bool PopR_SetupLearnGaidenMagic(void);
+
+/*
+ * Learning by level (gaiden_magic_learn_by_level): player units learn spells from their level lists
+ * (gGaidenPinfoConfigList) instead of the weapon-rank lists, and each spell learned in an action shows the New Spell
+ * window once the action is over (LearnWindow.c).
+ */
+static inline bool IsGaidenMagicLearnByLevel(void)
+{
+	return gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_learn_by_level;
+}
+
+int GetGaidenMagicLevel(struct Unit *unit);
+void QueueGaidenMagicLearnWindow(struct Unit *unit, int iid);
+bool PopGaidenMagicLearnWindow(u8 *uid, u8 *iid);
+bool HasGaidenMagicLearnWindow(void);
+bool PostAction_GaidenMagicLearnWindow(ProcPtr parent);
 extern const struct PopupInstruction PopupScr_GaidenLearn[];
 
 static inline bool IsGaidenMagicAiEnabled(void)

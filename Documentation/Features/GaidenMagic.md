@@ -16,6 +16,7 @@ We have put several config options to increase the freedom for developers. You c
 - `AI_EN`: allows AI to use B/W magic.
 - `EXT_CONF_EN`: enables external magic list config table: `gGaidenChaxConfigs`
 - `gaiden_magic_three_houses`: spells use a number of uses per chapter instead of an HP/MP cost. See [Three Houses-style magic](#three-houses-style-magic).
+- `gaiden_magic_learn_by_level` (on): player units learn spells from their own level lists, with a New Spell window. See [Learning spells by level](#learning-spells-by-level).
 
 To improve the user experience for non-wizardry developers, the configs above can be directly modified by `gKernelDesigerConfig` via FEB patch free from custom build.
 
@@ -44,7 +45,7 @@ Set `gaiden_magic_three_houses` in [designer-config.c](../../Data/DesignerConfig
 
 Tomes (anima, light, dark) and staves stop being items:
 
-- Player units learn spells from their weapon ranks. Each entry in a spell list is `{ rank, spell }`, checked against the rank of the spell's own weapon type (Fire uses Anima rank, Heal uses Staff rank). When a battle or staff use raises a rank, the unit gets an `X learned [spell]` popup after the rank-up popup.
+- Player units learn spells from their weapon ranks (unless they [learn them by level](#learning-spells-by-level), the default). Each entry in a spell list is `{ rank, spell }`, checked against the rank of the spell's own weapon type (Fire uses Anima rank, Heal uses Staff rank). When a battle or staff use raises a rank, the unit gets an `X learned [spell]` popup after the rank-up popup.
 - `gGaidenMagicRankPList[character]` in [GaidenMagicData.c](../../Data/GaidenMagic/GaidenMagicData.c) holds personal lists, like each student's list in Three Houses. Characters without one use `gGaidenMagicRankDefaultList`. A unit holds up to 7 B.Mag and 7 W.Mag. The stat page shows 5 of each.
 - Casting a B.Mag spell now gives weapon EXP for its type, so ranks rise from casting.
 - Enemies and NPCs cast the tomes and staves in their inventory as spells, with limited uses. Those items are hidden from their item page and never drop. AI spell use is on in this mode, whatever `gaiden_magic_ai_use` says.
@@ -85,6 +86,58 @@ Uses are tracked in [ThreeHouses.c](../../Kernel/Wizardry/GaidenMagic/Source/Thr
 - B.Mag (attack spells) gives normal combat EXP, the same as a weapon attack with the same units: `BattleApplyExpGains()`, called from `ActionGaidenMagicCombat()` in [MagAction.c](../../Kernel/Wizardry/GaidenMagic/Source/MagAction.c). Test `test_gaidenexp` in [smoketest.py](../../Tools/cloud/smoketest.py): Fimbulvetr gives +10 on a hit and +32 on a kill, as a normal Attack does.
 - W.Mag (staff spells) gives staff EXP: `BattleApplyItemExpGains()` (from `BattleApplyItemEffect()`) calls `GetBattleUnitStaffExpRework()`, which reads `StaffEXP()` of the spell in [BattleExp.c](../../Kernel/Wizardry/BattleSys/Source/BattleExp.c) when `modular_staff_exp` is set. Heal gives 15 and Mend 20 (the table's values).
 - No W.Mag spell deals damage. The staves in `gGaidenMagicUsesList` are heals, status, warp, unlock or utility staves; Latona's effect (`ExecLatona`) targets allies (`MakeTargetListForLatona`). A W.Mag cast is never combat, so it always takes the staff path above.
+
+# Learning spells by level
+
+<p align="center"><img src="../Gifs/New_Spell_Window.gif" alt="Lute levels up and learns Thunder, then Elfire in an enemy phase" width="480"/></p>
+
+*Lute, a level 3 Mage one EXP short of level 4, casts Fire and learns Thunder; then, at level 7 in an enemy phase, her
+counter takes her to 8 and she learns Elfire. Each time the New Spell window shows once the battle is over.*
+
+With `gaiden_magic_learn_by_level` on (the default), each magic user has a spell list of their own and learns its
+spells as they level up, as in *Fire Emblem Echoes*. Weapon ranks no longer teach spells (`gGaidenMagicRankPList` and
+`gGaidenMagicRankDefaultList` are not read for player units, and no rank-up learn popup shows).
+
+**The lists.** `gGaidenPinfoConfigList[character]` in [GaidenMagicData.c](../../Data/GaidenMagic/GaidenMagicData.c):
+`{ level, spell }`, ended by `{ 0 }`. A unit knows every spell up to its spell level, so a recruit joins with the spells
+of its level. The spell level (`GetGaidenMagicLevel`) is the unit's level plus its earlier levels: 20 once promoted, or
+its hidden level (the levels before a promotion, as the BWL records them) if that is more, so a trainee that promotes
+to a tier-1 class at level 10 goes on from 11, and a third tier counts 30. Bit 7 of the level means "only once
+promoted". A unit holds up to 7 B.Mag and 7 W.Mag.
+
+| Character | Spells (spell level) |
+| :-------- | :------------------- |
+| Lute | Fire (1), Thunder (4), Elfire (8), Fimbulvetr (13), Bolting (18), Heal (21), Aircalibur (24), Excalibur (30) |
+| Artur | Lightning (1), Shine (5), Heal (9), Divine (12), Purge (17), Mend (21), Aura (25), Luce (32) |
+| Natasha | Heal (1), Mend (4), Restore (8), Physic (12), Rescue (16), Lightning (21), Recover (23), Shine (26), Fortify (30) |
+| Knoll | Flux (1), Luna (5), Nosferatu (9), Fenrir (14), Eclipse (20), Heal (21), Gleipnir (26), Naglfar (32) |
+| Moulder | Heal (1), Mend (3), Physic (7), Restore (10), Recover (15), Lightning (21), Shine (24), Fortify (27), Warp (32) |
+| L'Arachel | Tempest (1, 30 MP), Heal (1), Mend (4), Restore (9), Physic (14), Lightning (21), Shine (24), Divine (28), Fortify (30), Ivaldi (34) |
+| Saleh | Thunder, Elfire, Heal (21), Fimbulvetr (23), Physic (24), Bolting (26), Restore (27), Aircalibur (28), Excalibur (31) |
+| Ewan | Freezeblink (1, 30 MP), Fire (1), Thunder (5), Flux (8), Elfire (12), Luna (16) |
+
+Tethys, Gerik and Vanessa keep their 30 MP spell (Prominence, Gravity, Unicorn) from level 1.
+
+**The New Spell window.** When a battle takes a unit past a spell's level (`TryAddGaidenMagicPConf`, called on each
+level-up with the level reached, so several levels at once count), the spell is queued (`sGaidenMagicLearnPopups`, up
+to 4). Once the action is over, `PostAction_GaidenMagicLearnWindow` (in `gPostActionFuncs`, before the automatic
+promotion) shows one window per spell, in order, in the player phase or the enemy phase alike; A or B goes to the next
+([LearnWindow.c](../../Kernel/Wizardry/GaidenMagic/Source/LearnWindow.c)). The window has a "New Spell!" tab, the
+spell's icon at twice its size in a ring of turning sparkles, "X learned", the spell's name in purple, and its uses per
+chapter (its HP cost without the uses system), might, hit and range (a staff: its uses and range).
+
+The window is a UI frame on BG1, the text is on BG0. The icon is the spell's own item icon at twice its size (an
+affine sprite) in its own colours (icon palette 0 in the map popups' OBJ palette 4, tiles 0x240 on); the sparkles have
+OBJ palette 5. The tab is a sprite (OBJ palette 6) over the window's top edge, so the edge stays whole: the UI frame
+drawn on BG1's rows 22-25 (off the screen) and copied tile by tile into OBJ tiles 0x393 on (rows 28-31, columns
+19-28, tiles the map leaves alone while the window is up; rows 4-11, empty as they look, are the unit sprites' and are
+rewritten). Its priority (1) puts it over BG1 and under BG0, which has its text. The name is purple through BG palette
+5 (the text's palette with a purple white, put back when the window closes). Its text is at the end of `Districts.txt` (`MSG_NEW_SPELL_*`).
+`Tools/cloud/smoketest.py --only spellwindow` checks it.
+
+Limitations:
+- A promotion that takes a unit past a spell's level (level 20 to a promoted level 1, that is 21) teaches the spell at
+  once, without a window. So does a level gained outside an action (an event), and spells past the queue's 4.
 
 # Limitations
 - `B.Mag` can only support weapons.

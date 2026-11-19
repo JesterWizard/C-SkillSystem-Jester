@@ -61,9 +61,11 @@ static void DoubleBadge_Side(struct ProcEkrGauge *gauge, struct BattleUnit *bu, 
 	/*
 	 * Only a side on screen that fights with a weapon. A staff, a dance or a refresh has no strikes, and its battle
 	 * doesn't go through BattleUnwind, which sets them: the last fight's counts would show (an "x2" on the empty side
-	 * of a heal).
+	 * of a heal). The acting unit's item decides for both sides: the target of a heal holds a weapon too.
 	 */
 	if (!gBanimValid[pos] || !(GetItemAttributes(bu->weaponBefore) & IA_WEAPON))
+		return;
+	if (!(GetItemAttributes(gBattleActor.weaponBefore) & IA_WEAPON))
 		return;
 
 	n = DoubleBadge_Strikes(bu);
