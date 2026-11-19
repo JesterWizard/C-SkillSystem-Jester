@@ -1,0 +1,16 @@
+/*
+ * Accessory items: the item IDs (as in FEBuilder's item editor) that only go in the accessory slot.
+ *
+ * A unit carries at most one accessory and at most four other items. Its accessory is always its last item, after
+ * the others: with four other items it is in the fifth slot.
+ *
+ * Add one AccessoryItem line per item, before the end of the list. Up to 255 items.
+ */
+#define AccessoryItem(id) "BYTE id"
+
+ALIGN 4
+AccessorySlotItems:
+// AccessoryItem($AB) // e.g. a custom ring made with FEBuilder
+// AccessoryItem($AC)
+BYTE $00 // end of the list
+ALIGN 4
