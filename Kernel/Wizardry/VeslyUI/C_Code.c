@@ -2,6 +2,7 @@
 #include "gbafe.h" 
 #include "bmshop.h"
 #include "kernel-lib.h"
+#include "pair-up.h"
 #include "jester_headers/custom-functions.h"
 
 #define PUREFUNC __attribute__((pure))
@@ -792,6 +793,87 @@ const u8 * GetBUiFrame_88021C0(void)
     return sBUiFrame_88021C0[id];
 }
 
+/*
+ * Pair-up name tags: a leader's support is named in a second tag stacked under the leader's (the battler's tag stays on
+ * top). EfxPrepareScreenFx draws each support's name box into BG tiles 0x40-0x4D (left) and 0x4E-0x5B (right), and a
+ * seam row into 0x60-0x6E and 0x6F-0x7D: battles leave tiles 0x40-0x7F alone (only the map, once the battle is over,
+ * draws there). A side's top bar map has the tag in rows 0-3 (its top edge, two rows of text, its bottom edge). With a
+ * support, ekrDispUPMain draws 7 rows: the leader's rows 0-2, the seam (the support tag's top edge drawn over the
+ * leader's bottom edge, a tile each), then the support tag's rows 1-3 with the text tiles pointed at its box. The edges
+ * are thin strips at the tiles' top and bottom, so the seam keeps both and the tags sit a row closer than two whole tags.
+ */
+#define PAIR_TAG_CHR_L   0x40
+#define PAIR_TAG_CHR_R   0x4E
+#define PAIR_TAG_TILES   14   /* a name box: 7 tiles wide, 2 high (the text's tiles) */
+#define PAIR_SEAM_CHR_L  0x60 /* the seam row: 15 tiles a side */
+#define PAIR_SEAM_CHR_R  0x6F
+#define NAME_BOX_CHR_L   0xC4 /* EfxPrepareScreenFx's name boxes, at 0x6001880 and 0x6001C40 */
+#define NAME_BOX_CHR_R   0xE2
+#define TOP_BAR_ROWS     6    /* a side's top bar map: 15 x 6 */
+#define TAG_ROWS         4    /* the name tag in it: rows 0-3 */
+#define PAIR_BAR_ROWS    7    /* the leader's tag's rows 0-2, the seam, the support's rows 1-3 */
+#define TOP_BAR_CHR      128  /* added to the map's tiles (sub_8070D04) */
+
+/* A 4bpp pixel of a map entry's tile, with the entry's flips */
+static int TagTilePixel(u16 entry, int x, int y)
+{
+	const u8 *chr = (const u8 *)(VRAM + ((entry & 0x3FF) + TOP_BAR_CHR) * 0x20);
+
+	if (entry & 0x400)
+		x = 7 - x;
+	if (entry & 0x800)
+		y = 7 - y;
+	return (chr[y * 4 + x / 2] >> ((x & 1) * 4)) & 0xF;
+}
+
+/* The seam: for each column, the support tag's top edge (row 0) over the leader's bottom edge (row 3), unflipped */
+static void DrawPairTagSeam(const u16 *tsa, int seam_chr)
+{
+	u8 tile[0x20];
+	int c, x, y;
+
+	for (c = 0; c < 15; c++) {
+		for (y = 0; y < 8; y++) {
+			for (x = 0; x < 8; x += 2) {
+				int lo = TagTilePixel(tsa[c], x, y), hi = TagTilePixel(tsa[c], x + 1, y);
+
+				if (!lo)
+					lo = TagTilePixel(tsa[15 * 3 + c], x, y);
+				if (!hi)
+					hi = TagTilePixel(tsa[15 * 3 + c], x + 1, y);
+				tile[y * 4 + x / 2] = lo | (hi << 4);
+			}
+		}
+		CpuCopy16(tile, (void *)(VRAM + (seam_chr + c) * 0x20), sizeof(tile));
+	}
+}
+
+/* Draws a side's top bar, `height` of its rows, from the map row dst: the leader's tag, the seam, the support's tag */
+static void DrawTopBarSide(const u16 *tsa, u16 *dst, int height, int pal, int name_chr, int tag_chr, int seam_chr)
+{
+	u16 buf[15 * PAIR_BAR_ROWS];
+	int first = PAIR_BAR_ROWS - height, r, i;
+
+	CpuCopy16(tsa, buf, 15 * 3 * sizeof(u16));                     /* the leader's rows 0-2 */
+	CpuCopy16(tsa + 15 * 3, buf + 15 * 3, 15 * sizeof(u16));        /* the seam's place */
+	CpuCopy16(tsa + 15 * 1, buf + 15 * 4, 15 * 3 * sizeof(u16));    /* the support's rows 1-3 */
+
+	EfxTmCpyBG(&buf[15 * first], dst, 15, height, -1, -1);
+	sub_8070D04(dst, 15, height, pal, TOP_BAR_CHR);
+
+	for (r = first; r < PAIR_BAR_ROWS; r++) {
+		for (i = 0; i < 15; i++) {
+			u16 *t = &dst[(r - first) * 32 + i];
+			int chr = *t & 0x3FF;
+
+			if (r == 3)
+				*t = (pal << 12) | (seam_chr + i);
+			else if (r > 3 && chr >= name_chr && chr < name_chr + PAIR_TAG_TILES)
+				*t = (*t & ~0x3FF) | (tag_chr + chr - name_chr);
+		}
+	}
+}
+
 LYN_REPLACE_CHECK(ekrDispUPMain);
 void ekrDispUPMain(struct ProcEkrDispUP * var)
 {
@@ -832,19 +914,31 @@ void ekrDispUPMain(struct ProcEkrDispUP * var)
 
     FillBGRect(gBG0TilemapBuffer, 30, 7, 0, 128);
 
-    if (height > 0)
+    /* a side with a pair-up support has a second name tag: 7 rows */
+    if (proc->unk4C == 0 && PairUpBanim_GetTagSupport(EKR_POS_L))
     {
-        if (proc->unk4C == 0)
-        {
-            EfxTmCpyBG(&GetBUiFrame_880210C()[map_idx], &gBG0TilemapBuffer2D[iy][ix1], 15, height, -1, -1);
-            sub_8070D04(&gBG0TilemapBuffer2D[iy][ix1], 15, height, 2, 128);
-        }
+        int h = val0 + 7; /* hidden when vanilla's bar is (val0 -7), all 7 rows at 0 */
 
-        if (proc->unk50 == 0)
-        {
-            EfxTmCpyBG(&GetBUiFrame_88021C0()[map_idx], &gBG0TilemapBuffer2D[iy][ix2], ix2, height, -1, -1);
-            sub_8070D04(&gBG0TilemapBuffer2D[iy][ix2], 15, height, 3, 128);
-        }
+        if (h > 0)
+            DrawTopBarSide((const u16 *)GetBUiFrame_880210C(), &gBG0TilemapBuffer2D[iy][ix1], h, 2, NAME_BOX_CHR_L, PAIR_TAG_CHR_L, PAIR_SEAM_CHR_L);
+    }
+    else if (height > 0 && proc->unk4C == 0)
+    {
+        EfxTmCpyBG(&GetBUiFrame_880210C()[map_idx], &gBG0TilemapBuffer2D[iy][ix1], 15, height, -1, -1);
+        sub_8070D04(&gBG0TilemapBuffer2D[iy][ix1], 15, height, 2, 128);
+    }
+
+    if (proc->unk50 == 0 && PairUpBanim_GetTagSupport(EKR_POS_R))
+    {
+        int h = val0 + 7; /* hidden when vanilla's bar is (val0 -7), all 7 rows at 0 */
+
+        if (h > 0)
+            DrawTopBarSide((const u16 *)GetBUiFrame_88021C0(), &gBG0TilemapBuffer2D[iy][ix2], h, 3, NAME_BOX_CHR_R, PAIR_TAG_CHR_R, PAIR_SEAM_CHR_R);
+    }
+    else if (height > 0 && proc->unk50 == 0)
+    {
+        EfxTmCpyBG(&GetBUiFrame_88021C0()[map_idx], &gBG0TilemapBuffer2D[iy][ix2], ix2, height, -1, -1);
+        sub_8070D04(&gBG0TilemapBuffer2D[iy][ix2], 15, height, 3, 128);
     }
 
     BG_EnableSyncByMask(BG0_SYNC_BIT);
@@ -1194,6 +1288,26 @@ const u8 * GetImg_EfxRightItemBox()
     return sImg_EfxRightItemBox[id];
 }
 
+static void DrawPairTagName(int pos, struct Text *th)
+{
+	struct Unit *support = PairUpBanim_GetTagSupport(pos);
+	const u8 *box = pos == EKR_POS_L ? GetImg_EfxLeftNameBox() : GetImg_EfxRightNameBox();
+	int chr = pos == EKR_POS_L ? PAIR_TAG_CHR_L : PAIR_TAG_CHR_R;
+	const char *str;
+
+	if (!support)
+		return;
+
+	/* the text (InitText clears its tiles), the box over them, then the name over the box, as for the leader's */
+	str = GetStringFromIndex(support->pCharacterData->nameTextId);
+	InitTextFont(&gBanimFont, (void *)(VRAM + chr * 0x20), chr, 2);
+	SetTextDrawNoClear(); /* InitTextFont resets it: glyphs would clear the box behind them */
+	InitText(th, 7);
+	Text_SetCursor(th, GetStringTextCenteredPos(0x38, str));
+	LZ77UnCompVram(box, (void *)(VRAM + chr * 0x20));
+	Text_DrawString(th, str);
+}
+
 LYN_REPLACE_CHECK(EfxPrepareScreenFx);
 void EfxPrepareScreenFx(void)
 {
@@ -1248,6 +1362,20 @@ void EfxPrepareScreenFx(void)
     Text_SetCursor(&gBanimText[1], GetStringTextCenteredPos(0x3E, str));
     LZ77UnCompVram(GetImg_EfxRightItemBox(), (void *)0x6001E00);
     Text_DrawString(&gBanimText[1], str);
+
+    /* pair-up supports' name tags, then the font back as it was (its next text goes after the item boxes) */
+    {
+        struct Font font = gBanimFont;
+
+        DrawPairTagName(EKR_POS_L, &gBanimText[4]);
+        DrawPairTagName(EKR_POS_R, &gBanimText[5]);
+        if (PairUpBanim_GetTagSupport(EKR_POS_L))
+            DrawPairTagSeam((const u16 *)GetBUiFrame_880210C(), PAIR_SEAM_CHR_L);
+        if (PairUpBanim_GetTagSupport(EKR_POS_R))
+            DrawPairTagSeam((const u16 *)GetBUiFrame_88021C0(), PAIR_SEAM_CHR_R);
+        gBanimFont = font;
+        SetTextFont(&gBanimFont);
+    }
 
     BG_Fill(gBG0TilemapBuffer, 0x80);
     EfxTmCpyBG(GetUnknown_08802508(), gBG0TilemapBuffer + 0x1E, 2, 20, -1, -1);

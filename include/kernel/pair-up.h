@@ -22,6 +22,9 @@ struct Unit *PairUp_GetPartner(const struct Unit *unit);
 struct Unit *PairUp_GetLeader(const struct Unit *unit);
 struct Unit *PairUp_GetSupport(const struct Unit *unit);
 
+/* Kernel/Wizardry/PairUpBanim: the support named under its leader in the battle's top bar (EKR_POS_L or _R), or NULL */
+struct Unit *PairUpBanim_GetTagSupport(int pos);
+
 bool PairUp_CanPair(struct Unit *support, struct Unit *leader);
 bool PairUp_Attach(struct Unit *support, struct Unit *leader);
 bool PairUp_Separate(struct Unit *leader, int x, int y);
