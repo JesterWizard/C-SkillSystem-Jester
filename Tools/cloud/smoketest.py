@@ -85,6 +85,9 @@ What it checks:
   mindamage   minimum damage (min_damage_on_hit off and on, a test ROM): Eirika's hit against 30 Def deals 0 off and 1 on.
   pairtags    battle animations on, Eirika paired with Seth attacks a soldier paired with the other: each side's top bar has
               the leader's name tag on top and the support's right under it (BG0 rows 3-5); without pair-ups, one.
+  spellwindow learning spells by level: Lute (a level 3 Mage, 99 EXP) reaches level 4 casting Fire, and the New Spell
+              window (Thunder) is up after the battle until A; none with gaiden_magic_learn_by_level off; two queued
+              spells show a window each.
   mapbox      battle animations off, Eirika attacks from turn 2 with every enemy at 20 HP: the map battle box's "0"
               digit is drawn in the UI style Tech (the style's tiles end on the digits' first tile, which is reloaded).
   lvupanim    with battle animations on, Eirika levels up: her portrait keeps its palette during the stats (the "xN"
@@ -140,7 +143,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -2390,7 +2393,8 @@ class Smoke:
                 # strike counts left from a fight (a heal doesn't set them): the badge must not show them
                 if "gDoubleBadge" in self.sym:
                     setup.append("w16 %#x 0x0202" % self.sym["gDoubleBadge"])
-                fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 120"]
+                # W.Mag, Heal, then Seth (the target screen: learning by level gives her Heal from her list)
+                fight = EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 120"]
             elif weapon == "egg":
                 # Eirika attacks an egg: the enemies (gUnitArrayRed) made Gorgon Eggs with empty inventories. The egg is
                 # the enemy, on the left: gBanimIdx[0]
@@ -2424,9 +2428,13 @@ class Smoke:
         """Gaiden magic EXP (Documentation/Features/GaidenMagic.md, "EXP"). Eirika (level 1, no skills) on turn 2 next to
         two soldiers, each run from the same state: a normal Attack with her Rapier gives the reference combat EXP
         (a hit: +10, a kill: +32). B.Mag Fimbulvetr (Anima rank in RAM) must give the same combat EXP, hit or kill. W.Mag
-        Heal (Seth at 5 HP) gives StaffEXP(Heal) = 15 and Mend 20. Each run's EXP is read before and after the action."""
+        Heal (Seth at 5 HP) gives StaffEXP(Heal) = 15 and Mend 20. Each run's EXP is read before and after the action.
+        The spells come from the ranks: a test ROM with gaiden_magic_learn_by_level off (Eirika has no level list)."""
         d = os.path.join(self.out, "gaidenexp")
         os.makedirs(d, exist_ok=True)
+        rank_rom = self.designer_rom(d, "ranks.gba", "gaiden_magic_learn_by_level", 0)
+        if not rank_rom:
+            return self.check("gaidenexp: a test ROM learning spells from ranks", False)
         enemy = lambda hp: sum((["w8 %#x %d" % (UNIT_RED + 0x48 * k + 0x12, 50),
                                  "w8 %#x %d" % (UNIT_RED + 0x48 * k + 0x13, hp)] for k in range(2)), [])
         menu = ["wait 30", "press A", "wait 30", "press A", "wait 40"]  # Eirika's menu, the cursor on Attack
@@ -2444,7 +2452,7 @@ class Smoke:
             lines += ["wait 30", "r8 %#x" % (UNIT1 + 0x09)] + menu + action + ["wait 900",
                       "r8 %#x" % (UNIT1 + 0x09), "r8 %#x" % (UNIT1 + 0x08), "r8 %#x" % (UNIT_RED + 0x13),
                       "r8 %#x" % (UNIT_RED + 0x48 + 0x13), "r8 %#x" % (UNIT1 + 0x48 + 0x13)]
-            return self.run(ROM, lines, d)
+            return self.run(rank_rom, lines, d)
 
         anima, staff = (5, 181), (4, 181)
         hit = run(50, [anima], attack)
@@ -2726,7 +2734,9 @@ class Smoke:
         - swords: Iron Sword doubles a soldier with 80 HP: on, the follow-up (the third hit) deals 1.2x the first."""
         d = os.path.join(self.out, "weapontraits")
         os.makedirs(d, exist_ok=True)
-        rom_on = self.designer_rom(d, "traits.gba", "weapon_traits", 1)
+        # Fire comes from Eirika's anima rank: learning spells by level off (she has no level list)
+        rom_off = self.designer_rom(d, "ranks.gba", "gaiden_magic_learn_by_level", 0)
+        rom_on = self.designer_rom(d, "traits.gba", "weapon_traits", 1, base=rom_off)
         hits = self.sym.get("gBattleHitArrayRe")
         table = self.sym.get("gClassData_NEW", self.sym.get("gClassData"))
         if not rom_on or not hits or not table:
@@ -2765,7 +2775,7 @@ class Smoke:
             return s8(v >> 24)
 
         # the triangle
-        off = run(ROM, setup(sword, soldier) + forecast, "tri_off.png")
+        off = run(rom_off, setup(sword, soldier) + forecast, "tri_off.png")
         on = run(rom_on, setup(sword, soldier) + forecast, "tri_on.png")
         self.shot(os.path.join(d, "tri_on.png"), "weapon traits on: Iron Sword against a lance, no triangle arrows")
         self.check("weapontraits: the triangle applies off and is gone on (sword against lance)",
@@ -2775,7 +2785,7 @@ class Smoke:
         for label, item, cls in (("spears: Iron Lance against a Cavalier", lance, cavalier),
                                  ("magic: Fire against an Armor Knight", fire, knight)):
             att = {}
-            for rom, tag in ((ROM, "off"), (rom_on, "on")):
+            for rom, tag in ((rom_off, "off"), (rom_on, "on")):
                 for c in (soldier, cls):
                     v = run(rom, setup(item, c) + forecast, "eff_%d_%s.png" % (item, tag) if c == cls else None)
                     att[tag, c] = v[1] if len(v) == 2 else None
@@ -2787,14 +2797,14 @@ class Smoke:
                            att["off", soldier], att["off", cls], att["on", soldier], att["on", cls]))
         # axes: at least 5 damage; Eirika's Skl and Lck 30 so every hit lands
         sure = {0x15: 30, 0x19: 30}
-        off = run(ROM, setup(axe, soldier, defense=30, stats=sure) + fight)
+        off = run(rom_off, setup(axe, soldier, defense=30, stats=sure) + fight)
         on = run(rom_on, setup(axe, soldier, defense=30, stats=sure) + fight)
         self.check("weapontraits: axes: a hit against 30 Def deals 0 off and 5 on",
                    len(off) == 4 and len(on) == 4 and dmg(off[0]) == 0 and dmg(on[0]) == 5,
                    "first hit off %s, on %s" % (off and dmg(off[0]), on and dmg(on[0])))
         # swords: the follow-up deals 1.2x (Eirika attacks, the soldier counters, Eirika again)
         strong = {0x14: 25, 0x15: 0, 0x16: 20, 0x19: 30}
-        off = run(ROM, setup(sword, soldier, hp=80, stats=strong) + fight)
+        off = run(rom_off, setup(sword, soldier, hp=80, stats=strong) + fight)
         on = run(rom_on, setup(sword, soldier, hp=80, stats=strong) + fight)
         ok = len(off) == 4 and len(on) == 4 and dmg(off[0]) > 0
         self.check("weapontraits: swords: the follow-up deals the first hit's damage off and 1.2x on",
@@ -2876,6 +2886,52 @@ class Smoke:
                    not any(names(off, y, 0x40, 0x7E) or names(off, y, 0xC4, 0xF0) for y in (3, 4, 5, 6, 7)),
                    "rows 3-7 name/seam tiles %s" % [names(off, y, 0x40, 0x7E) + names(off, y, 0xC4, 0xF0)
                                                     for y in (3, 4, 5, 6, 7)])
+
+    def test_spellwindow(self, turn2_ss):
+        """Learning spells by level (gaiden_magic_learn_by_level, on) and the New Spell window
+        (Kernel/Wizardry/GaidenMagic/Source/LearnWindow.c). From turn 2, Eirika's unit is made Lute, a level 3 Mage with
+        99 EXP and no items; her level list (gGaidenPinfoConfigList) has Fire at 1 and Thunder at 4. Animations off, she
+        casts Fire (B.Mag, the first command) at the soldier: she reaches level 4, and once the level-up quote is closed
+        the window (proc GaidenMagicLearnWindow) is up, until A. With the toggle off (a test ROM), the same battle shows
+        none. Two spells written into the queue (sGaidenMagicLearnPopups: count, unit ids, item ids) show one window
+        each when Eirika waits (turn 1, boot.ss): the proc is still up after the first A and gone after the second."""
+        d = os.path.join(self.out, "spellwindow")
+        os.makedirs(d, exist_ok=True)
+        queue = self.sym.get("sGaidenMagicLearnPopups")
+        chars, classes = self.sym.get("gCharacterData_NEW"), self.sym.get("gClassData_NEW")
+        rom_off = self.designer_rom(d, "nolearn.gba", "gaiden_magic_learn_by_level", 0)
+        if not queue or not chars or not classes or not rom_off:
+            return self.check("spellwindow: symbols and test ROM", False)
+        lute, mage_f = 0x0C, 0x26
+        setup = ["load " + turn2_ss, "w8 %#x 2" % (PLAYST + 0x42),
+                 "w32 %#x %#x" % (UNIT1, chars + 0x34 * (lute - 1)), "w32 %#x %#x" % (UNIT1 + 4, classes + 0x54 * (mage_f - 1)),
+                 "w8 %#x 3" % (UNIT1 + 8), "w8 %#x 99" % (UNIT1 + 9), "w32 %#x 0" % (UNIT1 + 0x1E),
+                 "w32 %#x 0" % (UNIT1 + 0x22), "w16 %#x 0" % (UNIT1 + 0x26)]
+        cast = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                "press A", "wait 40", "press A", "wait 600", "press A", "wait 10", "press A", "wait 300"]
+        for rom, tag in ((ROM, "on"), (rom_off, "off")):
+            self.run(rom, setup + cast + ["shot %s.png" % tag, "save %s.ss" % tag], d)
+        self.shot(os.path.join(d, "on.png"), "New Spell window: Lute learned Thunder at level 4")
+        on = self.proc_address("GaidenMagicLearnWindow", os.path.join(d, "on.ss"), d)
+        self.check("spellwindow: Lute reaching level 4 shows the New Spell window after the battle", on != 0)
+        if on:
+            self.run(ROM, ["load " + os.path.join(d, "on.ss"), "press A", "wait 60", "save closed.ss"], d)
+            self.check("spellwindow: A closes it", not self.proc_address("GaidenMagicLearnWindow",
+                                                                          os.path.join(d, "closed.ss"), d))
+        self.check("spellwindow: with gaiden_magic_learn_by_level off, no window",
+                   not self.proc_address("GaidenMagicLearnWindow", os.path.join(d, "off.ss"), d))
+        # two queued spells (Fire, Elfire for Eirika), then Wait (the unit menu's last row: menus don't wrap)
+        boot_ss = os.path.join(self.out, "boot", "boot.ss")  # turn 1: no enemy next to Eirika, the menu is Item ... Wait
+        inject = ["load " + boot_ss, "w8 %#x 2" % queue, "w8 %#x 1" % (queue + 1), "w8 %#x 1" % (queue + 2),
+                  "w8 %#x 0x38" % (queue + 5), "w8 %#x 0x3A" % (queue + 6), "wait 10", "press A", "wait 30", "press A",
+                  "wait 40"] + ["press DOWN", "wait 10"] * 5 + ["press A", "wait 60", "shot two.png",
+                  "save first.ss", "press A", "wait 60", "save second.ss", "press A", "wait 60", "save done.ss"]
+        self.run(ROM, inject, d)
+        self.shot(os.path.join(d, "two.png"), "New Spell window: the first of two queued spells")
+        up = [bool(self.proc_address("GaidenMagicLearnWindow", os.path.join(d, n), d))
+              for n in ("first.ss", "second.ss", "done.ss")]
+        self.check("spellwindow: two queued spells show a window each, then the map", up == [True, True, False],
+                   "window up after Wait, A, A: %s" % up)
 
     def test_deeproots(self, boot_ss):
         """Deep Roots (Kernel/Wizardry/SkillEffects/MenuSkills/DeepRoots.c). The prologue's forests are (9, 6), (10, 7),
@@ -3286,12 +3342,13 @@ class Smoke:
             off += size
         return None
 
-    def designer_rom(self, d, name, field, value):
-        """A test ROM with a designer config byte set (gpKernelDesignerConfig points at the struct)"""
+    def designer_rom(self, d, name, field, value, base=None):
+        """A test ROM with a designer config byte set (gpKernelDesignerConfig points at the struct), from base (a ROM
+        path, default the built ROM)"""
         off = self.designer_offset(field)
         if off is None or "gpKernelDesignerConfig" not in self.sym:
             return None
-        data = bytearray(open(ROM, "rb").read())
+        data = bytearray(open(base or ROM, "rb").read())
         cfg = struct.unpack_from("<I", data, self.sym["gpKernelDesignerConfig"] - 0x08000000)[0] - 0x08000000
         data[cfg + off] = value
         rom = os.path.join(d, name)
@@ -3618,14 +3675,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags")
+                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags", "spellwindow")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
             fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
-                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage", "pairtags")
+                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage", "pairtags", "spellwindow")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3676,6 +3733,8 @@ def main():
                 r.submit((0, 21), s.test_mindamage, turn2_ss)
             if on("pairtags") and turn2_ss:
                 r.submit((0, 22), s.test_pairtags, turn2_ss)
+            if on("spellwindow") and turn2_ss:
+                r.submit((0, 23), s.test_spellwindow, turn2_ss)
         r.submit((0, 0), boot_chain)
     for i, (t, f) in enumerate((("savelayout", s.test_savelayout), ("suspend", s.test_suspend),
                                 ("gamesave", s.test_gamesave), ("recap", s.test_recap), ("recapoff", s.test_recapoff),

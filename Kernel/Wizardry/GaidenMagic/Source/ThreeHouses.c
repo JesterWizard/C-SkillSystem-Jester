@@ -363,7 +363,53 @@ extern struct {
 
 void ResetGaidenMagicLearnPopups(void)
 {
+	/* Learning by level: the queue is the New Spell windows', emptied as they show (it outlives the battle) */
+	if (IsGaidenMagicLearnByLevel())
+		return;
+
 	memset(&sGaidenMagicLearnPopups, 0, sizeof(sGaidenMagicLearnPopups));
+}
+
+/* Learning by level: a spell for the New Spell window, shown once the action is over (FIFO) */
+void QueueGaidenMagicLearnWindow(struct Unit *unit, int iid)
+{
+	int i;
+
+	for (i = 0; i < sGaidenMagicLearnPopups.cnt; i++) {
+		if (sGaidenMagicLearnPopups.uids[i] == unit->index && sGaidenMagicLearnPopups.iids[i] == iid)
+			return;
+	}
+
+	if (sGaidenMagicLearnPopups.cnt >= GAIDEN_MAGIC_LEARN_POPUP_MAX)
+		return;
+
+	sGaidenMagicLearnPopups.uids[sGaidenMagicLearnPopups.cnt] = unit->index;
+	sGaidenMagicLearnPopups.iids[sGaidenMagicLearnPopups.cnt] = iid;
+	sGaidenMagicLearnPopups.cnt++;
+}
+
+bool HasGaidenMagicLearnWindow(void)
+{
+	return sGaidenMagicLearnPopups.cnt != 0;
+}
+
+/* The oldest queued spell, taken off the queue; false if none */
+bool PopGaidenMagicLearnWindow(u8 *uid, u8 *iid)
+{
+	int i;
+
+	if (sGaidenMagicLearnPopups.cnt == 0)
+		return false;
+
+	*uid = sGaidenMagicLearnPopups.uids[0];
+	*iid = sGaidenMagicLearnPopups.iids[0];
+
+	for (i = 1; i < sGaidenMagicLearnPopups.cnt; i++) {
+		sGaidenMagicLearnPopups.uids[i - 1] = sGaidenMagicLearnPopups.uids[i];
+		sGaidenMagicLearnPopups.iids[i - 1] = sGaidenMagicLearnPopups.iids[i];
+	}
+	sGaidenMagicLearnPopups.cnt--;
+	return true;
 }
 
 void TryLearnGaidenMagicFromBattleUnit(struct BattleUnit *bu)
@@ -372,7 +418,7 @@ void TryLearnGaidenMagicFromBattleUnit(struct BattleUnit *bu)
 	const struct GaidenMagicRankEnt *ent;
 	int newExp, oldLv, newLv;
 
-	if (!IsGaidenMagicUsesSystem() || !bu)
+	if (!IsGaidenMagicUsesSystem() || IsGaidenMagicLearnByLevel() || !bu)
 		return;
 
 	unit = GetUnit(bu->unit.index);
@@ -408,7 +454,8 @@ bool PopR_SetupLearnGaidenMagic(void)
 {
 	int i;
 
-	if (sGaidenMagicLearnPopups.cnt == 0)
+	/* Learning by level: the queue is for the New Spell windows after the battle, not the battle's popups */
+	if (IsGaidenMagicLearnByLevel() || sGaidenMagicLearnPopups.cnt == 0)
 		return false;
 
 	i = --sGaidenMagicLearnPopups.cnt;

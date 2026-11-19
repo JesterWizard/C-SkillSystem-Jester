@@ -1152,3 +1152,17 @@ A swordsman whose blade is[N]without equal. Uses swords.[X]
 Archsage[X]
 ## MSG_CLASS_ARCHSAGE_DESC
 A sage at the summit of magic.[N]Uses anima, light and staves.[X]
+## MSG_NEW_SPELL_TITLE
+New Spell![X]
+## MSG_NEW_SPELL_LEARNED
+learned[X]
+## MSG_NEW_SPELL_USES
+Uses[X]
+## MSG_NEW_SPELL_COST
+Cost[X]
+## MSG_NEW_SPELL_MT
+Mt[X]
+## MSG_NEW_SPELL_HIT
+Hit[X]
+## MSG_NEW_SPELL_RNG
+Rng[X]

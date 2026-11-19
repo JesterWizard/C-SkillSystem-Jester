@@ -214,6 +214,7 @@ struct KernelDesigerConfig {
 	u8 pair_up_banim; /* in battle animations, a pair-up leader's support stands behind it in its standing pose (Kernel/Wizardry/PairUpBanim) */
 	u8 weapon_traits; /* weapon traits replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum, magic vs armour (WeaponTraits.md) */
 	u8 min_damage_on_hit; /* every hit that lands deals at least 1 damage (MinimumDamage.md) */
+	u8 gaiden_magic_learn_by_level; /* player units learn spells from their level lists, with a New Spell window (GaidenMagic.md) */
 };
 
 struct KernelBattleDesignerConfig {
