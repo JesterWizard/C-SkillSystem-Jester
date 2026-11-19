@@ -31,24 +31,30 @@ unit is not drawn, as in vanilla. Promotions, arena and link-arena battles show 
 ## 🛠️ How it works
 
 **Once a battle, as the units zoom in.** The zoom from the map (`ProcScr_ekrUnitKakudai`) has its first step
-(`UnitKakudaiPrepareAnimScript`, ROM `0x5B9CF0`) point at `PairUpBanim_KakudaiPrepare`. After vanilla's step has
-unpacked the leaders' animations, it:
+(`UnitKakudaiPrepareAnimScript`, ROM `0x5B9CF0`) point at `PairUpBanim_KakudaiPrepare`. Before vanilla's step
+unpacks the leaders' animations, it:
 
 1. Picks the support's animation as the battle does for its fighters (`GetUnitBattleAnimDef`,
    `GetBattleAnimationId` with its equipped weapon, else its first item, else unarmed).
 2. Unpacks the animation's script and finds the standing mode's first frame (the mode the battle's distance uses:
    `BanimDefaultModeConfig[BanimDefaultStandingTypes[gEkrDistanceType] * 4]`), then unpacks the right-facing OAM and the
    frame's sheet. `BanimUnComp` handles both LZ77 and the custom animations' Huffman format. The leaders' animation
-   buffers are borrowed for this (`gBanimScrLeft`, `gBanimOamr2`, `gBanimOaml`), and `UpdateBanimFrame` unpacks the
-   leaders' data into them again right after.
-3. Draws the frame into a 128x96 canvas (mirrored for the left side, as the left OAM is), cuts it into 16x16 pieces
-   (8x8 where a piece has only one or two tiles with pixels), and copies the pieces into free OBJ tiles.
+   buffers are borrowed for this (`gBanimScrLeft`, `gBanimOamr2`, `gBanimOaml`): vanilla's step unpacks the leaders'
+   data into them right after. (If the poses are made later, while that data is in use, `UpdateBanimFrame` unpacks it
+   again, about 1.7 frames.)
+3. Draws the frame into a 128x96 canvas a tile row (8 pixels) at a time (mirrored for the left side, as the left OAM
+   is), cuts it into 16x16 pieces (8x8 where a piece has only one or two tiles with pixels), and copies the pieces into
+   free OBJ tiles.
+
+This adds about 2.7 frames to the zoom's first step (vanilla's takes about 2.8), most of it the BIOS unpacking the
+support's script, OAM and sheet (about 1.4 frames, a Wyvern Knight behind a General).
 
 The pieces' places are counted from the leader's position (24 pixels behind it, 4 up), so the pose scales with it.
 
 **The zooms.** The zoom's loop (`UnitKakudaiMain`, `0x5B9CF8`) points at `PairUpBanim_KakudaiLoop`: after vanilla has
 drawn the leaders for the frame, it draws each pose the same way, through `BanimUpdateSpriteRotScale` with the
-leader's scale and place, so it comes after them in OAM. The same proc zooms back out to the map as the battle ends
+leader's scale and place, so it comes after them in OAM. On the zoom's last frame it draws the poses once more: their
+anims are shown from then, but that frame's OAM was made before. The same proc zooms back out to the map as the battle ends
 (`ProcScr_ekrBattleEnding`, its step at `0x5B9B40` points at `PairUpBanim_ekrBattleEnding`).
 
 **In the battle.** `gProc_ekrBattle`'s first step (`ekrBattle_Init`, `0x5B938C`) points at
@@ -93,7 +99,8 @@ mid-battle.
 
 - The pose is the standing frame only: the support does not attack, dodge or react.
 - A frame wider than 128 pixels or taller than 96 is not shown, nor one whose pieces don't fit in the 60 columns that
-  are left (two large fliers on both sides can run out).
+  are left. Two large supports on both sides can run out: a General takes 22 columns and a Wyvern Knight about 50.
+  The player's side is placed first, so its support is the one that shows.
 - The pose hides for good once the level-up box shows (it draws over tiles 0-63), and doesn't zoom out.
 - If a map unit is still moving when the zoom starts, the pose joins it a few frames later.
 - The support doesn't flash, darken or fade with its leader's palette effects. When the leader dies, its animation
