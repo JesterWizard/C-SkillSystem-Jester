@@ -569,7 +569,12 @@ ALIGN 4
 gUnknown_08802558_Gamma: // Battle UI Palette 
 #incbin "png/HyperGammaSpaces/Gamma_battletileset.pal" 
 ALIGN 4 
-gUnknown_08802558_Fenreir: // Battle UI Palette 
+gUnknown_08802558_Fenreir: // Battle UI Palette: a row per faction (blue, green, red, other), as the others have.
+// The style has one row (16 colours): every faction uses it. With the one row alone, the battle read the other factions'
+// rows past its end, into the TSA below, and the enemy's name tag and gauge came out garbled (the Pikmin UI style).
+#incbin "png/Fenreir/Fenreir_Battle.pal.bin" 
+#incbin "png/Fenreir/Fenreir_Battle.pal.bin" 
+#incbin "png/Fenreir/Fenreir_Battle.pal.bin" 
 #incbin "png/Fenreir/Fenreir_Battle.pal.bin" 
 
 // Battle TSA below 

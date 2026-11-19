@@ -5,6 +5,11 @@
 #include "feb-compat.h"
 #include "jester_headers/custom-arrays.h"
 
+/* VeslyUI (C_Code.c): the bottom gauge's tile maps for the UI style */
+const u8 *ekrGaugeMain_GetImg(void);
+const u8 *ekrGaugeMain2_GetImg(void);
+const u8 *ekrGaugeMain3_GetImg(void);
+
 /* Helper function to determine HP bar palette based on current HP */
 static u16* GetHpBarPalette(u8 current_hp)
 {
@@ -338,17 +343,18 @@ void ekrGaugeMain(struct ProcEkrGauge * proc)
         FillBGRect(gBG0TilemapBuffer + 0x1A0, 30, 8, 0, 0x80);
 
         if (0 == proc->unk4C) {
-            EfxTmCpyBG(gUnknown_08802274 + r8, &gBG0TilemapBuffer[r7 + r9], 15, r6, -1, -1); /* Jester - gBG0TilemapBuffer2D is not respected so I removed the macro */
+            EfxTmCpyBG(ekrGaugeMain_GetImg() + r8, &gBG0TilemapBuffer[r7 + r9], 15, r6, -1, -1); /* Jester - gBG0TilemapBuffer2D is not respected so I removed the macro */
             sub_8070D04(&gBG0TilemapBuffer[r7 + r9], 15, r6, 2, 0x80); /* Jester - gBG0TilemapBuffer2D is not respected so I removed the macro */
         }
 
         if (0 == proc->unk50) {
             void *ptr;
 
+            /* the UI style's maps (VeslyUI: ekrGaugeMain_GetImg and the others), not always vanilla's */
             if (0 == proc->unk4C)
-                ptr = gUnknown_08802348 + r8;
+                ptr = (void *)(ekrGaugeMain2_GetImg() + r8);
             else
-                ptr = gUnknown_08802428 + r8;
+                ptr = (void *)(ekrGaugeMain3_GetImg() + r8);
 
             EfxTmCpyBG(ptr, &gBG0TilemapBuffer[r7 + spDC], 16, r6, -1, -1); /* Jester - gBG0TilemapBuffer2D is not respected so I removed the macro */
             sub_8070D04(&gBG0TilemapBuffer[r7 + spDC], 16, r6, 3, 128); /* Jester - gBG0TilemapBuffer2D is not respected so I removed the macro */
