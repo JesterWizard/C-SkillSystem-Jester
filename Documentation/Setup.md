@@ -46,16 +46,16 @@ cd C-SkillSystem-Jester
 ./Tools/setup.sh
 ```
 
-It fetches `Tools/FE-PyTools` and `Tools/check_patch` at the versions this repository records, marks the
-committed `.lyn.event` files as up to date, and checks your devkitARM, ROM and Python packages. It is safe to run
-again.
+It downloads nothing. It marks the committed `.lyn.event` files as up to date, then checks the committed tools, your
+devkitARM, the ROM and the Python packages. It is safe to run again.
 
 > [!IMPORTANT]
-> FE-CLib-Mokha (with its FE8U symbol files in `Tools/FE-CLib-Mokha/reference`) and EventAssembler are committed
-> to this repository. Do not clone or update them from upstream: newer upstream versions rename symbols and fail
-> the build with errors such as `Undefined identifier: ItemEffectiveness_088ADEC2` and `Trying to write data to area
-> protected in file HPBarPalettes.lyn.event`. If you see those errors, restore the committed files
-> (`git checkout -- Tools/FE-CLib-Mokha '*.lyn.event'`) and run `./Tools/setup.sh` again.
+> Every tool the build uses is committed to this repository: EventAssembler, FE-CLib-Mokha (with its FE8U symbol
+> files in `Tools/FE-CLib-Mokha/reference`), FE-PyTools and check_patch. Do not clone or update them from upstream:
+> newer upstream versions rename symbols and fail the build with errors such as
+> `Undefined identifier: ItemEffectiveness_088ADEC2` and
+> `Trying to write data to area protected in file HPBarPalettes.lyn.event`. If you see those errors, restore the
+> committed files (`git checkout -- Tools '*.lyn.event'`) and run `./Tools/setup.sh` again.
 
 5. (Optional) Install the repository hook.
 

@@ -1,32 +1,18 @@
 #!/bin/bash
-# One-time setup after cloning: fetches the external tools this repository does not commit, at the versions it was
-# built with, and marks the committed generated files as up to date. Safe to run again. See Documentation/Setup.md.
+# One-time setup after cloning: checks the committed tools, marks the committed generated files as up to date and
+# checks devkitARM, the ROM and the Python packages. Downloads nothing. Safe to run again. See Documentation/Setup.md.
 set -u
 ROOT=$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel) || exit 1
 cd "$ROOT" || exit 1
 fail=0
 log() { echo "[setup] $*"; }
 
-# 1. Tools/FE-PyTools and Tools/check_patch are pinned commits (gitlinks with no .gitmodules), so a clone leaves
-#    them as empty folders. Clone each one at the commit this repository records.
-fetch_pinned() {
-	local dir="$1" url="$2" sha
-	sha=$(git ls-tree HEAD "$dir" | awk '{print $3}')
-	[ -n "$sha" ] || return 0
-	if [ -e "$dir/.git" ]; then
-		log "$dir already present"
-		return 0
-	fi
-	log "fetching $dir @ ${sha:0:7}"
-	rmdir "$dir" 2>/dev/null || true
-	if ! { git clone -q "$url" "$dir" && git -C "$dir" checkout -q "$sha" &&
-		git -C "$dir" submodule -q update --init --recursive; }; then
-		log "ERROR: could not fetch $dir from $url"
-		fail=1
-	fi
-}
-fetch_pinned Tools/FE-PyTools https://github.com/StanHash/FE-PyTools.git
-fetch_pinned Tools/check_patch https://github.com/MokhaLeee/check_patch.git
+# 1. Every tool the build uses (EventAssembler, FE-CLib-Mokha, FE-PyTools, check_patch) is committed to this
+#    repository; nothing is downloaded. Restore any that were replaced or deleted.
+for d in Tools/EventAssembler Tools/FE-CLib-Mokha Tools/FE-PyTools Tools/check_patch; do
+	[ -n "$(git ls-files "$d" | head -1)" ] && [ -z "$(git status --porcelain -- "$d" | grep -v '^??')" ] ||
+		{ log "ERROR: $d differs from the committed copy (git checkout -- $d)"; fail=1; }
+done
 
 # 2. Tools/FE-CLib-Mokha/reference holds the FE8U symbol files lyn links against. They are committed, pinned to
 #    the names the C code uses; never replace them with upstream FE-CLib-Mokha's, which rename symbols

@@ -2,8 +2,7 @@
 # SessionStart hook for Claude Code cloud sessions (CLAUDE_CODE_REMOTE=true).
 # Installs the toolchain (arm-none-eabi, libmgba, libpng, gawk, moreutils, Pillow), sets
 # up a devkitPro stand-in under ~/.cache/c-skillsys (grit/gbalzss -> Tools/cloud/gritshim.py,
-# arm-none-eabi-* symlinks), builds the gbarun headless emulator runner, fetches the
-# pinned Tools/check_patch and Tools/FE-PyTools checkouts, and locates the FE8U ROM from user uploads.
+# arm-none-eabi-* symlinks), builds the gbarun headless emulator runner, and locates the FE8U ROM from user uploads.
 # Idempotent. See Tools/cloud/README.md.
 set -euo pipefail
 
@@ -60,20 +59,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   } >> "$CLAUDE_ENV_FILE"
 fi
 
-# 6. pinned tool checkouts (gitlinks with no .gitmodules come out of a clone empty)
-fetch_pinned() {
-  local dir="$1" url="$2" sha
-  sha=$(git -C "$ROOT" ls-tree HEAD "$dir" | awk '{print $3}')
-  [ -n "$sha" ] || return 0
-  if [ ! -e "$ROOT/$dir/.git" ]; then
-    log "fetching $dir @ $sha"
-    rmdir "$ROOT/$dir" 2>/dev/null || true
-    git clone -q --recursive "$url" "$ROOT/$dir" && git -C "$ROOT/$dir" checkout -q "$sha" \
-      || log "WARNING: could not fetch $dir from $url"
-  fi
-}
-fetch_pinned Tools/check_patch https://github.com/MokhaLeee/check_patch.git
-fetch_pinned Tools/FE-PyTools https://github.com/StanHash/FE-PyTools.git
+# 6. Tools/check_patch and Tools/FE-PyTools are committed; nothing to fetch.
 
 # 6b. Tools/FE-CLib-Mokha/reference is committed (pinned symbol files); nothing to fetch.
 CLIB_REF="$ROOT/Tools/FE-CLib-Mokha/reference"
