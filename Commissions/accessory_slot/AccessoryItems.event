@@ -5,6 +5,9 @@
  * the others: with four other items it is in the fifth slot.
  *
  * Add one AccessoryItem line per item, before the end of the list. Up to 255 items.
+ *
+ * Weapon locks: tick a weapon lock on an accessory in FEBuilder's item editor (as for a weapon) and only units whose
+ * character or class has that lock can carry it.
  */
 #define AccessoryItem(id) "BYTE id"
 
@@ -13,4 +16,14 @@ AccessorySlotItems:
 // AccessoryItem($AB) // e.g. a custom ring made with FEBuilder
 // AccessoryItem($AC)
 BYTE $00 // end of the list
+ALIGN 4
+
+/*
+ * The blue "equipped" bar on the stat screen's item page:
+ *   0 = none
+ *   1 = always under slot 5, the accessory slot
+ *   2 = under the unit's accessory, wherever it is (slot 5 with four other items), none without one
+ */
+AccessorySlotBar:
+BYTE 1
 ALIGN 4

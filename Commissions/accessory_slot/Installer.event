@@ -16,6 +16,7 @@
 #define FE8U_ListSwap                        $9FB70 // sub_809FB70 (List, swap)
 #define FE8U_TryClaimBonusItem               $B11E4
 #define FE8U_Shop_TryAddItemToInventory      $B464C
+#define FE8U_gStatScreenDrawCallTable       $205B24 // DisplayPage0, DisplayPage1, DisplayPage2
 #define FE8U_gConvoyMenuItems                $59C350 // "Your inventory is full" menus (0x24 bytes a row)
 #define FE8U_gSendToConvoyMenuItems          $59C44C
 #define FE8U_StandaloneFreeSpace             $1000000
@@ -55,6 +56,9 @@ AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 1, AccessorySlot_ConvoyRowSe
 AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 2, AccessorySlot_ConvoyRowSend)
 AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 3, AccessorySlot_ConvoyRowSend)
 AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 4, AccessorySlot_ConvoyRowSend)
+
+// The stat screen's item page: vanilla's, then the blue bar on the accessory slot
+PUSH; ORG FE8U_gStatScreenDrawCallTable + 4; POIN AccessorySlot_DisplayPage1; PROTECT CURRENTOFFSET - 4 CURRENTOFFSET; POP
 
 PUSH
 PROTECT FE8U_gConvoyMenuItems FE8U_gConvoyMenuItems + 0x24 * 5

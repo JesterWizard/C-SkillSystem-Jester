@@ -12,6 +12,8 @@
 #include "popup.h"
 #include "prepscreen.h"
 #include "proc.h"
+#include "statscreen.h"
+#include "constants/classes.h"
 #include "uimenu.h"
 
 /*
@@ -41,6 +43,17 @@
 /* Item IDs, ending with 0 (AccessoryItems.event) */
 extern const u8 AccessorySlotItems[];
 
+/* Which item page row gets the blue "equipped" bar (AccessoryItems.event) */
+extern const u8 AccessorySlotBar;
+
+#define ACC_BAR_OFF       0
+#define ACC_BAR_SLOT5     1
+#define ACC_BAR_ACCESSORY 2
+
+/* The bar vanilla draws under the equipped weapon (DisplayPage1) */
+extern const u8 gUnknown_08A02250[];
+void DisplayPage1(void);
+
 void m4aSongNumStart(u16 n);
 void SetBonusItemClaimed(int index);
 void DrawBonusClaimItemText(int index);
@@ -57,6 +70,35 @@ static bool IsAccessory(int item)
 	for (it = AccessorySlotItems; *it != 0; it++)
 		if (*it == id)
 			return true;
+
+	return false;
+}
+
+/*
+ * Whether the unit can't wear the accessory: the item has a weapon lock (FEBuilder's item editor) that neither the
+ * unit's character nor its class has, as vanilla CanUnitUseWeapon checks for weapons.
+ */
+static bool AccessoryLocked(struct Unit *unit, int item)
+{
+	static const u32 locks[][2] = {
+		{ IA_LOCK_1, CA_LOCK_1 }, { IA_LOCK_2, CA_LOCK_2 }, { IA_LOCK_3, CA_LOCK_3 }, { IA_LOCK_4, CA_LOCK_4 },
+		{ IA_LOCK_5, CA_LOCK_5 }, { IA_LOCK_6, CA_LOCK_6 }, { IA_LOCK_7, CA_LOCK_7 },
+	};
+	u32 itemAttr, unitAttr;
+	unsigned int i;
+
+	if (!IsAccessory(item))
+		return false;
+
+	itemAttr = GetItemAttributes(item);
+	unitAttr = UNIT_CATTRIBUTES(unit);
+
+	for (i = 0; i < ARRAY_COUNT(locks); i++)
+		if ((itemAttr & locks[i][0]) && !(unitAttr & locks[i][1]))
+			return true;
+
+	if ((itemAttr & IA_UNUSABLE) && !IsItemUnsealedForUnit(unit, item))
+		return true;
 
 	return false;
 }
@@ -89,7 +131,8 @@ static bool CanAddItem(struct Unit *unit, int item)
 		items[i] = unit->items[i];
 	items[UNIT_ITEM_COUNT] = item;
 
-	return GetUnitItemCount(unit) < UNIT_ITEM_COUNT && InventoryAllowed(items, UNIT_ITEM_COUNT + 1);
+	return GetUnitItemCount(unit) < UNIT_ITEM_COUNT && InventoryAllowed(items, UNIT_ITEM_COUNT + 1) &&
+	       !AccessoryLocked(unit, item);
 }
 
 /* Whether slot slotA of unitA and slot slotB of unitB can swap items (unitB may be unitA) */
@@ -108,6 +151,10 @@ static bool SwapAllowed(struct Unit *unitA, int slotA, struct Unit *unitB, int s
 	}
 	itemsA[slotA] = itemB;
 	itemsB[slotB] = itemA;
+
+	/* Only the item a unit receives is checked: one that a class change locked can still be traded away */
+	if (AccessoryLocked(unitA, itemB) || AccessoryLocked(unitB, itemA))
+		return false;
 
 	return InventoryAllowed(itemsA, UNIT_ITEM_COUNT) && InventoryAllowed(itemsB, UNIT_ITEM_COUNT);
 }
@@ -172,6 +219,10 @@ u8 AccessorySlot_ConvoyRowUsability(const struct MenuItemDef *def, int number)
 
 	if (item == 0)
 		return MENU_NOTSHOWN;
+
+	/* A locked accessory can't be worn: only the new item itself can be sent or discarded */
+	if (AccessoryLocked(gActiveUnit, ACC_NEW_ITEM))
+		return MENU_DISABLED;
 
 	if (IsAccessory(item) != IsAccessory(ACC_NEW_ITEM))
 		return MENU_DISABLED;
@@ -402,11 +453,42 @@ bool AccessorySlot_ListSwapAllowed(ProcPtr proc)
 		items[i] = unit->items[i];
 	items[LIST_INV_INDEX(proc)] = gPrepScreenItemList[LIST_INDEX(proc)].item;
 
-	if (InventoryAllowed(items, UNIT_ITEM_COUNT))
+	if (InventoryAllowed(items, UNIT_ITEM_COUNT) && !AccessoryLocked(unit, items[LIST_INV_INDEX(proc)]))
 		return true;
 
 	m4aSongNumStart(SONG_ERROR);
 	return false;
+}
+
+/*
+ * The stat screen's item page (gStatScreenDrawCallTable entry 1, Installer.event): vanilla's page, then the blue
+ * "equipped" bar under slot 5 or under the accessory, as AccessorySlotBar says.
+ */
+void AccessorySlot_DisplayPage1(void)
+{
+	struct Unit *unit = gStatScreen.unit;
+	int i, row = -1;
+
+	DisplayPage1();
+
+	if (UNIT_IS_GORGON_EGG(unit))
+		return;
+
+	switch (AccessorySlotBar) {
+	case ACC_BAR_SLOT5:
+		row = UNIT_ITEM_COUNT - 1;
+		break;
+
+	case ACC_BAR_ACCESSORY:
+		for (i = 0; i < UNIT_ITEM_COUNT; i++)
+			if (IsAccessory(unit->items[i]))
+				row = i;
+		break;
+	}
+
+	if (row >= 0)
+		CallARM_FillTileRect(gUiTmScratchC + TILEMAP_INDEX(1, 2 + row * 2), gUnknown_08A02250,
+				     TILEREF(0x40, STATSCREEN_BGPAL_3));
 }
 
 /*
