@@ -38,8 +38,9 @@ the features below.
 
 ## 🚀 Getting started
 
-1. Follow the [Setup Guide](./Documentation/Setup.md) to install devkitPro and the tools.
-2. Put a clean FE8U ROM named `fe8.gba` at the repository root.
+1. Follow the [Setup Guide](./Documentation/Setup.md) to install devkitPro and the Python packages.
+2. Put a clean FE8U ROM named `fe8.gba` at the repository root, then run `./Tools/setup.sh` (it fetches the
+   pinned helper tools; FE-CLib-Mokha and EventAssembler are already in the repo, so don't clone them).
 3. Run `make` to build `fe8-kernel-dev.gba`.
 4. Turn features on or off in [`designer-config.c`](./Data/DesignerConfig/designer-config.c)
    (see [System Config](./Documentation/Features/SystemConfig.md) for what each switch does).
