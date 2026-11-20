@@ -225,13 +225,18 @@ Every switch between the list and a biography goes through black:
 | Valter | Moonstone |
 | Riev | Fallen Bishop |
 | Caellach | Tiger Eye |
+| Saleh | Caer Pelyn Sage |
 
 Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. Every
 character who can join has one, except:
 
 - Moulder, who is not in Fire Emblem Heroes (no CG);
-- Vanessa, who has no CG art in `gfx/BG/FireEmblemHeroesCards`;
-- Saleh, whose folder holds only unconverted art (no `BG_Heroes_Saleh_0N` in `BG.event`).
+- Vanessa, who has no CG art in `gfx/BG/FireEmblemHeroesCards`.
+
+Saleh's pages are made from the two pictures in his folder (his Heroes spring chibi and his official art), cut to
+256x160 cards and converted with `Tools/gallery/png2cg.py` (`224_BG_Saleh_0N.png`, backgrounds 0xF0-0xF3). His text is
+at the end of `Contents/Texts/Source/texts/Districts.txt`, not in a `HeroesCards/Saleh.txt`: a message added before the
+end shifts every later message ID.
 
 The postgame recruits (Lyon, Orson, Glen, Selena, Valter, Riev, Caellach) use their Creature Campaign characters
 (`CHARACTER_*_CC`), so theirs open when they join. Morva, Formortiis and Vigarde never join and have no row; their card

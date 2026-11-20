@@ -183,7 +183,7 @@ SPOTS = {"FISHING_SPOT": "fishing", "CROSSING_SPOT": "crossing", "TOWER_SPOT": "
 PLAYST = 0x0202BCF0
 UNIT1 = 0x0202BE4C
 UNIT_GREEN = 0x0202DDCC
-BIOGRAPHIES = 37  # gCharacterBiographies (Data/MapMenus/CharacterBiographies.c); Caellach is the last
+BIOGRAPHIES = 38  # gCharacterBiographies (Data/MapMenus/CharacterBiographies.c); Caellach is the last
 GM_DATA = 0x03005280
 WM_NODE_DATA = 0x082060B0  # gWMNodeData: 0x20 bytes a node, x and y at +0x18
 # The stub story chapters, Chapter 10 to 20: (chapter, its node (gWmStoryChapterNodes), the node the lord starts the
