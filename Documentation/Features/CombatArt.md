@@ -15,6 +15,13 @@ In the forecast, LEFT and RIGHT step through the equipped weapon's arts (and bac
 from **Arts**. Attack starts with no art. The Arts command is shown only when Attack is not available, such as when an
 art's range bonus is the only way to reach a foe.
 
+<p align="center">
+  <img src="../Gifs/Combat_Art_Attack.gif" alt="Combat arts from Attack" width="480"/>
+</p>
+
+*Prologue, turn 2: Eirika attacks with a Slim Sword. The forecast starts without an art (Mt 9, x2); RIGHT picks
+Hexblade (Mt 14, no follow-up), RIGHT again goes back, and with Hexblade one hit defeats the soldier.*
+
 ## Overview
 
 Combat Arts are built around a simple tradeoff.
