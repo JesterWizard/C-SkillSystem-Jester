@@ -343,6 +343,7 @@ PROC_LABEL(PL_MAP_MENU_BIOGRAPHY_PRESS_B),
     PROC_WHILE(FadeOutExists),
     PROC_CALL(Biography_RestoreMapGraphics),
     PROC_CALL(StartMapSongBgm), // the map's music again: the list and the biographies play their own
+    PROC_CALL(ApplyUnitSpritePalettes), // the list's brown box used OBJ palette 15, the waited units' grey
     PROC_CALL(SetAllUnitNotBackSprite),
     PROC_CALL(ResetUnitSpriteHover),
     PROC_CALL(ForceBMapDispResume),
