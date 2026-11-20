@@ -12,7 +12,8 @@
 #include "jester_headers/custom-functions.h"
 #include "third-tier-classes.h"
 
-extern u8 gUnitTonicState[];
+int GetUnitTonicSlot(struct Unit *unit);
+void SetUnitTonicSlot(struct Unit *unit, int kind);
 extern u16 gTonicChapterState;
 
 static const struct PopupInstruction sTonicUsedPopup[] = {
@@ -38,7 +39,7 @@ bool IsTonicCampaignActive(int item)
 		return false;
 
 	return ITEM_INDEX(item) == ITEM_TONIC
-		&& gUnitTonicState[unit->index] == ITEM_USES(item)
+		&& GetUnitTonicSlot(unit) == ITEM_USES(item)
 		&& gTonicChapterState == gPlaySt.chapterIndex;
 }
 
@@ -49,7 +50,37 @@ bool IsTonicCampaignActiveIndex(int tonicIndex)
 	if (!UNIT_IS_VALID(unit))
 		return false;
 
-	return gUnitTonicState[unit->index] == tonicIndex;
+	return GetUnitTonicSlot(unit) == tonicIndex;
+}
+
+/*
+ * gUnitTonicState (50 bytes, saved in the suspend and the chapter save) holds, per player unit, the tonic kind it used
+ * plus 1: 0 is no tonic. It used to hold the kind itself, so every unit that used none read as kind 0 (the HP Tonic, +2
+ * max HP once anyone had used a tonic this chapter, and from a new game's first chapter). It was also indexed by the
+ * signed unit->index: an enemy's (0x81 and up) read RAM before the array. Only units 1-49 have a slot.
+ */
+#define TONIC_SLOTS 50
+
+int GetUnitTonicSlot(struct Unit *unit)
+{
+	extern u8 gUnitTonicState[];
+	int uid = (u8)unit->index;
+
+	if (uid == 0 || uid >= TONIC_SLOTS)
+		return -1;
+
+	return gUnitTonicState[uid] - 1;
+}
+
+void SetUnitTonicSlot(struct Unit *unit, int kind)
+{
+	extern u8 gUnitTonicState[];
+	int uid = (u8)unit->index;
+
+	if (uid == 0 || uid >= TONIC_SLOTS)
+		return;
+
+	gUnitTonicState[uid] = kind + 1;
 }
 
 /*
@@ -58,12 +89,12 @@ bool IsTonicCampaignActiveIndex(int tonicIndex)
  */
 int GetTonicStatBonus(struct Unit *unit, int tonicIndex)
 {
-	extern u8 gUnitTonicState[];
 	extern u16 gTonicChapterState;
+
 	if (gTonicChapterState != gPlaySt.chapterIndex)
 		return 0;
 
-	return gUnitTonicState[unit->index] == tonicIndex ? 2 : 0;
+	return GetUnitTonicSlot(unit) == tonicIndex ? 2 : 0;
 }
 
 #define LOCAL_TRACE 0
@@ -320,7 +351,7 @@ void ExecStatBoostItem(ProcPtr proc) {
 
 	// This if statement is for the purposes of tonic items only
 	if (GetItemIndex(item) == ITEM_TONIC) {
-		gUnitTonicState[unit->index] = ITEM_USES(item);
+		SetUnitTonicSlot(unit, ITEM_USES(item));
 		gTonicChapterState = gPlaySt.chapterIndex;
 
 		SetPopupUnit(unit);
@@ -349,7 +380,7 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
     if (gpKernelDesignerConfig->item_effect_revamp == true)
     {
 		if (ITEM_INDEX(item) == ITEM_TONIC) {
-			gUnitTonicState[unit->index] = tonicIndex;
+			SetUnitTonicSlot(unit, tonicIndex);
 			gTonicChapterState = gPlaySt.chapterIndex;
 			UnitUpdateUsedItem(unit, slot);
 			return msg;
@@ -364,7 +395,7 @@ int ApplyStatBoostItem(struct Unit *unit, int slot)
 	else
 	{
 		if (GetItemIndex(item) == ITEM_TONIC) {
-			gUnitTonicState[unit->index] = tonicIndex;
+			SetUnitTonicSlot(unit, tonicIndex);
 			gTonicChapterState = gPlaySt.chapterIndex;
 			UnitUpdateUsedItem(unit, slot);
 			return 0;

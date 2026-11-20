@@ -1203,3 +1203,5 @@ Momentum Shift:[N]
 Dodging an attack gives[N]
 Mov +2 until this unit's[N]
 next phase ends.[X]
+## MSG_SAVE_TITLE_CREATURE_CAMPAIGN
+Creature Campaign[X]
