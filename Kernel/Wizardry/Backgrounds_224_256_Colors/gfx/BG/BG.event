@@ -257,6 +257,10 @@ POIN CG_The_Dark_Rite_IMG; WORD 0x1; POIN CG_The_Dark_Rite_PAL // 0xEC
 POIN CG_A_Quiet_Afternoon_IMG; WORD 0x1; POIN CG_A_Quiet_Afternoon_PAL // 0xED
 POIN CG_Weary_Travellers_IMG; WORD 0x1; POIN CG_Weary_Travellers_PAL // 0xEE
 POIN CG_Garden_Meeting_IMG; WORD 0x1; POIN CG_Garden_Meeting_PAL // 0xEF
+POIN BG_Heroes_Saleh_01_IMG;      WORD 0x1; POIN BG_Heroes_Saleh_01_PAL // 0xF0
+POIN BG_Heroes_Saleh_02_IMG;      WORD 0x1; POIN BG_Heroes_Saleh_02_PAL // 0xF1
+POIN BG_Heroes_Saleh_03_IMG;      WORD 0x1; POIN BG_Heroes_Saleh_03_PAL // 0xF2
+POIN BG_Heroes_Saleh_04_IMG;      WORD 0x1; POIN BG_Heroes_Saleh_04_PAL // 0xF3
 
 
 // TSA == 0 indicates 256-colour BGs.
@@ -665,3 +669,11 @@ BG_Heroes_Vigarde_03_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_
 BG_Heroes_Vigarde_03_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_03_PAL.dmp"
 BG_Heroes_Vigarde_04_IMG: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_04_IMG.dmp"
 BG_Heroes_Vigarde_04_PAL: #incbin "FireEmblemHeroesCards/Vigarde/224_BG_Vigarde_04_PAL.dmp"
+BG_Heroes_Saleh_01_IMG: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_01_IMG.dmp"
+BG_Heroes_Saleh_01_PAL: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_01_PAL.dmp"
+BG_Heroes_Saleh_02_IMG: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_02_IMG.dmp"
+BG_Heroes_Saleh_02_PAL: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_02_PAL.dmp"
+BG_Heroes_Saleh_03_IMG: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_03_IMG.dmp"
+BG_Heroes_Saleh_03_PAL: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_03_PAL.dmp"
+BG_Heroes_Saleh_04_IMG: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_04_IMG.dmp"
+BG_Heroes_Saleh_04_PAL: #incbin "FireEmblemHeroesCards/Saleh/224_BG_Saleh_04_PAL.dmp"

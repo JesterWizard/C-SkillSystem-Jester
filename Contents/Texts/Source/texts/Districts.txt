@@ -1166,3 +1166,19 @@ Mt[X]
 Hit[X]
 ## MSG_NEW_SPELL_RNG
 Rng[X]
+## MSG_HEROES_CARDS_SALEH_01
+Saleh is a sage from Caer[N]
+Pelyn, the hidden village of[A][N]
+the mages of Magvel.[A][X]
+## MSG_HEROES_CARDS_SALEH_02
+Calm and wise, he guards the[N]
+village's lore and the ancient[A][N]
+ways of magic.[A][X]
+## MSG_HEROES_CARDS_SALEH_03
+He once took Ewan as his[N]
+pupil, and saw great promise[A][N]
+in the boy's mischief.[A][X]
+## MSG_HEROES_CARDS_SALEH_04
+He joined Eirika's army to[N]
+protect the land and Myrrh,[A][N]
+whom he has long watched over.[A][X]
