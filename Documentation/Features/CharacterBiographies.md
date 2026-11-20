@@ -199,6 +199,9 @@ Every switch between the list and a biography goes through black:
 Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. The other
 characters' card files are still empty; a biography for one is a table row once its four pages are written.
 
+The text box shows two lines. Put an `[A]` after every second line of a passage (`line[N]line[A][N]line...`): a third
+line before an `[A]` scrolls the first one away before the player can read it.
+
 The list shows five rows and scrolls (UP and DOWN past its ends), with the scroll bar sized to the table.
 
 ## 👥 Who is listed
