@@ -1,5 +1,11 @@
 # Exceed Portrait Box
 
+<p align="center">
+  <img src="../Gifs/Exceed_Portrait_Box.gif" alt="Exceed Portrait Box demo" width="480"/>
+</p>
+
+*O'Neill's battle quote in a test ROM whose O'Neill portrait opts in with a test feather drawn in its spare tiles: off, it stays inside its 96x80 frame; on, the two 16x16 pieces rise above it. Eirika's portrait doesn't opt in and is drawn as in vanilla.*
+
 ---
 
 ## 📑 Index

@@ -1,5 +1,11 @@
 # Combat Art
 
+<p align="center">
+  <img src="../Gifs/Combat_Art.gif" alt="Combat Art demo" width="480"/>
+</p>
+
+*Eirika's Iron Bow carries the art Dead Eye (set in a test ROM's weapon table): without an art her menu has no Attack; with it the menu offers Arts, her range reaches fighters 5 tiles away, the forecast names the art, and she hits for 11.*
+
 ![image](./Images/Home_CombatArt1.png)
 ![image](./Images/Home_CombatArt2.png)
 

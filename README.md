@@ -58,7 +58,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Biorhythm.md"><img src="./Documentation/Gifs/Biorhythm.gif" alt="Biorhythm preview" width="360" /></a><br/><b><a href="./Documentation/Features/Biorhythm.md">Biorhythm</a></b></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/CombatArt.md"><img src="./Documentation/Images/Home_CombatArt1.png" alt="Combat Art preview" width="360" /></a><br/><b><a href="./Documentation/Features/CombatArt.md">Combat Art</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/CombatArt.md"><img src="./Documentation/Gifs/Combat_Art.gif" alt="Combat Art preview" width="360" /></a><br/><b><a href="./Documentation/Features/CombatArt.md">Combat Art</a></b></td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/CritCutin.md"><img src="./Documentation/Gifs/Crit_Cutin.gif" alt="Critical Cut-in preview" width="360" /></a><br/><b><a href="./Documentation/Features/CritCutin.md">Critical Cut-in</a></b></td>
@@ -136,11 +136,11 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/TrapRework.md"><img src="./Documentation/Gifs/Trap_Rework.gif" alt="Trap Rework preview" width="360" /></a><br/><b><a href="./Documentation/Features/TrapRework.md">Trap Rework</a></b></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ThreatArrows.md"><img src="./Documentation/Images/ThreatArrows.png" alt="Threat Arrows preview" width="360" /></a><br/><b><a href="./Documentation/Features/ThreatArrows.md">Threat Arrows</a></b><br/><sub>While picking a move: a flashing arrow from each enemy that could attack the cursor's tile</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ThreatArrows.md"><img src="./Documentation/Gifs/Threat_Arrows.gif" alt="Threat Arrows preview" width="360" /></a><br/><b><a href="./Documentation/Features/ThreatArrows.md">Threat Arrows</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/WeaponTraits.md"><img src="./Documentation/Images/WeaponTraits.png" alt="Weapon Traits preview" width="360" /></a><br/><b><a href="./Documentation/Features/WeaponTraits.md">Weapon Traits</a></b><br/><sub>Replace the weapon triangle: sword follow-ups, spears vs cavalry, axe minimum damage, magic vs armour</sub></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MinimumDamage.md"><img src="./Documentation/Images/MinimumDamage.png" alt="Minimum Damage preview" width="360" /></a><br/><b><a href="./Documentation/Features/MinimumDamage.md">Minimum Damage</a></b><br/><sub>Every hit that lands deals at least 1 damage</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/WeaponTraits.md"><img src="./Documentation/Gifs/Weapon_Traits.gif" alt="Weapon Traits preview" width="360" /></a><br/><b><a href="./Documentation/Features/WeaponTraits.md">Weapon Traits</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MinimumDamage.md"><img src="./Documentation/Gifs/Minimum_Damage.gif" alt="Minimum Damage preview" width="360" /></a><br/><b><a href="./Documentation/Features/MinimumDamage.md">Minimum Damage</a></b></td>
   </tr>
 </table>
 
@@ -210,18 +210,18 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/VeslyUIStyles.md"><img src="./Documentation/Gifs/VeslyUI_Styles.gif" alt="VeslyUI Styles preview" width="360" /></a><br/><b><a href="./Documentation/Features/VeslyUIStyles.md">VeslyUI Styles</a></b></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ExpBarStyles.md"><img src="./Documentation/Images/ExpBarStyles.png" alt="EXP Bar Styles preview" width="360" /></a><br/><b><a href="./Documentation/Features/ExpBarStyles.md">EXP Bar Styles</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ExpBarStyles.md"><img src="./Documentation/Gifs/Exp_Bar_Styles.gif" alt="EXP Bar Styles preview" width="360" /></a><br/><b><a href="./Documentation/Features/ExpBarStyles.md">EXP Bar Styles</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MapColors.md"><img src="./Documentation/Images/MapColors.png" alt="Map Colors preview" width="360" /></a><br/><b><a href="./Documentation/Features/MapColors.md">Map Colors</a></b></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/NewGamePlus.md"><img src="./Documentation/Images/NewGamePlus.png" alt="New Game+ preview" width="360" /></a><br/><b><a href="./Documentation/Features/NewGamePlus.md">New Game+</a></b><br/><sub>Extras > New Game+: a new game where each character keeps their equipped skills and skill list</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/MapColors.md"><img src="./Documentation/Gifs/Map_Colors.gif" alt="Map Colors preview" width="360" /></a><br/><b><a href="./Documentation/Features/MapColors.md">Map Colors</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/NewGamePlus.md"><img src="./Documentation/Gifs/New_Game_Plus.gif" alt="New Game+ preview" width="360" /></a><br/><b><a href="./Documentation/Features/NewGamePlus.md">New Game+</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Gallery.md"><img src="./Documentation/Images/Gallery.png" alt="Gallery preview" width="360" /></a><br/><b><a href="./Documentation/Features/Gallery.md">Gallery</a></b><br/><sub>Extras > Gallery: the CGs seen in game, 3x3 to a page, and full size</sub></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Bestiary.md"><img src="./Documentation/Images/Bestiary.png" alt="Bestiary preview" width="360" /></a><br/><b><a href="./Documentation/Features/Bestiary.md">Bestiary</a></b><br/><sub>Extras > Bestiary: every character and class met, with their bases, growths and descriptions</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Gallery.md"><img src="./Documentation/Gifs/Gallery.gif" alt="Gallery preview" width="360" /></a><br/><b><a href="./Documentation/Features/Gallery.md">Gallery</a></b></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Bestiary.md"><img src="./Documentation/Gifs/Bestiary.gif" alt="Bestiary preview" width="360" /></a><br/><b><a href="./Documentation/Features/Bestiary.md">Bestiary</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/SkillCodex.md"><img src="./Documentation/Images/SkillCodex.png" alt="Skill Codex preview" width="360" /></a><br/><b><a href="./Documentation/Features/SkillCodex.md">Skill Codex</a></b><br/><sub>Extras > Skill Codex: every skill in the game, with the description of each one met</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/SkillCodex.md"><img src="./Documentation/Gifs/Skill_Codex.gif" alt="Skill Codex preview" width="360" /></a><br/><b><a href="./Documentation/Features/SkillCodex.md">Skill Codex</a></b></td>
     <td width="50%"></td>
   </tr>
 </table>
@@ -260,7 +260,7 @@ Every feature links to its documentation. Click a preview to open it.
 <table>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Portrait32Color.md"><img src="./Documentation/Gifs/Portrait_32_Color.gif" alt="32-Color Portraits preview" width="360" /></a><br/><b><a href="./Documentation/Features/Portrait32Color.md">32-Color Portraits</a></b></td>
-    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ExceedPortraitBox.md"><b><a href="./Documentation/Features/ExceedPortraitBox.md">Exceed Portrait Box</a></b></a><br/><sub>No preview yet</sub></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/ExceedPortraitBox.md"><img src="./Documentation/Gifs/Exceed_Portrait_Box.gif" alt="Exceed Portrait Box preview" width="360" /></a><br/><b><a href="./Documentation/Features/ExceedPortraitBox.md">Exceed Portrait Box</a></b></td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/Halfbodies.md"><img src="./Documentation/Gifs/Halfbodies.gif" alt="Halfbodies preview" width="360" /></a><br/><b><a href="./Documentation/Features/Halfbodies.md">Halfbodies</a></b></td>

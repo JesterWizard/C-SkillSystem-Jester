@@ -1,5 +1,11 @@
 # Minimum Damage
 
+<p align="center">
+  <img src="../Gifs/Minimum_Damage.gif" alt="Minimum Damage demo" width="480"/>
+</p>
+
+*Soldiers with 30 Def and 40 HP, Eirika's Iron Sword at Mt 0 (a test ROM): off, both hits land for no damage; on, each hit deals 1 (40 to 39 to 38).*
+
 <img src="../Images/MinimumDamage.png" alt="Minimum damage: Eirika's Iron Sword against a soldier with 30 Def takes him from 40 to 39 HP" width="480" />
 
 *With minimum damage on, Eirika's Iron Sword still chips a soldier with 30 Def from 40 HP to 39.*

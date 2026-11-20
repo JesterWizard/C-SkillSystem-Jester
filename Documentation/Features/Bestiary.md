@@ -1,6 +1,12 @@
 # Bestiary
 
 <p align="center">
+  <img src="../Gifs/Bestiary.gif" alt="Bestiary demo" width="480"/>
+</p>
+
+*The prologue marks Eirika, Seth, O'Neill and their classes as met. Extras > Bestiary: Eirika's bases and growths, unmet Ephraim as "???", then the Classes tab with Paladin and Fighter.*
+
+<p align="center">
   <img src="../Images/Bestiary.png" alt="Extras > Bestiary: a character met, with her bases, and the Classes tab" width="720"/>
 </p>
 
