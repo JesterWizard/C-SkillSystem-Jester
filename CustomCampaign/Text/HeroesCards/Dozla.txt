@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_DOZLA_01
+Dozla is a warrior of Rausten[N]
+who serves Princess L'Arachel.[A][X]
 ## MSG_HEROES_CARDS_DOZLA_02
+Loud and cheerful, he laughs[N]
+through any danger with his[A][N]
+axe in hand.[A][X]
 ## MSG_HEROES_CARDS_DOZLA_03
+He is fiercely loyal to the[N]
+princess and proud to be her[A][N]
+guardian.[A][X]
 ## MSG_HEROES_CARDS_DOZLA_04
+His good humor can lift the[N]
+spirits of an entire camp.[A][X]

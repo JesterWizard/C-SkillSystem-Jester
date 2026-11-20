@@ -1,5 +1,14 @@
-
 ## MSG_HEROES_CARDS_GARCIA_01
+Garcia was once a famous[N]
+warrior of Renais.[A][X]
 ## MSG_HEROES_CARDS_GARCIA_02
+He left the battlefield to[N]
+become a farmer and raise his[A][N]
+son, Ross.[A][X]
 ## MSG_HEROES_CARDS_GARCIA_03
+When the war reached his[N]
+village, he picked up his axe[A][N]
+again.[A][X]
 ## MSG_HEROES_CARDS_GARCIA_04
+His strength has not faded,[N]
+and neither has his pride.[A][X]

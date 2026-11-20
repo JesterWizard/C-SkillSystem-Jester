@@ -1,4 +1,13 @@
 ## MSG_HEROES_CARDS_ORSON_01
+Orson is a paladin of Renais,[N]
+once trusted by its king.[A][X]
 ## MSG_HEROES_CARDS_ORSON_02
+He lost his beloved wife,[N]
+Monica, and could not let her[A][N]
+go.[A][X]
 ## MSG_HEROES_CARDS_ORSON_03
+A promise to bring her back[N]
+led him to betray his kingdom.[A][X]
 ## MSG_HEROES_CARDS_ORSON_04
+His loyalty to her outlasted[N]
+every other vow he made.[A][X]

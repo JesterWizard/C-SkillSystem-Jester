@@ -1,4 +1,13 @@
 ## MSG_HEROES_CARDS_RENNAC_01
+Rennac is a rogue who will do[N]
+almost anything for money.[A][X]
 ## MSG_HEROES_CARDS_RENNAC_02
+He was hired by L'Arachel and[N]
+has not managed to leave[A][N]
+since.[A][X]
 ## MSG_HEROES_CARDS_RENNAC_03
+He complains constantly, yet[N]
+keeps finding reasons to stay.[A][X]
 ## MSG_HEROES_CARDS_RENNAC_04
+His quick fingers can open any[N]
+lock and lighten any purse.[A][X]

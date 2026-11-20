@@ -1,4 +1,17 @@
 ## MSG_HEROES_CARDS_CORMAG_01
+Cormag is a wyvern knight of[N]
+Grado who flies with his loyal[A][N]
+wyvern, Genarog.[A][X]
 ## MSG_HEROES_CARDS_CORMAG_02
+He served Valter, the[N]
+Moonstone, until he could no[A][N]
+longer stomach the man's[N]
+cruelty.[A][X]
 ## MSG_HEROES_CARDS_CORMAG_03
+He also searched for the truth[N]
+behind his brother Glen's[A][N]
+death.[A][X]
 ## MSG_HEROES_CARDS_CORMAG_04
+In the end he turned his lance[N]
+against the empire he had[A][N]
+served to find it.[A][X]

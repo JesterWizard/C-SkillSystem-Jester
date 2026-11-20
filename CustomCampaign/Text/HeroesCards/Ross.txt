@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_ROSS_01
+Ross is the son of Garcia, a[N]
+former great warrior.[A][X]
 ## MSG_HEROES_CARDS_ROSS_02
+He is a journeyman who carries[N]
+an axe and dreams of growing[A][N]
+strong.[A][X]
 ## MSG_HEROES_CARDS_ROSS_03
+He was headstrong enough to[N]
+stand up to bandits on his[A][N]
+own.[A][X]
 ## MSG_HEROES_CARDS_ROSS_04
+Eirika welcomed him into her[N]
+army, and he works hard to[A][N]
+prove himself.[A][X]

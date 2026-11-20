@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_TETHYS_01
+Tethys is a dancer who travels[N]
+with Gerik's mercenary band.[A][X]
 ## MSG_HEROES_CARDS_TETHYS_02
+Her dances can lift tired[N]
+soldiers back onto their feet.[A][X]
 ## MSG_HEROES_CARDS_TETHYS_03
+She is confident and teasing,[N]
+and loves to watch others[A][N]
+squirm.[A][X]
 ## MSG_HEROES_CARDS_TETHYS_04
+Her younger brother, Ewan,[N]
+follows her everywhere, much[A][N]
+to her exasperation.[A][X]

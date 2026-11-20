@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_NATASHA_01
+Natasha is a cleric who served[N]
+in a temple of Grado.[A][X]
 ## MSG_HEROES_CARDS_NATASHA_02
+When she learned of the[N]
+empire's dark plans, she fled[A][N]
+to warn the other nations.[A][X]
 ## MSG_HEROES_CARDS_NATASHA_03
+Pursued by soldiers, she found[N]
+Joshua, a wandering swordsman,[A][N]
+and asked for his help.[A][X]
 ## MSG_HEROES_CARDS_NATASHA_04
+Her quiet faith and kind heart[N]
+steady everyone who fights[A][N]
+beside her.[A][X]

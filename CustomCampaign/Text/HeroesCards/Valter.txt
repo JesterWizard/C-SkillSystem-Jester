@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_VALTER_01
+Valter is a wyvern knight of[N]
+Grado, known as the Moonstone.[A][X]
 ## MSG_HEROES_CARDS_VALTER_02
+He lives for battle and[N]
+delights in the fear of[A][N]
+others.[A][X]
 ## MSG_HEROES_CARDS_VALTER_03
+He was cast out once for his[N]
+cruelty, then brought back for[A][N]
+the war.[A][X]
 ## MSG_HEROES_CARDS_VALTER_04
+Even his own soldiers dread[N]
+his attention.[A][X]

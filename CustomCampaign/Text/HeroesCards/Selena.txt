@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_SELENA_01
+Selena is one of Grado's[N]
+Imperial Three, known as the[A][N]
+Fluorspar.[A][X]
 ## MSG_HEROES_CARDS_SELENA_02
+She is a mage general of great[N]
+skill and fierce loyalty.[A][X]
 ## MSG_HEROES_CARDS_SELENA_03
+She serves Emperor Vigarde[N]
+faithfully, even when she has[A][N]
+doubts.[A][X]
 ## MSG_HEROES_CARDS_SELENA_04
+Her devotion to Grado never[N]
+wavers.[A][X]

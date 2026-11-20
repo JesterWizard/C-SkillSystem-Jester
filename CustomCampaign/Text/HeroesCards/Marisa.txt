@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_MARISA_01
+Marisa is a swordswoman of[N]
+Gerik's band, known as the[A][N]
+Crimson Flash.[A][X]
 ## MSG_HEROES_CARDS_MARISA_02
+She speaks little, but her[N]
+blade moves faster than anyone[A][N]
+can follow.[A][X]
 ## MSG_HEROES_CARDS_MARISA_03
+She trains alone, and often[N]
+seems lost in thought.[A][X]
 ## MSG_HEROES_CARDS_MARISA_04
+Few know that she can be[N]
+awkward when someone thanks[A][N]
+her.[A][X]

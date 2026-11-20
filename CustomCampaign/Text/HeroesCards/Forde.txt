@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_FORDE_01
+Forde is a cavalier of Renais[N]
+who would rather be painting[A][N]
+than fighting.[A][X]
 ## MSG_HEROES_CARDS_FORDE_02
+He naps whenever he can and is[N]
+rarely in a hurry.[A][X]
 ## MSG_HEROES_CARDS_FORDE_03
+Yet he is a capable knight,[N]
+sworn to serve Ephraim at his[A][N]
+side.[A][X]
 ## MSG_HEROES_CARDS_FORDE_04
+He worries more than he lets[N]
+on about his younger brother,[A][N]
+Franz.[A][X]

@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_KYLE_01
+Kyle is a cavalier of Renais[N]
+and a knight through and[A][N]
+through.[A][X]
 ## MSG_HEROES_CARDS_KYLE_02
+Serious and diligent, he[N]
+trains every day and expects[A][N]
+the same of others.[A][X]
 ## MSG_HEROES_CARDS_KYLE_03
+He rode out with Ephraim on[N]
+his bold strike into the heart[A][N]
+of Grado.[A][X]
 ## MSG_HEROES_CARDS_KYLE_04
+He is forever scolding his[N]
+friend Forde, though the two[A][N]
+are rarely apart.[A][X]

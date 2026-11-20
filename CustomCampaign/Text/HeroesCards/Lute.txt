@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_LUTE_01
+Lute is a young mage who calls[N]
+herself a prodigy, and she is[A][N]
+not entirely wrong.[A][X]
 ## MSG_HEROES_CARDS_LUTE_02
+She has read every book she[N]
+could find and remembers all[A][N]
+of it.[A][X]
 ## MSG_HEROES_CARDS_LUTE_03
+She joined Eirika's army to[N]
+study the world first hand,[A][N]
+monsters included.[A][X]
 ## MSG_HEROES_CARDS_LUTE_04
+She speaks her mind with total[N]
+calm, which leaves her friend[A][N]
+Artur forever apologizing.[A][X]

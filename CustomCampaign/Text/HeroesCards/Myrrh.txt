@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_MYRRH_01
+Myrrh is a manakete, one of[N]
+the ancient dragon people of[A][N]
+Magvel.[A][X]
 ## MSG_HEROES_CARDS_MYRRH_02
+She looks like a young girl[N]
+but has lived for over a[A][N]
+thousand years.[A][X]
 ## MSG_HEROES_CARDS_MYRRH_03
+She came out of Darkling Woods[N]
+to find her guardian, Saleh.[A][X]
 ## MSG_HEROES_CARDS_MYRRH_04
+Shy and gentle, she grows[N]
+braver with each friend she[A][N]
+makes.[A][X]

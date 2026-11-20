@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_DUESSEL_01
+Duessel is one of Grado's[N]
+Imperial Three, known as the[A][N]
+Obsidian.[A][X]
 ## MSG_HEROES_CARDS_DUESSEL_02
+He was once Ephraim's teacher[N]
+in the ways of the lance.[A][X]
 ## MSG_HEROES_CARDS_DUESSEL_03
+Loyal to his emperor but true[N]
+to his honor, he could not[A][N]
+accept the war's cruelty.[A][X]
 ## MSG_HEROES_CARDS_DUESSEL_04
+He chose his conscience over[N]
+his title and joined Ephraim.[A][X]

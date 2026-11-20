@@ -29,3 +29,7 @@ Perhaps in doing so he can[N]
 be of greater service to[A][N]
 the people?[A][X]
 ## MSG_HEROES_CARDS_ARTUR_04
+Together, Artur and Lute[N]
+joined Eirika's journey, and[A][N]
+the light of his faith has[N]
+guided many ever since.[A][X]

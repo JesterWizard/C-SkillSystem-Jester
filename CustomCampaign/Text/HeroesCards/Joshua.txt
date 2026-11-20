@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_JOSHUA_01
+Joshua is a wandering[N]
+swordsman who loves to gamble.[A][X]
 ## MSG_HEROES_CARDS_JOSHUA_02
+He leaves decisions to the[N]
+toss of a coin, and the coin[A][N]
+rarely fails him.[A][X]
 ## MSG_HEROES_CARDS_JOSHUA_03
+He met the cleric Natasha on[N]
+the road and chose to protect[A][N]
+her.[A][X]
 ## MSG_HEROES_CARDS_JOSHUA_04
+He carries a secret about his[N]
+past, and a kingdom he left[A][N]
+behind.[A][X]
