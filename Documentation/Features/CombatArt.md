@@ -11,6 +11,10 @@
 
 Combat Arts add a Three Houses style command to combat preparation. During target selection, the unit can choose a special art that trades normal attack rules for stronger bonuses or extra effects.
 
+In the forecast, LEFT and RIGHT step through the equipped weapon's arts (and back to no art), from **Attack** as well as
+from **Arts**. Attack starts with no art. The Arts command is shown only when Attack is not available, such as when an
+art's range bonus is the only way to reach a foe.
+
 ## Overview
 
 Combat Arts are built around a simple tradeoff.

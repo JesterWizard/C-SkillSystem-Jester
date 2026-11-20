@@ -280,12 +280,12 @@ int PowPsychUpCheck(int status, struct Unit *unit)
 
 int PowGetterStaffBoost(int status, struct Unit *unit)
 {
-	extern u8 gUnitTonicState[];
+	int GetUnitTonicSlot(struct Unit *unit);
 
-    if (gUnitTonicState[unit->index] == 0)
+    if (GetUnitTonicSlot(unit) == 0)
 	    return status + unit->barrierDuration;
 
-	if (gUnitTonicState[unit->index] == 7)
+	if (GetUnitTonicSlot(unit) == 7)
 	    return status + unit->barrierDuration;
 
     return status;

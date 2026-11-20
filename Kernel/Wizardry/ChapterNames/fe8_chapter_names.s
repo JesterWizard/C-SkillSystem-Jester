@@ -156,7 +156,7 @@ blh     0x800a240    @0x8012C60               @@ 080822D2 F790FCC5
 b       end_80822a4               @@ 080822D6 E014     
 
 postgame_text:   
-ldr     r0,=0x7D0 @????             @@ 080822DC 4801     @@text ID --TRIAL--: 0x5d4
+ldr     r0,=0x7D0 @ patched to MSG_SAVE_TITLE_CREATURE_CAMPAIGN by ChapterNames_Installer.event (literal at +0x128)             @@ 080822DC 4801     @@text ID --TRIAL--: 0x5d4
 blh      0x800a240                @@ 080822DE F790FCBF 
 b       end_80822a4               @@ 080822E2 E00E     
 .ltorg

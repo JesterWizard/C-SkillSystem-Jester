@@ -3,6 +3,7 @@
 #include "EAstdlib.event"
 #include "Extensions/Hack Installation.txt"
 #include "LynJump.event"
+#include "../../../Contents/Texts/build/msgs.h"
 #include "SaveMenuChapterTitle.lyn.event"
 #include "ChapterNamesGate.lyn.event"
 PUSH
@@ -12,6 +13,14 @@ POP
 
 Chname:
 #incbin "fe8_chapter_names.dmp"
+/*
+ * Title 0x57, the Creature Campaign save's (GetChapterTitleExtra), names message 0x7D0 in the routine's literal pool:
+ * FE7's "Trial", an empty message in this ROM, so the save slot had no title. Point it at our own.
+ */
+PUSH
+ORG Chname + 0x128
+WORD MSG_SAVE_TITLE_CREATURE_CAMPAIGN
+POP
 ALIGN 4
 POIN ChFont
 POIN ChTable

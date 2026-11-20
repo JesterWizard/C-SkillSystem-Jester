@@ -216,12 +216,12 @@ int LckPsychUpCheck(int status, struct Unit *unit)
 
 int LckGetterStaffBoost(int status, struct Unit *unit)
 {
-    extern u8 gUnitTonicState[];
+    int GetUnitTonicSlot(struct Unit *unit);
 
-    if (gUnitTonicState[unit->index] == 4)
+    if (GetUnitTonicSlot(unit) == 4)
 	    return status + unit->barrierDuration;
 
-	if (gUnitTonicState[unit->index] == 7)
+	if (GetUnitTonicSlot(unit) == 7)
 	    return status + unit->barrierDuration;
 
     return status;

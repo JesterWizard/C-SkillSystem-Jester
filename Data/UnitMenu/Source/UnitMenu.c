@@ -75,7 +75,14 @@ u8 WeaponSelectMenu_Selected(struct MenuProc* menu, struct MenuItemProc* menuIte
 
     MakeTargetListForWeapon(gActiveUnit, gActiveUnit->items[0]);
 
-    NewTargetSelection(&gSelectInfo_Attack);
+    /*
+     * The combat art target selection: LEFT/RIGHT step through the weapon's arts in the forecast (none, the art
+     * list), as the Arts command does. It behaves as vanilla's when the weapon has no art. Attack used vanilla's,
+     * and the Arts command is hidden while Attack is shown, so a unit that could attack never used its arts. It starts
+     * without an art: one left in force by the weapon menu's hover is dropped.
+     */
+    RegisterCombatArtStatus(gActiveUnit, 0);
+    NewTargetSelectionRework(&gSelectInfo_Attack);
 
     sub_80832C8();
 

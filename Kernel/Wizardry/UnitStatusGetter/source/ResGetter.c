@@ -255,12 +255,12 @@ int ResPsychUpCheck(int status, struct Unit *unit)
 
 int ResGetterStaffBoost(int status, struct Unit *unit)
 {
-    extern u8 gUnitTonicState[];
+    int GetUnitTonicSlot(struct Unit *unit);
 
-    if (gUnitTonicState[unit->index] == 6)
+    if (GetUnitTonicSlot(unit) == 6)
 	    return status + unit->barrierDuration;
 
-	if (gUnitTonicState[unit->index] == 7)
+	if (GetUnitTonicSlot(unit) == 7)
 	    return status + unit->barrierDuration;
 
     return status;
