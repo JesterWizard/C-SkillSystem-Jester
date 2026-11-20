@@ -52,3 +52,6 @@ Data/Gallery/GalleryThumbs.bin
 !Tools/FE-CLib-Mokha/reference/fireemblem8.ref.o
 !Tools/FE-CLib-Mokha/reference/fireemblem8.ref.s
 !Tools/FE-CLib-Mokha/reference/fireemblem8.sym
+
+# Leftover submodule file in the committed FE-PyTools copy
+Tools/FE-PyTools/.gitmodules
