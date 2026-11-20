@@ -1,4 +1,15 @@
 ## MSG_HEROES_CARDS_COLM_01
+Colm is a thief from the[N]
+village of Ide who is quick[A][N]
+with his hands.[A][X]
 ## MSG_HEROES_CARDS_COLM_02
+He boasts often, and his pride[N]
+sometimes gets the better of[A][N]
+him.[A][X]
 ## MSG_HEROES_CARDS_COLM_03
+He watches over his childhood[N]
+friend Neimi, though he would[A][N]
+never admit it.[A][X]
 ## MSG_HEROES_CARDS_COLM_04
+When Neimi asked him to join[N]
+Eirika, he could not say no.[A][X]

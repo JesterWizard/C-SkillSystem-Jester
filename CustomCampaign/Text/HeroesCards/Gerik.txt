@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_GERIK_01
+Gerik leads a band of[N]
+mercenaries that travels from[A][N]
+war to war.[A][X]
 ## MSG_HEROES_CARDS_GERIK_02
+He is gruff but fair, and he[N]
+never abandons a member of his[A][N]
+company.[A][X]
 ## MSG_HEROES_CARDS_GERIK_03
+Hired by Eirika's side, he[N]
+soon came to fight for more[A][N]
+than the coin.[A][X]
 ## MSG_HEROES_CARDS_GERIK_04
+His companions Tethys and[N]
+Marisa follow him without[A][N]
+question.[A][X]

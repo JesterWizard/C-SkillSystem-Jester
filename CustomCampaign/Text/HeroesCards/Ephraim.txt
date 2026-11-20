@@ -1,4 +1,18 @@
 ## MSG_HEROES_CARDS_EPHRAIM_01
+Ephraim is the prince of[N]
+Renais and Eirika's twin[A][N]
+brother.[A][X]
 ## MSG_HEROES_CARDS_EPHRAIM_02
+Bold and brilliant with a[N]
+lance, he would rather lead[A][N]
+from the front than sit on a[N]
+throne.[A][X]
 ## MSG_HEROES_CARDS_EPHRAIM_03
+When Grado invaded, he struck[N]
+deep into the empire with only[A][N]
+a handful of knights.[A][X]
 ## MSG_HEROES_CARDS_EPHRAIM_04
+His friend Lyon was on the[N]
+other side of that war.[A][N]
+Ephraim still hoped to bring[N]
+him home.[A][X]

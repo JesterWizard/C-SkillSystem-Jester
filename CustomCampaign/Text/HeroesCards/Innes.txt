@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_INNES_01
+Innes is the prince of Frelia[N]
+and Tana's older brother.[A][X]
 ## MSG_HEROES_CARDS_INNES_02
+Proud and sharp-tongued, he is[N]
+a peerless archer who hates to[A][N]
+come second to anyone.[A][X]
 ## MSG_HEROES_CARDS_INNES_03
+He has long seen Ephraim as[N]
+his rival, and never misses a[A][N]
+chance to say so.[A][X]
 ## MSG_HEROES_CARDS_INNES_04
+Beneath the pride is a prince[N]
+who would give anything to[A][N]
+keep his sister and his people[N]
+safe.[A][X]

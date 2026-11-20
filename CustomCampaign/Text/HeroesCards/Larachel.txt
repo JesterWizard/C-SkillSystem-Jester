@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_LARACHEL_01
+L'Arachel is the princess of[N]
+Rausten, the holy land of[A][N]
+Magvel.[A][X]
 ## MSG_HEROES_CARDS_LARACHEL_02
+She travels the land to rid it[N]
+of monsters and evil, as she[A][N]
+puts it.[A][X]
 ## MSG_HEROES_CARDS_LARACHEL_03
+She is dramatic and a little[N]
+vain, but her heart is truly[A][N]
+good.[A][X]
 ## MSG_HEROES_CARDS_LARACHEL_04
+Her loyal companions, Dozla[N]
+and Rennac, have learned to[A][N]
+follow wherever she leads.[A][X]

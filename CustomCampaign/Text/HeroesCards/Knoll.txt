@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_KNOLL_01
+Knoll is a shaman who once[N]
+studied dark magic in Grado.[A][X]
 ## MSG_HEROES_CARDS_KNOLL_02
+He worked with Prince Lyon in[N]
+research meant to save the[A][N]
+empire.[A][X]
 ## MSG_HEROES_CARDS_KNOLL_03
+He saw what that research[N]
+became and fled with its[A][N]
+secrets.[A][X]
 ## MSG_HEROES_CARDS_KNOLL_04
+He now fights to undo the harm[N]
+that his studies helped cause.[A][X]

@@ -195,9 +195,50 @@ Every switch between the list and a biography goes through black:
 | Tana | Winged Princess |
 | Artur | The Devout |
 | Amelia | The Hopeful |
+| Ephraim | Restoration Lord |
+| Innes | Regal Bowman |
+| Lute | Prodigy |
+| Natasha | Gentle Cleric |
+| Cormag | Wyvern Knight |
+| Forde | Easygoing Knight |
+| Kyle | Earnest Knight |
+| Gerik | Mercenary Leader |
+| Tethys | Graceful Dancer |
+| Marisa | Crimson Flash |
+| Ewan | Playful Pupil |
+| L'Arachel | Holy Princess |
+| Dozla | Jovial Warrior |
+| Rennac | Reluctant Rogue |
+| Duessel | Obsidian |
+| Myrrh | Great Dragon |
+| Knoll | Dark Scholar |
+| Joshua | Lucky Gambler |
+| Syrene | Falcon Knight |
+| Ross | Eager Trainee |
+| Neimi | Teary Archer |
+| Colm | Brash Thief |
+| Garcia | Retired Warrior |
+| Lyon | Prince of Grado |
+| Orson | Devoted Knight |
+| Glen | Sunstone |
+| Selena | Fluorspar |
+| Valter | Moonstone |
+| Riev | Fallen Bishop |
+| Caellach | Tiger Eye |
 
-Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. The other
-characters' card files are still empty; a biography for one is a table row once its four pages are written.
+Their pages are `CustomCampaign/Text/HeroesCards/<Name>.txt` with the `BG_Heroes_<Name>_0N` backgrounds. Every
+character who can join has one, except:
+
+- Moulder, who is not in Fire Emblem Heroes (no CG);
+- Vanessa, who has no CG art in `gfx/BG/FireEmblemHeroesCards`;
+- Saleh, whose folder holds only unconverted art (no `BG_Heroes_Saleh_0N` in `BG.event`).
+
+The postgame recruits (Lyon, Orson, Glen, Selena, Valter, Riev, Caellach) use their Creature Campaign characters
+(`CHARACTER_*_CC`), so theirs open when they join. Morva, Formortiis and Vigarde never join and have no row; their card
+files are still empty.
+
+The text box shows two lines. Put an `[A]` after every second line of a passage (`line[N]line[A][N]line...`): a third
+line before an `[A]` scrolls the first one away before the player can read it.
 
 The text box shows two lines. Put an `[A]` after every second line of a passage (`line[N]line[A][N]line...`): a third
 line before an `[A]` scrolls the first one away before the player can read it.

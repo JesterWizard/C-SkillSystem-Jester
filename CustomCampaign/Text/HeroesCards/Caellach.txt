@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_CAELLACH_01
+Caellach is a mercenary hero[N]
+who serves Grado as the Tiger[A][N]
+Eye.[A][X]
 ## MSG_HEROES_CARDS_CAELLACH_02
+He once fought alongside Gerik[N]
+and Tethys.[A][X]
 ## MSG_HEROES_CARDS_CAELLACH_03
+He sells his sword to whoever[N]
+pays best, and he enjoys the[A][N]
+work.[A][X]
 ## MSG_HEROES_CARDS_CAELLACH_04
+Ambition drives him, and[N]
+loyalty never slows him down.[A][X]

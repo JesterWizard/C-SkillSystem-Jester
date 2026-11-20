@@ -1,4 +1,16 @@
 ## MSG_HEROES_CARDS_LYON_01
+Lyon is the prince of Grado[N]
+and a childhood friend of[A][N]
+Eirika and Ephraim.[A][X]
 ## MSG_HEROES_CARDS_LYON_02
+Gentle and studious, he poured[N]
+himself into magic and[A][N]
+research.[A][X]
 ## MSG_HEROES_CARDS_LYON_03
+He hoped to save his people[N]
+from a terrible fate he had[A][N]
+foreseen.[A][X]
 ## MSG_HEROES_CARDS_LYON_04
+What he found in the dark[N]
+stone changed him, and set[A][N]
+Magvel at war.[A][X]

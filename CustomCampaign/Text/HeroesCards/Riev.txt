@@ -1,4 +1,13 @@
 ## MSG_HEROES_CARDS_RIEV_01
+Riev was once a bishop of[N]
+Rausten, a servant of the holy[A][N]
+light.[A][X]
 ## MSG_HEROES_CARDS_RIEV_02
+He turned from his faith and[N]
+now serves Grado.[A][X]
 ## MSG_HEROES_CARDS_RIEV_03
+He speaks softly of grace[N]
+while doing terrible things.[A][X]
 ## MSG_HEROES_CARDS_RIEV_04
+L'Arachel takes his betrayal[N]
+as a personal insult.[A][X]

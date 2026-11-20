@@ -60,6 +60,11 @@ All runtime behaviour is gated behind `gpKernelDesignerConfig->promote_trainees_
 
 ## 🐛 Limitations & Bugs
 
+- Fixed: the map's side windows (the unit's minimug box, terrain and goal) stayed up through the promotion and drew
+  over the class choice's description box (a trainee's choice showed Ross's face and name through the text) and the
+  promotion animation's weapon panels. `StartAutoPromotion` ends them and their maker (`pr_SideWindowMakerScript`);
+  `ProcScr_AutoPromotion` brings them back after the promotion in the player phase.
+
 - In-chapter trainee promotion fires from the post-action entry, after a battle or a misc action's EXP, and after the debug menu's Level up (`LevelupAutoPromotion` in [`VeslyDebugger/C_Code.c`](../../Kernel/Wizardry/VeslyDebugger/C_Code.c), through `StartAutoPromotionIfDue` in `MapLvup.c`; the max-level promotion too). It does not fire from BEXP level-ups or script-driven exp grants that bypass it.
 - Trainee units levelled to 10 during an enemy-phase battle will trigger the promotion event immediately after the enemy-phase animation ends. This is consistent with how `promotion_on_max_level` behaves for regular units but may feel surprising.
 - The feature shares the `gActionData.subjectIndex = 0` cleanup pattern used by `promotion_on_max_level`; if both features are enabled simultaneously and a unit somehow satisfies both conditions, `promotion_on_max_level` fires first and the trainee check is skipped in that frame.

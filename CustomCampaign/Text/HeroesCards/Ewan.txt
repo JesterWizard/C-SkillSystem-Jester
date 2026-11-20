@@ -1,4 +1,14 @@
 ## MSG_HEROES_CARDS_EWAN_01
+Ewan is Tethys's younger[N]
+brother and a pupil studying[A][N]
+magic.[A][X]
 ## MSG_HEROES_CARDS_EWAN_02
+He is curious about everything[N]
+and loves to play pranks.[A][X]
 ## MSG_HEROES_CARDS_EWAN_03
+He learned under the sage[N]
+Saleh, who saw great talent in[A][N]
+him.[A][X]
 ## MSG_HEROES_CARDS_EWAN_04
+Behind the mischief, he looks[N]
+up to the people around him.[A][X]

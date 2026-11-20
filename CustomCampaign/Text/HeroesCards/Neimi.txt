@@ -1,4 +1,13 @@
 ## MSG_HEROES_CARDS_NEIMI_01
+Neimi is a shy archer from the[N]
+village of Ide.[A][X]
 ## MSG_HEROES_CARDS_NEIMI_02
+She is easily frightened and[N]
+quick to tears.[A][X]
 ## MSG_HEROES_CARDS_NEIMI_03
+Her childhood friend Colm has[N]
+always looked out for her.[A][X]
 ## MSG_HEROES_CARDS_NEIMI_04
+When it counts, her arrows fly[N]
+true, and she is braver than[A][N]
+she believes.[A][X]

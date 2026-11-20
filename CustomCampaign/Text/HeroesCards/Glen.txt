@@ -1,4 +1,13 @@
 ## MSG_HEROES_CARDS_GLEN_01
+Glen is one of Grado's[N]
+Imperial Three, known as the[A][N]
+Sunstone.[A][X]
 ## MSG_HEROES_CARDS_GLEN_02
+A wyvern lord of great honor,[N]
+he is Cormag's older brother.[A][X]
 ## MSG_HEROES_CARDS_GLEN_03
+He came to doubt the emperor's[N]
+war and the lies behind it.[A][X]
 ## MSG_HEROES_CARDS_GLEN_04
+His sense of justice made him[N]
+enemies within his own empire.[A][X]
