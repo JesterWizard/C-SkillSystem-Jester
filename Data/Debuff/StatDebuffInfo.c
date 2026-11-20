@@ -530,6 +530,12 @@ const struct DebuffInfo gStatDebuffInfos[UNIT_STAT_DEBUFF_MAX] = {
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */
 		.unit_status = { .res = -7 },
 	},
+	[UNIT_STAT_BUFF_MOMENTUM_SHIFT] = {
+		/* Momentum Shift: cleared when the other side's phase starts, so it lasts through the unit's next phase */
+		.positive_type = STATUS_DEBUFF_POSITIVE,
+		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
+		.unit_status = { .mov = 2 },
+	},
 	[UNIT_STAT_BUFF_GLORIFIER] = {
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_NO_TICK, /* tick it on manual */

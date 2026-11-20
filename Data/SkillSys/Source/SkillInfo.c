@@ -5879,6 +5879,39 @@ const struct SkillInfo gSkillInfos[MAX_SKILL_NUM + 1] = {
     },
 #endif
 
+#if (defined(SID_Knockback) && COMMON_SKILL_VALID(SID_Knockback))
+    [SID_Knockback] = {
+        .name = MSG_SKILL_Knockback_NAME,
+        .desc = MSG_SKILL_Knockback_DESC,
+        .capacity = MSG_SKILL_Knockback_CAPACITY,
+        .price = MSG_SKILL_Knockback_PRICE,
+        .icon = GFX_SkillIcon_Smite,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_Cover) && COMMON_SKILL_VALID(SID_Cover))
+    [SID_Cover] = {
+        .name = MSG_SKILL_Cover_NAME,
+        .desc = MSG_SKILL_Cover_DESC,
+        .capacity = MSG_SKILL_Cover_CAPACITY,
+        .price = MSG_SKILL_Cover_PRICE,
+        .icon = GFX_SkillIcon_Guardian,
+        .iconPal = 0,
+    },
+#endif
+
+#if (defined(SID_MomentumShift) && COMMON_SKILL_VALID(SID_MomentumShift))
+    [SID_MomentumShift] = {
+        .name = MSG_SKILL_MomentumShift_NAME,
+        .desc = MSG_SKILL_MomentumShift_DESC,
+        .capacity = MSG_SKILL_MomentumShift_CAPACITY,
+        .price = MSG_SKILL_MomentumShift_PRICE,
+        .icon = GFX_SkillIcon_Alacrity,
+        .iconPal = 0,
+    },
+#endif
+
 #if (defined(SID_AllMagicZenith) && COMMON_SKILL_VALID(SID_AllMagicZenith))
     [SID_AllMagicZenith] = {
         .name = MSG_SKILL_AllMagicZenith_NAME,

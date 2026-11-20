@@ -1182,3 +1182,24 @@ in the boy's mischief.[A][X]
 He joined Eirika's army to[N]
 protect the land and Myrrh,[A][N]
 whom he has long watched over.[A][X]
+## MSG_SKILL_Knockback_NAME
+Knockback[X]
+## MSG_SKILL_Knockback_DESC
+Knockback:[N]
+After this unit starts a fight,[N]
+push a surviving adjacent foe[N]
+one tile back.[X]
+## MSG_SKILL_Cover_NAME
+Cover[X]
+## MSG_SKILL_Cover_DESC
+Cover:[N]
+When an adjacent ally is[N]
+attacked, swap places and[N]
+fight in their stead.[X]
+## MSG_SKILL_MomentumShift_NAME
+Momentum Shift[X]
+## MSG_SKILL_MomentumShift_DESC
+Momentum Shift:[N]
+Dodging an attack gives[N]
+Mov +2 until this unit's[N]
+next phase ends.[X]

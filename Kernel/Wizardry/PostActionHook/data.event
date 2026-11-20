@@ -53,6 +53,8 @@ gPostActionFuncs:
     POIN PostAction_Zenkai
     POIN NewGamePlus_PostAction
     POIN PostAction_GaidenMagicLearnWindow
+    POIN PostAction_Knockback
+    POIN PostAction_MomentumShift
     POIN PostAction_AutoPromotion
 
     //End

@@ -963,3 +963,6 @@
 // SID_WhiteMagicZenith
 // SID_AllMagicSeeker
 // SID_AllMagicZenith
+// SID_Knockback
+// SID_Cover
+// SID_MomentumShift

@@ -940,5 +940,8 @@
 #define SID_WhiteMagicZenith 0x3A7
 #define SID_AllMagicSeeker 0x3A8
 #define SID_AllMagicZenith 0x3A9
+#define SID_Knockback 0x3AA
+#define SID_Cover 0x3AB
+#define SID_MomentumShift 0x3AC
 
 #endif /* SKILLS_EVENT */
