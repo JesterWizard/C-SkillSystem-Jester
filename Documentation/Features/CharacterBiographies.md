@@ -240,6 +240,9 @@ files are still empty.
 The text box shows two lines. Put an `[A]` after every second line of a passage (`line[N]line[A][N]line...`): a third
 line before an `[A]` scrolls the first one away before the player can read it.
 
+The text box shows two lines. Put an `[A]` after every second line of a passage (`line[N]line[A][N]line...`): a third
+line before an `[A]` scrolls the first one away before the player can read it.
+
 The list shows five rows and scrolls (UP and DOWN past its ends), with the scroll bar sized to the table.
 
 ## 👥 Who is listed
