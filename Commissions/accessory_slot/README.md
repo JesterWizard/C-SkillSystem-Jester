@@ -27,9 +27,10 @@ Reserves the last inventory slot for accessories, chosen by item ID.
   (`AccessorySlotBar`, below).
 - An accessory can have weapon locks, as a weapon does: only units whose character or class has the lock can carry it
   (see [Weapon locks](#weapon-locks)).
+- The accessory's stat bonuses (HP, Str, Skl, Spd, Def, Res, Lck, Mov, Con) apply while the unit carries it, from
+  FEBuilder's item editor or from `AccessoryItems.event` (see [Stat bonuses](#stat-bonuses)).
 
-The patch only controls where accessories sit. What they do (stat bonuses, skills) comes from your other patches or
-item data.
+Other effects (skills and so on) come from your other patches.
 
 ## Choose the accessories
 
@@ -57,6 +58,32 @@ bar vanilla draws under the equipped weapon:
 | `2` | Under the unit's accessory, wherever it is (slot 5 with four other items; slot 3 with two), none without one |
 
 The weapon keeps its own bar and its "E".
+
+## Stat bonuses
+
+Vanilla only adds the stat bonuses of the equipped weapon. With this patch, the unit's accessory adds its own on top:
+HP, Str (Mag), Skl, Spd, Def, Res, Lck, Mov and Con. They count everywhere the game reads those stats: the stat screen
+(shown in green, like a weapon's), battles and the forecast, the movement range, canto, rescue and Aid, the danger
+zone, the AI, and the unit list. Max HP drops back when the accessory is taken off, and current HP with it, as with a
+weapon's HP bonus.
+
+A unit that can't wear the accessory (its weapon locks; see below) gets no bonus from it.
+
+Set the bonuses either way:
+
+- **FEBuilder:** the item's stat bonuses in the item editor, as for a weapon.
+- **Event file:** an `AccessoryStats` line in `AccessoryItems.event`, in this order: item ID, HP, Str, Skl, Spd, Def,
+  Res, Lck, Mov, Con. A line replaces the item editor's bonuses for that item. Negative values work.
+
+  ```
+  AccessorySlotStats:
+  AccessoryStats($AB, 0, 2, 0, 0, 0, 0, 0, 0, 0) // Power Ring: +2 Str
+  AccessoryStats($AC, 0, 0, 0, 0, 0, 0, 0, 2, 0) // Boots: +2 Mov
+  BYTE $00 // end of the list
+  ```
+
+Stat caps, level-ups and stat boosters work on the unit's own stats, as with a weapon's bonuses: the accessory's bonus
+can take a stat over its cap while it is worn.
 
 ## Weapon locks
 
@@ -105,7 +132,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-accessory.gba
 
 ## Hooks and free space
 
-Body and item list at **`$1000000`** (about 2.9 KB).
+Body and item lists at **`$1000000`** (about 4.1 KB).
 
 | Address | Vanilla function | Change |
 |---------|------------------|--------|
@@ -120,6 +147,9 @@ Body and item list at **`$1000000`** (about 2.9 KB).
 | `$9FB70` | `sub_809FB70` | List, swap |
 | `$B11E4` | `TryClaimBonusItem` | Bonus claims |
 | `$B464C` | `Shop_TryAddItemToInventory` | Shops |
+| `$19150`-`$192B8` | `GetUnitCurrentHp`, `GetUnitMaxHp`, `GetUnitPower`, `GetUnitSkill`, `GetUnitSpeed`, `GetUnitDefense`, `GetUnitResistance`, `GetUnitLuck` | Stat getters: vanilla's value plus the accessory's bonus |
+| `$191D8` (12 bytes) | inside the old `GetUnitSkill` | Trampoline for the Mov and Con reads |
+| 43 places, 4 bytes each (listed in `Installer.event`) | Mov (`+0x1D`) and Con (`+0x1A`) reads | Each becomes a `bl` to the trampoline, which adds the accessory's bonus |
 | `$205B28` (4 bytes) | `gStatScreenDrawCallTable` entry 1 (`DisplayPage1`) | Item page: vanilla's, then the blue bar |
 | `$59C350`, `$59C44C` | `gConvoyMenuItems`, `gSendToConvoyMenuItems` rows 0-4 | Usability, draw and select pointers of the "inventory full" menus |
 
@@ -135,6 +165,9 @@ Each `jumpToHack` hook overwrites 8 bytes.
 
 - The C Skill System (it replaces several of these functions), and any patch that changes the functions or menu rows in
   the table above.
+- Patches that replace the stat getters (`GetUnitPower` and the others above, e.g. a Str/Mag split) or patch the Mov
+  and Con reads (Mov or Con getter patches): the last one inserted wins, and Mov/Con sites patched by both break.
+- Patches that already add held items' stat bonuses: an accessory's bonus would count twice.
 - Patches that redraw the stat screen's item page (they replace `DisplayPage1` or its table entry): the last one
   inserted wins. With such a patch, set `AccessorySlotBar` to `0` or insert this patch after it.
 - Other patches placed at `$1000000`: move `ORG FE8U_StandaloneFreeSpace` in `Installer.event` to free space of your own.
@@ -149,3 +182,7 @@ run in the game.
 Bar and locks, on a clean FE8U ROM: the item page with modes 1 and 2, a unit with four other items and one with two;
 in Chapter 1, Franz trading a weapon-lock-6 Fili Shield to Gilliam (no lock 6) is refused and a Guiding Ring with no
 lock goes through. The other locked paths share the same check and were not run in the game.
+
+Stat bonuses, on a clean FE8U ROM: the stat screen and the movement range with an `AccessoryStats` line (every stat,
+Aid following Con, max HP) and with item-editor bonuses (Def, Mov); a locked accessory set in RAM gives none. With an
+accessory worn, the prologue was played through (its enemy phases and battles) into Chapter 1.

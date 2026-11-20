@@ -19,6 +19,20 @@ BYTE $00 // end of the list
 ALIGN 4
 
 /*
+ * Stat bonuses: an accessory the unit can wear (its weapon locks allow it) adds its stat bonuses to the unit's stats
+ * while it is carried. By default they are the item's stat bonuses in FEBuilder's item editor. An AccessoryStats line
+ * here replaces them for that item: HP, Str (or Mag), Skl, Spd, Def, Res, Lck, Mov, Con. Negative values work.
+ */
+#define AccessoryStats(id, hp, str, skl, spd, def, res, lck, mov, con) "BYTE id hp str skl spd def res lck mov con"
+
+ALIGN 4
+AccessorySlotStats:
+// AccessoryStats($AB, 0, 2, 0, 0, 0, 0, 0, 0, 0) // e.g. a Power Ring: +2 Str
+// AccessoryStats($AC, 0, 0, 0, 0, 0, 0, 0, 2, 0) // e.g. Boots: +2 Mov
+BYTE $00 // end of the list
+ALIGN 4
+
+/*
  * The blue "equipped" bar on the stat screen's item page:
  *   0 = none
  *   1 = always under slot 5, the accessory slot

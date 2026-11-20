@@ -57,6 +57,83 @@ AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 2, AccessorySlot_ConvoyRowSe
 AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 3, AccessorySlot_ConvoyRowSend)
 AccessorySlotConvoyRow(FE8U_gSendToConvoyMenuItems, 4, AccessorySlot_ConvoyRowSend)
 
+// Stat getters: vanilla's value plus the worn accessory's bonuses
+#define FE8U_GetUnitCurrentHp   $19150
+#define FE8U_GetUnitMaxHp       $19190
+#define FE8U_GetUnitPower       $191B0
+#define FE8U_GetUnitSkill       $191D0
+#define FE8U_GetUnitSpeed       $19210
+#define FE8U_GetUnitDefense     $19250
+#define FE8U_GetUnitResistance  $19270
+#define FE8U_GetUnitLuck        $19298
+
+AccessorySlotHook(FE8U_GetUnitCurrentHp, AccessorySlot_GetUnitCurrentHp)
+AccessorySlotHook(FE8U_GetUnitMaxHp, AccessorySlot_GetUnitMaxHp)
+AccessorySlotHook(FE8U_GetUnitPower, AccessorySlot_GetUnitPower)
+AccessorySlotHook(FE8U_GetUnitSkill, AccessorySlot_GetUnitSkill)
+AccessorySlotHook(FE8U_GetUnitSpeed, AccessorySlot_GetUnitSpeed)
+AccessorySlotHook(FE8U_GetUnitDefense, AccessorySlot_GetUnitDefense)
+AccessorySlotHook(FE8U_GetUnitResistance, AccessorySlot_GetUnitResistance)
+AccessorySlotHook(FE8U_GetUnitLuck, AccessorySlot_GetUnitLuck)
+
+/*
+ * Mov and Con: vanilla reads them inline. Each read below becomes a bl to this trampoline, in GetUnitSkill's old body
+ * (unused after its hook): push {r0-r7, lr}; ldr r3, [pc, #4]; bx r3; nop; POIN AccessorySlot_StatSiteHook.
+ * AccessorySlot_StatSite (Source/AccessorySlot.c) has the same sites, by return address.
+ */
+#define FE8U_AccessoryStatTrampoline $191D8
+PUSH; ORG FE8U_AccessoryStatTrampoline; SHORT 0xB5FF 0x4B01 0x4718 0x46C0; POIN AccessorySlot_StatSiteHook; PROTECT FE8U_AccessoryStatTrampoline FE8U_AccessoryStatTrampoline + 0xC; POP
+
+#define AccessorySlotStatSite(addr, hi, lo) "PUSH; ORG addr; SHORT hi lo; PROTECT addr addr + 4; POP"
+
+// Mov (unit +0x1D): CanUnitMove, the movement and danger maps, canto, battle units, the path arrow, the AI, the stat
+// screen and the unit list
+AccessorySlotStatSite($18BF2, $F000, $FAF1)
+AccessorySlotStatSite($1A3A8, $F7FE, $FF16)
+AccessorySlotStatSite($1B89C, $F7FD, $FC9C)
+AccessorySlotStatSite($1CB7E, $F7FC, $FB2B)
+AccessorySlotStatSite($1D27A, $F7FB, $FFAD)
+AccessorySlotStatSite($1D864, $F7FB, $FCB8)
+AccessorySlotStatSite($2A5E0, $F7EE, $FDFA)
+AccessorySlotStatSite($32E54, $F7E6, $F9C0)
+AccessorySlotStatSite($344F2, $F7E4, $FE71)
+AccessorySlotStatSite($3993C, $F7DF, $FC4C)
+AccessorySlotStatSite($3AC6E, $F7DE, $FAB3)
+AccessorySlotStatSite($3ACC6, $F7DE, $FA87)
+AccessorySlotStatSite($3ACD4, $F7DE, $FA80)
+AccessorySlotStatSite($3B0B8, $F7DE, $F88E)
+AccessorySlotStatSite($3BB28, $F7DD, $FB56)
+AccessorySlotStatSite($3BD14, $F7DD, $FA60)
+AccessorySlotStatSite($3C092, $F7DD, $F8A1)
+AccessorySlotStatSite($3E7FE, $F7DA, $FCEB)
+AccessorySlotStatSite($3EC5A, $F7DA, $FABD)
+AccessorySlotStatSite($3F026, $F7DA, $F8D7)
+AccessorySlotStatSite($3F16E, $F7DA, $F833)
+AccessorySlotStatSite($3FE00, $F7D9, $F9EA)
+AccessorySlotStatSite($40400, $F7D8, $FEEA)
+AccessorySlotStatSite($4057C, $F7D8, $FE2C)
+AccessorySlotStatSite($41070, $F7D8, $F8B2)
+AccessorySlotStatSite($87308, $F791, $FF66)
+AccessorySlotStatSite($92942, $F786, $FC49)
+AccessorySlotStatSite($9427E, $F784, $FFAB)
+AccessorySlotStatSite($94294, $F784, $FFA0)
+AccessorySlotStatSite($9430C, $F784, $FF64)
+AccessorySlotStatSite($94322, $F784, $FF59)
+
+// Con (unit +0x1A): rescue, aid, battle units, the map's Con text, the stat screen and the unit list
+AccessorySlotStatSite($18334, $F000, $FF50)
+AccessorySlotStatSite($189D8, $F000, $FBFE)
+AccessorySlotStatSite($189F6, $F000, $FBEF)
+AccessorySlotStatSite($18A0A, $F000, $FBE5)
+AccessorySlotStatSite($2A5D8, $F7EE, $FDFE)
+AccessorySlotStatSite($34A88, $F7E4, $FBA6)
+AccessorySlotStatSite($87330, $F791, $FF52)
+AccessorySlotStatSite($92978, $F786, $FC2E)
+AccessorySlotStatSite($93A3A, $F785, $FBCD)
+AccessorySlotStatSite($93A5C, $F785, $FBBC)
+AccessorySlotStatSite($93AE6, $F785, $FB77)
+AccessorySlotStatSite($93B08, $F785, $FB66)
+
 // The stat screen's item page: vanilla's, then the blue bar on the accessory slot
 PUSH; ORG FE8U_gStatScreenDrawCallTable + 4; POIN AccessorySlot_DisplayPage1; PROTECT CURRENTOFFSET - 4 CURRENTOFFSET; POP
 
