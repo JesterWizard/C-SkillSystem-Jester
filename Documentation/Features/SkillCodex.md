@@ -1,6 +1,12 @@
 # Skill Codex
 
 <p align="center">
+  <img src="../Gifs/Skill_Codex.gif" alt="Skill Codex demo" width="480"/>
+</p>
+
+*The prologue's units mark their skills as met. Extras > Skill Codex lists every skill, "???" until met; R jumps between the met skills (Healing Focus, Canto).*
+
+<p align="center">
   <img src="../Images/SkillCodex.png" alt="The Extras list with Skill Codex, and the codex on a skill met" width="720"/>
 </p>
 

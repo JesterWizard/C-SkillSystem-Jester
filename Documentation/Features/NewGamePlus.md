@@ -1,6 +1,12 @@
 # New Game+
 
 <p align="center">
+  <img src="../Gifs/New_Game_Plus.gif" alt="New Game+ demo" width="480"/>
+</p>
+
+*A cleared save that never reached the Creature Campaign has no New Game+ row; a Creature Campaign save does, and the new game starts with Eirika's skills (Str +2, Vantage) carried over.*
+
+<p align="center">
   <img src="../Images/NewGamePlus.png" alt="Extras > New Game+, the save it starts from, and the empty file for the new game" width="720"/>
 </p>
 

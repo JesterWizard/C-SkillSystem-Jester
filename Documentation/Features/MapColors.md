@@ -1,6 +1,12 @@
 # Map Colors
 
 <p align="center">
+  <img src="../Gifs/Map_Colors.gif" alt="Map Colors demo" width="480"/>
+</p>
+
+*Options > Map Colors goes Vanilla to Vivid to Deep; leaving Options redraws the map in each, then the same view is shown in all three.*
+
+<p align="center">
   <img src="../Images/MapColors.png" alt="The same map in the Vanilla, Vivid and Deep map colours" width="720"/>
 </p>
 

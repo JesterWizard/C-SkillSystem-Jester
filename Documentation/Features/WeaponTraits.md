@@ -1,5 +1,11 @@
 # Weapon Traits
 
+<p align="center">
+  <img src="../Gifs/Weapon_Traits.gif" alt="Weapon Traits demo" width="480"/>
+</p>
+
+*The toggle off (vanilla) and then on, in a test ROM: the sword loses the triangle arrows, lances and Fire become effective against Cavaliers and Knights, an axe hit the forecast calls 0 deals 5, and a sword follow-up hits harder.*
+
 <img src="../Images/WeaponTraits.png" alt="Weapon traits: Fire against an Armor Knight, effective (Mt 42)" width="480" />
 
 *With weapon traits on, Eirika's Fire against an Armor Knight is effective: Mt 42 instead of 16.*

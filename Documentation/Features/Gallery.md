@@ -1,6 +1,12 @@
 # Gallery
 
 <p align="center">
+  <img src="../Gifs/Gallery.gif" alt="Gallery demo" width="480"/>
+</p>
+
+*The prologue's opening unlocks the Flight from Renais CG. Extras > Gallery: locked CGs are dimmed and padlocked, an unlocked one opens full screen, Right goes to the next unlocked CG, and B returns to the grid.*
+
+<p align="center">
   <img src="../Images/Gallery.png" alt="The Gallery: the banner with the selected CG, the grid scrolling a row, and a CG full size" width="720"/>
 </p>
 

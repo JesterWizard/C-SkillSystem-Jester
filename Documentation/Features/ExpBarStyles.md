@@ -1,6 +1,12 @@
 # EXP Bar Styles
 
 <p align="center">
+  <img src="../Gifs/Exp_Bar_Styles.gif" alt="EXP Bar Styles demo" width="480"/>
+</p>
+
+*Eirika gains EXP from a fight in each UI style: Gamma's original bar, Tech's LED segments, Wood's potion vial, and with battle animations on Royal's rubies.*
+
+<p align="center">
   <img src="../Images/ExpBarStyles.png" alt="The eleven EXP bar styles, on the map and in battle" width="720"/>
 </p>
 

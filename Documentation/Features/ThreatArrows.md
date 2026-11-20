@@ -1,5 +1,11 @@
 # Threat Arrows
 
+<p align="center">
+  <img src="../Gifs/Threat_Arrows.gif" alt="Threat Arrows demo" width="480"/>
+</p>
+
+*Prologue, turn 1: with Threat Arrows off, selecting Eirika shows only her move range. Turned on in Options, the cursor on her tile shows a flashing red arrow from each fighter that could reach her; out of their reach there are none.*
+
 <img src="../Images/ThreatArrows.png" alt="Threat arrows: three fighters reach the tile under the cursor" width="480" />
 
 While you pick where to move a unit (the blue range is up and the movement arrow follows the cursor), every enemy that
