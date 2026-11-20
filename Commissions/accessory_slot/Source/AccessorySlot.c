@@ -12,6 +12,7 @@
 #include "popup.h"
 #include "prepscreen.h"
 #include "proc.h"
+#include "bmbattle.h"
 #include "statscreen.h"
 #include "constants/classes.h"
 #include "uimenu.h"
@@ -49,6 +50,29 @@ extern const u8 AccessorySlotBar;
 #define ACC_BAR_OFF       0
 #define ACC_BAR_SLOT5     1
 #define ACC_BAR_ACCESSORY 2
+
+/*
+ * Stat bonuses from AccessoryItems.event, 10 bytes a row: item ID, then HP, Str, Skl, Spd, Def, Res, Lck, Mov, Con
+ * (struct ItemStatBonuses' order). The list ends with item ID 0.
+ */
+extern const u8 AccessorySlotStats[];
+
+#define ACC_STAT_HP  0
+#define ACC_STAT_POW 1
+#define ACC_STAT_SKL 2
+#define ACC_STAT_SPD 3
+#define ACC_STAT_DEF 4
+#define ACC_STAT_RES 5
+#define ACC_STAT_LCK 6
+#define ACC_STAT_MOV 7
+#define ACC_STAT_CON 8
+
+#define ACC_STATS_ROW 10
+
+/* Vanilla reads unit stats as signed bytes */
+#define noinline __attribute__((noinline))
+
+#define UNIT_S8(unit, offset) (((const s8 *)(unit))[offset])
 
 /* The bar vanilla draws under the equipped weapon (DisplayPage1) */
 extern const u8 gUnknown_08A02250[];
@@ -461,6 +485,195 @@ bool AccessorySlot_ListSwapAllowed(ProcPtr proc)
 }
 
 /*
+ * Stat bonuses. The accessory a unit wears (its last item, when the unit's locks allow it) adds its bonuses to every
+ * stat: an AccessoryStats row in AccessoryItems.event if the item has one, else the stat bonuses of FEBuilder's item
+ * editor. Vanilla only adds the equipped weapon's.
+ *
+ * A battle unit (gBattleActor, gBattleTarget) already holds its unit's stats with the bonuses in: none is added again.
+ */
+static int WornAccessory(struct Unit *unit)
+{
+	int i;
+
+	if (unit == &gBattleActor.unit || unit == &gBattleTarget.unit)
+		return 0;
+
+	for (i = UNIT_ITEM_COUNT - 1; i >= 0; i--) {
+		int item = unit->items[i];
+
+		if (item == 0)
+			continue;
+
+		if (IsAccessory(item) && !AccessoryLocked(unit, item))
+			return item;
+
+		return 0;
+	}
+	return 0;
+}
+
+static noinline int AccessoryBonus(struct Unit *unit, int stat)
+{
+	const struct ItemStatBonuses *bonuses;
+	const u8 *row;
+	int item = WornAccessory(unit);
+
+	if (item == 0)
+		return 0;
+
+	for (row = AccessorySlotStats; row[0] != 0; row += ACC_STATS_ROW)
+		if (row[0] == ITEM_INDEX(item))
+			return ((const s8 *)row)[1 + stat];
+
+	bonuses = GetItemData(ITEM_INDEX(item))->pStatBonuses;
+	if (bonuses == NULL)
+		return 0;
+
+	return ((const s8 *)bonuses)[stat];
+}
+
+/* Replace vanilla's stat getters (0x08019150-0x080192B8): vanilla's value, then the accessory's bonus */
+int AccessorySlot_GetUnitMaxHp(struct Unit *unit)
+{
+	return UNIT_S8(unit, 0x12) + GetItemHpBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_HP);
+}
+
+int AccessorySlot_GetUnitCurrentHp(struct Unit *unit)
+{
+	int max = GetUnitMaxHp(unit);
+
+	if (UNIT_S8(unit, 0x13) > max)
+		unit->curHP = max;
+
+	return UNIT_S8(unit, 0x13);
+}
+
+int AccessorySlot_GetUnitPower(struct Unit *unit)
+{
+	return UNIT_S8(unit, 0x14) + GetItemPowBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_POW);
+}
+
+int AccessorySlot_GetUnitSkill(struct Unit *unit)
+{
+	int base = UNIT_S8(unit, 0x15);
+
+	if (unit->state & US_RESCUING)
+		base /= 2;
+
+	return base + GetItemSklBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_SKL);
+}
+
+int AccessorySlot_GetUnitSpeed(struct Unit *unit)
+{
+	int base = UNIT_S8(unit, 0x16);
+
+	if (unit->state & US_RESCUING)
+		base /= 2;
+
+	return base + GetItemSpdBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_SPD);
+}
+
+int AccessorySlot_GetUnitDefense(struct Unit *unit)
+{
+	return UNIT_S8(unit, 0x17) + GetItemDefBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_DEF);
+}
+
+int AccessorySlot_GetUnitResistance(struct Unit *unit)
+{
+	/* The barrier's turns left are the high four bits of +0x31 */
+	return UNIT_S8(unit, 0x18) + GetItemResBonus(GetUnitEquippedWeapon(unit)) +
+	       (((const u8 *)unit)[0x31] >> 4) + AccessoryBonus(unit, ACC_STAT_RES);
+}
+
+int AccessorySlot_GetUnitLuck(struct Unit *unit)
+{
+	return UNIT_S8(unit, 0x19) + GetItemLckBonus(GetUnitEquippedWeapon(unit)) + AccessoryBonus(unit, ACC_STAT_LCK);
+}
+
+/*
+ * Mov and Con have no getter in vanilla: each place that adds a unit's movBonus (+0x1D) or conBonus (+0x1A) to its
+ * class's base reads it itself. Installer.event turns each of those reads into a bl to a trampoline (0x080191D8, in
+ * GetUnitSkill's old body), which saves r0-r7 and lr and goes to AccessorySlot_StatSiteHook. The site is found by the
+ * return address. Two kinds:
+ *   movs rY, #off; ldrsb rY, [rU, rY]               (sum = 0xFF)
+ *   ldrb rY, [rU, #off]; adds rZ, rA, rB            (the adds is redone after)
+ * Left alone: the stat caps, level-ups, autolevels and stat boosters, which work on the unit's own bonus.
+ */
+struct StatSite {
+	u32 ret;
+	u8 stat;
+	u8 unit, dst;
+	u8 sum, sumA, sumB;
+};
+
+static const struct StatSite sStatSites[] = {
+	{ 0x08018BF6, ACC_STAT_MOV, 2, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0801A3AC, ACC_STAT_MOV, 4, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x0801B8A0, ACC_STAT_MOV, 4, 0, 1, 1, 0 },
+	{ 0x0801CB82, ACC_STAT_MOV, 0, 2, 1, 1, 2 },
+	{ 0x0801D27E, ACC_STAT_MOV, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0801D868, ACC_STAT_MOV, 2, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0802A5E4, ACC_STAT_MOV, 6, 6, 0, 0, 6 },
+	{ 0x08032E58, ACC_STAT_MOV, 1, 1, 0, 0, 1 },
+	{ 0x080344F6, ACC_STAT_MOV, 0, 2, 1, 1, 2 },
+	{ 0x08039940, ACC_STAT_MOV, 5, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803AC72, ACC_STAT_MOV, 4, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803ACCA, ACC_STAT_MOV, 4, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803ACD8, ACC_STAT_MOV, 5, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x0803B0BC, ACC_STAT_MOV, 3, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803BB2C, ACC_STAT_MOV, 0, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803BD18, ACC_STAT_MOV, 0, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x0803C096, ACC_STAT_MOV, 5, 1, 0, 0, 1 },
+	{ 0x0803E802, ACC_STAT_MOV, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0803EC5E, ACC_STAT_MOV, 3, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0803F02A, ACC_STAT_MOV, 0, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x0803F172, ACC_STAT_MOV, 0, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x0803FE04, ACC_STAT_MOV, 2, 3, 1, 1, 3 },
+	{ 0x08040404, ACC_STAT_MOV, 2, 4, 1, 1, 4 },
+	{ 0x08040580, ACC_STAT_MOV, 2, 3, 1, 1, 3 },
+	{ 0x08041074, ACC_STAT_MOV, 4, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x0808730C, ACC_STAT_MOV, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08092946, ACC_STAT_MOV, 0, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x08094282, ACC_STAT_MOV, 0, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x08094298, ACC_STAT_MOV, 0, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x08094310, ACC_STAT_MOV, 0, 2, 0xFF, 0xFF, 0xFF },
+	{ 0x08094326, ACC_STAT_MOV, 0, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x08018338, ACC_STAT_CON, 4, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x080189DC, ACC_STAT_CON, 4, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x080189FA, ACC_STAT_CON, 4, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08018A0E, ACC_STAT_CON, 4, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0802A5DC, ACC_STAT_CON, 6, 0, 0, 0, 1 },
+	{ 0x08034A8C, ACC_STAT_CON, 4, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08087334, ACC_STAT_CON, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x0809297C, ACC_STAT_CON, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08093A3E, ACC_STAT_CON, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08093A60, ACC_STAT_CON, 2, 1, 0xFF, 0xFF, 0xFF },
+	{ 0x08093AEA, ACC_STAT_CON, 1, 0, 0xFF, 0xFF, 0xFF },
+	{ 0x08093B0C, ACC_STAT_CON, 2, 1, 0xFF, 0xFF, 0xFF },
+};
+
+void AccessorySlot_StatSite(u32 *regs, u32 ret)
+{
+	const struct StatSite *site;
+
+	ret &= ~1;
+
+	for (site = sStatSites; site < sStatSites + ARRAY_COUNT(sStatSites); site++) {
+		struct Unit *unit;
+
+		if (site->ret != ret)
+			continue;
+
+		unit = (struct Unit *)regs[site->unit];
+		regs[site->dst] = UNIT_S8(unit, site->stat == ACC_STAT_MOV ? 0x1D : 0x1A) + AccessoryBonus(unit, site->stat);
+
+		if (site->sum != 0xFF)
+			regs[site->sum] = regs[site->sumA] + regs[site->sumB];
+		return;
+	}
+}
+
+/*
  * The stat screen's item page (gStatScreenDrawCallTable entry 1, Installer.event): vanilla's page, then the blue
  * "equipped" bar under slot 5 or under the accessory, as AccessorySlotBar says.
  */
@@ -545,6 +758,21 @@ asm(
 	"	adds r7, r6, #0\n"
 	"	adds r7, #0x33\n"
 	"	ldr r3, =0x0809FB79\n"
+	"	bx r3\n"
+	"	.ltorg\n"
+
+	/* From the trampoline (bx, no link): the stack holds r0-r7 and the site's return address */
+	"	.align 2\n"
+	"	.global AccessorySlot_StatSiteHook\n"
+	"	.thumb_func\n"
+	"AccessorySlot_StatSiteHook:\n"
+	"	mov r0, sp\n"
+	"	ldr r1, [sp, #32]\n"
+	"	ldr r3, =AccessorySlot_StatSite\n"
+	"	bl 2f\n"
+	"	pop {r0, r1, r2, r3, r4, r5, r6, r7}\n"
+	"	pop {pc}\n"
+	"2:\n"
 	"	bx r3\n"
 	"	.ltorg\n"
 	"	.syntax divided\n"
