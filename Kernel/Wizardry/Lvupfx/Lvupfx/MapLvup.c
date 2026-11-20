@@ -218,8 +218,21 @@ bool AutoPromotionDue(const struct Unit *unit)
  * Starts the automatic promotion of a unit whose level is already up in the real unit. Its level and EXP are reset by
  * ApplyUnitPromotion, after it records the hidden level from the real unit.
  */
+/* StartPlayerPhaseSideWindows loads the side windows' maker script from this literal (VeslyAchievements repoints it) */
+#define pr_SideWindowMakerScript (*(const struct ProcCmd *const *)0x0808D14C)
+
 static void StartAutoPromotion(ProcPtr parent, struct Unit *unit)
 {
+	/*
+	 * The map's side windows (the unit's minimug box, the terrain box) are back after the battle. Left up, they kept
+	 * drawing over the class choice's description box, which uses the same BG tiles (a trainee's choice: Ross's face
+	 * and name through the text), and the promotion animation's panels. A Master Seal's menu has closed them already.
+	 * The windows' maker respawns them while it lives, so it ends first (as RepeatHouseExp in TrapData.c does). The
+	 * player phase starts them again after the promotion.
+	 */
+	Proc_EndEach(pr_SideWindowMakerScript);
+	EndPlayerPhaseSideWindows();
+
 	gActionData.subjectIndex = unit->index;
 	StartBmPromotion(parent);
 	gActionData.subjectIndex = 0; // Since this might be enemy phase, we don't want the unit to enter the position of the enemy unit
@@ -275,8 +288,28 @@ static struct Unit *GetBattlePromotee(const struct BattleUnit *bu)
  * unit that levelled up (the attacker, or the defender in the enemy phase) starts its automatic promotion. The
  * promotion is a blocking child of the hook proc.
  */
+/*
+ * StartAutoPromotion takes the map's side windows down; in the player phase they come back once the promotion is over
+ * (their maker is gone, so nothing else would start them: the cursor moved over an empty map).
+ */
+static void AutoPromotion_RestoreSideWindows(ProcPtr proc)
+{
+	(void)proc;
+
+	if (gPlaySt.faction == FACTION_BLUE && !Proc_Find(pr_SideWindowMakerScript))
+		StartPlayerPhaseSideWindows();
+}
+
+static const struct ProcCmd ProcScr_AutoPromotion[] = {
+	PROC_NAME("AutoPromotion"),
+	PROC_YIELD, /* the promotion starts as this proc's blocking child, before this step runs */
+	PROC_CALL(AutoPromotion_RestoreSideWindows),
+	PROC_END,
+};
+
 bool PostAction_AutoPromotion(ProcPtr parent)
 {
+	ProcPtr proc;
 	struct Unit *unit = GetBattlePromotee(&gBattleActor);
 
 	if (unit == NULL)
@@ -284,7 +317,8 @@ bool PostAction_AutoPromotion(ProcPtr parent)
 	if (unit == NULL)
 		return false;
 
-	StartAutoPromotion(parent, unit);
+	proc = Proc_StartBlocking(ProcScr_AutoPromotion, parent);
+	StartAutoPromotion(proc, unit);
 	return true;
 }
 
