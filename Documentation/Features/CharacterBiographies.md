@@ -148,6 +148,10 @@ Inside `CallBiographyEvent`:
 - Otherwise
   - Plays the assigned BGM
 
+The list itself plays its own song (`Biography_Init`). Leaving the list with B starts the map's music again
+(`StartMapSongBgm` in `ProcScr_MenuMap_BIOGRAPHY`); before, the list's or the last biography's song kept playing on
+the map.
+
 ---
 
 ### 🧾 Event Flow
