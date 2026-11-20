@@ -1,3 +1,12 @@
 #include "Source/LynJump.event"
 #include "Source/CustomFunctions.lyn.event"
 #include "Source/MiscFunctions.lyn.event"
+#include "Source/TradeMenuPalettes.lyn.event"
+
+// The map trade's last step also reloads the unit sprite palettes: its name banners use OBJ palette 15, the waited
+// units' (TradeMenuPalettes.c). ProcScr_TradeMenu (0x0859BB1C), entry 19's pointer
+PUSH
+ORG $59BB1C + 19 * 8 + 4
+POIN TradeMenu_ClearDisplayAndRestorePalettes
+PROTECT $59BB1C + 19 * 8 + 4 $59BB1C + 19 * 8 + 8
+POP

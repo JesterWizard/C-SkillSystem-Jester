@@ -748,3 +748,14 @@ ORG $51384
 jumpToHack(ekrGaugeMain_Hook3)
 
 POP 
+/*
+ * The unit info windows (UnitInfoWindow_DrawBase: the trade, rescue, steal and staff target windows) drew their item
+ * rows with frame model 3, which puts a separator row (tiles 0x66-0x68) on every second tile row. Vanilla's are faint,
+ * but the UI styles draw them as full trim bars (Gamma's gold bars), lines through the item list. Model 0 is the same
+ * frame without them. The style is the immediate of "movs r0, #3" at 0x0803487E.
+ */
+PUSH
+ORG $3487E
+SHORT $2000 // movs r0, #0
+PROTECT $3487E $34880
+POP

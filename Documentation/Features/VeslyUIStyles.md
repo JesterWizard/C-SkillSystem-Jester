@@ -24,6 +24,9 @@ VeslyUI swaps the game's menu and battle UI graphics for alternative styles. Eve
 Player-facing impact:
 
 - Window frames (unit, item and map menus, the unit list, guide, options, help and info windows, the map HUD) change look together.
+- The unit info windows (the trade, rescue, steal and staff target windows) draw their item list as one panel. They used
+  frame model 3, which adds a separator row under every item: faint in vanilla's art, a full trim bar in the styles
+  (Gamma's gold bars through the list). `VeslyUI_Installer.event` patches `UnitInfoWindow_DrawBase` to model 0.
 - The battle screen's name plates, weapon boxes and HIT/DMG/CRT panels follow the style, tinted by faction.
 - Prep screens, the prep popup, the funds/items sprites and the shop gold box follow the style.
 - Faction-coloured frames (battle forecast, status screen counters, world map) use the style's palettes.
