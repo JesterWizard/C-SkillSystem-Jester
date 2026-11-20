@@ -54,6 +54,17 @@ quote's expression. A or B closes it early, as on the map. A promotion has no qu
 - Afterwards, the two BG0 rows, the three palette banks, the font and the scroll are put back from
   `gEkrLvupQuoteSave` (`include/link/config-memmap.s`).
 
+The portrait speaking the quote is not dimmed. The text engine's listener dimming (`dim_listener_portraits`) skips
+talks with no speech box, which the quote is: it used to darken the portrait while the quote typed out, as if the unit
+were only listening.
+
+<p align="center">
+  <img src="../Gifs/LevelUpQuotePortrait.gif" alt="Level-up quote portrait, before and after" width="480"/>
+</p>
+
+*Eirika levels up on the map from the debug menu's Level up, before and after the fix: her portrait (outlined) used to
+darken while her quote typed out; now it stays lit.*
+
 This feature makes use of the text engine rework ``CONFIG_TEXT_ENGINE_REWORK`` to display single line text boxes and thought bubbles, so make sure that remains enabled in ``configs.h``
 
 ---

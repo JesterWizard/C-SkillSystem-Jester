@@ -6541,11 +6541,18 @@ static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
 	struct TalkState *state = sTextEngineState;
 	struct FaceProc *speaker = NULL;
 	bool changed = false;
+	bool nobox;
 	int slot;
 
 	/* The log swaps palettes out for its own while it shows. */
 	if (Chatlog_IsVisible())
 		return;
+
+	/*
+	 * A talk with no speech box (TALK_FLAG_NOBUBBLE: the level-up quotes, the shops) never has a speaker: its portrait
+	 * talks without opening a box, and was dimmed while it spoke. Nobody is dimmed in it.
+	 */
+	nobox = CheckTalkFlag(TALK_FLAG_NOBUBBLE);
 
 	/*
 	 * The speaker is the face whose speech box opened last ([OpenX] then text): a face loaded but not yet speaking
@@ -6569,7 +6576,7 @@ static void TextEngineDim_OnIdle(struct TextEngineDimProc *proc)
 		}
 
 		/* Every face but the speaker's is dim; before anyone speaks, every face is */
-		if (face != speaker && TextEngine_IsTalkFace(face))
+		if (!nobox && face != speaker && TextEngine_IsTalkFace(face))
 			target = TEXT_ENGINE_DIM_FRAMES;
 
 		/* A new face in this slot starts at its target: it is shown dim, rather than lit and then darkening */

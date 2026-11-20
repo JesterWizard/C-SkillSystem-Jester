@@ -364,6 +364,7 @@ With `dim_listener_portraits` on in the designer config (the default), whenever 
 | A portrait fades in or out | Left to the fade. A newly loaded listener fades in, then dims |
 | Half-body and 32-colour portraits | Their second palette dims with the first |
 | The dialogue ends with portraits still on screen | They are lit again |
+| A talk with no speech box (`TALK_FLAG_NOBUBBLE`: the level-up quotes, the shops) | No one is dimmed. Its portrait speaks without opening a box, so it never became the speaker and was dimmed while it spoke |
 
 How dark and how fast are `TEXT_ENGINE_DIM_STRENGTH` (in 32nds) and `TEXT_ENGINE_DIM_FRAMES` in `TextEngineRework.c`.
 
