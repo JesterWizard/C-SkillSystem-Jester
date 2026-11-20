@@ -413,6 +413,8 @@ void SetupUnitFunc(void);
 int PromoAction(DebuggerProc* proc);
 int ArenaAction(DebuggerProc* proc); 
 int LevelupAction(DebuggerProc* proc); 
+void LevelupAutoPromotion(DebuggerProc* proc);
+extern bool StartAutoPromotionIfDue(ProcPtr parent, struct Unit *unit);
 int UnitActionFunc(DebuggerProc* proc); 
 void CallPlayerPhase_FinishAction(DebuggerProc* proc);
 void ClearActiveUnitStuff(DebuggerProc* proc); 
@@ -604,6 +606,8 @@ const struct ProcCmd DebuggerProcCmd[] =
     //PROC_CALL(UnlockGame),
     PROC_CALL(UpdateActorFromBattle), 
     PROC_CALL(MapAnim_Cleanup),
+    PROC_CALL(LevelupAutoPromotion), // blocking: the promotion runs before the menu comes back
+    PROC_YIELD,
     PROC_GOTO(RestartLabel), 
     
     PROC_LABEL(StateLabel), // Unit state
@@ -4355,6 +4359,14 @@ int LevelupAction(DebuggerProc* proc) {
     
     return 0; 
 } 
+
+/*
+ * After the level-up's result is written to the unit: the automatic promotion it is due (promotion_on_max_level,
+ * promote_trainees_in_chapter), as a battle's post-action entry starts it. It did not run from here before.
+ */
+void LevelupAutoPromotion(DebuggerProc* proc) {
+    StartAutoPromotionIfDue(proc, gActiveUnit);
+}
 
 u8 StartPromotionNow(struct MenuProc * menu, struct MenuItemProc * menuItem) {
     //SetupUnitFunc(); 

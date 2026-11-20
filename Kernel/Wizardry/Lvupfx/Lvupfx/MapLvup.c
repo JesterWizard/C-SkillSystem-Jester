@@ -288,6 +288,19 @@ bool PostAction_AutoPromotion(ProcPtr parent)
 	return true;
 }
 
+/*
+ * The debug menu's level-up (VeslyDebugger, LevelupAction): once the level is written to the unit, it starts the
+ * automatic promotion the unit is due, as after a battle. True if a promotion started.
+ */
+bool StartAutoPromotionIfDue(ProcPtr parent, struct Unit *unit)
+{
+	if (unit == NULL || UNIT_FACTION(unit) != FACTION_BLUE || !AutoPromotionDue(unit))
+		return false;
+
+	StartAutoPromotion(parent, unit);
+	return true;
+}
+
 typedef struct
 {
 	const int key;

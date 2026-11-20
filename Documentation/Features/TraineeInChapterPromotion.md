@@ -60,7 +60,7 @@ All runtime behaviour is gated behind `gpKernelDesignerConfig->promote_trainees_
 
 ## 🐛 Limitations & Bugs
 
-- In-chapter trainee promotion fires from the post-action entry, after a battle or a misc action's EXP. It does not fire from BEXP level-ups or script-driven exp grants that bypass it.
+- In-chapter trainee promotion fires from the post-action entry, after a battle or a misc action's EXP, and after the debug menu's Level up (`LevelupAutoPromotion` in [`VeslyDebugger/C_Code.c`](../../Kernel/Wizardry/VeslyDebugger/C_Code.c), through `StartAutoPromotionIfDue` in `MapLvup.c`; the max-level promotion too). It does not fire from BEXP level-ups or script-driven exp grants that bypass it.
 - Trainee units levelled to 10 during an enemy-phase battle will trigger the promotion event immediately after the enemy-phase animation ends. This is consistent with how `promotion_on_max_level` behaves for regular units but may feel surprising.
 - The feature shares the `gActionData.subjectIndex = 0` cleanup pattern used by `promotion_on_max_level`; if both features are enabled simultaneously and a unit somehow satisfies both conditions, `promotion_on_max_level` fires first and the trainee check is skipped in that frame.
 
