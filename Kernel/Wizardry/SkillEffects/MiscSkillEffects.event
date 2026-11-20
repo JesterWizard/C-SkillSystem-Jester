@@ -33,6 +33,8 @@
 #include "PostActionSkills/Turncoat.lyn.event"
 #include "PostActionSkills/Guarantee.lyn.event"
 #include "PostActionSkills/Insurance.lyn.event"
+#include "PostActionSkills/Knockback.lyn.event"
+#include "PostActionSkills/MomentumShift.lyn.event"
 
 #include "MenuSkills/LynJump.event"
 #include "MenuSkills/Dance.lyn.event"

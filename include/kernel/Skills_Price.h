@@ -973,3 +973,6 @@
 #define MSG_SKILL_WhiteMagicZenith_PRICE 1000
 #define MSG_SKILL_AllMagicSeeker_PRICE 1000
 #define MSG_SKILL_AllMagicZenith_PRICE 1000
+#define MSG_SKILL_Knockback_PRICE 1000
+#define MSG_SKILL_Cover_PRICE 1000
+#define MSG_SKILL_MomentumShift_PRICE 1000
