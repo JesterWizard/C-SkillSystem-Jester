@@ -142,7 +142,7 @@ Use this when no hook point exists. Replacement is one owner per function: the C
 3. Put `LYN_REPLACE_CHECK(Name);` directly above the definition. The macro is `static const void *const lyn_exists_check_ ## name = &name` (`include/common-chax.h:26-27`). It takes the address of `Name` at file scope, so the build fails if `Name` is not declared. Per `Documentation/CONTRIBUTING.md:21-25`, it guards against breakage from C-Lib changes.
 4. Create `Source/LynJump.event` in the same directory with the veneer (format from `Documentation/CONTRIBUTING.md:37-44`). The veneer is 16 bytes: `WORD $46C04778 $E59FC000 $E12FFF1C` (Thumb `bx pc`, then ARM `ldr r12,[pc]` and `bx r12`) followed by `POIN Name`. The `.lyn.event` that `lyn` generates from the `.c` contains the same block (`Kernel/Wizardry/PopupIconShine/Source/PopupIconShine.lyn.event:1-5`).
 5. Include `Source/LynJump.event` and `Source/<Feature>.lyn.event` from the installer, and put the installer in `WIZARDRY_CUSTOM`. Code included before `:120` goes into kernel text, the scarcer space (`CLAUDE.md` pitfalls).
-6. `make`. `post_chax` runs `Tools/scripts/lynjump-detector.sh` (`makefile:440-460`):
+6. `make`. `post_chax` runs `Tools/scripts/lynjump-detector.sh` (`makefile:463-466`):
    - Round 1: every `LYN_REPLACE_CHECK(X)` in a `.c` must have a `LynJump.event` in the same directory that contains the text `X` (`lynjump-detector.sh:5-17`).
    - Round 2: every `ORG $` followed by `POIN X` within three lines of a `*.lyn.event` must have `LYN_REPLACE_CHECK(X);` in the matching `.c` (`lynjump-detector.sh:19-28`).
 7. `lynjump-protector.sh` adds `PROTECT` lines for each `ORG $` in a generated `.lyn.event`. It looks up the function length in the `.sym` file (`lynjump-protector.sh:6-25`).

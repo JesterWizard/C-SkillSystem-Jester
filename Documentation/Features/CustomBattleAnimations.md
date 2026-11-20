@@ -295,14 +295,28 @@ usual way (every part in the BIOS's LZ77, both OAMs):
 
 The debugger (B on the map) has **Battle anim** on its page 3. It opens beside the debugger's menu, which stays on the
 right and is blocked while the viewer runs: the map shows around both, and a window panel on the left holds one platform
-with a battle animation attacking on it, the animation's ID, the character's name and the class above, and Normal or
-Critical below. Every animation faces left, as the player's does in battle (its right-side OAM, the one the mini engine
-plays with `state2` set). It opens on the selected unit, in its class if the list has it.
+with a battle animation attacking on it. Above it are the animation's ID, the class and its number among the classes
+(`6/109`), and the variant (Generic or a character) and its number among the class's variants. Below it are Normal or
+Critical and the keys. Every animation faces left, as the player's does in battle (its right-side OAM, the one the
+mini engine plays with `state2` set). It opens on the selected unit: its character in its class, else its class.
 
-- **Up/Down** step through the list: every character in their default class, each followed by their
-  `CustomAnimeTable` rows in other classes (so every custom animation is on it). **L/R** go ten at a time.
+The list is by class, in class order. Each class has its own animation first (**Generic**, with the class's own
+palette), then every character with a `CustomAnimeTable` row for the class (so every custom animation is on it) or a
+character palette for the class's own animation.
+
+- **Left/Right** go to the previous or next class (wrapping); **L/R** go ten classes at a time. Holding a direction
+  scrolls: the labels follow at once, and the animation loads once the selection has stayed for 6 frames.
+- **Up/Down** step through the class's variants (wrapping within the class).
 - **A** switches between the normal attack and the critical.
 - **B** closes the viewer and goes back to the debugger's menu, as it was.
+
+The attack plays to its end. The engine stops at each wait command (C01, C02 and C18: in battle, the HP bar draining),
+and the viewer goes on 24 frames later (`sub_805A990`, as the promotion screen does). Once the mode has ended (the front
+layer's `nextRoundId` is `0xFFFF`) it attacks again 40 frames later. Before, the viewer started the attack over at the
+first wait, so nothing after it played. An animation that leaves the screen in battle leaves the panel too: the
+Wyvern animation flies off the top and dives back, and several custom animations (Marisa's Assassin and Swordmaster,
+Joshua's Myrmidon and Swordmaster, the Phantom, the Trueblade and the Trickster) vanish between strikes or flicker in
+their criticals. That is in their art: a survey of every entry, frame by frame, found no other gaps.
 
 The animation shown is the first weapon type in the entry's list that isn't unarmed, with the character palette when
 the animation is the class's own. Mages and staff users cast with no spell shown: the class reel's spell for their weapon type is not run

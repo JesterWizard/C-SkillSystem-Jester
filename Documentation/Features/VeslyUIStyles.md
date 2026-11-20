@@ -177,6 +177,12 @@ Pick it on the Options screen's **UI Style** row ("Parchment"); its EXP bar is S
 
 The styles VeslyUI shipped with are on the same row: Stephano menus with Sokaballa battle frames (style ID 1, EXP bar Blade), Gamma (ID 2, Chain) and Pikmin menus with Fenreir battle frames (ID 3, Stars). Their art lives in their own folders under [`png/`](../../Kernel/Wizardry/VeslyUI/png/); the Gamma (`HyperGammaSpaces`), Sokaballa and Fenreir folders include preview images.
 
+The battle screen's bottom gauge uses each style's own tile maps (`ekrGaugeMain_GetImg`, `ekrGaugeMain2_GetImg` and
+`ekrGaugeMain3_GetImg`, which `ekrGaugeMain` in [`HPBarPalettes.c`](../../Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c)
+calls). Gamma and Fenreir have their own; the others use vanilla's. Fenreir's battle palette is one row, which
+`VeslyUI_Installer.event` repeats for the four factions: every side's frames are gold. Before, the gauge always used
+vanilla's maps and the enemy side read the palette past its end, so the Pikmin style's battle screen came out garbled.
+
 ---
 
 ## 🛠️ Plan

@@ -52,6 +52,7 @@ gPostActionFuncs:
     POIN PostAction_SyncSummonLevels
     POIN PostAction_Zenkai
     POIN NewGamePlus_PostAction
+    POIN PostAction_GaidenMagicLearnWindow
     POIN PostAction_AutoPromotion
 
     //End

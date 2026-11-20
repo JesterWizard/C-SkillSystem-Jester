@@ -180,56 +180,121 @@ const struct GaidenMagicRankConfig gGaidenMagicRankPList[0x100] = {
 	}},
 };
 
+/**
+ * Personal spell lists by level: { level, spell }. A unit knows every spell up to its level.
+ *
+ * The level is the unit's level plus its earlier levels: its hidden level (the levels before a promotion, as the
+ * BWL records them), or 20 for a promoted unit if that is more. So 21 is a promoted unit's level 1 (as before:
+ * promoted classes count 20 levels), and a trainee keeps counting after its first promotion.
+ * With gaiden_magic_learn_by_level on (the default), these lists are how the player's units learn spells, and
+ * crossing a level shows the New Spell window once the battle is over (GaidenMagic/Source/LearnWindow.c).
+ * Bit 7 of the level (0x80) means "only once promoted".
+ * A unit holds up to 7 B.Mag and 7 W.Mag.
+ */
 struct GaidenPinfoConfig const gGaidenPinfoConfigList[0x100] = {
-	[CHARACTER_EIRIKA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_SWORD_KILLER },
-		// { 1, ITEM_SWORD_AUDHULMA},
-		// { 1, ITEM_ANIMA_THUNDER },
-		// { 1, ITEM_AXE_KILLER },
-		// { 1, ITEM_DARK_GLEIPNIR },
-		// { 1, ITEM_STAFF_SLEEP },
-		// { 1, ITEM_STAFF_LATONA},
-		// { 1, ITEM_STAFF_BERSERK },
-		// { 1, ITEM_STAFF_PHYSIC },
-		// { 1, ITEM_STAFF_GREEN_WIND },
+	/* Mage, then Sage or Mage Knight: anima */
+	[CHARACTER_LUTE] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_ANIMA_FIRE },
+		{ 4,  ITEM_ANIMA_THUNDER },
+		{ 8,  ITEM_ANIMA_ELFIRE },
+		{ 13, ITEM_ANIMA_FIMBULVETR },
+		{ 18, ITEM_ANIMA_BOLTING },
+		{ 21, ITEM_STAFF_HEAL },
+		{ 24, ITEM_ANIMA_AIRCALIBUR },
+		{ 30, ITEM_ANIMA_EXCALIBUR },
 		{ 0 }
 	}},
+	/* Monk, then Bishop or Sage: light, and healing */
+	[CHARACTER_ARTUR] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_LIGHT_LIGHTNING },
+		{ 5,  ITEM_LIGHT_SHINE },
+		{ 9,  ITEM_STAFF_HEAL },
+		{ 12, ITEM_LIGHT_DIVINE },
+		{ 17, ITEM_LIGHT_PURGE },
+		{ 21, ITEM_STAFF_MEND },
+		{ 25, ITEM_LIGHT_AURA },
+		{ 32, ITEM_LIGHT_LUCE },
+		{ 0 }
+	}},
+	/* Cleric, then Bishop or Valkyrie: staves, and light once promoted */
 	[CHARACTER_NATASHA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_STAFF_HEAL },
-		// { 1, ITEM_DARK_LUNA },
-		// { 1, ITEM_STAFF_SLEEP },
+		{ 1,  ITEM_STAFF_HEAL },
+		{ 4,  ITEM_STAFF_MEND },
+		{ 8,  ITEM_STAFF_RESTORE },
+		{ 12, ITEM_STAFF_PHYSIC },
+		{ 16, ITEM_STAFF_RESCUE },
+		{ 21, ITEM_LIGHT_LIGHTNING },
+		{ 23, ITEM_STAFF_RECOVER },
+		{ 26, ITEM_LIGHT_SHINE },
+		{ 30, ITEM_STAFF_FORTIFY },
 		{ 0 }
 	}},
+	/* Shaman, then Druid or Summoner: dark */
+	[CHARACTER_KNOLL] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_DARK_FLUX },
+		{ 5,  ITEM_DARK_LUNA },
+		{ 9,  ITEM_DARK_NOSFERATU },
+		{ 14, ITEM_DARK_FENRIR },
+		{ 20, ITEM_DARK_ECLIPSE },
+		{ 21, ITEM_STAFF_HEAL },
+		{ 26, ITEM_DARK_GLEIPNIR },
+		{ 32, ITEM_DARK_NAGLFAR },
+		{ 0 }
+	}},
+	/* Priest, then Bishop or Sage: staves, and light once promoted */
+	[CHARACTER_MOULDER] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_STAFF_HEAL },
+		{ 3,  ITEM_STAFF_MEND },
+		{ 7,  ITEM_STAFF_PHYSIC },
+		{ 10, ITEM_STAFF_RESTORE },
+		{ 15, ITEM_STAFF_RECOVER },
+		{ 21, ITEM_LIGHT_LIGHTNING },
+		{ 24, ITEM_LIGHT_SHINE },
+		{ 27, ITEM_STAFF_FORTIFY },
+		{ 32, ITEM_STAFF_WARP },
+		{ 0 }
+	}},
+	/* Troubadour, then Valkyrie or Mage Knight: staves, then light. Tempest is her 30 MP spell */
+	[CHARACTER_LARACHEL] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_ANIMA_TEMPEST },
+		{ 1,  ITEM_STAFF_HEAL },
+		{ 4,  ITEM_STAFF_MEND },
+		{ 9,  ITEM_STAFF_RESTORE },
+		{ 14, ITEM_STAFF_PHYSIC },
+		{ 21, ITEM_LIGHT_LIGHTNING },
+		{ 24, ITEM_LIGHT_SHINE },
+		{ 28, ITEM_LIGHT_DIVINE },
+		{ 30, ITEM_STAFF_FORTIFY },
+		{ 34, ITEM_LIGHT_IVALDI },
+		{ 0 }
+	}},
+	/* Sage from his first level (21): anima and staves */
 	[CHARACTER_SALEH] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_DARK_NOSFERATU },
-		// { 1, ITEM_STAFF_PHYSIC },
-		// { 1, ITEM_STAFF_HEAL },
+		{ 21, ITEM_ANIMA_THUNDER },
+		{ 21, ITEM_ANIMA_ELFIRE },
+		{ 21, ITEM_STAFF_HEAL },
+		{ 23, ITEM_ANIMA_FIMBULVETR },
+		{ 24, ITEM_STAFF_PHYSIC },
+		{ 26, ITEM_ANIMA_BOLTING },
+		{ 27, ITEM_STAFF_RESTORE },
+		{ 28, ITEM_ANIMA_AIRCALIBUR },
+		{ 31, ITEM_ANIMA_EXCALIBUR },
 		{ 0 }
 	}},
-	[CHARACTER_SELENA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_STAFF_PHYSIC },
-		{ 0 }
-	}},
-	[CHARACTER_NOVALA] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_DARK_FLUX },
-		{ 0 }
-	}},
-	[CHARACTER_RIEV] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		// { 1, ITEM_STAFF_SLEEP },
+	/* Pupil (a trainee: his levels go on counting as a Mage or Shaman). Freezeblink is his 30 MP spell */
+	[CHARACTER_EWAN] = { .ent = (const struct GaidenPinfoConfigEnt []) {
+		{ 1,  ITEM_ANIMA_FREEZEBLINK },
+		{ 1,  ITEM_ANIMA_FIRE },
+		{ 5,  ITEM_ANIMA_THUNDER },
+		{ 8,  ITEM_DARK_FLUX },
+		{ 12, ITEM_ANIMA_ELFIRE },
+		{ 16, ITEM_DARK_LUNA },
 		{ 0 }
 	}},
 
-	/* The 30 MP spells, given to randomly picked units that can hold 30 MP */
-	[CHARACTER_EWAN] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_ANIMA_FREEZEBLINK },
-		{ 0 }
-	}},
+	/* The other 30 MP spells, given to randomly picked units that can hold 30 MP */
 	[CHARACTER_TETHYS] = { .ent = (const struct GaidenPinfoConfigEnt []) {
 		{ 1, ITEM_ANIMA_PROMINENCE },
-		{ 0 }
-	}},
-	[CHARACTER_LARACHEL] = { .ent = (const struct GaidenPinfoConfigEnt []) {
-		{ 1, ITEM_ANIMA_TEMPEST },
 		{ 0 }
 	}},
 	[CHARACTER_GERIK] = { .ent = (const struct GaidenPinfoConfigEnt []) {

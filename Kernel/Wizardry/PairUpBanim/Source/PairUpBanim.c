@@ -482,6 +482,24 @@ static void PairUpBanim_GetIds(u8 *ids)
 	}
 }
 
+/*
+ * The support whose name tag stacks under its leader's in the battle's top bar (VeslyUI's EfxPrepareScreenFx and
+ * ekrDispUPMain), or NULL: as for the poses, none in promotions, the arena or the link arena. The tag doesn't need the
+ * pose (pair_up_banim).
+ */
+struct Unit *PairUpBanim_GetTagSupport(int pos)
+{
+	struct Unit *leader;
+
+	if (gEkrDistanceType == EKR_DISTANCE_PROMOTION || (gBattleStats.config & BATTLE_CONFIG_ARENA))
+		return NULL;
+	if (gBmSt.gameStateBits & BM_FLAG_LINKARENA)
+		return NULL;
+
+	leader = PairUpBanim_GetLeader(pos);
+	return leader ? PairUp_GetSupport(leader) : NULL;
+}
+
 static bool PairUpBanim_Enabled(void)
 {
 	if (!gpKernelDesignerConfig->pair_up_banim)

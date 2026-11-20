@@ -66,6 +66,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.free_movement = true,
 	.gaiden_magic = true,
 	.gaiden_magic_ai_use = false, // false = AI can't use gaiden magic
+	.gaiden_magic_learn_by_level = true, // player units learn spells from their level lists (gGaidenPinfoConfigList), not ranks
 	.gaiden_magic_must_be_magic = false, // true = magic weapons only
 	.gaiden_magic_requires_wrank = false, // true = require weapon rank
 	.gaiden_magic_skill_extensions = true, // false = extra gaiden magic from an external skill table
@@ -104,6 +105,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.max_simultaneous_support_conversations = 10,
 	.menu_option_refuge = false,
 	.menu_skill_ai_use = false,
+	.min_damage_on_hit = false, /* on: every hit that lands deals at least 1 damage (MinimumDamage.md) */
 	.modular_staff_exp = true,
 	.mokha_aoe_enabled = false, // Gambit (Three Houses-style AOE attacks) off for now; true shows the unit menu's Gambit row
 	.mp_system = true,
@@ -194,6 +196,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.vesly_support_after_battle_staff_rate = 10,
 	.voice_acted_dialogue = true,
 	.weapon_rank_skills = false, /* off: no Prowess skills from weapon ranks */
+	.weapon_traits = false, /* on: weapon traits replace the weapon triangle (WeaponTraits.md) */
 	.world_map_thought_bubbles = true,
 	.wrank_bonux_rtext_auto_gen = true,
 };

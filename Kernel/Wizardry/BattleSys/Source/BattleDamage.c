@@ -113,6 +113,7 @@ int BattleHit_CalcDamage(struct BattleUnit* attacker, struct BattleUnit* defende
     FORCE_DECLARE bool barricadePlus_activated;
     FORCE_DECLARE int roll12_ID = 15; // Set it to the maximum value for its bitfield, so it won't be accidentally triggered
     FORCE_DECLARE bool tintedLensPlus = false;
+	bool nullified = false; /* a skill made the defender immune to this hit: no minimum damage */
 
 	FORCE_DECLARE struct BattleGlobalFlags* act_flags, * tar_flags;
 
@@ -185,6 +186,10 @@ int BattleHit_CalcDamage(struct BattleUnit* attacker, struct BattleUnit* defende
 	 */
 	for (it = gpBattleDamageCalcFuncs; *it; it++)
 		(*it)(attacker, defender);
+
+	/* Weapon traits: a sword's follow-up attack deals more damage */
+	if (WeaponTraitsEnabled() && attacker->weaponType == ITYPE_SWORD && act_flags->attack_phases > 1)
+		gDmg.increase = k_udiv(gDmg.increase * gpKernelBattleDesignerConfig->weapon_trait_sword_followup_perc, 100);
 
 	/**
 	 * Calculate result
@@ -353,6 +358,11 @@ bool rampartPlus_activated = false;
     }
 #endif
 
+	/* Weapon traits: an axe that hits deals at least a set damage */
+	if (WeaponTraitsEnabled() && attacker->weaponType == ITYPE_AXE &&
+	    result < gpKernelBattleDesignerConfig->weapon_trait_axe_min_damage)
+		result = gpKernelBattleDesignerConfig->weapon_trait_axe_min_damage;
+
 #if (defined(SID_Decadon) && (COMMON_SKILL_VALID(SID_Decadon)))
     if (BattleFastSkillTester(attacker, SID_Decadon))
         result = 10;
@@ -386,10 +396,12 @@ bool rampartPlus_activated = false;
 #if (defined(SID_Levitate) && (COMMON_SKILL_VALID(SID_Levitate)))
         if (BattleFastSkillTester(defender, SID_Levitate))
         {
-            if (IsMagicAttack(attacker) || isFlyingClass(UNIT_CLASS_ID(GetUnit(attacker->unit.index))))
+            if (IsMagicAttack(attacker) || isFlyingClass(UNIT_CLASS_ID(GetUnit(attacker->unit.index)))) {
                 result = result;
-            else
+            } else {
                 result = 0;
+                nullified = true;
+            }
         }
 #endif
 
@@ -417,6 +429,10 @@ bool rampartPlus_activated = false;
 	LTRACEF("[round %d] dmg=%d: max=%d, base=%d (atk=%d, def=%d, cor=%d), inc=%d, crt=%d, dec=%d, real=%d",
 		GetBattleHitRound(gBattleHitIterator), result, max_damage, base_damage,
 		gBattleStats.attack, gBattleStats.defense, gDmg.correction, gDmg.increase, crit_correction, gDmg.decrease, gDmg.real_damage);
+
+	/* Minimum damage: a hit that lands deals at least 1, unless a skill nullified it */
+	if (gpKernelDesignerConfig->min_damage_on_hit && result < 1 && !nullified)
+		result = 1;
 
 	if (result > max_damage)
 		result = max_damage;

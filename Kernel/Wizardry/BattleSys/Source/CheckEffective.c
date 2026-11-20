@@ -48,6 +48,23 @@ STATIC_DECLAR bool CheckUnitNullEffective(struct Unit* unit)
 	return false;
 }
 
+/* Weapon traits: spears are effective against cavalry, magic against armour */
+bool IsWeaponTraitEffective(int item, int jid)
+{
+	switch (GetItemType(item)) {
+	case ITYPE_LANCE:
+		return gpWeaponTraitJConf[jid] & WEAPON_TRAIT_CLASS_CAVALRY;
+
+	case ITYPE_ANIMA:
+	case ITYPE_LIGHT:
+	case ITYPE_DARK:
+		return gpWeaponTraitJConf[jid] & WEAPON_TRAIT_CLASS_ARMOR;
+
+	default:
+		return false;
+	}
+}
+
 LYN_REPLACE_CHECK(IsItemEffectiveAgainst);
 bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 {
@@ -61,6 +78,9 @@ bool IsItemEffectiveAgainst(u16 item, struct Unit* unit)
 	jid = UNIT_CLASS_ID(unit);
 	item_data = GetItemData(ITEM_INDEX(item));
 	list = item_data->pEffectiveness;
+
+	if (WeaponTraitsEnabled() && IsWeaponTraitEffective(item, jid))
+		goto check_null_effective;
 
     if (!list)
     {
