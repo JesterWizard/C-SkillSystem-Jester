@@ -44,7 +44,7 @@ Bestiary's banner over the scrolling mural, a blue window), like the [chapter aw
 Two switches; the screen shows only when both are on.
 
 - **Designer:** `chapter_results_screen` in `KernelDesigerConfig` (`include/kernel/kernel-lib.h`, the struct's last
-  field), `true` in `Data/DesignerConfig/designer-config.c`. Off: no screen and no Options row. See
+  field), `false` (off) in `Data/DesignerConfig/designer-config.c`: set it to `true` to use the screen. Off: no screen and no Options row. See
   [SystemConfig](./SystemConfig.md).
 - **Player:** the Options screen's **Chapter Results** row (ON/OFF, icon 0x56: a results sheet with an orange seal), the
   last row. It is `gPlaySt.config2.chapter_results_off` (bit 1 of `PLAYST + 0x21`, 0 = ON;

@@ -40,7 +40,7 @@ Mag, `UNIT_MHP_MAX` for HP) plus Limit Breaker / Limit Breaker+.
 Two switches; the bars show only when both are on.
 
 - **Designer:** `lvup_stat_bars` in `KernelDesigerConfig` (`include/kernel/kernel-lib.h`, the struct's last field),
-  `true` in `Data/DesignerConfig/designer-config.c`. Off: no bars, no grey labels, and no Options row. See
+  `false` (off) in `Data/DesignerConfig/designer-config.c`: set it to `true` to use the bars. Off: no bars, no grey labels, and no Options row. See
   [SystemConfig](./SystemConfig.md).
 - **Player:** the Options screen's **Level-Up Bars** row (ON/OFF, icon 0x54: three small bars), the last row. It is
   `gPlaySt.config2.lvup_stat_bars_off` (bit 0 of `PLAYST + 0x21`, 0 = ON), the first bit of `config2`, the Options bits
@@ -121,7 +121,7 @@ Allocate Stat Points and Timing Stat Level-Up replace the level-up window with t
 | Map window | [`MapLvup.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/MapLvup.c) | `PutManimLevelUpLabel`, `GetManimLevelUpLabelTm`; calls in `ManimLevelUp_InitMainScreen`, `ManimLevelUp_PutStatGainLabels`, `LevelUpSpeech_StartTalk`, `EkrLvup_Quote` |
 | Battle window | [`EfxLvup.c`](../../Kernel/Wizardry/Lvupfx/Lvupfx/EfxLvup.c) | `PutEkrLvupLabel`; the start in `EkrLvup_InitStatusText` |
 | Declarations | [`lvup.h`](../../include/kernel/lvup.h) | `LvupBars_*`, the label helpers |
-| Designer switch | `lvup_stat_bars` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h), [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | On by default |
+| Designer switch | `lvup_stat_bars` in [`kernel-lib.h`](../../include/kernel/kernel-lib.h), [`designer-config.c`](../../Data/DesignerConfig/designer-config.c) | Off by default (set it to `true` to use the bars) |
 | Options row | `GAME_OPTION_LVUP_STAT_BARS` in [`MenuOptions.c`](../../Kernel/Wizardry/MenuOptions/MenuOptions.c), `uiconfig.h` | Icon 0x54 in `FE8_All_System_Icons.png`; texts at the end of `Districts.txt` |
 | Option bit | `struct PlaySt_OptionBits2` in [`types.h`](../../Tools/FE-CLib-Mokha/include/types.h) | `gPlaySt.config2.lvup_stat_bars_off`; zeroed in `WriteNewGameSave` |
 | Smoke test | `test_lvupbars` in [`smoketest.py`](../../Tools/cloud/smoketest.py) | See Testing |

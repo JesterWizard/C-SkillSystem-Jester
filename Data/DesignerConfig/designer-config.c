@@ -26,7 +26,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.calculate_map_range_faster = true, // AI only simulates battles against the 5 nearest enemies it can fight, per weapon
 	.casual_mode = false,
 	.chapter_names = true,
-	.chapter_results_screen = true, // after a cleared story chapter: turns, units, foes, damage, funds, the MVP and a rank S-D (ChapterResults.md)
+	.chapter_results_screen = false, // after a cleared story chapter: turns, units, foes, damage, funds, the MVP and a rank S-D (ChapterResults.md)
 	.chatlog_enabled = true,
 	.chapter_awards = false, // awards screen after a cleared story chapter (Kernel/Wizardry/Guild/Source/ChapterAwards.c)
 	.chapter_intro_style = 0, // 0 = vanilla chapter intro; 1 slide, 2 curtain, 3 mosaic, 4 letterbox (the new-game default of the Options row)
@@ -96,7 +96,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.lvup_mode_easy = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_hard = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
 	.lvup_mode_normal = 0, // 0=vanilla, 1=random, 2=fixed, 3=100%, 4=0%
-	.lvup_stat_bars = true, // level-up screens: a bar under each stat against its cap, filling with each gain; capped stats grey
+	.lvup_stat_bars = false, // level-up screens: a bar under each stat against its cap, filling with each gain; capped stats grey
 	.lvup_stat_points = false, // points per level; false = off. true skips growths, shows spend menu after EXP bar, applies immediately, hides growth display. 1 point per stat
 	.lvup_stat_timing = false, // false = off. true: timing minigame after EXP bar (overrides allocate). green bars come from growths
 	.map_menu_character_biographies = true,
