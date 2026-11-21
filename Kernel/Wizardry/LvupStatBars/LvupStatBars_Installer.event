@@ -1,0 +1,12 @@
+#ifndef LVUP_STAT_BARS_INSTALLED
+#define LVUP_STAT_BARS_INSTALLED
+
+/**
+ * Animated level-up stat bars (Documentation/Features/LvupStatBars.md): a bar under each stat of both level-up windows
+ * against its cap, filling with each gain. Hooked from Lvupfx (MapLvup.c, EfxLvup.c); replaces
+ * EkrLvup_DrawUpdatedStatus. WIZARDRY_CUSTOM, so FreeSpaceDEMO.
+ */
+#include "Source/LynJump.event"
+#include "Source/LvupStatBars.lyn.event"
+
+#endif /* LVUP_STAT_BARS_INSTALLED */

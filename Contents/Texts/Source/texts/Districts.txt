@@ -1233,3 +1233,7 @@ for this class.[X]
 Growth[X]
 ## MSG_GROWTH_RADAR_LEGEND_STATS
 Stat/Cap[X]
+## MSG_MENU_OPTION_LVUP_STAT_BARS_TITLE
+Level-Up Bars[X]
+## MSG_MENU_OPTION_LVUP_STAT_BARS_DESC
+Stat bars that fill on level-ups[X]

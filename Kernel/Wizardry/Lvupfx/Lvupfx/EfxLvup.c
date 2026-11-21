@@ -68,13 +68,24 @@ STATIC_DECLAR void EkrLvup_InitStatusTextVanilla(struct ProcEkrLevelup *proc)
 	PutText(th, TILEMAP_LOCATED(gBG2TilemapBuffer, 13, 7));
 }
 
+/* A stat's label (its text is set up): gold, or grey for a stat at its cap (LvupStatBars.c) */
+void PutEkrLvupLabel(int index, int color)
+{
+	struct Text *th = &gBanimText[index];
+
+	ClearText(th);
+	Text_SetCursor(th, 0);
+	Text_SetColor(th, color);
+	Text_DrawString(th, GetStringFromIndex(NewEfxLvupInfos[index].msg));
+	PutText(th, gBG2TilemapBuffer + sEfxLvupPartsPos[index]);
+}
+
 LYN_REPLACE_CHECK(EkrLvup_InitStatusText);
 void EkrLvup_InitStatusText(struct ProcEkrLevelup *proc)
 {
 	int i;
 	struct BattleUnit *bunit, *bunit2;
 	struct Unit *unit;
-	const u16 *stat_label_pos;
 
 	if (proc->ais_main == NULL) {
 		bunit2 = gpEkrBattleUnitLeft;
@@ -131,19 +142,16 @@ void EkrLvup_InitStatusText(struct ProcEkrLevelup *proc)
 	}
 
 	InitTextFont(&gBanimFont, BG_CHR_ADDR(0x146), 0x146, 0);
-	stat_label_pos = sEfxLvupPartsPos;
 
 	for (i = 0; i < EKRLVUP_STAT_MAX; i++) {
-		const char *str = GetStringFromIndex(NewEfxLvupInfos[i].msg);
-
 		InitText(&gBanimText[i], 3);
-		Text_SetCursor(&gBanimText[i], 0);
-		Text_SetColor(&gBanimText[i], TEXT_COLOR_SYSTEM_GOLD);
-		Text_DrawString(&gBanimText[i], str);
-		PutText(&gBanimText[i], gBG2TilemapBuffer + stat_label_pos[i]);
+		PutEkrLvupLabel(i, TEXT_COLOR_SYSTEM_GOLD);
 	}
 
 	EkrLvup_InitStatusTextVanilla(proc);
+
+	if (proc->is_promotion == false)
+		LvupBars_StartEkr(proc, unit);
 }
 
 enum {

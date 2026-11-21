@@ -160,6 +160,7 @@ LYN_REPLACE_CHECK(WriteNewGameSave);
 void WriteNewGameSave(int index, int isDifficult, int mode, int isTutorial)
 {
 	const new_save_hook *it;
+	u8 *it2;
 
 	if (mode == 0)
 		mode = gPlaySt.chapterModeIndex;
@@ -176,6 +177,9 @@ void WriteNewGameSave(int index, int isDifficult, int mode, int isTutorial)
 	gPlaySt.chapterModeIndex = mode;
 	gPlaySt.unk_2B_00 = 1;
 	gPlaySt.playerName[0] = '\0';
+	/* The Options bits after it (struct PlaySt_OptionBits2): 0 is each one's default */
+	for (it2 = (u8 *)&gPlaySt.config2; it2 < (u8 *)&gPlaySt.config2 + sizeof(gPlaySt.config2); it2++)
+		*it2 = 0;
 	gPlaySt.chapterIndex = 0;
 	gPlaySt.playthroughIdentifier = GetNewPlaythroughId();
 	gPlaySt.gameSaveSlot = index;

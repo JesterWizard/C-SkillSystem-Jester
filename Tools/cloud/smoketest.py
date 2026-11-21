@@ -108,6 +108,8 @@ What it checks:
               with EXP 0 in the third tier, with no skill popup left. Gilliam reaching 20 in an animated battle too.
   lvupfont    the level-up window with battle animations off draws its numbers with the text font, as the promotion's
               stat box does: the Mag value's tiles are the same in both, in the Tech and Vanilla UI styles.
+  lvupbars    the level-up stat bars, on the map and in battle animations: HP's bar shows its fill and track, Spd at its
+              cap is grey with a grey label; with the Options row OFF (config2, PLAYST + 0x21 bit 0) there are none.
   banim       with battle animations on, Gerik as a Mercenary, Tana as a Pegasus Knight and Amelia as a Recruit
               (RAM writes make Eirika's unit them) attack: each battle loads their custom animation
               (Contents/BattleAnims: 0xCA, 0xCB, 0xCC; Amelia's pre-promote Recruit 0xCD), with its own palette (no
@@ -146,7 +148,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
-lvupanim, autopromo, t3promo, t3promoall, lvupfont, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, autopromo, t3promo, t3promoall, lvupfont, lvupbars, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -2363,9 +2365,75 @@ class Smoke:
             self.shot(os.path.join(d, tag + "_promo.png"), "promotion numbers (%s)" % name)
             lvup = glyph(tag + "_lvup", cnt0, (9 * 32 + 5, 9 * 32 + 6, 10 * 32 + 5, 10 * 32 + 6))
             promo = glyph(tag + "_promo", cnt2, (mag_pos, mag_pos + 1, mag_pos + 32, mag_pos + 33))
+            # The map window's stat bar (LvupStatBars) is drawn in the lower tiles' pixel rows 6-7, below the glyphs,
+            # and the promotion's box has none: those rows (bytes 24-31 of the 3rd and 4th tiles) are left out
+            unbar = lambda g: b"".join(g[i:i + 24] if i >= 64 else g[i:i + 32] for i in range(0, len(g), 32))
+            lvup, promo = unbar(lvup), unbar(promo)
             self.check("lvupfont: %s: the level-up window's Mag 3 is the promotion's glyph (the font's digit)" % name,
-                       len(lvup) == 128 and lvup == promo and any(promo),
-                       "%d of 4 tiles the same" % sum(lvup[i:i + 32] == promo[i:i + 32] for i in range(0, 128, 32)))
+                       len(lvup) == 112 and lvup == promo and any(promo),
+                       "%d of 4 tiles the same" % sum(lvup[a:b] == promo[a:b] for a, b in ((0, 32), (32, 64), (64, 88),
+                                                                                          (88, 112))))
+
+    def test_lvupbars(self, turn2_ss):
+        """The level-up stat bars (Kernel/Wizardry/LvupStatBars): a bar against each stat's cap, drawn in pixel rows 6-7
+        of the lower text tiles under the label and value (5 tiles). Eirika levels up with Spd at her class's cap (20)
+        on the map (animations off) and with animations on: HP's bar has the value's blue (index 8) and the track's navy
+        (9); Spd's is grey (5, 4) and its label is grey (no gold index 11). With the Options row OFF (config2 bit 0,
+        PLAYST + 0x21) those rows hold no bar colour (only the gold descender of Spd's "p") and the label is gold."""
+        d = os.path.join(self.out, "lvupbars")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBG0TilemapBuffer", "gBG2TilemapBuffer", "sEfxLvupPartsPos")
+        if not all(n in self.sym for n in need):
+            return self.check("lvupbars: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        rom = open(ROM, "rb").read()
+        parts = [struct.unpack_from("<H", rom, self.sym["sEfxLvupPartsPos"] - 0x08000000 + 2 * i)[0] for i in range(8)]
+        acts = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
+                "press A"]
+
+        def run(tag, anim, off):
+            tm_sym, reg = ("gBG2TilemapBuffer", 0x0400000C) if anim else ("gBG0TilemapBuffer", 0x04000008)
+            cnt = self.run(ROM, ["load " + turn2_ss, "w8 %#x %d" % (PLAYST + 0x42, 0 if anim else 2),
+                                 "w8 %#x 99" % (UNIT1 + 9), "w8 %#x 20" % (UNIT1 + 0x16),
+                                 "w8 %#x %d" % (PLAYST + 0x21, 1 if off else 0)] + acts +
+                           ["wait %d" % (860 if anim else 460), "shot %s.png" % tag,
+                            "dump %#x 0x800 %s_tm.bin" % (self.sym[tm_sym], tag),
+                            "dump 0x06000000 0x10000 %s_vram.bin" % tag, "r16 %#x" % reg], d)
+            self.shot(os.path.join(d, tag + ".png"), "level-up stat bars (%s)" % tag)
+            try:
+                t, v = open(os.path.join(d, tag + "_tm.bin"), "rb").read(), open(os.path.join(d, tag + "_vram.bin"), "rb").read()
+            except OSError:
+                return None
+            base = ((cnt[0] >> 2) & 3) * 0x4000 if cnt else 0
+
+            def pixels(cell, rows):
+                tile = struct.unpack_from("<H", t, 2 * cell)[0] & 0x3FF
+                data = v[base + tile * 32:][:32]
+                return [(data[r * 4 + x // 2] >> (4 * (x & 1))) & 15 for r in rows for x in range(8)]
+
+            if anim:
+                label = {i: parts[i] for i in range(8)}
+            else:
+                label = {0: 5 * 32 + 2, 4: 5 * 32 + 10}  # HP and Spd in the map window drawn at (1, 1)
+            bar = lambda i: sum((pixels(label[i] + 32 + k, (6, 7)) for k in range(5)), [])
+            text = lambda i: sum((pixels(label[i] + r * 32 + k, range(6)) for r in (0, 1) for k in range(3)), [])
+            return bar(0), bar(4), text(4)
+
+        for tag, anim in (("map", False), ("anim", True)):
+            on, off = run(tag, anim, False), run(tag + "_off", anim, True)
+            if on is None or off is None:
+                self.check("lvupbars: %s: the level-up runs" % tag, False)
+                continue
+            hp, spd, spd_label = on
+            self.check("lvupbars: %s: HP's bar has the fill and the track" % tag, 8 in hp and 9 in hp,
+                       "colours %s" % sorted(set(hp)))
+            self.check("lvupbars: %s: Spd at its cap has a grey bar and a grey label" % tag,
+                       {4, 5} <= set(spd) and not set(spd) & {7, 8, 9, 10, 11, 12} and 11 not in spd_label and
+                       5 in spd_label,
+                       "bar %s, label %s" % (sorted(set(spd)), sorted(set(spd_label))))
+            # off: only the glyphs' descenders ("p" of Spd, gold) are in those rows, and Spd's label is gold
+            self.check("lvupbars: %s: none with the Options row OFF (Spd's label gold)" % tag,
+                       not set(off[0] + off[1]) & {4, 5, 7, 8, 9} and 11 in off[2],
+                       "bar colours %s, label %s" % (sorted(set(off[0] + off[1])), sorted(set(off[2]))))
 
     def test_banim(self, boot_ss):
         """The custom battle animations (CustomAnimeTable, Contents/External/Individual_animation_ea_2/data.event), one
@@ -3726,14 +3794,14 @@ def main():
 
     boot_tests = ("statscreen", "promosms", "growthradar", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
-                  "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags", "spellwindow")
+                  "t3promo", "t3promoall", "lvupfont", "lvupbars", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags", "spellwindow")
     if on("boot") or any(on(t) for t in boot_tests):
         def boot_chain():
             boot_ss = s.test_boot()
             if not boot_ss:
                 return
             fights = ("battle", "bigunit", "expbar", "deeproots", "lvupanim", "autopromo", "t3promo", "t3promoall",
-                      "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage", "pairtags", "spellwindow")
+                      "lvupfont", "lvupbars", "banim", "dbgbanim", "mapbox", "gaidenexp", "weapontraits", "mindamage", "pairtags", "spellwindow")
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
@@ -3763,6 +3831,8 @@ def main():
                 r.submit((0, 18), s.test_t3promoall, boot_ss, turn2_ss)
             if on("lvupfont") and turn2_ss:
                 r.submit((0, 19), s.test_lvupfont, turn2_ss)
+            if on("lvupbars") and turn2_ss:
+                r.submit((0, 24), s.test_lvupbars, turn2_ss)
             if on("dbgbanim") and turn2_ss:
                 r.submit((0, 11), s.test_dbgbanim, turn2_ss)
             if on("mapbox") and turn2_ss:
