@@ -9,7 +9,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[38] = {
+const u8 gGameOptionsUiOrder_NEW[39] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -50,6 +50,7 @@ const u8 gGameOptionsUiOrder_NEW[38] = {
     GAME_OPTION_ACHIEVEMENTS,
     GAME_OPTION_RECAP,
     GAME_OPTION_THREAT_ARROWS,
+    GAME_OPTION_GROWTH_RADAR,
 };
 
 static bool IsGameOptionUiVisible(u8 optionIdx)
@@ -67,6 +68,11 @@ static bool IsGameOptionUiVisible(u8 optionIdx)
         return false;
 
     if (optionIdx == GAME_OPTION_THREAT_ARROWS && !gpKernelDesignerConfig->threat_arrows)
+        return false;
+
+    /* No row when the page can never show: off in the designer config, or growths hidden (stat points) */
+    if (optionIdx == GAME_OPTION_GROWTH_RADAR
+        && (!gpKernelDesignerConfig->stat_page_growth_radar || KernelLvupHidesGrowthDisplay()))
         return false;
 
     return true;
@@ -718,6 +724,20 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
+    [GAME_OPTION_GROWTH_RADAR] =
+    {
+        .msgId = MSG_MENU_OPTION_GROWTH_RADAR_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_GROWTH_RADAR_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_GROWTH_RADAR_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x52, /* a green and blue radar chart (Kernel/Wizardry/GrowthRadar) */
+        .func = GenericOptionChangeHandler,
+    },
+
     [GAME_OPTION_SHOW_TRUE_2RN] =
     {
         .msgId = MSG_MENU_OPTION_SHOW_TRUE_2RN_TITLE,
@@ -840,6 +860,7 @@ void SetGameOption(u8 index, u8 newValue) {
             }
             gPlaySt.config.threat_arrows_on = !newValue; /* the row: 0 = ON, 1 = OFF */
             break;
+        case GAME_OPTION_GROWTH_RADAR:                   gPlaySt.config.growth_radar_off = newValue; break;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true) {
                 gPlaySt.config.achievements = 1; /* OFF */
@@ -910,6 +931,7 @@ u8 GetGameOption(u8 index) {
             if (gpKernelDesignerConfig->threat_arrows != true)
                 return 1; /* OFF */
             return !gPlaySt.config.threat_arrows_on;
+        case GAME_OPTION_GROWTH_RADAR:                   return gPlaySt.config.growth_radar_off;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true)
                 return 1; /* OFF */
@@ -965,6 +987,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.gameover_quotes = 0;
     gPlaySt.config.recap_off = 0; /* recap ON */
     gPlaySt.config.threat_arrows_on = 0; /* threat arrows OFF by default (the row is hidden if the designer gate is off) */
+    gPlaySt.config.growth_radar_off = 0; /* the stat screen's Potential page ON (the row is hidden if the designer gate is off) */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);

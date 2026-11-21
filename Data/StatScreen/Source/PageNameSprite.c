@@ -59,6 +59,14 @@ STATIC_DECLAR const u16 Sprite_Page7NameRework[] =
 	0x4104, 0x9048, TILEREF(8, 0),
 };
 
+/* Growth Radar (Kernel/Wizardry/GrowthRadar): "Potential", sheet row 6, centred like the other titles */
+STATIC_DECLAR const u16 Sprite_Page8NameRework[] =
+{
+	2,
+	0x4104, 0x9014, TILEREF(0, 0),
+	0x4104, 0x9034, TILEREF(4, 0),
+};
+
 u16 const *const Sprites_PageNameRework[] = {
 	Sprite_Page0NameRework,
 	Sprite_Page1NameRework,
@@ -68,6 +76,7 @@ u16 const *const Sprites_PageNameRework[] = {
 	Sprite_Page5NameRework,
 	Sprite_Page6NameRework,
     Sprite_Page7NameRework,
+	Sprite_Page8NameRework,
 };
 
 /*
@@ -85,4 +94,5 @@ const u16 gPageNameChrOffsetLutRe[] = {
 	0x00, 
 	0x8B,
 	0x0C, /* Skill Tree: temporary Skills label */
+	0xC0, /* Growth Radar: "Potential", row 6 (0x300) */
 };

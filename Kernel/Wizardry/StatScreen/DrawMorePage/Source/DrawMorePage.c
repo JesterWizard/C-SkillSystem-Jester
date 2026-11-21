@@ -45,8 +45,8 @@ void DisplayPageNameSprite(int pageid)
 
 	if (realPageId < 0)
 		realPageId = 0;
-	else if (realPageId > PAGE_SKILL_TREE)
-		realPageId = PAGE_SKILL_TREE;
+	else if (realPageId > PAGE_GROWTH_RADAR)
+		realPageId = PAGE_GROWTH_RADAR;
 
     /* Display the little arrows either side of the page name */
 	PutSprite(4,
@@ -212,6 +212,9 @@ int GetStatPageCount(void)
     if (IsStatScreenPageAvailable(PAGE_SKILL_TREE))
         count++;
 
+    if (IsStatScreenPageAvailable(PAGE_GROWTH_RADAR))
+        count++;
+
     return count;
 }
 
@@ -238,10 +241,13 @@ void PageNumCtrl_UpdatePageNum(struct StatScreenPageNameProc* proc)
     pageAmtShift = pageAmt - 1;
     pageNumShift = page;
 
-    /* Pages 7,8 and 9 are listed below that starting at 0x6015500 in the OBJ tile view in NoCashGBA  */
+    /*
+     * Pages 7, 8 and 9 are listed below that starting at 0x6015500 in the OBJ tile view in NoCashGBA: digit 7 is
+     * 0x1F after digit 1, 8 is 0x20 and 9 is 0x21
+     */
     if (pageAmt > 6)
-        pageAmtShift = 0x20 - 1;
-    
+        pageAmtShift = (pageAmt - 7) + 0x1F;
+
     if (page > 5)
         pageNumShift = (page - 7) + 0x20;
 

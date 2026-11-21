@@ -8,6 +8,8 @@ What it checks:
   statscreen  R on Eirika opens the stat screen; B closes it and the map comes back.
   promosms    the stat screen's Promotions page for Seth (no unit_promotions row) put in the Cavalier's class: a platform
               and a map sprite for each of the class's two promotion options, beside their names (OAM at x 99 and 108).
+  growthradar the stat screen's Potential page (growth radar): the 7th page, its chart on BG2 with both layers drawn, the
+              borrowed tiles given back on the first page; with its Options row OFF, 6 pages.
   <district>  for Serafew, Port Kiris, Caer Pelyn and Jehanna Hall: a test ROM starts a new game in the district; Eirika
               walks to every spot in its events/traps.c (fishing, River Crossing, Tower Stack, guild board); A opens
               the spot's screen and B brings the map back. River Crossing and Tower Stack also check their state in RAM.
@@ -470,6 +472,55 @@ class Smoke:
                    "unit sprites at y %s, platforms at y %s" % (units, plats))
         self.check("promosms: a platform beside each option (y 41 and 82), none for a third", plats == [41, 82],
                    "platforms at y %s" % plats)
+
+    def test_growthradar(self, boot_ss):
+        """The stat screen's Potential page (Documentation/Features/GrowthRadar.md). LEFT from the first page wraps to
+        it, the last of 7: its chart is mapped on BG2 (the page's tile (3, 2) is BG tile 0x82 in BG palette 10, which
+        holds the chart's colours) and once grown its tiles hold the growth layer (colours 3, 4, 7, 8, 9) and the stats
+        layer (5-8, 10). RIGHT back to the first page decompresses the stat screen sheet the chart borrowed again (tiles
+        0x4F-0x7F blank). With the Options row OFF (gPlaySt.config.growth_radar_off, bit 7 of PLAYST + 0x43) there are
+        6 pages and the last is not the chart."""
+        d = os.path.join(self.out, "growthradar")
+        os.makedirs(d, exist_ok=True)
+        need = ("gStatScreen", "gBG2TilemapBuffer", "gPaletteBuffer")
+        if any(n not in self.sym for n in need):
+            return self.check("growthradar: the stat screen symbols exist", False)
+        st, tm, pal = (self.sym[n] for n in need)
+        cell = tm + 2 * (32 * (2 + 2) + 12 + 3)
+        chart = [0x06008000 + 0x82 * 0x20 + 4 * i for i in range(94 * 8)]
+        sheet = [0x06008000 + 0x4F * 0x20 + 4 * i for i in range(49 * 8)]
+        lines = ["load " + boot_ss, "wait 30", "press R", "wait 60", "press LEFT", "wait 90",
+                 "r8 %#x" % st, "r8 %#x" % (st + 1), "r16 %#x" % cell, "r16 %#x" % (pal + 2 * (16 * 10 + 9)),
+                 "shot growthradar.png"]
+        lines += ["r32 %#x" % a for a in chart]
+        lines += ["press RIGHT", "wait 90", "r8 %#x" % st] + ["r32 %#x" % a for a in sheet]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "growthradar.png"), "Potential page (growth radar), Eirika")
+        if len(vals) != 4 + len(chart) + 1 + len(sheet):
+            return self.check("growthradar: the stat screen opens", False, "values %d" % len(vals))
+        page, amt, tile, color = vals[0:4]
+        words = vals[4:4 + len(chart)]
+        back, blank = vals[4 + len(chart)], vals[5 + len(chart):]
+        nibbles = [(w >> (4 * i)) & 0xF for w in words for i in range(8)]
+        grow = sum(1 for n in nibbles if n in (3, 4, 7, 8, 9))
+        stat = sum(1 for n in nibbles if n in (5, 6, 7, 8, 10))
+        self.check("growthradar: LEFT from the first page wraps to the Potential page, the 7th", page == 6 and amt == 7,
+                   "page %d of %d" % (page + 1, amt))
+        self.check("growthradar: the chart is on BG2 (tile 0x82, palette 10) and the palette is loaded",
+                   tile == 0xA082 and color == 0x4BD5, "tilemap %#x, colour %#x" % (tile, color))
+        self.check("growthradar: the chart holds both layers", grow > 500 and stat > 100,
+                   "%d growth pixels, %d stat pixels" % (grow, stat))
+        self.check("growthradar: back on the first page, the borrowed sheet tiles are restored", back == 0 and not any(blank),
+                   "page %d, %d words set" % (back + 1, sum(1 for w in blank if w)))
+        vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0x80" % (PLAYST + 0x43), "wait 30", "press R", "wait 60",
+                              "press LEFT", "wait 90", "r8 %#x" % st, "r8 %#x" % (st + 1), "r16 %#x" % cell,
+                              "shot growthradar_off.png"], d)
+        self.shot(os.path.join(d, "growthradar_off.png"), "Potential page OFF in Options: the last page is Promotions")
+        if len(vals) != 3:
+            return self.check("growthradar: the stat screen opens with the page off", False, "values %d" % len(vals))
+        self.check("growthradar: with the Options row OFF there are 6 pages and no chart",
+                   vals[1] == 6 and vals[0] == 5 and vals[2] != 0xA082,
+                   "page %d of %d, tilemap %#x" % (vals[0] + 1, vals[1], vals[2]))
 
     def district_rom(self, name, d):
         """A test ROM whose new game starts in the district (its map, tileset and events in chapter row 0), with its
@@ -3673,7 +3724,7 @@ def main():
                 t()
         return run
 
-    boot_tests = ("statscreen", "promosms", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
+    boot_tests = ("statscreen", "promosms", "growthradar", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
                   "t3promo", "t3promoall", "lvupfont", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags", "spellwindow")
     if on("boot") or any(on(t) for t in boot_tests):
@@ -3686,7 +3737,8 @@ def main():
             turn2_ss = s.turn2_state(boot_ss) if any(on(t) for t in fights) else None
             # boot/ and battle/ are shared folders
             r.submit((0, 1), seq(*[lambda f=f: f(boot_ss) for t, f in (
-                ("statscreen", s.test_statscreen), ("promosms", s.test_promosms), ("biography", s.test_biography),
+                ("statscreen", s.test_statscreen), ("promosms", s.test_promosms),
+                ("growthradar", s.test_growthradar), ("biography", s.test_biography),
                 ("debugflag", s.test_debugflag))
                 if on(t)]))
             r.submit((0, 2), seq(*[lambda f=f, ss=ss: f(ss) for t, f, ss in (

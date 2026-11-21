@@ -2,6 +2,7 @@
 #include "stat-screen.h"
 #include "kernel-lib.h"
 #include "help-box.h"
+#include "growth-radar.h"
 #include "skill-system.h"
 #include "savemenu.h"
 #include "uichapterstatus.h"
@@ -30,6 +31,9 @@ static bool IsStatScreenPageEnabledByConfig(int page)
 
     case PAGE_SKILL_TREE:
         return gpKernelDesignerConfig->stat_page_skill_tree;
+
+    case PAGE_GROWTH_RADAR:
+        return GrowthRadarEnabled();
 
     default:
         return true;
@@ -95,6 +99,9 @@ void StartStatScreenHelp(int pageid, struct Proc *proc)
         case PAGE_SKILL_TREE:
             StartSkillTreeScreenHelp(pageid, proc);
             break;
+        case PAGE_GROWTH_RADAR:
+            gStatScreen.help = RTextPageGrowthRadar;
+            break;
 		} // switch (pageid)
 	}
 	StartMovingHelpBox(gStatScreen.help, proc);
@@ -118,6 +125,9 @@ int TranslateStatPageId(int pageid)
 		real++;
 
 	if (!IsStatScreenPageAvailable(PAGE_SKILL_TREE) && real >= PAGE_SKILL_TREE)
+		real++;
+
+	if (!IsStatScreenPageAvailable(PAGE_GROWTH_RADAR) && real >= PAGE_GROWTH_RADAR)
 		real++;
 
 	return real;
@@ -145,7 +155,11 @@ void DisplayPage(int pageid)
     CpuFastFill(0, gUiTmScratchA, sizeof(gUiTmScratchA));
     CpuFastFill(0, gUiTmScratchC, sizeof(gUiTmScratchC));
 
-    if (realPageId < 0 || realPageId > PAGE_SKILL_TREE || gStatScreenDrawPages[realPageId] == NULL)
+    /* The Potential page draws its chart over spare BG tiles: give them back to the other pages */
+    if (realPageId != PAGE_GROWTH_RADAR)
+        GrowthRadar_RestoreVram();
+
+    if (realPageId < 0 || realPageId > PAGE_GROWTH_RADAR || gStatScreenDrawPages[realPageId] == NULL)
         return;
 
     gStatScreenDrawPages[realPageId]();

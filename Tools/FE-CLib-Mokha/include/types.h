@@ -166,7 +166,7 @@ struct PlaySt_OptionBits {
     u32 debugControlPurple: 2;
     u32 recap_off:1; /* Kernel/Wizardry/Recap: 0 = ON (shown), 1 = OFF */
     u32 threat_arrows_on:1; /* Kernel/Wizardry/ThreatArrows: 0 = OFF (the default), 1 = ON */
-    u32 unk43_7:1; // I'm not sure if reducing this from 5 -> 3 has negative implications
+    u32 growth_radar_off:1; /* Kernel/Wizardry/GrowthRadar: 0 = ON (the stat screen's Potential page shown), 1 = OFF */
 
     // u8  unk44[0x48 - 0x44];
 

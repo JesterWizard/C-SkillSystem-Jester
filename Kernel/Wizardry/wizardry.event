@@ -166,6 +166,7 @@ ALIGN 4
 #include "FreeMovement/FreeMovement_Installer.event"
 #include "GameOver/GameOver.event"
 #include "Goals/Installer.event"
+#include "GrowthRadar/GrowthRadar_Installer.event"
 #include "Guide/GuideTable.event"
 #include "HPBarPalettes/HPBarPalettes_Installer.event"
 #include "HalfBodyPortraits/HalfBodyPortraits_Installer.event"

@@ -222,7 +222,7 @@ Every feature links to its documentation. Click a preview to open it.
   </tr>
   <tr>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/SkillCodex.md"><img src="./Documentation/Gifs/Skill_Codex.gif" alt="Skill Codex preview" width="360" /></a><br/><b><a href="./Documentation/Features/SkillCodex.md">Skill Codex</a></b></td>
-    <td width="50%"></td>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/GrowthRadar.md"><img src="./Documentation/Gifs/Growth_Radar.gif" alt="Growth Radar preview" width="360" /></a><br/><b><a href="./Documentation/Features/GrowthRadar.md">Growth Radar</a></b></td>
   </tr>
 </table>
 

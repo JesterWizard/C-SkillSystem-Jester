@@ -73,6 +73,12 @@ The Threat Arrows row (`GAME_OPTION_THREAT_ARROWS`, [Threat Arrows](./ThreatArro
 (ON 112, OFF 135, icon 0x50) backed by `gPlaySt.config.threat_arrows_on` (1 = ON, 0 = OFF, bit 6 of `PLAYST + 0x43`). It is
 hidden when the designer config's `threat_arrows` is off. `InitPlayConfig` sets it to 0 for new games.
 
+The Potential Page row (`GAME_OPTION_GROWTH_RADAR`, [Growth Radar](./GrowthRadar.md#toggle)) is a plain ON/OFF row
+(ON 112, OFF 135, icon 0x52) backed by `gPlaySt.config.growth_radar_off` (bit 7 of `PLAYST + 0x43`, the last spare
+bit; 0 = ON). It is hidden when the designer config's `stat_page_growth_radar` is off or growths are hidden (stat
+points). `InitPlayConfig` sets it to 0 for new games: the page shows by default. No spare bit is left in
+`gPlaySt.config` now.
+
 The important rule is that the visible menu entry and the config-backed behavior must stay in sync. If a row exists in the UI without a valid config field, it will be cosmetic only. If a config field exists without a menu entry, it becomes effectively hidden.
 
 ## Code Locations
