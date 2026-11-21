@@ -26,6 +26,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.calculate_map_range_faster = true, // AI only simulates battles against the 5 nearest enemies it can fight, per weapon
 	.casual_mode = false,
 	.chapter_names = true,
+	.chapter_results_screen = true, // after a cleared story chapter: turns, units, foes, damage, funds, the MVP and a rank S-D (ChapterResults.md)
 	.chatlog_enabled = true,
 	.chapter_awards = false, // awards screen after a cleared story chapter (Kernel/Wizardry/Guild/Source/ChapterAwards.c)
 	.chapter_intro_style = 0, // 0 = vanilla chapter intro; 1 slide, 2 curtain, 3 mosaic, 4 letterbox (the new-game default of the Options row)

@@ -36,7 +36,7 @@ struct ChapterAwardsUnit {
 	/* 00 */ u8 pid;
 	/* 01 */ u8 kills;
 	/* 02 */ u8 battles;
-	/* 03 */ u8 pad;
+	/* 03 */ u8 spare;   /* not the unit's: the chapter results' bytes (CHAPTER_RESULTS_SPARE_*, chapter-results.h) */
 	/* 04 */ u16 dealt;
 	/* 06 */ u16 taken;
 };
@@ -54,6 +54,12 @@ extern const struct ChapterAwardType gChapterAwardTypes[CHAPTER_AWARD_COUNT];
 
 /* The winner of an award: an index in gChapterAwards.units, or -1 */
 int ChapterAwards_Winner(int kind);
+
+/* The chapter just ended was cleared and was not a district visit (the awards and the chapter results show then) */
+bool ChapterAwards_ChapterCleared(void);
+
+/* What follows the post-chapter screens: the awards if due (and on), else vanilla's save menu, a blocking child of parent */
+void ChapterAwards_StartOrSaveMenu(ProcPtr parent);
 
 /* Hooks: ChapterInitHooks, gExternalBattleToUnitHook, the suspend-save chunk */
 void ChapterInit_ResetChapterAwards(ProcPtr proc);

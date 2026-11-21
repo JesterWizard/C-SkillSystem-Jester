@@ -2,6 +2,7 @@
 #include "kernel-lib.h"
 #include "guild.h"
 #include "chapter-awards.h"
+#include "chapter-results.h"
 #include "district.h"
 #include "constants/texts.h"
 #include "extras-ui.h"
@@ -174,14 +175,20 @@ static bool ChapterAwards_IsDistrict(int chapter)
 	return FALSE;
 }
 
-/* The chapter just ended was a story chapter, cleared, with battles to award */
-static bool ChapterAwards_Due(void)
+/* The chapter just ended was a story chapter and was cleared */
+bool ChapterAwards_ChapterCleared(void)
 {
-	if (gChapterAwards.magic != CHAPTER_AWARDS_MAGIC || gChapterAwards.count == 0)
+	if (gChapterAwards.magic != CHAPTER_AWARDS_MAGIC)
 		return FALSE;
 	if (!CheckFlag(3) || ChapterAwards_IsDistrict(gChapterAwards.chapter))
 		return FALSE;
 	return TRUE;
+}
+
+/* ... with battles to award */
+static bool ChapterAwards_Due(void)
+{
+	return ChapterAwards_ChapterCleared() && gChapterAwards.count != 0;
 }
 
 /* ---- Text helpers ---- */
@@ -414,16 +421,27 @@ const struct ProcCmd ProcScr_ChapterAwards[] = {
 	PROC_END,
 };
 
-/* Vanilla starts the save menu after every chapter but 0x38; a cleared story chapter shows its awards first */
+void ChapterAwards_StartOrSaveMenu(ProcPtr parent)
+{
+	if (gpKernelDesignerConfig->chapter_awards && ChapterAwards_Due())
+		Proc_StartBlocking(ProcScr_ChapterAwards, parent);
+	else
+		Make6C_SaveMenuPostChapter(parent);
+}
+
+/*
+ * Vanilla starts the save menu after every chapter but 0x38. A cleared story chapter shows its results first
+ * (Kernel/Wizardry/ChapterResults, which goes on to what follows here), then its awards.
+ */
 LYN_REPLACE_CHECK(GameControl_CallPostChapterSaveMenu);
 void GameControl_CallPostChapterSaveMenu(struct GameCtrlProc *proc)
 {
-	if (gPlaySt.chapterIndex == 0x38)
+	bool save = gPlaySt.chapterIndex != 0x38;
+
+	if (ChapterResults_Start(proc, save))
 		return;
-	if (gpKernelDesignerConfig->chapter_awards && ChapterAwards_Due())
-		Proc_StartBlocking(ProcScr_ChapterAwards, proc);
-	else
-		Make6C_SaveMenuPostChapter(proc);
+	if (save)
+		ChapterAwards_StartOrSaveMenu(proc);
 }
 
 #endif /* CONFIG_DISTRICT_GUILD */

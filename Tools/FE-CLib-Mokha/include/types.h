@@ -145,7 +145,8 @@ struct PlaySt_30 {
  */
 struct PlaySt_OptionBits2 {
     /* 21 */ u8 lvup_stat_bars_off:1; /* Kernel/Wizardry/LvupStatBars: 0 = ON (the level-up stat bars shown), 1 = OFF */
-             u8 unused_21_1:7;
+             u8 chapter_results_off:1; /* Kernel/Wizardry/ChapterResults: 0 = ON (the results screen shown), 1 = OFF */
+             u8 unused_21_2:6;
     /* 22 */ u8 unused_22[0x2B - 0x22];
 } __attribute__((packed)); /* not BITPACKED: its aligned(4) would pad the 10 bytes to 12 */
 

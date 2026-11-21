@@ -1,0 +1,12 @@
+#ifndef CHAPTER_RESULTS_INSTALLED
+#define CHAPTER_RESULTS_INSTALLED
+
+/**
+ * Chapter results (WIZARDRY_CUSTOM, so FreeSpaceDEMO): the screen after a cleared story chapter, before the awards and
+ * the save menu. Only included with CONFIG_DISTRICT_GUILD (wizardry.event): its counts are the chapter awards'.
+ * GameControl_CallPostChapterSaveMenu (Guild/Source/ChapterAwards.c) starts it; the first player phase's snapshot is
+ * ChapterResults_PrePhase (PrePhaseHook/data.event).
+ */
+#include "Source/ChapterResults.lyn.event"
+
+#endif /* CHAPTER_RESULTS_INSTALLED */

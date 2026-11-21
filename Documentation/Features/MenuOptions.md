@@ -84,6 +84,11 @@ row (ON 112, OFF 135, icon 0x54) backed by `gPlaySt.config2.lvup_stat_bars_off` 
 first bit of `config2` (below). It is hidden when the designer config's `lvup_stat_bars` is off or the level-up screen
 is replaced (`KernelLvupReplacesGrowths`: stat points or the timing minigame). `InitPlayConfig` sets it to 0.
 
+The Chapter Results row (`GAME_OPTION_CHAPTER_RESULTS`, [Chapter Results](./ChapterResults.md#toggle)) is a plain
+ON/OFF row (ON 112, OFF 135, icon 0x56: a results sheet with an orange seal) backed by
+`gPlaySt.config2.chapter_results_off` (bit 1 of `PLAYST + 0x21`; 0 = ON), the last row. It is hidden when the designer
+config's `chapter_results_screen` is off or `CONFIG_DISTRICT_GUILD` is undefined. `InitPlayConfig` sets it to 0.
+
 ### config2: more Options bits
 
 `gPlaySt.config` is full, so new rows go in `gPlaySt.config2` (`struct PlaySt_OptionBits2` in
@@ -97,7 +102,8 @@ other offset (`_Static_assert`s in `Kernel/Wizardry/LvupStatBars/Source/LvupStat
 | Byte | Bits | Field | Row |
 |---|---|---|---|
 | `0x21` | 0 | `lvup_stat_bars_off` | Level-Up Bars (0 = ON) |
-| `0x21` | 1-7 | `unused_21_1` | free |
+| `0x21` | 1 | `chapter_results_off` | Chapter Results (0 = ON) |
+| `0x21` | 2-7 | `unused_21_2` | free |
 | `0x22`-`0x2A` | all | `unused_22[9]` | free (72 bits) |
 
 Rules:
@@ -105,7 +111,7 @@ Rules:
   feature that starts off). A new game zeroes the ten bytes (`WriteNewGameSave` in
   `Kernel/Wizardry/SaveData/Source/ModularSaveCore.c`, next to `gPlaySt.playerName[0] = '\0'`), and saves from before
   `config2` hold 0 there (the old name bytes were never written in a normal game).
-- Take a bit from `unused_21_1` (shrink it) or a byte of `unused_22` (shrink the array) so the struct stays 10 bytes;
+- Take a bit from `unused_21_2` (shrink it) or a byte of `unused_22` (shrink the array) so the struct stays 10 bytes;
   the `_Static_assert`s fail the build otherwise.
 - Wire the row as above: `GAME_OPTION_*` in `uiconfig.h`, `gGameOptionsUiOrder_NEW` (size + 1), `gGameOptions_NEW`,
   `SetGameOption`/`GetGameOption` (`gPlaySt.config2.<bit>`), `InitPlayConfig`, `IsGameOptionUiVisible` for its

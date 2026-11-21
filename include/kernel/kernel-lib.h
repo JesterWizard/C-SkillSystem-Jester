@@ -217,6 +217,7 @@ struct KernelDesigerConfig {
 	u8 gaiden_magic_learn_by_level; /* player units learn spells from their level lists, with a New Spell window (GaidenMagic.md) */
 	u8 stat_page_growth_radar; /* stat screen page "Potential": a radar chart of growths and stats against caps (GrowthRadar.md) */
 	u8 lvup_stat_bars; /* level-up screens: a bar under each stat against its cap, filling with each gain (LvupStatBars.md) */
+	u8 chapter_results_screen; /* after a cleared story chapter, a results screen: numbers, MVP and a rank (ChapterResults.md) */
 };
 
 struct KernelBattleDesignerConfig {
