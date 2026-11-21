@@ -395,7 +395,9 @@ void DrawItemForgeMenuLine(struct Text* text, int item, u16* mapOut) {
     bool showUses = ShouldDisplayItemDurability(item);
 
     if (isForgeable) {
-        PutNumberOrBlank(mapOut + 11, TEXT_COLOR_SYSTEM_GOLD, GetItemForgeCount(item));
+        /* Only a forged item shows its forge count */
+        if (GetItemForgeCount(item) > 0)
+            PutNumberOrBlank(mapOut + 11, TEXT_COLOR_SYSTEM_GOLD, GetItemForgeCount(item));
         if (showUses) {
             PutSpecialChar(mapOut + 12, TEXT_COLOR_SYSTEM_WHITE, TEXT_SPECIAL_SLASH);
             PutNumberOrBlank(mapOut + 14, TEXT_COLOR_SYSTEM_BLUE, GetForgedItemDurability(item));
