@@ -2396,10 +2396,14 @@ class Smoke:
         parts = [struct.unpack_from("<H", rom, self.sym["sEfxLvupPartsPos"] - 0x08000000 + 2 * i)[0] for i in range(8)]
         acts = ["wait 30", "press A", "wait 30", "press A", "wait 40", "press A", "wait 40", "press A", "wait 40",
                 "press A"]
+        # off by default in the designer config: a test ROM turns the bars on
+        rom_on = self.designer_rom(d, "bars_on.gba", "lvup_stat_bars", 1)
+        if not rom_on:
+            return self.check("lvupbars: a test ROM with lvup_stat_bars on", False)
 
         def run(tag, anim, off):
             tm_sym, reg = ("gBG2TilemapBuffer", 0x0400000C) if anim else ("gBG0TilemapBuffer", 0x04000008)
-            cnt = self.run(ROM, ["load " + turn2_ss, "w8 %#x %d" % (PLAYST + 0x42, 0 if anim else 2),
+            cnt = self.run(rom_on, ["load " + turn2_ss, "w8 %#x %d" % (PLAYST + 0x42, 0 if anim else 2),
                                  "w8 %#x 99" % (UNIT1 + 9), "w8 %#x 20" % (UNIT1 + 0x16),
                                  "w8 %#x %d" % (PLAYST + 0x21, 1 if off else 0)] + acts +
                            ["wait %d" % (860 if anim else 460), "shot %s.png" % tag,
@@ -3557,9 +3561,11 @@ class Smoke:
         need = ("gChapterAwards", "gChapterResultsScreen", "ProcScr_ChapterResults", "sProcArray")
         if not all(n in self.sym for n in need):
             return self.check("results: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        # off by default in the designer config: a test ROM turns the screen on, another keeps it off
+        rom_on = self.designer_rom(d, "results_on.gba", "chapter_results_screen", 1)
         rom_off = self.designer_rom(d, "results_off.gba", "chapter_results_screen", 0)
         setup = self.oneill_end(boot_ss, d)
-        if setup is None or not rom_off:
+        if setup is None or not rom_off or not rom_on:
             return self.check("results: the prologue's end and a test ROM", False)
         cr, ca, screen = self.sym["gChapterResultsScreen"], self.sym["gChapterAwards"], self.sym["ProcScr_ChapterResults"]
         save_menu = 0x08A203A8  # gProcScr_SaveMenuPostChapter
@@ -3574,7 +3580,7 @@ class Smoke:
         lines += ["press A", "wait 150", "shot savemenu.png"] + procs("procs_save.bin")
         lines += ["press A", "wait 60", "press A", "wait 200"] + ["press START", "wait 50", "press A", "wait 50"] * 6
         lines += ["r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x0F), "r16 %#x" % (PLAYST + 0x10), "r8 %#x" % (ca + 0x27)]
-        vals = self.run(ROM, lines, d)
+        vals = self.run(rom_on, lines, d)
         self.shot(os.path.join(d, "results.png"), "chapter results")
         self.shot(os.path.join(d, "savemenu.png"), "save menu after the results")
         if len(vals) != 51 + 9 + 4:
@@ -3610,7 +3616,7 @@ class Smoke:
         # off: the Options row (config2 bit 1), then the designer config; the screen's RAM keeps a sentinel
         off = setup + ["w8 %#x 2" % (PLAYST + 0x21), "w8 %#x 0xEE" % (cr + 0x58)]
         off += ["press START", "wait 50"] * 14 + ["wait 100", "r8 %#x" % (cr + 0x58)] + procs("procs_off.bin")
-        got = self.run(ROM, off, d)
+        got = self.run(rom_on, off, d)
         then = scripts("procs_off.bin")
         self.check("results: with the Options row OFF the chapter goes straight on, no results screen",
                    got == [0xEE] and screen not in then, "sentinel %s" % ["%#x" % v for v in got])
