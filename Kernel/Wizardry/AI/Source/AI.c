@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "skill-system.h"
 #include "playst-expa.h"
 #include "popup.h"
@@ -149,10 +150,10 @@ static int BuildAiUnitList_Proc(ProcPtr proc) {
         }
 #endif
 
-        if (unit->statusIndex == UNIT_STATUS_SLEEP)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_BERSERK)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK)
             continue;
 
         if (unit->state & (US_HIDDEN | US_UNSELECTABLE | US_DEAD | US_RESCUED | US_HAS_MOVED_AI))
@@ -189,7 +190,7 @@ void CpOrderBerserkInit(ProcPtr proc)
 
         if 
         (
-            unit->statusIndex != UNIT_STATUS_BERSERK &&
+            UNIT_STATUS_INDEX(unit) != UNIT_STATUS_BERSERK &&
 #if (defined(SID_Rampage) && (COMMON_SKILL_VALID(SID_Rampage)))
                 !SkillTester(unit, SID_Rampage)
 #endif
@@ -329,10 +330,10 @@ int BuildAiUnitList(void)
         if (!unit->pCharacterData)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_SLEEP)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_BERSERK)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK)
             continue;
 
         if (unit->state & (US_HIDDEN | US_UNSELECTABLE | US_DEAD | US_RESCUED | US_HAS_MOVED_AI))

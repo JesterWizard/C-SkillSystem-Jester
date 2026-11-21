@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "pair-up.h"
 #include "kernel-lib.h"
 #include "bmmap.h"
@@ -221,7 +222,7 @@ static bool PairUp_IsValidTarget(const struct Unit *unit)
 {
 	return PairUp_IsValidUnit(unit)
 		&& !(unit->state & US_UNAVAILABLE)
-		&& unit->statusIndex != UNIT_STATUS_BERSERK
+		&& UNIT_STATUS_INDEX(unit) != UNIT_STATUS_BERSERK
 		&& !UNIT_IS_PHANTOM(unit);
 }
 

@@ -31,7 +31,7 @@ void MapAnim_BeginRoundSpecificAnims(ProcPtr proc)
 
 	gManimSt.hp_changing = 1;
 
-	if (IsRecoverLikeStatus(gManimSt.actor[0].unit->statusIndex))
+	if (IsRecoverLikeStatus(UNIT_STATUS_INDEX(gManimSt.actor[0].unit)))
 		RegisterMapHpChangeAnim(map_actor, -gManimSt.hitDamage);
     else
     {
@@ -83,7 +83,7 @@ void MapAnim_BeginRoundSpecificAnims(ProcPtr proc)
 			MapAnim_BeginWallBreakAnim(gManimSt.actor[map_target].unit, 0);
 		}
 	} else {
-		if (IsRecoverLikeStatus(gManimSt.actor[0].unit->statusIndex))
+		if (IsRecoverLikeStatus(UNIT_STATUS_INDEX(gManimSt.actor[0].unit)))
 			sfx = 0x3C9;
 		else {
 			sfx = 0xD2;

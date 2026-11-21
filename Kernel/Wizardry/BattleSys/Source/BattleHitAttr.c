@@ -306,7 +306,7 @@ void BattleHit_InjectNegativeStatus(struct BattleUnit *attacker, struct BattleUn
 #if (defined(SID_Break) && (COMMON_SKILL_VALID(SID_Break)))
     else if (BattleFastSkillTester(attacker, SID_Break))
     {
-        if (GetUnit(defender->unit.index)->statusIndex == UNIT_STATUS_NONE)
+        if (UNIT_STATUS_INDEX(GetUnit(defender->unit.index)) == UNIT_STATUS_NONE)
             SetUnitStatus(GetUnit(defender->unit.index), NEW_UNIT_STATUS_BREAK);
     }
 #endif
@@ -314,7 +314,7 @@ void BattleHit_InjectNegativeStatus(struct BattleUnit *attacker, struct BattleUn
 #if (defined(SID_Geomancy) && (COMMON_SKILL_VALID(SID_Geomancy)))
     else if (BattleFastSkillTester(attacker, SID_Geomancy) && gActionData.unk08 == SID_Geomancy)
     {
-        if (GetUnit(defender->unit.index)->statusIndex == UNIT_STATUS_NONE)
+        if (UNIT_STATUS_INDEX(GetUnit(defender->unit.index)) == UNIT_STATUS_NONE)
         {
             switch (gBmMapTerrain[attacker->unit.yPos][attacker->unit.xPos])
             {
@@ -336,7 +336,7 @@ void BattleHit_InjectNegativeStatus(struct BattleUnit *attacker, struct BattleUn
 #if (defined(SID_Toxic) && (COMMON_SKILL_VALID(SID_Toxic)))
     else if (BattleFastSkillTester(attacker, SID_Toxic))
     {
-        if (GetUnit(defender->unit.index)->statusIndex == UNIT_STATUS_NONE)
+        if (UNIT_STATUS_INDEX(GetUnit(defender->unit.index)) == UNIT_STATUS_NONE)
             SetUnitStatus(GetUnit(defender->unit.index), NEW_UNIT_STATUS_TOXIC_POISON);
     }
 #endif
@@ -395,16 +395,12 @@ void BattleHit_InjectNegativeStatus(struct BattleUnit *attacker, struct BattleUn
 #endif
 
 #if (defined(SID_GoodAsGold) && (COMMON_SKILL_VALID(SID_GoodAsGold)))
+    /* Immune to every harmful status (the ones DebuffInfo marks negative) */
     if (BattleFastSkillTester(defender, SID_GoodAsGold))
     {
-        for (int i = 0; i < 9; i++)
-        {
-            if (defender->statusOut == debuffs[i])
-            {
-                defender->statusOut = UNIT_STATUS_NONE;
-                break;
-            }
-        }
+        if (defender->statusOut > 0 && defender->statusOut < NEW_UNIT_STATUS_MAX &&
+            gpDebuffInfos[defender->statusOut].positive_type == STATUS_DEBUFF_NEGATIVE)
+            defender->statusOut = UNIT_STATUS_NONE;
     }
 #endif
 

@@ -312,8 +312,8 @@ STATIC_DECLAR void GenerateStatDebuffMsgBufExt(struct Unit *unit, u32 *bitfile, 
 				buf->res += info->unit_status.res;
 				buf->lck += info->unit_status.lck;
 				buf->mov += info->unit_status.mov;
-              	buf->curHP -= info->unit_status.curHP;
-                buf->maxHP -= info->unit_status.maxHP;
+				buf->curHP += info->unit_status.curHP;
+				buf->maxHP += info->unit_status.maxHP;
 			}
 
 			if (info->cannot_move == true)

@@ -104,13 +104,13 @@ s8 CanUnitUseStaff(struct Unit* unit, int item) {
         return false;
 #endif
 
-    if (unit->statusIndex == UNIT_STATUS_SLEEP)
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
         return FALSE;
 
-    if (unit->statusIndex == UNIT_STATUS_BERSERK)
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK)
         return FALSE;
 
-    if (unit->statusIndex == UNIT_STATUS_SILENCED)
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SILENCED)
         return FALSE;
 
 #if (defined(SID_GracegiftPlus) && (COMMON_SKILL_VALID(SID_GracegiftPlus)))
@@ -257,7 +257,7 @@ STATIC_DECLAR void SetBattleUnitWeaponVanilla(struct BattleUnit *bu, int itemSlo
 			bu->canCounter = false;
 		}
 
-		switch (bu->unit.statusIndex) {
+		switch (UNIT_STATUS_INDEX(&bu->unit)) {
 		case UNIT_STATUS_SLEEP:
 		case UNIT_STATUS_PETRIFY:
 		case UNIT_STATUS_13:
@@ -317,7 +317,7 @@ STATIC_DECLAR bool CanUseUnarmedCombat(struct BattleUnit *bu)
 		if (UNIT_IS_GORGON_EGG(&bu->unit))
 			return false;
 
-		if (gBattleActor.unit.statusIndex == UNIT_STATUS_BERSERK &&
+		if (UNIT_STATUS_INDEX(&gBattleActor.unit) == UNIT_STATUS_BERSERK &&
 			UNIT_FACTION(&gBattleActor.unit) == FACTION_BLUE &&
 			UNIT_FACTION(&bu->unit) == FACTION_BLUE)
 			return false;
@@ -556,7 +556,7 @@ s8 CanUnitUseWeapon(struct Unit *unit, int item)
 #if CHAX
 	if ((GetUnitStatusIndex(unit) == UNIT_STATUS_SILENCED) && (GetItemAttributes(item) & IA_MAGIC))
 #else
-	if ((unit->statusIndex == UNIT_STATUS_SILENCED) && (GetItemAttributes(item) & IA_MAGIC))
+	if ((UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SILENCED) && (GetItemAttributes(item) & IA_MAGIC))
 #endif
 		return false;
 

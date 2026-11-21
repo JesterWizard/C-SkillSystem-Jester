@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "skill-system.h"
 #include "battle-system.h"
 #include "status-getter.h"
@@ -240,7 +241,7 @@ s8 IsPositionMagicSealed(int x, int y)
 LYN_REPLACE_CHECK(IsUnitMagicSealed);
 s8 IsUnitMagicSealed(struct Unit *unit)
 {
-    if (unit->statusIndex == UNIT_STATUS_SILENCED)
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SILENCED)
         return TRUE;
 
     if (IsPositionMagicSealed(unit->xPos, unit->yPos))

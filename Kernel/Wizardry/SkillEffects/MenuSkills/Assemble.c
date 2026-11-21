@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "map-anims.h"
 #include "weapon-range.h"
@@ -31,8 +32,8 @@ static bool Assemble_IsValidTarget(struct Unit *actor, struct Unit *target)
         US_RESCUING | US_RESCUED | US_IN_BALLISTA))
         return false;
 
-    if (target->statusIndex == UNIT_STATUS_BERSERK ||
-        target->statusIndex == UNIT_STATUS_PETRIFY)
+    if (UNIT_STATUS_INDEX(target) == UNIT_STATUS_BERSERK ||
+        UNIT_STATUS_INDEX(target) == UNIT_STATUS_PETRIFY)
         return false;
 
 #if defined(SID_Anchor) && (COMMON_SKILL_VALID(SID_Anchor))

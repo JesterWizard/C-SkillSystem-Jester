@@ -122,9 +122,7 @@ PUSH
     PROTECT $25904 $259EC
 */
 
-    ORG $25A22 // MakePoisonDamageTargetList
-    BYTE 0x3F
-    PROTECT $259EC $25A64
+    /* MakePoisonDamageTargetList is replaced in StatusDepletion.c (Toxic) */
 
     ORG $25AA6 // MakeGorgonEggHatchTargetList
     BYTE 0x3F

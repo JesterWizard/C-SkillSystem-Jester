@@ -256,7 +256,7 @@ void TryAddUnitToSlowTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -331,7 +331,7 @@ void TryAddUnitToPoisonTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -362,7 +362,7 @@ void TryAddUnitToDelayTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -430,7 +430,7 @@ void TryAddUnitToQuickenTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -460,7 +460,7 @@ void TryAddUnitToHideTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -490,7 +490,7 @@ void TryAddUnitToProvokeTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -520,7 +520,7 @@ void TryAddUnitToPetrifyTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -550,7 +550,7 @@ void TryAddUnitToSoothTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -580,7 +580,7 @@ void TryAddUnitToEnfeebleTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 
@@ -610,7 +610,7 @@ void TryAddUnitToInvestTargetList(struct Unit* unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE) {
         return;
     }
 

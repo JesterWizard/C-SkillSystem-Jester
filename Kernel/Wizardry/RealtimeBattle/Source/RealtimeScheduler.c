@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "kernel/realtime-battle.h"
 
@@ -64,7 +65,7 @@ static bool IsRealtimeAiUnitReady(struct Unit *unit)
 		return false;
 
 	/* Same filter as BuildAiUnitList, plus units that are not on the map */
-	if (unit->statusIndex == UNIT_STATUS_SLEEP || unit->statusIndex == UNIT_STATUS_BERSERK)
+	if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP || UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK)
 		return false;
 
 	if (unit->state & (US_HIDDEN | US_UNSELECTABLE | US_DEAD | US_RESCUED | US_HAS_MOVED_AI | US_NOT_DEPLOYED | US_BIT16))

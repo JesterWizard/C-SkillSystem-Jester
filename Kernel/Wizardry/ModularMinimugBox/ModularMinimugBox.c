@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "stat-screen.h"
 #include "skill-system.h"
 #include "constants/skills.h"
@@ -249,7 +250,7 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
     if (!UNIT_IS_VALID(unit))
         return;
 
-    if (unit->statusIndex == UNIT_STATUS_RECOVER) proc->unitClock = 0;
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_RECOVER) proc->unitClock = 0;
 
 /* Stage 2: suppress HP text, slash, and digit OAM entirely */
     if (gpKernelDesignerConfig->multiple_fog_stages == true
@@ -261,7 +262,7 @@ void UnitMapUiUpdate(struct PlayerInterfaceProc* proc, struct Unit* unit) {
         BG_EnableSyncByMask(BG0_SYNC_BIT);
     }
 
-    if (proc->hideContents || ((proc->unitClock & 64) && unit->statusIndex != UNIT_STATUS_NONE)) return;
+    if (proc->hideContents || ((proc->unitClock & 64) && UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE)) return;
 
     int xb = proc->xHp * 8, yb = proc->yHp * 8;
     u8 hp[6];

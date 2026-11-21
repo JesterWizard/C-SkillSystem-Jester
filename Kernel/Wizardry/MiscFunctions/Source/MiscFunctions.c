@@ -1721,7 +1721,7 @@ void TryAddUnitToTradeTargetList(struct Unit* unit) {
     if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_REPLICATE)
         return;
 
-    if (unit->statusIndex != UNIT_STATUS_BERSERK) {
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_BERSERK) {
 
         if (gSubjectUnit->items[0] != 0 || unit->items[0] != 0) {
 
@@ -3341,7 +3341,7 @@ void BattleInitTargetCanCounter(void)
 #endif
 
     // Target cannot counter if a berserked player unit is attacking another player unit
-    if (gBattleActor.unit.statusIndex == UNIT_STATUS_BERSERK)
+    if (UNIT_STATUS_INDEX(&gBattleActor.unit) == UNIT_STATUS_BERSERK)
     {
         if ((UNIT_FACTION(&gBattleActor.unit) == FACTION_BLUE) && (UNIT_FACTION(&gBattleTarget.unit) == FACTION_BLUE))
         {
@@ -4046,12 +4046,13 @@ void Talk_OnIdle(ProcPtr proc) {
 LYN_REPLACE_CHECK(AiIsUnitEnemy);
 s8 AiIsUnitEnemy(struct Unit* unit) {
 
-    if (AreUnitsAllied(gActiveUnit->index, unit->index)) {
-        if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DECOY && gActiveUnit != unit)
-            return 1;
-        else
-            return 0;
-    }
+    /* A Decoy draws its enemies' attacks (AI scoring), never its own side's */
+    if (AreUnitsAllied(gActiveUnit->index, unit->index))
+        return 0;
+
+    /* A hidden unit can't be targeted at all: attacks, staves, area attacks */
+    if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_HIDE)
+        return 0;
 
     return EnemyFogVisionCanSeeUnit(unit);
 }

@@ -330,7 +330,7 @@ bool rampartPlus_activated = false;
 	/* Reduce incoming damage by 25% if the defending unit has the 'default' status */
 #if defined(SID_BravelyDefault) && (COMMON_SKILL_VALID(SID_BravelyDefault))
 	if (BattleFastSkillTester(defender, SID_BravelyDefault))
-		if (GetUnitStatusIndex(GetUnit(attacker->unit.index)) == NEW_UNIT_STATUS_DEFAULT)
+		if (GetUnitStatusIndex(GetUnit(defender->unit.index)) == NEW_UNIT_STATUS_DEFAULT)
 			result -= (result / 4);
 #endif
 

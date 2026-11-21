@@ -143,7 +143,7 @@ static int GetStatPointCap(struct Unit *unit, int stat)
 	int limitBreaker = GetStatPointLimitBreaker(unit);
 
 	switch (stat) {
-	case STAT_POINT_HP:  return unit->pClassData->maxHP + limitBreaker;
+	case STAT_POINT_HP:  return UNIT_MHP_MAX(unit) + limitBreaker;
 	case STAT_POINT_POW: return UNIT_POW_MAX(unit) + limitBreaker;
 	case STAT_POINT_MAG: return GetUnitMaxMagic(unit) + limitBreaker;
 	case STAT_POINT_SKL: return UNIT_SKL_MAX(unit) + limitBreaker;

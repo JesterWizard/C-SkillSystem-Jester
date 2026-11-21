@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "gaiden-magic.h"
 #include "item-sys.h"
 #include "skill-system.h"
@@ -1017,10 +1018,10 @@ s8 IsItemDisplayUsable(struct Unit* unit, int item) {
         return CanUnitUseStaff(unit, item);
 
     if (GetItemUseEffect(item)) {
-        if (unit->statusIndex == UNIT_STATUS_SLEEP)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
             return FALSE;
 
-        if (unit->statusIndex == UNIT_STATUS_BERSERK)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK)
             return FALSE;
 
         if (!(UNIT_CATTRIBUTES(unit) & CA_THIEF) && GetItemIndex(item) == ITEM_LOCKPICK)
