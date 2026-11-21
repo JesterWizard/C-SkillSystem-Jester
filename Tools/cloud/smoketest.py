@@ -128,6 +128,9 @@ What it checks:
   awards      the prologue's other two enemies removed, Eirika fights O'Neill until he falls and the chapter ends: off
               by default, no awards are paid; with chapter_awards on (a test ROM), the chapter awards screen (all three
               for Eirika) comes before the save menu and pays 10 + 5 + 5 tokens.
+  results     the chapter results screen after the same prologue: its lines count up, then the MVP (Eirika) and the
+              rank's stamp (A); the numbers match the chapter, A goes on to the save menu and Chapter 1 follows. With
+              its Options row OFF (config2 bit 1) or chapter_results_screen off (a test ROM) it never starts.
   bigunit     2x2 units: a test ROM lists O'Neill, who loads as four corners drawn once at double size; Eirika breaks
               a corner (no defeat yet). A fighter made a 2x2 block in RAM fights once from the corner that reaches,
               Seth breaks that corner, and the block stops where O'Neill blocks it; its shown range is every tile
@@ -148,7 +151,7 @@ What it checks:
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
 a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
-lvupanim, autopromo, t3promo, t3promoall, lvupfont, lvupbars, banim, frames, stealer, debugflag, biography, awards, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
+lvupanim, autopromo, t3promo, t3promoall, lvupfont, lvupbars, banim, frames, stealer, debugflag, biography, awards, results, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
 Build first (Tools/cloud/build.sh). RAM addresses come from fe8-kernel-dev.sym and include/link/config-memmap.o, so
@@ -277,6 +280,9 @@ WM_SAVE = ["w32 %#x %#x" % (0x03005280 + 8, 40 << 8), "w32 %#x %#x" % (0x0300528
 # A+B+START+SELECT, then the language screen and the title
 SOFT_RESET = ["hold A+B+START+SELECT 10", "wait 500", "press A", "wait 200", "press START", "wait 200"]
 # Eirika is under the cursor at the start of the prologue: A selects her, A stays, and the action menu opens
+# The chapter results screen's Options row OFF (gPlaySt.config2 bit 1): for tests that time the keys after a chapter's
+# end (the stubs, the postgame); test_results covers the screen
+RESULTS_OFF = ["w8 %#x 2" % (PLAYST + 0x21)]
 EIRIKA_MENU = ["wait 30", "press A", "wait 30", "press A", "wait 40"]
 
 
@@ -919,6 +925,7 @@ class Smoke:
         mons = ["w32 %#x 0" % (GM_DATA + 0x10 + 4 * i) for i in range(4, 8)]
         nodes = ["w8 %#x %d" % (GM_DATA + 0x30 + 4 * n, 1 if n < 10 else 0) for n in range(0x1D)]
         setup = ["w8 %#x %#x" % (story, STUB_ROUTE[0][0]), "w8 %#x %d" % (GM_DATA + 0x11, STUB_ROUTE[0][2])] + nodes + mons
+        setup += RESULTS_OFF
         lines = ["load " + start, "wait 30"] + setup + LEAVE_DISTRICT + mons + ["wait 10", "r8 %#x" % story]
         battle = self.stub_battle(reads=True)
         got = []
@@ -1226,7 +1233,7 @@ class Smoke:
         flags = PERMANENT_FLAGS + ((DISTRICT_SERAFEW_FLAG - 0x65) >> 3)
         bits = (1 << ((DISTRICT_SERAFEW_FLAG - 0x65) & 7)) | (1 << ((DISTRICT_PORT_KIRIS_FLAG - 0x65) & 7))
         setup = ["w8 %#x %#x" % (story, CHAPTER_20), "w8 %#x %d" % (GM_DATA + 0x11, WM_NODE_RAUSTEN),
-                 "w8 %#x %#x" % (flags, bits)] + mons
+                 "w8 %#x %#x" % (flags, bits)] + mons + RESULTS_OFF
         setup += ["w8 %#x %d" % (node(n), 1 if n < WM_NODE_BLACK_TEMPLE or n == WM_NODE_VALNI else 0)
                   for n in range(WM_NODES)]
         setup += ["w8 %#x %d" % (GM_DATA + 0xA4 + i, i) for i in range(OPEN_ROADS)] + \
@@ -3474,25 +3481,15 @@ class Smoke:
         open(rom, "wb").write(data)
         return rom
 
-    def test_awards(self, boot_ss):
+    def oneill_end(self, boot_ss, d):
         """The prologue with only O'Neill left (the other two enemies removed), moved next to Eirika: she attacks him,
-        he falls to her counter in the enemy phase and the chapter ends. The awards are off by default (chapter_awards in
-        designer-config.c): the chapter ends with no awards paid. A test ROM turns them on: the awards screen comes
-        before the save menu, names Eirika for all three awards (the only unit that fought: one foe defeated, no damage
-        taken) and pays 10 + 5 + 5 tokens."""
-        d = os.path.join(self.out, "awards")
-        os.makedirs(d, exist_ok=True)
-        rom_on = self.designer_rom(d, "awards.gba", "chapter_awards", 1)
-        if not rom_on:
-            return self.check("awards: a test ROM with chapter_awards on", False)
-        need = ("gGuildSave", "gChapterAwards")
-        if not all(n in self.sym for n in need):
-            return self.check("awards: the chapter awards", False, "no symbols")
-        g, ca, enemy = self.sym["gGuildSave"], self.sym["gChapterAwards"], 0x0202CFBC
+        and he falls to her counter in the enemy phase, which ends the chapter. The script up to her attack's end (the
+        guild's tokens zeroed), or None."""
+        g, enemy = self.sym["gGuildSave"], 0x0202CFBC
         vals = self.run(ROM, ["load " + boot_ss, "r32 %#x" % BM_MAP_UNIT] +
                         ["r8 %#x" % (enemy + i * 0x48 + k) for i in range(3) for k in (0x10, 0x11)], d)
         if len(vals) != 7:
-            return self.check("awards: the prologue's enemies", False, "values %s" % vals)
+            return None
         rows, pos = vals[0], [(vals[1 + 2 * i], vals[2 + 2 * i]) for i in range(3)]
         tile = lambda x, y: self.run(ROM, ["load " + boot_ss, "r32 %#x" % (rows + 4 * y)], d)[0] + x
         # O'Neill (the first enemy) to the tile below Eirika, (4, 6), with no Spd, Def or Lck, and Eirika with 30 Str and
@@ -3503,10 +3500,32 @@ class Smoke:
                  "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2)]
         for i in (1, 2):
             lines += ["w32 %#x 0" % (enemy + i * 0x48), "w8 %#x 0" % tile(*pos[i])]
-        # Attack, the first weapon, the first target; A through his quote; START and A skip the ending scenes
+        # Attack, the first weapon, the first target; A through his quote
         lines += EIRIKA_MENU + ["press A", "wait 40", "press A", "wait 40", "press A", "wait 60"]
         lines += ["wait 50", "press A", "wait 40"] * 5 + ["wait 300"]
-        # he survives her attack and falls to her counter in the enemy phase
+        return lines
+
+    def test_awards(self, boot_ss):
+        """The prologue with only O'Neill left (the other two enemies removed), moved next to Eirika: she attacks him,
+        he falls to her counter in the enemy phase and the chapter ends. The awards are off by default (chapter_awards in
+        designer-config.c): the chapter ends with no awards paid. A test ROM turns them on: the awards screen comes
+        before the save menu, names Eirika for all three awards (the only unit that fought: one foe defeated, no damage
+        taken) and pays 10 + 5 + 5 tokens."""
+        d = os.path.join(self.out, "awards")
+        os.makedirs(d, exist_ok=True)
+        # the chapter results screen (on by default) off in the test ROM: it comes first, and this test times the awards
+        rom_on = self.designer_rom(d, "awards.gba", "chapter_awards", 1)
+        rom_on = rom_on and self.designer_rom(d, "awards.gba", "chapter_results_screen", 0, base=rom_on)
+        if not rom_on:
+            return self.check("awards: a test ROM with chapter_awards on", False)
+        need = ("gGuildSave", "gChapterAwards")
+        if not all(n in self.sym for n in need):
+            return self.check("awards: the chapter awards", False, "no symbols")
+        g, ca = self.sym["gGuildSave"], self.sym["gChapterAwards"]
+        lines = self.oneill_end(boot_ss, d)
+        if lines is None:
+            return self.check("awards: the prologue's enemies", False)
+        # he survives her attack and falls to her counter in the enemy phase; START and A skip the ending scenes
         skip = ["press START", "wait 50", "press A", "wait 50"]
         lines += skip * 3 + ["r8 %#x" % (ca + 3), "r8 %#x" % (ca + 5), "r8 %#x" % (ca + 6)]
         lines += skip * 3 + ["wait 200", "shot awards.png", "r16 %#x" % (g + 2), "r16 %#x" % ca]
@@ -3524,6 +3543,82 @@ class Smoke:
                    count == 1 and kills == 1 and battles >= 1, "units, foes, battles %s" % vals[:3])
         self.check("awards: the chapter end pays 10 + 5 + 5 tokens", tokens == 20 and magic == 0,
                    "tokens %d, counts %s" % (tokens, "cleared" if magic == 0 else "left"))
+
+    def test_results(self, boot_ss):
+        """The chapter results screen (Kernel/Wizardry/ChapterResults), after test_awards' prologue: Eirika attacks
+        O'Neill, he falls in the enemy phase on turn 1 and the chapter ends. START skips the ending's scenes but not the
+        screen: its lines count up one after another (step 0-6), then the MVP and the rank's stamp (an affine OBJ, tile
+        0x300). The numbers: 1 turn, 2 units fielded (Eirika and Seth), none lost, 1 foe defeated, her damage dealt, none
+        taken, no funds; the MVP is Eirika and the rank A (the formula in ChapterResults.md). A goes on to the save
+        menu, and after the save Chapter 1 starts (a new snapshot taken at its first player phase). With the Options
+        row OFF (config2, PLAYST + 0x21 bit 1), or chapter_results_screen off (a test ROM), the screen never starts."""
+        d = os.path.join(self.out, "results")
+        os.makedirs(d, exist_ok=True)
+        need = ("gChapterAwards", "gChapterResultsScreen", "ProcScr_ChapterResults", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("results: symbols", False, "missing %s" % [n for n in need if n not in self.sym])
+        rom_off = self.designer_rom(d, "results_off.gba", "chapter_results_screen", 0)
+        setup = self.oneill_end(boot_ss, d)
+        if setup is None or not rom_off:
+            return self.check("results: the prologue's end and a test ROM", False)
+        cr, ca, screen = self.sym["gChapterResultsScreen"], self.sym["gChapterAwards"], self.sym["ProcScr_ChapterResults"]
+        save_menu = 0x08A203A8  # gProcScr_SaveMenuPostChapter
+        procs = lambda name: ["dump %#x %#x %s" % (self.sym["sProcArray"], PROC_SIZE * PROCS, name)]
+        scripts = lambda name: [a for a, _ in self.procs(os.path.join(d, name))]
+        step = "r8 %#x" % (cr + 0x58)
+        # START, START...: the ending's scenes go, the screen stays and counts
+        lines = setup + sum((["press START", "wait 50", step] for _ in range(10)), []) + ["wait 8", step] * 40
+        lines += ["wait 300", step, "shot results.png"]
+        lines += ["r32 %#x" % (cr + 0x38 + 4 * k) for k in range(7)] + ["r8 %#x" % (cr + 0x5A), "r8 %#x" % (cr + 0x5B)]
+        lines += ["dump 0x07000000 0x400 oam.bin"] + procs("procs_on.bin")
+        lines += ["press A", "wait 150", "shot savemenu.png"] + procs("procs_save.bin")
+        lines += ["press A", "wait 60", "press A", "wait 200"] + ["press START", "wait 50", "press A", "wait 50"] * 6
+        lines += ["r8 %#x" % CHAPTER, "r8 %#x" % (PLAYST + 0x0F), "r16 %#x" % (PLAYST + 0x10), "r8 %#x" % (ca + 0x27)]
+        vals = self.run(ROM, lines, d)
+        self.shot(os.path.join(d, "results.png"), "chapter results")
+        self.shot(os.path.join(d, "savemenu.png"), "save menu after the results")
+        if len(vals) != 51 + 9 + 4:
+            return self.check("results: the chapter ends", False, "values %s" % vals)
+        steps, nums, rank, mvp, after = vals[:51], vals[51:58], vals[58], vals[59], vals[60:]
+        counting = [v for v in steps if 0 < v < 7]
+        self.check("results: the screen counts its lines up one after another, then the MVP and the stamp",
+                   len(set(counting)) >= 4 and counting == sorted(counting) and steps[-1] == 9,
+                   "steps %s" % sorted(set(steps), key=steps.index))
+        signed = [v - (1 << 32) if v >= 1 << 31 else v for v in nums]
+        turns, fielded, lost, defeated, dealt, taken, funds = signed
+        self.check("results: 1 turn, 2 fielded, 0 lost, 1 defeated, damage dealt, none taken, no funds",
+                   (turns, fielded, lost, defeated, taken, funds) == (1, 2, 0, 1, 0, 0) and dealt > 0,
+                   "values %s" % signed)
+        # the rank's formula (ChapterResults.md): 85 + foes (10 at most) - 25 a loss - 5 a turn over the pace
+        pace = max(3, 2 + (defeated + 1) // 2)
+        score = 85 + min(defeated, 10) - 25 * lost - 5 * min(max(turns - pace, 0), 8)
+        want = next(i for i, t in enumerate((90, 80, 70, 55, -1000)) if score >= t)
+        self.check("results: the MVP is Eirika (the first unit counted) and the rank A, as the formula gives",
+                   mvp == 0 and rank == want == 1, "mvp %d, rank %d (formula %d)" % (mvp, rank, want))
+        oam = open(os.path.join(d, "oam.bin"), "rb").read() if os.path.exists(os.path.join(d, "oam.bin")) else b""
+        stamp = [i for i in range(0, len(oam), 8) if struct.unpack_from("<H", oam, i + 4)[0] & 0xF3FF == 0x2300 and
+                 struct.unpack_from("<H", oam, i)[0] & 0x300 == 0x300]
+        self.check("results: the rank's stamp is on screen (a double-size affine OBJ, tile 0x300, palette 2)",
+                   len(stamp) == 1, "%d entries" % len(stamp))
+        on, then = scripts("procs_on.bin"), scripts("procs_save.bin")
+        self.check("results: A leaves the screen for the save menu",
+                   screen in on and screen not in then and save_menu in then,
+                   "results %s/%s, save menu %s" % (screen in on, screen in then, save_menu in then))
+        self.check("results: after the save Chapter 1 starts and takes its own snapshot",
+                   after[0] == 1 and after[1] == 0 and after[2] == 1 and after[3] == 0xC5,
+                   "chapter, phase, turn, mark %s" % ["%#x" % v for v in after])
+        # off: the Options row (config2 bit 1), then the designer config; the screen's RAM keeps a sentinel
+        off = setup + ["w8 %#x 2" % (PLAYST + 0x21), "w8 %#x 0xEE" % (cr + 0x58)]
+        off += ["press START", "wait 50"] * 14 + ["wait 100", "r8 %#x" % (cr + 0x58)] + procs("procs_off.bin")
+        got = self.run(ROM, off, d)
+        then = scripts("procs_off.bin")
+        self.check("results: with the Options row OFF the chapter goes straight on, no results screen",
+                   got == [0xEE] and screen not in then, "sentinel %s" % ["%#x" % v for v in got])
+        off[len(setup)] = "wait 1"
+        got = self.run(rom_off, off, d)
+        then = scripts("procs_off.bin")
+        self.check("results: with chapter_results_screen off (a test ROM) no results screen",
+                   got == [0xEE] and screen not in then, "sentinel %s" % ["%#x" % v for v in got])
 
     def test_frames(self, boot_ss):
         """The battlequote scene with Eirika's [Surprised] drawn by a frame set: a test ROM points her Determined
@@ -3792,7 +3887,7 @@ def main():
                 t()
         return run
 
-    boot_tests = ("statscreen", "promosms", "growthradar", "battle", "battlequote", "sethcarlyle", "awards", "frames", "stealer", "debugflag",
+    boot_tests = ("statscreen", "promosms", "growthradar", "battle", "battlequote", "sethcarlyle", "awards", "results", "frames", "stealer", "debugflag",
                   "biography", "bigunit", "expbar", "deeproots", "mapcolors", "ch1end", "lvupanim", "autopromo",
                   "t3promo", "t3promoall", "lvupfont", "lvupbars", "banim", "dbgbanim", "mapbox", "gaidenexp", "formation", "threat", "weapontraits", "mindamage", "pairtags", "spellwindow")
     if on("boot") or any(on(t) for t in boot_tests):
@@ -3815,6 +3910,8 @@ def main():
                 ("stealer", s.test_stealer, boot_ss), ("frames", s.test_frames, boot_ss)) if on(t) and ss]))
             if on("awards"):
                 r.submit((0, 3), s.test_awards, boot_ss)
+            if on("results"):
+                r.submit((0, 25), s.test_results, boot_ss)
             if on("bigunit") and turn2_ss:
                 r.submit((0, 4), s.test_bigunit, turn2_ss)
             if on("expbar") and turn2_ss:

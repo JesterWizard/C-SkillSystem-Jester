@@ -22,6 +22,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `min_damage_on_hit` | Off. On, every hit that lands deals at least 1 damage, unless a skill nullifies it (Great Shield, Levitate). See [MinimumDamage](./MinimumDamage.md). |
 | `alpha_blend_movement_sprites` | While pathfinding (and `remove_move_path` is off), shows a Lex Talionis-style faded MU ghost at the cursor tip. See [TranslucentUnitSprite](./TranslucentUnitSprite.md). |
 | `text_box_extension_layout` | Help-box overflow mode: `0` vanilla truncate, `1` extended 5-line, `2` paginated 3-line with A to cycle pages. See [PaginatedHelpBoxes](./PaginatedHelpBoxes.md). |
+| `chapter_results_screen` | On. After a cleared story chapter, before the awards and the save menu, a results screen counts up the chapter's turns, units fielded and lost, foes defeated, damage dealt and taken and funds, names the MVP and stamps a rank (S-D). The Options screen's Chapter Results row (`gPlaySt.config2.chapter_results_off`) is ON in a new game; the player can turn it off per save. Off, there is no screen and no row. Needs `CONFIG_DISTRICT_GUILD` (its counts are the chapter awards'). See [ChapterResults](./ChapterResults.md). |
 | `chapter_awards` | Off by default. After a cleared story chapter, an awards screen (MVP, most foes, unscathed) pays guild tokens before the save menu ([Guild Board](./GuildBoard.md#chapter-awards)). |
 | `hit_decrease_on_range` | Enables Three Houses style hit loss for long-range attacks. |
 | `infinite_durability` | On by default. Weapons never lose uses in battle (`GetWeaponCost` is 0 for them), and their uses are hidden in every item list, forgeable weapons included. Staves and other items keep their uses. |
@@ -104,7 +105,8 @@ first byte of FE7's tactician name, which this build never uses past its first b
 | Bits | Field | Meaning |
 |---|---|---|
 | `0x21` bit 0 | `lvup_stat_bars_off` | Level-Up Bars row ([LvupStatBars](./LvupStatBars.md)): 0 = ON |
-| `0x21` bits 1-7, `0x22`-`0x2A` | `unused_21_1`, `unused_22[9]` | Free: 7 + 72 = 79 bits |
+| `0x21` bit 1 | `chapter_results_off` | Chapter Results row ([ChapterResults](./ChapterResults.md)): 0 = ON |
+| `0x21` bits 2-7, `0x22`-`0x2A` | `unused_21_2`, `unused_22[9]` | Free: 6 + 72 = 78 bits |
 
 0 is every `config2` option's default: a new game zeroes the ten bytes (`WriteNewGameSave`, `ModularSaveCore.c`), and
 older saves hold 0 there. How to add a row there: [MenuOptions](./MenuOptions.md#config2-more-options-bits).

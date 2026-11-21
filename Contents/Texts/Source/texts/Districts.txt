@@ -1237,3 +1237,25 @@ Stat/Cap[X]
 Level-Up Bars[X]
 ## MSG_MENU_OPTION_LVUP_STAT_BARS_DESC
 Stat bars that fill on level-ups[X]
+## MSG_CHAPTER_RESULTS_TITLE
+Chapter Results[X]
+## MSG_CHAPTER_RESULTS_TURNS
+Turns[X]
+## MSG_CHAPTER_RESULTS_FIELDED
+Units fielded[X]
+## MSG_CHAPTER_RESULTS_LOST
+Units lost[X]
+## MSG_CHAPTER_RESULTS_DEFEATED
+Foes defeated[X]
+## MSG_CHAPTER_RESULTS_DEALT
+Damage dealt[X]
+## MSG_CHAPTER_RESULTS_TAKEN
+Damage taken[X]
+## MSG_CHAPTER_RESULTS_FUNDS
+Funds[X]
+## MSG_CHAPTER_RESULTS_RANK
+Rank[X]
+## MSG_MENU_OPTION_CHAPTER_RESULTS_TITLE
+Chapter Results[X]
+## MSG_MENU_OPTION_CHAPTER_RESULTS_DESC
+A results screen after each chapter[X]

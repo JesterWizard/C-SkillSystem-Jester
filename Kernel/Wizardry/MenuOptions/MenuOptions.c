@@ -9,7 +9,7 @@ extern const struct GameOption gGameOptions_NEW[];
 extern u8 Img_ConfigUiIcons_NEW[];
 extern void SetAchievementsTo(int id);
 
-const u8 gGameOptionsUiOrder_NEW[40] = {
+const u8 gGameOptionsUiOrder_NEW[41] = {
     GAME_OPTION_ANIMATION, 
     GAME_OPTION_GAME_SPEED, 
     GAME_OPTION_TEXT_SPEED, 
@@ -52,6 +52,7 @@ const u8 gGameOptionsUiOrder_NEW[40] = {
     GAME_OPTION_THREAT_ARROWS,
     GAME_OPTION_GROWTH_RADAR,
     GAME_OPTION_LVUP_STAT_BARS,
+    GAME_OPTION_CHAPTER_RESULTS,
 };
 
 static bool IsGameOptionUiVisible(u8 optionIdx)
@@ -80,6 +81,16 @@ static bool IsGameOptionUiVisible(u8 optionIdx)
     if (optionIdx == GAME_OPTION_LVUP_STAT_BARS
         && (!gpKernelDesignerConfig->lvup_stat_bars || KernelLvupReplacesGrowths()))
         return false;
+
+    /* No row when there is no results screen: off in the designer config, or no chapter awards' counts (the guild) */
+    if (optionIdx == GAME_OPTION_CHAPTER_RESULTS) {
+#ifdef CONFIG_DISTRICT_GUILD
+        if (!gpKernelDesignerConfig->chapter_results_screen)
+            return false;
+#else
+        return false;
+#endif
+    }
 
     return true;
 }
@@ -758,6 +769,20 @@ const struct GameOption gGameOptions_NEW[] =
         .func = GenericOptionChangeHandler,
     },
 
+    [GAME_OPTION_CHAPTER_RESULTS] =
+    {
+        .msgId = MSG_MENU_OPTION_CHAPTER_RESULTS_TITLE,
+        .selectors =
+        {
+            { MSG_MENU_OPTION_CHAPTER_RESULTS_DESC, MSG_MENU_OPTION_ON,  112, 2 },
+            { MSG_MENU_OPTION_CHAPTER_RESULTS_DESC, MSG_MENU_OPTION_OFF, 135, 2 },
+            { MSG_000,  MSG_000,  190, 0 },
+            { MSG_000,  MSG_000,  189, 0 },
+        },
+        .icon = 0x56, /* a results sheet with a red rank stamp (Kernel/Wizardry/ChapterResults) */
+        .func = GenericOptionChangeHandler,
+    },
+
     [GAME_OPTION_SHOW_TRUE_2RN] =
     {
         .msgId = MSG_MENU_OPTION_SHOW_TRUE_2RN_TITLE,
@@ -882,6 +907,7 @@ void SetGameOption(u8 index, u8 newValue) {
             break;
         case GAME_OPTION_GROWTH_RADAR:                   gPlaySt.config.growth_radar_off = newValue; break;
         case GAME_OPTION_LVUP_STAT_BARS:                 gPlaySt.config2.lvup_stat_bars_off = newValue; break;
+        case GAME_OPTION_CHAPTER_RESULTS:                gPlaySt.config2.chapter_results_off = newValue; break;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true) {
                 gPlaySt.config.achievements = 1; /* OFF */
@@ -954,6 +980,7 @@ u8 GetGameOption(u8 index) {
             return !gPlaySt.config.threat_arrows_on;
         case GAME_OPTION_GROWTH_RADAR:                   return gPlaySt.config.growth_radar_off;
         case GAME_OPTION_LVUP_STAT_BARS:                 return gPlaySt.config2.lvup_stat_bars_off;
+        case GAME_OPTION_CHAPTER_RESULTS:                return gPlaySt.config2.chapter_results_off;
         case GAME_OPTION_ACHIEVEMENTS:
             if (gpKernelDesignerConfig->vesly_achievements != true)
                 return 1; /* OFF */
@@ -1011,6 +1038,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.threat_arrows_on = 0; /* threat arrows OFF by default (the row is hidden if the designer gate is off) */
     gPlaySt.config.growth_radar_off = 0; /* the stat screen's Potential page ON (the row is hidden if the designer gate is off) */
     gPlaySt.config2.lvup_stat_bars_off = 0; /* the level-up stat bars ON (config2: PlaySt + 0x21, bit 0) */
+    gPlaySt.config2.chapter_results_off = 0; /* the chapter results screen ON (config2: PlaySt + 0x21, bit 1) */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */
     gPlaySt.config.real_time_battle = gpKernelDesignerConfig->real_time_battle ? 0 : 1;
     gPlaySt.config.real_time_interval = RealtimeBattle_IntervalToOption(gpKernelDesignerConfig->real_time_enemy_interval_frames);

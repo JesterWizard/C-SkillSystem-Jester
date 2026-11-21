@@ -240,6 +240,8 @@ scrolling mural.
 - The tokens are paid when the screen opens, so leaving it early loses nothing. Districts give no awards, and a chapter
   that ends without being cleared (flag 3) shows none.
 - The counts start over when a chapter starts, and are kept in the suspend save. Up to 12 units are counted.
+- The [Chapter Results](./ChapterResults.md) screen (on by default) uses the same counts and comes first: the
+  results, then the awards, then the save menu.
 
 The awards' names and tokens are `gChapterAwardTypes` in `Data/Guild/Guild.c`:
 
@@ -330,9 +332,11 @@ before the chunk existed loads an empty board.
 
 The chapter awards' counts are `gChapterAwards` (`struct ChapterAwardsData`, 0x64 bytes,
 `include/kernel/chapter-awards.h`): a chunk in the suspend save only, after the guild's, cleared when a chapter starts
-(`ChapterInit_ResetChapterAwards`). With both, the suspend save has 1271 bytes free and the game save 1149.
+(`ChapterInit_ResetChapterAwards`). With both, the suspend save has 1271 bytes free and the game save 1149. The unit
+rows' `spare` bytes (once padding) hold the [Chapter Results](./ChapterResults.md#how-it-works)' snapshot.
 
-The screens' states are `gGuildScreen` (0x80 bytes) and `gChapterAwardsScreen` (0x60 bytes), RAM only.
+The screens' states are `gGuildScreen` (0x80 bytes) and `gChapterAwardsScreen` (0x60 bytes, shared with the chapter
+results' screen, `gChapterResultsScreen`), RAM only.
 
 ---
 

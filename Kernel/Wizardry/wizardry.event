@@ -192,6 +192,7 @@ ALIGN 4
 #endif
 #ifdef CONFIG_DISTRICT_GUILD
 #include "Guild/Guild_Installer.event"
+#include "ChapterResults/ChapterResults_Installer.event"
 #endif
 #include "MirrorMapSprites/MirrorMapSprites_Installer.event"
 #include "ModularMinimugBox/ModularMinimugBox_Installer.event"

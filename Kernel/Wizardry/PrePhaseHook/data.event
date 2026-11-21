@@ -33,6 +33,9 @@ gPrePhaseFuncs:
     POIN Bestiary_PrePhase
     POIN SkillCodex_PrePhase
     POIN Recap_PrePhase
+#ifdef CONFIG_DISTRICT_GUILD
+    POIN ChapterResults_PrePhase
+#endif
 
     // End
     POIN CallExternalPrePhaseHook

@@ -38,7 +38,7 @@ Per kind:
 | `Tools/FE-CLib-Mokha/include/savemenu.h` | `EXTRA_MENU_*` (`:56-61`), `EXTRA_MENU_OPTION_*` (`:64-69`), `AddExtraMenuOption` (`:349`) |
 | `Kernel/Wizardry/MenuOptions/MenuOptions.c` | Option rows, order `[36]` (`:12`), visibility (`:48`), get/set (`:674`, `:738`), defaults in `InitPlayConfig` (`:793`) |
 | `Tools/FE-CLib-Mokha/include/uiconfig.h` | `GAME_OPTION_*` enum, `struct GameOption` (`:13`) |
-| `Tools/FE-CLib-Mokha/include/types.h` | `struct PlaySt_OptionBits` (`:140`): no spare bits left (`recap_off`, `threat_arrows_on` and `growth_radar_off` took the last three bits of `PLAYST + 0x43`; `chapter_intro` took `custom_option_29`..`_32`); `struct PlaySt_OptionBits2` (`gPlaySt.config2`, `PLAYST + 0x21`..`0x2A`) holds the newer rows (`lvup_stat_bars_off`), 79 bits free |
+| `Tools/FE-CLib-Mokha/include/types.h` | `struct PlaySt_OptionBits` (`:140`): no spare bits left (`recap_off`, `threat_arrows_on` and `growth_radar_off` took the last three bits of `PLAYST + 0x43`; `chapter_intro` took `custom_option_29`..`_32`); `struct PlaySt_OptionBits2` (`gPlaySt.config2`, `PLAYST + 0x21`..`0x2A`) holds the newer rows (`lvup_stat_bars_off`, `chapter_results_off`), 78 bits free |
 | `Contents/Texts/Source/texts/Menu_Options.txt` | Option title, description, On/Off strings (`## MSG_...` then the text) |
 | `Kernel/Wizardry/ItemSys/ItemInfoRemap/Source/ForgeMenu.c` | Standalone menu example (`gForgeMenuItems` `:32`, `gForgeMenuDef` `:188`, `CallForgeMenuASMC` `:446`) |
 | `Kernel/Wizardry/Crafting/Crafting.c`, `Crafting_Installer.event` | Menu defined as Event Assembler data; not installed (`Kernel/Wizardry/wizardry.event:143` is commented out) |
