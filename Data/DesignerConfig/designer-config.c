@@ -158,6 +158,7 @@ const struct KernelDesigerConfig gKernelDesigerConfig = {
 	.start_map_effects = false,
 	.stat_gain_frame_speed = 10,
 	.stat_page_gaiden_magic = true,
+	.stat_page_growth_radar = true, // stat screen page "Potential": radar chart of growths and stats vs caps (Options row too)
 	.stat_page_personal_info = false,
 	.stat_page_promotions = true,
 	.stat_page_skill_style = 0, // 0=named list, 1=unnamed grid

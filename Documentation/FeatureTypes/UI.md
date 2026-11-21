@@ -11,7 +11,7 @@ Screens and windows the player sees that are not selectable menus: stat screen p
 ### Stat screen pages
 
 1. `DisplayPage(pageid)` (`Kernel/Wizardry/StatScreen/DrawPages/HelpBox.c:127-152`) clamps the visible page number, maps it through `TranslateStatPageId` (`HelpBox.c:104`), clears `gUiTmScratchA` and `gUiTmScratchC`, and calls `gStatScreenDrawPages[realPageId]()` (`HelpBox.c:152`). It is hooked at ROM `$878CC` (`Kernel/Wizardry/StatScreen/DrawPages/LynJump.event:8`).
-2. `gStatScreenDrawPages` is a `POIN` list in `Kernel/Wizardry/StatScreen/data.event:10-19`, included from `Kernel/Wizardry/wizardry.event:30`. Its index is the page id: the `PAGE_*` enum is `include/kernel/stat-screen.h:8-13` (`PAGE_GAIDEN_MAGIC` = 4 through `PAGE_SKILL_TREE` = 7).
+2. `gStatScreenDrawPages` is a `POIN` list in `Kernel/Wizardry/StatScreen/data.event:10-19`, included from `Kernel/Wizardry/wizardry.event:30`. Its index is the page id: the `PAGE_*` enum is `include/kernel/stat-screen.h:8-13` (`PAGE_GAIDEN_MAGIC` = 4 through `PAGE_GROWTH_RADAR` = 8).
 3. The visible page count is `GetStatPageCount` (`Kernel/Wizardry/StatScreen/DrawMorePage/Source/DrawMorePage.c:199`). Each optional page counts only if `IsStatScreenPageAvailable` (`HelpBox.c:50`) is true. That needs its designer flag (`IsStatScreenPageEnabledByConfig`, `HelpBox.c:21`; `stat_page_*` in `include/kernel/kernel-lib.h:130-134`) and, if it has one, its chapter lock (`sStatScreenPageChapterLocks`, `HelpBox.c:14`).
 4. A page draws into the stat screen's text array `gStatScreen.text[]` with `PutDrawText` and into the tilemap `gUiTmScratchA`. `DrawPage7Rework` (`DrawPage7.c:29`) is the example.
 
@@ -257,7 +257,8 @@ Start it from the menu callback that opens the window: `Proc_StartBlocking(ProcS
 
 ## Gotchas
 
-- **Stat page ids past 7 need more than the list.** `DisplayPage` rejects `realPageId > PAGE_SKILL_TREE` (`HelpBox.c:149`). `TranslateStatPageId` handles only ids 4 to 7 (`HelpBox.c:104-125`). `gStatScreenDrawPages` ends at index 7 (`data.event:17-18`). Extending all three is needed, and nothing in the repo does it yet (unverified beyond 7).
+- **Stat page ids past 8 need more than the list.** Page 8 is the Potential page ([GrowthRadar.md](../Features/GrowthRadar.md)), the first past 7; its commit shows every place a new id touches: `PAGE_*` (`include/kernel/stat-screen.h`), `gStatScreenDrawPages` (`data.event`), the config gate, `TranslateStatPageId`, `StartStatScreenHelp` and the bound in `DisplayPage` (`HelpBox.c`), `GetStatPageCount` and the title clamp in `DisplayPageNameSprite` (`DrawMorePage.c`), and a title sprite plus its sheet offset (`Data/StatScreen/Source/PageNameSprite.c`). The page number sprite has digits up to 9 (`PageNumCtrl_UpdatePageNum`), so 9 pages at most.
+- **Free VRAM on the stat screen is scarce.** BG2's character base is `0x06008000`; the Potential page found the tiles and BG palette nobody uses by filling them with a pattern and paging through everything (GrowthRadar.md, "VRAM and palettes"), and the page title sheet now fills OBJ tiles `0x240-0x33F`.
 - **Stat page chapter locks are hard-coded.** The lock table is in `HelpBox.c:14`. Changing a lock needs a rebuild (see [StatScreenChapterLocks.md](../Features/StatScreenChapterLocks.md)).
 - **Clear the text slots you use.** `DrawPage7Rework` clears `gStatScreen.text[14..20]` and `[29..34]` before drawing (`DrawPage7.c:34-36`). Do the same in a new page.
 - **Shared text pool.** `gPrepItemTexts[32]` (`Tools/FE-CLib-Mokha/include/prepscreen.h:128`) is reused by the Forge menu (`ForgeMenu.c:219-236`, slots 0-12) and by the Crafting menu (`Kernel/Wizardry/Crafting/Crafting.c`). Two screens drawing into it at once would clash. Which screens are open together is unverified.

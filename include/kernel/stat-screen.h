@@ -10,6 +10,7 @@ enum {
     PAGE_PERSONAL_DATA  = 5,
     PAGE_PROMOTIONS     = 6,
     PAGE_SKILL_TREE     = 7,
+    PAGE_GROWTH_RADAR   = 8, /* Kernel/Wizardry/GrowthRadar */
 };
 
 struct StatScreenPageChapterLock {
@@ -27,6 +28,7 @@ extern _DECL_INFO *const RTextPageSupport;
 extern _DECL_INFO *const RTextPageGaidenMagic;
 extern _DECL_INFO *const RTextPagePersonalData;
 extern _DECL_INFO *const RTextPagePromotions;
+extern _DECL_INFO *const RTextPageGrowthRadar;
 
 void StartSkillTreeScreenHelp(int pageid, struct Proc *proc);
 

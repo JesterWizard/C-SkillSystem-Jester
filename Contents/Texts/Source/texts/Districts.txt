@@ -1217,3 +1217,19 @@ Feeling unwell.[X]
 Recovering.[X]
 ## MSG_STATUS_NO_EFFECT_DESC
 No effect.[X]
+## MSG_MENU_OPTION_GROWTH_RADAR_TITLE
+Potential Page[X]
+## MSG_MENU_OPTION_GROWTH_RADAR_DESC
+Stat page charting growths and caps[X]
+## MSG_GROWTH_RADAR_HELP_GROWTH
+Growth rates: the chance each stat[LF]
+rises on a level-up. 100% reaches[LF]
+the chart's edge.[X]
+## MSG_GROWTH_RADAR_HELP_STATS
+Each stat against its cap. A stat[LF]
+at the chart's edge is maxed out[LF]
+for this class.[X]
+## MSG_GROWTH_RADAR_LEGEND_GROWTH
+Growth[X]
+## MSG_GROWTH_RADAR_LEGEND_STATS
+Stat/Cap[X]

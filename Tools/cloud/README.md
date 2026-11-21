@@ -180,6 +180,9 @@ python3 Tools/cloud/smoketest.py --quick
     right goes to the next, B back to the grid, down scrolls a row on screen, B back to Extras (`--only gallery`);
   - Threat arrows: with Eirika selected, her tile (both fighters reach it) shows two arrows in OAM (tiles 0x70/0x71/
     0x7A/0x7B, OBJ palette 6), (4, 3) none, and none after B or with the Options row at its default, off (`--only threat`);
+  - Growth radar: LEFT from the stat screen's first page wraps to the Potential page (7 of 7), whose chart is on BG2
+    with both layers drawn; back on the first page the borrowed sheet tiles are blank again; with its Options row OFF
+    there are 6 pages (`--only growthradar`);
   - Chapter 1's end: the debugger starts Chapter 1 and Eirika seizes the gate; the Intermission (0x38) becomes the
     story chapter and Chapter 2 follows, not the prologue (`--only ch1end`);
   - New Game+: Extras has the row only once a save has been to the postgame; New Game+ from that save starts a new
