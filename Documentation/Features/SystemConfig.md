@@ -27,6 +27,7 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 | `infinite_durability` | On by default. Weapons never lose uses in battle (`GetWeaponCost` is 0 for them), and their uses are hidden in every item list, forgeable weapons included. Staves and other items keep their uses. |
 | `debug_autoload_skills` | Debug option that fills a unit's learned skill list so skills can be freely equipped in the prep screen. |
 | `guaranteed_lvup` | If a level-up would grant no stat gains, the kernel retries up to 10 times with a 10% growth bonus. |
+| `lvup_stat_bars` | On. Both level-up windows (the map's and the battle animation's) draw a bar under each stat against its cap; a gain fills it from the old value to the new one with a tick per point, and a stat at its cap is grey (bar and label). The Options screen's Level-Up Bars row (`gPlaySt.config2.lvup_stat_bars_off`) is ON in a new game; the player can turn the bars off per save. Off, there are no bars and no row. See [LvupStatBars](./LvupStatBars.md). |
 | `lvup_stat_points` | Points granted per level-up. After the EXP bar, a spend list replaces the level-up screen and the chosen stats apply immediately. `0` keeps vanilla growths and the level-up screen. Any other value replaces both, hides stat-screen growth rates, and limits spending to one point per stat. See [AllocateStatPoints](./AllocateStatPoints.md). |
 | `lvup_stat_timing` | Timing minigame after the EXP bar. Each stat lights green bars from the left based on its growth (`10%` per bar; `1–10%` still fills one bar). Press A on a green bar to grant `+1`. Growths of `100%` or more grant extra attempts (`160%` = a guaranteed all-green pass, then 6 bars). `0` is off. Any other value enables it. Overrides `lvup_stat_points` when both are set. See [TimingStatLevelUp](./TimingStatLevelUp.md). |
 | `item_stack` | Enables the Stack unit-menu command, which merges duplicate inventory items into one slot if total uses are at most 255. |
@@ -92,6 +93,21 @@ Use this config table for high-level gameplay toggles, UI behavior, and progress
 
 - `0`: ![image](../Images/SystemConfig1_SkillPage1.png)
 - `1`: ![image](../Images/SystemConfig1_SkillPage2.png)
+
+## Player options storage (`gPlaySt.config`, `gPlaySt.config2`)
+
+A designer toggle with a player-facing Options row stores the row's value in `gPlaySt` (saved and suspended with it).
+`gPlaySt.config` (`struct PlaySt_OptionBits`, `PLAYST + 0x40`) has no spare bit left. `gPlaySt.config2`
+(`struct PlaySt_OptionBits2`, `Tools/FE-CLib-Mokha/include/types.h`) is the ten bytes `PLAYST + 0x21`..`0x2A`, after the
+first byte of FE7's tactician name, which this build never uses past its first byte:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `0x21` bit 0 | `lvup_stat_bars_off` | Level-Up Bars row ([LvupStatBars](./LvupStatBars.md)): 0 = ON |
+| `0x21` bits 1-7, `0x22`-`0x2A` | `unused_21_1`, `unused_22[9]` | Free: 7 + 72 = 79 bits |
+
+0 is every `config2` option's default: a new game zeroes the ten bytes (`WriteNewGameSave`, `ModularSaveCore.c`), and
+older saves hold 0 there. How to add a row there: [MenuOptions](./MenuOptions.md#config2-more-options-bits).
 
 ## Designer config battle
 

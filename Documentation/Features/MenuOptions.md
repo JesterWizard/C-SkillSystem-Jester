@@ -79,6 +79,44 @@ bit; 0 = ON). It is hidden when the designer config's `stat_page_growth_radar` i
 points). `InitPlayConfig` sets it to 0 for new games: the page shows by default. No spare bit is left in
 `gPlaySt.config` now.
 
+The Level-Up Bars row (`GAME_OPTION_LVUP_STAT_BARS`, [Level-Up Stat Bars](./LvupStatBars.md#toggle)) is a plain ON/OFF
+row (ON 112, OFF 135, icon 0x54) backed by `gPlaySt.config2.lvup_stat_bars_off` (bit 0 of `PLAYST + 0x21`; 0 = ON), the
+first bit of `config2` (below). It is hidden when the designer config's `lvup_stat_bars` is off or the level-up screen
+is replaced (`KernelLvupReplacesGrowths`: stat points or the timing minigame). `InitPlayConfig` sets it to 0.
+
+### config2: more Options bits
+
+`gPlaySt.config` is full, so new rows go in `gPlaySt.config2` (`struct PlaySt_OptionBits2` in
+`Tools/FE-CLib-Mokha/include/types.h`): ten bytes at `PLAYST + 0x21`..`0x2A` (`0x0202BD11`..`0x0202BD1A`), which were
+FE7's tactician name (`char playerName[0x2B - 0x20]`). `playerName` is now one byte, the only one this build uses: a
+new game sets it to `'\0'`, and vanilla's readers (`GetTacticianName`: the text's [Tact] code, `TalkInterpret`,
+`GenerateGameRankSaveData`) read it as a string, so they stop there. `struct PlaySt` keeps its size (0x4C) and every
+other offset (`_Static_assert`s in `Kernel/Wizardry/LvupStatBars/Source/LvupStatBars.c`), so no save chunk and no
+`.lyn.event` changes. The struct is `__attribute__((packed))`, not `BITPACKED`, whose `aligned(4)` would pad it to 12.
+
+| Byte | Bits | Field | Row |
+|---|---|---|---|
+| `0x21` | 0 | `lvup_stat_bars_off` | Level-Up Bars (0 = ON) |
+| `0x21` | 1-7 | `unused_21_1` | free |
+| `0x22`-`0x2A` | all | `unused_22[9]` | free (72 bits) |
+
+Rules:
+- **0 is the default** of every `config2` option: name the bit for the non-default state (`*_off`, or `*_on` for a
+  feature that starts off). A new game zeroes the ten bytes (`WriteNewGameSave` in
+  `Kernel/Wizardry/SaveData/Source/ModularSaveCore.c`, next to `gPlaySt.playerName[0] = '\0'`), and saves from before
+  `config2` hold 0 there (the old name bytes were never written in a normal game).
+- Take a bit from `unused_21_1` (shrink it) or a byte of `unused_22` (shrink the array) so the struct stays 10 bytes;
+  the `_Static_assert`s fail the build otherwise.
+- Wire the row as above: `GAME_OPTION_*` in `uiconfig.h`, `gGameOptionsUiOrder_NEW` (size + 1), `gGameOptions_NEW`,
+  `SetGameOption`/`GetGameOption` (`gPlaySt.config2.<bit>`), `InitPlayConfig`, `IsGameOptionUiVisible` for its
+  designer gate, a free icon, and two messages at the end of `Contents/Texts/Source/texts/Districts.txt`.
+- What still writes those bytes: vanilla's title-screen Extras support viewer (`SupportScreen_SetupUnits` when not
+  started from the prep screen) copies "Mark" into the name (`0x20`-`0x24`) before any save is loaded; loading a save
+  or starting a new game replaces or zeroes it. The debug startup menu's chapter select and world-map effect, and the
+  unused tactician name screen (`StartTacticianNameSelect`, which nothing calls), also call `SetTacticianName`. Nothing
+  in the kernel reads or writes `0x0202BD11`..`0x0202BD1A` otherwise (grep of the C, asm and event sources and the smoke
+  tests, and a scan of the clean ROM for those addresses as literals).
+
 The important rule is that the visible menu entry and the config-backed behavior must stay in sync. If a row exists in the UI without a valid config field, it will be cosmetic only. If a config field exists without a menu entry, it becomes effectively hidden.
 
 ## Code Locations

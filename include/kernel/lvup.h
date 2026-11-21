@@ -86,3 +86,17 @@ int GetUnitDefGrowthJobBonus(int status, struct Unit *unit);
 int GetUnitResGrowthJobBonus(int status, struct Unit *unit);
 
 void StartLvupStatPointsMenu(struct Unit *unit, struct BattleUnit *bu, ProcPtr parent);
+
+/*
+ * Animated level-up stat bars (Kernel/Wizardry/LvupStatBars, gpKernelDesignerConfig->lvup_stat_bars): a bar under
+ * each stat of the level-up window against its cap, drawn into the bottom pixel rows of the stat's text tiles. Stats
+ * are 0-7: HP, Str, Mag, Skl, Spd, Lck, Def, Res (the map window's stat_num 1-8).
+ */
+u16 *GetManimLevelUpLabelTm(int x, int y, int stat_num);         /* MapLvup.c: the label's top-left cell, on BG0 */
+void PutManimLevelUpLabel(int x, int y, int stat_num, int color); /* MapLvup.c */
+void PutEkrLvupLabel(int index, int color);                       /* EfxLvup.c: the label's text, on BG2 */
+
+void LvupBars_StartManim(ProcPtr parent, int actor_id, int x, int y);
+void LvupBars_StartEkr(ProcPtr parent, struct Unit *unit);
+void LvupBars_Gain(int index);
+void LvupBars_Finish(void);

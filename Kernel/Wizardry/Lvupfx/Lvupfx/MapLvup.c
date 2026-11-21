@@ -104,6 +104,19 @@ STATIC_DECLAR const struct MapLvupInfo NewMapLvupInfos[] = {
 	{-1, -1, 0}
 };
 
+/* A label's top-left cell in the window drawn at (x, y): the stat bars (LvupStatBars.c) draw under it */
+u16 *GetManimLevelUpLabelTm(int x, int y, int stat_num)
+{
+	return TILEMAP_LOCATED(gBG0TilemapBuffer, x + NewMapLvupInfos[stat_num].x, y + NewMapLvupInfos[stat_num].y);
+}
+
+/* A label in a colour: gold, or grey for a stat at its cap (LvupStatBars.c) */
+void PutManimLevelUpLabel(int x, int y, int stat_num, int color)
+{
+	PutStringCentered(GetManimLevelUpLabelTm(x, y, stat_num), color, 3,
+		GetStringFromIndex(NewMapLvupInfos[stat_num].msg));
+}
+
 enum {
 	MANIM_LVUP_FRAME_X = 1,
 	MANIM_LVUP_FRAME_W = 18,
@@ -131,12 +144,8 @@ void PutManimLevelUpFrame(int actor_id, int x, int y)
 		TEXT_COLOR_SYSTEM_WHITE,
 		GetStringFromIndex(gManimSt.actor[actor_id].unit->pClassData->nameTextId));
 
-	for (i = 0; NewMapLvupInfos[i].x != 0xFF; i++) {
-		PutStringCentered(
-			TILEMAP_LOCATED(gBG0TilemapBuffer, x + NewMapLvupInfos[i].x, y + NewMapLvupInfos[i].y),
-			TEXT_COLOR_SYSTEM_GOLD, 3,
-			GetStringFromIndex(NewMapLvupInfos[i].msg));
-	}
+	for (i = 0; NewMapLvupInfos[i].x != 0xFF; i++)
+		PutManimLevelUpLabel(x, y, i, TEXT_COLOR_SYSTEM_GOLD);
 
 	BG_EnableSyncByMask(BG0_SYNC_BIT + BG1_SYNC_BIT);
 }
@@ -575,6 +584,8 @@ static void LevelUpSpeech_StartTalk(struct ManimLevelUpProc *proc)
 	int fontChr, boxChr;
 	int width, x, xTail;
 
+	/* The stat bars draw through the window's tilemap, which moves now: they end their fills first */
+	LvupBars_Finish();
 	LevelUpSpeech_ShiftWindow(LVUP_WINDOW_SHIFT_ROWS);
 	LevelUpSpeech_SetWindowOffset(proc, 0);
 
@@ -835,6 +846,8 @@ static void EkrLvupQuote_End(void)
 void EkrLvup_Quote(struct ProcEkrLevelup *proc)
 {
 	if (proc->timer == 0) {
+		/* The talk changes the text font: the stat bars end their fills (and grey labels) first */
+		LvupBars_Finish();
 		if (!EkrLvupQuote_Start(proc)) {
 			Proc_Break(proc);
 			return;
@@ -914,6 +927,7 @@ void ManimLevelUp_InitMainScreen(struct ManimLevelUpProc* proc)
 	for (i = 0; i < 9; i++)
 		PutManimLevelUpStat(proc->actor_id, 1, 1, i, false);
 
+	LvupBars_StartManim(proc, proc->actor_id, 1, 1);
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 
 	proc->next_stat_num = 0;
@@ -982,6 +996,8 @@ void ManimLevelUp_PutStatGainLabels(struct ManimLevelUpProc * proc)
     }
 
     PutManimLevelUpStat(proc->actor_id, 1, 1, stat_num, true);
+    if (stat_num > 0)
+        LvupBars_Gain(stat_num - 1); /* the value's new tiles get the bar, which fills to the new value */
     BG_EnableSyncByMask(BG0_SYNC_BIT);
 
     StartManimLevelUpStatGainLabelAnim(

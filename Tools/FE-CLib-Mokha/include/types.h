@@ -137,6 +137,18 @@ struct PlaySt_30 {
     u32 unk_F_00 : 8;
 } BITPACKED;
 
+/*
+ * More Options bits, at PlaySt + 0x21..0x2A: the bytes after FE7's tactician name's first character (playerName, of
+ * which this build only ever writes and reads byte 0x20: a new game sets it to '\0', the text's [Tact] code and the
+ * ranking data read it as an empty string). Part of gPlaySt, so saved and suspended with it: no save layout change.
+ * 0 is each option's default (a new game zeroes these bytes; Documentation/Features/MenuOptions.md, "config2").
+ */
+struct PlaySt_OptionBits2 {
+    /* 21 */ u8 lvup_stat_bars_off:1; /* Kernel/Wizardry/LvupStatBars: 0 = ON (the level-up stat bars shown), 1 = OFF */
+             u8 unused_21_1:7;
+    /* 22 */ u8 unused_22[0x2B - 0x22];
+} __attribute__((packed)); /* not BITPACKED: its aligned(4) would pad the 10 bytes to 12 */
+
 struct PlaySt_OptionBits {
     // option bits
     u32 unitColor:1; // 1
@@ -232,7 +244,8 @@ struct PlaySt { // Chapter Data Struct
     /* 1E */ u8 unk1E;
     /* 1F */ u8 unk1F;
 
-    /* 20 */ char playerName[0x2B - 0x20]; // unused outside of link arena (was tactician name in FE7); Size unknown
+    /* 20 */ char playerName[1]; // FE7's tactician name: only this first byte is used ('\0'); 0x21-0x2A are config2
+    /* 21 */ struct PlaySt_OptionBits2 config2;
 
     /* 2B */ u8 unk_2B_00 : 0x01;
              u8 unk_2B_01 : 0x07;

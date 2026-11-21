@@ -224,6 +224,10 @@ Every feature links to its documentation. Click a preview to open it.
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/SkillCodex.md"><img src="./Documentation/Gifs/Skill_Codex.gif" alt="Skill Codex preview" width="360" /></a><br/><b><a href="./Documentation/Features/SkillCodex.md">Skill Codex</a></b></td>
     <td align="center" valign="top" width="50%"><a href="./Documentation/Features/GrowthRadar.md"><img src="./Documentation/Gifs/Growth_Radar.gif" alt="Growth Radar preview" width="360" /></a><br/><b><a href="./Documentation/Features/GrowthRadar.md">Growth Radar</a></b></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><a href="./Documentation/Features/LvupStatBars.md"><img src="./Documentation/Gifs/Lvup_Stat_Bars.gif" alt="Level-Up Stat Bars preview" width="360" /></a><br/><b><a href="./Documentation/Features/LvupStatBars.md">Level-Up Stat Bars</a></b></td>
+    <td></td>
+  </tr>
 </table>
 
 ### 💬 Story, Text & World Map
