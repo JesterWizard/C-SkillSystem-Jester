@@ -66,12 +66,14 @@ void TickActiveFactionTurn(void)
 	if (gPlaySt.faction == FACTION_BLUE) {
 		/* Blue buff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_BLUE, unit, {
+			/* Doom's last turn is left to the poison display, which kills the unit */
 			bool doomStatus = false;
 
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
 				DEC_STATUS(unit);
 
@@ -89,12 +91,14 @@ void TickActiveFactionTurn(void)
 
 		/* Red debuff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_RED, unit, {
+			/* Doom's last turn is left to the poison display, which kills the unit */
 			bool doomStatus = false;
 
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
 
@@ -112,12 +116,14 @@ void TickActiveFactionTurn(void)
 	} else if (gPlaySt.faction == FACTION_RED) {
 		/* Red buff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_RED, unit, {
+			/* Doom's last turn is left to the poison display, which kills the unit */
 			bool doomStatus = false;
 
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
 				DEC_STATUS(unit);
 
@@ -135,12 +141,14 @@ void TickActiveFactionTurn(void)
 
 		/* Blue debuff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_BLUE, unit, {
+			/* Doom's last turn is left to the poison display, which kills the unit */
 			bool doomStatus = false;
 
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
 
@@ -163,7 +171,8 @@ void TickActiveFactionTurn(void)
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ENEMY)
 			{
 				DEC_STATUS(unit);
 
@@ -181,12 +190,14 @@ void TickActiveFactionTurn(void)
 	} else if (gPlaySt.faction == FACTION_GREEN) {
 		/* Green buff */
 		FOR_UNITS_ONMAP_FACTION(FACTION_GREEN, unit, {
+			/* Doom's last turn is left to the poison display, which kills the unit */
 			bool doomStatus = false;
 
 			if (GetUnitStatusIndex(unit) == NEW_UNIT_STATUS_DOOM) 
 				doomStatus = true;
 			
-			if (gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
+			if (!(doomStatus && GetUnitStatusDuration(unit) == 1) &&
+			    gpDebuffInfos[GetUnitStatusIndex(unit)].tick_type == STATUS_DEBUFF_TICK_ON_ALLY)
 			{
 				DEC_STATUS(unit);
 
@@ -201,5 +212,56 @@ void TickActiveFactionTurn(void)
 
 			TickUnitStatDebuff(unit, STATUS_DEBUFF_TICK_ON_ALLY);
 		})
+	}
+}
+
+/*
+ * Phase-start poison damage: vanilla's 1-3 for Poison; Toxic, which takes
+ * 10% of the unit's current HP per turn it has had the status (10%, 20%,
+ * 30%), at least 1; and Doom on its last turn, all the unit's HP.
+ */
+LYN_REPLACE_CHECK(MakePoisonDamageTargetList);
+void MakePoisonDamageTargetList(int faction)
+{
+	int i;
+
+	InitTargets(0, 0);
+
+	for (i = faction + 1; i < faction + 0x40; i++) {
+		struct Unit *unit = GetUnit(i);
+		int status, damage;
+
+		if (!UNIT_IS_VALID(unit))
+			continue;
+
+		if (unit->state & (US_HIDDEN | US_UNAVAILABLE))
+			continue;
+
+		status = GetUnitStatusIndex(unit);
+
+		if (status == NEW_UNIT_STATUS_DOOM && GetUnitStatusDuration(unit) == 1) {
+			/*
+			 * Doom's last turn: the poison display deals the killing damage, so the
+			 * unit dies the usual way (death animation, quote, defeat checks)
+			 * before the status runs out below.
+			 */
+			damage = unit->curHP;
+		} else if (status == UNIT_STATUS_POISON) {
+			damage = NextRN_N(3) + 1;
+		} else if (status == NEW_UNIT_STATUS_TOXIC_POISON) {
+			int elapsed = gpDebuffInfos[status].duration - GetUnitStatusDuration(unit) + 1;
+
+			if (elapsed < 1)
+				elapsed = 1;
+
+			damage = Div(unit->curHP * 10 * elapsed, 100);
+
+			if (damage < 1)
+				damage = 1;
+		} else {
+			continue;
+		}
+
+		AddTarget(unit->xPos, unit->yPos, unit->index, damage);
 	}
 }

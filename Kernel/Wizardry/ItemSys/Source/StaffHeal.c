@@ -376,8 +376,8 @@ void ExecStandardHeal(ProcPtr proc)
 #endif
 
 #if (defined(SID_FortifyingStaff) && (COMMON_SKILL_VALID(SID_FortifyingStaff)))
-    if (SkillTester(unit_act, SID_FortifyingStaff) && (unit_tar->statusIndex == UNIT_STATUS_NONE))
-            unit_tar->statusIndex = UNIT_STATUS_DEFENSE;
+    if (SkillTester(unit_act, SID_FortifyingStaff) && (GetUnitStatusIndex(unit_tar) == UNIT_STATUS_NONE))
+            SetUnitStatusIndex(unit_tar, UNIT_STATUS_DEFENSE);
 #endif
 
 #if (defined(SID_LiveToServe) && (COMMON_SKILL_VALID(SID_LiveToServe)))

@@ -188,6 +188,10 @@ void CheckBattleUnitStatCaps(struct Unit *unit, struct BattleUnit *bu)
 {
 	CheckBattleUnitStatCapsVanilla(unit, bu);
 
+	/* maxHP is a u8: Limit Breaker on top of the 254 cap must not wrap it */
+	if (unit->maxHP + bu->changeHP > 254)
+		bu->changeHP = 254 - unit->maxHP;
+
 	/* Hooks */
 	if ((UNIT_MAG(unit) + BU_CHG_MAG(bu)) > GetUnitMaxStatusMag(unit))
 		BU_CHG_MAG(bu) = GetUnitMaxStatusMag(unit) - UNIT_MAG(unit);

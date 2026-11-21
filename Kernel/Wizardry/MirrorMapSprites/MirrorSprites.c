@@ -1,4 +1,5 @@
 #include "gbafe.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "common-chax.h"
 #include "kernel/chatlog.h"
@@ -242,7 +243,7 @@ void RefreshUnitSprites(void)
         if (gBmMapUnit[unit->yPos][unit->xPos] == 0)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_PETRIFY || unit->statusIndex == UNIT_STATUS_13)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_PETRIFY || UNIT_STATUS_INDEX(unit) == UNIT_STATUS_13)
             unit->state |= US_UNSELECTABLE;
 
         smsHandle = AddUnitSprite(unit->yPos * 16);

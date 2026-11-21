@@ -193,6 +193,114 @@ struct GaidenMagicList *GetGaidenMagicList(struct Unit *unit)
 	return list;
 }
 
+/* Appends iid to the B.Mag or W.Mag column of a full list, once */
+static void AddGaidenMagicFullListEnt(struct GaidenMagicFullList *full, int iid)
+{
+	int i;
+
+	if (iid == ITEM_NONE)
+		return;
+
+	if (IsBMag(iid)) {
+		for (i = 0; i < full->bmag_cnt; i++)
+			if (full->bmags[i] == iid)
+				return;
+
+		if (full->bmag_cnt < GAIDEN_MAGIC_LIST_LEN)
+			full->bmags[full->bmag_cnt++] = iid;
+	} else if (IsWMag(iid)) {
+		for (i = 0; i < full->wmag_cnt; i++)
+			if (full->wmags[i] == iid)
+				return;
+
+		if (full->wmag_cnt < GAIDEN_MAGIC_LIST_LEN)
+			full->wmags[full->wmag_cnt++] = iid;
+	}
+}
+
+/*
+ * Every spell a player unit learns, learned or not, in the order its lists give them (level or rank order), for the
+ * stat screen. The level and rank conditions are left out; a skill or flag condition is kept, since a spell behind
+ * one is not certain to be learned. Other units only have the spells they cast now.
+ */
+void GetGaidenMagicFullList(struct Unit *unit, struct GaidenMagicFullList *full)
+{
+	int i;
+	const struct GaidenPinfoConfigEnt *conf1 = GetGaidenPinfoConfigList()[UNIT_CHAR_ID(unit)].ent;
+	const struct GaidenChaxConfigEnt  *conf2 = gpGaidenChaxConfigs;
+	const struct GaidenMagicRankEnt *ent;
+	struct GaidenMagicList *list = GetGaidenMagicList(unit);
+
+	memset(full, 0, sizeof(*full));
+
+	/* Spells known now come first when the lists below don't have them (enemy tomes, for one) */
+	if (UNIT_FACTION(unit) != FACTION_BLUE) {
+		for (i = 0; i < list->bmag_cnt; i++)
+			AddGaidenMagicFullListEnt(full, list->bmags[i]);
+
+		for (i = 0; i < list->wmag_cnt; i++)
+			AddGaidenMagicFullListEnt(full, list->wmags[i]);
+
+		return;
+	}
+
+	if (conf1)
+		for (; conf1->iid != ITEM_NONE; conf1++)
+			AddGaidenMagicFullListEnt(full, conf1->iid);
+
+	if (gpKernelDesignerConfig->gaiden_magic_skill_extensions) {
+		for (; conf2->iid != ITEM_NONE; conf2++) {
+			if (conf2->faction != UNIT_FACTION(unit))
+				continue;
+
+			if (conf2->pid != 0 && UNIT_CHAR_ID(unit) != conf2->pid)
+				continue;
+
+			if (conf2->jid != 0 && UNIT_CLASS_ID(unit) != conf2->jid)
+				continue;
+
+			if (COMMON_SKILL_VALID(conf2->skill) && !SkillTester(unit, conf2->skill))
+				continue;
+
+			if (conf2->evflag != 0 && !CheckFlag(conf2->evflag))
+				continue;
+
+			AddGaidenMagicFullListEnt(full, conf2->iid);
+		}
+	}
+
+	/* Rank lists: only the weapon types the unit has a rank in */
+	if (IsGaidenMagicUsesSystem() && !IsGaidenMagicLearnByLevel()) {
+		for (ent = GetGaidenMagicRankList(unit); ent && ent->iid != ITEM_NONE; ent++)
+			if (UNIT_WRANK(unit, GetItemType(ent->iid)) > 0)
+				AddGaidenMagicFullListEnt(full, ent->iid);
+	}
+
+	/* Anything known that the lists above don't name */
+	for (i = 0; i < list->bmag_cnt; i++)
+		AddGaidenMagicFullListEnt(full, list->bmags[i]);
+
+	for (i = 0; i < list->wmag_cnt; i++)
+		AddGaidenMagicFullListEnt(full, list->wmags[i]);
+}
+
+bool IsGaidenMagicKnown(struct Unit *unit, int iid)
+{
+	int i;
+	struct GaidenMagicList *list = GetGaidenMagicList(unit);
+
+	for (i = 0; i < list->bmag_cnt; i++)
+		if (list->bmags[i] == iid)
+			return true;
+
+	for (i = 0; i < list->wmag_cnt; i++)
+		if (list->wmags[i] == iid)
+			return true;
+
+	return false;
+}
+
+
 bool CanUnitUseGaidenMagic(struct Unit *unit, int item)
 {
 	/* Three Houses spells are learned from ranks, and tomes can't be wielded as items */

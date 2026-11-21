@@ -224,7 +224,6 @@ STATIC_DECLAR void DrawPage1ValueCommon(void)
 			unit->index & 0xFF, UNIT_CHAR_ID(unit),
 			GetUnitStatusIndex(unit), GetUnitStatusDuration(unit));
 
-		NoCashGBAPrintf("%d", GetUnitStatusDuration(unit));
 		if (GetUnitStatusIndex(gStatScreen.unit) != UNIT_STATUS_NONE || GetUnitStatusDuration(unit) > 0 )
 		{
 			PutNumberSmall(

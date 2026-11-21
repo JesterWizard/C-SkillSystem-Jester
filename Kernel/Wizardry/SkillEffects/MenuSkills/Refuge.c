@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "map-anims.h"
 #include "skill-system.h"
@@ -25,7 +26,7 @@ static void TryAddUnitToRefugeTargetList(struct Unit* unit) {
         return;
     }
 
-    if (unit->statusIndex == UNIT_STATUS_BERSERK) {
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK) {
         return;
     }
 

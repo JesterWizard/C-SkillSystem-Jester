@@ -11,7 +11,7 @@ int GetUnitMaxStatusHp(struct Unit *unit)
 	u8 pid = UNIT_CHAR_ID(unit);
 
 	status += gpUnitMaxStatusConfigTable[pid].hp;
-	LIMIT_AREA(status, 0, UNIT_STATUS_MAX);
+	LIMIT_AREA(status, 0, 254);
 	return status;
 }
 

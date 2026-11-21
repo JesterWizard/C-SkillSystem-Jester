@@ -69,6 +69,17 @@ void ResetGaidenMagicList(struct GaidenMagicList *list);
 void UpdateGaidenMagicList(struct Unit *unit, struct GaidenMagicList *list);
 struct GaidenMagicList *GetGaidenMagicList(struct Unit *unit);
 
+/* Every spell a unit learns, known or not (stat screen) */
+struct GaidenMagicFullList {
+	u8 bmag_cnt;
+	u8 bmags[GAIDEN_MAGIC_LIST_LEN];
+	u8 wmag_cnt;
+	u8 wmags[GAIDEN_MAGIC_LIST_LEN];
+};
+
+void GetGaidenMagicFullList(struct Unit *unit, struct GaidenMagicFullList *full);
+bool IsGaidenMagicKnown(struct Unit *unit, int iid);
+
 bool CanUnitUseGaidenMagic(struct Unit *unit, int item);
 bool CanUnitUseGaidenMagicNow(struct Unit *unit, int item);
 

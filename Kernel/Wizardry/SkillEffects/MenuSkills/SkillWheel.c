@@ -64,6 +64,7 @@ struct SkillWheelProc {
 	/* 40 */ struct Text text;
 	/* 48 */ u16 savedPal[16];
 	/* 68 */ u8 section;
+	/* 69 */ s8 dx; /* window shift in tiles, so it doesn't cover the unit */
 };
 
 _Static_assert(sizeof(struct SkillWheelProc) <= 0x6C, "SkillWheelProc too big");
@@ -80,7 +81,7 @@ static void SkillWheel_DrawText(struct SkillWheelProc *proc, const char *str, in
 
 	ClearText(&proc->text);
 	Text_InsertDrawString(&proc->text, x, color, str);
-	PutText(&proc->text, gBG0TilemapBuffer + TILEMAP_INDEX(WHEEL_TEXT_X, WHEEL_TEXT_Y));
+	PutText(&proc->text, gBG0TilemapBuffer + TILEMAP_INDEX(WHEEL_TEXT_X + proc->dx, WHEEL_TEXT_Y));
 	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
@@ -97,20 +98,21 @@ static void SkillWheel_Draw(struct SkillWheelProc *proc)
 	int ox = (s * 16) >> 12;
 	int oy = (c * 16) >> 12;
 	int oam2 = OAM2_PAL(WHEEL_OBJ_PAL) | OAM2_LAYER(0);
+	int wx = WHEEL_X + proc->dx * 8;
 
 	SetObjAffine(WHEEL_AFFINE, c >> 4, s >> 4, -s >> 4, c >> 4);
 
 	PutSpriteExt(0,
-		OAM1_X(WHEEL_X + ox - 64) | OAM1_AFFINE_ID(WHEEL_AFFINE),
+		OAM1_X(wx + ox - 64) | OAM1_AFFINE_ID(WHEEL_AFFINE),
 		OAM0_Y(WHEEL_Y - oy - 32) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
 		sSkillWheelObj_Half, OAM2_CHR(WHEEL_OBJ_CHR_TOP) | oam2);
 
 	PutSpriteExt(0,
-		OAM1_X(WHEEL_X - ox - 64) | OAM1_AFFINE_ID(WHEEL_AFFINE),
+		OAM1_X(wx - ox - 64) | OAM1_AFFINE_ID(WHEEL_AFFINE),
 		OAM0_Y(WHEEL_Y + oy - 32) | OAM0_AFFINE_ENABLE | OAM0_DOUBLESIZE,
 		sSkillWheelObj_Half, OAM2_CHR(WHEEL_OBJ_CHR_BOTTOM) | oam2);
 
-	PutSpriteExt(0, OAM1_X(WHEEL_ARROW_X), OAM0_Y(WHEEL_ARROW_Y), gObject_16x16, OAM2_CHR(WHEEL_OBJ_CHR_ARROW) | oam2);
+	PutSpriteExt(0, OAM1_X(WHEEL_ARROW_X + proc->dx * 8), OAM0_Y(WHEEL_ARROW_Y), gObject_16x16, OAM2_CHR(WHEEL_OBJ_CHR_ARROW) | oam2);
 }
 
 /* Copies count tiles to OBJ tile chr, in VRAM and in every standing sprite frame. */
@@ -124,9 +126,35 @@ static void SkillWheel_PutTiles(const u8 *src, int chr, int count)
 		CpuFastCopy(src, gSMSGfxBuffer[f] + (chr - WHEEL_SMS_FIRST_CHR) * CHR_SIZE, count * CHR_SIZE);
 }
 
+/*
+ * The window is centred unless that covers the acting unit: then it moves
+ * to the half of the screen the unit is not on.
+ */
+static int SkillWheel_GetShift(void)
+{
+	int tx, ty;
+
+	if (!gActiveUnit)
+		return 0;
+
+	tx = (gActiveUnit->xPos * 16 - gBmSt.camera.x) >> 3;
+	ty = (gActiveUnit->yPos * 16 - gBmSt.camera.y) >> 3;
+
+	if (tx + 2 <= WHEEL_FRAME_X || tx >= WHEEL_FRAME_X + WHEEL_FRAME_W)
+		return 0;
+
+	if (ty + 2 <= WHEEL_FRAME_Y || ty >= WHEEL_FRAME_Y + WHEEL_FRAME_H)
+		return 0;
+
+	/* 30 tiles across: the left window is tiles 1-14, the right one 15-28 */
+	return (tx >= 15) ? 1 - WHEEL_FRAME_X : 15 - WHEEL_FRAME_X;
+}
+
 static void SkillWheel_Init(struct SkillWheelProc *proc)
 {
 	int i;
+
+	proc->dx = SkillWheel_GetShift();
 
 	proc->angle = 0;
 	proc->section = SkillWheel_SectionAtArrow(0);
@@ -151,7 +179,7 @@ static void SkillWheel_Init(struct SkillWheelProc *proc)
 	ResetText();
 	ClearBg0Bg1();
 
-	DrawUiFrame(BG_GetMapBuffer(1), WHEEL_FRAME_X, WHEEL_FRAME_Y, WHEEL_FRAME_W, WHEEL_FRAME_H, TILEREF(0, 0), 0);
+	DrawUiFrame(BG_GetMapBuffer(1), WHEEL_FRAME_X + proc->dx, WHEEL_FRAME_Y, WHEEL_FRAME_W, WHEEL_FRAME_H, TILEREF(0, 0), 0);
 
 	InitText(&proc->text, WHEEL_TEXT_W);
 	SkillWheel_DrawText(proc, GetStringFromIndex(proc->conf->prompt), TEXT_COLOR_SYSTEM_WHITE);
@@ -249,7 +277,6 @@ static void SkillWheel_Apply(struct SkillWheelProc *proc)
 
 static const struct ProcCmd ProcScr_SkillWheel[] = {
 	PROC_NAME("SkillWheel"),
-	PROC_CALL(EndAllMus),
 	PROC_SLEEP(1),
 
 	PROC_CALL(SkillWheel_Init),
@@ -268,7 +295,11 @@ void StartSkillWheel(const struct SkillWheelConf *conf, ProcPtr parent)
 {
 	struct SkillWheelProc *proc;
 
-	ShowUnitSprite(gActiveUnit);
+	/*
+	 * The acting unit is drawn by its moving sprite (OBJ tiles from 0x380,
+	 * clear of the wheel's), so it is left running: the unit stays in view
+	 * while the wheel spins, and the action's end puts it back as usual.
+	 */
 
 	/* The script sleeps before SkillWheel_Init, so conf is set in time. */
 	proc = Proc_StartBlocking(ProcScr_SkillWheel, parent);

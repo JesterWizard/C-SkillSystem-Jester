@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 
@@ -51,13 +52,13 @@ int GetPlayerSelectKind(struct Unit * unit)
     }
 #endif
 
-    if ((unit->statusIndex != UNIT_STATUS_SLEEP) && (unit->statusIndex != UNIT_STATUS_BERSERK))
+    if ((UNIT_STATUS_INDEX(unit) != UNIT_STATUS_SLEEP) && (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_BERSERK))
     {
         return PLAYER_SELECT_CONTROL;
     }
 
 #if (defined(SID_Comatose) && (COMMON_SKILL_VALID(SID_Comatose)))
-    if (SkillTester(unit, SID_Comatose) && unit->statusIndex == UNIT_STATUS_SLEEP)
+    if (SkillTester(unit, SID_Comatose) && UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
         return PLAYER_SELECT_CONTROL;
 #endif
 
@@ -74,21 +75,21 @@ void MakeMoveunitForActiveUnit(void)
         if (UNIT_FACTION(gActiveUnit) == gPlaySt.faction)
         {
 #if (defined(SID_Comatose) && (COMMON_SKILL_VALID(SID_Comatose)))
-            if (SkillTester(gActiveUnit, SID_Comatose) && gActiveUnit->statusIndex == UNIT_STATUS_SLEEP)
+            if (SkillTester(gActiveUnit, SID_Comatose) && UNIT_STATUS_INDEX(gActiveUnit) == UNIT_STATUS_SLEEP)
             {
                 StartMu(gActiveUnit);
                 HideUnitSprite(gActiveUnit);
             }
             else
             {
-                if ((gActiveUnit->statusIndex != UNIT_STATUS_SLEEP) && (gActiveUnit->statusIndex != UNIT_STATUS_BERSERK))
+                if ((UNIT_STATUS_INDEX(gActiveUnit) != UNIT_STATUS_SLEEP) && (UNIT_STATUS_INDEX(gActiveUnit) != UNIT_STATUS_BERSERK))
                 {
                     StartMu(gActiveUnit);
                     HideUnitSprite(gActiveUnit);
                 }
             }
 #else
-            if ((gActiveUnit->statusIndex != UNIT_STATUS_SLEEP) && (gActiveUnit->statusIndex != UNIT_STATUS_BERSERK))
+            if ((UNIT_STATUS_INDEX(gActiveUnit) != UNIT_STATUS_SLEEP) && (UNIT_STATUS_INDEX(gActiveUnit) != UNIT_STATUS_BERSERK))
             {
                 StartMu(gActiveUnit);
                 HideUnitSprite(gActiveUnit);

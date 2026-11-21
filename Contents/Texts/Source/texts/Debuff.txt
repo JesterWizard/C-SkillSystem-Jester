@@ -42,7 +42,7 @@ Disarm enemy unit[X]
 ## MSG_DEBUFF_TOXIC_NAME
 Toxic[X]
 ## MSG_DEBUFF_TOXIC_DESC
-Infict 10% (times elapsed[N]
+Inflict 10% (times elapsed[N]
 turns) of remaining HP[N]
 as damage each turn.[X]
 
@@ -128,7 +128,7 @@ Reduce all stats by remaining[N]
 status duration * 2.[X]
 
 ## MSG_DEBUFF_PROVIDENCE_NAME
-Providence[X]
+Provid.[X]
 ## MSG_DEBUFF_PROVIDENCE_DESC
 Unit will survive the next lethal[N]
 attack at 1 HP. Status wears off[N]

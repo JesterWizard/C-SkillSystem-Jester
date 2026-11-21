@@ -1205,3 +1205,15 @@ Mov +2 until this unit's[N]
 next phase ends.[X]
 ## MSG_SAVE_TITLE_CREATURE_CAMPAIGN
 Creature Campaign[X]
+## MSG_STATUS_AVOID_RING_NAME
+Avoid[X]
+## MSG_STATUS_AVOID_RING_DESC
+Avoid is increased.[X]
+## MSG_STATUS_CRIT_RING_DESC
+Critical hit rate is increased.[X]
+## MSG_STATUS_SICK_DESC
+Feeling unwell.[X]
+## MSG_STATUS_RECOVER_DESC
+Recovering.[X]
+## MSG_STATUS_NO_EFFECT_DESC
+No effect.[X]

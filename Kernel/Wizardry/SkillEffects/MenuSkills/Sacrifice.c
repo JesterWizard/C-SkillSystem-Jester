@@ -88,14 +88,14 @@ static void callback_exec(ProcPtr proc)
 	} 
 	
 	// if target has bad status, recover it 
-	int stID = targetUnit->statusIndex; 
+	int stID = GetUnitStatusIndex(targetUnit);
 	if (stID) { 
 		for (int i = 0; i < (int)ARRAY_COUNT(debuffs); i++)
 		{
 			if (stID == debuffs[i])
 			{
-				targetUnit->statusIndex = 0; 
-				targetUnit->statusDuration = 0; 	
+				SetUnitStatusIndex(targetUnit, 0);
+				SetUnitStatusDuration(targetUnit, 0);
 			}
 		}		
 	}

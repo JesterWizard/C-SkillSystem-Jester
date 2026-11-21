@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "map-anims.h"
 #include "skill-system.h"
@@ -28,7 +29,7 @@ static bool Drag_IsValidTarget(struct Unit *actor, struct Unit *target)
     if (UNIT_IS_PHANTOM(actor) || UNIT_IS_PHANTOM(target))
         return false;
 
-    if (target->statusIndex == UNIT_STATUS_BERSERK)
+    if (UNIT_STATUS_INDEX(target) == UNIT_STATUS_BERSERK)
         return false;
 
     if (target->state & (US_HIDDEN | US_DEAD | US_RESCUING | US_RESCUED |

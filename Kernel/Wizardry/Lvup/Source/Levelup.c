@@ -14,7 +14,7 @@ static bool IsStatUncapped(struct Unit* unit, int statIndex, int limitBreaker)
 {
     switch (statIndex) {
     case 0: // HP
-        return unit->maxHP < unit->pClassData->maxHP + limitBreaker;
+        return unit->maxHP < UNIT_MHP_MAX(unit) + limitBreaker;
     case 1: // POW
         return unit->pow < unit->pClassData->maxPow + limitBreaker;
     case 2: // SKL
@@ -116,10 +116,10 @@ STATIC_DECLAR void UnitLvup_Vanilla(struct BattleUnit* bu, int bonus)
             *statChanges[0] = GetStatIncrease_NEW((GetUnitHpGrowth(unit) + bonus), expGained);
     }
     else
-        if (unit->maxHP < unit->pClassData->maxHP + limitBreaker)
+        if (unit->maxHP < UNIT_MHP_MAX(unit) + limitBreaker)
             *statChanges[0] = GetStatIncrease_NEW((GetUnitHpGrowth(unit) + bonus), expGained);
 #else
-    if (unit->maxHP < unit->pClassData->maxHP + limitBreaker)
+    if (unit->maxHP < UNIT_MHP_MAX(unit) + limitBreaker)
         *statChanges[0] = GetStatIncrease_NEW(GetUnitHpGrowth(unit) + bonus, expGained);
 #endif
     if (unit->pow < unit->pClassData->maxPow + limitBreaker)

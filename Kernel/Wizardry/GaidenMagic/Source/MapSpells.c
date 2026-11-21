@@ -10,6 +10,7 @@
 #include <weapon-range.h>
 #include <constants/texts.h>
 #include <gaiden-magic.h>
+#include <debuff.h>
 #include "bwl.h"
 #include "jester_headers/custom-functions.h"
 
@@ -62,6 +63,10 @@ static bool IsGaidenMapSpellTarget(struct Unit *unit, struct Unit *tunit)
 		return false;
 
 	if (tunit->state & (US_HIDDEN | US_DEAD | US_RESCUED | US_NOT_DEPLOYED | US_BIT16))
+		return false;
+
+	/* Hidden units are out of reach of enemy spells */
+	if (GetUnitStatusIndex(tunit) == NEW_UNIT_STATUS_HIDE)
 		return false;
 
 	/* A unit is allied with itself, so this also skips the caster */

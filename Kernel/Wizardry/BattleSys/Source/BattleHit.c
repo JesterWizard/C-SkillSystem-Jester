@@ -158,13 +158,13 @@ s8 BattleCheckTriangleAttack(struct BattleUnit * attacker, struct BattleUnit * d
         }
 #endif
 
-        if (unit->statusIndex == UNIT_STATUS_SLEEP)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_SLEEP)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_PETRIFY)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_PETRIFY)
             continue;
 
-        if (unit->statusIndex == UNIT_STATUS_13)
+        if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_13)
             continue;
 
         if (unit->pClassData->number == CLASS_WYVERN_KNIGHT_F)
@@ -200,7 +200,7 @@ void BattleGenerateHitTriangleAttack(struct BattleUnit * attacker, struct Battle
     if (!(gBattleHitIterator->info & BATTLE_HIT_INFO_BEGIN))
         return;
 
-    if (attacker->unit.statusIndex == UNIT_STATUS_BERSERK)
+    if (UNIT_STATUS_INDEX(&attacker->unit) == UNIT_STATUS_BERSERK)
         return;
 
     if (gBattleStats.config & BATTLE_CONFIG_ARENA)

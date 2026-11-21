@@ -123,7 +123,7 @@ void PutUnitSpriteIconsOam(void)
 				if (info->on_draw)
 					info->on_draw(unit, ix, iy);
 				else {
-					bool statusIconApplied;
+					bool statusIconApplied = false;
 
 					switch (status) {
 					case NEW_UNIT_STATUS_SLOW:

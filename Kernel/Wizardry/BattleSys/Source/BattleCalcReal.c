@@ -125,7 +125,7 @@ void ComputeBattleUnitSpecialWeaponStats(struct BattleUnit *attacker, struct Bat
 #ifdef CHAX
 		if (GetUnitStatusIndex(&defender->unit) == UNIT_STATUS_PETRIFY || GetUnitStatusIndex(&defender->unit) == UNIT_STATUS_13)
 #else
-		if (defender->unit.statusIndex == UNIT_STATUS_PETRIFY || defender->unit.statusIndex == UNIT_STATUS_13)
+		if (UNIT_STATUS_INDEX(&defender->unit) == UNIT_STATUS_PETRIFY || UNIT_STATUS_INDEX(&defender->unit) == UNIT_STATUS_13)
 #endif
 		{
 			attacker->battleEffectiveHitRate = 100;

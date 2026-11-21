@@ -4,6 +4,7 @@
  */
 
 #include <common-chax.h>
+#include "debuff.h"
 #include <kernel-lib.h>
 #include <item-sys.h>
 #include <weapon-range.h>
@@ -19,7 +20,7 @@ static void TryAddUnitToUnicornTargetList(struct Unit *unit)
 	if (unit->state & US_RESCUED)
 		return;
 
-	if (unit->statusIndex != UNIT_STATUS_NONE ||
+	if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE ||
 	    (CheckHasBwl(UNIT_CHAR_ID(unit)) && GetUnitCurrentMP(unit) < GetUnitMaxMP(unit)))
 		AddTarget(unit->xPos, unit->yPos, unit->index, 0);
 }

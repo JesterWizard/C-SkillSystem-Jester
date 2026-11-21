@@ -69,7 +69,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 	},
 	[UNIT_STATUS_CRIT] = {
 		.name = MSG_051D,
-		.desc = MSG_055A,
+		.desc = MSG_STATUS_CRIT_RING_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.duration = 3,
@@ -78,8 +78,8 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.on_draw = pr_PutUnitDanceRingBuffIcon,
 	},
 	[UNIT_STATUS_AVOID] = {
-		.name = MSG_51E,
-		.desc = MSG_055B,
+		.name = MSG_STATUS_AVOID_RING_NAME,
+		.desc = MSG_STATUS_AVOID_RING_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.duration = 3,
@@ -88,12 +88,16 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.on_draw = pr_PutUnitDanceRingBuffIcon,
 	},
 	[UNIT_STATUS_SICK] = {
+		.desc = MSG_STATUS_SICK_DESC,
+		.img = GFX_DebuffMinibox_Sick,
 		.name = MSG_0518,
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 3,
 	},
 	[UNIT_STATUS_RECOVER] = {
+		.desc = MSG_STATUS_RECOVER_DESC,
+		.img = GFX_DebuffMinibox_Recover,
 		.name = MSG_0519,
 		.duration = 3,
 	},
@@ -108,13 +112,13 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 	},
 	[UNIT_STATUS_12] = {
 		.name = 0,
-		.desc = 0,
+		.desc = MSG_STATUS_NO_EFFECT_DESC,
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
 		.duration = 3,
 	},
 	[UNIT_STATUS_13] = {
-		.name = 0,
+		.name = MSG_051A,
 		.desc = MSG_0557,
 		.positive_type = STATUS_DEBUFF_NEGATIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ENEMY,
@@ -204,13 +208,14 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 	},
 	[IGNORE] = {
 		.name = 0,
-		.desc = 0,
+		.desc = MSG_STATUS_NO_EFFECT_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_NO_TICK,
 		.duration = 1,
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
 	},
 	[NEW_UNIT_STATUS_REPLICATE] = {
+		.img = GFX_DebuffMinibox_Copy,
 		.name = MSG_DEBUFF_REPLICATE_NAME,
 		.desc = MSG_DEBUFF_REPLICATE_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -219,6 +224,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
 	},
 	[NEW_UNIT_STATUS_DEFAULT] = {
+		.img = GFX_DebuffMinibox_Default,
 		.name = MSG_DEBUFF_DEFAULT_NAME,
 		.desc = MSG_DEBUFF_DEFAULT_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -227,6 +233,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.efx_config = {EFX_DEBUFF_NORMAL, 0x0, 0x0, 0x8},
 	},
 	[NEW_UNIT_STATUS_CAVALRY_EFFECTIVE] = {
+		.img = GFX_DebuffMinibox_CavEff,
 		.name = MSG_DEBUFF_CAVALRY_EFFECTIVE_NAME,
 		.desc = MSG_DEBUFF_CAVALRY_EFFECTIVE_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -236,6 +243,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_ARMOR_EFFECTIVE] = {
+		.img = GFX_DebuffMinibox_ArmEff,
 		.name = MSG_DEBUFF_ARMOR_EFFECTIVE_NAME,
 		.desc = MSG_DEBUFF_ARMOR_EFFECTIVE_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -245,6 +253,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_FLIER_EFFECTIVE] = {
+		.img = GFX_DebuffMinibox_FlyEff,
 		.name = MSG_DEBUFF_FLIER_EFFECTIVE_NAME,
 		.desc = MSG_DEBUFF_FLIER_EFFECTIVE_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -254,6 +263,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 		.cannot_move = true,
 	},
 	[NEW_UNIT_STATUS_INFANTRY_EFFECTIVE] = {
+		.img = GFX_DebuffMinibox_InfEff,
 		.name = MSG_DEBUFF_INFANTRY_EFFECTIVE_NAME,
 		.desc = MSG_DEBUFF_INFANTRY_EFFECTIVE_DESC,
 		.positive_type = STATUS_DEBUFF_POSITIVE,
@@ -292,7 +302,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
     [NEW_UNIT_STATUS_DECOY] = {
         .name = MSG_DEBUFF_DECOY_NAME,
         .desc = MSG_DEBUFF_DECOY_DESC,
-        .positive_type = STATUS_DEBUFF_NEGATIVE,
+        .positive_type = STATUS_DEBUFF_POSITIVE,
         .tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
         .duration = 1,
         .img = GFX_DebuffMinibox_Panic,
@@ -364,7 +374,7 @@ const struct DebuffInfo gDebuffInfos[NEW_UNIT_STATUS_MAX] = {
 	[NEW_UNIT_STATUS_QUICKEN] = {
 		.name = MSG_DEBUFF_QUICKEN_NAME,
 		.desc = MSG_DEBUFF_QUICKEN_DESC,
-		.positive_type = STATUS_DEBUFF_NEGATIVE,
+		.positive_type = STATUS_DEBUFF_POSITIVE,
 		.tick_type = STATUS_DEBUFF_TICK_ON_ALLY,
 		.duration = 1,
         .img = GFX_DebuffMinibox_Avoid,

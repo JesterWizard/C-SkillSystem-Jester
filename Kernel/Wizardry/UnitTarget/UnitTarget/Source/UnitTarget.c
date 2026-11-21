@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "skill-system.h"
 #include "constants/skills.h"
 
@@ -26,7 +27,7 @@ void TryAddUnitToSleepTargetList(struct Unit *unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE && unit->statusIndex != UNIT_STATUS_SLEEP)
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE && UNIT_STATUS_INDEX(unit) != UNIT_STATUS_SLEEP)
     {
         return;
     }
@@ -55,7 +56,7 @@ void TryAddUnitToSilenceTargetList(struct Unit *unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE && unit->statusIndex != UNIT_STATUS_SILENCED)
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE && UNIT_STATUS_INDEX(unit) != UNIT_STATUS_SILENCED)
     {
         return;
     }
@@ -84,7 +85,7 @@ void TryAddUnitToBerserkTargetList(struct Unit *unit)
         return;
     }
 
-    if (unit->statusIndex != UNIT_STATUS_NONE && unit->statusIndex != UNIT_STATUS_BERSERK)
+    if (UNIT_STATUS_INDEX(unit) != UNIT_STATUS_NONE && UNIT_STATUS_INDEX(unit) != UNIT_STATUS_BERSERK)
     {
         return;
     }
@@ -124,7 +125,7 @@ void TryAddUnitToRescueTargetList(struct Unit* unit) {
         return;
     }
 
-    if (unit->statusIndex == UNIT_STATUS_BERSERK) {
+    if (UNIT_STATUS_INDEX(unit) == UNIT_STATUS_BERSERK) {
         return;
     }
 

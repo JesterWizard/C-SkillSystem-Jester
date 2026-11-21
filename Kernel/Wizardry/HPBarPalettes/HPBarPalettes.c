@@ -1,4 +1,5 @@
 #include "common-chax.h"
+#include "debuff.h"
 #include "kernel-lib.h"
 #include "battle-system.h"
 #include "double-badge.h"
@@ -1382,7 +1383,7 @@ bool PrepareBattleGraphicsMaybe(void)
 
     if (gBanimValid[POS_L] == true)
     {
-        if (unit_bu1->statusIndex == UNIT_STATUS_BERSERK)
+        if (UNIT_STATUS_INDEX(unit_bu1) == UNIT_STATUS_BERSERK)
             return false;
 
         if (gBanimIdx[POS_L] == -1)
@@ -1403,7 +1404,7 @@ bool PrepareBattleGraphicsMaybe(void)
 
     if (gBanimValid[POS_R] == true)
     {
-        if (unit_bu2->statusIndex == UNIT_STATUS_BERSERK)
+        if (UNIT_STATUS_INDEX(unit_bu2) == UNIT_STATUS_BERSERK)
             return false;
 
         if (gBanimIdx[POS_R] == -1)
