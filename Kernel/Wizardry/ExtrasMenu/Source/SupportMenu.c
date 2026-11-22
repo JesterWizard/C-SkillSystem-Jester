@@ -6,6 +6,7 @@
 #include "gallery.h"
 #include "bestiary.h"
 #include "skill-codex.h"
+#include "tutorials.h"
 
 LYN_REPLACE_CHECK(GetGlobalSupportListFromSave);
 void GetGlobalSupportListFromSave(int unitId, u8* data, struct GlobalSaveInfo* info)
@@ -128,6 +129,9 @@ void InitSaveMenuChoice(struct SaveMenuProc * proc)
 
     /* The Skill Codex (Kernel/Wizardry/SkillCodex), bit 7, which vanilla never used; always there */
     AddExtraMenuOption(proc, EXTRA_MENU_OPTION_SKILL_CODEX);
+
+    /* Tutorials (Kernel/Wizardry/Tutorials), in Link Arena's bit (0), listed last; always there */
+    AddExtraMenuOption(proc, EXTRA_MENU_OPTION_TUTORIALS);
 
     if (proc->extra_options != 0)
     {

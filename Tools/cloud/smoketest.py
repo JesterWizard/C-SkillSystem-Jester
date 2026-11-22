@@ -65,6 +65,8 @@ What it checks:
               and B goes back to Extras.
   skillcodex  the prologue's first phase marks the skills of the units on the map; a game save keeps them; after a
               reset Extras > Skill Codex lists every skill, those met; R goes to the next met, B back to Extras.
+  tutorials   Extras > Tutorials is the last Extras row: Select Mode's screen with every tutorial, A turns a page,
+              DOWN chooses the next, the list scrolls past the third banner, B goes back to Extras.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -150,7 +152,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, tutorials, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, lvupbars, banim, frames, stealer, debugflag, biography, awards, results, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -1775,11 +1777,11 @@ class Smoke:
         # struct GalleryScreen: count, cursor, top, view; sprites (+8); the first unlock byte (+0xC)
         state = ["r8 %#x" % (gs + k) for k in (0, 1, 2, 3, 8, 0xC)]
         lines = self.boot_lines() + ["r8 %#x" % (unlocks + k) for k in range(6)]
-        # the main menu: Extras is the last row; in Extras the Gallery is third from the end (then the Bestiary and
-        # the Skill Codex): UP from the top goes around to the Skill Codex, UP twice more to the Gallery
+        # the main menu: Extras is the last row; in Extras the Gallery is fourth from the end (then the Bestiary, the
+        # Skill Codex and Tutorials): UP from the top goes around to Tutorials, UP three times more to the Gallery
         lines += SOFT_RESET + ["press UP", "wait 20", "press A", "wait 200",
                                "dump %#x %#x menu.bin" % (procs, PROC_SIZE * PROCS)]
-        lines += ["press UP", "wait 20"] * 3 + ["press A", "wait 150", "shot grid.png"] + state
+        lines += ["press UP", "wait 20"] * 4 + ["press A", "wait 150", "shot grid.png"] + state
         # Reunited (the second CG, locked): A does nothing; then Flight from Renais (the first): A, the full view
         lines += ["press RIGHT", "wait 20", "press A", "wait 60"] + state
         lines += ["press LEFT", "wait 20", "press A", "wait 60", "shot full.png", "r16 %#x" % lcd] + state
@@ -1834,8 +1836,8 @@ class Smoke:
     def test_bestiary(self):
         """The Bestiary (Documentation/Features/Bestiary.md). The prologue's first phase marks every unit on the map in
         gBestiarySeen: Eirika (1), Seth (2) and O'Neill (0x68); the Lord (2), Paladin (7) and Fighter (0x3F) classes.
-        The debugger's "Save & restart ch." writes them to the game save's tail. After a reset, Extras > Bestiary (above
-        the last row, the Skill Codex) opens on Characters with those three met; Ephraim (the second row) is locked; A on
+        The debugger's "Save & restart ch." writes them to the game save's tail. After a reset, Extras > Bestiary (third
+        from the end) opens on Characters with those three met; Ephraim (the second row) is locked; A on
         Eirika shows her growths; R changes to Classes (Lord, Paladin, Fighter met); B goes back to Extras."""
         d = os.path.join(self.out, "bestiary")
         os.makedirs(d, exist_ok=True)
@@ -1847,9 +1849,9 @@ class Smoke:
         state = lambda name: "dump %#x 0xE0 %s" % (bs, name)
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
         lines = self.boot_lines() + ["dump %#x 0x44 seen.bin" % seen] + DEBUG_SAVE + SOFT_RESET
-        # Extras: the Bestiary is above the last row (the Skill Codex)
+        # Extras: the Bestiary is third from the end (then the Skill Codex and Tutorials)
         lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press UP",
-                  "wait 20", "press A", "wait 150", "shot chars.png", state("chars.bin")]
+                  "wait 20", "press UP", "wait 20", "press A", "wait 150", "shot chars.png", state("chars.bin")]
         lines += ["hold DOWN 4", "wait 20", "shot locked.png", state("locked.bin"), "hold UP 4", "wait 20", "press A",
                   "wait 20", "shot growths.png", state("growths.bin"), "press R", "wait 30", "shot classes.png",
                   state("classes.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
@@ -1890,7 +1892,7 @@ class Smoke:
     def test_skillcodex(self):
         """The Skill Codex (Documentation/Features/SkillCodex.md). The prologue's first phase marks the skills of every
         unit on the map in gSkillCodexSeen (Eirika's, Seth's, O'Neill's and the soldiers'). The debugger's "Save &
-        restart ch." writes them to the game save's tail. After a reset, Extras > Skill Codex (the last row) lists every
+        restart ch." writes them to the game save's tail. After a reset, Extras > Skill Codex (above Tutorials) lists every
         skill with a description, as many met as were marked; the cursor starts on the first; R goes to the first skill
         met, then the next; DOWN moves a row; B goes back to the save menu."""
         d = os.path.join(self.out, "skillcodex")
@@ -1903,7 +1905,9 @@ class Smoke:
         state = lambda name: "dump %#x 8 %s" % (cs, name)
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
         lines = self.boot_lines() + ["dump %#x 0x84 seen.bin" % seen] + DEBUG_SAVE + SOFT_RESET
-        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
+        # Extras: the Skill Codex is above the last row (Tutorials)
+        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press UP",
+                  "wait 20", "press A",
                   "wait 150", "shot codex.png", state("open.bin")]
         lines += ["press R", "wait 30", "shot met.png", state("met.bin"), "press R", "wait 30", state("next.bin"),
                   "hold DOWN 4", "wait 20", "shot down.png", state("down.bin"), "press B", "wait 150",
@@ -1936,6 +1940,68 @@ class Smoke:
                    "cursor %#x after %#x" % (st["down"][0], st["next"][0]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("skillcodex: B goes back to the save menu", bool(after))
+
+    def test_tutorials(self):
+        """Extras > Tutorials (Documentation/Features/Tutorials.md), the last Extras row: after a reset, UP from the top of
+        Extras goes around to it, and A opens Select Mode's screen with every tutorial of TutorialsData.c listed, the
+        first chosen on its first page. A turns the page; DOWN chooses the next tutorial on its first page; DOWN past
+        the third banner scrolls the list a row; every tutorial's text fits its box (one page, five lines); DOWN on the
+        last goes around to the first, UP on the first to the last; B goes back to Extras."""
+        d = os.path.join(self.out, "tutorials")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBestiaryScreen", "ProcScr_SaveMenu", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("tutorials: the Tutorials symbols", False, "no symbols")
+        ts, procs = self.sym["gBestiaryScreen"], self.sym["sProcArray"]
+        data = open(os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source", "TutorialsData.c")).read()
+        want = len(re.findall(r"\{ MSG_TUT_\w+_TITLE,", data))
+        # struct TutorialsScreen (in gBestiaryScreen): the box's 5 Texts (0x28 bytes), then count, cursor, top (u16),
+        # page, pages, lineCount (u8)
+        state = lambda name: "dump %#x 9 %s" % (ts + 0x28, name)
+        dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
+        lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET
+        lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
+                  "wait 150", "shot open.png", state("open.bin"), "press A", "wait 20", "shot page.png",
+                  state("page.bin"), "press DOWN", "wait 20", "shot down.png", state("down.bin")]
+        lines += ["press DOWN", "wait 20", state("t02.bin"), "press DOWN", "wait 20", "shot scroll.png", state("scroll.bin")]
+        # The rest, one at a time (3 chosen so far), then around both ends
+        for i in range(4, want):
+            lines += ["press DOWN", "wait 12", state("t%02d.bin" % i)]
+        lines += ["shot last.png", "press DOWN", "wait 20", "shot wrap.png", state("wrap.bin"), "press UP", "wait 20",
+                  state("wrapup.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
+        self.run(ROM, lines, d)
+        for name, label in (("open", "Tutorials: the first"), ("page", "A: its next page"),
+                            ("down", "DOWN: the next tutorial"), ("scroll", "the list scrolled"),
+                            ("last", "the last tutorial"), ("wrap", "DOWN on the last: the first"),
+                            ("extras", "B: Extras")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("tutorials: Extras has the Tutorials row (bit 0)", menu and menu[0] & 1,
+                   "Extras rows %s" % ["%#x" % m for m in menu])
+        try:
+            names = ["open", "page", "down", "t02", "scroll", "wrap", "wrapup"] + ["t%02d" % i for i in range(4, want)]
+            st = {n: struct.unpack("<3H3B", open(os.path.join(d, n + ".bin"), "rb").read()[:9]) for n in names}
+        except (OSError, struct.error) as e:
+            return self.check("tutorials: UP from the top of Extras opens Tutorials", False, str(e))
+        count, cur, top, page, pages, _ = st["open"]
+        self.check("tutorials: UP from the top of Extras opens Tutorials, every tutorial listed, the first on page 1",
+                   count == want and cur == 0 and top == 0 and page == 0 and pages >= 1,
+                   "count %d of %d, cursor %d, top %d, page %d of %d" % (count, want, cur, top, page, pages))
+        self.check("tutorials: A turns the page", st["page"][3] == (1 if pages > 1 else 0),
+                   "page %d of %d" % (st["page"][3], pages))
+        self.check("tutorials: DOWN chooses the next tutorial, on its first page", st["down"][1:4] == (1, 0, 0),
+                   "cursor, top, page %s" % (st["down"][1:4],))
+        self.check("tutorials: DOWN past the third banner scrolls the list a row", st["scroll"][1:3] == (3, 1),
+                   "cursor, top %s" % (st["scroll"][1:3],))
+        seen = {v[1]: v for k, v in st.items() if k in ("open", "down", "scroll") or k.startswith("t")}
+        long = ["#%d: %d lines" % (i, v[5]) for i, v in sorted(seen.items()) if v and (v[4] != 1 or v[5] > 5)]
+        self.check("tutorials: every tutorial's text fits its box", len(seen) == want and not long,
+                   "%d of %d seen; %s" % (len(seen), want, ", ".join(long) or "all fit"))
+        self.check("tutorials: DOWN on the last goes around to the first, UP on the first to the last",
+                   st["wrap"][1:3] == (0, 0) and st["wrapup"][1:3] == (want - 1, want - 3),
+                   "cursor, top %s then %s" % (st["wrap"][1:3], st["wrapup"][1:3]))
+        after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
+        self.check("tutorials: B goes back to the save menu", bool(after))
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -3961,7 +4027,8 @@ def main():
                                 ("introband", s.test_introband),
                                 ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
-                                ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex))):
+                                ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex),
+                                ("tutorials", s.test_tutorials))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

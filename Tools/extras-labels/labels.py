@@ -33,6 +33,7 @@ BANDS = {
     "Battle History": ("main", 0), "Link Arena": ("main", 32), "Sound Room": ("main", 32),
     "Restart Chapter": ("save", 48), "Copy Data": ("save", 80), "Extras": ("save", 16),
     "Select Mode": ("diff", 0), "Easy": ("diff", 32), "Gallery": ("sheet", 16),
+    "Transfer Data": ("main", 0), "Resume Chapter": ("save", 32),
 }
 # Each letter: the word it comes from and its columns in that sheet
 CUTS = {
@@ -41,12 +42,16 @@ CUTS = {
     "k": ("Link Arena", 165, 173), "r": ("Restart Chapter", 44, 48), "S": ("Sound Room", 23, 29),
     "l": ("Gallery", 49, 52), "C": ("Copy Data", 101, 108), "o": ("Copy Data", 109, 114),
     "d": ("Select Mode", 192, 198), "i": ("Link Arena", 155, 158), "x": ("Extras", 183, 188),
+    "T": ("Transfer Data", 19, 29), "u": ("Resume Chapter", 34, 39),
 }
 SPACE = 3
 # The words and where they go: (label row, first tile column, tiles), in the order the canvas is cut
 LABELS = [
     ("Bestiary", [(1, 0, 4), (1, 10, 2)]),
     ("Skill Codex", [(2, 14, 4), (2, 28, 4), (2, 26, 2)]),
+    # Row 0 tiles 26-31 (New Game+'s sprite no longer shows its empty tiles 26-27) and row 1 tiles 12-13 (between the
+    # Bestiary's last piece and Support Conversation's sprite; row 0's 12-13 are in the Bonus Claim's sprite)
+    ("Tutorials", [(0, 26, 4), (0, 30, 2), (1, 12, 2)]),
 ]
 
 

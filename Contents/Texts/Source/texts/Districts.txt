@@ -1263,3 +1263,123 @@ A results screen after each chapter[X]
 promoted to[X]
 ## MSG_ENEMY_PROMOTED_ENEMY
 Enemy[X]
+## MSG_TUT_INTRO_TITLE
+Tutorials[X]
+## MSG_TUT_INTRO
+Up and down choose a tutorial; the list goes around at the ends. B goes back to Extras.[X]
+## MSG_TUT_SKILLS_TITLE
+Skills[X]
+## MSG_TUT_SKILLS
+Units get skills from their character, class, items and weapon, and equip five more.[X]
+## MSG_TUT_EQUIP_TITLE
+Equipping Skills[X]
+## MSG_TUT_EQUIP
+Equip or remove a unit's skills in the Skills row of the Preparations menu.[X]
+## MSG_TUT_CAPACITY_TITLE
+Skill Capacity[X]
+## MSG_TUT_CAPACITY
+Skill costs by rank: E 3, D 5, C 8, B 10, A 15, S 20. Capacity is 50, or 75 promoted.[X]
+## MSG_TUT_SCROLLS_TITLE
+Skill Scrolls[X]
+## MSG_TUT_SCROLLS
+A Skill Scroll teaches its skill. Extras > Skill Codex lists every skill you have met.[X]
+## MSG_TUT_MAGIC_TITLE
+Magic[X]
+## MSG_TUT_MAGIC
+Tomes and staves are not items: mages learn spells as they level up.[X]
+## MSG_TUT_CASTING_TITLE
+Casting[X]
+## MSG_TUT_CASTING
+Cast attack spells with B.Mag and staves with W.Mag, in the unit menu.[X]
+## MSG_TUT_USES_TITLE
+Spell Uses[X]
+## MSG_TUT_USES
+A spell has uses per chapter: one a fight or staff cast. They come back each chapter.[X]
+## MSG_TUT_ARTS_TITLE
+Combat Arts[X]
+## MSG_TUT_ARTS
+In the battle forecast, left and right choose a combat art of the weapon, or none.[X]
+## MSG_TUT_ARTUSE_TITLE
+Using Arts[X]
+## MSG_TUT_ARTUSE
+Arts add damage, hit, range or other effects, but most stop follow-up attacks.[X]
+## MSG_TUT_WEAPONS_TITLE
+Weapons[X]
+## MSG_TUT_WEAPONS
+Weapons never break. The Stack command merges copies of the same item.[X]
+## MSG_TUT_DISTRICTS_TITLE
+Districts[X]
+## MSG_TUT_DISTRICTS
+Districts are towns with no enemies. A green flag marks them on the world map.[X]
+## MSG_TUT_OPENING_TITLE
+District Openings[X]
+## MSG_TUT_OPENING
+Serafew opens at Chapter 6, Port Kiris at 10, Caer Pelyn at 13, Jehanna Hall at 16.[X]
+## MSG_TUT_VISIT_TITLE
+Visiting[X]
+## MSG_TUT_VISIT
+On the node, choose Enter District. Press A by people to talk. Leave by the gate, or L.[X]
+## MSG_TUT_FISHING_TITLE
+Fishing[X]
+## MSG_TUT_FISHING
+Stand on the fish spot and press A. Choose a bait, aim, and press A to cast.[X]
+## MSG_TUT_REEL_TITLE
+Reeling In[X]
+## MSG_TUT_REEL
+When ! shows, press A to hook. Tap A to keep the tension green until it lands.[X]
+## MSG_TUT_CATCH_TITLE
+Catches[X]
+## MSG_TUT_CATCH
+Big fish pay more gold. Golden fish bite only the golden lure. Catches earn tokens.[X]
+## MSG_TUT_CROSSING_TITLE
+River Crossing[X]
+## MSG_TUT_CROSSING
+On the frog spot, press A. Hop over the road and the river's rafts to fill five docks.[X]
+## MSG_TUT_CROSSRULE_TITLE
+Crossing Rules[X]
+## MSG_TUT_CROSSRULE
+Three lives of 30 seconds, and each round is faster. B stops and pays gold and tokens.[X]
+## MSG_TUT_TOWER_TITLE
+Tower Stack[X]
+## MSG_TUT_TOWER
+On the tower spot, press A. Press A again to drop each block onto the one below.[X]
+## MSG_TUT_TOWERRULE_TITLE
+Tower Rules[X]
+## MSG_TUT_TOWERRULE
+Lined up is PERFECT!; under half on costs a life. Ten perfects in a row start a Fever.[X]
+## MSG_TUT_HEX_TITLE
+Hex Cards[X]
+## MSG_TUT_HEX
+Talk to someone with a card over their head to play Hex. Win a card and five tokens.[X]
+## MSG_TUT_HEXRULE_TITLE
+Hex Rules[X]
+## MSG_TUT_HEXRULE
+Place seven cards in turns. A card attacks foes it points at; at 0 HP they switch sides.[X]
+## MSG_TUT_GUILD_TITLE
+Guild Board[X]
+## MSG_TUT_GUILD
+On the notice board, press A. L and R turn pages. A red ! means a quest to claim.[X]
+## MSG_TUT_TOKENS_TITLE
+Tokens[X]
+## MSG_TUT_TOKENS
+Claim a finished quest with A for tokens. Spend them on prizes, up to skill scrolls.[X]
+## MSG_TUT_PROMOTE_TITLE
+Enemy Promotions[X]
+## MSG_TUT_PROMOTE
+An enemy that defeats a unit promotes at once, with 3 more in every stat.[X]
+## MSG_TUT_PROMOPT_TITLE
+Promote On Kill[X]
+## MSG_TUT_PROMOPT
+The Promote On Kill row in Options turns enemy promotions on or off.[X]
+## MSG_TUT_STATUS_TITLE
+Stat Screen[X]
+## MSG_TUT_STATUS
+Press R on a unit to see its stats. Left and right turn the pages.[X]
+## MSG_TUT_PAGES_TITLE
+Stat Pages[X]
+## MSG_TUT_PAGES
+Growths: growth rates and caps. Gaiden Magic: spells. Promotions: classes to come.[X]
+## MSG_TUT_THREAT_TITLE
+Threat Arrows[X]
+## MSG_TUT_THREAT
+Turn them on in Options. Red arrows point from each enemy that can reach the tile.[X]

@@ -8,6 +8,7 @@
 #include "bonusclaim.h"
 #include "uisupport.h"
 #include "gallery.h"
+#include "tutorials.h"
 #include "bestiary.h"
 #include "skill-codex.h"
 #include "recap.h"
@@ -139,6 +140,10 @@ void SaveMenuStartExtraMiscScreen(struct SaveMenuProc *proc)
 		StartSkillCodexScreen(proc);
 		return;
 
+	case EXTRA_MENU_OPTION_TUTORIALS:
+		StartTutorialsScreen(proc);
+		return;
+
 	case EXTRA_MENU_OPTION_BONUS_CLAIM:
 		StartBonusClaimScreen(proc);
 		return;
@@ -174,6 +179,7 @@ void SaveMenuPostExtraMiscScreen(struct SaveMenuProc *proc)
 	case EXTRA_MENU_OPTION_GALLERY:
 	case EXTRA_MENU_OPTION_BESTIARY:
 	case EXTRA_MENU_OPTION_SKILL_CODEX:
+	case EXTRA_MENU_OPTION_TUTORIALS:
 		Proc_Goto(proc, PL_SAVEMENU_10);
 		return;
 	}

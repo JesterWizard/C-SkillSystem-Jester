@@ -25,7 +25,7 @@
 
 ## 🧩 Introduction
 
-**Extras > Skill Codex**, the last Extras row, lists every skill in the game and describes the ones the player has met:
+**Extras > Skill Codex**, the Extras row above [Tutorials](./Tutorials.md), lists every skill in the game and describes the ones the player has met:
 
 - **The banner** on top (the Sound Room's song banner) shows the name of the skill under the cursor, or "???" for one
   not met yet.
@@ -67,15 +67,15 @@ title's screen shows what the three game saves and the suspend save hold togethe
 
 - **The Extras row.** Bit 7 of the Extras list's byte (`EXTRA_MENU_OPTION_SKILL_CODEX`), which vanilla never used
   (the list walks all 8 bits). `InitSaveMenuChoice` (`ExtrasMenu/Source/SupportMenu.c`) always adds it; the Extras list
-  (`sub_80A9B90`), `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` have a case for it. With Link Arena
-  removed (`RemoveLinkArena.event`) the list has at most 7 rows, which vanilla's layout fits.
+  (`sub_80A9B90`), `SaveMenuStartExtraMiscScreen` and `SaveMenuPostExtraMiscScreen` have a case for it. Link Arena's
+  bit (0) is [Tutorials](./Tutorials.md)' row now, listed after this one; the list has up to 8 rows, which
+  `sub_80AAF6C` (`Tutorials/Source/TutorialsExtras.c`) spaces to fit.
 - **The row's label.** "Skill Codex" is made of vanilla's own letters, pixel for pixel (the "S" of Sound Room, the
   "k" and "i" of Link Arena, the "l" of Gallery, the "Co" of Copy Data, the "d" of Select Mode, the "e" of Battle
   History, the "x" of Extras) by `Tools/extras-labels/labels.py` (see the
   [Bestiary](./Bestiary.md#how-it-works)), in the Extras label sheet (`NewGamePlus/Gfx/Img_NgpMenuObjs.png`), in
   three pieces in the free tiles of Link Arena's sheet row (tiles 14-17, 28-31 and 26-27), centred 64 pixels from
-  its sprite's origin. Link Arena's sprite in `gExtrasLabelSprites` is cut to its
-  letters (tiles 18-25) to leave them free.
+  its sprite's origin. Link Arena's label (tiles 18-25) is unused: its bit is Tutorials' row.
 - **The list** is not kept as a table: the cursor and the top row are skill ids, and moving walks the ids
   (`SkillCodex_Step`). The screen's state lives in the Bestiary screen's RAM (`gBestiaryScreen`): the Extras screens
   never run together.
