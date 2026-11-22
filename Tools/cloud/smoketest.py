@@ -1945,7 +1945,8 @@ class Smoke:
         """Extras > Tutorials (Documentation/Features/Tutorials.md), the last Extras row: after a reset, UP from the top of
         Extras goes around to it, and A opens Select Mode's screen with every tutorial of TutorialsData.c listed, the
         first chosen on its first page. A turns the page; DOWN chooses the next tutorial on its first page; DOWN past
-        the third banner scrolls the list a row; B goes back to Extras."""
+        the third banner scrolls the list a row; every tutorial's text fits its box (one page, five lines); DOWN on the
+        last goes around to the first, UP on the first to the last; B goes back to Extras."""
         d = os.path.join(self.out, "tutorials")
         os.makedirs(d, exist_ok=True)
         need = ("gBestiaryScreen", "ProcScr_SaveMenu", "sProcArray")
@@ -1954,28 +1955,35 @@ class Smoke:
         ts, procs = self.sym["gBestiaryScreen"], self.sym["sProcArray"]
         data = open(os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source", "TutorialsData.c")).read()
         want = len(re.findall(r"\{ MSG_TUT_\w+_TITLE,", data))
-        # struct TutorialsScreen (in gBestiaryScreen): 8 Texts (0x40 bytes), then count, cursor, top (u16), page, pages
-        state = lambda name: "dump %#x 8 %s" % (ts + 0x40, name)
+        # struct TutorialsScreen (in gBestiaryScreen): the box's 5 Texts (0x28 bytes), then count, cursor, top (u16),
+        # page, pages, lineCount (u8)
+        state = lambda name: "dump %#x 9 %s" % (ts + 0x28, name)
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
         lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET
         lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
                   "wait 150", "shot open.png", state("open.bin"), "press A", "wait 20", "shot page.png",
                   state("page.bin"), "press DOWN", "wait 20", "shot down.png", state("down.bin")]
-        lines += ["press DOWN", "wait 20"] * 2 + ["shot scroll.png", state("scroll.bin"), "press B", "wait 150",
-                                                   "shot extras.png", dump("after.bin")]
+        lines += ["press DOWN", "wait 20", state("t02.bin"), "press DOWN", "wait 20", "shot scroll.png", state("scroll.bin")]
+        # The rest, one at a time (3 chosen so far), then around both ends
+        for i in range(4, want):
+            lines += ["press DOWN", "wait 12", state("t%02d.bin" % i)]
+        lines += ["shot last.png", "press DOWN", "wait 20", "shot wrap.png", state("wrap.bin"), "press UP", "wait 20",
+                  state("wrapup.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
         self.run(ROM, lines, d)
         for name, label in (("open", "Tutorials: the first"), ("page", "A: its next page"),
-                            ("down", "DOWN: the next tutorial"), ("scroll", "the list scrolled"), ("extras", "B: Extras")):
+                            ("down", "DOWN: the next tutorial"), ("scroll", "the list scrolled"),
+                            ("last", "the last tutorial"), ("wrap", "DOWN on the last: the first"),
+                            ("extras", "B: Extras")):
             self.shot(os.path.join(d, name + ".png"), label)
         menu = [p[0x32] for a, p in self.procs(os.path.join(d, "menu.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("tutorials: Extras has the Tutorials row (bit 0)", menu and menu[0] & 1,
                    "Extras rows %s" % ["%#x" % m for m in menu])
         try:
-            st = {n: struct.unpack("<3H2B", open(os.path.join(d, n + ".bin"), "rb").read()[:8])
-                  for n in ("open", "page", "down", "scroll")}
+            names = ["open", "page", "down", "t02", "scroll", "wrap", "wrapup"] + ["t%02d" % i for i in range(4, want)]
+            st = {n: struct.unpack("<3H3B", open(os.path.join(d, n + ".bin"), "rb").read()[:9]) for n in names}
         except (OSError, struct.error) as e:
             return self.check("tutorials: UP from the top of Extras opens Tutorials", False, str(e))
-        count, cur, top, page, pages = st["open"]
+        count, cur, top, page, pages, _ = st["open"]
         self.check("tutorials: UP from the top of Extras opens Tutorials, every tutorial listed, the first on page 1",
                    count == want and cur == 0 and top == 0 and page == 0 and pages >= 1,
                    "count %d of %d, cursor %d, top %d, page %d of %d" % (count, want, cur, top, page, pages))
@@ -1985,6 +1993,13 @@ class Smoke:
                    "cursor, top, page %s" % (st["down"][1:4],))
         self.check("tutorials: DOWN past the third banner scrolls the list a row", st["scroll"][1:3] == (3, 1),
                    "cursor, top %s" % (st["scroll"][1:3],))
+        seen = {v[1]: v for k, v in st.items() if k in ("open", "down", "scroll") or k.startswith("t")}
+        long = ["#%d: %d lines" % (i, v[5]) for i, v in sorted(seen.items()) if v and (v[4] != 1 or v[5] > 5)]
+        self.check("tutorials: every tutorial's text fits its box", len(seen) == want and not long,
+                   "%d of %d seen; %s" % (len(seen), want, ", ".join(long) or "all fit"))
+        self.check("tutorials: DOWN on the last goes around to the first, UP on the first to the last",
+                   st["wrap"][1:3] == (0, 0) and st["wrapup"][1:3] == (want - 1, want - 3),
+                   "cursor, top %s then %s" % (st["wrap"][1:3], st["wrapup"][1:3]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("tutorials: B goes back to the save menu", bool(after))
 

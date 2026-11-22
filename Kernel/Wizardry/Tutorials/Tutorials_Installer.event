@@ -11,5 +11,6 @@
 #include "Source/TutorialsExtras.lyn.event"
 #include "Source/TutorialsScreen.lyn.event"
 #include "Source/TutorialsData.lyn.event"
+#include "Source/TutorialTitles.lyn.event"
 
 #endif /* TUTORIALS_INSTALLED */

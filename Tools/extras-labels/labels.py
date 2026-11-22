@@ -42,7 +42,7 @@ CUTS = {
     "k": ("Link Arena", 165, 173), "r": ("Restart Chapter", 44, 48), "S": ("Sound Room", 23, 29),
     "l": ("Gallery", 49, 52), "C": ("Copy Data", 101, 108), "o": ("Copy Data", 109, 114),
     "d": ("Select Mode", 192, 198), "i": ("Link Arena", 155, 158), "x": ("Extras", 183, 188),
-    "T": ("Transfer Data", 19, 29), "u": ("Resume Chapter", 36, 41),
+    "T": ("Transfer Data", 19, 29), "u": ("Resume Chapter", 34, 39),
 }
 SPACE = 3
 # The words and where they go: (label row, first tile column, tiles), in the order the canvas is cut

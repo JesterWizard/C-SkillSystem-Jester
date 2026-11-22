@@ -5,14 +5,17 @@
 #include "fontgrp.h"
 #include "uiutils.h"
 #include "ctc.h"
+#include "bmshop.h"
 #include "tutorials.h"
+#include "TutorialTitles.h"
 #include "constants/songs.h"
 
 /*
  * Extras > Tutorials (Documentation/Features/Tutorials.md): Select Mode's screen (vanilla's InitDifficultySelectScreen
- * and DrawDifficultySprites_Loop, rebuilt here), with the tutorials on its banners and the chosen one's text in its
- * box, a page at a time. Up and down choose a tutorial (three banners show; the list scrolls under them), A or right
- * shows the next page, left the previous one, B goes back to Extras.
+ * and DrawDifficultySprites_Loop, rebuilt here), with the tutorials' titles on its banners, in the Extras labels'
+ * letters (Tools/tutorial-titles/titles.py), and the chosen one's text in its box. Up and down choose a tutorial (three banners show; the list scrolls under them, with arrows
+ * when there is more, and goes around at either end). A text longer than the box shows a page at a time: A or right
+ * shows the next page, left the previous one. B goes back to Extras.
  */
 
 /* Vanilla's Select Mode data (the rest is in FE-CLib: the palettes, the banner, the hand, sub_80AC4F8 the glow) */
@@ -28,18 +31,21 @@ extern const u8 Img_NgpMenuObjs[];
 #define BANNER_X        8
 #define BANNER_Y        48
 #define BANNER_STEP     32
-#define TITLE_TILES     16      /* a banner is 128 pixels */
+#define TITLE_CHR       0x2C0   /* the three titles' images (128x16 each, two rows of 16 tiles), under the labels' sheet */
+#define TITLE_ROW_BYTES (16 * 0x20)
 #define BOX_LINES       5
 #define BOX_TILES       14
-#define PAGE_LINES      4       /* the box's last line is the page count */
+#define PAGE_LINES      4       /* a text of pages: the box's last line is the page count */
 #define TEXT_PX         88      /* the box's inside, from its first text column */
 #define TUT_MAX_LINES       48      /* a tutorial's lines, 12 pages */
 
 #define LABEL_CHR       0x200   /* the Extras labels' sheet, as the Extras list loads it */
 #define LABEL_PAL       11      /* OBJ palette for the header's label: Select Mode leaves 11-15 free */
+#define ARROW_CHR       0x180   /* the scroll arrows (UnpackUiVArrowGfx): OBJ tiles Select Mode leaves free */
+#define ARROW_PAL       12
+#define ARROW_X         (BANNER_X + 60)
 
 struct TutorialsScreen {
-	struct Text titles[VISIBLE];
 	struct Text lines[BOX_LINES];
 	u16 count;
 	u16 cursor;
@@ -64,12 +70,21 @@ struct ProcTutorials {
 
 enum { L_TUT_MAIN = 1, L_TUT_EXIT };
 
-/* "Tutorials", the Extras list's label (Sprite_TutorialsExtrasLabel), centred on the header */
+/* "Tutorials", the Extras list's label (Sprite_TutorialsExtrasLabel), centred on the header (8 down, as Select Mode's) */
 static const u16 Sprite_TutorialsHeaderLabel[] = {
 	3,
 	0x4000, 0x8000 + 32, 0x0A1A,
 	0x0000, 0x4000 + 64, 0x0A1E,
 	0x0000, 0x4000 + 80, 0x0A4C,
+};
+
+/* A title: 128x16, four 32x16 pieces, over the banner (priority 1) */
+static const u16 Sprite_TutorialTitle[] = {
+	4,
+	0x4000, 0x8000 + 0, 0x0400 + 0,
+	0x4000, 0x8000 + 32, 0x0400 + 4,
+	0x4000, 0x8000 + 64, 0x0400 + 8,
+	0x4000, 0x8000 + 96, 0x0400 + 12,
 };
 
 static int Tutorials_Count(void)
@@ -81,26 +96,23 @@ static int Tutorials_Count(void)
 	return n;
 }
 
+/* The visible titles' images, into their sprites' tiles (2D mapping: a slot's second row is 32 tiles on) */
 static void Tutorials_DrawTitles(void)
 {
-	int slot, i, w;
+	int slot, i;
 
 	for (slot = 0; slot < VISIBLE; slot++) {
-		struct Text *text = &TS->titles[slot];
-		const char *str;
+		u8 *dst = (u8 *)OBJ_VRAM0 + (TITLE_CHR + slot * 0x40) * 0x20;
 
-		ClearText(text);
 		i = TS->top + slot;
 		if (i < TS->count) {
-			str = GetStringFromIndex(gTutorials[i].title);
-			w = GetStringTextLen(str);
-			Text_SetCursor(text, w < TITLE_TILES * 8 ? (TITLE_TILES * 8 - w) / 2 : 0);
-			Text_SetColor(text, TEXT_COLOR_SYSTEM_WHITE);
-			Text_DrawString(text, str);
+			CpuFastCopy(gTutorials[i].img, dst, TITLE_ROW_BYTES);
+			CpuFastCopy(gTutorials[i].img + TITLE_ROW_BYTES, dst + 32 * 0x20, TITLE_ROW_BYTES);
+		} else {
+			CpuFastFill(0, dst, TITLE_ROW_BYTES);
+			CpuFastFill(0, dst + 32 * 0x20, TITLE_ROW_BYTES);
 		}
-		PutText(text, gBG0TilemapBuffer + TILEMAP_INDEX(BANNER_X / 8, (BANNER_Y + 8) / 8 + slot * (BANNER_STEP / 8)));
 	}
-	BG_EnableSyncByMask(BG0_SYNC_BIT);
 }
 
 /* The tutorial's text, decoded, with control bytes ([LF] and the like) as spaces */
@@ -160,24 +172,27 @@ static void Tutorials_Wrap(void)
 		pos = end;
 	}
 
-	TS->pages = 0;
-	for (start = 0; start < TS->lineCount; start += PAGE_LINES)
-		TS->pages++;
+	/* One page uses the whole box; a longer text gives the last line to the page count */
+	TS->pages = 1;
+	if (TS->lineCount > BOX_LINES)
+		for (TS->pages = 0, start = 0; start < TS->lineCount; start += PAGE_LINES)
+			TS->pages++;
 }
 
-/* The page's four lines, and the page count on the last line */
+/* The page's lines: the whole box, or four and the page count on the last line */
 static void Tutorials_DrawPage(void)
 {
 	const char *text = Tutorials_Text();
 	char buf[0x60];
 	char num[8];
 	int line, i, from, to, n;
+	int per = TS->pages > 1 ? PAGE_LINES : BOX_LINES;
 
 	for (line = 0; line < BOX_LINES; line++)
 		ClearText(&TS->lines[line]);
 
-	for (line = 0; line < PAGE_LINES; line++) {
-		i = TS->page * PAGE_LINES + line;
+	for (line = 0; line < per; line++) {
+		i = TS->page * per + line;
 		if (i >= TS->lineCount)
 			break;
 		from = TS->lineStart[i];
@@ -225,8 +240,6 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	ResetTextFont();
 	LoadUiFrameGraphics();
 	ResetText();
-	for (i = 0; i < VISIBLE; i++)
-		InitText(&TS->titles[i], TITLE_TILES);
 	for (i = 0; i < BOX_LINES; i++)
 		InitText(&TS->lines[i], BOX_TILES);
 
@@ -240,6 +253,7 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	/* The header's label: the Extras labels' sheet where the Extras list has it, with its palette */
 	Decompress(Img_NgpMenuObjs, (void *)(0x06010000 + LABEL_CHR * 0x20));
 	CopyToPaletteBuffer(Pal_SaveScreenSprits + 0x20, 0x200 + LABEL_PAL * 0x20, 0x20); /* its third, OBJ 4 there */
+	UnpackUiVArrowGfx(ARROW_CHR, ARROW_PAL);
 	EnablePaletteSync();
 
 	BG_Fill(gBG0TilemapBuffer, 0);
@@ -250,8 +264,8 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	gLCDControlBuffer.dispcnt.obj1dMap = 0;
 	SetDispEnable(1, 1, 1, 1, 1);
 
-	Tutorials_DrawTitles();
 	Tutorials_Select(0);
+	Tutorials_DrawTitles();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
 
@@ -262,13 +276,15 @@ static void Tutorials_PutSprites(void)
 	TS->clock++;
 
 	PutSpriteExt(4, 56, 4, gSprite_DifficultyMenuSelectModeBg, OAM2_PAL(2));
-	PutSpriteExt(4, 56, 4, Sprite_TutorialsHeaderLabel, OAM2_PAL(LABEL_PAL));
+	PutSpriteExt(4, 56, 4 + 8, Sprite_TutorialsHeaderLabel, OAM2_PAL(LABEL_PAL));
 
 	/* The banners: each slot keeps Select Mode's colours (green, teal, red), lit when the cursor is on it */
 	for (slot = 0; slot < VISIBLE && TS->top + slot < TS->count; slot++) {
 		y = BANNER_Y + slot * BANNER_STEP;
 		pal = 5 + slot * 2 + (TS->top + slot == TS->cursor ? 0 : 1);
 		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2, OAM2_PAL(pal));
+		PutSpriteExt(4, BANNER_X, y + 8, Sprite_TutorialTitle,
+			     OAM2_CHR(TITLE_CHR + slot * 0x40) + OAM2_PAL(LABEL_PAL));
 	}
 
 	sub_80AC4F8(TS->clock, TS->cursor - TS->top);
@@ -283,6 +299,12 @@ static void Tutorials_PutSprites(void)
 	}
 	handY += BANNER_Y - 16 + (((TS->clock >> 3) & 7) < 4 ? ((TS->clock >> 3) & 7) : 7 - ((TS->clock >> 3) & 7));
 	PutSpriteExt(4, 0, handY & 0xFF, gSprite_08A20A98, OAM2_PAL(3));
+
+	/* More tutorials above or below the banners */
+	if (TS->top > 0)
+		DisplayUiVArrow(ARROW_X, BANNER_Y - 9, OAM2_CHR(ARROW_CHR) + OAM2_PAL(ARROW_PAL), 1);
+	if (TS->top + VISIBLE < TS->count)
+		DisplayUiVArrow(ARROW_X, BANNER_Y + VISIBLE * BANNER_STEP + 1, OAM2_CHR(ARROW_CHR) + OAM2_PAL(ARROW_PAL), 0);
 }
 
 static void Tutorials_Move(int to)
@@ -294,17 +316,15 @@ static void Tutorials_Move(int to)
 
 	PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
 
-	if (to < TS->top) {
+	if (to < TS->top)
 		TS->top = to;
-		Tutorials_DrawTitles();
-	} else if (to > TS->top + VISIBLE - 1) {
+	else if (to > TS->top + VISIBLE - 1)
 		TS->top = to - (VISIBLE - 1);
-		Tutorials_DrawTitles();
-	}
 
 	TS->handFrom = slot;
 	TS->handTime = 4;
 	Tutorials_Select(to);
+	Tutorials_DrawTitles();
 }
 
 static void Tutorials_Flip(int step)
@@ -343,10 +363,18 @@ static void Tutorials_Loop(struct ProcTutorials *proc)
 		return;
 	}
 
-	if (repeat & DPAD_DOWN)
-		Tutorials_Move(TS->cursor + 1);
-	else if (repeat & DPAD_UP)
-		Tutorials_Move(TS->cursor - 1);
+	/* Around the ends on a press, not while held */
+	if (repeat & DPAD_DOWN) {
+		if (TS->cursor + 1 < TS->count)
+			Tutorials_Move(TS->cursor + 1);
+		else if (press & DPAD_DOWN)
+			Tutorials_Move(0);
+	} else if (repeat & DPAD_UP) {
+		if (TS->cursor > 0)
+			Tutorials_Move(TS->cursor - 1);
+		else if (press & DPAD_UP)
+			Tutorials_Move(TS->count - 1);
+	}
 }
 
 /* A fade, with the sprites kept on screen */

@@ -33,7 +33,7 @@ Read `Documentation/FeatureTypes/README.md`, then `Common.md`, then the type doc
 - Kernel text has about 92 KB free since the stat screen, misc functions, arena, world map, convoy, UTF-8, popups, debug kit and start-map effects moved out of it (`kernel.event:41 Assertion error: -N` means N bytes over). Still put non-hot code in the `#ifdef WIZARDRY_CUSTOM` block of `Kernel/Wizardry/wizardry.event`, tables in `Data/`, and use `NOINLINE` on helpers that bloat callers.
 - Changing a save chunk's size, adding one or removing one changes the save layout signature (`Kernel/Wizardry/SaveData/Source/SaveLayoutGuard.c`): saves from the old layout show as NO DATA. That is on purpose; say so when a change does it.
 - SIDs are positional: append new ones to the end of `include/constants/skills-equip.enum.txt`. That file is the only skill enum the build reads.
-- Generated files, don't edit: `include/constants/skills.h`, `skills.event`, `Contents/Texts/build/msgs.h`, `Contents/Gfx/GfxDefs.h`, `Patches/combo.skills*.txt`.
+- Generated files, don't edit: `include/constants/skills.h`, `skills.event`, `Contents/Texts/build/msgs.h`, `Contents/Gfx/GfxDefs.h`, `Patches/combo.skills*.txt`, `Kernel/Wizardry/Tutorials/Source/TutorialTitles.{c,h}` (`Tools/tutorial-titles/titles.py`).
 - The `SkillTable-{person,job,item,weapon}.c` tables have no SID guards; wrap any row you add.
 - `.lyn.event` files are committed build output, and some have hand edits (e.g. `Kernel/Wizardry/Lvup/Source/Levelup.lyn.event`). Check before regenerating.
 - `.claude/worktrees/` holds stale copies; grep with `--exclude-dir=.claude`. The shell's `grep` may skip gitignored files; use `/bin/grep` for generated headers.

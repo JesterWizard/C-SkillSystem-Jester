@@ -17,8 +17,9 @@
 #define EXTRA_MENU_OPTION_TUTORIALS (1 << EXTRA_MENU_TUTORIALS)
 
 struct Tutorial {
-	u16 title;  /* the banner's text */
-	u16 text;   /* the box's text: wrapped to the box and shown four lines a page */
+	u16 title;          /* the title's message (Districts.txt) */
+	u16 text;
+	const u8 *img;      /* the title in the Extras labels' letters (Source/TutorialTitles.c, generated) */
 };
 
 extern const struct Tutorial gTutorials[];  /* ends with a title of 0 */
