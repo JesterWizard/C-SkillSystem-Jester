@@ -312,24 +312,6 @@ BYTE 0x07 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 BYTE 0x0B 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 WORD 0
 
-// Gilliam (Armor Knight), lance and unarmed: vanilla's Armor Knight (0x40, 0x41) with the helmet off and his head
-// drawn in every pose, made from the ROM by `feditor_dump.py --rom` (Contents/BattleAnims/Gilliam/ArmorKnight/Source)
-#define BANIM_GILLIAM_ARMOR_KNIGHT_LANCE 0xE4
-#define BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED 0xE5
-#include "Gilliam/ArmorKnight/GilliamArmorKnightLance.event"
-#include "Gilliam/ArmorKnight/Unarmed/GilliamArmorKnightUnarmed.event"
-PUSH
-BanimEntry(BANIM_GILLIAM_ARMOR_KNIGHT_LANCE)
-GilliamArmorKnightLance_BANIM_ENTRY
-BanimEntry(BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED)
-GilliamArmorKnightUnarmed_BANIM_ENTRY
-POP
-ALIGN 4
-gBanimDef_GilliamArmorKnight:
-BYTE 0x01 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_LANCE
-BYTE 0x09 0x01; SHORT BANIM_GILLIAM_ARMOR_KNIGHT_UNARMED
-WORD 0
-
 // Dozla (Berserker), axe and thrown axe: sprite by Judgement, animated via ChatGPT. FEBuilder-style scripts with
 // 248x160 frames, converted by Tools/banim/febuilder_txt.py (Contents/BattleAnims/Dozla/Berserker/Source)
 #define BANIM_DOZLA_BERSERKER_AXE 0xE6
@@ -353,32 +335,6 @@ BYTE 0x09 0x01; SHORT 0x25
 BYTE 0x28 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
 BYTE 0x29 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
 BYTE 0x2C 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
-WORD 0
-
-// Garcia (Fighter), axe and thrown axe. FEBuilder-style scripts with 248x160 frames (488x160 where the axe bites
-// into the opponent: the right part is the blade behind them, modes 2 and 4), converted by Tools/banim/febuilder_txt.py
-// (Contents/BattleAnims/Garcia/Fighter/Source)
-#define BANIM_GARCIA_FIGHTER_AXE 0xE8
-#define BANIM_GARCIA_FIGHTER_THROW 0xE9
-#include "Garcia/Fighter/GarciaFighterAxe.event"
-#include "Garcia/Fighter/GarciaFighterThrow.event"
-PUSH
-BanimEntry(BANIM_GARCIA_FIGHTER_AXE)
-GarciaFighterAxe_BANIM_ENTRY
-BanimEntry(BANIM_GARCIA_FIGHTER_THROW)
-GarciaFighterThrow_BANIM_ENTRY
-POP
-
-// Garcia's Fighter animations: axes use his swing (no ranged attack: its modes 5 and 6 stand); the throwing axes
-// (Hand Axe 0x28, Tomahawk 0x29, Hatchet 0x2C) his throw, at any range, as vanilla Fighter's 0x1A; unarmed keeps
-// vanilla Fighter's (0x1B)
-ALIGN 4
-gBanimDef_GarciaFighter:
-BYTE 0x02 0x01; SHORT BANIM_GARCIA_FIGHTER_AXE
-BYTE 0x09 0x01; SHORT 0x1B
-BYTE 0x28 0x00; SHORT BANIM_GARCIA_FIGHTER_THROW
-BYTE 0x29 0x00; SHORT BANIM_GARCIA_FIGHTER_THROW
-BYTE 0x2C 0x00; SHORT BANIM_GARCIA_FIGHTER_THROW
 WORD 0
 
 // Third-tier classes' animations (Documentation/Features/ThirdTierClasses.md), installed with CONFIG_THIRD_TIER_CLASSES.

@@ -46,11 +46,8 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 | 0xDC | Marisa, Swordmaster (F) | swords | "[Swordmaster-Variant] Marisa Repal [F]" (1. Sword, Alt Crit) | RedBean |
 | 0xDD | every Phantom (class-wide) | axes | "[Monster-Custom] [U] Phantom" (3. Axe) | TBA |
 | 0xDE | every Gorgon Egg (class-wide, both egg classes) | everything | "[Gorgon-Custom] [U] Gorgon Eggs" (8. Unarmed, Large) | Ryn |
-| 0xE4, 0xE5 | Gilliam, Armor Knight | lances; unarmed | vanilla's Armor Knight (0x40, 0x41) with the helmet off | vanilla, head drawn for this repo |
 | 0xE6 | Dozla, Berserker | axes | Dozla, Berserker (axe swing, a thrown axe at range), from frames (see [From Frames](#from-frames)) | sprite by Judgement, animated via ChatGPT |
 | 0xE7 | Dozla, Berserker | Hand Axe, Tomahawk, Hatchet | Dozla, Berserker (thrown axe, at any range), from frames | sprite by Judgement, animated via ChatGPT |
-| 0xE8 | Garcia, Fighter | axes | Garcia, Fighter (axe swing), from frames | TBA |
-| 0xE9 | Garcia, Fighter | Hand Axe, Tomahawk, Hatchet | Garcia, Fighter (thrown axe, at any range), from frames | TBA |
 
 Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
 class's vanilla list with the custom ID in place of the animated weapon types' entries.
@@ -148,16 +145,11 @@ dump changes.
 order the script first uses them; "Palette.bin", 4 x 16 RGB555). Edit only the sheets' pixels: the OAM still cuts the
 same tiles, so a new detail must stay inside the tiles the frame already shows.
 
-Gilliam's Armor Knight is made this way: vanilla's 0x40 (lance, three sheets) and 0x41 (unarmed, the lance's third
-sheet), with his head (spiky grey-olive hair, sideburns, goatee, from his portrait's minimug) in place of the helmet in
-every pose. The head's hair uses palette slots 7 and 8, which the Armor Knight's sheets don't use, and the skin
-highlight (slot 10) is his portrait's cream. Frame 17 (the turn into the critical swing) is left as it was: the swoosh
-covers the helmet. To change the head, edit `Contents/BattleAnims/Gilliam/ArmorKnight/Source/Sheet N.png` (and copy
-sheet 3 to `Unarmed/Source/Sheet 1.png`), then run:
+For example, to make a character's own Armor Knight from vanilla's 0x40 (lance, three sheets) with the sheets edited
+in `Source`:
 
 ```
-python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x40 Contents/BattleAnims/Gilliam/ArmorKnight/Source Contents/BattleAnims/Gilliam/ArmorKnight GilliamArmorKnightLance gill_akn
-python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x41 Contents/BattleAnims/Gilliam/ArmorKnight/Unarmed/Source Contents/BattleAnims/Gilliam/ArmorKnight/Unarmed GilliamArmorKnightUnarmed gill_aku
+python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x40 Contents/BattleAnims/<Name>/ArmorKnight/Source Contents/BattleAnims/<Name>/ArmorKnight <Name>ArmorKnightLance name_akn
 ```
 
 ---
@@ -194,19 +186,10 @@ The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_E
 - **The palette strip.** FEBuilder puts the palette in the last 8 columns of each frame (x 240-247, rows 0 and 1:
   entries 7..0, then 15..8). It is not part of the picture, and the converter leaves it out.
 - **Back layer.** A 488x160 frame has a second picture at x 240-479, with the same origin: the part drawn behind
-  the opponent (modes 2 and 4), such as Garcia's axe blade where it bites into them. Its OBJs go on the same sheet as
+  the opponent (modes 2 and 4), such as an axe blade where it bites into them. Its OBJs go on the same sheet as
   the frame's front, because both layers draw from the side's one sheet in VRAM. A 248-wide frame's back layer is
   empty.
 - **Missing modes.** Modes 1, 3 and 5-12 must all be in the script.
-- **Garcia's Fighter animations** (`Contents/BattleAnims/Garcia/Fighter/Source`, `GarciaAxe.txt` and
-  `GarciaHandAxe.txt`): his swing (0xE8, 45 frames, 8 sheets, about 22.7 KB; its hits are 488-wide frames) and his
-  throw (0xE9, 37 frames, 5 sheets, about 15.7 KB). `gBanimDef_GarciaFighter` is vanilla Fighter's list with them in
-  place: axes use the swing (its ranged modes 5 and 6 only stand), the Hand Axe, Tomahawk and Hatchet the throw, at
-  any range, as vanilla's 0x1A, and unarmed keeps vanilla Fighter's 0x1B. Convert them with:
-  ```
-  python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Garcia/Fighter/Source/GarciaAxe.txt Contents/BattleAnims/Garcia/Fighter GarciaFighterAxe garcia_fax
-  python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Garcia/Fighter/Source/GarciaHandAxe.txt Contents/BattleAnims/Garcia/Fighter GarciaFighterThrow garcia_fth
-  ```
 - **Dozla's list** (`gBanimDef_DozlaBerserker`) is vanilla Berserker's with his two in place: axes use the swing
   (0xE6, whose ranged modes 5 and 6 throw the axe), the Hand Axe, Tomahawk and Hatchet use the throw (0xE7, at
   any range, as vanilla's 0x24), and unarmed keeps vanilla Berserker's 0x25.
@@ -219,8 +202,8 @@ Vanilla's `banim_data` (ROM `0xC00008`, 0x20 bytes an entry) has 201 animations,
 it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An entry goes at
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
-Take the next free ID after the highest one in use in `BattleAnims.event`: Gerik's sword is 0xCA, Tana's lance
-0xCB, and so on up to Garcia's 0xE9, so the next is 0xEA (0xEA-0xFF: 22 left).
+Take a free ID: Gerik's sword is 0xCA, Tana's lance 0xCB, and so on up to Dozla's 0xE7. 0xE4 and 0xE5 (Gilliam's
+Armor Knight) and 0xE8 and 0xE9 (Garcia's Fighter) were removed and are free again, then 0xEA-0xFF (26 in all).
 
 ---
 
