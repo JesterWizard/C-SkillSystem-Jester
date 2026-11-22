@@ -102,21 +102,11 @@ BYTE 0x16  //Class: Swordmaster (F)
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 POIN gBanimDef_MarisaSwordmaster //Contents/BattleAnims/BattleAnims.event
-BYTE 0x03  //Unit: Gilliam
-BYTE 0x09  //Class: Armor Knight
-BYTE 0x00  //dummy
-BYTE 0x00  //dummy
-POIN gBanimDef_GilliamArmorKnight //Contents/BattleAnims/BattleAnims.event
 BYTE 0x1A  //Unit: Dozla
 BYTE 0x43  //Class: Berserker
 BYTE 0x00  //dummy
 BYTE 0x00  //dummy
 POIN gBanimDef_DozlaBerserker //Contents/BattleAnims/BattleAnims.event
-BYTE 0x0A  //Unit: Garcia
-BYTE 0x3F  //Class: Fighter
-BYTE 0x00  //dummy
-BYTE 0x00  //dummy
-POIN gBanimDef_GarciaFighter //Contents/BattleAnims/BattleAnims.event
 #endif
 
 BYTE 0x00  //Unit: term data
