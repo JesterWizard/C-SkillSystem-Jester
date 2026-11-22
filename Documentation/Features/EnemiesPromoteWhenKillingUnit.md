@@ -36,13 +36,32 @@ When an enemy unit defeats a player unit:
 
 This creates dynamic, high-tension gameplay: careless unit deaths now empower the enemy forces.
 
+Only a real kill promotes. The battle forecast and the AI's target choice simulate battles (`BATTLE_CONFIG_SIMULATE`),
+and a simulated kill no longer promotes the enemy.
+
+### Map effect
+
+The promotion has its own short effect on the map, after the action, instead of the promotion animation:
+
+1. The camera moves onto the enemy.
+2. Its old class's map sprite fades to white (`StartMuFadeIntoFlash`) with a shimmer sound.
+3. The new class's sprite takes its place with a white flash (`StartMuHitFlash`) that fades back to its colours.
+4. A popup reads "*Name* promoted to *Class*", the class in gold.
+
+`BattleHit.c` queues the enemy in `gEnemyPromoFx` (its index and old class; `include/kernel/enemy-promo-fx.h`, 0x24
+bytes from `_kernel_malloc2`, RAM only, so no save layout change). The post-action hook `PostAction_EnemyPromoFx`
+(`Kernel/Wizardry/EnemyPromoFx/Source/EnemyPromoFx.c`, after `PostAction_AutoPromotion`) starts the effect as a blocking
+proc. A chapter-init hook clears the queue.
+
 ---
 
 ## 🗂️ Code Locations
 
 | Feature | Location | Description |
 |--------|----------|-------------|
-| **Enemy promotion logic** | `CONFIG_PROMOTE_ENEMIES_IF_KILLED_UNIT` section inside `BattleGenerateHit` — [`BattleHit.c`](../../Kernel/Wizardry/BattleSys/Source/BattleHit.c) | Handles enemy auto-promotion after killing a player unit |
+| **Enemy promotion logic** | `promote_enemy_on_kill` section inside `BattleGenerateHit` — [`BattleHit.c`](../../Kernel/Wizardry/BattleSys/Source/BattleHit.c) | Handles enemy auto-promotion after killing a player unit |
+| **Map effect** | `PostAction_EnemyPromoFx` — [`EnemyPromoFx.c`](../../Kernel/Wizardry/EnemyPromoFx/Source/EnemyPromoFx.c) | The flash, the sprite change and the popup after the action |
+| **Popup text** | `MSG_ENEMY_PROMOTED` ("promoted to") — end of [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | |
 
 ---
 
@@ -50,7 +69,6 @@ This creates dynamic, high-tension gameplay: careless unit deaths now empower th
 
 - Allow enemies with **multiple promotion paths** to pick randomly  
 - Enemies who are **already promoted** should still gain stat boosts  
-- Add a **special animation** or visual indicator when promotion occurs  
 - Make stat gains **modular**, randomized, or defined via a struct  
 
 ---

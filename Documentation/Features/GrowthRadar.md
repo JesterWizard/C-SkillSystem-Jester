@@ -4,12 +4,12 @@
   <img src="../Gifs/Growth_Radar.gif" alt="Growth Radar demo" width="480"/>
 </p>
 
-*In the prologue, R opens Eirika's stat screen and LEFT wraps to its new last page, Potential: the chart grows in from
+*In the prologue, R opens Eirika's stat screen and LEFT wraps to its new last page, Growths: the chart grows in from
 the centre, her growths in green, her stats against their caps in blue. DOWN shows Seth (a Paladin, near his caps), R
-gives the help of an axis and of the green layer. Options > Potential Page OFF takes the page away: 6 pages again.*
+gives the help of an axis and of the green layer. Options > Growths Page OFF takes the page away: 6 pages again.*
 
 <p align="center">
-  <img src="../Images/GrowthRadar.png" alt="The Potential page for Eirika (a Lord at level 1) and Seth (a Paladin)" width="720"/>
+  <img src="../Images/GrowthRadar.png" alt="The Growths page for Eirika (a Lord at level 1) and Seth (a Paladin)" width="720"/>
 </p>
 
 ---
@@ -27,7 +27,7 @@ gives the help of an axis and of the green layer. Options > Potential Page OFF t
 
 ## 🧩 Introduction
 
-The stat screen has a new last page, **Potential** (page id 8, `PAGE_GROWTH_RADAR`): a radar ("spider") chart with one
+The stat screen has a new last page, **Growths** (page id 8, `PAGE_GROWTH_RADAR`): a radar ("spider") chart with one
 axis per stat, an octagon with HP at the top and then, clockwise, Str, Mag, Skill, Spd, Lck, Def and Res.
 
 - **Green layer: growth rates.** The chance each stat rises on a level-up, the same values the level-up rolls against
@@ -38,7 +38,8 @@ axis per stat, an octagon with HP at the top and then, clockwise, Str, Mag, Skil
   class caps, `GetUnitMaxMagic` for magic, the class's luck cap, Limit Breaker's bonus; HP against its class cap). A
   capped stat reaches the edge.
 - Where the two layers overlap the fill is teal; each layer has a bright outline.
-- Beside each axis: the stat's name (gold) and its growth (green). A legend at the bottom names the two layers.
+- Beside each axis: the stat's name (gold) and its growth (green). A legend at the bottom names the two layers,
+  Growth and Stats, each after a 7x7 swatch centred on its word.
 - The grid has rings at 25%, 50% and 75% and a lighter ring at 100%; the lines show through the fills.
 - The chart **grows in from the centre** over 16 frames when the page opens (it keeps going while the page slides
   in) and again when UP or DOWN changes the unit.
@@ -46,7 +47,7 @@ axis per stat, an octagon with HP at the top and then, clockwise, Str, Mag, Skil
   left panel works as on the other pages.
 
 The page counts and titles like the other optional pages (Magic List, Promotions...): it is the last page, so the
-page number reads "7/7" with the default config, and "Potential" is its title sprite.
+page number reads "7/7" with the default config, and "Growths" is its title sprite.
 
 ---
 
@@ -54,7 +55,7 @@ page number reads "7/7" with the default config, and "Potential" is its title sp
 
 - **Designer config:** `stat_page_growth_radar` in [`designer-config.c`](../../Data/DesignerConfig/designer-config.c),
   on by default. Off, the page and its Options row are gone.
-- **Options screen:** the last row, **Potential Page** (ON/OFF, its own radar icon, 0x52), **ON by default**, backed by
+- **Options screen:** the last row, **Growths Page** (ON/OFF, its own radar icon, 0x52), **ON by default**, backed by
   `gPlaySt.config.growth_radar_off` (bit 7 of `PLAYST + 0x43`, the last spare bit, the old `unk43_7`; 1 = OFF, so a
   zeroed config, a new game or an older save, shows the page). `InitPlayConfig` sets it to 0. The bit is in the play
   state every save already keeps: **the save layout and its signature do not change.**
@@ -97,7 +98,7 @@ Each cap has Limit Breaker's (or Limit Breaker+'s) bonus added when the unit has
      and filled in pairs, eight pixels (a word) at a time, recolouring the grid lines it covers;
    - the edges are drawn with Bresenham lines; the two 1x2-tile legend swatches go after the chart's tiles.
 3. Each frame the proc draws the next step of the growth (an ease-out over 16 frames) and ends on the last one, or as
-   soon as the page shown is not Potential any more.
+   soon as the page shown is not Growths any more.
 
 ### VRAM and palettes
 
@@ -117,10 +118,10 @@ drawn, so a page that maps one of its blank tiles still finds it blank. The char
 no stat screen page uses. The portrait (BG2 tiles from `0xE0`), the help box (OBJ VRAM) and the text (BG0) are not
 touched.
 
-The title "Potential" is a new row of the page name sheet (`Data/StatScreen/Data/Gfx_StatScreenObj_9pages_new.png`,
+The title "Growths" is a new row of the page name sheet (`Data/StatScreen/Data/Gfx_StatScreenObj_9pages_new.png`,
 now 256x64: OBJ tiles `0x300-0x33F`, which held only tiles left over from the world map), built from the sheet's own
-letters (P, o, t, i from "Promotions"; e, n, a, l from "Personal data"), with the outline drawn round them the way the
-sheet's words have it. Its sprite is `Sprite_Page8NameRework` (`Data/StatScreen/Source/PageNameSprite.c`). The page
+letters (r, o, s from "Personal data", t from the old "Potential" title) and three drawn in the same style (G, w, h),
+with the outline drawn round them the way the sheet's words have it. Its sprite is `Sprite_Page8NameRework` (`Data/StatScreen/Source/PageNameSprite.c`). The page
 number sprite now shows 8 and 9 for the page count too (`PageNumCtrl_UpdatePageNum`).
 
 ### Cost
@@ -131,7 +132,7 @@ About half a frame for each of the 16 steps of the growth, nothing once it has g
 
 ## 🧪 Testing
 
-`python3 Tools/cloud/smoketest.py --only growthradar`: LEFT from the first page wraps to Potential (7 of 7), its
+`python3 Tools/cloud/smoketest.py --only growthradar`: LEFT from the first page wraps to Growths (7 of 7), its
 chart tile and palette are on BG2, both layers are drawn, the borrowed sheet tiles are blank again on the first page,
 and with the Options row OFF there are 6 pages. By hand: Seth, an enemy (a Fighter), Class Growths on (growths over
 100% shown, the layer at the edge), half-body portraits on, the designer config off (no page, no row) and stat points

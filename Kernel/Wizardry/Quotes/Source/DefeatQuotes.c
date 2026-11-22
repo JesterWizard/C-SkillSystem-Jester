@@ -195,9 +195,13 @@ s8 CheckBattleDefeatTalk(u8 pid)
     if (BigUnit_PidStillStanding(pid))
         return 0;
 
-    if (gpKernelDesignerConfig->custom_defeat_quotes == true)
+    /*
+     * The custom list only holds the quotes that need a second unit or more than one per character. Every other
+     * death quote (each recruit's, the bosses') is still in vanilla's list, so a pid with no custom entry uses it.
+     */
+    if (gpKernelDesignerConfig->custom_defeat_quotes == true && GetDefeatTalkEntry_NEW(pid))
         return CheckBattleDefeatTalk_NEW(pid);
-    
+
     return CheckBattleDefeatTalk_OLD(pid);
 }
 
@@ -258,7 +262,7 @@ void DisplayDefeatTalkForPid(u8 pid)
     if (BigUnit_PidStillStanding(pid))
         return;
 
-    if (gpKernelDesignerConfig->custom_defeat_quotes == true)
+    if (gpKernelDesignerConfig->custom_defeat_quotes == true && GetDefeatTalkEntry_NEW(pid))
     {
         DisplayDefeatTalkForPid_NEW(pid);
         return;

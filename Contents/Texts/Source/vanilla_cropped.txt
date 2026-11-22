@@ -10671,103 +10671,201 @@ Will you go with Ephraim?[.][LF]
 [.][X]
 
 ## MSG_0C23
-[.][X]
+[OpenMidRight][LoadFace][FID_0x02]
+[OpenMidRight]Brother[.][ToggleMouthMove]... [ToggleMouthMove]I'm sorry.[A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C24
-[.][X]
+[OpenMidRight][LoadFace][FID_0x14]
+[OpenMidRight]Forgive me, Eirika.[.][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C25
-[.][X]
+[OpenMidRight][LoadFace][FID_0x04]
+[OpenMidRight]Urgh[ToggleMouthMove]...[.][ToggleMouthMove][A][LF]
+My apologies.[.][LF]
+I must withdraw.[A][X]
 
 ## MSG_0C26
-[.][X]
+[OpenMidRight][LoadFace][FID_0x06]
+[OpenMidRight]I'm sorry, General Seth[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C27
-[.][X]
+[OpenMidRight][LoadFace][FID_0x05]
+[OpenMidRight]I was prepared for[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+anything[ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C28
-[.][X]
+[OpenMidRight][LoadFace][FID_0x07]
+[OpenMidRight]I am sorry. I believe this[LF]
+is as far as I go[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C29
-[.][X]
+[OpenMidRight][LoadFace][FID_0x08]
+[OpenMidRight]Please[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+Forgive me[ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2A
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x0E]
+[OpenMidRight]I have no regrets.[LF]
+This was always my fate.[A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2B
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x09]
+[OpenMidRight]I[.][ToggleMouthMove]...[.][ToggleMouthMove]am a warrior[LF]
+to the very end![A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2C
-[.][X]
+[OpenMidRight][LoadFace][FID_0x0C]
+[OpenMidRight]To think of it[ToggleMouthMove]... [ToggleMouthMove]Me[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+In this place[.][ToggleMouthMove]... [ToggleMouthMove]Neimi[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2D
-[.][X]
+[OpenMidRight][LoadFace][FID_0x0A]
+[OpenMidRight]You were right, Colm[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+I am a klutz. Sorry[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2E
-[.][X]
+[OpenMidRight][LoadFace][FID_0x1A]
+[OpenMidRight]The rest[ToggleMouthMove]...[.][ToggleMouthMove]is up to you.[.][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C2F
-[.][X]
+[OpenMidRight][LoadFace][FID_0x10]
+[OpenMidRight]I[.][ToggleMouthMove]... [ToggleMouthMove]I don't want to die[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C30
-[.][X]
+[OpenMidRight][LoadFace][FID_0x11]
+[OpenMidRight]My fate is irrelevant[.][ToggleMouthMove]...[.][ToggleMouthMove][LF]
+The world must have[.][ToggleMouthMove]...[.][ToggleMouthMove]light.[A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C31
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x2A]
+[OpenMidRight]I[.][ToggleMouthMove]... [ToggleMouthMove]I guess my luck[.][LF]
+finally ran out[.][ToggleMouthMove]... [ToggleMouthMove]Heh.[A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C32
-[.][X]
+[OpenMidRight][LoadFace][FID_0x18]
+[OpenMidRight]Prince Ephraim! Lead[LF]
+us to glory[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C33
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x16]
+[OpenMidRight]Ah, Prince Ephraim[ToggleMouthMove]... [ToggleMouthMove]It[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+It was fun while it lasted.[.][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C34
-[.][X]
+[OpenMidRight][LoadFace][FID_0x2C]
+[OpenMidRight]I've long been prepared for[.][LF]
+this day[ToggleMouthMove]... [ToggleMouthMove]Too long[ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C35
-[.][X]
+[OpenMidRight][LoadFace][FID_0x0F]
+[OpenMidRight]I won't give up[.][ToggleMouthMove]... [ToggleMouthMove]Not here[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+Not in this place[.][ToggleMouthMove]...[.][ToggleMouthMove][A][LF]
+I'll keep going, even if I have[.][LF]
+to crawl[ToggleMouthMove]...[.][ToggleMouthMove][A][X]
 
 ## MSG_0C36
-[.][X]
+[OpenMidRight][LoadFace][FID_0x1B]
+[OpenMidRight]If you live on the battlefield,[.][LF]
+you know this day will come[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C37
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x1C]
+[OpenMidRight]The dark rider I foresaw[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+He was coming for me[ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C38
-[.][X]
+[OpenMidRight][LoadFace][FID_0x1E]
+[OpenMidRight]I lost[ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C39
-[.][X]
+[OpenMidRight][LoadFace][FID_0x20]
+[OpenMidRight]I'm sorry, Grandmother[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+My duty[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C3A
-[.][X]
+[OpenMidRight][LoadFace][FID_0x21]
+[OpenMidRight]I'm sorry, Teacher[ToggleMouthMove]...[.][ToggleMouthMove][LF]
+I never[.][ToggleMouthMove]--[ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C3B
-[.][X]
+[OpenMidRight][LoadFace][FID_0x22]
+[OpenMidRight]This will never do![.][A][LF]
+I find it hard to say, but[LF]
+I must beg your leave[.][ToggleMouthMove]...[.][ToggleMouthMove][A][X]
 
 ## MSG_0C3C
-[.][X]
+[ToggleSmile]
+[OpenMidRight][LoadFace][FID_0x23]
+[OpenMidRight]Ha ha ha! I couldn't have[.][LF]
+asked for a better ending![A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C3D
-[.][X]
+[OpenMidRight][LoadFace][FID_0x13]
+[OpenMidRight]Blast! My brother would never[.][LF]
+have gone out like this[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C3E
-[.][X]
+[OpenMidRight][LoadFace][FID_0x19]
+[OpenMidRight]I[.][ToggleMouthMove]... [ToggleMouthMove]I did well, didn't I?[.][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C3F
-[.][X]
+[OpenMidRight][LoadFace][FID_0x24]
+[OpenMidRight]Great. This is just[.][LF]
+what I needed[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C40
-[.][X]
+[OpenMidRight][LoadFace][FID_0x25]
+[OpenMidRight]This[ToggleMouthMove]... [ToggleMouthMove]This is nothing![A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C41
-[.][X]
+[OpenMidRight][LoadFace][FID_0x26]
+[OpenMidRight][ToggleMouthMove]...[.][ToggleMouthMove][A][LF]
+I'm so sorry[ToggleMouthMove]... [ToggleMouthMove]I can't[.][LF]
+help you any longer.[A][X]
 
 ## MSG_0C42
-[.][X]
+[OpenMidRight][LoadFace][FID_0x29]
+[OpenMidRight]In this darkness,[.][LF]
+I will find peace.[A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C43
-[.][X]
+[OpenMidRight][LoadFace][FID_0x2B]
+[OpenMidRight]So this is the end.[.][.....][LF]
+[ToggleMouthMove]...[.][ToggleMouthMove]Vanessa[.][ToggleMouthMove]...[.][ToggleMouthMove][A]
+[OpenMidRight][CloseEyes][X]
 
 ## MSG_0C44
 [.][X]

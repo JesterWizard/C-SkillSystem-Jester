@@ -10,7 +10,7 @@
 #include "jester_headers/custom-functions.h"
 
 /*
- * Growth Radar: the stat screen's "Potential" page. An octagonal radar chart with one axis per stat (HP at the top,
+ * Growth Radar: the stat screen's "Growths" page. An octagonal radar chart with one axis per stat (HP at the top,
  * then clockwise Str, Mag, Skl, Spd, Lck, Def, Res) and two layers: the unit's growth rates (green, the same values a
  * level-up rolls against, so Class Growths count when that option is on) and its base stats as a share of their caps
  * (blue, the caps page 0's bars use). Where the two overlap the fill is teal.
@@ -341,13 +341,16 @@ static void GrowthRadar_Outline(u32 *buf, const s32 *vx, const s32 *vy, int colo
 	}
 }
 
-/* A legend swatch: two tiles (one above the other), a 7x7 square from 4 pixels down */
+/*
+ * A legend swatch: two tiles (one above the other), a 7x7 square from 5 pixels down: centred on its word, whose
+ * capitals take rows 4-11 of the line and its lowercase letters rows 6-11
+ */
 static void GrowthRadar_Swatch(u32 *tiles, int fill, int line)
 {
 	int y, x;
 
 	for (y = 0; y < 7; y++) {
-		int row = y + 4;
+		int row = y + 5;
 		u32 *word = tiles + ((row >> 3) << 3) + (row & 7);
 
 		for (x = 0; x < 7; x++) {

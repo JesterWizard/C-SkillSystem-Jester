@@ -1036,7 +1036,7 @@ void InitPlayConfig(int isDifficult, s8 unk) {
     gPlaySt.config.gameover_quotes = 0;
     gPlaySt.config.recap_off = 0; /* recap ON */
     gPlaySt.config.threat_arrows_on = 0; /* threat arrows OFF by default (the row is hidden if the designer gate is off) */
-    gPlaySt.config.growth_radar_off = 0; /* the stat screen's Potential page ON (the row is hidden if the designer gate is off) */
+    gPlaySt.config.growth_radar_off = 0; /* the stat screen's Growths page ON (the row is hidden if the designer gate is off) */
     gPlaySt.config2.lvup_stat_bars_off = 0; /* the level-up stat bars ON (config2: PlaySt + 0x21, bit 0) */
     gPlaySt.config2.chapter_results_off = 0; /* the chapter results screen ON (config2: PlaySt + 0x21, bit 1) */
     /* Menu: 0 = ON. Match designer-config so new games inherit the build default. */

@@ -1218,7 +1218,7 @@ Recovering.[X]
 ## MSG_STATUS_NO_EFFECT_DESC
 No effect.[X]
 ## MSG_MENU_OPTION_GROWTH_RADAR_TITLE
-Potential Page[X]
+Growths Page[X]
 ## MSG_MENU_OPTION_GROWTH_RADAR_DESC
 Stat page charting growths and caps[X]
 ## MSG_GROWTH_RADAR_HELP_GROWTH
@@ -1232,7 +1232,7 @@ for this class.[X]
 ## MSG_GROWTH_RADAR_LEGEND_GROWTH
 Growth[X]
 ## MSG_GROWTH_RADAR_LEGEND_STATS
-Stat/Cap[X]
+Stats[X]
 ## MSG_MENU_OPTION_LVUP_STAT_BARS_TITLE
 Level-Up Bars[X]
 ## MSG_MENU_OPTION_LVUP_STAT_BARS_DESC
@@ -1259,3 +1259,5 @@ Rank[X]
 Chapter Results[X]
 ## MSG_MENU_OPTION_CHAPTER_RESULTS_DESC
 A results screen after each chapter[X]
+## MSG_ENEMY_PROMOTED
+promoted to[X]

@@ -72,7 +72,7 @@ int GetUnitWeaponReachBits(struct Unit *unit, int slot)
 				if (item == ITEM_NONE)
 					break;
 
-				if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON)
+				if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON)
 					result |= GetItemReachBitsRework(item, unit);
 			}
 
@@ -82,7 +82,7 @@ int GetUnitWeaponReachBits(struct Unit *unit, int slot)
 				if (item == ITEM_NONE)
 					break;
 
-				if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON)
+				if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON)
 					result |= GetItemReachBitsRework(item, unit);
 			}
 		}
@@ -148,7 +148,7 @@ int GetUnitStaffReachBits(struct Unit *unit)
 			if (item == ITEM_NONE)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && (GetItemType(item) == ITYPE_STAFF))
+			if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && (GetItemType(item) == ITYPE_STAFF))
 				mask |= GetItemReachBitsRework(item, unit);
 		}
 	}
