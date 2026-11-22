@@ -312,31 +312,6 @@ BYTE 0x07 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 BYTE 0x0B 0x01; SHORT BANIM_GORGON_EGG_UNARMED
 WORD 0
 
-// Dozla (Berserker), axe and thrown axe: sprite by Judgement, animated via ChatGPT. FEBuilder-style scripts with
-// 248x160 frames, converted by Tools/banim/febuilder_txt.py (Contents/BattleAnims/Dozla/Berserker/Source)
-#define BANIM_DOZLA_BERSERKER_AXE 0xE6
-#define BANIM_DOZLA_BERSERKER_THROW 0xE7
-#include "Dozla/Berserker/DozlaBerserkerAxe.event"
-#include "Dozla/Berserker/DozlaBerserkerThrow.event"
-PUSH
-BanimEntry(BANIM_DOZLA_BERSERKER_AXE)
-DozlaBerserkerAxe_BANIM_ENTRY
-BanimEntry(BANIM_DOZLA_BERSERKER_THROW)
-DozlaBerserkerThrow_BANIM_ENTRY
-POP
-
-// Dozla's Berserker animations: axes use his swing (its ranged modes throw the axe); the throwing axes (Hand Axe
-// 0x28, Tomahawk 0x29, Hatchet 0x2C) his throw, at any range, as vanilla Berserker's 0x24; unarmed keeps vanilla
-// Berserker's (0x25)
-ALIGN 4
-gBanimDef_DozlaBerserker:
-BYTE 0x02 0x01; SHORT BANIM_DOZLA_BERSERKER_AXE
-BYTE 0x09 0x01; SHORT 0x25
-BYTE 0x28 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
-BYTE 0x29 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
-BYTE 0x2C 0x00; SHORT BANIM_DOZLA_BERSERKER_THROW
-WORD 0
-
 // Third-tier classes' animations (Documentation/Features/ThirdTierClasses.md), installed with CONFIG_THIRD_TIER_CLASSES.
 // The Trickster, Marshall, Trueblade and Archsage classes use them class-wide (gBanimDef_T3*, below, their
 // pBattleAnimDef in Data/ClassData/ClassData.c); the Dinar87 Archsage (0xE0) is installed but unused.

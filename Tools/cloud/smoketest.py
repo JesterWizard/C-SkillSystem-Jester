@@ -2482,8 +2482,6 @@ class Smoke:
                  ("Joshua as a Swordmaster", "joshua_swm", 0x20, 0x15, 0x2E01, 0, 0xDB, "sword"),
                  ("Marisa as a Swordmaster", "marisa_swm", 0x16, 0x16, 0x2E01, 0, 0xDC, "sword"),
                  ("Phantom", "phantom", 0x01, 0x51, 0x2E1F, 2, 0xDD, "axe"),
-                 ("Dozla as a Berserker", "dozla_brs", 0x1A, 0x43, 0x2E1F, 2, 0xE6, "axe"),
-                 ("Dozla as a Berserker with a Hand Axe", "dozla_brt", 0x1A, 0x43, 0x2E28, 2, 0xE7, "hand axe"),
                  ("L'Arachel as a Troubadour", "larachel_trb", 0x19, 0x4B, 0, 4, 0xD8, "staff"),
                  ("A Gorgon Egg", "gorgon_egg", 0x01, 0x62, 0, 0, 0xDE, "egg"))
         # The vanilla skill animation (Astra, Adept and every skill without its own): the CSA spell engine was at a
