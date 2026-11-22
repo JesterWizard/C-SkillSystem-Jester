@@ -615,9 +615,7 @@ int sub_808A454(int item)
 		if (item == (u16)-2)
 			return 3;
 
-		if (GetItemAttributes(item) & IA_LOCK_3)
-			return 0;
-
+		/* Monster weapons (IA_LOCK_3) show their stats too: vanilla gave them the plain item box */
 		if (GetItemAttributes(item) & IA_WEAPON)
 			return 1;
 
@@ -1046,7 +1044,9 @@ void ClearHelpBoxText(void) {
 LYN_REPLACE_CHECK(DrawHelpBoxWeaponStats);
 void DrawHelpBoxWeaponStats(int item)
 {
-    Text_InsertDrawString(&gHelpBoxSt.text[0], 32, 7, GetItemDisplayRankString(item));
+    /* A monster weapon has no rank to show ("Prf" ran into the Rng label after its type's name) */
+    if (!(GetItemAttributes(item) & IA_LOCK_3))
+        Text_InsertDrawString(&gHelpBoxSt.text[0], 32, 7, GetItemDisplayRankString(item));
     Text_InsertDrawString(&gHelpBoxSt.text[0], 67, 7, GetItemDisplayRangeString(item));
     Text_InsertDrawNumberOrBlank(&gHelpBoxSt.text[0], 129, 7, GetItemWeight(item));
 
@@ -1061,9 +1061,7 @@ int GetHelpBoxItemInfoKind(int item)
     if (item == 0xFFFE)
         return HB_EXTINFO_SAVEINFO;
 
-    if (GetItemAttributes(item) & IA_LOCK_3)
-        return HB_EXTINFO_NONE;
-
+    /* Monster weapons (IA_LOCK_3) show their stats too: vanilla gave them the plain item box */
     if (GetItemAttributes(item) & IA_WEAPON)
         return HB_EXTINFO_WEAPON;
 

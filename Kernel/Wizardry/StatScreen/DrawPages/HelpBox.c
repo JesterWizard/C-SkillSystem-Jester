@@ -155,7 +155,7 @@ void DisplayPage(int pageid)
     CpuFastFill(0, gUiTmScratchA, sizeof(gUiTmScratchA));
     CpuFastFill(0, gUiTmScratchC, sizeof(gUiTmScratchC));
 
-    /* The Potential page draws its chart over spare BG tiles: give them back to the other pages */
+    /* The Growths page draws its chart over spare BG tiles: give them back to the other pages */
     if (realPageId != PAGE_GROWTH_RADAR)
         GrowthRadar_RestoreVram();
 

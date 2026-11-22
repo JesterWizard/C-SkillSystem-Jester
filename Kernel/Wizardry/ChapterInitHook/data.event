@@ -17,6 +17,7 @@ ChapterInitHooks:
     POIN ResetGaidenMagicUses
     POIN ChapterInit_RemoveThreeHousesMagicItems
     POIN ChapterInit_ResetZenkaiPending
+    POIN ChapterInit_ResetEnemyPromoFx
 #ifdef CONFIG_DISTRICT_GUILD
     POIN ChapterInit_ResetChapterAwards
 #endif

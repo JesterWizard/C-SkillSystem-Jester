@@ -89,6 +89,10 @@ static void DoubleBadge_Loop(ProcPtr proc)
 	if (!gauge || gauge->valid == 1) /* hidden: vanilla's ekrGaugeMain skips drawing then */
 		return;
 
+	/* Not on a promotion screen: the last battle's counts would show there */
+	if (gEkrDistanceType == EKR_DISTANCE_PROMOTION)
+		return;
+
 	/* Not over the critical cut-in or the level-up box, which cover the HUD */
 	if (CritCutinExists() || Proc_Find(ProcScr_EkrLevelup))
 		return;

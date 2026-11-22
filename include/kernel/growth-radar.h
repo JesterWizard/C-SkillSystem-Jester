@@ -4,7 +4,7 @@
 #include "kernel-lib.h"
 
 /*
- * Growth Radar: the stat screen's "Potential" page (PAGE_GROWTH_RADAR), a radar chart of the unit's growth rates and
+ * Growth Radar: the stat screen's "Growths" page (PAGE_GROWTH_RADAR), a radar chart of the unit's growth rates and
  * of its stats against their caps (Kernel/Wizardry/GrowthRadar, Documentation/Features/GrowthRadar.md).
  */
 

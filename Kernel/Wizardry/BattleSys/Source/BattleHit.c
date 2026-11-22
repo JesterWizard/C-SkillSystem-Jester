@@ -16,6 +16,7 @@
 #include "playst-expa.h"
 #include "bwl.h"
 #include "unit-expa.h"
+#include "enemy-promo-fx.h"
 
 #define LOCAL_TRACE 0
 
@@ -708,8 +709,13 @@ bool BattleGenerateHit(struct BattleUnit* attacker, struct BattleUnit* defender)
         if (gpKernelDesignerConfig->promote_enemy_on_kill == true) 
 	    {
 			struct Unit* enemyUnit = GetUnit(gBattleActor.unit.index);
-            if (UNIT_FACTION(enemyUnit) == FACTION_RED && !(UNIT_CATTRIBUTES(enemyUnit) & CA_PROMOTED))
+            /* Not in a simulation (the forecast, the AI's choice of target): only a real kill promotes */
+            if (UNIT_FACTION(enemyUnit) == FACTION_RED && !(UNIT_CATTRIBUTES(enemyUnit) & CA_PROMOTED) &&
+                !(gBattleStats.config & BATTLE_CONFIG_SIMULATE))
 			{
+				/* The map effect after the action (Kernel/Wizardry/EnemyPromoFx) shows the class change */
+				gEnemyPromoFx.uid = enemyUnit->index;
+				gEnemyPromoFx.old_jid = UNIT_CLASS_ID(enemyUnit);
 				ApplyUnitDefaultPromotion(enemyUnit);
 				enemyUnit->maxHP += gpKernelDesignerConfig->promote_enemy_boost;
 				enemyUnit->curHP += gpKernelDesignerConfig->promote_enemy_boost;

@@ -56,6 +56,7 @@ gPostActionFuncs:
     POIN PostAction_Knockback
     POIN PostAction_MomentumShift
     POIN PostAction_AutoPromotion
+    POIN PostAction_EnemyPromoFx
 
     //End
     POIN CallExternalPostActionHook

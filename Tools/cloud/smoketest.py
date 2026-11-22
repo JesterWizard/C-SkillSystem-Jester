@@ -8,7 +8,7 @@ What it checks:
   statscreen  R on Eirika opens the stat screen; B closes it and the map comes back.
   promosms    the stat screen's Promotions page for Seth (no unit_promotions row) put in the Cavalier's class: a platform
               and a map sprite for each of the class's two promotion options, beside their names (OAM at x 99 and 108).
-  growthradar the stat screen's Potential page (growth radar): the 7th page, its chart on BG2 with both layers drawn, the
+  growthradar the stat screen's Growths page (growth radar): the 7th page, its chart on BG2 with both layers drawn, the
               borrowed tiles given back on the first page; with its Options row OFF, 6 pages.
   <district>  for Serafew, Port Kiris, Caer Pelyn and Jehanna Hall: a test ROM starts a new game in the district; Eirika
               walks to every spot in its events/traps.c (fishing, River Crossing, Tower Stack, guild board); A opens
@@ -482,7 +482,7 @@ class Smoke:
                    "platforms at y %s" % plats)
 
     def test_growthradar(self, boot_ss):
-        """The stat screen's Potential page (Documentation/Features/GrowthRadar.md). LEFT from the first page wraps to
+        """The stat screen's Growths page (Documentation/Features/GrowthRadar.md). LEFT from the first page wraps to
         it, the last of 7: its chart is mapped on BG2 (the page's tile (3, 2) is BG tile 0x82 in BG palette 10, which
         holds the chart's colours) and once grown its tiles hold the growth layer (colours 3, 4, 7, 8, 9) and the stats
         layer (5-8, 10). RIGHT back to the first page decompresses the stat screen sheet the chart borrowed again (tiles
@@ -503,7 +503,7 @@ class Smoke:
         lines += ["r32 %#x" % a for a in chart]
         lines += ["press RIGHT", "wait 90", "r8 %#x" % st] + ["r32 %#x" % a for a in sheet]
         vals = self.run(ROM, lines, d)
-        self.shot(os.path.join(d, "growthradar.png"), "Potential page (growth radar), Eirika")
+        self.shot(os.path.join(d, "growthradar.png"), "Growths page (growth radar), Eirika")
         if len(vals) != 4 + len(chart) + 1 + len(sheet):
             return self.check("growthradar: the stat screen opens", False, "values %d" % len(vals))
         page, amt, tile, color = vals[0:4]
@@ -512,7 +512,7 @@ class Smoke:
         nibbles = [(w >> (4 * i)) & 0xF for w in words for i in range(8)]
         grow = sum(1 for n in nibbles if n in (3, 4, 7, 8, 9))
         stat = sum(1 for n in nibbles if n in (5, 6, 7, 8, 10))
-        self.check("growthradar: LEFT from the first page wraps to the Potential page, the 7th", page == 6 and amt == 7,
+        self.check("growthradar: LEFT from the first page wraps to the Growths page, the 7th", page == 6 and amt == 7,
                    "page %d of %d" % (page + 1, amt))
         self.check("growthradar: the chart is on BG2 (tile 0x82, palette 10) and the palette is loaded",
                    tile == 0xA082 and color == 0x4BD5, "tilemap %#x, colour %#x" % (tile, color))
@@ -523,7 +523,7 @@ class Smoke:
         vals = self.run(ROM, ["load " + boot_ss, "w8 %#x 0x80" % (PLAYST + 0x43), "wait 30", "press R", "wait 60",
                               "press LEFT", "wait 90", "r8 %#x" % st, "r8 %#x" % (st + 1), "r16 %#x" % cell,
                               "shot growthradar_off.png"], d)
-        self.shot(os.path.join(d, "growthradar_off.png"), "Potential page OFF in Options: the last page is Promotions")
+        self.shot(os.path.join(d, "growthradar_off.png"), "Growths page OFF in Options: the last page is Promotions")
         if len(vals) != 3:
             return self.check("growthradar: the stat screen opens with the page off", False, "values %d" % len(vals))
         self.check("growthradar: with the Options row OFF there are 6 pages and no chart",

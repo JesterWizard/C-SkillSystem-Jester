@@ -152,7 +152,7 @@ int GetUnitMinRange(struct Unit *unit)
 			if (item == ITEM_NONE)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
+			if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
 				_ret = GetItemMinRangeRework(item, unit);
 				if (_ret < ret)
 					ret = _ret;
@@ -165,7 +165,7 @@ int GetUnitMinRange(struct Unit *unit)
 			if (item == ITEM_NONE)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
+			if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
 				_ret = GetItemMinRangeRework(item, unit);
 				if (_ret < ret)
 					ret = _ret;
@@ -201,7 +201,7 @@ int GetUnitMaxRange(struct Unit *unit)
 			if (item == ITEM_NONE)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
+			if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
 				_ret = GetItemMaxRangeRework(item, unit);
 				if (_ret > ret)
 					ret = _ret;
@@ -214,7 +214,7 @@ int GetUnitMaxRange(struct Unit *unit)
 			if (item == ITEM_NONE)
 				break;
 
-			if (CanUnitUseGaidenMagic(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
+			if (CanUnitUseGaidenMagic(unit, item) && HasGaidenMagicUses(unit, item) && GetItemAttributes(item) & IA_WEAPON) {
 				_ret = GetItemMaxRangeRework(item, unit);
 				if (_ret > ret)
 					ret = _ret;

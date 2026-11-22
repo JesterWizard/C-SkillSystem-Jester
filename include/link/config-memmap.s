@@ -435,6 +435,9 @@ _kernel_malloc2 gDoubleBadge, 4
 /* The recap's earlier chapter (struct RecapHistory, include/kernel/recap.h); also a save-tail share */
 _kernel_malloc2 gRecapHistory, 0x1C
 
+/* An enemy promoted by a kill, waiting for its map effect (struct EnemyPromoFx, enemy-promo-fx.h). RAM only. */
+_kernel_malloc2 gEnemyPromoFx, 0x24
+
 /*
  * The VC2 voice stream (Kernel/Wizardry/VoiceStream): the ring the m4a mixer plays and the decoder's state. In the
  * demo pool, which nothing else writes (checked: no code points into 0x0203F150-0x02040000, newlib's heap is never

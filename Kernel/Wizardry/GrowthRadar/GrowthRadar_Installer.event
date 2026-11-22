@@ -2,7 +2,7 @@
 #define GROWTH_RADAR_INSTALLED
 
 /**
- * Growth Radar: the stat screen's "Potential" page, a radar chart of the unit's growths and of its stats against
+ * Growth Radar: the stat screen's "Growths" page, a radar chart of the unit's growths and of its stats against
  * their caps (Documentation/Features/GrowthRadar.md). Its draw function is page 8 of gStatScreenDrawPages
  * (Kernel/Wizardry/StatScreen/data.event). WIZARDRY_CUSTOM, so FreeSpaceDEMO.
  */

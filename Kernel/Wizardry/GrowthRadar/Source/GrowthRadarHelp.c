@@ -3,7 +3,7 @@
 #include "constants/texts.h"
 
 /*
- * R text of the Potential page (Kernel/Wizardry/GrowthRadar): each axis label shows the stat's own description, the
+ * R text of the Growths page (Kernel/Wizardry/GrowthRadar): each axis label shows the stat's own description, the
  * legend says what each layer is, and the left panel works as on the other pages. Rows: HP; Res, Str; Def, Mag;
  * Lck, Skill; Spd; the legend.
  */

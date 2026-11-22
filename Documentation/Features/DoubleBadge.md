@@ -34,7 +34,7 @@ The drawing code is in `Kernel/Wizardry/DoubleBadge/Source/DoubleBadge.c`.
 
 The badge is the battle forecast's own "xN" sprite. It is `Gfx_BKSEL[n]`, a 16x16 sprite made of four tiles (TL, TR, BL, BR), with n = 2 to 9. Tile 10 is "xN" for more than 9. The first 16 colours of `Pal_BKSEL` are used. Both are in `Kernel/Wizardry/BattleSys/data.event`. The badge is drawn on OBJ palette 10.
 
-Each frame, the badge draws unless the HUD is hidden (its byte `+0x2A` is 1).
+Each frame, the badge draws unless the HUD is hidden (its byte `+0x2A` is 1) or the animation is a promotion (`gEkrDistanceType == EKR_DISTANCE_PROMOTION`: the last battle's counts would show on the promotion screen).
 
 - Top at y 92. The boxes' Hit rows are at y 112.
 - Left side at x 24. Right side at x 222, right-aligned over the digit columns.
