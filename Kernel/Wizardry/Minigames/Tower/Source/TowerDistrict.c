@@ -47,30 +47,14 @@ void Tower_OnPressA(ProcPtr proc)
 
 /* ---- The towers on the district map ---- */
 
-void Tower_LoadMapMarker(int chr)
-{
-	CpuCopy16(gTowerMapTile, OBJ_VRAM0 + chr * 0x20, sizeof(gTowerMapTile));
-}
-
-/* A small tower on each spot. The palette is the one the gate arrows load. */
-void Tower_DrawMapMarkers(int chr, int pal)
+/* A tower of blocks over each spot (the district's spot icons, DistrictIcons.c) */
+void Tower_DrawMapMarkers(void)
 {
 	struct Trap *trap;
-	int x, y;
 
-	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++) {
-		if (trap->type != TRAP_TOWER_SPOT)
-			continue;
-		x = trap->xPos * 16 - gBmSt.camera.x;
-		y = trap->yPos * 16 - gBmSt.camera.y;
-		if (x <= -16 || x >= 240 || y <= -16 || y >= 160)
-			continue;
-		PutSprite(4,
-			  OAM1_X((x + 4) & 0x1FF),
-			  OAM0_Y((y + 2) & 0xFF),
-			  gObject_8x8,
-			  OAM2_PAL(pal) + OAM2_LAYER(0b10) + OAM2_CHR(chr));
-	}
+	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++)
+		if (trap->type == TRAP_TOWER_SPOT)
+			District_PutSpotIcon(trap->xPos, trap->yPos, DISTRICT_ICON_TOWER);
 }
 
 #endif /* CONFIG_DISTRICT_TOWER */

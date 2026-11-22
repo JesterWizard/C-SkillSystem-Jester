@@ -192,6 +192,9 @@ static u16 ArenaGetBaseWeaponForType(int weaponType)
 		return ITEM_DARK_FLUX;
 	case ITYPE_KNIFE:
 		return ITEM_KNIFE_IRON;
+	case ITYPE_DRAGN:
+		/* Myrrh's Dragonstone: vanilla's table stops at dark magic */
+		return ITEM_DIVINESTONE;
 	default:
 		return ITEM_NONE;
 	}
@@ -263,7 +266,17 @@ static u16 ArenaGetUpgradedWeapon_NEW(struct Unit * unit, u16 item) {
 LYN_REPLACE_CHECK(ArenaGenerateBaseWeapons);
 void ArenaGenerateBaseWeapons(void)
 {
-    u16 playerWeapon = ArenaGetBaseWeaponForType(gArenaState.playerWpnType);
+    u16 playerWeapon;
+
+    /*
+     * Myrrh fights with her Dragonstone. She has no weapon rank, so the arena's weapon type came from her other ranks
+     * (none, or another weapon's): she got no weapon or one she can't wield, no battle animation matched it, and the
+     * fight fell back to map sprites on a black screen.
+     */
+    if (UNIT_CLASS_ID(gArenaState.playerUnit) == CLASS_MANAKETE_MYRRH)
+        gArenaState.playerWpnType = ITYPE_DRAGN;
+
+    playerWeapon = ArenaGetBaseWeaponForType(gArenaState.playerWpnType);
     u16 opponentWeapon = ArenaGetBaseWeaponForType(gArenaState.opponentWpnType);
 
     gArenaState.playerWeapon = playerWeapon ? MakeNewItem(playerWeapon) : ITEM_NONE;

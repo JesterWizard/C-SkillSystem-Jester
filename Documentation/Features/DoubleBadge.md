@@ -32,7 +32,7 @@ The drawing code is in `Kernel/Wizardry/DoubleBadge/Source/DoubleBadge.c`.
 
 `NewEkrGauge` (`Kernel/Wizardry/HPBarPalettes/HPBarPalettes.c`) starts `ProcScr_DoubleBadge` as a child of the battle HUD's proc (`gpProcEkrGauge`). So the badge ends with the HUD.
 
-The badge is the battle forecast's own "xN" sprite. It is `Gfx_BKSEL[n]`, a 16x16 sprite made of four tiles (TL, TR, BL, BR), with n = 2 to 9. Tile 10 is "xN" for more than 9. The first 16 colours of `Pal_BKSEL` are used. Both are in `Kernel/Wizardry/BattleSys/data.event`. The badge is drawn on OBJ palette 10.
+The badge is the battle forecast's own "xN" sprite. It is `Gfx_BKSEL[n]`, a 16x16 sprite made of four tiles (TL, TR, BL, BR), with n = 2 to 9. Tile 10 is "xN" for more than 9. The first 16 colours of `Pal_BKSEL` are used. Both are in `Kernel/Wizardry/BattleSys/data.event`. The badge is drawn on OBJ palette 6.
 
 Each frame, the badge draws unless the HUD is hidden (its byte `+0x2A` is 1) or the animation is a promotion (`gEkrDistanceType == EKR_DISTANCE_PROMOTION`: the last battle's counts would show on the promotion screen).
 
@@ -54,7 +54,9 @@ went missing as his sword landed) and the sheet overwrote the badge (a garbled "
 
 ### Palette and hiding
 
-The badge has OBJ palette 10 to itself: no sprite uses rows 6, 8 or 10 in a battle (checked every frame of a physical, a critical and a magic battle, and the map before and after). Each frame it shows, it reloads its palette if row 10 differs (the screen's fades rewrite it).
+The badge has OBJ palette 6 to itself: no sprite uses row 6 in a battle (checked every frame of a physical, a critical and a magic battle, a level-up, Myrrh's transformation, and the map before and after). Each frame it shows, it reloads its palette if row 6 differs (the screen's fades rewrite it).
+
+It was on palette 10 until Myrrh's transformation showed that row is taken. Each side's animation has two palette rows, 7-8 on the left and 9-10 on the right, and the second is for special animations: the transformation (banim 0xC4) loads her human palette in the first row and her dragon's in the second, and draws the cocoon and the dragon with the second. The badge reset row 10 to its own colours every frame, so the dragon came out pink until the transformation ended and the dragon animation loaded its own palette.
 
 It was on palette 15 before, which the skill-name and anim-number popups (`OBPAL_CHAX_ANIMNUM`) and the level-up box's portrait also use. So it had to hide while any of them showed: it blinked out for about a second at every hit, and resetting palette 15 drew the level-up portrait in its colours.
 

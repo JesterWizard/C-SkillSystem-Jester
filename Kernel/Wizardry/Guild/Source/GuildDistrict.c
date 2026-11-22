@@ -47,47 +47,17 @@ void Guild_OnPressA(ProcPtr proc)
 /* ---- The board on the district map ---- */
 
 /*
- * Two 8x8 tiles in item icon palette 0 (as the other district markers): a wooden notice board with white papers, and the
- * same with a red notice, shown in turn while a quest on this board is met and waiting to be claimed.
+ * A notice board over each board spot (the district's spot icons, DistrictIcons.c). While a quest on this board is met
+ * and waiting to be claimed, it shows in turn with a red notice.
  */
-static const u8 sGuildMarkerTiles[2][32] = {
-	{
-		0xE0, 0xEE, 0xEE, 0x0E, 0xDE, 0x11, 0xDD, 0xED, 0xDE, 0x11, 0x1D, 0xE1, 0xDE, 0xDD, 0x1D, 0xE1,
-		0xDE, 0x11, 0xDD, 0xED, 0xE0, 0xEE, 0xEE, 0x0E, 0x00, 0x0C, 0xC0, 0x00, 0x00, 0x0C, 0xC0, 0x00,
-	},
-	{
-		0xE0, 0xEE, 0xEE, 0x0E, 0xDE, 0x11, 0x6D, 0xE6, 0xDE, 0x11, 0x6D, 0xE6, 0xDE, 0xDD, 0x6D, 0xE6,
-		0xDE, 0x11, 0xDD, 0xED, 0xE0, 0xEE, 0xEE, 0x0E, 0x00, 0x0C, 0xC0, 0x00, 0x00, 0x0C, 0xC0, 0x00,
-	},
-};
-
-/* Both tiles, at chr and chr + 1 */
-void Guild_LoadMapMarker(int chr)
-{
-	CpuCopy16(sGuildMarkerTiles, OBJ_VRAM0 + chr * 0x20, sizeof(sGuildMarkerTiles));
-}
-
-void Guild_DrawMapMarkers(int chr, int pal)
+void Guild_DrawMapMarkers(void)
 {
 	struct Trap *trap;
-	int x, y, alt;
+	int claim = ((GetGameClock() >> 5) & 1) && Guild_AnyClaimable(gPlaySt.chapterIndex);
 
-	/* The red notice blinks while a quest here can be claimed */
-	alt = ((GetGameClock() >> 5) & 1) && Guild_AnyClaimable(gPlaySt.chapterIndex);
-
-	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++) {
-		if (trap->type != TRAP_GUILD_BOARD)
-			continue;
-		x = trap->xPos * 16 - gBmSt.camera.x;
-		y = trap->yPos * 16 - gBmSt.camera.y;
-		if (x <= -16 || x >= 240 || y <= -16 || y >= 160)
-			continue;
-		PutSprite(4,
-			  OAM1_X((x + 4) & 0x1FF),
-			  OAM0_Y((y + 4) & 0xFF),
-			  gObject_8x8,
-			  OAM2_PAL(pal) + OAM2_LAYER(0b10) + OAM2_CHR(chr + alt));
-	}
+	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++)
+		if (trap->type == TRAP_GUILD_BOARD)
+			District_PutSpotIcon(trap->xPos, trap->yPos, claim ? DISTRICT_ICON_BOARD_CLAIM : DISTRICT_ICON_BOARD);
 }
 
 #endif /* CONFIG_DISTRICT_GUILD */

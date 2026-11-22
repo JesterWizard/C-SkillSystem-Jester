@@ -20,10 +20,15 @@ struct EnemyPromoFxProc {
 	struct MuProc *mu;
 };
 
+/* "Enemy Soldier promoted to Warrior" */
 static const struct PopupInstruction PopupScr_EnemyPromoted[] = {
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
-	POPUP_UNIT_NAME,
+	POPUP_MSG(MSG_ENEMY_PROMOTED_ENEMY),
 	POPUP_SPACE(2),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_GOLD),
+	POPUP_STR(gEnemyPromoFx.old_cls),
+	POPUP_SPACE(2),
+	POPUP_COLOR(TEXT_COLOR_SYSTEM_WHITE),
 	POPUP_MSG(MSG_ENEMY_PROMOTED),
 	POPUP_SPACE(2),
 	POPUP_COLOR(TEXT_COLOR_SYSTEM_GOLD),
@@ -113,12 +118,20 @@ static const struct ProcCmd ProcScr_EnemyPromoFx[] = {
 	PROC_END,
 };
 
+static void EnemyPromoFx_CopyName(char *dst, int msg)
+{
+	const char *str = GetStringFromIndex(msg);
+	int i;
+
+	for (i = 0; i < (int)sizeof(gEnemyPromoFx.cls) - 1 && str[i]; i++)
+		dst[i] = str[i];
+	dst[i] = '\0';
+}
+
 bool PostAction_EnemyPromoFx(ProcPtr parent)
 {
 	struct EnemyPromoFxProc *proc;
 	struct Unit *unit;
-	const char *str;
-	int i;
 
 	if (gEnemyPromoFx.uid == 0)
 		return false;
@@ -132,11 +145,9 @@ bool PostAction_EnemyPromoFx(ProcPtr parent)
 	if (UNIT_CLASS_ID(unit) == gEnemyPromoFx.old_jid)
 		return false;
 
-	/* The popup's class name: GetStringFromIndex's buffer is reused for the unit's name and the message */
-	str = GetStringFromIndex(unit->pClassData->nameTextId);
-	for (i = 0; i < (int)sizeof(gEnemyPromoFx.cls) - 1 && str[i]; i++)
-		gEnemyPromoFx.cls[i] = str[i];
-	gEnemyPromoFx.cls[i] = '\0';
+	/* The popup's class names: GetStringFromIndex's buffer is reused for the messages */
+	EnemyPromoFx_CopyName(gEnemyPromoFx.old_cls, GetClassData(gEnemyPromoFx.old_jid)->nameTextId);
+	EnemyPromoFx_CopyName(gEnemyPromoFx.cls, unit->pClassData->nameTextId);
 
 	proc = Proc_StartBlocking(ProcScr_EnemyPromoFx, parent);
 	proc->unit = unit;

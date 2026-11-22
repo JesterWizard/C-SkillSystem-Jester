@@ -10,7 +10,8 @@ struct EnemyPromoFx {
 	u8 uid;       /* the promoted unit's index; 0 = nothing queued */
 	u8 old_jid;   /* its class before the promotion */
 	u8 _pad[2];
-	char cls[0x20]; /* the new class's name, for the popup */
+	char cls[0x10];     /* the new class's name, for the popup */
+	char old_cls[0x10]; /* the old class's name, for the popup */
 };
 
 extern struct EnemyPromoFx gEnemyPromoFx;

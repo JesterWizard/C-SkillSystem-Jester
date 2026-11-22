@@ -28,6 +28,37 @@ void DistrictGate_OnStep(ProcPtr proc);
 
 enum { DISTRICT_NPC_HEX = 1 << 0 };
 
+/*
+ * The district map's spot icons (Kernel/Wizardry/EnterTown/DistrictIcons.c, made by Gfx/make-district-icons.py): one
+ * 16x16 icon per kind of spot, on a palette of their own (OBJ palette DISTRICT_ICON_PAL, empty on a district map).
+ *
+ * OBJ VRAM on a district map: rows 4-11 are the standing map sprites' sheet (SyncUnitSpriteSheet rewrites all of them
+ * as the sprites animate) and rows 12-15 the walking units' frames. Rows 20-21, columns 0-14, are blank: only the
+ * yellow prompt box's text uses them (rows 16-25), during an event, after which DistrictNpc.c loads its tiles again.
+ * Icon i is at DISTRICT_ICON_CHR + 2 * i (its bottom row 32 tiles on), then the Hex Card icon and the gate arrows.
+ */
+enum district_icon {
+	DISTRICT_ICON_FISHING,
+	DISTRICT_ICON_CROSSING,
+	DISTRICT_ICON_TOWER,
+	DISTRICT_ICON_BOARD,
+	DISTRICT_ICON_BOARD_CLAIM,
+
+	DISTRICT_ICON_MAX
+};
+
+#define DISTRICT_ICON_CHR 0x280
+#define DISTRICT_HEX_ICON_CHR (DISTRICT_ICON_CHR + 2 * DISTRICT_ICON_MAX)
+#define DISTRICT_GATE_CHR (DISTRICT_HEX_ICON_CHR + 2)
+#define DISTRICT_ICON_PAL 9
+#define DISTRICT_ICON_CHR_OF(icon) (DISTRICT_ICON_CHR + 2 * (icon))
+
+extern const u8 gDistrictIconTiles[DISTRICT_ICON_MAX][4][32];
+extern const u16 gDistrictIconPal[16];
+
+/* A spot's icon over the tile (x, y) of the map, bobbing 1 pixel: for the minigames' and the guild's markers */
+void District_PutSpotIcon(int x, int y, int icon);
+
 /* Wandering district NPC (Kernel/Wizardry/EnterTown/DistrictNpc.c) */
 struct DistrictNpc {
 	u8 chapter;

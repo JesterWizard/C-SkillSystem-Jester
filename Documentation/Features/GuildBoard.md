@@ -282,9 +282,9 @@ received.", "Not enough tokens.").
 - A board is `GUILD_BOARD(x, y)` in the district's `events/traps.c` (`TRAP_GUILD_BOARD`, 32, `bmtrick.h`).
 - Rebuild the chapter's `events.lyn.event` after adding one: `traps.c` is included by `events.c`. In a cloud build run
   `make CustomCampaign/Chapters/<Name>/events/events.lyn.event` first; `Tools/cloud/build.sh` alone does not see the change.
-- The marker is an 8x8 wooden board with white papers (two tiles at `MAPANIMFX_CHR_R + 0x22`, item icon palette 0),
-  drawn by `DistrictNpc.c` with the other district markers. While a quest on that board is met and waiting, a red
-  notice blinks on it.
+- The marker is a 16x16 notice board with two papers, one of the district's spot icons
+  ([Districts.md](./Districts.md#spot-icons)), drawn by `Guild_DrawMapMarkers` through `District_PutSpotIcon`. While a
+  quest on that board is met and waiting, its right paper turns into a red "!" notice every other half second.
 - A on the board runs an event whose ASMC fades the map out, runs the board's screen and brings the map back, as the
   minigame spots do.
 
@@ -363,7 +363,7 @@ data but do nothing.
 | Token payouts | `Guild_AddTokens` in `CrossingScreen.c`, `TowerScreen.c`, `FishingScreen.c`, `HexScreen.c`, `Snek.c` | Each game's end |
 | Trap type | [`bmtrick.h`](../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_GUILD_BOARD` (32) and `GUILD_BOARD(x, y)` |
 | A-press hook | [`HookList.event`](../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry |
-| Map markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `GUILD_CHR_MAP_BOARD` |
+| Map markers | [`DistrictNpc.c`](../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | `District_PutSpotIcon`, `DISTRICT_ICON_BOARD` |
 | Texts | [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | `MSG_GUILD_*`, `MSG_AWARDS_*` |
 | RAM | [`config-memmap.s`](../../include/link/config-memmap.s) | `gGuildSave`, `gGuildScreen`, `gChapterAwards`, `gChapterAwardsScreen` |
 | Save chunk | [`data.event`](../../Kernel/Wizardry/SaveData/data.event) | `Guild_Save` / `Guild_Load` in both save lists, `Guild_NewGame`; `ChapterAwards_Save` / `ChapterAwards_Load` in the suspend list |

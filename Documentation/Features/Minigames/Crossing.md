@@ -27,7 +27,7 @@
 
 ## 🧩 Introduction
 
-**River Crossing** is a lane-crossing minigame in the [districts](../Districts.md). A small red flag marks a crossing
+**River Crossing** is a lane-crossing minigame in the [districts](../Districts.md). A frog icon marks a crossing
 spot in each district. Stand on it and press A: the map fades to a field of 15 x 10 cells. Your unit starts at the bottom
 and must reach the five docks on the far bank:
 
@@ -225,7 +225,7 @@ riders or rafts, a direction, a count, a spacing and a speed. Rafts also have a 
 
 - A spot is `CROSSING_SPOT(x, y)` in the district's `events/traps.c` (`TRAP_CROSSING_SPOT`, 30, `bmtrick.h`). Rebuild the
   chapter's `events.lyn.event` after adding one: `traps.c` is included by `events.c`.
-- The flag on the map is drawn by `DistrictNpc.c`, with the gate arrows and the fishing bobbers. It only shows in districts.
+- The frog icon on the map is one of the district's spot icons ([Districts.md](../Districts.md#spot-icons)), drawn by `Crossing_DrawMapMarkers` through `DistrictNpc.c`. It only shows in districts.
 - A in free movement runs the trap before any talk event, so an NPC next to the spot does not get in the way.
 
 ---
@@ -290,7 +290,7 @@ game, the A-press trap entry, the map flags and the two save chunks. The spots s
 | Header | [`crossing.h`](../../../include/kernel/crossing.h) | `struct CrossingState`, `struct CrossingRecords`, `struct CrossingExtra`, `struct CrossingProgress` |
 | Trap type | [`bmtrick.h`](../../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_CROSSING_SPOT` (30) and `CROSSING_SPOT(x, y)` |
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry |
-| Map flags, NPC walks | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | The flags, and `DistrictNpc_EndWalk` |
+| Map icons, NPC walks | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | The flags, and `DistrictNpc_EndWalk` |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_CROSSING_*` |
 | RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gCrossingState`, `gCrossingRecords`, `gCrossingExtra`, `gCrossingProgress` |
 | Save chunks | [`data.event`](../../../Kernel/Wizardry/SaveData/data.event) | `CrossingRecords` and `CrossingProgress` in both save lists, and their new-game hooks |

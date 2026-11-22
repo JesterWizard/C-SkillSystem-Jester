@@ -184,7 +184,7 @@ None of this changes the rules or the score.
 
 - A spot is `TOWER_SPOT(x, y)` in the district's `events/traps.c` (`TRAP_TOWER_SPOT`, 31, `bmtrick.h`). Rebuild the
   chapter's `events.lyn.event` after adding one: `traps.c` is included by `events.c`.
-- The tower on the map is drawn by `DistrictNpc.c`, with the gate arrows, the fishing bobbers and the River Crossing flags.
+- The tower icon on the map is one of the district's spot icons ([Districts.md](../Districts.md#spot-icons)), drawn by `Tower_DrawMapMarkers` through `DistrictNpc.c`.
   Its tile is OBJ tile `0x19B` (the map's OBJ VRAM there holds title-screen leftovers, unused on the map). It only shows in
   districts.
 - A in free movement runs the trap before any talk event, so an NPC next to the spot does not get in the way.

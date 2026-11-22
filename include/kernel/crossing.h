@@ -188,8 +188,7 @@ void StartDistrictCrossingASMC(ProcPtr parent);
 extern const struct ProcCmd ProcScr_CrossingScreen[];
 
 /* District map: the flag on each crossing spot (DistrictNpc.c). */
-void Crossing_LoadMapMarker(int chr);
-void Crossing_DrawMapMarkers(int chr, int pal);
+void Crossing_DrawMapMarkers(void);
 
 /* Records (CrossingRecords.c) */
 int CrossingRecords_Best(int level);
