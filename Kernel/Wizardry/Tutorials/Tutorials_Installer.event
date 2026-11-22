@@ -1,0 +1,15 @@
+#ifndef TUTORIALS_INSTALLED
+#define TUTORIALS_INSTALLED
+
+/**
+ * Tutorials (Documentation/Features/Tutorials.md): Extras > Tutorials, the last Extras row, and its screen. WIZARDRY_CUSTOM.
+ * The row's label is in the Extras label sheet (NewGamePlus/Gfx/Img_NgpMenuObjs.png), its sprite in gExtrasLabelSprites
+ * (NewGamePlus/Source/NgpSaveMenu.c). The tutorials are listed in Source/TutorialsData.c, their text at the end of
+ * Contents/Texts/Source/texts/Districts.txt.
+ */
+#include "Source/LynJump.event"
+#include "Source/TutorialsExtras.lyn.event"
+#include "Source/TutorialsScreen.lyn.event"
+#include "Source/TutorialsData.lyn.event"
+
+#endif /* TUTORIALS_INSTALLED */

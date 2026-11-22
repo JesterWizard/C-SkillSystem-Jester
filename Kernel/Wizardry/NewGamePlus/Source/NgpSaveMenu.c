@@ -7,6 +7,7 @@
 #include "gallery.h"
 #include "bestiary.h"
 #include "skill-codex.h"
+#include "tutorials.h"
 #include "constants/songs.h"
 #include "constants/texts.h"
 
@@ -116,9 +117,10 @@ void sub_80A9B90(struct SaveMenuProc *proc)
 		case EXTRA_MENU_OPTION_GALLERY:
 		case EXTRA_MENU_OPTION_BESTIARY:
 		case EXTRA_MENU_OPTION_SKILL_CODEX:
+		case EXTRA_MENU_OPTION_TUTORIALS:
 			/*
 			 * The Gallery (Kernel/Wizardry/Gallery), in the Map row's place; the Bestiary, in the trial map's; the
-			 * Skill Codex, in bit 7
+			 * Skill Codex, in bit 7; Tutorials, in Link Arena's bit 0
 			 */
 			Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
 			break;
@@ -267,20 +269,23 @@ void sub_80ABF74(u8 bitfile)
 		CpuFastCopy(src + i * 0x400, dst + i * 0x400, 0xE * 0x20);
 }
 
-/* The Extras list's sprite for the row: four pieces, 112 pixels, as the other labels (SpriteArray_08A2099C[3]) */
+/*
+ * The Extras list's sprite for the row: three pieces, 96 pixels ("New Game +" ends there; the fourth piece of vanilla's
+ * 112-pixel labels, tiles 26-27, holds part of the Tutorials label now)
+ */
 const u16 Sprite_NgpExtrasLabel[] = {
-	4,
+	3,
 	0x4000, 0x8008, 0x0A0E,
 	0x4000, 0x8028, 0x0A12,
 	0x4000, 0x8048, 0x0A16,
-	0x0000, 0x4068, 0x0A1A,
 };
 
 /*
  * The Extras list's label sprites, one per row bit (vanilla's SpriteArray_08A2099C, which sub_80AAC40 reads; the
- * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's and Link
- * Arena's are cut to their letters, so that the free tiles round them can hold the Bestiary's label (the Gallery's
- * sheet row, tiles 0-3 and 10-11) and the Skill Codex's (Link Arena's row, tiles 14-17, 28-31 and 26-27).
+ * installer points it here). Vanilla's for the rows whose labels are where vanilla drew them. The Gallery's is cut to
+ * its letters, so that the free tiles round it can hold the Bestiary's label (the Gallery's sheet row, tiles 0-3 and
+ * 10-11). The Skill Codex's is in Link Arena's row (tiles 14-17, 28-31 and 26-27), Tutorials' in New Game+'s (tiles
+ * 26-31) and the Gallery's (12-13). Link Arena's bit is Tutorials' row, so Link Arena's label is unused.
  *
  * Every label is centred on x 64 from the sprite's origin, as vanilla's are: the left column of the sheet is drawn
  * from x 8 (its words sit 8 pixels left in their 112-pixel slot), the right column from x 0. The Bestiary's and the
@@ -298,10 +303,12 @@ static const u16 Sprite_BestiaryExtrasLabel[] = {
 	0x0000, 0x4000 + 72, 0x0A4A,
 };
 
-static const u16 Sprite_LinkArenaExtrasLabel[] = {
-	2,
-	0x4000, 0x8000 + 32, 0x0A92,
-	0x4000, 0x8000 + 64, 0x0A96,
+/* Tutorials: label row 0, tiles 26-29 and 30-31, and row 1, tiles 12-13 (Tools/extras-labels/labels.py), a 64-pixel canvas */
+static const u16 Sprite_TutorialsExtrasLabel[] = {
+	3,
+	0x4000, 0x8000 + 32, 0x0A1A,
+	0x0000, 0x4000 + 64, 0x0A1E,
+	0x0000, 0x4000 + 80, 0x0A4C,
 };
 
 static const u16 Sprite_SkillCodexExtrasLabel[] = {
@@ -312,7 +319,7 @@ static const u16 Sprite_SkillCodexExtrasLabel[] = {
 };
 
 const u16 *const gExtrasLabelSprites[8] = {
-	[EXTRA_MENU_LINK_ARENA]    = Sprite_LinkArenaExtrasLabel,
+	[EXTRA_MENU_TUTORIALS]     = Sprite_TutorialsExtrasLabel,
 	[EXTRA_MENU_SOUND_ROOM]    = (const u16 *)0x08A20864,
 	[EXTRA_MENU_SUPPORT]       = (const u16 *)0x08A2087E,
 	[EXTRA_MENU_NEW_GAME_PLUS] = Sprite_NgpExtrasLabel,

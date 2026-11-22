@@ -25,7 +25,7 @@
 
 ## 🧩 Introduction
 
-**Extras > Bestiary**, the last Extras row, shows every character and class the player has met:
+**Extras > Bestiary**, the Extras row above the [Skill Codex](./SkillCodex.md), shows every character and class the player has met:
 
 - **The banner** on top (the Sound Room's song banner) shows the name under the cursor, or "???" for one not met yet.
 - **The list** on the left, in a window: the tab ("Characters" or "Classes", in gold, flush with the names), five names, and how many of the tab are
@@ -103,7 +103,7 @@ see (the player's own units always). A row is met when any character (or class) 
   slot, so the label is in two pieces: tiles 0-3 and 10-11 of the Gallery's sheet row, round the Gallery's letters
   (tiles 4-9). Like every Extras label, it is centred 64 pixels from its sprite's origin. The Extras list reads its label
   sprites from `gExtrasLabelSprites` (`NgpSaveMenu.c`; the installer points vanilla's `sub_80AAC40` at it): vanilla's
-  sprites for the rows still where vanilla drew them, New Game+'s, the Gallery's and Link Arena's cut to their
+  sprites for the rows still where vanilla drew them, New Game+'s and the Gallery's cut to their
   letters, the Bestiary's and the Skill Codex's.
 - **The screen** (`BestiaryScreen.c`): BG0 the text; BG1 the two windows (`DrawUiFrame`); BG2 the banner (the Sound
   Room's, from `Img_PlayStatusSprites`) and the mini portrait (`PutFaceChibi`, BG palette 4); BG3 the mural

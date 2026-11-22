@@ -1,0 +1,389 @@
+#include "common-chax.h"
+#include "kernel-lib.h"
+#include "savemenu.h"
+#include "hardware.h"
+#include "fontgrp.h"
+#include "uiutils.h"
+#include "ctc.h"
+#include "tutorials.h"
+#include "constants/songs.h"
+
+/*
+ * Extras > Tutorials (Documentation/Features/Tutorials.md): Select Mode's screen (vanilla's InitDifficultySelectScreen
+ * and DrawDifficultySprites_Loop, rebuilt here), with the tutorials on its banners and the chosen one's text in its
+ * box, a page at a time. Up and down choose a tutorial (three banners show; the list scrolls under them), A or right
+ * shows the next page, left the previous one, B goes back to Extras.
+ */
+
+/* Vanilla's Select Mode data (the rest is in FE-CLib: the palettes, the banner, the hand, sub_80AC4F8 the glow) */
+extern const u8 Img_DifficultyMenuObjs[];
+extern const u16 Pal_DifficultyMenuObjs[];
+extern const u8 gUnknown_08A29558[];    /* the box's tilemap */
+extern const u16 gSprite_DifficultyMenuSelectModeBg[];
+
+/* The Extras labels, for "Tutorials" on the header (Kernel/Wizardry/NewGamePlus) */
+extern const u8 Img_NgpMenuObjs[];
+
+#define VISIBLE         3
+#define BANNER_X        8
+#define BANNER_Y        48
+#define BANNER_STEP     32
+#define TITLE_TILES     16      /* a banner is 128 pixels */
+#define BOX_LINES       5
+#define BOX_TILES       14
+#define PAGE_LINES      4       /* the box's last line is the page count */
+#define TEXT_PX         88      /* the box's inside, from its first text column */
+#define TUT_MAX_LINES       48      /* a tutorial's lines, 12 pages */
+
+#define LABEL_CHR       0x200   /* the Extras labels' sheet, as the Extras list loads it */
+#define LABEL_PAL       11      /* OBJ palette for the header's label: Select Mode leaves 11-15 free */
+
+struct TutorialsScreen {
+	struct Text titles[VISIBLE];
+	struct Text lines[BOX_LINES];
+	u16 count;
+	u16 cursor;
+	u16 top;
+	u8 page;
+	u8 pages;
+	u8 lineCount;
+	u16 lineStart[TUT_MAX_LINES];   /* where each wrapped line starts in the tutorial's text */
+	u8 clock;
+	s8 handFrom;    /* the slot the hand slides from */
+	u8 handTime;    /* frames of the slide left */
+};
+
+extern u8 gBestiaryScreen[];
+#define TS ((struct TutorialsScreen *)gBestiaryScreen)
+_Static_assert(sizeof(struct TutorialsScreen) <= 0x160, "the screen fits in gBestiaryScreen (0x160 bytes)");
+
+struct ProcTutorials {
+	PROC_HEADER;
+	struct DispCnt dispBak;
+};
+
+enum { L_TUT_MAIN = 1, L_TUT_EXIT };
+
+/* "Tutorials", the Extras list's label (Sprite_TutorialsExtrasLabel), centred on the header */
+static const u16 Sprite_TutorialsHeaderLabel[] = {
+	3,
+	0x4000, 0x8000 + 32, 0x0A1A,
+	0x0000, 0x4000 + 64, 0x0A1E,
+	0x0000, 0x4000 + 80, 0x0A4C,
+};
+
+static int Tutorials_Count(void)
+{
+	int n = 0;
+
+	while (gTutorials[n].title != 0)
+		n++;
+	return n;
+}
+
+static void Tutorials_DrawTitles(void)
+{
+	int slot, i, w;
+
+	for (slot = 0; slot < VISIBLE; slot++) {
+		struct Text *text = &TS->titles[slot];
+		const char *str;
+
+		ClearText(text);
+		i = TS->top + slot;
+		if (i < TS->count) {
+			str = GetStringFromIndex(gTutorials[i].title);
+			w = GetStringTextLen(str);
+			Text_SetCursor(text, w < TITLE_TILES * 8 ? (TITLE_TILES * 8 - w) / 2 : 0);
+			Text_SetColor(text, TEXT_COLOR_SYSTEM_WHITE);
+			Text_DrawString(text, str);
+		}
+		PutText(text, gBG0TilemapBuffer + TILEMAP_INDEX(BANNER_X / 8, (BANNER_Y + 8) / 8 + slot * (BANNER_STEP / 8)));
+	}
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+/* The tutorial's text, decoded, with control bytes ([LF] and the like) as spaces */
+static const char *Tutorials_Text(void)
+{
+	static char *const buf = (char *)gGenericBuffer;
+	const char *src = GetStringFromIndex(gTutorials[TS->cursor].text);
+	int i;
+
+	for (i = 0; src[i] != '\0' && i < 0x7FF; i++)
+		buf[i] = (u8)src[i] < 0x20 ? ' ' : src[i];
+	buf[i] = '\0';
+	return buf;
+}
+
+/* The width of src's first n bytes */
+static int Tutorials_Width(const char *src, int n)
+{
+	char line[0x60];
+
+	if (n > (int)sizeof(line) - 1)
+		n = sizeof(line) - 1;
+	memcpy(line, src, n);
+	line[n] = '\0';
+	return GetStringTextLen(line);
+}
+
+/* Where each line starts: words go on a line while it fits in TEXT_PX */
+static void Tutorials_Wrap(void)
+{
+	const char *text = Tutorials_Text();
+	int pos = 0, start, end, next;
+
+	TS->lineCount = 0;
+
+	while (text[pos] != '\0' && TS->lineCount < TUT_MAX_LINES) {
+		while (text[pos] == ' ')
+			pos++;
+		if (text[pos] == '\0')
+			break;
+
+		start = end = pos;
+		for (;;) {
+			next = end;
+			while (text[next] == ' ')
+				next++;
+			while (text[next] != '\0' && text[next] != ' ')
+				next++;
+			if (end != start && Tutorials_Width(text + start, next - start) > TEXT_PX)
+				break;
+			end = next;
+			if (text[end] == '\0')
+				break;
+		}
+
+		TS->lineStart[TS->lineCount++] = start;
+		pos = end;
+	}
+
+	TS->pages = 0;
+	for (start = 0; start < TS->lineCount; start += PAGE_LINES)
+		TS->pages++;
+}
+
+/* The page's four lines, and the page count on the last line */
+static void Tutorials_DrawPage(void)
+{
+	const char *text = Tutorials_Text();
+	char buf[0x60];
+	char num[8];
+	int line, i, from, to, n;
+
+	for (line = 0; line < BOX_LINES; line++)
+		ClearText(&TS->lines[line]);
+
+	for (line = 0; line < PAGE_LINES; line++) {
+		i = TS->page * PAGE_LINES + line;
+		if (i >= TS->lineCount)
+			break;
+		from = TS->lineStart[i];
+		to = i + 1 < TS->lineCount ? TS->lineStart[i + 1] : from + (int)strlen(text + from);
+		while (to > from && text[to - 1] == ' ')
+			to--;
+		n = to - from < (int)sizeof(buf) - 1 ? to - from : (int)sizeof(buf) - 1;
+		memcpy(buf, text + from, n);
+		buf[n] = '\0';
+		Text_InsertDrawString(&TS->lines[line], 0, TEXT_COLOR_SYSTEM_WHITE, buf);
+	}
+
+	if (TS->pages > 1) {
+		i = 0;
+		num[i++] = '1' + TS->page;
+		num[i++] = '/';
+		num[i++] = '0' + TS->pages;
+		num[i] = 0;
+		Text_InsertDrawString(&TS->lines[PAGE_LINES], TEXT_PX - GetStringTextLen(num), TEXT_COLOR_SYSTEM_GOLD, num);
+	}
+
+	for (line = 0; line < BOX_LINES; line++)
+		PutText(&TS->lines[line], gBG0TilemapBuffer + TILEMAP_INDEX(18, 7 + line * 2));
+	BG_EnableSyncByMask(BG0_SYNC_BIT);
+}
+
+static void Tutorials_Select(int i)
+{
+	TS->cursor = i;
+	TS->page = 0;
+	Tutorials_Wrap();
+	Tutorials_DrawPage();
+}
+
+static void Tutorials_Init(struct ProcTutorials *proc)
+{
+	int i;
+
+	proc->dispBak = gLCDControlBuffer.dispcnt;
+	CpuFill16(0, TS, sizeof(*TS));
+	TS->count = Tutorials_Count();
+	TS->handFrom = -1;
+
+	/* As vanilla's InitDifficultySelectScreen */
+	ResetTextFont();
+	LoadUiFrameGraphics();
+	ResetText();
+	for (i = 0; i < VISIBLE; i++)
+		InitText(&TS->titles[i], TITLE_TILES);
+	for (i = 0; i < BOX_LINES; i++)
+		InitText(&TS->lines[i], BOX_TILES);
+
+	CopyToPaletteBuffer(Pal_SaveMenuBG, 0x100, 0x100);
+	CopyToPaletteBuffer(Pal_MainMenuBgFog, 0xE0, 0x20);
+	CopyToPaletteBuffer(Pal_SaveScreenSprits, 0x240, 0x100);
+	CopyToPaletteBuffer(Pal_08A295B4, 0x40, 0x20);
+	Decompress(Img_DifficultyMenuObjs, (void *)0x06010800);
+	CopyToPaletteBuffer(Pal_DifficultyMenuObjs, 0x220, 0x140);
+
+	/* The header's label: the Extras labels' sheet where the Extras list has it, with its palette */
+	Decompress(Img_NgpMenuObjs, (void *)(0x06010000 + LABEL_CHR * 0x20));
+	CopyToPaletteBuffer(Pal_SaveScreenSprits + 0x20, 0x200 + LABEL_PAL * 0x20, 0x20); /* its third, OBJ 4 there */
+	EnablePaletteSync();
+
+	BG_Fill(gBG0TilemapBuffer, 0);
+	BG_Fill(gBG1TilemapBuffer, 0);
+	Decompress(gUnknown_08A29558, gGenericBuffer);
+	CallARM_FillTileRect(gBG1TilemapBuffer + 0xD1, (void *)gGenericBuffer, 0x1000);
+
+	gLCDControlBuffer.dispcnt.obj1dMap = 0;
+	SetDispEnable(1, 1, 1, 1, 1);
+
+	Tutorials_DrawTitles();
+	Tutorials_Select(0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static void Tutorials_PutSprites(void)
+{
+	int slot, y, pal, handY, from, to;
+
+	TS->clock++;
+
+	PutSpriteExt(4, 56, 4, gSprite_DifficultyMenuSelectModeBg, OAM2_PAL(2));
+	PutSpriteExt(4, 56, 4, Sprite_TutorialsHeaderLabel, OAM2_PAL(LABEL_PAL));
+
+	/* The banners: each slot keeps Select Mode's colours (green, teal, red), lit when the cursor is on it */
+	for (slot = 0; slot < VISIBLE && TS->top + slot < TS->count; slot++) {
+		y = BANNER_Y + slot * BANNER_STEP;
+		pal = 5 + slot * 2 + (TS->top + slot == TS->cursor ? 0 : 1);
+		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2, OAM2_PAL(pal));
+	}
+
+	sub_80AC4F8(TS->clock, TS->cursor - TS->top);
+
+	/* The hand, sliding to its slot in 4 frames as vanilla's, and bobbing */
+	to = (TS->cursor - TS->top) * BANNER_STEP;
+	handY = to;
+	if (TS->handTime != 0 && TS->handFrom >= 0) {
+		from = TS->handFrom * BANNER_STEP;
+		handY = to + (from - to) * TS->handTime / 4;
+		TS->handTime--;
+	}
+	handY += BANNER_Y - 16 + (((TS->clock >> 3) & 7) < 4 ? ((TS->clock >> 3) & 7) : 7 - ((TS->clock >> 3) & 7));
+	PutSpriteExt(4, 0, handY & 0xFF, gSprite_08A20A98, OAM2_PAL(3));
+}
+
+static void Tutorials_Move(int to)
+{
+	int slot = TS->cursor - TS->top;
+
+	if (to < 0 || to >= TS->count || to == TS->cursor)
+		return;
+
+	PlaySoundEffect(SONG_SE_SYS_CURSOR_UD1);
+
+	if (to < TS->top) {
+		TS->top = to;
+		Tutorials_DrawTitles();
+	} else if (to > TS->top + VISIBLE - 1) {
+		TS->top = to - (VISIBLE - 1);
+		Tutorials_DrawTitles();
+	}
+
+	TS->handFrom = slot;
+	TS->handTime = 4;
+	Tutorials_Select(to);
+}
+
+static void Tutorials_Flip(int step)
+{
+	if (TS->pages <= 1)
+		return;
+
+	PlaySoundEffect(SONG_SE_SYS_CURSOR_LR1);
+	/* No %: the division runtime's remainder is broken here (CLAUDE.md) */
+	if (step > 0)
+		TS->page = TS->page + 1 < TS->pages ? TS->page + 1 : 0;
+	else
+		TS->page = TS->page > 0 ? TS->page - 1 : TS->pages - 1;
+	Tutorials_DrawPage();
+}
+
+static void Tutorials_Loop(struct ProcTutorials *proc)
+{
+	u16 press = gKeyStatusPtr->newKeys, repeat = gKeyStatusPtr->repeatedKeys;
+
+	Tutorials_PutSprites();
+
+	if (press & B_BUTTON) {
+		PlaySoundEffect(SONG_SE_SYS_WINDOW_CANSEL1);
+		Proc_Goto(proc, L_TUT_EXIT);
+		return;
+	}
+
+	if (press & (A_BUTTON | DPAD_RIGHT)) {
+		Tutorials_Flip(1);
+		return;
+	}
+
+	if (press & DPAD_LEFT) {
+		Tutorials_Flip(-1);
+		return;
+	}
+
+	if (repeat & DPAD_DOWN)
+		Tutorials_Move(TS->cursor + 1);
+	else if (repeat & DPAD_UP)
+		Tutorials_Move(TS->cursor - 1);
+}
+
+/* A fade, with the sprites kept on screen */
+static void Tutorials_FadeWait(struct ProcTutorials *proc)
+{
+	Tutorials_PutSprites();
+
+	if (!FadeInExists() && !FadeOutExists())
+		Proc_Break(proc);
+}
+
+static void Tutorials_OnEnd(struct ProcTutorials *proc)
+{
+	gLCDControlBuffer.dispcnt = proc->dispBak;
+	BG_Fill(gBG0TilemapBuffer, 0);
+	BG_Fill(gBG1TilemapBuffer, 0);
+	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
+}
+
+static const struct ProcCmd ProcScr_Tutorials[] = {
+	PROC_NAME("Tutorials"),
+	PROC_SET_END_CB(Tutorials_OnEnd),
+	PROC_YIELD,
+	PROC_CALL(Tutorials_Init),
+	PROC_CALL_ARG(NewFadeIn, 8),
+	PROC_REPEAT(Tutorials_FadeWait),
+
+	PROC_LABEL(L_TUT_MAIN),
+	PROC_REPEAT(Tutorials_Loop),
+
+	PROC_LABEL(L_TUT_EXIT),
+	PROC_CALL_ARG(NewFadeOut, 8),
+	PROC_REPEAT(Tutorials_FadeWait),
+	PROC_END,
+};
+
+ProcPtr StartTutorialsScreen(ProcPtr parent)
+{
+	return Proc_StartBlocking(ProcScr_Tutorials, parent);
+}
