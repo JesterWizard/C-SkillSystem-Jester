@@ -46,8 +46,6 @@ animation (see [Credits](../Credits.md#battle-animations) for the authors):
 | 0xDC | Marisa, Swordmaster (F) | swords | "[Swordmaster-Variant] Marisa Repal [F]" (1. Sword, Alt Crit) | RedBean |
 | 0xDD | every Phantom (class-wide) | axes | "[Monster-Custom] [U] Phantom" (3. Axe) | TBA |
 | 0xDE | every Gorgon Egg (class-wide, both egg classes) | everything | "[Gorgon-Custom] [U] Gorgon Eggs" (8. Unarmed, Large) | Ryn |
-| 0xE6 | Dozla, Berserker | axes | Dozla, Berserker (axe swing, a thrown axe at range), from frames (see [From Frames](#from-frames)) | sprite by Judgement, animated via ChatGPT |
-| 0xE7 | Dozla, Berserker | Hand Axe, Tomahawk, Hatchet | Dozla, Berserker (thrown axe, at any range), from frames | sprite by Judgement, animated via ChatGPT |
 
 Their other weapon types (mostly unarmed) keep the class's vanilla animation. Each list in `BattleAnims.event` is the
 class's vanilla list with the custom ID in place of the animated weapon types' entries.
@@ -158,16 +156,11 @@ python3 Tools/banim/feditor_dump.py --rom fe8.gba 0x40 Contents/BattleAnims/<Nam
 
 Some animations come as a FEBuilder-style script with one 248x160 PNG per frame instead of an FEditor dump: a `.txt`
 with `/// - Mode N` headers, `Cxx` commands (0x850000xx), `D p- file.png` lines (show the frame for D ticks) and `~~~`
-at each mode's end. Dozla's Berserker animations are two (`Contents/BattleAnims/Dozla/Berserker/Source`, one folder of
-frames with a script for each): his axe swing and his thrown axe. Convert them with (a script's path picks it when
-the folder holds several):
+at each mode's end. Put the frames and their script in a `Source` folder and convert each script with (a script's
+path picks it when the folder holds several):
 
 ```
-python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Dozla/Berserker/Source/Dozla_Axe_Swing.txt Contents/BattleAnims/Dozla/Berserker DozlaBerserkerAxe dozla_brs
-```
-
-```
-python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/Dozla/Berserker/Source/Dozla_Thrown_Axe.txt Contents/BattleAnims/Dozla/Berserker DozlaBerserkerThrow dozla_brt
+python3 Tools/banim/febuilder_txt.py Contents/BattleAnims/<Name>/<Class>/Source/<Script>.txt Contents/BattleAnims/<Name>/<Class> <Prefix> <abbr>
 ```
 
 The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_ENTRY`), so steps 4-7 of
@@ -179,8 +172,8 @@ The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_E
 - **OBJs and sheets.** Each frame is cut into OBJs over its non-empty 8x8 tiles (a greedy cover that trades empty
   tiles against the number of OBJs), and the OBJs are packed into 256x64 sheets in the order the script first shows
   the frames, so the sheet changes follow the script. An OBJ whose pixels are already on its sheet reuses them.
-  `--sheets DIR` also saves the packed sheets as PNGs, to look at. Dozla's swing (87 frames) takes 17 sheets and
-  about 37 KB, his throw (35 frames) 7 sheets and about 16 KB, 1-5 OBJs a frame.
+  `--sheets DIR` also saves the packed sheets as PNGs, to look at. An 87-frame axe swing took 17 sheets and about
+  37 KB, a 35-frame throw 7 sheets and about 16 KB, 1-5 OBJs a frame.
 - **Modes 2 and 4** (the layer behind the unit) are modes 1 and 3 with every frame empty, as FEditor makes them when
   nothing is drawn behind the unit.
 - **The palette strip.** FEBuilder puts the palette in the last 8 columns of each frame (x 240-247, rows 0 and 1:
@@ -190,9 +183,9 @@ The output is the same as `feditor_dump.py`'s (Huffman sheets, `<Prefix>_BANIM_E
   the frame's front, because both layers draw from the side's one sheet in VRAM. A 248-wide frame's back layer is
   empty.
 - **Missing modes.** Modes 1, 3 and 5-12 must all be in the script.
-- **Dozla's list** (`gBanimDef_DozlaBerserker`) is vanilla Berserker's with his two in place: axes use the swing
-  (0xE6, whose ranged modes 5 and 6 throw the axe), the Hand Axe, Tomahawk and Hatchet use the throw (0xE7, at
-  any range, as vanilla's 0x24), and unarmed keeps vanilla Berserker's 0x25.
+- **The class's list.** Give the character a copy of the class's vanilla list (`gBanimDef_<Name><Class>` in
+  `BattleAnims.event`) with the new IDs in place of the weapon types they animate, and add the character and class to
+  `CustomAnimeTable` (`Contents/External/Individual_animation_ea_2/data.event`).
 
 ---
 
@@ -202,8 +195,8 @@ Vanilla's `banim_data` (ROM `0xC00008`, 0x20 bytes an entry) has 201 animations,
 it, up to `0xC02000`, hold the new entries: IDs **0xCA-0xFF**, 54 in all. An entry goes at
 `0xC00008 + 0x20 * (ID - 1)`; `BanimEntry(id)` in `BattleAnims.event` writes it there.
 
-Take a free ID: Gerik's sword is 0xCA, Tana's lance 0xCB, and so on up to Dozla's 0xE7. 0xE4 and 0xE5 (Gilliam's
-Armor Knight) and 0xE8 and 0xE9 (Garcia's Fighter) were removed and are free again, then 0xEA-0xFF (26 in all).
+Take a free ID: Gerik's sword is 0xCA, Tana's lance 0xCB, and so on up to the third-tier Trickster's 0xE3. 0xE4-0xE9
+(Gilliam's Armor Knight, Dozla's Berserker and Garcia's Fighter, since removed) and 0xEA-0xFF are free: 28 in all.
 
 ---
 
