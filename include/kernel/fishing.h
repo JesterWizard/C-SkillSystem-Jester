@@ -220,8 +220,7 @@ void StartDistrictFishingASMC(ProcPtr parent);
 extern const struct ProcCmd ProcScr_FishingScreen[];
 
 /* District map: the bobber markers on the water next to each fishing spot (DistrictNpc.c). */
-void Fishing_LoadMapMarker(int chr);
-void Fishing_DrawMapMarkers(int chr, int pal);
+void Fishing_DrawMapMarkers(void);
 
 /* Records (FishingRecords.c) */
 int FishingRecords_Add(int species, int cm);

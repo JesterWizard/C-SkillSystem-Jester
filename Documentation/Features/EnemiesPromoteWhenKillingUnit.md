@@ -46,10 +46,10 @@ The promotion has its own short effect on the map, after the action, instead of 
 1. The camera moves onto the enemy.
 2. Its old class's map sprite fades to white (`StartMuFadeIntoFlash`) with a shimmer sound.
 3. The new class's sprite takes its place with a white flash (`StartMuHitFlash`) that fades back to its colours.
-4. A popup reads "*Name* promoted to *Class*", the class in gold.
+4. A popup reads "Enemy *Old class* promoted to *New class*" ("Enemy Fighter promoted to Warrior"), the classes in gold.
 
-`BattleHit.c` queues the enemy in `gEnemyPromoFx` (its index and old class; `include/kernel/enemy-promo-fx.h`, 0x24
-bytes from `_kernel_malloc2`, RAM only, so no save layout change). The post-action hook `PostAction_EnemyPromoFx`
+`BattleHit.c` queues the enemy in `gEnemyPromoFx` (its index, its old class and, for the popup, both classes' names,
+15 characters each at most; `include/kernel/enemy-promo-fx.h`, 0x24 bytes from `_kernel_malloc2`, RAM only, so no save layout change). The post-action hook `PostAction_EnemyPromoFx`
 (`Kernel/Wizardry/EnemyPromoFx/Source/EnemyPromoFx.c`, after `PostAction_AutoPromotion`) starts the effect as a blocking
 proc. A chapter-init hook clears the queue.
 
@@ -61,7 +61,7 @@ proc. A chapter-init hook clears the queue.
 |--------|----------|-------------|
 | **Enemy promotion logic** | `promote_enemy_on_kill` section inside `BattleGenerateHit` — [`BattleHit.c`](../../Kernel/Wizardry/BattleSys/Source/BattleHit.c) | Handles enemy auto-promotion after killing a player unit |
 | **Map effect** | `PostAction_EnemyPromoFx` — [`EnemyPromoFx.c`](../../Kernel/Wizardry/EnemyPromoFx/Source/EnemyPromoFx.c) | The flash, the sprite change and the popup after the action |
-| **Popup text** | `MSG_ENEMY_PROMOTED` ("promoted to") — end of [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | |
+| **Popup text** | `MSG_ENEMY_PROMOTED_ENEMY` ("Enemy") and `MSG_ENEMY_PROMOTED` ("promoted to") — end of [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | |
 
 ---
 

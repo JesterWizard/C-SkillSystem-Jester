@@ -36,7 +36,7 @@ Each district:
 - Has a gate tile. Stepping on it asks if you want to leave.
 - Has a pool of water with a fishing spot (see [Fishing](#fishing)).
 - Has a River Crossing spot, marked with a flag (see [River Crossing](#river-crossing)).
-- Has a Tower Stack spot, marked with a small tower (see [Tower Stack](#tower-stack)).
+- Has a Tower Stack spot, marked with a tower icon (see [Tower Stack](#tower-stack)).
 - Has a guild board, a small notice board by the Hex shop, with quests, prizes for minigame tokens and every minigame's
   records (see [Guild Board](#guild-board)).
 
@@ -222,6 +222,29 @@ SPOT(SERAFEW, CHARACTER_CITIZEN_YOUNG_MAN, CHAPTER_08, 9, 4),
 - Each Hex player has a Hex Card icon above the head. It moves 1 pixel up and down every 16 frames.
 - The icon is only compiled when `CONFIG_HEX_CARDS` is on.
 
+### Spot icons
+
+Each minigame spot and guild board has a 16x16 icon floating over it, bobbing 1 pixel every 16 frames:
+
+| Spot | Icon |
+|---|---|
+| Fishing | A fish leaping from the water tile beside the spot |
+| River Crossing | A frog |
+| Tower Stack | A tower of stone blocks with a pennant |
+| Guild board | A notice board with two papers; while a quest on it can be claimed, the right paper turns into a red "!" notice every other half second |
+
+- The art is in `Kernel/Wizardry/EnterTown/Gfx/make-district-icons.py`, which writes the tiles and palette to
+  `Kernel/Wizardry/EnterTown/DistrictIcons.c` and a preview, `Gfx/DistrictIcons.png`. Edit the art there and run it again.
+- The icons share a 16-colour palette of their own, on OBJ palette 9 (empty on a district map). The markers before them
+  were 8x8 tiles drawn with item icon palette 0.
+- `District_PutSpotIcon` (`DistrictNpc.c`) draws one; each module's `*_DrawMapMarkers` calls it for its spots.
+- **OBJ tiles.** On a district map, OBJ tile rows 4-11 are the standing map sprites' sheet (`SyncUnitSpriteSheet`
+  rewrites all of them as the sprites animate) and rows 12-15 the walking units' frames. The icons, the Hex Card icon and
+  the gate arrows are in rows 20-21, columns 0-13 (`DISTRICT_ICON_CHR`, `include/kernel/district.h`), which only the
+  yellow prompt box's text uses, during an event, after which they are loaded again. The Hex Card icon and the gate
+  arrows used to be in row 12 (the skill map animations' `MAPANIMFX_CHR_*`): a walking NPC's frames overwrote them, and
+  they blinked out until the next event.
+
 ---
 
 ## 🌅 Time of Day
@@ -403,7 +426,7 @@ name used in `HexShops.c`.
 
 ## 🎣 Fishing
 
-Each district has a pool of water with a fishing spot next to it. A red and white bobber floats on the water beside each
+Each district has a pool of water with a fishing spot next to it. A fish icon leaps from the water beside each
 spot. Stand on the spot and press A to open the fishing screen: buy a bait, cast, hook a fish and keep the line's tension
 in the green to land it for gold. Each district's water has its own five species (20 in all, a golden one in each), every
 catch gets a size and a catch card, and the fish journal records them. Find all five of a water's
@@ -420,13 +443,13 @@ in [District Fishing](./Minigames/Fishing.md).
 - The spots are free-movement traps (`TRAP_FISHING_SPOT`) in each district's `events/traps.c`.
 - Serafew and Caer Pelyn had no water. Their pools are cells in the compose specs (see [Maps](#maps)).
 - The Caer Pelyn item giver now starts at (9, 13), off the pond.
-- The bobbers are OBJ sprites drawn with the gate arrows by `DistrictNpc.c`.
+- The fish icons are OBJ sprites drawn with the gate arrows by `DistrictNpc.c` (see [Spot icons](#spot-icons)).
 
 ---
 
 ## 🐸 River Crossing
 
-Each district has a River Crossing spot, marked on the map with a small red flag. Stand on it and press A to play a
+Each district has a River Crossing spot, marked on the map with a frog icon. Stand on it and press A to play a
 lane-crossing minigame: hop across a road of enemy riders and a river of drifting rafts to fill five docks. Each district
 has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). The rules are in
 [River Crossing](./Minigames/Crossing.md).
@@ -442,7 +465,7 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
 
 ## 🧱 Tower Stack
 
-Each district has a Tower Stack spot, marked on the map with a small white tower. Stand on it and press A to play a
+Each district has a Tower Stack spot, marked on the map with a tower icon. Stand on it and press A to play a
 block-stacking minigame: drop sliding blocks onto a tower, chain perfect landings into a fever, and turn the score into
 gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 
@@ -586,7 +609,7 @@ Marlo, the guild's rival: beating one pays tokens. The rules are in [Guild Board
 | Shop building | [`hexshop_building.py`](../../Tools/district/hexshop_building.py) | Pastes the market stall into each tileset copy |
 | Building art | [`hexshop_art/`](../../Tools/district/hexshop_art/) | `stall.txt`, the market stall used by every tileset copy |
 | Shop tilesets | [`_hexshop/`](../../CustomCampaign/Chapters/_hexshop/) | Tileset copies with the shop building, and `HexShopTiles.event` |
-| Fishing | [`Minigames/Fishing/`](../../Kernel/Wizardry/Minigames/Fishing/) | The fishing screen, the spot's A-press handler, the map bobbers ([doc](./Minigames/Fishing.md)) |
+| Fishing | [`Minigames/Fishing/`](../../Kernel/Wizardry/Minigames/Fishing/) | The fishing screen, the spot's A-press handler, the map icon ([doc](./Minigames/Fishing.md)) |
 | Pond tool | [`pond.py`](../../Tools/district/pond.py) | Picks the water metatiles of a small pool |
 | River Crossing | [`Minigames/Crossing/`](../../Kernel/Wizardry/Minigames/Crossing/) | The lane-crossing minigame, its spots' A-press handler, the map flags ([doc](./Minigames/Crossing.md)) |
 | Tower Stack | [`Minigames/Tower/`](../../Kernel/Wizardry/Minigames/Tower/) | The block-stacking minigame, its spots' A-press handler, the map towers ([doc](./Minigames/Tower.md)) |

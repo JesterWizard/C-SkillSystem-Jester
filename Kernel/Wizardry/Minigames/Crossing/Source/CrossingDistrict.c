@@ -47,30 +47,14 @@ void Crossing_OnPressA(ProcPtr proc)
 
 /* ---- The flags on the district map ---- */
 
-void Crossing_LoadMapMarker(int chr)
-{
-	CpuCopy16(gCrossingMapFlagTile, OBJ_VRAM0 + chr * 0x20, sizeof(gCrossingMapFlagTile));
-}
-
-/* A flag on each spot, waving 1 pixel. The palette is the one the gate arrows load. */
-void Crossing_DrawMapMarkers(int chr, int pal)
+/* A frog over each spot (the district's spot icons, DistrictIcons.c) */
+void Crossing_DrawMapMarkers(void)
 {
 	struct Trap *trap;
-	int x, y, wave = (GetGameClock() >> 4) & 1;
 
-	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++) {
-		if (trap->type != TRAP_CROSSING_SPOT)
-			continue;
-		x = trap->xPos * 16 - gBmSt.camera.x;
-		y = trap->yPos * 16 - gBmSt.camera.y;
-		if (x <= -16 || x >= 240 || y <= -16 || y >= 160)
-			continue;
-		PutSprite(4,
-			  OAM1_X((x + 9 + wave) & 0x1FF),
-			  OAM0_Y((y + 1) & 0xFF),
-			  gObject_8x8,
-			  OAM2_PAL(pal) + OAM2_LAYER(0b10) + OAM2_CHR(chr));
-	}
+	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++)
+		if (trap->type == TRAP_CROSSING_SPOT)
+			District_PutSpotIcon(trap->xPos, trap->yPos, DISTRICT_ICON_CROSSING);
 }
 
 #endif /* CONFIG_DISTRICT_CROSSING */

@@ -175,7 +175,6 @@ void Guild_Load(u8 *src, const u32 size);
 /* The board on the district map: the A-press handler (FreeMovement/cFreeMU/HookList.event), and its marker */
 void Guild_OnPressA(ProcPtr proc);
 void StartDistrictGuildASMC(ProcPtr parent);
-void Guild_LoadMapMarker(int chr);
-void Guild_DrawMapMarkers(int chr, int pal);
+void Guild_DrawMapMarkers(void);
 
 extern const struct ProcCmd ProcScr_GuildScreen[];

@@ -1,7 +1,7 @@
 #include "common-chax.h"
 #include "constants/terrains.h"
 #include "district.h"
-#include "skill-system.h"	/* MAPANIMFX_CHR_L / MAPANIMFX_PAL for the Hex Card icon */
+#include "skill-system.h"	/* MAPANIMFX_PAL for the Hex Card icon and the gate arrows */
 #include "fishing.h"
 #include "crossing.h"
 #include "tower.h"
@@ -182,34 +182,41 @@ static const u8 sGateArrowTiles[64] = {
 	0xFF, 0x04, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00,
 };
 
-#define GATE_CHR_DOWN (MAPANIMFX_CHR_R)
-#define GATE_CHR_RIGHT (MAPANIMFX_CHR_R + 1)
-/* The fishing-spot bobber: the tile under the gate arrows in the 2D map OBJ layout (free in districts, as above) */
-#define FISHING_CHR_MAP_BOBBER (MAPANIMFX_CHR_R + 0x20)
-/* The River Crossing flag: the tile after the bobber */
-#define CROSSING_CHR_MAP_FLAG (MAPANIMFX_CHR_R + 0x21)
-/* The Tower Stack tower: the tile before the Hex Card icon (title-screen leftovers there, unused on the map) */
-#define TOWER_CHR_MAP_TOWER (MAPANIMFX_CHR_L - 1)
-/* The guild board's two tiles: after the River Crossing flag */
-#define GUILD_CHR_MAP_BOARD (MAPANIMFX_CHR_R + 0x22)
-
+/* In the district's own OBJ tiles (district.h): MAPANIMFX_CHR_R, row 12, is the walking units' frames */
+#define GATE_CHR_DOWN (DISTRICT_GATE_CHR)
+#define GATE_CHR_RIGHT (DISTRICT_GATE_CHR + 1)
 /* District exit markers: two gold chevrons on each gate tile, pointing off the nearest map edge. */
 static void DistrictNpc_LoadGates(void)
 {
+	int i;
+
 	CpuCopy16(sGateArrowTiles, OBJ_VRAM0 + GATE_CHR_DOWN * 0x20, sizeof(sGateArrowTiles));
-#ifdef CONFIG_DISTRICT_FISHING
-	Fishing_LoadMapMarker(FISHING_CHR_MAP_BOBBER);
-#endif
-#ifdef CONFIG_DISTRICT_CROSSING
-	Crossing_LoadMapMarker(CROSSING_CHR_MAP_FLAG);
-#endif
-#ifdef CONFIG_DISTRICT_TOWER
-	Tower_LoadMapMarker(TOWER_CHR_MAP_TOWER);
-#endif
-#ifdef CONFIG_DISTRICT_GUILD
-	Guild_LoadMapMarker(GUILD_CHR_MAP_BOARD);
-#endif
 	LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
+
+	/* The spots' icons: each 16x16 one's top row of tiles, then its bottom row 32 tiles on (2D OBJ mapping) */
+	for (i = 0; i < DISTRICT_ICON_MAX; i++) {
+		u8 *vram = OBJ_VRAM0 + DISTRICT_ICON_CHR_OF(i) * 0x20;
+
+		CpuCopy16(gDistrictIconTiles[i][0], vram, 0x40);
+		CpuCopy16(gDistrictIconTiles[i][2], vram + 0x20 * 0x20, 0x40);
+	}
+	ApplyPalette(gDistrictIconPal, 0x10 + DISTRICT_ICON_PAL);
+}
+
+/* A spot's icon floats over the tile (x, y), bobbing 1 pixel every 16 frames, under the units and the windows */
+void District_PutSpotIcon(int x, int y, int icon)
+{
+	int sx = x * 16 - gBmSt.camera.x;
+	int sy = y * 16 - gBmSt.camera.y - 12 - ((GetGameClock() >> 4) & 1);
+
+	if (sx <= -16 || sx >= 240 || sy <= -16 || sy >= 160)
+		return;
+
+	PutSprite(4,
+		  OAM1_X(sx & 0x1FF),
+		  OAM0_Y(sy & 0xFF),
+		  gObject_16x16,
+		  OAM2_PAL(DISTRICT_ICON_PAL) + OAM2_LAYER(0b10) + OAM2_CHR(DISTRICT_ICON_CHR_OF(icon)));
 }
 
 static void DistrictNpc_DrawGates(void)
@@ -262,10 +269,12 @@ static void DistrictNpc_DrawGates(void)
 
 #ifdef CONFIG_HEX_CARDS
 /*
- * Hex Card icon floating over each Hex player. The OBJ chr and palette slots
- * are the skill map animation ones (MAPANIMFX_*). Those animations never run
- * in districts, so the slots are free here. Events overwrite them, so
- * iconsLoaded is cleared while one runs and the icon is reloaded afterwards.
+ * Hex Card icon floating over each Hex player. Its tiles are the district's own
+ * (DISTRICT_HEX_ICON_CHR, district.h: the skill map animations' MAPANIMFX_CHR_L
+ * is in the walking units' frames, which a walk overwrote, so the icon blinked
+ * out), its palette the skill map animations' (MAPANIMFX_PAL), unused in
+ * districts. Events overwrite them, so iconsLoaded is cleared while one runs
+ * and the icon is reloaded afterwards.
  */
 static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 {
@@ -274,7 +283,7 @@ static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 
 	if (!p->iconsLoaded) {
 		/* Item icon palette 0, as in AchievementsMenu.c */
-		LoadIconObjectGraphics(GetItemIconId(CONFIG_ITEM_INDEX_HEX_CARD), MAPANIMFX_CHR_L);
+		LoadIconObjectGraphics(GetItemIconId(CONFIG_ITEM_INDEX_HEX_CARD), DISTRICT_HEX_ICON_CHR);
 		LoadIconPalette(0, 0x10 + MAPANIMFX_PAL);
 		p->iconsLoaded = 1;
 	}
@@ -318,7 +327,7 @@ static void DistrictNpc_DrawIcons(struct DistrictNpcProc *p)
 			OAM1_X(sx & 0x1FF),
 			OAM0_Y(sy & 0xFF),
 			gObject_16x16,
-			OAM2_PAL(MAPANIMFX_PAL) + OAM2_LAYER(0b01) + OAM2_CHR(MAPANIMFX_CHR_L));
+			OAM2_PAL(MAPANIMFX_PAL) + OAM2_LAYER(0b01) + OAM2_CHR(DISTRICT_HEX_ICON_CHR));
 	}
 }
 #endif
@@ -470,16 +479,16 @@ static void DistrictNpc_Loop(ProcPtr proc)
 	}
 	DistrictNpc_DrawGates();
 #ifdef CONFIG_DISTRICT_FISHING
-	Fishing_DrawMapMarkers(FISHING_CHR_MAP_BOBBER, MAPANIMFX_PAL);
+	Fishing_DrawMapMarkers();
 #endif
 #ifdef CONFIG_DISTRICT_CROSSING
-	Crossing_DrawMapMarkers(CROSSING_CHR_MAP_FLAG, MAPANIMFX_PAL);
+	Crossing_DrawMapMarkers();
 #endif
 #ifdef CONFIG_DISTRICT_TOWER
-	Tower_DrawMapMarkers(TOWER_CHR_MAP_TOWER, MAPANIMFX_PAL);
+	Tower_DrawMapMarkers();
 #endif
 #ifdef CONFIG_DISTRICT_GUILD
-	Guild_DrawMapMarkers(GUILD_CHR_MAP_BOARD, MAPANIMFX_PAL);
+	Guild_DrawMapMarkers();
 #endif
 
 #ifdef CONFIG_HEX_CARDS

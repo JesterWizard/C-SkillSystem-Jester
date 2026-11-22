@@ -118,8 +118,7 @@ void StartDistrictTowerASMC(ProcPtr parent);
 extern const struct ProcCmd ProcScr_TowerScreen[];
 
 /* District map: the tower on each spot (DistrictNpc.c). */
-void Tower_LoadMapMarker(int chr);
-void Tower_DrawMapMarkers(int chr, int pal);
+void Tower_DrawMapMarkers(void);
 
 /* Records (TowerRecords.c) */
 int TowerRecords_Best(void);

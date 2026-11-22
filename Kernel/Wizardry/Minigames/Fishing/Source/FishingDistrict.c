@@ -48,32 +48,19 @@ void Fishing_OnPressA(ProcPtr proc)
 
 /* ---- The bobbers on the district map ---- */
 
-void Fishing_LoadMapMarker(int chr)
-{
-	CpuCopy16(gFishingMapBobberTile, OBJ_VRAM0 + chr * 0x20, sizeof(gFishingMapBobberTile));
-}
-
-/* A bobber on the water tile next to each spot, bobbing 1 pixel. The palette is the one the gate arrows load. */
-void Fishing_DrawMapMarkers(int chr, int pal)
+/* A fish leaping from the water tile next to each spot (the district's spot icons, DistrictIcons.c) */
+void Fishing_DrawMapMarkers(void)
 {
 	static const s8 dirX[4] = { -1, 1, 0, 0 };
 	static const s8 dirY[4] = { 0, 0, -1, 1 };
 	struct Trap *trap;
-	int x, y, d, bob = (GetGameClock() >> 4) & 1;
+	int d;
 
 	for (trap = GetTrap(0); trap->type != TRAP_NONE; trap++) {
 		if (trap->type != TRAP_FISHING_SPOT)
 			continue;
 		d = trap->extra & 3;
-		x = (trap->xPos + dirX[d]) * 16 - gBmSt.camera.x;
-		y = (trap->yPos + dirY[d]) * 16 - gBmSt.camera.y;
-		if (x <= -16 || x >= 240 || y <= -16 || y >= 160)
-			continue;
-		PutSprite(4,
-			  OAM1_X((x + 4) & 0x1FF),
-			  OAM0_Y((y + 6 + bob) & 0xFF),
-			  gObject_8x8,
-			  OAM2_PAL(pal) + OAM2_LAYER(0b10) + OAM2_CHR(chr));
+		District_PutSpotIcon(trap->xPos + dirX[d], trap->yPos + dirY[d], DISTRICT_ICON_FISHING);
 	}
 }
 

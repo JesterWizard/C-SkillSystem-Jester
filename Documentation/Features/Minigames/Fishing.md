@@ -28,7 +28,7 @@
 
 ## 🧩 Introduction
 
-Every [district](../Districts.md) has a pool of water with a fishing spot next to it. A red and white bobber floats on the
+Every [district](../Districts.md) has a pool of water with a fishing spot next to it. A fish icon leaps from the
 water beside each spot. Stand on the spot and press A: the map fades out, and the unit walks in from the right onto a
 grassy bank with a rod.
 
@@ -331,10 +331,10 @@ RAM only: they end when you leave the screen.
 
 1. Pick a walkable tile next to water. It must not be a door or a gate.
 2. Add `FISHING_SPOT(x, y, dir)` to the district's `events/traps.c`, before `TRAP_NONE`. `dir` is the side the water is on:
-   0 left, 1 right, 2 up, 3 down (`FISHING_DIR_*`, `include/kernel/fishing.h`). It places the bobber on the map.
+   0 left, 1 right, 2 up, 3 down (`FISHING_DIR_*`, `include/kernel/fishing.h`). It places the fish icon on the map.
 3. Rebuild. The chapter's `events.lyn.event` must be regenerated: `traps.c` is included by `events.c`.
 
-The trap works on any free-movement map, not only in districts. The bobber is drawn by the district NPC proc, so it only
+The trap works on any free-movement map, not only in districts. The fish icon is drawn by the district NPC proc, so it only
 shows in districts. To add water to a map, see `Tools/district/pond.py`.
 
 ---
@@ -388,7 +388,7 @@ trap data, but nothing happens on them. Removing the switch also removes the chu
 | Trap type | [`bmtrick.h`](../../../Tools/FE-CLib-Mokha/include/bmtrick.h) | `TRAP_FISHING_SPOT` (29) and `FISHING_SPOT(x, y, dir)` |
 | Trap loader | [`TrapData.c`](../../../Kernel/Wizardry/TrapData/TrapData.c) | Adds the trap with its direction |
 | A-press hook | [`HookList.event`](../../../Kernel/Wizardry/FreeMovement/cFreeMU/HookList.event) | `HookListFMU_TrapList_OnPressA` entry, and the A-press order |
-| Map bobbers | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | Loads and draws them with the gate arrows |
+| Map icons | [`DistrictNpc.c`](../../../Kernel/Wizardry/EnterTown/DistrictNpc.c) | Loads and draws them with the gate arrows ([spot icons](../Districts.md#spot-icons)) |
 | Texts | [`Districts.txt`](../../../Contents/Texts/Source/texts/Districts.txt) | `MSG_FISHING_*` |
 | RAM | [`config-memmap.s`](../../../include/link/config-memmap.s) | `gFishingState`, `gFishingRecords`, `gFishingProgress` (and the unused `gFishingRecordsV1`) |
 | Items | [`Items.c`](../../../Data/ItemSys/Source/Items.c), [`IconTable.c`](../../../Data/Misc/IconTable.c) | `ITEM_GRILLED_FISH`, `ITEM_FISH_STEW` and their icons |
@@ -401,7 +401,7 @@ trap data, but nothing happens on them. Removing the switch also removes the chu
 
 - The streak and the frenzy end when you leave the screen.
 - A species' size changes only its payout and the journal: a big fish fights no harder than a small one of its kind.
-- The bobbers on the map are only drawn in districts (by the district NPC proc).
+- The fish icons on the map are only drawn in districts (by the district NPC proc).
 - The scene is the same for every pool: a grassy bank and deep open water, also for the Jehanna oasis and the small ponds.
 - Gold is capped at 999999, catches at 9999 per fish.
 - The suspend save is nearly full (44 bytes left after the records chunk, see [Prize Table and Records](#prize-table-and-records)).

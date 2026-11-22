@@ -1261,3 +1261,5 @@ Chapter Results[X]
 A results screen after each chapter[X]
 ## MSG_ENEMY_PROMOTED
 promoted to[X]
+## MSG_ENEMY_PROMOTED_ENEMY
+Enemy[X]

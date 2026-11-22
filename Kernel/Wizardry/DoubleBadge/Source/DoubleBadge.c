@@ -20,11 +20,14 @@ extern const u16 Pal_BKSEL[];
 #define BADGE_CHR_L 320
 #define BADGE_CHR_R 322
 /*
- * OBJ palette 10: no sprite uses it in a battle (rows 6, 8 and 10 never show, checked every frame of a physical, a
- * critical and a magic battle). It was 15, which the damage numbers, the skill popups and the level-up face also use,
- * so the badge had to hide while they showed: it blinked out at every hit.
+ * OBJ palette 6: no sprite uses it in a battle (checked every frame of a physical, a critical, a magic battle, a
+ * level-up and Myrrh's transformation). Each side's animation has two rows, 7-8 (left) and 9-10 (right), and the
+ * second is for special animations: Myrrh's transformation (banim 0xC4) draws her cocoon and dragon with row 8 or 10.
+ * The badge was on 10 and reset it to its own colours every frame, so the dragon came out pink until the
+ * transformation ended. Before that it was on 15, which the damage numbers, the skill popups and the level-up face
+ * also use, so the badge had to hide while they showed: it blinked out at every hit.
  */
-#define BADGE_PAL   10
+#define BADGE_PAL   6
 #define BADGE_Y     92   /* the 16x16 badge's top; the boxes' Hit rows are at y 112 */
 
 static const u16 sObj_Badge16x16[] = { 1, OAM0_SHAPE_16x16, OAM1_SIZE_16x16, 0 };

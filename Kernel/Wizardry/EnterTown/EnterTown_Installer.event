@@ -13,4 +13,5 @@
 #include "DistrictNpc.lyn.event"
 #include "DistrictMarker.lyn.event"
 #include "DistrictLife.lyn.event"
+#include "DistrictIcons.lyn.event"
 #include "WorldMap_SkillShop.lyn.event"
