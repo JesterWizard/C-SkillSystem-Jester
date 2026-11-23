@@ -67,6 +67,9 @@ What it checks:
               reset Extras > Skill Codex lists every skill, those met; R goes to the next met, B back to Extras.
   tutorials   Extras > Tutorials is the last Extras row: Select Mode's screen with every tutorial, A turns a page,
               DOWN chooses the next, the list scrolls past the third banner, B goes back to Extras.
+  tutorialguides each tutorial's guided steps: its map starts with the cursor on the lesson's unit and only A (R for a
+              stat screen step) working; the unit menu then has only the lesson's command, or R opens the stat
+              screen on the lesson's page; SELECT's prompt, No, gives the step its keys back; Rescue's Wait ends it.
   newgameplus Extras > New Game+ shows once a save has been to the postgame; it starts a new game in which Eirika
               has the skills she had equipped in that save and its skill list.
   battle      Eirika attacks the soldier next to her: the forecast's attack rises by the skill's bonus with Str Bonus
@@ -152,7 +155,7 @@ What it checks:
 
 --quick runs every test but the other three districts. --jobs N runs N tests side by side (default: the CPU count),
 in separate emulator processes; the report keeps the same order. --only runs the named tests (boot, statscreen, promosms,
-a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, tutorials, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
+a district's name, tokens, claim, prizes, unlocks, featured, life, worldmap, stubs, wmshops, wmsave, wmuses, postgame, savetitle, districtresume, snek, savelayout, suspend, gamesave, saveguard, tutorials, tutorialmap, tutorialguides, battle, battlequote, sethcarlyle, weapontraits, mindamage, pairtags, spellwindow,
 lvupanim, autopromo, t3promo, t3promoall, lvupfont, lvupbars, banim, frames, stealer, debugflag, biography, awards, results, bigunit, expbar, deeproots, mapcolors, ch1end, mapbox, threat). Screenshots of every step and a contact sheet (sheet.png) go to --out (default: a new temp folder),
 with report.txt. The exit status is the number of failed checks (0: all passed).
 
@@ -2004,10 +2007,27 @@ class Smoke:
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("tutorials: B goes back to the save menu", bool(after))
 
-    def tutorial_count(self):
-        """The tutorials listed in TutorialsData.c's gTutorials"""
+    def tutorials_shown(self):
+        """gTutorials' indices the Tutorials screen lists (TutorialsData.c's Tutorial_InThisGame): MP System's only with
+        the MP system and no Three Houses magic, Gaiden Magic's only with Three Houses magic (designer-config.c)"""
         data = open(os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source", "TutorialsData.c")).read()
-        return len(re.findall(r"^\t(?:MAP|TOWN)_TUTORIAL\(MSG_TUT_\w+_TITLE,", data, re.M))
+        keys = re.findall(r"^\t(?:MAP|TOWN)_TUTORIAL\(MSG_TUT_(\w+)_TITLE,", data, re.M)
+        config = open(os.path.join(ROOT, "Data", "DesignerConfig", "designer-config.c")).read()
+
+        def on(name):
+            m = re.search(r"\.%s\s*=\s*(\w+)" % name, config)
+            return bool(m) and m.group(1) in ("true", "1")
+        three_houses = on("gaiden_magic") and on("gaiden_magic_three_houses")
+        hidden = set()
+        if not (on("mp_system") and not three_houses):
+            hidden.add("MP")
+        if not three_houses:
+            hidden.add("GAIDEN")
+        return [i for i, k in enumerate(keys) if k not in hidden]
+
+    def tutorial_count(self):
+        """The tutorials the Tutorials screen lists"""
+        return len(self.tutorials_shown())
 
     def test_tutorialmap(self):
         """Extras > Tutorials' maps (Documentation/Features/Tutorials.md, "The maps"): A on the first tutorial (Combat
@@ -2022,7 +2042,9 @@ class Smoke:
         ts = self.sym["gBestiaryScreen"]
         lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET + ["dump %#x 0x8000 sram0.bin" % SRAM]
         lines += ["press UP", "wait 20", "press A", "wait 200", "press UP", "wait 20", "press A", "wait 150",
-                  "press A", "wait 600", "press START", "wait 200", "shot map.png",
+                  # A through the explanation and the guided step's first box (TutorialGuides.c), until the player
+                  # phase waits: SELECT does nothing while an event runs
+                  "press A", "wait 400", "skipto A 0x0801C942 3000", "wait 20", "shot map.png",
                   "r8 %#x" % (PLAYST + 0x0E), "r8 %#x" % (PLAYST + 0x14), "dump %#x 0x3000 units.bin" % 0x0202BE4C]  # gUnitArrayBlue
         # SELECT: "Leave the tutorial?", Yes
         lines += ["press SELECT", "wait 90", "shot menu.png",
@@ -2057,6 +2079,215 @@ class Smoke:
         except OSError as e:
             return self.check("tutorialmap: the save memory is untouched", False, str(e))
         self.check("tutorialmap: the save memory is untouched", same)
+
+    def tutorial_guides(self):
+        """The guided steps (Tutorials/Source/TutorialGuides.c) by tutorial index (TutorialsData.c's rows):
+        {index: (kind, name, (x, y) of the unit, destination (x, y) or stat page, the menu command's effect)}"""
+        src = os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source")
+        data = open(os.path.join(src, "TutorialsData.c")).read()
+        rows = re.findall(r"^\t(?:MAP|TOWN)_TUTORIAL\(MSG_TUT_\w+_TITLE,(.*?)\),\n", data, re.M | re.S)
+        shown = {real: n for n, real in enumerate(self.tutorials_shown())}  # the Tutorials screen's place of each
+        index = {}
+        for i, row in enumerate(rows):
+            m = re.search(r"EventScr_TutG_(\w+)", row)
+            if m and i in shown:
+                index[m.group(1)] = shown[i]
+        guides = open(os.path.join(src, "TutorialGuides.c")).read()
+        effects = {"ATTACK": "UnitActionMenu_Attack", "BMAG": "pr_GaidenBMagActionCommandEffect",
+                   "WMAG": "pr_GaidenWMagActionCommandEffect", "ITEM": "ItemCommandEffect", "WAIT": "EffectWait",
+                   "PRESTIGE": "PrestigeCommandEffect"}
+        pages = {"STATSCREEN_PAGE_0": 0, "STATSCREEN_PAGE_1": 1, "STATSCREEN_PAGE_2": 2, "STATSCREEN_PAGE_3": 3,
+                 "PAGE_GAIDEN_MAGIC": 4}  # the pages shown before it: the first four and Magic List
+        out = {}
+        for m in re.finditer(r"^TUTG_ACTION\((\w+), \w+, (\d+), (\d+), (\d+), (\d+), \w+, TUTG_CMD_(\w+),", guides, re.M):
+            n, ux, uy, dx, dy, cmd = m.groups()
+            if n in index:
+                out[index[n]] = ("act", n, (int(ux), int(uy)), (int(dx), int(dy)), effects.get(cmd))
+        for m in re.finditer(r"^TUTG_STAT\((\w+), (\d+), (\d+), (\w+)\)", guides, re.M):
+            n, x, y, page = m.groups()
+            if n in index:
+                out[index[n]] = ("stat", n, (int(x), int(y)), pages.get(page), None)
+        for m in re.finditer(r"^TUTG_SELECT\((\w+), (\d+), (\d+)\)", guides, re.M):
+            n, x, y = m.groups()
+            if n in index:
+                out[index[n]] = ("sel", n, (int(x), int(y)), None, None)
+        # the lessons with no step of the player's: EnemyFirst (AI Rescue)
+        for name, i in index.items():
+            if name == "EnemyFirst":
+                out[i] = ("enemy", name, None, None, None)
+        return out
+
+    def test_tutorialguides(self):
+        """The tutorials' guided steps (Documentation/Features/Tutorials.md, "Guided steps"), each tutorial from the
+        Tutorials screen: at the player phase's start the cursor is on the lesson's unit with only A working (only R
+        for a stat screen step); a unit's action (select, move to the step's tile) opens a unit menu with only the
+        lesson's command; R opens the stat screen on the lesson's page with every key back; selecting the unit of a
+        select step gives every key back. Then on Combat Arts, SELECT's "Leave the tutorial?" answered No gives the
+        step its ignored keys back, and the Rescue lesson's Wait ends it (no command lock, no ignored key)."""
+        d = os.path.join(self.out, "tutorialguides")
+        os.makedirs(d, exist_ok=True)
+        need = ("sProcArray", "sProc_Menu", "gStatScreen", "gProcScr_StatScreen")
+        if not all(n in self.sym for n in need):
+            return self.check("tutorialguides: the symbols", False, "no symbols")
+        guides = self.tutorial_guides()
+        if None in guides or not guides:
+            return self.check("tutorialguides: every guide is a tutorial's (TutorialsData.c)", False,
+                              "guides %s" % sorted(g[1] for g in guides.values()))
+        addrs = {}
+        for line in open(os.path.join(ROOT, "fe8-kernel-dev.sym")):
+            p = line.split()
+            if len(p) >= 2:
+                try:
+                    addrs.setdefault(p[1], set()).add(int(p[0], 16) & ~1)
+                except ValueError:
+                    pass
+        procs, mask, cur, lock = self.sym["sProcArray"], 0x03000010, 0x0202BCC4, PLAYST + 0x22 + 2
+        keys_only_a, keys_only_r = 0x3FA, 0x2FB  # every key but A (or R) and SELECT
+        lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET
+        lines += ["press UP", "wait 20", "press A", "wait 200", "press UP", "wait 20", "press A", "wait 150",
+                  "save screen.ss"]
+
+        def start(i):
+            # A on the tutorial, then A through its explanation until the player phase waits (the guide's first box)
+            return (["load screen.ss", "wait 2"] + ["press DOWN", "wait 20"] * i +
+                    ["press A", "wait 400", "skipto A 0x0801C942 3000", "wait 20"])
+        steps = [i for i in sorted(guides) if guides[i][0] != "enemy"]  # AI Rescue has no step of the player's
+        for i in steps:
+            kind, name, (ux, uy), dest, _ = guides[i]
+            lines += start(i) + ["r16 %#x" % mask, "r16 %#x" % cur, "r16 %#x" % (cur + 2)]
+            if kind == "act":
+                dx, dy = dest
+                moves = (["press RIGHT", "wait 25"] * (dx - ux) + ["press LEFT", "wait 25"] * (ux - dx) +
+                         ["press DOWN", "wait 25"] * (dy - uy) + ["press UP", "wait 25"] * (uy - dy))
+                # A selects; A, A end the box; the move; A: the box over the unit menu
+                lines += ["press A", "wait 90", "press A", "wait 40", "press A", "wait 40"] + moves
+                lines += ["press A", "wait 160", "press A", "wait 50", "shot %s.png" % name, "r8 %#x" % lock,
+                          "dump %#x %#x %s.bin" % (procs, PROC_SIZE * PROCS, name)]
+            elif kind == "stat":
+                lines += ["press R", "wait 100", "shot %s.png" % name, "r8 %#x" % self.sym["gStatScreen"],
+                          "r16 %#x" % mask, "dump %#x %#x %s.bin" % (procs, PROC_SIZE * PROCS, name)]
+            else:
+                lines += ["press A", "wait 60", "shot %s.png" % name, "r16 %#x" % mask]
+        first = steps[0]
+        lines += start(first) + ["press SELECT", "wait 90", "r16 %#x" % mask, "hold A 8", "wait 60", "hold RIGHT 8",
+                                 "wait 30", "hold A 8", "wait 90", "r16 %#x" % mask, "r8 %#x" % (PLAYST + 0x0E)]
+        names = {g[1]: i for i, g in guides.items()}
+        bits = PLAYST + 0x14  # chapterStateBits: 8 is tutorial mode
+        ends = []
+        # Weapon Slots: B closes the stat screen and the lesson is over: back to Tutorials, black all the way until the
+        # Tutorials screen fades in (no frame of the map, nor of the save menu's main menu)
+        if "Slots" in names:
+            ends.append("Slots")
+            lines += start(names["Slots"]) + ["press R", "wait 100", "press B"]
+            lines += sum((["wait 2", "shot slots%02d.png" % k] for k in range(50)), [])
+            lines += ["wait 200", "shot slots_end.png", "r8 %#x" % bits]
+        # AI Rescue: no key after the explanation: the enemy phase plays (the paladin rescues the soldier) and ends it
+        if "EnemyFirst" in names:
+            ends.append("EnemyFirst")
+            lines += start(names["EnemyFirst"]) + ["wait 1500", "shot rescue_end.png", "r8 %#x" % bits]
+            # A second tutorial after one has ended (here the same one again): its map runs. The ending event's game
+            # lock outlived it once, and every later tutorial's map stayed black (gBmSt.lock, TutorialMap.c)
+            ends.append("Again")
+            lines += ["press A", "wait 400", "skipto A 0x0801C942 3000", "wait 20", "shot again.png",
+                      "r8 %#x" % (0x0202BCB0 + 1)]
+        # Enemy Promotion: Ross waits, the fighter defeats him; the promotion's map effect (a post-action hook of the
+        # enemy's action) reads its queue (gEnemyPromoFx) in the enemy phase. The enemy's post-action hooks never ran
+        # before the yield in ProcScr_PostActionHookCpPerform (PostActionHook.c): the queue was left for the player's
+        # next action, and no popup showed.
+        if "Promote" in names and "gEnemyPromoFx" in self.sym:
+            ends.append("Promote")
+            fx = self.sym["gEnemyPromoFx"]
+            lines += start(names["Promote"]) + ["press A", "wait 90", "press A", "wait 40", "press A", "wait 40",
+                                                "press A", "wait 160", "press A", "wait 50", "press A", "wait 60",
+                                                "press A", "wait 400", "press A", "wait 90", "press A", "wait 60",
+                                                "r8 %#x" % fx, "watch %#x 1500" % fx, "r8 %#x" % (PLAYST + 0x0F)]
+        # Combat Arts: the lesson's attack ends it
+        if "Arts" in names:
+            ends.append("Arts")
+            arts = guides[names["Arts"]]
+            lines += start(names["Arts"]) + ["press A", "wait 90", "press A", "wait 40", "press A", "wait 40"]
+            lines += ["press RIGHT", "wait 25"] * (arts[3][0] - arts[2][0])
+            lines += ["press A", "wait 160", "press A", "wait 50", "press A", "wait 40", "press A", "wait 60",
+                      "press A", "wait 60", "press A", "wait 1200", "shot arts_end.png", "r8 %#x" % bits]
+        vals = self.run(ROM, lines, d)
+        want = sum({"act": 4, "stat": 5, "sel": 4}[guides[i][0]] for i in steps) + 3 + len(ends) + ("Promote" in ends)
+        if len(vals) != want:
+            return self.check("tutorialguides: every tutorial's map", False, "values %d of %d" % (len(vals), want))
+        rom = open(ROM, "rb").read()
+
+        def menu_rows(path):
+            data = open(path, "rb").read() if os.path.exists(path) else b""
+            for k in range(0, len(data), PROC_SIZE):
+                if struct.unpack_from("<I", data, k)[0] == self.sym["sProc_Menu"]:
+                    rows = []
+                    for n in range(data[k + 0x60]):
+                        o = struct.unpack_from("<I", data, k + 0x34 + 4 * n)[0] - procs
+                        if 0 <= o < len(data):
+                            row = struct.unpack_from("<I", data, o + 0x30)[0] - 0x08000000
+                            if 0 <= row < len(rom):
+                                rows.append(struct.unpack_from("<I", rom, row + 0x14)[0] & ~1)
+                    return rows
+            return None
+
+        def has_proc(path, script):
+            data = open(path, "rb").read() if os.path.exists(path) else b""
+            return any(struct.unpack_from("<I", data, k)[0] == self.sym[script] for k in range(0, len(data), PROC_SIZE))
+        v = iter(vals)
+        for i in steps:
+            kind, name, unit, dest, effect = guides[i]
+            self.shot(os.path.join(d, name + ".png"), "guided step: " + name)
+            keys, x, y = next(v), next(v), next(v)
+            first_keys = keys_only_r if kind == "stat" else keys_only_a
+            self.check("tutorialguides: %s starts on its unit with only %s" % (name, "R" if kind == "stat" else "A"),
+                       keys == first_keys and (x, y) == unit, "ignored keys %#x, cursor %s" % (keys, (x, y)))
+            if kind == "act":
+                locked, rows = next(v), menu_rows(os.path.join(d, name + ".bin"))
+                ok = rows is not None and len(rows) == 1 and rows[0] in addrs.get(effect, ())
+                self.check("tutorialguides: %s's unit menu has only %s" % (name, effect), ok and locked,
+                           "rows %s, lock %d" % ([hex(r) for r in rows] if rows else rows, locked))
+            elif kind == "stat":
+                page, keys = next(v), next(v)
+                self.check("tutorialguides: %s's R opens the stat screen on page %d, every key back" % (name, dest + 1),
+                           page == dest and keys == 0 and has_proc(os.path.join(d, name + ".bin"), "gProcScr_StatScreen"),
+                           "page %d, ignored keys %#x" % (page, keys))
+            else:
+                keys = next(v)
+                self.check("tutorialguides: %s's unit selected gives every key back" % name, keys == 0,
+                           "ignored keys %#x" % keys)
+        asking, after, chapter = next(v), next(v), next(v)
+        self.check("tutorialguides: SELECT's prompt frees the keys, No gives the step its ignored keys back",
+                   asking == 0 and after == keys_only_a and chapter == 0x43,
+                   "asking %#x, after No %#x, chapter %#x" % (asking, after, chapter))
+        for name in ends:
+            state = next(v)
+            if name == "Slots":
+                light = [ImageStat.Stat(Image.open(os.path.join(d, "slots%02d.png" % k)).convert("L")).mean[0]
+                         if os.path.exists(os.path.join(d, "slots%02d.png" % k)) else -1 for k in range(50)]
+                dark = next((k for k, b in enumerate(light) if 0 <= b < 2), None)
+                # once black, the screen only gets lighter: the Tutorials screen's fade in, nothing on the way
+                steady = dark is not None and all(light[k + 1] >= light[k] - 1 for k in range(dark, 49))
+                self.shot(os.path.join(d, "slots_end.png"), "Weapon Slots: B closes the stat screen, back to Tutorials")
+                self.check("tutorialguides: Weapon Slots ends when its stat screen closes, straight back to Tutorials",
+                           not state & 8 and steady, "state bits %#x, brightness %s" % (state, [int(b) for b in light]))
+            elif name == "Promote":
+                queued, state = state, next(v)
+                self.check("tutorialguides: Enemy Promotion's effect runs in the enemy phase (an enemy's post-action hooks)",
+                           queued == 0x81 and state == 0x80,
+                           "queue %#x after the fight, phase %#x when it was read" % (queued, state))
+            elif name == "Again":
+                self.shot(os.path.join(d, "again.png"), "AI Rescue again, after it ended")
+                lit = ImageStat.Stat(Image.open(os.path.join(d, "again.png")).convert("L")).mean[0] \
+                    if os.path.exists(os.path.join(d, "again.png")) else 0
+                self.check("tutorialguides: a tutorial started after another ended runs (its map shows, not locked)",
+                           state == 0 and lit > 40, "gBmSt.lock %d, brightness %d" % (state, lit))
+            elif name == "EnemyFirst":
+                self.shot(os.path.join(d, "rescue_end.png"), "AI Rescue: the enemy phase plays, back to Tutorials")
+                self.check("tutorialguides: AI Rescue starts with the enemy phase and ends after it, no key pressed",
+                           not state & 8, "state bits %#x" % state)
+            else:
+                self.shot(os.path.join(d, "arts_end.png"), "Combat Arts: the attack ends the lesson")
+                self.check("tutorialguides: Combat Arts ends with its attack, back to Tutorials", not state & 8,
+                           "state bits %#x" % state)
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -4083,7 +4314,8 @@ def main():
                                 ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
                                 ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex),
-                                ("tutorials", s.test_tutorials), ("tutorialmap", s.test_tutorialmap))):
+                                ("tutorials", s.test_tutorials), ("tutorialmap", s.test_tutorialmap),
+                                ("tutorialguides", s.test_tutorialguides))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

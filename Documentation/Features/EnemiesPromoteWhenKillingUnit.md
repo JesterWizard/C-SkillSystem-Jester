@@ -53,6 +53,11 @@ The promotion has its own short effect on the map, after the action, instead of 
 (`Kernel/Wizardry/EnemyPromoFx/Source/EnemyPromoFx.c`, after `PostAction_AutoPromotion`) starts the effect as a blocking
 proc. A chapter-init hook clears the queue.
 
+The enemy's post-action hooks run only since `ProcScr_PostActionHookCpPerform` (`PostActionHook.c`) yields after
+starting them: before, `CpPerform` ran on to its end in the same frame and deleted the hook list unrun, so the effect
+showed only when a wait event (a game over) stopped it first. `tutorialguides` checks the queue is read in the enemy
+phase (the Enemy Promotion tutorial).
+
 ---
 
 ## 🗂️ Code Locations

@@ -32,7 +32,13 @@ extern const u8 Img_NgpMenuObjs[];
 #define BANNER_X        8
 #define BANNER_Y        48
 #define BANNER_STEP     32
-#define BANNER_PAL      2       /* the header bar's (gSprite_DifficultyMenuSelectModeBg) */
+/*
+ * The banners in the home menu's colours (the save menu's main buttons): the chosen one in the highlighted button's
+ * palette (Pal_SaveScreenSprits' first, its outline pulsing as SaveMenuUpdateCursorPalette does), the others in the
+ * plain buttons' (its fifth). Select Mode's banner uses the same colour slots.
+ */
+#define BANNER_PAL_ON   13
+#define BANNER_PAL_OFF  14
 #define TITLE_CHR       0x2C0   /* the three titles' images (128x16 each, two rows of 16 tiles), under the labels' sheet */
 #define TITLE_ROW_BYTES (16 * 0x20)
 #define BOX_LINES       5
@@ -90,15 +96,6 @@ static const u16 Sprite_TutorialTitle[] = {
 	0x4000, 0x8000 + 96, 0x0400 + 12,
 };
 
-static int Tutorials_Count(void)
-{
-	int n = 0;
-
-	while (gTutorials[n].title != 0)
-		n++;
-	return n;
-}
-
 /* The visible titles' images, into their sprites' tiles (2D mapping: a slot's second row is 32 tiles on) */
 static void Tutorials_DrawTitles(void)
 {
@@ -109,8 +106,10 @@ static void Tutorials_DrawTitles(void)
 
 		i = TS->top + slot;
 		if (i < TS->count) {
-			CpuFastCopy(gTutorials[i].img, dst, TITLE_ROW_BYTES);
-			CpuFastCopy(gTutorials[i].img + TITLE_ROW_BYTES, dst + 32 * 0x20, TITLE_ROW_BYTES);
+			const u8 *img = gTutorials[Tutorials_Index(i)].img;
+
+			CpuFastCopy(img, dst, TITLE_ROW_BYTES);
+			CpuFastCopy(img + TITLE_ROW_BYTES, dst + 32 * 0x20, TITLE_ROW_BYTES);
 		} else {
 			CpuFastFill(0, dst, TITLE_ROW_BYTES);
 			CpuFastFill(0, dst + 32 * 0x20, TITLE_ROW_BYTES);
@@ -122,7 +121,7 @@ static void Tutorials_DrawTitles(void)
 static const char *Tutorials_Text(void)
 {
 	static char *const buf = (char *)gGenericBuffer;
-	const char *src = GetStringFromIndex(gTutorials[TS->cursor].text);
+	const char *src = GetStringFromIndex(gTutorials[Tutorials_Index(TS->cursor)].text);
 	int i;
 
 	for (i = 0; src[i] != '\0' && i < 0x7FF; i++)
@@ -239,9 +238,9 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	proc->dispBak = gLCDControlBuffer.dispcnt;
 	CpuFill16(0, TS, sizeof(*TS));
 	TS->count = Tutorials_Count();
-	/* Back from a tutorial's map: on that tutorial */
-	if (TutorialMap_Played() < TS->count)
-		TS->cursor = TutorialMap_Played();
+	/* Back from a tutorial's map: on that tutorial (the list shows only this game's: Tutorials_Shown) */
+	if (Tutorials_Shown(TutorialMap_Played()) >= 0)
+		TS->cursor = Tutorials_Shown(TutorialMap_Played());
 	if (TS->cursor > VISIBLE - 1)
 		TS->top = TS->cursor - (VISIBLE - 1);
 	TS->handFrom = -1;
@@ -264,6 +263,8 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	Decompress(Img_NgpMenuObjs, (void *)(0x06010000 + LABEL_CHR * 0x20));
 	CopyToPaletteBuffer(Pal_SaveScreenSprits + 0x20, 0x200 + LABEL_PAL * 0x20, 0x20); /* its third, OBJ 4 there */
 	UnpackUiVArrowGfx(ARROW_CHR, ARROW_PAL);
+	CopyToPaletteBuffer(Pal_SaveScreenSprits, 0x200 + BANNER_PAL_ON * 0x20, 0x20);
+	CopyToPaletteBuffer(Pal_SaveScreenSprits + 4 * 0x10, 0x200 + BANNER_PAL_OFF * 0x20, 0x20);
 	EnablePaletteSync();
 
 	BG_Fill(gBG0TilemapBuffer, 0);
@@ -288,15 +289,18 @@ static void Tutorials_PutSprites(void)
 	PutSpriteExt(4, 56, 4, gSprite_DifficultyMenuSelectModeBg, OAM2_PAL(2));
 	PutSpriteExt(4, 56, 4 + 8, Sprite_TutorialsHeaderLabel, OAM2_PAL(LABEL_PAL));
 
-	/* The banners, in the header bar's colours (OBJ palette 2) rather than Select Mode's green, teal and red */
+	/* The banners, in the home menu buttons' colours: only the chosen one lit */
 	for (slot = 0; slot < VISIBLE && TS->top + slot < TS->count; slot++) {
 		y = BANNER_Y + slot * BANNER_STEP;
-		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2, OAM2_PAL(BANNER_PAL));
+		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2,
+			     OAM2_PAL(TS->top + slot == TS->cursor ? BANNER_PAL_ON : BANNER_PAL_OFF));
 		PutSpriteExt(4, BANNER_X, y + 8, Sprite_TutorialTitle,
 			     OAM2_CHR(TITLE_CHR + slot * 0x40) + OAM2_PAL(LABEL_PAL));
 	}
 
-	sub_80AC4F8(TS->clock, TS->cursor - TS->top);
+	/* The lit banner's outline pulses, as the home menu's chosen button (SaveMenuUpdateCursorPalette's colours) */
+	PAL_OBJ_COLOR(BANNER_PAL_ON, 1) = Pal_08A28088[(TS->clock & 0x3F) >> 2];
+	EnablePaletteSync();
 
 	/* The hand, sliding to its slot in 4 frames as vanilla's, and bobbing */
 	to = (TS->cursor - TS->top) * BANNER_STEP;
@@ -406,7 +410,7 @@ static void Tutorials_FadeWait(struct ProcTutorials *proc)
 static void Tutorials_Launch(struct ProcTutorials *proc)
 {
 	if (TS->launch)
-		TutorialMap_Launch(proc->proc_parent, TS->cursor);
+		TutorialMap_Launch(proc->proc_parent, Tutorials_Index(TS->cursor));
 }
 
 static void Tutorials_OnEnd(struct ProcTutorials *proc)
@@ -438,4 +442,9 @@ static const struct ProcCmd ProcScr_Tutorials[] = {
 ProcPtr StartTutorialsScreen(ProcPtr parent)
 {
 	return Proc_StartBlocking(ProcScr_Tutorials, parent);
+}
+
+bool TutorialsScreen_Exists(void)
+{
+	return Proc_Find(ProcScr_Tutorials) != NULL;
 }

@@ -13,6 +13,7 @@ chosen one's map: a test map that explains the feature, then lets you try it.*
 - [Introduction](#introduction)
 - [The tutorials](#the-tutorials)
 - [The maps](#the-maps)
+- [Guided steps](#guided-steps)
 - [Adding a tutorial](#adding-a-tutorial)
 - [How it works](#how-it-works)
 - [Testing](#testing)
@@ -51,15 +52,15 @@ The README's features that are on in this build and that a player sees or uses o
 | Battle & Combat | Combat Arts | Eirika with a Slim Sword (Hexblade), a soldier |
 | | Critical Cut-in | Joshua with a Killing Edge and the Crit skill, a fighter |
 | | Weapon Slots | Colm, a thief: his weapon ranks on the stat screen |
-| | Expanded HP | Gilliam with 120 HP, a soldier |
-| | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire), hurt, and Natasha (Heal, Mend), a soldier |
-| | MP System | Lute, a soldier |
-| | Kill Rewards | Artur against Novala (Artur wins the Divine tome) |
-| | Magic Seal | Lute and a fighter with Magic Seal |
+| | Expanded HP | Gilliam with 120 HP and an Iron Lance, a soldier |
+| | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire), hurt, and Natasha (Heal, Mend), a soldier. Listed only with Three Houses magic (spells used a number of times a chapter) |
+| | MP System | Lute, a soldier. Listed only with the MP system and no Three Houses magic: the two never go together |
+| | Kill Rewards | Artur (Mag 20, Skl and Spd 15, 30 HP: he defeats her in one fight) against Novala (Artur wins the Divine tome) |
+| | Magic Seal | Lute (3, 6) and a fighter with Magic Seal in the far corner (13, 9), so the seal's edge shows between them |
 | | Tonics | Eirika with two tonics |
 | Staves | Staff EXP | Natasha heals a hurt Eirika |
-| Maps, Fog & AI | AI Rescue | Eirika; a paladin next to a soldier at 2 HP |
-| | Enemy Promotion | Ross and a level 10 fighter that can reach him |
+| Maps, Fog & AI | AI Rescue | Eirika; a paladin next to an unarmed soldier at 2 HP (the paladin loaded first, so it acts first). The enemy phase plays first |
+| | Enemy Promotion | Ross (1 HP, no speed or luck) and a level 10 fighter (Skl 20) that can reach him: its first blow defeats him. Eirika waits on Ross's row (2, 5), out of the fighter's reach, so the camera stays put: with Ross alone, his defeat was a game over, which ended the map during the promotion's effect |
 | | Enemy Fog Vision, Fog Stages | The map in fog (vision 2): Colm the thief, two soldiers |
 | | Fog Vision | The same, with Eirika beside Colm to compare their sight |
 | | Fancy Teleport | Eirika; an assassin warps in after the explanation |
@@ -107,17 +108,32 @@ Left out:
   player tries it. The towns' tutorials start Port Kiris instead: its opening keeps only the tutorial's spot or people
   (`TutorialMap_TownSetup`, before its townspeople start walking), and shows the explanation
   (`EventScr_TutorialMap_DistrictIntro`).
+- **No phase banner.** On a tutorial's map the phase banner ("PLAYER PHASE", which dims the map and lights it again)
+  never shows: the explanation goes straight on to the guided step. `PhaseIntro_EndIfNoUnits` (FE8U 0x0801F2AC) is
+  replaced: on a tutorial's map it starts the map's music (as the banner's end does) and ends the banner.
 - **Leaving: SELECT.** On a tutorial's map or district, SELECT asks "Leave the tutorial?" (Yes/No) while the player
   phase, or free movement, waits for input (`TutorialMap_QuitWatch`). Yes ends the map from a proc of its own
   (`TutorialMap_Leave`, as vanilla's game over does once its screen is over), back to Tutorials.
+- **Straight to Tutorials.** The way back goes through the save menu (the game control's label 5), which drew its main
+  menu at full brightness and faded it out before Tutorials faded in; the map also showed for a frame as it ended.
+  Now every colour is black and no layer shows (`TutorialMap_Blackout`) from the end of the map, and again once the
+  save menu has drawn its menu: its fade out (`NewFadeOut` shows every layer, `EnableAllGfx`, and fades the palettes
+  it finds) stays black, and the Tutorials screen loads its own palettes and fades in. The save menu's slot sprites
+  put their palettes back every frame, so a proc in the vblank tree (`ProcScr_TutorialMapHide`, run right before the
+  display settings are copied) keeps every layer hidden until the Tutorials screen exists; without it the main menu's
+  frame showed for a frame or more on the black screen.
+- **The game lock.** The leaving event (SELECT's Yes, a lesson's end) locks the game as a gameplay event does
+  (`gBmSt.lock`), and is deleted with the map before it unlocks. The way back clears the lock: left set, every later
+  tutorial's map stayed black (found playing two tutorials in a row; `tutorialguides` checks it).
 - **No Eirika.** Vanilla's leader (`GetPlayerLeaderUnitId`), whom the camera and the cursor go to at the player phase's
   start, is Eirika on a story map, whether she is there or not; with her missing the cursor went off the map, and A
   there decoded a bad message until it overran `gPlaySt`. The kernel's copy falls back on the first player unit on a
   tutorial's map, as vanilla does in skirmishes. The last player unit falling is a loss as the lord's is
   (`TutorialMap_OnUnitKill` sets `EVFLAG_GAMEOVER`).
-- **Ending.** Defeating every enemy ("Tutorial complete!"), losing ("Your units have fallen", no Game Over), the map
-  menu's **Retreat** (enabled on a tutorial's map, "Retreat?" then Yes), and a district's own ways out all come back
-  to Extras > Tutorials, on the tutorial just played. The map's own endings leave as the skirmish retreat does (MNCH -1,
+- **Ending.** Every map tutorial ends with its lesson (Guided steps, below), straight back to Extras > Tutorials, on the
+  tutorial just played, with no box. Losing ("Your units have fallen", no Game Over), the map menu's **Retreat**
+  (enabled on a tutorial's map, "Retreat?" then Yes) and a district's own ways out come back there too. The defeat of
+  every enemy no longer ends a map: a tutorial with guided steps ends with its lesson (`TutorialMap_CheckWin`). The map's own endings leave as the skirmish retreat does (MNCH -1,
   then `StartRetreatProcessing`): a chapter change (MNC2) or a game over would start the map again in tutorial mode.
 - **The save memory is never written.** Vanilla's tutorial flag already stops the suspend saves; the game save between
   chapters is never reached (the way back leaves first). The writes that happen outside a save are skipped on a
@@ -127,6 +143,72 @@ Left out:
   hooks run, except `NewGameSaveGenericHook`, whose RAM parts are done by hand (it clears the suspend save and the
   world map in the save memory). Achievements, which write as they unlock, are off in this build
   (`vesly_achievements`); turned on, `CannotUnlockAchievements` would need the same check.
+
+---
+
+## 🧭 Guided steps
+
+Each map tutorial walks the player through its lesson, as vanilla's Easy-mode tutorial does in the prologue: the
+cursor goes to the lesson's unit, only the keys of the step work, a box says what to do. Each has an end, and the end
+goes straight back to Tutorials. They start at the player phase's start, after the explanation.
+
+| Kind | Steps | Ends | Tutorials |
+|---|---|---|---|
+| A unit's action | A on the unit (the cursor is on it; only A works). The destination flashes: move there and press A (any other tile: "Not there", and the cursor goes back to it). Its menu has only the lesson's command; B, R and START do nothing until the action is done | When the action is over | Combat Arts (Attack; the box says left or right picks Hexblade in the forecast), Critical Cut-in, Expanded HP, Trainee Promotion (Attack), Gaiden Magic, Kill Rewards (B.Mag), Staff EXP (W.Mag), Tonics (Items), Magic Seal (Wait inside the seal), Traps (Wait on the rune tile), Prestige |
+| The same, then the enemy phase | As above, with Wait | After the enemy phase (the fighter defeats Ross and promotes) | Enemy Promotion |
+| The stat screen | Only R works on the unit; the stat screen opens on the lesson's page, then every key works | When the stat screen closes | Weapon Slots and Skill Capacity (Weapons & Skills), MP System (Magic List: its MP costs) |
+| Selecting a unit | Only A works on the unit; selected, the map is the player's (the lesson is its range) | When the unit's action is over | Move Ghost, Threat Arrows |
+| The enemy phase first | No step: the player phase ends at once (`TutGuide_EndTurn`, as the map menu's End does) | After the enemy phase (the paladin rescues the soldier) | AI Rescue |
+| A turn to watch | No step | After the enemy phase, at the next player phase's start | the three fog tutorials, Fancy Teleport |
+| A walk | No step (free movement's A acts on what is next to the unit, and the map has nothing) | Once the unit has walked 4 tiles from its start (`TutGuide_WalkStep`) | Free Movement |
+| None | The districts and their games are walks; they end by their own ways out (the gate, Retreat) | | |
+
+- **SELECT** still leaves at any step: its prompt frees the keys while it asks, and No gives the step its keys back.
+- **The end** (`EventScr_TutG_Leave`: fade to black, then `TutorialMap_Leave`) starts only at a quiet point: a player
+  phase's start or idle loop, or a phase change. After an action, `EventScr_TutG_Done` queues it for the phase change
+  (the turn ends by itself when no unit is left to act) and `TutGuide_LeaveWhenIdle` starts it as soon as the player
+  phase waits again. Started at once, from the action's post-action event, it ended the map while the action's
+  post-action hooks (`ProcScr_HookCommon`) still ran: after Kill Rewards' item they drew the map, and its icons, over
+  the Tutorials screen. A turn's end is two steps: the phase change queues the end for the next player phase's start
+  (`EventScr_TutG_Turn`, `EventScr_TutG_TurnEnd`). Enemy Promotion's Ross falling is the lesson, not a loss
+  (`TutorialMap_OnUnitKill`).
+- **The engine is vanilla's** (`prologue-tutorials.h` in the decomp): a step is an event queued for a point of the
+  player phase (`EvtEnqueueConditionalTutCall`: its start, a unit selected, a destination chosen, the unit moved, the
+  action done), which vanilla's `EnqueueTutEvent` finds by address in the chapter's tutorial list (TUTORIAL_MAP's
+  `tutorialEvents`, `gTutorialGuideScripts`). `TutEventExecType0` and `1` check the unit and the tile and ask again;
+  `IGNORE_KEYS` keeps the player on the step. The first step is queued by the opening (`TutorialMap_Setup`).
+- **The unit menu** shows only the step's command: vanilla's `DISABLEOPTIONS` knows only its own 15 commands, so
+  `OverriddenMenuAvailability` (FE8U 0x0804F7AC) is replaced: on a tutorial's map with a command set
+  (`TutGuide_LockMenu`, `gPlaySt.config2.unused_22[2]`), every other row of the unit menu
+  (`gUnitActionMenuItemsRework`, told by its effect) is hidden, as long as that command shows. A menu with no row at
+  all crashes the game: Expanded HP's Gilliam had a Silver Lance over his rank, so no Attack, and the lock hid
+  everything. He has an Iron Lance now.
+- **The stat screen step** (`TutGuide_StatStep`): vanilla opens the stat screen on the page kept in gPlaySt's two
+  low state bits, too few for this hack's pages. The screen draws its page two frames after it starts
+  (`gProcScr_StatScreen`'s `PROC_SLEEP(2)`), so a proc that sees it start sets `gStatScreen.page` (the shown pages'
+  index of the lesson's page, `TranslateStatPageId`, kept in `unused_22[5]`) and gives every key back. Once the stat
+  screen has closed and the player phase waits again, the lesson is over.
+- **Which tutorials are listed** (`Tutorials_Count`, `Tutorials_Index`, `Tutorials_Shown` in `TutorialsData.c`): the
+  MP system and Three Houses magic are two ways to pay for a spell and never go together, so MP System's tutorial is
+  listed only with the MP system and no Three Houses magic, and Gaiden Magic's (uses a chapter) only with Three Houses
+  magic (`IsGaidenMagicUsesSystem`). The screen counts and draws the listed ones; a tutorial's map keeps its
+  `gTutorials` index.
+- **The tiles a box borrows.** A tutorial box's window (vanilla's box dialogue) takes OBJ tiles 0x2E0-0x2FF: the unit
+  window's HP digits (0x2E0) and the move arrow (0x2F0). After every guide box `TutGuide_RestoreBoxTiles` puts both
+  back (`PlayerPhaseInterfaceNumbersHook`'s digits, `PathArrowDisp_Init`'s arrow). Without it the arrow showed as a solid
+  blue band after "Not there", and the HP digits as garbage.
+- **Ending the turn** (`TutGuide_EndTurn`, AI Rescue and Enemy Promotion) ends the side windows' maker before the
+  windows (VeslyAchievements repoints it, `0x0808D14C`; RealtimeScheduler.c and TrapData.c do the same): it spawned
+  the unit and goal windows again, and they stayed through the enemy phase, whose map battle box and promotion popup
+  reuse their sprite tiles.
+- **One fade out.** The chapter's goal is `GOAL_TYPE_SPECIAL`, not "defeat all": with no enemy left, vanilla's phase
+  change (`RunPhaseSwitchEvents`) ended the chapter (`CallEndEvent`), a fade out and in before the lesson's own way
+  back. The "defeat every enemy" event has its own entry flag (`TUTMAP_FLAG_NO_WIN`, set by a guided tutorial's
+  opening) so it never starts in a guided tutorial, and `NOFADE` (as does the district intro).
+- **A box over the battle forecast** takes the tiles of its numbers (the box's font), which show as squares until the
+  forecast is drawn again: Combat Arts says what to do in the forecast before the menu, not in it.
+- **Cleared** (`TutGuide_Reset`: no step queued, no key ignored, no command lock) when a tutorial starts, when its
+  map is left, and when a lesson ends.
 
 ---
 
@@ -156,11 +238,28 @@ Left out:
 
    ```c
    MAP_TUTORIAL(MSG_TUT_EXAMPLE_TITLE, MSG_TUT_EXAMPLE, Img_TutTitle_EXAMPLE, MSG_TUT_EXAMPLE_MAP,
-                TutUnits_Example, Setup_Example, NULL),
+                TutUnits_Example, Setup_Example, NULL, EventScr_TutG_Example),
    ```
 
    `TOWN_TUTORIAL(...)` (the four messages only) starts Port Kiris instead. Loading a unit leaves out its staves and
    tomes, and every phase start takes them away again (Three Houses magic): a mage's spells come from its level.
+4. Its guided steps (below), unless the lesson is only to watch (the last argument is then `NULL`): in
+   `Kernel/Wizardry/Tutorials/Source/TutorialGuides.c`, one line, and its scripts in `gTutorialGuideScripts`:
+
+   ```c
+   TUTG_ACTION(Example, CHARACTER_EIRIKA, 4, 5, 8, 5, MSG_TUTG_MOVE, TUTG_CMD_ATTACK, MSG_TUTG_CMD_ATTACK,
+               EventScr_TutG_Done, POSTACTION)
+   ...
+   TUTG_ACTION_LIST(Example)
+   ```
+
+   and `extern const EventScr EventScr_TutG_Example[];` in `TutorialsData.c`. A lesson with no step of the player's
+   takes one of the end scripts as its guide instead: `EventScr_TutG_Turn` (it ends after the enemy phase),
+   `EventScr_TutG_Walk` (after a walk of 4 tiles) or `EventScr_TutG_EnemyFirst` (the enemy phase at once, then the
+   end). The unit's tile and its destination
+   must be on the map (the unit's own tile: it stays), the destination in its move and the command possible there:
+   with the command not in the menu, the menu is shown whole (`TutGuide_CommandShown`), and the lesson goes on
+   unguided. `python3 Tools/cloud/smoketest.py --only tutorialguides` checks it.
 
 ---
 
@@ -187,6 +286,10 @@ Left out:
   Data" sprite). The "u" is Resume's, columns 34-38 of the save sheet (both its stems). The header's sprite is drawn
   8 pixels down from Select Mode's header, as vanilla's "Select Mode" is, which centres it. Its sprite is `Sprite_TutorialsExtrasLabel` in `gExtrasLabelSprites` (`NgpSaveMenu.c`), in place of
   Link Arena's.
+- **The banners' colours** are the home menu's (the save menu's main buttons): the chosen tutorial's in the highlighted
+  button's palette (`Pal_SaveScreenSprits`' first, OBJ palette 13), its outline pulsing with `Pal_08A28088` as
+  `SaveMenuUpdateCursorPalette` does, the others in the plain buttons' (its fifth, OBJ palette 14). Select Mode's banner
+  uses the same colour slots.
 - **The screen** (`Tutorials/Source/TutorialsScreen.c`) is vanilla's Select Mode screen rebuilt
   (`InitDifficultySelectScreen` and `DrawDifficultySprites_Loop`): the same palettes, `Img_DifficultyMenuObjs` at OBJ
   tile 0x40, the box's tilemap (`gUnknown_08A29558`) on BG1 at (17, 6), the banners (`gSprite_08A20AC2`) at x 8, y 48,
@@ -231,6 +334,17 @@ chooses the next tutorial on its first page, that DOWN past the third banner scr
 tutorial's summary fits its box (one page, four lines at most), that DOWN on the last tutorial goes around to the first
 and UP back to the last, and that B goes back to the save menu. The Gallery, Bestiary and Skill Codex tests count their rows from the bottom of Extras, one more now.
 
+`python3 Tools/cloud/smoketest.py --only tutorialguides` starts every guided tutorial from the Tutorials screen (the
+guides read from `TutorialGuides.c`, their tutorials from `TutorialsData.c`). It checks that each starts with the
+cursor on its unit and only A (R for a stat screen step) working; that the unit's action opens a unit menu with only
+the lesson's command, R the stat screen on the lesson's page with every key back, and a select step's A every key
+back; that SELECT's prompt frees the keys and No gives the step its keys back. Then three ends: Weapon Slots' stat
+screen closed goes back to Tutorials, black all the way until the Tutorials screen fades in (no frame of the map or
+of the save menu's main menu); AI Rescue, with no key pressed, plays its enemy phase and goes back; Combat Arts' attack
+goes back. It drives the steps with `gbarun`'s `skipto` (A until the player phase waits: through the explanation and
+the guide's first box), and lists the tutorials as the screen does (`tutorials_shown`: MP System's or Gaiden
+Magic's, by `designer-config.c`).
+
 ---
 
 ## 🗂️ Code Locations
@@ -241,12 +355,13 @@ and UP back to the last, and that B goes back to the save menu. The Gallery, Bes
 | Screen | [`TutorialsScreen.c`](../../Kernel/Wizardry/Tutorials/Source/TutorialsScreen.c) | Set-up, sprites, wrapping, keys |
 | List | [`TutorialsData.c`](../../Kernel/Wizardry/Tutorials/Source/TutorialsData.c) | `gTutorials` |
 | Titles | [`titles.py`](../../Tools/tutorial-titles/titles.py), `TutorialTitles.c` (generated) | The titles' images and the letters vanilla lacks |
-| Text | [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | `MSG_TUT_*`, at the end |
+| Text | [`Districts.txt`](../../Contents/Texts/Source/texts/Districts.txt) | `MSG_TUT_*` and the guided steps' `MSG_TUTG_*`, at the end |
 | Header | [`tutorials.h`](../../include/kernel/tutorials.h) | `EXTRA_MENU_OPTION_TUTORIALS`, `struct Tutorial` |
 | Extras row | [`SupportMenu.c`](../../Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c), [`NgpSaveMenu.c`](../../Kernel/Wizardry/NewGamePlus/Source/NgpSaveMenu.c), [`Gallery.c`](../../Kernel/Wizardry/Gallery/Source/Gallery.c) | Adding the row, its label sprite, starting the screen and coming back |
 | Label | [`labels.py`](../../Tools/extras-labels/labels.py) | The word and its tiles |
 | Maps | [`TutorialMap.c`](../../Kernel/Wizardry/Tutorials/Source/TutorialMap.c) | Starting a map, coming back, the opening's ASMCs, Retreat, the Sound Room's unlocks |
-| The map's chapter | [`TutorialMap/events`](../../CustomCampaign/Chapters/TutorialMap/events/events.c) | Row 0x43, its opening and ending; Port Kiris calls `EventScr_TutorialMap_DistrictIntro` |
+| The map's chapter | [`TutorialMap/events`](../../CustomCampaign/Chapters/TutorialMap/events/events.c) | Row 0x43, its opening and ending, its tutorial list (`gTutorialGuideScripts`); Port Kiris calls `EventScr_TutorialMap_DistrictIntro` |
+| Guided steps | [`TutorialGuides.c`](../../Kernel/Wizardry/Tutorials/Source/TutorialGuides.c) | Each tutorial's steps, the unit menu lock (`OverriddenMenuAvailability`), the stat screen step |
 | Save memory | [`Gallery.c`](../../Kernel/Wizardry/Gallery/Source/Gallery.c), [`C_Code.c`](../../Kernel/Wizardry/VeslyDebugger/C_Code.c), `TutorialMap.c` (`UnlockSoundRoomSong`) | Their writes skipped on a tutorial's map |
 
 ---
@@ -256,6 +371,9 @@ and UP back to the last, and that B goes back to the save menu. The Gallery, Bes
 - The page count is one digit: a tutorial of 10 or more pages would show the wrong count (none has more than one).
 - The list jumps a row at a time; it does not scroll smoothly.
 - The tutorials are English only, like the rest of `Districts.txt`.
+- The guided steps cover one action per lesson: Gaiden Magic guides Lute's B.Mag, not Natasha's W.Mag after it.
+- The districts' tutorials (Districts, Fishing, Hex Cards, River Crossing, Snek, Tower Stack, Guild Board) have no
+  guided steps and no end of their own: the gate, the map menu's Retreat or SELECT leaves.
 - SELECT (or the map menu's Retreat) is the way out of a tutorial's map before it is won; Suspend stays greyed out
   (tutorial mode).
 - The units, set-ups and texts were checked on the map (units, items, menus, fog, traps, the teleport, Port Kiris), but

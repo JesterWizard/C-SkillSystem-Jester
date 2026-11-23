@@ -11,10 +11,13 @@
 #include "muctrl.h"
 #include "bmio.h"
 #include "event.h"
+#include "eventinfo.h"
 #include "bmsave.h"
 #include "prepscreen.h"
 #include "worldmap.h"
 #include "tutorials.h"
+#include "bmphase.h"
+#include "phasechangefx.h"
 #include "jester_headers/maps.h"
 #include "jester_headers/custom-arrays.h"
 #include "jester_headers/custom-functions.h"
@@ -43,6 +46,9 @@
  */
 #define TUTMAP_RETURN   (gPlaySt.config2.unused_22[0])  /* 1: the save menu opens on Tutorials */
 #define TUTMAP_INDEX    (gPlaySt.config2.unused_22[1])  /* the tutorial played */
+/* [2] and [5] are TutorialGuides.c's. The keys a guided step ignored, while SELECT's prompt asks (it needs A and the D-pad) */
+#define TUTMAP_KEYS_LO  (gPlaySt.config2.unused_22[3])
+#define TUTMAP_KEYS_HI  (gPlaySt.config2.unused_22[4])
 
 extern void GameControl_PostChapterSwitch(struct GameCtrlProc *proc);
 extern void SaveMenu_LoadExtraMenuGraphics(struct SaveMenuProc *proc);
@@ -116,6 +122,7 @@ void TutorialMap_Launch(struct SaveMenuProc *menu, int index)
 	gPlaySt.chapterStateBits |= PLAY_FLAG_TUTORIAL;
 	gPlaySt.chapterIndex = gTutorials[index].chapter;
 	gPlaySt.save_menu_type = 2;
+	TutGuide_Reset();
 
 	TUTMAP_INDEX = index;
 	TUTMAP_RETURN = 0;
@@ -129,6 +136,39 @@ void TutorialMap_Launch(struct SaveMenuProc *menu, int index)
 	Proc_Goto(menu, PL_SAVEMENU_EXIT);
 }
 
+/*
+ * Every colour black and no layer shown: from the end of a tutorial's map to the Tutorials screen, nothing shows (the
+ * map for a frame as the map ended, the save menu's main menu on the way)
+ */
+static void TutorialMap_Blackout(void)
+{
+	CpuFill16(0, gPaletteBuffer, 0x400);
+	EnablePaletteSync();
+	SetDispEnable(0, 0, 0, 0, 0);
+}
+
+/*
+ * Back from a tutorial's map, until the Tutorials screen starts: no layer shown. The save menu on the way shows its
+ * layers (its set-up, then its fade out's EnableAllGfx) and its slot sprites put their palettes back every frame
+ * (SaveDraw_UpdateSlotPalette), so the main menu's frame showed on the black screen for a few frames. In the vblank
+ * tree, which OnVBlank runs right before it copies the display settings (FlushLCDControl): after everything the frame
+ * wrote. In a main-loop tree, the fade out started in the same tree ran its EnableAllGfx after it, and the frame showed.
+ */
+static void TutorialMap_HideUntilTutorials(ProcPtr proc)
+{
+	if (TutorialsScreen_Exists()) {
+		Proc_Break(proc);
+		return;
+	}
+	SetDispEnable(0, 0, 0, 0, 0);
+}
+
+static const struct ProcCmd ProcScr_TutorialMapHide[] = {
+	PROC_NAME("TutorialMapHide"),
+	PROC_REPEAT(TutorialMap_HideUntilTutorials),
+	PROC_END,
+};
+
 /* The game control's label 9: in tutorial mode, back to Tutorials (vanilla: the title, the ending or the next chapter) */
 void TutorialMap_PostChapterSwitch(struct GameCtrlProc *proc)
 {
@@ -139,6 +179,15 @@ void TutorialMap_PostChapterSwitch(struct GameCtrlProc *proc)
 
 	EndAllMus();
 	DisableFreeMovementASMC();
+	TutGuide_Reset();
+	/* Black until the Tutorials screen fades in: the save menu starts on the way (TutorialMap_LoadExtraMenuGraphics) */
+	TutorialMap_Blackout();
+	Proc_Start(ProcScr_TutorialMapHide, PROC_TREE_VSYNC);
+	/*
+	 * The leaving event (SELECT's Yes, a lesson's end) locked the game as a gameplay event does, and was deleted with
+	 * the map before it ended (DeleteEventEngines): its lock stayed, and the next tutorial's map never ran (black)
+	 */
+	gBmSt.lock = 0;
 	gPlaySt.chapterStateBits &= ~PLAY_FLAG_TUTORIAL;
 	sActiveMsg = -1;    /* it may hold a title message decoded as the tutorial's */
 	TUTMAP_RETURN = 1;
@@ -159,6 +208,13 @@ void TutorialMap_LoadExtraMenuGraphics(struct SaveMenuProc *proc)
 	SaveMenu_LoadExtraMenuGraphics(proc);
 
 	if (back) {
+		/*
+		 * Straight to Tutorials: the menu just drawn stays black through the save menu's fade out (it shows every
+		 * layer, EnableAllGfx, and fades the palettes it finds); the Tutorials screen loads its own and fades in
+		 */
+		TutorialMap_Blackout();
+		if (!Proc_Find(ProcScr_TutorialMapHide))
+			Proc_Start(ProcScr_TutorialMapHide, PROC_TREE_VSYNC);
 		TUTMAP_RETURN = 0;
 		proc->extra_select = SaveMenuGetBitfileByMask(proc->extra_options, EXTRA_MENU_OPTION_TUTORIALS);
 		Proc_Goto(proc, PL_SAVEMENU_EXEC_EXTRA_MISC_OPTION);
@@ -183,6 +239,23 @@ static ProcPtr TutorialMap_IdleProc(const struct ProcCmd *script, void *idle)
 	return NULL;
 }
 
+/* The player phase (or free movement) waiting for input, with no event running; NULL if not */
+ProcPtr TutorialMap_IdlePhase(void)
+{
+	ProcPtr idle;
+
+	if (EventEngineExists())
+		return NULL;
+
+	/* Free movement steps through its labels while idle: there, idle is not blocked and not walking */
+	idle = Proc_Find(FreeMovementControlProc);
+	if (idle && (((struct Proc *)idle)->proc_lockCnt != 0 || MuCtrExists()))
+		return NULL;
+	if (!idle)
+		idle = TutorialMap_IdleProc(gProcScr_PlayerPhase, PlayerPhase_MainIdle);
+	return idle;
+}
+
 static void TutorialMap_QuitWatch(ProcPtr proc)
 {
 	ProcPtr idle;
@@ -192,20 +265,24 @@ static void TutorialMap_QuitWatch(ProcPtr proc)
 		return;
 	}
 
-	if (!(gKeyStatusPtr->newKeys & SELECT_BUTTON) || EventEngineExists())
+	if (!(gKeyStatusPtr->newKeys & SELECT_BUTTON))
 		return;
 
-	/* Free movement steps through its labels while idle: there, idle is not blocked and not walking */
-	idle = Proc_Find(FreeMovementControlProc);
-	if (idle && (((struct Proc *)idle)->proc_lockCnt != 0 || MuCtrExists()))
-		return;
-	if (!idle)
-		idle = TutorialMap_IdleProc(gProcScr_PlayerPhase, PlayerPhase_MainIdle);
+	idle = TutorialMap_IdlePhase();
 	if (!idle)
 		return;
 
-	/* "Leave the tutorial?" Yes/No, with the phase waiting for it */
+	/* "Leave the tutorial?" Yes/No, with the phase waiting for it; a guided step's ignored keys come back on No */
+	TUTMAP_KEYS_LO = GetKeyStatus_IgnoreMask();
+	TUTMAP_KEYS_HI = GetKeyStatus_IgnoreMask() >> 8;
+	SetKeyStatus_IgnoreMask(0);
 	KernelCallEvent(EventScr_TutorialMap_Quit, EV_EXEC_GAMEPLAY, idle);
+}
+
+/* ASMC, SELECT's prompt, No: back to the guided step, with the keys it ignored */
+void TutorialMap_QuitCancelled(void)
+{
+	SetKeyStatus_IgnoreMask(TUTMAP_KEYS_LO | (TUTMAP_KEYS_HI << 8));
 }
 
 static const struct ProcCmd ProcScr_TutorialMapQuitWatch[] = {
@@ -222,7 +299,10 @@ static void TutorialMap_StartQuitWatch(void)
 
 /* ---- The map's events (CustomCampaign/Chapters/TutorialMap) ---- */
 
-/* ASMC, the map's opening: the tutorial's units and set-up; its explanation's message in slot 2 */
+/*
+ * ASMC, the map's opening: the tutorial's units and set-up; its explanation's message in slot 2; its guided steps
+ * (TutorialGuides.c) from the player phase's start
+ */
 void TutorialMap_Setup(void)
 {
 	const struct Tutorial *tut = TutorialMap_Current();
@@ -239,6 +319,12 @@ void TutorialMap_Setup(void)
 	RefreshUnitSprites();
 	gEventSlots[2] = tut->intro;
 	TutorialMap_StartQuitWatch();
+
+	TutGuide_Reset();
+	if (tut->guide) {
+		EnqueueTutEvent((uintptr_t)tut->guide, TUTORIAL_EVT_TYPE_PLAYERPHASE);
+		SetFlag(TUTMAP_FLAG_NO_WIN);    /* the lesson ends the map, not the last enemy (events.c) */
+	}
 }
 
 /* ASMC, after the explanation: anything shown once the map is up (the teleport's effect), with the event as parent */
@@ -267,12 +353,17 @@ void TutorialMap_TownSetup(void)
 
 /*
  * ASMC, the map's win (no enemy left): slot C is 1 if the tutorial had enemies to defeat. A tutorial with none (the
- * stat screen's, Prestige...) has nothing to win: the check runs as soon as its opening ends, and it goes on.
+ * stat screen's, Prestige...) has nothing to win: the check runs as soon as its opening ends, and it goes on. One with
+ * guided steps (all of the map's) ends with its lesson (TutorialGuides.c), not with its last enemy.
  */
 void TutorialMap_CheckWin(void)
 {
 	const struct Tutorial *tut = TutorialMap_Current();
 	const struct UnitDefinition *def;
+
+	gEventSlots[0xC] = 0;
+	if (tut->guide)
+		return;
 
 	gEventSlots[0xC] = tut->after != NULL;
 	for (def = tut->units; def && def->charIndex; def++)
@@ -284,11 +375,17 @@ void TutorialMap_CheckWin(void)
  * The kill hooks (gKillUnitHooks): on the tutorials' map, the last player unit falling is a loss, as the lord's is
  * (EVFLAG_GAMEOVER, which the map's lose event waits for). Not every tutorial has Eirika.
  */
+extern const EventScr EventScr_TutG_Promote[];
+
 void TutorialMap_OnUnitKill(struct Unit *unit)
 {
 	int i;
 
 	if (!TutorialMap_Active() || gPlaySt.chapterIndex != TUTORIAL_MAP || UNIT_FACTION(unit) != FACTION_BLUE)
+		return;
+
+	/* Enemy Promotion: Ross falling is the lesson (the fighter promotes); it ends at the next player phase */
+	if (TutorialMap_Current()->guide == EventScr_TutG_Promote)
 		return;
 
 	for (i = FACTION_BLUE + 1; i < FACTION_GREEN; i++) {
@@ -394,6 +491,24 @@ int GetPlayerLeaderUnitId(void)
 }
 
 /*
+ * FE8U = 0x0801F2AC: the phase banner ("PLAYER PHASE"), which dims the map and lights it again, ends at once when the
+ * phase has no unit to act. On a tutorial's map it never shows: the explanation goes straight on to the guided step.
+ * The banner's end starts the map's music (StartMapSongBgm): done here instead.
+ */
+LYN_REPLACE_CHECK(PhaseIntro_EndIfNoUnits);
+void PhaseIntro_EndIfNoUnits(ProcPtr proc)
+{
+	if (TutorialMap_Active()) {
+		StartMapSongBgm();
+		Proc_End(proc);
+		return;
+	}
+
+	if (GetPhaseAbleUnitCount(gPlaySt.faction) == FACTION_BLUE)
+		Proc_End(proc);
+}
+
+/*
  * Leaving from SELECT's prompt: its event blocks the player phase (or free movement), and the retreat's way out
  * (StartRetreatProcessing) waits on the phase, so the map is ended from a proc of its own instead, a frame later, as
  * vanilla's game over does once its screen is over (PostGameOverHandler). The game control's label 9 then goes back to
@@ -401,6 +516,7 @@ int GetPlayerLeaderUnitId(void)
  */
 static void TutorialMap_LeaveNow(ProcPtr proc)
 {
+	TutorialMap_Blackout();
 	EndPlayerPhaseSideWindows();    /* the unit and terrain windows: the phase that put them up does not end them */
 	SetNextGameActionId(0);
 	EndBMapMain();
@@ -414,8 +530,15 @@ static const struct ProcCmd ProcScr_TutorialMapLeave[] = {
 	PROC_END,
 };
 
-/* ASMC, SELECT's prompt, Yes */
+/* ASMC, SELECT's prompt, Yes (or a lesson's end, TutorialGuides.c) */
 void TutorialMap_Leave(void)
 {
-	Proc_Start(ProcScr_TutorialMapLeave, PROC_TREE_3);
+	if (!TutorialMap_Leaving())
+		Proc_Start(ProcScr_TutorialMapLeave, PROC_TREE_3);
+}
+
+/* The map is ending (TutorialMap_Leave's proc runs) */
+bool TutorialMap_Leaving(void)
+{
+	return Proc_Find(ProcScr_TutorialMapLeave) != NULL;
 }

@@ -84,6 +84,7 @@ Script commands, one per line. `#` starts a comment.
 - `cyc LO HI [LO2 HI2] N` - run N frames one instruction at a time and count the CPU cycles spent with the PC in [LO, HI) or [LO2, HI2) (mGBA's PC: the instruction plus 4 in Thumb, plus 8 in ARM). Use it when `prof` misses calls. Prints the share of all cycles and the busiest frame.
 - `runto KEYS ADDR N` - step with KEYS held until the PC (as mGBA reports it) is ADDR, at most N frames. `NONE` holds no key. Then `regs` or `dump` show the state there. Between steps the PC is the next Thumb instruction plus 2 (a function at X: ADDR X+2), not plus 4.
 - `skipto KEYS ADDR N` - like `runto`, but with no key held, pressing KEYS for 2 frames after every 36 frames until the PC is ADDR. Prints how many frames it took. The boot script uses it (`skipto START 0x0801C942 3000`, the player phase's idle routine) to skip however many scenes are left: the number differs between mGBA versions (one fewer with libmgba 0.9.3 than in cloud sessions), and one START too many opens the minimap.
+- `watch ADDR N` - step with no key held until the 32-bit word at ADDR changes, at most N frames, then print the old and new values, the PC and LR. For finding what overwrites a variable (the proc array wiped by a reset found the Elfire freeze: `Data/ItemSys/SpellAssoc/Source/spellassoc-data.c`).
 - `trace KEYS N K` - run N frames a step at a time and print the last K distinct PCs with SP and CPU mode. For finding where a crash or a reset came from.
 - `regs` - print the CPU registers and CPSR.
 

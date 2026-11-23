@@ -47,6 +47,7 @@ This feature keeps gameplay seal checks separate from fog data, and draws a soft
 | **BG3 map tiles** | Normal lit / fog shading only — fog palette banks **11–15 are never tinted red** |
 | **BG2 wash** | Solid 4bpp metatile + alpha blend (`8/8`) in seal red (`≈ 0x319D`, or fog bank 11 color 5 if present) |
 | **Coverage** | Only tiles where a seal source is within range 10 |
+| **Palette** | One bank, 5 (`BGPAL_LIMITVIEW + 1`, the range display's second; the overlay is off while a range shows): colour 1 is the magic red, 2 the Physical Seal blue, 3 the purple of both, each in a solid tile of its own (`0x288`, `0x289`, `0x28A`). They were banks 5, 6 and 7, but 6 and 7 are the map tileset's first two (`BGPAL_TILESET` = 6): the terrain drawn with them turned solid blue and purple wherever the Physical Seal palettes were put up, seal or no seal. |
 
 ```
 Seal source S

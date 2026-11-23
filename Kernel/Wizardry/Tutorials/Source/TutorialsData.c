@@ -3,6 +3,8 @@
 #include "skill-system.h"
 #include "bmtrick.h"
 #include "tutorials.h"
+#include "gaiden-magic.h"
+#include "strmag.h"
 #include "constants/texts.h"
 #include "constants/skills.h"
 #include "TutorialTitles.h"
@@ -39,12 +41,22 @@ int HexNpc_FindDeck(int chapter, int pid);
 #define EIRIKA(x, y, ...)   BLUE(CHARACTER_EIRIKA, CLASS_EIRIKA_LORD, 5, x, y, __VA_ARGS__)
 #define SOLDIER(x, y)       RED(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, x, y, ITEM_LANCE_IRON)
 
-/* title, summary, title image, explanation, then the map's units, set-up and after-explanation step */
-#define MAP_TUTORIAL(title, text, img, intro, units, setup, after) \
-	{ title, text, img, intro, TUTORIAL_MAP, units, setup, after }
-/* The districts and their games: Port Kiris, which has every game (and Snek) */
+/*
+ * title, summary, title image, explanation, then the map's units, set-up and after-explanation step, and its guided
+ * steps (TutorialGuides.c: EventScr_TutG_<guide>), or NULL for a lesson with nothing to do but watch
+ */
+#define MAP_TUTORIAL(title, text, img, intro, units, setup, after, guide) \
+	{ title, text, img, intro, TUTORIAL_MAP, units, setup, after, guide }
+/* The districts and their games: Port Kiris, which has every game (and Snek); no guided steps, they are walks */
 #define TOWN_TUTORIAL(title, text, img, intro, setup) \
-	{ title, text, img, intro, DISTRICT_PORT_KIRIS, NULL, setup, NULL }
+	{ title, text, img, intro, DISTRICT_PORT_KIRIS, NULL, setup, NULL, NULL }
+
+extern const EventScr EventScr_TutG_Arts[], EventScr_TutG_Cutin[], EventScr_TutG_Slots[], EventScr_TutG_HP[];
+extern const EventScr EventScr_TutG_Gaiden[], EventScr_TutG_MP[], EventScr_TutG_Reward[], EventScr_TutG_Seal[];
+extern const EventScr EventScr_TutG_Tonic[], EventScr_TutG_StaffExp[], EventScr_TutG_EnemyFirst[];
+extern const EventScr EventScr_TutG_Turn[], EventScr_TutG_Walk[];
+extern const EventScr EventScr_TutG_Promote[], EventScr_TutG_Ghost[], EventScr_TutG_Traps[], EventScr_TutG_Threat[];
+extern const EventScr EventScr_TutG_Prestige[], EventScr_TutG_Capacity[], EventScr_TutG_Trainee[];
 
 /* ---- Set-up ---- */
 
@@ -78,10 +90,11 @@ static void Setup_HP(void)
 	}
 }
 
+/* The fighter's seal (10 tiles) reaches over most of the map: in a corner, its edge shows between Lute and it */
 static void Setup_Seal(void)
 {
 #if defined(SID_MagicSeal) && (COMMON_SKILL_VALID(SID_MagicSeal))
-	struct Unit *unit = TutUnitAt(9, 5);
+	struct Unit *unit = TutUnitAt(13, 9);
 
 	if (unit)
 		AddSkill(unit, SID_MagicSeal);
@@ -95,6 +108,20 @@ static void Setup_StaffExp(void)
 
 	if (unit)
 		unit->curHP = 5;
+}
+
+/* Artur (a level 10 unit with his base stats) defeats Novala in one fight, doubling her */
+static void Setup_Reward(void)
+{
+	struct Unit *unit = TutUnit(CHARACTER_ARTUR);
+
+	if (unit) {
+		UNIT_MAG(unit) = 20;
+		unit->skl = 15;
+		unit->spd = 15;
+		unit->maxHP = 30;
+		unit->curHP = 30;
+	}
 }
 
 static void Setup_Rescue(void)
@@ -124,9 +151,13 @@ static void After_Teleport(ProcPtr event)
 	StartSpawnClassFx(event, 9 * 16 - gBmSt.camera.x, 5 * 16 - gBmSt.camera.y, CLASS_ASSASSIN);
 }
 
+void TutGuide_WalkStep(ProcPtr proc);
+
+/* Free movement on; the lesson ends after a walk (TutorialGuides.c: free movement has no player phase start) */
 static void Setup_FreeMove(void)
 {
 	EnableFreeMovementASMC();
+	TutGuide_WalkStep(NULL);
 }
 
 static void Setup_Traps(void)
@@ -149,6 +180,22 @@ static void Setup_Tonic(void)
 		unit->items[1] = (1 << 8) | ITEM_TONIC;
 		unit->items[2] = (2 << 8) | ITEM_TONIC;
 	}
+}
+
+/* Enemy Promotion: the fighter's first blow defeats Ross (1 HP, no speed or luck to dodge it), and it promotes */
+static void Setup_Promote(void)
+{
+	struct Unit *ross = TutUnit(CHARACTER_ROSS);
+	struct Unit *fighter = TutUnitAt(9, 5);
+
+	if (ross) {
+		ross->curHP = 1;
+		ross->spd = 0;
+		ross->lck = 0;
+	}
+
+	if (fighter)
+		fighter->skl = 20;
 }
 
 static void Setup_Trainee(void)
@@ -264,7 +311,7 @@ static const struct UnitDefinition TutUnits_Slots[] = {
 };
 
 static const struct UnitDefinition TutUnits_HP[] = {
-	BLUE(CHARACTER_GILLIAM, CLASS_GENERAL, 10, 5, 5, ITEM_LANCE_SILVER),
+	BLUE(CHARACTER_GILLIAM, CLASS_GENERAL, 10, 5, 5, ITEM_LANCE_IRON),  /* a Silver Lance is over his rank */
 	SOLDIER(9, 5),
 	{},
 };
@@ -289,8 +336,8 @@ static const struct UnitDefinition TutUnits_Reward[] = {
 };
 
 static const struct UnitDefinition TutUnits_Seal[] = {
-	LUTE(5, 5),
-	RED_STILL(CHARACTER_SOLDIER_80, CLASS_FIGHTER, 1, 9, 5, ITEM_AXE_IRON),
+	LUTE(3, 6),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_FIGHTER, 1, 13, 9, ITEM_AXE_IRON),
 	{},
 };
 
@@ -305,15 +352,22 @@ static const struct UnitDefinition TutUnits_StaffExp[] = {
 	{},
 };
 
+/* The paladin first: the enemy phase's first action is its rescue (the soldier, unarmed, never charges first) */
 static const struct UnitDefinition TutUnits_Rescue[] = {
 	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
-	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 10, 5, ITEM_LANCE_IRON),
 	RED_STILL(CHARACTER_SOLDIER_80, CLASS_PALADIN, 1, 11, 5, ITEM_LANCE_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 10, 5),
 	{},
 };
 
+/*
+ * Eirika on Ross's row, out of the fighter's reach (7 tiles from it: it moves 5 and hits at 1), so the camera stays put
+ * from her (the leader) to Ross and the fighter. With Ross the only player unit, his defeat was a game over, which
+ * ended the map during the promotion's effect, before its popup.
+ */
 static const struct UnitDefinition TutUnits_Promote[] = {
 	BLUE(CHARACTER_ROSS, CLASS_JOURNEYMAN, 1, 7, 5, ITEM_AXE_IRON),
+	EIRIKA(2, 5, ITEM_SWORD_RAPIER),
 	RED(CHARACTER_SOLDIER_80, CLASS_FIGHTER, 10, 9, 5, ITEM_AXE_STEEL),
 	{},
 };
@@ -353,63 +407,112 @@ static const struct UnitDefinition TutUnits_Trainee[] = {
 
 /* ---- The list ---- */
 
+/*
+ * MP and Three Houses magic are two ways to pay for a spell, never both in one game: with Three Houses magic (uses a
+ * chapter) Gaiden Magic's tutorial is shown and MP System's is not; with the MP system alone, only MP System's.
+ */
+static bool Tutorial_InThisGame(int index)
+{
+	int title = gTutorials[index].title;
+
+	if (title == MSG_TUT_MP_TITLE)
+		return gpKernelDesignerConfig->mp_system && !IsGaidenMagicUsesSystem();
+	if (title == MSG_TUT_GAIDEN_TITLE)
+		return IsGaidenMagicUsesSystem();
+	return true;
+}
+
+int Tutorials_Count(void)
+{
+	int i, n = 0;
+
+	for (i = 0; gTutorials[i].title != 0; i++)
+		if (Tutorial_InThisGame(i))
+			n++;
+	return n;
+}
+
+int Tutorials_Index(int shown)
+{
+	int i;
+
+	for (i = 0; gTutorials[i].title != 0; i++)
+		if (Tutorial_InThisGame(i) && shown-- == 0)
+			return i;
+	return 0;
+}
+
+int Tutorials_Shown(int index)
+{
+	int i, n = 0;
+
+	for (i = 0; gTutorials[i].title != 0; i++) {
+		if (!Tutorial_InThisGame(i))
+			continue;
+		if (i == index)
+			return n;
+		n++;
+	}
+	return -1;
+}
+
 const struct Tutorial gTutorials[] = {
 	/* Battle & Combat */
 	MAP_TUTORIAL(MSG_TUT_ARTS_TITLE, MSG_TUT_ARTS, Img_TutTitle_ARTS, MSG_TUT_ARTS_MAP,
-		     TutUnits_Arts, NULL, NULL),
+		     TutUnits_Arts, NULL, NULL, EventScr_TutG_Arts),
 	MAP_TUTORIAL(MSG_TUT_CUTIN_TITLE, MSG_TUT_CUTIN, Img_TutTitle_CUTIN, MSG_TUT_CUTIN_MAP,
-		     TutUnits_Cutin, Setup_Cutin, NULL),
+		     TutUnits_Cutin, Setup_Cutin, NULL, EventScr_TutG_Cutin),
 	MAP_TUTORIAL(MSG_TUT_SLOTS_TITLE, MSG_TUT_SLOTS, Img_TutTitle_SLOTS, MSG_TUT_SLOTS_MAP,
-		     TutUnits_Slots, NULL, NULL),
+		     TutUnits_Slots, NULL, NULL, EventScr_TutG_Slots),
 	MAP_TUTORIAL(MSG_TUT_HP_TITLE, MSG_TUT_HP, Img_TutTitle_HP, MSG_TUT_HP_MAP,
-		     TutUnits_HP, Setup_HP, NULL),
+		     TutUnits_HP, Setup_HP, NULL, EventScr_TutG_HP),
 	MAP_TUTORIAL(MSG_TUT_GAIDEN_TITLE, MSG_TUT_GAIDEN, Img_TutTitle_GAIDEN, MSG_TUT_GAIDEN_MAP,
-		     TutUnits_Gaiden, Setup_Gaiden, NULL),
+		     TutUnits_Gaiden, Setup_Gaiden, NULL, EventScr_TutG_Gaiden),
 	MAP_TUTORIAL(MSG_TUT_MP_TITLE, MSG_TUT_MP, Img_TutTitle_MP, MSG_TUT_MP_MAP,
-		     TutUnits_MP, NULL, NULL),
+		     TutUnits_MP, NULL, NULL, EventScr_TutG_MP),
 	MAP_TUTORIAL(MSG_TUT_REWARD_TITLE, MSG_TUT_REWARD, Img_TutTitle_REWARD, MSG_TUT_REWARD_MAP,
-		     TutUnits_Reward, NULL, NULL),
+		     TutUnits_Reward, Setup_Reward, NULL, EventScr_TutG_Reward),
 	MAP_TUTORIAL(MSG_TUT_SEAL_TITLE, MSG_TUT_SEAL, Img_TutTitle_SEAL, MSG_TUT_SEAL_MAP,
-		     TutUnits_Seal, Setup_Seal, NULL),
+		     TutUnits_Seal, Setup_Seal, NULL, EventScr_TutG_Seal),
 	MAP_TUTORIAL(MSG_TUT_TONIC_TITLE, MSG_TUT_TONIC, Img_TutTitle_TONIC, MSG_TUT_TONIC_MAP,
-		     TutUnits_Eirika, Setup_Tonic, NULL),
+		     TutUnits_Eirika, Setup_Tonic, NULL, EventScr_TutG_Tonic),
 
 	/*
 	 * Staves. The Arbalest, Aum, Phoenix and Skill staves are left out: with Three Houses magic no unit keeps a staff
 	 * item (PrePhase_RemoveThreeHousesMagicItems), and no unit learns them as spells.
 	 */
 	MAP_TUTORIAL(MSG_TUT_STAFFEXP_TITLE, MSG_TUT_STAFFEXP, Img_TutTitle_STAFFEXP, MSG_TUT_STAFFEXP_MAP,
-		     TutUnits_StaffExp, Setup_StaffExp, NULL),
+		     TutUnits_StaffExp, Setup_StaffExp, NULL, EventScr_TutG_StaffExp),
 
 	/* Maps, Fog & AI */
 	MAP_TUTORIAL(MSG_TUT_RESCUE_TITLE, MSG_TUT_RESCUE, Img_TutTitle_RESCUE, MSG_TUT_RESCUE_MAP,
-		     TutUnits_Rescue, Setup_Rescue, NULL),
+		     TutUnits_Rescue, Setup_Rescue, NULL, EventScr_TutG_EnemyFirst),
 	MAP_TUTORIAL(MSG_TUT_PROMOTE_TITLE, MSG_TUT_PROMOTE, Img_TutTitle_PROMOTE, MSG_TUT_PROMOTE_MAP,
-		     TutUnits_Promote, NULL, NULL),
+		     TutUnits_Promote, Setup_Promote, NULL, EventScr_TutG_Promote),
 	MAP_TUTORIAL(MSG_TUT_EFOG_TITLE, MSG_TUT_EFOG, Img_TutTitle_EFOG, MSG_TUT_EFOG_MAP,
-		     TutUnits_Fog, Setup_Fog, NULL),
+		     TutUnits_Fog, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FOGSTAGES_TITLE, MSG_TUT_FOGSTAGES, Img_TutTitle_FOGSTAGES, MSG_TUT_FOGSTAGES_MAP,
-		     TutUnits_Fog, Setup_Fog, NULL),
+		     TutUnits_Fog, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FOGVISION_TITLE, MSG_TUT_FOGVISION, Img_TutTitle_FOGVISION, MSG_TUT_FOGVISION_MAP,
-		     TutUnits_FogVision, Setup_Fog, NULL),
+		     TutUnits_FogVision, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_TELEPORT_TITLE, MSG_TUT_TELEPORT, Img_TutTitle_TELEPORT, MSG_TUT_TELEPORT_MAP,
-		     TutUnits_Eirika, NULL, After_Teleport),
+		     TutUnits_Eirika, NULL, After_Teleport, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FREEMOVE_TITLE, MSG_TUT_FREEMOVE, Img_TutTitle_FREEMOVE, MSG_TUT_FREEMOVE_MAP,
-		     TutUnits_Eirika, Setup_FreeMove, NULL),
+		     TutUnits_Eirika, Setup_FreeMove, NULL, EventScr_TutG_Walk),
 	MAP_TUTORIAL(MSG_TUT_GHOST_TITLE, MSG_TUT_GHOST, Img_TutTitle_GHOST, MSG_TUT_GHOST_MAP,
-		     TutUnits_Eirika, NULL, NULL),
+		     TutUnits_Eirika, NULL, NULL, EventScr_TutG_Ghost),
 	MAP_TUTORIAL(MSG_TUT_TRAPS_TITLE, MSG_TUT_TRAPS, Img_TutTitle_TRAPS, MSG_TUT_TRAPS_MAP,
-		     TutUnits_Eirika, Setup_Traps, NULL),
+		     TutUnits_Eirika, Setup_Traps, NULL, EventScr_TutG_Traps),
 	MAP_TUTORIAL(MSG_TUT_THREAT_TITLE, MSG_TUT_THREAT, Img_TutTitle_THREAT, MSG_TUT_THREAT_MAP,
-		     TutUnits_Threat, Setup_Threat, NULL),
+		     TutUnits_Threat, Setup_Threat, NULL, EventScr_TutG_Threat),
 
 	/* Growth & Progression */
 	MAP_TUTORIAL(MSG_TUT_PRESTIGE_TITLE, MSG_TUT_PRESTIGE, Img_TutTitle_PRESTIGE, MSG_TUT_PRESTIGE_MAP,
-		     TutUnits_Prestige, NULL, NULL),
+		     TutUnits_Prestige, NULL, NULL, EventScr_TutG_Prestige),
 	MAP_TUTORIAL(MSG_TUT_CAPACITY_TITLE, MSG_TUT_CAPACITY, Img_TutTitle_CAPACITY, MSG_TUT_CAPACITY_MAP,
-		     TutUnits_Eirika, NULL, NULL),
+		     TutUnits_Eirika, NULL, NULL, EventScr_TutG_Capacity),
 	MAP_TUTORIAL(MSG_TUT_TRAINEE_TITLE, MSG_TUT_TRAINEE, Img_TutTitle_TRAINEE, MSG_TUT_TRAINEE_MAP,
-		     TutUnits_Trainee, Setup_Trainee, NULL),
+		     TutUnits_Trainee, Setup_Trainee, NULL, EventScr_TutG_Trainee),
 
 	/* Towns & Minigames */
 	TOWN_TUTORIAL(MSG_TUT_DISTRICTS_TITLE, MSG_TUT_DISTRICTS, Img_TutTitle_DISTRICTS, MSG_TUT_DISTRICTS_MAP,
