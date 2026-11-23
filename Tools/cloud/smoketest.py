@@ -1944,24 +1944,24 @@ class Smoke:
     def test_tutorials(self):
         """Extras > Tutorials (Documentation/Features/Tutorials.md), the last Extras row: after a reset, UP from the top of
         Extras goes around to it, and A opens Select Mode's screen with every tutorial of TutorialsData.c listed, the
-        first chosen on its first page. A turns the page; DOWN chooses the next tutorial on its first page; DOWN past
-        the third banner scrolls the list a row; every tutorial's text fits its box (one page, five lines); DOWN on the
-        last goes around to the first, UP on the first to the last; B goes back to Extras."""
+        first chosen on its first page. RIGHT turns the page; DOWN chooses the next tutorial on its first page; DOWN
+        past the third banner scrolls the list a row; every tutorial's text fits its box (one page, four lines: the
+        fifth is "A: Try it"); DOWN on the last goes around to the first, UP on the first to the last; B goes back to
+        Extras. test_tutorialmap covers A, the tutorials' maps."""
         d = os.path.join(self.out, "tutorials")
         os.makedirs(d, exist_ok=True)
         need = ("gBestiaryScreen", "ProcScr_SaveMenu", "sProcArray")
         if not all(n in self.sym for n in need):
             return self.check("tutorials: the Tutorials symbols", False, "no symbols")
         ts, procs = self.sym["gBestiaryScreen"], self.sym["sProcArray"]
-        data = open(os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source", "TutorialsData.c")).read()
-        want = len(re.findall(r"\{ MSG_TUT_\w+_TITLE,", data))
+        want = self.tutorial_count()
         # struct TutorialsScreen (in gBestiaryScreen): the box's 5 Texts (0x28 bytes), then count, cursor, top (u16),
         # page, pages, lineCount (u8)
         state = lambda name: "dump %#x 9 %s" % (ts + 0x28, name)
         dump = lambda name: "dump %#x %#x %s" % (procs, PROC_SIZE * PROCS, name)
         lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET
         lines += ["press UP", "wait 20", "press A", "wait 200", dump("menu.bin"), "press UP", "wait 20", "press A",
-                  "wait 150", "shot open.png", state("open.bin"), "press A", "wait 20", "shot page.png",
+                  "wait 150", "shot open.png", state("open.bin"), "press RIGHT", "wait 20", "shot page.png",
                   state("page.bin"), "press DOWN", "wait 20", "shot down.png", state("down.bin")]
         lines += ["press DOWN", "wait 20", state("t02.bin"), "press DOWN", "wait 20", "shot scroll.png", state("scroll.bin")]
         # The rest, one at a time (3 chosen so far), then around both ends
@@ -1970,7 +1970,7 @@ class Smoke:
         lines += ["shot last.png", "press DOWN", "wait 20", "shot wrap.png", state("wrap.bin"), "press UP", "wait 20",
                   state("wrapup.bin"), "press B", "wait 150", "shot extras.png", dump("after.bin")]
         self.run(ROM, lines, d)
-        for name, label in (("open", "Tutorials: the first"), ("page", "A: its next page"),
+        for name, label in (("open", "Tutorials: the first"), ("page", "RIGHT: its next page"),
                             ("down", "DOWN: the next tutorial"), ("scroll", "the list scrolled"),
                             ("last", "the last tutorial"), ("wrap", "DOWN on the last: the first"),
                             ("extras", "B: Extras")):
@@ -1987,14 +1987,14 @@ class Smoke:
         self.check("tutorials: UP from the top of Extras opens Tutorials, every tutorial listed, the first on page 1",
                    count == want and cur == 0 and top == 0 and page == 0 and pages >= 1,
                    "count %d of %d, cursor %d, top %d, page %d of %d" % (count, want, cur, top, page, pages))
-        self.check("tutorials: A turns the page", st["page"][3] == (1 if pages > 1 else 0),
+        self.check("tutorials: RIGHT turns the page", st["page"][3] == (1 if pages > 1 else 0),
                    "page %d of %d" % (st["page"][3], pages))
         self.check("tutorials: DOWN chooses the next tutorial, on its first page", st["down"][1:4] == (1, 0, 0),
                    "cursor, top, page %s" % (st["down"][1:4],))
         self.check("tutorials: DOWN past the third banner scrolls the list a row", st["scroll"][1:3] == (3, 1),
                    "cursor, top %s" % (st["scroll"][1:3],))
         seen = {v[1]: v for k, v in st.items() if k in ("open", "down", "scroll") or k.startswith("t")}
-        long = ["#%d: %d lines" % (i, v[5]) for i, v in sorted(seen.items()) if v and (v[4] != 1 or v[5] > 5)]
+        long = ["#%d: %d lines" % (i, v[5]) for i, v in sorted(seen.items()) if v and (v[4] != 1 or v[5] > 4)]
         self.check("tutorials: every tutorial's text fits its box", len(seen) == want and not long,
                    "%d of %d seen; %s" % (len(seen), want, ", ".join(long) or "all fit"))
         self.check("tutorials: DOWN on the last goes around to the first, UP on the first to the last",
@@ -2002,6 +2002,61 @@ class Smoke:
                    "cursor, top %s then %s" % (st["wrap"][1:3], st["wrapup"][1:3]))
         after = [p for a, p in self.procs(os.path.join(d, "after.bin")) if a == self.sym["ProcScr_SaveMenu"]]
         self.check("tutorials: B goes back to the save menu", bool(after))
+
+    def tutorial_count(self):
+        """The tutorials listed in TutorialsData.c's gTutorials"""
+        data = open(os.path.join(ROOT, "Kernel", "Wizardry", "Tutorials", "Source", "TutorialsData.c")).read()
+        return len(re.findall(r"^\t(?:MAP|TOWN)_TUTORIAL\(MSG_TUT_\w+_TITLE,", data, re.M))
+
+    def test_tutorialmap(self):
+        """Extras > Tutorials' maps (Documentation/Features/Tutorials.md, "The maps"): A on the first tutorial (Combat
+        Arts) starts its map, chapter 0x43, in tutorial mode (PLAY_FLAG_TUTORIAL), with Eirika and two soldiers on it;
+        the map menu's Retreat (Yes) comes back to the Tutorials screen, on that tutorial, out of tutorial mode; and
+        the save memory is as it was before (a tutorial's map writes nothing to it)."""
+        d = os.path.join(self.out, "tutorialmap")
+        os.makedirs(d, exist_ok=True)
+        need = ("gBestiaryScreen", "sProcArray")
+        if not all(n in self.sym for n in need):
+            return self.check("tutorialmap: the Tutorials symbols", False, "no symbols")
+        ts = self.sym["gBestiaryScreen"]
+        lines = self.boot_lines() + DEBUG_SAVE + SOFT_RESET + ["dump %#x 0x8000 sram0.bin" % SRAM]
+        lines += ["press UP", "wait 20", "press A", "wait 200", "press UP", "wait 20", "press A", "wait 150",
+                  "press A", "wait 600", "press START", "wait 200", "shot map.png",
+                  "r8 %#x" % (PLAYST + 0x0E), "r8 %#x" % (PLAYST + 0x14), "dump %#x 0x3000 units.bin" % 0x0202BE4C]  # gUnitArrayBlue
+        # The map menu on an empty tile, Retreat (third from the bottom), Yes
+        lines += ["press DOWN", "wait 10", "press DOWN", "wait 10", "press DOWN", "wait 20", "press A", "wait 40",
+                  "press UP", "wait 10", "press UP", "wait 10", "press UP", "wait 20", "shot menu.png",
+                  "hold A 8", "wait 60", "hold A 8", "wait 60", "hold LEFT 8", "wait 40", "hold A 8", "wait 700",
+                  "shot back.png", "dump %#x 9 back.bin" % (ts + 0x28), "r8 %#x" % (PLAYST + 0x14),
+                  "dump %#x 0x8000 sram1.bin" % SRAM]
+        vals = self.run(ROM, lines, d)
+        for name, label in (("map", "A: Combat Arts' map"), ("menu", "the map menu's Retreat"),
+                            ("back", "Retreat: back to Tutorials")):
+            self.shot(os.path.join(d, name + ".png"), label)
+        if len(vals) != 3:
+            return self.check("tutorialmap: A starts the tutorial's map", False, "values %s" % vals)
+        chapter, bits, bits_after = vals
+        try:
+            units = open(os.path.join(d, "units.bin"), "rb").read()
+        except OSError:
+            units = b""
+        # gUnitArrayBlue then red: a unit is 0x48 bytes, its pCharacterData first
+        blue = sum(1 for i in range(62) if struct.unpack_from("<I", units, i * 0x48)[0]) if len(units) >= 62 * 0x48 else 0
+        self.check("tutorialmap: A starts the tutorial's map (chapter 0x43, tutorial mode, its units)",
+                   chapter == 0x43 and bits & 8 and blue >= 1,
+                   "chapter %#x, state bits %#x, %d blue units" % (chapter, bits, blue))
+        try:
+            count, cur, top, page, pages, _ = struct.unpack("<3H3B", open(os.path.join(d, "back.bin"), "rb").read()[:9])
+        except (OSError, struct.error) as e:
+            return self.check("tutorialmap: Retreat goes back to Tutorials", False, str(e))
+        self.check("tutorialmap: Retreat goes back to Tutorials, on that tutorial, out of tutorial mode",
+                   count == self.tutorial_count() and cur == 0 and not bits_after & 8,
+                   "count %d, cursor %d, state bits %#x" % (count, cur, bits_after))
+        try:
+            same = open(os.path.join(d, "sram0.bin"), "rb").read() == open(os.path.join(d, "sram1.bin"), "rb").read()
+        except OSError as e:
+            return self.check("tutorialmap: the save memory is untouched", False, str(e))
+        self.check("tutorialmap: the save memory is untouched", same)
 
     def test_saveguard(self):
         """The save layout guard (#711): the debugger's "Save & restart ch." writes a game save whose block checksum is
@@ -4028,7 +4083,7 @@ def main():
                                 ("saveguard", s.test_saveguard),
                                 ("newgameplus", s.test_newgameplus), ("gallery", s.test_gallery),
                                 ("bestiary", s.test_bestiary), ("skillcodex", s.test_skillcodex),
-                                ("tutorials", s.test_tutorials))):
+                                ("tutorials", s.test_tutorials), ("tutorialmap", s.test_tutorialmap))):
         if on(t):
             r.submit((1, i), f)
     serafew_dir = ("tokens", "claim", "prizes", "unlocks", "featured", "life")

@@ -12,5 +12,17 @@
 #include "Source/TutorialsScreen.lyn.event"
 #include "Source/TutorialsData.lyn.event"
 #include "Source/TutorialTitles.lyn.event"
+#include "Source/TutorialMap.lyn.event"
+
+/*
+ * The tutorials' maps (Source/TutorialMap.c): the game control's label 9 (GameControl_PostChapterSwitch) and the save
+ * menu's first SaveMenu_LoadExtraMenuGraphics, as proc script pointers
+ */
+PUSH
+ORG $591900
+POIN TutorialMap_PostChapterSwitch
+ORG $A200EC
+POIN TutorialMap_LoadExtraMenuGraphics
+POP
 
 #endif /* TUTORIALS_INSTALLED */

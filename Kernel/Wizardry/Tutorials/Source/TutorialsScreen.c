@@ -9,6 +9,7 @@
 #include "tutorials.h"
 #include "TutorialTitles.h"
 #include "constants/songs.h"
+#include "constants/texts.h"
 
 /*
  * Extras > Tutorials (Documentation/Features/Tutorials.md): Select Mode's screen (vanilla's InitDifficultySelectScreen
@@ -57,6 +58,7 @@ struct TutorialsScreen {
 	u8 clock;
 	s8 handFrom;    /* the slot the hand slides from */
 	u8 handTime;    /* frames of the slide left */
+	bool launch;    /* A: the chosen tutorial's map, after the fade */
 };
 
 extern u8 gBestiaryScreen[];
@@ -172,21 +174,21 @@ static void Tutorials_Wrap(void)
 		pos = end;
 	}
 
-	/* One page uses the whole box; a longer text gives the last line to the page count */
-	TS->pages = 1;
-	if (TS->lineCount > BOX_LINES)
-		for (TS->pages = 0, start = 0; start < TS->lineCount; start += PAGE_LINES)
-			TS->pages++;
+	/* Four lines a page: the box's last line is "A: Try it", and the page count if there are more pages */
+	for (TS->pages = 0, start = 0; start < TS->lineCount; start += PAGE_LINES)
+		TS->pages++;
+	if (TS->pages == 0)
+		TS->pages = 1;
 }
 
-/* The page's lines: the whole box, or four and the page count on the last line */
+/* The page's four lines; the last line is "A: Try it", and the page count if there are more pages */
 static void Tutorials_DrawPage(void)
 {
 	const char *text = Tutorials_Text();
 	char buf[0x60];
 	char num[8];
 	int line, i, from, to, n;
-	int per = TS->pages > 1 ? PAGE_LINES : BOX_LINES;
+	int per = PAGE_LINES;
 
 	for (line = 0; line < BOX_LINES; line++)
 		ClearText(&TS->lines[line]);
@@ -204,6 +206,8 @@ static void Tutorials_DrawPage(void)
 		buf[n] = '\0';
 		Text_InsertDrawString(&TS->lines[line], 0, TEXT_COLOR_SYSTEM_WHITE, buf);
 	}
+
+	Text_InsertDrawString(&TS->lines[PAGE_LINES], 0, TEXT_COLOR_SYSTEM_GOLD, GetStringFromIndex(MSG_TUT_TRY));
 
 	if (TS->pages > 1) {
 		i = 0;
@@ -234,6 +238,11 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	proc->dispBak = gLCDControlBuffer.dispcnt;
 	CpuFill16(0, TS, sizeof(*TS));
 	TS->count = Tutorials_Count();
+	/* Back from a tutorial's map: on that tutorial */
+	if (TutorialMap_Played() < TS->count)
+		TS->cursor = TutorialMap_Played();
+	if (TS->cursor > VISIBLE - 1)
+		TS->top = TS->cursor - (VISIBLE - 1);
 	TS->handFrom = -1;
 
 	/* As vanilla's InitDifficultySelectScreen */
@@ -264,7 +273,7 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 	gLCDControlBuffer.dispcnt.obj1dMap = 0;
 	SetDispEnable(1, 1, 1, 1, 1);
 
-	Tutorials_Select(0);
+	Tutorials_Select(TS->cursor);
 	Tutorials_DrawTitles();
 	BG_EnableSyncByMask(BG0_SYNC_BIT | BG1_SYNC_BIT);
 }
@@ -353,7 +362,14 @@ static void Tutorials_Loop(struct ProcTutorials *proc)
 		return;
 	}
 
-	if (press & (A_BUTTON | DPAD_RIGHT)) {
+	if (press & A_BUTTON) {
+		PlaySoundEffect(SONG_SE_SYS_WINDOW_SELECT1);
+		TS->launch = true;
+		Proc_Goto(proc, L_TUT_EXIT);
+		return;
+	}
+
+	if (press & DPAD_RIGHT) {
 		Tutorials_Flip(1);
 		return;
 	}
@@ -386,6 +402,13 @@ static void Tutorials_FadeWait(struct ProcTutorials *proc)
 		Proc_Break(proc);
 }
 
+/* After the fade: A started the chosen tutorial's map (the save menu ends, and the game control starts it) */
+static void Tutorials_Launch(struct ProcTutorials *proc)
+{
+	if (TS->launch)
+		TutorialMap_Launch(proc->proc_parent, TS->cursor);
+}
+
 static void Tutorials_OnEnd(struct ProcTutorials *proc)
 {
 	gLCDControlBuffer.dispcnt = proc->dispBak;
@@ -408,6 +431,7 @@ static const struct ProcCmd ProcScr_Tutorials[] = {
 	PROC_LABEL(L_TUT_EXIT),
 	PROC_CALL_ARG(NewFadeOut, 8),
 	PROC_REPEAT(Tutorials_FadeWait),
+	PROC_CALL(Tutorials_Launch),
 	PROC_END,
 };
 

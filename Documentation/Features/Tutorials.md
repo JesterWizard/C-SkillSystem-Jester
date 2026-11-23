@@ -1,17 +1,18 @@
 # Tutorials
 
 <p align="center">
-  <img src="../Images/Tutorials.png" alt="The Extras list with Tutorials, and the Tutorials screen on Skill Capacity" width="720"/>
+  <img src="../Images/Tutorials.png" alt="The Tutorials screen on Combat Arts, and Combat Arts' map explaining the art" width="720"/>
 </p>
 
-*Extras > Tutorials, the last Extras row, opens Select Mode's screen: the tutorials on its banners in the menu labels'
-letters, the chosen one's text in its box.*
+*Extras > Tutorials, the last Extras row, lists the README's gameplay features on Select Mode's banners. A starts the
+chosen one's map: a test map that explains the feature, then lets you try it.*
 
 ---
 
 ## 📑 Index
 - [Introduction](#introduction)
 - [The tutorials](#the-tutorials)
+- [The maps](#the-maps)
 - [Adding a tutorial](#adding-a-tutorial)
 - [How it works](#how-it-works)
 - [Testing](#testing)
@@ -22,7 +23,8 @@ letters, the chosen one's text in its box.*
 
 ## 🧩 Introduction
 
-**Extras > Tutorials**, the last Extras row (under the Skill Codex), explains the hack's own features:
+**Extras > Tutorials**, the last Extras row (under the Skill Codex), lets the player try the hack's own features, one
+per README entry:
 
 - **The banners** on the left are Select Mode's, three on screen in its green, teal and red; the cursor's banner is
   lit, with Select Mode's hand beside it. Each shows a tutorial's title in the letters of the menus' labels (the
@@ -30,9 +32,10 @@ letters, the chosen one's text in its box.*
 - **Scrolling.** Up and down choose a tutorial. Past the third banner the list scrolls under them; a gold arrow above
   or below the banners shows there are more that way. Down on the last tutorial goes around to the first, and up on
   the first to the last (on a press, not while the key is held).
-- **The box** on the right is Select Mode's description box. It shows the chosen tutorial's text in its five lines.
-  Every tutorial fits the box; a longer text would show four lines a page, with the page and the page count in gold
-  on the last line ("2/3"), and A or right would show the next page, left the one before.
+- **The box** on the right is Select Mode's description box. It sums the chosen tutorial up in four lines, with
+  "A: Try it" in gold on the fifth. Every summary fits the box; a longer one would show four lines a page, with the
+  page count on the last line ("2/3"), right showing the next page and left the one before.
+- **A** starts the tutorial's map (below). When the map ends, the game comes back to this screen, on that tutorial.
 - **The header** is Select Mode's, with "Tutorials" in the Extras labels' letters, centred in it.
 - B goes back to Extras.
 
@@ -40,67 +43,104 @@ letters, the chosen one's text in its box.*
 
 ## 📚 The tutorials
 
-| Title | About |
-|---|---|
-| Tutorials | How this screen works |
-| Skills | Where skills come from; five more can be equipped |
-| Equipping Skills | The Skills row of Preparations |
-| Skill Capacity | The cost of each rank; 50 capacity, 75 promoted |
-| Skill Scrolls | Scrolls; the Skill Codex |
-| Magic | Spells learned by level, not items |
-| Casting | B.Mag and W.Mag |
-| Spell Uses | Uses per chapter |
-| Combat Arts | Choosing an art in the forecast |
-| Using Arts | What arts do; most stop follow-ups |
-| Weapons | Weapons never break; the Stack command |
-| Districts | What they are; the green flag |
-| District Openings | The chapter each opens at |
-| Visiting | Enter District, talking, leaving |
-| Fishing | The fishing spot, bait, casting |
-| Reeling In | Hooking and reeling |
-| Catches | Pay-out, the golden fish, tokens |
-| River Crossing | The frog spot, hopping, docks |
-| Crossing Rules | Lives, time, pay-out |
-| Tower Stack | The tower spot, dropping blocks |
-| Tower Rules | Perfects, lives, Fever |
-| Hex Cards | Hex players; the prize |
-| Hex Rules | Placing cards, attacking, switching sides |
-| Guild Board | The board, pages, the red ! |
-| Tokens | Claiming quests; prizes |
-| Enemy Promotions | Enemies promote when they defeat a unit |
-| Promote On Kill | The Options row |
-| Stat Screen | R on a unit, turning pages |
-| Stat Pages | Growths, Gaiden Magic, Promotions |
-| Threat Arrows | The Options row and what the arrows show |
+The README's features that are on in this build and that a player sees or uses on a map, in the README's order
+(menus, graphics, text and system features are left out):
 
-Each is one box: a topic that needs more is split over several tutorials, one after another.
+| Section | Tutorial | Its map |
+|---|---|---|
+| Battle & Combat | Combat Arts | Eirika with a Slim Sword (Hexblade) against two soldiers |
+| | Critical Cut-in | Joshua with a Killing Edge and the Crit skill |
+| | Weapon Slots | Colm, a thief: his weapon ranks on the stat screen |
+| | Expanded HP | Gilliam with 120 HP |
+| | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire) and Natasha (Heal, Mend) |
+| | MP System | The same, for the MP page |
+| | Kill Rewards | Artur against Novala (Artur wins the Divine tome) |
+| | Magic Seal | A fighter with Magic Seal near Lute |
+| | Tonics | Eirika with two tonics |
+| Staves | Staff EXP | Natasha heals a hurt Eirika |
+| Maps, Fog & AI | AI Rescue | A paladin next to a soldier at 2 HP |
+| | Enemy Promotion | A level 10 fighter that can reach Ross |
+| | Enemy Fog Vision, Fog Stages, Fog Vision | The map in fog (vision 2), with Colm the thief |
+| | Fancy Teleport | An assassin warps in after the explanation |
+| | Free Movement | Free movement on (`EnableFreeMovementASMC`) |
+| | Move Ghost | Translucent Unit Sprite: any move |
+| | Traps | A heal tile and a pair of teleport tiles |
+| | Threat Arrows | The Options row turned on |
+| Growth & Progression | Prestige | Franz, a level 10 cavalier |
+| | Skill Capacity | Eirika's skills page |
+| | Trainee Promotion | Ross at level 9 with 99 EXP, next to a soldier |
+| Towns & Minigames | Districts, Fishing, Hex Cards, River Crossing, Snek, Tower Stack, Guild Board | Port Kiris, which has every game (Snek is its old man's) |
 
-Left out on purpose: Pair Up (nothing in the story unlocks it yet), and anything off by default (Weapon Traits,
-Biorhythm, Gambits, the Skill Tree and the Skill Shop).
+Left out:
+
+- **Off in this build:** Anima Triangle, Biorhythm, Laguz Bars, Mokha Gambits, Real-Time Battle, Shield Item,
+  Weapon Rank Skills, the Escape and Timer goals, Menu Skill AI, Start Map Effects, Weapon Traits, Minimum Damage,
+  Allocate Stat Points, Arena Roster, Class Growths, Infuse and Skill Synthesis (locked), the Skill Tree, Timing Stat
+  Level-Up, the World Map Skill Shop, Pair-Up (nothing in the story unlocks it) and 2x2 Units (no unit is listed).
+- **The Arbalest, Aum, Phoenix and Skill staves:** with Three Houses magic no unit keeps a staff item (they are
+  removed at every phase start, `PrePhase_RemoveThreeHousesMagicItems`), and no unit learns them as spells, so a
+  player can't use them.
+- **Bonus EXP:** a preparations menu; the tutorials' map has no preparations.
+
+---
+
+## 🗺️ The maps
+
+- **Starting.** A on a tutorial fades the screen out and starts its map as a game of its own: a new game's state in
+  RAM only (as `WriteNewGameSave` sets one up, without writing it), vanilla's tutorial flag (`PLAY_FLAG_TUTORIAL`) set,
+  and the tutorial's chapter. The map's title card reads "Tutorial".
+- **The tutorials' map** is chapter row 0x43 (`TUTORIAL_MAP`, `CustomCampaign/Chapters/TutorialMap`), a vanilla filler
+  row with no title that nothing used, with vanilla Chapter 4's map. Its opening puts the tutorial's units on it and
+  runs its set-up (`TutorialMap_Setup`), fades in, explains the feature in a box in the middle of the screen (as the
+  in-map tutorials do), then runs the tutorial's after-explanation step, if any (the teleport's effect). Then the
+  player tries it. The towns' tutorials start Port Kiris instead, whose opening shows the explanation in tutorial mode
+  (`EventScr_TutorialMap_DistrictIntro`).
+- **Ending.** Defeating every enemy ("Tutorial complete!"), losing Eirika ("Eirika has fallen", no Game Over), the map
+  menu's **Retreat** (enabled on a tutorial's map, "Retreat?" then Yes), and a district's own ways out all come back
+  to Extras > Tutorials, on the tutorial just played. The map's own endings leave as the skirmish retreat does (MNCH -1,
+  then `StartRetreatProcessing`): a chapter change (MNC2) or a game over would start the map again in tutorial mode.
+- **The save memory is never written.** Vanilla's tutorial flag already stops the suspend saves; the game save between
+  chapters is never reached (the way back leaves first). The writes that happen outside a save are skipped on a
+  tutorial's map: the Gallery's unlocks (`Gallery_UnlockBackground`), the
+  game over's boot type (`EventCallGameOverExt`, in case one happens) and the Sound Room's unlocks
+  (`UnlockSoundRoomSong`). The new game's
+  hooks run, except `NewGameSaveGenericHook`, whose RAM parts are done by hand (it clears the suspend save and the
+  world map in the save memory). Achievements, which write as they unlock, are off in this build
+  (`vesly_achievements`); turned on, `CannotUnlockAchievements` would need the same check.
 
 ---
 
 ## ➕ Adding a tutorial
 
-1. Add two messages at the end of `Contents/Texts/Source/texts/Districts.txt` (a message anywhere else moves every later
-   message's id, CLAUDE.md):
+1. Add three messages at the end of `Contents/Texts/Source/texts/Districts.txt` (a message anywhere else moves every
+   later message's id, CLAUDE.md):
 
    ```
    ## MSG_TUT_EXAMPLE_TITLE
    Example[X]
    ## MSG_TUT_EXAMPLE
-   The whole text, as one paragraph. The screen wraps it to the box.[X]
+   The box's summary, as one paragraph. The screen wraps it to the box.[X]
+   ## MSG_TUT_EXAMPLE_MAP
+   The explanation on the map, in the middle of the screen.[A][N]About 30 characters a line, [A] every two.[A][X]
    ```
 
    - The title must fit a banner: 128 pixels. It may use any letter `Tools/tutorial-titles/titles.py` has (the
      script stops on one it lacks: draw it in `DRAWN` there).
-   - The text is wrapped at 88 pixels (`TEXT_PX`). Keep it to the box's five lines, about 90 characters: split a longer
-     topic over two tutorials. The smoke test fails on a tutorial that does not fit. (The screen still shows a longer
-     one four lines a page, up to 48 lines, `TUT_MAX_LINES`.) Control codes such as `[LF]` count as spaces.
+   - The summary is wrapped at 88 pixels (`TEXT_PX`). Keep it to four lines, about 70 characters (the fifth is "A: Try
+     it"). The smoke test fails on a summary that does not fit. Control codes such as `[LF]` count as spaces.
 2. Run `python3 Tools/tutorial-titles/titles.py fe8.gba` (a second argument writes a preview PNG of every title). It
    draws each title into `Tutorials/Source/TutorialTitles.c` and `.h` (generated: don't edit them).
-3. Add `{ MSG_TUT_EXAMPLE_TITLE, MSG_TUT_EXAMPLE, Img_TutTitle_EXAMPLE },` to `gTutorials` (`Kernel/Wizardry/Tutorials/Source/TutorialsData.c`),
-   where it should show in the list, before the `{ 0 }` that ends it.
+3. In `Kernel/Wizardry/Tutorials/Source/TutorialsData.c`, add its units (`BLUE`, `RED`, `RED_STILL`; the players round
+   (4, 5), the enemies round (9-11, 4-6) of the 15x15 map), a set-up function if it needs one (an option, a skill, fog,
+   HP...), and its row in `gTutorials`, where it should show in the list, before the `{ 0 }` that ends it:
+
+   ```c
+   MAP_TUTORIAL(MSG_TUT_EXAMPLE_TITLE, MSG_TUT_EXAMPLE, Img_TutTitle_EXAMPLE, MSG_TUT_EXAMPLE_MAP,
+                TutUnits_Example, Setup_Example, NULL),
+   ```
+
+   `TOWN_TUTORIAL(...)` (the four messages only) starts Port Kiris instead. Loading a unit leaves out its staves and
+   tomes, and every phase start takes them away again (Three Houses magic): a mage's spells come from its level.
 
 ---
 
@@ -145,17 +185,31 @@ Biorhythm, Gambits, the Skill Tree and the Skill Shop).
 - **Wrapping.** The text is decoded into `gGenericBuffer`, and the line starts are worked out word by word with
   `GetStringTextLen` (`Tutorials_Wrap`); a page draws its four lines from them.
 - **RAM.** The screen's state lives in the Bestiary screen's (`gBestiaryScreen`): the Extras screens never run together.
+- **Starting a map** (`Tutorials/Source/TutorialMap.c`, `TutorialMap_Launch`). After the fade, the save menu is sent to
+  its last step (`PL_SAVEMENU_EXIT`, `PostSaveMenuHandler`) with `main_sel_bitfile` 0x40, for which it sets no action,
+  so the action set here (1) stands; `save_menu_type` 2 makes the game control go straight to the map
+  (`GameCtrl_CheckNewGameAndBranch`). The tutorial's index is kept in `gPlaySt.config2.unused_22[1]` (0 in every save,
+  written only here).
+- **Coming back.** Every end of a map reaches the game control's label 9 (`GameControl_PostChapterSwitch`). Its
+  proc-script pointer (`$591900`) is `TutorialMap_PostChapterSwitch`: in tutorial mode it clears the flag, marks
+  `unused_22[0]`, starts the title's music and goes to label 5, the save menu. The save menu's first
+  `SaveMenu_LoadExtraMenuGraphics` (pointer `$A200EC`, `TutorialMap_LoadExtraMenuGraphics`) sees the mark and jumps
+  to Extras > Tutorials, as choosing it in Extras does.
 
 ---
 
 ## 🧪 Testing
 
+`python3 Tools/cloud/smoketest.py --only tutorialmap` boots, saves and resets, opens Tutorials, and presses A on Combat
+Arts: it checks the map is chapter 0x43 in tutorial mode with its units, that the map menu's Retreat comes back to
+Tutorials on that tutorial, out of tutorial mode, and that the save memory is byte for byte as it was.
+
 `python3 Tools/cloud/smoketest.py --only tutorials` boots, saves and resets, then opens Extras and presses UP once from
 the top row: going around to the last row opens Tutorials. It checks that the Extras byte has bit 0, that every
-tutorial of `TutorialsData.c` is listed with the first on its first page, that A turns the page, that DOWN chooses the
-next tutorial on its first page, that DOWN past the third banner scrolls the list a row, that every tutorial's text
-fits its box (one page, five lines at most), that DOWN on the last tutorial goes around to the first and UP back to
-the last, and that B goes back to the save menu. The Gallery, Bestiary and Skill Codex tests count their rows from the bottom of Extras, one more now.
+tutorial of `TutorialsData.c` is listed with the first on its first page, that RIGHT turns the page, that DOWN
+chooses the next tutorial on its first page, that DOWN past the third banner scrolls the list a row, that every
+tutorial's summary fits its box (one page, four lines at most), that DOWN on the last tutorial goes around to the first
+and UP back to the last, and that B goes back to the save menu. The Gallery, Bestiary and Skill Codex tests count their rows from the bottom of Extras, one more now.
 
 ---
 
@@ -171,6 +225,9 @@ the last, and that B goes back to the save menu. The Gallery, Bestiary and Skill
 | Header | [`tutorials.h`](../../include/kernel/tutorials.h) | `EXTRA_MENU_OPTION_TUTORIALS`, `struct Tutorial` |
 | Extras row | [`SupportMenu.c`](../../Kernel/Wizardry/ExtrasMenu/Source/SupportMenu.c), [`NgpSaveMenu.c`](../../Kernel/Wizardry/NewGamePlus/Source/NgpSaveMenu.c), [`Gallery.c`](../../Kernel/Wizardry/Gallery/Source/Gallery.c) | Adding the row, its label sprite, starting the screen and coming back |
 | Label | [`labels.py`](../../Tools/extras-labels/labels.py) | The word and its tiles |
+| Maps | [`TutorialMap.c`](../../Kernel/Wizardry/Tutorials/Source/TutorialMap.c) | Starting a map, coming back, the opening's ASMCs, Retreat, the Sound Room's unlocks |
+| The map's chapter | [`TutorialMap/events`](../../CustomCampaign/Chapters/TutorialMap/events/events.c) | Row 0x43, its opening and ending; Port Kiris calls `EventScr_TutorialMap_DistrictIntro` |
+| Save memory | [`Gallery.c`](../../Kernel/Wizardry/Gallery/Source/Gallery.c), [`C_Code.c`](../../Kernel/Wizardry/VeslyDebugger/C_Code.c), `TutorialMap.c` (`UnlockSoundRoomSong`) | Their writes skipped on a tutorial's map |
 
 ---
 
@@ -179,3 +236,7 @@ the last, and that B goes back to the save menu. The Gallery, Bestiary and Skill
 - The page count is one digit: a tutorial of 10 or more pages would show the wrong count (none has more than one).
 - The list jumps a row at a time; it does not scroll smoothly.
 - The tutorials are English only, like the rest of `Districts.txt`.
+- The map menu's Retreat is the way out of a tutorial's map before it is won; Suspend stays greyed out (tutorial mode).
+- The units, set-ups and texts were checked on the map (units, items, menus, fog, traps, the teleport, Port Kiris), but
+  each feature's own behaviour (an enemy promoting, the AI rescuing, a trainee promoting...) is the feature's: the maps
+  only set the scene for it.

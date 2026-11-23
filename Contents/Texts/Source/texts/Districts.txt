@@ -1263,123 +1263,191 @@ A results screen after each chapter[X]
 promoted to[X]
 ## MSG_ENEMY_PROMOTED_ENEMY
 Enemy[X]
-## MSG_TUT_INTRO_TITLE
-Tutorials[X]
-## MSG_TUT_INTRO
-Up and down choose a tutorial; the list goes around at the ends. B goes back to Extras.[X]
-## MSG_TUT_SKILLS_TITLE
-Skills[X]
-## MSG_TUT_SKILLS
-Units get skills from their character, class, items and weapon, and equip five more.[X]
-## MSG_TUT_EQUIP_TITLE
-Equipping Skills[X]
-## MSG_TUT_EQUIP
-Equip or remove a unit's skills in the Skills row of the Preparations menu.[X]
-## MSG_TUT_CAPACITY_TITLE
-Skill Capacity[X]
-## MSG_TUT_CAPACITY
-Skill costs by rank: E 3, D 5, C 8, B 10, A 15, S 20. Capacity is 50, or 75 promoted.[X]
-## MSG_TUT_SCROLLS_TITLE
-Skill Scrolls[X]
-## MSG_TUT_SCROLLS
-A Skill Scroll teaches its skill. Extras > Skill Codex lists every skill you have met.[X]
-## MSG_TUT_MAGIC_TITLE
-Magic[X]
-## MSG_TUT_MAGIC
-Tomes and staves are not items: mages learn spells as they level up.[X]
-## MSG_TUT_CASTING_TITLE
-Casting[X]
-## MSG_TUT_CASTING
-Cast attack spells with B.Mag and staves with W.Mag, in the unit menu.[X]
-## MSG_TUT_USES_TITLE
-Spell Uses[X]
-## MSG_TUT_USES
-A spell has uses per chapter: one a fight or staff cast. They come back each chapter.[X]
 ## MSG_TUT_ARTS_TITLE
 Combat Arts[X]
 ## MSG_TUT_ARTS
-In the battle forecast, left and right choose a combat art of the weapon, or none.[X]
-## MSG_TUT_ARTUSE_TITLE
-Using Arts[X]
-## MSG_TUT_ARTUSE
-Arts add damage, hit, range or other effects, but most stop follow-up attacks.[X]
-## MSG_TUT_WEAPONS_TITLE
-Weapons[X]
-## MSG_TUT_WEAPONS
-Weapons never break. The Stack command merges copies of the same item.[X]
-## MSG_TUT_DISTRICTS_TITLE
-Districts[X]
-## MSG_TUT_DISTRICTS
-Districts are towns with no enemies. A green flag marks them on the world map.[X]
-## MSG_TUT_OPENING_TITLE
-District Openings[X]
-## MSG_TUT_OPENING
-Serafew opens at Chapter 6, Port Kiris at 10, Caer Pelyn at 13, Jehanna Hall at 16.[X]
-## MSG_TUT_VISIT_TITLE
-Visiting[X]
-## MSG_TUT_VISIT
-On the node, choose Enter District. Press A by people to talk. Leave by the gate, or L.[X]
-## MSG_TUT_FISHING_TITLE
-Fishing[X]
-## MSG_TUT_FISHING
-Stand on the fish spot and press A. Choose a bait, aim, and press A to cast.[X]
-## MSG_TUT_REEL_TITLE
-Reeling In[X]
-## MSG_TUT_REEL
-When ! shows, press A to hook. Tap A to keep the tension green until it lands.[X]
-## MSG_TUT_CATCH_TITLE
-Catches[X]
-## MSG_TUT_CATCH
-Big fish pay more gold. Golden fish bite only the golden lure. Catches earn tokens.[X]
-## MSG_TUT_CROSSING_TITLE
-River Crossing[X]
-## MSG_TUT_CROSSING
-On the frog spot, press A. Hop over the road and the river's rafts to fill five docks.[X]
-## MSG_TUT_CROSSRULE_TITLE
-Crossing Rules[X]
-## MSG_TUT_CROSSRULE
-Three lives of 30 seconds, and each round is faster. B stops and pays gold and tokens.[X]
-## MSG_TUT_TOWER_TITLE
-Tower Stack[X]
-## MSG_TUT_TOWER
-On the tower spot, press A. Press A again to drop each block onto the one below.[X]
-## MSG_TUT_TOWERRULE_TITLE
-Tower Rules[X]
-## MSG_TUT_TOWERRULE
-Lined up is PERFECT!; under half on costs a life. Ten perfects in a row start a Fever.[X]
-## MSG_TUT_HEX_TITLE
-Hex Cards[X]
-## MSG_TUT_HEX
-Talk to someone with a card over their head to play Hex. Win a card and five tokens.[X]
-## MSG_TUT_HEXRULE_TITLE
-Hex Rules[X]
-## MSG_TUT_HEXRULE
-Place seven cards in turns. A card attacks foes it points at; at 0 HP they switch sides.[X]
-## MSG_TUT_GUILD_TITLE
-Guild Board[X]
-## MSG_TUT_GUILD
-On the notice board, press A. L and R turn pages. A red ! means a quest to claim.[X]
-## MSG_TUT_TOKENS_TITLE
-Tokens[X]
-## MSG_TUT_TOKENS
-Claim a finished quest with A for tokens. Spend them on prizes, up to skill scrolls.[X]
+In the battle forecast, left and right choose a weapon's art.[X]
+## MSG_TUT_ARTS_MAP
+Eirika's Slim Sword has the art[N]Hexblade.[A][N]Attack a soldier, and in the[N]forecast press left or right.[A][N]An art adds damage, hit or range,[N]but most stop follow-up attacks.[A][X]
+## MSG_TUT_CUTIN_TITLE
+Critical Cut-in[X]
+## MSG_TUT_CUTIN
+A named unit's critical hit shows its portrait first.[X]
+## MSG_TUT_CUTIN_MAP
+Joshua's Killing Edge lands[N]critical hits often.[A][N]Before a named unit's critical[N]hit, its portrait cuts in.[A][N]Battle animations must be on.[A][X]
+## MSG_TUT_SLOTS_TITLE
+Weapon Slots[X]
+## MSG_TUT_SLOTS
+Each class has its own weapon rank slots.[X]
+## MSG_TUT_SLOTS_MAP
+A class can use weapon types[N]vanilla has no rank for.[A][N]Press R on Colm and turn to his[N]weapon ranks: his class decides[N]which types fill his slots.[A][X]
+## MSG_TUT_HP_TITLE
+Expanded HP[X]
+## MSG_TUT_HP
+HP goes past 80, up to 254.[X]
+## MSG_TUT_HP_MAP
+Gilliam has 120 HP.[A][N]HP can now go up to 254: the unit[N]window, the stat screen and the[N]battle show it in full.[A][X]
+## MSG_TUT_GAIDEN_TITLE
+Gaiden Magic[X]
+## MSG_TUT_GAIDEN
+Mages learn spells by level, and cast them with B.Mag and W.Mag.[X]
+## MSG_TUT_GAIDEN_MAP
+Tomes and staves are not items:[N]mages learn spells as they level.[A][N]Select Lute: B.Mag casts attack[N]spells, and W.Mag staves.[A][N]Each spell has a number of uses[N]a chapter.[A][X]
+## MSG_TUT_MP_TITLE
+MP System[X]
+## MSG_TUT_MP
+Spells also cost MP, which builds up every turn.[X]
+## MSG_TUT_MP_MAP
+Casting spells also costs MP.[A][N]Press R on Lute and turn to her[N]MP page: it builds up a little[N]every turn.[A][X]
+## MSG_TUT_REWARD_TITLE
+Kill Rewards[X]
+## MSG_TUT_REWARD
+Some units win an item for defeating a certain foe.[X]
+## MSG_TUT_REWARD_MAP
+Defeat Novala with Artur.[A][N]Some fights award an item: Artur[N]gets the Divine tome for beating[N]Novala.[A][X]
+## MSG_TUT_SEAL_TITLE
+Magic Seal[X]
+## MSG_TUT_SEAL
+Near a Magic Seal, units can't cast magic or staves.[X]
+## MSG_TUT_SEAL_MAP
+The fighter has Magic Seal.[A][N]On the red tiles no unit can cast[N]magic or use a staff. Bring Lute[N]close and see.[A][X]
+## MSG_TUT_TONIC_TITLE
+Tonics[X]
+## MSG_TUT_TONIC
+A tonic raises a stat by 2 for the chapter.[X]
+## MSG_TUT_TONIC_MAP
+Eirika carries two tonics.[A][N]Use one from her Items: it raises[N]a stat by 2 until the chapter[N]ends.[A][X]
+## MSG_TUT_STAFFEXP_TITLE
+Staff EXP[X]
+## MSG_TUT_STAFFEXP
+Each staff gives its own amount of EXP.[X]
+## MSG_TUT_STAFFEXP_MAP
+Eirika is hurt.[A][N]Heal her with Natasha's W.Mag:[N]each staff gives its own amount[N]of EXP.[A][X]
+## MSG_TUT_RESCUE_TITLE
+AI Rescue[X]
+## MSG_TUT_RESCUE
+Enemies rescue a hurt ally and carry it away.[X]
+## MSG_TUT_RESCUE_MAP
+The soldier is badly hurt.[A][N]End your turn: the paladin next[N]to him rescues him and carries[N]him away from your units.[A][X]
 ## MSG_TUT_PROMOTE_TITLE
-Enemy Promotions[X]
+Enemy Promotion[X]
 ## MSG_TUT_PROMOTE
-An enemy that defeats a unit promotes at once, with 3 more in every stat.[X]
-## MSG_TUT_PROMOPT_TITLE
-Promote On Kill[X]
-## MSG_TUT_PROMOPT
-The Promote On Kill row in Options turns enemy promotions on or off.[X]
-## MSG_TUT_STATUS_TITLE
-Stat Screen[X]
-## MSG_TUT_STATUS
-Press R on a unit to see its stats. Left and right turn the pages.[X]
-## MSG_TUT_PAGES_TITLE
-Stat Pages[X]
-## MSG_TUT_PAGES
-Growths: growth rates and caps. Gaiden Magic: spells. Promotions: classes to come.[X]
+An enemy that defeats a unit promotes at once.[X]
+## MSG_TUT_PROMOTE_MAP
+Leave Ross where the fighter can[N]reach him and end your turn.[A][N]An enemy that defeats a unit[N]promotes on the spot, with 3 more[N]in every stat.[A][X]
+## MSG_TUT_EFOG_TITLE
+Enemy Fog Vision[X]
+## MSG_TUT_EFOG
+In fog, enemies only attack units they can see.[X]
+## MSG_TUT_EFOG_MAP
+This map is in fog.[A][N]Enemies see only as far as their[N]class lets them: a unit they[N]can't see is safe from them.[A][X]
+## MSG_TUT_FOGSTAGES_TITLE
+Fog Stages[X]
+## MSG_TUT_FOGSTAGES
+Fog has stages: hidden enemies show as shapes.[X]
+## MSG_TUT_FOGSTAGES_MAP
+This map is in fog.[A][N]Fog is graded: enemies just out[N]of sight still show, and running[N]into one no longer ends the move.[A][X]
+## MSG_TUT_FOGVISION_TITLE
+Fog Vision[X]
+## MSG_TUT_FOGVISION
+Each class sees its own distance in fog.[X]
+## MSG_TUT_FOGVISION_MAP
+This map is in fog.[A][N]Each class sees its own distance:[N]Colm the thief sees far more than[N]Eirika.[A][X]
+## MSG_TUT_TELEPORT_TITLE
+Fancy Teleport[X]
+## MSG_TUT_TELEPORT
+Units can appear on the map with a teleport effect.[X]
+## MSG_TUT_TELEPORT_MAP
+An assassin warps in.[A][N]Events can bring units onto the[N]map with this teleport effect.[A][X]
+## MSG_TUT_FREEMOVE_TITLE
+Free Movement[X]
+## MSG_TUT_FREEMOVE
+Walk a unit freely across the map, as in a town.[X]
+## MSG_TUT_FREEMOVE_MAP
+Eirika can walk freely.[A][N]Move her with the D-pad, as in a[N]district, and press A to act.[A][X]
+## MSG_TUT_GHOST_TITLE
+Move Ghost[X]
+## MSG_TUT_GHOST
+A faded copy of the unit shows where it will go.[X]
+## MSG_TUT_GHOST_MAP
+Select Eirika and move the[N]cursor.[A][N]A faded copy of her shows where[N]she would end her move.[A][X]
+## MSG_TUT_TRAPS_TITLE
+Traps[X]
+## MSG_TUT_TRAPS
+Heal tiles, teleport tiles, torches and more.[X]
+## MSG_TUT_TRAPS_MAP
+Traps are on the map.[A][N]The green tile heals each turn.[N]The two rune tiles teleport a[N]unit from one to the other.[A][X]
 ## MSG_TUT_THREAT_TITLE
 Threat Arrows[X]
 ## MSG_TUT_THREAT
-Turn them on in Options. Red arrows point from each enemy that can reach the tile.[X]
+Red arrows show which enemies can reach a tile.[X]
+## MSG_TUT_THREAT_MAP
+Threat Arrows are on.[A][N]Select a unit and move the[N]cursor: red arrows point from[N]every enemy that could attack[N]that tile in its next phase.[A][X]
+## MSG_TUT_PRESTIGE_TITLE
+Prestige[X]
+## MSG_TUT_PRESTIGE
+Reset a unit to level 1 for better growths.[X]
+## MSG_TUT_PRESTIGE_MAP
+Franz is level 10.[A][N]Choose Prestige in his menu: he[N]goes back to level 1 with better[N]growths, up to 3 times.[A][X]
+## MSG_TUT_CAPACITY_TITLE
+Skill Capacity[X]
+## MSG_TUT_CAPACITY
+Equipped skills use up a unit's capacity.[X]
+## MSG_TUT_CAPACITY_MAP
+Press R on Eirika and turn to her[N]skills.[A][N]Each skill costs capacity by its[N]rank. A unit has 50, and 75 once[N]promoted.[A][X]
+## MSG_TUT_TRAINEE_TITLE
+Trainee Promotion[X]
+## MSG_TUT_TRAINEE
+A trainee promotes as soon as it reaches level 10.[X]
+## MSG_TUT_TRAINEE_MAP
+Ross is about to reach level 10.[A][N]Defeat the soldier with him: a[N]trainee promotes right after its[N]level-up.[A][X]
+## MSG_TUT_DISTRICTS_TITLE
+Districts[X]
+## MSG_TUT_DISTRICTS
+Towns with no enemies, opened as the story goes on.[X]
+## MSG_TUT_DISTRICTS_MAP
+This is Port Kiris.[A][N]Walk with the D-pad and press A[N]next to people to talk. Leave by[N]the gate, or press L and Retreat.[A][X]
+## MSG_TUT_FISHING_TITLE
+Fishing[X]
+## MSG_TUT_FISHING
+Cast, hook and reel in fish for gold and tokens.[X]
+## MSG_TUT_FISHING_MAP
+Find the fish on the ground and[N]stand on it, then press A.[A][N]Cast, press A when ! shows, and[N]keep the line in the green.[A][X]
+## MSG_TUT_HEX_TITLE
+Hex Cards[X]
+## MSG_TUT_HEX
+A card game against the people of a district.[X]
+## MSG_TUT_HEX_MAP
+Talk to someone with a card over[N]their head to play Hex.[A][N]A card attacks the cards it points[N]at; win to take one of theirs.[A][X]
+## MSG_TUT_CROSSING_TITLE
+River Crossing[X]
+## MSG_TUT_CROSSING
+Hop across the road and river to fill the docks.[X]
+## MSG_TUT_CROSSING_MAP
+Find the frog and stand on it,[N]then press A.[A][N]Hop across the road and the river's[N]rafts to fill all five docks.[A][X]
+## MSG_TUT_SNEK_TITLE
+Snek[X]
+## MSG_TUT_SNEK
+The old man's snake game in Port Kiris.[X]
+## MSG_TUT_SNEK_MAP
+Talk to the old man in Port Kiris[N]to play Snek.[A][N]Steer the snake to the food[N]without hitting yourself.[A][X]
+## MSG_TUT_TOWER_TITLE
+Tower Stack[X]
+## MSG_TUT_TOWER
+Drop blocks to build a tower as high as you can.[X]
+## MSG_TUT_TOWER_MAP
+Find the tower and stand on it,[N]then press A.[A][N]Press A to drop each block onto[N]the one below. Line them up![A][X]
+## MSG_TUT_GUILD_TITLE
+Guild Board[X]
+## MSG_TUT_GUILD
+Quests to claim for tokens, and prizes to spend them on.[X]
+## MSG_TUT_GUILD_MAP
+Find the notice board and stand[N]on it, then press A.[A][N]Claim finished quests for tokens,[N]and spend them on prizes.[A][X]
+## MSG_TUT_TRY
+A: Try it[X]
+## MSG_TUTMAP_TITLE
+Tutorial[X]
+## MSG_TUTMAP_CLEAR
+Tutorial complete![N]Back to the Tutorials.[A][X]
+## MSG_TUTMAP_LOST
+Eirika has fallen.[N]Back to the Tutorials.[A][X]
