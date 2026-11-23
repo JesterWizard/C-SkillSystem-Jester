@@ -32,6 +32,7 @@ extern const u8 Img_NgpMenuObjs[];
 #define BANNER_X        8
 #define BANNER_Y        48
 #define BANNER_STEP     32
+#define BANNER_PAL      2       /* the header bar's (gSprite_DifficultyMenuSelectModeBg) */
 #define TITLE_CHR       0x2C0   /* the three titles' images (128x16 each, two rows of 16 tiles), under the labels' sheet */
 #define TITLE_ROW_BYTES (16 * 0x20)
 #define BOX_LINES       5
@@ -280,18 +281,17 @@ static void Tutorials_Init(struct ProcTutorials *proc)
 
 static void Tutorials_PutSprites(void)
 {
-	int slot, y, pal, handY, from, to;
+	int slot, y, handY, from, to;
 
 	TS->clock++;
 
 	PutSpriteExt(4, 56, 4, gSprite_DifficultyMenuSelectModeBg, OAM2_PAL(2));
 	PutSpriteExt(4, 56, 4 + 8, Sprite_TutorialsHeaderLabel, OAM2_PAL(LABEL_PAL));
 
-	/* The banners: each slot keeps Select Mode's colours (green, teal, red), lit when the cursor is on it */
+	/* The banners, in the header bar's colours (OBJ palette 2) rather than Select Mode's green, teal and red */
 	for (slot = 0; slot < VISIBLE && TS->top + slot < TS->count; slot++) {
 		y = BANNER_Y + slot * BANNER_STEP;
-		pal = 5 + slot * 2 + (TS->top + slot == TS->cursor ? 0 : 1);
-		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2, OAM2_PAL(pal));
+		PutSpriteExt(4, BANNER_X, y, gSprite_08A20AC2, OAM2_PAL(BANNER_PAL));
 		PutSpriteExt(4, BANNER_X, y + 8, Sprite_TutorialTitle,
 			     OAM2_CHR(TITLE_CHR + slot * 0x40) + OAM2_PAL(LABEL_PAL));
 	}

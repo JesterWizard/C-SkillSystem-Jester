@@ -1441,13 +1441,14 @@ class Smoke:
             return
         g, sc, hi = self.sym["gGuildSave"], self.sym["gSnekCurrentScore"], self.sym["gSnekHighScore"]
         coin, present = self.sym["gSnekCoinCoordinates"], self.sym["gSnekCoinPresent"]
-        # RIGHT faces him, A talks; A through his lines and Yes, then B past his last line starts the game. Once it
+        # RIGHT faces him, A talks; A through his lines (his pitch, then the question in a box of its own) and Yes, then
+        # B past his last line starts the game. Once it
         # runs (the snake starts at (120, 72), heading left), the score is set to 80 and the coin moved off the snake's
         # row, to cell (2, 15) (x << 8 | y): where the game put it is random, and a coin on that row is eaten (+4).
         # Then B quits.
         lines = ["load " + at, "wait 40", "w16 %#x 0x4447" % g, "w16 %#x 0" % (g + 2), "w16 %#x 0" % hi,
                  "hold RIGHT 4", "wait 20", "hold A 6", "wait 90"]
-        lines += ["hold A 6", "wait 60"] * 4 + ["hold A 6", "wait 90", "hold A 6", "wait 200", "wait 100",
+        lines += ["hold A 6", "wait 60"] * 5 + ["hold A 6", "wait 90", "hold A 6", "wait 200", "wait 100",
                                                 "hold B 6", "wait 40", "w16 %#x 0x020F" % coin, "w16 %#x 1" % present,
                                                 "w16 %#x 80" % sc, "hold B 6", "wait 240"]
         lines += ["hold A 6", "wait 100"] * 2 + ["shot snek.png", "r16 %#x" % (g + 2), "r16 %#x" % hi]
@@ -2010,9 +2011,9 @@ class Smoke:
 
     def test_tutorialmap(self):
         """Extras > Tutorials' maps (Documentation/Features/Tutorials.md, "The maps"): A on the first tutorial (Combat
-        Arts) starts its map, chapter 0x43, in tutorial mode (PLAY_FLAG_TUTORIAL), with Eirika and two soldiers on it;
-        the map menu's Retreat (Yes) comes back to the Tutorials screen, on that tutorial, out of tutorial mode; and
-        the save memory is as it was before (a tutorial's map writes nothing to it)."""
+        Arts) starts its map, chapter 0x43, in tutorial mode (PLAY_FLAG_TUTORIAL), with Eirika and a soldier on it;
+        SELECT's "Leave the tutorial?" (Yes) comes back to the Tutorials screen, on that tutorial, out of tutorial mode;
+        and the save memory is as it was before (a tutorial's map writes nothing to it)."""
         d = os.path.join(self.out, "tutorialmap")
         os.makedirs(d, exist_ok=True)
         need = ("gBestiaryScreen", "sProcArray")
@@ -2023,15 +2024,14 @@ class Smoke:
         lines += ["press UP", "wait 20", "press A", "wait 200", "press UP", "wait 20", "press A", "wait 150",
                   "press A", "wait 600", "press START", "wait 200", "shot map.png",
                   "r8 %#x" % (PLAYST + 0x0E), "r8 %#x" % (PLAYST + 0x14), "dump %#x 0x3000 units.bin" % 0x0202BE4C]  # gUnitArrayBlue
-        # The map menu on an empty tile, Retreat (third from the bottom), Yes
-        lines += ["press DOWN", "wait 10", "press DOWN", "wait 10", "press DOWN", "wait 20", "press A", "wait 40",
-                  "press UP", "wait 10", "press UP", "wait 10", "press UP", "wait 20", "shot menu.png",
-                  "hold A 8", "wait 60", "hold A 8", "wait 60", "hold LEFT 8", "wait 40", "hold A 8", "wait 700",
+        # SELECT: "Leave the tutorial?", Yes
+        lines += ["press SELECT", "wait 90", "shot menu.png",
+                  "hold A 8", "wait 60", "hold LEFT 8", "wait 30", "hold A 8", "wait 800",
                   "shot back.png", "dump %#x 9 back.bin" % (ts + 0x28), "r8 %#x" % (PLAYST + 0x14),
                   "dump %#x 0x8000 sram1.bin" % SRAM]
         vals = self.run(ROM, lines, d)
-        for name, label in (("map", "A: Combat Arts' map"), ("menu", "the map menu's Retreat"),
-                            ("back", "Retreat: back to Tutorials")):
+        for name, label in (("map", "A: Combat Arts' map"), ("menu", "SELECT: Leave the tutorial?"),
+                            ("back", "Yes: back to Tutorials")):
             self.shot(os.path.join(d, name + ".png"), label)
         if len(vals) != 3:
             return self.check("tutorialmap: A starts the tutorial's map", False, "values %s" % vals)
@@ -2048,8 +2048,8 @@ class Smoke:
         try:
             count, cur, top, page, pages, _ = struct.unpack("<3H3B", open(os.path.join(d, "back.bin"), "rb").read()[:9])
         except (OSError, struct.error) as e:
-            return self.check("tutorialmap: Retreat goes back to Tutorials", False, str(e))
-        self.check("tutorialmap: Retreat goes back to Tutorials, on that tutorial, out of tutorial mode",
+            return self.check("tutorialmap: SELECT, Yes goes back to Tutorials", False, str(e))
+        self.check("tutorialmap: SELECT, Yes goes back to Tutorials, on that tutorial, out of tutorial mode",
                    count == self.tutorial_count() and cur == 0 and not bits_after & 8,
                    "count %d, cursor %d, state bits %#x" % (count, cur, bits_after))
         try:

@@ -53,6 +53,14 @@ static bool FMU_PlayerMoving(void)
 	return false;
 }
 
+/*
+ * The player's walking speed, which the MU controller gives its MU (MuCtr_StartMoveTowards' last arguments, its
+ * moveConfig: GetMuQ4MovementSpeed): a value without bit 6 is the speed itself, in 16ths of a pixel a frame, quadrupled
+ * at the fast game speed or with A held (up to 0x80). It was 0x10, a pixel a frame: half a foot class's walk (0x20).
+ * Only the player's: a district's wandering NPCs keep their own walk.
+ */
+#define FMU_PLAYER_WALK_SPEED 0x30
+
 void pFMU_MainLoop(struct FMUProc* proc){
 	if(FMU_PlayerMoving()){
 		/* u8 iKeyDirec = FMU_CheckDirectionButtonPress();
@@ -99,7 +107,7 @@ void pFMU_MoveUnit(struct FMUProc* proc){	//Label 1
 		if( !IsPosInvaild(x,y) )
 		{
 			LogPrintf("[FreeMU] pFMU_MoveUnit: moving to (%d,%d)", x, y);
-			MuCtr_StartMoveTowards(gActiveUnit, x, y, 0x10, 0x10);
+			MuCtr_StartMoveTowards(gActiveUnit, x, y, FMU_PLAYER_WALK_SPEED, FMU_PLAYER_WALK_SPEED);
 		}
 	}
 	else

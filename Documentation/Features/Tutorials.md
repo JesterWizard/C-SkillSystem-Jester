@@ -26,8 +26,8 @@ chosen one's map: a test map that explains the feature, then lets you try it.*
 **Extras > Tutorials**, the last Extras row (under the Skill Codex), lets the player try the hack's own features, one
 per README entry:
 
-- **The banners** on the left are Select Mode's, three on screen in its green, teal and red; the cursor's banner is
-  lit, with Select Mode's hand beside it. Each shows a tutorial's title in the letters of the menus' labels (the
+- **The banners** on the left are Select Mode's, three on screen, in the header bar's colours (not Select Mode's green,
+  teal and red), with Select Mode's hand beside the chosen one. Each shows a tutorial's title in the letters of the menus' labels (the
   Extras list's, the header's "Tutorials").
 - **Scrolling.** Up and down choose a tutorial. Past the third banner the list scrolls under them; a gold arrow above
   or below the banners shows there are more that way. Down on the last tutorial goes around to the first, and up on
@@ -46,30 +46,37 @@ per README entry:
 The README's features that are on in this build and that a player sees or uses on a map, in the README's order
 (menus, graphics, text and system features are left out):
 
-| Section | Tutorial | Its map |
+| Section | Tutorial | Its map (only what the tutorial needs) |
 |---|---|---|
-| Battle & Combat | Combat Arts | Eirika with a Slim Sword (Hexblade) against two soldiers |
-| | Critical Cut-in | Joshua with a Killing Edge and the Crit skill |
+| Battle & Combat | Combat Arts | Eirika with a Slim Sword (Hexblade), a soldier |
+| | Critical Cut-in | Joshua with a Killing Edge and the Crit skill, a fighter |
 | | Weapon Slots | Colm, a thief: his weapon ranks on the stat screen |
-| | Expanded HP | Gilliam with 120 HP |
-| | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire) and Natasha (Heal, Mend) |
-| | MP System | The same, for the MP page |
+| | Expanded HP | Gilliam with 120 HP, a soldier |
+| | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire), hurt, and Natasha (Heal, Mend), a soldier |
+| | MP System | Lute, a soldier |
 | | Kill Rewards | Artur against Novala (Artur wins the Divine tome) |
-| | Magic Seal | A fighter with Magic Seal near Lute |
+| | Magic Seal | Lute and a fighter with Magic Seal |
 | | Tonics | Eirika with two tonics |
 | Staves | Staff EXP | Natasha heals a hurt Eirika |
-| Maps, Fog & AI | AI Rescue | A paladin next to a soldier at 2 HP |
-| | Enemy Promotion | A level 10 fighter that can reach Ross |
-| | Enemy Fog Vision, Fog Stages, Fog Vision | The map in fog (vision 2), with Colm the thief |
-| | Fancy Teleport | An assassin warps in after the explanation |
-| | Free Movement | Free movement on (`EnableFreeMovementASMC`) |
-| | Move Ghost | Translucent Unit Sprite: any move |
-| | Traps | A heal tile and a pair of teleport tiles |
-| | Threat Arrows | The Options row turned on |
+| Maps, Fog & AI | AI Rescue | Eirika; a paladin next to a soldier at 2 HP |
+| | Enemy Promotion | Ross and a level 10 fighter that can reach him |
+| | Enemy Fog Vision, Fog Stages | The map in fog (vision 2): Colm the thief, two soldiers |
+| | Fog Vision | The same, with Eirika beside Colm to compare their sight |
+| | Fancy Teleport | Eirika; an assassin warps in after the explanation |
+| | Free Movement | Eirika, free movement on (`EnableFreeMovementASMC`) |
+| | Move Ghost | Eirika: Translucent Unit Sprite on any move |
+| | Traps | Eirika, a heal tile and a pair of teleport tiles |
+| | Threat Arrows | Eirika, two soldiers, the Options row turned on |
 | Growth & Progression | Prestige | Franz, a level 10 cavalier |
-| | Skill Capacity | Eirika's skills page |
+| | Skill Capacity | Eirika: her skills page |
 | | Trainee Promotion | Ross at level 9 with 99 EXP, next to a soldier |
-| Towns & Minigames | Districts, Fishing, Hex Cards, River Crossing, Snek, Tower Stack, Guild Board | Port Kiris, which has every game (Snek is its old man's) |
+| Towns & Minigames | Districts | Port Kiris, as it is |
+| | Fishing, River Crossing, Tower Stack, Guild Board | Port Kiris with only that spot (and the gate), no townspeople |
+| | Hex Cards | Port Kiris with only its Hex players, no spots |
+| | Snek | Port Kiris with only the Pied Piper (the old man), no spots |
+
+A map with no enemy has nothing to win: its "defeat every enemy" check runs as soon as the opening ends and goes on
+(`TutorialMap_CheckWin`). A map with no Eirika has its own unit as the leader (`GetPlayerLeaderUnitId`, below).
 
 Left out:
 
@@ -88,14 +95,27 @@ Left out:
 
 - **Starting.** A on a tutorial fades the screen out and starts its map as a game of its own: a new game's state in
   RAM only (as `WriteNewGameSave` sets one up, without writing it), vanilla's tutorial flag (`PLAY_FLAG_TUTORIAL`) set,
-  and the tutorial's chapter. The map's title card reads "Tutorial".
+  and the tutorial's chapter. Free movement is turned off (`DisableFreeMovementASMC`: it would stay on after the Free
+  Movement tutorial); only Free Movement and the districts turn it on. The map's title card names the tutorial:
+  on a tutorial's map, the message decoder (`GetStringFromIndexInBuffer`, AntiHuffman.c) gives the tutorial's title
+  for the title of the chapter row the card shows (`TutorialMap_TitleMessage`; Port Kiris's card shows Chapter 9's
+  row).
 - **The tutorials' map** is chapter row 0x43 (`TUTORIAL_MAP`, `CustomCampaign/Chapters/TutorialMap`), a vanilla filler
   row with no title that nothing used, with vanilla Chapter 4's map. Its opening puts the tutorial's units on it and
   runs its set-up (`TutorialMap_Setup`), fades in, explains the feature in a box in the middle of the screen (as the
   in-map tutorials do), then runs the tutorial's after-explanation step, if any (the teleport's effect). Then the
-  player tries it. The towns' tutorials start Port Kiris instead, whose opening shows the explanation in tutorial mode
+  player tries it. The towns' tutorials start Port Kiris instead: its opening keeps only the tutorial's spot or people
+  (`TutorialMap_TownSetup`, before its townspeople start walking), and shows the explanation
   (`EventScr_TutorialMap_DistrictIntro`).
-- **Ending.** Defeating every enemy ("Tutorial complete!"), losing Eirika ("Eirika has fallen", no Game Over), the map
+- **Leaving: SELECT.** On a tutorial's map or district, SELECT asks "Leave the tutorial?" (Yes/No) while the player
+  phase, or free movement, waits for input (`TutorialMap_QuitWatch`). Yes ends the map from a proc of its own
+  (`TutorialMap_Leave`, as vanilla's game over does once its screen is over), back to Tutorials.
+- **No Eirika.** Vanilla's leader (`GetPlayerLeaderUnitId`), whom the camera and the cursor go to at the player phase's
+  start, is Eirika on a story map, whether she is there or not; with her missing the cursor went off the map, and A
+  there decoded a bad message until it overran `gPlaySt`. The kernel's copy falls back on the first player unit on a
+  tutorial's map, as vanilla does in skirmishes. The last player unit falling is a loss as the lord's is
+  (`TutorialMap_OnUnitKill` sets `EVFLAG_GAMEOVER`).
+- **Ending.** Defeating every enemy ("Tutorial complete!"), losing ("Your units have fallen", no Game Over), the map
   menu's **Retreat** (enabled on a tutorial's map, "Retreat?" then Yes), and a district's own ways out all come back
   to Extras > Tutorials, on the tutorial just played. The map's own endings leave as the skirmish retreat does (MNCH -1,
   then `StartRetreatProcessing`): a chapter change (MNC2) or a game over would start the map again in tutorial mode.
@@ -201,7 +221,7 @@ Left out:
 ## 🧪 Testing
 
 `python3 Tools/cloud/smoketest.py --only tutorialmap` boots, saves and resets, opens Tutorials, and presses A on Combat
-Arts: it checks the map is chapter 0x43 in tutorial mode with its units, that the map menu's Retreat comes back to
+Arts: it checks the map is chapter 0x43 in tutorial mode with its units, that SELECT's "Leave the tutorial?" (Yes) comes back to
 Tutorials on that tutorial, out of tutorial mode, and that the save memory is byte for byte as it was.
 
 `python3 Tools/cloud/smoketest.py --only tutorials` boots, saves and resets, then opens Extras and presses UP once from
@@ -236,7 +256,8 @@ and UP back to the last, and that B goes back to the save menu. The Gallery, Bes
 - The page count is one digit: a tutorial of 10 or more pages would show the wrong count (none has more than one).
 - The list jumps a row at a time; it does not scroll smoothly.
 - The tutorials are English only, like the rest of `Districts.txt`.
-- The map menu's Retreat is the way out of a tutorial's map before it is won; Suspend stays greyed out (tutorial mode).
+- SELECT (or the map menu's Retreat) is the way out of a tutorial's map before it is won; Suspend stays greyed out
+  (tutorial mode).
 - The units, set-ups and texts were checked on the map (units, items, menus, fog, traps, the teleport, Port Kiris), but
   each feature's own behaviour (an enemy promoting, the AI rescuing, a trainee promoting...) is the feature's: the maps
   only set the scene for it.
