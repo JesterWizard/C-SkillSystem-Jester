@@ -18,10 +18,21 @@
 
 struct Tutorial {
 	u16 title;          /* the title's message (Districts.txt) */
-	u16 text;
+	u16 text;           /* the box's summary: four lines at most (the fifth is "A: Try it") */
 	const u8 *img;      /* the title in the Extras labels' letters (Source/TutorialTitles.c, generated) */
+	u16 intro;          /* the explanation shown on its map, before the player tries it */
+	u8 chapter;         /* its map: TUTORIAL_MAP, or a district */
+	const struct UnitDefinition *units; /* loaded on TUTORIAL_MAP (blue and red), ending with charIndex 0 */
+	void (*setup)(void); /* anything else the map needs (an option on, fog, a skill, a dead unit...), or NULL */
+	void (*after)(ProcPtr event); /* run after the explanation, with the event engine as parent, or NULL */
 };
 
 extern const struct Tutorial gTutorials[];  /* ends with a title of 0 */
 
 ProcPtr StartTutorialsScreen(ProcPtr parent);
+
+/* Source/TutorialMap.c: a tutorial's map, a game of its own that writes nothing to the save memory */
+struct SaveMenuProc;
+void TutorialMap_Launch(struct SaveMenuProc *menu, int index);
+int TutorialMap_Played(void);      /* the tutorial whose map was played last */
+bool TutorialMap_Active(void);     /* on a tutorial's map */

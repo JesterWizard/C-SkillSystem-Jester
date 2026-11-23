@@ -9,6 +9,8 @@
 /**
  * Main events
  */
+extern const EventScr EventScr_TutorialMap_DistrictIntro[];
+
 static const EventScr EventScr_PortKiris_Opening[] = {
     /*
      * The screen is still black from the world map (WorldMap_Destruct): set the district up unseen, then one fade in.
@@ -21,6 +23,7 @@ static const EventScr EventScr_PortKiris_Opening[] = {
     ASMC(SetGameOptions_DistrictPortKiris)
     ASMC(StartDistrictNpcs)
     FADE_FROM_BLACK(16)
+    CALL(EventScr_TutorialMap_DistrictIntro) /* Extras > Tutorials: the tutorial's explanation */
     NOFADE
     ENDA
 };

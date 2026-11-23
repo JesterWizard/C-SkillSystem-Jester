@@ -48,5 +48,9 @@ PUSH
 
     ORG 0x8B2EB8
     #include "Jehanna/events/chapter.lyn.event"
+
+    /* Extras > Tutorials' map (TUTORIAL_MAP, 0x43) */
+    ORG 0x8B2F4C
+    #include "TutorialMap/events/chapter.lyn.event"
 }
 POP

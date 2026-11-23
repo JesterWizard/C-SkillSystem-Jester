@@ -5,6 +5,8 @@
 #include "kernel/realtime-battle.h"
 #include "jester_headers/custom-functions.h"
 
+u8 TutorialMap_IsRetreatAvailable(const struct MenuItemDef *def, int number); /* Kernel/Wizardry/Tutorials */
+
 int MapMenu_AchievementsCommandDraw(struct MenuProc *menu, struct MenuItemProc *menuItem)
 {
     Text_DrawString(&menuItem->text, Utf8ToNarrowFonts(GetStringFromIndex(menuItem->def->nameMsgId)));
@@ -36,7 +38,7 @@ const struct MenuItemDef gMapMenuItems_NEW[] = {
     {"　辞書", MSG_MAP_MENU_BIOGRAPHY_TITLE, MSG_MAP_MENU_BIOGRAPHY_DESC, 4, 0x74, MapMenu_IsBiographyCommandAvailable, MapMenu_BiographyCommandDraw, MapMenu_BiographyCommand, 0, 0, 0}, // Bios
     {"　戦績", 0x69E, 0x6E3, 0, 0x70, MapMenu_IsRecordsCommandAvailable, 0, MapMenu_RecordsCommand, 0, 0, 0}, // Records
     {"　設定", 0x69B, 0x6E1, 0, 0x71, MenuAlwaysEnabled, 0, MapMenu_OptionsCommand, 0, 0, 0}, // Options
-    {"　退却", 0x69D, 0x6E2, 0, 0x72, MapMenu_IsRetreatCommandAvailable, 0, MapMenu_RetreatCommand, 0, 0, 0}, // Retreat
+    {"　退却", 0x69D, 0x6E2, 0, 0x72, TutorialMap_IsRetreatAvailable, 0, MapMenu_RetreatCommand, 0, 0, 0}, // Retreat
     {"　中断", 0x69F, 0x6E4, 0, 0x73, MapMenu_IsSuspendCommandAvailable, 0, MapMenu_SuspendCommand, 0, 0, 0}, // Suspend
     {"　終了", 0x6A0, 0x6E6, 0, 0x78, MenuAlwaysEnabled, 0, CommandEffectEndPlayerPhase, 0, 0, 0}, // End Phase
     MenuItemsEnd

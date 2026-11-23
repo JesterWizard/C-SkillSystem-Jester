@@ -374,7 +374,9 @@ int GetBootType(void) {
 void EventCallGameOverExt(ProcPtr proc)
 {
     Proc_StartBlocking(ProcScr_BmGameOver, proc);
-    SetBootType(4); // title screen after game over 
+    /* Extras > Tutorials' maps write nothing to the save memory, and go back to Tutorials */
+    if (!(gPlaySt.chapterStateBits & PLAY_FLAG_TUTORIAL))
+        SetBootType(4); // title screen after game over 
 }
 
 #define LGAMECTRL_EXEC_BM_EXT 6  // Directly goto bmmap 

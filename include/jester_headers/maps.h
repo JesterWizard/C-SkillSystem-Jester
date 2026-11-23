@@ -35,4 +35,6 @@ enum {
     DISTRICT_PORT_KIRIS       = 0x3C,
     DISTRICT_CAER_PELYN       = 0x41,
     DISTRICT_JEHANNA          = 0x42,
+    // Extras > Tutorials' map (CustomCampaign/Chapters/TutorialMap): vanilla's filler row 0x43
+    TUTORIAL_MAP              = 0x43,
 };

@@ -80,7 +80,8 @@ void Gallery_UnlockBackground(int bg)
 	int i, n = Gallery_Count();
 	bool changed = false;
 
-	if (!IsSramWorking())
+	/* Extras > Tutorials' maps write nothing to the save memory */
+	if (!IsSramWorking() || (gPlaySt.chapterStateBits & PLAY_FLAG_TUTORIAL))
 		return;
 
 	Gallery_ReadSram(&buf);

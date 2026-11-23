@@ -5,8 +5,8 @@
 
 Each tutorial's title (the `## MSG_TUT_<KEY>_TITLE` messages at the end of Contents/Texts/Source/texts/Districts.txt)
 is drawn as the Extras labels are (Tools/extras-labels/labels.py): vanilla's own letters from the clean ROM, a shadow
-column apart, the outline drawn round the word. Vanilla's menu words lack some letters (U, W, O, V, F, I, P, K, b, w,
-q, g): those are drawn below in the same strokes (palette 1 the stroke, 3 its shaded right side, 2 and 4 its serifs
+column apart, the outline drawn round the word. Vanilla's menu words lack some letters (U, W, O, V, F, I, P, K, X, b,
+w, q, g, -): those are drawn below in the same strokes (palette 1 the stroke, 3 its shaded right side, 2 and 4 its serifs
 and inner shading, as vanilla's letters have them).
 
 Writes Kernel/Wizardry/Tutorials/Source/TutorialTitles.c and .h: per title a 128x16 image (two rows of 16 tiles, 4bpp,
@@ -37,7 +37,7 @@ CUTS = {
     "y": ("diff", 32, 44, 50), "c": ("diff", 0, 165, 170), "d": ("diff", 0, 193, 198),
     "u": ("save", 32, 34, 39), "r": ("save", 48, 44, 48), "h": ("save", 32, 67, 72),
     "m": ("save", 80, 54, 61), "o": ("save", 80, 109, 114), "x": ("save", 16, 183, 188),
-    "l": ("sheet", 16, 49, 52),
+    "l": ("sheet", 16, 49, 52), "f": ("diff", 16, 168, 172),
 }
 
 # The letters vanilla's menu words lack: rows from the top of the 16-pixel band (row 2 is the capitals' top, row 11
@@ -61,6 +61,9 @@ DRAWN = {
     "b": (2, ["213...", ".13...", ".13...", ".13...", ".1113.", ".13313", ".13.13", ".13.13", ".13.13", "21113."]),
     "q": (5, [".31113", "31331.", "13.13.", "13.13.", "13.13.", "31413.", ".1113.", "...13.", "..2123"]),
     "g": (5, [".31113", "31331.", "13.13.", "13.13.", "13.13.", "31413.", ".1113.", "...13.", "3113.."]),
+    "X": (2, ["2123.2123", ".313.313.", "..13.13..", "..31313..", "...313...", "...313...", "..31313..", "..13.13..",
+              ".313.313.", "2123.2123"]),
+    "-": (7, ["11113", "33333"]),
     "w": (5, ["1..1..1", "1..1..1", "13.1.31", "3131313", ".13.13.", ".13.13.", ".1..1.."]),
 }
 SPACE = 3
