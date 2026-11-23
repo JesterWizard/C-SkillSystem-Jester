@@ -48,6 +48,7 @@ gKillUnitHooks: // void (*)(struct Unit *unit)
     POIN FlushUnitSkillDbgList
     POIN GaidenMagicUses_OnUnitKill
     POIN Recap_OnUnitKill
+    POIN TutorialMap_OnUnitKill /* Extras > Tutorials: the last player unit falling ends the map */
     WORD 0 0 0 0
 
 gUnitRefrainHooks: // void (*)(struct Unit *unit)

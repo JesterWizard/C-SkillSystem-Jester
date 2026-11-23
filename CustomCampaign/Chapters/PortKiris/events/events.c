@@ -10,6 +10,7 @@
  * Main events
  */
 extern const EventScr EventScr_TutorialMap_DistrictIntro[];
+extern void TutorialMap_TownSetup(void);
 
 static const EventScr EventScr_PortKiris_Opening[] = {
     /*
@@ -19,6 +20,7 @@ static const EventScr EventScr_PortKiris_Opening[] = {
     MUSC(SONG_DISTANT_ROADS)
     LOAD_WAIT_PERSIST(Base_PortKiris_Eirika)
     LOAD_WAIT(District_PortKiris_Npcs)
+    ASMC(TutorialMap_TownSetup) /* Extras > Tutorials: only the tutorial's spot or people */
     MOVE_CAMERA_TO_UNIT(CHARACTER_EIRIKA)
     ASMC(SetGameOptions_DistrictPortKiris)
     ASMC(StartDistrictNpcs)
@@ -128,7 +130,13 @@ static const EventScr EventScr_District_PortKiris_Hint[] = {
 
 /* The Pied Piper by the guild board: Snek, whose scores the board's Snek quests ask for */
 static const EventScr EventScr_District_PortKiris_Snek[] = {
-    TEXT(GAME_SNEK_CONVO_BEGIN)
+    /*
+     * The question in a box of its own: Yes/No goes on the line under it, and a talk box shows two lines, so after a
+     * two-line pitch the choice fell below the box, out of sight.
+     */
+    TEXT_NO_REMA(GAME_SNEK_CONVO_BEGIN)
+    TEXT_CONSECUTIVE(MSG_SNEK_ASK)
+    REMA
     SVAL(EVT_SLOT_1, 1)
     BEQ(0x1, EVT_SLOT_C, EVT_SLOT_1)
     TEXT(GAME_SNEK_CONVO_NO)

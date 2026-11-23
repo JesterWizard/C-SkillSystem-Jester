@@ -4,7 +4,7 @@
 [OpenMidLeft]
 Hi there, neighbour![A][N]
 Can I interest you in a game I like[N]
-to call Pied Piper?[N][Yes]
+to call Pied Piper?[A][X]
 
 ## GAME_SNEK_CONVO_END_WIN
 [OpenMidLeft][LoadFace_CivilianManOld]

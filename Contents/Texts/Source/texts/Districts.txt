@@ -1450,4 +1450,8 @@ Tutorial[X]
 ## MSG_TUTMAP_CLEAR
 Tutorial complete![N]Back to the Tutorials.[A][X]
 ## MSG_TUTMAP_LOST
-Eirika has fallen.[N]Back to the Tutorials.[A][X]
+Your units have fallen.[N]Back to the Tutorials.[A][X]
+## MSG_SNEK_ASK
+[OpenMidLeft]So, how about a round?[N][Yes][X]
+## MSG_TUTMAP_QUIT
+Leave the tutorial?[N][Yes][X]

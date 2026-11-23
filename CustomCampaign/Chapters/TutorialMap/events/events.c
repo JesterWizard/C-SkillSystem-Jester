@@ -30,6 +30,8 @@ extern void StartRetreatProcessing(void);
     ENDA
 
 extern void TutorialMap_Setup(void);
+extern void TutorialMap_CheckWin(void);
+extern void TutorialMap_Leave(void);
 extern void TutorialMap_AfterIntro(void);
 extern void TutorialMap_CheckIntro(void);
 
@@ -46,11 +48,16 @@ static const EventScr EventScr_TutorialMap_Opening[] = {
 };
 
 static const EventScr EventScr_TutorialMap_Win[] = {
+    /* A tutorial with no enemies (the stat screen's, Prestige...) has nothing to win */
+    ASMC(TutorialMap_CheckWin)
+    BNE(1, EVT_SLOT_C, EVT_SLOT_0)
+    ENDA
+    LABEL(1)
     TUTMAP_TEXT(MSG_TUTMAP_CLEAR)
     TUTMAP_LEAVE
 };
 
-/* Eirika lost: no game over (in tutorial mode vanilla would retry the map), back to Tutorials */
+/* Eirika, or the last player unit, lost (TutorialMap_OnUnitKill): no game over, back to Tutorials */
 static const EventScr EventScr_TutorialMap_Lose[] = {
     TUTMAP_TEXT(MSG_TUTMAP_LOST)
     TUTMAP_LEAVE
@@ -72,6 +79,22 @@ const EventScr EventScr_TutorialMap_DistrictIntro[] = {
     BEQ(1, EVT_SLOT_C, EVT_SLOT_0)
     TUTMAP_TEXT(-1)
     LABEL(1)
+    ENDA
+};
+
+/* SELECT on a tutorial's map or district (TutorialMap_QuitWatch): leave it, back to Tutorials */
+const EventScr EventScr_TutorialMap_Quit[] = {
+    TUTMAP_TEXT(MSG_TUTMAP_QUIT)
+    SVAL(EVT_SLOT_1, 1)
+    BEQ(1, EVT_SLOT_C, EVT_SLOT_1)
+    ENDA
+    LABEL(1)
+    FADE_TO_BLACK(16)
+    ASMC(TutorialMap_Leave)
+    /* Wait for it: the map ends from TutorialMap_Leave's proc */
+    LABEL(2)
+    STAL(1)
+    GOTO(2)
     ENDA
 };
 
