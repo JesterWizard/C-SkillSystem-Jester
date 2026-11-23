@@ -12,6 +12,7 @@
 //   sram FILE              load battery save file before reset (must come first)
 //   trace KEYS N K         run N frames a step at a time with KEYS held (NONE for none), print the last K PCs
 //   runto KEYS ADDR N      step with KEYS held until the PC is ADDR (at most N frames)
+//   skipto KEYS ADDR N     step until the PC is ADDR (at most N frames), pressing KEYS every 38 frames
 //   cyc LO HI [LO2 HI2] N  run N frames; cycles spent with the PC (as mGBA reports it) in [LO,HI) or [LO2,HI2)
 //   regs                   print the CPU registers
 //   audio FILE.wav         record the sound of the frames that follow (wait/press/hold), stereo 32768 Hz
@@ -252,6 +253,34 @@ static void runto(int keys, uint32_t addr, int n)
 	printf("runto %08x: not reached\n", addr);
 }
 
+/*
+ * Step until the CPU's PC (as mGBA reports it) is ADDR, for at most n frames, pressing KEYS for 2 frames after every
+ * 36 frames without it; returns with no key held. Skips however many scenes are left (START) without one press too
+ * many: how many frames a scene takes, and so how many presses a fixed script needs, differs between mGBA versions.
+ */
+static void skipto(int keys, uint32_t addr, int n)
+{
+	struct ARMCore *cpu = core->cpu;
+	int t;
+
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		t = i % 38;
+		core->setKeys(core, t >= 36 ? keys : 0);
+		while (core->frameCounter(core) == frame) {
+			if ((uint32_t)cpu->gprs[ARM_PC] == addr) {
+				core->setKeys(core, 0);
+				printf("skipto %08x: reached after %d frames%s\n", addr, i, t >= 36 ? ", keys held" : "");
+				return;
+			}
+			core->step(core);
+		}
+	}
+	core->setKeys(core, 0);
+	printf("skipto %08x: not reached\n", addr);
+}
+
 /* Run n frames a step at a time; count the cycles spent with the PC in [lo, hi) and in [lo2, hi2) */
 static void cyc(uint32_t lo, uint32_t hi, uint32_t lo2, uint32_t hi2, int n)
 {
@@ -399,6 +428,8 @@ int main(int argc, char **argv)
 			minsp(atoi(a));
 		else if (!strcmp(cmd, "runto"))
 			runto(keymask(a), strtoul(b, 0, 0), atoi(c));
+		else if (!strcmp(cmd, "skipto"))
+			skipto(keymask(a), strtoul(b, 0, 0), atoi(c));
 		else if (!strcmp(cmd, "cyc")) {
 			char e2[64] = "0", e3[64] = "0", e4[64] = "1";
 			sscanf(line, "%*s %*s %*s %63s %63s %63s", e2, e3, e4);

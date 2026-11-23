@@ -55,3 +55,6 @@ Data/Gallery/GalleryThumbs.bin
 
 # Leftover submodule file in the committed FE-PyTools copy
 Tools/FE-PyTools/.gitmodules
+
+# The title screen build date (makefile, build_version_title_screen_date)
+Kernel/Wizardry/BuildVersionTitleScreen/BuildDate.event

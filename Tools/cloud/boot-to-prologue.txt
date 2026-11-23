@@ -42,8 +42,12 @@ press START
 wait 90
 press A
 wait 90
-press START
-# The opening is over; the player phase starts (no presses until then: on the map they would select Eirika)
+# Skip the scenes that are left until the player phase is idle: PlayerPhase_MainIdle (its lyn jump at 0x0801C940; the
+# PC between steps is a Thumb instruction plus 2).
+# How many are left here depends on the mGBA version (one fewer with libmgba 0.9.3 than in cloud sessions), and a START
+# on the map opens the minimap, so a fixed press count fails on one of them.
+skipto START 0x0801C942 3000
+# 300 frames, as after the old fixed last START: with 60 the world map tests fail (they rely on this later state)
 wait 300
 shot boot.png
 save boot.ss

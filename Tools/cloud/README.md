@@ -47,9 +47,8 @@ Why:
 
 - The Ubuntu compiler makes different `.lyn.event` output than devkitARM.
 - A plain `make` would rewrite the committed `.lyn.event` files.
-- `build.sh` marks every tracked `.lyn.event` file, every path in `protected-outputs.txt`, and every tracked grit output of a tracked `.png` (`.img.bin`, `.map.bin`, `.pal.bin`, `.4bpp`, `.4bpp.lz`, `.gbapal`, `.lz77`) as up to date (`make -o`). A file is not protected if it is modified or if its `.c`, `.s` or `.png` source is modified. A `.c` or `.png` you edit still regenerates its own outputs.
+- `build.sh` (like plain `make`, through `Tools/scripts/protected-outputs.py`) marks every tracked `.lyn.event` file, every path in `protected-outputs.txt`, and every tracked grit output of a tracked `.png` (`.img.bin`, `.map.bin`, `.pal.bin`, `.4bpp`, `.4bpp.lz`, `.gbapal`, `.lz77`) as up to date (`make -o`). A file is not protected if it is modified or if its `.c`, `.s` or `.png` source is modified. A `.c` or `.png` you edit still regenerates its own outputs.
 - The grit outputs need this because `gritshim.py` output can differ from real grit (e.g. the `Spell_b_012`/`Spell_b_039` CSA atlas maps), and a fresh clone's file times can make any `.png` look newer than its outputs.
-- After the build it restores `Kernel/Wizardry/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event`, which the build stamps.
 
 Output:
 
@@ -83,7 +82,8 @@ Script commands, one per line. `#` starts a comment.
 - `sram FILE` - load a battery save before reset. Must be the first command.
 - `audio FILE.wav` / `audio end` - record the sound of the frames run in between (`wait`, `press`, `hold`), stereo 32768 Hz. To hear one sound alone, record the same run twice with that sound muted in a copy of the ROM and subtract (the emulator is deterministic). `Documentation/Features/VoiceStream.md` checks its voice lines this way.
 - `cyc LO HI [LO2 HI2] N` - run N frames one instruction at a time and count the CPU cycles spent with the PC in [LO, HI) or [LO2, HI2) (mGBA's PC: the instruction plus 4 in Thumb, plus 8 in ARM). Use it when `prof` misses calls. Prints the share of all cycles and the busiest frame.
-- `runto KEYS ADDR N` - step with KEYS held until the PC (as mGBA reports it) is ADDR, at most N frames. `NONE` holds no key. Then `regs` or `dump` show the state there.
+- `runto KEYS ADDR N` - step with KEYS held until the PC (as mGBA reports it) is ADDR, at most N frames. `NONE` holds no key. Then `regs` or `dump` show the state there. Between steps the PC is the next Thumb instruction plus 2 (a function at X: ADDR X+2), not plus 4.
+- `skipto KEYS ADDR N` - like `runto`, but with no key held, pressing KEYS for 2 frames after every 36 frames until the PC is ADDR. Prints how many frames it took. The boot script uses it (`skipto START 0x0801C942 3000`, the player phase's idle routine) to skip however many scenes are left: the number differs between mGBA versions (one fewer with libmgba 0.9.3 than in cloud sessions), and one START too many opens the minimap.
 - `trace KEYS N K` - run N frames a step at a time and print the last K distinct PCs with SP and CPU mode. For finding where a crash or a reset came from.
 - `regs` - print the CPU registers and CPSR.
 
