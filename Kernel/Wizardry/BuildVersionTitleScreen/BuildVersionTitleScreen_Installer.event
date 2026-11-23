@@ -12,7 +12,9 @@ jumpToHack(display_version)
 //If you do not make UPS with FEBuilderGBA, please rewrite this string by yourself.
 //ORG $DC110	//{J}
 ORG $D74D0	//{U}
-String("30/10/2026") ; BYTE 0 // BUILD_DATE
+// BUILD_DATE: String("dd/mm/yyyy") ; BYTE 0, written by make (build_version_title_screen_date) only when the
+// date changes, so the build leaves this tracked file alone and does not reassemble the ROM for it
+#include "BuildDate.event"
 
 POP
 

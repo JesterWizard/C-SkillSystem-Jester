@@ -33,10 +33,30 @@ SKILLS_ENUM_SRC += $(SKILLS_ENUM_DIR)/skills-class.enum.txt
 SKILLS_ENUM_SRC += $(SKILLS_ENUM_DIR)/skills-person.enum.txt
 SKILLS_ENUM_SRC += $(SKILLS_ENUM_DIR)/skills-item.enum.txt
 
+# Committed build outputs (tracked .lyn.event files, grit outputs, Tools/cloud/protected-outputs.txt) stay as
+# committed unless their source is modified (Tools/scripts/protected-outputs.py): another compiler makes different
+# .lyn.event output, and rewriting them would block git pull. make PROTECT_OUTPUTS=0 rebuilds them all (e.g. after a
+# header change).
+PROTECT_OUTPUTS ?= 1
+
+ifeq ($(PROTECT_OUTPUTS),1)
+PROTECT_ARGS = $$(cat .cache_dir/protected-args.txt)
+# -W main.event when a kept file is newer than the ROM; for the ROM's make only, or it is assembled twice
+ROM_ARGS = $$(cat .cache_dir/rom-args.txt)
+else
+PROTECT_ARGS =
+ROM_ARGS =
+endif
+
+# post_chax is skipped when it already ran on this ROM (each make reads the makefile, which takes seconds)
 all:
-	@$(MAKE) pre_build	|| exit 1
-	@$(MAKE) chax		|| exit 1
-	@$(MAKE) post_chax	|| exit 1
+ifeq ($(PROTECT_OUTPUTS),1)
+	@mkdir -p .cache_dir
+	@python3 Tools/scripts/protected-outputs.py --make-args --rom $(FE8_CHX) --rom-args .cache_dir/rom-args.txt > .cache_dir/protected-args.txt || exit 1
+endif
+	@$(MAKE) $(PROTECT_ARGS) pre_build	|| exit 1
+	@$(MAKE) $(PROTECT_ARGS) $(ROM_ARGS) chax	|| exit 1
+	@if [ ! $(POST_CHAX_DONE) -nt $(FE8_CHX) ]; then $(MAKE) $(PROTECT_ARGS) post_chax || exit 1; fi
 
 CACHE_DIR := .cache_dir
 $(shell mkdir -p $(CACHE_DIR) > /dev/null)
@@ -97,7 +117,7 @@ LYN               := $(EA_DIR)/Tools/lyn
 EA_DEP            := $(EA_DIR)/ea-dep
 
 LYN_PROTECTOR := $(TOOL_DIR)/scripts/lynjump-protector.sh
-LYN_DETECTOR  := $(TOOL_DIR)/scripts/lynjump-detector.sh
+LYN_DETECTOR  := python3 $(TOOL_DIR)/scripts/lynjump-detector.py
 
 GRIT := $(DEVKITPRO)/tools/bin/grit
 LZSS := $(DEVKITPRO)/tools/bin/gbalzss
@@ -114,13 +134,18 @@ BTLPALETTEARGS    := -pn 80
 # ========
 
 PRE_BUILD ?=
-BUILD_VERSION_TITLESCREEN_EVENT := Kernel/Wizardry/BuildVersionTitleScreen/BuildVersionTitleScreen_Installer.event
-BUILD_VERSION_TITLESCREEN_DATE := $(shell date +%d/%m/%Y)
+# The title screen's build date, included by BuildVersionTitleScreen_Installer.event. Written only when the date
+# changes (a new file time would reassemble the ROM on every build); untracked, so a build leaves git clean.
+BUILD_DATE_EVENT := Kernel/Wizardry/BuildVersionTitleScreen/BuildDate.event
+BUILD_DATE_LINE := String("$(shell date +%d/%m/%Y)") ; BYTE 0 // BUILD_DATE
 
 build_version_title_screen_date:
-	@echo "[GEN]	$@"
-	@awk -v date="$(BUILD_VERSION_TITLESCREEN_DATE)" '($$0 ~ /^String\(".*"\) ; BYTE 0.*$$/) { print "String(\"" date "\") ; BYTE 0 // BUILD_DATE"; next } 1' "$(BUILD_VERSION_TITLESCREEN_EVENT)" > "$(BUILD_VERSION_TITLESCREEN_EVENT).tmp"
-	@mv "$(BUILD_VERSION_TITLESCREEN_EVENT).tmp" "$(BUILD_VERSION_TITLESCREEN_EVENT)"
+	@if [ "$$(cat $(BUILD_DATE_EVENT) 2>/dev/null)" != '$(BUILD_DATE_LINE)' ]; then \
+		echo "[GEN]	$(BUILD_DATE_EVENT)"; echo '$(BUILD_DATE_LINE)' > $(BUILD_DATE_EVENT); fi
+
+# A fresh clone: ea-dep lists it as a ROM dependency before pre_build has written it
+$(BUILD_DATE_EVENT):
+	@echo '$(BUILD_DATE_LINE)' > $@
 
 PRE_BUILD += build_version_title_screen_date
 
@@ -244,7 +269,11 @@ $(CAMPAIGN_DIR)/Chapters/%/events/events.lyn.event: $$(wildcard $(CAMPAIGN_DIR)/
 # Without this make may fail to detect some files as being up to date
 .PRECIOUS: %.o;
 
+# Not for a plain make (all), which only runs the stages, nor for pre_build, which compiles nothing (it makes headers
+# from text, graphics and enums): reading the dependency files takes about a second each time
+ifneq ($(filter-out all pre_build,$(or $(MAKECMDGOALS),all)),)
 -include $(wildcard $(CACHE_DIR)/*.d)
+endif
 
 CFILES := $(shell find $(HACK_DIRS) -type f -name '*.c')
 CLEAN_FILES += $(CFILES:.c=.o) $(CFILES:.c=.asm) $(CFILES:.c=.dmp) $(CFILES:.c=.lyn.event)
@@ -453,14 +482,22 @@ CHAX_NUPS := $(FE8_CHX:.gba=.ups)
 
 SKILL_INFO_DOC := ./docs/SkillInfo.md
 
-post_chax: $(CHAX_NUPS) # $(SKILL_INFO_DOC)
+# Its checks run once per ROM: in a release build the .ups marks that, otherwise a stamp file (all skips post_chax
+# when it is newer than the ROM)
+ifeq ($(CONFIG_RELEASE_COMPILATION), 1)
+POST_CHAX_DONE := $(CHAX_NUPS)
+else
+POST_CHAX_DONE := $(CACHE_DIR)/post_chax.done
+endif
+
+post_chax: $(POST_CHAX_DONE) # $(SKILL_INFO_DOC)
 skill_info: $(SKILL_INFO_DOC)
 
 $(SKILL_INFO_DOC): $(SKILLS_ENUM_SRC) $(GFX_SOURCES) $(TEXT_SOURCE) Data/SkillSys/Source/SkillInfo.c
 	@echo "[GEN]	$(SKILL_INFO_DOC)"
 	@python3 $(TOOL_DIR)/scripts/dump_skill_info.py > $(SKILL_INFO_DOC)
 
-$(CHAX_NUPS): $(FE8_CHX)
+$(POST_CHAX_DONE): $(FE8_CHX)
 	@echo "[SEC]	Lyn-jump detection..."
 	@$(LYN_DETECTOR) || exit 1
 	@echo "[SEC]	Lyn-jump detection passed"
@@ -492,6 +529,7 @@ endif
 	@cat $(FE8_SYM) >> $(CHAX_SYM)
 	@cat $(CHAX_SYM) | python3 $(TOOL_DIR)/scripts/sym_modify.py | sponge $(CHAX_SYM)
 	@echo "Done!"
+	@touch $@
 
 CLEAN_FILES += $(CHAX_SYM) $(CHAX_REFS) $(CHAX_REFE) $(CHAX_NUPS)
 
