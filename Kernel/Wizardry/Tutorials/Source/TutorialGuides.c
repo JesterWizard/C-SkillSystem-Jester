@@ -26,15 +26,14 @@
  * stat screen on the lesson's page).
  *
  * Every map tutorial has an end: its lesson's action done (EventScr_TutG_Done after the action), its stat screen
- * closed, or a turn played (the enemy phase over: EventScr_TutG_Turn). The end goes straight back to Tutorials.
+ * closed, or a turn played (the enemy phase over: EventScr_TutG_Turn). The end goes straight back to Tutorials. Free
+ * Movement has none: the player walks and tries the village, the armory and Garcia, and SELECT leaves.
  */
 
 /* gPlaySt.config2.unused_22 (TutorialMap.c has [0] and [1]): 0 in every save, written only on a tutorial's map */
 #define TUTG_MENU       (gPlaySt.config2.unused_22[2])  /* the unit menu's one command (TUTG_CMD_*), 0: all */
 #define TUTG_PAGE       (gPlaySt.config2.unused_22[5])  /* the stat screen step's page (shown pages: 0 is the first) */
-#define TUTG_WALK_X     (gPlaySt.config2.unused_22[6])  /* Free Movement: where the walk started */
-#define TUTG_WALK_Y     (gPlaySt.config2.unused_22[7])
-#define TUTG_WALK_TILES 4                               /* the walk that ends Free Movement's lesson */
+#define TUTG_STAT_NEXT  (gPlaySt.config2.unused_22[6])  /* what follows the stat screen step (sTutGuideStatNext) */
 
 enum {
 	TUTG_CMD_NONE,
@@ -128,8 +127,7 @@ void TutGuide_Reset(void)
 {
 	TUTG_MENU = TUTG_CMD_NONE;
 	TUTG_PAGE = 0;
-	TUTG_WALK_X = 0;
-	TUTG_WALK_Y = 0;
+	TUTG_STAT_NEXT = 0;
 	gPlaySt.config2.unused_22[3] = 0;   /* TutorialMap.c's keys kept while SELECT's prompt asks */
 	gPlaySt.config2.unused_22[4] = 0;
 	gPlaySt.tutorial_counter = 0;
@@ -144,6 +142,9 @@ void TutGuide_Unlock(ProcPtr proc)
 }
 
 extern const EventScr EventScr_TutG_Leave[];
+extern const EventScr *const sTutGuideStatNext[];
+
+enum { TUTG_NEXT_LEAVE, TUTG_NEXT_PRESTIGE };
 
 /*
  * After the lesson's action: leave once the player phase waits again (a unit left to act). With none left the turn ends
@@ -217,53 +218,6 @@ static const struct ProcCmd ProcScr_TutGuideEndTurn[] = {
 	PROC_END,
 };
 
-/* Free Movement: once the walking unit (the first player unit) is TUTG_WALK_TILES from its start, the lesson is over */
-static void TutGuide_WalkLoop(ProcPtr proc)
-{
-	struct Unit *unit = GetUnit(FACTION_BLUE + 1);
-	ProcPtr idle;
-
-	if (!TutorialMap_Active() || TutorialMap_Leaving()) {
-		Proc_Break(proc);
-		return;
-	}
-
-	if (!UNIT_IS_VALID(unit) || RECT_DISTANCE(unit->xPos, unit->yPos, TUTG_WALK_X, TUTG_WALK_Y) < TUTG_WALK_TILES)
-		return;
-
-	idle = TutorialMap_IdlePhase();
-	if (!idle)
-		return;
-
-	KernelCallEvent(EventScr_TutG_Leave, EV_EXEC_GAMEPLAY, idle);
-	Proc_Break(proc);
-}
-
-static const struct ProcCmd ProcScr_TutGuideWalk[] = {
-	PROC_NAME("TutGuideWalk"),
-	PROC_REPEAT(TutGuide_WalkLoop),
-	PROC_END,
-};
-
-/*
- * The walk starts here (free movement's A acts on what is next to the unit: no action ends this lesson). Started by
- * Free Movement's set-up: free movement takes the player phase's place, so its start (the guides' first point) never
- * comes.
- */
-void TutGuide_WalkStep(ProcPtr proc)
-{
-	struct Unit *unit = GetUnit(FACTION_BLUE + 1);
-
-	if (Proc_Find(ProcScr_TutGuideWalk))
-		return;
-
-	if (UNIT_IS_VALID(unit)) {
-		TUTG_WALK_X = unit->xPos;
-		TUTG_WALK_Y = unit->yPos;
-	}
-	Proc_Start(ProcScr_TutGuideWalk, PROC_TREE_3);
-}
-
 /* ASMC: the turn ends as soon as the player phase waits (after this event) */
 void TutGuide_EndTurn(ProcPtr proc)
 {
@@ -285,8 +239,11 @@ static void TutGuide_StatWatch(ProcPtr proc)
 	}
 
 	if (Proc_Find(gProcScr_StatScreen)) {
+		int next = TUTG_STAT_NEXT;  /* the step after the screen closes: kept through the reset */
+
 		gStatScreen.page = TUTG_PAGE;
 		TutGuide_Reset();
+		TUTG_STAT_NEXT = next;
 		Proc_Break(proc);
 	}
 }
@@ -308,7 +265,7 @@ static void TutGuide_StatClosed(ProcPtr proc)
 	if (!idle)
 		return;
 
-	KernelCallEvent(EventScr_TutG_Leave, EV_EXEC_GAMEPLAY, idle);
+	KernelCallEvent(sTutGuideStatNext[TUTG_STAT_NEXT], EV_EXEC_GAMEPLAY, idle);
 	Proc_Break(proc);
 }
 
@@ -327,6 +284,7 @@ void TutGuide_StatStep(ProcPtr proc)
 {
 	int page;
 
+	TUTG_STAT_NEXT = gEventSlots[EVT_SLOT_3];
 	TUTG_PAGE = 0;
 	for (page = 0; page < 10; page++) {
 		if (TranslateStatPageId(page) == (int)gEventSlots[EVT_SLOT_1]) {
@@ -436,10 +394,17 @@ extern const EventScr EventScr_TutG_TurnEnd[];
 	};
 
 /* R on the unit at (x, y) (only R works there): its stat screen on the page drawn by `page` (STATSCREEN_PAGE_*) */
-#define TUTG_STAT(name, x, y, page) \
+#define TUTG_STAT(name, x, y, page) TUTG_STAT_MSG(name, x, y, page, MSG_TUTG_STAT)
+
+/* The same with its own message (Tonics: after the item, to see its boost); its end leaves */
+#define TUTG_STAT_MSG(name, x, y, page, msg) TUTG_STAT_THEN(name, x, y, page, msg, TUTG_NEXT_LEAVE)
+
+/* The same, and the stat screen closed, `next` (TUTG_NEXT_*, sTutGuideStatNext) follows */
+#define TUTG_STAT_THEN(name, x, y, page, msg, next) \
 	const EventScr EventScr_TutG_##name[] = { \
-		TUTG_POINT(x, y, MSG_TUTG_STAT) \
+		TUTG_POINT(x, y, msg) \
 		SVAL(EVT_SLOT_1, page) \
+		SVAL(EVT_SLOT_3, next) \
 		ASMC(TutGuide_StatStep) \
 		IGNORE_KEYS(KEYS_ONLY_R) \
 		NOFADE \
@@ -493,13 +458,6 @@ const EventScr EventScr_TutG_TurnEnd[] = {
 	ENDA
 };
 
-/* Free Movement's guide (it ends once the unit has walked a few tiles): its set-up starts the walk, TutGuide_WalkStep */
-const EventScr EventScr_TutG_Walk[] = {
-	NOFADE
-	ASMC(TutGuide_WalkStep)
-	ENDA
-};
-
 /* AI Rescue: the enemy phase plays first (the paladin rescues the soldier), then the lesson ends */
 const EventScr EventScr_TutG_EnemyFirst[] = {
 	NOFADE
@@ -523,10 +481,13 @@ TUTG_ACTION(Gaiden, CHARACTER_LUTE, 5, 5, 7, 5, MSG_TUTG_MOVE, TUTG_CMD_BMAG, MS
 TUTG_STAT(MP, 5, 5, PAGE_GAIDEN_MAGIC)
 TUTG_ACTION(Reward, CHARACTER_ARTUR, 5, 5, 7, 5, MSG_TUTG_MOVE, TUTG_CMD_BMAG, MSG_TUTG_CMD_BMAG,
 	    EventScr_TutG_Done, POSTACTION)
-TUTG_ACTION(Seal, CHARACTER_LUTE, 3, 6, 7, 6, MSG_TUTG_MOVE, TUTG_CMD_WAIT, MSG_TUTG_SEAL_WAIT,
+/* Magic Seal: the whole menu (TUTG_CMD_NONE), to see B.Mag missing with the soldier in reach */
+TUTG_ACTION(Seal, CHARACTER_LUTE, 3, 6, 7, 6, MSG_TUTG_MOVE, TUTG_CMD_NONE, MSG_TUTG_SEAL_WAIT,
 	    EventScr_TutG_Done, POSTACTION)
+/* Tonics: after the tonic, R on Eirika shows its boost on her stats (the first page); closing it ends the lesson */
+TUTG_STAT_MSG(TonicStat, 4, 5, STATSCREEN_PAGE_0, MSG_TUTG_TONIC_STAT)
 TUTG_ACTION(Tonic, CHARACTER_EIRIKA, 4, 5, 4, 5, MSG_TUTG_STAY, TUTG_CMD_ITEM, MSG_TUTG_CMD_ITEM,
-	    EventScr_TutG_Done, POSTACTION)
+	    EventScr_TutG_TonicStat, POSTACTION)
 TUTG_ACTION(StaffExp, CHARACTER_NATASHA, 5, 5, 5, 5, MSG_TUTG_STAY, TUTG_CMD_WMAG, MSG_TUTG_CMD_WMAG,
 	    EventScr_TutG_Done, POSTACTION)
 /*
@@ -536,12 +497,21 @@ TUTG_ACTION(StaffExp, CHARACTER_NATASHA, 5, 5, 5, 5, MSG_TUTG_STAY, TUTG_CMD_WMA
 TUTG_ACTION(Promote, CHARACTER_ROSS, 7, 5, 7, 5, MSG_TUTG_STAY, TUTG_CMD_WAIT, MSG_TUTG_CMD_WAIT,
 	    EventScr_TutG_EnemyFirst, POSTACTION)
 TUTG_SELECT(Ghost, 4, 5)
-TUTG_ACTION(Traps, CHARACTER_EIRIKA, 4, 5, 3, 6, MSG_TUTG_MOVE, TUTG_CMD_WAIT, MSG_TUTG_CMD_WAIT,
-	    EventScr_TutG_Done, POSTACTION)
 TUTG_SELECT(Threat, 4, 5)
-TUTG_ACTION(Prestige, CHARACTER_FRANZ, 5, 5, 5, 5, MSG_TUTG_STAY, TUTG_CMD_PRESTIGE, MSG_TUTG_CMD_PRESTIGE,
-	    EventScr_TutG_Done, POSTACTION)
-TUTG_STAT(Capacity, 4, 5, STATSCREEN_PAGE_2)
+/*
+ * Prestige: Franz's growths (the Growths page) before, the Prestige, then his growths again; closing that ends it.
+ * Vanessa beside him acts later, so the player phase goes on after his Prestige.
+ */
+TUTG_STAT_THEN(Prestige, 5, 5, PAGE_GROWTH_RADAR, MSG_TUTG_PRESTIGE_BEFORE, TUTG_NEXT_PRESTIGE)
+TUTG_STAT_MSG(PrestigeAfter, 5, 5, PAGE_GROWTH_RADAR, MSG_TUTG_PRESTIGE_AFTER)
+TUTG_ACTION(PrestigeAct, CHARACTER_FRANZ, 5, 5, 5, 5, MSG_TUTG_STAY, TUTG_CMD_PRESTIGE, MSG_TUTG_CMD_PRESTIGE,
+	    EventScr_TutG_PrestigeAfter, POSTACTION)
+
+/* What follows a stat screen step, by TUTG_NEXT_* */
+const EventScr *const sTutGuideStatNext[] = {
+	[TUTG_NEXT_LEAVE]    = EventScr_TutG_Leave,
+	[TUTG_NEXT_PRESTIGE] = EventScr_TutG_PrestigeAct,
+};
 TUTG_ACTION(Trainee, CHARACTER_ROSS, 7, 5, 7, 5, MSG_TUTG_STAY, TUTG_CMD_ATTACK, MSG_TUTG_CMD_ATTACK,
 	    EventScr_TutG_Done, POSTACTION)
 
@@ -555,7 +525,6 @@ const EventScr *const gTutorialGuideScripts[] = {
 	EventScr_TutG_Free,
 	EventScr_TutG_Turn,
 	EventScr_TutG_TurnEnd,
-	EventScr_TutG_Walk,
 	EventScr_TutG_EnemyFirst,
 	TUTG_ACTION_LIST(Arts)
 	TUTG_ACTION_LIST(Cutin)
@@ -566,13 +535,14 @@ const EventScr *const gTutorialGuideScripts[] = {
 	TUTG_ACTION_LIST(Reward)
 	TUTG_ACTION_LIST(Seal)
 	TUTG_ACTION_LIST(Tonic)
+	EventScr_TutG_TonicStat,
 	TUTG_ACTION_LIST(StaffExp)
 	TUTG_ACTION_LIST(Promote)
 	EventScr_TutG_Ghost,
-	TUTG_ACTION_LIST(Traps)
 	EventScr_TutG_Threat,
-	TUTG_ACTION_LIST(Prestige)
-	EventScr_TutG_Capacity,
+	EventScr_TutG_Prestige,
+	EventScr_TutG_PrestigeAfter,
+	TUTG_ACTION_LIST(PrestigeAct)
 	TUTG_ACTION_LIST(Trainee)
 	NULL,
 };

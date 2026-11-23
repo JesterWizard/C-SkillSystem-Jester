@@ -1,6 +1,7 @@
 #include "../../_shared/headers.h"
 #include "../../_shared/empty-event-lists.h"
 #include "tutorials.h"
+#include "event-rework.h"
 
 /*
  * Extras > Tutorials' map (Documentation/Features/Tutorials.md, "The maps"). The opening puts the chosen tutorial's
@@ -75,6 +76,58 @@ static const EventScr EventScr_TutorialMap_Ending[] = {
     ENDA
 };
 
+/*
+ * Free Movement's map (TutorialsData.c: Garcia and the flags): a village at (8, 2), an armory at (1, 11) (Chapter 4's
+ * map's two village tiles) and a talk with Garcia, all reached with A in free movement (FreeMU_Event.c). The village is
+ * kept by TUTMAP_FLAG_VILLAGE, set for the other tutorials; the armory and the talk need Free Movement's unit or tile.
+ */
+static const EventListScr EventScr_TutorialMap_Village[] = {
+    HOUSE_EVENT_NO_END(0x2, MSG_TUTFM_VILLAGE)
+    CALL(EventScr_RemoveBGIfNeeded)
+    GIVE_ITEM_TO(ITEM_VULNERARY, CHARACTER_EVT_ACTIVE)
+    NOFADE
+    ENDA
+};
+
+static const EventListScr EventScr_TutorialMap_Garcia[] = {
+    TEXT(MSG_TUTFM_GARCIA)
+    NOFADE
+    ENDA
+};
+
+static const u16 EventListScr_TutorialMap_Armory[] = {
+    ITEM_SWORD_IRON,
+    ITEM_SWORD_SLIM,
+    ITEM_LANCE_IRON,
+    ITEM_AXE_IRON,
+    ITEM_VULNERARY,
+    ITEM_NONE,
+};
+
+static const EventListScr EventListScr_TutorialMap_Location[] = {
+    VILLAGE(TUTMAP_FLAG_VILLAGE, EventScr_TutorialMap_Village, 8, 2)
+    ARMORY(EventListScr_TutorialMap_Armory, 1, 11)
+    END_MAIN
+};
+
+/*
+ * Skill Capacity (TutorialsData.c): Saleh teaches Eirika Luna, more than her capacity has left, so it is learned but not
+ * equipped (AddSkillWithinCapacity, SkillEventCmd.c), as after a level-up or a promotion.
+ */
+static const EventListScr EventScr_TutorialMap_Saleh[] = {
+    TEXT(MSG_TUTCAP_SALEH)
+    Evt_AddSkill(SID_Luna, CHARACTER_EIRIKA)
+    TUTMAP_TEXT(MSG_TUTCAP_LEARNED)
+    NOFADE
+    ENDA
+};
+
+static const EventListScr EventListScr_TutorialMap_Character[] = {
+    CharacterEventBothWays(TUTMAP_FLAG_GARCIA, EventScr_TutorialMap_Garcia, CHARACTER_EIRIKA, CHARACTER_GARCIA)
+    CharacterEvent(TUTMAP_FLAG_SALEH, EventScr_TutorialMap_Saleh, CHARACTER_EIRIKA, CHARACTER_SALEH)
+    END_MAIN
+};
+
 static const EventListScr EventListScr_TutorialMap_Misc[] = {
     /*
      * DEFEAT_ALL with its own entry flag (TUTMAP_FLAG_NO_WIN, not EVFLAG_WIN): a guided tutorial sets it at the opening
@@ -116,8 +169,8 @@ const EventScr EventScr_TutorialMap_Quit[] = {
 
 const struct ChapterEventGroup TutorialMapEvent = {
     .turnBasedEvents               = EventListScr_Empty,
-    .characterBasedEvents          = EventListScr_Empty,
-    .locationBasedEvents           = EventListScr_Empty,
+    .characterBasedEvents          = EventListScr_TutorialMap_Character,
+    .locationBasedEvents           = EventListScr_TutorialMap_Location,
     .miscBasedEvents               = EventListScr_TutorialMap_Misc,
     .specialEventsWhenUnitSelected = EventListScr_Empty,
     .specialEventsWhenDestSelected = EventListScr_Empty,

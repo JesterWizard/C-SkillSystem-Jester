@@ -240,7 +240,7 @@ For event-driven trap placement, call the trap constructor directly inside your 
 | Toggle torch | `AddToggleTorch(x, y, duration, startsLit, palette)` | Place a torch tile at `(x, y)` with a lit duration, initial lit state, and selected sprite palette |
 | Teleport tile pair | `AddTeleportTilePair(x1, y1, x2, y2)` | Create two linked teleport tiles, one at each coordinate pair |
 | One-way teleport tile | `AddTeleportTile(x, y, destX, destY, palette)` | Create a single teleport tile that sends units from `(x, y)` to `(destX, destY)` with a selected sprite palette |
-| Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite |
+| Light rune | `AddLightRune(x, y, palette)` | Create a light rune and set the palette used by its map sprite. It has vanilla's body (it used to call "vanilla's" address, its own lyn jump, and crashed the game: the Rune staff, the Light Rune and Sealed Zone skills) |
 | Grass tile | `AddGrassTile(x, y, turnsLeft)` | Create a grass trap tile that draws with `Pal_Grass_Tile`, behaves like forest terrain, and optionally expires after `turnsLeft` turns (`0` = permanent) |
 | Boulder tile | `AddBoulderTile(x, y)` | Create a movable boulder trap that blocks non-fliers, renders with the shared map sprite palette, and can be pushed with the `Interact` command |
 | Spin tile | `AddSpinTile(x, y, direction)` | Create a directional shove tile that halts grounded movement on contact and then follows connected spin tiles one step at a time until the chain ends or a landing tile is blocked |

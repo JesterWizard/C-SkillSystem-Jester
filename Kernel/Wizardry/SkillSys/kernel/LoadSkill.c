@@ -3,8 +3,10 @@
 #include "lvup.h"
 #include "kernel-lib.h"
 #include "skill-system.h"
+#include "stat-screen.h"
 #include "gaiden-magic.h"
 #include "constants/texts.h"
+#include "constants/skills.h"
 
 #define LOCAL_TRACE 0
 
@@ -91,6 +93,52 @@ int AddSkill(struct Unit * unit, const u16 sid)
     return 0;
 }
 
+/*
+ * Tellius capacity (TelliusSkillCapacity.md): whether a skill fits the unit's spare capacity; always, with the system
+ * off. The same sum as the scroll's (SkillScroll.c) and the skill page's (GetUnitBattleAmt).
+ */
+bool SkillFitsCapacity(struct Unit *unit, int sid)
+{
+	int total, cost;
+
+	if (gpKernelDesignerConfig->tellius_skill_capacity_system != true)
+		return true;
+
+	total = gpKernelDesignerConfig->tellius_skill_capacity_base;
+	if (UNIT_CATTRIBUTES(unit) & CA_PROMOTED)
+		total += gpKernelDesignerConfig->tellius_skill_capacity_promoted;
+
+	cost = GetSkillCapacity(sid);
+#if defined(SID_CapacityHalf) && (COMMON_SKILL_VALID(SID_CapacityHalf))
+	if (SkillTester(unit, SID_CapacityHalf))
+		cost = cost / 2;
+#endif
+#if defined(SID_CapacityOne) && (COMMON_SKILL_VALID(SID_CapacityOne))
+	if (SkillTester(unit, SID_CapacityOne))
+		cost = 1;
+#endif
+
+	return GetUnitBattleAmt(unit) + cost <= total;
+}
+
+/*
+ * A skill learned outside a scroll (a level-up, a promotion, an event): a player unit learns it, but equips it only if
+ * it fits its capacity, as a scroll would (it can be equipped later in the skill menu, once there is room). Before,
+ * these equipped it past the limit.
+ */
+int AddSkillWithinCapacity(struct Unit *unit, const u16 sid)
+{
+	if (sid >= MAX_EQUIP_SKILL_NUM)
+		return -1;
+
+	if (UNIT_FACTION(unit) == FACTION_BLUE && GetSkillSlot(unit, sid) == -1 && !SkillFitsCapacity(unit, sid)) {
+		LearnSkill(unit, sid);
+		return -1;
+	}
+
+	return AddSkill(unit, sid);
+}
+
 static inline void load_skill_ext(struct Unit * unit, u16 sid)
 {
     if (EQUIP_SKILL_VALID(sid))
@@ -165,7 +213,7 @@ STATIC_DECLAR void TryAddSkillLvupPConf(struct Unit *unit, int level)
 		sid = pConf->skills[_level + i];
 
 		if (EQUIP_SKILL_VALID(sid)) {
-			AddSkill(unit, sid);
+			AddSkillWithinCapacity(unit, sid);
 			PushSkillListStack(sid);
 			
 			SetPopupItem(sid);
@@ -206,7 +254,7 @@ STATIC_DECLAR void TryAddSkillLvupJConf(struct Unit *unit, int level)
 		sid = jConf->skills[_level + i];
 
 		if (EQUIP_SKILL_VALID(sid)) {
-			AddSkill(unit, sid);
+			AddSkillWithinCapacity(unit, sid);
 			PushSkillListStack(sid);
 		}
 	}

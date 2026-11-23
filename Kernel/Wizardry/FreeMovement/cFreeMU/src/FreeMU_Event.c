@@ -102,6 +102,37 @@ bool FMU_RunTrapASMC(FMUProc* proc){
 }
 
 
+/*
+ * A from the tile next to a district spot (fishing, River Crossing, Tower Stack, the guild board): the same as on it.
+ * After the unit's own tile and the talks (HookList.event), so a spot beside an NPC still lets the player talk.
+ */
+bool FMU_RunTrapASMC_Adjacent(FMUProc *proc)
+{
+	static const s8 dx[4] = { -1, 1, 0, 0 };
+	static const s8 dy[4] = { 0, 0, -1, 1 };
+	struct FMUTrapDef *trap;
+	int d, x, y, type;
+
+	for (d = 0; d < 4; d++) {
+		x = gActiveUnit->xPos + dx[d];
+		y = gActiveUnit->yPos + dy[d];
+		if (x < 0 || y < 0 || x >= gBmMapSize.x || y >= gBmMapSize.y)
+			continue;
+
+		type = GetTrapAt(x, y)->type;
+		if (type < TRAP_FISHING_SPOT || type > TRAP_GUILD_BOARD)
+			continue;
+
+		for (trap = &HookListFMU_TrapList_OnPressA[0]; 0 < trap->TrapID; trap++) {
+			if (trap->Func && trap->TrapID == type) {
+				(trap->Func)(proc);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 bool FMU_RunTrapASMC_Auto(FMUProc* proc){
 	struct FMUTrapDef* trap = &HookListFMU_TrapList_Auto[0];
 	s8 x = gActiveUnit->xPos;

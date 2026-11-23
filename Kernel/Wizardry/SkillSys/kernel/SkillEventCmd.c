@@ -24,7 +24,7 @@ STATIC_DECLAR u8 EventAddSkill(struct EventEngineProc *proc)
 			if (UNIT_CHAR_ID(unit) != pid)
 				continue;
 
-			AddSkill(unit, sid);
+			AddSkillWithinCapacity(unit, sid);
 		})
 	}
 
@@ -45,7 +45,7 @@ STATIC_DECLAR u8 EventAddSkillOnActive(struct EventEngineProc *proc)
 	}
 
 	if (UNIT_IS_VALID(unit) && EQUIP_SKILL_VALID(sid))
-		AddSkill(unit, sid);
+		AddSkillWithinCapacity(unit, sid);
 
 	return EVC_ADVANCE_CONTINUE;
 }
@@ -66,7 +66,7 @@ STATIC_DECLAR u8 EventAddSkillAt(struct EventEngineProc *proc)
 	}
 
 	if (UNIT_IS_VALID(unit) && EQUIP_SKILL_VALID(sid))
-		AddSkill(unit, sid);
+		AddSkillWithinCapacity(unit, sid);
 
 	return EVC_ADVANCE_CONTINUE;
 }
@@ -89,7 +89,7 @@ STATIC_DECLAR u8 EventAddSkillBySlotC(struct EventEngineProc *proc)
 			if (UNIT_CHAR_ID(unit) != pid)
 				continue;
 
-			AddSkill(unit, sid);
+			AddSkillWithinCapacity(unit, sid);
 		})
 	}
 

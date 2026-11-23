@@ -87,15 +87,13 @@ If the reducing skill is removed, the unit may remain **over capacity** yet stil
 
 This is currently unresolved.
 
-#### 2. Level-up / event-learned skills bypass capacity checks  
-Currently, only scroll-based learning checks capacity.  
-Skills learned through:
-- Level-ups  
-- Event scripts  
-- Other systems  
+#### 2. Skills learned outside a scroll
 
-…may exceed capacity without restriction.
-
-A global learning hook might be needed.
+A skill a player unit learns from a level-up, a promotion or an event (`Evt_AddSkill` and its forms) goes through
+`AddSkillWithinCapacity` (`LoadSkill.c`): it is learned, but equipped only if it fits the unit's capacity
+(`SkillFitsCapacity`); otherwise the player can equip it later in the skill menu, once there is room. A unit's
+starting skills (`UnitAutoLoadSkills`), the preparations' skill menu, the skill shop, the skill tree and Predation still
+equip without the check. The Skill Capacity tutorial shows a scroll that fits, one that does not, and a skill taught in
+a talk that does not fit.
 
 ---

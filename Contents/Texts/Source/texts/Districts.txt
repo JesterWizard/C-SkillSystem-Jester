@@ -1352,7 +1352,7 @@ Fog Vision[X]
 ## MSG_TUT_FOGVISION
 Each class sees its own distance in fog.[X]
 ## MSG_TUT_FOGVISION_MAP
-This map is in fog.[A][N]Each class sees its own distance:[N]Colm the thief sees far more than[N]Eirika.[A][X]
+This map is in fog.[A][N]Each class sees its own distance:[N]Neimi the archer sees a soldier[N]that Eirika beside her can't.[A][X]
 ## MSG_TUT_TELEPORT_TITLE
 Fancy Teleport[X]
 ## MSG_TUT_TELEPORT
@@ -1364,7 +1364,7 @@ Free Movement[X]
 ## MSG_TUT_FREEMOVE
 Walk a unit freely across the map, as in a town.[X]
 ## MSG_TUT_FREEMOVE_MAP
-Eirika can walk freely.[A][N]Move her with the D-pad, as in a[N]district, and press A to act.[A][X]
+Eirika can walk freely: move her[N]with the D-pad, as in a district.[A][N]Press A next to Garcia to talk,[N]or on the village to visit it.[A][N]The house at the bottom left is[N]an armory: press A on it to shop.[A][N]Press SELECT when you're done.[A][X]
 ## MSG_TUT_GHOST_TITLE
 Move Ghost[X]
 ## MSG_TUT_GHOST
@@ -1376,13 +1376,13 @@ Traps[X]
 ## MSG_TUT_TRAPS
 Heal tiles, teleport tiles, torches and more.[X]
 ## MSG_TUT_TRAPS_MAP
-Traps are on the map.[A][N]The green tile heals each turn.[N]The two rune tiles teleport a[N]unit from one to the other.[A][X]
+Every kind of trap is here.[N]Walk Eirika onto each to see it.[A][N]Mines and caltrops are hidden.[N]Fire, gas and arrows go off[N]between turns.[A][N]Visit the house for EXP, once.[A][N]Try them as you like. Press[N]SELECT when you're done.[A][X]
 ## MSG_TUT_THREAT_TITLE
 Threat Arrows[X]
 ## MSG_TUT_THREAT
 Red arrows show which enemies can reach a tile.[X]
 ## MSG_TUT_THREAT_MAP
-Threat Arrows are on.[A][N]Select a unit and move the[N]cursor: red arrows point from[N]every enemy that could attack[N]that tile in its next phase.[A][X]
+Threat Arrows are on.[A][N]Select a unit and move the[N]cursor around the map.[A][N]Red arrows point from every[N]enemy that could attack that[N]tile in its next phase.[A][X]
 ## MSG_TUT_PRESTIGE_TITLE
 Prestige[X]
 ## MSG_TUT_PRESTIGE
@@ -1394,7 +1394,7 @@ Skill Capacity[X]
 ## MSG_TUT_CAPACITY
 Equipped skills use up a unit's capacity.[X]
 ## MSG_TUT_CAPACITY_MAP
-Press R on Eirika and turn to her[N]skills.[A][N]Each skill costs capacity by its[N]rank. A unit has 50, and 75 once[N]promoted.[A][X]
+Each skill costs capacity by its[N]rank: a unit has 50, and 75[N]once promoted.[A][N]Eirika's skills use 40. Try her[N]Items: the Astra scroll costs[N]20, too much; Mercy's 3 fits.[A][N]Then talk to Saleh, and press R[N]on Eirika to see her skills.[A][N]Press SELECT when you're done.[A][X]
 ## MSG_TUT_TRAINEE_TITLE
 Trainee Promotion[X]
 ## MSG_TUT_TRAINEE
@@ -1407,42 +1407,42 @@ Districts[X]
 Towns with no enemies, opened as the story goes on.[X]
 ## MSG_TUT_DISTRICTS_MAP
 This is Port Kiris.[A][N]Walk with the D-pad and press A[N]next to people to talk. Leave by[N]the gate, or press L and Retreat.[A][X]
-## MSG_TUT_FISHING_TITLE
-Fishing[X]
-## MSG_TUT_FISHING
-Cast, hook and reel in fish for gold and tokens.[X]
-## MSG_TUT_FISHING_MAP
-Find the fish on the ground and[N]stand on it, then press A.[A][N]Cast, press A when ! shows, and[N]keep the line in the green.[A][X]
-## MSG_TUT_HEX_TITLE
-Hex Cards[X]
-## MSG_TUT_HEX
-A card game against the people of a district.[X]
-## MSG_TUT_HEX_MAP
-Talk to someone with a card over[N]their head to play Hex.[A][N]A card attacks the cards it points[N]at; win to take one of theirs.[A][X]
-## MSG_TUT_CROSSING_TITLE
-River Crossing[X]
-## MSG_TUT_CROSSING
-Hop across the road and river to fill the docks.[X]
-## MSG_TUT_CROSSING_MAP
-Find the frog and stand on it,[N]then press A.[A][N]Hop across the road and the river's[N]rafts to fill all five docks.[A][X]
-## MSG_TUT_SNEK_TITLE
-Snek[X]
-## MSG_TUT_SNEK
-The old man's snake game in Port Kiris.[X]
-## MSG_TUT_SNEK_MAP
-Talk to the old man in Port Kiris[N]to play Snek.[A][N]Steer the snake to the food[N]without hitting yourself.[A][X]
-## MSG_TUT_TOWER_TITLE
-Tower Stack[X]
-## MSG_TUT_TOWER
-Drop blocks to build a tower as high as you can.[X]
-## MSG_TUT_TOWER_MAP
-Find the tower and stand on it,[N]then press A.[A][N]Press A to drop each block onto[N]the one below. Line them up![A][X]
-## MSG_TUT_GUILD_TITLE
-Guild Board[X]
-## MSG_TUT_GUILD
-Quests to claim for tokens, and prizes to spend them on.[X]
-## MSG_TUT_GUILD_MAP
-Find the notice board and stand[N]on it, then press A.[A][N]Claim finished quests for tokens,[N]and spend them on prizes.[A][X]
+## MSG_TUT_MINIGAMES_TITLE
+Minigames[X]
+## MSG_TUT_MINIGAMES
+Fishing, Hex, River Crossing, Snek, Tower Stack, the board.[X]
+## MSG_TUT_MINIGAMES_MAP
+Port Kiris has every district[N]game. Walk up to each and[N]press A.[A][N]The fish on the ground: cast,[N]press A when ! shows, and keep[N]the line in the green.[A][N]Someone with a card overhead[N]plays Hex: a card attacks the[N]cards it points at.[A][N]The frog: hop across the road[N]and the river's rafts to fill[N]all five docks.[A][N]The tower: press A to drop each[N]block onto the one below.[A][N]The old man plays Snek: steer[N]to the food, never into yourself.[A][N]The notice board: claim quests[N]for tokens, spend them on prizes.[A][N]Leave by the gate, or press L[N]and Retreat.[A][X]
+## MSG_TUTRETIRED_1
+[X]
+## MSG_TUTRETIRED_2
+[X]
+## MSG_TUTRETIRED_3
+[X]
+## MSG_TUTRETIRED_4
+[X]
+## MSG_TUTRETIRED_5
+[X]
+## MSG_TUTRETIRED_6
+[X]
+## MSG_TUTRETIRED_7
+[X]
+## MSG_TUTRETIRED_8
+[X]
+## MSG_TUTRETIRED_9
+[X]
+## MSG_TUTRETIRED_10
+[X]
+## MSG_TUTRETIRED_11
+[X]
+## MSG_TUTRETIRED_12
+[X]
+## MSG_TUTRETIRED_13
+[X]
+## MSG_TUTRETIRED_14
+[X]
+## MSG_TUTRETIRED_15
+[X]
 ## MSG_TUT_TRY
 A: Try it[X]
 ## MSG_TUTMAP_TITLE
@@ -1478,8 +1478,32 @@ Choose Wait, then watch[N]the enemy phase.[A][X]
 ## MSG_TUTG_CMD_PRESTIGE
 Choose Prestige.[A][X]
 ## MSG_TUTG_SEAL_WAIT
-Inside the seal, B.Mag is[N]gone. Choose Wait.[A][X]
+The soldier is in reach, but[N]inside the seal B.Mag is gone.[A][N]Look: no B.Mag. Choose Wait.[A][X]
 ## MSG_TUTG_ARTS_ATTACK
 Choose Attack. In the forecast,[N]left or right picks Hexblade.[A][X]
 ## MSG_TUTG_STAT
 Press R: the stat screen[N]opens on the page to read.[A][X]
+## MSG_TUTG_TONIC_STAT
+Now press R on Eirika: her[N]stats show the tonic's +2.[A][X]
+## MSG_TUTFM_VILLAGE
+[OpenMidLeft][LoadFace_ActiveUnit]
+[OpenMidRight][LoadFace_CivilianMan3]
+Ah, a visitor! In a village,[N]
+A at the door is all it takes.[A][N]
+Here, take this for the road.[A][X]
+## MSG_TUTFM_GARCIA
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Garcia]
+Princess! Out for a walk?[A][N]
+Stand next to anyone and[N]
+press A to talk, as you did.[A][X]
+## MSG_TUTG_PRESTIGE_BEFORE
+Press R on Franz: his growths[N]before Prestige.[A][X]
+## MSG_TUTG_PRESTIGE_AFTER
+Now press R on Franz again:[N]his growths have gone up.[A][X]
+## MSG_TUTCAP_SALEH
+[OpenMidLeft][LoadFace_Eirika]
+[OpenMidRight][LoadFace_Saleh]
+Let me teach you Luna.[A][X]
+## MSG_TUTCAP_LEARNED
+Luna costs 15, more than Eirika[N]has left: she learns it, but it[N]isn't equipped.[A][N]Skills from level-ups and[N]promotions work the same way.[A][X]

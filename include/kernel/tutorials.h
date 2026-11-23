@@ -18,6 +18,11 @@
 
 /* TUTORIAL_MAP's chapter flag (a free temporary one) that keeps its "defeat every enemy" event from starting */
 #define TUTMAP_FLAG_NO_WIN 7
+/* Free Movement's village (visited, or not Free Movement: set) and its talk with Garcia (once) */
+#define TUTMAP_FLAG_VILLAGE 8
+#define TUTMAP_FLAG_GARCIA  9
+/* Skill Capacity's talk with Saleh, who teaches Eirika Luna (once) */
+#define TUTMAP_FLAG_SALEH   10
 
 struct Tutorial {
 	u16 title;          /* the title's message (Districts.txt) */

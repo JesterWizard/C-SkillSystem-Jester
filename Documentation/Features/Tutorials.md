@@ -56,25 +56,24 @@ The README's features that are on in this build and that a player sees or uses o
 | | Gaiden Magic | Lute (level 8: Fire, Thunder, Elfire), hurt, and Natasha (Heal, Mend), a soldier. Listed only with Three Houses magic (spells used a number of times a chapter) |
 | | MP System | Lute, a soldier. Listed only with the MP system and no Three Houses magic: the two never go together |
 | | Kill Rewards | Artur (Mag 20, Skl and Spd 15, 30 HP: he defeats her in one fight) against Novala (Artur wins the Divine tome) |
-| | Magic Seal | Lute (3, 6) and a fighter with Magic Seal in the far corner (13, 9), so the seal's edge shows between them |
-| | Tonics | Eirika with two tonics |
+| | Magic Seal | Lute (3, 6), a fighter with Magic Seal in the far corner (13, 9), so the seal's edge shows between them, and a soldier (8, 6) next to Lute's destination, inside the seal: in her spells' reach, yet her menu (left whole) has no B.Mag |
+| | Tonics | Eirika with two tonics, Franz beside her (a unit left to act, so the player phase goes on to the stat step) |
 | Staves | Staff EXP | Natasha heals a hurt Eirika |
 | Maps, Fog & AI | AI Rescue | Eirika; a paladin next to an unarmed soldier at 2 HP (the paladin loaded first, so it acts first). The enemy phase plays first |
 | | Enemy Promotion | Ross (1 HP, no speed or luck) and a level 10 fighter (Skl 20) that can reach him: its first blow defeats him. Eirika waits on Ross's row (2, 5), out of the fighter's reach, so the camera stays put: with Ross alone, his defeat was a game over, which ended the map during the promotion's effect |
-| | Enemy Fog Vision, Fog Stages | The map in fog (vision 2): Colm the thief, two soldiers |
-| | Fog Vision | The same, with Eirika beside Colm to compare their sight |
-| | Fancy Teleport | Eirika; an assassin warps in after the explanation |
-| | Free Movement | Eirika, free movement on (`EnableFreeMovementASMC`) |
+| | Enemy Fog Vision | The map in fog (vision 2): Colm the thief, two soldiers |
+| | Fog Stages | The map in fog: Eirika (sight 2) and soldiers 3, 4 and 6 tiles from her: one seen in full but unreadable, one a shape, one hidden |
+| | Fog Vision | The map in fog: Eirika and Neimi the archer (sight 4) side by side; the soldier 3 tiles from Neimi is in her sight, not Eirika's |
+| | Fancy Teleport | Eirika; an enemy assassin warps in after the explanation, in red (`StartSpawnClassFxFaction`: the warp's colours are the unit's faction's) |
+| | Free Movement | Eirika, free movement on (`EnableFreeMovementASMC`), 1000 gold. Garcia (green) to talk to, the village at (8, 2) (a Vulnerary), an armory at (1, 11): A next to him, on the village or the armory (`TutorialMap/events/events.c`) |
 | | Move Ghost | Eirika: Translucent Unit Sprite on any move |
-| | Traps | Eirika, a heal tile and a pair of teleport tiles |
+| | Traps | Eirika (60 HP) and every trap a map can place (`Setup_Traps`): a repeat house (the village), a heal tile, teleport tiles, a torch, a light rune, a spin tile, grass, hidden caltrops, a boulder, a collapsing floor, a mine, a fire tile, a gas trap, arrows. Not the dragon vein (its command is not wired) or the Hellscape void (a skill's) |
 | | Threat Arrows | Eirika, two soldiers, the Options row turned on |
-| Growth & Progression | Prestige | Franz, a level 10 cavalier |
-| | Skill Capacity | Eirika: her skills page |
+| Growth & Progression | Prestige | Franz, a level 10 cavalier, and Vanessa (a unit left to act after his Prestige) |
+| | Skill Capacity | Eirika with five rank-C skills (40 of 50) and two scrolls: Astra (20) is refused, Mercy (3) fits. Saleh (green) beside her teaches her Luna (15) when she talks to him: learned, not equipped (`AddSkillWithinCapacity`) |
 | | Trainee Promotion | Ross at level 9 with 99 EXP, next to a soldier |
 | Towns & Minigames | Districts | Port Kiris, as it is |
-| | Fishing, River Crossing, Tower Stack, Guild Board | Port Kiris with only that spot (and the gate), no townspeople |
-| | Hex Cards | Port Kiris with only its Hex players, no spots |
-| | Snek | Port Kiris with only the Pied Piper (the old man), no spots |
+| | Minigames | Port Kiris, as it is: its explanation goes through every game (fishing, Hex, River Crossing, Snek, Tower Stack, the guild board). The six tutorials it replaced left their messages as `MSG_TUTRETIRED_*` place-holders, so no later message ID moved |
 
 A map with no enemy has nothing to win: its "defeat every enemy" check runs as soon as the opening ends and goes on
 (`TutorialMap_CheckWin`). A map with no Eirika has its own unit as the leader (`GetPlayerLeaderUnitId`, below).
@@ -154,13 +153,15 @@ goes straight back to Tutorials. They start at the player phase's start, after t
 
 | Kind | Steps | Ends | Tutorials |
 |---|---|---|---|
-| A unit's action | A on the unit (the cursor is on it; only A works). The destination flashes: move there and press A (any other tile: "Not there", and the cursor goes back to it). Its menu has only the lesson's command; B, R and START do nothing until the action is done | When the action is over | Combat Arts (Attack; the box says left or right picks Hexblade in the forecast), Critical Cut-in, Expanded HP, Trainee Promotion (Attack), Gaiden Magic, Kill Rewards (B.Mag), Staff EXP (W.Mag), Tonics (Items), Magic Seal (Wait inside the seal), Traps (Wait on the rune tile), Prestige |
+| A unit's action | A on the unit (the cursor is on it; only A works). The destination flashes: move there and press A (any other tile: "Not there", and the cursor goes back to it). Its menu has only the lesson's command; B, R and START do nothing until the action is done | When the action is over | Combat Arts (Attack; the box says left or right picks Hexblade in the forecast), Critical Cut-in, Expanded HP, Trainee Promotion (Attack), Gaiden Magic, Kill Rewards (B.Mag), Staff EXP (W.Mag), Magic Seal (Wait inside the seal, next to a soldier; its menu is left whole to show B.Mag missing) |
+| The same, then the stat screen | As above, then only R on the unit; the stat screen shows the action's effect | When the stat screen closes | Tonics (Items, then the boosted stat on the first page) |
+| The stat screen, an action, the stat screen | The growths page (only R), the action, the growths page again | When the second stat screen closes | Prestige |
 | The same, then the enemy phase | As above, with Wait | After the enemy phase (the fighter defeats Ross and promotes) | Enemy Promotion |
-| The stat screen | Only R works on the unit; the stat screen opens on the lesson's page, then every key works | When the stat screen closes | Weapon Slots and Skill Capacity (Weapons & Skills), MP System (Magic List: its MP costs) |
+| The stat screen | Only R works on the unit; the stat screen opens on the lesson's page, then every key works | When the stat screen closes | Weapon Slots (Weapons & Skills), MP System (Magic List: its MP costs) |
 | Selecting a unit | Only A works on the unit; selected, the map is the player's (the lesson is its range) | When the unit's action is over | Move Ghost, Threat Arrows |
 | The enemy phase first | No step: the player phase ends at once (`TutGuide_EndTurn`, as the map menu's End does) | After the enemy phase (the paladin rescues the soldier) | AI Rescue |
 | A turn to watch | No step | After the enemy phase, at the next player phase's start | the three fog tutorials, Fancy Teleport |
-| A walk | No step (free movement's A acts on what is next to the unit, and the map has nothing) | Once the unit has walked 4 tiles from its start (`TutGuide_WalkStep`) | Free Movement |
+| Free to try | No step: the explanation says what to try and that SELECT leaves | SELECT's prompt | Free Movement, Traps, Skill Capacity |
 | None | The districts and their games are walks; they end by their own ways out (the gate, Retreat) | | |
 
 - **SELECT** still leaves at any step: its prompt frees the keys while it asks, and No gives the step its keys back.
@@ -255,7 +256,7 @@ goes straight back to Tutorials. They start at the player phase's start, after t
 
    and `extern const EventScr EventScr_TutG_Example[];` in `TutorialsData.c`. A lesson with no step of the player's
    takes one of the end scripts as its guide instead: `EventScr_TutG_Turn` (it ends after the enemy phase),
-   `EventScr_TutG_Walk` (after a walk of 4 tiles) or `EventScr_TutG_EnemyFirst` (the enemy phase at once, then the
+   or `EventScr_TutG_EnemyFirst` (the enemy phase at once, then the
    end). The unit's tile and its destination
    must be on the map (the unit's own tile: it stays), the destination in its move and the command possible there:
    with the command not in the menu, the menu is shown whole (`TutGuide_CommandShown`), and the lesson goes on
@@ -372,7 +373,7 @@ Magic's, by `designer-config.c`).
 - The list jumps a row at a time; it does not scroll smoothly.
 - The tutorials are English only, like the rest of `Districts.txt`.
 - The guided steps cover one action per lesson: Gaiden Magic guides Lute's B.Mag, not Natasha's W.Mag after it.
-- The districts' tutorials (Districts, Fishing, Hex Cards, River Crossing, Snek, Tower Stack, Guild Board) have no
+- The districts' tutorials (Districts, Minigames) have no
   guided steps and no end of their own: the gate, the map menu's Retreat or SELECT leaves.
 - SELECT (or the map menu's Retreat) is the way out of a tutorial's map before it is won; Suspend stays greyed out
   (tutorial mode).

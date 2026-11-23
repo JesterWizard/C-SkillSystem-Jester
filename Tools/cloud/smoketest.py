@@ -697,6 +697,23 @@ class Smoke:
             if SPOTS[kind] == "tower" and len(vals) == 1:
                 self.check(label + ": lives set", vals[0] > 0, "lives %d" % vals[0])
             states.setdefault(SPOTS[kind], (spot_ss, open_ss))
+            # A from the tile next to the spot opens it too (FMU_RunTrapASMC_Adjacent, FreeMU_Event.c): the first
+            # neighbour Eirika can walk to
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if (nx, ny) in avoid:
+                    continue
+                near = self.walk(rom, at, (nx, ny), layout, cfg, avoid, d, max_runs=6)
+                if not near:
+                    continue
+                q0, q1 = (os.path.join(d, "%s_next_%d.png" % (tag, i)) for i in range(2))
+                for wait in (10, 60, 0):
+                    self.run(rom, ["load " + near, "wait %d" % wait, "shot " + os.path.basename(q0), "hold A 6",
+                                   "wait 150", "shot " + os.path.basename(q1)], d)
+                    if self.diff(q0, q1) > 25:
+                        break
+                self.check(label + ": A from (%d, %d) opens it" % (nx, ny), self.diff(q0, q1) > 25,
+                           "change %.0f" % self.diff(q0, q1))
+                break
         states["rom"] = rom
         return states
 
@@ -2093,17 +2110,18 @@ class Smoke:
             if m and i in shown:
                 index[m.group(1)] = shown[i]
         guides = open(os.path.join(src, "TutorialGuides.c")).read()
-        effects = {"ATTACK": "UnitActionMenu_Attack", "BMAG": "pr_GaidenBMagActionCommandEffect",
+        effects = {"NONE": None, "ATTACK": "UnitActionMenu_Attack", "BMAG": "pr_GaidenBMagActionCommandEffect",
                    "WMAG": "pr_GaidenWMagActionCommandEffect", "ITEM": "ItemCommandEffect", "WAIT": "EffectWait",
                    "PRESTIGE": "PrestigeCommandEffect"}
         pages = {"STATSCREEN_PAGE_0": 0, "STATSCREEN_PAGE_1": 1, "STATSCREEN_PAGE_2": 2, "STATSCREEN_PAGE_3": 3,
-                 "PAGE_GAIDEN_MAGIC": 4}  # the pages shown before it: the first four and Magic List
+                 "PAGE_GAIDEN_MAGIC": 4, "PAGE_GROWTH_RADAR": 6}  # the pages shown before each
         out = {}
         for m in re.finditer(r"^TUTG_ACTION\((\w+), \w+, (\d+), (\d+), (\d+), (\d+), \w+, TUTG_CMD_(\w+),", guides, re.M):
             n, ux, uy, dx, dy, cmd = m.groups()
             if n in index:
                 out[index[n]] = ("act", n, (int(ux), int(uy)), (int(dx), int(dy)), effects.get(cmd))
-        for m in re.finditer(r"^TUTG_STAT\((\w+), (\d+), (\d+), (\w+)\)", guides, re.M):
+        # TUTG_STAT and its forms with a message (TUTG_STAT_MSG) and a next step (TUTG_STAT_THEN: Prestige's growths)
+        for m in re.finditer(r"^TUTG_STAT(?:_MSG|_THEN)?\((\w+), (\d+), (\d+), (\w+)[,)]", guides, re.M):
             n, x, y, page = m.groups()
             if n in index:
                 out[index[n]] = ("stat", n, (int(x), int(y)), pages.get(page), None)
@@ -2242,6 +2260,15 @@ class Smoke:
                        keys == first_keys and (x, y) == unit, "ignored keys %#x, cursor %s" % (keys, (x, y)))
             if kind == "act":
                 locked, rows = next(v), menu_rows(os.path.join(d, name + ".bin"))
+                if effect is None:
+                    # A menu left whole (Magic Seal: the soldier in reach, and no B.Mag inside the seal)
+                    bmag = addrs.get("pr_GaidenBMagActionCommandEffect", ())
+                    wait = addrs.get("EffectWait", ())
+                    ok = rows is not None and not any(r in bmag for r in rows) and any(r in wait for r in rows)
+                    self.check("tutorialguides: %s's unit menu is whole, with Wait and no B.Mag" % name,
+                               ok and not locked,
+                               "rows %s, lock %d" % ([hex(r) for r in rows] if rows else rows, locked))
+                    continue
                 ok = rows is not None and len(rows) == 1 and rows[0] in addrs.get(effect, ())
                 self.check("tutorialguides: %s's unit menu has only %s" % (name, effect), ok and locked,
                            "rows %s, lock %d" % ([hex(r) for r in rows] if rows else rows, locked))

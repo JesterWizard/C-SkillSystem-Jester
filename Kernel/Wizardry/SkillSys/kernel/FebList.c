@@ -145,7 +145,7 @@ void FebList_LvupAddSkill(struct Unit *unit, int level)
 	int i, len = GetLevelUpSkillList(unit, level, buf, DEFAULT_LEVEL_SKILLS_BUF_MAX_LEN);
 
 	for (i = 0; i < len; i++) {
-		AddSkill(unit, buf[i]);
+		AddSkillWithinCapacity(unit, buf[i]);
 		PushSkillListStack(buf[i]);
 	}
 }
@@ -156,7 +156,7 @@ void FebList_PromotionAddSkill(struct Unit *unit)
 	int i, len = GetPromotionSkillList(unit, buf, DEFAULT_LEVEL_SKILLS_BUF_MAX_LEN);
 
 	for (i = 0; i < len; i++) {
-		AddSkill(unit, buf[i]);
+		AddSkillWithinCapacity(unit, buf[i]);
 		PushSkillListStack(buf[i]);
 	}
 }
