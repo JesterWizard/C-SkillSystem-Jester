@@ -13,6 +13,7 @@
 #include "Source/TutorialsData.lyn.event"
 #include "Source/TutorialTitles.lyn.event"
 #include "Source/TutorialMap.lyn.event"
+#include "Source/TutorialGuides.lyn.event"
 
 /*
  * The tutorials' maps (Source/TutorialMap.c): the game control's label 9 (GameControl_PostChapterSwitch) and the save

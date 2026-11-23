@@ -50,7 +50,12 @@ const struct ROMChapterData ChapterTutorialMap = {
     .fadeToBlack = TRUE,
     .statusObjectiveTextId = 0x1A2,
     .goalWindowTextId = 414,
-    .goalWindowDataType = GOAL_TYPE_DEFEAT_ALL,
+    /*
+     * Not GOAL_TYPE_DEFEAT_ALL: with no enemy left, vanilla's phase change (RunPhaseSwitchEvents) ends the chapter
+     * (CallEndEvent), and its fade out and in came before the lesson's own way back (Staff EXP's map has no enemy). A
+     * tutorial ends with its lesson (Tutorials/Source/TutorialGuides.c); the goal window shows the text alone.
+     */
+    .goalWindowDataType = GOAL_TYPE_SPECIAL,
     .goalWindowEndTurnNumber = 0,
     .protectCharacterIndex = 0,
     .destPosX = 255,

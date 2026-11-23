@@ -21,13 +21,19 @@
  * Sub-tile cursor scroll only updates BG2 position (same as vanilla BG3).
  */
 
+/*
+ * The three washes are three colours of one bank (5, the range display's second, BGPAL_LIMITVIEW + 1), each in a solid
+ * tile of its own. They were three banks (5-7), but 6 and 7 are the map tileset's first two (BGPAL_TILESET = 6): the
+ * terrain drawn with them turned solid blue and purple wherever a Physical Seal palette was put up.
+ */
 enum {
 	MAGIC_SEAL_FOG_BANK0 = BGPAL_TILESET + 5,
 	MAGIC_SEAL_OVERLAY_PAL = BGPAL_LIMITVIEW + 1, /* bank 5 */
-	PHYSICAL_SEAL_OVERLAY_PAL = BGPAL_LIMITVIEW + 2, /* bank 6 */
-	SEAL_OVERLAP_PAL = BGPAL_LIMITVIEW + 3, /* bank 7 */
+	SEAL_COLOR_MAGIC = 1,       /* colour indices in bank 5 */
+	SEAL_COLOR_PHYSICAL = 2,
+	SEAL_COLOR_OVERLAP = 3,
 	/* Past move/attack range squares at 0x280-0x287 — do not share those CHRs. */
-	MAGIC_SEAL_OVERLAY_CHR = BGCHR_LIMITVIEW + 8, /* 0x288 */
+	MAGIC_SEAL_OVERLAY_CHR = BGCHR_LIMITVIEW + 8, /* 0x288: magic, 0x289 physical, 0x28A overlap */
 	MAGIC_SEAL_RED = 0x319D,
 	PHYSICAL_SEAL_BLUE = 0x259F,
 	SEAL_OVERLAP_PURPLE = 0x68EF,
@@ -56,16 +62,18 @@ static const struct ProcCmd ProcScr_MagicSealOverlay[] = {
 	PROC_END,
 };
 
+/* A solid tile of each wash's colour: 0x288 (magic), 0x289 (physical), 0x28A (both); 0x28B as 0x288 */
 static void EnsureSolidOverlayTiles(void)
 {
+	static const u32 colors[4] = { 0x11111111, 0x22222222, 0x33333333, 0x11111111 };
 	u32 solid[8];
-	int i;
+	int i, k;
 
-	for (i = 0; i < 8; i++)
-		solid[i] = 0x11111111;
-
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++) {
+		for (k = 0; k < 8; k++)
+			solid[k] = colors[i];
 		CpuFastCopy(solid, (void *)(VRAM + (MAGIC_SEAL_OVERLAY_CHR + i) * CHR_SIZE), sizeof(solid));
+	}
 }
 
 static void ApplySealOverlayPalette(void)
@@ -80,38 +88,12 @@ static void ApplySealOverlayPalette(void)
 	pal[0] = 0;
 	for (i = 1; i < 16; i++)
 		pal[i] = red;
+	pal[SEAL_COLOR_PHYSICAL] = PHYSICAL_SEAL_BLUE;
+	pal[SEAL_COLOR_OVERLAP] = SEAL_OVERLAP_PURPLE;
 
 	ApplyPalette(pal, MAGIC_SEAL_OVERLAY_PAL);
 	EnablePaletteSync();
 }
-
-#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
-static void ApplyPhysicalSealOverlayPalette(void)
-{
-	u16 pal[16];
-	int i;
-
-	pal[0] = 0;
-	for (i = 1; i < 16; i++)
-		pal[i] = PHYSICAL_SEAL_BLUE;
-
-	ApplyPalette(pal, PHYSICAL_SEAL_OVERLAY_PAL);
-	EnablePaletteSync();
-}
-
-static void ApplyOverlapSealOverlayPalette(void)
-{
-	u16 pal[16];
-	int i;
-
-	pal[0] = 0;
-	for (i = 1; i < 16; i++)
-		pal[i] = SEAL_OVERLAP_PURPLE;
-
-	ApplyPalette(pal, SEAL_OVERLAP_PAL);
-	EnablePaletteSync();
-}
-#endif
 
 static void ApplySealOverlayBlend(void)
 {
@@ -239,7 +221,7 @@ static void DrawSealOverlayTiles(const s8 *magicXs, const s8 *magicYs, int magic
 			u16 *bg = gBG2TilemapBuffer + yTile * 0x40 + xTile * 2;
 			bool magicSealed;
 			bool physicalSealed;
-			u16 pal;
+			int chr;
 
 			bg[0x00 + 0] = 0;
 			bg[0x00 + 1] = 0;
@@ -260,16 +242,16 @@ static void DrawSealOverlayTiles(const s8 *magicXs, const s8 *magicYs, int magic
 				continue;
 
 			if (magicSealed && physicalSealed)
-				pal = SEAL_OVERLAP_PAL;
+				chr = MAGIC_SEAL_OVERLAY_CHR + SEAL_COLOR_OVERLAP - 1;
 			else if (magicSealed)
-				pal = MAGIC_SEAL_OVERLAY_PAL;
+				chr = MAGIC_SEAL_OVERLAY_CHR + SEAL_COLOR_MAGIC - 1;
 			else
-				pal = PHYSICAL_SEAL_OVERLAY_PAL;
+				chr = MAGIC_SEAL_OVERLAY_CHR + SEAL_COLOR_PHYSICAL - 1;
 
-			bg[0x00 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 0, pal);
-			bg[0x00 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 1, pal);
-			bg[0x20 + 0] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 2, pal);
-			bg[0x20 + 1] = TILEREF(MAGIC_SEAL_OVERLAY_CHR + 3, pal);
+			bg[0x00 + 0] = TILEREF(chr, MAGIC_SEAL_OVERLAY_PAL);
+			bg[0x00 + 1] = TILEREF(chr, MAGIC_SEAL_OVERLAY_PAL);
+			bg[0x20 + 0] = TILEREF(chr, MAGIC_SEAL_OVERLAY_PAL);
+			bg[0x20 + 1] = TILEREF(chr, MAGIC_SEAL_OVERLAY_PAL);
 		}
 	}
 
@@ -352,18 +334,10 @@ static void MagicSealOverlay_OnLoop(struct MagicSealOverlayProc *proc)
 	if (!proc->active) {
 		EnsureSolidOverlayTiles();
 		ApplySealOverlayPalette();
-#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
-		ApplyPhysicalSealOverlayPalette();
-		ApplyOverlapSealOverlayPalette();
-#endif
 		proc->active = true;
 	} else if (proc->dirty) {
 		EnsureSolidOverlayTiles();
 		ApplySealOverlayPalette();
-#if defined(SID_PhysicalSeal) && (COMMON_SKILL_VALID(SID_PhysicalSeal))
-		ApplyPhysicalSealOverlayPalette();
-		ApplyOverlapSealOverlayPalette();
-#endif
 	}
 
 	ApplySealOverlayBlend();

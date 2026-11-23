@@ -1286,7 +1286,7 @@ Expanded HP[X]
 ## MSG_TUT_HP
 HP goes past 80, up to 254.[X]
 ## MSG_TUT_HP_MAP
-Gilliam has 120 HP.[A][N]HP can now go up to 254: the unit[N]window, the stat screen and the[N]battle show it in full.[A][X]
+Gilliam has 120 HP.[A][N]HP can now go up to 254: the unit[N]window, the stat screen and the[N]battle show it in full.[A][N]In battle, each block of 80 HP[N]has its own color on the bar.[A][X]
 ## MSG_TUT_GAIDEN_TITLE
 Gaiden Magic[X]
 ## MSG_TUT_GAIDEN
@@ -1328,7 +1328,7 @@ AI Rescue[X]
 ## MSG_TUT_RESCUE
 Enemies rescue a hurt ally and carry it away.[X]
 ## MSG_TUT_RESCUE_MAP
-The soldier is badly hurt.[A][N]End your turn: the paladin next[N]to him rescues him and carries[N]him away from your units.[A][X]
+The soldier is badly hurt.[A][N]Watch the enemy phase: the[N]paladin next to him rescues him[N]and carries him away from you.[A][X]
 ## MSG_TUT_PROMOTE_TITLE
 Enemy Promotion[X]
 ## MSG_TUT_PROMOTE
@@ -1455,3 +1455,31 @@ Your units have fallen.[N]Back to the Tutorials.[A][X]
 [OpenMidLeft]So, how about a round?[N][Yes][X]
 ## MSG_TUTMAP_QUIT
 Leave the tutorial?[N][Yes][X]
+## MSG_TUTG_SELECT
+The cursor is on the unit[N]for this lesson. Press A.[A][X]
+## MSG_TUTG_WRONG_UNIT
+Select the unit under the[N]flashing cursor.[A][X]
+## MSG_TUTG_MOVE
+Move the cursor to the[N]flashing tile and press A.[A][X]
+## MSG_TUTG_STAY
+This unit acts where it[N]stands: press A on its tile.[A][X]
+## MSG_TUTG_WRONG_TILE
+Not there. Move to the[N]flashing tile and press A.[A][X]
+## MSG_TUTG_CMD_ATTACK
+Choose Attack, then the[N]weapon and the enemy.[A][X]
+## MSG_TUTG_CMD_BMAG
+Choose B.Mag, then a spell[N]and the enemy.[A][X]
+## MSG_TUTG_CMD_WMAG
+Choose W.Mag, then Heal[N]and the hurt unit.[A][X]
+## MSG_TUTG_CMD_ITEM
+Choose Items, then a tonic,[N]and use it.[A][X]
+## MSG_TUTG_CMD_WAIT
+Choose Wait, then watch[N]the enemy phase.[A][X]
+## MSG_TUTG_CMD_PRESTIGE
+Choose Prestige.[A][X]
+## MSG_TUTG_SEAL_WAIT
+Inside the seal, B.Mag is[N]gone. Choose Wait.[A][X]
+## MSG_TUTG_ARTS_ATTACK
+Choose Attack. In the forecast,[N]left or right picks Hexblade.[A][X]
+## MSG_TUTG_STAT
+Press R: the stat screen[N]opens on the page to read.[A][X]

@@ -42,6 +42,7 @@ This gives complete creative freedom over staff experience design.
 | Feature | Location | Description |
 |--------|----------|-------------|
 | **Staff EXP logic** | `StaffEXP` — [`BattleExp.c`](../../Kernel/Wizardry/BattleSys/Source/BattleExp.c) | Central function that returns EXP values for staff usage |
+| **Gaiden W.Mag** | `KernelModifyBattleUnitExp` — [`BattleExp.c`](../../Kernel/Wizardry/BattleSys/Source/BattleExp.c) | A W.Mag spell gives no EXP (its cost is HP or MP), except with Three Houses magic, where it is the staff (no unit keeps a staff item) and gives the staff's EXP |
 
 ---
 

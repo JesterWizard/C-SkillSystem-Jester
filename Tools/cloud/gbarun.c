@@ -13,6 +13,7 @@
 //   trace KEYS N K         run N frames a step at a time with KEYS held (NONE for none), print the last K PCs
 //   runto KEYS ADDR N      step with KEYS held until the PC is ADDR (at most N frames)
 //   skipto KEYS ADDR N     step until the PC is ADDR (at most N frames), pressing KEYS every 38 frames
+//   watch ADDR N           step until the word at ADDR changes (at most N frames); print the PC and LR
 //   cyc LO HI [LO2 HI2] N  run N frames; cycles spent with the PC (as mGBA reports it) in [LO,HI) or [LO2,HI2)
 //   regs                   print the CPU registers
 //   audio FILE.wav         record the sound of the frames that follow (wait/press/hold), stereo 32768 Hz
@@ -254,6 +255,31 @@ static void runto(int keys, uint32_t addr, int n)
 }
 
 /*
+ * Step until the 32-bit word at ADDR changes, for at most n frames, with no key held; then print the PC (the next
+ * instruction plus 2 in Thumb, plus 4 in ARM) and LR. For finding what overwrites a variable.
+ */
+static void watch(uint32_t addr, int n)
+{
+	struct ARMCore *cpu = core->cpu;
+	uint32_t old = core->busRead32(core, addr);
+
+	core->setKeys(core, 0);
+	for (int i = 0; i < n; i++) {
+		uint32_t frame = core->frameCounter(core);
+
+		while (core->frameCounter(core) == frame) {
+			core->step(core);
+			if (core->busRead32(core, addr) != old) {
+				printf("watch %08x: %08x -> %08x after %d frames, pc %08x lr %08x\n", addr, old,
+				       core->busRead32(core, addr), i, cpu->gprs[ARM_PC], cpu->gprs[ARM_LR]);
+				return;
+			}
+		}
+	}
+	printf("watch %08x: unchanged\n", addr);
+}
+
+/*
  * Step until the CPU's PC (as mGBA reports it) is ADDR, for at most n frames, pressing KEYS for 2 frames after every
  * 36 frames without it; returns with no key held. Skips however many scenes are left (START) without one press too
  * many: how many frames a scene takes, and so how many presses a fixed script needs, differs between mGBA versions.
@@ -428,6 +454,8 @@ int main(int argc, char **argv)
 			minsp(atoi(a));
 		else if (!strcmp(cmd, "runto"))
 			runto(keymask(a), strtoul(b, 0, 0), atoi(c));
+		else if (!strcmp(cmd, "watch"))
+			watch(strtoul(a, 0, 0), atoi(b));
 		else if (!strcmp(cmd, "skipto"))
 			skipto(keymask(a), strtoul(b, 0, 0), atoi(c));
 		else if (!strcmp(cmd, "cyc")) {

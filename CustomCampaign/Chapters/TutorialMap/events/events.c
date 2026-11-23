@@ -1,5 +1,6 @@
 #include "../../_shared/headers.h"
 #include "../../_shared/empty-event-lists.h"
+#include "tutorials.h"
 
 /*
  * Extras > Tutorials' map (Documentation/Features/Tutorials.md, "The maps"). The opening puts the chosen tutorial's
@@ -34,6 +35,8 @@ extern void TutorialMap_CheckWin(void);
 extern void TutorialMap_Leave(void);
 extern void TutorialMap_AfterIntro(void);
 extern void TutorialMap_CheckIntro(void);
+extern void TutorialMap_QuitCancelled(void);
+extern const EventScr *const gTutorialGuideScripts[];  /* the tutorials' guided steps (Tutorials/Source/TutorialGuides.c) */
 
 static const EventScr EventScr_TutorialMap_Opening[] = {
     /* The screen is black until the opening ends (as a district's, PortKiris/events/events.c): fade in first */
@@ -48,12 +51,17 @@ static const EventScr EventScr_TutorialMap_Opening[] = {
 };
 
 static const EventScr EventScr_TutorialMap_Win[] = {
-    /* A tutorial with no enemies (the stat screen's, Prestige...) has nothing to win */
+    /*
+     * A tutorial with no enemies (the stat screen's, Prestige...) has nothing to win, and one with guided steps ends
+     * with its lesson (Tutorials/Source/TutorialGuides.c). Done: straight back, with no box.
+     */
+    /* No fade at the end: a guided tutorial's map has no enemy left after any action, and this event fading the map
+     * out and back in came before the lesson's own way out, a second fade */
+    NOFADE
     ASMC(TutorialMap_CheckWin)
     BNE(1, EVT_SLOT_C, EVT_SLOT_0)
     ENDA
     LABEL(1)
-    TUTMAP_TEXT(MSG_TUTMAP_CLEAR)
     TUTMAP_LEAVE
 };
 
@@ -68,13 +76,19 @@ static const EventScr EventScr_TutorialMap_Ending[] = {
 };
 
 static const EventListScr EventListScr_TutorialMap_Misc[] = {
-    DEFEAT_ALL(EventScr_TutorialMap_Win)
+    /*
+     * DEFEAT_ALL with its own entry flag (TUTMAP_FLAG_NO_WIN, not EVFLAG_WIN): a guided tutorial sets it at the opening
+     * (TutorialMap_Setup), so the event never starts. It ends with its lesson; this event's start, even ending at
+     * once, dimmed the map and lit it again after any action on a map with no enemy (Staff EXP).
+     */
+    AFEV(TUTMAP_FLAG_NO_WIN, EventScr_TutorialMap_Win, EVFLAG_DEFEAT_ALL)
     AFEV(0, EventScr_TutorialMap_Lose, EVFLAG_GAMEOVER)
     END_MAIN
 };
 
 /* A district's opening calls it: in tutorial mode, the tutorial's explanation */
 const EventScr EventScr_TutorialMap_DistrictIntro[] = {
+    NOFADE  /* the district is already up: no fade out and in after the explanation */
     ASMC(TutorialMap_CheckIntro)
     BEQ(1, EVT_SLOT_C, EVT_SLOT_0)
     TUTMAP_TEXT(-1)
@@ -87,6 +101,8 @@ const EventScr EventScr_TutorialMap_Quit[] = {
     TUTMAP_TEXT(MSG_TUTMAP_QUIT)
     SVAL(EVT_SLOT_1, 1)
     BEQ(1, EVT_SLOT_C, EVT_SLOT_1)
+    /* No: back to the guided step, if any, with the keys it ignored */
+    ASMC(TutorialMap_QuitCancelled)
     ENDA
     LABEL(1)
     FADE_TO_BLACK(16)
@@ -106,7 +122,7 @@ const struct ChapterEventGroup TutorialMapEvent = {
     .specialEventsWhenUnitSelected = EventListScr_Empty,
     .specialEventsWhenDestSelected = EventListScr_Empty,
     .specialEventsAfterUnitMoved   = EventListScr_Empty,
-    .tutorialEvents                = EventListScr_Tutorial_None,
+    .tutorialEvents                = gTutorialGuideScripts,
     .traps            = TrapData_None,
     .extraTrapsInHard = TrapData_None,
     .playerUnitsInNormal = NULL,

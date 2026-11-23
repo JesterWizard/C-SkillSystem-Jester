@@ -215,17 +215,24 @@ if (base > 0 && status <= 0)
         status = 0;
 #endif
 
-    switch (gActionData.itemSlotIndex)
+    /*
+     * Gaiden W.Mag gives no EXP: its cost is the caster's HP or MP. With Three Houses magic a W.Mag spell is the staff
+     * (no unit keeps a staff item) and gives a staff's EXP.
+     */
+    if (!(gpKernelDesignerConfig->gaiden_magic && gpKernelDesignerConfig->gaiden_magic_three_houses))
     {
-        case CHAX_BUISLOT_GAIDEN_WMAG1:
-        case CHAX_BUISLOT_GAIDEN_WMAG2:
-        case CHAX_BUISLOT_GAIDEN_WMAG3:
-        case CHAX_BUISLOT_GAIDEN_WMAG4:
-        case CHAX_BUISLOT_GAIDEN_WMAG5:
-            status = 0;
-            break;
-        default:
-            break;
+        switch (gActionData.itemSlotIndex)
+        {
+            case CHAX_BUISLOT_GAIDEN_WMAG1:
+            case CHAX_BUISLOT_GAIDEN_WMAG2:
+            case CHAX_BUISLOT_GAIDEN_WMAG3:
+            case CHAX_BUISLOT_GAIDEN_WMAG4:
+            case CHAX_BUISLOT_GAIDEN_WMAG5:
+                status = 0;
+                break;
+            default:
+                break;
+        }
     }
 
     return status;
