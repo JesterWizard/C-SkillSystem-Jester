@@ -26,8 +26,7 @@
  */
 
 void EnableFreeMovementASMC(void);
-void StartSpawnClassFx(ProcPtr parent, int x, int y, int classId);
-int HexNpc_FindDeck(int chapter, int pid);
+void StartSpawnClassFxFaction(ProcPtr parent, int x, int y, int classId, int faction);
 
 #define BLUE(pid, jid, lv, x, y, ...) \
 	UNIT_ENTRY(pid, jid, FACTION_ID_BLUE, NO_ITEM_DROP, NO_AUTOLEVEL, lv, x, y, 0, NULL, 0, 0, 0, 0, __VA_ARGS__)
@@ -54,9 +53,9 @@ int HexNpc_FindDeck(int chapter, int pid);
 extern const EventScr EventScr_TutG_Arts[], EventScr_TutG_Cutin[], EventScr_TutG_Slots[], EventScr_TutG_HP[];
 extern const EventScr EventScr_TutG_Gaiden[], EventScr_TutG_MP[], EventScr_TutG_Reward[], EventScr_TutG_Seal[];
 extern const EventScr EventScr_TutG_Tonic[], EventScr_TutG_StaffExp[], EventScr_TutG_EnemyFirst[];
-extern const EventScr EventScr_TutG_Turn[], EventScr_TutG_Walk[];
-extern const EventScr EventScr_TutG_Promote[], EventScr_TutG_Ghost[], EventScr_TutG_Traps[], EventScr_TutG_Threat[];
-extern const EventScr EventScr_TutG_Prestige[], EventScr_TutG_Capacity[], EventScr_TutG_Trainee[];
+extern const EventScr EventScr_TutG_Turn[];
+extern const EventScr EventScr_TutG_Promote[], EventScr_TutG_Ghost[], EventScr_TutG_Threat[];
+extern const EventScr EventScr_TutG_Prestige[], EventScr_TutG_Trainee[];
 
 /* ---- Set-up ---- */
 
@@ -148,22 +147,93 @@ static void After_Teleport(ProcPtr event)
 	LoadUnit(assassin);
 	RefreshEntityBmMaps();
 	RefreshUnitSprites();
-	StartSpawnClassFx(event, 9 * 16 - gBmSt.camera.x, 5 * 16 - gBmSt.camera.y, CLASS_ASSASSIN);
+	StartSpawnClassFxFaction(event, 9 * 16 - gBmSt.camera.x, 5 * 16 - gBmSt.camera.y, CLASS_ASSASSIN, FACTION_RED);
 }
 
-void TutGuide_WalkStep(ProcPtr proc);
-
-/* Free movement on; the lesson ends after a walk (TutorialGuides.c: free movement has no player phase start) */
+/*
+ * Free movement on, and its things to try (TutorialMap/events/events.c): the village at (8, 2), the armory at (1, 11),
+ * Garcia to talk to. No end of its own: SELECT leaves, as its explanation says.
+ */
 static void Setup_FreeMove(void)
 {
+	ClearFlag(TUTMAP_FLAG_VILLAGE);
+	SetPartyGoldAmount(1000);   /* to buy at the armory (a tutorial's new game has none) */
 	EnableFreeMovementASMC();
-	TutGuide_WalkStep(NULL);
 }
 
+/*
+ * Traps: every trap a map can place (TrapData.c), round Eirika (4, 5), to try in any order; no end of its own (SELECT
+ * leaves). Left out: the dragon vein (its command is not wired) and the Hellscape void (a skill places it). Eirika has
+ * 60 HP: the fire, the gas and the arrows go off between turns. The house is the Free Movement tutorial's village
+ * (TutorialMap/events), whose visit gives EXP once here (a repeat house).
+ */
 static void Setup_Traps(void)
 {
+	struct Unit *unit = TutUnit(CHARACTER_EIRIKA);
+
+	if (unit) {
+		unit->maxHP = 60;
+		unit->curHP = 60;
+	}
+
+	ClearFlag(TUTMAP_FLAG_VILLAGE);
+	AddRepeatHouse(8, 2, 0);
 	AddHealTile(5, 4, 10, 99, TRAP_MAPSPRITE_PAL_DEFAULT);
 	AddTeleportTilePair(3, 6, 12, 3);
+	AddToggleTorch(6, 4, 3, true, TRAP_MAPSPRITE_PAL_NPC);
+	AddLightRune(2, 4, TRAP_MAPSPRITE_PAL_LIGHT_RUNE);
+	AddSpinTile(5, 6, SPIN_TILE_DIR_RIGHT);
+	AddGrassTile(6, 6, 0);
+	AddHiddenCaltrops(6, 5);
+	AddBoulderTile(8, 5);
+	AddCollapsingFloor(8, 6);
+	AddTrap(9, 6, TRAP_MINE, 0);
+	AddFireTile(10, 5, 1, 2);
+	AddGasTrap(11, 6, FACING_LEFT, 1, 2);
+	AddArrowTrap(7, 1, 2);
+}
+
+u16 MakeSkillScrollItem(u16 sid);
+
+/*
+ * Skill Capacity: Eirika's equipped skills are five stat bonuses (rank C, 8 each: 40 of her 50), and her Items two scrolls: Astra
+ * (rank S, 20) is more than she has left, Mercy (rank E, 3) fits. Saleh then teaches her Luna (rank A, 15) in a talk:
+ * learned, but not equipped (AddSkillWithinCapacity, as after a level-up or a promotion).
+ */
+static void Setup_Capacity(void)
+{
+	struct Unit *unit = TutUnit(CHARACTER_EIRIKA);
+	int i;
+
+	if (!unit)
+		return;
+
+	for (i = 0; i < UNIT_RAM_SKILLS_LEN; i++)
+		SET_SKILL(unit, i, 0);
+	ResetSkillLists();
+
+#if defined(SID_HpBonus) && (COMMON_SKILL_VALID(SID_HpBonus))
+	AddSkill(unit, SID_HpBonus);
+#endif
+#if defined(SID_StrBonus) && (COMMON_SKILL_VALID(SID_StrBonus))
+	AddSkill(unit, SID_StrBonus);
+#endif
+#if defined(SID_SpdBonus) && (COMMON_SKILL_VALID(SID_SpdBonus))
+	AddSkill(unit, SID_SpdBonus);
+#endif
+#if defined(SID_DefBonus) && (COMMON_SKILL_VALID(SID_DefBonus))
+	AddSkill(unit, SID_DefBonus);
+#endif
+#if defined(SID_SklBonus) && (COMMON_SKILL_VALID(SID_SklBonus))
+	AddSkill(unit, SID_SklBonus);
+#endif
+#if defined(SID_Astra) && (COMMON_SKILL_VALID(SID_Astra))
+	unit->items[1] = MakeSkillScrollItem(SID_Astra);
+#endif
+#if defined(SID_Mercy) && (COMMON_SKILL_VALID(SID_Mercy))
+	unit->items[2] = MakeSkillScrollItem(SID_Mercy);
+#endif
+	ClearFlag(TUTMAP_FLAG_SALEH);
 }
 
 static void Setup_Threat(void)
@@ -215,77 +285,6 @@ static void Setup_Gaiden(void)
 		unit->curHP = unit->maxHP / 2;
 }
 
-/*
- * The towns' tutorials: Port Kiris with only the tutorial's spot or people. Run by its opening before its NPCs start
- * walking (TutorialMap_TownSetup); the gate stays, to leave by.
- */
-static bool TutTown_NotHexPlayer(struct Unit *unit)
-{
-	return HexNpc_FindDeck(gPlaySt.chapterIndex, UNIT_CHAR_ID(unit)) < 0;
-}
-
-static bool TutTown_NotPiedPiper(struct Unit *unit)
-{
-	return UNIT_CHAR_ID(unit) != 0x7E;
-}
-
-static bool TutTown_Everyone(struct Unit *unit)
-{
-	return true;
-}
-
-static void TutTown_Keep(int trapType, bool (*npcGoes)(struct Unit *unit))
-{
-	struct Trap *trap = GetTrap(0);
-	int i;
-
-	while (trap->type != TRAP_NONE) {
-		if (trap->type != TRAP_DISTRICT_GATE && trap->type != trapType)
-			RemoveTrap(trap);  /* the ones after it move down */
-		else
-			trap++;
-	}
-
-	for (i = FACTION_GREEN + 1; i < FACTION_GREEN + 0x40; i++) {
-		struct Unit *unit = GetUnit(i);
-
-		if (UNIT_IS_VALID(unit) && npcGoes(unit))
-			ClearUnit(unit);
-	}
-	RefreshEntityBmMaps();
-	RefreshUnitSprites();
-}
-
-static void Town_Fishing(void)
-{
-	TutTown_Keep(TRAP_FISHING_SPOT, TutTown_Everyone);
-}
-
-static void Town_Hex(void)
-{
-	TutTown_Keep(TRAP_NONE, TutTown_NotHexPlayer);
-}
-
-static void Town_Crossing(void)
-{
-	TutTown_Keep(TRAP_CROSSING_SPOT, TutTown_Everyone);
-}
-
-static void Town_Snek(void)
-{
-	TutTown_Keep(TRAP_NONE, TutTown_NotPiedPiper);
-}
-
-static void Town_Tower(void)
-{
-	TutTown_Keep(TRAP_TOWER_SPOT, TutTown_Everyone);
-}
-
-static void Town_Guild(void)
-{
-	TutTown_Keep(TRAP_GUILD_BOARD, TutTown_Everyone);
-}
-
 /* ---- Units: only what the tutorial needs ---- */
 
 #define FIGHTER(x, y)       RED(CHARACTER_SOLDIER_80, CLASS_FIGHTER, 3, x, y, ITEM_AXE_IRON)
@@ -335,14 +334,45 @@ static const struct UnitDefinition TutUnits_Reward[] = {
 	{},
 };
 
+/*
+ * A soldier next to Lute's destination (7, 6), both inside the seal (10 tiles from the fighter): a target in her
+ * spells' reach, and still no B.Mag in her menu
+ */
 static const struct UnitDefinition TutUnits_Seal[] = {
 	LUTE(3, 6),
 	RED_STILL(CHARACTER_SOLDIER_80, CLASS_FIGHTER, 1, 13, 9, ITEM_AXE_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 8, 6, ITEM_LANCE_IRON),
 	{},
 };
 
 static const struct UnitDefinition TutUnits_Eirika[] = {
 	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
+	{},
+};
+
+/*
+ * Tonics: Franz beside Eirika, so a unit is left to act after her tonic and the player phase goes on: its next step is
+ * R on her stats (with her alone the turn ended, and the stat step came at a phase change)
+ */
+static const struct UnitDefinition TutUnits_Tonic[] = {
+	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
+	BLUE(CHARACTER_FRANZ, CLASS_CAVALIER, 1, 3, 6, ITEM_SWORD_IRON),
+	{},
+};
+
+/* Free Movement: Garcia (green) to talk to, between Eirika and the village at (8, 2) */
+static const struct UnitDefinition TutUnits_FreeMove[] = {
+	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
+	UNIT_ENTRY(CHARACTER_GARCIA, CLASS_FIGHTER, FACTION_ID_GREEN, NO_ITEM_DROP, NO_AUTOLEVEL, 5, 6, 3, 0, NULL, 0, 3, 0, 0,
+		   ITEM_AXE_IRON),
+	{},
+};
+
+/* Skill Capacity: Saleh (green) beside Eirika, to talk to: he teaches her Luna (TutorialMap/events/events.c) */
+static const struct UnitDefinition TutUnits_Capacity[] = {
+	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
+	UNIT_ENTRY(CHARACTER_SALEH, CLASS_SAGE, FACTION_ID_GREEN, NO_ITEM_DROP, NO_AUTOLEVEL, 1, 5, 5, 0, NULL, 0, 3, 0, 0,
+		   ITEM_ANIMA_FIRE),
 	{},
 };
 
@@ -379,11 +409,24 @@ static const struct UnitDefinition TutUnits_Fog[] = {
 	{},
 };
 
+/*
+ * Fog sight (FogVision.c): 2, an archer 4, a thief 7. Colm saw every enemy here, so the fog showed nothing. Fog Stages:
+ * Eirika (sight 2) and soldiers 3, 4 and 6 tiles off: each stage of the fog (seen but unreadable, a shape, hidden). Fog Vision: Neimi the archer
+ * (sight 4) sees the soldier at (7, 6), 3 tiles from her, which Eirika beside her (4 tiles off) does not.
+ */
+static const struct UnitDefinition TutUnits_FogStages[] = {
+	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 7, 5, ITEM_LANCE_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 8, 5, ITEM_LANCE_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 10, 5, ITEM_LANCE_IRON),
+	{},
+};
+
 static const struct UnitDefinition TutUnits_FogVision[] = {
 	EIRIKA(4, 5, ITEM_SWORD_RAPIER),
-	COLM(4, 6),
-	SOLDIER(10, 4),
-	SOLDIER(11, 6),
+	BLUE(CHARACTER_NEIMI, CLASS_ARCHER_F, 1, 4, 6, ITEM_BOW_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 7, 6, ITEM_LANCE_IRON),
+	RED_STILL(CHARACTER_SOLDIER_80, CLASS_SOLDIER, 1, 10, 5, ITEM_LANCE_IRON),
 	{},
 };
 
@@ -394,8 +437,10 @@ static const struct UnitDefinition TutUnits_Threat[] = {
 	{},
 };
 
+/* Vanessa: a unit left to act after Franz's Prestige, so the player phase goes on to its growths step */
 static const struct UnitDefinition TutUnits_Prestige[] = {
 	BLUE(CHARACTER_FRANZ, CLASS_CAVALIER, 10, 5, 5, ITEM_SWORD_IRON),
+	BLUE(CHARACTER_VANESSA, CLASS_PEGASUS_KNIGHT, 1, 3, 6, ITEM_LANCE_IRON),
 	{},
 };
 
@@ -475,7 +520,7 @@ const struct Tutorial gTutorials[] = {
 	MAP_TUTORIAL(MSG_TUT_SEAL_TITLE, MSG_TUT_SEAL, Img_TutTitle_SEAL, MSG_TUT_SEAL_MAP,
 		     TutUnits_Seal, Setup_Seal, NULL, EventScr_TutG_Seal),
 	MAP_TUTORIAL(MSG_TUT_TONIC_TITLE, MSG_TUT_TONIC, Img_TutTitle_TONIC, MSG_TUT_TONIC_MAP,
-		     TutUnits_Eirika, Setup_Tonic, NULL, EventScr_TutG_Tonic),
+		     TutUnits_Tonic, Setup_Tonic, NULL, EventScr_TutG_Tonic),
 
 	/*
 	 * Staves. The Arbalest, Aum, Phoenix and Skill staves are left out: with Three Houses magic no unit keeps a staff
@@ -492,17 +537,17 @@ const struct Tutorial gTutorials[] = {
 	MAP_TUTORIAL(MSG_TUT_EFOG_TITLE, MSG_TUT_EFOG, Img_TutTitle_EFOG, MSG_TUT_EFOG_MAP,
 		     TutUnits_Fog, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FOGSTAGES_TITLE, MSG_TUT_FOGSTAGES, Img_TutTitle_FOGSTAGES, MSG_TUT_FOGSTAGES_MAP,
-		     TutUnits_Fog, Setup_Fog, NULL, EventScr_TutG_Turn),
+		     TutUnits_FogStages, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FOGVISION_TITLE, MSG_TUT_FOGVISION, Img_TutTitle_FOGVISION, MSG_TUT_FOGVISION_MAP,
 		     TutUnits_FogVision, Setup_Fog, NULL, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_TELEPORT_TITLE, MSG_TUT_TELEPORT, Img_TutTitle_TELEPORT, MSG_TUT_TELEPORT_MAP,
 		     TutUnits_Eirika, NULL, After_Teleport, EventScr_TutG_Turn),
 	MAP_TUTORIAL(MSG_TUT_FREEMOVE_TITLE, MSG_TUT_FREEMOVE, Img_TutTitle_FREEMOVE, MSG_TUT_FREEMOVE_MAP,
-		     TutUnits_Eirika, Setup_FreeMove, NULL, EventScr_TutG_Walk),
+		     TutUnits_FreeMove, Setup_FreeMove, NULL, NULL),
 	MAP_TUTORIAL(MSG_TUT_GHOST_TITLE, MSG_TUT_GHOST, Img_TutTitle_GHOST, MSG_TUT_GHOST_MAP,
 		     TutUnits_Eirika, NULL, NULL, EventScr_TutG_Ghost),
 	MAP_TUTORIAL(MSG_TUT_TRAPS_TITLE, MSG_TUT_TRAPS, Img_TutTitle_TRAPS, MSG_TUT_TRAPS_MAP,
-		     TutUnits_Eirika, Setup_Traps, NULL, EventScr_TutG_Traps),
+		     TutUnits_Eirika, Setup_Traps, NULL, NULL),
 	MAP_TUTORIAL(MSG_TUT_THREAT_TITLE, MSG_TUT_THREAT, Img_TutTitle_THREAT, MSG_TUT_THREAT_MAP,
 		     TutUnits_Threat, Setup_Threat, NULL, EventScr_TutG_Threat),
 
@@ -510,25 +555,15 @@ const struct Tutorial gTutorials[] = {
 	MAP_TUTORIAL(MSG_TUT_PRESTIGE_TITLE, MSG_TUT_PRESTIGE, Img_TutTitle_PRESTIGE, MSG_TUT_PRESTIGE_MAP,
 		     TutUnits_Prestige, NULL, NULL, EventScr_TutG_Prestige),
 	MAP_TUTORIAL(MSG_TUT_CAPACITY_TITLE, MSG_TUT_CAPACITY, Img_TutTitle_CAPACITY, MSG_TUT_CAPACITY_MAP,
-		     TutUnits_Eirika, NULL, NULL, EventScr_TutG_Capacity),
+		     TutUnits_Capacity, Setup_Capacity, NULL, NULL),
 	MAP_TUTORIAL(MSG_TUT_TRAINEE_TITLE, MSG_TUT_TRAINEE, Img_TutTitle_TRAINEE, MSG_TUT_TRAINEE_MAP,
 		     TutUnits_Trainee, Setup_Trainee, NULL, EventScr_TutG_Trainee),
 
 	/* Towns & Minigames */
 	TOWN_TUTORIAL(MSG_TUT_DISTRICTS_TITLE, MSG_TUT_DISTRICTS, Img_TutTitle_DISTRICTS, MSG_TUT_DISTRICTS_MAP,
 		      NULL),
-	TOWN_TUTORIAL(MSG_TUT_FISHING_TITLE, MSG_TUT_FISHING, Img_TutTitle_FISHING, MSG_TUT_FISHING_MAP,
-		      Town_Fishing),
-	TOWN_TUTORIAL(MSG_TUT_HEX_TITLE, MSG_TUT_HEX, Img_TutTitle_HEX, MSG_TUT_HEX_MAP,
-		      Town_Hex),
-	TOWN_TUTORIAL(MSG_TUT_CROSSING_TITLE, MSG_TUT_CROSSING, Img_TutTitle_CROSSING, MSG_TUT_CROSSING_MAP,
-		      Town_Crossing),
-	TOWN_TUTORIAL(MSG_TUT_SNEK_TITLE, MSG_TUT_SNEK, Img_TutTitle_SNEK, MSG_TUT_SNEK_MAP,
-		      Town_Snek),
-	TOWN_TUTORIAL(MSG_TUT_TOWER_TITLE, MSG_TUT_TOWER, Img_TutTitle_TOWER, MSG_TUT_TOWER_MAP,
-		      Town_Tower),
-	TOWN_TUTORIAL(MSG_TUT_GUILD_TITLE, MSG_TUT_GUILD, Img_TutTitle_GUILD, MSG_TUT_GUILD_MAP,
-		      Town_Guild),
+	/* Every district game in one: Port Kiris has them all (fishing, Hex, River Crossing, Snek, Tower Stack, the board) */
+	TOWN_TUTORIAL(MSG_TUT_MINIGAMES_TITLE, MSG_TUT_MINIGAMES, Img_TutTitle_MINIGAMES, MSG_TUT_MINIGAMES_MAP, NULL),
 
 	{ 0 },
 };

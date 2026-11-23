@@ -321,7 +321,6 @@ static const struct ProcCmd ProcScr_PostAction_SpinTileSequence[] = {
     PROC_END,
 };
 
-static struct Trap *(*const sVanillaAddLightRune)(int x, int y) = (void *) 0x0802EA59;
 
 static struct Trap *RemoveGrassTile(struct Trap *trap)
 {
@@ -712,12 +711,20 @@ void AddTeleportTilePair(int x1, int y1, int x2, int y2)
 }
 
 LYN_REPLACE_CHECK(AddLightRune);
+/*
+ * Vanilla's body (bmtrick.c), with the trap returned and its palette set. It called "vanilla's" at 0x0802EA59, but
+ * that is this function's own lyn jump (LynJump.event): it called itself until the stack ran into IWRAM, and every
+ * light rune (the Rune staff, the Light Rune and Sealed Zone skills) crashed the game.
+ */
 struct Trap *AddLightRune(int x, int y, int palette)
 {
-    struct Trap *trap = sVanillaAddLightRune(x, y);
+    struct Trap *trap = AddTrap(x, y, TRAP_LIGHT_RUNE, gBmMapTerrain[y][x]);
 
     if (!trap)
         return NULL;
+
+    trap->data[TRAP_EXTDATA_RUNE_TURNSLEFT] = 3;
+    gBmMapTerrain[y][x] = TERRAIN_TILE_00;
 
     SetTrapMapSpritePalette(trap, palette);
 

@@ -27,7 +27,7 @@
 ## 🧩 Introduction
 
 Each [district](./Districts.md) has a **guild board**, a small wooden notice board on its map next to the Hex shop.
-Stand on it and press A: the board opens with three pages.
+Stand on it or next to it and press A: the board opens with three pages.
 
 - **Quests**: the district's requests. Score so much in a minigame, catch so many kinds of fish, win battles, bring an
   item. A met quest is claimed here for tokens, and sometimes gold and an item.

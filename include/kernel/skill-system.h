@@ -416,6 +416,8 @@ int GetFreeSkillSlot(struct Unit* unit);
 bool CanRemoveSkill(struct Unit* unit, const u16 sid);
 int RemoveSkill(struct Unit* unit, const u16 sid);
 int AddSkill(struct Unit* unit, const u16 sid);
+bool SkillFitsCapacity(struct Unit *unit, int sid);
+int AddSkillWithinCapacity(struct Unit *unit, const u16 sid);
 void TryAddSkillLvup(struct Unit* unit, int level);
 void TryAddSkillPromotion(struct Unit* unit, int jid);
 

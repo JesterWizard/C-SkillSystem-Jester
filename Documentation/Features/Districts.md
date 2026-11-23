@@ -427,7 +427,7 @@ name used in `HexShops.c`.
 ## 🎣 Fishing
 
 Each district has a pool of water with a fishing spot next to it. A fish icon leaps from the water beside each
-spot. Stand on the spot and press A to open the fishing screen: buy a bait, cast, hook a fish and keep the line's tension
+spot. Stand on the spot (or next to it) and press A to open the fishing screen: buy a bait, cast, hook a fish and keep the line's tension
 in the green to land it for gold. Each district's water has its own five species (20 in all, a golden one in each), every
 catch gets a size and a catch card, and the fish journal records them. Find all five of a water's
 species and its legend appears; catches raise an angler rank, townsfolk post requests, and a catch can be kept as food. The rules, the fish, the baits and the rewards are
@@ -449,7 +449,7 @@ in [District Fishing](./Minigames/Fishing.md).
 
 ## 🐸 River Crossing
 
-Each district has a River Crossing spot, marked on the map with a frog icon. Stand on it and press A to play a
+Each district has a River Crossing spot, marked on the map with a frog icon. Stand on it (or next to it) and press A to play a
 lane-crossing minigame: hop across a road of enemy riders and a river of drifting rafts to fill five docks. Each district
 has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). The rules are in
 [River Crossing](./Minigames/Crossing.md).
@@ -465,7 +465,7 @@ has its own course, from Serafew (the gentlest) to Jehanna Hall (the fastest). T
 
 ## 🧱 Tower Stack
 
-Each district has a Tower Stack spot, marked on the map with a tower icon. Stand on it and press A to play a
+Each district has a Tower Stack spot, marked on the map with a tower icon. Stand on it (or next to it) and press A to play a
 block-stacking minigame: drop sliding blocks onto a tower, chain perfect landings into a fever, and turn the score into
 gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 
@@ -480,7 +480,7 @@ gold. The rules are in [Tower Stack](./Minigames/Tower.md).
 
 ## 📋 Guild Board
 
-Each district has a guild board, a small wooden notice board by the Hex shop. Stand on it and press A: its pages are the
+Each district has a guild board, a small wooden notice board by the Hex shop. Stand on it (or next to it) and press A: its pages are the
 district's quests, prizes bought with tokens (every minigame pays tokens), and every minigame's records. A red notice
 blinks on the board while a quest there is met and waiting to be claimed. On the Records page, DOWN shows the records of
 Marlo, the guild's rival: beating one pays tokens. The rules are in [Guild Board](./GuildBoard.md).

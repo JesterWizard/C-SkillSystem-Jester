@@ -312,6 +312,7 @@ void TutorialMap_Setup(void)
 		LoadUnit(def);
 
 	RefreshEntityBmMaps();
+	SetFlag(TUTMAP_FLAG_VILLAGE);   /* Free Movement's village: its set-up clears it (TutorialsData.c) */
 	if (tut->setup)
 		tut->setup();
 

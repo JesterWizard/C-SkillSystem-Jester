@@ -266,8 +266,8 @@ enum {
     ASMC(EndQuintessenceStealEffect)
 
 #define FANCY_TELEPORT_ANIMATION_AT_COORDS(x, y, classId) \
-    SVAL(EVT_SLOT_3, 6) \
-    SVAL(EVT_SLOT_4, 8) \
+    SVAL(EVT_SLOT_3, x) \
+    SVAL(EVT_SLOT_4, y) \
     SVAL(EVT_SLOT_5, classId) \
     ASMC(CallEvent_SpawnAssassinfx) \
     STAL(30)

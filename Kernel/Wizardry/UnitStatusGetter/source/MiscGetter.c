@@ -9,6 +9,7 @@
 #include "bmidoten.h"
 #include "event.h"
 #include "exp-bar-styles.h"
+#include "tutorials.h"
 
 int StatusGetterCheckCpas(int status, struct Unit *unit)
 {
@@ -136,8 +137,12 @@ static struct SealSourceCache *GetSealSourceCache(void)
     cache->active_magic = false;
     cache->active_physical = false;
 
-    /* Pre/post chapter events (and other map events) must not apply seal. */
-    cache->event = EventEngineExists();
+    /*
+     * Pre/post chapter events (and other map events) must not apply seal. Except on a tutorial's map, whose events
+     * are its opening and its guided steps' boxes: the unit menu is built while the after-move box shows, and the
+     * Magic Seal tutorial's B.Mag showed inside the seal.
+     */
+    cache->event = EventEngineExists() && !TutorialMap_Active();
     if (cache->event)
         return cache;
 

@@ -43,6 +43,7 @@ KNOWN_PATTERNS = [
     (r"^ITEM_UNK_", "vanilla's unused item slots"),
     (r"^ITEM_(BLACKGEM|GOLDGEM|JUNAFRUIT|DELPHISHIELD)$", "vanilla items the campaign has not placed yet"),
     (r"^MSG_FISHING_COL_", "column labels of the first fishing journal layout"),
+    (r"^MSG_TUTRETIRED_", "place-holders of the minigame tutorials merged into Minigames: they keep later message IDs"),
     (r"^MSG_ITEM_\w+_STAFF_SUBTITLE$", "staff subtitles of a menu that is not installed"),
 ]
 

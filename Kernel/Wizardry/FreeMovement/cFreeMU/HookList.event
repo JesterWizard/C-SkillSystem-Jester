@@ -4,6 +4,7 @@ FMU_FunctionList_OnPressA:
 	POIN FMUmisc_RunMapEvents|1
 	POIN FMU_RunTrapASMC|1	// before talk: A on a fishing spot fishes even with an NPC next to it
 	POIN FMUmisc_RunTalkEvents|1
+	POIN FMU_RunTrapASMC_Adjacent|1	// A next to a district spot (fishing, crossing, tower, guild board)
 	FMU_FunctionList_End
 	
 ALIGN 4
