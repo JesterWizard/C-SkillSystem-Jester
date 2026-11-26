@@ -12,8 +12,7 @@ Bubbles are one **128x64** PNG per unit and chapter, drawn as two 64x64 sprites.
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/WorldMapThoughts.lyn.event` and the `.dmp` graphics are checked in, so you can install `Installer.event` as-is.
@@ -43,7 +42,9 @@ This folder is self-contained. It does not include `EAstdlib.event`, `Hack Insta
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-world-map-thoughts.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-world-map-thoughts.gba
 ```
 
 ## Files
@@ -66,7 +67,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-world-map-thoughts.
 | `WorldMap_LoopExt` | `$B96F8` | 8 bytes |
 | `StartWMNodeMenu` | `$BC5B4` | 8 bytes |
 
-**Free space:** `$1000000` (body and graphics continue at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (body and graphics continue at `CURRENTOFFSET` after install; see [Free space](../README.md#free-space)).
 
 ## Adding new thoughts
 
@@ -95,7 +96,7 @@ Leave unused chapter slots empty so the feature skips them.
 ## Conflicts
 
 - Any patch that replaces vanilla `WorldMap_LoopExt` (`$B96F8`) or `StartWMNodeMenu` (`$BC5B4`), including the full C Skill System world map rewrite and Enter Town.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel with `world_map_thought_bubbles` enabled.
 
 `Installer.event` uses `PROTECT` on the hook sites and free-space body. Overlapping ROM writes should fail assembly with a clear EA error.

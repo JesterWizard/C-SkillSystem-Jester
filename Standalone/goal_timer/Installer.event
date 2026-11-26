@@ -3,7 +3,6 @@
 #define FE8U_GoalDisplay_Init          $8D288
 #define FE8U_GoalDisplay_Loop_Display  $8D784
 #define FE8U_BMapMain_UndeployEveryone $59A254
-#define FE8U_StandaloneFreeSpace       $1000000
 
 PUSH
 ORG FE8U_GoalDisplay_Init
@@ -23,7 +22,12 @@ ORG FE8U_BMapMain_UndeployEveryone
     PROTECT FE8U_BMapMain_UndeployEveryone FE8U_BMapMain_UndeployEveryone + 0x4 // BMapMain UndeployEveryone
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_goal_timer:
 #include "Source/GoalTimer.lyn.event"
 #include "ChapterTimers.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GoalTimer body + chapter table
+PROTECT StandaloneBody_goal_timer CURRENTOFFSET // GoalTimer body + chapter table

@@ -35,8 +35,7 @@ None. The points are spent in the same level-up that earns them, so nothing is p
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `NewEkrLevelup` at `0x08073988` and `StartManimLevelUp` at `0x0807F10C`
-- Free space: `$1000000` (about 4.4 KB, `$1000000` .. `$100115E`)
-
+- Free space: about 4.4 KB, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/LvupStatPoints.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -65,7 +64,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-lvup-stat-points.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-lvup-stat-points.gba
 ```
 
 ## Files
@@ -86,7 +87,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-lvup-stat-points.gb
 
 Both replacements fall back to the vanilla body for non-player units (and for the promotion screen, which also goes through `NewEkrLevelup`).
 
-**Free space:** `$1000000` (code, then the 2 setting bytes `gLvupStatPointsConfig`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, then the 2 setting bytes `gLvupStatPointsConfig`; see [Free space](../README.md#free-space)).
 
 ## Conflicts
 
@@ -94,7 +95,7 @@ Both replacements fall back to the vanilla body for non-player units (and for th
 - Works with **[levelup_modes](../levelup_modes/)**, **[guaranteed_lvup](../guaranteed_lvup/)** and **[two_random_number_growths](../two_random_number_growths/)**: they hook `CheckBattleUnitLevelUp` / `GetStatIncrease`, which still roll for every unit; this patch discards the roll for player units only when it opens the menu, so enemy and NPC level-ups keep using them.
 - Works with **[restore_hp_on_level_up](../restore_hp_on_level_up/)** (it hooks `BattleApplyUnitUpdates` and only checks that the level went up) and **[stat_gain_frame_speed](../stat_gain_frame_speed/)** (it speeds up the map level-up window, which now only shows for non-player units).
 - Any other patch that replaces vanilla `NewEkrLevelup` or `StartManimLevelUp`, including the full C Skill System.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both hook sites and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

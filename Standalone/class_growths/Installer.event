@@ -8,7 +8,6 @@
 #define FE8U_PromoSel_StartClassDesc       $CCF60 // sub_80CCF60
 #define FE8U_ClassChgMenuItem_OnChange     $CDD00
 #define FE8U_ClassChgMenuExec              $CDD78
-#define FE8U_StandaloneFreeSpace           $1000000
 
 /*
  * Edit without recompiling C.
@@ -54,11 +53,16 @@ ORG FE8U_ClassChgMenuExec
     PROTECT FE8U_ClassChgMenuExec FE8U_ClassChgMenuExec + 0x8 // ClassChgMenuExec hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_class_growths:
 #include "Source/ClassGrowths.lyn.event"
 
 ALIGN 4
 ClassGrowthsConfig:
 BYTE CLASS_GROWTHS_MODE CLASS_GROWTHS_PREVIEW
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ClassGrowths body + config
+PROTECT StandaloneBody_class_growths CURRENTOFFSET // ClassGrowths body + config

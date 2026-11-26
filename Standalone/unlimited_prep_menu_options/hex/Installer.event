@@ -1,9 +1,15 @@
-/* Hex (standalone add-on, FE8U clean ROM). INSTALL THE PARENT PATCH FIRST:
- *   ../Installer.event (Unlimited Prep Menu Options), in the same Insert EA run, before this file.
- * Then this file. Do not define jumpToHack here; Insert EA provides it.
+/* Hex (standalone add-on, FE8U clean ROM). Insert EA on this file alone: it installs the parent patch,
+ * ../Installer.event (Unlimited Prep Menu Options), too, unless the parent is already in this EA run.
+ * Do not define jumpToHack here; Insert EA provides it.
  * This add-on writes the card item into vanilla item slot HEX_CARD_ITEM, hooks GetItemName and
- * GetItemDescId, puts its body (cards, art, engine, Hex screen) at FE8U_HexFreeSpace (not $1000000,
- * which the parent uses), and adds the "Hex" row to the Preparations menu in extension slot HEX_PREP_SLOT. */
+ * GetItemDescId, puts its body (cards, art, engine, Hex screen) right after the parent's body, and adds
+ * the "Hex" row to the Preparations menu in extension slot HEX_PREP_SLOT. */
+
+/* The parent: its hooks, then its body, in the free space this file starts in. The Hex row goes in the
+ * parent's slot table (PrepMenuExtSlots), whose address is only known in the run that installs it. */
+#ifndef UNLIMITED_PREP_MENU_OPTIONS_INSTALLED
+    #include "../Installer.event"
+#endif
 
 /* The Preparations menu extension slot (0 to 7) of the Hex row. Must equal HEX_PREP_SLOT in Source/Hex.h. */
 #define HEX_PREP_SLOT                      0
@@ -23,9 +29,6 @@
  * written from Source/HexCardIcon.bin (made by tools/gen_card_icon.py). See ../README.md, "Card icon". */
 #define HEX_CARD_ICON                      $DF
 #define FE8U_ItemIconSheet                 $5926F4  /* 0x085926F4: DrawIcon's source table, 0x80 bytes per icon id (0x00..0xDF) */
-
-/* Free space for this add-on's body. The parent uses $1000000..$1001060. */
-#define FE8U_HexFreeSpace                  $1100000
 
 /* Item row: gItemData[HEX_CARD_ITEM] (struct ItemData, 36 bytes). Only the card's fields are
  * set; the rest is zero. The name and description ids are the dummy item's own (the hook
@@ -67,15 +70,14 @@ POP
 
 /* Body: the card helpers, the rules engine, the card art, the Preparations row and the Hex screen
  * (Source/Hex.lyn.event, made by `make` in this folder). Everything is protected. */
-PUSH
-ORG FE8U_HexFreeSpace
+ALIGN 4
+StandaloneBody_hex:
 #include "Source/Hex.lyn.event"
-PROTECT FE8U_HexFreeSpace CURRENTOFFSET // body
-POP
+PROTECT StandaloneBody_hex CURRENTOFFSET // body
 
 /* The Hex row: the parent's extension slot HEX_PREP_SLOT points at HexPrepRow (a struct PrepMenuExtRow in the body).
- * The slot words at $1000004..$1000023 are not protected in the parent, so this write is allowed. */
+ * The parent leaves its slot words unprotected, so this write is allowed. */
 PUSH
-ORG $1000004 + 4*HEX_PREP_SLOT
+ORG PrepMenuExtSlots + 4*HEX_PREP_SLOT
 POIN HexPrepRow
 POP

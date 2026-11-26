@@ -1,6 +1,5 @@
 #define FE8U_CanShowUnitStatScreen $1C928
 #define FE8U_FindNextUnit          $87920
-#define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH
 ORG FE8U_CanShowUnitStatScreen
@@ -11,7 +10,12 @@ ORG FE8U_FindNextUnit
     PROTECT FE8U_FindNextUnit FE8U_FindNextUnit + 0x8 // FindNextUnit hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_deny_stat_screen_access:
 #include "Source/DenyStatScreenAccess.lyn.event"
 
 // Classes whose units cannot be opened on the stat screen (R on the map /
@@ -24,4 +28,4 @@ StatScreenDenyClasses:
     // BYTE 0x51 // example: CLASS_PHANTOM
     BYTE 0x00 // end of list
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // DenyStatScreenAccess body + class list
+PROTECT StandaloneBody_deny_stat_screen_access CURRENTOFFSET // DenyStatScreenAccess body + class list

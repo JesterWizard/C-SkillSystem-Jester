@@ -13,8 +13,7 @@ This matches the integrated C Skill System `casual_mode` designer-config flag, b
 
 - **FE8U (USA)** clean ROM
 - Hook: the player-unit branch of vanilla `UnitKill` at `$18418`
-- Free space: `$1000000` (98 bytes, `$1000000` .. `$1000062`)
-
+- Free space: 98 bytes, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Setting
 
 `Installer.event` has one setting, read at run time:
@@ -58,7 +57,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-casual-mode.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-casual-mode.gba
 ```
 
 ## Files
@@ -79,12 +80,12 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-casual-mode.gba
 
 Vanilla `UnitKill` does `unit->state |= US_DEAD | US_HIDDEN; InitUnitsupports(unit);` for a dying player unit. The hook calls `CasualMode_KillPlayerUnit`, which does exactly that when casual mode is off, and otherwise only sets `US_HIDDEN | US_NOT_DEPLOYED`, then returns through the vanilla epilogue at `$1842C`. Vanilla `ChapterChangeUnitCleanup` keeps only `US_DEAD` from those bits, so the unit is available again from the next chapter.
 
-**Free space:** `$1000000`. **RAM:** none.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)). **RAM:** none.
 
 ## Conflicts
 
 - Any patch that changes vanilla `UnitKill` (`$183FC` .. `$18430`) in the player-unit branch, in particular circleseverywhere's older Casual Mode hack (it hooks the same `$18418`) and the full C Skill System.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or change `FE8U_StandaloneFreeSpace` in `Installer.event` to an offset after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the hook site (8 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
@@ -96,7 +97,7 @@ Vanilla `UnitKill` does `unit->state |= US_DEAD | US_HIDDEN; InitUnitsupports(un
 | [send_inventory_on_death](../send_inventory_on_death/) | Yes. A defeated unit's items go to the convoy and are removed from the unit, so a unit that comes back doesn't duplicate them; items that didn't fit stay with it. Tested together. |
 | [death_dance](../death_dance/), [rescue_drop_move_again](../rescue_drop_move_again/), [promote_enemy_on_kill](../promote_enemy_on_kill/) | Yes, different functions. A rescued unit is dropped before its rescuer is removed, as in vanilla. |
 
-To install several, give each its own free space (for example `$1000000`, `$1000200`, `$1000400`, ...).
+To install several, use Insert EA on each one; each gets its own free space (see [Free space](../README.md#free-space)).
 
 ## Differences from the C Skill System
 

@@ -45,8 +45,7 @@ The seeds are not saved. When the check value doesn't match (after power-on, or 
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `CheckBattleUnitLevelUp` at `0x0802BA28` (Thumb entry `0x0802BA29`)
-- Free space: `$1000000` (about 1.3 KB, `$1000000` .. `$1000524`)
-
+- Free space: about 1.3 KB, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/CheckBattleUnitLevelUp_Modes.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -75,7 +74,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-levelup-modes.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-levelup-modes.gba
 ```
 
 ## Files
@@ -94,15 +95,15 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-levelup-modes.gba
 |----------|--------------|-------------|
 | `CheckBattleUnitLevelUp` | `$2BA28` | 8 bytes |
 
-**Free space:** `$1000000` (code, then the 4 setting bytes `LvupModesConfig`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, then the 4 setting bytes `LvupModesConfig`; see [Free space](../README.md#free-space)).
 
 ## Conflicts
 
 - **[guaranteed_lvup](../guaranteed_lvup/)** replaces the same function (`CheckBattleUnitLevelUp`, `$2BA28`), so the two can't be installed together. Install only this package and set `LVUP_MODES_GUARANTEED` to `1` to get both behaviours.
 - Any other patch that replaces vanilla `CheckBattleUnitLevelUp`, including the full C Skill System level-up rewrite.
-- Works with [two_random_number_growths](../two_random_number_growths/) (it hooks `GetStatIncrease`, which mode `0` still calls, so mode `0` rolls 2RN; modes `1`-`4` don't use `GetStatIncrease`) and with [restore_hp_on_level_up](../restore_hp_on_level_up/) (it hooks `BattleApplyUnitUpdates`). Each needs its own free-space address: they all default to `$1000000`.
+- Works with [two_random_number_growths](../two_random_number_growths/) (it hooks `GetStatIncrease`, which mode `0` still calls, so mode `0` rolls 2RN; modes `1`-`4` don't use `GetStatIncrease`) and with [restore_hp_on_level_up](../restore_hp_on_level_up/) (it hooks `BattleApplyUnitUpdates`). Each Insert EA puts its body in its own free space.
 - **EWRAM** `0x0203AE20` .. `0x0203AE27` overlaps with other hacks using FreeRamSpace2. Change `Source/RamAlloc.s` if needed.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the hook site (`$2BA28`, 8 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

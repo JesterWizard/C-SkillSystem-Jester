@@ -12,8 +12,7 @@ This matches the integrated C Skill System `promote_trainees_in_chapter` designe
 
 - **FE8U (USA)** clean ROM
 - Hook: the `BATTLE_HandleCombatDeaths` step of vanilla `sProcScr_CombatAction` (routine pointer at `$59DB10`)
-- Free space: `$1000000` (204 bytes, `$1000000` .. `$10000CC`)
-
+- Free space: 204 bytes, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/PromoteTraineesInChapter.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -42,7 +41,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-trainee-promotion.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-trainee-promotion.gba
 ```
 
 ## Files
@@ -62,13 +63,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-trainee-promotion.g
 
 The new routine, `BATTLE_HandleCombatDeaths_PromoteTrainees`, runs vanilla `BATTLE_HandleCombatDeaths` first. By then the battle results are applied and defeated units are handled. It then checks both battle units: a unit whose class or character has `CA_MAXLEVEL10`, that gained a level in this battle and is now level 10 or higher, starts `StartBmPromotion` as a blocking child of the combat proc. The next script command yields, and the combat action ends when the promotion is over.
 
-**Free space:** `$1000000`.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)).
 
 ## Conflicts
 
 - Any patch that repoints or rewrites `sProcScr_CombatAction` (`$59DABC` .. `$59DB24`), in particular the `BATTLE_HandleCombatDeaths` pointer at `$59DB10`, including the full C Skill System.
 - [promotion_on_max_level](../promotion_on_max_level/) repoints the same `$59DB10` pointer, so only one of the two can be installed. To get both behaviours, install `promotion_on_max_level` alone with `PROMOTE_TRAINEES_AT_LEVEL_10` set to `1`.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the hook site (`$59DB10`, 4 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

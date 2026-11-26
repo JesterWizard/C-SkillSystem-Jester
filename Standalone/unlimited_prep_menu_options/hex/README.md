@@ -56,7 +56,7 @@ The card has its own 16x16 icon: a small hexagonal card (dark outline, gold bord
 
 ## Needs the parent patch
 
-Install [Unlimited Prep Menu Options](../README.md) **first, in the same Insert EA run** (one ColorzCore run with both installers, or FEBuilder's Insert EA on the parent and then on this folder's `Installer.event` on the same ROM). The Hex row is written into the parent's extension slot. Without the parent's `PMX1` header the slot write goes into unformatted ROM and nothing shows in the menu.
+This add-on needs [Unlimited Prep Menu Options](../README.md), and its `Installer.event` installs it: it includes `../Installer.event` unless the parent is already in the same EA run. The Hex row is written into the parent's extension slot, whose address is only known in the run that installs the parent. Don't Insert EA the parent separately as well: a second copy would be installed, the hooks would point at it, and the first copy's 4192 bytes would go unused.
 
 ## Install
 
@@ -65,24 +65,21 @@ The folder is self-contained (it does not need `EAstdlib.event` or `Hack Install
 ### FEBuilderGBA
 
 1. Open a clean FE8U ROM.
-2. **Advanced Editors → Insert EA** on `../Installer.event` (the parent).
-3. On the same ROM, **Advanced Editors → Insert EA** on this folder's `Installer.event`.
+2. **Advanced Editors → Insert EA** on this folder's `Installer.event`. It installs the parent too, in the free space Insert EA picks ([Free space](../../README.md#free-space)).
 
 ### Event Assembler (command line)
 
-Both steps write the same ROM. The parent's step is first, then this one. The parent's README has the same commands for the parent alone.
+One run installs the parent and this add-on. `ORG` sets where both go; `$1000000` is free on a clean ROM.
 
 ```bash
 EA_DIR=<repo>/Tools/EventAssembler
 ROM=<somewhere>/fe8-hex.gba
 cp <clean fe8.gba> "$ROM"
-cd <repo>/Standalone/unlimited_prep_menu_options
-{ echo '#include "Extensions/Hack Installation.txt"'; echo '#include "Installer.event"'; } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:"$ROM"
-cd hex
-{ echo '#include "Extensions/Hack Installation.txt"'; echo '#include "Installer.event"'; } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:"$ROM"
+cd <repo>/Standalone/unlimited_prep_menu_options/hex
+{ echo '#include "Extensions/Hack Installation.txt"'; echo 'ORG $1000000'; echo '#include "Installer.event"'; } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:"$ROM"
 ```
 
-The tested path is one run, as the parent's test does (`test/make_test_rom.sh`). Two runs on one ROM should also work, because the parent's protection does not cover `$1100000` or the slot word, but the two-run order was not tested with the Hex row.
+This is the path `test/make_test_rom.sh` tests.
 
 ## Build
 
@@ -98,7 +95,7 @@ This needs devkitARM, [FE-CLib](https://github.com/MokhaLeee/FE-CLib-Mokha) (`To
 
 | File | Purpose |
 |------|---------|
-| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `HEX_CARD_ICON`, `HEX_PREP_SLOT`, the item row, the card icon (`#incbin`), the two item hooks, the body at `$1100000`, the slot write |
+| `Installer.event` | Vanilla addresses, `HEX_CARD_ITEM`, `HEX_CARD_ICON`, `HEX_PREP_SLOT`, the item row, the card icon (`#incbin`), the parent's installer (included), the two item hooks, the body, the slot write |
 | `Source/Hex.h` | `HEX_CARD_ITEM`, `HEX_PREP_SLOT`, `struct HexCardType`, the card and art declarations, `gHexScreenState` |
 | `Source/HexCards.c` | Card item tests, `MakeHexCardItem`, convoy and inventory collection |
 | `Source/HexCardTypes.c` | The 32 card types (`gHexCardTypes`) |
@@ -129,10 +126,10 @@ The Hex row adds no hook. It uses the parent's extension slot. The card icon add
 |------|------------|------|------|
 | Item row `gItemData[0xC1]` | `$80B634` | 36 bytes | Protected. The card's fields (icon byte `$DF` at `$80B651`) |
 | Card icon, icon slot `$DF` | `$599674` | 128 bytes | Protected. Overwrites the vanilla icon slot `$DF` (a placeholder) with `Source/HexCardIcon.bin` |
-| Extension slot `HEX_PREP_SLOT` | `$1000004` (slot 0) | 4 bytes | Written with `POIN HexPrepRow`. Not protected (the parent leaves the slots open) |
-| Body (free space) | `$1100000` to `$110CC0B` | **52236 bytes (0xCC0C)** | Protected from `$1100000` to the end of the row. Holds the card code and table, the engine, the art, the screen, the row |
+| Extension slot `HEX_PREP_SLOT` | `PrepMenuExtSlots + 4 * HEX_PREP_SLOT` (the parent's slot table) | 4 bytes | Written with `POIN HexPrepRow`. Not protected (the parent leaves the slots open) |
+| Body (free space) | right after the parent's body | **52864 bytes (0xCE80)** | Protected from its start to the end of the row. Holds the card code and table, the engine, the art, the screen, the row |
 
-The body is at `FE8U_HexFreeSpace` = `$1100000`, far from the parent's `$1000000` to `$1001060` and its `$1000024` body. The ROM grows to 17878028 bytes (the 16 MiB ROM plus the body).
+The parent's 4192 bytes and this body (57056 bytes together) go in the free space Insert EA picks, or after your `ORG` (see [Free space](../../README.md#free-space)). In the test ROM (`ORG $1000000`) the parent is at `$1000000` to `$1001060` and this body at `$1001060` to `$100DEE0`.
 
 ## Item slot and how to change it
 
@@ -147,7 +144,7 @@ To use another slot: pick an index from `0x00` to `0xCD` that no other patch use
 
 - **Slot:** `HEX_PREP_SLOT` (0 to 7) in `Installer.event` is the extension slot of the Hex row. The row sits after the vanilla rows, in slot order. The key and state are `0x40 + slot` (`0x40` for slot 0).
 - **To change the slot:** set `#define HEX_PREP_SLOT n` in **both** `Installer.event` and `Source/Hex.h`, then rebuild with `make`. The C code uses the same value for the cursor restore (`cur_cmd`) and the state, so the two must match.
-- **Another add-on in the same slot** overwrites this row. Pick a slot that is 0 in the parent's header (`$1000004 + 4*n`) before this install.
+- **Another add-on in the same slot** overwrites this row. Pick a slot that no other add-on in the same run uses.
 - The row's text is in `Source/HexPrep.c` (`"Hex"` and the help). The help uses `\n` for the second line.
 
 ## RAM
@@ -164,7 +161,6 @@ While it is open the screen uses OBJ tiles 0 to 567 from `0x06010000` and the OB
 
 - Any patch that hooks `GetItemName` or `GetItemDescId`, or uses item `0xC1`, the parent's hook sites (see the parent's table), or the Preparations menu's extension slot `HEX_PREP_SLOT`.
 - The kernel's Hex (`Kernel/Wizardry/Minigames/Hex`, `PrepSkill`), which uses the same card item and the same prep menu. Do not install both.
-- Free space `$1100000` to `$110CC0B`: another standalone body there would overlap.
 - EWRAM `0x0203C100` to `0x0203C2FF`: another patch that uses that range.
 
 ## Verification status
@@ -173,7 +169,7 @@ Checked in session S2b with the parent and this folder in one Event Assembler ru
 
 - `make` in this folder: passes (`-Wall -Wextra -Werror -O2`). `make clean && make` rebuilds it.
 - Undefined symbols: every external name of the eight objects (seven C files and `RamAlloc.s`) is defined either by the FE8 reference object (`Tools/FE-CLib-Mokha/reference/fireemblem8.ref.o`) or by this folder's objects. None is left unresolved.
-- The 12 parent hooks hold `00 4B 18 47` and a pointer into the parent's body (`$1000000` area). The two item hooks hold `00 4B 18 47` and a pointer into `$1100000`. Slot 0 holds `0x0910CBF4`, the address of `HexPrepRow` (`$110CBF4`), whose title is `Hex` and help `Play Hex with your army\nand view your cards.`, with `isVisible` NULL.
+- The 12 parent hooks hold `00 4B 18 47` and a pointer into the parent's body. The two item hooks hold `00 4B 18 47` and a pointer into this body. Slot 0 holds the address of `HexPrepRow`, whose title is `Hex` and help `Play Hex with your army\nand view your cards.`, with `isVisible` NULL.
 - Emulator (mGBA via gbarun, route in `test/README.md` and `test/hex_screen.gbarun`): the Preparations menu scrolled to the Hex row with its help text; the Hex menu on the mural with blue windows; "Choose an opponent" with the chapter's units and the highlighted unit's deck; the hand picker and the accepted hand; mid-match board; the result banner; the Cards viewer; the convoy's Supply list with the starter cards; B from the Hex menu returns to the Preparations menu with the cursor on Hex and no popup.
 - A win (the Take step and "Gained Ewan!") was checked in an earlier run of the same route; the screenshots kept are of a loss run (the match result is not the same on every run, see `test/README.md`)
 
@@ -181,9 +177,13 @@ Checked in session S3 (the card icon, `make` and `test/make_test_rom.sh` as abov
 
 - `make` rebuilt nothing in `Source/` (the C is unchanged) and ran the icon rule when `tools/gen_card_icon.py` was touched: the same 128 bytes. `make` passes.
 - The test ROM builds with `No errors. Please continue being awesome.`. Against the previous build (the same route with the Member Card icon), the only changed bytes are the item row's icon byte (`$80B651`: `$84` to `$DF`) and the icon slot `$599674` to `$5996F3`.
-- The 12 parent hooks hold `00 4B 18 47` (the PMX1 header at `$1000000` is the 13th site, not a hook). The two item hooks and slot 0 are as above.
+- The 12 parent hooks hold `00 4B 18 47` (the PMX1 header at the start of the parent's body is the 13th site, not a hook). The two item hooks and slot 0 are as above.
 - Emulator, `test/cards_supply.gbarun`: the card rows show the hex icon next to the names; `Lightning`, `Vulnerary`, the weapon-type tabs at the top of the Supply list and the other icons are pixel-identical to the previous build (pixel diff: only the card icon cells change).
-.
+
+Checked again after the free-space change (the installer includes the parent, no fixed addresses), with `test/make_test_rom.sh` (`ORG $1000000`):
+
+- The test ROM builds with `No errors. Please continue being awesome.`. Slot 0 holds `0x0900DEC8`, the address of `HexPrepRow` ("Hex" and its help). The item hooks point at `$1001479` and `$10014C9`, just after the parent's body.
+- Emulator, `test/hex_screen.gbarun`: all 11 screenshots (the Preparations row, the Hex menu, the opponents, the hand picker, the match, the result, the Take step, the return, the Cards viewer and the Supply list) are pixel-identical to a test ROM built from the previous installers (the parent at `$1000000`, this body at `$1100000`).
 
 ## Credits
 

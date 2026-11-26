@@ -14,8 +14,7 @@ This matches the integrated C Skill System behaviour for the `rescue_drop_move_a
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `UnitDrop` at `0x08018370` (Thumb entry `0x08018371`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/UnitDrop_MoveAgain.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -44,7 +43,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-rescue-drop.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-rescue-drop.gba
 ```
 
 ## Files
@@ -62,13 +63,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-rescue-drop.gba
 |----------|--------------|-------------|
 | `UnitDrop` | `$18370` | 8 bytes (`jumpToHack`) |
 
-**Free space:** `$1000000`, 96 bytes. No RAM.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 96 bytes. No RAM.
 
 ## Conflicts
 
 - **`Standalone/death_dance`** also replaces `UnitDrop` at `$18370`; the two packages cannot be installed together (EA reports the `PROTECT` overlap). The integrated kernel combines both in one `UnitDrop`. To get both, merge the rules by hand in `Source/UnitDrop_MoveAgain.c` (grey out only when `US_HAS_MOVED` is set **and** the rescuer is alive, `actor->curHP != 0`), rebuild, and install only this package.
 - Any other patch that replaces vanilla `UnitDrop` (`0x08018370`), including the full C Skill System.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the hook site (`$18370`, 8 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

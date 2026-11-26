@@ -12,8 +12,7 @@ This matches the integrated C Skill System `stat_screen_allegiance_colors` confi
 
 - **FE8U (USA)** clean ROM
 - Hook: inside `StatScreen_InitDisplay` at `0x0808859C` (installer ORG `$8859C`), where vanilla loads `Pal_StatscreenBG` into BG palettes 12-15. An asm stub (`StatScreen_LoadBgPal_Allegiance`) calls `GetStatScreenBgPal_Allegiance()` and resumes at the vanilla `CopyToPaletteBuffer(pal, 0x180, 0x80)` call at `0x080885A4`.
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/StatScreenAllegianceColors.lyn.event` and the `Gfx/*Pal.dmp` palettes are checked in, so you can install `Installer.event` as-is.
@@ -43,7 +42,9 @@ This folder is self-contained. It does not include `EAstdlib.event`, `Hack Insta
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-ss-colors.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-ss-colors.gba
 ```
 
 ## Files
@@ -64,7 +65,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-ss-colors.gba
 |----------|--------------|-------------|
 | `StatScreen_InitDisplay` + `0xEC` (BG palette load) | `$8859C` | 8 bytes (`ldr r0, =Pal_StatscreenBG` / `movs r1` / `lsls r1` / `movs r2`) |
 
-**Free space:** `$1000000` (about 2.1 KB: code + four 512-byte palettes; continues at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (about 2.1 KB: code + four 512-byte palettes; continues at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 No RAM is used.
 
@@ -72,8 +73,8 @@ No RAM is used.
 
 - Any patch that changes `StatScreen_InitDisplay` around `$8859C`..`$885A3` or replaces `StatScreen_InitDisplay`, including the full C Skill System stat screen.
 - Patches that edit the vanilla stat screen background palette (`Pal_StatscreenBG`, `0x08A06460`) have no effect while this patch is installed, because the palette is no longer read from there. Edit the PNGs in `Gfx/` instead.
-- No other package in `Standalone/` hooks this address. [`stat_page_promotions`](../stat_page_promotions/) hooks other stat screen addresses (`$88690`, `$889A0`) and can be installed alongside (move one body off `$1000000`).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- No other package in `Standalone/` hooks this address. [`stat_page_promotions`](../stat_page_promotions/) hooks other stat screen addresses (`$88690`, `$889A0`) and can be installed alongside.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site and free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

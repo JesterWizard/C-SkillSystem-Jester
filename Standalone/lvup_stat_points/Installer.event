@@ -1,6 +1,5 @@
 #define FE8U_NewEkrLevelup         $73988
 #define FE8U_StartManimLevelUp     $7F10C
-#define FE8U_StandaloneFreeSpace   $1000000
 
 /*
  * Edit without recompiling C.
@@ -29,11 +28,16 @@ ORG FE8U_StartManimLevelUp
     PROTECT FE8U_StartManimLevelUp FE8U_StartManimLevelUp + 0x8 // StartManimLevelUp hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_lvup_stat_points:
 #include "Source/LvupStatPoints.lyn.event"
 
 ALIGN 4
 gLvupStatPointsConfig:
 BYTE LVUP_STAT_MODE LVUP_STAT_POINTS
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LvupStatPoints body + config
+PROTECT StandaloneBody_lvup_stat_points CURRENTOFFSET // LvupStatPoints body + config

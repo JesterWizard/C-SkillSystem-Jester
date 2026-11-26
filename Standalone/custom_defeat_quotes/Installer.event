@@ -1,6 +1,5 @@
 #define FE8U_CheckBattleDefeatTalk   $835A8
 #define FE8U_DisplayDefeatTalkForPid $835DC
-#define FE8U_StandaloneFreeSpace     $1000000
 
 PUSH
 ORG FE8U_CheckBattleDefeatTalk
@@ -11,8 +10,13 @@ ORG FE8U_DisplayDefeatTalkForPid
     PROTECT FE8U_DisplayDefeatTalkForPid FE8U_DisplayDefeatTalkForPid + 0x8 // DisplayDefeatTalkForPid hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_custom_defeat_quotes:
 #include "Source/CustomDefeatQuotes.lyn.event"
 #include "DefeatTalkTable.event"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomDefeatQuotes body + table
+PROTECT StandaloneBody_custom_defeat_quotes CURRENTOFFSET // CustomDefeatQuotes body + table

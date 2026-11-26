@@ -1,6 +1,5 @@
 #define FE8U_ComputeBattleUnitHitRate   $2ABAC
 #define FE8U_ComputeBattleUnitAvoidRate $2ABE4
-#define FE8U_StandaloneFreeSpace        $1000000
 
 /* Edit without recompiling C. */
 #define BIORHYTHM_MECHANIC 1
@@ -17,11 +16,16 @@ ORG FE8U_ComputeBattleUnitAvoidRate
     PROTECT FE8U_ComputeBattleUnitAvoidRate FE8U_ComputeBattleUnitAvoidRate + 0x8 // ComputeBattleUnitAvoidRate hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_biorhythm_mechanic:
 #include "Source/Biorhythm.lyn.event"
 
 ALIGN 4
 BiorhythmMechanicEnabled:
 BYTE BIORHYTHM_MECHANIC
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Biorhythm body + character table + config
+PROTECT StandaloneBody_biorhythm_mechanic CURRENTOFFSET // Biorhythm body + character table + config

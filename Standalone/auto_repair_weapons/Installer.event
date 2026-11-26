@@ -1,5 +1,4 @@
 #define FE8U_ChapterChangeUnitCleanup $31214
-#define FE8U_StandaloneFreeSpace      $1000000
 
 /* Edit without recompiling C. */
 #define AUTO_REPAIR_WEAPONS 1
@@ -10,11 +9,16 @@ ORG FE8U_ChapterChangeUnitCleanup
     PROTECT FE8U_ChapterChangeUnitCleanup FE8U_ChapterChangeUnitCleanup + 0x8 // ChapterChangeUnitCleanup hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_auto_repair_weapons:
 #include "Source/AutoRepairWeapons.lyn.event"
 
 ALIGN 4
 AutoRepairWeaponsEnabled:
 BYTE AUTO_REPAIR_WEAPONS
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // AutoRepairWeapons body + config
+PROTECT StandaloneBody_auto_repair_weapons CURRENTOFFSET // AutoRepairWeapons body + config

@@ -16,8 +16,7 @@ This matches the integrated C Skill System behaviour for the `l_button_same_fact
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `TrySwitchViewedUnit` at `0x0801DB4C` (Thumb entry `0x0801DB4D`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/TrySwitchViewedUnit_SameFaction.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -46,7 +45,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-l-button.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-l-button.gba
 ```
 
 ## Files
@@ -64,12 +65,12 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-l-button.gba
 |----------|--------------|-------------|
 | `TrySwitchViewedUnit` | `$1DB4C` | 8 bytes (`jumpToHack`) |
 
-**Free space:** `$1000000`, 188 bytes. No RAM.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 188 bytes. No RAM.
 
 ## Conflicts
 
 - Any patch that replaces vanilla `TrySwitchViewedUnit` (`0x0801DB4C`), including the full C Skill System.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the hook site (`$1DB4C`, 8 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

@@ -12,7 +12,6 @@
 #define FE8U_ShopInit_FrameWidth         $B4CAE // Shop_Init: movs r2, #20 (DrawUiFrame2 width)
 #define FE8U_ShopInit_Win0Left           $B4D42 // Shop_Init: mov r5, r8   (SetWin0Box left = 56)
 
-#define FE8U_StandaloneFreeSpace         $1000000
 
 /* ---------------------------------------------------------------------------
  * Settings (edit without recompiling C)
@@ -106,7 +105,12 @@ POP
  * Code and data
  * ------------------------------------------------------------------------ */
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_limited_shop_items:
 #include "Source/LimitedShopItems.lyn.event"
 
 ALIGN 4
@@ -132,4 +136,4 @@ StockListEnd
 SetChapterShopStock(2, Ch2ShopStock)
 
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LimitedShopItems body + settings + stock lists
+PROTECT StandaloneBody_limited_shop_items CURRENTOFFSET // LimitedShopItems body + settings + stock lists

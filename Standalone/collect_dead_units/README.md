@@ -12,8 +12,7 @@ This matches the integrated C Skill System `collect_dead_units` designer-config 
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `UnitKill` at `$183FC` and `GetFreeUnit` at `$17838`
-- Free space: `$1000000` (164 bytes, `$1000000` .. `$10000A4`)
-
+- Free space: 164 bytes, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/CollectDeadUnits.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -42,7 +41,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-collect-dead-units.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-collect-dead-units.gba
 ```
 
 ## Files
@@ -66,13 +67,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-collect-dead-units.
 
 `GetFreeUnit_CollectDeadUnits` returns the first empty slot of the faction like vanilla. If there is none (non-player factions only), it clears the first dead unit of that faction and returns its slot. It also skips the unused unit table entries past the end of each faction's array, which vanilla reads through a null pointer.
 
-**Free space:** `$1000000`. **RAM:** none.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)). **RAM:** none.
 
 ## Conflicts
 
 - Any patch that changes the start of vanilla `UnitKill` (`$183FC` .. `$18403`) or `GetFreeUnit` (`$17838` .. `$1783F`), including the full C Skill System.
 - A patch that hooks the non-player branch of `UnitKill` (`$18428`) is bypassed for non-player units.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or change `FE8U_StandaloneFreeSpace` in `Installer.event` to an offset after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both hook sites (8 bytes each) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
@@ -84,7 +85,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-collect-dead-units.
 | [send_inventory_on_death](../send_inventory_on_death/) | Yes, it only handles player units. Tested together. |
 | [death_dance](../death_dance/), [rescue_drop_move_again](../rescue_drop_move_again/), [promote_enemy_on_kill](../promote_enemy_on_kill/) | Yes, different functions. A dead enemy's rescued unit is dropped before the enemy is marked dead, as in vanilla. Tested with `death_dance` and `promote_enemy_on_kill`. |
 
-To install several, give each its own free space (for example `$1000000`, `$1000200`, `$1000400`, ...).
+To install several, use Insert EA on each one; each gets its own free space (see [Free space](../README.md#free-space)).
 
 ## Differences from the C Skill System
 

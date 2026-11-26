@@ -25,8 +25,7 @@ While the bonus is being granted and shown (on the title screen, until the soft 
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `Title_IDLE` at `0x080C6354` and `LoadSavedEid8A` at `0x080A5290`
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/KonamiCode.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -55,7 +54,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-konami.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-konami.gba
 ```
 
 ## Files
@@ -77,7 +78,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-konami.gba
 
 The integrated kernel swaps the `Title_IDLE` pointer inside `gProcScr_TitleScreen` (`0x08AA6B64`); this package hooks the function itself instead, which has the same effect.
 
-**Free space:** `$1000000`, 0x3F5 bytes (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 0x3F5 bytes (body continues at `CURRENTOFFSET` after install).
 
 ## Conflicts
 
@@ -85,7 +86,7 @@ The integrated kernel swaps the `Title_IDLE` pointer inside `gProcScr_TitleScree
 - Any patch that replaces `LoadSavedEid8A` (`$A5290`).
 - Patches that use the Bonus Claim save block for their own data.
 - **EWRAM** `0x0203ADC0` .. `0x0203ADC1` overlaps with other hacks using FreeRamSpace2. Change `Source/RamAlloc.s` if needed.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both hook sites and the free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

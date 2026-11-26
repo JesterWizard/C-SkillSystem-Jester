@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # TEST ONLY. Builds the Hex test ROM (cards and the Hex screen) from your own clean FE8U ROM, in one Event Assembler run:
-#   parent test/ToChapter4.event (chapter-4 start) -> parent Installer.event -> hex/Installer.event
+#   parent test/ToChapter4.event (chapter-4 start) -> ORG $1000000 -> hex/Installer.event (which includes the parent's)
 # Run `python3 test/make_ch4_entry.py <clean fe8.gba>` in the parent folder first (see the parent test/README.md).
 #
 # Usage: hex/test/make_test_rom.sh <clean fe8.gba> <out.gba>
@@ -33,7 +33,7 @@ cp "$CLEAN" "$OUT"
 cat > "$WORK/test.event" <<EOF
 #include "Extensions/Hack Installation.txt"
 #include "$PARENT/test/ToChapter4.event"
-#include "$PARENT/Installer.event"
+ORG \$1000000
 #include "$HEX/Installer.event"
 EOF
 

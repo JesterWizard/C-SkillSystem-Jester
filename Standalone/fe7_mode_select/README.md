@@ -22,8 +22,7 @@ This is the integrated C Skill System `fe7_mode_select` feature, made to work on
 
 - **FE8U (USA)** clean ROM
 - Hook: the `NewNewGameDifficultySelect` step of vanilla `ProcScr_SaveMenu` (routine pointer at `$A20164`)
-- Free space: `$1000000` (42,037 bytes including graphics, `$1000000` .. `$100A435`)
-
+- Free space: 42,037 bytes including graphics, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Settings
 
 Set in `Installer.event`, read at run time:
@@ -71,7 +70,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fe7-mode-select.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-fe7-mode-select.gba
 ```
 
 ## Files
@@ -93,7 +94,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fe7-mode-select.gba
 
 `StartModeSelect` starts the mode select proc as a blocking child of the save menu, like vanilla's menu. It reports the choice with vanilla `SaveMenu_SetDifficultyChoice` (`0` Easy, `1` Normal, `2` Difficult, `3` back), so the rest of the save menu (`SaveMenu_ReloadScreenFormDifficulty`, `SaveMenu_PostDifficultHandler`, slot selection, `WriteNewGameSave`) runs unchanged. On exit the screen restores the save menu's background layout and graphics, the default portrait VRAM layout and the H-blank handler, then fades to black as vanilla's menu does.
 
-**Free space:** `$1000000`.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)).
 
 **RAM:** no permanent RAM. While the screen is open it uses the EWRAM overlay at `0x020000F4` .. `0x0201EC68` (the same buffers FE7 uses: three battle animation buffers, text, palette backups). Vanilla only uses that area for battle animations, the preparation screens, the ending and similar screens that can't run at the same time. The save menu keeps a little data of its own there (`0x020007A0` .. `0x02000968`: slot palette, falling sparkles, sub-box text); it is copied to `0x0201EAA0` while the screen is open and put back on exit.
 
@@ -101,7 +102,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fe7-mode-select.gba
 
 - Any patch that changes the New Game difficulty step of `ProcScr_SaveMenu` (`$A20160` .. `$A20168`), for example patches that skip or replace FE8's difficulty menu, and the full C Skill System.
 - A patch that keeps data of its own in the EWRAM overlay listed above while the title/save menu is open.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or change `FE8U_StandaloneFreeSpace` in `Installer.event` to an offset after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - No other package in `Standalone/` hooks the difficulty step. [chapter_names](../chapter_names/), [skip_intro](../skip_intro/) and [konami_style_bonus_screen](../konami_style_bonus_screen/) hook other parts of the title/save menu flow.
 
 `Installer.event` uses `PROTECT` on both the hook site (`$A20164`, 4 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.

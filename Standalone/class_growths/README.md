@@ -22,7 +22,7 @@ The merge applies to every level-up: battles and the arena, staff and dance EXP,
 
 - **FE8U (USA)** clean ROM
 - Hooks: see [Hooks & Free Space](#hooks--free-space)
-- Free space: `$1000000`
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 - RAM: 128 bytes at `0x0203AF00` (preview text)
 
 ## Settings
@@ -72,7 +72,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-class-growths.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-class-growths.gba
 ```
 
 ## Files
@@ -101,7 +103,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-class-growths.gba
 
 Each hook is `jumpToHack` to a full C replacement.
 
-**Free space:** `$1000000`, about 3 KB.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), about 3 KB.
 
 **RAM:** `ClassGrowthPreviewText`, 128 bytes at `0x0203AF00` .. `0x0203AF7F` (inside FreeRamSpace2, `0x0203AAA4` .. `0x0203DDE0`). The talk system keeps a pointer to the preview string while it prints, so it cannot live on the stack. Change `Source/RamAlloc.s` and run `make` if another hack uses that range.
 
@@ -112,7 +114,7 @@ Each hook is `jumpToHack` to a full C replacement.
 - Patches that change EXP gains by editing `BattleApplyExpGains`, `BattleApplyItemExpGains` or `BattleApplyMiscActionExpGains` (including the full C Skill System) replace the same functions.
 - A level-up routine that reads growths from somewhere other than `bu->unit.pCharacterData` or the real unit's `pCharacterData` (for example a growth getter of its own) will not see the class growths.
 - **EWRAM** `0x0203AF00` .. `0x0203AF7F` must be free.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on every hook site and the free-space body, so overlapping ROM writes fail assembly with a clear EA error.
 

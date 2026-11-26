@@ -15,8 +15,7 @@ Icon art is by Alice (from the integrated C Skill System campaign).
 - **FE8U (USA)** clean ROM
 - Hook: `gProc_MapTask` `PROC_CALL(PutUnitSpritesOam)` pointer at `$59D934`
 - Graphics: `LoadObjUIGfx` pointer at `$156AC`, sheet width at `$15690`
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/CustomTalkIcon.lyn.event` and `Gfx/WarningHpSheet_Jester.dmp` are checked in, so you can install `Installer.event` as-is.
@@ -46,7 +45,9 @@ This folder is self-contained. It does not include `EAstdlib.event`, `Hack Insta
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-talk-icon.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-talk-icon.gba
 ```
 
 ## Files
@@ -66,7 +67,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-talk-icon.gba
 - Any patch that replaces vanilla `PutUnitSpritesOam` (`0x080273A5`) or the MapTask proc pointer at `$59D934`, including the full C Skill System MapTask rewrite.
 - Reinstalling this patch also restores vanilla `PutUnitSpriteIconsOam` at `$275E8` so leftover `jumpToHack` bytes from older revisions cannot recurse.
 - Any patch that changes `LoadObjUIGfx` graphics at `$156AC` / `$15690` (for example HP bar or other OBJ UI sheet hacks).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site, `LoadObjUIGfx` edits, and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

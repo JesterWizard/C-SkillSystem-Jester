@@ -23,8 +23,7 @@ Integrated defaults match `Data/DesignerConfig/designer-config.c` (`true` and `3
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `BattleGenerateHit` at `0x0802B83D` (installer ORG `$2B83C`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/PromoteEnemyOnKill.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -53,7 +52,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-promote-enemy-on-kill.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-promote-enemy-on-kill.gba
 ```
 
 ## Files
@@ -68,9 +69,9 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-promote-enemy-on-ki
 ## Conflicts
 
 - Any patch that replaces vanilla `BattleGenerateHit` (`$2B83C` / `0x0802B83D`), including the full C Skill System battle hit rewrite.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
-`Installer.event` uses `PROTECT` on both the hook site (`$2B83D`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both the hook site (`$2B83D`, 8 bytes) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

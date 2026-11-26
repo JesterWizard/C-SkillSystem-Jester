@@ -1,5 +1,4 @@
 #define FE8U_GetBattleQuoteEntry   $8464C
-#define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH
 ORG FE8U_GetBattleQuoteEntry
@@ -7,8 +6,13 @@ ORG FE8U_GetBattleQuoteEntry
     PROTECT FE8U_GetBattleQuoteEntry FE8U_GetBattleQuoteEntry + 0x8 // GetBattleQuoteEntry hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_custom_battle_quotes:
 #include "Source/CustomBattleQuotes.lyn.event"
 #include "BattleTalkTable.event"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomBattleQuotes body + table
+PROTECT StandaloneBody_custom_battle_quotes CURRENTOFFSET // CustomBattleQuotes body + table

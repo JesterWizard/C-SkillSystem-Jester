@@ -1,5 +1,4 @@
 #define FE8U_BattleApplyWeaponTriangleEffect $2C7C0
-#define FE8U_StandaloneFreeSpace             $1000000
 
 /* Edit without recompiling C. */
 #define ANIMA_TRIANGLE_ATK_BONUS 3  // Damage gained by the winning tome (and lost by the losing one)
@@ -23,7 +22,12 @@ ORG FE8U_BattleApplyWeaponTriangleEffect
     PROTECT FE8U_BattleApplyWeaponTriangleEffect FE8U_BattleApplyWeaponTriangleEffect + 0x8 // BattleApplyWeaponTriangleEffect hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_anima_weapon_triangle:
 #include "Source/AnimaWeaponTriangle.lyn.event"
 
 ALIGN 4
@@ -43,4 +47,4 @@ AnimaTriangleEntry(ANIMA_EXCALIBUR,  ANIMA_THUNDER,    ANIMA_BOLTING)
 AnimaTriangleEnd
 
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // AnimaWeaponTriangle body + config + table
+PROTECT StandaloneBody_anima_weapon_triangle CURRENTOFFSET // AnimaWeaponTriangle body + config + table

@@ -13,8 +13,7 @@ Snags, damaged walls and ballistae keep vanilla's HP display, placed in the new 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `DrawTerrainDisplayWindow` at `0x0808C964`
 - Repoint: the player interface font tiles pointer in `InitPlayerPhaseInterface` (`0x0808D0AC`)
-- Free space: `$1000000` (about 2.1 KB)
-
+- Free space: about 2.1 KB, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/ResTerrainWindow.lyn.event` and the `.dmp` graphics are checked in.
@@ -48,6 +47,7 @@ From a copy of clean `fe8.gba`, with this folder as the working directory:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8-res-terrain-window.gba
@@ -74,7 +74,7 @@ EA_DIR=<repo>/Tools/EventAssembler
 | `DrawTerrainDisplayWindow` | `$8C964` | 8 bytes |
 | `InitPlayerPhaseInterface` literal (`gGfx_PlayerInterfaceFontTiles`) | `$8D0AC` | 4 bytes (pointer) |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install). No RAM is used.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space). No RAM is used.
 
 The new font sheet is vanilla `gGfx_PlayerInterfaceFontTiles` with the RES label in tiles `$25`-`$27` (where AVO was) and AVO moved to tiles `$66`-`$68`, which are blank in vanilla. Everything else is unchanged.
 
@@ -83,7 +83,7 @@ The new font sheet is vanilla `gGfx_PlayerInterfaceFontTiles` with the RES label
 - Any patch that replaces vanilla `DrawTerrainDisplayWindow` (`$8C964`) or other terrain window patches, including the full C Skill System ResTerrainWindow module.
 - Any patch that repoints the player interface font tiles at `$8D0AC` (for example a custom HP/DEF/AVO label sheet, or the C Skill System's Modular Minimug Box label sheet). Merge the RES/AVO tiles into that sheet and drop this patch's repoint.
 - Patches that edit vanilla's terrain window labels (`Tsa_TerrainMapUi_Labels`) or frame (`gTSA_TerrainBox`) have no effect, since the window now uses its own.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site, the font pointer and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

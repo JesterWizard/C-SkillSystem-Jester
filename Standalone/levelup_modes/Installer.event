@@ -1,5 +1,4 @@
 #define FE8U_CheckBattleUnitLevelUp $2BA28
-#define FE8U_StandaloneFreeSpace    $1000000
 
 /*
  * Edit without recompiling C.
@@ -27,11 +26,16 @@ ORG FE8U_CheckBattleUnitLevelUp
     PROTECT FE8U_CheckBattleUnitLevelUp FE8U_CheckBattleUnitLevelUp + 0x8 // CheckBattleUnitLevelUp hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_levelup_modes:
 #include "Source/CheckBattleUnitLevelUp_Modes.lyn.event"
 
 ALIGN 4
 LvupModesConfig:
 BYTE LVUP_MODE_EASY LVUP_MODE_NORMAL LVUP_MODE_HARD LVUP_MODES_GUARANTEED
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CheckBattleUnitLevelUp_Modes body + config
+PROTECT StandaloneBody_levelup_modes CURRENTOFFSET // CheckBattleUnitLevelUp_Modes body + config

@@ -31,6 +31,6 @@ Leave unused rows commented (`//`) or delete them. Do not comment out the `$00, 
 
 Edit the lists first, then **Advanced Editors → Insert EA →** `Installer.event` → **Load Script**. No compile needed.
 
-To change the lists later, insert again in the same free space on your existing ROM.
+To change the lists later, insert again on your existing ROM. Insert EA puts the new copy in new free space and the hook points at it; the old copy stays unused.
 
-Hook `$2AF90`, free space `$1000000`. Conflicts: Skill System. `make` only if you change the `.c`.
+Hook `$2AF90`; the body goes in the free space Insert EA picks (see [Free space](../../Standalone/README.md#free-space)). Conflicts: Skill System. `make` only if you change the `.c`.

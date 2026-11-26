@@ -1,5 +1,4 @@
 #define FE8U_ComputeBattleUnitEffectiveHitRate $2AC60
-#define FE8U_StandaloneFreeSpace               $1000000
 
 /* Edit without recompiling C. */
 #define HIT_DECREASE_ON_RANGE_PENALTY 20 // Hit lost per 2 tiles of distance (3-4 tiles: -20, 5-6: -40, ...)
@@ -10,11 +9,16 @@ ORG FE8U_ComputeBattleUnitEffectiveHitRate
     PROTECT FE8U_ComputeBattleUnitEffectiveHitRate FE8U_ComputeBattleUnitEffectiveHitRate + 0x8 // ComputeBattleUnitEffectiveHitRate hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_hit_decrease_on_range:
 #include "Source/HitDecreaseOnRange.lyn.event"
 
 ALIGN 4
 HitDecreaseOnRangePenalty:
 BYTE HIT_DECREASE_ON_RANGE_PENALTY
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // HitDecreaseOnRange body + config
+PROTECT StandaloneBody_hit_decrease_on_range CURRENTOFFSET // HitDecreaseOnRange body + config

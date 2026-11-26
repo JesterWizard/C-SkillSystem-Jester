@@ -4,7 +4,7 @@ Everything in this folder is for testing `../Installer.event` in an emulator. **
 
 | File | Purpose |
 |------|---------|
-| `make_test_rom.sh` | Builds the test ROM in one Event Assembler run: the parent's `test/ToChapter4.event` (chapter-4 start), the parent's `Installer.event`, then this folder's `../Installer.event`. |
+| `make_test_rom.sh` | Builds the test ROM in one Event Assembler run: the parent's `test/ToChapter4.event` (chapter-4 start), then this folder's `../Installer.event` at `$1000000` (it includes the parent's `Installer.event`). |
 | `hex_screen.gbarun` | A gbarun script for the Hex row and screen: the prep route to the Hex row, the menu, Play, the hand picker, a full match, the stakes, back to the Preparations menu, the Cards viewer, and the convoy's Supply list. Writes `S2b_*.png` (1x; make the 2x copies with NEAREST). |
 | `cards_supply.gbarun` | A gbarun script for the card add-on alone: the Supply list, R on Ross, and taking two cards. Writes `cards_supply.png`, `cards_help.png`, `cards_inventory.png`. |
 

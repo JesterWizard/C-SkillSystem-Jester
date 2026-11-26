@@ -2,7 +2,6 @@
 #define FE8U_HitAttributes_SilencerDamage   $2B4E4 // movs r0, #127 (silencer hit damage)
 #define FE8U_HitAttributes_CapCompare       $2B532 // cmp r0, #127
 #define FE8U_HitAttributes_CapValue         $2B536 // movs r0, #127
-#define FE8U_StandaloneFreeSpace            $1000000
 
 /*
  * Edit without recompiling C.
@@ -31,7 +30,12 @@ ORG FE8U_BattleGenerate
     PROTECT FE8U_BattleGenerate FE8U_BattleGenerate + 0x8 // BattleGenerate hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_battle_max_damage:
 #include "Source/BattleMaxDamage.lyn.event"
 
 ALIGN 4
@@ -39,4 +43,4 @@ BattleMaxDamageValue:
 BYTE BATTLE_MAX_DAMAGE
 
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // BattleMaxDamage body + config
+PROTECT StandaloneBody_battle_max_damage CURRENTOFFSET // BattleMaxDamage body + config

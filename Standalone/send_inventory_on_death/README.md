@@ -12,8 +12,7 @@ This matches the integrated C Skill System `send_inventory_on_death` designer-co
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `KillUnitOnCombatDeath` at `$32728` and `KillUnitOnArenaDeathMaybe` at `$32750`
-- Free space: `$1000000` (248 bytes, `$1000000` .. `$10000F8`)
-
+- Free space: 248 bytes, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/SendInventoryOnDeath.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -42,7 +41,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-send-inventory.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-send-inventory.gba
 ```
 
 ## Files
@@ -63,12 +64,12 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-send-inventory.gba
 
 Both replacements keep the vanilla steps (HP check, `PidStatsRecordDefeatInfo`, vanilla `UnitKill` in the same order) and send the inventory first. They run from `BATTLE_HandleCombatDeaths` and the arena's death handler, after the battle results (weapon uses, broken weapons) have been applied to the unit.
 
-**Free space:** `$1000000`. **RAM:** none.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)). **RAM:** none.
 
 ## Conflicts
 
 - Any patch that changes vanilla `KillUnitOnCombatDeath` (`$32728`) or `KillUnitOnArenaDeathMaybe` (`$32750`), including the full C Skill System.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or change `FE8U_StandaloneFreeSpace` in `Installer.event` to an offset after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both hook sites (8 bytes each) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
@@ -81,7 +82,7 @@ Both replacements keep the vanilla steps (HP check, `PidStatsRecordDefeatInfo`, 
 | [promote_trainees_in_chapter](../promote_trainees_in_chapter/), [promotion_on_max_level](../promotion_on_max_level/) | Yes. They wrap `BATTLE_HandleCombatDeaths`, which still calls this patch's `KillUnitOnCombatDeath`. |
 | [death_dance](../death_dance/), [rescue_drop_move_again](../rescue_drop_move_again/), [promote_enemy_on_kill](../promote_enemy_on_kill/) | Yes, different functions. Tested with `death_dance` and `promote_enemy_on_kill`. |
 
-To install several, give each its own free space (for example `$1000000`, `$1000200`, `$1000400`, ...).
+To install several, use Insert EA on each one; each gets its own free space (see [Free space](../README.md#free-space)).
 
 ## Differences from the C Skill System
 

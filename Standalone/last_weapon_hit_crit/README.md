@@ -20,8 +20,7 @@ Edit `LAST_WEAPON_HIT_CRIT` at the top of `Installer.event`, then reinstall the 
 - Hooks:
   - `ComputeBattleUnitEffectiveCritRate` at `0x0802AC91` (installer ORG `$2AC90`, 8 bytes) for the battle forecast
   - `BattleUpdateBattleStats` at `0x0802B1C5` (installer ORG `$2B1C4`, 8 bytes) for each strike
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/LastWeaponHitCrit.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -50,7 +49,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-last-weapon-hit-crit.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-last-weapon-hit-crit.gba
 ```
 
 ## Files
@@ -66,11 +67,11 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-last-weapon-hit-cri
 
 - Any patch that replaces `ComputeBattleUnitEffectiveCritRate` (`$2AC90`) or `BattleUpdateBattleStats` (`$2B1C4`), including the full C Skill System battle-stat rewrite.
 - `Standalone/infinite_durability/` stops weapons from losing uses, so only a weapon that already has 1 use can trigger this critical.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 Combat-art durability costs and gaiden-magic weapon slots are skill-system only and are not part of this patch. On clean FE8U every breakable weapon spends 1 use per strike.
 
-`Installer.event` uses `PROTECT` on both hook sites (8 bytes each) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both hook sites (8 bytes each) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

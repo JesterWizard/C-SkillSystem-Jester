@@ -1,6 +1,5 @@
 #define FE8U_WorldMap_LoopExt $B96F8
 #define FE8U_StartWMNodeMenu  $BC5B4
-#define FE8U_StandaloneFreeSpace $1000000
 
 PUSH
 ORG FE8U_WorldMap_LoopExt
@@ -11,7 +10,12 @@ ORG FE8U_StartWMNodeMenu
     PROTECT FE8U_StartWMNodeMenu FE8U_StartWMNodeMenu + 0x8 // StartWMNodeMenu hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_world_map_thought_bubbles:
 #include "Source/WorldMapThoughts.lyn.event"
 #include "Gfx.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // WorldMapThoughts body + graphics
+PROTECT StandaloneBody_world_map_thought_bubbles CURRENTOFFSET // WorldMapThoughts body + graphics

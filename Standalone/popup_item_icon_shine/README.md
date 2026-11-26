@@ -36,8 +36,7 @@ To keep another popup plain, add its message ID to `sPopupIconShineLossMsgs`.
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `PopupIconUpdateProc_Loop` at `0x08011254` (the loop of `ProcScr_PopupUpdateIcon`)
-- Free space: `$1000000` (about 0.5 KB)
-
+- Free space: about 0.5 KB, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/PopupIconShine.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -69,6 +68,7 @@ From a copy of clean `fe8.gba`, with this folder as the working directory:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8-popup-icon-shine.gba
@@ -90,7 +90,7 @@ EA_DIR=<repo>/Tools/EventAssembler
 |----------|--------------|-------------|
 | `PopupIconUpdateProc_Loop` | `$11254` | 8 bytes |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space).
 
 **RAM:** none. The icon proc's frame counter lives in the proc's own unused padding (`+0x34`..`+0x39`). Procs don't clear their memory, so the counter restarts whenever the proc wasn't updated in the last 4 frames.
 
@@ -100,7 +100,7 @@ The glint is drawn from the same item icon sheet vanilla `LoadIconObjectGraphics
 
 - Any patch that replaces vanilla `PopupIconUpdateProc_Loop` (`$11254`), including the full C Skill System PopupIconShine module.
 - Icon patches that rewrite `LoadIconObjectGraphics` to load icons from somewhere other than its `item_icon_tiles` pointer (for example multi-sheet icon expansions) would make the glint draw the wrong icon's pixels for a moment. A plain repoint of the icon sheet is fine.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

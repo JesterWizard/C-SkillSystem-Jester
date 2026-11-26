@@ -1,6 +1,5 @@
 #define FE8U_ArenaUi_WagerGoldDialogue     $B59CC
 #define FE8U_DrawArenaOpponentDetailsText  $B5C48
-#define FE8U_StandaloneFreeSpace           $1000000
 
 PUSH
 ORG FE8U_ArenaUi_WagerGoldDialogue
@@ -14,6 +13,11 @@ ORG FE8U_DrawArenaOpponentDetailsText
     PROTECT FE8U_DrawArenaOpponentDetailsText FE8U_DrawArenaOpponentDetailsText + 0x8 // DrawArenaOpponentDetailsText hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_arena_show_opponent_in_advance:
 #include "Source/ArenaShowOpponentInAdvance.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ArenaShowOpponentInAdvance body
+PROTECT StandaloneBody_arena_show_opponent_in_advance CURRENTOFFSET // ArenaShowOpponentInAdvance body

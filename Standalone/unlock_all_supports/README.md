@@ -12,8 +12,7 @@ This matches the integrated C Skill System behaviour of `unlock_all_supports` (t
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `IsExtraSupportViewerEnabled`, `GetGlobalSupportListFromSave` and `GGM_IsCharacterKnown` (see below)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/UnlockAllSupports.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -42,7 +41,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-unlock-all-supports.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-unlock-all-supports.gba
 ```
 
 ## Files
@@ -62,13 +63,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-unlock-all-supports
 | `GetGlobalSupportListFromSave` (`0x080A35EC`) | `$A35EC` | 8 bytes | Reports rank A (3) for every support partner that has an entry in the support talk list (`GetSupportTalkEntry`), 0 otherwise. The save is not read. |
 | `GGM_IsCharacterKnown` (`0x080A37F0`) | `$A37F0` | 8 bytes | Always `TRUE`. |
 
-**Free space:** `$1000000`, 0xA0 bytes (body continues at `CURRENTOFFSET` after install). No RAM is used.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 0xA0 bytes (body continues at `CURRENTOFFSET` after install). No RAM is used.
 
 ## Conflicts
 
 - Any patch that replaces `IsExtraSupportViewerEnabled`, `GetGlobalSupportListFromSave`, `GGM_IsCharacterKnown` or `InitSaveMenuChoice` (the C Skill System's `ExtrasMenu` module replaces the last three).
 - Patches that change the support talk list format (`gSupportTalkList`, read through vanilla `GetSupportTalkEntry`) must keep `GetSupportTalkEntry` working.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on all three hook sites and on the free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

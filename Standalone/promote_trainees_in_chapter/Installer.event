@@ -6,7 +6,6 @@
  * that runs the vanilla routine and then starts the trainee promotion.
  */
 #define FE8U_CombatAction_HandleDeathsPtr $59DB10
-#define FE8U_StandaloneFreeSpace          $1000000
 
 PUSH
 ORG FE8U_CombatAction_HandleDeathsPtr
@@ -14,6 +13,11 @@ ORG FE8U_CombatAction_HandleDeathsPtr
     PROTECT FE8U_CombatAction_HandleDeathsPtr FE8U_CombatAction_HandleDeathsPtr + 0x4 // sProcScr_CombatAction BATTLE_HandleCombatDeaths pointer
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_promote_trainees_in_chapter:
 #include "Source/PromoteTraineesInChapter.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // BATTLE_HandleCombatDeaths_PromoteTrainees body
+PROTECT StandaloneBody_promote_trainees_in_chapter CURRENTOFFSET // BATTLE_HandleCombatDeaths_PromoteTrainees body

@@ -15,8 +15,7 @@ In the style of Lex Talionis' FE7 remake: before a critical hit by a unit with i
 
 - **FE8U (USA)** clean ROM
 - Hook: entry 7 (banim command C07, attack start) of the case table that vanilla `BattleAIS_ExecCommands` jumps through, at `0x08058C60` (table base `0x08058C44`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## How it works
 
 Vanilla battle animation scripts run command C07 when the attacker starts its attack. `BattleAIS_ExecCommands` dispatches each queued command with `mov pc` through a table of case addresses; the installer repoints entry 7 to `CritCutin_C07Thunk` (`Source/CritCutinThunk.s`). The thunk calls `CritCutin_OnC07` (`Source/CritCutin.c`) and then either resumes the dispatcher at `0x080596CC` (the command is handled for now) or falls through to the vanilla C07 case at `0x08059048`.
@@ -68,7 +67,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-crit-cutin.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-crit-cutin.gba
 ```
 
 ## Files
@@ -91,13 +92,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-crit-cutin.gba
 |------|-------|-------------|
 | `BattleAIS_ExecCommands` case table, entry 7 (C07) | `$58C60` | 4 bytes (pointer) |
 
-**Free space:** `$1000000`, about 25 KB (code ~1.3 KB, band frames ~23 KB). No RAM is used.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), about 25 KB (code ~1.3 KB, band frames ~23 KB). No RAM is used.
 
 ## Conflicts
 
 - Any patch that repoints banim command C07 (table entry at `$58C60`), including the C Skill System's `BanimHack` (`InjectBanimCmd(0x07, ...)`). Patches that only change other banim commands are fine.
 - No other package in `Standalone/` touches the banim command table or C07. `text_engine` hooks face blinking (`$5FE0`, `$6134`) and works alongside this (the cut-in portrait is a normal face proc).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the table entry and the free-space body, so overlapping ROM writes fail assembly with a clear EA error.
 

@@ -29,7 +29,7 @@ Edit `TEXT_BOX_EXTENSION_LAYOUT` at the top of `Installer.event`, then reinstall
   - `sub_808A200` at `$8A200`
   - `ApplyHelpBoxContentSize` at `$891AC`
   - `HbMoveCtrl_OnIdle` at `$89088`
-- Free space: `$1000000`
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 - EWRAM: `0x0203AAD8` through `0x0203AAEF` (24 bytes). Eight bytes are the page counter. Sixteen bytes are the fourth and fifth text slots, because vanilla `gHelpBoxSt` only has three.
 
 ## Build
@@ -60,7 +60,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-text-box-layout.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-text-box-layout.gba
 ```
 
 ## Files
@@ -78,9 +80,9 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-text-box-layout.gba
 - Any patch that replaces the nine help-box functions listed above, including the full C Skill System help-box rewrite.
 - EWRAM `0x0203AAD8` .. `0x0203AAEF` sits just after the ghost buffer used by `Standalone/alpha_blend_movement_sprites/`. Move `Source/RamAlloc.s` if another hack already uses that range, then run `make`.
 - Mode `2` decompresses the stat-screen digit sheet into OBJ VRAM at tile `0x240` when a help box opens. On the stat screen that is the same sheet. Elsewhere it can cover other OBJ graphics until the box closes.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
-`Installer.event` uses `PROTECT` on each hook site (8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on each hook site (8 bytes) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

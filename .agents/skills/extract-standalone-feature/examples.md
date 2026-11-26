@@ -25,7 +25,7 @@ This dry-run validates the extraction skill against a second feature **without i
 
 1. Identify the vanilla pre-battle stat calculation hook used by `PreBattleCalc.c` or the smallest FE8U function that applies temporary battle bonuses before combat.
 2. Install a private dispatcher at that leaf hook instead of importing `PreBattleCalc.lyn.event`.
-3. Place `GetBiorhythmBonus` and `gBiorhythmPInfoConfigList` together in free space starting at `$1000000` plus the size of any already-installed standalone patches.
+3. Place `GetBiorhythmBonus` and `gBiorhythmPInfoConfigList` together in the body, which goes in the free space Insert EA picks.
 4. Ship checked-in `Generated/Biorhythm.lyn.event` so FEBuilder users do not compile C.
 
 ## Planned package layout

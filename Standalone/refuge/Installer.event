@@ -5,7 +5,6 @@
 
 #define FE8U_UnitActionMenuItemsPtr  $59D1F8
 #define FE8U_PlayerPhase_FinishAction $1D344
-#define FE8U_StandaloneFreeSpace     $1000000
 
 PUSH
 ORG FE8U_UnitActionMenuItemsPtr
@@ -16,8 +15,13 @@ ORG FE8U_PlayerPhase_FinishAction
     PROTECT FE8U_PlayerPhase_FinishAction FE8U_PlayerPhase_FinishAction + 0x8 // PlayerPhase_FinishAction hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_refuge:
 #include "Source/Refuge.lyn.event"
 #include "Menu.event"
 #include "Text.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Refuge body + unit menu + text
+PROTECT StandaloneBody_refuge CURRENTOFFSET // Refuge body + unit menu + text

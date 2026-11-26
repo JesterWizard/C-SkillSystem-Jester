@@ -1,5 +1,4 @@
 #define FE8U_TrySwitchViewedUnit   $1DB4C
-#define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH
 ORG FE8U_TrySwitchViewedUnit
@@ -7,6 +6,11 @@ ORG FE8U_TrySwitchViewedUnit
     PROTECT FE8U_TrySwitchViewedUnit FE8U_TrySwitchViewedUnit + 0x8 // TrySwitchViewedUnit hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_l_button_same_faction_cycling:
 #include "Source/TrySwitchViewedUnit_SameFaction.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TrySwitchViewedUnit_SameFaction body
+PROTECT StandaloneBody_l_button_same_faction_cycling CURRENTOFFSET // TrySwitchViewedUnit_SameFaction body

@@ -1,6 +1,5 @@
 #define FE8U_ComputeBattleUnitEffectiveCritRate $2AC90
 #define FE8U_BattleUpdateBattleStats            $2B1C4
-#define FE8U_StandaloneFreeSpace                $1000000
 
 /* Edit without recompiling C. */
 #define LAST_WEAPON_HIT_CRIT 1
@@ -17,11 +16,16 @@ ORG FE8U_BattleUpdateBattleStats
     PROTECT FE8U_BattleUpdateBattleStats FE8U_BattleUpdateBattleStats + 0x8 // BattleUpdateBattleStats hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_last_weapon_hit_crit:
 #include "Source/LastWeaponHitCrit.lyn.event"
 
 ALIGN 4
 LastWeaponHitCritEnabled:
 BYTE LAST_WEAPON_HIT_CRIT
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LastWeaponHitCrit body + config
+PROTECT StandaloneBody_last_weapon_hit_crit CURRENTOFFSET // LastWeaponHitCrit body + config

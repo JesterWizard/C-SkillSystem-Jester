@@ -82,7 +82,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-limited-shop-items.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-limited-shop-items.gba
 ```
 
 ## Files
@@ -113,7 +115,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-limited-shop-items.
 
 The vanilla line drawers `DrawShopItemPriceLine` and `DrawShopItemLine` take 4 arguments, so `jumpToHack` (which clobbers r3) can't replace them. The patch replaces their four callers instead, which are their only callers.
 
-- Free space: `$1000000` (about 0xE10 bytes: code, settings, the 0x80-entry chapter table and the stock lists). No RAM.
+- Free space: about 0xE10 bytes: code, settings, the 0x80-entry chapter table and the stock lists, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space). No RAM.
 - `Installer.event` uses `PROTECT` on every patched site and on the free-space body.
 
 ## Conflicts
@@ -121,7 +123,7 @@ The vanilla line drawers `DrawShopItemPriceLine` and `DrawShopItemLine` take 4 a
 - Any patch that replaces the shop functions above or edits the shop window layout, including the full C Skill System.
 - Any patch that uses trap type `0xF5` (change `LIMITED_SHOP_TRAP_TYPE`), or that assumes every trap in the pool is a map object.
 - [infinite_durability](../infinite_durability/) hides weapon uses through `DrawItemMenuLine`, which these shop lists no longer call: set `LIMITED_SHOP_HIDE_WEAPON_USES` to `1` when both are installed.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `FE8U_StandaloneFreeSpace` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 ## Limitations
 

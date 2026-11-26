@@ -8,7 +8,6 @@
 #define FE8U_PlayerPhase_PostActionTrapsPtr $59ABE4 // gProcScr_PlayerPhase: PROC_CALL_2(HandlePostActionTraps)
 #define FE8U_PlayerPhase_FinishActionPtr    $59ABFC // gProcScr_PlayerPhase: PROC_CALL(PlayerPhase_FinishAction)
 #define FE8U_GoalDisplay_InitPtr            $A01A00 // gProcScr_GoalDisplay: PROC_CALL(GoalDisplay_Init)
-#define FE8U_StandaloneFreeSpace            $1000000
 
 PUSH
 ORG FE8U_PlayerPhase_PostActionTrapsPtr
@@ -22,7 +21,12 @@ ORG FE8U_GoalDisplay_InitPtr
     PROTECT FE8U_GoalDisplay_InitPtr FE8U_GoalDisplay_InitPtr + 0x4 // GoalDisplay Init call
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_goal_escape:
 #include "Source/GoalEscape.lyn.event"
 
 ALIGN 4
@@ -31,4 +35,4 @@ gGoalEscapeQuoteTextId:
 
 #include "EscapeTiles.event"
 #include "Text.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GoalEscape body + tile table + text
+PROTECT StandaloneBody_goal_escape CURRENTOFFSET // GoalEscape body + tile table + text
