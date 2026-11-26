@@ -6,7 +6,7 @@
 
 Two new portrait formats for vanilla FE8U, from the C Skill System's `half_body_portraits` and `portrait_32_color`:
 
-- **Half-body portraits** (FE9/FE10 style, originally by Ryrumeli, redesigned by Kirb): a 128x128 portrait that stands on the bottom edge of the screen in dialogue. Its speech bubble runs along the bottom of the screen with the tail pointing up at the face. Map menus and level-up screens show its top 128x80, and the stat screen shows a wider head.
+- **Half-body portraits** (FE9/FE10 style, by Kirb, with amendments by Jester; see [Credits](#credits)): a 128x128 portrait that stands on the bottom edge of the screen in dialogue. Its speech bubble runs along the bottom of the screen with the tail pointing up at the face. Map menus and level-up screens show its top 128x80, and the stat screen shows a wider head.
 - **32-colour portraits**: a vanilla-layout mug with up to 31 colours. The first 15 colours are drawn as usual. The rest go into a second "overlay" mug with its own OBJ palette, drawn on top of the first.
 
 The patch recognises both formats from their portrait table entries, so every other portrait keeps its vanilla behaviour. You can convert portraits one at a time and mix them in a scene. With no new-format portraits installed, dialogue and menus look exactly as in vanilla.
@@ -195,10 +195,18 @@ The C Skill System switches the whole game between portrait formats with designe
 - In the two-portrait preparations screens, the second portrait's palette is the first portrait's overlay palette, so a 32-colour first portrait shows only its first 16 colours there.
 - Half-bodies don't move their mouth or blink, and the 32-colour overlay isn't redrawn for mouth and eye frames.
 - A half-body sheet must be raw (as `HalfbodyFormatter.py` writes it) to fall back to its top 96x80. A compressed sheet always loads in full.
-- Runtime-tested in the Prologue: dialogue (two half-bodies; a half-body, a 32-colour and normal portraits together; three faces; `[LoadFace]` changes), the stat screen, the Item menu and the trade menu, plus pixel-identical vanilla dialogue and menus with no new-format portraits installed. The level-up, preparations and world map screens are assembled and byte-checked only.
+- In a battle-animation quote, both face slots share one block of face VRAM, as in vanilla: a quote must `[ClearFace]` one speaker before loading the next (vanilla's quotes do). Without it the second face overwrites the first one's graphics, which with half-bodies also leaves the wrong colours.
+- Runtime-tested in the Prologue: battle quotes with two half-bodies (with and without battle animations), dialogue (two half-bodies; a half-body, a 32-colour and normal portraits together; three faces; `[LoadFace]` changes), the stat screen, the Item menu and the trade menu, plus pixel-identical vanilla dialogue and menus with no new-format portraits installed. The level-up, preparations and world map screens are assembled and byte-checked only.
 
 ## Credits
 
-- Half-body portraits: Ryrumeli (original), Kirb (redesign and formatter), Jester (C Skill System integration)
+- Half-body portraits: Kirb, the original author (the half-body system, its sprite layouts and `HalfbodyFormatter.exe`; it replaced Ryrumeli's first version).
+- Amendments by Jester: the C Skill System integration and this standalone package, which:
+  - recognises half-bodies per portrait, so they mix with normal and 32-colour portraits in one scene;
+  - hands out face VRAM per face, so a half-body that has no room falls back to its top 96x80;
+  - moves the speech bubble to the bottom of the screen for half-body speakers, with the tail on the row above it;
+  - shows half-bodies in map menus, level-ups, preparations and the world map, and fixes the stat screen tile map;
+  - adds `HalfbodyFormatter.py`, a cross-platform stand-in for the Windows-only formatter.
+  The full list is in [Differences from the C Skill System](#differences-from-the-c-skill-system).
 - 32-colour portraits and `PortraitFormatter32`: C Skill System
 - Sample sheets: C Skill System `Data/CustomPortraits`
