@@ -84,7 +84,7 @@ Always point the portrait table at these blobs with these macros, or with exactl
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000` (about 6 KB, about 26 KB with the samples)
+- Free space: about 6 KB, about 26 KB with the samples, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 - EWRAM: `0x0203B800 .. 0x0203B89F` (`Source/RamAlloc.s`)
 
 ## Build
@@ -120,7 +120,7 @@ That requires devkitARM (or `arm-none-eabi-gcc`), Python 3 with Pillow, and this
 
 | File | Purpose |
 |---|---|
-| `Installer.event` | Hooks, byte changes, body at `$1000000`, optional samples |
+| `Installer.event` | Hooks, byte changes, body (in free space), optional samples |
 | `Source/Portraits.c` / `.h` | Face slots and formats, sprites, fades, stat screen face, speech bubble |
 | `Source/VanillaTalk.c` | Vanilla dialogue: face height and bubble row for half-body speakers |
 | `Source/RamAlloc.s` | `sPortraitSlots` EWRAM address |
@@ -169,7 +169,6 @@ All of these leave vanilla portraits looking the same. The C Skill System makes 
 - **`Standalone/exceed_portrait_box`**: both hook `Face_OnIdle` and `PutFace80x72_Core`. Use `Standalone/text_engine` with its `TEXT_ENGINE_HALF_BODY_PORTRAITS` and `TEXT_ENGINE_EXCEED_PORTRAITS` settings instead.
 - No other `Standalone/` package hooks or patches these addresses.
 - Other hacks that change face drawing, face VRAM, dialogue faces or the speech bubble (for example FEBuilder's mouth/eye or portrait-position patches) will clash. Hacks that move or expand the portrait table are fine; define `PortraitTable` for the macros.
-- The body starts at `$1000000`, like every package here. If you install several, change `FE8U_StandaloneFreeSpace` for each one.
 
 ## Differences from the C Skill System
 

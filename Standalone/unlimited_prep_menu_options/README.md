@@ -116,6 +116,7 @@ From a copy of clean `fe8.gba`, run in this folder:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } | "$EA_DIR/ColorzCore" A FE8 -I:"$EA_DIR" -output:fe8-unlimited-prep-menu.gba
 ```
@@ -151,9 +152,9 @@ Each hook is `jumpToHack` at a vanilla entry point, which overwrites 8 bytes (`l
 | `GetActivePrepMenuItemIndex` | `$9710C` | 8 bytes | `PMX_GetActivePrepMenuItemIndex` |
 | `SetPrepScreenMenuSelectedItem` | `$970CC` | 8 bytes | `PMX_SetPrepScreenMenuSelectedItem` |
 
-**Free space:** `$1000000` to `$1001060` (4192 bytes). The first 36 bytes are the extension header (`PMX1` magic at `$1000000`, then 8 slots at `$1000004`). The body follows at `$1000024`.
+**Free space:** 4192 bytes, wherever Insert EA (or your `ORG`) puts them; see [Free space](../README.md#free-space). The first 36 bytes are the extension header: the `PMX1` magic (label `PrepMenuExtHeader`), then the 8 slots (label `PrepMenuExtSlots`). The body follows.
 
-`Installer.event` protects the magic (`$1000000` to `$1000004`) and the body (`$1000024` to the end), but **not** the 8 slot words at `$1000004` to `$1000023`. Add-ons must be able to write their slot. If the slots were protected, an add-on that writes one in the same EA run would stop with "Trying to write data to area protected".
+`Installer.event` protects the magic and the body, but **not** the 8 slot words. Add-ons must be able to write their slot. If the slots were protected, an add-on that writes one in the same EA run would stop with "Trying to write data to area protected".
 
 ## RAM
 
@@ -169,17 +170,21 @@ The sizes keep to even numbers. The 16-byte list holds up to 5 vanilla rows (5 i
 
 ## Add-on interface (extension rows)
 
-An add-on adds a row without recompiling this patch. It writes a pointer into one of the 8 slots at `$1000004`, in the **same EA run** as this installer (FEBuilder's Insert EA of `Installer.event`, or one `ColorzCore` command that includes both):
+An add-on adds a row without recompiling this patch. It writes a pointer into one of the 8 slots, in the **same EA run** as this installer, because the slots' address (the label `PrepMenuExtSlots`) is only known in that run. An add-on's `Installer.event` includes this one, so a single Insert EA on the add-on installs both ([Hex](hex/) does this):
 
 ```
+#ifndef UNLIMITED_PREP_MENU_OPTIONS_INSTALLED
+    #include "../Installer.event"   // the parent, unless it is already in this run
+#endif
+
 PUSH
-ORG $1000004 + 4*N        ; N = slot, 0 to 7
+ORG PrepMenuExtSlots + 4*N  // N = slot, 0 to 7
 POIN MyPrepRowDef          ; a struct PrepMenuExtRow in the add-on
 POP
 ```
 
-- The add-on's own code and data must not be placed inside this patch's body (`$1000024` up to the end of the installer). Put them after the body in the same run (`ORG CURRENTOFFSET` after the installer), or at the add-on's own free space address.
-- A separate Insert EA run does not remember this patch's `PROTECT` ranges. Each run starts with no protection, so a second run can write anywhere, including this patch's body. Do not rely on it. Install the patch and its add-ons in one run when they write into `$1000000` or the body.
+- Put the add-on's own code and data after the parent's body: leave out any `ORG`, and they go on from where the parent's body ends.
+- A separate Insert EA run does not know `PrepMenuExtSlots`, so it stops with an undefined-label error. Installing the add-on on a ROM that already has this patch installs the patch again, after it in the add-on's free space: the hooks then point at the new copy, and the old copy's 4192 bytes go unused. Rows from add-ons installed in earlier runs are not carried over.
 
 ```c
 struct PrepMenuExtRow {
@@ -193,7 +198,7 @@ struct PrepMenuExtRow {
 };
 ```
 
-- **Slot layout:** `$1000000` holds the magic `PMX1` (`0x50 0x4D 0x58 0x31`). `$1000004 + 4*k` holds slot `k` as a `POIN`; 0 means empty. Slot `k` appears after the vanilla rows, in slot order.
+- **Slot layout:** `PrepMenuExtHeader` holds the magic `PMX1` (`0x50 0x4D 0x58 0x31`). `PrepMenuExtSlots + 4*k` holds slot `k` as a `POIN`; 0 means empty. Slot `k` appears after the vanilla rows, in slot order.
 - **States:** a row's key and state are `0x40 + slot` (`0x40` to `0x47`). Vanilla states stay 1 to 4 (Pick Units, Items, Save, Support).
 - **Selecting:** `onSelect(proc)` runs on A. It must play the sound, set `proc->state = 0x40 + slot` and call `Proc_Goto(proc, 0xA)`. `AtMenu_StartSubmenu` then calls `startSubmenu(proc)`.
 - **Returning:** the screen's end sets `proc->cur_cmd = 0x40 + slot` and `proc->state = 1`. See "Writing an extension row" above.
@@ -204,15 +209,14 @@ Full documentation with the C header is in `Source/PrepMenuExt.h`.
 ## Conflicts
 
 - Any patch that hooks one of the 12 functions above, including the integrated `Kernel/Wizardry/SkillSys/PrepSkill` feature and other prep-menu patches.
-- Free space `$1000000` is shared with other standalone bodies. Install one body there, or move this `ORG`.
 - EWRAM `0x0203C000` to `0x0203C013` should not be used by another patch.
 - Patches that change the vanilla Check Map submenu (`PrepScreenProc_StartMapMenu`) need to be checked against this one.
 
 ## Verification status
 
 - `make` in this folder: passes (`-Wall -Wextra -Werror`).
-- ColorzCore assembles `Installer.event` on a copy of the clean ROM with no errors. The 12 hook sites hold `00 4B 18 47` followed by a pointer into `$1000000`.
-- ColorzCore assembles `Installer.event` plus an add-on that writes slot 0 (`test/TestRow.event`) in one run with no errors. Slot 0 then holds a pointer to the add-on's struct, placed after the patch body (`$100115C` in this build), not inside it.
+- ColorzCore assembles `Installer.event` on a copy of the clean ROM with no errors. The 12 hook sites hold `00 4B 18 47` followed by a pointer into the body.
+- ColorzCore assembles `Installer.event` plus an add-on that writes slot 0 (`test/TestRow.event`) in one run with no errors. Slot 0 then holds a pointer to the add-on's struct, placed after the patch body, not inside it.
 - Checked in an emulator (mGBA via `gbarun`, test route in `test/README.md`): the Preparations screen, the Items and Check Map submenus and their return, the scrollbar, and START to leave the menu for the chapter map. The screen with this patch matches the clean ROM pixel for pixel.
 - Checked in an emulator with the test row (`test/`): it scrolls into view, its help text shows, its child screen opens, and after the child ends the menu returns with the cursor on the Test row, its help text, and no popup. UP moves to Save with its vanilla description. The real Support row still opens the vanilla unit list, the same as the clean ROM. Items returns to Items with B. See `test/README.md`.
 - The earlier "Rank / Augury" popup after the test row's return was the `AtMenu_CtrlLoop` path (`state = 4`, label 8). The fix is in the add-on contract above. No menu code changed (`PrepMenuUnlimited.c` is the same as before).

@@ -18,8 +18,7 @@ All other classes use the chapter base range only (plus torch).
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `GetUnitFogViewRange` at `0x080178A8` (Thumb entry `0x080178A9`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Installation
 
 This folder is self-contained. It does not include `EAstdlib.event` or `Hack Installation.txt`. FEBuilder’s bundled Event Assembler is enough.
@@ -36,7 +35,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fog.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-fog.gba
 ```
 
 ## Files
@@ -50,9 +51,9 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-fog.gba
 
 - Any patch that replaces vanilla `GetUnitFogViewRange` (`0x080178A8` / `0x080178A9`), including the full C Skill System fog vision hook.
 - Installing on a ROM that already modified the first 8 bytes at `0x080178A8`.
-- Free space at `$1000000` overlaps with other standalone patches from this repo (for example `two_random_number_growths`). Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
-`Installer.event` uses `PROTECT` on both the hook site (`$178A8`, 8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both the hook site (`$178A8`, 8 bytes) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

@@ -11,8 +11,7 @@ Chapters set to **0 seconds** keep their vanilla goal window.
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Configuration
 
 Edit `ChapterTimers.event` without recompiling C. Each entry is `chapter ID, seconds`. End the table with chapter ID `$FFFFFFFF`.
@@ -59,7 +58,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-goal-timer.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-goal-timer.gba
 ```
 
 ## Files
@@ -82,7 +83,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-goal-timer.gba
 | `SyncUnitSpriteSheet` | `$26F2C` | 8 bytes |
 | `gProc_BMapMain` `UndeployEveryone` | `$59A254` | 4 bytes (pointer) |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space).
 
 **PlaySt:** `+0x48` .. `+0x49` (2 bytes) for remaining seconds.
 
@@ -91,7 +92,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-goal-timer.gba
 - Any patch that replaces vanilla `GoalDisplay_Init` (`$8D288`), `GoalDisplay_Loop_Display` (`$8D784`), `Mu_OnLoop` (`$79030`), or `SyncUnitSpriteSheet` (`$26F2C`), including the full C Skill System Goals rewrite.
 - Any patch that replaces the `UndeployEveryone` pointer in `gProc_BMapMain` at `$59A254`.
 - Any patch that uses **PlaySt+0x48**.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel with `goal_timer` enabled.
 
 `Installer.event` uses `PROTECT` on the hook sites and free-space body. Overlapping ROM writes should fail assembly with a clear EA error.

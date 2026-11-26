@@ -66,8 +66,7 @@ The limit messages are shown with the vanilla help box, which takes a text ID: t
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000` (about 5.5 KB, `$1000000` .. `$1001610` with the default tables)
-
+- Free space: about 5.5 KB with the default tables, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/ArenaOptions.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -96,7 +95,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-arena-options.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-arena-options.gba
 ```
 
 ## Files
@@ -119,7 +120,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-arena-options.gba
 
 Each replacement keeps the vanilla behaviour for everything its option doesn't change. The roster menu runs `ProcScr_ArenaRosterMain` / `ProcScr_ArenaRosterResults`, copies of vanilla `gProcScr_ArenaUiMain` / `gProcScr_ArenaUiResults` with the welcome, wager and results steps replaced; chapters without a roster still start the vanilla script.
 
-**Free space:** `$1000000` (code, the 4 setting bytes `gArenaOptionsConfig`, then the two tables). No RAM is reserved: the roster selection lives in the arena screen's proc.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, the 4 setting bytes `gArenaOptionsConfig`, then the two tables; see [Free space](../README.md#free-space)). No RAM is reserved: the roster selection lives in the arena screen's proc.
 
 ## Conflicts
 
@@ -127,7 +128,7 @@ Each replacement keeps the vanilla behaviour for everything its option doesn't c
 - **[lvup_stat_points](../lvup_stat_points/)**: compatible (tested together); a level-up in an arena fight opens its menu between the fight and the results screen.
 - Any patch that replaces vanilla `ArenaGenerateBaseWeapons`, `ArenaCommandUsability`, `ArenaCommandEffect` or `StartArenaScreen` (only for the options you install), including the full C Skill System arena rewrite.
 - The roster's chapter flags must not be used by that chapter's events.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on every installed hook site and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

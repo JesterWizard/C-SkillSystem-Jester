@@ -23,8 +23,7 @@ The reward follows vanilla misc-action EXP rules (`BattleApplyMiscActionExpGains
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `CallMapSupportEvent` at `0x0800D304` (installer ORG `$D304`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/SupportTalkExpReward.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -53,7 +52,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-support-exp.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-support-exp.gba
 ```
 
 ## Files
@@ -73,12 +74,12 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-support-exp.gba
 
 The replacement starts a copy of vanilla `EventScr_MapSupportConversation` (`0x08591FF0`, byte-identical: music, conversation, "Support Lv increased" popup) with one extra `ASMC SupportTalkExpGain` before its end. That function loads the active unit into `gBattleActor`, applies the EXP like vanilla misc-action EXP, and starts a small proc that waits for the event to end, then shows the vanilla map EXP bar (`MapAnim_DisplayExpBar`, with level-up) and writes level, EXP and stat gains back to the unit (`UpdateUnitFromBattle`, keeping the unit's live state bits).
 
-**Free space:** `$1000000`, 0x1CC bytes including the 1-byte setting (body continues at `CURRENTOFFSET` after install). No RAM is used.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 0x1CC bytes including the 1-byte setting (body continues at `CURRENTOFFSET` after install). No RAM is used.
 
 ## Conflicts
 
 - Any patch that replaces `CallMapSupportEvent` (`$D304`) or edits `EventScr_MapSupportConversation` (this patch no longer uses the vanilla script), including C Skill System `BwlRework` (`BwlSupport.c`).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site and the free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

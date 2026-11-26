@@ -46,8 +46,7 @@ Integrated CHAX builds already allocate this symbol in `include/link/config-memm
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `DrawUpdatedPathArrow` at `0x08033249` (installer ORG `$33248`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/AlphaBlendMovementSprites.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -76,7 +75,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-alpha-blend-movement-sprites.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-alpha-blend-movement-sprites.gba
 ```
 
 ## Files
@@ -95,13 +96,13 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-alpha-blend-movemen
 |----------|--------------|-------------|
 | `DrawUpdatedPathArrow` | `$33248` | 8 bytes |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space).
 
 ## Conflicts
 
 - Any patch that hooks vanilla `DrawUpdatedPathArrow` (`$33248`), including C Skill System `RemoveMovePath`.
 - **EWRAM** `0x0203AAA4` .. `0x0203AAD5` (50 bytes) overlaps with other hacks using FreeRamSpace2 (`0x0203AAA4` .. `0x0203DDE0`). Change `Source/RamAlloc.s` if needed.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Patches that disable path arrows (`remove_move_path`) prevent the ghost from drawing.
 
 `Installer.event` uses `PROTECT` on the hook site and free-space body. Overlapping ROM writes should fail assembly with a clear EA error.

@@ -1,6 +1,5 @@
 #define FE8U_GetStatIncrease $2B9A0
 #define FE8U_Roll2RN         $CA9
-#define FE8U_StandaloneFreeSpace $1000000
 
 PUSH
 ORG FE8U_GetStatIncrease
@@ -8,6 +7,11 @@ ORG FE8U_GetStatIncrease
     PROTECT FE8U_GetStatIncrease FE8U_GetStatIncrease + 0x8 // GetStatIncrease hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_two_random_number_growths:
 #include "Source/GetStatIncrease_2RN.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GetStatIncrease_2RN body
+PROTECT StandaloneBody_two_random_number_growths CURRENTOFFSET // GetStatIncrease_2RN body

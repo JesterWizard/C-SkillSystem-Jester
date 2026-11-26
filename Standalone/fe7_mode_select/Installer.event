@@ -8,7 +8,6 @@
  * the choice back to the save menu the same way the vanilla menu does.
  */
 #define FE8U_SaveMenu_DifficultySelectPtr $A20164
-#define FE8U_StandaloneFreeSpace          $1000000
 
 /* ---- Settings (edit without recompiling) ---- */
 
@@ -28,7 +27,12 @@ ORG FE8U_SaveMenu_DifficultySelectPtr
     PROTECT FE8U_SaveMenu_DifficultySelectPtr FE8U_SaveMenu_DifficultySelectPtr + 0x4 // ProcScr_SaveMenu NewNewGameDifficultySelect pointer
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_fe7_mode_select:
 #include "Source/ModeSelect.lyn.event"
 
 ALIGN 4
@@ -113,4 +117,4 @@ Img_08416220:
     #incbin "Data/Img_08416220.bin"
 ALIGN 4
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ModeSelect body + settings + graphics
+PROTECT StandaloneBody_fe7_mode_select CURRENTOFFSET // ModeSelect body + settings + graphics

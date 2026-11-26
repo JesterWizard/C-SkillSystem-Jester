@@ -35,7 +35,7 @@ Use this skill when turning one integrated C Skill System feature into a standal
    - Call `jumpToHack` as FEBuilder Insert EA already defines it. Do **not** `#define jumpToHack` (or paste `BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)`) in the installer.
    - Put address `#define`s at the top of the installer.
    - Apply the hook with `PUSH` / `ORG` / `POP`.
-   - Place generated code at **`ORG $1000000`**. Standalone free space always starts here; later patches continue after the previous body using `CURRENTOFFSET`.
+   - Don't `ORG` the body to a fixed address. Leave it where the file starts (FEBuilder's Insert EA starts it in free space), after the free-space block from `Documentation/FeatureTypes/Standalone.md` (`ASSERT CURRENTOFFSET - 1`, `ALIGN 4`, a `StandaloneBody_<folder>:` label), and close with `PROTECT StandaloneBody_<folder> CURRENTOFFSET`. Keep every hook `ORG` inside `PUSH`/`POP`.
    - Include `Source/<Feature>.lyn.event` from the local build.
    - Keep hook alignment valid: if `jumpToHack`'s `POIN` would land on an odd offset, hook at the preceding even address.
    - Check in `*.lyn.event` so installers do not need to compile C.
@@ -51,7 +51,7 @@ Use this skill when turning one integrated C Skill System feature into a standal
 - **Feature lives in a hook table** → either hook the table owner or install a private dispatcher; do not require kernel relocation tables.
 - **Feature is visual/data-only** → prefer `#incbin`, tables, and palette swaps with no C build.
 - **Feature has C source** → put it in `Source/*.c`, compile with a local `makefile` to `*.lyn.event`, and include the generated file from `Installer.event`.
-- **Never place standalone code at ROM offset 0**; always start free space at **`$1000000`**.
+- **Never place standalone code at a fixed address**: the `ASSERT CURRENTOFFSET - 1` stops an install that was given no free space (offset 0).
 
 ## Approval gates
 
@@ -72,7 +72,7 @@ Stop and ask before proceeding if:
 - C source: `Source/GetStatIncrease_2RN.c`
 - Local `makefile` builds `Source/GetStatIncrease_2RN.lyn.event`
 - Addresses and hook live in `Installer.event` (`jumpToHack` is not redefined)
-- Free space: `$1000000`
+- Free space: wherever Insert EA starts the file (no fixed address)
 
 ## Output expectations
 

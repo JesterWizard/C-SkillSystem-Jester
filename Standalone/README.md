@@ -73,6 +73,21 @@ Self-contained Event Assembler patches extracted from the integrated C Skill Sys
 | [portrait_formats](portrait_formats/) | Half-body (FE9/10-style) and 32-colour portraits in vanilla dialogue, map menus, level-ups and the stat screen, recognised per portrait, with formatter tools and samples (uses 0xA0 bytes EWRAM; with text_engine, use its `TEXT_ENGINE_HALF_BODY_PORTRAITS` instead) |
 | [unlimited_prep_menu_options](unlimited_prep_menu_options/) | Preparations menu with unlimited scrolling rows from a ROM table, plus an extension-row interface for add-on prep rows (uses 20 bytes EWRAM) |
 
+## Free space
+
+No installer picks an address for its code. The code goes on from wherever the assembler is when it reaches `Installer.event`:
+
+- **FEBuilder:** **Advanced Editors → Insert EA** looks for free space in your ROM (a 200 KB block, or the end of the ROM if it finds none; the window's free-area setting, default "Program") and starts the installer there. Install patches on an edited ROM the same way as on a clean one: each Insert EA gets its own free space, so patches don't overwrite each other or the data FEBuilder has added. Leave the free-area setting on "Program" or "Data": the option that defines no free area stops the install with an `ASSERT` error.
+- **Event Assembler:** `ORG` to free space before the `#include`. On a clean ROM, `$1000000` (the start of the expanded ROM) is free. Several installers can follow one `ORG`: each one's code goes on after the previous one's.
+
+  ```
+  ORG $1000000
+  #include "two_random_number_growths/Installer.event"
+  #include "guaranteed_lvup/Installer.event"
+  ```
+
+Without an `ORG`, the install stops with `Assertion error: -1` at the `ASSERT CURRENTOFFSET - 1` line, before anything is written.
+
 ## Adding a new patch
 
 Use the project skill **extract-standalone-feature** (`.agents/skills/extract-standalone-feature/SKILL.md`).

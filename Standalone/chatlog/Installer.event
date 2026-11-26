@@ -7,7 +7,6 @@
 #define FE8U_TalkSkipListener_OnIdle        $6B4C
 #define FE8U_Talk_OnIdle                    $6C34
 #define FE8U_TalkWaitForInput_OnIdle        $7C4C
-#define FE8U_StandaloneFreeSpace            $1000000
 
 PUSH
 ORG FE8U_TalkSkipListener_OnIdle
@@ -21,9 +20,14 @@ ORG FE8U_TalkWaitForInput_OnIdle
     PROTECT FE8U_TalkWaitForInput_OnIdle FE8U_TalkWaitForInput_OnIdle + 0x8 // TalkWaitForInput_OnIdle
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_chatlog:
 
 ALIGN 4
 #include "Source/Chatlog.lyn.event"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Chatlog body
+PROTECT StandaloneBody_chatlog CURRENTOFFSET // Chatlog body

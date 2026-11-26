@@ -36,7 +36,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-s-rank-no-weight.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-s-rank-no-weight.gba
 ```
 
 ## Files
@@ -54,7 +56,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-s-rank-no-weight.gb
 |----------|--------------|-------------|
 | `ComputeBattleUnitSpeed` (`0x0802AB74`) | `$2AB74` | 8 bytes (`jumpToHack`) |
 
-- Free space: `$1000000` (about 0x70 bytes). No RAM.
+- Free space: about 0x70 bytes, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space). No RAM.
 - `Installer.event` uses `PROTECT` on the hook site and on the free-space body.
 
 ## Conflicts
@@ -62,7 +64,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-s-rank-no-weight.gb
 - Any patch that replaces `ComputeBattleUnitSpeed` (`$2AB74`), including the full C Skill System battle rewrite.
 - [dynamic_weapon_slots](../dynamic_weapon_slots/): this patch reads the rank in the vanilla slot of the weapon's type (`ranks[type]`, types 0-7). With a class that moves a type to another slot, S rank in that moved slot isn't seen. Weapon types 8 and above are never weightless.
 - The five battle tweaks extracted with this one ([anima_weapon_triangle](../anima_weapon_triangle/), [hit_decrease_on_range](../hit_decrease_on_range/), [battle_max_damage](../battle_max_damage/), [s_rank_weapon_no_weight](../s_rank_weapon_no_weight/), [modular_staff_exp](../modular_staff_exp/)) hook different functions and can all be installed together (give each body its own free space).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `FE8U_StandaloneFreeSpace` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 ## Limitations
 

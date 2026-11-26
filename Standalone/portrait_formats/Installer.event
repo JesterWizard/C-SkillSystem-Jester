@@ -55,7 +55,6 @@
 #define FE8U_FaceConfig_PrepItemTrade       $205C44
 #define FE8U_FaceConfig_PrepItemUse         $205C70
 
-#define FE8U_StandaloneFreeSpace        $1000000
 
 PUSH
 ORG FE8U_Face_OnInit
@@ -136,7 +135,12 @@ PROTECT FE8U_FaceConfig_PrepItemTrade FE8U_FaceConfig_PrepItemTrade + 0xC
 PROTECT FE8U_FaceConfig_PrepItemUse FE8U_FaceConfig_PrepItemUse + 0xC
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_portrait_formats:
 
 ALIGN 4
 #include "Source/Portraits.lyn.event"
@@ -149,4 +153,4 @@ ALIGN 4
     #include "Samples/Samples.event"
 #endif
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // portrait_formats body
+PROTECT StandaloneBody_portrait_formats CURRENTOFFSET // portrait_formats body

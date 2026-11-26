@@ -27,8 +27,7 @@ Delete `#define CHAPTER_NAMES_SAVE_MENU_FIX` at the top of `Installer.event` to 
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `PutChapterTitleGfx` (`0x08089624`); with the save menu fix also `SaveMenu_SetLcdChapterIdx` (`0x080A8AF0`) and `SaveMenuInitSaveSlotData` (`0x080ABC14`)
-- Free space: `$1000000` (about 4.4 KB, mostly the font)
-
+- Free space: about 4.4 KB, mostly the font, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/ChapterNames.dmp`, `Source/SaveMenuChapterTitle.lyn.event` and `Data/font.dmp` are checked in.
@@ -60,6 +59,7 @@ From a copy of clean `fe8.gba`, with this folder as the working directory:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8-chapter-names.gba
@@ -86,7 +86,7 @@ EA_DIR=<repo>/Tools/EventAssembler
 | `SaveMenu_SetLcdChapterIdx` (save menu fix) | `$A8AF0` | 8 bytes |
 | `SaveMenuInitSaveSlotData` (save menu fix) | `$ABC14` | 8 bytes |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space).
 
 **RAM:** no new RAM. The renderer uses vanilla's own chapter title state (`gChapterTitleFxSt`, `0x0203E78C`) and decompresses the font into vanilla's `gGenericBuffer` (`0x02020188`), like the title graphics it replaces.
 
@@ -94,7 +94,7 @@ EA_DIR=<repo>/Tools/EventAssembler
 
 - Any patch that replaces vanilla `PutChapterTitleGfx` (`$89624`), such as other text chapter title patches, and the full C Skill System ChapterNames module.
 - With the save menu fix: any patch that replaces `SaveMenu_SetLcdChapterIdx` (`$A8AF0`) or `SaveMenuInitSaveSlotData` (`$ABC14`).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook sites and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

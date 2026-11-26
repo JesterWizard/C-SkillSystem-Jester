@@ -11,8 +11,7 @@ The map goal window shows `Escape` / `With all` in escape chapters. Other chapte
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Configuration
 
 ### Make a chapter an escape chapter
@@ -72,7 +71,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-goal-escape.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-goal-escape.gba
 ```
 
 ## Files
@@ -104,7 +105,7 @@ Each overwrites 4 bytes (one pointer).
 
 **Text:** text table entry `$409` (`$15E4B0`, 4 bytes).
 
-**Free space:** `$1000000` (code, tile table and text continue at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, tile table and text continue at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 **RAM / save:** none. Escaped units get `US_HIDDEN | US_NOT_DEPLOYED | US_UNSELECTABLE`, position `-1, -1`, and unit state bit 28 (`US_GOAL_ESCAPED`, unused by vanilla) as a marker. Suspend saves store the whole state word, so escapes survive suspend/resume. When the chapter is won, escaped units lose `US_NOT_DEPLOYED` and the marker again, so the chapter change treats them as deployed and they appear in the next chapter as usual. Vanilla's chapter-change cleanup clears bit 28 anyway.
 
@@ -113,7 +114,7 @@ Each overwrites 4 bytes (one pointer).
 - Any patch that repoints the `HandlePostActionTraps` or `PlayerPhase_FinishAction` calls of `gProcScr_PlayerPhase` (`$59ABE4`, `$59ABFC`), or the `GoalDisplay_Init` call of `gProcScr_GoalDisplay` (`$A01A00`). This includes the C Skill System post-action hook, which rewrites the same proc script.
 - Any patch that uses text ID `$409`. Change `GOAL_ESCAPE_QUOTE_TEXT` if it collides.
 - Any patch that uses unit state bit 28 (`0x10000000`). Vanilla does not; change `US_GOAL_ESCAPED` in `Source/GoalEscape.c` and run `make` if yours does.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel.
 
 Works alongside other standalone packages that hook the same vanilla functions directly, because this package calls the vanilla entry points:

@@ -6,7 +6,6 @@
  * that runs the vanilla routine and then starts the promotion.
  */
 #define FE8U_CombatAction_HandleDeathsPtr $59DB10
-#define FE8U_StandaloneFreeSpace          $1000000
 
 /* Edit without recompiling C. */
 #define PROMOTION_ON_MAX_LEVEL       1 // Unpromoted units promote at level 20
@@ -18,7 +17,12 @@ ORG FE8U_CombatAction_HandleDeathsPtr
     PROTECT FE8U_CombatAction_HandleDeathsPtr FE8U_CombatAction_HandleDeathsPtr + 0x4 // sProcScr_CombatAction BATTLE_HandleCombatDeaths pointer
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_promotion_on_max_level:
 #include "Source/PromotionOnMaxLevel.lyn.event"
 
 ALIGN 4
@@ -27,4 +31,4 @@ BYTE PROMOTION_ON_MAX_LEVEL
 PromotionOnMaxLevelTrainees:
 BYTE PROMOTE_TRAINEES_AT_LEVEL_10
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PromotionOnMaxLevel body + config
+PROTECT StandaloneBody_promotion_on_max_level CURRENTOFFSET // PromotionOnMaxLevel body + config

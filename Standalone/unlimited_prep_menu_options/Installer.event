@@ -1,6 +1,9 @@
 /* Unlimited Prep Menu Options (standalone). Install on a clean FE8U (USA) ROM with
  * FEBuilder Insert EA. Do not define jumpToHack here; Insert EA provides it. */
 
+/* Add-on installers (hex/Installer.event) include this file unless it is already in the run. */
+#define UNLIMITED_PREP_MENU_OPTIONS_INSTALLED
+
 /* Vanilla entry points (ROM offset = address - 0x08000000). All are 4-byte aligned. */
 #define FE8U_PrepScreenMenu_OnCheckMap      $952C0
 #define FE8U_PrepMenu_OnInit                $96CCC
@@ -15,7 +18,6 @@
 #define FE8U_GetActivePrepMenuItemIndex     $9710C
 #define FE8U_SetPrepScreenMenuSelectedItem  $970CC
 
-#define FE8U_StandaloneFreeSpace            $1000000
 
 PUSH
 ORG FE8U_PrepScreenMenu_OnCheckMap
@@ -89,10 +91,15 @@ ORG FE8U_SetPrepScreenMenuSelectedItem
     PROTECT FE8U_SetPrepScreenMenuSelectedItem FE8U_SetPrepScreenMenuSelectedItem + 0x8 // SetPrepScreenMenuSelectedItem hook
 POP
 
-/* Extension header (see Source/PrepMenuExt.h):
- *   $1000000  "PMX1"                       magic
- *   $1000004  PrepMenuExtSlots[8]          POIN per slot, 0 = empty */
-ORG FE8U_StandaloneFreeSpace
+/* Extension header (see Source/PrepMenuExt.h), at the start of the body:
+ *   PrepMenuExtHeader  "PMX1"                       magic
+ *   PrepMenuExtSlots   8 words, one POIN per slot, 0 = empty */
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_unlimited_prep_menu_options:
 PrepMenuExtHeader:
 BYTE 0x50 0x4D 0x58 0x31 // "PMX1"
 ALIGN 4
@@ -101,9 +108,9 @@ WORD 0 0 0 0 0 0 0 0
 
 #include "Source/PrepMenuUnlimited.lyn.event"
 
-/* Protect the magic and the body, but not the 8 slot words at $1000004..$1000023:
- * add-ons write their slot with PUSH / ORG $1000004 / POIN / POP, and a PROTECT
- * range would stop that in the same EA run ("Trying to write data to area protected").
+/* Protect the magic and the body, but not the 8 slot words: add-ons write their slot
+ * with PUSH / ORG PrepMenuExtSlots + 4*N / POIN / POP, and a PROTECT range would stop
+ * that in the same EA run ("Trying to write data to area protected").
  */
-PROTECT FE8U_StandaloneFreeSpace FE8U_StandaloneFreeSpace + 0x4 // magic "PMX1"
-PROTECT FE8U_StandaloneFreeSpace + 0x24 CURRENTOFFSET // body (slots at +0x4..+0x23 stay writable)
+PROTECT PrepMenuExtHeader PrepMenuExtHeader + 0x4 // magic "PMX1"
+PROTECT PrepMenuExtSlots + 0x20 CURRENTOFFSET // body (the slots stay writable)

@@ -27,8 +27,7 @@ The integrated demo used three texts per character for chapters 1, 2 and 3; writ
 
 - **FE8U (USA)** clean ROM
 - Hook: `HbPopulate_SSCharacter` at `0x08088BD4` (installer ORG `$88BD4`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/VariableUnitDescriptions.lyn.event` is checked in, and the table lives in `Installer.event`, so you can edit the table and install `Installer.event` as-is.
@@ -59,7 +58,9 @@ To change the table later, edit `Installer.event` and insert it again; it is rew
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-variable-descriptions.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-variable-descriptions.gba
 ```
 
 ## Files
@@ -77,7 +78,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-variable-descriptio
 |----------|--------------|-------------|
 | `HbPopulate_SSCharacter` | `$88BD4` | 8 bytes |
 
-**Free space:** `$1000000` (84 bytes plus 4 bytes per table row; continues at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (84 bytes plus 4 bytes per table row; continues at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 No RAM is used. No vanilla text is changed.
 
@@ -85,7 +86,7 @@ No RAM is used. No vanilla text is changed.
 
 - Any patch that hooks or replaces `HbPopulate_SSCharacter` (`$88BD4`), or repoints the stat screen help box `populate` pointers that call it (`$A00B50`, `$A00D2C`, `$A00ED0`), including the full C Skill System `DebuffRework` misc hooks.
 - No other package in `Standalone/` hooks this address.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site and the free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

@@ -1,7 +1,6 @@
 // Critical cut-in: portrait over an electric band before critical hits (battle animations)
 
 #define FE8U_BanimCmdTable_C07 $58C60 // BattleAIS_ExecCommands case table ($58C44) entry 7: C07, attack start
-#define FE8U_StandaloneFreeSpace $1000000
 
 // Sound played when the band opens (0 = none). 0x3D1 is the vanilla skill activation sound.
 #define CritCutinSfx 0x3D1
@@ -12,7 +11,12 @@ ORG FE8U_BanimCmdTable_C07
     PROTECT FE8U_BanimCmdTable_C07 FE8U_BanimCmdTable_C07 + 0x4 // banim C07 case pointer
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_crit_cutin:
 #include "Source/CritCutin.lyn.event"
 #include "Gfx/CritCutin.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CritCutin body and band frames
+PROTECT StandaloneBody_crit_cutin CURRENTOFFSET // CritCutin body and band frames

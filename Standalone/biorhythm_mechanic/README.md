@@ -33,8 +33,7 @@ To change a character's cycle or starting step, edit `gBiorhythmPInfoConfigList`
 - Hooks (8 bytes each, Thumb entry is the address + 1):
   - `ComputeBattleUnitHitRate` at `0x0802ABAC`
   - `ComputeBattleUnitAvoidRate` at `0x0802ABE4`
-- Free space: `$1000000` (about `0x18D0` bytes, including the 256-entry character table)
-
+- Free space: about `0x18D0` bytes, including the 256-entry character table, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/Biorhythm.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -63,7 +62,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-biorhythm.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-biorhythm.gba
 ```
 
 ## Files
@@ -78,9 +79,9 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-biorhythm.gba
 ## Conflicts
 
 - Any patch that replaces vanilla `ComputeBattleUnitHitRate` (`0x0802ABAC`) or `ComputeBattleUnitAvoidRate` (`0x0802ABE4`), including the full C Skill System pre-battle calc rewrite.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
-`Installer.event` uses `PROTECT` on each hook site (8 bytes) and on the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on each hook site (8 bytes) and on the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

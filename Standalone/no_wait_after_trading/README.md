@@ -12,8 +12,7 @@ This matches the integrated C Skill System behaviour for the `no_wait_after_trad
 
 - **FE8U (USA)** clean ROM
 - Hook: the `PROC_CALL_2(PlayerPhase_PrepareAction)` entry of `gProcScr_PlayerPhase`: the function pointer at `0x0859ABD4`. Vanilla `PlayerPhase_PrepareAction` (`0x0801D084`) itself is not modified.
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/PlayerPhase_PrepareAction_NoWait.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -42,7 +41,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-no-wait-after-trading.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-no-wait-after-trading.gba
 ```
 
 ## Files
@@ -60,7 +61,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-no-wait-after-tradi
 |------|-------|-------------|
 | `gProcScr_PlayerPhase` + `0xFC` (argument of `PROC_CALL_2(PlayerPhase_PrepareAction)`, its only caller) | `$59ABD4` | 4 bytes (`POIN`) |
 
-**Free space:** `$1000000`, 36 bytes. No RAM.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)), 36 bytes. No RAM.
 
 Because the vanilla function is untouched, a patch that hooks the body of `PlayerPhase_PrepareAction` with `jumpToHack` still works together with this one (the wrapper calls whatever is at `0x0801D084`).
 
@@ -68,7 +69,7 @@ Because the vanilla function is untouched, a patch that hooks the body of `Playe
 
 - Any patch that repoints the same `gProcScr_PlayerPhase` entry (`$59ABD4`) or replaces the whole player-phase proc script.
 - A full C Skill System build (it replaces `PlayerPhase_PrepareAction` with its own copy that has the same flag).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both the pointer (`$59ABD4`, 4 bytes) and the free-space body. If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 

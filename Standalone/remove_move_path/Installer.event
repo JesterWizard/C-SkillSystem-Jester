@@ -1,6 +1,5 @@
 #define FE8U_PlayerPhase_DisplayUnitMovement $1D624
 #define FE8U_DrawUpdatedPathArrow            $33248
-#define FE8U_StandaloneFreeSpace             $1000000
 
 PUSH
 ORG FE8U_PlayerPhase_DisplayUnitMovement
@@ -11,6 +10,11 @@ ORG FE8U_DrawUpdatedPathArrow
     PROTECT FE8U_DrawUpdatedPathArrow FE8U_DrawUpdatedPathArrow + 0x8 // DrawUpdatedPathArrow no-op
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_remove_move_path:
 #include "Source/RemoveMovePath.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // RemoveMovePath body
+PROTECT StandaloneBody_remove_move_path CURRENTOFFSET // RemoveMovePath body

@@ -1,5 +1,4 @@
 #define FE8U_BattleGenerateHit     $2B83C
-#define FE8U_StandaloneFreeSpace   $1000000
 
 /* Edit these without recompiling C. */
 #define PROMOTE_ENEMY_ON_KILL 1
@@ -11,7 +10,12 @@ ORG FE8U_BattleGenerateHit
     PROTECT FE8U_BattleGenerateHit FE8U_BattleGenerateHit + 0x8 // BattleGenerateHit hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_promote_enemy_on_kill:
 #include "Source/PromoteEnemyOnKill.lyn.event"
 
 ALIGN 4
@@ -21,4 +25,4 @@ BYTE PROMOTE_ENEMY_ON_KILL
 PromoteEnemyBoost:
 BYTE PROMOTE_ENEMY_BOOST
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PromoteEnemyOnKill body + config
+PROTECT StandaloneBody_promote_enemy_on_kill CURRENTOFFSET // PromoteEnemyOnKill body + config

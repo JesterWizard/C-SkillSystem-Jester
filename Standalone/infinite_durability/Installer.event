@@ -7,7 +7,6 @@
 #define FE8U_DrawPrepScreenItems      $9B74C
 #define FE8U_PrepSupplyDrawItemList   $9D300
 #define FE8U_PrepSupplyDrawItemRow    $9D47C
-#define FE8U_StandaloneFreeSpace      $1000000
 
 /* Edit without recompiling C. */
 #define INFINITE_DURABILITY 1
@@ -66,11 +65,16 @@ ORG FE8U_PrepSupplyDrawItemRow
     PROTECT FE8U_PrepSupplyDrawItemRow FE8U_PrepSupplyDrawItemRow + 0x8 // PrepItemSupply_DrawItemListRow hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_infinite_durability:
 #include "Source/InfiniteDurability.lyn.event"
 
 ALIGN 4
 InfiniteDurabilityEnabled:
 BYTE INFINITE_DURABILITY
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // InfiniteDurability body + config
+PROTECT StandaloneBody_infinite_durability CURRENTOFFSET // InfiniteDurability body + config

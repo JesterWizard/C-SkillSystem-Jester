@@ -26,8 +26,7 @@ The default list is the integrated build's list (the two Gorgon Egg classes). Va
 - Hooks:
   - `CanShowUnitStatScreen` at `0x0801C928` (installer ORG `$1C928`)
   - `FindNextUnit` at `0x08087920` (installer ORG `$87920`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/DenyStatScreenAccess.lyn.event` is checked in, and the class list lives in `Installer.event`, so you can edit the list and install `Installer.event` as-is.
@@ -57,7 +56,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-deny-stat-screen.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-deny-stat-screen.gba
 ```
 
 ## Files
@@ -76,7 +77,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-deny-stat-screen.gb
 | `CanShowUnitStatScreen` | `$1C928` | 8 bytes |
 | `FindNextUnit` | `$87920` | 8 bytes |
 
-**Free space:** `$1000000` (about 260 bytes plus the class list; continues at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (about 260 bytes plus the class list; continues at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 No RAM is used.
 
@@ -84,7 +85,7 @@ No RAM is used.
 
 - Any patch that hooks or replaces `CanShowUnitStatScreen` (`$1C928`) or `FindNextUnit` (`$87920`), including the full C Skill System stat screen access code and fog patches that hide units from the stat screen.
 - No other package in `Standalone/` hooks these addresses.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on both hook sites and the free-space body. Overlapping ROM writes should fail assembly with a clear EA error.
 

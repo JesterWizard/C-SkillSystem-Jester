@@ -20,8 +20,7 @@ This matches the integrated C Skill System `expanded_hp` flag, but installs on *
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 Hooks (each `jumpToHack`, 8 bytes, except the number-graphics pointer):
 
 | Function | ORG | Thumb entry |
@@ -94,7 +93,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-expanded-hp.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-expanded-hp.gba
 ```
 
 ## Files
@@ -114,9 +115,9 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-expanded-hp.gba
 
 - Any patch that replaces the hooked vanilla functions above, including the full C Skill System HP, battle, stat screen, minimug, or HP-bar rewrites.
 - Other minimug-box number-font replacements that also write `$8D0B4`.
-- Other standalone patches from this repo that also place their body at `$1000000`. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
-`Installer.event` uses `PROTECT` on each hook site (8 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on each hook site (8 bytes) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

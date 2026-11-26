@@ -1,5 +1,4 @@
 #define FE8U_HbPopulate_SSCharacter $88BD4
-#define FE8U_StandaloneFreeSpace    $1000000
 
 PUSH
 ORG FE8U_HbPopulate_SSCharacter
@@ -7,7 +6,12 @@ ORG FE8U_HbPopulate_SSCharacter
     PROTECT FE8U_HbPopulate_SSCharacter FE8U_HbPopulate_SSCharacter + 0x8 // HbPopulate_SSCharacter hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_variable_unit_descriptions:
 #include "Source/VariableUnitDescriptions.lyn.event"
 
 // Stat screen character description overrides.
@@ -24,4 +28,4 @@ VariableUnitDescriptionTable:
     // BYTE 0x01 0x03; SHORT 0x0000 // Eirika, Chapter 3 -> your text ID
     BYTE 0x00 0x00; SHORT 0x0000 // end of table
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // VariableUnitDescriptions body + table
+PROTECT StandaloneBody_variable_unit_descriptions CURRENTOFFSET // VariableUnitDescriptions body + table

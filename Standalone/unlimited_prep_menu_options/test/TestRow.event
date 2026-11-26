@@ -5,6 +5,6 @@
 #include "test/TestRow.lyn.event"
 
 PUSH
-ORG $1000004
+ORG PrepMenuExtSlots
 POIN TestRowDef
 POP

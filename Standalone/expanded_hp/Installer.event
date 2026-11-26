@@ -22,7 +22,6 @@
 #define FE8U_UnitMapUiUpdate                         $8C45C
 #define FE8U_DrawUnitMapUi                           $8C5D0
 #define FE8U_PlayerInterfaceNumbers                  $8D0B4
-#define FE8U_StandaloneFreeSpace                     $1000000
 
 PUSH
 ORG FE8U_StoreNumberStringOrDashesToSmallBuffer
@@ -168,7 +167,12 @@ ORG FE8U_PlayerInterfaceNumbers
     PROTECT FE8U_PlayerInterfaceNumbers FE8U_PlayerInterfaceNumbers + 0x4
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_expanded_hp:
 #include "Source/ExpandedHp.lyn.event"
 
 ALIGN 4
@@ -193,4 +197,4 @@ MMBNumberText:
 
 #include "HPTableTest.event"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET
+PROTECT StandaloneBody_expanded_hp CURRENTOFFSET

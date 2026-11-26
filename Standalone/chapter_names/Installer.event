@@ -1,7 +1,6 @@
 #define FE8U_PutChapterTitleGfx         $89624
 #define FE8U_SaveMenu_SetLcdChapterIdx  $A8AF0
 #define FE8U_SaveMenuInitSaveSlotData   $ABC14
-#define FE8U_StandaloneFreeSpace        $1000000
 
 /* Save menu chapter title fix (world-map saves show the destination chapter,
  * and opening the save menu no longer rewrites gPlaySt.chapterIndex).
@@ -23,7 +22,12 @@ ORG FE8U_SaveMenuInitSaveSlotData
 #endif
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_chapter_names:
 
 /* FE7-style chapter title text renderer (Source/ChapterNames.s).
  * Position-independent; its two pointers follow the binary. */
@@ -46,4 +50,4 @@ ALIGN 4
 #include "Source/SaveMenuChapterTitle.lyn.event"
 #endif
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ChapterNames body + font
+PROTECT StandaloneBody_chapter_names CURRENTOFFSET // ChapterNames body + font

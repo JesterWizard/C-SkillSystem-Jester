@@ -36,12 +36,13 @@ The C Skill System's dialogue text engine for clean FE8U, a C port of Tequila's 
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8.gba
 ```
 
-The code and data go at `$1000000` and take about 121 KB, or about 132 KB with both options on.
+The code and data take about 121 KB, or about 132 KB with every option on. In FEBuilder they go in free space that Insert EA picks; with Event Assembler, after the `ORG` above (see [Free space](../README.md#free-space)).
 
 ## Settings
 
@@ -146,7 +147,6 @@ This needs [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo
 
 - Other dialogue text engines (Tequila's original, Zeta's AutoNewLine) and any patch that hooks the same dialogue or face functions. The hooks are listed in `Installer.event`, and each one is `PROTECT`ed, so an overlapping patch fails with an EA error.
 - FEBuilder's `MugExceed` patch with `TEXT_ENGINE_EXCEED_PORTRAITS` on. Remove it first; its portrait data carries over.
-- Other standalone patches that also use `$1000000`. Install only one there, or move this patch's `ORG`.
 - The full C Skill System, which already has this engine.
 
 ## Credits

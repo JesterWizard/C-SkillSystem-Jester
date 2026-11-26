@@ -72,7 +72,6 @@
 #define FE8U_PutTalkBubble                  $82A4
 // TEXT_ENGINE_EXCEED_PORTRAITS only (it also uses FE8U_PutFace80x72_Core):
 #define FE8U_PutFace80x72_Standard          $5B78
-#define FE8U_StandaloneFreeSpace            $1000000
 
 // A 16-byte hook for functions with four or more arguments, which
 // jumpToHack can't take (it uses r3).  bx pc; nop; ldr r12, [pc]; bx r12.
@@ -195,7 +194,12 @@ POP
 
 #include "Source/RamAlloc.event"
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_text_engine:
 
 ALIGN 4
 gTextEngineConfig:
@@ -231,4 +235,4 @@ ALIGN 4
     #include "Source/ExceedStubs.lyn.event"
 #endif
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // TextEngine body and data
+PROTECT StandaloneBody_text_engine CURRENTOFFSET // TextEngine body and data

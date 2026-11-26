@@ -6,7 +6,6 @@
 #define TEXT_BIOGRAPHY_HELP $40A
 
 #define FE8U_MapMenuItemsPtr     $59D21C // gMapMenuDef.menuItems
-#define FE8U_StandaloneFreeSpace $1000000
 
 PUSH
 ORG FE8U_MapMenuItemsPtr
@@ -14,9 +13,14 @@ ORG FE8U_MapMenuItemsPtr
     PROTECT FE8U_MapMenuItemsPtr FE8U_MapMenuItemsPtr + 0x4 // gMapMenuDef.menuItems
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_map_menu_character_biographies:
 #include "Source/CharacterBiographies.lyn.event"
 #include "MapMenu.event"
 #include "Biographies.event"
 #include "Text.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Biography body + map menu + table + text
+PROTECT StandaloneBody_map_menu_character_biographies CURRENTOFFSET // Biography body + map menu + table + text

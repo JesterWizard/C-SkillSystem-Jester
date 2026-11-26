@@ -46,7 +46,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-battle-max-damage.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-battle-max-damage.gba
 ```
 
 ## Files
@@ -67,7 +69,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-battle-max-damage.g
 | `BattleGenerateHitAttributes`: cap `movs r0, #127` | `$2B536` | 1 byte (immediate) |
 | `BattleGenerate` (`0x0802A398`), forecast cap | `$2A398` | 8 bytes (`jumpToHack`) |
 
-- Free space: `$1000000` (about 0xBC bytes: code + 1 setting byte). No RAM.
+- Free space: about 0xBC bytes: code + 1 setting byte, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space). No RAM.
 - `Installer.event` uses `PROTECT` on every patched site and on the free-space body.
 
 ## Conflicts
@@ -75,7 +77,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-battle-max-damage.g
 - Any patch that replaces `BattleGenerateHitAttributes` (`$2B3EC`) or `BattleGenerate` (`$2A398`), including the full C Skill System battle rewrite.
 - [expanded_hp](../expanded_hp/) (HP up to 254) installs alongside it; hits are still capped at 127 or lower.
 - The five battle tweaks extracted with this one ([anima_weapon_triangle](../anima_weapon_triangle/), [hit_decrease_on_range](../hit_decrease_on_range/), [battle_max_damage](../battle_max_damage/), [s_rank_weapon_no_weight](../s_rank_weapon_no_weight/), [modular_staff_exp](../modular_staff_exp/)) hook different functions and can all be installed together (give each body its own free space).
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `FE8U_StandaloneFreeSpace` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 ## Limitations
 

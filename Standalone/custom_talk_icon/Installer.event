@@ -1,6 +1,5 @@
 #define FE8U_PutUnitSpriteIconsOam     $275E8
 #define FE8U_MapTask_PutUnitSpritesOam $59D934
-#define FE8U_StandaloneFreeSpace       $1000000
 
 PUSH
 ORG FE8U_PutUnitSpriteIconsOam
@@ -11,8 +10,13 @@ ORG FE8U_MapTask_PutUnitSpritesOam
     PROTECT FE8U_MapTask_PutUnitSpritesOam FE8U_MapTask_PutUnitSpritesOam + 0x4 // MapTask PutUnitSpritesOam
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_custom_talk_icon:
 #include "Source/CustomTalkIcon.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PutUnitSpriteIconsOam_CustomTalkIcon body
+PROTECT StandaloneBody_custom_talk_icon CURRENTOFFSET // PutUnitSpriteIconsOam_CustomTalkIcon body
 
 #include "Gfx.event"

@@ -37,8 +37,7 @@ CustomBattleQuoteEntry($01, $68, $00, $01, $XXXX, 0)
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `GetBattleQuoteEntry` at `0x0808464C`
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/CustomBattleQuotes.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -67,7 +66,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-custom-battle-quotes.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-custom-battle-quotes.gba
 ```
 
 ## Files
@@ -83,7 +84,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-custom-battle-quote
 ## Conflicts
 
 - Any patch that replaces vanilla `GetBattleQuoteEntry` (`0x0808464C`), including the full C Skill System Quotes module.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook site and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

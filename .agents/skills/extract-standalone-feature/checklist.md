@@ -21,10 +21,10 @@ Standalone/<feature_name>/
 - Check in `Source/*.lyn.event` (and any `.dmp` graphics) so a user can Insert EA without this repo's tools.
 - Implement logic in **`Source/*.c`** and compile with a local **`makefile`** to `Source/*.lyn.event`.
 - Prefer the **smallest vanilla hook** that preserves unrelated behavior.
-- Place new code in **standalone free space** starting at **`$1000000`** using EA `$offset` ORG.
+- Place new code where the installer starts (FEBuilder's Insert EA starts it in free space), never at a fixed `ORG`. Use the free-space block from `Documentation/FeatureTypes/Standalone.md`.
 - Use **`$offset` form** in `ORG` and `PROTECT`; EA treats these as ROM file offsets, not full `0x08xxxxxx` addresses.
    - Add **`PUSH` / `POP`**, **`PROTECT`**, and **`ALIGN 4`** where appropriate.
-   - Protect both the **hook site** and the **installed body** (`PROTECT freeSpaceStart CURRENTOFFSET`) so overlapping patches fail with a clear EA error.
+   - Protect both the **hook site** and the **installed body** (`PROTECT StandaloneBody_<folder> CURRENTOFFSET`) so overlapping patches fail with a clear EA error.
 - Document **conflicts**, **free-space address**, and **hook address** in `README.md`.
 
 ## Dependency audit worksheet
@@ -66,4 +66,4 @@ See `Standalone/two_random_number_growths/`:
 - C source in `Source/GetStatIncrease_2RN.c`
 - Local `makefile` produces `Source/GetStatIncrease_2RN.lyn.event`
 - Addresses, hook, and free-space ORG in `Installer.event`
-- Body placed at `$1000000`
+- Body placed where the installer starts (no fixed address)

@@ -7,7 +7,6 @@
  * non-player units still go through vanilla code.
  */
 #define FE8U_UnitKill_PlayerBranch $18418
-#define FE8U_StandaloneFreeSpace   $1000000
 
 /* ---- Setting (edit without recompiling) ----
  * 0      : casual mode is always on (C Skill System casual_mode = true).
@@ -23,7 +22,12 @@ ORG FE8U_UnitKill_PlayerBranch
     PROTECT FE8U_UnitKill_PlayerBranch FE8U_UnitKill_PlayerBranch + 0x8 // UnitKill player-unit death branch
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_casual_mode:
 #include "Source/CasualMode.lyn.event"
 
 ALIGN 4
@@ -31,4 +35,4 @@ gCasualModeFlag:
     SHORT CASUAL_MODE_FLAG
 
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CasualMode body + setting
+PROTECT StandaloneBody_casual_mode CURRENTOFFSET // CasualMode body + setting

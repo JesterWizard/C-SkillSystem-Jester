@@ -22,8 +22,7 @@ On its own the patch **only records the choice**, exactly like the integrated fe
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Where the choice is stored
 
 - **SRAM:** `GlobalSaveInfo.unk10` (offset `$10` of the global save header), as `language + 1` (`0` = never chosen, so English). Vanilla only writes `0` there when it creates a fresh save header and never reads it, so the save layout does not change. The integrated feature uses the same field.
@@ -78,7 +77,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-language-select.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-language-select.gba
 ```
 
 ## Files
@@ -106,7 +107,7 @@ The flag colours come from the `sFlagPalette` table in `Source/LanguageSelect.c`
 
 `ProcScr_LanguageSelect` starts the vanilla logo sequence (`ProcScr_GameEarlyStartUI`) as a blocking child, then shows the selector and jumps `gProcScr_GameControl` to its title-screen label.
 
-**Free space:** `$1000000` (code, flag graphics and text offsets continue at `CURRENTOFFSET`, about 4.4 KB).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, flag graphics and text offsets continue at `CURRENTOFFSET`, about 4.4 KB; see [Free space](../README.md#free-space)).
 
 **RAM:** `0x0203BC00` .. `0x0203BC03` (4 bytes).
 
@@ -118,7 +119,7 @@ The flag colours come from the `sFlagPalette` table in `Source/LanguageSelect.c`
 - Any patch that uses `GlobalSaveInfo.unk10`.
 - Any patch that uses EWRAM `0x0203BC00` .. `0x0203BC03`.
 - With `LANGUAGE_SELECT_TEXT_SWITCH`: any patch that hooks `GetStringFromIndex` (`$A240`) or `GetStringFromIndexInBuffer` (`$A280`). Patches that change the Huffman decoder itself (`CallARM_DecompText`) rather than these two functions still work, because the remap only changes the text ID and then calls the decoder.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel with `language_select` enabled.
 
 No other package in `Standalone/` uses these hook sites, `unk10` or this RAM. `Standalone/skip_intro` (opening monologue, chapter title cards) and `Standalone/konami_style_bonus_screen` (title screen idle) hook later steps of the boot and can be installed alongside this one after moving one body's `ORG`.

@@ -14,8 +14,7 @@ This matches the integrated C Skill System `custom_droppable_item_icon` config f
 - Hook: `gProc_MapTask` `PROC_CALL(PutUnitSpritesOam)` pointer at `$59D934`
 - Vanilla restore: first 8 bytes of `PutUnitSpriteIconsOam` at `$275E8` (same as `custom_talk_icon`)
 - Graphics: `LoadObjUIGfx` sheet pointer at `$156AC`
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Graphics
 
 The icon uses OBJ tile `0x64` (`0xC80 / 0x20`), as in the integrated build. On vanilla that tile of the `LoadObjUIGfx` sheet is empty, so the package ships `Gfx/ObjUISheet_DropItem.png`: the **vanilla** OBJ UI sheet (18x4 tiles, unchanged width) with only that tile replaced by the potion from the integrated `WarningHpSheet_Jester.png`. The palette is the vanilla OBJ UI palette (not changed).
@@ -49,7 +48,9 @@ This folder is self-contained. It does not include `EAstdlib.event`, `Hack Insta
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-drop-icon.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-drop-icon.gba
 ```
 
 ## Files
@@ -72,7 +73,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-drop-icon.gba
 | `PutUnitSpriteIconsOam` prologue (vanilla bytes rewritten) | `$275E8` | 8 bytes (no change on a clean ROM) |
 | `LoadObjUIGfx` sheet pointer | `$156AC` | 4 bytes (`POIN`) |
 
-**Free space:** `$1000000` (about 1.5 KB: code + LZ77 sheet; continues at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (about 1.5 KB: code + LZ77 sheet; continues at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 No RAM is used.
 
@@ -82,7 +83,7 @@ No RAM is used.
 - Any patch that replaces vanilla `PutUnitSpritesOam` (`0x080273A5`) or the MapTask proc pointer at `$59D934`, including the full C Skill System MapTask rewrite.
 - Patches that `jumpToHack` the start of `PutUnitSpriteIconsOam` (`$275E8`): this installer writes the vanilla prologue back there (so an old hook that calls `PutUnitSpritesOam` cannot recurse), which disables such a hook. FEBuilder's HP bar patch hooks `$276B4`, not `$275E8`, but it also replaces the OBJ UI sheet (see next point).
 - Any patch that changes the `LoadObjUIGfx` sheet at `$156AC` / `$15690` (HP bars, other OBJ UI sheet hacks). If you need both, add the potion tile to that sheet at row 3, column 4 (OBJ tile `0x64`) instead of installing `Gfx.event`.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook sites, `LoadObjUIGfx` pointer, and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

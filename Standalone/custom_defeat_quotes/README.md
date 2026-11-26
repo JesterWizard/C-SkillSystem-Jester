@@ -49,8 +49,7 @@ Keep the same `flag` the vanilla entry used for that character (bosses usually u
 
 - **FE8U (USA)** clean ROM
 - Hooks: vanilla `CheckBattleDefeatTalk` (`0x080835A8`) and `DisplayDefeatTalkForPid` (`0x080835DC`)
-- Free space: `$1000000` (about 0.5 KB with an empty table)
-
+- Free space: about 0.5 KB with an empty table, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/CustomDefeatQuotes.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -82,6 +81,7 @@ From a copy of clean `fe8.gba`, with this folder as the working directory:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8-custom-defeat-quotes.gba
@@ -104,13 +104,13 @@ EA_DIR=<repo>/Tools/EventAssembler
 | `CheckBattleDefeatTalk` | `$835A8` | 8 bytes |
 | `DisplayDefeatTalkForPid` | `$835DC` | 8 bytes |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install). No RAM is used.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space). No RAM is used.
 
 ## Conflicts
 
 - Any patch that replaces vanilla `CheckBattleDefeatTalk` (`$835A8`) or `DisplayDefeatTalkForPid` (`$835DC`), including the full C Skill System Quotes module.
 - Patches that only repoint or edit vanilla `gDefeatTalkList` still work through the fallback.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 `Installer.event` uses `PROTECT` on the hook sites and the free-space body. Overlapping patches should fail assembly with a clear EA error.
 

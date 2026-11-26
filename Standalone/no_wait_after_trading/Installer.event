@@ -2,7 +2,6 @@
 // PROC_CALL_2(PlayerPhase_PrepareAction) (its only caller); that pointer is
 // redirected to a small wrapper that clears gBmSt.taken_action first.
 #define FE8U_gProcScr_PlayerPhase_PrepareActionPtr $59ABD4 // gProcScr_PlayerPhase + 0xFC (arg of PROC_CALL_2)
-#define FE8U_StandaloneFreeSpace                   $1000000
 
 PUSH
 ORG FE8U_gProcScr_PlayerPhase_PrepareActionPtr
@@ -10,6 +9,11 @@ ORG FE8U_gProcScr_PlayerPhase_PrepareActionPtr
     PROTECT FE8U_gProcScr_PlayerPhase_PrepareActionPtr FE8U_gProcScr_PlayerPhase_PrepareActionPtr + 0x4 // PROC_CALL_2(PlayerPhase_PrepareAction)
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_no_wait_after_trading:
 #include "Source/PlayerPhase_PrepareAction_NoWait.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // PlayerPhase_PrepareAction_NoWait body
+PROTECT StandaloneBody_no_wait_after_trading CURRENTOFFSET // PlayerPhase_PrepareAction_NoWait body

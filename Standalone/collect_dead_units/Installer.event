@@ -13,7 +13,6 @@
  */
 #define FE8U_UnitKill              $183FC
 #define FE8U_GetFreeUnit           $17838
-#define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH
 ORG FE8U_UnitKill
@@ -24,7 +23,12 @@ ORG FE8U_GetFreeUnit
     PROTECT FE8U_GetFreeUnit FE8U_GetFreeUnit + 0x8 // GetFreeUnit
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_collect_dead_units:
 #include "Source/CollectDeadUnits.lyn.event"
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CollectDeadUnits body
+PROTECT StandaloneBody_collect_dead_units CURRENTOFFSET // CollectDeadUnits body

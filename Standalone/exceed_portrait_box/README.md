@@ -57,6 +57,7 @@ Fire Emblem: The Sacred Stones (USA), FE8U.
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8.gba
@@ -90,7 +91,7 @@ This needs [devkitARM](https://devkitpro.org/wiki/Getting_Started) and this repo
 | `0x08005B78` | `PutFace80x72_Standard` | 8 | `PutFace80x72_Standard_Exceed`: vanilla, then the pieces |
 | `0x08005CA4` | `PutFace80x72_Core` | 16 | `PutFace80x72_Core_Exceed`: vanilla, with the side-column rule above |
 
-The code goes at `$1000000` and takes about 1 KB.
+The code takes about 1 KB. In FEBuilder it goes in free space that Insert EA picks; with Event Assembler, after the `ORG` above (see [Free space](../README.md#free-space)).
 
 ## Limitations
 
@@ -101,7 +102,6 @@ The code goes at `$1000000` and takes about 1 KB.
 - FEBuilder's `MugExceed` patch (the assembly original). Remove it first; the portrait data carries over.
 - [`Standalone/text_engine`](../text_engine/): use its `TEXT_ENGINE_EXCEED_PORTRAITS` setting instead.
 - [`Standalone/portrait_formats`](../portrait_formats/): both hook `Face_OnIdle` and `PutFace80x72_Core`. Use `Standalone/text_engine` with both `TEXT_ENGINE_HALF_BODY_PORTRAITS` and `TEXT_ENGINE_EXCEED_PORTRAITS` instead.
-- Other standalone patches that also use `$1000000`. Install only one there, or move this patch's `ORG`.
 - The full C Skill System, which already has this feature.
 
 ## Credits

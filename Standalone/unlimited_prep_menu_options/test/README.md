@@ -21,8 +21,8 @@ Everything in this folder is for testing the Unlimited Prep Menu Options patch i
 Build the ROMs with ColorzCore from a copy of the clean ROM, in this order. The ROM is the `-output`, and `-input` is the event script (see `../README.md`, "Event Assembler"):
 
 1. `test/ToChapter4.event` alone (the chapter-4 route): `ColorzCore A FE8 -input:van4.event -output:van4.gba -I:<EA> -I:<patch>`.
-2. `Installer.event` on top of `van4.gba` (`#include "Extensions/Hack Installation.txt"` first, as in the README).
-3. For the test row only: `test/TestRow.event` in the **same run** as step 2. Slot 0 is written with `PUSH / ORG $1000004 / POIN / POP`, which only works while the slots are not protected (see the README, "Free space").
+2. `Installer.event` on top of `van4.gba` (`#include "Extensions/Hack Installation.txt"` and `ORG $1000000` first, as in the README).
+3. For the test row only: `test/TestRow.event` in the **same run** as step 2. Slot 0 is written with `PUSH / ORG PrepMenuExtSlots / POIN / POP`, which only works while the slots are not protected (see the README, "Free space").
 
 ## Route to the Preparations menu (emulator)
 

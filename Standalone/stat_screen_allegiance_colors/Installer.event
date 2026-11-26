@@ -1,5 +1,4 @@
 #define FE8U_StatScreen_LoadBgPal $8859C // inside StatScreen_InitDisplay: ldr r0, =Pal_StatscreenBG ...
-#define FE8U_StandaloneFreeSpace  $1000000
 
 PUSH
 ORG FE8U_StatScreen_LoadBgPal
@@ -7,7 +6,12 @@ ORG FE8U_StatScreen_LoadBgPal
     PROTECT FE8U_StatScreen_LoadBgPal FE8U_StatScreen_LoadBgPal + 0x8 // StatScreen_InitDisplay BG palette hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_stat_screen_allegiance_colors:
 #include "Source/StatScreenAllegianceColors.lyn.event"
 
 // Only the first 0x80 bytes (4 palettes, loaded to BG palettes 12-15) are used.
@@ -27,4 +31,4 @@ ALIGN 4
 Pal_SSGold:
     #incbin "Gfx/SSGoldPal.dmp"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // StatScreenAllegianceColors body + palettes
+PROTECT StandaloneBody_stat_screen_allegiance_colors CURRENTOFFSET // StatScreenAllegianceColors body + palettes

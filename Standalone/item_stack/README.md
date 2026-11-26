@@ -23,7 +23,7 @@ Edit `ITEM_STACK` at the top of `Installer.event`, then reinstall the patch. No 
 
 - **FE8U (USA)** clean ROM
 - Hook: `gUnitActionMenuDef.menuItems` pointer at `$59D1F8` (4 bytes)
-- Free space: `$1000000`
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 - The command name is a raw ASCII string (` Stack`); `nameMsgId` is 0 so the menu draws it without `GetStringFromIndex`.
 - R-text uses text ID `$407` (unused vanilla dummy item-name slot) with **vanilla Huffman** bytes: *Combine duplicate items into / one stack.* Do not set the anti-Huffman high bit (`pointer | 0x80000000`); clean FE8U `DecodeString` has no high-bit check and will crash if R-help is uncompressed ASCII. `TEXT_STACK_DESC` in `Installer.event` and `STACK_HELP_TEXT` in `Source/StackCommand.c` must stay the same ID.
 
@@ -55,7 +55,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-item-stack.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-item-stack.gba
 ```
 
 ## Files
@@ -75,7 +77,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-item-stack.gba
 - Text ID `$407` (unused vanilla dummy item name). Do not use IDs past the vanilla message table (`$E4B`); that overwrites Huffman data and will crash when the action menu draws.
 - Any anti-Huffman / “uncompressed text pointer” patch is unnecessary for this installer. The R-text is already Huffman-compressed for vanilla `GetStringFromIndex`.
 
-`Installer.event` uses `PROTECT` on the menu pointer, the `$407` text-table slot, and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on the menu pointer, the `$407` text-table slot, and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

@@ -12,8 +12,7 @@ Default tips mention Skill System mechanics (skill capacity, 2RN, skill scrolls)
 
 - **FE8U (USA)** clean ROM
 - Hook: vanilla `GameOverScreen_Init` at `0x080212C0` (Thumb entry `0x080212C1`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Configuration
 
 Edit `GameOverQuotes.event` without recompiling C. Each quote is three ASCII lines drawn in gold and centered. Unused lines can point at `GameOverQuoteEmpty`. Append more `GameOverQuote(...)` rows before `GameOverQuotesEnd`.
@@ -50,7 +49,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-gameover-quotes.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-gameover-quotes.gba
 ```
 
 ## Files
@@ -67,10 +68,10 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-gameover-quotes.gba
 
 - Any patch that replaces vanilla `GameOverScreen_Init` (`0x080212C0` / `0x080212C1`), including the full C Skill System GameOver rewrite.
 - Installing on a ROM that already modified the first 8 bytes at `0x080212C0`.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel with `gameover_quotes` enabled.
 
-`Installer.event` uses `PROTECT` on both the hook site (`$212C0`, 8 bytes) and the free-space body (`$1000000` through end of the quote table). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both the hook site (`$212C0`, 8 bytes) and the free-space body (from its start through the end of the quote table). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

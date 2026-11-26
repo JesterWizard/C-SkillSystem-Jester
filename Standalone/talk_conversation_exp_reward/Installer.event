@@ -1,5 +1,4 @@
 #define FE8U_CallMapSupportEvent  $D304
-#define FE8U_StandaloneFreeSpace  $1000000
 
 PUSH
 ORG FE8U_CallMapSupportEvent
@@ -7,7 +6,12 @@ ORG FE8U_CallMapSupportEvent
     PROTECT FE8U_CallMapSupportEvent FE8U_CallMapSupportEvent + 0x8 // CallMapSupportEvent hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_talk_conversation_exp_reward:
 
 ALIGN 4
 gSupportTalkExpReward:
@@ -15,4 +19,4 @@ gSupportTalkExpReward:
 
 ALIGN 4
 #include "Source/SupportTalkExpReward.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SupportTalkExpReward body
+PROTECT StandaloneBody_talk_conversation_exp_reward CURRENTOFFSET // SupportTalkExpReward body

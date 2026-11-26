@@ -39,7 +39,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-dynamic-weapon-slots.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-dynamic-weapon-slots.gba
 ```
 
 ---
@@ -79,7 +81,7 @@ Custom weapon types (`ITYPE_KNIFE`, `ITYPE_GUN`, etc.) also need matching item d
 | `DisplayWeaponExp` | `$87788` | 8 bytes |
 | `DisplayPage2` | `$8784C` | 8 bytes |
 
-**Free space:** `$1000000` (body continues at `CURRENTOFFSET` after install).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body; see [Free space](../README.md#free-space).
 
 ---
 

@@ -1,5 +1,4 @@
 #define FE8U_GameOverScreen_Init $212C0
-#define FE8U_StandaloneFreeSpace $1000000
 
 PUSH
 ORG FE8U_GameOverScreen_Init
@@ -7,7 +6,12 @@ ORG FE8U_GameOverScreen_Init
     PROTECT FE8U_GameOverScreen_Init FE8U_GameOverScreen_Init + 0x8 // GameOverScreen_Init hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_gameover_quotes:
 #include "Source/GameOverQuotes.lyn.event"
 #include "GameOverQuotes.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // GameOverQuotes body + table
+PROTECT StandaloneBody_gameover_quotes CURRENTOFFSET // GameOverQuotes body + table

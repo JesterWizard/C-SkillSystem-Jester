@@ -11,8 +11,7 @@ The GIF shows the integrated version with this repo's custom biography art and t
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Biography table
 
 Edit `Biographies.event` without recompiling C:
@@ -76,7 +75,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-biographies.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-biographies.gba
 ```
 
 ## Files
@@ -100,7 +101,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-biographies.gba
 
 No vanilla code is changed. The new item list copies the eight vanilla map-menu entries byte for byte (`MM_Unit` ... `MM_End` in `MapMenu.event`) and inserts the Biography command after Guide. Reorder the lines to move it.
 
-**Free space:** `$1000000` (code, menu list, table and text continue at `CURRENTOFFSET`).
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (code, menu list, table and text continue at `CURRENTOFFSET`; see [Free space](../README.md#free-space)).
 
 **RAM:** none. The integrated feature keeps the list cursor and page in kernel EWRAM (`gCharacterBiographyPage`, `gCharacterBiographyListNumber`, and the shared `gTopVisibleListIndex`); the standalone keeps them in its own proc. The list screen borrows vanilla's prep-screen text slots (`PrepItemSuppyTexts`), which are unused on the map.
 
@@ -108,7 +109,7 @@ No vanilla code is changed. The new item list copies the eight vanilla map-menu 
 
 - Any patch that repoints or edits the map-menu item list (`gMapMenuDef.menuItems` at `$59D21C`, or the vanilla list at `$59CE6C`), or that replaces `PlayerPhase_MainIdle` to open its own map menu (for example the C Skill System kernel). Other map-menu patches have to be merged into `MapMenu.event` by hand.
 - Any patch that uses text ID `$40A`. Change `TEXT_BIOGRAPHY_HELP` if it collides.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Do not install this on a ROM that already has the C Skill System kernel.
 
 No other package in `Standalone/` touches the map menu. (`refuge` and `item_stack` change the *unit action* menu at `$59D1F8`, a different menu, and can be installed alongside this one after moving one body's `ORG`.)

@@ -5,7 +5,6 @@
 #define FE8U_BmMain_StartIntroFx       $1550C   // chapter title card ("Prologue: The Fall of Renais")
 #define FE8U_StartIntroMonologue       $C541C   // new-game opening subtitle ("In an age long past...")
 #define FE8U_Events_WM_Beginning_1     $8B39F0  // Events_WM_Beginning[1]: Prologue world-map narration
-#define FE8U_StandaloneFreeSpace       $1000000
 
 PUSH
 ORG FE8U_BmMain_StartIntroFx
@@ -19,7 +18,12 @@ ORG FE8U_Events_WM_Beginning_1
     PROTECT FE8U_Events_WM_Beginning_1 FE8U_Events_WM_Beginning_1 + 0x4 // Events_WM_Beginning[1]
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_skip_intro:
 ALIGN 4
 // Replacement for the vanilla Prologue world-map script (0x08A39768).
 // It keeps the commands that change world-map state (lord spawn, camera,
@@ -40,4 +44,4 @@ SkipIntro_PrologueWorldMap:
     SHORT 0xA040 0x0000; WORD 5                 // WM_REMSPRITE(5)
     SHORT 0xA040 0x0000; WORD 6                 // WM_REMSPRITE(6)
     SHORT 0x0120 0x0000                         // ENDA
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // SkipIntro_PrologueWorldMap
+PROTECT StandaloneBody_skip_intro CURRENTOFFSET // SkipIntro_PrologueWorldMap

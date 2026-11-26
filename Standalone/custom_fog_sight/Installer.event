@@ -1,6 +1,5 @@
 #define FE8U_GetUnitFogViewRange  $178A8
 #define FE8U_gPlaySt              $0202BCF0
-#define FE8U_StandaloneFreeSpace  $1000000
 
 PUSH
 ORG FE8U_GetUnitFogViewRange
@@ -8,7 +7,12 @@ ORG FE8U_GetUnitFogViewRange
     PROTECT FE8U_GetUnitFogViewRange FE8U_GetUnitFogViewRange + 0x8 // GetUnitFogViewRange hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_custom_fog_sight:
 // CustomGetUnitFogViewRange(struct Unit * unit)
 // r0 = unit on entry; returns fog range in r0.
 
@@ -19,4 +23,4 @@ WORD FE8U_gPlaySt
 POIN ClassFogSightBonusTable
 
 #include "ClassFogSightBonusTable.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // CustomGetUnitFogViewRange body + bonus table
+PROTECT StandaloneBody_custom_fog_sight CURRENTOFFSET // CustomGetUnitFogViewRange body + bonus table

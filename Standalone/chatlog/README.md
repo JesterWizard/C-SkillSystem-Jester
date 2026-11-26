@@ -12,7 +12,7 @@ If you use [`Standalone/text_engine`](../text_engine/), don't install this packa
 ## Target ROM
 
 - **FE8U (USA)** clean ROM
-- Free space: `$1000000`. The code takes about 6.5 KB (`$1000000` .. `$1001964`).
+- Free space: about 6.5 KB, wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space).
 - EWRAM: `0x0203B000` .. `0x0203B5FF` (see [RAM](#ram)).
 
 ## Build
@@ -46,6 +46,7 @@ From a copy of clean `fe8.gba`, with this folder as the working directory:
 EA_DIR=<repo>/Tools/EventAssembler
 {
   echo '#include "Extensions/Hack Installation.txt"'
+  echo 'ORG $1000000' # where the code goes: free on a clean ROM
   echo '#include "Installer.event"'
 } > _install.event
 "$EA_DIR/ColorzCore" A FE8 -input:_install.event -I:"$EA_DIR" -output:/path/to/fe8-chatlog.gba
@@ -85,13 +86,13 @@ Nothing is added to the save file. The log clears itself when `gPlaySt`'s chapte
 | `Talk_OnIdle` | `$6C34` | 8 bytes | Vanilla, plus: starts the log's session, passes it each letter and each `[NL]` / `[2NL]` / `[A]`, and holds the text while the log is open |
 | `TalkWaitForInput_OnIdle` | `$7C4C` | 8 bytes | Vanilla, but the `[A]` arrow hides and doesn't move on while the log is open |
 
-**Free space:** `$1000000`.
+**Free space:** wherever Insert EA (or your `ORG`) puts the body (see [Free space](../README.md#free-space)).
 
 ## Conflicts
 
 - [`Standalone/text_engine`](../text_engine/) (it hooks `Talk_OnIdle` too) and any other dialogue text engine, including Tequila's assembly text engine. With the standalone text engine, use its `TEXT_ENGINE_CHATLOG` setting instead.
 - Any patch that hooks the three functions above, or uses EWRAM `0x0203B000` .. `0x0203B5FF`.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 - Patches that put their own graphics on BG2 during dialogue: the log then doesn't open (it leaves a BG2 that's already in use alone).
 
 `Installer.event` uses `PROTECT` on every hook site and the free-space body, so overlapping ROM writes fail assembly with a clear EA error.

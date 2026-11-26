@@ -21,8 +21,7 @@ Edit the settings at the top of `Installer.event`, then reinstall the patch. No 
 
 - **FE8U (USA)** clean ROM
 - Hook: the `BATTLE_HandleCombatDeaths` step of vanilla `sProcScr_CombatAction` (routine pointer at `$59DB10`, 4 bytes, repointed with `POIN`)
-- Free space: `$1000000`
-
+- Free space: wherever Insert EA (or your `ORG`) puts it; see [Free space](../README.md#free-space)
 ## Build
 
 No build step is required to install the patch. `Source/PromotionOnMaxLevel.lyn.event` is checked in, so you can install `Installer.event` as-is.
@@ -51,7 +50,9 @@ This folder is self-contained. It does not include `EAstdlib.event` or `Hack Ins
 From a copy of clean `fe8.gba`, with this folder as the working directory:
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-promotion-on-max-level.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-promotion-on-max-level.gba
 ```
 
 ## Files
@@ -67,11 +68,11 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-promotion-on-max-le
 
 - Any patch that repoints or rewrites `sProcScr_CombatAction` (`$59DABC` .. `$59DB24`), in particular the `BATTLE_HandleCombatDeaths` pointer at `$59DB10`, including the full C Skill System.
 - [promote_trainees_in_chapter](../promote_trainees_in_chapter/) repoints the same pointer, so only one of the two can be installed. Use `PROMOTE_TRAINEES_AT_LEVEL_10` here to get both behaviours.
-- Free space at `$1000000` overlaps with other standalone patches from this repo. Install only one body at `$1000000`, or move this patch's `ORG` to the next free region after any already-installed standalone code.
+- Each Insert EA puts the body in its own free space, so it doesn't overlap other standalone patches or data FEBuilder has added (see [Free space](../README.md#free-space)).
 
 The promotion handler's item slot is set to `-1` after `StartBmPromotion`, so vanilla's `UnitUpdateUsedItem` doesn't spend a use of the slot the battle left in `gActionData`.
 
-`Installer.event` uses `PROTECT` on both the hook site (`$59DB10`, 4 bytes) and the free-space body (`$1000000` through end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
+`Installer.event` uses `PROTECT` on both the hook site (`$59DB10`, 4 bytes) and the free-space body (from its start through the end of install). If another patch overlaps those ranges, Event Assembler should report the conflicting write location.
 
 ## Credits
 

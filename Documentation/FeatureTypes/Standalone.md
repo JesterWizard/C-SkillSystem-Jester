@@ -1,6 +1,6 @@
 # Standalone patches
 
-> Code: `Standalone/<name>/`, `Commissions/<name>/`  ·  Entry points: `Installer.event` hook sites (`jumpToHack(Func)` at a vanilla address, or a `POIN` into a vanilla table), free space `$1000000`  ·  Existing docs: `Standalone/README.md`, `Commissions/README.md`, `.agents/skills/extract-standalone-feature/SKILL.md`, `.agents/skills/extract-standalone-feature/checklist.md`, `Documentation/Setup.md`
+> Code: `Standalone/<name>/`, `Commissions/<name>/`  ·  Entry points: `Installer.event` hook sites (`jumpToHack(Func)` at a vanilla address, or a `POIN` into a vanilla table), the body in free space that Insert EA picks (no fixed address)  ·  Existing docs: `Standalone/README.md`, `Commissions/README.md`, `.agents/skills/extract-standalone-feature/SKILL.md`, `.agents/skills/extract-standalone-feature/checklist.md`, `Documentation/Setup.md`
 
 ## What it covers
 
@@ -12,15 +12,15 @@ Install time, then runtime through the vanilla call site.
 
 ### Install
 
-1. FEBuilder "Insert EA" on `Installer.event` (or `ColorzCore A FE8 -input:Installer.event -output:<rom>`, `Standalone/two_random_number_growths/README.md:43-47`) assembles the patch onto a clean `fe8.gba`.
+1. FEBuilder "Insert EA" on `Installer.event` (or ColorzCore on a file with `ORG $1000000` then `#include "Installer.event"`, `Standalone/two_random_number_growths/README.md`, "Event Assembler") assembles the patch onto a clean `fe8.gba`.
 2. `jumpToHack(Func)` expands to `BYTE 0x00 0x4B 0x18 0x47; POIN (offset|0x1)` (the file `Hack Installation.txt` in `Tools/EventAssembler/Extensions/`, line 63). The four code bytes are `ldr r3, [pc, #0]` and `bx r3`, followed by a 4-byte pointer. The hook therefore overwrites 8 bytes at the vanilla function entry (`PROTECT ... + 0x8`).
-3. The body is placed at `$1000000`, the standalone free space, in `ORG` offset form (`Standalone/two_random_number_growths/Installer.event:3`, `:11`). `Standalone/README.md` and `.agents/skills/extract-standalone-feature/SKILL.md` both give this address.
+3. The body has no fixed address. FEBuilder's Insert EA assembles `ORG <free area>` then `#include "Installer.event"` (`EAUtil.MakeEAAutoDef` in FEBuilderGBA), so after the hooks' `PUSH`/`POP` the assembler is already in free space, and the body goes on from there. The installer checks it was given one (`ASSERT CURRENTOFFSET - 1`), aligns, and labels the start `StandaloneBody_<folder>` for the closing `PROTECT`. With Event Assembler, the caller writes the `ORG` (`Standalone/README.md`, "Free space").
 4. The body is `Source/<Name>.lyn.event`, which is checked in. It starts with `ORG CURRENTOFFSET+$1;<Func>:` and is followed by the compiled code as `WORD` values (`Standalone/two_random_number_growths/Source/GetStatIncrease_2RN.lyn.event`).
 5. Data tables and config constants follow the body, under the same `PROTECT` range (`Standalone/goal_timer/Installer.event:26-29`, `Standalone/auto_repair_weapons/Installer.event:16-18`).
 
 ### Runtime
 
-6. Vanilla callers are unchanged. They call the original address, which now starts with the `ldr`/`bx` pair and jumps into `$1000000`. The C function keeps the vanilla signature.
+6. Vanilla callers are unchanged. They call the original address, which now starts with the `ldr`/`bx` pair and jumps into the body. The C function keeps the vanilla signature.
 7. Values written into the installer are read from C as `extern const`. Example: `AutoRepairWeaponsEnabled` (`Standalone/auto_repair_weapons/Installer.event:5`, `:16-18`; `Standalone/auto_repair_weapons/Source/AutoRepairWeapons.c:8`).
 
 ### Relation to the integrated feature
@@ -42,7 +42,7 @@ Install time, then runtime through the vanilla call site.
 |------|------|
 | `Standalone/README.md` | Index table of patches. The table has 25 rows for 26 folders (`show_true_2rn` is missing). |
 | `Commissions/README.md` | Index of commissions (one row). |
-| `Standalone/<name>/Installer.event` | `#define` addresses, `jumpToHack` hook with `PROTECT`, free-space `ORG $1000000`, `#include` of the body, data, closing `PROTECT`. |
+| `Standalone/<name>/Installer.event` | `#define` addresses, `jumpToHack` hook with `PROTECT`, the free-space check and body label, `#include` of the body, data, closing `PROTECT`. |
 | `Standalone/<name>/Source/<Name>.c` | C body. Compiled only by `make`. |
 | `Standalone/<name>/Source/<Name>.lyn.event` | Checked-in lyn output. The installer includes this file. |
 | `Standalone/<name>/makefile` | Builds `Source/<Name>.lyn.event` from the `.c`. `REPO_ROOT := $(abspath ../..)` (`:1`). |
@@ -77,7 +77,6 @@ Adapted from `Standalone/two_random_number_growths/` (the reference patch named 
 
 ```
 #define FE8U_Example                 $00000   /* vanilla ROM offset, no 0x08 prefix */
-#define FE8U_StandaloneFreeSpace     $1000000
 
 /* Edit without recompiling C. */
 #define EXAMPLE_ENABLED 1
@@ -88,14 +87,19 @@ ORG FE8U_Example
     PROTECT FE8U_Example FE8U_Example + 0x8 // Example hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_example:
 #include "Source/Example_Standalone.lyn.event"
 
 ALIGN 4
 ExampleEnabled:
 BYTE EXAMPLE_ENABLED
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // Example body + config
+PROTECT StandaloneBody_example CURRENTOFFSET // Example body + config
 ```
 
 `Source/Example_Standalone.c`:
@@ -127,7 +131,7 @@ OUTPUT := Source/Example_Standalone.lyn.event
 
 ## Gotchas
 
-- Shared free space. All 27 installers (26 standalone, 1 commission) use `$1000000`. `Standalone/goal_timer/README.md:94` says install only one body there, or move the `ORG`. `SKILL.md` step 4 says later patches should continue after the previous body with `CURRENTOFFSET`. The two instructions conflict, and which one EA accepts without an overlap error is unverified.
+- Free space. No installer has a fixed address (see 3 above). Every hook `ORG` must be inside `PUSH`/`POP` and the body must not be, or the body lands at the last hook site (or the next installer's body overwrites it). An add-on that writes into another patch's data (the Hex row into `PrepMenuExtSlots`) must be in the same EA run, so its installer includes the other one (`Standalone/unlimited_prep_menu_options/hex/Installer.event`).
 - Hook width. A `jumpToHack` hook is 8 bytes (`PROTECT ... + 0x8`). A bare `POIN` hook is 4 bytes (`PROTECT ... + 0x4`, `goal_timer/Installer.event:21-23`). A `PROTECT` range shorter than the bytes actually written leaves the rest unprotected, so overlaps there would not be reported.
 - `REPO_ROOT := $(abspath ../..)` (`makefile:1`). The makefile works only from a folder two levels below the repo root, that is `Standalone/<name>/` or `Commissions/<name>/`. Copying the folder elsewhere breaks `make`, but the install still works because the `.lyn.event` is checked in.
 - Do not hand-edit `Source/*.lyn.event`. `lynjump-protector.sh` regenerates the `PROTECT` lines from the `ORG $...` lines on every `make` (`Tools/scripts/lynjump-protector.sh:9-30`).

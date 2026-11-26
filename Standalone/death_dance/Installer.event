@@ -1,5 +1,4 @@
 #define FE8U_UnitDrop              $18370
-#define FE8U_StandaloneFreeSpace   $1000000
 
 PUSH
 ORG FE8U_UnitDrop
@@ -7,6 +6,11 @@ ORG FE8U_UnitDrop
     PROTECT FE8U_UnitDrop FE8U_UnitDrop + 0x8 // UnitDrop hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_death_dance:
 #include "Source/UnitDrop_DeathDance.lyn.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // UnitDrop_DeathDance body
+PROTECT StandaloneBody_death_dance CURRENTOFFSET // UnitDrop_DeathDance body

@@ -19,7 +19,6 @@
 #define FE8U_gStatScreenDrawCallTable       $205B24 // DisplayPage0, DisplayPage1, DisplayPage2
 #define FE8U_gConvoyMenuItems                $59C350 // "Your inventory is full" menus (0x24 bytes a row)
 #define FE8U_gSendToConvoyMenuItems          $59C44C
-#define FE8U_StandaloneFreeSpace             $1000000
 
 #define AccessorySlotHook(addr, func) "PUSH; ORG addr; jumpToHack(func); PROTECT addr addr + 0x8; POP"
 
@@ -142,7 +141,12 @@ PROTECT FE8U_gConvoyMenuItems FE8U_gConvoyMenuItems + 0x24 * 5
 PROTECT FE8U_gSendToConvoyMenuItems FE8U_gSendToConvoyMenuItems + 0x24 * 5
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_accessory_slot:
 #include "Source/AccessorySlot.lyn.event"
 #include "AccessoryItems.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // body + item list
+PROTECT StandaloneBody_accessory_slot CURRENTOFFSET // body + item list

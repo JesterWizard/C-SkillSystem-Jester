@@ -9,7 +9,6 @@
 #define FE8U_GetUnitBestWRankType             $318B4
 #define FE8U_DisplayWeaponExp                 $87788
 #define FE8U_DisplayPage2                     $8784C
-#define FE8U_StandaloneFreeSpace              $1000000
 
 PUSH
 ORG FE8U_CanUnitUseWeapon
@@ -77,7 +76,12 @@ ORG FE8U_DisplayPage2
     PROTECT FE8U_DisplayPage2 FE8U_DisplayPage2 + 0x8
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_dynamic_weapon_slots:
 #include "Source/DynamicWeaponSlots.lyn.event"
 
 ALIGN 4
@@ -88,4 +92,4 @@ ALIGN 4
 gpClassWeaponSlotConf:
 POIN gClassWeaponSlotConf
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET
+PROTECT StandaloneBody_dynamic_weapon_slots CURRENTOFFSET

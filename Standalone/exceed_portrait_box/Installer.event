@@ -9,7 +9,6 @@
 #define FE8U_Face_OnIdle                $55BC
 #define FE8U_PutFace80x72_Standard      $5B78
 #define FE8U_PutFace80x72_Core          $5CA4
-#define FE8U_StandaloneFreeSpace        $1000000
 
 // A 16-byte hook for functions with four or more arguments, which
 // jumpToHack can't take (it uses r3).  bx pc; nop; ldr r12, [pc]; bx r12.
@@ -27,9 +26,14 @@ ORG FE8U_PutFace80x72_Core
     PROTECT FE8U_PutFace80x72_Core FE8U_PutFace80x72_Core + 0x10 // PutFace80x72_Core
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_exceed_portrait_box:
 
 ALIGN 4
 #include "Source/ExceedPortraitBox.lyn.event"
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // exceed_portrait_box body
+PROTECT StandaloneBody_exceed_portrait_box CURRENTOFFSET // exceed_portrait_box body

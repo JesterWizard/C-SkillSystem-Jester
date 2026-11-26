@@ -5,7 +5,6 @@
 #define FE8U_GameControl_EarlyStartUIPtr $591710 // gProcScr_GameControl: PROC_START_CHILD_BLOCKING(ProcScr_GameEarlyStartUI)
 #define FE8U_GetStringFromIndex          $A240
 #define FE8U_GetStringFromIndexInBuffer  $A280
-#define FE8U_StandaloneFreeSpace         $1000000
 
 PUSH
 ORG FE8U_GameControl_EarlyStartUIPtr
@@ -22,7 +21,12 @@ ORG FE8U_GetStringFromIndexInBuffer
 #endif
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_language_select:
 #include "Source/LanguageSelect.lyn.event"
 
 ALIGN 4
@@ -30,4 +34,4 @@ Img_LanguageSelectFlags:
     #incbin "Gfx/Img_LanguageSelectFlags.dmp" // Png2Dmp LZ77 (VRAM-safe)
 
 #include "LanguageText.event"
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // LanguageSelect body + flags + text offsets
+PROTECT StandaloneBody_language_select CURRENTOFFSET // LanguageSelect body + flags + text offsets

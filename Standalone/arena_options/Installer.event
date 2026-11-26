@@ -31,7 +31,6 @@
 #define FE8U_ArenaCommandEffect       $24144
 #define FE8U_ArenaGenerateBaseWeapons $31B70
 #define FE8U_StartArenaScreen         $B576C
-#define FE8U_StandaloneFreeSpace      $1000000
 
 #ifdef ARENA_UPGRADED_WEAPONS
 PUSH
@@ -60,7 +59,12 @@ ORG FE8U_StartArenaScreen
 POP
 #endif
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_arena_options:
 #include "Source/ArenaOptions.lyn.event"
 
 ALIGN 4
@@ -106,4 +110,4 @@ ArenaRosterEntry(0x00, 0x19, 5, 2, 0x2D, 460, 0x2D)  // Archer, Iron Bow; prize 
 ArenaRosterEntry(0x00, 0x4E, 5, 0, 0x14, 440, 0)     // Soldier, Iron Lance; 2x wager
 ArenaRosterEntry(0x00, 0x07, 5, 0, 0x14, 440, 0)     // Paladin, Iron Lance; 2x wager
 
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ArenaOptions body + config + tables
+PROTECT StandaloneBody_arena_options CURRENTOFFSET // ArenaOptions body + config + tables

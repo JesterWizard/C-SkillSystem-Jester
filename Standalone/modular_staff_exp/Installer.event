@@ -1,5 +1,4 @@
 #define FE8U_GetBattleUnitStaffExp $2C638
-#define FE8U_StandaloneFreeSpace   $1000000
 
 /* Vanilla FE8U staff item IDs. */
 #define STAFF_HEAL    0x4B
@@ -29,7 +28,12 @@ ORG FE8U_GetBattleUnitStaffExp
     PROTECT FE8U_GetBattleUnitStaffExp FE8U_GetBattleUnitStaffExp + 0x8 // GetBattleUnitStaffExp hook
 POP
 
-ORG FE8U_StandaloneFreeSpace
+// Free space: the body goes on from where this file starts. FEBuilder's Insert EA
+// starts it in free space it finds in the ROM. With Event Assembler, ORG to free
+// space before including this file (see README.md).
+ASSERT CURRENTOFFSET - 1 // fails if nothing set free space: ORG to free space before including this file
+ALIGN 4
+StandaloneBody_modular_staff_exp:
 #include "Source/ModularStaffExp.lyn.event"
 
 /* Edit without recompiling C. Staves not listed use the vanilla formula. */
@@ -54,4 +58,4 @@ StaffExp(STAFF_LATONA,  100)
 StaffExpEnd
 
 ALIGN 4
-PROTECT FE8U_StandaloneFreeSpace CURRENTOFFSET // ModularStaffExp body + table
+PROTECT StandaloneBody_modular_staff_exp CURRENTOFFSET // ModularStaffExp body + table

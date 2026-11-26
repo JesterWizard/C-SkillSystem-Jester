@@ -109,7 +109,7 @@ inventory by hand, or a class change took its lock away) keeps it and can still 
 2. Edit `AccessoryItems.event`.
 3. Open a clean FE8U (USA) ROM, **Advanced Editors → Insert EA →** `Installer.event` → **Load Script**.
 
-No compile needed. To change the list later, insert again on the same ROM.
+No compile needed. To change the list later, insert again on the same ROM: Insert EA puts the new copy in new free space and the hooks point at it, and the old copy (about 4.1 KB) stays unused.
 
 ### Event Assembler
 
@@ -117,7 +117,9 @@ From a copy of a clean `fe8.gba`, with this folder as the working directory and 
 `Extensions/Hack Installation.txt` included (FEBuilder includes them itself):
 
 ```bash
-ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-accessory.gba
+# ORG: where the code goes. $1000000 is free on a clean ROM; in an edited ROM, use free space.
+printf 'ORG $1000000\n#include "Installer.event"\n' > _install.event
+ColorzCore A FE8 -input:_install.event -output:/path/to/fe8-accessory.gba
 ```
 
 ## Files
@@ -132,7 +134,7 @@ ColorzCore A FE8 -input:Installer.event -output:/path/to/fe8-accessory.gba
 
 ## Hooks and free space
 
-Body and item lists at **`$1000000`** (about 4.1 KB).
+Body and item lists (about 4.1 KB) in the free space Insert EA picks, or after your `ORG` (see [Free space](../../Standalone/README.md#free-space)).
 
 | Address | Vanilla function | Change |
 |---------|------------------|--------|
@@ -170,7 +172,6 @@ Each `jumpToHack` hook overwrites 8 bytes.
 - Patches that already add held items' stat bonuses: an accessory's bonus would count twice.
 - Patches that redraw the stat screen's item page (they replace `DisplayPage1` or its table entry): the last one
   inserted wins. With such a patch, set `AccessorySlotBar` to `0` or insert this patch after it.
-- Other patches placed at `$1000000`: move `ORG FE8U_StandaloneFreeSpace` in `Installer.event` to free space of your own.
 
 ## Testing
 
